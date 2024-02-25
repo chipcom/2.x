@@ -23,7 +23,7 @@ Function test_mkb_10()
 
   Return Nil
 
-// 07.12.23 инициализация всех файлов инф.сопровождения по диспансерному наблюдению
+// 01.02.24 инициализация всех файлов инф.сопровождения по диспансерному наблюдению
 Function f_init_d01()
 
   Local mo_dnab := { ; // диспансерное наблюдение
@@ -43,7 +43,8 @@ Function f_init_d01()
   { "PEREHOD4", "N", 1, 0 }, ;  // переход 2023 начало
   { "PEREHOD5", "N", 1, 0 }, ;  // переход 2023 Полный
   { "PEREHOD6", "N", 1, 0 },;   // переход 2024
-  { "PEREHOD7", "N", 1, 0 };    // переход 2024 диагнозы Е10
+  { "PEREHOD7", "N", 1, 0 },;   // переход 2024 диагнозы Е10
+  { "PEREHOD8", "N", 1, 0 };   // переход 2024 - Дополнительное письмо в 01.2024 
   }
   Local mo_d01 := { ; // отсылаемые файлы D01
   { "KOD",         "N", 6, 0 }, ; // код реестра (номер записи)
@@ -65,15 +66,17 @@ Function f_init_d01()
   { "D01_ZAP",  "N", 6, 0 }, ; // номер позиции записи в реестре;"ZAP" в D01
   { "ID_PAC",   "C", 36, 0 }, ; // GUID пациента в D01 (создается при добавлении записи)
   { "MESTO",    "N", 1, 0 }, ; // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
-  { "OPLATA",   "N", 1, 0 };  // тип оплаты: сначала 0, затем из ТФОМС 1,2,3,4
+  { "OPLATA",   "N", 1, 0 };  // тип оплаты: сначала 0, затем из ТФОМС 1,2,3,4 
   }
-  Local mo_d01d := { ; // список диагнозов пациентов
+  Local mo_d01d := { ; // список диагнозов пациентов в реестрах
   { "KOD_D",    "N", 6, 0 }, ; // код (номер записи) по файлу "mo_d01k"
   { "PRVS",     "N", 4, 0 }, ; // Специальность врача по справочнику V021
-  { "KOD_DIAG","C", 5, 0 }, ; // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
-  { "N_DATA","D", 8, 0 }, ; // дата начала диспансерного наблюдения
+  { "KOD_DIAG","C", 5, 0 }, ;  // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
+  { "N_DATA","D", 8, 0 }, ;    // дата начала диспансерного наблюдения
   { "NEXT_DATA", "D", 8, 0 }, ; // дата явки с целью диспансерного наблюдения
-  { "FREQUENCY", "N", 2, 0 };  // количество месяцев в течение которых предполагается одна явка пациента
+  { "FREQUENCY", "N", 2, 0 },;  // количество месяцев в течение которых предполагается одна явка пациента
+  { "KOD_N",    "N", 6, 0 }, ; // код (номер записи) по файлу "mo_dnab"
+  { "OPLATA",   "N", 1, 0 };   // тип оплаты: сначала 0, затем из ТФОМС 1,2,3,4  - первично капируем из mo_d01k 
   }
   Local mo_d01e := { ; // список ошибок в реестрах будущих диспансеризаций
   { "REESTR",   "N", 6, 0 }, ; // код реестра;по файлу "mo_d01"
@@ -95,18 +98,73 @@ Function disp_nabludenie( k )
   Static S_sem := "disp_nabludenie"
   Static si1 := 2, si2 := 1, si3 := 2, si4 := 1, si5 := 1, si6 := 1
   Local mas_pmt, mas_msg, mas_fun, j, buf, fl_umer := .f., zaplatka_D01 := .f., ;
-    zaplatka_D02 := .f., zaplatka_D07 := .f.
+        zaplatka_D02 := .f., zaplatka_D07 := .f., zaplatka_D08 := .f.,  zaplatka_D_OPL := .f.,;
+        zaplatka_D09 := .f.   
 
   Default k To 1
 
   Do Case
   Case k == 1
     // временное начало
+    r_use( dir_server + "mo_d01d" )
+    If FieldNum( "OPLATA" ) == 0 //
+      zaplatka_D_OPL := .T.
+    endif
+    Close databases
+    //
     r_use( dir_server + "mo_dnab" )
     If FieldNum( "PEREHOD7" ) == 0 //Диагнозы E10
       zaplatka_D07 := .T.
     endif
- 
+    If FieldNum( "PEREHOD8" ) == 0 //Дополнительное письмо в 01.2024
+      zaplatka_D08 := .T.
+    endif
+    If FieldNum( "PEREHOD9" ) == 0 //Дополнительное письмо в 01.2024
+      zaplatka_D09 := .T.
+    endif
+    //
+ /*   
+    if zaplatka_D08 
+      waitstatus( "Ждите! Обрабатывается список по диспансерному наблюдению на 2024 год" )
+      f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
+      r_use( dir_server + "mo_D01",,   "D01" )  //реестры
+      r_use( dir_server + "mo_D01K",,  "D01K" ) // пациенты в реестрах
+      index on str(reestr,6)+str(kod_k,7) to (cur_dir +"tmp_D01")
+      Use ( dir_server + "mo_dnab" ) New Alias DN
+      Go Top
+      Do While !Eof()
+        updatestatus()
+        If dn->n_data > stod("20231201") 
+          dn->n_data := stod("20231101") // ставлю от фонаря
+        Endif
+        //
+        if dn->next_data < stod("20240201") 
+          select D01
+          go top
+          do while !eof()
+            if D01->NYEAR == 2023
+              select D01K
+              find (str(d01->kod,6)+str(dn->kod_k,7))  
+              if found()     
+                if d01k->OPLATA == 1 
+                  //принят  
+                else // все другие варианты
+                  dn->next_data := stod("20240201") // ставлю от фонаря
+                endif
+              endif 
+            endif
+            select D01
+            skip 
+          enddo
+        endif  
+        select DN 
+        Skip
+      Enddo
+      Commit
+    endif
+ */   
+    //
+/*    
     If FieldNum( "PEREHOD6" ) == 0
       Close databases
       If !g_slock( S_sem )
@@ -318,7 +376,8 @@ Function disp_nabludenie( k )
       rest_box( buf )
       g_sunlock( S_sem )
     Endif
-
+*/
+/*
     If zaplatka_D07  //Диагнозы E10
       Close databases
       If !g_slock( S_sem )
@@ -475,9 +534,11 @@ Function disp_nabludenie( k )
       rest_box( buf )
       g_sunlock( S_sem )
     Endif
-  
+
+    */
     Close databases
     Private mdate_r, M1VZROS_REB
+    /*
     If fl_umer
       If !g_slock( S_sem )
         Return func_error( 4, "Доступ в данный режим пока запрещён" )
@@ -502,11 +563,12 @@ Function disp_nabludenie( k )
           Elseif !( _kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] )
             //
           Endif
-         /* if !fl
-            mdate_r := _kart->date_r ; M1VZROS_REB := _kart->VZROS_REB
-            fv_date_r(sys_date) // переопределение M1VZROS_REB
-            fl := (M1VZROS_REB > 0)
-          endif*/
+         // if !fl
+         //   mdate_r := _kart->date_r ; M1VZROS_REB := _kart->VZROS_REB
+         //   fv_date_r(sys_date) // переопределение M1VZROS_REB
+         //   fl := (M1VZROS_REB > 0)
+         // endif
+
           If fl
             Select DN
             // dn->kod_k := 0
@@ -524,7 +586,67 @@ Function disp_nabludenie( k )
       rest_box( buf )
       g_sunlock( S_sem )
     Endif
+*/
+    if zaplatka_D_OPL
+      If !g_slock( S_sem )
+        Return func_error( 4, "Доступ в данный режим пока запрещён" )
+      Endif
+      buf := save_maxrow()
+      waitstatus( "Переход на диспансерное наблюдению на 2024 год" )
+      f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
+      Use ( dir_server + "mo_dnab" ) New Alias DN
+      Index On Str( KOD_K, 7 ) + KOD_DIAG to ( dir_server + "mo_dnab" )
+      //
+      g_use( dir_server + "mo_d01d" ,,"mo_d01d",.T.,.T.) // список диагнозов пациентов
+      Index On Str( kod_d, 7 ) to ( cur_dir + "tmp_kodd" ) 
+      //{ "KOD_D",    "N", 6, 0 }, ; // код (номер записи) по файлу "mo_d01k"
+      r_use( dir_server + "mo_d01k"  ) // список пациентов в реестрах
+      r_use( dir_server + "mo_d01"  ) // список реестров
+      //
+      select MO_D01
+      do while !eof()
+        if year(MO_D01->dschet) > 2022
+          select mo_D01K
+          go Top
+          do while !eof()
+            if MO_D01K->reestr == MO_D01->kod
+              // вышли на пациента из реестра
+              select MO_D01D
+              find (str(mo_d01k->(recno()),7))
+              do while mo_d01d->kod_d == mo_d01k->(recno()) .and. !eof()
+                // идем по диагнозам данного пациента
+                t_rec := 0
+                select DN 
+                find(Str( mo_d01k->kod_k, 7 ) + mo_d01d->KOD_DIAG )
+                if found()
+                  t_rec := dn->(recno())
+                endif 
+                select MO_D01D
+                g_rlock( forever )
+                mo_d01d->oplata := mo_d01k->oplata
+                mo_d01d->kod_n  := t_rec
+                Unlock
+                skip  // диагнозы
+              enddo    
+            endif     
+            select MO_D01K // люди
+            skip  
+          enddo
+        Endif
+        select mo_d01 // реестры
+        skip
+      enddo    
+      Close databases
+      rest_box( buf )
+      g_sunlock( S_sem )
+    endif  
+
+   /* if zaplatka_D09 
+      
+    endif  
+  */  
     // временный конец
+    //
     mas_pmt := { "~Работа с файлами обмена D01", ;
       "~Информация по дисп.наблюдению" }
     mas_msg := { "Создание файла обмена D01... с ещё не отправленными пациентами (диагнозами)", ;
@@ -593,10 +715,12 @@ Function disp_nabludenie( k )
       "Были л/у у пациентов с ~СС ДН" }
     mas_msg := { "Список пациентов, по которым не было л/у с диспансерным наблюдением", ;
       "Список пациентов, по которым были л/у с диспансерным наблюдением", ;
-      " Были л/у у пациентов с СС ДН " }
+      " Были л/у у пациентов с СС ДН " ,;
+       "Список пациентов, c ОНКО диагнозами" }
     mas_fun := { "disp_nabludenie(61)", ;
       "disp_nabludenie(62)", ;
-      "disp_nabludenie(63)" }
+      "disp_nabludenie(63)", ;
+      "disp_nabludenie(64)"  }
     popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
   Case k == 61
     f_inf_disp_nabl( 1 )
@@ -604,6 +728,8 @@ Function disp_nabludenie( k )
     f_inf_disp_nabl( 2 )
   Case k == 63
     f_inf_disp_nabl( 3 )
+  Case k == 63
+    //f_inf_disp_nabl2( 4 ) 
   Endcase
   If k > 10
     j := Int( Val( Right( lstr( k ), 1 ) ) )
@@ -672,7 +798,7 @@ Function f_inf_dop_disp_nabl()
   If !( ValType( parr_m ) == "A" )
     parr_m := Array( 8 )
     parr_m[ 5 ] := 0d20220101    // ЮЮ
-    parr_m[ 6 ] := 0d20231231    // ЮЮ
+    parr_m[ 6 ] := 0d20241231    // ЮЮ
   Endif
   stat_msg( "Поиск информации..." )
   fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
@@ -1001,8 +1127,8 @@ Function f3vvodp_disp_nabl( nKey, oBrow, regim )
             fl := func_error( 4, "Не введена дата следующей явки" )
           Elseif mN_DATA >= mNEXT_DATA
             fl := func_error( 4, "Дата следующей явки меньше даты начала диспансерного наблюдения" )
-          Elseif mNEXT_DATA <= 0d20240101  // ЮЮ
-            fl := func_error( 4, "Дата следующей явки должна быть не ранее 1 января" )
+          Elseif mNEXT_DATA <= 0d20240201  // ЮЮ
+            fl := func_error( 4, "Дата следующей явки должна быть не ранее 1 ФЕВРАЛЯ" ) // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! временно
           Endif
           If !fl
             Loop
@@ -1058,7 +1184,7 @@ Function f_inf_disp_nabl( par )
   // 1 -  "~Не было л/у с диспансерным наблюдением",;
   // 2 -  "~Были л/у с диспансерным наблюдением"
   // 3 -    Сердечники
-  Local arr, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir + "disp_nabl" + stxt, ;
+   Local arr, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir + "disp_nabl" + stxt, ;
     ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := "___DN" + sdbf, arr_fl, fl_prikrep := Space( 6 ), kol_kartotek := 0, ;
     t_kartotek := 0
   stat_msg( "Поиск информации..." )
@@ -1074,7 +1200,7 @@ Function f_inf_disp_nabl( par )
   Elseif par == 2
     s := "Список пациентов, состоящих на ДН, присутствуют л/у с диспансерным наблюдением"
   Else
-    s := "Список пациентов, состоящих на ДН c XXX, присутствуют л/у с диспансерным наблюдением"
+    s := "Список пациентов, состоящих на ДН c ССО, присутствуют л/у с диспансерным наблюдением"
   Endif
   add_string( "" )
   add_string( Center( s, sh ) )
@@ -1119,13 +1245,11 @@ Function f_inf_disp_nabl( par )
           If f_is_diag_dn_serdce( dd->kod_diag,,, .f. )
             AAdd( arr, dd->kod_diag )
             AAdd( arr_fl, .f. )
-            // my_debug(,dd->kod_diag)
           Endif
         Else
           AAdd( arr, dd->kod_diag )
           AAdd( arr_fl, .f. )
         Endif
-        // my_debug(,print_array(arr))
       Endif
       Skip
     Enddo
@@ -1136,13 +1260,11 @@ Function f_inf_disp_nabl( par )
       fl_prikrep := Space( 6 )
       Select KART2
       Goto kart->kod
-      // my_debug(,"KART2 == "+kart2->mo_pr+" "+glob_mo[_MO_KOD_TFOMS] )
       If kart2->mo_pr != glob_mo[ _MO_KOD_TFOMS ]
         fl_prikrep := kart2->mo_pr
       Endif
       If Left( kart2->PC2, 1 ) == "1"
         fl_prikrep := " УМЕР "
-        // my_debug(,kart->kod )
       Endif
       Select HUMAN
       find ( Str( kart->kod, 7 ) )
@@ -1238,6 +1360,8 @@ Function f_inf_disp_nabl( par )
   viewtext( name_file,,,, ( sh > 80 ),,, 3 )
 
   Return Nil
+
+
 
 
 // 09.12.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
@@ -1375,7 +1499,7 @@ Function f1_vvod_disp_nabl( nKey, oBrow, regim )
       Private gl_area := { 1, 0, MaxRow() -1, 79, 0 }, ;
         mKOD_DIAG := iif( nKey == K_INS, Space( 5 ), dn->kod_diag ), ;
         mN_DATA := iif( nKey == K_INS, sys_date - 1, dn->n_data ), ;
-        mNEXT_DATA := iif( nKey == K_INS, 0d20240101, dn->next_data ), ; // ЮЮ
+        mNEXT_DATA := iif( nKey == K_INS, 0d20240201, dn->next_data ), ; // ЮЮ - ВРЕМЕННО
       mfrequency := iif( nKey == K_INS, 3, dn->frequency ), ;
         mMESTO, m1mesto := iif( nKey == K_INS, 0, dn->mesto )
       mmesto := inieditspr( A__MENUVERT, mm_dom, m1mesto )
@@ -1421,7 +1545,7 @@ Function f1_vvod_disp_nabl( nKey, oBrow, regim )
             fl := func_error( 4, "Не введена дата следующей явки" )
           Elseif mN_DATA >= mNEXT_DATA
             fl := func_error( 4, "Дата следующей явки меньше даты начала диспансерного наблюдения" )
-          Elseif mNEXT_DATA <= 0d20240101  // ЮЮ
+          Elseif mNEXT_DATA <= 0d20240201  // ЮЮ - временно
             fl := func_error( 4, "Дата следующей явки должна быть не ранее 1 января" )
           Endif
           If !fl
@@ -1507,7 +1631,8 @@ Function inf_disp_nabl()
   Local buf := SaveScreen(), r := 12, sh, HH := 60, name_file := cur_dir + "info_dn" + stxt, ru := 0, ;
     rd := 0, rd1 := 0, rpr := 0, ro_f := .f., ro := 0, rod := 0
   Local mas_tip_dz := { 0, 0, 0, 0, 0 }, mas_tip_pc := { 0, 0, 0, 0, 0, 0 }, fl_1 := 0, fl_2 := 0, fl_3 := 0, fl_4 := 0, ;
-    fl_5 := 0, fl_31 := 0, fl_32 := 0, fl_33 := 0, fl_umer := .t.
+    fl_5 := 0, fl_31 := 0, fl_32 := 0, fl_33 := 0, fl_umer := .t., otvet := "      ", fl_prinet := .F.,;
+    mas_tip_prin := { 0, 0, 0, 0, 0, 0 } , t_mo_prik := "", iii := 0, iii1 := 0, iii2 := 0 
 
   SetColor( cDataCGet )
   myclear( r )
@@ -1590,11 +1715,11 @@ Function inf_disp_nabl()
     sdiag := mkod_diag
     //
     arr_title := { ;
-      "──────────────────────────────────────┬──────────┬──────┬──┬─────┬─────┬────────┬────────┬────────────────", ;
-      "                                      │   Дата   │  МО  │Уч│ Таб.│Диаг-│Дата по-│Дата по-│_Следующий_визит", ;
-      "  ФИО пациента                        │ рождения │прик-я│ас│номер│ноз  │следнего│становки│        │через N", ;
-      "                                      │   Дата   │      │то│врача│     │   ЛУ   │на учёт │  дата  │месяцев", ;
-      "──────────────────────────────────────┴──────────┴──────┴──┴─────┴─────┴────────┴────────┴────────┴───────" }
+      "──────┬──────────────────────────────────────┬──────────┬──────┬──┬─────┬─────┬────────┬────────┬────────────────", ;
+      " Ответ│                                      │   Дата   │  МО  │Уч│ Таб.│Диаг-│Дата по-│Дата по-│_Следующий_визит", ;
+      "      │        ФИО пациента                  │ рождения │прик-я│ас│номер│ноз  │следнего│становки│        │через N", ;
+      " ТФОМС│                                      │   Дата   │      │то│врача│     │   ЛУ   │на учёт │  дата  │месяцев", ;
+      "──────┴──────────────────────────────────────┴──────────┴──────┴──┴─────┴─────┴────────┴────────┴────────┴───────" }
     sh := Len( arr_title[ 1 ] )
     mywait()
     fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
@@ -1602,7 +1727,12 @@ Function inf_disp_nabl()
     add_string( Center( "Список пациентов, состоящих на диспансерном учёте", sh ) )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
-    r_use( dir_server + "mo_pers",, "PERS" )
+    //r_use( dir_server + "mo_D01",,   "D01" )  //реестры
+    //r_use( dir_server + "mo_D01K",,  "D01K" ) // пациенты в реестрах
+    //index on str(reestr,6)+str(kod_k,7) to (cur_dir +"tmp_D01")
+    r_use( dir_server + "mo_D01D",,  "D01D" ) // диагнозы у пациентов   
+    index on str(kod_n,6)+str(kod_d,7) to (cur_dir +"tmp_D01") DESCENDING
+    r_use( dir_server + "mo_pers",,  "PERS" )
     r_use( dir_server + "kartote2",, "KART2" )
     r_use( dir_server + "kartote_",, "KART_" )
     r_use( dir_server + "kartotek",, "KART" )
@@ -1612,13 +1742,15 @@ Function inf_disp_nabl()
       For kart->kod > 0
     old := r := rs := ro := 0
     sadres := ""
+    fl_umer := .t.
     waitstatus( "Ждите! Составляется список, состоящих на диспансерном учёте" )
     Go Top
-    Do While !Eof()
+    Do While !Eof()  // ЦИКЛ по файлу со всеми ДН
       updatestatus()
+      otvet := "       "
       ro_f := .f.
       fl := .t.
-      fl_umer := .t.
+      //fl_umer := .t.
       If Between( dn->n_data, parr_m[ 5 ], parr_m[ 6 ] )
         fl := .t.
       Else
@@ -1650,9 +1782,9 @@ Function inf_disp_nabl()
       If fl .and. ( 1 == fvdn_date_r( sys_date, kart->date_r ) .or. 2 == fvdn_date_r( sys_date, kart->date_r ) )
         fl := .f.
       Endif
-      //
-      If fl
-        If old == dn->kod_k
+     //
+      If fl 
+        If old == dn->kod_k // не первая строка у пациента
           If !Empty( sadres )
             s := PadR( "  " + sadres, 38 + 1 + 10 + 3 + 7 )
             sadres := ""
@@ -1660,6 +1792,7 @@ Function inf_disp_nabl()
             s := Space( 38 ) + Space( 1 + 10 + 3 + 7 )
           Endif
         Else
+          fl_prinet := .F. // по умолчанию - не принят
           If !Empty( sadres )
             add_string( "  " + sadres )
           Endif
@@ -1674,6 +1807,7 @@ Function inf_disp_nabl()
               ++rpr
               ro_f := .t.
             Endif
+            t_mo_prik := kart2->mo_pr
           Else
             s := s + Space( 7 )
           Endif
@@ -1684,10 +1818,8 @@ Function inf_disp_nabl()
             fl_umer := .f.  // отметка пациент умер
           Else
             s := s + Str( kart->uchast, 3 )
+            fl_umer := .T.  // отметка пациент умер
           Endif
-       /* if !empty(kart2->mo_pr)
-
-        endif*/
           If m1adres == 1
             sadres := ret_okato_ulica( kart->adres, kart_->okatog, 0, 1 )
           Endif
@@ -1706,6 +1838,29 @@ Function inf_disp_nabl()
         If f_is_diag_dn_neobez( dn->kod_diag )
           s += " **"
         Endif
+        //
+        t_vr := select()
+        select D01D
+        //r_use( dir_server + "mo_D01D",,  "D01D" ) // диагнозы у пациентов   
+        //index on str(kod_n,6)+str(kod_d,7) to (cur_dir +"tmp_D01") DESCENDING
+        fl_prinet := .F.
+        otvet  :=  "       "
+        find(str(dn->(recno()),6))
+        if found()
+          if d01d->OPLATA == 1 
+             fl_prinet := .T.
+             otvet  := "принят " 
+          elseif d01d->OPLATA == 0    
+             otvet  := "       "
+          else 
+             otvet  := "ОШИБКА " 
+          endif
+        else
+          otvet  := "       "
+        endif  
+        select(t_vr)
+        s := otvet + s
+        //
         If dn->next_data < 0d20240101  // ЮЮ
           ++rd
         Endif
@@ -1715,14 +1870,13 @@ Function inf_disp_nabl()
         If verify_ff( HH, .t., sh )
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
-       // my_debug(,dn->(recno()))
-       // my_debug(,m1umer)
-       // my_debug(,fl_umer)
         if m1umer == 1
-          add_string( s )
+          //add_string( s )
+          //++iii1 
         else
           if fl_umer
             add_string( s )
+            ++iii1 
           endif 
         endif  
         old := dn->kod_k
@@ -1730,59 +1884,70 @@ Function inf_disp_nabl()
         If !ro_f
           ++rod
         Endif
-        // my_debug(,dn->(recno()))
-        // Выборки по отдельным группам ДИАГНОЗОВ
-        If !Empty( kart2->mo_pr )
-          If glob_mo[ _MO_KOD_TFOMS ] == kart2->mo_pr .and. dn->next_data > 0d20240101
-            If fl_33 != dn->kod_k
-              mas_tip_pc[ 6 ] := mas_tip_pc[ 6 ] + 1
-              fl_33  := dn->kod_k
-            Endif
-            // только данное МО и ЖИВЫЕ
-            If fl_3 != dn->kod_k
-              mas_tip_pc[ 3 ] := mas_tip_pc[ 3 ] + 1
-              fl_3 := dn->kod_k
-            Endif
-            mas_tip_dz[ 3 ] := mas_tip_dz[ 3 ] + 1
+        // Выборки по отдельным группам ДИАГНОЗОВ 
+        // УМЕРШИХ  !!! НЕ СЧИТАЕМ
+        // только данное МО и ЖИВЫЕ
+        If fl_umer 
+          //my_debug(,str(dn->(recno()))+" -----  "+ t_mo_prik + " --- "+ dtos(dn->next_data) )
+          //my_debug(,fl_prinet)
+          If glob_mo[ _MO_KOD_TFOMS ] ==  t_mo_prik  .and. dn->next_data >= 0d20240101
+            //++iii
+            //my_debug(,iii)
+            // диагнозов по приказу №168н
+            if f_is_diag_dn( dn->kod_diag,,, .f. )     
+              mas_tip_dz[ 3 ] := mas_tip_dz[ 3 ] + 1
+              if fl_prinet 
+                mas_tip_prin[ 3 ] := mas_tip_prin[ 3 ] + 1
+              endif  
+              If fl_3 != dn->kod_k
+                mas_tip_pc[ 3 ] := mas_tip_pc[ 3 ] + 1
+                fl_3 := dn->kod_k
+              Endif
+            endif   
+            // диагнозов МКБ-10 E10
             If PadR( dn->kod_diag, 3 ) == "E10"
-              mas_tip_dz[ 4 ] := mas_tip_dz[ 4 ] + 1
-              mas_tip_dz[ 3 ] := mas_tip_dz[ 3 ] -1
+              mas_tip_dz[ 4 ] := mas_tip_dz[ 4 ] + 1  
+              if fl_prinet 
+                mas_tip_prin[ 4 ] := mas_tip_prin[ 4 ] + 1
+              endif  
               If fl_4 != dn->kod_k
                 mas_tip_pc[ 4 ] := mas_tip_pc[ 4 ] + 1
                 fl_4 := dn->kod_k
               Endif
-              If fl_31 != dn->kod_k
-                mas_tip_pc[ 3 ] := mas_tip_pc[ 3 ] -1
-                fl_31 := dn->kod_k
-              Endif
             Endif
+            // диагнозов МКБ-10 E11
             If PadR( dn->kod_diag, 3 ) == "E11"
               mas_tip_dz[ 5 ] := mas_tip_dz[ 5 ] + 1
+              if fl_prinet 
+                mas_tip_prin[ 5 ] := mas_tip_prin[ 5 ] + 1
+              endif  
               If fl_5 != dn->kod_k
                 mas_tip_pc[ 5 ] := mas_tip_pc[ 5 ] + 1
                 fl_5 := dn->kod_k
               Endif
             Endif
-            // для ускорения
-            If PadR( dn->kod_diag, 3 ) == "E78" .or. PadR( dn->kod_diag, 1 ) == "I" .or. PadR( dn->kod_diag, 1 ) == "Q" .or. PadR( dn->kod_diag, 1 ) == "Z"
+            // диагнозов БСК
+            //If PadR( dn->kod_diag, 3 ) == "E78" .or. PadR( dn->kod_diag, 1 ) == "I" .or. PadR( dn->kod_diag, 1 ) == "Q" .or. PadR( dn->kod_diag, 1 ) == "Z"
               If f_is_diag_dn_serdce( dn->kod_diag )
-                mas_tip_dz[ 1 ] := mas_tip_dz[ 1 ] + 1
+                mas_tip_dz[ 1 ] := mas_tip_dz[ 1 ] + 1  
+                if fl_prinet 
+                  mas_tip_prin[ 1 ] := mas_tip_prin[ 1 ] + 1
+                endif  
                 If fl_1 != dn->kod_k
                   mas_tip_pc[ 1 ] := mas_tip_pc[ 1 ] + 1
                   fl_1 := dn->kod_k
                 Endif
               Endif
-            Endif
+            //Endif
+            // диагнозов МКБ-10 С00-D09 
             If PadR( dn->kod_diag, 1 ) == "C" .or. PadR( dn->kod_diag, 3 ) == "D09"
-              mas_tip_dz[ 2 ] := mas_tip_dz[ 2 ] + 1
-              mas_tip_dz[ 3 ] := mas_tip_dz[ 3 ] -1
+              mas_tip_dz[ 2 ] := mas_tip_dz[ 2 ] + 1 
+              if fl_prinet 
+                mas_tip_prin[ 2 ] := mas_tip_prin[ 2 ] + 1
+              endif  
               If fl_2 != dn->kod_k
                 mas_tip_pc[ 2 ] := mas_tip_pc[ 2 ] + 1
                 fl_2 := dn->kod_k
-              Endif
-              If fl_32 != dn->kod_k
-                mas_tip_pc[ 3 ] := mas_tip_pc[ 3 ] -1
-                fl_32 := dn->kod_k
               Endif
             Endif
           Endif
@@ -1792,6 +1957,8 @@ Function inf_disp_nabl()
       Select DN
       Skip
     Enddo
+    //my_debug(,iii1)
+    //my_debug(,iii2)
     If !Empty( sadres )
       add_string( "  " + sadres )
     Endif
@@ -1801,13 +1968,13 @@ Function inf_disp_nabl()
       add_string( "=== Итого пациентов - " + lstr( r ) + " чел., итого диагнозов - " + lstr( rs ) + " ===" )
       add_string( "=== из них УМЕРЛО   - " + lstr( ru ) + " чел., в ТФОМС отправлены не будут ===" )
       add_string( "=== пациентов прикрепленных не к нашему МО - " + lstr( rpr ) + " чел. ===" )
-      add_string( "    ТФОМСом вероятно приняты не будут " )
-      add_string( "=== Вероятно будут приняты: пациентов - " + lstr( mas_tip_pc[ 6 ] ) )
-      add_string( "===   диагнозов БСК              - " + PadL( lstr( mas_tip_dz[ 1 ] ), 8 ) + " пациентов - " + lstr( mas_tip_pc[ 1 ] ) )
-      add_string( "===   диагнозов МКБ-10 С00-D09   - " + PadL( lstr( mas_tip_dz[ 2 ] ), 8 ) + " пациентов - " + lstr( mas_tip_pc[ 2 ] ) )
-      add_string( "===   диагнозов по приказу №168н - " + PadL( lstr( mas_tip_dz[ 3 ] ), 8 ) + " пациентов - " + lstr( mas_tip_pc[ 3 ] ) )
-      add_string( "===   диагнозов МКБ-10 E10       - " + PadL( lstr( mas_tip_dz[ 4 ] ), 8 ) + " пациентов - " + lstr( mas_tip_pc[ 4 ] ) )
-      add_string( "===   диагнозов МКБ-10 E11       - " + PadL( lstr( mas_tip_dz[ 5 ] ), 8 ) + " пациентов - " + lstr( mas_tip_pc[ 5 ] ) )
+      add_string( "      ТФОМСом вероятно приняты не будут " )
+      add_string( "===   Вероятно будут приняты: " )
+      add_string( "===   диагнозов БСК              - " + PadL( lstr( mas_tip_dz[ 1 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 1 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 1 ] ),8) )
+      add_string( "===   диагнозов МКБ-10 С00-D09   - " + PadL( lstr( mas_tip_dz[ 2 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 2 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 2 ] ),8) )
+      add_string( "===   диагнозов по приказу №168н - " + PadL( lstr( mas_tip_dz[ 3 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 3 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 3 ] ),8) )
+      add_string( "===   диагнозов МКБ-10 E10       - " + PadL( lstr( mas_tip_dz[ 4 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 4 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 4 ] ),8) )
+      add_string( "===   диагнозов МКБ-10 E11       - " + PadL( lstr( mas_tip_dz[ 5 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 5 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 5 ] ),8) )
       add_string( "** Обоснованность постановки на ДН с такими диагнозами необходимо проверить врачу, т.к. " )
       add_string( "данный диагноз не является строго обязательным для постановки на Диспансерное наблюдение" )
     Endif
@@ -1917,9 +2084,16 @@ Function f_create_d01()
   Enddo
   Commit
 
-
-  dbCreate( cur_dir + "tmp", { { "KOD_K", "N", 7, 0 } } )
+  dbCreate( cur_dir + "tmp", { { "KOD_K", "N", 7, 0 },;
+                               { "KOD_DN", "N", 7, 0 },;
+                               { "KOD_DIAG", "C", 5, 0 },;
+                               { "KOD_T", "N", 7, 0 }  } )
   Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir + "tmp1", { { "KOD_K", "N", 7, 0 },;
+                                { "KOD_DN", "N", 7, 0 },;
+                                { "KOD_DIAG", "C", 5, 0 },;
+                                { "KOD_T", "N", 7, 0 }  } )
+Use ( cur_dir + "tmp1" ) new
   Select DK
   Set Relation To reestr into REES
   Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_d01k" ) For rees->nyear == 2023 // ЮЮ
@@ -1927,24 +2101,32 @@ Function f_create_d01()
   r_use( dir_server + "kartote2",, "KART2" )
   r_use( dir_server + "mo_dnab",, "DN" )
   Set Relation To kod_k into KART
-  Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kod_k, 7 ) to ( cur_dir + "tmp_dn" ) For kart->kod > 0 .and. dn->next_data > 0d20231231  unique
+  Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kod_k, 7 ) to ( cur_dir + "tmp_dn" ) For kart->kod > 0 .and. dn->next_data > 0d20240101 // временно 
+   //unique - переходим - одна запись - один диагноз
   Go Top
   Do While !Eof()
+    //my_debug(,dn->kod_k)
+    //my_debug(,dn->next_data)
+    //my_debug(,dn->kod_diag)
     fl := .t.
     Select DK
     find ( Str( dn->kod_k, 7 ) )
     Do While dk->kod_k == dn->kod_k .and. !Eof()
-      If dk->oplata < 2 // если oplata = 0 (ответ ещё не получен) или oplata = 1 (оплачен)
+      If dk->oplata < 1 // если oplata = 0 (ответ ещё не получен) // или oplata = 1 (оплачен) - оплачен то-же впускаем было 2
         fl := .f.
       Endif
       Skip
+      //my_debug(,"1")
+      //my_debug(,fl)
     Enddo
     // проверяем дату на 24 год
-    If dn->next_data > 0d20231231 .and. dn->next_data < 0d20250101
+    If dn->next_data > 0d20240101 .and. dn->next_data < 0d20250101
       //
     Else
       fl := .f.
     Endif
+    //my_debug(,"2")
+    //my_debug(,fl)
     // еще один контроль по возрасту
     If fl
       If ( 1 == fvdn_date_r( sys_date, kart->date_r ) .or. 2 == fvdn_date_r( sys_date, kart->date_r ) )
@@ -1956,6 +2138,8 @@ Function f_create_d01()
         endif  
       endif  
     Endif
+    //my_debug(,"3")
+    //my_debug(,fl)
     // еще один контороль по смерти
     If fl
       Select KART2
@@ -1964,21 +2148,83 @@ Function f_create_d01()
         fl := .f.
       Endif
     Endif
+    //my_debug(,"4")
+    //my_debug(,fl)
     //
     If fl
       Select TMP
       Append Blank
-      tmp->kod_k := dn->kod_k
+      tmp->kod_k    := dn->kod_k
+      tmp->kod_dn   := dn->(recno())
+      tmp->kod_diag := dn->kod_diag
+      tmp->kod_t    := tmp->(recno())
+      //my_debug(,"ДОБАВЛЕН")
     Endif
     Select DN
     Skip
   Enddo
   kart2->( dbCloseArea() )
-  // подготовка завершена
+//  quit
+  // подготовка завершена в разрезе Пациентов
+  // Очищаем от уже принятых пациентов/диагнозов
+  select TMP
+  Index On Str( kod_dn, 7 ) to ( cur_dir + "tmp_dnn" ) 
+  r_use( dir_server + "mo_d01d" ,,"mo_d01d") // список диагнозов пациентов
+  go Top
+  do while !eof()
+    if year(mo_d01d->next_data) == 2024
+      if mo_d01d->kod_n > 0 .and. mo_d01d->oplata == 1 // принятые
+        select TMP
+        find (str(mo_d01d->kod_n,7)) 
+        if found()
+          delete 
+        endif  
+      endif 
+    endif 
+    select MO_D01D
+    skip
+  enddo
+  // очистим от не нужных
+  select TMP 
+  pack
+  // очищаем от дублей по диагнозу
+  select TMP 
+  Index On Str( kod_k, 7 )+kod_diag to ( cur_dir + "tmp_dnn" ) unique
+  go top
+  do while !eof()
+    If f_is_diag_dn( tmp->kod_diag,,, .f. ) .or. padr(alltrim(tmp->kod_diag),3) == "E10"// только диагнозы из последнего списка от 21 ноября + E10
+      select TMP1
+      append blank
+      tmp1->KOD_K    := tmp->KOD_K
+      tmp1->KOD_DN   := tmp->KOD_DN
+      tmp1->KOD_DIAG := tmp->KOD_DIAG
+      tmp1->KOD_T    := tmp->KOD_T 
+    endif  
+    select TMP
+    skip
+  enddo
+  select TMP 
+  set index to
+  zap
+  select TMP1 
+  Index On Str( kod_t, 7 ) to ( cur_dir + "tmp_dnn" ) 
+  go top
+  do while !eof()
+    select TMP
+    append blank
+    tmp->KOD_K    := tmp1->KOD_K
+    tmp->KOD_DN   := tmp1->KOD_DN
+    tmp->KOD_DIAG := tmp1->KOD_DIAG
+    tmp->KOD_T    := tmp1->KOD_T 
+    select TMP1
+    skip
+  enddo
+  //
+  //
   If tmp->( LastRec() ) == 0
     func_error( 4, "Не обнаружено пациентов, состоящих под дисп.наблюдением, ещё не отправленных в ТФОМС" )
   Else
-    Select DK
+   /* Select DK
     Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_d01k" )
     r_use( dir_server + "mo_pers",, "PERSO" )
     Select DN
@@ -2022,7 +2268,35 @@ Function f_create_d01()
           AAdd( ar2, arr[ i ] )
         Endif
       Next i
-      If Len( ar2 ) > 0
+      */
+    Select DK
+    Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_d01k" )
+    r_use( dir_server + "mo_pers",, "PERSO" )
+    Select DN
+    Set Relation To vrach into PERSO
+    Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_dn" )
+    Select TMP
+    Go Top
+    Do While !Eof()
+      arr := {} ; lmesto := 0
+      Select DN
+      goto (tmp->kod_dn)
+      If dn->next_data > SToD( "20240101" )   // 11.12.2024
+        lspec := ret_prvs_v021( iif( Empty( perso->prvs_new ), perso->prvs, -perso->prvs_new ) )
+        If Empty( dn->next_data ) .or. !Between( dn->next_data, 0d20240101, 0d20250101 ) 
+          tnext_data := 0d20240201  
+        else
+          tnext_data := dn->next_data  
+        Endif
+        If !Between( dn->FREQUENCY, 1, 36 )
+          tFREQUENCY := 3
+        else
+          tFREQUENCY := dn->FREQUENCY
+        Endif
+        If dn->mesto == 1
+          lmesto := 1
+        Endif
+         // 
         Select DK
         addrec( 7 )
         dk->REESTR  := 0                     // код реестра по файлу "mo_d01"
@@ -2032,15 +2306,15 @@ Function f_create_d01()
         dk->MESTO   := lmesto                // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
         dk->OPLATA  := 0                     // тип оплаты: сначала 0, затем из ТФОМС 1,2,3,4
         Select DD
-        For i := 1 To Len( ar2 )
-          addrec( 6 )
-          dd->KOD_D     := dk->( RecNo() ) // код (номер записи) по файлу "mo_d01k"
-          dd->PRVS      := ar2[ i, 1 ]      // Специальность врача по справочнику V021
-          dd->KOD_DIAG  := ar2[ i, 2 ]      // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
-          dd->N_DATA    := ar2[ i, 3 ]      // дата начала диспансерного наблюдения
-          dd->NEXT_DATA := ar2[ i, 4 ]      // дата явки с целью диспансерного наблюдения
-          dd->FREQUENCY := ar2[ i, 5 ]
-        Next i
+        addrec( 6 )
+        dd->KOD_D     := dk->( RecNo() ) // код (номер записи) по файлу "mo_d01k"
+        dd->PRVS      := lspec  //ar2[ i, 1 ]     // Специальность врача по справочнику V021
+        dd->KOD_DIAG  := dn->kod_diag   //ar2[ i, 2 ]      // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
+        dd->N_DATA    := dn->n_data     //ar2[ i, 3 ]      // дата начала диспансерного наблюдения
+        dd->NEXT_DATA := tnext_data  //ar2[ i, 4 ]      // дата явки с целью диспансерного наблюдения
+        dd->FREQUENCY := tFREQUENCY     //ar2[ i, 5 ]
+        dd->KOD_N     := tmp->kod_dn    // kod DISP_NAB
+        dd->oplata    := 0
         If id01 % 500 == 0
           Commit
         Endif
@@ -2051,8 +2325,9 @@ Function f_create_d01()
   Endif
   Close databases
   rest_box( buf )
+  //quit
   //
-  If id01 > 0 .and. f_esc_enter( "создания D01 (" + lstr( id01 ) + " чел.)", .t. )
+  If id01 > 0 .and. f_esc_enter( "создания D01 (" + lstr( id01 ) + " диаг-ов)", .t. ) // ПРАВКА
     mywait()
     inn := 0 ; nsh := 3
     g_use( dir_server + "mo_d01",, "REES" )
@@ -2286,7 +2561,7 @@ Function f1_view_d01( oBrow )
   oColumn := TBColumnNew( "  Дата", {|| date_8( rees->dschet ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( "Кол-во;пациентов", {|| Str( rees->kol, 6 ) } )
+  oColumn := TBColumnNew( "Кол-во;диаг-ов", {|| Str( rees->kol, 6 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
   oColumn := TBColumnNew( " Кол-во; ошибок", {|| iif( rees->kol_err < 0, "в файле", put_val( rees->kol_err, 7 ) ) } )
@@ -2669,13 +2944,14 @@ Function reestr_d02_tmpfile( oXmlDoc, aerr, mname_xml )
     { "_NAME_F",    "C", 26, 0 }, ;
     { "_NAME_FE",   "C", 26, 0 }, ;
     { "KOL",        "N",  6, 0 }, ; // количество пациентов в реестре/файле
-  { "KOL_ERR",    "N",  6, 0 };  // количество пациентов с ошибками в реестре
+    { "KOL_ERR",    "N",  6, 0 };  // количество пациентов с ошибками в реестре
   } )
   dbCreate( cur_dir + "tmp2file", { ;
     { "_N_ZAP",     "N",  6, 0 }, ;
     { "_SMO",       "C",  5, 0 }, ;
     { "_ENP",       "C", 16, 0 }, ;
-    { "_OPLATA",    "N",  1, 0 };
+    { "_OPLATA",    "N",  1, 0 }, ;
+    { "_ERROR",     "N",  3, 0 };   
     } )
   dbCreate( cur_dir + "tmp3file", { ;
     { "_N_ZAP",     "N",  6, 0 }, ;
@@ -2713,6 +2989,7 @@ Function reestr_d02_tmpfile( oXmlDoc, aerr, mname_xml )
           Append Blank
           tmp3->_N_ZAP := tmp2->_N_ZAP
           tmp3->_ERROR := Val( _ar[ j1 ] )
+          tmp2->_ERROR := Val( _ar[ j1 ] ) // получаем последнюю ошибку
         Next
       Endif
     Endcase
@@ -2752,7 +3029,14 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
         AAdd( aerr, "Некорректное значение атрибута SMO: " + tmp2->_SMO )
       Endif
     Elseif Between( tmp2->_OPLATA, 2, 4 )
-      ++ii2
+      if tmp2->_OPLATA == 2 .and. tmp2->_ERROR == 131 // правка 01.02.24
+        g_rlock( forever )
+        tmp2->_OPLATA := 1
+        Unlock
+        ++ii1
+      else  
+        ++ii2
+      endif  
     Else
       AAdd( aerr, "Некорректное значение атрибута RESULT: " + lstr( tmp2->_OPLATA ) )
     Endif
@@ -2836,7 +3120,9 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
           // else
           // strfile(space(8)+"ошибка "+lstr(tmp3->_ERROR)+" (неизвестная ошибка)"+hb_eol(),cFileProtokol,.t.)
           // endif
-          StrFile( Space( 8 ) + geterror_t012( tmp3->_ERROR ) + hb_eol(), cFileProtokol, .t. )
+          if tmp3->_ERROR != 131
+            StrFile( Space( 8 ) + geterror_t012( tmp3->_ERROR ) + hb_eol(), cFileProtokol, .t. )
+          endif  
           Select TMP3
           Skip
         Enddo
@@ -2932,6 +3218,30 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
       Enddo
     Endif
   Endif
+  Close databases
+  // вставить перенос оплаты из DK в DD
+  g_use( dir_server + "mo_d01d" ,,"mo_d01d",.T.,.T.) // список диагнозов пациентов в реестрах
+  Index On Str( kod_d, 7 ) to ( cur_dir + "tmp_kodd" ) 
+  //{ "KOD_D",    "N", 6, 0 }, ; // код (номер записи) по файлу "mo_d01k"
+  r_use( dir_server + "mo_d01k"  ) // список пациентов в реестрах
+  Index On Str( D01_ZAP, 6 ) to ( cur_dir + "tmp_rhum" ) For REESTR == mkod_reestr
+  //
+  go top
+  do while !eof()
+    // пациенты из реестра
+    select MO_D01D
+    find (str(mo_d01k->(recno()),7))
+    do while mo_d01d->kod_d == mo_d01k->(recno()) .and. !eof()
+      // идем по диагнозам данного пациента
+      g_rlock( forever )
+      mo_d01d->oplata := mo_d01k->oplata
+      Unlock
+      select MO_D01D
+      skip  // диагнозы
+    enddo    
+    select MO_D01K // люди
+    skip  
+  enddo
   Close databases
 
   Return count_in_schet

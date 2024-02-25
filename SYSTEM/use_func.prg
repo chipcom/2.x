@@ -6,21 +6,23 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-static exists_year_tfoms
+Static exists_year_tfoms
 
 // 21.11.23 - функция проверяющая наличие справочников ТФОМС на конкретный год.
-function check_files_TFOMS(nYear)
-  local lRet := .f.
+Function check_files_tfoms( nYear )
 
-  if isnil(exists_year_tfoms) // вспомогательно, если доэтого не использовался use_base('lusl')
-    use_base('lusl')
-    close_use_base('lusl')    
-  endif
+  Local lRet := .f.
 
-  if hb_hHaskey(exists_year_tfoms, nYear)
-    lRet := exists_year_tfoms[nYear]
-  endif
-  return lRet
+  If ISNIL( exists_year_tfoms ) // вспомогательно, если доэтого не использовался use_base('lusl')
+    use_base( 'lusl' )
+    close_use_base( 'lusl' )
+  Endif
+
+  If hb_HHasKey( exists_year_tfoms, nYear )
+    lRet := exists_year_tfoms[ nYear ]
+  Endif
+
+  Return lRet
 
 // 31.01.17
 Function r_use_base( sBase, lAlias )
@@ -28,6 +30,7 @@ Function r_use_base( sBase, lAlias )
 
 // 18.03.23 закрывает алиасы для lusl, luslc и luslf
 Function close_use_base( sBase )
+
   Local countYear, lAlias
 
   sBase := Lower( sBase ) // проверим, что алиас открыт и выйдем если нет, пока lusl, luslc, luslf
@@ -40,7 +43,6 @@ Function close_use_base( sBase )
 
   For countYear := 2018 To WORK_YEAR
     lAlias := sBase + iif( countYear == WORK_YEAR, '', SubStr( Str( countYear, 4 ), 3 ) )
-    // if exists_file_TFOMS(countYear, 'usl')
     If exists_file_tfoms( countYear, SubStr( sBase, 2 ) )
       If ( lAlias )->( Used() )
         ( lAlias )->( dbCloseArea() )
@@ -52,6 +54,7 @@ Function close_use_base( sBase )
 
 // 12.03.23
 Function existsnsifile( sbase, vYear )
+
   Local fl := .f., fName, findex, fIndex_add
 
   fName := prefixfilerefname( vYear ) + SubStr( sbase, 2 )
@@ -72,7 +75,6 @@ Function existsnsifile( sbase, vYear )
       If ( fl := hb_vfExists( dir_exe + fName + sdbf ) )
         If ( ! hb_vfExists( fIndex ) ) .or. ( ! hb_vfExists( cur_dir + fIndex_add + sntx ) )
           r_use( dir_exe + fName, , sBase )
-          // index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + sbase) ;
           Index On shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( findex ) ;
             For codemo == glob_mo[ _MO_KOD_TFOMS ]
           Index On codemo + shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( cur_dir + fIndex_add ) ;
@@ -92,25 +94,27 @@ Function existsnsifile( sbase, vYear )
       Endif
     Endcase
   Endif
+
   Return fl
 
 
 // 18.11.23
 Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
+
   Local fl := .t., sind1 := '', sind2 := ''
   Local fname, fname_add
   Local countYear
-  local lExistHash
+  Local lExistHash
 
   sBase := Lower( sBase )
   Do Case
   Case sBase == 'lusl'
-    if (lExistHash := isnil(exists_year_tfoms))
+    If ( lExistHash := ISNIL( exists_year_tfoms ) )
       exists_year_tfoms := hb_Hash()
-    endif
+    Endif
     For countYear := 2018 To WORK_YEAR
       If exists_file_tfoms( countYear, 'usl' )
-        hb_HSet(exists_year_tfoms, countYear, .t.)
+        hb_HSet( exists_year_tfoms, countYear, .t. )
         fName := prefixfilerefname( countYear ) + SubStr( sbase, 2 )
         lAlias := create_name_alias( sBase, countYear )
         If ! ( lAlias )->( Used() )
@@ -122,16 +126,10 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
             r_use( dir_exe + fName, sind1, lAlias )
           Endif
         Endif
-      else
-        hb_HSet(exists_year_tfoms, countYear, .f.)
+      Else
+        hb_HSet( exists_year_tfoms, countYear, .f. )
       Endif
     Next
-    // fl := R_Use(dir_exe + '_mo8usl', cur_dir + '_mo8usl', sBase + '18') .and. ;
-    // R_Use(dir_exe + '_mo9usl', cur_dir + '_mo9usl', sBase + '19') .and. ;
-    // R_Use(dir_exe + '_mo0usl', cur_dir + '_mo0usl', sBase + '20') .and. ;
-    // R_Use(dir_exe + '_mo1usl', cur_dir + '_mo1usl', sBase + '21') .and. ;
-    // R_Use(dir_exe + '_mo2usl', cur_dir + '_mo2usl', sBase + '22') .and. ;
-    // R_Use(dir_exe + '_mo3usl', cur_dir + '_mo3usl', sBase)
   Case sBase == 'luslc'
     For countYear := 2018 To WORK_YEAR
       If exists_file_tfoms( countYear, 'uslc' )
@@ -153,12 +151,6 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
         Endif
       Endif
     Next
-    // fl := R_Use(dir_exe + '_mo8uslc', {cur_dir + '_mo8uslc', cur_dir + '_mo8uslu'}, sBase + '18') .and. ;
-    // R_Use(dir_exe + '_mo9uslc', {cur_dir + '_mo9uslc', cur_dir + '_mo9uslu'}, sBase + '19') .and. ;
-    // R_Use(dir_exe + '_mo0uslc', {cur_dir + '_mo0uslc', cur_dir + '_mo0uslu'}, sBase + '20') .and. ;
-    // R_Use(dir_exe + '_mo1uslc', {cur_dir + '_mo1uslc', cur_dir + '_mo1uslu'}, sBase + '21') .and. ;
-    // R_Use(dir_exe + '_mo2uslc', {cur_dir + '_mo2uslc', cur_dir + '_mo2uslu'}, sBase + '22') .and. ;
-    // R_Use(dir_exe + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
   Case sBase == 'luslf'
     For countYear := 2018 To WORK_YEAR
       If exists_file_tfoms( countYear, 'uslf' )
@@ -175,12 +167,6 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
         Endif
       Endif
     Next
-    // fl := R_Use(dir_exe + '_mo8uslf', cur_dir + '_mo8uslf', sBase + '18') .and. ;
-    // R_Use(dir_exe + '_mo9uslf', cur_dir + '_mo9uslf', sBase + '19') .and. ;
-    // R_Use(dir_exe + '_mo0uslf', cur_dir + '_mo0uslf', sBase + '20') .and. ;
-    // R_Use(dir_exe + '_mo1uslf', cur_dir + '_mo1uslf', sBase + '21') .and. ;
-    // R_Use(dir_exe + '_mo2uslf', cur_dir + '_mo2uslf', sBase + '22') .and. ;
-    // R_Use(dir_exe + '_mo3uslf', cur_dir + '_mo3uslf', sBase)
   Case sBase == 'organiz'
     Default lAlias To 'ORG'
     fl := g_use( dir_server + 'organiz', , lAlias, , lExcluUse, lREADONLY )
@@ -357,18 +343,22 @@ Function my_rec_lock( n )
   If AScan( dbRLockList(), n ) == 0
     g_rlock( forever )
   Endif
+
   Return Nil
 
 // вернуть в массиве запись базы данных
 Function get_field()
+
   Local arr := Array( FCount() )
 
   AEval( arr, {| x, i| arr[ i ] := FieldGet( i ) }  )
+
   Return arr
 
 
 // 04.04.18 блокировать запись, где поле KOD == 0 (иначе добавить запись)
 Function add1rec( n, lExcluUse )
+
   Local fl := .t., lOldDeleted := Set( _SET_DELETED, .f. )
 
   Default lExcluUse To .f.
@@ -403,6 +393,7 @@ Function add1rec( n, lExcluUse )
 
 // 11.04.18 выравнивание вторичного файла базы данных до первичного
 Function dbf_equalization( lAlias, lkod )
+
   Local fl := .t.
 
   dbSelectArea( lAlias )
@@ -419,4 +410,131 @@ Function dbf_equalization( lAlias, lkod )
     Goto ( lkod )
     g_rlock( forever )
   Endif
+
   Return Nil
+
+// открытие файла базы данных в сети ТОЛЬКО ДЛЯ ЧТЕНИЯ
+Function r_use_1( cFile, cIndices, cAlias, lTryForever, lExcluUse )
+  Return g_use( cFile, cIndices, cAlias, lTryForever, lExcluUse, .t. )
+
+// монопольное открытие файла базы данных
+Function e_use( cFile, cIndices, cAlias )
+  Return g_use( cFile, cIndices, cAlias, , .t. )
+
+// открытие файла базы данных в сети
+Function g_use( cFile, cIndices, cAlias, lTryForever, lExcluUse, lREADONLY )
+
+  // cFile - файл БД
+  // cIndices - список индексов (или строка в случае одного индекса)
+  // cAlias - строка алиаса
+  // lTryForever - логическая величина (.T. - пытаться бесконечно)
+  // lExcluUse - логическая величина (.T. - монопольное открытие БД)
+  // lREADONLY - логическая величина (.T. - открытие БД только для чтения)
+  Local cMessage, lRetValue, UpcFile, c1Array := { 'Попытаться снова' }, cArray
+
+  If '.DBF' == Upper( Right( cFile, 4 ) )
+    cFile := SubStr( cFile, 1, Len( cFile ) - 4 )
+  Endif
+  UpcFile := strippath( cFile )
+  // чтобы все файлы в данном модуле открывались только для чтения,
+  // определите PRIVATE-перемменную "PRIVATE use_readonly := .T."
+  If lREADONLY == Nil .and. Type( 'use_readonly' ) == 'L' .and. use_readonly
+    lREADONLY := .t.
+  Endif
+
+  Default cIndices TO {}, cAlias To UpcFile, lTryForever To .f., ;
+    lExcluUse To .f., lREADONLY To .f.
+  
+  If !File( cFile + '.DBF' ) // проверка на наличие файла
+    cMessage := 'ОШИБКА: Файл ' + UpcFile + ' не существует!'
+    cMessage += ';Операция прекращена'
+    Alert( cMessage, { 'Завершить' }, color0 )
+    lRetValue := .f.
+  Else
+    // Попытки открытия базы данных до успеха или отказа
+    Do While lRetValue == NIL
+      dbUseArea( .t., ;          // new
+        , ;            // rdd
+        cFile, ;       // db
+        cAlias, ;      // alias
+        !lExcluUse, ;  // if(<.sh.> .or. <.ex.>, !<.ex.>, NIL)
+        lREADONLY, ;   // readonly
+        'RU866' )
+      If !NetErr()
+        If Empty( cIndices )  // нет индексов при вызове ф-ии
+          lRetValue := .t.
+          dbClearIndex()  // все равно закрыть - для FOXPRO
+        Elseif !( lRetValue := g_index( cIndices ) )
+          Use  // закрыть БД при отсутствии индекса(ов)
+        Endif
+      Else
+        If !lTryForever
+          cMessage := 'Невозможно открыть файл ' + UpcFile
+          cMessage += ';Он занят другим пользователем'
+          cArray := AClone( c1Array )
+          AAdd( cArray, 'Завершить' )
+          If Alert( cMessage, cArray, color0 ) != 1
+            lRetValue := .f.
+          Endif
+        Endif
+      Endif
+    Enddo
+  Endif
+
+  Return ( lRetValue )
+
+// 18.01.24 открытие файла базы данных в сети
+Function r_use( cFile, cIndices, cAlias, lTryForever, lExcluUse )
+
+  // cFile - файл БД
+  // cIndices - список индексов (или строка в случае одного индекса)
+  // cAlias - строка алиаса
+  // lTryForever - логическая величина (.T. - пытаться бесконечно)
+  // lExcluUse - логическая величина (.T. - монопольное открытие БД)
+  Local cMessage, lRetValue, UpcFile, c1Array := { 'Попытаться снова' }, cArray
+
+  If '.DBF' == Upper( Right( cFile, 4 ) )
+    cFile := SubStr( cFile, 1, Len( cFile ) - 4 )
+  Endif
+  UpcFile := strippath( cFile )
+
+  Default cIndices TO {}, cAlias To UpcFile, lTryForever To .f., ;
+    lExcluUse To .f.
+  
+  If !File( cFile + '.DBF' ) // проверка на наличие файла
+    cMessage := 'ОШИБКА: Файл ' + UpcFile + ' не существует!'
+    cMessage += ';Операция прекращена'
+    Alert( cMessage, { 'Завершить' }, color0 )
+    lRetValue := .f.
+  Else
+    // Попытки открытия базы данных до успеха или отказа
+    Do While lRetValue == NIL
+      dbUseArea( .t., ;          // new
+        , ;            // rdd
+        cFile, ;       // db
+        cAlias, ;      // alias
+        !lExcluUse, ;  // if(<.sh.> .or. <.ex.>, !<.ex.>, NIL)
+        .t., ;   // readonly
+        'RU866' )
+      If !NetErr()
+        If Empty( cIndices )  // нет индексов при вызове ф-ии
+          lRetValue := .t.
+          dbClearIndex()  // все равно закрыть - для FOXPRO
+        Elseif !( lRetValue := g_index( cIndices ) )
+          Use  // закрыть БД при отсутствии индекса(ов)
+        Endif
+      Else
+        If !lTryForever
+          cMessage := 'Невозможно открыть файл ' + UpcFile
+          cMessage += ';Он занят другим пользователем'
+          cArray := AClone( c1Array )
+          AAdd( cArray, 'Завершить' )
+          If Alert( cMessage, cArray, color0 ) != 1
+            lRetValue := .f.
+          Endif
+        Endif
+      Endif
+    Enddo
+  Endif
+
+  Return ( lRetValue )

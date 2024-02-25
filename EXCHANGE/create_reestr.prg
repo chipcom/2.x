@@ -6,12 +6,14 @@
 Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 
-// 03.02.23
+// 10.01.24
 Function create_reestr()
 
-  Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
-  Local nameArr
+  Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, pole, arr_m
+  Local nameArr //, funcGetPZ
   Local tip_lu
+
+  local lenPZ := 0  // кол-во строк план заказа на год составления реестра
 
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, err_admin )
@@ -32,6 +34,7 @@ Function create_reestr()
   If !myfiledeleted( cur_dir + 'tmp' + sdbf )
     Return Nil
   Endif
+
   arr := { 'Предупреждение!', ;
     '', ;
     'Во время составления реестра', ;
@@ -67,12 +70,21 @@ Function create_reestr()
     { 'SUMMA',       'N',    15,     2 }, ;
     { 'KOD',         'N',     6,     0 } }
 
-  // for i := 0 to 99
-  For i := 0 To 150   // для таблицы _moXunit 03.02.23
-    AAdd( adbf, { 'PZ' + lstr( i ), 'N', 9, 2 } )
-  Next
   mnyear := arr_m[ 1 ]
   mnmonth := arr_m[ 3 ]
+  
+  private p_array_PZ
+
+// перенесено из reestrOMS_XML
+  p_array_PZ := get_array_pz( mnyear )  // получим массив план-заказа на год составления реестра
+  lenPZ := len( p_array_PZ )
+// конец перенесено
+
+//  For i := 0 To 150   // для таблицы _moXunit 03.02.23
+  For i := 0 To lenPZ   // для таблицы _moXunit 03.02.23
+    AAdd( adbf, { 'PZ' + lstr( i ), 'N', 9, 2 } )
+  Next
+
   dbCreate( cur_dir + 'tmp', adbf )
 
   Use ( cur_dir + 'tmp' ) New Alias TMP
@@ -98,9 +110,9 @@ Function create_reestr()
     If human->tip_h == B_STANDART .and. emptyall( human_->reestr, human->schet ) ;
         .and. ( human->cena_1 > 0 .or. human_->USL_OK == 4 .or. tip_lu == TIP_LU_ONKO_DISP ) ;
         .and. Val( human_->smo ) > 0 .and. human_->ST_VERIFY >= 5 // и проверили
-      If tmp->kol < 999999
+      If tmp->kol < 999999 
         ++k
-        If ! exist_reserve_ksg( human->kod, 'HUMAN' )
+        If ! exist_reserve_ksg( human->kod, 'HUMAN', (HUMAN->ishod == 89 .or. HUMAN->ishod == 88) )
           tmp->kol++
           tmp->min_date := Min( tmp->min_date, human->k_data )
         Endif
@@ -220,21 +232,28 @@ Function create_reestr()
               tmpb->fio := human->fio
               tmpb->PZ := j
               pole := "tmp->PZ" + lstr( j )
-              If tmp->nyear > 2018 // 2019 год
-                nameArr := 'glob_array_PZ_' + last_digits_year( tmp->nyear )
-                If ( i := AScan( &nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( &nameArr.[ i, 5 ] )
+              // If tmp->nyear > 2018 // 2019 год
+                // nameArr := 'glob_array_PZ_' + last_digits_year( tmp->nyear )
+                // If ( i := AScan( &nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( &nameArr.[ i, 5 ] )
+                // funcGetPZ := 'get_array_PZ_' + last_digits_year( tmp->nyear ) + '()'
+                nameArr := get_array_PZ( tmp->nyear )
+                If ( i := AScan( nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( nameArr[ i, 5 ] )
                   &pole := &pole + 1 // учёт по случаям
                 Else
-                  &pole := &pole + k // учёт по единицам план-заказа
+                  if tmp->nyear > 2018
+                    &pole := &pole + k // учёт по единицам план-заказа
+                  else
+                    &pole := &pole + human_->PZKOL
+                  endif
                 Endif
-              Else
-                nameArr := 'glob_array_PZ_' + '18'  // last_digits_year(tmp->nyear)
-                If ( i := AScan( &nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( &nameArr.[ i, 5 ] )
-                  &pole := &pole + 1
-                Else
-                  &pole := &pole + human_->PZKOL
-                Endif
-              Endif
+              // Else
+              //   nameArr := 'glob_array_PZ_' + '18'  // last_digits_year(tmp->nyear)
+              //   If ( i := AScan( &nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( &nameArr.[ i, 5 ] )
+              //     &pole := &pole + 1
+              //   Else
+              //     &pole := &pole + human_->PZKOL
+              //   Endif
+              // Endif
             Else
               tmpb->yes_del := .t. // удалить после дополнительной проверки
             Endif

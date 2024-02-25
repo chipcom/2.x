@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 02.11.23 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
+// 20.02.24 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
 Function change_cena_oms()
 
   Local buf := save_maxrow(), lshifr1, fl, lrec, rec_human, k_data2, kod_ksg, begin_date := AddMonth( sys_date, -3 )
@@ -20,6 +20,7 @@ Function change_cena_oms()
     "GR+/R", "W+/R",,, "G+/R" )
   If f_esc_enter( "изменения цен", .t. ) .and. mo_lock_task( X_OMS )
     mywait()
+    //
     fl := .t.
     bSaveHandler := ErrorBlock( {| x| Break( x ) } )
     Begin Sequence

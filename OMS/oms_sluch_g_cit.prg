@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
   
-// 09.08.16 жидкостная цитология рака шейки матки
+// 20.02.24 жидкостная цитология рака шейки матки
 Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -92,21 +92,11 @@ Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
       mnameismo := ret_inogSMO_name(1, , .t.) // открыть и закрыть
     endif
     // проверка исхода = СМЕРТЬ 
-    // select HUMAN
-    // set index to (dir_server + 'humankk')
-    // find (str(mkod_k, 7))
-    // do while human->kod_k == mkod_k .and. !eof()
-    //   if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
-    //                                 human_->oplata != 9 .and. human_->NOVOR == 0
-    //     a_smert := {'Данный больной умер!', ;
-    //                   'Лечение с ' + full_date(human->N_DATA) + ;
-    //                         ' по ' + full_date(human->K_DATA)}
-    //     exit
-    //   endif
-    //   skip
-    // enddo
-    // set index to
-    a_smert := result_is_death(mkod_k, Loc_kod)
+    select HUMAN
+    set index to (dir_server + 'humankk')
+    arr_patient_died_during_treatment( mkod_k, loc_kod )
+    set index to
+    // a_smert := result_is_death(mkod_k, Loc_kod)
   endif
   if Loc_kod > 0
     select HUMAN

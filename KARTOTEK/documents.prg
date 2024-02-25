@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-//// ПОЛИС ОМС
+//// ПОЛИС ОМС 
 
 // 04.06.22
 Function func_valid_polis(_vpolis, _SPOLIS, _NPOLIS, is_volgograd)
@@ -19,7 +19,7 @@ Function func_valid_polis(_vpolis, _SPOLIS, _NPOLIS, is_volgograd)
   
 // 04.06.22
 Function Valid_SN_Polis(_vpolis, _SPOLIS, _NPOLIS, a_err, is_volgograd)
-  Local i, c, CountDigit := 0, s := ''
+  Local CountDigit := 0, s := ''
 
   if empty(_vpolis)
     aadd(a_err, 'не заполнено поле "Вид полиса"')
@@ -101,27 +101,27 @@ Function f_checksum_polis(_NPOLIS)
 //// СНИЛС
 
 // проверка СНИЛС
-Function val_snils(s, par, /*@*/msg)
-  Local fl := .t., v1, v2, i, k := len(charrem(' ',s))
+Function val_snils( s, par, /*@*/msg )
+  Local fl := .t., v1, v2, i, k := len( charrem( ' ', s ) )
 
   DEFAULT msg TO ''
   if k == 0
     //
   elseif k == 11
-    if s == replicate('0', 11)
+    if s == replicate( '0', 11 )
       msg := 'В поле "СНИЛС" одни нули'
     else
-      v1 := int(val(left(s, 9)))
+      v1 := int( val( left( s, 9 ) ) )
       if v1 > 1001998
         v1 := 0
         for i := 1 to 9
-          v1 += int(val(substr(s, 10 -i, 1)) * i)
+          v1 += int( val( substr( s, 10 - i, 1 ) ) * i )
         next
-        v1 := int(v1 % 101)
+        v1 := int( v1 % 101 )
         if v1 == 100
           v1 := 0
         endif
-        v2 := int(val(right(s, 2)))
+        v2 := int( val( right( s, 2 ) ) )
         if v1 != v2
           msg := 'Неверная контрольная сумма в коде "СНИЛС"'
         endif
@@ -132,9 +132,9 @@ Function val_snils(s, par, /*@*/msg)
   else
     msg := 'Заполнены не все знаки поля "СНИЛС"'
   endif
-  if !empty(msg)
+  if !empty( msg )
     if par == 1  // для GET-системы
-      func_error(4, msg)
+      func_error( 4, msg )
     else  // для проверки ТФОМС
       fl := .f.
     endif
@@ -144,41 +144,41 @@ Function val_snils(s, par, /*@*/msg)
 //// УДОСТОВЕРЕНИЕ ЛИЧНОСТИ
 
 // проверка на правильность серии удостоверения личности
-Function val_ud_ser(par, k, s, /*@*/msg)
-  Local fl := .t., i, c, _sl, _sr, _n
+Function val_ud_ser( par, k, s, /*@*/msg )
+  Local fl := .t., _sl, _sr, _n
 
   DEFAULT msg TO ''
   s := alltrim(s)
   if k == 14
-    _sl := ALLTRIM(TOKEN(s, ' ', 1))
-    _sr := ALLTRIM(TOKEN(s, ' ', 2))
-    IF (EMPTY(_sl) .OR. LEN(_sl) != 2 .OR. !yes_number(_sl)) .or. ;
-       (EMPTY(_sr) .OR. LEN(_sr) != 2 .OR. !yes_number(_sr))
+    _sl := ALLTRIM( TOKEN( s, ' ', 1 ) )
+    _sr := ALLTRIM( TOKEN( s, ' ', 2 ) )
+    IF ( EMPTY( _sl ) .OR. LEN( _sl ) != 2 .OR. ! yes_number( _sl ) ) .or. ;
+       (EMPTY( _sr ) .OR. LEN( _sr ) != 2 .OR. ! yes_number( _sr ) )
       msg := 'серия паспорта РФ должна состоять из двух двузначных чисел'
     ENDIF
-  elseif eq_any(k, 1, 3) // "Паспорт гражд.СССР" или "Свид-во о рождении"
-    _n := NUMTOKEN(s, '-') - 1
-    _sl := ALLTRIM(TOKEN(s, '-', 1))
-    _sl := gniRIMTORUS(_sl)
-    _sr := ALLTRIM(TOKEN(s, '-', 2))
+  elseif eq_any( k, 1, 3 ) // "Паспорт гражд.СССР" или "Свид-во о рождении"
+    _n := NUMTOKEN( s, '-' ) - 1
+    _sl := ALLTRIM( TOKEN( s, '-', 1 ) )
+    _sl := gniRIMTORUS( _sl )
+    _sr := ALLTRIM( TOKEN( s, '-', 2 ) )
     IF _n == 0
       msg := 'отсутствует разделитель "-" частей серии'
     ELSEIF _n > 1
       msg := 'лишний разделитель "-"'
-    ELSEIF EMPTY(_sl)
+    ELSEIF EMPTY( _sl )
       msg := 'отсутствует числовая часть серии'
-    ELSEIF !EMPTY(CHARREPL('1УХЛС', _sl, SPACE(10)))
+    ELSEIF ! EMPTY( CHARREPL( '1УХЛС', _sl, SPACE( 10 ) ) )
       msg := 'числовая часть серии состоит из символов: 1 У Х Л С (I V X L C)'
-    ELSEIF !(_sl == gniRIMTORUS(gniNOMTORIM(gniRIMTONOM(gniRUSTORIM(_sl)))))
+    ELSEIF !(_sl == gniRIMTORUS( gniNOMTORIM( gniRIMTONOM( gniRUSTORIM( _sl ) ) ) ) )
       msg := 'некорректно введена числовая часть серии'
-    ELSEIF EMPTY(_sr) .OR. LEN(_sr) != 2 .OR. !yes_rus_str(_sr)
+    ELSEIF EMPTY( _sr ) .OR. LEN( _sr ) != 2 .OR. ! yes_rus_str( _sr )
       msg := 'после разделителя "-" должны быть ДВЕ pусcкие заглавные буквы'
     ENDIF
   endif
-  if !empty(msg)
+  if !empty( msg )
     msg := '"' + s + '" - ' + msg
     if par == 1  // для GET-системы
-      func_error(4, msg)
+      func_error( 4, msg )
     else  // для проверки ТФОМС
       fl := .f.
     endif
@@ -186,7 +186,7 @@ Function val_ud_ser(par, k, s, /*@*/msg)
   return fl
   
 // проверка на правильность номера удостоверения личности
-Function val_ud_nom(par, k, s, /*@*/msg)
+Function val_ud_nom( par, k, s, /*@*/msg )
   Static arr_d := { ;
    { 1, 6  }, ;
    { 3, 6  }, ;
@@ -201,22 +201,22 @@ Function val_ud_nom(par, k, s, /*@*/msg)
   Local fl := .t., d1, d2
   
   DEFAULT msg TO ''
-  s := alltrim(s)
-  if (j := ascan(arr_d, {|x| x[1] == k })) > 0
-    if !yes_number(s)
-      msg := 'недопустимый символ в номере уд.личности "' + inieditspr(A__MENUVERT, getVidUd(), k) + '"'
+  s := alltrim( s )
+  if ( j := ascan( arr_d, { | x | x[ 1 ] == k } ) ) > 0
+    if ! yes_number( s )
+      msg := 'недопустимый символ в номере уд.личности "' + inieditspr( A__MENUVERT, getVidUd(), k ) + '"'
     else
-      d1 := arr_d[j, 2]
-      d2 := iif(len(arr_d[j]) == 2, d1, arr_d[j, 3])
-      if !between(len(s), d1, d2)
-        msg := 'неверное кол-во цифр в номере уд.личности "' + inieditspr(A__MENUVERT, getVidUd(), k) + '"'
+      d1 := arr_d[ j, 2 ]
+      d2 := iif( len(arr_d[ j ]) == 2, d1, arr_d[ j, 3 ] )
+      if !between( len( s ), d1, d2 )
+        msg := 'неверное кол-во цифр в номере уд.личности "' + inieditspr( A__MENUVERT, getVidUd(), k ) + '"'
       endif
     endif
   endif
-  if !empty(msg)
+  if ! empty( msg )
     msg := '"' + s + '" - ' + msg
     if par == 1  // для GET-системы
-      func_error(4, msg)
+      func_error( 4, msg )
     else  // для проверки ТФОМС
       fl := .f.
     endif
@@ -226,33 +226,33 @@ Function val_ud_nom(par, k, s, /*@*/msg)
 //// МАНИПУЛЯЦИИ С АРАБСКИМИ И РИМСКИМИ ЦИФРАМИ
 
 // проверка: "в строке все символы цифры?"
-Function yes_number(s)
-  return EMPTY(CHARREPL('0123456789', s, SPACE(10)))
+Function yes_number( s )
+  return EMPTY( CHARREPL( '0123456789', s, SPACE( 10 ) ) )
 
 // проверка: "в строке все символы русские буквы?"
-Function yes_rus_str(s)
-  return EMPTY(CHARREPL('АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ', s, SPACE(33)))
+Function yes_rus_str( s )
+  return EMPTY( CHARREPL( 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ', s, SPACE( 33 ) ) )
 
 // рисмкое число, записанное латинскими символами, записать русскими символами
-FUNCTION gniRIMTORUS(_s)
-  RETURN CHARREPL('IVXLC', _s, '1УХЛС')
+FUNCTION gniRIMTORUS( _s )
+  RETURN CHARREPL( 'IVXLC', _s, '1УХЛС' )
 
 // рисмкое число, записанное русскими символами, записать латинскими символами
-FUNCTION gniRUSTORIM(_s)
-  RETURN CHARREPL('1УХЛС', _s, 'IVXLC')
+FUNCTION gniRUSTORIM( _s )
+  RETURN CHARREPL( '1УХЛС', _s, 'IVXLC' )
 
 // перевести арабское число в римское
-FUNCTION gniNOMTORIM(_s, _c1, _c2, _c3, _c4, _c5, _c6, _c7)
-  LOCAL _s1 := REPLALL(STR(_s, 3), '0'), _s2, _s3, _n1, _n2, _n3, _ret := ''
+FUNCTION gniNOMTORIM( _s, _c1, _c2, _c3, _c4, _c5, _c6, _c7 )
+  LOCAL _s1 := REPLALL( STR( _s, 3 ), '0' ), _n1, _n2, _n3, _ret := ''
 
   DEFAULT _c1 TO 'I', _c2 TO 'V', _c3 TO 'X', _c4 TO 'L', ;
           _c5 TO 'C', _c6 TO 'D', _c7 TO 'M'
-  _n3 := VAL(SUBSTR(_s1, LEN(_s1), 1))
-  _n2 := VAL(SUBSTR(_s1, LEN(_s1) - 1, 1))
-  _n1 := VAL(SUBSTR(_s1, LEN(_s1) - 2, 1))
-  _ret += gniDIGTORIM(_n1, _c5, _c6, _c7)
-  _ret += gniDIGTORIM(_n2, _c3, _c4, _c5)
-  _ret += gniDIGTORIM(_n3, _c1, _c2, _c3)
+  _n3 := VAL( SUBSTR( _s1, LEN( _s1 ), 1 ) )
+  _n2 := VAL( SUBSTR( _s1, LEN( _s1 ) - 1, 1 ) )
+  _n1 := VAL( SUBSTR( _s1, LEN( _s1 ) - 2, 1 ) )
+  _ret += gniDIGTORIM( _n1, _c5, _c6, _c7 )
+  _ret += gniDIGTORIM( _n2, _c3, _c4, _c5 )
+  _ret += gniDIGTORIM( _n3, _c1, _c2, _c3 )
   RETURN _ret
 
 // перевести римское число в арабское
@@ -261,34 +261,34 @@ FUNCTION gniRIMTONOM(_s, _c1, _c2, _c3, _c4, _c5, _c6, _c7)
 
   DEFAULT _c1 TO 'I', _c2 TO 'V', _c3 TO 'X', _c4 TO 'L', ;
           _c5 TO 'C', _c6 TO 'D', _c7 TO 'M'
-  _s := ALLTRIM(_s)
-  _nl := LEN(_s)
+  _s := ALLTRIM( _s )
+  _nl := LEN( _s )
   FOR i := 1 TO _nl
-    AADD(aArr, SUBSTR(_s, i, 1))
+    AADD( aArr, SUBSTR( _s, i, 1 ) )
   NEXT
   FOR i := 1 TO _nl
-    IF aArr[i] == _c7
+    IF aArr[ i ] == _c7
       _ret += 1000
-    ELSEIF aArr[i] == _c6
+    ELSEIF aArr[ i ] == _c6
       _ret += 500
-    ELSEIF aArr[i] == _c5
-      IF i < _nl .AND. (aArr[i + 1] == _c6 .OR. aArr[i + 1] == _c7)
+    ELSEIF aArr[ i ] == _c5
+      IF i < _nl .AND. ( aArr[ i + 1 ] == _c6 .OR. aArr[ i + 1 ] == _c7)
         _ret -= 100
       ELSE
         _ret += 100
       ENDIF
-    ELSEIF aArr[i] == _c4
+    ELSEIF aArr[ i ] == _c4
       _ret += 50
-    ELSEIF aArr[i] == _c3
-      IF i < _nl .AND. (aArr[i + 1] == _c4 .OR. aArr[i + 1] == _c5)
+    ELSEIF aArr[ i ] == _c3
+      IF i < _nl .AND. ( aArr[ i + 1 ] == _c4 .OR. aArr[ i + 1 ] == _c5)
         _ret -= 10
       ELSE
         _ret += 10
       ENDIF
-    ELSEIF aArr[i] == _c2
+    ELSEIF aArr[ i ] == _c2
       _ret += 5
-    ELSEIF aArr[i] == _c1
-      IF i < _nl .AND. (aArr[i + 1] == _c2 .OR. aArr[i + 1] == _c3)
+    ELSEIF aArr[ i ] == _c1
+      IF i < _nl .AND. (aArr[ i + 1 ] == _c2 .OR. aArr[ i + 1 ] == _c3)
         _ret -= 1
       ELSE
         _ret += 1
@@ -298,7 +298,7 @@ FUNCTION gniRIMTONOM(_s, _c1, _c2, _c3, _c4, _c5, _c6, _c7)
   RETURN _ret
 
 // перевести арабскую цифру в римскую
-FUNCTION gniDIGTORIM(_s, _c1, _c2, _c3)
+FUNCTION gniDIGTORIM( _s, _c1, _c2, _c3 )
   LOCAL _c := ''
 
   DO CASE
@@ -323,54 +323,53 @@ FUNCTION gniDIGTORIM(_s, _c1, _c2, _c3)
   ENDCASE
   RETURN _c
 
-// 02.08.23  проверка на правильность серии удостоверения личности
+// 26.01.24  проверка на правильность серии удостоверения личности
 function checkDocumentSeries( oGet, vid_ud )
-	local fl := .t., i, c, _sl, _sr, _n
+	local fl := .t., _sl, _sr, _n
 	local msg, ser_ud
+  local errMsg
 	
 	if lastkey() == K_UP
 		return fl
 	endif
 	msg := ''
 	ser_ud := alltrim( oGet:buffer )
-	if vid_ud == 14 
-		if allCharIsDigit( ser_ud ) .and. ( len( ser_ud ) == 4 )	// "Паспорт гражд.РФ"
-			oGet:pos := 3  // курсор в 3-ю позицию
-			oGet:insert( ' ' )
-			oGet:assign()
-		else
-			_sl := alltrim( token( ser_ud, ' ', 1 ) )
-			_sr := alltrim( token( ser_ud, ' ', 2 ) )
-			if ( empty( _sl ) .or. len( _sl ) != 2 .or. !allCharIsDigit( _sl ) ) .or. ;
-					( empty( _sr ) .or. len( _sr ) != 2 .or. ! allCharIsDigit( _sr ) )
-				msg := 'серия паспорта РФ должна состоять из двух двузначных чисел'
-			else
-				oGet:buffer := _sl + ' ' + left(_sr, 2)
-				oGet:assign()
-			endif
-		endif
+	if vid_ud == 14           // "Паспорт гражд.РФ"
+    errMsg := 'серия паспорта РФ должна состоять из двух двузначных чисел'
+    if strIsDigitOrSpace( ser_ud )
+      if ( len( ser_ud ) == 4 )
+        oGet:pos := 3  // курсор в 3-ю позицию
+        oGet:insert( ' ' )
+        oGet:assign()
+      else
+        _sl := alltrim( token( ser_ud, ' ', 1 ) )
+        _sr := alltrim( token( ser_ud, ' ', 2 ) )
+        if ( empty( _sl ) .or. len( _sl ) != 2 .or. ! strIsDigit( _sl ) ) .or. ;
+            ( empty( _sr ) .or. len( _sr ) != 2 .or. ! strIsDigit( _sr ) )
+          msg := errMsg
+        else
+          oGet:buffer := _sl + ' ' + left( _sr, 2 )
+          oGet:assign()
+        endif
+      endif
+    else
+      msg := errMsg
+    endif
 	elseif eq_any( vid_ud, 1, 3 )	// "Паспорт гражд.СССР" или "Свид-во о рождении"
 		_n := numtoken( ser_ud, '-' ) // - 1
 		_sl := alltrim( token( ser_ud, '-', 1 ) )
-		// _sl := convertNumberLatinCharInCyrillicChar( _sl )
 		_sl := convertNumberCyrillicCharInLatinChar( _sl )
-		_sr := alltrim( token( ser_ud, '-', 2))
+		_sr := alltrim( token( ser_ud, '-', 2 ) )
 		if _n == 0 .or. _n == 1
 			msg := 'серия документа состоит из цифровой и символьной частей, разделенных символом "-"'
 		elseif _n > 2 // 1
 			msg := 'лишний разделитель "-"'
 		elseif empty( _sl )
 			msg := 'отсутствует числовая часть серии'
-		// elseif !empty( charrepl( '1УХЛС', _sl, space( 10 ) ) )
 		elseif !empty( charrepl( '1УХЛСIVXLC', _sl, space( 10 ) ) )
 			msg := 'числовая часть серии состоит из символов: 1 У Х Л С (I V X L C)'
-		// elseif !( _sl == convertNumberLatinCharInCyrillicChar( convertArabicNumberToRoman( convertRomanNumberToArabic( convertNumberCyrillicCharInLatinChar( _sl ) ) ) ) )
-		// 	msg := 'некорректно введена числовая часть серии'
 		elseif empty( _sr ) .or. len( _sr ) != 2 .or. !allCharIsCyrillic( _sr )
 			msg := 'после разделителя "-" должны быть ДВЕ pусcкие заглавные буквы'
-    // else
-    //   oGet:buffer := _sl + '-' + _sr
-    //   oGet:assign()
     endif
 	endif
 	if !empty( msg )
@@ -379,6 +378,32 @@ function checkDocumentSeries( oGet, vid_ud )
 		fl := .f.
 	endif
 	return fl
+
+// 26.01.24 строка содержит цифры с пробелами
+function strIsDigitOrSpace( str )
+
+  local ch, ret := .t.
+
+  for each ch in alltrim( str )
+    if ! ( IsDigit( ch ) .or. IsSpace( ch ) )
+      ret := .f.
+      exit
+    endif
+  next
+  return ret
+
+// 26.01.24 строка содержит цифры
+function strIsDigit( str )
+
+  local ch, ret := .t.
+
+  for each ch in alltrim( str )
+    if ! ( IsDigit( ch ) )
+      ret := .f.
+      exit
+    endif
+  next
+  return ret
 
 // проверка: "в строке все символы цифры?"
 function allCharIsDigit( s )
@@ -399,7 +424,7 @@ function convertNumberCyrillicCharInLatinChar( _s )
 // перевести арабское число в римское
 
 function convertArabicNumberToRoman( _s, _c1, _c2, _c3, _c4, _c5, _c6, _c7 )
-  local _s1 := replall( str( _s, 3 ), '0' ), _s2, _s3, _n1, _n2, _n3, _ret := ''
+  local _s1 := replall( str( _s, 3 ), '0' ), _n1, _n2, _n3, _ret := ''
 
   DEFAULT _c1 TO 'I', _c2 TO 'V', _c3 TO 'X', _c4 TO 'L', ;
     _c5 TO 'C', _c6 TO 'D', _c7 TO 'M'
@@ -412,7 +437,7 @@ function convertArabicNumberToRoman( _s, _c1, _c2, _c3, _c4, _c5, _c6, _c7 )
   return _ret
 
 // перевести римское число в арабское
-function convertRomanNumberToArabic(_s, _c1, _c2, _c3, _c4, _c5, _c6, _c7)
+function convertRomanNumberToArabic( _s, _c1, _c2, _c3, _c4, _c5, _c6, _c7 )
   local _ret := 0, i, _nl, aArr := {}
 
   DEFAULT _c1 TO 'I', _c2 TO 'V', _c3 TO 'X', _c4 TO 'L', ;

@@ -1180,10 +1180,11 @@ do while !eof()
         do while moprof->vzros_reb == LVZROS_REB .and. moprof->profil == ihuman->PROFIL ;
                                                  .and. left(moprof->shifr,5) == left(lshifr,5) .and. !eof()                      
           if alltrim(moprof->shifr) == "2.78.107" .or. alltrim(moprof->shifr) == "2.78.106" .or. ;
-             between_shifr(alltrim(moprof->shifr),"2.78.61","2.78.72") .or.;
-              between_shifr(alltrim(moprof->shifr),"2.78.74","2.78.86")             
+            between_shifr(alltrim(moprof->shifr),"2.78.61","2.78.72") .or.;
+            between_shifr(alltrim(moprof->shifr),"2.78.74","2.78.86") .or.;
+            between_shifr(alltrim(moprof->shifr),"2.78.109","2.78.112")
             // отбраковываем Диспансеризацию
-            // 2.78.61 ? 2.78.72, 2.78.74 ? 2.78.86, 2.78.106.
+            // 2.78.61 ? 2.78.72, 2.78.74 ? 2.78.86, 2.78.106., 2.78.109-2.78.112
           else            
             if iif(empty(lshifr2), .t., between_shifr(alltrim(moprof->shifr),lshifr,lshifr2))
               fldel := .f.

@@ -1,14 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 22.03.23 инициализация справочников ФФОМС
-Function InitSpravFFOMS()
-  /////////////////////////////////////////////////
-  initPZarray() // инициализируем массивы планов-заказа
-
-  return NIL
-
-// 30.05.23
+// 16.02.24
 function load_exists_uslugi()
   local countYear, lAlias, cVar
   local cSearch
@@ -18,14 +11,10 @@ function load_exists_uslugi()
   for countYear := 2018 to WORK_YEAR
     lAlias := 'luslc' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
     set order to 2  // uslcu.ntx
-    // fName := prefixFileRefName(countYear) + substr('luslc', 2)
-    // file_index := prefixFileRefName(countYear) + substr('luslc', 2, 3) + 'u'
 
     if ! exists_file_TFOMS(countYear, 'uslc')
       loop
     endif
-
-    // R_Use(dir_exe + fname, cur_dir + file_index, lAlias)
 
     if select(lAlias) == 0
       loop
@@ -74,14 +63,23 @@ function load_exists_uslugi()
           is_hemodializ := .t.
         endif
       endif
-  
-    //
+
+      find (glob_mo[_MO_KOD_TFOMS] + '60.3.19')
+      if found()
+        is_hemodializ := .t.
+      else
+        find (glob_mo[_MO_KOD_TFOMS] + '60.3.20')
+        if found()
+          is_hemodializ := .t.
+        endif
+      endif
+
+      
       find (glob_mo[_MO_KOD_TFOMS] + 'st') // койко-дни
       if (is_napr_stac := found())
         glob_menu_mz_rf[1] := .t.
       endif
-    //
-    //
+      //
       find (glob_mo[_MO_KOD_TFOMS] + 'ds') // дневной стационар
       if found()
         if !is_napr_stac
@@ -134,6 +132,7 @@ function load_exists_uslugi()
     endif
     cVar := 'is_' + substr(str(countYear, 4), 3) + '_VMP'
     (lAlias)->(dbSelectArea())
+    (lAlias)->(ordSetFocus( 2 ))  // uslcu.ntx
     cSearch := glob_mo[_MO_KOD_TFOMS] + code_services_VMP(countYear)
     (lAlias)->(dbSeek(cSearch))
     __mvPut( cVar, (lAlias)->(found()) )

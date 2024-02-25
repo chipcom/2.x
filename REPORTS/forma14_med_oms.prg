@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.10.23 форма 14-МЕД (ОМС)
+// 22.01.24 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
   Static group_ini := 'f14_med_oms'
   Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2, ;
@@ -21,7 +21,7 @@ Function forma14_med_oms()
   
   local sbase
   local lal, lalf
-  local nameArr
+  local nameArr //, funcGetPZ
   
   old5 := old2 := 0
   afillall(arr_skor, 0)
@@ -140,7 +140,7 @@ Function forma14_med_oms()
 
   
   ////////////////////////////////////////////////////////////////////
-  arr_m := {2023, 1, 12, 'за январь - сентябрь 2023 года', 0d20230101, 0d20230930}
+  arr_m := {2023, 1, 12, 'за январь - декабрь 2023 года', 0d20230101, 0d20231231}  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ////////////////////////////////////////////////////////////////////
   lal := create_name_alias('lusl', arr_m[1])
   lalf := create_name_alias('luslf', arr_m[1])
@@ -247,7 +247,7 @@ Function forma14_med_oms()
   set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
   //
   ////////////////////////////////////////////////////////////////////
-  mdate_rak := arr_m[6] + 12 // по какую дату РАК сумма к оплате 12.09.23
+  mdate_rak := arr_m[6] + 18 // по какую дату РАК сумма к оплате 17.01.24      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ////////////////////////////////////////////////////////////////////
   R_Use(dir_server + 'mo_xml', , 'MO_XML')
   R_Use(dir_server + 'mo_rak', , 'RAK')
@@ -273,9 +273,16 @@ Function forma14_med_oms()
       mdate1 := stod(strzero(schet_->nyear, 4) + strzero(schet_->nmonth, 2) + '25') // !!! 
       //
       // 2023 год
-        k := 6 // дата регистрации по 6.10.23
+        k := 17 // дата регистрации по 17.01.24 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //
-      fl := between(mdate, arr_m[5], arr_m[6] + k) .and. between(mdate1, arr_m[5], arr_m[6]) // !!отч.период 2022 год
+      fl := between(mdate, arr_m[5], arr_m[6] + k) .and. between(mdate1, arr_m[5], arr_m[6]) // !!отч.период 2023 год
+      /*if !fl .and. mdate > stod("20230101")
+       @ 10,50 say mdate
+       @ 11,50 say mdate1
+       @ 12,50 say arr_m[5]
+       @ 13,50 say arr_m[6]
+       inkey(0)
+      endif*/
     endif
     if fl
       select HUMAN
@@ -573,9 +580,13 @@ Function forma14_med_oms()
                 find (str(&lal.->unit_code, 3))
                 if found() .and. mounit->pz > 0
                   if (i16 := mounit->ii) > 0
-                    // j1 := glob_array_PZ_21[i16, 1]
-                    nameArr := 'glob_array_PZ_' + last_digits_year(human->k_data)
-                    j1 := &nameArr.[i16, 1]
+                    // j1 := glob_array_PZ_21[i16, 1] 
+                    // nameArr := 'glob_array_PZ_' + last_digits_year(human->k_data)
+                    // j1 := &nameArr.[i16, 1]
+                    // funcGetPZ := 'get_array_PZ_' + last_digits_year(human->k_data) + '()'
+                    nameArr := get_array_PZ( human->k_data )
+                    j1 := nameArr[i16, 1]
+
                     if eq_any(j1, 68)  // 75 убрал - это бывшая стом //09.07.23
                       vid_vp := 0 // Посещение профилактическое
                     elseif eq_any(j1, 69) // 76 убрал - это бывшая стом//09.07.23
@@ -690,6 +701,13 @@ Function forma14_med_oms()
                   endif
                   muet := 0
                   msum := round(hu->stoim_1 * koef, 2)
+               /*   if human->cena_1 > msum .and. msum > 0
+                     my_debug(,human->fio)
+                     my_debug(,hu->(recno()))
+                     my_debug(,msum)
+                     my_debug(,k)
+                  endif  
+               */   
                   ii := 0
                   is_obsh := .f.
                   if k == 2 // стационар
@@ -783,10 +801,14 @@ Function forma14_med_oms()
                       aadd(ap, {lshifr, iif(empty(mkol),mkol1,mkol),is_obsh})
                     endif
                   elseif k == 7 // отд.мед.услуги
-                    ii := 2 // в поликлинику
-                    mkol := 0  // участвует не количеством, а только суммой
-                    is_kt := .t.
-                    ds1_spec := 1
+                    if glob_mo[_MO_KOD_TFOMS] == '171004'.and. human_->USL_OK == 1 // стационар КБ4
+                      ii := 1 // стационар
+                    else  
+                      ii := 2 // в поликлинику
+                      mkol := 0  // участвует не количеством, а только суммой
+                      is_kt := .t.
+                      ds1_spec := 1
+                    endif  
                   elseif k == 8 // СМП
                     ii := 5
                   elseif eq_any(k, 3, 4, 5) // дневной стационар
@@ -861,7 +883,7 @@ Function forma14_med_oms()
                 aadd(arr_profil, {human_->PROFIL, 0, 0, 0, 0}) ; i := len(arr_profil)
               endif
               if human->ishod == 88 // это 1-й л/у в двойном случае
-                tfoms_pz[1, 1] := 0
+                tfoms_pz[1, 1] := 0 
               else
                 arr_profil[i, 2] ++
               endif

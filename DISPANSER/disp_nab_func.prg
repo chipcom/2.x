@@ -25,7 +25,7 @@ Function load_diagnoze_disp_nabl_from_file()
 
   Return diag
 
-// 02.03.23
+// 09.02.24
 Function is_usluga_disp_nabl( _shifr, _shifr1 )
 
   If Empty( _shifr1 )
@@ -39,13 +39,17 @@ Function is_usluga_disp_nabl( _shifr, _shifr1 )
     .or. between_shifr( _shifr, '2.88.105', '2.88.106' ) ;
     .or. between_shifr( _shifr, '2.88.120', '2.88.145' ) ;
     .or. _shifr == '2.5.2' ;  // добавил согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
-.or. _shifr == '2.78.106' ; // добавил согласно письму ТФОМС 09-20-46 от 13.02.23 года
-    .or. _shifr == '2.78.107'  // добавил согласно письму ТФОМС 09-20-46 от 13.02.23 года
+    .or. _shifr == '2.78.106' ; // добавил согласно письму ТФОМС 09-20-46 от 13.02.23 года
+    .or. _shifr == '2.78.107' ; // добавил согласно письму ТФОМС 09-20-46 от 13.02.23 года
+    .or. _shifr == '2.78.109' ; // добавил согласно письму ТФОМС 09-20-57 от 13.02.24 года
+    .or. _shifr == '2.78.110' ; // добавил согласно письму ТФОМС 09-20-57 от 13.02.24 года
+    .or. _shifr == '2.78.111' ; // добавил согласно письму ТФОМС 09-20-57 от 13.02.24 года
+    .or. _shifr == '2.78.112'   // добавил согласно письму ТФОМС 09-20-57 от 13.02.24 года
 
 
 // 12.02.23 проверить диагноз для диспансерного наблюдения
 // Function f_is_diag_dn(ldiag, /*@*/arr_dn, pr_168)
-Function f_is_diag_dn( ldiag, /*@*/arr_dn, dUsluga,not_del)
+Function f_is_diag_dn( ldiag, /*@*/arr_dn, dUsluga, not_del )
 
   Static sarr_dn, narr_dn
   Static len_diag

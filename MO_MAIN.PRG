@@ -16,7 +16,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 17.11.23
+// 08.02.24
 Procedure Main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -130,7 +130,9 @@ Procedure Main( ... )
   // a_parol := inp_password(is_local_version,is_create)
   a_parol := inp_password_bay( is_local_version, is_create )
 
-  index_work_dir( dir_exe, cur_dir )    // checkFilesTFOMS() переименовал
+  index_work_dir( dir_exe, cur_dir, .f. )    // checkFilesTFOMS() переименовал
+
+  initPZarray()
 
   hb_main_curOrg := torganizationdb():getorganization()
 
@@ -272,8 +274,10 @@ Function f_main( r0, is_local_version, a_parol )
     If hb_user_curUser:isadmin()
       find_unfinished_reestr_sp_tk( .f., .t. )
       find_time_limit_human_reestr_sp_tk()
-      find_unfinished_r01()
-      //find_unfinished_r11()
+      if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
+        find_unfinished_r01()
+        find_unfinished_r11()
+      endif
     Endif
     //
     r := Int( ( MaxRow() - r0 - Len( arr ) ) / 2 ) -1

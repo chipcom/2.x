@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 09.12.23 добавление или редактирование случая (листа учета)
+// 20.02.24 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -348,16 +348,17 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     // проверка исхода = СМЕРТЬ
     Select HUMAN
     Set Index to ( dir_server + 'humankk' )
-    find ( Str( mkod_k, 7 ) )
-    Do While human->kod_k == mkod_k .and. !Eof()
-      If RecNo() != Loc_kod .and. is_death( human_->RSLT_NEW ) .and. ;
-          human_->oplata != 9 .and. human_->NOVOR == 0
-        a_smert := { 'Данный больной умер!', ;
-          'Лечение с ' + full_date( human->N_DATA ) + ' по ' + full_date( human->K_DATA ) }
-        Exit
-      Endif
-      Skip
-    Enddo
+    a_smert := arr_patient_died_during_treatment( mkod_k, loc_kod )
+//    find ( Str( mkod_k, 7 ) )
+//    Do While human->kod_k == mkod_k .and. !Eof()
+//      If RecNo() != Loc_kod .and. is_death( human_->RSLT_NEW ) .and. ;
+//          human_->oplata != 9 .and. human_->NOVOR == 0
+//        a_smert := { 'Данный больной умер!', ;
+//          'Лечение с ' + full_date( human->N_DATA ) + ' по ' + full_date( human->K_DATA ) }
+//        Exit
+//      Endif
+//      Skip
+//    Enddo
     Set Index To
   Endif
   If Loc_kod > 0
@@ -1388,7 +1389,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             m1B_DIAG := 98
           Endif
           k--
-        Elseif only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod )
+        Elseif only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
           m1B_DIAG := 99 // не надо
         Else
           If Len( mm_N009 ) == 0
@@ -1623,7 +1624,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         @ ++j, 3 Say 'Повод обращения' Get mDS1_T ;
           reader {| x| menu_reader( x, lmm_DS1_T, A__MENUVERT, , , .f. ) } ;
           Color colget_menu
-        if ! is_VOLGAMEDLAB()
+
+        if ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
           @ ++j, 3 Say 'Стадия заболевания:' Get mSTAD ;
             reader {| x| menu_reader( x, mm_N002, A__MENUVERT, , , .f. ) } ;
             valid {| g| f_valid_tnm( g ),  mSTAD := PadR( mSTAD, 5 ), .t. } ;
@@ -1651,9 +1653,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         endif
 
         // проведение гистологии или иммуногистохимии
-        If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod )
+        If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .or. is_VOLGAMEDLAB()
         // If only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod )
-          If Len( mm_N009 ) == 0 .and. Len( mm_N012 ) == 0
+          If Len( mm_N009 ) == 0 .and. Len( mm_N012 ) == 0 .and. m1DS1_T != 5
             If is_gisto
               @ ++j, 3 Say 'Результаты гистологии' Get mrez_gist ;
                 reader {| x| menu_reader( x, { {| k, r, c| get_rez_gist( k, r, c ) } }, A__FUNCTION, , , .f. ) }
@@ -1664,9 +1666,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             @ ++j, 3 Say 'Гистология / иммуногистохимия' Get mB_DIAG ;
               reader {| x| menu_reader( x, mmb_diag, A__MENUVERT, , , .f. ) }
             @ ++j, 3 Say 'Дата взятия материала' Get mDIAG_DATE ;
-              When eq_any( m1b_diag, 97, 98 ) ;
-              valid {|| iif( Empty( mDIAG_DATE ) .or. mDIAG_DATE <= mk_data, .t., ;
-              func_error( 4, 'Дата взятия материала больше даты окончания лечения' ) ) }
+              When eq_any( m1b_diag, 97, 98 ) // ;
+              // valid {|| iif( Empty( mDIAG_DATE ) .or. mDIAG_DATE <= mk_data, .t., ;
+              // func_error( 4, 'Дата взятия материала больше даты окончания лечения' ) ) }
             If Len( mm_N009 ) == 0
               @ ++j, 3 Say 'Гистология: не нужно для ' + iif( is_mgi, 'МГИ',  mkod_diag )
             Else
@@ -1717,7 +1719,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Endif
 
         // проведение консилиума
-        If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
+        If ! is_VOLGAMEDLAB()
+        // If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
           @ ++j, 3 Say 'Консилиум: дата' Get mDT_CONS ;
             valid {|| iif( Empty( mDT_CONS ) .or. Between( mDT_CONS, mn_data, mk_data ), .t., ;
             func_error( 4, 'Дата консилиума должна быть внутри сроков лечения' ) ) }
@@ -1726,6 +1729,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             When !Empty( mDT_CONS ) ;
             Color colget_menu
         Endif
+        If only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
+          m1B_DIAG := 7
+        endif
 
         // проведение лечения
         If eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) // m1usl_ok < 3
@@ -1882,6 +1888,16 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Use ( cur_dir + 'tmp_onkdi' ) New Alias TDIAG
         Zap
         If eq_any( m1B_DIAG, 97, 98 ) // гистология:98-сделана, 97-нет результата
+
+          if m1DS1_T == 5 .and. Len( mm_N009 ) == 0 .and. Len( mm_N012 ) == 0
+            Append Blank
+            tdiag->DIAG_DATE := mDIAG_DATE
+            tdiag->DIAG_TIP := 1 // 1 - гистологический признак
+            tdiag->DIAG_CODE := 0
+            tdiag->DIAG_RSLT := 0
+            tdiag->REC_RSLT := 1
+          endif
+          
           If Len( mm_N009 ) > 0
             For i := 1 To Min( 2, Len( mm_N009 ) )
               Append Blank

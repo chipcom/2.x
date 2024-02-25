@@ -1,4 +1,4 @@
-/* Download a file from an FTP server */
+/* Download and upload a file from an FTP server */
 #require 'hbtip'
 
 #include 'inkey.ch'
@@ -7,14 +7,14 @@
 #include 'versionFTP.ch'
 #include 'tbox.ch'
 
-*********
+//
 function checkVersionInternet( row, oldVersion )
 
   local fileVersion  := 'version.txt'
   local readMe := 'readme.rtf'
   local aVersion, arr := {}
   local oBox := nil, max := 0
-  local nLeft, nRight, key
+  local nLeft, nRight, key, i
   local buf := save_maxrow()
 
   mywait('Подождите, идет проверка наличия новой версии программы...')
@@ -51,7 +51,7 @@ function checkVersionInternet( row, oldVersion )
   FErase( fileVersion )
   return nil
 
-*********
+//
 function fileFromFTP( fileName )
   local cServer   := CUSTOM_FTP
   local cUser     := VERSION_US
@@ -73,14 +73,18 @@ function fileFromFTP( fileName )
   endif
   return nil
   
-*********
-function fileToFTP( fileName )
+// 20.01.24
+function fileToFTP( fileName, flError )
   local cServer   := CUSTOM_FTP
   local cUser     := UPLOAD_USER
   local cPassword := UPLOAD_PASS
   local cUrl      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
-  local oFTP, oURL
-    
+  local oFTP, oURL, ftpPathError := 'Error'
+
+  local fl := .f.
+
+  Default flError To .f.
+  
   oURL := TUrl():New( cURL )
     
   oFTP := TIPClientFTP():New( oURL, .f. )
@@ -88,16 +92,20 @@ function fileToFTP( fileName )
   oFTP:bUsePasv := .T.
     
   if oFTP:Open( cURL )
-    if ! oFtp:UploadFile( fileName )
-      return .f.
+    if flError
+      oFTP:CWD( ftpPathError )
+      oFTP:DELE( hb_FNameNameExt( fileName ) )
+    endif
+    if oFtp:UploadFile( fileName )
+      fl := .t.
     endif
     oFTP:Close()
   else
-    return .f.
+    fl := .f.
   endif
-  return .t.
+  return fl
     
-*********
+//
 function readVersion( fileVersion )
   local nHandle, i, j, tStr, cNum := '', cAlpha := ''
   local aStr, aVer := {}

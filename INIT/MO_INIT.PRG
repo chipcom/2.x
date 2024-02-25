@@ -6,15 +6,6 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// ** 06.08.17 условное индексирование цен на услуги в 2017 году
-// Function f_index_uslc()
-//   if is_adres_podr
-//     return (codemo == glob_mo[_MO_KOD_TFOMS] .or. codemo == glob_podr_2)
-//   else
-//     return (codemo == glob_mo[_MO_KOD_TFOMS])
-//   endif
-//   return .t.
-
 // 21.06.23 начальная инициализация программы (до входа в Reconstruct_BD)
 Function Init_first()
   Local buf := save_maxrow()
@@ -280,7 +271,7 @@ Function Init_first()
   rest_box(buf)
   return NIL
 
-** 05.05.19 инициализация программы
+// 09.01.24 инициализация программы
 Function Init_Program()
 Public mm_kdp2 := {{"в МО", 0}, {"КДП2", 1}, {"РДЛ ", 2}}
 Public mm_vokod := {{"в МО ", 0}, {"ВОКОД", 3}}
@@ -306,7 +297,7 @@ Public glob_arr_usl_LIS := { ;
   "4.14.76" , ;//   "кортизол (гормон)"
   "4.14.77" ; //   "тестостерон (гормон)"
 } 
-InitSpravFFOMS()
+
 // инициализация справочника специальностей в виде DBF-файла
 init_tmp_prvs(,.t.)
 // InitSpravOthers()
@@ -980,28 +971,3 @@ aadd(nper_arr_1_etap, {0, 0, 17, ;
                       {"4.2.153","4.11.136","16.1.16"}, ;
                       "ООУ и ОУ НПО, ВПО, СОУ"})
 return NIL
-
-
-// 29.12.21 вернуть код план-заказа по методу ВМП
-Function ret_PZ_VMP(lunit, kDate)
-  Local mpztip := 0
-  local sbase, nYear := WORK_YEAR
-
-  hb_default( @kDate, WORK_YEAR )
-
-  if valtype(kDate) == 'D'
-    nYear := year(kDate)
-  elseif valtype(kDate) == 'N' .and. kDate >= 2018
-    nYear := kDate
-  endif
-
-  if select('MOUNIT') == 0
-    sbase := prefixFileRefName(nYear) + 'unit'
-    R_Use(dir_exe + sbase, cur_dir + sbase, 'MOUNIT')
-  endif
-  select MOUNIT
-  find (str(lunit, 3))
-  if found() .and. mounit->pz > 0
-    mpztip := mounit->pz
-  endif
-  return mpztip

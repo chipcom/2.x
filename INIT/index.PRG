@@ -1,151 +1,154 @@
-***** mo_index.prg - модуль переиндексирования
+// mo_index.prg - модуль переиндексирования
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** запуск режима переиндексирования из меню
-Function m_index_DB()
+// запуск режима переиндексирования из меню
+Function m_index_db()
+
   Local t2 := 0
 
-  if G_SLock1Task(sem_task,sem_vagno)  // запрет доступа всем
-    if f_Esc_Enter("переиндексирования")
+  If g_slock1task( sem_task, sem_vagno )  // запрет доступа всем
+    If f_esc_enter( "переиндексирования" )
       t2 := pereindex()
       ___uslugi()
-    endif
+    Endif
     // разрешение доступа всем
-    G_SUnLock(sem_vagno)
-    keyboard ""
-    if t2 > 0
-      n_message({"","Время переиндексирования - "+sectotime(t2)},,;
-              color1,cDataCSay,,,color8)
-    endif
-  else
-    func_error(4,"В данный момент работают другие задачи. Переиндексирование запрещено!")
-  endif
-  return NIL
+    g_sunlock( sem_vagno )
+    Keyboard ""
+    If t2 > 0
+      n_message( { "", "Время переиндексирования - " + SecToTime( t2 ) },, ;
+        color1, cDataCSay,,, color8 )
+    Endif
+  Else
+    func_error( 4, "В данный момент работают другие задачи. Переиндексирование запрещено!" )
+  Endif
 
-***** 18.11.18 внутренняя функция переиндексирования
+  Return Nil
+
+// 18.11.18 внутренняя функция переиндексирования
 Function pereindex()
-  Local buf := savescreen(), t1, t2, i, hGauge, ae[3], k, ab
 
-  f_message({"Внимание! Пpоизводится пеpеиндексирование базы данных.",;
-           "",;
-           "Во избежание разрушения данных",;
-           "не прерывайте процесс!"},,"GR+/R","W+/R",13)
+  Local buf := SaveScreen(), t1, t2, i, hGauge, ae[ 3 ], k, ab
 
-  t1 := seconds()
+  f_message( { "Внимание! Пpоизводится пеpеиндексирование базы данных.", ;
+    "", ;
+    "Во избежание разрушения данных", ;
+    "не прерывайте процесс!" },, "GR+/R", "W+/R", 13 )
+
+  t1 := Seconds()
   Private fl_open := .t.
-  for i := 1 to len(array_files_DB)
-    index_base(array_files_DB[i])
-  next
+  For i := 1 To Len( array_files_DB )
+    index_base( array_files_DB[ i ] )
+  Next
   //
-  use (dir_server+"mo_ppadd") new
-  pack
-  use
+  Use ( dir_server + "mo_ppadd" ) new
+  Pack
+  Use
   //
   pereindex_263()
-  if is_task(X_KEK)
-    pereindex_KEK()
-  endif
+  If is_task( X_KEK )
+    pereindex_kek()
+  Endif
   //
-  Stat_Msg('Поиск и копирование ЕНП')
-  use_base("kartotek",,.t.) // открыть в монопольном режиме
-  set index to
-  go top
-  do while !eof()
-    if kart->kod > 0
-      @ maxrow(),1 say str(recno()/lastrec()*100,6,2)+"%" color cColorStMsg
-      select KART2
-      goto (kart->(recno()))
-      if !empty(kart2->kod_mis) .and. !(kart->kod_mis == kart2->kod_mis)
+  stat_msg( 'Поиск и копирование ЕНП' )
+  use_base( "kartotek",, .t. ) // открыть в монопольном режиме
+  Set Index To
+  Go Top
+  Do While !Eof()
+    If kart->kod > 0
+      @ MaxRow(), 1 Say Str( RecNo() / LastRec() * 100, 6, 2 ) + "%" Color cColorStMsg
+      Select KART2
+      Goto ( kart->( RecNo() ) )
+      If !Empty( kart2->kod_mis ) .and. !( kart->kod_mis == kart2->kod_mis )
         kart->kod_mis := kart2->kod_mis
-      endif
-    endif
-    select KART
-    if recno() % 5000 == 0
-      commit
-    endif
-    skip
-  enddo
-  index on if(kod>0,"1","0")+kod_mis to (dir_server+"kartotee") progress
-  close databases
+      Endif
+    Endif
+    Select KART
+    If RecNo() % 5000 == 0
+      Commit
+    Endif
+    Skip
+  Enddo
+  Index On if( kod > 0, "1", "0" ) + kod_mis to ( dir_server + "kartotee" ) progress
+  Close databases
   //
   mywait()
-  Use (dir_server+"mo_raksh") new alias RAKSH
-  index on str(kod_raks,6) to (cur_dir+"tmpraksh")
-  Use (dir_server+"mo_raks") new alias RAKS
-  index on str(akt,6) to (cur_dir+"tmpraks")
-  Use (dir_server+"mo_rak") new alias RAK
-  index on str(akt,6) to (cur_dir+"tmprak")
-  Use (dir_server+"mo_xml") new alias MO_XML
-  Locate for kod == 0 .and. !deleted()
-  if found()
-    delete // если прервали процесс
-  endif
+  Use ( dir_server + "mo_raksh" ) New Alias RAKSH
+  Index On Str( kod_raks, 6 ) to ( cur_dir + "tmpraksh" )
+  Use ( dir_server + "mo_raks" ) New Alias RAKS
+  Index On Str( akt, 6 ) to ( cur_dir + "tmpraks" )
+  Use ( dir_server + "mo_rak" ) New Alias RAK
+  Index On Str( akt, 6 ) to ( cur_dir + "tmprak" )
+  Use ( dir_server + "mo_xml" ) New Alias MO_XML
+  Locate For kod == 0 .and. !Deleted()
+  If Found()
+    Delete // если прервали процесс
+  Endif
   //
-  select RAK
-  find (str(0,6))
-  do while rak->akt == 0 .and. !eof()
-    if !deleted() // если прервали процесс
-      do while .t.
-        select RAKS
-        find (str(rak->(recno()),6))
-        if !found()
-          exit
-        endif
-        do while .t.
-          select RAKSH
-          find (str(raks->KOD_RAKS,6))
-          if !found()
-            exit
-          endif
-          DeleteRec(.t.)
-        enddo
-        select RAKS
-        DeleteRec(.t.)
-      enddo
-      select RAK
-      DeleteRec(.t.)
-    endif
-    select RAK
-    skip
-  enddo
+  Select RAK
+  find ( Str( 0, 6 ) )
+  Do While rak->akt == 0 .and. !Eof()
+    If !Deleted() // если прервали процесс
+      Do While .t.
+        Select RAKS
+        find ( Str( rak->( RecNo() ), 6 ) )
+        If !Found()
+          Exit
+        Endif
+        Do While .t.
+          Select RAKSH
+          find ( Str( raks->KOD_RAKS, 6 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+        Select RAKS
+        deleterec( .t. )
+      Enddo
+      Select RAK
+      deleterec( .t. )
+    Endif
+    Select RAK
+    Skip
+  Enddo
   //
-  select RAKS
-  find (str(0,6))
-  do while raks->akt == 0 .and. !eof()
-    if raks->KOD_RAKS == 0 .and. !deleted() // если прервали процесс
-      do while .t.
-        select RAKSH
-        find (str(raks->(recno()),6))
-        if !found()
-          exit
-        endif
-        DeleteRec(.t.)
-      enddo
-      select RAKS
-      DeleteRec(.t.)
-    endif
-    select RAKS
-    skip
-  enddo
+  Select RAKS
+  find ( Str( 0, 6 ) )
+  Do While raks->akt == 0 .and. !Eof()
+    If raks->KOD_RAKS == 0 .and. !Deleted() // если прервали процесс
+      Do While .t.
+        Select RAKSH
+        find ( Str( raks->( RecNo() ), 6 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      Select RAKS
+      deleterec( .t. )
+    Endif
+    Select RAKS
+    Skip
+  Enddo
   //
-  select RAKSH
-  find (str(0,6))
-  do while raksh->kod_raks == 0 .and. !eof()
-    if !deleted() // если не помечена на удаление
+  Select RAKSH
+  find ( Str( 0, 6 ) )
+  Do While raksh->kod_raks == 0 .and. !Eof()
+    If !Deleted() // если не помечена на удаление
       Delete
-    endif
-    skip
-  enddo
+    Endif
+    Skip
+  Enddo
   //
-  select RAKSH
-  pack // упаковка файла нижнего уровня
-  close databases
-  Use (dir_server+"mo_rpdsh") new
-  pack // упаковка файла нижнего уровня
-  close databases
+  Select RAKSH
+  Pack // упаковка файла нижнего уровня
+  Close databases
+  Use ( dir_server + "mo_rpdsh" ) new
+  Pack // упаковка файла нижнего уровня
+  Close databases
   //
   /*Use (dir_server+"mo_rak") new alias RAK
   index on str(akt,6) to (cur_dir+"tmprak") for empty(kod_xml)
@@ -194,581 +197,593 @@ Function pereindex()
   endif
   close databases*/
 
-  Use (dir_server+"mo_nnapr") new alias NAPR
-  go top
-  do while !eof()
-    if !empty(napr->num_d) .and. !between(napr->USL_OK_1,1,2)
+  Use ( dir_server + "mo_nnapr" ) New Alias NAPR
+  Go Top
+  Do While !Eof()
+    If !Empty( napr->num_d ) .and. !Between( napr->USL_OK_1, 1, 2 )
       napr->USL_OK_1 := 1
-    endif
-    if napr->TYPE_H_4 > 0 .and. !between(napr->USL_OK_4,1,2)
+    Endif
+    If napr->TYPE_H_4 > 0 .and. !Between( napr->USL_OK_4, 1, 2 )
       napr->USL_OK_4 := 1
-    endif
-    skip
-  enddo
-  Use (dir_server+"mo_n7in") new alias N7i
-  go top
-  do while !eof()
-    if !between(n7i->USL_OK,1,2)
+    Endif
+    Skip
+  Enddo
+  Use ( dir_server + "mo_n7in" ) New Alias N7i
+  Go Top
+  Do While !Eof()
+    If !Between( n7i->USL_OK, 1, 2 )
       n7i->USL_OK := 1
-    endif
-    skip
-  enddo
-  Use (dir_server+"mo_n7out") new alias N7
-  go top
-  do while !eof()
-    if !between(n7->USL_OK,1,2)
+    Endif
+    Skip
+  Enddo
+  Use ( dir_server + "mo_n7out" ) New Alias N7
+  Go Top
+  Do While !Eof()
+    If !Between( n7->USL_OK, 1, 2 )
       n7->USL_OK := 1
-    endif
-    skip
-  enddo
-  close databases
-  Use (dir_server+"mo_kekh") new alias HU
-  go top
-  do while !eof()
-    if !between(hu->USL_OK,1,3)
+    Endif
+    Skip
+  Enddo
+  Close databases
+  Use ( dir_server + "mo_kekh" ) New Alias HU
+  Go Top
+  Do While !Eof()
+    If !Between( hu->USL_OK, 1, 3 )
       hu->USL_OK := 1
-    endif
-    skip
-  enddo
-  close databases
+    Endif
+    Skip
+  Enddo
+  Close databases
   //
-  stat_msg("Пеpеиндексирование завеpшено!")
-  t2 := seconds() - t1
-  restscreen(buf)
-  return t2
+  stat_msg( "Пеpеиндексирование завеpшено!" )
+  t2 := Seconds() - t1
+  RestScreen( buf )
+
+  Return t2
 
 
-***** 23.08.17
+// 23.08.17
 Function pereindex_263()
+
   Local n, pole, buf := save_maxrow()
 
-  stat_msg("Поиск/попытка исправления избыточных ошибок в направлениях на госпитализацию")
-  G_Use(dir_server+"mo_nnapr",,"NAPR")
-  G_Use(dir_server+"mo_nfina",,"NFN")
-  index on str(KOD_F,6)+str(KOD_N,6) to (cur_dir+"tmp_nfn")
-  G_Use(dir_server+"mo_nfile",,"NF")
-  index on kod to (cur_dir+"tmp_nf") for in_out == 1 .and. tip_f < 7 .and. year(date_r) > 2016
-  go top
-  do while !eof()
-    if nf->T_ANS == 2 // в файле были ошибки
-      if (n := nf->tip_f) == 5
+  stat_msg( "Поиск/попытка исправления избыточных ошибок в направлениях на госпитализацию" )
+  g_use( dir_server + "mo_nnapr",, "NAPR" )
+  g_use( dir_server + "mo_nfina",, "NFN" )
+  Index On Str( KOD_F, 6 ) + Str( KOD_N, 6 ) to ( cur_dir + "tmp_nfn" )
+  g_use( dir_server + "mo_nfile",, "NF" )
+  Index On kod to ( cur_dir + "tmp_nf" ) For in_out == 1 .and. tip_f < 7 .and. Year( date_r ) > 2016
+  Go Top
+  Do While !Eof()
+    If nf->T_ANS == 2 // в файле были ошибки
+      If ( n := nf->tip_f ) == 5
         n := 4
-      endif
-      pole := "napr->t_ans_"+lstr(n)
-      select NFN
-      find (str(nf->kod,6))
-      do while nf->kod == nfn->kod_f .and. !eof()
-        if nfn->OSHIB == 0
-          select NAPR
-          goto (nfn->kod_n)
+      Endif
+      pole := "napr->t_ans_" + lstr( n )
+      Select NFN
+      find ( Str( nf->kod, 6 ) )
+      Do While nf->kod == nfn->kod_f .and. !Eof()
+        If nfn->OSHIB == 0
+          Select NAPR
+          Goto ( nfn->kod_n )
           if &pole == 2 // если занесена ошибка
-            G_RLock(forever)
+            g_rlock( forever )
             &pole := 1 // убираем ошибку
-            dbUnLock()
-          endif
-        endif
-        select NFN
-        skip
-      enddo
-    endif
-    select NF
-    skip
-  enddo
-  close databases
-  rest_box(buf)
-  return NIL
+            dbUnlock()
+          Endif
+        Endif
+        Select NFN
+        Skip
+      Enddo
+    Endif
+    Select NF
+    Skip
+  Enddo
+  Close databases
+  rest_box( buf )
 
-***** 29.11.17
-Function pereindex_KEK()
-  Local i, hGauge, ae[3], k, ab, ar
+  Return Nil
 
-  if !(type("mem_ocen_kek") == "N")
+// 29.11.17
+Function pereindex_kek()
+
+  Local i, hGauge, ae[ 3 ], k, ab, ar
+
+  If !( Type( "mem_ocen_kek" ) == "N" )
     Public mem_ocen_kek := 0
-  endif
-  ar := GetIniSect(tools_ini,"КЭК")
-  mem_ocen_kek := int(val(a2default(ar,"ocen_kek","0")))
-  Private is_2017, p_ar := array(70)
+  Endif
+  ar := getinisect( tools_ini, "КЭК" )
+  mem_ocen_kek := Int( Val( a2default( ar, "ocen_kek", "0" ) ) )
+  Private is_2017, p_ar := Array( 70 )
   //
-  hGauge := GaugeNew(,,,"Пересчет процента заполнения экспертиз",.t.)
-  GaugeDisplay( hGauge )
-  Use (dir_server+"mo_kekez") index (dir_server+"mo_kekez") new alias EKSZ
-  Use (dir_server+"mo_keke") index (dir_server+"mo_keket") new alias EKS
-  Use (dir_server+"mo_kekh") new alias HU
-  go top
-  do while !eof()
-    GaugeUpdate( hGauge, recno()/lastrec() )
-    is_2017 := (year(hu->K_DATA) > 2016)
-    afill(ae," ")
-    select EKS
-    find (str(hu->(recno()),7))
-    do while eks->kod == hu->(recno()) .and. !eof()
-      if between(eks->TIP_EKS,1,3)
-        ae[eks->TIP_EKS] := lstr(eks->TIP_EKS)
-      endif
-      if is_2017
+  hGauge := gaugenew(,,, "Пересчет процента заполнения экспертиз", .t. )
+  gaugedisplay( hGauge )
+  Use ( dir_server + "mo_kekez" ) index ( dir_server + "mo_kekez" ) New Alias EKSZ
+  Use ( dir_server + "mo_keke" ) index ( dir_server + "mo_keket" ) New Alias EKS
+  Use ( dir_server + "mo_kekh" ) New Alias HU
+  Go Top
+  Do While !Eof()
+    gaugeupdate( hGauge, RecNo() / LastRec() )
+    is_2017 := ( Year( hu->K_DATA ) > 2016 )
+    AFill( ae, " " )
+    Select EKS
+    find ( Str( hu->( RecNo() ), 7 ) )
+    Do While eks->kod == hu->( RecNo() ) .and. !Eof()
+      If Between( eks->TIP_EKS, 1, 3 )
+        ae[ eks->TIP_EKS ] := lstr( eks->TIP_EKS )
+      Endif
+      If is_2017
         eks->EO_28 := kek_ret_s_70()
-      endif
-      ab := f_ball_kek(hu->ishod)
+      Endif
+      ab := f_ball_kek( hu->ishod )
       k := 0
-      select EKSZ
-      find (str(eks->(recno()),7))
-      dbeval({|| ++k},,{|| eksz->kod == eks->(recno()) })
+      Select EKSZ
+      find ( Str( eks->( RecNo() ), 7 ) )
+      dbEval( {|| ++k },, {|| eksz->kod == eks->( RecNo() ) } )
       eks->N_ZAKLUCH := k
-      eks->p_zapol := f_p_zapol_kek(hu->ISHOD,is_2017)
-      eks->O_A     := ab[1,1]
-      eks->O_B     := ab[1,2]
-      eks->O_C     := ab[1,3]
-      eks->O_D     := ab[1,4]
-      eks->O_K     := ab[1,5]
-      eks->O_P     := ab[1,6]
-      eks->O_R     := ab[1,7]
-      eks->O_E     := ab[1,8]
-      eks->O_ALL   := ab[1,9]
-      select EKS
-      skip
-    enddo
-    select HU
-    hu->KOL_EKS := ae[1]+ae[2]+ae[3]
-    skip
-  enddo
-  close databases
-  CloseGauge(hGauge)
-  return NIL
+      eks->p_zapol := f_p_zapol_kek( hu->ISHOD, is_2017 )
+      eks->O_A     := ab[ 1, 1 ]
+      eks->O_B     := ab[ 1, 2 ]
+      eks->O_C     := ab[ 1, 3 ]
+      eks->O_D     := ab[ 1, 4 ]
+      eks->O_K     := ab[ 1, 5 ]
+      eks->O_P     := ab[ 1, 6 ]
+      eks->O_R     := ab[ 1, 7 ]
+      eks->O_E     := ab[ 1, 8 ]
+      eks->O_ALL   := ab[ 1, 9 ]
+      Select EKS
+      Skip
+    Enddo
+    Select HU
+    hu->KOL_EKS := ae[ 1 ] + ae[ 2 ] + ae[ 3 ]
+    Skip
+  Enddo
+  Close databases
+  closegauge( hGauge )
 
-***** 14.05.21 функция переиндексирования для одной задачи
-Function pereindex_task(n_task)
-  Local buf := savescreen()
+  Return Nil
 
-  DEFAULT n_Task TO glob_task
-  if mo_Lock_Task(n_Task) .and. f_Esc_Enter("переиндексирования")
-    f_message({'Внимание! Пpоизводится пеpеиндексирование сегмента базы данных',;
-             'для подзадачи "'+array_tasks[ind_task(n_Task),1]+'"',;
-             '',;
-             'Во избежание разрушения данных не прерывайте процесс!'},,'GR+/R','W+/R',13)
+// 14.05.21 функция переиндексирования для одной задачи
+Function pereindex_task( n_task )
+
+  Local buf := SaveScreen()
+
+  Default n_Task To glob_task
+  If mo_lock_task( n_Task ) .and. f_esc_enter( "переиндексирования" )
+    f_message( { 'Внимание! Пpоизводится пеpеиндексирование сегмента базы данных', ;
+      'для подзадачи "' + array_tasks[ ind_task( n_Task ), 1 ] + '"', ;
+      '', ;
+      'Во избежание разрушения данных не прерывайте процесс!' },, 'GR+/R', 'W+/R', 13 )
     Private fl_open := .t.
-    if !emptyany(array_task_DB[n_Task,1],array_task_DB[n_Task,2])
-      for i := array_task_DB[n_Task,1] to array_task_DB[n_Task,2]
-        index_base(array_files_DB[i])
-      next
-    endif
-    if n_Task == X_263
+    If !emptyany( array_task_DB[ n_Task, 1 ], array_task_DB[ n_Task, 2 ] )
+      For i := array_task_DB[ n_Task, 1 ] To array_task_DB[ n_Task, 2 ]
+        index_base( array_files_DB[ i ] )
+      Next
+    Endif
+    If n_Task == X_263
       pereindex_263()
-    elseif n_Task == X_KEK
-      pereindex_KEK()
-    endif
+    Elseif n_Task == X_KEK
+      pereindex_kek()
+    Endif
     // разрешение доступа всем к данной задаче
-    mo_UnLock_Task(n_Task)
-    keyboard ""
-    restscreen(buf)
-    stat_msg("Переиндексирование части базы данных завершено!") ; mybell(2,OK)
-  endif
-  restscreen(buf)
-  return NIL
+    mo_unlock_task( n_Task )
+    Keyboard ""
+    RestScreen( buf )
+    stat_msg( "Переиндексирование части базы данных завершено!" ) ; mybell( 2, OK )
+  Endif
+  RestScreen( buf )
+
+  Return Nil
 
 
-***** 03.12.16 специально для ЦРБ Городищенского р-на
+// 03.12.16 специально для ЦРБ Городищенского р-на
 Function ___uslugi()
-Local adbf, buf := save_maxrow()
-if .t. //!(glob_mo[_MO_KOD_TFOMS] == '321001')
-  return NIL
-endif
-//
-E_Use(dir_server+"uslugi",,"USL")
+
+  Local adbf, buf := save_maxrow()
+
+  If .t. // !(glob_mo[_MO_KOD_TFOMS] == '321001')
+    Return Nil
+  Endif
+  //
+  e_use( dir_server + "uslugi",, "USL" )
 /*if lastrec() < 8000
   close databases
   return NIL
 endif*/
-mywait()
-//
-E_Use(dir_server+"human_u",{dir_server+"human_u",;
-                            dir_server+"human_uk",;
-                            dir_server+"human_ud",;
-                            dir_server+"human_uv",;
-                            dir_server+"human_ua"},"HU")
-//index on str(u_kod,4) to (dir_server+"human_uk") progress
-set order to 2
-//
-E_Use(dir_server+"hum_p_u",{dir_server+"hum_p_u",;
-                            dir_server+"hum_p_uk",;
-                            dir_server+"hum_p_ud",;
-                            dir_server+"hum_p_uv",;
-                            dir_server+"hum_p_ua"},"HPU")
-//index on str(u_kod,4) to (dir_server+"hum_p_uk") progress
-set order to 2
-//
-E_Use(dir_server+"pu_cena",{dir_server+"pu_cena",;
-                            dir_server+"pu_cenau"},"PUC")
-//index on str(kod_usl,4)+str(kod_date,4) to (dir_server+"pu_cenau") progress
-set order to 2
-//
-E_Use(dir_server+"hum_oru",{dir_server+"hum_oru",;
-                            dir_server+"hum_oruk",;
-                            dir_server+"hum_orud",;
-                            dir_server+"hum_oruv",;
-                            dir_server+"hum_orua"},"HOU")
-//index on str(u_kod,4) to (dir_server+"hum_oruk") progress
-set order to 2
-//
-E_Use(dir_server+"kas_pl_u",{dir_server+"kas_pl1u",;
-                             dir_server+"kas_pl2u"},"KPU")
-//index on str(u_kod,4) to (dir_server+"kas_pl2u") progress
-set order to 2
-//
-E_Use(dir_server+"kas_ortu",{dir_server+"kas_or1u",;
-                             dir_server+"kas_or2u"},"KOU")
-//index on str(u_kod,4) to (dir_server+"kas_or2u") progress
-set order to 2
-//
-E_Use(dir_server+"kas_usl",,"KUU")
-index on str(u_kod,4) to (cur_dir+"tmp_kuu")
-//
-E_Use(dir_server+"kas_usld",,"KUUD")
-index on str(u_kod,4) to (cur_dir+"tmp_kuud")
-//
-E_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
-                            dir_server+"uslugi1s"},"USL1")
-//index on str(kod,4)+dtos(date_b) to (dir_server+"uslugi1") progress
-//
-E_Use(dir_server+"uch_usl",dir_server+"uch_usl","UCH_USL")
-//index on str(kod,4) to (dir_server+"uch_usl") progress
-//
-E_Use(dir_server+"uch_usl1",dir_server+"uch_usl1","UCH_USL1")
-//index on str(kod,4)+dtos(date_b) to (dir_server+"uch_usl1") progress
-//
-if (flag_udel := hb_fileExists(dir_server+"usl_del"+sdbf))
-  E_Use(dir_server+"usl_del",,"UDEL")
-  index on str(kod,4) to (cur_dir+"tmp_udel")
-endif
-//
-E_Use(dir_server+"usl_otd",dir_server+"usl_otd","UOTD")
-//index on str(kod,4) to (dir_server+"usl_otd") progress
-//
-adbf := {;
-   {"kod",     "N", 4,0},;
-   {"kod_tmp", "N", 4,0},;
-   {"kol",     "N", 6,0},;
-   {"shifr",   "C",10,0},;
-   {"cena",    "N",10,2},;
-   {"cena_d",  "N",10,2};
-  }
-dbcreate(cur_dir+"tmp",adbf)
-use (cur_dir+"tmp") new
-index on shifr+str(cena,10,2)+str(cena_d,10,2) to (cur_dir+"tmp")
-dbcreate(cur_dir+"tmp1",adbf)
-use (cur_dir+"tmp1") new
-hGauge := GaugeNew(,,,"Поиск дубликатов услуг",.t.)
-GaugeDisplay( hGauge )
-SET DELETED OFF
-select USL
-go top
-do while recno() < 10000 .and. !eof()
-  @ maxrow(),0 say padr(str(recno()/lastrec()*100,7,2)+"%",80) color cColorStMsg
-  GaugeUpdate( hGauge, recno()/lastrec() )
+  mywait()
   //
-  if deleted()
-    RECALL
-  endif
-  if usl->kod > 0 .and. alltrim(usl->shifr)=="8.1.5" .and. !usl->is_nulp .and. ;
-     emptyall(usl->shifr1,usl->pcena,usl->pcena_d,usl->dms_cena,usl->pnds,usl->pnds_d)
-    select USL1
-    find (str(usl->kod,4))
-    if !found() // нет поля "шифр ТФОМС"
-      select TMP
-      find (usl->shifr+str(usl->cena,10,2)+str(usl->cena_d,10,2))
-      if !found()
-        append blank
-        tmp->shifr  := usl->shifr
-        tmp->cena   := usl->cena
-        tmp->cena_d := usl->cena_d
-      endif
-      tmp->kol ++
-      select TMP1
-      append blank
-      tmp1->kod := usl->kod
-      tmp1->kod_tmp := tmp->(recno())
-    endif
-  endif
-  select USL
-  skip
-enddo
-commit
-CloseGauge(hGauge)
-select TMP
-if lastrec() > 0
-  index on str(kol,6) to (cur_dir+"tmp")
-  go bottom
-  if tmp->kol > 10
-    i := 0
-    select TMP1
-    index on str(kod,4) to (cur_dir+"tmp1") for tmp1->kod_tmp == tmp->(recno())
-    go top
-    lkod_usl := tmp1->kod // первая запись
-    do while !eof()
-      if lkod_usl != tmp1->kod // пропускаем первую запись
-        @ maxrow(),0 say padr(str(++i)+" - удалено дубликатов услуг",80) color cColorStMsg
-        select HU
-        do while .t.
-          find (str(tmp1->kod,4))
-          if !found() ; exit ; endif
-          hu->u_kod := lkod_usl
-        enddo
-        select HPU
-        do while .t.
-          find (str(tmp1->kod,4))
-          if !found() ; exit ; endif
-          hpu->u_kod := lkod_usl
-        enddo
-        select PUC
-        do while .t.
-          find (str(tmp1->kod,4))
-          if !found() ; exit ; endif
-          puc->kod_usl := lkod_usl
-        enddo
-        select HOU
-        do while .t.
-          find (str(tmp1->kod,4))
-          if !found() ; exit ; endif
-          hou->u_kod := lkod_usl
-        enddo
-        select KPU
-        do while .t.
-          find (str(tmp1->kod,4))
-          if !found() ; exit ; endif
-          kpu->u_kod := lkod_usl
-        enddo
-        select KOU
-        do while .t.
-          find (str(tmp1->kod,4))
-          if !found() ; exit ; endif
-          kou->u_kod := lkod_usl
-        enddo
-        select KUU
-        do while .t.
-          find (str(tmp1->kod,4))
-          if !found() ; exit ; endif
-          kuu->u_kod := lkod_usl
-        enddo
-        select KUUD
-        do while .t.
-          find (str(tmp1->kod,4))
-          if !found() ; exit ; endif
-          kuud->u_kod := lkod_usl
-        enddo
-        select USL1
-        do while .t.
-          find (str(tmp1->kod,4))
-          if !found() ; exit ; endif
-          usl1->kod := lkod_usl
-        enddo
-        select UCH_USL
-        do while .t.
-          find (str(tmp1->kod,4))
-          if !found() ; exit ; endif
-          uch_usl->kod := lkod_usl
-        enddo
-        select UCH_USL1
-        do while .t.
-          find (str(tmp1->kod,4))
-          if !found() ; exit ; endif
-          uch_usl1->kod := lkod_usl
-        enddo
-        if flag_udel
-          select UDEL
-          do while .t.
-            find (str(tmp1->kod,4))
-            if !found() ; exit ; endif
-            udel->kod := lkod_usl
-          enddo
-        endif
-        select UOTD
-        do while .t.
-          find (str(tmp1->kod,4))
-          if !found() ; exit ; endif
-          uotd->kod := lkod_usl
-        enddo
-        select USL
-        goto (tmp1->kod)
-        replace usl->kod with -1, ;
-                usl->slugba with -1, ;
-                usl->name with "", ;
-                usl->shifr with "", usl->shifr1 with ""
-        if i % 100 == 0
-          Commit
-        endif
-      endif
-      select TMP1
-      skip
-    enddo
-    close databases
-    use (dir_server+"uslugi") new alias USL
-    go bottom
-    do while !bof()
-      if recno() > 9999 .or. usl->kod == -1
-        Delete
-      else
-        exit
-      endif
-      skip -1
-    enddo
-    pack
-    index_base("uslugi")
-  endif
-endif
-close databases
-SET DELETED ON
-rest_box(buf)
-return NIL
+  e_use( dir_server + "human_u", { dir_server + "human_u", ;
+    dir_server + "human_uk", ;
+    dir_server + "human_ud", ;
+    dir_server + "human_uv", ;
+    dir_server + "human_ua" }, "HU" )
+  // index on str(u_kod,4) to (dir_server+"human_uk") progress
+  Set Order To 2
+  //
+  e_use( dir_server + "hum_p_u", { dir_server + "hum_p_u", ;
+    dir_server + "hum_p_uk", ;
+    dir_server + "hum_p_ud", ;
+    dir_server + "hum_p_uv", ;
+    dir_server + "hum_p_ua" }, "HPU" )
+  // index on str(u_kod,4) to (dir_server+"hum_p_uk") progress
+  Set Order To 2
+  //
+  e_use( dir_server + "pu_cena", { dir_server + "pu_cena", ;
+    dir_server + "pu_cenau" }, "PUC" )
+  // index on str(kod_usl,4)+str(kod_date,4) to (dir_server+"pu_cenau") progress
+  Set Order To 2
+  //
+  e_use( dir_server + "hum_oru", { dir_server + "hum_oru", ;
+    dir_server + "hum_oruk", ;
+    dir_server + "hum_orud", ;
+    dir_server + "hum_oruv", ;
+    dir_server + "hum_orua" }, "HOU" )
+  // index on str(u_kod,4) to (dir_server+"hum_oruk") progress
+  Set Order To 2
+  //
+  e_use( dir_server + "kas_pl_u", { dir_server + "kas_pl1u", ;
+    dir_server + "kas_pl2u" }, "KPU" )
+  // index on str(u_kod,4) to (dir_server+"kas_pl2u") progress
+  Set Order To 2
+  //
+  e_use( dir_server + "kas_ortu", { dir_server + "kas_or1u", ;
+    dir_server + "kas_or2u" }, "KOU" )
+  // index on str(u_kod,4) to (dir_server+"kas_or2u") progress
+  Set Order To 2
+  //
+  e_use( dir_server + "kas_usl",, "KUU" )
+  Index On Str( u_kod, 4 ) to ( cur_dir + "tmp_kuu" )
+  //
+  e_use( dir_server + "kas_usld",, "KUUD" )
+  Index On Str( u_kod, 4 ) to ( cur_dir + "tmp_kuud" )
+  //
+  e_use( dir_server + "uslugi1", { dir_server + "uslugi1", ;
+    dir_server + "uslugi1s" }, "USL1" )
+  // index on str(kod,4)+dtos(date_b) to (dir_server+"uslugi1") progress
+  //
+  e_use( dir_server + "uch_usl", dir_server + "uch_usl", "UCH_USL" )
+  // index on str(kod,4) to (dir_server+"uch_usl") progress
+  //
+  e_use( dir_server + "uch_usl1", dir_server + "uch_usl1", "UCH_USL1" )
+  // index on str(kod,4)+dtos(date_b) to (dir_server+"uch_usl1") progress
+  //
+  If ( flag_udel := hb_FileExists( dir_server + "usl_del" + sdbf ) )
+    e_use( dir_server + "usl_del",, "UDEL" )
+    Index On Str( kod, 4 ) to ( cur_dir + "tmp_udel" )
+  Endif
+  //
+  e_use( dir_server + "usl_otd", dir_server + "usl_otd", "UOTD" )
+  // index on str(kod,4) to (dir_server+"usl_otd") progress
+  //
+  adbf := { ;
+    { "kod",     "N", 4, 0 }, ;
+    { "kod_tmp", "N", 4, 0 }, ;
+    { "kol",     "N", 6, 0 }, ;
+    { "shifr",   "C", 10, 0 }, ;
+    { "cena",    "N", 10, 2 }, ;
+    { "cena_d",  "N", 10, 2 };
+    }
+  dbCreate( cur_dir + "tmp", adbf )
+  Use ( cur_dir + "tmp" ) new
+  Index On shifr + Str( cena, 10, 2 ) + Str( cena_d, 10, 2 ) to ( cur_dir + "tmp" )
+  dbCreate( cur_dir + "tmp1", adbf )
+  Use ( cur_dir + "tmp1" ) new
+  hGauge := gaugenew(,,, "Поиск дубликатов услуг", .t. )
+  gaugedisplay( hGauge )
+  Set Deleted Off
+  Select USL
+  Go Top
+  Do While RecNo() < 10000 .and. !Eof()
+    @ MaxRow(), 0 Say PadR( Str( RecNo() / LastRec() * 100, 7, 2 ) + "%", 80 ) Color cColorStMsg
+    gaugeupdate( hGauge, RecNo() / LastRec() )
+    //
+    If Deleted()
+      Recall
+    Endif
+    If usl->kod > 0 .and. AllTrim( usl->shifr ) == "8.1.5" .and. !usl->is_nulp .and. ;
+        emptyall( usl->shifr1, usl->pcena, usl->pcena_d, usl->dms_cena, usl->pnds, usl->pnds_d )
+      Select USL1
+      find ( Str( usl->kod, 4 ) )
+      If !Found() // нет поля "шифр ТФОМС"
+        Select TMP
+        find ( usl->shifr + Str( usl->cena, 10, 2 ) + Str( usl->cena_d, 10, 2 ) )
+        If !Found()
+          Append Blank
+          tmp->shifr  := usl->shifr
+          tmp->cena   := usl->cena
+          tmp->cena_d := usl->cena_d
+        Endif
+        tmp->kol++
+        Select TMP1
+        Append Blank
+        tmp1->kod := usl->kod
+        tmp1->kod_tmp := tmp->( RecNo() )
+      Endif
+    Endif
+    Select USL
+    Skip
+  Enddo
+  Commit
+  closegauge( hGauge )
+  Select TMP
+  If LastRec() > 0
+    Index On Str( kol, 6 ) to ( cur_dir + "tmp" )
+    Go Bottom
+    If tmp->kol > 10
+      i := 0
+      Select TMP1
+      Index On Str( kod, 4 ) to ( cur_dir + "tmp1" ) For tmp1->kod_tmp == tmp->( RecNo() )
+      Go Top
+      lkod_usl := tmp1->kod // первая запись
+      Do While !Eof()
+        If lkod_usl != tmp1->kod // пропускаем первую запись
+          @ MaxRow(), 0 Say PadR( Str( ++i ) + " - удалено дубликатов услуг", 80 ) Color cColorStMsg
+          Select HU
+          Do While .t.
+            find ( Str( tmp1->kod, 4 ) )
+            If !Found() ; exit ; Endif
+            hu->u_kod := lkod_usl
+          Enddo
+          Select HPU
+          Do While .t.
+            find ( Str( tmp1->kod, 4 ) )
+            If !Found() ; exit ; Endif
+            hpu->u_kod := lkod_usl
+          Enddo
+          Select PUC
+          Do While .t.
+            find ( Str( tmp1->kod, 4 ) )
+            If !Found() ; exit ; Endif
+            puc->kod_usl := lkod_usl
+          Enddo
+          Select HOU
+          Do While .t.
+            find ( Str( tmp1->kod, 4 ) )
+            If !Found() ; exit ; Endif
+            hou->u_kod := lkod_usl
+          Enddo
+          Select KPU
+          Do While .t.
+            find ( Str( tmp1->kod, 4 ) )
+            If !Found() ; exit ; Endif
+            kpu->u_kod := lkod_usl
+          Enddo
+          Select KOU
+          Do While .t.
+            find ( Str( tmp1->kod, 4 ) )
+            If !Found() ; exit ; Endif
+            kou->u_kod := lkod_usl
+          Enddo
+          Select KUU
+          Do While .t.
+            find ( Str( tmp1->kod, 4 ) )
+            If !Found() ; exit ; Endif
+            kuu->u_kod := lkod_usl
+          Enddo
+          Select KUUD
+          Do While .t.
+            find ( Str( tmp1->kod, 4 ) )
+            If !Found() ; exit ; Endif
+            kuud->u_kod := lkod_usl
+          Enddo
+          Select USL1
+          Do While .t.
+            find ( Str( tmp1->kod, 4 ) )
+            If !Found() ; exit ; Endif
+            usl1->kod := lkod_usl
+          Enddo
+          Select UCH_USL
+          Do While .t.
+            find ( Str( tmp1->kod, 4 ) )
+            If !Found() ; exit ; Endif
+            uch_usl->kod := lkod_usl
+          Enddo
+          Select UCH_USL1
+          Do While .t.
+            find ( Str( tmp1->kod, 4 ) )
+            If !Found() ; exit ; Endif
+            uch_usl1->kod := lkod_usl
+          Enddo
+          If flag_udel
+            Select UDEL
+            Do While .t.
+              find ( Str( tmp1->kod, 4 ) )
+              If !Found() ; exit ; Endif
+              udel->kod := lkod_usl
+            Enddo
+          Endif
+          Select UOTD
+          Do While .t.
+            find ( Str( tmp1->kod, 4 ) )
+            If !Found() ; exit ; Endif
+            uotd->kod := lkod_usl
+          Enddo
+          Select USL
+          Goto ( tmp1->kod )
+          Replace usl->kod With -1, ;
+            usl->slugba With -1, ;
+            usl->name With "", ;
+            usl->shifr With "", usl->shifr1 With ""
+          If i % 100 == 0
+            Commit
+          Endif
+        Endif
+        Select TMP1
+        Skip
+      Enddo
+      Close databases
+      Use ( dir_server + "uslugi" ) New Alias USL
+      Go Bottom
+      Do While !Bof()
+        If RecNo() > 9999 .or. usl->kod == -1
+          Delete
+        Else
+          Exit
+        Endif
+        Skip -1
+      Enddo
+      Pack
+      index_base( "uslugi" )
+    Endif
+  Endif
+  Close databases
+  Set Deleted On
+  rest_box( buf )
 
-***** 02.09.15 поиск и удаление дубликатов в картотеке по ключу "код ТФ(PID)+ФИО+дата рождения"
+  Return Nil
+
+// 02.09.15 поиск и удаление дубликатов в картотеке по ключу "код ТФ(PID)+ФИО+дата рождения"
 Function dubl_zap_kod_tf()
-  Local j := 0, old_tf := 0, ii := 0, k, ar[10], name_file := "kod_tf.txt",;
-        rec, i, j1, j2, ak := {}, buf := savescreen()
-  f_message({"Ждите! Пpоизводится поиск и удаление дубликатов в картотеке.",;
-             "",;
-             "Ни в коем случае не прерывайте процесс",;
-             "во избежание нежелательных последствий!"},,"G+/R","GR+/R",13)
-  Stat_Msg('Поиск дубликатов по ключу "код ТФ(PID)+ФИО+дата рождения"')
-  adbf := {{"kod","N",7,0},{"kodh","N",7,0}}
-  dbcreate(cur_dir+"t_dubl",adbf)
-  aadd(adbf,{"kod1","N",7,0})
-  dbcreate(cur_dir+"t1dubl",adbf)
-  use (cur_dir+"t_dubl") new alias t
-  use (cur_dir+"t1dubl") new alias t1
-  Use (dir_server+"human") new alias HUMAN
-  index on str(kod_k,7)+str(descend(k_data),10) to (cur_dir+"tmp_human") for !empty(k_data)
-  Use (dir_server+"kartote_") new alias KART_
-  Use (dir_server+"kartotek") new alias KART
-  Use (dir_server+"kartote2") new alias KART2
-  set relation to recno() into KART_, to recno() into KART
-  index on str(kart2->kod_tf,10) to (cur_dir+"tmp_kart2") ;
-        for kart2->kod_tf > 0 .and. !kart->(eof()) .and. kart->kod > 0
-  go top
-  do while !eof()
-    if ii < 10 .or. ii % 10 == 0
-      @ maxrow(),1 say lstr(ii) color cColorStMsg
-    endif
-    if kart2->kod_tf > old_tf
+
+  Local j := 0, old_tf := 0, ii := 0, k, ar[ 10 ], name_file := "kod_tf.txt", ;
+    rec, i, j1, j2, ak := {}, buf := SaveScreen()
+
+  f_message( { "Ждите! Пpоизводится поиск и удаление дубликатов в картотеке.", ;
+    "", ;
+    "Ни в коем случае не прерывайте процесс", ;
+    "во избежание нежелательных последствий!" },, "G+/R", "GR+/R", 13 )
+  stat_msg( 'Поиск дубликатов по ключу "код ТФ(PID)+ФИО+дата рождения"' )
+  adbf := { { "kod", "N", 7, 0 }, { "kodh", "N", 7, 0 } }
+  dbCreate( cur_dir + "t_dubl", adbf )
+  AAdd( adbf, { "kod1", "N", 7, 0 } )
+  dbCreate( cur_dir + "t1dubl", adbf )
+  Use ( cur_dir + "t_dubl" ) New Alias t
+  Use ( cur_dir + "t1dubl" ) New Alias t1
+  Use ( dir_server + "human" ) New Alias HUMAN
+  Index On Str( kod_k, 7 ) + Str( Descend( k_data ), 10 ) to ( cur_dir + "tmp_human" ) For !Empty( k_data )
+  Use ( dir_server + "kartote_" ) New Alias KART_
+  Use ( dir_server + "kartotek" ) New Alias KART
+  Use ( dir_server + "kartote2" ) New Alias KART2
+  Set Relation To RecNo() into KART_, To RecNo() into KART
+  Index On Str( kart2->kod_tf, 10 ) to ( cur_dir + "tmp_kart2" ) ;
+    For kart2->kod_tf > 0 .and. !kart->( Eof() ) .and. kart->kod > 0
+  Go Top
+  Do While !Eof()
+    If ii < 10 .or. ii % 10 == 0
+      @ MaxRow(), 1 Say lstr( ii ) Color cColorStMsg
+    Endif
+    If kart2->kod_tf > old_tf
       old_tf := kart2->kod_tf ; k := 0
-      select KART2
-      do while old_tf == kart2->kod_tf .and. !eof()
+      Select KART2
+      Do While old_tf == kart2->kod_tf .and. !Eof()
         ++k
-        skip
-      enddo
-      rec := recno()
-      if k > 1
+        Skip
+      Enddo
+      rec := RecNo()
+      If k > 1
         arr1 := {}
-        select KART2
-        find (str(old_tf,10))
-        do while old_tf == kart2->kod_tf .and. !eof()
-          if (i := ascan(arr1,{|x| x[2]==upper(kart->fio) .and. x[3]==kart->date_r})) == 0
-            aadd(arr1,{0,upper(kart->fio),kart->date_r,{}}) ; i := len(arr1)
-          endif
-          arr1[i,1] ++
-          aadd(arr1[i,4],kart2->(recno()))
-          skip
-        enddo
-        if len(arr1) > 1
-          asort(arr1,,,{|x,y| x[1] > y[1] })
-        endif
-        if (k := arr1[1,1]) > 1
+        Select KART2
+        find ( Str( old_tf, 10 ) )
+        Do While old_tf == kart2->kod_tf .and. !Eof()
+          If ( i := AScan( arr1, {| x| x[ 2 ] == Upper( kart->fio ) .and. x[ 3 ] == kart->date_r } ) ) == 0
+            AAdd( arr1, { 0, Upper( kart->fio ), kart->date_r, {} } ) ; i := Len( arr1 )
+          Endif
+          arr1[ i, 1 ] ++
+          AAdd( arr1[ i, 4 ], kart2->( RecNo() ) )
+          Skip
+        Enddo
+        If Len( arr1 ) > 1
+          ASort( arr1,,, {| x, y| x[ 1 ] > y[ 1 ] } )
+        Endif
+        If ( k := arr1[ 1, 1 ] ) > 1
           ++ii ; j += k
-          if (i := ascan(ak,{|x| x[1] == k})) == 0
-            aadd(ak, {k,0}) ; i := len(ak)
-          endif
-          ak[i,2] ++
+          If ( i := AScan( ak, {| x| x[ 1 ] == k } ) ) == 0
+            AAdd( ak, { k, 0 } ) ; i := Len( ak )
+          Endif
+          ak[ i, 2 ] ++
           arr := {}
-          for i := 1 to len(arr1[1,4])
-            select KART2
-            goto (arr1[1,4,i])
-            select HUMAN
-            find (str(kart->kod,7))
-            aadd(arr, {arr1[1,4,i],;
-                       iif(found(), int(val(dtos(human->k_data))), 0),;
-                       kart_->VPOLIS,;
-                       kart_->vid_ud,;
-                       kart_->ser_ud,;
-                       iif(left(kart2->PC2,1)=="1",1,0),;
-                       iif(found(), human->kod, 0)})
-          next
-          asort(arr,,,{|x,y| iif(x[2] == y[2],;
-                                 iif(x[3] == y[3],;
-                                     iif(x[4] == y[4], x[5] > y[5], x[4] > y[4]),;
-                                     x[3] > y[3]),;
-                                 x[2] > y[2]) })
-          for k := 1 to len(arr)
-            select KART2
-            goto (arr[k,1])
-            if k == 1
-              select T
-              append blank
-              t->kod  := arr[k,1]
-              t->kodh := arr[k,7]
-            else // k > 1
-              select T1
-              append blank
+          For i := 1 To Len( arr1[ 1, 4 ] )
+            Select KART2
+            Goto ( arr1[ 1, 4, i ] )
+            Select HUMAN
+            find ( Str( kart->kod, 7 ) )
+            AAdd( arr, { arr1[ 1, 4, i ], ;
+              iif( Found(), Int( Val( DToS( human->k_data ) ) ), 0 ), ;
+              kart_->VPOLIS, ;
+              kart_->vid_ud, ;
+              kart_->ser_ud, ;
+              iif( Left( kart2->PC2, 1 ) == "1", 1, 0 ), ;
+              iif( Found(), human->kod, 0 ) } )
+          Next
+          ASort( arr,,, {| x, y| iif( x[ 2 ] == y[ 2 ], ;
+            iif( x[ 3 ] == y[ 3 ], ;
+            iif( x[ 4 ] == y[ 4 ], x[ 5 ] > y[ 5 ], x[ 4 ] > y[ 4 ] ), ;
+            x[ 3 ] > y[ 3 ] ), ;
+            x[ 2 ] > y[ 2 ] ) } )
+          For k := 1 To Len( arr )
+            Select KART2
+            Goto ( arr[ k, 1 ] )
+            If k == 1
+              Select T
+              Append Blank
+              t->kod  := arr[ k, 1 ]
+              t->kodh := arr[ k, 7 ]
+            Else // k > 1
+              Select T1
+              Append Blank
               t1->kod  := t->kod
-              t1->kod1 := arr[k,1]
-              t1->kodh := arr[k,7]
-            endif
-          next
-          if ii % 2000 == 0
-            commit
-          endif
-        endif
-      endif
-      select KART2
-      goto (rec)
-      skip -1
-    endif
-    select KART2
-    skip
-  enddo
-  j1 := t->(lastrec())
-  j2 := t1->(lastrec())
-  close databases
-  if j1 > 0
-    Private mfio, mdate_r, mbukva, muchast, mkod_vu, mkod_AK,;
-            MADRES, MMR_DOL, M1VID_UD, mser_ud, mnom_ud, M1KEMVYD, MKOGDAVYD,;
-            m1vidpolis, mpolis, mspolis, mnpolis, msmo, mmesto_r, msnils,;
-            m1kategor, m1kategor2, mokatog, mokatop, madresp,;
-            mPHONE_H, mPHONE_M, mPHONE_W, m1okato
-    Stat_Msg('Удаление дубликатов по ключу "код ТФ(PID)+ФИО+дата рождения"')
-    fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
-    add_string("Будет удалено записей в картотеке - "+lstr(j-ii))
-    asort(ak,,,{|x,y| x[1] < y[1] })
-    add_string(print_array(ak))
-    add_string(replicate("-",102))
-    f_open_files_dubl_zap(.t.) // монопольное открытие всех файлов
-    E_Use(dir_server+"human",dir_server+"humankk","HUMAN") // монопольно
-    use_base("kartotek",,.t.) // монопольно
-    set order to 0
-    use (cur_dir+"t1dubl") new alias t1
-    index on str(kod,7) to (cur_dir+"t1dubl")
-    use (cur_dir+"t_dubl") new alias t
-    go top
-    do while !eof()
-      if recno() < 10 .or. recno() % 10 == 0
-        @ maxrow(),0 say str(recno()/j1*100,6,2)+"%" color cColorStMsg
-      endif
-      ar[1] := "код |"
-      ar[2] := "уч-к|"
-      ar[3] := "пол.|"
-      ar[4] := "пасп|"
-      ar[5] := "адр.|"
-      ar[6] := "прож|"
-      select KART
-      goto (t->kod)
-      ar[1] += lstr(t->kod)
-      if t->kodh > 0
-        human->(dbGoto(t->kodh))
-        ar[1] += "(п/л/у "+full_date(human->k_data)+")"
-      endif
-      ar[1] += iif(left(kart2->PC2,1)=="1"," УМЕР","")+"|"
-      ar[2] += " участок "+lstr(kart->uchast)+"|"
-      ar[3] += lstr(kart_->VPOLIS,1)+" "+alltrim(kart_->NPOLIS)+"|"
-      ar[4] += lstr(kart_->vid_ud)+" "+alltrim(kart_->ser_ud)+" "+alltrim(kart_->nom_ud)+"|"
-      ar[5] += rtrim(kart_->okatog)+" "+alltrim(kart->adres)+"|"
-      ar[6] += rtrim(kart_->okatop)+" "+alltrim(kart_->adresp)+"|"
+              t1->kod1 := arr[ k, 1 ]
+              t1->kodh := arr[ k, 7 ]
+            Endif
+          Next
+          If ii % 2000 == 0
+            Commit
+          Endif
+        Endif
+      Endif
+      Select KART2
+      Goto ( rec )
+      Skip -1
+    Endif
+    Select KART2
+    Skip
+  Enddo
+  j1 := t->( LastRec() )
+  j2 := t1->( LastRec() )
+  Close databases
+  If j1 > 0
+    Private mfio, mdate_r, mbukva, muchast, mkod_vu, mkod_AK, ;
+      MADRES, MMR_DOL, M1VID_UD, mser_ud, mnom_ud, M1KEMVYD, MKOGDAVYD, ;
+      m1vidpolis, mpolis, mspolis, mnpolis, msmo, mmesto_r, msnils, ;
+      m1kategor, m1kategor2, mokatog, mokatop, madresp, ;
+      mPHONE_H, mPHONE_M, mPHONE_W, m1okato
+    stat_msg( 'Удаление дубликатов по ключу "код ТФ(PID)+ФИО+дата рождения"' )
+    fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
+    add_string( "Будет удалено записей в картотеке - " + lstr( j - ii ) )
+    ASort( ak,,, {| x, y| x[ 1 ] < y[ 1 ] } )
+    add_string( print_array( ak ) )
+    add_string( Replicate( "-", 102 ) )
+    f_open_files_dubl_zap( .t. ) // монопольное открытие всех файлов
+    e_use( dir_server + "human", dir_server + "humankk", "HUMAN" ) // монопольно
+    use_base( "kartotek",, .t. ) // монопольно
+    Set Order To 0
+    Use ( cur_dir + "t1dubl" ) New Alias t1
+    Index On Str( kod, 7 ) to ( cur_dir + "t1dubl" )
+    Use ( cur_dir + "t_dubl" ) New Alias t
+    Go Top
+    Do While !Eof()
+      If RecNo() < 10 .or. RecNo() % 10 == 0
+        @ MaxRow(), 0 Say Str( RecNo() / j1 * 100, 6, 2 ) + "%" Color cColorStMsg
+      Endif
+      ar[ 1 ] := "код |"
+      ar[ 2 ] := "уч-к|"
+      ar[ 3 ] := "пол.|"
+      ar[ 4 ] := "пасп|"
+      ar[ 5 ] := "адр.|"
+      ar[ 6 ] := "прож|"
+      Select KART
+      Goto ( t->kod )
+      ar[ 1 ] += lstr( t->kod )
+      If t->kodh > 0
+        human->( dbGoto( t->kodh ) )
+        ar[ 1 ] += "(п/л/у " + full_date( human->k_data ) + ")"
+      Endif
+      ar[ 1 ] += iif( Left( kart2->PC2, 1 ) == "1", " УМЕР", "" ) + "|"
+      ar[ 2 ] += " участок " + lstr( kart->uchast ) + "|"
+      ar[ 3 ] += lstr( kart_->VPOLIS, 1 ) + " " + AllTrim( kart_->NPOLIS ) + "|"
+      ar[ 4 ] += lstr( kart_->vid_ud ) + " " + AllTrim( kart_->ser_ud ) + " " + AllTrim( kart_->nom_ud ) + "|"
+      ar[ 5 ] += RTrim( kart_->okatog ) + " " + AllTrim( kart->adres ) + "|"
+      ar[ 6 ] += RTrim( kart_->okatop ) + " " + AllTrim( kart_->adresp ) + "|"
       mfio := kart->fio ; mdate_r := kart->date_r
       mokatog     := kart_->okatog       // код места жительства по ОКАТО
       mADRES      := kart->ADRES
@@ -799,39 +814,39 @@ Function dubl_zap_kod_tf()
       mPHONE_W    := kart_->PHONE_W    // телефон рабочий;;
       iuch := iadres := imrab := isnils := ipolis := iud := imr := ith := itm := itw := 1
       k := 1
-      select T1
-      find (str(t->kod,7))
-      do while t1->kod == t->kod .and. !eof()
+      Select T1
+      find ( Str( t->kod, 7 ) )
+      Do While t1->kod == t->kod .and. !Eof()
         ++k
-        select KART
-        goto (t1->kod1)
-        if empty(muchast) .and. !empty(kart->uchast)
+        Select KART
+        Goto ( t1->kod1 )
+        If Empty( muchast ) .and. !Empty( kart->uchast )
           mbukva  := kart->bukva
           muchast := kart->uchast
           mkod_vu := kart->kod_vu
           iuch := k
-        endif
-        if empty(mkod_AK)
+        Endif
+        If Empty( mkod_AK )
           mkod_AK := kart2->kod_AK
-        endif
-        if emptyany(mokatog,mADRES) .and. !emptyall(kart_->okatog,kart->ADRES)
+        Endif
+        If emptyany( mokatog, mADRES ) .and. !emptyall( kart_->okatog, kart->ADRES )
           iadres := k
           mokatog := kart_->okatog       // код места жительства по ОКАТО
           mADRES  := kart->ADRES
-          if emptyany(mokatop,mADRESp) .and. !emptyall(kart_->okatop,kart_->adresp)
+          If emptyany( mokatop, mADRESp ) .and. !emptyall( kart_->okatop, kart_->adresp )
             mokatop := kart_->okatop       // код места пребывания по ОКАТО
             madresp := kart_->adresp       // адрес места пребывания
-          endif
-        endif
-        if empty(mMR_DOL) .and. !empty(kart->MR_DOL)
+          Endif
+        Endif
+        If Empty( mMR_DOL ) .and. !Empty( kart->MR_DOL )
           imrab := k
           mMR_DOL := kart->MR_DOL
-        endif
-        if empty(msnils) .and. !empty(kart->snils)
+        Endif
+        If Empty( msnils ) .and. !Empty( kart->snils )
           isnils := k
           msnils := kart->snils
-        endif
-        if m1vidpolis < kart_->VPOLIS
+        Endif
+        If m1vidpolis < kart_->VPOLIS
           ipolis := k
           mpolis     := kart->POLIS   // полис
           m1vidpolis := kart_->VPOLIS // вид полиса (от 1 до 3);1-старый,2-врем.,3-новый
@@ -839,512 +854,518 @@ Function dubl_zap_kod_tf()
           mnpolis    := kart_->NPOLIS // номер полиса
           msmo       := kart_->SMO    // реестровый номер СМО
           m1okato    := kart_->KVARTAL_D // ОКАТО субъекта РФ территории страхования
-        endif
-        if m1vid_ud < kart_->vid_ud .or. ;
-             (m1vid_ud == kart_->vid_ud .and. !empty(kart_->ser_ud) ;
-                          .and. val_ud_ser(2,kart_->vid_ud,kart_->ser_ud) ;
-                                        .and. mser_ud < kart_->ser_ud)
+        Endif
+        If m1vid_ud < kart_->vid_ud .or. ;
+            ( m1vid_ud == kart_->vid_ud .and. !Empty( kart_->ser_ud ) ;
+            .and. val_ud_ser( 2, kart_->vid_ud, kart_->ser_ud ) ;
+            .and. mser_ud < kart_->ser_ud )
           iud := k
           m1vid_ud  := kart_->vid_ud   // вид удостоверения личности
           mser_ud   := kart_->ser_ud   // серия удостоверения личности
           mnom_ud   := kart_->nom_ud   // номер удостоверения личности
           m1kemvyd  := kart_->kemvyd   // кем выдан документ
           mkogdavyd := kart_->kogdavyd // когда выдан документ
-        endif
-        if eq_any(m1kategor,0,13) .and. !empty(kart_->kategor)
+        Endif
+        If eq_any( m1kategor, 0, 13 ) .and. !Empty( kart_->kategor )
           m1kategor := kart_->kategor  // категория пациента
-        endif
-        if empty(m1kategor2)
+        Endif
+        If Empty( m1kategor2 )
           m1kategor2 := kart_->kategor2 // категория пациента (собственная для МО)
-        endif
-        if empty(mmesto_r) .and. !empty(kart_->mesto_r)
+        Endif
+        If Empty( mmesto_r ) .and. !Empty( kart_->mesto_r )
           imr := k
           mmesto_r := kart_->mesto_r    // место рождения;;
-        endif
-        if empty(mPHONE_H) .and. !empty(kart_->PHONE_H)
+        Endif
+        If Empty( mPHONE_H ) .and. !Empty( kart_->PHONE_H )
           ith := k
           mPHONE_H := kart_->PHONE_H    // телефон домашний;;
-        endif
-        if empty(mPHONE_M) .and. !empty(kart_->PHONE_M)
+        Endif
+        If Empty( mPHONE_M ) .and. !Empty( kart_->PHONE_M )
           itm := k
           mPHONE_M := kart_->PHONE_M    // телефон мобильный;;
-        endif
-        if empty(mPHONE_W) .and. !empty(kart_->PHONE_W)
+        Endif
+        If Empty( mPHONE_W ) .and. !Empty( kart_->PHONE_W )
           itw := k
           mPHONE_W := kart_->PHONE_W    // телефон рабочий;;
-        endif
-        ar[1] += lstr(t1->kod1)
-        if t1->kodh > 0
-          human->(dbGoto(t1->kodh))
-          ar[1] += "(п/л/у "+full_date(human->k_data)+")"
-        endif
-        if !(upper(mfio)==upper(kart->fio).and.mdate_r==kart->date_r)
-          ar[1] += " err "+fam_i_o(kart->fio)+" "+full_date(kart->date_r)
-        endif
-        ar[1] += iif(left(kart2->PC2,1)=="1"," УМЕР","")+"|"
-        ar[2] += " участок "+lstr(kart->uchast)+"|"
-        ar[3] += lstr(kart_->VPOLIS,1)+" "+alltrim(kart_->NPOLIS)+"|"
-        ar[4] += lstr(kart_->vid_ud)+" "+alltrim(kart_->ser_ud)+" "+alltrim(kart_->nom_ud)+"|"
-        ar[5] += rtrim(kart_->okatog)+" "+alltrim(kart->adres)+"|"
-        ar[6] += rtrim(kart_->okatop)+" "+alltrim(kart_->adresp)+"|"
-        f_delete_dubl_zap(t1->kod,t1->kod1,.f.) // не блокировать записи
-        select T1
-        skip
-      enddo
-      select KART
-      goto (t->kod)
-      add_string(padr(lstr(kart2->kod_tf)+"/"+lstr(t->(recno()))+" ("+lstr(k)+")",102,"-"))
-      add_string(alltrim(kart->fio)+" "+full_date(kart->date_r))
-      for k := 1 to 6
-        add_string(ar[k])
-      next
-      add_string("уч-ок"+iif(iuch==1,":","("+lstr(iuch)+"):")+alltrim(mbukva)+lstr(muchast)+"/"+lstr(mkod_vu)+" "+mkod_AK)
-      add_string("полис"+iif(ipolis==1,":","("+lstr(ipolis)+"):")+lstr(m1vidpolis)+" "+alltrim(mspolis)+" "+alltrim(mnpolis))
-      add_string("удост"+iif(iud==1,":","("+lstr(iud)+"):")+lstr(m1vid_ud)+" "+alltrim(mser_ud)+" "+alltrim(mnom_ud))
-      add_string("рожд."+iif(imr==1,":","("+lstr(imr)+"):")+rtrim(mmesto_r))
-      add_string("адрес"+iif(iadres==1,":","("+lstr(iadres)+"):")+mokatog+" "+rtrim(mADRES)+"/"+mokatop+" "+rtrim(mADRESp))
-      if !empty(mmr_dol)
-        add_string("работ"+iif(imrab==1,":","("+lstr(imrab)+"):")+rtrim(mmr_dol))
-      endif
-      add_string("СНИЛС"+iif(isnils==1,":","("+lstr(isnils)+"):")+transform(mSNILS,picture_pf))
+        Endif
+        ar[ 1 ] += lstr( t1->kod1 )
+        If t1->kodh > 0
+          human->( dbGoto( t1->kodh ) )
+          ar[ 1 ] += "(п/л/у " + full_date( human->k_data ) + ")"
+        Endif
+        If !( Upper( mfio ) == Upper( kart->fio ) .and. mdate_r == kart->date_r )
+          ar[ 1 ] += " err " + fam_i_o( kart->fio ) + " " + full_date( kart->date_r )
+        Endif
+        ar[ 1 ] += iif( Left( kart2->PC2, 1 ) == "1", " УМЕР", "" ) + "|"
+        ar[ 2 ] += " участок " + lstr( kart->uchast ) + "|"
+        ar[ 3 ] += lstr( kart_->VPOLIS, 1 ) + " " + AllTrim( kart_->NPOLIS ) + "|"
+        ar[ 4 ] += lstr( kart_->vid_ud ) + " " + AllTrim( kart_->ser_ud ) + " " + AllTrim( kart_->nom_ud ) + "|"
+        ar[ 5 ] += RTrim( kart_->okatog ) + " " + AllTrim( kart->adres ) + "|"
+        ar[ 6 ] += RTrim( kart_->okatop ) + " " + AllTrim( kart_->adresp ) + "|"
+        f_delete_dubl_zap( t1->kod, t1->kod1, .f. ) // не блокировать записи
+        Select T1
+        Skip
+      Enddo
+      Select KART
+      Goto ( t->kod )
+      add_string( PadR( lstr( kart2->kod_tf ) + "/" + lstr( t->( RecNo() ) ) + " (" + lstr( k ) + ")", 102, "-" ) )
+      add_string( AllTrim( kart->fio ) + " " + full_date( kart->date_r ) )
+      For k := 1 To 6
+        add_string( ar[ k ] )
+      Next
+      add_string( "уч-ок" + iif( iuch == 1, ":", "(" + lstr( iuch ) + "):" ) + AllTrim( mbukva ) + lstr( muchast ) + "/" + lstr( mkod_vu ) + " " + mkod_AK )
+      add_string( "полис" + iif( ipolis == 1, ":", "(" + lstr( ipolis ) + "):" ) + lstr( m1vidpolis ) + " " + AllTrim( mspolis ) + " " + AllTrim( mnpolis ) )
+      add_string( "удост" + iif( iud == 1, ":", "(" + lstr( iud ) + "):" ) + lstr( m1vid_ud ) + " " + AllTrim( mser_ud ) + " " + AllTrim( mnom_ud ) )
+      add_string( "рожд." + iif( imr == 1, ":", "(" + lstr( imr ) + "):" ) + RTrim( mmesto_r ) )
+      add_string( "адрес" + iif( iadres == 1, ":", "(" + lstr( iadres ) + "):" ) + mokatog + " " + RTrim( mADRES ) + "/" + mokatop + " " + RTrim( mADRESp ) )
+      If !Empty( mmr_dol )
+        add_string( "работ" + iif( imrab == 1, ":", "(" + lstr( imrab ) + "):" ) + RTrim( mmr_dol ) )
+      Endif
+      add_string( "СНИЛС" + iif( isnils == 1, ":", "(" + lstr( isnils ) + "):" ) + Transform( mSNILS, picture_pf ) )
       s := ""
-      if !empty(mPHONE_H)
-        s += "тел.Д"+iif(ith==1,":","("+lstr(ith)+"):")+mPHONE_H
-      endif
-      if !empty(mPHONE_M)
-        s += "тел.М"+iif(itm==1,":","("+lstr(itm)+"):")+mPHONE_m
-      endif
-      if !empty(mPHONE_W)
-        s += "тел.Р"+iif(itw==1,":","("+lstr(itw)+"):")+mPHONE_w
-      endif
-      if !empty(s)
-        add_string(s)
-      endif
+      If !Empty( mPHONE_H )
+        s += "тел.Д" + iif( ith == 1, ":", "(" + lstr( ith ) + "):" ) + mPHONE_H
+      Endif
+      If !Empty( mPHONE_M )
+        s += "тел.М" + iif( itm == 1, ":", "(" + lstr( itm ) + "):" ) + mPHONE_m
+      Endif
+      If !Empty( mPHONE_W )
+        s += "тел.Р" + iif( itw == 1, ":", "(" + lstr( itw ) + "):" ) + mPHONE_w
+      Endif
+      If !Empty( s )
+        add_string( s )
+      Endif
       //
-      select KART
-      goto (t->kod)
-      select KART_
-      do while kart_->(lastrec()) < t->kod
-        APPEND BLANK
-      enddo
-      goto (t->kod)
-      select KART2
-      do while kart2->(lastrec()) < t->kod
-        APPEND BLANK
-      enddo
-      goto (t->kod)
+      Select KART
+      Goto ( t->kod )
+      Select KART_
+      Do While kart_->( LastRec() ) < t->kod
+        Append Blank
+      Enddo
+      Goto ( t->kod )
+      Select KART2
+      Do While kart2->( LastRec() ) < t->kod
+        Append Blank
+      Enddo
+      Goto ( t->kod )
       //
-      if !(kart_->okatog == mokatog)
+      If !( kart_->okatog == mokatog )
         kart_->okatog := mokatog
-      endif
-      if !(kart->ADRES == mADRES)
+      Endif
+      If !( kart->ADRES == mADRES )
         kart->ADRES := mADRES
-      endif
-      if !(kart_->okatop == mokatop)
+      Endif
+      If !( kart_->okatop == mokatop )
         kart_->okatop := mokatop
-      endif
-      if !(kart_->adresp == madresp)
+      Endif
+      If !( kart_->adresp == madresp )
         kart_->adresp := madresp
-      endif
-      if !(kart->MR_DOL == mMR_DOL)
+      Endif
+      If !( kart->MR_DOL == mMR_DOL )
         kart->MR_DOL := mMR_DOL
-      endif
-      if !(kart->snils == msnils)
+      Endif
+      If !( kart->snils == msnils )
         kart->snils := msnils
-      endif
-      if !(kart->bukva == mbukva)
+      Endif
+      If !( kart->bukva == mbukva )
         kart->bukva := mbukva
-      endif
-      if kart->uchast != muchast
+      Endif
+      If kart->uchast != muchast
         kart->uchast := muchast
-      endif
-      if kart->kod_vu != mkod_vu
+      Endif
+      If kart->kod_vu != mkod_vu
         kart->kod_vu := mkod_vu
-      endif
-      if !(kart2->kod_AK == mkod_AK)
+      Endif
+      If !( kart2->kod_AK == mkod_AK )
         kart2->kod_AK := mkod_AK
-      endif
-      if kart_->VPOLIS != m1vidpolis
+      Endif
+      If kart_->VPOLIS != m1vidpolis
         kart_->VPOLIS := m1vidpolis
-      endif
-      if !(kart->POLIS == mpolis)
+      Endif
+      If !( kart->POLIS == mpolis )
         kart->POLIS := mpolis
-      endif
-      if !(kart_->SPOLIS == mspolis)
+      Endif
+      If !( kart_->SPOLIS == mspolis )
         kart_->SPOLIS := mspolis
-      endif
-      if !(kart_->NPOLIS == mnpolis)
+      Endif
+      If !( kart_->NPOLIS == mnpolis )
         kart_->NPOLIS := mnpolis
-      endif
-      if !(kart_->SMO == msmo)
+      Endif
+      If !( kart_->SMO == msmo )
         kart_->SMO := msmo
-      endif
-      if !(kart_->KVARTAL_D == m1okato)
+      Endif
+      If !( kart_->KVARTAL_D == m1okato )
         kart_->KVARTAL_D := m1okato
-      endif
-      if kart_->vid_ud != m1vid_ud
+      Endif
+      If kart_->vid_ud != m1vid_ud
         kart_->vid_ud := m1vid_ud
-      endif
-      if !(kart_->ser_ud == mser_ud)
+      Endif
+      If !( kart_->ser_ud == mser_ud )
         kart_->ser_ud := mser_ud
-      endif
-      if !(kart_->nom_ud == mnom_ud)
+      Endif
+      If !( kart_->nom_ud == mnom_ud )
         kart_->nom_ud := mnom_ud
-      endif
-      if kart_->kemvyd != m1kemvyd
+      Endif
+      If kart_->kemvyd != m1kemvyd
         kart_->kemvyd := m1kemvyd
-      endif
-      if kart_->kogdavyd != mkogdavyd
+      Endif
+      If kart_->kogdavyd != mkogdavyd
         kart_->kogdavyd := mkogdavyd
-      endif
-      if kart_->kategor != m1kategor
+      Endif
+      If kart_->kategor != m1kategor
         kart_->kategor := m1kategor
-      endif
-      if kart_->kategor2 != m1kategor2
+      Endif
+      If kart_->kategor2 != m1kategor2
         kart_->kategor2 := m1kategor2
-      endif
-      if !(kart_->mesto_r == mmesto_r)
+      Endif
+      If !( kart_->mesto_r == mmesto_r )
         kart_->mesto_r := mmesto_r
-      endif
-      if !(kart_->PHONE_H == mPHONE_H)
+      Endif
+      If !( kart_->PHONE_H == mPHONE_H )
         kart_->PHONE_H := mPHONE_H
-      endif
-      if !(kart_->PHONE_M == mPHONE_M)
+      Endif
+      If !( kart_->PHONE_M == mPHONE_M )
         kart_->PHONE_M := mPHONE_M
-      endif
-      if !(kart_->PHONE_W == mPHONE_W)
+      Endif
+      If !( kart_->PHONE_W == mPHONE_W )
         kart_->PHONE_W := mPHONE_W
-      endif
-      select T
-      if recno() % 400 == 0
-        @ maxrow(),7 say "rec" color "W/R"
+      Endif
+      Select T
+      If RecNo() % 400 == 0
+        @ MaxRow(), 7 Say "rec" Color "W/R"
         Commit
-        @ maxrow(),7 say "   " color cColorStMsg
-      endif
-      skip
-    enddo
-    close databases
-    delete file ("t1dubl"+sntx)
-    fclose(fp)
-  endif
-  delete file ("t_dubl"+sdbf)
-  delete file ("t1dubl"+sdbf)
-  restscreen(buf)
-  return {j1,j2}
-  
-  ***** 11.01.19 открыть все файлы для удаления дубликатов записей в картотеке
-Function f_open_files_dubl_zap(lExcluUse)
-  G_Use(dir_server+"mo_d01k",,"D01K",,lExcluUse)
-  index on str(kod_k,7) to (cur_dir+"tmp_d01k")
-  // список пациентов в реестрах будущих диспансеризаций
-  G_Use(dir_server+"mo_dr01k",,"R01K",,lExcluUse)
-  index on str(kod_k,7) to (cur_dir+"tmp_r01k")
-  // направления на госпитализацию
-  G_Use(dir_server+"mo_nnapr",,"NAPR",,lExcluUse)
-  index on str(kod_k,7) to (cur_dir+"tmp_napr")
-  //
-  G_Use(dir_server+"mo_kinos",dir_server+"mo_kinos","KIS",,lExcluUse)
-  //
-  G_Use(dir_server+"mo_kismo",,"SN",,lExcluUse)
-  index on str(kod,7) to (cur_dir+"tmp_ismo")
-  // платные услуги
-  G_Use(dir_server+"hum_p",dir_server+"hum_pkk","HUM_P",,lExcluUse)
-  // ортопедия
-  G_Use(dir_server+"hum_ort",dir_server+"hum_ortk","HUM_O",,lExcluUse)
-  // приемный покой
-  G_Use(dir_server+"mo_pp",dir_server+"mo_pp_r","PP",,lExcluUse)
-  // касса платные
-  G_Use(dir_server+"kas_pl",dir_server+"kas_pl1","KASP",,lExcluUse)
-  // касса ортопедия
-  G_Use(dir_server+"kas_ort",dir_server+"kas_ort1","KASO",,lExcluUse)
-  // подобие регистра застрахованных
-  G_Use(dir_server+"kart_etk",,"kart_etk",,lExcluUse)
-  index on str(kod_k,7) to (cur_dir+"tmp_kart_etk")
-  // примечания к картотеке
-  G_Use(dir_server+"k_prim1",dir_server+"k_prim1","K_PRIM1",,lExcluUse)
-  // оплата по ДМС и взаимозачету
-  G_Use(dir_server+"plat_vz",,"PVZ",,lExcluUse)
-  index on str(kod_k,7) to (cur_dir+"tmp_pvz")
-  set index to (cur_dir+"tmp_pvz"),(dir_server+"plat_vz")
-  // регистрация печати л/у
-  G_Use(dir_server+"mo_regi",{dir_server+"mo_regi1",;
-                              dir_server+"mo_regi2",;
-                              dir_server+"mo_regi3"},"RU",,lExcluUse)
-  set order to 3
-  // МСЭК
-  G_Use(dir_server+"msek",dir_server+"msek","MSEK",,lExcluUse)
-  // cписок карточек пациентов в отосланных ходатайствах
-  G_Use(dir_server+"mo_hod_k",,"HK",,lExcluUse)
-  index on str(kod_k,7) to (cur_dir+"tmp_hk")
-  // список прикреплений по пациенту во времени
-  G_Use(dir_server+"mo_kartp",dir_server+"mo_kartp","KARTP",,lExcluUse)
-  // список карточек в реестрах на прикрепление
-  G_Use(dir_server+"mo_krtp",,"KRTP",,lExcluUse)
-  index on str(kod_k,7) to (cur_dir+"tmp_krtp")
-  // список ошибок в реестрах на прикрепление
-  G_Use(dir_server+"mo_krte",,"KRTE",,lExcluUse)
-  index on str(kod_k,7) to (cur_dir+"tmp_krte")
-  // список карточек в файлах на открепление
-  G_Use(dir_server+"mo_krto",,"KRTO",,lExcluUse)
-  index on str(kod_k,7) to (cur_dir+"tmp_krto")
-  return NIL
+        @ MaxRow(), 7 Say "   " Color cColorStMsg
+      Endif
+      Skip
+    Enddo
+    Close databases
+    Delete File ( "t1dubl" + sntx )
+    FClose( fp )
+  Endif
+  Delete File ( "t_dubl" + sdbf )
+  Delete File ( "t1dubl" + sdbf )
+  RestScreen( buf )
 
-***** 11.01.19 удалить дубликаты записей в картотеке
-Function f_delete_dubl_zap(dubl1_kart,dubl2_kart,is_lock)
+  Return { j1, j2 }
+
+// 11.01.19 открыть все файлы для удаления дубликатов записей в картотеке
+Function f_open_files_dubl_zap( lExcluUse )
+
+  g_use( dir_server + "mo_d01k",, "D01K",, lExcluUse )
+  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_d01k" )
+  // список пациентов в реестрах будущих диспансеризаций
+  g_use( dir_server + "mo_dr01k",, "R01K",, lExcluUse )
+  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_r01k" )
+  // направления на госпитализацию
+  g_use( dir_server + "mo_nnapr",, "NAPR",, lExcluUse )
+  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_napr" )
+  //
+  g_use( dir_server + "mo_kinos", dir_server + "mo_kinos", "KIS",, lExcluUse )
+  //
+  g_use( dir_server + "mo_kismo",, "SN",, lExcluUse )
+  Index On Str( kod, 7 ) to ( cur_dir + "tmp_ismo" )
+  // платные услуги
+  g_use( dir_server + "hum_p", dir_server + "hum_pkk", "HUM_P",, lExcluUse )
+  // ортопедия
+  g_use( dir_server + "hum_ort", dir_server + "hum_ortk", "HUM_O",, lExcluUse )
+  // приемный покой
+  g_use( dir_server + "mo_pp", dir_server + "mo_pp_r", "PP",, lExcluUse )
+  // касса платные
+  g_use( dir_server + "kas_pl", dir_server + "kas_pl1", "KASP",, lExcluUse )
+  // касса ортопедия
+  g_use( dir_server + "kas_ort", dir_server + "kas_ort1", "KASO",, lExcluUse )
+  // подобие регистра застрахованных
+  g_use( dir_server + "kart_etk",, "kart_etk",, lExcluUse )
+  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_kart_etk" )
+  // примечания к картотеке
+  g_use( dir_server + "k_prim1", dir_server + "k_prim1", "K_PRIM1",, lExcluUse )
+  // оплата по ДМС и взаимозачету
+  g_use( dir_server + "plat_vz",, "PVZ",, lExcluUse )
+  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_pvz" )
+  Set Index to ( cur_dir + "tmp_pvz" ), ( dir_server + "plat_vz" )
+  // регистрация печати л/у
+  g_use( dir_server + "mo_regi", { dir_server + "mo_regi1", ;
+    dir_server + "mo_regi2", ;
+    dir_server + "mo_regi3" }, "RU",, lExcluUse )
+  Set Order To 3
+  // МСЭК
+  g_use( dir_server + "msek", dir_server + "msek", "MSEK",, lExcluUse )
+  // cписок карточек пациентов в отосланных ходатайствах
+  g_use( dir_server + "mo_hod_k",, "HK",, lExcluUse )
+  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_hk" )
+  // список прикреплений по пациенту во времени
+  g_use( dir_server + "mo_kartp", dir_server + "mo_kartp", "KARTP",, lExcluUse )
+  // список карточек в реестрах на прикрепление
+  g_use( dir_server + "mo_krtp",, "KRTP",, lExcluUse )
+  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_krtp" )
+  // список ошибок в реестрах на прикрепление
+  g_use( dir_server + "mo_krte",, "KRTE",, lExcluUse )
+  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_krte" )
+  // список карточек в файлах на открепление
+  g_use( dir_server + "mo_krto",, "KRTO",, lExcluUse )
+  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_krto" )
+
+  Return Nil
+
+// 11.01.19 удалить дубликаты записей в картотеке
+Function f_delete_dubl_zap( dubl1_kart, dubl2_kart, is_lock )
+
   // dubl1_kart - Человек, которому переносится информация
   // dubl2_kart - Человек, который удаляется
   // is_lock    - логическая величина - блокировать ли запись
-  DEFAULT is_lock TO .t.
+  Default is_lock To .t.
   // список пациентов в реестрах будущих диспансеризаций
-  select D01K
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Select D01K
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     d01k->kod_k := dubl1_kart
-  enddo
-  select R01K
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select R01K
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     r01k->kod_k := dubl1_kart
-  enddo
+  Enddo
   // направления на госпитализацию
-  select NAPR
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Select NAPR
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     napr->kod_k := dubl1_kart
-  enddo
-  select HUMAN
+  Enddo
+  Select HUMAN
   // должен уже стоять на индексе (dir_server+"humankk")
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     human->kod_k := dubl1_kart
-  enddo
-  select KIS
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    DeleteRec(.t.,,is_lock)
-  enddo
-  select SN
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    DeleteRec(.t.,,is_lock)
-  enddo
-  select HUM_P
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select KIS
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    deleterec( .t.,, is_lock )
+  Enddo
+  Select SN
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    deleterec( .t.,, is_lock )
+  Enddo
+  Select HUM_P
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     hum_p->kod_k := dubl1_kart
-  enddo
-  select HUM_O
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select HUM_O
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     hum_o->kod_k := dubl1_kart
-  enddo
-  select PP
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select PP
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     pp->kod_k := dubl1_kart
-  enddo
-  select KASP
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select KASP
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     kasp->kod_k := dubl1_kart
-  enddo
-  select KASO
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select KASO
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     kaso->kod_k := dubl1_kart
-  enddo
-  select kart_etk
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    DeleteRec(.t.,,is_lock)
-  enddo
-  select K_PRIM1
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    DeleteRec(.t.,,is_lock)
-  enddo
-  select PVZ
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select kart_etk
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    deleterec( .t.,, is_lock )
+  Enddo
+  Select K_PRIM1
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    deleterec( .t.,, is_lock )
+  Enddo
+  Select PVZ
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     pvz->kod_k := dubl1_kart
-  enddo
-  select RU
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select RU
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     ru->kod_k := dubl1_kart
-  enddo
-  select MSEK
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select MSEK
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     msek->kod_k := dubl1_kart
-  enddo
-  select HK
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select HK
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     hk->kod_k := dubl1_kart
-  enddo
-  select KARTP
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select KARTP
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     kartp->kod_k := dubl1_kart
-  enddo
-  select KRTP
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select KRTP
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     krtp->kod_k := dubl1_kart
-  enddo
-  select KRTE
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select KRTE
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     krte->kod_k := dubl1_kart
-  enddo
-  select KRTO
-  do while .t.
-    find (str(dubl2_kart,7))
-    if !found() ; exit ; endif
-    if is_lock
-      G_RLock(forever)
-    endif
+  Enddo
+  Select KRTO
+  Do While .t.
+    find ( Str( dubl2_kart, 7 ) )
+    If !Found() ; exit ; Endif
+    If is_lock
+      g_rlock( forever )
+    Endif
     krto->kod_k := dubl1_kart
-  enddo
+  Enddo
   // картотека
-  select KART
-  set order to 0
-  goto (dubl2_kart)
+  Select KART
+  Set Order To 0
+  Goto ( dubl2_kart )
   // т.к. relation
-  select KART2
-  goto (dubl2_kart)
-  if !eof()
-    DeleteRec(.t.,.f.,is_lock)  // очистка записи без пометки на удаление
-  endif
-  select KART_
-  goto (dubl2_kart)
-  if !eof()
-    DeleteRec(.t.,.f.,is_lock)  // очистка записи без пометки на удаление
-  endif
-  select KART
-  goto (dubl2_kart)
-  DeleteRec(.t.,.f.,is_lock)  // очистка записи без пометки на удаление
-  if is_lock
-    dbUnLockAll()
-  endif
-  return NIL
+  Select KART2
+  Goto ( dubl2_kart )
+  If !Eof()
+    deleterec( .t., .f., is_lock )  // очистка записи без пометки на удаление
+  Endif
+  Select KART_
+  Goto ( dubl2_kart )
+  If !Eof()
+    deleterec( .t., .f., is_lock )  // очистка записи без пометки на удаление
+  Endif
+  Select KART
+  Goto ( dubl2_kart )
+  deleterec( .t., .f., is_lock )  // очистка записи без пометки на удаление
+  If is_lock
+    dbUnlockAll()
+  Endif
 
-***** 14.09.16 поправить номер полиса из реестров СПТК
+  Return Nil
+
+// 14.09.16 поправить номер полиса из реестров СПТК
 Function correct_polis_from_sptk()
+
   Local ii := 0, jj := 0, fl, buf := save_maxrow()
-  stat_msg("Поиск/попытка исправления полисов в картотеке")
-  Use (dir_server+"human_") new
-  use (dir_server+"human") new
-  set relation to recno() into HUMAN_
-  Private mdate := stod("20190630")
-  index on str(kod_k,7)+str(descend(k_data),10) to (cur_dir+"tmp_human") for k_data > mdate
-  use_base("kartotek",,.t.) // открываем в монопольном режиме
-  set order to 2
-  find ("1")
-  do while kart->kod > 0 .and. !eof()
-    if ++ii % 500 == 0
-      @ maxrow(),0 say str(ii/lastrec()*100,6,2)+"%" color cColorStMsg
-    endif
-    select HUMAN
-    find (str(kart->kod,7))
-    do while human->kod_k == kart->kod .and. !eof()
-      if !empty(k_data) .and. kod > 0 .and. ;
-         between(human_->VPOLIS,1,3) .and. schet > 0 .and. ; // в счете
-         human_->REESTR > 0 .and. between(human_->smo,'34001','34007')
+
+  stat_msg( "Поиск/попытка исправления полисов в картотеке" )
+  Use ( dir_server + "human_" ) new
+  Use ( dir_server + "human" ) new
+  Set Relation To RecNo() into HUMAN_
+  Private mdate := SToD( "20190630" )
+  Index On Str( kod_k, 7 ) + Str( Descend( k_data ), 10 ) to ( cur_dir + "tmp_human" ) For k_data > mdate
+  use_base( "kartotek",, .t. ) // открываем в монопольном режиме
+  Set Order To 2
+  find ( "1" )
+  Do While kart->kod > 0 .and. !Eof()
+    If++ii % 500 == 0
+      @ MaxRow(), 0 Say Str( ii / LastRec() * 100, 6, 2 ) + "%" Color cColorStMsg
+    Endif
+    Select HUMAN
+    find ( Str( kart->kod, 7 ) )
+    Do While human->kod_k == kart->kod .and. !Eof()
+      If !Empty( k_data ) .and. kod > 0 .and. ;
+          Between( human_->VPOLIS, 1, 3 ) .and. schet > 0 .and. ; // в счете
+        human_->REESTR > 0 .and. Between( human_->smo, '34001', '34007' )
         fl := .f.
-        if human_->VPOLIS == kart_->VPOLIS
-          fl := !(kart_->NPOLIS == human_->NPOLIS)
-        elseif human_->VPOLIS > kart_->VPOLIS
+        If human_->VPOLIS == kart_->VPOLIS
+          fl := !( kart_->NPOLIS == human_->NPOLIS )
+        Elseif human_->VPOLIS > kart_->VPOLIS
           fl := .t.
-        endif
-        if fl
-          kart->POLIS   := make_polis(human_->spolis,human_->npolis)
+        Endif
+        If fl
+          kart->POLIS   := make_polis( human_->spolis, human_->npolis )
           kart_->VPOLIS := human_->VPOLIS
           kart_->SPOLIS := human_->SPOLIS
           kart_->NPOLIS := human_->NPOLIS
-          if ++jj % 2000 == 0
-            commit
-          endif
-        endif
-        exit
-      endif
-      select HUMAN
-      skip
-    enddo
-    select KART
-    skip
-  enddo
-  close databases
-  rest_box(buf)
-  return NIL
-  
-      
+          If++jj % 2000 == 0
+            Commit
+          Endif
+        Endif
+        Exit
+      Endif
+      Select HUMAN
+      Skip
+    Enddo
+    Select KART
+    Skip
+  Enddo
+  Close databases
+  rest_box( buf )
+
+  Return Nil

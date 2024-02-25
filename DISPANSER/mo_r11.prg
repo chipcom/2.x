@@ -1,22 +1,22 @@
-** mo_omsid.prg - информация по диспансеризации в ОМС
+// mo_omsid.prg - информация по диспансеризации в ОМС
 #include "inkey.ch"
 #include "fastreph.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-#define MONTH_UPLOAD 1 //МЕСЯЦ для выгрузки R11
+#define MONTH_UPLOAD 3 //МЕСЯЦ для выгрузки R11
 
-** 18.01.23 Создание файла обмена R11...
+// 22.01.24 Создание файла обмена R11...
 Function f_create_R11()
   Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
   Private SMONTH := 1, mdate := sys_date, mrec := 1
   Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
           pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
           mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
-          _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20221201)
+          _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20231201)
   
-  Private sgod := 2023
+  Private sgod := 2024
   //
   mywait()
   fl := .t.
@@ -64,7 +64,7 @@ Function f_create_R11()
     return NIL
   endif
   
-  if fl_1 .or. code_lpu == "321001"// не первый раз
+  if fl_1 //.or. code_lpu == "321001"// не первый раз
     R_Use(dir_server+"mo_dr05p",,"R05p")
     goto (mrec)
     skol[1] := r05p->KOL1
@@ -308,7 +308,7 @@ Function f_create_R11()
   endif
   return NIL
   
-  ** 09.02.20 переопределить все три первичных ключа в картотеке
+// 09.02.20 переопределить все три первичных ключа в картотеке
 Static Function f0_create_R11(sgod)
   Local fl, v, ltip := 0, ltip1 := 0, lvoz := 0, ag, lgod_r
   if !emptyany(kart->kod,kart->fio,kart->date_r) // данную запись в картотеке недавно удалили
@@ -338,16 +338,11 @@ Static Function f0_create_R11(sgod)
   endif
   return {ltip,ltip1,lvoz}
   
-** 22.10.21
+// 22.10.21
 Function f1_create_R11(lm,fl_dr00)
   Local nsh := 3, smsg, lnn := 0 ,buf := save_maxrow()
   if !f_Esc_Enter("создания файла R11",.t.)
     return NIL
-  endif
-  if eq_any(CODE_LPU,'124528','184603','141016') .and. hb_fileExists(dir_server+"b18"+sdbf)
-    lnn := 100 // специально для 28-ой п-ки после объединения с 18-ой б-цей
-               // или для 3-ей п-ки после объединения с 12-ой п-кой
-               // или для Б16 после обьединения с Б24
   endif
   G_Use(dir_server+"mo_dr01m",,"RM")
   AddRecN()
@@ -564,7 +559,7 @@ Function f1_create_R11(lm,fl_dr00)
   rest_box(buf)
   return NIL
   
-  ** 28.12.21
+// 28.12.21
 Function delete_reestr_R11()
   Local t_arr[BR_LEN], blk
   if ! hb_user_curUser:IsAdmin()
@@ -610,8 +605,8 @@ Function delete_reestr_R11()
   close databases
   return NIL
   
-  ** 09.02.20
-  Function f1_delete_reestr_R11(nKey,oBrow,regim)
+// 09.02.20
+Function f1_delete_reestr_R11(nKey,oBrow,regim)
   Local ret := -1, rec_m := r01m->(recno()), ir, fl := .t.
   if regim == "edit" .and. nKey == K_ENTER
     if empty(r01m->twork2)
@@ -645,7 +640,7 @@ Function delete_reestr_R11()
   return ret
   
   
-** 09.02.20 аннулировать чтение реестра R11
+// 09.02.20 аннулировать чтение реестра R11
 Function f2_delete_reestr_R11(rec_m)
   Local ir, mkod_reestr
   G_Use(dir_server+"mo_xml",,"MO_XML")
@@ -697,7 +692,7 @@ Function f2_delete_reestr_R11(rec_m)
   DeleteRec()
   return NIL
   
-  ** 13.02.20 удаление всех пакетов R11(PR11) за конкретный месяц
+// 13.02.20 удаление всех пакетов R11(PR11) за конкретный месяц
 Function delete_month_R11()
   Local pss := space(10), tmp_pss := my_parol()
   Local i, lm, mkod_reestr, ar_m := {}, buf
@@ -757,7 +752,7 @@ Function delete_month_R11()
   close databases
   return NIL
 
-  ** 28.02.21 удаление всех пакетов R01(PR01) за конкретный месяц
+// 28.02.21 удаление всех пакетов R01(PR01) за конкретный месяц
 /*
 Function delete_month_R01()
 Local pss := space(10), tmp_pss := my_parol()
@@ -819,7 +814,7 @@ close databases
 return NIL
 */
 
-** 25.02.21
+// 25.02.21
 Function f32_view_R11(lm)
   Local fl := .t., buf := save_maxrow(), k := 0, skol[5,3], ames[12,5,3], mrec := 2, n_file := "r11_itog"+stxt,;
         arr_rees := {}, mkod_reestr := 0

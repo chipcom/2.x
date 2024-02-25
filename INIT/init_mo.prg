@@ -10,6 +10,8 @@ Function init_mo()
   //  aaa := ctod('31/10/2023')
   //  altd()
   //  aaa := loadCriteria21(2023)
+//  local arr_m := {2024, 2}, b1, b2, a1, a2
+//  ret_days_for_akt_sverki( arr_m, b1, b2, a1, a2 )
 
   mywait()
   Public oper_parol := 30  // пароль для фискального регистратора
