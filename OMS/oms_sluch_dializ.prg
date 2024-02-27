@@ -12,7 +12,7 @@ Function f_d_dializ()
 
   Return .t.
 
-// 20.02.24 гемодиализ (1) и перитонеальный диализ (2)
+// 27.02.24 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -278,7 +278,8 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
       Next
       @ ++j, 1 Say 'Количество НИЗКОпоточных процедур' Get mkol_proc Pict '99'
       @ ++j, 1 Say 'Количество ВЫСОКОпоточных процедур' Get mkol_proc1 Pict '99'
-      If m1USL_OK == USL_OK_DAY_HOSPITAL
+
+      If m1USL_OK == USL_OK_DAY_HOSPITAL .or. m1USL_OK == USL_OK_POLYCLINIC
         @ ++j, 1 Say 'Гемодиафильтрация (A18.05.011)' Get mkol_proc2 Pict '99'
       Endif
       // @ ++j, 1 say 'Количество диализов при нарушении ультрафильтрации (А18.30.001.003)' get mkol_proc3 pict '99'
