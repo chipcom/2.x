@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 07.10.23 функция для when и valid при вводе услуг в лист учёта
+// 28.02.24 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm, adult)
   Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, fl1, fl2, ;
         msg1_err := 'Код врача равен коду ассистента! Это недопустимо.', ;
@@ -49,7 +49,7 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm, adult)
       if !empty(mshifr) .and. !(mshifr == get:original)
         mshifr := transform_shifr(mshifr)
         if lMedReab   // сначала проверим шифр амбулаторную мед. реабилитацию
-          aMedReab := ret_usluga_med_reab(mshifr, vidReab, shrm, adult)
+          aMedReab := ret_usluga_med_reab(mshifr, vidReab, shrm, adult, m1vto )
           if aMedReab == nil .or. len(aMedReab) == 0
             func_error(4, 'Услуга не входит в набор услуг обращения в амбулаторной медицинской реабилитации')
             mshifr := space(20)

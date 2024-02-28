@@ -6,7 +6,7 @@
 
 Static sadiag1  // := {}
 
-// 16.02.24
+// 28.02.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -3039,7 +3039,7 @@ Function verify_1_sluch( fl_view )
         //
         fl_not_2_89 := .f.
         If lTypeLUMedReab
-          obyaz_uslugi_med_reab := compulsory_services( list2arr( human_2->PC5 )[ 1 ], list2arr( human_2->PC5 )[ 2 ], M1VZROS_REB == 0 )
+          obyaz_uslugi_med_reab := compulsory_services( list2arr( human_2->PC5 )[ 1 ], list2arr( human_2->PC5 )[ 2 ], M1VZROS_REB == 0, iif( ( list2arr( human_2->PC5 ) ) > 2, list2arr( human_2->PC5 )[ 3 ], 0 ) )
           For Each row in arrUslugi // проверим все услуги случая
             If ( iUsluga := AScan( obyaz_uslugi_med_reab, {| x| AllTrim( x ) == AllTrim( row ) } ) ) > 0
               hb_ADel( obyaz_uslugi_med_reab, iUsluga, .t. )
@@ -3051,7 +3051,7 @@ Function verify_1_sluch( fl_view )
             Next
           Endif
 
-          aUslMedReab := ret_usluga_med_reab( alltrim_lshifr, list2arr( human_2->PC5 )[ 1 ], list2arr( human_2->PC5, M1VZROS_REB == 0 )[ 2 ] )
+          aUslMedReab := ret_usluga_med_reab( alltrim_lshifr, list2arr( human_2->PC5 )[ 1 ], list2arr( human_2->PC5 )[ 2 ], M1VZROS_REB == 0, iif( len( list2arr( human_2->PC5 ) ) > 2, list2arr( human_2->PC5 )[ 3 ], 0 ) )
           If aUslMedReab != Nil .and. Len( aUslMedReab ) != 0
             If aUslMedReab[ 3 ] > au_lu[ i, 6 ]
               AAdd( ta, 'для услуги ' + alltrim_lshifr + ' требуется минимум ' + lstr( aUslMedReab[ 3 ] ) + ' предоставлений!' )

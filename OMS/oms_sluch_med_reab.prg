@@ -4,11 +4,10 @@
 #include 'chip_mo.ch'
 
 // 20.02.24 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
-Function oms_sluch_med_reab( Loc_kod, kod_kartotek, f_print )
+Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
-  // f_print - наименование функции для печати
 
   Static skod_diag := '     ', st_n_data, st_k_data, ;
     st_vrach := 0, st_rslt := 0, st_ishod := 0
@@ -575,9 +574,5 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek, f_print )
       Endif
     Endif
   Endif
-
-  // if !empty(f_print)
-  // return &(f_print + '(' + lstr(Loc_kod) + ',' + lstr(kod_kartotek) + ')')
-  // endif
 
   Return Nil

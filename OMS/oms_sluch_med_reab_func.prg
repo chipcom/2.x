@@ -155,19 +155,16 @@ Function type_shrm_reabilitacia( vto )
 
   local ret := {}
 
-  If Len( ret ) == 0
+  if vto == 0 // не используется высокотехнологичное оборудование
     AAdd( ret, { 'ШРМ 1', 1 } )
-    AAdd( ret, { 'ШРМ 2', 2 } )
-    AAdd( ret, { 'ШРМ 3', 3 } )
-  Endif
-  if vto == 1 // используется высокотехнологичное оборудование
-    hb_ADel( ret, 1, .t. )
   endif
+  AAdd( ret, { 'ШРМ 2', 2 } )
+  AAdd( ret, { 'ШРМ 3', 3 } )
 
   Return ret
 
 // 28.02.24
-Function ret_array_med_reab( vid, shrm, adult )
+Function ret_array_med_reab( vid, shrm, adult, vto )
 
   // услуга
   // далее для трех ШРМ:
@@ -424,9 +421,136 @@ Function ret_array_med_reab( vid, shrm, adult )
   // {'20.2.3', .t., 7, .t., 9, .t., 11}, ;
   // {'20.2.5', .f., 7, .f., 9, .f., 11} ;
   // }, ;
+    local arr_uslugi_med_reab_vto := { ;  // с высокотехнологичным оборудованием
+      { ;   // заболевания опорно-двигательного аппарата
+      { '2.6.23', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.13', nil, nil, .f., 1, .f., 1 }, ;
+      { '2.6.24', nil, nil, .t., 2, .t., 2 }, ;
+      { '2.6.17', nil, nil, .f., 1, .f., 1 }, ;
+      { '2.6.14', nil, nil, .f., 1, .f., 1 }, ;
+      { '2.6.19', nil, nil, .f., 1, .f., 1 }, ;
+      { '2.6.20', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.5',  nil, nil, .f., 1, .t., 2 }, ;
+      { '2.6.6',  nil, nil, .f., 1, .t., 2 }, ;
+      { '2.6.7',  nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.8',  nil, nil, .f., 1, .t., 1 }, ;
+      { '4.11.136', nil, nil, .t., 1, .t., 1 }, ;
+      { '4.2.153', nil, nil, .t., 1, .t., 1 }, ;
+      { '13.1.1', nil, nil, .t., 1, .t., 1 }, ;
+      { '14.2.3', nil, nil, .f., 1, .f., 1 }, ;
+      { '20.1.2', nil, nil, .t., 11, .t., 13 }, ;
+      { '20.2.4', nil, nil, .t., 5, .t., 7 }, ;
+      { '19.8.1', nil, nil, .t., 10, .t., 12 }, ;
+      { '20.2.1', nil, nil, .f., 15, .f., 20 }, ;
+      { '21.1.2', nil, nil, .f., 8, .f., 10 } ;
+      }, ;
+      { ;     // ССС
+      { '2.6.17', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.18', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.5',   nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.6',   nil, nil, .t., 1, .t., 2 }, ;
+      { '2.6.7',   nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.8',   nil, nil, .t., 1, .t., 2 }, ;
+      { '2.6.23', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.24', nil, nil, .t., 2, .t., 2 }, ;
+      { '4.11.136', nil, nil, .t., 1, .t., 1 }, ;
+      { '4.2.153', nil, nil, .t., 1, .t., 1 }, ;
+      { '13.1.1', nil, nil, .t., 2, .t., 3 }, ;
+      { '20.1.3', nil, nil, .f., 8, .f., 10 }, ;
+      { '20.2.2', nil, nil, .f., 5, .f., 7 }, ;
+      { '19.8.1', nil, nil, .f., 10, .f., 12 }, ;
+      { '20.2.1', nil, nil, .f., 12, .f., 15 }, ;
+      { '21.1.3', nil, nil, .f., 6, .f., 8 } ;
+      }, ;
+      { ;     // заболевания центральной нервной системы
+      { '2.6.23', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.17', nil, nil, .f., 1, .f., 1 }, ;
+      { '2.6.18', nil, nil, .f., 1, .f., 1 }, ;
+      { '2.6.24', nil, nil, .t., 2, .t., 2 }, ;
+      { '2.6.5', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.6', nil, nil, .f., 2, .t., 2 }, ;
+      { '2.6.7', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.8', nil, nil, .t., 1, .t., 2 }, ;
+      { '2.6.19', nil, nil, .f., 1, .f., 1 }, ;
+      { '2.6.20', nil, nil, .f., 1, .f., 1 }, ;
+      { '4.11.136', nil, nil, .t., 1, .t., 1 }, ;
+      { '4.2.153', nil, nil, .t., 1, .t., 1 }, ;
+      { '13.1.1', nil, nil, .t., 1, .t., 1 }, ;
+      { '20.1.1', nil, nil, .t., 10, .t., 12 }, ;
+      { '20.2.4', nil, nil, .f., 5, .f., 7 }, ;
+      { '19.8.1', nil, nil, .f., 10, .f., 15 }, ;
+      { '20.2.1', nil, nil, .f., 15, .f., 20 }, ;
+      { '21.1.1', nil, nil, .f., 8, .f., 10 } ;
+      }, ;
+      { ;     // заболевания периферической нервной системы
+      { '2.6.23', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.17', nil, nil, .f., 1, .f., 1 }, ;
+      { '2.6.18', nil, nil, .f., 1, .f., 1 }, ;
+      { '2.6.24', nil, nil, .t., 2, .t., 2 }, ;
+      { '2.6.5',   nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.6',   nil, nil, .f., 1, .t., 2 }, ;
+      { '2.6.7',   nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.8',   nil, nil, .t., 1, .t., 2 }, ;
+      { '2.6.19', nil, nil, .f., 1, .f., 1 }, ;
+      { '2.6.20', nil, nil, .f., 1, .f., 1 }, ;
+      { '4.11.136', nil, nil, .t., 1, .t., 1 }, ;
+      { '4.2.153', nil, nil, .t., 1, .t., 1 }, ;
+      { '13.1.1', nil, nil, .t., 1, .t., 1 }, ;
+      { '20.1.6', nil, nil, .t., 10, .t., 12 }, ;
+      { '20.2.4', nil, nil, .f., 5, .f., 7 }, ;
+      { '19.8.1', nil, nil, .f., 10, .f., 12 }, ;
+      { '20.2.1', nil, nil, .f., 12, .f., 15 }, ;
+      { '21.1.6', nil, nil, .f., 8, .f., 10 } ;
+      }, ;
+      { ;     // заболевания органов дыхания, после COVID-19
+      { '2.6.17', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.18', nil, nil, .t., 1, .t., 2 }, ;
+      { '2.6.5', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.6', nil, nil, .f., 1, .f., 2 }, ;
+      { '2.6.7', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.8', nil, nil, .f., 1, .f., 1 }, ;
+      { '2.6.23', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.24', nil, nil, .t., 1, .t., 2 }, ;
+      { '4.11.136', nil, nil, .t., 1, .t., 2 }, ;
+      { '4.2.153', nil, nil, .t., 1, .t., 2 }, ;
+      { '16.1.17', nil, nil, .t., 2, .t., 3 }, ;
+      { '13.1.1', nil, nil, .t., 1, .t., 1 }, ;
+      { '20.1.5', nil, nil, .t., 10, .t., 11 }, ;
+      { '20.2.3', nil, nil, .f., 5, .f., 8 }, ;
+      { '19.8.1', nil, nil, .f., 10, .f., 15 }, ;
+      { '20.2.1', nil, nil, .f., 10, .f., 12 } ;
+      }, ;
+      { ;     // заболевания органов дыхания
+      { '2.6.17',   nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.18', nil, nil, .t., 1, .t., 2 }, ;
+      { '2.6.5',   nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.6',   nil, nil, .f., 2, .f., 2 }, ;
+      { '2.6.7',   nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.8',   nil, nil, .f., 2, .f., 2 }, ;
+      { '2.6.23', nil, nil, .t., 1, .t., 1 }, ;
+      { '2.6.24', nil, nil, .t., 2, .t., 2 }, ;
+      { '4.11.136', nil, nil, .t., 1, .t., 1 }, ;
+      { '4.2.153', nil, nil, .t., 1, .t., 1 }, ;
+      { '13.1.1', nil, nil, .t., 1, .t., 1 }, ;
+      { '20.1.5', nil, nil, .t., 11, .t., 13 }, ;
+      { '20.2.3', nil, nil, .f., 8, .f., 11 }, ;
+      { '19.8.1', nil, nil, .f., 10, .f., 15 }, ;
+      { '20.2.1', nil, nil, .f., 10, .f., 12 }, ;
+      { '21.1.5', nil, nil, .f., 8, .f., 9 } ;
+      } ;
+      }
+
   Local ret := {}, row
+  local tmp_arr
+
   Default adult To .t.
-  For Each row in arr_uslugi_med_reab[ vid ]
+  if vto == 0
+    tmp_arr := arr_uslugi_med_reab
+  else
+    tmp_arr := arr_uslugi_med_reab_vto
+  endif
+//  For Each row in arr_uslugi_med_reab[ vid ]
+  For Each row in tmp_arr[ vid ]
     If adult // удаляем услуги педиатра
       If row[ 1 ] == '2.6.19' .or. row[ 1 ] == '2.6.20'
         Loop
@@ -446,15 +570,16 @@ Function ret_array_med_reab( vid, shrm, adult )
 
   Return ret
 
-// 07.10.23
-Function ret_usluga_med_reab( shifr_usl, vid, shrm, adult )
+// 28.02.24
+Function ret_usluga_med_reab( shifr_usl, vid, shrm, adult, vto )
 
   Local ret, i
 
   Default adult To .t.
+  Default vto to 0
   shifr_usl := Lower( AllTrim( shifr_usl ) )
-  If !Empty( shifr_usl ) .and. ( ( i := AScan( ret_array_med_reab( vid, shrm, adult ), {| x| Lower( AllTrim( x[ 1 ] ) ) == shifr_usl } ) ) > 0 )
-    ret := ret_array_med_reab( vid, shrm, adult )[ i ]
+  If !Empty( shifr_usl ) .and. ( ( i := AScan( ret_array_med_reab( vid, shrm, adult, vto ), {| x| Lower( AllTrim( x[ 1 ] ) ) == shifr_usl } ) ) > 0 )
+    ret := ret_array_med_reab( vid, shrm, adult, vto )[ i ]
   Endif
 
   Return ret
@@ -469,11 +594,12 @@ Function is_lu_med_reab()
   Return ret
 
 // 07.10.23 обязательные услуги
-Function compulsory_services( vid, shrm, adult )
+Function compulsory_services( vid, shrm, adult, vto )
 
   Local aRet := {}, row
 
-  For Each row in ret_array_med_reab( vid, shrm, adult )
+  default vto to 0
+  For Each row in ret_array_med_reab( vid, shrm, adult, vto )
     If row[ 2 ]
       AAdd( aRet, row[ 1 ] )
     Endif
