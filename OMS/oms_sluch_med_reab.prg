@@ -22,7 +22,6 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
     fl_write_sluch := .f., when_uch_doc := .t.
   Local tlist_rslt, list_rslt := {}, list_ishod, row
   Local aReab, sArr := ''
-  Local mm_da_net := { { 'нет', 0 }, { 'да ', 1 } }
 
   Default st_n_data To sys_date, st_k_data To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
@@ -225,7 +224,7 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
     mNPR_MO := ret_mo( m1NPR_MO )[ _MO_SHORT_NAME ]
   Endif
 
-  mvto     := inieditspr( A__MENUVERT, mm_da_net, m1vto )
+  mvto     := inieditspr( A__MENUVERT, arr_NO_YES(), m1vto )
 
   mvidreab  := inieditspr( A__MENUVERT, type_reabilitacia( m1vto ), m1vidreab )
   mshrm     := inieditspr( A__MENUVERT, type_shrm_reabilitacia( m1vto ), m1shrm )
@@ -333,7 +332,7 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
 
     if Year( mk_data ) >= 2024
       @ ++j, 1 Say 'Использование высокотехнологичного оборудования' Get mvto ;
-        reader {| x| menu_reader( x, mm_da_net, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, arr_NO_YES(), A__MENUVERT, , , .f. ) }
     endif
 
     @ ++j, 1 Say 'Вид реабилитации' Get mvidreab ;

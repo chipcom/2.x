@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.02.24 добавление или редактирование случая (листа учета)
+// 29.02.24 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -22,7 +22,6 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Local mWeight := 0
   Local oldPictureTalon := '@S12'
   Local newPictureTalon := '@S 99.9999.99999.999'
-  Local mm_da_net := { { 'нет', 0 }, { 'да ', 1 } }
   Local j, it
   Local i_n007, aN007 := getn007(), i_n008, aN008 := loadn008(), i_n009, aN009 := getn009()
   Local i_n012, aN012_DS := getds_n012(), ar_N012 := {}
@@ -152,7 +151,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Private mm_prer_b := mm2prer_b
 
   Private mTab_Number := 0
-  Private mNMSE, m1NMSE := 0  // направление на МСЭ
+  Private mNMSE, m1NMSE := NO  // направление на МСЭ
   Private mnapr_onk := Space( 10 ), m1napr_onk := 0
 
   If mem_zav_l == 1  // да
@@ -683,7 +682,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   mishod    := inieditspr( A__MENUVERT, getv012(), m1ishod )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mbolnich  := inieditspr( A__MENUVERT, menu_bolnich, m1bolnich )
-  mNMSE     := inieditspr( A__MENUVERT, mm_da_net, m1NMSE )
+  mNMSE     := inieditspr( A__MENUVERT, arr_NO_YES(), m1NMSE )
   // mpovod    := inieditspr(A__MENUVERT, stm_povod, m1povod)
   // mtravma   := inieditspr(A__MENUVERT, stm_travma, m1travma)
   motd      := inieditspr( A__POPUPMENU, dir_server + 'mo_otd',  m1otd )
@@ -902,7 +901,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         reader {| x| menu_reader( x, mm_ishod, A__MENUVERT, , , .f. ) }
 
       @ j, 42 Say 'Направление на МСЭ' Get mNMSE ;
-        reader {| x| menu_reader( x, mm_da_net, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, arr_NO_YES(), A__MENUVERT, , , .f. ) } ;
         Color colget_menu
 
       //
