@@ -50,7 +50,7 @@ Function pz_statist( k )
 
   Return Nil
 
-// 26.12.23
+// 29.02.24
 Function pz1statist( par, par2 )
 
   Static _su := 2
@@ -59,6 +59,19 @@ Function pz1statist( par, par2 )
     sh := 80, HH := 60, reg_print := 2, arr_name := f14tf_array(), ;
     mstr_crb, mismo, ltrud, lplan, lcount_uch, lcount_otd
   Local sbase
+  // для Excel
+  Local lExcel := .f., lText := .f., used_column := 0 
+  Local name_fileXLS := 'Plan_zakaz_' + suffixfiletimestamp()
+  Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
+  Local workbook
+  Local worksheet, wsCommon
+  Local row, column, rowWS, columnWS
+  Local header, header_wrap
+  Local formatDate
+  Local fmtCellNumber, fmtCellString, fmtCellStringCenter, fmtCellNumberRub
+  Local s1, s2, s3
+  Local wsCommon_format, wsCommon_format_header, wsCommon_format_wrap, wsCommon_Number, wsCommon_Number_Rub
+
 
   Private flag_uet := .t., as[ 10, 3 ], s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim, ;
     su, su1, arr_goi, arr_zn := { B_END, B_STANDART }, arr_rees_no := { 1, 2 }, ;
@@ -141,18 +154,6 @@ Function pz1statist( par, par2 )
     r_use( dir_exe + sbase, , 'MOUNIT' )
     Index On Str( ii, 3 ) to ( cur_dir + 'tmp_unitii' )
     Set Index to ( cur_dir + sbase ), ( cur_dir + 'tmp_unitii' )
-    // If arr_m[ 1 ] == 2023
-    //   is_2023 := .t.
-    // Elseif arr_m[ 1 ] == 2022
-    //   is_2022 := .t.
-    // Elseif arr_m[ 1 ] == 2021
-    //   is_2021 := .t.
-    // Elseif arr_m[ 1 ] == 2020
-    //   is_2020 := .t.
-    // Elseif arr_m[ 1 ] == 2019
-    //   is_2019 := .t.
-    // Endif 
-
     apz2016 := arr_plan_zakaz( arr_m[ 1 ] )
     luapz2016 := arr_plan_zakaz( arr_m[ 1 ] )
     kol_sl_2 := Array( Len( apz2016 ) )
@@ -366,10 +367,21 @@ Function pz1statist( par, par2 )
     AAdd( adbf, { 'kol' + StrZero( apz2016[ i, 2 ], 2 ), 'N', 9, 2 } )
   Next
   //
-  fp := FCreate( name_file )
-  tek_stroke := 0
-  n_list := 1
-  add_string( PadL( 'дата печати ' + date_8( sys_date ) + ' ' + hour_min( Seconds() ), sh ) )
+  if lExcel
+    workbook  := workbook_new( name_fileXLS_full )
+    wsCommon := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Описание' ) )
+    worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
+    row := 0
+    column := 0
+    rowWS := 1
+    columnWS := 0
+    worksheet_write_string( wsCommon, row++, column, hb_StrToUTF8( 'дата печати ' + date_8( sys_date ) + ' ' + hour_min( Seconds() ) ) ) //, header )
+  else
+    fp := FCreate( name_file )
+    tek_stroke := 0
+    n_list := 1
+    add_string( PadL( 'дата печати ' + date_8( sys_date ) + ' ' + hour_min( Seconds() ), sh ) )
+  endif
   titlen_uch( st_a_uch, sh, lcount_uch )
   If Len( st_a_uch ) == 1
     titlen_otd( st_a_otd, sh, lcount_otd )
@@ -754,13 +766,6 @@ Function pz1statist( par, par2 )
           If Found()
             lname := lusl->name  // наименование услуги из справочника ТФОМС
           Endif
-          // else
-          // select LUSL19
-          // find (padr(usl->shifr, 10))
-          // if found()
-          // lname := lusl19->name  // наименование услуги из справочника ТФОМС
-          // endif
-          // endif
           k := perenos( as, AllTrim( usl->shifr ) + ' ' + AllTrim( lname ), n1 - 2 )
           s := '  ' + PadR( as[ 1 ], n1 - 2 )
           If fl_plan
@@ -774,12 +779,10 @@ Function pz1statist( par, par2 )
           add_string( s )
           Select TMP_XLS
           Append Blank
-          // tmp_xls->kod    := tmp1->kod
           tmp_xls->shifr  := usl->shifr
           tmp_xls->u_name := AllTrim( lname )
           tmp_xls->kol    := tmp1->kol
           tmp_xls->sum    := tmp1->sum
-          // {'kol1', 'N', 7, 0}, ;
           For j := 2 To k
             add_string( PadL( AllTrim( as[ j ] ), n1 ) )
           Next
@@ -794,7 +797,12 @@ Function pz1statist( par, par2 )
   FClose( fp )
   Close databases
   RestScreen( buf )
-  viewtext( name_file, , , , ( sh > 80 ), , , reg_print )
+  If lExcel
+    workbook_close( workbook )
+    saveto( name_fileXLS_full )
+  else
+    viewtext( name_file, , , , ( sh > 80 ), , , reg_print )
+  Endif
 
   If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
     create_xls_rdl( 'rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd )

@@ -155,6 +155,7 @@ mo_version.prg
 .\onkologiya\onko.prg
 
 .\reports\reports.prg
+.\reports\reports_func.prg
 .\reports\createXLS.prg
 .\reports\hodotajstvoXLS.prg
 .\reports\exportKartExcel.prg
