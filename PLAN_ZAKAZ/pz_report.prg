@@ -50,7 +50,7 @@ Function pz_statist( k )
 
   Return Nil
 
-// 29.02.24
+// 01.03.24
 Function pz1statist( par, par2 )
 
   Static _su := 2
@@ -66,6 +66,7 @@ Function pz1statist( par, par2 )
   Local workbook
   Local worksheet, wsCommon
   Local row, column, rowWS, columnWS
+  local arrOutput
   Local header, header_wrap
   Local formatDate
   Local fmtCellNumber, fmtCellString, fmtCellStringCenter, fmtCellNumberRub
@@ -376,17 +377,28 @@ Function pz1statist( par, par2 )
     rowWS := 1
     columnWS := 0
     worksheet_write_string( wsCommon, row++, column, hb_StrToUTF8( 'дата печати ' + date_8( sys_date ) + ' ' + hour_min( Seconds() ) ) ) //, header )
+    arrOutput := arr_titleN_uch( st_a_uch, lcount_uch )
+    For i := 1 To Len( arrOutput )
+      worksheet_write_string( wsCommon, row++, column, hb_StrToUTF8( arrOutput[ i ] ) ) //, header )
+    next
+    If Len( st_a_uch ) == 1
+      arrOutput := arr_titlen_otd( st_a_otd, lcount_otd )
+      For i := 1 To Len( arrOutput )
+        worksheet_write_string( wsCommon, row++, column, hb_StrToUTF8( arrOutput[ i ] ) ) //, header )
+      next
+    Endif
+    // add_string( '' )
   else
     fp := FCreate( name_file )
     tek_stroke := 0
     n_list := 1
     add_string( PadL( 'дата печати ' + date_8( sys_date ) + ' ' + hour_min( Seconds() ), sh ) )
+    titlen_uch( st_a_uch, sh, lcount_uch )
+    If Len( st_a_uch ) == 1
+      titlen_otd( st_a_otd, sh, lcount_otd )
+    Endif
+    add_string( '' )
   endif
-  titlen_uch( st_a_uch, sh, lcount_uch )
-  If Len( st_a_uch ) == 1
-    titlen_otd( st_a_otd, sh, lcount_otd )
-  Endif
-  add_string( '' )
   If su > 2
     add_string( PadC( 'Список оказанных услуг', sh ) )
   Else
