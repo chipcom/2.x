@@ -21,6 +21,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
   local lTypeLUMedReab := .f.
   local aUslMedReab
   local mdate_end
+  local aReab, mvto := 0
 
   static old_date_usl, new_date_usl
 
@@ -665,7 +666,11 @@ Function f2oms_usl_sluch(nKey, oBrow)
             loop
           endif
           if lTypeLUMedReab .and. (ascan(mnogo_uslug_med_reab(), left(mshifr1, 3)) > 0)   // left(mshifr1, 5) != '2.89.'
-            aUslMedReab := ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2], human->vzros_reb == 0, m1vto )
+            aReab      := list2arr( human_2->PC5 )
+            if len( aReab ) > 2
+              mvto := aReab[ 3 ]
+            endif
+            aUslMedReab := ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2], human->vzros_reb == 0, mvto )
             if (!empty(mdate_end))
               if mdate_end < mdate_u1
                 func_error(4, 'Введенная дата окончания многократной услуги меньше даты начала оказания услуги!')
