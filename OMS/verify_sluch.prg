@@ -6,7 +6,7 @@
 
 Static sadiag1  // := {}
 
-// 28.02.24
+// 01.03.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -3039,7 +3039,7 @@ Function verify_1_sluch( fl_view )
         //
         fl_not_2_89 := .f.
         If lTypeLUMedReab
-          obyaz_uslugi_med_reab := compulsory_services( list2arr( human_2->PC5 )[ 1 ], list2arr( human_2->PC5 )[ 2 ], M1VZROS_REB == 0, iif( ( list2arr( human_2->PC5 ) ) > 2, list2arr( human_2->PC5 )[ 3 ], 0 ) )
+          obyaz_uslugi_med_reab := compulsory_services( list2arr( human_2->PC5 )[ 1 ], list2arr( human_2->PC5 )[ 2 ], M1VZROS_REB == 0, iif( len( list2arr( human_2->PC5 ) ) > 2, list2arr( human_2->PC5 )[ 3 ], 0 ) )
           For Each row in arrUslugi // проверим все услуги случая
             If ( iUsluga := AScan( obyaz_uslugi_med_reab, {| x| AllTrim( x ) == AllTrim( row ) } ) ) > 0
               hb_ADel( obyaz_uslugi_med_reab, iUsluga, .t. )
