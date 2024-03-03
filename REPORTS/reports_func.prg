@@ -5,6 +5,19 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
+
+// 02.02.24
+Function title_schet_akt( schet_akt )
+
+  local retStr := ''
+
+  If schet_akt == 2
+    retStr := '[ за вычетом снятых по актам ]'
+  Elseif schet_akt == 3
+    retStr := '[ без учёта повторно выставленных случаев ]'
+  Endif
+  Return retStr
+
 // 01.03.24
 Function titleN_uch( arr_u, lsh, c_uch )
 

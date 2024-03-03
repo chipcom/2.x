@@ -4,6 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 #include 'tfile.ch'
+#include 'hbxlsxwriter.ch'
 
 // áâ â¨áâ¨ª  ¯® ¯« ­-§ ª §ã
 Function pz_statist( k )
@@ -50,15 +51,16 @@ Function pz_statist( k )
 
   Return Nil
 
-// 01.03.24
+// 03.03.24
 Function pz1statist( par, par2 )
 
   Static _su := 2
   Local buf := SaveScreen(), fl_exit := .f., fl := .t., a_otd := {}, ;
     name_file := cur_dir + 'plan_z' + stxt, arr_m, ta[ 2 ], arr_title, ;
-    sh := 80, HH := 60, reg_print := 2, arr_name := f14tf_array(), ;
-    mstr_crb, mismo, ltrud, lplan, lcount_uch, lcount_otd
-  Local sbase
+    sh := 80, HH := 60, reg_print := 2, ;
+    mstr_crb, ltrud, lplan, lcount_uch, lcount_otd, mismo
+  Local sbase, i, k, j
+  local strOut
   // ¤«ï Excel
   Local lExcel := .f., lText := .f., used_column := 0 
   Local name_fileXLS := 'Plan_zakaz_' + suffixfiletimestamp()
@@ -71,7 +73,8 @@ Function pz1statist( par, par2 )
   Local formatDate
   Local fmtCellNumber, fmtCellString, fmtCellStringCenter, fmtCellNumberRub
   Local s1, s2, s3
-  Local wsCommon_format, wsCommon_format_header, wsCommon_format_wrap, wsCommon_Number, wsCommon_Number_Rub
+  Local wsCommon_format, wsCommon_format_header, wsCommon_String_Right
+  Local wsCommon_format_wrap, wsCommon_Number, wsCommon_Number_Rub
 
 
   Private flag_uet := .t., as[ 10, 3 ], s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim, ;
@@ -372,22 +375,59 @@ Function pz1statist( par, par2 )
     workbook  := workbook_new( name_fileXLS_full )
     wsCommon := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Ž¯¨á ­¨¥' ) )
     worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( '‘¯¨á®ª' ) )
+    worksheet_set_column( wsCommon, 7, 7, 15, nil )
+
+    wsCommon_format := workbook_add_format( workbook )
+    format_set_align( wsCommon_format, LXW_ALIGN_CENTER )
+    format_set_align( wsCommon_format, LXW_ALIGN_VERTICAL_CENTER )
+    format_set_bold( wsCommon_format )
+
+    wsCommon_format_wrap := workbook_add_format( workbook )
+    format_set_align( wsCommon_format_wrap, LXW_ALIGN_CENTER )
+    format_set_align( wsCommon_format_wrap, LXW_ALIGN_VERTICAL_CENTER )
+    format_set_text_wrap( wsCommon_format_wrap )
+    format_set_bold( wsCommon_format_wrap )
+
+    wsCommon_format_header := workbook_add_format( workbook )
+    format_set_align( wsCommon_format_header, LXW_ALIGN_CENTER )
+    format_set_align( wsCommon_format_header, LXW_ALIGN_VERTICAL_CENTER )
+    format_set_bold( wsCommon_format_header )
+    format_set_font_size( wsCommon_format_header, 20 )
+
+    wsCommon_Number := workbook_add_format( workbook )
+    format_set_align( wsCommon_Number, LXW_ALIGN_CENTER )
+    format_set_align( wsCommon_Number, LXW_ALIGN_VERTICAL_CENTER )
+
+    wsCommon_Number_Rub := workbook_add_format( workbook )
+    format_set_align( wsCommon_Number_Rub, LXW_ALIGN_RIGHT )
+    format_set_align( wsCommon_Number_Rub, LXW_ALIGN_VERTICAL_CENTER )
+    format_set_num_format( wsCommon_Number_Rub, '#,##0.00' )
+
+    wsCommon_String_Right := workbook_add_format( workbook )
+    format_set_align( wsCommon_String_Right, LXW_ALIGN_RIGHT )
+    format_set_align( wsCommon_String_Right, LXW_ALIGN_VERTICAL_CENTER )
+
     row := 0
     column := 0
-    rowWS := 1
+    rowWS := 0
     columnWS := 0
     worksheet_write_string( wsCommon, row++, column, hb_StrToUTF8( '¤ â  ¯¥ç â¨ ' + date_8( sys_date ) + ' ' + hour_min( Seconds() ) ) ) //, header )
     arrOutput := arr_titleN_uch( st_a_uch, lcount_uch )
     For i := 1 To Len( arrOutput )
-      worksheet_write_string( wsCommon, row++, column, hb_StrToUTF8( arrOutput[ i ] ) ) //, header )
+      worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format_wrap )
+      worksheet_write_string( wsCommon, row++, column, hb_StrToUTF8( arrOutput[ i ] ), wsCommon_format_wrap )
     next
     If Len( st_a_uch ) == 1
       arrOutput := arr_titlen_otd( st_a_otd, lcount_otd )
       For i := 1 To Len( arrOutput )
-        worksheet_write_string( wsCommon, row++, column, hb_StrToUTF8( arrOutput[ i ] ) ) //, header )
+        worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format_wrap )
+        worksheet_write_string( wsCommon, row++, column, hb_StrToUTF8( arrOutput[ i ] ), wsCommon_format_wrap )
       next
     Endif
-    // add_string( '' )
+    row++
+    worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format_header )
+    worksheet_write_string( wsCommon, row++, column, ;
+      hb_StrToUTF8( iif( su > 2, '‘¯¨á®ª ®ª § ­­ëå ãá«ã£', '‘â â¨áâ¨ª  ¯® ¢ë¯®«­¥­¨î ¯« ­-§ ª § ' ) ), wsCommon_format_header )
   else
     fp := FCreate( name_file )
     tek_stroke := 0
@@ -398,105 +438,251 @@ Function pz1statist( par, par2 )
       titlen_otd( st_a_otd, sh, lcount_otd )
     Endif
     add_string( '' )
+    If su > 2
+      add_string( PadC( '‘¯¨á®ª ®ª § ­­ëå ãá«ã£', sh ) )
+    Else
+      add_string( PadC( '‘â â¨áâ¨ª  ¯® ¢ë¯®«­¥­¨î ¯« ­-§ ª § ', sh ) )
+    Endif
   endif
-  If su > 2
-    add_string( PadC( '‘¯¨á®ª ®ª § ­­ëå ãá«ã£', sh ) )
-  Else
-    add_string( PadC( '‘â â¨áâ¨ª  ¯® ¢ë¯®«­¥­¨î ¯« ­-§ ª § ', sh ) )
-  Endif
   Select TMP_XLS
   Append Blank
   If par == 1
-    add_string( Center( '¯® áç¥âã ü ' + p_number + ' ®â ' + full_date( p_date ) + ' £.', sh ) )
-    tmp_xls->u_name := '¯® áç¥âã ü ' + p_number + ' ®â ' + full_date( p_date ) + ' £.'
+    strOut := '¯® áç¥âã ü ' + p_number + ' ®â ' + full_date( p_date ) + ' £.'
+    if lExcel
+      worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
+      worksheet_write_string( wsCommon, row++, column, ;
+        hb_StrToUTF8(strOut ), wsCommon_format )
+    else
+      add_string( Center( strOut, sh ) )
+    endif
+    tmp_xls->u_name := strOut
   Elseif par == 2 .and. par2 == 1
-    add_string( Center( '¯® áç¥â ¬ ' + arr_m[ 4 ], sh ) )
-    tmp_xls->u_name := '¯® áç¥â ¬ ' + arr_m[ 4 ]
+    strOut := '¯® áç¥â ¬ ' + arr_m[ 4 ]
+    if lExcel
+      worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
+      worksheet_write_string( wsCommon, row++, column, ;
+        hb_StrToUTF8( strOut ), wsCommon_format )
+    else
+      add_string( Center( strOut, sh ) )
+    endif
+    tmp_xls->u_name := strOut
     If fl_period
-      add_string( Center( '[ ¯®¤áçñâ ¯à®¨§¢®¤¨âáï ¯® ®âçñâ­®¬ã ¯¥à¨®¤ã]', sh ) )
-      Select TMP_XLS
-      Append Blank
-      tmp_xls->u_name := '[ ¯®¤áçñâ ¯à®¨§¢®¤¨âáï ¯® ®âçñâ­®¬ã ¯¥à¨®¤ã]'
-      If mdate_reg != NIL
-        add_string( Center( '[ ¯® áç¥â ¬, § à¥£¨áâà¨à®¢ ­­ë¬ ¯® ' + full_date( mdate_reg ) + '£. ¢ª«îç¨â¥«ì­® ]', sh ) )
-        Select TMP_XLS
-        Append Blank
-        tmp_xls->u_name := '[ ¯® áç¥â ¬, § à¥£¨áâà¨à®¢ ­­ë¬ ¯® ' + full_date( mdate_reg ) + '£. ¢ª«îç¨â¥«ì­® ]'
-      Endif
-    Endif
-  Elseif par == 2 .and. par2 == 2
-    add_string( Center( '¯® áç¥â ¬ (¤ â  ®ª®­ç ­¨ï «¥ç¥­¨ï ' + arr_m[ 4 ] + ')', sh ) )
-    tmp_xls->u_name := '¯® áç¥â ¬ (¤ â  ®ª®­ç ­¨ï «¥ç¥­¨ï ' + arr_m[ 4 ] + ')'
-  Else
-    add_string( Center( '¯® ­¥¢ë¯¨á ­­ë¬ áç¥â ¬ (¤ â  ®ª®­ç ­¨ï «¥ç¥­¨ï ' + arr_m[ 4 ] + ')', sh ) )
-    tmp_xls->u_name := '¯® ­¥¢ë¯¨á ­­ë¬ áç¥â ¬ (¤ â  ®ª®­ç ­¨ï «¥ç¥­¨ï ' + arr_m[ 4 ] + ')'
-  Endif
-  If v_deti == 2
-    add_string( Center( '[ Ž „…’ŸŒ ]', sh ) )
+      strOut := '[ ¯®¤áçñâ ¯à®¨§¢®¤¨âáï ¯® ®âçñâ­®¬ã ¯¥à¨®¤ã]'
+      if lExcel
+        worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
+        worksheet_write_string( wsCommon, row++, column, ;
+          hb_StrToUTF8( strOut ), wsCommon_format )
+      else
+          add_string( Center( strOut, sh ) )
+      endif
+    endif
     Select TMP_XLS
     Append Blank
-    tmp_xls->u_name := Center( '[ Ž „…’ŸŒ ]', sh )
+    tmp_xls->u_name := strOut
+    If mdate_reg != NIL
+      strOut := '[ ¯® áç¥â ¬, § à¥£¨áâà¨à®¢ ­­ë¬ ¯® ' + full_date( mdate_reg ) + '£. ¢ª«îç¨â¥«ì­® ]'
+      if lExcel
+        worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
+        worksheet_write_string( wsCommon, row++, column, ;
+          hb_StrToUTF8( strOut ), wsCommon_format )
+      else
+        add_string( Center( strOut, sh ) )
+      endif
+      Select TMP_XLS
+      Append Blank
+      tmp_xls->u_name := strOut
+    Endif
+  Elseif par == 2 .and. par2 == 2
+    if lExcel
+      strOut := '¯® áç¥â ¬ (¤ â  ®ª®­ç ­¨ï «¥ç¥­¨ï ' + arr_m[ 4 ] + ')'
+      worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
+      worksheet_write_string( wsCommon, row++, column, ;
+        hb_StrToUTF8( strOut ), wsCommon_format )
+    else
+      add_string( Center( strOut, sh ) )
+    endif
+    tmp_xls->u_name := strOut
+  Else
+    strOut := '¯® ­¥¢ë¯¨á ­­ë¬ áç¥â ¬ (¤ â  ®ª®­ç ­¨ï «¥ç¥­¨ï ' + arr_m[ 4 ] + ')'
+    if lExcel
+      worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
+      worksheet_write_string( wsCommon, row++, column, ;
+        hb_StrToUTF8( strOut ), wsCommon_format )
+    else
+      add_string( Center( strOut, sh ) )
+    endif
+    tmp_xls->u_name := strOut
+  Endif
+  If v_deti == 2
+    strOut := '[ Ž „…’ŸŒ ]'
+    if lExcel
+      worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
+      worksheet_write_string( wsCommon, row++, column, ;
+        hb_StrToUTF8( strOut ), wsCommon_format )
+    else
+      add_string( Center( strOut, sh ) )
+    endif
+    Select TMP_XLS
+    Append Blank
+    tmp_xls->u_name := Center( strOut, sh )
   Endif
 
   If par < 3
-    title_schet_akt( sh )
+    if lExcel
+      strOut := title_schet_akt( glob_schet_akt )
+      worksheet_write_string( wsCommon, row++, column, ;
+        hb_StrToUTF8( strOut ) ) //, header )
+    else
+      add_string( Center( strOut, sh ) )
+    endif
   Endif
   If eq_any( su, 1, 2, 5 )
-    add_string( '' )
     k := 0
-    add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
-    add_string( '                                          ³¯« ­-§ ª §³«¨áâ®¢ ãç¥â ³    áã¬¬      ' )
-    add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
+    if lExcel
+      worksheet_merge_range( wsCommon, row, 0, row, 5, '' ) //, wsCommon_format_wrap )
+      worksheet_write_string( wsCommon, row, 6, ;
+        hb_StrToUTF8( '¯« ­-§ ª §' ) ) //, header )
+      worksheet_write_string( wsCommon, row, 7, ;
+        hb_StrToUTF8( '«¨áâ®¢ ãç¥â ' ) ) //, header )
+      worksheet_write_string( wsCommon, row++, 8, ;
+        hb_StrToUTF8( 'áã¬¬ ' ) ) //, header )
+    else
+      add_string( '' )
+      add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
+      add_string( '                                          ³¯« ­-§ ª §³«¨áâ®¢ ãç¥â ³    áã¬¬      ' )
+      add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
+    endif
     For i := 1 To Len( luapz2016 )
       If luapz2016[ i, 3 ] > 0 .or. apz2016[ i, 3 ] > 0
-        s := PadL( luapz2016[ i, 1 ], 42 )
+        if lExcel
+          worksheet_merge_range( wsCommon, row, 0, row, 5, '' ) //, wsCommon_format_wrap )
+          worksheet_write_string( wsCommon, row, 0, ;
+            hb_StrToUTF8( luapz2016[ i, 1 ] ) ) //, header )
+        else
+          s := PadL( luapz2016[ i, 1 ], 42 )
+        endif
         If Empty( apz2016[ i, 3 ] ) .and. !Empty( luapz2016[ i, 3 ] )
-          s += Str( luapz2016[ i, 3 ] -kol_sl_2[ i ], 10, 0 )
+          if lExcel
+            worksheet_write_number( wsCommon, row, 6, ;
+              ( luapz2016[ i, 3 ] - kol_sl_2[ i ] ) ) //, header )
+          else
+            s += Str( luapz2016[ i, 3 ] - kol_sl_2[ i ], 10, 0 )
+          endif
         Else
-          s += Str( apz2016[ i, 3 ] -kol_sl_2[ i ], 10, 0 )
+          if lExcel
+            worksheet_write_number( wsCommon, row, 6, ;
+              ( apz2016[ i, 3 ] - kol_sl_2[ i ] ) ) //, header )
+          else
+            s += Str( apz2016[ i, 3 ] - kol_sl_2[ i ], 10, 0 )
+          endif
         Endif
-        s += Str( luapz2016[ i, 3 ], 10, 0 ) + Str( luapz2016[ i, 2 ], 17, 2 )
-        add_string( s )
+        if lExcel
+          worksheet_write_number( wsCommon, row, 7, ;
+            luapz2016[ i, 3 ] ) //, header )
+          worksheet_write_number( wsCommon, row++, 8, ;
+            luapz2016[ i, 2 ] ) //, header )
+        else
+          s += Str( luapz2016[ i, 3 ], 10, 0 ) + Str( luapz2016[ i, 2 ], 17, 2 )
+          add_string( s )
+        endif
         k += luapz2016[ i, 3 ]
       Endif
     Next
-    my_debug(, print_array( luapz2016 ) )
-    my_debug(, print_array( apz2016 ) )
-    my_debug(, print_array( kol_sl_2 ) )
+    if lExcel
+      worksheet_merge_range( wsCommon, row, 0, row, 5, '', wsCommon_String_Right )
+      worksheet_write_string( wsCommon, row, 0, ;
+        hb_StrToUTF8( '‚á¥£® «¨áâ®¢ ãç¥â ' ), wsCommon_String_Right )
+      worksheet_write_number( wsCommon, row, 7, ;
+        k ) //, header )
+      worksheet_write_number( wsCommon, row++, 8, ;
+        sstoim ) //, header )
 
-    add_string( Replicate( 'Ä', sh ) )
-    add_string( PadL( '‚á¥£® «¨áâ®¢ ãç¥â ', 42 ) + Str( k, 20, 0 ) + Str( sstoim, 17, 2 ) )
-    add_string( '' )
-    add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
-    add_string( '                                                 ³Š®«-¢®³        ³  ‘â®¨¬®áâì   ' )
-    add_string( '                                                 ³ ãá«ã£³ “.….’. ³    ãá«ã£     ' )
-    add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
+      worksheet_merge_range( wsCommon, ++row, 0, row, 5, '' ) //, wsCommon_format_wrap )
+      worksheet_write_string( wsCommon, row, 6, ;
+        hb_StrToUTF8( 'Š®«-¢® ãá«ã£' ) ) //, header )
+      worksheet_write_string( wsCommon, row, 7, ;
+        hb_StrToUTF8( '“.….’.' ) ) //, header )
+      worksheet_write_string( wsCommon, row++, 8, ;
+        hb_StrToUTF8( '‘â®¨¬®áâì ãá«ã£' ) ) //, header )
+    else
+      add_string( Replicate( 'Ä', sh ) )
+      add_string( PadL( '‚á¥£® «¨áâ®¢ ãç¥â ', 42 ) + Str( k, 20, 0 ) + Str( sstoim, 17, 2 ) )
+      add_string( '' )
+      add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
+      add_string( '                                                 ³Š®«-¢®³        ³  ‘â®¨¬®áâì   ' )
+      add_string( '                                                 ³ ãá«ã£³ “.….’. ³    ãá«ã£     ' )
+      add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
+    endif
     For i := 1 To 10
       If !emptyall( as[ i, 1 ], as[ i, 2 ], as[ i, 3 ] )
-        k := perenos( ta, arr_name[ i ], 49 )
+        k := perenos( ta, f14tf_array()[ i ], 49 )
         If i == 6
-          add_string( PadR( ta[ 1 ], 49 ) + Str( as[ i, 1 ], 7, 0 ) )
+          if lExcel
+            worksheet_merge_range( wsCommon, row, 0, row, 5, '' ) //, wsCommon_format_wrap )
+            worksheet_write_string( wsCommon, row, 0, ;
+              hb_StrToUTF8( ta[ 1 ] ) ) //, header )
+          else
+            add_string( PadR( ta[ 1 ], 49 ) + Str( as[ i, 1 ], 7, 0 ) )
+          endif
         Else
-          add_string( PadR( ta[ 1 ], 49 ) + Str( as[ i, 1 ], 7, 0 ) + ;
-            umest_val( as[ i, 2 ], 9, 2 ) + ;
-            put_kope( as[ i, 3 ], 15 ) )
+          if lExcel
+            worksheet_merge_range( wsCommon, row, 0, row, 5, '' ) //, wsCommon_format_wrap )
+            worksheet_write_string( wsCommon, row, 0, ;
+              hb_StrToUTF8( ta[ 1 ] ) ) //, header )
+            worksheet_write_number( wsCommon, row, 6, ;
+              as[ i, 1 ] ) //, header )
+            worksheet_write_number( wsCommon, row, 7, ;
+              as[ i, 2 ] ) //, header )
+            worksheet_write_number( wsCommon, row++, 8, ;
+              as[ i, 3 ] ) //, header )
+          else
+            add_string( PadR( ta[ 1 ], 49 ) + Str( as[ i, 1 ], 7, 0 ) + ;
+              umest_val( as[ i, 2 ], 9, 2 ) + ;
+              put_kope( as[ i, 3 ], 15 ) )
+          endif
         Endif
-        For j := 2 To k
-          add_string( PadL( AllTrim( ta[ j ] ), 49 ) )
-        Next
+        if ! lExcel
+          For j := 2 To k
+            add_string( PadL( AllTrim( ta[ j ] ), 49 ) )
+          Next
+        endif
       Endif
     Next
   Endif
   If su == 1
-    arr_title := { ;
-      'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÄÄÄÄÂÄÄÄÄÄÒÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄ', ;
-      '                              º ç¥-³ á«ã-ºª®©- ³¯ æ¨-³¢à ç.³áâ®¬ ³áâ®¬ â®-³®â¤¥«³¢ë§®-', ;
-      '   ¨¬¥­®¢ ­¨¥ ®â¤¥«¥­¨ï      º «®-³ ç - ºª®-  ³¥­â®-³¯à¨ñ-³â®«. ³«®£¨ç¥á-³¬¥¤¨æ³¢®¢  ', ;
-      '                              º ¢¥ª³ ¥¢  º¤­¥© ³¤­¥© ³¬®¢  ³¯®á¥é³ª¨å “…’ ³ãá«ã£³‘Œ  ', ;
-      'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÐÄÄÄÄÁÄÄÄÄÄÐÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄ';
-      }
+    if lExcel
+      worksheet_write_string( worksheet, rowWS, 0, ;
+        hb_StrToUTF8( ' ¨¬¥­®¢ ­¨¥ ®â¤¥«¥­¨ï' ) ) //, header )
+      worksheet_write_string( worksheet, rowWS, 1, ;
+        hb_StrToUTF8( 'ç¥«®¢¥ª' ) ) //, header )
+      worksheet_write_string( worksheet, rowWS, 2, ;
+        hb_StrToUTF8( 'á«ãç ¥¢' ) ) //, header )
+      worksheet_write_string( worksheet, rowWS, 3, ;
+        hb_StrToUTF8( 'ª®©ª®-¤­¥©' ) ) //, header )
+      worksheet_write_string( worksheet, rowWS, 4, ;
+        hb_StrToUTF8( '¯ æ¨¥­â®-¤­¥©' ) ) //, header )
+      worksheet_write_string( worksheet, rowWS, 5, ;
+        hb_StrToUTF8( '¢à ç.¯à¨¥¬®¢' ) ) //, header )
+      worksheet_write_string( worksheet, rowWS, 6, ;
+        hb_StrToUTF8( 'áâ®¬ â®«.¯®á¥é' ) ) //, header )
+      worksheet_write_string( worksheet, rowWS, 7, ;
+        hb_StrToUTF8( 'áâ®¬ â®«®£¨ç¥áª¨å “…’' ) ) //, header )
+      worksheet_write_string( worksheet, rowWS, 8, ;
+        hb_StrToUTF8( '®â¤¥« ¬¥¤¨æ ãá«ã£' ) ) //, header )
+      worksheet_write_string( worksheet, rowWS, 9, ;
+        hb_StrToUTF8( '¢ë§®¢®¢ ‘Œ' ) ) //, header )
+      rowWS++
+    else
+      arr_title := { ;
+        'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÄÄÄÄÂÄÄÄÄÄÒÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄ', ;
+        '                              º ç¥-³ á«ã-ºª®©- ³¯ æ¨-³¢à ç.³áâ®¬ ³áâ®¬ â®-³®â¤¥«³¢ë§®-', ;
+        '   ¨¬¥­®¢ ­¨¥ ®â¤¥«¥­¨ï      º «®-³ ç - ºª®-  ³¥­â®-³¯à¨ñ-³â®«. ³«®£¨ç¥á-³¬¥¤¨æ³¢®¢  ', ;
+        '                              º ¢¥ª³ ¥¢  º¤­¥© ³¤­¥© ³¬®¢  ³¯®á¥é³ª¨å “…’ ³ãá«ã£³‘Œ  ', ;
+        'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÐÄÄÄÄÁÄÄÄÄÄÐÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄ';
+        }
     //
-    AEval( arr_title, {| x| add_string( x ) } )
+      AEval( arr_title, {| x| add_string( x ) } )
+    endif
     n1 := 30
     r_use( dir_server + 'mo_uch', , 'UCH' )
     r_use( dir_server + 'mo_otd', , 'OTD' )
@@ -509,15 +695,24 @@ Function pz1statist( par, par2 )
     old_uch := 0
     Go Top
     Do While !Eof()
-      If verify_ff( HH, .t., sh )
-        AEval( arr_title, {| x| add_string( x ) } )
-      Endif
+      if ! lExcel
+        If verify_ff( HH, .t., sh )
+          AEval( arr_title, {| x| add_string( x ) } )
+        Endif
+      endif
       If old_uch != tmpo->uch
         If old_uch > 0
-          add_string( '' )
+          if !lExcel
+            add_string( '' )
+          endif
         Endif
-        add_string( Upper( uch->name ) )
-        add_string( Replicate( 'Í', sh ) )
+        if lExcel
+          worksheet_write_string( worksheet, rowWS++, 0, ;
+            hb_StrToUTF8( Upper( uch->name ) ) ) //, header )
+        else
+          add_string( Upper( uch->name ) )
+          add_string( Replicate( 'Í', sh ) )
+        endif
         old_uch := tmpo->uch
       Endif
       k := ks := 0
@@ -527,41 +722,84 @@ Function pz1statist( par, par2 )
       Select TMPOS
       find ( Str( tmpo->otd, 3 ) )
       dbEval( {|| ++ks }, , {|| tmpos->otd == tmpo->otd } )
-      add_string( PadR( otd->name, n1 ) + ;
-        put_val( k, 5 ) + ;
-        put_val( ks, 6 ) + ;
-        put_val( tmpo->kol1, 6 ) + ;
-        put_val( tmpo->kol2, 6 ) + ;
-        put_val( tmpo->kol3, 6 ) + ;
-        put_val( tmpo->kol4, 6 ) + ;
-        ' ' + umest_val( tmpo->kol5, 8, 2 ) + ;
-        put_val( tmpo->kol6, 6 ) + ;
-        put_val( tmpo->kol7, 6 ) )
+      if lExcel
+        columnWS := 0
+        worksheet_write_string( worksheet, rowWS, columnWS++, ;
+          hb_StrToUTF8( otd->name ) ) //, header )
+        worksheet_write_number( worksheet, rowWS, columnWS++, ;
+          k ) //, header )
+        worksheet_write_number( worksheet, rowWS, columnWS++, ;
+          ks ) //, header )
+        worksheet_write_number( worksheet, rowWS, columnWS++, ;
+          tmpo->kol1 ) //, header )
+        worksheet_write_number( worksheet, rowWS, columnWS++, ;
+          tmpo->kol2 ) //, header )
+        worksheet_write_number( worksheet, rowWS, columnWS++, ;
+          tmpo->kol3 ) //, header )
+        worksheet_write_number( worksheet, rowWS, columnWS++, ;
+          tmpo->kol4 ) //, header )
+        worksheet_write_number( worksheet, rowWS, columnWS++, ;
+          tmpo->kol5 ) //, header )
+        worksheet_write_number( worksheet, rowWS, columnWS++, ;
+          tmpo->kol6 ) //, header )
+        worksheet_write_number( worksheet, rowWS++, columnWS, ;
+          tmpo->kol7 ) //, header )
+      else
+        add_string( PadR( otd->name, n1 ) + ;
+          put_val( k, 5 ) + ;
+          put_val( ks, 6 ) + ;
+          put_val( tmpo->kol1, 6 ) + ;
+          put_val( tmpo->kol2, 6 ) + ;
+          put_val( tmpo->kol3, 6 ) + ;
+          put_val( tmpo->kol4, 6 ) + ;
+          ' ' + umest_val( tmpo->kol5, 8, 2 ) + ;
+          put_val( tmpo->kol6, 6 ) + ;
+          put_val( tmpo->kol7, 6 ) )
+      endif
       Select TMPO
       Skip
     Enddo
   Elseif eq_any( su, 2, 3 )
     n1 := iif( flag_uet, 49, 58 )
-    arr_title := { ;
-      Replicate( 'Ä', n1 ), ;
-      Space( n1 ), ;
-      PadC( ' ¨¬¥­®¢ ­¨¥ ãá«ã£¨', n1 ), ;
-      Replicate( 'Ä', n1 ) }
-    arr_title[ 1 ] += 'ÂÄÄÄÄÄÄ'
-    arr_title[ 2 ] += '³Š®«-¢®'
-    arr_title[ 3 ] += '³ ãá«ã£'
-    arr_title[ 4 ] += 'ÁÄÄÄÄÄÄ'
+    if lExcel
+      worksheet_write_string( worksheet, rowWS, columnWS++, ;
+        hb_StrToUTF8( '' ) ) //, header )
+      worksheet_write_string( worksheet, rowWS, columnWS++, ;
+        hb_StrToUTF8( ' ¨¬¥­®¢ ­¨¥ ãá«ã£¨' ) ) //, header )
+      worksheet_write_string( worksheet, rowWS, columnWS++, ;
+        hb_StrToUTF8( 'Š®«-¢® ãá«ã£' ) ) //, header )
+    else
+      arr_title := { ;
+        Replicate( 'Ä', n1 ), ;
+        Space( n1 ), ;
+        PadC( ' ¨¬¥­®¢ ­¨¥ ãá«ã£¨', n1 ), ;
+        Replicate( 'Ä', n1 ) }
+      arr_title[ 1 ] += 'ÂÄÄÄÄÄÄ'
+      arr_title[ 2 ] += '³Š®«-¢®'
+      arr_title[ 3 ] += '³ ãá«ã£'
+      arr_title[ 4 ] += 'ÁÄÄÄÄÄÄ'
+    endif
     If flag_uet
-      arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄ'
-      arr_title[ 2 ] += '³        '
-      arr_title[ 3 ] += '³ “.….’. '
-      arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄ'
+      if lExcel
+        worksheet_write_string( worksheet, rowWS, columnWS++, ;
+          hb_StrToUTF8( '“.….’.' ) ) //, header )
+      else
+        arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄ'
+        arr_title[ 2 ] += '³        '
+        arr_title[ 3 ] += '³ “.….’. '
+        arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄ'
+      endif
     Endif
-    arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
-    arr_title[ 2 ] += '³  ‘â®¨¬®áâì   '
-    arr_title[ 3 ] += '³    ãá«ã£     '
-    arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
-    AEval( arr_title, {| x| add_string( x ) } )
+    if lExcel
+      worksheet_write_string( worksheet, rowWS++, columnWS, ;
+        hb_StrToUTF8( '‘â®¨¬®áâì ãá«ã£' ) ) //, header )
+    else
+      arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+      arr_title[ 2 ] += '³  ‘â®¨¬®áâì   '
+      arr_title[ 3 ] += '³    ãá«ã£     '
+      arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+      AEval( arr_title, {| x| add_string( x ) } )
+    endif
 
     Select HU
     Set Relation To
@@ -570,24 +808,55 @@ Function pz1statist( par, par2 )
       Index On fsort_usl( shifr ) to ( cur_dir + 'tmp' )
       Go Top
       Do While !Eof()
-        If verify_ff( HH, .t., sh )
-          AEval( arr_title, {| x| add_string( x ) } )
-        Endif
-        k := perenos( as, tmp->u_name, n1 - 11 )
-        s := tmp->shifr + ' ' + PadR( as[ 1 ], n1 - 11 ) + Str( tmp->kol, 7, 0 )
+        columnWS := 0
+        if lExcel
+          worksheet_write_string( worksheet, rowWS, columnWS++, ;
+            hb_StrToUTF8( tmp->shifr ) ) //, header )
+          worksheet_write_string( worksheet, rowWS, columnWS++, ;
+            hb_StrToUTF8( tmp->u_name ) ) //, header )
+          worksheet_write_number( worksheet, rowWS, columnWS++, ;
+            tmp->kol ) //, header )
+        else
+          If verify_ff( HH, .t., sh )
+            AEval( arr_title, {| x| add_string( x ) } )
+          Endif
+          k := perenos( as, tmp->u_name, n1 - 11 )
+          s := tmp->shifr + ' ' + PadR( as[ 1 ], n1 - 11 ) + Str( tmp->kol, 7, 0 )
+        endif
         If flag_uet
           If Empty( tmp->uet )
             If Empty( tmp->kol ) .and. !Empty( tmp->kol1 )
-              s += PadR( ' (' + lstr( tmp->kol1 ) + ')', 9 )
+              strOut := ' (' + lstr( tmp->kol1 ) + ')'
+              if lExcel
+                worksheet_write_string( worksheet, rowWS, columnWS++, ;
+                  hb_StrToUTF8( strOut ) ) //, header )
+              else
+                s += PadR( strOut, 9 )
+              endif
             Else
-              s += Space( 9 )
+              if lExcel
+                worksheet_write_string( worksheet, rowWS, columnWS++, ;
+                  hb_StrToUTF8( '' ) ) //, header )
+              else
+                s += Space( 9 )
+              endif
             Endif
           Else
-            s += ' ' + umest_val( tmp->uet, 8, 2 )
+            if lExcel
+              worksheet_write_number( worksheet, rowWS, columnWS++, ;
+                tmp->uet ) //, header )
+            else
+              s += ' ' + umest_val( tmp->uet, 8, 2 )
+            endif
           Endif
         Endif
-        s += put_kope( tmp->sum, 14 )
-        add_string( s )
+        if lExcel
+          worksheet_write_number( worksheet, rowWS, columnWS, ;
+            tmp->sum ) //, header )
+        else
+          s += put_kope( tmp->sum, 14 )
+          add_string( s )
+        endif
         // 1-©
         Select TMP_XLS
         Append Blank
@@ -597,30 +866,50 @@ Function pz1statist( par, par2 )
         tmp_xls->kol    := tmp->kol
         tmp_xls->sum    := tmp->sum
         // {'kol1', 'N', 7, 0}, ;
-        For j := 2 To k
-          add_string( Space( 11 ) + as[ j ] )
-        Next
+        if ! lExcel
+          For j := 2 To k
+            add_string( Space( 11 ) + as[ j ] )
+          Next
+        endif
         If ( j := AScan( arr_lp, {| x| x[ 1 ] == tmp->shifr } ) ) > 0
           For k := 1 To Len( arr_lp[ j, 2 ] )
             ASort( arr_lp[ j, 2 ], , , {| x, y| fsort_usl( x[ 1 ] ) < fsort_usl( y[ 1 ] ) } )
-            s := Space( 10 ) + '¢ â.ç. ' + AllTrim( arr_lp[ j, 2, k, 1 ] )
-            If Len( s ) > n1
-              s := PadR( s, n1 )
-            Else
-              s := PadL( s, n1 )
-            Endif
-            s := s + Str( arr_lp[ j, 2, k, 2 ], 7 )
+            if lExcel
+              rowWS++
+              worksheet_write_string( worksheet, rowWS, 1, ;
+                hb_StrToUTF8( '¢ â.ç. ' + AllTrim( arr_lp[ j, 2, k, 1 ] ) ) ) //, header )
+              worksheet_write_number( worksheet, rowWS, 2, ;
+                arr_lp[ j, 2, k, 2 ] ) //, header )
+            else
+              s := Space( 10 ) + '¢ â.ç. ' + AllTrim( arr_lp[ j, 2, k, 1 ] )
+              If Len( s ) > n1
+                s := PadR( s, n1 )
+              Else
+                s := PadL( s, n1 )
+              Endif
+              s := s + Str( arr_lp[ j, 2, k, 2 ], 7 )
+            endif
             If !Empty( arr_lp[ j, 2, k, 3 ] )
-              s += ' (' + lstr( arr_lp[ j, 2, k, 3 ] ) + ')'
+              if lExcel
+                worksheet_write_string( worksheet, rowWS, 3, ;
+                  hb_StrToUTF8( ' (' + lstr( arr_lp[ j, 2, k, 3 ] ) + ')' ) ) //, header )
+              else
+                s += ' (' + lstr( arr_lp[ j, 2, k, 3 ] ) + ')'
+              endif
             Endif
-            If verify_ff( HH, .t., sh )
-              AEval( arr_title, {| x| add_string( x ) } )
-            Endif
-            add_string( s )
+            if ! lExcel
+              If verify_ff( HH, .t., sh )
+                AEval( arr_title, {| x| add_string( x ) } )
+              Endif
+              add_string( s )
+            endif
           Next
         Endif
         Select TMP
         Skip
+        if lExcel
+          rowWS++
+        endif
       Enddo
     Else
       Select TMP
@@ -634,34 +923,79 @@ Function pz1statist( par, par2 )
       ssl := Array( 3 ) ; AFill( ssl, 0 )
       Go Top
       Do While !Eof()
-        If verify_ff( HH, .t., sh )
-          AEval( arr_title, {| x| add_string( x ) } )
-        Endif
+        columnWS := 0
+        if ! lExcel
+          If verify_ff( HH, .t., sh )
+            AEval( arr_title, {| x| add_string( x ) } )
+          Endif
+        endif
         If !( old_s == usl->slugba )
           If old_s > -999
-            add_string( Replicate( 'Ä', sh ) )
-            s := PadL( 'ˆâ®£® ¯® á«ã¦¡¥:', n1 ) + Str( ssl[ 1 ], 7, 0 )
+            if lExcel
+              worksheet_write_string( worksheet, rowWS, 1, ;
+                hb_StrToUTF8( 'ˆâ®£® ¯® á«ã¦¡¥:' ) ) //, header )
+              worksheet_write_number( worksheet, rowWS, 2, ;
+                ssl[ 1 ] ) //, header )
+            else
+              add_string( Replicate( 'Ä', sh ) )
+              s := PadL( 'ˆâ®£® ¯® á«ã¦¡¥:', n1 ) + Str( ssl[ 1 ], 7, 0 )
+            endif
             If flag_uet
-              s += ' ' + umest_val( ssl[ 2 ], 8, 2 )
+              if lExcel
+                worksheet_write_number( worksheet, rowWS, 3, ;
+                  ssl[ 2 ] ) //, header )
+              else
+                s += ' ' + umest_val( ssl[ 2 ], 8, 2 )
+              endif
             Endif
-            s += put_kope( ssl[ 3 ], 14 )
-            add_string( s )
-            add_string( '' )
+            if lExcel
+              worksheet_write_number( worksheet, rowWS++, 4, ;
+                ssl[ 3 ] ) //, header )
+            else
+              s += put_kope( ssl[ 3 ], 14 )
+              add_string( s )
+              add_string( '' )
+            endif
           Endif
-          add_string( PadC( '‘«ã¦¡ : ' + lstr( usl->slugba ) + '.' + AllTrim( sl->name ), sh, '_' ) )
+          strOut := '‘«ã¦¡ : ' + lstr( usl->slugba ) + '.' + AllTrim( sl->name )
+          if lExcel
+            worksheet_write_string( worksheet, rowWS++, 1, ;
+              hb_StrToUTF8( strOut ) ) //, header )
+          else
+            add_string( PadC( strOut, sh, '_' ) )
+          endif
           old_s := usl->slugba
           AFill( ssl, 0 )
         Endif
-        k := perenos( as, usl->name, n1 - 11 )
-        s := usl->shifr + ' ' + PadR( as[ 1 ], n1 - 11 ) + Str( tmp->kol, 7, 0 )
+        if lExcel
+          worksheet_write_string( worksheet, rowWS, 0, ;
+            hb_StrToUTF8( usl->shifr ) ) //, header )
+          worksheet_write_string( worksheet, rowWS, 1, ;
+            hb_StrToUTF8( usl->name ) ) //, header )
+          worksheet_write_number( worksheet, rowWS, 2, ;
+            tmp->kol ) //, header )
+        else
+          k := perenos( as, usl->name, n1 - 11 )
+          s := usl->shifr + ' ' + PadR( as[ 1 ], n1 - 11 ) + Str( tmp->kol, 7, 0 )
+        endif
         If flag_uet
-          s += ' ' + umest_val( tmp->uet, 8, 2 )
+          if lExcel
+            worksheet_write_number( worksheet, rowWS, 3, ;
+              tmp->uet ) //, header )
+          else
+            s += ' ' + umest_val( tmp->uet, 8, 2 )
+          endif
         Endif
-        s += put_kope( tmp->sum, 14 )
-        add_string( s )
-        For j := 2 To k
-          add_string( Space( 11 ) + as[ j ] )
-        Next
+        if lExcel
+          worksheet_write_number( worksheet, rowWS, 4, ;
+            tmp->sum ) //, header )
+        else
+          s += put_kope( tmp->sum, 14 )
+          add_string( s )
+          For j := 2 To k
+            add_string( Space( 11 ) + as[ j ] )
+          Next
+        endif
         ssl[ 1 ] += tmp->kol
         ssl[ 2 ] += tmp->uet
         ssl[ 3 ] += tmp->sum
@@ -675,15 +1009,36 @@ Function pz1statist( par, par2 )
         // {'kol1', 'N', 7, 0}, ;
         Select TMP
         Skip
+        if lExcel
+          rowWS++
+        endif
       Enddo
       If ssl[ 1 ] > 0
-        add_string( Replicate( 'Ä', sh ) )
-        s := PadL( 'ˆâ®£® ¯® á«ã¦¡¥:', n1 ) + Str( ssl[ 1 ], 7, 0 )
+        strOut := 'ˆâ®£® ¯® á«ã¦¡¥:'
+        if lExcel
+          worksheet_write_string( worksheet, rowWS, 1, ;
+            hb_StrToUTF8( strOut ) ) //, header )
+          worksheet_write_number( worksheet, rowWS, 2, ;
+            ssl[ 1 ] ) //, header )
+        else
+          add_string( Replicate( 'Ä', sh ) )
+          s := PadL( strOut, n1 ) + Str( ssl[ 1 ], 7, 0 )
+        endif
         If flag_uet
-          s += ' ' + umest_val( ssl[ 2 ], 8, 2 )
+          if lExcel
+            worksheet_write_number( worksheet, rowWS, 3, ;
+              ssl[ 2 ] ) //, header )
+          else
+            s += ' ' + umest_val( ssl[ 2 ], 8, 2 )
+          endif
         Endif
-        s += put_kope( ssl[ 3 ], 14 )
-        add_string( s )
+        if lExcel
+          worksheet_write_number( worksheet, rowWS++, 4, ;
+            ssl[ 3 ] ) //, header )
+        else
+          s += put_kope( ssl[ 3 ], 14 )
+          add_string( s )
+        endif
       Endif
     Endif
   Elseif su == 4
@@ -697,38 +1052,62 @@ Function pz1statist( par, par2 )
     If fl_plan
       n1 -= 10
     Endif
-    arr_title := { ;
-      Replicate( 'Ä', n1 ), ;
-      Space( n1 ), ;
-      PadC( '‚à ç' + iif( su1 == 1, '', ' (¯«îá ãá«ã£¨)' ), n1 ), ;
-      Replicate( 'Ä', n1 ) }
-    If fl_plan
-      arr_title[ 1 ] += 'ÂÄÄÄÄ'
-      arr_title[ 2 ] += '³« ­'
-      arr_title[ 3 ] += '³ “…’'
-      arr_title[ 4 ] += 'ÁÄÄÄÄ'
-    Endif
-    arr_title[ 1 ] += 'ÂÄÄÄÄÄÄ'
-    arr_title[ 2 ] += '³Š®«-¢®'
-    arr_title[ 3 ] += '³ ãá«ã£'
-    arr_title[ 4 ] += 'ÁÄÄÄÄÄÄ'
-    If flag_uet
-      arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄ'
-      arr_title[ 2 ] += '³        '
-      arr_title[ 3 ] += '³ “.….’. '
-      arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄ'
-    Endif
-    arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄ'
-    arr_title[ 2 ] += '³‘â®¨¬®áâì '
-    arr_title[ 3 ] += '³  ãá«ã£   '
-    arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄ'
-    If fl_plan
-      arr_title[ 1 ] += 'ÂÄÄÄÄ'
-      arr_title[ 2 ] += '³ %% '
-      arr_title[ 3 ] += '³¯« ­'
-      arr_title[ 4 ] += 'ÁÄÄÄÄ'
-    Endif
-    AEval( arr_title, {| x| add_string( x ) } )
+    if lExcel
+      rowWS := 0
+      columnWS := 0
+      worksheet_write_string( worksheet, rowWS, columnWS++, ;
+        hb_StrToUTF8( '‚à ç' + iif( su1 == 1, '', ' (¯«îá ãá«ã£¨)' ) ) ) //, header )
+      if fl_plan
+        worksheet_write_string( worksheet, rowWS, columnWS++, ;
+          hb_StrToUTF8( '« ­ “…’' ) ) //, header )
+      endif
+      worksheet_write_string( worksheet, rowWS, columnWS++, ;
+        hb_StrToUTF8( 'Š®«-¢® ãá«ã£' ) ) //, header )
+      if flag_uet
+        worksheet_write_string( worksheet, rowWS, columnWS++, ;
+          hb_StrToUTF8( '“.….’.' ) ) //, header )
+      endif
+      worksheet_write_string( worksheet, rowWS, columnWS++, ;
+        hb_StrToUTF8( '‘â®¨¬®áâì ãá«ã£' ) ) //, header )
+      if fl_plan
+        worksheet_write_string( worksheet, rowWS++, columnWS, ;
+          hb_StrToUTF8( '%% ¯« ­' ) ) //, header )
+      endif
+      columnWS := 0
+    else
+      arr_title := { ;
+        Replicate( 'Ä', n1 ), ;
+        Space( n1 ), ;
+        PadC( '‚à ç' + iif( su1 == 1, '', ' (¯«îá ãá«ã£¨)' ), n1 ), ;
+        Replicate( 'Ä', n1 ) }
+      If fl_plan
+        arr_title[ 1 ] += 'ÂÄÄÄÄ'
+        arr_title[ 2 ] += '³« ­'
+        arr_title[ 3 ] += '³ “…’'
+        arr_title[ 4 ] += 'ÁÄÄÄÄ'
+      Endif
+      arr_title[ 1 ] += 'ÂÄÄÄÄÄÄ'
+      arr_title[ 2 ] += '³Š®«-¢®'
+      arr_title[ 3 ] += '³ ãá«ã£'
+      arr_title[ 4 ] += 'ÁÄÄÄÄÄÄ'
+      If flag_uet
+        arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄ'
+        arr_title[ 2 ] += '³        '
+        arr_title[ 3 ] += '³ “.….’. '
+        arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄ'
+      Endif
+      arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄ'
+      arr_title[ 2 ] += '³‘â®¨¬®áâì '
+      arr_title[ 3 ] += '³  ãá«ã£   '
+      arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄ'
+      If fl_plan
+        arr_title[ 1 ] += 'ÂÄÄÄÄ'
+        arr_title[ 2 ] += '³ %% '
+        arr_title[ 3 ] += '³¯« ­'
+        arr_title[ 4 ] += 'ÁÄÄÄÄ'
+      Endif
+      AEval( arr_title, {| x| add_string( x ) } )
+    endif
     Select HU
     Set Relation To
     If fl_plan
@@ -743,61 +1122,132 @@ Function pz1statist( par, par2 )
     Index On Upper( perso->fio ) to ( cur_dir + 'tmp' )
     Go Top
     Do While !Eof()
-      If verify_ff( HH, .t., sh )
-        AEval( arr_title, {| x| add_string( x ) } )
-      Endif
-      s := iif( Empty( perso->fio ), '__¥ ¢¢¥¤¥­ ¢à ç__', AllTrim( perso->fio ) ) + ' [' + lstr( perso->tab_nom ) + ']'
-      k := perenos( as, s, n1 )
-      s := PadR( as[ 1 ], n1 )
+      if lExcel
+        columnWS := 0
+      else
+        If verify_ff( HH, .t., sh )
+          AEval( arr_title, {| x| add_string( x ) } )
+        Endif
+      endif
+      if lExcel
+        worksheet_write_string( worksheet, rowWS, columnWS++, ;
+          hb_StrToUTF8( iif( Empty( perso->fio ), '__¥ ¢¢¥¤¥­ ¢à ç__', AllTrim( perso->fio ) ) + ' [' + lstr( perso->tab_nom ) + ']' ) ) //, header )
+      else
+        s := iif( Empty( perso->fio ), '__¥ ¢¢¥¤¥­ ¢à ç__', AllTrim( perso->fio ) ) + ' [' + lstr( perso->tab_nom ) + ']'
+        k := perenos( as, s, n1 )
+        s := PadR( as[ 1 ], n1 )
+      endif
       If fl_plan
         ltrud := ret_trudoem( tmp->kod, tmp->uet, ym_kol_mes, arr_m, @lplan )
-        s += put_val( lplan, 5, 0 )
+        if lExcel
+          worksheet_write_number( worksheet, rowWS, columnWS++, ;
+            lplan ) //, header )
+        else
+          s += put_val( lplan, 5, 0 )
+        endif
       Endif
-      s += Str( tmp->kol, 7, 0 )
+      if lExcel
+        worksheet_write_number( worksheet, rowWS, columnWS++, ;
+          tmp->kol ) //, header )
+      else
+        s += Str( tmp->kol, 7, 0 )
+      endif
       If flag_uet
-        s += ' ' + umest_val( tmp->uet, 8, 2 )
+        if lExcel
+          worksheet_write_number( worksheet, rowWS, columnWS++, ;
+            tmp->uet ) //, header )
+        else
+          s += ' ' + umest_val( tmp->uet, 8, 2 )
+        endif
       Endif
-      s += put_kope( tmp->sum, 11 )
+      if lExcel
+        worksheet_write_number( worksheet, rowWS, columnWS++, ;
+          tmp->sum ) //, header )
+      else
+        s += put_kope( tmp->sum, 11 )
+      endif
       If fl_plan
-        s += ' ' + umest_val( ltrud, 4, 1 )
+        if lExcel
+          worksheet_write_number( worksheet, rowWS, columnWS++, ;
+            ltrud ) //, header )
+        else
+          s += ' ' + umest_val( ltrud, 4, 1 )
+        endif
       Endif
-      add_string( s )
-      For j := 2 To k
-        add_string( PadL( AllTrim( as[ j ] ), n1 ) )
-      Next
+      if lExcel
+        rowWS++
+      else
+        add_string( s )
+        For j := 2 To k
+          add_string( PadL( AllTrim( as[ j ] ), n1 ) )
+        Next
+      endif
       If su1 == 2
+        columnWS := 0
         Select TMP1
         find ( Str( tmp->kod, 4 ) )
         Do While tmp->kod == tmp1->kod .and. !Eof()
-          If verify_ff( HH, .t., sh )
-            AEval( arr_title, {| x| add_string( x ) } )
-          Endif
+          if ! lExcel
+            If verify_ff( HH, .t., sh )
+              AEval( arr_title, {| x| add_string( x ) } )
+            Endif
+          endif
           lname := usl->name
           Select LUSL
           find ( PadR( usl->shifr, 10 ) )
           If Found()
             lname := lusl->name  // ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨ ¨§ á¯à ¢®ç­¨ª  ’”ŽŒ‘
           Endif
-          k := perenos( as, AllTrim( usl->shifr ) + ' ' + AllTrim( lname ), n1 - 2 )
-          s := '  ' + PadR( as[ 1 ], n1 - 2 )
+          if lExcel
+            worksheet_write_string( worksheet, rowWS, columnWS++, ;
+              hb_StrToUTF8( AllTrim( usl->shifr ) ) ) //, header )
+            worksheet_write_string( worksheet, rowWS, columnWS++, ;
+              hb_StrToUTF8( AllTrim( lname ) ) ) //, header )
+          else
+            k := perenos( as, AllTrim( usl->shifr ) + ' ' + AllTrim( lname ), n1 - 2 )
+            s := '  ' + PadR( as[ 1 ], n1 - 2 )
+          endif
           If fl_plan
-            s += Space( 5 )
+            if lExcel
+              worksheet_write_string( worksheet, rowWS, columnWS++, ;
+                hb_StrToUTF8( '' ) ) //, header )
+            else
+              s += Space( 5 )
+            endif
           Endif
-          s += Str( tmp1->kol, 7, 0 )
+          if lExcel
+            worksheet_write_number( worksheet, rowWS, columnWS++, ;
+              tmp1->kol ) //, header )
+          else
+            s += Str( tmp1->kol, 7, 0 )
+          endif
           If flag_uet
-            s += ' ' + umest_val( tmp1->uet, 8, 2 )
+            if lExcel
+              worksheet_write_number( worksheet, rowWS, columnWS++, ;
+                tmp1->uet ) //, header )
+              else
+              s += ' ' + umest_val( tmp1->uet, 8, 2 )
+            endif
           Endif
-          s += put_kope( tmp1->sum, 11 )
-          add_string( s )
+          if lExcel
+            worksheet_write_number( worksheet, rowWS++, columnWS, ;
+              tmp1->sum ) //, header )
+          else
+            s += put_kope( tmp1->sum, 11 )
+            add_string( s )
+          endif
+          columnWS := 0
           Select TMP_XLS
           Append Blank
           tmp_xls->shifr  := usl->shifr
           tmp_xls->u_name := AllTrim( lname )
           tmp_xls->kol    := tmp1->kol
           tmp_xls->sum    := tmp1->sum
-          For j := 2 To k
-            add_string( PadL( AllTrim( as[ j ] ), n1 ) )
-          Next
+          if ! lExcel
+            For j := 2 To k
+              add_string( PadL( AllTrim( as[ j ] ), n1 ) )
+            Next
+          endif
           Select TMP1
           Skip
         Enddo
@@ -806,13 +1256,13 @@ Function pz1statist( par, par2 )
       Skip
     Enddo
   Endif
-  FClose( fp )
   Close databases
   RestScreen( buf )
   If lExcel
     workbook_close( workbook )
     saveto( name_fileXLS_full )
   else
+    FClose( fp )
     viewtext( name_file, , , , ( sh > 80 ), , , reg_print )
   Endif
 
@@ -1020,17 +1470,7 @@ Function f1pz1statist( arr_otd, par )
               // apz2016[i16, 3] += muet
               // endif
             Elseif i16 > 0
-              // If is_2023
-                lalunit := 'MOUNIT'   // 29.12.2022
-              // Elseif is_2022
-              //   lalunit := 'MOUNIT22'   // 05.01.2022
-              // Elseif is_2021
-              //   lalunit := 'MOUNIT21'
-              // Elseif is_2020
-              //   lalunit := 'MOUNIT20'
-              // Elseif is_2019
-              //   lalunit := 'MOUNIT19'
-              // Endif
+              lalunit := 'MOUNIT'   // 29.12.2022
               dbSelectArea( lalunit )
               Set Order To 2  // 2 23.12.21 == 1
               // find (str(i16, 3))

@@ -41,17 +41,6 @@ Function menu_schet_akt( r, c )
   Return j
 
 // 19.12.13
-Function title_schet_akt( sh )
-
-  If glob_schet_akt == 2
-    add_string( Center( '[ за вычетом снятых по актам ]', sh ) )
-  Elseif glob_schet_akt == 3
-    add_string( Center( '[ без учёта повторно выставленных случаев ]', sh ) )
-  Endif
-
-  Return Nil
-
-// 19.12.13
 Function f_usl_schet_akt( loplata )
 
   Local fl := .t.
