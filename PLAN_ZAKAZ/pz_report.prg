@@ -375,7 +375,7 @@ Function pz1statist( par, par2 )
     workbook  := workbook_new( name_fileXLS_full )
     wsCommon := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Ž¯¨á ­¨¥' ) )
     worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( '‘¯¨á®ª' ) )
-    worksheet_set_column( wsCommon, 7, 7, 15, nil )
+    worksheet_set_column( wsCommon, 8, 8, 15, nil )
 
     wsCommon_format := workbook_add_format( workbook )
     format_set_align( wsCommon_format, LXW_ALIGN_CENTER )
@@ -386,6 +386,7 @@ Function pz1statist( par, par2 )
     format_set_align( wsCommon_format_wrap, LXW_ALIGN_CENTER )
     format_set_align( wsCommon_format_wrap, LXW_ALIGN_VERTICAL_CENTER )
     format_set_text_wrap( wsCommon_format_wrap )
+    format_set_fg_color(wsCommon_format_wrap, 0xC6EFCE)
     format_set_bold( wsCommon_format_wrap )
 
     wsCommon_format_header := workbook_add_format( workbook )
@@ -420,6 +421,7 @@ Function pz1statist( par, par2 )
     If Len( st_a_uch ) == 1
       arrOutput := arr_titlen_otd( st_a_otd, lcount_otd )
       For i := 1 To Len( arrOutput )
+//        worksheet_set_row(worksheet,  row, 36,  NIL)
         worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format_wrap )
         worksheet_write_string( wsCommon, row++, column, hb_StrToUTF8( arrOutput[ i ] ), wsCommon_format_wrap )
       next
@@ -530,8 +532,9 @@ Function pz1statist( par, par2 )
   If par < 3
     if lExcel
       strOut := title_schet_akt( glob_schet_akt )
+      worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
       worksheet_write_string( wsCommon, row++, column, ;
-        hb_StrToUTF8( strOut ) ) //, header )
+        hb_StrToUTF8( strOut ), wsCommon_format )
     else
       add_string( Center( strOut, sh ) )
     endif
@@ -539,13 +542,13 @@ Function pz1statist( par, par2 )
   If eq_any( su, 1, 2, 5 )
     k := 0
     if lExcel
-      worksheet_merge_range( wsCommon, row, 0, row, 5, '' ) //, wsCommon_format_wrap )
+      worksheet_merge_range( wsCommon, row, 0, row, 5, '', wsCommon_format_wrap )
       worksheet_write_string( wsCommon, row, 6, ;
-        hb_StrToUTF8( '¯« ­-§ ª §' ) ) //, header )
+        hb_StrToUTF8( '¯« ­-§ ª §' ), wsCommon_format_wrap )
       worksheet_write_string( wsCommon, row, 7, ;
-        hb_StrToUTF8( '«¨áâ®¢ ãç¥â ' ) ) //, header )
+        hb_StrToUTF8( '«¨áâ®¢ ãç¥â ' ), wsCommon_format_wrap )
       worksheet_write_string( wsCommon, row++, 8, ;
-        hb_StrToUTF8( 'áã¬¬ ' ) ) //, header )
+        hb_StrToUTF8( 'áã¬¬ ' ), wsCommon_format_wrap )
     else
       add_string( '' )
       add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
@@ -597,13 +600,13 @@ Function pz1statist( par, par2 )
       worksheet_write_number( wsCommon, row++, 8, ;
         sstoim ) //, header )
 
-      worksheet_merge_range( wsCommon, ++row, 0, row, 5, '' ) //, wsCommon_format_wrap )
+      worksheet_merge_range( wsCommon, ++row, 0, row, 5, '', wsCommon_format_wrap )
       worksheet_write_string( wsCommon, row, 6, ;
-        hb_StrToUTF8( 'Š®«-¢® ãá«ã£' ) ) //, header )
+        hb_StrToUTF8( 'Š®«-¢® ãá«ã£' ), wsCommon_format_wrap )
       worksheet_write_string( wsCommon, row, 7, ;
-        hb_StrToUTF8( '“.….’.' ) ) //, header )
+        hb_StrToUTF8( '“.….’.' ), wsCommon_format_wrap )
       worksheet_write_string( wsCommon, row++, 8, ;
-        hb_StrToUTF8( '‘â®¨¬®áâì ãá«ã£' ) ) //, header )
+        hb_StrToUTF8( '‘â®¨¬®áâì ãá«ã£' ), wsCommon_format_wrap )
     else
       add_string( Replicate( 'Ä', sh ) )
       add_string( PadL( '‚á¥£® «¨áâ®¢ ãç¥â ', 42 ) + Str( k, 20, 0 ) + Str( sstoim, 17, 2 ) )

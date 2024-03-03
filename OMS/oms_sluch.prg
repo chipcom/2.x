@@ -3,25 +3,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.02.24 селектор для добавления или редактирования случаев (листов учета)
+// 03.03.24 селектор для добавления или редактирования случаев (листов учета)
 Function oms_sluch( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
-//  Static SKOD_DIAG := '     ',  st_l_z := 1, ;
-//    st_vrach := 0, st_profil := 0, st_profil_k := 0, st_rslt := 0, st_ishod := 0, st_povod := 9
-//  Static menu_bolnich := { { 'нет', 0 }, { 'да ', 1 }, { 'РОД', 2 } }
-
-//  Local bg := {| o, k| get_mkb10( o, k, .t. ) }, ;
-//    tmp_color := SetColor(), ;
-//    p_uch_doc := '@!',  pic_diag := '@K@!', ;
-//    colget_menu := 'R/W',  colgetImenu := 'R/BG', ;
-//    pos_read := 0, k_read := 0, count_edit := 0, ;
-//    fl_write_sluch := .f., when_uch_doc := .t.
-//  Local mm_reg_lech := { { 'Основные', 0 }, { 'Дополнительные', 9 } }
-//  Local mWeight := 0
-//  Local oldPictureTalon := '@S12'
-//  Local newPictureTalon := '@S 99.9999.99999.999'
 
   If Len( glob_otd ) > 2 .and. glob_otd[ 3 ] == 4 // скорая помощь
     Return oms_sluch_smp( Loc_kod, kod_kartotek, TIP_LU_SMP )
