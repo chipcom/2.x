@@ -51,7 +51,7 @@ Function pz_statist( k )
 
   Return Nil
 
-// 03.03.24
+// 04.03.24
 Function pz1statist( par, par2 )
 
   Static _su := 2
@@ -71,9 +71,9 @@ Function pz1statist( par, par2 )
   local arrOutput
   Local header, header_wrap
   Local formatDate
-  Local fmtCellNumber, fmtCellString, fmtCellStringCenter, fmtCellNumberRub
+  Local fmtCellNumber, fmtCellString, fmtCellStringCenter, fmtCellNumberRub, fmtCellNumberZero
   Local s1, s2, s3
-  Local wsCommon_format, wsCommon_format_header, wsCommon_String_Right
+  Local wsCommon_format, wsCommon_format_header, wsCommon_String_Left, wsCommon_String_Right, fmtWSCellNumberZero
   Local wsCommon_format_wrap, wsCommon_Number, wsCommon_Number_Rub
 
 
@@ -389,6 +389,28 @@ Function pz1statist( par, par2 )
     format_set_fg_color(wsCommon_format_wrap, 0xC6EFCE)
     format_set_bold( wsCommon_format_wrap )
 
+    wsCommon_String_Left := workbook_add_format( workbook )
+    format_set_align( wsCommon_String_Left, LXW_ALIGN_LEFT )
+    format_set_align( wsCommon_String_Left, LXW_ALIGN_VERTICAL_CENTER )
+    format_set_text_wrap( wsCommon_String_Left )
+  
+    wsCommon_String_Right := workbook_add_format( workbook )
+    format_set_align( wsCommon_String_Right, LXW_ALIGN_RIGHT )
+    format_set_align( wsCommon_String_Right, LXW_ALIGN_VERTICAL_CENTER )
+  
+    fmtCellNumberRub := workbook_add_format( workbook )
+    format_set_align( fmtCellNumberRub, LXW_ALIGN_RIGHT )
+    format_set_align( fmtCellNumberRub, LXW_ALIGN_VERTICAL_CENTER )
+//    format_set_border( fmtCellNumberRub, LXW_BORDER_THIN )
+    format_set_num_format( fmtCellNumberRub, '#,##0.00' )
+
+    
+    fmtCellNumberZero := workbook_add_format( workbook )
+    format_set_align( fmtCellNumberZero, LXW_ALIGN_RIGHT )
+    format_set_align( fmtCellNumberZero, LXW_ALIGN_VERTICAL_CENTER )
+//    format_set_border( fmtCellNumberZero, LXW_BORDER_THIN )
+    format_set_num_format( fmtCellNumberZero, '#,##' )
+
     wsCommon_format_header := workbook_add_format( workbook )
     format_set_align( wsCommon_format_header, LXW_ALIGN_CENTER )
     format_set_align( wsCommon_format_header, LXW_ALIGN_VERTICAL_CENTER )
@@ -404,9 +426,12 @@ Function pz1statist( par, par2 )
     format_set_align( wsCommon_Number_Rub, LXW_ALIGN_VERTICAL_CENTER )
     format_set_num_format( wsCommon_Number_Rub, '#,##0.00' )
 
-    wsCommon_String_Right := workbook_add_format( workbook )
-    format_set_align( wsCommon_String_Right, LXW_ALIGN_RIGHT )
-    format_set_align( wsCommon_String_Right, LXW_ALIGN_VERTICAL_CENTER )
+//    fmtWSCellNumberZero := workbook_add_format( worksheet )
+//    format_set_align( fmtWSCellNumberZero, LXW_ALIGN_RIGHT )
+//    format_set_align( fmtWSCellNumberZero, LXW_ALIGN_VERTICAL_CENTER )
+//    format_set_border( fmtWSCellNumberZero, LXW_BORDER_THIN )
+//    format_set_num_format( fmtWSCellNumberZero, '#,##' )
+
 
     row := 0
     column := 0
@@ -583,7 +608,7 @@ Function pz1statist( par, par2 )
           worksheet_write_number( wsCommon, row, 7, ;
             luapz2016[ i, 3 ] ) //, header )
           worksheet_write_number( wsCommon, row++, 8, ;
-            luapz2016[ i, 2 ] ) //, header )
+            luapz2016[ i, 2 ], fmtCellNumberRub )
         else
           s += Str( luapz2016[ i, 3 ], 10, 0 ) + Str( luapz2016[ i, 2 ], 17, 2 )
           add_string( s )
@@ -598,7 +623,7 @@ Function pz1statist( par, par2 )
       worksheet_write_number( wsCommon, row, 7, ;
         k ) //, header )
       worksheet_write_number( wsCommon, row++, 8, ;
-        sstoim ) //, header )
+        sstoim, fmtCellNumberRub )
 
       worksheet_merge_range( wsCommon, ++row, 0, row, 5, '', wsCommon_format_wrap )
       worksheet_write_string( wsCommon, row, 6, ;
@@ -635,7 +660,7 @@ Function pz1statist( par, par2 )
             worksheet_write_number( wsCommon, row, 6, ;
               as[ i, 1 ] ) //, header )
             worksheet_write_number( wsCommon, row, 7, ;
-              as[ i, 2 ] ) //, header )
+              as[ i, 2 ], fmtCellNumberZero )
             worksheet_write_number( wsCommon, row++, 8, ;
               as[ i, 3 ] ) //, header )
           else
@@ -766,11 +791,12 @@ Function pz1statist( par, par2 )
     n1 := iif( flag_uet, 49, 58 )
     if lExcel
       worksheet_write_string( worksheet, rowWS, columnWS++, ;
-        hb_StrToUTF8( '' ) ) //, header )
+        hb_StrToUTF8( '' ), wsCommon_format_wrap )
+      worksheet_set_column( worksheet, 1, 1, 60, nil )
       worksheet_write_string( worksheet, rowWS, columnWS++, ;
-        hb_StrToUTF8( 'Наименование услуги' ) ) //, header )
+        hb_StrToUTF8( 'Наименование услуги' ), wsCommon_format_wrap )
       worksheet_write_string( worksheet, rowWS, columnWS++, ;
-        hb_StrToUTF8( 'Кол-во услуг' ) ) //, header )
+        hb_StrToUTF8( 'Кол-во услуг' ), wsCommon_format_wrap )
     else
       arr_title := { ;
         Replicate( '─', n1 ), ;
@@ -785,7 +811,7 @@ Function pz1statist( par, par2 )
     If flag_uet
       if lExcel
         worksheet_write_string( worksheet, rowWS, columnWS++, ;
-          hb_StrToUTF8( 'У.Е.Т.' ) ) //, header )
+          hb_StrToUTF8( 'У.Е.Т.' ), wsCommon_format_wrap )
       else
         arr_title[ 1 ] += '┬────────'
         arr_title[ 2 ] += '│        '
@@ -795,7 +821,7 @@ Function pz1statist( par, par2 )
     Endif
     if lExcel
       worksheet_write_string( worksheet, rowWS++, columnWS, ;
-        hb_StrToUTF8( 'Стоимость услуг' ) ) //, header )
+        hb_StrToUTF8( 'Стоимость услуг' ), wsCommon_format_wrap )
     else
       arr_title[ 1 ] += '┬──────────────'
       arr_title[ 2 ] += '│  Стоимость   '
@@ -814,9 +840,9 @@ Function pz1statist( par, par2 )
         columnWS := 0
         if lExcel
           worksheet_write_string( worksheet, rowWS, columnWS++, ;
-            hb_StrToUTF8( tmp->shifr ) ) //, header )
+            hb_StrToUTF8( tmp->shifr ), wsCommon_format )
           worksheet_write_string( worksheet, rowWS, columnWS++, ;
-            hb_StrToUTF8( tmp->u_name ) ) //, header )
+            hb_StrToUTF8( tmp->u_name ), wsCommon_String_Left )
           worksheet_write_number( worksheet, rowWS, columnWS++, ;
             tmp->kol ) //, header )
         else
@@ -855,7 +881,7 @@ Function pz1statist( par, par2 )
         Endif
         if lExcel
           worksheet_write_number( worksheet, rowWS, columnWS, ;
-            tmp->sum ) //, header )
+            tmp->sum, fmtCellNumberZero )
         else
           s += put_kope( tmp->sum, 14 )
           add_string( s )
@@ -880,7 +906,7 @@ Function pz1statist( par, par2 )
             if lExcel
               rowWS++
               worksheet_write_string( worksheet, rowWS, 1, ;
-                hb_StrToUTF8( 'в т.ч. ' + AllTrim( arr_lp[ j, 2, k, 1 ] ) ) ) //, header )
+                hb_StrToUTF8( 'в т.ч. ' + AllTrim( arr_lp[ j, 2, k, 1 ] ) ), wsCommon_String_Right )
               worksheet_write_number( worksheet, rowWS, 2, ;
                 arr_lp[ j, 2, k, 2 ] ) //, header )
             else
