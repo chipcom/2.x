@@ -6,7 +6,7 @@
 
 Static sadiag1  // := {}
 
-// 01.03.24
+// 04.03.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -4763,7 +4763,8 @@ Function verify_1_sluch( fl_view )
     human_->PZKOL := iif( mpzkol > 0, mpzkol, 1 )
   Endif
 
-  If between_shifr( alltrim_lshifr, '2.88.111', '2.88.119' ) .and. ( human->k_data >= 0d20220201 )
+  If ( between_shifr( alltrim_lshifr, '2.88.111', '2.88.119' ) .and. ( human->k_data >= 0d20220201 ) ) ;
+      .or. alltrim_lshifr = '2.88.1'
     arr_povod[ 1, 1 ] := 1
     human_->POVOD := arr_povod[ 1, 1 ]
   Endif
