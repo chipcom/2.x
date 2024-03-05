@@ -7,7 +7,7 @@
 
 Static sadiag1  // := {}
 
-// 04.03.24 создание XML-файлов реестра
+// 05.03.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -806,15 +806,17 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           mo_add_xml_stroke( oONK_SL, 'BSA', lstr( onksl->BSA, 5, 2 ) )
         Endif
         For j := 1 To Len( arr_onkdi )
-          // заполним сведения о диагностических услугах для XML-документа
-          oDIAG := oONK_SL:add( hxmlnode():new( 'B_DIAG' ) )
-          mo_add_xml_stroke( oDIAG, 'DIAG_DATE', date2xml( arr_onkdi[ j, 1 ] ) )
-          mo_add_xml_stroke( oDIAG, 'DIAG_TIP', lstr( arr_onkdi[ j, 2 ] ) )
-          mo_add_xml_stroke( oDIAG, 'DIAG_CODE', lstr( arr_onkdi[ j, 3 ] ) )
-          If arr_onkdi[ j, 4 ] > 0
-            mo_add_xml_stroke( oDIAG, 'DIAG_RSLT', lstr( arr_onkdi[ j, 4 ] ) )
-            mo_add_xml_stroke( oDIAG, 'REC_RSLT', '1' )
-          Endif
+          if ! empty( arr_onkdi[ j, 1 ] ) // только если заполнена дата исследования
+            // заполним сведения о диагностических услугах для XML-документа
+            oDIAG := oONK_SL:add( hxmlnode():new( 'B_DIAG' ) )
+            mo_add_xml_stroke( oDIAG, 'DIAG_DATE', date2xml( arr_onkdi[ j, 1 ] ) )
+            mo_add_xml_stroke( oDIAG, 'DIAG_TIP', lstr( arr_onkdi[ j, 2 ] ) )
+            mo_add_xml_stroke( oDIAG, 'DIAG_CODE', lstr( arr_onkdi[ j, 3 ] ) )
+            If arr_onkdi[ j, 4 ] > 0
+              mo_add_xml_stroke( oDIAG, 'DIAG_RSLT', lstr( arr_onkdi[ j, 4 ] ) )
+              mo_add_xml_stroke( oDIAG, 'REC_RSLT', '1' )
+            Endif
+          endif
         Next j
         For j := 1 To Len( arr_onkpr )
           // заполним сведения о противоказаниях и отказах для XML-документа
@@ -1448,7 +1450,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
   find ( Str( human->kod, 7 ) )
   //
   arr_onkdi := {}
-  If eq_any( onksl->b_diag, 98, 99 )
+  If eq_any( onksl->b_diag, 98, 99 ) 
     Select ONKDI
     find ( Str( human->kod, 7 ) )
     Do While onkdi->kod == human->kod .and. !Eof()

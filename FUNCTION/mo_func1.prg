@@ -782,24 +782,25 @@ Function usl2arr(sh_u, /*@*/j)
   endif
   return arr
 
-// 22.04.19 ф-ия between для шифров услуг
-Function between_shifr(lshifr, lshifr1, lshifr2)
-  Local fl := .f., k, k1, k2, k3, v, v1, v2
+// 05.03.24 ф-ия between для шифров услуг
+Function between_shifr( lshifr, lshifr1, lshifr2 )
+  
+  Local fl := .f., k, k1, k2, v, v1, v2
 
-  lshifr  := alltrim(lshifr)
-  lshifr1 := alltrim(lshifr1)
-  lshifr2 := alltrim(lshifr2)
-  if len(lshifr) == len(lshifr1) .and. len(lshifr) == len(lshifr2)
-    fl := between(lshifr, lshifr1, lshifr2)
+  lshifr  := alltrim( lshifr )
+  lshifr1 := alltrim( lshifr1 )
+  lshifr2 := alltrim( lshifr2 )
+  if len( lshifr ) == len( lshifr1 ) .and. len( lshifr ) == len( lshifr2 )
+    fl := between( lshifr, lshifr1, lshifr2 )
   else // для варианта between_shifr(_shifr, '2.88.52', '2.88.103')
-    k := rat('.', lshifr)
-    k1 := rat('.', lshifr1)
-    k2 := rat('.', lshifr2)
-    if left(lshifr, k) == left(lshifr1, k1) .and. k == k1 .and. k1 == k2
-      v := int(val(substr(lshifr, k + 1)))
-      v1 := int(val(substr(lshifr1, k1 + 1)))
-      v2 := int(val(substr(lshifr2, k2 + 1)))
-      fl := between(v, v1, v2)
+    k := rat( '.', lshifr )
+    k1 := rat( '.', lshifr1 )
+    k2 := rat( '.', lshifr2 )
+    if left( lshifr, k ) == left( lshifr1, k1 ) .and. k == k1 .and. k1 == k2
+      v := int( val( substr( lshifr, k + 1 ) ) )
+      v1 := int( val( substr( lshifr1, k1 + 1 ) ) )
+      v2 := int( val( substr( lshifr2, k2 + 1 ) ) )
+      fl := between( v, v1, v2)
     endif
   endif
   return fl

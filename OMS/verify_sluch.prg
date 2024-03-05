@@ -4763,11 +4763,19 @@ Function verify_1_sluch( fl_view )
     human_->PZKOL := iif( mpzkol > 0, mpzkol, 1 )
   Endif
 
-  If ( between_shifr( alltrim_lshifr, '2.88.111', '2.88.119' ) .and. ( human->k_data >= 0d20220201 ) ) ;
-      .or. alltrim_lshifr = '2.88.1'
+  If ( between_shifr( alltrim_lshifr, '2.88.111', '2.88.119' ) .and. ( human->k_data >= 0d20220201 ) )
     arr_povod[ 1, 1 ] := 1
     human_->POVOD := arr_povod[ 1, 1 ]
   Endif
+  // ниже условие согласно соответствия АПП целям посещения согласно таблице Excel от 15.02.24
+  if ( between_shifr( alltrim_lshifr, '2.88.1', '2.88.119' ) .and. ( human->k_data >= 0d20240201 ) )
+    arr_povod[ 1, 1 ] := 1
+    If is_dom .and. between_shifr( alltrim_lshifr, '2.88.46', '2.88.51' )
+      arr_povod[ 1, 1 ] := 3 // 1.2 - активное посещение, т.е. на дому
+    Endif
+    human_->POVOD := arr_povod[ 1, 1 ]
+  Endif
+
 
   If !valid_guid( human_->ID_PAC )
     human_->ID_PAC := mo_guid( 1, human_->( RecNo() ) )
