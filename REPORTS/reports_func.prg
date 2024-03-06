@@ -4,7 +4,53 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 #include 'tfile.ch'
+#include 'hbxlsxwriter.ch'
 
+// 06.03.24
+function fmt_excel_hC_vC( wb )
+
+  local fmt
+
+  fmt := workbook_add_format( wb )
+  format_set_align( fmt, LXW_ALIGN_CENTER )
+  format_set_align( fmt, LXW_ALIGN_VERTICAL_CENTER )
+  return fmt
+
+// 06.03.24
+function fmt_excel_hL_vC( wb )
+
+  local fmt
+
+  fmt := workbook_add_format( wb )
+  format_set_align( fmt, LXW_ALIGN_LEFT )
+  format_set_align( fmt, LXW_ALIGN_VERTICAL_CENTER )
+  return fmt
+
+// 06.03.24
+function fmt_excel_hR_vC( wb )
+
+  local fmt
+
+  fmt := workbook_add_format( wb )
+  format_set_align( fmt, LXW_ALIGN_RIGHT )
+  format_set_align( fmt, LXW_ALIGN_VERTICAL_CENTER )
+  return fmt
+
+// 06.03.24
+// выбор направления вывода отчета
+function type_output( row, col, sel_item )
+  // row - строка
+  // col - колонка
+  // sel_item - первоначальный выбор
+  // iOutput - выбранное решение ( 0 - отказ от выбора )
+
+  local iOutput := 0
+  local mm_output := { ;
+    'на экран', ;
+    'в файл Excel (формат xlsx)' ;
+    }
+  iOutput := popup_prompt( row, col, sel_item, mm_output )
+  return iOutput
 
 // 02.02.24
 Function title_schet_akt( schet_akt )
