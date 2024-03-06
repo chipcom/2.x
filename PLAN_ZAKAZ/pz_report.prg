@@ -62,7 +62,7 @@ Function pz1statist( par, par2 )
   Local sbase, i, k, j
   local strOut
   // для Excel
-  Local lExcel := .f., lText := .f., used_column := 0 
+  Local lExcel := .t., lText := .f., used_column := 0 
   Local name_fileXLS := 'Plan_zakaz_' + suffixfiletimestamp()
   Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
   Local workbook
@@ -70,10 +70,10 @@ Function pz1statist( par, par2 )
   Local row, column, rowWS, columnWS
   local arrOutput
   Local header, header_wrap
-  Local formatDate
+  Local formatDate, fmt_general
   Local fmtCellNumber, fmtCellString, fmtCellStringCenter, fmtCellNumberRub, fmtCellNumberZero
   Local s1, s2, s3
-  Local wsCommon_format, wsCommon_format_header, wsCommon_String_Left, wsCommon_String_Right, fmtWSCellNumberZero
+  Local wsCommon_format, wsCommon_format_header, wsCommon_String_Left, wsCommon_String_Left_Wrap, wsCommon_String_Right, fmtWSCellNumberZero
   Local wsCommon_format_wrap, wsCommon_Number, wsCommon_Number_Rub
 
 
@@ -377,6 +377,10 @@ Function pz1statist( par, par2 )
     worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
     worksheet_set_column( wsCommon, 8, 8, 15, nil )
 
+    fmt_general := workbook_add_format( workbook )
+    format_set_align( fmt_general, LXW_ALIGN_CENTER )
+    format_set_align( fmt_general, LXW_ALIGN_VERTICAL_CENTER )
+
     wsCommon_format := workbook_add_format( workbook )
     format_set_align( wsCommon_format, LXW_ALIGN_CENTER )
     format_set_align( wsCommon_format, LXW_ALIGN_VERTICAL_CENTER )
@@ -389,11 +393,15 @@ Function pz1statist( par, par2 )
     format_set_fg_color(wsCommon_format_wrap, 0xC6EFCE)
     format_set_bold( wsCommon_format_wrap )
 
+    wsCommon_String_Left_Wrap := workbook_add_format( workbook )
+    format_set_align( wsCommon_String_Left_Wrap, LXW_ALIGN_LEFT )
+    format_set_align( wsCommon_String_Left_Wrap, LXW_ALIGN_VERTICAL_CENTER )
+    format_set_text_wrap( wsCommon_String_Left_Wrap )
+
     wsCommon_String_Left := workbook_add_format( workbook )
     format_set_align( wsCommon_String_Left, LXW_ALIGN_LEFT )
     format_set_align( wsCommon_String_Left, LXW_ALIGN_VERTICAL_CENTER )
-    format_set_text_wrap( wsCommon_String_Left )
-  
+    
     wsCommon_String_Right := workbook_add_format( workbook )
     format_set_align( wsCommon_String_Right, LXW_ALIGN_RIGHT )
     format_set_align( wsCommon_String_Right, LXW_ALIGN_VERTICAL_CENTER )
@@ -592,21 +600,21 @@ Function pz1statist( par, par2 )
         If Empty( apz2016[ i, 3 ] ) .and. !Empty( luapz2016[ i, 3 ] )
           if lExcel
             worksheet_write_number( wsCommon, row, 6, ;
-              ( luapz2016[ i, 3 ] - kol_sl_2[ i ] ) ) //, header )
+              ( luapz2016[ i, 3 ] - kol_sl_2[ i ] ), fmtCellNumberZero )
           else
             s += Str( luapz2016[ i, 3 ] - kol_sl_2[ i ], 10, 0 )
           endif
         Else
           if lExcel
             worksheet_write_number( wsCommon, row, 6, ;
-              ( apz2016[ i, 3 ] - kol_sl_2[ i ] ) ) //, header )
+              ( apz2016[ i, 3 ] - kol_sl_2[ i ] ), fmtCellNumberZero )
           else
             s += Str( apz2016[ i, 3 ] - kol_sl_2[ i ], 10, 0 )
           endif
         Endif
         if lExcel
           worksheet_write_number( wsCommon, row, 7, ;
-            luapz2016[ i, 3 ] ) //, header )
+            luapz2016[ i, 3 ], fmtCellNumberZero )
           worksheet_write_number( wsCommon, row++, 8, ;
             luapz2016[ i, 2 ], fmtCellNumberRub )
         else
@@ -680,25 +688,26 @@ Function pz1statist( par, par2 )
   If su == 1
     if lExcel
       worksheet_write_string( worksheet, rowWS, 0, ;
-        hb_StrToUTF8( 'Наименование отделения' ) ) //, header )
+        hb_StrToUTF8( 'Наименование отделения' ), wsCommon_format_wrap )
+      worksheet_set_column( worksheet, 0, 0, 45, nil )
       worksheet_write_string( worksheet, rowWS, 1, ;
-        hb_StrToUTF8( 'человек' ) ) //, header )
+        hb_StrToUTF8( 'человек' ), wsCommon_format_wrap )
       worksheet_write_string( worksheet, rowWS, 2, ;
-        hb_StrToUTF8( 'случаев' ) ) //, header )
+        hb_StrToUTF8( 'случаев' ), wsCommon_format_wrap )
       worksheet_write_string( worksheet, rowWS, 3, ;
-        hb_StrToUTF8( 'койко-дней' ) ) //, header )
+        hb_StrToUTF8( 'койко-дней' ), wsCommon_format_wrap )
       worksheet_write_string( worksheet, rowWS, 4, ;
-        hb_StrToUTF8( 'пациенто-дней' ) ) //, header )
+        hb_StrToUTF8( 'пациенто-дней' ), wsCommon_format_wrap )
       worksheet_write_string( worksheet, rowWS, 5, ;
-        hb_StrToUTF8( 'врач.приемов' ) ) //, header )
+        hb_StrToUTF8( 'врач.приемов' ), wsCommon_format_wrap )
       worksheet_write_string( worksheet, rowWS, 6, ;
-        hb_StrToUTF8( 'стоматол.посещ' ) ) //, header )
+        hb_StrToUTF8( 'стоматол.посещ' ), wsCommon_format_wrap )
       worksheet_write_string( worksheet, rowWS, 7, ;
-        hb_StrToUTF8( 'стоматологических УЕТ' ) ) //, header )
+        hb_StrToUTF8( 'стоматологических УЕТ' ), wsCommon_format_wrap )
       worksheet_write_string( worksheet, rowWS, 8, ;
-        hb_StrToUTF8( 'отдел медиц услуг' ) ) //, header )
+        hb_StrToUTF8( 'отдел медиц услуг' ), wsCommon_format_wrap )
       worksheet_write_string( worksheet, rowWS, 9, ;
-        hb_StrToUTF8( 'вызовов СМП' ) ) //, header )
+        hb_StrToUTF8( 'вызовов СМП' ), wsCommon_format_wrap )
       rowWS++
     else
       arr_title := { ;
@@ -755,23 +764,23 @@ Function pz1statist( par, par2 )
         worksheet_write_string( worksheet, rowWS, columnWS++, ;
           hb_StrToUTF8( otd->name ) ) //, header )
         worksheet_write_number( worksheet, rowWS, columnWS++, ;
-          k ) //, header )
+          k, fmtCellNumberZero )
         worksheet_write_number( worksheet, rowWS, columnWS++, ;
-          ks ) //, header )
+          ks, fmtCellNumberZero )
         worksheet_write_number( worksheet, rowWS, columnWS++, ;
-          tmpo->kol1 ) //, header )
+          tmpo->kol1, fmtCellNumberZero )
         worksheet_write_number( worksheet, rowWS, columnWS++, ;
-          tmpo->kol2 ) //, header )
+          tmpo->kol2, fmtCellNumberZero )
         worksheet_write_number( worksheet, rowWS, columnWS++, ;
-          tmpo->kol3 ) //, header )
+          tmpo->kol3, fmtCellNumberZero )
         worksheet_write_number( worksheet, rowWS, columnWS++, ;
-          tmpo->kol4 ) //, header )
+          tmpo->kol4, fmtCellNumberZero )
         worksheet_write_number( worksheet, rowWS, columnWS++, ;
-          tmpo->kol5 ) //, header )
+          tmpo->kol5, fmtCellNumberZero )
         worksheet_write_number( worksheet, rowWS, columnWS++, ;
-          tmpo->kol6 ) //, header )
+          tmpo->kol6, fmtCellNumberZero )
         worksheet_write_number( worksheet, rowWS++, columnWS, ;
-          tmpo->kol7 ) //, header )
+          tmpo->kol7, fmtCellNumberZero )
       else
         add_string( PadR( otd->name, n1 ) + ;
           put_val( k, 5 ) + ;
@@ -791,7 +800,7 @@ Function pz1statist( par, par2 )
     n1 := iif( flag_uet, 49, 58 )
     if lExcel
       worksheet_write_string( worksheet, rowWS, columnWS++, ;
-        hb_StrToUTF8( '' ), wsCommon_format_wrap )
+        hb_StrToUTF8( 'Шифр услуги' ), wsCommon_format_wrap )
       worksheet_set_column( worksheet, 1, 1, 60, nil )
       worksheet_write_string( worksheet, rowWS, columnWS++, ;
         hb_StrToUTF8( 'Наименование услуги' ), wsCommon_format_wrap )
@@ -840,11 +849,11 @@ Function pz1statist( par, par2 )
         columnWS := 0
         if lExcel
           worksheet_write_string( worksheet, rowWS, columnWS++, ;
-            hb_StrToUTF8( tmp->shifr ), wsCommon_format )
+            hb_StrToUTF8( tmp->shifr ), fmt_general )
           worksheet_write_string( worksheet, rowWS, columnWS++, ;
-            hb_StrToUTF8( tmp->u_name ), wsCommon_String_Left )
+            hb_StrToUTF8( tmp->u_name ), wsCommon_String_Left_Wrap )
           worksheet_write_number( worksheet, rowWS, columnWS++, ;
-            tmp->kol ) //, header )
+            tmp->kol, fmtCellNumberZero )
         else
           If verify_ff( HH, .t., sh )
             AEval( arr_title, {| x| add_string( x ) } )
@@ -873,7 +882,7 @@ Function pz1statist( par, par2 )
           Else
             if lExcel
               worksheet_write_number( worksheet, rowWS, columnWS++, ;
-                tmp->uet ) //, header )
+                tmp->uet, fmtCellNumberZero )
             else
               s += ' ' + umest_val( tmp->uet, 8, 2 )
             endif
@@ -964,7 +973,7 @@ Function pz1statist( par, par2 )
               worksheet_write_string( worksheet, rowWS, 1, ;
                 hb_StrToUTF8( 'Итого по службе:' ) ) //, header )
               worksheet_write_number( worksheet, rowWS, 2, ;
-                ssl[ 1 ] ) //, header )
+                ssl[ 1 ], fmtCellNumberZero )
             else
               add_string( Replicate( '─', sh ) )
               s := PadL( 'Итого по службе:', n1 ) + Str( ssl[ 1 ], 7, 0 )
@@ -972,7 +981,7 @@ Function pz1statist( par, par2 )
             If flag_uet
               if lExcel
                 worksheet_write_number( worksheet, rowWS, 3, ;
-                  ssl[ 2 ] ) //, header )
+                  ssl[ 2 ], fmtCellNumberZero )
               else
                 s += ' ' + umest_val( ssl[ 2 ], 8, 2 )
               endif
@@ -988,8 +997,9 @@ Function pz1statist( par, par2 )
           Endif
           strOut := 'Служба: ' + lstr( usl->slugba ) + '.' + AllTrim( sl->name )
           if lExcel
-            worksheet_write_string( worksheet, rowWS++, 1, ;
-              hb_StrToUTF8( strOut ) ) //, header )
+            worksheet_merge_range( worksheet, rowWS, 0, rowWs, 5, '', fmt_general )
+            worksheet_write_string( worksheet, rowWS++, 0, ;
+              hb_StrToUTF8( strOut ), fmt_general )
           else
             add_string( PadC( strOut, sh, '_' ) )
           endif
@@ -1002,7 +1012,7 @@ Function pz1statist( par, par2 )
           worksheet_write_string( worksheet, rowWS, 1, ;
             hb_StrToUTF8( usl->name ) ) //, header )
           worksheet_write_number( worksheet, rowWS, 2, ;
-            tmp->kol ) //, header )
+            tmp->kol, fmtCellNumberZero )
         else
           k := perenos( as, usl->name, n1 - 11 )
           s := usl->shifr + ' ' + PadR( as[ 1 ], n1 - 11 ) + Str( tmp->kol, 7, 0 )
@@ -1010,14 +1020,14 @@ Function pz1statist( par, par2 )
         If flag_uet
           if lExcel
             worksheet_write_number( worksheet, rowWS, 3, ;
-              tmp->uet ) //, header )
+              tmp->uet, fmtCellNumberZero )
           else
             s += ' ' + umest_val( tmp->uet, 8, 2 )
           endif
         Endif
         if lExcel
           worksheet_write_number( worksheet, rowWS, 4, ;
-            tmp->sum ) //, header )
+            tmp->sum, fmtCellNumberZero )
         else
           s += put_kope( tmp->sum, 14 )
           add_string( s )
@@ -1048,7 +1058,7 @@ Function pz1statist( par, par2 )
           worksheet_write_string( worksheet, rowWS, 1, ;
             hb_StrToUTF8( strOut ) ) //, header )
           worksheet_write_number( worksheet, rowWS, 2, ;
-            ssl[ 1 ] ) //, header )
+            ssl[ 1 ], fmtCellNumberZero )
         else
           add_string( Replicate( '─', sh ) )
           s := PadL( strOut, n1 ) + Str( ssl[ 1 ], 7, 0 )
@@ -1056,14 +1066,14 @@ Function pz1statist( par, par2 )
         If flag_uet
           if lExcel
             worksheet_write_number( worksheet, rowWS, 3, ;
-              ssl[ 2 ] ) //, header )
+              ssl[ 2 ], fmtCellNumberZero )
           else
             s += ' ' + umest_val( ssl[ 2 ], 8, 2 )
           endif
         Endif
         if lExcel
           worksheet_write_number( worksheet, rowWS++, 4, ;
-            ssl[ 3 ] ) //, header )
+            ssl[ 3 ], fmtCellNumberZero )
         else
           s += put_kope( ssl[ 3 ], 14 )
           add_string( s )
@@ -1084,24 +1094,29 @@ Function pz1statist( par, par2 )
     if lExcel
       rowWS := 0
       columnWS := 0
-      worksheet_write_string( worksheet, rowWS, columnWS++, ;
-        hb_StrToUTF8( 'Врач' + iif( su1 == 1, '', ' (плюс услуги)' ) ) ) //, header )
+      worksheet_set_column( worksheet, 0, 0, 2, nil )
+      worksheet_set_column( worksheet, 2, 2, 45, nil )
+      worksheet_merge_range( worksheet, rowWS, columnWS, rowWS, 2, '', wsCommon_format_wrap )
+      worksheet_write_string( worksheet, rowWS, columnWS, ;
+        hb_StrToUTF8( 'Врач' + iif( su1 == 1, '', ' (плюс услуги)' ) ), wsCommon_format_wrap )
+      columnWS := 3
       if fl_plan
         worksheet_write_string( worksheet, rowWS, columnWS++, ;
-          hb_StrToUTF8( 'План УЕТ' ) ) //, header )
+          hb_StrToUTF8( 'План УЕТ' ), wsCommon_format_wrap )
       endif
       worksheet_write_string( worksheet, rowWS, columnWS++, ;
-        hb_StrToUTF8( 'Кол-во услуг' ) ) //, header )
+        hb_StrToUTF8( 'Кол-во услуг' ), wsCommon_format_wrap )
       if flag_uet
         worksheet_write_string( worksheet, rowWS, columnWS++, ;
-          hb_StrToUTF8( 'У.Е.Т.' ) ) //, header )
+          hb_StrToUTF8( 'У.Е.Т.' ), wsCommon_format_wrap )
       endif
       worksheet_write_string( worksheet, rowWS, columnWS++, ;
-        hb_StrToUTF8( 'Стоимость услуг' ) ) //, header )
+        hb_StrToUTF8( 'Стоимость услуг' ), wsCommon_format_wrap )
       if fl_plan
-        worksheet_write_string( worksheet, rowWS++, columnWS, ;
-          hb_StrToUTF8( '%% план' ) ) //, header )
+        worksheet_write_string( worksheet, rowWS, columnWS, ;
+          hb_StrToUTF8( '%% план' ), wsCommon_format_wrap )
       endif
+      rowWS++
       columnWS := 0
     else
       arr_title := { ;
@@ -1159,8 +1174,10 @@ Function pz1statist( par, par2 )
         Endif
       endif
       if lExcel
-        worksheet_write_string( worksheet, rowWS, columnWS++, ;
+        worksheet_merge_range( worksheet, rowWS, columnWS, rowWS, 2, '', fmt_general )
+        worksheet_write_string( worksheet, rowWS, columnWS, ;
           hb_StrToUTF8( iif( Empty( perso->fio ), '__Не введен врач__', AllTrim( perso->fio ) ) + ' [' + lstr( perso->tab_nom ) + ']' ) ) //, header )
+        columnWs := 3
       else
         s := iif( Empty( perso->fio ), '__Не введен врач__', AllTrim( perso->fio ) ) + ' [' + lstr( perso->tab_nom ) + ']'
         k := perenos( as, s, n1 )
@@ -1228,10 +1245,11 @@ Function pz1statist( par, par2 )
             lname := lusl->name  // наименование услуги из справочника ТФОМС
           Endif
           if lExcel
+            columnWS := 1
             worksheet_write_string( worksheet, rowWS, columnWS++, ;
-              hb_StrToUTF8( AllTrim( usl->shifr ) ) ) //, header )
+              hb_StrToUTF8( AllTrim( usl->shifr ) ), wsCommon_String_Left_Wrap )
             worksheet_write_string( worksheet, rowWS, columnWS++, ;
-              hb_StrToUTF8( AllTrim( lname ) ) ) //, header )
+              hb_StrToUTF8( AllTrim( lname ) ), wsCommon_String_Left_Wrap )
           else
             k := perenos( as, AllTrim( usl->shifr ) + ' ' + AllTrim( lname ), n1 - 2 )
             s := '  ' + PadR( as[ 1 ], n1 - 2 )
@@ -1246,21 +1264,21 @@ Function pz1statist( par, par2 )
           Endif
           if lExcel
             worksheet_write_number( worksheet, rowWS, columnWS++, ;
-              tmp1->kol ) //, header )
+              tmp1->kol, wsCommon_Number )
           else
             s += Str( tmp1->kol, 7, 0 )
           endif
           If flag_uet
             if lExcel
               worksheet_write_number( worksheet, rowWS, columnWS++, ;
-                tmp1->uet ) //, header )
+                tmp1->uet, wsCommon_Number )
               else
               s += ' ' + umest_val( tmp1->uet, 8, 2 )
             endif
           Endif
           if lExcel
             worksheet_write_number( worksheet, rowWS++, columnWS, ;
-              tmp1->sum ) //, header )
+              tmp1->sum, wsCommon_Number )
           else
             s += put_kope( tmp1->sum, 11 )
             add_string( s )
