@@ -51,7 +51,7 @@ Function pz_statist( k )
 
   Return Nil
 
-// 04.03.24
+// 07.03.24
 Function pz1statist( par, par2 )
 
   Static _su := 2
@@ -62,6 +62,9 @@ Function pz1statist( par, par2 )
   Local sbase, i, k, j
   local strOut, iOutput
   local adbf
+  local v_deti := 1, lAdult
+  local fl_plan := .f., flag_uet := .t., fl_period := .f.
+  local arr_rees_no := { 1, 2 }, ym_kol_mes := 1
   // для Excel
   Local lExcel := .f., lText := .f., used_column := 0 
   Local name_fileXLS := 'Plan_zakaz_' + suffixfiletimestamp()
@@ -72,25 +75,25 @@ Function pz1statist( par, par2 )
   local arrOutput
   Local fmt_general, fmt_general_bold
   Local fmtCellNumberRub, fmtCellNumberZero
-  Local wsCommon_format, wsCommon_format_header, wsCommon_String_Left, wsCommon_String_Left_Wrap, wsCommon_String_Right, fmtWSCellNumberZero
-  Local wsCommon_format_wrap, wsCommon_Number, wsCommon_Number_Rub
+  Local wsCommon_format, wsCommon_format_header, wsCommon_String_Left_Wrap, wsCommon_String_Right, fmtWSCellNumberZero
+  Local wsCommon_format_wrap
 
 
-  Private flag_uet := .t., as[ 10, 3 ], s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim, ;
-    su, su1, arr_goi, arr_zn := { B_END, B_STANDART }, arr_rees_no := { 1, 2 }, ;
-    kol_sl_2 := {}, arr_lp := {}, fl_period := .f.
-  Private fl_plan := .f., ym_kol_mes := 1, tfoms_pz[ 6 ]
+  Private as[ 10, 3 ], s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim, ;
+    su, su1, arr_goi, arr_zn := { B_END, B_STANDART }, ;
+    kol_sl_2 := {}, arr_lp := {}
+  Private tfoms_pz[ 6 ]
+  Private apz2016 := {}, luapz2016 := {}
 
   AFill( tfoms_pz, 0 )
   If par > 1 .and. ( arr_goi := ret_g_o_i( T_ROW, T_COL - 5 ) ) == NIL
     Return Nil
   Endif
-  Private v_deti := 1, apf := {},   apz2016 := {}, luapz2016 := {}  //, ;
-    // is_2019 := .f., is_2020 := .f., is_2021 := .f., is_2022 := .f., is_2023 := .f.
   If ( v_deti := popup_prompt( T_ROW, T_COL - 5, 1, { 'по ~всем пациентам', 'по ~детям' }, , , 'N/G*,W+/B,B/G*,BG+/B' ) ) == 0
     RestScreen( buf )
     Return Nil
   Endif
+  lAdult := iif( v_deti == 1, .t., .f. )
   If par == 1
     arr_goi := { 1, 2 }
     Private p_number, p_date
@@ -265,7 +268,8 @@ Function pz1statist( par, par2 )
       If Inkey() == K_ESC
         fl_exit := .t. ; Exit
       Endif
-      If f_usl_schet_akt( human_->oplata ) .and. iif( v_deti == 1, .t., human->VZROS_REB > 0 )
+//      If f_usl_schet_akt( human_->oplata ) .and. iif( v_deti == 1, .t., human->VZROS_REB > 0 )
+      If f_usl_schet_akt( human_->oplata ) .and. iif( lAdult, .t., human->VZROS_REB > 0 )
         f1pz1statist( a_otd, 1 )
       Endif
       Select HUMAN
@@ -333,8 +337,9 @@ Function pz1statist( par, par2 )
             Endif
             If iif( par2 == 1, .t., Between( human->k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) ;
                 .and. f_usl_schet_akt( human_->oplata ) ;
-                .and. iif( v_deti == 1, .t., human->VZROS_REB > 0 )
-              f1pz1statist( a_otd, 1 )
+                .and. iif( lAdult, .t., human->VZROS_REB > 0 )
+//                .and. iif( v_deti == 1, .t., human->VZROS_REB > 0 )
+            f1pz1statist( a_otd, 1 )
             Endif
             Select HUMAN
             Skip
@@ -356,7 +361,8 @@ Function pz1statist( par, par2 )
         fl_exit := .t. ; Exit
       Endif
       If Between( human->k_data, arr_m[ 5 ], arr_m[ 6 ] ) .and. AScan( arr_zn, human->tip_h ) > 0 ;
-          .and. iif( v_deti == 1, .t., human->VZROS_REB > 0 )
+          .and. iif( lAdult, .t., human->VZROS_REB > 0 )
+          // .and. iif( v_deti == 1, .t., human->VZROS_REB > 0 )
         If human_->reestr == 0
           fl := AScan( arr_rees_no, 1 ) > 0
         Else
@@ -404,8 +410,6 @@ Function pz1statist( par, par2 )
     format_set_align( wsCommon_String_Left_Wrap, LXW_ALIGN_VERTICAL_CENTER )
     format_set_text_wrap( wsCommon_String_Left_Wrap )
 
-    wsCommon_String_Left := fmt_excel_hL_vC( workbook )
-    
     fmt_general_bold := fmt_excel_hL_vC( workbook )
     format_set_bold( fmt_general_bold )
 
@@ -431,15 +435,6 @@ Function pz1statist( par, par2 )
     format_set_align( wsCommon_format_header, LXW_ALIGN_VERTICAL_CENTER )
     format_set_bold( wsCommon_format_header )
     format_set_font_size( wsCommon_format_header, 20 )
-
-    wsCommon_Number := workbook_add_format( workbook )
-    format_set_align( wsCommon_Number, LXW_ALIGN_CENTER )
-    format_set_align( wsCommon_Number, LXW_ALIGN_VERTICAL_CENTER )
-
-    wsCommon_Number_Rub := workbook_add_format( workbook )
-    format_set_align( wsCommon_Number_Rub, LXW_ALIGN_RIGHT )
-    format_set_align( wsCommon_Number_Rub, LXW_ALIGN_VERTICAL_CENTER )
-    format_set_num_format( wsCommon_Number_Rub, '#,##0.00' )
 
     fmtWSCellNumberZero := workbook_add_format( workbook )
     format_set_align( fmtWSCellNumberZero, LXW_ALIGN_RIGHT )
@@ -543,7 +538,7 @@ Function pz1statist( par, par2 )
       add_string( Center( strOut, sh ) )
     endif
   Endif
-  If v_deti == 2
+  If ! lAdult // v_deti == 2
     strOut := '[ ПО ДЕТЯМ ]'
     if lExcel
       worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
@@ -1290,7 +1285,7 @@ Function pz1statist( par, par2 )
 
   Return Nil
 
-// 26.12.23
+// 07.03.24
 Function f1pz1statist( arr_otd, par )
 
   Local lreg_lech := { 0, 0, 0, 0, 0 }, s, lkod, lshifr, ta, i, j, k, mkol1, ;
@@ -1483,9 +1478,6 @@ Function f1pz1statist( arr_otd, par )
             msum := hu->stoim_1 * koef
             If eq_any( k, 9, 10 )  // УЕТ для стоматологий
               suet += muet
-              // if apz2016[i16, 2] == 62 // УЕТ стоматологии
-              // apz2016[i16, 3] += muet
-              // endif
             Elseif i16 > 0
               lalunit := 'MOUNIT'   // 29.12.2022
               dbSelectArea( lalunit )
@@ -1494,18 +1486,11 @@ Function f1pz1statist( arr_otd, par )
               // if &lalunit.->c_t == 2 // план-заказ подсчитывается по случаю
               t_vrem := &lalunit.->code
               If eq_any( t_vrem, 511, 317, 261, 262, 318, 319, 320, 321 )
-                // apz2016[i16, 3] ++
                 apz2016[ i16, 3 ] := 0
               Else
                 apz2016[ i16, 3 ] += mkol
               Endif
               Set Order To 1
-              /*if eq_any(apz2016[i16, 2], 57, 60, 61)
-                if (i := ascan(apf, {|x| x[1]==lshifr })) == 0
-                  aadd(apf, {lshifr, 0}) ; i := len(apf)
-                endif
-                apf[i, 2] += iif(empty(mkol), mkol1, mkol)
-              endif*/
             Endif
             Select TMP
             find ( PadR( lshifr, 10 ) )
@@ -1698,7 +1683,8 @@ Function pz2statist( arr_m, par2 )
         find ( Str( schet->kod, 6 ) )
         Do While human->schet == schet->kod .and. !Eof()
           If Between( human->k_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
-              .and. iif( v_deti == 1, .t., human->VZROS_REB > 0 )
+              .and. iif( lAdult, .t., human->VZROS_REB > 0 )
+//              .and. iif( v_deti == 1, .t., human->VZROS_REB > 0 )
             Select TMP
             find ( Str( mkomu, 1 ) + Str( mstr_crb, 2 ) + msmo )
             If !Found()
