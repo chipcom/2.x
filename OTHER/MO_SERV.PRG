@@ -4282,7 +4282,7 @@ Function nastr_rab_mesto()
     "результат", ;        // 5
     "исход", ;            // 6
     "повод обращения", ;  // 7
-  "способ оплаты" }     // 8
+    "способ оплаты" }     // 8
   ar := getinisect( tmp_ini, group_ini )
   sr := a2default( ar, "sc_reader" )
   If !Empty( sr )
@@ -4295,6 +4295,12 @@ Function nastr_rab_mesto()
     'Устройство чтения смарт-карт (для эл.полиса)', ;
     {|| iif( Empty( m1sc_reader ), .t., f_read_sc_reader() ) }, ;
     {|| hb_user_curUser:isadmin() } } )
+
+  AAdd( mm_tmp, { "open_Excel", "N", 1, 0, NIL, ;
+    {| x| menu_reader( x, arr_NO_YES(), A__MENUVERT ) }, ;
+    1, {| x| inieditspr( A__MENUVERT, arr_NO_YES(), x ) }, ;
+    'При установленном Excel, открывать автоматически' } )
+
   AAdd( mm_tmp, { "base_copy", "N", 1, 0, NIL, ;
     {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
     1, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
@@ -4351,6 +4357,7 @@ Function nastr_rab_mesto()
   Use ( cur_dir + "tmp" ) new
   Append Blank
   tmp->sc_reader := sr
+  tmp->open_Excel := Int( Val( a2default( ar, 'open_Excel', '0' ) ) )
   tmp->base_copy := Int( Val( a2default( ar, "base_copy", "1" ) ) )
   tmp->path_copy := a2default( ar, "path_copy", "" )
   tmp->wdir := iif( Empty( tmp->path_copy ), 0, 1 )
@@ -4371,8 +4378,9 @@ Function nastr_rab_mesto()
       { group_ini, "path_copy",   tmp->path_copy }, ;
       { group_ini, "kart_polis",  tmp->kart_polis }, ;
       { group_ini, "oms_pole",    tmp->oms_pole }, ;
-      { group_ini, "okato_umolch", tmp->_okato };
-      }
+      { group_ini, "okato_umolch", tmp->_okato }, ;
+      { group_ini, "open_Excel", tmp->open_Excel } ;
+    }
     If is_obmen_sds()
       AAdd( mm_tmp, { group_ini, "path1_sds", AllTrim( tmp->path1_sds ) } )
       AAdd( mm_tmp, { group_ini, "path2_sds", AllTrim( tmp->path2_sds ) } )

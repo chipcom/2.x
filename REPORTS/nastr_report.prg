@@ -1,10 +1,11 @@
+#include 'common.ch'
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
 
-// 22.02.24 многовариантный поиск
+// 09.03.24 многовариантный поиск
 Function s_mnog_poisk()
 
   Static lcount_uch  := 1
@@ -2378,7 +2379,7 @@ Function s_mnog_poisk()
       endif
       If lExcel
         workbook_close( workbook )
-        saveto( name_fileXLS_full )
+        work_with_Excel_file( name_fileXLS_full )
       Endif
     Endif
   Endif

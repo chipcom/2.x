@@ -6,7 +6,44 @@
 #include 'tfile.ch'
 #include 'hbxlsxwriter.ch'
 
+// 09.03.24
+function work_with_Excel_file( filename )
+
+  local choice, lOpen := .f.
+
+  filename := saveto( filename )
+  if ! isnil( filename ) .and. check_install_Excel()
+    if open_Excel_automatic()
+      lOpen := .t.
+    else
+      if ( choice := hb_Alert( 'Открыть файл?', { 'Нет', 'Да' } ) ) == 2
+        lOpen := .t.
+      endif
+    endif
+    if lOpen
+      view_file_in_Viewer( filename )
+    endif
+  endif
+  return nil
+
+// 07.03.24
+function check_install_Excel()
+
+  local obj
+
+  obj := win_oleCreateObject( 'Excel.Application' )
+  return iif( isnil( obj ), .f., .t. )
+
+// 07.03.24
+function open_Excel_automatic()
+
+  local opn
+  
+  opn := val( getinivar( tmp_ini, { { 'RAB_MESTO', 'open_Excel', '0' } } )[ 1 ] )
+  return iif( opn == 1, .t., .f. )
+
 // 06.03.24
+// центрирование по горизонтали и вертикали
 function fmt_excel_hC_vC( wb )
 
   local fmt
@@ -16,7 +53,18 @@ function fmt_excel_hC_vC( wb )
   format_set_align( fmt, LXW_ALIGN_VERTICAL_CENTER )
   return fmt
 
+// 07.03.24
+// центрирование по горизонтали и вертикали с переносом
+function fmt_excel_hC_vC_wrap( wb )
+
+  local fmt
+
+  fmt := fmt_excel_hC_vC( wb )
+  format_set_text_wrap( fmt )
+  return fmt
+
 // 06.03.24
+// левое выравнивание по горизонтали и центрирование и вертикали
 function fmt_excel_hL_vC( wb )
 
   local fmt
@@ -26,7 +74,18 @@ function fmt_excel_hL_vC( wb )
   format_set_align( fmt, LXW_ALIGN_VERTICAL_CENTER )
   return fmt
 
+// 07.03.24
+// левое выравнивание по горизонтали и центрирование и вертикали и переносом
+function fmt_excel_hL_vC_wrap( wb )
+
+  local fmt
+
+  fmt := fmt_excel_hL_vC( wb )
+  format_set_text_wrap( fmt )
+  return fmt
+
 // 06.03.24
+// правое выравнивание по горизонтали и центрирование и вертикали
 function fmt_excel_hR_vC( wb )
 
   local fmt
@@ -34,6 +93,16 @@ function fmt_excel_hR_vC( wb )
   fmt := workbook_add_format( wb )
   format_set_align( fmt, LXW_ALIGN_RIGHT )
   format_set_align( fmt, LXW_ALIGN_VERTICAL_CENTER )
+  return fmt
+
+// 07.03.24
+// правое выравнивание по горизонтали и центрирование и вертикали и переносом
+function fmt_excel_hR_vC_wrap( wb )
+
+  local fmt
+
+  fmt := fmt_excel_hR_vC( wb )
+  format_set_text_wrap( fmt )
   return fmt
 
 // 06.03.24

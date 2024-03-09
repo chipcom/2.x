@@ -51,7 +51,7 @@ Function pz_statist( k )
 
   Return Nil
 
-// 07.03.24
+// 09.03.24
 Function pz1statist( par, par2 )
 
   Static _su := 2
@@ -1272,7 +1272,7 @@ Function pz1statist( par, par2 )
   RestScreen( buf )
   If lExcel
     workbook_close( workbook )
-    saveto( name_fileXLS_full )
+    work_with_Excel_file( name_fileXLS_full )
   else
     FClose( fp )
     viewtext( name_file, , , , ( sh > 80 ), , , reg_print )
@@ -1771,19 +1771,38 @@ Function pz22statist( nKey, oBrow )
 
   Return ret
 
-// 27.09.13 Расчёт потребности в финансовом обеспечении выполнения объёмов мед.помощи
+// 09.03.24 Расчёт потребности в финансовом обеспечении выполнения объёмов мед.помощи
 Function pz_raschet_potr()
 
   Local buf := SaveScreen(), fl_exit := .f., i, j, k, lreg_lech[ 9 ], ;
     name_file := cur_dir + 'pz_r_p' + stxt, arr_m, ta[ 2 ], arr_title, lshifr, ;
     d2_year, sh := 80, HH := 80, reg_print := 5, au
+  local s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim
+  // для Excel
+  local lExcel := .f., iOutput
+  Local name_fileXLS := 'potrebnost_' + suffixfiletimestamp()
+  Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
+  Local workbook
+  Local worksheet
+  Local row, column
+  local fmt_zagolovok, fmt_zagolovok_podz, fmt_text_right, fmt_rub_kop, fmt_header_table
+  local fmt_number_cel, fmt_text_left_wrap, fmt_text_center
+  local arrOutput
 
   If ( arr_m := input_year() ) == NIL
     Return Nil
   Endif
-  Private s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim
+  // определим направление вывода отчета
+  if ( iOutput := type_output( T_ROW, T_COL - 5, 1 ) ) == 0
+    Return Nil
+  else
+    lExcel := iif( iOutput == 2, .t., .f. )
+  Endif
+
+//  Private s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim
   s_stac := sdstac := s_amb := skt := ssmp := suet := sstoim := 0
-  waitstatus( '<Esc> - прервать поиск' ) ; mark_keys( { '<Esc>' } )
+  waitstatus( '<Esc> - прервать поиск' )
+  mark_keys( { '<Esc>' } )
   dbCreate( cur_dir + 'tmp', { ;
     { 'shifr', 'C', 10, 0 }, ;
     { 'tip1', 'N', 1, 0 }, ;
@@ -1818,14 +1837,16 @@ Function pz_raschet_potr()
       date_8( schet_->DSCHET ), 24 ) Color 'W/R'
     updatestatus()
     If Inkey() == K_ESC
-      fl_exit := .t. ; Exit
+      fl_exit := .t.
+      Exit
     Endif
     Select HUMAN
     find ( Str( schet->kod, 6 ) )
     Do While human->schet == schet->kod .and. !Eof()
       updatestatus()
       If Inkey() == K_ESC
-        fl_exit := .t. ; Exit
+        fl_exit := .t.
+        Exit
       Endif
       If human_->oplata != 9
         d2_year := Year( human->k_data )
@@ -1929,7 +1950,9 @@ Function pz_raschet_potr()
       Select HUMAN
       Skip
     Enddo
-    If fl_exit ; exit ; Endif
+    If fl_exit
+      exit
+    Endif
     Select SCHET
     Skip
   Enddo
@@ -1937,45 +1960,182 @@ Function pz_raschet_potr()
     Close databases
     Return Nil
   Endif
-  arr_title := { ;
-    '───────────────────────────────┬───┬────────┬────────┬────────┬────────┬────────', ;
-    ' Услуга                        │Вид│ Тариф  │ I кв.  │ II кв. │ III кв.│ IV кв. ', ;
-    '───────────────────────────────┴───┴────────┴────────┴────────┴────────┴────────' }
-  // 32                                   8.2     9
-  fp := FCreate( name_file )
-  tek_stroke := 0
-  n_list := 1
-  add_string( PadL( 'дата печати ' + date_8( sys_date ), sh ) )
-  add_string( '' )
-  add_string( Center( 'Расчёт потребности в финансовом обеспечении выполнения объёмов мед.помощи', sh ) )
-  add_string( Center( 'по зарегистрированным счетам ' + arr_m[ 4 ], sh ) )
-  add_string( Center( '[ отчётный период ' + lstr( arr_m[ 1 ] ) + ' год]', sh ) )
-  add_string( Center( '[ без учёта иногородних ]', sh ) )
-  add_string( Center( '[ без учёта повторно выставленных случаев ]', sh ) )
-  add_string( '' )
-  add_string( 'Всего листов учета: ' + lstr( s_stac + sdstac + s_amb + skt + ssmp ) )
-  add_string( '   в том числе:' )
-  If s_stac > 0
-    add_string( PadL( 'стационар:', 31 ) + ' ' + lstr( s_stac ) )
-  Endif
-  If sdstac > 0
-    add_string( PadL( 'дневной стационар:', 31 ) + ' ' + lstr( sdstac ) )
-  Endif
-  If s_amb > 0
-    add_string( PadL( 'поликлиника:', 31 ) + ' ' + lstr( s_amb ) )
-  Endif
-  If skt > 0
-    add_string( PadL( 'отдельные медицинские услуги:', 31 ) + ' ' + lstr( skt ) )
-  Endif
-  If ssmp > 0
-    add_string( PadL( 'скорая медицинская помощь:', 31 ) + ' ' + lstr( ssmp ) )
-  Endif
-  add_string( '' )
-  add_string( 'Общая сумма лечения :  ' + lstr( sstoim, 13, 2 ) )
-  If suet > 0
-    add_string( 'Общее количество УЕТ:  ' + AllTrim( str_0( suet, 13, 2 ) ) )
-  Endif
-  AEval( arr_title, {| x| add_string( x ) } )
+
+  if lExcel
+    workbook  := workbook_new( name_fileXLS_full )
+    worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Описание' ) )
+
+    fmt_zagolovok := fmt_excel_hC_vC_wrap( workbook )
+    format_set_bold( fmt_zagolovok )
+    format_set_font_size( fmt_zagolovok, 16 )
+
+    fmt_zagolovok_podz := fmt_excel_hC_vC_wrap( workbook )
+    format_set_bold( fmt_zagolovok_podz )
+    format_set_font_size( fmt_zagolovok_podz, 11 )
+
+    fmt_text_left_wrap := fmt_excel_hL_vC_wrap( workbook )
+    fmt_text_right := fmt_excel_hR_vC( workbook )
+    fmt_text_center := fmt_excel_hC_vC( workbook )
+
+    fmt_rub_kop := fmt_excel_hR_vC( workbook )
+    format_set_num_format( fmt_rub_kop, '#,##0.00' )
+
+    fmt_number_cel := fmt_excel_hR_vC( workbook )
+    format_set_num_format( fmt_number_cel, '#,##' )
+
+    fmt_header_table := fmt_excel_hC_vC_wrap( workbook )
+    format_set_fg_color( fmt_header_table, 0xC6EFCE)
+    format_set_bold( fmt_header_table )
+
+    row := 0
+    column := 0
+    worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( 'дата печати ' + date_8( sys_date ) + ' ' + hour_min( Seconds() ) ) ) //, header )
+    row++
+    worksheet_set_row(worksheet, row, 49, NIL)
+    worksheet_merge_range( worksheet, row, column, row, 8, '', fmt_zagolovok )
+    worksheet_write_string( worksheet, row++, column, ;
+      hb_StrToUTF8( 'Расчёт потребности в финансовом обеспечении выполнения объёмов мед.помощи' ), fmt_zagolovok )
+    worksheet_merge_range( worksheet, row, column, row, 8, '', fmt_zagolovok_podz )
+    worksheet_write_string( worksheet, row++, column, ;
+      hb_StrToUTF8( 'по зарегистрированным счетам ' + arr_m[ 4 ] ), fmt_zagolovok_podz )
+    worksheet_merge_range( worksheet, row, column, row, 8, '',  )
+    worksheet_write_string( worksheet, row++, column, ;
+      hb_StrToUTF8( '[ отчётный период ' + lstr( arr_m[ 1 ] ) + ' год]' ), fmt_zagolovok_podz )
+    worksheet_merge_range( worksheet, row, column, row, 8, '', fmt_zagolovok_podz )
+    worksheet_write_string( worksheet, row++, column, ;
+      hb_StrToUTF8( '[ без учёта иногородних ]' ), fmt_zagolovok_podz )
+    worksheet_merge_range( worksheet, row, column, row, 8, '', fmt_zagolovok_podz )
+    worksheet_write_string( worksheet, row++, column, ;
+      hb_StrToUTF8( '[ без учёта повторно выставленных случаев ]' ), fmt_zagolovok_podz )
+    row++
+    column := 0
+    worksheet_merge_range( worksheet, row, column, row, 6, '',  )
+    worksheet_write_string( worksheet, row, column, ;
+      hb_StrToUTF8( 'Всего листов учета:' ),  )
+    worksheet_write_number( worksheet, row++, 7, ;
+      ( s_stac + sdstac + s_amb + skt + ssmp ), )
+    column := 0
+    worksheet_merge_range( worksheet, row, column, row, 6, '',  )
+    worksheet_write_string( worksheet, row++, column, ;
+      hb_StrToUTF8( 'в том числе:' ),  )
+
+    column := 0
+    If s_stac > 0
+      worksheet_merge_range( worksheet, row, 0, row, 6, '', fmt_text_right )
+      worksheet_write_string( worksheet, row, 0, ;
+        hb_StrToUTF8( 'стационар:' ), fmt_text_right )
+      worksheet_write_number( worksheet, row++, 7, ;
+        s_stac, )
+    Endif
+    If sdstac > 0
+      worksheet_merge_range( worksheet, row, 0, row, 6, '', fmt_text_right )
+      worksheet_write_string( worksheet, row, 0, ;
+        hb_StrToUTF8( 'дневной стационар:' ), fmt_text_right )
+      worksheet_write_number( worksheet, row++, 7, ;
+        sdstac, )
+    Endif
+    If s_amb > 0
+      worksheet_merge_range( worksheet, row, 0, row, 6, '', fmt_text_right )
+      worksheet_write_string( worksheet, row, 0, ;
+        hb_StrToUTF8( 'поликлиника:' ), fmt_text_right )
+      worksheet_write_number( worksheet, row++, 7, ;
+        s_amb, )
+    Endif
+    If skt > 0
+      worksheet_merge_range( worksheet, row, 0, row, 6, '', fmt_text_right )
+      worksheet_write_string( worksheet, row, 0, ;
+        hb_StrToUTF8( 'отдельные медицинские услуги:' ), fmt_text_right )
+      worksheet_write_number( worksheet, row++, 7, ;
+        skt, )
+    Endif
+    If ssmp > 0
+      worksheet_merge_range( worksheet, row, 0, row, 6, '', fmt_text_right )
+      worksheet_write_string( worksheet, row, 0, ;
+        hb_StrToUTF8( 'скорая медицинская помощь:' ), fmt_text_right )
+      worksheet_write_number( worksheet, row++, 7, ;
+        ssmp, )
+    Endif
+    row++
+    worksheet_merge_range( worksheet, row, 0, row, 5, '',  )
+    worksheet_write_string( worksheet, row, 0, ;
+      hb_StrToUTF8( 'Общая сумма лечения :' ),  )
+    worksheet_merge_range( worksheet, row, 6, row, 7, '', fmt_rub_kop )
+    worksheet_write_number( worksheet, row++, 6, ;
+      sstoim, fmt_rub_kop )
+    If suet > 0
+      worksheet_merge_range( worksheet, row, 0, row, 6, '',  )
+      worksheet_write_string( worksheet, row, 0, ;
+        hb_StrToUTF8( 'Общее количество УЕТ:' ),  )
+      worksheet_write_number( worksheet, row++, 7, ;
+        suet, )
+//        add_string( 'Общее количество УЕТ:  ' + AllTrim( str_0( suet, 13, 2 ) ) )
+    Endif
+
+    worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
+    row := 0
+    column := 0
+    worksheet_merge_range( worksheet, row, 0, row, 3, '',  )
+    worksheet_write_string( worksheet, row, column, ;
+      hb_StrToUTF8( 'Услуга' ), fmt_header_table )
+    column := 4
+    worksheet_write_string( worksheet, row, column++, ;
+      hb_StrToUTF8( 'Вид' ), fmt_header_table )
+    worksheet_write_string( worksheet, row, column++, ;
+      hb_StrToUTF8( 'Тариф' ), fmt_header_table )
+    worksheet_write_string( worksheet, row, column++, ;
+      hb_StrToUTF8( 'I кв.' ), fmt_header_table )
+    worksheet_write_string( worksheet, row, column++, ;
+      hb_StrToUTF8( 'II кв.' ), fmt_header_table )
+    worksheet_write_string( worksheet, row, column++, ;
+      hb_StrToUTF8( 'III кв.' ), fmt_header_table )
+    worksheet_write_string( worksheet, row++, column, ;
+      hb_StrToUTF8( 'IV кв.' ), fmt_header_table )
+    column := 0
+  else
+    arr_title := { ;
+      '───────────────────────────────┬───┬────────┬────────┬────────┬────────┬────────', ;
+      ' Услуга                        │Вид│ Тариф  │ I кв.  │ II кв. │ III кв.│ IV кв. ', ;
+      '───────────────────────────────┴───┴────────┴────────┴────────┴────────┴────────' }
+    // 32                                   8.2     9
+    fp := FCreate( name_file )
+    tek_stroke := 0
+    n_list := 1
+    add_string( PadL( 'дата печати ' + date_8( sys_date ), sh ) )
+    add_string( '' )
+    add_string( Center( 'Расчёт потребности в финансовом обеспечении выполнения объёмов мед.помощи', sh ) )
+    add_string( Center( 'по зарегистрированным счетам ' + arr_m[ 4 ], sh ) )
+    add_string( Center( '[ отчётный период ' + lstr( arr_m[ 1 ] ) + ' год]', sh ) )
+    add_string( Center( '[ без учёта иногородних ]', sh ) )
+    add_string( Center( '[ без учёта повторно выставленных случаев ]', sh ) )
+    add_string( '' )
+    add_string( 'Всего листов учета: ' + lstr( s_stac + sdstac + s_amb + skt + ssmp ) )
+    add_string( '   в том числе:' )
+    If s_stac > 0
+      add_string( PadL( 'стационар:', 31 ) + ' ' + lstr( s_stac ) )
+    Endif
+    If sdstac > 0
+      add_string( PadL( 'дневной стационар:', 31 ) + ' ' + lstr( sdstac ) )
+    Endif
+    If s_amb > 0
+      add_string( PadL( 'поликлиника:', 31 ) + ' ' + lstr( s_amb ) )
+    Endif
+    If skt > 0
+      add_string( PadL( 'отдельные медицинские услуги:', 31 ) + ' ' + lstr( skt ) )
+    Endif
+    If ssmp > 0
+      add_string( PadL( 'скорая медицинская помощь:', 31 ) + ' ' + lstr( ssmp ) )
+    Endif
+    add_string( '' )
+    add_string( 'Общая сумма лечения :  ' + lstr( sstoim, 13, 2 ) )
+    If suet > 0
+      add_string( 'Общее количество УЕТ:  ' + AllTrim( str_0( suet, 13, 2 ) ) )
+    Endif
+  endif
+
+  if lExcel
+  else
+    AEval( arr_title, {| x | add_string( x ) } )
+  endif
   If Select( 'LUSL' ) == 0
     use_base( 'lusl' )
   Endif
@@ -1984,10 +2144,14 @@ Function pz_raschet_potr()
   For i := 1 To 7
     For j := 1 To 2
       find ( Str( i, 1 ) + Str( j, 1 ) )
-      If !Found() ; loop ; Endif
-      If verify_ff( HH - 3, .t., sh )
-        AEval( arr_title, {| x| add_string( x ) } )
+      If !Found()
+        loop
       Endif
+      if ! lExcel
+        If verify_ff( HH - 3, .t., sh )
+          AEval( arr_title, {| x| add_string( x ) } )
+        Endif
+      endif
       s := { 'Стационар', 'Поликлиника', 'Дневной стационар', 'Отдельые медуслуги', ;
         'СМП', 'Стоматология', 'Диспансеризация/Профилактика/Медосмотры' }[ i ]
       If i == 1
@@ -1997,16 +2161,25 @@ Function pz_raschet_potr()
       Elseif i == 3
         s += ' [' + { 'пациенто-дни', 'законченные случаи' }[ j ] + ']'
       Endif
-      add_string( '' )
-      add_string( s )
-      add_string( Replicate( '─', sh ) )
+      if lExcel
+        worksheet_merge_range( worksheet, row, 0, row, 9, '', fmt_zagolovok_podz )
+        worksheet_write_string( worksheet, row++, 0, ;
+          hb_StrToUTF8( s ), fmt_zagolovok_podz )
+      else
+        add_string( '' )
+        add_string( s )
+        add_string( Replicate( '─', sh ) )
+      endif
       Do While tmp->tip1 == i .and. tmp->tip2 == j .and. !Eof()
-        If verify_ff( HH, .t., sh )
+        If ! lExcel .and. verify_ff( HH, .t., sh )
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
         If tmp->tip1 == 7
-          s := inieditspr( A__MENUVERT, getv002(), Int( tmp->tarif ) )
-          s := PadR( s, 31 ) + ' ' + { 'вз.', 'реб' }[ tmp->vr ] + Space( 9 )
+          if lExcel
+          else
+            s := inieditspr( A__MENUVERT, getv002(), Int( tmp->tarif ) )
+            s := PadR( s, 31 ) + ' ' + { 'вз.', 'реб' }[ tmp->vr ] + Space( 9 )
+          endif
         Else
           s := AllTrim( tmp->shifr ) + ' '
           Select LUSL
@@ -2014,19 +2187,46 @@ Function pz_raschet_potr()
           If Found()
             s += lusl->name
           Endif
-          s := PadR( s, 31 ) + ' ' + { 'вз.', 'реб' }[ tmp->vr ] + put_kope( tmp->tarif, 9 )
+          if lExcel
+            worksheet_merge_range( worksheet, row, 0, row, 3, '', fmt_text_left_wrap )
+            worksheet_write_string( worksheet, row, 0, ;
+              hb_StrToUTF8( s ), fmt_text_left_wrap )
+            worksheet_write_string( worksheet, row, 4, ;
+              hb_StrToUTF8( { 'вз.', 'реб' }[ tmp->vr ] ), fmt_text_center )
+            worksheet_write_number( worksheet, row, 5, ;
+              tmp->tarif, fmt_number_cel )
+          else
+            s := PadR( s, 31 ) + ' ' + { 'вз.', 'реб' }[ tmp->vr ] + put_kope( tmp->tarif, 9 )
+          endif
         Endif
-        s += umest_val( tmp->kol1, 9, 2 ) + umest_val( tmp->kol2, 9, 2 ) + ;
-          umest_val( tmp->kol3, 9, 2 ) + umest_val( tmp->kol4, 9, 2 )
-        add_string( s )
+        if lExcel
+          column := 6
+          worksheet_write_number( worksheet, row, column++, ;
+            tmp->kol1, fmt_number_cel )
+          worksheet_write_number( worksheet, row, column++, ;
+            tmp->kol2, fmt_number_cel )
+          worksheet_write_number( worksheet, row, column++, ;
+            tmp->kol3, fmt_number_cel )
+          worksheet_write_number( worksheet, row++, column, ;
+            tmp->kol4, fmt_number_cel )
+        else
+          s += umest_val( tmp->kol1, 9, 2 ) + umest_val( tmp->kol2, 9, 2 ) + ;
+            umest_val( tmp->kol3, 9, 2 ) + umest_val( tmp->kol4, 9, 2 )
+          add_string( s )
+        endif
         Select TMP
         Skip
       Enddo
     Next
   Next
-  FClose( fp )
   Close databases
   RestScreen( buf )
-  viewtext( name_file, , , , ( sh > 80 ), , , reg_print )
+  If lExcel
+    workbook_close( workbook )
+    work_with_Excel_file( name_fileXLS_full )
+  else
+    FClose( fp )
+    viewtext( name_file, , , , ( sh > 80 ), , , reg_print )
+  Endif
 
   Return Nil
