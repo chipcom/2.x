@@ -639,11 +639,12 @@ Function pz1statist( par, par2 )
     For i := 1 To 10
       If !emptyall( as[ i, 1 ], as[ i, 2 ], as[ i, 3 ] )
         k := perenos( ta, f14tf_array()[ i ], 49 )
-        If i == 6
+        If i == 6 // стоматологические услуги
           if lExcel
             worksheet_merge_range( wsCommon, row, 0, row, 5, '' ) //, wsCommon_format_wrap )
             worksheet_write_string( wsCommon, row, 0, ;
-              hb_StrToUTF8( ta[ 1 ] ) ) //, header )
+              hb_StrToUTF8( f14tf_array()[ i ] ) ) //, header )
+//              hb_StrToUTF8( ta[ 1 ] ) ) //, header )
           else
             add_string( PadR( ta[ 1 ], 49 ) + Str( as[ i, 1 ], 7, 0 ) )
           endif
@@ -651,7 +652,8 @@ Function pz1statist( par, par2 )
           if lExcel
             worksheet_merge_range( wsCommon, row, 0, row, 5, '' ) //, wsCommon_format_wrap )
             worksheet_write_string( wsCommon, row, 0, ;
-              hb_StrToUTF8( ta[ 1 ] ) ) //, header )
+              hb_StrToUTF8( f14tf_array()[ i ] ) ) //, header )
+//              hb_StrToUTF8( ta[ 1 ] ) ) //, header )
             worksheet_write_number( wsCommon, row, 6, ;
               as[ i, 1 ] ) //, header )
             worksheet_write_number( wsCommon, row, 7, ;
@@ -1306,7 +1308,8 @@ Function f1pz1statist( arr_otd, par )
     koef := human_->sump / human->cena_1
   Endif
   sstoim += human->cena_1 * koef
-  ar := Array( Len( luapz2016 ) ) ; AFill( ar, 0 )
+  ar := Array( Len( luapz2016 ) )
+  AFill( ar, 0 )
   Select HU
   find ( Str( human->kod, 7 ) )
   Do While hu->kod == human->kod .and. !Eof()
