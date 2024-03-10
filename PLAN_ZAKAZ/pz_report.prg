@@ -51,7 +51,7 @@ Function pz_statist( k )
 
   Return Nil
 
-// 09.03.24
+// 10.03.24
 Function pz1statist( par, par2 )
 
   Static _su := 2
@@ -76,7 +76,7 @@ Function pz1statist( par, par2 )
   Local fmt_general, fmt_general_bold
   Local fmtCellNumberRub, fmtCellNumberZero
   Local wsCommon_format, wsCommon_format_header, wsCommon_String_Left_Wrap, wsCommon_String_Right, fmtWSCellNumberZero
-  Local wsCommon_format_wrap
+  Local wsCommon_format_wrap, fmt_text_center
 
 
   Private as[ 10, 3 ], s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim, ;
@@ -208,7 +208,8 @@ Function pz1statist( par, par2 )
     { 'kol', 'N', 7, 0 }, ;
     { 'kol1', 'N', 7, 0 }, ;
     { 'uet', 'N', 11, 4 }, ;
-    { 'sum', 'N', 13, 2 } }
+    { 'sum', 'N', 13, 2 }, ;
+    { 'unit', 'C', 16, 0 } }
   dbCreate( cur_dir + 'tmp', adbf )
   Use ( cur_dir + 'tmp' ) new
   If su > 2
@@ -388,6 +389,8 @@ Function pz1statist( par, par2 )
     wsCommon := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Описание' ) )
     worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
     worksheet_set_column( wsCommon, 8, 8, 15, nil )
+
+    fmt_text_center := fmt_excel_hC_vC( workbook )
 
     fmt_general := workbook_add_format( workbook )
     format_set_align( fmt_general, LXW_ALIGN_CENTER )
@@ -818,8 +821,11 @@ Function pz1statist( par, par2 )
       endif
     Endif
     if lExcel
-      worksheet_write_string( worksheet, rowWS++, columnWS, ;
+      worksheet_write_string( worksheet, rowWS, columnWS++, ;
         hb_StrToUTF8( 'Стоимость услуг' ), wsCommon_format_wrap )
+      worksheet_set_column( worksheet, columnWS, columnWS, 16, nil )
+      worksheet_write_string( worksheet, rowWS++, columnWS, ;
+        hb_StrToUTF8( 'Вид план-заказа' ), wsCommon_format_wrap )
     else
       arr_title[ 1 ] += '┬──────────────'
       arr_title[ 2 ] += '│  Стоимость   '
@@ -878,8 +884,10 @@ Function pz1statist( par, par2 )
           Endif
         Endif
         if lExcel
-          worksheet_write_number( worksheet, rowWS, columnWS, ;
+          worksheet_write_number( worksheet, rowWS, columnWS++, ;
             tmp->sum, fmtCellNumberZero )
+          worksheet_write_string( worksheet, rowWS, columnWS, ;
+            hb_StrToUTF8( alltrim( tmp->unit ) ), fmt_text_center )
         else
           s += put_kope( tmp->sum, 14 )
           add_string( s )
@@ -1501,6 +1509,7 @@ Function f1pz1statist( arr_otd, par )
               Append Blank
               tmp->shifr := lshifr
               tmp->u_name := lname
+              tmp->unit := get_unit_uslugi( lshifr, human->k_data )
             Endif
             If fl
               tmp->kol += mkol

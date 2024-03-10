@@ -6,7 +6,33 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.01.24
+// 10.03.24
+function get_unit_uslugi( lshifr, ldate_usl )
+
+  Local tmp_select := Select(), fl := .f.
+  Local lal := 'lusl', y := WORK_YEAR
+  local nUnit := 0, i := 0, strUnit := '', aaa
+  local arrPZ := get_array_PZ( year( ldate_usl ) )
+
+  y := Year( ldate_usl )
+  If Select( 'LUSL' ) == 0
+    use_base( 'lusl' )
+  Endif
+
+  lal := create_name_alias( lal, y )
+  dbSelectArea( lal )
+  find ( PadR( lshifr, 10 ) )
+  If Found()
+    nUnit := &lal.->unit_code
+  endif
+  Select ( tmp_select )
+  if ( i := ascan(arrPZ, { | x | x[ 2 ] == nUnit } ) ) > 0
+    strUnit := left( arrPZ[ i, 4 ], 16 )
+  endif
+
+  return strUnit
+
+// 10.03.24
 Function arr_plan_zakaz( ly )
   Local i, apz := {}
   local nameArr //, funcGetPZ
@@ -27,24 +53,24 @@ Function arr_plan_zakaz( ly )
   ////               {} ;
   ////             })
   //// next
-//  for i := 1 to len( nameArr )
-//    aadd( apz, { nameArr[ i, 3 ], ;
-//                nameArr[ i, 1 ], ;
-//                0, ;
-//                nameArr[ i, 6 ], ;
-//                nameArr[ i, 5 ], ;
-//                { } ;
-//              } )
-//  next
-  for i := 1 to len( aValues )
-    aadd( apz, { aValues[ i, 5 ], ;
-                aValues[ i, 1 ], ;
+  for i := 1 to len( nameArr )
+    aadd( apz, { nameArr[ i, 3 ], ;
+                nameArr[ i, 1 ], ;
                 0, ;
-                aValues[ i, 8 ], ;
-                aValues[ i, 7 ], ;
+                nameArr[ i, 4 ], ;  // nameArr[ i, 6 ], ;
+                nameArr[ i, 5 ], ;
                 { } ;
               } )
   next
+//  for i := 1 to len( aValues )
+//    aadd( apz, { aValues[ i, 5 ], ;
+//                aValues[ i, 1 ], ;
+//                0, ;
+//                aValues[ i, 8 ], ;
+//                aValues[ i, 7 ], ;
+//                { } ;
+//              } )
+//  next
   return apz
 
 // 26.12.23 по шифру услуги у году вернуть номер элемента массива 'arr_plan_zakaz' для года
