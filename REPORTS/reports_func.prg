@@ -214,3 +214,42 @@ Function arr_titleN_otd( arr_o, c_otd )
     endif
   endif
   return ret
+
+function test_excel()
+  local wb
+  Local name_fileXLS := 'test'
+  Local name_fileXLS_full := cur_dir + name_fileXLS + '.xlsx'
+  
+  wb  := workbook_new( name_fileXLS_full )
+  zakladka_excel_report( wb, 'Титульный лист' )
+  workbook_close( wb )
+  
+  return nil
+  
+// 12.03.24
+function zakladka_excel_report( wb, descr )
+  
+  local ws
+  
+  ws := workbook_add_worksheet( wb, hb_StrToUTF8( descr ) )
+  worksheet_set_column( ws, 0, 300, 0.5, nil )
+  worksheet_set_row( ws, 0, 18,  NIL)
+  worksheet_set_row( ws, 1, 9,  NIL)
+  worksheet_set_row( ws, 2, 14.3,  NIL)
+  worksheet_set_row( ws, 3, 12,  NIL)
+  worksheet_set_row( ws, 4, 54.8,  NIL)
+  worksheet_set_row( ws, 5, 12,  NIL)
+  worksheet_set_row( ws, 6, 29.3,  NIL)
+  worksheet_set_row( ws, 7, 12.8,  NIL)
+  worksheet_set_row( ws, 8, 14.3,  NIL)
+  worksheet_set_row( ws, 9, 12.8,  NIL)
+  worksheet_set_row( ws, 10, 17.3,  NIL)
+  worksheet_set_row( ws, 11, 12,  NIL)
+  worksheet_set_row( ws, 12, 13.5,  NIL)
+  worksheet_set_row( ws, 13, 21,  NIL)
+  worksheet_set_row( ws, 14, 2.3,  NIL)
+  worksheet_set_row( ws, 15, 14.3,  NIL)
+  worksheet_set_row( ws, 16, 12.8,  NIL)  // 17 строка
+  
+  return ws
+  
