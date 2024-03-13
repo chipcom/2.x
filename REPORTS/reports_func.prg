@@ -229,17 +229,34 @@ function test_excel()
 // 12.03.24
 function zakladka_excel_report( wb, descr )
   
-  local ws
+  local ws, fmt_
   
   ws := workbook_add_worksheet( wb, hb_StrToUTF8( descr ) )
   worksheet_set_column( ws, 0, 300, 0.5, nil )
   worksheet_set_row( ws, 0, 18,  NIL)
+  fmt_ := fmt_excel_hC_vC( wb )
+  format_set_border( fmt_, LXW_BORDER_THICK )
+  format_set_bold( fmt_ )
+  worksheet_merge_range( ws, 0, 22, 0, 138, hb_StrToUTF8( 'ФЕДЕРАЛЬНОЕ СТАТИСТИЧЕСКОЕ НАБЛЮДЕНИЕ' ), fmt_ )
   worksheet_set_row( ws, 1, 9,  NIL)
   worksheet_set_row( ws, 2, 14.3,  NIL)
+
+  fmt_ := fmt_excel_hC_vC( wb )
+  format_set_border( fmt_, LXW_BORDER_THICK )
+  worksheet_merge_range( ws, 2, 22, 2, 138, hb_StrToUTF8( 'КОНФИДЕНЦИАЛЬНОСТЬ ГАРАНТИРУЕТСЯ ПОЛУЧАТЕЛЕМ ИНФОРМАЦИИ' ), fmt_ )
   worksheet_set_row( ws, 3, 12,  NIL)
+
+  fmt_ := fmt_excel_hC_vC_wrap( wb )
+  format_set_border( fmt_, LXW_BORDER_THICK )
+  format_set_fg_color( fmt_, 0xD7E4BC )
   worksheet_set_row( ws, 4, 54.8,  NIL)
+  worksheet_merge_range( ws, 4, 13, 4, 147, ;
+    hb_StrToUTF8( 'Нарушение порядка представления статистической информации, а равно представление недостоверной статистической информации влечет ответственность, установленную статьей 13.19 Кодекса ' ), fmt_ )
+
   worksheet_set_row( ws, 5, 12,  NIL)
   worksheet_set_row( ws, 6, 29.3,  NIL)
+  worksheet_merge_range( ws, 6, 14, 6, 146, ;
+    hb_StrToUTF8( 'В соответствии со статьей 6 Федерального закона от 27.07.2006 № 152-ФЗ ?О персональных данных? обработка персональных данных осуществляется для статистических целей при условии' ), fmt_ )
   worksheet_set_row( ws, 7, 12.8,  NIL)
   worksheet_set_row( ws, 8, 14.3,  NIL)
   worksheet_set_row( ws, 9, 12.8,  NIL)
@@ -250,6 +267,31 @@ function zakladka_excel_report( wb, descr )
   worksheet_set_row( ws, 14, 2.3,  NIL)
   worksheet_set_row( ws, 15, 14.3,  NIL)
   worksheet_set_row( ws, 16, 12.8,  NIL)  // 17 строка
+  worksheet_set_row( ws, 17, 12.8,  NIL)
+  worksheet_set_row( ws, 18, 10.5,  NIL)
+  worksheet_set_row( ws, 19, 10.5,  NIL)
+  worksheet_set_row( ws, 20, 10.5,  NIL)
+  worksheet_set_row( ws, 21, 9,  NIL)
+  worksheet_set_row( ws, 22, 4.5,  NIL)
+  worksheet_set_row( ws, 23, 10.5,  NIL)
+  worksheet_set_row( ws, 24, 10.5,  NIL)
+  worksheet_set_row( ws, 25, 3.8,  NIL)
+  worksheet_set_row( ws, 26, 6.8,  NIL)
+  worksheet_set_row( ws, 27, 5.3,  NIL)
+  worksheet_set_row( ws, 28, 6.8,  NIL)
+  worksheet_set_row( ws, 29, 10.5,  NIL)
+  worksheet_set_row( ws, 30, 3,  NIL) // 31 строка
+  worksheet_set_row( ws, 31, 7.5,  NIL)
+  worksheet_set_row( ws, 32, 10.5,  NIL)
+  worksheet_set_row( ws, 33, 21.8,  NIL)
+  worksheet_set_row( ws, 34, 14.3,  NIL)
+  worksheet_set_row( ws, 35, 4.5,  NIL)
+  worksheet_set_row( ws, 36, 14.3,  NIL)
+  worksheet_set_row( ws, 37, 4.5,  NIL)
+  worksheet_set_row( ws, 38, 18,  NIL)
+  worksheet_set_row( ws, 39, 27,  NIL)
+  worksheet_set_row( ws, 40, 13.8,  NIL)
+  worksheet_set_row( ws, 41, 13.8,  NIL)
   
   return ws
   

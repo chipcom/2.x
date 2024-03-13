@@ -7,7 +7,7 @@
 
 Static sadiag1  // := {}
 
-// 05.03.24 создание XML-файлов реестра
+// 13.03.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -115,11 +115,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   use_base( 'lusl' )
   use_base( 'luslc' )
   use_base( 'luslf' )
-  // Use_base('human_im')
   r_use( dir_server + 'human_im', dir_server + 'human_im', 'IMPL' )
   r_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR' )
 
-  // laluslf := 'luslf' + iif(_nyear == 2019, '19', '')
   laluslf := create_name_alias( 'luslf', _nyear )
   r_use( dir_server + 'mo_uch', , 'UCH' )
   r_use( dir_server + 'mo_otd', , 'OTD' )
@@ -237,8 +235,10 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   s := '3.11'
   controlVer := _nyear * 100 + _nmonth
   If ( controlVer >= 202201 ) .and. ( p_tip_reestr == 1 ) // с января 2022 года
-    // fl_ver := 32
     s := '3.2'
+  Endif
+  If ( controlVer >= 202403 ) .and. ( p_tip_reestr == 1 ) // с марта 2024 года
+    s := '4.0'
   Endif
   mo_add_xml_stroke( oXmlNode, 'VERSION',s )
   mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( rees->DSCHET ) )
@@ -709,6 +709,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             mo_add_xml_stroke( oKSG, 'CRIT', onksl->crit2 )  // второй критерий
           Endif
         Endif
+
+        mo_add_xml_stroke( oKSG, 'K_ZP', '1' )  // пока ставим 1
+
         mo_add_xml_stroke( oKSG, 'SL_K', iif( Empty( akslp ), '0', '1' ) )
         If !Empty( akslp )
           // заполним сведения о КСГ для XML-документа

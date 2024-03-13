@@ -492,7 +492,7 @@ Function read_XML_FILE_RAK(arr_XML_info, aerr)
   close databases
   return NIL
 
-// 26.05.20 зачитать Реестр Актов Контроля во временные файлы
+// 13.03.24 зачитать Реестр Актов Контроля во временные файлы
 Function reestr_rak_tmpfile(oXmlDoc, aerr, mname_xml)
   Static s_big := 10000000000000000
   Local j, j1, oXmlNode, oNode1, oNode2, buf := save_maxrow()
@@ -564,7 +564,7 @@ Function reestr_rak_tmpfile(oXmlDoc, aerr, mname_xml)
   })
   dbcreate(cur_dir + "tmp5file", { ; // реестр актов контроля счетов + эксперты
     {"kod_a",      "N",  6, 0}, ; // код акта
-    {"CODE_EXP",   "C",  8, 0};  // код эксперта качества мед.помощи по F004
+    {"CODE_EXP",   "C",  11, 0};  // код эксперта качества мед.помощи по F004
   })
   dbcreate(cur_dir + "tmp6file", { ; // реестр актов контроля + счета + листы учета + ошибки (по-новому - 2019 год)
     {"kod_s",      "N",  6, 0}, ; // код счета
@@ -575,7 +575,8 @@ Function reestr_rak_tmpfile(oXmlDoc, aerr, mname_xml)
     {"REFREASON",  "N",  3, 0}, ; // код причины отказа (частичной) оплаты
     {"PENALTY",    "N", 15, 2}, ; // Сумма штрафов
     {"SL_ID",      "C", 36, 0}, ; // идентификатор случая (в законченном случае)
-    {"SL_ID2",     "C", 36, 0};  // идентификатор второго случая (в законченном случае)
+    {"SL_ID2",     "C", 36, 0}, ; // идентификатор второго случая (в законченном случае)
+    {"S_COM",      "C", 250, 0} ; // Комментарий к санкции
   })
   use (cur_dir + "tmp1file") new alias TMP1
   append blank
@@ -692,6 +693,7 @@ Function reestr_rak_tmpfile(oXmlDoc, aerr, mname_xml)
                     elseif len(_ar) > 1
                       tmp6->SL_ID2 := _ar[2]
                     endif
+                    tmp6->S_COM := mo_read_xml_stroke(oNode3, "S_COM", aerr)
                   endif
                 next j3
               endif

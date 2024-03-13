@@ -335,7 +335,10 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
     If ( controlVer >= 202201 ) .and. ( p_tip_reestr == 1 ) // с января 2022 года
       s := '3.2'
     Endif
-
+    If ( controlVer >= 202403 ) .and. ( p_tip_reestr == 1 ) // с марта 2024 года
+      s := '4.0'
+    Endif
+  
     mo_add_xml_stroke( oXmlNode, 'VERSION', s )
     mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( schet_->DSCHET ) )
     mo_add_xml_stroke( oXmlNode, 'FILENAME', mo_xml->FNAME )
@@ -669,6 +672,9 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
           If !Empty( &lal.->n_ksg )
             oKSG := oSL:add( hxmlnode():new( 'KSG_KPG' ) )
             mo_add_xml_stroke( oKSG, 'N_KSG', &lal.->n_ksg )
+            
+            mo_add_xml_stroke( oKSG, 'K_ZP', '1' )  // пока ставим 1
+
             If !Empty( &lal.->crit )
               mo_add_xml_stroke( oKSG, 'CRIT', &lal.->crit )
             Endif
