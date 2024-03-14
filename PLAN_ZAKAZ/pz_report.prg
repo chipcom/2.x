@@ -51,7 +51,7 @@ Function pz_statist( k )
 
   Return Nil
 
-// 10.03.24
+// 14.03.24
 Function pz1statist( par, par2 )
 
   Static _su := 2
@@ -126,7 +126,7 @@ Function pz1statist( par, par2 )
     If mem_trudoem == 2 .and. mem_tr_plan == 2 .and. ym_kol_mes > 0
       fl_plan := .t.
     Endif
-    fl := pz2statist( arr_m, par2 )
+    fl := pz2statist( arr_m, par2, lAdult )
   Else
     If yes_vypisan == B_END .and. ( arr_zn := ret_z_n( T_ROW, T_COL - 5 ) ) == NIL
       Return Nil
@@ -1602,8 +1602,8 @@ Function f1pz1statist( arr_otd, par )
 
   Return Nil
 
-// 19.02.13
-Function pz2statist( arr_m, par2 )
+// 14.03.24
+Function pz2statist( arr_m, par2, lAdult )
 
   Local begin_date, end_date, buf := save_maxrow(), fl := .f., mstr_crb, mismo
 
