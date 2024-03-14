@@ -7,12 +7,10 @@
 
 Static sadiag1  // := {}
 
-// 13.03.24 создание XML-файлов реестра
+// 14.03.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
-
-  //
   Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
   Local arrLP, row
@@ -24,6 +22,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Local flLekPreparat
   Local lReplaceDiagnose := .f.
   Local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
+  local dPUMPver40 := 0d20240301
 
   //
   Close databases
@@ -710,7 +709,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           Endif
         Endif
 
-        mo_add_xml_stroke( oKSG, 'K_ZP', '1' )  // пока ставим 1
+        if endDateZK >= dPUMPver40   // дата окончания случая после 01.03.24
+          mo_add_xml_stroke( oKSG, 'K_ZP', '1' )  // пока ставим 1
+        endif
 
         mo_add_xml_stroke( oKSG, 'SL_K', iif( Empty( akslp ), '0', '1' ) )
         If !Empty( akslp )

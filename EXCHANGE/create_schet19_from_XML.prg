@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// * 15.11.22 создать счета по результатам прочитанного реестра СП
+// 14.03.24 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
 
   Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva, ;
@@ -14,6 +14,8 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
   Local controlVer
   Local tmpSelect
   Local ushifr
+  local dPUMPver40 := 0d20240301
+
 
   Default fl_msg To .t., arr_s TO {}
   Private pole
@@ -673,7 +675,9 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
             oKSG := oSL:add( hxmlnode():new( 'KSG_KPG' ) )
             mo_add_xml_stroke( oKSG, 'N_KSG', &lal.->n_ksg )
             
-            mo_add_xml_stroke( oKSG, 'K_ZP', '1' )  // пока ставим 1
+            if xml2date( t1->DATE_Z_2 ) >= dPUMPver40 // дата окончания случая после 01.03.24
+              mo_add_xml_stroke( oKSG, 'K_ZP', '1' )  // пока ставим 1
+            endif
 
             If !Empty( &lal.->crit )
               mo_add_xml_stroke( oKSG, 'CRIT', &lal.->crit )
