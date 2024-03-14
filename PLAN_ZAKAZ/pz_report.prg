@@ -523,8 +523,8 @@ Function pz1statist( par, par2 )
       endif
     Endif
   Elseif par == 2 .and. par2 == 2
+    strOut := 'по счетам (дата окончания лечения ' + arr_m[ 4 ] + ')'
     if lExcel
-      strOut := 'по счетам (дата окончания лечения ' + arr_m[ 4 ] + ')'
       worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
       worksheet_write_string( wsCommon, row++, column, ;
         hb_StrToUTF8( strOut ), wsCommon_format )
@@ -553,8 +553,8 @@ Function pz1statist( par, par2 )
   Endif
 
   If par < 3
+    strOut := title_schet_akt( glob_schet_akt )
     if lExcel
-      strOut := title_schet_akt( glob_schet_akt )
       worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
       worksheet_write_string( wsCommon, row++, column, ;
         hb_StrToUTF8( strOut ), wsCommon_format )
