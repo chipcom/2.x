@@ -1337,26 +1337,25 @@ Function s_mnog_poisk()
       Endif
       If !Empty( mn->god_r_min ) .or. !Empty( mn->god_r_max )
         If Empty( mn->god_r_min )
-          sZag := 'Лица, родившиеся до '
+          sZag := 'Лица, родившиеся до ' + full_date( mn->god_r_max )
           If lExcel
-            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag + full_date( mn->god_r_max ) ), nil )
+            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag ), nil )
           else
-            add_string( sZag + full_date( mn->god_r_max ) )
+            add_string( sZag )
           Endif
         Elseif Empty( mn->god_r_max )
-          sZag := 'Лица, родившиеся после '
+          sZag := 'Лица, родившиеся после ' + full_date( mn->god_r_min )
           If lExcel
-            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag + full_date( mn->god_r_min ) ), nil )
+            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag ), nil )
           else
-            add_string( sZag + full_date( mn->god_r_min ) )
+            add_string( sZag )
           Endif
         Else
           If lExcel
-            sZag := 'Лица, родившиеся с '
-            sZag1 := ' по '
-            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag + full_date( mn->god_r_min ) + sZag1 + full_date( mn->god_r_max ) ), nil )
+            sZag := 'Лица, родившиеся с ' + full_date( mn->god_r_min ) + ' по ' + full_date( mn->god_r_max )
+            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag ), nil )
           else
-            add_string( sZag + full_date( mn->god_r_min ) + sZag1 + full_date( mn->god_r_max ) )
+            add_string( sZag )
           Endif
         Endif
       Endif
@@ -1368,11 +1367,11 @@ Function s_mnog_poisk()
         Endif
       Endif
       If mn->USL_OK > 0
-        sZag := 'Условия оказания: '
+        sZag := 'Условия оказания: ' + inieditspr( A__MENUVERT, tmp_V006, mn->USL_OK )
         If lExcel
-          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag + inieditspr( A__MENUVERT, tmp_V006, mn->USL_OK ) ), nil )
+          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag ), nil )
         else
-          add_string( sZag + inieditspr( A__MENUVERT, tmp_V006, mn->USL_OK ) )
+          add_string( sZag )
         Endif
       Endif
       /*if mn->VIDPOM > 0
@@ -1383,19 +1382,19 @@ Function s_mnog_poisk()
         endif
       endif*/
       If mn->PROFIL > 0
-        sZag := 'Профиль (в случае): '
+        sZag := 'Профиль (в случае): ' + inieditspr( A__MENUVERT, tmp_V002, mn->PROFIL )
         If lExcel
-          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag + inieditspr( A__MENUVERT, tmp_V002, mn->PROFIL ) ), nil )
+          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag ), nil )
         else
-          add_string( sZag + inieditspr( A__MENUVERT, tmp_V002, mn->PROFIL ) )
+          add_string( sZag )
         Endif
       Endif
       If mn->PROFIL_U > 0
-        sZag := 'Профиль (в услуге): '
+        sZag := 'Профиль (в услуге): ' + inieditspr( A__MENUVERT, tmp_V002, mn->PROFIL_U )
         If lExcel
-          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag + inieditspr( A__MENUVERT, tmp_V002, mn->PROFIL_U ) ), nil )
+          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag ), nil )
         else
-          add_string( sZag + inieditspr( A__MENUVERT, tmp_V002, mn->PROFIL_U ) )
+          add_string( sZag )
         Endif
       Endif
       /*if mn->IDSP > 0
