@@ -217,7 +217,7 @@ Function pz1statist( par, par2 )
   Else
     Index On shifr to ( cur_dir + 'tmp' )
   Endif
-  If su == 4
+  If su == 4  // Наработка по врачам (список услуг)
     dbCreate( cur_dir + 'tmp1', adbf )
     Use ( cur_dir + 'tmp1' ) new
     Index On Str( kod, 4 ) + Str( kod1, 4 ) to ( cur_dir + 'tmp1' )
@@ -377,7 +377,7 @@ Function pz1statist( par, par2 )
       Skip
     Enddo
   Endif
-  If su == 1
+  If su == 1  // Список отделений (план-заказ)
     sh := 86
   Endif
   For i := 1 To Len( apz2016 )
@@ -562,7 +562,7 @@ Function pz1statist( par, par2 )
       add_string( Center( strOut, sh ) )
     endif
   Endif
-  If eq_any( su, 1, 2, 5 )
+  If eq_any( su, 1, 2, 5 )  // Список ~отделений (план-заказ) или Вывод списка услуг (план-заказ)
     k := 0
     if lExcel
       worksheet_merge_range( wsCommon, row, 0, row, 5, '', wsCommon_format_wrap )
@@ -677,7 +677,7 @@ Function pz1statist( par, par2 )
       Endif
     Next
   Endif
-  If su == 1
+  If su == 1  // Список отделений (план-заказ)
     if lExcel
       worksheet_write_string( worksheet, rowWS, 0, ;
         hb_StrToUTF8( 'Наименование отделения' ), wsCommon_format_wrap )
@@ -788,7 +788,7 @@ Function pz1statist( par, par2 )
       Select TMPO
       Skip
     Enddo
-  Elseif eq_any( su, 2, 3 )
+  Elseif eq_any( su, 2, 3 ) // Вывод списка услуг (план-заказ) или Службы + услуги (список услуг)
     n1 := iif( flag_uet, 49, 58 )
     if lExcel
       worksheet_write_string( worksheet, rowWS, columnWS++, ;
@@ -836,7 +836,7 @@ Function pz1statist( par, par2 )
 
     Select HU
     Set Relation To
-    If su == 2
+    If su == 2  // Вывод списка услуг (план-заказ)
       Select TMP
       Index On fsort_usl( shifr ) to ( cur_dir + 'tmp' )
       Go Top
@@ -1061,11 +1061,11 @@ Function pz1statist( par, par2 )
         endif
       Endif
     Endif
-  Elseif su == 4
+  Elseif su == 4  // Наработка по врачам (список услуг)
     If !flag_uet
       fl_plan := .f.
     Endif
-    n1 := 80 -18
+    n1 := 80 - 18
     If flag_uet
       n1 -= 9
     Endif
@@ -1354,7 +1354,7 @@ Function f1pz1statist( arr_otd, par )
       lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
       muet := hu->kol_1 * ret_tfoms_uet( usl->shifr, lshifr1, human->vzros_reb )
       tfoms_pz[ 4 ] += muet
-      If eq_any( su, 3, 4 )
+      If eq_any( su, 3, 4 ) // Службы + услуги (список услуг) или Наработка по врачам (список услуг)
         suet += muet
         lkod := iif( su == 3, hu->u_kod, hu->kod_vr )
         Select TMP
@@ -1369,7 +1369,7 @@ Function f1pz1statist( arr_otd, par )
         tmp->kol += hu->kol_1
         tmp->uet += muet
         tmp->sum += hu->stoim_1 * koef
-        If su == 4
+        If su == 4  // Наработка по врачам (список услуг)
           Select TMP1
           find ( Str( hu->kod_vr, 4 ) + Str( hu->u_kod, 4 ) )
           If !Found()
@@ -1558,7 +1558,7 @@ Function f1pz1statist( arr_otd, par )
     arr_lp[ i, 2, i1, 2 ] += arr_dn_st[ 3 ]
     arr_lp[ i, 2, i1, 3 ] ++
   Endif
-  If su == 1
+  If su == 1  // Список отделений (план-заказ)
     For i := 1 To Len( au_su1 )
       // aadd(au_su1,{hu->otd,human->kod_k,human->kod,k,mkol,muet})
       Select TMPO
