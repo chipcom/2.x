@@ -8,243 +8,246 @@ Static lcount_uch := 1
 Static lcount_otd := 1
 
 // 22.04.19
-Function put_long_str(s, cFile, n, sh)
-  Local i, k, t_arr[2]
+Function put_long_str( s, cFile, n, sh )
 
-  DEFAULT cFile TO 'ttt.ttt', n TO 0, sh TO 80
-  k := perenos(t_arr, s, sh - n)
-  strfile(space(n) + t_arr[1] + hb_eol(), cFile, .t.)
-  for i := 2 to k
-   strfile(space(n) + padl(alltrim(t_arr[i]), sh - n) + hb_eol(), cFile, .t.)
-  next
-  return NIL
+  Local i, k, t_arr[ 2 ]
+
+  Default cFile To 'ttt.ttt', n To 0, sh To 80
+  k := perenos( t_arr, s, sh - n )
+  StrFile( Space( n ) + t_arr[ 1 ] + hb_eol(), cFile, .t. )
+  For i := 2 To k
+    StrFile( Space( n ) + PadL( AllTrim( t_arr[ i ] ), sh - n ) + hb_eol(), cFile, .t. )
+  Next
+
+  Return Nil
 
 // 19.12.22 прочитать и "разнести" по базам данных РАК
-Function read_XML_FILE_RAK(arr_XML_info, aerr)
-  Local fl_akt, fl_schet, blk_akt, blk_schet, i, k, s, s1, arr_s := {}, t_arr[2], ;
-      ia, is, ih, arr, aakt := {}, no_write := .t., fl_2019
-  local tmp_alias, fl_IDC := .f.   // для двойного случая
-  local arrF006 := getF006()
+Function read_xml_file_rak( arr_XML_info, aerr )
 
-  blk_akt := {|| aadd(aerr, "АКТ № " + alltrim(tmp2->_nakt) + " от " + date_8(tmp2->_dakt)) }
-  blk_schet := {|| aadd(aerr, " СЧЁТ № " + alltrim(tmp3->_nschet) + " от " + date_8(tmp3->_dschet)) }
-  use (cur_dir + "tmp1file") new alias TMP1
-  fl_2019 := (val(tmp1->_VERSION) > 3.1)
-  tmp1->_SMO     := arr_XML_info[2]
-  tmp1->_CODE_MO := arr_XML_info[3]
-  tmp1->_YEAR    := arr_XML_info[4]
-  tmp1->_MONTH   := arr_XML_info[5]
-  use (cur_dir + "tmp2file") new alias TMP2
-  use (cur_dir + "tmp3file") new alias TMP3
-  index on str(kod_a, 6) to (cur_dir + "tmp3")
-  use (cur_dir + "tmp4file") new alias TMP4
-  index on str(kod_a, 6) + str(kod_s, 6) to (cur_dir + "tmp4")
-  use (cur_dir + "tmp5file") new alias TMP5
-  index on str(kod_a, 6) to (cur_dir + "tmp5")
-  use (cur_dir + "tmp6file") new alias TMP6
-  index on str(kod_a, 6) + str(kod_s, 6) + str(_idcase, 8) to (cur_dir + "tmp6")
+  Local fl_akt, fl_schet, blk_akt, blk_schet, i, k, s, s1, arr_s := {}, t_arr[ 2 ], ;
+    ia, is, ih, arr, aakt := {}, no_write := .t., fl_2019
+  Local tmp_alias, fl_IDC := .f.   // для двойного случая
+  Local arrF006 := getf006()
+
+  blk_akt := {|| AAdd( aerr, "АКТ № " + AllTrim( tmp2->_nakt ) + " от " + date_8( tmp2->_dakt ) ) }
+  blk_schet := {|| AAdd( aerr, " СЧЁТ № " + AllTrim( tmp3->_nschet ) + " от " + date_8( tmp3->_dschet ) ) }
+  Use ( cur_dir + "tmp1file" ) New Alias TMP1
+  fl_2019 := ( Val( tmp1->_VERSION ) > 3.1 )
+  tmp1->_SMO     := arr_XML_info[ 2 ]
+  tmp1->_CODE_MO := arr_XML_info[ 3 ]
+  tmp1->_YEAR    := arr_XML_info[ 4 ]
+  tmp1->_MONTH   := arr_XML_info[ 5 ]
+  Use ( cur_dir + "tmp2file" ) New Alias TMP2
+  Use ( cur_dir + "tmp3file" ) New Alias TMP3
+  Index On Str( kod_a, 6 ) to ( cur_dir + "tmp3" )
+  Use ( cur_dir + "tmp4file" ) New Alias TMP4
+  Index On Str( kod_a, 6 ) + Str( kod_s, 6 ) to ( cur_dir + "tmp4" )
+  Use ( cur_dir + "tmp5file" ) New Alias TMP5
+  Index On Str( kod_a, 6 ) to ( cur_dir + "tmp5" )
+  Use ( cur_dir + "tmp6file" ) New Alias TMP6
+  Index On Str( kod_a, 6 ) + Str( kod_s, 6 ) + Str( _idcase, 8 ) to ( cur_dir + "tmp6" )
   // сначала найдём коды счетов и коды листов учёта
-  G_Use(dir_server + "schet_", , "SCHET_")
-  index on dtos(dschet) + upper(nschet) to (cur_dir + "tmp_sch_")
-  R_Use(dir_server + "mo_otd", , "OTD")
-  G_Use(dir_server + "human_", , "HUMAN_")
-  R_Use(dir_server + "human", , "HUMAN")
-  set relation to recno() into HUMAN_, to otd into OTD
-  //R_Use(dir_server + "mo_os", , "MO_OS")
-  //index on str(kod, 7) to (cur_dir + "tmp_moos") for NEXT_KOD > 0
+  g_use( dir_server + "schet_", , "SCHET_" )
+  Index On DToS( dschet ) + Upper( nschet ) to ( cur_dir + "tmp_sch_" )
+  r_use( dir_server + "mo_otd", , "OTD" )
+  g_use( dir_server + "human_", , "HUMAN_" )
+  r_use( dir_server + "human", , "HUMAN" )
+  Set Relation To RecNo() into HUMAN_, To otd into OTD
+  // R_Use(dir_server + "mo_os", , "MO_OS")
+  // index on str(kod, 7) to (cur_dir + "tmp_moos") for NEXT_KOD > 0
   ia := is := ih := 0
-  @ maxrow(), 0 say space(maxcol() + 1) color "G+/R*"
-  select TMP2
-  go top
-  do while !eof()
+  @ MaxRow(), 0 Say Space( MaxCol() + 1 ) Color "G+/R*"
+  Select TMP2
+  Go Top
+  Do While !Eof()
     ++ia
     fl_akt := .t.
     arr := {}
-    select TMP3
-    find (str(tmp2->kod_a, 6))
-    do while tmp2->kod_a == tmp3->kod_a .and. !eof()
+    Select TMP3
+    find ( Str( tmp2->kod_a, 6 ) )
+    Do While tmp2->kod_a == tmp3->kod_a .and. !Eof()
       ++is
       fl_schet := .t.
-      select SCHET_
-      find (dtos(tmp3->_dschet) + upper(tmp3->_nschet))
-      if found()
+      Select SCHET_
+      find ( DToS( tmp3->_dschet ) + Upper( tmp3->_nschet ) )
+      If Found()
         no_write := .f.
-        aadd(arr, schet_->(recno()))
-        tmp3->kod_schet := schet_->(recno())
-        if !(tmp3->_PLAT == schet_->smo)
-          if fl_akt
-            eval(blk_akt)
+        AAdd( arr, schet_->( RecNo() ) )
+        tmp3->kod_schet := schet_->( RecNo() )
+        If !( tmp3->_PLAT == schet_->smo )
+          If fl_akt
+            Eval( blk_akt )
             fl_akt := .f.
-          endif
-          if fl_schet
-            eval(blk_schet)
+          Endif
+          If fl_schet
+            Eval( blk_schet )
             fl_schet := .f.
-          endif
-          aadd(aerr, "  не равен код плательщика: в файле - " + alltrim(tmp3->_PLAT) + ", у нас - " + alltrim(schet_->smo))
-        endif
+          Endif
+          AAdd( aerr, "  не равен код плательщика: в файле - " + AllTrim( tmp3->_PLAT ) + ", у нас - " + AllTrim( schet_->smo ) )
+        Endif
         //
-        select HUMAN
-        set index to (dir_server + "humans")
-        find (str(tmp3->kod_schet, 6))
-        index on str(human_->schet_zap, 6) to (cur_dir + "tmp_hum") for ishod != 89 while schet == tmp3->kod_schet
-        select TMP4
-        find (str(tmp3->kod_a, 6) + str(tmp3->kod_s, 6))
-        do while tmp3->kod_a == tmp4->kod_a .and. tmp3->kod_s == tmp4->kod_s .and. !eof()
+        Select HUMAN
+        Set Index to ( dir_server + "humans" )
+        find ( Str( tmp3->kod_schet, 6 ) )
+        Index On Str( human_->schet_zap, 6 ) to ( cur_dir + "tmp_hum" ) For ishod != 89 While schet == tmp3->kod_schet
+        Select TMP4
+        find ( Str( tmp3->kod_a, 6 ) + Str( tmp3->kod_s, 6 ) )
+        Do While tmp3->kod_a == tmp4->kod_a .and. tmp3->kod_s == tmp4->kod_s .and. !Eof()
           ++ih
-          @ maxrow(), 1  say "подготовка: " + lstr(ia) color "G+/R*"
-          @ row(), col() say "/"      color "R/R*"
-          @ row(), col() say lstr(is) color "GR+/R*"
-          @ row(), col() say "/"      color "R/R*"
-          @ row(), col() say lstr(ih) color "W+/R*"
-          select HUMAN
-          find (str(tmp4->_IDCASE, 6))
-          if found()
+          @ MaxRow(), 1  Say "подготовка: " + lstr( ia ) Color "G+/R*"
+          @ Row(), Col() Say "/"      Color "R/R*"
+          @ Row(), Col() Say lstr( is ) Color "GR+/R*"
+          @ Row(), Col() Say "/"      Color "R/R*"
+          @ Row(), Col() Say lstr( ih ) Color "W+/R*"
+          Select HUMAN
+          find ( Str( tmp4->_IDCASE, 6 ) )
+          If Found()
             tmp4->KOD_H := human->kod
-            fl_IDC := (upper(tmp4->_ID_C) == upper(human_->ID_C))
-            if !fl_IDC
-              tmp_alias := select()
-              R_Use(dir_server + "human_3", dir_server + "human_3", "HUMAN_3")
-              if human_3->(dbseek(str(human_->(recno()), 7)))
-                fl_IDC := (upper(tmp4->_ID_C) == upper(human_3->ID_C))
-              endif
-              human_3->(dbCloseArea())
-              select(tmp_alias)
-            endif
+            fl_IDC := ( Upper( tmp4->_ID_C ) == Upper( human_->ID_C ) )
+            If !fl_IDC
+              tmp_alias := Select()
+              r_use( dir_server + "human_3", dir_server + "human_3", "HUMAN_3" )
+              If human_3->( dbSeek( Str( human_->( RecNo() ), 7 ) ) )
+                fl_IDC := ( Upper( tmp4->_ID_C ) == Upper( human_3->ID_C ) )
+              Endif
+              human_3->( dbCloseArea() )
+              Select( tmp_alias )
+            Endif
 
-            if !fl_IDC
-              if fl_akt
-                eval(blk_akt)
+            If !fl_IDC
+              If fl_akt
+                Eval( blk_akt )
                 fl_akt := .f.
-              endif
-              if fl_schet
-                eval(blk_schet)
+              Endif
+              If fl_schet
+                Eval( blk_schet )
                 fl_schet := .f.
-              endif
-              aadd(aerr, "  случай № " + lstr(tmp4->_IDCASE) + ", " + alltrim(human->fio) + ", л/у " + lstr(human->kod))
-              aadd(aerr, "   ID_C в СМО = " + tmp4->_ID_C + ", ID_C у нас = " + human_->ID_C)
-            endif
-          else
-            if fl_akt
-              eval(blk_akt)
+              Endif
+              AAdd( aerr, "  случай № " + lstr( tmp4->_IDCASE ) + ", " + AllTrim( human->fio ) + ", л/у " + lstr( human->kod ) )
+              AAdd( aerr, "   ID_C в СМО = " + tmp4->_ID_C + ", ID_C у нас = " + human_->ID_C )
+            Endif
+          Else
+            If fl_akt
+              Eval( blk_akt )
               fl_akt := .f.
-            endif
-            if fl_schet
-              eval(blk_schet)
+            Endif
+            If fl_schet
+              Eval( blk_schet )
               fl_schet := .f.
-            endif
-            aadd(aerr, "   не найден пациент с IDCASE = " + lstr(tmp4->_IDCASE))
-          endif
-          select TMP4
-          skip
-        enddo
-      else
-        if fl_akt
+            Endif
+            AAdd( aerr, "   не найден пациент с IDCASE = " + lstr( tmp4->_IDCASE ) )
+          Endif
+          Select TMP4
+          Skip
+        Enddo
+      Else
+        If fl_akt
           // eval(blk_akt)
           // fl_akt := .f.
-        endif
-        aadd(arr_s, {tmp3->kod_a, tmp3->kod_s, ;
-                  " Не найден СЧЁТ № " + alltrim(tmp3->_nschet) + " от " + date_8(tmp3->_dschet)})
-      endif
-      select TMP3
-      skip
-    enddo
-    aadd(aakt, {tmp2->kod_a, arr})
-    select TMP2
-    skip
-  enddo
-  commit
-  if no_write
-    aadd(aerr, " Из этого РАК нечего записывать в текущую базу данных")
-  endif
-  if !empty(aerr)
-    for i := 1 to len(arr_s)
-      aadd(aerr, arr_s[i, 3])
-    next
-    return NIL
-  endif
+        Endif
+        AAdd( arr_s, { tmp3->kod_a, tmp3->kod_s, ;
+          " Не найден СЧЁТ № " + AllTrim( tmp3->_nschet ) + " от " + date_8( tmp3->_dschet ) } )
+      Endif
+      Select TMP3
+      Skip
+    Enddo
+    AAdd( aakt, { tmp2->kod_a, arr } )
+    Select TMP2
+    Skip
+  Enddo
+  Commit
+  If no_write
+    AAdd( aerr, " Из этого РАК нечего записывать в текущую базу данных" )
+  Endif
+  If !Empty( aerr )
+    For i := 1 To Len( arr_s )
+      AAdd( aerr, arr_s[ i, 3 ] )
+    Next
+    Return Nil
+  Endif
   // запишем принимаемый файл (РАК)
-  //chip_copy_zipXML(hb_OemToAnsi(full_zip), dir_server+dir_XML_TF)
-  chip_copy_zipXML(full_zip, dir_server + dir_XML_TF)
-  G_Use(dir_server + "mo_xml", , "MO_XML")
-  AddRecN()
-  mo_xml->KOD := recno()
+  // chip_copy_zipXML(hb_OemToAnsi(full_zip), dir_server+dir_XML_TF)
+  chip_copy_zipxml( full_zip, dir_server + dir_XML_TF )
+  g_use( dir_server + "mo_xml", , "MO_XML" )
+  addrecn()
+  mo_xml->KOD := RecNo()
   mo_xml->FNAME := cReadFile
   mo_xml->DFILE := tmp1->_DATA
   mo_xml->TFILE := ""
   mo_xml->DREAD := sys_date
-  mo_xml->TREAD := hour_min(seconds())
+  mo_xml->TREAD := hour_min( Seconds() )
   mo_xml->TIP_IN := _XML_FILE_RAK
   mo_xml->DWORK  := sys_date
-  mo_xml->TWORK1 := hour_min(seconds())
+  mo_xml->TWORK1 := hour_min( Seconds() )
   mo_xml->TWORK2 := ""
   mo_xml->KOL1 := tmp1->KOL_AKT
   mo_xml->KOL2 := tmp1->KOL_SCH
   rec_xml := mo_xml->KOD
-  UnLock
+  Unlock
   Commit
-  strfile(hb_eol() + ;
-        "Количество актов - " + lstr(tmp1->KOL_AKT) + hb_eol() + ;
-        "Количество счетов - " + lstr(tmp1->KOL_SCH) + hb_eol() + ;
-        "Количество пациентов всего - " + lstr(tmp1->KOL_PAC) + hb_eol() + ;
-        "  в т.ч. количество снятий  - " + lstr(tmp1->KOL_ERR) + hb_eol() + ;
-        "         количество штрафов - " + lstr(tmp1->KOL_PEN) + hb_eol(), cFileProtokol, .t.)
+  StrFile( hb_eol() + ;
+    "Количество актов - " + lstr( tmp1->KOL_AKT ) + hb_eol() + ;
+    "Количество счетов - " + lstr( tmp1->KOL_SCH ) + hb_eol() + ;
+    "Количество пациентов всего - " + lstr( tmp1->KOL_PAC ) + hb_eol() + ;
+    "  в т.ч. количество снятий  - " + lstr( tmp1->KOL_ERR ) + hb_eol() + ;
+    "         количество штрафов - " + lstr( tmp1->KOL_PEN ) + hb_eol(), cFileProtokol, .t. )
   //
-  select HUMAN
-  set index to
-  R_Use(dir_server + "human_3", {dir_server + "human_3", dir_server + "human_32"}, "HUMAN_3")
-  G_Use(dir_server + "mo_rak", , "RAK")
-  set relation to KOD_XML into MO_XML
-  index on str(akt, 6) to (cur_dir + "tmprak")
-  index on ret_owner_rak(mo_xml->FNAME) + str(year(dakt), 4) + upper(padr(nakt, 30)) to (cur_dir + "tmprak1")
-  set index to (cur_dir + "tmprak"), (cur_dir + "tmprak1")
-  G_Use(dir_server + "mo_rakexp", , "RAKEXP")
-  index on str(akt, 6) to (cur_dir + "tmprakexp")
-  G_Use(dir_server + "mo_raks", , "RAKS")
-  index on str(akt, 6) to (cur_dir + "tmpraks")
-  G_Use(dir_server + "mo_raksh", , "RAKSH")
-  index on str(kod_raks, 6) to (cur_dir + "tmpraksh")
-  G_Use(dir_server + "mo_raksherr", , "RAKSHERR")
-  index on str(kod_raksh, 8) to (cur_dir + "tmpraksherr")
+  Select HUMAN
+  Set Index To
+  r_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
+  g_use( dir_server + "mo_rak", , "RAK" )
+  Set Relation To KOD_XML into MO_XML
+  Index On Str( akt, 6 ) to ( cur_dir + "tmprak" )
+  Index On ret_owner_rak( mo_xml->FNAME ) + Str( Year( dakt ), 4 ) + Upper( PadR( nakt, 30 ) ) to ( cur_dir + "tmprak1" )
+  Set Index to ( cur_dir + "tmprak" ), ( cur_dir + "tmprak1" )
+  g_use( dir_server + "mo_rakexp", , "RAKEXP" )
+  Index On Str( akt, 6 ) to ( cur_dir + "tmprakexp" )
+  g_use( dir_server + "mo_raks", , "RAKS" )
+  Index On Str( akt, 6 ) to ( cur_dir + "tmpraks" )
+  g_use( dir_server + "mo_raksh", , "RAKSH" )
+  Index On Str( kod_raks, 6 ) to ( cur_dir + "tmpraksh" )
+  g_use( dir_server + "mo_raksherr", , "RAKSHERR" )
+  Index On Str( kod_raksh, 8 ) to ( cur_dir + "tmpraksherr" )
   ia := is := ih := 0
-  @ maxrow(), 0 say space(maxcol() + 1) color "G+/R*"
-  select TMP2
-  go top
-  do while !eof()
+  @ MaxRow(), 0 Say Space( MaxCol() + 1 ) Color "G+/R*"
+  Select TMP2
+  Go Top
+  Do While !Eof()
     ++ia
-    s := hb_eol() + "АКТ № " + alltrim(tmp2->_nakt) + " от " + date_8(tmp2->_dakt)
-    select RAK
-    set order to 2
-    find (ret_owner_rak(cReadFile) + str(year(tmp2->_dakt), 4) + upper(padr(tmp2->_nakt, 30)))
-    if found()
-      strfile(s + " - дубликат в " + rtrim(mo_xml->FNAME) + hb_eol() + hb_eol(), cFileProtokol, .t.)
-    elseif (i := ascan(aakt, {|x| x[1] == tmp2->kod_a })) > 0 .and. empty(aakt[i, 2])
-      strfile(s + " - не найдено счетов в базе данных"  + hb_eol() + hb_eol(), cFileProtokol, .t.)
-    else
-      s += ", счетов - " + lstr(tmp2->KOL_SCH) + ;
-          ", пациентов всего - " + lstr(tmp2->KOL_PAC)
-      if tmp2->KOL_ERR > 0
-        s += ", в т.ч. снятий - " + lstr(tmp2->KOL_ERR)
-      endif
-      if tmp2->KOL_PEN > 0
-        s += ", в т.ч. штрафов - " + lstr(tmp2->KOL_PEN)
-      endif
-      put_long_str(s, cFileProtokol)
-      if ascan(arrF006, {|x| x[2] == tmp2->_KONT }) > 0
-        s := 'Вид контроля: ' + inieditspr(A__MENUVERT, arrF006, tmp2->_KONT)
-        put_long_str(s, cFileProtokol)
-      endif
-      if tmp2->_TYPEK > 0
-        s := "Проведенный Контроль: " + iif(tmp2->_TYPEK == 1, "первичный", "повторный")
-        if between(tmp2->_SKONT, 1, 2)
-          s += ", вид экспертизы: " + iif(tmp2->_skont == 1, "плановая", "целевая")
-        endif
-        strfile(s + hb_eol(), cFileProtokol, .t.)
-        put_long_str(s, cFileProtokol)
-      endif
-      select RAK
-      set order to 1
-      AddRec(6)
-      rak->AKT     := recno() // код акта
+    s := hb_eol() + "АКТ № " + AllTrim( tmp2->_nakt ) + " от " + date_8( tmp2->_dakt )
+    Select RAK
+    Set Order To 2
+    find ( ret_owner_rak( cReadFile ) + Str( Year( tmp2->_dakt ), 4 ) + Upper( PadR( tmp2->_nakt, 30 ) ) )
+    If Found()
+      StrFile( s + " - дубликат в " + RTrim( mo_xml->FNAME ) + hb_eol() + hb_eol(), cFileProtokol, .t. )
+    Elseif ( i := AScan( aakt, {| x| x[ 1 ] == tmp2->kod_a } ) ) > 0 .and. Empty( aakt[ i, 2 ] )
+      StrFile( s + " - не найдено счетов в базе данных"  + hb_eol() + hb_eol(), cFileProtokol, .t. )
+    Else
+      s += ", счетов - " + lstr( tmp2->KOL_SCH ) + ;
+        ", пациентов всего - " + lstr( tmp2->KOL_PAC )
+      If tmp2->KOL_ERR > 0
+        s += ", в т.ч. снятий - " + lstr( tmp2->KOL_ERR )
+      Endif
+      If tmp2->KOL_PEN > 0
+        s += ", в т.ч. штрафов - " + lstr( tmp2->KOL_PEN )
+      Endif
+      put_long_str( s, cFileProtokol )
+      If AScan( arrF006, {| x| x[ 2 ] == tmp2->_KONT } ) > 0
+        s := 'Вид контроля: ' + inieditspr( A__MENUVERT, arrF006, tmp2->_KONT )
+        put_long_str( s, cFileProtokol )
+      Endif
+      If tmp2->_TYPEK > 0
+        s := "Проведенный Контроль: " + iif( tmp2->_TYPEK == 1, "первичный", "повторный" )
+        If Between( tmp2->_SKONT, 1, 2 )
+          s += ", вид экспертизы: " + iif( tmp2->_skont == 1, "плановая", "целевая" )
+        Endif
+        StrFile( s + hb_eol(), cFileProtokol, .t. )
+        put_long_str( s, cFileProtokol )
+      Endif
+      Select RAK
+      Set Order To 1
+      addrec( 6 )
+      rak->AKT     := RecNo() // код акта
       rak->KOD_XML := rec_xml
       rak->CODEA   := tmp2->_CODEA
       rak->NAKT    := tmp2->_NAKT
@@ -256,71 +259,71 @@ Function read_XML_FILE_RAK(arr_XML_info, aerr)
       rak->KONT    := tmp2->_KONT
       rak->TYPEK   := tmp2->_TYPEK
       rak->SKONT   := tmp2->_SKONT
-      select TMP5
-      find (str(tmp2->kod_a, 6))
-      do while tmp2->kod_a == tmp5->kod_a .and. !eof()
-        select RAKEXP
-        AddRec(6)
+      Select TMP5
+      find ( Str( tmp2->kod_a, 6 ) )
+      Do While tmp2->kod_a == tmp5->kod_a .and. !Eof()
+        Select RAKEXP
+        addrec( 6 )
         rakexp->AKT      := rak->AKT
         rakexp->CODE_EXP := tmp5->CODE_EXP
-        select TMP5
-        skip
-      enddo
-      select TMP3
-      find (str(tmp2->kod_a, 6))
-      do while tmp2->kod_a == tmp3->kod_a .and. !eof()
+        Select TMP5
+        Skip
+      Enddo
+      Select TMP3
+      find ( Str( tmp2->kod_a, 6 ) )
+      Do While tmp2->kod_a == tmp3->kod_a .and. !Eof()
         ++is
-        if tmp3->kod_schet == 0
-          if (i := ascan(arr_s, {|x| x[1] == tmp3->kod_a .and. x[2] == tmp3->kod_s})) > 0
-            strfile(hb_eol() + " " + arr_s[i, 3] + hb_eol() + hb_eol(), cFileProtokol, .t.)
-          endif
-        else
-          schet_->(dbGoto(tmp3->kod_schet))
-          schet_->(G_RLock(forever))
+        If tmp3->kod_schet == 0
+          If ( i := AScan( arr_s, {| x| x[ 1 ] == tmp3->kod_a .and. x[ 2 ] == tmp3->kod_s } ) ) > 0
+            StrFile( hb_eol() + " " + arr_s[ i, 3 ] + hb_eol() + hb_eol(), cFileProtokol, .t. )
+          Endif
+        Else
+          schet_->( dbGoto( tmp3->kod_schet ) )
+          schet_->( g_rlock( forever ) )
           schet_->SUMMAP    := tmp3->_SUMMAP
           schet_->SANK_MEK  := tmp3->_SANK_MEK + tmp3->PENALTY
           schet_->SANK_MEE  := tmp3->_SANK_MEE
           schet_->SANK_EKMP := tmp3->_SANK_EKMP
-          if tmp2->KOL_SCH == 1
+          If tmp2->KOL_SCH == 1
             rak->NSCHET := schet_->NSCHET
-          endif
+          Endif
           //
-          strfile(hb_eol(), cFileProtokol, .t.)
-          s := "СЧЁТ № " + alltrim(tmp3->_nschet) + " от " + date_8(tmp3->_dschet) + ;
-               ", отч.период - " + strzero(schet_->nyear, 4) + "/" + strzero(schet_->nmonth, 2) + ;
-               ", пациентов всего - " + lstr(tmp3->KOL_PAC)
-          if tmp3->KOL_ERR > 0
-            s += ", в т.ч. снятий - " + lstr(tmp3->KOL_ERR)
-          endif
-          if tmp3->KOL_PEN > 0
-            s += ", в т.ч. штрафов - " + lstr(tmp3->KOL_PEN)
-          endif
-          put_long_str(s, cFileProtokol, 2)
-          s := "Выставлено: " + lstr(tmp3->_SUMMAV, 15, 2) + "р., " + ;
-               "принято к оплате: " + lstr(tmp3->_SUMMAP, 15, 2) + "р."
-          if !empty(tmp3->_SANK_MEK)
-            if fl_2019
-              s += ", санкции: " + lstr(tmp3->_SANK_MEK, 15, 2) + "р."
-            else
-              s += ", санкции МЭК: " + lstr(tmp3->_SANK_MEK, 15, 2) + "р."
-            endif
-          endif
-          if !empty(tmp3->_SANK_MEE)
-            s += ", санкции МЭЭ: " + lstr(tmp3->_SANK_MEE, 15, 2) + "р."
-          endif
-          if !empty(tmp3->_SANK_EKMP)
-            s += ", санкции ЭКМП: " + lstr(tmp3->_SANK_EKMP, 15, 2) + "р."
-          endif
-          if !empty(tmp3->PENALTY)
-            s += ", сумма штрафов: " + lstr(tmp3->PENALTY, 15, 2) + "р."
-          endif
-          put_long_str(s, cFileProtokol, 2)
-          if tmp3->KOL_ERR > 0
-            strfile(hb_eol() + space(4) + "Список снятий:" + hb_eol(), cFileProtokol, .t.)
-          endif
-          select RAKS
-          AddRec(6)
-          raks->KOD_RAKS  := recno()
+          StrFile( hb_eol(), cFileProtokol, .t. )
+          s := "СЧЁТ № " + AllTrim( tmp3->_nschet ) + " от " + date_8( tmp3->_dschet ) + ;
+            ", отч.период - " + StrZero( schet_->nyear, 4 ) + "/" + StrZero( schet_->nmonth, 2 ) + ;
+            ", пациентов всего - " + lstr( tmp3->KOL_PAC )
+          If tmp3->KOL_ERR > 0
+            s += ", в т.ч. снятий - " + lstr( tmp3->KOL_ERR )
+          Endif
+          If tmp3->KOL_PEN > 0
+            s += ", в т.ч. штрафов - " + lstr( tmp3->KOL_PEN )
+          Endif
+          put_long_str( s, cFileProtokol, 2 )
+          s := "Выставлено: " + lstr( tmp3->_SUMMAV, 15, 2 ) + "р., " + ;
+            "принято к оплате: " + lstr( tmp3->_SUMMAP, 15, 2 ) + "р."
+          If !Empty( tmp3->_SANK_MEK )
+            If fl_2019
+              s += ", санкции: " + lstr( tmp3->_SANK_MEK, 15, 2 ) + "р."
+            Else
+              s += ", санкции МЭК: " + lstr( tmp3->_SANK_MEK, 15, 2 ) + "р."
+            Endif
+          Endif
+          If !Empty( tmp3->_SANK_MEE )
+            s += ", санкции МЭЭ: " + lstr( tmp3->_SANK_MEE, 15, 2 ) + "р."
+          Endif
+          If !Empty( tmp3->_SANK_EKMP )
+            s += ", санкции ЭКМП: " + lstr( tmp3->_SANK_EKMP, 15, 2 ) + "р."
+          Endif
+          If !Empty( tmp3->PENALTY )
+            s += ", сумма штрафов: " + lstr( tmp3->PENALTY, 15, 2 ) + "р."
+          Endif
+          put_long_str( s, cFileProtokol, 2 )
+          If tmp3->KOL_ERR > 0
+            StrFile( hb_eol() + Space( 4 ) + "Список снятий:" + hb_eol(), cFileProtokol, .t. )
+          Endif
+          Select RAKS
+          addrec( 6 )
+          raks->KOD_RAKS  := RecNo()
           raks->AKT       := rak->AKT
           raks->SCHET     := tmp3->kod_schet
           raks->KOL_PAC   := tmp3->KOL_PAC
@@ -332,99 +335,99 @@ Function read_XML_FILE_RAK(arr_XML_info, aerr)
           raks->SANK_MEE  := tmp3->_SANK_MEE
           raks->SANK_EKMP := tmp3->_SANK_EKMP
           raks->PENALTY   := tmp3->PENALTY
-          commit
-          select TMP4
-          find (str(tmp3->kod_a, 6) + str(tmp3->kod_s, 6))
-          do while tmp3->kod_a == tmp4->kod_a .and. tmp3->kod_s == tmp4->kod_s .and. !eof()
+          Commit
+          Select TMP4
+          find ( Str( tmp3->kod_a, 6 ) + Str( tmp3->kod_s, 6 ) )
+          Do While tmp3->kod_a == tmp4->kod_a .and. tmp3->kod_s == tmp4->kod_s .and. !Eof()
             ++ih
-            @ maxrow(), 1  say "запись: " + lstr(ia) color "G+/R*"
-            @ row(), col() say "/"      color "R/R*"
-            @ row(), col() say lstr(is) color "GR+/R*"
-            @ row(), col() say "/"      color "R/R*"
-            @ row(), col() say lstr(ih) color "W+/R*"
-            human->(dbGoto(tmp4->KOD_H))
-            human_->(G_RLock(forever))
-            if human_->OPLATA < 9
+            @ MaxRow(), 1  Say "запись: " + lstr( ia ) Color "G+/R*"
+            @ Row(), Col() Say "/"      Color "R/R*"
+            @ Row(), Col() Say lstr( is ) Color "GR+/R*"
+            @ Row(), Col() Say "/"      Color "R/R*"
+            @ Row(), Col() Say lstr( ih ) Color "W+/R*"
+            human->( dbGoto( tmp4->KOD_H ) )
+            human_->( g_rlock( forever ) )
+            If human_->OPLATA < 9
               human_->OPLATA := tmp4->_OPLATA
-            endif
-            if tmp4->_OPLATA > 1 .or. !empty(tmp4->PENALTY)
+            Endif
+            If tmp4->_OPLATA > 1 .or. !Empty( tmp4->PENALTY )
               v := human->cena_1
-              if human->ishod == 88
-                select HUMAN_3
-                find (str(human->kod, 7))
+              If human->ishod == 88
+                Select HUMAN_3
+                find ( Str( human->kod, 7 ) )
                 v := human_3->cena_1
-              endif
-              s := "Сумма лечения: " + lstr(v, 15, 2) + "р., " + ;
-                   "принято к оплате: " + lstr(tmp4->_SUMP, 15, 2) + "р."
-              if !empty(tmp4->_SANK_MEK)
-                if fl_2019
-                  s += ", санкции: " + lstr(tmp4->_SANK_MEK, 15, 2) + "р."
-                else
-                  s += ", санкции МЭК: " + lstr(tmp4->_SANK_MEK, 15, 2) + "р."
-                endif
-              endif
-              if !empty(tmp4->_SANK_MEE)
-                s += ", санкции МЭЭ: " + lstr(tmp4->_SANK_MEE, 15, 2) + "р."
-              endif
-              if !empty(tmp4->_SANK_EKMP)
-                s += ", санкции ЭКМП: " + lstr(tmp4->_SANK_EKMP, 15, 2) + "р."
-              endif
-              if !empty(tmp4->PENALTY)
-                s += ", сумма штрафов: " + lstr(tmp4->PENALTY, 15, 2) + "р."
-              endif
+              Endif
+              s := "Сумма лечения: " + lstr( v, 15, 2 ) + "р., " + ;
+                "принято к оплате: " + lstr( tmp4->_SUMP, 15, 2 ) + "р."
+              If !Empty( tmp4->_SANK_MEK )
+                If fl_2019
+                  s += ", санкции: " + lstr( tmp4->_SANK_MEK, 15, 2 ) + "р."
+                Else
+                  s += ", санкции МЭК: " + lstr( tmp4->_SANK_MEK, 15, 2 ) + "р."
+                Endif
+              Endif
+              If !Empty( tmp4->_SANK_MEE )
+                s += ", санкции МЭЭ: " + lstr( tmp4->_SANK_MEE, 15, 2 ) + "р."
+              Endif
+              If !Empty( tmp4->_SANK_EKMP )
+                s += ", санкции ЭКМП: " + lstr( tmp4->_SANK_EKMP, 15, 2 ) + "р."
+              Endif
+              If !Empty( tmp4->PENALTY )
+                s += ", сумма штрафов: " + lstr( tmp4->PENALTY, 15, 2 ) + "р."
+              Endif
               s1 := ""
-              if tmp4->_OPLATA == 2
+              If tmp4->_OPLATA == 2
                 s1 := " (полный отказ)"
-              elseif tmp4->_OPLATA == 3
+              Elseif tmp4->_OPLATA == 3
                 s1 := " (частичный отказ)"
-              elseif tmp4->_OPLATA == 4
+              Elseif tmp4->_OPLATA == 4
                 s1 := " (восстановление ранее удержанной суммы)"
-              endif
-              strfile(hb_eol(), cFileProtokol, .t.)
-              put_long_str("Случай № " + lstr(tmp4->_IDCASE) + ". " + alltrim(human->fio) + iif(human->ishod == 88, " (двойной случай), ", ", ") + ;
-                         full_date(human->date_r) + ;
-                         iif(empty(otd->SHORT_NAME), "", " [" + alltrim(otd->SHORT_NAME) + "]") + ;
-                         " " + date_8(human->n_data) + "-" + date_8(human->k_data), cFileProtokol, 4)
-              put_long_str(s, cFileProtokol, 5)
-              put_long_str("OPLATA = " + lstr(tmp4->_OPLATA) + s1, cFileProtokol, 5)
-              if emptyall(tmp4->_SANK_MEK, tmp4->_SANK_MEE, tmp4->_SANK_EKMP, tmp4->PENALTY)
-                if ascan(arrF006, {|x| x[2] == tmp2->_KONT}) > 0
-                  s := 'Вид контроля: ' + inieditspr(A__MENUVERT, arrF006, tmp2->_KONT)
-                  put_long_str(s, cFileProtokol, 5)
-                endif
+              Endif
+              StrFile( hb_eol(), cFileProtokol, .t. )
+              put_long_str( "Случай № " + lstr( tmp4->_IDCASE ) + ". " + AllTrim( human->fio ) + iif( human->ishod == 88, " (двойной случай), ", ", " ) + ;
+                full_date( human->date_r ) + ;
+                iif( Empty( otd->SHORT_NAME ), "", " [" + AllTrim( otd->SHORT_NAME ) + "]" ) + ;
+                " " + date_8( human->n_data ) + "-" + date_8( human->k_data ), cFileProtokol, 4 )
+              put_long_str( s, cFileProtokol, 5 )
+              put_long_str( "OPLATA = " + lstr( tmp4->_OPLATA ) + s1, cFileProtokol, 5 )
+              If emptyall( tmp4->_SANK_MEK, tmp4->_SANK_MEE, tmp4->_SANK_EKMP, tmp4->PENALTY )
+                If AScan( arrF006, {| x| x[ 2 ] == tmp2->_KONT } ) > 0
+                  s := 'Вид контроля: ' + inieditspr( A__MENUVERT, arrF006, tmp2->_KONT )
+                  put_long_str( s, cFileProtokol, 5 )
+                Endif
                 s := ""
-                if tmp2->_TYPEK > 0
-                  s := "Проведенный Контроль: " + iif(tmp2->_TYPEK == 1, "первичный", "повторный")
-                  if between(tmp2->_SKONT, 1, 2)
-                    s += ", вид экспертизы: " + iif(tmp2->_skont == 1, "плановая", "целевая")
-                  endif
-                endif
-                if fl_2019
+                If tmp2->_TYPEK > 0
+                  s := "Проведенный Контроль: " + iif( tmp2->_TYPEK == 1, "первичный", "повторный" )
+                  If Between( tmp2->_SKONT, 1, 2 )
+                    s += ", вид экспертизы: " + iif( tmp2->_skont == 1, "плановая", "целевая" )
+                  Endif
+                Endif
+                If fl_2019
                   s := "Контроль подтвердил предыдущее снятие"
-                else
+                Else
                   s += " (подтвердил предыдущее снятие)"
-                endif
-                put_long_str(s, cFileProtokol, 5)
-              elseif tmp4->_REFREASON > 0
-                if empty(s := ret_t005(tmp4->_REFREASON))
-                  strfile(space(5) + lstr(tmp4->_REFREASON) + " неизвестная причина отказа" + ;
-                        hb_eol(), cFileProtokol, .t.)
-                else
-                  put_long_str("код дефекта: " + s, cFileProtokol, 5)
-                endif
-              endif
-            endif
+                Endif
+                put_long_str( s, cFileProtokol, 5 )
+              Elseif tmp4->_REFREASON > 0
+                If Empty( s := ret_t005( tmp4->_REFREASON ) )
+                  StrFile( Space( 5 ) + lstr( tmp4->_REFREASON ) + " неизвестная причина отказа" + ;
+                    hb_eol(), cFileProtokol, .t. )
+                Else
+                  put_long_str( "код дефекта: " + s, cFileProtokol, 5 )
+                Endif
+              Endif
+            Endif
             human_->SUMP := tmp4->_SUMP
-            if len(lstr(tmp4->_SANK_MEK+ tmp4->PENALTY, 15, 2)) > 10
+            If Len( lstr( tmp4->_SANK_MEK + tmp4->PENALTY, 15, 2 ) ) > 10
               human_->SANK_MEK := tmp4->_SANK_MEK
-            else
-              human_->SANK_MEK := tmp4->_SANK_MEK+ tmp4->PENALTY
-            endif
+            Else
+              human_->SANK_MEK := tmp4->_SANK_MEK + tmp4->PENALTY
+            Endif
             human_->SANK_MEE  := tmp4->_SANK_MEE
             human_->SANK_EKMP := tmp4->_SANK_EKMP
             //
-            select RAKSH
-            AddRec(6)
+            Select RAKSH
+            addrec( 6 )
             raksh->KOD_RAKS  := raks->KOD_RAKS
             raksh->KOD_H     := tmp4->KOD_H
             raksh->OPLATA    := tmp4->_OPLATA
@@ -435,7 +438,7 @@ Function read_XML_FILE_RAK(arr_XML_info, aerr)
             raksh->SANK_EKMP := tmp4->_SANK_EKMP
             raksh->PENALTY   := tmp4->PENALTY
             raksh->IS_REPEAT := 0
-            raksh->DATE_REP  := ctod("")
+            raksh->DATE_REP  := CToD( "" )
             raksh->NEXT_KOD  := 0
             /*if raksh->REFREASON > 0
               select MO_OS
@@ -447,273 +450,277 @@ Function read_XML_FILE_RAK(arr_XML_info, aerr)
                 strfile(space(5) + "СЛУЧАЙ УЖЕ БЫЛ ПОВТОРНО ВЫСТАВЛЕН"  + hb_eol(), cFileProtokol, .t.)
               endif
             endif*/
-            select TMP6
-            find (str(tmp4->kod_a, 6) + str(tmp4->kod_s, 6) + str(tmp4->_idcase, 8))
-            do while tmp4->kod_a == tmp6->kod_a .and. tmp4->kod_s == tmp6->kod_s .and. tmp4->_idcase == tmp6->_idcase .and. !eof()
-              select RAKSHERR
-              AddRec(8)
-              raksherr->KOD_RAKSH := raksh->(recno())
+            Select TMP6
+            find ( Str( tmp4->kod_a, 6 ) + Str( tmp4->kod_s, 6 ) + Str( tmp4->_idcase, 8 ) )
+            Do While tmp4->kod_a == tmp6->kod_a .and. tmp4->kod_s == tmp6->kod_s .and. tmp4->_idcase == tmp6->_idcase .and. !Eof()
+              Select RAKSHERR
+              addrec( 8 )
+              raksherr->KOD_RAKSH := raksh->( RecNo() )
               raksherr->S_CODE    := tmp6->S_CODE
               raksherr->S_SUM     := tmp6->S_SUM
               raksherr->REFREASON := tmp6->REFREASON
               raksherr->PENALTY   := tmp6->PENALTY
               raksherr->SL_ID     := tmp6->SL_ID
               raksherr->SL_ID2    := tmp6->SL_ID2
-              if empty(s := ret_t005(tmp6->REFREASON))
-                strfile(space(5) + lstr(tmp6->REFREASON) + " неизвестная причина отказа" + ;
-                        hb_eol(), cFileProtokol, .t.)
-              else
-                put_long_str("код дефекта: " + s, cFileProtokol, 5)
-              endif
-              if !emptyall(tmp6->S_SUM, tmp6->PENALTY)
+              If Empty( s := ret_t005( tmp6->REFREASON ) )
+                StrFile( Space( 5 ) + lstr( tmp6->REFREASON ) + " неизвестная причина отказа" + ;
+                  hb_eol(), cFileProtokol, .t. )
+              Else
+                put_long_str( "код дефекта: " + s, cFileProtokol, 5 )
+              Endif
+              If !emptyall( tmp6->S_SUM, tmp6->PENALTY )
                 raksh->REFREASON := tmp6->REFREASON
-                strfile(space(5) + "... снятие по данному дефекту ..."  + hb_eol(), cFileProtokol, .t.)
-              endif
-              select TMP6
-              skip
-            enddo
-            select TMP4
-            skip
-          enddo
-          commit
-        endif
-        select TMP3
-        skip
-      enddo
-    endif
-    select TMP2
-    skip
-  enddo
+                StrFile( Space( 5 ) + "... снятие по данному дефекту ..."  + hb_eol(), cFileProtokol, .t. )
+              Endif
+              Select TMP6
+              Skip
+            Enddo
+            Select TMP4
+            Skip
+          Enddo
+          Commit
+        Endif
+        Select TMP3
+        Skip
+      Enddo
+    Endif
+    Select TMP2
+    Skip
+  Enddo
   // запишем время окончания обработки
-  select MO_XML
-  goto (rec_xml)
-  G_RLock(forever)
-  mo_xml->TWORK2 := hour_min(seconds())
-  close databases
-  return NIL
+  Select MO_XML
+  Goto ( rec_xml )
+  g_rlock( forever )
+  mo_xml->TWORK2 := hour_min( Seconds() )
+  Close databases
+
+  Return Nil
 
 // 19.03.24 зачитать Реестр Актов Контроля во временные файлы
-Function reestr_rak_tmpfile(oXmlDoc, aerr, mname_xml)
+Function reestr_rak_tmpfile( oXmlDoc, aerr, mname_xml )
+
   Static s_big := 10000000000000000
   Local j, j1, oXmlNode, oNode1, oNode2, buf := save_maxrow()
 
-  DEFAULT aerr TO {}, mname_xml TO ""
-  stat_msg("Распаковка/чтение/анализ реестра актов контроля " + beforatnum(".", mname_xml))
-  dbcreate(cur_dir + "tmp1file", { ; // одна запись
-    {"_VERSION",   "C",  5, 0}, ;
-    {"_DATA",      "D",  8, 0}, ;
-    {"_FILENAME",  "C", 26, 0}, ;
-    {"_SMO",       "C",  5, 0}, ; // код СМО или ТФ
-    {"_CODE_MO",   "C",  6, 0}, ; // код МО
-    {"KOL_AKT",    "N",  6, 0}, ; // кол-во актов в файле
-    {"KOL_SCH",    "N",  6, 0}, ; // кол-во счетов в файле
-    {"KOL_PAC",    "N",  6, 0}, ; // кол-во пациентов в файле
-    {"KOL_ERR",    "N",  6, 0}, ; // кол-во пациентов с ошибкой
-    {"KOL_PEN",    "N",  6, 0}, ; // кол-во штрафов
-    {"_YEAR",      "N",  4, 0}, ;
-    {"_MONTH",     "N",  2, 0};
-  })
-  dbcreate(cur_dir + "tmp2file", { ;  // много актов
-    {"kod_a",      "N",  6, 0}, ; // код акта
-    {"_CODEA",     "N", 16, 0}, ; // код записи акта
-    {"_NAKT",      "C", 30, 0}, ; // номер акта контроля
-    {"_DAKT",      "D",  8, 0}, ; // дата акта контроля
-    {"KOL_SCH",    "N",  6, 0}, ; // кол-во счетов в акте
-    {"KOL_PAC",    "N",  6, 0}, ; // кол-во пациентов в акте
-    {"KOL_ERR",    "N",  6, 0}, ; // кол-во пациентов с ошибкой
-    {"KOL_PEN",    "N",  6, 0}, ; // кол-во штрафов
-    {"_KONT",      "N",  2, 0}, ; // 1-МЭК, 2-МЭЭ, 3-ЭКМП и т.д.
-    {"_TYPEK",     "N",  1, 0}, ; // 1-первичный контроль, 2-повторный
-    {"_SKONT",     "N",  1, 0};  // вид экспертизы: 0-МЭК, 1-плановая, 2-целевая
-  })
-  dbcreate(cur_dir + "tmp3file", { ; // в каждом акте много счетов
-    {"kod_s",      "N",  6, 0}, ; // код счета
-    {"kod_a",      "N",  6, 0}, ; // код акта
-    {"_CODE",      "N", 12, 0}, ; // код записи счета
-    {"_CODE_MO",   "C",  6, 0}, ; // код МО по F003
-    {"_YEAR",      "N",  4, 0}, ;
-    {"_MONTH",     "N",  2, 0}, ;
-    {"KOD_SCHET",  "N",  6, 0}, ; // код нашего счета
-    {"_NSCHET",    "C", 15, 0}, ; // номер нашего счета
-    {"_DSCHET",    "D",  8, 0}, ; // дата нашего счета
-    {"KOL_PAC",    "N",  6, 0}, ; // кол-во пациентов в счете
-    {"KOL_ERR",    "N",  6, 0}, ; // кол-во пациентов с ошибкой
-    {"KOL_PEN",    "N",  6, 0}, ; // кол-во штрафов
-    {"_PLAT",      "C",  5, 0}, ; // плательщик (СМО или ТФ)
-    {"_SUMMAV",    "N", 15, 2}, ; // сумма МО, выставленная на оплату
-    {"_SUMMAP",    "N", 15, 2}, ; // сумма, принятая к оплате СМО или ТФ
-    {"_SANK_MEK",  "N", 15, 2}, ; // финансовые снкции МЭК (или SANK_SUM)
-    {"_SANK_MEE",  "N", 15, 2}, ; // финансовые снкции МЭЭ
-    {"_SANK_EKMP", "N", 15, 2}, ; // финансовые снкции ЭКМП
-    {"PENALTY",    "N", 15, 2};  // Сумма штрафов
-  })
-  dbcreate(cur_dir + "tmp4file", { ;
-    {"kod_s",      "N",  6, 0}, ; // код счета
-    {"kod_a",      "N",  6, 0}, ; // код акта
-    {"_IDCASE",    "N",  8, 0}, ; // номер записи в счете
-    {"KOD_H",      "N",  7, 0}, ; // код листа учета по БД "human"
-    {"_ID_C",      "C", 36, 0}, ; // код случая
-    {"_LPU",       "C",  6, 0}, ; // код МО по T001
-    {"_OPLATA",    "N",  1, 0}, ;
-    {"_SUMP",      "N", 15, 2}, ;
-    {"_REFREASON", "N",  3, 0}, ;
-    {"_SANK_MEK",  "N", 15, 2}, ;
-    {"_SANK_MEE",  "N", 15, 2}, ;
-    {"_SANK_EKMP", "N", 15, 2}, ;
-    {"PENALTY",    "N", 15, 2};  // Сумма штрафов
-  })
-  dbcreate(cur_dir + "tmp5file", { ; // реестр актов контроля счетов + эксперты
-    {"kod_a",      "N",  6, 0}, ; // код акта
-    {"CODE_EXP",   "C",  11, 0};  // код эксперта качества мед.помощи по F004
-  })
-  dbcreate(cur_dir + "tmp6file", { ; // реестр актов контроля + счета + листы учета + ошибки (по-новому - 2019 год)
-    {"kod_s",      "N",  6, 0}, ; // код счета
-    {"kod_a",      "N",  6, 0}, ; // код акта
-    {"_IDCASE",    "N",  8, 0}, ; // номер записи в счете
-    {"S_CODE",     "C", 36, 0}, ; // идентификатор санкции
-    {"S_SUM",      "N", 10, 2}, ; // сумма уменьшения оплаты
-    {"REFREASON",  "N",  3, 0}, ; // код причины отказа (частичной) оплаты
-    {"PENALTY",    "N", 15, 2}, ; // Сумма штрафов
-    {"SL_ID",      "C", 36, 0}, ; // идентификатор случая (в законченном случае)
-    {"SL_ID2",     "C", 36, 0}, ; // идентификатор второго случая (в законченном случае)
-    {"S_COM",      "C", 250, 0} ; // Комментарий к санкции
-  })
-  use (cur_dir + "tmp1file") new alias TMP1
-  append blank
-  use (cur_dir + "tmp2file") new alias TMP2
-  use (cur_dir + "tmp3file") new alias TMP3
-  use (cur_dir + "tmp4file") new alias TMP4
-  use (cur_dir + "tmp5file") new alias TMP5
-  use (cur_dir + "tmp6file") new alias TMP6
-  FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
-    @ maxrow(), 1 say padr(lstr(j), 6) color cColorSt2Msg
-    oXmlNode := oXmlDoc:aItems[1]:aItems[j]
-    do case
-      case "ZGLV" == oXmlNode:title
-        tmp1->_VERSION :=          mo_read_xml_stroke(oXmlNode, "VERSION", aerr)
-        tmp1->_DATA    := xml2date(mo_read_xml_stroke(oXmlNode, "DATA",    aerr))
-        tmp1->_FILENAME:=          mo_read_xml_stroke(oXmlNode, "FILENAME", aerr)
-      case "AKT" == oXmlNode:title
-        tmp1->KOL_AKT ++
-        select TMP2
-        append blank
-        tmp2->kod_a   := recno()
-        tmp2->_CODEA  :=      val(mo_read_xml_stroke(oXmlNode, "CODEA", aerr))
-        tmp2->_NAKT   :=      mo_read_xml_stroke(oXmlNode, "NAKT", aerr)
-        tmp2->_DAKT   := xml2date(mo_read_xml_stroke(oXmlNode, "DAKT", aerr))
-        tmp2->_KONT   :=      val(mo_read_xml_stroke(oXmlNode, "KONT", aerr))
-        tmp2->_TYPEK  :=      val(mo_read_xml_stroke(oXmlNode, "TYPEK", aerr, .f.))
-        tmp2->_SKONT  :=      val(mo_read_xml_stroke(oXmlNode, "SKONT", aerr, .f.))
-        if empty(tmp2->_CODEA)
-          tmp2->_CODEA := s_big - tmp2->(recno())
-        endif
-        _ar := mo_read_xml_array(oXmlNode, "CODE_EXP") // М.Б.НЕСКОЛЬКО экспертов
-        for j1 := 1 to len(_ar)
-          select TMP5
-          append blank
-          tmp5->kod_a    := tmp2->kod_a
-          tmp5->CODE_EXP := _ar[j1]
-        next
-        for j1 := 1 to len(oXmlNode:aitems) // последовательный просмотр
-          oNode1 := oXmlNode:aItems[j1]     // т.к. счетов м.б. несколько
-          if valtype(oNode1) != "C" .AND. oNode1:title == "SCHET"
-            tmp1->KOL_SCH ++
-            tmp2->KOL_SCH ++
-            select TMP3
-            append blank
-            tmp3->kod_a     := tmp2->kod_a
-            tmp3->kod_s     := recno()
-            tmp3->_CODE     :=      val(mo_read_xml_stroke(oNode1, "CODE", aerr))
-            tmp3->_CODE_MO  :=          mo_read_xml_stroke(oNode1, "CODE_MO", aerr)
-            tmp3->_YEAR     :=      val(mo_read_xml_stroke(oNode1, "YEAR", aerr))
-            tmp3->_MONTH    :=      val(mo_read_xml_stroke(oNode1, "MONTH", aerr))
-            tmp3->_NSCHET   :=    upper(mo_read_xml_stroke(oNode1, "NSCHET", aerr))
-            tmp3->_DSCHET   := xml2date(mo_read_xml_stroke(oNode1, "DSCHET", aerr))
-            tmp3->_PLAT     :=          mo_read_xml_stroke(oNode1, "PLAT", aerr)
-            tmp3->_SUMMAV   :=      val(mo_read_xml_stroke(oNode1, "SUMMAV", aerr))
-            tmp3->_SUMMAP   :=      val(mo_read_xml_stroke(oNode1, "SUMMAP", aerr))
-            if len(mo_read_xml_array(oNode1, "SANK_MEK")) > 0
-              tmp3->_SANK_MEK := val(mo_read_xml_stroke(oNode1, "SANK_MEK", aerr))
-              tmp3->_SANK_MEE := val(mo_read_xml_stroke(oNode1, "SANK_MEE", aerr))
-              tmp3->_SANK_EKMP:= val(mo_read_xml_stroke(oNode1, "SANK_EKMP", aerr))
-            endif
-            if len(mo_read_xml_array(oNode1, "SANK_SUM")) > 0
-              tmp3->_SANK_MEK := val(mo_read_xml_stroke(oNode1, "SANK_SUM", aerr))
-              tmp3->PENALTY   := val(mo_read_xml_stroke(oNode1, "PENALTY_SUM", aerr))
-            endif
-            for j2 := 1 to len(oNode1:aitems) // последовательный просмотр
-              oNode2 := oNode1:aItems[j2]     // т.к. случаев м.б. несколько
-              if valtype(oNode2) != "C" .AND. oNode2:title == "SLUCH"
-                tmp1->KOL_PAC ++
-                tmp2->KOL_PAC ++
-                tmp3->KOL_PAC ++
-                select TMP4
-                append blank
-                tmp4->kod_a     := tmp3->kod_a
-                tmp4->kod_s     := tmp3->kod_s
-                tmp4->_IDCASE   :=   val(mo_read_xml_stroke(oNode2, "IDCASE", aerr))
-                tmp4->_ID_C     := upper(mo_read_xml_stroke(oNode2, "ID_C", aerr))
-                tmp4->_LPU      :=       mo_read_xml_stroke(oNode2, "LPU", aerr)
-                tmp4->_OPLATA   :=   val(mo_read_xml_stroke(oNode2, "OPLATA", aerr))
-                tmp4->_SUMP     :=   val(mo_read_xml_stroke(oNode2, "SUMP", aerr))
-                tmp4->_REFREASON:=   val(mo_read_xml_stroke(oNode2, "REFREASON", aerr, .f.))
-                if len(mo_read_xml_array(oNode2, "SANK_MEK")) > 0
-                  tmp4->_SANK_MEK := val(mo_read_xml_stroke(oNode2, "SANK_MEK", aerr))
-                  tmp4->_SANK_MEE := val(mo_read_xml_stroke(oNode2, "SANK_MEE", aerr))
-                  tmp4->_SANK_EKMP:= val(mo_read_xml_stroke(oNode2, "SANK_EKMP", aerr))
-                endif
-                if len(mo_read_xml_array(oNode2, "SANK_IT")) > 0
-                  tmp4->_SANK_MEK := val(mo_read_xml_stroke(oNode2, "SANK_IT", aerr))
-                  tmp4->PENALTY   := val(mo_read_xml_stroke(oNode2, "PENALTY", aerr))
-                endif
-                if tmp4->_OPLATA > 1
-                  tmp1->KOL_ERR ++
-                  tmp2->KOL_ERR ++
-                  tmp3->KOL_ERR ++
-                endif
-                if !empty(tmp4->PENALTY)
-                  tmp1->KOL_PEN ++
-                  tmp2->KOL_PEN ++
-                  tmp3->KOL_PEN ++
-                endif
-                for j3 := 1 to len(oNode2:aitems) // последовательный просмотр
-                  oNode3 := oNode2:aItems[j3]     // т.к. санкций м.б. несколько
-                  if valtype(oNode3) != "C" .AND. oNode3:title == "SANK"
-                    select TMP6
-                    append blank
-                    tmp6->kod_a     :=     tmp4->kod_a
-                    tmp6->kod_s     :=     tmp4->kod_s
-                    tmp6->_IDCASE   :=     tmp4->_IDCASE
-                    tmp6->S_CODE    :=     mo_read_xml_stroke(oNode3, "S_CODE", aerr)
-                    tmp6->S_SUM     := val(mo_read_xml_stroke(oNode3, "S_SUM", aerr))
-                    tmp6->REFREASON := val(mo_read_xml_stroke(oNode3, "S_OSN", aerr))
-                    tmp6->PENALTY   := val(mo_read_xml_stroke(oNode3, "FIN_PENALTY", aerr))
-                    if len(_ar := mo_read_xml_array(oNode3, "SL_ID")) > 0
-                      tmp6->SL_ID := _ar[1]
-                    elseif len(_ar) > 1
-                      tmp6->SL_ID2 := _ar[2]
-                    endif 
-                    tmp6->S_COM := mo_read_xml_stroke( oNode3, "S_COM", aerr, .f. )
-                  endif
-                next j3
-              endif
-            NEXT j2
-          endif
-        NEXT j1
-    endcase
-  NEXT j
-  commit
-  rest_box(buf)
-  return NIL
+  Default aerr TO {}, mname_xml To ""
+  stat_msg( "Распаковка/чтение/анализ реестра актов контроля " + BeforAtNum( ".", mname_xml ) )
+  dbCreate( cur_dir + "tmp1file", { ; // одна запись
+    { "_VERSION",   "C",  5, 0 }, ;
+    { "_DATA",      "D",  8, 0 }, ;
+    { "_FILENAME",  "C", 26, 0 }, ;
+    { "_SMO",       "C",  5, 0 }, ; // код СМО или ТФ
+    { "_CODE_MO",   "C",  6, 0 }, ; // код МО
+    { "KOL_AKT",    "N",  6, 0 }, ; // кол-во актов в файле
+    { "KOL_SCH",    "N",  6, 0 }, ; // кол-во счетов в файле
+    { "KOL_PAC",    "N",  6, 0 }, ; // кол-во пациентов в файле
+    { "KOL_ERR",    "N",  6, 0 }, ; // кол-во пациентов с ошибкой
+    { "KOL_PEN",    "N",  6, 0 }, ; // кол-во штрафов
+    { "_YEAR",      "N",  4, 0 }, ;
+    { "_MONTH",     "N",  2, 0 };
+  } )
+  dbCreate( cur_dir + "tmp2file", { ;  // много актов
+    { "kod_a",      "N",  6, 0 }, ; // код акта
+    { "_CODEA",     "N", 16, 0 }, ; // код записи акта
+    { "_NAKT",      "C", 30, 0 }, ; // номер акта контроля
+    { "_DAKT",      "D",  8, 0 }, ; // дата акта контроля
+    { "KOL_SCH",    "N",  6, 0 }, ; // кол-во счетов в акте
+    { "KOL_PAC",    "N",  6, 0 }, ; // кол-во пациентов в акте
+    { "KOL_ERR",    "N",  6, 0 }, ; // кол-во пациентов с ошибкой
+    { "KOL_PEN",    "N",  6, 0 }, ; // кол-во штрафов
+    { "_KONT",      "N",  2, 0 }, ; // 1-МЭК, 2-МЭЭ, 3-ЭКМП и т.д.
+    { "_TYPEK",     "N",  1, 0 }, ; // 1-первичный контроль, 2-повторный
+    { "_SKONT",     "N",  1, 0 };  // вид экспертизы: 0-МЭК, 1-плановая, 2-целевая
+  } )
+  dbCreate( cur_dir + "tmp3file", { ; // в каждом акте много счетов
+    { "kod_s",      "N",  6, 0 }, ; // код счета
+    { "kod_a",      "N",  6, 0 }, ; // код акта
+    { "_CODE",      "N", 12, 0 }, ; // код записи счета
+    { "_CODE_MO",   "C",  6, 0 }, ; // код МО по F003
+    { "_YEAR",      "N",  4, 0 }, ;
+    { "_MONTH",     "N",  2, 0 }, ;
+    { "KOD_SCHET",  "N",  6, 0 }, ; // код нашего счета
+    { "_NSCHET",    "C", 15, 0 }, ; // номер нашего счета
+    { "_DSCHET",    "D",  8, 0 }, ; // дата нашего счета
+    { "KOL_PAC",    "N",  6, 0 }, ; // кол-во пациентов в счете
+    { "KOL_ERR",    "N",  6, 0 }, ; // кол-во пациентов с ошибкой
+    { "KOL_PEN",    "N",  6, 0 }, ; // кол-во штрафов
+    { "_PLAT",      "C",  5, 0 }, ; // плательщик (СМО или ТФ)
+    { "_SUMMAV",    "N", 15, 2 }, ; // сумма МО, выставленная на оплату
+    { "_SUMMAP",    "N", 15, 2 }, ; // сумма, принятая к оплате СМО или ТФ
+    { "_SANK_MEK",  "N", 15, 2 }, ; // финансовые снкции МЭК (или SANK_SUM)
+    { "_SANK_MEE",  "N", 15, 2 }, ; // финансовые снкции МЭЭ
+    { "_SANK_EKMP", "N", 15, 2 }, ; // финансовые снкции ЭКМП
+    { "PENALTY",    "N", 15, 2 };  // Сумма штрафов
+  } )
+  dbCreate( cur_dir + "tmp4file", { ;
+    { "kod_s",      "N",  6, 0 }, ; // код счета
+    { "kod_a",      "N",  6, 0 }, ; // код акта
+    { "_IDCASE",    "N",  8, 0 }, ; // номер записи в счете
+    { "KOD_H",      "N",  7, 0 }, ; // код листа учета по БД "human"
+    { "_ID_C",      "C", 36, 0 }, ; // код случая
+    { "_LPU",       "C",  6, 0 }, ; // код МО по T001
+    { "_OPLATA",    "N",  1, 0 }, ;
+    { "_SUMP",      "N", 15, 2 }, ;
+    { "_REFREASON", "N",  3, 0 }, ;
+    { "_SANK_MEK",  "N", 15, 2 }, ;
+    { "_SANK_MEE",  "N", 15, 2 }, ;
+    { "_SANK_EKMP", "N", 15, 2 }, ;
+    { "PENALTY",    "N", 15, 2 };  // Сумма штрафов
+  } )
+  dbCreate( cur_dir + "tmp5file", { ; // реестр актов контроля счетов + эксперты
+    { "kod_a",      "N",  6, 0 }, ; // код акта
+    { "CODE_EXP",   "C",  11, 0 };  // код эксперта качества мед.помощи по F004
+  } )
+  dbCreate( cur_dir + "tmp6file", { ; // реестр актов контроля + счета + листы учета + ошибки (по-новому - 2019 год)
+    { "kod_s",      "N",  6, 0 }, ; // код счета
+    { "kod_a",      "N",  6, 0 }, ; // код акта
+    { "_IDCASE",    "N",  8, 0 }, ; // номер записи в счете
+    { "S_CODE",     "C", 36, 0 }, ; // идентификатор санкции
+    { "S_SUM",      "N", 10, 2 }, ; // сумма уменьшения оплаты
+    { "REFREASON",  "N",  3, 0 }, ; // код причины отказа (частичной) оплаты
+    { "PENALTY",    "N", 15, 2 }, ; // Сумма штрафов
+    { "SL_ID",      "C", 36, 0 }, ; // идентификатор случая (в законченном случае)
+    { "SL_ID2",     "C", 36, 0 }, ; // идентификатор второго случая (в законченном случае)
+    { "S_COM",      "C", 250, 0 } ; // Комментарий к санкции
+  } )
+  Use ( cur_dir + "tmp1file" ) New Alias TMP1
+  Append Blank
+  Use ( cur_dir + "tmp2file" ) New Alias TMP2
+  Use ( cur_dir + "tmp3file" ) New Alias TMP3
+  Use ( cur_dir + "tmp4file" ) New Alias TMP4
+  Use ( cur_dir + "tmp5file" ) New Alias TMP5
+  Use ( cur_dir + "tmp6file" ) New Alias TMP6
+  For j := 1 To Len( oXmlDoc:aItems[ 1 ]:aItems )
+    @ MaxRow(), 1 Say PadR( lstr( j ), 6 ) Color cColorSt2Msg
+    oXmlNode := oXmlDoc:aItems[ 1 ]:aItems[ j ]
+    Do Case
+    Case "ZGLV" == oXmlNode:title
+      tmp1->_VERSION :=          mo_read_xml_stroke( oXmlNode, "VERSION", aerr )
+      tmp1->_DATA    := xml2date( mo_read_xml_stroke( oXmlNode, "DATA",    aerr ) )
+      tmp1->_FILENAME :=          mo_read_xml_stroke( oXmlNode, "FILENAME", aerr )
+    Case "AKT" == oXmlNode:title
+      tmp1->KOL_AKT++
+      Select TMP2
+      Append Blank
+      tmp2->kod_a   := RecNo()
+      tmp2->_CODEA  :=      Val( mo_read_xml_stroke( oXmlNode, "CODEA", aerr ) )
+      tmp2->_NAKT   :=      mo_read_xml_stroke( oXmlNode, "NAKT", aerr )
+      tmp2->_DAKT   := xml2date( mo_read_xml_stroke( oXmlNode, "DAKT", aerr ) )
+      tmp2->_KONT   :=      Val( mo_read_xml_stroke( oXmlNode, "KONT", aerr ) )
+      tmp2->_TYPEK  :=      Val( mo_read_xml_stroke( oXmlNode, "TYPEK", aerr, .f. ) )
+      tmp2->_SKONT  :=      Val( mo_read_xml_stroke( oXmlNode, "SKONT", aerr, .f. ) )
+      If Empty( tmp2->_CODEA )
+        tmp2->_CODEA := s_big - tmp2->( RecNo() )
+      Endif
+      _ar := mo_read_xml_array( oXmlNode, "CODE_EXP" ) // М.Б.НЕСКОЛЬКО экспертов
+      For j1 := 1 To Len( _ar )
+        Select TMP5
+        Append Blank
+        tmp5->kod_a    := tmp2->kod_a
+        tmp5->CODE_EXP := _ar[ j1 ]
+      Next
+      For j1 := 1 To Len( oXmlNode:aitems ) // последовательный просмотр
+        oNode1 := oXmlNode:aItems[ j1 ]     // т.к. счетов м.б. несколько
+        If ValType( oNode1 ) != "C" .and. oNode1:title == "SCHET"
+          tmp1->KOL_SCH++
+          tmp2->KOL_SCH++
+          Select TMP3
+          Append Blank
+          tmp3->kod_a     := tmp2->kod_a
+          tmp3->kod_s     := RecNo()
+          tmp3->_CODE     :=      Val( mo_read_xml_stroke( oNode1, "CODE", aerr ) )
+          tmp3->_CODE_MO  :=          mo_read_xml_stroke( oNode1, "CODE_MO", aerr )
+          tmp3->_YEAR     :=      Val( mo_read_xml_stroke( oNode1, "YEAR", aerr ) )
+          tmp3->_MONTH    :=      Val( mo_read_xml_stroke( oNode1, "MONTH", aerr ) )
+          tmp3->_NSCHET   :=    Upper( mo_read_xml_stroke( oNode1, "NSCHET", aerr ) )
+          tmp3->_DSCHET   := xml2date( mo_read_xml_stroke( oNode1, "DSCHET", aerr ) )
+          tmp3->_PLAT     :=          mo_read_xml_stroke( oNode1, "PLAT", aerr )
+          tmp3->_SUMMAV   :=      Val( mo_read_xml_stroke( oNode1, "SUMMAV", aerr ) )
+          tmp3->_SUMMAP   :=      Val( mo_read_xml_stroke( oNode1, "SUMMAP", aerr ) )
+          If Len( mo_read_xml_array( oNode1, "SANK_MEK" ) ) > 0
+            tmp3->_SANK_MEK := Val( mo_read_xml_stroke( oNode1, "SANK_MEK", aerr ) )
+            tmp3->_SANK_MEE := Val( mo_read_xml_stroke( oNode1, "SANK_MEE", aerr ) )
+            tmp3->_SANK_EKMP := Val( mo_read_xml_stroke( oNode1, "SANK_EKMP", aerr ) )
+          Endif
+          If Len( mo_read_xml_array( oNode1, "SANK_SUM" ) ) > 0
+            tmp3->_SANK_MEK := Val( mo_read_xml_stroke( oNode1, "SANK_SUM", aerr ) )
+            tmp3->PENALTY   := Val( mo_read_xml_stroke( oNode1, "PENALTY_SUM", aerr ) )
+          Endif
+          For j2 := 1 To Len( oNode1:aitems ) // последовательный просмотр
+            oNode2 := oNode1:aItems[ j2 ]     // т.к. случаев м.б. несколько
+            If ValType( oNode2 ) != "C" .and. oNode2:title == "SLUCH"
+              tmp1->KOL_PAC++
+              tmp2->KOL_PAC++
+              tmp3->KOL_PAC++
+              Select TMP4
+              Append Blank
+              tmp4->kod_a     := tmp3->kod_a
+              tmp4->kod_s     := tmp3->kod_s
+              tmp4->_IDCASE   :=   Val( mo_read_xml_stroke( oNode2, "IDCASE", aerr ) )
+              tmp4->_ID_C     := Upper( mo_read_xml_stroke( oNode2, "ID_C", aerr ) )
+              tmp4->_LPU      :=       mo_read_xml_stroke( oNode2, "LPU", aerr )
+              tmp4->_OPLATA   :=   Val( mo_read_xml_stroke( oNode2, "OPLATA", aerr ) )
+              tmp4->_SUMP     :=   Val( mo_read_xml_stroke( oNode2, "SUMP", aerr ) )
+              tmp4->_REFREASON :=   Val( mo_read_xml_stroke( oNode2, "REFREASON", aerr, .f. ) )
+              If Len( mo_read_xml_array( oNode2, "SANK_MEK" ) ) > 0
+                tmp4->_SANK_MEK := Val( mo_read_xml_stroke( oNode2, "SANK_MEK", aerr ) )
+                tmp4->_SANK_MEE := Val( mo_read_xml_stroke( oNode2, "SANK_MEE", aerr ) )
+                tmp4->_SANK_EKMP := Val( mo_read_xml_stroke( oNode2, "SANK_EKMP", aerr ) )
+              Endif
+              If Len( mo_read_xml_array( oNode2, "SANK_IT" ) ) > 0
+                tmp4->_SANK_MEK := Val( mo_read_xml_stroke( oNode2, "SANK_IT", aerr ) )
+                tmp4->PENALTY   := Val( mo_read_xml_stroke( oNode2, "PENALTY", aerr ) )
+              Endif
+              If tmp4->_OPLATA > 1
+                tmp1->KOL_ERR++
+                tmp2->KOL_ERR++
+                tmp3->KOL_ERR++
+              Endif
+              If !Empty( tmp4->PENALTY )
+                tmp1->KOL_PEN++
+                tmp2->KOL_PEN++
+                tmp3->KOL_PEN++
+              Endif
+              For j3 := 1 To Len( oNode2:aitems ) // последовательный просмотр
+                oNode3 := oNode2:aItems[ j3 ]     // т.к. санкций м.б. несколько
+                If ValType( oNode3 ) != "C" .and. oNode3:title == "SANK"
+                  Select TMP6
+                  Append Blank
+                  tmp6->kod_a     :=     tmp4->kod_a
+                  tmp6->kod_s     :=     tmp4->kod_s
+                  tmp6->_IDCASE   :=     tmp4->_IDCASE
+                  tmp6->S_CODE    :=     mo_read_xml_stroke( oNode3, "S_CODE", aerr )
+                  tmp6->S_SUM     := Val( mo_read_xml_stroke( oNode3, "S_SUM", aerr ) )
+                  tmp6->REFREASON := Val( mo_read_xml_stroke( oNode3, "S_OSN", aerr ) )
+                  tmp6->PENALTY   := Val( mo_read_xml_stroke( oNode3, "FIN_PENALTY", aerr ) )
+                  If Len( _ar := mo_read_xml_array( oNode3, "SL_ID" ) ) > 0
+                    tmp6->SL_ID := _ar[ 1 ]
+                  Elseif Len( _ar ) > 1
+                    tmp6->SL_ID2 := _ar[ 2 ]
+                  Endif
+                  tmp6->S_COM := mo_read_xml_stroke( oNode3, "S_COM", aerr, .f. )
+                Endif
+              Next j3
+            Endif
+          Next j2
+        Endif
+      Next j1
+    Endcase
+  Next j
+  Commit
+  rest_box( buf )
+
+  Return Nil
 
 // 16.01.16
-Function akt_kontrol(k)
+Function akt_kontrol( k )
+
   Static si1 := 1
   Local mas_pmt, mas_msg, mas_fun, j
 
-  DEFAULT k TO 1
-  do case
-    case k == 1
+  Default k To 1
+  Do Case
+  Case k == 1
       /*mas_pmt := {"Реестры ~актов контроля", ;
                   "Акты контроля (~2012 год)"}
       mas_msg := {"Просмотр реестров актов контроля (РАК)", ;
@@ -721,802 +728,830 @@ Function akt_kontrol(k)
       mas_fun := {"akt_kontrol(11)", ;
                   "akt_kontrol(12)"}
       popup_prompt(T_ROW, T_COL+5,si1,mas_pmt,mas_msg,mas_fun)*/
-      akt_kontrol(11)
-    case k == 11
-      view_rak()
-    case k == 12
-      akt_kontrol_2012()
-  endcase
-  if k > 10
-    j := int(val(right(lstr(k), 1)))
-    if between(k, 11, 19)
+    akt_kontrol( 11 )
+  Case k == 11
+    view_rak()
+  Case k == 12
+    akt_kontrol_2012()
+  Endcase
+  If k > 10
+    j := Int( Val( Right( lstr( k ), 1 ) ) )
+    If Between( k, 11, 19 )
       si1 := j
-    endif
-  endif
-  return NIL
+    Endif
+  Endif
+
+  Return Nil
 
 // 11.02.13
 Function view_rak()
+
   Local str_sem := "Просмотр РАК"
 
-  if !G_SLock(str_sem)
-    return func_error(4, "В данный момент с реестрами актов контроля работает другой пользователь.")
-  endif
-  G_Use(dir_server + "mo_xml", , "MO_XML")
-  index on dtos(DFILE) to (cur_dir + "tmp_xml") for tip_in == _XML_FILE_RAK DESCENDING
-  go top
-  if eof()
-    func_error(4, "Нет реестров актов контроля")
-  else
-    Alpha_Browse(T_ROW, 2,maxrow() - 2, maxcol() - 2, "f1_view_rak", color0, , , , , , , ;
-               "f2_view_rak", , {'═', '░', '═', "N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R", .t., 180} )
-  endif
-  close databases
-  G_SUnLock(str_sem)
-  return NIL
+  If !g_slock( str_sem )
+    Return func_error( 4, "В данный момент с реестрами актов контроля работает другой пользователь." )
+  Endif
+  g_use( dir_server + "mo_xml", , "MO_XML" )
+  Index On DToS( DFILE ) to ( cur_dir + "tmp_xml" ) For tip_in == _XML_FILE_RAK DESCENDING
+  Go Top
+  If Eof()
+    func_error( 4, "Нет реестров актов контроля" )
+  Else
+    alpha_browse( T_ROW, 2, MaxRow() -2, MaxCol() -2, "f1_view_rak", color0, , , , , , , ;
+      "f2_view_rak", , { '═', '░', '═', "N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R", .t., 180 } )
+  Endif
+  Close databases
+  g_sunlock( str_sem )
+
+  Return Nil
 
 // 11.02.13
-Function f1_view_rak(oBrow)
-  Local oColumn, blk := {|| iif(empty(mo_xml->TWORK2), {5, 6}, {1, 2}) }
+Function f1_view_rak( oBrow )
 
-  oColumn := TBColumnNew("Наименование файла;реестра актов контроля", {|| padr(mo_xml->FNAME, 23) })
+  Local oColumn, blk := {|| iif( Empty( mo_xml->TWORK2 ), { 5, 6 }, { 1, 2 } ) }
+
+  oColumn := TBColumnNew( "Наименование файла;реестра актов контроля", {|| PadR( mo_xml->FNAME, 23 ) } )
   oColumn:colorBlock := blk
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("Дата файла; реестра", {|| full_date(mo_xml->dfile) })
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( "Дата файла; реестра", {|| full_date( mo_xml->dfile ) } )
   oColumn:colorBlock := blk
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew(" Кол.;актов", {|| str(mo_xml->kol1, 5) })
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( " Кол.;актов", {|| Str( mo_xml->kol1, 5 ) } )
   oColumn:colorBlock := blk
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew(" Кол.;счетов", {|| str(mo_xml->kol2, 6) })
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( " Кол.;счетов", {|| Str( mo_xml->kol2, 6 ) } )
   oColumn:colorBlock := blk
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("  Дата; чтения", {|| date_8(mo_xml->dread) })
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( "  Дата; чтения", {|| date_8( mo_xml->dread ) } )
   oColumn:colorBlock := blk
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("Время;чтения", {|| mo_xml->tread })
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( "Время;чтения", {|| mo_xml->tread } )
   oColumn:colorBlock := blk
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("Примечание", {|| padr(iif(empty(mo_xml->TWORK2), "не дочитан", ""), 10) })
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( "Примечание", {|| PadR( iif( Empty( mo_xml->TWORK2 ), "не дочитан", "" ), 10 ) } )
   oColumn:colorBlock := blk
-  oBrow:addColumn(oColumn)
-  status_key("^<Esc>^ выход; ^<Enter>^ просмотр актов; ^<F3>^ протокол чтения файла реестра")
-  return NIL
+  oBrow:addcolumn( oColumn )
+  status_key( "^<Esc>^ выход; ^<Enter>^ просмотр актов; ^<F3>^ протокол чтения файла реестра" )
+
+  Return Nil
 
 // 31.03.13
-Function f2_view_rak(nKey, oBrow)
-  Local ret := -1, rec := mo_xml->(recno()), buf := savescreen()
+Function f2_view_rak( nKey, oBrow )
 
-  do case
-    case nKey == K_F3
-      viewtext(Devide_Into_Pages(dir_server + dir_XML_TF+cslash + alltrim(mo_xml->FNAME) + stxt, 60, 80), , , , .t., , , 2)
-      ret := 0
-    case nKey == K_ENTER
-      view_rak_akt(rec)
-      close databases
-      //
-      G_Use(dir_server + "mo_xml", cur_dir + "tmp_xml", "MO_XML")
-      goto (rec)
-      ret := 0
-    case nKey == K_CTRL_F12
-      ret := delete_rak(rec, alltrim(upper(mo_xml->FNAME)), empty(mo_xml->TWORK2))
-      close databases
-      G_Use(dir_server + "mo_xml", cur_dir + "tmp_xml", "MO_XML")
-      goto (rec)
-  endcase
-  restscreen(buf)
-  return ret
+  Local ret := -1, rec := mo_xml->( RecNo() ), buf := SaveScreen()
+
+  Do Case
+  Case nKey == K_F3
+    viewtext( devide_into_pages( dir_server + dir_XML_TF + cslash + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ), , , , .t., , , 2 )
+    ret := 0
+  Case nKey == K_ENTER
+    view_rak_akt( rec )
+    Close databases
+    //
+    g_use( dir_server + "mo_xml", cur_dir + "tmp_xml", "MO_XML" )
+    Goto ( rec )
+    ret := 0
+  Case nKey == K_CTRL_F12
+    ret := delete_rak( rec, AllTrim( Upper( mo_xml->FNAME ) ), Empty( mo_xml->TWORK2 ) )
+    Close databases
+    g_use( dir_server + "mo_xml", cur_dir + "tmp_xml", "MO_XML" )
+    Goto ( rec )
+  Endcase
+  RestScreen( buf )
+
+  Return ret
 
 // 11.01.19
-Function delete_rak(lrec, lname, not_end)
+Function delete_rak( lrec, lname, not_end )
+
   Local ret := 0, arr_next := {}, fl, ia, is, ih, buf := save_maxrow()
 
   mywait()
-  R_Use(dir_server + "human", , "HUMAN")
-  R_Use(dir_server + "mo_raksh", , "RAKSH")
-  R_Use(dir_server + "mo_raks", , "RAKS")
-  R_Use(dir_server + "mo_rak", , "RAK")
-  index on nakt to (cur_dir + "tmp_rak") for kod_xml == mo_xml->(recno()) .and. KOL_ERR > 0
-  go top
-  do while !eof()
-    select RAKS
-    index on str(kod_raks, 6) to (cur_dir + "tmp_raks") for akt == rak->akt .and. KOL_ERR > 0
-    go top
-    do while !eof()
-      select RAKSH
-      index on str(kod_h, 7) to (cur_dir + "tmp_raksh") for KOD_RAKS == raks->KOD_RAKS .and. oplata > 1
-      go top
-      do while !eof()
-        if raksh->next_kod > 0
-          human->(dbGoto(raksh->kod_h))
-          if year(human->k_data) > 2012 // начиная с 2013 года
-            aadd(arr_next, {raksh->kod_h, ;
-                            raksh->REFREASON, ;
-                            raksh->SANK_MEK, ;
-                            raksh->SANK_MEE, ;
-                            raksh->SANK_EKMP, ;
-                            raksh->next_kod, ;
-                            raksh->DATE_REP;
-                           })
-          endif
-        endif
-        skip
-      enddo
-      select RAKS
-      skip
-    enddo
-    select RAK
-    skip
-  enddo
-  raksh->(dbCloseArea())
-  raks->(dbCloseArea())
-  rak->(dbCloseArea())
-  rest_box(buf)
-  if (ih := len(arr_next)) > 0
-    buf := savescreen()
-    f_message({"", ;
-               "По некоторым пациентам данного РАК", ;
-               "уже были повторно выставлены случаи - " + lstr(ih) + " чел.", ;
-               ""}, , "GR+/R", "W+/R")
-    fl := f_Esc_Enter("удаления РАК", .t.)
-    restscreen(buf)
-    if !fl
-      return ret
-    endif
-  endif
-  if not_end
+  r_use( dir_server + "human", , "HUMAN" )
+  r_use( dir_server + "mo_raksh", , "RAKSH" )
+  r_use( dir_server + "mo_raks", , "RAKS" )
+  r_use( dir_server + "mo_rak", , "RAK" )
+  Index On nakt to ( cur_dir + "tmp_rak" ) For kod_xml == mo_xml->( RecNo() ) .and. KOL_ERR > 0
+  Go Top
+  Do While !Eof()
+    Select RAKS
+    Index On Str( kod_raks, 6 ) to ( cur_dir + "tmp_raks" ) For akt == rak->akt .and. KOL_ERR > 0
+    Go Top
+    Do While !Eof()
+      Select RAKSH
+      Index On Str( kod_h, 7 ) to ( cur_dir + "tmp_raksh" ) For KOD_RAKS == raks->KOD_RAKS .and. oplata > 1
+      Go Top
+      Do While !Eof()
+        If raksh->next_kod > 0
+          human->( dbGoto( raksh->kod_h ) )
+          If Year( human->k_data ) > 2012 // начиная с 2013 года
+            AAdd( arr_next, { raksh->kod_h, ;
+              raksh->REFREASON, ;
+              raksh->SANK_MEK, ;
+              raksh->SANK_MEE, ;
+              raksh->SANK_EKMP, ;
+              raksh->next_kod, ;
+              raksh->DATE_REP;
+              } )
+          Endif
+        Endif
+        Skip
+      Enddo
+      Select RAKS
+      Skip
+    Enddo
+    Select RAK
+    Skip
+  Enddo
+  raksh->( dbCloseArea() )
+  raks->( dbCloseArea() )
+  rak->( dbCloseArea() )
+  rest_box( buf )
+  If ( ih := Len( arr_next ) ) > 0
+    buf := SaveScreen()
+    f_message( { "", ;
+      "По некоторым пациентам данного РАК", ;
+      "уже были повторно выставлены случаи - " + lstr( ih ) + " чел.", ;
+      "" }, , "GR+/R", "W+/R" )
+    fl := f_esc_enter( "удаления РАК", .t. )
+    RestScreen( buf )
+    If !fl
+      Return ret
+    Endif
+  Endif
+  If not_end
     fl := .t.
-  else
-    fl := involved_password(2, lname, "подтверждения возврата (удаления) РАК")
-  endif
-  if fl .and. f_Esc_Enter("удаления РАК", .t.)
-    stat_msg("Подтвердите удаление ещё раз.")
-    mybell(2)
-    if f_Esc_Enter("удаления РАК", .t.)
-      mywait("Ждите. Производится удаление РАК.")
-      if ih > 0
-        G_Use(dir_server + "mo_os", , "MO_OS")
-        index on str(kod, 7) to (cur_dir + "tmp_moos")
-        for i := 1 to ih
-          find (str(arr_next[i, 1], 7))
-          if found()
-            G_RLock(forever)
-          else
-            AddRec(7)
-            mo_os->KOD := arr_next[i, 1]
-          endif
-          mo_os->REFREASON := arr_next[i, 2]
-          mo_os->SANK_MEK  := arr_next[i, 3]
-          mo_os->SANK_MEE  := arr_next[i, 4]
-          mo_os->SANK_EKMP := arr_next[i, 5]
-          mo_os->NEXT_KOD  := arr_next[i, 6]
-          mo_os->DATE_OPL  := arr_next[i, 7]
+  Else
+    fl := involved_password( 2, lname, "подтверждения возврата (удаления) РАК" )
+  Endif
+  If fl .and. f_esc_enter( "удаления РАК", .t. )
+    stat_msg( "Подтвердите удаление ещё раз." )
+    mybell( 2 )
+    If f_esc_enter( "удаления РАК", .t. )
+      mywait( "Ждите. Производится удаление РАК." )
+      If ih > 0
+        g_use( dir_server + "mo_os", , "MO_OS" )
+        Index On Str( kod, 7 ) to ( cur_dir + "tmp_moos" )
+        For i := 1 To ih
+          find ( Str( arr_next[ i, 1 ], 7 ) )
+          If Found()
+            g_rlock( forever )
+          Else
+            addrec( 7 )
+            mo_os->KOD := arr_next[ i, 1 ]
+          Endif
+          mo_os->REFREASON := arr_next[ i, 2 ]
+          mo_os->SANK_MEK  := arr_next[ i, 3 ]
+          mo_os->SANK_MEE  := arr_next[ i, 4 ]
+          mo_os->SANK_EKMP := arr_next[ i, 5 ]
+          mo_os->NEXT_KOD  := arr_next[ i, 6 ]
+          mo_os->DATE_OPL  := arr_next[ i, 7 ]
           mo_os->OPLATA    := 2
           mo_os->IS_REPEAT := 1
-          UnLock
-        next
-      endif
-      G_Use(dir_server + "mo_raksherr", , "RAKSHERR")
-      index on str(kod_raksh, 8) to (cur_dir + "tmpraksherr")
-      G_Use(dir_server + "mo_raksh", , "RAKSH")
-      index on str(kod_raks, 6) to (cur_dir + "tmpraksh")
-      G_Use(dir_server + "mo_raks", , "RAKS")
-      index on str(akt, 6) to (cur_dir + "tmpraks")
-      G_Use(dir_server + "mo_rakexp", , "RAKEXP")
-      index on str(akt, 6) to (cur_dir + "tmprakexp")
-      G_Use(dir_server + "mo_rak", , "RAK")
-      index on str(kod_xml, 6) to (cur_dir + "tmprak")
+          Unlock
+        Next
+      Endif
+      g_use( dir_server + "mo_raksherr", , "RAKSHERR" )
+      Index On Str( kod_raksh, 8 ) to ( cur_dir + "tmpraksherr" )
+      g_use( dir_server + "mo_raksh", , "RAKSH" )
+      Index On Str( kod_raks, 6 ) to ( cur_dir + "tmpraksh" )
+      g_use( dir_server + "mo_raks", , "RAKS" )
+      Index On Str( akt, 6 ) to ( cur_dir + "tmpraks" )
+      g_use( dir_server + "mo_rakexp", , "RAKEXP" )
+      Index On Str( akt, 6 ) to ( cur_dir + "tmprakexp" )
+      g_use( dir_server + "mo_rak", , "RAK" )
+      Index On Str( kod_xml, 6 ) to ( cur_dir + "tmprak" )
       ia := is := ih := 0
-      do while .t.
-        select RAKEXP
-        find (str(lrec, 6))
-        if !found()
-          exit
-        endif
-        DeleteRec(.t.)
-      enddo
-      do while .t.
+      Do While .t.
+        Select RAKEXP
+        find ( Str( lrec, 6 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      Do While .t.
         ++ia
-        select RAK
-        find (str(lrec, 6))
-        if !found()
-          exit
-        endif
-        do while .t.
+        Select RAK
+        find ( Str( lrec, 6 ) )
+        If !Found()
+          Exit
+        Endif
+        Do While .t.
           ++is
-          select RAKS
-          find (str(rak->akt, 6))
-          if !found()
-            exit
-          endif
-          do while .t.
+          Select RAKS
+          find ( Str( rak->akt, 6 ) )
+          If !Found()
+            Exit
+          Endif
+          Do While .t.
             ++ih
-            select RAKSH
-            find (str(raks->KOD_RAKS, 6))
-            if !found()
-              exit
-            endif
-            @ maxrow(), 1  say lstr(ia) color "G+/R*"
-            @ row(), col() say "/"      color "R/R*"
-            @ row(), col() say lstr(is) color "GR+/R*"
-            @ row(), col() say "/"      color "R/R*"
-            @ row(), col() say lstr(ih) color "W+/R*"
-            select RAKSHERR
-            do while .t.
-              find (str(raksh->(recno()), 8))
-              if !found()
-                exit
-              endif
-              DeleteRec(.t.)
-            enddo
-            select RAKSH
-            DeleteRec(.t.)
-          enddo
-          select RAKS
-          DeleteRec(.t.)
-        enddo
-        select RAK
-        DeleteRec(.t.)
-      enddo
-      select MO_XML
-      DeleteRec(.t.)
-      stat_msg("Реестр актов контроля " + lname + " удалён!")
-      mybell(2, OK)
+            Select RAKSH
+            find ( Str( raks->KOD_RAKS, 6 ) )
+            If !Found()
+              Exit
+            Endif
+            @ MaxRow(), 1  Say lstr( ia ) Color "G+/R*"
+            @ Row(), Col() Say "/"      Color "R/R*"
+            @ Row(), Col() Say lstr( is ) Color "GR+/R*"
+            @ Row(), Col() Say "/"      Color "R/R*"
+            @ Row(), Col() Say lstr( ih ) Color "W+/R*"
+            Select RAKSHERR
+            Do While .t.
+              find ( Str( raksh->( RecNo() ), 8 ) )
+              If !Found()
+                Exit
+              Endif
+              deleterec( .t. )
+            Enddo
+            Select RAKSH
+            deleterec( .t. )
+          Enddo
+          Select RAKS
+          deleterec( .t. )
+        Enddo
+        Select RAK
+        deleterec( .t. )
+      Enddo
+      Select MO_XML
+      deleterec( .t. )
+      stat_msg( "Реестр актов контроля " + lname + " удалён!" )
+      mybell( 2, OK )
       ret := 1
-    endif
-  endif
-  return ret
+    Endif
+  Endif
+
+  Return ret
 
 // 26.10.22
-Function view_rak_akt(lrec)
-  Local blk, blk_akt, blk_typek, blk_skont, t_arr[BR_LEN]
+Function view_rak_akt( lrec )
 
-  R_Use(dir_server + 'mo_rak', , 'RAK')
-  index on nakt to (cur_dir + 'tmp_rak') for kod_xml == lrec
-  go top
-  if eof()
-    return func_error(4, 'Не обнаружено актов в данном РАКе')
-  endif
-  t_arr[BR_TOP] := T_ROW
-  t_arr[BR_BOTTOM] := maxrow() - 2
-  t_arr[BR_LEFT] := 2
-  t_arr[BR_RIGHT] := maxcol() - 2
-  t_arr[BR_TITUL] := 'РАК ' + alltrim(mo_xml->FNAME) + sxml + ' от ' + date_8(mo_xml->dfile)
-  t_arr[BR_TITUL_COLOR] := 'B/G*'
-  t_arr[BR_COLOR] := color0
-  t_arr[BR_ARR_BROWSE] := {'═', '░', '═', 'N/BG,W+/N,B/BG,W+/B', .t.}
-  blk := {|| iif(empty(rak->kol_err), {1, 2}, {3, 4}) }
-  blk_akt := {|_n, _s, _l| _s := iif(empty(rak->nschet), '', '(' + alltrim(rak->nschet) + ')'), ;
-                       _l := len(_s), padr(rak->nakt, _n - _l) + _s }
-  t_arr[BR_COLUMN] := {{'Номер акта контроля     (счёт)', {|| eval(blk_akt, 30)}, blk}, ;
-                     {'  Дата;  акта', {|| date_8(rak->dakt)}, blk}, ;
-                     {'Кол-во;счетов', {|| str(rak->kol_sch, 6)}, blk}, ;
-                     {'Кол-во;снятий', {|| put_val(rak->kol_err, 6)}, blk}, ;
-                     {' Контроль', {|| padr(f0_view_rak_akt(1), 10)}, blk}, ;
-                     {' Вид экс-; пертизы', {|| padr(f0_view_rak_akt(2), 9)}, blk}}
-  t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<Enter>^ - выбор акта для просмотра счетов')}
-  t_arr[BR_EDIT] := {|nk, ob| f1_view_rak_akt(nk,ob, 'edit')}
-  edit_browse(t_arr)
-  return NIL
+  Local blk, blk_akt, blk_typek, blk_skont, t_arr[ BR_LEN ]
+
+  r_use( dir_server + 'mo_rak', , 'RAK' )
+  Index On nakt to ( cur_dir + 'tmp_rak' ) For kod_xml == lrec
+  Go Top
+  If Eof()
+    Return func_error( 4, 'Не обнаружено актов в данном РАКе' )
+  Endif
+  t_arr[ BR_TOP ] := T_ROW
+  t_arr[ BR_BOTTOM ] := MaxRow() -2
+  t_arr[ BR_LEFT ] := 2
+  t_arr[ BR_RIGHT ] := MaxCol() -2
+  t_arr[ BR_TITUL ] := 'РАК ' + AllTrim( mo_xml->FNAME ) + sxml + ' от ' + date_8( mo_xml->dfile )
+  t_arr[ BR_TITUL_COLOR ] := 'B/G*'
+  t_arr[ BR_COLOR ] := color0
+  t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B', .t. }
+  blk := {|| iif( Empty( rak->kol_err ), { 1, 2 }, { 3, 4 } ) }
+  blk_akt := {| _n, _s, _l| _s := iif( Empty( rak->nschet ), '', '(' + AllTrim( rak->nschet ) + ')' ), ;
+    _l := Len( _s ), PadR( rak->nakt, _n - _l ) + _s }
+  t_arr[ BR_COLUMN ] := { { 'Номер акта контроля     (счёт)', {|| Eval( blk_akt, 30 ) }, blk }, ;
+    { '  Дата;  акта', {|| date_8( rak->dakt ) }, blk }, ;
+    { 'Кол-во;счетов', {|| Str( rak->kol_sch, 6 ) }, blk }, ;
+    { 'Кол-во;снятий', {|| put_val( rak->kol_err, 6 ) }, blk }, ;
+    { ' Контроль', {|| PadR( f0_view_rak_akt( 1 ), 10 ) }, blk }, ;
+    { ' Вид экс-; пертизы', {|| PadR( f0_view_rak_akt( 2 ), 9 ) }, blk } }
+  t_arr[ BR_STAT_MSG ] := {|| status_key( '^<Esc>^ - выход;  ^<Enter>^ - выбор акта для просмотра счетов' ) }
+  t_arr[ BR_EDIT ] := {| nk, ob| f1_view_rak_akt( nk, ob, 'edit' ) }
+  edit_browse( t_arr )
+
+  Return Nil
 
 // 19.12.22
-Function f0_view_rak_akt(k)
-  Local s, s1, s2
-  local arrF006 := getF006()
+Function f0_view_rak_akt( k )
 
-  if emptyall(rak->typek, rak->skont)
-    s := padr(inieditspr(A__MENUVERT, arrF006, rak->KONT), 19)
-    s1 := left(s, 10)
-    s2 := right(s, 9)
-  else
-    s1 := iif(rak->typek == 1, 'первичный', iif(rak->typek == 2, 'повторный', ''))
-    s2 := iif(rak->skont == 1, 'плановая', iif(rak->skont == 2, 'целевая', 'МЭК'))
-  endif
-  return iif(k == 1, s1, s2)
+  Local s, s1, s2
+  Local arrF006 := getf006()
+
+  If emptyall( rak->typek, rak->skont )
+    s := PadR( inieditspr( A__MENUVERT, arrF006, rak->KONT ), 19 )
+    s1 := Left( s, 10 )
+    s2 := Right( s, 9 )
+  Else
+    s1 := iif( rak->typek == 1, 'первичный', iif( rak->typek == 2, 'повторный', '' ) )
+    s2 := iif( rak->skont == 1, 'плановая', iif( rak->skont == 2, 'целевая', 'МЭК' ) )
+  Endif
+
+  Return iif( k == 1, s1, s2 )
 
 // 26.10.22
-Function f1_view_rak_akt(nk, ob, regim)
+Function f1_view_rak_akt( nk, ob, regim )
+
   Local ret := -1, rec
 
-  if regim == 'edit' .and. nk == K_ENTER
-    rec := rak->(recno())
-    view_rak_akt_schet(rak->akt)
-    close databases
+  If regim == 'edit' .and. nk == K_ENTER
+    rec := rak->( RecNo() )
+    view_rak_akt_schet( rak->akt )
+    Close databases
     //
-    R_Use(dir_server + 'mo_rak', cur_dir + 'tmp_rak', 'RAK')
-    goto (rec)
+    r_use( dir_server + 'mo_rak', cur_dir + 'tmp_rak', 'RAK' )
+    Goto ( rec )
     ret := 0
-  endif
-  return ret
+  Endif
+
+  Return ret
 
 // 19.12.22
-Function view_rak_akt_schet(lakt, lkont)
-  Local blk, blk_eks, t_arr[BR_LEN]
-  local arrF006 := getF006()
+Function view_rak_akt_schet( lakt, lkont )
 
-  R_Use(dir_server + "schet_", , "SCHET_")
-  R_Use(dir_server + "mo_raks", , "RAKS")
-  set relation to schet into SCHET_
-  index on dtos(schet_->dschet) + schet_->nschet to (cur_dir + "tmp_raks") for akt == lakt
-  go top
-  if eof()
-    return func_error(4, "Не обнаружено счетов в данном акте")
-  endif
-  t_arr[BR_TOP] := T_ROW
-  t_arr[BR_BOTTOM] := maxrow() - 2
-  t_arr[BR_LEFT] := 2
-  t_arr[BR_RIGHT] := maxcol() - 2
+  Local blk, blk_eks, t_arr[ BR_LEN ]
+  Local arrF006 := getf006()
+
+  r_use( dir_server + "schet_", , "SCHET_" )
+  r_use( dir_server + "mo_raks", , "RAKS" )
+  Set Relation To schet into SCHET_
+  Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir + "tmp_raks" ) For akt == lakt
+  Go Top
+  If Eof()
+    Return func_error( 4, "Не обнаружено счетов в данном акте" )
+  Endif
+  t_arr[ BR_TOP ] := T_ROW
+  t_arr[ BR_BOTTOM ] := MaxRow() -2
+  t_arr[ BR_LEFT ] := 2
+  t_arr[ BR_RIGHT ] := MaxCol() -2
   // t_arr[BR_TITUL] := "Акт № " + alltrim(rak->nakt) + " от " + date_8(rak->dakt) + ;
-  //                    iif(ascan(glob_F006, {|x| x[2] == rak->kont }) > 0, " [" +inieditspr(A__MENUVERT,glob_F006,rak->KONT) + "]", "")
-  t_arr[BR_TITUL] := 'Акт № ' + alltrim(rak->nakt) + ' от ' + date_8(rak->dakt) + ;
-        iif(ascan(arrF006, {|x| x[2] == rak->kont }) > 0, ' [' + inieditspr(A__MENUVERT, arrF006, rak->KONT) + ']', '')
-  t_arr[BR_TITUL_COLOR] := 'B/GR*'
-  t_arr[BR_COLOR] := color0
-  t_arr[BR_ARR_BROWSE] := {'═', '░', '═', "N/BG, W+/N, B/BG, W+/B", .t.}
-  blk := {|| iif(empty(raks->kol_err), {1, 2}, {3, 4}) }
-  t_arr[BR_COLUMN] := {{" Номер счёта", {|| schet_->nschet }, blk }, ;
-                     {"Период", {|| str(schet_->nyear, 4) + "/" + strzero(schet_->nmonth, 2) }, blk }, ;
-                     {"  Дата; счёта", {|| date_8(schet_->dschet) }, blk }, ;
-                     {"Паци-;ентов", {|| str(raks->kol_pac, 6) }, blk }, ;
-                     {"Сня-;тий", {|| put_val(raks->kol_err, 4) }, blk }, ;
-                     {" Сумма счёта", {|| put_kop(raks->SUMMAV, 14) }, blk }, ;
-                     {" СМО приняла;  к оплате", {|| put_kop(raks->SUMMAP, 14) }, blk }}
-  t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор счёта для просмотра пациентов") }
-  t_arr[BR_EDIT] := {|nk,ob| f1_view_rak_akt_schet(nk, ob, "edit") }
-  edit_browse(t_arr)
-  return NIL
+  // iif(ascan(glob_F006, {|x| x[2] == rak->kont }) > 0, " [" +inieditspr(A__MENUVERT,glob_F006,rak->KONT) + "]", "")
+  t_arr[ BR_TITUL ] := 'Акт № ' + AllTrim( rak->nakt ) + ' от ' + date_8( rak->dakt ) + ;
+    iif( AScan( arrF006, {| x| x[ 2 ] == rak->kont } ) > 0, ' [' + inieditspr( A__MENUVERT, arrF006, rak->KONT ) + ']', '' )
+  t_arr[ BR_TITUL_COLOR ] := 'B/GR*'
+  t_arr[ BR_COLOR ] := color0
+  t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', "N/BG, W+/N, B/BG, W+/B", .t. }
+  blk := {|| iif( Empty( raks->kol_err ), { 1, 2 }, { 3, 4 } ) }
+  t_arr[ BR_COLUMN ] := { { " Номер счёта", {|| schet_->nschet }, blk }, ;
+    { "Период", {|| Str( schet_->nyear, 4 ) + "/" + StrZero( schet_->nmonth, 2 ) }, blk }, ;
+    { "  Дата; счёта", {|| date_8( schet_->dschet ) }, blk }, ;
+    { "Паци-;ентов", {|| Str( raks->kol_pac, 6 ) }, blk }, ;
+    { "Сня-;тий", {|| put_val( raks->kol_err, 4 ) }, blk }, ;
+    { " Сумма счёта", {|| put_kop( raks->SUMMAV, 14 ) }, blk }, ;
+    { " СМО приняла;  к оплате", {|| put_kop( raks->SUMMAP, 14 ) }, blk } }
+  t_arr[ BR_STAT_MSG ] := {|| status_key( "^<Esc>^ - выход;  ^<Enter>^ - выбор счёта для просмотра пациентов" ) }
+  t_arr[ BR_EDIT ] := {| nk, ob| f1_view_rak_akt_schet( nk, ob, "edit" ) }
+  edit_browse( t_arr )
+
+  Return Nil
 
 // 11.02.13
-Function f1_view_rak_akt_schet(nk, ob, regim)
+Function f1_view_rak_akt_schet( nk, ob, regim )
+
   Local ret := -1, rec
 
-  if regim == "edit" .and. nk == K_ENTER
-    rec := raks->(recno())
-    view_rak_akt_schet_human(raks->KOD_RAKS)
-    close databases
+  If regim == "edit" .and. nk == K_ENTER
+    rec := raks->( RecNo() )
+    view_rak_akt_schet_human( raks->KOD_RAKS )
+    Close databases
     //
-    R_Use(dir_server + "schet_", , "SCHET_")
-    R_Use(dir_server + "mo_raks", cur_dir + "tmp_raks", "RAKS")
-    set relation to schet into SCHET_
-    goto (rec)
+    r_use( dir_server + "schet_", , "SCHET_" )
+    r_use( dir_server + "mo_raks", cur_dir + "tmp_raks", "RAKS" )
+    Set Relation To schet into SCHET_
+    Goto ( rec )
     ret := 0
-  endif
-  return ret
+  Endif
+
+  Return ret
 
 // 14.05.20
-Function view_rak_akt_schet_human(lkod_raks)
-  Local blk, t_arr[BR_LEN], buf := savescreen()
+Function view_rak_akt_schet_human( lkod_raks )
 
-  R_Use(dir_server + "schet", , "SCHET")
-  goto (raks->schet)
-  R_Use(dir_server + "human_3", {dir_server + "human_3", dir_server + "human_32"}, "HUMAN_3")
-  R_Use(dir_server + "human_", , "HUMAN_")
-  R_Use(dir_server + "human", , "HUMAN")
-  set relation to recno() into HUMAN_
-  G_Use(dir_server + "mo_raksh", , "RAKSH")
-  set relation to KOD_H into HUMAN
-  index on str(human_->SCHET_ZAP, 6) to (cur_dir + "tmp_raksh") for KOD_RAKS == lkod_raks
-  go top
-  if eof()
-    return func_error(4, "Не обнаружено пациентов в данном счете")
-  endif
-  t_arr[BR_TOP] := T_ROW
-  t_arr[BR_BOTTOM] := maxrow() - 1
-  t_arr[BR_LEFT] := 0
-  t_arr[BR_RIGHT] := maxcol()
-  t_arr[BR_TITUL] := "Счёт № " + alltrim(schet_->nschet) + " от " + ;
-                     date_8(schet_->dschet) + " " + f4_view_list_schet()
-  t_arr[BR_TITUL_COLOR] := "B/W*"
-  t_arr[BR_COLOR] := color0
-  t_arr[BR_ARR_BROWSE] := {'═', '░', '═', "N/BG, W+/N, B/BG, W+/B", .t.}
-  blk := {|| iif(raksh->oplata == 1, {1, 2}, {3, 4}) }
-  t_arr[BR_COLUMN] := {{ " №№;случ", {|| str(human_->SCHET_ZAP, 4) }, blk }, ;
-                       { " Ф.И.О.", {|| padr(f_view_rak_akt_schet_human(1), 27) }, blk }, ;
-                       { "Дата рожд.", {|| full_date(human->date_r) }, blk }, ;
-                       { " Стоимость", {|| put_kop(f_view_rak_akt_schet_human(2), 10) }, blk }, ;
-                       { " Принято; к оплате", {|| put_kop(raksh->sump, 10) }, blk }, ;
-                       { "Код;деф", {|| put_val(raksh->REFREASON, 3) }, blk }, ;
-                       { "Повторн.;выставл.", {|| iif(empty(raksh->NEXT_KOD), space(8), date_8(raksh->DATE_REP)) }, blk } }
-  t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ выход; ^<F2>^ поиск; ^<Enter>^ повторное выставление пациента (или отмена)") }
-  t_arr[BR_EDIT] := {|nk,ob| f1_view_rak_akt_schet_human(nk, ob, "edit") }
-  t_arr[BR_STEP_FUNC] := {|| f2_view_rak_akt_schet_human() }
-  Private rhuman := 1, chuman := maxcol() - 39
-  box_shadow(rhuman, chuman, rhuman + 3, maxcol() - 2, "N+/GR*", , , 0)
-  edit_browse(t_arr)
-  restscreen(buf)
-  return NIL
+  Local blk, t_arr[ BR_LEN ], buf := SaveScreen()
+
+  r_use( dir_server + "schet", , "SCHET" )
+  Goto ( raks->schet )
+  r_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
+  r_use( dir_server + "human_", , "HUMAN_" )
+  r_use( dir_server + "human", , "HUMAN" )
+  Set Relation To RecNo() into HUMAN_
+  g_use( dir_server + "mo_raksh", , "RAKSH" )
+  Set Relation To KOD_H into HUMAN
+  Index On Str( human_->SCHET_ZAP, 6 ) to ( cur_dir + "tmp_raksh" ) For KOD_RAKS == lkod_raks
+  Go Top
+  If Eof()
+    Return func_error( 4, "Не обнаружено пациентов в данном счете" )
+  Endif
+  t_arr[ BR_TOP ] := T_ROW
+  t_arr[ BR_BOTTOM ] := MaxRow() -1
+  t_arr[ BR_LEFT ] := 0
+  t_arr[ BR_RIGHT ] := MaxCol()
+  t_arr[ BR_TITUL ] := "Счёт № " + AllTrim( schet_->nschet ) + " от " + ;
+    date_8( schet_->dschet ) + " " + f4_view_list_schet()
+  t_arr[ BR_TITUL_COLOR ] := "B/W*"
+  t_arr[ BR_COLOR ] := color0
+  t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', "N/BG, W+/N, B/BG, W+/B", .t. }
+  blk := {|| iif( raksh->oplata == 1, { 1, 2 }, { 3, 4 } ) }
+  t_arr[ BR_COLUMN ] := { { " №№;случ", {|| Str( human_->SCHET_ZAP, 4 ) }, blk }, ;
+    { " Ф.И.О.", {|| PadR( f_view_rak_akt_schet_human( 1 ), 27 ) }, blk }, ;
+    { "Дата рожд.", {|| full_date( human->date_r ) }, blk }, ;
+    { " Стоимость", {|| put_kop( f_view_rak_akt_schet_human( 2 ), 10 ) }, blk }, ;
+    { " Принято; к оплате", {|| put_kop( raksh->sump, 10 ) }, blk }, ;
+    { "Код;деф", {|| put_val( raksh->REFREASON, 3 ) }, blk }, ;
+    { "Повторн.;выставл.", {|| iif( Empty( raksh->NEXT_KOD ), Space( 8 ), date_8( raksh->DATE_REP ) ) }, blk } }
+  t_arr[ BR_STAT_MSG ] := {|| status_key( "^<Esc>^ выход; ^<F2>^ поиск; ^<Enter>^ повторное выставление пациента (или отмена)" ) }
+  t_arr[ BR_EDIT ] := {| nk, ob| f1_view_rak_akt_schet_human( nk, ob, "edit" ) }
+  t_arr[ BR_STEP_FUNC ] := {|| f2_view_rak_akt_schet_human() }
+  Private rhuman := 1, chuman := MaxCol() -39
+  box_shadow( rhuman, chuman, rhuman + 3, MaxCol() -2, "N+/GR*", , , 0 )
+  edit_browse( t_arr )
+  RestScreen( buf )
+
+  Return Nil
 
 // 14.05.20
-Function f_view_rak_akt_schet_human(k)
+Function f_view_rak_akt_schet_human( k )
+
   Local s := human->fio, v := human->cena_1, ret
 
-  if human->ishod == 88
-    human_3->(dbseek(str(human->kod, 7)))
-    if human_3->(found())
+  If human->ishod == 88
+    human_3->( dbSeek( Str( human->kod, 7 ) ) )
+    If human_3->( Found() )
       v := human_3->cena_1
-      s := padr(s, 23) + "_2сл"
-    endif
-  endif
-  return iif(k == 1, s, v)
+      s := PadR( s, 23 ) + "_2сл"
+    Endif
+  Endif
+
+  Return iif( k == 1, s, v )
 
 // 19.12.22
-Function f1_view_rak_akt_schet_human(nk, ob, regim)
-  Local ret := -1, rec, s, s1
-  local arrF006 := getF006()
+Function f1_view_rak_akt_schet_human( nk, ob, regim )
 
-  if !(regim == 'edit')
-    return ret
-  elseif nk == K_F2
-    if (s := input_value(18, 10, 20, 69, color1, ;
-           space(5) + "Введите номер случая в счёте (для поиска)", 0, "9999")) != NIL ;
-           .and. s > 0
-      rec := raksh->(recno())
+  Local ret := -1, rec, s, s1
+  Local arrF006 := getf006()
+
+  If !( regim == 'edit' )
+    Return ret
+  Elseif nk == K_F2
+    If ( s := input_value( 18, 10, 20, 69, color1, ;
+        Space( 5 ) + "Введите номер случая в счёте (для поиска)", 0, "9999" ) ) != NIL ;
+        .and. s > 0
+      rec := raksh->( RecNo() )
       ob:gotop()
-      go top
-      find (str(s, 6))
-      if found()
+      Go Top
+      find ( Str( s, 6 ) )
+      If Found()
         ret := 0
-      else
-        func_error(4, "Не найден случай с номером " + lstr(s))
-        goto (rec)
-      endif
-    endif
-  elseif nk == K_ENTER .and. year(human->k_data) > 2012
+      Else
+        func_error( 4, "Не найден случай с номером " + lstr( s ) )
+        Goto ( rec )
+      Endif
+    Endif
+  Elseif nk == K_ENTER .and. Year( human->k_data ) > 2012
     s := 0
-    if !empty(raksh->SANK_MEK)
+    If !Empty( raksh->SANK_MEK )
       s := raksh->SANK_MEK
-    elseif !empty(raksh->SANK_MEE)
+    Elseif !Empty( raksh->SANK_MEE )
       s := raksh->SANK_MEE
-    elseif !empty(raksh->SANK_EKMP)
+    Elseif !Empty( raksh->SANK_EKMP )
       s := raksh->SANK_EKMP
-    endif
-    if human->cena_1 > 0 .and. empty(s)
-      func_error(4, "Повторное выставление случая невозможно при нулевой сумме отказа")
-      return ret
-    elseif !(round(f_view_rak_akt_schet_human(2), 2) == round(s+raksh->sump, 2) .and. raksh->OPLATA == 2)
-      func_error(4, "Повторное выставление случая возможно только для OPLATA = 2 и полного отказа")
-      return ret
-    endif
-    if ! hb_user_curUser:IsAdmin()
-      func_error(4, err_admin)
-      return ret
-    endif
-    rec := raksh->(recno())
-    s := alltrim(human->fio) + " " + date_8(human->n_data) + "-" + date_8(human->k_data) + " (" + lstr(f_view_rak_akt_schet_human(2)) + "р.)"
-    s1 := "код дефекта: " + lstr(raksh->REFREASON)
-    if emptyall(human->cena_1, raksh->SANK_MEK, raksh->SANK_MEE, raksh->SANK_EKMP, raksh->PENALTY) // скорая помощь
-      s1 += ', санкции ' + inieditspr(A__MENUVERT, arrF006, rak->KONT) + ': 0р. (СМП)'
-    endif
-    if !empty(raksh->SANK_MEK)
-      s1 += ", санкции МЭК: " + lstr(raksh->SANK_MEK, 15, 2) + "р."
-    elseif !empty(raksh->SANK_MEE)
-      s1 += ", санкции МЭЭ: " + lstr(raksh->SANK_MEE, 15, 2) + "р."
-    elseif !empty(raksh->SANK_EKMP)
-      s1 += ", санкции ЭКМП: " + lstr(raksh->SANK_EKMP, 15, 2) + "р."
-    endif
-    if !empty(raksh->PENALTY)
-      s1 += ", сумма штрафов: " + lstr(raksh->PENALTY, 15, 2) + "р."
-    endif
-    if empty(raksh->NEXT_KOD)
-      if human_->OPLATA == 9
-        func_error("Ошибка! Данный случай уже был перевыставлен!")
-      else
-        rak_akt_schet_human_add_next(s, s1, rec)
-      endif
-    else
-      rak_akt_schet_human_del_next(s, s1, rec)
-    endif
+    Endif
+    If human->cena_1 > 0 .and. Empty( s )
+      func_error( 4, "Повторное выставление случая невозможно при нулевой сумме отказа" )
+      Return ret
+    Elseif !( Round( f_view_rak_akt_schet_human( 2 ), 2 ) == Round( s + raksh->sump, 2 ) .and. raksh->OPLATA == 2 )
+      func_error( 4, "Повторное выставление случая возможно только для OPLATA = 2 и полного отказа" )
+      Return ret
+    Endif
+    If ! hb_user_curUser:isadmin()
+      func_error( 4, err_admin )
+      Return ret
+    Endif
+    rec := raksh->( RecNo() )
+    s := AllTrim( human->fio ) + " " + date_8( human->n_data ) + "-" + date_8( human->k_data ) + " (" + lstr( f_view_rak_akt_schet_human( 2 ) ) + "р.)"
+    s1 := "код дефекта: " + lstr( raksh->REFREASON )
+    If emptyall( human->cena_1, raksh->SANK_MEK, raksh->SANK_MEE, raksh->SANK_EKMP, raksh->PENALTY ) // скорая помощь
+      s1 += ', санкции ' + inieditspr( A__MENUVERT, arrF006, rak->KONT ) + ': 0р. (СМП)'
+    Endif
+    If !Empty( raksh->SANK_MEK )
+      s1 += ", санкции МЭК: " + lstr( raksh->SANK_MEK, 15, 2 ) + "р."
+    Elseif !Empty( raksh->SANK_MEE )
+      s1 += ", санкции МЭЭ: " + lstr( raksh->SANK_MEE, 15, 2 ) + "р."
+    Elseif !Empty( raksh->SANK_EKMP )
+      s1 += ", санкции ЭКМП: " + lstr( raksh->SANK_EKMP, 15, 2 ) + "р."
+    Endif
+    If !Empty( raksh->PENALTY )
+      s1 += ", сумма штрафов: " + lstr( raksh->PENALTY, 15, 2 ) + "р."
+    Endif
+    If Empty( raksh->NEXT_KOD )
+      If human_->OPLATA == 9
+        func_error( "Ошибка! Данный случай уже был перевыставлен!" )
+      Else
+        rak_akt_schet_human_add_next( s, s1, rec )
+      Endif
+    Else
+      rak_akt_schet_human_del_next( s, s1, rec )
+    Endif
     //
-    close databases
-    R_Use(dir_server + "human_3", {dir_server + "human_3", dir_server + "human_32"}, "HUMAN_3")
-    R_Use(dir_server + "human_", , "HUMAN_")
-    R_Use(dir_server + "human", , "HUMAN")
-    set relation to recno() into HUMAN_
-    R_Use(dir_server + "mo_raksh", cur_dir + "tmp_raksh", "RAKSH")
-    set relation to KOD_H into HUMAN
-    goto (rec)
+    Close databases
+    r_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
+    r_use( dir_server + "human_", , "HUMAN_" )
+    r_use( dir_server + "human", , "HUMAN" )
+    Set Relation To RecNo() into HUMAN_
+    r_use( dir_server + "mo_raksh", cur_dir + "tmp_raksh", "RAKSH" )
+    Set Relation To KOD_H into HUMAN
+    Goto ( rec )
     ret := 0
-  endif
-  return ret
+  Endif
+
+  Return ret
 
 // 19.12.22
 Function f2_view_rak_akt_schet_human()
-  Local arr := {}, i, n, s, lcolor := "N", tmp_select := select()
-  local arrF006 := getF006()
 
-  n := 76-chuman
-  if select("RAKS") == 0
-    R_Use(dir_server + "mo_raks", , "RAKS")
-  endif
-  if select("RAK") == 0
-    R_Use(dir_server + "mo_rak", , "RAK")
-  endif
-  raks->(dbGoto(raksh->kod_raks))
-  rak->(dbGoto(raks->akt))
+  Local arr := {}, i, n, s, lcolor := "N", tmp_select := Select()
+  Local arrF006 := getf006()
+
+  n := 76 -chuman
+  If Select( "RAKS" ) == 0
+    r_use( dir_server + "mo_raks", , "RAKS" )
+  Endif
+  If Select( "RAK" ) == 0
+    r_use( dir_server + "mo_rak", , "RAK" )
+  Endif
+  raks->( dbGoto( raksh->kod_raks ) )
+  rak->( dbGoto( raks->akt ) )
   i := 0
-  if ascan(arrF006, {|x| x[2] == rak->kont }) > 0
-    aadd(arr, 'Вид контроля: ' + inieditspr(A__MENUVERT, arrF006, rak->KONT))
-  endif
-  if !emptyall(rak->TYPEK,rak->skont)
-    aadd(arr, "Контроль: " + iif(rak->TYPEK == 1, "первичный", "повторный") + ;
-              ", вид: " + iif(rak->skont == 1, "плановая", iif(rak->skont == 2, "целевая", "МЭК")))
-  endif
-  aadd(arr, "")
-  i := len(arr)
-  if raksh->OPLATA == 1
-    arr[i] := "полностью оплачен"
-  elseif raksh->OPLATA == 2
-    arr[i] := "полный отказ"
-  elseif raksh->OPLATA == 3
-    arr[i] := "частичный отказ"
-  elseif raksh->OPLATA == 4
-    arr[i] := "восст-ние ранее удержанной суммы"
-  endif
+  If AScan( arrF006, {| x| x[ 2 ] == rak->kont } ) > 0
+    AAdd( arr, 'Вид контроля: ' + inieditspr( A__MENUVERT, arrF006, rak->KONT ) )
+  Endif
+  If !emptyall( rak->TYPEK, rak->skont )
+    AAdd( arr, "Контроль: " + iif( rak->TYPEK == 1, "первичный", "повторный" ) + ;
+      ", вид: " + iif( rak->skont == 1, "плановая", iif( rak->skont == 2, "целевая", "МЭК" ) ) )
+  Endif
+  AAdd( arr, "" )
+  i := Len( arr )
+  If raksh->OPLATA == 1
+    arr[ i ] := "полностью оплачен"
+  Elseif raksh->OPLATA == 2
+    arr[ i ] := "полный отказ"
+  Elseif raksh->OPLATA == 3
+    arr[ i ] := "частичный отказ"
+  Elseif raksh->OPLATA == 4
+    arr[ i ] := "восст-ние ранее удержанной суммы"
+  Endif
   s := 0
-  if !empty(raksh->SANK_MEK)
+  If !Empty( raksh->SANK_MEK )
     s := raksh->SANK_MEK
-  elseif !empty(raksh->SANK_MEE)
+  Elseif !Empty( raksh->SANK_MEE )
     s := raksh->SANK_MEE
-  elseif !empty(raksh->SANK_EKMP)
+  Elseif !Empty( raksh->SANK_EKMP )
     s := raksh->SANK_EKMP
-  endif
-  if raksh->OPLATA == 2
-    if empty(s) .and. human->cena_1 > 0
-      if rak->kont == 1 .or. rak->skont == 0
+  Endif
+  If raksh->OPLATA == 2
+    If Empty( s ) .and. human->cena_1 > 0
+      If rak->kont == 1 .or. rak->skont == 0
         lcolor := "R"
-        aadd(arr, "ошибка СМО - нет суммы санкций!")
-      endif
-      if rak->kont > 1 .or. rak->skont > 0
+        AAdd( arr, "ошибка СМО - нет суммы санкций!" )
+      Endif
+      If rak->kont > 1 .or. rak->skont > 0
         lcolor := "RB"
-        aadd(arr, "снято предыдущей санкцией")
-      endif
-    elseif round(f_view_rak_akt_schet_human(2), 2) == round(s + raksh->sump, 2)
-      aadd(arr, "снято " + lstr(s, 11, 2) + "р.")
+        AAdd( arr, "снято предыдущей санкцией" )
+      Endif
+    Elseif Round( f_view_rak_akt_schet_human( 2 ), 2 ) == Round( s + raksh->sump, 2 )
+      AAdd( arr, "снято " + lstr( s, 11, 2 ) + "р." )
       lcolor := "B"
-    endif
-  elseif raksh->OPLATA == 3
-    if round(f_view_rak_akt_schet_human(2), 2) == round(s + raksh->sump, 2)
-      aadd(arr, "снято " + lstr(s, 11, 2) + "р.")
+    Endif
+  Elseif raksh->OPLATA == 3
+    If Round( f_view_rak_akt_schet_human( 2 ), 2 ) == Round( s + raksh->sump, 2 )
+      AAdd( arr, "снято " + lstr( s, 11, 2 ) + "р." )
       lcolor := "B"
-    endif
-  endif
-  if !empty(raksh->PENALTY)
-    aadd(arr, "штраф " + lstr(raksh->PENALTY, 15, 2) + "р.")
+    Endif
+  Endif
+  If !Empty( raksh->PENALTY )
+    AAdd( arr, "штраф " + lstr( raksh->PENALTY, 15, 2 ) + "р." )
     lcolor := "B"
-  endif
-  do while len(arr) < 4
-    aadd(arr, "")
-  enddo
-  for i := 1 to 4
-    @ rhuman - 1 + i, chuman + 1 say padc(arr[i], n) color lcolor+"/GR*"
-  next
-  select (tmp_select)
-  return NIL
+  Endif
+  Do While Len( arr ) < 4
+    AAdd( arr, "" )
+  Enddo
+  For i := 1 To 4
+    @ rhuman -1 + i, chuman + 1 Say PadC( arr[ i ], n ) Color lcolor + "/GR*"
+  Next
+  Select ( tmp_select )
+
+  Return Nil
 
 // 15.02.19
-Function rak_akt_schet_human_add_next(s, s1, lrec)
+Function rak_akt_schet_human_add_next( s, s1, lrec )
+
   Local i, arr1, arr2, mkod, buf := save_maxrow()
 
   glob_perso := raksh->kod_h
-  arr1 := {s, ;
-           s1, ;
-           "После подтверждения данный лист учёта будет выставлен", ;
-           "повторно (для последующего исправления и отправки в ТФОМС).", ;
-           'Редактировать новый л/у в режиме "Выбор по акту снятия из СМО"', ;
-           ""}
-  arr2 := {" Отказ ", " Повторное выставление "}
-  if f_alert(arr1, arr2, 1, "N+/G*", "N/G*", 13, , "N/G*") == 2
-    if f_alert(arr1, arr2, 1, "N+/G*", "R/G*", 14, , "N/G*") == 2
+  arr1 := { s, ;
+    s1, ;
+    "После подтверждения данный лист учёта будет выставлен", ;
+    "повторно (для последующего исправления и отправки в ТФОМС).", ;
+    'Редактировать новый л/у в режиме "Выбор по акту снятия из СМО"', ;
+    "" }
+  arr2 := { " Отказ ", " Повторное выставление " }
+  If f_alert( arr1, arr2, 1, "N+/G*", "N/G*", 13, , "N/G*" ) == 2
+    If f_alert( arr1, arr2, 1, "N+/G*", "R/G*", 14, , "N/G*" ) == 2
       mywait()
-      close databases
+      Close databases
       // сначала запоминаем копию листа учёта в массивах
-      use_base("human")
-      set relation to // "отвязываем"
-      goto (glob_perso)
+      use_base( "human" )
+      Set Relation To // "отвязываем"
+      Goto ( glob_perso )
       ahuman := get_field()
-      select HUMAN_
-      goto (glob_perso)
+      Select HUMAN_
+      Goto ( glob_perso )
       ahuman_ := get_field()
-      select HUMAN_2
-      goto (glob_perso)
+      Select HUMAN_2
+      Goto ( glob_perso )
       ahuman_2 := get_field()
-      if (fl_iname := (human_->smo == '34   '))
-        G_Use(dir_server + "mo_hismo", , "SN")
-        index on str(kod, 7) to (cur_dir + "tmp_ismo")
-        find (str(glob_perso, 7))
+      If ( fl_iname := ( human_->smo == '34   ' ) )
+        g_use( dir_server + "mo_hismo", , "SN" )
+        Index On Str( kod, 7 ) to ( cur_dir + "tmp_ismo" )
+        find ( Str( glob_perso, 7 ) )
         mnameismo := sn->smo_name
-      endif
+      Endif
       arr_hu := {}
-      use_base("human_u")
-      set relation to // "отвязываем"
-      find (str(glob_perso, 7))
-      do while hu->kod == glob_perso .and. !eof()
+      use_base( "human_u" )
+      Set Relation To // "отвязываем"
+      find ( Str( glob_perso, 7 ) )
+      Do While hu->kod == glob_perso .and. !Eof()
         ahu := get_field()
-        select HU_
-        goto (hu->(recno()))
+        Select HU_
+        Goto ( hu->( RecNo() ) )
         ahu_ := get_field()
-        aadd(arr_hu, {ahu,ahu_})
-        select HU
-        skip
-      enddo
+        AAdd( arr_hu, { ahu, ahu_ } )
+        Select HU
+        Skip
+      Enddo
       arr_mohu := {}
-      Use_base("mo_hu")
-      find (str(glob_perso, 7))
-      do while mohu->kod == glob_perso .and. !eof()
-        aadd(arr_mohu, get_field())
-        skip
-      enddo
+      use_base( "mo_hu" )
+      find ( Str( glob_perso, 7 ) )
+      Do While mohu->kod == glob_perso .and. !Eof()
+        AAdd( arr_mohu, get_field() )
+        Skip
+      Enddo
       aonkna := {}
-      G_Use(dir_server + "mo_onkna", dir_server + "mo_onkna")
-      find (str(glob_perso, 7))
-      do while mo_onkna->kod == glob_perso .and. !eof()
-        aadd(aonkna, get_field())
-        skip
-      enddo
+      g_use( dir_server + "mo_onkna", dir_server + "mo_onkna" )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onkna->kod == glob_perso .and. !Eof()
+        AAdd( aonkna, get_field() )
+        Skip
+      Enddo
       aonksl := {}
-      G_Use(dir_server + "mo_onksl", dir_server + "mo_onksl")
-      find (str(glob_perso, 7))
-      do while mo_onksl->kod == glob_perso .and. !eof()
-        aadd(aonksl, get_field())
-        skip
-      enddo
+      g_use( dir_server + "mo_onksl", dir_server + "mo_onksl" )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onksl->kod == glob_perso .and. !Eof()
+        AAdd( aonksl, get_field() )
+        Skip
+      Enddo
       aonkco := {}
-      G_Use(dir_server + "mo_onkco", dir_server + "mo_onkco")
-      find (str(glob_perso, 7))
-      do while mo_onkco->kod == glob_perso .and. !eof()
-        aadd(aonkco, get_field())
-        skip
-      enddo
+      g_use( dir_server + "mo_onkco", dir_server + "mo_onkco" )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onkco->kod == glob_perso .and. !Eof()
+        AAdd( aonkco, get_field() )
+        Skip
+      Enddo
       aonkdi := {}
-      G_Use(dir_server + "mo_onkdi", dir_server + "mo_onkdi")
-      find (str(glob_perso, 7))
-      do while mo_onkdi->kod == glob_perso .and. !eof()
-        aadd(aonkdi, get_field())
-        skip
-      enddo
+      g_use( dir_server + "mo_onkdi", dir_server + "mo_onkdi" )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onkdi->kod == glob_perso .and. !Eof()
+        AAdd( aonkdi, get_field() )
+        Skip
+      Enddo
       aonkpr := {}
-      G_Use(dir_server + "mo_onkpr", dir_server + "mo_onkpr")
-      find (str(glob_perso, 7))
-      do while mo_onkpr->kod == glob_perso .and. !eof()
-        aadd(aonkpr, get_field())
-        skip
-      enddo
+      g_use( dir_server + "mo_onkpr", dir_server + "mo_onkpr" )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onkpr->kod == glob_perso .and. !Eof()
+        AAdd( aonkpr, get_field() )
+        Skip
+      Enddo
       aonkus := {}
-      G_Use(dir_server + "mo_onkus", dir_server + "mo_onkus")
-      find (str(glob_perso, 7))
-      do while mo_onkus->kod == glob_perso .and. !eof()
-        aadd(aonkus, get_field())
-        skip
-      enddo
+      g_use( dir_server + "mo_onkus", dir_server + "mo_onkus" )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onkus->kod == glob_perso .and. !Eof()
+        AAdd( aonkus, get_field() )
+        Skip
+      Enddo
       aonkle := {}
-      G_Use(dir_server + "mo_onkle", dir_server + "mo_onkle")
-      find (str(glob_perso, 7))
-      do while mo_onkle->kod == glob_perso .and. !eof()
-        aadd(aonkle, get_field())
-        skip
-      enddo
-      arr_disp := read_arr_DISPANS(glob_perso)
+      g_use( dir_server + "mo_onkle", dir_server + "mo_onkle" )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onkle->kod == glob_perso .and. !Eof()
+        AAdd( aonkle, get_field() )
+        Skip
+      Enddo
+      arr_disp := read_arr_dispans( glob_perso )
       glob_persoh3 := 0
-      if human->ishod == 88 // двойной случай
-        G_Use(dir_server + "human_3", {dir_server + "human_3", dir_server + "human_32"}, "HUMAN_3")
-        find (str(human->kod, 7))
-        if found()
-          rec_h3 := recno()
+      If human->ishod == 88 // двойной случай
+        g_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
+        find ( Str( human->kod, 7 ) )
+        If Found()
+          rec_h3 := RecNo()
           ahuman_3 := get_field()
           glob_persoh3 := human_3->kod2
           //
-          select HUMAN
-          goto (glob_persoh3)
+          Select HUMAN
+          Goto ( glob_persoh3 )
           ahumanh3 := get_field()
-          select HUMAN_
-          goto (glob_persoh3)
+          Select HUMAN_
+          Goto ( glob_persoh3 )
           ahuman_h3 := get_field()
-          select HUMAN_2
-          goto (glob_persoh3)
+          Select HUMAN_2
+          Goto ( glob_persoh3 )
           ahuman_2h3 := get_field()
-          if (fl_inameh3 := (human_->smo == '34   '))
-            G_Use(dir_server + "mo_hismo", , "SNh3")
-            index on str(kod, 7) to (cur_dir + "tmp_ismoh3")
-            find (str(glob_persoh3, 7))
+          If ( fl_inameh3 := ( human_->smo == '34   ' ) )
+            g_use( dir_server + "mo_hismo", , "SNh3" )
+            Index On Str( kod, 7 ) to ( cur_dir + "tmp_ismoh3" )
+            find ( Str( glob_persoh3, 7 ) )
             mnameismoh3 := sn->smo_name
-          endif
+          Endif
           arr_huh3 := {}
-          select HU
-          find (str(glob_persoh3, 7))
-          do while hu->kod == glob_persoh3 .and. !eof()
+          Select HU
+          find ( Str( glob_persoh3, 7 ) )
+          Do While hu->kod == glob_persoh3 .and. !Eof()
             ahu := get_field()
-            select HU_
-            goto (hu->(recno()))
+            Select HU_
+            Goto ( hu->( RecNo() ) )
             ahu_ := get_field()
-            aadd(arr_huh3, {ahu,ahu_})
-            select HU
-            skip
-          enddo
+            AAdd( arr_huh3, { ahu, ahu_ } )
+            Select HU
+            Skip
+          Enddo
           arr_mohuh3 := {}
-          select MOHU
-          find (str(glob_persoh3, 7))
-          do while mohu->kod == glob_persoh3 .and. !eof()
-            aadd(arr_mohuh3, get_field())
-            skip
-          enddo
+          Select MOHU
+          find ( Str( glob_persoh3, 7 ) )
+          Do While mohu->kod == glob_persoh3 .and. !Eof()
+            AAdd( arr_mohuh3, get_field() )
+            Skip
+          Enddo
           aonknah3 := {}
-          select mo_onkna
-          find (str(glob_persoh3, 7))
-          do while mo_onkna->kod == glob_persoh3 .and. !eof()
-            aadd(aonknah3, get_field())
-            skip
-          enddo
+          Select mo_onkna
+          find ( Str( glob_persoh3, 7 ) )
+          Do While mo_onkna->kod == glob_persoh3 .and. !Eof()
+            AAdd( aonknah3, get_field() )
+            Skip
+          Enddo
           aonkslh3 := {}
-          select mo_onksl
-          find (str(glob_persoh3, 7))
-          do while mo_onksl->kod == glob_persoh3 .and. !eof()
-            aadd(aonkslh3, get_field())
-            skip
-          enddo
+          Select mo_onksl
+          find ( Str( glob_persoh3, 7 ) )
+          Do While mo_onksl->kod == glob_persoh3 .and. !Eof()
+            AAdd( aonkslh3, get_field() )
+            Skip
+          Enddo
           aonkcoh3 := {}
-          select mo_onkco
-          find (str(glob_persoh3, 7))
-          do while mo_onkco->kod == glob_persoh3 .and. !eof()
-            aadd(aonkcoh3, get_field())
-            skip
-          enddo
+          Select mo_onkco
+          find ( Str( glob_persoh3, 7 ) )
+          Do While mo_onkco->kod == glob_persoh3 .and. !Eof()
+            AAdd( aonkcoh3, get_field() )
+            Skip
+          Enddo
           aonkdih3 := {}
-          select mo_onkdi
-          find (str(glob_persoh3, 7))
-          do while mo_onkdi->kod == glob_persoh3 .and. !eof()
-            aadd(aonkdih3, get_field())
-            skip
-          enddo
+          Select mo_onkdi
+          find ( Str( glob_persoh3, 7 ) )
+          Do While mo_onkdi->kod == glob_persoh3 .and. !Eof()
+            AAdd( aonkdih3, get_field() )
+            Skip
+          Enddo
           aonkprh3 := {}
-          select mo_onkpr
-          find (str(glob_persoh3, 7))
-          do while mo_onkpr->kod == glob_persoh3 .and. !eof()
-            aadd(aonkprh3, get_field())
-            skip
-          enddo
+          Select mo_onkpr
+          find ( Str( glob_persoh3, 7 ) )
+          Do While mo_onkpr->kod == glob_persoh3 .and. !Eof()
+            AAdd( aonkprh3, get_field() )
+            Skip
+          Enddo
           aonkush3 := {}
-          select mo_onkus
-          find (str(glob_persoh3, 7))
-          do while mo_onkus->kod == glob_persoh3 .and. !eof()
-            aadd(aonkush3, get_field())
-            skip
-          enddo
+          Select mo_onkus
+          find ( Str( glob_persoh3, 7 ) )
+          Do While mo_onkus->kod == glob_persoh3 .and. !Eof()
+            AAdd( aonkush3, get_field() )
+            Skip
+          Enddo
           aonkleh3 := {}
-          select mo_onkle
-          find (str(glob_persoh3, 7))
-          do while mo_onkle->kod == glob_persoh3 .and. !eof()
-            aadd(aonkleh3, get_field())
-            skip
-          enddo
-        endif
-      endif
+          Select mo_onkle
+          find ( Str( glob_persoh3, 7 ) )
+          Do While mo_onkle->kod == glob_persoh3 .and. !Eof()
+            AAdd( aonkleh3, get_field() )
+            Skip
+          Enddo
+        Endif
+      Endif
       //
-      select HUMAN_
-      goto (glob_perso)
-      G_RLock(forever)
+      Select HUMAN_
+      Goto ( glob_perso )
+      g_rlock( forever )
       human_->OPLATA := 9
-      if glob_persoh3 > 0
-        goto (glob_persoh3)
-        G_RLock(forever)
+      If glob_persoh3 > 0
+        Goto ( glob_persoh3 )
+        g_rlock( forever )
         human_->OPLATA := 9
-      endif
+      Endif
       // теперь записываем в БД копию листа учёта
-      select HUMAN
-      Add1Rec(7)
-      mkod := recno()
-      aeval(ahuman, {|x, i| fieldput(i, x) } )
+      Select HUMAN
+      add1rec( 7 )
+      mkod := RecNo()
+      AEval( ahuman, {| x, i| FieldPut( i, x ) } )
       human->kod      := mkod
       human->TIP_H    := B_STANDART // лечение завершено
-      //human->DATE_OPL := ""
+      // human->DATE_OPL := ""
       human->schet    := 0
       //
-      select HUMAN_
-      do while human_->(lastrec()) < mkod
-        APPEND BLANK
-      enddo
-      goto (mkod)
-      G_RLock(forever)
-      aeval(ahuman_, {|x, i| fieldput(i, x) } )
+      Select HUMAN_
+      Do While human_->( LastRec() ) < mkod
+        Append Blank
+      Enddo
+      Goto ( mkod )
+      g_rlock( forever )
+      AEval( ahuman_, {| x, i| FieldPut( i, x ) } )
       human_->KOD_UP    := glob_perso // код оригинального листа учёта
       human_->SUMP      := 0
       human_->OPLATA    := 0
@@ -1528,118 +1563,118 @@ Function rak_akt_schet_human_add_next(s, s1, lrec)
       human_->SCHET_ZAP := 0
       human_->ST_VERIFY := 0 // снова ещё не проверен
       //
-      select HUMAN_2
-      do while human_2->(lastrec()) < mkod
-        APPEND BLANK
-      enddo
-      goto (mkod)
-      G_RLock(forever)
-      aeval(ahuman_2, {|x, i| fieldput(i, x) } )
-      if fl_iname
-        select SN
-        find (str(mkod, 7))
-        if found()
-          if !empty(mnameismo)
-            G_RLock(forever)
+      Select HUMAN_2
+      Do While human_2->( LastRec() ) < mkod
+        Append Blank
+      Enddo
+      Goto ( mkod )
+      g_rlock( forever )
+      AEval( ahuman_2, {| x, i| FieldPut( i, x ) } )
+      If fl_iname
+        Select SN
+        find ( Str( mkod, 7 ) )
+        If Found()
+          If !Empty( mnameismo )
+            g_rlock( forever )
             sn->smo_name := mnameismo
-          else
-            DeleteRec(.t.)
-          endif
-        else
-          if !empty(mnameismo)
-            AddRec(7)
+          Else
+            deleterec( .t. )
+          Endif
+        Else
+          If !Empty( mnameismo )
+            addrec( 7 )
             sn->kod := mkod
             sn->smo_name := mnameismo
-          endif
-        endif
-      endif
-      for i := 1 to len(arr_hu)
-        select HU
-        Add1Rec(7)
-        aeval(arr_hu[i, 1], {|x, i| fieldput(i, x) } )
+          Endif
+        Endif
+      Endif
+      For i := 1 To Len( arr_hu )
+        Select HU
+        add1rec( 7 )
+        AEval( arr_hu[ i, 1 ], {| x, i| FieldPut( i, x ) } )
         hu->kod := mkod
-        select HU_
-        do while hu_->(lastrec()) < hu->(recno())
-          APPEND BLANK
-        enddo
-        goto (hu->(recno()))
-        G_RLock(forever)
-        aeval(arr_hu[i, 2], {|x, i| fieldput(i, x) } )
+        Select HU_
+        Do While hu_->( LastRec() ) < hu->( RecNo() )
+          Append Blank
+        Enddo
+        Goto ( hu->( RecNo() ) )
+        g_rlock( forever )
+        AEval( arr_hu[ i, 2 ], {| x, i| FieldPut( i, x ) } )
         hu_->OPLATA    := 0
         hu_->REES_ZAP  := 0
         hu_->SCHET_ZAP := 0
-      next
+      Next
       //
-      for i := 1 to len(arr_mohu)
-        select MOHU
-        Add1Rec(7)
-        aeval(arr_mohu[i], {|x, i| fieldput(i, x) } )
+      For i := 1 To Len( arr_mohu )
+        Select MOHU
+        add1rec( 7 )
+        AEval( arr_mohu[ i ], {| x, i| FieldPut( i, x ) } )
         mohu->kod       := mkod
         mohu->OPLATA    := 0
         mohu->REES_ZAP  := 0
         mohu->SCHET_ZAP := 0
-      next
-      dbSelectArea("mo_onkna")
-      for i := 1 to len(aonkna)
-        AddRec(7)
-        aeval(aonkna[i], {|x, i| fieldput(i, x) } )
+      Next
+      dbSelectArea( "mo_onkna" )
+      For i := 1 To Len( aonkna )
+        addrec( 7 )
+        AEval( aonkna[ i ], {| x, i| FieldPut( i, x ) } )
         mo_onkna->kod := mkod
-      next
-      dbSelectArea("mo_onksl")
-      for i := 1 to len(aonksl)
-        AddRec(7)
-        aeval(aonksl[i], {|x, i| fieldput(i, x) } )
+      Next
+      dbSelectArea( "mo_onksl" )
+      For i := 1 To Len( aonksl )
+        addrec( 7 )
+        AEval( aonksl[ i ], {| x, i| FieldPut( i, x ) } )
         mo_onksl->kod := mkod
-      next
-      dbSelectArea("mo_onkco")
-      for i := 1 to len(aonkco)
-        AddRec(7)
-        aeval(aonkco[i], {|x, i| fieldput(i, x) } )
+      Next
+      dbSelectArea( "mo_onkco" )
+      For i := 1 To Len( aonkco )
+        addrec( 7 )
+        AEval( aonkco[ i ], {| x, i| FieldPut( i, x ) } )
         mo_onkco->kod := mkod
-      next
-      dbSelectArea("mo_onkdi")
-      for i := 1 to len(aonkdi)
-        AddRec(7)
-        aeval(aonkdi[i], {|x, i| fieldput(i, x) } )
+      Next
+      dbSelectArea( "mo_onkdi" )
+      For i := 1 To Len( aonkdi )
+        addrec( 7 )
+        AEval( aonkdi[ i ], {| x, i| FieldPut( i, x ) } )
         mo_onkdi->kod := mkod
-      next
-      dbSelectArea("mo_onkpr")
-      for i := 1 to len(aonkpr)
-        AddRec(7)
-        aeval(aonkpr[i], {|x, i| fieldput(i, x) } )
+      Next
+      dbSelectArea( "mo_onkpr" )
+      For i := 1 To Len( aonkpr )
+        addrec( 7 )
+        AEval( aonkpr[ i ], {| x, i| FieldPut( i, x ) } )
         mo_onkpr->kod := mkod
-      next
-      dbSelectArea("mo_onkus")
-      for i := 1 to len(aonkus)
-        AddRec(7)
-        aeval(aonkus[i], {|x, i| fieldput(i, x) } )
+      Next
+      dbSelectArea( "mo_onkus" )
+      For i := 1 To Len( aonkus )
+        addrec( 7 )
+        AEval( aonkus[ i ], {| x, i| FieldPut( i, x ) } )
         mo_onkus->kod := mkod
-      next
-      dbSelectArea("mo_onkle")
-      for i := 1 to len(aonkle)
-        AddRec(7)
-        aeval(aonkle[i], {|x, i| fieldput(i, x) } )
+      Next
+      dbSelectArea( "mo_onkle" )
+      For i := 1 To Len( aonkle )
+        addrec( 7 )
+        AEval( aonkle[ i ], {| x, i| FieldPut( i, x ) } )
         mo_onkle->kod := mkod
-      next
-      save_arr_DISPANS(mkod, arr_disp)
-      if glob_persoh3 > 0
+      Next
+      save_arr_dispans( mkod, arr_disp )
+      If glob_persoh3 > 0
         // теперь записываем в БД копию второго листа учёта
-        select HUMAN
-        Add1Rec(7)
-        mkodh3 := recno()
-        aeval(ahumanh3, {|x, i| fieldput(i, x) } )
+        Select HUMAN
+        add1rec( 7 )
+        mkodh3 := RecNo()
+        AEval( ahumanh3, {| x, i| FieldPut( i, x ) } )
         human->kod      := mkodh3
         human->TIP_H    := B_STANDART // лечение завершено
-        //human->DATE_OPL := ""
+        // human->DATE_OPL := ""
         human->schet    := 0
         //
-        select HUMAN_
-        do while human_->(lastrec()) < mkodh3
-          APPEND BLANK
-        enddo
-        goto (mkodh3)
-        G_RLock(forever)
-        aeval(ahuman_h3, {|x, i| fieldput(i, x) } )
+        Select HUMAN_
+        Do While human_->( LastRec() ) < mkodh3
+          Append Blank
+        Enddo
+        Goto ( mkodh3 )
+        g_rlock( forever )
+        AEval( ahuman_h3, {| x, i| FieldPut( i, x ) } )
         human_->KOD_UP    := glob_persoh3 // код оригинального листа учёта
         human_->SUMP      := 0
         human_->OPLATA    := 0
@@ -1651,102 +1686,102 @@ Function rak_akt_schet_human_add_next(s, s1, lrec)
         human_->SCHET_ZAP := 0
         human_->ST_VERIFY := 0 // снова ещё не проверен
         //
-        select HUMAN_2
-        do while human_2->(lastrec()) < mkodh3
-          APPEND BLANK
-        enddo
-        goto (mkodh3)
-        G_RLock(forever)
-        aeval(ahuman_2h3, {|x, i| fieldput(i, x) } )
-        if fl_inameh3
-          select SNh3
-          find (str(mkodh3, 7))
-          if found()
-            if !empty(mnameismoh3)
-              G_RLock(forever)
+        Select HUMAN_2
+        Do While human_2->( LastRec() ) < mkodh3
+          Append Blank
+        Enddo
+        Goto ( mkodh3 )
+        g_rlock( forever )
+        AEval( ahuman_2h3, {| x, i| FieldPut( i, x ) } )
+        If fl_inameh3
+          Select SNh3
+          find ( Str( mkodh3, 7 ) )
+          If Found()
+            If !Empty( mnameismoh3 )
+              g_rlock( forever )
               sn->smo_name := mnameismoh3
-            else
-              DeleteRec(.t.)
-            endif
-          else
-            if !empty(mnameismoh3)
-              AddRec(7)
+            Else
+              deleterec( .t. )
+            Endif
+          Else
+            If !Empty( mnameismoh3 )
+              addrec( 7 )
               sn->kod := mkodh3
               sn->smo_name := mnameismoh3
-            endif
-          endif
-        endif
-        for i := 1 to len(arr_huh3)
-          select HU
-          Add1Rec(7)
-          aeval(arr_huh3[i, 1], {|x, i| fieldput(i, x) } )
+            Endif
+          Endif
+        Endif
+        For i := 1 To Len( arr_huh3 )
+          Select HU
+          add1rec( 7 )
+          AEval( arr_huh3[ i, 1 ], {| x, i| FieldPut( i, x ) } )
           hu->kod := mkodh3
-          select HU_
-          do while hu_->(lastrec()) < hu->(recno())
-            APPEND BLANK
-          enddo
-          goto (hu->(recno()))
-          G_RLock(forever)
-          aeval(arr_huh3[i, 2], {|x, i| fieldput(i, x) } )
+          Select HU_
+          Do While hu_->( LastRec() ) < hu->( RecNo() )
+            Append Blank
+          Enddo
+          Goto ( hu->( RecNo() ) )
+          g_rlock( forever )
+          AEval( arr_huh3[ i, 2 ], {| x, i| FieldPut( i, x ) } )
           hu_->OPLATA    := 0
           hu_->REES_ZAP  := 0
           hu_->SCHET_ZAP := 0
-        next
+        Next
         //
-        for i := 1 to len(arr_mohuh3)
-          select MOHU
-          Add1Rec(7)
-          aeval(arr_mohuh3[i], {|x, i| fieldput(i, x) } )
+        For i := 1 To Len( arr_mohuh3 )
+          Select MOHU
+          add1rec( 7 )
+          AEval( arr_mohuh3[ i ], {| x, i| FieldPut( i, x ) } )
           mohu->kod       := mkodh3
           mohu->OPLATA    := 0
           mohu->REES_ZAP  := 0
           mohu->SCHET_ZAP := 0
-        next
-        dbSelectArea("mo_onkna")
-        for i := 1 to len(aonknah3)
-          AddRec(7)
-          aeval(aonknah3[i], {|x, i| fieldput(i, x) } )
+        Next
+        dbSelectArea( "mo_onkna" )
+        For i := 1 To Len( aonknah3 )
+          addrec( 7 )
+          AEval( aonknah3[ i ], {| x, i| FieldPut( i, x ) } )
           mo_onkna->kod := mkodh3
-        next
-        dbSelectArea("mo_onksl")
-        for i := 1 to len(aonkslh3)
-          AddRec(7)
-          aeval(aonkslh3[i], {|x, i| fieldput(i, x) } )
+        Next
+        dbSelectArea( "mo_onksl" )
+        For i := 1 To Len( aonkslh3 )
+          addrec( 7 )
+          AEval( aonkslh3[ i ], {| x, i| FieldPut( i, x ) } )
           mo_onksl->kod := mkodh3
-        next
-        dbSelectArea("mo_onkco")
-        for i := 1 to len(aonkcoh3)
-          AddRec(7)
-          aeval(aonkcoh3[i], {|x, i| fieldput(i, x) } )
+        Next
+        dbSelectArea( "mo_onkco" )
+        For i := 1 To Len( aonkcoh3 )
+          addrec( 7 )
+          AEval( aonkcoh3[ i ], {| x, i| FieldPut( i, x ) } )
           mo_onkco->kod := mkodh3
-        next
-        dbSelectArea("mo_onkdi")
-        for i := 1 to len(aonkdih3)
-          AddRec(7)
-          aeval(aonkdih3[i], {|x, i| fieldput(i, x) } )
+        Next
+        dbSelectArea( "mo_onkdi" )
+        For i := 1 To Len( aonkdih3 )
+          addrec( 7 )
+          AEval( aonkdih3[ i ], {| x, i| FieldPut( i, x ) } )
           mo_onkdi->kod := mkodh3
-        next
-        dbSelectArea("mo_onkpr")
-        for i := 1 to len(aonkprh3)
-          AddRec(7)
-          aeval(aonkprh3[i], {|x, i| fieldput(i, x) } )
+        Next
+        dbSelectArea( "mo_onkpr" )
+        For i := 1 To Len( aonkprh3 )
+          addrec( 7 )
+          AEval( aonkprh3[ i ], {| x, i| FieldPut( i, x ) } )
           mo_onkpr->kod := mkodh3
-        next
-        dbSelectArea("mo_onkus")
-        for i := 1 to len(aonkush3)
-          AddRec(7)
-          aeval(aonkush3[i], {|x, i| fieldput(i, x) } )
+        Next
+        dbSelectArea( "mo_onkus" )
+        For i := 1 To Len( aonkush3 )
+          addrec( 7 )
+          AEval( aonkush3[ i ], {| x, i| FieldPut( i, x ) } )
           mo_onkus->kod := mkodh3
-        next
-        dbSelectArea("mo_onkle")
-        for i := 1 to len(aonkleh3)
-          AddRec(7)
-          aeval(aonkleh3[i], {|x, i| fieldput(i, x) } )
+        Next
+        dbSelectArea( "mo_onkle" )
+        For i := 1 To Len( aonkleh3 )
+          addrec( 7 )
+          AEval( aonkleh3[ i ], {| x, i| FieldPut( i, x ) } )
           mo_onkle->kod := mkodh3
-        next
-        select HUMAN_3
-        AddRec(7)
-        aeval(ahuman_3, {|x, i| fieldput(i, x) } )
+        Next
+        Select HUMAN_3
+        addrec( 7 )
+        AEval( ahuman_3, {| x, i| FieldPut( i, x ) } )
         human_3->KOD       := mkod
         human_3->KOD2      := mkodh3
         human_3->PZTIP     := 0
@@ -1764,1328 +1799,1345 @@ Function rak_akt_schet_human_add_next(s, s1, lrec)
         human_3->SCHET     := 0
         human_3->SCHET_NUM := 0
         human_3->SCHET_ZAP := 0
-      endif
+      Endif
       //
-      G_Use(dir_server + "mo_raksh", , "RAKSH")
-      goto (lrec)
-      G_RLock(forever)
+      g_use( dir_server + "mo_raksh", , "RAKSH" )
+      Goto ( lrec )
+      g_rlock( forever )
       raksh->IS_REPEAT := 1
       raksh->DATE_REP  := sys_date
       raksh->NEXT_KOD  := mkod
-      close databases
-      stat_msg("Данный лист учёта выставлен повторно")
-      mybell(2, OK)
-    endif
-  endif
-  rest_box(buf)
-  return NIL
+      Close databases
+      stat_msg( "Данный лист учёта выставлен повторно" )
+      mybell( 2, OK )
+    Endif
+  Endif
+  rest_box( buf )
+
+  Return Nil
 
 // 14.05.20
-Function rak_akt_schet_human_del_next(s, s1, lrec)
+Function rak_akt_schet_human_del_next( s, s1, lrec )
+
   Local i, arr1, arr2, mkod, mkodh3 := 0, buf := save_maxrow()
 
   glob_perso := raksh->kod_h
-  if (mkod := raksh->next_kod) > 0
-    select RAKSH
-    set relation to
-    select HUMAN
-    goto (mkod)
-    if human->schet > 0 .or. human_->REESTR > 0
-      return func_error(10, "Повторно выставленный лист учёта уже попал в реестр (счёт). Удаление запрещено!")
-    endif
-  endif
-  arr1 := {s, ;
-           s1, ;
-           "После подтверждения повторно выставленный лист учёта будет удалён", ;
-           ""}
-  arr2 := {" Отказ ", " Удалить повторно выставленный л/у "}
-  if f_alert(arr1, arr2, 1, "N+/GR*", "N/GR*", 15, , "N/GR*") == 2
-    if f_alert(arr1, arr2, 1, "N+/GR*", "R/GR*", 16, , "N/GR*") == 2
+  If ( mkod := raksh->next_kod ) > 0
+    Select RAKSH
+    Set Relation To
+    Select HUMAN
+    Goto ( mkod )
+    If human->schet > 0 .or. human_->REESTR > 0
+      Return func_error( 10, "Повторно выставленный лист учёта уже попал в реестр (счёт). Удаление запрещено!" )
+    Endif
+  Endif
+  arr1 := { s, ;
+    s1, ;
+    "После подтверждения повторно выставленный лист учёта будет удалён", ;
+    "" }
+  arr2 := { " Отказ ", " Удалить повторно выставленный л/у " }
+  If f_alert( arr1, arr2, 1, "N+/GR*", "N/GR*", 15, , "N/GR*" ) == 2
+    If f_alert( arr1, arr2, 1, "N+/GR*", "R/GR*", 16, , "N/GR*" ) == 2
       mywait()
-      close databases
-      use_base("mo_hdisp")
-      Use_base("mo_hu")
-      Use_base("human_u")
-      G_Use(dir_server + "human_3", {dir_server + "human_3", dir_server + "human_32"}, "HUMAN_3")
-      Use_base("human")
-      goto (glob_perso)
+      Close databases
+      use_base( "mo_hdisp" )
+      use_base( "mo_hu" )
+      use_base( "human_u" )
+      g_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
+      use_base( "human" )
+      Goto ( glob_perso )
       glob_persoh3 := 0
-      if human->ishod == 88
-        select HUMAN_3
-        find (str(glob_perso, 7))
-        if found()
+      If human->ishod == 88
+        Select HUMAN_3
+        find ( Str( glob_perso, 7 ) )
+        If Found()
           glob_persoh3 := human_3->kod2
-        endif
-      endif
-      select HUMAN
-      goto (mkod)
-      if human->ishod == 88
-        select HUMAN_3
-        find (str(mkod, 7))
-        if found()
+        Endif
+      Endif
+      Select HUMAN
+      Goto ( mkod )
+      If human->ishod == 88
+        Select HUMAN_3
+        find ( Str( mkod, 7 ) )
+        If Found()
           mkodh3 := human_3->kod2
-          rech3 := recno()
-        endif
-      endif
-      G_Use(dir_server + "mo_raksh", , "RAKSH")
-      G_Use(dir_server + "mo_os", , "MO_OS")
-      index on str(kod, 7) to (cur_dir + "tmp_moos") for NEXT_KOD > 0
-      find (str(glob_perso, 7))
-      if found()
-        DeleteRec(.t.)
-      endif
-      do while .t.
-        select HDISP
-        find (str(mkod, 7))
-        if !found()
-          exit
-        endif
-        DeleteRec(.t.)
-      enddo
-      G_Use(dir_server + "mo_onkna", dir_server + "mo_onkna")
-      do while .t.
-        find (str(mkod, 7))
-        if !found()
-          exit
-        endif
-        DeleteRec(.t.)
-      enddo
-      if mkodh3 > 0
-        do while .t.
-          find (str(mkodh3, 7))
-          if !found()
-            exit
-          endif
-          DeleteRec(.t.)
-        enddo
-      endif
-      G_Use(dir_server + "mo_onksl", dir_server + "mo_onksl")
-      do while .t.
-        find (str(mkod, 7))
-        if !found()
-          exit
-        endif
-        DeleteRec(.t.)
-      enddo
-      if mkodh3 > 0
-        do while .t.
-          find (str(mkodh3, 7))
-          if !found()
-            exit
-          endif
-          DeleteRec(.t.)
-        enddo
-      endif
-      G_Use(dir_server + "mo_onkco", dir_server + "mo_onkco")
-      do while .t.
-        find (str(mkod, 7))
-        if !found()
-          exit
-        endif
-        DeleteRec(.t.)
-      enddo
-      if mkodh3 > 0
-        do while .t.
-          find (str(mkodh3, 7))
-          if !found()
-            exit
-          endif
-          DeleteRec(.t.)
-        enddo
-      endif
-      G_Use(dir_server + "mo_onkdi", dir_server + "mo_onkdi")
-      do while .t.
-        find (str(mkod, 7))
-        if !found()
-          exit
-        endif
-        DeleteRec(.t.)
-      enddo
-      if mkodh3 > 0
-        do while .t.
-          find (str(mkodh3, 7))
-          if !found()
-            exit
-          endif
-          DeleteRec(.t.)
-        enddo
-      endif
-      G_Use(dir_server + "mo_onkpr", dir_server + "mo_onkpr")
-      do while .t.
-        find (str(mkod, 7))
-        if !found()
-          exit
-        endif
-        DeleteRec(.t.)
-      enddo
-      if mkodh3 > 0
-        do while .t.
-          find (str(mkodh3, 7))
-          if !found()
-            exit
-          endif
-          DeleteRec(.t.)
-        enddo
-      endif
-      G_Use(dir_server + "mo_onkus", dir_server + "mo_onkus")
-      do while .t.
-        find (str(mkod, 7))
-        if !found()
-          exit
-        endif
-        DeleteRec(.t.)
-      enddo
-      if mkodh3 > 0
-        do while .t.
-          find (str(mkodh3, 7))
-          if !found()
-            exit
-          endif
-          DeleteRec(.t.)
-        enddo
-      endif
-      G_Use(dir_server + "mo_onkle", dir_server + "mo_onkle")
-      do while .t.
-        find (str(mkod, 7))
-        if !found()
-          exit
-        endif
-        DeleteRec(.t.)
-      enddo
-      if mkodh3 > 0
-        do while .t.
-          find (str(mkodh3, 7))
-          if !found()
-            exit
-          endif
-          DeleteRec(.t.)
-        enddo
-      endif
-      do while .t.
-        select MOHU
-        find (str(mkod, 7))
-        if !found()
-          exit
-        endif
-        DeleteRec(.t., .f.)  // без пометки на удаление
-        if mkodh3 > 0
-          do while .t.
-            find (str(mkodh3, 7))
-            if !found()
-              exit
-            endif
-            DeleteRec(.t., .f.)  // без пометки на удаление
-          enddo
-        endif
-      enddo
-      do while .t.
-        select HU
-        find (str(mkod, 7))
-        if !found()
-          exit
-        endif
+          rech3 := RecNo()
+        Endif
+      Endif
+      g_use( dir_server + "mo_raksh", , "RAKSH" )
+      g_use( dir_server + "mo_os", , "MO_OS" )
+      Index On Str( kod, 7 ) to ( cur_dir + "tmp_moos" ) For NEXT_KOD > 0
+      find ( Str( glob_perso, 7 ) )
+      If Found()
+        deleterec( .t. )
+      Endif
+      Do While .t.
+        Select HDISP
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      g_use( dir_server + "mo_onkna", dir_server + "mo_onkna" )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      g_use( dir_server + "mo_onksl", dir_server + "mo_onksl" )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      g_use( dir_server + "mo_onkco", dir_server + "mo_onkco" )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      g_use( dir_server + "mo_onkdi", dir_server + "mo_onkdi" )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      g_use( dir_server + "mo_onkpr", dir_server + "mo_onkpr" )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      g_use( dir_server + "mo_onkus", dir_server + "mo_onkus" )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      g_use( dir_server + "mo_onkle", dir_server + "mo_onkle" )
+      Do While .t.
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
+      Endif
+      Do While .t.
+        Select MOHU
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t., .f. )  // без пометки на удаление
+        If mkodh3 > 0
+          Do While .t.
+            find ( Str( mkodh3, 7 ) )
+            If !Found()
+              Exit
+            Endif
+            deleterec( .t., .f. )  // без пометки на удаление
+          Enddo
+        Endif
+      Enddo
+      Do While .t.
+        Select HU
+        find ( Str( mkod, 7 ) )
+        If !Found()
+          Exit
+        Endif
         //
-        select HU_
-        DeleteRec(.t., .f.)
-        select HU
-        DeleteRec(.t., .f.)  // без пометки на удаление
-      enddo
-      if mkodh3 > 0
-        do while .t.
-          select HU
-          find (str(mkodh3, 7))
-          if !found()
-            exit
-          endif
+        Select HU_
+        deleterec( .t., .f. )
+        Select HU
+        deleterec( .t., .f. )  // без пометки на удаление
+      Enddo
+      If mkodh3 > 0
+        Do While .t.
+          Select HU
+          find ( Str( mkodh3, 7 ) )
+          If !Found()
+            Exit
+          Endif
           //
-          select HU_
-          DeleteRec(.t., .f.)
-          select HU
-          DeleteRec(.t., .f.)  // без пометки на удаление
-        enddo
-      endif
-      if mkodh3 > 0
-        select HUMAN
-        find (str(mkodh3, 7))
-        select HUMAN_
-        DeleteRec(.t., .f.)
-        select HUMAN
-        DeleteRec(.t., .f.)  // без пометки на удаление
-        G_RLock(forever)
-        replace human->schet with -1  // (вместо нуля)
-      endif
-      select HUMAN
-      find (str(mkod, 7))
-      select HUMAN_
-      DeleteRec(.t., .f.)
-      select HUMAN
-      DeleteRec(.t., .f.)  // без пометки на удаление
-      G_RLock(forever)
-      replace human->schet with -1  // (вместо нуля)
+          Select HU_
+          deleterec( .t., .f. )
+          Select HU
+          deleterec( .t., .f. )  // без пометки на удаление
+        Enddo
+      Endif
+      If mkodh3 > 0
+        Select HUMAN
+        find ( Str( mkodh3, 7 ) )
+        Select HUMAN_
+        deleterec( .t., .f. )
+        Select HUMAN
+        deleterec( .t., .f. )  // без пометки на удаление
+        g_rlock( forever )
+        Replace human->schet With -1  // (вместо нуля)
+      Endif
+      Select HUMAN
+      find ( Str( mkod, 7 ) )
+      Select HUMAN_
+      deleterec( .t., .f. )
+      Select HUMAN
+      deleterec( .t., .f. )  // без пометки на удаление
+      g_rlock( forever )
+      Replace human->schet With -1  // (вместо нуля)
       //
-      select RAKSH
-      goto (lrec)
-      G_RLock(forever)
+      Select RAKSH
+      Goto ( lrec )
+      g_rlock( forever )
       raksh->IS_REPEAT := 0
-      raksh->DATE_REP  := ctod("")
+      raksh->DATE_REP  := CToD( "" )
       raksh->NEXT_KOD  := 0
       //
-      if glob_persoh3 > 0
-        select HUMAN
-        goto (glob_persoh3)
-        select HUMAN_
-        G_RLock(forever)
+      If glob_persoh3 > 0
+        Select HUMAN
+        Goto ( glob_persoh3 )
+        Select HUMAN_
+        g_rlock( forever )
         human_->OPLATA := raksh->OPLATA
-      endif
-      if mkodh3 > 0
-        select HUMAN_3
-        goto (rech3)
-        DeleteRec(.t.)
-      endif
-      select HUMAN
-      goto (glob_perso)
-      select HUMAN_
-      G_RLock(forever)
+      Endif
+      If mkodh3 > 0
+        Select HUMAN_3
+        Goto ( rech3 )
+        deleterec( .t. )
+      Endif
+      Select HUMAN
+      Goto ( glob_perso )
+      Select HUMAN_
+      g_rlock( forever )
       human_->OPLATA    := raksh->OPLATA
       human_->SANK_MEK  := raksh->SANK_MEK
       human_->SANK_MEE  := raksh->SANK_MEE
       human_->SANK_EKMP := raksh->SANK_EKMP
-      close databases
-      stat_msg("Повторно выставленный лист учёта удалён")
-      mybell(2,OK)
-    endif
-  endif
-  rest_box(buf)
-  return NIL
+      Close databases
+      stat_msg( "Повторно выставленный лист учёта удалён" )
+      mybell( 2, OK )
+    Endif
+  Endif
+  rest_box( buf )
+
+  Return Nil
 
 // 10.12.13
-Function ret_menu_rak_schet(r, c)
+Function ret_menu_rak_schet( r, c )
+
   Static si := 4, ;
-         arr := {{"по дате отчётного периода", 1}, ;
-                 {"по дате выписки счёта", 2}, ;
-                 {"по дате регистрации счёта", 3}, ;
-                 {"по дате акта контроля", 4}, ;
-                 {"по дате РеестраАктовКонтроля", 5}}
+    arr := { { "по дате отчётного периода", 1 }, ;
+    { "по дате выписки счёта", 2 }, ;
+    { "по дате регистрации счёта", 3 }, ;
+    { "по дате акта контроля", 4 }, ;
+    { "по дате РеестраАктовКонтроля", 5 } }
   Local i, ret, ret_arr
 
-  DEFAULT r TO T_ROW, c TO T_COL - 5
-  if popup_2array(arr, r, c, si, 1, @ret_arr) > 0 .and. valtype(ret_arr) == "A"
-    si := ret_arr[2]
-    ret := {ret_arr[2], ret_arr[1]}
-  endif
-  return ret
+  Default r To T_ROW, c To T_COL -5
+  If popup_2array( arr, r, c, si, 1, @ret_arr ) > 0 .and. ValType( ret_arr ) == "A"
+    si := ret_arr[ 2 ]
+    ret := { ret_arr[ 2 ], ret_arr[ 1 ] }
+  Endif
+
+  Return ret
 
 // 17.08.22 список снятий по актам
 Function akt_list_of_refusal_pacient()
+
   Static si := 3
-  Static mas_pmt := {"случаи полного снятия", ;
-                     "случаи частичного снятия", ;
-                     "все случаи снятия", ;
-                     "перевыставленные случаи полного снятия", ;
-                     "не перевыставленные случаи полного снятия"}
-  Local buf := save_maxrow(), lsmo, lmenu, i, j, k, s, t_arr[2], ;
-        ireg, fl, arr_m, n_file := cur_dir + "spis_sn" + stxt, sh := 80, HH := 60
+  Static mas_pmt := { "случаи полного снятия", ;
+    "случаи частичного снятия", ;
+    "все случаи снятия", ;
+    "перевыставленные случаи полного снятия", ;
+    "не перевыставленные случаи полного снятия" }
+  Local buf := save_maxrow(), lsmo, lmenu, i, j, k, s, t_arr[ 2 ], ;
+    ireg, fl, arr_m, n_file := cur_dir + "spis_sn" + stxt, sh := 80, HH := 60
 
   Private a_otd := {}
-  if (st_a_uch := inputN_uch(T_ROW, T_COL - 5, , , @lcount_uch)) == NIL
-    return NIL
-  endif
-  if len(st_a_uch) == 1
-    glob_uch := st_a_uch[1]
-    if (st_a_otd := inputN_otd(T_ROW, T_COL - 5, .f., .f., glob_uch, @lcount_otd)) == NIL
-      return NIL
-    endif
-    aeval(st_a_otd, {|x| aadd(a_otd, x[1]) })
-  else
-    R_Use(dir_server + "mo_otd", , "OTD")
-    go top
-    do while !eof()
-      if f_is_uch(st_a_uch, otd->kod_lpu)
-        aadd(a_otd, otd->(recno()))
-      endif
-      skip
-    enddo
-    otd->(dbCloseArea())
-  endif
-  if (lsmo := ret_actual_smo()) == NIL
-    return NIL
-  endif
-  if (lmenu := ret_menu_rak_schet()) == NIL
-    return NIL
-  endif
-  if (arr_m := year_month(T_ROW, T_COL - 5)) == NIL
-    return NIL
-  endif
-  if (ireg := popup_prompt(T_ROW, T_COL - 5, si, mas_pmt)) == 0
-    return NIL
-  endif
+
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5, , , @lcount_uch ) ) == NIL
+    Return Nil
+  Endif
+  If Len( st_a_uch ) == 1
+    glob_uch := st_a_uch[ 1 ]
+    If ( st_a_otd := inputn_otd( T_ROW, T_COL -5, .f., .f., glob_uch, @lcount_otd ) ) == NIL
+      Return Nil
+    Endif
+    AEval( st_a_otd, {| x| AAdd( a_otd, x[ 1 ] ) } )
+  Else
+    r_use( dir_server + "mo_otd", , "OTD" )
+    Go Top
+    Do While !Eof()
+      If f_is_uch( st_a_uch, otd->kod_lpu )
+        AAdd( a_otd, otd->( RecNo() ) )
+      Endif
+      Skip
+    Enddo
+    otd->( dbCloseArea() )
+  Endif
+  If ( lsmo := ret_actual_smo() ) == NIL
+    Return Nil
+  Endif
+  If ( lmenu := ret_menu_rak_schet() ) == NIL
+    Return Nil
+  Endif
+  If ( arr_m := year_month( T_ROW, T_COL -5 ) ) == NIL
+    Return Nil
+  Endif
+  If ( ireg := popup_prompt( T_ROW, T_COL -5, si, mas_pmt ) ) == 0
+    Return Nil
+  Endif
   si := ireg
-  if lmenu[1] == 1 .and. !is_otch_period(arr_m)
-    return NIL
-  endif
+  If lmenu[ 1 ] == 1 .and. !is_otch_period( arr_m )
+    Return Nil
+  Endif
   mywait()
-  delFRfiles()
-  adbf := {{"name", "C", 130, 0}, ;
-            {"name1", "C", 130, 0}, ;
-            {"name2", "C", 130, 0}, ;
-            {"name3", "C", 130, 0}, ;
-            {"sroki", "C", 100, 0}, ;
-            {"sdata", "C", 100, 0}, ;
-            {"ssmo", "C", 50, 0}, ;
-            {"summa1", "N", 15, 2}, ;
-            {"summa2", "N", 15, 2}, ;
-            {"summa3", "N", 15, 2}, ;
-            {"nitog1", "N", 5, 0}, ;
-            {"nitog2", "N", 5, 0}, ;
-            {"nitog3", "N", 5, 0}}
-  dbcreate(fr_titl, adbf)
-  use (fr_titl) new alias FRT
-  append blank
-  frt->name := glob_mo[_MO_SHORT_NAME]
-  frt->sroki := arr_m[4]
-  frt->sdata := lmenu[2] + iif(ireg < 3, "", " / " + mas_pmt[ireg])
-  frt->ssmo  := lsmo[2]
-  adbf := {{"nrak", "C", 50, 0}, ;
-            {"drak", "C", 10, 0}, ;
-            {"nakt", "C", 50, 0}, ;
-            {"dakt", "C", 10, 0}, ;
-            {"nschet", "C", 50, 0}, ;
-            {"dschet", "C", 10, 0}, ;
-            {"dregschet", "C", 10, 0}, ;
-            {"fio", "C", 60, 0}, ;
-            {"date_r", "C", 10, 0}, ;
-            {"otd", "C", 42, 0}, ;
-            {"n_data", "C", 10, 0}, ;
-            {"k_data", "C", 10, 0}, ;
-            {"cena_1", "N", 11, 2}, ;
-            {"sum_sn", "C", 30, 0}, ;
-            {"sum_snn", "N", 11, 2}, ;
-            {"REFREASON", "C", 15, 0}, ;
-            {"DATE_REP", "C", 10, 0}, ;
-            {"NUMORDER", "N", 10, 0}, ;
-            {"kod_h", "N", 7, 0}}  //10.08.2022 для РДЛ
-  dbcreate(fr_data, adbf)
-  use (fr_data) new alias FRD
-  adbf := {{"REFREASON", "N", 3, 0}, ;
-            {"kol", "N", 6, 0}, ;
-            {"name", "C", 120, 0}}
-  dbcreate(fr_data + "1", adbf)
-  use (fr_data + "1") new alias FRD1
-  index on str(REFREASON, 3) to (fr_data + "1")
-  adbf := {{"num_usl", "C", 10, 0}, ;    // номер услуги по порядку
-            {"REFREASON", "C", 15, 0}, ; 
-            {"shifr_usl", "C", 10, 0}, ;  // шифр услуги 
-            {"name_usl", "C", 250, 0}, ; // наименование услуги 
-            {"NUMORDER", "N", 10, 0}, ;   // Номер заявки(ORDER Number)
-            {"fio", "C", 60, 0}, ;
-            {"date_r", "C", 10, 0}, ;
-            {"kol_usl", "N", 10, 0}, ;    // кол-во услуг
-            {"cena_1", "N", 11, 2}, ;
-            {"sum_sn", "N", 11, 2}, ;
-            {"DATE_REP", "C", 10, 0}, ; 
-            {"otd", "C", 42, 0}}
-  dbcreate(fr_data + "2", adbf)
-  dbcreate(fr_data + "3", adbf)
-  use (fr_data + "2") new alias FRD2
-  use (fr_data + "3") new alias FRD3
+  delfrfiles()
+  adbf := { { "name", "C", 130, 0 }, ;
+    { "name1", "C", 130, 0 }, ;
+    { "name2", "C", 130, 0 }, ;
+    { "name3", "C", 130, 0 }, ;
+    { "sroki", "C", 100, 0 }, ;
+    { "sdata", "C", 100, 0 }, ;
+    { "ssmo", "C", 50, 0 }, ;
+    { "summa1", "N", 15, 2 }, ;
+    { "summa2", "N", 15, 2 }, ;
+    { "summa3", "N", 15, 2 }, ;
+    { "nitog1", "N", 5, 0 }, ;
+    { "nitog2", "N", 5, 0 }, ;
+    { "nitog3", "N", 5, 0 } }
+  dbCreate( fr_titl, adbf )
+  Use ( fr_titl ) New Alias FRT
+  Append Blank
+  frt->name := glob_mo[ _MO_SHORT_NAME ]
+  frt->sroki := arr_m[ 4 ]
+  frt->sdata := lmenu[ 2 ] + iif( ireg < 3, "", " / " + mas_pmt[ ireg ] )
+  frt->ssmo  := lsmo[ 2 ]
+  adbf := { { "nrak", "C", 50, 0 }, ;
+    { "drak", "C", 10, 0 }, ;
+    { "nakt", "C", 50, 0 }, ;
+    { "dakt", "C", 10, 0 }, ;
+    { "nschet", "C", 50, 0 }, ;
+    { "dschet", "C", 10, 0 }, ;
+    { "dregschet", "C", 10, 0 }, ;
+    { "fio", "C", 60, 0 }, ;
+    { "date_r", "C", 10, 0 }, ;
+    { "otd", "C", 42, 0 }, ;
+    { "n_data", "C", 10, 0 }, ;
+    { "k_data", "C", 10, 0 }, ;
+    { "cena_1", "N", 11, 2 }, ;
+    { "sum_sn", "C", 30, 0 }, ;
+    { "sum_snn", "N", 11, 2 }, ;
+    { "REFREASON", "C", 15, 0 }, ;
+    { "DATE_REP", "C", 10, 0 }, ;
+    { "NUMORDER", "N", 10, 0 }, ;
+    { "kod_h", "N", 7, 0 } }  // 10.08.2022 для РДЛ
+  dbCreate( fr_data, adbf )
+  Use ( fr_data ) New Alias FRD
+  adbf := { { "REFREASON", "N", 3, 0 }, ;
+    { "kol", "N", 6, 0 }, ;
+    { "name", "C", 120, 0 } }
+  dbCreate( fr_data + "1", adbf )
+  Use ( fr_data + "1" ) New Alias FRD1
+  Index On Str( REFREASON, 3 ) to ( fr_data + "1" )
+  adbf := { { "num_usl", "C", 10, 0 }, ;    // номер услуги по порядку
+    { "REFREASON", "C", 15, 0 }, ;
+    { "shifr_usl", "C", 10, 0 }, ;  // шифр услуги
+    { "name_usl", "C", 250, 0 }, ; // наименование услуги
+    { "NUMORDER", "N", 10, 0 }, ;   // Номер заявки(ORDER Number)
+    { "fio", "C", 60, 0 }, ;
+    { "date_r", "C", 10, 0 }, ;
+    { "kol_usl", "N", 10, 0 }, ;    // кол-во услуг
+    { "cena_1", "N", 11, 2 }, ;
+    { "sum_sn", "N", 11, 2 }, ;
+    { "DATE_REP", "C", 10, 0 }, ;
+    { "otd", "C", 42, 0 } }
+  dbCreate( fr_data + "2", adbf )
+  dbCreate( fr_data + "3", adbf )
+  Use ( fr_data + "2" ) New Alias FRD2
+  Use ( fr_data + "3" ) New Alias FRD3
   //
-  fp := fcreate(n_file)
+  fp := FCreate( n_file )
   n_list := 1
   tek_stroke := 0
-  add_string("")
-  if ireg == 3
+  add_string( "" )
+  If ireg == 3
     s := "Список снятий по актам контроля"
-  elseif ireg == 2
+  Elseif ireg == 2
     s := "Список частичных снятий по актам контроля"
-  else
+  Else
     s := "Список снятий (полных отказов) по актам контроля"
-  endif
-  add_string(center(s, sh))
+  Endif
+  add_string( Center( s, sh ) )
   frt->name1 := s
-  add_string(center(arr_m[4], sh))
-  add_string(center("[ " + lmenu[2] + " ]", sh))
-  add_string(center(lsmo[2], sh))
-  add_string("")
-  R_Use(dir_server + "schet_", , "SCHET_")
-  R_Use(dir_server + "mo_pers", , "PERS")
-  R_Use(dir_server + "mo_otd", , "OTD")
-  R_Use(dir_server + "human_2", , "HUMAN_2")
-  R_Use(dir_server + "human_", , "HUMAN_")
-  R_Use(dir_server + "human", , "HUMAN")
-  set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
-  R_Use(dir_server + "mo_raksh", , "RAKSH")
-  index on str(kod_raks, 6) to (cur_dir + "tmpraksh")
-  R_Use(dir_server + "mo_raks", , "RAKS")
-  index on str(akt, 6) to (cur_dir + "tmpraks") for plat == lsmo[1]
-  R_Use(dir_server + "mo_rak", , "RAK")
-  index on str(kod_xml, 6) + dtos(dakt) + nakt to (cur_dir + "tmprak")
-  R_Use(dir_server + "mo_xml", , "MO_XML")
-  index on dfile to (cur_dir + "tmp_xml") for TIP_IN == _XML_FILE_RAK
+  add_string( Center( arr_m[ 4 ], sh ) )
+  add_string( Center( "[ " + lmenu[ 2 ] + " ]", sh ) )
+  add_string( Center( lsmo[ 2 ], sh ) )
+  add_string( "" )
+  r_use( dir_server + "schet_", , "SCHET_" )
+  r_use( dir_server + "mo_pers", , "PERS" )
+  r_use( dir_server + "mo_otd", , "OTD" )
+  r_use( dir_server + "human_2", , "HUMAN_2" )
+  r_use( dir_server + "human_", , "HUMAN_" )
+  r_use( dir_server + "human", , "HUMAN" )
+  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To otd into OTD
+  r_use( dir_server + "mo_raksh", , "RAKSH" )
+  Index On Str( kod_raks, 6 ) to ( cur_dir + "tmpraksh" )
+  r_use( dir_server + "mo_raks", , "RAKS" )
+  Index On Str( akt, 6 ) to ( cur_dir + "tmpraks" ) For plat == lsmo[ 1 ]
+  r_use( dir_server + "mo_rak", , "RAK" )
+  Index On Str( kod_xml, 6 ) + DToS( dakt ) + nakt to ( cur_dir + "tmprak" )
+  r_use( dir_server + "mo_xml", , "MO_XML" )
+  Index On dfile to ( cur_dir + "tmp_xml" ) For TIP_IN == _XML_FILE_RAK
   j := 0
-  go top
-  do while !eof()
-    if iif(lmenu[1] == 5, between(mo_xml->DFILE, arr_m[5], arr_m[6]), .t.)
+  Go Top
+  Do While !Eof()
+    If iif( lmenu[ 1 ] == 5, Between( mo_xml->DFILE, arr_m[ 5 ], arr_m[ 6 ] ), .t. )
       fl_xml := .t.
-      select RAK
-      find (str(mo_xml->kod, 6))
-      do while mo_xml->kod == rak->kod_xml .and. !eof()
-        if iif(lmenu[1] == 4, between(rak->dakt, arr_m[5], arr_m[6]), .t.)
+      Select RAK
+      find ( Str( mo_xml->kod, 6 ) )
+      Do While mo_xml->kod == rak->kod_xml .and. !Eof()
+        If iif( lmenu[ 1 ] == 4, Between( rak->dakt, arr_m[ 5 ], arr_m[ 6 ] ), .t. )
           vid_eks := ret_vid_eks()
           fl_rak := .t.
-          select RAKS
-          find (str(rak->akt, 6))
-          do while rak->akt == raks->akt .and. !eof()
-            schet_->(dbGoto(raks->schet))
+          Select RAKS
+          find ( Str( rak->akt, 6 ) )
+          Do While rak->akt == raks->akt .and. !Eof()
+            schet_->( dbGoto( raks->schet ) )
             fl := .t.
-            if lmenu[1] == 1
-              fl := between_otch_period(schet_->dschet, schet_->NYEAR, schet_->NMONTH, arr_m[5], arr_m[6])
-            elseif lmenu[1] == 2
-              fl := between(schet_->dschet, arr_m[5], arr_m[6])
-            elseif lmenu[1] == 3
-              fl := (schet_->NREGISTR==0 .and. between(date_reg_schet(), arr_m[5], arr_m[6]))
-            endif
-            if fl
+            If lmenu[ 1 ] == 1
+              fl := between_otch_period( schet_->dschet, schet_->NYEAR, schet_->NMONTH, arr_m[ 5 ], arr_m[ 6 ] )
+            Elseif lmenu[ 1 ] == 2
+              fl := Between( schet_->dschet, arr_m[ 5 ], arr_m[ 6 ] )
+            Elseif lmenu[ 1 ] == 3
+              fl := ( schet_->NREGISTR == 0 .and. Between( date_reg_schet(), arr_m[ 5 ], arr_m[ 6 ] ) )
+            Endif
+            If fl
               fl_raks := .t.
-              select RAKSH
-              find (str(raks->kod_raks, 6))
-              do while raks->kod_raks == raksh->kod_raks .and. !eof()
-                human->(dbGoto(raksh->KOD_H))
+              Select RAKSH
+              find ( Str( raks->kod_raks, 6 ) )
+              Do While raks->kod_raks == raksh->kod_raks .and. !Eof()
+                human->( dbGoto( raksh->KOD_H ) )
                 s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
                 ssh := raksh->penalty
                 s1 := ""
-                if vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
+                If vid_eks == 2 .or. !Empty( raksh->SANK_EKMP )
                   s1 += "/ЭКМП"
-                elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
+                Elseif vid_eks == 1 .or. !Empty( raksh->SANK_MEE )
                   s1 += "/МЭЭ"
-                else
+                Else
                   s1 += "/МЭК"
-                endif
-                if !empty(raksh->penalty)
+                Endif
+                If !Empty( raksh->penalty )
                   s1 += "/ штраф"
-                endif
-                if (fl := (raksh->REFREASON > 0 .and. !emptyall(s, ssh))) //round(human->cena_1, 2)==round(s+raksh->SUMP, 2)
-                  if ireg == 2 // частичное
-                    fl := (raksh->oplata == 3)
-                  elseif ireg == 3 // все случаи
-                    fl := eq_any(raksh->oplata, 2, 3)
-                  else
-                    if (fl := (raksh->oplata == 2))
-                      if ireg == 4 // перевыставленные
-                        fl := (raksh->NEXT_KOD > 0)
-                      elseif ireg == 5 // не перевыставленные
-                        fl := (raksh->NEXT_KOD == 0)
-                      endif
-                    endif
-                  endif
-                endif
-                if fl
-                  fl := (ascan(a_otd, human->otd) > 0)
-                endif
-                if fl
-                  procent := round(s / human->cena_1 * 100, 0)
-                  verify_FF(HH - 3, .t., sh)
-                  select FRD
-                  append blank
-                  frd->nrak := alltrim(mo_xml->FNAME)
-                  frd->drak := date_8(mo_xml->DFILE)
-                  if fl_xml
-                    add_string("РАК: " + alltrim(mo_xml->FNAME) + " от " + date_8(mo_xml->DFILE))
+                Endif
+                If ( fl := ( raksh->REFREASON > 0 .and. !emptyall( s, ssh ) ) ) // round(human->cena_1, 2)==round(s+raksh->SUMP, 2)
+                  If ireg == 2 // частичное
+                    fl := ( raksh->oplata == 3 )
+                  Elseif ireg == 3 // все случаи
+                    fl := eq_any( raksh->oplata, 2, 3 )
+                  Else
+                    If ( fl := ( raksh->oplata == 2 ) )
+                      If ireg == 4 // перевыставленные
+                        fl := ( raksh->NEXT_KOD > 0 )
+                      Elseif ireg == 5 // не перевыставленные
+                        fl := ( raksh->NEXT_KOD == 0 )
+                      Endif
+                    Endif
+                  Endif
+                Endif
+                If fl
+                  fl := ( AScan( a_otd, human->otd ) > 0 )
+                Endif
+                If fl
+                  procent := Round( s / human->cena_1 * 100, 0 )
+                  verify_ff( HH -3, .t., sh )
+                  Select FRD
+                  Append Blank
+                  frd->nrak := AllTrim( mo_xml->FNAME )
+                  frd->drak := date_8( mo_xml->DFILE )
+                  If fl_xml
+                    add_string( "РАК: " + AllTrim( mo_xml->FNAME ) + " от " + date_8( mo_xml->DFILE ) )
                     fl_xml := .f.
-                  endif
-                  frd->nakt := alltrim(rak->nakt)
-                  frd->dakt := date_8(rak->dakt)
-                  if fl_rak
-                    add_string(space(2) + "акт: " + alltrim(rak->nakt) + " от " + date_8(rak->dakt))
+                  Endif
+                  frd->nakt := AllTrim( rak->nakt )
+                  frd->dakt := date_8( rak->dakt )
+                  If fl_rak
+                    add_string( Space( 2 ) + "акт: " + AllTrim( rak->nakt ) + " от " + date_8( rak->dakt ) )
                     fl_rak := .f.
-                  endif
-                  frd->nschet := alltrim(schet_->nschet)
-                  frd->dschet := date_8(schet_->dschet)
-                  if schet_->NREGISTR == 0
-                    frd->dregschet := date_8(date_reg_schet())
-                  endif
-                  if fl_raks
-                    add_string(space(4) + "счёт: " + alltrim(schet_->nschet) + " от " + date_8(schet_->dschet))
+                  Endif
+                  frd->nschet := AllTrim( schet_->nschet )
+                  frd->dschet := date_8( schet_->dschet )
+                  If schet_->NREGISTR == 0
+                    frd->dregschet := date_8( date_reg_schet() )
+                  Endif
+                  If fl_raks
+                    add_string( Space( 4 ) + "счёт: " + AllTrim( schet_->nschet ) + " от " + date_8( schet_->dschet ) )
                     fl_raks := .f.
-                  endif
-                  verify_FF(HH - 3, .t., sh)
-                  add_string(space(6) + lstr(++j) + ". " + alltrim(human->fio) + ", " + ;
-                            full_date(human->date_r) + ;
-                            iif(empty(otd->SHORT_NAME), "", " [" + alltrim(otd->SHORT_NAME) + "]") + ;
-                            " " + date_8(human->n_data) + "-" + date_8(human->k_data))
-                  add_string(space(8) + "! полный отказ - " + lstr(human->cena_1, 11, 2) + "р.")
-                  if raksh->oplata == 2
-                    frt->nitog1 ++
+                  Endif
+                  verify_ff( HH -3, .t., sh )
+                  add_string( Space( 6 ) + lstr( ++j ) + ". " + AllTrim( human->fio ) + ", " + ;
+                    full_date( human->date_r ) + ;
+                    iif( Empty( otd->SHORT_NAME ), "", " [" + AllTrim( otd->SHORT_NAME ) + "]" ) + ;
+                    " " + date_8( human->n_data ) + "-" + date_8( human->k_data ) )
+                  add_string( Space( 8 ) + "! полный отказ - " + lstr( human->cena_1, 11, 2 ) + "р." )
+                  If raksh->oplata == 2
+                    frt->nitog1++
                     frt->summa1 += s
-                  else
-                    frt->nitog2 ++
+                  Else
+                    frt->nitog2++
                     frt->summa2 += s
-                  endif
-                  if !empty(ssh)
-                    frt->nitog3 ++
+                  Endif
+                  If !Empty( ssh )
+                    frt->nitog3++
                     frt->summa3 += ssh
-                  endif
+                  Endif
                   frd->fio    := human->fio
-                  frd->date_r := full_date(human->date_r)
-                  pers->(dbGoto(human_->vrach))
-                  frd->otd    := alltrim(otd->SHORT_NAME) + " / " + fam_i_o(pers->fio)
-                  frd->n_data := left(date_8(human->n_data), 5)
-                  frd->k_data := date_8(human->k_data)
+                  frd->date_r := full_date( human->date_r )
+                  pers->( dbGoto( human_->vrach ) )
+                  frd->otd    := AllTrim( otd->SHORT_NAME ) + " / " + fam_i_o( pers->fio )
+                  frd->n_data := Left( date_8( human->n_data ), 5 )
+                  frd->k_data := date_8( human->k_data )
                   frd->cena_1 := human->cena_1
                   frd->sum_snn := s
-                  if !empty(s) .and. empty(ssh)
-                    frd->sum_sn := lstr(s, 15, 2)
-                  elseif empty(s) .and. !empty(ssh)
-                    frd->sum_sn := lstr(ssh, 15, 2) + "шт"
-                  else
-                    frd->sum_sn := lstr(s, 15, 2) + eos + lstr(ssh, 15, 2) + "шт"
-                  endif
-                  if empty(s := ret_t005(raksh->REFREASON))
-                    s := lstr(raksh->REFREASON) + " неизвестная причина отказа"
-                  endif
-                  frd->REFREASON := lstr(raksh->REFREASON) + s1
-                  frd->NUMORDER  :=  HUMAN_2->pn3 
+                  If !Empty( s ) .and. Empty( ssh )
+                    frd->sum_sn := lstr( s, 15, 2 )
+                  Elseif Empty( s ) .and. !Empty( ssh )
+                    frd->sum_sn := lstr( ssh, 15, 2 ) + "шт"
+                  Else
+                    frd->sum_sn := lstr( s, 15, 2 ) + eos + lstr( ssh, 15, 2 ) + "шт"
+                  Endif
+                  If Empty( s := ret_t005( raksh->REFREASON ) )
+                    s := lstr( raksh->REFREASON ) + " неизвестная причина отказа"
+                  Endif
+                  frd->REFREASON := lstr( raksh->REFREASON ) + s1
+                  frd->NUMORDER  :=  HUMAN_2->pn3
                   frd->kod_h     := human->kod
-                  select FRD1
-                  find (str(raksh->REFREASON, 3))
-                  if !found()
-                    append blank
+                  Select FRD1
+                  find ( Str( raksh->REFREASON, 3 ) )
+                  If !Found()
+                    Append Blank
                     frd1->REFREASON := raksh->REFREASON
                     frd1->name := s
-                  endif
-                  frd1->kol ++
-                  k := perenos(t_arr, s, 72)
-                  for i := 1 to k
-                    add_string(space(8) + t_arr[i])
-                  next
-                  if raksh->NEXT_KOD > 0
-                    add_string(space(8) + "! случай уже перевыставлен " + date_8(raksh->DATE_REP))
-                    frd->DATE_REP := date_8(raksh->DATE_REP)
-                  elseif between(procent, 1, 99)
-                    frd->DATE_REP := "- " + lstr(procent) + " %"
-                  endif
-                endif
-                select RAKSH
-                skip
-              enddo
-            endif
-            select RAKS
-            skip
-          enddo
-        endif
-        select RAK
-        skip
-      enddo
-    endif
-    select MO_XML
-    skip
-  enddo
-  fclose(fp)
+                  Endif
+                  frd1->kol++
+                  k := perenos( t_arr, s, 72 )
+                  For i := 1 To k
+                    add_string( Space( 8 ) + t_arr[ i ] )
+                  Next
+                  If raksh->NEXT_KOD > 0
+                    add_string( Space( 8 ) + "! случай уже перевыставлен " + date_8( raksh->DATE_REP ) )
+                    frd->DATE_REP := date_8( raksh->DATE_REP )
+                  Elseif Between( procent, 1, 99 )
+                    frd->DATE_REP := "- " + lstr( procent ) + " %"
+                  Endif
+                Endif
+                Select RAKSH
+                Skip
+              Enddo
+            Endif
+            Select RAKS
+            Skip
+          Enddo
+        Endif
+        Select RAK
+        Skip
+      Enddo
+    Endif
+    Select MO_XML
+    Skip
+  Enddo
+  FClose( fp )
   s := ""
-  if frt->nitog1 > 0
-    s := "Итого пациентов с полным отказом " + lstr(frt->nitog1) + " чел. на сумму " + lstr(frt->summa1, 15, 2) + "р. "
-  endif
-  if frt->nitog2 > 0
-    s += " Итого пациентов с частичным отказом " + lstr(frt->nitog2) + " чел. на сумму " + lstr(frt->summa2, 15, 2) + "р."
-  endif
+  If frt->nitog1 > 0
+    s := "Итого пациентов с полным отказом " + lstr( frt->nitog1 ) + " чел. на сумму " + lstr( frt->summa1, 15, 2 ) + "р. "
+  Endif
+  If frt->nitog2 > 0
+    s += " Итого пациентов с частичным отказом " + lstr( frt->nitog2 ) + " чел. на сумму " + lstr( frt->summa2, 15, 2 ) + "р."
+  Endif
   frt->name2 := s
-  if frt->nitog3 > 0
-    frt->name3 := "Итого штрафов: " + lstr(frt->nitog3) + " на сумму " + lstr(frt->summa3, 15, 2) + "р."
-  endif
-  if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
-    R_Use(dir_server + "uslugi", , "USLUGI")
-    R_Use(dir_server + "human_u", dir_server + "human_u", "human_u")
-    use_base("lusl")
-    select frd
-    go top
-    do while !eof()
-      select HUMAN_U
-      find (str(frd->kod_h, 7))
-      do while frd->kod_h == human_u->kod .and. !eof()
-        select frd2 
-        append blank
-        //{"num_usl", "N", 10, 0}, ;    // номер услуги по порядку
-        select Uslugi
-        goto human_u->u_kod 
-        //frd2->num_usl    := 
-        frd2->shifr_usl  := uslugi->shifr 
-        frd2->name_usl   := uslugi->name 
+  If frt->nitog3 > 0
+    frt->name3 := "Итого штрафов: " + lstr( frt->nitog3 ) + " на сумму " + lstr( frt->summa3, 15, 2 ) + "р."
+  Endif
+  If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
+    r_use( dir_server + "uslugi", , "USLUGI" )
+    r_use( dir_server + "human_u", dir_server + "human_u", "human_u" )
+    use_base( "lusl" )
+    Select frd
+    Go Top
+    Do While !Eof()
+      Select HUMAN_U
+      find ( Str( frd->kod_h, 7 ) )
+      Do While frd->kod_h == human_u->kod .and. !Eof()
+        Select frd2
+        Append Blank
+        // {"num_usl", "N", 10, 0}, ;    // номер услуги по порядку
+        Select Uslugi
+        Goto human_u->u_kod
+        // frd2->num_usl    :=
+        frd2->shifr_usl  := uslugi->shifr
+        frd2->name_usl   := uslugi->name
         frd2->kol_usl := human_u->kol_1
         frd2->cena_1  := human_u->stoim_1
-        musl := transform_shifr(frd2->shifr_usl)
-        select lusl
-        find(musl)
+        musl := transform_shifr( frd2->shifr_usl )
+        Select lusl
+        find( musl )
         frd2->name_usl := lusl->name
-        if frd->cena_1 == frd->sum_snn // снято полностью 
+        If frd->cena_1 == frd->sum_snn
+          // снято полностью
           frd2->sum_sn := human_u->stoim_1
-        endi
+        Endif
         frd2->REFREASON := frd->REFREASON
         frd2->DATE_REP  := frd->DATE_REP
-        frd2->NUMORDER  := frd->NUMORDER 
-        frd2->fio       := frd->fio  
-        frd2->date_r    := frd->date_r 
+        frd2->NUMORDER  := frd->NUMORDER
+        frd2->fio       := frd->fio
+        frd2->date_r    := frd->date_r
         frd2->otd       := frd->otd
-        select human_u
-        skip  
-      enddo
-      select frd
-      skip
-    enddo
+        Select human_u
+        Skip
+      Enddo
+      Select frd
+      Skip
+    Enddo
     // упорядычеваем
-    select frd2
-    index on refreason + shifr_usl + str(numorder, 10) to tmp_frd9
-    go top
+    Select frd2
+    Index On refreason + shifr_usl + Str( numorder, 10 ) To tmp_frd9
+    Go Top
     temp_1 := " "
     temp_2 := 1
     temp_3 := 0 // кол_во
     temp_4 := 0 // сумма
-    do while !eof()
-      select FRD3 
-      append blank
-      if frd2->shifr_usl != temp_1
-        if temp_3 != 0
+    Do While !Eof()
+      Select FRD3
+      Append Blank
+      If frd2->shifr_usl != temp_1
+        If temp_3 != 0
           frd3->fio        := " ВСЕГО :"
-          frd3->kol_usl    := temp_3 
+          frd3->kol_usl    := temp_3
           frd3->cena_1     := temp_4
-          frd3->sum_sn     := temp_4 
-          append blank
-        endif  
-        frd3->num_usl    := str(temp_2)
+          frd3->sum_sn     := temp_4
+          Append Blank
+        Endif
+        frd3->num_usl    := Str( temp_2 )
         frd3->shifr_usl  := frd2->shifr_usl
         frd3->name_usl   := frd2->name_usl
         frd3->REFREASON  := frd2->REFREASON
         temp_1 := frd2->shifr_usl
-        temp_2 ++
+        temp_2++
         temp_3 := frd2->kol_usl
         temp_4 := frd2->sum_sn
-      else
+      Else
         frd3->shifr_usl  := " "
         frd3->name_usl   := " "
         temp_3 += frd2->kol_usl
         temp_4 += frd2->sum_sn
-      endif  
+      Endif
       frd3->kol_usl    := frd2->kol_usl
       frd3->cena_1     := frd2->cena_1
-      frd3->sum_sn     := frd2->sum_sn 
-      frd3->DATE_REP   := frd2->DATE_REP 
-      frd3->NUMORDER   := frd2->NUMORDER 
+      frd3->sum_sn     := frd2->sum_sn
+      frd3->DATE_REP   := frd2->DATE_REP
+      frd3->NUMORDER   := frd2->NUMORDER
       frd3->fio        := frd2->fio
       frd3->date_r     := frd2->date_r
-      frd3->otd        := frd2->otd   
-      select frd2
-      skip
-    enddo
-    select FRD3 
-    append blank
+      frd3->otd        := frd2->otd
+      Select frd2
+      Skip
+    Enddo
+    Select FRD3
+    Append Blank
     frd3->fio        := " ВСЕГО :"
-    frd3->kol_usl    := temp_3 
+    frd3->kol_usl    := temp_3
     frd3->cena_1     := temp_4
-    frd3->sum_sn     := temp_4 
-  endif
-  close databases
+    frd3->sum_sn     := temp_4
+  Endif
+  Close databases
 
-  rest_box(buf)
+  rest_box( buf )
   name_fr := "mo_spis_sn" + sfr3
-  if _upr_epson() .or. !file(dir_exe+name_fr)
-    viewtext(n_file, , , , .f., , , 2)
-  else
-    call_fr(name_fr)
-  endif
+  If _upr_epson() .or. !File( dir_exe + name_fr )
+    viewtext( n_file, , , , .f., , , 2 )
+  Else
+    call_fr( name_fr )
+  Endif
 
-  if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
-    create_xls_rdl('rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
-    SaveTo(cur_dir + 'rdl_report.xlsx')
-  endif
+  If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
+    create_xls_rdl( 'rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd )
+    saveto( cur_dir + 'rdl_report.xlsx' )
+  Endif
 
-  return NIL
+  Return Nil
 
 // 13.02.19 Список РАК
-Function pr_list_RAK()
-  Static arr_smo
-  Local buf := save_maxrow(), arr_m, n_file := cur_dir + "list_RAK" + stxt, ta[2], i, s, asmo, ;
-        krak := 0, kakt, ksch, kpac, kerr, kpen, sh, HH := 60
+Function pr_list_rak()
 
-  if arr_smo == NIL
-    arr_smo := mo_cut_menu(glob_arr_smo)
-  endif
-  if (arr_m := year_month(T_ROW, T_COL - 5)) == NIL
-    return NIL
-  endif
-  if (asmo := bit_popup(T_ROW, T_COL - 5, arr_smo, ,color0)) == NIL
-    return NIL
-  endif
+  Static arr_smo
+  Local buf := save_maxrow(), arr_m, n_file := cur_dir + "list_RAK" + stxt, ta[ 2 ], i, s, asmo, ;
+    krak := 0, kakt, ksch, kpac, kerr, kpen, sh, HH := 60
+
+  If arr_smo == NIL
+    arr_smo := mo_cut_menu( glob_arr_smo )
+  Endif
+  If ( arr_m := year_month( T_ROW, T_COL -5 ) ) == NIL
+    Return Nil
+  Endif
+  If ( asmo := bit_popup( T_ROW, T_COL -5, arr_smo, , color0 ) ) == NIL
+    Return Nil
+  Endif
   s := ""
-  for i := 1 to len(asmo)
-    s += asmo[i, 1]+", "
-  next
+  For i := 1 To Len( asmo )
+    s += asmo[ i, 1 ] + ", "
+  Next
   arr_title := { ;
     "──────────┬─────┬─────────────────────────┬─────┬──────┬──────┬──────┬──────┬──────", ;
     "   Дата   │Отчёт│                         │     │кол-во│кол-во│кол-во│кол-во│кол-во", ;
     "   РАК    │перио│      Акт контроля       │ СМО │актов │счетов│пациен│снятий│штрафов", ;
-    "──────────┴─────┴─────────────────────────┴─────┴──────┴──────┴──────┴──────┴──────"}
-  sh := len(arr_title[1])
-  k := perenos(ta, left(s, len(s) - 2), sh)
+    "──────────┴─────┴─────────────────────────┴─────┴──────┴──────┴──────┴──────┴──────" }
+  sh := Len( arr_title[ 1 ] )
+  k := perenos( ta, Left( s, Len( s ) -2 ), sh )
   //
-  fp := fcreate(n_file)
+  fp := FCreate( n_file )
   n_list := 1
   tek_stroke := 0
-  add_string(glob_mo[_MO_SHORT_NAME])
-  add_string("")
-  add_string(center("Список реестров актов контроля", sh))
-  add_string(center(arr_m[4], sh))
-  for i := 1 to k
-    add_string(center(alltrim(ta[i]), sh))
-  next
-  add_string("")
-  aeval(arr_title, {|x| add_string(x) } )
+  add_string( glob_mo[ _MO_SHORT_NAME ] )
+  add_string( "" )
+  add_string( Center( "Список реестров актов контроля", sh ) )
+  add_string( Center( arr_m[ 4 ], sh ) )
+  For i := 1 To k
+    add_string( Center( AllTrim( ta[ i ] ), sh ) )
+  Next
+  add_string( "" )
+  AEval( arr_title, {| x| add_string( x ) } )
   //
-  R_Use(dir_server + "mo_raksh", , "RAKSH")
-  index on str(kod_raks, 6) to tmp_raksh for !empty(PENALTY) memory // только пациенты со штрафом
-  R_Use(dir_server + "schet_", , "SCHET_")
-  R_Use(dir_server + "mo_raks", , "RAKS")
-  index on str(akt, 6) to tmpraks memory
-  R_Use(dir_server + "mo_rak", , "RAK")
-  index on str(kod_xml, 6) to tmprak memory
-  R_Use(dir_server + "mo_xml", , "MO_XML")
-  index on dfile to tmp_xml for TIP_IN == _XML_FILE_RAK memory
-  go top
-  do while !eof()
-    if between(mo_xml->DFILE, arr_m[5], arr_m[6])
-      otch_period := space(6)
-      lsmo := space(5)
+  r_use( dir_server + "mo_raksh", , "RAKSH" )
+  Index On Str( kod_raks, 6 ) To tmp_raksh For !Empty( PENALTY ) memory // только пациенты со штрафом
+  r_use( dir_server + "schet_", , "SCHET_" )
+  r_use( dir_server + "mo_raks", , "RAKS" )
+  Index On Str( akt, 6 ) To tmpraks memory
+  r_use( dir_server + "mo_rak", , "RAK" )
+  Index On Str( kod_xml, 6 ) To tmprak memory
+  r_use( dir_server + "mo_xml", , "MO_XML" )
+  Index On dfile To tmp_xml For TIP_IN == _XML_FILE_RAK memory
+  Go Top
+  Do While !Eof()
+    If Between( mo_xml->DFILE, arr_m[ 5 ], arr_m[ 6 ] )
+      otch_period := Space( 6 )
+      lsmo := Space( 5 )
       kakt := ksch := kpac := kerr := kpen := 0
-      select RAK
-      find (str(mo_xml->kod, 6))
-      do while mo_xml->kod == rak->kod_xml .and. !eof()
-        select RAKS
-        find (str(rak->akt, 6))
-        do while rak->akt == raks->akt .and. !eof()
-          if ascan(asmo, {|x| x[2] == int(val(raks->plat)) }) > 0
+      Select RAK
+      find ( Str( mo_xml->kod, 6 ) )
+      Do While mo_xml->kod == rak->kod_xml .and. !Eof()
+        Select RAKS
+        find ( Str( rak->akt, 6 ) )
+        Do While rak->akt == raks->akt .and. !Eof()
+          If AScan( asmo, {| x| x[ 2 ] == Int( Val( raks->plat ) ) } ) > 0
             lsmo := raks->plat
-            schet_->(dbGoto(raks->schet))
-            s := right(str(schet_->NYEAR, 4), 2) + "/" + strzero(schet_->NMONTH, 2) + " "
-            if empty(otch_period)
+            schet_->( dbGoto( raks->schet ) )
+            s := Right( Str( schet_->NYEAR, 4 ), 2 ) + "/" + StrZero( schet_->NMONTH, 2 ) + " "
+            If Empty( otch_period )
               otch_period := s
-            elseif !(otch_period == s) .and. !(right(otch_period, 1) == " +")
-              otch_period := left(otch_period, 5) + " +"
-            endif
-            select RAKSH
-            find (str(raks->kod_raks, 6))
-            do while raks->kod_raks == raksh->kod_raks .and. !eof()
-              kpen ++
-              skip
-            enddo
-          endif
-          select RAKS
-          skip
-        enddo
+            Elseif !( otch_period == s ) .and. !( Right( otch_period, 1 ) == " +" )
+              otch_period := Left( otch_period, 5 ) + " +"
+            Endif
+            Select RAKSH
+            find ( Str( raks->kod_raks, 6 ) )
+            Do While raks->kod_raks == raksh->kod_raks .and. !Eof()
+              kpen++
+              Skip
+            Enddo
+          Endif
+          Select RAKS
+          Skip
+        Enddo
         kakt++
         ksch += rak->KOL_SCH
         kpac += rak->KOL_PAC
         kerr += rak->KOL_ERR
-        select RAK
-        skip
-      enddo
-      if !empty(otch_period)
-        if verify_FF(HH, .t., sh)
-          aeval(arr_title, {|x| add_string(x) } )
-        endif
+        Select RAK
+        Skip
+      Enddo
+      If !Empty( otch_period )
+        If verify_ff( HH, .t., sh )
+          AEval( arr_title, {| x| add_string( x ) } )
+        Endif
         krak++
-        add_string(full_date(mo_xml->DFILE) + " " + otch_period + padr(mo_xml->FNAME, 26) + lsmo + ;
-                 put_val(kakt, 7) + put_val(ksch, 7) + put_val(kpac, 7) + put_val(kerr, 7) + put_val(kpen, 7))
-      endif
-    endif
-    select MO_XML
-    skip
-  enddo
-  add_string(replicate("─", sh))
-  add_string("  Итого количество РАК (реестров актов контроля) - " + lstr(krak))
-  fclose(fp)
-  close databases
-  rest_box(buf)
-  viewtext(n_file, , , , .t., , , 2)
-  return NIL
+        add_string( full_date( mo_xml->DFILE ) + " " + otch_period + PadR( mo_xml->FNAME, 26 ) + lsmo + ;
+          put_val( kakt, 7 ) + put_val( ksch, 7 ) + put_val( kpac, 7 ) + put_val( kerr, 7 ) + put_val( kpen, 7 ) )
+      Endif
+    Endif
+    Select MO_XML
+    Skip
+  Enddo
+  add_string( Replicate( "─", sh ) )
+  add_string( "  Итого количество РАК (реестров актов контроля) - " + lstr( krak ) )
+  FClose( fp )
+  Close databases
+  rest_box( buf )
+  viewtext( n_file, , , , .t., , , 2 )
+
+  Return Nil
 
 // 29.11.15 Список счетов без РАК
-Function pr_schet_bez_RAK()
+Function pr_schet_bez_rak()
+
   Local buf := save_maxrow(), arr_m, n_file := cur_dir + "s_bezRAK" + stxt, sh, HH := 60
 
-  if (arr_m := year_month(T_ROW, T_COL - 5, , 4)) == NIL
-    return NIL
-  endif
+  If ( arr_m := year_month( T_ROW, T_COL -5, , 4 ) ) == NIL
+    Return Nil
+  Endif
   arr_title := { ;
     "───────────────┬────────┬─────╥─────┬────────────╥────────╥─────────────────", ;
     "               │  Дата  │Отчёт║ Кол.│            ║Дата ре-║                 ", ;
     "  Номер счета  │  счета │перио║больн│ Сумма счёта║гистр-ии║  Акт контроля   ", ;
-    "───────────────┴────────┴─────╨─────┴────────────╨────────╨─────────────────"}
-  sh := len(arr_title[1])
+    "───────────────┴────────┴─────╨─────┴────────────╨────────╨─────────────────" }
+  sh := Len( arr_title[ 1 ] )
   //
-  fp := fcreate(n_file)
+  fp := FCreate( n_file )
   n_list := 1
   tek_stroke := 0
-  add_string("")
-  add_string(center("Список счетов, по которым нет актов контроля", sh))
-  add_string(center(arr_m[4], sh))
-  add_string(center("[ по дате отчётного периода ]", sh))
-  add_string("")
-  aeval(arr_title, {|x| add_string(x) } )
-  R_Use(dir_server + "mo_raks", , "RAKS")
-  index on str(schet, 6) to (cur_dir + "tmpraks")
-  R_Use(dir_server + "schet_", , "SCHET_")
-  R_Use(dir_server + "schet", , "SCHET")
-  set relation to recno() into SCHET_
-  index on str(schet_->nyear, 4) + str(schet_->nmonth, 2) to (cur_dir + "tmp_schet") ;
-        for empty(schet_->IS_DOPLATA)
-  dbseek(str(arr_m[1], 4) + str(arr_m[2], 2), .t.)
-  do while schet_->nyear == arr_m[1] .and. schet_->nmonth <= arr_m[3] .and. !eof()
-    select RAKS
-    find (str(schet->(recno()), 6))
-    if !found()
-      s := schet_->nschet + " " + date_8(schet_->dschet) + " " + ;
-                 put_otch_period() + ;
-                 put_val(schet->kol, 6) + put_kop(schet->summa, 13) + " "
-      if schet_->NREGISTR == 1 // ещё не зарегистрирован
+  add_string( "" )
+  add_string( Center( "Список счетов, по которым нет актов контроля", sh ) )
+  add_string( Center( arr_m[ 4 ], sh ) )
+  add_string( Center( "[ по дате отчётного периода ]", sh ) )
+  add_string( "" )
+  AEval( arr_title, {| x| add_string( x ) } )
+  r_use( dir_server + "mo_raks", , "RAKS" )
+  Index On Str( schet, 6 ) to ( cur_dir + "tmpraks" )
+  r_use( dir_server + "schet_", , "SCHET_" )
+  r_use( dir_server + "schet", , "SCHET" )
+  Set Relation To RecNo() into SCHET_
+  Index On Str( schet_->nyear, 4 ) + Str( schet_->nmonth, 2 ) to ( cur_dir + "tmp_schet" ) ;
+    For Empty( schet_->IS_DOPLATA )
+  dbSeek( Str( arr_m[ 1 ], 4 ) + Str( arr_m[ 2 ], 2 ), .t. )
+  Do While schet_->nyear == arr_m[ 1 ] .and. schet_->nmonth <= arr_m[ 3 ] .and. !Eof()
+    Select RAKS
+    find ( Str( schet->( RecNo() ), 6 ) )
+    If !Found()
+      s := schet_->nschet + " " + date_8( schet_->dschet ) + " " + ;
+        put_otch_period() + ;
+        put_val( schet->kol, 6 ) + put_kop( schet->summa, 13 ) + " "
+      If schet_->NREGISTR == 1 // ещё не зарегистрирован
         s += "ещё нет "
-      elseif schet_->NREGISTR == 2 // не будет зарегистрирован
+      Elseif schet_->NREGISTR == 2 // не будет зарегистрирован
         s += "не будет"
-      elseif schet_->NREGISTR == 3 // удалён
+      Elseif schet_->NREGISTR == 3 // удалён
         s += "удалён  "
-      else
-        s += date_8(schet_->DREGISTR)
-      endif
+      Else
+        s += date_8( schet_->DREGISTR )
+      Endif
       s += "     нет акта"
-      if verify_FF(HH, .t., sh)
-        aeval(arr_title, {|x| add_string(x) } )
-      endif
-      add_string(s)
-    endif
-    select SCHET
-    skip
-  enddo
-  fclose(fp)
-  close databases
-  rest_box(buf)
-  viewtext(n_file, , , , .f., , , 2)
-  return NIL
+      If verify_ff( HH, .t., sh )
+        AEval( arr_title, {| x| add_string( x ) } )
+      Endif
+      add_string( s )
+    Endif
+    Select SCHET
+    Skip
+  Enddo
+  FClose( fp )
+  Close databases
+  rest_box( buf )
+  viewtext( n_file, , , , .f., , , 2 )
+
+  Return Nil
 
 // 25.06.23 суммы снятий по актам
-Function akt_summa_of_refusal(tip)
+Function akt_summa_of_refusal( tip )
+
   // 1 - по дате АКТА в РАК
   // 2  - по дате РАК
-  Local buf := save_maxrow(), arr_m, n_file := cur_dir + 'sum_RAK' + stxt, sh, HH := 40, arr_smo := aclone(glob_arr_smo)
+  Local buf := save_maxrow(), arr_m, n_file := cur_dir + 'sum_RAK' + stxt, sh, HH := 40, arr_smo := AClone( glob_arr_smo )
 
-  if (arr_m := year_month(T_ROW, T_COL - 5)) == NIL
-    return NIL
-  endif
+  If ( arr_m := year_month( T_ROW, T_COL -5 ) ) == NIL
+    Return Nil
+  Endif
   mywait()
-  adbf := {{'REFREASON', 'N', 3, 0}, ;
-           {'srefr', 'C', 12, 0}, ;
-           {'smo', 'C', 5, 0}, ;
-           {'kol', 'N', 6, 0}, ;
-           {'summa', 'N', 15, 2}, ;
-           {'kol1', 'N', 6, 0}, ;
-           {'summa1', 'N', 15, 2}, ;
-           {'kol2', 'N', 6, 0}, ;
-           {'summa2', 'N', 15, 2}, ;
-           {'kol4', 'N', 6, 0}, ;
-           {'summa4', 'N', 15, 2}, ;
-           {'kol3', 'N', 6, 0}, ;
-           {'summa3', 'N', 15, 2}}
-  dbcreate(cur_dir + 'tmp', adbf)
-  use (cur_dir + 'tmp') new
-  index on smo + str(REFREASON, 3) to (cur_dir + 'tmp')
-  R_Use(dir_server + 'mo_raksh', , 'RAKSH')
-  index on str(kod_raks, 6) to (cur_dir + 'tmpraksh')
-  R_Use(dir_server + 'mo_raks', , 'RAKS')
-  index on str(akt, 6) to (cur_dir + 'tmpraks')
-  R_Use(dir_server + 'mo_rak', , 'RAK')
-  if TIP == 1 // дата АКТА
-    index on dtos(dakt) to (cur_dir + 'tmprak') for between(dakt, arr_m[5], arr_m[6])
-    go top
-    do while !eof()
-      @ maxrow(), 0 say padr(date_8(rak->dakt), 80) color 'W/R'
+  adbf := { { 'REFREASON', 'N', 3, 0 }, ;
+    { 'srefr', 'C', 12, 0 }, ;
+    { 'smo', 'C', 5, 0 }, ;
+    { 'kol', 'N', 6, 0 }, ;
+    { 'summa', 'N', 15, 2 }, ;
+    { 'kol1', 'N', 6, 0 }, ;
+    { 'summa1', 'N', 15, 2 }, ;
+    { 'kol2', 'N', 6, 0 }, ;
+    { 'summa2', 'N', 15, 2 }, ;
+    { 'kol4', 'N', 6, 0 }, ;
+    { 'summa4', 'N', 15, 2 }, ;
+    { 'kol3', 'N', 6, 0 }, ;
+    { 'summa3', 'N', 15, 2 } }
+  dbCreate( cur_dir + 'tmp', adbf )
+  Use ( cur_dir + 'tmp' ) new
+  Index On smo + Str( REFREASON, 3 ) to ( cur_dir + 'tmp' )
+  r_use( dir_server + 'mo_raksh', , 'RAKSH' )
+  Index On Str( kod_raks, 6 ) to ( cur_dir + 'tmpraksh' )
+  r_use( dir_server + 'mo_raks', , 'RAKS' )
+  Index On Str( akt, 6 ) to ( cur_dir + 'tmpraks' )
+  r_use( dir_server + 'mo_rak', , 'RAK' )
+  If TIP == 1 // дата АКТА
+    Index On DToS( dakt ) to ( cur_dir + 'tmprak' ) For Between( dakt, arr_m[ 5 ], arr_m[ 6 ] )
+    Go Top
+    Do While !Eof()
+      @ MaxRow(), 0 Say PadR( date_8( rak->dakt ), 80 ) Color 'W/R'
       vid_eks := ret_vid_eks()
-      select RAKS
-      find (str(rak->akt, 6))
-      do while rak->akt == raks->akt .and. !eof()
-        select RAKSH
-        find (str(raks->kod_raks, 6))
-        do while raks->kod_raks == raksh->kod_raks .and. !eof()
+      Select RAKS
+      find ( Str( rak->akt, 6 ) )
+      Do While rak->akt == raks->akt .and. !Eof()
+        Select RAKSH
+        find ( Str( raks->kod_raks, 6 ) )
+        Do While raks->kod_raks == raksh->kod_raks .and. !Eof()
           s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
-          if raksh->REFREASON > 0 .and. !emptyall(s, raksh->penalty)
-            select TMP
-            for i := 1 to 2
-              lsmo := {space(5), raks->plat}[i]
-              for k := 1 to 2
-                lrefr := {0, raksh->REFREASON}[k]
-                find (lsmo+str(lrefr, 3))
-                if !found()
-                  append blank
+          If raksh->REFREASON > 0 .and. !emptyall( s, raksh->penalty )
+            Select TMP
+            For i := 1 To 2
+              lsmo := { Space( 5 ), raks->plat }[ i ]
+              For k := 1 To 2
+                lrefr := { 0, raksh->REFREASON }[ k ]
+                find ( lsmo + Str( lrefr, 3 ) )
+                If !Found()
+                  Append Blank
                   tmp->REFREASON := lrefr
                   tmp->smo := lsmo
-                endif
-                if !empty(s)
-                  tmp->kol ++
+                Endif
+                If !Empty( s )
+                  tmp->kol++
                   tmp->summa += s
-                endif
-                if vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
-                  tmp->kol3 ++
+                Endif
+                If vid_eks == 2 .or. !Empty( raksh->SANK_EKMP )
+                  tmp->kol3++
                   tmp->summa3 += s
-                elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
-                  tmp->kol2 ++
+                Elseif vid_eks == 1 .or. !Empty( raksh->SANK_MEE )
+                  tmp->kol2++
                   tmp->summa2 += s
-                else
-                  tmp->kol1 ++
+                Else
+                  tmp->kol1++
                   tmp->summa1 += s
-                endif
-                if !empty(raksh->penalty)
-                  tmp->kol4 ++
+                Endif
+                If !Empty( raksh->penalty )
+                  tmp->kol4++
                   tmp->summa4 += raksh->penalty
-                endif
-              next k
-            next i
-          endif
-          select RAKSH
-          skip
-        enddo
-        select RAKS
-        skip
-      enddo
-      select RAK
-      skip
-    enddo
-  else
-    R_Use(dir_server + 'mo_XML', , 'MO_XML')
-    select RAK
-    set relation to kod_xml into MO_XML
-    index on dtos(dakt) to (cur_dir + 'tmprak') for between(mo_xml->dfile, arr_m[5], arr_m[6])
-    go top
-    do while !eof()
-      @ maxrow(), 0 say padr(date_8(rak->dakt), 80) color 'W/R'
+                Endif
+              Next k
+            Next i
+          Endif
+          Select RAKSH
+          Skip
+        Enddo
+        Select RAKS
+        Skip
+      Enddo
+      Select RAK
+      Skip
+    Enddo
+  Else
+    r_use( dir_server + 'mo_XML', , 'MO_XML' )
+    Select RAK
+    Set Relation To kod_xml into MO_XML
+    Index On DToS( dakt ) to ( cur_dir + 'tmprak' ) For Between( mo_xml->dfile, arr_m[ 5 ], arr_m[ 6 ] )
+    Go Top
+    Do While !Eof()
+      @ MaxRow(), 0 Say PadR( date_8( rak->dakt ), 80 ) Color 'W/R'
       vid_eks := ret_vid_eks()
-      select RAKS
-      find (str(rak->akt, 6))
-      do while rak->akt == raks->akt .and. !eof()
-        select RAKSH
-        find (str(raks->kod_raks, 6))
-        do while raks->kod_raks == raksh->kod_raks .and. !eof()
+      Select RAKS
+      find ( Str( rak->akt, 6 ) )
+      Do While rak->akt == raks->akt .and. !Eof()
+        Select RAKSH
+        find ( Str( raks->kod_raks, 6 ) )
+        Do While raks->kod_raks == raksh->kod_raks .and. !Eof()
           s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
-          if raksh->REFREASON > 0 .and. !emptyall(s, raksh->penalty)
-            select TMP
-            for i := 1 to 2
-              lsmo := {space(5), raks->plat}[i]
-              for k := 1 to 2
-                lrefr := {0, raksh->REFREASON}[k]
-                find (lsmo+str(lrefr, 3))
-                if !found()
-                  append blank
+          If raksh->REFREASON > 0 .and. !emptyall( s, raksh->penalty )
+            Select TMP
+            For i := 1 To 2
+              lsmo := { Space( 5 ), raks->plat }[ i ]
+              For k := 1 To 2
+                lrefr := { 0, raksh->REFREASON }[ k ]
+                find ( lsmo + Str( lrefr, 3 ) )
+                If !Found()
+                  Append Blank
                   tmp->REFREASON := lrefr
                   tmp->smo := lsmo
-                endif
-                if !empty(s)
-                  tmp->kol ++
+                Endif
+                If !Empty( s )
+                  tmp->kol++
                   tmp->summa += s
-                endif
-                if vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
-                  tmp->kol3 ++
+                Endif
+                If vid_eks == 2 .or. !Empty( raksh->SANK_EKMP )
+                  tmp->kol3++
                   tmp->summa3 += s
-                elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
-                  tmp->kol2 ++
+                Elseif vid_eks == 1 .or. !Empty( raksh->SANK_MEE )
+                  tmp->kol2++
                   tmp->summa2 += s
-                else
-                  tmp->kol1 ++
+                Else
+                  tmp->kol1++
                   tmp->summa1 += s
-                endif
-                if !empty(raksh->penalty)
-                  tmp->kol4 ++
+                Endif
+                If !Empty( raksh->penalty )
+                  tmp->kol4++
                   tmp->summa4 += raksh->penalty
-                endif
-              next k
-            next i
-          endif
-          select RAKSH
-          skip
-        enddo
-        select RAKS
-        skip
-      enddo
-      select RAK
-      skip
-    enddo
-  endif  
+                Endif
+              Next k
+            Next i
+          Endif
+          Select RAKSH
+          Skip
+        Enddo
+        Select RAKS
+        Skip
+      Enddo
+      Select RAK
+      Skip
+    Enddo
+  Endif
   arr_title := { ;
     '______________________________________________________________________________________________', ;
     'код       |кол-во|сумма отказа |______________________в_том_числе_____________________________', ;
     'нарушения |нару- |в оплате руб.|________МЭК_________|________МЭЭ_________|________ЭКМП________', ;
     '          |шений |             |кол-во| сумма снятий|кол-во| сумма снятий|кол-во| сумма снятий', ;
-    '__________|______|_____________|наруш_|_____________|наруш_|_____________|наруш_|_____________'}
-  sh := len(arr_title[1])
+    '__________|______|_____________|наруш_|_____________|наруш_|_____________|наруш_|_____________' }
+  sh := Len( arr_title[ 1 ] )
   //
-  fp := fcreate(n_file)
+  fp := FCreate( n_file )
   n_list := 1
   tek_stroke := 0
-  add_string(glob_mo[_MO_SHORT_NAME])
-  add_string('')
-  add_string(center('Структура нарушений по результатам контроля объемов, сроков, качества и условий', sh))
-  add_string(center('предоставления медицинской помощи по обязательному медицинскому страхованию', sh))
-  if TIP == 1
-    add_string(center('даты актов контроля - ' + arr_m[4], sh))
-  else
-    add_string(center('даты РЕЕСТРОВ АКТОВ КОНТРОЛЯ - ' + arr_m[4], sh))
-  endif  
-  aeval(arr_title, {|x| add_string(x) } )
+  add_string( glob_mo[ _MO_SHORT_NAME ] )
+  add_string( '' )
+  add_string( Center( 'Структура нарушений по результатам контроля объемов, сроков, качества и условий', sh ) )
+  add_string( Center( 'предоставления медицинской помощи по обязательному медицинскому страхованию', sh ) )
+  If TIP == 1
+    add_string( Center( 'даты актов контроля - ' + arr_m[ 4 ], sh ) )
+  Else
+    add_string( Center( 'даты РЕЕСТРОВ АКТОВ КОНТРОЛЯ - ' + arr_m[ 4 ], sh ) )
+  Endif
+  AEval( arr_title, {| x| add_string( x ) } )
   // R_Use(dir_exe + '_mo_t005', cur_dir + '_mo_t005', 'T5')
-  select TMP
-  go top 
-  do while !eof()
-    if tmp->REFREASON == 0
+  Select TMP
+  Go Top
+  Do While !Eof()
+    If tmp->REFREASON == 0
       tmp->srefr := 'Итого'
-    else
-      retT005 := retArr_t005(tmp->REFREASON, .t.)
-      if ! empty(retT005)
-        s := alltrim(retT005[2])
+    Else
+      retT005 := retarr_t005( tmp->REFREASON, .t. )
+      If ! Empty( retT005 )
+        s := AllTrim( retT005[ 2 ] )
         s1 := ''
-        for i := 1 to len(s)
-          if ISLETTER(substr(s, i, 1))
-            exit
-          endif
-          s1 += substr(s, i, 1)
-        next
+        For i := 1 To Len( s )
+          If isletter( SubStr( s, i, 1 ) )
+            Exit
+          Endif
+          s1 += SubStr( s, i, 1 )
+        Next
         tmp->srefr := s1
-      endif
+      Endif
       // select T5
       // find (str(tmp->REFREASON, 3))
       // if found()
-      //   s := alltrim(t5->name)
-      //   s1 := ""
-      //   for i := 1 to len(s)
-      //     if ISLETTER(substr(s,i, 1))
-      //       exit
-      //     endif
-      //     s1 += substr(s,i, 1)
-      //   next
-      //   tmp->srefr := s1
+      // s := alltrim(t5->name)
+      // s1 := ""
+      // for i := 1 to len(s)
+      // if ISLETTER(substr(s,i, 1))
+      // exit
       // endif
-    endif
-    select TMP
-    skip
-  enddo
-  index on smo + str(iif(empty(REFREASON), 999,REFREASON), 3) to (cur_dir + 'tmp')
-  for i := 1 to len(arr_smo)
-    arr_smo[i, 2] := padr(lstr(arr_smo[i, 2]), 5)
-  next
-  aadd(arr_smo, {'Всего', space(5), 1})
-  for i := 1 to len(arr_smo)
-    select TMP
-    find (arr_smo[i, 2])
-    if found()
-      if verify_FF(HH - 3, .t., sh)
-        aeval(arr_title, {|x| add_string(x) } )
-      endif
-      add_string('')
-      add_string(center(arr_smo[i, 1], sh))
-      add_string(center(replicate('~', len(arr_smo[i, 1]) + 2), sh))
-      do while tmp->smo == arr_smo[i, 2] .and. !eof()
-        if verify_FF(HH, .t., sh)
-          aeval(arr_title, {|x| add_string(x) } )
-        endif
-        if tmp->REFREASON == 0
-          add_string(replicate('-', sh))
-        endif
-        add_string(padr(tmp->srefr, 11) + str(tmp->kol, 6) + put_kop(tmp->summa, 14) + ;
-                 put_val(tmp->kol1, 7) + put_kopE(tmp->summa1, 14) + ;
-                 put_val(tmp->kol2, 7) + put_kopE(tmp->summa2, 14) + ;
-                 put_val(tmp->kol3, 7) + put_kopE(tmp->summa3, 14))
-        if tmp->kol4 > 0
-          add_string(padr('  кроме того, штрафы', 11 + 6 + 14) + put_val(tmp->kol4, 7) + put_kopE(tmp->summa4, 14))
-        endif
-        select TMP
-        skip
-      enddo
-    endif
-  next
-  fclose(fp)
-  close databases
-  rest_box(buf)
+      // s1 += substr(s,i, 1)
+      // next
+      // tmp->srefr := s1
+      // endif
+    Endif
+    Select TMP
+    Skip
+  Enddo
+  Index On smo + Str( iif( Empty( REFREASON ), 999, REFREASON ), 3 ) to ( cur_dir + 'tmp' )
+  For i := 1 To Len( arr_smo )
+    arr_smo[ i, 2 ] := PadR( lstr( arr_smo[ i, 2 ] ), 5 )
+  Next
+  AAdd( arr_smo, { 'Всего', Space( 5 ), 1 } )
+  For i := 1 To Len( arr_smo )
+    Select TMP
+    find ( arr_smo[ i, 2 ] )
+    If Found()
+      If verify_ff( HH -3, .t., sh )
+        AEval( arr_title, {| x| add_string( x ) } )
+      Endif
+      add_string( '' )
+      add_string( Center( arr_smo[ i, 1 ], sh ) )
+      add_string( Center( Replicate( '~', Len( arr_smo[ i, 1 ] ) + 2 ), sh ) )
+      Do While tmp->smo == arr_smo[ i, 2 ] .and. !Eof()
+        If verify_ff( HH, .t., sh )
+          AEval( arr_title, {| x| add_string( x ) } )
+        Endif
+        If tmp->REFREASON == 0
+          add_string( Replicate( '-', sh ) )
+        Endif
+        add_string( PadR( tmp->srefr, 11 ) + Str( tmp->kol, 6 ) + put_kop( tmp->summa, 14 ) + ;
+          put_val( tmp->kol1, 7 ) + put_kope( tmp->summa1, 14 ) + ;
+          put_val( tmp->kol2, 7 ) + put_kope( tmp->summa2, 14 ) + ;
+          put_val( tmp->kol3, 7 ) + put_kope( tmp->summa3, 14 ) )
+        If tmp->kol4 > 0
+          add_string( PadR( '  кроме того, штрафы', 11 + 6 + 14 ) + put_val( tmp->kol4, 7 ) + put_kope( tmp->summa4, 14 ) )
+        Endif
+        Select TMP
+        Skip
+      Enddo
+    Endif
+  Next
+  FClose( fp )
+  Close databases
+  rest_box( buf )
   Private yes_albom := .t.
-  viewtext(n_file, , , , .t., , , 1)
-  return NIL
+  viewtext( n_file, , , , .t., , , 1 )
+
+  Return Nil
 
 // 28.10.2315 список снятий по актам (дефекты)
 Function akt_list_of_refusal_defect()
-  Static arr_smo
-  Static mm_poisk := {{"По дате РАК (XML-файла)", 0}, ;
-                      {"По дате акта контроля ", 1},;
-                      {"По дате СЧЁТА ", 2} }
-  Static mm_akt := {{"отдельно по каждому акту   ", 0}, ;
-                    {"объединять акты (как счета)", 1}}
-  Static mm_schet := {{"отдельно по каждому счёту      ", 0}, ;
-                      {"объединять по отчётному периоду", 1}, ;
-                      {"объединять все счета           ", 2}}
-  Static mm_eks := {{"все ", 0}, {"МЭК ", 1}, {"МЭЭ ", 2}, {"ЭКМП", 3}}
-  Static s1poisk := 1, s1schet := 0, s1akt := 0, s1eks := 0, s1smo := 0
-  Local buf := savescreen(), i, ar, s, r := 14
 
-  if arr_smo == NIL
-    arr_smo := mo_cut_menu(glob_arr_smo)
-    for i := 1 to len(arr_smo)
-      arr_smo[i, 3] := padr(lstr(arr_smo[i, 2]), 5)
-      arr_smo[i, 2] := i
-    next
-  endif
-  if empty(s1smo)
+  Static arr_smo
+  Static mm_poisk := { { "По дате РАК (XML-файла)", 0 }, ;
+    { "По дате акта контроля ", 1 }, ;
+    { "По дате СЧЁТА ", 2 } }
+  Static mm_akt := { { "отдельно по каждому акту   ", 0 }, ;
+    { "объединять акты (как счета)", 1 } }
+  Static mm_schet := { { "отдельно по каждому счёту      ", 0 }, ;
+    { "объединять по отчётному периоду", 1 }, ;
+    { "объединять все счета           ", 2 } }
+  Static mm_eks := { { "все ", 0 }, { "МЭК ", 1 }, { "МЭЭ ", 2 }, { "ЭКМП", 3 } }
+  Static s1poisk := 1, s1schet := 0, s1akt := 0, s1eks := 0, s1smo := 0
+  Local buf := SaveScreen(), i, ar, s, r := 14
+
+  If arr_smo == NIL
+    arr_smo := mo_cut_menu( glob_arr_smo )
+    For i := 1 To Len( arr_smo )
+      arr_smo[ i, 3 ] := PadR( lstr( arr_smo[ i, 2 ] ), 5 )
+      arr_smo[ i, 2 ] := i
+    Next
+  Endif
+  If Empty( s1smo )
     s1smo := 0
-    for i := 1 to len(arr_smo)
-      s1smo := setbit(s1smo, arr_smo[i, 2])
-    next
-  endif
-  Private mdate := space(10), m1date := 0, ;
-          mpoisk, m1poisk := s1poisk, ;
-          mschet, m1schet := s1schet, ;
-          msmo, m1smo := s1smo, ;
-          meks, m1eks := s1eks, ;
-          makt, m1akt := s1akt
+    For i := 1 To Len( arr_smo )
+      s1smo := SetBit( s1smo, arr_smo[ i, 2 ] )
+    Next
+  Endif
+  Private mdate := Space( 10 ), m1date := 0, ;
+    mpoisk, m1poisk := s1poisk, ;
+    mschet, m1schet := s1schet, ;
+    msmo, m1smo := s1smo, ;
+    meks, m1eks := s1eks, ;
+    makt, m1akt := s1akt
   Private pdate, gl_arr := { ;  // для битовых полей
-      {"smo", "N", 10, 0, , , , {|x|inieditspr(A__MENUBIT, arr_smo, x)} };
+    { "smo", "N", 10, 0, , , , {| x| inieditspr( A__MENUBIT, arr_smo, x ) } };
     }
-  mpoisk := inieditspr(A__MENUVERT, mm_poisk, m1poisk)
-  mschet := inieditspr(A__MENUVERT, mm_schet, m1schet)
-  meks   := inieditspr(A__MENUVERT, mm_eks,   m1eks  )
-  makt   := inieditspr(A__MENUVERT, mm_akt,   m1akt  )
-  msmo   := inieditspr(A__MENUBIT,  arr_smo,  m1smo  )
-  setcolor(cDataCGet)
-  myclear(r)
-  Private gl_area := {r, 1,maxrow() - 1,maxcol(), 0}, pdate
-  status_key("^<Esc>^ - выход;  ^<PgDn>^ - составление документа")
+  mpoisk := inieditspr( A__MENUVERT, mm_poisk, m1poisk )
+  mschet := inieditspr( A__MENUVERT, mm_schet, m1schet )
+  meks   := inieditspr( A__MENUVERT, mm_eks,   m1eks  )
+  makt   := inieditspr( A__MENUVERT, mm_akt,   m1akt  )
+  msmo   := inieditspr( A__MENUBIT,  arr_smo,  m1smo  )
+  SetColor( cDataCGet )
+  myclear( r )
+  Private gl_area := { r, 1, MaxRow() -1, MaxCol(), 0 }, pdate
+  status_key( "^<Esc>^ - выход;  ^<PgDn>^ - составление документа" )
   //
-  @ r, 0 to maxrow() - 1, maxcol() COLOR color8
-  str_center(r, " Список снятий по актам (подготовка информации) ",color14)
-  do while .t.
-    @ r + 2, 2 say "Страховая(ые) компания(и)" get msmo ;
-          reader {|x|menu_reader(x, arr_smo, A__MENUBIT, , , .f.)}
-    @ r + 3, 2 say "Как подсчитывать (РАК/акты/СЧЁТ)" get mpoisk ;
-          reader {|x|menu_reader(x, mm_poisk, A__MENUVERT, , , .f.)}
-    @ r + 4, 2 say "Период времени" get mdate ;
-          reader {|x| menu_reader(x, {{|k, r, c| ;
-                       k:=year_month(r + 1, c), iif(k == nil, nil, (pdate:=aclone(k), k:={k[1], k[4]})), ;
-                       k }}, A__FUNCTION, , , .f.)}
-    @ r + 5, 2 say "Вид экспертизы" get meks ;
-          reader {|x|menu_reader(x, mm_eks, A__MENUVERT, , , .f.)}
-    @ r + 6, 2 say "Информация по счетам" get mschet ;
-          reader {|x|menu_reader(x, mm_schet, A__MENUVERT, , , .f.)}
-    @ r + 7, 2 say "Информация по актам" get makt ;
-          reader {|x|menu_reader(x, mm_akt, A__MENUVERT, , , .f.)}
+  @ r, 0 To MaxRow() -1, MaxCol() Color color8
+  str_center( r, " Список снятий по актам (подготовка информации) ", color14 )
+  Do While .t.
+    @ r + 2, 2 Say "Страховая(ые) компания(и)" Get msmo ;
+      reader {| x| menu_reader( x, arr_smo, A__MENUBIT, , , .f. ) }
+    @ r + 3, 2 Say "Как подсчитывать (РАК/акты/СЧЁТ)" Get mpoisk ;
+      reader {| x| menu_reader( x, mm_poisk, A__MENUVERT, , , .f. ) }
+    @ r + 4, 2 Say "Период времени" Get mdate ;
+      reader {| x| menu_reader( x, { {| k, r, c| ;
+      k := year_month( r + 1, c ), iif( k == nil, nil, ( pdate := AClone( k ), k := { k[ 1 ], k[ 4 ] } ) ), ;
+      k } }, A__FUNCTION, , , .f. ) }
+    @ r + 5, 2 Say "Вид экспертизы" Get meks ;
+      reader {| x| menu_reader( x, mm_eks, A__MENUVERT, , , .f. ) }
+    @ r + 6, 2 Say "Информация по счетам" Get mschet ;
+      reader {| x| menu_reader( x, mm_schet, A__MENUVERT, , , .f. ) }
+    @ r + 7, 2 Say "Информация по актам" Get makt ;
+      reader {| x| menu_reader( x, mm_akt, A__MENUVERT, , , .f. ) }
     myread()
-    if lastkey() == K_ESC
-      exit
-    endif
+    If LastKey() == K_ESC
+      Exit
+    Endif
     s1smo   := m1smo
     s1schet := m1schet
     s1poisk := m1poisk
     s1akt   := m1akt
     s1eks   := m1eks
-    if empty(pdate)
-      func_error(4, "Не введён период времени")
-    elseif empty(m1smo)
-      func_error(4, "Не введена страховая компания")
-    else
+    If Empty( pdate )
+      func_error( 4, "Не введён период времени" )
+    Elseif Empty( m1smo )
+      func_error( 4, "Не введена страховая компания" )
+    Else
       ar := {}
       s := ""
-      for i := 1 to len(arr_smo)
-        if isbit(s1smo,i)
-          aadd(ar, arr_smo[i, 3])
-          s += arr_smo[i, 1] + ", "
-        endif
-      next
-      s := substr(s, 1, len(s) - 2)
-      f1akt_list_of_refusal_defect(ar, s)
-    endif
-  enddo
-  restscreen(buf)
-  return NIL
+      For i := 1 To Len( arr_smo )
+        If IsBit( s1smo, i )
+          AAdd( ar, arr_smo[ i, 3 ] )
+          s += arr_smo[ i, 1 ] + ", "
+        Endif
+      Next
+      s := SubStr( s, 1, Len( s ) -2 )
+      f1akt_list_of_refusal_defect( ar, s )
+    Endif
+  Enddo
+  RestScreen( buf )
+
+  Return Nil
 
 // 19.10.23 функция для списка снятий по актам (дефекты)
-Function f1akt_list_of_refusal_defect(asmo, ssmo)
+Function f1akt_list_of_refusal_defect( asmo, ssmo )
+
   Local adbf, s, otch_period, n_file := cur_dir + 'sp_sn' + stxt, HH := 60, buf := save_maxrow()
 
   mywait()
-  adbf := {{"nrak", "C", 26, 0}, ;
-           {"drak", "D", 8, 0}, ;
-           {"rak", "N", 6, 0}, ;
-           {"srak", "C", 50, 0}, ;
-           {"nakt", "C", 26, 0}, ;
-           {"dakt", "D", 8, 0}, ;
-           {"akt", "N", 6, 0}, ;
-           {"sakt", "C", 50, 0}, ;
-           {"op", "C", 6, 0}, ;
-           {"sop", "C", 50, 0}, ;
-           {"nschet", "C", 15, 0}, ;
-           {"dschet", "D", 8, 0}, ;
-           {"schet", "N", 6, 0}, ;
-           {"ssch", "C", 50, 0}, ;
-           {"otd", "N", 3, 0}, ;
-           {"kol", "N", 6, 0}, ;
-           {"sum_sn", "N", 15, 2}, ;
-           {"kolp", "N", 6, 0}, ;
-           {"penalty", "N", 15, 2}, ;
-           {"REFREASON", "N", 3, 0}}
-  dbcreate(cur_dir + "tmp", adbf)
-  use (cur_dir + "tmp") new
-  R_Use(dir_server + "schet_", , "SCHET_")
-  R_Use(dir_server + "mo_otd", , "OTD")
-  R_Use(dir_server + "human", , "HUMAN")
-  R_Use(dir_server + "mo_raksh", , "RAKSH")
-  index on str(kod_raks, 6) to tmpraksh memory
-  R_Use(dir_server + "mo_raks", , "RAKS")
-  index on str(akt, 6) to tmpraks memory
-  R_Use(dir_server + "mo_rak", , "RAK")
-  index on str(kod_xml, 6)+dtos(dakt)+nakt to tmprak memory
-  R_Use(dir_server + "mo_xml", , "MO_XML")
-  index on dfile to tmp_xml for TIP_IN == _XML_FILE_RAK memory
-  go top
+  adbf := { { "nrak", "C", 26, 0 }, ;
+    { "drak", "D", 8, 0 }, ;
+    { "rak", "N", 6, 0 }, ;
+    { "srak", "C", 50, 0 }, ;
+    { "nakt", "C", 26, 0 }, ;
+    { "dakt", "D", 8, 0 }, ;
+    { "akt", "N", 6, 0 }, ;
+    { "sakt", "C", 50, 0 }, ;
+    { "op", "C", 6, 0 }, ;
+    { "sop", "C", 50, 0 }, ;
+    { "nschet", "C", 15, 0 }, ;
+    { "dschet", "D", 8, 0 }, ;
+    { "schet", "N", 6, 0 }, ;
+    { "ssch", "C", 50, 0 }, ;
+    { "otd", "N", 3, 0 }, ;
+    { "kol", "N", 6, 0 }, ;
+    { "sum_sn", "N", 15, 2 }, ;
+    { "kolp", "N", 6, 0 }, ;
+    { "penalty", "N", 15, 2 }, ;
+    { "REFREASON", "N", 3, 0 } }
+  dbCreate( cur_dir + "tmp", adbf )
+  Use ( cur_dir + "tmp" ) new
+  r_use( dir_server + "schet_", , "SCHET_" )
+  r_use( dir_server + "mo_otd", , "OTD" )
+  r_use( dir_server + "human", , "HUMAN" )
+  r_use( dir_server + "mo_raksh", , "RAKSH" )
+  Index On Str( kod_raks, 6 ) To tmpraksh memory
+  r_use( dir_server + "mo_raks", , "RAKS" )
+  Index On Str( akt, 6 ) To tmpraks memory
+  r_use( dir_server + "mo_rak", , "RAK" )
+  Index On Str( kod_xml, 6 ) + DToS( dakt ) + nakt To tmprak memory
+  r_use( dir_server + "mo_xml", , "MO_XML" )
+  Index On dfile To tmp_xml For TIP_IN == _XML_FILE_RAK memory
+  Go Top
   // доработка - если
-  do while !eof()
-    if iif(m1poisk == 0, between(mo_xml->DFILE,pdate[5],pdate[6]), .t.)
-      select RAK
-      find (str(mo_xml->kod, 6))
-      do while mo_xml->kod == rak->kod_xml .and. !eof()
-        if iif(m1poisk == 1, between(rak->dakt,pdate[5],pdate[6]), .t.)
+  Do While !Eof()
+    If iif( m1poisk == 0, Between( mo_xml->DFILE, pdate[ 5 ], pdate[ 6 ] ), .t. )
+      Select RAK
+      find ( Str( mo_xml->kod, 6 ) )
+      Do While mo_xml->kod == rak->kod_xml .and. !Eof()
+        If iif( m1poisk == 1, Between( rak->dakt, pdate[ 5 ], pdate[ 6 ] ), .t. )
           vid_eks := ret_vid_eks()
-          select RAKS
-          find (str(rak->akt, 6))
-          do while rak->akt == raks->akt .and. !eof()
-            if ascan(asmo,raks->plat) > 0
-              schet_->(dbGoto(raks->schet))
-              if iif(m1poisk == 2, between(schet_->dschet,pdate[5],pdate[6]), .t.)
-                otch_period := str(schet_->NYEAR, 4) + strzero(schet_->NMONTH, 2)
-                select RAKSH
-                find (str(raks->kod_raks, 6))
-                do while raks->kod_raks == raksh->kod_raks .and. !eof()
-                  human->(dbGoto(raksh->KOD_H))
+          Select RAKS
+          find ( Str( rak->akt, 6 ) )
+          Do While rak->akt == raks->akt .and. !Eof()
+            If AScan( asmo, raks->plat ) > 0
+              schet_->( dbGoto( raks->schet ) )
+              If iif( m1poisk == 2, Between( schet_->dschet, pdate[ 5 ], pdate[ 6 ] ), .t. )
+                otch_period := Str( schet_->NYEAR, 4 ) + StrZero( schet_->NMONTH, 2 )
+                Select RAKSH
+                find ( Str( raks->kod_raks, 6 ) )
+                Do While raks->kod_raks == raksh->kod_raks .and. !Eof()
+                  human->( dbGoto( raksh->KOD_H ) )
                   s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
                   ssh := raksh->penalty
                   fl := .f.
-                  if m1eks == 0
+                  If m1eks == 0
                     fl := .t.
-                  elseif vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
-                    fl := (m1eks == 3)
-                  elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
-                    fl := (m1eks == 2)
-                  else
-                    fl := (m1eks == 1)
-                  endif
-                  if !fl
+                  Elseif vid_eks == 2 .or. !Empty( raksh->SANK_EKMP )
+                    fl := ( m1eks == 3 )
+                  Elseif vid_eks == 1 .or. !Empty( raksh->SANK_MEE )
+                    fl := ( m1eks == 2 )
+                  Else
+                    fl := ( m1eks == 1 )
+                  Endif
+                  If !fl
                     s := ssh := 0
-                  endif
-                  if raksh->REFREASON > 0 .and. !emptyall(s,ssh)
-                    select TMP
-                    append blank
-                    tmp->nrak := alltrim(mo_xml->FNAME)
+                  Endif
+                  If raksh->REFREASON > 0 .and. !emptyall( s, ssh )
+                    Select TMP
+                    Append Blank
+                    tmp->nrak := AllTrim( mo_xml->FNAME )
                     tmp->drak := mo_xml->DFILE
                     tmp->rak := mo_xml->kod
-                    tmp->nakt := alltrim(rak->nakt)
+                    tmp->nakt := AllTrim( rak->nakt )
                     tmp->dakt := rak->dakt
                     tmp->akt := rak->akt
-                    tmp->nschet := alltrim(schet_->nschet)
+                    tmp->nschet := AllTrim( schet_->nschet )
                     tmp->dschet := schet_->dschet
                     tmp->schet := raks->KOD_RAKS
                     tmp->op := otch_period
@@ -3093,216 +3145,217 @@ Function f1akt_list_of_refusal_defect(asmo, ssmo)
                     tmp->penalty := ssh
                     tmp->REFREASON := raksh->REFREASON
                     tmp->otd := human->otd
-                  endif
-                select RAKSH
-                skip
-                enddo
-              endif  
-            endif
-            select RAKS
-            skip
-          enddo
-        endif
-        select RAK
-        skip
-      enddo
-    endif
-    select MO_XML
-    skip
-  enddo
-  dbcreate(cur_dir + "tmp1", adbf)
-  use (cur_dir + "tmp1") new
-  index on str(rak, 6) + str(akt, 6)+op+str(schet, 6) + str(otd, 3) + str(REFREASON, 3) to (cur_dir + "tmp1")
+                  Endif
+                  Select RAKSH
+                  Skip
+                Enddo
+              Endif
+            Endif
+            Select RAKS
+            Skip
+          Enddo
+        Endif
+        Select RAK
+        Skip
+      Enddo
+    Endif
+    Select MO_XML
+    Skip
+  Enddo
+  dbCreate( cur_dir + "tmp1", adbf )
+  Use ( cur_dir + "tmp1" ) new
+  Index On Str( rak, 6 ) + Str( akt, 6 ) + op + Str( schet, 6 ) + Str( otd, 3 ) + Str( REFREASON, 3 ) to ( cur_dir + "tmp1" )
   old_rak := old_akt := old_schet := -1
-  old_op := space(18)
-  select TMP
-  go top
-  do while !eof()
-    lrak := iif(m1poisk == 0, tmp->rak, 0)
+  old_op := Space( 18 )
+  Select TMP
+  Go Top
+  Do While !Eof()
+    lrak := iif( m1poisk == 0, tmp->rak, 0 )
     lakt := tmp->akt
     lschet := tmp->schet
-    lop := space(6)
-    if m1schet == 0 // отдельно по каждому счёту
+    lop := Space( 6 )
+    If m1schet == 0 // отдельно по каждому счёту
       lakt := tmp->akt
-    elseif m1schet == 1 // объединять по отчётному периоду
+    Elseif m1schet == 1 // объединять по отчётному периоду
       lop := tmp->op
       lschet := 0
-      if m1akt == 0 // отдельно по каждому акту
-      else          // объединять акты (как счета)
+      If m1akt == 0 // отдельно по каждому акту
+      Else          // объединять акты (как счета)
         lakt := 0
-      endif
-    else // объединять все счета
+      Endif
+    Else // объединять все счета
       lschet := 0
-      if m1akt == 0 // отдельно по каждому акту
-      else          // объединять акты (как счета)
+      If m1akt == 0 // отдельно по каждому акту
+      Else          // объединять акты (как счета)
         lakt := 0
-      endif
-    endif
-    select TMP1
-    find (str(lrak, 6) + str(lakt, 6)+lop+str(lschet, 6) + str(tmp->otd, 3) + str(tmp->REFREASON, 3))
-    if !found()
-      append blank
+      Endif
+    Endif
+    Select TMP1
+    find ( Str( lrak, 6 ) + Str( lakt, 6 ) + lop + Str( lschet, 6 ) + Str( tmp->otd, 3 ) + Str( tmp->REFREASON, 3 ) )
+    If !Found()
+      Append Blank
       tmp1->rak := lrak
       tmp1->akt := lakt
       tmp1->op := lop
       tmp1->schet := lschet
-      if m1poisk == 0 .and. !(old_rak == lrak)
-        tmp1->srak := "РАК: " + rtrim(tmp->nrak) + " от " + date_8(tmp->drak)
+      If m1poisk == 0 .and. !( old_rak == lrak )
+        tmp1->srak := "РАК: " + RTrim( tmp->nrak ) + " от " + date_8( tmp->drak )
         old_rak := lrak
-      endif
-      if m1schet == 0  // отдельно по каждому счёту
-        if m1akt == 0 .and. !(old_akt == lakt) // отдельно по каждому акту
-          tmp1->sakt := rtrim(tmp->nakt) + ", " + date_8(tmp->dakt)
+      Endif
+      If m1schet == 0  // отдельно по каждому счёту
+        If m1akt == 0 .and. !( old_akt == lakt ) // отдельно по каждому акту
+          tmp1->sakt := RTrim( tmp->nakt ) + ", " + date_8( tmp->dakt )
           old_akt := lakt
-        endif
-        if !(old_schet == lschet)
-          tmp1->ssch := rtrim(tmp->nschet) + ", " + date_8(tmp->dschet)
+        Endif
+        If !( old_schet == lschet )
+          tmp1->ssch := RTrim( tmp->nschet ) + ", " + date_8( tmp->dschet )
           old_schet := lschet
-        endif
-      elseif m1schet == 1 // объединять по отчётному периоду
-        if m1akt == 0 .and. !(old_akt == lakt) // отдельно по каждому акту
-          tmp1->sakt := rtrim(tmp->nakt) + ", " + date_8(tmp->dakt)
+        Endif
+      Elseif m1schet == 1 // объединять по отчётному периоду
+        If m1akt == 0 .and. !( old_akt == lakt ) // отдельно по каждому акту
+          tmp1->sakt := RTrim( tmp->nakt ) + ", " + date_8( tmp->dakt )
           old_akt := lakt
-        endif
-        if !(old_op == str(lrak, 6) + str(lakt, 6)+lop)
-          tmp1->sop := mm_month[int(val(substr(tmp1->op, 5)))]+" " +left(tmp1->op, 4) + " года"
-          old_op := str(lrak, 6) + str(lakt, 6)+lop
-        endif
-      else // объединять все счета
-        if m1akt == 0 .and. !(old_akt == lakt) // отдельно по каждому акту
-          tmp1->sakt := rtrim(tmp->nakt) + ", " + date_8(tmp->dakt)
+        Endif
+        If !( old_op == Str( lrak, 6 ) + Str( lakt, 6 ) + lop )
+          tmp1->sop := mm_month[ Int( Val( SubStr( tmp1->op, 5 ) ) ) ] + " " + Left( tmp1->op, 4 ) + " года"
+          old_op := Str( lrak, 6 ) + Str( lakt, 6 ) + lop
+        Endif
+      Else // объединять все счета
+        If m1akt == 0 .and. !( old_akt == lakt ) // отдельно по каждому акту
+          tmp1->sakt := RTrim( tmp->nakt ) + ", " + date_8( tmp->dakt )
           old_akt := lakt
-        endif
-      endif
+        Endif
+      Endif
       tmp1->REFREASON := tmp->REFREASON
       tmp1->otd := tmp->otd
-    endif
-    if !empty(tmp->sum_sn)
-      tmp1->kol ++
+    Endif
+    If !Empty( tmp->sum_sn )
+      tmp1->kol++
       tmp1->sum_sn += tmp->sum_sn
-    endif
-    if !empty(tmp->penalty)
-      tmp1->kolp ++
+    Endif
+    If !Empty( tmp->penalty )
+      tmp1->kolp++
       tmp1->penalty += tmp->penalty
-    endif
-    select TMP
-    skip
-  enddo
+    Endif
+    Select TMP
+    Skip
+  Enddo
   arr_title := { ;
-  "_______________________________________________________________________________", ;
-  " № акта, дата       | Проверяемый счёт   |кол-во|  Сумма      |  Коды    |Отде-", ;
-  "                    |                    |снятий|  снятий     |  снятий  |ление", ;
-  "____________________|____________________|______|_____________|__________|_____"}
-  sh := len(arr_title[1])
+    "_______________________________________________________________________________", ;
+    " № акта, дата       | Проверяемый счёт   |кол-во|  Сумма      |  Коды    |Отде-", ;
+    "                    |                    |снятий|  снятий     |  снятий  |ление", ;
+    "____________________|____________________|______|_____________|__________|_____" }
+  sh := Len( arr_title[ 1 ] )
   //
-  fp := fcreate(n_file)
+  fp := FCreate( n_file )
   n_list := 1
   tek_stroke := 0
-  add_string(glob_mo[_MO_SHORT_NAME])
-  add_string("")
-  add_string(center("Снятия по экспертизам", sh))
-  add_string(center("Вид экспертизы: " +meks, sh))
-  add_string(center("СМО: " +ssmo, sh))
-  add_string(center("даты " + iif(m1poisk == 0, "РАК - ", "актов контроля - ")+pdate[4], sh))
-  aeval(arr_title, {|x| add_string(x) } )
+  add_string( glob_mo[ _MO_SHORT_NAME ] )
+  add_string( "" )
+  add_string( Center( "Снятия по экспертизам", sh ) )
+  add_string( Center( "Вид экспертизы: " + meks, sh ) )
+  add_string( Center( "СМО: " + ssmo, sh ) )
+  add_string( Center( "даты " + iif( m1poisk == 0, "РАК - ", "актов контроля - " ) + pdate[ 4 ], sh ) )
+  AEval( arr_title, {| x| add_string( x ) } )
   // R_Use(dir_exe + '_mo_t005', cur_dir + '_mo_t005', 'T5')
   ssum := skol := sum_rak := kol_rak := 0
   n := 20
   ssump := skolp := sump_rak := kolp_rak := 0
-  select TMP1
-  set order to 0
-  go top
-  do while !eof()
-    if !empty(tmp1->srak)
-      if !empty(kol_rak)
-        add_string(space(n) + replicate("-",n*2+3))
-        add_string(padl("Итого по РАК:", 41) + str(kol_rak, 7) + str(sum_rak, 14, 2))
-        if !empty(kolp_rak)
-          add_string(space(41) + str(kolp_rak, 7) + str(sump_rak, 14, 2) + "(штраф)")
-        endif
+  Select TMP1
+  Set Order To 0
+  Go Top
+  Do While !Eof()
+    If !Empty( tmp1->srak )
+      If !Empty( kol_rak )
+        add_string( Space( n ) + Replicate( "-", n * 2 + 3 ) )
+        add_string( PadL( "Итого по РАК:", 41 ) + Str( kol_rak, 7 ) + Str( sum_rak, 14, 2 ) )
+        If !Empty( kolp_rak )
+          add_string( Space( 41 ) + Str( kolp_rak, 7 ) + Str( sump_rak, 14, 2 ) + "(штраф)" )
+        Endif
         sum_rak := kol_rak := 0
         sump_rak := kolp_rak := 0
-      endif
-      add_string("")
-      add_string(padc(alltrim(tmp1->srak), sh, "_"))
-    endif
-    s1 := lstr(tmp1->REFREASON)
-    retT005 := retArr_t005(tmp1->REFREASON, .t.)
-    if ! empty(retT005)
+      Endif
+      add_string( "" )
+      add_string( PadC( AllTrim( tmp1->srak ), sh, "_" ) )
+    Endif
+    s1 := lstr( tmp1->REFREASON )
+    retT005 := retarr_t005( tmp1->REFREASON, .t. )
+    If ! Empty( retT005 )
       s1 := ""
-      s2 := ltrim(retT005[2])
-      for i := 1 to len(s2)
-        if ISLETTER(substr(s2,i, 1))
-          exit
-        endif
-        s1 += substr(s2,i, 1)
-      next
-    endif
+      s2 := LTrim( retT005[ 2 ] )
+      For i := 1 To Len( s2 )
+        If isletter( SubStr( s2, i, 1 ) )
+          Exit
+        Endif
+        s1 += SubStr( s2, i, 1 )
+      Next
+    Endif
     // select T5
     // find (str(tmp1->REFREASON, 3))
     // if found()
-    //   s1 := "" ; s2 := ltrim(t5->name)
-    //   for i := 1 to len(s2)
-    //     if ISLETTER(substr(s2,i, 1))
-    //       exit
-    //     endif
-    //     s1 += substr(s2,i, 1)
-    //   next
+    // s1 := "" ; s2 := ltrim(t5->name)
+    // for i := 1 to len(s2)
+    // if ISLETTER(substr(s2,i, 1))
+    // exit
     // endif
-    if empty(tmp1->sakt)
-      s := space(n)
-    else
-      s := padr(tmp1->sakt,n)
-    endif
+    // s1 += substr(s2,i, 1)
+    // next
+    // endif
+    If Empty( tmp1->sakt )
+      s := Space( n )
+    Else
+      s := PadR( tmp1->sakt, n )
+    Endif
     s += " "
-    if empty(tmp1->ssch)
-      s += padr(tmp1->sop,n)
-    else
-      s += padr(tmp1->ssch,n)
-    endif
-    s += put_val(tmp1->kol, 7) + str(tmp1->sum_sn, 14, 2) + " " +padr(charrem(" ",s1), 11)
+    If Empty( tmp1->ssch )
+      s += PadR( tmp1->sop, n )
+    Else
+      s += PadR( tmp1->ssch, n )
+    Endif
+    s += put_val( tmp1->kol, 7 ) + Str( tmp1->sum_sn, 14, 2 ) + " " + PadR( CharRem( " ", s1 ), 11 )
     skol += tmp1->kol
     ssum += tmp1->sum_sn
-    if m1poisk == 0
+    If m1poisk == 0
       kol_rak += tmp1->kol
       sum_rak += tmp1->sum_sn
-    endif
-    otd->(dbGoto(tmp1->otd))
-    if empty(otd->short_name)
+    Endif
+    otd->( dbGoto( tmp1->otd ) )
+    If Empty( otd->short_name )
       s += otd->name
-    else
+    Else
       s += otd->short_name
-    endif
-    if verify_FF(HH - 3, .t., sh)
-      aeval(arr_title, {|x| add_string(x) } )
-    endif
-    add_string(s)
-    if !empty(tmp1->penalty)
-      add_string(space(41) + str(tmp1->kolp, 7) + str(tmp1->penalty, 14, 2) + "(штраф)")
+    Endif
+    If verify_ff( HH -3, .t., sh )
+      AEval( arr_title, {| x| add_string( x ) } )
+    Endif
+    add_string( s )
+    If !Empty( tmp1->penalty )
+      add_string( Space( 41 ) + Str( tmp1->kolp, 7 ) + Str( tmp1->penalty, 14, 2 ) + "(штраф)" )
       skolp += tmp1->kolp
       ssump += tmp1->penalty
-      if m1poisk == 0
+      If m1poisk == 0
         kolp_rak += tmp1->kolp
         sump_rak += tmp1->penalty
-      endif
-    endif
-    select TMP1
-    skip
-  enddo
-  if !empty(kol_rak)
-    add_string(space(n) + replicate("-",n*2+3))
-    add_string(padl("Итого по РАК:", 41) + str(kol_rak, 7) + str(sum_rak, 14, 2))
-    if !empty(kolp_rak)
-      add_string(space(41) + str(kolp_rak, 7) + str(sump_rak, 14, 2) + "(штраф)")
-    endif
-  endif
-  add_string(replicate("-", sh))
-  add_string(padl("Всего:", 41) + str(skol, 7) + str(ssum, 14, 2))
-  if !empty(skolp)
-    add_string(space(41) + str(skolp, 7) + str(ssump, 14, 2) + "(штраф)")
-  endif
-  fclose(fp)
-  close databases
-  rest_box(buf)
-  viewtext(n_file, , , , .t., , , 2)
-  return NIL
+      Endif
+    Endif
+    Select TMP1
+    Skip
+  Enddo
+  If !Empty( kol_rak )
+    add_string( Space( n ) + Replicate( "-", n * 2 + 3 ) )
+    add_string( PadL( "Итого по РАК:", 41 ) + Str( kol_rak, 7 ) + Str( sum_rak, 14, 2 ) )
+    If !Empty( kolp_rak )
+      add_string( Space( 41 ) + Str( kolp_rak, 7 ) + Str( sump_rak, 14, 2 ) + "(штраф)" )
+    Endif
+  Endif
+  add_string( Replicate( "-", sh ) )
+  add_string( PadL( "Всего:", 41 ) + Str( skol, 7 ) + Str( ssum, 14, 2 ) )
+  If !Empty( skolp )
+    add_string( Space( 41 ) + Str( skolp, 7 ) + Str( ssump, 14, 2 ) + "(штраф)" )
+  Endif
+  FClose( fp )
+  Close databases
+  rest_box( buf )
+  viewtext( n_file, , , , .t., , , 2 )
+
+  Return Nil
