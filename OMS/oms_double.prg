@@ -238,17 +238,17 @@ Function create_double_sl()
                   recount_double_sl(glob_perso, lk_data)
                   mywait('Выполняется операция слияния двух листов учёта в двойной.')
 
-//                  use_base( "lusl" )
-//                  use_base( "luslc" )
-//                  use_base( "luslf" )
-//                  use_base( "mo_su" )
-//                  Set Order To 0
+                  use_base( "lusl" )
+                  use_base( "luslc" )
+                  use_base( "luslf" )
+                  use_base( "mo_su" )
+                  Set Order To 0
             
-//                  g_use( dir_server + "uslugi", { dir_server + "uslugish", ;
-//                    dir_server + "uslugi" }, "USL" )
-//                  Set Order To 0
+                  g_use( dir_server + "uslugi", { dir_server + "uslugish", ;
+                    dir_server + "uslugi" }, "USL" )
+                  Set Order To 0
             
-//                  use_base( 'human_u' ) // если понадобится, пересчитать КСГ
+                  use_base( 'human_u' ) // если понадобится, пересчитать КСГ
 
                   use_base( 'human' )
                   goto (glob_perso)
@@ -303,6 +303,32 @@ Function create_double_sl()
                   human->ishod := 88 // это 1-ой л/у в двойном случае
                   human_2->(G_RLock(forever))
                   human_2->pn4 := glob_perso2 // ссылка на 2-й лист учёта
+
+                  // выполним пересчет стоимости услуг в 1-ом листе
+                  Select HU
+                  find ( Str( glob_perso, 7 ) )
+                  Do While hu->kod == human->kod .and. !Eof()
+                    // цикл по услугам
+                    if hu->u_cena != 0
+                      usl->( dbGoto( hu->u_kod ) )
+                      cena_temp := ret_cena_KSG( usl->shifr, human->VZROS_REB, lk_data2 ) //, ta)
+                      if ! empty( human_2->pc1 )  // проверим КСЛП
+//                        cena_temp := round_5(cena_temp + baseRate( lk_data2, human_->USL_OK ) * ret_koef_kslp_21( List2Arr(human_2->pc1), year( lk_data2 ) ), 0 )
+                        cena_temp := round_5(cena_temp + baseRate( lk_data2, human_->USL_OK ) * ret_koef_kslp_21( List2Arr(human_2->pc1), year( lk_data2 ) ), 0 )
+                      endif
+                      if ! empty( human_2->pc2 )  // проверим КИРО
+                        cena_temp := round_5( cena_temp * List2Arr(human_2->pc2)[ 2 ], 0 )
+                      endif
+//                      human->cena := human->cena_1 := cena_temp
+                      hu->( g_rlock( forever ) )
+                      hu->u_cena := cena_temp
+                      hu->stoim := hu->stoim_1 := round_5( cena_temp * hu->kol_1, 2 )
+                    endif
+                    hu->(dbSkip())
+                  enddo
+                  human_3->CENA_1 := cena_temp + lcena2
+                  human->CENA := human->CENA_1 := cena_temp
+
                   // 
                   select HUMAN
                   goto (glob_perso2)

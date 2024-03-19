@@ -492,7 +492,7 @@ Function read_XML_FILE_RAK(arr_XML_info, aerr)
   close databases
   return NIL
 
-// 13.03.24 зачитать Реестр Актов Контроля во временные файлы
+// 19.03.24 зачитать Реестр Актов Контроля во временные файлы
 Function reestr_rak_tmpfile(oXmlDoc, aerr, mname_xml)
   Static s_big := 10000000000000000
   Local j, j1, oXmlNode, oNode1, oNode2, buf := save_maxrow()
@@ -692,8 +692,8 @@ Function reestr_rak_tmpfile(oXmlDoc, aerr, mname_xml)
                       tmp6->SL_ID := _ar[1]
                     elseif len(_ar) > 1
                       tmp6->SL_ID2 := _ar[2]
-                    endif
-                    tmp6->S_COM := mo_read_xml_stroke(oNode3, "S_COM", aerr)
+                    endif 
+                    tmp6->S_COM := mo_read_xml_stroke( oNode3, "S_COM", aerr, .f. )
                   endif
                 next j3
               endif

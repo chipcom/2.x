@@ -7,7 +7,7 @@
 
 Static sadiag1  // := {}
 
-// 14.03.24 создание XML-файлов реестра
+// 19.03.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -299,11 +299,11 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
     Select HUMAN
     Goto ( rhum->kod_hum )  // встали на 2-ой лист учёта
     kol_sl := iif( human->ishod == 89, 2, 1 )
-//    ksl_date := nil
+    ksl_date := nil
     For isl := 1 To kol_sl
       If isl == 1 .and. kol_sl == 2
         Select HUMAN_3
-//        ksl_date := human_3->K_DATA
+        ksl_date := human_3->K_DATA
         find ( Str( rhum->kod_hum, 7 ) )
         reserveKSG_ID_C := human_3->ID_C
         Select HUMAN
@@ -311,7 +311,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
       Endif
       If isl == 2
         Select HUMAN
-//        ksl_date := human_3->K_DATA
+        ksl_date := human_3->K_DATA
         Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
       Endif
       f1_create2reestr19( _nyear, _nmonth ) 
@@ -1555,11 +1555,11 @@ Function f1_create2reestr19( _nyear, _nmonth )
           If !Empty( akslp ) .or. !Empty( akiro )
             otd->( dbGoto( human->OTD ) )
             f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
-//            if isnil( ksl_date )  // это не двойной случай
+            if isnil( ksl_date )  // это не двойной случай
               tarif_zak_sl := fcena_oms( lshifr, ( human->vzros_reb == 0 ), human->k_data )
-//            else
-//              tarif_zak_sl := fcena_oms( lshifr, ( human->vzros_reb == 0 ), ksl_date )
-//            endif
+            else
+              tarif_zak_sl := fcena_oms( lshifr, ( human->vzros_reb == 0 ), ksl_date )
+            endif
           Endif
         Endif
       Else
