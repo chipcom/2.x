@@ -7,7 +7,7 @@
 
 Static sadiag1  // := {}
 
-// 19.03.24 создание XML-файлов реестра
+// 21.03.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -698,6 +698,11 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         // заполним сведения о КСГ для XML-документа
         oKSG := oSL:add( hxmlnode():new( 'KSG_KPG' ) )
         mo_add_xml_stroke( oKSG, 'N_KSG', lshifr_zak_sl )
+
+        if endDateZK >= dPUMPver40   // дата окончания случая после 01.03.24
+          mo_add_xml_stroke( oKSG, 'K_ZP', '1' )  // пока ставим 1
+        endif
+
         If !Empty( human_2->pc3 ) .and. !Left( human_2->pc3, 1 ) == '6' // кроме 'старости'
           mo_add_xml_stroke( oKSG, 'CRIT', human_2->pc3 )
         Elseif is_oncology  == 2
@@ -708,11 +713,6 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             mo_add_xml_stroke( oKSG, 'CRIT', onksl->crit2 )  // второй критерий
           Endif
         Endif
-
-        if endDateZK >= dPUMPver40   // дата окончания случая после 01.03.24
-          mo_add_xml_stroke( oKSG, 'K_ZP', '1' )  // пока ставим 1
-        endif
-
         mo_add_xml_stroke( oKSG, 'SL_K', iif( Empty( akslp ), '0', '1' ) )
         If !Empty( akslp )
           // заполним сведения о КСГ для XML-документа
