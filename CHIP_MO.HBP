@@ -206,7 +206,8 @@ mo_version.prg
 .\dispanser\disp_nab_func.prg
 
 .\EXCHANGE\reestrOMS_XML.prg
-.\EXCHANGE\create_schet19_from_XML.prg
+.\EXCHANGE\schet_from_XML.prg
+.\EXCHANGE\rak_XML.prg
 .\EXCHANGE\extract_reestr.prg
 .\EXCHANGE\create_reestr.prg
 .\EXCHANGE\mo_omss.prg
