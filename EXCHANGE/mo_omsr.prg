@@ -469,16 +469,20 @@ Static Function f11_view_list_reestr()
   Return PadR( s, 10 )
 
 
-// 
+// 22.03.24
 Function f2_view_list_reestr( nKey, oBrow )
 
   Local ret := -1, rec := rees->( RecNo() ), tmp_color := SetColor(), r, r1, r2, ;
     s, buf := SaveScreen(), arr, i, k, mdate, t_arr[ 2 ], arr_pmt := {}
 
   Do Case
+  Case nKey == K_F7
+    XML_files_to_FTP( AllTrim( rees->NAME_XML ), rees->kod )
   Case nKey == K_F5
     r := Row()
-    arr := {} ; k := 0 ; mdate := rees->dschet
+    arr := {}
+    k := 0
+    mdate := rees->dschet
     find ( DToS( mdate ) )
     Do While rees->dschet == mdate .and. !Eof()
       If !emptyany( rees->name_xml, rees->kod_xml )
@@ -503,7 +507,9 @@ Function f2_view_list_reestr( nKey, oBrow )
         If r + 2 + Len( arr ) > MaxRow() -2
           r2 := r - 1
           r1 := r2 - Len( arr ) -1
-          If r1 < 0 ; r1 := 0 ; Endif
+          If r1 < 0
+            r1 := 0
+          Endif
         Else
           r1 := r + 1
         Endif
@@ -668,7 +674,7 @@ Function f2_view_list_reestr( nKey, oBrow )
   Return ret
 
 
-// 
+// 22.03.24
 Function f3_view_list_reestr( oBrow )
 
   Static si := 1
@@ -691,9 +697,11 @@ Function f3_view_list_reestr( oBrow )
   Select MO_XML
   Set Index To
   If r <= 12
-    r1 := r + 1 ; r2 := r1 + Len( mm_menu ) + 1
+    r1 := r + 1
+    r2 := r1 + Len( mm_menu ) + 1
   Else
-    r2 := r - 1 ; r1 := r2 - Len( mm_menu ) -1
+    r2 := r - 1
+    r1 := r2 - Len( mm_menu ) - 1
   Endif
   rest_box( buf )
   If ( i := popup_prompt( r1, 10, si, mm_menu,,, color5 ) ) > 0

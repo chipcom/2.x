@@ -156,12 +156,12 @@ function last_digits_year(in_date)
 
   return str(valYear - 2000, 2, 0)
 
-////* 14.02.21
+// 14.02.21
 function notExistsFileNSI(nameFile)
   // nameFile - полное имя файла НСИ
   return func_error('Работа невозможна - файл "' + upper(nameFile) + '" отсутствует.')
 
-////* 17.05.21
+// 17.05.21
 function checkNTXFile( cSource, cDest )
   static arrNTXFile := {}
   local fl := .f.
@@ -186,6 +186,16 @@ function checkNTXFile( cSource, cDest )
   endif
 
   return fl
+
+// 22.03.24
+function cur_dir()
+
+  static dir
+
+  if isnil( dir )
+    dir := chip_CurrPath()
+  endif
+  return dir
 
 // 14.04.23
 function chip_CurrPath()

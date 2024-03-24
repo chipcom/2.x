@@ -7,21 +7,93 @@
 #define COMPRESSION 3
 #define YEAR_COMPRESSION 2
 
-// 21.01.24 резервное копирование файла ошибок на FTP
+// 23.03.24 резервное копирование реестра на FTP
+function XML_files_to_FTP( name_xml, kod )
+
+  local zip_file, i
+  local out_dir := dir_server + dir_XML_MO + cslash
+  local xml_file := out_dir + AllTrim( name_xml ) + szip
+  local in_dir := dir_server + dir_XML_TF + cslash
+  local fileName
+  
+  local ar := {}
+  local ar_hrt := {}
+
+  if empty( name_xml ) .or. ! ( hb_FileExists( xml_file ) )
+    func_error( 4, "Нечего отправлять!" )
+    return nil
+  endif
+  mywait( 'Отправка реестра "' + name_xml + '" на FTP-сервер службы поддержки' )
+  zip_file := 'reestr_' + name_xml
+  AAdd( ar, xml_file )
+
+  Select MO_XML
+  Index On FNAME to ( cur_dir() + 'tmp_xml' ) ;
+    For reestr == kod .and. Between( TIP_IN, _XML_FILE_FLK, _XML_FILE_SP ) .and. Empty( TIP_OUT )
+  Go Top
+  Do While !Eof()
+    fileName := in_dir + RTrim( mo_xml->FNAME ) + szip
+    if hb_FileExists( fileName )
+      AAdd( ar, fileName )
+      if upper( substr( RTrim( mo_xml->FNAME ), 1, 3 ) ) == 'HRT'
+        AAdd( ar_hrt, mo_xml->kod )
+      endif
+    endif
+    Skip
+  Enddo
+  Set Index To
+
+  if len( ar_hrt ) > 0
+    g_use( dir_server + 'schet_', , 'SCHET_' )
+  
+    for i := 1 to len( ar_hrt )
+      Index On XML_REESTR to ( cur_dir() + 'tmp_sch' ) ;
+        For xml_reestr == ar_hrt[ i ]
+      Go Top
+      Do While ! Eof()
+        fileName := out_dir + RTrim( schet_->name_xml ) + szip
+        if hb_FileExists( fileName )
+          AAdd( ar, fileName )
+        endif
+        Skip
+      enddo
+      set index to
+    next
+    schet_->( dbCloseArea() )
+    Select REES
+  endif
+  create_zip_to_ftp( zip_file, ar )
+
+  return nil
+
+// 22.03.24 резервное копирование файла ошибок на FTP
 function errorFileToFTP()
 
-  local nLen, aGauge, lCompress, fl := .f., zip_file
-  local ar := Array( 2 ), name_file, ft
+  local zip_file
+  local ar := {}
   
+  zip_file := 'mo' + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) + '_error'
+  AAdd( ar, dir_server + 'error.txt' )
+
+  create_zip_to_ftp( zip_file, ar )
+
+  return nil
+
+// 22.03.24 создание zip-файла и отправка на FTP сервер
+function create_zip_to_ftp( name, ar )
+
+  local nLen, aGauge, lCompress, fl := .f., zip_file
+  local name_file, ft
+
   // создадим файл с названием медицинской организации
-  name_file := cur_dir + 'Название_МО' + stxt
+  name_file := cur_dir() + 'Название_МО' + stxt
   ft := tfiletext():new( name_file, , , , )
   ft:add_string( hb_main_curOrg:Name_Tfoms )
   ft := nil
 
-  zip_file := cur_dir + 'mo' + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) + '_error' + Lower( szip )
-  ar[ 1 ] := dir_server + 'error.txt'
-  ar[ 2 ] :=  name_file
+  AAdd( ar, name_file )
+
+  zip_file := cur_dir() + name + Lower( szip )
 
   nLen := Len( ar )
   aGauge := gaugenew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + zip_file, .t. )
@@ -32,21 +104,21 @@ function errorFileToFTP()
   closegauge( aGauge ) // Закроем окно отображения бегунка
 
   If ! lCompress
-    func_error( 4, 'Возникла ошибка при архивировании файла ошибок.' )
+    func_error( 4, 'Возникла ошибка при архивировании файла.' )
   else
     mywait( 'Отправка "' + zip_file + '" на FTP-сервер службы поддержки' )
     If filetoftp( zip_file, .t. )
       stat_msg( 'Файл ' + zip_file + ' успешно отправлен на сервер!' )
       fl := .t.
     Else
-      stat_msg( 'Ошибка отпрвки файла ' + zip_file + ' на сервер!' )
+      stat_msg( 'Ошибка отправки файла ' + zip_file + ' на сервер!' )
     Endif
     hb_vfErase( zip_file )
   Endif
 
-  return fl
+  return nil
 
-// 05.05.21 запуск режима резервного копирования из меню
+// 22.03.24 запуск режима резервного копирования из меню
 Function m_copy_db( par )
   // par - 1 - резервная копия на диск
   // 2 - резервная копия на FTP-сервер
@@ -58,7 +130,7 @@ Function m_copy_db( par )
   Endif
   // дальнейшая работа с архивом
   If par == 1
-    saveto( cur_dir + zip_file )
+    saveto( cur_dir() + zip_file )
   Elseif par == 2
     mywait( 'Отправка "' + zip_file + '" на FTP-сервер службы поддержки' )
     If filetoftp( zip_file )
@@ -72,10 +144,10 @@ Function m_copy_db( par )
 
   Return Nil
 
-// 05.05.21 запуск режима резервного копирования из f_end()
+// 22.03.24 запуск режима резервного копирования из f_end()
 Function m_copy_db_from_end( del_last, spath )
   Local hCurrent, hFile, nSize, fl := .t., ta, zip_file, ;
-    i, k, arr_f, dir_archiv := cur_dir + 'OwnChipArchiv'
+    i, k, arr_f, dir_archiv := cur_dir() + 'OwnChipArchiv'
 
   Default del_last To .f., spath To ''
 
@@ -161,7 +233,7 @@ Function fillzip( arr_f, sFileName )
 
   Return sFileName
 
-// 07.11.23
+// 22.03.24
 Function create_zip( par, dir_archiv )
   Static sast := '*', sfile_begin := '_begin.txt', sfile_end := '_end.txt'
   Local arr_f, ar
@@ -243,16 +315,16 @@ Function create_zip( par, dir_archiv )
       dir_server + 'usl1year' + smem, ;
       dir_server + 'error' + stxt }
     If ! Empty( zip_xml_mo )
-      AAdd( ar, cur_dir + zip_xml_mo )
+      AAdd( ar, cur_dir() + zip_xml_mo )
     Endif
     If ! Empty( zip_xml_tf )
-      AAdd( ar, cur_dir + zip_xml_tf )
+      AAdd( ar, cur_dir() + zip_xml_tf )
     Endif
     If ! Empty( zip_napr_mo )
-      AAdd( ar, cur_dir + zip_napr_mo )
+      AAdd( ar, cur_dir() + zip_napr_mo )
     Endif
     If ! Empty( zip_napr_tf )
-      AAdd( ar, cur_dir + zip_napr_tf )
+      AAdd( ar, cur_dir() + zip_napr_tf )
     Endif
 
     For i := 1 To Len( array_files_DB )
