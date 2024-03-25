@@ -73,17 +73,17 @@ function fileFromFTP( fileName )
   endif
   return nil
   
-// 20.01.24
-function fileToFTP( fileName, flError )
+// 25.03.24
+function fileToFTP( fileName, strPath )
   local cServer   := CUSTOM_FTP
   local cUser     := UPLOAD_USER
   local cPassword := UPLOAD_PASS
   local cUrl      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
-  local oFTP, oURL, ftpPathError := 'Error'
+  local oFTP, oURL
 
   local fl := .f.
 
-  Default flError To .f.
+  Default strPath To ''
   
   oURL := TUrl():New( cURL )
     
@@ -92,8 +92,8 @@ function fileToFTP( fileName, flError )
   oFTP:bUsePasv := .T.
     
   if oFTP:Open( cURL )
-    if flError
-      oFTP:CWD( ftpPathError )
+    if ! empty( strPath )
+      oFTP:CWD( alltrim( strPath ) )
       oFTP:DELE( hb_FNameNameExt( fileName ) )
     endif
     if oFtp:UploadFile( fileName )

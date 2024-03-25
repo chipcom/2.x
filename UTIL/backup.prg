@@ -7,7 +7,7 @@
 #define COMPRESSION 3
 #define YEAR_COMPRESSION 2
 
-// 23.03.24 резервное копирование реестра на FTP
+// 25.03.24 резервное копирование реестра на FTP
 function XML_files_to_FTP( name_xml, kod )
 
   local zip_file, i
@@ -62,11 +62,11 @@ function XML_files_to_FTP( name_xml, kod )
     schet_->( dbCloseArea() )
     Select REES
   endif
-  create_zip_to_ftp( zip_file, ar )
+  create_zip_to_ftp( zip_file, ar, 'reestr' )
 
   return nil
 
-// 22.03.24 резервное копирование файла ошибок на FTP
+// 25.03.24 резервное копирование файла ошибок на FTP
 function errorFileToFTP()
 
   local zip_file
@@ -75,12 +75,12 @@ function errorFileToFTP()
   zip_file := 'mo' + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) + '_error'
   AAdd( ar, dir_server + 'error.txt' )
 
-  create_zip_to_ftp( zip_file, ar )
+  create_zip_to_ftp( zip_file, ar, 'Error' )
 
   return nil
 
-// 22.03.24 создание zip-файла и отправка на FTP сервер
-function create_zip_to_ftp( name, ar )
+// 25.03.24 создание zip-файла и отправка на FTP сервер
+function create_zip_to_ftp( name, ar, strPath )
 
   local nLen, aGauge, lCompress, fl := .f., zip_file
   local name_file, ft
@@ -104,10 +104,10 @@ function create_zip_to_ftp( name, ar )
   closegauge( aGauge ) // Закроем окно отображения бегунка
 
   If ! lCompress
-    func_error( 4, 'Возникла ошибка при архивировании файла.' )
+    func_error( 4, 'Возникла ошибка при архивировании файла.' ) 
   else
     mywait( 'Отправка "' + zip_file + '" на FTP-сервер службы поддержки' )
-    If filetoftp( zip_file, .t. )
+    If filetoftp( zip_file, strPath )
       stat_msg( 'Файл ' + zip_file + ' успешно отправлен на сервер!' )
       fl := .t.
     Else
