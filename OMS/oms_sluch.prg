@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 03.03.24 селектор для добавления или редактирования случаев (листов учета)
+// 27.03.24 селектор для добавления или редактирования случаев (листов учета)
 Function oms_sluch( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -34,6 +34,8 @@ Function oms_sluch( Loc_kod, kod_kartotek )
       Return oms_sluch_med_reab( Loc_kod, kod_kartotek )
     Elseif glob_otd[ 4 ] == TIP_LU_ONKO_DISP // постановка на диспансерный учет онкопациетов в поликлинике
       Return oms_sluch_onko_disp( Loc_kod, kod_kartotek )
+    Elseif glob_otd[ 4 ] == TIP_LU_DRZ // диспнсеризация репродуктивного здоровья взрослого населения
+      Return oms_sluch_dvn_drz( Loc_kod, kod_kartotek )
     Else  // основной вид листа учета
       Return oms_sluch_main( Loc_kod, kod_kartotek )
     Endif

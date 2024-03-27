@@ -204,6 +204,8 @@ mo_version.prg
 .\dispanser\mo_r11.prg
 .\dispanser\mo_omsid.prg
 .\dispanser\disp_nab_func.prg
+.\dispanser\oms_dvn_drz.prg
+.\dispanser\oms_dvn_drz_func.prg
 
 .\EXCHANGE\reestrOMS_XML.prg
 .\EXCHANGE\schet_from_XML.prg
