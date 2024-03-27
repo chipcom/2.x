@@ -729,7 +729,7 @@ Function verify_oms_sluch( mkod )
 
   Return Nil
 
-// 06.01.22 Добавление листка учета лечения больного
+// 27.03.24 Добавление листка учета лечения больного
 Function oms_add()
 
   Local buf, str_sem
@@ -738,9 +738,9 @@ Function oms_add()
   If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL
     buf := box_shadow( 0, 41, 2, 77, color13 )
     @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
-    Private fl_edit_oper, fl_edit_smp, fl_edit_DDS, fl_edit_DVN, fl_edit_DVN_COVID
+    Private fl_edit_oper, fl_edit_smp, fl_edit_DDS, fl_edit_DVN, fl_edit_DVN_COVID, fl_edit_dvn_drz
     Do While .t.
-      fl_edit_oper := fl_edit_smp := fl_edit_DDS := fl_edit_DVN := fl_edit_DVN_COVID := .f.
+      fl_edit_oper := fl_edit_smp := fl_edit_DDS := fl_edit_DVN := fl_edit_DVN_COVID := fl_edit_dvn_drz := .f.
       polikl_kart( 1 )
       If fl_edit_oper
         str_sem := 'Редактирование человека ' + lstr( glob_perso )
@@ -755,7 +755,7 @@ Function oms_add()
         Else
           func_error( 4, 'В данный момент с карточкой этого пациента работает другой пользователь.' )
         Endif
-      Elseif fl_edit_smp .or. fl_edit_DDS .or. fl_edit_DVN .or. fl_edit_DVN_COVID
+      Elseif fl_edit_smp .or. fl_edit_DDS .or. fl_edit_DVN .or. fl_edit_DVN_COVID .or. fl_edit_dvn_drz
         // не выходим из цикла
       Else
         Exit
