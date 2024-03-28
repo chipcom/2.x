@@ -4,14 +4,83 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.03.24 рабочая ли услуга по диспансеризации репродуктивного здоровья в зависимости от этапа
-Function f_is_usl_oms_sluch_drz( i, _etap, allUsl, /*@*/_diag, /*@*/_otkaz) // , /*@*/_ekg)
 
+// 28.08.24 получить индекс услуги на этапе диспансеризации COVID
+Function index_usluga_etap_drz( _etap, lshifr, age, gender )
+
+  // _etap - этап диспансеризации
+  // lshifr - шифр услуги
+  // age - возраст
+  // gender - пол (М или Ж)
+  Local index := 0
+  Local i := 0
+  Local usl := uslugietap_drz( _etap, age, gender )
+
+  For i := 1 To Len( usl )
+    If AllTrim( usl[ i, 2 ] ) == AllTrim( lshifr )
+      index := i
+      Exit
+    Endif
+  Next
+
+  Return Index
+
+// 28.03.24
+Function valid_date_uslugi_drz( get, metap, beginDate, endDate, lenArr, i )
+
+  If CToD( get:buffer ) > endDate
+    get:varput( get:original )
+    func_error( 4, 'Дата проведения исследования больше даты окончания диспансеризации' )
+    Return .f.
+  Endif
+
+  If CToD( get:buffer ) < beginDate
+    get:varput( get:original )
+    func_error( 4, 'Дата проведения исследования меньше даты начала диспансеризации' )
+    Return .f.
+  Endif
+
+  If ( metap == 1 .and. Upper( get:name ) == 'MDATE8' ) .or. ( metap == 2 .and. Upper( get:name ) == 'MDATE4' ) // дата приема
+    If CToD( get:buffer ) != endDate
+      get:varput( get:original )
+      func_error( 4, 'Дата проведения осмотра врача не равна дате окончания углубленной диспансеризации' )
+      Return .f.
+    Endif
+  Endif
+
+  Return .t.
+
+// 28.03.24
+Function f_valid_begdata_drz( get, loc_kod )
+
+  Local i
+
+  If CToD( get:buffer ) < 0d20240101
+    get:varput( get:original )
+    func_error( 4, 'Диспансеризация репродуктивного здоровья началась с 01 января 2024 года' )
+    Keyboard Chr( K_UP )
+    Return .f.
+  Endif
+
+//  If loc_kod == 0
+//    For i := 1 To Len( uslugietap_drz( metap ) ) - iif( metap == 1, 2, 1 )
+//      // на 1-этапе одна услуга не отображается в списке (70.9.1 или 70.9.2 или 70.9.3)
+//      mvar := "MDATE" + lstr( i )
+//      &mvar := CToD( get:buffer )
+//      update_get( mvar )
+//    Next
+//  Endif
+
+  Return .t. 
+
+// 28.03.24 рабочая ли услуга по диспансеризации репродуктивного здоровья в зависимости от этапа
+Function f_is_usl_oms_sluch_drz( i, _etap, age, gender, allUsl, /*@*/_diag, /*@*/_otkaz )
+ 
   Local fl := .f.
   Local ars := {}
   local uName
 
-  Local ar := uslugietap_drz( _etap )[ i ]
+  Local ar := uslugietap_drz( _etap, age, gender )[ i ]
 
   uName := alltrim( ar[ 2 ] )
   If ValType( ar[ 2 ] ) == "C" .and. _etap == 1 .and. ( uName == '70.9.1' .or. uName == '70.9.2' .or. uName == '70.9.3' ) .and. ( ! allUsl )
@@ -36,20 +105,40 @@ Function f_is_usl_oms_sluch_drz( i, _etap, allUsl, /*@*/_diag, /*@*/_otkaz) // ,
   Return fl
 
 // 28.03.241 получить услуги этапа диспансеризации COVID
-Function uslugietap_drz( _etap )
+Function uslugietap_drz( _etap, age, gender )
 
   // _etap - этап диспансеризации
   Local retArray := {}
-  Local i
+  Local i, fl
   Local usl := ret_arrays_drz()
 
+  default age to 18
+  default gender to 0
+
   For i := 1 To Len( usl )
-    If ValType( usl[ i, 3 ] ) == "N"
+    fl := .f.
+    If ValType( usl[ i, 3 ] ) == 'N'
       fl := ( usl[ i, 3 ] == _etap )
     Else
       fl := AScan( usl[ i, 3 ], _etap ) > 0
     Endif
     If fl
+      if gender == 'М'
+        if ValType( usl[ i, 6 ] ) == 'N'
+          fl := ( usl[ i, 6 ] == 1 )
+        else
+          fl := AScan( usl[ i, 6 ], age ) > 0
+        Endif
+      else
+        if ValType( usl[ i, 7 ] ) == 'N'
+          fl := ( usl[ i, 7 ] == 1 )
+        else
+          fl := AScan( usl[ i, 7 ], age ) > 0
+        Endif
+      endif
+    endif
+
+    if fl
       AAdd( retArray, usl[ i ] )
     Endif
   Next
@@ -75,7 +164,7 @@ Function ret_arrays_drz()
   // 13 - соответствующая услуга ФФОМС услуге ТФОМС
   dvn_drz_arr_usl := { ; // Услуги на экран для ввода
     { ;
-      'Приём (осмотр, консультация) врачом-акушера-гинеколога первичный', ; // наименование меню
+      'Приём врача-акушера-гинеколога первичный', ; // наименование меню
       'B01.001.001', ; // шифр услуги
       1, ;  // этап или список допустимых этапов, пример: {1, 2}
       1, ;  // диагноз (0 или 1) может быть?
@@ -126,7 +215,7 @@ Function ret_arrays_drz()
       '';   // соответствующая услуга ФФОМС услуге ТФОМС
     }, ;
     { ;
-      'Микроскопическое исследование влагалищных мазков', ; // наименование меню
+      'Микроскопическое иссл-ние влагалищных мазков', ; // наименование меню
       'A12.20.001', ; // шифр услуги
       1, ;  // этап или список допустимых этапов, пример: {1, 2}
       1, ;  // диагноз (0 или 1) может быть?
@@ -143,7 +232,7 @@ Function ret_arrays_drz()
       '';   // соответствующая услуга ФФОМС услуге ТФОМС
     }, ;
     { ;
-      'Цитологическое исследование микропрепарата шейки матки', ; // наименование меню
+      'Цит. исследование микропрепарата шейки матки', ; // наименование меню
       'A08.20.017', ; // шифр услуги
       1, ;  // этап или список допустимых этапов, пример: {1, 2}
       1, ;  // диагноз (0 или 1) может быть?
@@ -160,7 +249,7 @@ Function ret_arrays_drz()
       '';   // соответствующая услуга ФФОМС услуге ТФОМС
     }, ;
     { ;
-      'Определение ДНК возбудителей инфекции, передаваемые половым путем ', ; // наименование меню
+      'Опред-ние инфекций, передаваемые половым путем', ; // наименование меню
       'A26.20.034.001', ; // шифр услуги
       1, ;  // этап или список допустимых этапов, пример: {1, 2}
       1, ;  // диагноз (0 или 1) может быть?
@@ -206,7 +295,7 @@ Function ret_arrays_drz()
       '';   // соответствующая услуга ФФОМС услуге ТФОМС
     }, ;
     { ;
-      'Приём (осмотр, консультация) врачом-урологом первичный', ; // наименование меню
+      'Приём врача-уролога первичный', ; // наименование меню
       'B01.053.001', ; // шифр услуги
       1, ;  // этап или список допустимых этапов, пример: {1, 2}
       1, ;  // диагноз (0 или 1) может быть?
@@ -223,7 +312,7 @@ Function ret_arrays_drz()
       '';   // соответствующая услуга ФФОМС услуге ТФОМС
     }, ;
     { ;
-      'Приём (осмотр, консультация) врачом-хирургом первичный', ; // наименование меню
+      'Приём врача-хирурга первичный *', ; // наименование меню
       'B01.057.001', ; // шифр услуги
       1, ;  // этап или список допустимых этапов, пример: {1, 2}
       1, ;  // диагноз (0 или 1) может быть?
