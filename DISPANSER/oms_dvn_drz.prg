@@ -335,7 +335,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     endif
     //
     // выбираем иформацию об услугах
-    larr := array( 2, len( uslugiEtap_DVN_COVID( metap ) ) )
+    larr := array( 2, len( uslugietap_drz( metap ) ) )
     arr_usl := {}
     afillall( larr, 0 )
     R_Use( dir_server + 'uslugi', , 'USL')
@@ -351,24 +351,24 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         lshifr := usl->shifr
       endif
       lshifr := alltrim( lshifr )
-      for i := 1 to len( uslugiEtap_DVN_COVID( metap ) )
+      for i := 1 to len( uslugietap_drz( metap ) )
         if empty( larr[ 1, i ] )
-          if valtype( uslugiEtap_DVN_COVID( metap )[ i, 2 ] ) == 'C' .and. uslugiEtap_DVN_COVID( metap )[ i, 12 ] == 0  // услуга ТФОМС
-            if uslugiEtap_DVN_COVID( metap )[ i, 2 ] == lshifr
+          if valtype( uslugietap_drz( metap )[ i, 2 ] ) == 'C' .and. uslugietap_drz( metap )[ i, 12 ] == 0  // услуга ТФОМС
+            if uslugietap_drz( metap )[ i, 2 ] == lshifr
               fl := .f.
               larr[ 1, i ] := hu->( recno() )
               larr[ 2, i ] := lshifr
               // arr_usl[i] := hu->(recno())
               aadd( arr_usl, hu->( recno() ) )
 
-              if valtype( uslugiEtap_DVN_COVID( metap )[ i, 13 ] ) == 'C' .and. ! empty( uslugiEtap_DVN_COVID( metap )[ i, 13 ] )
+              if valtype( uslugietap_drz( metap )[ i, 13 ] ) == 'C' .and. ! empty( uslugietap_drz( metap )[ i, 13 ] )
                 select MOHU
                 set relation to u_kod into MOSU 
                 find ( str( Loc_kod, 7 ) )
                 do while MOHU->kod == Loc_kod .and. ! eof()
                   MOSU->( dbGoto( MOHU->u_kod ) )
                   lshifr := alltrim( iif( empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
-                  if lshifr == uslugiEtap_DVN_COVID( metap )[ i, 13 ]
+                  if lshifr == uslugietap_drz( metap )[ i, 13 ]
                     aadd( arr_usl, MOHU->( recno() ) )
                   endif
                   select MOHU
@@ -391,10 +391,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     do while MOHU->kod == Loc_kod .and. ! eof()
       MOSU->( dbGoto( MOHU->u_kod ) )
       lshifr := alltrim( iif( empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
-      for i := 1 to len( uslugiEtap_DVN_COVID( metap ) )
+      for i := 1 to len( uslugietap_drz( metap ) )
         if empty( larr[ 1, i ] )
-          if valtype( uslugiEtap_DVN_COVID( metap )[ i, 2 ] ) == 'C' .and. uslugiEtap_DVN_COVID( metap )[ i, 12 ] == 1  // услуга ФФОМС
-            if uslugiEtap_DVN_COVID( metap )[ i, 2 ] == lshifr
+          if valtype( uslugietap_drz( metap )[ i, 2 ] ) == 'C' .and. uslugietap_drz( metap )[ i, 12 ] == 1  // услуга ФФОМС
+            if uslugietap_drz( metap )[ i, 2 ] == lshifr
               fl := .f.
               larr[ 1, i ] := MOHU->( recno() )
               larr[ 2, i ] := lshifr
@@ -437,8 +437,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         endif
         m1var := 'M1OTKAZ' + lstr( i )
         &m1var := 0 // выполнено
-        if valtype( uslugiEtap_DVN_COVID( metap )[ i, 2 ] ) == 'C'
-          if ascan( arr_otklon, uslugiEtap_DVN_COVID( metap )[ i, 2 ] ) > 0
+        if valtype( uslugietap_drz( metap )[ i, 2 ] ) == 'C'
+          if ascan( arr_otklon, uslugietap_drz( metap )[ i, 2 ] ) > 0
             &m1var := 3 // выполнено, обнаружены отклонения
           endif
         endif
@@ -464,8 +464,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         endif
         m1var := 'M1OTKAZ' + lstr( i )
         &m1var := 0 // выполнено
-        if valtype( uslugiEtap_DVN_COVID( metap )[ i, 2 ] ) == 'C'
-          if ascan( arr_otklon, uslugiEtap_DVN_COVID( metap )[ i, 2 ] ) > 0
+        if valtype( uslugietap_drz( metap )[ i, 2 ] ) == 'C'
+          if ascan( arr_otklon, uslugietap_drz( metap )[ i, 2 ] ) > 0
             &m1var := 3 // выполнено, обнаружены отклонения
           endif
         endif
@@ -482,9 +482,9 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         if valtype( ar ) == 'A' .and. len( ar ) >= 5 .and. valtype( ar[ 5 ] ) == 'C'
           lshifr := alltrim( ar[ 5 ] )
           
-          for i := 1 to len( uslugiEtap_DVN_COVID( metap ) )
-            if valtype( uslugiEtap_DVN_COVID( metap )[ i, 2 ] ) == 'C' .and. ;
-                ( uslugiEtap_DVN_COVID( metap )[ i, 2 ] == lshifr )
+          for i := 1 to len( uslugietap_drz( metap ) )
+            if valtype( uslugietap_drz( metap )[ i, 2 ] ) == 'C' .and. ;
+                ( uslugietap_drz( metap )[ i, 2 ] == lshifr )
               if valtype( ar[ 1 ] ) == 'N' .and. ar[ 1 ] > 0
                 p2->( dbGoto(ar[ 1 ] ) )
                 mvar := 'MTAB_NOMv' + lstr( i )
@@ -668,11 +668,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       Endif
       fl_vrach := .t.
 
-      lenArr_Uslugi_DVN_COVID := Len( uslugietap_dvn_covid( metap ) )
-      For i := 1 To Len( uslugietap_dvn_covid( metap ) )
+      lenArr_Uslugi_DVN_COVID := Len( uslugietap_drz( metap ) )
+      For i := 1 To Len( uslugietap_drz( metap ) )
         fl_diag := .f.
         i_otkaz := 0
-        If f_is_usl_oms_sluch_dvn_covid( i, metap, .f., @fl_diag, @i_otkaz )
+        If f_is_usl_oms_sluch_drz( i, metap, .f., @fl_diag, @i_otkaz )
           If fl_diag .and. fl_vrach
             @ ++j, 1 Say '────────────────────────────────────────────┬─────┬─────┬───────────' Color color8
             @ ++j, 1 Say 'Наименования осмотров                       │врач │ассис│дата услуги' Color color8
@@ -690,7 +690,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           Endif
           mvarz := 'MKOD_DIAG' + lstr( i )
           mvaro := 'MOTKAZ' + lstr( i )
-          @ ++j, 1 Say uslugietap_dvn_covid( metap )[ i, 1 ]
+          @ ++j, 1 Say uslugietap_drz( metap )[ i, 1 ]
           @ j, 46 get &mvarv Pict '99999' valid {| g| v_kart_vrach( g ) } when {| g| condition_when_uslugi_covid( g, metap, mOKSI, m1dyspnea, m1strong ) }
           If mem_por_ass > 0
             @ j, 52 get &mvara Pict '99999' valid {| g| v_kart_vrach( g ) } when {| g| condition_when_uslugi_covid( g, metap, mOKSI, m1dyspnea, m1strong ) }
@@ -921,21 +921,21 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       fl := .t.
       k := 0
       kol_d_usl := 0
-      arr_osm1 := Array( Len( uslugietap_dvn_covid( metap ) ), 13 )
+      arr_osm1 := Array( Len( uslugietap_drz( metap ) ), 13 )
       afillall( arr_osm1, 0 )
 
       // ВСЕ ЗАПИСЫВАЕМ
       tmpvr := 0
-      For i := 1 To Len( uslugietap_dvn_covid( metap ) )
+      For i := 1 To Len( uslugietap_drz( metap ) )
         fl_diag := .f.
         i_otkaz := 0
-        f_is_usl_oms_sluch_dvn_covid( i, metap, .t., @fl_diag, @i_otkaz )
+        f_is_usl_oms_sluch_drz( i, metap, .t., @fl_diag, @i_otkaz )
         mvart := 'MTAB_NOMv' + lstr( i )
         mvara := 'MTAB_NOMa' + lstr( i )
         mvard := 'MDATE' + lstr( i )
         mvarz := 'MKOD_DIAG' + lstr( i )
         mvaro := 'M1OTKAZ' + lstr( i )
-        ar := uslugietap_dvn_covid( metap )[ i ]
+        ar := uslugietap_drz( metap )[ i ]
         // для заполнения услуги 70.8.1
         If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == 'B01.026.001'
           tmpvr := &mvart
@@ -946,9 +946,9 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         Endif
         //
         ++kol_d_usl
-        arr_osm1[ i, 12 ] := uslugietap_dvn_covid( metap )[ i, 12 ]   // признак услуги 0 - ТФОМС / 1 - ФФОМС
+        arr_osm1[ i, 12 ] := uslugietap_drz( metap )[ i, 12 ]   // признак услуги 0 - ТФОМС / 1 - ФФОМС
         If arr_osm1[ i, 12 ] == 0
-          arr_osm1[ i, 13 ] := uslugietap_dvn_covid( metap )[ i, 13 ]
+          arr_osm1[ i, 13 ] := uslugietap_drz( metap )[ i, 13 ]
         Endif
         If i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
           Select P2
