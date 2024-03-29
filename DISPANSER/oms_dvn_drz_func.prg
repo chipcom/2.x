@@ -4,6 +4,54 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 29.03.24
+Function ret_ndisp_drz( lkod_h, lkod_k )
+
+  Local fl := .t., msg
+
+  msg := ' '
+
+  ar := ret_etap_drz( lkod_h, lkod_k )
+  If ( Len( ar[ 1 ] ) == 0 ) .and. ( lkod_h == 0 )
+    metap := 1
+  Elseif  ( Len( ar[ 1 ] ) == 1 ) .and. ( lkod_h == 0 )
+    If ! eq_any( ar[ 1, 1, 3 ], 352, 353, 357, 358 )
+      msg := 'В ' + lstr( Year( mn_data ) ) + ' году проведен I этап диспансеризации репродуктивного здоровья без направления на II этап!'
+      hb_Alert( msg )
+      fl := .f.
+    Endif
+    metap := 2
+  Endif
+
+  mndisp := inieditspr( A__MENUVERT, mm_ndisp, metap )
+
+  Return fl
+
+// 29.03.24
+Function ret_etap_drz( lkod_h, lkod_k )
+
+  Local ae := { {}, {} }, fl, i, k, d1 := Year( mn_data )
+
+  r_use( dir_server + 'human_', , 'HUMAN_' )
+  r_use( dir_server + 'human', dir_server + 'humankk', 'HUMAN' )
+  Set Relation To RecNo() into HUMAN_
+  find ( Str( lkod_k, 7 ) )
+  Do While human->kod_k == lkod_k .and. !Eof()
+    fl := ( lkod_h != human->( RecNo() ) )
+    If fl .and. human->schet > 0 .and. human_->oplata == 9
+      fl := .f. // лист учёта снят по акту и выставлен повторно
+    Endif
+    If fl .and. Between( human->ishod, 401, 402 ) // ???
+      i := human->ishod - 400
+      If Year( human->n_data ) == d1 // текущий год
+        AAdd( ae[ 1 ], { i, human->k_data, human_->RSLT_NEW } )
+      Endif
+    Endif
+    Skip
+  Enddo
+  Close databases
+
+  Return ae
 
 // 28.08.24 получить индекс услуги на этапе диспансеризации COVID
 Function index_usluga_etap_drz( _etap, lshifr, age, gender )
@@ -65,7 +113,7 @@ Function f_valid_begdata_drz( get, loc_kod )
 //  If loc_kod == 0
 //    For i := 1 To Len( uslugietap_drz( metap ) ) - iif( metap == 1, 2, 1 )
 //      // на 1-этапе одна услуга не отображается в списке (70.9.1 или 70.9.2 или 70.9.3)
-//      mvar := "MDATE" + lstr( i )
+//      mvar := 'MDATE' + lstr( i )
 //      &mvar := CToD( get:buffer )
 //      update_get( mvar )
 //    Next
@@ -83,17 +131,17 @@ Function f_is_usl_oms_sluch_drz( i, _etap, age, gender, allUsl, /*@*/_diag, /*@*
   Local ar := uslugietap_drz( _etap, age, gender )[ i ]
 
   uName := alltrim( ar[ 2 ] )
-  If ValType( ar[ 2 ] ) == "C" .and. _etap == 1 .and. ( uName == '70.9.1' .or. uName == '70.9.2' .or. uName == '70.9.3' ) .and. ( ! allUsl )
+  If ValType( ar[ 2 ] ) == 'C' .and. _etap == 1 .and. ( uName == '70.9.1' .or. uName == '70.9.2' .or. uName == '70.9.3' ) .and. ( ! allUsl )
     Return fl
   Endif
-  If ValType( ar[ 3 ] ) == "N"
+  If ValType( ar[ 3 ] ) == 'N'
     fl := ( ar[ 3 ] == _etap )
   Else
     fl := AScan( ar[ 3 ], _etap ) > 0
   Endif
   _diag := ( ar[ 4 ] == 1 )
   _otkaz := 0
-  If ValType( ar[ 2 ] ) == "C"
+  If ValType( ar[ 2 ] ) == 'C'
     AAdd( ars, ar[ 2 ] )
   Else
     ars := AClone( ar[ 2 ] )
@@ -349,7 +397,180 @@ Function ret_arrays_drz()
 
   Return dvn_drz_arr_usl
 
-// 27.03.24
+// 29.03.24
+Function save_arr_drz( lkod, mk_data )
+
+  Local arr := {}, i, sk, ta
+  Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
+  Local oldSelect
+
+  If ! aliasIsUse
+    oldSelect := Select()
+    r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'TPERS' )
+  Endif
+
+  If Type( 'mfio' ) == 'C'
+    AAdd( arr, { 'mfio', AllTrim( mfio ) } )
+  Endif
+  If Type( 'mdate_r' ) == 'D'
+    AAdd( arr, { 'mdate_r', mdate_r } )
+  Endif
+  For i := 1 To 5
+    sk := lstr( i )
+    pole_diag := 'mdiag' + sk
+    pole_1pervich := 'm1pervich' + sk
+    pole_1stadia := 'm1stadia' + sk
+    pole_1dispans := 'm1dispans' + sk
+    pole_1dop := 'm1dop' + sk
+    pole_1usl := 'm1usl' + sk
+    pole_1san := 'm1san' + sk
+    pole_d_diag := 'mddiag' + sk
+    pole_d_dispans := 'mddispans' + sk
+    pole_dn_dispans := 'mdndispans' + sk
+    If !Empty( &pole_diag )
+      ta := { &pole_diag, ;
+        &pole_1pervich, ;
+        &pole_1stadia, ;
+        &pole_1dispans }
+      If Type( pole_1dop ) == 'N' .and. Type( pole_1usl ) == 'N' .and. Type( pole_1san ) == 'N'
+        AAdd( ta, &pole_1dop )
+        AAdd( ta, &pole_1usl )
+        AAdd( ta, &pole_1san )
+      Else
+        AAdd( ta, 0 )
+        AAdd( ta, 0 )
+        AAdd( ta, 0 )
+      Endif
+      If Type( pole_d_diag ) == 'D' .and. Type( pole_d_dispans ) == 'D'
+        AAdd( ta, &pole_d_diag )
+        AAdd( ta, &pole_d_dispans )
+      Else
+        AAdd( ta, CToD( '' ) )
+        AAdd( ta, CToD( '' ) )
+      Endif
+      If Type( pole_dn_dispans ) == 'D'
+        AAdd( ta, &pole_dn_dispans )
+      Else
+        AAdd( ta, CToD( '' ) )
+      Endif
+      AAdd( arr, { lstr( 10 + i ), ta } )
+    Endif
+  Next i
+  // отказы пациента
+  If !Empty( arr_usl_otkaz )
+    AAdd( arr, { '19', arr_usl_otkaz } ) // массив
+  Endif
+  AAdd( arr, { '30', m1GRUPPA } )    // 'N1',группа здоровья после дисп-ии
+  If Type( 'm1prof_ko' ) == 'N'
+    AAdd( arr, { '31', m1prof_ko } )    // 'N1',вид проф.консультирования
+  Endif
+  // if type('m1ot_nasl1') == 'N'
+  AAdd( arr, { '40', arr_otklon } ) // массив
+  AAdd( arr, { '45', m1dispans } )
+  AAdd( arr, { '46', m1nazn_l } )
+  If mk_data >= 0d20210801
+    If mtab_v_dopo_na != 0
+      If TPERS->( dbSeek( Str( mtab_v_dopo_na, 5 ) ) )
+        AAdd( arr, { '47', { m1dopo_na, TPERS->kod } } )
+      Else
+        AAdd( arr, { '47', { m1dopo_na, 0 } } )
+      Endif
+    Else
+      AAdd( arr, { '47', { m1dopo_na, 0 } } )
+    Endif
+  Else
+    AAdd( arr, { '47', m1dopo_na } )
+  Endif
+  AAdd( arr, { '48', m1ssh_na } )
+  AAdd( arr, { '49', m1spec_na } )
+  If mk_data >= 0d20210801
+    If mtab_v_sanat != 0
+      If TPERS->( dbSeek( Str( mtab_v_sanat, 5 ) ) )
+        AAdd( arr, { '50', { m1sank_na, TPERS->kod } } )
+      Else
+        AAdd( arr, { '50', { m1sank_na, 0 } } )
+      Endif
+    Else
+      AAdd( arr, { '50', { m1sank_na, 0 } } )
+    Endif
+  Else
+    AAdd( arr, { '50', m1sank_na } )
+  Endif
+  // endif
+  If Type( 'm1p_otk' ) == 'N'
+    AAdd( arr, { '51', m1p_otk } )
+  Endif
+  If mk_data >= 0d20210801
+    If Type( 'm1napr_v_mo' ) == 'N'
+      If mtab_v_mo != 0
+        If TPERS->( dbSeek( Str( mtab_v_mo, 5 ) ) )
+          AAdd( arr, { '52', { m1napr_v_mo, TPERS->kod } } )
+        Else
+          AAdd( arr, { '52', { m1napr_v_mo, 0 } } )
+        Endif
+      Else
+        AAdd( arr, { '52', { m1napr_v_mo, 0 } } )
+      Endif
+    Endif
+  Else
+    If Type( 'm1napr_v_mo' ) == 'N'
+      AAdd( arr, { '52', m1napr_v_mo } )
+    Endif
+  Endif
+  If Type( 'arr_mo_spec' ) == 'A'
+    AAdd( arr, { '53', arr_mo_spec } ) // массив
+  Endif
+  If mk_data >= 0d20210801
+    If Type( 'm1napr_stac' ) == 'N'
+      If mtab_v_stac != 0
+        If TPERS->( dbSeek( Str( mtab_v_stac, 5 ) ) )
+          AAdd( arr, { '54', { m1napr_stac, TPERS->kod } } )
+        Else
+          AAdd( arr, { '54', { m1napr_stac, 0 } } )
+        Endif
+      Else
+        AAdd( arr, { '54', { m1napr_stac, 0 } } )
+      Endif
+    Endif
+  Else
+    If Type( 'm1napr_stac' ) == 'N'
+      AAdd( arr, { '54', m1napr_stac } )
+    Endif
+  Endif
+  If Type( 'm1profil_stac' ) == 'N'
+    AAdd( arr, { '55', m1profil_stac } )
+  Endif
+  If mk_data >= 0d20210801
+    If Type( 'm1napr_reab' ) == 'N'
+      If mtab_v_reab != 0
+        If TPERS->( dbSeek( Str( mtab_v_reab, 5 ) ) )
+          AAdd( arr, { '56', { m1napr_reab, TPERS->kod } } )
+        Else
+          AAdd( arr, { '56', { m1napr_reab, 0 } } )
+        Endif
+      Else
+        AAdd( arr, { '56', { m1napr_reab, 0 } } )
+      Endif
+    Endif
+  Else
+    If Type( 'm1napr_reab' ) == 'N'
+      AAdd( arr, { '56', m1napr_reab } )
+    Endif
+  Endif
+  If Type( 'm1profil_kojki' ) == 'N'
+    AAdd( arr, { '57', m1profil_kojki } )
+  Endif
+
+  If ! aliasIsUse
+    TPERS->( dbCloseArea() )
+    Select( oldSelect )
+  Endif
+
+  save_arr_dispans( lkod, arr )
+
+  Return Nil
+
+// 29.03.24
 Function read_arr_drz( lkod, is_all )
 
   Local arr, i, sk
@@ -367,18 +588,6 @@ Function read_arr_drz( lkod, is_all )
   For i := 1 To Len( arr )
     If ValType( arr[ i ] ) == 'A' .and. ValType( arr[ i, 1 ] ) == 'C'
       Do Case
-      Case arr[ i, 1 ] == '0' .and. ValType( arr[ i, 2 ] ) == 'N'
-        m1mobilbr := arr[ i, 2 ]
-      Case arr[ i, 1 ] == '1' .and. ValType( arr[ i, 2 ] ) == 'D'
-        mDateCOVID := arr[ i, 2 ]
-      Case arr[ i, 1 ] == '2' .and. ValType( arr[ i, 2 ] ) == 'N'
-        mOKSI := arr[ i, 2 ]
-      Case arr[ i, 1 ] == '3' .and. ValType( arr[ i, 2 ] ) == 'N'
-        m1strong := arr[ i, 2 ]
-      Case arr[ i, 1 ] == '4' .and. ValType( arr[ i, 2 ] ) == 'N'
-        m1dyspnea := arr[ i, 2 ]
-      Case arr[ i, 1 ] == '5' .and. ValType( arr[ i, 2 ] ) == 'N'
-        m1komorbid := arr[ i, 2 ]
       Case is_all .and. eq_any( arr[ i, 1 ], '11', '12', '13', '14', '15' ) .and. ;
           ValType( arr[ i, 2 ] ) == 'A' .and. Len( arr[ i, 2 ] ) >= 7
         sk := Right( arr[ i, 1 ], 1 )

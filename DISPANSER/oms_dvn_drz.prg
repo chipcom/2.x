@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.03.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 29.03.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -579,7 +579,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   mspec_na  := inieditspr( A__MENUVERT, mm_danet, m1spec_na )
   msank_na  := inieditspr( A__MENUVERT, mm_danet, m1sank_na )
 
-//  If ! ret_ndisp_covid( Loc_kod, kod_kartotek )
+//  If ! ret_ndisp_drz( Loc_kod, kod_kartotek )
 //    Return Nil
 //  Endif
   //
@@ -626,6 +626,26 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         update_get( 'mkomu' ), update_get( 'mcompany' ) }
       @ Row(), Col() + 5 Say 'Д.р.' Get mdate_r When .f. Color color14
 
+//      @ ++j, 1 Say ' Принадлежность счёта' Get mkomu ;
+//        reader {| x| menu_reader( x, mm_komu, A__MENUVERT,,, .f. ) } ;
+//        valid {| g, o| f_valid_komu( g, o ) } ;
+//        Color colget_menu
+//      @ Row(), Col() + 1 Say '==>' Get mcompany ;
+//        reader {| x| menu_reader( x, mm_company, A__MENUVERT,,, .f. ) } ;
+//        When m1komu < 5 ;
+//        valid {| g| func_valid_ismo( g, m1komu, 38 ) }
+//      @ ++j, 1 Say ' Полис ОМС: серия' Get mspolis When m1komu == 0
+      @ ++j, 1 Say ' Полис ОМС: вид' Get mvidpolis ;
+        reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT,,, .f. ) } ;
+        When m1komu == 0 ;
+        Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
+      
+      @ Row(), Col() + 2 Say 'номер'  Get mnpolis When m1komu == 0
+      @ Row(), Col() + 2 Say 'серия' Get mspolis When ( m1vidpolis == 1 .and. m1komu == 0 )
+//      @ Row(), Col() + 3 Say 'вид'    Get mvidpolis ;
+//        reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT,,, .f. ) } ;
+//        When m1komu == 0 ;
+//        Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
       @ ++j, 1 Say ' Принадлежность счёта' Get mkomu ;
         reader {| x| menu_reader( x, mm_komu, A__MENUVERT,,, .f. ) } ;
         valid {| g, o| f_valid_komu( g, o ) } ;
@@ -634,36 +654,34 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         reader {| x| menu_reader( x, mm_company, A__MENUVERT,,, .f. ) } ;
         When m1komu < 5 ;
         valid {| g| func_valid_ismo( g, m1komu, 38 ) }
-      @ ++j, 1 Say ' Полис ОМС: серия' Get mspolis When m1komu == 0
-      @ Row(), Col() + 3 Say 'номер'  Get mnpolis When m1komu == 0
-      @ Row(), Col() + 3 Say 'вид'    Get mvidpolis ;
-        reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT,,, .f. ) } ;
-        When m1komu == 0 ;
-        Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
       //
+      j++
       @ ++j, 1 Say 'Сроки' Get mn_data ;
-        valid {| g| f_k_data( g, 1 ), f_valid_begdata_drz( g, Loc_kod ), ;
+        valid {| g | f_k_data( g, 1 ), f_valid_begdata_drz( g, Loc_kod ), ;
         iif( ( mvozrast < 18 .or. mvozrast > 49 ), func_error( 4, 'Пациент не подлежит данному виду диспансеризации!' ), nil ), ;
-        ret_ndisp_covid( Loc_kod, kod_kartotek ) ;
+        ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
         }
       @ Row(), Col() + 1 Say '-' Get mk_data ;
-        valid {| g| f_k_data( g, 2 ), f_valid_enddata_dvn_covid( g, Loc_kod ), ;
-        ret_ndisp_covid( Loc_kod, kod_kartotek ) ;
+        valid {| g | f_k_data( g, 2 ), ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
         }
 
       @ j, Col() + 5 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
 
-      ret_ndisp_covid( Loc_kod, kod_kartotek )
+      ret_ndisp_drz( Loc_kod, kod_kartotek )
+      j++
+      @ ++j, 8 Get mndisp When .f. Color color14  // заголовок
 
-      @ ++j, 8 Get mndisp When .f. Color color14
-
-      @ ++j, 1 Say '────────────────────────────────────────────┬─────┬─────┬──────────┬──────────' Color color8
-      @ ++j, 1 Say 'Наименования исследований                   │врач │ассис│дата услуг│выполнение ' Color color8
-      @ ++j, 1 Say '────────────────────────────────────────────┴─────┴─────┴──────────┴──────────' Color color8
-      If mem_por_ass == 0
-        @ j - 1, 52 Say Space( 5 )
-      Endif
+      if ! ( metap == 1 .and. nGender == 'М' )
+        @ ++j, 1 Say '────────────────────────────────────────────┬─────┬─────┬──────────┬──────────' Color color8
+        @ ++j, 1 Say 'Наименования исследований                   │врач │ассис│дата услуг│выполнение ' Color color8
+        @ ++j, 1 Say '────────────────────────────────────────────┴─────┴─────┴──────────┴──────────' Color color8
+        If mem_por_ass == 0
+          @ j - 1, 52 Say Space( 5 )
+        Endif
+      else
+        j += 2
+      endif
       fl_vrach := .t.
 
       lenArr_Uslugi_DRZ := Len( uslugietap_drz( metap, nAge, nGender ) )
@@ -699,17 +717,21 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
           Elseif i_otkaz == 0
             @ j, 69 get &mvaro ;
-              reader {| x| menu_reader( x, mm_otkaz0, A__MENUVERT,,, .f. ) } when {| g| condition_when_uslugi_covid( g, metap, mOKSI, m1dyspnea, m1strong ) }
+              reader {| x| menu_reader( x, mm_otkaz0, A__MENUVERT,,, .f. ) }
           Elseif i_otkaz == 1
             @ j, 69 get &mvaro ;
-              reader {| x| menu_reader( x, mm_otkaz1, A__MENUVERT,,, .f. ) } when {| g| condition_when_uslugi_covid( g, metap, mOKSI, m1dyspnea, m1strong ) }
+              reader {| x| menu_reader( x, mm_otkaz1, A__MENUVERT,,, .f. ) }
           Elseif eq_any( i_otkaz, 2, 3 )
             @ j, 69 get &mvaro ;
-              reader {| x| menu_reader( x, mm_otkaz, A__MENUVERT,,, .f. ) } when {| g| condition_when_uslugi_covid( g, metap, mOKSI, m1dyspnea, m1strong ) }
+              reader {| x| menu_reader( x, mm_otkaz, A__MENUVERT,,, .f. ) }
           Endif
         Endif
       Next
       @ ++j, 1 Say Replicate( '─', 68 ) Color color8
+      if nGender == 'М'
+        j += 2
+        @ ++j, 1 Say '*- Прием врача-хирурга осуществляется только в случае отсутствия врача-уролога' Color color8
+      endif
       status_key( '^<Esc>^ выход без записи ^<PgDn>^ на 2-ю страницу' )
     Elseif num_screen == 2 //
 
@@ -719,7 +741,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         m1GRUPPA := mm_gruppa[ i, 2 ]
       Endif
 
-      ret_ndisp_covid( Loc_kod, kod_kartotek )
+      ret_ndisp_drz( Loc_kod, kod_kartotek )
       @ ++j, 8 Get mndisp When .f. Color color14
       @ ++j, 1  Say '───────┬────────────┬──────────┬──────┬───────────────────────────────────────'
       @ ++j, 1  Say '       │  выявлено  │   дата   │стадия│установлено диспансерное Дата следующего'
@@ -1104,7 +1126,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           Endif
         Next
         For i := 1 To Len( arr_diag )
-          adiag_talon[ i * 2 -1 ] := arr_diag[ i, 2 ]
+          adiag_talon[ i * 2 - 1 ] := arr_diag[ i, 2 ]
           adiag_talon[ i * 2  ] := arr_diag[ i, 3 ]
           If i == 1
             MKOD_DIAG := arr_diag[ i, 1 ]
@@ -1528,7 +1550,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         Endif
       Endif
 
-      save_arr_dvn_covid( mkod, mk_data )
+      save_arr_drz( mkod, mk_data )
 
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.
