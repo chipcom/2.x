@@ -6,7 +6,7 @@
 
 Static sadiag1  // := {}
 
-// 05.03.24
+// 30.03.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -3799,9 +3799,9 @@ Function verify_1_sluch( fl_view )
       Private &pole_dn_dispans := CToD( '' )
     Next
     m1dopo_na := 0
-    m1napr_v_mo := 0 // {{'-- нет --', 0}, {'в нашу МО', 1}, {'в иную МО', 2}}, ;
+    m1napr_v_mo := 0
     arr_mo_spec := {}
-    m1napr_stac := 0 // {{'--- нет ---', 0}, {'в стационар', 1}, {'в дн. стац.', 2}}, ;
+    m1napr_stac := 0
     m1profil_stac := 0
     m1napr_reab := 0
     m1profil_kojki := 0
@@ -3816,13 +3816,13 @@ Function verify_1_sluch( fl_view )
         Endif
       Next
     Endif
-    If Between( m1napr_v_mo, 1, 2 ) .and. !Empty( arr_mo_spec ) // {{'-- нет --', 0}, {'в нашу МО', 1}, {'в иную МО', 2}}, ;
+    If Between( m1napr_v_mo, 1, 2 ) .and. !Empty( arr_mo_spec )
       AAdd( arr_nazn, { m1napr_v_mo, {} } ) ; j := Len( arr_nazn )
       For i := 1 To Min( 3, Len( arr_mo_spec ) )
         AAdd( arr_nazn[ j, 2 ], arr_mo_spec[ i ] )
       Next
     Endif
-    If Between( m1napr_stac, 1, 2 ) .and. m1profil_stac > 0 // {{'--- нет ---', 0}, {'в стационар', 1}, {'в дн. стац.', 2}}, ;
+    If Between( m1napr_stac, 1, 2 ) .and. m1profil_stac > 0
       AAdd( arr_nazn, { iif( m1napr_stac == 1, 5, 4 ), m1profil_stac } )
     Endif
     If m1napr_reab == 1 .and. m1profil_kojki > 0
@@ -4357,9 +4357,9 @@ Function verify_1_sluch( fl_view )
       AAdd( ta, 'углубленная диспансеризация после COVID началась с 01 июля 2021 года' )
     Endif
     m1dopo_na := 0
-    m1napr_v_mo := 0 // {{'-- нет --', 0}, {'в нашу МО', 1}, {'в иную МО', 2}}, ;
+    m1napr_v_mo := 0
     arr_mo_spec := {}
-    m1napr_stac := 0 // {{'--- нет ---', 0}, {'в стационар', 1}, {'в дн. стац.', 2}}, ;
+    m1napr_stac := 0
     m1profil_stac := 0
     m1napr_reab := 0
     m1profil_kojki := 0

@@ -4,6 +4,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+#define BASE_ISHOD_RZD 500  // ВРЕМЕННО
+
 // 28.09.18 добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
 Function np_oftal_2_85_21( _period, _k_data )
 
@@ -290,7 +292,7 @@ Function add_pediatr_pern( _pv, _pa, _date, _diag )
 
   Return arr
 
-// 18.10.22 вернуть тип вводимого листа учёта
+// 31.03.24 вернуть тип вводимого листа учёта
 Function ret_tip_lu( /*@*/stip)
 
   Local k := 0, tmp_select
@@ -337,6 +339,13 @@ Function ret_tip_lu( /*@*/stip)
       stip := 'УД1'             // для 1-го этапа
     Else // 402
       stip := 'УД2'             // для 2-го этапа
+    Endif
+  Elseif Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )  // ВРЕМЕННО при диспансеризации репродуктивного здоровья
+    k := TIP_LU_DRZ
+    If human->ishod == BASE_ISHOD_RZD + 1
+      stip := 'ДР1'             // для 1-го этапа
+    Else // 402
+      stip := 'ДР2'             // для 2-го этапа
     Endif
   Elseif human->ishod == 98
     k := TIP_LU_G_CIT

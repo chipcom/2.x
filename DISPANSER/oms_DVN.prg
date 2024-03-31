@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 09.12.23 ДВН - добавление или редактирование случая (листа учета)
+// 30.03.24 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -124,11 +124,7 @@ Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
   asize(mm_ndisp1, 4)
   hb_ADel(mm_ndisp1, 1, .t.)
   hb_ADel(mm_ndisp1, 1, .t.)
-  Private mm_gruppaP := {{'Присвоена I группа здоровья'   , 1, 343}, ;
-                         {'Присвоена II группа здоровья'  , 2, 344}, ;
-                         {'Присвоена III группа здоровья' , 3, 345}, ;
-                         {'Присвоена IIIа группа здоровья', 3, 373}, ;
-                         {'Присвоена IIIб группа здоровья', 4, 374}}
+  Private mm_gruppaP := arr_mm_gruppaP()
   Private mm_gruppaP_old := aclone(mm_gruppaP)
   asize(mm_gruppaP_old, 3)
   Private mm_gruppaP_new := aclone(mm_gruppaP)
@@ -150,34 +146,22 @@ Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
   asize(mm_gruppaD2, 4)
   Private mm_gruppaD4 := aclone(mm_gruppaD1)
   asize(mm_gruppaD4, 8)
-  Private mm_otkaz := {{'_выполнено', 0}, ;
-                       {'отклонение', 3}, ;
-                       {'ОТКАЗ пац.', 1}, ;
-                       {'НЕВОЗМОЖНО', 2}}
+  Private mm_otkaz := arr_mm_otkaz()
   Private mm_otkaz1 := aclone(mm_otkaz)
   asize(mm_otkaz1, 3)
   Private mm_otkaz0 := aclone(mm_otkaz)
   asize(mm_otkaz0, 2)
-  Private mm_pervich := {{'впервые     ', 1}, ;
-                         {'ранее выявл.', 0}, ;
-                         {'пред.диагноз', 2}}
-  Private mm_dispans := {{'не установлено             ', 0}, ;
-                         {'участковым терапевтом      ', 3}, ;
-                         {'врачом отд.мед.профилактики', 1}, ;
-                         {'врачом центра здоровья     ', 2}}
+  Private mm_pervich := arr_mm_pervich()
+  Private mm_dispans := arr_mm_dispans()
   Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
-  Private mm_dopo_na := {{'лаб.диагностика', 1}, ;
-                         {'инстр.диагностика', 2}, ;
-                         {'лучевая диагностика', 3}, ;
-                         {'КТ, МРТ, ангиография', 4}}
+  Private mm_dopo_na := arr_mm_dopo_na()
   Private gl_arr := { ;  // для битовых полей
     {'dopo_na','N', 10, 0, , , , {|x|inieditspr(A__MENUBIT, mm_dopo_na, x)} };
    }
-  Private mnapr_v_mo, m1napr_v_mo := 0, ;
-          mm_napr_v_mo := {{'-- нет --', 0}, {'в нашу МО', 1}, {'в иную МО', 2}}, ;
+  Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
           arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
   Private mnapr_stac, m1napr_stac := 0, ;
-          mm_napr_stac := {{'--- нет ---', 0}, {'в стационар', 1}, {'в дн. стац.', 2}}, ;
+          mm_napr_stac := arr_mm_napr_stac(), ;
           mprofil_stac, m1profil_stac := 0
   Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
 

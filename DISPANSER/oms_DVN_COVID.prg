@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 09.12.23 ДВН - добавление или редактирование случая (листа учета)
+// 30.03.24 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -22,6 +22,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   Local iUslDop := iUslOtkaz := iUslOtklon := 0   // счетчики
   Local lenArr_Uslugi_DVN_COVID
+  local str_1, hS, wS
 
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
@@ -121,16 +122,11 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     { '2 группа', 2 } }
   Private mkomorbid, m1komorbid := 0
 
-  Private mm_gruppa, mm_ndisp1
+  Private mm_gruppa //, mm_ndisp1
 
-  mm_ndisp1 := AClone( mm_ndisp )
+//  mm_ndisp1 := AClone( mm_ndisp )
 
-  Private mm_gruppaP := { { "Присвоена I группа здоровья",1, 343 }, ;
-    { "Присвоена II группа здоровья",2, 344 }, ;
-    { "Присвоена III группа здоровья",3, 345 }, ;
-    { "Присвоена IIIа группа здоровья", 3, 373 }, ;
-    { "Присвоена IIIб группа здоровья", 4, 374 };
-    }
+  Private mm_gruppaP := arr_mm_gruppaP()
   Private mm_gruppaD1 := { ;
     { "Проведена диспансеризация - присвоена I группа здоровья",1, 317 }, ;
     { "Проведена диспансеризация - присвоена II группа здоровья",2, 318 }, ;
@@ -143,33 +139,23 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     }
   Private mm_gruppaD2 := AClone( mm_gruppaD1 )
   ASize( mm_gruppaD2, 4 )
-  Private mm_otkaz := { { "_выполнено", 0 }, ;
-    { "отклонение", 3 }, ;
-    { "ОТКАЗ пац.", 1 }, ;
-    { "НЕВОЗМОЖНО", 2 } }
+  Private mm_otkaz := arr_mm_otkaz()
   Private mm_otkaz1 := AClone( mm_otkaz )
   ASize( mm_otkaz1, 3 )
   Private mm_otkaz0 := AClone( mm_otkaz )
   ASize( mm_otkaz0, 2 )
 
-  Private mm_pervich := { { "впервые     ", 1 }, ;
-    { "ранее выявл.", 0 }, ;
-    { "пред.диагноз", 2 } }
-  Private mm_dispans := { { "не установлено             ", 0 }, ;
-    { "участковым терапевтом      ", 3 }, ;
-    { "врачом отд.мед.профилактики", 1 }, ;
-    { "врачом центра здоровья     ", 2 } }
-  Private mm_dopo_na := { { "лаб.диагностика", 1 }, { "инстр.диагностика", 2 }, { "лучевая диагностика", 3 }, { "КТ, МРТ, ангиография", 4 } }
+  Private mm_pervich := arr_mm_pervich()
+  Private mm_dispans := arr_mm_dispans()
+  Private mm_dopo_na := arr_mm_dopo_na()
   Private gl_arr := { ;  // для битовых полей
   { "dopo_na", "N", 10, 0,,,, {| x| inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
     }
-  Private mnapr_v_mo, m1napr_v_mo := 0, ;
-    mm_napr_v_mo := { { "-- нет --", 0 }, { "в нашу МО", 1 }, { "в иную МО", 2 } }, ;
+  Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
     arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
-  Private mnapr_stac, m1napr_stac := 0, ;
-    mm_napr_stac := { { "--- нет ---", 0 }, { "в стационар", 1 }, { "в дн. стац.", 2 } }, ;
+  Private mnapr_stac, m1napr_stac := 0, mm_napr_stac := arr_mm_napr_stac(), ;
     mprofil_stac, m1profil_stac := 0
-  Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
+    Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
 
   Private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
 
@@ -525,7 +511,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Next j
     Endif
     For i := 1 To 5
-      f_valid_diag_oms_sluch_dvn_covid(, i )
+      f_valid_vyav_diag_dispanser(, i )
     Next i
   Endif
 
@@ -751,98 +737,101 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Endif
 
       ret_ndisp_covid( Loc_kod, kod_kartotek )
-      @ ++j, 8 Get mndisp When .f. Color color14
-      @ ++j, 1  Say "───────┬────────────┬──────────┬──────┬───────────────────────────────────────"
-      @ ++j, 1  Say "       │  выявлено  │   дата   │стадия│установлено диспансерное Дата следующего"
-      @ ++j, 1  Say "диагноз│заболевание │выявления │забол.│наблюдение     (когда)     визита"
-      @ ++j, 1  Say "───────┴────────────┴──────────┴──────┴───────────────────────────────────────"
-      // 2      9            22           35       44        54
-      @ ++j, 2  Get mdiag1 Picture pic_diag ;
-        reader {| o| mygetreader( o, bg ) } ;
-        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
-        f_valid_diag_oms_sluch_dvn_covid( g, 1 ), ;
-        .f. ) }
-      @ j, 9  Get mpervich1 ;
-        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
-        When !Empty( mdiag1 )
-      @ j, 22 Get mddiag1 When !Empty( mdiag1 )
-      @ j, 35 Get m1stadia1 Pict "9" Range 1, 4 ;
-        When !Empty( mdiag1 )
-      @ j, 44 Get mdispans1 ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
-        When !Empty( mdiag1 )
-      @ j, 54 Get mddispans1 When m1dispans1 == 1
-      @ j, 67 Get mdndispans1 When m1dispans1 == 1
+//      @ ++j, 8 Get mndisp When .f. Color color14
+
+//      @ ++j, 1  Say "───────┬────────────┬──────────┬──────┬───────────────────────────────────────"
+//      @ ++j, 1  Say "       │  выявлено  │   дата   │стадия│установлено диспансерное Дата следующего"
+//      @ ++j, 1  Say "диагноз│заболевание │выявления │забол.│наблюдение     (когда)     визита"
+//      @ ++j, 1  Say "───────┴────────────┴──────────┴──────┴───────────────────────────────────────"
+//      // 2      9            22           35       44        54
+//      @ ++j, 2  Get mdiag1 Picture pic_diag ;
+//        reader {| o| mygetreader( o, bg ) } ;
+//        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
+//        f_valid_vyav_diag_dispanser( g, 1 ), ;
+//        .f. ) }
+//      @ j, 9  Get mpervich1 ;
+//        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
+//        When !Empty( mdiag1 )
+//      @ j, 22 Get mddiag1 When !Empty( mdiag1 )
+//      @ j, 35 Get m1stadia1 Pict "9" Range 1, 4 ;
+//        When !Empty( mdiag1 )
+//      @ j, 44 Get mdispans1 ;
+//        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+//        When !Empty( mdiag1 )
+//      @ j, 54 Get mddispans1 When m1dispans1 == 1
+//      @ j, 67 Get mdndispans1 When m1dispans1 == 1
       //
-      @ ++j, 2  Get mdiag2 Picture pic_diag ;
-        reader {| o| mygetreader( o, bg ) } ;
-        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
-        f_valid_diag_oms_sluch_dvn_covid( g, 2 ), ;
-        .f. ) }
-      @ j, 9  Get mpervich2 ;
-        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
-        When !Empty( mdiag2 )
-      @ j, 22 Get mddiag2 When !Empty( mdiag2 )
-      @ j, 35 Get m1stadia2 Pict "9" Range 1, 4 ;
-        When !Empty( mdiag2 )
-      @ j, 44 Get mdispans2 ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
-        When !Empty( mdiag2 )
-      @ j, 54 Get mddispans2 When m1dispans2 == 1
-      @ j, 67 Get mdndispans2 When m1dispans2 == 1
+//      @ ++j, 2  Get mdiag2 Picture pic_diag ;
+//        reader {| o| mygetreader( o, bg ) } ;
+//        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
+//        f_valid_vyav_diag_dispanser( g, 2 ), ;
+//        .f. ) }
+//      @ j, 9  Get mpervich2 ;
+//        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
+//        When !Empty( mdiag2 )
+//      @ j, 22 Get mddiag2 When !Empty( mdiag2 )
+//      @ j, 35 Get m1stadia2 Pict "9" Range 1, 4 ;
+//        When !Empty( mdiag2 )
+//      @ j, 44 Get mdispans2 ;
+//        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+//        When !Empty( mdiag2 )
+//      @ j, 54 Get mddispans2 When m1dispans2 == 1
+//      @ j, 67 Get mdndispans2 When m1dispans2 == 1
       //
-      @ ++j, 2  Get mdiag3 Picture pic_diag ;
-        reader {| o| mygetreader( o, bg ) } ;
-        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
-        f_valid_diag_oms_sluch_dvn_covid( g, 3 ), ;
-        .f. ) }
-      @ j, 9  Get mpervich3 ;
-        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
-        When !Empty( mdiag3 )
-      @ j, 22 Get mddiag3 When !Empty( mdiag3 )
-      @ j, 35 Get m1stadia3 Pict "9" Range 1, 4 ;
-        When !Empty( mdiag3 )
-      @ j, 44 Get mdispans3 ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
-        When !Empty( mdiag3 )
-      @ j, 54 Get mddispans3 When m1dispans3 == 1
-      @ j, 67 Get mdndispans3 When m1dispans3 == 1
+//      @ ++j, 2  Get mdiag3 Picture pic_diag ;
+//        reader {| o| mygetreader( o, bg ) } ;
+//        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
+//        f_valid_vyav_diag_dispanser( g, 3 ), ;
+//        .f. ) }
+//      @ j, 9  Get mpervich3 ;
+//        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
+//        When !Empty( mdiag3 )
+//      @ j, 22 Get mddiag3 When !Empty( mdiag3 )
+//      @ j, 35 Get m1stadia3 Pict "9" Range 1, 4 ;
+//        When !Empty( mdiag3 )
+//      @ j, 44 Get mdispans3 ;
+//        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+//        When !Empty( mdiag3 )
+//      @ j, 54 Get mddispans3 When m1dispans3 == 1
+//      @ j, 67 Get mdndispans3 When m1dispans3 == 1
       //
-      @ ++j, 2  Get mdiag4 Picture pic_diag ;
-        reader {| o| mygetreader( o, bg ) } ;
-        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
-        f_valid_diag_oms_sluch_dvn_covid( g, 4 ), ;
-        .f. ) }
-      @ j, 9  Get mpervich4 ;
-        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
-        When !Empty( mdiag4 )
-      @ j, 22 Get mddiag4 When !Empty( mdiag4 )
-      @ j, 35 Get m1stadia4 Pict "9" Range 1, 4 ;
-        When !Empty( mdiag4 )
-      @ j, 44 Get mdispans4 ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
-        When !Empty( mdiag4 )
-      @ j, 54 Get mddispans4 When m1dispans4 == 1
-      @ j, 67 Get mdndispans4 When m1dispans4 == 1
+//      @ ++j, 2  Get mdiag4 Picture pic_diag ;
+//        reader {| o| mygetreader( o, bg ) } ;
+//        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
+//        f_valid_vyav_diag_dispanser( g, 4 ), ;
+//        .f. ) }
+//      @ j, 9  Get mpervich4 ;
+//        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
+//        When !Empty( mdiag4 )
+//      @ j, 22 Get mddiag4 When !Empty( mdiag4 )
+//      @ j, 35 Get m1stadia4 Pict "9" Range 1, 4 ;
+//        When !Empty( mdiag4 )
+//      @ j, 44 Get mdispans4 ;
+//        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+//        When !Empty( mdiag4 )
+//      @ j, 54 Get mddispans4 When m1dispans4 == 1
+//      @ j, 67 Get mdndispans4 When m1dispans4 == 1
       //
-      @ ++j, 2  Get mdiag5 Picture pic_diag ;
-        reader {| o| mygetreader( o, bg ) } ;
-        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
-        f_valid_diag_oms_sluch_dvn_covid( g, 5 ), ;
-        .f. ) }
-      @ j, 9  Get mpervich5 ;
-        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
-        When !Empty( mdiag5 )
-      @ j, 22 Get mddiag5 When !Empty( mdiag5 )
-      @ j, 35 Get m1stadia5 Pict "9" Range 1, 4 ;
-        When !Empty( mdiag5 )
-      @ j, 44 Get mdispans5 ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
-        When !Empty( mdiag5 )
-      @ j, 54 Get mddispans5 When m1dispans5 == 1
-      @ j, 67 Get mdndispans5 When m1dispans5 == 1
+//      @ ++j, 2  Get mdiag5 Picture pic_diag ;
+//        reader {| o| mygetreader( o, bg ) } ;
+//        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
+//        f_valid_vyav_diag_dispanser( g, 5 ), ;
+//        .f. ) }
+//      @ j, 9  Get mpervich5 ;
+//        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
+//        When !Empty( mdiag5 )
+//      @ j, 22 Get mddiag5 When !Empty( mdiag5 )
+//      @ j, 35 Get m1stadia5 Pict "9" Range 1, 4 ;
+//        When !Empty( mdiag5 )
+//      @ j, 44 Get mdispans5 ;
+//        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
+//        When !Empty( mdiag5 )
+//      @ j, 54 Get mddispans5 When m1dispans5 == 1
+//      @ j, 67 Get mdndispans5 When m1dispans5 == 1
       //
-      @ ++j, 1 Say Replicate( "─", 78 ) Color color1
+//      @ ++j, 1 Say Replicate( "─", 78 ) Color color1
+
+      dispans_vyav_diag( @j, mndisp ) // вызов заполнения блока выявленных заболеваний
       // подвал второго листа
       @ ++j, 1 Say "Диспансерное наблюдение установлено" Get mdispans ;
         reader {| x| menu_reader( x, mm_dispans, A__MENUVERT,,, .f. ) } ;

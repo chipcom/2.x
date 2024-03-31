@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 09.12.23 ПН - добавление или редактирование случая (листа учета)
+// 30.03.24 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -202,15 +202,13 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
   Private mvar, m1var, m1lis := 0
   Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
   Private mdopo_na, m1dopo_na := 0
-  Private mm_dopo_na := {{'лаб.диагностика', 1}, {'инстр.диагностика', 2}, {'лучевая диагностика', 3}, {'КТ, МРТ, ангиография', 4}}
+  Private mm_dopo_na := arr_mm_dopo_na()
   Private gl_arr := {;  // для битовых полей
     {'dopo_na', 'N', 10, 0, , , , {|x|inieditspr(A__MENUBIT, mm_dopo_na, x)} };
    }
-  Private mnapr_v_mo, m1napr_v_mo := 0, ;
-          mm_napr_v_mo := {{'-- нет --', 0}, {'в нашу МО', 1}, {'в иную МО', 2}}, ;
+  Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
           arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
-  Private mnapr_stac, m1napr_stac := 0, ;
-          mm_napr_stac := {{'--- нет ---', 0}, {'в стационар', 1}, {'в дн. стац.', 2}}, ;
+  Private mnapr_stac, m1napr_stac := 0, mm_napr_stac := arr_mm_napr_stac(), ;
           mprofil_stac, m1profil_stac := 0
   Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0, arr_usl_otkaz := {}
   Private mm_otkaz := {{'выпол.', 0}, {'ОТКАЗ ', 1}}, is_neonat := .f.

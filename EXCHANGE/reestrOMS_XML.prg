@@ -276,9 +276,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
     is_KSG := is_mgi := .f.
     kol_kd := v_reabil_slux := m1veteran := m1mobilbr := 0  // мобильная бригада
     tarif_zak_sl := m1mesto_prov := m1p_otk := 0    // признак отказа
-    m1dopo_na := m1napr_v_mo := 0 // {{'-- нет --', 0}, {'в нашу МО', 1}, {'в иную МО', 2}}, ;
+    m1dopo_na := m1napr_v_mo := 0
     arr_mo_spec := {}
-    m1napr_stac := 0 // {{'--- нет ---', 0}, {'в стационар', 1}, {'в дн. стац.', 2}}, ;
+    m1napr_stac := 0
     m1profil_stac := m1napr_reab := m1profil_kojki := 0
     pr_amb_reab := fl_disp_nabl := is_disp_DVN := is_disp_DVN_COVID := .f.
     ldate_next := CToD( '' )
@@ -651,7 +651,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
               mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_SPDOCT', arr_nazn[ j, 4 ] )
             Endif
 
-            If eq_any( arr_nazn[ j, 1 ], 1, 2 ) // {'в нашу МО', 1}, {'в иную МО', 2}}
+            If eq_any( arr_nazn[ j, 1 ], 1, 2 )
               // к какому специалисту направлен
               mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_SP', arr_nazn[ j, 2 ] ) // результат ф-ии put_prvs_to_reestr(human_->PRVS, _NYEAR)
             Elseif arr_nazn[ j, 1 ] == 3
@@ -1393,7 +1393,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Return Nil
 
 
-// 04.03.24 работаем по текущей записи
+// 30.03.24 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1410,9 +1410,9 @@ Function f1_create2reestr19( _nyear, _nmonth )
   m1mesto_prov := 0
   m1p_otk := 0    // признак отказа
   m1dopo_na := 0
-  m1napr_v_mo := 0 // {{'-- нет --', 0}, {'в нашу МО', 1}, {'в иную МО', 2}}, ;
+  m1napr_v_mo := 0
   arr_mo_spec := {}
-  m1napr_stac := 0 // {{'--- нет ---', 0}, {'в стационар', 1}, {'в дн. стац.', 2}}, ;
+  m1napr_stac := 0
   m1profil_stac := 0
   m1napr_reab := 0
   m1profil_kojki := 0
@@ -1782,7 +1782,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
       Endif
     Next
   Endif
-  If Between( m1napr_v_mo, 1, 2 ) .and. !Empty( arr_mo_spec ) // {{'-- нет --', 0}, {'в нашу МО', 1}, {'в иную МО', 2}}, ;
+  If Between( m1napr_v_mo, 1, 2 ) .and. !Empty( arr_mo_spec )
     For i := 1 To Len( arr_mo_spec ) // теперь каждая специальность в отдельном PRESCRIPTIONS
       If mtab_v_mo != 0
         If P2TABN->( dbSeek( Str( mtab_v_mo, 5 ) ) )
@@ -1795,7 +1795,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
       Endif
     Next
   Endif
-  If Between( m1napr_stac, 1, 2 ) .and. m1profil_stac > 0 // {{'--- нет ---', 0}, {'в стационар', 1}, {'в дн. стац.', 2}}, ;
+  If Between( m1napr_stac, 1, 2 ) .and. m1profil_stac > 0
     If mtab_v_stac != 0
       If P2TABN->( dbSeek( Str( mtab_v_stac, 5 ) ) )
         AAdd( arr_nazn, { iif( m1napr_stac == 1, 5, 4 ), m1profil_stac, P2TABN->snils, lstr( ret_prvs_v015tov021( P2TABN->PRVS_NEW ) ) } )
