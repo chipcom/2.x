@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  // ВРЕМЕННО
 
-// 29.03.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 01.04.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -527,8 +527,16 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
   endif
 
+  if loc_kod == 0 .and. eq_any( lrslt_1_etap, 352, 353, 357, 358 )
+    metap := 2
+    uslugi_etapa := uslugietap_drz( metap, nAge, nGender, arr_vrach_priem )  // получим услуги этапа
+    lenArr_Uslugi_DRZ := Len( uslugi_etapa )
+  endif
+
+
   If !( Left( msmo, 2 ) == '34' ) // не Волгоградская область
-    m1ismo := msmo ; msmo := '34'
+    m1ismo := msmo
+    msmo := '34'
   Endif
   is_talon := .t.
   Close databases
@@ -723,7 +731,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         Endif
       Next
       @ ++j, 1 Say Replicate( '─', 68 ) Color color8
-      if nGender == 'М'
+      if nGender == 'М' .and. metap == 1
         j += 2
         @ ++j, 1 Say '*- Прием врача-хирурга осуществляется только в случае отсутствия врача-уролога' Color color8
       endif
@@ -918,10 +926,13 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           fl := func_error( 4, 'Не введен врач в услуге первичный прием уролога или хирурга' )
         elseif ! Empty( &mvart ) .and. metap == 1 .and. nGender == 'М' .and. ( ar[ 2 ] = 'B01.057.001' .and. lUrologExists )
           fl := func_error( 4, 'Не разрешено одновременно использовать услуги для уролога и хирурга' )
-//        Elseif Empty( &mvart ) .and. metap == 1 .and. ! eq_any( ar[ 2 ], '70.9.1', '70.9.2', '70.9.3' )      // на втором этапе услуги могут быть не все
-//          fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
+        elseif Empty( &mvart ) .and. metap == 1 .and. nGender == 'Ж'
+          fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
+        elseif Empty( &mvart ) .and. metap == 2 .and. ;
+            ( ( nGender == 'М' .and. ar[ 2 ] == '70.9.54' ) .or. ( nGender == 'Ж' .and. ar[ 2 ] == '70.9.50' ) )
+          fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
         Else  // табельный номер врача и его специальность
-          If !Empty( &mvart ) // табельный номер врача
+          If ! Empty( &mvart ) // табельный номер врача
             Select P2
             find ( Str( &mvart, 5 ) )
             If Found()
@@ -1410,6 +1421,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             MOSU->( dbGoto( MOHU->u_kod ) )
             Select MOHU
             lshifr := AllTrim( iif( Empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
+altd()
             If AllTrim( lshifr ) == AllTrim( arr_usl_dop[ i, 5 ] )
               g_rlock( forever )
               flExist := .t.
