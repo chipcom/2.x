@@ -6,6 +6,17 @@
 
 #define BASE_ISHOD_RZD 500  // ВРЕМЕННО
 
+// 02.04.24 возврат массива результатов исследования
+function arr_mm_result_drz( etap )
+
+  local arr := arr_mm_otkaz()
+
+  asize( arr, 2 )
+  if etap == 2
+    aadd( arr, { 'НЕ НАЗНАЧЕНО', 4 })
+  Endif
+  return arr
+
 // 31.03.24 вернуть "правильный" профиль для диспансеризации/профилактики
 Function ret_profil_dispans_drz( lprofil, lprvs )
 
@@ -567,8 +578,8 @@ Function ret_arrays_drz()
 
   Return dvn_drz_arr_usl
 
-// 29.03.24
-Function save_arr_drz( lkod, mk_data )
+// 02.04.24
+Function save_arr_drz( lkod, mk_data, arr_usl_otkaz )
 
   Local arr := {}, i, sk, ta
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
@@ -740,8 +751,8 @@ Function save_arr_drz( lkod, mk_data )
 
   Return Nil
 
-// 29.03.24
-Function read_arr_drz( lkod, is_all )
+// 02.04.24
+Function read_arr_drz( lkod, is_all, arr_usl_otkaz )
 
   Local arr, i, sk
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
