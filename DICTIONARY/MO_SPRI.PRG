@@ -2897,6 +2897,7 @@ Function init_all_mem_public()
   Public mem_dogovor := "_DOGOVOR.SHB"  // для платных услуг
   Public mem_pl_ms   := 0  // для платных услуг
   Public mem_pl_sn   := 0  // для платных услуг
+  Public mem_dms     := 0  // для платных услуг
   Public mem_edit_s  := 2
   // для задачи "Ортопедия"
   Public mem_ort_na  := Space( 10 ) // ортопедия

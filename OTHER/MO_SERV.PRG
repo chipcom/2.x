@@ -3346,6 +3346,8 @@ Function f1nastr_all( nameTask, nTask )
       { "полное наименование", 1 } }
     Private mm_v_methodinj := { { "на русском", 0 }, ;
       { "на английском", 1 } }
+    Private mm_dms := { { "внутренние", 0 }, ;
+      { "ФФОМС", 1 } }
     Delete file tmp.dbf
     Do Case
     Case nTask == 0 .and. tools_ini_oms( 1, 0, 0, .t. ) //  настройка на все задачи
@@ -3737,6 +3739,10 @@ Function f1nastr_all( nameTask, nTask )
         {| x| menu_reader( x, mm_close, A__MENUVERT ) }, ;
         0, {| x| inieditspr( A__MENUVERT, mm_close, x ) }, ;
         'Закрытие листа учета:' } )
+      AAdd( mm_tmp, { "a_dms", "N", 1, 0, NIL, ;
+        {| x| menu_reader( x, mm_dms, A__MENUVERT ) }, ;
+        0, {| x| inieditspr( A__MENUVERT, mm_dms, x ) }, ;
+        'В счет-фактуре ДМС использовать шифры услуг:' } )
       AAdd( mm_tmp, { "kassa", "N", 1, 0, NIL, ;
         {| x| menu_reader( x, mm_kassa, A__MENUVERT ) }, ;
         0, {| x| inieditspr( A__MENUVERT, mm_kassa, x ) }, ;
@@ -3754,6 +3760,7 @@ Function f1nastr_all( nameTask, nTask )
       tmp->a_mfile8  := mem_ort_f8
       tmp->a_close   := glob_close
       tmp->pl_reg    := glob_pl_reg
+      tmp->a_dms     := mem_dms
       tmp->kassa     := glob_kassa
       Close databases
     Case nTask == X_ORTO .and. tools_ini_orto( 1, 0, 0, .t. ) //  Ортопедические услуги в стоматологии
@@ -3915,6 +3922,7 @@ Function f1nastr_all( nameTask, nTask )
         mem_ort_f8  := tmp->a_mfile8
         glob_close  := tmp->a_close
         glob_pl_reg := tmp->pl_reg
+        mem_dms     := tmp->a_dms
         glob_kassa  := tmp->kassa
         tools_ini_platn( 2, 0, 0 )
       Case nTask == X_ORTO
