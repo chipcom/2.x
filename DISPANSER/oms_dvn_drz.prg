@@ -34,31 +34,19 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   local arr_vrach_priem := { ;  // массив врачебных приемов
     '70.9.1', '70.9.2', '70.9.3', '70.9.50', '70.9.54', ;
     'B01.001.001', 'B01.053.001', 'B01.057.001', 'B01.001.002', 'B01.053.002', 'B01.057.002' ;
-  }
+    }
+  local arr_usl_skip := { '70.9.1', '70.9.2', '70.9.3', '70.9.52', '70.9.56' }
   local uslugi_etapa, fl_shapka_osmotr := .f.
   local fl_diag
-  local arr_usl_dop := {}, arr_usl_otkaz := {}
+  local arr_usl_dop := {}
   local lshifr, tmpvr
 
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default loc_kod TO 0, kod_kartotek TO 0
   //
+  private arr_ne_nazn := {}, arr_usl_otkaz := {}
   Private oms_sluch_DVN := .t., ps1dispans := s1dispans, is_prazdnik
-
-  if kod_kartotek == 0 // добавление в картотеку
-    if ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
-      return NIL
-    endif
-  elseif loc_kod > 0
-    R_Use( dir_server + 'human', , 'HUMAN' )
-    goto (Loc_kod)
-    fl := (human->k_data < 0d20240101)
-    Use
-    if fl
-      return func_error( 4, 'Диспансеризация репродуктивного здоровья началась 01 января 2024 года.' )
-    endif
-  endif
 
 // вроде здесь не нужно
 //  if isnil( sadiag1 )
@@ -103,11 +91,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     m1rslt  := 317, ; // результат (присвоена I группа здоровья)
     m1ishod := 306 // исход = осмотр
 //    m1IDSP   := 11, ; // доп.диспансеризация
-//    mmobilbr, m1mobilbr := 0, ;  // мобильная бригада
-//    m1travma := 0, ;
-  //
-
-  //
+//
 //  Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
   Private arr_otklon := {}, m1p_otk := 0
   Private metap := 1,;  // 1-первый этап, 2-второй этап (по умолчанию 1 этап)
@@ -139,11 +123,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   }
   Private mm_gruppaD2 := aclone( mm_gruppaD1 )
   asize( mm_gruppaD2, 4 )
-  Private mm_otkaz := arr_mm_otkaz()
-  Private mm_otkaz1 := aclone( mm_otkaz )
-  asize( mm_otkaz1, 3 )
-  Private mm_otkaz0 := aclone( mm_otkaz )
-  asize( mm_otkaz0, 2 )
+//  Private mm_otkaz := arr_mm_otkaz()
+//  Private mm_otkaz1 := aclone( mm_otkaz )
+//  asize( mm_otkaz1, 3 )
+//  Private mm_otkaz0 := aclone( mm_otkaz )
+//  asize( mm_otkaz0, 2 )
 
   Private mm_pervich := arr_mm_pervich()
   Private mm_dispans := arr_mm_dispans()
@@ -163,6 +147,20 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
   Private pole_diag, pole_pervich, pole_1pervich, pole_d_diag, ;
     pole_stadia, pole_dispans, pole_1dispans, pole_d_dispans, pole_dn_dispans
+
+  if kod_kartotek == 0 // добавление в картотеку
+    if ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
+      return NIL
+    endif
+  elseif loc_kod > 0
+    R_Use( dir_server + 'human', , 'HUMAN' )
+    goto (Loc_kod)
+    fl := (human->k_data < 0d20240101)
+    Use
+    if fl
+      return func_error( 4, 'Диспансеризация репродуктивного здоровья началась 01 января 2024 года.' )
+    endif
+  endif
 
   for i := 1 to 5 // создадим приватные переменные для выявленных диагнозов
     sk := lstr( i )
@@ -196,10 +194,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     mvar := 'MKOD_DIAG' + lstr( i )
     Private &mvar := space( 6 )
     mvar := 'MOTKAZ' + lstr( i )
-//    Private &mvar := mm_otkaz[ 1, 1 ]
     Private &mvar := arr_mm_result_drz( metap )[ 1, 1 ]
     mvar := 'M1OTKAZ' + lstr( i )
-//    Private &mvar := mm_otkaz[ 1, 2 ]
     Private &mvar := arr_mm_result_drz( metap )[ 1, 2 ]
   next
   // 
@@ -403,16 +399,15 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     enddo
     //
     R_Use(dir_server + 'mo_pers', , 'P2' )
-    read_arr_drz( Loc_kod, .t., arr_usl_otkaz )     // читаем сохраненные данные по углубленной диспансеризации
-
+    read_arr_drz( Loc_kod, .t. )  //, arr_usl_otkaz, arr_ne_nazn )     // читаем сохраненные данные по углубленной диспансеризации
     if metap == 1 .and. between( m1GRUPPA, 11, 14) .and. m1p_otk == 1
       m1GRUPPA += 10
     endif
     for i := 1 to len( larr[ 1 ] )
       if ( valtype( larr[ 2, i ] ) == 'C' ) .and. ( ! eq_any( SubStr( larr[ 2, i ], 1, 1 ), 'A', 'B') )  // это услуга ТФОМС, а не ФФОМС (первый символ не A,B)
-//        if larr[ 2, i ] == '70.8.1'  // пропустим эту услугу
-//          loop
-//        endif
+        if eq_any( larr[ 2, i ], '70.9.1', '70.9.2', '70.9.3', '7.9.52' )  // пропустим эти услуги
+          loop
+        endif
         hu->( dbGoto( larr[ 1, i ] ) )
         if hu->kod_vr > 0
           p2->( dbGoto( hu->kod_vr ) )
@@ -435,6 +430,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
           if ascan( arr_otklon, uslugi_etapa[ i, 2 ] ) > 0
             &m1var := 3 // выполнено, обнаружены отклонения
+          endif
+        endif
+        if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
+          if ascan( arr_ne_nazn, uslugi_etapa[ i, 2 ] ) > 0
+            &m1var := 4 // не назначено
           endif
         endif
         mvar := 'MOTKAZ' + lstr( i )
@@ -465,8 +465,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             &m1var := 3 // выполнено, обнаружены отклонения
           endif
         endif
+        if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
+          if ascan( arr_ne_nazn, uslugi_etapa[ i, 2 ] ) > 0
+            &m1var := 4 // не назначено
+          endif
+        endif
         mvar := 'MOTKAZ' + lstr( i )
-//        &mvar := inieditspr( A__MENUVERT, mm_otkaz, &m1var )
         &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
       endif
     next
@@ -479,7 +483,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         if valtype( ar ) == 'A' .and. len( ar ) >= 5 .and. valtype( ar[ 5 ] ) == 'C'
           lshifr := alltrim( ar[ 5 ] )
           
-          for i := 1 to lenArr_Uslugi_DRZ // len( uslugi_etapa )
+          for i := 1 to lenArr_Uslugi_DRZ
             if valtype( uslugi_etapa[ i, 2 ] ) == 'C' .and. ;
                 ( uslugi_etapa[ i, 2 ] == lshifr )
               if valtype( ar[ 1 ] ) == 'N' .and. ar[ 1 ] > 0
@@ -503,7 +507,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
                 &m1var := ar[ 10 ]
               endif
               mvar := 'MOTKAZ' + lstr( i )
-//              &mvar := inieditspr( A__MENUVERT, mm_otkaz, &m1var )
               &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
             endif
           next i
@@ -524,10 +527,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     metap := 2
     uslugi_etapa := uslugietap_drz( metap, nAge, nGender, arr_vrach_priem )  // получим услуги этапа
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
-  endif
-
-  if metap == 2
-    aadd( mm_otkaz0, { 'НЕ НАЗНАЧЕНО', 4 })
   endif
 
   If !( Left( msmo, 2 ) == '34' ) // не Волгоградская область
@@ -584,9 +583,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   mspec_na  := inieditspr( A__MENUVERT, mm_danet, m1spec_na )
   msank_na  := inieditspr( A__MENUVERT, mm_danet, m1sank_na )
 
-//  If ! ret_ndisp_drz( Loc_kod, kod_kartotek )
-//    Return Nil
-//  Endif
   //
   If !Empty( f_print )
     return &( f_print + '(' + lstr( Loc_kod ) + ',' + lstr( kod_kartotek ) + ')' )
@@ -674,12 +670,14 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       else
         j += 2
       endif
-//      fl_vrach := .t.
-      For i := 1 To lenArr_Uslugi_DRZ // Len( uslugi_etapa )
+      For i := 1 To lenArr_Uslugi_DRZ
+        if ascan( arr_usl_skip, uslugi_etapa[ i, 2 ] ) > 0
+          loop
+        endif
+
         fl_diag := .f.
         i_otkaz := 0
         If f_is_usl_sluch_drz( uslugi_etapa, i, .f., @fl_diag, @i_otkaz )
-//          If ( ! fl_diag ) .and. fl_vrach
           if is_usluga_vrach_priem( i, uslugi_etapa, arr_vrach_priem ) .and. ! fl_shapka_osmotr
             @ ++j, 1 Say '────────────────────────────────────────────┬─────┬─────┬───────────' Color color8
             @ ++j, 1 Say 'Наименования осмотров                       │врач │ассис│дата услуги' Color color8
@@ -687,7 +685,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             If mem_por_ass == 0
               @ j - 1, 52 Say Space( 5 )
             Endif
-//            fl_vrach := .f.
             fl_shapka_osmotr := .t.
           Endif
           mvarv := 'MTAB_NOMv' + lstr( i )
@@ -706,19 +703,9 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           @ j, 58 get &mvard valid {| g | valid_date_uslugi_drz( g, metap, mn_data, mk_data, lenArr_Uslugi_DRZ, i ) }
 
           If fl_diag  // для диагностических услуг
-            // @ j, 69 get &mvarz picture pic_diag ;
-            // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
             if i_otkaz == 0
               @ j, 69 get &mvaro ;
                 reader {| x | menu_reader( x, arr_mm_result_drz( metap ), A__MENUVERT,,, .f. ) }
-//                reader {| x | menu_reader( x, mm_otkaz0, A__MENUVERT,,, .f. ) }
-
-//            Elseif i_otkaz == 1
-//              @ j, 69 get &mvaro ;
-//                reader {| x | menu_reader( x, mm_otkaz1, A__MENUVERT,,, .f. ) }
-//            Elseif eq_any( i_otkaz, 2, 3 )
-//              @ j, 69 get &mvaro ;
-//                reader {| x | menu_reader( x, mm_otkaz, A__MENUVERT,,, .f. ) }
             endif
           Endif
 
@@ -855,7 +842,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       // ВСЕ ЗАПИСЫВАЕМ
       lUrologExists := .f.
       tmpvr := 0
-      For i := 1 To lenArr_Uslugi_DRZ // Len( uslugi_etapa )
+      For i := 1 To lenArr_Uslugi_DRZ
         fl_diag := .f.
         i_otkaz := 0
         f_is_usl_sluch_drz( uslugi_etapa, i, .t., @fl_diag, @i_otkaz )
@@ -870,7 +857,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         endif
         // для заполнения услуги 70.9.1, 70.9.2, 70.9.3
         If metap == 1 .and. ValType( ar[ 2 ] ) == 'C' .and. ;
-            ar[ 2 ] == 'B01.001.001'
+          ar[ 2 ] == 'B01.001.001'
           tmpvr := &mvart
         Endif
         If ValType( ar[ 2 ] ) == 'C' .and. eq_any( ar[ 2 ], '70.9.1', '70.9.2', '70.9.3' ) .and. metap == 1
@@ -896,7 +883,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             arr_osm1[ i, 4 ] := ar[ 10 ]
           Endif
           arr_osm1[ i, 5 ] := ar[ 2 ] // шифр услуги
-          // arr_osm1[i,9] := iif(empty(&mvard), mn_data, &mvard)
           arr_osm1[ i, 9 ] := iif( Empty( &mvard ), mk_data, &mvard )
           arr_osm1[ i, 10 ] := &mvaro
           --kol_d_usl
@@ -961,10 +947,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             arr_osm1[ i, 5 ] := ar[ 2, j ] // шифр услуги
           Endif
 
-          If !fl_diag .or. Empty( &mvarz ) .or. Left( &mvarz, 1 ) == 'U'
-//            If m1strong != 5   // Письмо ТФОМС 09-30-370 от 03.12.21
-//              arr_osm1[ i, 6 ] := mdef_diagnoz
-//            Endif
+          If ! fl_diag .or. Empty( &mvarz ) .or. Left( &mvarz, 1 ) == 'U'
           Else
             arr_osm1[ i, 6 ] := &mvarz
             Select MKB_10
@@ -1007,7 +990,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           arr_osm1[ i70_9_, 11 ] := arr_osm1[ iB01_001_001, 11 ]
         endif
       Endif
-      If !fl
+      If ! fl
         Loop
       Endif
 
@@ -1124,9 +1107,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         m1spec_na := 1 // Направлен для получения специализированной медицинской помощи (в т.ч. ВМП)
       Endif
       //
-//      err_date_diap( mn_data, 'Дата начала углубленной диспансеризации после COVID' )
-//      err_date_diap( mk_data, 'Дата окончания углубленной диспансеризации после COVID' )
-      //
       If mem_op_out == 2 .and. yes_parol
         box_shadow( 19, 10, 22, 69, cColorStMsg )
         str_center( 20, 'Оператор "' + fio_polzovat + '".', cColorSt2Msg )
@@ -1149,11 +1129,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       arr_usl_dop := {}
       arr_usl_otkaz := {}
       arr_otklon := {}
+      arr_ne_nazn := {}
       glob_podr := ''
       glob_otd_dep := 0
       iUslDop := 0
       iUslOtkaz := 0
-      iUslOtklon := 0
+//      iUslOtklon := 0
       For i := 1 To Len( arr_osm1 )
         If ValType( arr_osm1[ i, 5 ] ) == 'C'
           If arr_osm1[ i, 12 ] == 0
@@ -1178,8 +1159,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             Endif
             If arr_osm1[ i, 10 ] == 3 // обнаружены отклонения
               AAdd( arr_otklon, arr_osm1[ i, 5 ] )
-              iUslOtklon++
+//              iUslOtklon++
             Endif
+          elseIf arr_osm1[ i, 10 ] == 4 // не назначено
+            AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
           Else // отказ и невозможность
             AAdd( arr_usl_otkaz, AClone( arr_osm1[ i ] ) )
             // iUslOtkaz++
@@ -1190,29 +1173,29 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
                 maxjk := len( arr_osm1[ i, 13 ] )
               endif
 
-//              if valtype( arr_osm1[ i, 13 ] ) == 'C'
-//                AAdd( arr_usl_otkaz, AClone( arr_osm1[ i ] ) )
-//                iUslOtkaz := Len( arr_usl_otkaz ) // ++
-//                arr_usl_otkaz[ iUslOtkaz, 5 ] := arr_osm1[ i, 13 ]
-//                arr_usl_otkaz[ iUslOtkaz, 7 ] := foundffomsusluga( arr_usl_otkaz[ iUslOtkaz, 5 ] )
-//                arr_usl_otkaz[ iUslOtkaz, 8 ] := 0  // для федеральных услуг цену дадим 0
-//                arr_usl_otkaz[ iUslOtkaz, 12 ] := 1  // установим флаг услуги ФФОМС
-//                arr_usl_otkaz[ iUslOtkaz, 13 ] := ''  // очистим федеральную услугу
-//              elseif valtype( arr_osm1[ i, 13 ] ) == 'A'
-                for jk := 1 to maxjk  //  len( arr_osm1[ i, 13] )
-                  AAdd( arr_usl_otkaz, AClone( arr_osm1[ i ] ) )
-                  iUslOtkaz := Len( arr_usl_otkaz ) // ++
-                  if valtype( arr_osm1[ i, 13 ] ) == 'C'
-                    arr_usl_otkaz[ iUslOtkaz, 5 ] := arr_osm1[ i, 13 ]
-                  elseif valtype( arr_osm1[ i, 13 ] ) == 'A'
-                    arr_usl_otkaz[ iUslOtkaz, 5 ] := arr_osm1[ i, 13 ][ jk ]
-                  endif
-                  arr_usl_otkaz[ iUslOtkaz, 7 ] := foundffomsusluga( arr_usl_otkaz[ iUslOtkaz, 5 ] )
-                  arr_usl_otkaz[ iUslOtkaz, 8 ] := 0  // для федеральных услуг цену дадим 0
-                  arr_usl_otkaz[ iUslOtkaz, 12 ] := 1  // установим флаг услуги ФФОМС
-                  arr_usl_otkaz[ iUslOtkaz, 13 ] := ''  // очистим федеральную услугу
-                next
-//              endif
+              if valtype( arr_osm1[ i, 13 ] ) == 'C'
+                AAdd( arr_usl_otkaz, AClone( arr_osm1[ i ] ) )
+                iUslOtkaz := Len( arr_usl_otkaz ) // ++
+                arr_usl_otkaz[ iUslOtkaz, 5 ] := arr_osm1[ i, 13 ]
+                arr_usl_otkaz[ iUslOtkaz, 7 ] := foundffomsusluga( arr_usl_otkaz[ iUslOtkaz, 5 ] )
+                arr_usl_otkaz[ iUslOtkaz, 8 ] := 0  // для федеральных услуг цену дадим 0
+                arr_usl_otkaz[ iUslOtkaz, 12 ] := 1  // установим флаг услуги ФФОМС
+                arr_usl_otkaz[ iUslOtkaz, 13 ] := ''  // очистим федеральную услугу
+              elseif valtype( arr_osm1[ i, 13 ] ) == 'A'
+//                for jk := 1 to maxjk  //  len( arr_osm1[ i, 13] )
+//                  AAdd( arr_usl_otkaz, AClone( arr_osm1[ i ] ) )
+//                  iUslOtkaz := Len( arr_usl_otkaz ) // ++
+//                  if valtype( arr_osm1[ i, 13 ] ) == 'C'
+//                    arr_usl_otkaz[ iUslOtkaz, 5 ] := arr_osm1[ i, 13 ]
+//                  elseif valtype( arr_osm1[ i, 13 ] ) == 'A'
+//                    arr_usl_otkaz[ iUslOtkaz, 5 ] := arr_osm1[ i, 13 ][ jk ]
+//                  endif
+//                  arr_usl_otkaz[ iUslOtkaz, 7 ] := foundffomsusluga( arr_usl_otkaz[ iUslOtkaz, 5 ] )
+//                  arr_usl_otkaz[ iUslOtkaz, 8 ] := 0  // для федеральных услуг цену дадим 0
+//                  arr_usl_otkaz[ iUslOtkaz, 12 ] := 1  // установим флаг услуги ФФОМС
+//                  arr_usl_otkaz[ iUslOtkaz, 13 ] := ''  // очистим федеральную услугу
+//                next
+              endif
             Endif
           Endif
         Endif
@@ -1429,7 +1412,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             MOSU->( dbGoto( MOHU->u_kod ) )
             Select MOHU
             lshifr := AllTrim( iif( Empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
-  altd()
             If AllTrim( lshifr ) == AllTrim( arr_usl_dop[ i, 5 ] )
               g_rlock( forever )
               flExist := .t.
@@ -1501,8 +1483,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           Next
         Endif
       Endif
-
-      save_arr_drz( mkod, mk_data, arr_usl_otkaz )
+      save_arr_drz( mkod, mk_data ) //, arr_usl_otkaz, arr_ne_nazn )
 
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.
