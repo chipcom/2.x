@@ -6,16 +6,15 @@
 
 #define BASE_ISHOD_RZD 500  // ВРЕМЕННО
 
-// 01.04.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 03.04.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   // f_print - наименование функции для печати
 
-  Static sadiag1  // := {}
+  Static sadiag1
   Static st_N_DATA, st_K_DATA, s1dispans := 1
   
-//  Local bg := { | o, k | get_MKB10( o, k, .t. ) },
   local arr_del := {}, mrec_hu := 0, mrec_mohu := 0, ;
       buf := savescreen(), tmp_color := setcolor(), a_smert := {}, ;
       p_uch_doc := '@!', pic_diag := '@K@!', arr_usl := {}, ;
@@ -24,13 +23,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       fl, fl_write_sluch := .f., lrslt_1_etap := 0
 
   local iUslDop := iUslOtkaz := iUslOtklon := 0   // счетчики
-  local sk, i, j, jk, k, s, ah, ar, larr, lu_kod, mu_cena
+  local sk, i, j, k, s, ah, ar, larr, lu_kod, mu_cena
   local lenArr_Uslugi_DRZ
   local str_1, hS, wS
   local nAge, nGender
-  local lUrologExists := .f.
-  local i70_9_3 := iB01_053_001 := iB01_057_001 := indUslugi := 0
-  local i70_9_ := iB01_001_001 := 0
+  local lUrologExists := .f., lUziMatkiAbdomin := .f.
   local arr_vrach_priem := { ;  // массив врачебных приемов
     '70.9.1', '70.9.2', '70.9.3', '70.9.50', '70.9.54', ;
     'B01.001.001', 'B01.053.001', 'B01.057.001', 'B01.001.002', 'B01.053.002', 'B01.057.002' ;
@@ -40,13 +37,14 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   local fl_diag
   local arr_usl_dop := {}
   local lshifr, tmpvr
-
+  local indSource := indDest := 0
+//  local jk, maxjk
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default loc_kod TO 0, kod_kartotek TO 0
   //
   private arr_ne_nazn := {}, arr_usl_otkaz := {}
-  Private oms_sluch_DVN := .t., ps1dispans := s1dispans, is_prazdnik
+  Private ps1dispans := s1dispans, is_prazdnik
 
 // вроде здесь не нужно
 //  if isnil( sadiag1 )
@@ -770,6 +768,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             { ' Выход без записи ', ' Возврат в редактирование ' }, ;
             1, 'W+/N', 'N+/N', MaxRow() -2,, 'W+/N,N/BG' ) ) == 2
           k := 3
+          fl_shapka_osmotr := .f.
         Endif
       Else
         k := 3
@@ -841,6 +840,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
       // ВСЕ ЗАПИСЫВАЕМ
       lUrologExists := .f.
+      lUziMatkiAbdomin := .f.
       tmpvr := 0
       For i := 1 To lenArr_Uslugi_DRZ
         fl_diag := .f.
@@ -852,8 +852,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         mvarz := 'MKOD_DIAG' + lstr( i )
         mvaro := 'M1OTKAZ' + lstr( i )
         ar := uslugi_etapa[ i ]
-        if nGender == 'М' .and. ar[ 2 ] == 'B01.053.001'
+        if nGender == 'М' .and. ar[ 2 ] == 'B01.053.001' .and. ! empty( &mvart )  // проверка приема уролога
           lUrologExists := .t.
+        endif
+        if nGender == 'Ж' .and. ar[ 2 ] == 'A04.20.001' // проверка абдоминального УЗИ
+          lUziMatkiAbdomin := .t.
         endif
         // для заполнения услуги 70.9.1, 70.9.2, 70.9.3
         If metap == 1 .and. ValType( ar[ 2 ] ) == 'C' .and. ;
@@ -864,6 +867,16 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           &mvard := mn_data
           &mvart := tmpvr
         Endif
+        // для заполнения услуги 70.9.56
+        If metap == 1 .and. ValType( ar[ 2 ] ) == 'C' .and. ;
+          ( ar[ 2 ] == 'A04.28.003' .or. ar[ 2 ] == 'A04.21.001' )
+          tmpvr := &mvart
+        Endif
+        If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == '70.9.56' .and. metap == 2
+          &mvard := mn_data
+          &mvart := tmpvr
+        Endif
+
         //
         ++kol_d_usl
         arr_osm1[ i, 12 ] := uslugi_etapa[ i, 12 ]   // признак услуги 0 - ТФОМС / 1 - ФФОМС
@@ -903,10 +916,18 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           fl := func_error( 4, 'Не введен врач в услуге первичный прием уролога или хирурга' )
         elseif ! Empty( &mvart ) .and. metap == 1 .and. nGender == 'М' .and. ( ar[ 2 ] = 'B01.057.001' .and. lUrologExists )
           fl := func_error( 4, 'Не разрешено одновременно использовать услуги для уролога и хирурга' )
+        elseif ! Empty( &mvart ) .and. metap == 2 .and. nGender == 'Ж' .and. ( ar[ 2 ] = 'A04.20.001.001' .and. lUziMatkiAbdomin )
+          fl := func_error( 4, 'Нельзя применять одновременно услуги УЗИ (трансабдоминальное и трансвагинальное)' )
         elseif Empty( &mvart ) .and. metap == 1 .and. nGender == 'Ж'
           fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
         elseif Empty( &mvart ) .and. metap == 2 .and. ;
-            ( ( nGender == 'М' .and. ar[ 2 ] == '70.9.54' ) .or. ( nGender == 'Ж' .and. ar[ 2 ] == '70.9.50' ) )
+            ( ( nGender == 'М' .and. ar[ 2 ] == '70.9.54' ) .or. ;
+            ( nGender == 'Ж' .and. ar[ 2 ] == '70.9.50' ) )
+          fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
+        elseif Empty( &mvart ) .and. metap == 2 .and. ;
+          ( ( nGender == 'М' .and. ar[ 2 ] != '70.9.54' .and. ar[ 2 ] != '70.9.56' ) .or. ;
+          ( nGender == 'Ж' .and. ar[ 2 ] != '70.9.50' ) ) .and. ;
+          &mvaro != 4
           fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
         Else  // табельный номер врача и его специальность
           If ! Empty( &mvart ) // табельный номер врача
@@ -965,31 +986,39 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       Next
       If metap == 1
         if nGender == 'М'
-          i70_9_3 := index_usluga_etap_drz( uslugi_etapa, '70.9.3' )
-          iB01_053_001 := index_usluga_etap_drz( uslugi_etapa, 'B01.053.001' )
-          iB01_057_001 := index_usluga_etap_drz( uslugi_etapa, 'B01.057.001' )
-          indUslugi := iif( lUrologExists, iB01_053_001, iB01_057_001 )
-          arr_osm1[ i70_9_3, 1 ] := arr_osm1[ indUslugi, 1 ]
-          arr_osm1[ i70_9_3, 2 ] := arr_osm1[ indUslugi, 2 ]
-          arr_osm1[ i70_9_3, 3 ] := arr_osm1[ indUslugi, 3 ]
-          arr_osm1[ i70_9_3, 6 ] := arr_osm1[ indUslugi, 6 ]
-          arr_osm1[ i70_9_3, 9 ] := arr_osm1[ indUslugi, 9 ]
-          arr_osm1[ i70_9_3, 11 ] := arr_osm1[ indUslugi, 11 ]
+          indDest := index_usluga_etap_drz( uslugi_etapa, '70.9.3' )
+          indSource := index_usluga_etap_drz( uslugi_etapa, iif( lUrologExists, 'B01.053.001', 'B01.057.001' ) )
+//          arr_osm1[ indDest, 1 ] := arr_osm1[ indSource, 1 ]
+//          arr_osm1[ indDest, 2 ] := arr_osm1[ indSource, 2 ]
+//          arr_osm1[ indDest, 3 ] := arr_osm1[ indSource, 3 ]
+//          arr_osm1[ indDest, 6 ] := arr_osm1[ indSource, 6 ]
+//          arr_osm1[ indDest, 9 ] := arr_osm1[ indSource, 9 ]
+//          arr_osm1[ indDest, 11 ] := arr_osm1[ indSource, 11 ]
+          change_field_arr_osm1( indSource, indDest )
         elseif nGender == 'Ж'
-          if nAge < 30
-            i70_9_ := index_usluga_etap_drz( uslugi_etapa, '70.9.1' )
-          else
-            i70_9_ := index_usluga_etap_drz( uslugi_etapa, '70.9.2' )
-          endif
-          iB01_001_001 := index_usluga_etap_drz( uslugi_etapa, 'B01.001.001' )
-          arr_osm1[ i70_9_, 1 ] := arr_osm1[ iB01_001_001, 1 ]
-          arr_osm1[ i70_9_, 2 ] := arr_osm1[ iB01_001_001, 2 ]
-          arr_osm1[ i70_9_, 3 ] := arr_osm1[ iB01_001_001, 3 ]
-          arr_osm1[ i70_9_, 6 ] := arr_osm1[ iB01_001_001, 6 ]
-          arr_osm1[ i70_9_, 9 ] := arr_osm1[ iB01_001_001, 9 ]
-          arr_osm1[ i70_9_, 11 ] := arr_osm1[ iB01_001_001, 11 ]
+          indDest := index_usluga_etap_drz( uslugi_etapa, iif( nAge < 30, '70.9.1', '70.9.2' ) )
+          indSource := index_usluga_etap_drz( uslugi_etapa, 'B01.001.001' )
+//          arr_osm1[ indDest, 1 ] := arr_osm1[ indSource, 1 ]
+//          arr_osm1[ indDest, 2 ] := arr_osm1[ indSource, 2 ]
+//          arr_osm1[ indDest, 3 ] := arr_osm1[ indSource, 3 ]
+//          arr_osm1[ indDest, 6 ] := arr_osm1[ indSource, 6 ]
+//          arr_osm1[ indDest, 9 ] := arr_osm1[ indSource, 9 ]
+//          arr_osm1[ indDest, 11 ] := arr_osm1[ indSource, 11 ]
+          change_field_arr_osm1( indSource, indDest )
         endif
-      Endif
+      elseif metap == 2
+        if nGender == 'М'
+          indDest := index_usluga_etap_drz( uslugi_etapa, '70.9.56' )
+          indSource := index_usluga_etap_drz( uslugi_etapa, 'A04.28.003' )
+//          arr_osm1[ indDest, 1 ] := arr_osm1[ indSource, 1 ]
+//          arr_osm1[ indDest, 2 ] := arr_osm1[ indSource, 2 ]
+//          arr_osm1[ indDest, 3 ] := arr_osm1[ indSource, 3 ]
+//          arr_osm1[ indDest, 6 ] := arr_osm1[ indSource, 6 ]
+//          arr_osm1[ indDest, 9 ] := arr_osm1[ indSource, 9 ]
+//          arr_osm1[ indDest, 11 ] := arr_osm1[ indSource, 11 ]
+          change_field_arr_osm1( indSource, indDest )
+        Endif
+      endif
       If ! fl
         Loop
       Endif
@@ -1094,13 +1123,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         Loop
       Endif
       //
-      m1ssh_na := m1psih_na := m1spec_na := 0
+      m1ssh_na := m1spec_na := 0
       If m1napr_v_mo > 0
         If eq_ascan( arr_mo_spec, 45, 141 ) // Направлен к врачу-сердечно-сосудистому хирургу
           m1ssh_na := 1
-        Endif
-        If eq_ascan( arr_mo_spec, 23, 97 ) // Направлен к врачу-психиатру (врачу-психиатру-наркологу)
-          m1psih_na := 1
         Endif
       Endif
       If m1napr_stac > 0 .and. m1profil_stac > 0
