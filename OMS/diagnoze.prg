@@ -5,9 +5,19 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 04.04.24
+function full_diagnoz_human( diag, dopDiag )
 
+  local sDop := alltrim( dopDiag )
 
-** 01.02.22
+  diag := alltrim( diag )
+
+  if len( sDop ) == 1 .and. ( sDop >= '0' .and. sDop <= '9' )
+    diag := diag + sDop
+  endif
+  return diag
+
+// 01.02.22
 function check_diag_pregant()
   local fl := .f.
 
@@ -28,7 +38,7 @@ function check_diag_pregant()
       between_diag(HUMAN->SOPUT_B4, 'Z34', 'Z35'), .t., .f.)
   return fl
   
-** 23.11.22
+// 23.11.22
 function between_diag_array(sDiag, aDiag)
   local fl := .f., i
 
@@ -43,7 +53,7 @@ function between_diag_array(sDiag, aDiag)
   next
   return fl
 
-** 22.11.22
+// 22.11.22
 function between_diag(sDiag, bDiag, eDiag)
   local fl := .f.
   local l, l1, l2
@@ -73,7 +83,7 @@ function between_diag(sDiag, bDiag, eDiag)
   fl := between(v, v1, v2)
   return fl
 
-** 19.05.22 проверка ввода диагноза в случае ОМС
+// 19.05.22 проверка ввода диагноза в случае ОМС
 Function val1_10diag(fl_search, fl_plus, fl_screen, ldate, lpol, lUp)
   // fl_search - искать введённый диагноз в справочнике
   // fl_plus   - допускается ли ввод первично(+)/повторно(-) в конце диагноза
@@ -226,7 +236,7 @@ Function val1_10diag(fl_search, fl_plus, fl_screen, ldate, lpol, lUp)
   endif
   return fl
   
-** упрощённая проверка ввода диагноза
+// упрощённая проверка ввода диагноза
 Function val2_10diag()
   Local fl := .t., mshifr, tmp_select := select()
   
@@ -247,7 +257,7 @@ Function val2_10diag()
   endif
   return fl
   
-** запрос на ввод диагноза
+// запрос на ввод диагноза
 Function input_10diag()
   Static sshifr := '     '
   Local buf := box_shadow(18, 20, 20, 59, color8), bg := {|o, k| get_MKB10(o, k)}
@@ -278,7 +288,7 @@ Function input_10diag()
   rest_box(buf)
   return {mshifr, ashifr}
   
-**
+//
 Function f1input_10diag()
   Local buf := savescreen(), agets, fl := .f.
   
@@ -305,7 +315,7 @@ Function f1input_10diag()
   set key K_F3 TO f1input_10diag()
   return NIL
   
-**
+//
 Static Function f2input_10diag()
   Local arr_t := {}
   
@@ -320,7 +330,7 @@ Static Function f2input_10diag()
   enddo
   return arr_t
   
-** меняет русские буквы на латинские при вводе диагноза
+// меняет русские буквы на латинские при вводе диагноза
 Function get_mkb10(oGet, nKey, fl_F7)
   Local cKey, arr, i, mvar, mvar_old
 
@@ -343,7 +353,7 @@ Function get_mkb10(oGet, nKey, fl_F7)
     endif
   elseif between(nKey, 32, 255)
     cKey := CHR(nKey)
-    ************** найти ЛАТ букву, стоящую на клавиатуре там же, где и РУС
+    ////////////// найти ЛАТ букву, стоящую на клавиатуре там же, где и РУС
     if oGet:pos < 4  // курсор в начале
       cKey := kb_rus_lat(ckey)  // если русская буква
     endif
@@ -353,7 +363,7 @@ Function get_mkb10(oGet, nKey, fl_F7)
     if oGet:pos > 3 .and. (cKey == 'Ю' .or. cKey == 'ю')
       cKey := '.' // замениь букву 'Ю' на точку (цифровая клавиатура под Windows)
     endif
-    **************
+    //////////////
     IF (SET(_SET_INSERT))
       oGet:insert(cKey)
     ELSE
@@ -370,7 +380,7 @@ Function get_mkb10(oGet, nKey, fl_F7)
   ENDIF
   return NIL
   
-** в поле 'диагноз' включить курсор
+// в поле 'диагноз' включить курсор
 Function when_diag()
   SETCURSOR()
   return .t.
@@ -408,7 +418,7 @@ function fill_array_diagnoze(al)
 
   return ad
 
-** 31.10.22 вернуть диагнозы в массиве
+// 31.10.22 вернуть диагнозы в массиве
 Function diag_to_array(al, fl_trim, fl_dop, fl_del, fl_6, adiag_talon)
   Local ad, _arr := {}, j, k, s, lshifr, dp, dp1, _ta, tmp_select := select()
 
