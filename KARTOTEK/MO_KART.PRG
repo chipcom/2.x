@@ -98,7 +98,7 @@ Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 09.12.23
+// 05.04.24
 Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Static mm_kart_error := { { 'нет замечаний', 0 }, { 'полис недействителен', -8 }, { 'ошибки в реквизитах', -9 } }
@@ -1026,11 +1026,6 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
                 human_->SPOLIS   := LTrim( mspolis )
                 human_->NPOLIS   := LTrim( mnpolis )
                 human_->OKATO    := m1okato // ОКАТО субъекта РФ территории страхования
-//                if kart->PN1 == 30  // участник СВО
-                  Select HUMAN_2
-                  g_rlock( forever )
-                  human_2->PN1 := kart->PN1 // участник СВО
-//                endif
                 Select SN
                 find ( Str( arr[ i ], 7 ) )
                 If Found()
