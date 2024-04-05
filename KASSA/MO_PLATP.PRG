@@ -10985,7 +10985,7 @@ return NIL
 
 ***** 04.04.14
 Function rees_new_vzaim(nd_faktura)
-Local buf := save_row(maxrow()), s, i, j, k, ss, lss, adbf, km
+Local buf := save_row(maxrow()), s, i, j, k, ss, lss, adbf, km, vrem_shifr := ""
 delFRfiles()
 mywait()
 adbf := {{"n_fakt","C",10,0},;
@@ -11007,7 +11007,7 @@ adbf := {{"nomer",   "N", 4,0},;
          {"polis",   "C",25,0},;
          {"n_kart",  "C",10,0},;
          {"data",    "C",10,0},;
-         {"kod",     "C",10,0},;
+         {"kod",     "C",15,0},;
          {"name",    "C",70,0},;
          {"ZF"      ,"C",30,0},;
          {"vrach",   "C",50,0},;
@@ -11073,18 +11073,33 @@ do while !eof()
     select HPU
     find (str(hp->(recno()),7))
     do while hpu->kod == hp->(recno()) .and. !eof()
+      vrem_shifr := ""
+      vrem_shifr1 := "" 
       usl->(dbGoto(hpu->u_kod))
       perso->(dbGoto(hpu->kod_vr))
       select HUMANST
       find (str(2,1)+str(hpu->(recno()),8))
-      aadd(ausl, {c4tod(hpu->date_u),;
-                  usl->shifr,;
-                  usl->name,;
-                  hpu->kol,;
-                  hpu->stoim,;
-                  iif(humanst->(found()), humanst->ZF, ""),;
-                  iif(hpu->kod_vr > 0, fam_i_o(perso->fio), "");
-                 })
+      if mem_dms == 0 // внутренние шифры 
+        aadd(ausl, {c4tod(hpu->date_u),;
+                    usl->shifr,;
+                    usl->name,;
+                    hpu->kol,;
+                    hpu->stoim,;
+                    iif(humanst->(found()), humanst->ZF, ""),;
+                    iif(hpu->kod_vr > 0, fam_i_o(perso->fio), "");
+                   })
+      else
+        vrem_shifr := beforatnum(" ",usl->full_name,1) 
+        vrem_shifr1 := substr(usl->full_name,len(vrem_shifr))
+        aadd(ausl, {c4tod(hpu->date_u),; 
+          vrem_shifr,;
+          vrem_shifr1,;
+          hpu->kol,;
+          hpu->stoim,;
+          iif(humanst->(found()), humanst->ZF, ""),;
+          iif(hpu->kod_vr > 0, fam_i_o(perso->fio), "");
+         })
+      endif  
       select HPU
       skip
     enddo

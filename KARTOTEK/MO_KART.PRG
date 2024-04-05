@@ -98,7 +98,7 @@ Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 09.12.23
+// 05.04.24
 Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Static mm_kart_error := { { 'нет замечаний', 0 }, { 'полис недействителен', -8 }, { 'ошибки в реквизитах', -9 } }
@@ -125,33 +125,33 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   Private mbukva := ' ', muchast := 0, mkod_vu := 0, mkod_AK := Space( 6 ), ;
     mkart_error, m1kart_error := 0, ;
     MFIO        := Space( 50 ), ; // Ф.И.О. больного
-  mfam := Space( 40 ), mim := Space( 40 ), mot := Space( 40 ), ;
+    mfam := Space( 40 ), mim := Space( 40 ), mot := Space( 40 ), ;
     mpol        := 'М', ;
     mdate_r     := BoY( AddMonth( sys_date, -12 * 30 ) ), ;
     MANONIM, M1ANONIM := 0, ;
     MVZROS_REB, M1VZROS_REB := 0, ;
     MADRES      := Space( 50 ), ; // адрес больного
-  MMR_DOL     := Space( 50 ), ; // место работы или причина безработности
-  MRAB_NERAB, M1RAB_NERAB := st_rab_nerab, ; // 0-работающий, 1 -неработающий
-  m1MEST_INOG := 0, newMEST_INOG := 0, ;
+    MMR_DOL     := Space( 50 ), ; // место работы или причина безработности
+    MRAB_NERAB, M1RAB_NERAB := st_rab_nerab, ; // 0-работающий, 1 -неработающий
+    m1MEST_INOG := 0, newMEST_INOG := 0, ;
     s_prim1     := '', ;
     MVID_UD, ; // вид удостоверения
-  M1VID_UD    := 14, ; // 1-18
-  mser_ud := Space( 10 ), mnom_ud := Space( 20 ), ;
+    M1VID_UD    := 14, ; // 1-18
+    mser_ud := Space( 10 ), mnom_ud := Space( 20 ), ;
     MKEMVYD, M1KEMVYD := 0, MKOGDAVYD := CToD( '' ), ; // кем и когда выдан паспорт
-  mspolis := Space( 10 ), mnpolis := Space( 20 ), msmo := Space( 5 ), ;
+    mspolis := Space( 10 ), mnpolis := Space( 20 ), msmo := Space( 5 ), ;
     mnamesmo, m1namesmo, ;
     m1company := 0, mcompany, mm_company, ;
     m1KOMU := 0, MKOMU, M1STR_CRB := 0, ;
     mBEG_POLIS := CToD( '' ), MSROK_POLIS := CToD( '' ), ; // срок действия страхового полиса
-  mSTRANA := Space( 10 ), m1strana := '', ;
+    mSTRANA := Space( 10 ), m1strana := '', ;
     mosn_preb, m1osn_preb := 0, ;
     mvidpolis, m1vidpolis := 3, mmesto_r := Space( 100 ), ;
     mgragd, m1gragd, ;
     msnils := Space( 11 ), ;
     m1gorod_selo := 1, mgorod_selo, ;
     mkategor, m1kategor := ATail( stm_kategor )[ 2 ], ;  // т.е. прочие
-  mkategor2, m1kategor2 := 0, ;
+    mkategor2, m1kategor2 := 0, ;
     mokatog := PadR( AllTrim( okato_umolch ), 11, '0' ), mokatop := Space( 11 ), madresp := Space( 50 ), ;
     m1adres_reg := 1, madres_reg, ;
     m1adres_pre := 1, madres_pre, ;
@@ -160,16 +160,16 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     m1PENSIONER := 0, mPENSIONER, ;
     fl_invalid := .f., m1INVALID := 0, mINVALID, mINVALID_ST := 0, ;
     MDATE_INV := CToD( '' ), ; // дата первичного установления инвалидности
-  MPRICH_INV := Space( 10 ), M1PRICH_INV := 0, ; // причина первичного установления инвалидности
-  mDIAG_INV := Space( 5 ), ;  //
-  mBLOOD_G := 0, mBLOOD_R := ' ', mWEIGHT := 0, mHEIGHT := 0, ;
+    MPRICH_INV := Space( 10 ), M1PRICH_INV := 0, ; // причина первичного установления инвалидности
+    mDIAG_INV := Space( 5 ), ;  //
+    mBLOOD_G := 0, mBLOOD_R := ' ', mWEIGHT := 0, mHEIGHT := 0, ;
     m1WHERE_KART := 0, mWHERE_KART, rec_inogSMO := 0, ;
     mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 ), ;
     MADRES_PRO := Space( 60 ), ; // адрес проживания в Волг.обл.
-  MMIGR_KARTA := Space( 20 ), ; // данные миграционной карты
-  MDATE_P_G := CToD( '' ), ; // дата пересечения границы
-  MDATE_R_M := CToD( '' ), ; // дата регистрации в миграционной службе
-  MKOL_PRED := 0, ;
+    MMIGR_KARTA := Space( 20 ), ; // данные миграционной карты
+    MDATE_P_G := CToD( '' ), ; // дата пересечения границы
+    MDATE_R_M := CToD( '' ), ; // дата регистрации в миграционной службе
+    MKOL_PRED := 0, ;
     MFIO_PR1 := Space( 50 ), ;
     M1STATUS_PR1 := 0, ;
     M1IS_UHOD_PR1 := 0, ;
@@ -190,6 +190,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     MPOLIS_PR2 := Space( 25 ), ;
     mmo_pr := '', ;
     gl_area := { 1, 0, MaxRow() -1, 79, 0 }
+  private m1SVO := 0, mSVO
   //
   If !is_append .and. r_use( dir_server + 'kartote_', , 'KART_' ) ;
       .and. r_use( dir_server + 'kartote2', , 'KART2' ) ;
@@ -223,6 +224,9 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
       muchast := kart->uchast
       mkod_vu := kart->kod_vu
     Endif
+    if kart->PN1 == 30
+      m1SVO := YES
+    endif
     Select KART2
     Goto ( mkod )
     If !Eof()
@@ -380,6 +384,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   mkomu      := inieditspr( A__MENUVERT, mm_komu, m1komu )
   minvalid   := inieditspr( A__MENUVERT, mm_invalid, m1invalid )
   mosn_preb  := inieditspr( A__MENUVERT, get_osn_preb_rf(), m1osn_preb )
+  mSVO := inieditspr( A__MENUVERT, mm_danet, m1SVO )
   madres_reg := ini_adres( 1 )
   madres_pre := ini_adres( 2 )
   If Empty( m1namesmo := Int( Val( msmo ) ) )
@@ -589,6 +594,9 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
       @ ++ix, 1 Say 'Инвалидность' Get minvalid ;
         reader {| x| menu_reader( x, mm_invalid, A__MENUVERT, , , .f. ) } ;
         valid {|| f_kart_valid_inv( ix ) }
+      @ ix, Col() + 6 Say 'Участник СВО?' Get mSVO ;
+        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+  
     Endif
     If eq_any( glob_task, X_MO )
       @ ++ix, 1 Say 'Льгота по ДЛО' Get mKOD_LGOT ;
@@ -707,7 +715,12 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
           kart->uchast := muchast
           kart->kod_vu := mkod_vu
         Endif
-        Select KART2
+        if m1SVO == YES
+          kart->PN1 := 30
+        else
+          kart->PN1 := 0
+        endif
+          Select KART2
         Do While kart2->( LastRec() ) < mkod
           Append Blank
         Enddo
@@ -1180,6 +1193,7 @@ Function findkartoteka( k, /*@*/lkod_k)
       If kart->MEST_INOG == 9 // т.е. отдельно занесены Ф.И.О.
         m1MEST_INOG := kart->MEST_INOG
       Endif
+      m1SVO := kart->PN1
       m1vidpolis  := kart_->VPOLIS // вид полиса (от 1 до 3);1-старый, 2-врем., 3-новый
       mspolis     := kart_->SPOLIS // серия полиса
       mnpolis     := kart_->NPOLIS // номер полиса
