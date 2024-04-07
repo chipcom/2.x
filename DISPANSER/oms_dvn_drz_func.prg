@@ -214,7 +214,7 @@ Function f_is_usl_sluch_drz( uslugi_etapa, i, allUsl, /*@*/_diag, /*@*/_otkaz )
 
   Return fl
 
-// 28.03.241 получить услуги этапа диспансеризации репродуктивного здоровья
+// 07.04.24 получить услуги этапа диспансеризации репродуктивного здоровья
 Function uslugietap_drz( _etap, age, gender )
 
   // _etap - этап диспансеризации
@@ -222,7 +222,7 @@ Function uslugietap_drz( _etap, age, gender )
   // gender - пол
   Local retArray := {}
   Local i, j, fl, tmpArr := {}
-  Local usl := ret_arrays_drz()
+  Local usl := ret_array_drz()
 
   default age to 18
   default gender to 0
@@ -268,8 +268,8 @@ Function uslugietap_drz( _etap, age, gender )
   next
   Return retArray
 
-// 02.04.24 скорректировать массивы по углубленной диспансеризации COVID
-Function ret_arrays_drz()
+// 07.04.24 скорректировать массивы по углубленной диспансеризации COVID
+Function ret_array_drz()
 
   Local dvn_drz_arr_usl
 
@@ -675,8 +675,8 @@ Function ret_arrays_drz()
 
   Return dvn_drz_arr_usl
 
-// 02.04.24
-Function save_arr_drz( lkod, mk_data ) //, arr_usl_otkaz, arr_ne_nazn )
+// 07.04.24
+Function save_arr_drz( lkod, mk_data )
 
   Local arr := {}, i, sk, ta
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
@@ -735,9 +735,9 @@ Function save_arr_drz( lkod, mk_data ) //, arr_usl_otkaz, arr_ne_nazn )
     Endif
   Next i
   // отказы пациента
-  If ! Empty( arr_usl_otkaz )
-    AAdd( arr, { '19', arr_usl_otkaz } ) // массив
-  Endif
+//  If ! Empty( arr_usl_otkaz )
+//    AAdd( arr, { '19', arr_usl_otkaz } ) // массив
+//  Endif
   AAdd( arr, { '30', m1GRUPPA } )    // 'N1',группа здоровья после дисп-ии
   If Type( 'm1prof_ko' ) == 'N'
     AAdd( arr, { '31', m1prof_ko } )    // 'N1',вид проф.консультирования
@@ -849,8 +849,8 @@ Function save_arr_drz( lkod, mk_data ) //, arr_usl_otkaz, arr_ne_nazn )
 
   Return Nil
 
-// 02.04.24
-Function read_arr_drz( lkod, is_all ) //, arr_usl_otkaz, arr_ne_nazn )
+// 07.04.24
+Function read_arr_drz( lkod, is_all )
 
   Local arr, i, sk
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
@@ -910,8 +910,8 @@ Function read_arr_drz( lkod, is_all ) //, arr_usl_otkaz, arr_ne_nazn )
         If Len( arr[ i, 2 ] ) >= 10 .and. ValType( arr[ i, 2, 10 ] ) == 'D' .and. Type( pole_dn_dispans ) == 'D'
           &pole_dn_dispans := arr[ i, 2, 10 ]
         Endif
-      Case is_all .and. arr[ i, 1 ] == '19' .and. ValType( arr[ i, 2 ] ) == 'A'
-        arr_usl_otkaz := arr[ i, 2 ]
+//      Case is_all .and. arr[ i, 1 ] == '19' .and. ValType( arr[ i, 2 ] ) == 'A'
+//        arr_usl_otkaz := arr[ i, 2 ]
       Case arr[ i, 1 ] == '30' .and. ValType( arr[ i, 2 ] ) == 'N'
         // m1GRUPPA := arr[i,2]
       Case arr[ i, 1 ] == '31' .and. ValType( arr[ i, 2 ] ) == 'N'
