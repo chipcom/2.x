@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  // ВРЕМЕННО
 
-// 03.04.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 08.04.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -397,74 +397,151 @@ altd()
     endif
 altd()
 
-//    view_uslugi := uslugi_to_view( uslugi_etapa )
+    view_uslugi := uslugi_to_view( uslugi_etapa )
 
-    for i := 1 to len( larr[ 1 ] )
-      if ( valtype( larr[ 2, i ] ) == 'C' ) .and. ( ! eq_any( SubStr( larr[ 2, i ], 1, 1 ), 'A', 'B') )  // это услуга ТФОМС, а не ФФОМС (первый символ не A,B)
-        hu->( dbGoto( larr[ 1, i ] ) )
-        if hu->kod_vr > 0
-          p2->( dbGoto( hu->kod_vr ) )
-          mvar := 'MTAB_NOMv' + lstr( i )
-          &mvar := p2->tab_nom
-        endif
-        if hu->kod_as > 0
-          p2->( dbGoto( hu->kod_as ) )
-          mvar := 'MTAB_NOMa' + lstr( i )
-          &mvar := p2->tab_nom
-        endif
-        mvar := 'MDATE' + lstr( i )
-        &mvar := c4tod( hu->date_u )
-        if ! empty( hu_->kod_diag ) .and. ! ( left( hu_->kod_diag, 1 ) == 'U' )
-          mvar := 'MKOD_DIAG' + lstr( i )
-          &mvar := hu_->kod_diag
-        endif
-        m1var := 'M1OTKAZ' + lstr( i )
-        &m1var := 0 // выполнено
-        if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
-          if ascan( arr_otklon, uslugi_etapa[ i, 2 ] ) > 0
-            &m1var := 3 // выполнено, обнаружены отклонения
+//    for i := 1 to len( larr[ 1 ] )
+    for i := 1 to len( view_uslugi )    // len( larr[ 1 ] )
+      if ( j := ascan( larr[ 2 ], view_uslugi[ i, 2 ] ) ) > 0
+        if ( valtype( larr[ 2, j ] ) == 'C' ) .and. ( ! eq_any( SubStr( larr[ 2, j ], 1, 1 ), 'A', 'B') )  // это услуга ТФОМС, а не ФФОМС (первый символ не A,B)
+          hu->( dbGoto( larr[ 1, j ] ) )
+          if hu->kod_vr > 0
+            p2->( dbGoto( hu->kod_vr ) )
+            mvar := 'MTAB_NOMv' + lstr( i )
+            &mvar := p2->tab_nom
           endif
-        endif
-        if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
-          if ascan( arr_ne_nazn, uslugi_etapa[ i, 2 ] ) > 0
-            &m1var := 4 // не назначено
+          if hu->kod_as > 0
+            p2->( dbGoto( hu->kod_as ) )
+            mvar := 'MTAB_NOMa' + lstr( i )
+            &mvar := p2->tab_nom
           endif
-        endif
-        mvar := 'MOTKAZ' + lstr( i )
-        &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
-      elseif ( valtype( larr[ 2, i ] ) == 'C' ) .and. ( eq_any( SubStr( larr[ 2, i ], 1, 1 ), 'A', 'B') )  // это услуга ФФОМС (первый символ A,B)
-        MOHU->( dbGoto( larr[ 1, i ] ) )
-        if MOHU->kod_vr > 0
-          p2->( dbGoto( MOHU->kod_vr ) )
-          mvar := 'MTAB_NOMv' + lstr( i )
-          &mvar := p2->tab_nom
-        endif
-        if MOHU->kod_as > 0
-          p2->( dbGoto( MOHU->kod_as ) )
-          mvar := 'MTAB_NOMa' + lstr( i )
-          &mvar := p2->tab_nom
-        endif
-        mvar := 'MDATE' + lstr( i )
-        &mvar := c4tod( MOHU->date_u )
-        if ! empty( MOHU->kod_diag ) .and. ! ( left( MOHU->kod_diag, 1 ) == 'U' )
-          mvar := 'MKOD_DIAG' + lstr( i )
-          &mvar := hu_->kod_diag
-        endif
-        m1var := 'M1OTKAZ' + lstr( i )
-        &m1var := 0 // выполнено
-        if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
-          if ascan( arr_otklon, uslugi_etapa[ i, 2 ] ) > 0
-            &m1var := 3 // выполнено, обнаружены отклонения
+          mvar := 'MDATE' + lstr( i )
+          &mvar := c4tod( hu->date_u )
+          if ! empty( hu_->kod_diag ) .and. ! ( left( hu_->kod_diag, 1 ) == 'U' )
+            mvar := 'MKOD_DIAG' + lstr( i )
+            &mvar := hu_->kod_diag
           endif
-        endif
-        if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
-          if ascan( arr_ne_nazn, uslugi_etapa[ i, 2 ] ) > 0
-            &m1var := 4 // не назначено
+          m1var := 'M1OTKAZ' + lstr( i )
+          &m1var := 0 // выполнено
+//          if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
+//            if ascan( arr_otklon, uslugi_etapa[ i, 2 ] ) > 0
+          if valtype( view_uslugi[ i, 2 ] ) == 'C'
+            if ascan( arr_otklon, view_uslugi[ i, 2 ] ) > 0
+              &m1var := 3 // выполнено, обнаружены отклонения
+            endif
           endif
+          // if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
+          //   if ascan( arr_ne_nazn, uslugi_etapa[ i, 2 ] ) > 0
+          if valtype( view_uslugi[ i, 2 ] ) == 'C'
+            if ascan( arr_ne_nazn, view_uslugi[ i, 2 ] ) > 0
+              &m1var := 4 // не назначено
+            endif
+          endif
+          mvar := 'MOTKAZ' + lstr( i )
+          &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
+        elseif ( valtype( larr[ 2, j ] ) == 'C' ) .and. ( eq_any( SubStr( larr[ 2, j ], 1, 1 ), 'A', 'B') )  // это услуга ФФОМС (первый символ A,B)
+          MOHU->( dbGoto( larr[ 1, j ] ) )
+          if MOHU->kod_vr > 0
+            p2->( dbGoto( MOHU->kod_vr ) )
+            mvar := 'MTAB_NOMv' + lstr( i )
+            &mvar := p2->tab_nom
+          endif
+          if MOHU->kod_as > 0
+            p2->( dbGoto( MOHU->kod_as ) )
+            mvar := 'MTAB_NOMa' + lstr( i )
+            &mvar := p2->tab_nom
+          endif
+          mvar := 'MDATE' + lstr( i )
+          &mvar := c4tod( MOHU->date_u )
+          if ! empty( MOHU->kod_diag ) .and. ! ( left( MOHU->kod_diag, 1 ) == 'U' )
+            mvar := 'MKOD_DIAG' + lstr( i )
+            &mvar := hu_->kod_diag
+          endif
+          m1var := 'M1OTKAZ' + lstr( i )
+          &m1var := 0 // выполнено
+          // if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
+          //   if ascan( arr_otklon, uslugi_etapa[ i, 2 ] ) > 0
+          if valtype( view_uslugi[ i, 2 ] ) == 'C'
+            if ascan( arr_otklon, view_uslugi[ i, 2 ] ) > 0
+              &m1var := 3 // выполнено, обнаружены отклонения
+            endif
+          endif
+          // if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
+          //   if ascan( arr_ne_nazn, uslugi_etapa[ i, 2 ] ) > 0
+          if valtype( view_uslugi[ i, 2 ] ) == 'C'
+            if ascan( arr_ne_nazn, view_uslugi[ i, 2 ] ) > 0
+              &m1var := 4 // не назначено
+            endif
+          endif
+          mvar := 'MOTKAZ' + lstr( i )
+          &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
         endif
-        mvar := 'MOTKAZ' + lstr( i )
-        &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
       endif
+
+      // if ( valtype( larr[ 2, i ] ) == 'C' ) .and. ( ! eq_any( SubStr( larr[ 2, i ], 1, 1 ), 'A', 'B') )  // это услуга ТФОМС, а не ФФОМС (первый символ не A,B)
+      //   hu->( dbGoto( larr[ 1, i ] ) )
+      //   if hu->kod_vr > 0
+      //     p2->( dbGoto( hu->kod_vr ) )
+      //     mvar := 'MTAB_NOMv' + lstr( i )
+      //     &mvar := p2->tab_nom
+      //   endif
+      //   if hu->kod_as > 0
+      //     p2->( dbGoto( hu->kod_as ) )
+      //     mvar := 'MTAB_NOMa' + lstr( i )
+      //     &mvar := p2->tab_nom
+      //   endif
+      //   mvar := 'MDATE' + lstr( i )
+      //   &mvar := c4tod( hu->date_u )
+      //   if ! empty( hu_->kod_diag ) .and. ! ( left( hu_->kod_diag, 1 ) == 'U' )
+      //     mvar := 'MKOD_DIAG' + lstr( i )
+      //     &mvar := hu_->kod_diag
+      //   endif
+      //   m1var := 'M1OTKAZ' + lstr( i )
+      //   &m1var := 0 // выполнено
+      //   if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
+      //     if ascan( arr_otklon, uslugi_etapa[ i, 2 ] ) > 0
+      //       &m1var := 3 // выполнено, обнаружены отклонения
+      //     endif
+      //   endif
+      //   if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
+      //     if ascan( arr_ne_nazn, uslugi_etapa[ i, 2 ] ) > 0
+      //       &m1var := 4 // не назначено
+      //     endif
+      //   endif
+      //   mvar := 'MOTKAZ' + lstr( i )
+      //   &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
+      // elseif ( valtype( larr[ 2, i ] ) == 'C' ) .and. ( eq_any( SubStr( larr[ 2, i ], 1, 1 ), 'A', 'B') )  // это услуга ФФОМС (первый символ A,B)
+      //   MOHU->( dbGoto( larr[ 1, i ] ) )
+      //   if MOHU->kod_vr > 0
+      //     p2->( dbGoto( MOHU->kod_vr ) )
+      //     mvar := 'MTAB_NOMv' + lstr( i )
+      //     &mvar := p2->tab_nom
+      //   endif
+      //   if MOHU->kod_as > 0
+      //     p2->( dbGoto( MOHU->kod_as ) )
+      //     mvar := 'MTAB_NOMa' + lstr( i )
+      //     &mvar := p2->tab_nom
+      //   endif
+      //   mvar := 'MDATE' + lstr( i )
+      //   &mvar := c4tod( MOHU->date_u )
+      //   if ! empty( MOHU->kod_diag ) .and. ! ( left( MOHU->kod_diag, 1 ) == 'U' )
+      //     mvar := 'MKOD_DIAG' + lstr( i )
+      //     &mvar := hu_->kod_diag
+      //   endif
+      //   m1var := 'M1OTKAZ' + lstr( i )
+      //   &m1var := 0 // выполнено
+      //   if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
+      //     if ascan( arr_otklon, uslugi_etapa[ i, 2 ] ) > 0
+      //       &m1var := 3 // выполнено, обнаружены отклонения
+      //     endif
+      //   endif
+      //   if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
+      //     if ascan( arr_ne_nazn, uslugi_etapa[ i, 2 ] ) > 0
+      //       &m1var := 4 // не назначено
+      //     endif
+      //   endif
+      //   mvar := 'MOTKAZ' + lstr( i )
+      //   &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
+      // endif
     next
     if alltrim( msmo ) == '34'
       mnameismo := ret_inogSMO_name( 2, @rec_inogSMO, .t. ) // открыть и закрыть
