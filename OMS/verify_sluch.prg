@@ -4,9 +4,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+#define BASE_ISHOD_RZD 500  // ВРЕМЕННО
+
 Static sadiag1  // := {}
 
-// 30.03.24
+// 09.04.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -597,6 +599,7 @@ Function verify_1_sluch( fl_view )
   is_disp_DDS := is_disp_DVN := is_disp_DVN3 := is_prof_PN := is_neonat := is_pren_diagn := .f.
 
   is_disp_DVN_COVID := .f.
+  is_disp_DRZ := .f.
   is_exist_Prescription := .f.  // имеется блок направлений для диспансеризаций
 
   is_70_3 := is_70_5 := is_70_6 := is_72_2 := is_72_3 := is_72_4 := .f.
@@ -641,6 +644,12 @@ Function verify_1_sluch( fl_view )
   // проверим не этап ли это углубленной диспансеризации после COVID
   If eq_any( human->ishod, 401, 402 )
     is_disp_DVN_COVID := .t.
+    is_exist_Prescription := .t.
+  Endif
+
+  // проверим не этап ли это диспансеризации репродуктивного здоровья
+  If eq_any( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
+    is_disp_DRZ := .t.
     is_exist_Prescription := .t.
   Endif
 
@@ -733,7 +742,7 @@ Function verify_1_sluch( fl_view )
           Else
             AAdd( ta, 'лабораторная услуга "' + AllTrim( usl->shifr ) + '" может быть оказана только в поликлинике' )
           Endif
-        Elseif hu->is_edit == 0 .and. ( ! is_disp_DVN_COVID ) // исправлено для углубленной диспансеризации
+        Elseif hu->is_edit == 0 .and. ( ! is_disp_DVN_COVID ) .and. ( ! is_disp_DRZ ) // исправлено для углубленной диспансеризации и ДРЗ
           AAdd( ta, 'не заполнено поле "Врач, оказавший услугу ' + AllTrim( usl->shifr ) + '"' )
         Endif
       Else
@@ -742,7 +751,7 @@ Function verify_1_sluch( fl_view )
         Endif
         pers->( dbGoto( hu->kod_vr ) )
         mprvs := -ret_new_spec( pers->prvs, pers->prvs_new )
-        If Empty( mprvs ) .and. ( ! is_disp_DVN_COVID ) // исправлено для углубленной диспансеризации
+        If Empty( mprvs ) .and. ( ! is_disp_DVN_COVID ) .and. ( ! is_disp_DRZ ) // исправлено для углубленной диспансеризации и ДРЗ
           AAdd( ta, 'нет специальности в справочнике персонала у "' + AllTrim( pers->fio ) + '"' )
         Elseif hu_->PRVS != mprvs
           hu_->PRVS := mprvs
@@ -877,8 +886,6 @@ Function verify_1_sluch( fl_view )
       Elseif alltrim_lshifr == '56.1.723' .and. human->ishod == 202 .and. !is_disp_19 // второй этап ДВН - одна услуга
         is_disp_DVN := .t.
         is_exist_Prescription := .t.
-        // elseif alltrim_lshifr == '70.8' .and. eq_any(human->ishod, 401, 402) // этап углубленной диспансеризации после COVID
-        // is_disp_DVN_COVID := .t.
       Elseif eq_any( left_lshifr_5, '60.4.', '60.5.', '60.6.', '60.7.', '60.8.', '60.9.' ) .or. ;
           eq_any( alltrim_lshifr, '4.20.702', '4.15.746' ) // ЛДП
         If alltrim_lshifr == '4.15.746' // пренатальный скрининг
@@ -1056,6 +1063,10 @@ Function verify_1_sluch( fl_view )
           mIDSP := 30 // углубленная диспансеризация после COVID
           is_disp_DVN_COVID := .t.
           is_exist_Prescription := .t.
+        Elseif left_lshifr_5 == '70.9.'
+          mIDSP := 30 // диспансеризация репродуктивного здоровья
+          is_disp_DRZ := .t.
+          is_exist_Prescription := .t.
         Elseif left_lshifr_5 == '2.85.' // профилактика несовершеннолетних
           is_prof_PN := .t.
           is_2_85 := .t.
@@ -1125,6 +1136,10 @@ Function verify_1_sluch( fl_view )
           mIDSP := 30 // 'Код способа оплаты' '30 - за обращение (законченный случай)'
           is_disp_DVN_COVID := .t.
           is_exist_Prescription := .t.
+        Elseif left_lshifr_5 == '70.9.'  // диспансеризация репродуктивного здоровья
+          mIDSP := 30 // 'Код способа оплаты' '30 - за обращение (законченный случай)'
+          is_disp_DRZ := .t.
+          is_exist_Prescription := .t.
         Elseif left_lshifr_5 == '2.91.'
           mIDSP := 29 // за посещение в поликлинике
           is_prof_PN := .t.
@@ -1177,7 +1192,7 @@ Function verify_1_sluch( fl_view )
         hu_->PZKOL := mPZKOL
       Endif
       If musl_ok == USL_OK_POLYCLINIC // 3
-        If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
+        If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID .or. is_disp_DRZ
           //
         Elseif mpovod > 0 .and. AScan( arr_povod, {| x| x[ 1 ] == mpovod } ) == 0
           AAdd( arr_povod, { mpovod, alltrim_lshifr } )
@@ -1216,12 +1231,16 @@ Function verify_1_sluch( fl_view )
           Endif
         Elseif is_disp_DVN_COVID .and. eq_any( AllTrim( lshifr ), 'A12.09.005', 'A12.09.001', 'B03.016.003', 'B03.016.004', ;
             'A06.09.007', 'B01.026.002', 'B01.047.002', 'B01.047.006' )
+        Elseif is_disp_DRZ .and. eq_any( AllTrim( lshifr ), 'B01.001.001', 'A01.20.006', 'A02.20.001', 'A12.20.001', ;
+            'A08.20.017', 'A26.20.034.001', 'B01.053.001', 'B01.057.001', 'B01.001.002', 'A04.20.001', ;
+            'A04.20.001.001', 'A04.20.002', 'B01.053.002', 'B01.057.002', 'B03.053.002', 'A04.28.003', ;
+            'A04.21.001', 'A26.21.036.001' )
           // //////
         Else
           AAdd( ta, 'Не найдена услуга ' + RTrim( lshifr ) + iif( human->vzros_reb == 0, ' для взрослых', ' для детей' ) + ' в справочнике ТФОМС' )
         Endif
       Endif
-      If is_disp_DVN_COVID
+      If is_disp_DVN_COVID .or. is_disp_DRZ
         If hu->kod_vr != 0  // присутствует код врача
           ssumma += hu->stoim_1
         Endif
@@ -1287,7 +1306,7 @@ Function verify_1_sluch( fl_view )
       If is_dom .and. arr_povod[ 1, 1 ] == 1
         arr_povod[ 1, 1 ] := 3 // 1.2 - активное посещение, т.е. на дому
       Endif
-      If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
+      If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID .or. is_disp_DRZ
         //
       Elseif human_->usl_ok == USL_OK_POLYCLINIC .and. l_mdiagnoz_fill
         If Len( a_idsp ) == 1 .and. a_idsp[ 1, 1 ] != 28 // т.е. idsp не равно 'за медицинскую услугу в поликлинике'
@@ -1326,7 +1345,7 @@ Function verify_1_sluch( fl_view )
     Next
   Endif
   fl := ( AScan( mdiagnoz, {| x| PadR( x, 5 ) == 'Z03.1' } ) > 0 )
-  If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
+  If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID .or. is_disp_DRZ
     If is_oncology == 2
       is_oncology := 1
     Endif
@@ -1466,7 +1485,7 @@ Function verify_1_sluch( fl_view )
     Endif
     otd->( dbGoto( mohu->OTD ) )
     mohu->( g_rlock( forever ) )
-    If Empty( mohu->kod_vr ) .and. ( ! is_disp_DVN_COVID ) // исправлено для углубленной диспансеризации
+    If Empty( mohu->kod_vr ) .and. ( ! is_disp_DVN_COVID ) .and. ( ! is_disp_DRZ ) // исправлено для углубленной диспансеризации и ДРЗ
       If usl_found .and. &lalf.->telemed == 1
         If !( mohu->PRVS == human_->PRVS )
           mohu->PRVS := human_->PRVS // для телемедицины специальность копируем из случая
@@ -1486,7 +1505,7 @@ Function verify_1_sluch( fl_view )
       Endif
       pers->( dbGoto( mohu->kod_vr ) )
       mprvs := -ret_new_spec( pers->prvs, pers->prvs_new )
-      If Empty( mprvs ) .and. ( ! is_disp_DVN_COVID ) // исправлено для углубленной диспансеризации
+      If Empty( mprvs ) .and. ( ! is_disp_DVN_COVID ) .and. ( ! is_disp_DRZ ) // исправлено для углубленной диспансеризации и ДРЗ
         AAdd( ta, 'нет специальности в справочнике персонала у "' + AllTrim( pers->fio ) + '"' )
       Elseif mohu->PRVS != mprvs
         mohu->PRVS := mprvs
@@ -1558,9 +1577,14 @@ Function verify_1_sluch( fl_view )
             arr_zf := stverifyzf( mohu->zf, human->date_r, d1, ta, s )
             stverifykolzf( arr_zf, mohu->kol_1, ta, s )
           Endif
-        elseif &lalf.->telemed == 0 .and. ! eq_any( AllTrim( &lalf.->shifr ), ;
+        elseif &lalf.->telemed == 0 .and. ! eq_any_new( AllTrim( &lalf.->shifr ), ;
             'A12.09.005', 'A12.09.001', 'B03.016.003', 'B03.016.004', 'A06.09.007', 'B01.026.001', 'B01.026.002', ;
-            'A23.30.023', 'A09.05.051.001', 'A04.10.002', 'A06.09.005', 'A04.12.006.002' )
+            'A23.30.023', 'A09.05.051.001', 'A04.10.002', 'A06.09.005', 'A04.12.006.002', ; // )
+            'B01.001.001', 'A01.20.006', 'A02.20.001', 'A12.20.001', ;
+            'A08.20.017', 'A26.20.034.001', 'B01.053.001', 'B01.057.001', 'B01.001.002', 'A04.20.001', ;
+            'A04.20.001.001', 'A04.20.002', 'B01.053.002', 'B01.057.002', 'B03.053.002', 'A04.28.003', ;
+            'A04.21.001', 'A26.21.036.001' )
+
           AAdd( ta, 'услугу ' + s + ' нельзя вводить для амбулаторной помощи' )
         Endif
       Case human_->usl_ok == USL_OK_AMBULANCE // 4
@@ -2029,7 +2053,7 @@ Function verify_1_sluch( fl_view )
   Else
     pers->( dbGoto( human_->VRACH ) )
     mprvs := -ret_new_spec( pers->prvs, pers->prvs_new )
-    If Empty( mprvs ) .and. ( ! is_disp_DVN_COVID ) // исправлено для углубленной диспансеризации
+    If Empty( mprvs ) .and. ( ! is_disp_DVN_COVID ) .and. ( ! is_disp_DRZ ) // исправлено для углубленной диспансеризации и ДРЗ
       AAdd( ta, 'нет специальности в справочнике персонала у "' + AllTrim( pers->fio ) + '"' )
     Elseif human_->PRVS != mprvs
       human_->PRVS := mprvs
@@ -2734,7 +2758,7 @@ Function verify_1_sluch( fl_view )
       a_bukva[ 1, 1 ] + '-' + AllTrim( a_bukva[ 1, 2 ] ) + ' и ' + ;
       a_bukva[ 2, 1 ] + '-' + AllTrim( a_bukva[ 2, 2 ] ) )
   Endif
-  If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
+  If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID .or. is_disp_DRZ
     //
   Elseif l_mdiagnoz_fill .and. AScan( adiag, mdiagnoz[ 1 ] ) == 0
     AAdd( ta, 'основной диагноз ' + RTrim( mdiagnoz[ 1 ] ) + ' не встречается ни в одной услуге' )
@@ -2806,7 +2830,7 @@ Function verify_1_sluch( fl_view )
   Endif
   If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_pren_diagn .or. kol_ksg > 0 ;
       .or. is_2_89 .or. is_reabil ;
-      .or. is_disp_DVN_COVID  // .or. is_s_dializ
+      .or. is_disp_DVN_COVID .or. is_disp_DRZ  // .or. is_s_dializ
     If is_reabil  // проводим проверку на профиль при реабилитации
       If human_->profil != 158
         AAdd( ta, 'в случае надо использовать профиль по: ' + inieditspr( A__MENUVERT, getv002(), 158 ) )
@@ -4368,6 +4392,22 @@ Function verify_1_sluch( fl_view )
     read_arr_dvn_covid( human->kod )
   Endif
 
+  If is_disp_DRZ
+    If ( human->k_data < 0d20240301 )
+      AAdd( ta, 'диспансеризация репродуктивного здоровья началась с 01 марта 2024 года' )
+    Endif
+    m1dopo_na := 0
+    m1napr_v_mo := 0
+    arr_mo_spec := {}
+    m1napr_stac := 0
+    m1profil_stac := 0
+    m1napr_reab := 0
+    m1profil_kojki := 0
+    is_disp_nabl := .f.
+    arr_nazn := {}
+    read_arr_drz( human->kod )
+  Endif
+
   //
   // ПРОВЕРКА ЛЕКАРСТВЕННЫХ ПРЕПАРАТОВ
   //
@@ -4762,7 +4802,7 @@ Function verify_1_sluch( fl_view )
     human_->PZTIP := mpztip
     human_->PZKOL := iif( mpzkol > 0, mpzkol, 1 )
   Endif
-
+alltrim_lshifr := alltrim( lshifr )
   If ( between_shifr( alltrim_lshifr, '2.88.111', '2.88.119' ) .and. ( human->k_data >= 0d20220201 ) )
     arr_povod[ 1, 1 ] := 1
     human_->POVOD := arr_povod[ 1, 1 ]

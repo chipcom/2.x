@@ -29,17 +29,15 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   local lenArr_Uslugi_DRZ
   local str_1, hS, wS
   local nAge, nGender
-  local lUrologExists := .f., lUziMatkiAbdomin := .f., lUziMatkiTransvag := .f.
-  local lMoshonka := .f., lProstata := .f.
-  local date_uzi
+  local lUziMatkiAbdomin := .f., lUziMatkiTransvag := .f.
   local uslugi_etapa, fl_shapka_osmotr := .f.
   local fl_diag
   local arr_usl_dop := {}
-  local lshifr, tmpvr
-  local tmp_uzi_mal_taza
+  local lshifr
   local indSource := 0, indDest := 0
   local i_otkaz   // возможность отказа от услуги (0 - нет, 1 - да)
   local view_uslugi
+  local mdef_diagnoz
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default loc_kod TO 0, kod_kartotek TO 0
@@ -328,7 +326,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     use_base( 'human_u' )
 
     // сначала выберем информацию из human_u по услугам ТФОМС
-// altd()
     find ( str( Loc_kod, 7 ) )
     do while hu->kod == Loc_kod .and. !eof()
       usl->( dbGoto( hu->u_kod ) )
@@ -397,7 +394,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     if metap == 1 .and. between( m1GRUPPA, 11, 14) .and. m1p_otk == 1
       m1GRUPPA += 10
     endif
-//altd()
 
     view_uslugi := uslugi_to_view( uslugi_etapa )
 
@@ -478,72 +474,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
         endif
       endif
-
-      // if ( valtype( larr[ 2, i ] ) == 'C' ) .and. ( ! eq_any( SubStr( larr[ 2, i ], 1, 1 ), 'A', 'B') )  // это услуга ТФОМС, а не ФФОМС (первый символ не A,B)
-      //   hu->( dbGoto( larr[ 1, i ] ) )
-      //   if hu->kod_vr > 0
-      //     p2->( dbGoto( hu->kod_vr ) )
-      //     mvar := 'MTAB_NOMv' + lstr( i )
-      //     &mvar := p2->tab_nom
-      //   endif
-      //   if hu->kod_as > 0
-      //     p2->( dbGoto( hu->kod_as ) )
-      //     mvar := 'MTAB_NOMa' + lstr( i )
-      //     &mvar := p2->tab_nom
-      //   endif
-      //   mvar := 'MDATE' + lstr( i )
-      //   &mvar := c4tod( hu->date_u )
-      //   if ! empty( hu_->kod_diag ) .and. ! ( left( hu_->kod_diag, 1 ) == FIRST_LETTER )
-      //     mvar := 'MKOD_DIAG' + lstr( i )
-      //     &mvar := hu_->kod_diag
-      //   endif
-      //   m1var := 'M1OTKAZ' + lstr( i )
-      //   &m1var := 0 // выполнено
-      //   if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
-      //     if ascan( arr_otklon, uslugi_etapa[ i, 2 ] ) > 0
-      //       &m1var := 3 // выполнено, обнаружены отклонения
-      //     endif
-      //   endif
-      //   if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
-      //     if ascan( arr_ne_nazn, uslugi_etapa[ i, 2 ] ) > 0
-      //       &m1var := 4 // не назначено
-      //     endif
-      //   endif
-      //   mvar := 'MOTKAZ' + lstr( i )
-      //   &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
-      // elseif ( valtype( larr[ 2, i ] ) == 'C' ) .and. ( eq_any( SubStr( larr[ 2, i ], 1, 1 ), 'A', 'B') )  // это услуга ФФОМС (первый символ A,B)
-      //   MOHU->( dbGoto( larr[ 1, i ] ) )
-      //   if MOHU->kod_vr > 0
-      //     p2->( dbGoto( MOHU->kod_vr ) )
-      //     mvar := 'MTAB_NOMv' + lstr( i )
-      //     &mvar := p2->tab_nom
-      //   endif
-      //   if MOHU->kod_as > 0
-      //     p2->( dbGoto( MOHU->kod_as ) )
-      //     mvar := 'MTAB_NOMa' + lstr( i )
-      //     &mvar := p2->tab_nom
-      //   endif
-      //   mvar := 'MDATE' + lstr( i )
-      //   &mvar := c4tod( MOHU->date_u )
-      //   if ! empty( MOHU->kod_diag ) .and. ! ( left( MOHU->kod_diag, 1 ) == FIRST_LETTER )
-      //     mvar := 'MKOD_DIAG' + lstr( i )
-      //     &mvar := hu_->kod_diag
-      //   endif
-      //   m1var := 'M1OTKAZ' + lstr( i )
-      //   &m1var := 0 // выполнено
-      //   if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
-      //     if ascan( arr_otklon, uslugi_etapa[ i, 2 ] ) > 0
-      //       &m1var := 3 // выполнено, обнаружены отклонения
-      //     endif
-      //   endif
-      //   if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
-      //     if ascan( arr_ne_nazn, uslugi_etapa[ i, 2 ] ) > 0
-      //       &m1var := 4 // не назначено
-      //     endif
-      //   endif
-      //   mvar := 'MOTKAZ' + lstr( i )
-      //   &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
-      // endif
     next
     if alltrim( msmo ) == '34'
       mnameismo := ret_inogSMO_name( 2, @rec_inogSMO, .t. ) // открыть и закрыть
@@ -707,9 +637,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       endif
       view_uslugi := uslugi_to_view( uslugi_etapa )
       For i := 1 To len( view_uslugi )  //  lenArr_Uslugi_DRZ
-//        if uslugi_etapa[ i, 14 ] == 0 // пропустим не выводимые услуги
-//          loop
-//        endif
 
         fl_diag := .f.
         i_otkaz := 0
@@ -782,7 +709,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     DispEnd()
     count_edit += myread()
 
-    // /////////////////////////////////////////////////////////////////////////////////////////
+    //
 
     If num_screen == 2
       If LastKey() == K_PGUP
@@ -854,6 +781,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       Endif
       If Empty( CharRepl( '0', much_doc, Space( 10 ) ) )
         func_error( 4, 'Не заполнен номер амбулаторной карты' )
+        fl_shapka_osmotr := .f.
         Loop
       Endif
       If eq_any( m1gruppa, 3, 4, 13, 14 ) .and. ( m1dopo_na == 0 ) .and. ( m1napr_v_mo == 0 ) .and. ( m1napr_stac == 0 ) .and. ( m1napr_reab == 0 )
@@ -885,14 +813,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       next
 
       // ВСЕ ЗАПИСЫВАЕМ
-      lUrologExists := .f.
-      lMoshonka := .f.
-      lProstata := .f.
       lUziMatkiAbdomin := .f.
       lUziMatkiTransvag := .f.
-      tmpvr := 0
-      tmp_uzi_mal_taza := 0
-      date_uzi := ctod( '' )
 //      For i := 1 To lenArr_Uslugi_DRZ
       For i := 1 To len( view_uslugi )  //   lenArr_Uslugi_DRZ
 //        fl_diag := .f.
@@ -909,78 +831,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         // УЗИ малого таза услуга 70.9.52
         if nGender == 'Ж' .and. ar[ 2 ] == 'A04.20.001' .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка абдоминального УЗИ
           lUziMatkiAbdomin := .t.
-//          if &mvaro == 0 .or. &mvaro == 3  // выполнено или отклонение
-//            date_uzi := &mvard
-//            tmp_uzi_mal_taza := &mvart
-//          else  // не назначено
-//            &mvart := 0
-//          endif
         endif
         if nGender == 'Ж' .and. ar[ 2 ] == 'A04.20.001.001' .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка трансвагинального УЗИ
           lUziMatkiTransvag := .t.  
-//          if &mvaro == 0 .or. &mvaro == 3  // выполнено или отклонение
-//            date_uzi := &mvard
-//            tmp_uzi_mal_taza := &mvart
-//          else  // не назначено
-//            &mvart := 0
-//          endif
         endif
-//        If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == '70.9.52' .and. metap == 2
-//          &mvard := mn_data
-//          if lUziMatkiAbdomin .or. lUziMatkiTransvag
-//            &mvard := date_uzi
-//            &mvart := tmp_uzi_mal_taza
-//          endif
-//        Endif
         //
-
-        // УЗИ предстательной железы услуга 70.9.56
-//        If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == 'A04.28.003' .and. metap == 2 // УЗИ мошонки
-//          if &mvaro == 0 .or. &mvaro == 3  // выполнено или отклонение
-//            date_uzi := &mvard
-//            lMoshonka := .t.
-//            tmpvr := &mvart
-//          else  // не назначено
-//            lMoshonka := .f.
-//          endif
-//        Endif
-//        If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == 'A04.21.001' .and. metap == 2 // УЗИ простаты
-//          if &mvaro == 0 .or. &mvaro == 3  // выполнено или отклонение
-//            date_uzi := &mvard
-//            lProstata := .t.
-//            tmpvr := &mvart
-//          else  // не назначено
-//            lProstata := .f.
-//          endif
-//        endif
-//        If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == '70.9.56' .and. metap == 2
-////          if lMoshonka .and. lProstata
-////            &mvart := tmpvr
-////            &mvart := 0
-////          else
-////            &mvart := tmpvr
-////            &mvart := 4
-////          endif
-//          indDest := index_usluga_etap_drz( uslugi_etapa, '70.9.56' )
-//          indSource := index_usluga_etap_drz( uslugi_etapa, 'A04.28.003' )  // УЗИ мошонки
-//          change_field_arr_osm1( indSource, indDest )
-//          indSource := index_usluga_etap_drz( uslugi_etapa, 'A04.21.001' )  // УЗИ простаты
-//          change_field_arr_osm1( indSource, indDest )
-//        Endif
-        //
-
-//        if nGender == 'М' .and. ar[ 2 ] == 'B01.053.001' .and. ! empty( &mvart )  // проверка приема уролога
-//          lUrologExists := .t.
-//        endif
-        // для заполнения услуги 70.9.1, 70.9.2, 70.9.3
-//        If metap == 1 .and. ValType( ar[ 2 ] ) == 'C' .and. ;
-//          ar[ 2 ] == 'B01.001.001'
-//          tmpvr := &mvart
-//        Endif
-//        If ValType( ar[ 2 ] ) == 'C' .and. eq_any( ar[ 2 ], '70.9.1', '70.9.2', '70.9.3' ) .and. metap == 1
-//          &mvard := mn_data
-//          &mvart := tmpvr
-//        Endif
       next
         //
       // ВСЕ проверяем
@@ -1000,41 +855,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 //          arr_osm1[ i, 13 ] := uslugi_etapa[ i, 13 ]
           arr_osm1[ i, 13 ] := view_uslugi[ i, 13 ]
         Endif
-//        If i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
-//          Select P2
-//          find ( Str( &mvart, 5 ) )
-//          If Found()
-//            arr_osm1[ i, 1 ] := p2->kod
-//          Endif
-//          If ValType( ar[ 11 ] ) == 'A' // специальность
-//            arr_osm1[ i, 2 ] := ar[ 11, 1 ]
-//          Endif
-//          If ValType( ar[ 10 ] ) == 'N' // профиль
-//            arr_osm1[ i, 4 ] := ar[ 10 ]
-//          Endif
-//          arr_osm1[ i, 5 ] := ar[ 2 ] // шифр услуги
-//          arr_osm1[ i, 9 ] := iif( Empty( &mvard ), mk_data, &mvard )
-//          arr_osm1[ i, 10 ] := &mvaro
-//          --kol_d_usl
-//        Elseif Empty( &mvard )
         if Empty( &mvard )
           fl := func_error( 4, 'Не введена дата услуги "' + LTrim( ar[ 1 ] ) + '"' )
-//        elseif Empty( &mvart ) .and. metap == 1 .and. nGender == 'М' .and. ar[ 2 ] == 'B01.057.001' .and. ! lUrologExists
-//          fl := func_error( 4, 'Не введен врач в услуге первичный прием уролога или хирурга' )
-//        elseif ! Empty( &mvart ) .and. metap == 1 .and. nGender == 'М' .and. ( ar[ 2 ] = 'B01.057.001' .and. lUrologExists )
-//          fl := func_error( 4, 'Не разрешено одновременно использовать услуги для уролога и хирурга' )
-//        elseif Empty( &mvart ) .and. metap == 2 .and. ;
-//            ( ( nGender == 'М' .and. ar[ 2 ] == '70.9.54' ) .or. ;
-//            ( nGender == 'Ж' .and. ar[ 2 ] == '70.9.50' ) )
-//          fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
-//        elseif Empty( &mvart ) .and. metap == 2 .and. ;
-//          ( ( nGender == 'М' .and. ar[ 2 ] != '70.9.54' .and. ar[ 2 ] != '70.9.56' ) .or. ;
-//          ( nGender == 'Ж' .and. ar[ 2 ] != '70.9.50' ) ) .and. ;
-//          &mvaro != 4
-//          fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
-//        elseif ( lMoshonka .and. ! lProstata ) .or. ( ! lMoshonka .and. lProstata )
-//          fl := func_error( 4, 'Услуги УЗИ должны быть выполнены обе!' )
-        // elseif ! Empty( &mvart ) .and. metap == 2 .and. nGender == 'Ж' .and. ( ar[ 2 ] = 'A04.20.001.001' .and. lUziMatkiAbdomin )
         elseif ( lUziMatkiTransvag .and. lUziMatkiAbdomin )
           fl := func_error( 4, 'Нельзя применять одновременно услуги УЗИ (трансабдоминальное и трансвагинальное)' )
         elseif Empty( &mvart ) .and. &mvaro != 4
@@ -1098,31 +920,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           Exit
         Endif
       Next
-//       If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == '70.9.56' .and. metap == 2
-//         indDest := index_usluga_etap_drz( uslugi_etapa, '70.9.56' )
-//         indSource := index_usluga_etap_drz( uslugi_etapa, 'A04.28.003' )  // УЗИ мошонки
-//         change_field_arr_osm1( indSource, indDest )
-//         indSource := index_usluga_etap_drz( uslugi_etapa, 'A04.21.001' )  // УЗИ простаты
-//         change_field_arr_osm1( indSource, indDest )
-//       Endif
-
-      // If metap == 1
-      //   if nGender == 'М'
-      //     indDest := index_usluga_etap_drz( uslugi_etapa, '70.9.3' )
-      //     indSource := index_usluga_etap_drz( uslugi_etapa, iif( lUrologExists, 'B01.053.001', 'B01.057.001' ) )
-      //     change_field_arr_osm1( indSource, indDest )
-      //   elseif nGender == 'Ж'
-      //     indDest := index_usluga_etap_drz( uslugi_etapa, iif( nAge < 30, '70.9.1', '70.9.2' ) )
-      //     indSource := index_usluga_etap_drz( uslugi_etapa, 'B01.001.001' )
-      //     change_field_arr_osm1( indSource, indDest )
-      //   endif
-      // elseif metap == 2
-      //   if nGender == 'М'
-      //     indDest := index_usluga_etap_drz( uslugi_etapa, '70.9.56' )
-      //     indSource := index_usluga_etap_drz( uslugi_etapa, 'A04.28.003' )
-      //     change_field_arr_osm1( indSource, indDest )
-      //   Endif
-      // endif
       If ! fl
         Loop
       Endif
@@ -1159,7 +956,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
       AFill( adiag_talon, 0 )
       If Empty( arr_diag ) // диагнозы не вводили
-        aadd( arr_diag, { mdef_diagnoz, 0, 0, ctod( '' ) } ) // диагноз по умолчанию
+//        aadd( arr_diag, { mdef_diagnoz, 0, 0, ctod( '' ) } ) // диагноз по умолчанию
         MKOD_DIAG := mdef_diagnoz
       Else
         For i := 1 To Len( arr_diag )
@@ -1504,7 +1301,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       r_use( dir_server + 'mo_su',, 'MOSU' )
       use_base( 'mo_hu' )
       use_base( 'human_u' )
-//altd()
       For i := 1 To Len( arr_usl_dop )
         flExist := .f.
         If arr_usl_dop[ i, 12 ] == 0   // это услуга ТФОМС
@@ -1614,7 +1410,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       fl_edit_dvn_drz := .t.
     Endif
     If !Empty( Val( msmo ) )
-//      verify_oms_sluch( glob_perso )
+      verify_oms_sluch( glob_perso )
     Endif
   Endif
 
