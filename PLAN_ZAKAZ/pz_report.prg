@@ -51,7 +51,7 @@ Function pz_statist( k )
 
   Return Nil
 
-// 14.03.24
+// 09.04.24
 Function pz1statist( par, par2 )
 
   Static _su := 2
@@ -77,6 +77,7 @@ Function pz1statist( par, par2 )
   Local fmtCellNumberRub, fmtCellNumberZero
   Local wsCommon_format, wsCommon_format_header, wsCommon_String_Left_Wrap, wsCommon_String_Right, fmtWSCellNumberZero
   Local wsCommon_format_wrap, fmt_text_center
+  local tmp_sel
 
 
   Private as[ 10, 3 ], s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim, ;
@@ -210,6 +211,9 @@ Function pz1statist( par, par2 )
     { 'uet', 'N', 11, 4 }, ;
     { 'sum', 'N', 13, 2 }, ;
     { 'unit', 'C', 16, 0 } }
+
+  dbCreate( cur_dir + 'tmp_xls', adbf )
+  Use ( cur_dir + 'tmp_xls' ) new
   dbCreate( cur_dir + 'tmp', adbf )
   Use ( cur_dir + 'tmp' ) new
   If su > 2
@@ -484,8 +488,13 @@ Function pz1statist( par, par2 )
       add_string( PadC( 'Статистика по выполнению план-заказа', sh ) )
     Endif
   endif
+  tmp_sel := select()
+  Select TMP_XLS
+  Append Blank
+  select( tmp_sel )
   If par == 1
     strOut := 'по счету № ' + p_number + ' от ' + full_date( p_date ) + ' г.'
+    tmp_xls->u_name := strOut
     if lExcel
       worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
       worksheet_write_string( wsCommon, row++, column, ;
@@ -495,6 +504,7 @@ Function pz1statist( par, par2 )
     endif
   Elseif par == 2 .and. par2 == 1
     strOut := 'по счетам ' + arr_m[ 4 ]
+    tmp_xls->u_name := strOut
     if lExcel
       worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
       worksheet_write_string( wsCommon, row++, column, ;
@@ -504,6 +514,11 @@ Function pz1statist( par, par2 )
     endif
     If fl_period
       strOut := '[ подсчёт производится по отчётному периоду]'
+      tmp_sel := select()
+      Select TMP_XLS
+      Append Blank
+      select( tmp_sel )
+      tmp_xls->u_name := strOut
       if lExcel
         worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
         worksheet_write_string( wsCommon, row++, column, ;
@@ -514,6 +529,11 @@ Function pz1statist( par, par2 )
     endif
     If mdate_reg != NIL
       strOut := '[ по счетам, зарегистрированным по ' + full_date( mdate_reg ) + 'г. включительно ]'
+      tmp_sel := select()
+      Select TMP_XLS
+      Append Blank
+      select( tmp_sel )
+      tmp_xls->u_name := strOut
       if lExcel
         worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
         worksheet_write_string( wsCommon, row++, column, ;
@@ -524,6 +544,7 @@ Function pz1statist( par, par2 )
     Endif
   Elseif par == 2 .and. par2 == 2
     strOut := 'по счетам (дата окончания лечения ' + arr_m[ 4 ] + ')'
+    tmp_xls->u_name := strOut
     if lExcel
       worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
       worksheet_write_string( wsCommon, row++, column, ;
@@ -533,6 +554,7 @@ Function pz1statist( par, par2 )
     endif
   Else
     strOut := 'по невыписанным счетам (дата окончания лечения ' + arr_m[ 4 ] + ')'
+    tmp_xls->u_name := strOut
     if lExcel
       worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
       worksheet_write_string( wsCommon, row++, column, ;
@@ -543,6 +565,11 @@ Function pz1statist( par, par2 )
   Endif
   If ! lAdult // v_deti == 2
     strOut := '[ ПО ДЕТЯМ ]'
+    tmp_sel := select()
+    Select TMP_XLS
+    Append Blank
+    select( tmp_sel )
+    tmp_xls->u_name := strOut
     if lExcel
       worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
       worksheet_write_string( wsCommon, row++, column, ;
@@ -893,6 +920,16 @@ Function pz1statist( par, par2 )
           add_string( s )
         endif
         // 1-й
+        tmp_sel := select()
+        Select TMP_XLS
+        Append Blank
+        select( tmp_sel )
+        tmp_xls->kod    := tmp->kod
+        tmp_xls->shifr  := tmp->shifr
+        tmp_xls->u_name := tmp->u_name
+        tmp_xls->kol    := tmp->kol
+        tmp_xls->sum    := tmp->sum
+        // {'kol1', 'N', 7, 0}, ;
         if ! lExcel
           For j := 2 To k
             add_string( Space( 11 ) + as[ j ] )
@@ -1027,6 +1064,16 @@ Function pz1statist( par, par2 )
         ssl[ 1 ] += tmp->kol
         ssl[ 2 ] += tmp->uet
         ssl[ 3 ] += tmp->sum
+        tmp_sel := select()
+        Select TMP_XLS
+        Append Blank
+        select( tmp_sel )
+        tmp_xls->kod    := tmp->kod
+        tmp_xls->shifr  := tmp->shifr
+        tmp_xls->u_name := tmp->u_name
+        tmp_xls->kol    := tmp->kol
+        tmp_xls->sum    := tmp->sum
+        // {'kol1', 'N', 7, 0}, ;
         Select TMP
         Skip
         if lExcel
@@ -1201,6 +1248,16 @@ Function pz1statist( par, par2 )
           s += ' ' + umest_val( ltrud, 4, 1 )
         endif
       Endif
+      tmp_sel := select()
+      Select TMP_XLS
+      Append Blank
+      select( tmp_sel )
+      // tmp_xls->kod    := tmp1->kod
+      tmp_xls->shifr  := usl->shifr
+      tmp_xls->u_name := AllTrim( lname )
+      tmp_xls->kol    := tmp1->kol
+      tmp_xls->sum    := tmp1->sum
+      // {'kol1', 'N', 7, 0}, ;
       if lExcel
         rowWS++
       else
