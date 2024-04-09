@@ -5,8 +5,10 @@
 #include 'chip_mo.ch'
 
 #define BASE_ISHOD_RZD 500  // ВРЕМЕННО
+#define DGZ 'U09.9 '  // ВРЕМЕННО
+#define FIRST_LETTER 'U'  // ВРЕМЕННО
 
-// 08.04.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 09.04.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -326,7 +328,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     use_base( 'human_u' )
 
     // сначала выберем информацию из human_u по услугам ТФОМС
-altd()
+// altd()
     find ( str( Loc_kod, 7 ) )
     do while hu->kod == Loc_kod .and. !eof()
       usl->( dbGoto( hu->u_kod ) )
@@ -395,7 +397,7 @@ altd()
     if metap == 1 .and. between( m1GRUPPA, 11, 14) .and. m1p_otk == 1
       m1GRUPPA += 10
     endif
-altd()
+//altd()
 
     view_uslugi := uslugi_to_view( uslugi_etapa )
 
@@ -416,7 +418,7 @@ altd()
           endif
           mvar := 'MDATE' + lstr( i )
           &mvar := c4tod( hu->date_u )
-          if ! empty( hu_->kod_diag ) .and. ! ( left( hu_->kod_diag, 1 ) == 'U' )
+          if ! empty( hu_->kod_diag ) .and. ! ( left( hu_->kod_diag, 1 ) == FIRST_LETTER )
             mvar := 'MKOD_DIAG' + lstr( i )
             &mvar := hu_->kod_diag
           endif
@@ -452,7 +454,7 @@ altd()
           endif
           mvar := 'MDATE' + lstr( i )
           &mvar := c4tod( MOHU->date_u )
-          if ! empty( MOHU->kod_diag ) .and. ! ( left( MOHU->kod_diag, 1 ) == 'U' )
+          if ! empty( MOHU->kod_diag ) .and. ! ( left( MOHU->kod_diag, 1 ) == FIRST_LETTER )
             mvar := 'MKOD_DIAG' + lstr( i )
             &mvar := hu_->kod_diag
           endif
@@ -491,7 +493,7 @@ altd()
       //   endif
       //   mvar := 'MDATE' + lstr( i )
       //   &mvar := c4tod( hu->date_u )
-      //   if ! empty( hu_->kod_diag ) .and. ! ( left( hu_->kod_diag, 1 ) == 'U' )
+      //   if ! empty( hu_->kod_diag ) .and. ! ( left( hu_->kod_diag, 1 ) == FIRST_LETTER )
       //     mvar := 'MKOD_DIAG' + lstr( i )
       //     &mvar := hu_->kod_diag
       //   endif
@@ -523,7 +525,7 @@ altd()
       //   endif
       //   mvar := 'MDATE' + lstr( i )
       //   &mvar := c4tod( MOHU->date_u )
-      //   if ! empty( MOHU->kod_diag ) .and. ! ( left( MOHU->kod_diag, 1 ) == 'U' )
+      //   if ! empty( MOHU->kod_diag ) .and. ! ( left( MOHU->kod_diag, 1 ) == FIRST_LETTER )
       //     mvar := 'MKOD_DIAG' + lstr( i )
       //     &mvar := hu_->kod_diag
       //   endif
@@ -863,7 +865,7 @@ altd()
       Endif
       //
       // ////////////////////////////////////////////////////////////
-      mdef_diagnoz := 'U09.9 '
+      mdef_diagnoz := DGZ
       r_use( dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10' )
       r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2' )
       num_screen := 2
@@ -905,24 +907,24 @@ altd()
         ar := view_uslugi[ i ]
 
         // УЗИ малого таза услуга 70.9.52
-//        if nGender == 'Ж' .and. ar[ 2 ] == 'A04.20.001' // проверка абдоминального УЗИ
-//          lUziMatkiAbdomin := .t.
+        if nGender == 'Ж' .and. ar[ 2 ] == 'A04.20.001' .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка абдоминального УЗИ
+          lUziMatkiAbdomin := .t.
 //          if &mvaro == 0 .or. &mvaro == 3  // выполнено или отклонение
 //            date_uzi := &mvard
 //            tmp_uzi_mal_taza := &mvart
 //          else  // не назначено
 //            &mvart := 0
 //          endif
-//        endif
-//        if nGender == 'Ж' .and. ar[ 2 ] == 'A04.20.001.001' // проверка трансвагинального УЗИ
-//          lUziMatkiTransvag := .t.  
+        endif
+        if nGender == 'Ж' .and. ar[ 2 ] == 'A04.20.001.001' .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка трансвагинального УЗИ
+          lUziMatkiTransvag := .t.  
 //          if &mvaro == 0 .or. &mvaro == 3  // выполнено или отклонение
 //            date_uzi := &mvard
 //            tmp_uzi_mal_taza := &mvart
 //          else  // не назначено
 //            &mvart := 0
 //          endif
-//        endif
+        endif
 //        If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == '70.9.52' .and. metap == 2
 //          &mvard := mn_data
 //          if lUziMatkiAbdomin .or. lUziMatkiTransvag
@@ -1021,11 +1023,6 @@ altd()
 //          fl := func_error( 4, 'Не введен врач в услуге первичный прием уролога или хирурга' )
 //        elseif ! Empty( &mvart ) .and. metap == 1 .and. nGender == 'М' .and. ( ar[ 2 ] = 'B01.057.001' .and. lUrologExists )
 //          fl := func_error( 4, 'Не разрешено одновременно использовать услуги для уролога и хирурга' )
-//        elseif ! Empty( &mvart ) .and. metap == 2 .and. nGender == 'Ж' .and. ( ar[ 2 ] = 'A04.20.001.001' .and. lUziMatkiAbdomin )
-//          fl := func_error( 4, 'Нельзя применять одновременно услуги УЗИ (трансабдоминальное и трансвагинальное)' )
-//        elseif Empty( &mvart ) .and. metap == 1 .and. nGender == 'Ж'
-        elseif Empty( &mvart ) .and. &mvaro != 4
-          fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
 //        elseif Empty( &mvart ) .and. metap == 2 .and. ;
 //            ( ( nGender == 'М' .and. ar[ 2 ] == '70.9.54' ) .or. ;
 //            ( nGender == 'Ж' .and. ar[ 2 ] == '70.9.50' ) )
@@ -1037,6 +1034,11 @@ altd()
 //          fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
 //        elseif ( lMoshonka .and. ! lProstata ) .or. ( ! lMoshonka .and. lProstata )
 //          fl := func_error( 4, 'Услуги УЗИ должны быть выполнены обе!' )
+        // elseif ! Empty( &mvart ) .and. metap == 2 .and. nGender == 'Ж' .and. ( ar[ 2 ] = 'A04.20.001.001' .and. lUziMatkiAbdomin )
+        elseif ( lUziMatkiTransvag .and. lUziMatkiAbdomin )
+          fl := func_error( 4, 'Нельзя применять одновременно услуги УЗИ (трансабдоминальное и трансвагинальное)' )
+        elseif Empty( &mvart ) .and. &mvaro != 4
+          fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
         Else  // табельный номер врача и его специальность
          If ! Empty( &mvart ) // табельный номер врача
            Select P2
@@ -1078,7 +1080,8 @@ altd()
             arr_osm1[ i, 5 ] := ar[ 2, j ] // шифр услуги
           Endif
 
-          If ! fl_diag .or. Empty( &mvarz ) .or. Left( &mvarz, 1 ) == 'U'
+          If ! fl_diag .or. Empty( &mvarz ) .or. Left( &mvarz, 1 ) == FIRST_LETTER
+            arr_osm1[i, 6] := mdef_diagnoz
           Else
             arr_osm1[ i, 6 ] := &mvarz
             Select MKB_10
@@ -1155,8 +1158,9 @@ altd()
       Endif
 
       AFill( adiag_talon, 0 )
-      If Empty( arr_diag ) //.and. m1strong != 5 // диагнозы не вводили  // Письмо ТФОМС 09-30-370 от 03.12.21
-//        MKOD_DIAG := mdef_diagnoz
+      If Empty( arr_diag ) // диагнозы не вводили
+        aadd( arr_diag, { mdef_diagnoz, 0, 0, ctod( '' ) } ) // диагноз по умолчанию
+        MKOD_DIAG := mdef_diagnoz
       Else
         For i := 1 To Len( arr_diag )
           If arr_diag[ i, 2 ] == 0 // 'ранее выявлено'
@@ -1251,12 +1255,12 @@ altd()
       // заполним таблицу arr_osm1 далее
       for i := 1 to lenArr_Uslugi_DRZ
         if ( j := ascan( arr_osm1, { | x | x[ 5 ] == uslugi_etapa[ i, 2 ] } ) ) == 0
-          aadd( arr_osm1, { 0, 0, 0, 0, uslugi_etapa[ i, 2 ], 0, 0, 0, 0, 0, 0, uslugi_etapa[ i, 12 ], 0, 0 } )
+          aadd( arr_osm1, { 0, 0, 0, 0, uslugi_etapa[ i, 2 ], DGZ, 0, 0, 0, 0, 0, uslugi_etapa[ i, 12 ], 0, 0 } )
         endif
       next
 
       if metap == 1
-        if nGender == 'М'
+        if nGender == 'М' // мужчины
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.3', 5)
           if arr_osm1[ indSource, 14 ] == 84
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.053.001', 5 )
@@ -1264,9 +1268,16 @@ altd()
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.057.001', 5 )
           endif
           change_field_arr_osm1( indSource, indDest )
+        else
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.1', 5)  // возраст 18-29 лет
+          if indSource == 0
+            indSource := index_usluga_etap_drz( arr_osm1, '70.9.2', 5)  // возраст 30-49 лет
+          endif
+          indDest := index_usluga_etap_drz( arr_osm1, 'B01.001.001', 5 )
+          change_field_arr_osm1( indSource, indDest )
         endif
       elseif metap == 2
-        if nGender == 'М'
+        if nGender == 'М' // мужчины
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.54', 5) // повторный прием
           if arr_osm1[ indSource, 14 ] == 84
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.053.002', 5 )
@@ -1282,6 +1293,14 @@ altd()
           indDest := index_usluga_etap_drz( arr_osm1, 'A04.28.003', 5 )
           change_field_arr_osm1( indSource, indDest )
           indDest := index_usluga_etap_drz( arr_osm1, 'A04.21.001', 5 )
+          change_field_arr_osm1( indSource, indDest )
+        else
+          if lUziMatkiAbdomin
+            indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001', 5) // УЗИ матки трансабдоминальное
+          else
+            indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001.001', 5) // УЗИ матки трансвагинальное
+          endif
+          indDest := index_usluga_etap_drz( arr_osm1, '70.9.52', 5 )
           change_field_arr_osm1( indSource, indDest )
         endif
       endif
