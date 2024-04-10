@@ -29,7 +29,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   local lenArr_Uslugi_DRZ
   local str_1, hS, wS
   local nAge, nGender
-  local lUziMatkiAbdomin := .f., lUziMatkiTransvag := .f.
+  local lUziMatkiAbdomin := .f., lUziMatkiTransvag := .f., lAllneNazn := .t.
   local uslugi_etapa, fl_shapka_osmotr := .f.
   local fl_diag
   local arr_usl_dop := {}
@@ -813,6 +813,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       next
 
       // ВСЕ ЗАПИСЫВАЕМ
+      lAllneNazn := .t.
       lUziMatkiAbdomin := .f.
       lUziMatkiTransvag := .f.
 //      For i := 1 To lenArr_Uslugi_DRZ
@@ -834,6 +835,9 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         endif
         if nGender == 'Ж' .and. ar[ 2 ] == 'A04.20.001.001' .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка трансвагинального УЗИ
           lUziMatkiTransvag := .t.  
+        endif
+        if &mvaro != 4 .and. view_uslugi[ i, 4 ] == 1
+          lAllneNazn := .f.
         endif
         //
       next
@@ -920,6 +924,9 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           Exit
         Endif
       Next
+      if metap == 2 .and. lAllneNazn
+        fl := func_error( 4, 'На II этапе не допускается одиночный прием врача!' )
+      endif
       If ! fl
         Loop
       Endif

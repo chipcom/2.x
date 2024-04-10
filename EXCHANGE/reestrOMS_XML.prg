@@ -5,9 +5,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+#define BASE_ISHOD_RZD 500  // ВРЕМЕННО
+
 Static sadiag1  // := {}
 
-// 05.04.24 создание XML-файлов реестра
+// 10.04.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -280,7 +282,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
     arr_mo_spec := {}
     m1napr_stac := 0
     m1profil_stac := m1napr_reab := m1profil_kojki := 0
-    pr_amb_reab := fl_disp_nabl := is_disp_DVN := is_disp_DVN_COVID := .f.
+    pr_amb_reab := fl_disp_nabl := is_disp_DVN := is_disp_DVN_COVID := is_disp_DRZ := .f.
     ldate_next := CToD( '' )
     ar_dn := {}
     is_oncology_smp := is_oncology := 0
@@ -556,7 +558,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           Endif
         Endif
         mo_add_xml_stroke( oSL, 'PR_D_N', lstr( s ) )
-        If ( is_disp_DVN .or. is_disp_DVN_COVID ) .and. s == 2 // взят на диспансерное наблюдение
+        If ( is_disp_DVN .or. is_disp_DVN_COVID .or. is_disp_DRZ ) .and. s == 2 // взят на диспансерное наблюдение
           AAdd( ar_dn, { '2', RTrim( mdiagnoz[ 1 ] ), '', '' } )
         Endif
       Endif
@@ -628,7 +630,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
               Endif
             Endif
             mo_add_xml_stroke( oDiag, 'PR_D', lstr( s ) )
-            If ( is_disp_DVN .or. is_disp_DVN_COVID ) .and. s == 2 // взят на диспансерное наблюдение
+            If ( is_disp_DVN .or. is_disp_DVN_COVID .or. is_disp_DRZ ) .and. s == 2 // взят на диспансерное наблюдение
               AAdd( ar_dn, { '2', RTrim( mdiagnoz[ i ] ), '', '' } )
             Endif
           Endif
@@ -1228,7 +1230,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         Next j
       Endif
       If p_tip_reestr == 2 .and. !Empty( sCOMENTSL )   // для реестров по диспансеризации
-        If ( is_disp_DVN .or. is_disp_DVN_COVID )
+        If ( is_disp_DVN .or. is_disp_DVN_COVID .or. is_disp_DRZ )
           sCOMENTSL += ':'
           If !Empty( ar_dn ) // взят на диспансерное наблюдение
             For i := 1 To 5
@@ -1397,7 +1399,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Return Nil
 
 
-// 30.03.24 работаем по текущей записи
+// 10.04.24 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1424,6 +1426,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
   fl_disp_nabl := .f.
   is_disp_DVN := .f.
   is_disp_DVN_COVID := .f.
+  is_disp_DRZ := .f.
   ldate_next := CToD( '' )
   ar_dn := {}
   //
@@ -1756,6 +1759,43 @@ Function f1_create2reestr19( _nyear, _nmonth )
         If ValType( ar ) == 'A' .and. Len( ar ) >= 10 .and. ValType( ar[ 5 ] ) == 'C'
           lshifr := AllTrim( ar[ 5 ] )
           If ( i := AScan( uslugietap_dvn_covid( iif( human->ishod == 401, 1, 2 ) ), {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
+          Else   // записываем только федеральные услуги
+            If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
+              AAdd( a_otkaz, { lshifr, ;
+                ar[ 6 ], ; // диагноз
+              human->N_DATA, ; // дата
+              correct_profil( ar[ 4 ] ), ; // профиль
+              ar[ 2 ], ; // специальность
+              ar[ 8 ], ; // цена
+              ar[ 10 ] } ) // 1-отказ, 2-невозможность
+            Endif
+          Endif
+        Endif
+      Next j
+    Endif
+  elseif Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 ) // диспансеризации репродуктивного здоровья
+    is_disp_DRZ := .t.
+    arr_usl_otkaz := {}
+    arr_ne_nazn := {}
+    For i := 1 To 5
+      sk := lstr( i )
+      pole_diag := 'mdiag' + sk
+      pole_1dispans := 'm1dispans' + sk
+      pole_dn_dispans := 'mdndispans' + sk
+      &pole_diag := Space( 6 )
+      &pole_1dispans := 0
+      &pole_dn_dispans := CToD( '' )
+    Next
+    read_arr_drz( human->kod )
+    // не понятно что делать с неназначенными услугами
+    If ValType( arr_ne_nazn ) == 'A'
+      For j := 1 To Len( arr_ne_nazn )
+        ar := arr_ne_nazn[ j ]
+        If ValType( ar ) == 'A' .and. Len( ar ) >= 10 .and. ValType( ar[ 5 ] ) == 'C'
+          lshifr := AllTrim( ar[ 5 ] )
+
+          If ( i := AScan( uslugietap_drz( iif( human->ishod == BASE_ISHOD_RZD + 1, 1, 2 ), count_years( human->DATE_R, human->k_data ), human->pol ), {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
+//            
           Else   // записываем только федеральные услуги
             If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
               AAdd( a_otkaz, { lshifr, ;
