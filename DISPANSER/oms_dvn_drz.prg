@@ -1089,6 +1089,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.057.002', 5 )
           endif
           change_field_arr_osm1( indSource, indDest )
+
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.55', 5) // спермограмма
+          indDest := index_usluga_etap_drz( arr_osm1, 'B03.053.002', 5 )
+          change_field_arr_osm1( indSource, indDest )
+          
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.57', 5) // ПЦР тест
           indDest := index_usluga_etap_drz( arr_osm1, 'A26.21.036.001', 5 )
           change_field_arr_osm1( indSource, indDest )
@@ -1132,7 +1137,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             arr_osm1[ i, 8 ] := 0  // для федеральных услуг цену дадим 0
           Endif
 
-          If eq_any( arr_osm1[ i, 10 ], 0, 4 ) // выполнено, отклонение, не назначено
+          If eq_any( arr_osm1[ i, 10 ], 0, 3, 4 ) // выполнено, отклонение, не назначено
             AAdd( arr_usl_dop, AClone( arr_osm1[ i ] ) )
             iUslDop++
             If arr_osm1[ i, 12 ] == 0 .and. ! Empty( arr_osm1[ i, 13 ] )  // для услуги ТФОМС добавим услугу ФФОМС

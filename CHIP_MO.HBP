@@ -173,6 +173,7 @@ mo_version.prg
 .\reports\forma_30.prg
 .\reports\forma_39.prg
 .\reports\forma_57.prg
+.\reports\inf_drz_excel.prg
 
 .\util\workWithZIP.prg
 .\util\runExternalProgram.prg

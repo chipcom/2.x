@@ -12,18 +12,6 @@ Static mas1pmt := { "~все оказанные случаи", ;
     "случаи в выставленных ~счетах", ;
     "случаи в за~регистрированных счетах" }
 
-// 12.04.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
-Function inf_rdz()
-
-  Local i, k, arr_m, buf := save_maxrow(), ;
-    sh := 80, hh := 60, n_file := cur_dir + 'svod_rdz' + stxt
-
-  If ( arr_m := year_month(,,, 5 ) ) != NIL
-
-  endif
-
-  return nil
-
 // 12.04.24 Диспансеризация, профилактика и медосмотры
 Function dispanserizacia( k )
 
@@ -58,7 +46,7 @@ Function dispanserizacia( k )
   Case k == 14
     inf_disp()
   Case k == 15
-    inf_rdz()
+    inf_drz()
   Endcase
   If k > 10
     j := Int( Val( Right( lstr( k ), 1 ) ) )

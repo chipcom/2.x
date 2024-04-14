@@ -6,6 +6,153 @@
 
 #define BASE_ISHOD_RZD 500  // ВРЕМЕННО
 
+// 12.04.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+Function inf_drz()
+
+  Local arr_m, buf := save_maxrow()
+  Local name_file := 'Диспансеризация репродуктивного здоровья'
+  local arr, i
+  Local name_file_full := name_file + '.xlsx'
+  local lCity := .f.
+
+  If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) != NIL
+    // arr[1, ...]-мужчины, arr[2, ...]-мужчины село, arr[3, ...]-женщины, arr[4, ...]-женщины село
+    arr := array( 4, 10 )
+    afillall( arr, 0 )
+
+    private arr_otklon
+
+    r_use( dir_server + 'kartote_', , 'KART_' )
+    r_use( dir_server + 'kartotek', , 'KART' )
+    Set Relation To RecNo() into KART_
+
+    r_use( dir_server + 'human_', , 'HUMAN_' )
+    r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+    Set Relation To RecNo() into HUMAN_
+    dbSeek( DToS( arr_m[ 5 ] ), .t. )
+    Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
+      arr_otklon := {}
+//      if between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
+      if human->ishod == ( BASE_ISHOD_RZD + 1 ) // берем только первый этап (пока)
+        kart->( dbGoto( human->kod_k ) )
+        lCity := f_is_selo( kart_->gorod_selo, kart_->okatog )
+        if human->pol == 'М'
+          if human_->RSLT_NEW == 317
+            arr[ 1, 1 ]++
+            if ! lCity
+              arr[ 2, 1 ]++
+            endif
+            elseif human_->RSLT_NEW == 318
+            arr[ 1, 2 ]++
+            if ! lCity
+              arr[ 2, 2 ]++
+            endif
+          elseif human_->RSLT_NEW == 355 .or. human_->RSLT_NEW == 356
+            arr[ 1, 3 ]++
+            if ! lCity
+              arr[ 2, 3 ]++
+            endif
+          elseif human_->RSLT_NEW == 352 .or. human_->RSLT_NEW == 353 .or. human_->RSLT_NEW == 357 .or. human_->RSLT_NEW == 358
+            arr[ 1, 4 ]++
+            if ! lCity
+              arr[ 2, 4 ]++
+            endif
+            if human_->RSLT_NEW == 352
+              arr[ 1, 1 ]++
+              if ! lCity
+                arr[ 2, 1 ]++
+              endif
+            elseif human_->RSLT_NEW == 353
+              arr[ 1, 2 ]++
+              if ! lCity
+                arr[ 2, 2 ]++
+              endif
+            elseif human_->RSLT_NEW == 357 .or. human_->RSLT_NEW == 358
+              arr[ 1, 3 ]++
+              if ! lCity
+                arr[ 2, 3 ]++
+              endif
+            endif
+          endif
+        else  // женщины
+          read_arr_drz( human->kod, .t. )      
+          if human_->RSLT_NEW == 317
+            arr[ 3, 1 ]++
+            if ! lCity
+              arr[ 4, 1 ]++
+            endif
+          elseif human_->RSLT_NEW == 318
+            arr[ 3, 2 ]++
+            if ! lCity
+              arr[ 4, 2 ]++
+            endif
+          elseif human_->RSLT_NEW == 355 .or. human_->RSLT_NEW == 356
+            arr[ 3, 3 ]++
+            if ! lCity
+              arr[ 4, 3 ]++
+            endif
+          elseif human_->RSLT_NEW == 352 .or. human_->RSLT_NEW == 353 .or. human_->RSLT_NEW == 357 .or. human_->RSLT_NEW == 358
+            arr[ 3, 4 ]++
+            if ! lCity
+              arr[ 4, 4 ]++
+            endif
+            if human_->RSLT_NEW == 352
+              arr[ 3, 1 ]++
+              if ! lCity
+                arr[ 4, 1 ]++
+              endif
+            elseif human_->RSLT_NEW == 353
+              arr[ 3, 2 ]++
+              if ! lCity
+                arr[ 4, 2 ]++
+              endif
+            elseif human_->RSLT_NEW == 357 .or. human_->RSLT_NEW == 358
+              arr[ 3, 3 ]++
+              if ! lCity
+                arr[ 4, 3 ]++
+              endif
+            endif
+          endif
+          if len( arr_otklon ) > 0
+            for i := 1 to len( arr_otklon )
+              if arr_otklon[ i ] == 'A01.20.006' .or. arr_otklon[ i ] == 'A02.20.001'
+                arr[ 3, 5 ]++
+                if ! lCity
+                  arr[ 4, 5 ]++
+                endif
+              endif
+              if arr_otklon[ i ] == 'A12.20.001'
+                arr[ 3, 6 ]++
+                if ! lCity
+                  arr[ 4, 6 ]++
+                endif
+              endif
+              if arr_otklon[ i ] == 'A08.20.017'
+                arr[ 3, 7 ]++
+                if ! lCity
+                  arr[ 4, 7 ]++
+                endif
+              endif
+              if arr_otklon[ i ] == 'A26.20.034.001'
+                arr[ 3, 8 ]++
+                if ! lCity
+                  arr[ 4, 8 ]++
+                endif
+              endif
+            next
+          endif
+        endif
+      endif
+      Select HUMAN
+      Skip
+    Enddo
+    dbCloseAll()
+  
+    inf_drz_excel( hb_OEMToANSI( name_file_full ), arr_m, arr )
+    work_with_Excel_file( name_file_full )
+  endif
+  return nil
+
 // 10.04.24 подмена полей в рабочем массиве arr_osm1 объявленным PRIVATE
 function change_field_arr_osm1( source, dest )
 
