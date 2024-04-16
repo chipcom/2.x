@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  // ВРЕМЕННО
 
-// 12.04.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 16.04.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz()
 
   Local arr_m, buf := save_maxrow()
@@ -14,6 +14,7 @@ Function inf_drz()
   local arr, i
   Local name_file_full := name_file + '.xlsx'
   local lCity := .f.
+  local lPatologiya := .f.
 
   If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) != NIL
     // arr[1, ...]-мужчины, arr[2, ...]-мужчины село, arr[3, ...]-женщины, arr[4, ...]-женщины село
@@ -31,6 +32,7 @@ Function inf_drz()
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
+      lPatologiya := .f.
       arr_otklon := {}
 //      if between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
       if human->ishod == ( BASE_ISHOD_RZD + 1 ) // берем только первый этап (пока)
@@ -116,9 +118,12 @@ Function inf_drz()
           if len( arr_otklon ) > 0
             for i := 1 to len( arr_otklon )
               if arr_otklon[ i ] == 'A01.20.006' .or. arr_otklon[ i ] == 'A02.20.001'
-                arr[ 3, 5 ]++
-                if ! lCity
-                  arr[ 4, 5 ]++
+                if ! lPatologiya
+                  lPatologiya := .t.
+                  arr[ 3, 5 ]++
+                  if ! lCity
+                    arr[ 4, 5 ]++
+                  endif
                 endif
               endif
               if arr_otklon[ i ] == 'A12.20.001'
