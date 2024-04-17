@@ -4,7 +4,7 @@
 #include 'function.ch'
 #include 'hbxlsxwriter.ch'
 
-// 12.04.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 17.04.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz_excel( file_name, arr_m, arr )
   local workbook, worksheet
   local merge_format, form_text_header, form_text_header_1, form_text_X, cell_format_plan
@@ -13,6 +13,7 @@ Function inf_drz_excel( file_name, arr_m, arr )
   local form_text_date, form_plan_gorod, form_plan_selo
 //  Local buf := save_maxrow()
   local strMO := hb_StrToUtf8( glob_mo[ _MO_SHORT_NAME ] )
+  local arr_plan := get_array_plan_drz( year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
 
   if ! isnil( arr_m )
     workbook  := WORKBOOK_NEW( file_name )
@@ -129,6 +130,7 @@ Function inf_drz_excel( file_name, arr_m, arr )
 
     form_plan_gorod := fmt_excel_hC_vC( workbook )
     FORMAT_SET_FONT_SIZE( form_plan_gorod, 14 )
+    FORMAT_SET_BOLD( form_plan_gorod )
     FORMAT_SET_BG_COLOR( form_plan_gorod, 0xcdcdcd )
     FORMAT_SET_BORDER( form_plan_gorod, LXW_BORDER_THIN )
 
@@ -142,9 +144,9 @@ Function inf_drz_excel( file_name, arr_m, arr )
     WORKSHEET_MERGE_RANGE( worksheet, 2, 1, 2, 2, 'Наименование медицинской организации', merge_format )
     WORKSHEET_MERGE_RANGE( worksheet, 2, 3, 2, 7, strMO, merge_format )
 
-    WORKSHEET_WRITE_STRING( worksheet, 4, 3, '', form_text_date )
-    WORKSHEET_WRITE_STRING( worksheet, 4, 4, '', form_text_date )
-    WORKSHEET_WRITE_STRING( worksheet, 4, 5, '', form_text_date )
+    WORKSHEET_WRITE_STRING( worksheet, 4, 3, str( day( arr_m[ 6 ] ), 2 ), form_text_date )
+    WORKSHEET_WRITE_STRING( worksheet, 4, 4, hb_StrToUtf8( CMonth( arr_m[ 6 ] ) ), form_text_date )
+    WORKSHEET_WRITE_STRING( worksheet, 4, 5, str( year( arr_m[ 6 ] ), 4 ), form_text_date )
 
     WORKSHEET_WRITE_STRING( worksheet, 5, 3, 'число', form_text_date_text )
     WORKSHEET_WRITE_STRING( worksheet, 5, 4, 'месяц', form_text_date_text )
@@ -187,7 +189,7 @@ Function inf_drz_excel( file_name, arr_m, arr )
     WORKSHEET_SET_ROW( worksheet, 10, 39.8 )
     WORKSHEET_WRITE_STRING( worksheet, 10, 0, '1', form_text_X )
     WORKSHEET_WRITE_STRING( worksheet, 10, 1, 'число мужчин в возрасте 18-49 лет  - всего', cell_format_man )
-    WORKSHEET_WRITE_STRING( worksheet, 10, 2, '', form_plan_gorod )
+    WORKSHEET_WRITE_STRING( worksheet, 10, 2, iif( len( arr_plan ) > 0, alltrim( str( arr_plan[ 1 ] ) ), '' ), form_plan_gorod )
     
     worksheet_write_formula( worksheet, 10, 3, '=SUM(E11:G11)', cell_format_plan )
 
@@ -230,7 +232,7 @@ Function inf_drz_excel( file_name, arr_m, arr )
     WORKSHEET_SET_ROW( worksheet, 12, 39.8 )
     WORKSHEET_WRITE_STRING( worksheet, 12, 0, '3', form_text_X )
     WORKSHEET_WRITE_STRING( worksheet, 12, 1, 'число женщин в возрасте 18-49 лет  - всего', cell_format_woman )
-    WORKSHEET_WRITE_STRING( worksheet, 12, 2, '', form_plan_gorod )
+    WORKSHEET_WRITE_STRING( worksheet, 12, 2, iif( len( arr_plan ) > 0, alltrim( str( arr_plan[ 2 ] ) ), '' ), form_plan_gorod )
 
     worksheet_write_formula( worksheet, 12, 3, '=SUM(E13:G13)', cell_format_plan )
     WORKSHEET_WRITE_NUMBER( worksheet, 12, 4, arr[ 3, 1 ], cell_format )
