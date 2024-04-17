@@ -145,7 +145,7 @@ Function inf_drz_excel( file_name, arr_m, arr )
     WORKSHEET_MERGE_RANGE( worksheet, 2, 3, 2, 7, strMO, merge_format )
 
     WORKSHEET_WRITE_STRING( worksheet, 4, 3, str( day( arr_m[ 6 ] ), 2 ), form_text_date )
-    WORKSHEET_WRITE_STRING( worksheet, 4, 4, hb_StrToUtf8( CMonth( arr_m[ 6 ] ) ), form_text_date )
+    WORKSHEET_WRITE_STRING( worksheet, 4, 4, hb_StrToUtf8( lower( CMonth( arr_m[ 6 ] ) ) ), form_text_date )
     WORKSHEET_WRITE_STRING( worksheet, 4, 5, str( year( arr_m[ 6 ] ), 4 ), form_text_date )
 
     WORKSHEET_WRITE_STRING( worksheet, 5, 3, 'число', form_text_date_text )
@@ -273,7 +273,7 @@ Function inf_drz_excel( file_name, arr_m, arr )
     WORKSHEET_WRITE_STRING( worksheet, 14, 0, '5', form_text_X )
     WORKSHEET_WRITE_STRING( worksheet, 14, 1, 'Общее число лиц в возрасте 18-49 лет', cell_format_full )
 
-    worksheet_write_number( worksheet, 14, 2, 0, cell_format_itog )
+    worksheet_write_formula( worksheet, 14, 2, '=C11+C13', cell_format_itog )
     worksheet_write_formula( worksheet, 14, 3, '=D11+D13', cell_format_itog )
     worksheet_write_formula( worksheet, 14, 4, '=E11+E13', cell_format_itog )
     worksheet_write_formula( worksheet, 14, 5, '=F11+F13', cell_format_itog )
