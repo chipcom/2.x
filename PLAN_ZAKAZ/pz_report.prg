@@ -51,7 +51,7 @@ Function pz_statist( k )
 
   Return Nil
 
-// 09.04.24
+// 17.04.24
 Function pz1statist( par, par2 )
 
   Static _su := 2
@@ -1254,7 +1254,7 @@ Function pz1statist( par, par2 )
       select( tmp_sel )
       // tmp_xls->kod    := tmp1->kod
       tmp_xls->shifr  := usl->shifr
-      tmp_xls->u_name := AllTrim( lname )
+      tmp_xls->u_name := AllTrim( usl->name ) // lname )
       tmp_xls->kol    := tmp1->kol
       tmp_xls->sum    := tmp1->sum
       // {'kol1', 'N', 7, 0}, ;
