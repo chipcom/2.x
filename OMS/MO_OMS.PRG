@@ -156,7 +156,7 @@ Function f_valid_novor( get, old )
   If m1novor != old .and. old != NIL
     If old == 0 // было 'нет' - стало 'да'
       mcount_reb := 1
-      mDATE_R2 := sys_date -5
+      mDATE_R2 := sys_date - 5
       mpol2 := 'М'
     Else
       mcount_reb := 0
@@ -523,7 +523,7 @@ Static Function get_srf( k, r, c )
     t_arr[ BR_BOTTOM ] := MaxRow() -2
   Else
     t_arr[ BR_TOP ] := 2
-    t_arr[ BR_BOTTOM ] := r -1
+    t_arr[ BR_BOTTOM ] := r - 1
   Endif
   t_arr[ BR_LEFT ] := 2
   t_arr[ BR_RIGHT ] := 77
@@ -555,14 +555,14 @@ Static Function f2_srf( nk, ob )
 
   Static stmp1 := ''
   Local rec1 := RecNo(), buf := SaveScreen(), tmp_color, ret := -1, ;
-    r1 := pr2 -6, r2 := pr2 -1, i, j, lf, s, rec
+    r1 := pr2 - 6, r2 := pr2 - 1, i, j, lf, s, rec
 
   If nk == K_F2
-    box_shadow( r1, pc1 + 1, r2, pc2 -1, cDataPgDn, 'Поиск по ключу', cDataCSay )
+    box_shadow( r1, pc1 + 1, r2, pc2 - 1, cDataPgDn, 'Поиск по ключу', cDataCSay )
     tmp_color := SetColor( cDataCGet )
-    @ r1 + 2, pc1 + 2 Say Center( 'Введите ключевое слово', pc2 - pc1 -3 )
+    @ r1 + 2, pc1 + 2 Say Center( 'Введите ключевое слово', pc2 - pc1 - 3 )
     SetColor( cDataCGet )
-    tmp := PadR( stmp1, pc2 - pc1 -3 )
+    tmp := PadR( stmp1, pc2 - pc1 - 3 )
     status_key( '^<Esc>^ - отказ от ввода' )
     @ r1 + 3, pc1 + 2 Get tmp Picture '@K@!'
     myread()
@@ -572,7 +572,7 @@ Static Function f2_srf( nk, ob )
     Else
       tmp := AllTrim( tmp )
       stmp1 := tmp
-      Private tmp_mas := {}, tmp_kod := {}, t_len, k1 := pr1 + 3, k2 := pr2 -1
+      Private tmp_mas := {}, tmp_kod := {}, t_len, k1 := pr1 + 3, k2 := pr2 - 1
       ob:gotop()
       Do While !Eof()
         If tmp $ Upper( tmp->name )
@@ -589,12 +589,12 @@ Static Function f2_srf( nk, ob )
         SetColor( 'B/BG' )
         @ pr1 + 1, pc1 + 2 Say 'Ключ: ' + tmp
         SetColor( color0 )
-        If t_len < pr2 - pr1 -5
+        If t_len < pr2 - pr1 - 5
           k2 := k1 + t_len + 2
         Endif
-        @ k1, pc1 + 1 Say PadC( 'Найденное количество - ' + lstr( t_len ), pc2 - pc1 -1 )
+        @ k1, pc1 + 1 Say PadC( 'Найденное количество - ' + lstr( t_len ), pc2 - pc1 - 1 )
         status_key( '^<Esc>^ - отказ от выбора' )
-        If ( i := Popup( k1 + 1, pc1 + 1, k2, pc2 -1, tmp_mas, 1, 0 ) ) > 0
+        If ( i := Popup( k1 + 1, pc1 + 1, k2, pc2 - 1, tmp_mas, 1, 0 ) ) > 0
           ob:gotop()
           Goto ( tmp_kod[ i ] )
           ret := 0
@@ -735,7 +735,7 @@ Function oms_add()
   Local buf, str_sem
 
   change_sys_date() // перечитать системную дату (для травмпунктов, работающих ночами)
-  If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL
+  If input_uch( T_ROW - 1, T_COL + 5, sys_date ) != Nil .and. input_otd( T_ROW - 1, T_COL + 5, sys_date ) != NIL
     buf := box_shadow( 0, 41, 2, 77, color13 )
     @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
     Private fl_edit_oper, fl_edit_smp, fl_edit_DDS, fl_edit_DVN, fl_edit_DVN_COVID
@@ -821,8 +821,8 @@ Function f1oms_edit()
   Local lek_pr := .f.
 
   If ( arr_m := input_year() ) != Nil .and. ;
-      input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
-      iif( yes_h_otd == 1, input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL, .t. )
+      input_uch( T_ROW - 1, T_COL + 5, sys_date ) != Nil .and. ;
+      iif( yes_h_otd == 1, input_otd( T_ROW - 1, T_COL + 5, sys_date ) != NIL, .t. )
     If yes_vypisan == B_END
       If ( k := popup_prompt( T_ROW, T_COL + 5, sk, ;
           { '~Не закончившие лечение', '~Закончившие лечение' } ) ) > 0
@@ -832,7 +832,7 @@ Function f1oms_edit()
         Return Nil
       Endif
     Endif
-    dostup := yes_vypisan + k -1
+    dostup := yes_vypisan + k - 1
     str_error := 'В данный момент'
     mtitul := AllTrim( glob_uch[ 2 ] )
     str_find := Str( dostup, 1 )
@@ -1278,8 +1278,8 @@ Function oms_smena_otd()
   Static si := 1, sk := 1
   Local buf, buf1, buf2, str_sem, i, sou, old_otd, fl, fl1, mas_pmt, k := 1
 
-  If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
-      input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL
+  If input_uch( T_ROW - 1, T_COL + 5, sys_date ) != Nil .and. ;
+      input_otd( T_ROW - 1, T_COL + 5, sys_date ) != NIL
     If yes_vypisan == B_END
       If ( k := popup_prompt( T_ROW, T_COL + 5, sk, ;
           { '~Не закончившие лечение', '~Закончившие лечение' } ) ) > 0
@@ -1288,7 +1288,7 @@ Function oms_smena_otd()
     Endif
     buf := box_shadow( 0, 41, 2, 77, color13 )
     @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
-    If k > 0 .and. ret_oms_human( yes_vypisan + k -1 )
+    If k > 0 .and. ret_oms_human( yes_vypisan + k - 1 )
       rest_box( buf )
       buf := box_shadow( 0, 41, 3, 77, color13 )
       @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
@@ -1298,8 +1298,8 @@ Function oms_smena_otd()
       buf1 := box_shadow( 0, 0, 3, 35, color5 )
       @ 1, 1 Say PadC( 'Теперь выберите', 34 ) Color color5
       @ 2, 1 Say PadC( 'новое отделение', 34 ) Color color5
-      If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
-          input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL
+      If input_uch( T_ROW - 1, T_COL + 5, sys_date ) != Nil .and. ;
+          input_otd( T_ROW - 1, T_COL + 5, sys_date ) != NIL
         rest_box( buf1 )
         If old_otd == glob_otd[ 1 ]
           fl := func_error( 4, 'Выбрано то же самое отделение!' )
@@ -1394,8 +1394,8 @@ Function oms_del()
     Return func_error( 4, err_admin )
   Endif
   If ( arr_m := input_year() ) != Nil .and. ;
-      input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
-      iif( yes_h_otd == 1, input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL, .t. )
+      input_uch( T_ROW - 1, T_COL + 5, sys_date ) != Nil .and. ;
+      iif( yes_h_otd == 1, input_otd( T_ROW - 1, T_COL + 5, sys_date ) != NIL, .t. )
     If yes_vypisan == B_END
       If ( k := popup_prompt( T_ROW, T_COL + 5, sk, ;
           { '~Не закончившие лечение', '~Закончившие лечение' } ) ) > 0
@@ -1406,7 +1406,7 @@ Function oms_del()
       buf := box_shadow( 0, 41, 2, 77, color13 )
       @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
     Endif
-    If k > 0 .and. ret_oms_human( yes_vypisan + k -1, arr_m ) .and. f_esc_enter( 2, .t. )
+    If k > 0 .and. ret_oms_human( yes_vypisan + k - 1, arr_m ) .and. f_esc_enter( 2, .t. )
       str_sem := 'Редактирование человека ' + lstr( glob_perso )
       If g_slock( str_sem )
         g_use( dir_server + 'mo_pp', dir_server + 'mo_pp_h', 'PP' )
@@ -1622,8 +1622,8 @@ Function f1oms_zav_lech( k )
 
   Local buf, str_sem, k1, k2, tmp_color, dbf_tmp, r := 8, mtitul
 
-  If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
-      iif( yes_h_otd == 1, input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL, .t. )
+  If input_uch( T_ROW - 1, T_COL + 5, sys_date ) != Nil .and. ;
+      iif( yes_h_otd == 1, input_otd( T_ROW - 1, T_COL + 5, sys_date ) != NIL, .t. )
     If k == 1 .or. k == 3  // один человек из отделения
       If ret_oms_human( iif( k == 1, B_END, B_STANDART ) )
         str_sem := 'Редактирование человека ' + lstr( glob_perso )
@@ -1784,7 +1784,7 @@ Function f3oms_zav_lech( nKey, oBrow )
   Case nkey == K_F8
     mdate := input_value( 21, 1, 23, 78, 'W+/N, N/W', ;
       Space( 7 ) + 'Введите дату, ранее которой не завершено лечение', ;
-      sys_date -30 )
+      sys_date - 30 )
     If mdate != Nil .and. f_esc_enter( 'удаления' ) .and. ;
         f_alert( { 'После подтверждения данного режима будут удалены', ;
         'все листки учета с незавершенным лечением, у которых', ;
@@ -1847,7 +1847,7 @@ Function f3oms_zav_lech( nKey, oBrow )
   Case nkey == K_F9
     mdate := input_value( 21, 1, 23, 78, color1, ;
       Space( 7 ) + 'Введите дату, ранее которой не завершено лечение', ;
-      sys_date -10 )
+      sys_date - 10 )
     If mdate != Nil .and. f_esc_enter( 'печати' )
       buf := save_maxrow()
       mywait()
@@ -1911,7 +1911,7 @@ Function f3oms_zav_lech( nKey, oBrow )
                 s += ', '
               Endif
             Next
-            For j := 1 To perenos( arr_usl, s, sh -10 )
+            For j := 1 To perenos( arr_usl, s, sh - 10 )
               add_string( Space( 10 ) + arr_usl[ j ] )
             Next
           Endif
@@ -2129,7 +2129,7 @@ Function f2ret_oms_human( nkey )
   Local mas_otchet := {}
   Local tmpSelect
 
-  For ii := 1 To 42
+  For ii := 1 To 48
     AAdd( mas_otchet, { 0, 0, 0, 0 } )
   Next
   Private tmp1
@@ -2146,7 +2146,7 @@ Function f2ret_oms_human( nkey )
       j := 0
       Go Top
       Do While !Eof()
-        verify_ff( HH -3, .f., sh )
+        verify_ff( HH - 3, .f., sh )
         add_string( '' )
         ++j
         add_string( PadR( lstr( j ) + '.', 6 ) + AllTrim( human->fio ) + ', д.р.' + full_date( human->date_r ) + ',' )
@@ -2327,7 +2327,7 @@ Function f2ret_oms_human( nkey )
         fl_povtor2 := .t.
         fl_povtor3 := .t.
         fl_povtor4 := .t.
-        verify_ff( HH -3, .f., sh )
+        verify_ff( HH - 3, .f., sh )
         //
         flag_covid := .f.
         flag_gepat_C := .f.
@@ -2694,16 +2694,47 @@ Function f2ret_oms_human( nkey )
                 // Травматология и ортопедия == 100
                 // Стоматологии 85, 86, 87, 88, 89, 90, 171,
                 // Медреабилитация 158
-                //If PadR( lshifr, 8 ) == '2.78.107' // Диспансерное наблюдение
-                if  eq_any(padr(lshifr, 8), '2.78.109', '2.89.110', '2.89.111', '2.89.112')// диспансерное наблюдение  
+                If PadR( lshifr, 8 ) == '2.78.110' // онкология
                   If human->vzros_reb == 0 // взрослый
-                    mas_otchet[ 35, 1 ] += 1
-                    mas_otchet[ 35, 2 ] += human->cena_1
+                    mas_otchet[ 44, 1 ] += 1
+                    mas_otchet[ 44, 2 ] += human->cena_1
                   Else
-                    mas_otchet[ 35, 3 ] += 1
-                    mas_otchet[ 35, 4 ] += human->cena_1
+                    mas_otchet[ 44, 3 ] += 1
+                    mas_otchet[ 44, 4 ] += human->cena_1
                   Endif
                 Endif
+                If PadR( lshifr, 8 ) == '2.78.112' // ССЗ
+                  If human->vzros_reb == 0 // взрослый
+                    mas_otchet[ 45, 1 ] += 1
+                    mas_otchet[ 45, 2 ] += human->cena_1
+                  Else
+                    mas_otchet[ 45, 3 ] += 1
+                    mas_otchet[ 45, 4 ] += human->cena_1
+                  Endif
+                Endif
+                If PadR( lshifr, 8 ) == '2.78.111' // Сахарный диабет
+                  If human->vzros_reb == 0 // взрослый
+                    mas_otchet[ 46, 1 ] += 1
+                    mas_otchet[ 46, 2 ] += human->cena_1
+                  Else
+                    mas_otchet[ 46, 3 ] += 1
+                    mas_otchet[ 46, 4 ] += human->cena_1
+                  Endif
+                Endif
+                If  PadR( lshifr, 8 ) == '2.78.109' // прочее диспансерное наблюдение
+                  If human->vzros_reb == 0 // взрослый
+                    mas_otchet[ 47, 1 ] += 1
+                    mas_otchet[ 47, 2 ] += human->cena_1
+                  Else
+                    mas_otchet[ 47, 3 ] += 1
+                    mas_otchet[ 47, 4 ] += human->cena_1
+                  Endif
+                Endif
+                mas_otchet[ 35, 1 ] := mas_otchet[ 44, 1 ] + mas_otchet[ 45, 1 ] + mas_otchet[ 46, 1 ] + mas_otchet[ 47, 1 ]
+                mas_otchet[ 35, 2 ] := mas_otchet[ 44, 2 ] + mas_otchet[ 45, 2 ] + mas_otchet[ 46, 2 ] + mas_otchet[ 47, 2 ]
+                mas_otchet[ 35, 3 ] := mas_otchet[ 44, 3 ] + mas_otchet[ 45, 3 ] + mas_otchet[ 46, 3 ] + mas_otchet[ 47, 3 ]
+                mas_otchet[ 35, 4 ] := mas_otchet[ 44, 4 ] + mas_otchet[ 45, 4 ] + mas_otchet[ 46, 4 ] + mas_otchet[ 47, 4 ]
+                //
                 If eq_any( human_->profil, 2, 136, 137, 16, 60, 100, 85, 86, 87, 89, 90, 171, 158 )
                   mas_otch[ 7, 1 ] += 1
                   mas_otch[ 8, 1 ] += hu->stoim
@@ -2828,107 +2859,57 @@ Function f2ret_oms_human( nkey )
         mas_otchet[ 22, 4 ] + mas_otchet[ 23, 4 ]
       //
       //
-      // 1 = 3+5+24+28 Всего, в том числе
-      // 2 = 4+15+23+32пациентам с новой коронавирусной инфекцией COVID-19
-      // 3 Скорая медицинская помощь, всего, в том числе
-      // 4 пациентам с новой коронавирусной инфекцией COVID-19
-      // 5 = 6+11+12 +13+14 Амбулаторно-поликлиническая помощь, всего, в том числе
-      // 6 = 7+8 Посещения с профилактическими целями
-      // 7 для проведения профилактических медицинских осмотров
-      // 8 для проведения диспансеризации, всего
-      // 9 диспансеризация
-      // 10 угубленная диспансеризации
-      // 11 Посещений с иными целями
-      // 12 Посещения по неотложной помощи
-      // 13 Обращения по заболеваниям - медицинская реабилитация
-      // 14 Обращения по заболеваниям, всего, из них
-      // 15 пациентам с новой коронавирусной инфекцией COVID-19
-      // 16 в том числе (из строки 14)
-      // 17 компьютерная томография
-      // 18 магнитно-резонансная томография
-      // 19 ультразвуковое исследование сердечно-сосудистой системы
-      // 20 эндоскопические диагностические исследования
-      // 21 молекулярно-биологическое исследования с целью выявления онкологических заболеваний
-      // 22 патолого-анатомическое исследование биопсийного (операционного) материала с целью диагностики онкологических заболеваний и подбора противоопухолевой лекарственной терапии
-      // 23 тестирование на выявление новой коронавирусной инфекции COVID-19
-      // 24 = 25+26+27 Дневные стационары, всего, в том числе
-      // 25 по профилю ?онкология?
-      // 26 экстракорпоральное оплодотворение
-      // 27 иные профили
-      // 28 = 29+30+31 Стационарная медицинская помощь, всего, в том числе
-      // 29 по профилю ?онкология?
-      // 30 медицинская реабилитация
-      // 31 Иные профили, всего, в том числе
-      // 32 пациентам с новой коронавирусной инфекцией COVID-19
-      // 33 - школы для больных сахарным диабетом
-      //
       add_string( '                                                          Взрослые   Дети     Итого         Взрослые     Дети    Итого' )
-      add_string( ' 1 = 3+5+24+28 Всего, в том числе                      ' + prn_novor( mas_otchet, 1 ) )
-      add_string( ' 2 = 4+15+23+32пациентам с COVID-19                    ' + prn_novor( mas_otchet, 2 ) )
+      add_string( ' 1 = 3+5+31+37 Всего, в том числе                      ' + prn_novor( mas_otchet, 1 ) )
+      add_string( ' 2 = 4+15+25+41 пациентам с COVID-19                   ' + prn_novor( mas_otchet, 2 ) )
       add_string( ' 3 Скорая медицинская помощь, всего, в том числе       ' + prn_novor( mas_otchet, 3 ) ) //
       add_string( ' 4 пациентам с новой коронавирусной инфекцией COVID-19 ' + prn_novor( mas_otchet, 4 ) ) //
-      add_string( ' 5 = 6+11+12+13+14 Амбулаторно-поликлиническая помощь, ' + prn_novor( mas_otchet, 5 ) )
+      add_string( ' 5 = 6+11+13+14+17+30 Амбулаторно-поликлиническая пом. ' + prn_novor( mas_otchet, 5 ) )
       add_string( ' 6 = 7+8 Посещения с профилактическими целями          ' + prn_novor( mas_otchet, 6 ) ) //
       add_string( ' 7 для проведения профилактических медицинских осмотров' + prn_novor( mas_otchet, 7 ) ) //
       add_string( ' 8 для проведения диспансеризации, всего               ' + prn_novor( mas_otchet, 8 ) ) //
-      // add_string(' 9 диспансеризация                                     ' + prn_novor(mas_otchet, 9))
-      add_string( '  9 угубленная диспансеризации                         ' + prn_novor( mas_otchet, 10 ) ) // 9
-      add_string( ' 10 Посещений с иными целями                           ' + prn_novor( mas_otchet, 11 ) )
-      add_string( ' 11 из них: школы для больных сахарным диабетом        ' + prn_novor( mas_otchet, 34 ) )
+      add_string( '  9 угубленная диспансеризации                         ' + prn_novor( mas_otchet, 10 ) ) //
+      add_string( '  10 репродуктивного возраста                          ' + prn_novor( mas_otchet, 43 ) ) // !!!!!!!!!!!!!!!!!!!!!!!!!!!
+      add_string( ' 11 Посещений с иными целями                           ' + prn_novor( mas_otchet, 11 ) )
+      add_string( ' 12 из них: школы для больных сахарным диабетом        ' + prn_novor( mas_otchet, 34 ) )
       add_string( ' 13 Посещения по неотложной помощи                     ' + prn_novor( mas_otchet, 12 ) )
       add_string( ' 14 Обращения по заболеваниям - мед. реабилитация      ' + prn_novor( mas_otchet, 13 ) )
       add_string( ' 15 из них: посещения на дому                          ' )                            // ----------------
       add_string( ' 16         телемедицина                               ' )                            // ----------------
       add_string( ' 17 Обращения по заболеваниям, всего, из них           ' + prn_novor( mas_otchet, 14 ) ) //
       add_string( ' 18 пациентам с новой коронавирусной инфекцией COVID-19' + prn_novor( mas_otchet, 15 ) ) //
-      add_string( ' 19         телемедицина                               ' )                            // ----------------
-      // add_string(' 16 в том числе (из строки 14)')
-      add_string( ' 20 компьютерная томография                            ' + prn_novor( mas_otchet, 17 ) ) //
-      add_string( ' 21 магнитно-резонансная томография                    ' + prn_novor( mas_otchet, 18 ) ) //
-      add_string( ' 22 ультразвуковое исследование ССС                    ' + prn_novor( mas_otchet, 19 ) ) //
-      add_string( ' 23 эндоскопические диагностические исследования       ' + prn_novor( mas_otchet, 20 ) ) //
-      add_string( ' 24 молекулярно-биологическое исследования             ' + prn_novor( mas_otchet, 21 ) ) //
-      add_string( ' 25 патолого-анатомическое исследование материала      ' + prn_novor( mas_otchet, 22 ) ) //
-      add_string( ' 26 тестирование на выявление  инфекции COVID-19       ' + prn_novor( mas_otchet, 23 ) ) //
-      add_string( ' 27 тестирование на наличие ОРВи и Гриппа              ' )                           // ----------------
-      add_string( ' 28 из них: по заболеванию грипп                       ' )                           // ----------------
-      add_string( ' 29 из них: по заболеванию ОРВи                        ' )                           // ----------------
-      add_string( ' 30 Телемедицина                                       ' )                           // ----------------
-      add_string( ' 31 Диспансерное наблюдение                            ' + prn_novor( mas_otchet, 35 ) )
+      add_string( ' 19 компьютерная томография                            ' + prn_novor( mas_otchet, 17 ) ) //
+      add_string( ' 20 магнитно-резонансная томография                    ' + prn_novor( mas_otchet, 18 ) ) //
+      add_string( ' 21 ультразвуковое исследование ССС                    ' + prn_novor( mas_otchet, 19 ) ) //
+      add_string( ' 22 эндоскопические диагностические исследования       ' + prn_novor( mas_otchet, 20 ) ) //
+      add_string( ' 23 молекулярно-биологическое исследования             ' + prn_novor( mas_otchet, 21 ) ) //
+      add_string( ' 24 патолого-анатомическое исследование материала      ' + prn_novor( mas_otchet, 22 ) ) //
+      add_string( ' 25 тестирование на выявление  инфекции COVID-19       ' + prn_novor( mas_otchet, 23 ) ) //
+      add_string( ' 26 тестирование на наличие ОРВи и Гриппа              ' )                           // ----------------
+      add_string( ' 27 из них: по заболеванию грипп                       ' )                           // ----------------
+      add_string( ' 28 из них: по заболеванию ОРВи                        ' )                           // ----------------
+      add_string( ' 29 Телемедицина                                       ' )                           // ----------------
+      add_string( ' 30 Диспансерное наблюдение  ВСЕГО                     ' + prn_novor( mas_otchet, 35 ) )
+      add_string( ' 30.1 ДН с онкозаболеваниями                           ' + prn_novor( mas_otchet, 44 ) )
+      add_string( ' 30.2 ДН с ССЗ                                         ' + prn_novor( mas_otchet, 45 ) )
+      add_string( ' 30.3 ДН с сахарным диабетом                           ' + prn_novor( mas_otchet, 46 ) )
+      add_string( ' 30.4 ДН прочие                                        ' + prn_novor( mas_otchet, 47 ) )
+      add_string( ' 30.5 ДН на рабочем месте                              ' + prn_novor( mas_otchet, 48 ) )
       add_string( '                   ДНЕВНОЙ СТАЦИОНАР' )
-      add_string( ' 32 = 33+34+35 Дневные стационары, всего, в том числе: ' + prn_novor( mas_otchet, 24 ) )
-      add_string( ' 33 по профилю "Онкология"                             ' + prn_novor( mas_otchet, 25 ) )
-      add_string( ' 34 экстракорпоральное оплодотворение                  ' + prn_novor( mas_otchet, 26 ) )
-      add_string( ' 35 иные профили, Всего, из них                        ' + prn_novor( mas_otchet, 27 ) )
-      add_string( ' 36 медицинская реабилитация                           ' + prn_novor( mas_otchet, 36 ) )
-      add_string( ' 37 по заболеванию гепатитом С                         ' + prn_novor( mas_otchet, 36 ) )
+      add_string( ' 31 = 32+33+34+35+36 Дневные стационары, всего, в т.ч. ' + prn_novor( mas_otchet, 24 ) )
+      add_string( ' 32 по профилю "Онкология"                             ' + prn_novor( mas_otchet, 25 ) )
+      add_string( ' 33 экстракорпоральное оплодотворение                  ' + prn_novor( mas_otchet, 26 ) )
+      add_string( ' 34 иные профили, Всего, из них                        ' + prn_novor( mas_otchet, 27 ) )
+      add_string( ' 35 медицинская реабилитация                           ' + prn_novor( mas_otchet, 36 ) )
+      add_string( ' 36 по заболеванию гепатитом С                         ' + prn_novor( mas_otchet, 36 ) )
       add_string( '            Стационарная медицинская помощь' )
-      add_string( ' 38 = 39+40+41 Стационарная медицинская помощь, всего, ' + prn_novor( mas_otchet, 28 ) )
-      add_string( ' 39 по профилю "Онкология"                             ' + prn_novor( mas_otchet, 29 ) )
-      add_string( ' 40 медицинская реабилитация                           ' + prn_novor( mas_otchet, 30 ) )
-      add_string( ' 41 Иные профили, всего, в том числе                   ' + prn_novor( mas_otchet, 31 ) )
-      add_string( ' 42 пациентам с  инфекцией COVID-19                    ' + prn_novor( mas_otchet, 32 ) )
-      add_string( ' 43 по заболеванию гепатитом С                         ' + prn_novor( mas_otchet, 37 ) )
+      add_string( ' 37 = 38+39+40 Стационарная медицинская помощь, всего, ' + prn_novor( mas_otchet, 28 ) )
+      add_string( ' 38 по профилю "Онкология"                             ' + prn_novor( mas_otchet, 29 ) )
+      add_string( ' 39 медицинская реабилитация                           ' + prn_novor( mas_otchet, 30 ) )
+      add_string( ' 40 Иные профили, всего, в том числе                   ' + prn_novor( mas_otchet, 31 ) )
+      add_string( ' 41 пациентам с  инфекцией COVID-19                    ' + prn_novor( mas_otchet, 32 ) )
+      add_string( ' 42 по заболеванию гепатитом С                         ' + prn_novor( mas_otchet, 37 ) )
       //
-      // add_string('   Старый отчет')
-      // add_string('    Круглосуточный стационар')
-      //
-      // add_string('Круглосуточный стационар случай: ' + lstr(mas_otch[1, 1]) + '  сумма:'+put_kop(mas_otch[2, 1], 10))
-      // add_string('                   в т.ч. Covid: ' + lstr(mas_otch[1, 2]) + '  сумма:'+put_kop(mas_otch[2, 2], 10))
-      // add_string('    Дневной стационар')
-      // add_string('Дневной стационар случай       : ' + lstr(mas_otch[3, 1]) + '  сумма:'+put_kop(mas_otch[4, 1], 10))
-      // add_string('                   в т.ч. Covid: ' + lstr(mas_otch[3, 2]) + '  сумма:'+put_kop(mas_otch[4, 2], 10))
-      // add_string('    Амбулаторная помощь')
-      // add_string('Посещения профилактические     : ' + lstr(mas_otch[5, 1]) + '  сумма:'+put_kop(mas_otch[6, 1], 10))
-      // add_string('                   в т.ч. Covid: ' + lstr(mas_otch[5, 2]) + '  сумма:'+put_kop(mas_otch[6, 2], 10))
-      // add_string('Обращения (не вход. в подушевое: ' + lstr(mas_otch[7, 1]) + '  сумма:'+put_kop(mas_otch[8, 1], 10))
-      // add_string('                   в т.ч. Covid: ' + lstr(mas_otch[7, 2]) + '  сумма:'+put_kop(mas_otch[8, 2], 10))
-      // add_string('Неотложная МП                  : ' + lstr(mas_otch[9, 1]) + '  сумма:'+put_kop(mas_otch[10, 1], 10))
-      // add_string('                   в т.ч. Covid: ' + lstr(mas_otch[9, 2]) + '  сумма:'+put_kop(mas_otch[10, 2], 10))
-      // add_string('Диагностические услуги         : ' + lstr(mas_otch[11, 1]) + '  сумма:'+put_kop(mas_otch[12, 1], 10))
-      // add_string('                   в т.ч. Covid: ' + lstr(mas_otch[11, 2]) + '  сумма:'+put_kop(mas_otch[12, 2], 10))
-      // add_string('Их них, КТ                     : ' + lstr(mas_otch[13, 1]) + '  сумма:'+put_kop(mas_otch[14, 1], 10))
-      // add_string('Исследования COVID             : ' + lstr(mas_otch[15, 1]) + '  сумма:'+put_kop(mas_otch[16, 1], 10))
       //
       USL->( dbCloseArea() )
       HU_->( dbCloseArea() )
@@ -3040,7 +3021,7 @@ Function f2ret_oms_human( nkey )
     Else
       box_shadow( mr1, 2, 22, 77 )
       SetColor( col_tit_popup )
-      @ k1 -2, 15 Say 'Шаблон: ' + tmp2
+      @ k1 - 2, 15 Say 'Шаблон: ' + tmp2
       SetColor( color0 )
       If k1 + t_len + 2 < 21
         k2 := k1 + t_len + 2
