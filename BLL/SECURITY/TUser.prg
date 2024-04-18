@@ -13,18 +13,18 @@
 // o - объект
 //***
  
-// Хранится в файле 'Base1.dbf'
+// 18.04.24 Хранится в файле 'Base1.dbf'
 CREATE CLASS TUser	INHERIT	TBaseObjectBLL
 	VISIBLE:
-		PROPERTY FIO WRITE setFIO INIT space( 20 )					//	{"P1", "C", 20, 0},; // Ф.И.О.
-		PROPERTY Access WRITE setAccess INIT 0						//	{"P2", "N",  1, 0},; // тип доступа
-		PROPERTY Password WRITE setPassword INIT space( 10 )			//	{"P3", "C", 10, 0},; // пароль
-		PROPERTY Position WRITE setPosition INIT space( 20 )			//	{"P5", "C", 20, 0},; // должность
-		PROPERTY KEK WRITE setKEK INIT 0							//	{"P6", "N",  1, 0},; // Группа КЭК (1-3)
-		PROPERTY PasswordFR WRITE setPasswordFR INIT 0				//	{"P7", "C", 10, 0},; // пароль1 для фискального регистратора
-		PROPERTY PasswordFRSuper WRITE setPasswordFRSuper INIT 0	//	{"P8", "C", 10, 0};  // пароль2 для фискального регистратора
+		PROPERTY FIO WRITE setFIO INIT space( 20 )						// {"P1", "C", 20, 0},; // Ф.И.О.
+		PROPERTY Access WRITE setAccess INIT 0								// {"P2", "N",  1, 0},; // тип доступа
+		PROPERTY Password WRITE setPassword INIT space( 10 )	// {"P3", "C", 10, 0},; // пароль
+		PROPERTY Position WRITE setPosition INIT space( 20 )	// {"P5", "C", 20, 0},; // должность
+		PROPERTY KEK WRITE setKEK INIT 0											// {"P6", "N",  1, 0},; // Группа КЭК (1-3)
+		PROPERTY PasswordFR WRITE setPasswordFR INIT 0				// {"P7", "C", 10, 0},; // пароль1 для фискального регистратора
+		PROPERTY PasswordFRSuper WRITE setPasswordFRSuper INIT 0	// {"P8", "C", 10, 0};  // пароль2 для фискального регистратора
 		PROPERTY INN AS STRING READ getINN WRITE setINN
-		PROPERTY IDRole WRITE setIDRole INIT 0						//	{"IDROLE", "N",  4, 0},; // ID группы пользователей
+		PROPERTY IDRole WRITE setIDRole INIT 0								// {"IDROLE", "N",  4, 0},; // ID группы пользователей
 
 		PROPERTY Dov_Date READ getDov_Date WRITE setDov_Date
 		PROPERTY Dov_Nom READ getDov_Nom WRITE setDov_Nom
@@ -44,9 +44,9 @@ CREATE CLASS TUser	INHERIT	TBaseObjectBLL
 													{ 'ОПЕРАТОР     ', 1 }, ;
 													{ 'КОНТРОЛЕР    ', 3 } }
 										
-		METHOD IsAdmin()					INLINE iif(( ::FAccess + 1 ) == 1, .t., .f. )
-		METHOD IsOperator()				INLINE iif(( ::FAccess + 1 ) == 2, .t., .f. )
-		METHOD IsKontroler()			INLINE iif(( ::FAccess + 1 ) == 3, .t., .f. )
+		METHOD IsAdmin()					INLINE iif(( ::FAccess ) == 0, .t., .f. )
+		METHOD IsOperator()				INLINE iif(( ::FAccess ) == 1, .t., .f. )
+		METHOD IsKontroler()			INLINE iif(( ::FAccess ) == 3, .t., .f. )
 					
 		METHOD IsAllowedDepartment( nSub )
 		METHOD IsAllowedTask( nTask )
