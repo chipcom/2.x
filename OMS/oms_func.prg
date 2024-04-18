@@ -3,6 +3,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 29.02.24
+function arr_NO_YES()
+
+  return { { 'нет', 0 }, { 'да ', 1 } }
+
 // 20.02.24 формирование массива о смерти пациента
 function arr_patient_died_during_treatment( mkod_k, loc_kod )
   // mkod_k - код пациента по БД картотеки kartotek.dbf

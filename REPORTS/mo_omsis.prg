@@ -666,7 +666,7 @@ do case
 endcase
 return ret
 
-** 18.02.14
+// 02.02.24
 Function s53statist(ltip, arr_m, begin_date, end_date)
 Local i, j, k, s, buf := save_maxrow(), arr, mstr_crb, mismo,;
       fl_exit := .f., sh := 80, HH := 59, reg_print := 2, lshifr1,;
@@ -908,7 +908,9 @@ add_string(center("[ "+s+" "+arr_m[4]+" ]",sh))
 if pds == 2 .and. mdate_reg != NIL
   add_string(center("[ по счетам, зарегистрированным по "+full_date(mdate_reg)+"г. включительно ]",sh))
 endif
-title_schet_akt(sh)
+
+add_string( Center( title_schet_akt( glob_schet_akt ), sh ) )
+
 add_string("")
 add_string("Всего листов учета: "+lstr(s_stac+sdstac+s_amb+s_kt+s_smp))
 add_string("       в том числе стационарно: "+lstr(s_stac))

@@ -6,6 +6,7 @@ Function init_mo()
   Local fl := .t., i, cCode := '', buf := save_maxrow()
   // Local arr, arr1
 
+//  test_excel()
   //  local aaa
   //  aaa := ctod('31/10/2023')
   //  altd()

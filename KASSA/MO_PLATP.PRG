@@ -8645,27 +8645,6 @@ return l_a_otd
 *
 
 *****
-Function titleN_otd(arr_o,lsh,c_otd)
-Local i, t_arr[2], s := ""
-if !(type("count_otd")=="N")
-  count_otd := iif(c_otd==NIL,1,c_otd)
-endif
-if count_otd > 1 .and. valtype(arr_o) == "A"
-  if count_otd == len(arr_o)
-    add_string(center("[ по всем отделениям ]",lsh))
-  else
-    aeval(arr_o, {|x| s += '"'+alltrim(x[2])+'", ' } )
-    s := substr(s,1,len(s)-2)
-    for i := 1 to perenos(t_arr,s,lsh)
-      add_string(center(alltrim(t_arr[i]),lsh))
-    next
-  endif
-endif
-return NIL
-
-*
-
-*****
 Function err_date_diap(_ld,_ls)
 Local fl := .t.
 if !empty(_ld)
@@ -8776,27 +8755,6 @@ else
 endif
 restscreen(buf)
 return l_a_uch
-
-*****
-Function titleN_uch(arr_u,lsh,c_uch)
-Local i, t_arr[2], s := ""
-if !(type("count_uch")=="N")
-  count_uch := iif(c_uch==NIL,1,c_uch)
-endif
-if count_uch > 1
-  if count_uch == len(arr_u)
-    add_string(center("[ по всем учреждениям ]",lsh))
-  else
-    aeval(arr_u, {|x| s += '"'+alltrim(x[2])+'", ' } )
-    s := substr(s,1,len(s)-2)
-    for i := 1 to perenos(t_arr,s,lsh)
-      add_string(center(alltrim(t_arr[i]),lsh))
-    next
-  endif
-endif
-return NIL
-
-*
 
 ***** 03.04.14 вывести дату в 24 строке
 Function date_24(mdate)
@@ -11027,7 +10985,7 @@ return NIL
 
 ***** 04.04.14
 Function rees_new_vzaim(nd_faktura)
-Local buf := save_row(maxrow()), s, i, j, k, ss, lss, adbf, km
+Local buf := save_row(maxrow()), s, i, j, k, ss, lss, adbf, km, vrem_shifr := ""
 delFRfiles()
 mywait()
 adbf := {{"n_fakt","C",10,0},;
@@ -11049,7 +11007,7 @@ adbf := {{"nomer",   "N", 4,0},;
          {"polis",   "C",25,0},;
          {"n_kart",  "C",10,0},;
          {"data",    "C",10,0},;
-         {"kod",     "C",10,0},;
+         {"kod",     "C",15,0},;
          {"name",    "C",70,0},;
          {"ZF"      ,"C",30,0},;
          {"vrach",   "C",50,0},;
@@ -11115,18 +11073,33 @@ do while !eof()
     select HPU
     find (str(hp->(recno()),7))
     do while hpu->kod == hp->(recno()) .and. !eof()
+      vrem_shifr := ""
+      vrem_shifr1 := "" 
       usl->(dbGoto(hpu->u_kod))
       perso->(dbGoto(hpu->kod_vr))
       select HUMANST
       find (str(2,1)+str(hpu->(recno()),8))
-      aadd(ausl, {c4tod(hpu->date_u),;
-                  usl->shifr,;
-                  usl->name,;
-                  hpu->kol,;
-                  hpu->stoim,;
-                  iif(humanst->(found()), humanst->ZF, ""),;
-                  iif(hpu->kod_vr > 0, fam_i_o(perso->fio), "");
-                 })
+      if mem_dms == 0 // внутренние шифры 
+        aadd(ausl, {c4tod(hpu->date_u),;
+                    usl->shifr,;
+                    usl->name,;
+                    hpu->kol,;
+                    hpu->stoim,;
+                    iif(humanst->(found()), humanst->ZF, ""),;
+                    iif(hpu->kod_vr > 0, fam_i_o(perso->fio), "");
+                   })
+      else
+        vrem_shifr := beforatnum(" ",usl->full_name,1) 
+        vrem_shifr1 := substr(usl->full_name,len(vrem_shifr))
+        aadd(ausl, {c4tod(hpu->date_u),; 
+          vrem_shifr,;
+          vrem_shifr1,;
+          hpu->kol,;
+          hpu->stoim,;
+          iif(humanst->(found()), humanst->ZF, ""),;
+          iif(hpu->kod_vr > 0, fam_i_o(perso->fio), "");
+         })
+      endif  
       select HPU
       skip
     enddo

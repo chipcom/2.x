@@ -6,7 +6,7 @@
 
 Static sadiag1  // := {}
 
-// 16.02.24
+// 05.03.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -2650,7 +2650,7 @@ Function verify_1_sluch( fl_view )
     .and. kkt == 0 ; // не отдельно стоящая иссл.процедура
     .and. Len( a_period_amb ) > 0
     For i := 1 To Len( a_period_amb )
-      If a_period_amb[ i, 3 ] == human_->profil
+      If a_period_amb[ i, 3 ] == human_->profil .and. ! ( human_->profil != 122 .or. human_->profil != 21 ) // кроме эндокринологии
         AAdd( ta, 'данный случай пересекается со случаем амбулаторного лечения' )
         otd->( dbGoto( a_period_amb[ i, 4 ] ) )
         AAdd( ta, '└>с тем же профилем ' + ;
@@ -3039,7 +3039,7 @@ Function verify_1_sluch( fl_view )
         //
         fl_not_2_89 := .f.
         If lTypeLUMedReab
-          obyaz_uslugi_med_reab := compulsory_services( list2arr( human_2->PC5 )[ 1 ], list2arr( human_2->PC5 )[ 2 ], M1VZROS_REB == 0 )
+          obyaz_uslugi_med_reab := compulsory_services( list2arr( human_2->PC5 )[ 1 ], list2arr( human_2->PC5 )[ 2 ], M1VZROS_REB == 0, iif( len( list2arr( human_2->PC5 ) ) > 2, list2arr( human_2->PC5 )[ 3 ], 0 ) )
           For Each row in arrUslugi // проверим все услуги случая
             If ( iUsluga := AScan( obyaz_uslugi_med_reab, {| x| AllTrim( x ) == AllTrim( row ) } ) ) > 0
               hb_ADel( obyaz_uslugi_med_reab, iUsluga, .t. )
@@ -3051,7 +3051,7 @@ Function verify_1_sluch( fl_view )
             Next
           Endif
 
-          aUslMedReab := ret_usluga_med_reab( alltrim_lshifr, list2arr( human_2->PC5 )[ 1 ], list2arr( human_2->PC5, M1VZROS_REB == 0 )[ 2 ] )
+          aUslMedReab := ret_usluga_med_reab( alltrim_lshifr, list2arr( human_2->PC5 )[ 1 ], list2arr( human_2->PC5 )[ 2 ], M1VZROS_REB == 0, iif( len( list2arr( human_2->PC5 ) ) > 2, list2arr( human_2->PC5 )[ 3 ], 0 ) )
           If aUslMedReab != Nil .and. Len( aUslMedReab ) != 0
             If aUslMedReab[ 3 ] > au_lu[ i, 6 ]
               AAdd( ta, 'для услуги ' + alltrim_lshifr + ' требуется минимум ' + lstr( aUslMedReab[ 3 ] ) + ' предоставлений!' )
@@ -4763,10 +4763,19 @@ Function verify_1_sluch( fl_view )
     human_->PZKOL := iif( mpzkol > 0, mpzkol, 1 )
   Endif
 
-  If between_shifr( alltrim_lshifr, '2.88.111', '2.88.119' ) .and. ( human->k_data >= 0d20220201 )
+  If ( between_shifr( alltrim_lshifr, '2.88.111', '2.88.119' ) .and. ( human->k_data >= 0d20220201 ) )
     arr_povod[ 1, 1 ] := 1
     human_->POVOD := arr_povod[ 1, 1 ]
   Endif
+  // ниже условие согласно соответствия АПП целям посещения согласно таблице Excel от 15.02.24
+  if ( between_shifr( alltrim_lshifr, '2.88.1', '2.88.119' ) .and. ( human->k_data >= 0d20240201 ) )
+    arr_povod[ 1, 1 ] := 1
+    If is_dom .and. between_shifr( alltrim_lshifr, '2.88.46', '2.88.51' )
+      arr_povod[ 1, 1 ] := 3 // 1.2 - активное посещение, т.е. на дому
+    Endif
+    human_->POVOD := arr_povod[ 1, 1 ]
+  Endif
+
 
   If !valid_guid( human_->ID_PAC )
     human_->ID_PAC := mo_guid( 1, human_->( RecNo() ) )

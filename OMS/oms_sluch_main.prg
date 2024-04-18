@@ -3,11 +3,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.02.24 добавление или редактирование случая (листа учета)
+// 03.03.24 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
-
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
+
   Static SKOD_DIAG := '     ', st_l_z := 1, st_N_DATA, st_K_DATA, st_rez_gist, ;
     st_vrach := 0, st_profil := 0, st_profil_k := 0, st_rslt := 0, st_ishod := 0, st_povod := 9
   Static menu_bolnich := { { 'нет', 0 }, { 'да ', 1 }, { 'РОД', 2 } }
@@ -22,7 +22,6 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Local mWeight := 0
   Local oldPictureTalon := '@S12'
   Local newPictureTalon := '@S 99.9999.99999.999'
-  Local mm_da_net := { { 'нет', 0 }, { 'да ', 1 } }
   Local j, it
   Local i_n007, aN007 := getn007(), i_n008, aN008 := loadn008(), i_n009, aN009 := getn009()
   Local i_n012, aN012_DS := getds_n012(), ar_N012 := {}
@@ -74,43 +73,43 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     M1FIO_KART := 1, MFIO_KART, ;
     M1VZROS_REB, MVZROS_REB, mpolis, M1RAB_NERAB, ;
     MUCH_DOC    := Space( 10 ), ; // вид и номер учетного документа
-  MKOD_DIAG0  := Space( 6 ), ; // шифр первичного диагноза
-  MKOD_DIAG   := SKOD_DIAG, ; // шифр 1-ой осн.болезни
-  MKOD_DIAG2  := Space( 5 ), ; // шифр 2-ой осн.болезни
-  MKOD_DIAG3  := Space( 5 ), ; // шифр 3-ой осн.болезни
-  MKOD_DIAG4  := Space( 5 ), ; // шифр 4-ой осн.болезни
-  MSOPUT_B1   := Space( 5 ), ; // шифр 1-ой сопутствующей болезни
-  MSOPUT_B2   := Space( 5 ), ; // шифр 2-ой сопутствующей болезни
-  MSOPUT_B3   := Space( 5 ), ; // шифр 3-ой сопутствующей болезни
-  MSOPUT_B4   := Space( 5 ), ; // шифр 4-ой сопутствующей болезни
-  MDIAG_PLUS  := Space( 8 ), ; // дополнения к диагнозам
-  adiag_talon[ 16 ], ; // из статталона к диагнозам
-  mprer_b := Space( 28 ),  m1prer_b := 0, ; // прерывание беременности
-  mrslt, m1rslt := st_rslt, ; // результат
-  mishod := Space( 20 ), m1ishod := st_ishod, ; // исход
-  m1company := 0, mcompany, mm_company, ;
+    MKOD_DIAG0  := Space( 6 ), ; // шифр первичного диагноза
+    MKOD_DIAG   := SKOD_DIAG, ; // шифр 1-ой осн.болезни
+    MKOD_DIAG2  := Space( 5 ), ; // шифр 2-ой осн.болезни
+    MKOD_DIAG3  := Space( 5 ), ; // шифр 3-ой осн.болезни
+    MKOD_DIAG4  := Space( 5 ), ; // шифр 4-ой осн.болезни
+    MSOPUT_B1   := Space( 5 ), ; // шифр 1-ой сопутствующей болезни
+    MSOPUT_B2   := Space( 5 ), ; // шифр 2-ой сопутствующей болезни
+    MSOPUT_B3   := Space( 5 ), ; // шифр 3-ой сопутствующей болезни
+    MSOPUT_B4   := Space( 5 ), ; // шифр 4-ой сопутствующей болезни
+    MDIAG_PLUS  := Space( 8 ), ; // дополнения к диагнозам
+    adiag_talon[ 16 ], ; // из статталона к диагнозам
+    mprer_b := Space( 28 ),  m1prer_b := 0, ; // прерывание беременности
+    mrslt, m1rslt := st_rslt, ; // результат
+    mishod := Space( 20 ), m1ishod := st_ishod, ; // исход
+    m1company := 0, mcompany, mm_company, ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
-  m1NPR_MO := '',  mNPR_MO := Space( 10 ),  mNPR_DATE := CToD( '' ), ;
+    m1NPR_MO := '',  mNPR_MO := Space( 10 ),  mNPR_DATE := CToD( '' ), ;
     m1reg_lech := 0, mreg_lech, ;
     MN_DATA     := st_N_DATA, ; // дата начала лечения
-  MK_DATA     := st_K_DATA, ; // дата окончания лечения
-  MCENA_1     := 0, ; // стоимость лечения
-  MVRACH      := Space( 10 ), ; // фамилия и инициалы лечащего врача
-  M1VRACH := st_vrach, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
-  MBOLNICH, M1BOLNICH := 0, ; // больничный
-  MDATE_B_1   := CToD( '' ), ; // дата начала больничного
-  MDATE_B_2   := CToD( '' ), ; // дата окончания больничного
-  mrodit_dr   := CToD( '' ), ; // дата рождения родителя
-  mrodit_pol  := ' ', ; // пол родителя
-  MF14_EKST, M1F14_EKST := 0, ; //
-  MF14_SKOR, M1F14_SKOR := 0, ; //
-  MF14_VSKR, M1F14_VSKR := 0, ; //
-  MF14_RASH, M1F14_RASH := 0, ; //
-  m1novor := 0, mnovor, mcount_reb := 0, ;
+    MK_DATA     := st_K_DATA, ; // дата окончания лечения
+    MCENA_1     := 0, ; // стоимость лечения
+    MVRACH      := Space( 10 ), ; // фамилия и инициалы лечащего врача
+    M1VRACH := st_vrach, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
+    MBOLNICH, M1BOLNICH := 0, ; // больничный
+    MDATE_B_1   := CToD( '' ), ; // дата начала больничного
+    MDATE_B_2   := CToD( '' ), ; // дата окончания больничного
+    mrodit_dr   := CToD( '' ), ; // дата рождения родителя
+    mrodit_pol  := ' ', ; // пол родителя
+    MF14_EKST, M1F14_EKST := 0, ; //
+    MF14_SKOR, M1F14_SKOR := 0, ; //
+    MF14_VSKR, M1F14_VSKR := 0, ; //
+    MF14_RASH, M1F14_RASH := 0, ; //
+    m1novor := 0, mnovor, mcount_reb := 0, ;
     mDATE_R2 := CToD( '' ),  mpol2 := ' ', ;
     m1USL_OK := 0, mUSL_OK, ;
     m1P_PER := 0, mP_PER := Space( 35 ), ; // Признак поступления/перевода 1-4
-  m1PROFIL := st_profil, mPROFIL, ;
+    m1PROFIL := st_profil, mPROFIL, ;
     m1PROFIL_K := st_profil_k, mPROFIL_K, ;
     m1vid_reab := 0, mvid_reab, ;
     mstatus_st := Space( 10 ), ;
@@ -120,39 +119,43 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     MOSL2 := Space( 6 ), ; // шифр 2-ого диагноза осложнения заболевания
     MOSL3 := Space( 6 ), ; // шифр 3-ого диагноза осложнения заболевания
     MVMP, M1VMP := 0, ; // 0-нет, 1-да ВМП
-  mtal_num := Space( 20 ), ; // номер талона на ВМП
-  MVIDVMP, M1VIDVMP := Space( 12 ), ; // вид ВМП по справочнику V018
-  mmodpac := Space( 12 ), ; // модель пациента по справочнику V022
-  m1modpac := 0, ; // модель пациента по справочнику V022
-  MMETVMP, M1METVMP := 0, ; // метод ВМП по справочнику V019 //  mstentvmp := ' ', ; // кол-во стентов для методов ВМП 498, 499
-  mTAL_D := CToD( '' ), ; // Дата выдачи талона на ВМП
-  mTAL_P := CToD( '' ), ; // Дата планируемой госпитализации в соответствии с талоном на ВМП
-  MVNR  := Space( 4 ), ; // вес недоношенного ребёнка (лечится ребёнок)
-  MVNR1 := Space( 4 ), ; // вес 1-го недоношенного ребёнка (лечится мать)
-  MVNR2 := Space( 4 ), ; // вес 2-го недоношенного ребёнка (лечится мать)
-  MVNR3 := Space( 4 ), ; // вес 3-го недоношенного ребёнка (лечится мать)
-  input_vnr := .f., input_vnrm := .f., ;
+    mtal_num := Space( 20 ), ; // номер талона на ВМП
+    MVIDVMP, M1VIDVMP := Space( 12 ), ; // вид ВМП по справочнику V018
+    mmodpac := Space( 12 ), ; // модель пациента по справочнику V022
+    m1modpac := 0, ; // модель пациента по справочнику V022
+    MMETVMP, M1METVMP := 0, ; // метод ВМП по справочнику V019 //  mstentvmp := ' ', ; // кол-во стентов для методов ВМП 498, 499
+    mTAL_D := CToD( '' ), ; // Дата выдачи талона на ВМП
+    mTAL_P := CToD( '' ), ; // Дата планируемой госпитализации в соответствии с талоном на ВМП
+    MVNR  := Space( 4 ), ; // вес недоношенного ребёнка (лечится ребёнок)
+    MVNR1 := Space( 4 ), ; // вес 1-го недоношенного ребёнка (лечится мать)
+    MVNR2 := Space( 4 ), ; // вес 2-го недоношенного ребёнка (лечится мать)
+    MVNR3 := Space( 4 ), ; // вес 3-го недоношенного ребёнка (лечится мать)
+    input_vnr := .f., input_vnrm := .f., ;
     msmo := '',  rec_inogSMO := 0, ;
     mokato, m1okato := '',  mismo, m1ismo := '',  mnameismo := Space( 100 ), ;
     mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ),  mnpolis := Space( 20 ), ;
     m1_l_z := st_l_z, m_l_z, ;             // лечение завершено ?
-    mm1prer_b := { { 'по медицинским показаниям   ', 1 }, ;
-    { 'НЕ по медицинским показаниям', 2 } }, ;
-    mm2prer_b := { { 'постановка на учёт по берем.', 1 }, ;
-    { 'продолжение наблюдения      ', 0 } }, ;
-    mm3prer_b := { { 'отсутствие болевого синдрома', 0 }, ;
-    { 'острая боль                 ', 1 }, ;
-    { 'постоянная некупирующ. боль ', 2 }, ;
-    { 'другая постоянная боль      ', 3 }, ;
-    { 'боль неуточнённая           ', 4 } }, ;
-    mm_p_per := { { 'Поступил самостоятельно', 1 }, ;
-    { 'Доставлен СМП', 2 }, ;
-    { 'Перевод из другой МО', 3 }, ;
-    { 'Перевод внутри МО', 4 } }
+    mm1prer_b := { ;
+      { 'по медицинским показаниям   ', 1 }, ;
+      { 'НЕ по медицинским показаниям', 2 } }, ;
+    mm2prer_b := { ;
+      { 'постановка на учёт по берем.', 1 }, ;
+      { 'продолжение наблюдения      ', 0 } }, ;
+    mm3prer_b := { ;
+      { 'отсутствие болевого синдрома', 0 }, ;
+      { 'острая боль                 ', 1 }, ;
+      { 'постоянная некупирующ. боль ', 2 }, ;
+      { 'другая постоянная боль      ', 3 }, ;
+      { 'боль неуточнённая           ', 4 } }, ;
+    mm_p_per := { ;
+      { 'Поступил самостоятельно', 1 }, ;
+      { 'Доставлен СМП', 2 }, ;
+      { 'Перевод из другой МО', 3 }, ;
+      { 'Перевод внутри МО', 4 } }
   Private mm_prer_b := mm2prer_b
 
   Private mTab_Number := 0
-  Private mNMSE, m1NMSE := 0  // направление на МСЭ
+  Private mNMSE, m1NMSE := NO  // направление на МСЭ
   Private mnapr_onk := Space( 10 ), m1napr_onk := 0
 
   If mem_zav_l == 1  // да
@@ -166,70 +169,45 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   // онкология
   Private is_oncology := 0, old_oncology := .f., ;
     mDS_ONK, m1DS_ONK := 0, ; // Признак подозрения на злокачественное новообразование
-  mDS1_T, m1DS1_T := 0, ; // Повод обращения:0 - первичное лечение;1 - рецидив;2 - прогрессирование
-  mPR_CONS, m1PR_CONS := 0, ; // Сведения о проведении консилиума:1 - определена тактика обследования;2 - определена тактика лечения;3 - изменена тактика лечения.
-  mDT_CONS := CToD( '' ), ; // Дата проведения консилиума    Обязательно к заполнению при заполненном PR_CONS
-  mSTAD, m1STAD := 0, ; // Стадия заболевания      Заполняется в соответствии со справочником N002
-  mONK_T, m1ONK_T := 0, ; // Значение Tumor        Заполняется в соответствии со справочником N003
-  mONK_N, m1ONK_N := 0, ; // Значение Nodus        Заполняется в соответствии со справочником N004
-  mONK_M, m1ONK_M := 0, ; // Значение Metastasis   Заполняется в соответствии со справочником N005
-  mMTSTZ, m1MTSTZ := 0, ;   // Признак выявления отдалённых метастазов       Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2
+    mDS1_T, m1DS1_T := 0, ; // Повод обращения:0 - первичное лечение;1 - рецидив;2 - прогрессирование
+    mPR_CONS, m1PR_CONS := 0, ; // Сведения о проведении консилиума:1 - определена тактика обследования;2 - определена тактика лечения;3 - изменена тактика лечения.
+    mDT_CONS := CToD( '' ), ; // Дата проведения консилиума    Обязательно к заполнению при заполненном PR_CONS
+    mSTAD, m1STAD := 0, ; // Стадия заболевания      Заполняется в соответствии со справочником N002
+    mONK_T, m1ONK_T := 0, ; // Значение Tumor        Заполняется в соответствии со справочником N003
+    mONK_N, m1ONK_N := 0, ; // Значение Nodus        Заполняется в соответствии со справочником N004
+    mONK_M, m1ONK_M := 0, ; // Значение Metastasis   Заполняется в соответствии со справочником N005
+    mMTSTZ, m1MTSTZ := 0, ;   // Признак выявления отдалённых метастазов       Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2
     mB_DIAG, m1B_DIAG := 98, ; // гистология:99-не надо, 98-сделана, 97-нет результата, 0-отказ, 7-не показано, 8-противопоказано
-  mK_FR := Space( 2 ), ; // кол-во фракций проведения лучевой терапии Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0
-  mCRIT, m1crit := Space( 10 ), ; // код схемы лек.терапии V024 (sh..., mt...)
-  mCRIT2, ; // доп.критерий (fr...)
-  mm_shema_err := { { 'соблюдён', 0 }, { 'не соблюдён', 1 } }, ;
+    mK_FR := Space( 2 ), ; // кол-во фракций проведения лучевой терапии Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0
+    mCRIT, m1crit := Space( 10 ), ; // код схемы лек.терапии V024 (sh..., mt...)
+    mCRIT2, ; // доп.критерий (fr...)
+    mm_shema_err := { { 'соблюдён', 0 }, { 'не соблюдён', 1 } }, ;
     mm_shema_usl := {}, ;
     mWEI := Space( 5 ), ; // масса тела в кг Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
-  mHEI := Space( 3 ), ; // рост в см Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
-  mBSA := Space( 4 )   // площадь поверхности тела в кв.м. Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
+    mHEI := Space( 3 ), ; // рост в см Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
+    mBSA := Space( 4 )   // площадь поверхности тела в кв.м. Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
 
   dbCreate( cur_dir + 'tmp_onkna',  create_struct_temporary_onkna() )
 
   Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
     mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
-  Private mm_napr_v := { { 'нет', 0 }, ;
+  Private mm_napr_v := { ;
+    { 'нет', 0 }, ;
     { 'к онкологу', 1 }, ;
     { 'на биопсию', 2 }, ;
     { 'на дообследование', 3 }, ;
     { 'для определения тактики лечения', 4 } }
-  Private mm_met_issl := { { 'нет', 0 }, ;
+  Private mm_met_issl := { ;
+    { 'нет', 0 }, ;
     { 'лабораторная диагностика', 1 }, ;
     { 'инструментальная диагностика', 2 }, ;
     { 'методы лучевой диагностики (недорогостоящие)', 3 }, ;
     { 'дорогостоящие методы лучевой диагностики', 4 } }
-  // Private mm_DS1_T := {{'первичное лечение', 0}, ;  // N018
-  // {'лечение при рецидиве', 1}, ;
-  // {'лечение при прогрессировании', 2}, ;
-  // {'динамическое наблюдение', 3}, ;
-  // {'диспансерное наблюдение (здоров/ремиссия)', 4}, ;
-  // {'диагностика (без специфического лечения)', 5}, ;
-  // {'симптоматическое лечение', 6}}
   Private mm_DS1_T := getn018()
-  // Private mm_PR_CONS := {{'отсутствует необходимость проведения', 0}, ; // N019
-  // {'определена тактика обследования', 1}, ;
-  // {'определена тактика лечения', 2}, ;
-  // {'изменена тактика лечения', 3}}
   Private mm_PR_CONS := getn019() // N019
 
   If Empty( st_rez_gist ) // для гистологии в поликлинике
     st_rez_gist := {}
-    // R_Use(dir_exe+ '_mo_N008', cur_dir + '_mo_N008',  'N8')
-    // R_Use(dir_exe+ '_mo_N007', cur_dir + '_mo_N007',  'N7')
-    // go top
-    // do while !eof()
-    // aadd(st_rez_gist, {n7->mrf_name,n7->id_mrf, {}, 0}) ; i := len(st_rez_gist)
-    // select N8
-    // find (str(n7->id_mrf, 6))
-    // do while n8->id_mrf == n7->id_mrf .and. !eof()
-    // aadd(st_rez_gist[i, 3], {alltrim(n8->r_m_name), n8->id_r_m})
-    // skip
-    // enddo
-    // select N7
-    // skip
-    // enddo
-    // n7->(dbCloseArea())
-    // n8->(dbCloseArea())
     For i_n007 := 1 To Len( aN007 )
       AAdd( st_rez_gist, { aN007[ i_n007, 1 ], aN007[ i_n007, 2 ], {}, 0 } )
       i := Len( st_rez_gist )
@@ -249,60 +227,54 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   AFill( mgist, 0 )
   AFill( mmark, 0 )
   dbCreate( cur_dir + 'tmp_onkco',  { ; // Сведения о проведении консилиума
-  { 'KOD',   'N',      7,     0 }, ; // код больного
-  { 'PR_CONS',   'N',      1,     0 }, ; // Сведения о проведении консилиума(N019):0-отсутствует необходимость;1-определена тактика обследования;2-определена тактика лечения;3-изменена тактика лечения
-  { 'DT_CONS',   'D',      8,     0 };  // Дата проведения консилиума Обязательно к заполнению при PR_CONS=1, 2, 3
-    } )
+    { 'KOD',   'N',      7,     0 }, ; // код больного
+    { 'PR_CONS',   'N',      1,     0 }, ; // Сведения о проведении консилиума(N019):0-отсутствует необходимость;1-определена тактика обследования;2-определена тактика лечения;3-изменена тактика лечения
+    { 'DT_CONS',   'D',      8,     0 };  // Дата проведения консилиума Обязательно к заполнению при PR_CONS=1, 2, 3
+  } )
   dbCreate( cur_dir + 'tmp_onkdi',  { ; // Диагностический блок
-  { 'KOD',   'N',      7,     0 }, ; // код больного
-  { 'DIAG_DATE',    'D',      8,     0 }, ; // Дата взятия материала для проведения диагностики
-  { 'DIAG_TIP',   'N',      1,     0 }, ; // Тип диагностического показателя: 1 - гистологический признак; 2 - маркёр (ИГХ)
-  { 'DIAG_CODE',    'N',      3,     0 }, ; // Код диагностического показателя При DIAG_TIP=1 в соответствии со справочником N007 При DIAG_TIP=2 в соответствии со справочником N010
-  { 'DIAG_RSLT',    'N',      3,     0 }, ; // Код результата диагностики При DIAG_TIP=1 в соответствии со справочником N008 При DIAG_TIP=2 в соответствии со справочником N011
-  { 'REC_RSLT',     'N',      1,     0 };  // признак получения результата диагностики 1 - получен
+    { 'KOD',   'N',      7,     0 }, ; // код больного
+    { 'DIAG_DATE',    'D',      8,     0 }, ; // Дата взятия материала для проведения диагностики
+    { 'DIAG_TIP',   'N',      1,     0 }, ; // Тип диагностического показателя: 1 - гистологический признак; 2 - маркёр (ИГХ)
+    { 'DIAG_CODE',    'N',      3,     0 }, ; // Код диагностического показателя При DIAG_TIP=1 в соответствии со справочником N007 При DIAG_TIP=2 в соответствии со справочником N010
+    { 'DIAG_RSLT',    'N',      3,     0 }, ; // Код результата диагностики При DIAG_TIP=1 в соответствии со справочником N008 При DIAG_TIP=2 в соответствии со справочником N011
+    { 'REC_RSLT',     'N',      1,     0 };  // признак получения результата диагностики 1 - получен
   } )
   dbCreate( cur_dir + 'tmp_onkpr',  { ; // Сведения об имеющихся противопоказаниях
-  { 'KOD',   'N',      7,     0 }, ; // код больного
-  { 'PROT',   'N',      1,     0 }, ; // Код противопоказания или отказа в соответствии со справочником N001
-  { 'D_PROT',   'D',      8,     0 };  // Дата регистрации противопоказания или отказа
-    } )
+    { 'KOD',   'N',      7,     0 }, ; // код больного
+    { 'PROT',   'N',      1,     0 }, ; // Код противопоказания или отказа в соответствии со справочником N001
+    { 'D_PROT',   'D',      8,     0 };  // Дата регистрации противопоказания или отказа
+  } )
 
   Private mprot1, mprot2, mprot, mprot4, mprot5, mprot6, ;
     m1prot1, m1prot2, m1prot, m1prot4, m1prot5, m1prot6, ;
     mdprot1, mdprot2, mdprot, mdprot4, mdprot5, mdprot6
   //
   dbCreate( cur_dir + 'tmp_onkus',  { ; // Сведения о проведённых лечениях
-  { 'KOD',   'N',      7,     0 }, ; // код больного
-  { 'USL_TIP',   'N',      1,     0 }, ; // Тип онкоуслуги в соответствии со справочником N013
-  { 'HIR_TIP',   'N',      1,     0 }, ; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014
-  { 'LEK_TIP_L',    'N',      1,     0 }, ; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015
-  { 'LEK_TIP_V',    'N',      1,     0 }, ; // Цикл лекарственной терапии   При USL_TIP=2 в соответствии со справочником N016
-  { 'LUCH_TIP',   'N',      1,     0 }, ; // Тип лучевой терапии  При USL_TIP=3, 4 в соответствии со справочником N017
-  { 'PPTR',       'N',      1,     0 }, ; // Признак проведения профилактики тошноты и рвотного рефлекса - указывается '1' при USL_TIP=2, 4
-  { 'SOD',   'N',      6,     2 };  // SOD - Суммарная очаговая доза - При USL_TIP=3, 4
+    { 'KOD',   'N',      7,     0 }, ; // код больного
+    { 'USL_TIP',   'N',      1,     0 }, ; // Тип онкоуслуги в соответствии со справочником N013
+    { 'HIR_TIP',   'N',      1,     0 }, ; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014
+    { 'LEK_TIP_L',    'N',      1,     0 }, ; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015
+    { 'LEK_TIP_V',    'N',      1,     0 }, ; // Цикл лекарственной терапии   При USL_TIP=2 в соответствии со справочником N016
+    { 'LUCH_TIP',   'N',      1,     0 }, ; // Тип лучевой терапии  При USL_TIP=3, 4 в соответствии со справочником N017
+    { 'PPTR',       'N',      1,     0 }, ; // Признак проведения профилактики тошноты и рвотного рефлекса - указывается '1' при USL_TIP=2, 4
+    { 'SOD',   'N',      6,     2 };  // SOD - Суммарная очаговая доза - При USL_TIP=3, 4
   } )
   dbCreate( cur_dir + 'tmp_onkle',  { ; // Сведения о применённых лекарственных препаратах
-  { 'KOD',   'N',      7,     0 }, ; // код больного
-  { 'REGNUM',       'C',      6,     0 }, ; // IDD лек.препарата N020
-  { 'CODE_SH',      'C',     10,     0 }, ; // код схемы лек.терапии V024
-  { 'DATE_INJ',     'D',      8,     0 };  // дата введения лек.препарата
+    { 'KOD',   'N',      7,     0 }, ; // код больного
+    { 'REGNUM',       'C',      6,     0 }, ; // IDD лек.препарата N020
+    { 'CODE_SH',      'C',     10,     0 }, ; // код схемы лек.терапии V024
+    { 'DATE_INJ',     'D',      8,     0 };  // дата введения лек.препарата
   } )
 
   Private musl_tip, m1usl_tip, musl_tip1, m1usl_tip1, musl_tip2, m1usl_tip2, msod, ;
     musl_vmp, m1usl_vmp, musl_vmp1, m1usl_vmp1, musl_vmp2, m1usl_vmp2, msod_vmp, ;
     mpptr, m1pptr := 0, mpptr_vmp, m1pptr_vmp := 0, ;
     mIS_ERR, m1is_err := 0, ; // Признак несоблюдения схемы лекарственной терапии: 0-нормально, 1-не соблюдена
-  mIS_ERR_vmp, m1is_err_vmp := 0, ;
+    mIS_ERR_vmp, m1is_err_vmp := 0, ;
     _arr_sh := ret_arr_shema( 1, MK_DATA ),  _arr_mt := ret_arr_shema( 2, MK_DATA ),  _arr_fr := ret_arr_shema( 3, MK_DATA ), ;
     mm_usl_tip := AClone( getn013() ) // N013
-  // mm_usl_tip := {{'не проводилось', 0}, ; // N013
-  // {'Хирургическое лечение', 1}, ;
-  // {'Лекарственная противоопухолевая терапия', 2}, ;
-  // {'Лучевая терапия', 3}, ;
-  // {'Химиолучевая терапия', 4}, ;
-  // {'Неспецифическое лечение (катетер, прочее)', 5}, ;
-  // {'Диагностика', 6}}
-  mm_usl_tip := hb_AIns( mm_usl_tip, 1,{ 'не проводилось', 0 }, .t. )
+
+  mm_usl_tip := hb_AIns( mm_usl_tip, 1, { 'не проводилось', 0 }, .t. )
 
   mm_USL_TIP_all := AClone( mm_USL_TIP )
   ASize( mm_USL_TIP, 6 ) // без диагностики
@@ -447,9 +419,6 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     M1VIDVMP := human_2->VIDVMP
     M1METVMP := human_2->METVMP
     m1modpac := human_2->PN5
-    /*if between(M1METVMP, 498, 499) .and. year(mk_data)  == 2017
-      mstentvmp := left(human_2->PC1, 1) // кол-во стентов для методов ВМП 498, 499
-    endif*/
     mTAL_NUM := human_2->TAL_NUM
     mTAL_D := human_2->TAL_D
     mTAL_P := human_2->TAL_P
@@ -683,7 +652,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   mishod    := inieditspr( A__MENUVERT, getv012(), m1ishod )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mbolnich  := inieditspr( A__MENUVERT, menu_bolnich, m1bolnich )
-  mNMSE     := inieditspr( A__MENUVERT, mm_da_net, m1NMSE )
+  mNMSE     := inieditspr( A__MENUVERT, arr_NO_YES(), m1NMSE )
   // mpovod    := inieditspr(A__MENUVERT, stm_povod, m1povod)
   // mtravma   := inieditspr(A__MENUVERT, stm_travma, m1travma)
   motd      := inieditspr( A__POPUPMENU, dir_server + 'mo_otd',  m1otd )
@@ -902,7 +871,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         reader {| x| menu_reader( x, mm_ishod, A__MENUVERT, , , .f. ) }
 
       @ j, 42 Say 'Направление на МСЭ' Get mNMSE ;
-        reader {| x| menu_reader( x, mm_da_net, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, arr_NO_YES(), A__MENUVERT, , , .f. ) } ;
         Color colget_menu
 
       //
@@ -956,18 +925,20 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         @ j, 1
       Endif
       //
-      ++j
-      p_nstr_ad_cr := j
-      p_str_ad_cr := 'Доп.критерий'
-      @ p_nstr_ad_cr, 1 Say p_str_ad_cr Get MAD_CR ;
-        reader {| x| menu_reader( x, mm_ad_cr, A__MENUVERT_SPACE, , , .f. ) } ;
-        When input_ad_cr ;
-        Color colget_menu
-      If !input_ad_cr
-        @ j, 1
-      Endif
+      if M1USL_OK == USL_OK_HOSPITAL .or. M1USL_OK == USL_OK_DAY_HOSPITAL
+        ++j
+        p_nstr_ad_cr := j
+        p_str_ad_cr := 'Доп.критерий'
+        @ p_nstr_ad_cr, 1 Say p_str_ad_cr Get MAD_CR ;
+          reader {| x| menu_reader( x, mm_ad_cr, A__MENUVERT_SPACE, , , .f. ) } ;
+          When input_ad_cr ;
+          Color colget_menu
+        If !input_ad_cr
+          @ j, 1
+        Endif
+      endif
       //
-      If is_MO_VMP
+      If is_MO_VMP .and. M1USL_OK == USL_OK_HOSPITAL
         @ ++j, 1 Say 'ВМП?' Get MVMP ;
           reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
           When m1usl_ok == USL_OK_HOSPITAL ;
@@ -1019,10 +990,12 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           valid {| g| mrodit_pol $ 'МЖ' } ;
           When m1bolnich == 2
       Endif
-      @ MaxRow() -1, 1 Say 'Признак подозрения на ЗНО' Get mDS_ONK ;
+//      @ MaxRow() -1, 1 Say 'Признак подозрения на ЗНО' Get mDS_ONK ;
+      @ ++j, 1 Say 'Признак подозрения на ЗНО' Get mDS_ONK ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
         when {|| when_ds_onk() } ;
         Color colget_menu
+
       @ MaxRow() -1, 55 Say 'Сумма лечения' Color color1
       @ Row(), Col() + 1 Say lput_kop( mcena_1 ) Color color8
       If is_talon
@@ -1168,14 +1141,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           m1ONK_T := m1ONK_N := m1ONK_M := 0
         Endif
         //
-        // R_Use(dir_exe+ '_mo_N006', cur_dir + '_mo_N006',  'N6')
         // гистология
         mm_N009 := {}
         If !is_mgi // для МГИ гистология не вводится
-          // R_Use(dir_exe+ '_mo_N009', , 'N9')
-          // dbeval({|| aadd(mm_N009, {'', n9->id_mrf, {}}) }, ;
-          // {|| between_date(n9->datebeg,n9->dateend,mk_data) .and. left(mkod_diag, 3) == n9->ds_mrf })
-          // asort(mm_N009, , , {|x,y| x[2] < y[2] })
           For i_n009 := 1 To Len( aN009 )
             If between_date( aN009[ i_n009, 4 ], aN009[ i_n009, 5 ], mk_data ) .and. Left( mkod_diag, 3 ) == Left( aN009[ i_n009, 2 ], 3 )
               AAdd( mm_N009, { '', aN009[ i_n009, 3 ], {} } )
@@ -1184,27 +1152,12 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           ASort( mm_N009, , , {| x, y| x[ 2 ] < y[ 2 ] } )
         Endif
         If Len( mm_N009 ) > 0
-          // R_Use(dir_exe+ '_mo_N007', cur_dir + '_mo_N007',  'N7')
-          // R_Use(dir_exe+ '_mo_N008', cur_dir + '_mo_N008',  'N8')
           For i := 1 To Min( 2, Len( mm_N009 ) )
-            // select N7
-            // find (str(mm_N009[i, 2], 6))
-            // if found()
-            // mm_N009[i, 1] := alltrim(n7->mrf_name)
-            // else
-            // func_error(4, 'Не найден гистологический признак ID_MRF=' + lstr(mm_N009[i, 2]) + ' для ' + mkod_diag)
-            // endif
             If ( i_n007 := AScan( aN007, {| x| x[ 2 ] == mm_N009[ i, 2 ] } ) ) > 0
               mm_N009[ i, 1 ] := AllTrim( aN007[ i_n007, 1 ] )
             Else
               func_error( 4, 'Не найден гистологический признак ID_MRF=' + lstr( mm_N009[ i, 2 ] ) + ' для ' + mkod_diag )
             Endif
-            // select N8
-            // find (str(mm_N009[i, 2], 6))
-            // do while n8->id_mrf == mm_N009[i, 2] .and. !eof()
-            // aadd(mm_N009[i, 3], {alltrim(n8->r_m_name), n8->id_r_m})
-            // skip
-            // enddo
             For i_n008 := 1 To Len( aN008 )
               If mm_N009[ i, 2 ] == aN008[ i_n008, 2 ]
                 AAdd( mm_N009[ i, 3 ], { AllTrim( aN008[ i_n008, 3 ] ), aN008[ i_n008, 1 ] } )
@@ -1220,9 +1173,6 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
 
         // Иммуногистохимия
         mm_N012 := {}
-        // R_Use(dir_exe+ '_mo_N012', , 'N12')
-        // dbeval({|| aadd(mm_N012, {'', n12->id_igh, {}}) }, ;
-        // {|| between_date(n12->datebeg, n12->dateend, mk_data) .and. left(mkod_diag, 3) == n12->ds_igh })
         If ( it := AScan( aN012_DS, {| x| Left( x[ 1 ], 3 ) == Left( mkod_diag, 3 ) } ) ) > 0
           ar_N012 := AClone( aN012_DS[ it, 2 ] )
           For i_n012 := 1 To Len( ar_N012 )
@@ -1244,18 +1194,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           Endif
         Endif
         If Len( mm_N012 ) > 0
-          // R_Use(dir_exe+ '_mo_N010', cur_dir + '_mo_N010',  'N10')
-          // R_Use(dir_exe+ '_mo_N011', cur_dir + '_mo_N011',  'N11')
           For i := 1 To Min( 5, Len( mm_N012 ) )
-            // select N10
-            // find (str(mm_N012[i, 2], 6))
-            // do while n10->id_igh == mm_N012[i, 2] .and. !eof()
-            // if between_date(n10->datebeg, n10->dateend, mk_data)
-            // mm_N012[i, 1] := alltrim(n10->igh_name)
-            // exit
-            // endif
-            // skip
-            // enddo
             For i_n010 := 1 To Len( aN010 )
               If aN010[ i_n010, 1 ] == mm_N012[ i, 2 ]
                 If between_date( aN010[ i_n010, 4 ], aN010[ i_n010, 5 ], mk_data )
@@ -1266,18 +1205,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             If Empty( mm_N012[ i, 1 ] )
               func_error( 4, 'Не найден признак иммуногистохимии ID_IGH=' + lstr( mm_N012[ i, 2 ] ) + ' для ' + mkod_diag )
             Endif
-            // select N11
-            // find (str(mm_N012[i, 2], 6))
-            // do while n11->id_igh == mm_N012[i, 2] .and. !eof()
-            // if between_date(n11->datebeg,n11->dateend,mk_data)
-            // aadd(mm_N012[i, 3], {alltrim(n11->kod_r_i), n11->id_r_i})
-            // endif
-            // skip
-            // enddo
             For i_n011 := 1 To Len( aN011 )
               If aN011[ i_n011, 2 ] == mm_N012[ i, 2 ]
                 If between_date( aN011[ i_n011, 5 ], aN011[ i_n011, 6 ], mk_data )
-                  // mm_N012[i, 3] := alltrim(aN011[i_n011, 3])
                   AAdd( mm_N012[ i, 3 ], { aN011[ i_n011, 3 ], aN011[ i_n011, 1 ] } )
                 Endif
               Endif
@@ -1289,7 +1219,6 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           Next
         Endif
         is_onko_VMP := .f. ; musl1vmp := musl2vmp := mtipvmp := 0
-        // If m1usl_ok < 3 .and. m1vmp == 1 .and. m1metvmp > 0
         if eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. m1vmp == 1 .and. m1metvmp > 0
           r_use( dir_exe + '_mo_ovmp', cur_dir + '_mo_ovmp',  'OVMP' )
           find ( Str( m1metvmp, 3 ) ) // номер метода ВМП
@@ -1302,26 +1231,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           ovmp->( dbCloseArea() )
         Endif
         //
-        // mm_N014 := {;
-        // {'Первичной опухоли, в т.ч. с удалением регионарных лимфатических узлов', 1}, ;
-        // {'Метастазов', 2}, ;
-        // {'Симптоматическое', 3}, ;
-        // {'Выполнено хирургическое стадирование', 4}, ;
-        // {'Регионарных лимфатических узлов без первичной опухоли', 5}, ;
-        // {'Криохирургия/криотерапия, лазерная деструкция, ...', 6};
-        // }
         mm_N014 := getn014()
-        // mm_N015 := {}
-        // R_Use(dir_exe+ '_mo_N015', , 'N15')
-        // dbeval({|| aadd(mm_N015, {alltrim(n15->tlek_namel), n15->id_tlek_l}) })
         mm_N015 := getn015()
-        // mm_N016 := {}
-        // R_Use(dir_exe+ '_mo_N016', , 'N16')
-        // dbeval({|| aadd(mm_N016, {alltrim(n16->tlek_namev), n16->id_tlek_v}) })
         mm_N016 := getn016()
-        // mm_N017 := {}
-        // R_Use(dir_exe+ '_mo_N017', , 'N17')
-        // dbeval({|| aadd(mm_N017, {alltrim(n17->tluch_name), n17->id_tluch}) })
         mm_N017 := getn017()
         mm_str1 := { '',  'Тип лечения',  'Цикл терапии',  'Тип терапии',  'Тип терапии',  '' }
         lstr1 := Space( 12 )
@@ -1654,7 +1566,6 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
 
         // проведение гистологии или иммуногистохимии
         If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .or. is_VOLGAMEDLAB()
-        // If only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod )
           If Len( mm_N009 ) == 0 .and. Len( mm_N012 ) == 0 .and. m1DS1_T != 5
             If is_gisto
               @ ++j, 3 Say 'Результаты гистологии' Get mrez_gist ;
@@ -1667,8 +1578,6 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
               reader {| x| menu_reader( x, mmb_diag, A__MENUVERT, , , .f. ) }
             @ ++j, 3 Say 'Дата взятия материала' Get mDIAG_DATE ;
               When eq_any( m1b_diag, 97, 98 ) // ;
-              // valid {|| iif( Empty( mDIAG_DATE ) .or. mDIAG_DATE <= mk_data, .t., ;
-              // func_error( 4, 'Дата взятия материала больше даты окончания лечения' ) ) }
             If Len( mm_N009 ) == 0
               @ ++j, 3 Say 'Гистология: не нужно для ' + iif( is_mgi, 'МГИ',  mkod_diag )
             Else
@@ -1720,7 +1629,6 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
 
         // проведение консилиума
         If ! is_VOLGAMEDLAB()
-        // If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
           @ ++j, 3 Say 'Консилиум: дата' Get mDT_CONS ;
             valid {|| iif( Empty( mDT_CONS ) .or. Between( mDT_CONS, mn_data, mk_data ), .t., ;
             func_error( 4, 'Дата консилиума должна быть внутри сроков лечения' ) ) }
@@ -2249,9 +2157,6 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human_2->METVMP := M1METVMP
       human_2->PN5    := m1modpac
       human_2->PN6    := m1NMSE  // направление на МСЭ
-      /*if year(mk_data) == 2017 .and. between(M1METVMP, 498, 499)
-        human_2->PC1 := mstentvmp // кол-во стентов для методов ВМП 498, 499
-      endif*/
       human_2->VNR    := Val( MVNR )
       human_2->VNR1   := Val( MVNR1 )
       human_2->VNR2   := Val( MVNR2 )
@@ -2263,11 +2168,6 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         human_2->PN1 := m1vid_reab
       Endif
       human_2->PN2 := iif( f_oms_beremenn( mkod_diag, MK_DATA ) > 0, m1prer_b, 0 )
-
-      // if year(mk_data)  == 2021 .and. !empty(m1KSLP)  // учет КСЛП
-      // human_2->PC1 := m1KSLP // список КСЛП
-      // endif
-
 
       human_2->PC3 := iif( input_ad_cr, m1ad_cr, '' )
       If is_oncology == 0 // нет онкологии

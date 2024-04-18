@@ -155,6 +155,7 @@ mo_version.prg
 .\onkologiya\onko.prg
 
 .\reports\reports.prg
+.\reports\reports_func.prg
 .\reports\createXLS.prg
 .\reports\hodotajstvoXLS.prg
 .\reports\exportKartExcel.prg
@@ -203,9 +204,12 @@ mo_version.prg
 .\dispanser\mo_r11.prg
 .\dispanser\mo_omsid.prg
 .\dispanser\disp_nab_func.prg
+.\dispanser\oms_dvn_drz.prg
+.\dispanser\oms_dvn_drz_func.prg
 
 .\EXCHANGE\reestrOMS_XML.prg
-.\EXCHANGE\create_schet19_from_XML.prg
+.\EXCHANGE\schet_from_XML.prg
+.\EXCHANGE\rak_XML.prg
 .\EXCHANGE\extract_reestr.prg
 .\EXCHANGE\create_reestr.prg
 .\EXCHANGE\mo_omss.prg

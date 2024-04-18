@@ -23,8 +23,11 @@ CREATE CLASS TSubdivision	INHERIT	TBaseObjectBLL
 								{ 'жидкостная цитология'                ,TIP_LU_G_CIT }, ;  // 12
 								{ 'неотложная медицинская помощь'       ,TIP_LU_NMP }, ;  // 13
 								{ 'COVID углубленная диспансеризация взрослого населения',TIP_LU_DVN_COVID }, ;  // 15
-								{ 'амбулаторная медицинская реабилитация',TIP_LU_MED_REAB } }  // 16
-		
+								{ 'амбулаторная медицинская реабилитация',TIP_LU_MED_REAB }, ;  // 16
+								{ 'постановка на диспансерный учет онкопациетов в поликлинике',TIP_LU_ONKO_DISP }, ;  // 17
+								{ 'диспансеризация репродуктивного здоровья',TIP_LU_DRZ } ; // 18
+							}
+
 		PROPERTY Code READ getCode WRITE setCode							// код
 		PROPERTY Name READ getName WRITE setName							// наименование
 		PROPERTY Name1251 READ getName1251
@@ -82,7 +85,8 @@ CREATE CLASS TSubdivision	INHERIT	TBaseObjectBLL
 								{ 'неотложная медицинская помощь'        ,TIP_LU_NMP 	 }, ;  // 13
 								{ 'COVID углубленная диспансеризация взрослого населения',TIP_LU_DVN_COVID }, ;  // 15
 								{ 'амбулаторная медицинская реабилитация',TIP_LU_MED_REAB }, ;  // 16
-								{ 'постановка на диспансерный учет онкопациетов в поликлинике',TIP_LU_ONKO_DISP } ;  // 17
+								{ 'постановка на диспансерный учет онкопациетов в поликлинике',TIP_LU_ONKO_DISP }, ;  // 17
+								{ 'диспансеризация репродуктивного здоровья',TIP_LU_DRZ } ; // 18
 							}
 										
 		DATA FCode			INIT 0

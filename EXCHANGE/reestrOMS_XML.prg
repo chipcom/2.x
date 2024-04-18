@@ -7,12 +7,10 @@
 
 Static sadiag1  // := {}
 
-// 26.12.23 создание XML-файлов реестра
+// 05.04.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
-
-  //
   Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
   Local arrLP, row
@@ -24,6 +22,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Local flLekPreparat
   Local lReplaceDiagnose := .f.
   Local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
+  local dPUMPver40 := 0d20240301
 
   //
   Close databases
@@ -115,11 +114,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   use_base( 'lusl' )
   use_base( 'luslc' )
   use_base( 'luslf' )
-  // Use_base('human_im')
   r_use( dir_server + 'human_im', dir_server + 'human_im', 'IMPL' )
   r_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR' )
 
-  // laluslf := 'luslf' + iif(_nyear == 2019, '19', '')
   laluslf := create_name_alias( 'luslf', _nyear )
   r_use( dir_server + 'mo_uch', , 'UCH' )
   r_use( dir_server + 'mo_otd', , 'OTD' )
@@ -237,8 +234,10 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   s := '3.11'
   controlVer := _nyear * 100 + _nmonth
   If ( controlVer >= 202201 ) .and. ( p_tip_reestr == 1 ) // с января 2022 года
-    // fl_ver := 32
     s := '3.2'
+  Endif
+  If ( controlVer >= 202403 ) .and. ( p_tip_reestr == 1 ) // с марта 2024 года
+    s := '4.0'
   Endif
   mo_add_xml_stroke( oXmlNode, 'VERSION',s )
   mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( rees->DSCHET ) )
@@ -300,9 +299,11 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
     Select HUMAN
     Goto ( rhum->kod_hum )  // встали на 2-ой лист учёта
     kol_sl := iif( human->ishod == 89, 2, 1 )
+    ksl_date := nil
     For isl := 1 To kol_sl
       If isl == 1 .and. kol_sl == 2
         Select HUMAN_3
+        ksl_date := human_3->K_DATA
         find ( Str( rhum->kod_hum, 7 ) )
         reserveKSG_ID_C := human_3->ID_C
         Select HUMAN
@@ -310,9 +311,10 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
       Endif
       If isl == 2
         Select HUMAN
+        ksl_date := human_3->K_DATA
         Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
       Endif
-      f1_create2reestr19( _nyear, _nmonth )
+      f1_create2reestr19( _nyear, _nmonth ) 
 
       // заполним реестр записями для XML-документа
       If isl == 1
@@ -696,6 +698,11 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         // заполним сведения о КСГ для XML-документа
         oKSG := oSL:add( hxmlnode():new( 'KSG_KPG' ) )
         mo_add_xml_stroke( oKSG, 'N_KSG', lshifr_zak_sl )
+
+        if endDateZK >= dPUMPver40   // дата окончания случая после 01.03.24
+          mo_add_xml_stroke( oKSG, 'K_ZP', '1' )  // пока ставим 1
+        endif
+
         If !Empty( human_2->pc3 ) .and. !Left( human_2->pc3, 1 ) == '6' // кроме 'старости'
           mo_add_xml_stroke( oKSG, 'CRIT', human_2->pc3 )
         Elseif is_oncology  == 2
@@ -803,15 +810,17 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           mo_add_xml_stroke( oONK_SL, 'BSA', lstr( onksl->BSA, 5, 2 ) )
         Endif
         For j := 1 To Len( arr_onkdi )
-          // заполним сведения о диагностических услугах для XML-документа
-          oDIAG := oONK_SL:add( hxmlnode():new( 'B_DIAG' ) )
-          mo_add_xml_stroke( oDIAG, 'DIAG_DATE', date2xml( arr_onkdi[ j, 1 ] ) )
-          mo_add_xml_stroke( oDIAG, 'DIAG_TIP', lstr( arr_onkdi[ j, 2 ] ) )
-          mo_add_xml_stroke( oDIAG, 'DIAG_CODE', lstr( arr_onkdi[ j, 3 ] ) )
-          If arr_onkdi[ j, 4 ] > 0
-            mo_add_xml_stroke( oDIAG, 'DIAG_RSLT', lstr( arr_onkdi[ j, 4 ] ) )
-            mo_add_xml_stroke( oDIAG, 'REC_RSLT', '1' )
-          Endif
+          if ! empty( arr_onkdi[ j, 1 ] ) // только если заполнена дата исследования
+            // заполним сведения о диагностических услугах для XML-документа
+            oDIAG := oONK_SL:add( hxmlnode():new( 'B_DIAG' ) )
+            mo_add_xml_stroke( oDIAG, 'DIAG_DATE', date2xml( arr_onkdi[ j, 1 ] ) )
+            mo_add_xml_stroke( oDIAG, 'DIAG_TIP', lstr( arr_onkdi[ j, 2 ] ) )
+            mo_add_xml_stroke( oDIAG, 'DIAG_CODE', lstr( arr_onkdi[ j, 3 ] ) )
+            If arr_onkdi[ j, 4 ] > 0
+              mo_add_xml_stroke( oDIAG, 'DIAG_RSLT', lstr( arr_onkdi[ j, 4 ] ) )
+              mo_add_xml_stroke( oDIAG, 'REC_RSLT', '1' )
+            Endif
+          endif
         Next j
         For j := 1 To Len( arr_onkpr )
           // заполним сведения о противоказаниях и отказах для XML-документа
@@ -946,6 +955,10 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           If human->ishod != 203 .and. m1veteran == 1
             j := iif( human->RAB_NERAB == 0, 21, 11 )
           Endif
+          ( 'kart' )->( dbGoto( human->kod_k ) )  // для участников СВО
+          if kart->pn1 == 30
+            j := 30
+          endif
           sCOMENTSL := lstr( j )
         Elseif Between( human->ishod, 301, 302 )
           j := iif( Between( m1mesto_prov, 0, 1 ), m1mesto_prov, 0 )
@@ -1384,7 +1397,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Return Nil
 
 
-// 14.02.24 работаем по текущей записи
+// 04.03.24 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1445,7 +1458,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
   find ( Str( human->kod, 7 ) )
   //
   arr_onkdi := {}
-  If eq_any( onksl->b_diag, 98, 99 )
+  If eq_any( onksl->b_diag, 98, 99 ) 
     Select ONKDI
     find ( Str( human->kod, 7 ) )
     Do While onkdi->kod == human->kod .and. !Eof()
@@ -1546,7 +1559,11 @@ Function f1_create2reestr19( _nyear, _nmonth )
           If !Empty( akslp ) .or. !Empty( akiro )
             otd->( dbGoto( human->OTD ) )
             f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
-            tarif_zak_sl := fcena_oms( lshifr, ( human->vzros_reb == 0 ), human->k_data )
+            if isnil( ksl_date )  // это не двойной случай
+              tarif_zak_sl := fcena_oms( lshifr, ( human->vzros_reb == 0 ), human->k_data )
+            else
+              tarif_zak_sl := fcena_oms( lshifr, ( human->vzros_reb == 0 ), ksl_date )
+            endif
           Endif
         Endif
       Else

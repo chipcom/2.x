@@ -3346,6 +3346,8 @@ Function f1nastr_all( nameTask, nTask )
       { "полное наименование", 1 } }
     Private mm_v_methodinj := { { "на русском", 0 }, ;
       { "на английском", 1 } }
+    Private mm_dms := { { "внутренние", 0 }, ;
+      { "ФФОМС", 1 } }
     Delete file tmp.dbf
     Do Case
     Case nTask == 0 .and. tools_ini_oms( 1, 0, 0, .t. ) //  настройка на все задачи
@@ -3737,6 +3739,10 @@ Function f1nastr_all( nameTask, nTask )
         {| x| menu_reader( x, mm_close, A__MENUVERT ) }, ;
         0, {| x| inieditspr( A__MENUVERT, mm_close, x ) }, ;
         'Закрытие листа учета:' } )
+      AAdd( mm_tmp, { "a_dms", "N", 1, 0, NIL, ;
+        {| x| menu_reader( x, mm_dms, A__MENUVERT ) }, ;
+        0, {| x| inieditspr( A__MENUVERT, mm_dms, x ) }, ;
+        'В счет-фактуре ДМС использовать шифры услуг:' } )
       AAdd( mm_tmp, { "kassa", "N", 1, 0, NIL, ;
         {| x| menu_reader( x, mm_kassa, A__MENUVERT ) }, ;
         0, {| x| inieditspr( A__MENUVERT, mm_kassa, x ) }, ;
@@ -3754,6 +3760,7 @@ Function f1nastr_all( nameTask, nTask )
       tmp->a_mfile8  := mem_ort_f8
       tmp->a_close   := glob_close
       tmp->pl_reg    := glob_pl_reg
+      tmp->a_dms     := mem_dms
       tmp->kassa     := glob_kassa
       Close databases
     Case nTask == X_ORTO .and. tools_ini_orto( 1, 0, 0, .t. ) //  Ортопедические услуги в стоматологии
@@ -3915,6 +3922,7 @@ Function f1nastr_all( nameTask, nTask )
         mem_ort_f8  := tmp->a_mfile8
         glob_close  := tmp->a_close
         glob_pl_reg := tmp->pl_reg
+        mem_dms     := tmp->a_dms
         glob_kassa  := tmp->kassa
         tools_ini_platn( 2, 0, 0 )
       Case nTask == X_ORTO
@@ -4282,7 +4290,7 @@ Function nastr_rab_mesto()
     "результат", ;        // 5
     "исход", ;            // 6
     "повод обращения", ;  // 7
-  "способ оплаты" }     // 8
+    "способ оплаты" }     // 8
   ar := getinisect( tmp_ini, group_ini )
   sr := a2default( ar, "sc_reader" )
   If !Empty( sr )
@@ -4295,6 +4303,12 @@ Function nastr_rab_mesto()
     'Устройство чтения смарт-карт (для эл.полиса)', ;
     {|| iif( Empty( m1sc_reader ), .t., f_read_sc_reader() ) }, ;
     {|| hb_user_curUser:isadmin() } } )
+
+  AAdd( mm_tmp, { "open_Excel", "N", 1, 0, NIL, ;
+    {| x| menu_reader( x, arr_NO_YES(), A__MENUVERT ) }, ;
+    1, {| x| inieditspr( A__MENUVERT, arr_NO_YES(), x ) }, ;
+    'При установленном Excel, открывать автоматически' } )
+
   AAdd( mm_tmp, { "base_copy", "N", 1, 0, NIL, ;
     {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
     1, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
@@ -4351,6 +4365,7 @@ Function nastr_rab_mesto()
   Use ( cur_dir + "tmp" ) new
   Append Blank
   tmp->sc_reader := sr
+  tmp->open_Excel := Int( Val( a2default( ar, 'open_Excel', '0' ) ) )
   tmp->base_copy := Int( Val( a2default( ar, "base_copy", "1" ) ) )
   tmp->path_copy := a2default( ar, "path_copy", "" )
   tmp->wdir := iif( Empty( tmp->path_copy ), 0, 1 )
@@ -4371,8 +4386,9 @@ Function nastr_rab_mesto()
       { group_ini, "path_copy",   tmp->path_copy }, ;
       { group_ini, "kart_polis",  tmp->kart_polis }, ;
       { group_ini, "oms_pole",    tmp->oms_pole }, ;
-      { group_ini, "okato_umolch", tmp->_okato };
-      }
+      { group_ini, "okato_umolch", tmp->_okato }, ;
+      { group_ini, "open_Excel", tmp->open_Excel } ;
+    }
     If is_obmen_sds()
       AAdd( mm_tmp, { group_ini, "path1_sds", AllTrim( tmp->path1_sds ) } )
       AAdd( mm_tmp, { group_ini, "path2_sds", AllTrim( tmp->path2_sds ) } )

@@ -156,12 +156,12 @@ function last_digits_year(in_date)
 
   return str(valYear - 2000, 2, 0)
 
-////* 14.02.21
+// 14.02.21
 function notExistsFileNSI(nameFile)
   // nameFile - полное имя файла НСИ
   return func_error('Работа невозможна - файл "' + upper(nameFile) + '" отсутствует.')
 
-////* 17.05.21
+// 17.05.21
 function checkNTXFile( cSource, cDest )
   static arrNTXFile := {}
   local fl := .f.
@@ -186,6 +186,16 @@ function checkNTXFile( cSource, cDest )
   endif
 
   return fl
+
+// 22.03.24
+function cur_dir()
+
+  static dir
+
+  if isnil( dir )
+    dir := chip_CurrPath()
+  endif
+  return dir
 
 // 14.04.23
 function chip_CurrPath()
@@ -216,3 +226,42 @@ function suffixFileTimestamp()
 
   cRet := hb_StrReplace(hb_strShrink(HB_TSTOSTR(hb_DateTime(), .f.), 4 ), ' :', '__')
   return cRet
+
+  function SaveTo( cOldFileFull )
+    local nResult
+    local cDirR, cNameR, cExtR
+    local nameFile
+    local newDir
+  
+    hb_FNameSplit( cOldFileFull, @cDirR, @cNameR, @cExtR )
+    nameFile := cNameR + cExtR
+  
+    newDir := manager( 5, 10, maxrow() - 2, , .t., 2, .f., , , ) // "norton" для выбора каталога
+    if !empty( newDir )
+      if upper( newDir ) == upper( cDirR )
+        func_error(4, 'Выбран каталог, в котором уже записан целевой файл! Это недопустимо.')
+      else
+        if hb_FileExists(cOldFileFull)
+          mywait('Копирование "' + nameFile + '" в каталог "' + newDir + '"' )
+          if hb_FileExists(newDir + nameFile)
+            hb_FileDelete(newDir + nameFile)
+          endif
+          nResult := FRename( (cOldFileFull), ( newDir + nameFile ) )
+          if nResult != 0
+            func_error( 4, "Ошибка создания файла " + newDir + nameFile )
+          else
+            n_message({'В каталоге '+ newDir +' записан файл',;
+              '"' + upper(nameFile) + '".';
+              },,;
+              cColorSt2Msg,cColorStMsg,,,"G+/R")
+          endif
+        endif
+      endif
+    else
+      n_message({'В каталоге '+ cDirR +' записан файл',;
+      '"' + upper(nameFile) + '".';
+      },,;
+      cColorSt2Msg,cColorStMsg,,,"G+/R")
+  endif
+  
+  return iif( empty( newDir ), nil, newDir + nameFile )

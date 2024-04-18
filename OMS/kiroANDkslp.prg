@@ -356,7 +356,7 @@ Function f_cena_kiro( /*@*/_cena, lkiro, dateSl )
 
   Return _akiro
 
-// 30.12.23 определить коэф-т сложности лечения пациента и пересчитать цену
+// 13.03.24 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr_usl, lPROFIL_K, arr_diag, lpar_org, lad_cr)
 
   Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
@@ -391,17 +391,12 @@ Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr
 
     savedKSLP := iif( Empty( HUMAN_2->PC1 ), '"' + '"', '"' + AllTrim( HUMAN_2->PC1 ) + '"' )  // получим сохраненные КСЛП
 
-    // argc := '(' + savedKSLP + ',' + ;
-    // "'" + dtoc(_date_r) + "'," + "'" + dtoc(_n_data) + "'," + ;
-    // lstr(lPROFIL_K) + ',' + "'" + _lshifr + "'," + lstr(lpar_org) + ',' + ;
-    // "'" + arr2SlistN(arr_diag) + "'," + lstr(countDays) + ')'
     argc := '(' + savedKSLP + ',' + ;
       '"' + DToC( _date_r ) + '",' + '"' + DToC( _k_data ) + '",' + ;
       lstr( lPROFIL_K ) + ',' + '"' + _lshifr + '",' + lstr( lpar_org ) + ',' + ;
       '"' + arr2slistn( arr_diag ) + '",' + lstr( countDays ) + ')'
 
     For Each row in getkslptable( _k_data )
-      // nameFunc := 'conditionKSLP_' + alltrim(str(row[1],2)) + '_' + last_digits_year(_n_data)
       nameFunc := 'conditionKSLP_' + AllTrim( Str( row[ 1 ], 2 ) ) + '_' + last_digits_year( _k_data )
       nameFunc := namefunc + argc
 
@@ -419,15 +414,12 @@ Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr
 
       If Year( _k_data ) == 2021
         _cena := round_5( _cena * ret_koef_kslp_21( _akslp, Year( _k_data ) ), 0 )  // с 2019 года цена округляется до рублей
-      Elseif Year( _k_data ) == 2022
-        // на 2022 базовая ставка стационарного случая 24322,6 руб
-        // на 2022 базовая ставка для случая дневного стационара 13915,7 руб
+      Elseif Year( _k_data ) >= 2022
         _cena := round_5( _cena + baserate( _k_data, human_->USL_OK ) * ret_koef_kslp_21( _akslp, Year( _k_data ) ), 0 )
-      Elseif Year( _k_data ) == 2023  // сообщил Мызгин 01.02.23
-        // на 2023 после 01.10.2023 базовая ставка стационарного случая 29995.8 руб
-        // на 2023 до 01.10.2023 базовая ставка стационарного случая 25986,7 руб
-        // на 2023 базовая ставка для случая дневного стационара 15029,1 руб
-        _cena := round_5( _cena + baserate( _k_data, human_->USL_OK ) * ret_koef_kslp_21( _akslp, Year( _k_data ) ), 0 )
+//      Elseif Year( _k_data ) == 2023  // сообщил Мызгин 01.02.23
+//        _cena := round_5( _cena + baserate( _k_data, human_->USL_OK ) * ret_koef_kslp_21( _akslp, Year( _k_data ) ), 0 )
+//      Elseif Year( _k_data ) == 2024
+//        _cena := round_5( _cena + baserate( _k_data, human_->USL_OK ) * ret_koef_kslp_21( _akslp, Year( _k_data ) ), 0 )
       Endif
 
       If Year( _k_data ) >= 2021
@@ -485,9 +477,9 @@ Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr
       Else // остальные КСГ
         s_kslp := { ;
           { 1, 1.10, 0,  0 }, ;  // до 1 года
-        { 2, 1.10, 1,  3 }, ;  // от 1 до 3 лет включительно
-        { 4, 1.02, 75, 999 }, ;  // 75 и старше
-        { 5, 1.10, 60, 999 } ;   // 60 и старше и астения
+          { 2, 1.10, 1,  3 }, ;  // от 1 до 3 лет включительно
+          { 4, 1.02, 75, 999 }, ;  // 75 и старше
+          { 5, 1.10, 60, 999 } ;   // 60 и старше и астения
         }
         count_ymd( _date_r, _n_data, @y )
         lkslp := list2arr( lkslp )
@@ -565,9 +557,9 @@ Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr
       Else // остальные КСГ
         s_kslp := { ;
           { 1, 1.10, 0,  0 }, ;  // до 1 года
-        { 2, 1.10, 1,  3 }, ;  // от 1 до 3 лет включительно
-        { 4, 1.05, 75, 999 }, ;  // 75 и старше
-        { 5, 1.10, 60, 999 } ;   // 60 и старше и астения
+          { 2, 1.10, 1,  3 }, ;  // от 1 до 3 лет включительно
+          { 4, 1.05, 75, 999 }, ;  // 75 и старше
+          { 5, 1.10, 60, 999 } ;   // 60 и старше и астения
         }
         count_ymd( _date_r, _n_data, @y )
         lkslp := list2arr( lkslp )
