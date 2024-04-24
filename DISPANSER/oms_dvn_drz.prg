@@ -5,10 +5,10 @@
 #include 'chip_mo.ch'
 
 #define BASE_ISHOD_RZD 500  // ВРЕМЕННО
-#define DGZ 'U09.9 '  // ВРЕМЕННО
-#define FIRST_LETTER 'U'  // ВРЕМЕННО
+#define DGZ 'Z00.8 '  // ВРЕМЕННО
+#define FIRST_LETTER 'Z'  // ВРЕМЕННО
 
-// 09.04.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 24.04.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -608,7 +608,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         When m1komu < 5 ;
         valid {| g | func_valid_ismo( g, m1komu, 38 ) }
       //
-      j++
+//      j++
       @ ++j, 1 Say 'Сроки' Get mn_data ;
         valid {| g | f_k_data( g, 1 ), f_valid_begdata_drz( g, Loc_kod ), ;
         iif( ( mvozrast < 18 .or. mvozrast > 49 ), func_error( 4, 'Пациент не подлежит данному виду диспансеризации!' ), nil ), ;
@@ -622,7 +622,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
 
       ret_ndisp_drz( Loc_kod, kod_kartotek )
-      j++
+//      j++
       @ ++j, 8 Get mndisp When .f. Color color14  // заголовок
 
       if ! ( metap == 1 .and. nGender == 'М' )  // на I этапе для мужин исследований нет
