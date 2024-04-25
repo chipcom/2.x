@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  // ВРЕМЕННО
 #define FIRST_LETTER 'Z'  // ВРЕМЕННО
 
-// 24.04.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 25.04.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -30,6 +30,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   local str_1, hS, wS
   local nAge, nGender
   local lUziMatkiAbdomin := .f., lUziMatkiTransvag := .f., lAllneNazn := .t.
+  local lCitIsl := .f., lGidCitIsl := .f.
   local uslugi_etapa, fl_shapka_osmotr := .f.
   local fl_diag
   local arr_usl_dop := {}
@@ -816,6 +817,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       lAllneNazn := .t.
       lUziMatkiAbdomin := .f.
       lUziMatkiTransvag := .f.
+      lCitIsl := .f.
+      lGidCitIsl := .f.
 //      For i := 1 To lenArr_Uslugi_DRZ
       For i := 1 To len( view_uslugi )  //   lenArr_Uslugi_DRZ
 //        fl_diag := .f.
@@ -828,6 +831,14 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         mvaro := 'M1OTKAZ' + lstr( i )
 //        ar := uslugi_etapa[ i ]
         ar := view_uslugi[ i ]
+
+        // Цитологические исследования
+        if nGender == 'Ж' .and. ar[ 2 ] == 'A08.20.017' .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка цитологического исследования
+          lCitIsl := .t.
+        endif
+        if nGender == 'Ж' .and. ar[ 2 ] == 'A08.20.017.002' .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка жидкостного цитологического исследования
+          lGidCitIsl := .t.
+        endif
 
         // УЗИ малого таза услуга 70.9.52
         if nGender == 'Ж' .and. ar[ 2 ] == 'A04.20.001' .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка абдоминального УЗИ
@@ -863,8 +874,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           fl := func_error( 4, 'Не введена дата услуги "' + LTrim( ar[ 1 ] ) + '"' )
         elseif ( lUziMatkiTransvag .and. lUziMatkiAbdomin )
           fl := func_error( 4, 'Нельзя применять одновременно услуги УЗИ (трансабдоминальное и трансвагинальное)' )
+        elseif ( lCitIsl .and. lGidCitIsl )
+          fl := func_error( 4, 'Нельзя применять одновременно услуги цитологии и жидкостной цитологии' )
         elseif Empty( &mvart ) .and. &mvaro != 4
-          fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
+          if ! eq_any( LTrim( ar[ 2 ] ), 'A08.20.017', 'A08.20.017.002' )
+            fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
+          endif
         Else  // табельный номер врача и его специальность
          If ! Empty( &mvart ) // табельный номер врача
            Select P2
@@ -1072,12 +1087,15 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.057.001', 5 )
           endif
           change_field_arr_osm1( indSource, indDest )
-        else
+        else  // женщины
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.1', 5)  // возраст 18-29 лет
           if indSource == 0
             indSource := index_usluga_etap_drz( arr_osm1, '70.9.2', 5)  // возраст 30-49 лет
           endif
           indDest := index_usluga_etap_drz( arr_osm1, 'B01.001.001', 5 )
+          change_field_arr_osm1( indSource, indDest )
+          indSource := index_usluga_etap_drz( arr_osm1, 'A08.20.017', 5)  // цитологическое исследование
+          indDest := index_usluga_etap_drz( arr_osm1, 'A08.20.017.001', 5 )
           change_field_arr_osm1( indSource, indDest )
         endif
       elseif metap == 2
@@ -1103,13 +1121,16 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           change_field_arr_osm1( indSource, indDest )
           indDest := index_usluga_etap_drz( arr_osm1, 'A04.21.001', 5 )
           change_field_arr_osm1( indSource, indDest )
-        else
+        else  // женщины
           if lUziMatkiAbdomin
             indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001', 5) // УЗИ матки трансабдоминальное
           else
             indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001.001', 5) // УЗИ матки трансвагинальное
           endif
           indDest := index_usluga_etap_drz( arr_osm1, '70.9.52', 5 )
+          change_field_arr_osm1( indSource, indDest )
+          indSource := index_usluga_etap_drz( arr_osm1, '70.90.58', 5) // вирус папиломы человека
+          indDest := index_usluga_etap_drz( arr_osm1, 'A26.20.009.002', 5 )
           change_field_arr_osm1( indSource, indDest )
         endif
       endif
