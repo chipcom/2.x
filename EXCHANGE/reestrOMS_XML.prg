@@ -7,7 +7,7 @@
 
 Static sadiag1  // := {}
 
-// 05.04.24 создание XML-файлов реестра
+// 03.05.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -265,6 +265,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
     fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
     lshifr_zak_sl := lvidpoms := cSMOname := ''
     a_usl := {}
+    a_usl_name := {}
     a_fusl := {}
     lvidpom := 1
     lfor_pom := 3
@@ -501,6 +502,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           If lTypeLUOnkoDisp
             s := '1.3'
           Endif
+          if ( ascan( a_usl_name, '2.80.67' ) > 0 ) .or. ( ascan( a_usl_name, '2.88.14' ) > 0 )
+            s := '1.0'
+          endif
           mo_add_xml_stroke( oSL, 'P_CEL', s )
         Endif
       Endif
@@ -1397,7 +1401,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Return Nil
 
 
-// 04.03.24 работаем по текущей записи
+// 03.05.24 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1405,6 +1409,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
   fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
   lshifr_zak_sl := lvidpoms := ''
   a_usl := {} ; a_fusl := {} ; lvidpom := 1 ; lfor_pom := 3
+  a_usl_name := {}
   atmpusl := {} ; akslp := {} ; akiro := {} ; tarif_zak_sl := human->cena_1
   kol_kd := 0
   is_KSG := is_mgi := .f.
@@ -1568,6 +1573,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
         Endif
       Else
         AAdd( a_usl, hu->( RecNo() ) )
+        AAdd( a_usl_name, lshifr )
       Endif
     Endif
     Select HU
