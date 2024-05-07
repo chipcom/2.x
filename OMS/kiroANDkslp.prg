@@ -618,7 +618,7 @@ Function ret_koef_kslp( akslp )
 
   Return k
 
-// 01.02.23 вернуть итоговый КСЛП для 21 года
+// 03.05.24 вернуть итоговый КСЛП для 21 года
 Function ret_koef_kslp_21( akslp, nYear )
 
   Local k := 1  // КСЛП равен 1
@@ -630,7 +630,7 @@ Function ret_koef_kslp_21( akslp, nYear )
         If i == 1
           k := akslp[ 2 ]
         Else
-          k += ( akslp[ i + 1 ] -1 )
+          k += ( akslp[ i + 1 ] - 1 )
         Endif
       Next
       If k > 1.8
@@ -642,8 +642,8 @@ Function ret_koef_kslp_21( akslp, nYear )
       For i := 1 To Len( akslp ) Step 2
         If i == 1 // возможно только одно КСЛП
           k += akslp[ 2 ]
-          // else
-          // k += akslp[i + 1]
+        else
+          k += akslp[i + 1]
         Endif
       Next
     Endif
