@@ -252,12 +252,25 @@ Function fspr_uslugi( k )
 
   Return Nil
 
-// 26.05.23
+// 07.05.24
 Function f4_uslugi( reg )
 
   Local i, s := 'Список услуг ', mas[ 2 ], buf := save_maxrow(), ;
     n_file := cur_dir + 'uslugi' + stxt, sh := 80, HH := 60, l, k, j, lshifr, lshifr1, lname
+  Local lExcel := .f., iOutput
+  Local name_fileXLS := 'Price_list_' + suffixfiletimestamp()
+  Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
+  local workbook, worksheet
+
   Local tmpAlias
+
+  // определим направление вывода отчета
+//  if ( iOutput := type_output( T_ROW, T_COL - 5, 1 ) ) == 0
+//    RestScreen( buf )
+//    Return Nil
+//  else
+//    lExcel := iif( iOutput == 2, .t., .f. )
+//  Endif
 
   If ( j := f_alert( { 'Необходим вывод списка отделений,', ;
       'в которых разрешается ввод услуги?', ;
@@ -275,15 +288,33 @@ Function f4_uslugi( reg )
   Case reg == 3
     s += 'с ценами по ДМС'
   Endcase
-  fp := FCreate( n_file )
-  n_list := 1
-  tek_stroke := 0
+  if lExcel
+//    workbook  := workbook_new( name_fileXLS_full )
+//    worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
+//    worksheet_set_column( wsCommon, 8, 8, 15, nil )
+  else
+    dbcreate( cur_dir + 'pl_uslugi', { ;
+      { "shifr",       "C",     20,      0 }, ;  
+      { "shifr_TF",    "C",     20,      0 }, ;   
+      { "name",        "C",     80,      0 }, ;  
+      { "full_name",   "C",    200,      0 }, ;  
+      { "cena",        "N",     12,      2 }, ;  
+      { "cena_d",      "N",     12,      2 }, ;  
+      { "cena_DMS",    "N",     12,      2 }, ;  
+      { "NDS",         "N",      2,      0 }, ;  
+      { "NDS_d",       "N",      2,      0 } ;  
+    })
+    use ( cur_dir + 'pl_uslugi' ) new
+    fp := FCreate( n_file )
+    n_list := 1
+    tek_stroke := 0
+  endif
   add_string( '' )
   add_string( Center( s, sh ) )
   add_string( '' )
   If mem_trudoem == 2
     Private arr_title := { Space( sh -15 ) + 'УЕТ ' + iif( is_oplata == 7, 'вр.', 'взр' ) + '│УЕТ ' + iif( is_oplata == 7, 'асс', 'дет' ), ;
-      Space( sh -15 ) + '───────┴───────' }
+      Space( sh - 15 ) + '───────┴───────' }
     AEval( arr_title, {| x| add_string( x ) } )
     useuch_usl()
     l := sh -16
@@ -301,6 +332,7 @@ Function f4_uslugi( reg )
   Do While !Eof()
     lshifr := ''
     If !Empty( usl->shifr )
+  
       s := usl->shifr
       lname := AllTrim( usl->name )
       lshifr += AllTrim( usl->shifr )
@@ -310,9 +342,6 @@ Function f4_uslugi( reg )
         lshifr += '(' + AllTrim( lshifr1 ) + ')'
       Endif
       lshifr += '.'
-      // if usl->zf == 1
-      // lshifr += " [ЗФ] "
-      // endif
       s := f42_uslugi( reg, s )
       If !Empty( s )
         If mem_trudoem == 2
@@ -323,24 +352,22 @@ Function f4_uslugi( reg )
           verify_ff( HH, .t., sh )
         Endif
         If Empty( lshifr1 ) .or. lshifr1 == usl->shifr
+          pl_uslugi->(dbappend())
+          pl_uslugi->shifr       := AllTrim( usl->shifr ) 
+          pl_uslugi->full_name   := AllTrim( usl->full_name )
+          pl_uslugi->name        := AllTrim( usl->name )
+          pl_uslugi->shifr_TF    := lshifr1   
+          pl_uslugi->cena        := usl->pcena  
+          pl_uslugi->cena_d      := usl->pcena_d  
+          pl_uslugi->cena_DMS    := usl->dms_cena
+          pl_uslugi->NDS         := usl->pnds 
+          pl_uslugi->NDS_D       := usl->pnds_d 
+            //
           Select LUSL
           find ( usl->shifr )
           If Found()
             lname := AllTrim( lusl->name )
           Endif
-          // else
-          // select LUSL19
-          // find (usl->shifr)
-          // if found()
-          // lname := alltrim(lusl19->name)
-          // else
-          // select LUSL18
-          // find (usl->shifr)
-          // if found()
-          // lname := alltrim(lusl18->name)
-          // endif
-          // endif
-          // endif
         Endif
         k := perenos( mas, lshifr + lname + ' [' + s + ']', l, ' , ;' )
         s := PadR( mas[ 1 ], l )
@@ -376,10 +403,17 @@ Function f4_uslugi( reg )
     Skip
   Enddo
   Close databases
-  FClose( fp )
-  viewtext( n_file, , , , , , , 2 )
-
+  If lExcel
+//    workbook_close( workbook )
+//    work_with_Excel_file( name_fileXLS_full )
+  else
+    FClose( fp )
+    viewtext( n_file, , , , , , , 2 )
+    //
+    n_message( { 'Создан файл для загрузки в Excel: ' + 'pl_uslugi' }, , cColorStMsg, cColorStMsg, , , cColorSt2Msg)
+  Endif
   Return Nil
+
 
 //
 Function f42_uslugi( reg, _shifr )
