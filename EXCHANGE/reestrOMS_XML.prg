@@ -7,7 +7,7 @@
 
 Static sadiag1  // := {}
 
-// 03.05.24 создание XML-файлов реестра
+// 07.05.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -960,7 +960,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             j := iif( human->RAB_NERAB == 0, 21, 11 )
           Endif
           ( 'kart' )->( dbGoto( human->kod_k ) )  // для участников СВО
-          if kart->pn1 == 30
+          if kart->pn1 == 30 .and. eq_any( hb_main_curOrg:Kod_Tfoms, '101201', '451001', '391002')
             j := 30
           endif
           sCOMENTSL := lstr( j )
