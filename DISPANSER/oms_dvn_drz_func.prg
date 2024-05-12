@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  // ВРЕМЕННО
 
-// 17.04.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 11.05.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz()
 
   Local arr_m, buf := save_maxrow()
@@ -40,37 +40,39 @@ Function inf_drz()
         kart->( dbGoto( human->kod_k ) )
         lCity := f_is_selo( kart_->gorod_selo, kart_->okatog )
         if human->pol == 'М'
-          if human_->RSLT_NEW == 317
+          if human_->RSLT_NEW == 375
             arr[ 1, 1 ]++
             if ! lCity
               arr[ 2, 1 ]++
             endif
-            elseif human_->RSLT_NEW == 318
+            elseif human_->RSLT_NEW == 376
             arr[ 1, 2 ]++
             if ! lCity
               arr[ 2, 2 ]++
             endif
-          elseif human_->RSLT_NEW == 355 .or. human_->RSLT_NEW == 356
+          elseif human_->RSLT_NEW == 377
             arr[ 1, 3 ]++
             if ! lCity
               arr[ 2, 3 ]++
             endif
-          elseif human_->RSLT_NEW == 352 .or. human_->RSLT_NEW == 353 .or. human_->RSLT_NEW == 357 .or. human_->RSLT_NEW == 358
+//          elseif human_->RSLT_NEW == 352 .or. human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
+          elseif human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
             arr[ 1, 4 ]++
             if ! lCity
               arr[ 2, 4 ]++
             endif
-            if human_->RSLT_NEW == 352
-              arr[ 1, 1 ]++
-              if ! lCity
-                arr[ 2, 1 ]++
-              endif
-            elseif human_->RSLT_NEW == 353
+//            if human_->RSLT_NEW == 352
+//              arr[ 1, 1 ]++
+//              if ! lCity
+//                arr[ 2, 1 ]++
+//              endif
+            // elseif human_->RSLT_NEW == 378
+            if human_->RSLT_NEW == 378
               arr[ 1, 2 ]++
               if ! lCity
                 arr[ 2, 2 ]++
               endif
-            elseif human_->RSLT_NEW == 357 .or. human_->RSLT_NEW == 358
+            elseif human_->RSLT_NEW == 379
               arr[ 1, 3 ]++
               if ! lCity
                 arr[ 2, 3 ]++
@@ -79,37 +81,39 @@ Function inf_drz()
           endif
         else  // женщины
           read_arr_drz( human->kod, .t. )      
-          if human_->RSLT_NEW == 317
+          if human_->RSLT_NEW == 375
             arr[ 3, 1 ]++
             if ! lCity
               arr[ 4, 1 ]++
             endif
-          elseif human_->RSLT_NEW == 318
+          elseif human_->RSLT_NEW == 376
             arr[ 3, 2 ]++
             if ! lCity
               arr[ 4, 2 ]++
             endif
-          elseif human_->RSLT_NEW == 355 .or. human_->RSLT_NEW == 356
+          elseif human_->RSLT_NEW == 377
             arr[ 3, 3 ]++
             if ! lCity
               arr[ 4, 3 ]++
             endif
-          elseif human_->RSLT_NEW == 352 .or. human_->RSLT_NEW == 353 .or. human_->RSLT_NEW == 357 .or. human_->RSLT_NEW == 358
+//          elseif human_->RSLT_NEW == 352 .or. human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
+          elseif human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
             arr[ 3, 4 ]++
             if ! lCity
               arr[ 4, 4 ]++
             endif
-            if human_->RSLT_NEW == 352
-              arr[ 3, 1 ]++
-              if ! lCity
-                arr[ 4, 1 ]++
-              endif
-            elseif human_->RSLT_NEW == 353
+//            if human_->RSLT_NEW == 352
+//              arr[ 3, 1 ]++
+//              if ! lCity
+//                arr[ 4, 1 ]++
+//              endif
+            // elseif human_->RSLT_NEW == 378
+            if human_->RSLT_NEW == 378
               arr[ 3, 2 ]++
               if ! lCity
                 arr[ 4, 2 ]++
               endif
-            elseif human_->RSLT_NEW == 357 .or. human_->RSLT_NEW == 358
+            elseif human_->RSLT_NEW == 379
               arr[ 3, 3 ]++
               if ! lCity
                 arr[ 4, 3 ]++
@@ -227,7 +231,7 @@ Function ret_profil_dispans_drz( lprofil, lprvs )
 
   Return lprofil
 
-// 29.03.24
+// 10.05.24
 Function ret_ndisp_drz( lkod_h, lkod_k )
 
   Local fl := .t., msg
@@ -238,7 +242,7 @@ Function ret_ndisp_drz( lkod_h, lkod_k )
   If ( Len( ar[ 1 ] ) == 0 ) .and. ( lkod_h == 0 )
     metap := 1
   Elseif  ( Len( ar[ 1 ] ) == 1 ) .and. ( lkod_h == 0 )
-    If ! eq_any( ar[ 1, 1, 3 ], 352, 353, 357, 358 )
+    If ! eq_any( ar[ 1, 1, 3 ], 378, 379 )
       msg := 'В ' + lstr( Year( mn_data ) ) + ' году проведен I этап диспансеризации репродуктивного здоровья без направления на II этап!'
       hb_Alert( msg )
       fl := .f.
@@ -312,7 +316,7 @@ Function valid_date_uslugi_drz( get, metap, beginDate, endDate, lenArr, i )
   If ( metap == 1 .and. Upper( get:name ) == 'MDATE8' ) .or. ( metap == 2 .and. Upper( get:name ) == 'MDATE4' ) // дата приема
     If CToD( get:buffer ) != endDate
       get:varput( get:original )
-      func_error( 4, 'Дата проведения осмотра врача не равна дате окончания углубленной диспансеризации' )
+      func_error( 4, 'Дата проведения осмотра врача не равна дате окончания диспансеризации репрод. здоровья' )
       Return .f.
     Endif
   Endif

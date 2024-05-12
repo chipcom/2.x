@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  // ВРЕМЕННО
 #define FIRST_LETTER 'Z'  // ВРЕМЕННО
 
-// 25.04.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 11.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -39,17 +39,33 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   local i_otkaz   // возможность отказа от услуги (0 - нет, 1 - да)
   local view_uslugi
   local mdef_diagnoz
+  local mm_gruppa
+  local mm_gruppaD1 := { ;
+    { 'Проведена диспансеризация - присвоена I группа репродуктивного здоровья', 1, 375 }, ;
+    { 'Проведена диспансеризация - присвоена II группа репродуктивного здоровья', 2, 376 }, ;
+    { 'Проведена диспансеризация - присвоена III группа репродуктивного здоровья', 3, 377 }, ;
+    { 'Направлен на II этап, предварительно присвоена II группа репродуктивного здоровья', 11, 378 }, ;
+    { 'Направлен на II этап, предварительно присвоена III группа репродуктивного здоровья', 12, 379 } ;
+  }
+//    { 'Проведена диспансеризация - присвоена I группа здоровья'   , 1, 317 }, ;
+//    { 'Проведена диспансеризация - присвоена II группа здоровья'  , 2, 318 }, ;
+//    { 'Проведена диспансеризация - присвоена IIIа группа здоровья', 3, 355 }, ;
+//    { 'Проведена диспансеризация - присвоена IIIб группа здоровья', 4, 356 }, ;
+//    { 'Направлен на 2 этап, предварительно присвоена I группа здоровья'   , 11, 352 }, ;
+//    { 'Направлен на 2 этап, предварительно присвоена II группа здоровья'  , 12, 353 }, ;
+//    { 'Направлен на 2 этап, предварительно присвоена IIIа группа здоровья', 13, 357 }, ;
+//    { 'Направлен на 2 этап, предварительно присвоена IIIб группа здоровья', 14, 358 } ;
+  local mm_gruppaD2 := asize( aclone( mm_gruppaD1 ), 3 )  // для II этапа уменьшим число эл-тов списка
+//  asize( mm_gruppaD2, 4 )
+
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default loc_kod TO 0, kod_kartotek TO 0
   //
+  //  Private mm_gruppa
+  //  Private mm_gruppaP := arr_mm_gruppaP()
   private arr_ne_nazn := {}
   Private ps1dispans := s1dispans, is_prazdnik
-
-// вроде здесь не нужно
-//  if isnil( sadiag1 )
-//    sadiag1 := load_diagnoze_disp_nabl_from_file()
-//  endif
 
   Private mfio := space( 50 ), mpol, mdate_r, mvozrast, ;
     M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
@@ -85,12 +101,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     m1PROFIL := 97, ; // 97-терапия,57-общая врач.практика (семейн.мед-а),42-лечебное дело
     mcena_1 := 0
 
-  private ; // пока такие, заменить после обновления справочника V009
-    m1rslt  := 317, ; // результат (присвоена I группа здоровья)
-    m1ishod := 306 // исход = осмотр
-//    m1IDSP   := 11, ; // доп.диспансеризация
+  private ; // 
+    m1ishod := 306, ;  // исход = осмотр
+    m1rslt  := 375     // результат (присвоена I группа здоровья репродуктивного здоровья) справочник V009
 //
-  Private arr_otklon := {}, m1p_otk := 0
+  Private arr_otklon := {}
+  Private m1p_otk := 0
   Private metap := 1,;  // 1-первый этап, 2-второй этап (по умолчанию 1 этап)
     mnapr_onk := space( 10 ), m1napr_onk := 0, ;
     mgruppa, m1gruppa := 1      // группа здоровья
@@ -102,24 +118,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
                         { 'Диспансеризация репродуктивного здоровья I этап', 1 }, ;
                         { 'Диспансеризация репродуктивного здоровья II этап', 2 } ;
                       }
-
-  Private mm_gruppa //, mm_ndisp1
-
-//  mm_ndisp1 := aclone( mm_ndisp )
-
-  Private mm_gruppaP := arr_mm_gruppaP()
-  Private mm_gruppaD1 := { ;
-    { 'Проведена диспансеризация - присвоена I группа здоровья'   , 1, 317 }, ;
-    { 'Проведена диспансеризация - присвоена II группа здоровья'  , 2, 318 }, ;
-    { 'Проведена диспансеризация - присвоена IIIа группа здоровья', 3, 355 }, ;
-    { 'Проведена диспансеризация - присвоена IIIб группа здоровья', 4, 356 }, ;
-    { 'Направлен на 2 этап, предварительно присвоена I группа здоровья'   , 11, 352 }, ;
-    { 'Направлен на 2 этап, предварительно присвоена II группа здоровья'  , 12, 353 }, ;
-    { 'Направлен на 2 этап, предварительно присвоена IIIа группа здоровья', 13, 357 }, ;
-    { 'Направлен на 2 этап, предварительно присвоена IIIб группа здоровья', 14, 358 } ;
-  }
-  Private mm_gruppaD2 := aclone( mm_gruppaD1 )
-  asize( mm_gruppaD2, 4 )
 
   Private mm_pervich := arr_mm_pervich()
   Private mm_dispans := arr_mm_dispans()
@@ -392,9 +390,9 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     //
     R_Use(dir_server + 'mo_pers', , 'P2' )
     read_arr_drz( Loc_kod, .t. )     // читаем сохраненные данные по углубленной диспансеризации
-    if metap == 1 .and. between( m1GRUPPA, 11, 14) .and. m1p_otk == 1
-      m1GRUPPA += 10
-    endif
+//    if metap == 1 .and. between( m1GRUPPA, 11, 12) .and. m1p_otk == 1
+//      m1GRUPPA += 10
+//    endif
 
     view_uslugi := uslugi_to_view( uslugi_etapa )
 
@@ -489,7 +487,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
   endif
 
-  if loc_kod == 0 .and. eq_any( lrslt_1_etap, 352, 353, 357, 358 )
+  if loc_kod == 0 .and. eq_any( lrslt_1_etap, 378, 379 )
     metap := 2
     uslugi_etapa := uslugietap_drz( metap, nAge, nGender )  // получим услуги этапа
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
@@ -785,10 +783,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         fl_shapka_osmotr := .f.
         Loop
       Endif
-      If eq_any( m1gruppa, 3, 4, 13, 14 ) .and. ( m1dopo_na == 0 ) .and. ( m1napr_v_mo == 0 ) .and. ( m1napr_stac == 0 ) .and. ( m1napr_reab == 0 )
-        func_error( 4, 'Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!' )
-        Loop
-      Endif
+//      If eq_any( m1gruppa, 2, 3, 11, 12 ) .and. ( m1dopo_na == 0 ) .and. ( m1napr_v_mo == 0 ) .and. ( m1napr_stac == 0 ) .and. ( m1napr_reab == 0 )
+//        func_error( 4, 'Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!' )
+//        Loop
+//      Endif
       If ! checktabnumberdoctor( mk_data, .t. )
         Loop
       Endif
@@ -876,8 +874,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           fl := func_error( 4, 'Нельзя применять одновременно услуги УЗИ (трансабдоминальное и трансвагинальное)' )
         elseif ( lCitIsl .and. lGidCitIsl )
           fl := func_error( 4, 'Нельзя применять одновременно услуги цитологии и жидкостной цитологии' )
+        elseif Empty( &mvart ) .and. ;
+          ( LTrim( ar[ 2 ] ) == 'A04.20.001' .and. ! lUziMatkiTransvag ) .or. ;
+          ( LTrim( ar[ 2 ] ) == 'A04.20.001.001' .and. ! lUziMatkiAbdomin ) 
+          fl := func_error( 4, 'Не введен врач в услуге УЗИ малого таза' )
         elseif Empty( &mvart ) .and. &mvaro != 4
-          if ! eq_any( LTrim( ar[ 2 ] ), 'A08.20.017', 'A08.20.017.002' )
+          if ! eq_any( LTrim( ar[ 2 ] ), 'A08.20.017', 'A08.20.017.002', 'A04.20.001', 'A04.20.001.001' )
             fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
           endif
         Else  // табельный номер врача и его специальность
@@ -1025,22 +1027,19 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         Endif
       Endif
 
-//      If  m1strong != 5  // Письмо ТФОМС 09-30-370 от 03.12.21
-//        AAdd( arr_diag, { mdef_diagnoz, 0, 0, CToD( '' ) } ) // всегда добавляем в лист учета
-//      Endif
-
       mm_gruppa := { mm_gruppaD1, mm_gruppaD2 }[ metap ]
 
-      m1p_otk := 0
+//      m1p_otk := 0
       If ( i := AScan( mm_gruppa, {| x | x[ 2 ] == m1GRUPPA } ) ) > 0
-        If ( m1rslt := mm_gruppa[ i, 3 ] ) == 352
-          m1rslt := 353 // по письму ТФОМС от 06.07.18 №09-30-96
-        Endif
+        m1rslt := mm_gruppa[ i, 3 ]
+//        If ( m1rslt := mm_gruppa[ i, 3 ] ) == 352
+//          m1rslt := 353 // по письму ТФОМС от 06.07.18 №09-30-96
+//        Endif
         If eq_any( m1GRUPPA, 11, 21 )
           m1GRUPPA++ // по письму ТФОМС от 06.07.18 №09 -30 -96
         Endif
         If m1GRUPPA > 20
-          m1p_otk := 1 // отказ от прихода на 2-й этап
+//          m1p_otk := 1 // отказ от прихода на 2-й этап
         Endif
       Else
         func_error( 4, 'Не введена ГРУППА состояния ЗДОРОВЬЯ' )
@@ -1095,8 +1094,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           indDest := index_usluga_etap_drz( arr_osm1, 'B01.001.001', 5 )
           change_field_arr_osm1( indSource, indDest )
           indSource := index_usluga_etap_drz( arr_osm1, 'A08.20.017', 5)  // цитологическое исследование
-          indDest := index_usluga_etap_drz( arr_osm1, 'A08.20.017.001', 5 )
-          change_field_arr_osm1( indSource, indDest )
+          if indSource != 0
+            indDest := index_usluga_etap_drz( arr_osm1, 'A08.20.017.001', 5 )
+            change_field_arr_osm1( indSource, indDest )
+          endif
         endif
       elseif metap == 2
         if nGender == 'М' // мужчины
@@ -1127,11 +1128,15 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           else
             indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001.001', 5) // УЗИ матки трансвагинальное
           endif
-          indDest := index_usluga_etap_drz( arr_osm1, '70.9.52', 5 )
-          change_field_arr_osm1( indSource, indDest )
+          if indSource != 0
+            indDest := index_usluga_etap_drz( arr_osm1, '70.9.52', 5 )
+            change_field_arr_osm1( indSource, indDest )
+          endif
           indSource := index_usluga_etap_drz( arr_osm1, '70.90.58', 5) // вирус папиломы человека
-          indDest := index_usluga_etap_drz( arr_osm1, 'A26.20.009.002', 5 )
-          change_field_arr_osm1( indSource, indDest )
+          if indSource != 0
+            indDest := index_usluga_etap_drz( arr_osm1, 'A26.20.009.002', 5 )
+            change_field_arr_osm1( indSource, indDest )
+          endif
         endif
       endif
       use_base( 'lusl' )
@@ -1330,7 +1335,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       i1 := Len( arr_usl )
-
       r_use( dir_server + 'mo_su',, 'MOSU' )
       use_base( 'mo_hu' )
       use_base( 'human_u' )
