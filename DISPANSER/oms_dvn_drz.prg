@@ -5,10 +5,10 @@
 #include 'chip_mo.ch'
 
 #define BASE_ISHOD_RZD 500  // ВРЕМЕННО
-#define DGZ 'Z00.8 '  // ВРЕМЕННО
-#define FIRST_LETTER 'Z'  // ВРЕМЕННО
+#define DGZ 'Z00.8 '  //
+#define FIRST_LETTER 'Z'  //
 
-// 11.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 14.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1079,7 +1079,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
       if metap == 1
         if nGender == 'М' // мужчины
-          indSource := index_usluga_etap_drz( arr_osm1, '70.9.3', 5)
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.20', 5)
           if arr_osm1[ indSource, 14 ] == 84
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.053.001', 5 )
           else
@@ -1087,9 +1087,15 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           endif
           change_field_arr_osm1( indSource, indDest )
         else  // женщины
-          indSource := index_usluga_etap_drz( arr_osm1, '70.9.1', 5)  // возраст 18-29 лет
-          if indSource == 0
-            indSource := index_usluga_etap_drz( arr_osm1, '70.9.2', 5)  // возраст 30-49 лет
+          if eq_any_new( nAge, 21, 24, 27 )
+            indSource := index_usluga_etap_drz( arr_osm1, '70.9.1', 5)  // возраст 21, 24, 27 лет
+          elseif eq_any_new( nAge, 30, 35, 40, 45 )
+            indSource := index_usluga_etap_drz( arr_osm1, '70.9.2', 5)  // возраст 30, 35, 40, 45 лет
+          elseif eq_any_new( nAge, 18, 19, 20, 22, 23, 25, 26, 28, 29 )
+            indSource := index_usluga_etap_drz( arr_osm1, '70.9.3', 5)  // возраст 18, 19, 20, 22, 23, 25, 26, 28, 29 лет
+          elseif eq_any_new( nAge, 31, 32, 33, 34, 36, 37, 38, 39, 41, 42, 43, 44, 46, 47, 48, 49 )
+            indSource := index_usluga_etap_drz( arr_osm1, '70.9.4', 5)  // возраст 31, 32, 33, 34, 36, 37, 38, 39, 41, 42, 43, 44, 46, 47, 48, 49 лет
+            //          if indSource == 0
           endif
           indDest := index_usluga_etap_drz( arr_osm1, 'B01.001.001', 5 )
           change_field_arr_osm1( indSource, indDest )
@@ -1101,7 +1107,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         endif
       elseif metap == 2
         if nGender == 'М' // мужчины
-          indSource := index_usluga_etap_drz( arr_osm1, '70.9.54', 5) // повторный прием
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.80', 5) // повторный прием
           if arr_osm1[ indSource, 14 ] == 84
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.053.002', 5 )
           else
@@ -1109,18 +1115,22 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           endif
           change_field_arr_osm1( indSource, indDest )
 
-          indSource := index_usluga_etap_drz( arr_osm1, '70.9.55', 5) // спермограмма
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.81', 5) // спермограмма
           indDest := index_usluga_etap_drz( arr_osm1, 'B03.053.002', 5 )
           change_field_arr_osm1( indSource, indDest )
-          
-          indSource := index_usluga_etap_drz( arr_osm1, '70.9.57', 5) // ПЦР тест
-          indDest := index_usluga_etap_drz( arr_osm1, 'A26.21.036.001', 5 )
-          change_field_arr_osm1( indSource, indDest )
 
-          indSource := index_usluga_etap_drz( arr_osm1, '70.9.56', 5) // УЗИ мошонки и простаты
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.82', 5) // УЗИ мошонки и простаты
           indDest := index_usluga_etap_drz( arr_osm1, 'A04.28.003', 5 )
           change_field_arr_osm1( indSource, indDest )
           indDest := index_usluga_etap_drz( arr_osm1, 'A04.21.001', 5 )
+          change_field_arr_osm1( indSource, indDest )
+          
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.83', 5) // ПЦР тест ИППП
+          indDest := index_usluga_etap_drz( arr_osm1, 'A26.21.036.001', 5 )
+          change_field_arr_osm1( indSource, indDest )
+
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.84', 5) // ПЦР тест микоплазмы
+          indDest := index_usluga_etap_drz( arr_osm1, 'A26.21.035.001', 5 )
           change_field_arr_osm1( indSource, indDest )
         else  // женщины
           if lUziMatkiAbdomin
@@ -1132,7 +1142,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             indDest := index_usluga_etap_drz( arr_osm1, '70.9.52', 5 )
             change_field_arr_osm1( indSource, indDest )
           endif
-          indSource := index_usluga_etap_drz( arr_osm1, '70.90.58', 5) // вирус папиломы человека
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.53', 5) // вирус ИППП
+          if indSource != 0
+            indDest := index_usluga_etap_drz( arr_osm1, 'A26.20.034.001', 5 )
+            change_field_arr_osm1( indSource, indDest )
+          endif
+          indSource := index_usluga_etap_drz( arr_osm1, '70.90.54', 5) // вирус папиломы человека
           if indSource != 0
             indDest := index_usluga_etap_drz( arr_osm1, 'A26.20.009.002', 5 )
             change_field_arr_osm1( indSource, indDest )
