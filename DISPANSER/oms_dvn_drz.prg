@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 14.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 15.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -660,7 +660,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           mvarz := 'MKOD_DIAG' + lstr( i )
           mvaro := 'MOTKAZ' + lstr( i )
 //          @ ++j, 1 Say uslugi_etapa[ i, 1 ]
-          @ ++j, 1 Say view_uslugi[ i, 1 ]
+          @ ++j, 1 Say padr( view_uslugi[ i, 1 ], 44 )
           @ j, 46 get &mvarv Pict '99999' valid {| g | v_kart_vrach( g ) }
           If mem_por_ass > 0
             @ j, 52 get &mvara Pict '99999' valid {| g | v_kart_vrach( g ) }
