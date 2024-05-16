@@ -1552,23 +1552,51 @@ return ret
 
 
 **
+// 14.05.24
 Function ret_date_reg_otch_period()
-Static si := 1, sdate
+Static si := 1, sdate, sdate1
 Local i, ldate, fl := .f.
-if (i := popup_prompt(T_ROW,T_COL-5,si,;
+local r1, c1, r2, c2, blk 
+if glob_mo[_MO_KOD_TFOMS] == '805965' // РДЛ
+  if (i := popup_prompt(T_ROW,T_COL-5,si,;
+    {"По ~всем счетам","По счетам, за~регистрированным до...","По счетам, за промежуток дат"})) == 0
+     return fl 
+  endif
+else  
+  if (i := popup_prompt(T_ROW,T_COL-5,si,;
           {"По ~всем счетам","По счетам, за~регистрированным до..."})) == 0
-  return fl
+     return fl
+  endif
 endif
 if (si := i) == 1
   fl := .t.
-else
+elseif (si := i) == 2
   DEFAULT sdate TO sys_date
   if (ldate := input_value(20,2,22,77,color0,;
         "Введите дату, по которую включительно зарегистрированы счета",sdate)) != NIL
     fl := .t.
     mdate_reg := sdate := ldate
   endif
-endif
+else
+  DEFAULT sdate TO sys_date
+  DEFAULT sdate1 TO sys_date
+  Store 0 To r1, c1, r2, c2
+  blk := {| x, y| if( x > y, func_error( 4, 'Начальная дата больше конечной!' ), .t. ) }
+  get_row_col_max( 18, 0, @r1, @c1, @r2, @c2 )
+  km := input_diapazon( r1, c1, r2, c2, cDataCGet, ;
+    { 'Введите начальную', 'и конечную', 'даты регистрации счетов' }, ;
+    { sdate1, sdate },, blk )
+  If km == NIL
+    fl := .f.
+  else
+    sdate1 := km[ 1 ] ; sdate := km[ 2 ]
+    //sy := ret_year := Year( sdate )
+    begin_date := dtoc4( sdate1 ) ; end_date := dtoc4( sdate )
+    fl := .t.
+    mdate_reg_begin := sdate1
+    mdate_reg := sdate 
+  endif  
+endif  
 return fl
 
 ** 11.10.18
