@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 15.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 21.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -113,6 +113,27 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   Private mdispans, m1dispans := 0, mnazn_l , m1nazn_l  := 0, ;
     mdopo_na, m1dopo_na := 0, mssh_na , m1ssh_na  := 0, ;
     mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
+
+  Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
+    mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
+    mTab_Number := 0
+
+  Private mm_napr_v := {{'нет', 0}, ;
+    {'к онкологу', 1}, ;
+    {'на дообследование', 3}}
+  /*Private mm_napr_v := {{'нет', 0}, ;
+    {'к онкологу', 1}, ;
+    {'на биопсию', 2}, ;
+    {'на дообследование', 3}, ;
+    {'для опредения тактики лечения', 4}}*/
+  Private mm_met_issl := {{'нет', 0}, ;
+      {'лабораторная диагностика', 1}, ;
+      {'инструментальная диагностика', 2}, ;
+      {'методы лучевой диагностики (недорогостоящие)', 3}, ;
+      {'дорогостоящие методы лучевой диагностики', 4}}
+
+  Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
+
   Private mvar, m1var // переменный для организации ввода ин-ции в табличной части
   Private mm_ndisp := { ;
                         { 'Диспансеризация репродуктивного здоровья I этап', 1 }, ;
@@ -285,6 +306,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     m1VIDPOLIS  := human_->VPOLIS
     mSPOLIS     := human_->SPOLIS
     mNPOLIS     := human_->NPOLIS
+
+    if human->OBRASHEN == '1'
+      m1DS_ONK := 1
+    endif
 
     nAge := count_years( mdate_r, mn_data )
     nGender := mpol
@@ -493,6 +518,13 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
   endif
 
+  dbcreate(cur_dir + 'tmp_onkna', create_struct_temporary_onkna())
+  cur_napr := 1 // при ред-ии - сначала первое направление текущее
+  count_napr := collect_napr_zno( Loc_kod )
+  if count_napr > 0
+    mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
+  endif
+
   If !( Left( msmo, 2 ) == '34' ) // не Волгоградская область
     m1ismo := msmo
     msmo := '34'
@@ -512,6 +544,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf, m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
+  mDS_ONK    := inieditspr(A__MENUVERT, mm_danet, M1DS_ONK)
   f_valid_komu(, -1 )
   If m1komu == 0
     m1company := Int( Val( msmo ) )
@@ -693,6 +726,13 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'Диспансерное наблюдение установлено' Get mdispans ;
         reader {| x | menu_reader( x, mm_dispans, A__MENUVERT,,, .f. ) } ;
         When !emptyall( mdispans1, mdispans2, mdispans3, mdispans4, mdispans5 )
+
+      @ ++j, 1 say 'Признак подозрения на злокачественное новообразование' get mDS_ONK ;
+        reader { | x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+      @ ++j, 1 say 'Направления при подозрении на ЗНО' get mnapr_onk ;
+        reader { | x | menu_reader( x, { { | k, r, c | fget_napr_ZNO( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
+        when m1ds_onk == 1
+
       @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
         reader {| x | menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
 
@@ -977,8 +1017,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       If !fl
         Loop
       Endif
-
       AFill( adiag_talon, 0 )
+      if m1DS_ONK == 1
+        aadd( arr_diag, { 'Z03.1', 0, 0, ctod( '' ) } ) // диагноз по умолчанию
+      endif
       If Empty( arr_diag ) // диагнозы не вводили
 //        aadd( arr_diag, { mdef_diagnoz, 0, 0, ctod( '' ) } ) // диагноз по умолчанию
         MKOD_DIAG := mdef_diagnoz
@@ -1268,6 +1310,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       human->K_DATA     := MK_DATA       // дата окончания лечения
       human->CENA := human->CENA_1 := MCENA_1 // стоимость лечения
       human->ishod      := BASE_ISHOD_RZD + metap
+      human->OBRASHEN   := iif( m1DS_ONK == 1, '1', ' ' )
       human->bolnich    := 0
       human->date_b_1   := ''
       human->date_b_2   := ''
@@ -1440,15 +1483,18 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           Unlock
         Endif
       Next
-      // ????????
 
-      If ! ( Len( arr_usl ) == 0 )
-      Endif
+//      If ! ( Len( arr_usl ) == 0 )
+//      Endif
       save_arr_drz( mkod, mk_data )
 
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.
       Close databases
+
+      if m1ds_onk == 1 // подозрение на злокачественное новообразование
+        save_mo_onkna( mkod )
+      endif
       stat_msg( 'Запись завершена!', .f. )
     Endif
     Exit

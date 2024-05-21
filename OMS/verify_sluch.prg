@@ -8,7 +8,7 @@
 
 Static sadiag1  // := {}
 
-// 14.05.24
+// 21.05.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -1350,7 +1350,7 @@ Function verify_1_sluch( fl_view )
     Next
   Endif
   fl := ( AScan( mdiagnoz, {| x| PadR( x, 5 ) == 'Z03.1' } ) > 0 )
-  If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID .or. is_disp_DRZ
+  If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID  // .or. is_disp_DRZ
     If is_oncology == 2
       is_oncology := 1
     Endif
@@ -4726,7 +4726,7 @@ Function verify_1_sluch( fl_view )
     AAdd( ta, 'ни в одной из услуг не обнаружен код план-заказа' )
   Endif
   If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
-    If eq_any( human_->RSLT_NEW, 317, 321, 332, 343, 347 )
+    If eq_any( human_->RSLT_NEW, 317, 321, 332, 343, 347, 375 )
       If human->OBRASHEN == '1' // подозрение на ЗНО
         AAdd( ta, 'первая группа не может быть присвоена пациенту с подозрением на ЗНО' )
       Endif
