@@ -506,7 +506,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       f_valid_vyav_diag_dispanser(, i )
     next i
   endif
-
   if isnil( uslugi_etapa )
     uslugi_etapa := uslugietap_drz( metap, nAge, nGender )  // получим услуги этапа
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
@@ -1141,10 +1140,19 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           endif
           indDest := index_usluga_etap_drz( arr_osm1, 'B01.001.001', 5 )
           change_field_arr_osm1( indSource, indDest )
-          indSource := index_usluga_etap_drz( arr_osm1, 'A08.20.017', 5)  // цитологическое исследование
-          if indSource != 0
-            indDest := index_usluga_etap_drz( arr_osm1, 'A08.20.017.001', 5 )
-            change_field_arr_osm1( indSource, indDest )
+          if lCitIsl
+            indSource := index_usluga_etap_drz( arr_osm1, 'A08.20.017', 5)  // цитологическое исследование
+            if indSource != 0
+              indDest := index_usluga_etap_drz( arr_osm1, 'A08.20.017.001', 5 )
+              change_field_arr_osm1( indSource, indDest )
+            endif
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A08.20.017.002' } )
+            hb_ADel( arr_osm1, j, .t. )
+          else
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A08.20.017' } )
+            hb_ADel( arr_osm1, j, .t. )
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A08.20.017.001' } )
+            hb_ADel( arr_osm1, j, .t. )
           endif
         endif
       elseif metap == 2
@@ -1177,8 +1185,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         else  // женщины
           if lUziMatkiAbdomin
             indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001', 5) // УЗИ матки трансабдоминальное
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A04.20.001.001' } )
+            hb_ADel( arr_osm1, j, .t. )
           else
             indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001.001', 5) // УЗИ матки трансвагинальное
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A04.20.001' } )
+            hb_ADel( arr_osm1, j, .t. )
           endif
           if indSource != 0
             indDest := index_usluga_etap_drz( arr_osm1, '70.9.52', 5 )
@@ -1192,6 +1204,16 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           indSource := index_usluga_etap_drz( arr_osm1, '70.90.54', 5) // вирус папиломы человека
           if indSource != 0
             indDest := index_usluga_etap_drz( arr_osm1, 'A26.20.009.002', 5 )
+            change_field_arr_osm1( indSource, indDest )
+          endif
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.50', 5) // повторный прием гинеколога
+          if indSource != 0
+            indDest := index_usluga_etap_drz( arr_osm1, 'B01.001.002', 5 )
+            change_field_arr_osm1( indSource, indDest )
+          endif
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.51', 5) // УЗИ молочных желез
+          if indSource != 0
+            indDest := index_usluga_etap_drz( arr_osm1, 'A04.20.002', 5 )
             change_field_arr_osm1( indSource, indDest )
           endif
         endif

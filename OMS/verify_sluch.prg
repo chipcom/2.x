@@ -8,7 +8,7 @@
 
 Static sadiag1  // := {}
 
-// 21.05.24
+// 22.05.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -1587,7 +1587,7 @@ Function verify_1_sluch( fl_view )
             stverifykolzf( arr_zf, mohu->kol_1, ta, s )
           Endif
         elseif &lalf.->telemed == 0 .and. ! eq_any_new( AllTrim( &lalf.->shifr ), ;
-            'A01.20.006', 'A01.20.002', 'A02.20.001', 'A02.20.003', 'A02.20.005', ;
+            'A01.20.006', 'A01.20.002', 'A01.20.003', 'A01.20.005', 'A02.20.001', 'A02.20.003', 'A02.20.005', ;
             'A04.10.002', 'A04.12.006.002', ;
             'A04.20.001', 'A04.20.001.001', 'A04.20.002', ;
             'A04.21.001', 'A04.28.003', ;
@@ -2925,7 +2925,7 @@ Function verify_1_sluch( fl_view )
       AAdd( ta, 'кол-во услуг ' + lstshifr + ' (' + lstr( lstkol ) + ') более 1' )
     Endif
     If Len( au_lu ) > 1 .and. kol_ksg == 0
-      If is_2_78 .or. is_2_89 .or. is_70_5 .or. is_70_6 .or. is_70_3 .or. is_72_2 .or. is_2_92_
+      If is_2_78 .or. is_2_89 .or. is_70_5 .or. is_70_6 .or. is_70_3 .or. is_72_2 .or. is_2_92_ .or. is_disp_DRZ
         //
       Else
         AAdd( ta, 'кроме услуги ' + lstshifr + ' в листе учета не должно быть других услуг ТФОМС' )
