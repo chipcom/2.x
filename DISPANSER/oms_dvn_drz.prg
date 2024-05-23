@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 21.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 23.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -47,23 +47,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     { 'Направлен на II этап, предварительно присвоена II группа репродуктивного здоровья', 11, 378 }, ;
     { 'Направлен на II этап, предварительно присвоена III группа репродуктивного здоровья', 12, 379 } ;
   }
-//    { 'Проведена диспансеризация - присвоена I группа здоровья'   , 1, 317 }, ;
-//    { 'Проведена диспансеризация - присвоена II группа здоровья'  , 2, 318 }, ;
-//    { 'Проведена диспансеризация - присвоена IIIа группа здоровья', 3, 355 }, ;
-//    { 'Проведена диспансеризация - присвоена IIIб группа здоровья', 4, 356 }, ;
-//    { 'Направлен на 2 этап, предварительно присвоена I группа здоровья'   , 11, 352 }, ;
-//    { 'Направлен на 2 этап, предварительно присвоена II группа здоровья'  , 12, 353 }, ;
-//    { 'Направлен на 2 этап, предварительно присвоена IIIа группа здоровья', 13, 357 }, ;
-//    { 'Направлен на 2 этап, предварительно присвоена IIIб группа здоровья', 14, 358 } ;
   local mm_gruppaD2 := asize( aclone( mm_gruppaD1 ), 3 )  // для II этапа уменьшим число эл-тов списка
-//  asize( mm_gruppaD2, 4 )
 
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default loc_kod TO 0, kod_kartotek TO 0
   //
-  //  Private mm_gruppa
-  //  Private mm_gruppaP := arr_mm_gruppaP()
   private arr_ne_nazn := {}
   Private ps1dispans := s1dispans, is_prazdnik
 
@@ -1123,8 +1112,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.20', 5)
           if arr_osm1[ indSource, 14 ] == 84
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.053.001', 5 )
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'B01.057.001' } )
+            hb_ADel( arr_osm1, j, .t. )
           else
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.057.001', 5 )
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'B01.053.001' } )
+            hb_ADel( arr_osm1, j, .t. )
           endif
           change_field_arr_osm1( indSource, indDest )
         else  // женщины
@@ -1136,7 +1129,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             indSource := index_usluga_etap_drz( arr_osm1, '70.9.3', 5)  // возраст 18, 19, 20, 22, 23, 25, 26, 28, 29 лет
           elseif eq_any_new( nAge, 31, 32, 33, 34, 36, 37, 38, 39, 41, 42, 43, 44, 46, 47, 48, 49 )
             indSource := index_usluga_etap_drz( arr_osm1, '70.9.4', 5)  // возраст 31, 32, 33, 34, 36, 37, 38, 39, 41, 42, 43, 44, 46, 47, 48, 49 лет
-            //          if indSource == 0
           endif
           indDest := index_usluga_etap_drz( arr_osm1, 'B01.001.001', 5 )
           change_field_arr_osm1( indSource, indDest )
@@ -1159,29 +1151,42 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         if nGender == 'М' // мужчины
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.80', 5) // повторный прием
           if arr_osm1[ indSource, 14 ] == 84
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'B01.057.002' } )
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.053.002', 5 )
           else
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'B01.053.002' } )
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.057.002', 5 )
           endif
-          change_field_arr_osm1( indSource, indDest )
+          if indSource != 0
+            change_field_arr_osm1( indSource, indDest )
+            hb_ADel( arr_osm1, j, .t. ) // удалим ненужную услугу
+          endif
 
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.81', 5) // спермограмма
           indDest := index_usluga_etap_drz( arr_osm1, 'B03.053.002', 5 )
-          change_field_arr_osm1( indSource, indDest )
+          if indSource != 0
+            change_field_arr_osm1( indSource, indDest )
+          endif
 
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.82', 5) // УЗИ мошонки и простаты
           indDest := index_usluga_etap_drz( arr_osm1, 'A04.28.003', 5 )
-          change_field_arr_osm1( indSource, indDest )
-          indDest := index_usluga_etap_drz( arr_osm1, 'A04.21.001', 5 )
-          change_field_arr_osm1( indSource, indDest )
+          if indSource != 0
+            change_field_arr_osm1( indSource, indDest )
+            indDest := index_usluga_etap_drz( arr_osm1, 'A04.21.001', 5 )
+            change_field_arr_osm1( indSource, indDest )
+          endif
           
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.83', 5) // ПЦР тест ИППП
           indDest := index_usluga_etap_drz( arr_osm1, 'A26.21.036.001', 5 )
-          change_field_arr_osm1( indSource, indDest )
+          if indSource != 0
+            change_field_arr_osm1( indSource, indDest )
+          endif
 
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.84', 5) // ПЦР тест микоплазмы
           indDest := index_usluga_etap_drz( arr_osm1, 'A26.21.035.001', 5 )
-          change_field_arr_osm1( indSource, indDest )
+          if indSource != 0
+            change_field_arr_osm1( indSource, indDest )
+          endif
         else  // женщины
           if lUziMatkiAbdomin
             indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001', 5) // УЗИ матки трансабдоминальное
@@ -1506,8 +1511,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         Endif
       Next
 
-//      If ! ( Len( arr_usl ) == 0 )
-//      Endif
       save_arr_drz( mkod, mk_data )
 
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
