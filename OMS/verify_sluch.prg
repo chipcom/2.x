@@ -8,7 +8,7 @@
 
 Static sadiag1  // := {}
 
-// 23.05.24
+// 24.05.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -2694,7 +2694,7 @@ Function verify_1_sluch( fl_view )
     .and. Len( a_period_amb ) > 0
     For i := 1 To Len( a_period_amb )
 //      If a_period_amb[ i, 3 ] == human_->profil .and. !( human_->profil != 122 .or. human_->profil != 21 ) // кроме эндокринологии
-      If a_period_amb[ i, 3 ] == human_->profil .and. ( human_->profil != 122 .or. human_->profil != 21 ) // кроме эндокринологии
+      If a_period_amb[ i, 3 ] == human_->profil .and. ! ( human_->profil == 122 .or. human_->profil == 21 ) // кроме эндокринологии
         AAdd( ta, 'данный случай пересекается со случаем амбулаторного лечения' )
         otd->( dbGoto( a_period_amb[ i, 4 ] ) )
         AAdd( ta, '└>с тем же профилем ' + ;
