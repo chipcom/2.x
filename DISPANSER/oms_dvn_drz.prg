@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 23.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 24.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -903,8 +903,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         elseif ( lCitIsl .and. lGidCitIsl )
           fl := func_error( 4, 'Нельзя применять одновременно услуги цитологии и жидкостной цитологии' )
         elseif Empty( &mvart ) .and. ;
-          ( LTrim( ar[ 2 ] ) == 'A04.20.001' .and. ! lUziMatkiTransvag ) .or. ;
-          ( LTrim( ar[ 2 ] ) == 'A04.20.001.001' .and. ! lUziMatkiAbdomin ) 
+          ( ( LTrim( ar[ 2 ] ) == 'A04.20.001' .and. ! lUziMatkiTransvag ) .or. ;
+          ( LTrim( ar[ 2 ] ) == 'A04.20.001.001' .and. ! lUziMatkiAbdomin ) )
           fl := func_error( 4, 'Не введен врач в услуге УЗИ малого таза' )
         elseif Empty( &mvart ) .and. &mvaro != 4
           if ! eq_any( LTrim( ar[ 2 ] ), 'A08.20.017', 'A08.20.017.002', 'A04.20.001', 'A04.20.001.001' )
@@ -1111,13 +1111,13 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         if nGender == 'М' // мужчины
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.20', 5)
           if arr_osm1[ indSource, 14 ] == 84
-            indDest := index_usluga_etap_drz( arr_osm1, 'B01.053.001', 5 )
             j := ascan( arr_osm1, { | x | x[ 5 ] == 'B01.057.001' } )
             hb_ADel( arr_osm1, j, .t. )
+            indDest := index_usluga_etap_drz( arr_osm1, 'B01.053.001', 5 )
           else
-            indDest := index_usluga_etap_drz( arr_osm1, 'B01.057.001', 5 )
             j := ascan( arr_osm1, { | x | x[ 5 ] == 'B01.053.001' } )
             hb_ADel( arr_osm1, j, .t. )
+            indDest := index_usluga_etap_drz( arr_osm1, 'B01.057.001', 5 )
           endif
           change_field_arr_osm1( indSource, indDest )
         else  // женщины
@@ -1189,13 +1189,13 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           endif
         else  // женщины
           if lUziMatkiAbdomin
-            indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001', 5) // УЗИ матки трансабдоминальное
             j := ascan( arr_osm1, { | x | x[ 5 ] == 'A04.20.001.001' } )
             hb_ADel( arr_osm1, j, .t. )
+            indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001', 5) // УЗИ матки трансабдоминальное
           else
-            indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001.001', 5) // УЗИ матки трансвагинальное
             j := ascan( arr_osm1, { | x | x[ 5 ] == 'A04.20.001' } )
             hb_ADel( arr_osm1, j, .t. )
+            indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001.001', 5) // УЗИ матки трансвагинальное
           endif
           if indSource != 0
             indDest := index_usluga_etap_drz( arr_osm1, '70.9.52', 5 )
@@ -1420,9 +1420,46 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       i1 := Len( arr_usl )
+
+      // удалим старые данные диспансеризации
+      use_base( 'mo_hdisp' )
+      Do While .t.
+        Select HDISP 
+        find ( Str( loc_kod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t. )
+      Enddo
+      HDISP->( dbCloseArea() )
+
       r_use( dir_server + 'mo_su',, 'MOSU' )
       use_base( 'mo_hu' )
+      // удалим старые услуги ФФОМС
+      Do While .t.
+        Select MOHU
+        find ( Str( Loc_kod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        deleterec( .t., .f. )  // без пометки на удаление
+      Enddo
+
       use_base( 'human_u' )
+      // удалим старые услуги ТФОМС
+      Do While .t.
+        Select HU
+        find ( Str( loc_kod, 7 ) )
+        If !Found()
+          Exit
+        Endif
+        //
+        Select HU_
+        deleterec( .t., .f. )
+        Select HU
+        deleterec( .t., .f. )  // без пометки на удаление
+      Enddo
+
       For i := 1 To Len( arr_usl_dop )
         flExist := .f.
         If arr_usl_dop[ i, 12 ] == 0   // это услуга ТФОМС
