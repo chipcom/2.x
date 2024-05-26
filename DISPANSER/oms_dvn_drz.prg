@@ -404,13 +404,9 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     //
     R_Use(dir_server + 'mo_pers', , 'P2' )
     read_arr_drz( Loc_kod, .t. )     // читаем сохраненные данные по углубленной диспансеризации
-//    if metap == 1 .and. between( m1GRUPPA, 11, 12) .and. m1p_otk == 1
-//      m1GRUPPA += 10
-//    endif
 
     view_uslugi := uslugi_to_view( uslugi_etapa )
 
-//    for i := 1 to len( larr[ 1 ] )
     for i := 1 to len( view_uslugi )    // len( larr[ 1 ] )
       if ( j := ascan( larr[ 2 ], view_uslugi[ i, 2 ] ) ) > 0
         if ( valtype( larr[ 2, j ] ) == 'C' ) .and. ( ! eq_any( SubStr( larr[ 2, j ], 1, 1 ), 'A', 'B') )  // это услуга ТФОМС, а не ФФОМС (первый символ не A,B)
@@ -433,15 +429,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           endif
           m1var := 'M1OTKAZ' + lstr( i )
           &m1var := 0 // выполнено
-//          if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
-//            if ascan( arr_otklon, uslugi_etapa[ i, 2 ] ) > 0
           if valtype( view_uslugi[ i, 2 ] ) == 'C'
             if ascan( arr_otklon, view_uslugi[ i, 2 ] ) > 0
               &m1var := 3 // выполнено, обнаружены отклонения
             endif
           endif
-          // if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
-          //   if ascan( arr_ne_nazn, uslugi_etapa[ i, 2 ] ) > 0
           if valtype( view_uslugi[ i, 2 ] ) == 'C'
             if ascan( arr_ne_nazn, view_uslugi[ i, 2 ] ) > 0
               &m1var := 4 // не назначено
@@ -469,15 +461,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           endif
           m1var := 'M1OTKAZ' + lstr( i )
           &m1var := 0 // выполнено
-          // if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
-          //   if ascan( arr_otklon, uslugi_etapa[ i, 2 ] ) > 0
           if valtype( view_uslugi[ i, 2 ] ) == 'C'
             if ascan( arr_otklon, view_uslugi[ i, 2 ] ) > 0
               &m1var := 3 // выполнено, обнаружены отклонения
             endif
           endif
-          // if valtype( uslugi_etapa[ i, 2 ] ) == 'C'
-          //   if ascan( arr_ne_nazn, uslugi_etapa[ i, 2 ] ) > 0
           if valtype( view_uslugi[ i, 2 ] ) == 'C'
             if ascan( arr_ne_nazn, view_uslugi[ i, 2 ] ) > 0
               &m1var := 4 // не назначено
@@ -660,8 +648,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
         fl_diag := .f.
         i_otkaz := 0
-//        If f_is_usl_sluch_drz( uslugi_etapa, i, .f., @fl_diag, @i_otkaz )
-//          if uslugi_etapa[ i, 4 ] == 0 .and. ! fl_shapka_osmotr
         If f_is_usl_sluch_drz( view_uslugi, i, .f., @fl_diag, @i_otkaz )
           if view_uslugi[ i, 4 ] == 0 .and. ! fl_shapka_osmotr
             @ ++j, 1 Say '────────────────────────────────────────────┬─────┬─────┬───────────' Color color8
@@ -680,7 +666,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           Endif
           mvarz := 'MKOD_DIAG' + lstr( i )
           mvaro := 'MOTKAZ' + lstr( i )
-//          @ ++j, 1 Say uslugi_etapa[ i, 1 ]
           @ ++j, 1 Say padr( view_uslugi[ i, 1 ], 44 )
           @ j, 46 get &mvarv Pict '99999' valid {| g | v_kart_vrach( g ) }
           If mem_por_ass > 0
@@ -828,11 +813,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       k := 0
       kol_d_usl := 0
 
-      // arr_osm1 := Array( lenArr_Uslugi_DRZ, 13 )
-      // afillall( arr_osm1, 0 )
-      // for i := 1 to lenArr_Uslugi_DRZ
-      //   arr_osm1[ i, 5 ] := uslugi_etapa[ i, 2 ]
-      // next
       arr_osm1 := Array( len( view_uslugi ), 14 ) // было 13
       afillall( arr_osm1, 0 )
       for i := 1 to len( view_uslugi )
@@ -845,7 +825,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       lUziMatkiTransvag := .f.
       lCitIsl := .f.
       lGidCitIsl := .f.
-//      For i := 1 To lenArr_Uslugi_DRZ
       For i := 1 To len( view_uslugi )  //   lenArr_Uslugi_DRZ
 //        fl_diag := .f.
 //        i_otkaz := 0
@@ -855,7 +834,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         mvard := 'MDATE' + lstr( i )
         mvarz := 'MKOD_DIAG' + lstr( i )
         mvaro := 'M1OTKAZ' + lstr( i )
-//        ar := uslugi_etapa[ i ]
         ar := view_uslugi[ i ]
 
         // Цитологические исследования
@@ -880,20 +858,16 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       next
         //
       // ВСЕ проверяем
-//      For i := 1 To lenArr_Uslugi_DRZ
       For i := 1 To len( view_uslugi )  //   lenArr_Uslugi_DRZ
         mvart := 'MTAB_NOMv' + lstr( i )
         mvara := 'MTAB_NOMa' + lstr( i )
         mvard := 'MDATE' + lstr( i )
         mvarz := 'MKOD_DIAG' + lstr( i )
         mvaro := 'M1OTKAZ' + lstr( i )
-//        ar := uslugi_etapa[ i ]
         ar := view_uslugi[ i ]
         ++kol_d_usl
-//        arr_osm1[ i, 12 ] := uslugi_etapa[ i, 12 ]   // признак услуги 0 - ТФОМС / 1 - ФФОМС
         arr_osm1[ i, 12 ] := view_uslugi[ i, 12 ]   // признак услуги 0 - ТФОМС / 1 - ФФОМС
         If arr_osm1[ i, 12 ] == 0
-//          arr_osm1[ i, 13 ] := uslugi_etapa[ i, 13 ]
           arr_osm1[ i, 13 ] := view_uslugi[ i, 13 ]
         Endif
         if Empty( &mvard )
@@ -1010,7 +984,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         aadd( arr_diag, { 'Z03.1', 0, 0, ctod( '' ) } ) // диагноз по умолчанию
       endif
       If Empty( arr_diag ) // диагнозы не вводили
-//        aadd( arr_diag, { mdef_diagnoz, 0, 0, ctod( '' ) } ) // диагноз по умолчанию
         MKOD_DIAG := mdef_diagnoz
       Else
         For i := 1 To Len( arr_diag )
