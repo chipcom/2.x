@@ -3815,11 +3815,12 @@ Static Function f_131_u_da_net( k, sb1, sb2 )
 
   Return f3_inf_dds_karta( { { "¤  - 1", 1 }, { "­¥â - 2", 0 } }, k, ";  ", sb1, sb2, .f. )
 
-// 03.09.20 à¨«®¦¥­¨¥ ª à¨ª §ã ƒ“‡ "‚Œˆ€–" ®â 12.05.2017£. ü1615
+// 28.05.24 à¨«®¦¥­¨¥ ª à¨ª §ã ƒ“‡ "‚Œˆ€–" ®â 12.05.2017£. ü1615
 Function f21_inf_dvn( par ) // á¢®¤
 
   Local arr_m, buf := save_maxrow(), s, as := {}, as1[ 14 ], i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast, adbf
   Local kol_2_year_dvn := 0, kol_2_year_prof := 0
+  Local kol_2_year_dvn_40 := 0, kol_2_year_prof_40 := 0
 
   If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5,,, @lcount_uch ) ) != NIL ;
       .and. ( arr_m := year_month(,,, 5 ) ) != Nil .and. f0_inf_dvn( arr_m, par > 1, par == 3, .t. )
@@ -4141,9 +4142,15 @@ Function f21_inf_dvn( par ) // á¢®¤
         If human->kod_k == t_kod_k
           If ( ( t_date - human->n_data ) > 730 )
             kol_2_year_prof++
+            if (mvozrast := count_years( human->date_r, human->n_data ) > 39) .and. (mvozrast := count_years( human->date_r, human->n_data ) < 66)
+              kol_2_year_prof_40++
+            Endif
           Endif
         Else
           kol_2_year_prof++
+          if (mvozrast := count_years( human->date_r, human->n_data ) > 39) .and. (mvozrast := count_years( human->date_r, human->n_data ) < 66)
+            kol_2_year_prof_40++
+          Endif 
         Endif
       Else// ¤¨á¯ ­á¥à¨§ æ¨ï
         If ( tmp->kod1h > 0 )
@@ -4155,9 +4162,15 @@ Function f21_inf_dvn( par ) // á¢®¤
           If human->kod_k == t_kod_k
             If ( ( t_date - human->n_data ) > 730 )
               kol_2_year_dvn++
+              if (mvozrast := count_years( human->date_r, human->n_data ) > 39) .and. (mvozrast := count_years( human->date_r, human->n_data ) < 66)
+                kol_2_year_dvn_40++
+              endif  
             Endif
           Else
             kol_2_year_dvn++
+            if (mvozrast := count_years( human->date_r, human->n_data ) > 39)  .and. (mvozrast := count_years( human->date_r, human->n_data ) < 66)
+              kol_2_year_dvn_40++
+            endif   
           Endif
         Endif
       Endif
@@ -4215,8 +4228,8 @@ Function f21_inf_dvn( par ) // á¢®¤
     fp := FCreate( "tmp2.txt" ) ; n_list := 1 ; tek_stroke := 0
     fl := f_error_dvn( 3, 60, 80 )
     StrFile( "‹¨æ  ¯à®è¥¤è¨¥ ¤¨á¯ ­á¥à¨§ æ¨î/¯à®ä®á¬®âà, à ­¥¥ ­¥ ¯®á¥é ¢è¨¥ ãçà¥¦¤¥­¨¥ ¡®«¥¥ 2-å «¥â" + eos, "tmp1.txt", .t. )
-    StrFile( " „¨á¯ ­á¥à¨§ æ¨ï == " + lstr( kol_2_year_dvn ) + " ç¥«." + eos, "tmp1.txt", .t. )
-    StrFile( " à®ä®á¬®âà      == " + lstr( kol_2_year_prof ) + " ç¥«." + eos, "tmp1.txt", .t. )
+    StrFile( " „¨á¯ ­á¥à¨§ æ¨ï == " + lstr( kol_2_year_dvn ) + " ç¥«. ¨§ ­¨å 40-65 «¥â == "+  lstr( kol_2_year_dvn_40 )  + " ç¥«."  + eos, "tmp1.txt", .t. )
+    StrFile( " à®ä®á¬®âà      == " + lstr( kol_2_year_prof ) + " ç¥«. ¨§ ­¨å 40-65 «¥â == "+  lstr( kol_2_year_prof_40 )  + " ç¥«."  +  + eos, "tmp1.txt", .t. )
     FClose( fp )
     If fl
       StrFile( "FF", "tmp1.txt", .t. )

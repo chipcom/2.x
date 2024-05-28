@@ -301,7 +301,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       m1DS_ONK := 1
     endif
 
-    nAge := count_years( mdate_r, mn_data )
+//    nAge := count_years( mdate_r, mn_data )
+    nAge := Year( mn_data ) - Year( mdate_r ) // число лет на время проведения ДРЗ
     nGender := mpol
   
     if empty( val( msmo := human_->SMO ) )
@@ -1399,8 +1400,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       use_base( 'mo_hdisp' )
       Do While .t.
         Select HDISP 
-        find ( Str( loc_kod, 7 ) )
-        If !Found()
+        find ( Str( mkod, 7 ) )
+        If ! Found()
           Exit
         Endif
         deleterec( .t. )
@@ -1412,8 +1413,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       // удалим старые услуги ФФОМС
       Do While .t.
         Select MOHU
-        find ( Str( Loc_kod, 7 ) )
-        If !Found()
+        find ( Str( mkod, 7 ) )
+        If ! Found()
           Exit
         Endif
         deleterec( .t., .f. )  // без пометки на удаление
@@ -1423,8 +1424,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       // удалим старые услуги ТФОМС
       Do While .t.
         Select HU
-        find ( Str( loc_kod, 7 ) )
-        If !Found()
+        find ( Str( mkod, 7 ) )
+        If ! Found()
           Exit
         Endif
         //
