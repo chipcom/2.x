@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 24.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 28.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -229,7 +229,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     msmo        := kart_->SMO
     m1MO_PR     := kart2->MO_PR
 
-    nAge := count_years( mdate_r, mn_data )
+//    nAge := count_years( mdate_r, mn_data )
+    nAge := Year( mn_data ) - Year( mdate_r ) // число лет на время проведения ДРЗ
     nGender := mpol
   
     if kart->MI_GIT == 9
