@@ -388,6 +388,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     do while MOHU->kod == Loc_kod .and. ! eof()
       MOSU->( dbGoto( MOHU->u_kod ) )
       lshifr := alltrim( iif( empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
+
       for i := 1 to lenArr_Uslugi_DRZ // len( uslugi_etapa )
         if empty( larr[ 1, i ] )
           if valtype( uslugi_etapa[ i, 2 ] ) == 'C' .and. uslugi_etapa[ i, 12 ] == 1  // услуга ФФОМС
@@ -403,6 +404,14 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       select MOHU
       skip
     enddo
+
+    // добавим услуги НЕ НАЗНАЧЕННЫЕ
+    for i := 1 to lenArr_Uslugi_DRZ
+      lshifr := alltrim( uslugi_etapa[ i, 2 ] )
+      if ascan( larr[ 2 ], lshifr ) == 0
+        larr[ 2, i ] := lshifr
+      endif
+    next
     //
     R_Use(dir_server + 'mo_pers', , 'P2' )
     read_arr_drz( Loc_kod, .t. )     // читаем сохраненные данные по углубленной диспансеризации
@@ -1088,6 +1097,29 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         endif
       next
 
+      For i := 1 To Len( arr_osm1 )
+        If eq_any( arr_osm1[ i, 10 ], 0, 3, 4 ) // выполнено, отклонение, не назначено
+          If arr_osm1[ i, 10 ] == 3 // обнаружены отклонения
+            AAdd( arr_otklon, arr_osm1[ i, 5 ] )
+            iUslOtklon++
+          elseIf arr_osm1[ i, 10 ] == 4 // не назначено
+            AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
+            iUslNeNazn++
+          elseIf arr_osm1[ i, 10 ] == 0
+            if alltrim( arr_osm1[ i, 5 ] ) == '70.9.52' .and. ;
+              ( ! lUziMatkiAbdomin ) .and. ( ! lUziMatkiTransvag )
+              arr_osm1[ i, 10 ] := 4
+              AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
+              iUslNeNazn++
+            elseif alltrim( arr_osm1[ i, 5 ] ) == 'A04.20.002'
+              arr_osm1[ i, 10 ] := 4
+              AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
+              iUslNeNazn++
+            endif
+          Endif
+        Endif
+      next
+
       if metap == 1
         if nGender == 'М' // мужчины
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.20', 5)
@@ -1144,64 +1176,125 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           endif
 
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.81', 5) // спермограмма
-          indDest := index_usluga_etap_drz( arr_osm1, 'B03.053.002', 5 )
-          if indSource != 0
-            change_field_arr_osm1( indSource, indDest )
+          if arr_osm1[ indSource, 10 ] != 4
+            indDest := index_usluga_etap_drz( arr_osm1, 'B03.053.002', 5 )
+            if indSource != 0
+              change_field_arr_osm1( indSource, indDest )
+            endif
+          else  // удалим не нужные услуги
+            j := ascan( arr_osm1, { | x | x[ 5 ] == '70.9.81' } )
+            hb_ADel( arr_osm1, j, .t. )
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'B03.053.002' } )
+            hb_ADel( arr_osm1, j, .t. )
           endif
 
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.82', 5) // УЗИ мошонки и простаты
-          indDest := index_usluga_etap_drz( arr_osm1, 'A04.28.003', 5 )
-          if indSource != 0
-            change_field_arr_osm1( indSource, indDest )
-            indDest := index_usluga_etap_drz( arr_osm1, 'A04.21.001', 5 )
-            change_field_arr_osm1( indSource, indDest )
+          if arr_osm1[ indSource, 10 ] != 4
+            indDest := index_usluga_etap_drz( arr_osm1, 'A04.28.003', 5 )
+            if indSource != 0
+              change_field_arr_osm1( indSource, indDest )
+              indDest := index_usluga_etap_drz( arr_osm1, 'A04.21.001', 5 )
+              change_field_arr_osm1( indSource, indDest )
+            endif
+          else  // удалим не нужные услуги
+            j := ascan( arr_osm1, { | x | x[ 5 ] == '70.9.82' } )
+            hb_ADel( arr_osm1, j, .t. )
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A04.28.003' } )
+            hb_ADel( arr_osm1, j, .t. )
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A04.21.001' } )
+            hb_ADel( arr_osm1, j, .t. )
           endif
           
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.83', 5) // ПЦР тест ИППП
-          indDest := index_usluga_etap_drz( arr_osm1, 'A26.21.036.001', 5 )
-          if indSource != 0
-            change_field_arr_osm1( indSource, indDest )
+          if arr_osm1[ indSource, 10 ] != 4
+            indDest := index_usluga_etap_drz( arr_osm1, 'A26.21.036.001', 5 )
+            if indSource != 0
+              change_field_arr_osm1( indSource, indDest )
+            endif
+          else  // удалим не нужные услуги
+            j := ascan( arr_osm1, { | x | x[ 5 ] == '70.9.83' } )
+            hb_ADel( arr_osm1, j, .t. )
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A26.21.036.001' } )
+            hb_ADel( arr_osm1, j, .t. )
           endif
 
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.84', 5) // ПЦР тест микоплазмы
-          indDest := index_usluga_etap_drz( arr_osm1, 'A26.21.035.001', 5 )
-          if indSource != 0
-            change_field_arr_osm1( indSource, indDest )
+          if arr_osm1[ indSource, 10 ] != 4
+            indDest := index_usluga_etap_drz( arr_osm1, 'A26.21.035.001', 5 )
+            if indSource != 0
+              change_field_arr_osm1( indSource, indDest )
+            endif
+          else  // удалим не нужные услуги
+            j := ascan( arr_osm1, { | x | x[ 5 ] == '70.9.84' } )
+            hb_ADel( arr_osm1, j, .t. )
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A26.21.035.001' } )
+            hb_ADel( arr_osm1, j, .t. )
           endif
         else  // женщины
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.51', 5) // УЗИ молочных желез
+          if arr_osm1[ indSource, 10 ] != 4
+            if indSource != 0
+              indDest := index_usluga_etap_drz( arr_osm1, 'A04.20.002', 5 )
+              change_field_arr_osm1( indSource, indDest )
+            endif
+          else  // удалим если не назначено
+            j := ascan( arr_osm1, { | x | x[ 5 ] == '70.9.51' } )
+            hb_ADel( arr_osm1, j, .t. )
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A04.20.002' } )
+            hb_ADel( arr_osm1, j, .t. )
+          endif
+
           if lUziMatkiAbdomin
             j := ascan( arr_osm1, { | x | x[ 5 ] == 'A04.20.001.001' } )
             hb_ADel( arr_osm1, j, .t. )
             indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001', 5) // УЗИ матки трансабдоминальное
-          else
+          elseif lUziMatkiTransvag
             j := ascan( arr_osm1, { | x | x[ 5 ] == 'A04.20.001' } )
             hb_ADel( arr_osm1, j, .t. )
             indSource := index_usluga_etap_drz( arr_osm1, 'A04.20.001.001', 5) // УЗИ матки трансвагинальное
+          else  // удалим не нужные услуги УЗИ
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A04.20.001.001' } )
+            hb_ADel( arr_osm1, j, .t. )
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A04.20.001' } )
+            hb_ADel( arr_osm1, j, .t. )
+            indSource := 0
+            j := ascan( arr_osm1, { | x | x[ 5 ] == '70.9.52' } )
+            hb_ADel( arr_osm1, j, .t. )
           endif
           if indSource != 0
             indDest := index_usluga_etap_drz( arr_osm1, '70.9.52', 5 )
             change_field_arr_osm1( indSource, indDest )
           endif
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.53', 5) // вирус ИППП
-          if indSource != 0
-            indDest := index_usluga_etap_drz( arr_osm1, 'A26.20.034.001', 5 )
-            change_field_arr_osm1( indSource, indDest )
+          if arr_osm1[ indSource, 10 ] != 4
+            if indSource != 0
+              indDest := index_usluga_etap_drz( arr_osm1, 'A26.20.034.001', 5 )
+              change_field_arr_osm1( indSource, indDest )
+            endif
+          else  // удалим не нужные услуги
+            j := ascan( arr_osm1, { | x | x[ 5 ] == '70.9.53' } )
+            hb_ADel( arr_osm1, j, .t. )
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A26.20.034.001' } )
+            hb_ADel( arr_osm1, j, .t. )
           endif
-          indSource := index_usluga_etap_drz( arr_osm1, '70.90.54', 5) // вирус папиломы человека
-          if indSource != 0
-            indDest := index_usluga_etap_drz( arr_osm1, 'A26.20.009.002', 5 )
-            change_field_arr_osm1( indSource, indDest )
+          indSource := index_usluga_etap_drz( arr_osm1, '70.9.54', 5) // вирус папиломы человека
+          if arr_osm1[ indSource, 10 ] != 4
+            if indSource != 0
+              indDest := index_usluga_etap_drz( arr_osm1, 'A26.20.009.002', 5 )
+              change_field_arr_osm1( indSource, indDest )
+            endif
+          else  // удалим не нужные услуги
+            j := ascan( arr_osm1, { | x | x[ 5 ] == '70.9.54' } )
+            hb_ADel( arr_osm1, j, .t. )
+            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A26.20.009.002' } )
+            hb_ADel( arr_osm1, j, .t. )
           endif
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.50', 5) // повторный прием гинеколога
           if indSource != 0
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.001.002', 5 )
             change_field_arr_osm1( indSource, indDest )
           endif
-          indSource := index_usluga_etap_drz( arr_osm1, '70.9.51', 5) // УЗИ молочных желез
-          if indSource != 0
-            indDest := index_usluga_etap_drz( arr_osm1, 'A04.20.002', 5 )
-            change_field_arr_osm1( indSource, indDest )
-          endif
+
         endif
       endif
       use_base( 'lusl' )
@@ -1225,7 +1318,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             arr_osm1[ i, 7 ] := foundffomsusluga( arr_osm1[ i, 5 ] )
             arr_osm1[ i, 8 ] := 0  // для федеральных услуг цену дадим 0
           Endif
-
           If eq_any( arr_osm1[ i, 10 ], 0, 3, 4 ) // выполнено, отклонение, не назначено
             AAdd( arr_usl_dop, AClone( arr_osm1[ i ] ) )
             iUslDop++
@@ -1238,13 +1330,13 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
               arr_usl_dop[ iUslDop, 12 ] := 1  // установим флаг услуги ФФОМС
               arr_usl_dop[ iUslDop, 13 ] := ''  // очистим федеральную услугу
             Endif
-            If arr_osm1[ i, 10 ] == 3 // обнаружены отклонения
-              AAdd( arr_otklon, arr_osm1[ i, 5 ] )
-              iUslOtklon++
-            elseIf arr_osm1[ i, 10 ] == 4 // не назначено
-              AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
-              iUslNeNazn++
-            Endif
+//            If arr_osm1[ i, 10 ] == 3 // обнаружены отклонения
+//              AAdd( arr_otklon, arr_osm1[ i, 5 ] )
+//              iUslOtklon++
+//            elseIf arr_osm1[ i, 10 ] == 4 // не назначено
+//              AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
+//              iUslNeNazn++
+//            Endif
           Endif
         Endif
       Next
