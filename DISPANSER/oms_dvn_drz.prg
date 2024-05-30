@@ -4,11 +4,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-#define BASE_ISHOD_RZD 500  // ВРЕМЕННО
+#define BASE_ISHOD_RZD 500  // 
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 28.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 30.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -194,7 +194,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     mvar := 'MKOD_DIAG' + lstr( i )
     Private &mvar := space( 6 )
     mvar := 'MOTKAZ' + lstr( i )
-    Private &mvar := arr_mm_result_drz( metap )[ 1, 1 ]
+    Private &mvar := substr( arr_mm_result_drz( metap )[ 1, 1 ], 1, 10 )
     mvar := 'M1OTKAZ' + lstr( i )
     Private &mvar := arr_mm_result_drz( metap )[ 1, 2 ]
   next
@@ -442,7 +442,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             endif
           endif
           mvar := 'MOTKAZ' + lstr( i )
-          &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
+          &mvar := substr( inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var ), 1, 10 )
         elseif ( valtype( larr[ 2, j ] ) == 'C' ) .and. ( eq_any( SubStr( larr[ 2, j ], 1, 1 ), 'A', 'B') )  // это услуга ФФОМС (первый символ A,B)
           MOHU->( dbGoto( larr[ 1, j ] ) )
           if MOHU->kod_vr > 0
@@ -474,7 +474,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             endif
           endif
           mvar := 'MOTKAZ' + lstr( i )
-          &mvar := inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var )
+          &mvar := substr( inieditspr( A__MENUVERT, arr_mm_result_drz( metap ), &m1var ), 1, 10 )
         endif
       endif
     next
@@ -872,13 +872,13 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         If arr_osm1[ i, 12 ] == 0
           arr_osm1[ i, 13 ] := view_uslugi[ i, 13 ]
         Endif
-        if Empty( &mvard )
+        if Empty( &mvard ) .and. &mvaro != 4
           fl := func_error( 4, 'Не введена дата услуги "' + LTrim( ar[ 1 ] ) + '"' )
-        elseif ( lUziMatkiTransvag .and. lUziMatkiAbdomin )
+        elseif ( lUziMatkiTransvag .and. lUziMatkiAbdomin ) .and. &mvaro != 4
           fl := func_error( 4, 'Нельзя применять одновременно услуги УЗИ (трансабдоминальное и трансвагинальное)' )
         elseif ( lCitIsl .and. lGidCitIsl )
           fl := func_error( 4, 'Нельзя применять одновременно услуги цитологии и жидкостной цитологии' )
-        elseif Empty( &mvart ) .and. ;
+        elseif Empty( &mvart ) .and. &mvaro != 4 .and. ;
           ( ( LTrim( ar[ 2 ] ) == 'A04.20.001' .and. ! lUziMatkiTransvag ) .or. ;
           ( LTrim( ar[ 2 ] ) == 'A04.20.001.001' .and. ! lUziMatkiAbdomin ) )
           fl := func_error( 4, 'Не введен врач в услуге УЗИ малого таза' )
@@ -1073,7 +1073,13 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       If m1dispans > 0
         s1dispans := m1dispans
       Endif
-      //
+      // готовим массивы для заполнения результатами диагностики
+      arr_usl_dop := {}
+      arr_otklon := {}
+      arr_ne_nazn := {}
+      iUslDop := 0
+      iUslOtklon := 0
+      iUslNeNazn := 0
 
       // заполним таблицу arr_osm1 далее
       for i := 1 to lenArr_Uslugi_DRZ
@@ -1204,14 +1210,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
         dir_server + 'uslugi1s' }, 'USL1' )
       mcena_1 := mu_cena := 0
-      arr_usl_dop := {}
-      arr_otklon := {}
-      arr_ne_nazn := {}
-      glob_podr := ''
-      glob_otd_dep := 0
-      iUslDop := 0
-      iUslOtklon := 0
-      iUslNeNazn := 0
+//      arr_usl_dop := {}
+//      arr_otklon := {}
+//      arr_ne_nazn := {}
+//      iUslDop := 0
+//      iUslOtklon := 0
+//      iUslNeNazn := 0
       For i := 1 To Len( arr_osm1 )
         If ValType( arr_osm1[ i, 5 ] ) == 'C'
           If arr_osm1[ i, 12 ] == 0

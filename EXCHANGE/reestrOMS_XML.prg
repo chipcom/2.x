@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-#define BASE_ISHOD_RZD 500  // ÇêÖåÖççé
+#define BASE_ISHOD_RZD 500  //
 
 Static sadiag1  // := {}
 

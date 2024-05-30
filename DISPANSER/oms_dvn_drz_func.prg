@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-#define BASE_ISHOD_RZD 500  // ВРЕМЕННО
+#define BASE_ISHOD_RZD 500  //
 
 // 11.05.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz()
