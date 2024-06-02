@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 30.05.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 01.06.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1265,32 +1265,29 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             indDest := index_usluga_etap_drz( arr_osm1, '70.9.52', 5 )
             change_field_arr_osm1( indSource, indDest )
           endif
-          indSource := index_usluga_etap_drz( arr_osm1, '70.9.53', 5) // вирус ИППП
-          if arr_osm1[ indSource, 10 ] != 4
-            if indSource != 0
+          if ( indSource := index_usluga_etap_drz( arr_osm1, '70.9.53', 5 ) ) > 0  // вирус ИППП
+            if arr_osm1[ indSource, 10 ] != 4
               indDest := index_usluga_etap_drz( arr_osm1, 'A26.20.034.001', 5 )
               change_field_arr_osm1( indSource, indDest )
+            else  // удалим не нужные услуги
+              j := ascan( arr_osm1, { | x | x[ 5 ] == '70.9.53' } )
+              hb_ADel( arr_osm1, j, .t. )
+              j := ascan( arr_osm1, { | x | x[ 5 ] == 'A26.20.034.001' } )
+              hb_ADel( arr_osm1, j, .t. )
             endif
-          else  // удалим не нужные услуги
-            j := ascan( arr_osm1, { | x | x[ 5 ] == '70.9.53' } )
-            hb_ADel( arr_osm1, j, .t. )
-            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A26.20.034.001' } )
-            hb_ADel( arr_osm1, j, .t. )
           endif
-          indSource := index_usluga_etap_drz( arr_osm1, '70.9.54', 5) // вирус папиломы человека
-          if arr_osm1[ indSource, 10 ] != 4
-            if indSource != 0
+          if ( indSource := index_usluga_etap_drz( arr_osm1, '70.9.54', 5 ) ) > 0 // вирус папиломы человека
+            if arr_osm1[ indSource, 10 ] != 4
               indDest := index_usluga_etap_drz( arr_osm1, 'A26.20.009.002', 5 )
               change_field_arr_osm1( indSource, indDest )
+            else  // удалим не нужные услуги
+              j := ascan( arr_osm1, { | x | x[ 5 ] == '70.9.54' } )
+              hb_ADel( arr_osm1, j, .t. )
+              j := ascan( arr_osm1, { | x | x[ 5 ] == 'A26.20.009.002' } )
+              hb_ADel( arr_osm1, j, .t. )
             endif
-          else  // удалим не нужные услуги
-            j := ascan( arr_osm1, { | x | x[ 5 ] == '70.9.54' } )
-            hb_ADel( arr_osm1, j, .t. )
-            j := ascan( arr_osm1, { | x | x[ 5 ] == 'A26.20.009.002' } )
-            hb_ADel( arr_osm1, j, .t. )
           endif
-          indSource := index_usluga_etap_drz( arr_osm1, '70.9.50', 5) // повторный прием гинеколога
-          if indSource != 0
+          if ( indSource := index_usluga_etap_drz( arr_osm1, '70.9.50', 5) ) > 0 // повторный прием гинеколога
             indDest := index_usluga_etap_drz( arr_osm1, 'B01.001.002', 5 )
             change_field_arr_osm1( indSource, indDest )
           endif

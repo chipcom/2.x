@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 22.05.24 ПН - добавление или редактирование случая (листа учета)
+// 01.06.24 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -623,37 +623,6 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
         endif
       next
     endif
-    if .t.
-      dbcreate(cur_dir + 'tmp_onkna', create_struct_temporary_onkna())
-
-      // use (cur_dir + 'tmp_onkna') new alias TNAPR
-      // R_Use(dir_server + 'mo_su', , 'MOSU')
-      // R_Use(dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'NAPR') // онконаправления
-      // set relation to u_kod into MOSU
-      // find (str(Loc_kod, 7))
-      // do while napr->kod == Loc_kod .and. !eof()
-        cur_napr := 1 // при ред-ии - сначала первое направление текущее
-      //   ++count_napr
-      //   select TNAPR
-      //   append blank
-      //   tnapr->NAPR_DATE := napr->NAPR_DATE
-      //   tnapr->KOD_VR    := napr->KOD_VR
-      //   tnapr->NAPR_MO   := napr->NAPR_MO
-      //   tnapr->NAPR_V    := napr->NAPR_V
-      //   tnapr->MET_ISSL  := napr->MET_ISSL
-      //   tnapr->U_KOD     := napr->U_KOD
-      //   tnapr->shifr_u   := iif(empty(mosu->shifr), mosu->shifr1, mosu->shifr)
-      //   tnapr->shifr1    := mosu->shifr1
-      //   tnapr->name_u    := mosu->name
-      //   select NAPR
-      //   skip
-      // enddo
-      count_napr := collect_napr_zno(Loc_kod)
-      if count_napr > 0
-        // mnapr_onk := "Количество направлений - "+lstr(count_napr)
-        mnapr_onk := 'Количество направлений - ' + lstr(count_napr)
-      endif
-    endif
     if alltrim(msmo) == '34'
       mnameismo := ret_inogSMO_name(2, @rec_inogSMO, .t.) // открыть и закрыть
     endif
@@ -662,8 +631,17 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
     m1ismo := msmo
     msmo := '34'
   endif
+
+  dbcreate(cur_dir + 'tmp_onkna', create_struct_temporary_onkna())
+  cur_napr := 1 // при ред-ии - сначала первое направление текущее
+  count_napr := collect_napr_zno(Loc_kod)
+  if count_napr > 0
+    mnapr_onk := 'Количество направлений - ' + lstr(count_napr)
+  endif
+
   close databases
   is_talon := .t.
+
   fv_date_r( iif(Loc_kod > 0, mn_data,) )
   MFIO_KART := _f_fio_kart()
   mvzros_reb:= inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
@@ -799,7 +777,7 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
         loop
       endif
     endif
-    if num_screen == 1 //
+    if num_screen == 1
       @ ++j, 1 say 'Учреждение' get mlpu when .f. color cDataCSay
       @ row(),col() + 2 say 'Отделение' get motd when .f. color cDataCSay
       //
@@ -867,7 +845,7 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
       if !empty(a_smert)
         n_message(a_smert, , 'GR+/R', 'W+/R', , , 'G+/R')
       endif
-    elseif num_screen == 2 //
+    elseif num_screen == 2
       np_oftal_2_85_21(mperiod, mk_data)
       ar := np_arr_1_etap[mperiod]
       if !empty(ar[5]) // не пустой массив исследований
@@ -968,7 +946,7 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
       endif
       @ j, 51 get MDATEp1
       status_key('^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ на 3-ю страницу')
-    elseif num_screen == 3 //
+    elseif num_screen == 3
       @ ++j, 1 say 'Направлен на II этап ?' get mstep2 ;
                  reader {|x|menu_reader(x, mm_step2, A__MENUVERT, , , .f.)}
       if !is_disp_19
@@ -1016,7 +994,7 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
       endif
       @ j, 51 get MDATEp2 when m1step2 == 1
       status_key('^<Esc>^ выход без записи ^<PgUp>^ на 2-ю страницу ^<PgDn>^ на 4-ю страницу')
-    elseif num_screen == 4 //
+    elseif num_screen == 4
       if mdvozrast < 5 // если меньше 5 лет
         @ ++j, 1 say padc('Оценка психического развития (возраст развития):', 78,'_')
         @ ++j, 1 say 'познавательная функция' get m1psih11 pict '99'
@@ -1148,7 +1126,7 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
       @ ++j, 1 say '        медицинская ГРУППА для занятия физкультурой' get mGR_FIZ_DO ;
                 reader {|x|menu_reader(x, mm_gr_fiz_do, A__MENUVERT, , , .f.)}
       status_key('^<Esc>^ выход без записи ^<PgUp>^ на 3-ю страницу ^<PgDn>^ на 5-ю страницу')
-    elseif num_screen == 5 //
+    elseif num_screen == 5
       @ ++j, 1 say 'ПО РЕЗУЛЬТАТАМ ПРОВЕДЕНИЯ ПРОФОСМОРА: практически здоров' get mdiag_16_1 ;
                   reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)}
       @ ++j, 1 say '──────┬───┬───────┬─────────────┬─────────────┬─────────────┬─────────────┬───'
