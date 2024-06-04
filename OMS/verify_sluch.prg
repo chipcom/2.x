@@ -8,7 +8,7 @@
 
 Static sadiag1  // := {}
 
-// 24.05.24
+// 04.06.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -254,11 +254,11 @@ Function verify_1_sluch( fl_view )
     If fl .and. Between( human->ishod, 201, 205 )
       // ¥á«¨ £®¤ ­ ç «  â¥ªãé¥£® «¥ç¥­¨ï = £®¤ã ­ ç «  ¯à®è«®£® «¥ç¥­¨ï
       If Year( human->n_data ) == Year( d1 ) // ¤«ï ¤¨á¯ ­á¥à¨§ æ¨¨
-        AAdd( a_disp, { human->ishod -200, human->n_data, human->k_data, human_->RSLT_NEW } )
+        AAdd( a_disp, { human->ishod - 200, human->n_data, human->k_data, human_->RSLT_NEW } )
       Endif
       // ¤«ï ¯à®ä¨« ªâ¨ª¨
       If human->ishod == 203 .and. count_years( human->date_r, human->n_data ) == mvozrast
-        AAdd( a_disp, { human->ishod -200, human->n_data, human->k_data, human_->RSLT_NEW } )
+        AAdd( a_disp, { human->ishod - 200, human->n_data, human->k_data, human_->RSLT_NEW } )
       Endif
     Endif
     Select HUMAN
@@ -336,8 +336,6 @@ Function verify_1_sluch( fl_view )
 
   // ®¯à¥¤¥«ï¥¬ ¢®§à áâ, ¥á«¨ 0 â® ¢®§à áâ ¤® £®¤ 
   vozrast := count_years( iif( human_->NOVOR == 0, human->DATE_R, human_->DATE_R2 ), human->N_DATA )
-
-
   //
   // Ž‚…Ÿ…Œ „ˆ€ƒŽ‡›
   //
@@ -624,7 +622,7 @@ Function verify_1_sluch( fl_view )
   musl_ok := USL_OK_POLYCLINIC  // 3 - ¯-ª  ¯® ã¬®«ç ­¨î
   ldnej := 0
   pr_amb_reab := .f.
-  If human_->USL_OK < USL_OK_AMBULANCE  // 4
+  If human_->USL_OK < USL_OK_AMBULANCE  // ­¥ áª®à ï ¯®¬®éì
     Select HU
     find ( Str( human->kod, 7 ) )
     Do While hu->kod == human->kod .and. !Eof()
@@ -657,7 +655,6 @@ Function verify_1_sluch( fl_view )
 
   Select HU
   find ( Str( human->kod, 7 ) )
-
   If ! Found()
     add_string( header_error )
     AAdd( ta, '¤«ï á«ãç ï ®âáãâáâ¢ã¥â á¯¨á®ª ®ª § ­­ëå ãá«ã£' )
@@ -682,6 +679,8 @@ Function verify_1_sluch( fl_view )
     Return .f.
   Endif
 
+  lshifr := ''
+  lshifr1 := ''
   Do While hu->kod == human->kod .and. !Eof()
     lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
     If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, @auet, @lbukva, @lst, @lidsp, @s )
@@ -1259,7 +1258,6 @@ Function verify_1_sluch( fl_view )
         c4tod( hu->date_u ), ; // 4
       hu->kol_1 } )         // 5
     Endif
-
     Select HU
     Skip
   Enddo
@@ -2658,6 +2656,11 @@ Function verify_1_sluch( fl_view )
     Select HU
     Set Relation To RecNo() into HU_, To u_kod into USL
   Endif
+
+  u_other := {}
+  lshifr := ''
+  lshifr1 := ''
+
   If eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. kol_ksg > 0 .and. human_2->VMP == 0 // ­¥ ‚Œ
     k_data2 := human->k_data
     If human->ishod == 88
@@ -4427,7 +4430,6 @@ Function verify_1_sluch( fl_view )
     arr_nazn := {}
     read_arr_drz( human->kod )
   Endif
-
   //
   // Ž‚…Š€ ‹…Š€‘’‚…›• …€€’Ž‚
   //
@@ -4509,7 +4511,6 @@ Function verify_1_sluch( fl_view )
     Endif
 
   Endif
-
   //
   // Ž‚…Š€ “‘’€Ž‚‹…›• ˆŒ‹€’Ž‚
   //
@@ -4823,7 +4824,7 @@ Function verify_1_sluch( fl_view )
     human_->PZTIP := mpztip
     human_->PZKOL := iif( mpzkol > 0, mpzkol, 1 )
   Endif
-alltrim_lshifr := alltrim( lshifr )
+  alltrim_lshifr := alltrim( lshifr )
   If ( between_shifr( alltrim_lshifr, '2.88.111', '2.88.119' ) .and. ( human->k_data >= 0d20220201 ) )
     arr_povod[ 1, 1 ] := 1
     human_->POVOD := arr_povod[ 1, 1 ]
