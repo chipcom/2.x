@@ -1006,9 +1006,15 @@ Function verify_1_sluch( fl_view )
               // добавлена комплексная услуга 2.78.107 02.2023
               // добавлена услуги 2.78.109, 2.78.110, 2.78.111, 2.78.112 01.2024
               mpovod := 4 // 1.3
-              If ! f_is_diag_dn( mdiagnoz[ 1 ], , human->k_data, .f. )
+//              If ! f_is_diag_dn( mdiagnoz[ 1 ], , human->k_data, .f. )
+              If ! check_diag_usl_disp_nabl( mdiagnoz[ 1 ], alltrim_lshifr, human->k_data ) //, .f. )
                 AAdd( ta, 'в услуге ' + alltrim_lshifr + ' должен стоять допустимый диагноз для диспансерного наблюдения' )
               Endif
+              if between_diag( mdiagnoz[ 1 ], ;
+                  'E10.0', 'E10.9') .and. alltrim_lshifr == '2.78.111' .and. ;
+                  human->k_data >= 0d20240426 // согласно письму 09-20-180 от 26.04.24
+                AAdd( ta, 'для диагноза ' + alltrim( mdiagnoz[ 1 ] ) + ' следует использовать услуги 2.78.61-63, 2.78.68-69, 2.78.71, 2.78.80, 2.78.86 для диспансерного наблюдения' )
+              endif
             Endif
           Endif
           mdate_u2 := dtoc4( human->k_data )
