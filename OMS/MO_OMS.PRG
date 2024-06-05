@@ -2127,7 +2127,7 @@ Function f2ret_oms_human( nkey )
   Local buf := SaveScreen(), buf1, rec1 := RecNo(), fl := -1, ss := 0, ;
     j, n_file := cur_dir + 'omserror' + stxt, sh := 80, HH := 60, ii
   Local mas_otchet := {}
-  Local tmpSelect
+  Local tmpSelect, flag_RDL := .F.
 
   For ii := 1 To 48
     AAdd( mas_otchet, { 0, 0, 0, 0 } )
@@ -2188,50 +2188,46 @@ Function f2ret_oms_human( nkey )
     Elseif nkey == K_CTRL_F5
       If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
         tmpSelect := Select()
-        // надо фильтр по коду ошибки
-        adbf1 :=  { { 'num_usl', 'C', 10, 0 }, ;    // номер услуги по порядку
-        { 'shifr_usl', 'C', 10, 0 }, ;  // шифр услуги
-        { 'name_usl', 'C', 250, 0 }, ; // наименование услуги
-        { 'NUMORDER', 'N', 10, 0 }, ;   // Номер заявки(ORDER Number)
-        { 'fio', 'C', 70, 0 }, ;
+        if hb_vfExists(cur_dir + fr_data + '2' + sdbf)  
+          Use ( cur_dir + fr_data + '2' ) New Alias FRD2
+          if frd2->(lastrec()) > 1
+            flag_RDL := .T.
+          endif     
+          frd2->(dbCloseArea())
+        endif
+        if flag_RDL
+          // надо фильтр по коду ошибки
+          adbf1 :=  { { 'num_usl', 'C', 10, 0 }, ;    // номер услуги по порядку
+          { 'shifr_usl', 'C', 10, 0 }, ;  // шифр услуги
+          { 'name_usl', 'C', 250, 0 }, ; // наименование услуги
+          { 'NUMORDER', 'N', 10, 0 }, ;   // Номер заявки(ORDER Number)
+          { 'fio', 'C', 70, 0 }, ;
           { 'kol_usl', 'N', 10, 0 }, ;    // кол-во услуг
-        { 'cena_1', 'N', 11, 2 }, ;
+          { 'cena_1', 'N', 11, 2 }, ;
           { 'otd', 'C', 42, 0 }, ;
           { 'otd_kod', 'N', 3, 0 }, ;
           { 'napr_uch', 'C', 6, 0 }  }
-        dbCreate( cur_dir + 'tmp_err', adbf1 )
-        // dbcreate(fr_data + '3', adbf1)
-        Use ( cur_dir + fr_data + '2' ) New Alias FRD2
-        // use (fr_data + '3') new alias FRD3
-        Use ( cur_dir + 'tmp_err' ) New Alias FRD3
+          dbCreate( cur_dir + 'tmp_err', adbf1 )
+          Use ( cur_dir + fr_data + '2' ) New Alias FRD2
+          Use ( cur_dir + 'tmp_err' ) New Alias FRD3
 
-        Private ii_otd
-        For ii_otd := 1 To 4
-          Select frd2
-          Index On shifr_usl + smo_kod + Str( numorder, 10 ) To tmp_frd9  for ( otd_kod == ii_otd .and. REFREASON == kod_REFREASON_menu )
-          Go Top
-          Select FRD3
-          Append Blank
-          frd3->fio := frd2->otd
-          temp_1 := ' '
-          temp_2 := 1
-          temp_3 := 0 // кол_во
-          temp_4 := 0 // сумма
+          Private ii_otd
+          For ii_otd := 1 To 4
+            Select frd2
+            Index On shifr_usl + smo_kod + Str( numorder, 10 ) To tmp_frd9  for ( otd_kod == ii_otd .and. REFREASON == kod_REFREASON_menu )
+            Go Top
+            Select FRD3
+            Append Blank
+            frd3->fio := frd2->otd
+            temp_1 := ' '
+            temp_2 := 1
+            temp_3 := 0 // кол_во
+            temp_4 := 0 // сумма
 
-          Select FRD3
-          Append Blank
-          // добавляем шапку
-          tsmo := ''
-          If frd2->smo_kod == '34007'
-            tsmo := '"Капитал МС"'
-          Elseif  frd2->smo_kod == '34002'
-            tsmo := '"Согаз"'
-          Else
-            tsmo := ' Иногородние ТФОМС'
-          Endif
-          frd3->fio :=  tsmo
-          //
-          Do While !Eof()
+            Select FRD3
+            Append Blank
+            // добавляем шапку
+            tsmo := ''
             If frd2->smo_kod == '34007'
               tsmo := '"Капитал МС"'
             Elseif  frd2->smo_kod == '34002'
@@ -2239,55 +2235,69 @@ Function f2ret_oms_human( nkey )
             Else
               tsmo := ' Иногородние ТФОМС'
             Endif
+            frd3->fio :=  tsmo
+            //
+            Do While !Eof()
+              If frd2->smo_kod == '34007'
+                tsmo := '"Капитал МС"'
+              Elseif  frd2->smo_kod == '34002'
+                tsmo := '"Согаз"'
+              Else
+                tsmo := ' Иногородние ТФОМС'
+              Endif
+              Select FRD3
+              Append Blank
+              If frd2->shifr_usl != temp_1
+                If temp_3 == 0
+                  //
+                Else
+                  frd3->name_usl   := ' ВСЕГО :'
+                  frd3->kol_usl    := temp_3
+                  frd3->cena_1     := temp_4
+                  Append Blank
+                  // добавляем шапку
+                  frd3->fio :=  tsmo
+                  Append Blank
+                Endif
+                frd3->num_usl    := Str( temp_2 )
+                frd3->shifr_usl  := frd2->shifr_usl
+                frd3->name_usl   := frd2->name_usl
+                temp_1 := frd2->shifr_usl
+                temp_2++
+                temp_3 := frd2->kol_usl
+                temp_4 := frd2->cena_1
+              Else
+                frd3->shifr_usl  := ' '
+                frd3->name_usl   := ' '
+                temp_3 += frd2->kol_usl
+                temp_4 += frd2->cena_1
+              Endif
+              frd3->kol_usl    := frd2->kol_usl
+              frd3->cena_1     := frd2->cena_1
+              frd3->fio        := frd2->fio
+              frd3->otd        := frd2->otd
+              frd3->NUMORDER   := frd2->NUMORDER
+              frd3->napr_uch   := frd2->napr_uch
+              Select frd2
+              Skip
+            Enddo
             Select FRD3
             Append Blank
-            If frd2->shifr_usl != temp_1
-              If temp_3 == 0
-                //
-              Else
-                frd3->name_usl   := ' ВСЕГО :'
-                frd3->kol_usl    := temp_3
-                frd3->cena_1     := temp_4
-                Append Blank
-                // добавляем шапку
-                frd3->fio :=  tsmo
-                Append Blank
-              Endif
-              frd3->num_usl    := Str( temp_2 )
-              frd3->shifr_usl  := frd2->shifr_usl
-              frd3->name_usl   := frd2->name_usl
-              temp_1 := frd2->shifr_usl
-              temp_2++
-              temp_3 := frd2->kol_usl
-              temp_4 := frd2->cena_1
-            Else
-              frd3->shifr_usl  := ' '
-              frd3->name_usl   := ' '
-              temp_3 += frd2->kol_usl
-              temp_4 += frd2->cena_1
-            Endif
-            frd3->kol_usl    := frd2->kol_usl
-            frd3->cena_1     := frd2->cena_1
-            frd3->fio        := frd2->fio
-            frd3->otd        := frd2->otd
-            frd3->NUMORDER   := frd2->NUMORDER
-            frd3->napr_uch   := frd2->napr_uch
-            Select frd2
-            Skip
-          Enddo
-          Select FRD3
-          Append Blank
-          frd3->fio        := ' ВСЕГО :'
-          frd3->kol_usl    := temp_3
-          frd3->cena_1     := temp_4
-        Next
-        frd3->( dbCloseArea() )
-        frd2->( dbCloseArea() )
+            frd3->fio        := ' ВСЕГО :'
+            frd3->kol_usl    := temp_3
+            frd3->cena_1     := temp_4
+          Next
+          frd3->( dbCloseArea() )
+          frd2->( dbCloseArea() )
 
-        Select( tmpSelect )
-        // Здесь запрос на запись ЭКСЕЛЯ
-        create_xls_rdl( 'rdl_report' )  // , arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
-        saveto( cur_dir + 'rdl_report.xlsx' )
+          Select( tmpSelect )
+          // Здесь запрос на запись ЭКСЕЛЯ
+          create_xls_rdl( 'rdl_report' )  // , arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
+          saveto( cur_dir + 'rdl_report.xlsx' )
+        else
+          Select( tmpSelect )
+          func_error(4,"Отчет не формировался !")
+        endif  
 
       Endif
     Elseif nkey == K_CTRL_F9
