@@ -1,3 +1,4 @@
+#include 'hbhash.ch' 
 #include 'inkey.ch'
 #include 'fastreph.ch'
 #include 'function.ch'
@@ -81,7 +82,7 @@ Function f_is_diag_dn( ldiag, /*@*/arr_dn, dUsluga, not_del )
       { 'B18-B24' }, ;
       { 'C00-C97' }, ;
       { 'D00-D10' }, ;   // до D09.9 может быть добавить  {'D45-D47')
-    { 'D11' }, ;
+      { 'D11' }, ;
       { 'D11.0' }, ;
       { 'D11.7' }, ;
       { 'D12.6' }, ;
@@ -115,7 +116,7 @@ Function f_is_diag_dn( ldiag, /*@*/arr_dn, dUsluga, not_del )
       { 'E05.2' }, ;
       { 'E10-E10.9'},; // 
       { 'E11-E11.9' }, ;   // c E10.2 {'E10.2-E10.9'}, ;
-    { 'E21.0' }, ;
+      { 'E21.0' }, ;
       { 'E22.0' }, ;
       { 'E28.2' }, ;
       { 'E34.5' }, ;

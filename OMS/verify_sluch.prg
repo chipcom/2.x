@@ -8,7 +8,7 @@
 
 Static sadiag1  // := {}
 
-// 04.06.24
+// 05.06.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -4429,6 +4429,11 @@ Function verify_1_sluch( fl_view )
     is_disp_nabl := .f.
     arr_nazn := {}
     read_arr_drz( human->kod )
+    If eq_any( human_->RSLT_NEW, 376, 377 ) .and. ( ( human->ishod - BASE_ISHOD_RZD ) == 1 )
+      If ( m1dopo_na == 0 ) .and. ( m1napr_v_mo == 0 ) .and. ( m1napr_stac == 0 ) .and. ( m1napr_reab == 0 )
+        AAdd( ta, 'для выбранной ГРУППЫ ЗДОРОВЬЯ не выбраны назначения (направления) для пациента' )
+      Endif
+    endif
   Endif
   //
   // ПРОВЕРКА ЛЕКАРСТВЕННЫХ ПРЕПАРАТОВ

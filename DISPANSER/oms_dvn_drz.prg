@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 04.06.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 05.06.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -807,10 +807,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         fl_shapka_osmotr := .f.
         Loop
       Endif
-//      If eq_any( m1gruppa, 2, 3, 11, 12 ) .and. ( m1dopo_na == 0 ) .and. ( m1napr_v_mo == 0 ) .and. ( m1napr_stac == 0 ) .and. ( m1napr_reab == 0 )
-//        func_error( 4, 'Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!' )
-//        Loop
-//      Endif
       If ! checktabnumberdoctor( mk_data, .t. )
         Loop
       Endif
@@ -829,6 +825,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       for i := 1 to len( view_uslugi )
         arr_osm1[ i, 5 ] := view_uslugi[ i, 2 ]
       next
+
+      If ( metap == 1 ) .and. eq_any( m1gruppa, 2, 3 ) .and. ( m1dopo_na == 0 ) .and. ( m1napr_v_mo == 0 ) .and. ( m1napr_stac == 0 ) .and. ( m1napr_reab == 0 )
+        func_error( 4, 'Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!' )
+        Loop
+      Endif
 
       // ВСЕ ЗАПИСЫВАЕМ
       lAllneNazn := .t.
