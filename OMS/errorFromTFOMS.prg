@@ -71,7 +71,7 @@ Function f3oms_edit()
       select HUMAN
       skip
     enddo
-    if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
+    if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ 
       adbf := {{"REFREASON","N",15,0},; 
            {"shifr_usl","C",10,0},;  // шифр услуги 
            {"name_usl","C",250,0},; // наименование услуги 
@@ -85,56 +85,58 @@ Function f3oms_edit()
            {"smo_kod","C",5,0},;
            {"napr_uch","C",6,0}} 
       dbcreate(cur_dir + fr_data + '2', adbf)
-      use (cur_dir + fr_data + '2') new alias FRD2
-      // база готова
-      R_Use(dir_server+"mo_otd",,"OTD")
-      R_Use(dir_server+"human_2",,"HU2")
-      R_Use(dir_server+"uslugi",,"USL")
-      R_Use(dir_server+"human_u_",,"HU_")
-      R_Use(dir_server+"human_u",dir_server+"human_u","HU")
-      set relation to recno() into HU_, to u_kod into USL
-      use_base("lusl")
-      select tmp_h 
-      go top
-      do while !eof() 
-        select hu
-        find (str(tmp_h->kod,7))
-        do while tmp_h->kod == hu->kod .and. !eof()
-          select hu2
-          goto tmp_h->kod
-          select  frd2
-          append blank
-          frd2->REFREASON := tmp_h->refreason 
-          frd2->shifr_usl := usl->shifr    // шифр услуги 
-          frd2->name_usl  :=  usl->name // наименование услуги 
-          select human
-          goto tmp_h->kod
-          select human_
-          goto tmp_h->kod
-          frd2->smo_kod   := human_->smo
-          frd2->napr_uch  := human_->NPR_MO
-          //
-          musl := transform_shifr(frd2->shifr_usl)
-          select lusl
-          find(musl)
-          frd2->name_usl := lusl->name
-          //
-          frd2->NUMORDER := hu2->pn3   // Номер заявки(ORDER Number)
-
-          frd2->fio     := alltrim (human->fio )+" "+full_date(human->date_r)
-          frd2->kol_usl := hu->kol_1     // кол-во услуг
-          frd2->cena_1  := hu->stoim_1
-          select otd
-          goto human->otd
-          frd2->otd    := alltrim(otd->NAME)
-          frd2->otd_kod := human->otd
-          select hu
-          skip
-        enddo
+      If f_esc_enter( "создания отчета в Excel " , .t. )
+        //dbcreate(cur_dir + fr_data + '2', adbf)
+        use (cur_dir + fr_data + '2') new alias FRD2
+        // база готова
+        R_Use(dir_server+"mo_otd",,"OTD")
+        R_Use(dir_server+"human_2",,"HU2")
+        R_Use(dir_server+"uslugi",,"USL")
+        R_Use(dir_server+"human_u_",,"HU_")
+        R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+        set relation to recno() into HU_, to u_kod into USL
+        use_base("lusl")
         select tmp_h 
-        skip
-      enddo 
-    endif
+        go top
+        do while !eof() 
+          select hu
+          find (str(tmp_h->kod,7))
+          do while tmp_h->kod == hu->kod .and. !eof()
+            select hu2
+            goto tmp_h->kod
+            select  frd2
+            append blank
+            frd2->REFREASON := tmp_h->refreason 
+            frd2->shifr_usl := usl->shifr    // шифр услуги 
+            frd2->name_usl  :=  usl->name // наименование услуги 
+            select human
+            goto tmp_h->kod
+            select human_
+            goto tmp_h->kod
+            frd2->smo_kod   := human_->smo
+            frd2->napr_uch  := human_->NPR_MO
+            //
+            musl := transform_shifr(frd2->shifr_usl)
+            select lusl
+            find(musl)
+            frd2->name_usl := lusl->name
+            //
+            frd2->NUMORDER := hu2->pn3   // Номер заявки(ORDER Number)
+            frd2->fio     := alltrim (human->fio )+" "+full_date(human->date_r)
+            frd2->kol_usl := hu->kol_1     // кол-во услуг
+            frd2->cena_1  := hu->stoim_1
+            select otd
+            goto human->otd
+            frd2->otd    := alltrim(otd->NAME)
+            frd2->otd_kod := human->otd
+            select hu
+            skip
+          enddo
+          select tmp_h 
+          skip
+        enddo 
+      endif  
+    endif  // Окончание РДЛ
     close databases
     rest_box(buf24)
     Private kod_REFREASON_menu
