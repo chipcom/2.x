@@ -318,7 +318,6 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
       Endif
       f1_create2reestr19( _nyear, _nmonth ) 
-
       // заполним реестр записями для XML-документа
       If isl == 1
         oZAP := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZAP' ) )
@@ -1914,21 +1913,13 @@ Function create1reestr19( _recno, _nyear, _nmonth )
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
 
   Private mpz, oldpz, atip
-//  private p_array_PZ  // перенес в create_reestr
 
-  // nameArr := 'glob_array_PZ_' + last_digits_year( _nyear )
-  // p_array_PZ := &nameArr
-  // funcGetPZ := 'get_array_PZ_' + last_digits_year( _nyear ) + '()'
-  // p_array_PZ := &funcGetPZ
-
-//  p_array_PZ := get_array_pz( _nyear )  // перенес в create_reestr
   lenPZ := len( p_array_PZ )
 
   mpz := Array( lenPZ + 1 )
   oldpz := Array( lenPZ + 1 )
   atip := Array( lenPZ + 1 )
 
-//  For j := 0 To 150    // для таблицы _moXunit 03.02.23
   For j := 0 To lenPZ    // для таблицы _moXunit 03.02.23
     pole := 'tmp->PZ' + lstr( j )
     mpz[ j + 1 ] := oldpz[ j + 1 ] := &pole

@@ -6,7 +6,7 @@
 #define max_rec_reestr 9999
 #define BASE_ISHOD_RZD 500
 
-// 23.05.24
+// 06.06.24
 Function verify_oms( arr_m, fl_view )
 
   Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := cur_dir + 'err_sl' + stxt, ;
@@ -212,7 +212,7 @@ Function verify_oms( arr_m, fl_view )
           pz += human_->PZKOL
           Select HUMAN_3
           g_rlock( forever )
-          human_3->N_DATA    := ln_data
+//          human_3->N_DATA    := ln_data
           human_3->K_DATA    := lk_data
           human_3->CENA_1    := lcena
           Select HUMAN
