@@ -111,78 +111,78 @@ Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach
   endif
   return nil
   
-// 26.05.22 собрать шифры услуг в случае
-function collect_uslugi(rec_human)
+// 07.06.24 собрать шифры услуг в случае
+function collect_uslugi( rec_number )
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrUslugi := {}
 
-  human_number := hb_DefaultValue(rec_human, human->(recno()))
-  human_uslugi := hu->(recno())
-  mohu_usluga := mohu->(recno())
-  dbSelectArea('HU')
+  human_number := hb_DefaultValue( rec_number, human->( recno() ) )
+  human_uslugi := hu->( recno() )
+  mohu_usluga := mohu->( recno() )
+  dbSelectArea( 'HU' )
 
-  find (str(human_number, 7))
-  do while hu->kod == human_number .and. !eof()
-    aadd(arrUslugi, alltrim(usl->shifr))
-    hu->(dbSkip())
+  find ( str( human_number, 7 ) )
+  do while hu->kod == human_number .and. ! eof()
+    aadd( arrUslugi, alltrim( usl->shifr ) )
+    hu->( dbSkip() )
   enddo
 
-  hu->(dbGoto(human_uslugi))
+  hu->( dbGoto( human_uslugi ) )
 
-  dbSelectArea('MOHU')
+  dbSelectArea( 'MOHU' )
   set relation to u_kod into MOSU
-  find (str(human_number, 7))
-  do while mohu->kod == human_number .and. !eof()
-    aadd(arrUslugi, alltrim(iif(empty(mosu->shifr), mosu->shifr1, mosu->shifr)))
-    mohu->(dbSkip())
+  find ( str( human_number, 7 ) )
+  do while mohu->kod == human_number .and. ! eof()
+    aadd( arrUslugi, alltrim( iif( empty( mosu->shifr ), mosu->shifr1, mosu->shifr ) ) )
+    mohu->( dbSkip() )
   enddo
-  mohu->(dbGoto(mohu_usluga))
+  mohu->( dbGoto( mohu_usluga ) )
 
-  select(tmp_select)
+  select( tmp_select )
   return arrUslugi
 
-// 26.05.22 собрать даты оказания услуг в случае
-function collect_date_uslugi(rec_human)
+// 07.06.24 собрать даты оказания услуг в случае
+function collect_date_uslugi( rec_number )
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrDate := {}, aSortDate
   local i := 0, sDate, dDate
 
-  human_number := hb_DefaultValue(rec_human, human->(recno()))
-  human_uslugi := hu->(recno())
-  mohu_usluga := mohu->(recno())
-  dbSelectArea('HU')
+  human_number := hb_DefaultValue( rec_number, human->( recno() ) )
+  human_uslugi := hu->( recno() )
+  mohu_usluga := mohu->( recno() )
+  dbSelectArea( 'HU' )
 
-  find (str(human_number, 7))
-  do while hu->kod == human_number .and. !eof()
-    dDate := c4tod(hu->date_u)
-    sDate := dtoc(dDate)
-    if ascan(arrDate, {|x| x[1] == sDate }) == 0
+  find ( str( human_number, 7 ) )
+  do while hu->kod == human_number .and. ! eof()
+    dDate := c4tod( hu->date_u )
+    sDate := dtoc( dDate )
+    if ascan( arrDate, { | x | x[ 1 ] == sDate } ) == 0
       i++
-      aadd(arrDate, {sDate, i, dDate})
+      aadd( arrDate, { sDate, i, dDate } )
     endif
-    hu->(dbSkip())
+    hu->( dbSkip() )
   enddo
 
-  hu->(dbGoto(human_uslugi))
+  hu->( dbGoto( human_uslugi ) )
 
-  dbSelectArea('MOHU')
+  dbSelectArea( 'MOHU' )
   // set relation to u_kod into MOSU
-  find (str(human_number, 7))
-  do while mohu->kod == human_number .and. !eof()
-    dDate := c4tod(mohu->date_u)
-    sDate := dtoc(dDate)
-    if ascan(arrDate, {|x| x[1] == sDate }) == 0
+  find ( str(human_number, 7 ) )
+  do while mohu->kod == human_number .and. ! eof()
+    dDate := c4tod( mohu->date_u )
+    sDate := dtoc( dDate )
+    if ascan( arrDate, { | x | x[ 1 ] == sDate } ) == 0
       i++
-      aadd(arrDate, {sDate, i, dDate})
+      aadd( arrDate, { sDate, i, dDate } )
     endif
-    mohu->(dbSkip())
+    mohu->( dbSkip() )
   enddo
-  mohu->(dbGoto(mohu_usluga))
+  mohu->( dbGoto( mohu_usluga ) )
 
-  aSortDate := ASort(arrDate,,, { |x, y| x[3] < y[3] })  
-  select(tmp_select)
+  aSortDate := ASort( arrDate, , , { | x, y | x[ 3 ] < y[ 3 ] } )  
+  select( tmp_select )
   return aSortDate
 
 // 06.11.19

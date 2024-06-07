@@ -6,7 +6,7 @@
 #define max_rec_reestr 9999
 #define BASE_ISHOD_RZD 500
 
-// 06.06.24
+// 07.06.24
 Function verify_oms( arr_m, fl_view )
 
   Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := cur_dir + 'err_sl' + stxt, ;
@@ -49,7 +49,10 @@ Function verify_oms( arr_m, fl_view )
     { 'komu', 'N', 1, 0 }, ;
     { 'str_crb', 'N', 2, 0 } } )
   Use ( cur_dir + 'tmp_no' ) new
-  f_create_diag_srok()
+
+  f_create_diag_srok( 'tmp_d_srok' )
+  Use ( cur_dir + 'tmp_d_srok' ) New Alias D_SROK
+
   r_use( dir_server + 'mo_pers', , 'PERS' )
   r_use( dir_server + 'mo_uch', , 'UCH' )
   r_use( dir_server + 'mo_otd', , 'OTD' )

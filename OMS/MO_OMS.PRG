@@ -631,13 +631,15 @@ Static Function when_ismo( get, old )
 
   Return Len( mm_ismo ) > 0
 
-// 28.02.18
+// 07.06.24
 Function verify_oms_sluch( mkod )
 
   Local buf := save_maxrow(), fl := .t., name_file := cur_dir + 'err_sl' + stxt
 
   mywait()
-  f_create_diag_srok()
+  f_create_diag_srok( 'tmp_d_srok' )
+  Use ( cur_dir + 'tmp_d_srok' ) New Alias D_SROK
+
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
@@ -685,7 +687,6 @@ Function verify_oms_sluch( mkod )
   Elseif Year( human->k_data ) > 2018
     fl := verify_1_sluch()
   Else
-    // fl := verify_1_sluch_18()
     func_error( 4, 'Случай ранее 2019 года.' )
     Close databases
     Return Nil

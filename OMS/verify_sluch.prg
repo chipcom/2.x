@@ -8,7 +8,7 @@
 
 Static sadiag1  // := {}
 
-// 06.06.24
+// 07.06.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -35,7 +35,7 @@ Function verify_1_sluch( fl_view )
   Local iVMP
   Local aDiagnoze_for_check := {}
   Local fl_zolend := .f.
-  Local header_error
+  Local header_error := ''
   Local vozrast, lu_type
   Local kol_dney
   Local is_2_92_ := .f., kol_2_93_1 := 0  // школа диабета, письмо 12-20-154 от 28.04.23
@@ -45,16 +45,22 @@ Function verify_1_sluch( fl_view )
   Local aN021, l_n021
   Local usl_found := .f.
 
+  Default fl_view To .t.
+
   If Empty( human->k_data )
     Return .t.  // не проверять
   Endif
-  Default fl_view To .t.
-  rec_human := human->( RecNo() )
+  
   Private mdate_r := human->date_r, mvozrast, mdvozrast, M1VZROS_REB := human->VZROS_REB, ;
     arr_usl_otkaz := {}, m1novor := 0, mpol := human->pol, mDATE_R2 := CToD( '' ), ;
     is_oncology := 0, is_oncology_smp := 0
 
-  arrUslugi := collect_uslugi( rec_human )   // выберем все коды услуг случая
+  rec_human := human->( RecNo() )
+
+  // установим курсор на нужное учреждение и отделение
+  uch->( dbGoto( human->LPU ) )
+  otd->( dbGoto( human->OTD ) )
+  lu_type := otd->TIPLU
 
   If human_->NOVOR > 0
     m1novor := 1 // для переопределения M1VZROS_REB
@@ -70,15 +76,14 @@ Function verify_1_sluch( fl_view )
     Unlock
   Endif
 
-  uch->( dbGoto( human->LPU ) )
-  otd->( dbGoto( human->OTD ) )
-  lu_type := otd->TIPLU
-
+  // заголовок для вывода в протокол ошибок
   header_error := fio_plus_novor() + ' ' + AllTrim( human->kod_diag ) + ' ' + ;
     date_8( human->n_data ) + '-' + date_8( human->k_data ) + ;
     ' (' + count_ymd( human->date_r, human->n_data ) + ')' + hb_eol()
   header_error += AllTrim( uch->name ) + '/' + AllTrim( otd->name ) + '/профиль по "' + ;
     AllTrim( inieditspr( A__MENUVERT, getv002(), human_->profil ) ) + '"'
+
+  arrUslugi := collect_uslugi( rec_human )   // выберем все коды услуг случая
 
   lTypeLUOnkoDisp := ( otd->tiplu == TIP_LU_ONKO_DISP )
 
@@ -89,6 +94,12 @@ Function verify_1_sluch( fl_view )
   glob_kartotek := human->kod_k
   d1 := human->n_data
   d2 := human->k_data
+  cd1 := dtoc4( d1 )
+  cd2 := dtoc4( d2 )
+  d1_year := Year( d1 )
+  d2_year := Year( d2 )
+  ym2 := Left( DToS( d2 ), 6 )
+
   kol_dney := kol_dney_lecheniya( human->n_data, human->k_data, human_->usl_ok )
   cuch_doc := human->uch_doc
 
@@ -97,17 +108,9 @@ Function verify_1_sluch( fl_view )
 
   reserveKSG_1 := exist_reserve_ksg( human->kod, 'HUMAN', ( HUMAN->ishod == 89 .or. HUMAN->ishod == 88 ) )
 
-  ym2 := Left( DToS( d2 ), 6 )
-  d1_year := Year( d1 )
-  d2_year := Year( d2 )
-  lal := 'lusl'
-  lalf := 'luslf'
-
-  lal := create_name_alias( lal, d2_year )
-  lalf := create_name_alias( lalf, d2_year )
+  lal := create_name_alias( 'lusl', d2_year )
+  lalf := create_name_alias( 'luslf', d2_year )
   //
-  cd1 := dtoc4( d1 )
-  cd2 := dtoc4( d2 )
   gnot_disp := ( human->ishod < 100 )
   gkod_diag := human->kod_diag
   gusl_ok := human_->usl_ok
@@ -270,8 +273,8 @@ Function verify_1_sluch( fl_view )
   g_rlock( forever )
   human_->( g_rlock( forever ) )
   human_2->( g_rlock( forever ) )
-  uch->( dbGoto( human->LPU ) )
-  otd->( dbGoto( human->OTD ) )
+//  uch->( dbGoto( human->LPU ) )
+//  otd->( dbGoto( human->OTD ) )
   s := fam_i_o( human->fio ) + ' '
   If !Empty( otd->short_name )
     s += '[' + AllTrim( otd->short_name ) + '] '
@@ -658,15 +661,6 @@ Function verify_1_sluch( fl_view )
   If ! Found()
     add_string( header_error )
     AAdd( ta, 'для случая отсутствует список оказанных услуг' )
-    // verify_FF(80 - len(ta) - 3, .t., 80)
-    // add_string('')
-    // uch->(dbGoto(human->LPU))
-    // otd->(dbGoto(human->OTD))
-    // add_string(fio_plus_novor() + ' ' + alltrim(human->kod_diag) + ' ' + ;
-    // date_8(human->n_data) + '-' + date_8(human->k_data) + ;
-    // ' (' + count_ymd(human->date_r, human->n_data) + ')')
-    // Ins_Array(ta, 1, alltrim(uch->name) + '/' + alltrim(otd->name) + '/профиль по "' + ;
-    // alltrim(inieditspr(A__MENUVERT, getV002(), human_->profil)) + '"')
     For i := 1 To Len( ta )
       For j := 1 To perenos( t_arr, ta[ i ], 78 )
         If j == 1
@@ -4795,16 +4789,11 @@ Function verify_1_sluch( fl_view )
       old_npr_mo := human_->NPR_MO
     Endif
     verify_ff( 80 - Len( ta ) -3, .t., 80 )
+    // вывод заголовок пациента
     add_string( '' )
-    // add_string(header_error)
+    add_string( header_error )
+    add_string( '' )
 
-    uch->( dbGoto( human->LPU ) )
-    otd->( dbGoto( human->OTD ) )
-    add_string( fio_plus_novor() + ' ' + AllTrim( human->kod_diag ) + ' ' + ;
-      date_8( human->n_data ) + '-' + date_8( human->k_data ) + ;
-      ' (' + count_ymd( human->date_r, human->n_data ) + ')' )
-    ins_array( ta, 1, AllTrim( uch->name ) + '/' + AllTrim( otd->name ) + '/профиль по "' + ;
-      AllTrim( inieditspr( A__MENUVERT, getv002(), human_->profil ) ) + '"' )
     If human->cena_1 == 0 ; // если цена нулевая
       .and. eq_any( human->ishod, 201, 202 ) // диспансеризация взрослого населения
       ASize( ta, 1 ) // чтобы не выводить бессмысленные строки
@@ -4813,7 +4802,7 @@ Function verify_1_sluch( fl_view )
     For i := 1 To Len( ta )
       For j := 1 To perenos( t_arr, ta[ i ], 78 )
         If j == 1
-          add_string( iif( i == 1, ' ', '- ' ) + t_arr[ j ] )
+          add_string( '- ' + t_arr[ j ] )
         Else
           add_string( PadL( AllTrim( t_arr[ j ] ), 80 ) )
         Endif

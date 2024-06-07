@@ -360,18 +360,22 @@ Function correct_profil( lp )
   Return lp
 
 
-//  04.03.19
-Function f_create_diag_srok()
+// 07.06.24
+Function f_create_diag_srok( nameFile )
 
-  dbCreate( cur_dir + "tmp_d_srok", { { "kod", "N", 7, 0 }, ;
-    { "tip", "N", 1, 0 }, ;
-    { "tips", "C", 3, 0 }, ;
-    { "otd", "N", 3, 0 }, ;
-    { "kod1", "N", 7, 0 }, ;
-    { "tip1", "N", 1, 0 }, ;
-    { "tip1s", "C", 3, 0 }, ;
-    { "dni", "N", 2, 0 } } )
-  Use ( cur_dir + "tmp_d_srok" ) New Alias D_SROK
+//  dbCreate( cur_dir + "tmp_d_srok", ;
+  dbCreate( cur_dir + alltrim( nameFile ), ;
+    { ;
+    { 'kod', 'N', 7, 0 }, ;
+    { 'tip', 'N', 1, 0 }, ;
+    { 'tips', 'C', 3, 0 }, ;
+    { 'otd', 'N', 3, 0 }, ;
+    { 'kod1', 'N', 7, 0 }, ;
+    { 'tip1', 'N', 1, 0 }, ;
+    { 'tip1s', 'C', 3, 0 }, ;
+    { 'dni', 'N', 2, 0 } ;
+    } )
+  // Use ( cur_dir + "tmp_d_srok" ) New Alias D_SROK
 
   Return Nil
 
