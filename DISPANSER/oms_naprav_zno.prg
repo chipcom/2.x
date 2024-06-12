@@ -573,16 +573,18 @@ Function change_num_napr()
 
   Return update_gets()
 
-// 31.07.21 блок направлений после диспансеризации
-Function dispans_napr( mk_data, /*@*/j, lAdult )
+// 11.06.24 блок направлений после диспансеризации
+Function dispans_napr( mk_data, /*@*/j, lAdult, lFull )
 
   // mk_data - дата окончания случая диспансеризации
   // j - счетчик строк на экране
   // lAdult - возможно направление на санаторно-курортное лечение
+  // lFull - выбор из полного справочника
   // используются PRIVATE-переменные
   Local strNeedTabNumber := 'Необходимо указать табельный направившего врача'
 
   Default lAdult To .f.
+  default lFull to .f.
 
   If mk_data >= 0d20210801  // по новому ПУМП
     @ j, 74 Say 'Врач'
@@ -605,7 +607,7 @@ Function dispans_napr( mk_data, /*@*/j, lAdult )
     // when m1napr_v_mo > 0
     If lAdult
       @ j, Col() + 1 Say 'к специалистам' Get ma_mo_spec ;
-        reader {| x| menu_reader( x, { {| k, r, c| fget_spec_dvn( k, r, c, arr_mo_spec ) } }, A__FUNCTION, , , .f. ) } ;
+        reader {| x| menu_reader( x, { {| k, r, c | fget_spec_dvn( k, r, c, arr_mo_spec, lFull ) } }, A__FUNCTION, , , .f. ) } ;
         When m1napr_v_mo > 0
     Else
       @ j, Col() + 1 Say 'к специалистам' Get ma_mo_spec ;

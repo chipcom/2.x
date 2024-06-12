@@ -720,7 +720,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
         reader {| x | menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
 
-      dispans_napr( mk_data, @j, .t. )  // вызов заполнения блока направлений
+      dispans_napr( mk_data, @j, .t., .t. )  // вызов заполнения блока направлений
 
       ++j
 

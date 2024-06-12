@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 11.05.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 12.06.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz()
 
   Local arr_m, buf := save_maxrow()
@@ -22,6 +22,9 @@ Function inf_drz()
     afillall( arr, 0 )
     beginPeriod := BoY( arr_m[ 6 ] )  // начало периода, расчет идет нарастающим способом
 
+    Private m1nazn_l  := 0, m1dopo_na := 0, m1ssh_na  := 0, ;
+      m1spec_na := 0, m1sank_na := 0, m1napr_stac := 0
+    
     private arr_otklon
 
     r_use( dir_server + 'kartote_', , 'KART_' )
@@ -33,19 +36,26 @@ Function inf_drz()
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( beginPeriod ), .t. )
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
+      m1nazn_l  := 0
+      m1dopo_na := 0
+      m1ssh_na  := 0
+      m1spec_na := 0
+      m1sank_na := 0
+      m1napr_stac := 0
       lPatologiya := .f.
       arr_otklon := {}
-//      if between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
-      if human->ishod == ( BASE_ISHOD_RZD + 1 ) // берем только первый этап (пока)
+      if between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
+//      if human->ishod == ( BASE_ISHOD_RZD + 1 ) // берем только первый этап (пока)
         kart->( dbGoto( human->kod_k ) )
         lCity := f_is_selo( kart_->gorod_selo, kart_->okatog )
+        read_arr_drz( human->kod, .t. )      
         if human->pol == 'М'
           if human_->RSLT_NEW == 375
             arr[ 1, 1 ]++
             if ! lCity
               arr[ 2, 1 ]++
             endif
-            elseif human_->RSLT_NEW == 376
+          elseif human_->RSLT_NEW == 376
             arr[ 1, 2 ]++
             if ! lCity
               arr[ 2, 2 ]++
@@ -55,32 +65,24 @@ Function inf_drz()
             if ! lCity
               arr[ 2, 3 ]++
             endif
-//          elseif human_->RSLT_NEW == 352 .or. human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
           elseif human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
             arr[ 1, 4 ]++
             if ! lCity
               arr[ 2, 4 ]++
             endif
-//            if human_->RSLT_NEW == 352
-//              arr[ 1, 1 ]++
+//            if human_->RSLT_NEW == 378
+//              arr[ 1, 2 ]++
 //              if ! lCity
-//                arr[ 2, 1 ]++
+//                arr[ 2, 2 ]++
 //              endif
-            // elseif human_->RSLT_NEW == 378
-            if human_->RSLT_NEW == 378
-              arr[ 1, 2 ]++
-              if ! lCity
-                arr[ 2, 2 ]++
-              endif
-            elseif human_->RSLT_NEW == 379
-              arr[ 1, 3 ]++
-              if ! lCity
-                arr[ 2, 3 ]++
-              endif
-            endif
+//            elseif human_->RSLT_NEW == 379
+//              arr[ 1, 3 ]++
+//              if ! lCity
+//                arr[ 2, 3 ]++
+//              endif
+//            endif
           endif
         else  // женщины
-          read_arr_drz( human->kod, .t. )      
           if human_->RSLT_NEW == 375
             arr[ 3, 1 ]++
             if ! lCity
@@ -96,29 +98,23 @@ Function inf_drz()
             if ! lCity
               arr[ 4, 3 ]++
             endif
-//          elseif human_->RSLT_NEW == 352 .or. human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
+//          elseif human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
           elseif human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
             arr[ 3, 4 ]++
             if ! lCity
               arr[ 4, 4 ]++
             endif
-//            if human_->RSLT_NEW == 352
-//              arr[ 3, 1 ]++
+//            if human_->RSLT_NEW == 378
+//              arr[ 3, 2 ]++
 //              if ! lCity
-//                arr[ 4, 1 ]++
+//                arr[ 4, 2 ]++
 //              endif
-            // elseif human_->RSLT_NEW == 378
-            if human_->RSLT_NEW == 378
-              arr[ 3, 2 ]++
-              if ! lCity
-                arr[ 4, 2 ]++
-              endif
-            elseif human_->RSLT_NEW == 379
-              arr[ 3, 3 ]++
-              if ! lCity
-                arr[ 4, 3 ]++
-              endif
-            endif
+//            elseif human_->RSLT_NEW == 379
+//              arr[ 3, 3 ]++
+//              if ! lCity
+//                arr[ 4, 3 ]++
+//              endif
+//            endif
           endif
           if len( arr_otklon ) > 0
             for i := 1 to len( arr_otklon )
@@ -150,6 +146,19 @@ Function inf_drz()
                 endif
               endif
             next
+          endif
+        endif
+        if m1dopo_na != 0 .or. m1napr_stac != 0
+          if human->pol == 'М'
+            arr[ 1, 9 ]++
+            if ! lCity
+              arr[ 2, 9 ]++
+            endif
+          else
+            arr[ 3, 9 ]++
+            if ! lCity
+              arr[ 4, 9 ]++
+            endif
           endif
         endif
       endif
