@@ -3542,11 +3542,11 @@ viewtext(name_file,,,,.t.,,,reg_print)
 return NIL
 
 
-** 15.03.23 Подсчёт стационарных случаев по профилям (по диагнозам, КСГ и операциям)
+** 13.06.24 Подсчёт стационарных случаев по профилям (по диагнозам, КСГ и операциям)
 Function i_stac_sl_profil()
   Local buf := savescreen(), sh := 80, HH := 80, n_file := cur_dir + 'stac_pro' + stxt
 
-  Private arr_m := {2023, 1, 6, 'за январь - июнь 2023 года', 0d20230101, 0d20230630}, ;
+  Private arr_m := {2024, 1, 6, 'за январь - июнь 2024 года', 0d20240101, 0d20240630}, ;
           mm_uslov := {{'по всем случаям                      ', 2}, ;
                        {'по счетам отч.периода (без учёта РАК)', 0}, ;
                        {'с учётом РАК (как в форме 14-МЕД/ОМС)', 1}}
@@ -3567,8 +3567,8 @@ Function i_stac_sl_profil()
   restscreen(buf)
   if lastkey() == K_ESC
     return nil
-  elseif !between(arr_m[1], 2018, 2023)
-    return func_error(4, 'Данный отчёт работает только с 2018-23 годами')
+  elseif !between(arr_m[1], 2018, 2024)
+    return func_error(4, 'Данный отчёт работает только с 2018-24 годами')
   else
     begin_date := dtoc4(arr_m[5])
     end_date := dtoc4(arr_m[6])
@@ -3591,6 +3591,9 @@ Function i_stac_sl_profil()
     elseif arr_m[1] == 2023 .and. arr_m[3] == 12
       kds := 21    // !!! ВНИМАНИЕ -проверить
       kdr := 22   
+    elseif arr_m[1] == 2024 .and. arr_m[3] == 12
+      kds := 21    // !!! ВНИМАНИЕ -проверить
+      kdr := 22    
     endif
   ******************************
   mdate_rak := arr_m[6] + kdr
