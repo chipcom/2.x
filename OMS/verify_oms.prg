@@ -6,7 +6,7 @@
 #define max_rec_reestr 9999
 #define BASE_ISHOD_RZD 500
 
-// 07.06.24
+// 15.06.24
 Function verify_oms( arr_m, fl_view )
 
   Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := cur_dir + 'err_sl' + stxt, ;
@@ -128,7 +128,7 @@ Function verify_oms( arr_m, fl_view )
         // не проверять вернувшихся из ТФОМС с ошибкой
       Else
         If arr_m[ 1 ] > 2018
-          fl := verify_1_sluch( fl_view )
+          fl := verify_sluch( fl_view )
         Endif
         If fl
           ++iprov
@@ -400,6 +400,105 @@ Function verify_oms( arr_m, fl_view )
         Endif
       Enddo
     Endif
+  Endif
+
+  Return Nil
+
+// 15.06.24
+Function verify_oms_sluch( mkod )
+
+  Local buf := save_maxrow(), fl := .t., name_file := cur_dir + 'err_sl' + stxt
+
+  mywait()
+  f_create_diag_srok( 'tmp_d_srok' )
+  Use ( cur_dir + 'tmp_d_srok' ) New Alias D_SROK
+
+  fp := FCreate( name_file )
+  n_list := 1
+  tek_stroke := 0
+  add_string( '' )
+  add_string( Center( 'Список обнаруженных ошибок', 80 ) )
+  add_string( Center( 'в листе учёта', 80 ) )
+  add_string( '' )
+  //
+  r_use( dir_server + 'mo_pers', , 'PERS' )
+  r_use( dir_server + 'mo_uch', , 'UCH' )
+  r_use( dir_server + 'mo_otd', , 'OTD' )
+  use_base( 'lusl' )
+  use_base( 'luslc' )
+  use_base( 'luslf' )
+  r_use( dir_server + 'uslugi', , 'USL' )
+  g_use( dir_server + 'human_u_', , 'HU_' )
+  g_use( dir_server + 'human_u', { dir_server + 'human_u', ;
+    dir_server + 'human_uk', ;
+    dir_server + 'human_ud', ;
+    dir_server + 'human_uv', ;
+    dir_server + 'human_ua' }, 'HU' )
+  Set Relation To RecNo() into HU_, To u_kod into USL
+  r_use( dir_server + 'mo_su', , 'MOSU' )
+  g_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  Set Relation To u_kod into MOSU
+  g_use( dir_server + 'kartote_', , 'KART_' )
+  r_use( dir_server + 'kartotek', , 'KART' )
+  Set Relation To RecNo() into KART_
+  g_use( dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'ONKNA' ) // онконаправления
+  g_use( dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'ONKSL' ) // Сведения о случае лечения онкологического заболевания
+  g_use( dir_server + 'mo_onkdi', dir_server + 'mo_onkdi', 'ONKDI' ) // Диагностический блок
+  g_use( dir_server + 'mo_onkpr', dir_server + 'mo_onkpr', 'ONKPR' ) // Сведения об имеющихся противопоказаниях
+  g_use( dir_server + 'mo_onkus', dir_server + 'mo_onkus', 'ONKUS' )
+  g_use( dir_server + 'mo_onkco', dir_server + 'mo_onkco', 'ONKCO' )
+  g_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle', 'ONKLE' )
+  g_use( dir_server + 'human_2', , 'HUMAN_2' )
+  g_use( dir_server + 'human_', , 'HUMAN_' )
+  g_use( dir_server + 'human', { dir_server + 'humans', ;
+    dir_server + 'humankk', ;
+    dir_server + 'humand' }, 'HUMAN' )
+  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
+  Goto ( mkod )
+  If Empty( human->k_data )
+    //
+  Elseif Year( human->k_data ) > 2018
+    fl := verify_sluch()
+  Else
+    func_error( 4, 'Случай ранее 2019 года.' )
+    Close databases
+    Return Nil
+  Endif
+  If d_srok->( LastRec() ) > 0
+    am := { '78', '80', '88', '89' }
+    If fl
+      uch->( dbGoto( human->LPU ) )
+      otd->( dbGoto( human->OTD ) )
+      add_string( AllTrim( human->fio ) + ' ' + AllTrim( human->kod_diag ) + ' ' + ;
+        date_8( human->n_data ) + '-' + date_8( human->k_data ) + ;
+        iif( d_srok->tip == 0, '', ' (2.' + am[ d_srok->tip ] + '.*)' ) )
+      add_string( AllTrim( uch->name ) + '/' + AllTrim( otd->name ) + '/профиль по "' + ;
+        inieditspr( A__MENUVERT, getv002(), human_->profil ) + '"' )
+      pers->( dbGoto( human_->VRACH ) )
+      add_string( 'лечащий врач [' + lstr( pers->tab_nom ) + '] ' + pers->fio )
+    Endif
+    Select HUMAN
+    Goto ( d_srok->kod1 )
+    uch->( dbGoto( human->LPU ) )
+    otd->( dbGoto( human->OTD ) )
+    add_string( '' )
+    add_string( Center( 'Предупреждение!', 80 ) )
+    add_string( '' )
+    add_string( 'Обратите внимание, что ' + lstr( d_srok->dni ) + ' дней назад обнаружен случай' )
+    add_string( 'с основным диагнозом ' + AllTrim( human->kod_diag ) + ' ' + ;
+      date_8( human->n_data ) + '-' + date_8( human->k_data ) + ;
+      iif( d_srok->tip1 == 0, '', ' (2.' + am[ d_srok->tip1 ] + '.*)' ) )
+    add_string( AllTrim( uch->name ) + '/' + AllTrim( otd->name ) + '/профиль по "' + ;
+      inieditspr( A__MENUVERT, getv002(), human_->profil ) + '"' )
+    pers->( dbGoto( human_->VRACH ) )
+    add_string( 'лечащий врач [' + lstr( pers->tab_nom ) + '] ' + pers->fio )
+    fl := .f.
+  Endif
+  Close databases
+  FClose( fp )
+  rest_box( buf )
+  If !fl
+    viewtext( name_file, , , , .t., , , 5 )
   Endif
 
   Return Nil

@@ -8,8 +8,8 @@
 
 Static sadiag1  // := {}
 
-// 09.06.24
-Function verify_1_sluch( fl_view )
+// 15.06.24
+Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
   local dEnd    // дата окончания случая
