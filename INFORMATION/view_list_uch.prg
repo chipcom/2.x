@@ -136,14 +136,23 @@ Function print_l_uch(mkod, par, regim, lnomer)
         R_Use(dir_server + 'mo_rak', , 'RAK')
         R_Use(dir_server + 'mo_raks', , 'RAKS')
         set relation to akt into RAK
-        R_Use(dir_server + 'mo_raksh', , 'RAKSH')
+        R_Use(dir_server + 'mo_raksh', , 'RAKSH') 
         set relation to kod_raks into RAKS
         arr := {}
-        Locate for kod_h == mkod
-        do while found()
-          aadd(arr, {rak->NAKT, rak->DAKT, raksh->REFREASON, raksh->NEXT_KOD})
-          continue
-        enddo
+        Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' ) for kod_h == mkod
+        //Locate for kod_h == mkod
+        //do while found()
+        //  aadd(arr, {rak->NAKT, rak->DAKT, raksh->REFREASON, raksh->NEXT_KOD})
+        //  continue
+        //enddo
+        find(str(mkod,7))
+        if found()
+          do while raksh->kod_h == mkod .and. !eof()
+            aadd(arr, {rak->NAKT, rak->DAKT, raksh->REFREASON, raksh->NEXT_KOD})
+            skip 
+          enddo
+        endif 
+        //
         asort(arr, , ,{|x,y| x[2] < y[2] })
         for i := 1 to len(arr)
           s += '€ªâ ü ' + alltrim(arr[i, 1]) + ' ®â ' +date_8(arr[i, 2]) + '. '
