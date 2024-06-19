@@ -1220,7 +1220,7 @@ Function f_inf_disp_nabl( par )
   r_use( dir_server + "human", dir_server + "humankk", "HUMAN" )
   Set Relation To RecNo() into HUMAN_
   Index On Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir + "tmp_humankk" ) ;
-    For human_->USL_OK == 3 .and. human->k_data >= 0d20230101 ; // т.е. текущий год
+    For human_->USL_OK == 3 .and. human->k_data >= 0d20240101 ; // т.е. текущий год
   progress
   //
   r_use( dir_server + "mo_d01d",, "DD" )
@@ -1239,7 +1239,7 @@ Function f_inf_disp_nabl( par )
     find ( Str( rhum->( RecNo() ), 6 ) )
     // если человек стоит на Д-учете - создаем массив его Д диагнозов
     Do While dd->kod_d == rhum->( RecNo() ) .and. !Eof()
-      If dd->next_data >= 0d20230101 // !!!!!!! ВНИМАНИЕ год
+      If dd->next_data >= 0d20240101 // !!!!!!! ВНИМАНИЕ год
         If par == 3
           // проверяем массив диагнозов
           If f_is_diag_dn_serdce( dd->kod_diag,,, .f. )
@@ -1269,7 +1269,7 @@ Function f_inf_disp_nabl( par )
       Select HUMAN
       find ( Str( kart->kod, 7 ) )
       Do While human->kod_k == kart->kod .and. !Eof()
-        If human->k_data >= 0d20230101 // !!!!!!! ВНИМАНИЕ год
+        If human->k_data >= 0d20240101 // !!!!!!! ВНИМАНИЕ год
           // проверяем только по основному диагнозу
           fl := .f. ; ar := {}; zz := 0
           s := PadR( human->kod_diag, 5 )
@@ -1289,7 +1289,11 @@ Function f_inf_disp_nabl( par )
                 lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
                 left_lshifr_8 := Left( lshifr, 8 )
                 left_lshifr_6 := Left( lshifr, 7 )
-                If left_lshifr_8 == "2.78.107" .or. left_lshifr_6 == "2.78.6" .or. left_lshifr_6 == "2.78.7" .or. left_lshifr_6 == "2.78.8" // (2.78.61__2.78.86)
+                If left_lshifr_8 == "2.78.109" .or.;
+                   left_lshifr_8 == "2.78.110" .or.;
+                   left_lshifr_8 == "2.78.111" .or.;
+                   left_lshifr_8 == "2.78.112" .or.;
+                   left_lshifr_6 == "2.78.6" .or. left_lshifr_6 == "2.78.7" .or. left_lshifr_6 == "2.78.8" // (2.78.61__2.78.86)
                   // пока только эту
                   fl_disp := .t.
                   arr_fl[ zz ] := .t.
