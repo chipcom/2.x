@@ -56,8 +56,6 @@ Function f_get_metvmp( k, r, c, lvidvmp, modpac )
 
   Local arrV019 := getv019( mk_data )
 
-  // local arrV018 := getV018(mk_data)
-
   If Empty( lvidvmp ) .or. Empty( modpac )
     Return Nil
   Endif
@@ -89,8 +87,6 @@ Function f_get_mmodpac( k, r, c, lvidvmp, sDiag )
   Local row
 
   Local arrV019 := getv019( mk_data )
-
-  // local arrV018 := getV018(mk_data)
 
   If Empty( lvidvmp ) .or. Empty( diag )
     Return Nil
@@ -146,16 +142,19 @@ Function ret_v018( lVIDVMP, lk_data )
 
   Return s
 
-// 25.01.23 вернуть строку метода ВМП
+// 19.06.24 вернуть строку метода ВМП
 Function ret_v019( lMETVMP, lVIDVMP, lk_data )
 
   Local i, s := Space( 10 )
   Local arrV019 := getv019( lk_data )
-
-  If !emptyany( lMETVMP, lVIDVMP ) ;
-      .and. ( i := AScan( arrV019, {| x| x[ 1 ] == lMETVMP } ) ) > 0 ;
-      .and. arrV019[ i, 4 ] == AllTrim( lVIDVMP )
-    s := AllTrim( Str( arrV019[ i, 1 ], 6 ) ) + '.' + arrV019[ i, 2 ]
-  Endif
+  
+  lVIDVMP := AllTrim( lVIDVMP )
+  If !emptyany( lMETVMP, lVIDVMP )
+    for i := 1 to len( arrV019 )
+      if arrV019[ i, 1 ] == lMETVMP .and. arrV019[ i, 4 ] == lVIDVMP
+        s := PadR( Str( arrV019[ i, 1 ], 4 ) + '.' + arrV019[ i, 2 ], 76 )
+      endif
+    next
+  endif
 
   Return s
