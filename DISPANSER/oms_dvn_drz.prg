@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 06.06.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 21.06.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -37,7 +37,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   local lshifr
   local indSource := 0, indDest := 0
   local i_otkaz   // возможность отказа от услуги (0 - нет, 1 - да)
-  local view_uslugi
+  local view_uslugi, len_view_uslugi := 0
   local mdef_diagnoz
   local mm_gruppa
   local mm_gruppaD1 := { ;
@@ -106,20 +106,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
     mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
     mTab_Number := 0
-
-  // Private mm_napr_v := {{'нет', 0}, ;
-  //   {'к онкологу', 1}, ;
-  //   {'на дообследование', 3}}
-  // /*Private mm_napr_v := {{'нет', 0}, ;
-  //   {'к онкологу', 1}, ;
-  //   {'на биопсию', 2}, ;
-  //   {'на дообследование', 3}, ;
-  //   {'для опредения тактики лечения', 4}}*/
-  // Private mm_met_issl := {{'нет', 0}, ;
-  //     {'лабораторная диагностика', 1}, ;
-  //     {'инструментальная диагностика', 2}, ;
-  //     {'методы лучевой диагностики (недорогостоящие)', 3}, ;
-  //     {'дорогостоящие методы лучевой диагностики', 4}}
 
   Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
 
@@ -417,6 +403,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     read_arr_drz( Loc_kod, .t. )     // читаем сохраненные данные по углубленной диспансеризации
 
     view_uslugi := uslugi_to_view( uslugi_etapa )
+    len_view_uslugi := len( view_uslugi )
 
     for i := 1 to len( view_uslugi )    // len( larr[ 1 ] )
       if ( j := ascan( larr[ 2 ], view_uslugi[ i, 2 ] ) ) > 0
@@ -627,7 +614,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         When m1komu < 5 ;
         valid {| g | func_valid_ismo( g, m1komu, 38 ) }
       //
-//      j++
       @ ++j, 1 Say 'Сроки' Get mn_data ;
         valid {| g | f_k_data( g, 1 ), f_valid_begdata_drz( g, Loc_kod ), ;
         iif( ( mvozrast < 18 .or. mvozrast > 49 ), func_error( 4, 'Пациент не подлежит данному виду диспансеризации!' ), nil ), ;
@@ -641,7 +627,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
 
       ret_ndisp_drz( Loc_kod, kod_kartotek )
-//      j++
+
       @ ++j, 8 Get mndisp When .f. Color color14  // заголовок
 
       if ! ( metap == 1 .and. nGender == 'М' )  // на I этапе для мужин исследований нет
@@ -682,7 +668,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           If mem_por_ass > 0
             @ j, 52 get &mvara Pict '99999' valid {| g | v_kart_vrach( g ) }
           Endif
-          @ j, 58 get &mvard valid {| g | valid_date_uslugi_drz( g, metap, mn_data, mk_data, lenArr_Uslugi_DRZ, i ) }
+          @ j, 58 get &mvard valid {| g | valid_date_uslugi_drz( g, metap, mn_data, mk_data, len_view_uslugi, i ) }
 
           If fl_diag  // для диагностических услуг
             if i_otkaz == 0
@@ -844,9 +830,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       lCitIsl := .f.
       lGidCitIsl := .f.
       For i := 1 To len( view_uslugi )  //   lenArr_Uslugi_DRZ
-//        fl_diag := .f.
-//        i_otkaz := 0
-//        f_is_usl_sluch_drz( uslugi_etapa, i, .t., @fl_diag, @i_otkaz )
         mvart := 'MTAB_NOMv' + lstr( i )
         mvara := 'MTAB_NOMa' + lstr( i )
         mvard := 'MDATE' + lstr( i )
@@ -922,14 +905,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
          If ValType( ar[ 10 ] ) == 'N' // профиль
            arr_osm1[ i, 4 ] := ret_profil_dispans_drz( ar[ 10 ], arr_osm1[ i, 2 ] )
           Else
-            // разобраться
-            // If Len( ar[ 10 ] ) == Len( ar[ 11 ] ) ; // кол-во профилей = кол-ву спец-тей
-            //   .and. arr_osm1[ i, 2 ] < 0 ; // и нашли специальность по V015
-            //   .and. ( j := AScan( ar[ 11 ], ret_old_prvs( arr_osm1[ i, 2 ] ) ) ) > 0
-            //   // берём профиль, соответствующий специальности
-            // Else
-              j := 1 // если нет, берём первый профиль из списка
-            // Endif
+            j := 1 // если нет, берём первый профиль из списка
             arr_osm1[ i, 4 ] := ar[ 10, j ] // профиль
           Endif
           If ValType( ar[ 2 ] ) == 'C'  // шифр услуги
@@ -1050,12 +1026,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
       mm_gruppa := { mm_gruppaD1, mm_gruppaD2 }[ metap ]
 
-//      m1p_otk := 0
       If ( i := AScan( mm_gruppa, {| x | x[ 2 ] == m1GRUPPA } ) ) > 0
         m1rslt := mm_gruppa[ i, 3 ]
-//        If ( m1rslt := mm_gruppa[ i, 3 ] ) == 352
-//          m1rslt := 353 // по письму ТФОМС от 06.07.18 №09-30-96
-//        Endif
         If eq_any( m1GRUPPA, 11, 21 )
           m1GRUPPA++ // по письму ТФОМС от 06.07.18 №09 -30 -96
         Endif
@@ -1343,12 +1315,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
         dir_server + 'uslugi1s' }, 'USL1' )
       mcena_1 := mu_cena := 0
-//      arr_usl_dop := {}
-//      arr_otklon := {}
-//      arr_ne_nazn := {}
-//      iUslDop := 0
-//      iUslOtklon := 0
-//      iUslNeNazn := 0
       For i := 1 To Len( arr_osm1 )
         If ValType( arr_osm1[ i, 5 ] ) == 'C'
           If arr_osm1[ i, 12 ] == 0
@@ -1370,13 +1336,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
               arr_usl_dop[ iUslDop, 12 ] := 1  // установим флаг услуги ФФОМС
               arr_usl_dop[ iUslDop, 13 ] := ''  // очистим федеральную услугу
             Endif
-//            If arr_osm1[ i, 10 ] == 3 // обнаружены отклонения
-//              AAdd( arr_otklon, arr_osm1[ i, 5 ] )
-//              iUslOtklon++
-//            elseIf arr_osm1[ i, 10 ] == 4 // не назначено
-//              AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
-//              iUslNeNazn++
-//            Endif
           Endif
         Endif
       Next

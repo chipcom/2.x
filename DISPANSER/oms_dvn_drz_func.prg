@@ -45,7 +45,6 @@ Function inf_drz()
       lPatologiya := .f.
       arr_otklon := {}
       if between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
-//      if human->ishod == ( BASE_ISHOD_RZD + 1 ) // берем только первый этап (пока)
         kart->( dbGoto( human->kod_k ) )
         lCity := f_is_selo( kart_->gorod_selo, kart_->okatog )
         read_arr_drz( human->kod, .t. )      
@@ -70,17 +69,6 @@ Function inf_drz()
             if ! lCity
               arr[ 2, 4 ]++
             endif
-//            if human_->RSLT_NEW == 378
-//              arr[ 1, 2 ]++
-//              if ! lCity
-//                arr[ 2, 2 ]++
-//              endif
-//            elseif human_->RSLT_NEW == 379
-//              arr[ 1, 3 ]++
-//              if ! lCity
-//                arr[ 2, 3 ]++
-//              endif
-//            endif
           endif
         else  // женщины
           if human_->RSLT_NEW == 375
@@ -98,23 +86,11 @@ Function inf_drz()
             if ! lCity
               arr[ 4, 3 ]++
             endif
-//          elseif human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
           elseif human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
             arr[ 3, 4 ]++
             if ! lCity
               arr[ 4, 4 ]++
             endif
-//            if human_->RSLT_NEW == 378
-//              arr[ 3, 2 ]++
-//              if ! lCity
-//                arr[ 4, 2 ]++
-//              endif
-//            elseif human_->RSLT_NEW == 379
-//              arr[ 3, 3 ]++
-//              if ! lCity
-//                arr[ 4, 3 ]++
-//              endif
-//            endif
           endif
           if len( arr_otklon ) > 0
             for i := 1 to len( arr_otklon )
@@ -307,8 +283,10 @@ Function index_usluga_etap_drz( uslugi_etapa, lshifr, pos )
 
   Return Index
 
-// 28.03.24
+// 21.06.24
 Function valid_date_uslugi_drz( get, metap, beginDate, endDate, lenArr, i )
+
+  local mVarDate
 
   If CToD( get:buffer ) > endDate
     get:varput( get:original )
@@ -322,7 +300,8 @@ Function valid_date_uslugi_drz( get, metap, beginDate, endDate, lenArr, i )
     Return .f.
   Endif
 
-  If ( metap == 1 .and. Upper( get:name ) == 'MDATE8' ) .or. ( metap == 2 .and. Upper( get:name ) == 'MDATE4' ) // дата приема
+  mVarDate := 'MDATE'+lstr( lenArr )
+  If ( metap == 1 .and. Upper( get:name ) == mVarDate ) .or. ( metap == 2 .and. Upper( get:name ) == mVarDate ) // дата приема
     If CToD( get:buffer ) != endDate
       get:varput( get:original )
       func_error( 4, 'Дата проведения осмотра врача не равна дате окончания диспансеризации репрод. здоровья' )
@@ -343,15 +322,6 @@ Function f_valid_begdata_drz( get, loc_kod )
     Keyboard Chr( K_UP )
     Return .f.
   Endif
-
-//  If loc_kod == 0
-//    For i := 1 To Len( uslugietap_drz( metap ) ) - iif( metap == 1, 2, 1 )
-//      // на 1-этапе одна услуга не отображается в списке (70.9.1 или 70.9.2 или 70.9.3)
-//      mvar := 'MDATE' + lstr( i )
-//      &mvar := CToD( get:buffer )
-//      update_get( mvar )
-//    Next
-//  Endif
 
   Return .t. 
 
@@ -375,20 +345,10 @@ Function f_is_usl_sluch_drz( uslugi_etapa, i, allUsl, /*@*/_diag, /*@*/_otkaz )
 
   local ar := uslugi_etapa[ i ]
 
-  // убираем комплексные посещения
-//  If ValType( ar[ 2 ] ) == 'C' ;
-//    .and. ( alltrim( ar[ 2 ] ) == '70.9.1' .or. alltrim( ar[ 2 ] ) == '70.9.2' .or. alltrim( ar[ 2 ] ) == '70.9.3' ) .and. ( ! allUsl )
-//    Return fl
-//  Endif
 
   fl := .t.
   _diag := ( ar[ 4 ] == 1 )
   _otkaz := 0
-//  If ValType( ar[ 2 ] ) == 'C'
-//    AAdd( ars, ar[ 2 ] )
-//  Else
-//    ars := AClone( ar[ 2 ] )
-//  Endif
   If ar[ 5 ] == 1
     _otkaz := 1 // можно ввести отказ
   Endif
