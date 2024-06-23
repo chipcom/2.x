@@ -64,6 +64,7 @@ mo_version.prg
 .\function\iniGetSetVar.prg
 .\function\inieditspr_bay.prg
 .\function\retpopupedit_bay.prg
+.\function\test_func.prg
 
 .\KARTOTEK\mo_kart.prg
 .\KARTOTEK\mo_regi.prg
