@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.02.24 ‘Œ - ¤®¡ ¢«¥­¨¥ ¨«¨ à¥¤ ªâ¨à®¢ ­¨¥ á«ãç ï («¨áâ  ãç¥â )
+// 25.06.24 ‘Œ - ¤®¡ ¢«¥­¨¥ ¨«¨ à¥¤ ªâ¨à®¢ ­¨¥ á«ãç ï («¨áâ  ãç¥â )
 Function oms_sluch_SMP(Loc_kod, kod_kartotek, tip_lu)
   // Loc_kod - ª®¤ ¯® „ human.dbf (¥á«¨ =0 - ¤®¡ ¢«¥­¨¥ «¨áâ  ãç¥â )
   // kod_kartotek - ª®¤ ¯® „ kartotek.dbf (¥á«¨ =0 - ¤®¡ ¢«¥­¨¥ ¢ ª àâ®â¥ªã)
@@ -415,7 +415,8 @@ Function oms_sluch_SMP(Loc_kod, kod_kartotek, tip_lu)
     goto (m1vrach)
     MTAB_NOM := p2->tab_nom
     m1prvs := -ret_new_spec(p2->prvs,p2->prvs_new)
-    mvrach := padr(fam_i_o(p2->fio)+' ' +ret_tmp_prvs(m1prvs), 36)
+//    mvrach := padr(fam_i_o(p2->fio)+' ' +ret_tmp_prvs(m1prvs), 36)
+    mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_str_spec( p2->PRVS_021 ), 36 )
   endif
   close databases
   fv_date_r( iif(Loc_kod>0,mn_data,) )

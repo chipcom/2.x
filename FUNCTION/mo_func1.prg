@@ -619,7 +619,8 @@ Function v_kart_vrach( get, is_prvs )
         m1vrach := p2->kod
         m1prvs := -ret_new_spec( p2->prvs, p2->prvs_new )
         If is_prvs
-          mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_tmp_prvs( m1prvs ), 36 )
+//          mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_tmp_prvs( m1prvs ), 36 )
+          mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_str_spec( p2->PRVS_021 ), 36 )
         Else
           mvrach := PadR( fam_i_o( p2->fio ), 30 )
         Endif

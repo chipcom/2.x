@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.02.24 функция для when и valid при вводе услуг в лист учёта
+// 25.06.24 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl( get, when_valid, k, lMedReab, vidReab, shrm, adult )
   Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, fl1, fl2, ;
         msg1_err := 'Код врача равен коду ассистента! Это недопустимо.', ;
@@ -356,7 +356,8 @@ Function f5editkusl( get, when_valid, k, lMedReab, vidReab, shrm, adult )
           else
             mkod_vr := perso->kod
             m1prvs := -ret_new_spec(perso->prvs,perso->prvs_new)
-            mvrach := padr(fam_i_o(perso->fio)+' '+ret_tmp_prvs(m1prvs),57)
+//            mvrach := padr(fam_i_o(perso->fio)+' '+ret_tmp_prvs(m1prvs),57)
+            mvrach := PadR( fam_i_o( perso->fio ) + ' ' + ret_str_spec( perso->PRVS_021 ), 57 )
           endif
         else
           fl := func_error(4,msg2_err)

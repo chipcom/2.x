@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
   
-// 20.02.24 жидкостная цитология рака шейки матки
+// 25.06.24 жидкостная цитология рака шейки матки
 Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -152,7 +152,8 @@ Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
     goto (m1vrach)
     MTAB_NOM := p2->tab_nom
     m1prvs := -ret_new_spec(p2->prvs, p2->prvs_new)
-    mvrach := padr(fam_i_o(p2->fio) + ' ' + ret_tmp_prvs(m1prvs), 36)
+//    mvrach := padr(fam_i_o(p2->fio) + ' ' + ret_tmp_prvs(m1prvs), 36)
+    mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_str_spec( p2->PRVS_021 ), 36 )
   endif
   close databases
   is_talon := .t.

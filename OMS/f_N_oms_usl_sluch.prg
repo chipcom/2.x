@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
     
-// 28.02.24 ввод услуг в лист учёта
+// 25.06.24 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey, oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF, ;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -491,7 +491,8 @@ Function f2oms_usl_sluch(nKey, oBrow)
         goto (mkod_vr)
         mtabn_vr := perso->tab_nom
         m1prvs := -ret_new_spec(perso->prvs, perso->prvs_new)
-        mvrach := alltrim(padr(fam_i_o(perso->fio) + ' ' + ret_tmp_prvs(m1prvs), 57))
+//        mvrach := alltrim(padr(fam_i_o(perso->fio) + ' ' + ret_tmp_prvs(m1prvs), 57))
+        mvrach := PadR( fam_i_o( perso->fio ) + ' ' + ret_str_spec( perso->PRVS_021 ), 57 )
       endif
       if mkod_as > 0
         select PERSO

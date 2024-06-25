@@ -911,7 +911,7 @@ Function input_perso( r, c, is_null, is_rab )
 
   Return fl1
 
-// 29.10.18
+// 25.06.24
 Function f1inp_perso( oBrow )
 
   Local oColumn
@@ -922,7 +922,8 @@ Function f1inp_perso( oBrow )
   oColumn:defColor := { 3, 3 }
   oColumn:colorBlock := {|| { 3, 3 } }
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( Center( 'Специальность', 21 ), {|| PadR( ret_tmp_prvs( perso->prvs, perso->prvs_new ), 21 ) } )
+//  oColumn := TBColumnNew( Center( 'Специальность', 21 ), {|| PadR( ret_tmp_prvs( perso->prvs, perso->prvs_new ), 21 ) } )
+  oColumn := TBColumnNew( Center( 'Специальность', 21 ), {|| PadR( ret_str_spec( perso->PRVS_021 ), 21 ) } )
   oBrow:addcolumn( oColumn )
 
   Return Nil

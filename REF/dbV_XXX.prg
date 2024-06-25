@@ -906,6 +906,18 @@ Function DoljBySpec_V021(idspec)
   endif
   return retArray
 
+// 25.06.24
+function ret_str_spec( kod )
+
+  local i, s := '', aV021 := getV021()
+
+  if ! empty( kod ) .and. ( ( i := ascan( aV021, { | x | x[ 2 ] == kod } ) ) > 0 )
+    s := aV021[ i, 1 ]
+  endif
+
+  return s
+
+
 // =========== V022 ===================
 //
 // 26.01.23 возвращает массив V022
