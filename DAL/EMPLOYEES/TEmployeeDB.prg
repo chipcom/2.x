@@ -74,6 +74,7 @@ METHOD getByTabNom ( cCode )		 CLASS TEmployeeDB
 			ret:Dsertif := (employee)->D_SERTIF
 			ret:PRVS := (employee)->PRVS
 			ret:PRVSNEW := (employee)->PRVS_NEW
+			ret:PRVS021 := (employee)->PRVS_021
 			ret:SNILS := (employee)->SNILS
 			ret:DBegin := (employee)->DBEGIN
 			ret:DEnd := (employee)->DEND
@@ -237,6 +238,7 @@ METHOD Save( oEmployee ) CLASS TEmployeeDB
 		hb_hSet(aHash, 'D_SERTIF',	oEmployee:Dsertif )
 		hb_hSet(aHash, 'PRVS',		oEmployee:PRVS )
 		hb_hSet(aHash, 'PRVS_NEW',	oEmployee:PRVSNEW )
+		hb_hSet(aHash, 'PRVS_021',	oEmployee:PRVS021 )
 		hb_hSet(aHash, 'PROFIL',	oEmployee:Profil )
 		
 		hb_hSet(aHash, 'TAB_NOM',	oEmployee:TabNom )
@@ -278,6 +280,7 @@ METHOD FillFromHash( hbArray )     CLASS TEmployeeDB
 	obj:Dsertif := hbArray[ 'D_SERTIF' ]
 	obj:PRVS := hbArray[ 'PRVS' ]
 	obj:PRVSNEW := hbArray[ 'PRVS_NEW' ]
+	obj:PRVS021 := hbArray[ 'PRVS_021' ]
 	obj:SNILS := hbArray[ 'SNILS' ]
 	obj:DBegin := hbArray[ 'DBEGIN' ]
 	obj:DEnd := hbArray[ 'DEND' ]
