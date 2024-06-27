@@ -16,7 +16,7 @@ function string_output( sText, lExcel, ws, row, column, fmt )
   Endif
   return nil
 
-// 15.03.24 многовариантный поиск
+// 27.06.24 многовариантный поиск
 Function s_mnog_poisk()
 
   Static lcount_uch  := 1
@@ -45,8 +45,10 @@ Function s_mnog_poisk()
     { 'предварительный осмотр несовершеннолетних II этап', 13 }, ;
     { 'периодический осмотр несовершеннолетних', 14 }, ;
     { 'углубленная диспансеризация I этап (COVID-19)', 15 }, ;
-    { 'углубленная диспансеризация II этап (COVID-19)', 16 } ;
-    }
+    { 'углубленная диспансеризация II этап (COVID-19)', 16 }, ;
+    { 'диспансеризация репродуктивного здоровья I этап', 17 }, ;
+    { 'диспансеризация репродуктивного здоровья II этап', 18 } ;
+  }
   Static mm_perevyst := { ;
     { 'все случаи', 1 }, ;
     { 'без учёта случаев с отказом (перевыставленных)', 0 }, ;
@@ -227,7 +229,7 @@ Function s_mnog_poisk()
     {| x| menu_reader( x, mm_d_p_m, A__MENUBIT ) }, ;
     0, {| x| inieditspr( A__MENUBIT, mm_d_p_m, x ) }, ;
     'Диспансеризация/Профилактика/Медосмотр?' } )
-  AAdd( mm_tmp, { 'pz', 'N', 2, 0, NIL, ;
+  AAdd( mm_tmp, { 'pz', 'N', 3, 0, NIL, ;
     {| x| menu_reader( x, mm_pz, A__MENUVERT_SPACE ) }, ;
     0, {|| Space( 10 ) }, ;
     'Вид план-заказа' } )
@@ -2606,6 +2608,12 @@ Static Function s1_mnog_poisk( cv, cf )
     Endif
     If !fl .and. IsBit( mn->d_p_m, 16 ) // углубленная диспансеризация II -й этап};
       fl := ( human->ishod == 402 )
+    Endif
+    If !fl .and. IsBit( mn->d_p_m, 17 ) // диспансеризация репродуктивного здоровья I -й этап};
+      fl := ( human->ishod == 501 )
+    Endif
+    If !fl .and. IsBit( mn->d_p_m, 18 ) // диспансеризация репродуктивного здоровья II -й этап};
+      fl := ( human->ishod == 502 )
     Endif
   Endif
   If fl .and. mn->pz > 0
