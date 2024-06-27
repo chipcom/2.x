@@ -4,6 +4,24 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 27.06.24 сформировать массив имен файлов реестра сведений и пациентов
+function name_reestr_XML( type, nyear, nmonth, mnn, nsh )
+  // type - тип реестра (обычный, для диспансеризации)
+  // nyear - номер года
+  // nmonth - номер месяца
+  // mnn - 
+  // nsh - 
+  // Возврат - массив { имя файла реестра сведений, имя файла реестра пациентов }
+
+  local sName := ''
+  local aFiles
+
+  sName := 'RM' + CODE_LPU + 'T34' + '_' ;
+    + Right( StrZero( NYEAR, 4 ), 2 ) + StrZero( NMONTH, 2 ) + StrZero( mnn, nsh )
+  aFiles := { { 'H', 'F' }[ type ] + sName, ;
+    'L' + sName }
+  return aFiles
+
 // 17.12.19 проверить, нам ли предназначен данный XML-файл
 Function is_our_xml( cName, ret_arr )
 

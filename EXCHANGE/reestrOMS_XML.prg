@@ -9,7 +9,7 @@
 
 Static sadiag1  // := {}
 
-// 07.05.24 создание XML-файлов реестра
+// 27.06.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -25,6 +25,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Local lReplaceDiagnose := .f.
   Local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
   local dPUMPver40 := 0d20240301
+  local aFilesName
 
   //
   Close databases
@@ -93,8 +94,10 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   rees->NYEAR  := _NYEAR
   rees->NMONTH := _NMONTH
   rees->NN     := mnn
-  s := 'RM' + CODE_LPU + 'T34' + '_' + Right( StrZero( _NYEAR, 4 ), 2 ) + StrZero( _NMONTH, 2 ) + StrZero( mnn, nsh )
-  rees->NAME_XML := { 'H', 'F' }[ p_tip_reestr ] + s
+  aFilesName := name_reestr_XML( p_tip_reestr, _NYEAR, _NMONTH, mnn, nsh )
+//  s := 'RM' + CODE_LPU + 'T34' + '_' + Right( StrZero( _NYEAR, 4 ), 2 ) + StrZero( _NMONTH, 2 ) + StrZero( mnn, nsh )
+//  rees->NAME_XML := { 'H', 'F' }[ p_tip_reestr ] + s
+  rees->NAME_XML := aFilesName[ 1 ]
   mkod_reestr := rees->KOD
   rees->CODE  := ret_unique_code( mkod_reestr )
   code_reestr := rees->CODE
@@ -103,7 +106,8 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   addrecn()
   mo_xml->KOD    := RecNo()
   mo_xml->FNAME  := rees->NAME_XML
-  mo_xml->FNAME2 := 'L' + s
+//  mo_xml->FNAME2 := 'L' + s
+  mo_xml->FNAME2 := aFilesName[ 2 ]
   mo_xml->DFILE  := rees->DSCHET
   mo_xml->TFILE  := hour_min( Seconds() )
   mo_xml->TIP_OUT := _XML_FILE_REESTR // тип высылаемого файла;1-реестр
