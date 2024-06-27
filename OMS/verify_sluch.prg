@@ -8,7 +8,7 @@
 
 Static sadiag1  // := {}
 
-// 25.06.24
+// 27.06.24
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -1323,9 +1323,9 @@ Function verify_sluch( fl_view )
     If Len( arr_povod ) > 1
       AAdd( ta, 'смешивание целей посещения в случае ' + print_array( arr_povod ) )
     Else
-      If is_dom .and. arr_povod[ 1, 1 ] == 1
-        arr_povod[ 1, 1 ] := 3 // 1.2 - активное посещение, т.е. на дому
-      Endif
+//      If is_dom .and. arr_povod[ 1, 1 ] == 1
+//        arr_povod[ 1, 1 ] := 3 // 1.2 - активное посещение, т.е. на дому
+//      Endif
       If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID .or. is_disp_DRZ
         //
       Elseif human_->usl_ok == USL_OK_POLYCLINIC .and. l_mdiagnoz_fill
