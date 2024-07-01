@@ -711,25 +711,16 @@ Function disp_nabludenie( k )
     vvodp_disp_nabl()
   Case k == 12
     mas_pmt := { "~Не было л/у с диспансерным наблюдением", ;
-      "~Были л/у с диспансерным наблюдением", ;
-      "Были л/у у пациентов с ~СС ДН" }
+      "~Были л/у с диспансерным наблюдением"}
     mas_msg := { "Список пациентов, по которым не было л/у с диспансерным наблюдением", ;
-      "Список пациентов, по которым были л/у с диспансерным наблюдением", ;
-      " Были л/у у пациентов с СС ДН " ,;
-       "Список пациентов, c ОНКО диагнозами" }
+      "Список пациентов, по которым были л/у с диспансерным наблюдением"}
     mas_fun := { "disp_nabludenie(61)", ;
-      "disp_nabludenie(62)", ;
-      "disp_nabludenie(63)", ;
-      "disp_nabludenie(64)"  }
-    popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
+                 "disp_nabludenie(62)"}
+  popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
   Case k == 61
     f_inf_disp_nabl( 1 )
   Case k == 62
     f_inf_disp_nabl( 2 )
-  Case k == 63
-    f_inf_disp_nabl( 3 )
-  Case k == 63
-    //f_inf_disp_nabl2( 4 ) 
   Endcase
   If k > 10
     j := Int( Val( Right( lstr( k ), 1 ) ) )
@@ -1176,17 +1167,43 @@ Function f3vvodp_disp_nabl( nKey, oBrow, regim )
 
   Return ret
 
+  // 25.06.24  выявление типа диагноза 
+  Function  check_tip_disp_nabl(diag)
+  Local vozvr := 0  
+   
+    if check_diag_usl_disp_nabl( diag, "2.78.109") //прочие
+      vozvr := 109
+    endif  
+    if vozvr == 0
+      if check_diag_usl_disp_nabl( diag, "2.78.110") //онкология
+        vozvr := 110
+      endif
+    endif  
+    if vozvr == 0
+      if check_diag_usl_disp_nabl( diag, "2.78.111") //сахарный Д.
+        vozvr := 111
+      endif
+    endif  
+    if vozvr == 0
+      if check_diag_usl_disp_nabl( diag, "2.78.112") // ССО
+        vozvr := 112
+      endif
+    endif  
+  return vozvr
 
-
-// 03.12.23 Список пациентов, по которым были л/у с диспансерным наблюдением
+// 01.07.24 Список пациентов, по которым были л/у с диспансерным наблюдением
 Function f_inf_disp_nabl( par )
 
   // 1 -  "~Не было л/у с диспансерным наблюдением",;
   // 2 -  "~Были л/у с диспансерным наблюдением"
-  // 3 -    Сердечники
+
    Local arr, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir + "disp_nabl" + stxt, ;
     ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := "___DN" + sdbf, arr_fl, fl_prikrep := Space( 6 ), kol_kartotek := 0, ;
-    t_kartotek := 0
+    t_kartotek := 0, s1
+   Local arr_tip_DN := {"Прочие ДН","Онкологическое ДН","Сахарный диабет ДН","Сердечно-сосудистое ДН"}
+   Local arr_tip_KOD_USL := {109,110,111,112}
+   Local mas_str_ot := {}
+   local flag_BILO := .F., flag_NAL := .T.
   stat_msg( "Поиск информации..." )
   fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
   arr_title := { ;
@@ -1199,11 +1216,11 @@ Function f_inf_disp_nabl( par )
     s := "Список пациентов, состоящих на ДН, по которым не было л/у с диспансерным наблюдением"
   Elseif par == 2
     s := "Список пациентов, состоящих на ДН, присутствуют л/у с диспансерным наблюдением"
-  Else
-    s := "Список пациентов, состоящих на ДН c ССО, присутствуют л/у с диспансерным наблюдением"
   Endif
+  s1 := 'только "2.78.109", "2.78.110", "2.78.111", "2.78.112" '  
   add_string( "" )
   add_string( Center( s, sh ) )
+  add_string( Center( s1, sh ) )
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
   //
@@ -1231,6 +1248,11 @@ Function f_inf_disp_nabl( par )
   Set Relation To kod_k into KART
   Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kart->kod, 7 ) to ( cur_dir + "tmp_rhum" ) ;
     For kart->kod > 0 .and. rhum->oplata == 1
+  //
+  for iii := 1 to 4    
+    add_string( "" )
+    add_string( Center( arr_tip_DN[iii], sh ) )
+    add_string( "" )
   Go Top
   Do While !Eof()  // цикл по всей базе картотеки ДИСПАНСЕРНОГО НАБЛЮДЕНИЯ
     arr := {}
@@ -1240,16 +1262,10 @@ Function f_inf_disp_nabl( par )
     // если человек стоит на Д-учете - создаем массив его Д диагнозов
     Do While dd->kod_d == rhum->( RecNo() ) .and. !Eof()
       If dd->next_data >= 0d20240101 // !!!!!!! ВНИМАНИЕ год
-        If par == 3
-          // проверяем массив диагнозов
-          If f_is_diag_dn_serdce( dd->kod_diag,,, .f. )
-            AAdd( arr, dd->kod_diag )
-            AAdd( arr_fl, .f. )
-          Endif
-        Else
+        if arr_tip_KOD_USL[iii] == check_tip_disp_nabl(dd->kod_diag)
           AAdd( arr, dd->kod_diag )
           AAdd( arr_fl, .f. )
-        Endif
+        endif  
       Endif
       Skip
     Enddo
@@ -1292,8 +1308,8 @@ Function f_inf_disp_nabl( par )
                 If left_lshifr_8 == "2.78.109" .or.;
                    left_lshifr_8 == "2.78.110" .or.;
                    left_lshifr_8 == "2.78.111" .or.;
-                   left_lshifr_8 == "2.78.112" .or.;
-                   left_lshifr_6 == "2.78.6" .or. left_lshifr_6 == "2.78.7" .or. left_lshifr_6 == "2.78.8" // (2.78.61__2.78.86)
+                   left_lshifr_8 == "2.78.112" //.or.;
+                   //left_lshifr_6 == "2.78.6" .or. left_lshifr_6 == "2.78.7" .or. left_lshifr_6 == "2.78.8" // (2.78.61__2.78.86)
                   // пока только эту
                   fl_disp := .t.
                   arr_fl[ zz ] := .t.
@@ -1308,57 +1324,86 @@ Function f_inf_disp_nabl( par )
         Skip
       Enddo
       If par == 1 // Не было л/у с диспансерным наблюдением при наличии ДД
+        mas_str_ot := {}
+        flag_BILO := .F.
+        flag_NAL := .T.
         For i := 1 To Len( arr )
           If !arr_fl[ i ]
+          
+            if flag_NAL
+              ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + PadR( Arr[ i ], 5 ) + "   " + fl_prikrep + " " + ;
+                PadR( kart->adres, 40 ) 
+            else
+              ttt :=  space(45 ) + " " + space( 4 ) + " " + space(10) + "  " + PadR( Arr[ i ], 5 ) 
+            endif  
+            aadd(mas_str_ot, ttt)
+            flag_NAL := .F.
+    //        If t_kartotek != kart->kod
+    //          t_kartotek := kart->kod
+    //          kol_kartotek++
+    //        Endif
+          else
+            flag_BILO := .T.
+          Endif
+        Next
+        if !flag_BILO
+          for i := 1 to len(mas_str_ot)
             If verify_ff( HH, .t., sh )
               AEval( arr_title, {| x| add_string( x ) } )
             Endif
-            add_string( PadR( lstr( ++ii2 ) + ". " + kart->fio, 45 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + PadR( Arr[ i ], 5 ) + "   " + fl_prikrep + " " + ;
-              PadR( kart->adres, 40 ) )
-            If t_kartotek != kart->kod
-              t_kartotek := kart->kod
-              kol_kartotek++
-            Endif
-          Endif
-        Next
+            if i == 1
+              add_string(padl(lstr( ++ii2 ),5)+mas_str_ot[i])
+            else  
+              add_string(mas_str_ot[i])
+            endif  
+          next  
+        endif  
       Endif
       If par == 2 // Были л/у с диспансерным наблюдением при наличии ДД
+        mas_str_ot := {}
+        flag_BILO := .F.
+        flag_NAL := .T.
         For i := 1 To Len( arr )
           If verify_ff( HH, .t., sh )
             AEval( arr_title, {| x| add_string( x ) } )
           Endif
           If arr_fl[ i ]
-            add_string( PadR( lstr( ++ii2 ) + ". " + kart->fio, 45 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + PadR( Arr[ i ], 5 ) + "   " + fl_prikrep + " " + ;
-              PadR( kart->adres, 40 ) )
-            If t_kartotek != kart->kod
-              t_kartotek := kart->kod
-              kol_kartotek++
-            Endif
+            if flag_NAL
+              ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + PadR( Arr[ i ], 5 ) + "   " + fl_prikrep + " " + ;
+                PadR( kart->adres, 40 ) 
+            else
+              ttt :=  space(45 ) + " " + space( 4 ) + " " + space(10) + "  " + PadR( Arr[ i ], 5 ) 
+            endif  
+            aadd(mas_str_ot, ttt)
+            flag_NAL := .F.
+  //          If t_kartotek != kart->kod
+  //            t_kartotek := kart->kod
+  //            kol_kartotek++
+  //          Endif
+          else
+            flag_BILO := .T.
           Endif
         Next
-      Endif
-      If par == 3 // Сердечники Были л/у с диспансерным наблюдением при наличии ДД
-        For i := 1 To Len( arr )
-          If verify_ff( HH, .t., sh )
-            AEval( arr_title, {| x| add_string( x ) } )
-          Endif
-          If arr_fl[ i ]
-            add_string( PadR( lstr( ++ii2 ) + ". " + kart->fio, 45 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + PadR( Arr[ i ], 5 ) + "   " + fl_prikrep + " " + ;
-              PadR( kart->adres, 40 ) )
-            If t_kartotek != kart->kod
-              t_kartotek := kart->kod
-              kol_kartotek++
+        if !flag_BILO
+          for i := 1 to len(mas_str_ot)
+            If verify_ff( HH, .t., sh )
+              AEval( arr_title, {| x| add_string( x ) } )
             Endif
-          Endif
-        Next
+            if i == 1
+              add_string(padl(lstr( ++ii2 ),5)+mas_str_ot[i])
+            else  
+              add_string(mas_str_ot[i])
+            endif  
+          next  
+        endif  
       Endif
-
     Endif
     Select RHUM
     Skip
   Enddo // kartotek
+next
   Close databases
-  add_string( " Итого человек: " + lstr( kol_kartotek ) )
+//  add_string( " Итого человек: " + lstr( kol_kartotek ) )
   FClose( fp )
   rest_box( buf )
   viewtext( name_file,,,, ( sh > 80 ),,, 3 )
@@ -1444,7 +1489,6 @@ Function vvod_disp_nabl()
   RestScreen( buf )
 
   Return Nil
-
 
 
 // 09.12.18
