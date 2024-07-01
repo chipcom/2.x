@@ -6,11 +6,11 @@
 Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 
-// 10.01.24
+// 01.07.24
 Function create_reestr()
 
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, pole, arr_m
-  Local nameArr //, funcGetPZ
+  Local nameArr
   Local tip_lu
 
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
@@ -80,7 +80,6 @@ Function create_reestr()
   lenPZ := len( p_array_PZ )
 // конец перенесено
 
-//  For i := 0 To 150   // для таблицы _moXunit 03.02.23
   For i := 0 To lenPZ   // для таблицы _moXunit 03.02.23
     AAdd( adbf, { 'PZ' + lstr( i ), 'N', 9, 2 } )
   Next
@@ -202,7 +201,7 @@ Function create_reestr()
           tmp->kol := 0
           tmp->summa := 0
           tmp->min_date := SToD( StrZero( tmp->nyear, 4 ) + StrZero( tmp->nmonth, 2 ) + "01" )
-          For i := 0 To 99
+          For i := 0 To lenPZ   // 99
             pole := "tmp->PZ" + lstr( i )
             &pole := 0
           Next
@@ -232,28 +231,16 @@ Function create_reestr()
               tmpb->fio := human->fio
               tmpb->PZ := j
               pole := "tmp->PZ" + lstr( j )
-              // If tmp->nyear > 2018 // 2019 год
-                // nameArr := 'glob_array_PZ_' + last_digits_year( tmp->nyear )
-                // If ( i := AScan( &nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( &nameArr.[ i, 5 ] )
-                // funcGetPZ := 'get_array_PZ_' + last_digits_year( tmp->nyear ) + '()'
-                nameArr := get_array_PZ( tmp->nyear )
-                If ( i := AScan( nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( nameArr[ i, 5 ] )
-                  &pole := &pole + 1 // учёт по случаям
-                Else
-                  if tmp->nyear > 2018
-                    &pole := &pole + k // учёт по единицам план-заказа
-                  else
-                    &pole := &pole + human_->PZKOL
-                  endif
-                Endif
-              // Else
-              //   nameArr := 'glob_array_PZ_' + '18'  // last_digits_year(tmp->nyear)
-              //   If ( i := AScan( &nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( &nameArr.[ i, 5 ] )
-              //     &pole := &pole + 1
-              //   Else
-              //     &pole := &pole + human_->PZKOL
-              //   Endif
-              // Endif
+              nameArr := get_array_PZ( tmp->nyear )
+              If ( i := AScan( nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( nameArr[ i, 5 ] )
+                &pole := &pole + 1 // учёт по случаям
+              Else
+                if tmp->nyear > 2018
+                  &pole := &pole + k // учёт по единицам план-заказа
+                else
+                  &pole := &pole + human_->PZKOL
+                endif
+              Endif
             Else
               tmpb->yes_del := .t. // удалить после дополнительной проверки
             Endif
