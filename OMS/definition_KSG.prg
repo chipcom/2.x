@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 
 
-// 04.04.24 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 02.07.24 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -254,7 +254,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         lshifr := usl->shifr
       Endif
       lshifr := AllTrim( lshifr )
-      If Left( lshifr, 5 ) == '60.3.'
+      If ( Left( lshifr, 5 ) == '60.3.' ) .or. ( Left( lshifr, 6 ) == '60.10.' )
         s_dializ += hu->stoim_1
       Endif
       If AScan( ahu, lshifr ) == 0
@@ -303,7 +303,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         If AScan( ahu, AllTrim( ihu->CODE_USL ) ) == 0
           AAdd( ahu, AllTrim( ihu->CODE_USL ) )
         Endif
-        If Left( ihu->CODE_USL, 5 ) == '60.3.'
+        If ( Left( ihu->CODE_USL, 5 ) == '60.3.' ) .or. ( Left( ihu->CODE_USL, 6 ) == '60.10.' )
           s_dializ += ihu->SUMV_USL
         Endif
         If lusl == 2 .and. Left( ihu->CODE_USL, 5 ) == '55.1.'
