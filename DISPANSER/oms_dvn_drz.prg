@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 21.06.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 02.07.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -117,6 +117,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
   Private mm_pervich := arr_mm_pervich()
   Private mm_dispans := arr_mm_dispans()
+  aadd( mm_dispans, { 'прочие врачи               ', 4 } )
   Private mm_dopo_na := arr_mm_dopo_na()
   Private gl_arr := { ;  // для битовых полей
     { 'dopo_na', 'N', 10, 0, , , , { | x | inieditspr( A__MENUBIT, mm_dopo_na, x ) } } ;
