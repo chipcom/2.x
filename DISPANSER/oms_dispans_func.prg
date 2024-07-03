@@ -3,6 +3,15 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 03.07.24
+function is_dispanserizaciya( ishod )
+
+  return ( Between( ishod, 101, 102 ) .or. ;  // диспансеризация детей-сирот в стационарах или диспансеризация детей-сирот под опекой
+        Between( ishod, 201, 205 ) .or. ;   // диспансеризация взрослого населения
+        Between( ishod, 301, 305 ) .or. ;
+        Between( ishod, 401, 402 ) .or. ;   // диспансеризацияпосле COVID-19
+        Between( ishod, 501, 502) )         // диспансеризация репродуктивного здоровья
+
 // 23.01.17
 Function f_valid_diag_oms_sluch_dvn( get, k )
 

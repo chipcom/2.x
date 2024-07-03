@@ -6,30 +6,40 @@
 #define max_rec_reestr 9999
 #define BASE_ISHOD_RZD 500
 
-// 15.06.24
+// 03.07.24
 Function verify_oms( arr_m, fl_view )
+  // Возврат: arrKolSl (массив)
+  // 1 эл. - кол-во обычных случаев, 
+  // 2 эл. - кол-во случаев диспансеризации
 
   Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := cur_dir + 'err_sl' + stxt, ;
     name_file2, name_file3, kr_unlock, i, ;
     mas_pmt := { 'Список обнаруженных ошибок в результате проверки' }, mas_file := {}
+  // local kol_1r := 0, ; // количество обычных случаев
+  //   kol_2r := 0, ;     // количество случаев диспансеризации
+  local  arrKolSl := { 0, 0 }
+
 
   AAdd( mas_file, name_file )
 
   Default arr_m To year_month( T_ROW, T_COL + 5, , 3 ), fl_view To .t.
 
   If arr_m == NIL
-    Return Nil
+    // Return Nil
+    Return arrKolSl
   Endif
 
   If arr_m[ 1 ] <= 2018
     func_error( 4, 'Случай ранее 2019 года.' )
-    Return Nil
+    // Return Nil
+    Return arrKolSl
   Endif
 
   If fl_view .and. ( ko := popup_prompt( T_ROW, T_COL + 5, 1, ;
       { 'Проверять ~всех пациентов', ;
       'Не проверять вернувшихся из ТФОМС с ~ошибкой' } ) ) == 0
-    Return Nil
+    // Return Nil
+    Return arrKolSl
   Endif
   kr_unlock := iif( fl_view, 50, 1000 )
   waitstatus( 'Начало проверки...' )
@@ -147,12 +157,15 @@ Function verify_oms( arr_m, fl_view )
               tmpb->kod_tmp := 1
               tmpb->plus := .t.
               If arr_m[ 1 ] > 2016
-                If Between( human->ishod, 301, 305 ) .or. Between( human->ishod, 201, 205 ) .or. Between( human->ishod, 101, 102 ) .or. Between( human->ishod, 401, 402 ) .or. Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
+//                If Between( human->ishod, 301, 305 ) .or. Between( human->ishod, 201, 205 ) .or. Between( human->ishod, 101, 102 ) .or. Between( human->ishod, 401, 402 ) .or. Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
+                If is_dispanserizaciya( human->ishod )
                   tmpb->tip := 2
-                  kol_2r++
+                  // kol_2r++
+                  arrKolSl[ 2 ]++
                 Else
                   tmpb->tip := 1
-                  kol_1r++
+                  // kol_1r++
+                  arrKolSl[ 1 ]++
                 Endif
               Endif
             Endif
@@ -233,11 +246,13 @@ Function verify_oms( arr_m, fl_view )
           tmpb->PZKOL := pz
         Else
           tmpb->tip := 0 // p_tip_reestr
-          kol_1r--
+          // kol_1r--
+          arrKolSl[ 1 ]--
         Endif
       Else
         tmpb->tip := 0 // p_tip_reestr
-        kol_1r--
+        // kol_1r--
+        arrKolSl[ 1 ]--
       Endif
       Select TMPB
       Skip
@@ -402,7 +417,10 @@ Function verify_oms( arr_m, fl_view )
     Endif
   Endif
 
-  Return Nil
+  // Return Nil
+  // arrKolSl[ 1 ] := kol_1r
+  // arrKolSl[ 2 ] := kol_2r
+  Return arrKolSl
 
 // 15.06.24
 Function verify_oms_sluch( mkod )

@@ -6,7 +6,7 @@
 Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 
-// 01.07.24
+// 03.07.24
 Function create_reestr()
 
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, pole, arr_m
@@ -14,6 +14,7 @@ Function create_reestr()
   Local tip_lu
 
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
+  local arrKolSl
 
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, err_admin )
@@ -179,19 +180,28 @@ Function create_reestr()
         ErrorBlock( bSaveHandler )
         Close databases
         If fl
-          Private kol_1r := 0, kol_2r := 0, p_tip_reestr := 1
-          verify_oms( arr_m, .f. )
+          // Private kol_1r := 0, kol_2r := 0
+          private p_tip_reestr := 1
+          arrKolSl := verify_oms( arr_m, .f. )
           clrline( MaxRow(), color0 )
-          If kol_1r == 0 .and. kol_2r == 0
+          // If kol_1r == 0 .and. kol_2r == 0
+          If arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] == 0
             //
-          Elseif kol_1r > 0 .and. kol_2r == 0
+          // Elseif kol_1r > 0 .and. kol_2r == 0
+          Elseif arrKolSl[ 1 ] > 0 .and. arrKolSl[ 2 ] == 0
             p_tip_reestr := 1
-          Elseif kol_1r == 0 .and. kol_2r > 0
+          // Elseif kol_1r == 0 .and. kol_2r > 0
+          Elseif arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] > 0
             p_tip_reestr := 2
+          // Elseif f_alert( { "", ;
+          //     PadC( "Выберите тип реестра случаев для отправки в ТФОМС", 70, "." ), ;
+          //     "" }, ;
+          //     { " Реестр ~обычный(" + lstr( kol_1r ) + ")", " Реестр по ~диспансеризации(" + lstr( kol_2r ) + ")" }, ;
+          //     1, "W/RB", "G+/RB", MaxRow() -6,, "BG+/RB,W+/R,W+/RB,GR+/R" ) == 2
           Elseif f_alert( { "", ;
               PadC( "Выберите тип реестра случаев для отправки в ТФОМС", 70, "." ), ;
               "" }, ;
-              { " Реестр ~обычный(" + lstr( kol_1r ) + ")", " Реестр по ~диспансеризации(" + lstr( kol_2r ) + ")" }, ;
+              { " Реестр ~обычный(" + lstr( arrKolSl[ 1 ] ) + ")", " Реестр по ~диспансеризации(" + lstr( arrKolSl[ 2 ] ) + ")" }, ;
               1, "W/RB", "G+/RB", MaxRow() -6,, "BG+/RB,W+/R,W+/RB,GR+/R" ) == 2
             p_tip_reestr := 2
           Endif
