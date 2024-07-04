@@ -2022,7 +2022,7 @@ Function f1ret_oms_human( oBrow )
 
   Return Nil
 
-// 25.06.23
+// 04.07.24
 Function f2ret_oms_human( nkey )
 
   Static tmp := ' '
@@ -2285,7 +2285,7 @@ Function f2ret_oms_human( nkey )
         // goto (human->(recno()))
         //
         // Диспансеризация
-        If eq_any( human->ishod, 401, 402 ) .and. HUMAN_->Usl_ok == 3 // амбулаторная// УД
+        If eq_any( human->ishod, 401, 402 ) .and. HUMAN_->Usl_ok == 3 // амбулаторная// УД 
           If human->vzros_reb == 0 // взрослый
             mas_otchet[ 10, 1 ] += 1
             mas_otchet[ 10, 2 ] += human->cena_1
@@ -2308,6 +2308,14 @@ Function f2ret_oms_human( nkey )
           Else
             mas_otchet[ 7, 3 ] += 1
             mas_otchet[ 7, 4 ] += human->cena_1
+          Endif
+        Elseif eq_any( human->ishod, 501 ) .and. HUMAN_->Usl_ok == 3 // амбулаторная// Репродуктивка
+          If human->vzros_reb == 0 // взрослый
+            mas_otchet[ 43, 1 ] += 1
+            mas_otchet[ 43, 2 ] += human->cena_1
+          Else
+            mas_otchet[ 43, 3 ] += 1
+            mas_otchet[ 43, 4 ] += human->cena_1
           Endif
         Endif  // прочее
 
@@ -2458,6 +2466,8 @@ Function f2ret_oms_human( nkey )
             Elseif eq_any( human->ishod, 203, 301, 302, 303, 304, 305 ) // Профосмотры
               // mas_otchet[7, 1] += 1
               // mas_otchet[7, 2] += human->cena_1
+            Elseif eq_any( human->ishod, 501 ) // Репродуктивка 
+              //
             Else  // прочее
               If PadR( lshifr, 3 ) == '60.' // Диагностика
                 If PadR( lshifr, 4 ) == '60.4' // КТ
@@ -2740,10 +2750,10 @@ Function f2ret_oms_human( nkey )
       Enddo
       // подбивка
       my_debug(, print_array( mas_otchet ) )
-      mas_otchet[ 8, 1 ] := mas_otchet[ 9, 1 ] + mas_otchet[ 10, 1 ]
-      mas_otchet[ 8, 2 ] := mas_otchet[ 9, 2 ] + mas_otchet[ 10, 2 ]
-      mas_otchet[ 8, 3 ] := mas_otchet[ 9, 3 ] + mas_otchet[ 10, 3 ]
-      mas_otchet[ 8, 4 ] := mas_otchet[ 9, 4 ] + mas_otchet[ 10, 4 ]
+      mas_otchet[ 8, 1 ] := mas_otchet[ 9, 1 ] + mas_otchet[ 10, 1 ] + mas_otchet[ 43, 1 ]
+      mas_otchet[ 8, 2 ] := mas_otchet[ 9, 2 ] + mas_otchet[ 10, 2 ] + mas_otchet[ 43, 2 ]
+      mas_otchet[ 8, 3 ] := mas_otchet[ 9, 3 ] + mas_otchet[ 10, 3 ] + mas_otchet[ 43, 3 ]
+      mas_otchet[ 8, 4 ] := mas_otchet[ 9, 4 ] + mas_otchet[ 10, 4 ] + mas_otchet[ 43, 4 ]
       //
       mas_otchet[ 6, 1 ] := mas_otchet[ 7, 1 ] + mas_otchet[ 8, 1 ]
       mas_otchet[ 6, 2 ] := mas_otchet[ 7, 2 ] + mas_otchet[ 8, 2 ]
