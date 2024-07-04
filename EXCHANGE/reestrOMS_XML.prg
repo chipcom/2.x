@@ -9,7 +9,7 @@
 
 Static sadiag1  // := {}
 
-// 27.06.24 создание XML-файлов реестра
+// 04.07.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -827,8 +827,8 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             mo_add_xml_stroke( oDIAG, 'DIAG_CODE', lstr( arr_onkdi[ j, 3 ] ) )
             If arr_onkdi[ j, 4 ] > 0
               mo_add_xml_stroke( oDIAG, 'DIAG_RSLT', lstr( arr_onkdi[ j, 4 ] ) )
-              mo_add_xml_stroke( oDIAG, 'REC_RSLT', '1' )
             Endif
+            mo_add_xml_stroke( oDIAG, 'REC_RSLT', '1' )
           endif
         Next j
         For j := 1 To Len( arr_onkpr )
