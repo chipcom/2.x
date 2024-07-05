@@ -198,7 +198,7 @@ Procedure Main( ... )
 
   Return
 
-// 23.06.24
+// 05.07.24
 Function f_main( r0, is_local_version, a_parol )
   Static arr1 := { ;
     { 'Регистратура поликлиники', X_REGIST, , .t., 'РЕГИСТРАТУРА' }, ;
@@ -244,7 +244,7 @@ Function f_main( r0, is_local_version, a_parol )
       Endif
     Endif
     // Учёт направлений на госпитализацию
-    If k == X_263 .and. ( is_napr_pol .or. is_napr_stac )
+    If k == X_263 .and. ( is_napr_pol .or. is_napr_stac ) .and. ( substr( glob_mo[ _MO_PROD ], X_263, 1 ) == '1' )
       array_tasks[ i, 4 ] := .t.
       fl_exit := .f.
     Endif
