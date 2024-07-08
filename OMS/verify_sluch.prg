@@ -8,7 +8,7 @@
 
 Static sadiag1  // := {}
 
-// 27.06.24
+// 08.07.24
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -670,7 +670,8 @@ Function verify_sluch( fl_view )
   Endif
 
   // проверим не этап ли это диспансеризации репродуктивного здоровья
-  If eq_any( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
+  // If eq_any( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
+  If is_sluch_dispanser_DRZ( human->ishod )
     is_disp_DRZ := .t.
     is_exist_Prescription := .t.
   Endif

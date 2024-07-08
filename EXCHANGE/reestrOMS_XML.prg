@@ -1406,7 +1406,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Return Nil
 
 
-// 03.05.24 работаем по текущей записи
+// 08.07.24 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1782,7 +1782,8 @@ Function f1_create2reestr19( _nyear, _nmonth )
         Endif
       Next j
     Endif
-  elseif Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 ) // диспансеризации репродуктивного здоровья
+  // elseif Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 ) // диспансеризации репродуктивного здоровья
+  elseif is_sluch_dispanser_DRZ( human->ishod ) // диспансеризации репродуктивного здоровья
     is_disp_DRZ := .t.
     arr_usl_otkaz := {}
     arr_ne_nazn := {}

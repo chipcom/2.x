@@ -292,7 +292,7 @@ Function add_pediatr_pern( _pv, _pa, _date, _diag )
 
   Return arr
 
-// 31.03.24 вернуть тип вводимого листа учёта
+// 08.07.24 вернуть тип вводимого листа учёта
 Function ret_tip_lu( /*@*/stip)
 
   Local k := 0, tmp_select
@@ -340,11 +340,12 @@ Function ret_tip_lu( /*@*/stip)
     Else // 402
       stip := 'УД2'             // для 2-го этапа
     Endif
-  Elseif Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )  // при диспансеризации репродуктивного здоровья
+  // Elseif Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )  // при диспансеризации репродуктивного здоровья
+  Elseif is_sluch_dispanser_DRZ( human->ishod )  // при диспансеризации репродуктивного здоровья
     k := TIP_LU_DRZ
     If human->ishod == BASE_ISHOD_RZD + 1
       stip := 'ДР1'             // для 1-го этапа
-    Else // 402
+    Else // 502
       stip := 'ДР2'             // для 2-го этапа
     Endif
   Elseif human->ishod == 98
