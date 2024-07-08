@@ -9,7 +9,7 @@
 
 Static sadiag1  // := {}
 
-// 27.06.24 создание XML-файлов реестра
+// 04.07.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -827,8 +827,8 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             mo_add_xml_stroke( oDIAG, 'DIAG_CODE', lstr( arr_onkdi[ j, 3 ] ) )
             If arr_onkdi[ j, 4 ] > 0
               mo_add_xml_stroke( oDIAG, 'DIAG_RSLT', lstr( arr_onkdi[ j, 4 ] ) )
-              mo_add_xml_stroke( oDIAG, 'REC_RSLT', '1' )
             Endif
+            mo_add_xml_stroke( oDIAG, 'REC_RSLT', '1' )
           endif
         Next j
         For j := 1 To Len( arr_onkpr )
@@ -1406,7 +1406,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Return Nil
 
 
-// 03.05.24 работаем по текущей записи
+// 08.07.24 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1749,7 +1749,8 @@ Function f1_create2reestr19( _nyear, _nmonth )
         Endif
       Next j
     Endif
-  Elseif Between( human->ishod, 401, 402 ) // углубленная диспансеризация после COVID
+  // Elseif Between( human->ishod, 401, 402 ) // углубленная диспансеризация после COVID
+  Elseif is_sluch_dispanser_COVID( human->ishod ) // углубленная диспансеризация после COVID
     is_disp_DVN_COVID := .t.
     arr_usl_otkaz := {}
     For i := 1 To 5
@@ -1782,7 +1783,8 @@ Function f1_create2reestr19( _nyear, _nmonth )
         Endif
       Next j
     Endif
-  elseif Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 ) // диспансеризации репродуктивного здоровья
+  // elseif Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 ) // диспансеризации репродуктивного здоровья
+  elseif is_sluch_dispanser_DRZ( human->ishod ) // диспансеризации репродуктивного здоровья
     is_disp_DRZ := .t.
     arr_usl_otkaz := {}
     arr_ne_nazn := {}

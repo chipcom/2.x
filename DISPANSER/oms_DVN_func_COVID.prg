@@ -127,7 +127,7 @@ Function f_is_umolch_sluch_dvn_covid( i, _etap, _vozrast, _pol )
 
   Return fl
 
-// 15.06.19
+// 08.07.24
 Function ret_etap_dvn_covid( lkod_h, lkod_k )
 
   Local ae := { {}, {} }, fl, i, k, d1 := Year( mn_data )
@@ -141,7 +141,8 @@ Function ret_etap_dvn_covid( lkod_h, lkod_k )
     If fl .and. human->schet > 0 .and. human_->oplata == 9
       fl := .f. // лист учёта снят по акту и выставлен повторно
     Endif
-    If fl .and. Between( human->ishod, 401, 402 ) // ???
+    // If fl .and. Between( human->ishod, 401, 402 ) // ???
+    If fl .and. is_sluch_dispanser_COVID( human->ishod ) // ???
       i := human->ishod - 400
       If Year( human->n_data ) == d1 // текущий год
         AAdd( ae[ 1 ], { i, human->k_data, human_->RSLT_NEW } )

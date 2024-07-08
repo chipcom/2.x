@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 22.12.23 
+// 08.07.23 
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -581,7 +581,8 @@ Function print_l_uch(mkod, par, regim, lnomer)
     endif
     s += put_kopE(tmp1->summa, 9)
     //
-    if eq_any(human->ishod, 401, 402 ) .and. tmp1->kod_vr == 0 
+    // if eq_any(human->ishod, 401, 402 ) .and. tmp1->kod_vr == 0 
+    if is_sluch_dispanser_COVID( human->ishod ) .and. tmp1->kod_vr == 0 
     // УГЛУБЛЕННАЯ дисп-ия взрослого населения
     else
       add_string(s)
@@ -653,10 +654,6 @@ Function print_l_uch(mkod, par, regim, lnomer)
             next
           endif
         endif
-    endif
-    if eq_any(human->ishod, 401, 402 ) .and. tmp1->kod_vr == 0 
-      // УГЛУБЛЕННАЯ дисп-ия взрослого населения
-    else
     endif
     select TMP1
     skip

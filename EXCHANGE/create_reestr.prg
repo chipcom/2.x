@@ -6,14 +6,15 @@
 Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 
-// 10.01.24
+// 03.07.24
 Function create_reestr()
 
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, pole, arr_m
-  Local nameArr //, funcGetPZ
+  Local nameArr
   Local tip_lu
 
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
+  local arrKolSl
 
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, err_admin )
@@ -80,7 +81,6 @@ Function create_reestr()
   lenPZ := len( p_array_PZ )
 // конец перенесено
 
-//  For i := 0 To 150   // для таблицы _moXunit 03.02.23
   For i := 0 To lenPZ   // для таблицы _moXunit 03.02.23
     AAdd( adbf, { 'PZ' + lstr( i ), 'N', 9, 2 } )
   Next
@@ -180,19 +180,28 @@ Function create_reestr()
         ErrorBlock( bSaveHandler )
         Close databases
         If fl
-          Private kol_1r := 0, kol_2r := 0, p_tip_reestr := 1
-          verify_oms( arr_m, .f. )
+          // Private kol_1r := 0, kol_2r := 0
+          private p_tip_reestr := 1
+          arrKolSl := verify_oms( arr_m, .f. )
           clrline( MaxRow(), color0 )
-          If kol_1r == 0 .and. kol_2r == 0
+          // If kol_1r == 0 .and. kol_2r == 0
+          If arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] == 0
             //
-          Elseif kol_1r > 0 .and. kol_2r == 0
+          // Elseif kol_1r > 0 .and. kol_2r == 0
+          Elseif arrKolSl[ 1 ] > 0 .and. arrKolSl[ 2 ] == 0
             p_tip_reestr := 1
-          Elseif kol_1r == 0 .and. kol_2r > 0
+          // Elseif kol_1r == 0 .and. kol_2r > 0
+          Elseif arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] > 0
             p_tip_reestr := 2
+          // Elseif f_alert( { "", ;
+          //     PadC( "Выберите тип реестра случаев для отправки в ТФОМС", 70, "." ), ;
+          //     "" }, ;
+          //     { " Реестр ~обычный(" + lstr( kol_1r ) + ")", " Реестр по ~диспансеризации(" + lstr( kol_2r ) + ")" }, ;
+          //     1, "W/RB", "G+/RB", MaxRow() -6,, "BG+/RB,W+/R,W+/RB,GR+/R" ) == 2
           Elseif f_alert( { "", ;
               PadC( "Выберите тип реестра случаев для отправки в ТФОМС", 70, "." ), ;
               "" }, ;
-              { " Реестр ~обычный(" + lstr( kol_1r ) + ")", " Реестр по ~диспансеризации(" + lstr( kol_2r ) + ")" }, ;
+              { " Реестр ~обычный(" + lstr( arrKolSl[ 1 ] ) + ")", " Реестр по ~диспансеризации(" + lstr( arrKolSl[ 2 ] ) + ")" }, ;
               1, "W/RB", "G+/RB", MaxRow() -6,, "BG+/RB,W+/R,W+/RB,GR+/R" ) == 2
             p_tip_reestr := 2
           Endif
@@ -202,7 +211,7 @@ Function create_reestr()
           tmp->kol := 0
           tmp->summa := 0
           tmp->min_date := SToD( StrZero( tmp->nyear, 4 ) + StrZero( tmp->nmonth, 2 ) + "01" )
-          For i := 0 To 99
+          For i := 0 To lenPZ   // 99
             pole := "tmp->PZ" + lstr( i )
             &pole := 0
           Next
@@ -232,28 +241,16 @@ Function create_reestr()
               tmpb->fio := human->fio
               tmpb->PZ := j
               pole := "tmp->PZ" + lstr( j )
-              // If tmp->nyear > 2018 // 2019 год
-                // nameArr := 'glob_array_PZ_' + last_digits_year( tmp->nyear )
-                // If ( i := AScan( &nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( &nameArr.[ i, 5 ] )
-                // funcGetPZ := 'get_array_PZ_' + last_digits_year( tmp->nyear ) + '()'
-                nameArr := get_array_PZ( tmp->nyear )
-                If ( i := AScan( nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( nameArr[ i, 5 ] )
-                  &pole := &pole + 1 // учёт по случаям
-                Else
-                  if tmp->nyear > 2018
-                    &pole := &pole + k // учёт по единицам план-заказа
-                  else
-                    &pole := &pole + human_->PZKOL
-                  endif
-                Endif
-              // Else
-              //   nameArr := 'glob_array_PZ_' + '18'  // last_digits_year(tmp->nyear)
-              //   If ( i := AScan( &nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( &nameArr.[ i, 5 ] )
-              //     &pole := &pole + 1
-              //   Else
-              //     &pole := &pole + human_->PZKOL
-              //   Endif
-              // Endif
+              nameArr := get_array_PZ( tmp->nyear )
+              If ( i := AScan( nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( nameArr[ i, 5 ] )
+                &pole := &pole + 1 // учёт по случаям
+              Else
+                if tmp->nyear > 2018
+                  &pole := &pole + k // учёт по единицам план-заказа
+                else
+                  &pole := &pole + human_->PZKOL
+                endif
+              Endif
             Else
               tmpb->yes_del := .t. // удалить после дополнительной проверки
             Endif

@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 30.03.24 ДВН - добавление или редактирование случая (листа учета)
+// 08.07.24 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -254,7 +254,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           a_smert := { "Данный больной умер!", ;
             "Лечение с " + full_date( human->N_DATA ) + " по " + full_date( human->K_DATA ) }
         Endif
-        If Between( human->ishod, 401, 402 )
+        // If Between( human->ishod, 401, 402 )
+        If is_sluch_dispanser_COVID( human->ishod )
           AAdd( ah, { human->( RecNo() ), human->K_DATA } )
         Endif
       Endif

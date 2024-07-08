@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 12.06.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 08.07.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz()
 
   Local arr_m, buf := save_maxrow()
@@ -44,7 +44,8 @@ Function inf_drz()
       m1napr_stac := 0
       lPatologiya := .f.
       arr_otklon := {}
-      if between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
+      // if between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
+      if is_sluch_dispanser_DRZ( human->ishod )
         kart->( dbGoto( human->kod_k ) )
         lCity := f_is_selo( kart_->gorod_selo, kart_->okatog )
         read_arr_drz( human->kod, .t. )      
@@ -239,7 +240,7 @@ Function ret_ndisp_drz( lkod_h, lkod_k )
 
   Return fl
 
-// 31.03.24
+// 08.07.24
 Function ret_etap_drz( lkod_h, lkod_k )
 
   Local ae := { {}, {} }, fl, i, k, d1 := Year( mn_data )
@@ -253,7 +254,8 @@ Function ret_etap_drz( lkod_h, lkod_k )
     If fl .and. human->schet > 0 .and. human_->oplata == 9
       fl := .f. // лист учёта снят по акту и выставлен повторно
     Endif
-    If fl .and. Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 ) // ???
+    // If fl .and. Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 ) // ???
+    If fl .and. is_sluch_dispanser_DRZ( human->ishod ) // ???
       i := human->ishod - BASE_ISHOD_RZD  //400
       If Year( human->n_data ) == d1 // текущий год
         AAdd( ae[ 1 ], { i, human->k_data, human_->RSLT_NEW } )

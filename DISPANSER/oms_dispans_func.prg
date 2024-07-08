@@ -3,6 +3,45 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 04.07.24
+function is_dispanserizaciya( ishod )
+
+  // return ( Between( ishod, 101, 102 ) .or. ;  // диспансеризация детей-сирот в стационарах или диспансеризация детей-сирот под опекой
+  //       Between( ishod, 201, 205 ) .or. ;   // диспансеризация взрослого населения
+  //       Between( ishod, 301, 305 ) .or. ;   // профилактики несовершеннолетних
+  //       Between( ishod, 401, 402 ) .or. ;   // диспансеризация после COVID-19
+  //       Between( ishod, 501, 502) )         // диспансеризация репродуктивного здоровья
+  return ( is_sluch_dispanser_deti_siroty( ishod ) .or. ; // диспансеризация детей-сирот в стационарах или диспансеризация детей-сирот под опекой
+    is_sluch_dispanser_DVN_prof( ishod ) .or. ;           // диспансеризация взрослого населения
+    is_sluch_dispanser_profilaktika_deti( ishod ) .or. ;  // профилактики несовершеннолетних
+    is_sluch_dispanser_COVID( ishod ) .or. ;              // диспансеризация после COVID-19
+    is_sluch_dispanser_DRZ( ishod ) )                     // диспансеризация репродуктивного здоровья
+
+// 04.07.24 это случай диспансеризацию детей-сирот
+function is_sluch_dispanser_deti_siroty( ishod )
+
+  return Between( ishod, 101, 102)
+
+// 04.07.24 это случай диспансеризация/профилактика взрослого населения
+function is_sluch_dispanser_DVN_prof( ishod )
+
+  return Between( ishod, 201, 205)
+
+// 04.07.24 это случай профилактики несовершеннолетних
+function is_sluch_dispanser_profilaktika_deti( ishod )
+
+  return Between( ishod, 301, 305)
+
+// 04.07.24 это случай диспансеризации после COVID-19
+function is_sluch_dispanser_COVID( ishod )
+
+  return Between( ishod, 401, 402)
+
+// 04.07.24 это случай диспансеризации репродуктивного здоровья
+function is_sluch_dispanser_DRZ( ishod )
+
+  return Between( ishod, 501, 502)
+
 // 23.01.17
 Function f_valid_diag_oms_sluch_dvn( get, k )
 

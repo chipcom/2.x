@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 16.02.24
+// 02.07.24
 function load_exists_uslugi()
   local countYear, lAlias, cVar
   local cSearch
@@ -72,6 +72,11 @@ function load_exists_uslugi()
         if found()
           is_hemodializ := .t.
         endif
+      endif
+    //
+      find (glob_mo[_MO_KOD_TFOMS] + '60.10.')
+      if found()
+        is_alldializ := .t.
       endif
 
       

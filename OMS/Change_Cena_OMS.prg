@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 20.02.24 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
+// 08.07.24 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
 Function change_cena_oms()
 
   Local buf := save_maxrow(), lshifr1, fl, lrec, rec_human, k_data2, kod_ksg, begin_date := AddMonth( sys_date, -3 )
@@ -80,7 +80,8 @@ Function change_cena_oms()
           sdial := mcena_1 := 0 ; fl := .f. ; kod_ksg := ""
           Select HU
           find ( Str( human->kod, 7 ) )
-          If human->ishod == 401 .or. human->ishod == 402
+          // If human->ishod == 401 .or. human->ishod == 402
+          If is_sluch_dispanser_COVID( human->ishod )
             fl_ygl_disp := .t.
           Else
             fl_ygl_disp := .f.
