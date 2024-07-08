@@ -333,7 +333,8 @@ Function ret_tip_lu( /*@*/stip)
   Elseif human->ishod == 305
     k := TIP_LU_PERN
     stip := 'ОПН'
-  Elseif Between( human->ishod, 401, 402 )  // при углубленной диспансеризации после COVID
+  // Elseif Between( human->ishod, 401, 402 )  // при углубленной диспансеризации после COVID
+  Elseif is_sluch_dispanser_COVID( human->ishod )  // при углубленной диспансеризации после COVID
     k := TIP_LU_DVN_COVID
     If human->ishod == 401
       stip := 'УД1'             // для 1-го этапа

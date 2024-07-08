@@ -2022,7 +2022,7 @@ Function f1ret_oms_human( oBrow )
 
   Return Nil
 
-// 04.07.24
+// 08.07.24
 Function f2ret_oms_human( nkey )
 
   Static tmp := ' '
@@ -2285,7 +2285,8 @@ Function f2ret_oms_human( nkey )
         // goto (human->(recno()))
         //
         // Диспансеризация
-        If eq_any( human->ishod, 401, 402 ) .and. HUMAN_->Usl_ok == 3 // амбулаторная// УД 
+        // If eq_any( human->ishod, 401, 402 ) .and. HUMAN_->Usl_ok == 3 // амбулаторная// УД 
+        If is_sluch_dispanser_COVID( human->ishod ) .and. HUMAN_->Usl_ok == 3 // амбулаторная// УД 
           If human->vzros_reb == 0 // взрослый
             mas_otchet[ 10, 1 ] += 1
             mas_otchet[ 10, 2 ] += human->cena_1
@@ -2457,7 +2458,8 @@ Function f2ret_oms_human( nkey )
           //
           If HUMAN_->Usl_ok == 3 // амбулаторная
             // Диспансеризация
-            If eq_any( human->ishod, 401, 402 ) // УД
+            // If eq_any( human->ishod, 401, 402 ) // УД
+            If is_sluch_dispanser_COVID( human->ishod ) // УД
               // mas_otchet[10, 1] += 1
               // mas_otchet[10, 2] += human->cena_1
             Elseif eq_any( human->ishod, 201, 202, 101, 102 ) // Диспансеризация

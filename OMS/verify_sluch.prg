@@ -664,7 +664,8 @@ Function verify_sluch( fl_view )
     Enddo
   Endif
   // проверим не этап ли это углубленной диспансеризации после COVID
-  If eq_any( human->ishod, 401, 402 )
+  // If eq_any( human->ishod, 401, 402 )
+  If is_sluch_dispanser_COVID( human->ishod )
     is_disp_DVN_COVID := .t.
     is_exist_Prescription := .t.
   Endif

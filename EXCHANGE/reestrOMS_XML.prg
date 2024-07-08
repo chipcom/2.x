@@ -1749,7 +1749,8 @@ Function f1_create2reestr19( _nyear, _nmonth )
         Endif
       Next j
     Endif
-  Elseif Between( human->ishod, 401, 402 ) // углубленная диспансеризация после COVID
+  // Elseif Between( human->ishod, 401, 402 ) // углубленная диспансеризация после COVID
+  Elseif is_sluch_dispanser_COVID( human->ishod ) // углубленная диспансеризация после COVID
     is_disp_DVN_COVID := .t.
     arr_usl_otkaz := {}
     For i := 1 To 5

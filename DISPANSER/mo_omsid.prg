@@ -4242,7 +4242,7 @@ Function f21_inf_dvn( par ) // свод
 
   Return Nil
 
-// 30.06.23
+// 08.07.24
 Function inf_ydvn()
 
   Local i, ii, s, arr_m, buf := save_maxrow(), ar, arr_excel := {}, is_all
@@ -4321,7 +4321,8 @@ Function inf_ydvn()
     Select HUMAN
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
-      If Between( human->ishod, 401, 402 )
+      // If Between( human->ishod, 401, 402 )
+      If is_sluch_dispanser_COVID( human->ishod )
         // read_arr_DVN_COVID(human->kod)
         // is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog)  // признак села
         Select KART_
