@@ -1019,7 +1019,6 @@ Function verify_sluch( fl_view )
               // добавлена комплексная услуга 2.78.107 02.2023
               // добавлена услуги 2.78.109, 2.78.110, 2.78.111, 2.78.112 01.2024
               mpovod := 4 // 1.3
-//              If ! f_is_diag_dn( mdiagnoz[ 1 ], , human->k_data, .f. )
               If ! check_diag_usl_disp_nabl( mdiagnoz[ 1 ], alltrim_lshifr, human->k_data ) //, .f. )
                 AAdd( ta, 'в услуге ' + alltrim_lshifr + ' должен стоять допустимый диагноз для диспансерного наблюдения' )
               Endif
@@ -2910,12 +2909,6 @@ Function verify_sluch( fl_view )
     Endif
 
     If is_2_92_
-      // if alltrim_lshifr == '2.92.3' .and. vozrast >= 18
-      // aadd(ta, 'услуга 2.92.3 оказывается только детям или подросткам')
-      // elseif eq_any(alltrim_lshifr, '2.92.1', '2.92.2') .and. vozrast < 18
-      // aadd(ta, 'услуга ' + alltrim_lshifr + ' оказывается только взрослым')
-      // endif
-
       If !eq_any( human_->RSLT_NEW, 314 )
         AAdd( ta, 'в поле "Результат обращения" должно быть "314 Динамическое наблюдение"' )
       Endif
