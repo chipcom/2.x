@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 09.02.23 инициализировать массив DBF-файлов базы данных
+// 11.07.24 инициализировать массив DBF-файлов базы данных
 Function init_Array_Files_DB()
   local i, arr
 
@@ -14,6 +14,7 @@ Function init_Array_Files_DB()
   aadd(array_files_DB, 'base1')
   aadd(array_files_DB, 'roles')
   aadd(array_files_DB, 'ver_base')
+  aadd(array_files_DB, 'ver_updateDB')
   aadd(array_files_DB, 'mo_add')
   aadd(array_files_DB, 'organiz')
   aadd(array_files_DB, 'mo_oper')

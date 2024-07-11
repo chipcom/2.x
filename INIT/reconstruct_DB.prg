@@ -1,6 +1,6 @@
 #include 'chip_mo.ch'
 
-// 04.04.24 реконстукция подсистемы паролей
+// 11.07.24 реконстукция подсистемы паролей
 function Reconstruct_Security(is_local_version)
   Local base1 := {;
      {'P1',      'C',  20,   0}, ; // Ф.И.О.
@@ -42,14 +42,20 @@ function Reconstruct_Security(is_local_version)
     {'KP',      'C',   3,   0} ;  // количество введённых полей
   }
 
+  Local mo_updateDB := {;
+    {'VER',     'N',   6,   0}, ; // номер версии БД
+    {'DONE',    'N',   1,   0} ; // переход выполнен - 1, нет - 0
+  }
+
   if ControlBases(1, _version()) // если необходимо
     if G_SLock1Task(sem_task, sem_vagno)  // запрет доступа всем
-      // реконструкция файлов доступа к системе
+      // реконструкция файлов доступа к системе и обновлений БД
       if !is_local_version .or. hb_FileExists(dir_server + 'base1' + sdbf)
         reconstruct(dir_server + 'base1', base1, , , .t.)
         reconstruct(dir_server + 'mo_oper', mo_oper, 'index_base("mo_oper")', , .t.)
         reconstruct(dir_server + 'mo_opern', mo_opern, 'index_base("mo_opern")', , .t.)
         reconstruct(dir_server + 'roles', roles, , , .t.)
+        reconstruct(dir_server + 'ver_updateDB', mo_updateDB, , , .t.)
       endif
       G_SUnLock(sem_vagno)
     endif
