@@ -164,9 +164,9 @@ Function init_Array_Files_DB()
   aadd(array_files_DB, 'kas_usl')
   aadd(array_files_DB, 'kas_usld'); array_task_DB[X_KASSA, 2] := len(array_files_DB)
   // КЭК
-  aadd(array_files_DB, 'mo_kekh') ; array_task_DB[X_KEK, 1] := len(array_files_DB)
-  aadd(array_files_DB, 'mo_keke')
-  aadd(array_files_DB, 'mo_kekez'); array_task_DB[X_KEK, 2] := len(array_files_DB)
+//  aadd(array_files_DB, 'mo_kekh') ; array_task_DB[X_KEK, 1] := len(array_files_DB)
+//  aadd(array_files_DB, 'mo_keke')
+//  aadd(array_files_DB, 'mo_kekez'); array_task_DB[X_KEK, 2] := len(array_files_DB)
   // госпитализация
   aadd(array_files_DB, 'mo_nfile'); array_task_DB[X_263, 1] := len(array_files_DB)
   aadd(array_files_DB, 'mo_nfina')

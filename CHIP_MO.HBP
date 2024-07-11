@@ -85,9 +85,9 @@ mo_version.prg
 .\KASSA\mo_orto.prg
 .\KASSA\mo_ortop.prg
 
-.\KEK\mo_kek.prg
-.\KEK\mo_keki.prg
-.\KEK\mo_keki_17.prg
+#.\KEK\mo_kek.prg
+#.\KEK\mo_keki.prg
+#.\KEK\mo_keki_17.prg
 
 .\ref\initSpravFFOMS.prg
 .\ref\dbAdditionalCriteria.prg

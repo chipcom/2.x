@@ -1,12 +1,12 @@
-* ReportUsersOutput.prg - работа с пользователями системы
-******************
-* 06.11.18 printUserList( aList ) - печать списка пользователей системы
-******************
+// ReportUsersOutput.prg - работа с пользователями системы
+//
+// 11.07.24 printUserList( aList ) - печать списка пользователей системы
+//
 #include "chip_mo.ch"
 
 #require "hbtip" 
 
-* 06.11.18 - печать списка пользователей системы
+// 11.07.24 - печать списка пользователей системы
 function printUserList( aList )
 	Local oDoc, oNode, oTable, oRow, oCell, oHTable, oBTable, oTH
 	Local item
@@ -72,11 +72,11 @@ function printUserList( aList )
 	HB_SYMBOL_UNUSED( oCell )
 	// шестая колонка
 	oCell		:= oTH + 'th'
-	if is_task( X_KEK )
-		oCell:attr	:= 'class="thleft"'
-	else
-		oCell:attr	:= 'class="thleft thright"'
-	endif
+//	if is_task( X_KEK )
+//		oCell:attr	:= 'class="thleft"'
+//	else
+	oCell:attr	:= 'class="thleft thright"'
+//	endif
 	oParag			:= oCell + 'p'
 	oParag:attr		:= 'align="center" class="bodyp"'
 	oParag:text		:= 'Должность'
@@ -84,17 +84,17 @@ function printUserList( aList )
 	oCell		:= oCell - 'th'
 	HB_SYMBOL_UNUSED( oCell )
 	
-	if is_task( X_KEK )
-		// седьмая колонка
-		oCell		:= oTH + 'th'
-		oCell:attr	:= 'class="thleft thright"'
-		oParag			:= oCell + 'p'
-		oParag:attr		:= 'align="center" class="bodyp"'
-		oParag:text		:= 'Группа КЭК'
-		oParag			:= oParag - 'p'
-		oCell		:= oCell - 'th'
-		HB_SYMBOL_UNUSED( oCell )
-	endif
+//	if is_task( X_KEK )
+//		// седьмая колонка
+//		oCell		:= oTH + 'th'
+//		oCell:attr	:= 'class="thleft thright"'
+//		oParag			:= oCell + 'p'
+//		oParag:attr		:= 'align="center" class="bodyp"'
+//		oParag:text		:= 'Группа КЭК'
+//		oParag			:= oParag - 'p'
+//		oCell		:= oCell - 'th'
+//		HB_SYMBOL_UNUSED( oCell )
+//	endif
 	
 	for EACH item IN aList
 		oRow         := oTable + 'tr'
@@ -138,23 +138,23 @@ function printUserList( aList )
 		
 		// 6-я колонка
 		oCell		:= oRow + 'td'
-		if is_task( X_KEK )
-			oCell:attr	:= 'class="td1" valign="center" align="center"'
-		else
+//		if is_task( X_KEK )
+//			oCell:attr	:= 'class="td1" valign="center" align="center"'
+//		else
 			oCell:attr	:= 'class="td3" valign="center" align="center"'
-		endif
+//		endif
 		oCell:text	:= item:Position1251
 		oCell		:= oCell - 'td'
 		HB_SYMBOL_UNUSED( oCell )
 
-		if is_task( X_KEK )
-			// 7-я колонка
-			oCell		:= oRow + 'td'
-			oCell:attr	:= 'class="td3" valign="center" align="center"'
-			oCell:text	:= item:KEK
-			oCell		:= oCell - 'td'
-			HB_SYMBOL_UNUSED( oCell )
-		endIf
+//		if is_task( X_KEK )
+//			// 7-я колонка
+//			oCell		:= oRow + 'td'
+//			oCell:attr	:= 'class="td3" valign="center" align="center"'
+//			oCell:text	:= item:KEK
+//			oCell		:= oCell - 'td'
+//			HB_SYMBOL_UNUSED( oCell )
+//		endIf
 		oRow := oRow - "tr"
 		HB_SYMBOL_UNUSED( oRow )
 	next

@@ -4,6 +4,65 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
+// 29.11.17
+Function pereindex_kek()
+
+  Local i, hGauge, ae[ 3 ], k, ab, ar
+
+  If !( Type( "mem_ocen_kek" ) == "N" )
+    Public mem_ocen_kek := 0
+  Endif
+  ar := getinisect( tools_ini, "КЭК" )
+  mem_ocen_kek := Int( Val( a2default( ar, "ocen_kek", "0" ) ) )
+  Private is_2017, p_ar := Array( 70 )
+  //
+  hGauge := gaugenew(,,, "Пересчет процента заполнения экспертиз", .t. )
+  gaugedisplay( hGauge )
+  Use ( dir_server + "mo_kekez" ) index ( dir_server + "mo_kekez" ) New Alias EKSZ
+  Use ( dir_server + "mo_keke" ) index ( dir_server + "mo_keket" ) New Alias EKS
+  Use ( dir_server + "mo_kekh" ) New Alias HU
+  Go Top
+  Do While !Eof()
+    gaugeupdate( hGauge, RecNo() / LastRec() )
+    is_2017 := ( Year( hu->K_DATA ) > 2016 )
+    AFill( ae, " " )
+    Select EKS
+    find ( Str( hu->( RecNo() ), 7 ) )
+    Do While eks->kod == hu->( RecNo() ) .and. !Eof()
+      If Between( eks->TIP_EKS, 1, 3 )
+        ae[ eks->TIP_EKS ] := lstr( eks->TIP_EKS )
+      Endif
+      If is_2017
+        eks->EO_28 := kek_ret_s_70()
+      Endif
+      ab := f_ball_kek( hu->ishod )
+      k := 0
+      Select EKSZ
+      find ( Str( eks->( RecNo() ), 7 ) )
+      dbEval( {|| ++k },, {|| eksz->kod == eks->( RecNo() ) } )
+      eks->N_ZAKLUCH := k
+      eks->p_zapol := f_p_zapol_kek( hu->ISHOD, is_2017 )
+      eks->O_A     := ab[ 1, 1 ]
+      eks->O_B     := ab[ 1, 2 ]
+      eks->O_C     := ab[ 1, 3 ]
+      eks->O_D     := ab[ 1, 4 ]
+      eks->O_K     := ab[ 1, 5 ]
+      eks->O_P     := ab[ 1, 6 ]
+      eks->O_R     := ab[ 1, 7 ]
+      eks->O_E     := ab[ 1, 8 ]
+      eks->O_ALL   := ab[ 1, 9 ]
+      Select EKS
+      Skip
+    Enddo
+    Select HU
+    hu->KOL_EKS := ae[ 1 ] + ae[ 2 ] + ae[ 3 ]
+    Skip
+  Enddo
+  Close databases
+  closegauge( hGauge )
+
+  Return Nil
+
 ***** 26.06.13
 Function begin_task_kek()
 Static n_zapusk := 0

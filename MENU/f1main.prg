@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 20.01.24
+// 11.07.24
 Function f1main( n_Task )
   Local it, s, k, fl := .t., cNameIcon
 
@@ -676,47 +676,47 @@ Function f1main( n_Task )
       "fk_usl_dogov()", ;
       "fr_nastrojka()", ;
       "nastr_kassa(2)" } )
-  Case glob_task == X_KEK  //
-    If !Between( hb_user_curUser:KEK, 1, 3 )
-      n_message( { "Недопустимая группа экспертизы (КЭК): " + lstr( hb_user_curUser:KEK ), ;
-        '', ;
-        'Пользователям, которым разрешено работать в подзадаче "КЭК МО",', ;
-        'необходимо установить группу экспертизы (от 1 до 3)', ;
-        'в подзадаче "Редактирование справочников" в режиме "Справочники/Пароли"' },, ;
-        "GR+/R", "W+/R",,, "G+/R" )
-    Else
-      fl := begin_task_kek()
-      AAdd( cmain_menu, 1 )
-      AAdd( main_menu, " ~КЭК " )
-      AAdd( main_message, "Ввод данных по КЭК медицинской организации" )
-      AAdd( first_menu, { "~Добавление", ;
-        "~Редактирование", ;
-        "~Удаление" } )
-      AAdd( first_message, { ;
-        "Добавление данных по экпертизе", ;
-        "Редактирование данных по экпертизе", ;
-        "Удаление данных по экпертизе";
-        } )
-      AAdd( func_menu, { "kek_vvod(1)", ;
-        "kek_vvod(2)", ;
-        "kek_vvod(3)" } )
-      AAdd( cmain_menu, 34 )
-      AAdd( main_menu, " ~Информация " )
-      AAdd( main_message, "Просмотр / печать статистики по экспертизам" )
-      AAdd( first_menu, { "~Экспертная карта", ;
-        "Оценка ~качества" } )
-      AAdd( first_message, { ;
-        "Распечатка экспертной карты", ;
-        "Распечатка раличных отчётов по оцеке качества экспертизы" } )
-      AAdd( func_menu, { "kek_prn_eks()", ;
-        "kek_info2017()" } )
-      AAdd( cmain_menu, 51 )
-      AAdd( main_menu, " ~Справочники " )
-      AAdd( main_message, "Ведение справочников" )
-      AAdd( first_menu, { "~Настройка" } )
-      AAdd( first_message, { "Настройка значений по умолчанию" } )
-      AAdd( func_menu, { "kek_nastr()" } )
-    Endif
+//  Case glob_task == X_KEK  //
+//    If !Between( hb_user_curUser:KEK, 1, 3 )
+//      n_message( { "Недопустимая группа экспертизы (КЭК): " + lstr( hb_user_curUser:KEK ), ;
+//        '', ;
+//        'Пользователям, которым разрешено работать в подзадаче "КЭК МО",', ;
+//        'необходимо установить группу экспертизы (от 1 до 3)', ;
+//        'в подзадаче "Редактирование справочников" в режиме "Справочники/Пароли"' },, ;
+//        "GR+/R", "W+/R",,, "G+/R" )
+//    Else
+//      fl := begin_task_kek()
+//      AAdd( cmain_menu, 1 )
+//      AAdd( main_menu, " ~КЭК " )
+//      AAdd( main_message, "Ввод данных по КЭК медицинской организации" )
+//      AAdd( first_menu, { "~Добавление", ;
+//        "~Редактирование", ;
+//        "~Удаление" } )
+//      AAdd( first_message, { ;
+//        "Добавление данных по экпертизе", ;
+//        "Редактирование данных по экпертизе", ;
+//        "Удаление данных по экпертизе";
+//        } )
+//      AAdd( func_menu, { "kek_vvod(1)", ;
+//        "kek_vvod(2)", ;
+//        "kek_vvod(3)" } )
+//      AAdd( cmain_menu, 34 )
+//      AAdd( main_menu, " ~Информация " )
+//      AAdd( main_message, "Просмотр / печать статистики по экспертизам" )
+//      AAdd( first_menu, { "~Экспертная карта", ;
+//        "Оценка ~качества" } )
+//      AAdd( first_message, { ;
+//        "Распечатка экспертной карты", ;
+//        "Распечатка раличных отчётов по оцеке качества экспертизы" } )
+//      AAdd( func_menu, { "kek_prn_eks()", ;
+//        "kek_info2017()" } )
+//      AAdd( cmain_menu, 51 )
+//      AAdd( main_menu, " ~Справочники " )
+//      AAdd( main_message, "Ведение справочников" )
+//      AAdd( first_menu, { "~Настройка" } )
+//      AAdd( first_message, { "Настройка значений по умолчанию" } )
+//      AAdd( func_menu, { "kek_nastr()" } )
+//    Endif
   Case glob_task == X_MO //
     fl := my_mo_begin_task()
     my_mo_f1main()
@@ -932,7 +932,8 @@ Function f1main( n_Task )
     "net_monitor(T_ROW,T_COL-7,(hb_user_curUser:IsAdmin()))", ;
     "view_errors()" } )
   // добавим переиндексирование некоторых файлов внутри задачи
-  If eq_any( glob_task, X_PPOKOJ, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_KEK, X_263 )
+//  If eq_any( glob_task, X_PPOKOJ, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_KEK, X_263 )
+  If eq_any( glob_task, X_PPOKOJ, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_263 )
     AAdd( ATail( first_menu ), 0 )
     AAdd( ATail( first_menu ), "Пере~индексирование" )
     AAdd( ATail( first_message ), 'Переиндексирование части базы данных для задачи "' + array_tasks[ ind_task(), 5 ] + '"' )
