@@ -335,7 +335,7 @@ Function forma14_med_oms()
           if !(fl_stom := (schet_->BUKVA == 'T')) // стоматология в отдельной таблице
             arr_pril5[1, igs] += round(human->cena_1 * koef, 2)
           endif
-          if schet_->BUKVA == 'K' // отдельные медицинские услуги учитываем только суммой
+          if schet_->BUKVA == 'K' // отдельные медицинские услуги учитываем только суммой d 14-й форме
             arr_pol1[6, 4] += round(human->cena_1 * koef, 2)
             if is_inogoro
               arr_pol1[6, 5] += round(human->cena_1 * koef, 2)
@@ -411,18 +411,6 @@ Function forma14_med_oms()
                   arr_pol1[6, 3] += 1
                 endif
               endif  
-              /*elseif padr(alltrim(lshifr), 8) == '4.17.785' .or.;  // данных услуг в 2024 нет
-                     padr(alltrim(lshifr), 8) == '4.17.786'
-                //' Тестирование на COVID-19'
-                arr_pol3000[ 29, 4] += round(human->cena_1 * koef, 2)
-                arr_pol3000[ 29, 2] += 1
-                arr_pol1[6, 2] += 1
-                if is_inogoro
-                  arr_pol3000[ 29, 5] += round(human->cena_1 * koef, 2)
-                  arr_pol3000[ 29, 3] += 1
-                  arr_pol1[6, 3] += 1
-                endif
-               */ 
               skip
             enddo
             select HU
@@ -430,11 +418,8 @@ Function forma14_med_oms()
             select HUMAN
           endif
           //
-          if schet_->BUKVA != 'K' .and. schet_->BUKVA != 'T'/// отдельные медицинские услуги учитываем только суммой
-            arr_pol1[6, 4] += round(human->cena_1 * koef, 2)
-            if is_inogoro
-              arr_pol1[6, 5] += round(human->cena_1 * koef, 2)
-            endif
+          if human_->USL_OK == 3 // только поликлиника
+          //if !eq_any(schet_->BUKVA,'K','T','S','Z','M','H')
             // теперь делим по услугам
             svp := space(5)
             vr_rec := hu->(recno())
@@ -503,8 +488,8 @@ Function forma14_med_oms()
                             '2.78.76 ','2.78.77 ','2.78.78 ', ;
                             '2.78.79 ','2.78.80 ','2.78.81 ', ;
                             '2.78.82 ','2.78.83 ','2.78.84 ', ;
-                            '2.78.85 ','2.78.86 ', ;
-                            '2.78.109', '2.78.110','2.78.111','2.78.112')
+                            '2.78.85 ','2.78.86 ') //, ;
+                            //'2.78.109', '2.78.110','2.78.111','2.78.112')
                  //'из строки 06 посещения с целью диспансерного наблюдения'
                   arr_pol3000[ 7, 4] += round(human->cena_1 * koef, 2)
                   arr_pol3000[ 7, 2] += 1
@@ -513,12 +498,14 @@ Function forma14_med_oms()
                     arr_pol3000[ 7, 3] += 1
                   endif
               endif
+              my_debug(,lshifr)
               skip
             enddo
             select HU
             goto (vr_rec)
             select HUMAN
-          endif // конце счетов !К - не К
+          //endif // конце счетов !К 
+          endif    
           //
           is_dializ := .f.
           is_z_sl := .f.
@@ -561,9 +548,6 @@ Function forma14_med_oms()
               aadd(arr_full_usl,lshifr)
               ta := f14tf_nastr(@lshifr, , d2_year)
               lshifr := alltrim(lshifr)
-              //if left(lshifr, 7) == '60.10.3' // плазмофильтрация
-                //my_debug(,round(hu->stoim_1 * koef, 2))   
-              //endif  
               aadd(au, {lshifr, hu->kol_1, round(hu->stoim_1 * koef, 2), 0, 0, hu->kol_1})
               i16 := 0
               dbSelectArea(lal)
@@ -573,10 +557,6 @@ Function forma14_med_oms()
                 find (str(&lal.->unit_code, 3))
                 if found() .and. mounit->pz > 0
                   if (i16 := mounit->ii) > 0
-                    // j1 := glob_array_PZ_21[i16, 1] 
-                    // nameArr := 'glob_array_PZ_' + last_digits_year(human->k_data)
-                    // j1 := &nameArr.[i16, 1]
-                    // funcGetPZ := 'get_array_PZ_' + last_digits_year(human->k_data) + '()'
                     nameArr := get_array_PZ( human->k_data )
                     j1 := nameArr[i16, 2] //  j1 := nameArr[i16, 1] 
 
@@ -1386,12 +1366,6 @@ Function forma14_med_oms()
             // !!!!
             tmp->sum4 += ta[j, 2]
             tmp->sum5 += ta[j, 3]
-            //my_debug(,str(j))
-            //my_debug(,str(ta[j, 1]))
-  
-            //my_debug(,str(tmp->sum4) + ' '+ str(tmp->sum5))
-            //my_debug(,str(tmp->sum6) + ' '+ str(tmp->sum7))
-  
             // !!!!
             if len(ta[j]) > 3
               tmp->sum6 += ta[j, 4]
@@ -1407,8 +1381,7 @@ Function forma14_med_oms()
             endif
           next
           for i := 1 to len(arr_pol1)
-  
-            if fl_pol1[i] > 0
+              if fl_pol1[i] > 0
               arr_pol1[i, 2] += fl_pol1[i]
               arr_pol1[i, 4] += round(human->cena_1 * koef, 2)
               if is_inogoro
@@ -1426,12 +1399,6 @@ Function forma14_med_oms()
                   endif
                 endif
               endif
-            /*  if i == 13 // 
-                if fl_pol3000_PROF   //
-                  arr_pol3000[ 7, 2] += fl_pol1[i]
-                  arr_pol3000[ 7, 4] += round(human->cena_1 * koef, 2)
-                endif
-              endif*/
             elseif fl_pol1[i] < 0
               if i == 13 .and. schet_->BUKVA == 'K'
                //

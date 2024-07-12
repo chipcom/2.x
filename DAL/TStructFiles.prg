@@ -1239,36 +1239,36 @@ METHOD New() CLASS TStructFiles
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'справочник mo_form' ) )
 //---------
 
-// справочник _mo_kek
-	cClassName := Upper( 'T_MO_KEK' )
-	cName := dir_exe + '_mo_kek' + sdbf
-	aEtalonDB := 	{ ;
-					{ 'SHIFR',		'C',	8, 0 }, ;
-					{ 'NN',			'N',	3, 0 }, ;
-					{ 'NAME',		'C',  118, 0 } ;
-					}
-	cAlias := '_MO_KEK'
-	aIndex := { ;
-		;
-	}
-	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'справочник mo_kek' ) )
-//---------
+// // справочник _mo_kek
+// 	cClassName := Upper( 'T_MO_KEK' )
+// 	cName := dir_exe + '_mo_kek' + sdbf
+// 	aEtalonDB := 	{ ;
+// 					{ 'SHIFR',		'C',	8, 0 }, ;
+// 					{ 'NN',			'N',	3, 0 }, ;
+// 					{ 'NAME',		'C',  118, 0 } ;
+// 					}
+// 	cAlias := '_MO_KEK'
+// 	aIndex := { ;
+// 		;
+// 	}
+// 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'справочник mo_kek' ) )
+// //---------
 
-// справочник _mo_kekd
-	cClassName := Upper( 'T_MO_KEKD' )
-	cName := dir_exe + '_mo_kekd' + sdbf
-	aEtalonDB := 	{ ;
-					{ 'SHIFR',		'C',	8, 0 }, ;
-					{ 'VZR',		'N',	1, 0 }, ;
-					{ 'REB',		'N',	1, 0 }, ;
-					{ 'NAME',		'C',  150, 0 } ;
-					}
-	cAlias := '_MO_KEKD'
-	aIndex := { ;
-		;
-	}
-	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'справочник mo_kekd' ) )
-//---------
+// // справочник _mo_kekd
+// 	cClassName := Upper( 'T_MO_KEKD' )
+// 	cName := dir_exe + '_mo_kekd' + sdbf
+// 	aEtalonDB := 	{ ;
+// 					{ 'SHIFR',		'C',	8, 0 }, ;
+// 					{ 'VZR',		'N',	1, 0 }, ;
+// 					{ 'REB',		'N',	1, 0 }, ;
+// 					{ 'NAME',		'C',  150, 0 } ;
+// 					}
+// 	cAlias := '_MO_KEKD'
+// 	aIndex := { ;
+// 		;
+// 	}
+// 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'справочник mo_kekd' ) )
+// //---------
 
 // справочник подразделений из паспорта ЛПУ
 	cClassName := Upper( 'T_Mo_PodrDB' )
