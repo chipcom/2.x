@@ -1,7 +1,42 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 10.07.24
+// 12.07.24 получение статуса обновления БД до определенной версии
+function get_status_updateDB( idVer )
+  // Возврат: .t. - обновление присутствует
+  //          .f. - обновление отсутствует
+
+  local ret := .f., fl
+
+  fl := g_use( dir_server + 'ver_updatedb', , 'UPD', , .t. )
+
+  Locate For ver == idVer
+  If Found() .and. ( UPD->done == 1 )
+    ret := .t.
+  endif
+
+  UPD->( dbCloseArea() )
+
+  return ret
+
+// 12.07.24 установка статуса обновления БД до определенной версии
+function set_status_updateDB( idVer )
+  // Возврат: .t. - обновление прошло успешно
+  //          .f. - обновление не прошло или его не было
+
+  local fl := .f.
+
+  fl := g_use( dir_server + 'ver_updatedb', , 'UPD', , .t. )
+
+  UPD->( dbAppend() )
+  UPD->ver := idVer
+  UPD->done := 1
+
+  UPD->( dbCloseArea() )
+
+  return fl
+
+// 10.07.24 
 Function update_v____()
 
   Local i := 0, j := 0, fl
