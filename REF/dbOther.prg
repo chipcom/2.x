@@ -1,7 +1,48 @@
 #include 'function.ch'
 #include 'common.ch'
+#include 'hbhash.ch' 
 
 #require 'hbsqlit3'
+
+// 13.07.24
+function getPCEL_usl( shifr )
+
+  local ret := ''
+  local lshifr := alltrim( shifr )
+  local aHash := loadUsl_pcel()
+
+  if hb_hHaskey( aHash, lshifr )
+    ret := aHash[ lshifr ]
+  endif
+  return ret
+
+// 13.07.24 вернуть массив по справочнику usl_p_cel (соответствие услуги цели посещения)
+function loadUsl_pcel()
+
+  static arr
+  local db
+  local aTable
+  local nI
+
+  if isnil( arr )
+    arr := hb_hash()
+    db := openSQL_DB()
+    aTable := sqlite3_get_table(db, 'SELECT shifr, p_cel FROM usl_p_cel')
+    
+//    if len(aTable) > 1
+//      for nI := 2 to Len( aTable )
+//        aadd(_arr, {alltrim(aTable[nI, 2]), alltrim(aTable[nI, 1])})
+//      next
+//    endif
+    if len(aTable) > 1
+      for nI := 2 to Len(aTable)
+        hb_hSet(arr, alltrim( aTable[ nI, 1 ] ), alltrim( aTable[ nI, 2 ] ) )
+      next
+    endif
+
+    db := nil
+  endif
+  return arr
 
 // 28.03.23 вернуть массив по справочнику dlo_lgota
 function getDLO_lgota()

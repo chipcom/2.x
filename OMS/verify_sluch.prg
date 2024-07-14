@@ -50,6 +50,7 @@ Function verify_sluch( fl_view )
   Local usl_found := .f.
   local cuch_doc, gnot_disp, gkod_diag, gusl_ok
   local counter, arr_lfk
+  local mPCEL := ''
 
   Default fl_view To .t.
 
@@ -4803,6 +4804,13 @@ Function verify_sluch( fl_view )
     Endif
     human_->POVOD := arr_povod[ 1, 1 ]
   Endif
+
+  if ( human_->USL_OK == USL_OK_POLYCLINIC ) .and. empty( human_->P_CEL ) .and. ( len( arr_povod ) == 1 )
+    for counter := 1 to len( arrUslugi )
+      mPCEL := getPCEL_usl( arrUslugi[ counter ] )
+      human_->P_CEL := mPCEL
+    next
+  endif
 
   If !valid_guid( human_->ID_PAC )
     human_->ID_PAC := mo_guid( 1, human_->( RecNo() ) )
