@@ -16,7 +16,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.09.23 ввод пароля
+// 18.07.24 ввод пароля
 function inp_password_bay( is_local_version, is_create )
 	local strPassword := space( 10 )
 	local i_p := 0, ta := {}
@@ -75,9 +75,9 @@ function inp_password_bay( is_local_version, is_create )
 	if !empty( alltrim( oUser:Position ) )
 		aadd( ta, 'Должность: ' + alltrim( oUser:Position ) )
 	endif
-	if between( hb_user_curUser:KEK, 1, 3 )
-		aadd( ta, 'Группа экспертизы (КЭК): ' + lstr( hb_user_curUser:KEK ) )
-	endif
+//	if between( hb_user_curUser:KEK, 1, 3 )
+//		aadd( ta, 'Группа экспертизы (КЭК): ' + lstr( hb_user_curUser:KEK ) )
+//	endif
 	return ta
 
 // 20.10.18 функция окна ввода пароля

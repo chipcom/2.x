@@ -54,7 +54,7 @@ Function involved_password(par,_n_reestr,smsg)
   enddo
   return fl
 
-// 28.12.21 ввод пароля
+// 18.07.24 ввод пароля
 Function inp_password(is_local_version,is_create)
   Local pss := space(10), tmp_pss := my_parol(), i_p := 0, ta := {}, s, fl_g := .f.
   Public TIP_ADM := 0
@@ -132,9 +132,9 @@ Function inp_password(is_local_version,is_create)
   if !empty(dolj_polzovat)
     aadd(ta,'Должность: '+alltrim(dolj_polzovat))
   endif
-  if fl_g .and. between(grup_polzovat, 1, 3)
-    aadd(ta,'Группа экспертизы (КЭК): '+lstr(grup_polzovat))
-  endif
+//  if fl_g .and. between(grup_polzovat, 1, 3)
+//    aadd(ta,'Группа экспертизы (КЭК): '+lstr(grup_polzovat))
+//  endif
   return ta
 
 // 11.07.24
