@@ -194,13 +194,15 @@ function drz_result_drz( variant )
   Endif
   return aclone( arr )
 
-// 25.04.24 возврат массива результатов исследования
+// 19.07.24 возврат массива результатов исследования
 function arr_mm_result_drz( etap )
 
   local arr := arr_mm_otkaz()
   asize( arr, 2 )
   if etap == 2
     aadd( arr, { 'НЕ НАЗНАЧЕНО', 4 })
+  elseif etap == 1
+    aadd( arr, { 'НЕВОЗМОЖНО', 2 } )
   Endif
   return arr
 
