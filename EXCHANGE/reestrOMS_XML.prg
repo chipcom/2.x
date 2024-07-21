@@ -9,7 +9,7 @@
 
 Static sadiag1  // := {}
 
-// 04.07.24 создание XML-файлов реестра
+// 20.07.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -297,6 +297,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
     arr_onk_usl := {}
     a_otkaz := {}
     arr_nazn := {}
+    arr_ne_vozm := {}
 
     mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
 
@@ -1055,7 +1056,11 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
               mo_add_xml_stroke( oUSL, 'DS', hu_->kod_diag )
             Endif
           Else
-            mo_add_xml_stroke( oUSL, 'P_OTK','0' )
+            if ascan( arr_ne_vozm, lshifr ) > 0
+              mo_add_xml_stroke( oUSL, 'P_OTK','2' )
+            else
+              mo_add_xml_stroke( oUSL, 'P_OTK','0' )
+            endif
           Endif
           mo_add_xml_stroke( oUSL, 'CODE_USL', lshifr )
           mo_add_xml_stroke( oUSL, 'KOL_USL', lstr( hu->KOL_1, 6, 2 ) )
@@ -1165,7 +1170,11 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           Endif
           If p_tip_reestr == 2
             // разобраться с отказами услугами ФФОМС
-            mo_add_xml_stroke( oUSL, 'P_OTK','0' )
+            if ascan( arr_ne_vozm, lshifr ) > 0
+              mo_add_xml_stroke( oUSL, 'P_OTK','2' )
+            else
+              mo_add_xml_stroke( oUSL, 'P_OTK','0' )
+            endif
           Endif
           mo_add_xml_stroke( oUSL, 'CODE_USL', lshifr )
           mo_add_xml_stroke( oUSL, 'KOL_USL', lstr( mohu->KOL_1, 6, 2 ) )
@@ -1405,8 +1414,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Return Nil
 
-
-// 08.07.24 работаем по текущей записи
+// 20.07.24 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1788,6 +1796,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
     is_disp_DRZ := .t.
     arr_usl_otkaz := {}
     arr_ne_nazn := {}
+    arr_ne_vozm := {}
     For i := 1 To 5
       sk := lstr( i )
       pole_diag := 'mdiag' + sk
@@ -1802,6 +1811,28 @@ Function f1_create2reestr19( _nyear, _nmonth )
     If ValType( arr_ne_nazn ) == 'A'
       For j := 1 To Len( arr_ne_nazn )
         ar := arr_ne_nazn[ j ]
+        If ValType( ar ) == 'A' .and. Len( ar ) >= 10 .and. ValType( ar[ 5 ] ) == 'C'
+          lshifr := AllTrim( ar[ 5 ] )
+
+          If ( i := AScan( uslugietap_drz( iif( human->ishod == BASE_ISHOD_RZD + 1, 1, 2 ), count_years( human->DATE_R, human->k_data ), human->pol ), {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
+//            
+          Else   // записываем только федеральные услуги
+            If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
+              AAdd( a_otkaz, { lshifr, ;
+                ar[ 6 ], ; // диагноз
+              human->N_DATA, ; // дата
+              correct_profil( ar[ 4 ] ), ; // профиль
+              ar[ 2 ], ; // специальность
+              ar[ 8 ], ; // цена
+              ar[ 10 ] } ) // 1-отказ, 2-невозможность
+            Endif
+          Endif
+        Endif
+      Next j
+    Endif
+    If ValType( arr_ne_vozm ) == 'A'
+      For j := 1 To Len( arr_ne_vozm )
+        ar := arr_ne_vozm[ j ]
         If ValType( ar ) == 'A' .and. Len( ar ) >= 10 .and. ValType( ar[ 5 ] ) == 'C'
           lshifr := AllTrim( ar[ 5 ] )
 

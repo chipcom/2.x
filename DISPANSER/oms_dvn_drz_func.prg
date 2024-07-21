@@ -1226,7 +1226,7 @@ Function ret_array_drz()
   }
   Return arr_drz_usl
 
-// 07.04.24
+// 20.07.24
 Function save_arr_drz( lkod, mk_data )
 
   Local arr := {}, i, sk, ta
@@ -1296,6 +1296,7 @@ Function save_arr_drz( lkod, mk_data )
   // if type('m1ot_nasl1') == 'N'
   AAdd( arr, { '40', arr_otklon } ) // массив
   AAdd( arr, { '41', arr_ne_nazn } ) // массив
+  AAdd( arr, { '42', arr_ne_vozm } ) // массив
   AAdd( arr, { '45', m1dispans } )
   AAdd( arr, { '46', m1nazn_l } )
   If mk_data >= 0d20210801
@@ -1400,7 +1401,7 @@ Function save_arr_drz( lkod, mk_data )
 
   Return Nil
 
-// 07.04.24
+// 20.07.24
 Function read_arr_drz( lkod, is_all )
 
   Local arr, i, sk
@@ -1471,6 +1472,8 @@ Function read_arr_drz( lkod, is_all )
         arr_otklon := arr[ i, 2 ]
       Case is_all .and. arr[ i, 1 ] == '41' .and. ValType( arr[ i, 2 ] ) == 'A'
         arr_ne_nazn := aclone( arr[ i, 2 ] )
+      Case is_all .and. arr[ i, 1 ] == '42' .and. ValType( arr[ i, 2 ] ) == 'A'
+        arr_ne_vozm := aclone( arr[ i, 2 ] )
       Case arr[ i, 1 ] == '45' .and. ValType( arr[ i, 2 ] ) == 'N'
         m1dispans  := arr[ i, 2 ]
       Case arr[ i, 1 ] == '46' .and. ValType( arr[ i, 2 ] ) == 'N'
