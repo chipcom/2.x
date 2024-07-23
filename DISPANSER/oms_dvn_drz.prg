@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 21.07.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 23.07.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1091,32 +1091,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           aadd( arr_osm1, { 0, 0, 0, 0, uslugi_etapa[ i, 2 ], DGZ, 0, 0, 0, 0, 0, uslugi_etapa[ i, 12 ], 0, 0 } )
         endif
       next
-
-      For i := 1 To Len( arr_osm1 )
-        If eq_any( arr_osm1[ i, 10 ], 0, 2, 3, 4 ) // выполнено, отклонение, не назначено
-          If arr_osm1[ i, 10 ] == 3 // обнаружены отклонения
-            AAdd( arr_otklon, arr_osm1[ i, 5 ] )
-            iUslOtklon++
-          elseif arr_osm1[ i, 10 ] == 2 // не возможно
-            AAdd( arr_ne_vozm, arr_osm1[ i, 5 ] )
-            iUslNeVozm++
-          elseIf arr_osm1[ i, 10 ] == 4 // не назначено
-            AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
-            iUslNeNazn++
-          elseIf arr_osm1[ i, 10 ] == 0
-            if alltrim( arr_osm1[ i, 5 ] ) == '70.9.52' .and. ;
-              ( ! lUziMatkiAbdomin ) .and. ( ! lUziMatkiTransvag )
-              arr_osm1[ i, 10 ] := 4
-              AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
-              iUslNeNazn++
-            elseif alltrim( arr_osm1[ i, 5 ] ) == 'A04.20.002'
-              arr_osm1[ i, 10 ] := 4
-              AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
-              iUslNeNazn++
-            endif
-          Endif
-        Endif
-      next
       if metap == 1
         if nGender == 'М' // мужчины
           indSource := index_usluga_etap_drz( arr_osm1, '70.9.20', 5)
@@ -1146,7 +1120,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           endif
           indDest := index_usluga_etap_drz( arr_osm1, 'B01.001.001', 5 )
           if indSource != 0 .and. indDest != 0
-            change_field_arr_osm1( indSource, indDest )
+            change_field_arr_osm1( indSource, indDest ) 
           endif
           if lCitIsl
             if ( indSource := index_usluga_etap_drz( arr_osm1, 'A08.20.017', 5) ) > 0  // цитологическое исследование
@@ -1327,6 +1301,32 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           endif
         endif
       endif
+
+      For i := 1 To Len( arr_osm1 )
+        If eq_any( arr_osm1[ i, 10 ], 0, 2, 3, 4 ) // выполнено, отклонение, не назначено
+          If arr_osm1[ i, 10 ] == 3 // обнаружены отклонения
+            AAdd( arr_otklon, arr_osm1[ i, 5 ] )
+            iUslOtklon++
+          elseif arr_osm1[ i, 10 ] == 2 // не возможно
+            AAdd( arr_ne_vozm, arr_osm1[ i, 5 ] )
+            iUslNeVozm++
+          elseIf arr_osm1[ i, 10 ] == 4 // не назначено
+            AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
+            iUslNeNazn++
+          elseIf arr_osm1[ i, 10 ] == 0
+            if alltrim( arr_osm1[ i, 5 ] ) == '70.9.52' .and. ;
+              ( ! lUziMatkiAbdomin ) .and. ( ! lUziMatkiTransvag )
+              arr_osm1[ i, 10 ] := 4
+              AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
+              iUslNeNazn++
+            elseif alltrim( arr_osm1[ i, 5 ] ) == 'A04.20.002'
+              arr_osm1[ i, 10 ] := 4
+              AAdd( arr_ne_nazn, arr_osm1[ i, 5 ] )
+              iUslNeNazn++
+            endif
+          Endif
+        Endif
+      next
 
       use_base( 'lusl' )
       use_base( 'luslc' )
