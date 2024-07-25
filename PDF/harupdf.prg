@@ -129,9 +129,11 @@ FUNCTION DesignHaruPDF( cFileToSave )
   HPDF_Page_Stroke( page )
 
    /* Print the title of the page(with positioning center). */
-  def_font := HPDF_GetFont( pdf, "Helvetica", NIL )
+//   def_font := HPDF_GetFont( pdf, "Helvetica", NIL )
+  def_font := HPDF_GetFont( pdf, "Courier", NIL )
 
-  HPDF_Page_SetFontAndSize( page, def_font, 24 )
+//   HPDF_Page_SetFontAndSize( page, def_font, 24 )
+  HPDF_Page_SetFontAndSize( page, def_font, 16 )
 
   tw := HPDF_Page_TextWidth( page, page_title )
   HPDF_Page_BeginText( page )
@@ -164,21 +166,21 @@ FUNCTION DesignHaruPDF( cFileToSave )
   NEXT
   HPDF_Page_EndText( page )
 
-  Page_Lines( pdf )
+//   Page_Lines( pdf )
 
-  Page_Text( pdf )
+//   Page_Text( pdf )
 
-  Page_TextScaling( pdf )
+//   Page_TextScaling( pdf )
 
-  Page_Graphics( pdf )
+//   Page_Graphics( pdf )
 
-  Page_Annotation( pdf )
+//   Page_Annotation( pdf )
 
-  Page_Images( pdf )
+//   Page_Images( pdf )
 
-   // Comment out the following line if you need ASCII chart by Codepages
-   // Закомментируйте следующую строку, если вам нужна диаграмма ASCII по кодовым страницам.
-  Page_CodePages( pdf )
+//    // Comment out the following line if you need ASCII chart by Codepages
+//    // Закомментируйте следующую строку, если вам нужна диаграмма ASCII по кодовым страницам.
+//   Page_CodePages( pdf )
 
    IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
       ? "0x" + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf )
