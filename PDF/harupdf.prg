@@ -174,10 +174,11 @@ FUNCTION DesignHaruPDF( cFileToSave )
 
   Page_Annotation( pdf )
 
-//   Page_Images( pdf )
+  Page_Images( pdf )
 
    // Comment out the following line if you need ASCII chart by Codepages
-//   Page_CodePages( pdf )
+   // Закомментируйте следующую строку, если вам нужна диаграмма ASCII по кодовым страницам.
+  Page_CodePages( pdf )
 
    IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
       ? "0x" + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf )
