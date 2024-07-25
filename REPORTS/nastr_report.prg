@@ -16,7 +16,7 @@ function string_output( sText, lExcel, ws, row, column, fmt )
   Endif
   return nil
 
-// 27.06.24 многовариантный поиск
+// 25.07.24 многовариантный поиск
 Function s_mnog_poisk()
 
   Static lcount_uch  := 1
@@ -2064,12 +2064,12 @@ Function s_mnog_poisk()
         ++skol_lu
         //
         //
-        If IsBit( mn->vid_doc, 1 )
+        If IsBit( mn->vid_doc, 1 ) 
           s1 += ' ' + date_8( human->date_r )
           s2 += Space( 9 )
           s3 += Space( 9 )
           If lExcel
-            worksheet_write_string( worksheet, row, column++, date_8( human->date_r ), fmtCellStringCenter )
+            worksheet_write_string( worksheet, row, column++, full_date( human->date_r ), fmtCellStringCenter )
           Endif
         Endif
         //
