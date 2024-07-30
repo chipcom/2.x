@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 08.07.24 ДВН - добавление или редактирование случая (листа учета)
+// 30.07.24 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -44,14 +44,6 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     Endif
   Endif
 
-  // if empty(sadiag1)
-  // Private file_form, diag1 := {}, len_diag := 0
-  // if (file_form := search_file("DISP_NAB"+sfrm)) == NIL
-  // func_error(4,"Не обнаружен файл DISP_NAB"+sfrm)
-  // endif
-  // f2_vvod_disp_nabl("A00")
-  // sadiag1 := diag1
-  // endif
   If ISNIL( sadiag1 )
     sadiag1 := load_diagnoze_disp_nabl_from_file()
   Endif
@@ -123,8 +115,6 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   Private mkomorbid, m1komorbid := 0
 
   Private mm_gruppa //, mm_ndisp1
-
-//  mm_ndisp1 := AClone( mm_ndisp )
 
   Private mm_gruppaP := arr_mm_gruppaP()
   Private mm_gruppaD1 := { ;
@@ -357,19 +347,6 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
                   If lshifr == uslugietap_dvn_covid( metap )[ i, 13 ]
                     AAdd( arr_usl, MOHU->( RecNo() ) )
                   Endif
-
-                  // for i := 1 to len(uslugiEtap_DVN_COVID(metap))
-                  // if empty(larr[1,i])
-                  // if valtype(uslugiEtap_DVN_COVID(metap)[i,2]) == "C" .and. uslugiEtap_DVN_COVID(metap)[i,12] == 1  // услуга ФФОМС
-                  // if uslugiEtap_DVN_COVID(metap)[i,2] == lshifr
-                  // fl := .f.
-                  // larr[1,i] := MOHU->(recno())
-                  // larr[2,i] := lshifr
-                  // arr_usl[i] := MOHU->(recno())
-                  // endif
-                  // endif
-                  // endif
-                  // next
                   Select MOHU
                   Skip
                 Enddo
@@ -738,99 +715,6 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Endif
 
       ret_ndisp_covid( Loc_kod, kod_kartotek )
-//      @ ++j, 8 Get mndisp When .f. Color color14
-
-//      @ ++j, 1  Say "───────┬────────────┬──────────┬──────┬───────────────────────────────────────"
-//      @ ++j, 1  Say "       │  выявлено  │   дата   │стадия│установлено диспансерное Дата следующего"
-//      @ ++j, 1  Say "диагноз│заболевание │выявления │забол.│наблюдение     (когда)     визита"
-//      @ ++j, 1  Say "───────┴────────────┴──────────┴──────┴───────────────────────────────────────"
-//      // 2      9            22           35       44        54
-//      @ ++j, 2  Get mdiag1 Picture pic_diag ;
-//        reader {| o| mygetreader( o, bg ) } ;
-//        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
-//        f_valid_vyav_diag_dispanser( g, 1 ), ;
-//        .f. ) }
-//      @ j, 9  Get mpervich1 ;
-//        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
-//        When !Empty( mdiag1 )
-//      @ j, 22 Get mddiag1 When !Empty( mdiag1 )
-//      @ j, 35 Get m1stadia1 Pict "9" Range 1, 4 ;
-//        When !Empty( mdiag1 )
-//      @ j, 44 Get mdispans1 ;
-//        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
-//        When !Empty( mdiag1 )
-//      @ j, 54 Get mddispans1 When m1dispans1 == 1
-//      @ j, 67 Get mdndispans1 When m1dispans1 == 1
-      //
-//      @ ++j, 2  Get mdiag2 Picture pic_diag ;
-//        reader {| o| mygetreader( o, bg ) } ;
-//        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
-//        f_valid_vyav_diag_dispanser( g, 2 ), ;
-//        .f. ) }
-//      @ j, 9  Get mpervich2 ;
-//        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
-//        When !Empty( mdiag2 )
-//      @ j, 22 Get mddiag2 When !Empty( mdiag2 )
-//      @ j, 35 Get m1stadia2 Pict "9" Range 1, 4 ;
-//        When !Empty( mdiag2 )
-//      @ j, 44 Get mdispans2 ;
-//        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
-//        When !Empty( mdiag2 )
-//      @ j, 54 Get mddispans2 When m1dispans2 == 1
-//      @ j, 67 Get mdndispans2 When m1dispans2 == 1
-      //
-//      @ ++j, 2  Get mdiag3 Picture pic_diag ;
-//        reader {| o| mygetreader( o, bg ) } ;
-//        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
-//        f_valid_vyav_diag_dispanser( g, 3 ), ;
-//        .f. ) }
-//      @ j, 9  Get mpervich3 ;
-//        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
-//        When !Empty( mdiag3 )
-//      @ j, 22 Get mddiag3 When !Empty( mdiag3 )
-//      @ j, 35 Get m1stadia3 Pict "9" Range 1, 4 ;
-//        When !Empty( mdiag3 )
-//      @ j, 44 Get mdispans3 ;
-//        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
-//        When !Empty( mdiag3 )
-//      @ j, 54 Get mddispans3 When m1dispans3 == 1
-//      @ j, 67 Get mdndispans3 When m1dispans3 == 1
-      //
-//      @ ++j, 2  Get mdiag4 Picture pic_diag ;
-//        reader {| o| mygetreader( o, bg ) } ;
-//        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
-//        f_valid_vyav_diag_dispanser( g, 4 ), ;
-//        .f. ) }
-//      @ j, 9  Get mpervich4 ;
-//        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
-//        When !Empty( mdiag4 )
-//      @ j, 22 Get mddiag4 When !Empty( mdiag4 )
-//      @ j, 35 Get m1stadia4 Pict "9" Range 1, 4 ;
-//        When !Empty( mdiag4 )
-//      @ j, 44 Get mdispans4 ;
-//        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
-//        When !Empty( mdiag4 )
-//      @ j, 54 Get mddispans4 When m1dispans4 == 1
-//      @ j, 67 Get mdndispans4 When m1dispans4 == 1
-      //
-//      @ ++j, 2  Get mdiag5 Picture pic_diag ;
-//        reader {| o| mygetreader( o, bg ) } ;
-//        valid  {| g| iif( val1_10diag( .t., .f., .f., mn_data, mpol ), ;
-//        f_valid_vyav_diag_dispanser( g, 5 ), ;
-//        .f. ) }
-//      @ j, 9  Get mpervich5 ;
-//        reader {| x| menu_reader( x, mm_pervich, A__MENUVERT,,, .f. ) } ;
-//        When !Empty( mdiag5 )
-//      @ j, 22 Get mddiag5 When !Empty( mdiag5 )
-//      @ j, 35 Get m1stadia5 Pict "9" Range 1, 4 ;
-//        When !Empty( mdiag5 )
-//      @ j, 44 Get mdispans5 ;
-//        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } ;
-//        When !Empty( mdiag5 )
-//      @ j, 54 Get mddispans5 When m1dispans5 == 1
-//      @ j, 67 Get mdndispans5 When m1dispans5 == 1
-      //
-//      @ ++j, 1 Say Replicate( "─", 78 ) Color color1
 
       dispans_vyav_diag( @j, mndisp ) // вызов заполнения блока выявленных заболеваний
       // подвал второго листа
@@ -918,6 +802,10 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Endif
       If Empty( mk_data )
         func_error( 4, "Не введена дата окончания углубленной диспансеризации после COVID." )
+        Loop
+      Endif
+      If ! Empty( mk_data ) .and. mk_data > 0d20240719  // письмо 09-20-360 от 22.07.24
+        func_error( 4, "После 19.07.24 года углубленная диспансеризация после COVID не проводится." )
         Loop
       Endif
       If Empty( CharRepl( "0", much_doc, Space( 10 ) ) )
@@ -1125,9 +1013,6 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           Endif
         Next
         For i := 1 To Len( arr_diag )
-          // if ascan(sadiag1,alltrim(arr_diag[i,1])) > 0 .and. ;
-          // arr_diag[i,3] == 1 .and. !empty(arr_diag[i,4]) .and. arr_diag[i,4] > mk_data
-          // endif
           adiag_talon[ i * 2 -1 ] := arr_diag[ i, 2 ]
           adiag_talon[ i * 2  ] := arr_diag[ i, 3 ]
           If i == 1
@@ -1232,13 +1117,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           Else
             arr_osm1[ i, 7 ] := foundffomsusluga( arr_osm1[ i, 5 ] )
             arr_osm1[ i, 8 ] := 0  // для федеральных услуг цену дадим 0
-            // mu_cena := 0
           Endif
-
-          // if arr_osm1[i,1] == 0    // если в услуге не назначен врач
-          // loop
-          // endif
-
           If eq_any( arr_osm1[ i, 10 ], 0, 3 ) // выполнено
             AAdd( arr_usl_dop, AClone( arr_osm1[ i ] ) )
             // iUslDop++
@@ -1550,70 +1429,6 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
             Endif
           Next
         Endif
-        For i := 1 To Len( arr_osm1 )
-          // if arr_osm1[i, 1] == 0  // не заполнен врач
-          // if arr_osm1[i,12] == 0
-          // select HU
-          // // goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_osm1[i,5])])
-          // // if !eof() .and. !bof()
-          // //   DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
-          // // endif
-
-          // // сначала выберем информацию из human_u по услугам ТФОМС
-          // find (str(Loc_kod,7))
-          // do while hu->kod == Loc_kod .and. !eof()
-          // usl->(dbGoto(hu->u_kod))
-          // if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,mk_data))
-          // lshifr := usl->shifr
-          // endif
-          // lshifr := alltrim(lshifr)
-          // flFFOMS := valtype(arr_osm1[i,13]) == 'C' .and. !empty(arr_osm1[i,13])    // есть соответствующая услуга ФФОМС
-          // if lshifr == alltrim(arr_osm1[i,5])
-          // DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
-          // if flFFOMS
-          // select MOHU
-          // // затем выберем информацию из mo_hu по услугам ФФОМС
-          // set relation to u_kod into MOSU
-          // find (str(Loc_kod,7))
-          // do while MOHU->kod == Loc_kod .and. !eof()
-          // MOSU->(dbGoto(MOHU->u_kod))
-          // lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
-          // if alltrim(lshifr) == alltrim(arr_osm1[i,13])
-          // DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
-          // exit
-          // endif
-          // skip
-          // enddo
-          // select HU
-          // endif
-          // exit
-          // endif
-          // skip
-          // enddo
-
-          // else
-          // select MOHU
-          // // goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_osm1[i,5])])
-          // // if !eof() .and. !bof()
-          // //   DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
-          // // endif
-          // // затем выберем информацию из mo_hu по услугам ФФОМС
-          // set relation to u_kod into MOSU
-          // find (str(Loc_kod,7))
-          // do while MOHU->kod == Loc_kod .and. !eof()
-          // MOSU->(dbGoto(MOHU->u_kod))
-          // lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
-          // select MOHU
-          // if alltrim(lshifr) == alltrim(arr_osm1[i,5])
-          // DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
-          // exit
-          // endif
-          // skip
-          // enddo
-
-          // endif
-          // endif
-        Next
       Endif
 
       save_arr_dvn_covid( mkod, mk_data )
