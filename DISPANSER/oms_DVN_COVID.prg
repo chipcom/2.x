@@ -30,6 +30,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   //
   Private oms_sluch_DVN := .t., ps1dispans := s1dispans, is_prazdnik
 
+  hb_alert( 'ВНИМАНИЕ! С 19 июля 2024 года углубленная диспансеризация после COVID закрыта.')
   If kod_kartotek == 0 // добавление в картотеку
     If ( kod_kartotek := edit_kartotek( 0,,, .t. ) ) == 0
       Return Nil
