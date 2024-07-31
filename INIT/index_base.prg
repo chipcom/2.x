@@ -3,7 +3,7 @@
 // #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 11.03.22
+// 31.07.24
 Function index_base( sBase )
 
   Millisec( 100 )  // задержка на 0.1 с
@@ -233,14 +233,14 @@ Function index_base( sBase )
     Index On Str( kod, 7 ) + Str( vid, 1 ) to ( dir_server + "kas_or1u" ) progress
     Index On Str( u_kod, 4 ) to ( dir_server + "kas_or2u" ) progress
     //
-  Case sBase == "mo_kekh"
-    Index On Str( kod_lu, 7 ) to ( dir_server + sBase ) progress
-  Case sBase == "mo_keke"
-    Index On Str( kod, 7 ) + Str( tip_eks, 1 ) to ( dir_server + "mo_keket" ) progress
-    Index On Str( kod_eks, 3 ) + DToS( date_eks ) to ( dir_server + "mo_kekee" ) descending progress
-    Index On DToS( date_eks ) to ( dir_server + "mo_keked" ) progress
-  Case sBase == "mo_kekez"
-    Index On Str( kod, 7 ) + Str( stroke, 2 ) to ( dir_server + sBase ) progress
+  // Case sBase == "mo_kekh"
+  //   Index On Str( kod_lu, 7 ) to ( dir_server + sBase ) progress
+  // Case sBase == "mo_keke"
+  //   Index On Str( kod, 7 ) + Str( tip_eks, 1 ) to ( dir_server + "mo_keket" ) progress
+  //   Index On Str( kod_eks, 3 ) + DToS( date_eks ) to ( dir_server + "mo_kekee" ) descending progress
+  //   Index On DToS( date_eks ) to ( dir_server + "mo_keked" ) progress
+  // Case sBase == "mo_kekez"
+  //   Index On Str( kod, 7 ) + Str( stroke, 2 ) to ( dir_server + sBase ) progress
   Endcase
   If Type( "fl_open" ) == "L" .and. fl_open
     __tmp__->( dbCloseArea() )

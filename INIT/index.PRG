@@ -27,7 +27,7 @@ Function m_index_db()
 
   Return Nil
 
-// 11.07.24 внутренняя функция переиндексирования
+// 31.07.24 внутренняя функция переиндексирования
 Function pereindex()
 
   Local buf := SaveScreen(), t1, t2, i, hGauge, ae[ 3 ], k, ab
@@ -225,15 +225,15 @@ Function pereindex()
     Skip
   Enddo
   Close databases
-  Use ( dir_server + "mo_kekh" ) New Alias HU
-  Go Top
-  Do While !Eof()
-    If !Between( hu->USL_OK, 1, 3 )
-      hu->USL_OK := 1
-    Endif
-    Skip
-  Enddo
-  Close databases
+  // Use ( dir_server + "mo_kekh" ) New Alias HU
+  // Go Top
+  // Do While !Eof()
+  //   If !Between( hu->USL_OK, 1, 3 )
+  //     hu->USL_OK := 1
+  //   Endif
+  //   Skip
+  // Enddo
+  // Close databases
   //
   stat_msg( "Пеpеиндексирование завеpшено!" )
   t2 := Seconds() - t1
