@@ -54,7 +54,7 @@ Function involved_password(par,_n_reestr,smsg)
   enddo
   return fl
 
-// 28.12.21 ввод пароля
+// 18.07.24 ввод пароля
 Function inp_password(is_local_version,is_create)
   Local pss := space(10), tmp_pss := my_parol(), i_p := 0, ta := {}, s, fl_g := .f.
   Public TIP_ADM := 0
@@ -132,12 +132,12 @@ Function inp_password(is_local_version,is_create)
   if !empty(dolj_polzovat)
     aadd(ta,'Должность: '+alltrim(dolj_polzovat))
   endif
-  if fl_g .and. between(grup_polzovat, 1, 3)
-    aadd(ta,'Группа экспертизы (КЭК): '+lstr(grup_polzovat))
-  endif
+//  if fl_g .and. between(grup_polzovat, 1, 3)
+//    aadd(ta,'Группа экспертизы (КЭК): '+lstr(grup_polzovat))
+//  endif
   return ta
 
-// 28.12.21
+// 11.07.24
 Function edit_password()
   Local buf := save_maxrow()
   Local mas11 := {}, mpic := {,,,{1, 0}}, mas13 := {.F.,.F.,.T.}, ;
@@ -158,10 +158,10 @@ Function edit_password()
   endif
   mywait()
   c_2 := c_1+64
-  if is_task(X_KEK)
-    c_1 := 2 ; c_2 := 77
-    aadd(mas12, {4,'Группа КЭК'})
-  endif
+//  if is_task(X_KEK)
+//    c_1 := 2 ; c_2 := 77
+//    aadd(mas12, {4,'Группа КЭК'})
+//  endif
   R_Use(dir_server+'base1')
   do while !eof()
     aadd(mas11, {crypt(p1,gpasskod), ;                       //  1
@@ -197,7 +197,7 @@ Function edit_password()
   G_SUnlock('edit_pass')
   RETURN NIL
 
-// 22.10.19
+// 11.07.24
 Static Function f1editpass(b, ar, nDim, nElem, nKey)
   Local nRow := ROW(), nCol := COL(), tmp_color, buf := save_maxrow(), buf1, fl := .f., r1, r2, i, ;
         mm_gruppa := { ;
@@ -229,11 +229,11 @@ Static Function f1editpass(b, ar, nDim, nElem, nKey)
     tmp_color := setcolor(cDataCGet)
     r1 := maxrow() - 10
     r2 := maxrow() - 3
-    if is_task(X_KEK)
-      m1gruppa := ar[nElem, 4]
-      mgruppa := inieditspr(A__MENUVERT, mm_gruppa, m1gruppa)
-      --r1
-    endif
+//    if is_task(X_KEK)
+//      m1gruppa := ar[nElem, 4]
+//      mgruppa := inieditspr(A__MENUVERT, mm_gruppa, m1gruppa)
+//      --r1
+//    endif
     if is_task(X_PLATN) .or. is_task(X_ORTO) .or. is_task(X_KASSA)
       minn  := ar[nElem, 10]
       moper := ar[nElem, 8]
@@ -262,10 +262,10 @@ Static Function f1editpass(b, ar, nDim, nElem, nKey)
     @ r1 + 5, c_1 + 3 say 'Тип доступа' get mtip READER {|x|menu_reader(x, menu_tip, A__MENUVERT, , , .f.)}
     @ r1 + 6, c_1 + 3 say 'Пароль' get mpass picture '@!' valid func_empty(mpass)
     i := 6
-    if is_task(X_KEK)
-      ++i
-      @ r1 + i, c_1 + 3 say 'Группа КЭК' get mgruppa READER {|x|menu_reader(x, mm_gruppa, A__MENUVERT, , , .f.)}
-    endif
+//    if is_task(X_KEK)
+//      ++i
+//      @ r1 + i, c_1 + 3 say 'Группа КЭК' get mgruppa READER {|x|menu_reader(x, mm_gruppa, A__MENUVERT, , , .f.)}
+//    endif
     if is_task(X_PLATN) .or. is_task(X_ORTO) .or. is_task(X_KASSA)
       ++i
       @ r1 + i, c_1 + 3 say 'Пароль для фискального регистратора' get moper picture '@!'

@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 05.07.24
+// 11.07.24
 Function inp_bit_task_bay( k, r, c )
 	Local mlen, t_mas := {}, buf := savescreen(), ret, ;
 		i, tmp_color := setcolor(), m1var := "", s := "",;
@@ -22,12 +22,12 @@ Function inp_bit_task_bay( k, r, c )
 		{ "Платные услуги"                      , X_PLATN , , .t., "ПЛАТНЫЕ УСЛУГИ"}, ;
 		{ "Ортопедические услуги в стоматологии", X_ORTO  , , .t., "ОРТОПЕДИЯ"}, ;
 		{ "Касса медицинской организации"       , X_KASSA , , .t., "КАССА"}, ;
-		{ "КЭК медицинской организации"         , X_KEK   , , .F., "КЭК"}, ;
 		{ "Редактирование справочников"         , X_SPRAV , , .t., '' }, ;
 		{ "Сервисы и настройки"                 , X_SERVIS, , .t., '' }, ;
 		{ "Резервное копирование базы данных"   , X_COPY  , , .t., '' }, ;
 		{ "Переиндексирование базы данных"      , X_INDEX , , .t., '' } ;
 	}
+//	{ "КЭК медицинской организации"         , X_KEK   , , .F., "КЭК"}, ;
 	
 	for i := 1 to len( arr1 )
 		if ( kk := arr1[ i, 2 ] ) < 10  // код задачи
@@ -37,7 +37,7 @@ Function inp_bit_task_bay( k, r, c )
 			endif
 		endif
 		// Учёт направлений на госпитализацию
-		if kk == X_263 .and. ( is_napr_pol .or. is_napr_stac ) .and. ( substr( glob_mo[ _MO_PROD ], X_263, 1 ) == '1' )
+		if kk == X_263 .and. ( is_napr_pol .or. is_napr_stac ) //	.and. ( substr( glob_mo[ _MO_PROD ], X_263, 1 ) == '1' )
 			arr1[ i, 4 ] := .t.
 			fl_exit := .f.
 		endif

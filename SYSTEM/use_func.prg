@@ -98,7 +98,7 @@ Function existsnsifile( sbase, vYear )
   Return fl
 
 
-// 18.11.23
+// 31.07.24
 Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
 
   Local fl := .t., sind1 := '', sind2 := ''
@@ -313,17 +313,17 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
   Case sBase == 'kas_ortu'
     fl := g_use( dir_server + 'kas_ortu', { dir_server + 'kas_or1u', ;
       dir_server + 'kas_or2u' }, lAlias, , lExcluUse, lREADONLY )
-  Case sBase == 'mo_kekh'
-    Default lAlias To 'HU'
-    fl := g_use( dir_server + 'mo_kekh', dir_server + 'mo_kekh', lAlias, , lExcluUse, lREADONLY )
-  Case sBase == 'mo_keke'
-    Default lAlias To 'EKS'
-    fl := g_use( dir_server + 'mo_keke', { dir_server + 'mo_keket', ;
-      dir_server + 'mo_kekee', ;
-      dir_server + 'mo_keked' }, lAlias, , lExcluUse, lREADONLY )
-  Case sBase == 'mo_kekez'
-    Default lAlias To 'EKSZ'
-    fl := g_use( dir_server + 'mo_kekez', dir_server + 'mo_kekez', lAlias, , lExcluUse, lREADONLY )
+  // Case sBase == 'mo_kekh'
+  //   Default lAlias To 'HU'
+  //   fl := g_use( dir_server + 'mo_kekh', dir_server + 'mo_kekh', lAlias, , lExcluUse, lREADONLY )
+  // Case sBase == 'mo_keke'
+  //   Default lAlias To 'EKS'
+  //   fl := g_use( dir_server + 'mo_keke', { dir_server + 'mo_keket', ;
+  //     dir_server + 'mo_kekee', ;
+  //     dir_server + 'mo_keked' }, lAlias, , lExcluUse, lREADONLY )
+  // Case sBase == 'mo_kekez'
+  //   Default lAlias To 'EKSZ'
+  //   fl := g_use( dir_server + 'mo_kekez', dir_server + 'mo_kekez', lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'lusld'
     fl := r_use( dir_exe + '_mo_usld', cur_dir + '_mo_usld', sBase )
   Endcase

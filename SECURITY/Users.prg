@@ -16,7 +16,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.09.23 ввод пароля
+// 18.07.24 ввод пароля
 function inp_password_bay( is_local_version, is_create )
 	local strPassword := space( 10 )
 	local i_p := 0, ta := {}
@@ -75,9 +75,9 @@ function inp_password_bay( is_local_version, is_create )
 	if !empty( alltrim( oUser:Position ) )
 		aadd( ta, 'Должность: ' + alltrim( oUser:Position ) )
 	endif
-	if between( hb_user_curUser:KEK, 1, 3 )
-		aadd( ta, 'Группа экспертизы (КЭК): ' + lstr( hb_user_curUser:KEK ) )
-	endif
+//	if between( hb_user_curUser:KEK, 1, 3 )
+//		aadd( ta, 'Группа экспертизы (КЭК): ' + lstr( hb_user_curUser:KEK ) )
+//	endif
 	return ta
 
 // 20.10.18 функция окна ввода пароля
@@ -100,7 +100,7 @@ function get_parol_bay()
 	set confirm off
 	return s
 	
-// 04.11.18 редактирование списка пользователей
+// 11.07.24 редактирование списка пользователей
 function edit_Users_bay()
 	local blkEditObject
 	local oBox, aEdit := {}
@@ -108,10 +108,10 @@ function edit_Users_bay()
 	local lWork
 	local aProperties
 	
-	if is_task( X_KEK )
-		c_1 := 2
-		c_2 := 77
-	endif
+//	if is_task( X_KEK )
+//		c_1 := 2
+//		c_2 := 77
+//	endif
 	blkEditObject := { | oBrowse, aObjects, object, nKey | editUser( oBrowse, aObjects, object, nKey ) }
 										
 	if hb_user_curUser:IsAdmin()
@@ -123,9 +123,9 @@ function edit_Users_bay()
 	endif
 	if lWork
 		aProperties := { { 'FIO', 'Ф.И.О.', 20 }, { 'DepShortName', 'Под-ние', 7 }, { 'Position', 'Должность', 20 }, { 'Type_F', 'Тип', 3 } }
-		if is_task( X_KEK )
-			aadd( aProperties, { 'KEK', 'КЭК', 3 } )
-		endif
+//		if is_task( X_KEK )
+//			aadd( aProperties, { 'KEK', 'КЭК', 3 } )
+//		endif
 		
 		oBox := TBox():New( T_ROW, c_1, maxrow() - 2, c_2, .t. )
 		oBox:Caption := 'Список пользователей'
@@ -142,7 +142,7 @@ function edit_Users_bay()
 	endif
 	return nil
 
-// 21.09.23 редактирование объекта пользователя
+// 11.07.24 редактирование объекта пользователя
 static function editUser( oBrowse, aObjects, oUser, nKey )
 	local fl := .f.
 	local r1 := maxrow() - 12, r2 := maxrow() - 3, i
@@ -182,13 +182,13 @@ static function editUser( oBrowse, aObjects, oUser, nKey )
 		m1Department := oUser:IDDepartment()
 		mDepartment := inieditspr( A__MENUVERT, TDepartmentDB():MenuDepartments(), m1Department )
 
-		if is_task( X_KEK )
-			m1gruppa := oUser:KEK
-			mgruppa := inieditspr( A__MENUVERT, mm_gruppa, m1gruppa )
-			--r1
-			c_1 := 2
-			c_2 := 77
-		endif
+//		if is_task( X_KEK )
+//			m1gruppa := oUser:KEK
+//			mgruppa := inieditspr( A__MENUVERT, mm_gruppa, m1gruppa )
+//			--r1
+//			c_1 := 2
+//			c_2 := 77
+//		endif
 		if is_task( X_PLATN ) .or. is_task( X_ORTO ) .or. is_task( X_KASSA )
 			--r1
 		endif
@@ -215,10 +215,10 @@ static function editUser( oBrowse, aObjects, oUser, nKey )
 								READER { | x | menu_reader( x, TUser():aMenuType, A__MENUVERT, , , .f. ) }
 		@ r1 + 7, c_1 + 3 say 'Пароль' get oUser:Password picture '@!' valid func_empty( oUser:Password ) .and. !PassExist( oUser, aObjects, oUser:Password )
 		i := 7
-		if is_task( X_KEK )
-			++i
-			@ r1 + i, c_1 + 3 say 'Группа КЭК' get mgruppa READER { | x | menu_reader( x, mm_gruppa, A__MENUVERT, , , .f. ) }
-		endif
+//		if is_task( X_KEK )
+//			++i
+//			@ r1 + i, c_1 + 3 say 'Группа КЭК' get mgruppa READER { | x | menu_reader( x, mm_gruppa, A__MENUVERT, , , .f. ) }
+//		endif
 		if is_task( X_PLATN ) .or. is_task( X_ORTO ) .or. is_task( X_KASSA )
 			++i
 			@ r1 + i, c_1 + 3 say 'Пароль для фискального регистратора' get oUser:PasswordFR picture '99999999'
