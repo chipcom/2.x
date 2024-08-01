@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 30.07.24 ДВН - добавление или редактирование случая (листа учета)
+// 01.08.24 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -813,8 +813,9 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         func_error( 4, 'Не заполнен номер амбулаторной карты' )
         Loop
       Endif
-      If eq_any( m1gruppa, 3, 4, 13, 14 ) .and. ( m1dopo_na == 0 ) .and. ( m1napr_v_mo == 0 ) .and. ( m1napr_stac == 0 ) .and. ( m1napr_reab == 0 )
-        func_error( 4, "Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!" )
+//      If eq_any( m1gruppa, 3, 4, 13, 14 ) .and. ( m1dopo_na == 0 ) .and. ( m1napr_v_mo == 0 ) .and. ( m1napr_stac == 0 ) .and. ( m1napr_reab == 0 )
+//        func_error( 4, "Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!" )
+      if check_group_nazn( '1', 3, 4, 13, 14 )
         Loop
       Endif
       If ! checktabnumberdoctor( mk_data, .t. )

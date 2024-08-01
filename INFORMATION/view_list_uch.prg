@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 08.07.23 
+// 01.08.23 
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -273,7 +273,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
     add_string(s)
   endif
   s := ''
-  if eq_any(human->ishod, 201, 202, 203, 401, 402 )  // дисп-ия (профосмотр) взрослого населения
+  if eq_any(human->ishod, 201, 202, 203, 401, 402, 501, 502 )  // дисп-ия (профосмотр) взрослого населения
     Private pole_diag, pole_1pervich
     for i := 1 to 5
       pole_diag := 'mdiag' + lstr(i)
@@ -281,7 +281,11 @@ Function print_l_uch(mkod, par, regim, lnomer)
       Private &pole_diag := space(6)
       Private &pole_1pervich := 0
     next
-    read_arr_DVN(human->kod)
+    if eq_any(human->ishod, 501, 502 )  // дисп-ия  репродуктивного здоровья взрослого населения
+      read_arr_drz( human->kod )
+    else
+      read_arr_DVN(human->kod)
+    endif
     arr := {}
     for i := 1 to 5
       pole_diag := 'mdiag' + lstr(i)
