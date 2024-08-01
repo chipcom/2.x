@@ -821,13 +821,15 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         arr_osm1[ i, 5 ] := view_uslugi[ i, 2 ]
       next
 
-      If eq_any( m1gruppa, 2, 3 ) .and. ( m1dopo_na == 0 ) .and. ( m1napr_v_mo == 0 ) .and. ( m1napr_stac == 0 ) .and. ( m1napr_reab == 0 )
-        func_error( 4, 'Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!' )
+//      If eq_any( m1gruppa, 2, 3 ) .and. ( m1dopo_na == 0 ) .and. ( m1napr_v_mo == 0 ) .and. ( m1napr_stac == 0 ) .and. ( m1napr_reab == 0 )
+//        func_error( 4, 'Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!' )
+      if check_group_nazn( '1', 2, 3 )
         Loop
       Endif
 
-      If ( metap == 1 ) .and. eq_any( m1gruppa, 11, 12 ) .and. ( ( m1dopo_na != 0 ) .or. ( m1napr_v_mo != 0 ) .or. ( m1napr_stac != 0 ) .or. ( m1napr_reab != 0 ) )
-        func_error( 4, 'При направлении на II этап не допускаются назначения (направления) для пациента!' )
+//      If ( metap == 1 ) .and. eq_any( m1gruppa, 11, 12 ) .and. ( ( m1dopo_na != 0 ) .or. ( m1napr_v_mo != 0 ) .or. ( m1napr_stac != 0 ) .or. ( m1napr_reab != 0 ) )
+//        func_error( 4, 'При направлении на II этап не допускаются назначения (направления) для пациента!' )
+      if check_group_nazn( '2', 11, 12 )
         Loop
       Endif
 

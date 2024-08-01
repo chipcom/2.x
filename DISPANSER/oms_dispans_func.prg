@@ -3,6 +3,45 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 01.08.24
+function check_group_nazn( type, ... )
+  // type - тип проверки ( '1' - общая, '2' - для ДРЗ )
+  // для проверки используются PRIVATE переменные:
+  // m1gruppa - начначенная группа здоровья
+  // m1dopo_na - направление на дополнительное обследование
+  // m1napr_v_mo - направление к специалистам 
+  // m1napr_stac - направление на лечение
+  // m1napr_reab - направления на реабилитацию
+  // m1sank_na - не участвует в проверке
+  local ret := .f.
+  local mvar, i
+  local nfunc := 'eq_any( m1gruppa'
+
+  type := substr( type, 1, 1 )
+  if pcount() < 2
+    return ret
+  endif
+  // соберем вызов ф-ции
+  for i := 2 to pcount()
+    mvar := alltrim( str( hb_PValue( i ) ) )
+    nfunc := nfunc + ', ' + mvar
+  next
+  nfunc += ')'
+
+  if type == '1'
+    ret := &nfunc .and. ( m1dopo_na == 0 ) .and. ( m1napr_v_mo == 0 ) .and. ( m1napr_stac == 0 ) .and. ( m1napr_reab == 0 )
+  else
+    ret := &nfunc .and. ( ( m1dopo_na != 0 ) .or. ( m1napr_v_mo != 0 ) .or. ( m1napr_stac != 0 ) .or. ( m1napr_reab != 0 ) )
+  endif
+  if ret
+    if type == '1'
+      func_error( 4, 'Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!' )
+    else
+      func_error( 4, 'При направлении на II этап не допускаются назначения (направления) для пациента!' )
+    endif
+  Endif
+  return ret
+
 // 04.07.24
 function is_dispanserizaciya( ishod )
 
