@@ -64,7 +64,7 @@ function Reconstruct_Security(is_local_version)
   
   return nil
 
-// 31.07.24 реконстукция баз данных
+// 01.08.24 реконстукция баз данных
 Function Reconstruct_DB( is_local_version, is_create )
      Local base1 := {;
       {'P1',      'C',  20,   0}, ; // Ф.И.О.
@@ -1514,6 +1514,28 @@ Function Reconstruct_DB( is_local_version, is_create )
      {'KOD'      ,   'N',     7,     0}, ; // код по БД human
      {'KS'       ,   'N',     2,     0}, ; // код строки
      {'NAME'     ,   'C',    78,     0}}  // содержание строки
+  local mo_register_fns := { ;  // журнал выданных справок для ФНС
+    { 'KOD',     'N',     7,   0 }, ; // recno()
+    { 'KOD_K',   'N',     7,   0 }, ; // код по картотеке
+    { 'NYEAR',   'N',     4,   0 }, ; // отчетный год
+    { 'NUM_S',   'N',     7,   0 }, ; // номер справки
+    { 'VERSION', 'N',     3,   0 }, ; // номер корректировки
+    { 'INN',     'C',    12,   0 }, ; // ИНН плательщика
+    { 'ATTRIBUT','N',     1,   0 }, ; // признак 0 ? налогоплательщик и пациент не являются одним лицом; 1 ? налогоплательщик и пациент являются одним лицом.
+    { 'SUM1',    'N',    16,   2 }, ; // сумма 1
+    { 'SUM2',    'N',    16,   2 }, ; // сумма 2
+    { 'EXECUTOR','N',     7,   0 }, ; // составитель справки
+    { 'DATE',    'D',     8,   0 }, ; // дата составления
+    { 'KOD_XML', 'N',     6,   0 } ; // ссылка на файл 'mo_xml_fns', для отправки в ФНС или число -1 если печатная форма, 0 - если xml файл не формировался
+  }
+  Local mo_xml_fns := {; // Список сформированных XML-файлов 'mo_xml_fns' для ФНС
+    { 'KOD',    'N',     6,   0 }, ; // код;номер записи
+    { 'FNAME',  'C',    26,   0 }, ; // имя файла без расширения (и ZIP-архива)
+    { 'FNAME2', 'C',    26,   0 }, ; // имя второго файла без расширения
+    { 'DFILE',  'D',     8,   0 }, ; // дата создания файла
+    { 'TFILE',  'C',     5,   0 }, ; // время создания файла
+    { 'KOL1',   'N',     6,   0 } ; // количество справок в файле
+  }
   //
   f_init_r01() // инициализация всех файлов инф.сопровождения по диспансеризации
   // f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
@@ -1658,6 +1680,9 @@ Function Reconstruct_DB( is_local_version, is_create )
   reconstruct(dir_server + 'kas_ortu', kas_ortu, 'index_base("kas_ortu")', 'кассе-4', .t.)
   reconstruct(dir_server + 'kas_usl', kas_usl, , 'кассе-5', .t.)
   reconstruct(dir_server + 'kas_usld', kas_usl, , 'кассе-6', .t.)
+  //
+  reconstruct(dir_server + 'register_fns', mo_register_fns, , 'журнал ФНС', .t.)
+  reconstruct(dir_server + 'mo_xml_fns', mo_xml_fns, , 'файлы XML для ФНС', .t.)
   //
 //  reconstruct(dir_server + 'mo_kekez', kek_eksz, 'index_base("mo_kekez")', 'экспертизам', .t.)
 //  reconstruct(dir_server + 'mo_kekh', kek_h, 'index_base("mo_kekh")', 'экспертизам2', .t.)
