@@ -6,6 +6,9 @@ function test_init()
   // local aaa
 
   //aaa := getUsl_pcel()
+  // use_base( 'reg_fns', 'reg_fns' )
+  // use_base( 'link_fns', 'link_fns' )
+  // use_base( 'xml_fns', 'xml_fns' )
   // altd()
   // aaa := loadCriteria21(2023)
   return nil

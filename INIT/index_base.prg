@@ -3,7 +3,7 @@
 // #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 31.07.24
+// 02.08.24
 Function index_base( sBase )
 
   Millisec( 100 )  // задержка на 0.1 с
@@ -232,6 +232,12 @@ Function index_base( sBase )
   Case sBase == "kas_ortu"
     Index On Str( kod, 7 ) + Str( vid, 1 ) to ( dir_server + "kas_or1u" ) progress
     Index On Str( u_kod, 4 ) to ( dir_server + "kas_or2u" ) progress
+  Case sBase == 'register_fns'
+    Index On Str( kod_k, 4 ) + Str( nyear, 4 ) + Str( num_s, 7 ) + Str( version, 3 ) to ( dir_server + 'reg_fns' ) progress
+  Case sBase == 'reg_link_fns'
+    Index On Str( kod_spr, 7 ) to ( dir_server + 'reg_link' ) progress
+  Case sBase == 'reg_xml_fns'
+    Index On Str( kod, 6 ) to ( dir_server + 'reg_xml' ) progress
     //
   // Case sBase == "mo_kekh"
   //   Index On Str( kod_lu, 7 ) to ( dir_server + sBase ) progress

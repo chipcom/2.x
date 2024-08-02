@@ -97,8 +97,7 @@ Function existsnsifile( sbase, vYear )
 
   Return fl
 
-
-// 31.07.24
+// 02.08.24
 Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
 
   Local fl := .t., sind1 := '', sind2 := ''
@@ -313,6 +312,15 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
   Case sBase == 'kas_ortu'
     fl := g_use( dir_server + 'kas_ortu', { dir_server + 'kas_or1u', ;
       dir_server + 'kas_or2u' }, lAlias, , lExcluUse, lREADONLY )
+  Case sBase == 'reg_fns'
+    fl := g_use( dir_server + 'register_fns', { dir_server + 'reg_fns' }, ;
+      lAlias, , lExcluUse, lREADONLY )
+  Case sBase == 'link_fns'
+    fl := g_use( dir_server + 'reg_link_fns', { dir_server + 'reg_link' }, ;
+      lAlias, , lExcluUse, lREADONLY )
+  Case sBase == 'xml_fns'
+    fl := g_use( dir_server + 'reg_xml_fns', { dir_server + 'reg_xml' }, ;
+      lAlias, , lExcluUse, lREADONLY )
   // Case sBase == 'mo_kekh'
   //   Default lAlias To 'HU'
   //   fl := g_use( dir_server + 'mo_kekh', dir_server + 'mo_kekh', lAlias, , lExcluUse, lREADONLY )

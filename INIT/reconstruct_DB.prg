@@ -64,7 +64,7 @@ function Reconstruct_Security(is_local_version)
   
   return nil
 
-// 01.08.24 реконстукция баз данных
+// 02.08.24 реконстукция баз данных
 Function Reconstruct_DB( is_local_version, is_create )
      Local base1 := {;
       {'P1',      'C',  20,   0}, ; // Ф.И.О.
@@ -1514,6 +1514,7 @@ Function Reconstruct_DB( is_local_version, is_create )
      {'KOD'      ,   'N',     7,     0}, ; // код по БД human
      {'KS'       ,   'N',     2,     0}, ; // код строки
      {'NAME'     ,   'C',    78,     0}}  // содержание строки
+  // справки для ФНС
   local mo_register_fns := { ;  // журнал выданных справок для ФНС
     { 'KOD',     'N',     7,   0 }, ; // recno()
     { 'KOD_K',   'N',     7,   0 }, ; // код по картотеке
@@ -1528,7 +1529,12 @@ Function Reconstruct_DB( is_local_version, is_create )
     { 'DATE',    'D',     8,   0 }, ; // дата составления
     { 'KOD_XML', 'N',     6,   0 } ; // ссылка на файл 'mo_xml_fns', для отправки в ФНС или число -1 если печатная форма, 0 - если xml файл не формировался
   }
-  Local mo_xml_fns := {; // Список сформированных XML-файлов 'mo_xml_fns' для ФНС
+  local mo_reg_fns_link := { ;  // ссылки на документы в справке ФНС
+    { 'KOD_SPR', 'N',     7,   0 }, ; // код справки по 'register_fns'
+    { 'TYPE',    'N',     2,   0 }, ; // тип источника для справки ( 1 - платные услугиб 2 - касса ЛПУ, 3 - ортопедия )
+    { 'KOD_REC', 'N',     7,   0 } ; // номер записи в соответствующем файле 
+  }
+  Local mo_xml_fns := { ; // Список сформированных XML-файлов 'mo_xml_fns' для ФНС
     { 'KOD',    'N',     6,   0 }, ; // код;номер записи
     { 'FNAME',  'C',    26,   0 }, ; // имя файла без расширения (и ZIP-архива)
     { 'FNAME2', 'C',    26,   0 }, ; // имя второго файла без расширения
@@ -1681,12 +1687,13 @@ Function Reconstruct_DB( is_local_version, is_create )
   reconstruct(dir_server + 'kas_usl', kas_usl, , 'кассе-5', .t.)
   reconstruct(dir_server + 'kas_usld', kas_usl, , 'кассе-6', .t.)
   //
-  reconstruct(dir_server + 'register_fns', mo_register_fns, , 'журнал ФНС', .t.)
-  reconstruct(dir_server + 'mo_xml_fns', mo_xml_fns, , 'файлы XML для ФНС', .t.)
+  reconstruct(dir_server + 'register_fns', mo_register_fns, 'index_base( "register_fns" )', 'журнал ФНС', .t.)
+  reconstruct(dir_server + 'reg_link_fns', mo_reg_fns_link, 'index_base( "reg_link_fns" )', 'ссылки для справок ФНС', .t.)
+  reconstruct(dir_server + 'reg_xml_fns', mo_xml_fns, 'index_base( "reg_xml_fns" )', 'файлы XML для ФНС', .t.)
   //
-//  reconstruct(dir_server + 'mo_kekez', kek_eksz, 'index_base("mo_kekez")', 'экспертизам', .t.)
-//  reconstruct(dir_server + 'mo_kekh', kek_h, 'index_base("mo_kekh")', 'экспертизам2', .t.)
-//  reconstruct(dir_server + 'mo_keke', kek_eks, 'index_base("mo_keke")', 'экспертизам3', .t.)
+  //  reconstruct(dir_server + 'mo_kekez', kek_eksz, 'index_base("mo_kekez")', 'экспертизам', .t.)
+  //  reconstruct(dir_server + 'mo_kekh', kek_h, 'index_base("mo_kekh")', 'экспертизам2', .t.)
+  //  reconstruct(dir_server + 'mo_keke', kek_eks, 'index_base("mo_keke")', 'экспертизам3', .t.)
   //
   init_base(dir_server + 'komitet', , get_komitet(), 2, , .t.)
   init_base(dir_server + 'str_komp', , get_strah(), 2, , .t.)
