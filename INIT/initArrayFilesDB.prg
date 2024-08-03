@@ -3,11 +3,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 02.08.24 инициализировать массив DBF-файлов базы данных
+// 03.08.24 инициализировать массив DBF-файлов базы данных
 Function init_Array_Files_DB()
   local i, arr
 
-  Public array_files_DB := {}, array_task_DB[24, 2]
+  Public array_files_DB := {}, array_task_DB[ 24, 2 ]
 
   afillall(array_task_DB, 0)
   // общие справочники
@@ -179,6 +179,7 @@ Function init_Array_Files_DB()
   aadd(array_files_DB, 'register_fns')
   aadd(array_files_DB, 'reg_link_fns')
   aadd(array_files_DB, 'reg_xml_fns')
+  aadd(array_files_DB, 'reg_xml_link_fns')
 
 
   if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC  // для ВОУНЦ

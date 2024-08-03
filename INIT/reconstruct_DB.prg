@@ -64,7 +64,7 @@ function Reconstruct_Security(is_local_version)
   
   return nil
 
-// 02.08.24 реконстукция баз данных
+// 03.08.24 реконстукция баз данных
 Function Reconstruct_DB( is_local_version, is_create )
      Local base1 := {;
       {'P1',      'C',  20,   0}, ; // Ф.И.О.
@@ -1522,7 +1522,7 @@ Function Reconstruct_DB( is_local_version, is_create )
     { 'NUM_S',   'N',     7,   0 }, ; // номер справки
     { 'VERSION', 'N',     3,   0 }, ; // номер корректировки
     { 'INN',     'C',    12,   0 }, ; // ИНН плательщика
-    { 'ATTRIBUT','N',     1,   0 }, ; // признак 0 ? налогоплательщик и пациент не являются одним лицом; 1 ? налогоплательщик и пациент являются одним лицом.
+    { 'ATTRIBUT','N',     1,   0 }, ; // признак 0 - налогоплательщик и пациент не являются одним лицом; 1 - налогоплательщик и пациент являются одним лицом.
     { 'SUM1',    'N',    16,   2 }, ; // сумма 1
     { 'SUM2',    'N',    16,   2 }, ; // сумма 2
     { 'EXECUTOR','N',     7,   0 }, ; // составитель справки
@@ -1531,16 +1531,20 @@ Function Reconstruct_DB( is_local_version, is_create )
   }
   local mo_reg_fns_link := { ;  // ссылки на документы в справке ФНС
     { 'KOD_SPR', 'N',     7,   0 }, ; // код справки по 'register_fns'
-    { 'TYPE',    'N',     2,   0 }, ; // тип источника для справки ( 1 - платные услугиб 2 - касса ЛПУ, 3 - ортопедия )
+    { 'TYPE',    'N',     2,   0 }, ; // тип источника для справки ( 1 - платные услуги, 2 - касса ЛПУ, 3 - ортопедия )
     { 'KOD_REC', 'N',     7,   0 } ; // номер записи в соответствующем файле 
   }
-  Local mo_xml_fns := { ; // Список сформированных XML-файлов 'mo_xml_fns' для ФНС
-    { 'KOD',    'N',     6,   0 }, ; // код;номер записи
+  Local mo_xml_fns := { ; // Список сформированных XML-файлов 'reg_xml_fns' для ФНС
+    { 'KOD',    'N',     6,   0 }, ; // код; recNo()
     { 'FNAME',  'C',    26,   0 }, ; // имя файла без расширения (и ZIP-архива)
     { 'FNAME2', 'C',    26,   0 }, ; // имя второго файла без расширения
     { 'DFILE',  'D',     8,   0 }, ; // дата создания файла
     { 'TFILE',  'C',     5,   0 }, ; // время создания файла
     { 'KOL1',   'N',     6,   0 } ; // количество справок в файле
+  }
+  local mo_xml_fns_link := { ;  // ссылки на справки в файле для ФНС
+    { 'KOD_XML','N',     6,   0 }, ; // код указывающий на запись в 'reg_xml_fns'
+    { 'KOD_SPR', 'N',    7,   0 } ; // код справки по 'register_fns'
   }
   //
   f_init_r01() // инициализация всех файлов инф.сопровождения по диспансеризации
@@ -1690,6 +1694,7 @@ Function Reconstruct_DB( is_local_version, is_create )
   reconstruct(dir_server + 'register_fns', mo_register_fns, 'index_base( "register_fns" )', 'журнал ФНС', .t.)
   reconstruct(dir_server + 'reg_link_fns', mo_reg_fns_link, 'index_base( "reg_link_fns" )', 'ссылки для справок ФНС', .t.)
   reconstruct(dir_server + 'reg_xml_fns', mo_xml_fns, 'index_base( "reg_xml_fns" )', 'файлы XML для ФНС', .t.)
+  reconstruct(dir_server + 'reg_xml_link_fns', mo_xml_fns_link, 'index_base( "reg_xml_fns_link" )', 'ссылки на справки для файла XML для ФНС', .t.)
   //
   //  reconstruct(dir_server + 'mo_kekez', kek_eksz, 'index_base("mo_kekez")', 'экспертизам', .t.)
   //  reconstruct(dir_server + 'mo_kekh', kek_h, 'index_base("mo_kekh")', 'экспертизам2', .t.)
