@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 11.07.24
+// 04.08.24
 Function f1main( n_Task )
   Local it, s, k, fl := .t., cNameIcon
 
@@ -484,6 +484,10 @@ Function f1main( n_Task )
       AAdd( first_message[ 2 ], "Информация по работе с кассой" )
       AAdd( func_menu[ 2 ], "inf_fr()" )
     Endif
+    AAdd( first_menu[ 2 ], 0 )
+    AAdd( first_menu[ 2 ], 'Справки для ~ФНС' )
+    AAdd( first_message[ 2 ], 'Составление и работа со справками для ФНС' )
+    AAdd( func_menu[ 2 ], 'inf_fns()' )
     If yes_parol
       AAdd( first_menu[ 2 ], 0 )
       AAdd( first_menu[ 2 ], "Работа ~операторов" )
@@ -546,21 +550,25 @@ Function f1main( n_Task )
       "Спра~вочники", ;
       "~Проверки" } )
     AAdd( first_message,  { ;   // информация
-    "Просмотр статистики", ;
+      "Просмотр статистики", ;
       "Просмотр общих справочников", ;
       "Различные проверочные режимы";
-      } )
+    } )
     AAdd( func_menu, { ;    // информация
-    "Oo_statist()", ;
+      "Oo_statist()", ;
       "o_sprav(-5)", ;   // X_ORTO = 5
-    "Oo_proverka()";
-      } )
+      "Oo_proverka()";
+    } )
     If glob_kassa == 1   // 10.10.14
       AAdd( first_menu[ 2 ], 0 )
       AAdd( first_menu[ 2 ], "Работа с ~кассой" )
       AAdd( first_message[ 2 ], "Информация по работе с кассой" )
       AAdd( func_menu[ 2 ], "inf_fr_orto()" )
     Endif
+    AAdd( first_menu[ 2 ], 0 )
+    AAdd( first_menu[ 2 ], 'Справки для ~ФНС' )
+    AAdd( first_message[ 2 ], 'Составление и работа со справками для ФНС' )
+    AAdd( func_menu[ 2 ], 'inf_fns()' )
     If yes_parol
       AAdd( first_menu[ 2 ], 0 )
       AAdd( first_menu[ 2 ], "Работа ~операторов" )
@@ -640,20 +648,20 @@ Function f1main( n_Task )
     AAdd( main_message, "Просмотр / печать" )
     AAdd( first_menu, { iif( is_task( X_ORTO ), "~Платные услуги", "~Статистика" ), ;
       "Сводная с~татистика", ; // 10.05
-    "Спра~вочники", ;
+      "Спра~вочники", ;
       "Работа с ~кассой" } )
     AAdd( first_message,  { ;   // информация
-    "Просмотр / печать статистических отчетов по платным услугам", ;
+      "Просмотр / печать статистических отчетов по платным услугам", ;
       "Просмотр / печать сводных статистических отчетов", ;
       "Просмотр общих справочников", ;
       "Информация по работе с кассой";
-      } )
+    } )
     AAdd( func_menu, { ;    // информация
-    "prn_k_plat()", ;
+      "prn_k_plat()", ;
       "regi_s_plat()", ;
       "o_sprav()", ;
       "prn_k_fr()";
-      } )
+    } )
     If is_task( X_ORTO )
       ins_array( first_menu[ 3 ], 2, "~Ортопедия" )
       ins_array( first_message[ 3 ], 2, "Просмотр / печать статистических отчетов по ортопедии" )
@@ -676,6 +684,10 @@ Function f1main( n_Task )
       "fk_usl_dogov()", ;
       "fr_nastrojka()", ;
       "nastr_kassa(2)" } )
+    AAdd( first_menu[ 2 ], 0 )
+    AAdd( first_menu[ 2 ], 'Справки для ~ФНС' )
+    AAdd( first_message[ 2 ], 'Составление и работа со справками для ФНС' )
+    AAdd( func_menu[ 2 ], 'inf_fns()' )
 //  Case glob_task == X_KEK  //
 //    If !Between( hb_user_curUser:KEK, 1, 3 )
 //      n_message( { "Недопустимая группа экспертизы (КЭК): " + lstr( hb_user_curUser:KEK ), ;

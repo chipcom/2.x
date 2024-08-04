@@ -86,6 +86,8 @@ mo_version.prg
 .\KASSA\mo_ortop.prg
 .\KASSA\mo_plat_func.prg
 
+.\FNS\fns.prg
+
 #.\KEK\mo_kek.prg
 #.\KEK\mo_keki.prg
 #.\KEK\mo_keki_17.prg
