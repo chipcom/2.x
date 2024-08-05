@@ -22,7 +22,7 @@ Function spravka_fns()
     buf := SaveScreen()
 
     str_find := Str( glob_kartotek, 7 )
-    muslovie := 'human->kod_k == glob_kartotek'
+    muslovie := 'fns->kod_k == glob_kartotek'
     // R_Use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'PERSO' )
     // use_base( 'hum_p', 'HUMAN' )
     use_base( 'xml_fns', 'xml' )
@@ -201,27 +201,53 @@ Function operspravkafns( nKey, oBrow )
 
   Return flag
 
-// 04.08.24
+// 05.08.24
+function collect_pay( nYear )
+
+  local tmp_sel := select()
+
+  hb_alert( 'Собираем чеки' )
+  use_base( 'hum_p', 'hum_p' )
+  find ( str( glob_kartotek, 7 ) )
+  do while hum_p->kod_k == glob_kartotek
+    if year( hum_p->K_DATA ) == nYear
+      mSumma += hum_p->cena
+      AAdd( aCheck, { hum_p->( recno() ), 1, hum_p->cena, hum_p->sum_voz } )
+//  KOD_K
+    endif
+    hum_p->( dbSkip() )
+  enddo
+  hum_p->( dbCloseArea() )
+
+  @ nStrSum, 22 Say str( mSumma, 10, 2 )
+  @ nStrSum, 54 Say str( mSummaVozvrat, 10, 2 )
+  select( tmp_sel )
+  return nil
+  
+// 05.08.24
 Function input_spr_fns( nKey )
 
   Local buf := SaveScreen(), tmp_color := SetColor(), str_1, ;
     colget_menu := 'R/W', i, k, ;
     pos_read := 0, k_read := 0, count_edit := 0, ;
     mYear := year( date() ), mINN := space( 12 ), ;
-    mSumma := 0, mSummaVozvrat := 0, mSum1 := 0.0, mSum2 := 0, ;
-    ret := -1
+    mSum1 := 0.0, mSum2 := 0, ;
+    ret := -1, j := 0
 
   Private r1 := 11
+  Private aCheck := {}, ;
+    mncheck := 'Запуск', m1ncheck := 0, ;
+    mSumma := 0.0, mSummaVozvrat := 0.0, ;
+    nStrSum, ;
+    mplat_fio := Space( 40 ), mplat_inn := Space( 12 ), ;
+    mplat_adres := Space( 50 ), ; // адрес плательщика
+    mplat_pasport := Space( 15 ), ;  // документ плательщика
+    MKEMVYD, M1KEMVYD := 0, MKOGDAVYD := CToD( '' ) // кем и когда выдан паспорт ПЛАТЕЛЬЩИКА
 
   If mem_plsoput == 2
     --r1
   Endif
   mywait()
-  Private ;
-    mplat_fio := Space( 40 ), mplat_inn := Space( 12 ), ;
-    mplat_adres := Space( 50 ), ; // адрес плательщика
-    mplat_pasport := Space( 15 ), ;  // документ плательщика
-    MKEMVYD, M1KEMVYD := 0, MKOGDAVYD := CToD( '' ) // кем и когда выдан паспорт ПЛАТЕЛЬЩИКА
     
   If nKey == K_ENTER
   Endif
@@ -256,13 +282,21 @@ Function input_spr_fns( nKey )
   //
   Do While .t.
     SetColor( cDataCGet )
-    @ r1 + 1, 1 Clear To MaxRow() -2, MaxCol() -1
-    @ r1 + 2, 2 Say 'Отчетный год' Get mYear pict '9999'  // ;
+    j := r1 + 1
+    @ j, 1 Clear To MaxRow() -2, MaxCol() -1
+    @ ++j, 2 Say 'Отчетный год' Get mYear pict '9999'  // ;
 //      reader {| x| menu_reader( x, { {| k, r, c| ret_uch_otd( k, r, c, sys_date,, X_PLATN ) } }, A__FUNCTION,,, .f. ) }
-    @ r1 + 2, 37 Say 'ИНН плательщика' Get mINN pict '999999999999'
-    @ r1 + 3, 2 Say 'Оплаченная сумма - ' + str( mSumma, 10, 2 )
-    @ r1 + 3, 37 Say 'Сумма возвратов' + str( mSummaVozvrat, 10, 2 ) // ;
-//      reader {| x| menu_reader( x, menu_kb, A__MENUVERT,,, .f. ) } ;
+    @ j, 37 Say 'ИНН плательщика' Get mINN pict '999999999999'
+    if nKey == K_INS
+      @ ++j, 3 say 'Подбор чеков ...' get mncheck ;
+          reader { | x | menu_reader( x, { { | | collect_pay( mYear ) } } ,A__FUNCTION, , , .f. ) }
+    endif
+    nStrSum := ++j
+    @ j, 2 Say 'Оплаченная сумма - '  // + str( mSumma, 10, 2 )
+    @ j, 37 Say 'Сумма возвратов - '  // + str( mSummaVozvrat, 10, 2 ) // ;
+    @ ++j, 2 Say 'Сумма 1 -' Get mSum1 pict '999999999.99'
+    @ j, 37 Say 'Сумма 1 -' Get mSum2 pict '999999999.99'
+      //      reader {| x| menu_reader( x, menu_kb, A__MENUVERT,,, .f. ) } ;
 //      valid {| g, o| val_tip_usl( g, o ) }
 //    get1_p_kart()  // остальные Get'ы
 //    If nKey == K_ENTER .and. !ver_pub_date( mk_data, .t. )
