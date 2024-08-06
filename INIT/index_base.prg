@@ -233,7 +233,7 @@ Function index_base( sBase )
     Index On Str( kod, 7 ) + Str( vid, 1 ) to ( dir_server + "kas_or1u" ) progress
     Index On Str( u_kod, 4 ) to ( dir_server + "kas_or2u" ) progress
   Case sBase == 'register_fns'
-    Index On Str( kod_k, 4 ) + Str( nyear, 4 ) + Str( attribut, 1 ) + Str( num_s, 7 ) + Str( version, 3 ) to ( dir_server + 'reg_fns' ) progress
+    Index On Str( kod_k, 7 ) + Str( nyear, 4 ) + Str( attribut, 1 ) + Str( num_s, 7 ) + Str( version, 3 ) to ( dir_server + 'reg_fns' ) progress
   Case sBase == 'reg_link_fns'
     Index On Str( kod_spr, 7 ) to ( dir_server + 'reg_link' ) progress
   Case sBase == 'reg_xml_fns'
