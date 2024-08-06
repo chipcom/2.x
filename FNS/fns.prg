@@ -5,6 +5,97 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 06.08.24
+function exist_spravka( get, kod_kart )
+
+  local ret := .f., nyear
+
+  nyear := get:original
+  altd()
+
+  return ret
+
+// 06.08.24
+function input_spravka_fns()
+
+  Local str_sem  //, str_find, muslovie, mtitle
+  Local buf := SaveScreen(), str_1, tmp_color := SetColor(), ;
+    colget_menu := 'R/W', i, k, ;
+    pos_read := 0, k_read := 0, count_edit := 0, ;
+    mYear := year( date() ), mINN := space( 12 ), ;
+    mSum1 := 0.0, mSum2 := 0, ;
+    j := 0
+
+  If polikl1_kart() > 0
+    str_sem := 'Справка ФНС человека ' + lstr( glob_kartotek )
+    If !g_slock( str_sem )
+      Return func_error( 4, err_slock )
+    Endif
+
+    Private aCheck := {}, ;
+      mncheck := 'Запуск', m1ncheck := 0, ;
+      mSumma := 0.0, mSummaVozvrat := 0.0, ;
+      nStrSum, ;
+      mplat_fio := Space( 40 ), mplat_inn := Space( 12 ), ;
+      mplat_pasport := Space( 15 ), ;  // документ плательщика
+      MKOGDAVYD := CToD( '' ) // кем и когда выдан паспорт ПЛАТЕЛЬЩИКА
+
+      SetColor( cDataCGet )
+
+//    use_base( 'xml_fns', 'xml' )
+    use_base( 'reg_fns', 'fns' )
+//    Set Relation To kod_xml into xml
+  
+    str_1 := 'добавление' // + str_1
+    j := 11
+    Private gl_area := { j, 0, MaxRow() -1, MaxCol(), 0 }
+    box_shadow( j, 0, MaxRow() -1, MaxCol(), color1, 'Справка для ФНС - ' + str_1, color8 )
+    status_key( '^<Esc>^ - выход;  ^<PgDn>^ - запись' )
+    //
+    Do While .t.
+      j := 12
+      @ j, 1 Clear To MaxRow() -2, MaxCol() -1
+      @ ++j, 2 Say 'Отчетный год' Get mYear pict '9999' ;
+        valid { | g | exist_spravka( g, glob_kartotek ) }
+      @ j, 37 Say 'ИНН плательщика' Get mINN pict '999999999999'
+      @ ++j, 3 say 'Заполнить ...' get mncheck ;
+          reader { | x | menu_reader( x, { { | | collect_pay( mYear ) } } ,A__FUNCTION, , , .f. ) }
+      nStrSum := ++j
+      @ j, 2 Say 'Оплаченная сумма - '  // + str( mSumma, 10, 2 )
+      @ j, 37 Say 'Сумма возвратов - '  // + str( mSummaVozvrat, 10, 2 ) // ;
+      @ ++j, 2 Say 'Сумма 1 -' Get mSum1 pict '999999999.99'
+      @ j, 37 Say 'Сумма 1 -' Get mSum2 pict '999999999.99'
+      count_edit := myread(, @pos_read, ++k_read )
+      If LastKey() != K_ESC
+//      err_date_diap( mn_data, 'Дата начала лечения' )
+//      err_date_diap( mk_data, 'Дата окончания лечения' )
+        If f_esc_enter( 1 )
+//        If m1lpu == 0
+//          func_error( 4, 'Не введено лечебное учреждение!' )
+//          Loop
+//        Endif
+//        If Empty( mk_data )
+//          func_error( 4, 'Не введена дата окончания лечения.' )
+//          Loop
+//        Endif
+          mywait()
+// запишем
+          Unlock
+          write_work_oper( glob_task, OPER_LIST, 1, 1, count_edit )
+          exit
+        Endif
+      elseif LastKey() == K_ESC
+        exit
+      endif
+    enddo
+    SetColor( tmp_color )
+    RestScreen( buf )
+    g_sunlock( str_sem )
+    dbCloseAll()
+  endif
+  
+  return nil
+
 // 03.08.24
 Function spravka_fns()
 
@@ -171,8 +262,8 @@ Function operspravkafns( nKey, oBrow )
   Local j := 0, flag := -1, buf := save_row( MaxRow() ), fl := .f., rec, ;
     tmp_color := SetColor(), r1 := 15, c1 := 2, ;
     ln_chek := 0, t_hum_rec := 0, ;
-    tip_kart := 2, ;
-    err_close := 'Лист учета ЗАКРЫТ. Доступ разрешён только администратору системы!'
+    tip_kart := 2 //, ;
+//    err_close := 'Лист учета ЗАКРЫТ. Доступ разрешён только администратору системы!'
   Private ldate_voz, lsum_voz, lfr_data, lfr_time
 
   Do Case
@@ -394,7 +485,7 @@ Function inf_fns( k )
       }
     popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
-    spravka_fns()
+    input_spravka_fns() // spravka_fns()
   Case k == 12
     reestr_fns()
   Endcase
