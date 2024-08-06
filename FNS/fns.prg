@@ -5,82 +5,130 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.08.24
-function exist_spravka( get, kod_kart )
+// 06.08.24 проверка существования справки за конкретный год
+function exist_spravka( get, kod_kart, onePerson )
+  // get - объект Get системы
+  // kod_kart - код пациента по картотеке
+  // onePerson - налогоплательщик и пациент одно лицо ( 1- да, 0 - нет)
 
-  local ret := .f., nyear
+  local nyear, str_find, tmp_select
 
-  nyear := get:original
-  altd()
+//  nyear := get:original // получим поле ввода
+  nyear := get
+  str_find := Str( kod_kart, 7 ) + Str( nyear, 4 ) + Str( onePerson, 1 )
+  find ( str_find )
+  if Found()
+    Return func_error( 4, 'За ' + str( nyear, 4 ) + ' справка уже сформирована!' )
+  endif
 
-  return ret
+  tmp_select := select()
+
+  use_base( 'hum_p', 'hum_p' )
+  find ( str( glob_kartotek, 7 ) )
+  do while hum_p->kod_k == glob_kartotek
+    if year( hum_p->K_DATA ) == nyear
+//      mSumma := hum_p->cena - hum_p->sum_voz
+      AAdd( aCheck, { hum_p->( recno() ), 1, hum_p->cena, hum_p->sum_voz } )
+    endif
+    hum_p->( dbSkip() )
+  enddo
+  hum_p->( dbCloseArea() )
+  select( tmp_select )
+
+  return .t.
 
 // 06.08.24
 function input_spravka_fns()
 
   Local str_sem  //, str_find, muslovie, mtitle
   Local buf := SaveScreen(), str_1, tmp_color := SetColor(), ;
-    colget_menu := 'R/W', i, k, ;
+    colget_menu := 'R/W', arr_m, ;
     pos_read := 0, k_read := 0, count_edit := 0, ;
-    mYear := year( date() ), mINN := space( 12 ), ;
-    mSum1 := 0.0, mSum2 := 0, ;
-    j := 0
+    mINN := space( 12 ), ;
+    mSumma := 0.0, mSum1 := 0.0, mSum2 := 0.0, ;
+    j := 0, i, k
+
+  Private aCheck := {}
+
+  If ( arr_m := input_year() ) == NIL
+    Return Nil
+  Endif
 
   If polikl1_kart() > 0
+    use_base( 'reg_fns', 'fns' )
+    if ! exist_spravka( arr_m[ 1 ], glob_kartotek, 1 )
+      dbCloseAll()
+      return nil
+    endif
+    mSumma := 0
+    for i := 1 to len( aCheck )
+      mSumma := mSumma + aCheck[ i, 3 ] - aCheck[ i, 4 ]
+    next
     str_sem := 'Справка ФНС человека ' + lstr( glob_kartotek )
     If !g_slock( str_sem )
       Return func_error( 4, err_slock )
     Endif
 
-    Private aCheck := {}, ;
-      mncheck := 'Запуск', m1ncheck := 0, ;
-      mSumma := 0.0, mSummaVozvrat := 0.0, ;
-      nStrSum, ;
+    Private ;
       mplat_fio := Space( 40 ), mplat_inn := Space( 12 ), ;
       mplat_pasport := Space( 15 ), ;  // документ плательщика
       MKOGDAVYD := CToD( '' ) // кем и когда выдан паспорт ПЛАТЕЛЬЩИКА
 
-      SetColor( cDataCGet )
+    SetColor( cDataCGet )
 
-//    use_base( 'xml_fns', 'xml' )
-    use_base( 'reg_fns', 'fns' )
-//    Set Relation To kod_xml into xml
-  
-    str_1 := 'добавление' // + str_1
+    str_1 := 'за ' + str( arr_m[ 1 ] )
     j := 11
     Private gl_area := { j, 0, MaxRow() -1, MaxCol(), 0 }
-    box_shadow( j, 0, MaxRow() -1, MaxCol(), color1, 'Справка для ФНС - ' + str_1, color8 )
+    box_shadow( j, 0, MaxRow() -1, MaxCol(), color1, 'Справка для ФНС ' + str_1, color8 )
     status_key( '^<Esc>^ - выход;  ^<PgDn>^ - запись' )
     //
     Do While .t.
       j := 12
-      @ j, 1 Clear To MaxRow() -2, MaxCol() -1
-      @ ++j, 2 Say 'Отчетный год' Get mYear pict '9999' ;
-        valid { | g | exist_spravka( g, glob_kartotek ) }
+      @ j, 1 Clear To MaxRow() - 2, MaxCol() - 1
+      @ ++j, 2 Say 'Отчетный год ' + str( arr_m[ 1 ], 4)
       @ j, 37 Say 'ИНН плательщика' Get mINN pict '999999999999'
-      @ ++j, 3 say 'Заполнить ...' get mncheck ;
-          reader { | x | menu_reader( x, { { | | collect_pay( mYear ) } } ,A__FUNCTION, , , .f. ) }
-      nStrSum := ++j
-      @ j, 2 Say 'Оплаченная сумма - '  // + str( mSumma, 10, 2 )
-      @ j, 37 Say 'Сумма возвратов - '  // + str( mSummaVozvrat, 10, 2 ) // ;
+      @ ++j, 2 Say 'Оплаченная сумма по чекам за минусом возвратов - ' + str( mSumma, 10, 2 )
       @ ++j, 2 Say 'Сумма 1 -' Get mSum1 pict '999999999.99'
-      @ j, 37 Say 'Сумма 1 -' Get mSum2 pict '999999999.99'
+      @ j, 37 Say 'Сумма 2 -' Get mSum2 pict '999999999.99'
       count_edit := myread(, @pos_read, ++k_read )
       If LastKey() != K_ESC
-//      err_date_diap( mn_data, 'Дата начала лечения' )
-//      err_date_diap( mk_data, 'Дата окончания лечения' )
         If f_esc_enter( 1 )
-//        If m1lpu == 0
-//          func_error( 4, 'Не введено лечебное учреждение!' )
-//          Loop
-//        Endif
+          If mSum1 + mSum2 == 0.0
+            func_error( 4, 'Нет распределения суммы расходов!' )
+            Loop
+          Endif
+          If mSum1 + mSum2 != mSumma
+            func_error( 4, 'Распределения суммы не равна сумме расходов по чекам!' )
+            Loop
+          Endif
+          If mSumma == 0.0
+            func_error( 4, 'Сумма расходов по чекам равна нулю!' )
+            Loop
+          Endif
+          if len( aCheck ) == 0
+            func_error( 4, 'Отсутствуют чеки оплаты!' )
+            Loop
+          Endif
 //        If Empty( mk_data )
 //          func_error( 4, 'Не введена дата окончания лечения.' )
 //          Loop
 //        Endif
           mywait()
 // запишем
-          Unlock
+          add1rec( 7 )
+          mkod := RecNo()
+          fns->kod := mkod
+          fns->kod_k := glob_kartotek
+          fns->nyear := arr_m[ 1 ]
+//          fns->num_s :=
+          fns->version := 0
+          fns->inn := mINN
+          fns->attribut := 1  // плательщик, пациент одно лицо
+          fns->sum1 := mSum1
+          fns->sum2 := mSum2
+// и далее
+          g_rlock( forever )
+//          Unlock
           write_work_oper( glob_task, OPER_LIST, 1, 1, count_edit )
           exit
         Endif
