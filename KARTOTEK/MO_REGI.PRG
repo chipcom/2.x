@@ -289,7 +289,7 @@ Function fdel_priem( mkod )
 
   Return fl
 
-// 14.04.15
+// 06.08.24
 Function regi_nastr( k )
 
   Static cgreen := 'G+/B'
@@ -354,7 +354,7 @@ Function regi_nastr( k )
     If hb_FileExists( 'memvar' + smem )
       Restore From Memvar Additive
     Else
-      Save All Like mem_ * To memvar
+      Save All Like mem_* To memvar
     Endif
     If !is_talon
       mem_lu_stt := 1
@@ -535,7 +535,7 @@ Function regi_nastr( k )
       If is_talon
         mem_lu_stt := m1a_lu_stt
       Endif
-      Save All Like mem_ * To memvar
+      Save All Like mem_* To memvar
       // if !empty(mem_reg_lr) .and. !('R_MU.DBF' $ upper(mem_reg_lr))
       // func_error(4, 'Неверно выбран регистр федеральных льготников (должен быть файл R_MU.DBF)')
       // endif
