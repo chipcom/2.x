@@ -55,6 +55,7 @@ function input_spravka_fns()
   Endif
 
   If polikl1_kart() > 0
+    use_base( 'link_fns', 'link_fns' )
     use_base( 'reg_fns', 'fns' )
     if ! exist_spravka( arr_m[ 1 ], glob_kartotek, 1 )
       dbCloseAll()
@@ -76,7 +77,7 @@ function input_spravka_fns()
 
     SetColor( cDataCGet )
 
-    str_1 := 'за ' + str( arr_m[ 1 ] )
+    str_1 := 'за ' + str( arr_m[ 1 ], 4 )
     j := 11
     Private gl_area := { j, 0, MaxRow() -1, MaxCol(), 0 }
     box_shadow( j, 0, MaxRow() -1, MaxCol(), color1, 'Справка для ФНС ' + str_1, color8 )
@@ -115,12 +116,15 @@ function input_spravka_fns()
 //        Endif
           mywait()
 // запишем
+          select fns
           add1rec( 7 )
           mkod := RecNo()
           fns->kod := mkod
           fns->kod_k := glob_kartotek
           fns->nyear := arr_m[ 1 ]
-//          fns->num_s :=
+
+          fns->num_s := 1 // временно
+
           fns->version := 0
           fns->inn := mINN
           fns->attribut := 1  // плательщик, пациент одно лицо
@@ -128,6 +132,14 @@ function input_spravka_fns()
           fns->sum2 := mSum2
 // и далее
           g_rlock( forever )
+          select link_fns
+          for i := 1 to len( aCheck )
+            add1rec( 7 )
+            link_fns->KOD_SPR := mkod
+            link_fns->TYPE := aCheck[ i, 2 ]
+            link_fns->KOD_REC := aCheck[ i, 1 ]
+            g_rlock( forever )
+          next
 //          Unlock
           write_work_oper( glob_task, OPER_LIST, 1, 1, count_edit )
           exit
