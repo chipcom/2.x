@@ -3256,6 +3256,7 @@ Function pripisnoe_naselenie_create_oblsdrav()
 
   Return Nil
 
+// 07.08.24
 // Общие настройки каждой задачи
 Function nastr_all( k, nTask )
 
@@ -3290,6 +3291,12 @@ Function nastr_all( k, nTask )
       AAdd( mas_msg, 'Общие настройки задачи "' + array_tasks[ ind_task( X_ORTO ), 1 ] + '"' )
       AAdd( mas_fun, 'nastr_all(' + lstr( n ) + ',' + lstr( X_ORTO ) + ')' )
     Endif
+    If is_task( X_PLATN ) .or. is_task( X_KASSA ) .or. is_task( X_ORTO )
+      ++n
+      AAdd( mas_pmt, 'Обмен данными с ФНС' )
+      AAdd( mas_msg, 'Общие настройки задачи для обмена с ФНС' )
+      AAdd( mas_fun, 'nastr_all(' + lstr( n ) + ',' + lstr( X_FNS ) + ')' )
+    Endif
     If n == 1
       j := &( mas_fun[ 1 ] )
     Elseif n > 1
@@ -3306,7 +3313,7 @@ Function nastr_all( k, nTask )
 
 // 
 
-// 09.12.18 Общие настройки каждой задачи
+// 07.08.24 Общие настройки каждой задачи
 Function f1nastr_all( nameTask, nTask )
 
   Local mm_tmp := {}, ctitle
@@ -3649,6 +3656,24 @@ Function f1nastr_all( nameTask, nTask )
       tmp->ls_v034   := mem_n_V034
       tmp->ls_method := mem_methodinj
       Close databases
+    Case nTask == X_FNS //  Обмен данными с ФНС
+      ctitle := 'настройке обмена данными с ФНС'
+      _fns_nastr( 0 ) // проверить, а создан ли файл "fns_nastr.dbf"
+      AAdd( mm_tmp, { 'n_spr_fns', 'N', 7, 0, NIL, ;
+        NIL, ;
+        0, NIL, ;
+        'Номер последней введенной справки ФНС' } )
+      AAdd( mm_tmp, { 'catalog', 'C', 255, 0, '@!', ;
+        { | x | menu_reader( x, { { | k, r, c | mng_dir( k, r, c, 'catalog' ) } }, A__FUNCTION) }, ;
+        ' ', {|x| x }, ;
+        'Имя каталога для сохранения файлов выгрузки для ФНС' } )
+      init_base( cur_dir + 'tmp',, mm_tmp, 0 )
+      r_use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+      Use ( cur_dir + 'tmp' ) new
+      Append Blank
+      tmp->N_SPR_FNS := NASTR_FNS->N_SPR_FNS
+      tmp->CATALOG    := NASTR_FNS->CATALOG
+      Close databases
     Case nTask == X_PPOKOJ //  Приёмный покой
       ctitle := "настройке приёмного покоя"
       _pp_nastr( 0 ) // проверить, а создан ли файл "pp_nastr.dbf"
@@ -3900,6 +3925,11 @@ Function f1nastr_all( nameTask, nTask )
         mem_n_V034  := tmp->ls_v034
         mem_methodinj := tmp->ls_method
         tools_ini_oms( 2, 0, 0 )
+      Case nTask == X_FNS //  Обмен с ФНС
+        g_use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+        g_rlock( forever )
+        nastr_fns->N_SPR_FNS := tmp->N_SPR_FNS
+        nastr_fns->CATALOG    := tmp->CATALOG
       Case nTask == X_PPOKOJ //  Приёмный покой
         g_use( dir_server + "pp_nastr",, "MV" )
         g_rlock( forever )

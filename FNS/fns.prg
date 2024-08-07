@@ -37,16 +37,15 @@ function exist_spravka( get, kod_kart, onePerson )
 
   return .t.
 
-// 06.08.24
+// 07.08.24
 function input_spravka_fns()
 
   Local str_sem  //, str_find, muslovie, mtitle
   Local buf := SaveScreen(), str_1, tmp_color := SetColor(), ;
-    colget_menu := 'R/W', arr_m, ;
-    pos_read := 0, k_read := 0, count_edit := 0, ;
+    arr_m, pos_read := 0, k_read := 0, count_edit := 0, ;
     mINN := space( 12 ), ;
     mSumma := 0.0, mSum1 := 0.0, mSum2 := 0.0, ;
-    j := 0, i, k
+    j := 0, i, mkod
 
   Private aCheck := {}
 
@@ -55,12 +54,14 @@ function input_spravka_fns()
   Endif
 
   If polikl1_kart() > 0
+    _fns_nastr( 0 )
     use_base( 'link_fns', 'link_fns' )
     use_base( 'reg_fns', 'fns' )
     if ! exist_spravka( arr_m[ 1 ], glob_kartotek, 1 )
       dbCloseAll()
       return nil
     endif
+    _fns_nastr( 1 ) // прочитаем последний номер справки
     mSumma := 0
     for i := 1 to len( aCheck )
       mSumma := mSumma + aCheck[ i, 3 ] - aCheck[ i, 4 ]
@@ -123,7 +124,7 @@ function input_spravka_fns()
           fns->kod_k := glob_kartotek
           fns->nyear := arr_m[ 1 ]
 
-          fns->num_s := 1 // временно
+          fns->num_s := ++pp_N_SPR_FNS
 
           fns->version := 0
           fns->inn := mINN
@@ -140,6 +141,9 @@ function input_spravka_fns()
             link_fns->KOD_REC := aCheck[ i, 1 ]
             g_rlock( forever )
           next
+          G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+          G_RLock(forever)
+          NASTR_FNS->N_SPR_FNS := pp_N_SPR_FNS
 //          Unlock
           write_work_oper( glob_task, OPER_LIST, 1, 1, count_edit )
           exit
@@ -379,7 +383,6 @@ function collect_pay( nYear )
 Function input_spr_fns( nKey )
 
   Local buf := SaveScreen(), tmp_color := SetColor(), str_1, ;
-    colget_menu := 'R/W', i, k, ;
     pos_read := 0, k_read := 0, count_edit := 0, ;
     mYear := year( date() ), mINN := space( 12 ), ;
     mSum1 := 0.0, mSum2 := 0, ;
@@ -557,3 +560,40 @@ Function inf_fns( k )
   Endif
 
   Return Nil
+
+// 07.08.24
+function _fns_nastr( k )
+
+  Static file_mem := 'reg_fns_nastr'
+  Local mm_tmp, smsg
+
+  if k == 0 // инициализация файла и переменных
+    mm_tmp := { ;  // справочник настроек обмена с ФНС
+      {'N_SPR_FNS',  'N',   7,  0}, ; // последний номер справки для ФНС
+      {'CATALOG',    'C', 254,  0} ; // каталог записи сформированных выгрузок
+   }
+    reconstruct( dir_server + file_mem, mm_tmp, , , .t. )
+    if type( 'pp_N_SPR_FNS' ) == 'N'
+      // второй раз зашли
+    else
+      Public pp_N_SPR_FNS    := 0, ;
+            pp_CATALOG_FNS  := ''
+    endif
+    G_Use( dir_server + file_mem, , 'NASTR_FNS' )
+    if lastrec() == 0
+      AddRecN()
+      nastr_fns->N_SPR_FNS := pp_N_SPR_FNS
+    else
+      G_RLock(forever)
+    endif
+    if empty( nastr_fns->Catalog)
+      nastr_fns->Catalog := pp_CATALOG_FNS
+    endif
+    Use
+  elseif k == 1
+    R_Use( dir_server + file_mem, , 'NASTR_FNS')
+    pp_N_SPR_FNS  := nastr_fns->N_SPR_FNS
+    pp_CATALOG_FNS := nastr_fns->Catalog
+    Use
+  endif
+  return NIL

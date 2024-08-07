@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 03.08.24 инициализировать массив DBF-файлов базы данных
+// 07.08.24 инициализировать массив DBF-файлов базы данных
 Function init_Array_Files_DB()
   local i, arr
 
@@ -176,6 +176,7 @@ Function init_Array_Files_DB()
   aadd(array_files_DB, 'mo_n7out'); array_task_DB[X_263, 2] := len(array_files_DB)
   //
   // справки для ФНС
+  aadd(array_files_DB, 'reg_fns_nastr')
   aadd(array_files_DB, 'register_fns')
   aadd(array_files_DB, 'reg_link_fns')
   aadd(array_files_DB, 'reg_xml_fns')
