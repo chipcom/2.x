@@ -16,12 +16,13 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 08.02.24
+// 07.08.24
 Procedure Main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
   Local verify_fio_polzovat := .t.
   Local cVar, i
+  local sPass, chPass
 
   For Each s IN hb_AParams() // анализ входных параметров
     s := Lower( s )
@@ -32,6 +33,8 @@ Procedure Main( ... )
       is_copy := .t.
     Case s == '/index'
       is_index := .t.
+    Case substr( s, 1, 6 ) == '/pass='
+      sPass := substr( s, 7 )
     Endcase
   Next
   //
@@ -127,6 +130,13 @@ Procedure Main( ... )
     full_end()
   Endif
 
+  if ! empty( sPass )
+    chPass := ''
+    for i := 1 to len( sPass )
+      chPass += substr( sPass, i, 1 )
+    next
+    Keyboard chPass
+  endif
   // a_parol := inp_password(is_local_version,is_create)
   a_parol := inp_password_bay( is_local_version, is_create )
 
