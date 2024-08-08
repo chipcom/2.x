@@ -1,4 +1,5 @@
 #include 'common.ch'
+#include 'hbhash.ch' 
 #include 'set.ch'
 #include 'inkey.ch'
 #include 'function.ch'
@@ -37,7 +38,7 @@ function exist_spravka( get, kod_kart, onePerson )
 
   return .t.
 
-// 07.08.24
+// 08.08.24
 function input_spravka_fns()
 
   Local str_sem  //, str_find, muslovie, mtitle
@@ -47,6 +48,30 @@ function input_spravka_fns()
     mSumma := 0.0, mSum1 := 0.0, mSum2 := 0.0, ;
     j := 0, i, mkod
 
+  local mfio, mDOB, mVID, mSerNomer, mKogda
+
+  // local aFIOPlat, aFIOExecutor, exFam, exIm, exOt
+
+  // aFIOExecutor := retfamimot( 1, .f. )
+  // exFam := aFIOExecutor[ 1 ]
+  // exIm  := aFIOExecutor[ 2 ]
+  // exOt  := aFIOExecutor[ 3 ]
+
+  // mfio := AllTrim( mfio )
+  // For i := 1 To NumToken( mfio, cDelimiter )
+  //   s1 := AllTrim( Token( mfio, cDelimiter, i ) )
+  //   If !Empty( s1 )
+  //     ++k
+  //     If k < 3
+  //       ret_arr[ k ] := s1
+  //     Else
+  //       s += s1 + ' '
+  //     Endif
+  //   Endif
+  // Next
+  // ret_arr[ 3 ] := AllTrim( s )
+
+
   Private aCheck := {}
 
   If ( arr_m := input_year() ) == NIL
@@ -54,6 +79,19 @@ function input_spravka_fns()
   Endif
 
   If polikl1_kart() > 0
+    R_Use( dir_server + 'kartote_', , 'KART_' )
+    goto ( glob_kartotek )
+    R_Use( dir_server + 'kartotek', , 'KART' )
+    goto ( glob_kartotek )
+
+    if ! kart->( eof() )
+      mfio      := alltrim( kart->fio )
+      mDOB      := kart->date_r
+      mVID      := soot_doc( kart_->vid_ud )
+      mSerNomer := alltrim( kart_->ser_ud ) + iif( empty( kart_->ser_ud ), '', ' ' ) + alltrim( kart_->nom_ud )
+      mKogda    := kart_->kogdavyd
+    endif
+
     _fns_nastr( 0 )
     use_base( 'link_fns', 'link_fns' )
     use_base( 'reg_fns', 'fns' )
@@ -111,10 +149,25 @@ function input_spravka_fns()
             func_error( 4, 'Отсутствуют чеки оплаты!' )
             Loop
           Endif
-//        If Empty( mk_data )
-//          func_error( 4, 'Не введена дата окончания лечения.' )
-//          Loop
-//        Endif
+          if empty( mDOB )
+            func_error( 4, 'У налогоплательщика отсутствует дата рождения!' )
+            Loop
+          Endif
+          if empty( mINN )
+            if empty( mSerNomer )
+              func_error( 4, 'У налогоплательщика отсутствует серия и номер документа!' )
+              Loop
+            endif
+            if empty( mKogda )
+              func_error( 4, 'У налогоплательщика отсутствует дата выдачи документа!' )
+              Loop
+            endif
+          endif
+          if empty( hb_user_curUser:INN() )
+            func_error( 4, 'У исполнителя отсутствует ИНН!' )
+            Loop
+          endif
+
           mywait()
 // запишем
           select fns
@@ -131,6 +184,7 @@ function input_spravka_fns()
           fns->attribut := 1  // плательщик, пациент одно лицо
           fns->sum1 := mSum1
           fns->sum2 := mSum2
+          fns->date := date()
 // и далее
           g_rlock( forever )
           select link_fns
@@ -597,3 +651,36 @@ function _fns_nastr( k )
     Use
   endif
   return NIL
+
+// 08.08.24
+function soot_doc( nVid )
+
+  local ret, aHash
+
+  aHash := hb_hash()
+  hb_hSet(aHash, 14, 21 )
+  hb_hSet(aHash, 3, 03 )
+  hb_hSet(aHash, 7, 07 )
+  hb_hSet(aHash, 9, 10 )
+  hb_hSet(aHash, 11, 12 )
+  hb_hSet(aHash, 12, 13 )
+  hb_hSet(aHash, 13, 14 )
+  hb_hSet(aHash, 23, 15 )
+  hb_hSet(aHash, 10, 19 )
+  hb_hSet(aHash, 24, 23 )
+  hb_hSet(aHash, 4, 24 )
+  hb_hSet(aHash, 17, 27 )
+  hb_hSet(aHash, 18, 91 )
+
+  if hb_hHaskey( aHash, nVid )
+    ret := aHash[ nVid ]
+  else
+    ret := 91
+  endif
+
+//  08	Временное удостоверение, выданное взамен военного билета
+//  hb_hSet(aHash, , 08 )
+//  11	Свидетельство о рассмотрении ходатайства о признании лица беженцем на территории Российской Федерации по существу
+//  hb_hSet(aHash, , 11 )
+
+ return ret
