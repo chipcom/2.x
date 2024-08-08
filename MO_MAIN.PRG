@@ -647,9 +647,9 @@ Function ind_task( n_Task )
 
   Return it
 
-// 14.06.21
+// 08.08.24
 Function find_unfinished_reestr_sp_tk( is_oper, is_count )
-  Static max_rec := 9900000 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  Static max_rec := 9990000 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Local fl := .t., s, buf := save_maxrow(), arr, rech := 0, af := {}, bSaveHandler
 
   Default is_oper To .t., is_count To .t.
