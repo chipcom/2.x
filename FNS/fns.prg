@@ -28,7 +28,6 @@ function exist_spravka( get, kod_kart, onePerson )
   find ( str( glob_kartotek, 7 ) )
   do while hum_p->kod_k == glob_kartotek
     if year( hum_p->K_DATA ) == nyear
-//      mSumma := hum_p->cena - hum_p->sum_voz
       AAdd( aCheck, { hum_p->( recno() ), 1, hum_p->cena, hum_p->sum_voz } )
     endif
     hum_p->( dbSkip() )
@@ -41,36 +40,15 @@ function exist_spravka( get, kod_kart, onePerson )
 // 08.08.24
 function input_spravka_fns()
 
-  Local str_sem  //, str_find, muslovie, mtitle
+  Local str_sem
   Local buf := SaveScreen(), str_1, tmp_color := SetColor(), ;
     arr_m, pos_read := 0, k_read := 0, count_edit := 0, ;
     mINN := space( 12 ), ;
     mSumma := 0.0, mSum1 := 0.0, mSum2 := 0.0, ;
     j := 0, i, mkod
 
-  local mfio, mDOB, mVID, mSerNomer, mKogda
-
-  // local aFIOPlat, aFIOExecutor, exFam, exIm, exOt
-
-  // aFIOExecutor := retfamimot( 1, .f. )
-  // exFam := aFIOExecutor[ 1 ]
-  // exIm  := aFIOExecutor[ 2 ]
-  // exOt  := aFIOExecutor[ 3 ]
-
-  // mfio := AllTrim( mfio )
-  // For i := 1 To NumToken( mfio, cDelimiter )
-  //   s1 := AllTrim( Token( mfio, cDelimiter, i ) )
-  //   If !Empty( s1 )
-  //     ++k
-  //     If k < 3
-  //       ret_arr[ k ] := s1
-  //     Else
-  //       s += s1 + ' '
-  //     Endif
-  //   Endif
-  // Next
-  // ret_arr[ 3 ] := AllTrim( s )
-
+  local aFIOPlat, mDOB, mVID, mSerNomer, mKogda
+  local aFIOExecutor := razbor_str_fio( hb_user_curUser:FIO() )
 
   Private aCheck := {}
 
@@ -78,6 +56,7 @@ function input_spravka_fns()
     Return Nil
   Endif
 
+  _fns_nastr( 0 )
   If polikl1_kart() > 0
     R_Use( dir_server + 'kartote_', , 'KART_' )
     goto ( glob_kartotek )
@@ -85,14 +64,13 @@ function input_spravka_fns()
     goto ( glob_kartotek )
 
     if ! kart->( eof() )
-      mfio      := alltrim( kart->fio )
+      aFIOPlat := razbor_str_fio( kart->fio )
       mDOB      := kart->date_r
       mVID      := soot_doc( kart_->vid_ud )
       mSerNomer := alltrim( kart_->ser_ud ) + iif( empty( kart_->ser_ud ), '', ' ' ) + alltrim( kart_->nom_ud )
       mKogda    := kart_->kogdavyd
     endif
 
-    _fns_nastr( 0 )
     use_base( 'link_fns', 'link_fns' )
     use_base( 'reg_fns', 'fns' )
     if ! exist_spravka( arr_m[ 1 ], glob_kartotek, 1 )
@@ -105,18 +83,12 @@ function input_spravka_fns()
       mSumma := mSumma + aCheck[ i, 3 ] - aCheck[ i, 4 ]
     next
     str_sem := 'Справка ФНС человека ' + lstr( glob_kartotek )
-    If !g_slock( str_sem )
+    If ! g_slock( str_sem )
       Return func_error( 4, err_slock )
     Endif
 
-    Private ;
-      mplat_fio := Space( 40 ), mplat_inn := Space( 12 ), ;
-      mplat_pasport := Space( 15 ), ;  // документ плательщика
-      MKOGDAVYD := CToD( '' ) // кем и когда выдан паспорт ПЛАТЕЛЬЩИКА
-
     SetColor( cDataCGet )
-
-    str_1 := 'за ' + str( arr_m[ 1 ], 4 )
+    str_1 := 'за ' + str( arr_m[ 1 ], 4 ) + ' для ' + aFIOPlat[ 1 ] + ' ' + aFIOPlat[ 2 ] + ' ' + aFIOPlat[ 3 ]
     j := 11
     Private gl_area := { j, 0, MaxRow() -1, MaxCol(), 0 }
     box_shadow( j, 0, MaxRow() -1, MaxCol(), color1, 'Справка для ФНС ' + str_1, color8 )
@@ -163,11 +135,14 @@ function input_spravka_fns()
               Loop
             endif
           endif
+          if len( aFIOExecutor ) < 3
+            func_error( 4, 'У исполнителя отсутствует отчество!' )
+            Loop
+          endif
           if empty( hb_user_curUser:INN() )
             func_error( 4, 'У исполнителя отсутствует ИНН!' )
             Loop
           endif
-
           mywait()
 // запишем
           select fns
@@ -184,6 +159,7 @@ function input_spravka_fns()
           fns->attribut := 1  // плательщик, пациент одно лицо
           fns->sum1 := mSum1
           fns->sum2 := mSum2
+          fns->EXECUTOR := hb_user_curUser:ID()
           fns->date := date()
 // и далее
           g_rlock( forever )
@@ -619,7 +595,7 @@ Function inf_fns( k )
 function _fns_nastr( k )
 
   Static file_mem := 'reg_fns_nastr'
-  Local mm_tmp, smsg
+  Local mm_tmp
 
   if k == 0 // инициализация файла и переменных
     mm_tmp := { ;  // справочник настроек обмена с ФНС
@@ -643,12 +619,12 @@ function _fns_nastr( k )
     if empty( nastr_fns->Catalog)
       nastr_fns->Catalog := pp_CATALOG_FNS
     endif
-    Use
+    NASTR_FNS->( dbCloseAre() ) //Use
   elseif k == 1
     R_Use( dir_server + file_mem, , 'NASTR_FNS')
     pp_N_SPR_FNS  := nastr_fns->N_SPR_FNS
     pp_CATALOG_FNS := nastr_fns->Catalog
-    Use
+    NASTR_FNS->( dbCloseAre() ) //Use
   endif
   return NIL
 
@@ -683,4 +659,24 @@ function soot_doc( nVid )
 //  11	Свидетельство о рассмотрении ходатайства о признании лица беженцем на территории Российской Федерации по существу
 //  hb_hSet(aHash, , 11 )
 
- return ret
+  return ret
+
+// 08.08.24
+function razbor_str_fio( mfio )
+
+  local k := 0, i, s := '', s1 := '', aFIO := { '', '', '' }
+
+  mfio := alltrim( mfio )
+  For i := 1 To NumToken( mfio, ' ' )
+    s1 := AllTrim( Token( mfio, ' ', i ) )
+    If ! Empty( s1 )
+      ++k
+      If k < 3
+        aFIO[ k ] := s1
+      Else
+        s += s1 + ' '
+      Endif
+    Endif
+  Next
+  aFIO[ 3 ] := AllTrim( s )
+  return aFIO
