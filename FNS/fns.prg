@@ -37,7 +37,7 @@ function exist_spravka( get, kod_kart, onePerson )
 
   return .t.
 
-// 08.08.24
+// 09.08.24
 function input_spravka_fns()
 
   Local str_sem
@@ -156,10 +156,17 @@ function input_spravka_fns()
 
           fns->version := 0
           fns->inn := mINN
+          fns->plat_fio := kart->fio
+          fns->plat_dob := mDOB
+          fns->viddoc := mVID
+          fns->ser_num := mSerNomer
+          fns->datevyd := mKogda
+
           fns->attribut := 1  // плательщик, пациент одно лицо
           fns->sum1 := mSum1
           fns->sum2 := mSum2
           fns->EXECUTOR := hb_user_curUser:ID()
+          fns->exec_fio := hb_user_curUser:FIO()
           fns->date := date()
 // и далее
           g_rlock( forever )
