@@ -6,6 +6,91 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 09.08.24
+function list_spravka_fns()
+
+  Local mtitle
+  Local buf := SaveScreen()
+
+  use_base( 'reg_fns', 'fns' )
+
+  mtitle := 'Сформированные справки для ФНС'
+  alpha_browse( 5, 0, MaxRow() - 2, 79, 'defColumn_Spravka_FNS', color0, mtitle, 'BG+/GR', ;
+    .f., .t., , , 'serv_spravka_fns', , ;
+    { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, GR+/R', .t., 180 } )
+
+  dbCloseAll()
+  RestScreen( buf )
+
+  return nil
+
+// 09.08.24
+Function defcolumn_spravka_fns( oBrow )
+
+  Local oColumn, s
+  Local blk := {|| iif( Empty( fns->kod_xml ), { 5, 6 }, { 3, 4 } ) }
+
+  oColumn := TBColumnNew( ' Год ', {|| str( fns->nyear, 4 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( ' Номер ', {|| str( fns->num_s, 7 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'Вер.', {|| str( fns->version, 3 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'ФИО', {|| substr( short_FIO( fns->plat_fio ), 1, 15 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'Сумма 1', {|| str( fns->sum1, 9, 2 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'Сумма 2', {|| str( fns->sum2, 9, 2 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( '  Дата', {|| date_8( fns->date ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'Статус', {|| iif( fns->kod_xml <= 0, iif( fns->kod_xml == 0, 'не обработано', 'принтер' ), xml->fname  ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  s := '<Ctrl+Enter> ввод услуг <F8> возврат <F9> договор <F10> печать чека'
+  @ MaxRow(), 0 Say PadC( s, 80 ) Color 'N/W'
+  mark_keys( { '<Esc>', '<Enter>', '<Ins>', '<Del>', '<Ctrl+Enter>', '<F3>', '<F4>', '<F8>', '<F9>', '<F10>' }, 'R/W' )
+
+  Return Nil
+
+// 09.08.24
+Function serv_spravka_fns( nKey, oBrow )
+
+  Local j := 0, flag := -1, buf := save_row( MaxRow() ), fl := .f., rec, ;
+    tmp_color := SetColor(), r1 := 15, c1 := 2, ;
+    ln_chek := 0, t_hum_rec := 0, ;
+    tip_kart := 2 //, ;
+
+  Do Case
+  Case nKey == K_F3
+    // view_p_kvit(K_F3)
+  Case nKey == K_F4
+    // view_p_kvit(K_F4)
+  Case nKey == K_F9
+  Case nKey == K_INS
+  Case nKey == K_DEL
+  Case nKey == K_CTRL_RET
+  Otherwise
+    Keyboard ''
+  Endcase
+
+  Return flag
+
 // 06.08.24 проверка существования справки за конкретный год
 function exist_spravka( get, kod_kart, onePerson )
   // get - объект Get системы
@@ -139,21 +224,14 @@ function input_spravka_fns()
             func_error( 4, 'У исполнителя отсутствует отчество!' )
             Loop
           endif
-          if empty( hb_user_curUser:INN() )
-            func_error( 4, 'У исполнителя отсутствует ИНН!' )
-            Loop
-          endif
           mywait()
-// запишем
           select fns
           add1rec( 7 )
           mkod := RecNo()
           fns->kod := mkod
           fns->kod_k := glob_kartotek
           fns->nyear := arr_m[ 1 ]
-
           fns->num_s := ++pp_N_SPR_FNS
-
           fns->version := 0
           fns->inn := mINN
           fns->plat_fio := kart->fio
@@ -163,12 +241,12 @@ function input_spravka_fns()
           fns->datevyd := mKogda
 
           fns->attribut := 1  // плательщик, пациент одно лицо
+
           fns->sum1 := mSum1
           fns->sum2 := mSum2
           fns->EXECUTOR := hb_user_curUser:ID()
           fns->exec_fio := hb_user_curUser:FIO()
           fns->date := date()
-// и далее
           g_rlock( forever )
           select link_fns
           for i := 1 to len( aCheck )
@@ -279,72 +357,6 @@ Function defcolumnspravkafns( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  // If glob_kassa == 1 .and. mek_kassa == 1 // в кассе 01.12.2008
-  // // oColumn := TBColumnNew('  ',{|| iif(human->sbank < 1, '    ',iif(human->sbank == human->cena, 'б/н ','б/нН')) })
-  // oColumn := TBColumnNew( '    ', ;
-  // {|| iif( human->sbank < 1, '    ', ;
-  // tip_bank[ human->fr_tipkart + 1 ] + iif( human->sbank == human->cena, ' ', 'Н' ) ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // oColumn := TBColumnNew( '    ', ;
-  // {|| iif( human->tip_usl == PU_PLAT, { '    ', Str( human->kv_cia, 4 ), ' ' }[ human->is_kas + 1 ], ;
-  // iif( human->tip_usl == PU_PR_VZ, 'в/з ', 'ДМС ' ) ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // Elseif glob_kassa == 1 .and. mek_kassa == 2 // с ФР но не в КАССЕ 01.12.2008
-  // oColumn := TBColumnNew( '№ кв.;книжки', {|| put_val( human->n_kvit, 5 ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // oColumn := TBColumnNew( '    ', ;
-  // {|| iif( human->tip_usl == PU_PLAT, { '    ', Str( human->kv_cia, 4 ), ' ' }[ human->is_kas + 1 ], ;
-  // iif( human->tip_usl == PU_PR_VZ, 'в/з ', 'ДМС ' ) ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // Elseif glob_pl_reg == 1
-  // oColumn := TBColumnNew( '№ кв.;книжки', {|| put_val( human->n_kvit, 5 ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // //
-  // oColumn := TBColumnNew( '№ кви-;танции', {|| put_val( human->kv_cia, 6 ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // //
-  // oColumn := TBColumnNew( '  Дата; оплаты', {|| date_8( c4tod( human->pdate ) ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // Endif
-  // //
-  // oColumn := TBColumnNew( ' Начало; лечения', {|| date_8( human->n_data ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // //
-  // oColumn := TBColumnNew( 'Окончан.; лечения', {|| date_8( human->k_data ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // //
-  // If mem_naprvr == 2
-  // oColumn := TBColumnNew( 'Напр.;врач', {|| put_val( ret_tabn( human->kod_vr ), 5 ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // Endif
-  // //
-  // oColumn := TBColumnNew( 'Стоимость; лечения', {|| put_kop( human->cena, 10 ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // //
-  // If glob_kassa == 1
-  // oColumn := TBColumnNew( '  Возврат;  денег', {|| put_kop( human->sum_voz, 10 ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // Else
-  // oColumn := TBColumnNew( ' ', {|| iif( human->tip_usl == PU_D_SMO, 'д', iif( human->tip_usl == PU_PR_VZ, 'з', ' ' ) ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
-  // Endif
-  // //
-  // oColumn := TBColumnNew( '  Дата;закрытия', {|| date_8( human->date_close ) } )
-  // oColumn:colorBlock := blk
-  // oBrow:addcolumn( oColumn )
   // If is_task( X_KASSA )
   // @ MaxRow() -1, 0 Say PadC( '<Esc>выход <Enter>редактирование <Ins>добавление <Del>удаление <F8>возврат', 80 ) Color 'N/W'
   // s := '<Ctrl+Enter>ввод услуг <F9>договор <F3>квитанции <F4>просмотр чеков <F10>печать чека'
@@ -573,20 +585,25 @@ Function inf_fns( k )
   Case k == 1
     mas_pmt := { ;
       'Ввод данных', ;
+      'Список справок для ФНС', ;
       'Реестры для ФНС' ;
       }
     mas_msg := { ;
       'Формирование и просмотр выданных справок по пациенту', ;
+      'Просмотр список сформированных справок для ФНС', ;
       'Просмотр списка и создание реестров для отправки в ФНС' ;
       }
     mas_fun := { ;
       'inf_fns(11)', ;
-      'inf_fns(12)' ;
+      'inf_fns(12)', ;
+      'inf_fns(13)' ;
       }
     popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
     input_spravka_fns() // spravka_fns()
-  Case k == 12
+  case k == 12
+    list_spravka_fns()
+  Case k == 13
     reestr_fns()
   Endcase
   If k > 10
@@ -687,3 +704,10 @@ function razbor_str_fio( mfio )
   Next
   aFIO[ 3 ] := AllTrim( s )
   return aFIO
+
+// 09.08.24
+function short_FIO( mfio )
+
+  local aFIO := razbor_str_fio( mfio )
+
+  return 	aFIO[ 1 ] + ' ' + Left( aFIO[2], 1 ) + '.' + if( Empty( aFIO[3] ), '', Left( aFIO[3], 1 ) + '.' )
