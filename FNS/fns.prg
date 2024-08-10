@@ -24,7 +24,7 @@ function list_spravka_fns()
 
   return nil
 
-// 09.08.24
+// 10.08.24
 Function defcolumn_spravka_fns( oBrow )
 
   Local oColumn, s
@@ -62,7 +62,7 @@ Function defcolumn_spravka_fns( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  s := '<Ctrl+Enter> ввод услуг <F8> возврат <F9> договор <F10> печать чека'
+  s := '<Esc> выход <F8> возврат <F9> печать <Del> аннулирование'
   @ MaxRow(), 0 Say PadC( s, 80 ) Color 'N/W'
   mark_keys( { '<Esc>', '<Enter>', '<Ins>', '<Del>', '<Ctrl+Enter>', '<F3>', '<F4>', '<F8>', '<F9>', '<F10>' }, 'R/W' )
 
@@ -71,25 +71,134 @@ Function defcolumn_spravka_fns( oBrow )
 // 09.08.24
 Function serv_spravka_fns( nKey, oBrow )
 
-  Local j := 0, flag := -1, buf := save_row( MaxRow() ), fl := .f., rec, ;
-    tmp_color := SetColor(), r1 := 15, c1 := 2, ;
-    ln_chek := 0, t_hum_rec := 0, ;
-    tip_kart := 2 //, ;
+  Local j := 0, flag := -1, buf := save_row( MaxRow() ), ;
+    tmp_color := SetColor(), r1 := 15, c1 := 2
 
   Do Case
-  Case nKey == K_F3
+//  Case nKey == K_F3
     // view_p_kvit(K_F3)
-  Case nKey == K_F4
+//  Case nKey == K_F4
     // view_p_kvit(K_F4)
   Case nKey == K_F9
-  Case nKey == K_INS
+    print_spravka_fns()
+//  Case nKey == K_INS
   Case nKey == K_DEL
-  Case nKey == K_CTRL_RET
+    anul_spravka_fns()
+//  Case nKey == K_CTRL_RET
   Otherwise
     Keyboard ''
   Endcase
 
   Return flag
+
+// 10.08.24
+function print_spravka_fns()
+
+  local hSpravka, pos, aFIO, cFileToSave
+
+  pos := hb_At( '/', hb_main_curOrg:INN() )
+  aFIO := razbor_str_fio( fns->plat_fio )
+
+  cFileToSave := cur_dir() + 'spravkaFNS.pdf'
+
+  hSpravka := hb_Hash()
+  if pos == 0
+    hb_HSet( hSpravka, 'inn', hb_main_curOrg:INN() )
+    hb_HSet( hSpravka, 'kpp', '' )
+  else
+    hb_HSet( hSpravka, 'inn', substr( hb_main_curOrg:INN(), 1, pos - 1) )
+    hb_HSet( hSpravka, 'kpp', substr( hb_main_curOrg:INN(), pos + 1 ) )
+  endif
+  hb_HSet( hSpravka, 'num_spr', fns->num_s )
+  hb_HSet( hSpravka, 'nYear', fns->nyear )
+  hb_HSet( hSpravka, 'cor', fns->version )
+  hb_HSet( hSpravka, 'name', hb_main_curOrg:Name() )
+  hb_HSet( hSpravka, 'full_name', hb_main_curOrg:Name() )
+  hb_HSet( hSpravka, 'fam', aFIO[ 1 ] )
+  hb_HSet( hSpravka, 'im', aFIO[ 2 ] )
+  hb_HSet( hSpravka, 'ot', aFIO[ 3 ] )
+  hb_HSet( hSpravka, 'inn_plat', fns->INN )
+  hb_HSet( hSpravka, 'dob', fns->plat_dob )
+  hb_HSet( hSpravka, 'vid_d', fns->viddoc )
+  hb_HSet( hSpravka, 'ser', fns->ser_num )
+//  hb_HSet( hSpravka, 'nomer', '123456' )
+  hb_HSet( hSpravka, 'dVydach', fns->datevyd )
+  hb_HSet( hSpravka, 'odnolico', fns->attribut )
+  hb_HSet( hSpravka, 'sum1', fns->sum1 )
+  hb_HSet( hSpravka, 'sum2', fns->sum2 )
+  hb_HSet( hSpravka, 'fioSost', fns->exec_fio )
+  hb_HSet( hSpravka, 'dSost', fns->Date )
+  hb_HSet( hSpravka, 'kolStr', 1 )
+//  hb_HSet( hSpravka, 'famPacient', 'Кукуев' )
+//  hb_HSet( hSpravka, 'imPacient', 'Ростислав' )
+//  hb_HSet( hSpravka, 'otPacient', 'Илларионович' )
+//  hb_HSet( hSpravka, 'dobPacient', 0d19990912 )
+//  hb_HSet( hSpravka, 'innPacient', '344408677499' )
+//  hb_HSet( hSpravka, 'vid_d_pacient', 21 )
+//  hb_HSet( hSpravka, 'ser_pacient', '10 07' )
+//  hb_HSet( hSpravka, 'nomer_pacient', '654321' )
+//  hb_HSet( hSpravka, 'dVydachPacient', 0d20200507 )
+//  hb_HSet( hSpravka, 'annul', 1 ) // справка на аннулирование, 1 - да, 0 - нет
+
+//  if DesignSpravkaPDF( cFileToSave, hSpravka )
+    // запомним что печатали
+//  endif
+  return nil
+
+// 10.08.24
+function anul_spravka_fns()
+
+  local rec := fns->( recno() ), str_find
+  local mkod, mPlat, mNyear, mNspravka, mVersion, mAttribut
+  local mInn, mPlat_fio, mPlat_dob, mPlat_vid, mPlat_ser_num, mPlat_date_vyd, mSum1, mSum2
+
+  if ! fns->( eof() )
+    mPlat := fns->kod_k
+    mNyear := fns->nyear
+    mNspravka := fns->num_s
+    mVersion := fns->version
+    mAttribut := fns->attribut
+    mInn := fns->INN
+    mPlat_fio := fns->PLAT_FIO
+    mPlat_dob := fns->PLAT_DOB
+    mPlat_vid := fns->VIDDOC
+    mPlat_ser_num := fns->SER_NUM
+    mPlat_date_vyd := fns->DATEVYD
+    mSum1 := fns->SUM1
+    mSum2 := fns->SUM2
+
+    str_find := Str( mPlat, 7 ) + Str( mNyear, 4 ) + Str( mAttribut, 1 ) + Str( mNspravka, 7 ) + '999'
+    find ( str_find )
+    if Found()
+      fns->( dbGoto( rec ) )
+      func_error( 4, 'Для справки уже сформирована аннулирующая запись!' )
+      return nil
+    endif
+    select fns
+    add1rec( 7 )
+    mkod := RecNo()
+    fns->kod := mkod
+    fns->kod_k := mPlat
+    fns->nyear := mNyear
+    fns->num_s := mNspravka
+    fns->version := 999
+    fns->inn := mInn
+    fns->plat_fio := mPlat_fio
+    fns->plat_dob := mPlat_dob
+    fns->viddoc := mPlat_vid
+    fns->ser_num := mPlat_ser_num
+    fns->datevyd := mPlat_date_vyd
+
+    fns->attribut := mAttribut  // плательщик, пациент одно лицо
+
+    fns->sum1 := mSum1
+    fns->sum2 := mSum2
+    fns->EXECUTOR := hb_user_curUser:ID()
+    fns->exec_fio := hb_user_curUser:FIO()
+    fns->date := date()
+    g_rlock( forever )
+  endif
+  return nil
 
 // 06.08.24 проверка существования справки за конкретный год
 function exist_spravka( get, kod_kart, onePerson )
