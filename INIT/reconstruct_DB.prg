@@ -64,7 +64,7 @@ function Reconstruct_Security(is_local_version)
   
   return nil
 
-// 09.08.24 реконстукция баз данных
+// 11.08.24 реконстукция баз данных
 Function Reconstruct_DB( is_local_version, is_create )
      Local base1 := {;
       {'P1',      'C',  20,   0}, ; // Ф.И.О.
@@ -1538,7 +1538,9 @@ Function Reconstruct_DB( is_local_version, is_create )
   local mo_reg_fns_link := { ;  // ссылки на документы в справке ФНС
     { 'KOD_SPR', 'N',     7,   0 }, ; // код справки по 'register_fns'
     { 'TYPE',    'N',     2,   0 }, ; // тип источника для справки ( 1 - платные услуги, 2 - касса ЛПУ, 3 - ортопедия )
-    { 'KOD_REC', 'N',     7,   0 } ; // номер записи в соответствующем файле 
+    { 'KOD_REC', 'N',     7,   0 }, ; // номер записи в соответствующем файле 
+    { 'SUM_OPL', 'N',    10,   2 }, ; // сумма оплаты по чеку
+    { 'SUM_VOZ', 'N',    10,   2 } ;  // сумма возврата по чеку
   }
   Local mo_xml_fns := { ; // Список сформированных XML-файлов 'reg_xml_fns' для ФНС
     { 'KOD',    'N',     6,   0 }, ; // код; recNo()
