@@ -137,7 +137,7 @@ Function inp_password(is_local_version,is_create)
 //  endif
   return ta
 
-// 11.07.24
+// 11.08.24
 Function edit_password()
   Local buf := save_maxrow()
   Local mas11 := {}, mpic := {,,,{1, 0}}, mas13 := {.F.,.F.,.T.}, ;
@@ -221,7 +221,7 @@ Static Function f1editpass(b, ar, nDim, nElem, nKey)
     if ar[nElem, 7] == 0 .and. len(ar) > 1
       ar[nElem, 6] := 1 // по умолчанию добавляется оператор
     endif
-    mfio := ar[nElem, 1]
+    mfio := padright( ar[nElem, 1], 50 )
     mdolj := ar[nElem, 3]
     m1tip := ar[nElem, 6]
     mtip := inieditspr(A__MENUVERT, menu_tip, m1tip)
@@ -250,10 +250,13 @@ Static Function f1editpass(b, ar, nDim, nElem, nKey)
 
     buf1 := box_shadow(r1, c_1 + 1, r2, c_2 - 1, , iif(ar[nElem, 7] == 0, 'Добавление', 'Редактирование'), cDataPgDn)
     if is_task(X_PLATN) .or. is_task(X_ORTO) .or. is_task(X_KASSA)
-      @ r1 + 2, c_1 + 3 say 'Ф.И.О. пользователя' get mfio valid func_empty(mfio)
-      @ r1 + 2, c_1 + 46 say 'ИНН' get minn
+//      @ r1 + 2, c_1 + 3 say 'Ф.И.О. пользователя' get mfio valid func_empty(mfio)
+//      @ r1 + 2, c_1 + 46 say 'ИНН' get minn
+      @ r1 + 1, c_1 + 3 say 'Ф.И.О.' get mfio valid func_empty(mfio) PICTURE '@!@S50'
+      @ r1 + 2, c_1 + 3 say 'ИНН' get minn
     else
-      @ r1 + 2, c_1 + 3 say 'Ф.И.О. пользователя' get mfio valid func_empty(mfio)
+//      @ r1 + 2, c_1 + 3 say 'Ф.И.О. пользователя' get mfio valid func_empty(mfio)
+      @ r1 + 2, c_1 + 3 say 'Ф.И.О.' get mfio valid func_empty(mfio)
     endif
     @ r1 + 3, c_1 + 3 say 'Должность' get mdolj
 
