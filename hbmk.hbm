@@ -18,6 +18,8 @@
 hbtip.hbc
 hbziparc.hbc
 hbsqlit3.hbc
+hbhpdf.hbc
+hbct.hbc
 
 -mt
 #-compr=yes

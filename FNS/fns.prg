@@ -68,7 +68,7 @@ Function defcolumn_spravka_fns( oBrow )
 
   Return Nil
 
-// 09.08.24
+// 11.08.24
 Function serv_spravka_fns( nKey, oBrow )
 
   Local j := 0, flag := -1, buf := save_row( MaxRow() ), ;
@@ -80,7 +80,11 @@ Function serv_spravka_fns( nKey, oBrow )
 //  Case nKey == K_F4
     // view_p_kvit(K_F4)
   Case nKey == K_F9
-    print_spravka_fns()
+    if fns->kod_xml == -1 .or. fns->kod_xml == 0
+      print_spravka_fns()
+    else
+      func_error( 4, 'Справка включена в файл обмена с ФНС!' )
+    endif
 //  Case nKey == K_INS
   Case nKey == K_DEL
     anul_spravka_fns()
@@ -91,7 +95,7 @@ Function serv_spravka_fns( nKey, oBrow )
 
   Return flag
 
-// 10.08.24
+// 11.08.24
 function print_spravka_fns()
 
   local hSpravka, pos, aFIO, cFileToSave
@@ -123,7 +127,7 @@ function print_spravka_fns()
   hb_HSet( hSpravka, 'ser', fns->ser_num )
 //  hb_HSet( hSpravka, 'nomer', '123456' )
   hb_HSet( hSpravka, 'dVydach', fns->datevyd )
-  hb_HSet( hSpravka, 'odnolico', fns->attribut )
+  hb_HSet( hSpravka, 'attribut', fns->attribut )
   hb_HSet( hSpravka, 'sum1', fns->sum1 )
   hb_HSet( hSpravka, 'sum2', fns->sum2 )
   hb_HSet( hSpravka, 'fioSost', fns->exec_fio )
@@ -140,9 +144,12 @@ function print_spravka_fns()
 //  hb_HSet( hSpravka, 'dVydachPacient', 0d20200507 )
 //  hb_HSet( hSpravka, 'annul', 1 ) // справка на аннулирование, 1 - да, 0 - нет
 
-//  if DesignSpravkaPDF( cFileToSave, hSpravka )
-    // запомним что печатали
-//  endif
+  if DesignSpravkaPDF( cFileToSave, hSpravka )
+    view_file_in_Viewer( cFileToSave )
+    G_RLock( forever )
+    fns->kod_xml := -1
+    Unlock
+  endif
   return nil
 
 // 10.08.24
@@ -366,7 +373,7 @@ function input_spravka_fns()
             g_rlock( forever )
           next
           G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
-          G_RLock(forever)
+          G_RLock( forever )
           NASTR_FNS->N_SPR_FNS := pp_N_SPR_FNS
 //          Unlock
           write_work_oper( glob_task, OPER_LIST, 1, 1, count_edit )
@@ -747,7 +754,7 @@ function _fns_nastr( k )
       AddRecN()
       nastr_fns->N_SPR_FNS := pp_N_SPR_FNS
     else
-      G_RLock(forever)
+      G_RLock( forever )
     endif
     if empty( nastr_fns->Catalog)
       nastr_fns->Catalog := pp_CATALOG_FNS
