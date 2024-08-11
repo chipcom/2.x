@@ -238,7 +238,7 @@ function exist_spravka( get, kod_kart, onePerson )
 
   return .t.
 
-// 09.08.24
+// 11.08.24
 function input_spravka_fns()
 
   Local str_sem
@@ -370,6 +370,8 @@ function input_spravka_fns()
             link_fns->KOD_SPR := mkod
             link_fns->TYPE := aCheck[ i, 2 ]
             link_fns->KOD_REC := aCheck[ i, 1 ]
+            link_fns->SUM_OPL := aCheck[ i, 3 ]
+            link_fns->SUM_VOZ := aCheck[ i, 4 ]
             g_rlock( forever )
           next
           G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
