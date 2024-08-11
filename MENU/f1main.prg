@@ -747,11 +747,11 @@ Function f1main( n_Task )
       hb_AIns( first_menu[ Len( first_menu ) ], 6, '~Группы пользователей', .t. )
       hb_AIns( first_message[ Len( first_message ) ], 4, 'Редактирование справочника пользователей системы', .t. )
       hb_AIns( first_message[ Len( first_message ) ], 5, 'Редактирование справочника групп пользователей в системе', .t. )
-      If hb_main_curOrg:KOD_TFOMS == '102604'
-        hb_AIns( func_menu[ Len( func_menu ) ], 4, 'edit_Users_bay()', .t. )
-      Else
+//      If hb_main_curOrg:KOD_TFOMS == '102604'
+//        hb_AIns( func_menu[ Len( func_menu ) ], 4, 'edit_Users_bay()', .t. )
+//      Else
         hb_AIns( func_menu[ Len( func_menu ) ], 4, 'edit_password()', .t. )
-      Endif
+//      Endif
       hb_AIns( func_menu[ Len( func_menu ) ], 5, 'editRoles()', .t. )
     Endif
     // конец перестройки меню
