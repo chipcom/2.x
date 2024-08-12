@@ -241,6 +241,12 @@ Function s_mnog_poisk()
     {| x| menu_reader( x, mm_da_net, A__MENUVERT ) }, ;
     0, {|| Space( 10 ) }, ;
     'Признак подозрения на ЗНО?' } )
+//
+  AAdd( mm_tmp, { 'npr_mo', 'C', 6, 0, '@!', ;
+    { | x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. )}, ;
+    Space( 6 ), {| x| Space( 6 ) }, ;    
+  'МО направитель?' } )
+//
   AAdd( mm_tmp, { 'kol_lu', 'N', 2, 0, , ;
     nil, ;
     0, NIL, ;
@@ -1226,6 +1232,11 @@ Function s_mnog_poisk()
 //          add_string( sOutput )
 //        Endif
       Endif
+      If !Empty( mn->npr_mo )
+        t_massiv_mo := ret_mo( mn->NPR_MO ) 
+        sOutput := 'Организация направитель ' +  t_massiv_mo[1]
+        string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
+      endif  
       If mn->kol_lu > 0
         sOutput := 'Количество листов учета по одному больному более ' + lstr( mn->kol_lu )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
@@ -2622,6 +2633,9 @@ Static Function s1_mnog_poisk( cv, cf )
   If fl .and. mn->zno == 2
     fl := ( human->OBRASHEN == '1' )
   Endif
+  If fl .and. !Empty( mn->npr_mo )
+    fl := ( human_->npr_mo  == mn->npr_mo  )
+  endif 
   If fl .and. !Empty( much_doc )
     fl := Like( much_doc, human->uch_doc )
   Endif
