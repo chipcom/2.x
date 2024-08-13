@@ -3313,7 +3313,7 @@ Function nastr_all( k, nTask )
 
 // 
 
-// 07.08.24 Общие настройки каждой задачи
+// 13.08.24 Общие настройки каждой задачи
 Function f1nastr_all( nameTask, nTask )
 
   Local mm_tmp := {}, ctitle
@@ -3663,16 +3663,31 @@ Function f1nastr_all( nameTask, nTask )
         NIL, ;
         0, NIL, ;
         'Номер последней введенной справки ФНС' } )
+      AAdd( mm_tmp, { 'n_file_up', 'N', 7, 0, NIL, ;
+        NIL, ;
+        0, NIL, ;
+        'Номер последнего файла выгрузки в ФНС' } )
       AAdd( mm_tmp, { 'catalog', 'C', 255, 0, '@!', ;
         { | x | menu_reader( x, { { | k, r, c | mng_dir( k, r, c, 'catalog' ) } }, A__FUNCTION) }, ;
         ' ', {|x| x }, ;
         'Имя каталога для сохранения файлов выгрузки для ФНС' } )
+      AAdd( mm_tmp, { 'id_pol', 'C', 4, 0, '9999', ;
+        NIL, ;
+        space( 4 ), NIL, ;
+        'Идентификатор получателя, которому направляется файл обмена' } )
+      AAdd( mm_tmp, { 'id_end', 'C', 4, 0, '9999', ;
+        NIL, ;
+        space( 4 ), NIL, ;
+        'Идентификатор конечного получателя, для которого предназначен файл обмена' } )
       init_base( cur_dir + 'tmp',, mm_tmp, 0 )
       r_use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
       Use ( cur_dir + 'tmp' ) new
       Append Blank
       tmp->N_SPR_FNS := NASTR_FNS->N_SPR_FNS
-      tmp->CATALOG    := NASTR_FNS->CATALOG
+      tmp->N_FILE_UP := NASTR_FNS->N_FILE_UP
+      tmp->CATALOG   := NASTR_FNS->CATALOG
+      tmp->ID_POL    := NASTR_FNS->ID_POL
+      tmp->ID_END    := NASTR_FNS->ID_END
       Close databases
     Case nTask == X_PPOKOJ //  Приёмный покой
       ctitle := "настройке приёмного покоя"
@@ -3929,7 +3944,10 @@ Function f1nastr_all( nameTask, nTask )
         g_use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
         g_rlock( forever )
         nastr_fns->N_SPR_FNS := tmp->N_SPR_FNS
+        nastr_fns->N_FILE_UP := tmp->N_FILE_UP
         nastr_fns->CATALOG    := tmp->CATALOG
+        nastr_fns->ID_POL    := tmp->ID_POL
+        nastr_fns->ID_END    := tmp->ID_END
       Case nTask == X_PPOKOJ //  Приёмный покой
         g_use( dir_server + "pp_nastr",, "MV" )
         g_rlock( forever )

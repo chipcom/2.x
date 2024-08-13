@@ -466,7 +466,7 @@ Function inf_fns( k )
 
   Return Nil
 
-// 07.08.24
+// 13.08.24
 function _fns_nastr( k )
 
   Static file_mem := 'reg_fns_nastr'
@@ -475,30 +475,46 @@ function _fns_nastr( k )
   if k == 0 // инициализация файла и переменных
     mm_tmp := { ;  // справочник настроек обмена с ФНС
       {'N_SPR_FNS',  'N',   7,  0}, ; // последний номер справки для ФНС
-      {'CATALOG',    'C', 254,  0} ; // каталог записи сформированных выгрузок
+      {'N_FILE_UP',  'N',   7,  0}, ; // последний номер файла выгрузки для ФНС
+      {'CATALOG',    'C', 254,  0}, ; // каталог записи сформированных выгрузок
+      {'ID_POL',     'C',   4,  0}, ; // идентификатор получателя, кому направляется файл выгрузок
+      {'ID_END',     'C',   4,  0} ; // идентификатор конечного получателя, для которого предназначен файл выгрузок
    }
     reconstruct( dir_server + file_mem, mm_tmp, , , .t. )
     if type( 'pp_N_SPR_FNS' ) == 'N'
       // второй раз зашли
     else
-      Public pp_N_SPR_FNS    := 0, ;
-            pp_CATALOG_FNS  := ''
+      Public pp_N_SPR_FNS   := 0, ;
+            pp_N_SPR_FILE   := 0, ;
+            pp_CATALOG_FNS  := '', ;
+            pp_ID_POL       := space( 4 ), ;
+            pp_ID_END       := space( 4 )
     endif
     G_Use( dir_server + file_mem, , 'NASTR_FNS' )
     if lastrec() == 0
       AddRecN()
       nastr_fns->N_SPR_FNS := pp_N_SPR_FNS
+      nastr_fns->N_FILE_UP := pp_N_SPR_FILE
     else
       G_RLock( forever )
     endif
     if empty( nastr_fns->Catalog)
       nastr_fns->Catalog := pp_CATALOG_FNS
     endif
+    if empty( nastr_fns->ID_POL)
+      nastr_fns->ID_POL := pp_ID_POL
+    endif
+    if empty( nastr_fns->ID_END)
+      nastr_fns->ID_END := pp_ID_END
+    endif
     NASTR_FNS->( dbCloseAre() ) //Use
   elseif k == 1
     R_Use( dir_server + file_mem, , 'NASTR_FNS')
     pp_N_SPR_FNS  := nastr_fns->N_SPR_FNS
+    pp_N_SPR_FILE  := nastr_fns->N_FILE_UP
     pp_CATALOG_FNS := nastr_fns->Catalog
+    pp_ID_POL := nastr_fns->ID_POL
+    pp_ID_END := nastr_fns->ID_END
     NASTR_FNS->( dbCloseAre() ) //Use
   endif
   return NIL
