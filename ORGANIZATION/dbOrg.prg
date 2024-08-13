@@ -5,11 +5,12 @@
 
 // #require 'hbsqlit3'
 
-// 05.12.23
-// это МО "Волгомедлаб"
+// 13.08.24
+// это МО "Волгомедлаб" или МСЧ-40 (ФМБА)
 function is_VOLGAMEDLAB()
 
-  return hb_main_curOrg:Kod_Tfoms == VOLGAMEDLAB
+  return hb_main_curOrg:Kod_Tfoms == VOLGAMEDLAB ;
+    .or. hb_main_curOrg:Kod_Tfoms == MSCH40FMBA
 
 // 23.10.23
 function getUCH()
