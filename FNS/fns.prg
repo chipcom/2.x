@@ -6,8 +6,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 09.08.24
-function list_spravka_fns()
+// 13.08.24
+function reestr_spravka_fns()
 
   Local mtitle
   Local buf := SaveScreen()
@@ -417,14 +417,7 @@ function collect_pay( nYear )
   select( tmp_sel )
   return nil
   
-// 03.08.24
-Function reestr_fns()
-
-  hb_Alert( 'Реестры ФНС' )
-
-  Return Nil
-
-// 03.08.24
+// 13.08.24
 // вызывается в 'Платные услуги(Ортопедия\Касса)/Информация/Справки для ФНС'
 Function inf_fns( k )
 
@@ -453,9 +446,9 @@ Function inf_fns( k )
   Case k == 11
     input_spravka_fns() // spravka_fns()
   case k == 12
-    list_spravka_fns()
+    reestr_spravka_fns()
   Case k == 13
-    reestr_fns()
+    reestr_xml_fns()
   Endcase
   If k > 10
     j := Int( Val( Right( lstr( k ), 1 ) ) )

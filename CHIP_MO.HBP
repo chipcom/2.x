@@ -88,6 +88,7 @@ mo_version.prg
 
 .\FNS\fns.prg
 .\FNS\fns_func.prg
+.\FNS\fns_exchange.prg
 .\FNS\page1.prg
 .\FNS\page2.prg
 
