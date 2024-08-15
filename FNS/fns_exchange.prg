@@ -25,6 +25,15 @@ Function reestr_xml_fns()
     func_error( 4, 'Для организации отсутствует КПП!' )
     return nil
   endif
+  if empty( pp_ID_POL )
+    func_error( 4, 'Отсутствует идентификатор получателя, которому направляется файл обмена!' )
+    return nil
+  endif
+
+  if empty( pp_ID_END )
+    func_error( 4, 'Отсутствует идентификатор конечного получателя, для которого предназначена информация из данного файла обмена!' )
+    return nil
+  endif
 
   dt := Date()  //временно
   num := pp_N_SPR_FILE + 1  //временно
@@ -106,14 +115,51 @@ function name_file_fns_xml( dt, num )
 // 15.08.24
 function createXMLtoFNS( nameFileXML )
 
-  local oXmlDoc, oXmlNode
+  local oXmlDoc, oXmlNode, oXmlNodeDoc
+  local aFIO, oFIO, oPAC, oUch, oDoc, oPodp, oRash
   local ver := '5.01'
+
+  local dt := date()    // временно
 
   // создадим новый XML-документ
   oXmlDoc := hxmldoc():new()
 
-  oXmlDoc:add( hxmlnode():new( hb_ANSIToOEM( 'Файл' ) ) )
-  oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( hb_ANSIToOEM( 'ИдФайл' ) ) )
+  oXmlNode := hxmlnode():new( hb_OEMToANSI( 'Файл' ) )
+  oXmlNode:SetAttribute( hb_OEMToANSI( 'ИдФайл' ), nameFileXML )
+  oXmlNode:SetAttribute( hb_OEMToANSI( 'ВерсПрог' ), hb_OEMToANSI( 'ЧИП_МО ' ) + fs_version( _version() ) )
+  oXmlNode:SetAttribute( hb_OEMToANSI( 'ВерсФорм' ), ver )
+  oXmlDoc:add( oXmlNode )
+
+
+  oXmlNodeDoc := hxmlnode():new( hb_OEMToANSI( 'Документ' ) )
+  oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'КНД' ), '1184043' )
+  oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'ДатаДок' ), transform( dt, '99.99.9999' ) )
+  oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'КодНО' ), pp_ID_POL )
+  oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'ОтчГод' ), str( year( dt ), 4 ) )
+  oDOC := oXmlDoc:aItems[ 1 ]:add( oXmlNodeDoc )
+
+  oPAC := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'СвНП' ) ) )
+  if hb_main_curorg:UrOrIp()
+    oUch := oPAC:add( hxmlnode():new( hb_OEMToANSI( 'НПЮЛ' ) ) )
+    mo_add_xml_stroke( oUch, hb_OEMToANSI( 'НаимОрг' ), hb_main_curorg:Name() )
+    mo_add_xml_stroke( oUch, hb_OEMToANSI( 'ИННЮЛ' ), hb_main_curorg:INN() )
+    mo_add_xml_stroke( oUch, hb_OEMToANSI( 'КПП' ), hb_main_curorg:KPP() )
+  else
+    oUch := oPAC:add( hxmlnode():new( hb_OEMToANSI( 'НПИП' ) ) )
+    mo_add_xml_stroke( oUch, hb_OEMToANSI( 'ИННФЛ' ), hb_main_curorg:INN() )
+    aFIO := razbor_str_fio( hb_main_curorg:Ruk_fio() )
+    oFIO := oUch:add( hxmlnode():new( hb_OEMToANSI( 'ФИО' ) ) )
+    mo_add_xml_stroke( oFIO, hb_OEMToANSI( 'Фамилия' ), hb_OEMToANSI( aFIO[ 1 ] ) )
+    mo_add_xml_stroke( oFIO, hb_OEMToANSI( 'Имя' ), hb_OEMToANSI( aFIO[ 2 ] ) )
+    if ! empty( aFIO[ 3 ] )
+      mo_add_xml_stroke( oFIO, hb_OEMToANSI( 'Отчество' ), hb_OEMToANSI( aFIO[ 3 ] ) )
+    endif
+  endif
+
+  // ПОДПИСАНТ
+  oPodp := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'Подписант' ) ) )
+  // Сведения о расходах
+  oRash := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'СведРасхУсл' ) ) )
 
   oXmlDoc:save( nameFileXML + sxml )
 
