@@ -459,11 +459,21 @@ Function inf_fns( k )
 
   Return Nil
 
-// 13.08.24
+// 15.08.24
 function _fns_nastr( k )
 
   Static file_mem := 'reg_fns_nastr'
   Local mm_tmp
+
+  if type( 'pp_N_SPR_FNS' ) == 'N'
+    // второй раз зашли
+  else
+    Public pp_N_SPR_FNS   := 0, ;
+          pp_N_SPR_FILE   := 0, ;
+          pp_CATALOG_FNS  := '', ;
+          pp_ID_POL       := space( 4 ), ;
+          pp_ID_END       := space( 4 )
+  endif
 
   if k == 0 // инициализация файла и переменных
     mm_tmp := { ;  // справочник настроек обмена с ФНС
@@ -474,15 +484,6 @@ function _fns_nastr( k )
       {'ID_END',     'C',   4,  0} ; // идентификатор конечного получателя, для которого предназначен файл выгрузок
    }
     reconstruct( dir_server + file_mem, mm_tmp, , , .t. )
-    if type( 'pp_N_SPR_FNS' ) == 'N'
-      // второй раз зашли
-    else
-      Public pp_N_SPR_FNS   := 0, ;
-            pp_N_SPR_FILE   := 0, ;
-            pp_CATALOG_FNS  := '', ;
-            pp_ID_POL       := space( 4 ), ;
-            pp_ID_END       := space( 4 )
-    endif
     G_Use( dir_server + file_mem, , 'NASTR_FNS' )
     if lastrec() == 0
       AddRecN()
