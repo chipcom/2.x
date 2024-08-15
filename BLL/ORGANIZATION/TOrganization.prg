@@ -13,7 +13,11 @@ CREATE CLASS TOrganization	INHERIT	TBaseObjectBLL
 		PROPERTY Name1251 READ getName1251
 		PROPERTY Name_schet READ getName_schet WRITE setName_schet   // Название для счёта
 		PROPERTY Name_schet1251 READ getName_schet1251
-		PROPERTY INN READ getINN WRITE setINN						// ИНН/КПП
+		PROPERTY INN READ getINN WRITE setINN						// ИНН
+		PROPERTY KPP READ getKPP WRITE setKPP						// КПП
+
+		PROPERTY UrOrIp READ getUrOrIp				// юридическое лицо или ИП
+
 		PROPERTY Address READ getAddress WRITE setAddress			// Адрес
 		PROPERTY Address1251 READ getAddress1251
 		PROPERTY Phone READ getPhone WRITE setPhone					// Телефон
@@ -43,28 +47,29 @@ CREATE CLASS TOrganization	INHERIT	TBaseObjectBLL
 		METHOD New( nId, lNew, lDeleted )
 
 	HIDDEN:
-		DATA FKod_Tfoms			INIT space( 8 )
-		DATA FName_Tfoms		INIT space( 60 )
+		DATA FKod_Tfoms		INIT space( 8 )
+		DATA FName_Tfoms	INIT space( 60 )
 		DATA FUroven			INIT 0
 		DATA FName				INIT space( 130 )
-		DATA FName_schet		INIT space( 130 )
-		DATA FINN				INIT space( 20 )
+		DATA FName_schet	INIT space( 130 )
+		DATA FINN					INIT space( 12 )
+		DATA FKPP					INIT space( 10 )
 		DATA FAddress			INIT space( 70 )
 		DATA FPhone				INIT space( 20 )
 		DATA FOkonh				INIT space( 15 )
 		DATA FOkpo				INIT space( 15 )
-		DATA FE_1				INIT space( 1 )
+		DATA FE_1					INIT space( 1 )
 		DATA FName2				INIT space( 130 )
 		DATA FOgrn				INIT space( 15 )
 		DATA FRuk_fio			INIT space( 60 )
-		DATA FRuk				INIT space( 20 )
+		DATA FRuk					INIT space( 20 )
 		DATA FRuk_r				INIT space( 20 )
-		DATA FBux				INIT space( 20 )
-		DATA FIspolnit			INIT space( 20 )
+		DATA FBux					INIT space( 20 )
+		DATA FIspolnit		INIT space( 20 )
 		DATA FName_d			INIT space( 32 )
-		DATA FFilial_h			INIT 0
+		DATA FFilial_h		INIT 0
 		DATA FBank				INIT nil				
-		DATA FBankSecond		INIT nil             
+		DATA FBankSecond	INIT nil             
 		
 		&& METHOD FillFromHash( hbArray )
 		METHOD getKod_Tfoms
@@ -82,6 +87,9 @@ CREATE CLASS TOrganization	INHERIT	TBaseObjectBLL
 		METHOD setName_schet( cVal )
 		METHOD getINN
 		METHOD setINN( cVal )
+		METHOD getKPP
+		METHOD setKPP( cVal )
+		METHOD getUrOrIp
 		METHOD getAddress
 		METHOD getAddress1251
 		METHOD setAddress( cVal )
@@ -132,6 +140,22 @@ METHOD procedure setINN( cVal )				CLASS TOrganization
 	::FINN := cVal
 	return
 
+METHOD function  getKPP						CLASS TOrganization
+	return ::FKPP
+	
+METHOD procedure setKPP( cVal )				CLASS TOrganization
+	::FKPP := cVal
+	return
+
+METHOD function getUrOrIp						CLASS TOrganization
+
+	local ret := .f.
+
+	if len( ::FINN ) == 10
+		ret := .t.
+	endif
+	return ret
+	
 METHOD FUNCTION getKod_Tfoms					CLASS TOrganization
 	return ::FKod_Tfoms
 
