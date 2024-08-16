@@ -289,7 +289,7 @@ Function fdel_priem( mkod )
 
   Return fl
 
-// 06.08.24
+// 14.04.15
 Function regi_nastr( k )
 
   Static cgreen := 'G+/B'
@@ -3401,7 +3401,12 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
       find ( Str( arr_csv[ i, CSV_A_NREC ], 6 ) )
       g_rlock( forever )
       krtp->OPLATA := mstatus
-      krtp->UCHAST   := arr_csv[ i, CSV_A_UCH ] // номер участка
+      if arr_csv[ i, CSV_A_UCH ] <= 99
+        krtp->UCHAST   := arr_csv[ i, CSV_A_UCH ] // номер участка
+      else
+        krtp->UCHAST  := 0
+        arr_csv[ i, CSV_A_UCH ] := 0
+      endif  
       krtp->SNILS_VR := arr_csv[ i, CSV_A_VRACH ] // СНИЛС участкового врача
       krtp->KOD_PODR := arr_csv[ i, CSV_A_PODR ] // код подразделения по паспорту ЛПУ
       krtp->D_PRIK1 := iif( eq_any( mstatus, 1, 3 ), arr_csv[ i, CSV_A_DT ], CToD( '' ) )
@@ -3432,6 +3437,9 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
         Endif
       Else // !emptyany(arr_csv[i, CSV_A_MO], arr_csv[i, CSV_A_DT])
         If mstatus == 1 // прикреплен к нам
+
+
+
           fl_et := f_put_et_etk( arr_csv[ i, CSV_A_PID ], arr_csv[ i, CSV_A_ENP ], ;
             arr_csv[ i, CSV_A_DT ], arr_csv[ i, CSV_A_UCH ], ;
             glob_mo[ _MO_KOD_TFOMS ], arr_csv[ i, CSV_A_VRACH ], ;
