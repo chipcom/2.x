@@ -25,18 +25,18 @@ Function reestr_xml_fns()
     func_error( 4, 'Для организации отсутствует КПП!' )
     return nil
   endif
-  if empty( pp_ID_POL )
+  if empty( fns_ID_POL )
     func_error( 4, 'Отсутствует идентификатор получателя, которому направляется файл обмена!' )
     return nil
   endif
 
-  if empty( pp_ID_END )
+  if empty( fns_ID_END )
     func_error( 4, 'Отсутствует идентификатор конечного получателя, для которого предназначена информация из данного файла обмена!' )
     return nil
   endif
 
   dt := Date()  //временно
-  num := pp_N_SPR_FILE + 1  //временно
+  num := fns_N_SPR_FILE + 1  //временно
 
   nameFileXML := name_file_fns_xml( dt, num )
 
@@ -105,7 +105,7 @@ function name_file_fns_xml( dt, num )
   local nameXML
   local prefix := 'UT_SVOPLMEDUSL'
 
-  nameXML := prefix + '_' + pp_ID_POL + '_' + pp_ID_END + '_' + ;
+  nameXML := prefix + '_' + fns_ID_POL + '_' + fns_ID_END + '_' + ;
     iif( hb_main_curorg:UrOrIP(), hb_main_curorg:INN() + hb_main_curorg:KPP(), hb_main_curorg:INN() ) + ;
     str( year( dt ), 4 ) + strzero( Month( dt ), 2, 0 ) + strzero( Day( dt ), 2, 0 ) + ;
     alltrim( str( num, 36 ) )
@@ -134,7 +134,7 @@ function createXMLtoFNS( nameFileXML )
   oXmlNodeDoc := hxmlnode():new( hb_OEMToANSI( 'Документ' ) )
   oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'КНД' ), '1184043' )
   oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'ДатаДок' ), transform( dt, '99.99.9999' ) )
-  oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'КодНО' ), pp_ID_POL )
+  oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'КодНО' ), fns_ID_POL )
   oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'ОтчГод' ), str( year( dt ), 4 ) )
   oDOC := oXmlDoc:aItems[ 1 ]:add( oXmlNodeDoc )
 

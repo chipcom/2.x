@@ -348,7 +348,7 @@ function input_spravka_fns()
           fns->kod := mkod
           fns->kod_k := glob_kartotek
           fns->nyear := arr_m[ 1 ]
-          fns->num_s := ++pp_N_SPR_FNS
+          fns->num_s := ++fns_N_SPR_FNS
           fns->version := 0
           fns->inn := mINN
           fns->plat_fio := kart->fio
@@ -377,7 +377,7 @@ function input_spravka_fns()
           next
           G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
           G_RLock( forever )
-          NASTR_FNS->N_SPR_FNS := pp_N_SPR_FNS
+          NASTR_FNS->N_SPR_FNS := fns_N_SPR_FNS
 //          Unlock
           write_work_oper( glob_task, OPER_LIST, 1, 1, count_edit )
           exit
@@ -465,14 +465,23 @@ function _fns_nastr( k )
   Static file_mem := 'reg_fns_nastr'
   Local mm_tmp
 
-  if type( 'pp_N_SPR_FNS' ) == 'N'
+  private mPodpis, m1Podpis := 0
+
+//          m1sertif   := p2->sertif
+//  msertif   := inieditspr_bay( A__MENUVERT, mm_danet, m1sertif )
+//@ ++r, 2 say 'Наличие сертификата' get mSERTIF ;
+//  reader { | x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+//        p2->sertif   := m1sertif
+
+
+  if type( 'fns_N_SPR_FNS' ) == 'N'
     // второй раз зашли
   else
-    Public pp_N_SPR_FNS   := 0, ;
-          pp_N_SPR_FILE   := 0, ;
-          pp_CATALOG_FNS  := '', ;
-          pp_ID_POL       := space( 4 ), ;
-          pp_ID_END       := space( 4 )
+    Public fns_N_SPR_FNS   := 0, ;
+          fns_N_SPR_FILE   := 0, ;
+          fns_CATALOG_FNS  := '', ;
+          fns_ID_POL       := space( 4 ), ;
+          fns_ID_END       := space( 4 )
   endif
 
   if k == 0 // инициализация файла и переменных
@@ -487,28 +496,28 @@ function _fns_nastr( k )
     G_Use( dir_server + file_mem, , 'NASTR_FNS' )
     if lastrec() == 0
       AddRecN()
-      nastr_fns->N_SPR_FNS := pp_N_SPR_FNS
-      nastr_fns->N_FILE_UP := pp_N_SPR_FILE
+      nastr_fns->N_SPR_FNS := fns_N_SPR_FNS
+      nastr_fns->N_FILE_UP := fns_N_SPR_FILE
     else
       G_RLock( forever )
     endif
     if empty( nastr_fns->Catalog)
-      nastr_fns->Catalog := pp_CATALOG_FNS
+      nastr_fns->Catalog := fns_CATALOG_FNS
     endif
     if empty( nastr_fns->ID_POL)
-      nastr_fns->ID_POL := pp_ID_POL
+      nastr_fns->ID_POL := fns_ID_POL
     endif
     if empty( nastr_fns->ID_END)
-      nastr_fns->ID_END := pp_ID_END
+      nastr_fns->ID_END := fns_ID_END
     endif
     NASTR_FNS->( dbCloseAre() ) //Use
   elseif k == 1
     R_Use( dir_server + file_mem, , 'NASTR_FNS')
-    pp_N_SPR_FNS  := nastr_fns->N_SPR_FNS
-    pp_N_SPR_FILE  := nastr_fns->N_FILE_UP
-    pp_CATALOG_FNS := nastr_fns->Catalog
-    pp_ID_POL := nastr_fns->ID_POL
-    pp_ID_END := nastr_fns->ID_END
+    fns_N_SPR_FNS  := nastr_fns->N_SPR_FNS
+    fns_N_SPR_FILE  := nastr_fns->N_FILE_UP
+    fns_CATALOG_FNS := nastr_fns->Catalog
+    fns_ID_POL := nastr_fns->ID_POL
+    fns_ID_END := nastr_fns->ID_END
     NASTR_FNS->( dbCloseAre() ) //Use
   endif
   return NIL
