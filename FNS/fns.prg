@@ -459,13 +459,14 @@ Function inf_fns( k )
 
   Return Nil
 
-// 15.08.24
+// 16.08.24
 function _fns_nastr( k )
 
   Static file_mem := 'reg_fns_nastr'
   Local mm_tmp
 
   private mPodpis, m1Podpis := 0
+  private mm_danet := { { 'да', 1 }, { 'нет', 0 } }
 
 //          m1sertif   := p2->sertif
 //  msertif   := inieditspr_bay( A__MENUVERT, mm_danet, m1sertif )
@@ -480,17 +481,23 @@ function _fns_nastr( k )
     Public fns_N_SPR_FNS   := 0, ;
           fns_N_SPR_FILE   := 0, ;
           fns_CATALOG_FNS  := '', ;
+          fns_PODPISANT    := 0, ;
+          fns_PREDST       := space( 50 ), ;
+          fns_PREDST_DOC   := space( 50 ), ;
           fns_ID_POL       := space( 4 ), ;
           fns_ID_END       := space( 4 )
   endif
 
   if k == 0 // инициализация файла и переменных
     mm_tmp := { ;  // справочник настроек обмена с ФНС
-      {'N_SPR_FNS',  'N',   7,  0}, ; // последний номер справки для ФНС
-      {'N_FILE_UP',  'N',   7,  0}, ; // последний номер файла выгрузки для ФНС
-      {'CATALOG',    'C', 254,  0}, ; // каталог записи сформированных выгрузок
-      {'ID_POL',     'C',   4,  0}, ; // идентификатор получателя, кому направляется файл выгрузок
-      {'ID_END',     'C',   4,  0} ; // идентификатор конечного получателя, для которого предназначен файл выгрузок
+      { 'N_SPR_FNS',  'N',   7,  0 }, ; // последний номер справки для ФНС
+      { 'N_FILE_UP',  'N',   7,  0 }, ; // последний номер файла выгрузки для ФНС
+      { 'PODPIS',     'N',   1,  0 }, ; // подписант руководитель?; 0-нет, 1-да
+      { 'PREDST',     'C',  50,  0 }, ; // представитель МО
+      { 'PRED_DOC',   'C',  50,  0 }, ; // документ по которому действует представитель
+      { 'CATALOG',    'C', 254,  0 }, ; // каталог записи сформированных выгрузок
+      { 'ID_POL',     'C',   4,  0 }, ; // идентификатор получателя, кому направляется файл выгрузок
+      { 'ID_END',     'C',   4,  0 } ; // идентификатор конечного получателя, для которого предназначен файл выгрузок
    }
     reconstruct( dir_server + file_mem, mm_tmp, , , .t. )
     G_Use( dir_server + file_mem, , 'NASTR_FNS' )
@@ -515,6 +522,9 @@ function _fns_nastr( k )
     R_Use( dir_server + file_mem, , 'NASTR_FNS')
     fns_N_SPR_FNS  := nastr_fns->N_SPR_FNS
     fns_N_SPR_FILE  := nastr_fns->N_FILE_UP
+    fns_PODPISANT  := nastr_fns->PODPIS
+    fns_PREDST      := nastr_fns->PREDST
+    fns_PREDST_DOC      := nastr_fns->PRED_DOC
     fns_CATALOG_FNS := nastr_fns->Catalog
     fns_ID_POL := nastr_fns->ID_POL
     fns_ID_END := nastr_fns->ID_END

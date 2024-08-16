@@ -112,11 +112,11 @@ function name_file_fns_xml( dt, num )
 
   return nameXML
 
-// 15.08.24
+// 16.08.24
 function createXMLtoFNS( nameFileXML )
 
   local oXmlDoc, oXmlNode, oXmlNodeDoc
-  local aFIO, oFIO, oPAC, oUch, oDoc, oPodp, oRash
+  local aFIO, oFIO, oPAC, oUch, oDoc, oPodp, oRash, oSved
   local ver := '5.01'
 
   local dt := date()    // временно
@@ -158,7 +158,30 @@ function createXMLtoFNS( nameFileXML )
 
   // ПОДПИСАНТ
   oPodp := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'Подписант' ) ) )
-  // Сведения о расходах
+  if fns_PODPISANT == 0
+    mo_add_xml_stroke( oPodp, hb_OEMToANSI( 'ПрПодп' ), '2' )
+    aFIO := razbor_str_fio( fns_PREDST )
+    oFIO := oPodp:add( hxmlnode():new( hb_OEMToANSI( 'ФИО' ) ) )
+    mo_add_xml_stroke( oFIO, hb_OEMToANSI( 'Фамилия' ), aFIO[ 1 ] )
+    mo_add_xml_stroke( oFIO, hb_OEMToANSI( 'Имя' ), aFIO[ 2 ] )
+    if ! empty( aFIO[ 3 ] )
+      mo_add_xml_stroke( oFIO, hb_OEMToANSI( 'Отчество' ), aFIO[ 3 ] )
+    endif
+    oSved := oPodp:add( hxmlnode():new( hb_OEMToANSI( 'СвПред' ) ) )
+    mo_add_xml_stroke( oSved, hb_OEMToANSI( 'НаимДок' ), fns_PREDST_DOC )
+  else
+    mo_add_xml_stroke( oPodp, hb_OEMToANSI( 'ПрПодп' ), '1' )
+    if hb_main_curorg:UrOrIp()
+      aFIO := razbor_str_fio( hb_main_curorg:Ruk_fio() )
+      oFIO := oPodp:add( hxmlnode():new( hb_OEMToANSI( 'ФИО' ) ) )
+      mo_add_xml_stroke( oFIO, hb_OEMToANSI( 'Фамилия' ), aFIO[ 1 ] )
+      mo_add_xml_stroke( oFIO, hb_OEMToANSI( 'Имя' ), aFIO[ 2 ] )
+      if ! empty( aFIO[ 3 ] )
+        mo_add_xml_stroke( oFIO, hb_OEMToANSI( 'Отчество' ), aFIO[ 3 ] )
+      endif
+    endif
+  endif
+    // Сведения о расходах
   oRash := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'СведРасхУсл' ) ) )
 
   oXmlDoc:save( nameFileXML + sxml )

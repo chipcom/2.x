@@ -3313,7 +3313,7 @@ Function nastr_all( k, nTask )
 
 // 
 
-// 13.08.24 Общие настройки каждой задачи
+// 16.08.24 Общие настройки каждой задачи
 Function f1nastr_all( nameTask, nTask )
 
   Local mm_tmp := {}, ctitle
@@ -3355,6 +3355,8 @@ Function f1nastr_all( nameTask, nTask )
       { "на английском", 1 } }
     Private mm_dms := { { "внутренние", 0 }, ;
       { "ФФОМС", 1 } }
+    private mm_danet := { { 'да', 1 }, { 'нет', 0 } }
+
     Delete file tmp.dbf
     Do Case
     Case nTask == 0 .and. tools_ini_oms( 1, 0, 0, .t. ) //  настройка на все задачи
@@ -3667,6 +3669,18 @@ Function f1nastr_all( nameTask, nTask )
         NIL, ;
         0, NIL, ;
         'Номер последнего файла выгрузки в ФНС' } )
+      AAdd( mm_tmp, { 'podpis', "N", 1, 0, NIL, ;
+        {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
+        0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+        'Подписант, руководитель МО:' } )
+      AAdd( mm_tmp, { 'predst', 'C', 50, 0, '@!S30', ;
+        NIL, ;
+        space( 50 ), NIL, ;
+        'Представитель МО' } )
+      AAdd( mm_tmp, { 'pred_doc', 'C', 50, 0, '@S30', ;
+        NIL, ;
+        space( 50 ), NIL, ;
+        'Документ представителя МО' } )
       AAdd( mm_tmp, { 'catalog', 'C', 255, 0, '@!', ;
         { | x | menu_reader( x, { { | k, r, c | mng_dir( k, r, c, 'catalog' ) } }, A__FUNCTION) }, ;
         ' ', {|x| x }, ;
@@ -3685,6 +3699,9 @@ Function f1nastr_all( nameTask, nTask )
       Append Blank
       tmp->N_SPR_FNS := NASTR_FNS->N_SPR_FNS
       tmp->N_FILE_UP := NASTR_FNS->N_FILE_UP
+      tmp->PODPIS    := NASTR_FNS->PODPIS
+      tmp->PREDST    := NASTR_FNS->PREDST
+      tmp->PRED_DOC  := NASTR_FNS->PRED_DOC
       tmp->CATALOG   := NASTR_FNS->CATALOG
       tmp->ID_POL    := NASTR_FNS->ID_POL
       tmp->ID_END    := NASTR_FNS->ID_END
@@ -3945,7 +3962,10 @@ Function f1nastr_all( nameTask, nTask )
         g_rlock( forever )
         nastr_fns->N_SPR_FNS := tmp->N_SPR_FNS
         nastr_fns->N_FILE_UP := tmp->N_FILE_UP
-        nastr_fns->CATALOG    := tmp->CATALOG
+        nastr_fns->PODPIS    := tmp->PODPIS
+        nastr_fns->PREDST    := tmp->PREDST
+        nastr_fns->PRED_DOC  := tmp->PRED_DOC
+        nastr_fns->CATALOG   := tmp->CATALOG
         nastr_fns->ID_POL    := tmp->ID_POL
         nastr_fns->ID_END    := tmp->ID_END
       Case nTask == X_PPOKOJ //  Приёмный покой
