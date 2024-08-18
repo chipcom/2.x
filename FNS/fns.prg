@@ -100,25 +100,26 @@ Function serv_spravka_fns( nKey, oBrow )
 function print_spravka_fns()
 
   local hSpravka, pos, aFIO, cFileToSave
+  local org := hb_main_curOrg
 
-  pos := hb_At( '/', hb_main_curOrg:INN() )
+  pos := hb_At( '/', org:INN() )
   aFIO := razbor_str_fio( fns->plat_fio )
 
   cFileToSave := cur_dir() + 'spravkaFNS.pdf'
 
   hSpravka := hb_Hash()
   if pos == 0
-    hb_HSet( hSpravka, 'inn', hb_main_curOrg:INN() )
+    hb_HSet( hSpravka, 'inn', org:INN() )
     hb_HSet( hSpravka, 'kpp', '' )
   else
-    hb_HSet( hSpravka, 'inn', substr( hb_main_curOrg:INN(), 1, pos - 1) )
-    hb_HSet( hSpravka, 'kpp', substr( hb_main_curOrg:INN(), pos + 1 ) )
+    hb_HSet( hSpravka, 'inn', substr( org:INN(), 1, pos - 1) )
+    hb_HSet( hSpravka, 'kpp', substr( org:INN(), pos + 1 ) )
   endif
   hb_HSet( hSpravka, 'num_spr', fns->num_s )
   hb_HSet( hSpravka, 'nYear', fns->nyear )
   hb_HSet( hSpravka, 'cor', fns->version )
-  hb_HSet( hSpravka, 'name', hb_main_curOrg:Name() )
-  hb_HSet( hSpravka, 'full_name', hb_main_curOrg:Name() )
+  hb_HSet( hSpravka, 'name', org:Name() )
+  hb_HSet( hSpravka, 'full_name', org:Name() )
   hb_HSet( hSpravka, 'fam', aFIO[ 1 ] )
   hb_HSet( hSpravka, 'im', aFIO[ 2 ] )
   hb_HSet( hSpravka, 'ot', aFIO[ 3 ] )
