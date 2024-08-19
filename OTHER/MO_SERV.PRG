@@ -3313,7 +3313,7 @@ Function nastr_all( k, nTask )
 
 // 
 
-// 16.08.24 Общие настройки каждой задачи
+// 19.08.24 Общие настройки каждой задачи
 Function f1nastr_all( nameTask, nTask )
 
   Local mm_tmp := {}, ctitle
@@ -3681,10 +3681,6 @@ Function f1nastr_all( nameTask, nTask )
         NIL, ;
         space( 50 ), NIL, ;
         'Документ представителя МО' } )
-      AAdd( mm_tmp, { 'catalog', 'C', 255, 0, '@!', ;
-        { | x | menu_reader( x, { { | k, r, c | mng_dir( k, r, c, 'catalog' ) } }, A__FUNCTION) }, ;
-        ' ', {|x| x }, ;
-        'Имя каталога для сохранения файлов выгрузки для ФНС' } )
       AAdd( mm_tmp, { 'id_pol', 'C', 4, 0, '9999', ;
         NIL, ;
         space( 4 ), NIL, ;
@@ -3693,6 +3689,10 @@ Function f1nastr_all( nameTask, nTask )
         NIL, ;
         space( 4 ), NIL, ;
         'Идентификатор конечного получателя, для которого предназначен файл обмена' } )
+      AAdd( mm_tmp, { 'catalog', 'C', 255, 0, '@!', ;
+        { | x | menu_reader( x, { { | k, r, c | mng_dir( k, r, c, 'catalog' ) } }, A__FUNCTION) }, ;
+        ' ', {|x| x }, ;
+        'Имя каталога для сохранения файлов выгрузки для ФНС' } )
       init_base( cur_dir + 'tmp',, mm_tmp, 0 )
       r_use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
       Use ( cur_dir + 'tmp' ) new
@@ -3963,8 +3963,13 @@ Function f1nastr_all( nameTask, nTask )
         nastr_fns->N_SPR_FNS := tmp->N_SPR_FNS
         nastr_fns->N_FILE_UP := tmp->N_FILE_UP
         nastr_fns->PODPIS    := tmp->PODPIS
-        nastr_fns->PREDST    := tmp->PREDST
-        nastr_fns->PRED_DOC  := tmp->PRED_DOC
+        if tmp->PODPIS == 0
+          nastr_fns->PREDST    := tmp->PREDST
+          nastr_fns->PRED_DOC  := tmp->PRED_DOC
+        else
+          nastr_fns->PREDST    := ''  //tmp->PREDST
+          nastr_fns->PRED_DOC  := ''  //tmp->PRED_DOC
+        endif
         nastr_fns->CATALOG   := tmp->CATALOG
         nastr_fns->ID_POL    := tmp->ID_POL
         nastr_fns->ID_END    := tmp->ID_END

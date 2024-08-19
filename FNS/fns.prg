@@ -154,14 +154,25 @@ function print_spravka_fns()
   endif
   return nil
 
-// 10.08.24
+// 19.08.24
 function anul_spravka_fns()
 
   local rec := fns->( recno() ), str_find
   local mkod, mPlat, mNyear, mNspravka, mVersion, mAttribut
   local mInn, mPlat_fio, mPlat_dob, mPlat_vid, mPlat_ser_num, mPlat_date_vyd, mSum1, mSum2
+  local predst := '', predst_doc := '', pred_ruk := 0
+  local org := hb_main_curOrg
 
   if ! fns->( eof() )
+
+    _fns_nastr( 1 ) // прочитаем сущетствующие настроеки
+    pred_ruk := fns_PODPISANT
+    if pred_ruk == 0
+      predst := alltrim( fns_PREDST )
+      predst_doc := alltrim( fns_PREDST_DOC )
+    else
+      predst := upper( alltrim( org:ruk_fio() ) )
+    endif
     mPlat := fns->kod_k
     mNyear := fns->nyear
     mNspravka := fns->num_s
@@ -176,9 +187,10 @@ function anul_spravka_fns()
     mSum1 := fns->SUM1
     mSum2 := fns->SUM2
 
+    altd()
     str_find := Str( mPlat, 7 ) + Str( mNyear, 4 ) + Str( mAttribut, 1 ) + Str( mNspravka, 7 ) + '999'
-    find ( str_find )
-    if Found()
+    fns->( dbSeek( str_find ) )
+    if fns->( Found() )
       fns->( dbGoto( rec ) )
       func_error( 4, 'Для справки уже сформирована аннулирующая запись!' )
       return nil
@@ -188,6 +200,7 @@ function anul_spravka_fns()
     mkod := RecNo()
     fns->kod := mkod
     fns->kod_k := mPlat
+    fns->date := date()
     fns->nyear := mNyear
     fns->num_s := mNspravka
     fns->version := 999
@@ -202,9 +215,16 @@ function anul_spravka_fns()
 
     fns->sum1 := mSum1
     fns->sum2 := mSum2
-    fns->EXECUTOR := hb_user_curUser:ID()
-    fns->exec_fio := hb_user_curUser:FIO()
-    fns->date := date()
+
+    fns->pred_ruk := pred_ruk
+    if pred_ruk == 0
+      fns->predst := predst
+      fns->pred_doc := predst_doc
+    else
+      fns->predst := predst
+      fns->pred_doc := ''
+    endif
+
     g_rlock( forever )
   endif
   return nil
@@ -240,7 +260,7 @@ function exist_spravka( get, kod_kart, onePerson )
 
   return .t.
 
-// 11.08.24
+// 19.08.24
 function input_spravka_fns()
 
   Local str_sem
@@ -248,10 +268,12 @@ function input_spravka_fns()
     arr_m, pos_read := 0, k_read := 0, count_edit := 0, ;
     mINN := space( 12 ), ;
     mSumma := 0.0, mSum1 := 0.0, mSum2 := 0.0, ;
-    j := 0, i, mkod
+    j := 0, i, mkod, kol
 
   local aFIOPlat, mDOB, mVID, mSerNomer, mKogda
-  local aFIOExecutor := razbor_str_fio( hb_user_curUser:FIO() )
+  local predst := '', predst_doc := '', pred_ruk := 0
+  local org := hb_main_curOrg
+  local aFIOPredst
 
   Private aCheck := {}
 
@@ -259,7 +281,23 @@ function input_spravka_fns()
     Return Nil
   Endif
 
-  _fns_nastr( 0 )
+  _fns_nastr( 0 ) // проверим сущетствование настроек
+  _fns_nastr( 1 ) // прочитаем сущетствующие настроеки
+  pred_ruk := fns_PODPISANT
+  if pred_ruk == 0
+    predst := alltrim( fns_PREDST )
+    predst_doc := alltrim( fns_PREDST_DOC )
+  else
+    predst := upper( alltrim( org:ruk_fio() ) )
+  endif
+  if At( '.', predst ) > 0
+    return func_error( 4, 'В ФИО  ' + iif( pred_ruk == 0, 'представаителя', 'руководителя' ) + ' МО не должно быть знаков препинания!' )
+  endif
+  aFIOPredst := razbor_str_fio( predst )
+  if Empty( aFIOPredst[ 1 ] ) .or. Empty( aFIOPredst[ 2 ] ) .or. Empty( aFIOPredst[ 3 ] )
+    return func_error( 4, 'ФИО ' + iif( pred_ruk == 0, 'представаителя', 'руководителя' ) + ' МО должно быть полным (пример: Иванов Иван Иванович)!' )
+  endif
+
   If polikl1_kart() > 0
     R_Use( dir_server + 'kartote_', , 'KART_' )
     goto ( glob_kartotek )
@@ -338,16 +376,17 @@ function input_spravka_fns()
               Loop
             endif
           endif
-          if len( aFIOExecutor ) < 3
-            func_error( 4, 'У исполнителя отсутствует отчество!' )
-            Loop
-          endif
+//          if len( aFIOExecutor ) < 3
+//            func_error( 4, 'У исполнителя отсутствует отчество!' )
+//            Loop
+//          endif
           mywait()
           select fns
           add1rec( 7 )
           mkod := RecNo()
           fns->kod := mkod
           fns->kod_k := glob_kartotek
+          fns->date := date()
           fns->nyear := arr_m[ 1 ]
           fns->num_s := ++fns_N_SPR_FNS
           fns->version := 0
@@ -362,9 +401,14 @@ function input_spravka_fns()
 
           fns->sum1 := mSum1
           fns->sum2 := mSum2
-          fns->EXECUTOR := hb_user_curUser:ID()
-          fns->exec_fio := hb_user_curUser:FIO()
-          fns->date := date()
+          fns->pred_ruk := pred_ruk
+          if pred_ruk == 0
+            fns->predst := predst
+            fns->pred_doc := predst_doc
+          else
+            fns->predst := predst
+            fns->pred_doc := ''
+          endif
           g_rlock( forever )
           select link_fns
           for i := 1 to len( aCheck )
