@@ -162,7 +162,7 @@ function createXMLtoFNS( nameFileXML )
 
   oXmlNode := hxmlnode():new( hb_OEMToANSI( 'Файл' ) )
   oXmlNode:SetAttribute( hb_OEMToANSI( 'ИдФайл' ), nameFileXML )
-  oXmlNode:SetAttribute( hb_OEMToANSI( 'ВерсПрог' ), hb_OEMToANSI( 'ЧИП_МО ' ) + fs_version( _version() ) )
+  oXmlNode:SetAttribute( hb_OEMToANSI( 'ВерсПрог' ), hb_OEMToANSI( 'ЧИП_МО ' ) + fs_version_short( _version() ) )
   oXmlNode:SetAttribute( hb_OEMToANSI( 'ВерсФорм' ), ver )
   oXmlDoc:add( oXmlNode )
 
