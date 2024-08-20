@@ -47,6 +47,13 @@ Function fs_version( aVersion )
 
   Return lstr( aVersion[ 1 ] ) + '.' + lstr( aVersion[ 2 ] ) + '.' + lstr( aVersion[ 3 ] ) + iif( Len( aVersion ) == 4, aVersion[ 4 ], '' )
 
+// 20.08.24 вернуть строку с номером версии короткую
+Function fs_version_short( aVersion )
+
+  // aVersion - 4-мерный массив
+
+  Return lstr( aVersion[ 1 ] ) + '.' + lstr( aVersion[ 2 ] ) + '.' + lstr( aVersion[ 3 ] )
+
 // 17.12.21 получить числовое значение версии БД задачи
 Function get_version_db()
 
