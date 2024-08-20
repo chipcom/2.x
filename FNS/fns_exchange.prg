@@ -9,14 +9,13 @@
 #define NALOG_PLAT  1
 #define PACIENT     2
 
-// 17.08.24
+// 20.08.24
 Function reestr_xml_fns()
 
   Local mtitle
   Local buf := SaveScreen()
   local prefix := 'UT_SVOPLMEDUSL', nameFileXML := ''
   local org := hb_main_curorg
-  local dt, num
 
   _fns_nastr( 1 )
 
@@ -39,12 +38,7 @@ Function reestr_xml_fns()
     return nil
   endif
 
-  dt := Date()  //временно
-  num := fns_N_SPR_FILE + 1  //временно
-
-  nameFileXML := name_file_fns_xml( org, dt, num, fns_ID_POL, fns_ID_END )
-
-  createXMLtoFNS( nameFileXML )
+  createXMLtoFNS()
 
   // use_base( 'xml_fns', 'xml' )
 
@@ -116,110 +110,163 @@ function name_file_fns_xml( org, dt, num, id_pol, id_end )
 
   return nameXML
 
-// 18.08.24
-function createXMLtoFNS( nameFileXML )
+// 20.08.24
+function createXMLtoFNS() // nameFileXML )
 
   local aPlat := Array( 2, 17 )
   local oXmlDoc, oXmlNode, oXmlNodeDoc
   local oPAC, oUch, oDoc, oPodp, oRash, oSved
+  local arr_m, i, mYear, curPreds := ''
   local org := hb_main_curorg
-  local ver := '5.01', i
+  local ver := '5.01'
+  local nameFileXML
+  local xml_created := .f.
 
-  local dt := date()    // временно
+  local tmp_fns := { ;  // журнал выданных справок для ФНС
+    { 'KOD',     'N',     7,   0 }, ; // recno()
+    { 'DATE',    'D',     8,   0 }, ; // дата составления
+    { 'KOD_K',   'N',     7,   0 }, ; // код по картотеке
+    { 'NYEAR',   'N',     4,   0 }, ; // отчетный год
+    { 'NUM_S',   'N',     7,   0 }, ; // номер справки
+    { 'VERSION', 'N',     3,   0 }, ; // номер корректировки
+    { 'ATTRIBUT','N',     1,   0 }, ; // признак 0 - налогоплательщик и пациент не являются одним лицом; 1 - налогоплательщик и пациент являются одним лицом.
+    { 'INN',     'C',    12,   0 }, ; // ИНН плательщика
+    { 'PLAT_FIO','C',    50,   0 }, ; // ФИО налогоплательщика
+    { 'PLAT_DOB','D',     8,   0 }, ; // дата рождения налогоплательщика
+    { 'VIDDOC',  'N',     2,   0 }, ; // вид документа налогоплательщика
+    { 'SER_NUM', 'C',    20,   0 }, ; // серия и номер документа налогоплательщика
+    { 'DATEVYD', 'D',     8,   0 }, ; // дата выдачи документа налогоплательщика
+    { 'SUM1',    'N',    16,   2 }, ; // сумма 1
+    { 'SUM2',    'N',    16,   2 }, ; // сумма 2
+    { 'PRED_RUK','N',     1,   0 }, ; // признак 1 - представитель руководитель МО; 2 - представитель, сотрудник МО
+    { 'PREDST',  'C',    50,   0 }, ; // представитель организации
+    { 'PRED_DOC','C',    50,   0 }, ; // документ представителя
+    { 'KOD_XML', 'N',     6,   0 } ; // ссылка на файл 'mo_xml_fns', для отправки в ФНС или число -1 если печатная форма, 0 - если xml файл не формировался
+  }
 
-  aPlat[ 1, 1 ] := 1  // номер справки
-  aPlat[ 1, 2 ] := 0  // номер корректировки
-  aPlat[ 1, 3 ] := 1  // налогоплательщик и пациент одно лицо 0 - нет, 1 - да
-  aPlat[ 1, 4 ] := 1234.98  // сумма 1
-  aPlat[ 1, 5 ] := 0.0  // сумма 2
-  aPlat[ 1, 6 ] := '344402247520'  // ИНН
-  aPlat[ 1, 7 ] := ctod( '04.03.1973' )  // дата рождения
-  aPlat[ 1, 8 ] := 21  // документ удостоверяющий личность код
-  aPlat[ 1, 9 ] := '1806 920681'  // документ удостоверяющий личность серия и номер
-  aPlat[ 1, 10 ] := ctod( '09.03.2004' )  // документ удостоверяющий личность дата выдачи
-  aPlat[ 1, 11 ] := 'Сидоров Сидор Петрович' // ФИО плательщика
-  aPlat[ 2, 1 ] := 2
-  aPlat[ 2, 2 ] := 0  // номер корректировки
-  aPlat[ 2, 3 ] := 0  // налогоплательщик и пациент одно лицо 0 - нет, 1 - да
-  aPlat[ 2, 4 ] := 0.00  // сумма 1
-  aPlat[ 2, 5 ] := 154254.0  // сумма 2
-  aPlat[ 2, 6 ] := ''  // ИНН
-  aPlat[ 2, 7 ] := ctod( '10.02.1962' )  // дата рождения
-  aPlat[ 2, 8 ] := 21  // документ удостоверяющий личность код
-  aPlat[ 2, 9 ] := '1818 458756'  // документ удостоверяющий личность серия и номер
-  aPlat[ 2, 10 ] := ctod( '25.08.2019' )  // документ удостоверяющий личность дата выдачи
-  aPlat[ 2, 11 ] := 'Сонина Евдокия Петровна'
+  If ( arr_m := input_year() ) == NIL
+    Return Nil
+  Endif
+  mYear := arr_m[ 1 ]
 
-  aPlat[ 2, 12 ] := '344205196771'  // ИНН
-  aPlat[ 2, 13 ] := ctod( '20.09.1957' )  // дата рождения
-  aPlat[ 2, 14 ] := 21  // документ удостоверяющий личность код
-  aPlat[ 2, 15 ] := ''  // документ удостоверяющий личность серия и номер
-  aPlat[ 2, 16 ] := ctod( '' )  // документ удостоверяющий личность дата выдачи
-  aPlat[ 2, 17 ] := 'Бакулина тамара петровна'
-
-  // создадим новый XML-документ
-  oXmlDoc := hxmldoc():new()
-
-  oXmlNode := hxmlnode():new( hb_OEMToANSI( 'Файл' ) )
-  oXmlNode:SetAttribute( hb_OEMToANSI( 'ИдФайл' ), nameFileXML )
-  oXmlNode:SetAttribute( hb_OEMToANSI( 'ВерсПрог' ), hb_OEMToANSI( 'ЧИП_МО ' ) + fs_version_short( _version() ) )
-  oXmlNode:SetAttribute( hb_OEMToANSI( 'ВерсФорм' ), ver )
-  oXmlDoc:add( oXmlNode )
-
-  oXmlNodeDoc := hxmlnode():new( hb_OEMToANSI( 'Документ' ) )
-  oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'КНД' ), '1184043' )
-  oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'ДатаДок' ), transform( dt, '99.99.9999' ) )
-  oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'КодНО' ), fns_ID_POL )
-  oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'ОтчГод' ), str( year( dt ), 4 ) )
-  oDOC := oXmlDoc:aItems[ 1 ]:add( oXmlNodeDoc )
-
-  oPAC := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'СвНП' ) ) )
-  if org:UrOrIp()
-    oUch := oPAC:add( hxmlnode():new( hb_OEMToANSI( 'НПЮЛ' ) ) )
-    mo_add_xml_stroke( oUch, hb_OEMToANSI( 'НаимОрг' ), org:Name() )
-    mo_add_xml_stroke( oUch, hb_OEMToANSI( 'ИННЮЛ' ), org:INN() )
-    mo_add_xml_stroke( oUch, hb_OEMToANSI( 'КПП' ), org:KPP() )
-  else
-    oUch := oPAC:add( hxmlnode():new( hb_OEMToANSI( 'НПИП' ) ) )
-    mo_add_xml_stroke( oUch, hb_OEMToANSI( 'ИННФЛ' ), org:INN() )
-    node_fio_tip_fns( oUch, org:Ruk_fio() )
-  endif
-
-  // ПОДПИСАНТ
-  oPodp := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'Подписант' ) ) )
-  if fns_PODPISANT == 0
-    mo_add_xml_stroke( oPodp, hb_OEMToANSI( 'ПрПодп' ), '2' )
-    node_fio_tip_fns( oPodp, fns_PREDST )
-
-    oSved := oPodp:add( hxmlnode():new( hb_OEMToANSI( 'СвПред' ) ) )
-    mo_add_xml_stroke( oSved, hb_OEMToANSI( 'НаимДок' ), Upper( fns_PREDST_DOC ) )
-  else
-    mo_add_xml_stroke( oPodp, hb_OEMToANSI( 'ПрПодп' ), '1' )
-    if org:UrOrIp()
-      node_fio_tip_fns( oPodp, org:Ruk_fio() )
+  dbCreate( cur_dir() + 'tmp_fns', tmp_fns,, .t., 'tmp_fns' )
+  Index On predst + Str( num_s, 7 ) to ( cur_dir() + 'tmp_fns' )
+  use_base( 'reg_fns', 'fns' )
+  fns->( dbGoTop() )
+  do while ! fns->( Eof() )
+    if fns->nyear == mYear .and. fns->KOD_XML <= 0
+      tmp_fns->( dbAppend() )
+      tmp_fns->kod := fns->kod
+      tmp_fns->date := fns->date
+      tmp_fns->kod_k := fns->kod_k
+      tmp_fns->nyear := fns->nyear
+      tmp_fns->num_s := fns->num_s
+      tmp_fns->version := fns->version
+      tmp_fns->attribut := fns->attribut
+      tmp_fns->inn := fns->inn
+      tmp_fns->plat_fio := fns->plat_fio
+      tmp_fns->plat_dob := fns->plat_dob
+      tmp_fns->viddoc := fns->viddoc
+      tmp_fns->ser_num := fns->ser_num
+      tmp_fns->datevyd := fns->datevyd
+      tmp_fns->sum1 := fns->sum1
+      tmp_fns->sum2 := fns->sum2
+      tmp_fns->pred_ruk := fns->pred_ruk
+      tmp_fns->predst := fns->predst
+      tmp_fns->pred_doc := fns->pred_doc
     endif
-  endif
+    fns->( dbSkip() )
+  enddo
+  fns->( dbCloseArea() )
+  tmp_fns->( dbSelectArea() )
+  tmp_fns->( dbGoTop() )
+
+  do while ! tmp_fns->( Eof() )
+
+    if curPreds != tmp_fns->predst
+      if xml_created
+        oXmlDoc:save( nameFileXML + sxml )
+        G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+        G_RLock( forever )
+        NASTR_FNS->N_FILE_UP := fns_N_SPR_FILE
+        nastr_fns->( dbCloseArea() )
+      endif
+
+      curPreds := tmp_fns->predst
+      nameFileXML := name_file_fns_xml( org, date(), ++fns_N_SPR_FILE, fns_ID_POL, fns_ID_END )
+  
+      // создадим новый XML-документ
+      oXmlDoc := hxmldoc():new()
+      xml_created := .t.
+
+      oXmlNode := hxmlnode():new( hb_OEMToANSI( 'Файл' ) )
+      oXmlNode:SetAttribute( hb_OEMToANSI( 'ИдФайл' ), nameFileXML )
+      oXmlNode:SetAttribute( hb_OEMToANSI( 'ВерсПрог' ), hb_OEMToANSI( 'ЧИП_МО ' ) + fs_version_short( _version() ) )
+      oXmlNode:SetAttribute( hb_OEMToANSI( 'ВерсФорм' ), ver )
+      oXmlDoc:add( oXmlNode )
+
+      oXmlNodeDoc := hxmlnode():new( hb_OEMToANSI( 'Документ' ) )
+      oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'КНД' ), '1184043' )
+      oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'ДатаДок' ), transform( date(), '99.99.9999' ) )
+      oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'КодНО' ), fns_ID_POL )
+      oXmlNodeDoc:SetAttribute( hb_OEMToANSI( 'ОтчГод' ), str( mYear, 4 ) )
+      oDOC := oXmlDoc:aItems[ 1 ]:add( oXmlNodeDoc )
+
+      oPAC := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'СвНП' ) ) )
+      if org:UrOrIp()
+        oUch := oPAC:add( hxmlnode():new( hb_OEMToANSI( 'НПЮЛ' ) ) )
+        mo_add_xml_stroke( oUch, hb_OEMToANSI( 'НаимОрг' ), org:Name() )
+        mo_add_xml_stroke( oUch, hb_OEMToANSI( 'ИННЮЛ' ), org:INN() )
+        mo_add_xml_stroke( oUch, hb_OEMToANSI( 'КПП' ), org:KPP() )
+      else
+        oUch := oPAC:add( hxmlnode():new( hb_OEMToANSI( 'НПИП' ) ) )
+        mo_add_xml_stroke( oUch, hb_OEMToANSI( 'ИННФЛ' ), org:INN() )
+        node_fio_tip_fns( oUch, org:Ruk_fio() )
+      endif
+
+      // ПОДПИСАНТ
+      oPodp := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'Подписант' ) ) )
+      if tmp_fns->pred_ruk == 0
+        mo_add_xml_stroke( oPodp, hb_OEMToANSI( 'ПрПодп' ), '2' )
+        node_fio_tip_fns( oPodp, alltrim( tmp_fns->predst ) )
+
+        oSved := oPodp:add( hxmlnode():new( hb_OEMToANSI( 'СвПред' ) ) )
+        mo_add_xml_stroke( oSved, hb_OEMToANSI( 'НаимДок' ), Upper( alltrim( tmp_fns->pred_doc ) ) )
+      else
+        mo_add_xml_stroke( oPodp, hb_OEMToANSI( 'ПрПодп' ), '1' )
+        if org:UrOrIp()
+          node_fio_tip_fns( oPodp, org:Ruk_fio() )
+        endif
+      endif
+    endif
     // Сведения о расходах
-  for i := 1 to len( aPlat )  // временно
     oRash := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'СведРасхУсл' ) ) )
-    mo_add_xml_stroke( oRash, hb_OEMToANSI( 'НомерСвед' ), str( aPlat[ i, 1 ], 12 ) )
-    mo_add_xml_stroke( oRash, hb_OEMToANSI( 'НомКорр' ), str( aPlat[ i, 2 ], 3 ) )
-    mo_add_xml_stroke( oRash, hb_OEMToANSI( 'ПрПациент' ), str( aPlat[ i, 3 ], 1 ) )
-    if aPlat[ i, 4 ] > 0
-      mo_add_xml_stroke( oRash, hb_OEMToANSI( 'СуммаКод1' ), str( aPlat[ i, 4 ], 15, 2 ) )
+    mo_add_xml_stroke( oRash, hb_OEMToANSI( 'НомерСвед' ), str( tmp_fns->num_s, 12 ) )
+    mo_add_xml_stroke( oRash, hb_OEMToANSI( 'НомКорр' ), str( tmp_fns->version, 3 ) )
+    mo_add_xml_stroke( oRash, hb_OEMToANSI( 'ПрПациент' ), str( tmp_fns->attribut, 1 ) )
+    if tmp_fns->sum1 > 0
+      mo_add_xml_stroke( oRash, hb_OEMToANSI( 'СуммаКод1' ), str( tmp_fns->sum1, 15, 2 ) )
     endif
-    if aPlat[ i, 5 ] > 0
-      mo_add_xml_stroke( oRash, hb_OEMToANSI( 'СуммаКод2' ), str( aPlat[ i, 5 ], 15, 2 ) )
+    if tmp_fns->sum2 > 0
+      mo_add_xml_stroke( oRash, hb_OEMToANSI( 'СуммаКод2' ), str( tmp_fns->sum2, 15, 2 ) )
     endif
-    node_DAN_FIO_TIP( oRash, NALOG_PLAT, aPlat[ i, 6 ], aPlat[ i, 7 ], aPlat[ i, 11 ], aPlat[ i, 8 ], aPlat[ i, 9 ], aPlat[ i, 10 ] )
+    node_DAN_FIO_TIP( oRash, NALOG_PLAT, tmp_fns->inn, tmp_fns->plat_dob, tmp_fns->plat_fio, tmp_fns->viddoc, tmp_fns->ser_num, tmp_fns->datevyd )
 
-    if aPlat[ i, 3 ] == 0 // проверка на совпадение налогоплательщика и пациента
-      node_DAN_FIO_TIP( oRash, PACIENT, aPlat[ i, 12 ], aPlat[ i, 13 ], aPlat[ i, 17 ], aPlat[ i, 14 ], aPlat[ i, 15 ], aPlat[ i, 16 ] )
+    if tmp_fns->attribut == 0 // проверка на совпадение налогоплательщика и пациента
+//      node_DAN_FIO_TIP( oRash, PACIENT, aPlat[ i, 12 ], aPlat[ i, 13 ], aPlat[ i, 17 ], aPlat[ i, 14 ], aPlat[ i, 15 ], aPlat[ i, 16 ] )
     endif
-  next
 
-  oXmlDoc:save( nameFileXML + sxml )
+    tmp_fns->( dbSkip() )
+  enddo
+  if xml_created
+    oXmlDoc:save( nameFileXML + sxml )
+    G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+    G_RLock( forever )
+    NASTR_FNS->N_FILE_UP := fns_N_SPR_FILE
+    nastr_fns->( dbCloseArea() )
+  endif
 
+  tmp_fns->( dbCloseArea() )
   return nil
 
 // 18.08.24
