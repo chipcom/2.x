@@ -7220,6 +7220,9 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
         ar15[ j + 4 ] ++
       Endif
       If ad[ i, 2 ] > 0 // § ¡®«¥¢ ­¨ï ãáâ.¢¯¥à¢ë¥
+        If is_2
+          ar15[ j + 5 ] ++
+        Endif
         If j == 1
           ar15[ 13 ] ++
           If is_selo
@@ -7233,9 +7236,7 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
         Endif
       Endif
     Endif
-    If is_2
-      ar15[ j + 5 ] ++
-    Endif
+   
     fl := .f.
     Select HU
     find ( Str( Loc_kod, 7 ) )
@@ -7248,6 +7249,7 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
         lshifr := usl->shifr
       Endif
       If Left( lshifr, 2 ) == "2."  // ¢à ç¥¡­ë© ¯à¨ñ¬
+      if Left( lshifr, 4 ) != "2.91"  // ­¥ ¯®«­®æ¥­­ë¥ ¨£­®à¨àã¥¬
         If j == 1
           ar15[ 17 ] ++
           If is_selo
@@ -7259,12 +7261,15 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
             ar15[ 20 ] ++
           Endif
         Endif
-        If hu_->PROFIL == 19
+        //mydebug(,human->fio)
+        if hu_->PROFIL == 19
           arr[ 17 ] ++
         Endif
         If hu_->PROFIL == 136
           arr[ 18 ] ++
+        //    mydebug(,"2------------------------------------------")
         Endif
+      Endif  
       Endif
       Select HU
       Skip
@@ -7320,7 +7325,7 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
     tmp1->m15ps += ar15[ 5 ]
     tmp1->m15p1 += ar15[ 13 ]
     tmp1->m15p1s += ar15[ 14 ]
-    tmp1->m15e += ar15[ 6 ]
+    tmp1->m15e += ar15[ 6 ] //2-© íâ ¯
     tmp1->g15  += ar15[ 7 ]
     tmp1->g15s += ar15[ 8 ]
     tmp1->g15pos += ar15[ 19 ]
@@ -7330,7 +7335,7 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
     tmp1->g15ps += ar15[ 11 ]
     tmp1->g15p1 += ar15[ 15 ]
     tmp1->g15p1s += ar15[ 16 ]
-    tmp1->g15e += ar15[ 12 ]
+    tmp1->g15e += ar15[ 12 ] //2-© íâ ¯
     tmp1->g18 += ar15[ 23 ]
     tmp1->g18s += ar15[ 24 ]
     tmp1->m18 += ar15[ 25 ]
