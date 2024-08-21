@@ -110,7 +110,7 @@ function name_file_fns_xml( org, dt, num, id_pol, id_end )
 
   return nameXML
 
-// 20.08.24
+// 21.08.24
 function createXMLtoFNS() // nameFileXML )
 
   local aPlat := Array( 2, 17 )
@@ -120,7 +120,8 @@ function createXMLtoFNS() // nameFileXML )
   local org := hb_main_curorg
   local ver := '5.01'
   local nameFileXML
-  local xml_created := .f.
+  local xml_created := .f., kolSpravka := 0, arr_spravka := {}
+  local totalSpravka := 0, totalFile := 0
 
   local tmp_fns := { ;  // журнал выданных справок для ФНС
     { 'KOD',     'N',     7,   0 }, ; // recno()
@@ -149,9 +150,11 @@ function createXMLtoFNS() // nameFileXML )
   Endif
   mYear := arr_m[ 1 ]
 
+  use_base( 'xml_fns', 'xml_fns', .t. )
+
   dbCreate( cur_dir() + 'tmp_fns', tmp_fns,, .t., 'tmp_fns' )
   Index On predst + Str( num_s, 7 ) to ( cur_dir() + 'tmp_fns' )
-  use_base( 'reg_fns', 'fns' )
+  use_base( 'reg_fns', 'fns', .t. )
   fns->( dbGoTop() )
   do while ! fns->( Eof() )
     if fns->nyear == mYear .and. fns->KOD_XML <= 0
@@ -177,7 +180,6 @@ function createXMLtoFNS() // nameFileXML )
     endif
     fns->( dbSkip() )
   enddo
-  fns->( dbCloseArea() )
   tmp_fns->( dbSelectArea() )
   tmp_fns->( dbGoTop() )
 
@@ -186,12 +188,23 @@ function createXMLtoFNS() // nameFileXML )
     if curPreds != tmp_fns->predst
       if xml_created
         oXmlDoc:save( nameFileXML + sxml )
+        xml_fns->( dbAppend() )
+        xml_fns->kod := xml_fns->( recno() )
+        xml_fns->fname := nameFileXML
+        xml_fns->dfile := date()
+        xml_fns->tfile := hour_min( Seconds() )
+        xml_fns->kol1 := kolSpravka
+        fill_pole_spravok( 'fns', arr_spravka, xml_fns->kod )
+
         G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
         G_RLock( forever )
         NASTR_FNS->N_FILE_UP := fns_N_SPR_FILE
         nastr_fns->( dbCloseArea() )
+        totalFile++
       endif
 
+      arr_spravka := {}
+      kolSpravka := 0
       curPreds := tmp_fns->predst
       nameFileXML := name_file_fns_xml( org, date(), ++fns_N_SPR_FILE, fns_ID_POL, fns_ID_END )
   
@@ -239,6 +252,9 @@ function createXMLtoFNS() // nameFileXML )
         endif
       endif
     endif
+    totalSpravka++
+    kolSpravka++
+    AAdd( arr_spravka, tmp_fns->kod )
     // Сведения о расходах
     oRash := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'СведРасхУсл' ) ) )
     mo_add_xml_stroke( oRash, hb_OEMToANSI( 'НомерСвед' ), str( tmp_fns->num_s, 12 ) )
@@ -260,13 +276,41 @@ function createXMLtoFNS() // nameFileXML )
   enddo
   if xml_created
     oXmlDoc:save( nameFileXML + sxml )
+
+    xml_fns->( dbAppend() )
+    xml_fns->kod := xml_fns->( recno() )
+    xml_fns->fname := nameFileXML
+    xml_fns->dfile := date()
+    xml_fns->tfile := hour_min( Seconds() )
+    xml_fns->kol1 := kolSpravka
+    fill_pole_spravok( 'fns', arr_spravka, xml_fns->kod )
+
     G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
     G_RLock( forever )
     NASTR_FNS->N_FILE_UP := fns_N_SPR_FILE
     nastr_fns->( dbCloseArea() )
+    totalFile++
   endif
 
   tmp_fns->( dbCloseArea() )
+  xml_fns->( dbCloseArea() )
+  fns->( dbCloseArea() )
+  hb_Alert( 'Обработано: ' + alltrim( str( totalSpravka ) ) + ' справок, создано ' + alltrim( str( totalFile ) ) + ' файлов.' )
+  return nil
+
+// 21.08.24
+function fill_pole_spravok( alias, arr_spravka, kod )
+
+  local tmpRec, i
+
+  tmpRec := ( alias )->( recno() )
+
+  for i := 1 to len( arr_spravka )
+    ( alias )->( dbGoto( arr_spravka[ i ] ) )
+    ( alias )->kod_xml := kod
+  next
+
+  ( alias )->( dbGoto( tmpRec ) )
   return nil
 
 // 18.08.24
