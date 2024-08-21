@@ -64,7 +64,7 @@ function Reconstruct_Security(is_local_version)
   
   return nil
 
-// 19.08.24 реконстукция баз данных
+// 21.08.24 реконстукция баз данных
 Function Reconstruct_DB( is_local_version, is_create )
      
   Local base1 := {;
@@ -1546,7 +1546,7 @@ Function Reconstruct_DB( is_local_version, is_create )
   }
   Local mo_xml_fns := { ; // Список сформированных XML-файлов 'reg_xml_fns' для ФНС
     { 'KOD',    'N',     6,   0 }, ; // код; recNo()
-    { 'FNAME',  'C',    26,   0 }, ; // имя файла без расширения (и ZIP-архива)
+    { 'FNAME',  'C',    60,   0 }, ; // имя файла без расширения (и ZIP-архива)
     { 'FNAME2', 'C',    26,   0 }, ; // имя второго файла без расширения
     { 'DFILE',  'D',     8,   0 }, ; // дата создания файла
     { 'TFILE',  'C',     5,   0 }, ; // время создания файла
