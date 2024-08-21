@@ -187,6 +187,17 @@ function checkNTXFile( cSource, cDest )
 
   return fl
 
+// 21.08.24
+function dir_XML_FNS()
+
+  static dir
+
+  if isnil( dir )
+    dir := dir_server + 'XML_FNS' + hb_ps()
+  endif
+
+  return dir
+
 // 22.03.24
 function cur_dir()
 
