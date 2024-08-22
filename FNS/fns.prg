@@ -192,7 +192,6 @@ function anul_spravka_fns()
     mSum1 := fns->SUM1
     mSum2 := fns->SUM2
 
-    altd()
     str_find := Str( mPlat, 7 ) + Str( mNyear, 4 ) + Str( mAttribut, 1 ) + Str( mNspravka, 7 ) + '999'
     fns->( dbSeek( str_find ) )
     if fns->( Found() )
