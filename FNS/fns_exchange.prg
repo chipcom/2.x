@@ -110,7 +110,7 @@ function name_file_fns_xml( org, dt, num, id_pol, id_end )
 
   return nameXML
 
-// 21.08.24
+// 22.08.24
 function createXMLtoFNS() // nameFileXML )
 
   local aPlat := Array( 2, 17 )
@@ -122,6 +122,7 @@ function createXMLtoFNS() // nameFileXML )
   local nameFileXML
   local xml_created := .f., kolSpravka := 0, arr_spravka := {}
   local totalSpravka := 0, totalFile := 0
+  local dir_xml := dir_XML_FNS()
 
   local tmp_fns := { ;  // журнал выданных справок для ФНС
     { 'KOD',     'N',     7,   0 }, ; // recno()
@@ -187,7 +188,10 @@ function createXMLtoFNS() // nameFileXML )
 
     if curPreds != tmp_fns->predst
       if xml_created
-        oXmlDoc:save( nameFileXML + sxml )
+altd()
+        check_and_create_dir( dir_xml )
+        oXmlDoc:save( dir_xml + nameFileXML + sxml )
+        
         xml_fns->( dbAppend() )
         xml_fns->kod := xml_fns->( recno() )
         xml_fns->fname := nameFileXML
@@ -275,7 +279,9 @@ function createXMLtoFNS() // nameFileXML )
     tmp_fns->( dbSkip() )
   enddo
   if xml_created
-    oXmlDoc:save( nameFileXML + sxml )
+altd()
+    check_and_create_dir( dir_xml )
+    oXmlDoc:save( dir_xml + nameFileXML + sxml )
 
     xml_fns->( dbAppend() )
     xml_fns->kod := xml_fns->( recno() )
@@ -296,6 +302,14 @@ function createXMLtoFNS() // nameFileXML )
   xml_fns->( dbCloseArea() )
   fns->( dbCloseArea() )
   hb_Alert( 'Обработано: ' + alltrim( str( totalSpravka ) ) + ' справок, создано ' + alltrim( str( totalFile ) ) + ' файлов.' )
+  return nil
+
+// 22.08.24
+function check_and_create_dir( dir )
+
+  if ! hb_vfDirExists( dir )
+    hb_vfDirMake( dir )
+  endif
   return nil
 
 // 21.08.24

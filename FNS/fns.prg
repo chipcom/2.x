@@ -25,11 +25,16 @@ function reestr_spravka_fns()
 
   return nil
 
-// 10.08.24
+// 22.08.24
 Function defcolumn_spravka_fns( oBrow )
 
   Local oColumn, s
   Local blk := {|| iif( Empty( fns->kod_xml ), { 5, 6 }, { 3, 4 } ) }
+
+  // Local oColumn, ;
+  //   blk := {|| iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip ), ;
+  //   iif( Empty( rees->date_out ), { 3, 4 }, { 1, 2 } ), ;
+  //   { 5, 6 } ) }
 
   oColumn := TBColumnNew( ' Год ', {|| str( fns->nyear, 4 ) } )
   oColumn:colorBlock := blk
@@ -59,7 +64,7 @@ Function defcolumn_spravka_fns( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  oColumn := TBColumnNew( 'Статус', {|| iif( fns->kod_xml <= 0, iif( fns->kod_xml == 0, 'не обработано', 'принтер' ), xml->fname  ) } )
+  oColumn := TBColumnNew( 'Статус', {|| iif( fns->kod_xml <= 0, iif( fns->kod_xml == 0, 'не обработано', 'принтер' ), 'файл' ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
@@ -504,7 +509,7 @@ Function inf_fns( k )
 
   Return Nil
 
-// 16.08.24
+// 22.08.24
 function _fns_nastr( k )
 
   Static file_mem := 'reg_fns_nastr'
@@ -525,7 +530,6 @@ function _fns_nastr( k )
   else
     Public fns_N_SPR_FNS   := 0, ;
           fns_N_SPR_FILE   := 0, ;
-          fns_CATALOG_FNS  := '', ;
           fns_PODPISANT    := 0, ;
           fns_PREDST       := space( 50 ), ;
           fns_PREDST_DOC   := space( 50 ), ;
@@ -540,7 +544,6 @@ function _fns_nastr( k )
       { 'PODPIS',     'N',   1,  0 }, ; // подписант руководитель?; 0-нет, 1-да
       { 'PREDST',     'C',  50,  0 }, ; // представитель МО
       { 'PRED_DOC',   'C',  50,  0 }, ; // документ по которому действует представитель
-      { 'CATALOG',    'C', 254,  0 }, ; // каталог записи сформированных выгрузок
       { 'ID_POL',     'C',   4,  0 }, ; // идентификатор получателя, кому направляется файл выгрузок
       { 'ID_END',     'C',   4,  0 } ; // идентификатор конечного получателя, для которого предназначен файл выгрузок
    }
@@ -552,9 +555,6 @@ function _fns_nastr( k )
       nastr_fns->N_FILE_UP := fns_N_SPR_FILE
     else
       G_RLock( forever )
-    endif
-    if empty( nastr_fns->Catalog)
-      nastr_fns->Catalog := fns_CATALOG_FNS
     endif
     if empty( nastr_fns->ID_POL)
       nastr_fns->ID_POL := fns_ID_POL
@@ -570,7 +570,6 @@ function _fns_nastr( k )
     fns_PODPISANT  := nastr_fns->PODPIS
     fns_PREDST      := nastr_fns->PREDST
     fns_PREDST_DOC      := nastr_fns->PRED_DOC
-    fns_CATALOG_FNS := nastr_fns->Catalog
     fns_ID_POL := nastr_fns->ID_POL
     fns_ID_END := nastr_fns->ID_END
     NASTR_FNS->( dbCloseAre() ) //Use
