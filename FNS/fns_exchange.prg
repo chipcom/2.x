@@ -110,7 +110,7 @@ function name_file_fns_xml( org, dt, num, id_pol, id_end )
 
   return nameXML
 
-// 22.08.24
+// 23.08.24
 function createXMLtoFNS()
 
   local aPlat := Array( 2, 17 )
@@ -231,15 +231,11 @@ function createXMLtoFNS()
       oPAC := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'СвНП' ) ) )
       if org:UrOrIp()
         oUch := oPAC:add( hxmlnode():new( hb_OEMToANSI( 'НПЮЛ' ) ) )
-//        mo_add_xml_stroke( oUch, hb_OEMToANSI( 'НаимОрг' ), org:Name() )
         oUch:SetAttribute( hb_OEMToANSI( 'НаимОрг' ), hb_OEMToANSI( alltrim( org:Name() ) ) )
-//        mo_add_xml_stroke( oUch, hb_OEMToANSI( 'ИННЮЛ' ), org:INN() )
         oUch:SetAttribute( hb_OEMToANSI( 'ИННЮЛ' ), hb_OEMToANSI( alltrim( org:INN() ) ) )
-//        mo_add_xml_stroke( oUch, hb_OEMToANSI( 'КПП' ), org:KPP() )
         oUch:SetAttribute( hb_OEMToANSI( 'КПП' ), hb_OEMToANSI( alltrim( org:KPP() ) ) )
       else
         oUch := oPAC:add( hxmlnode():new( hb_OEMToANSI( 'НПИП' ) ) )
-//        mo_add_xml_stroke( oUch, hb_OEMToANSI( 'ИННФЛ' ), org:INN() )
         oUch:SetAttribute( hb_OEMToANSI( 'ИННФЛ' ), hb_OEMToANSI( alltrim( org:INN() ) ) )
         node_fio_tip_fns( oUch, org:Ruk_fio() )
       endif
@@ -247,15 +243,12 @@ function createXMLtoFNS()
       // ПОДПИСАНТ
       oPodp := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'Подписант' ) ) )
       if tmp_fns->pred_ruk == 0
-//        mo_add_xml_stroke( oPodp, hb_OEMToANSI( 'ПрПодп' ), '2' )
         oPodp:SetAttribute( hb_OEMToANSI( 'ПрПодп' ), '2' )
         node_fio_tip_fns( oPodp, alltrim( tmp_fns->predst ) )
 
         oSved := oPodp:add( hxmlnode():new( hb_OEMToANSI( 'СвПред' ) ) )
-//        mo_add_xml_stroke( oSved, hb_OEMToANSI( 'НаимДок' ), Upper( alltrim( tmp_fns->pred_doc ) ) )
         oSved:SetAttribute( hb_OEMToANSI( 'НаимДок' ), hb_OEMToANSI( Upper( alltrim( tmp_fns->pred_doc ) ) ) )
       else
-//        mo_add_xml_stroke( oPodp, hb_OEMToANSI( 'ПрПодп' ), '1' )
         oPodp:SetAttribute( hb_OEMToANSI( 'ПрПодп' ), '1' )
         if org:UrOrIp()
           node_fio_tip_fns( oPodp, org:Ruk_fio() )
@@ -267,18 +260,13 @@ function createXMLtoFNS()
     AAdd( arr_spravka, tmp_fns->kod )
     // Сведения о расходах
     oRash := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'СведРасхУсл' ) ) )
-//    mo_add_xml_stroke( oRash, hb_OEMToANSI( 'НомерСвед' ), str( tmp_fns->num_s, 12 ) )
     oRash:SetAttribute( hb_OEMToANSI( 'НомерСвед' ), alltrim( str( tmp_fns->num_s, 12 ) ) )
-//    mo_add_xml_stroke( oRash, hb_OEMToANSI( 'НомКорр' ), str( tmp_fns->version, 3 ) )
     oRash:SetAttribute( hb_OEMToANSI( 'НомКорр' ), alltrim( str( tmp_fns->version, 3 ) ) )
-//    mo_add_xml_stroke( oRash, hb_OEMToANSI( 'ПрПациент' ), str( tmp_fns->attribut, 1 ) )
     oRash:SetAttribute( hb_OEMToANSI( 'ПрПациент' ), str( tmp_fns->attribut, 1 ) )
     if tmp_fns->sum1 > 0
-//      mo_add_xml_stroke( oRash, hb_OEMToANSI( 'СуммаКод1' ), str( tmp_fns->sum1, 15, 2 ) )
       oRash:SetAttribute( hb_OEMToANSI( 'СуммаКод1' ), alltrim( str( tmp_fns->sum1, 15, 2 ) ) )
     endif
     if tmp_fns->sum2 > 0
-//      mo_add_xml_stroke( oRash, hb_OEMToANSI( 'СуммаКод2' ), str( tmp_fns->sum2, 15, 2 ) )
       oRash:SetAttribute( hb_OEMToANSI( 'СуммаКод2' ), alltrim( str( tmp_fns->sum2, 15, 2 ) ) )
     endif
     node_DAN_FIO_TIP( oRash, NALOG_PLAT, tmp_fns->inn, tmp_fns->plat_dob, tmp_fns->plat_fio, tmp_fns->viddoc, tmp_fns->ser_num, tmp_fns->datevyd )
@@ -337,17 +325,15 @@ function fill_pole_spravok( alias, arr_spravka, kod )
   ( alias )->( dbGoto( tmpRec ) )
   return nil
 
-// 18.08.24
+// 23.08.24
 function node_DAN_FIO_TIP( obj, node_type, inn, dob, fio, docType, docSerNum, docDate )
 
   local oDAN_FIO_TIP
 
   oDAN_FIO_TIP := obj:add( hxmlnode():new( hb_OEMToANSI( iif( node_type == NALOG_PLAT, 'НППлатМедУсл', 'Пациент' ) ) ) )
   if ! empty( inn )
-//    mo_add_xml_stroke( oDAN_FIO_TIP, hb_OEMToANSI( 'ИНН' ), inn )
     oDAN_FIO_TIP:SetAttribute( hb_OEMToANSI( 'ИНН' ), alltrim( inn ) )
   endif
-//  mo_add_xml_stroke( oDAN_FIO_TIP, hb_OEMToANSI( 'ДатаРожд' ), transform( dob, '99.99.9999' ) )
   oDAN_FIO_TIP:SetAttribute( hb_OEMToANSI( 'ДатаРожд' ), transform( dob, '99.99.9999' ) )
   node_fio_tip_fns( oDAN_FIO_TIP, fio )
   if empty( inn )
@@ -355,33 +341,27 @@ function node_DAN_FIO_TIP( obj, node_type, inn, dob, fio, docType, docSerNum, do
   endif
   return nil
 
-// 22.08.24
+// 23.08.24
 function node_Sved_Doc_fns( obj, kod, sernum, datedoc )
 
   local oSvedDoc
 
   oSvedDoc := obj:add( hxmlnode():new( hb_OEMToANSI( 'СведДок' ) ) )
-//  mo_add_xml_stroke( oSvedDoc, hb_OEMToANSI( 'КодВидДок' ), strzero( kod, 2 ) )
   oSvedDoc:SetAttribute( hb_OEMToANSI( 'КодВидДок' ), strzero( kod, 2 ) )
-//  mo_add_xml_stroke( oSvedDoc, hb_OEMToANSI( 'СерНомДок' ), sernum )
   oSvedDoc:SetAttribute( hb_OEMToANSI( 'СерНомДок' ), alltrim( sernum ) )
-//  mo_add_xml_stroke( oSvedDoc, hb_OEMToANSI( 'ДатаДок' ), transform( datedoc, '99.99.9999' ) )
   oSvedDoc:SetAttribute( hb_OEMToANSI( 'ДатаДок' ), transform( datedoc, '99.99.9999' ) )
   return nil
 
-// 18.08.24
+// 23.08.24
 function node_fio_tip_fns( obj, fio )
 
   local aFio, node_fio
 
   aFIO := razbor_str_fio( Upper( fio ) )
   node_fio := obj:add( hxmlnode():new( hb_OEMToANSI( 'ФИО' ) ) )
-//  mo_add_xml_stroke( node_fio, hb_OEMToANSI( 'Фамилия' ), aFIO[ 1 ] )
   node_fio:SetAttribute( hb_OEMToANSI( 'Фамилия' ), hb_OEMToANSI( aFIO[ 1 ] ) )
-//  mo_add_xml_stroke( node_fio, hb_OEMToANSI( 'Имя' ), aFIO[ 2 ] )
   node_fio:SetAttribute( hb_OEMToANSI( 'Имя' ), hb_OEMToANSI( aFIO[ 2 ] ) )
   if ! empty( aFIO[ 3 ] )
-//    mo_add_xml_stroke( node_fio, hb_OEMToANSI( 'Отчество' ), aFIO[ 3 ] )
     node_fio:SetAttribute( hb_OEMToANSI( 'Отчество' ), hb_OEMToANSI( aFIO[ 3 ] ) )
   endif
   return nil
