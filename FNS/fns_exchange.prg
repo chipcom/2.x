@@ -9,11 +9,106 @@
 #define NALOG_PLAT  1
 #define PACIENT     2
 
-// 20.08.24
+Static reestr_xml_fns_sem := 'Работа с реестрами справок ФНС'
+Static reestr_xml_fns_err := 'В данный момент с реестрами ФНС работает другой пользователь.'
+
+// 25.08.24
+Function view_list_xml_fns()
+
+  Local i, k, buf := SaveScreen()
+//  local prefix := 'UT_SVOPLMEDUSL', nameFileXML := ''
+//  local org := hb_main_curorg
+
+  If ! g_slock( reestr_xml_fns_sem )
+    Return func_error( 4, reestr_xml_fns_err )
+  Endif
+
+//  Private goal_dir := dir_server + dir_XML_MO + cslash
+  g_use( dir_server + 'reg_xml_fns', , 'xml' )
+  Index On str( kod, 6 ) to ( cur_dir() + 'tmp_xml' ) DESCENDING
+  Go Top
+  xml->( dbGoTop() )
+  If xml->( Eof() )
+    func_error( 4, 'Нет реестров справок' )
+  Else
+    alpha_browse( T_ROW, 0, 23, 79, 'defColumn_xml_FNS', color0,,,,,,, ;
+      'serv_xml_fns',, { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, GR+/R', .t., 180 } )
+  Endif
+
+  // mtitle := 'Файлы выгрузки для ФЭС'
+  // alpha_browse( 5, 0, MaxRow() - 2, 79, 'defColumn_xml_FNS', color0, mtitle, 'BG+/GR', ;
+  //   .f., .t., , , 'serv_xml_fns', , ;
+  //   { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, GR+/R', .t., 180 } )
+
+  dbCloseAll()
+  g_sunlock( reestr_xml_fns_sem )
+  RestScreen( buf )
+  return nil
+
+// 13.08.24
+function serv_xml_fns( nKey, oBrow )
+
+  Local j := 0, flag := -1, buf := save_row( MaxRow() ), ;
+    tmp_color := SetColor(), r1 := 15, c1 := 2
+
+  Do Case
+  Case nKey == K_F9
+  Case nKey == K_INS
+  Case nKey == K_DEL
+  Otherwise
+    Keyboard ''
+  Endcase
+  Return flag
+
+// 25.08.24
+function defColumn_xml_FNS( oBrow )
+
+  Local oColumn, s
+//  Local blk := {|| iif( Empty( xml->kod_xml ), { 5, 6 }, { 3, 4 } ) }
+
+  oColumn := TBColumnNew( ' Номер ', {|| padl( alltrim( substr( xml->fname, hb_RAt( '_', xml->fname ) + 1 ) ), 6 ) } )
+//  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( '  Дата', {|| date_8( xml->dfile ) } )
+//  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'Кол.;спр.', {|| str( xml->kol1, 4 ) } )
+//  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( ' Имя файла ', {|| substr( xml->fname, 26 ) } )
+//  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'Примечание', {|| view_xml_fns() } )
+//  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
+  s := '<Esc> выход <Ins> новый'
+  @ MaxRow(), 0 Say PadC( s, 80 ) Color 'N/W'
+  mark_keys( { '<Esc>', '<Enter>', '<Ins>', '<Del>', '<Ctrl+Enter>', '<F3>', '<F4>', '<F8>', '<F9>', '<F10>' }, 'R/W' )
+  Return Nil
+
+// 25.08.24
+Function view_xml_fns()
+
+  Local s := ''
+  
+  If ! hb_FileExists( dir_XML_FNS() + AllTrim( xml->fname ) + sxml )
+    s := 'нет файла'
+//  Elseif Empty( rees->date_out )
+//    s := 'не записан'
+//  Else
+//    s := 'зап. ' + lstr( rees->NUMB_OUT ) + ' раз'
+  Endif
+  Return PadR( s, 10 )
+  
+  // 25.08.24
 Function reestr_xml_fns()
 
-  Local mtitle
-  Local buf := SaveScreen()
+//  Local buf := SaveScreen()
   local prefix := 'UT_SVOPLMEDUSL', nameFileXML := ''
   local org := hb_main_curorg
 
@@ -39,63 +134,8 @@ Function reestr_xml_fns()
   endif
 
   createXMLtoFNS()
-
-  // use_base( 'xml_fns', 'xml' )
-
-  // xml->( dbGoBottom() )
-  // mtitle := 'Файлы выгрузки для ФЭС'
-  // alpha_browse( 5, 0, MaxRow() - 2, 79, 'defColumn_xml_FNS', color0, mtitle, 'BG+/GR', ;
-  //   .f., .t., , , 'serv_xml_fns', , ;
-  //   { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, GR+/R', .t., 180 } )
-
-  // dbCloseAll()
-  RestScreen( buf )
-
+//  RestScreen( buf )
   Return Nil
-
-// 13.08.24
-function defColumn_xml_FNS( oBrow )
-
-  Local oColumn, s
-//  Local blk := {|| iif( Empty( xml->kod_xml ), { 5, 6 }, { 3, 4 } ) }
-
-  oColumn := TBColumnNew( ' Код ', {|| str( xml->kod, 6 ) } )
-//  oColumn:colorBlock := blk
-  oBrow:addcolumn( oColumn )
-
-  oColumn := TBColumnNew( ' Имя файла ', {|| xml->fname } )
-//  oColumn:colorBlock := blk
-  oBrow:addcolumn( oColumn )
-
-  oColumn := TBColumnNew( ' Имя файла 2', {|| xml->fname2 } )
-//  oColumn:colorBlock := blk
-  oBrow:addcolumn( oColumn )
-
-  oColumn := TBColumnNew( '  Дата', {|| date_8( xml->dfile ) } )
-//  oColumn:colorBlock := blk
-  oBrow:addcolumn( oColumn )
-
-  s := '<Esc> выход <Ins> новый'
-  @ MaxRow(), 0 Say PadC( s, 80 ) Color 'N/W'
-  mark_keys( { '<Esc>', '<Enter>', '<Ins>', '<Del>', '<Ctrl+Enter>', '<F3>', '<F4>', '<F8>', '<F9>', '<F10>' }, 'R/W' )
-
-  Return Nil
-
-// 13.08.24
-function serv_xml_fns( nKey, oBrow )
-
-  Local j := 0, flag := -1, buf := save_row( MaxRow() ), ;
-    tmp_color := SetColor(), r1 := 15, c1 := 2
-
-  Do Case
-  Case nKey == K_F9
-  Case nKey == K_INS
-  Case nKey == K_DEL
-  Otherwise
-    Keyboard ''
-  Endcase
-
-  Return flag
 
 // 22.08.24
 function name_file_fns_xml( org, dt, num, id_pol, id_end )

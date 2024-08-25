@@ -455,7 +455,6 @@ function collect_pay( nYear )
     if year( hum_p->K_DATA ) == nYear
       mSumma += hum_p->cena
       AAdd( aCheck, { hum_p->( recno() ), 1, hum_p->cena, hum_p->sum_voz } )
-//  KOD_K
     endif
     hum_p->( dbSkip() )
   enddo
@@ -466,7 +465,7 @@ function collect_pay( nYear )
   select( tmp_sel )
   return nil
   
-// 13.08.24
+// 25.08.24
 // вызывается в 'Платные услуги(Ортопедия\Касса)/Информация/Справки для ФНС'
 Function inf_fns( k )
 
@@ -479,25 +478,30 @@ Function inf_fns( k )
     mas_pmt := { ;
       'Ввод данных', ;
       'Список справок для ФНС', ;
-      'Реестры для ФНС' ;
+      'Составление реестров для ФНС', ;
+      'Просмотр реестров для ФНС' ;
       }
     mas_msg := { ;
       'Формирование и просмотр выданных справок по пациенту', ;
       'Просмотр список сформированных справок для ФНС', ;
-      'Просмотр списка и создание реестров для отправки в ФНС' ;
+      'Составление реестров справок о расходах для выгрузки в ФНС', ;
+      'Просмотр реестров справок о расходах для выгрузки в ФНС' ;
       }
     mas_fun := { ;
       'inf_fns(11)', ;
       'inf_fns(12)', ;
-      'inf_fns(13)' ;
+      'inf_fns(13)', ;
+      'inf_fns(14)' ;
       }
     popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
-    input_spravka_fns() // spravka_fns()
+    input_spravka_fns()
   case k == 12
     reestr_spravka_fns()
   Case k == 13
     reestr_xml_fns()
+  Case k == 14
+    view_list_xml_fns()
   Endcase
   If k > 10
     j := Int( Val( Right( lstr( k ), 1 ) ) )
