@@ -31,7 +31,7 @@ Function view_list_xml_fns()
   If xml->( Eof() )
     func_error( 4, 'Нет реестров справок' )
   Else
-    alpha_browse( T_ROW, 0, 23, 79, 'defColumn_xml_FNS', color0,,,,,,, ;
+    alpha_browse( 5, 0, 23, 79, 'defColumn_xml_FNS', color0,,,,,,, ;
       'serv_xml_fns',, { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, GR+/R', .t., 180 } )
   Endif
 
@@ -45,50 +45,88 @@ Function view_list_xml_fns()
   RestScreen( buf )
   return nil
 
-// 13.08.24
+// 25.08.24
 function serv_xml_fns( nKey, oBrow )
 
-  Local j := 0, flag := -1, buf := save_row( MaxRow() ), ;
-    tmp_color := SetColor(), r1 := 15, c1 := 2
+  Local j := 0, ret := -1, buf := save_row( MaxRow() ), ;
+    tmp_color := SetColor(), r1 := 15, c1 := 2, ;
+    xml_file, s, k := 0, smsg := ''
 
   Do Case
+  Case nKey == K_F5
+    s := manager( T_ROW, T_COL + 5, MaxRow() - 2, , .t., 2, .f.,,, ) // "norton" для выбора каталога
+    If !Empty( s )
+      If Upper( s ) == Upper( dir_XML_FNS() )
+        func_error( 4, 'Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо.' )
+      Else
+        xml_file := alltrim( xml->fname ) + sxml
+        If hb_FileExists( dir_XML_FNS() + xml_file )
+          mywait( 'Копирование "' + xml_file + '" в каталог "' + s + '"' )
+          // copy file (goal_dir+zip_file) to (hb_OemToAnsi(s)+zip_file)
+          Copy File ( dir_XML_FNS() + xml_file ) to ( s + xml_file )
+          // if hb_fileExists(hb_OemToAnsi(s)+zip_file)
+          If hb_FileExists( s + xml_file )
+            xml->( g_rlock( forever ) )
+            xml->DATE_OUT := sys_date
+            If xml->NUMB_OUT < 99
+              xml->NUMB_OUT++
+            Endif
+            //
+          Else
+            smsg := '! Ошибка записи файла ' + s + xml_file
+            func_error( 4, smsg )
+          Endif
+        Else
+          smsg := '! Не обнаружен файл ' + dir_XML_FNS() + xml_file
+          func_error( 4, smsg )
+        Endif
+        Unlock
+        Commit
+      Endif
+    endif
+    ret := 0
+
   Case nKey == K_F9
   Case nKey == K_INS
   Case nKey == K_DEL
   Otherwise
     Keyboard ''
   Endcase
-  Return flag
+  Return ret
 
 // 25.08.24
 function defColumn_xml_FNS( oBrow )
 
-  Local oColumn, s
-//  Local blk := {|| iif( Empty( xml->kod_xml ), { 5, 6 }, { 3, 4 } ) }
+  Local oColumn, s, ;
+  blk := {|| iif( hb_FileExists( dir_XML_FNS() + AllTrim( xml->fname ) + sxml ), ;
+    iif( Empty( xml->date_out ), { 3, 4 }, { 1, 2 } ), ;
+    { 5, 6 } ) }
 
   oColumn := TBColumnNew( ' Номер ', {|| padl( alltrim( substr( xml->fname, hb_RAt( '_', xml->fname ) + 1 ) ), 6 ) } )
-//  oColumn:colorBlock := blk
+  oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( '  Дата', {|| date_8( xml->dfile ) } )
-//  oColumn:colorBlock := blk
+  oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( 'Кол.;спр.', {|| str( xml->kol1, 4 ) } )
-//  oColumn:colorBlock := blk
+  oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( ' Имя файла ', {|| substr( xml->fname, 26 ) } )
-//  oColumn:colorBlock := blk
+  oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( 'Примечание', {|| view_xml_fns() } )
-//  oColumn:colorBlock := blk
+  oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  s := '<Esc> выход <Ins> новый'
-  @ MaxRow(), 0 Say PadC( s, 80 ) Color 'N/W'
-  mark_keys( { '<Esc>', '<Enter>', '<Ins>', '<Del>', '<Ctrl+Enter>', '<F3>', '<F4>', '<F8>', '<F9>', '<F10>' }, 'R/W' )
+//  s := '<Esc> выход <F5> запись для ФНС'
+//  @ MaxRow(), 0 Say PadC( s, 80 ) Color 'N/W'
+//  mark_keys( { '<Esc>', '<Enter>', '<Ins>', '<Del>', '<Ctrl+Enter>', '<F3>', '<F4>', '<F5>', '<F8>', '<F9>', '<F10>' }, 'R/W' )
+//  status_key( "^<Esc>^ выход; ^<F5>^ запись для ФНС; ^<F3>^ информация о реестре; ^<F9>^ статистика" )
+  status_key( '^<Esc>^ выход; ^<F5>^ запись для ФНС' )
   Return Nil
 
 // 25.08.24
@@ -98,10 +136,10 @@ Function view_xml_fns()
   
   If ! hb_FileExists( dir_XML_FNS() + AllTrim( xml->fname ) + sxml )
     s := 'нет файла'
-//  Elseif Empty( rees->date_out )
-//    s := 'не записан'
-//  Else
-//    s := 'зап. ' + lstr( rees->NUMB_OUT ) + ' раз'
+  Elseif Empty( xml->date_out )
+    s := 'не записан'
+  Else
+    s := 'зап. ' + lstr( xml->NUMB_OUT ) + ' раз'
   Endif
   Return PadR( s, 10 )
   
