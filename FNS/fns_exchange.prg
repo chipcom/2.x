@@ -45,12 +45,13 @@ Function view_list_xml_fns()
   RestScreen( buf )
   return nil
 
-// 25.08.24
+// 26.08.24
 function serv_xml_fns( nKey, oBrow )
 
-  Local j := 0, ret := -1, buf := save_row( MaxRow() ), ;
+  Local j := 0, ret := -1, buf := SaveScreen(), ;
     tmp_color := SetColor(), r1 := 15, c1 := 2, ;
     xml_file, s, k := 0, smsg := ''
+  local nResult
 
   Do Case
   Case nKey == K_F5
@@ -62,10 +63,8 @@ function serv_xml_fns( nKey, oBrow )
         xml_file := alltrim( xml->fname ) + sxml
         If hb_FileExists( dir_XML_FNS() + xml_file )
           mywait( 'Копирование "' + xml_file + '" в каталог "' + s + '"' )
-          // copy file (goal_dir+zip_file) to (hb_OemToAnsi(s)+zip_file)
-          Copy File ( dir_XML_FNS() + xml_file ) to ( s + xml_file )
-          // if hb_fileExists(hb_OemToAnsi(s)+zip_file)
-          If hb_FileExists( s + xml_file )
+          if ( nResult := hb_vfCopyFile( dir_XML_FNS() + xml_file, s + xml_file ) ) == 0  // скопировано без ошибок
+//          If hb_FileExists( s + xml_file )
             xml->( g_rlock( forever ) )
             xml->DATE_OUT := sys_date
             If xml->NUMB_OUT < 99
@@ -86,13 +85,68 @@ function serv_xml_fns( nKey, oBrow )
     endif
     ret := 0
 
+  Case nKey == K_F3
+    view_list_xml( oBrow )
+    ret := 0
   Case nKey == K_F9
-  Case nKey == K_INS
   Case nKey == K_DEL
   Otherwise
     Keyboard ''
   Endcase
+  SetColor( tmp_color )
+  RestScreen( buf )
   Return ret
+
+// 26.08.24
+Function view_list_xml( oBrow )
+
+  Static si := 1
+  Local i, r := Row(), r1, r2, buf := save_maxrow(), ;
+    mm_nalog := {}, ;
+    mm_func := { -1, -2, -3 }, ;
+    tmp_select := select(), ;
+    mm_menu := { 'Список ~всех налогоплательшиков в реестре', ;
+      'Список ~обработанных в ФНС', ;
+      'Список ~не обработанных в ФНС' ;
+    }
+
+  mywait()
+  r_use( dir_server + 'register_fns', , 'fns' )
+  // Select MO_XML
+  // Index On FNAME to ( cur_dir + "tmp_xml" ) ;
+  //   For reestr == rees->kod .and. Between( TIP_IN, _XML_FILE_FLK, _XML_FILE_SP ) .and. Empty( TIP_OUT )
+  fns->( dbGoTop() )
+  Do While ! fns->( Eof() )
+    if fns->kod_xml == xml->kod
+      AAdd( mm_nalog, fns->plat_fio )
+    endif
+  //   AAdd( mm_func, mo_xml->kod )
+  //   AAdd( mm_menu, "Протокол чтения " + RTrim( mo_xml->FNAME ) + iif( Empty( mo_xml->TWORK2 ), "-ЧТЕНИЕ НЕ ЗАВЕРШЕНО", "" ) )
+    fns->( dbSkip() )
+  Enddo
+  // Select MO_XML
+  // Set Index To
+  If r <= 12
+    r1 := r + 1
+    r2 := r1 + Len( mm_menu ) + 1
+  Else
+    r2 := r - 1
+    r1 := r2 - Len( mm_menu ) - 1
+  Endif
+  rest_box( buf )
+  If ( i := popup_prompt( r1, 10, si, mm_menu,,, color5 ) ) > 0
+    si := i
+    // If mm_func[ i ] < 0
+    //   f31_view_list_reestr( Abs( mm_func[ i ] ), mm_menu[ i ] )
+    // Else
+    //   mo_xml->( dbGoto( mm_func[ i ] ) )
+    //   viewtext( devide_into_pages( dir_server + dir_XML_TF + cslash + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
+    // Endif
+  Endif
+  // Select REES
+  select( tmp_select )
+  fns->( dbCloseArea() )
+  Return Nil
 
 // 25.08.24
 function defColumn_xml_FNS( oBrow )
@@ -122,10 +176,6 @@ function defColumn_xml_FNS( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-//  s := '<Esc> выход <F5> запись для ФНС'
-//  @ MaxRow(), 0 Say PadC( s, 80 ) Color 'N/W'
-//  mark_keys( { '<Esc>', '<Enter>', '<Ins>', '<Del>', '<Ctrl+Enter>', '<F3>', '<F4>', '<F5>', '<F8>', '<F9>', '<F10>' }, 'R/W' )
-//  status_key( "^<Esc>^ выход; ^<F5>^ запись для ФНС; ^<F3>^ информация о реестре; ^<F9>^ статистика" )
   status_key( '^<Esc>^ выход; ^<F5>^ запись для ФНС' )
   Return Nil
 
