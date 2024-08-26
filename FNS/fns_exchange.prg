@@ -5,6 +5,7 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'tfile.ch'
 
 #define NALOG_PLAT  1
 #define PACIENT     2
@@ -102,15 +103,25 @@ Function view_list_xml( oBrow )
 
   Static si := 1
   Local i, r := Row(), r1, r2, buf := save_maxrow(), ;
+    reg_print := 2, ;
     mm_nalog := {}, ;
     mm_func := { -1, -2, -3 }, ;
     tmp_select := select(), ;
-    mm_menu := { 'Список ~всех налогоплательшиков в реестре', ;
-      'Список ~обработанных в ФНС', ;
-      'Список ~не обработанных в ФНС' ;
+    mm_menu := { 'Список ~всех налогоплательшиков в реестре' ;
     }
+  // 'Список ~обработанных в ФНС', ;
+  // 'Список ~не обработанных в ФНС' ;
+  local nFile, ft, name_file := cur_dir() + 'fns_nalog.txt'
 
   mywait()
+  ft := tfiletext():new( name_file, , .t., , .t. ) 
+  // ft:TableHeader := arr_title
+  // ft:EnableTableHeader := .t.
+  // ft:printTableHeader()
+  ft:add_string( '' )
+  ft:add_string( 'Список справок в реестре', FILE_CENTER, ' ' )
+  ft:add_string( '' )
+
   r_use( dir_server + 'register_fns', , 'fns' )
   // Select MO_XML
   // Index On FNAME to ( cur_dir + "tmp_xml" ) ;
@@ -119,36 +130,43 @@ Function view_list_xml( oBrow )
   Do While ! fns->( Eof() )
     if fns->kod_xml == xml->kod
       AAdd( mm_nalog, fns->plat_fio )
+      ft:add_string( ' ' + str( fns->num_s, 5 ) + ' ' + strzero( fns->version, 3 ) ;
+        + ' ' + transform( fns->date, '99.99.99' ) + ' ' +  + padr( fns->plat_fio, 30 ) + ' ' ;
+        + str( fns->sum1, 8, 2 ) + ' ' + str( fns->sum2, 8, 2 ) )
     endif
   //   AAdd( mm_func, mo_xml->kod )
   //   AAdd( mm_menu, "Протокол чтения " + RTrim( mo_xml->FNAME ) + iif( Empty( mo_xml->TWORK2 ), "-ЧТЕНИЕ НЕ ЗАВЕРШЕНО", "" ) )
     fns->( dbSkip() )
   Enddo
+  nFile := ft:NameFile
+  ft := nil
+  viewtext( name_file, , , , .t., , , reg_print )
+
   // Select MO_XML
   // Set Index To
-  If r <= 12
-    r1 := r + 1
-    r2 := r1 + Len( mm_menu ) + 1
-  Else
-    r2 := r - 1
-    r1 := r2 - Len( mm_menu ) - 1
-  Endif
-  rest_box( buf )
-  If ( i := popup_prompt( r1, 10, si, mm_menu,,, color5 ) ) > 0
-    si := i
+//  If r <= 12
+//    r1 := r + 1
+//    r2 := r1 + Len( mm_menu ) + 1
+//  Else
+//    r2 := r - 1
+//    r1 := r2 - Len( mm_menu ) - 1
+//  Endif
+//  rest_box( buf )
+//  If ( i := popup_prompt( r1, 10, si, mm_menu,,, color5 ) ) > 0
+//    si := i
     // If mm_func[ i ] < 0
     //   f31_view_list_reestr( Abs( mm_func[ i ] ), mm_menu[ i ] )
     // Else
     //   mo_xml->( dbGoto( mm_func[ i ] ) )
     //   viewtext( devide_into_pages( dir_server + dir_XML_TF + cslash + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
     // Endif
-  Endif
+//  Endif
   // Select REES
   select( tmp_select )
   fns->( dbCloseArea() )
   Return Nil
 
-// 25.08.24
+// 26.08.24
 function defColumn_xml_FNS( oBrow )
 
   Local oColumn, s, ;
@@ -176,7 +194,7 @@ function defColumn_xml_FNS( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  status_key( '^<Esc>^ выход; ^<F5>^ запись для ФНС' )
+  status_key( '^<Esc>^ выход; ^<F3>^ список справок в реестре; ^<F5>^ запись для ФНС' )
   Return Nil
 
 // 25.08.24
