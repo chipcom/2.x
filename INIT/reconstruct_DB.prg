@@ -64,7 +64,7 @@ function Reconstruct_Security(is_local_version)
   
   return nil
 
-// 21.08.24 реконстукция баз данных
+// 27.08.24 реконстукция баз данных
 Function Reconstruct_DB( is_local_version, is_create )
      
   Local base1 := {;
@@ -1553,10 +1553,6 @@ Function Reconstruct_DB( is_local_version, is_create )
     {'NUMB_OUT','N',     2,   0 }, ; // номер отправки в ФНС;сколько раз всего записывали файл на носитель;
     { 'KOL1',   'N',     6,   0 } ; // количество справок в файле
   }
-  local mo_xml_fns_link := { ;  // ссылки на справки в файле для ФНС
-    { 'KOD_XML','N',     6,   0 }, ; // код указывающий на запись в 'reg_xml_fns'
-    { 'KOD_SPR', 'N',    7,   0 } ; // код справки по 'register_fns'
-  }
   //
   f_init_r01() // инициализация всех файлов инф.сопровождения по диспансеризации
   // f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
@@ -1705,7 +1701,6 @@ Function Reconstruct_DB( is_local_version, is_create )
   reconstruct(dir_server + 'register_fns', mo_register_fns, 'index_base( "register_fns" )', 'журнал ФНС', .t.)
   reconstruct(dir_server + 'reg_link_fns', mo_reg_fns_link, 'index_base( "reg_link_fns" )', 'ссылки для справок ФНС', .t.)
   reconstruct(dir_server + 'reg_xml_fns', mo_xml_fns, 'index_base( "reg_xml_fns" )', 'файлы XML для ФНС', .t.)
-  reconstruct(dir_server + 'reg_xml_link_fns', mo_xml_fns_link, 'index_base( "reg_xml_fns_link" )', 'ссылки на справки для файла XML для ФНС', .t.)
   //
   //  reconstruct(dir_server + 'mo_kekez', kek_eksz, 'index_base("mo_kekez")', 'экспертизам', .t.)
   //  reconstruct(dir_server + 'mo_kekh', kek_h, 'index_base("mo_kekh")', 'экспертизам2', .t.)
