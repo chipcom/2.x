@@ -98,70 +98,48 @@ function serv_xml_fns( nKey, oBrow )
   RestScreen( buf )
   Return ret
 
-// 26.08.24
+// 27.08.24
 Function view_list_xml( oBrow )
 
-  Static si := 1
-  Local i, r := Row(), r1, r2, buf := save_maxrow(), ;
+  Local buf := save_maxrow(), ;
     reg_print := 2, ;
-    mm_nalog := {}, ;
-    mm_func := { -1, -2, -3 }, ;
     tmp_select := select(), ;
     mm_menu := { '‘¯¨á®ª ~¢á¥å ­ «®£®¯« â¥«ìè¨ª®¢ ¢ à¥¥áâà¥' ;
     }
-  // '‘¯¨á®ª ~®¡à ¡®â ­­ëå ¢ ”‘', ;
-  // '‘¯¨á®ª ~­¥ ®¡à ¡®â ­­ëå ¢ ”‘' ;
   local nFile, ft, name_file := cur_dir() + 'fns_nalog.txt'
+  local arr_title := { ;
+    'ÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄ', ;
+    ' ®¬¥à ³ Š®à-ª  ³   „ â     ³   ” ¬¨«¨ï, ¨¬ï, ®âç¥áâ¢®      ³  ‘ã¬¬ 1  ³  ‘ã¬¬ 2', ;
+    'á¯à ¢ª¨³        ³á®áâ ¢«¥­¨ï³                               ³    àã¡.  ³    àã¡.', ;
+    'ÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄ' ;
+  }
 
   mywait()
   ft := tfiletext():new( name_file, , .t., , .t. ) 
-  // ft:TableHeader := arr_title
-  // ft:EnableTableHeader := .t.
-  // ft:printTableHeader()
+  ft:width := 82
+  ft:TableHeader := arr_title
+  ft:EnableTableHeader := .t.
   ft:add_string( '' )
   ft:add_string( '‘¯¨á®ª á¯à ¢®ª ¢ à¥¥áâà¥', FILE_CENTER, ' ' )
+  ft:add_string( alltrim( xml->fname ) + sxml, FILE_CENTER, ' ' )
+  ft:add_string( '®â ' + transform( xml->dfile, '99.99.99' ) + '£.', FILE_CENTER, ' ' )
   ft:add_string( '' )
+  ft:printTableHeader()
 
   r_use( dir_server + 'register_fns', , 'fns' )
-  // Select MO_XML
-  // Index On FNAME to ( cur_dir + "tmp_xml" ) ;
-  //   For reestr == rees->kod .and. Between( TIP_IN, _XML_FILE_FLK, _XML_FILE_SP ) .and. Empty( TIP_OUT )
   fns->( dbGoTop() )
   Do While ! fns->( Eof() )
     if fns->kod_xml == xml->kod
-      AAdd( mm_nalog, fns->plat_fio )
-      ft:add_string( ' ' + str( fns->num_s, 5 ) + ' ' + strzero( fns->version, 3 ) ;
-        + ' ' + transform( fns->date, '99.99.99' ) + ' ' +  + padr( fns->plat_fio, 30 ) + ' ' ;
-        + str( fns->sum1, 8, 2 ) + ' ' + str( fns->sum2, 8, 2 ) )
+      ft:add_string( ' ' + str( fns->num_s, 5 ) + ' ³   ' + strzero( fns->version, 3 ) ;
+        + '  ³ ' + transform( fns->date, '99.99.99' ) + '³ ' +  + padr( fns->plat_fio, 30 ) + '³ ' ;
+        + str( fns->sum1, 8, 2 ) + ' ³' + str( fns->sum2, 8, 2 ) )
     endif
-  //   AAdd( mm_func, mo_xml->kod )
-  //   AAdd( mm_menu, "à®â®ª®« çâ¥­¨ï " + RTrim( mo_xml->FNAME ) + iif( Empty( mo_xml->TWORK2 ), "-—’…ˆ… … ‡€‚…˜…Ž", "" ) )
     fns->( dbSkip() )
   Enddo
+  ft:add_string( arr_title[ 4 ] )
   nFile := ft:NameFile
   ft := nil
   viewtext( name_file, , , , .t., , , reg_print )
-
-  // Select MO_XML
-  // Set Index To
-//  If r <= 12
-//    r1 := r + 1
-//    r2 := r1 + Len( mm_menu ) + 1
-//  Else
-//    r2 := r - 1
-//    r1 := r2 - Len( mm_menu ) - 1
-//  Endif
-//  rest_box( buf )
-//  If ( i := popup_prompt( r1, 10, si, mm_menu,,, color5 ) ) > 0
-//    si := i
-    // If mm_func[ i ] < 0
-    //   f31_view_list_reestr( Abs( mm_func[ i ] ), mm_menu[ i ] )
-    // Else
-    //   mo_xml->( dbGoto( mm_func[ i ] ) )
-    //   viewtext( devide_into_pages( dir_server + dir_XML_TF + cslash + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
-    // Endif
-//  Endif
-  // Select REES
   select( tmp_select )
   fns->( dbCloseArea() )
   Return Nil
