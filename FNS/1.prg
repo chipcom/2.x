@@ -28,6 +28,29 @@
   // aPlat[ 2, 16 ] := ctod( '' )  // документ удостоверяющий личность дата выдачи
   // aPlat[ 2, 17 ] := 'Бакулина тамара петровна'
 
+// 05.08.24
+function collect_pay( nYear )
+
+  local tmp_sel := select()
+
+  hb_alert( 'Собираем чеки' )
+  use_base( 'hum_p', 'hum_p' )
+  find ( str( glob_kartotek, 7 ) )
+  do while hum_p->kod_k == glob_kartotek
+    if year( hum_p->K_DATA ) == nYear
+      mSumma += hum_p->cena
+      AAdd( aCheck, { hum_p->( recno() ), 1, hum_p->cena, hum_p->sum_voz } )
+    endif
+    hum_p->( dbSkip() )
+  enddo
+  hum_p->( dbCloseArea() )
+
+  @ nStrSum, 22 Say str( mSumma, 10, 2 )
+  @ nStrSum, 54 Say str( mSummaVozvrat, 10, 2 )
+  select( tmp_sel )
+  return nil
+  
+
 // 03.08.24
 Function spravka_fns()
 

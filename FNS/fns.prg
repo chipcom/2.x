@@ -31,11 +31,6 @@ Function defcolumn_spravka_fns( oBrow )
   Local oColumn, s
   Local blk := {|| iif( Empty( fns->kod_xml ), { 5, 6 }, { 3, 4 } ) }
 
-  // Local oColumn, ;
-  //   blk := {|| iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip ), ;
-  //   iif( Empty( rees->date_out ), { 3, 4 }, { 1, 2 } ), ;
-  //   { 5, 6 } ) }
-
   oColumn := TBColumnNew( ' Год ', {|| str( fns->nyear, 4 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
@@ -81,20 +76,14 @@ Function serv_spravka_fns( nKey, oBrow )
     tmp_color := SetColor(), r1 := 15, c1 := 2
 
   Do Case
-//  Case nKey == K_F3
-    // view_p_kvit(K_F3)
-//  Case nKey == K_F4
-    // view_p_kvit(K_F4)
   Case nKey == K_F9
     if fns->kod_xml == -1 .or. fns->kod_xml == 0
       print_spravka_fns()
     else
       func_error( 4, 'Справка включена в файл обмена с ФНС!' )
     endif
-//  Case nKey == K_INS
   Case nKey == K_DEL
     anul_spravka_fns()
-//  Case nKey == K_CTRL_RET
   Otherwise
     Keyboard ''
   Endcase
@@ -241,7 +230,6 @@ function exist_spravka( get, kod_kart, onePerson )
 
   local nyear, str_find, tmp_select
 
-//  nyear := get:original // получим поле ввода
   nyear := get
   str_find := Str( kod_kart, 7 ) + Str( nyear, 4 ) + Str( onePerson, 1 )
   find ( str_find )
@@ -264,7 +252,7 @@ function exist_spravka( get, kod_kart, onePerson )
 
   return .t.
 
-// 19.08.24
+// 28.08.24
 function input_spravka_fns()
 
   Local str_sem
@@ -347,6 +335,13 @@ function input_spravka_fns()
       @ ++j, 2 Say 'Оплаченная сумма по чекам за минусом возвратов - ' + str( mSumma, 10, 2 )
       @ ++j, 2 Say 'Сумма 1 -' Get mSum1 pict '999999999.99'
       @ j, 37 Say 'Сумма 2 -' Get mSum2 pict '999999999.99'
+      ++j
+      @ ++j, 2 Say 'Сумма 1 - указывается общая сумма произведенных расходов на оказанные'
+      @ ++j, 2 Say ' медицинские услуги (за исключением расходов по дорогостоящим видам лечения)'
+      ++j
+      @ ++j, 2 Say 'Сумма 2 - общая сумма произведенных расходов по дорогостоящим видам'
+      @ ++j, 2 Say 'лечения в соответствии с перечнем медицинских услуг, утвержденным'
+      @ ++j, 2 Say 'Правительством Российской Федерации, постановление № 458 от 08.04.2020 г.'
       count_edit := myread(, @pos_read, ++k_read )
       If LastKey() != K_ESC
         If f_esc_enter( 1 )
@@ -380,10 +375,6 @@ function input_spravka_fns()
               Loop
             endif
           endif
-//          if len( aFIOExecutor ) < 3
-//            func_error( 4, 'У исполнителя отсутствует отчество!' )
-//            Loop
-//          endif
           mywait()
           select fns
           add1rec( 7 )
@@ -443,28 +434,6 @@ function input_spravka_fns()
   
   return nil
 
-// 05.08.24
-function collect_pay( nYear )
-
-  local tmp_sel := select()
-
-  hb_alert( 'Собираем чеки' )
-  use_base( 'hum_p', 'hum_p' )
-  find ( str( glob_kartotek, 7 ) )
-  do while hum_p->kod_k == glob_kartotek
-    if year( hum_p->K_DATA ) == nYear
-      mSumma += hum_p->cena
-      AAdd( aCheck, { hum_p->( recno() ), 1, hum_p->cena, hum_p->sum_voz } )
-    endif
-    hum_p->( dbSkip() )
-  enddo
-  hum_p->( dbCloseArea() )
-
-  @ nStrSum, 22 Say str( mSumma, 10, 2 )
-  @ nStrSum, 54 Say str( mSummaVozvrat, 10, 2 )
-  select( tmp_sel )
-  return nil
-  
 // 25.08.24
 // вызывается в 'Платные услуги(Ортопедия\Касса)/Информация/Справки для ФНС'
 Function inf_fns( k )
@@ -520,13 +489,6 @@ function _fns_nastr( k )
 
   private mPodpis, m1Podpis := 0
   private mm_danet := { { 'да', 1 }, { 'нет', 0 } }
-
-//          m1sertif   := p2->sertif
-//  msertif   := inieditspr_bay( A__MENUVERT, mm_danet, m1sertif )
-//@ ++r, 2 say 'Наличие сертификата' get mSERTIF ;
-//  reader { | x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
-//        p2->sertif   := m1sertif
-
 
   if type( 'fns_N_SPR_FNS' ) == 'N'
     // второй раз зашли

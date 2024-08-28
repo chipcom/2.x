@@ -17,14 +17,11 @@ Static reestr_xml_fns_err := '‚ ¤ ­­ë© ¬®¬¥­â á à¥¥áâà ¬¨ ”‘ à ¡®â ¥â ¤àã£®© ¯®
 Function view_list_xml_fns()
 
   Local i, k, buf := SaveScreen()
-//  local prefix := 'UT_SVOPLMEDUSL', nameFileXML := ''
-//  local org := hb_main_curorg
 
   If ! g_slock( reestr_xml_fns_sem )
     Return func_error( 4, reestr_xml_fns_err )
   Endif
 
-//  Private goal_dir := dir_server + dir_XML_MO + cslash
   g_use( dir_server + 'reg_xml_fns', , 'xml' )
   Index On str( kod, 6 ) to ( cur_dir() + 'tmp_xml' ) DESCENDING
   Go Top
@@ -35,11 +32,6 @@ Function view_list_xml_fns()
     alpha_browse( 5, 0, 23, 79, 'defColumn_xml_FNS', color0,,,,,,, ;
       'serv_xml_fns',, { 'Í', '°', 'Í', 'N/BG, W+/N, B/BG, BG+/B, R/BG, GR+/R', .t., 180 } )
   Endif
-
-  // mtitle := '” ©«ë ¢ë£àã§ª¨ ¤«ï ”‘'
-  // alpha_browse( 5, 0, MaxRow() - 2, 79, 'defColumn_xml_FNS', color0, mtitle, 'BG+/GR', ;
-  //   .f., .t., , , 'serv_xml_fns', , ;
-  //   { 'Í', '°', 'Í', 'N/BG, W+/N, B/BG, BG+/B, R/BG, GR+/R', .t., 180 } )
 
   dbCloseAll()
   g_sunlock( reestr_xml_fns_sem )
@@ -65,7 +57,6 @@ function serv_xml_fns( nKey, oBrow )
         If hb_FileExists( dir_XML_FNS() + xml_file )
           mywait( 'Š®¯¨à®¢ ­¨¥ "' + xml_file + '" ¢ ª â «®£ "' + s + '"' )
           if ( nResult := hb_vfCopyFile( dir_XML_FNS() + xml_file, s + xml_file ) ) == 0  // áª®¯¨à®¢ ­® ¡¥§ ®è¨¡®ª
-//          If hb_FileExists( s + xml_file )
             xml->( g_rlock( forever ) )
             xml->DATE_OUT := sys_date
             If xml->NUMB_OUT < 99
@@ -85,12 +76,9 @@ function serv_xml_fns( nKey, oBrow )
       Endif
     endif
     ret := 0
-
   Case nKey == K_F3
     view_list_xml( oBrow )
     ret := 0
-  Case nKey == K_F9
-  Case nKey == K_DEL
   Otherwise
     Keyboard ''
   Endcase
@@ -98,7 +86,7 @@ function serv_xml_fns( nKey, oBrow )
   RestScreen( buf )
   Return ret
 
-// 27.08.24
+// 28.08.24
 Function view_list_xml( oBrow )
 
   Local buf := save_maxrow(), ;
@@ -108,10 +96,10 @@ Function view_list_xml( oBrow )
     }
   local nFile, ft, name_file := cur_dir() + 'fns_nalog.txt'
   local arr_title := { ;
-    'ÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄ', ;
-    ' ®¬¥à ³ Š®à-ª  ³   „ â     ³   ” ¬¨«¨ï, ¨¬ï, ®âç¥áâ¢®      ³  ‘ã¬¬ 1  ³  ‘ã¬¬ 2', ;
-    'á¯à ¢ª¨³        ³á®áâ ¢«¥­¨ï³                               ³    àã¡.  ³    àã¡.', ;
-    'ÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄ' ;
+    'ÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄ', ;
+    ' ®¬¥à ³Š®à-ª ³   „ â     ³   ” ¬¨«¨ï, ¨¬ï, ®âç¥áâ¢®      ³  ‘ã¬¬ 1  ³  ‘ã¬¬ 2', ;
+    'á¯à ¢ª¨³      ³á®áâ ¢«¥­¨ï³                               ³    àã¡.  ³    àã¡.', ;
+    'ÄÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄ' ;
   }
 
   mywait()
@@ -130,13 +118,13 @@ Function view_list_xml( oBrow )
   fns->( dbGoTop() )
   Do While ! fns->( Eof() )
     if fns->kod_xml == xml->kod
-      ft:add_string( ' ' + str( fns->num_s, 5 ) + ' ³   ' + strzero( fns->version, 3 ) ;
-        + '  ³ ' + transform( fns->date, '99.99.99' ) + '³ ' +  + padr( fns->plat_fio, 30 ) + '³ ' ;
+      ft:add_string( ' ' + str( fns->num_s, 5 ) + ' ³  ' + strzero( fns->version, 3 ) ;
+        + ' ³ ' + transform( fns->date, '99.99.99' ) + '³ ' +  + padr( fns->plat_fio, 30 ) + '³ ' ;
         + str( fns->sum1, 8, 2 ) + ' ³' + str( fns->sum2, 8, 2 ) )
     endif
     fns->( dbSkip() )
   Enddo
-  ft:add_string( arr_title[ 4 ] )
+  ft:add_string( 'ÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
   nFile := ft:NameFile
   ft := nil
   viewtext( name_file, , , , .t., , , reg_print )
@@ -234,7 +222,7 @@ function name_file_fns_xml( org, dt, num, id_pol, id_end )
 
   return nameXML
 
-// 23.08.24
+// 28.08.24
 function createXMLtoFNS()
 
   local aPlat := Array( 2, 17 )
@@ -423,7 +411,11 @@ function createXMLtoFNS()
   tmp_fns->( dbCloseArea() )
   xml_fns->( dbCloseArea() )
   fns->( dbCloseArea() )
-  hb_Alert( 'Ž¡à ¡®â ­®: ' + alltrim( str( totalSpravka ) ) + ' á¯à ¢®ª, á®§¤ ­® ' + alltrim( str( totalFile ) ) + ' ä ©«®¢.' )
+  if totalSpravka == 0
+    hb_Alert( 'Žâáãâáâ¢ãîâ ­¥ ®¡à ¡®â ­­ë¥ á¯à ¢ª¨!' )
+  else
+    hb_Alert( 'Ž¡à ¡®â ­®: ' + alltrim( str( totalSpravka ) ) + ' á¯à ¢®ª, á®§¤ ­® ' + alltrim( str( totalFile ) ) + ' ä ©«®¢.' )
+  endif
   return nil
 
 // 22.08.24
