@@ -6,6 +6,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 #include 'tfile.ch'
+#include 'i_xml.ch'
 
 #define NALOG_PLAT  1
 #define PACIENT     2
@@ -222,7 +223,7 @@ function name_file_fns_xml( org, dt, num, id_pol, id_end )
 
   return nameXML
 
-// 28.08.24
+// 29.08.24
 function createXMLtoFNS()
 
   local aPlat := Array( 2, 17 )
@@ -342,12 +343,12 @@ function createXMLtoFNS()
 
       oPAC := oDoc:add( hxmlnode():new( hb_OEMToANSI( 'СвНП' ) ) )
       if org:UrOrIp()
-        oUch := oPAC:add( hxmlnode():new( hb_OEMToANSI( 'НПЮЛ' ) ) )
+        oUch := oPAC:add( hxmlnode():new( hb_OEMToANSI( 'НПЮЛ' ), HBXML_TYPE_SINGLE ) )
         oUch:SetAttribute( hb_OEMToANSI( 'НаимОрг' ), hb_OEMToANSI( alltrim( org:Name() ) ) )
         oUch:SetAttribute( hb_OEMToANSI( 'ИННЮЛ' ), hb_OEMToANSI( alltrim( org:INN() ) ) )
         oUch:SetAttribute( hb_OEMToANSI( 'КПП' ), hb_OEMToANSI( alltrim( org:KPP() ) ) )
       else
-        oUch := oPAC:add( hxmlnode():new( hb_OEMToANSI( 'НПИП' ) ) )
+        oUch := oPAC:add( hxmlnode():new( hb_OEMToANSI( 'НПИП' ), HBXML_TYPE_SINGLE ) )
         oUch:SetAttribute( hb_OEMToANSI( 'ИННФЛ' ), hb_OEMToANSI( alltrim( org:INN() ) ) )
         node_fio_tip_fns( oUch, org:Ruk_fio() )
       endif
@@ -358,7 +359,7 @@ function createXMLtoFNS()
         oPodp:SetAttribute( hb_OEMToANSI( 'ПрПодп' ), '2' )
         node_fio_tip_fns( oPodp, alltrim( tmp_fns->predst ) )
 
-        oSved := oPodp:add( hxmlnode():new( hb_OEMToANSI( 'СвПред' ) ) )
+        oSved := oPodp:add( hxmlnode():new( hb_OEMToANSI( 'СвПред' ), HBXML_TYPE_SINGLE ) )
         oSved:SetAttribute( hb_OEMToANSI( 'НаимДок' ), hb_OEMToANSI( Upper( alltrim( tmp_fns->pred_doc ) ) ) )
       else
         oPodp:SetAttribute( hb_OEMToANSI( 'ПрПодп' ), '1' )
@@ -457,24 +458,24 @@ function node_DAN_FIO_TIP( obj, node_type, inn, dob, fio, docType, docSerNum, do
   endif
   return nil
 
-// 23.08.24
+// 29.08.24
 function node_Sved_Doc_fns( obj, kod, sernum, datedoc )
 
   local oSvedDoc
 
-  oSvedDoc := obj:add( hxmlnode():new( hb_OEMToANSI( 'СведДок' ) ) )
+  oSvedDoc := obj:add( hxmlnode():new( hb_OEMToANSI( 'СведДок' ), HBXML_TYPE_SINGLE ) )
   oSvedDoc:SetAttribute( hb_OEMToANSI( 'КодВидДок' ), strzero( kod, 2 ) )
   oSvedDoc:SetAttribute( hb_OEMToANSI( 'СерНомДок' ), alltrim( sernum ) )
   oSvedDoc:SetAttribute( hb_OEMToANSI( 'ДатаДок' ), transform( datedoc, '99.99.9999' ) )
   return nil
 
-// 23.08.24
+// 29.08.24
 function node_fio_tip_fns( obj, fio )
 
   local aFio, node_fio
 
   aFIO := razbor_str_fio( Upper( fio ) )
-  node_fio := obj:add( hxmlnode():new( hb_OEMToANSI( 'ФИО' ) ) )
+  node_fio := obj:add( hxmlnode():new( hb_OEMToANSI( 'ФИО' ), HBXML_TYPE_SINGLE ) )
   node_fio:SetAttribute( hb_OEMToANSI( 'Фамилия' ), hb_OEMToANSI( aFIO[ 1 ] ) )
   node_fio:SetAttribute( hb_OEMToANSI( 'Имя' ), hb_OEMToANSI( aFIO[ 2 ] ) )
   if ! empty( aFIO[ 3 ] )
