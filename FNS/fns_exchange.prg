@@ -458,27 +458,37 @@ function node_DAN_FIO_TIP( obj, node_type, inn, dob, fio, docType, docSerNum, do
   endif
   return nil
 
-// 29.08.24
+// 30.08.24
 function node_Sved_Doc_fns( obj, kod, sernum, datedoc )
 
   local oSvedDoc
+  local aAttr := {}
 
-  oSvedDoc := obj:add( hxmlnode():new( hb_OEMToANSI( 'СведДок' ), HBXML_TYPE_SINGLE ) )
-  oSvedDoc:SetAttribute( hb_OEMToANSI( 'КодВидДок' ), strzero( kod, 2 ) )
-  oSvedDoc:SetAttribute( hb_OEMToANSI( 'СерНомДок' ), alltrim( sernum ) )
-  oSvedDoc:SetAttribute( hb_OEMToANSI( 'ДатаДок' ), transform( datedoc, '99.99.9999' ) )
+  AAdd( aAttr, { hb_OEMToANSI( 'КодВидДок' ), strzero( kod, 2 ) } )
+  AAdd( aAttr, { hb_OEMToANSI( 'СерНомДок' ), alltrim( sernum ) } )
+  AAdd( aAttr, { hb_OEMToANSI( 'ДатаДок' ), transform( datedoc, '99.99.9999' ) } )
+  oSvedDoc := obj:add( hxmlnode():new( hb_OEMToANSI( 'СведДок' ), HBXML_TYPE_SINGLE, aAttr ) )
+  // oSvedDoc:SetAttribute( hb_OEMToANSI( 'КодВидДок' ), strzero( kod, 2 ) )
+  // oSvedDoc:SetAttribute( hb_OEMToANSI( 'СерНомДок' ), alltrim( sernum ) )
+  // oSvedDoc:SetAttribute( hb_OEMToANSI( 'ДатаДок' ), transform( datedoc, '99.99.9999' ) )
   return nil
 
-// 29.08.24
+// 30.08.24
 function node_fio_tip_fns( obj, fio )
 
   local aFio, node_fio
+  local aAttr := {}
 
   aFIO := razbor_str_fio( Upper( fio ) )
-  node_fio := obj:add( hxmlnode():new( hb_OEMToANSI( 'ФИО' ), HBXML_TYPE_SINGLE ) )
-  node_fio:SetAttribute( hb_OEMToANSI( 'Фамилия' ), hb_OEMToANSI( aFIO[ 1 ] ) )
-  node_fio:SetAttribute( hb_OEMToANSI( 'Имя' ), hb_OEMToANSI( aFIO[ 2 ] ) )
+  AAdd( aAttr, { hb_OEMToANSI( 'Фамилия' ), hb_OEMToANSI( aFIO[ 1 ] ) } )
+  AAdd( aAttr, { hb_OEMToANSI( 'Имя' ), hb_OEMToANSI( aFIO[ 2 ] ) } )
   if ! empty( aFIO[ 3 ] )
-    node_fio:SetAttribute( hb_OEMToANSI( 'Отчество' ), hb_OEMToANSI( aFIO[ 3 ] ) )
+    AAdd( aAttr, { hb_OEMToANSI( 'Отчество' ), hb_OEMToANSI( aFIO[ 3 ] ) } )
   endif
+  node_fio := obj:add( hxmlnode():new( hb_OEMToANSI( 'ФИО' ), HBXML_TYPE_SINGLE, aAttr ) )
+  // node_fio:SetAttribute( hb_OEMToANSI( 'Фамилия' ), hb_OEMToANSI( aFIO[ 1 ] ) )
+  // node_fio:SetAttribute( hb_OEMToANSI( 'Имя' ), hb_OEMToANSI( aFIO[ 2 ] ) )
+  // if ! empty( aFIO[ 3 ] )
+  //   node_fio:SetAttribute( hb_OEMToANSI( 'Отчество' ), hb_OEMToANSI( aFIO[ 3 ] ) )
+  // endif
   return nil

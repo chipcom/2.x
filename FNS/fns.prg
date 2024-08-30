@@ -90,7 +90,7 @@ Function serv_spravka_fns( nKey, oBrow )
 
   Return flag
 
-// 11.08.24
+// 30.08.24
 function print_spravka_fns()
 
   local hSpravka, pos, aFIO, cFileToSave
@@ -126,7 +126,7 @@ function print_spravka_fns()
   hb_HSet( hSpravka, 'attribut', fns->attribut )
   hb_HSet( hSpravka, 'sum1', fns->sum1 )
   hb_HSet( hSpravka, 'sum2', fns->sum2 )
-  hb_HSet( hSpravka, 'fioSost', fns->exec_fio )
+  hb_HSet( hSpravka, 'fioSost', fns->predst )
   hb_HSet( hSpravka, 'dSost', fns->Date )
   hb_HSet( hSpravka, 'kolStr', 1 )
 //  hb_HSet( hSpravka, 'famPacient', 'Кукуев' )
