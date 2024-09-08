@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 01.08.24 ДВН - добавление или редактирование случая (листа учета)
+// 08.09.24 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -118,7 +118,8 @@ Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
                        {'Дисп.1этап(раз в 2года)', 4}, ;
                        {'Дисп.2этап(раз в 2года)', 5}}
   Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., ;
-          is_disp_21 := .t., is_disp_nabl := .f.
+          is_disp_21 := .t., is_disp_nabl := .f., ;
+          is_disp_24 := .t.
   mm_ndisp1 := aclone(mm_ndisp)
   // оставляем 3-ий и 4-ый этапы
   asize(mm_ndisp1, 4)
@@ -229,7 +230,8 @@ Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
   Private mg_cit := '', m1g_cit := 0, m1lis := 0, mm_g_cit := { ;
     {'в МО-обычное иссл-е цитологичес.материала', 1}, ;
     {'в ВОКОД-жидкостное иссл-ие цит.материала', 2}}
-  for i := 1 to 33 //count_dvn_arr_usl 19.10.21
+//  for i := 1 to 33 //count_dvn_arr_usl 19.10.21
+  for i := 1 to 34 //count_dvn_arr_usl 08.09.24
     mvar := 'MTAB_NOMv' + lstr(i)
     Private &mvar := 0
     mvar := 'MTAB_NOMa' + lstr(i)
@@ -380,9 +382,11 @@ Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
     //
     is_disp_21 := !(mk_data < 0d20210101)
     //
+    is_disp_24 := !( mk_data < 0d20240901 )
+    //
     ret_arr_vozrast_DVN(mk_data)
     /// !!!!
-    ret_arrays_disp(is_disp_19, is_disp_21)
+    ret_arrays_disp(is_disp_19, is_disp_21, is_disp_24)
   
     metap := human->ishod-200
     if is_disp_19
