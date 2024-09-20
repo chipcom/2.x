@@ -3519,7 +3519,7 @@ Function find_unfinished_r11()
 
 
 // 14.12.23
-/*Function find_new_R00()
+Function find_new_R00()
   Private c_view := 0, c_found := 0, sgod := 2024, CODE_LPU := glob_mo[_MO_KOD_TFOMS]
   Private _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20231201), mkol := {0,0,0,0,0}
 
@@ -3552,12 +3552,12 @@ Function find_unfinished_r11()
   CloseGauge(hGauge)
   func_error(4,"Поиск закончен!")
 return NIL
-*/
+
 
 
 
 // 26.07.23
-/*Static Function f0_create_new_R01(sgod,cv,cf)
+Static Function f0_create_new_R01(sgod,cv,cf)
   Local fl, v, ltip, ltip1, lvoz, ag, lgod_r, s
   ++cv
   if (fl := (kart2->MO_PR == CODE_LPU)) // прикреплён к нашей МО
@@ -3614,4 +3614,4 @@ return NIL
   @ row(),col() say "/" color "W/R"
   @ row(),col() say lstr(cf) color cColorStMsg
   return NIL
-  */
+
