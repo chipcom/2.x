@@ -2870,7 +2870,7 @@ Function inf_dvn( k )
   Case k == 52
     f_view_r05()
   Case k == 61
-    my_debug(, "00000000" )
+    //my_debug(, "00000000" )
     f_create_r01()
   Case k == 62
     f_view_r01()
@@ -2888,13 +2888,13 @@ Function inf_dvn( k )
         aadd(mas_msg, "Аннулирование недописанного пакета R11")
         aadd(mas_fun, "delete_reestr_R11()")
       endif
-      /*
-      if glob_mo[_MO_KOD_TFOMS] == '161015' // КБ-11
+      
+      //if glob_mo[_MO_KOD_TFOMS] == '161015' // КБ-11
         aadd(mas_pmt, "~Повторный подбор пациентов")
         aadd(mas_msg, "Повторный подбор пациентов")
         aadd(mas_fun, "find_new_R00()")
-      endif
-      */
+      //endif
+      
       // set key K_CTRL_F10 to delete_month_R11()
       popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
       // set key K_CTRL_F10 to
