@@ -646,7 +646,7 @@ Function ret_tip_mas( _WEIGHT, _HEIGHT, /*@*/ret)
 72.5.712 Комплексное посещение при профилактическом медицинском осмотре взрослых (женщины 35) - осмотр выходного дня
 */
 
-// 08.09.24 вернуть шифр услуги законченного случая для ДВН
+// 24.09.24 вернуть шифр услуги законченного случая для ДВН
 Function ret_shifr_zs_dvn( _etap, _vozrast, _pol, _date )
 
   Local lshifr := '', fl, is_disp, n := 1
@@ -684,16 +684,18 @@ Function ret_shifr_zs_dvn( _etap, _vozrast, _pol, _date )
           n := 13
         Elseif _vozrast == 45 .and. _date >= 0d20240901 // с 1 сентября 24 года
           n := 41
-        Elseif ( _vozrast == 65 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-            ( _vozrast == 71 )
+        Elseif ( eq_any( _vozrast, 65, 71 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
           n := 24
+        Elseif ( _vozrast == 71 .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+          n := 53
         Elseif _vozrast == 65 .and. _date >= 0d20240901 // с 1 сентября 24 года
           n := 44
         Elseif eq_any( _vozrast, 66, 70, 72 )
           n := 25
-        Elseif ( _vozrast == 75 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-          ( eq_any( _vozrast, 67, 69, 73 ) )
+        Elseif ( eq_any( _vozrast, 67, 69, 73, 75 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
           n := 26
+        Elseif ( eq_any( _vozrast, 67, 69, 73 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+          n := 54
         Elseif _vozrast == 75 .and. _date >= 0d20240901 // с 1 сентября 24 года
           n := 45
         Elseif eq_any( _vozrast, 68, 74 )
@@ -702,14 +704,16 @@ Function ret_shifr_zs_dvn( _etap, _vozrast, _pol, _date )
           n := 28
         Elseif eq_any( _vozrast, 80, 86, 92, 98 )
           n := 29
-        Elseif ( _vozrast == 95 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-            ( eq_any( _vozrast, 77, 83, 89 ) )
+        Elseif ( eq_any( _vozrast, 77, 83, 89, 95 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
           n := 30
+        Elseif ( eq_any( _vozrast, 77, 83, 89 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+          n := 55
         Elseif _vozrast == 95 .and. _date >= 0d20240901 // с 1 сентября 24 года
           n := 46
-        Elseif ( _vozrast == 85 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-            ( eq_any( _vozrast, 79, 81, 87, 91, 93, 97, 99 ) )
+        Elseif ( eq_any( _vozrast, 79, 81, 85, 87, 91, 93, 97, 99 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
           n := 31
+        Elseif ( eq_any( _vozrast, 79, 81, 87, 91, 93, 97, 99 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+          n := 56
         Elseif _vozrast == 85 .and. _date >= 0d20240901 // с 1 сентября 24 года
           n := 47
         Endif
@@ -726,9 +730,10 @@ Function ret_shifr_zs_dvn( _etap, _vozrast, _pol, _date )
           n := 18
         Elseif eq_any( _vozrast, 51, 57, 63 )
           n := 19
-        Elseif ( _vozrast == 55 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-            ( eq_any( _vozrast, 53, 59, 61 ) )
+        Elseif ( eq_any( _vozrast, 53, 55, 59, 61 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
           n := 20
+        Elseif ( eq_any( _vozrast, 53, 59, 61 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+          n := 52
         Elseif _vozrast == 55 .and. _date >= 0d20240901 // с 1 сентября 24 года
           n := 42
         Elseif _vozrast == 36
@@ -739,30 +744,34 @@ Function ret_shifr_zs_dvn( _etap, _vozrast, _pol, _date )
           n := 23
         Elseif _vozrast == 45 .and. _date >= 0d20240901 // с 1 сентября 24 года
           n := 43
-        Elseif ( _vozrast == 65 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-            ( _vozrast == 71 )
+        Elseif ( eq_any( _vozrast, 65, 71 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
           n := 32
+        Elseif ( _vozrast == 71 .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+          n := 57
         Elseif _vozrast == 65 .and. _date >= 0d20240901 // с 1 сентября 24 года
           n := 48
         Elseif eq_any( _vozrast, 66, 70, 72 )
           n := 33
-        Elseif ( _vozrast == 75 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-            ( eq_any( _vozrast, 67, 69, 73 ) )
+        Elseif ( eq_any( _vozrast, 67, 69, 73, 75 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
           n := 34
+        Elseif ( eq_any( _vozrast, 67, 69, 73 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+          n := 58
         Elseif _vozrast == 75 .and. _date >= 0d20240901 // с 1 сентября 24 года
           n := 49
         Elseif eq_any( _vozrast, 68, 74 )
           n := 35
         Elseif eq_any( _vozrast, 76, 78, 82, 84, 88, 90, 94, 96 )
           n := 36
-        Elseif ( _vozrast == 95 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-            ( eq_any( _vozrast, 77, 83, 89 ) )
+        Elseif ( eq_any( _vozrast, 77, 83, 89, 95 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
           n := 37
+        Elseif ( eq_any( _vozrast, 77, 83, 89 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+          n := 59
         Elseif _vozrast == 95 .and. _date >= 0d20240901 // с 1 сентября 24 года
           n := 50
-        Elseif ( _vozrast == 85 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-            ( eq_any( _vozrast, 79, 81, 87, 91, 93, 97, 99 ) )
+        Elseif ( eq_any( _vozrast, 79, 81, 85, 87, 91, 93, 97, 99 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
           n := 38
+        Elseif ( eq_any( _vozrast, 79, 81, 87, 91, 93, 97, 99 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+          n := 60
         Elseif _vozrast == 85 .and. _date >= 0d20240901 // с 1 сентября 24 года
           n := 51
         Elseif eq_any( _vozrast, 80, 86, 92, 98 )
@@ -797,32 +806,36 @@ Function ret_shifr_zs_dvn( _etap, _vozrast, _pol, _date )
 */
       If !is_disp // профосмотр оформлен как обычно
         If _pol == 'М' // мужчины
-          If ( _vozrast == 25 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-              ( eq_any( _vozrast, 19, 23, 29, 31 ) )
+          If ( eq_any( _vozrast, 19, 23, 25, 29, 31 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
             n := 1
+          elseIf ( eq_any( _vozrast, 19, 23, 29, 31 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+            n := 13
           Elseif _vozrast == 25 .and. _date >= 0d20240901 // с 1 сентября 24 года
             n := 9
           Elseif eq_any( _vozrast, 20, 22, 26, 28, 32, 34 )
             n := 2
-          Elseif ( _vozrast == 35 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-              ( _vozrast == 37 )
+          Elseif ( eq_any( _vozrast, 35, 37 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
             n := 3
           Elseif _vozrast == 35 .and. _date >= 0d20240901 // с 1 сентября 24 года
             n := 10
+          Elseif ( _vozrast == 37 .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+            n := 14
           Else // _vozrast == 38
             n := 4
           Endif
         Else // женщины
-          If ( _vozrast == 25 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-              ( eq_any( _vozrast, 19, 23, 29, 31 ) )
+          If ( eq_any( _vozrast, 19, 23, 25, 29, 31 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
             n := 5
+          elseIf ( eq_any( _vozrast, 19, 23, 29, 31 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+            n := 15
           Elseif _vozrast == 25 .and. _date >= 0d20240901 // с 1 сентября 24 года
             n := 11
           Elseif eq_any( _vozrast, 20, 22, 26, 28, 32, 34 )
             n := 6
-          Elseif ( _vozrast == 35 .and. _date < 0d20240901 ) .or. ; // до 1 сентября 24 года
-              ( _vozrast == 37 )
+          Elseif ( eq_any( _vozrast, 35, 37 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
             n := 7
+          Elseif ( _vozrast == 37 .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+            n := 16
           Elseif _vozrast == 35 .and. _date >= 0d20240901 // с 1 сентября 24 года
             n := 12
           Else // _vozrast == 38
