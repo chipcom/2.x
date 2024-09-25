@@ -3103,7 +3103,7 @@ Static Function __f_131_u( k )
 
   Return s
 
-// 21.07.19
+// 25.09.24
 Function f1_131_u( nKey, oBrow, regim )
 
   Static lV := "V", sb1 := "<b><u>", sb2 := "</u></b>"
@@ -3170,10 +3170,11 @@ Function f1_131_u( nKey, oBrow, regim )
     mk_data := mk_data1 := human->k_data
     Private is_disp_19 := !( mk_data < 0d20190501 )
     Private is_disp_21 := !( mk_data < 0d20210101 )
+    Private is_disp_24 := !( mk_data < 0d20240901 )
     mdate_r := full_date( human->date_r )
     read_arr_dvn( human->kod )
     ret_arr_vozrast_dvn( mk_data )
-    ret_arrays_disp( is_disp_19, is_disp_21 )
+    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
     ret_tip_mas( mWEIGHT, mHEIGHT, @m1tip_mas )
     mvozrast := count_years( human->date_r, human->n_data )
     mdvozrast := Year( human->n_data ) - Year( human->date_r )

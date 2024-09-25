@@ -8,7 +8,7 @@
 
 Static sadiag1  // := {}
 
-// 01.09.24
+// 25.09.24
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -372,6 +372,9 @@ Function verify_sluch( fl_view )
   gusl_ok := human_->usl_ok
   
   Private is_disp_19 := !( dEnd < 0d20190501 )
+  Private is_disp_21 := !( dEnd < 0d20210101 )
+  Private is_disp_24 := !( dEnd < 0d20240901 )
+
 
   arrUslugi := collect_uslugi( rec_human )   // выберем все коды услуг случая
 
@@ -3785,7 +3788,7 @@ Function verify_sluch( fl_view )
     m1mobilbr := 0
     human_->profil := 151  // медицинским осмотрам профилактическим
     ret_arr_vozrast_dvn( dEnd )
-    ret_arrays_disp( is_disp_19 )
+    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
     m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := f_is_prazdnik_dvn( dBegin )
     // if empty(sadiag1)
     // Private file_form, diag1 := {}, len_diag := 0
