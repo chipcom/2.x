@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 08.09.24 ДВН - добавление или редактирование случая (листа учета)
+// 26.09.24 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -24,13 +24,94 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Default Loc_kod To 0, kod_kartotek To 0
   //
   Private oms_sluch_DVN := .t., ps1dispans := s1dispans, is_prazdnik
+  Private mfio := Space( 50 ), mpol, mdate_r, madres, mvozrast, mdvozrast, ;
+    M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
+    m1company := 0, mcompany, mm_company, ;
+    mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
+    msmo := '34007', rec_inogSMO := 0, ;
+    mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 ), ;
+    mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ), mnpolis := Space( 20 )
+    Private mkod := Loc_kod, mtip_h, is_talon := .f., mshifr_zs := '', ;
+      mkod_k := kod_kartotek, fl_kartotek := ( kod_kartotek == 0 ), ;
+      M1LPU := glob_uch[ 1 ], MLPU, ;
+      M1OTD := glob_otd[ 1 ], MOTD, ;
+      M1FIO_KART := 1, MFIO_KART, ;
+      MRAB_NERAB, M1RAB_NERAB := 0, ; // 0-работающий, 1 -неработающий
+      mveteran, m1veteran := 0, ;
+      mmobilbr, m1mobilbr := 0, ;
+      MUCH_DOC    := Space( 10 ), ; // вид и номер учетного документа
+      MKOD_DIAG   := Space( 5 ), ; // шифр 1-ой осн.болезни
+      MKOD_DIAG2  := Space( 5 ), ; // шифр 2-ой осн.болезни
+      MKOD_DIAG3  := Space( 5 ), ; // шифр 3-ой осн.болезни
+      MKOD_DIAG4  := Space( 5 ), ; // шифр 4-ой осн.болезни
+      MSOPUT_B1   := Space( 5 ), ; // шифр 1-ой сопутствующей болезни
+      MSOPUT_B2   := Space( 5 ), ; // шифр 2-ой сопутствующей болезни
+      MSOPUT_B3   := Space( 5 ), ; // шифр 3-ой сопутствующей болезни
+      MSOPUT_B4   := Space( 5 ), ; // шифр 4-ой сопутствующей болезни
+      MDIAG_PLUS  := Space( 8 ), ; // дополнения к диагнозам
+      adiag_talon[ 16 ], ; // из статталона к диагнозам
+      m1rslt  := 317, ; // результат (присвоена I группа здоровья)
+      m1ishod := 306, ; // исход = осмотр
+      MN_DATA := st_N_DATA, ; // дата начала лечения
+      MK_DATA := st_K_DATA, ; // дата окончания лечения
+      MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
+      M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
+      m1povod  := 4, ;   // Профилактический
+      m1travma := 0, ;
+      m1USL_OK := USL_OK_POLYCLINIC, ; // поликлиника
+      m1VIDPOM :=  1, ; // первичная
+      m1PROFIL := 97, ; // 97-терапия, 57-общая врач.практика (семейн.мед-а), 42-лечебное дело
+      m1IDSP   := 11, ; // доп.диспансеризация
+      mcena_1 := 0
+    //
+    Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
+    Private metap := 0, ;  // 1-первый этап, 2-второй этап, 3-профилактика
+      m1ndisp := 3, mndisp, is_dostup_2_year := .f., mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
+      mWEIGHT := 0, ;   // вес в кг
+      mHEIGHT := 0, ;   // рост в см
+      mOKR_TALII := 0, ; // окружность талии в см
+      mtip_mas, m1tip_mas := 0, ;
+      mkurenie, m1kurenie := 0, ; //
+      mriskalk, m1riskalk := 0, ; //
+      mpod_alk, m1pod_alk := 0, ; //
+      mpsih_na, m1psih_na := 0, ; //
+      mfiz_akt, m1fiz_akt := 0, ; //
+      mner_pit, m1ner_pit := 0, ; //
+      maddn, m1addn := 0, mad1 := 120, mad2 := 80, ; // давление
+      mholestdn, m1holestdn := 0, mholest := 0, ; // '99.99'
+      mglukozadn, m1glukozadn := 0, mglukoza := 0, ; // '99.99'
+      mssr := 0, ; // '99'
+      mgruppa, m1gruppa := 9      // группа здоровья
+    Private mot_nasl1, m1ot_nasl1 := 0, mot_nasl2, m1ot_nasl2 := 0, ;
+      mot_nasl3, m1ot_nasl3 := 0, mot_nasl4, m1ot_nasl4 := 0
+    Private mdispans, m1dispans := 0, mnazn_l, m1nazn_l  := 0, ;
+      mdopo_na, m1dopo_na := 0, mssh_na, m1ssh_na  := 0, ;
+      mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
+    Private mvar, m1var
+    Private mm_ndisp := { { 'Диспансеризация I  этап', 1 }, ;
+      { 'Диспансеризация II этап', 2 }, ;
+      { 'Профилактический осмотр', 3 }, ;
+      { 'Дисп.1этап(раз в 2года)', 4 }, ;
+      { 'Дисп.2этап(раз в 2года)', 5 } }
+    Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., ;
+      is_disp_21 := .t., is_disp_nabl := .f., ;
+      is_disp_24 := .t.
+  
+
   If kod_kartotek == 0 // добавление в картотеку
     If ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
       Return Nil
     Endif
+//    mkod_k := kod_kartotek
+//    r_use( dir_server + 'kartotek', , 'KART' )
+//    Goto ( mkod_k )
+//    mpol        := kart->pol
+//    mdate_r     := kart->date_r
+//    kart->( dbCloseArea() )
   Elseif Loc_kod > 0
     r_use( dir_server + 'human', , 'HUMAN' )
     Goto ( Loc_kod )
+//    mdate_r := human->date_r
     fl := ( Year( human->k_data ) < 2018 )
     Use
     If fl
@@ -49,78 +130,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     sadiag1 := load_diagnoze_disp_nabl_from_file()
   Endif
   chm_help_code := 3002
-  Private mfio := Space( 50 ), mpol, mdate_r, madres, mvozrast, mdvozrast, ;
-    M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
-    m1company := 0, mcompany, mm_company, ;
-    mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
-    msmo := '34007', rec_inogSMO := 0, ;
-    mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 ), ;
-    mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ), mnpolis := Space( 20 )
-  Private mkod := Loc_kod, mtip_h, is_talon := .f., mshifr_zs := '', ;
-    mkod_k := kod_kartotek, fl_kartotek := ( kod_kartotek == 0 ), ;
-    M1LPU := glob_uch[ 1 ], MLPU, ;
-    M1OTD := glob_otd[ 1 ], MOTD, ;
-    M1FIO_KART := 1, MFIO_KART, ;
-    MRAB_NERAB, M1RAB_NERAB := 0, ; // 0-работающий, 1 -неработающий
-    mveteran, m1veteran := 0, ;
-    mmobilbr, m1mobilbr := 0, ;
-    MUCH_DOC    := Space( 10 ), ; // вид и номер учетного документа
-    MKOD_DIAG   := Space( 5 ), ; // шифр 1-ой осн.болезни
-    MKOD_DIAG2  := Space( 5 ), ; // шифр 2-ой осн.болезни
-    MKOD_DIAG3  := Space( 5 ), ; // шифр 3-ой осн.болезни
-    MKOD_DIAG4  := Space( 5 ), ; // шифр 4-ой осн.болезни
-    MSOPUT_B1   := Space( 5 ), ; // шифр 1-ой сопутствующей болезни
-    MSOPUT_B2   := Space( 5 ), ; // шифр 2-ой сопутствующей болезни
-    MSOPUT_B3   := Space( 5 ), ; // шифр 3-ой сопутствующей болезни
-    MSOPUT_B4   := Space( 5 ), ; // шифр 4-ой сопутствующей болезни
-    MDIAG_PLUS  := Space( 8 ), ; // дополнения к диагнозам
-    adiag_talon[ 16 ], ; // из статталона к диагнозам
-    m1rslt  := 317, ; // результат (присвоена I группа здоровья)
-    m1ishod := 306, ; // исход = осмотр
-    MN_DATA := st_N_DATA, ; // дата начала лечения
-    MK_DATA := st_K_DATA, ; // дата окончания лечения
-    MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
-    M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
-    m1povod  := 4, ;   // Профилактический
-    m1travma := 0, ;
-    m1USL_OK := USL_OK_POLYCLINIC, ; // поликлиника
-    m1VIDPOM :=  1, ; // первичная
-    m1PROFIL := 97, ; // 97-терапия, 57-общая врач.практика (семейн.мед-а), 42-лечебное дело
-    m1IDSP   := 11, ; // доп.диспансеризация
-    mcena_1 := 0
-  //
-  Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
-  Private metap := 0, ;  // 1-первый этап, 2-второй этап, 3-профилактика
-    m1ndisp := 3, mndisp, is_dostup_2_year := .f., mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
-    mWEIGHT := 0, ;   // вес в кг
-    mHEIGHT := 0, ;   // рост в см
-    mOKR_TALII := 0, ; // окружность талии в см
-    mtip_mas, m1tip_mas := 0, ;
-    mkurenie, m1kurenie := 0, ; //
-    mriskalk, m1riskalk := 0, ; //
-    mpod_alk, m1pod_alk := 0, ; //
-    mpsih_na, m1psih_na := 0, ; //
-    mfiz_akt, m1fiz_akt := 0, ; //
-    mner_pit, m1ner_pit := 0, ; //
-    maddn, m1addn := 0, mad1 := 120, mad2 := 80, ; // давление
-    mholestdn, m1holestdn := 0, mholest := 0, ; // '99.99'
-    mglukozadn, m1glukozadn := 0, mglukoza := 0, ; // '99.99'
-    mssr := 0, ; // '99'
-    mgruppa, m1gruppa := 9      // группа здоровья
-  Private mot_nasl1, m1ot_nasl1 := 0, mot_nasl2, m1ot_nasl2 := 0, ;
-    mot_nasl3, m1ot_nasl3 := 0, mot_nasl4, m1ot_nasl4 := 0
-  Private mdispans, m1dispans := 0, mnazn_l, m1nazn_l  := 0, ;
-    mdopo_na, m1dopo_na := 0, mssh_na, m1ssh_na  := 0, ;
-    mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
-  Private mvar, m1var
-  Private mm_ndisp := { { 'Диспансеризация I  этап', 1 }, ;
-    { 'Диспансеризация II этап', 2 }, ;
-    { 'Профилактический осмотр', 3 }, ;
-    { 'Дисп.1этап(раз в 2года)', 4 }, ;
-    { 'Дисп.2этап(раз в 2года)', 5 } }
-  Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., ;
-    is_disp_21 := .t., is_disp_nabl := .f., ;
-    is_disp_24 := .t.
+
   mm_ndisp1 := AClone( mm_ndisp )
   // оставляем 3-ий и 4-ый этапы
   ASize( mm_ndisp1, 4 )

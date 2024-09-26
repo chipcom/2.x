@@ -287,6 +287,12 @@ Function ret_arrays_disp( is_disp_19, tis_disp_21, tis_disp_24 )
           };
         }
       Endif
+//      If tis_disp_24 .and. ( i := ascan( { 25, 35, 45, 55, 65, 75, 85, 95 }, mdvozrast ) ) > 0
+//      If tis_disp_24 .and. ( i := ascan( { 25, 35, 45, 55, 65, 75, 85, 95 }, mvozrast ) ) > 0
+//i := ascan( { 25, 35, 45, 55, 65, 75, 85, 95 }, mvozrast ) > 0
+//AltD()
+//fv_date_r( iif( Loc_kod > 0, MN_DATA, ) )
+
       If tis_disp_24
         hb_AIns( dvn_arr_usl, 24, ;
           { 'Исследование крови на Anti-HCV-total (гепатит C)', '4.15.546', { 1, 3 }, 0, 1, ;
