@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.09.24 ДВН - добавление или редактирование случая (листа учета)
+// 27.09.24 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -98,26 +98,34 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       is_disp_24 := .t.
   
 
-  If kod_kartotek == 0 // добавление в картотеку
-    If ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
-      Return Nil
-    Endif
-//    mkod_k := kod_kartotek
-//    r_use( dir_server + 'kartotek', , 'KART' )
-//    Goto ( mkod_k )
-//    mpol        := kart->pol
-//    mdate_r     := kart->date_r
-//    kart->( dbCloseArea() )
+//  If kod_kartotek == 0 // добавление в картотеку
+  If kod_kartotek >= 0 // работаем из картотеки
+    If kod_kartotek == 0 // добавление в картотеку
+      If ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
+        Return Nil
+      Endif
+    endif
+    mkod_k := kod_kartotek
+    r_use( dir_server + 'kartotek', , 'KART' )
+    Goto ( mkod_k )
+    mpol        := kart->pol
+    mdate_r     := kart->date_r
+    kart->( dbCloseArea() )
   Elseif Loc_kod > 0
     r_use( dir_server + 'human', , 'HUMAN' )
     Goto ( Loc_kod )
-//    mdate_r := human->date_r
+    mpol    := human->pol
+    mdate_r := human->date_r
+    MN_DATA := human->N_DATA
     fl := ( Year( human->k_data ) < 2018 )
     Use
     If fl
       Return func_error( 4, 'Это случай диспансеризации ранее 2018 года' )
     Endif
   Endif
+
+  fv_date_r( iif( Loc_kod > 0, MN_DATA, ) )
+
   // if empty(sadiag1)
   // Private file_form, diag1 := {}, len_diag := 0
   // if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
@@ -398,7 +406,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     ret_arr_vozrast_dvn( mk_data )
     // / !!!!
     ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
-
     metap := human->ishod - 200
     If is_disp_19
       mdvozrast := Year( mn_data ) - Year( mdate_r )

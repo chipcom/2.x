@@ -5,27 +5,28 @@
 #include 'chip_mo.ch'
 
 
-// 25.09.24 скорректировать массивы по диспансеризации
+// 27.09.24 скорректировать массивы по диспансеризации
 Function ret_arrays_disp( is_disp_19, tis_disp_21, tis_disp_24 )
 
-  Static sp := 0
-  Local p := iif( is_disp_19, 2, 1 ), blk
+  // Static sp := 0
+  // Local p := iif( is_disp_19, 2, 1 ),
+  local blk
 
   Default tis_disp_21 To .t.
   Default tis_disp_24 To .t.
 
-  If p != sp
-    If ( sp := p ) == 1
-      dvn_arr_usl := AClone( dvn_arr_usl18 )
-      dvn_arr_umolch := AClone( dvn_arr_umolch18 )
-    Else
-      blk := {| d1, d2, d|
-      Local i, arr := {}
-      Default d To 1
-      For i := d1 To d2 Step d
-        AAdd( arr, i )
-      Next
-      Return arr
+//  If p != sp
+//    If ( sp := p ) == 1
+//      dvn_arr_usl := AClone( dvn_arr_usl18 )
+//      dvn_arr_umolch := AClone( dvn_arr_umolch18 )
+//    Else
+      blk := { | d1, d2, d |
+        Local i, arr := {}
+        Default d To 1
+        For i := d1 To d2 Step d
+          AAdd( arr, i )
+        Next
+        Return arr
       }
       // 1- наименование меню
       // 2- шифр услуги
@@ -287,13 +288,8 @@ Function ret_arrays_disp( is_disp_19, tis_disp_21, tis_disp_24 )
           };
         }
       Endif
-//      If tis_disp_24 .and. ( i := ascan( { 25, 35, 45, 55, 65, 75, 85, 95 }, mdvozrast ) ) > 0
-//      If tis_disp_24 .and. ( i := ascan( { 25, 35, 45, 55, 65, 75, 85, 95 }, mvozrast ) ) > 0
-//i := ascan( { 25, 35, 45, 55, 65, 75, 85, 95 }, mvozrast ) > 0
-//AltD()
-//fv_date_r( iif( Loc_kod > 0, MN_DATA, ) )
 
-      If tis_disp_24
+      If tis_disp_24 .and. ( i := ascan( { 25, 35, 45, 55, 65, 75, 85, 95 }, mdvozrast ) ) > 0
         hb_AIns( dvn_arr_usl, 24, ;
           { 'Исследование крови на Anti-HCV-total (гепатит C)', '4.15.546', { 1, 3 }, 0, 1, ;
             { 25, 35, 45, 55, 65, 75, 85, 95 }, ;
@@ -313,10 +309,10 @@ Function ret_arrays_disp( is_disp_19, tis_disp_21, tis_disp_24 )
         { 'Определение абсолютного суммарного сердечно-сосудистого риска', '56.1.19', 1, { 40, 64 }, { 40, 64 }, 1, 1, 1 }, ;
         { 'Краткое индивидуальное профилактическое консультирование', '56.1.14', 1, '18, 65', '18, 65', 1, 1, 1 };
       }
-    Endif
+//    Endif
     count_dvn_arr_usl := Len( dvn_arr_usl )
     count_dvn_arr_umolch := Len( dvn_arr_umolch )
-  Endif
+//  Endif
 
   Return Nil
 
