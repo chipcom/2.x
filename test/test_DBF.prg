@@ -65,4 +65,7 @@ procedure main()
 
   dbCloseAll()
 
+  ?hb_socketResolveAddr( 'chipplus.ru' )
+
+  wait
   return

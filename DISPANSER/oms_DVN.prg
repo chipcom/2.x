@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.09.24 ДВН - добавление или редактирование случая (листа учета)
+// 28.09.24 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -31,73 +31,139 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     msmo := '34007', rec_inogSMO := 0, ;
     mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 ), ;
     mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ), mnpolis := Space( 20 )
-    Private mkod := Loc_kod, mtip_h, is_talon := .f., mshifr_zs := '', ;
-      mkod_k := kod_kartotek, fl_kartotek := ( kod_kartotek == 0 ), ;
-      M1LPU := glob_uch[ 1 ], MLPU, ;
-      M1OTD := glob_otd[ 1 ], MOTD, ;
-      M1FIO_KART := 1, MFIO_KART, ;
-      MRAB_NERAB, M1RAB_NERAB := 0, ; // 0-работающий, 1 -неработающий
-      mveteran, m1veteran := 0, ;
-      mmobilbr, m1mobilbr := 0, ;
-      MUCH_DOC    := Space( 10 ), ; // вид и номер учетного документа
-      MKOD_DIAG   := Space( 5 ), ; // шифр 1-ой осн.болезни
-      MKOD_DIAG2  := Space( 5 ), ; // шифр 2-ой осн.болезни
-      MKOD_DIAG3  := Space( 5 ), ; // шифр 3-ой осн.болезни
-      MKOD_DIAG4  := Space( 5 ), ; // шифр 4-ой осн.болезни
-      MSOPUT_B1   := Space( 5 ), ; // шифр 1-ой сопутствующей болезни
-      MSOPUT_B2   := Space( 5 ), ; // шифр 2-ой сопутствующей болезни
-      MSOPUT_B3   := Space( 5 ), ; // шифр 3-ой сопутствующей болезни
-      MSOPUT_B4   := Space( 5 ), ; // шифр 4-ой сопутствующей болезни
-      MDIAG_PLUS  := Space( 8 ), ; // дополнения к диагнозам
-      adiag_talon[ 16 ], ; // из статталона к диагнозам
-      m1rslt  := 317, ; // результат (присвоена I группа здоровья)
-      m1ishod := 306, ; // исход = осмотр
-      MN_DATA := st_N_DATA, ; // дата начала лечения
-      MK_DATA := st_K_DATA, ; // дата окончания лечения
-      MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
-      M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
-      m1povod  := 4, ;   // Профилактический
-      m1travma := 0, ;
-      m1USL_OK := USL_OK_POLYCLINIC, ; // поликлиника
-      m1VIDPOM :=  1, ; // первичная
-      m1PROFIL := 97, ; // 97-терапия, 57-общая врач.практика (семейн.мед-а), 42-лечебное дело
-      m1IDSP   := 11, ; // доп.диспансеризация
-      mcena_1 := 0
-    //
-    Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
-    Private metap := 0, ;  // 1-первый этап, 2-второй этап, 3-профилактика
-      m1ndisp := 3, mndisp, is_dostup_2_year := .f., mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
-      mWEIGHT := 0, ;   // вес в кг
-      mHEIGHT := 0, ;   // рост в см
-      mOKR_TALII := 0, ; // окружность талии в см
-      mtip_mas, m1tip_mas := 0, ;
-      mkurenie, m1kurenie := 0, ; //
-      mriskalk, m1riskalk := 0, ; //
-      mpod_alk, m1pod_alk := 0, ; //
-      mpsih_na, m1psih_na := 0, ; //
-      mfiz_akt, m1fiz_akt := 0, ; //
-      mner_pit, m1ner_pit := 0, ; //
-      maddn, m1addn := 0, mad1 := 120, mad2 := 80, ; // давление
-      mholestdn, m1holestdn := 0, mholest := 0, ; // '99.99'
-      mglukozadn, m1glukozadn := 0, mglukoza := 0, ; // '99.99'
-      mssr := 0, ; // '99'
-      mgruppa, m1gruppa := 9      // группа здоровья
-    Private mot_nasl1, m1ot_nasl1 := 0, mot_nasl2, m1ot_nasl2 := 0, ;
-      mot_nasl3, m1ot_nasl3 := 0, mot_nasl4, m1ot_nasl4 := 0
-    Private mdispans, m1dispans := 0, mnazn_l, m1nazn_l  := 0, ;
-      mdopo_na, m1dopo_na := 0, mssh_na, m1ssh_na  := 0, ;
-      mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
-    Private mvar, m1var
-    Private mm_ndisp := { { 'Диспансеризация I  этап', 1 }, ;
-      { 'Диспансеризация II этап', 2 }, ;
-      { 'Профилактический осмотр', 3 }, ;
-      { 'Дисп.1этап(раз в 2года)', 4 }, ;
-      { 'Дисп.2этап(раз в 2года)', 5 } }
-    Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., ;
-      is_disp_21 := .t., is_disp_nabl := .f., ;
-      is_disp_24 := .t.
-  
+  Private mkod := Loc_kod, mtip_h, is_talon := .f., mshifr_zs := '', ;
+    mkod_k := kod_kartotek, fl_kartotek := ( kod_kartotek == 0 ), ;
+    M1LPU := glob_uch[ 1 ], MLPU, ;
+    M1OTD := glob_otd[ 1 ], MOTD, ;
+    M1FIO_KART := 1, MFIO_KART, ;
+    MRAB_NERAB, M1RAB_NERAB := 0, ; // 0-работающий, 1 -неработающий
+    mveteran, m1veteran := 0, ;
+    mmobilbr, m1mobilbr := 0, ;
+    MUCH_DOC    := Space( 10 ), ; // вид и номер учетного документа
+    MKOD_DIAG   := Space( 5 ), ; // шифр 1-ой осн.болезни
+    MKOD_DIAG2  := Space( 5 ), ; // шифр 2-ой осн.болезни
+    MKOD_DIAG3  := Space( 5 ), ; // шифр 3-ой осн.болезни
+    MKOD_DIAG4  := Space( 5 ), ; // шифр 4-ой осн.болезни
+    MSOPUT_B1   := Space( 5 ), ; // шифр 1-ой сопутствующей болезни
+    MSOPUT_B2   := Space( 5 ), ; // шифр 2-ой сопутствующей болезни
+    MSOPUT_B3   := Space( 5 ), ; // шифр 3-ой сопутствующей болезни
+    MSOPUT_B4   := Space( 5 ), ; // шифр 4-ой сопутствующей болезни
+    MDIAG_PLUS  := Space( 8 ), ; // дополнения к диагнозам
+    adiag_talon[ 16 ], ; // из статталона к диагнозам
+    m1rslt  := 317, ; // результат (присвоена I группа здоровья)
+    m1ishod := 306, ; // исход = осмотр
+    MN_DATA := st_N_DATA, ; // дата начала лечения
+    MK_DATA := st_K_DATA, ; // дата окончания лечения
+    MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
+    M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
+    m1povod  := 4, ;   // Профилактический
+    m1travma := 0, ;
+    m1USL_OK := USL_OK_POLYCLINIC, ; // поликлиника
+    m1VIDPOM :=  1, ; // первичная
+    m1PROFIL := 97, ; // 97-терапия, 57-общая врач.практика (семейн.мед-а), 42-лечебное дело
+    m1IDSP   := 11, ; // доп.диспансеризация
+    mcena_1 := 0
+  //
+  Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
+  Private metap := 0, ;  // 1-первый этап, 2-второй этап, 3-профилактика
+    m1ndisp := 3, mndisp, is_dostup_2_year := .f., mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
+    mWEIGHT := 0, ;   // вес в кг
+    mHEIGHT := 0, ;   // рост в см
+    mOKR_TALII := 0, ; // окружность талии в см
+    mtip_mas, m1tip_mas := 0, ;
+    mkurenie, m1kurenie := 0, ; //
+    mriskalk, m1riskalk := 0, ; //
+    mpod_alk, m1pod_alk := 0, ; //
+    mpsih_na, m1psih_na := 0, ; //
+    mfiz_akt, m1fiz_akt := 0, ; //
+    mner_pit, m1ner_pit := 0, ; //
+    maddn, m1addn := 0, mad1 := 120, mad2 := 80, ; // давление
+    mholestdn, m1holestdn := 0, mholest := 0, ; // '99.99'
+    mglukozadn, m1glukozadn := 0, mglukoza := 0, ; // '99.99'
+    mssr := 0, ; // '99'
+    mgruppa, m1gruppa := 9      // группа здоровья
+  Private mot_nasl1, m1ot_nasl1 := 0, mot_nasl2, m1ot_nasl2 := 0, ;
+    mot_nasl3, m1ot_nasl3 := 0, mot_nasl4, m1ot_nasl4 := 0
+  Private mdispans, m1dispans := 0, mnazn_l, m1nazn_l  := 0, ;
+    mdopo_na, m1dopo_na := 0, mssh_na, m1ssh_na  := 0, ;
+    mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
+  Private mvar, m1var
+  Private mm_ndisp := { ;
+    { 'Диспансеризация I  этап', 1 }, ;
+    { 'Диспансеризация II этап', 2 }, ;
+    { 'Профилактический осмотр', 3 }, ;
+    { 'Дисп.1этап(раз в 2года)', 4 }, ;
+    { 'Дисп.2этап(раз в 2года)', 5 } }
+  Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., ;
+    is_disp_21 := .t., is_disp_nabl := .f.
+//      is_disp_24 := .t.
 
+  Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
+    arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
+  Private mnapr_stac, m1napr_stac := 0, ;
+    mm_napr_stac := arr_mm_napr_stac(), ;
+    mprofil_stac, m1profil_stac := 0
+  Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
+  
+  Private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+  
+  Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
+    mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
+    mTab_Number := 0
+  
+  Private mm_napr_v := { { 'нет', 0 }, ;
+    { 'к онкологу', 1 }, ;
+    { 'на дообследование', 3 } }
+    /*Private mm_napr_v := {{'нет', 0}, ;
+                          {'к онкологу', 1}, ;
+                          {'на биопсию', 2}, ;
+                          {'на дообследование', 3}, ;
+                          {'для опредения тактики лечения', 4}}*/
+  Private mm_met_issl := { { 'нет', 0 }, ;
+    { 'лабораторная диагностика', 1 }, ;
+    { 'инструментальная диагностика', 2 }, ;
+    { 'методы лучевой диагностики (недорогостоящие)', 3 }, ;
+    { 'дорогостоящие методы лучевой диагностики', 4 } }
+  //
+  Private pole_diag, pole_pervich, pole_1pervich, pole_d_diag, ;
+    pole_stadia, pole_dispans, pole_1dispans, pole_d_dispans, pole_dn_dispans
+      
+  Private mm_pervich := arr_mm_pervich()
+  Private mm_dispans := arr_mm_dispans()
+  Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
+  Private mm_dopo_na := arr_mm_dopo_na()
+  Private gl_arr := { ;  // для битовых полей
+    { 'dopo_na', 'N', 10, 0, , , , {| x | inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
+  }
+
+  Private mm_gruppaP := arr_mm_gruppap()
+  Private mm_gruppaP_old := AClone( mm_gruppaP )
+  ASize( mm_gruppaP_old, 3 )
+  Private mm_gruppaP_new := AClone( mm_gruppaP )
+  hb_ADel( mm_gruppaP_new, 3, .t. )
+  Private mm_gruppaD1 := { ;
+    { 'Проведена диспансеризация - присвоена I группа здоровья', 1, 317 }, ;
+    { 'Проведена диспансеризация - присвоена II группа здоровья', 2, 318 }, ;
+    { 'Проведена диспансеризация - присвоена IIIа группа здоровья', 3, 355 }, ;
+    { 'Проведена диспансеризация - присвоена IIIб группа здоровья', 4, 356 }, ;
+    { 'Направлен на 2 этап, предварительно присвоена I группа здоровья', 11, 352 }, ;
+    { 'Направлен на 2 этап, предварительно присвоена II группа здоровья', 12, 353 }, ;
+    { 'Направлен на 2 этап, предварительно присвоена IIIа группа здоровья', 13, 357 }, ;
+    { 'Направлен на 2 этап, предварительно присвоена IIIб группа здоровья', 14, 358 }, ;
+    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена I группа здоровья', 21, 352 }, ;
+    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена II группа здоровья', 22, 353 }, ;
+    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена IIIа группа здоровья', 23, 357 }, ;
+    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена IIIб группа здоровья', 24, 358 } }
+  Private mm_gruppaD2 := AClone( mm_gruppaD1 )
+  ASize( mm_gruppaD2, 4 )
+  Private mm_gruppaD4 := AClone( mm_gruppaD1 )
+  ASize( mm_gruppaD4, 8 )
+  Private mm_otkaz := arr_mm_otkaz()
+  Private mm_otkaz1 := AClone( mm_otkaz )
+  ASize( mm_otkaz1, 3 )
+  Private mm_otkaz0 := AClone( mm_otkaz )
+  ASize( mm_otkaz0, 2 )
+      
 //  If kod_kartotek == 0 // добавление в картотеку
   If kod_kartotek >= 0 // работаем из картотеки
     If kod_kartotek == 0 // добавление в картотеку
@@ -137,91 +203,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   If ISNIL( sadiag1 )
     sadiag1 := load_diagnoze_disp_nabl_from_file()
   Endif
+
   chm_help_code := 3002
 
   mm_ndisp1 := AClone( mm_ndisp )
-  // оставляем 3-ий и 4-ый этапы
+    // оставляем 3-ий и 4-ый этапы
   ASize( mm_ndisp1, 4 )
   hb_ADel( mm_ndisp1, 1, .t. )
   hb_ADel( mm_ndisp1, 1, .t. )
-  Private mm_gruppaP := arr_mm_gruppap()
-  Private mm_gruppaP_old := AClone( mm_gruppaP )
-  ASize( mm_gruppaP_old, 3 )
-  Private mm_gruppaP_new := AClone( mm_gruppaP )
-  hb_ADel( mm_gruppaP_new, 3, .t. )
-  Private mm_gruppaD1 := { ;
-    { 'Проведена диспансеризация - присвоена I группа здоровья', 1, 317 }, ;
-    { 'Проведена диспансеризация - присвоена II группа здоровья', 2, 318 }, ;
-    { 'Проведена диспансеризация - присвоена IIIа группа здоровья', 3, 355 }, ;
-    { 'Проведена диспансеризация - присвоена IIIб группа здоровья', 4, 356 }, ;
-    { 'Направлен на 2 этап, предварительно присвоена I группа здоровья', 11, 352 }, ;
-    { 'Направлен на 2 этап, предварительно присвоена II группа здоровья', 12, 353 }, ;
-    { 'Направлен на 2 этап, предварительно присвоена IIIа группа здоровья', 13, 357 }, ;
-    { 'Направлен на 2 этап, предварительно присвоена IIIб группа здоровья', 14, 358 }, ;
-    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена I группа здоровья', 21, 352 }, ;
-    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена II группа здоровья', 22, 353 }, ;
-    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена IIIа группа здоровья', 23, 357 }, ;
-    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена IIIб группа здоровья', 24, 358 } }
-  Private mm_gruppaD2 := AClone( mm_gruppaD1 )
-  ASize( mm_gruppaD2, 4 )
-  Private mm_gruppaD4 := AClone( mm_gruppaD1 )
-  ASize( mm_gruppaD4, 8 )
-  Private mm_otkaz := arr_mm_otkaz()
-  Private mm_otkaz1 := AClone( mm_otkaz )
-  ASize( mm_otkaz1, 3 )
-  Private mm_otkaz0 := AClone( mm_otkaz )
-  ASize( mm_otkaz0, 2 )
-  Private mm_pervich := arr_mm_pervich()
-  Private mm_dispans := arr_mm_dispans()
-  Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
-  Private mm_dopo_na := arr_mm_dopo_na()
-  Private gl_arr := { ;  // для битовых полей
-      { 'dopo_na', 'N', 10, 0, , , , {| x | inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
-    }
-  Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
-    arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
-  Private mnapr_stac, m1napr_stac := 0, ;
-    mm_napr_stac := arr_mm_napr_stac(), ;
-    mprofil_stac, m1profil_stac := 0
-  Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
-
-  Private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
-
-  //
-  // dbcreate(cur_dir+"tmp_onkna", {; // онконаправления
-  // {"KOD"      ,   "N",     7,     0},; // код больного
-  // {"NAPR_DATE",   "D",     8,     0},; // Дата направления
-  // {"NAPR_MO",     "C",     6,     0},; // код другого МО, куда выписано направление
-  // {"NAPR_V"  ,    "N",     1,     0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
-  // {"MET_ISSL" ,   "N",     1,     0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
-  // {"shifr"  ,     "C",    20,     0},;
-  // {"shifr_u"  ,   "C",    20,     0},;
-  // {"shifr1"   ,   "C",    20,     0},;
-  // {"name_u"   ,   "C",    65,     0},;
-  // {"U_KOD"    ,   "N",     6,     0},;  // код услуги
-  // {"KOD_VR"   ,   "N",     5,     0};  // код врача (справочник mo_pers)
-  // })
-
-  Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
-    mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
-    mTab_Number := 0
-
-  Private mm_napr_v := { { 'нет', 0 }, ;
-    { 'к онкологу', 1 }, ;
-    { 'на дообследование', 3 } }
-  /*Private mm_napr_v := {{'нет', 0}, ;
-                        {'к онкологу', 1}, ;
-                        {'на биопсию', 2}, ;
-                        {'на дообследование', 3}, ;
-                        {'для опредения тактики лечения', 4}}*/
-  Private mm_met_issl := { { 'нет', 0 }, ;
-    { 'лабораторная диагностика', 1 }, ;
-    { 'инструментальная диагностика', 2 }, ;
-    { 'методы лучевой диагностики (недорогостоящие)', 3 }, ;
-    { 'дорогостоящие методы лучевой диагностики', 4 } }
-  //
-  Private pole_diag, pole_pervich, pole_1pervich, pole_d_diag, ;
-    pole_stadia, pole_dispans, pole_1dispans, pole_d_dispans, pole_dn_dispans
 
   arr := {} // массив для направлений
 
@@ -401,11 +390,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     //
     is_disp_21 := !( mk_data < 0d20210101 )
     //
-    is_disp_24 := !( mk_data < 0d20240901 )
+//    is_disp_24 := !( mk_data < 0d20240901 )
     //
     ret_arr_vozrast_dvn( mk_data )
     // / !!!!
-    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
+//    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
+    ret_arrays_disp( mk_data )
     metap := human->ishod - 200
     If is_disp_19
       mdvozrast := Year( mn_data ) - Year( mdate_r )
@@ -607,36 +597,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Next j
     Endif
-    If .t.
-      dbCreate( cur_dir + 'tmp_onkna', create_struct_temporary_onkna() )
-
-      // use (cur_dir+"tmp_onkna") new alias TNAPR
-      // R_Use(dir_server+"mo_su",,"MOSU")
-      // R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
-      // set relation to u_kod into MOSU
-      // find (str(Loc_kod,7))
-      // do while napr->kod == Loc_kod .and. !eof()
-      cur_napr := 1 // при ред-ии - сначала первое направление текущее
-      // ++count_napr
-      // select TNAPR
-      // append blank
-      // tnapr->NAPR_DATE := napr->NAPR_DATE
-      // tnapr->KOD_VR    := napr->KOD_VR
-      // tnapr->NAPR_MO   := napr->NAPR_MO
-      // tnapr->NAPR_V    := napr->NAPR_V
-      // tnapr->MET_ISSL  := napr->MET_ISSL
-      // tnapr->U_KOD     := napr->U_KOD
-      // tnapr->shifr_u   := iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)
-      // tnapr->shifr1    := mosu->shifr1
-      // tnapr->name_u    := mosu->name
-      // select NAPR
-      // skip
-      // enddo
-      count_napr := collect_napr_zno( Loc_kod )
-      If count_napr > 0
-        // mnapr_onk := "Количество направлений - "+lstr(count_napr)
-        mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
-      Endif
+    // собираем онкологические направления
+    dbCreate( cur_dir + 'tmp_onkna', create_struct_temporary_onkna() )
+    cur_napr := 1 // при ред-ии - сначала первое направление текущее
+    count_napr := collect_napr_zno( Loc_kod )
+    If count_napr > 0
+      mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
     Endif
     For i := 1 To 5
       f_valid_diag_oms_sluch_dvn( , i )
@@ -1269,7 +1235,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             --kol_d_usl
           Elseif Empty( &mvard )
             fl := func_error( 4, 'Не введена дата услуги "' + LTrim( ar[ 1 ] ) + '"' )
-          Elseif Empty( &mvart )
+          Elseif Empty( &mvart ) .and. ! is_lab_usluga( ar[ 2 ] ) // для услуг ЦКДЛ допускается пустое значение врача
             fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
           Else
             Select P2
@@ -1935,66 +1901,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Next
       Endif
       save_arr_dvn( mkod )
-      // направления при подозрении на ЗНО
-      // cur_napr := 0
-      // // arr := {}
-      // G_Use(dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'NAPR') // онконаправления
-      // find (str(mkod, 7))
-      // do while napr->kod == mkod .and. !eof()
-      // aadd(arr, recno())
-      // skip
-      // enddo
       If m1ds_onk == 1 // подозрение на злокачественное новообразование
         save_mo_onkna( mkod )
-        // Use_base('mo_su')
-        // use (cur_dir + 'tmp_onkna') new alias TNAPR
-        // select TNAPR
-        // go top
-        // do while !eof()
-        // if !emptyany(tnapr->NAPR_DATE, tnapr->NAPR_V)
-        // if tnapr->U_KOD == 0 // добавляем в свой справочник федеральную услугу
-        // select MOSU
-        // set order to 3
-        // find (tnapr->shifr1)
-        // if found()  // наверное, добавили только что
-        // tnapr->U_KOD := mosu->kod
-        // else
-        // set order to 1
-        // FIND (STR(-1, 6))
-        // if found()
-        // G_RLock(forever)
-        // else
-        // AddRec(6)
-        // endif
-        // tnapr->U_KOD := mosu->kod := recno()
-        // mosu->name   := tnapr->name_u
-        // mosu->shifr1 := tnapr->shifr1
-        // endif
-        // endif
-        // select NAPR
-        // if ++cur_napr > len(arr)
-        // AddRec(7)
-        // napr->kod := mkod
-        // else
-        // goto (arr[cur_napr])
-        // G_RLock(forever)
-        // endif
-        // napr->NAPR_DATE := tnapr->NAPR_DATE
-        // napr->KOD_VR := tnapr->KOD_VR
-        // napr->NAPR_MO := tnapr->NAPR_MO
-        // napr->NAPR_V := tnapr->NAPR_V
-        // napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
-        // napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
-        // endif
-        // select TNAPR
-        // skip
-        // enddo
       Endif
-      // select NAPR
-      // do while ++cur_napr <= len(arr)
-      // goto (arr[cur_napr])
-      // DeleteRec(.t.)
-      // enddo
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.
       Close databases

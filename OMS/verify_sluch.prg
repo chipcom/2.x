@@ -8,7 +8,7 @@
 
 Static sadiag1  // := {}
 
-// 25.09.24
+// 27.09.24
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -3788,7 +3788,8 @@ Function verify_sluch( fl_view )
     m1mobilbr := 0
     human_->profil := 151  // медицинским осмотрам профилактическим
     ret_arr_vozrast_dvn( dEnd )
-    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
+//    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
+    ret_arrays_disp( dEnd )
     m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := f_is_prazdnik_dvn( dBegin )
     // if empty(sadiag1)
     // Private file_form, diag1 := {}, len_diag := 0

@@ -6,14 +6,17 @@
 
 
 // 27.09.24 скорректировать массивы по диспансеризации
-Function ret_arrays_disp( is_disp_19, tis_disp_21, tis_disp_24 )
+//Function ret_arrays_disp( is_disp_19, tis_disp_21, tis_disp_24 )
+Function ret_arrays_disp( dateSl )
 
   // Static sp := 0
   // Local p := iif( is_disp_19, 2, 1 ),
   local blk
 
-  Default tis_disp_21 To .t.
-  Default tis_disp_24 To .t.
+//  Default tis_disp_21 To .t.
+//  Default tis_disp_24 To .t.
+
+  Default dateSl To 0d20210101
 
 //  If p != sp
 //    If ( sp := p ) == 1
@@ -37,7 +40,7 @@ Function ret_arrays_disp( is_disp_19, tis_disp_21, tis_disp_24 )
       // .
       // 10- V002 - Классификатор прифилей оказанной медицинской помощи
       // 11- V004 - Классификатор медицинских специальностей
-      If tis_disp_21
+      If dateSl >= 0d20210101 // tis_disp_21
         dvn_arr_usl := { ; // Услуги на экран для ввода
           { 'Измерение внутриглазного давления', '3.4.9', 1, 0, 1, ;
             Eval( blk, 40, 99 ), ;
@@ -289,7 +292,8 @@ Function ret_arrays_disp( is_disp_19, tis_disp_21, tis_disp_24 )
         }
       Endif
 
-      If tis_disp_24 .and. ( i := ascan( { 25, 35, 45, 55, 65, 75, 85, 95 }, mdvozrast ) ) > 0
+//      If tis_disp_24 .and. ( i := ascan( { 25, 35, 45, 55, 65, 75, 85, 95 }, mdvozrast ) ) > 0
+      If ( dateSl >= 0d20240901 ) .and. ( i := ascan( { 25, 35, 45, 55, 65, 75, 85, 95 }, mdvozrast ) ) > 0
         hb_AIns( dvn_arr_usl, 24, ;
           { 'Исследование крови на Anti-HCV-total (гепатит C)', '4.15.546', { 1, 3 }, 0, 1, ;
             { 25, 35, 45, 55, 65, 75, 85, 95 }, ;
@@ -369,7 +373,8 @@ Function ret_ndisp( lkod_h, lkod_k, /*@*/new_etap, /*@*/msg)
   is_disp_19 := !( mk_data < 0d20190501 )
   is_disp_21 := !( mk_data < 0d20210101 )
   is_disp_24 := !( mk_data < 0d20240901 )
-  ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
+//  ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
+  ret_arrays_disp( mk_data )
   msg := ' '
   new_etap := metap
   is_dostup_2_year := .f.
