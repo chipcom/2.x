@@ -653,7 +653,7 @@ Function ret_tip_mas( _WEIGHT, _HEIGHT, /*@*/ret)
 72.5.712 Комплексное посещение при профилактическом медицинском осмотре взрослых (женщины 35) - осмотр выходного дня
 */
 
-// 24.09.24 вернуть шифр услуги законченного случая для ДВН
+// 02.10.24 вернуть шифр услуги законченного случая для ДВН
 Function ret_shifr_zs_dvn( _etap, _vozrast, _pol, _date )
 
   Local lshifr := '', fl, is_disp, n := 1
@@ -812,42 +812,70 @@ Function ret_shifr_zs_dvn( _etap, _vozrast, _pol, _date )
 72.5.8 Законченный случай профилактического медицинского осмотра взрослых (женщины 38)
 */
       If !is_disp // профосмотр оформлен как обычно
+        fl := .t.
+        If Type( 'is_disp_nabl' ) == 'L' .and. is_disp_nabl
+          fl := .f.
+        Endif
         If _pol == 'М' // мужчины
-          If ( eq_any( _vozrast, 19, 23, 25, 29, 31 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
-            n := 1
-          elseIf ( eq_any( _vozrast, 19, 23, 29, 31 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
-            n := 13
-          Elseif _vozrast == 25 .and. _date >= 0d20240901 // с 1 сентября 24 года
-            n := 9
-          Elseif eq_any( _vozrast, 20, 22, 26, 28, 32, 34 )
-            n := 2
-          Elseif ( eq_any( _vozrast, 35, 37 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
-            n := 3
-          Elseif _vozrast == 35 .and. _date >= 0d20240901 // с 1 сентября 24 года
-            n := 10
-          Elseif ( _vozrast == 37 .and. _date >= 0d20240901 ) // с 1 сентября 24 года
-            n := 14
-          Else // _vozrast == 38
-            n := 4
-          Endif
+          if fl
+            If ( eq_any( _vozrast, 19, 23, 25, 29, 31 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
+              n := 1
+            elseIf ( eq_any( _vozrast, 19, 23, 29, 31 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+              n := 13
+            Elseif _vozrast == 25 .and. _date >= 0d20240901 // с 1 сентября 24 года
+              n := 9
+            Elseif eq_any( _vozrast, 20, 22, 26, 28, 32, 34 )
+              n := 2
+            Elseif ( eq_any( _vozrast, 35, 37 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
+              n := 3
+            Elseif _vozrast == 35 .and. _date >= 0d20240901 // с 1 сентября 24 года
+              n := 10
+            Elseif ( _vozrast == 37 .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+              n := 14
+            Else // _vozrast == 38
+              n := 4
+            Endif
+          else
+            If eq_any( _vozrast, 19, 23, 25, 29, 31 )
+              n := 1
+            Elseif eq_any( _vozrast, 20, 22, 26, 28, 32, 34 )
+              n := 2
+            Elseif eq_any( _vozrast, 35, 37 )
+              n := 3
+            Else // _vozrast == 38
+              n := 4
+            Endif
+          endif
         Else // женщины
-          If ( eq_any( _vozrast, 19, 23, 25, 29, 31 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
-            n := 5
-          elseIf ( eq_any( _vozrast, 19, 23, 29, 31 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
-            n := 15
-          Elseif _vozrast == 25 .and. _date >= 0d20240901 // с 1 сентября 24 года
-            n := 11
-          Elseif eq_any( _vozrast, 20, 22, 26, 28, 32, 34 )
-            n := 6
-          Elseif ( eq_any( _vozrast, 35, 37 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
-            n := 7
-          Elseif ( _vozrast == 37 .and. _date >= 0d20240901 ) // с 1 сентября 24 года
-            n := 16
-          Elseif _vozrast == 35 .and. _date >= 0d20240901 // с 1 сентября 24 года
-            n := 12
-          Else // _vozrast == 38
-            n := 8
-          Endif
+          if fl
+            If ( eq_any( _vozrast, 19, 23, 25, 29, 31 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
+              n := 5
+            elseIf ( eq_any( _vozrast, 19, 23, 29, 31 ) .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+              n := 15
+            Elseif _vozrast == 25 .and. _date >= 0d20240901 // с 1 сентября 24 года
+              n := 11
+            Elseif eq_any( _vozrast, 20, 22, 26, 28, 32, 34 )
+              n := 6
+            Elseif ( eq_any( _vozrast, 35, 37 ) .and. _date < 0d20240901 ) // до 1 сентября 24 года
+              n := 7
+            Elseif ( _vozrast == 37 .and. _date >= 0d20240901 ) // с 1 сентября 24 года
+              n := 16
+            Elseif _vozrast == 35 .and. _date >= 0d20240901 // с 1 сентября 24 года
+              n := 12
+            Else // _vozrast == 38
+              n := 8
+            Endif
+          else
+            If eq_any( _vozrast, 19, 23, 25, 29, 31 )
+              n := 5
+            Elseif eq_any( _vozrast, 20, 22, 26, 28, 32, 34 )
+              n := 6
+            Elseif eq_any( _vozrast, 35, 37 )
+              n := 7
+            Else // _vozrast == 38
+              n := 8
+            Endif
+          endif
         Endif
         If is_prazdnik
           n += 700
@@ -855,10 +883,10 @@ Function ret_shifr_zs_dvn( _etap, _vozrast, _pol, _date )
           n += 300
         Endif
         // '6' - в рамках диспансерного наблюдения
-        fl := .t.
-        If Type( 'is_disp_nabl' ) == 'L' .and. is_disp_nabl
-          fl := .f.
-        Endif
+//        fl := .t.
+//        If Type( 'is_disp_nabl' ) == 'L' .and. is_disp_nabl
+//          fl := .f.
+//        Endif
         lshifr := '72.' + iif( fl, '5', '6' ) + '.' + lstr( n )
       Else // если вместо диспансеризации оформляется профосмотр
 /*
