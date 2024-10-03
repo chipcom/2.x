@@ -711,9 +711,9 @@ Function disp_nabludenie( k )
     vvodp_disp_nabl()
   Case k == 12
     mas_pmt := { "~Не было л/у с диспансерным наблюдением", ;
-      "~Были л/у с диспансерным наблюдением"}
+                 "~Были л/у с диспансерным наблюдением"}
     mas_msg := { "Список пациентов, по которым не было л/у с диспансерным наблюдением", ;
-      "Список пациентов, по которым были л/у с диспансерным наблюдением"}
+                 "Список пациентов, по которым были л/у с диспансерным наблюдением"}
     mas_fun := { "disp_nabludenie(61)", ;
                  "disp_nabludenie(62)"}
   popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
@@ -1200,10 +1200,20 @@ Function f_inf_disp_nabl( par )
    Local arr, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir + "disp_nabl" + stxt, ;
     ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := "___DN" + sdbf, arr_fl, fl_prikrep := Space( 6 ), kol_kartotek := 0, ;
     t_kartotek := 0, s1
-   Local arr_tip_DN := {"Прочие ДН","Онкологическое ДН","Сахарный диабет ДН","Сердечно-сосудистое ДН"}
+   Local arr_tip_DN := {"Прочие ДН (2.78.109)","Онкологическое ДН (2.78.110)","Сахарный диабет ДН (2.78.111)","Сердечно-сосудистое ДН (2.78.112)"}
+   Local arr_tip_DN1 := {"2.78.109","2.78.110","2.78.111","2.78.112"}
    Local arr_tip_KOD_USL := {109,110,111,112}
-   Local mas_str_ot := {}
+   Local mas_str_ot := {}, mas_str_ot_FULL := {}
    local flag_BILO := .F., flag_NAL := .T.
+   dbCreate( cur_dir + "_disp_NB", { ;
+       { "FIO",        "c", 50, 0 }, ;
+       { "UCHAST",     "c",  3, 0 }, ;
+       { "date_r",     "c", 10, 0 }, ;   
+       { "Arr_d",      "c", 10, 0 }, ;
+       { "prikrep",    "c",  3, 0 }, ;
+       { "usluga",     "c",  8, 0 }, ;
+       { "adres",      "c", 50, 0 }} )
+  Use ( cur_dir + '_disp_NB' ) new
   stat_msg( "Поиск информации..." )
   fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
   arr_title := { ;
@@ -1243,6 +1253,7 @@ Function f_inf_disp_nabl( par )
   r_use( dir_server + "mo_d01d",, "DD" )
   Index On Str( kod_d, 6 ) to ( cur_dir + "tmp_dd" )
   r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server + "kartote_",, "KART_" )
   r_use( dir_server + "kartote2",, "KART2" )
   r_use( dir_server + "mo_d01k",, "RHUM" )
   Set Relation To kod_k into KART
@@ -1282,6 +1293,8 @@ Function f_inf_disp_nabl( par )
       If Left( kart2->PC2, 1 ) == "1"
         fl_prikrep := " УМЕР "
       Endif
+      Select KART_
+      Goto kart->kod
       Select HUMAN
       find ( Str( kart->kod, 7 ) )
       Do While human->kod_k == kart->kod .and. !Eof()
@@ -1305,12 +1318,17 @@ Function f_inf_disp_nabl( par )
                 lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
                 left_lshifr_8 := Left( lshifr, 8 )
                 left_lshifr_6 := Left( lshifr, 7 )
-                If left_lshifr_8 == "2.78.109" .or.;
-                   left_lshifr_8 == "2.78.110" .or.;
-                   left_lshifr_8 == "2.78.111" .or.;
-                   left_lshifr_8 == "2.78.112" //.or.;
-                   //left_lshifr_6 == "2.78.6" .or. left_lshifr_6 == "2.78.7" .or. left_lshifr_6 == "2.78.8" // (2.78.61__2.78.86)
-                  // пока только эту
+                //left_lshifr_6 == "2.78.6" .or. left_lshifr_6 == "2.78.7" .or. left_lshifr_6 == "2.78.8" // (2.78.61__2.78.86)
+                if iii == 1 .and. left_lshifr_8 == "2.78.109"
+                  fl_disp := .t.
+                  arr_fl[ zz ] := .t.
+                elseif  iii == 2 .and. left_lshifr_8 == "2.78.110" 
+                  fl_disp := .t.
+                  arr_fl[ zz ] := .t.
+                elseif  iii == 3 .and. left_lshifr_8 == "2.78.111"
+                  fl_disp := .t.
+                  arr_fl[ zz ] := .t.
+                elseif  iii == 4 .and. left_lshifr_8 == "2.78.112"  
                   fl_disp := .t.
                   arr_fl[ zz ] := .t.
                 Endif
@@ -1325,18 +1343,20 @@ Function f_inf_disp_nabl( par )
       Enddo
       If par == 1 // Не было л/у с диспансерным наблюдением при наличии ДД
         mas_str_ot := {}
+        mas_str_ot_FULL := {}
         flag_BILO := .F.
         flag_NAL := .T.
         For i := 1 To Len( arr )
           If !arr_fl[ i ]
-          
             if flag_NAL
               ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + PadR( Arr[ i ], 5 ) + "   " + fl_prikrep + " " + ;
-                PadR( kart->adres, 40 ) 
+                PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
             else
               ttt :=  space(45 ) + " " + space( 4 ) + " " + space(10) + "  " + PadR( Arr[ i ], 5 ) 
             endif  
             aadd(mas_str_ot, ttt)
+            aadd(mas_str_ot_FULL,{kart->fio,kart->uchast,kart->date_r,Arr[ i ],;
+              fl_prikrep,iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )})
             flag_NAL := .F.
     //        If t_kartotek != kart->kod
     //          t_kartotek := kart->kod
@@ -1356,11 +1376,23 @@ Function f_inf_disp_nabl( par )
             else  
               add_string(mas_str_ot[i])
             endif  
+            if i == 1
+              select _disp_NB
+              append blank 
+              _disp_NB->fio     := mas_str_ot_FULL[i,1]              
+              _disp_NB->UCHAST  := alltrim(str(mas_str_ot_FULL[i,2]))
+              _disp_NB->date_r  := alltrim(full_date(mas_str_ot_FULL[i,3]))
+              _disp_NB->arr_d   := mas_str_ot_FULL[i,4] 
+              _disp_NB->prikrep := iif(mas_str_ot_FULL[i,5] == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(mas_str_ot_FULL[i,5]))<1,"ДА","НЕТ") 
+              _disp_NB->adres   := mas_str_ot_FULL[i,6]  
+              _disp_NB->usluga  := arr_tip_DN1[iii]
+            endif  
           next  
         endif  
       Endif
       If par == 2 // Были л/у с диспансерным наблюдением при наличии ДД
         mas_str_ot := {}
+        mas_str_ot_FULL := {}
         flag_BILO := .F.
         flag_NAL := .T.
         For i := 1 To Len( arr )
@@ -1370,11 +1402,13 @@ Function f_inf_disp_nabl( par )
           If arr_fl[ i ]
             if flag_NAL
               ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + PadR( Arr[ i ], 5 ) + "   " + fl_prikrep + " " + ;
-                PadR( kart->adres, 40 ) 
+                PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
             else
               ttt :=  space(45 ) + " " + space( 4 ) + " " + space(10) + "  " + PadR( Arr[ i ], 5 ) 
             endif  
             aadd(mas_str_ot, ttt)
+            aadd(mas_str_ot_FULL,{kart->fio,kart->uchast,kart->date_r,Arr[ i ],;
+              fl_prikrep,iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )})
             flag_NAL := .F.
   //          If t_kartotek != kart->kod
   //            t_kartotek := kart->kod
@@ -1394,6 +1428,17 @@ Function f_inf_disp_nabl( par )
             else  
               add_string(mas_str_ot[i])
             endif  
+            if i == 1
+              select _disp_NB
+              append blank 
+              _disp_NB->fio     := mas_str_ot_FULL[i,1]              
+              _disp_NB->UCHAST  := alltrim(str(mas_str_ot_FULL[i,2]))
+              _disp_NB->date_r  := alltrim(full_date(mas_str_ot_FULL[i,3]))
+              _disp_NB->arr_d   := mas_str_ot_FULL[i,4] 
+              _disp_NB->prikrep := iif(mas_str_ot_FULL[i,5] == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(mas_str_ot_FULL[i,5]))<1,"ДА","НЕТ") 
+              _disp_NB->adres   := mas_str_ot_FULL[i,6]  
+              _disp_NB->usluga  := arr_tip_DN1[iii]
+            endif  
           next  
         endif  
       Endif
@@ -1403,11 +1448,10 @@ Function f_inf_disp_nabl( par )
   Enddo // kartotek
 next
   Close databases
-//  add_string( " Итого человек: " + lstr( kol_kartotek ) )
   FClose( fp )
   rest_box( buf )
   viewtext( name_file,,,, ( sh > 80 ),,, 3 )
-
+  n_message( { "Создан файл для загрузки в Excel: _disp_NB" },, cColorStMsg, cColorStMsg,,, cColorSt2Msg )
   Return Nil
 
 

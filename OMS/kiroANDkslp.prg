@@ -679,7 +679,7 @@ Function ret_koef_kslp_21_xml( akslp, tKSLP, nYear )
 
   Return k
 
-// 20.09.24
+// 25.09.24
 Function isklichenie_ksg_kiro( cKSG, lkdata )
 
   Local i
@@ -852,24 +852,24 @@ Function isklichenie_ksg_kiro( cKSG, lkdata )
     }
 
   If Year( lkdata ) >= 2024
-    if ( i := AScan( arrKsg, Lower( 'st02.001' ) ) ) > 0
-      hb_ADel( arrKSG, i, .t. )
-    endif
-    if ( i := AScan( arrKsg, Lower( 'st02.002' ) ) ) > 0
-      hb_ADel( arrKSG, i, .t. )
-    endif
-    if ( i := AScan( arrKsg, Lower( 'st02.003' ) ) ) > 0
-      hb_ADel( arrKSG, i, .t. )
-    endif
-    if ( i := AScan( arrKsg, Lower( 'st02.004' ) ) ) > 0
-      hb_ADel( arrKSG, i, .t. )
-    endif
-    if ( i := AScan( arrKsg, Lower( 'st02.010' ) ) ) > 0
-      hb_ADel( arrKSG, i, .t. )
-    endif
-    if ( i := AScan( arrKsg, Lower( 'st02.011' ) ) ) > 0
-      hb_ADel( arrKSG, i, .t. )
-    endif
+    // if ( i := AScan( arrKsg, Lower( 'st02.001' ) ) ) > 0
+    //   hb_ADel( arrKSG, i, .t. )
+    // endif
+    // if ( i := AScan( arrKsg, Lower( 'st02.002' ) ) ) > 0
+    //   hb_ADel( arrKSG, i, .t. )
+    // endif
+    // if ( i := AScan( arrKsg, Lower( 'st02.003' ) ) ) > 0
+    //   hb_ADel( arrKSG, i, .t. )
+    // endif
+    // if ( i := AScan( arrKsg, Lower( 'st02.004' ) ) ) > 0
+    //   hb_ADel( arrKSG, i, .t. )
+    // endif
+    // if ( i := AScan( arrKsg, Lower( 'st02.010' ) ) ) > 0
+    //   hb_ADel( arrKSG, i, .t. )
+    // endif
+    // if ( i := AScan( arrKsg, Lower( 'st02.011' ) ) ) > 0
+    //   hb_ADel( arrKSG, i, .t. )
+    // endif
     AAdd( arrKSG, 'st09.011' )
     AAdd( arrKSG, 'st12.001' )
     AAdd( arrKSG, 'st12.002' )

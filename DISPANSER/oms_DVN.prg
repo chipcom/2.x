@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 08.09.24 ДВН - добавление или редактирование случая (листа учета)
+// 28.09.24 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -24,31 +24,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Default Loc_kod To 0, kod_kartotek To 0
   //
   Private oms_sluch_DVN := .t., ps1dispans := s1dispans, is_prazdnik
-  If kod_kartotek == 0 // добавление в картотеку
-    If ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
-      Return Nil
-    Endif
-  Elseif Loc_kod > 0
-    r_use( dir_server + 'human', , 'HUMAN' )
-    Goto ( Loc_kod )
-    fl := ( Year( human->k_data ) < 2018 )
-    Use
-    If fl
-      Return func_error( 4, 'Это случай диспансеризации ранее 2018 года' )
-    Endif
-  Endif
-  // if empty(sadiag1)
-  // Private file_form, diag1 := {}, len_diag := 0
-  // if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
-  // func_error(4, 'Не обнаружен файл DISP_NAB' + sfrm)
-  // endif
-  // f2_vvod_disp_nabl('A00')
-  // sadiag1 := diag1
-  // endif
-  If ISNIL( sadiag1 )
-    sadiag1 := load_diagnoze_disp_nabl_from_file()
-  Endif
-  chm_help_code := 3002
   Private mfio := Space( 50 ), mpol, mdate_r, madres, mvozrast, mdvozrast, ;
     M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
     m1company := 0, mcompany, mm_company, ;
@@ -113,19 +88,54 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     mdopo_na, m1dopo_na := 0, mssh_na, m1ssh_na  := 0, ;
     mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
   Private mvar, m1var
-  Private mm_ndisp := { { 'Диспансеризация I  этап', 1 }, ;
+  Private mm_ndisp := { ;
+    { 'Диспансеризация I  этап', 1 }, ;
     { 'Диспансеризация II этап', 2 }, ;
     { 'Профилактический осмотр', 3 }, ;
     { 'Дисп.1этап(раз в 2года)', 4 }, ;
     { 'Дисп.2этап(раз в 2года)', 5 } }
   Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., ;
-    is_disp_21 := .t., is_disp_nabl := .f., ;
-    is_disp_24 := .t.
-  mm_ndisp1 := AClone( mm_ndisp )
-  // оставляем 3-ий и 4-ый этапы
-  ASize( mm_ndisp1, 4 )
-  hb_ADel( mm_ndisp1, 1, .t. )
-  hb_ADel( mm_ndisp1, 1, .t. )
+    is_disp_21 := .t., is_disp_nabl := .f.
+//      is_disp_24 := .t.
+
+  Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
+    arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
+  Private mnapr_stac, m1napr_stac := 0, ;
+    mm_napr_stac := arr_mm_napr_stac(), ;
+    mprofil_stac, m1profil_stac := 0
+  Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
+  
+  Private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+  
+  Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
+    mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
+    mTab_Number := 0
+  
+  Private mm_napr_v := { { 'нет', 0 }, ;
+    { 'к онкологу', 1 }, ;
+    { 'на дообследование', 3 } }
+    /*Private mm_napr_v := {{'нет', 0}, ;
+                          {'к онкологу', 1}, ;
+                          {'на биопсию', 2}, ;
+                          {'на дообследование', 3}, ;
+                          {'для опредения тактики лечения', 4}}*/
+  Private mm_met_issl := { { 'нет', 0 }, ;
+    { 'лабораторная диагностика', 1 }, ;
+    { 'инструментальная диагностика', 2 }, ;
+    { 'методы лучевой диагностики (недорогостоящие)', 3 }, ;
+    { 'дорогостоящие методы лучевой диагностики', 4 } }
+  //
+  Private pole_diag, pole_pervich, pole_1pervich, pole_d_diag, ;
+    pole_stadia, pole_dispans, pole_1dispans, pole_d_dispans, pole_dn_dispans
+      
+  Private mm_pervich := arr_mm_pervich()
+  Private mm_dispans := arr_mm_dispans()
+  Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
+  Private mm_dopo_na := arr_mm_dopo_na()
+  Private gl_arr := { ;  // для битовых полей
+    { 'dopo_na', 'N', 10, 0, , , , {| x | inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
+  }
+
   Private mm_gruppaP := arr_mm_gruppap()
   Private mm_gruppaP_old := AClone( mm_gruppaP )
   ASize( mm_gruppaP_old, 3 )
@@ -153,57 +163,54 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   ASize( mm_otkaz1, 3 )
   Private mm_otkaz0 := AClone( mm_otkaz )
   ASize( mm_otkaz0, 2 )
-  Private mm_pervich := arr_mm_pervich()
-  Private mm_dispans := arr_mm_dispans()
-  Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
-  Private mm_dopo_na := arr_mm_dopo_na()
-  Private gl_arr := { ;  // для битовых полей
-      { 'dopo_na', 'N', 10, 0, , , , {| x | inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
-    }
-  Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
-    arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
-  Private mnapr_stac, m1napr_stac := 0, ;
-    mm_napr_stac := arr_mm_napr_stac(), ;
-    mprofil_stac, m1profil_stac := 0
-  Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
+      
+//  If kod_kartotek == 0 // добавление в картотеку
+  If kod_kartotek >= 0 // работаем из картотеки
+    If kod_kartotek == 0 // добавление в картотеку
+      If ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
+        Return Nil
+      Endif
+    endif
+    mkod_k := kod_kartotek
+    r_use( dir_server + 'kartotek', , 'KART' )
+    Goto ( mkod_k )
+    mpol        := kart->pol
+    mdate_r     := kart->date_r
+    kart->( dbCloseArea() )
+  Elseif Loc_kod > 0
+    r_use( dir_server + 'human', , 'HUMAN' )
+    Goto ( Loc_kod )
+    mpol    := human->pol
+    mdate_r := human->date_r
+    MN_DATA := human->N_DATA
+    fl := ( Year( human->k_data ) < 2018 )
+    Use
+    If fl
+      Return func_error( 4, 'Это случай диспансеризации ранее 2018 года' )
+    Endif
+  Endif
 
-  Private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+  fv_date_r( iif( Loc_kod > 0, MN_DATA, ) )
 
-  //
-  // dbcreate(cur_dir+"tmp_onkna", {; // онконаправления
-  // {"KOD"      ,   "N",     7,     0},; // код больного
-  // {"NAPR_DATE",   "D",     8,     0},; // Дата направления
-  // {"NAPR_MO",     "C",     6,     0},; // код другого МО, куда выписано направление
-  // {"NAPR_V"  ,    "N",     1,     0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
-  // {"MET_ISSL" ,   "N",     1,     0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
-  // {"shifr"  ,     "C",    20,     0},;
-  // {"shifr_u"  ,   "C",    20,     0},;
-  // {"shifr1"   ,   "C",    20,     0},;
-  // {"name_u"   ,   "C",    65,     0},;
-  // {"U_KOD"    ,   "N",     6,     0},;  // код услуги
-  // {"KOD_VR"   ,   "N",     5,     0};  // код врача (справочник mo_pers)
-  // })
+  // if empty(sadiag1)
+  // Private file_form, diag1 := {}, len_diag := 0
+  // if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
+  // func_error(4, 'Не обнаружен файл DISP_NAB' + sfrm)
+  // endif
+  // f2_vvod_disp_nabl('A00')
+  // sadiag1 := diag1
+  // endif
+  If ISNIL( sadiag1 )
+    sadiag1 := load_diagnoze_disp_nabl_from_file()
+  Endif
 
-  Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
-    mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
-    mTab_Number := 0
+  chm_help_code := 3002
 
-  Private mm_napr_v := { { 'нет', 0 }, ;
-    { 'к онкологу', 1 }, ;
-    { 'на дообследование', 3 } }
-  /*Private mm_napr_v := {{'нет', 0}, ;
-                        {'к онкологу', 1}, ;
-                        {'на биопсию', 2}, ;
-                        {'на дообследование', 3}, ;
-                        {'для опредения тактики лечения', 4}}*/
-  Private mm_met_issl := { { 'нет', 0 }, ;
-    { 'лабораторная диагностика', 1 }, ;
-    { 'инструментальная диагностика', 2 }, ;
-    { 'методы лучевой диагностики (недорогостоящие)', 3 }, ;
-    { 'дорогостоящие методы лучевой диагностики', 4 } }
-  //
-  Private pole_diag, pole_pervich, pole_1pervich, pole_d_diag, ;
-    pole_stadia, pole_dispans, pole_1dispans, pole_d_dispans, pole_dn_dispans
+  mm_ndisp1 := AClone( mm_ndisp )
+    // оставляем 3-ий и 4-ый этапы
+  ASize( mm_ndisp1, 4 )
+  hb_ADel( mm_ndisp1, 1, .t. )
+  hb_ADel( mm_ndisp1, 1, .t. )
 
   arr := {} // массив для направлений
 
@@ -383,12 +390,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     //
     is_disp_21 := !( mk_data < 0d20210101 )
     //
-    is_disp_24 := !( mk_data < 0d20240901 )
+//    is_disp_24 := !( mk_data < 0d20240901 )
     //
     ret_arr_vozrast_dvn( mk_data )
     // / !!!!
-    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
-
+//    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
+    ret_arrays_disp( mk_data )
     metap := human->ishod - 200
     If is_disp_19
       mdvozrast := Year( mn_data ) - Year( mdate_r )
@@ -590,36 +597,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Next j
     Endif
-    If .t.
-      dbCreate( cur_dir + 'tmp_onkna', create_struct_temporary_onkna() )
-
-      // use (cur_dir+"tmp_onkna") new alias TNAPR
-      // R_Use(dir_server+"mo_su",,"MOSU")
-      // R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
-      // set relation to u_kod into MOSU
-      // find (str(Loc_kod,7))
-      // do while napr->kod == Loc_kod .and. !eof()
-      cur_napr := 1 // при ред-ии - сначала первое направление текущее
-      // ++count_napr
-      // select TNAPR
-      // append blank
-      // tnapr->NAPR_DATE := napr->NAPR_DATE
-      // tnapr->KOD_VR    := napr->KOD_VR
-      // tnapr->NAPR_MO   := napr->NAPR_MO
-      // tnapr->NAPR_V    := napr->NAPR_V
-      // tnapr->MET_ISSL  := napr->MET_ISSL
-      // tnapr->U_KOD     := napr->U_KOD
-      // tnapr->shifr_u   := iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)
-      // tnapr->shifr1    := mosu->shifr1
-      // tnapr->name_u    := mosu->name
-      // select NAPR
-      // skip
-      // enddo
-      count_napr := collect_napr_zno( Loc_kod )
-      If count_napr > 0
-        // mnapr_onk := "Количество направлений - "+lstr(count_napr)
-        mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
-      Endif
+    // собираем онкологические направления
+    dbCreate( cur_dir + 'tmp_onkna', create_struct_temporary_onkna() )
+    cur_napr := 1 // при ред-ии - сначала первое направление текущее
+    count_napr := collect_napr_zno( Loc_kod )
+    If count_napr > 0
+      mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
     Endif
     For i := 1 To 5
       f_valid_diag_oms_sluch_dvn( , i )
@@ -1252,7 +1235,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             --kol_d_usl
           Elseif Empty( &mvard )
             fl := func_error( 4, 'Не введена дата услуги "' + LTrim( ar[ 1 ] ) + '"' )
-          Elseif Empty( &mvart )
+          Elseif Empty( &mvart ) .and. ! is_lab_usluga( ar[ 2 ] ) // для услуг ЦКДЛ допускается пустое значение врача
             fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
           Else
             Select P2
@@ -1918,66 +1901,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Next
       Endif
       save_arr_dvn( mkod )
-      // направления при подозрении на ЗНО
-      // cur_napr := 0
-      // // arr := {}
-      // G_Use(dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'NAPR') // онконаправления
-      // find (str(mkod, 7))
-      // do while napr->kod == mkod .and. !eof()
-      // aadd(arr, recno())
-      // skip
-      // enddo
       If m1ds_onk == 1 // подозрение на злокачественное новообразование
         save_mo_onkna( mkod )
-        // Use_base('mo_su')
-        // use (cur_dir + 'tmp_onkna') new alias TNAPR
-        // select TNAPR
-        // go top
-        // do while !eof()
-        // if !emptyany(tnapr->NAPR_DATE, tnapr->NAPR_V)
-        // if tnapr->U_KOD == 0 // добавляем в свой справочник федеральную услугу
-        // select MOSU
-        // set order to 3
-        // find (tnapr->shifr1)
-        // if found()  // наверное, добавили только что
-        // tnapr->U_KOD := mosu->kod
-        // else
-        // set order to 1
-        // FIND (STR(-1, 6))
-        // if found()
-        // G_RLock(forever)
-        // else
-        // AddRec(6)
-        // endif
-        // tnapr->U_KOD := mosu->kod := recno()
-        // mosu->name   := tnapr->name_u
-        // mosu->shifr1 := tnapr->shifr1
-        // endif
-        // endif
-        // select NAPR
-        // if ++cur_napr > len(arr)
-        // AddRec(7)
-        // napr->kod := mkod
-        // else
-        // goto (arr[cur_napr])
-        // G_RLock(forever)
-        // endif
-        // napr->NAPR_DATE := tnapr->NAPR_DATE
-        // napr->KOD_VR := tnapr->KOD_VR
-        // napr->NAPR_MO := tnapr->NAPR_MO
-        // napr->NAPR_V := tnapr->NAPR_V
-        // napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
-        // napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
-        // endif
-        // select TNAPR
-        // skip
-        // enddo
       Endif
-      // select NAPR
-      // do while ++cur_napr <= len(arr)
-      // goto (arr[cur_napr])
-      // DeleteRec(.t.)
-      // enddo
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.
       Close databases

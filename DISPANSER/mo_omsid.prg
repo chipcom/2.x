@@ -3103,7 +3103,7 @@ Static Function __f_131_u( k )
 
   Return s
 
-// 21.07.19
+// 27.09.24
 Function f1_131_u( nKey, oBrow, regim )
 
   Static lV := "V", sb1 := "<b><u>", sb2 := "</u></b>"
@@ -3170,16 +3170,20 @@ Function f1_131_u( nKey, oBrow, regim )
     mk_data := mk_data1 := human->k_data
     Private is_disp_19 := !( mk_data < 0d20190501 )
     Private is_disp_21 := !( mk_data < 0d20210101 )
+    Private is_disp_24 := !( mk_data < 0d20240901 )
     mdate_r := full_date( human->date_r )
     read_arr_dvn( human->kod )
     ret_arr_vozrast_dvn( mk_data )
-    ret_arrays_disp( is_disp_19, is_disp_21 )
-    ret_tip_mas( mWEIGHT, mHEIGHT, @m1tip_mas )
+
     mvozrast := count_years( human->date_r, human->n_data )
     mdvozrast := Year( human->n_data ) - Year( human->date_r )
     If m1veteran == 1
       mdvozrast := ret_vozr_dvn_veteran( mdvozrast, human->k_data )
     Endif
+
+//    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
+    ret_arrays_disp( mk_data )
+    ret_tip_mas( mWEIGHT, mHEIGHT, @m1tip_mas )
     Select HU
     find ( Str( human->kod, 7 ) )
     Do While hu->kod == human->kod .and. !Eof()
@@ -5072,7 +5076,7 @@ Function f22_inf_dvn()
     displbox( s, ;
       , ;                   // цвет окна (умолч. - cDataCGet)
       { "mk1", "mispoln", "mtel_isp" }, ; // массив Private-переменных для редактирования
-    { "999999",, }, ; // массив Picture для редактирования
+      { "999999",, }, ; // массив Picture для редактирования
     17 )
     If LastKey() != K_ESC
       setinisect( tmp_ini, group_ini, { { "mk1", mk1 }, ;
@@ -5356,7 +5360,7 @@ Function f1_f22_inf_dvn() // сводная информация
 
   Return Nil
 
-// 20.01.21 список пациентов
+// 27.09.24 список пациентов
 Function f2_inf_dvn( is_schet, par )
 
   Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, as := {}, ;
@@ -5372,23 +5376,25 @@ Function f2_inf_dvn( is_schet, par )
       adbf := { ;
         { "nomer",   "N",     6,     0 }, ;
         { "KOD",   "N",     7,     0 }, ; // код (номер записи)
-      { "KOD_K",   "N",     7,     0 }, ; // код по картотеке
-      { "FIO",   "C",    50,     0 }, ; // Ф.И.О. больного
-      { "DATE_R",   "D",     8,     0 }, ; // дата рождения больного
-      { "N_DATA",   "D",     8,     0 }, ; // дата начала лечения
-      { "K_DATA",   "D",     8,     0 }, ; // дата окончания лечения
-      { "sroki",   "C",    35,     0 }, ; // сроки лечения
-      { "CENA_1",   "N",    10,     2 }, ; // оплачиваемая сумма лечения
-      { "KOD_DIAG",   "C",     5,     0 }, ; // шифр 1-ой осн.болезни
-      { "etap",   "N",     1,     0 }, ; //
-      { "gruppa",   "N",     1,     0 }, ; //
-      { "vrach",   "C",    15,     0 }, ; // врач
-      { "DATA_O",   "C",    35,     0 } ; // сроки другого этапа
+        { "KOD_K",   "N",     7,     0 }, ; // код по картотеке
+        { "FIO",   "C",    50,     0 }, ; // Ф.И.О. больного
+        { "DATE_R",   "D",     8,     0 }, ; // дата рождения больного
+        { "N_DATA",   "D",     8,     0 }, ; // дата начала лечения
+        { "K_DATA",   "D",     8,     0 }, ; // дата окончания лечения
+        { "sroki",   "C",    35,     0 }, ; // сроки лечения
+        { "CENA_1",   "N",    10,     2 }, ; // оплачиваемая сумма лечения
+        { "KOD_DIAG",   "C",     5,     0 }, ; // шифр 1-ой осн.болезни
+        { "etap",   "N",     1,     0 }, ; //
+        { "gruppa",   "N",     1,     0 }, ; //
+        { "vrach",   "C",    15,     0 }, ; // врач
+        { "DATA_O",   "C",    35,     0 } ; // сроки другого этапа
       }
-      ret_arrays_disp( .f. )
+//      ret_arrays_disp( .f. )
+      ret_arrays_disp( )
       Private count_dvn_arr_usl18 := Len( dvn_arr_usl18 )
       Private count_dvn_arr_umolch18 := Len( dvn_arr_umolch18 )
-      ret_arrays_disp( .t., .t. )
+//      ret_arrays_disp( .t., .t. )
+      ret_arrays_disp( )
       For i := 1 To Max( count_dvn_arr_usl18, count_dvn_arr_usl )
         AAdd( adbf, { "d_" + lstr( i ), "C", 24, 0 } )
       Next
@@ -5655,7 +5661,7 @@ Function f2_inf_dvn( is_schet, par )
 
   Return Nil
 
-// 15.02.20
+// 27.09.24
 Function f2_inf_dvn_svod( par, kod_h ) // сводная информация
 
   Static P_BEGIN_RSLT := 342
@@ -5673,7 +5679,8 @@ Function f2_inf_dvn_svod( par, kod_h ) // сводная информация
   is_2021 := p := ( mk_data < 0d20210101 )
   is_2019 := !is_2018
   ret_arr_vozrast_dvn( mk_data )
-  ret_arrays_disp( is_2019, is_2021 )
+//  ret_arrays_disp( is_2019, is_2021 )
+  ret_arrays_disp( mk_data )
   If ppar == 1 // диспансеризация 1 этап
     m1GRUPPA := ret_gruppa_dvn( human_->RSLT_NEW, @fl2 )
     If Between( m1gruppa, 0, 4 )
