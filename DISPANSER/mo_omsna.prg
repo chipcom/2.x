@@ -1132,6 +1132,7 @@ Function f_inf_dop_disp_nabl()
       //
       rest_box( buf )
       g_sunlock( S_sem )
+      func_error( 4, "Добавление пациентов с ДН завершено " )
     Endif
   Return Nil
 
