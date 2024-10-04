@@ -1407,7 +1407,7 @@ Function f_inf_disp_nabl( par )
   // 1 -  "~¥ ¡ë«® «/ã á ¤¨á¯ ­á¥à­ë¬ ­ ¡«î¤¥­¨¥¬",;
   // 2 -  "~ë«¨ «/ã á ¤¨á¯ ­á¥à­ë¬ ­ ¡«î¤¥­¨¥¬"
 
-   Local arr, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir + "disp_nabl" + stxt, ;
+   Local arr, arr_full_name, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir + "disp_nabl" + stxt, ;
     ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := "___DN" + sdbf, arr_fl, fl_prikrep := Space( 6 ), kol_kartotek := 0, ;
     t_kartotek := 0, s1
    Local arr_tip_DN := {"à®ç¨¥ „ (2.78.109)","­ª®«®£¨ç¥áª®¥ „ (2.78.110)","‘ å à­ë© ¤¨ ¡¥â „ (2.78.111)","‘¥à¤¥ç­®-á®áã¤¨áâ®¥ „ (2.78.112)"}
@@ -1478,14 +1478,16 @@ Function f_inf_disp_nabl( par )
   Do While !Eof()  // æ¨ª« ¯® ¢á¥© ¡ §¥ ª àâ®â¥ª¨ „ˆ‘€‘…ƒ €‹„…ˆŸ
     arr := {}
     arr_fl := {}
+    arr_full_name := {}
     Select DD
     find ( Str( rhum->( RecNo() ), 6 ) )
     // ¥á«¨ ç¥«®¢¥ª áâ®¨â ­  „-ãç¥â¥ - á®§¤ ¥¬ ¬ áá¨¢ ¥£® „ ¤¨ £­®§®¢
     Do While dd->kod_d == rhum->( RecNo() ) .and. !Eof()
       If dd->next_data >= 0d20240101 // !!!!!!! ‚ˆŒ€ˆ… £®¤
         if arr_tip_KOD_USL[iii] == check_tip_disp_nabl(dd->kod_diag)
-          AAdd( arr, dd->kod_diag )
+          AAdd( arr, padr(dd->kod_diag,4) )   // ¡ë«® 5
           AAdd( arr_fl, .f. )
+          AAdd( arr_full_name, dd->kod_diag ) 
         endif  
       Endif
       Skip
@@ -1511,7 +1513,7 @@ Function f_inf_disp_nabl( par )
         If human->k_data >= 0d20240101 // !!!!!!! ‚ˆŒ€ˆ… £®¤
           // ¯à®¢¥àï¥¬ â®«ìª® ¯® ®á­®¢­®¬ã ¤¨ £­®§ã
           fl := .f. ; ar := {}; zz := 0
-          s := PadR( human->kod_diag, 5 )
+          s := PadR( human->kod_diag, 4 )   // ¡ë«® 5
           If ( zz := AScan( arr, s ) ) > 0
             fl := .t.
           Endif
@@ -1559,13 +1561,13 @@ Function f_inf_disp_nabl( par )
         For i := 1 To Len( arr )
           If !arr_fl[ i ]
             if flag_NAL
-              ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + PadR( Arr[ i ], 5 ) + "   " + fl_prikrep + " " + ;
+              ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + PadR( arr_full_name[ i ], 5 ) + "   " + fl_prikrep + " " + ;
                 PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
             else
-              ttt :=  space(45 ) + " " + space( 4 ) + " " + space(10) + "  " + PadR( Arr[ i ], 5 ) 
+              ttt :=  space(45 ) + " " + space( 4 ) + " " + space(10) + "  " + PadR( arr_full_name[ i ], 5 ) 
             endif  
             aadd(mas_str_ot, ttt)
-            aadd(mas_str_ot_FULL,{kart->fio,kart->uchast,kart->date_r,Arr[ i ],;
+            aadd(mas_str_ot_FULL,{kart->fio,kart->uchast,kart->date_r,arr_full_name[ i ],;
               fl_prikrep,iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )})
             flag_NAL := .F.
     //        If t_kartotek != kart->kod
@@ -1611,13 +1613,13 @@ Function f_inf_disp_nabl( par )
           Endif
           If arr_fl[ i ]
             if flag_NAL
-              ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + PadR( Arr[ i ], 5 ) + "   " + fl_prikrep + " " + ;
+              ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + PadR(arr_full_name [ i ], 5 ) + "   " + fl_prikrep + " " + ;
                 PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
             else
-              ttt :=  space(45 ) + " " + space( 4 ) + " " + space(10) + "  " + PadR( Arr[ i ], 5 ) 
+              ttt :=  space(45 ) + " " + space( 4 ) + " " + space(10) + "  " + PadR(arr_full_name [ i ], 5 ) 
             endif  
             aadd(mas_str_ot, ttt)
-            aadd(mas_str_ot_FULL,{kart->fio,kart->uchast,kart->date_r,Arr[ i ],;
+            aadd(mas_str_ot_FULL,{kart->fio,kart->uchast,kart->date_r,arr_full_name[ i ],;
               fl_prikrep,iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )})
             flag_NAL := .F.
   //          If t_kartotek != kart->kod
