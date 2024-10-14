@@ -10,7 +10,7 @@
 
 // =========== F003 ===================
 //
-// 20.01.21 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
+// 14.10.24 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
 Function viewF003()
 
   local nTop, nLeft, nBottom, nRight
@@ -38,7 +38,7 @@ Function viewF003()
     l := max(l,len(ar[i]))
   next
 
-  dbUseArea( .t., 'DBFNTX', dir_exe + dbName, dbName, .t., .f. )
+  dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbName, .t., .f. )
   aStruct := (dbName)->(dbStruct())
   (dbName)->(dbCreateIndex( indexName, 'substr(MCOD,1,2)', , NIL ))
 
@@ -175,7 +175,7 @@ Function ViewRecordF003()
   
   return nil
 
-// 15.10.21
+// 14.10.24
 Function getF003mo(mCode)
   // mCode - код МО по F003
   Local arr, dbName := '_mo_f003', indexName := cur_dir + dbName + 'cod'
@@ -197,7 +197,7 @@ Function getF003mo(mCode)
 
     arr := array(_MO_LEN_ARR)
 
-    dbUseArea( .t., 'DBFNTX', dir_exe + dbName, dbName, .t., .f. )
+    dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbName, .t., .f. )
     (dbName)->(dbCreateIndex( indexName, 'MCOD', , NIL ))
 
     (dbName)->(dbGoTop())
@@ -341,7 +341,7 @@ function getF009()
 
 // =========== F010 ===================
 //
-// 17.12.22 вернуть массив регионов по справочнику регионов ТФОМС F010.xml
+// 14.10.24 вернуть массив регионов по справочнику регионов ТФОМС F010.xml
 function getf010()
   // F010.xml - Классификатор субъектов Российской Федерации
   // KOD_TF,       "C",      2,      0  // Код ТФОМС
@@ -367,8 +367,8 @@ function getf010()
     endif
     db := nil
     aadd(_arr, {'Федерального подчинения', '99', 0})
-    if hb_FileExists(dir_exe + 'f010' + sdbf)
-      FErase(dir_exe + 'f010' + sdbf)
+    if hb_FileExists(dir_exe() + 'f010' + sdbf)
+      FErase(dir_exe() + 'f010' + sdbf)
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
   endif

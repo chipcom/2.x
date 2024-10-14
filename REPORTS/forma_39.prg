@@ -99,7 +99,7 @@ Function forma_39( k )
 
   Return Nil
 
-// 07.02.13
+// 14.10.24
 Function forma_39_()
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
@@ -297,7 +297,7 @@ Function forma_39_()
     func_error( 4, "Нет информации!" )
   Else
     name_fr := "mo_f39" + sfr3
-    If _upr_epson() .or. !File( dir_exe + name_fr )
+    If _upr_epson() .or. !File( dir_exe() + name_fr )
       viewtext( name_file,,,, .t.,,, reg_print )
     Else
       call_fr( name_fr )
@@ -404,7 +404,7 @@ Function f39_title2()
 
   Return arr
 
-// 07.02.13
+// 14.10.24
 Function forma_39otd()
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
@@ -602,7 +602,7 @@ Function forma_39otd()
     func_error( 4, "Нет информации!" )
   Else
     name_fr := "mo_f39" + sfr3
-    If _upr_epson() .or. !File( dir_exe + name_fr )
+    If _upr_epson() .or. !File( dir_exe() + name_fr )
       viewtext( name_file,,,, .t.,,, reg_print )
     Else
       call_fr( name_fr )
@@ -936,7 +936,7 @@ Function f_39all_1( par )
   Close databases
   rest_box( buf )
   name_fr := "mo_f39" + sfr3
-  If _upr_epson() .or. !File( dir_exe + name_fr )
+  If _upr_epson() .or. !File( dir_exe() + name_fr )
     viewtext( name_file,,,, .t.,,, reg_print )
   Else
     call_fr( name_fr )
@@ -1336,7 +1336,7 @@ Function forma_39org()
 
   Return Nil
 
-// 26.02.17
+// 14.10.24
 Function f_39org_1( par )
 
   Static such := 1
@@ -1427,7 +1427,7 @@ Function f_39org_1( par )
   Close databases
   rest_box( buf )
   name_fr := "mo_f39" + sfr3
-  If _upr_epson() .or. !File( dir_exe + name_fr )
+  If _upr_epson() .or. !File( dir_exe() + name_fr )
     viewtext( name_file,,,, .t.,,, reg_print )
   Else
     call_fr( name_fr )

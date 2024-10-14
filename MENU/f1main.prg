@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 11.07.24
+// 14.10.24
 Function f1main( n_Task )
   Local it, s, k, fl := .t., cNameIcon
 
@@ -923,15 +923,14 @@ Function f1main( n_Task )
     "Переидексирование справочников НСИ в рабочем каталоге", ;
     "Режим просмотра - кто находится в задаче и в каком режиме", ;
     "Просмотр файла ошибок" } )
-  // aadd(func_menu, {"file_Wordpad(dir_exe + cslash + 'README.RTF')",;
-  AAdd( func_menu, { "view_file_in_Viewer(dir_exe + cslash + 'README.RTF')", ;
+  AAdd( func_menu, { "view_file_in_Viewer(dir_exe() + 'README.RTF')", ;
     "m_help()", ;
     "nastr_rab_mesto()", ;
     "ust_printer(T_ROW)", ;
-    "index_work_dir(dir_exe, cur_dir, .t.)", ;
-    "net_monitor(T_ROW,T_COL-7,(hb_user_curUser:IsAdmin()))", ;
+    "index_work_dir(dir_exe(), cur_dir(), .t.)", ;
+    "net_monitor(T_ROW, T_COL - 7, (hb_user_curUser:IsAdmin()))", ;
     "view_errors()" } )
-  // добавим переиндексирование некоторых файлов внутри задачи
+// добавим переиндексирование некоторых файлов внутри задачи
 //  If eq_any( glob_task, X_PPOKOJ, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_KEK, X_263 )
   If eq_any( glob_task, X_PPOKOJ, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_263 )
     AAdd( ATail( first_menu ), 0 )

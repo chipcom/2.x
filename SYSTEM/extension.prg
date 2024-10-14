@@ -68,7 +68,7 @@ function fill_exists_files_TFOMS(cur_dir)
 
 function openSQL_DB()
 
-  return sqlite3_open( dir_exe + FILE_NAME_SQL, .f. )
+  return sqlite3_open( dir_exe() + FILE_NAME_SQL, .f. )
 
 // 19.01.23
 function timeout_load(/*@*/time_load)
@@ -196,6 +196,16 @@ function dir_XML_FNS()
     dir := dir_server + 'XML_FNS' + hb_ps()
   endif
 
+  return dir
+
+// 14.10.24
+function dir_exe()
+  
+  static dir
+
+  if isnil( dir )
+    dir := hb_DirBase()
+  endif
   return dir
 
 // 22.03.24

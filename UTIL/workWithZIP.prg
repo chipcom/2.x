@@ -98,7 +98,7 @@ Function extract_zip_xml( goal_dir, name_zip, regim, new_name )
 
   Return iif( fl, arr_f, nil )
 
-// 21.06.15 переписать архив во временный каталог и распаковать
+// 14.10.24 переписать архив во временный каталог и распаковать
 Function extract_rar( goal_dir, name_zip, regim, new_name )
   Local fl := .f., buf, _dir, _dir1
 
@@ -121,7 +121,7 @@ Function extract_rar( goal_dir, name_zip, regim, new_name )
     func_error( 4, "Ошибка при копировании архива " + name_zip + " во временный каталог" )
   Else
     buf := SaveScreen()
-    Run ( dir_exe + "unrar.exe e " + _dir1 + new_name + " " + _dir1 )
+    Run ( dir_exe() + "unrar.exe e " + _dir1 + new_name + " " + _dir1 )
     RestScreen( buf )
     fl := .t.
   Endif

@@ -52,43 +52,43 @@ Function close_use_base( sBase )
 
   Return Nil
 
-// 12.03.23
+// 14.10.24
 Function existsnsifile( sbase, vYear )
 
   Local fl := .f., fName, findex, fIndex_add
 
   fName := prefixfilerefname( vYear ) + SubStr( sbase, 2 )
-  If ( fl := hb_vfExists( dir_exe + fName + sdbf ) )
+  If ( fl := hb_vfExists( dir_exe() + fName + sdbf ) )
     Do Case
     Case sBase == 'lusl'
-      fIndex := cur_dir + fName + sntx
-      If ( fl := hb_vfExists( dir_exe + fName + sdbf ) )
+      fIndex := cur_dir() + fName + sntx
+      If ( fl := hb_vfExists( dir_exe() + fName + sdbf ) )
         If ! hb_vfExists( fIndex )
-          r_use( dir_exe + fName, , sBase )
+          r_use( dir_exe() + fName, , sBase )
           Index On shifr to ( fIndex )
           ( sBase )->( dbCloseArea() )
         Endif
       Endif
     Case sBase == 'luslc'
-      fIndex := cur_dir + fName + sntx
+      fIndex := cur_dir() + fName + sntx
       fIndex_add :=  prefixfilerefname( vYear ) + 'uslu'  //
-      If ( fl := hb_vfExists( dir_exe + fName + sdbf ) )
-        If ( ! hb_vfExists( fIndex ) ) .or. ( ! hb_vfExists( cur_dir + fIndex_add + sntx ) )
-          r_use( dir_exe + fName, , sBase )
+      If ( fl := hb_vfExists( dir_exe() + fName + sdbf ) )
+        If ( ! hb_vfExists( fIndex ) ) .or. ( ! hb_vfExists( cur_dir() + fIndex_add + sntx ) )
+          r_use( dir_exe() + fName, , sBase )
           Index On shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( findex ) ;
             For codemo == glob_mo[ _MO_KOD_TFOMS ]
-          Index On codemo + shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( cur_dir + fIndex_add ) ;
+          Index On codemo + shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( cur_dir() + fIndex_add ) ;
             For codemo == glob_mo[ _MO_KOD_TFOMS ] // для совместимости со старой версией справочника
           ( sBase )->( dbCloseArea() )
         Endif
       Endif
     Case sBase == 'luslf'
       fName := prefixfilerefname( vYear ) + 'uslf'
-      fIndex := cur_dir + fName + sntx
-      If ( fl := hb_vfExists( dir_exe + fName + sdbf ) )
+      fIndex := cur_dir() + fName + sntx
+      If ( fl := hb_vfExists( dir_exe() + fName + sdbf ) )
         If ! hb_vfExists( fIndex )
-          r_use( dir_exe + fName, , sBase )
-          Index On shifr to ( cur_dir + fName )
+          r_use( dir_exe() + fName, , sBase )
+          Index On shifr to ( cur_dir() + fName )
           ( sBase )->( dbCloseArea() )
         Endif
       Endif
@@ -97,7 +97,7 @@ Function existsnsifile( sbase, vYear )
 
   Return fl
 
-// 27.08.24
+// 14.10.24
 Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
 
   Local fl := .t., sind1 := '', sind2 := ''
@@ -117,12 +117,12 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
         fName := prefixfilerefname( countYear ) + SubStr( sbase, 2 )
         lAlias := create_name_alias( sBase, countYear )
         If ! ( lAlias )->( Used() )
-          sind1 := cur_dir + fName + sntx
+          sind1 := cur_dir() + fName + sntx
           If ! hb_vfExists( sind1 )
-            r_use( dir_exe + fName, , lAlias )
+            r_use( dir_exe() + fName, , lAlias )
             Index On shifr to ( sind1 )
           Else
-            r_use( dir_exe + fName, sind1, lAlias )
+            r_use( dir_exe() + fName, sind1, lAlias )
           Endif
         Endif
       Else
@@ -136,16 +136,16 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
         fname_add := prefixfilerefname( countYear ) + SubStr( sbase, 2, 3 ) + 'u'
         lAlias := sBase + iif( countYear == WORK_YEAR, '', SubStr( Str( countYear, 4 ), 3 ) )
         If ! ( lAlias )->( Used() )
-          sind1 := cur_dir + fName + sntx
-          sind2 := cur_dir + fname_add + sntx
+          sind1 := cur_dir() + fName + sntx
+          sind2 := cur_dir() + fname_add + sntx
           If ! ( hb_vfExists( sind1 ) .or. hb_vfExists( sind2 ) )
-            r_use( dir_exe + fName, , lAlias )
+            r_use( dir_exe() + fName, , lAlias )
             Index On shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( sind1 ) ;
               For codemo == glob_mo[ _MO_KOD_TFOMS ]
             Index On codemo + shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( sind2 ) ;
               For codemo == glob_mo[ _MO_KOD_TFOMS ] // для совместимости со старой версией справочника
           Else
-            r_use( dir_exe + fName, { cur_dir + fName, cur_dir + fName_add }, lAlias )
+            r_use( dir_exe() + fName, { cur_dir() + fName, cur_dir() + fName_add }, lAlias )
           Endif
         Endif
       Endif
@@ -156,12 +156,12 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
         fName := prefixfilerefname( countYear ) + SubStr( sbase, 2 )
         lAlias := sBase + iif( countYear == WORK_YEAR, '', SubStr( Str( countYear, 4 ), 3 ) )
         If ! ( lAlias )->( Used() )
-          sind1 := cur_dir + fName + sntx
+          sind1 := cur_dir() + fName + sntx
           If ! hb_vfExists( sind1 )
-            r_use( dir_exe + fName, , lAlias )
+            r_use( dir_exe() + fName, , lAlias )
             Index On shifr to ( sind1 )
           Else
-            r_use( dir_exe + fName, cur_dir + fName, lAlias )
+            r_use( dir_exe() + fName, cur_dir() + fName, lAlias )
           Endif
         Endif
       Endif
@@ -171,11 +171,11 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
     fl := g_use( dir_server + 'organiz', , lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'komitet'
     If ( fl := g_use( dir_server + 'komitet', , lAlias, , lExcluUse, lREADONLY ) )
-      Index On Str( kod, 2 ) to ( cur_dir + 'tmp_komi' )
+      Index On Str( kod, 2 ) to ( cur_dir() + 'tmp_komi' )
     Endif
   Case sBase == 'str_komp'
     If ( fl := g_use( dir_server + 'str_komp', , lAlias, , lExcluUse, lREADONLY ) )
-      Index On Str( kod, 2 ) to ( cur_dir + 'tmp_strk' )
+      Index On Str( kod, 2 ) to ( cur_dir() + 'tmp_strk' )
     Endif
   Case sBase == 'mo_pers'
     Default lAlias To 'P2'
@@ -333,7 +333,7 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
   //   Default lAlias To 'EKSZ'
   //   fl := g_use( dir_server + 'mo_kekez', dir_server + 'mo_kekez', lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'lusld'
-    fl := r_use( dir_exe + '_mo_usld', cur_dir + '_mo_usld', sBase )
+    fl := r_use( dir_exe() + '_mo_usld', cur_dir() + '_mo_usld', sBase )
   Endcase
 
   Return fl

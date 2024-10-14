@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 09.07.24 ä®à¬  14-Œ…„ (ŽŒ‘)
+// 14.10.24 ä®à¬  14-Œ…„ (ŽŒ‘)
 Function forma14_med_oms()
   Static group_ini := 'f14_med_oms'
   Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2, ;
@@ -228,7 +228,7 @@ Function forma14_med_oms()
   Use_base('luslf')
   
   sbase := prefixFileRefName(arr_m[1]) + 'unit'
-  R_Use(dir_exe + sbase, cur_dir + sbase, 'MOUNIT')
+  R_Use(dir_exe() + sbase, cur_dir() + sbase, 'MOUNIT')
   
   R_Use(dir_server + 'mo_su',,'MOSU')
   R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU')
@@ -1938,8 +1938,8 @@ Function forma14_med_oms()
   if fl_error
     viewtext(Devide_Into_Pages(cFileProtokol, 60, 80),,,,.t.,,, 3)
   endif
-  fill_in_Excel_Book(dir_exe + 'mo_14med' + sxls, ;
-                     cur_dir + '__14med' + sxls, ;
+  fill_in_Excel_Book(dir_exe() + 'mo_14med' + sxls, ;
+                     cur_dir() + '__14med' + sxls, ;
                      arr_excel, ;
                      '¯à¨á« ­­ë© ¨§ ’”ŽŒ‘')
   return NIL

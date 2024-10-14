@@ -2210,7 +2210,7 @@ if k > 10
 endif
 return NIL
 
-***** 15.06.18
+// 14.10.24
 Function proch_proverka()
 Static sd, sl := 2
 Static mm_schet := {{"по счетам         ",1},;
@@ -2329,7 +2329,7 @@ do while .t.
         m1ns_usl := 0 ; mns_usl := space(3)
       endif
     endif
-    R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
+    R_Use(dir_exe()+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
     R_Use(dir_server+"mo_uch",,"UCH")
     R_Use(dir_server+"mo_otd",,"OTD")
     Use_base("lusl")

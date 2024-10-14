@@ -52,7 +52,7 @@ Function forma_12( k )
 
   Return Nil
 
-// 15.01.23
+// 14.10.24
 Function forma_12_( is_diag, is_100000 )
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
@@ -73,7 +73,7 @@ Function forma_12_( is_diag, is_100000 )
     GOD_PENSIONEROV
   AFill( p_is_voz, .f. )
 
-  file_form := dir_exe + "_mo_form" + sdbf
+  file_form := dir_exe() + "_mo_form" + sdbf
   If !hb_FileExists( file_form )
     Return func_error( 4, "Не обнаружен файл настройки статистических форм _MO_FORM" + sdbf )
   Endif
@@ -463,7 +463,7 @@ Function forma_12_( is_diag, is_100000 )
     e_use( cur_dir + name_f,, al )
   Next
   If is_diag
-    r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
     Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
     Index On stroke + Str( tip, 1 ) + Str( voz, 1 ) + diagnoz to ( cur_dir + "tmp_dia" )
   Endif
