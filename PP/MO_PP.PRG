@@ -2726,7 +2726,7 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   elseif k == 1
     if nKey == K_F5
       Private file_sh
-      if !empty(file_sh := menu_shablon(3,3,dir_exe+"*."+alltrim(arr[1]),color8,.f.))
+      if !empty(file_sh := menu_shablon(3,3,dir_exe()+"*."+alltrim(arr[1]),color8,.f.))
         print_shablon(file_sh)
       endif
     else
