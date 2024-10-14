@@ -803,7 +803,7 @@ Function print_luch_onk(sh)
       if between(onkus->USL_TIP, 1, 6)
         add_string('   Проведённое лечение: ' + inieditspr(A__MENUVERT, mm_usl_tip, onkus->USL_TIP))
         if eq_any(onkus->USL_TIP, 2, 4) .and. !empty(onksl->crit)
-          add_string('    Схема: ' + alltrim(onksl->crit) + ' ' + inieditspr(A__POPUPEDIT, dir_exe + '_mo9shema', onksl->crit))
+          add_string('    Схема: ' + alltrim(onksl->crit) + ' ' + inieditspr(A__POPUPEDIT, dir_exe() + '_mo9shema', onksl->crit))
         endif
         if eq_any(onkus->USL_TIP, 3, 4)
           add_string('    Количество фракций: ' + lstr(onksl->k_fr))

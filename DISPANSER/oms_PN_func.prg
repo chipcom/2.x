@@ -10,7 +10,7 @@ Function fget_spec_deti(k, r, c, a_spec)
 
   if !hb_fileExists(n_file + sdbf)
     if select('MOSPEC') == 0
-      R_Use(dir_exe + '_mo_spec', cur_dir + '_mo_spec', 'MOSPEC')
+      R_Use(dir_exe() + '_mo_spec', cur_dir + '_mo_spec', 'MOSPEC')
       //index on shifr+str(vzros_reb, 1)+str(prvs_new, 4) to (sbase)
     endif
     select MOSPEC

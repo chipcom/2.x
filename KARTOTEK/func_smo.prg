@@ -153,7 +153,7 @@ Function when_ismo( get, old )
   Endif
   mm_ismo := {}
   If !Empty( m1okato )
-    r_use( dir_exe + '_mo_smo', cur_dir + '_mo_smo', 'SMO' )
+    r_use( dir_exe() + '_mo_smo', cur_dir + '_mo_smo', 'SMO' )
     find ( m1okato )
     Do While smo->okato == m1okato .and. !Eof()
       s := AllTrim( smo->name )

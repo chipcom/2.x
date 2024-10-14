@@ -158,7 +158,7 @@ Function pz1statist( par, par2 )
   _su := su 
   If Between( par, 2, 3 ) .and. eq_any( su, 1, 2, 5 )
     sbase := prefixfilerefname( arr_m[ 1 ] ) + 'unit'
-    r_use( dir_exe + sbase, , 'MOUNIT' )
+    r_use( dir_exe() + sbase, , 'MOUNIT' )
     Index On Str( ii, 3 ) to ( cur_dir + 'tmp_unitii' )
     Set Index to ( cur_dir + sbase ), ( cur_dir + 'tmp_unitii' )
     apz2016 := arr_plan_zakaz( arr_m[ 1 ] )

@@ -302,7 +302,7 @@ Function init_ismo( lsmo )
 
   If !Empty( lsmo )
     tmp_select := Select()
-    r_use( dir_exe + '_mo_smo', cur_dir + '_mo_smo2', 'SMO' )
+    r_use( dir_exe() + '_mo_smo', cur_dir + '_mo_smo2', 'SMO' )
     find ( PadR( lsmo, 5 ) )
     If Found()
       s := RTrim( smo->name )
@@ -425,7 +425,7 @@ Function zaksluchaccordancediagnoz( lshifr, mdiagnoz, ta )
   Local i, fl := { .f., .f. }
 
   If Select( 'UZK' ) == 0
-    r_use( dir_exe + '_mo_uslz', cur_dir + '_mo_uslz', 'UZK' )
+    r_use( dir_exe() + '_mo_uslz', cur_dir + '_mo_uslz', 'UZK' )
     // index on shifr+str(type_diag, 1)+kod_diag to (sbase)
   Endif
   lshifr := PadR( lshifr, 10 )
@@ -868,7 +868,7 @@ Function ret_kod_usl_lek_ter( lVZROS_REB )
 // poled := lal + '->ds_' + s
 // polei := lal + '->id_' + s
 // if select(lal) == 0
-// R_Use(dir_exe + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
+// R_Use(dir_exe() + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
 // endif
 // dbSelectArea(lal) // встать на справочник N0...
 // set order to 2

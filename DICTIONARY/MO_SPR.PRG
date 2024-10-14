@@ -1780,7 +1780,7 @@ Function get_kod_podr( k, r, c )
   If arr == Nil // только при первом вызове
     arr := {}
     tmp_select := Select()
-    r_use( dir_exe + '_mo_podr', cur_dir + '_mo_podr', 'PODR' )
+    r_use( dir_exe() + '_mo_podr', cur_dir + '_mo_podr', 'PODR' )
     find ( glob_mo[ _MO_KOD_TFOMS ] )
     Do While podr->codemo == glob_mo[ _MO_KOD_TFOMS ] .and. !Eof()
       AAdd( arr, { '(' + AllTrim( podr->KODOTD ) + ') ' + AllTrim( podr->NAMEOTD ), podr->KODOTD } )
@@ -1805,7 +1805,7 @@ Function ini_kod_podr( lkod )
 
   Local s := Space( 10 ), tmp_select := Select()
 
-  r_use( dir_exe + '_mo_podr', cur_dir + '_mo_podr', 'PODR' )
+  r_use( dir_exe() + '_mo_podr', cur_dir + '_mo_podr', 'PODR' )
   find ( glob_mo[ _MO_KOD_TFOMS ] + PadR( Upper( lkod ), 25 ) )
   If Found()
     s := '(' + AllTrim( podr->KODOTD ) + ') ' + AllTrim( podr->NAMEOTD )

@@ -1127,7 +1127,7 @@ Function pr_sh_f5()
   Private file_sh
 
   If !Empty( mem_file5 ) .and. ;
-      !Empty( file_sh := menu_shablon( 3, 3, dir_exe + '*.' + mem_file5, color8, .f., .f. ) )
+      !Empty( file_sh := menu_shablon( 3, 3, dir_exe() + '*.' + mem_file5, color8, .f., .f. ) )
     Private msnils := '', mlgota := '', ;
       madres_lpu := '', mogrn := '', name_lpu
     r_use( dir_server + 'organiz', , 'ORG' )

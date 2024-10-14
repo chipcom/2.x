@@ -786,7 +786,7 @@ Function pr_inog_inostr()
   index on str(kod, 7) + str(vid, 1) + str(profil, 3) + region + str(osnov, 2) + str(ist_fin, 1) to (cur_dir + 'tmp_kart')
   //
   Private _arr_if := {}, _what_if := _init_if(), _arr_komit := {}
-  R_Use(dir_exe+'_okator', cur_dir + '_okatr', 'REGION')
+  R_Use(dir_exe()+'_okator', cur_dir + '_okatr', 'REGION')
   R_Use(dir_server + 'kartote_', , 'KART_')
   R_Use(dir_server + 'kartotek', , 'KART')
   set relation to recno() into KART_
@@ -1095,7 +1095,7 @@ Function f3pr_inog_inostr(j, arr_m)
           {'d_begin', 'C', 10, 0}, ;
           {'forma', 'C', 60, 0}})
   use (fr_data) new alias FRD
-  R_Use(dir_exe+'_okator',cur_dir + '_okatr', 'REGION')
+  R_Use(dir_exe()+'_okator',cur_dir + '_okatr', 'REGION')
   R_Use(dir_server + 'kartotek', , 'KART')
   use (cur_dir + 'tmp_kart') new
   if j == 1 .or. j == 2 .or. j == 5
@@ -1266,18 +1266,18 @@ Function ot_nmic_petrova()
   R_Use(dir_server + 'mo_onkus',dir_server + 'mo_onkus', 'ONKUS')
   R_Use(dir_server + 'mo_onkco',dir_server + 'mo_onkco', 'ONKCO')
   R_Use(dir_server + 'mo_onkle',dir_server + 'mo_onkle', 'ONKLE')
-  // R_Use(dir_exe+'_mo_N002',cur_dir + '_mo_N002', 'N2')
-  // R_Use(dir_exe+'_mo_N003',cur_dir + '_mo_N003', 'N3')
-  // R_Use(dir_exe+'_mo_N004',cur_dir + '_mo_N004', 'N4')
-  // R_Use(dir_exe+'_mo_N005',cur_dir + '_mo_N005', 'N5')
-  // R_Use(dir_exe+'_mo_N009', , 'N9')
-  // R_Use(dir_exe+'_mo_N012', , 'N12')
-  // R_Use(dir_exe+'_mo_N007', , 'N7')
-  // R_Use(dir_exe+'_mo_N008', , 'N8')
-  // R_Use(dir_exe+'_mo_N010', , 'N10')
-  // R_Use(dir_exe+'_mo_N011', , 'N11')
-  R_Use(dir_exe+'_mo_N020',{cur_dir + '_mo_N020',cur_dir + '_mo_N020n'}, 'N20')
-  // R_Use(dir_exe+'_mo_N021',cur_dir + '_mo_N021', 'N21')
+  // R_Use(dir_exe()+'_mo_N002',cur_dir + '_mo_N002', 'N2')
+  // R_Use(dir_exe()+'_mo_N003',cur_dir + '_mo_N003', 'N3')
+  // R_Use(dir_exe()+'_mo_N004',cur_dir + '_mo_N004', 'N4')
+  // R_Use(dir_exe()+'_mo_N005',cur_dir + '_mo_N005', 'N5')
+  // R_Use(dir_exe()+'_mo_N009', , 'N9')
+  // R_Use(dir_exe()+'_mo_N012', , 'N12')
+  // R_Use(dir_exe()+'_mo_N007', , 'N7')
+  // R_Use(dir_exe()+'_mo_N008', , 'N8')
+  // R_Use(dir_exe()+'_mo_N010', , 'N10')
+  // R_Use(dir_exe()+'_mo_N011', , 'N11')
+  R_Use(dir_exe()+'_mo_N020',{cur_dir + '_mo_N020',cur_dir + '_mo_N020n'}, 'N20')
+  // R_Use(dir_exe()+'_mo_N021',cur_dir + '_mo_N021', 'N21')
   use_base('lusl')
   R_Use(dir_server + 'uslugi', , 'USL')
   R_Use_base('human_u')
@@ -1438,7 +1438,7 @@ Function ot_nmic_petrova()
       nmic->KSG_CODE := sksg
       nmic->SCHEMA := onksl->crit
       if eq_any(left(onksl->crit, 2), 'sh', 'mt')
-        nmic->LEK_PR := inieditspr(A__POPUPEDIT,dir_exe+'_mo9shema',onksl->crit)
+        nmic->LEK_PR := inieditspr(A__POPUPEDIT,dir_exe()+'_mo9shema',onksl->crit)
       endif
       nmic->LEKP := slekp
     endif

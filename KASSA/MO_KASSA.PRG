@@ -710,7 +710,7 @@ do case
     enddo
     Private file_sh
     if !empty(mem_pl_ext) .and. ;
-       !empty(file_sh := menu_shablon(3,3,dir_exe+"*."+mem_pl_ext,color8,.f.))
+       !empty(file_sh := menu_shablon(3,3,dir_exe()+"*."+mem_pl_ext,color8,.f.))
       select TMP
       go top
       kassa_r_list_uch(1,"f1_pr_shab(file_sh)")

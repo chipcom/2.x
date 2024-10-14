@@ -1848,7 +1848,7 @@ Function forma_39hall( tip_f39 )
     } )
   Use ( fr_data ) New Alias TMP
   Index On Str( tip, 1 ) + p_kod to ( cur_dir + "tmp" )
-  r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
   //
   If AScan( krvz, 1 ) > 0  // ОМС
     Pi1_OMS := 1
@@ -2574,7 +2574,7 @@ Function f1_forma_39h_prn_diag_na( par, title )
   { "d_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir + "tmp", adbf )
-  r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
   Use ( cur_dir + "tmp" ) new
   For i := 1 To Len( arr_diag )
     Select DIAG
@@ -2648,7 +2648,7 @@ Function f1_forma_39h_na_diag( par, title, tip )
   { "D_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir + "tmp", adbf )
-  r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
   Use ( cur_dir + "tmp" ) new
   For i := 1 To Len( arr_diag )
     Select DIAG
@@ -2689,7 +2689,7 @@ Function ob2_v_diag( is_get, r1, mtitul )
 
   Default is_get To .f., r1 To T_ROW
   If r1 > 14 ; r1 := 14 ; Endif
-  r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
   Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpk" ), ( cur_dir + "tmpn" ) New Alias TMP
   Set Order To 2
   t_arr[ BR_TOP ] := r1
@@ -3195,7 +3195,7 @@ Function f1_forma_39t_prn_diag_na( par, title )
   { "d_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir + "tmp", adbf )
-  r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
   Use ( cur_dir + "tmp" ) new
   For i := 1 To Len( arr_diag )
     Select DIAG
@@ -3247,7 +3247,7 @@ Function f1_forma_39t_na_diag( par, title, tip )
   { "D_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir + "tmp", adbf )
-  r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
   Use ( cur_dir + "tmp" ) new
   For i := 1 To Len( arr_diag )
     Select DIAG
@@ -3348,7 +3348,7 @@ Function forma_39tall( tip_f39 )
     } )
   Use ( fr_data ) New Alias TMP
   Index On Str( tip, 1 ) + p_kod to ( cur_dir + "tmp" )
-  r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
   //
   If AScan( krvz, 1 ) > 0  // ОМС
     Pi1_OMS := 1

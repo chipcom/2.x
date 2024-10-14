@@ -27,7 +27,7 @@ Function pr_inog_inostr_new()
   Index On Str( kod, 7 ) + Str( vid, 1 ) + Str( profil, 3 ) + region + Str( osnov, 2 ) + Str( ist_fin, 1 ) to ( cur_dir + 'tmp_kart' )
   //
   Private _arr_if := {}, _what_if := _init_if(), _arr_komit := {}
-  r_use( dir_exe + '_okator', cur_dir + '_okatr', 'REGION' )
+  r_use( dir_exe() + '_okator', cur_dir + '_okatr', 'REGION' )
   r_use( dir_server + 'kartote_', , 'KART_' )
   r_use( dir_server + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
@@ -275,7 +275,7 @@ Function f3pr_inog_inostr_new( j, arr_m )
     { 'd_begin', 'C', 10, 0 }, ;
     { 'forma', 'C', 60, 0 } } )
   Use ( fr_data ) New Alias FRD
-  r_use( dir_exe + '_okator', cur_dir + '_okatr', 'REGION' )
+  r_use( dir_exe() + '_okator', cur_dir + '_okatr', 'REGION' )
   r_use( dir_server + 'kartotek', , 'KART' )
   Use ( cur_dir + 'tmp_kart' ) new
   If j == 1 .or. j == 2 .or. j == 5

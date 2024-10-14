@@ -10,7 +10,7 @@ Static lcount_uch  := 1
 //
 Function test_mkb_10()
 
-  r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
   Go Top
   Do While !Eof()
     If mkb_10->ks == 0 .and. between_date( mkb_10->dbegin, mkb_10->dend, sys_date )

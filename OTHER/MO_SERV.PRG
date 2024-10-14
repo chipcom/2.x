@@ -118,14 +118,14 @@ Function f1_impxml_from_lis( name_file )
     //
     t1 := Seconds()
     @ MaxRow(), 0 Say PadL( sname, 80 ) Color "W/R"
-    r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
     use_base( "lusl" )
     use_base( "luslc" )
     use_base( "uslugi" )
-    r_use( dir_exe + "_mo_prof", cur_dir + "_mo_prof", "MOPROF" )
+    r_use( dir_exe() + "_mo_prof", cur_dir + "_mo_prof", "MOPROF" )
     r_use( dir_server + "uslugi1", { dir_server + "uslugi1", ;
       dir_server + "uslugi1s" }, "USL1" )
-    // R_Use(dir_exe+"_mo_N012",,"N12")
+    // R_Use(dir_exe()+"_mo_N012",,"N12")
     g_use( dir_server + "mo_onkco", dir_server + "mo_onkco", "CO" )
     g_use( dir_server + "mo_onksl", dir_server + "mo_onksl", "SL" )
     g_use( dir_server + "mo_onkdi", dir_server + "mo_onkdi", "DIAG" ) // Диагностический блок
@@ -294,11 +294,11 @@ Function f1_import_from_lis( name_file )
     //
     t1 := Seconds()
     @ MaxRow(), 0 Say PadL( sname, 80 ) Color "W/R"
-    r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
     use_base( "lusl" )
     use_base( "luslc" )
     use_base( "uslugi" )
-    r_use( dir_exe + "_mo_prof", cur_dir + "_mo_prof", "MOPROF" )
+    r_use( dir_exe() + "_mo_prof", cur_dir + "_mo_prof", "MOPROF" )
     r_use( dir_server + "uslugi1", { dir_server + "uslugi1", ;
       dir_server + "uslugi1s" }, "USL1" )
     use_base( "human_u" )
@@ -1354,10 +1354,10 @@ Function f1_import_sluch_oms()
       { "CODE_USL", "C",    10,     0 }, ;
       { "TARIF",    "N",    10,     2 } } )
     Use ( cur_dir + "tmp_ksg" ) new
-    r_use( dir_exe + "_okator", cur_dir + "_okatr", "REGION" )
-    r_use( dir_exe + "_okatoo", cur_dir + "_okato", "OBLAST" )
-    r_use( dir_exe + "_okatos", cur_dir + "_okats", "SELO" )
-    r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
+    r_use( dir_exe() + "_okator", cur_dir + "_okatr", "REGION" )
+    r_use( dir_exe() + "_okatoo", cur_dir + "_okato", "OBLAST" )
+    r_use( dir_exe() + "_okatos", cur_dir + "_okats", "SELO" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
     use_base( "lusl" )
     use_base( "luslc" )
     use_base( "luslf" )
@@ -1371,7 +1371,7 @@ Function f1_import_sluch_oms()
     use_base( "human_u" )
     use_base( "human" )
     //
-    r_use( dir_exe + "_mo_smo", { cur_dir + "_mo_smo", cur_dir + "_mo_smo2" }, "SMO" )
+    r_use( dir_exe() + "_mo_smo", { cur_dir + "_mo_smo", cur_dir + "_mo_smo2" }, "SMO" )
     Use ( name_path + "_lpu" ) New Alias ILPU
     Index On Str( kod, 3 ) to ( cur_dir + "tmp_ilpu" )
     Use ( name_path + "_otd" ) New Alias IOTD
@@ -3154,7 +3154,7 @@ Function pripisnoe_naselenie_create_oblsdrav()
   gaugedisplay( hGauge )
   curr := 0
   r_use( dir_server + "s_kemvyd",, "VID" )
-  r_use( dir_exe + "_mo_smo", cur_dir + "_mo_smo2", "SMO" )
+  r_use( dir_exe() + "_mo_smo", cur_dir + "_mo_smo2", "SMO" )
   // index on smo to (cur_dir+sbase+'2')
   // G_Use(dir_server + "mo_krtr",,"KRTR")
   // index on str(kod,6) to (cur_dir + "tmp_krtr")
@@ -3639,7 +3639,7 @@ Function f1nastr_all( nameTask, nTask )
       tmp->v_zav_l   := mem_zav_l     //
       tmp->ls_parakl := mem_ls_parakl     //
       tmp->path_rab  := cur_dir
-      tmp->path_exe  := dir_exe
+      tmp->path_exe  := dir_exe()
       tmp->path_dbf  := Upper( dir_server )
       tmp->beg_rees  := mem_beg_rees
       tmp->end_rees  := mem_end_rees
@@ -4414,7 +4414,7 @@ Function f_read_sc_reader()
   Local fl := .f., t1 := Seconds(), ar, sr, se, buf := save_maxrow()
 
   mywait( "Определение списка ридеров" )
-  If hb_FileExists( dir_exe + task_polis )
+  If hb_FileExists( dir_exe() + task_polis )
     Do While Seconds() - t1 < max_seconds
       If hb_FileExists( name_ini )
         Delete File ( name_ini )
@@ -4424,7 +4424,7 @@ Function f_read_sc_reader()
     Enddo
     shellexecute( getdesktopwindow(), ;
       'open', ;
-      dir_exe + task_polis, ;
+      dir_exe() + task_polis, ;
       '-rdl', ;
       , ;
       SW_HIDE )
@@ -4450,7 +4450,7 @@ Function f_read_sc_reader()
       fl := func_error( 4, smsg + "!" )
     Endif
   Else
-    fl := func_error( 4, "Не обнаружен файл: " + dir_exe + task_polis )
+    fl := func_error( 4, "Не обнаружен файл: " + dir_exe() + task_polis )
   Endif
   If !fl
     msc_reader := "нет"
@@ -4470,7 +4470,7 @@ Function f_read_sc_polis()
   Local fl := .t., t1 := Seconds(), ar, se, buf := save_maxrow()
 
   mywait( "Чтение электронного полиса" )
-  If hb_FileExists( dir_exe + task_polis )
+  If hb_FileExists( dir_exe() + task_polis )
     Do While Seconds() - t1 < max_seconds
       If hb_FileExists( name_ini )
         Delete File ( name_ini )
@@ -4480,7 +4480,7 @@ Function f_read_sc_polis()
     Enddo
     shellexecute( getdesktopwindow(), ;
       'open', ;
-      dir_exe + task_polis, ;
+      dir_exe() + task_polis, ;
       '-roi="' + name_reader + '"', ;
       , ;
       SW_HIDE )
@@ -4510,14 +4510,14 @@ Function f_read_sc_polis()
       fl := func_error( 4, smsg + "!" )
     Endif
   Else
-    fl := func_error( 4, "Не обнаружен файл: " + dir_exe + task_polis )
+    fl := func_error( 4, "Не обнаружен файл: " + dir_exe() + task_polis )
   Endif
   If fl
     If emptyall( arr_epolis[ _EP_OGRN ], arr_epolis[ _EP_OKATO ], arr_epolis[ _EP_FAM ], ;
         arr_epolis[ _EP_IM ], arr_epolis[ _EP_NPOLIS ] )
       fl := func_error( 4, iif( Empty( se ), smsg + ".", se ) )
     Else
-      r_use( dir_exe + "_mo_smo", cur_dir + "_mo_smo3", "_SMO" )
+      r_use( dir_exe() + "_mo_smo", cur_dir + "_mo_smo3", "_SMO" )
       find ( arr_epolis[ _EP_OKATO ] + PadR( arr_epolis[ _EP_OGRN ], 13 ) )
       If Found()
         arr_epolis[ _EP_SMO ] := _smo->smo

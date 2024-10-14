@@ -145,7 +145,7 @@ function files_NSI_exists(dir_file)
   return lRet
 
 // 29.09.23 проверка и переиндексирование справочников ТФОМС
-Function index_work_dir(dir_exe, cur_dir, flag)
+Function index_work_dir(dir_spavoch, cur_dir, flag)
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
   local lSchema := .f.
@@ -180,21 +180,21 @@ Function index_work_dir(dir_exe, cur_dir, flag)
   // справочник диагнозов
   sbase := '_mo_mkb'
   file_index := cur_dir + sbase + sntx
-  R_Use(dir_exe + sbase )
+  R_Use(dir_spavoch + sbase )
   index on shifr + str(ks, 1) to (cur_dir + sbase)
   close databases
 
   // услуги <-> специальности
   sbase := '_mo_spec'
   file_index := cur_dir + sbase + sntx
-  R_Use(dir_exe + sbase )
+  R_Use(dir_spavoch + sbase )
   index on shifr + str(vzros_reb, 1) + str(prvs_new, 6) to (cur_dir + sbase)
   use
 
   // услуги <-> профили
   sbase := '_mo_prof'
   file_index := cur_dir + sbase + sntx
-  R_Use(dir_exe + sbase )
+  R_Use(dir_spavoch + sbase )
   index on shifr + str(vzros_reb, 1) + str(profil, 3) to (cur_dir + sbase)
   use
 
@@ -202,24 +202,24 @@ Function index_work_dir(dir_exe, cur_dir, flag)
     // for countYear = WORK_YEAR - 4 to WORK_YEAR
     // for countYear = WORK_YEAR - NUMBER_YEAR to WORK_YEAR
     for countYear = 2018 to WORK_YEAR
-      fl := dep_index_and_fill(countYear, dir_exe, cur_dir, flag)  // справочник отделений на countYear год
-      fl := usl_Index(countYear, dir_exe, cur_dir, flag)    // справочник услуг ТФОМС на countYear год
-      fl := uslc_Index(countYear, dir_exe, cur_dir, flag)   // цены на услуги на countYear год
-      fl := uslf_Index(countYear, dir_exe, cur_dir, flag)   // справочник услуг ФФОМС countYear
-      fl := unit_Index(countYear, dir_exe, cur_dir, flag)   // план-заказ
-      // fl := shema_index(countYear, dir_exe, cur_dir, flag)
-      fl := k006_index(countYear, dir_exe, cur_dir, flag)
-      // fl := it_Index(countYear, dir_exe, cur_dir, flag)
+      fl := dep_index_and_fill(countYear, dir_spavoch, cur_dir, flag)  // справочник отделений на countYear год
+      fl := usl_Index(countYear, dir_spavoch, cur_dir, flag)    // справочник услуг ТФОМС на countYear год
+      fl := uslc_Index(countYear, dir_spavoch, cur_dir, flag)   // цены на услуги на countYear год
+      fl := uslf_Index(countYear, dir_spavoch, cur_dir, flag)   // справочник услуг ФФОМС countYear
+      fl := unit_Index(countYear, dir_spavoch, cur_dir, flag)   // план-заказ
+      // fl := shema_index(countYear, dir_spavoch, cur_dir, flag)
+      fl := k006_index(countYear, dir_spavoch, cur_dir, flag)
+      // fl := it_Index(countYear, dir_spavoch, cur_dir, flag)
     next
   else
-    fl := dep_index_and_fill(WORK_YEAR, dir_exe, cur_dir, flag)  // справочник отделений на countYear год
-    fl := usl_Index(WORK_YEAR, dir_exe, cur_dir, flag)    // справочник услуг ТФОМС на countYear год
-    fl := uslc_Index(WORK_YEAR, dir_exe, cur_dir, flag)   // цены на услуги на countYear год
-    fl := uslf_Index(WORK_YEAR, dir_exe, cur_dir, flag)   // справочник услуг ФФОМС countYear
-    fl := unit_Index(WORK_YEAR, dir_exe, cur_dir, flag)   // план-заказ
-    // fl := shema_index(WORK_YEAR, dir_exe, cur_dir, flag)
-    fl := k006_index(WORK_YEAR, dir_exe, cur_dir, flag)
-    // fl := it_Index(WORK_YEAR, dir_exe, cur_dir, flag)
+    fl := dep_index_and_fill(WORK_YEAR, dir_spavoch, cur_dir, flag)  // справочник отделений на countYear год
+    fl := usl_Index(WORK_YEAR, dir_spavoch, cur_dir, flag)    // справочник услуг ТФОМС на countYear год
+    fl := uslc_Index(WORK_YEAR, dir_spavoch, cur_dir, flag)   // цены на услуги на countYear год
+    fl := uslf_Index(WORK_YEAR, dir_spavoch, cur_dir, flag)   // справочник услуг ФФОМС countYear
+    fl := unit_Index(WORK_YEAR, dir_spavoch, cur_dir, flag)   // план-заказ
+    // fl := shema_index(WORK_YEAR, dir_spavoch, cur_dir, flag)
+    fl := k006_index(WORK_YEAR, dir_spavoch, cur_dir, flag)
+    // fl := it_Index(WORK_YEAR, dir_spavoch, cur_dir, flag)
   endif
 
   load_exists_uslugi()
@@ -234,7 +234,7 @@ Function index_work_dir(dir_exe, cur_dir, flag)
   // arr_t007 := {}
   // sbase := '_mo_t007' 
   // file_index := cur_dir + sbase + sntx
-  // R_Use(dir_exe + sbase, , 'T7')
+  // R_Use(dir_spavoch + sbase, , 'T7')
   // index on upper(left(NAME, 50)) + str(profil_k, 3) to (cur_dir + sbase) UNIQUE
   // // dbeval({|| aadd(arr_t007, {alltrim(t7->name), t7->profil_k, t7->pk_V020})})
   // index on str(profil_k, 3) + str(profil, 3) to (cur_dir + sbase)
@@ -246,7 +246,7 @@ Function index_work_dir(dir_exe, cur_dir, flag)
   file_index := cur_dir + sbase + sntx
   // Public glob_array_srf := {}
   glob_array_srf := {}
-  R_Use(dir_exe + sbase )
+  R_Use(dir_spavoch + sbase )
   index on okato to (cur_dir + sbase) UNIQUE
   dbeval({|| aadd(glob_array_srf, {'', field->okato})})
   index on okato + smo to (cur_dir + sbase)
@@ -257,14 +257,14 @@ Function index_work_dir(dir_exe, cur_dir, flag)
   // onkko_vmp
   sbase := '_mo_ovmp'
   file_index := cur_dir + sbase + sntx
-  R_Use(dir_exe + sbase )
+  R_Use(dir_spavoch + sbase )
   index on str(metod, 3) to (cur_dir + sbase)
   use
 
   // // N002
   // sbase := '_mo_N002'
   // file_index := cur_dir + sbase + sntx
-  // R_Use(dir_exe + sbase )
+  // R_Use(dir_spavoch + sbase )
   // index on str(id_st, 6) to (cur_dir + sbase)
   // index on ds_st + kod_st to (cur_dir + sbase + 'd')
   // use
@@ -272,7 +272,7 @@ Function index_work_dir(dir_exe, cur_dir, flag)
   // N003
   // sbase := '_mo_N003'
   // file_index := cur_dir + sbase + sntx
-  // R_Use(dir_exe + sbase )
+  // R_Use(dir_spavoch + sbase )
   // index on str(id_t, 6) to (cur_dir + sbase)
   // index on ds_t + kod_t to (cur_dir + sbase + 'd')
   // use
@@ -280,7 +280,7 @@ Function index_work_dir(dir_exe, cur_dir, flag)
   // N004
   // sbase := '_mo_N004'
   // file_index := cur_dir + sbase + sntx
-  // R_Use(dir_exe + sbase )
+  // R_Use(dir_spavoch + sbase )
   // index on str(id_n, 6) to (cur_dir + sbase)
   // index on ds_n + kod_n to (cur_dir + sbase + 'd')
   // use
@@ -288,7 +288,7 @@ Function index_work_dir(dir_exe, cur_dir, flag)
   // N005
   // sbase := '_mo_N005'
   // file_index := cur_dir + sbase + sntx
-  // R_Use(dir_exe + sbase )
+  // R_Use(dir_spavoch + sbase )
   // index on str(id_m, 6) to (cur_dir + sbase)
   // index on ds_m + kod_m to (cur_dir + sbase + 'd')
   // use
@@ -296,42 +296,42 @@ Function index_work_dir(dir_exe, cur_dir, flag)
   // N006 - в 2019 году пустой
   // sbase := '_mo_N006'
   // file_index := cur_dir + sbase + sntx
-  // R_Use(dir_exe + sbase )
+  // R_Use(dir_spavoch + sbase )
   // index on ds_gr + str(id_t, 6) + str(id_n, 6) + str(id_m, 6) to (cur_dir + sbase)
   // use
 
   // N007
   // sbase := '_mo_N007'
   // file_index := cur_dir + sbase + sntx
-  // R_Use(dir_exe + sbase )
+  // R_Use(dir_spavoch + sbase )
   // index on str(id_mrf, 6) to (cur_dir + sbase)
   // use
 
   // N008
   // sbase := '_mo_N008'
   // file_index := cur_dir + sbase + sntx
-  // R_Use(dir_exe + sbase )
+  // R_Use(dir_spavoch + sbase )
   // index on str(id_mrf, 6) to (cur_dir + sbase)
   // use
 
   // // N010
   // sbase := '_mo_N010'
   // file_index := cur_dir + sbase + sntx
-  // R_Use(dir_exe + sbase )
+  // R_Use(dir_spavoch + sbase )
   // index on str(id_igh, 6) to (cur_dir + sbase)
   // use
 
   // // N011
   // sbase := '_mo_N011'
   // file_index := cur_dir + sbase + sntx
-  // R_Use(dir_exe + sbase )
+  // R_Use(dir_spavoch + sbase )
   // index on str(id_igh, 6) to (cur_dir + sbase)
   // use
 
   // N020
   sbase := '_mo_N020'
   file_index := cur_dir + sbase + sntx
-  R_Use(dir_exe + sbase )
+  R_Use(dir_spavoch + sbase )
   index on id_lekp to (cur_dir + sbase)
   index on upper(mnn) to (cur_dir + sbase + 'n')
   use
@@ -339,28 +339,28 @@ Function index_work_dir(dir_exe, cur_dir, flag)
   // N021
   // sbase := '_mo_N021'
   // file_index := cur_dir + sbase + sntx
-  // R_Use(dir_exe + sbase )
+  // R_Use(dir_spavoch + sbase )
   // index on code_sh + id_lekp to (cur_dir + sbase)
   // use
 
   // справочник подразделений из паспорта ЛПУ
   sbase := '_mo_podr'
   file_index := cur_dir + sbase + sntx
-  R_Use(dir_exe + sbase )
+  R_Use(dir_spavoch + sbase )
   index on codemo + padr(upper(kodotd), 25) to (cur_dir + sbase)
   use
 
   // справочник соответствия профиля мед.помощи с профилем койки
   sbase := '_mo_prprk'
   file_index := cur_dir + sbase + sntx
-  R_Use(dir_exe + sbase )
+  R_Use(dir_spavoch + sbase )
   index on str(profil, 3) + str(profil_k, 3) to (cur_dir + sbase)
   use
 
   // справочник ошибок
   // sbase := '_mo_t005'
   // file_index := cur_dir + sbase + sntx
-  // R_Use(dir_exe + sbase )
+  // R_Use(dir_spavoch + sbase )
   // index on str(kod, 3) to (cur_dir + sbase)
   // use
 
@@ -369,8 +369,8 @@ Function index_work_dir(dir_exe, cur_dir, flag)
   //
   dbcreate(cur_dir + 'tmp_srf', {{'okato', 'C', 5, 0}, {'name', 'C', 80, 0}})
   use (cur_dir + 'tmp_srf') new alias TMP
-  R_Use(dir_exe + '_okator', cur_dir + '_okatr', 'RE')
-  R_Use(dir_exe + '_okatoo', cur_dir + '_okato', 'OB')
+  R_Use(dir_spavoch + '_okator', cur_dir + '_okatr', 'RE')
+  R_Use(dir_spavoch + '_okatoo', cur_dir + '_okato', 'OB')
   for i := 1 to len(glob_array_srf)
     select OB
     find (glob_array_srf[i, 2])
@@ -396,16 +396,16 @@ Function index_work_dir(dir_exe, cur_dir, flag)
   return nil
 
 // 09.03.23
-function dep_index_and_fill(val_year, dir_exe, cur_dir, flag)
+function dep_index_and_fill(val_year, dir_spavoch, cur_dir, flag)
   local sbase
   local file_index
   
   DEFAULT flag TO .f.
   // is_otd_dep, glob_otd_dep, mm_otd_dep - объявлены ранее как Public
   sbase := prefixFileRefName(val_year) + 'dep'  // справочник отделений на конкретный год
-  if hb_vfExists(dir_exe + sbase + sdbf)
+  if hb_vfExists(dir_spavoch + sbase + sdbf)
     file_index := cur_dir + sbase + sntx
-    R_Use(dir_exe + sbase, , 'DEP')
+    R_Use(dir_spavoch + sbase, , 'DEP')
     index on str(code, 3) to (cur_dir + sbase) for codem == glob_mo[_MO_KOD_TFOMS]
 
     if val_year == WORK_YEAR
@@ -418,7 +418,7 @@ function dep_index_and_fill(val_year, dir_exe, cur_dir, flag)
     if is_otd_dep
       lIndex := .f.
       sbase := prefixFileRefName(val_year) + 'deppr' // справочник отделения + профили  на конкретный год
-      if hb_vfExists(dir_exe + sbase + sdbf)
+      if hb_vfExists(dir_spavoch + sbase + sdbf)
         file_index := cur_dir + sbase + sntx
         // if (year(sys_date) - val_year) < INDEX_NEED
         //   lIndex := .t.
@@ -427,7 +427,7 @@ function dep_index_and_fill(val_year, dir_exe, cur_dir, flag)
         //   lIndex := .t.
         // endif
         // if lIndex
-          R_Use(dir_exe + sbase, , 'DEP')
+          R_Use(dir_spavoch + sbase, , 'DEP')
           index on str(code, 3) + str(pr_mp, 3) to (cur_dir + sbase) for codem == glob_mo[_MO_KOD_TFOMS]
           use
         // endif
@@ -437,16 +437,16 @@ function dep_index_and_fill(val_year, dir_exe, cur_dir, flag)
   return nil
 
 // 14.03.23
-function usl_Index(val_year, dir_exe, cur_dir, flag)
+function usl_Index(val_year, dir_spavoch, cur_dir, flag)
   local sbase
   local file_index
   local shifrVMP
 
   DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'usl'  // справочник услуг ТФОМС на конкретный год
-  if hb_vfExists(dir_exe + sbase + sdbf)
+  if hb_vfExists(dir_spavoch + sbase + sdbf)
     file_index := cur_dir + sbase + sntx
-    R_Use(dir_exe + sbase, ,'LUSL')
+    R_Use(dir_spavoch + sbase, ,'LUSL')
     index on shifr to (cur_dir + sbase)
     if val_year == WORK_YEAR
       shifrVMP := code_services_VMP(WORK_YEAR)
@@ -467,7 +467,7 @@ function usl_Index(val_year, dir_exe, cur_dir, flag)
   return nil
 
 // 23.03.23
-function uslc_Index(val_year, dir_exe, cur_dir, flag)
+function uslc_Index(val_year, dir_spavoch, cur_dir, flag)
   local sbase, prefix
   local index_usl_name
   local file_index
@@ -475,11 +475,11 @@ function uslc_Index(val_year, dir_exe, cur_dir, flag)
   DEFAULT flag TO .f.
   prefix := prefixFileRefName(val_year)
   sbase :=  prefix + 'uslc'  // цены на услуги на конкретный год
-  if hb_vfExists(dir_exe + sbase + sdbf)
+  if hb_vfExists(dir_spavoch + sbase + sdbf)
     index_usl_name :=  prefix + 'uslu'  // 
     file_index := cur_dir + sbase + sntx
 
-    R_Use(dir_exe + sbase, , 'LUSLC')
+    R_Use(dir_spavoch + sbase, , 'LUSLC')
     index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + sbase) ;
               for codemo == glob_mo[_MO_KOD_TFOMS]
     index on codemo + shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + index_usl_name) ;
@@ -616,62 +616,62 @@ function uslc_Index(val_year, dir_exe, cur_dir, flag)
   return nil
 
 // 09.03.23
-function uslf_Index(val_year, dir_exe, cur_dir, flag)
+function uslf_Index(val_year, dir_spavoch, cur_dir, flag)
   local sbase
   local lIndex := .f.
   local file_index
   
   DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'uslf'  // справочник услуг ФФОМС на конкретный год
-  if hb_vfExists(dir_exe + sbase + sdbf)
+  if hb_vfExists(dir_spavoch + sbase + sdbf)
     file_index := cur_dir + sbase + sntx
-    R_Use(dir_exe + sbase, , 'LUSLF')
+    R_Use(dir_spavoch + sbase, , 'LUSLF')
     index on shifr to (cur_dir + sbase)
     use
   endif
   return nil
 
 // 09.03.23
-function unit_Index(val_year, dir_exe, cur_dir, flag)
+function unit_Index(val_year, dir_spavoch, cur_dir, flag)
   local sbase
   local file_index
       
   DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'unit'  // план-заказ на конкретный год
-  if hb_vfExists(dir_exe + sbase + sdbf)
+  if hb_vfExists(dir_spavoch + sbase + sdbf)
     file_index := cur_dir + sbase + sntx
-    R_Use(dir_exe + sbase )
+    R_Use(dir_spavoch + sbase )
     index on str(code, 3) to (cur_dir + sbase)
     use
   endif
   return nil
 
 // 09.03.23
-// function shema_index(val_year, dir_exe, cur_dir, flag)
+// function shema_index(val_year, dir_spavoch, cur_dir, flag)
 //   local sbase
 //   local file_index
 
 //   DEFAULT flag TO .f.
 //   sbase := prefixFileRefName(val_year) + 'shema'  // 
-//   if hb_vfExists(dir_exe + sbase + sdbf)
+//   if hb_vfExists(dir_spavoch + sbase + sdbf)
 //     file_index := cur_dir + sbase + sntx
-//     R_Use(dir_exe + sbase )
+//     R_Use(dir_spavoch + sbase )
 //     index on KOD to (cur_dir + sbase) // по коду критерия
 //     use
 //   endif
 //   return nil
 
 // 05.11.23
-function k006_index(val_year, dir_exe, cur_dir, flag)
+function k006_index(val_year, dir_spavoch, cur_dir, flag)
   local sbase
   local file_index
 
   DEFAULT flag TO .f.
 
   sbase := prefixFileRefName(val_year) + 'k006'  // 
-  if hb_vfExists(dir_exe + sbase + sdbf) .and. hb_vfExists(dir_exe + sbase + sdbt)
+  if hb_vfExists(dir_spavoch + sbase + sdbf) .and. hb_vfExists(dir_spavoch + sbase + sdbt)
     file_index := cur_dir + sbase + sntx
-    R_Use(dir_exe + sbase)
+    R_Use(dir_spavoch + sbase)
     index on substr(shifr, 1, 2) + ds + sy + age + sex + los to (cur_dir + sbase) // по диагнозу/операции
     index on substr(shifr, 1, 2) + sy + ds + age + sex + los to (cur_dir + sbase + '_') // по операции/диагнозу
     index on ad_cr to (cur_dir + sbase + 'AD') // по дополнительному критерию Байкин
@@ -681,7 +681,7 @@ function k006_index(val_year, dir_exe, cur_dir, flag)
   return nil
   
 // 29.01.22
-// function it_Index(val_year, dir_exe, cur_dir, flag)
+// function it_Index(val_year, dir_spavoch, cur_dir, flag)
 //   local fl := .t.
 //   local ar, ar1, ar2, lSchema, i
 //   local sbase := prefixFileRefName(val_year) + 'it'  //
@@ -707,11 +707,11 @@ function k006_index(val_year, dir_exe, cur_dir, flag)
 //   if val_year >= 2021 // == WORK_YEAR
 
 //     // исходный файл T006 22 года
-//     if hb_FileExists(dir_exe + sbaseIt1 + sdbf)
-//       R_Use(dir_exe + sbaseShema, , 'SCHEMA')
+//     if hb_FileExists(dir_spavoch + sbaseIt1 + sdbf)
+//       R_Use(dir_spavoch + sbaseShema, , 'SCHEMA')
 //       index on KOD to (cur_dir + sbaseShema)
   
-//       R_Use(dir_exe + sbaseIt1, ,'IT1')
+//       R_Use(dir_spavoch + sbaseIt1, ,'IT1')
 //       ('IT1')->(dbGoTop())  // go top
 //       do while !('IT1')->(eof())
 //         ar := {}
@@ -752,12 +752,12 @@ function k006_index(val_year, dir_exe, cur_dir, flag)
 //       ('SCHEMA')->(dbCloseArea())
 //       ('IT1')->(dbCloseArea())   //use
 //     else
-//       fl := notExistsFileNSI( dir_exe + sbaseIt1 + sdbf )
+//       fl := notExistsFileNSI( dir_spavoch + sbaseIt1 + sdbf )
 //     endif
 //   elseif val_year == 2020
 //     // исходный файл  T006 2020 года
-//     if hb_FileExists(dir_exe + sbaseIt1 + sdbf)
-//       R_Use(dir_exe + sbaseIt1, , 'IT')
+//     if hb_FileExists(dir_spavoch + sbaseIt1 + sdbf)
+//       R_Use(dir_spavoch + sbaseIt1, , 'IT')
 //       go top
 //       do while !eof()
 //         ar := {}
@@ -786,27 +786,27 @@ function k006_index(val_year, dir_exe, cur_dir, flag)
 //       enddo
 //       use
 //     else
-//       fl := notExistsFileNSI( dir_exe + sbaseIt1 + sdbf )
+//       fl := notExistsFileNSI( dir_spavoch + sbaseIt1 + sdbf )
 //     endif
 //   elseif val_year == 2019
 //     // исходный файл  T006 2019 год
 //     sbase := '_mo9it'
-//     if hb_FileExists(dir_exe + sbaseIt + sdbf)
-//       R_Use(dir_exe + sbaseIt, ,'IT')
+//     if hb_FileExists(dir_spavoch + sbaseIt + sdbf)
+//       R_Use(dir_spavoch + sbaseIt, ,'IT')
 //       index on ds to tmpit memory
 //       dbeval({|| aadd(arr_ad_cr_it19, {it->ds, it->it}) })
 //       use
 //     else
-//       fl := notExistsFileNSI( dir_exe + sbaseIt + sdbf )
+//       fl := notExistsFileNSI( dir_spavoch + sbaseIt + sdbf )
 //     endif
 //   elseif val_year == 2018
-//     if hb_FileExists(dir_exe + sbaseIt + sdbf)
-//       R_Use(dir_exe + sbaseIt, , 'IT')
+//     if hb_FileExists(dir_spavoch + sbaseIt + sdbf)
+//       R_Use(dir_spavoch + sbaseIt, , 'IT')
 //       index on ds to tmpit memory
 //       dbeval({|| aadd(arr_ad_cr_it, {it->ds, it->it}) })
 //       use
 //     else
-//       fl := notExistsFileNSI( dir_exe + sbaseIt + sdbf )
+//       fl := notExistsFileNSI( dir_spavoch + sbaseIt + sdbf )
 //     endif
 //   endif
 //   return fl

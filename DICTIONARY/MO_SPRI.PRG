@@ -500,7 +500,7 @@ Function v_1usluga()
     n_list := 1
     tek_stroke := 0
 
-    r_use( dir_exe + prefix + 'dep', cur_dir + prefix + 'dep', 'DEP' )
+    r_use( dir_exe() + prefix + 'dep', cur_dir + prefix + 'dep', 'DEP' )
     use_base( 'lusl' )
     use_base( 'luslc' )
     r_use( dir_server + 'uslugi', dir_server + 'uslugi', 'USL' )
@@ -823,7 +823,7 @@ Function usl1tfoms()
       { 'cenad',   'N', 10, 2 } } )
 
     sbase := prefixfilerefname( dy ) + 'dep'
-    r_use( dir_exe + sbase, cur_dir + sbase, 'DEP' )
+    r_use( dir_exe() + sbase, cur_dir + sbase, 'DEP' )
 
     Use ( cur_dir + 'tmp1' ) new
     Index On shifr + Str( depart, 3 ) to ( cur_dir + 'tmp1' )
@@ -1119,7 +1119,7 @@ Function usl2tfoms()
       Next
 
       sbase := prefixfilerefname( lyear ) + 'k006'
-      r_use( dir_exe + sbase, , 'K006' )
+      r_use( dir_exe() + sbase, , 'K006' )
 
       Index On SHIFR + Str( ns, 6 ) to ( cur_dir + 'tmp_k006' ) unique
       Index On SHIFR + Str( ns, 6 ) + ds + sy to ( cur_dir + 'tmp_k006_' )
@@ -2034,7 +2034,7 @@ Function usl6ffoms( lksg )
   mdate := sys_date
 
   sbase := prefixfilerefname( WORK_YEAR ) + 'k006'
-  r_use( dir_exe + sbase, , 'K006' )
+  r_use( dir_exe() + sbase, , 'K006' )
   Index On SHIFR + SY to ( cur_dir + 'tmp_t009' )
   use_base( 'luslc' )
   use_base( 'lusl' )
@@ -2147,7 +2147,7 @@ Function usl6ffoms( lksg )
   rest_box( buf )
   FClose( fp )
   name_fr := 'mo_v1ksg' + sfr3
-  If _upr_epson() .or. ! File( dir_exe + name_fr )
+  If _upr_epson() .or. ! File( dir_exe() + name_fr )
     viewtext( name_file, , , , .t., , , 5 )
   Else
     call_fr( name_fr, , , {|| FrPrn:setmasterdetail( '_data', '_data1', {|| _data->shifr1 } ) } )
@@ -2551,25 +2551,25 @@ Function f_10diag( k )
   Do Case
   Case k == 1
     mywait()
-    r_use( dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
+    r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
     Go Top
     alpha_browse( 2, c1, MaxRow() -2, c2, 'f1_10diag', color0, , , .t., , , , 'f2_10diag', , {, , , 'N/BG, W+/N, B/BG, BG+/B, GR/BG, BG+/GR', .t. } )
   Case k == 2
-    r_use( dir_exe + '_mo_mkbk' )
+    r_use( dir_exe() + '_mo_mkbk' )
     Index On sh_b + Str( ks, 1 ) to ( cur_dir + 'tmp' )
     Go Top
     alpha_browse( 2, 0, MaxRow() -2, 79, 'f1_10diag', color0, , , .t., , , , , , { 'Í', '°', 'Í', 'N/BG, W+/N, B/BG, BG+/B' } )
   Case k == 3
-    r_use( dir_exe + '_mo_mkbg' )
+    r_use( dir_exe() + '_mo_mkbg' )
     Index On sh_b + Str( ks, 1 ) to ( cur_dir + 'tmp' )
     Go Top
     alpha_browse( 2, c1, MaxRow() -2, c2, 'f1_10diag', color0, , , .t., , , , , , { 'Í', '°', 'Í', 'N/BG, W+/N, B/BG, BG+/B' } )
   Case k == 4 .or. k == 5
-    r_use( dir_exe + '_mo_mkb' + iif( pregim == 4, 'k', 'g' ) )
+    r_use( dir_exe() + '_mo_mkb' + iif( pregim == 4, 'k', 'g' ) )
     Index On sh_b + Str( ks, 1 ) to ( cur_dir + 'tmp_d' )
     Use
     Do While .t.
-      r_use( dir_exe + '_mo_mkb' + iif( pregim == 4, 'k', 'g' ) )
+      r_use( dir_exe() + '_mo_mkb' + iif( pregim == 4, 'k', 'g' ) )
       Set Index To 'tmp_d'
       Goto ( i )
       If pregim == 4
@@ -2603,7 +2603,7 @@ Function f_10diag( k )
         n_list := 1
         tek_stroke := 0
         add_string( '' )
-        r_use( dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
+        r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
         For k := 1 To Len( arr_t )
           add_string( Center( arr_t[ k ], sh ) )
         Next
@@ -2834,7 +2834,7 @@ Function f10_diagnoz()
 
   change_attr()
   mywait()
-  r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
   Go Top
   If srec != NIL
     Goto ( srec )
@@ -3383,7 +3383,7 @@ Function recreate_some_schet_from_file_sp( arr )
               Else
                 s := 'ª®¤ ®è¨¡ª¨ = ' + tmp3->SREFREASON + ' '
                 s += '"' + getcategorycheckerrorbyid_q017( Left( tmp3->SREFREASON, 4 ) )[ 2 ] + '" '
-                // s += alltrim(inieditspr(A__POPUPMENU, dir_exe + "_mo_Q015", tmp3->SREFREASON))
+                // s += alltrim(inieditspr(A__POPUPMENU, dir_exe() + "_mo_Q015", tmp3->SREFREASON))
                 s += AllTrim( inieditspr( A__MENUVERT, loadq015(), tmp3->SREFREASON ) )
               Endif
               k := perenos( t_arr, s, 75 )

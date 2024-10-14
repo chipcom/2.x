@@ -1471,7 +1471,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
         mdef_diagnoz := "Z00.3 "
       endif
       arr_iss := array(count_dds_arr_iss,10) ; afillall(arr_iss,0)
-      R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
+      R_Use(dir_exe()+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
       R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2")
       num_screen := 2
       max_date1 := max_date2 := mn_data

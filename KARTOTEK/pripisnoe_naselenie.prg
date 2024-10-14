@@ -832,7 +832,7 @@ Function preparation_for_pripisnoe_naselenie()
         mywait()
         s += glob_mo[ _MO_KOD_TFOMS ] + DToS( sys_date )
         n_file := s + scsv
-        r_use( dir_exe + "_mo_podr", cur_dir + "_mo_podr", "PODR" )
+        r_use( dir_exe() + "_mo_podr", cur_dir + "_mo_podr", "PODR" )
         find ( glob_mo[ _MO_KOD_TFOMS ] )
         loidmo := AllTrim( podr->oidmo )
         Select KRTR
@@ -1994,8 +1994,8 @@ Function kol_uch_pripisnoe_naselenie()
     fl, arr, buf := save_maxrow()
 
   mywait()
-  r_use( dir_exe + "_okatos", cur_dir + "_okats", "SELO" )
-  r_use( dir_exe + "_okatoo", cur_dir + "_okato", "OBLAST" )
+  r_use( dir_exe() + "_okatos", cur_dir + "_okats", "SELO" )
+  r_use( dir_exe() + "_okatoo", cur_dir + "_okato", "OBLAST" )
   r_use_base( "kartotek" )
   Set Order To
   Go Top

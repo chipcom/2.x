@@ -59,18 +59,18 @@ Function okato_index(flag)
   DEFAULT flag TO .f.
 
   for i := 1 to len(arr_f)
-    if files_time(dir_exe + arr_f[i] + sdbf, cur_dir + arr_i1[i] + sntx) .or. ;
-        files_time(dir_exe + arr_f[i] + sdbf, cur_dir + arr_i2[i] + sntx)
+    if files_time(dir_exe() + arr_f[i] + sdbf, cur_dir + arr_i1[i] + sntx) .or. ;
+        files_time(dir_exe() + arr_f[i] + sdbf, cur_dir + arr_i2[i] + sntx)
       fl_index := .t.
       exit
     endif
   next
   if flag .or. fl_index
     for i := 1 to len(arr_f)
-      // if hb_FileExists(dir_exe + arr_f[i] + sdbf)
+      // if hb_FileExists(dir_exe() + arr_f[i] + sdbf)
         // if ! hb_FileExists(cur_dir + arr_i1[i] + sntx) .or. ;
         //       ! hb_FileExists(cur_dir + arr_i2[i] + sntx)
-          R_Use(dir_exe + arr_f[i])
+          R_Use(dir_exe() + arr_f[i])
           oktAdIndBase(arr_f[i])
           use
         // endif
@@ -109,15 +109,15 @@ Static Function oktAdUseBase(k, _region)
   endif
   do case
     case k == '_okator'
-      R_Use(dir_exe + '_okator', {cur_dir + '_okatr', cur_dir + '_okatrn'}, 'REGION')
+      R_Use(dir_exe() + '_okator', {cur_dir + '_okatr', cur_dir + '_okatrn'}, 'REGION')
     case k == '_okatoo'
-      R_Use(dir_exe + '_okatoo', {cur_dir + '_okato', cur_dir + '_okaton'}, 'OBLAST')
+      R_Use(dir_exe() + '_okatoo', {cur_dir + '_okato', cur_dir + '_okaton'}, 'OBLAST')
     case k == '_okatos'
-      R_Use(dir_exe + '_okatos', {cur_dir + '_okats', cur_dir + '_okatsn'}, 'SELO')
+      R_Use(dir_exe() + '_okatos', {cur_dir + '_okats', cur_dir + '_okatsn'}, 'SELO')
     case k == '_okatoo8'
-      R_Use(dir_exe + '_okatoo8', {cur_dir + '_okato8', cur_dir + '_okaton8'}, 'OBLAST')
+      R_Use(dir_exe() + '_okatoo8', {cur_dir + '_okato8', cur_dir + '_okaton8'}, 'OBLAST')
     case k == '_okatos8'
-      R_Use(dir_exe + '_okatos8', {cur_dir + '_okats8', cur_dir + '_okatsn8'}, 'SELO')
+      R_Use(dir_exe() + '_okatos8', {cur_dir + '_okats8', cur_dir + '_okatsn8'}, 'SELO')
   endcase
   return NIL
 
