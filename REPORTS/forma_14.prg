@@ -46,7 +46,7 @@ Function forma_14( k )
   Return Nil
 
 
-// 27.05.23
+// 14.10.24
 Function forma_14_( is_diag, is_otd, is_pereved )
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
@@ -444,7 +444,7 @@ Function forma_14_( is_diag, is_otd, is_pereved )
   add_string( "" )
   //
   If is_diag
-    r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
     Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
     Index On Str( tip, 1 ) + stroke + diagnoz to ( cur_dir + "tmp_dia" )
     Use ( cur_dir + "tmp_d3" ) new
@@ -2180,7 +2180,7 @@ Function f1_frm14ds( is_diag, is_otd )
   add_string( "" )
   //
   If is_diag
-    r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
     Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
     Index On Str( tip, 1 ) + Str( stroke, 2 ) + diagnoz to ( cur_dir + "tmp_dia" )
   Endif

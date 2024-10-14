@@ -1796,8 +1796,8 @@ Function prn_blank( k )
   Case k == 61 // Контрольный лист учёта ЗНО
     call_fr( 'mo_onko_KL' )
   Case k == 62 // Правила заполнения контрольного листа учёта ЗНО
-    // file_Wordpad(dir_exe + cslash + 'RULE_KL.RTF')
-    view_file_in_viewer( dir_exe + cslash + 'RULE_KL.RTF' )
+    // file_Wordpad(dir_exe() + cslash + 'RULE_KL.RTF')
+    view_file_in_viewer( dir_exe() + cslash + 'RULE_KL.RTF' )
   Case k == 71
     call_fr( 'mo_y1dvn' )
   Case k == 72
@@ -1865,7 +1865,7 @@ Function pr_sprav_onk_vmp()
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
-  r_use( dir_exe + '_mo_ovmp', cur_dir + '_mo_ovmp', 'OVMP' )
+  r_use( dir_exe() + '_mo_ovmp', cur_dir + '_mo_ovmp', 'OVMP' )
   add_string( '' )
   add_string( Center( 'Классификатор методов ВМП по онкозаболеваниям с указанием типов лечения', sh ) )
   add_string( '' )
@@ -1897,7 +1897,7 @@ Function pr_sprav_onko( n )
   Local aStadii, fl, t_arr, k
 
   aStadii := &nameFunc
-  r_use( dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
+  r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
 
   ft := tfiletext():new( name_file, , .t., , .t. )
   // ft:TableHeader := arr_title
@@ -1954,8 +1954,8 @@ Function pr_sprav_onko( n )
 // poled := lal+ '->ds_' + as_[n]
 // polek := lal+ '->kod_' + as_[n]
 // polen := lal+ '->' + as_[n] + '_name'
-// R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
-// R_Use(dir_exe + '_mo_N00' + lstr(n), , 'N' + lstr(n))
+// R_Use(dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
+// R_Use(dir_exe() + '_mo_N00' + lstr(n), , 'N' + lstr(n))
 // do case
 // case n == 2
 // index on ds_st to tmp_n2 unique memory
@@ -2023,16 +2023,16 @@ Function pr_sprav_onko( n )
 // FUNCTION pr_sprav_N006()
 // Local sh := 75, HH := 60, reg_print := 2, name_file := cur_dir + 'n006.txt', i, ad := {}
 
-// R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
-// R_Use(dir_exe + '_mo_N002', , 'N2')
+// R_Use(dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
+// R_Use(dir_exe() + '_mo_N002', , 'N2')
 // index on str(id_st, 6) to tmp_n2 memory
-// R_Use(dir_exe + '_mo_N003', , 'N3')
+// R_Use(dir_exe() + '_mo_N003', , 'N3')
 // index on str(id_t, 6) to tmp_n3 memory
-// R_Use(dir_exe + '_mo_N004', , 'N4')
+// R_Use(dir_exe() + '_mo_N004', , 'N4')
 // index on str(id_n, 6) to tmp_n4 memory
-// R_Use(dir_exe + '_mo_N005', , 'N5')
+// R_Use(dir_exe() + '_mo_N005', , 'N5')
 // index on str(id_m, 6) to tmp_n5 memory
-// R_Use(dir_exe + '_mo_N006', , 'N6')
+// R_Use(dir_exe() + '_mo_N006', , 'N6')
 // index on ds_gr to tmp_n6 unique memory
 // dbeval({|| aadd(ad, padr(n6->ds_gr, 6)) })
 // fp := fcreate(name_file)
@@ -2201,7 +2201,7 @@ Function report_f_mpp()
   Use ( cur_dir + 'tmp1' ) new
   Index On Str( usl_ok, 1 ) + Str( profil, 3 ) + Str( is_our, 1 ) + Str( vid, 1 ) + Str( vz_reb, 1 ) to ( cur_dir + 'tmp1' )
   use_base( 'lusl' )
-  r_use( dir_exe + '_mo9unit', cur_dir + '_mo9unit', 'MOUNIT' )
+  r_use( dir_exe() + '_mo9unit', cur_dir + '_mo9unit', 'MOUNIT' )
   r_use( dir_server + 'uslugi', , 'USL' )
   r_use( dir_server + 'human_u_', , 'HU_' )
   r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
@@ -2615,7 +2615,7 @@ Function pril_5_6_62()
     arr_usl, au, ii, lal, lalf
   Local sbase
 
-  If !hb_FileExists( dir_exe + '_mo_pr62' + sdbf )
+  If !hb_FileExists( dir_exe() + '_mo_pr62' + sdbf )
     Return func_error( 4, 'Не обнаружен файл _mo_pr62' + sdbf )
   Endif
   Private arr_m := { 2022, 1, 12, 'за январь - декабрь 2022 года', 0d20220101, 0d20221231 }, ;
@@ -2656,7 +2656,7 @@ Function pril_5_6_62()
   use_base( 'luslf' )
 
   sbase := prefixfilerefname( arr_m[ 1 ] ) + 'unit'
-  r_use( dir_exe + sbase, cur_dir + sbase, 'MOUNIT' )
+  r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
 
   r_use( dir_server + 'mo_su', , 'MOSU' )
   r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
@@ -2836,7 +2836,7 @@ Function pril_5_6_62()
     tmp->sr_kol := tmp->kold / tmp->kols
     Skip
   Enddo
-  r_use( dir_exe + '_mo_pr62', , 'PR' )
+  r_use( dir_exe() + '_mo_pr62', , 'PR' )
   Go Top
   Do While !Eof()
     Select TMP
@@ -2943,11 +2943,11 @@ Function pril_5_6_62()
   If fl_999
     viewtext( name_file, , , , .t., , , 5 )
   Endif
-  fill_in_excel_book( dir_exe + 'mo_pr5_62' + sxls, ;
+  fill_in_excel_book( dir_exe() + 'mo_pr5_62' + sxls, ;
     cur_dir + '__pr5_62' + sxls, ;
     ar_pr5, ;
     'присланный из ТФОМС' )
-  fill_in_excel_book( dir_exe + 'mo_pr6_62' + sxls, ;
+  fill_in_excel_book( dir_exe() + 'mo_pr6_62' + sxls, ;
     cur_dir + '__pr6_62' + sxls, ;
     ar_pr6, ;
     'присланный из ТФОМС' )

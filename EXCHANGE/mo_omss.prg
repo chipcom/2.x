@@ -353,7 +353,7 @@ Function read_xml_file_flk( arr_XML_info, aerr )
         Else
           s := 'код ошибки = ' + tmp2->SOSHIB + ' '
           s += '"' + getcategorycheckerrorbyid_q017( Left( tmp2->SOSHIB, 4 ) )[ 2 ] + '" '
-          // s += alltrim(inieditspr(A__POPUPMENU, dir_exe+'_mo_Q015', tmp2->SOSHIB))
+          // s += alltrim(inieditspr(A__POPUPMENU, dir_exe()+'_mo_Q015', tmp2->SOSHIB))
           s += AllTrim( inieditspr( A__MENUVERT, loadq015(), tmp3->SREFREASON ) )
         Endif
         If !Empty( tmp2->IM_POL )
@@ -975,7 +975,7 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
               Else
                 s := 'код ошибки = ' + tmp3->SREFREASON + ' '
                 s += '"' + getcategorycheckerrorbyid_q017( Left( tmp3->SREFREASON, 4 ) )[ 2 ] + '" '
-                // s += alltrim(inieditspr(A__POPUPMENU, dir_exe+'_mo_Q015', tmp3->SREFREASON))
+                // s += alltrim(inieditspr(A__POPUPMENU, dir_exe()+'_mo_Q015', tmp3->SREFREASON))
                 s += AllTrim( inieditspr( A__MENUVERT, loadq015(), tmp3->SREFREASON ) )
                 k := perenos( t_arr, s, 75 )
                 For i := 1 To k

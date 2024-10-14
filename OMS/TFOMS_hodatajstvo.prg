@@ -435,7 +435,7 @@ Function create_file_hodatajstvo(arr_m)
                  {"proch","C",60,0}}
         dbcreate(fr_data,adbf)
         use (fr_data) new alias FRD
-        R_Use(dir_exe+"_mo_smo",cur_dir+"_mo_smo2","SMO")
+        R_Use(dir_exe()+"_mo_smo",cur_dir+"_mo_smo2","SMO")
         R_Use(dir_server+"kartote_",,"KART_")
         R_Use(dir_server+"kartotek",,"KART")
         set relation to recno() into KART_

@@ -1221,7 +1221,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Endif
         is_onko_VMP := .f. ; musl1vmp := musl2vmp := mtipvmp := 0
         if eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. m1vmp == 1 .and. m1metvmp > 0
-          r_use( dir_exe + '_mo_ovmp', cur_dir + '_mo_ovmp',  'OVMP' )
+          r_use( dir_exe() + '_mo_ovmp', cur_dir + '_mo_ovmp',  'OVMP' )
           find ( Str( m1metvmp, 3 ) ) // номер метода ВМП
           If Found()
             is_onko_VMP := .t.

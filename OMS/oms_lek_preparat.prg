@@ -523,7 +523,7 @@ Function f5editpreparat( get, nKey, when_valid, k )
           arrN020 := get_drugcode_by_schema_lech( m1SCHEDRUG, mdate_u1 )
           If Len( arrN020 ) != 0
             tmpSelect := Select()
-            r_use( dir_exe + '_mo_N020', cur_dir + '_mo_N020', 'N20' )
+            r_use( dir_exe() + '_mo_N020', cur_dir + '_mo_N020', 'N20' )
             arr_lek_pr := {}
             For Each row in arrN020
               find ( row[ 2 ] )
@@ -698,7 +698,7 @@ Function get_lek_pr( k, r, c, _crit )
     { 'kol', 'N', 3, 0 } } )
   Use ( cur_dir + 'tmp' ) new
   Index On id_lekp to ( cur_dir + 'tmp' )
-  r_use( dir_exe + '_mo_N020', { cur_dir + '_mo_N020', cur_dir + '_mo_N020n' }, 'N20' )
+  r_use( dir_exe() + '_mo_N020', { cur_dir + '_mo_N020', cur_dir + '_mo_N020n' }, 'N20' )
   Set Filter To between_date( datebeg, dateend, mk_data )
 
   If ( it := AScan( aN021, {| x| x[ 2 ] + x[ 3 ] == _crit } ) ) == 0

@@ -1500,7 +1500,7 @@ Function obF21v_usl(nKey, oBrow, regim, mtitul)
   endcase
   return ret
 
-// 23.12.21
+// 14.10.24
 Function input_Fusluga()
   Local ar, musl, arr_usl, buf, fl, s
   local sbase
@@ -1529,7 +1529,7 @@ Function input_Fusluga()
     if fl
       s := iif(empty(usl->shifr), '', '(' + alltrim(usl->shifr) + ') ')
       sbase := prefixFileRefName(WORK_YEAR) + 'uslf'
-      R_Use(dir_exe + sbase, cur_dir + sbase, 'luslf')
+      R_Use(dir_exe() + sbase, cur_dir + sbase, 'luslf')
       find (usl->shifr1)
       arr_usl := {usl->kod, alltrim(usl->shifr1) + '. ' + s + alltrim(luslf->name), usl->shifr1}
       luslf->(dbCloseArea())

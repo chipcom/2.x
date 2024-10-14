@@ -1622,7 +1622,7 @@ Function print_other_schet( is_vyp, is_usl, n_file )
   rest_box( buf )
   If is_view
     name_fr := "mo_schpr" + sfr3
-    If _upr_epson() .or. !File( dir_exe + name_fr )
+    If _upr_epson() .or. !File( dir_exe() + name_fr )
       Private yes_albom := .t.
       viewtext( n_file, , , , .t., , , regim )
     Else
@@ -2221,7 +2221,7 @@ Static Function f1akt_kontrol_2012( nKey, oBrow, regim )
             m1tip_eksp := 3
           Endif
           If ( m1error := mo_os->REFREASON ) > 0
-            // merror := inieditspr(A__POPUPMENU, dir_exe+"_mo_t005", m1error)
+            // merror := inieditspr(A__POPUPMENU, dir_exe()+"_mo_t005", m1error)
             merror := inieditspr( A__POPUPMENU, loadt005(), m1error )
           Endif
         Endif
@@ -2249,7 +2249,7 @@ Static Function f1akt_kontrol_2012( nKey, oBrow, regim )
         reader {| x| menu_reader( x, mm_eksp, A__MENUVERT, , , .f. ) } ;
         When m1oplata > 1
       // @ r+10,1 say "Код дефекта" get merror ;
-      // reader {|x|menu_reader(x,{dir_exe+"_mo_t005"},A__POPUPEDIT, , , .f.)} ;
+      // reader {|x|menu_reader(x,{dir_exe()+"_mo_t005"},A__POPUPEDIT, , , .f.)} ;
       // when m1oplata > 1
       @ r + 10, 1 Say "Код дефекта" Get merror ;
         reader {| x| menu_reader( x, { loadt005() }, A__POPUPEDIT, , , .f. ) } ;

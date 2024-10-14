@@ -38,7 +38,7 @@ Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
     s1 := '(' + alltrim(short_shifr) + ')'
   endif
   if select('MOPROF') == 0
-    R_Use(dir_exe + '_mo_prof', cur_dir + '_mo_prof', 'MOPROF')
+    R_Use(dir_exe() + '_mo_prof', cur_dir + '_mo_prof', 'MOPROF')
   endif
   lshifr := padr(lshifr, 20)
   lvzros_reb := iif(lvzros_reb == 0, 0, 1)
@@ -75,7 +75,7 @@ Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach
     s1 := '(' + alltrim(short_shifr) + ')'
   endif
   if select('MOSPEC') == 0
-    R_Use(dir_exe + '_mo_spec', cur_dir + '_mo_spec', 'MOSPEC')
+    R_Use(dir_exe() + '_mo_spec', cur_dir + '_mo_spec', 'MOSPEC')
   endif
   lshifr := padr(lshifr, 20)
   lvzros_reb := iif(lvzros_reb == 0, 0, 1)

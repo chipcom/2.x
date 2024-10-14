@@ -91,7 +91,7 @@ Function f_arr_plan_zakaz( lshifr, lyear )
   if found() .and. ! empty( (sAlias)->unit_code )
     if select( sAliasUnit ) == 0
       sbase := prefixFileRefName( lyear ) + 'unit'
-      R_Use( dir_exe + sbase, cur_dir + sbase, sAliasUnit )
+      R_Use( dir_exe() + sbase, cur_dir + sbase, sAliasUnit )
     endif
     select ( sAliasUnit )
     set order to 1
@@ -127,7 +127,7 @@ Function ret_PZ_VMP( lunit, kDate )
 
   if select( 'MOUNIT' ) == 0
     sbase := prefixFileRefName( nYear ) + 'unit'
-    R_Use( dir_exe + sbase, cur_dir + sbase, 'MOUNIT' )
+    R_Use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
   endif
   select MOUNIT
   find ( str( lunit, 3 ) )
@@ -167,7 +167,7 @@ function getUnitsForYear( nYear )
     dbName := prefixFileRefName( yearSl ) + 'unit'
     tmp_select := select()
     dbAlias := '__UNIT'
-    r_use( dir_exe + dbName, , dbAlias )
+    r_use( dir_exe() + dbName, , dbAlias )
 
     //  1 - CODE(N)  2 - PZ(N)  3 - II(N)  4 - C_T(N)  5 - NAME(C)  6 - DATEBEG(D)  7 - DATEEND(D)
     ( dbAlias )->( dbGoTop() )

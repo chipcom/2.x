@@ -2312,7 +2312,7 @@ Function akt_list_of_refusal_pacient()
 
   rest_box( buf )
   name_fr := "mo_spis_sn" + sfr3
-  If _upr_epson() .or. !File( dir_exe + name_fr )
+  If _upr_epson() .or. !File( dir_exe() + name_fr )
     viewtext( n_file, , , , .f., , , 2 )
   Else
     call_fr( name_fr )
@@ -2665,7 +2665,7 @@ Function akt_summa_of_refusal( tip )
     add_string( Center( '¤ βλ ……‘’‚ €’‚ ’‹ - ' + arr_m[ 4 ], sh ) )
   Endif
   AEval( arr_title, {| x| add_string( x ) } )
-  // R_Use(dir_exe + '_mo_t005', cur_dir + '_mo_t005', 'T5')
+  // R_Use(dir_exe() + '_mo_t005', cur_dir + '_mo_t005', 'T5')
   Select TMP
   Go Top
   Do While !Eof()
@@ -3041,7 +3041,7 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
   add_string( Center( "‘: " + ssmo, sh ) )
   add_string( Center( "¤ βλ " + iif( m1poisk == 0, "€ - ", " ªβ®Ά ª®­βΰ®«ο - " ) + pdate[ 4 ], sh ) )
   AEval( arr_title, {| x| add_string( x ) } )
-  // R_Use(dir_exe + '_mo_t005', cur_dir + '_mo_t005', 'T5')
+  // R_Use(dir_exe() + '_mo_t005', cur_dir + '_mo_t005', 'T5')
   ssum := skol := sum_rak := kol_rak := 0
   n := 20
   ssump := skolp := sump_rak := kolp_rak := 0

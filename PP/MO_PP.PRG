@@ -2726,11 +2726,11 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   elseif k == 1
     if nKey == K_F5
       Private file_sh
-      if !empty(file_sh := menu_shablon(3,3,dir_exe+"*."+alltrim(arr[1]),color8,.f.))
+      if !empty(file_sh := menu_shablon(3,3,dir_exe()+"*."+alltrim(arr[1]),color8,.f.))
         print_shablon(file_sh)
       endif
     else
-      if hb_FileExists(dir_exe+arr[1]+sExt)
+      if hb_FileExists(dir_exe()+arr[1]+sExt)
         if memPPdos_fast == 0
           print_shablon(arr[1]+sExt)
         else
@@ -2745,7 +2745,7 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   elseif f_Esc_Enter("печати "+lstr(k)+"-х документов")
     if memPPdos_fast == 0 .and. !_upr_windows() // печать не через Windows
       for i := 1 to len(arr)
-        if !hb_FileExists(dir_exe+arr[i]+sExt)
+        if !hb_FileExists(dir_exe()+arr[i]+sExt)
           func_error(4,"Не обнаружен файл "+upper(arr[i]+sExt))
           loop
         endif
@@ -2764,7 +2764,7 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
     else // через FastReport
       sExt := ".fr3"
       for i := len(arr) to 1 step -1
-        if !hb_FileExists(dir_exe+arr[i]+sExt)
+        if !hb_FileExists(dir_exe()+arr[i]+sExt)
           func_error(4,"Не обнаружен файл "+upper(arr[i]+sExt))
           Del_Array(arr,i)
         endif

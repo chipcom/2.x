@@ -3163,7 +3163,7 @@ if tip_print == 1
 else
   Private file_sh
   if !empty(mem_ort_dog) .and. ;
-     !empty(file_sh := menu_shablon(3,3,dir_exe+"*."+alltrim(mem_ort_dog),color8,.f.))
+     !empty(file_sh := menu_shablon(3,3,dir_exe()+"*."+alltrim(mem_ort_dog),color8,.f.))
     select TMP
     go top
     f1_pr_shab(file_sh)

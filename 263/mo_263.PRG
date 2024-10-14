@@ -27,7 +27,7 @@ Function begin_task_263()
     work_otd_263 := int(val(a2default(ar, 'work_otd', lstr(work_otd_263))))
 
     sbase := prefixFileRefName(WORK_YEAR) + 'uslc'
-    R_Use(dir_exe + sbase, , 'USLC')
+    R_Use(dir_exe() + sbase, , 'USLC')
 
     index on codemo to (cur_dir + 'tmp_uslc') ;
         for datebeg == 0d20190101 .and. eq_any(left(shifr, 5), '1.11.', '55.1.') ;
@@ -269,7 +269,7 @@ Function f_get_profil(k, r, c, lprofil_k)
   if empty(lprofil_k)
     return NIL
   endif
-  // R_Use(dir_exe + '_mo_t007', cur_dir + '_mo_t007', 'T7')
+  // R_Use(dir_exe() + '_mo_t007', cur_dir + '_mo_t007', 'T7')
   // find (str(lprofil_k, 3))
   // do while lprofil_k == t7->profil_k .and. !eof()
   //   aadd(arr, {inieditspr(A__MENUVERT, getV002(), t7->PROFIL), t7->profil})
@@ -300,8 +300,8 @@ Function _263_to_proverka(yes_msg, /*@*/yes_I07)
   yes_I07 := .f.
   DEFAULT yes_msg TO .t.
   mywait('Проверка перед составлением...')
-  R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10')
-  R_Use(dir_exe + '_mo_smo', cur_dir + '_mo_smo2', 'SMO')
+  R_Use(dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10')
+  R_Use(dir_exe() + '_mo_smo', cur_dir + '_mo_smo2', 'SMO')
   R_Use(dir_server + 'mo_pers', , 'P2')
   R_Use(dir_server + 'kartote_', , 'KART_')
   R_Use(dir_server + 'kartotek', , 'KART')
@@ -4755,7 +4755,7 @@ Function f_profil_k_t007_v020(lprk, /*@*/lpr, ldate_r)
     // if select('T7') > 0
     //   t7->(dbCloseArea())
     // endif
-    // R_Use(dir_exe + '_mo_t007', cur_dir + '_mo_t007', 'T7')
+    // R_Use(dir_exe() + '_mo_t007', cur_dir + '_mo_t007', 'T7')
     // find (str(lprk, 3) + str(lpr, 3))
     // if found()
     //   lprk20 := t7->pk_V020
@@ -4803,7 +4803,7 @@ Function f_profil_k_v020_t007(sprk20, lpr, ldate_r)
     // if select('T7') > 0
     //   t7->(dbCloseArea())
     // endif
-    // R_Use(dir_exe + '_mo_t007', cur_dir + '_mo_t0072', 'T7')
+    // R_Use(dir_exe() + '_mo_t007', cur_dir + '_mo_t0072', 'T7')
     // find (str(lprk20, 3) + str(lpr, 3))
     // if found()
     //   lprk := t7->profil_k

@@ -104,7 +104,7 @@ function getMo_mo(nfile)
 
   return ret_arr
 
-// 13.06.21 вернуть массив _mo_dbb.dbf
+// 14.10.24 вернуть массив _mo_dbb.dbf
 function getMo_mo_New(dbName, reload)
   // reload - флаг указывающий на перезагрузку справочника, .T. - перезагрузить, .F. - нет
   
@@ -126,7 +126,7 @@ function getMo_mo_New(dbName, reload)
   endif
   
   if len(_arr) == 0
-    dbUseArea( .t.,, dir_exe + dbName, dbName, .f., .f. )
+    dbUseArea( .t.,, dir_exe() + dbName, dbName, .f., .f. )
     // dbUseArea( .t., , dbName, dbName, .f., .f. )
     (dbName)->(dbGoTop())
     do while !(dbName)->(EOF())

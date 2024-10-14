@@ -196,7 +196,7 @@ Function verify_sluch( fl_view )
   Endif
 
   If Select( 'MKB_10' ) == 0
-    r_use( dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10' )
+    r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10' )
   Endif
   Select MKB_10
   For i := 1 To Len( mdiagnoz )
@@ -347,7 +347,7 @@ Function verify_sluch( fl_view )
   valid_sn_polis( human_->vpolis, human_->SPOLIS, human_->NPOLIS, ta, Between( human_->smo, '34001', '34007' ) )
   //
   If Select( 'SMO' ) == 0
-    r_use( dir_exe + '_mo_smo', cur_dir + '_mo_smo2', 'SMO' )
+    r_use( dir_exe() + '_mo_smo', cur_dir + '_mo_smo2', 'SMO' )
     // index on smo to (sbase+ '2')
   Endif
   Select SMO
@@ -737,7 +737,7 @@ Function verify_sluch( fl_view )
         hu->kod_vr := hu->kod_as := 0
         lprofil := iif( Left( lshifr, 5 ) == '4.16.', 6, 34 )
         If Select( 'MOPROF' ) == 0
-          r_use( dir_exe + '_mo_prof', cur_dir + '_mo_prof', 'MOPROF' )
+          r_use( dir_exe() + '_mo_prof', cur_dir + '_mo_prof', 'MOPROF' )
           // index on shifr+ str(vzros_reb, 1) + str(profil, 3) to (sbase)
         Endif
         Select MOPROF
@@ -1969,7 +1969,7 @@ Function verify_sluch( fl_view )
             // aadd(ta, 'в составе случая оказания химиотерапии не может быть применен ТОЛЬКО один препарат из списка (золедроновая кислота, ибандроновая кислота, памидроновая кислота, клодроновая кислота или деносумаб)')
             // endif
             If Select( 'N20' ) == 0
-              r_use( dir_exe + '_mo_N020', cur_dir + '_mo_N020', 'N20' )
+              r_use( dir_exe() + '_mo_N020', cur_dir + '_mo_N020', 'N20' )
               Set Filter To between_date( datebeg, dateend, dEnd )
             Endif
             aN021 := getn021( dEnd )
@@ -2770,7 +2770,7 @@ Function verify_sluch( fl_view )
       AAdd( ta, 'в случае не проставлен профиль койки' )
     Else
       If Select( 'PRPRK' ) == 0
-        r_use( dir_exe + '_mo_prprk', cur_dir + '_mo_prprk', 'PRPRK' )
+        r_use( dir_exe() + '_mo_prprk', cur_dir + '_mo_prprk', 'PRPRK' )
         // index on str(profil, 3) + str(profil_k, 3) to (cur_dir+ sbase)
       Endif
       Select PRPRK
@@ -4607,7 +4607,7 @@ Function verify_sluch( fl_view )
   If Len( arr_unit ) > 1
     If Select( 'MOUNIT' ) == 0
       sbase := prefixfilerefname( yearEnd ) + 'unit'
-      r_use( dir_exe + sbase, cur_dir + sbase, 'MOUNIT' )
+      r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
     Endif
     s := 'совокупность услуг должна быть из одной учётной единицы объёма, а в данном случае: '
     Select MOUNIT
@@ -4784,7 +4784,7 @@ Function verify_sluch( fl_view )
     If Len( arr_unit ) == 1
       If Select( 'MOUNIT' ) == 0
         sbase := prefixfilerefname( yearEnd ) + 'unit'
-        r_use( dir_exe + sbase, cur_dir + sbase, 'MOUNIT' )
+        r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
       Endif
       Select MOUNIT
       find ( Str( arr_unit[ 1 ], 3 ) )

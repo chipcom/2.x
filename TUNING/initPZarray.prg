@@ -778,27 +778,27 @@ function get_array_PZ_18()
   endif
   return arr
 
-function fill_PZ_array_from_file_1(work_year, arr)
+function fill_PZ_array_from_file_1( work_year, arr )
   local file_index
   local i, sbase, oldSelect
 
   oldSelect := select()
-  sbase :=  prefixFileRefName(work_year) + 'unit'  // справочник на конкретный год
-  file_index := cur_dir + sbase + sntx
+  sbase :=  prefixFileRefName( work_year ) + 'unit'  // справочник на конкретный год
+  file_index := cur_dir() + sbase + sntx
 
-  if exists_file_TFOMS(work_year, 'unit')
-    if hb_FileExists(file_index)
-      G_Use( dir_exe + sbase, cur_dir + sbase, 'UNIT' )
+  if exists_file_TFOMS( work_year, 'unit' )
+    if hb_FileExists( file_index )
+      G_Use( dir_exe() + sbase, cur_dir() + sbase, 'UNIT' )
     else
-      G_Use( dir_exe + sbase, , 'UNIT' )
-      index on str(code, 3) to (cur_dir + sbase)
+      G_Use( dir_exe() + sbase, , 'UNIT' )
+      index on str( code, 3 ) to ( cur_dir() + sbase )
     endif
 
-    for i := 1 to Len(arr)
-      find (Str(arr[i, 2], 3))
-      if Found() .and. !(unit->pz == arr[i, 1] .and. unit->ii == i)
+    for i := 1 to Len( arr )
+      find ( Str( arr[ i, 2 ], 3 ) )
+      if Found() .and. ! ( unit->pz == arr[ i, 1 ] .and. unit->ii == i )
         G_RLock( forever )
-        unit->pz := arr[i, 1]
+        unit->pz := arr[ i, 1 ]
         unit->ii := i
       endif
     next
@@ -809,7 +809,7 @@ function fill_PZ_array_from_file_1(work_year, arr)
 
   return nil
 
-// 27.06.24
+// 14.10.24
 FUNCTION initPZarray()
 
   LOCAL nameArr
@@ -1529,13 +1529,12 @@ FUNCTION initPZarray()
       nameArr := 'glob_array_PZ_' + last_digits_year( j )
 
       file_index := cur_dir + sbase + sntx
-      if hb_FileExists(file_index)
-        G_Use( dir_exe + sbase, cur_dir + sbase, 'UNIT' )
+      if hb_FileExists( file_index )
+        G_Use( dir_exe() + sbase, cur_dir() + sbase, 'UNIT' )
       else
-        G_Use( dir_exe + sbase, , 'UNIT' )
-        index on str(code, 3) to (cur_dir + sbase)
+        G_Use( dir_exe() + sbase, , 'UNIT' )
+        index on str( code, 3 ) to ( cur_dir() + sbase )
       endif
-      // G_Use( dir_exe + sbase, cur_dir + sbase, 'UNIT' )
       FOR i := 1 TO Len( &nameArr )
          find ( Str( &nameArr.[ i, 2 ], 3 ) )
          IF Found() .AND. !( unit->pz == &nameArr.[ i, 1 ] .AND. unit->ii == i )

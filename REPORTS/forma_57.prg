@@ -50,7 +50,7 @@ Function forma_57( k )
 
   Return Nil
 
-// 05.01.17
+// 14.10.24
 Function forma_57_( is_diag )
 
   Static sy := 1
@@ -59,7 +59,7 @@ Function forma_57_( is_diag )
     fl_exit := .f., jh := 0, jt := 0, mshifr, mvozrast, d1, d2, ;
     arr_stroke := { {}, {}, {} }, fl, s, arr, bbuf, blk_usl, ab := {}
 
-  file_form := dir_exe + "_mo_form" + sdbf
+  file_form := dir_exe() + "_mo_form" + sdbf
   If !hb_FileExists( file_form )
     Return func_error( 4, "Не обнаружен файл настройки статистических форм " + Upper( file_form ) )
   Endif
@@ -334,7 +334,7 @@ Function forma_57_( is_diag )
     frt->name1 := "[ по дате выписки счета ]"
   Endif
   If is_diag > 1
-    r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
     Use ( cur_dir + "tmp_dia" ) index ( cur_dir + "tmp_dia" ) New Alias TMP_D
   Endif
   If is_diag == 3

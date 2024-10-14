@@ -125,7 +125,7 @@ Procedure Main( ... )
   // реконструкция файлов доступа к системе
   reconstruct_security( is_local_version )
 
-  If ! files_nsi_exists( dir_exe )
+  If ! files_nsi_exists( dir_exe() )
     hard_err( 'delete' )
     full_end()
   Endif
@@ -140,7 +140,7 @@ Procedure Main( ... )
   // a_parol := inp_password(is_local_version,is_create)
   a_parol := inp_password_bay( is_local_version, is_create )
 
-  index_work_dir( dir_exe, cur_dir, .f. )    // checkFilesTFOMS() переименовал
+  index_work_dir( dir_exe(), cur_dir, .f. )    // checkFilesTFOMS() переименовал
 
   initPZarray()
 
@@ -457,7 +457,7 @@ Function f_first( is_create )
   Public cur_drv := DiskName()
   Public cur_dir := chip_currpath()
   Public dir_server := '', p_name_comp := ''
-  Public dir_exe := hb_DirBase()
+//  Public dir_exe := hb_DirBase()
 
   color0 := 'N/BG, W+/N'
   color1 := 'W+/B, W+/R'

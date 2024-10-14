@@ -70,7 +70,7 @@ Function init_first()
   Public tmp_ini := 'TMP' + sini
   Public tools_ini := dir_server + 'TOOLS' + sini
   Public local_tools_ini := 'LOCTOOLS' + sini
-  Public f_stat_com := dir_exe + 'stat_com' + sfrm
+  Public f_stat_com := dir_exe() + 'stat_com' + sfrm
   Public f_stat_lpu := dir_server + 'stat_lpu' + sini
   Public file_uchast := dir_server + 'prik_uch' + smem
   Public mm_danet := { { 'нет', 0 }, { 'да ', 1 } }

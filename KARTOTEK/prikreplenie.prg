@@ -769,7 +769,7 @@ Function wq_prikreplenie()
     index on str(reestr, 6) to (cur_dir + 'tmp_krtp')
     mywait('Создание файла прикрепления')
     j := ii := 0
-    R_Use(dir_exe + '_mo_podr', cur_dir + '_mo_podr', 'PODR')
+    R_Use(dir_exe() + '_mo_podr', cur_dir + '_mo_podr', 'PODR')
     find (glob_mo[_MO_KOD_TFOMS])
     loidmo := alltrim(podr->oidmo)
     R_Use(dir_server + 'mo_otd', , 'OTD')

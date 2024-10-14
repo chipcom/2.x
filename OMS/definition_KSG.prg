@@ -387,13 +387,13 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
 
   nfile := prefixfilerefname( lyear ) + 'k006'
   If Select( 'K006' ) == 0
-    r_use( dir_exe + nfile, { cur_dir + nfile, cur_dir + nfile + '_', cur_dir + nfile + 'AD' }, 'K006' )
+    r_use( dir_exe() + nfile, { cur_dir + nfile, cur_dir + nfile + '_', cur_dir + nfile + 'AD' }, 'K006' )
   Else
     If ver_year == lyear // проверяем: если тот же год, что только что проверяли
       // ничего не меняем
     Else // иначе переоткрываем данный файл с необходимым годом и тем же алиасом
       k006->( dbCloseArea() )
-      r_use( dir_exe + nfile, { cur_dir + nfile, cur_dir + nfile + '_', cur_dir + nfile + 'AD' }, 'K006' )
+      r_use( dir_exe() + nfile, { cur_dir + nfile, cur_dir + nfile + '_', cur_dir + nfile + 'AD' }, 'K006' )
     Endif
   Endif
   ver_year := lyear

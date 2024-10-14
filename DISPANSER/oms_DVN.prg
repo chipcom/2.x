@@ -1164,7 +1164,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
       //
       mdef_diagnoz := iif( metap == 2, 'Z01.8 ', 'Z00.8 ' )
-      r_use( dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10' )
+      r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10' )
       r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2' )
       num_screen := 2
       max_date1 := mn_data

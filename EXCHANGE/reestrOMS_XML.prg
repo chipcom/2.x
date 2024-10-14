@@ -51,7 +51,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Next
   stat_msg( 'Составление реестра случаев' )
   nsh := f_mb_me_nsh( _nyear, @mb, @me )
-  r_use( dir_exe + '_mo_mkb', , 'MKB_10' )
+  r_use( dir_exe() + '_mo_mkb', , 'MKB_10' )
   Index On shifr + Str( ks, 1 ) to ( cur_dir + '_mo_mkb' )
   g_use( dir_server + 'mo_rees', , 'REES' )
   Index On Str( nn, nsh ) to ( cur_dir + 'tmp_rees' ) For nyear == _nyear .and. nmonth == _nmonth
@@ -158,7 +158,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   g_use( dir_server + 'human_', , 'HUMAN_' )
   r_use( dir_server + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
-  r_use( dir_exe + '_mo_t2_v1', , 'T21' )
+  r_use( dir_exe() + '_mo_t2_v1', , 'T21' )
   Index On shifr to ( cur_dir + 'tmp_t21' )
   Use ( cur_dir + 'tmpb' ) new
   If reg_sort == 1

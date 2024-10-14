@@ -25,8 +25,8 @@ function getInfoKIRO(dateSl, code)
   next
   return row
 
-// 18.01.22
-// возвращает массив КСЛП на указанную дату
+// 14.10.24
+// возвращает массив КСЛЭ на указанную дату
 function getKSLPtable(dateSl)
   Local dbName, dbAlias := 'KSLP_'
   local tmp_select := select()
@@ -42,7 +42,7 @@ function getKSLPtable(dateSl)
     lHashKSLP := .t.
   endif
 
-  // получим массив КСЛП из хэша по ключу ГОД ОКОНЧАНИЯ СЛУЧАЯ, или загрузим его из справочника
+  // получим массив КСЛЭ из хэша по ключу ГОД ОКОЭЧАЭИЯ СЛУЧАЯ, или загрузим его из справочника
   if hb_HHasKey( hKSLP, yearSl )
     aKSLP := hb_HGet(hKSLP, yearSl)
   else
@@ -50,7 +50,7 @@ function getKSLPtable(dateSl)
     tmp_select := select()
     dbName := prefixFileRefName(dateSl) + 'kslp'
 
-    dbUseArea( .t., 'DBFNTX', dir_exe + dbName, dbAlias , .t., .f. )
+    dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbAlias , .t., .f. )
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
       aadd(aKSLP, { (dbAlias)->CODE, alltrim((dbAlias)->NAME), alltrim((dbAlias)->NAME_F), (dbAlias)->COEFF, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
@@ -64,7 +64,7 @@ function getKSLPtable(dateSl)
     hKSLP[yearSl] := aKSLP
   endif
 
-  // выберем возможные КСЛП по дате
+  // выберем возможные КСЛЭ по дате
   for each row in aKSLP
     if between(dateSl, row[5], row[6])
       aadd(retKSLP, { row[1], row[2], row[3], row[4], row[5], row[6] })
@@ -72,12 +72,12 @@ function getKSLPtable(dateSl)
   next
 
   if empty(retKSLP)
-    alertx('На дату ' + DToC(dateSl) + ' КСЛП отсутствуют!')
+    alertx('Эа дату ' + DToC(dateSl) + ' КСЛЭ отсутствуют!')
   endif
   return retKSLP
 
-// 18.01.22
-// возвращает массив КИРО на указанную дату
+// 14.10.24
+// возвращает массив КИЭО на указанную дату
 function getKIROtable( dateSl )
   Local dbName, dbAlias := 'KIRO_'
   local tmp_select := select()
@@ -93,7 +93,7 @@ function getKIROtable( dateSl )
     lHashKIRO := .t.
   endif
 
-  // получим массив КИРО из хэша по ключу ГОД ОКОНЧАНИЯ СЛУЧАЯ, или загрузим его из справочника
+  // получим массив КИЭО из хэша по ключу ГОД ОКОЭЧАЭИЯ СЛУЧАЯ, или загрузим его из справочника
   if hb_HHasKey( hKIRO, yearSl )
     aKIRO := hb_HGet(hKIRO, yearSl)
   else
@@ -101,7 +101,7 @@ function getKIROtable( dateSl )
     tmp_select := select()
     dbName := prefixFileRefName(dateSl) + 'kiro'
 
-    dbUseArea( .t., 'DBFNTX', dir_exe + dbName, dbAlias , .t., .f. )
+    dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbAlias , .t., .f. )
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
       aadd(aKIRO, { (dbAlias)->CODE, alltrim((dbAlias)->NAME), alltrim((dbAlias)->NAME_F), (dbAlias)->COEFF, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
@@ -115,7 +115,7 @@ function getKIROtable( dateSl )
     hKIRO[yearSl] := aKIRO
   endif
 
-  // выберем возможные КИРО по дате
+  // выберем возможные КИЭО по дате
   for each row in aKIRO
     if between(dateSl, row[5], row[6])
       aadd(retKIRO, { row[1], row[2], row[3], row[4], row[5], row[6] })
@@ -123,7 +123,7 @@ function getKIROtable( dateSl )
   next
 
   if empty(retKIRO)
-    alertx('На дату ' + DToC(dateSl) + ' КИРО отсутствуют!')
+    alertx('Эа дату ' + DToC(dateSl) + ' КИЭО отсутствуют!')
   endif
 
   return retKIRO

@@ -622,7 +622,7 @@ do case
     else
       Private file_sh
       if !empty(alltrim(mem_dogovor)) .and. ;
-         !empty(file_sh := menu_shablon(3,3,dir_exe+"*."+upper(alltrim(mem_dogovor)),color8,.f.))
+         !empty(file_sh := menu_shablon(3,3,dir_exe()+"*."+upper(alltrim(mem_dogovor)),color8,.f.))
         select TMP
         go top
         f1_pr_shab(file_sh)

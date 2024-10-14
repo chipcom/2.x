@@ -7,7 +7,7 @@
 // 21.08.17
 Function run_my_hrb( name_hrb, name_func )
 
-  Local x, handle, n_file := dir_exe + name_hrb + '.hrb'
+  Local x, handle, n_file := dir_exe() + name_hrb + '.hrb'
 
   If hb_FileExists( n_file )
     handle := hb_hrbLoad( n_file )
