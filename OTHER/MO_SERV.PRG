@@ -2418,8 +2418,6 @@ Function import_verify_okato( s )
 
   Return fl
 
-// 
-
 // Импорт данных из программы "Флюоротека" фирмы "ЧИП плюс"
 Function import_fluoroteka()
 
@@ -2437,7 +2435,7 @@ Function import_fluoroteka()
       Else
         hGauge := gaugenew(,,, "Синхронизация флюоротеки с картотекой", .t. )
         gaugedisplay( hGauge )
-        Use ( _tmp_dir1 + "_reg.d" ) New Alias RG
+        Use ( _tmp_dir1() + "_reg.d" ) New Alias RG
         Index On Upper( fio ) + DToS( data_r ) to ( cur_dir + "tmp_r" ) progress
         g_use( dir_server + "kartote_",, "KART_" )
         r_use( dir_server + "kartotek",, "KART" )
@@ -4654,10 +4652,7 @@ Function mo_read_el_polis( /*@*/k)
 
   Return fl
 
-
-// 
-
-// 08.11.20 создание первичной БД из реестров
+// 15.10.24 создание первичной БД из реестров
 Function create_main_base_from_reestrs()
 
   Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(), ;
@@ -4800,7 +4795,7 @@ Function create_main_base_from_reestrs()
             s := name_without_ext( arr_rsptk[ i ] )
             cFile := s + sxml
             // читаем XML-файл в память
-            oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+            oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
             reestr_sp_tk_tmpfile( oXmlDoc,, cFile )
             n := Int( Val( tmp1->_NSCHET ) )  // в число (отрезать всё, что после "-")
             If ( k := AScan( a_reestr, {| x| x[ 3 ] == n .and. x[ 5 ] == tmp1->_YEAR } ) ) > 0
@@ -4885,7 +4880,7 @@ Function f1_create_main_base_from_reestrs( a_reestr )
                 // читаем файл в память
                 cFile := arr_f[ n ]
                 // читаем XML-файл в память
-                oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+                oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
                 If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
                   StrFile( full_zip + ": ошибка в чтении файла" + hb_eol(), cImportProtokol, .t. )
                   fl := .f. ; Exit
@@ -4953,7 +4948,7 @@ Function f1_create_main_base_from_reestrs( a_reestr )
               If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( s ) } ) ) > 0
                 cFile := arr_f[ n ]
                 // читаем XML-файл в память
-                oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+                oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
                 If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
                   StrFile( a_reestr[ i, 7, j, 1 ] + ": ошибка в чтении файла" + hb_eol(), cImportProtokol, .t. )
                   fl := .f. ; Exit

@@ -4081,7 +4081,7 @@ Function _263_add_kart(lkod_k, lfio, cFileProtokol, yes_append)
   endif
   return lkod_k
 
-// 14.07.14 зачитать протокол обработки информационного пакета (любого)
+// 15.10.24 зачитать протокол обработки информационного пакета (любого)
 Function _263_protokol_tmpfile(nfile, aerr)
   Local adbf, j, oXmlDoc, oXmlNode, is_err_FLK := .f.
 
@@ -4105,7 +4105,7 @@ Function _263_protokol_tmpfile(nfile, aerr)
   dbcreate(cur_dir + 'tmp2file', adbf, , .t., 'TMP2')  // элементы PR
   if upper(right(nfile, 4)) == sxml
     // читаем файл в память
-    oXmlDoc := HXMLDoc():Read(_tmp_dir1 + nfile)
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1() + nfile)
     is_err_FLK := (oXmlDoc == NIL)
   endif
   if !is_err_FLK
@@ -4139,7 +4139,7 @@ Function _263_protokol_tmpfile(nfile, aerr)
   commit
   return is_err_FLK
 
-// 15.01.19 зачитать информационный пакет I01
+// 15.10.24 зачитать информационный пакет I01
 Function _263_I01_tmpfile(nfile, aerr)
   Local _table1 := { ;
                     {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
@@ -4192,7 +4192,7 @@ Function _263_I01_tmpfile(nfile, aerr)
   if upper(right(nfile, 4)) == sxml
     fl := .t.
     // читаем файл в память
-    oXmlDoc := HXMLDoc():Read(_tmp_dir1 + nfile)
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1() + nfile)
     if oXmlDoc == NIL
       fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
     endif
@@ -4269,7 +4269,7 @@ Function _263_I01_tmpfile(nfile, aerr)
   rest_box(buf)
   return fl .and. empty(aerr)
 
-// 19.02.17 зачитать информационный пакет I03
+// 15.10.24 зачитать информационный пакет I03
 Function _263_I03_tmpfile(nfile, aerr)
   Local _table1 := { ;
                     {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
@@ -4297,7 +4297,7 @@ Function _263_I03_tmpfile(nfile, aerr)
   if upper(right(nfile, 4)) == sxml
     fl := .t.
     // читаем файл в память
-    oXmlDoc := HXMLDoc():Read(_tmp_dir1 + nfile)
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1() + nfile)
     if oXmlDoc == NIL
       fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
     endif
@@ -4339,7 +4339,7 @@ Function _263_I03_tmpfile(nfile, aerr)
   rest_box(buf)
   return fl .and. empty(aerr)
 
-// 15.01.19 зачитать информационный пакет I04 или I05
+// 15.10.24 зачитать информационный пакет I04 или I05
 Function _263_I04_tmpfile(nfile, aerr)
   Local _table1 := { ;
                     {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
@@ -4392,7 +4392,7 @@ Function _263_I04_tmpfile(nfile, aerr)
   if upper(right(nfile, 4)) == sxml
     fl := .t.
     // читаем файл в память
-    oXmlDoc := HXMLDoc():Read(_tmp_dir1 + nfile)
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1() + nfile)
     if oXmlDoc == NIL
       fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
     endif
@@ -4471,7 +4471,7 @@ Function _263_I04_tmpfile(nfile, aerr)
   rest_box(buf)
   return fl .and. empty(aerr)
 
-// 15.01.19 зачитать информационный пакет I06
+// 15.10.24 зачитать информационный пакет I06
 Function _263_I06_tmpfile(nfile, aerr)
   Local _table1 := { ;
                     {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
@@ -4509,7 +4509,7 @@ Function _263_I06_tmpfile(nfile, aerr)
   if upper(right(nfile, 4)) == sxml
     fl := .t.
     // читаем файл в память
-    oXmlDoc := HXMLDoc():Read(_tmp_dir1 + nfile)
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1() + nfile)
     if oXmlDoc == NIL
       fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
     endif
@@ -4569,7 +4569,7 @@ Function _263_I06_tmpfile(nfile, aerr)
   rest_box(buf)
   return fl .and. empty(aerr)
 
-// 15.01.19 зачитать информационный пакет I07
+// 15.10.24 зачитать информационный пакет I07
 Function _263_I07_tmpfile(nfile, aerr)
   Local _table1 := { ;
                     {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
@@ -4650,7 +4650,7 @@ Function _263_I07_tmpfile(nfile, aerr)
   if upper(right(nfile, 4)) == sxml
     fl := .t.
     // читаем файл в память
-    oXmlDoc := HXMLDoc():Read(_tmp_dir1 + nfile)
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1() + nfile)
     if oXmlDoc == NIL
       fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
     endif

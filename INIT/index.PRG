@@ -176,8 +176,8 @@ Function pereindex()
       close databases
       cFile := alltrim(arr_xml[j,2])
       if Extract_Zip_XML(dir_server+dir_XML_TF,cFile+szip) != NIL
-        oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile+sxml)
-        reestr_rak_tmpfile(oXmlDoc,{},_tmp_dir1+cFile+szip)
+        oXmlDoc := HXMLDoc():Read(_tmp_dir1()+cFile+sxml)
+        reestr_rak_tmpfile(oXmlDoc,{},_tmp_dir1()+cFile+szip)
         Use (dir_server+"mo_rak") new alias RAK
         select TMP2
         go top

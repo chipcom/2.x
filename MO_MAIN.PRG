@@ -16,7 +16,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 07.08.24
+// 15.10.24
 Procedure Main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -62,10 +62,10 @@ Procedure Main( ... )
   Public fr_data := '_data', fr_titl := '_titl'
   Public dir_XML_MO := 'XML_MO', dir_XML_TF := 'XML_TF'
   Public dir_NAPR_MO := 'NAPR_MO', dir_NAPR_TF := 'NAPR_TF'
-  Public _tmp_dir  := 'TMP___'
-  Public _tmp_dir1 := _tmp_dir + cslash
-  Public _tmp2dir  := 'TMP2___'
-  Public _tmp2dir1 := _tmp2dir + cslash
+//  Public _tmp_dir  := 'TMP___'
+//  Public _tmp_dir1 := _tmp_dir + cslash
+//  Public _tmp2dir  := 'TMP2___'
+//  Public _tmp2dir1 := _tmp2dir() + cslash
   //
   // объект пользователя зарегистрировавшегося в системе
   Public hb_user_curUser := nil
@@ -881,7 +881,7 @@ function full_end()
   Quit
   return nil
 
-// 17.11.23
+// 15.10.24
 Function f_end( yes_copy )
   Static group_ini := 'RAB_MESTO'
   Local i, spath := '', bSaveHandler := ErrorBlock( {| x| Break( x ) } )
@@ -916,13 +916,13 @@ Function f_end( yes_copy )
   If __mvExist( 'cur_dir' )
     FileDelete( cur_dir + 'tmp*.dbf' )
     FileDelete( cur_dir + 'tmp*.ntx' )
-    FileDelete( _tmp_dir1 + '*.*' )
-    If hb_DirExists( cur_dir + _tmp_dir ) .and. hb_DirDelete( cur_dir + _tmp_dir ) != 0
-      // func_error(4, 'Не могу удалить каталог ''+'cur_dir'+'_tmp_dir)
+    FileDelete( _tmp_dir1() + '*.*' )
+    If hb_DirExists( cur_dir + _tmp_dir() ) .and. hb_DirDelete( cur_dir + _tmp_dir() ) != 0
+      // func_error(4, 'Не могу удалить каталог ''+'cur_dir'+'_tmp_dir())
     Endif
-    FileDelete( _tmp2dir1 + '*.*' )
-    If hb_DirExists( cur_dir + _tmp2dir ) .and. hb_DirDelete( cur_dir + _tmp2dir ) != 0
-      // func_error(4, 'Не могу удалить каталог ' + cur_dir + _tmp2dir)
+    FileDelete( _tmp2dir1() + '*.*' )
+    If hb_DirExists( cur_dir + _tmp2dir() ) .and. hb_DirDelete( cur_dir + _tmp2dir() ) != 0
+      // func_error(4, 'Не могу удалить каталог ' + cur_dir + _tmp2dir())
     Endif
   Endif
   // удалим файлы отчетов в формате '*.HTML' из временной директории

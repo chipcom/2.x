@@ -3078,7 +3078,7 @@ Function init_all_mem_public()
 
   Return Nil
 
-// 22.06.23 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
+// 15.10.24 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
 Function recreate_some_schet_from_file_sp( arr )
 
   Local arr_XML_info[ 8 ], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[ 2 ], ;
@@ -3157,7 +3157,7 @@ Function recreate_some_schet_from_file_sp( arr )
         hb_eol(), cFileProtokol, .t. )
       mywait( "Производится анализ файла " + cFile )
       // читаем файл в память
-      oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+      oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
       If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
         AAdd( aerr, "Ошибка в чтении файла " + cFile )
       Else

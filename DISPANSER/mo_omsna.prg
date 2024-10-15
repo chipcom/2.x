@@ -3600,7 +3600,7 @@ Function delete_reestr_d01( mkod_reestr )
 
 
 
-// 29.11.18 аннулировать чтение недочитанного реестра D02
+// 15.10.24 аннулировать чтение недочитанного реестра D02
 Function delete_reestr_d02( mkod_reestr, mname_reestr )
 
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
@@ -3653,7 +3653,7 @@ Function delete_reestr_d02( mkod_reestr, mname_reestr )
     If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF, cFile + szip ) ) != NIL
       cFile += sxml
       // читаем файл в память
-      oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+      oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
       If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
         func_error( 4, "Ошибка в чтении файла " + cFile )
       Else // читаем и записываем XML-файл во временные TMP-файлы
