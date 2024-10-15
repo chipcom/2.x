@@ -198,6 +198,26 @@ function dir_XML_FNS()
 
   return dir
 
+// 15.10.24
+function _tmp_dir()
+  
+return 'TMP___'
+
+// 15.10.24
+function _tmp_dir1()
+
+return 'TMP___' + hb_ps()
+
+// 15.10.24
+function _tmp2dir()
+  
+  return 'TMP2___'
+
+// 15.10.24
+function _tmp2dir1()
+  
+  return 'TMP2___' + hb_ps()
+
 // 14.10.24
 function dir_exe()
   

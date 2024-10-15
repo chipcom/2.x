@@ -110,7 +110,7 @@ Function read_from_tf()
 
   Return fl
 
-// 26.05.19 чтение в память и анализ XML-файла
+// 15.10.24 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local nTypeFile := 0, aerr := {}, j, oXmlDoc, oXmlNode, oNode1, oNode2, ;
@@ -141,7 +141,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
   StrFile( Space( 10 ) + 'Протокол обработки файла: ' + cFile + hb_eol(), cFileProtokol )
   StrFile( Space( 10 ) + full_date( sys_date ) + 'г. ' + cTimeBegin + hb_eol(), cFileProtokol, .t. )
   // читаем файл в память
-  oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile, , @nerror )
+  oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile, , @nerror )
   If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
     AAdd( aerr, 'Ошибка в чтении файла ' + cFile )
   Elseif oXmlDoc:getattribute( 'encoding' ) == 'UTF-8'
@@ -2019,7 +2019,7 @@ Function my_extract_reestr()
 
   Return Nil
 
-// 02.11.19 зачитать протокол ФЛК во временные файлы
+// 15.10.24 зачитать протокол ФЛК во временные файлы
 Function protokol_flk_tmpfile( arr_f, aerr )
 
   Local adbf, ii, j, s, oXmlDoc, oXmlNode, is_err_FLK := .f.
@@ -2050,7 +2050,7 @@ Function protokol_flk_tmpfile( arr_f, aerr )
   Use ( cur_dir + 'tmp2file' ) New Alias TMP2
   For ii := 1 To Len( arr_f )
     // т.к. в ZIP'е два XML-файла, второй файл также прочитать
-    If Upper( Right( arr_f[ ii ], 4 ) ) == sxml .and. ValType( oXmlDoc := hxmldoc():read( _tmp_dir1 + arr_f[ ii ] ) ) == 'O'
+    If Upper( Right( arr_f[ ii ], 4 ) ) == sxml .and. ValType( oXmlDoc := hxmldoc():read( _tmp_dir1() + arr_f[ ii ] ) ) == 'O'
       For j := 1 To Len( oXmlDoc:aItems[ 1 ]:aItems )
         oXmlNode := oXmlDoc:aItems[ 1 ]:aItems[ j ]
         Do Case

@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 22.08.23 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+// 15.10.24 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
 
   Local p_tip_reestr
@@ -348,7 +348,7 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
     Endif
     For ii := 1 To Len( arr_f )
       // читаем файл в память
-      oXmlDoc := hxmldoc():read( _tmp_dir1 + arr_f[ ii ] )
+      oXmlDoc := hxmldoc():read( _tmp_dir1() + arr_f[ ii ] )
       If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
         fl := func_error( 4, "Ошибка в чтении файла " + arr_f[ ii ] )
         Exit

@@ -758,7 +758,7 @@ Function f2_f2_create_r05()
 
   Return Nil
 
-// 12.12.19
+// 15.10.24
 Function read_r05( full_zip )
 
   Local arr_f, aerr := {}, name_zip := strippath( full_zip )
@@ -772,7 +772,7 @@ Function read_r05( full_zip )
       cFileProtokol := cReadFile + stxt
       StrFile( Space( 10 ) + "Протокол обработки файла: " + cFile + hb_eol(), cFileProtokol )
       // читаем файл в память
-      oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+      oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
       If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
         AAdd( aerr, "Ошибка в чтении файла " + cFile )
       Else
@@ -3110,7 +3110,7 @@ Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
 
   Return count_in_schet
 
-// 09.02.20 аннулировать чтение недочитанного реестра R02
+// 15.10.24 аннулировать чтение недочитанного реестра R02
 Function delete_reestr_r02( mkod_reestr, mname_reestr )
 
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
@@ -3163,7 +3163,7 @@ Function delete_reestr_r02( mkod_reestr, mname_reestr )
     If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF, cFile + szip ) ) != NIL
       cFile += sxml
       // читаем файл в память
-      oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+      oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
       If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
         func_error( 4, "Ошибка в чтении файла " + cFile )
       Else // читаем и записываем XML-файл во временные TMP-файлы

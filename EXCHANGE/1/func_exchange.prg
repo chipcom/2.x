@@ -425,7 +425,7 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Return fl
 
-// 09.03.22 если это укрупнённый архив, распаковать и прочитать
+// 15.10.24 если это укрупнённый архив, распаковать и прочитать
 Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Static cStFile, si
@@ -471,11 +471,11 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
         cStFile := cName
         si := i
         If arr[ i, 4 ] == spdf
-          // file_AdobeReader(_tmp2dir1+arr[i,3])
-          view_file_in_viewer( _tmp2dir1 + arr[ i, 3 ] )
+          // file_AdobeReader(_tmp2dir1()+arr[i,3])
+          view_file_in_viewer( _tmp2dir1() + arr[ i, 3 ] )
         Elseif arr[ i, 4 ] == szip
           fl := .t.
-          full_zip := _tmp2dir1 + arr[ i, 3 ] // переопределяем Private-переменную
+          full_zip := _tmp2dir1() + arr[ i, 3 ] // переопределяем Private-переменную
         Endif
       Endif
     Endif
@@ -496,8 +496,8 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       AEval( arr, {| x| AAdd( arr_f, x[ 2 ] ) } )
       If ( i := popup_prompt( T_ROW, T_COL -5, 1, arr_f ) ) > 0
         If arr[ i, 4 ] == spdf
-          // file_AdobeReader(_tmp2dir1+arr[i,3])
-          view_file_in_viewer( _tmp2dir1 + arr[ i, 3 ] )
+          // file_AdobeReader(_tmp2dir1()+arr[i,3])
+          view_file_in_viewer( _tmp2dir1() + arr[ i, 3 ] )
         Endif
       Endif
     Endif
@@ -514,7 +514,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
             ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2, 'tmp' + szip ) ) != NIL
           For i := 1 To Len( arr_f )
             If Upper( cName + szip ) == Upper( arr_f[ i ] )
-              full_zip := _tmp2dir1 + arr_f[ i ] // переопределяем Private-переменную
+              full_zip := _tmp2dir1() + arr_f[ i ] // переопределяем Private-переменную
               Exit
             Endif
           Next

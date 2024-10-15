@@ -55,13 +55,13 @@ Function chip_copy_zipxml( zip_file, goal_dir, is_delete_files )
 
   Return fl
 
-// 03.03.13 переписать архив во временный каталог и распаковать
+// 15.10.14 переписать архив во временный каталог и распаковать
 Function extract_zip_xml( goal_dir, name_zip, regim, new_name )
   Local arr_f := {}, fl := .f., n, hUnzip, nErr, cFile, cName, _dir, _dir1
 
   Default regim To 1, new_name To name_zip
-  _dir  := iif( regim == 1, _tmp_dir,  _tmp2dir )
-  _dir1 := iif( regim == 1, _tmp_dir1, _tmp2dir1 )
+  _dir  := iif( regim == 1, _tmp_dir(),  _tmp2dir() )
+  _dir1 := iif( regim == 1, _tmp_dir1(), _tmp2dir1() )
   If Right( goal_dir, 1 ) != cslash
     goal_dir += cslash
   Endif
@@ -98,13 +98,13 @@ Function extract_zip_xml( goal_dir, name_zip, regim, new_name )
 
   Return iif( fl, arr_f, nil )
 
-// 14.10.24 переписать архив во временный каталог и распаковать
+// 15.10.24 переписать архив во временный каталог и распаковать
 Function extract_rar( goal_dir, name_zip, regim, new_name )
   Local fl := .f., buf, _dir, _dir1
 
   Default regim To 1, new_name To name_zip
-  _dir  := iif( regim == 1, _tmp_dir,  _tmp2dir )
-  _dir1 := iif( regim == 1, _tmp_dir1, _tmp2dir1 )
+  _dir  := iif( regim == 1, _tmp_dir(),  _tmp2dir() )
+  _dir1 := iif( regim == 1, _tmp_dir1(), _tmp2dir1() )
   If Right( goal_dir, 1 ) != cslash
     goal_dir += cslash
   Endif

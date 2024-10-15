@@ -2669,7 +2669,7 @@ Function f2_view_otkrep_pr_nas( nKey, oBrow )
 
   Return ret
 
-// 17.06.15 чтение в память и анализ CSV-файла
+// 15.10.24 чтение в память и анализ CSV-файла
 Function read_csv_from_tf( cFile, nTypeFile, nkod_reestr )
 
   Local aerr := {}, j, nCountWithErr := 0, adbf, go_to_answer := .f., ;
@@ -2689,13 +2689,13 @@ Function read_csv_from_tf( cFile, nTypeFile, nkod_reestr )
     // read_CSV_FILE_PRIK_FLK_ANS(cFile,aerr,nTypeFile,nkod_reestr)
     go_to_answer := Empty( aerr )
   Elseif nTypeFile == _CSV_FILE_ANSWER // тип принимаемого файла;2-ответ на реестр
-    read_csv_file_answer( _tmp_dir1 + cFile, aerr, nkod_reestr )
+    read_csv_file_answer( _tmp_dir1() + cFile, aerr, nkod_reestr )
     go_to_answer := Empty( aerr )
   Elseif nTypeFile == _CSV_FILE_OTKREP // тип принимаемого файла;3-открепление
-    read_csv_file_otkrep( _tmp_dir1 + cFile, aerr )
+    read_csv_file_otkrep( _tmp_dir1() + cFile, aerr )
     go_to_otkrep := Empty( aerr )
   Elseif nTypeFile == _CSV_FILE_SVERKAO // тип принимаемого файла;4-ответ на запрос для сверки
-    read_csv_file_sverkao( _tmp_dir1 + cFile, aerr, nkod_reestr )
+    read_csv_file_sverkao( _tmp_dir1() + cFile, aerr, nkod_reestr )
     go_to_answer := Empty( aerr )
   Endif
   Close databases

@@ -928,12 +928,12 @@ Function f_inf_dop_disp_nabl()
 
   Return Nil
 
-  //13.10.24
+  //02.10.24
   Function  vvodn_disp_nabl()  
-    Local new_hum := 0, new_diag := 0
     Static S_sem := "disp_nabludenie"
     
     if f_esc_enter( "Подгрузка новых ДН", .t. )
+      
       Close databases
       If !g_slock( S_sem )
         Return func_error( 4, "Доступ в данный режим пока запрещён" )
@@ -981,7 +981,7 @@ Function f_inf_dop_disp_nabl()
                     s := 2 // взят на диспансерное наблюдение
                   Endif
                 Endif
-                If s != 3 // все кроме СНЯТ eq_any( s, 1, 2 ) // взят или состоит на диспансерное наблюдение
+                If eq_any( s, 1, 2 ) // взят или состоит на диспансерное наблюдение
                   AAdd( ar_dn, AllTrim( mdiagnoz[ i ] ) )
                 Endif
               Endif
@@ -1007,7 +1007,6 @@ Function f_inf_dop_disp_nabl()
                   Select DN
                   find ( Str( human->KOD_K, 7 ) + PadR( ar_dn[ j ], 5 ) )
                   If !Found()
-                    new_diag ++
                     addrec( 7 )
                     dn->KOD_K := human->KOD_K
                     dn->KOD_DIAG := ar_dn[ j ]
@@ -1133,21 +1132,19 @@ Function f_inf_dop_disp_nabl()
       //
       rest_box( buf )
       g_sunlock( S_sem )
-//      func_error( 4, "Добавление пациентов с ДН завершено " )
-      func_error( 4, "Добавлено "+lstr(new_diag)+" пациентов на ДН" )
+      func_error( 4, "Добавление пациентов с ДН завершено " )
     Endif
   Return Nil
 
 // 02.12.19 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
 Function vvodp_disp_nabl()
 
-
   Local buf := SaveScreen(), k, s, s1, t_arr := Array( BR_LEN ), str_sem1, lcolor
 
   mywait()
   dbCreate( "tmp_kart", { ;
     { "KOD_K",    "N", 7, 0 }, ; // код по картотеке
-    { "FIO",      "C", 50, 0 }, ;
+  { "FIO",      "C", 50, 0 }, ;
     { "POL",      "C", 1, 0 }, ;
     { "DATE_R",   "D", 8, 0 };
     } )
@@ -1417,7 +1414,6 @@ Function f_inf_disp_nabl( par )
    Local arr_tip_DN := {"Прочие ДН (2.78.109)","Онкологическое ДН (2.78.110)","Сахарный диабет ДН (2.78.111)","Сердечно-сосудистое ДН (2.78.112)"}
    Local arr_tip_DN1 := {"2.78.109","2.78.110","2.78.111","2.78.112"}
    Local arr_tip_KOD_USL := {109,110,111,112}
-   local arr_kol_ND := {0,0,0,0}
    Local mas_str_ot := {}, mas_str_ot_FULL := {}
    local flag_BILO := .F., flag_NAL := .T.
    dbCreate( cur_dir + "_disp_NB", { ;
@@ -1575,7 +1571,6 @@ Function f_inf_disp_nabl( par )
             aadd(mas_str_ot_FULL,{kart->fio,kart->uchast,kart->date_r,arr_full_name[ i ],;
               fl_prikrep,iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )})
             flag_NAL := .F.
-     //       arr_kol_ND[iii] := arr_kol_ND[iii] + 1 
     //        If t_kartotek != kart->kod
     //          t_kartotek := kart->kod
     //          kol_kartotek++
@@ -1595,9 +1590,6 @@ Function f_inf_disp_nabl( par )
               add_string(mas_str_ot[i])
             endif  
             if i == 1
-              if (mas_str_ot_FULL[1,5] == glob_mo[_MO_KOD_TFOMS] .or. len(alltrim(mas_str_ot_FULL[1,5])) < 1)
-                arr_kol_ND[iii] := arr_kol_ND[iii] + 1 
-              endif  
               select _disp_NB
               append blank 
               _disp_NB->fio     := mas_str_ot_FULL[i,1]              
@@ -1631,7 +1623,6 @@ Function f_inf_disp_nabl( par )
             aadd(mas_str_ot_FULL,{kart->fio,kart->uchast,kart->date_r,arr_full_name[ i ],;
               fl_prikrep,iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )})
             flag_NAL := .F.
-   //         arr_kol_ND[iii] := arr_kol_ND[iii] + 1 
   //          If t_kartotek != kart->kod
   //            t_kartotek := kart->kod
   //            kol_kartotek++
@@ -1651,9 +1642,6 @@ Function f_inf_disp_nabl( par )
               add_string(mas_str_ot[i])
             endif  
             if i == 1
-              if (mas_str_ot_FULL[1,5] == glob_mo[_MO_KOD_TFOMS] .or. len(alltrim(mas_str_ot_FULL[1,5])) < 1)
-                arr_kol_ND[iii] := arr_kol_ND[iii] + 1 
-              endif  
               select _disp_NB
               append blank 
               _disp_NB->fio     := mas_str_ot_FULL[i,1]              
@@ -1671,10 +1659,6 @@ Function f_inf_disp_nabl( par )
     Select RHUM
     Skip
   Enddo // kartotek
-next
-add_string("")
-for iii := 1 to 4
-   add_string( padr(arr_tip_DN[iii],33) +" : "+ lstr(arr_kol_ND[iii]) )
 next
   Close databases
   FClose( fp )
@@ -3616,7 +3600,7 @@ Function delete_reestr_d01( mkod_reestr )
 
 
 
-// 29.11.18 аннулировать чтение недочитанного реестра D02
+// 15.10.24 аннулировать чтение недочитанного реестра D02
 Function delete_reestr_d02( mkod_reestr, mname_reestr )
 
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
@@ -3669,7 +3653,7 @@ Function delete_reestr_d02( mkod_reestr, mname_reestr )
     If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF, cFile + szip ) ) != NIL
       cFile += sxml
       // читаем файл в память
-      oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+      oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
       If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
         func_error( 4, "Ошибка в чтении файла " + cFile )
       Else // читаем и записываем XML-файл во временные TMP-файлы
