@@ -259,3 +259,6 @@ mo_version.prg
 
 .\PLAN_ZAKAZ\pz_report.prg
 .\PLAN_ZAKAZ\pz_func.prg
+
+#.\FUNC_LIB\prview.prg
+#.\FUNC_LIB\fastreph.prg
