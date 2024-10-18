@@ -262,7 +262,7 @@ Function calckslp( cKSLP, dateSl )
 
   Return summ
 
-// 15.02.24
+// 18.10.24
 Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkdata )
 
   // lkiro - список возможных КИРО для КСГ
@@ -274,6 +274,8 @@ Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkda
   // lkdata - дата окончания случая
   Local vkiro := 0
   Local cKSG := AllTrim( LTrim( lksg ) )
+  local obyaz_kol_dnej := 0
+  local is_opt_dlit_do_3_dnej := opt_dlitelnost_ksg_do_3dnej( cKSG, lkdata )
 
   Default lDoubleSluch To .f.
   If eq_any( cKSG, 'st37.002', 'st37.003', 'st37.006', 'st37.007', 'st37.024', 'st37.025', 'st37.026' ) .or. ;
@@ -305,33 +307,68 @@ Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkda
       vkiro := 4
     Endif
   Endif
-  If ldnej > 3 // количество дней лечения 4 и более дней
-    If AScan( { 102, 105, 107, 110, 202, 205, 207 }, lrslt ) > 0  // проверем результат лечения
-      If AScan( lkiro, 3 ) > 0
-        vkiro := 3
-      Elseif AScan( lkiro, 4 ) > 0
-        vkiro := 4
-      Elseif lis_err == 1 .and. AScan( lkiro, 6 ) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
-        vkiro := 6
+
+  if lkdata >= 0d20241001 // с 01.10.24 письмо ТФОМС 12-20-543 от 08.10.24
+    if ( obyaz_kol_dnej := obyazat_srok_lech( lksg ) ) == 0
+      if ( ldnej <= 3 ) .and. ( lrslt == 101 .or. lrslt == 201 )
+        if is_opt_dlit_do_3_dnej
+          If AScan( lkiro, 1 ) > 0
+            vkiro := 1
+          endif
+        else
+          If AScan( lkiro, 2 ) > 0
+            vkiro := 2
+          elseif AScan( lkiro, 5 ) > 0
+            vkiro := 5
+          endif
+        endif
+      elseif eq_any( lrslt, 102, 103, 105, 107, 110, 202, 203, 205, 207, 210 )
+        if is_opt_dlit_do_3_dnej
+          If AScan( lkiro, 3 ) > 0
+            vkiro := 3
+          endif
+        else
+          If AScan( lkiro, 4 ) > 0
+            vkiro := 4
+          elseif AScan( lkiro, 6 ) > 0
+            vkiro := 6
+          endif
+        endif
+      endif
+    else
+      If ( obyaz_kol_dnej >= ldnej ) .and. ( AScan( lkiro, 7 ) > 0 )
+        vkiro := 7
+      endif
+    endif
+  else
+    If ldnej > 3 // количество дней лечения 4 и более дней
+      If AScan( { 102, 105, 107, 110, 202, 205, 207 }, lrslt ) > 0  // проверем результат лечения
+        If AScan( lkiro, 3 ) > 0
+          vkiro := 3
+        Elseif AScan( lkiro, 4 ) > 0
+          vkiro := 4
+        Elseif lis_err == 1 .and. AScan( lkiro, 6 ) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
+          vkiro := 6
+        Endif
+        Return vkiro
+      Else
+        Return vkiro
       Endif
-      Return vkiro
-    Else
-      Return vkiro
-    Endif
-  Else // количество дней лечения 3 и менее дней
-    If isklichenie_ksg_kiro( cKSG, lkdata )
-      Return vkiro
-    Endif
-    If AScan( lkiro, 1 ) > 0
-      vkiro := 1
-    Elseif AScan( lkiro, 2 ) > 0
-      vkiro := 2
-    Elseif AScan( lkiro, 4 ) > 0  // встречается в двойных случаях
-      vkiro := 4
-    Elseif lis_err == 1 .and. AScan( lkiro, 5 ) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
-      vkiro := 5
-    Endif
-  Endif
+    Else // количество дней лечения 3 и менее дней
+      If is_opt_dlit_do_3_dnej // opt_dlitelnost_ksg_do_3dnej( cKSG, lkdata )
+        Return vkiro
+      Endif
+      If AScan( lkiro, 1 ) > 0
+        vkiro := 1
+      Elseif AScan( lkiro, 2 ) > 0
+        vkiro := 2
+      Elseif AScan( lkiro, 4 ) > 0  // встречается в двойных случаях
+        vkiro := 4
+      Elseif lis_err == 1 .and. AScan( lkiro, 5 ) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
+        vkiro := 5
+      Endif
+    endif
+  endif
   Return vkiro
 
 // 30.11.21
@@ -679,10 +716,9 @@ Function ret_koef_kslp_21_xml( akslp, tKSLP, nYear )
 
   Return k
 
-// 25.09.24
-Function isklichenie_ksg_kiro( cKSG, lkdata )
+// 18.10.24
+Function opt_dlitelnost_ksg_do_3dnej( cKSG, lkdata )
 
-  Local i
   Local arrKSG := { ;
     'st02.001', ;
     'st02.002', ;
@@ -852,24 +888,6 @@ Function isklichenie_ksg_kiro( cKSG, lkdata )
     }
 
   If Year( lkdata ) >= 2024
-    // if ( i := AScan( arrKsg, Lower( 'st02.001' ) ) ) > 0
-    //   hb_ADel( arrKSG, i, .t. )
-    // endif
-    // if ( i := AScan( arrKsg, Lower( 'st02.002' ) ) ) > 0
-    //   hb_ADel( arrKSG, i, .t. )
-    // endif
-    // if ( i := AScan( arrKsg, Lower( 'st02.003' ) ) ) > 0
-    //   hb_ADel( arrKSG, i, .t. )
-    // endif
-    // if ( i := AScan( arrKsg, Lower( 'st02.004' ) ) ) > 0
-    //   hb_ADel( arrKSG, i, .t. )
-    // endif
-    // if ( i := AScan( arrKsg, Lower( 'st02.010' ) ) ) > 0
-    //   hb_ADel( arrKSG, i, .t. )
-    // endif
-    // if ( i := AScan( arrKsg, Lower( 'st02.011' ) ) ) > 0
-    //   hb_ADel( arrKSG, i, .t. )
-    // endif
     AAdd( arrKSG, 'st09.011' )
     AAdd( arrKSG, 'st12.001' )
     AAdd( arrKSG, 'st12.002' )
@@ -896,3 +914,28 @@ Function isklichenie_ksg_kiro( cKSG, lkdata )
   Endif
 
   Return AScan( arrKsg, Lower( cKSG ) ) > 0
+
+// 18.10.24
+function obyazat_srok_lech( cKSG )
+
+  local arrKSG := { ;
+    { 'st37.002', 14 }, ;
+    { 'st37.003', 20 }, ;
+    { 'st37.006', 12 }, ;
+    { 'st37.007', 18 }, ;
+    { 'st37.024', 30 }, ;
+    { 'st37.025', 30 }, ;
+    { 'st37.026', 30 }, ;
+    { 'ds12.016', 28 }, ;
+    { 'ds12.017', 28 }, ;
+    { 'ds12.018', 28 }, ;
+    { 'ds12.019', 28 }, ;
+    { 'ds12.020', 30 }, ;
+    { 'ds12.021', 30 } ;
+  }
+  local i, ret := 0
+  
+  if ( i := AScan( arrKsg, {| x | x[ 1 ] == Lower( alltrim( cKSG ) ) } ) ) > 0
+    ret := arrKSG[ i, 2 ]
+  endif
+  return ret
