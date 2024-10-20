@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 18.10.24
+// 19.10.24
 Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkdata )
 
   // lkiro - список возможных КИРО для КСГ
@@ -63,28 +63,28 @@ Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkda
   if lkdata >= 0d20241001 // с 01.10.24 письмо ТФОМС 12-20-543 от 08.10.24
     if ( ldnej <= 3 ) .and. ( lrslt == 101 .or. lrslt == 201 )
       if is_opt_dlit_do_3_dnej
+        Return vkiro
+      else
         If AScan( lkiro, 1 ) > 0
           vkiro := 1
-        endif
-      else
-        If AScan( lkiro, 2 ) > 0
+        elseIf AScan( lkiro, 2 ) > 0
           vkiro := 2
         elseif AScan( lkiro, 5 ) > 0
           vkiro := 5
         endif
       endif
     elseif eq_any( lrslt, 102, 103, 105, 107, 110, 202, 203, 205, 207, 210 )
-      if is_opt_dlit_do_3_dnej
+//      if is_opt_dlit_do_3_dnej
         If AScan( lkiro, 3 ) > 0
           vkiro := 3
         endif
-      else
+//      else
         If AScan( lkiro, 4 ) > 0
           vkiro := 4
         elseif AScan( lkiro, 6 ) > 0
           vkiro := 6
         endif
-      endif
+//      endif
     endif
   else
     If ldnej > 3 // количество дней лечения 4 и более дней
