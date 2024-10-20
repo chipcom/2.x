@@ -62,10 +62,12 @@ Procedure Main( ... )
   Public fr_data := '_data', fr_titl := '_titl'
   Public dir_XML_MO := 'XML_MO', dir_XML_TF := 'XML_TF'
   Public dir_NAPR_MO := 'NAPR_MO', dir_NAPR_TF := 'NAPR_TF'
-//  Public _tmp_dir  := 'TMP___'
-//  Public _tmp_dir1 := _tmp_dir + cslash
-//  Public _tmp2dir  := 'TMP2___'
-//  Public _tmp2dir1 := _tmp2dir() + cslash
+
+  Public dir_exe := dir_exe()
+  Public _tmp_dir  := 'TMP___'
+  Public _tmp_dir1 := _tmp_dir + cslash
+  Public _tmp2dir  := 'TMP2___'
+  Public _tmp2dir1 := _tmp2dir() + cslash
   //
   // объект пользователя зарегистрировавшегося в системе
   Public hb_user_curUser := nil

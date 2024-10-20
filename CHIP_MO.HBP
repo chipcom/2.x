@@ -120,6 +120,8 @@ mo_version.prg
 .\oms\oms_func.prg
 .\oms\oms_double.prg
 .\oms\definition_KSG.prg
+.\oms\definition_KIRO.prg
+.\oms\definition_KSLP.prg
 .\oms\oms_sluch.prg
 .\oms\oms_sluch_main.prg
 .\oms\oms_usl_sluch.prg
@@ -127,7 +129,6 @@ mo_version.prg
 .\oms\f5editkusl.prg
 .\oms\f_usl_definition_KSG.prg
 .\oms\f_valid2ad_cr.prg
-.\oms\kiroANDkslp.prg
 .\oms\f_1pac_definition_KSG.prg
 .\oms\Change_Cena_OMS.prg
 .\oms\conditionKSLP_21.prg
@@ -265,3 +266,6 @@ mo_version.prg
 
 .\PLAN_ZAKAZ\pz_report.prg
 .\PLAN_ZAKAZ\pz_func.prg
+
+#.\FUNC_LIB\prview.prg
+#.\FUNC_LIB\fastreph.prg
