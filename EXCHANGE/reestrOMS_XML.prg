@@ -9,7 +9,7 @@
 
 Static sadiag1  // := {}
 
-// 23.07.24 создание XML-файлов реестра
+// 24.10.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -583,10 +583,12 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         Next
         If need_reestr_c_zab( human_->USL_OK, mdiagnoz[ 1 ] ) .or. is_oncology_smp > 0
           If lTypeLUOnkoDisp
-            mo_add_xml_stroke( oSL, 'C_ZAB', '2' ) //
+//            mo_add_xml_stroke( oSL, 'C_ZAB', '2' ) //
+            mo_add_xml_stroke( oSL, 'C_ZAB', '3' ) // согласно разговора с Антоновой 23.10.24
           Else
             If human_->USL_OK == 3 .and. human_->povod == 4 // если P_CEL=1.3
-              mo_add_xml_stroke( oSL, 'C_ZAB', '2' ) // При диспансерном наблюдении характер заболевания не может быть <Острое>
+//              mo_add_xml_stroke( oSL, 'C_ZAB', '2' ) // При диспансерном наблюдении характер заболевания не может быть <Острое>
+              mo_add_xml_stroke( oSL, 'C_ZAB', '3' ) // согласно разговора с Антоновой 23.10.24
             Else
               mo_add_xml_stroke( oSL, 'C_ZAB', '1' ) // Характер основного заболевания
             Endif
