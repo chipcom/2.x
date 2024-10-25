@@ -192,14 +192,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   fv_date_r( iif( Loc_kod > 0, MN_DATA, ) )
 
-  // if empty(sadiag1)
-  // Private file_form, diag1 := {}, len_diag := 0
-  // if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
-  // func_error(4, 'Не обнаружен файл DISP_NAB' + sfrm)
-  // endif
-  // f2_vvod_disp_nabl('A00')
-  // sadiag1 := diag1
-  // endif
   If ISNIL( sadiag1 )
     sadiag1 := load_diagnoze_disp_nabl_from_file()
   Endif

@@ -29,14 +29,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   //
   Close databases
-  // if empty(sadiag1)
-  // Private file_form, diag1 := {}, len_diag := 0
-  // if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
-  // return func_error(4, 'Не обнаружен файл DISP_NAB' + sfrm)
-  // endif
-  // f2_vvod_disp_nabl('A00')
-  // sadiag1 := diag1
-  // endif
+
   If ISNIL( sadiag1 )
     sadiag1 := load_diagnoze_disp_nabl_from_file()
   Endif

@@ -2677,7 +2677,7 @@ Use ( cur_dir + "tmp1" ) new
         dd->N_DATA    := dn->n_data     //ar2[ i, 3 ]      // дата начала диспансерного наблюдения
         dd->NEXT_DATA := tnext_data  //ar2[ i, 4 ]      // дата явки с целью диспансерного наблюдения
         dd->FREQUENCY := tFREQUENCY     //ar2[ i, 5 ]
-        dd->KOD_N     := tmp->kod_dn    // kod DISP_NAB
+        dd->KOD_N     := tmp->kod_dn    // код диспансерного наблюдения
         dd->oplata    := 0
         If id01 % 500 == 0
           Commit
@@ -2689,7 +2689,6 @@ Use ( cur_dir + "tmp1" ) new
   Endif
   Close databases
   rest_box( buf )
-  //quit
   //
   If id01 > 0 .and. f_esc_enter( "создания D01 (" + lstr( id01 ) + " диаг-ов)", .t. ) // ПРАВКА
     mywait()
