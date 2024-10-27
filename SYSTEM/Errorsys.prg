@@ -21,12 +21,12 @@
 
 static err_file := 'error.txt'
 
-***** automatically executes at startup
+// automatically executes at startup
 proc ErrorSys()
 	ErrorBlock( { | e | DefError( e ) } )
 	return
 
-*****
+//
 static function DefError( e )
 	local i, k, s, cMessage, aOptions, nChoice, arr_error := {}
 	local cName
@@ -104,7 +104,7 @@ static function DefError( e )
 	f_end()
 	return (.f.)
 
-*****
+//
 function ErrorMessage( e )
 	local cMessage
 
@@ -134,7 +134,7 @@ function ErrorMessage( e )
 	end
 	return ( cMessage )
 
-***** входит ли функция в список тех, что нужно вывести в ERROR.TXT
+// входит ли функция в список тех, что нужно вывести в ERROR.TXT
 static function isFuncErr( s )
 	static delfunction := { 'DEFERROR', 'ERRORSYS', 'LOCKERRHAN', 'INITHANDL' }
 	local fl := .t., i
@@ -148,9 +148,7 @@ static function isFuncErr( s )
 	next
 	return fl
 
-*
-
-***** 28.05.17 просмотр файла ошибок (рекомендуется включать в меню "Сервис")
+// 28.05.17 просмотр файла ошибок (рекомендуется включать в меню "Сервис")
 function view_errors()
 
 	if !file( dir_server + err_file )
@@ -160,9 +158,7 @@ function view_errors()
 	viewtext( Devide_Into_Pages( dir_server + err_file, 80, 84 ), , , , .t., , , 5, , , .f. )
 	return nil
 
-*
-
-***** разбить текстовый файл на страницы
+// разбить текстовый файл на страницы
 function Devide_Into_Pages( cFile, HH, sh )
 	local tmp_file := '_TMP_' + stxt
 	
@@ -178,7 +174,7 @@ function Devide_Into_Pages( cFile, HH, sh )
 	fclose( fp )
 	return tmp_file
 
-* функция формирования текстового сообщения для ошибки
+// функция формирования текстового сообщения для ошибки
 function __errMessage( arr_error )
 	local s := '', cMessage := ''
 	
@@ -190,9 +186,6 @@ function __errMessage( arr_error )
 	if type( 'fio_polzovat' ) == 'C' .and. !empty( fio_polzovat )
 		cMessage += 'Пользователь: ' + alltrim( fio_polzovat )
 	endif
-	&& if type( 'p_name_comp' ) == 'C' .and. !empty( p_name_comp )
-		&& cMessage += ' (' + alltrim( p_name_comp ) + ')'
-	&& endif
 	cMessage += eos
 	
 	cMessage += '->OS: ' + OS() + eos
@@ -206,7 +199,7 @@ function __errMessage( arr_error )
 	cMessage += replicate( '*', 79 ) + eos
 	return cMessage
 
-* функция записи в файл ошибок
+// функция записи в файл ошибок
 function __errSave( cMessage )
 	local cName
 

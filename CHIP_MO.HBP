@@ -244,6 +244,7 @@ mo_version.prg
 .\SYSTEM\extension.prg
 .\SYSTEM\plugins.prg
 .\SYSTEM\system.prg
+.\SYSTEM\func_path.prg
 
 .\ORDER\mo_omso.prg
 .\ORDER\mo_omsp.prg

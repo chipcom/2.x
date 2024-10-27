@@ -16,13 +16,14 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 15.10.24
+// 23.10.24
 Procedure Main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
   Local verify_fio_polzovat := .t.
   Local cVar, i
   local sPass, chPass
+  Local nameTask := strippath( hb_argv( 0 ) ) // имя запущенной задачи
 
   For Each s IN hb_AParams() // анализ входных параметров
     s := Lower( s )
@@ -37,6 +38,14 @@ Procedure Main( ... )
       sPass := substr( s, 7 )
     Endcase
   Next
+
+  app_ini()
+
+  If isexerunning( nameTask ) // проверить, запущена ли уже данная задача, если 'да' - выход из задачи
+    hb_Alert( 'Программа "' + Upper( nameTask ) + '" уже запущена. Запуск второй копии не разрешён!' )
+    app_finish()
+  Endif
+
   //
   Public Err_version := fs_version( _version() ) + ' от ' + _date_version()
   Public kod_VOUNC := '101004'
@@ -110,15 +119,15 @@ Procedure Main( ... )
 
   // конец переноса из index_work_dir
 
-  Set( _SET_DELETED, .t. )
+//  Set( _SET_DELETED, .t. )
   SetClearB( ' ' )
   is_local_version := f_first( is_create )
   put_icon( full_name_version(), 'MAIN_ICON' )
-  Set Key K_F1 To f_help()
+//  Set Key K_F1 To f_help()
   hard_err( 'create' )
   fillscreen( p_char_screen, p_color_screen ) // FillScreen('█','N+/N')
-  cur_year := Str( Year( sys_date ), 4 )
-  new_dir = ''
+//  cur_year := Str( Year( sys_date ), 4 )
+//  new_dir = ''
   SetColor( color1 )
 
   // инициализация массива МО, запрос кода МО (при необходимости)
@@ -129,7 +138,7 @@ Procedure Main( ... )
 
   If ! files_nsi_exists( dir_exe() )
     hard_err( 'delete' )
-    full_end()
+    app_finish()
   Endif
 
   if ! empty( sPass )
@@ -209,6 +218,67 @@ Procedure Main( ... )
   f_end()
 
   Return
+
+// 23.10.24 инициализация окружения приложения
+function app_ini()
+
+  Request HB_CODEPAGE_RU866
+  hb_cdpSelect( 'RU866' )
+  Request HB_LANG_RU866
+  hb_langSelect( 'RU866' )
+
+  Request DBFNTX
+  rddSetDefault( 'DBFNTX' )
+
+  Set( _SET_DELETED, .t. )
+  Set Key K_F1 To f_help()
+  // SET(_SET_EVENTMASK,INKEY_KEYBOARD)
+  Set Scoreboard Off
+  Set Exact On
+  Set Date GERMAN
+  Set Wrap On
+  Set Century On
+  Set Exclusive On
+  Set Deleted On
+  SetBlink( .f. )
+
+  Set Key K_ALT_F3 To calendar
+  Set Key K_ALT_F2 To calc
+  Set Key K_ALT_X  To f_end
+
+  ReadInsert( .t. ) // режим редактирования по умолчанию Insert
+  Keyboard ''
+  KSetNum( .t. )    // включить NumLock
+  SetCursor( 0 )
+  Set Color To
+
+  return nil
+
+// 23.10.24
+function read_server_mem()
+
+  local nameFile := cur_dir() + 'server.mem'
+  local is_local_version := .t.
+
+  If hb_FileExists( nameFile )
+    ft_use( nameFile )
+    dir_server( AllTrim( ft_readln() ) )
+    // If !ft_eof()
+    //   ft_skip()
+    //   p_name_comp := AllTrim( ft_readln() )
+    //   If cslash $ p_name_comp
+    //     p_name_comp := ''
+    //   Endif
+    // Endif
+    // If Len( p_name_comp ) < 2
+    //   p_name_comp := AllTrim( NetName() ) + cslash + hb_UserName()
+    // Endif
+    ft_use()
+    is_local_version := .f.
+  Else // иначе = текущий каталог
+    dir_server( cur_dir() )
+  Endif
+  return is_local_version
 
 // 11.07.24
 Function f_main( r0, is_local_version, a_parol )
@@ -419,28 +489,28 @@ Function m_help()
 
   Return Nil
 
-// 16.11.23
+// 23.10.24
 Function f_first( is_create )
   Local is_local_version := .t.
-  Local nameTask := strippath( hb_argv( 0 ) ) // имя запущенной задачи
+  // Local nameTask := strippath( hb_argv( 0 ) ) // имя запущенной задачи
 
-  Request HB_CODEPAGE_RU866
-  hb_cdpSelect( 'RU866' )
-  Request HB_LANG_RU866
-  hb_langSelect( 'RU866' )
+  // Request HB_CODEPAGE_RU866
+  // hb_cdpSelect( 'RU866' )
+  // Request HB_LANG_RU866
+  // hb_langSelect( 'RU866' )
 
-  Request DBFNTX
-  rddSetDefault( 'DBFNTX' )
+  // Request DBFNTX
+  // rddSetDefault( 'DBFNTX' )
 
-  // SET(_SET_EVENTMASK,INKEY_KEYBOARD)
-  Set Scoreboard Off
-  Set Exact On
-  Set Date GERMAN
-  Set Wrap On
-  Set Century On
-  Set Exclusive On
-  Set Deleted On
-  SetBlink( .f. )
+  // // SET(_SET_EVENTMASK,INKEY_KEYBOARD)
+  // Set Scoreboard Off
+  // Set Exact On
+  // Set Date GERMAN
+  // Set Wrap On
+  // Set Century On
+  // Set Exclusive On
+  // Set Deleted On
+  // SetBlink( .f. )
 
   Public help_code := -1
 
@@ -494,10 +564,10 @@ Function f_first( is_create )
   Delete file ttt.ttt
   //
 
-  If isexerunning( nameTask ) // проверить, запущена ли уже данная задача, если 'да' - выход из задачи
-    func_error( 10, 'Программа "' + Upper( nameTask ) + '" уже запущена. Запуск второй копии не разрешён!' )
-    full_end()
-  Endif
+  // If isexerunning( nameTask ) // проверить, запущена ли уже данная задача, если 'да' - выход из задачи
+  //   func_error( 10, 'Программа "' + Upper( nameTask ) + '" уже запущена. Запуск второй копии не разрешён!' )
+  //   app_finish()
+  // Endif
   //
   If hb_FileExists( 'server.mem' )
     ft_use( 'server.mem' )
@@ -523,22 +593,22 @@ Function f_first( is_create )
   is_server( dir_server, cur_dir )
   If !is_create .and. !hb_FileExists( dir_server + 'human' + sdbf )
     func_error( 'Не обнаружены файлы базы данных! Обратитесь к системному администратору.' )
-    full_end()
+    app_finish()
   Endif
   //
   If hb_FileExists( dir_server + 'plat.dbf' )
     func_error( 'Вероятнее всего, Вы запускаете программу в каталоге СЧЕТА. Это недопустимо!' )
-    full_end()
+    app_finish()
   Endif
-  Set Key K_ALT_F3 To calendar
-  Set Key K_ALT_F2 To calc
-  Set Key K_ALT_X  To f_end
+//  Set Key K_ALT_F3 To calendar
+//  Set Key K_ALT_F2 To calc
+//  Set Key K_ALT_X  To f_end
   Public flag_chip := .f.
-  ReadInsert( .t. ) // режим редактирования по умолчанию Insert
-  Keyboard ''
-  KSetNum( .t. )    // включить NumLock
-  SetCursor( 0 )
-  Set Color To
+//  ReadInsert( .t. ) // режим редактирования по умолчанию Insert
+//  Keyboard ''
+//  KSetNum( .t. )    // включить NumLock
+//  SetCursor( 0 )
+//  Set Color To
 
   Return is_local_version
 
@@ -575,7 +645,7 @@ Function hard_err( p )
       If f_alert( { PadC( 'Выберите действие', 60, '.' ) }, ;
           { ' Выход из задачи ', ' Продолжение работы ' }, ;
           1, 'W+/N', 'N+/N', 20, , 'W+/N, N/BG' ) != 2
-        full_end()
+        app_finish()
       Endif
       fillscreen( p_char_screen, p_color_screen )
     Endif
@@ -872,7 +942,7 @@ Function my_mo_begin_task()
   Return fl
 
 // 17.11.23
-function full_end()
+function app_finish()
 
   Set Key K_ALT_F3 To
   Set Key K_ALT_F2 To
@@ -929,5 +999,5 @@ Function f_end( yes_copy )
   Endif
   // удалим файлы отчетов в формате '*.HTML' из временной директории
   FileDelete( hb_DirTemp() + '*.html' )
-  full_end()
+  app_finish()
   Return Nil

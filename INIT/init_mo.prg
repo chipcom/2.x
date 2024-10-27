@@ -88,7 +88,7 @@ Function init_mo()
 
   if ! fl
     hard_err('delete')
-    full_end()
+    app_finish()
   endif
 
   return main_up_screen()

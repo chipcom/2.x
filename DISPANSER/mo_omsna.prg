@@ -4,6 +4,7 @@
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
+#include 'hbxlsxwriter.ch'
 
 Static lcount_uch  := 1
 
@@ -538,55 +539,7 @@ Function disp_nabludenie( k )
     */
     Close databases
     Private mdate_r, M1VZROS_REB
-    /*
-    If fl_umer
-      If !g_slock( S_sem )
-        Return func_error( 4, "Доступ в данный режим пока запрещён" )
-      Endif
-      buf := save_maxrow()
-      waitstatus( "Из списка по диспансерному наблюдению на 2024 год удаляются дети и умершие" )
-      f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
-      r_use( dir_server + "kartote2",, "_KART2" )
-      r_use( dir_server + "kartotek",, "_KART" )
-      Use ( dir_server + "mo_dnab" ) New Alias DN
-      Go Top
-      Do While !Eof()
-        updatestatus()
-        If dn->kod_k > 0
-          Select _KART
-          Goto ( dn->kod_k )
-          Select _KART2
-          Goto ( dn->kod_k )
-          fl := .f.
-          If Left( _kart2->PC2, 1 ) == "1"  // Умер по результатам сверки
-            fl := .t.
-          Elseif !( _kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] )
-            //
-          Endif
-         // if !fl
-         //   mdate_r := _kart->date_r ; M1VZROS_REB := _kart->VZROS_REB
-         //   fv_date_r(sys_date) // переопределение M1VZROS_REB
-         //   fl := (M1VZROS_REB > 0)
-         // endif
-
-          If fl
-            Select DN
-            // dn->kod_k := 0
-            // DELETE
-            dn->NEXT_DATA :=  dn->NEXT_DATA - 365
-            dn->FREQUENCY := 0
-          Endif
-        Endif
-        Select DN
-        Skip
-      Enddo
-      Commit
-      Index On Str( KOD_K, 7 ) + KOD_DIAG to ( dir_server + "mo_dnab" )
-      Close databases
-      rest_box( buf )
-      g_sunlock( S_sem )
-    Endif
-*/
+    
     if zaplatka_D_OPL
       If !g_slock( S_sem )
         Return func_error( 4, "Доступ в данный режим пока запрещён" )
@@ -640,11 +593,6 @@ Function disp_nabludenie( k )
       rest_box( buf )
       g_sunlock( S_sem )
     endif  
-
-   /* if zaplatka_D09 
-      
-    endif  
-  */  
     // временный конец
     //
     mas_pmt := { "~Работа с файлами обмена D01", ;
@@ -678,10 +626,10 @@ Function disp_nabludenie( k )
     popup_prompt( T_ROW, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
   Case k == 22
     mas_pmt := { "Информация по ~первичному вводу", ;
-      "Список обязательных ~диагнозов", ; // "~Пациенты с диагнозами для диспансерного учёта"   "~Информация о выполнении",;
+      "Список обязательных ~диагнозов", ; 
     "Дополнительный поиск пациентов" }
     mas_msg := { "Информация по первичному вводу сведений о состоящих на диспансерном учёте", ;
-      "Список диагнозов, обязательных для диспансерного наблюдения", ; // "Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)"              "Информация о выполнении диспансерного наблюдения",;
+      "Список диагнозов, обязательных для диспансерного наблюдения", ; 
     "Дополнительный поиск пациентов (посетивших поликлинику с диагнозами ДН)" }
     mas_fun := { "disp_nabludenie(41)", ;
       "disp_nabludenie(42)", ;
@@ -704,7 +652,6 @@ Function disp_nabludenie( k )
     f_inf_dop_disp_nabl()
     // pac_disp_nabl()
   Case k == 31
-    // ne_real()
     f_create_d01()
   Case k == 32
     f_view_d01()
@@ -715,8 +662,8 @@ Function disp_nabludenie( k )
   Case k == 53
     vvodn_disp_nabl()  
   Case k == 12
-    mas_pmt := { "~Не было л/у с диспансерным наблюдением", ;
-                 "~Были л/у с диспансерным наблюдением"}
+    mas_pmt := { "~Отсутствуют л/у с диспансерным наблюдением", ;
+                 "~Существуют л/у с диспансерным наблюдением"}
     mas_msg := { "Список пациентов, по которым не было л/у с диспансерным наблюдением", ;
                  "Список пациентов, по которым были л/у с диспансерным наблюдением"}
     mas_fun := { "disp_nabludenie(61)", ;
@@ -840,7 +787,7 @@ Function f_inf_dop_disp_nabl()
     Endif
     If fl
       mdate_r := kart->date_r ; M1VZROS_REB := kart->VZROS_REB
-      fv_date_r( 0d20231201 ) // переопределение M1VZROS_REB // ЮЮ
+      fv_date_r( 0d20241201 ) // переопределение M1VZROS_REB // ЮЮ
       fl := ( M1VZROS_REB == 0 )
     Endif
     If fl .and. !Empty( m1uchast )
@@ -1091,10 +1038,10 @@ Function  vvodn_disp_nabl()
         If !Between( k, 2023, 2025 ) // ЮЮ если некорректная дата след.визита
           dn->NEXT_DATA := AddMonth( dn->LU_DATA, 12 )
         Endif
-        Do While dn->NEXT_DATA < 0d20240101 // ЮЮ
+        Do While dn->NEXT_DATA < 0d20250101 // ЮЮ
           dn->NEXT_DATA := AddMonth( dn->NEXT_DATA, dn->FREQUENCY )
         Enddo
-        If dn->NEXT_DATA < 0d20240101
+        If dn->NEXT_DATA < 0d20250101
           dn->FREQUENCY := 0
         Endif
       Endif
@@ -1291,15 +1238,15 @@ Function f3vvodp_disp_nabl( nKey, oBrow, regim )
           Endif
           If Empty( mN_DATA )
             fl := func_error( 4, "Не введена дата начала диспансерного наблюдения" )
-          Elseif mN_DATA >= 0d20231201  // ЮЮ
+          Elseif mN_DATA >= 0d20241201  // ЮЮ
             fl := func_error( 4, "Дата начала диспансерного наблюдения слишком большая" )
           Endif
           If Empty( mNEXT_DATA )
             fl := func_error( 4, "Не введена дата следующей явки" )
           Elseif mN_DATA >= mNEXT_DATA
             fl := func_error( 4, "Дата следующей явки меньше даты начала диспансерного наблюдения" )
-          Elseif mNEXT_DATA <= 0d20240201  // ЮЮ
-            fl := func_error( 4, "Дата следующей явки должна быть не ранее 1 ФЕВРАЛЯ" ) // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! временно
+          Elseif mNEXT_DATA <= 0d20250101  // ЮЮ
+            fl := func_error( 4, "Дата следующей явки должна быть не ранее 1 января" )
           Endif
           If !fl
             Loop
@@ -1389,6 +1336,54 @@ Function f_inf_disp_nabl( par )
    local flag_BILO := .F., flag_NAL := .T.
    Local kol_umer := {0,0,0,0}, kol_smena := {0,0,0,0}, kol_itogo := {0,0,0,0}, kol_old := {0,0,0,0}
    Local kol_umer1 := {0,0,0,0}, kol_smena1 := {0,0,0,0}, kol_itogo1 := {0,0,0,0}, kol_old1 := {0,0,0,0}
+   Local lExcel := .f., iOutput
+   Local name_fileXLS := 'DispNab_' + suffixfiletimestamp()
+   Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
+   local workbook, worksheet, row, column
+   local fmt_cell_header, fmtCellNumberRub, fmt_header, fmt_text, fmtCellNumberNDS
+
+  //
+   row := 0
+   column := 0
+   workbook  := workbook_new( name_fileXLS_full )
+   worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
+
+   fmt_cell_header := fmt_excel_hC_vC( workbook )
+   format_set_text_wrap( fmt_cell_header )
+   format_set_bold( fmt_cell_header )
+   format_set_font_size( fmt_cell_header, 20 )
+
+   fmt_header := fmt_excel_hC_vC( workbook )
+   format_set_text_wrap( fmt_header )
+   format_set_border( fmt_header, LXW_BORDER_THIN )
+   format_set_fg_color( fmt_header, 0xC6EFCE )
+   format_set_bold( fmt_header )
+
+   fmt_text := fmt_excel_hL_vC( workbook )
+   format_set_text_wrap( fmt_text )
+   format_set_border( fmt_text, LXW_BORDER_THIN )
+
+  // fmtCellNumberRub := fmt_excel_hR_vC( workbook )
+  // format_set_border( fmtCellNumberRub, LXW_BORDER_THIN )
+  // format_set_num_format( fmtCellNumberRub, '#,##0.00' )
+
+  // fmtCellNumberNDS := fmt_excel_hR_vC( workbook )
+  // format_set_border( fmtCellNumberNDS, LXW_BORDER_THIN )
+  // format_set_num_format( fmtCellNumberNDS, '#,##0' )
+
+   worksheet_set_row( worksheet,  0, 40,  nil )
+   worksheet_set_column( worksheet, 0, 0, 40, nil )
+   worksheet_set_column( worksheet, 2, 2, 11, nil )
+   worksheet_set_column( worksheet, 5, 5, 40, nil )
+   worksheet_merge_range( worksheet, row, column, row, 5, '', nil )
+   worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( s ), fmt_cell_header )
+   worksheet_write_string( worksheet, row, 0, hb_StrToUTF8( '             ФИО                 ' ), fmt_header )
+   worksheet_write_string( worksheet, row, 1, hb_StrToUTF8( 'Участок' ), fmt_header )
+   worksheet_write_string( worksheet, row, 2, hb_StrToUTF8( 'Дата рождения' ), fmt_header )
+   worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( 'Диагноз' ), fmt_header )
+   worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( 'Прикрепление' ), fmt_header )
+   worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( '             Адрес             ' ), fmt_header )
+   //
    dbCreate( cur_dir + "_disp_NB", { ;
        { "FIO",        "c", 50, 0 }, ;
        { "UCHAST",     "c",  3, 0 }, ;
@@ -1546,8 +1541,16 @@ Function f_inf_disp_nabl( par )
           _disp_NB->arr_d   := diag_disp
           _disp_NB->prikrep := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"ДА","НЕТ") 
           _disp_NB->adres   := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
+            //
+            worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim(padr(kart->fio,50) ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( alltrim(str(kart->uchast )) ), fmt_text )
+            worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( alltrim(full_date(kart->date_r)) ), fmt_text )
+            worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( _disp_NB->prikrep  ) ), fmt_text )
+            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( _disp_NB->adres ) ), fmt_text )
+            //
         elseif  !fl_disp .and. par == 1
-          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +" "+ "     "  + "   " + fl_prikrep + " " + ;
+          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +" "+ diag_disp  + "   " + fl_prikrep + " " + ;
             PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
           add_string(padl(lstr( ++ii2 ),5)+ttt)
           //
@@ -1560,6 +1563,14 @@ Function f_inf_disp_nabl( par )
           _disp_NB->arr_d   := diag_disp
           _disp_NB->prikrep := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"ДА","НЕТ") 
           _disp_NB->adres   := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
+            //
+            worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( kart->fio ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( alltrim(str(kart->uchast )) ), fmt_text )
+            worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( alltrim(full_date(kart->date_r)) ), fmt_text )
+            worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( _disp_NB->prikrep  ) ), fmt_text )
+            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( _disp_NB->adres ) ), fmt_text )
+            //
         endif  
       endif
       //endif
@@ -1680,8 +1691,16 @@ Function f_inf_disp_nabl( par )
           _disp_NB->arr_d   := diag_disp
           _disp_NB->prikrep := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"ДА","НЕТ") 
           _disp_NB->adres   := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
+            //
+            worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim(padr(kart->fio,50) ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( alltrim(str(kart->uchast )) ), fmt_text )
+            worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( alltrim(full_date(kart->date_r)) ), fmt_text )
+            worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( _disp_NB->prikrep  ) ), fmt_text )
+            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( _disp_NB->adres ) ), fmt_text )
+            //
         elseif !fl_disp .and. par == 1
-          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +" "+ "     "  + "   " + fl_prikrep + " " + ;
+          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +" "+ diag_disp  + "   " + fl_prikrep + " " + ;
             PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
           add_string(padl(lstr( ++ii2 ),5)+ttt)
            //
@@ -1694,6 +1713,14 @@ Function f_inf_disp_nabl( par )
           _disp_NB->arr_d   := diag_disp
           _disp_NB->prikrep := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"ДА","НЕТ") 
           _disp_NB->adres   := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
+            //
+            worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( kart->fio ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( alltrim(str(kart->uchast )) ), fmt_text )
+            worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( alltrim(full_date(kart->date_r)) ), fmt_text )
+            worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( _disp_NB->prikrep  ) ), fmt_text )
+            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( _disp_NB->adres ) ), fmt_text )
+            //
         Endif
       endif  
       Select DN
@@ -1725,8 +1752,11 @@ Function f_inf_disp_nabl( par )
   Close databases
   FClose( fp )
   rest_box( buf )
+  workbook_close( workbook )
   viewtext( name_file,,,, ( sh > 80 ),,, 3 )
-  n_message( { "Создан файл для загрузки в Excel: _disp_NB" },, cColorStMsg, cColorStMsg,,, cColorSt2Msg )
+  //inf_drz_excel( hb_OEMToANSI( name_file_full ), arr_m, arr )
+  work_with_Excel_file( name_fileXLS_full )
+//  n_message( { "Создан файл для загрузки в Excel: _disp_NB" },, cColorStMsg, cColorStMsg,,, cColorSt2Msg )
   Return Nil
 
 // 09.12.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
@@ -1968,12 +1998,6 @@ Function f2_vvod_disp_nabl( ldiag )
     lfp := FOpen( file_form )
     Do While !feof( lfp )
       s := freadln( lfp )
-/*for i := 1 to len(s) // проверка на русские буквы в диагнозах
-  if ISRALPHA(substr(s,i,1))
-    strfile(s+eos,"ttt.ttt",.t.)
-    exit
-  endif
-next*/
       If !Empty( s )
         AAdd( diag1, AllTrim( s ) )
       Endif
@@ -2469,9 +2493,6 @@ Use ( cur_dir + "tmp1" ) new
    //unique - переходим - одна запись - один диагноз
   Go Top
   Do While !Eof()
-    //my_debug(,dn->kod_k)
-    //my_debug(,dn->next_data)
-    //my_debug(,dn->kod_diag)
     fl := .t.
     Select DK
     find ( Str( dn->kod_k, 7 ) )
@@ -2480,8 +2501,6 @@ Use ( cur_dir + "tmp1" ) new
         fl := .f.
       Endif
       Skip
-      //my_debug(,"1")
-      //my_debug(,fl)
     Enddo
     // проверяем дату на 24 год
     If dn->next_data > 0d20240101 .and. dn->next_data < 0d20250101
@@ -2489,8 +2508,6 @@ Use ( cur_dir + "tmp1" ) new
     Else
       fl := .f.
     Endif
-    //my_debug(,"2")
-    //my_debug(,fl)
     // еще один контроль по возрасту
     If fl
       If ( 1 == fvdn_date_r( sys_date, kart->date_r ) .or. 2 == fvdn_date_r( sys_date, kart->date_r ) )
@@ -2502,8 +2519,6 @@ Use ( cur_dir + "tmp1" ) new
         endif  
       endif  
     Endif
-    //my_debug(,"3")
-    //my_debug(,fl)
     // еще один контороль по смерти
     If fl
       Select KART2
@@ -2512,8 +2527,6 @@ Use ( cur_dir + "tmp1" ) new
         fl := .f.
       Endif
     Endif
-    //my_debug(,"4")
-    //my_debug(,fl)
     //
     If fl
       Select TMP
@@ -2522,13 +2535,11 @@ Use ( cur_dir + "tmp1" ) new
       tmp->kod_dn   := dn->(recno())
       tmp->kod_diag := dn->kod_diag
       tmp->kod_t    := tmp->(recno())
-      //my_debug(,"ДОБАВЛЕН")
     Endif
     Select DN
     Skip
   Enddo
   kart2->( dbCloseArea() )
-//  quit
   // подготовка завершена в разрезе Пациентов
   // Очищаем от уже принятых пациентов/диагнозов
   select TMP
@@ -2677,7 +2688,7 @@ Use ( cur_dir + "tmp1" ) new
         dd->N_DATA    := dn->n_data     //ar2[ i, 3 ]      // дата начала диспансерного наблюдения
         dd->NEXT_DATA := tnext_data  //ar2[ i, 4 ]      // дата явки с целью диспансерного наблюдения
         dd->FREQUENCY := tFREQUENCY     //ar2[ i, 5 ]
-        dd->KOD_N     := tmp->kod_dn    // kod DISP_NAB
+        dd->KOD_N     := tmp->kod_dn    // код диспансерного наблюдения
         dd->oplata    := 0
         If id01 % 500 == 0
           Commit
@@ -2689,7 +2700,6 @@ Use ( cur_dir + "tmp1" ) new
   Endif
   Close databases
   rest_box( buf )
-  //quit
   //
   If id01 > 0 .and. f_esc_enter( "создания D01 (" + lstr( id01 ) + " диаг-ов)", .t. ) // ПРАВКА
     mywait()
