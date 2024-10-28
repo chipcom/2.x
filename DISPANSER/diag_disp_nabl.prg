@@ -3,6 +3,12 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+// 28.10.24
+// проверка вхождения диагноза в список диагнозов диспансерного наблюдения
+function diag_in_list_dn( diag )
+
+  return AScan( diag_disp_nabl(), AllTrim( upper( diag ) ) ) > 0
+
 // 24.10.24
 Function diag_disp_nabl()
 

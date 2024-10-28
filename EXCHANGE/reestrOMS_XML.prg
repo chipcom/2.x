@@ -7,9 +7,9 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-Static sadiag1  // := {}
+// Static sadiag1
 
-// 24.10.24 создание XML-файлов реестра
+// 28.10.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -30,9 +30,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   //
   Close databases
 
-  If ISNIL( sadiag1 )
-    sadiag1 := load_diagnoze_disp_nabl_from_file()
-  Endif
+  // If ISNIL( sadiag1 )
+  //   sadiag1 := load_diagnoze_disp_nabl_from_file()
+  // Endif
   For i := 1 To 5
     sk := lstr( i )
     pole_diag := 'mdiag' + sk
@@ -1249,7 +1249,8 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
               pole_diag := 'mdiag' + sk
               pole_1dispans := 'm1dispans' + sk
               pole_dn_dispans := 'mdndispans' + sk
-              If !Empty( &pole_diag ) .and. &pole_1dispans == 1 .and. AScan( sadiag1, AllTrim( &pole_diag ) ) > 0 ;
+              // If !Empty( &pole_diag ) .and. &pole_1dispans == 1 .and. AScan( sadiag1, AllTrim( &pole_diag ) ) > 0 ;
+              If !Empty( &pole_diag ) .and. &pole_1dispans == 1 .and. diag_in_list_dn( &pole_diag ) ;
                   .and. !Empty( &pole_dn_dispans ) ;
                   .and. ( j := AScan( ar_dn, {| x| AllTrim( x[ 2 ] ) == AllTrim( &pole_diag ) } ) ) > 0
                 ar_dn[ j, 4 ] := date2xml( BoM( &pole_dn_dispans ) )
