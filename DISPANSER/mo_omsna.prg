@@ -1341,6 +1341,7 @@ Function f_inf_disp_nabl( par )
    Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
    local workbook, worksheet, row, column
    local fmt_cell_header, fmtCellNumberRub, fmt_header, fmt_text, fmtCellNumberNDS
+   local VREM_N1 := "", VREM_N2 := ""
 
   //
    row := 0
@@ -1528,48 +1529,40 @@ Function f_inf_disp_nabl( par )
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
         if fl_disp .and. par == 2 // ë«¨ «/ã á ¤¨á¯ ­á¥à­ë¬ ­ ¡«î¤¥­¨¥¬ ¯à¨ ­ «¨ç¨¨ „„
-         ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +" "+ diag_disp  + "   " + fl_prikrep + " " + ;
+         ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +"  "+ diag_disp  + "   " + fl_prikrep + " " + ;
                  PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
           add_string(padl(lstr( ++ii2 ),5)+ttt)
           //
           arr_kol_ND[iii] := arr_kol_ND[iii] + 1 
           select _disp_NB
-          append blank 
-          _disp_NB->fio     := kart->fio              
-          _disp_NB->UCHAST  := alltrim(str(kart->uchast ))
-          _disp_NB->date_r  := alltrim(full_date(kart->date_r))
-          _disp_NB->arr_d   := diag_disp
-          _disp_NB->prikrep := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"„€","…’") 
-          _disp_NB->adres   := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
+          VREM_N1 := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"„€","…’") 
+          VREM_N2  := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
             //
             worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim(padr(kart->fio,50) ) ), fmt_text )
             worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( alltrim(str(kart->uchast )) ), fmt_text )
             worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( alltrim(full_date(kart->date_r)) ), fmt_text )
             worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
-            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( _disp_NB->prikrep  ) ), fmt_text )
-            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( _disp_NB->adres ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1  ) ), fmt_text )
+            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
             //
         elseif  !fl_disp .and. par == 1
-          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +" "+ diag_disp  + "   " + fl_prikrep + " " + ;
+          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +"  "+ arr_full_name[1]  + "   " + fl_prikrep + " " + ;
             PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
           add_string(padl(lstr( ++ii2 ),5)+ttt)
           //
           arr_kol_ND[iii] := arr_kol_ND[iii] + 1 
           select _disp_NB
-          append blank 
-          _disp_NB->fio     := kart->fio              
-          _disp_NB->UCHAST  := alltrim(str(kart->uchast ))
-          _disp_NB->date_r  := alltrim(full_date(kart->date_r))
-          _disp_NB->arr_d   := diag_disp
-          _disp_NB->prikrep := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"„€","…’") 
-          _disp_NB->adres   := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
+          VREM_N1 := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"„€","…’") 
+          VREM_N2  := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
             //
             worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( kart->fio ) ), fmt_text )
             worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( alltrim(str(kart->uchast )) ), fmt_text )
             worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( alltrim(full_date(kart->date_r)) ), fmt_text )
-            worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
-            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( _disp_NB->prikrep  ) ), fmt_text )
-            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( _disp_NB->adres ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( arr_full_name[1] ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1  ) ), fmt_text )
+            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
+//            my_debug(,kart->fio)
+//            my_debug(,print_array(arr))
             //
         endif  
       endif
@@ -1684,42 +1677,36 @@ Function f_inf_disp_nabl( par )
           //
           arr_kol_ND1[iii] := arr_kol_ND1[iii] + 1 
           select _disp_NB
-          append blank 
-          _disp_NB->fio     := kart->fio              
-          _disp_NB->UCHAST  := alltrim(str(kart->uchast ))
-          _disp_NB->date_r  := alltrim(full_date(kart->date_r))
-          _disp_NB->arr_d   := diag_disp
-          _disp_NB->prikrep := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"„€","…’") 
-          _disp_NB->adres   := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
+          VREM_N1 := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"„€","…’") 
+          VREM_N2   := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
+          //
             //
             worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim(padr(kart->fio,50) ) ), fmt_text )
             worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( alltrim(str(kart->uchast )) ), fmt_text )
             worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( alltrim(full_date(kart->date_r)) ), fmt_text )
             worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
-            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( _disp_NB->prikrep  ) ), fmt_text )
-            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( _disp_NB->adres ) ), fmt_text )
-            //
+            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1 ) ), fmt_text )
+            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
+              //
         elseif !fl_disp .and. par == 1
-          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +" "+ diag_disp  + "   " + fl_prikrep + " " + ;
+          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +" "+ arr_full_name[1]  + "   " + fl_prikrep + " " + ;
             PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
           add_string(padl(lstr( ++ii2 ),5)+ttt)
            //
           arr_kol_ND1[iii] := arr_kol_ND1[iii] + 1 
           select _disp_NB
-          append blank 
-          _disp_NB->fio     := kart->fio              
-          _disp_NB->UCHAST  := alltrim(str(kart->uchast ))
-          _disp_NB->date_r  := alltrim(full_date(kart->date_r))
-          _disp_NB->arr_d   := diag_disp
-          _disp_NB->prikrep := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"„€","…’") 
-          _disp_NB->adres   := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
+          VREM_N1 := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"„€","…’") 
+          VREM_N2   := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )   
             //
             worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( kart->fio ) ), fmt_text )
             worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( alltrim(str(kart->uchast )) ), fmt_text )
             worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( alltrim(full_date(kart->date_r)) ), fmt_text )
-            worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
-            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( _disp_NB->prikrep  ) ), fmt_text )
-            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( _disp_NB->adres ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( arr_full_name[1] ) ), fmt_text )
+            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1  ) ), fmt_text )
+            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
+  //          my_debug(,"1")
+  //          my_debug(,kart->fio)
+  //          my_debug(,print_array(arr))
             //
         Endif
       endif  
