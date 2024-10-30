@@ -664,8 +664,8 @@ Function disp_nabludenie( k )
   Case k == 12
     mas_pmt := { "~Отсутствуют л/у с диспансерным наблюдением", ;
                  "~Существуют л/у с диспансерным наблюдением"}
-    mas_msg := { "Список пациентов, по которым не было л/у с диспансерным наблюдением", ;
-                 "Список пациентов, по которым были л/у с диспансерным наблюдением"}
+    mas_msg := { "Список пациентов, у которых осутствуют л/у с диспансерным наблюдением", ;
+                 "Список пациентов, у которых существуют л/у с диспансерным наблюдением"}
     mas_fun := { "disp_nabludenie(61)", ;
                  "disp_nabludenie(62)"}
   popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
@@ -1343,6 +1343,11 @@ Function f_inf_disp_nabl( par )
    local fmt_cell_header, fmtCellNumberRub, fmt_header, fmt_text, fmtCellNumberNDS
    local VREM_N1 := "", VREM_N2 := ""
 
+   If par == 1
+    s := "Список пациентов, состоящих на ДН, у которых отсутствуют л/у с диспансерным наблюдением"
+  Elseif par == 2
+    s := "Список пациентов, состоящих на ДН, у которых присутствуют л/у с диспансерным наблюдением"
+  Endif
   //
    row := 0
    column := 0
@@ -1352,7 +1357,7 @@ Function f_inf_disp_nabl( par )
    fmt_cell_header := fmt_excel_hC_vC( workbook )
    format_set_text_wrap( fmt_cell_header )
    format_set_bold( fmt_cell_header )
-   format_set_font_size( fmt_cell_header, 20 )
+   format_set_font_size( fmt_cell_header, 15 ) //20
 
    fmt_header := fmt_excel_hC_vC( workbook )
    format_set_text_wrap( fmt_header )
@@ -1402,11 +1407,7 @@ Function f_inf_disp_nabl( par )
     "              ФИО пациента                   │уч-к│ рождения │  ДН   │прикреп│           Адрес                     ", ;
     "─────────────────────────────────────────────┴────┴──────────┴───────┴───────┴─────────────────────────────────────" }
   sh := Len( arr_title[ 1 ] )
-  If par == 1
-    s := "Список пациентов, состоящих на ДН, по которым не было л/у с диспансерным наблюдением"
-  Elseif par == 2
-    s := "Список пациентов, состоящих на ДН, присутствуют л/у с диспансерным наблюдением"
-  Endif
+ 
   add_string( "" )
   add_string( Center( s, sh ) )
   add_string( "" )
@@ -2007,7 +2008,15 @@ Function inf_disp_nabl()
     rd := 0, rd1 := 0, rpr := 0, ro_f := .f., ro := 0, rod := 0
   Local mas_tip_dz := { 0, 0, 0, 0, 0 }, mas_tip_pc := { 0, 0, 0, 0, 0, 0 }, fl_1 := 0, fl_2 := 0, fl_3 := 0, fl_4 := 0, ;
     fl_5 := 0, fl_31 := 0, fl_32 := 0, fl_33 := 0, fl_umer := .t., otvet := "      ", fl_prinet := .F.,;
-    mas_tip_prin := { 0, 0, 0, 0, 0, 0 } , t_mo_prik := "", iii := 0, iii1 := 0, iii2 := 0 
+    mas_tip_prin := { 0, 0, 0, 0, 0, 0 } , t_mo_prik := "", iii := 0, iii1 := 0, iii2 := 0 , s
+  // это эксель
+  Local lExcel := .f., iOutput
+  Local name_fileXLS := 'DispN_spis_' + suffixfiletimestamp()
+  Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
+  local workbook, worksheet, row, column
+  local fmt_cell_header, fmtCellNumberRub, fmt_header, fmt_text, fmtCellNumberNDS
+  local old_row_XLS := 0
+  local old_fio := "", old_adres := "", old_DR := "", old_PRIKREP := "", old_num_UCH := ""
 
   SetColor( cDataCGet )
   myclear( r )
@@ -2088,12 +2097,62 @@ Function inf_disp_nabl()
     suchast := muchast
     svrach := mvrach
     sdiag := mkod_diag
+//
+   row := 0
+   column := 0
+   workbook  := workbook_new( name_fileXLS_full )
+   worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
+
+   fmt_cell_header := fmt_excel_hC_vC( workbook )
+   format_set_text_wrap( fmt_cell_header )
+   format_set_bold( fmt_cell_header )
+   format_set_font_size( fmt_cell_header, 20 )
+
+   fmt_header := fmt_excel_hC_vC( workbook )
+   format_set_text_wrap( fmt_header )
+   format_set_border( fmt_header, LXW_BORDER_THIN )
+   format_set_fg_color( fmt_header, 0xC6EFCE )
+   format_set_bold( fmt_header )
+
+   fmt_text := fmt_excel_hL_vC( workbook )
+   format_set_text_wrap( fmt_text )
+   format_set_border( fmt_text, LXW_BORDER_THIN )
+
+  // fmtCellNumberRub := fmt_excel_hR_vC( workbook )
+  // format_set_border( fmtCellNumberRub, LXW_BORDER_THIN )
+  // format_set_num_format( fmtCellNumberRub, '#,##0.00' )
+
+  // fmtCellNumberNDS := fmt_excel_hR_vC( workbook )
+  // format_set_border( fmtCellNumberNDS, LXW_BORDER_THIN )
+  // format_set_num_format( fmtCellNumberNDS, '#,##0' )
+  s:= "Список пациентов, состоящих на диспансерном учёте"
+   worksheet_set_row( worksheet,  0, 40,  nil )
+   worksheet_set_column( worksheet, 1, 1, 40, nil )
+   worksheet_set_column( worksheet, 2, 2, 40, nil )
+   worksheet_set_column( worksheet, 3, 3, 11, nil )
+   worksheet_set_column( worksheet, 8, 8, 11, nil )
+   worksheet_set_column( worksheet, 9, 9, 11, nil )
+   worksheet_set_column( worksheet, 10, 10, 11, nil )
+   worksheet_merge_range( worksheet, row, column, row, 11, '', nil )
+   worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( s ), fmt_cell_header )
+   worksheet_write_string( worksheet, row, 0, hb_StrToUTF8( 'Ответ ТФОМС' ), fmt_header )
+   worksheet_write_string( worksheet, row, 1, hb_StrToUTF8( 'ФИО' ), fmt_header )
+   worksheet_write_string( worksheet, row, 2, hb_StrToUTF8( 'Адрес' ), fmt_header )
+   worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( 'Дата рождения' ), fmt_header )
+   worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( 'Прикрепление' ), fmt_header )
+   worksheet_write_string( worksheet, row, 5, hb_StrToUTF8( 'Участок' ), fmt_header )
+   worksheet_write_string( worksheet, row, 6, hb_StrToUTF8( 'Таб. номер врача' ), fmt_header )
+   worksheet_write_string( worksheet, row, 7, hb_StrToUTF8( 'Диагноз' ), fmt_header )
+   worksheet_write_string( worksheet, row, 8, hb_StrToUTF8( 'Дата последнего ЛУ' ), fmt_header )
+   worksheet_write_string( worksheet, row, 9, hb_StrToUTF8( 'Дата постановки на ДН' ), fmt_header )
+   worksheet_write_string( worksheet, row, 10, hb_StrToUTF8( 'Дата следующего визита' ), fmt_header )
+   worksheet_write_string( worksheet, row++, 11, hb_StrToUTF8( 'через N месяцев' ), fmt_header )
     //
     arr_title := { ;
       "──────┬──────────────────────────────────────┬──────────┬──────┬──┬─────┬─────┬────────┬────────┬────────────────", ;
       " Ответ│                                      │   Дата   │  МО  │Уч│ Таб.│Диаг-│Дата по-│Дата по-│_Следующий_визит", ;
       "      │        ФИО пациента                  │ рождения │прик-я│ас│номер│ноз  │следнего│становки│        │через N", ;
-      " ТФОМС│                                      │   Дата   │      │то│врача│     │   ЛУ   │на учёт │  дата  │месяцев", ;
+      " ТФОМС│                                      │   Дата   │      │то│врача│     │   ЛУ   │ на ДН  │  дата  │месяцев", ;
       "──────┴──────────────────────────────────────┴──────────┴──────┴──┴─────┴─────┴────────┴────────┴────────┴───────" }
     sh := Len( arr_title[ 1 ] )
     mywait()
@@ -2120,7 +2179,7 @@ Function inf_disp_nabl()
     fl_umer := .t.
     waitstatus( "Ждите! Составляется список, состоящих на диспансерном учёте" )
     Go Top
-    Do While !Eof()  // ЦИКЛ по файлу со всеми ДН
+    Do While !Eof()   // ЦИКЛ по файлу со всеми ДН
       updatestatus()
       otvet := "       "
       ro_f := .f.
@@ -2159,14 +2218,33 @@ Function inf_disp_nabl()
       Endif
      //
       If fl 
-        If old == dn->kod_k // не первая строка у пациента
+         If old == dn->kod_k // не первая строка у пациента
           If !Empty( sadres )
-            s := PadR( "  " + sadres, 38 + 1 + 10 + 3 + 7 )
+            s := PadR( "  " + sadres, 38 + 1 + 10 + 3 + 7 -1 )
             sadres := ""
           Else
-            s := Space( 38 ) + Space( 1 + 10 + 3 + 7 )
+            s := Space( 38 ) + Space( 1 + 10 + 3 + 7 -1 )
           Endif
+          worksheet_write_string( worksheet, row, 1, hb_StrToUTF8(  alltrim(kart->fio) ), fmt_text )
+          worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( full_date( kart->date_r ) ), fmt_text ) 
+          worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( old_PRIKREP), fmt_text ) 
+          worksheet_write_string( worksheet, row, 5, hb_StrToUTF8(  old_num_UCH ), fmt_text )
         Else
+          if old_row_XLS > 0 
+             if (row - old_row_XLS) > 1
+               worksheet_merge_range(  worksheet, old_row_XLS, 1, row-1 , 1,  hb_StrToUTF8( old_fio ), fmt_text )
+               worksheet_merge_range(  worksheet, old_row_XLS, 2, row-1 , 2,  hb_StrToUTF8( old_adres ), fmt_text )
+               worksheet_merge_range(  worksheet, old_row_XLS, 3, row-1 , 3,  hb_StrToUTF8( old_DR ), fmt_text ) 
+               worksheet_merge_range(  worksheet, old_row_XLS, 4, row-1 , 4,  hb_StrToUTF8( old_PRIKREP ), fmt_text ) 
+               worksheet_merge_range(  worksheet, old_row_XLS, 5, row-1 , 5,  hb_StrToUTF8( old_num_UCH  ), fmt_text ) 
+             endif  
+          endif  
+          old_row_XLS := row
+          worksheet_write_string( worksheet, row, 1, hb_StrToUTF8(  alltrim(kart->fio) ), fmt_text )
+          worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( full_date( kart->date_r ) ), fmt_text ) 
+          old_fio := alltrim(kart->fio)
+          old_DR := full_date( kart->date_r ) 
+          // первая строка на человека
           fl_prinet := .F. // по умолчанию - не принят
           If !Empty( sadres )
             add_string( "  " + sadres )
@@ -2176,23 +2254,40 @@ Function inf_disp_nabl()
           Goto kart->kod
           If !Empty( kart2->mo_pr )
             If glob_mo[ _MO_KOD_TFOMS ] == kart2->mo_pr
-              s := s + " К НАМ "
+              s := s + "      "
+              //worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( "" ), fmt_text )
+              old_PRIKREP := ""
             Else
-              s := s + " " + kart2->mo_pr
+              //s := s + " " + kart2->mo_pr
               ++rpr
               ro_f := .t.
+              if len(alltrim(kart2->mo_pr)) < 4
+                worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( "неизв" ), fmt_text )
+                s := s + " " + " неизв"
+                old_PRIKREP := "неизв"
+              else  
+                worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( kart2->mo_pr ), fmt_text )
+                s := s + " " + kart2->mo_pr
+                old_PRIKREP := kart2->mo_pr
+              endif  
             Endif
             t_mo_prik := kart2->mo_pr
           Else
             s := s + Space( 7 )
+            worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( "неизв" ), fmt_text )
+            old_PRIKREP := "неизв"
           Endif
           If Left( kart2->PC2, 1 ) == "1"
             s := s + "УМР"
             ++ru
             ro_f := .t.
             fl_umer := .f.  // отметка пациент умер
+            worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( "УМЕР" ), fmt_text )
+            old_PRIKREP := "УМЕР"
           Else
             s := s + Str( kart->uchast, 3 )
+            worksheet_write_string( worksheet, row, 5, hb_StrToUTF8(  Str( kart->uchast, 3 ) ), fmt_text )
+            old_num_UCH :=   Str( kart->uchast, 3 )
             fl_umer := .T.  // отметка пациент умер
           Endif
           If m1adres == 1
@@ -2203,8 +2298,16 @@ Function inf_disp_nabl()
             ++ro
           Endif
         Endif
+        old_adres := alltrim( ret_okato_ulica( kart->adres, kart_->okatog, 0, 1 )) 
+        worksheet_write_string( worksheet, row, 2, hb_StrToUTF8( old_adres ), fmt_text )
         s += Str( pers->tab_nom, 6 ) + " " + dn->kod_diag + " " + date_8( dn->lu_data ) + " " + date_8( dn->n_data ) + " " + date_8( dn->next_data )
         s += iif( dn->next_data < 0d20240101, "___", "   " )   // ЮЮ
+        worksheet_write_string( worksheet, row, 6, hb_StrToUTF8( Str( pers->tab_nom, 6 ) ), fmt_text )
+        worksheet_write_string( worksheet, row, 7, hb_StrToUTF8( dn->kod_diag ), fmt_text )
+        worksheet_write_string( worksheet, row, 8, hb_StrToUTF8( full_date( dn->lu_data ) ), fmt_text )
+        worksheet_write_string( worksheet, row, 9, hb_StrToUTF8( full_date( dn->n_data ) ), fmt_text )
+        worksheet_write_string( worksheet, row,10, hb_StrToUTF8( full_date( dn->next_data ) ), fmt_text )
+        worksheet_write_string( worksheet, row,11, hb_StrToUTF8( lstr( dn->frequency ) ), fmt_text )
         If dn->next_data < 0d20240101
           s += "_____"
         Else
@@ -2216,8 +2319,6 @@ Function inf_disp_nabl()
         //
         t_vr := select()
         select D01D
-        //r_use( dir_server + "mo_D01D",,  "D01D" ) // диагнозы у пациентов   
-        //index on str(kod_n,6)+str(kod_d,7) to (cur_dir +"tmp_D01") DESCENDING
         fl_prinet := .F.
         otvet  :=  "       "
         find(str(dn->(recno()),6))
@@ -2235,7 +2336,10 @@ Function inf_disp_nabl()
         endif  
         select(t_vr)
         s := otvet + s
-        //
+        ////
+        worksheet_write_string( worksheet, row, 0, hb_StrToUTF8( AllTrim( otvet ) ), fmt_text )
+        row++
+        ////
         If dn->next_data < 0d20240101  // ЮЮ
           ++rd
         Endif
@@ -2262,78 +2366,21 @@ Function inf_disp_nabl()
         // Выборки по отдельным группам ДИАГНОЗОВ 
         // УМЕРШИХ  !!! НЕ СЧИТАЕМ
         // только данное МО и ЖИВЫЕ
-        If fl_umer 
+       //   If fl_umer 
           //my_debug(,str(dn->(recno()))+" -----  "+ t_mo_prik + " --- "+ dtos(dn->next_data) )
           //my_debug(,fl_prinet)
-          If glob_mo[ _MO_KOD_TFOMS ] ==  t_mo_prik  .and. dn->next_data >= 0d20240101
+       //     If glob_mo[ _MO_KOD_TFOMS ] ==  t_mo_prik  .and. dn->next_data >= 0d20240101
             //++iii
             //my_debug(,iii)
             // диагнозов по приказу №168н
-            if f_is_diag_dn( dn->kod_diag,,, .f. )     
-              mas_tip_dz[ 3 ] := mas_tip_dz[ 3 ] + 1
-              if fl_prinet 
-                mas_tip_prin[ 3 ] := mas_tip_prin[ 3 ] + 1
-              endif  
-              If fl_3 != dn->kod_k
-                mas_tip_pc[ 3 ] := mas_tip_pc[ 3 ] + 1
-                fl_3 := dn->kod_k
-              Endif
-            endif   
             // диагнозов МКБ-10 E10
-            If PadR( dn->kod_diag, 3 ) == "E10"
-              mas_tip_dz[ 4 ] := mas_tip_dz[ 4 ] + 1  
-              if fl_prinet 
-                mas_tip_prin[ 4 ] := mas_tip_prin[ 4 ] + 1
-              endif  
-              If fl_4 != dn->kod_k
-                mas_tip_pc[ 4 ] := mas_tip_pc[ 4 ] + 1
-                fl_4 := dn->kod_k
-              Endif
-            Endif
-            // диагнозов МКБ-10 E11
-            If PadR( dn->kod_diag, 3 ) == "E11"
-              mas_tip_dz[ 5 ] := mas_tip_dz[ 5 ] + 1
-              if fl_prinet 
-                mas_tip_prin[ 5 ] := mas_tip_prin[ 5 ] + 1
-              endif  
-              If fl_5 != dn->kod_k
-                mas_tip_pc[ 5 ] := mas_tip_pc[ 5 ] + 1
-                fl_5 := dn->kod_k
-              Endif
-            Endif
-            // диагнозов БСК
-            //If PadR( dn->kod_diag, 3 ) == "E78" .or. PadR( dn->kod_diag, 1 ) == "I" .or. PadR( dn->kod_diag, 1 ) == "Q" .or. PadR( dn->kod_diag, 1 ) == "Z"
-              If f_is_diag_dn_serdce( dn->kod_diag )
-                mas_tip_dz[ 1 ] := mas_tip_dz[ 1 ] + 1  
-                if fl_prinet 
-                  mas_tip_prin[ 1 ] := mas_tip_prin[ 1 ] + 1
-                endif  
-                If fl_1 != dn->kod_k
-                  mas_tip_pc[ 1 ] := mas_tip_pc[ 1 ] + 1
-                  fl_1 := dn->kod_k
-                Endif
-              Endif
-            //Endif
-            // диагнозов МКБ-10 С00-D09 
-            If PadR( dn->kod_diag, 1 ) == "C" .or. PadR( dn->kod_diag, 3 ) == "D09"
-              mas_tip_dz[ 2 ] := mas_tip_dz[ 2 ] + 1 
-              if fl_prinet 
-                mas_tip_prin[ 2 ] := mas_tip_prin[ 2 ] + 1
-              endif  
-              If fl_2 != dn->kod_k
-                mas_tip_pc[ 2 ] := mas_tip_pc[ 2 ] + 1
-                fl_2 := dn->kod_k
-              Endif
-            Endif
-          Endif
-        Endif
+       //     Endif
+       // Endif
         // Конец ВЫБОРКИ
       Endif
       Select DN
       Skip
     Enddo
-    //my_debug(,iii1)
-    //my_debug(,iii2)
     If !Empty( sadres )
       add_string( "  " + sadres )
     Endif
@@ -2344,18 +2391,20 @@ Function inf_disp_nabl()
       add_string( "=== из них УМЕРЛО   - " + lstr( ru ) + " чел., в ТФОМС отправлены не будут ===" )
       add_string( "=== пациентов прикрепленных не к нашему МО - " + lstr( rpr ) + " чел. ===" )
       add_string( "      ТФОМСом вероятно приняты не будут " )
-      add_string( "===   Вероятно будут приняты: " )
-      add_string( "===   диагнозов БСК              - " + PadL( lstr( mas_tip_dz[ 1 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 1 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 1 ] ),8) )
-      add_string( "===   диагнозов МКБ-10 С00-D09   - " + PadL( lstr( mas_tip_dz[ 2 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 2 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 2 ] ),8) )
-      add_string( "===   диагнозов по приказу №168н - " + PadL( lstr( mas_tip_dz[ 3 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 3 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 3 ] ),8) )
-      add_string( "===   диагнозов МКБ-10 E10       - " + PadL( lstr( mas_tip_dz[ 4 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 4 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 4 ] ),8) )
-      add_string( "===   диагнозов МКБ-10 E11       - " + PadL( lstr( mas_tip_dz[ 5 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 5 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 5 ] ),8) )
+   //   add_string( "===   Вероятно будут приняты: " )
+   //   add_string( "===   диагнозов БСК              - " + PadL( lstr( mas_tip_dz[ 1 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 1 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 1 ] ),8) )
+   //   add_string( "===   диагнозов МКБ-10 С00-D09   - " + PadL( lstr( mas_tip_dz[ 2 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 2 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 2 ] ),8) )
+   //   add_string( "===   диагнозов по приказу №168н - " + PadL( lstr( mas_tip_dz[ 3 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 3 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 3 ] ),8) )
+   //   add_string( "===   диагнозов МКБ-10 E10       - " + PadL( lstr( mas_tip_dz[ 4 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 4 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 4 ] ),8) )
+   //   add_string( "===   диагнозов МКБ-10 E11       - " + PadL( lstr( mas_tip_dz[ 5 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 5 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 5 ] ),8) )
       add_string( "** Обоснованность постановки на ДН с такими диагнозами необходимо проверить врачу, т.к. " )
       add_string( "данный диагноз не является строго обязательным для постановки на Диспансерное наблюдение" )
     Endif
     Close databases
     FClose( fp )
     viewtext( name_file,,,, ( sh > 80 ),,, 3 )
+    workbook_close( workbook )
+    work_with_Excel_file( name_fileXLS_full )
   Endif
   RestScreen( buf )
 
