@@ -10,7 +10,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   // f_print - наименование функции для печати
-  Static sadiag1  // := {}
+  // Static sadiag1
   Static st_N_DATA, st_K_DATA, s1dispans := 1
 
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, arr_del := {}, mrec_hu := 0, mrec_mohu := 0, ;
@@ -45,9 +45,9 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     Endif
   Endif
 
-  If ISNIL( sadiag1 )
-    sadiag1 := load_diagnoze_disp_nabl_from_file()
-  Endif
+  // If ISNIL( sadiag1 )
+  //   sadiag1 := load_diagnoze_disp_nabl_from_file()
+  // Endif
 
   chm_help_code := 3002
 

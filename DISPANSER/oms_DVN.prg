@@ -4,13 +4,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.09.24 ДВН - добавление или редактирование случая (листа учета)
+// 28.10.24 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   // f_print - наименование функции для печати
-  Static sadiag1  // := {}
+  // Static sadiag1
   Static st_N_DATA, st_K_DATA, s1dispans := 1
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, arr_del := {}, mrec_hu := 0, ;
     buf := SaveScreen(), tmp_color := SetColor(), a_smert := {}, ;
@@ -192,9 +192,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   fv_date_r( iif( Loc_kod > 0, MN_DATA, ) )
 
-  If ISNIL( sadiag1 )
-    sadiag1 := load_diagnoze_disp_nabl_from_file()
-  Endif
+  // If ISNIL( sadiag1 )
+  //   sadiag1 := load_diagnoze_disp_nabl_from_file()
+  // Endif
 
   chm_help_code := 3002
 
@@ -1430,7 +1430,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           Endif
         Next
         For i := 1 To Len( arr_diag )
-          If AScan( sadiag1, AllTrim( arr_diag[ i, 1 ] ) ) > 0 .and. ;
+//          If AScan( sadiag1, AllTrim( arr_diag[ i, 1 ] ) ) > 0 .and. ;
+          If diag_in_list_dn( arr_diag[ i, 1 ] ) .and. ;
               arr_diag[ i, 3 ] == 1 .and. !Empty( arr_diag[ i, 4 ] ) .and. arr_diag[ i, 4 ] > mk_data
             is_disp_nabl := .t.
           Endif

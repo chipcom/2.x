@@ -559,7 +559,7 @@ Function e_statist( k )
   Return Nil
 
 
-// 26.12.23 восстановление объёмов
+// 01.11.24 восстановление объёмов
 Function vosst_ob_em_rak()
 
   Static arr_smo, mm_pz
@@ -591,7 +591,7 @@ Function vosst_ob_em_rak()
 
     // funcGetPZ := 'get_array_PZ_19()'
     // nameArr := &funcGetPZ
-    nameArr := get_array_PZ( 2019 )
+    nameArr := get_array_PZ( 2024 )
     For i := 1 To Len( nameArr )
       AAdd( mm_pz, { nameArr[ i, 3 ], nameArr[ i, 1 ] } )
     Next
@@ -608,7 +608,7 @@ Function vosst_ob_em_rak()
     meks, m1eks := s1eks, ;
     mpz, m1pz := s1pz, ;
     mpoisk, m1poisk := s1poisk, ;
-    myear := 2019, mkvartal := 0
+    myear := 2024, mkvartal := 0
   Private pdate, gl_arr := { ;  // для битовых полей
   { 'smo', 'N', 10, 0, , , , {| x| inieditspr( A__MENUBIT, arr_smo, x ) } };
     }
@@ -636,7 +636,7 @@ Function vosst_ob_em_rak()
       reader {| x| menu_reader( x, mm_eks, A__MENUVERT, , , .f. ) }
     @ r + 6, 2 Say 'Вид план-заказа' Get mpz ;
       reader {| x| menu_reader( x, mm_pz, A__MENUVERT_SPACE, , , .f. ) }
-    @ r + 7, 2 Say 'Отчётный год 2019, отчётный квартал' Get mkvartal Pict '9' Range 0, 4
+    @ r + 7, 2 Say 'Отчётный год 2024, отчётный квартал' Get mkvartal Pict '9' Range 0, 4
     myread()
     If LastKey() == K_ESC
       Exit
@@ -647,8 +647,8 @@ Function vosst_ob_em_rak()
     s1poisk := m1poisk
     If Empty( pdate )
       func_error( 4, 'Не введён период времени' )
-    Elseif pdate[ 1 ] < 2019
-      func_error( 4, 'Данный режим написан для 2019 года' )
+    Elseif pdate[ 1 ] < 2024
+      func_error( 4, 'Данный режим написан для 2024 года' )
     Elseif Empty( m1smo )
       func_error( 4, 'Не введена страховая компания' )
     Else

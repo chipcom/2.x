@@ -14,7 +14,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   // f_print - наименование функции для печати
 
-  Static sadiag1
+  // Static sadiag1
   Static st_N_DATA, st_K_DATA, s1dispans := 1
   
   local arr_del := {}, mrec_hu := 0, mrec_mohu := 0, ;

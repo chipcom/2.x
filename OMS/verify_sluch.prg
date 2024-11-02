@@ -6,9 +6,9 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-Static sadiag1  // := {}
+// Static sadiag1
 
-// 27.09.24
+// 28.10.24
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -3792,9 +3792,9 @@ Function verify_sluch( fl_view )
     ret_arrays_disp( dEnd )
     m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := f_is_prazdnik_dvn( dBegin )
 
-    If ISNIL( sadiag1 )
-      sadiag1 := load_diagnoze_disp_nabl_from_file()
-    Endif
+    // If ISNIL( sadiag1 )
+    //   sadiag1 := load_diagnoze_disp_nabl_from_file()
+    // Endif
     For i := 1 To 5
       sk := lstr( i )
       pole_diag := 'mdiag' + sk
@@ -3867,7 +3867,8 @@ Function verify_sluch( fl_view )
           s := 2 // взят на диспансерное наблюдение
         Endif
       Endif
-      If !Empty( arr_diag[ 1 ] ) .and. AScan( sadiag1, arr_diag[ 1 ] ) > 0
+      // If !Empty( arr_diag[ 1 ] ) .and. AScan( sadiag1, arr_diag[ 1 ] ) > 0
+      If !Empty( arr_diag[ 1 ] ) .and. diag_in_list_dn( arr_diag[ 1 ] )
         If Empty( arr_diag[ 4 ] )
           If s == 2
             AAdd( ta, 'не введена дата следующего визита для ' + arr_diag[ 1 ] )
