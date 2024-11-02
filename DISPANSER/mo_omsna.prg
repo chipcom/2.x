@@ -1851,7 +1851,7 @@ Function f0_vvod_disp_nabl()
 
 
 
-// 03.12.23
+// 01.11.24
 Function f1_vvod_disp_nabl( nKey, oBrow, regim )
 
   Local ret := -1
@@ -1892,7 +1892,7 @@ Function f1_vvod_disp_nabl( nKey, oBrow, regim )
       Do While .t.
         @ r1 + 1, pc1 + 3 Say "Диагноз, по поводу которого пациент подлежит дисп.наблюдению" Get mkod_diag ;
           Pict "@K@!" reader {| o| mygetreader( o, bg ) } ;
-          Valid val1_10diag( .t., .f., .f., 0d20231201, _kart->pol )  // ЮЮ
+          Valid val1_10diag( .t., .f., .f., 0d20241201, _kart->pol )  // ЮЮ
         @ r1 + 2, pc1 + 3 Say "Дата начала диспансерного наблюдения" Get mn_data
         @ r1 + 3, pc1 + 3 Say "Дата следующей явки с целью диспансерного наблюдения" Get mnext_data
         @ r1 + 4, pc1 + 3 Say "Кол-во месяцев до каждого следующего визита" Get mfrequency Pict "99"
@@ -1920,14 +1920,14 @@ Function f1_vvod_disp_nabl( nKey, oBrow, regim )
           Endif
           If Empty( mN_DATA )
             fl := func_error( 4, "Не введена дата начала диспансерного наблюдения" )
-          Elseif mN_DATA >= 0d20231201  // ЮЮ
+          Elseif mN_DATA >= 0d20241201  // ЮЮ
             fl := func_error( 4, "Дата начала диспансерного наблюдения слишком большая" )
           Endif
           If Empty( mNEXT_DATA )
             fl := func_error( 4, "Не введена дата следующей явки" )
           Elseif mN_DATA >= mNEXT_DATA
             fl := func_error( 4, "Дата следующей явки меньше даты начала диспансерного наблюдения" )
-          Elseif mNEXT_DATA <= 0d20240201  // ЮЮ - временно
+          Elseif mNEXT_DATA <= 0d20250101  // ЮЮ - временно
             fl := func_error( 4, "Дата следующей явки должна быть не ранее 1 января" )
           Endif
           If !fl

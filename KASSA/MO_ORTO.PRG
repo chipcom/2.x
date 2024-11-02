@@ -3072,6 +3072,10 @@ if len(arr_mt) > 0
 endif
 //
 // Итого по техникам
+//
+select TMP11
+zap
+//my_debug(,print_array(arr_mt))
 // пересчет в материал
 select HU
 find (str(mkod_human,7))
@@ -3119,6 +3123,7 @@ do while !eof()
   skip
 enddo
 // присваиваем наименование
+//my_debug(,print_array(arr_mt))
 if len(arr_mt) > 0
   select OR
   for i := 1 to len(arr_mt)
