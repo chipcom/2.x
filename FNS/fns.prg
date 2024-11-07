@@ -222,13 +222,14 @@ function anul_spravka_fns()
   endif
   return nil
 
-// 06.08.24 проверка существования справки за конкретный год
+// 07.11.24 проверка существования справки за конкретный год
 function exist_spravka( get, kod_kart, onePerson )
   // get - объект Get системы
   // kod_kart - код пациента по картотеке
   // onePerson - налогоплательщик и пациент одно лицо ( 1- да, 0 - нет)
 
-  local nyear, str_find, tmp_select
+  local nyear, str_find, tmp_select, i
+  local zakaz_naryad := {}
 
   nyear := get
   str_find := Str( kod_kart, 7 ) + Str( nyear, 4 ) + Str( onePerson, 1 )
@@ -238,16 +239,45 @@ function exist_spravka( get, kod_kart, onePerson )
   endif
 
   tmp_select := select()
-
+// ПЛАТНЫЕ УСЛУГИ
   use_base( 'hum_p', 'hum_p' )
   find ( str( glob_kartotek, 7 ) )
   do while hum_p->kod_k == glob_kartotek
     if year( hum_p->K_DATA ) == nyear
-      AAdd( aCheck, { hum_p->( recno() ), 1, hum_p->cena, hum_p->sum_voz } )
+      AAdd( aCheck, { hum_p->( recno() ), 1, ;
+        hum_p->cena, ;
+        hum_p->sum_voz } )
     endif
     hum_p->( dbSkip() )
   enddo
   hum_p->( dbCloseArea() )
+
+  // ОРТОПЕДИЯ
+  use_base( 'hum_ort' )
+  find ( str( glob_kartotek, 7 ) )
+  do while HUMAN->kod_k == glob_kartotek
+    AAdd( zakaz_naryad, HUMAN->( recno() ) )
+    HUMAN->( dbSkip() )
+  enddo
+  HUMAN->( dbCloseArea() )
+
+  if len( zakaz_naryad ) > 0
+    use_base( 'hum_oro' ) //, 'hum_oro' )
+    for i := 1 to len( zakaz_naryad )
+      find ( str( zakaz_naryad[ i ], 7 ) )
+      do while HO->kod == zakaz_naryad[ i ]
+        if year( c4tod( HO->PDATE ) ) == nyear
+          AAdd( aCheck, { HO->( recno() ), 1, ;
+            iif( HO->cena_opl > 0, HO->cena_opl, 0 ), ;
+            iif( HO->cena_opl < 0, HO->cena_opl, 0 ) } )
+        endif
+        HO->( dbSkip() )
+      enddo
+      next
+
+    HO->( dbCloseArea() )
+  endif
+
   select( tmp_select )
 
   return .t.
