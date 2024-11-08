@@ -6,6 +6,10 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+#define PLAT 1  // подзадача платные услуги
+#define ORTO 2  // подзадача ортопедия
+#define KASSA_MO 3 // подзадача касса МО
+
 // 13.08.24
 function reestr_spravka_fns()
 
@@ -222,7 +226,7 @@ function anul_spravka_fns()
   endif
   return nil
 
-// 07.11.24 проверка существования справки за конкретный год
+// 08.11.24 проверка существования справки за конкретный год
 function exist_spravka( get, kod_kart, onePerson )
   // get - объект Get системы
   // kod_kart - код пациента по картотеке
@@ -239,43 +243,62 @@ function exist_spravka( get, kod_kart, onePerson )
   endif
 
   tmp_select := select()
-// ПЛАТНЫЕ УСЛУГИ
-  use_base( 'hum_p', 'hum_p' )
-  find ( str( glob_kartotek, 7 ) )
-  do while hum_p->kod_k == glob_kartotek
-    if year( hum_p->K_DATA ) == nyear
-      AAdd( aCheck, { hum_p->( recno() ), 1, ;
-        hum_p->cena, ;
-        hum_p->sum_voz } )
-    endif
-    hum_p->( dbSkip() )
-  enddo
-  hum_p->( dbCloseArea() )
+
+  // ПЛАТНЫЕ УСЛУГИ
+  if hb_vfExists( dir_server + 'hum_p.dbf' )
+    use_base( 'hum_p', 'hum_p' )
+    find ( str( glob_kartotek, 7 ) )
+    do while hum_p->kod_k == glob_kartotek
+      if year( hum_p->K_DATA ) == nyear
+        AAdd( aCheck, { hum_p->( recno() ), PLAT, ;
+          hum_p->cena, ;
+          hum_p->sum_voz } )
+      endif
+      hum_p->( dbSkip() )
+    enddo
+    hum_p->( dbCloseArea() )
+  endif
 
   // ОРТОПЕДИЯ
-  use_base( 'hum_ort' )
-  find ( str( glob_kartotek, 7 ) )
-  do while HUMAN->kod_k == glob_kartotek
-    AAdd( zakaz_naryad, HUMAN->( recno() ) )
-    HUMAN->( dbSkip() )
-  enddo
-  HUMAN->( dbCloseArea() )
+  if hb_vfExists( dir_server + 'hum_ort.dbf' ) .and. hb_vfExists( dir_server + 'hum_oro.dbf' )
+    use_base( 'hum_ort' )
+    find ( str( glob_kartotek, 7 ) )
+    do while HUMAN->kod_k == glob_kartotek
+      AAdd( zakaz_naryad, HUMAN->( recno() ) )
+      HUMAN->( dbSkip() )
+    enddo
+    HUMAN->( dbCloseArea() )
 
-  if len( zakaz_naryad ) > 0
-    use_base( 'hum_oro' ) //, 'hum_oro' )
-    for i := 1 to len( zakaz_naryad )
-      find ( str( zakaz_naryad[ i ], 7 ) )
-      do while HO->kod == zakaz_naryad[ i ]
-        if year( c4tod( HO->PDATE ) ) == nyear
-          AAdd( aCheck, { HO->( recno() ), 1, ;
-            iif( HO->cena_opl > 0, HO->cena_opl, 0 ), ;
-            iif( HO->cena_opl < 0, HO->cena_opl, 0 ) } )
-        endif
-        HO->( dbSkip() )
-      enddo
+    if len( zakaz_naryad ) > 0
+      use_base( 'hum_oro' ) //, 'hum_oro' )
+      for i := 1 to len( zakaz_naryad )
+        find ( str( zakaz_naryad[ i ], 7 ) )
+        do while HO->kod == zakaz_naryad[ i ]
+          if year( c4tod( HO->PDATE ) ) == nyear
+            AAdd( aCheck, { HO->( recno() ), ORTO, ;
+              iif( HO->cena_opl > 0, HO->cena_opl, 0 ), ;
+              iif( HO->cena_opl < 0, Abs( HO->cena_opl ), 0 ) } )
+          endif
+          HO->( dbSkip() )
+        enddo
       next
+      HO->( dbCloseArea() )
+    endif
+  endif
 
-    HO->( dbCloseArea() )
+  // Касса МО
+  if hb_vfExists( dir_server + 'kas_pl.dbf' )
+    use_base( 'kas_pl', 'KASSA' )
+    find ( str( glob_kartotek, 7 ) )
+    do while KASSA->kod_k == glob_kartotek
+      if year( KASSA->K_DATA ) == nyear
+        AAdd( aCheck, { KASSA->( recno() ), KASSA_MO, ;
+          iif( KASSA->cena > 0, KASSA->cena, 0 ), ;
+          iif( KASSA->cena < 0, Abs( KASSA->cena ), 0 ) } )
+      endif
+      KASSA->( dbSkip() )
+    enddo
+    KASSA->( dbCloseArea() )
   endif
 
   select( tmp_select )
