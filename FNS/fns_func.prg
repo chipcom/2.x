@@ -3,21 +3,16 @@
 #include 'harupdf.ch'
 #include 'chip_mo.ch'
 
-// 11.11.24
+// 12.11.24
 FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   Local detail_font_name, detail_font_nameBold
   Local detail_font_courier
   local aFonts := {}
 
-//  Local TTFArial := dir_exe + 'arial.ttf'
-//  Local TTFArialBold := dir_exe + 'arialbd.ttf'
-//  Local TTFCourier := dir_exe + 'cour.ttf'
-  local dir_fonts := HB_GETENV( 'windir' ) + hb_ps() + 'Fonts' + hb_ps()
-  Local TTFArial := dir_fonts + 'arial.ttf'
-  Local TTFArialBold := dir_fonts + 'arialbd.ttf'
-  Local TTFCourier := dir_fonts + 'cour.ttf'
-
+  Local TTFArial := dir_fonts() + 'arial.ttf'
+  Local TTFArialBold := dir_fonts() + 'arialbd.ttf'
+  Local TTFCourier := dir_fonts() + 'cour.ttf'
 
   LOCAL pdf := HPDF_New()
 
