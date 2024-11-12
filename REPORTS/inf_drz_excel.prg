@@ -4,9 +4,11 @@
 #include 'function.ch'
 #include 'hbxlsxwriter.ch'
 
+Static lcount_uch  := 1
+
 // 17.04.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
-Function inf_drz_excel( file_name, arr_m, arr )
-  local workbook, worksheet
+Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
+  local workbook, worksheet, analiz
   local merge_format, form_text_header, form_text_header_1, form_text_X, cell_format_plan
   local cell_format, cell_format_itog, cell_format_man, cell_format_woman, cell_format_full
   local merge_format_head, form_text_date_text, form_text_footer, form_text_footer_1
@@ -14,10 +16,13 @@ Function inf_drz_excel( file_name, arr_m, arr )
 //  Local buf := save_maxrow()
   local strMO := hb_StrToUtf8( glob_mo[ _MO_SHORT_NAME ] )
   local arr_plan := get_array_plan_drz( year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
-
+//
+  lcount_uch :=  tcount_uch 
+  
   if ! isnil( arr_m )
     workbook  := WORKBOOK_NEW( file_name )
     worksheet := WORKBOOK_ADD_WORKSHEET(workbook, 'Табл_1' )
+    analiz := workbook_add_worksheet( workbook,  'Дополнительный анализ' )
 
     /* Установить высоту строки */
     WORKSHEET_SET_ROW( worksheet, 0, 39.8 )
@@ -315,6 +320,92 @@ Function inf_drz_excel( file_name, arr_m, arr )
     WORKSHEET_SET_ROW( worksheet, 21, 21 )
     WORKSHEET_WRITE_STRING( worksheet, 21, 1, 'Номер телефона исполнителя', form_text_footer_1 )
     WORKSHEET_MERGE_RANGE( worksheet, 21, 2, 21, 6, '', form_text_footer )
+// добавка для РЖД
+
+  /* Установить высоту строки */
+    WORKSHEET_SET_ROW( analiz, 0, 39.8 )
+    WORKSHEET_SET_ROW( analiz, 4, 70 )
+    WORKSHEET_SET_ROW( analiz, 5, 130 )
+
+    /* Установить ширину колонок */
+    WORKSHEET_SET_COLUMN( analiz, 0, 0, 6.22 )
+    WORKSHEET_SET_COLUMN( analiz, 1, 1, 32.78 )
+    WORKSHEET_SET_COLUMN( analiz, 2, 2, 14.0 )
+    WORKSHEET_SET_COLUMN( analiz, 3, 3, 14.0 )
+    WORKSHEET_SET_COLUMN( analiz, 4, 4, 14.0 )
+    WORKSHEET_SET_COLUMN( analiz, 5, 5, 14.0 )
+    WORKSHEET_SET_COLUMN( analiz, 6, 6, 14.0 )
+    WORKSHEET_SET_COLUMN( analiz, 7, 7, 14.0 )
+    WORKSHEET_SET_COLUMN( analiz, 8, 8, 14.0 )
+    WORKSHEET_SET_COLUMN( analiz, 9, 9, 14.0 )
+   
+    for iii := 1 to 8 
+      arr_1[ 3, iii ] := arr_1[ 2, iii ] + arr_1[ 1, iii ]
+    next	
+  titlen_uchexcel( analiz, 1, 1, st_a_uch, 90, lcount_uch, fmt_excel_hC_vC_wrap( workbook ) )
+ 
+	WORKSHEET_WRITE_STRING( analiz, 4, 3,  'Определены группы здоровья по результатам 2 этапа диспансеризации (тип диспансеризации - ДР2, результат обращения в соответствии с кодом)', form_text_header )
+	WORKSHEET_WRITE_STRING( analiz, 4, 4,  'Определены группы здоровья по результатам 2 этапа диспансеризации (тип диспансеризации - ДР2, результат обращения в соответствии с кодом)', form_text_header )
+	WORKSHEET_WRITE_STRING( analiz, 4, 5,  'Определены группы здоровья по результатам 2 этапа диспансеризации (тип диспансеризации - ДР2, результат обращения в соответствии с кодом)', form_text_header )
+	worksheet_merge_range(  analiz, 4, 3, 4, 5, 'Определены группы здоровья по результатам 2 этапа диспансеризации (тип диспансеризации - ДР2, результат обращения в соответствии с кодом)' ,form_text_header  )
+	WORKSHEET_WRITE_STRING( analiz, 5, 3,  '1 группа РЗ (код классификатора 375 )', form_text_header )
+	WORKSHEET_WRITE_STRING( analiz, 5, 4,  '2 группа РЗ (код классификатора 376 )', form_text_header )
+	WORKSHEET_WRITE_STRING( analiz, 5, 5,  '3 группа РЗ (код классификатора 377 )', form_text_header )
+	WORKSHEET_WRITE_STRING( analiz, 4, 6,  'Из числа прошедших диспансеризацию состояли под диспансерным наблюдением (из  графы 4)', form_text_header )
+	WORKSHEET_WRITE_STRING( analiz, 4, 7,  'Из числа прошедших диспансеризацию состояли под диспансерным наблюдением (из  графы 4)', form_text_header )
+	worksheet_merge_range(  analiz, 4, 6, 4, 7, 'Из числа прошедших диспансеризацию состояли под диспансерным наблюдением (из  графы 4)' ,form_text_header  )
+	WORKSHEET_WRITE_STRING( analiz, 5, 6,  'всего, чел.', form_text_header )
+	WORKSHEET_WRITE_STRING( analiz, 5, 7,  'из них: диспансерное наблюдение установлено впервые по результатам проведения диспансеризации ', form_text_header )
+//
+
+  WORKSHEET_WRITE_STRING( analiz, 6, 1,  'Число мужчин прошли 2-й этап', form_text_header )
+	WORKSHEET_WRITE_NUMBER( analiz, 6, 2, arr_1[ 1, 1 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 6, 3, arr_1[ 1, 3 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 6, 4, arr_1[ 1, 5 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 6, 5, arr_1[ 1, 7 ], cell_format )	
+	WORKSHEET_WRITE_NUMBER( analiz, 6, 6, arr_1[ 1, 9 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 6, 7, arr_1[ 1, 11 ], cell_format )
+	WORKSHEET_WRITE_STRING( analiz, 7, 1,  'в том числе сельских жителей', form_text_header )
+	WORKSHEET_WRITE_NUMBER( analiz, 7, 2, arr_1[ 1, 2 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 7, 3, arr_1[ 1, 4 ], cell_format )	
+	WORKSHEET_WRITE_NUMBER( analiz, 7, 4, arr_1[ 1, 6 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 7, 5, arr_1[ 1, 8 ], cell_format )	
+	WORKSHEET_WRITE_NUMBER( analiz, 7, 6, arr_1[ 1, 10 ], cell_format )	
+  WORKSHEET_WRITE_NUMBER( analiz, 7, 7, arr_1[ 1, 12 ], cell_format )		
+  
+  WORKSHEET_WRITE_STRING( analiz, 8, 1,  'Число женщин прошли 2-й этап', form_text_header )	
+	WORKSHEET_WRITE_NUMBER( analiz, 8, 2, arr_1[ 2, 1 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 8, 3, arr_1[ 2, 3 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 8, 4, arr_1[ 2, 5 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 8, 5, arr_1[ 2, 7 ], cell_format )	
+	WORKSHEET_WRITE_NUMBER( analiz, 8, 6, arr_1[ 2, 9 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 8, 7, arr_1[ 2, 11 ], cell_format )	
+	WORKSHEET_WRITE_STRING( analiz, 9, 1,  'в том числе сельских жителей', form_text_header )
+	WORKSHEET_WRITE_NUMBER( analiz, 9, 2, arr_1[ 2, 2 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 9, 3, arr_1[ 2, 4 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 9, 4, arr_1[ 2, 6 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 9, 5, arr_1[ 2, 8 ], cell_format )	
+	WORKSHEET_WRITE_NUMBER( analiz, 9, 6, arr_1[ 2, 10 ], cell_format )
+    WORKSHEET_WRITE_NUMBER( analiz, 9, 7, arr_1[ 2, 12 ], cell_format )	
+  		
+	WORKSHEET_WRITE_STRING( analiz, 10, 1,  'Итого прошли 2-й этап', form_text_header )
+	WORKSHEET_WRITE_NUMBER( analiz, 10, 2, arr_1[ 3, 1 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 10, 3, arr_1[ 3, 3 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 10, 4, arr_1[ 3, 5 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 10, 5, arr_1[ 3, 7 ], cell_format )		
+	WORKSHEET_WRITE_NUMBER( analiz, 10, 6, arr_1[ 3, 9 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 10, 7, arr_1[ 3, 11 ], cell_format )
+	WORKSHEET_WRITE_STRING( analiz, 11, 1,  'в том числе сельских жителей', form_text_header )
+	WORKSHEET_WRITE_NUMBER( analiz, 11, 2, arr_1[ 3, 2 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 11, 3, arr_1[ 3, 4 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 11, 4, arr_1[ 3, 6 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 11, 5, arr_1[ 3, 8 ], cell_format )	
+	WORKSHEET_WRITE_NUMBER( analiz, 11, 6, arr_1[ 3, 10 ], cell_format )
+	WORKSHEET_WRITE_NUMBER( analiz, 11, 7, arr_1[ 3, 12 ], cell_format )
+	
+	
+		WORKSHEET_WRITE_NUMBER( analiz, 31, 7, arr_1[ 3, 12 ], nil )
+	
     WORKBOOK_CLOSE( workbook )
 
   endif

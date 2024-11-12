@@ -6,22 +6,62 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 08.07.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+Static lcount_uch  := 1
+
+// 12.11.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz()
 
   Local arr_m, buf := save_maxrow()
   Local name_file := 'Диспансеризация репродуктивного здоровья'
-  local arr, i
+  local arr, i, arr_1
   Local name_file_full := name_file + '.xlsx'
   local lCity := .f., lPatologiya := .f.
   local beginPeriod
+  local sdate1, sdate, blk
+  local pole_diag, pole_1pervich, iii, pole_1dispans 
 
-  If ( arr_m := year_month( T_ROW, T_COL - 5, , 1 ) ) != NIL
+
+  DEFAULT sdate TO sys_date
+  DEFAULT sdate1 TO sys_date
+  //
+  for i := 1 to 5 // создадим приватные переменные для выявленных диагнозов
+    sk := lstr( i )
+    pole_diag := 'mdiag' + sk
+    pole_1pervich := 'm1pervich' + sk
+    pole_1dispans := 'm1dispans' + sk
+    Private &pole_diag := space( 6 )
+    Private &pole_1pervich := 0
+    Private &pole_1dispans := 0
+   next
+  //
+  if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
+    blk := {| x, y| if( x > y, func_error( 4, 'Начальная дата больше конечной!' ), .t. ) }
+    arr_m := input_diapazon( maxrow()-4,2,maxrow()-2,76, cDataCGet, ;
+      { 'Введите начальную', 'и конечную', 'даты диспансеризации' }, ;
+      { sdate1, sdate },, blk )
+    if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) == NIL
+      return NIL
+    endif
+  else
+    arr_m := year_month( T_ROW, T_COL - 5, , 1 ) 
+  endif
+ // my_debug(,print_array(arr_m))
+  If  arr_m != NIL
     // arr[1, ...]-мужчины, arr[2, ...]-мужчины село, arr[3, ...]-женщины, arr[4, ...]-женщины село
     arr := array( 4, 10 )
+    arr_1 := array( 3, 12 )
+    // 1- всего 2-село 3- всего 375, 4- село 375, 5- всего 376, 6- село 376, 7- всего 377, 8-село 377, 9 - диаг всего 10 -село
     afillall( arr, 0 )
-    beginPeriod := BoY( arr_m[ 6 ] )  // начало периода, расчет идет нарастающим способом
-
+    afillall( arr_1, 0 ) 
+    if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
+      sdate := arr_m[2]
+      sdate1 := arr_m[1] 
+      beginPeriod :=  sdate1
+      arr_m := {year(sdate),NIL,NIL,,sdate1,sdate,dtoc4(sdate1),dtoc4(sdate)}
+    else  
+      beginPeriod := BoY( arr_m[ 6 ] )  // начало периода, расчет идет нарастающим способом
+    endif
+   // my_debug(,print_array(arr_m))
     Private m1nazn_l  := 0, m1dopo_na := 0, m1ssh_na  := 0, ;
       m1spec_na := 0, m1sank_na := 0, m1napr_stac := 0
     
@@ -45,48 +85,142 @@ Function inf_drz()
       lPatologiya := .f.
       arr_otklon := {}
       // if between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
-      if is_sluch_dispanser_DRZ( human->ishod )
+      if is_sluch_dispanser_DRZ( human->ishod ) .and. iif(glob_mo[_MO_KOD_TFOMS] == '711001',f_is_uch(st_a_uch,human->lpu),.T.)
         kart->( dbGoto( human->kod_k ) )
         lCity := f_is_selo( kart_->gorod_selo, kart_->okatog )
         read_arr_drz( human->kod, .t. )      
         if human->pol == 'М'
+          if human->ishod - BASE_ISHOD_RZD != 2  // не второй этап
+          for iii := 1 to 4
+            pole_diag := 'mdiag' + lstr(iii)
+            pole_1pervich := 'm1pervich' + lstr(iii)
+            pole_1dispans := 'm1dispans' + lstr(iii)
+            if !empty(&pole_diag) 
+              if &pole_1dispans > 0 // состот на ДН
+                arr_1[ 1, 9 ] ++ 
+                if &pole_1pervich == 1 //впервые
+                  arr_1[ 1, 11 ] ++ 
+                endif 
+              endif   
+              if ! lCity
+                if &pole_1dispans > 0 // состот на ДН
+                  arr_1[ 1, 10 ] ++ 
+                  if &pole_1pervich == 1 //впервые
+                    arr_1[ 1, 12 ] ++ 
+                  endif 
+                endif   
+              endif  
+            endif  
+          next
+        endif
           if human_->RSLT_NEW == 375
             arr[ 1, 1 ]++
             if ! lCity
               arr[ 2, 1 ]++
             endif
+            if human->ishod - BASE_ISHOD_RZD == 2  // получим сохраненный этап диспансеризации
+              arr_1[ 1, 1 ] ++  
+              arr_1[ 1, 3 ] ++  
+              if ! lCity
+                arr_1[ 1, 2 ]++
+                arr_1[ 1, 4 ] ++
+              endif
+            endif  
           elseif human_->RSLT_NEW == 376
             arr[ 1, 2 ]++
             if ! lCity
               arr[ 2, 2 ]++
             endif
-          elseif human_->RSLT_NEW == 377
+            if human->ishod - BASE_ISHOD_RZD == 2  // получим сохраненный этап диспансеризации
+              arr_1[ 1, 1 ] ++ 
+              arr_1[ 1, 5 ] ++  
+              if ! lCity
+                arr_1[ 1, 2 ]++
+                arr_1[ 1, 6 ] ++ 
+              endif
+            endif  
+           elseif human_->RSLT_NEW == 377
             arr[ 1, 3 ]++
             if ! lCity
               arr[ 2, 3 ]++
             endif
-          elseif human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
+            if human->ishod - BASE_ISHOD_RZD == 2  // получим сохраненный этап диспансеризации
+              arr_1[ 1, 1 ] ++
+              arr_1[ 1, 7 ] ++ 
+              if ! lCity
+                arr_1[ 1, 2 ] ++
+                arr_1[ 1, 8 ] ++ 
+              endif
+            endif  
+           elseif human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
             arr[ 1, 4 ]++
             if ! lCity
               arr[ 2, 4 ]++
             endif
           endif
         else  // женщины
+          if human->ishod - BASE_ISHOD_RZD != 2  // не второй этап
+          for iii := 1 to 4
+            pole_diag := 'mdiag' + lstr(iii)
+            pole_1pervich := 'm1pervich' + lstr(iii)
+            pole_1dispans := 'm1dispans' + lstr(iii)
+            if !empty(&pole_diag) 
+              if &pole_1dispans > 0 // состот на ДН
+                arr_1[ 2, 9 ] ++ 
+                if &pole_1pervich == 1 //впервые
+                  arr_1[ 2, 11 ] ++ 
+                endif 
+              endif   
+              if ! lCity
+                if &pole_1dispans > 0 // состот на ДН
+                  arr_1[ 2, 10 ] ++ 
+                  if &pole_1pervich == 1 //впервые
+                    arr_1[ 2, 12 ] ++ 
+                  endif 
+                endif   
+              endif  
+            endif  
+          next
+          endif 
           if human_->RSLT_NEW == 375
             arr[ 3, 1 ]++
             if ! lCity
               arr[ 4, 1 ]++
             endif
-          elseif human_->RSLT_NEW == 376
+            if human->ishod - BASE_ISHOD_RZD == 2  // получим сохраненный этап диспансеризации
+              arr_1[ 2, 1 ] ++
+              arr_1[ 2, 3 ] ++  
+              if ! lCity
+                arr_1[ 2, 2 ]++
+                arr_1[ 2, 4 ] ++ 
+              endif
+            endif  
+           elseif human_->RSLT_NEW == 376
             arr[ 3, 2 ]++
             if ! lCity
               arr[ 4, 2 ]++
             endif
+            if human->ishod - BASE_ISHOD_RZD == 2  // получим сохраненный этап диспансеризации
+              arr_1[ 2, 1 ] ++  
+              arr_1[ 2, 5 ] ++  
+              if ! lCity
+                arr_1[ 2, 2 ]++
+                arr_1[ 2, 6 ] ++  
+              endif
+            endif  
           elseif human_->RSLT_NEW == 377
             arr[ 3, 3 ]++
             if ! lCity
               arr[ 4, 3 ]++
             endif
+            if human->ishod - BASE_ISHOD_RZD == 2  // получим сохраненный этап диспансеризации
+              arr_1[ 2, 1 ] ++  
+              arr_1[ 2, 7 ] ++ 
+              if ! lCity
+                arr_1[ 2, 2 ] ++
+                arr_1[ 2, 8 ] ++ 
+              endif
+            endif  
           elseif human_->RSLT_NEW == 378 .or. human_->RSLT_NEW == 379
             arr[ 3, 4 ]++
             if ! lCity
@@ -144,7 +278,7 @@ Function inf_drz()
     Enddo
     dbCloseAll()
   
-    inf_drz_excel( hb_OEMToANSI( name_file_full ), arr_m, arr )
+    inf_drz_excel( hb_OEMToANSI( name_file_full ), arr_m, arr, arr_1, lcount_uch )
     work_with_Excel_file( name_file_full )
   endif
   return nil
