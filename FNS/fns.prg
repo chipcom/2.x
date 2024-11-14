@@ -67,17 +67,20 @@ Function defcolumn_spravka_fns( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  s := '<Esc> выход <F8> возврат <F9> печать <Del> аннулирование'
+  s := '<Esc> выход <F5> журнал справок <F9> печать <Del> аннулирование'
   @ MaxRow(), 0 Say PadC( s, 80 ) Color 'N/W'
-  mark_keys( { '<Esc>', '<Enter>', '<Ins>', '<Del>', '<Ctrl+Enter>', '<F3>', '<F4>', '<F8>', '<F9>', '<F10>' }, 'R/W' )
+  mark_keys( { '<Esc>', '<Del>', '<F5>', '<F9>' }, 'R/W' )
 
   Return Nil
 
-// 11.08.24
+// 14.11.24
 Function serv_spravka_fns( nKey, oBrow )
 
   Local j := 0, flag := -1, buf := save_row( MaxRow() ), ;
     tmp_color := SetColor(), r1 := 15, c1 := 2
+  local arr_m
+  Local name_file := 'Журнал сформированных справок'
+  Local name_file_full := name_file + '.xlsx'
 
   Do Case
   Case nKey == K_F9
@@ -86,7 +89,15 @@ Function serv_spravka_fns( nKey, oBrow )
     else
       func_error( 4, 'Справка включена в файл обмена с ФНС!' )
     endif
-  Case nKey == K_DEL
+  Case nKey == K_F5
+    If ( arr_m := year_month( ) ) == NIL
+      return flag
+    endif
+
+    fns_jornal_excel( hb_OEMToANSI( name_file_full ), arr_m )
+//    work_with_Excel_file( name_file_full )
+
+    Case nKey == K_DEL
     anul_spravka_fns()
   Otherwise
     Keyboard ''
