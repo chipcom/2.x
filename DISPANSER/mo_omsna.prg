@@ -31,21 +31,21 @@ Function f_init_d01()
   { "KOD_K",    "N", 7, 0 }, ; // код по картотеке
   { "VRACH",    "N", 4, 0 }, ; // лечащий врач
   { "PRVS",     "N", 9, 0 }, ; // Специальность врача по справочнику V004, с минусом - по справочнику V015
-  { "KOD_DIAG","C", 5, 0 }, ; // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
-  { "N_DATA","D", 8, 0 }, ; // дата начала диспансерного наблюдения
+  { "KOD_DIAG", "C", 5, 0 }, ; // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
+  { "N_DATA", "D", 8, 0 }, ; // дата начала диспансерного наблюдения
   { "LU_DATA",  "D", 8, 0 }, ; // дата листа учёта с целью диспансерного наблюдения
   { "NEXT_DATA", "D", 8, 0 }, ; // дата следующей явки с целью диспансерного наблюдения
   { "FREQUENCY", "N", 2, 0 }, ; // количество месяцев в течение которых предполагается одна явка пациента
   { "MESTO",    "N", 1, 0 }, ;  // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
-  { "PEREHOD",  "N", 1, 0 }, ;  // переход 2021
+    { "PEREHOD",  "N", 1, 0 }, ;  // переход 2021
   { "PEREHOD1", "N", 1, 0 }, ;  // переход заплатка 2021
-  { "PEREHOD2", "N", 1, 0 }, ;  // переход заплатка 2021
+    { "PEREHOD2", "N", 1, 0 }, ;  // переход заплатка 2021
   { "PEREHOD3", "N", 1, 0 }, ;  // переход 2022
-  { "PEREHOD4", "N", 1, 0 }, ;  // переход 2023 начало
+    { "PEREHOD4", "N", 1, 0 }, ;  // переход 2023 начало
   { "PEREHOD5", "N", 1, 0 }, ;  // переход 2023 Полный
-  { "PEREHOD6", "N", 1, 0 },;   // переход 2024
-  { "PEREHOD7", "N", 1, 0 },;   // переход 2024 диагнозы Е10
-  { "PEREHOD8", "N", 1, 0 };   // переход 2024 - Дополнительное письмо в 01.2024 
+    { "PEREHOD6", "N", 1, 0 }, ;   // переход 2024
+  { "PEREHOD7", "N", 1, 0 }, ;   // переход 2024 диагнозы Е10
+    { "PEREHOD8", "N", 1, 0 };   // переход 2024 - Дополнительное письмо в 01.2024
   }
   Local mo_d01 := { ; // отсылаемые файлы D01
   { "KOD",         "N", 6, 0 }, ; // код реестра (номер записи)
@@ -60,31 +60,31 @@ Function f_init_d01()
   { "ANSWER",      "N", 1, 0 }, ; // 0-не было ответа, 1-получен ответ (D02)
   { "KOL",         "N", 6, 0 }, ; // количество пациентов в реестре/файле
   { "KOL_ERR",     "N", 6, 0 };  // количество пациентов с ошибками в реестре
-  }
+    }
   Local mo_d01k := { ; // список пациентов в реестрах
   { "REESTR",   "N", 6, 0 }, ; // код реестра по файлу "mo_d01"
   { "KOD_K",    "N", 7, 0 }, ; // код по картотеке
   { "D01_ZAP",  "N", 6, 0 }, ; // номер позиции записи в реестре;"ZAP" в D01
   { "ID_PAC",   "C", 36, 0 }, ; // GUID пациента в D01 (создается при добавлении записи)
   { "MESTO",    "N", 1, 0 }, ; // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
-  { "OPLATA",   "N", 1, 0 };  // тип оплаты: сначала 0, затем из ТФОМС 1,2,3,4 
-  }
+  { "OPLATA",   "N", 1, 0 };  // тип оплаты: сначала 0, затем из ТФОМС 1,2,3,4
+    }
   Local mo_d01d := { ; // список диагнозов пациентов в реестрах
   { "KOD_D",    "N", 6, 0 }, ; // код (номер записи) по файлу "mo_d01k"
   { "PRVS",     "N", 4, 0 }, ; // Специальность врача по справочнику V021
-  { "KOD_DIAG","C", 5, 0 }, ;  // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
-  { "N_DATA","D", 8, 0 }, ;    // дата начала диспансерного наблюдения
-  { "NEXT_DATA", "D", 8, 0 }, ; // дата явки с целью диспансерного наблюдения
-  { "FREQUENCY", "N", 2, 0 },;  // количество месяцев в течение которых предполагается одна явка пациента
+  { "KOD_DIAG", "C", 5, 0 }, ;  // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
+  { "N_DATA", "D", 8, 0 }, ;    // дата начала диспансерного наблюдения
+    { "NEXT_DATA", "D", 8, 0 }, ; // дата явки с целью диспансерного наблюдения
+  { "FREQUENCY", "N", 2, 0 }, ;  // количество месяцев в течение которых предполагается одна явка пациента
   { "KOD_N",    "N", 6, 0 }, ; // код (номер записи) по файлу "mo_dnab"
-  { "OPLATA",   "N", 1, 0 };   // тип оплаты: сначала 0, затем из ТФОМС 1,2,3,4  - первично капируем из mo_d01k 
-  }
+  { "OPLATA",   "N", 1, 0 };   // тип оплаты: сначала 0, затем из ТФОМС 1,2,3,4  - первично капируем из mo_d01k
+    }
   Local mo_d01e := { ; // список ошибок в реестрах будущих диспансеризаций
   { "REESTR",   "N", 6, 0 }, ; // код реестра;по файлу "mo_d01"
   { "D01_ZAP",  "N", 6, 0 }, ; // номер позиции записи в реестре;"ZAP") в D01
   { "KOD_ERR",  "N", 3, 0 }, ; // код ошибки ТК
   { "MESTO",    "N", 1, 0 };  // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
-  }
+    }
   reconstruct( dir_server + "mo_d01", mo_d01, , , .t. )
   reconstruct( dir_server + "mo_d01k", mo_d01k, , , .t. )
   reconstruct( dir_server + "mo_d01d", mo_d01d, , , .t. )
@@ -99,8 +99,8 @@ Function disp_nabludenie( k )
   Static S_sem := "disp_nabludenie"
   Static si1 := 2, si2 := 1, si3 := 2, si4 := 1, si5 := 1, si6 := 1
   Local mas_pmt, mas_msg, mas_fun, j, buf, fl_umer := .f., zaplatka_D01 := .f., ;
-        zaplatka_D02 := .f., zaplatka_D07 := .f., zaplatka_D08 := .f.,  zaplatka_D_OPL := .f.,;
-        zaplatka_D09 := .f.   
+    zaplatka_D02 := .f., zaplatka_D07 := .f., zaplatka_D08 := .f.,  zaplatka_D_OPL := .f., ;
+    zaplatka_D09 := .f.
 
   Default k To 1
 
@@ -109,23 +109,23 @@ Function disp_nabludenie( k )
     // временное начало
     r_use( dir_server + "mo_d01d" )
     If FieldNum( "OPLATA" ) == 0 //
-      zaplatka_D_OPL := .T.
-    endif
+      zaplatka_D_OPL := .t.
+    Endif
     Close databases
     //
     r_use( dir_server + "mo_dnab" )
-    If FieldNum( "PEREHOD7" ) == 0 //Диагнозы E10
-      zaplatka_D07 := .T.
-    endif
-    If FieldNum( "PEREHOD8" ) == 0 //Дополнительное письмо в 01.2024
-      zaplatka_D08 := .T.
-    endif
-    If FieldNum( "PEREHOD9" ) == 0 //Дополнительное письмо в 01.2024
-      zaplatka_D09 := .T.
-    endif
+    If FieldNum( "PEREHOD7" ) == 0 // Диагнозы E10
+      zaplatka_D07 := .t.
+    Endif
+    If FieldNum( "PEREHOD8" ) == 0 // Дополнительное письмо в 01.2024
+      zaplatka_D08 := .t.
+    Endif
+    If FieldNum( "PEREHOD9" ) == 0 // Дополнительное письмо в 01.2024
+      zaplatka_D09 := .t.
+    Endif
     //
- /*   
-    if zaplatka_D08 
+ /*
+    if zaplatka_D08
       waitstatus( "Ждите! Обрабатывается список по диспансерному наблюдению на 2024 год" )
       f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
       r_use( dir_server + "mo_D01",,   "D01" )  //реестры
@@ -135,37 +135,37 @@ Function disp_nabludenie( k )
       Go Top
       Do While !Eof()
         updatestatus()
-        If dn->n_data > stod("20231201") 
+        If dn->n_data > stod("20231201")
           dn->n_data := stod("20231101") // ставлю от фонаря
         Endif
         //
-        if dn->next_data < stod("20240201") 
+        if dn->next_data < stod("20240201")
           select D01
           go top
           do while !eof()
             if D01->NYEAR == 2023
               select D01K
-              find (str(d01->kod,6)+str(dn->kod_k,7))  
-              if found()     
-                if d01k->OPLATA == 1 
-                  //принят  
+              find (str(d01->kod,6)+str(dn->kod_k,7))
+              if found()
+                if d01k->OPLATA == 1
+                  //принят
                 else // все другие варианты
                   dn->next_data := stod("20240201") // ставлю от фонаря
                 endif
-              endif 
+              endif
             endif
             select D01
-            skip 
+            skip
           enddo
-        endif  
-        select DN 
+        endif
+        select DN
         Skip
       Enddo
       Commit
     endif
- */   
+ */
     //
-/*    
+/*
     If FieldNum( "PEREHOD6" ) == 0
       Close databases
       If !g_slock( S_sem )
@@ -539,8 +539,8 @@ Function disp_nabludenie( k )
     */
     Close databases
     Private mdate_r, M1VZROS_REB
-    
-    if zaplatka_D_OPL
+
+    If zaplatka_D_OPL
       If !g_slock( S_sem )
         Return func_error( 4, "Доступ в данный режим пока запрещён" )
       Endif
@@ -550,49 +550,49 @@ Function disp_nabludenie( k )
       Use ( dir_server + "mo_dnab" ) New Alias DN
       Index On Str( KOD_K, 7 ) + KOD_DIAG to ( dir_server + "mo_dnab" )
       //
-      g_use( dir_server + "mo_d01d" ,,"mo_d01d",.T.,.T.) // список диагнозов пациентов
-      Index On Str( kod_d, 7 ) to ( cur_dir + "tmp_kodd" ) 
-      //{ "KOD_D",    "N", 6, 0 }, ; // код (номер записи) по файлу "mo_d01k"
+      g_use( dir_server + "mo_d01d",, "mo_d01d", .t., .t. ) // список диагнозов пациентов
+      Index On Str( kod_d, 7 ) to ( cur_dir + "tmp_kodd" )
+      // { "KOD_D",    "N", 6, 0 }, ; // код (номер записи) по файлу "mo_d01k"
       r_use( dir_server + "mo_d01k"  ) // список пациентов в реестрах
       r_use( dir_server + "mo_d01"  ) // список реестров
       //
-      select MO_D01
-      do while !eof()
-        if year(MO_D01->dschet) > 2022
-          select mo_D01K
-          go Top
-          do while !eof()
-            if MO_D01K->reestr == MO_D01->kod
+      Select MO_D01
+      Do While !Eof()
+        If Year( MO_D01->dschet ) > 2022
+          Select mo_D01K
+          Go Top
+          Do While !Eof()
+            If MO_D01K->reestr == MO_D01->kod
               // вышли на пациента из реестра
-              select MO_D01D
-              find (str(mo_d01k->(recno()),7))
-              do while mo_d01d->kod_d == mo_d01k->(recno()) .and. !eof()
+              Select MO_D01D
+              find ( Str( mo_d01k->( RecNo() ), 7 ) )
+              Do While mo_d01d->kod_d == mo_d01k->( RecNo() ) .and. !Eof()
                 // идем по диагнозам данного пациента
                 t_rec := 0
-                select DN 
-                find(Str( mo_d01k->kod_k, 7 ) + mo_d01d->KOD_DIAG )
-                if found()
-                  t_rec := dn->(recno())
-                endif 
-                select MO_D01D
+                Select DN
+                find( Str( mo_d01k->kod_k, 7 ) + mo_d01d->KOD_DIAG )
+                If Found()
+                  t_rec := dn->( RecNo() )
+                Endif
+                Select MO_D01D
                 g_rlock( forever )
                 mo_d01d->oplata := mo_d01k->oplata
                 mo_d01d->kod_n  := t_rec
                 Unlock
-                skip  // диагнозы
-              enddo    
-            endif     
-            select MO_D01K // люди
-            skip  
-          enddo
+                Skip  // диагнозы
+              Enddo
+            Endif
+            Select MO_D01K // люди
+            Skip
+          Enddo
         Endif
-        select mo_d01 // реестры
-        skip
-      enddo    
+        Select mo_d01 // реестры
+        Skip
+      Enddo
       Close databases
       rest_box( buf )
       g_sunlock( S_sem )
-    endif  
+    Endif
     // временный конец
     //
     mas_pmt := { "~Работа с файлами обмена D01", ;
@@ -601,7 +601,7 @@ Function disp_nabludenie( k )
       "Просмотр информации по результатам диспансерного наблюдения" }
     mas_fun := { "disp_nabludenie(11)", ;
       "disp_nabludenie(12)" }
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
     mas_pmt := { "Первичный ~ввод", ;
       "~Информация", ;
@@ -612,7 +612,7 @@ Function disp_nabludenie( k )
     mas_fun := { "disp_nabludenie(21)", ;
       "disp_nabludenie(22)", ;
       "disp_nabludenie(23)" }
-    popup_prompt( T_ROW, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 21
     mas_pmt := { "Ввод с поиском по лечащему ~врачу", ;
       "Ввод с поиском по ~пациенту", ;
@@ -623,18 +623,18 @@ Function disp_nabludenie( k )
     mas_fun := { "disp_nabludenie(51)", ;
       "disp_nabludenie(52)", ;
       "disp_nabludenie(53)"   }
-    popup_prompt( T_ROW, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si5, mas_pmt, mas_msg, mas_fun )
   Case k == 22
     mas_pmt := { "Информация по ~первичному вводу", ;
-      "Список обязательных ~диагнозов", ; 
-    "Дополнительный поиск пациентов" }
+      "Список обязательных ~диагнозов" }
+    // "Дополнительный поиск пациентов" }
     mas_msg := { "Информация по первичному вводу сведений о состоящих на диспансерном учёте", ;
-      "Список диагнозов, обязательных для диспансерного наблюдения", ; 
-    "Дополнительный поиск пациентов (посетивших поликлинику с диагнозами ДН)" }
+      "Список диагнозов, обязательных для диспансерного наблюдения" }
+    // "Дополнительный поиск пациентов (посетивших поликлинику с диагнозами ДН)" }
     mas_fun := { "disp_nabludenie(41)", ;
-      "disp_nabludenie(42)", ;
-      "disp_nabludenie(43)" }
-    popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+      "disp_nabludenie(42)" }
+    // "disp_nabludenie(43)" }
+    popup_prompt( T_ROW, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
   Case k == 23
     // ne_real()
     mas_pmt := { "~Создание файла обмена D01", ;
@@ -643,13 +643,13 @@ Function disp_nabludenie( k )
       "Просмотр файлов обмена D01... и результатов работы с ними" }
     mas_fun := { "disp_nabludenie(31)", ;
       "disp_nabludenie(32)" }
-    popup_prompt( T_ROW, T_COL - 5, si3, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si3, mas_pmt, mas_msg, mas_fun )
   Case k == 41
     inf_disp_nabl()
   Case k == 42
     spr_disp_nabl()
-  Case k == 43
-    f_inf_dop_disp_nabl()
+    // Case k == 43
+    // f_inf_dop_disp_nabl()
     // pac_disp_nabl()
   Case k == 31
     f_create_d01()
@@ -660,15 +660,15 @@ Function disp_nabludenie( k )
   Case k == 52
     vvodp_disp_nabl()
   Case k == 53
-    vvodn_disp_nabl()  
+    vvodn_disp_nabl()
   Case k == 12
     mas_pmt := { "~Отсутствуют л/у с диспансерным наблюдением", ;
-                 "~Существуют л/у с диспансерным наблюдением"}
+      "~Существуют л/у с диспансерным наблюдением" }
     mas_msg := { "Список пациентов, у которых осутствуют л/у с диспансерным наблюдением", ;
-                 "Список пациентов, у которых существуют л/у с диспансерным наблюдением"}
+      "Список пациентов, у которых существуют л/у с диспансерным наблюдением" }
     mas_fun := { "disp_nabludenie(61)", ;
-                 "disp_nabludenie(62)"}
-  popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
+      "disp_nabludenie(62)" }
+    popup_prompt( T_ROW, T_COL -5, si6, mas_pmt, mas_msg, mas_fun )
   Case k == 61
     f_inf_disp_nabl( 1 )
   Case k == 62
@@ -715,7 +715,7 @@ Function f_inf_dop_disp_nabl()
     buf1, ii1 := 0, s, s2, i, t_arr[ 2 ], ar, ausl, fl
   Private mm_dopo_na := { { "2.78", 1 }, { "2.79", 2 }, { "2.88 ДН", 3 }, { "2.88 не ДН", 4 } }
   Private gl_arr := { ;  // для битовых полей
-  { "dopo_na", "N", 10, 0,,,, {| x| inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
+    { "dopo_na", "N", 10, 0,,,, {| x| inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
     }
   Private mdopo_na, m1dopo_na := 0, muchast, m1uchast := 0, arr_uchast := {}, ;
     m1period := 0, mperiod := Space( 10 ), parr_m
@@ -727,7 +727,7 @@ Function f_inf_dop_disp_nabl()
   @ 16, 10 Say "По каким услугам проводить доп.поиск" Get mdopo_na ;
     reader {| x| menu_reader( x, mm_dopo_na, A__MENUBIT,,, .f. ) }
   @ 17, 10 Say "Участок (участки)" Get muchast ;
-    reader {| x| menu_reader( x, { {|k, r, c| get_uchast( r + 1, c ) } }, A__FUNCTION,,, .f. ) }
+    reader {| x| menu_reader( x, { {| k, r, c| get_uchast( r + 1, c ) } }, A__FUNCTION,,, .f. ) }
   @ 18, 10 Say "За какой период времени вести поиск" Get mperiod ;
     reader {| x| menu_reader( x, ;
     { {| k, r, c| k := year_month( r + 1, c ), ;
@@ -875,19 +875,20 @@ Function f_inf_dop_disp_nabl()
 
   Return Nil
 
- //15.10.24
-Function  vvodn_disp_nabl()  
+// 15.10.24
+Function  vvodn_disp_nabl()
+
   Local new_hum := 0, new_diag := 0
   Static S_sem := "disp_nabludenie"
-    
-  if f_esc_enter( "Подгрузка новых ДН", .t. )
+
+  If f_esc_enter( "Подгрузка новых ДН", .t. )
     Close databases
     If !g_slock( S_sem )
       Return func_error( 4, "Доступ в данный режим пока запрещён" )
     Endif
     buf := save_maxrow()
     waitstatus( "Ждите! Составляется список по диспансерному наблюдению на 2024 год" )
-    //f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
+    // f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
     // проверяем на изменение приказа - если диагноза нет - удаляем пациента из списка
     Use ( dir_server + "mo_dnab" ) New Alias DN
     Index On Str( KOD_K, 7 ) + KOD_DIAG to ( dir_server + "mo_dnab" )
@@ -954,7 +955,7 @@ Function  vvodn_disp_nabl()
                 Select DN
                 find ( Str( human->KOD_K, 7 ) + PadR( ar_dn[ j ], 5 ) )
                 If !Found()
-                  new_diag ++
+                  new_diag++
                   addrec( 7 )
                   dn->KOD_K := human->KOD_K
                   dn->KOD_DIAG := ar_dn[ j ]
@@ -1051,8 +1052,9 @@ Function  vvodn_disp_nabl()
     //
     rest_box( buf )
     g_sunlock( S_sem )
-    func_error( 4, "Добавлено "+lstr(new_diag)+" пациентов на ДН" )
+    func_error( 4, "Добавлено " + lstr( new_diag ) + " пациентов на ДН" )
   Endif
+
   Return Nil
 
 // 02.12.19 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
@@ -1063,7 +1065,7 @@ Function vvodp_disp_nabl()
   mywait()
   dbCreate( "tmp_kart", { ;
     { "KOD_K",    "N", 7, 0 }, ; // код по картотеке
-    { "FIO",      "C", 50, 0 }, ;
+  { "FIO",      "C", 50, 0 }, ;
     { "POL",      "C", 1, 0 }, ;
     { "DATE_R",   "D", 8, 0 };
     } )
@@ -1112,11 +1114,12 @@ Function f1vvodp_disp_nabl( oBrow )
   oColumn := TBColumnNew( 'Дата рожд.', {|| full_date( tmp_kart->date_r ) } )
   oBrow:addcolumn( oColumn )
 
- Return Nil
+  Return Nil
 
 
 // 23.12.22 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
 Function f2vvodp_disp_nabl( lkod_k )
+
   Local buf := SaveScreen(), k, s, s1, t_arr := Array( BR_LEN ), str_sem1, lcolor
 
   Private str_find, muslovie
@@ -1186,7 +1189,7 @@ Function f3vvodp_disp_nabl( nKey, oBrow, regim )
       Endif
       Private gl_area := { 1, 0, MaxRow() -1, 79, 0 }, ;
         mKOD_DIAG := iif( nKey == K_INS, Space( 5 ), dn->kod_diag ), ;
-        mN_DATA := iif( nKey == K_INS, sys_date - 1, dn->n_data ), ;
+        mN_DATA := iif( nKey == K_INS, sys_date -1, dn->n_data ), ;
         mNEXT_DATA := iif( nKey == K_INS, 0d20240101, dn->next_data ), ;  // ЮЮ
       mfrequency := iif( nKey == K_INS, 3, dn->frequency ), ;
         MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
@@ -1200,9 +1203,9 @@ Function f3vvodp_disp_nabl( nKey, oBrow, regim )
         mvrach := PadR( fam_i_o( p2->fio ) + " " + ret_tmp_prvs( m1prvs ), 36 )
       Endif
       p2->( dbCloseArea() )
-      r1 := pr2 - 8 ; r2 := pr2 - 1
+      r1 := pr2 -8 ; r2 := pr2 -1
       tmp_color := SetColor( cDataCScr )
-      box_shadow( r1, pc1 + 1, r2, pc2 - 1,, iif( nKey == K_INS, "Добавление", "Редактирование" ), cDataPgDn )
+      box_shadow( r1, pc1 + 1, r2, pc2 -1,, iif( nKey == K_INS, "Добавление", "Редактирование" ), cDataPgDn )
       SetColor( cDataCGet )
       Do While .t.
         @ r1 + 1, pc1 + 3 Say "Лечащий врач" Get MTAB_NOM Pict "99999" ;
@@ -1294,29 +1297,31 @@ Function f3vvodp_disp_nabl( nKey, oBrow, regim )
 
   Return ret
 
-  // 25.06.24  выявление типа диагноза 
-  Function  check_tip_disp_nabl(diag)
-  Local vozvr := 0  
-   
-    if check_diag_usl_disp_nabl( diag, "2.78.109") //прочие
-      vozvr := 109
-    endif  
-    if vozvr == 0
-      if check_diag_usl_disp_nabl( diag, "2.78.110") //онкология
-        vozvr := 110
-      endif
-    endif  
-    if vozvr == 0
-      if check_diag_usl_disp_nabl( diag, "2.78.111") //сахарный Д.
-        vozvr := 111
-      endif
-    endif  
-    if vozvr == 0
-      if check_diag_usl_disp_nabl( diag, "2.78.112") // ССО
-        vozvr := 112
-      endif
-    endif  
-  return vozvr
+// 25.06.24  выявление типа диагноза
+Function  check_tip_disp_nabl( diag )
+
+  Local vozvr := 0
+
+  If check_diag_usl_disp_nabl( diag, "2.78.109" ) // прочие
+    vozvr := 109
+  Endif
+  If vozvr == 0
+    If check_diag_usl_disp_nabl( diag, "2.78.110" ) // онкология
+      vozvr := 110
+    Endif
+  Endif
+  If vozvr == 0
+    If check_diag_usl_disp_nabl( diag, "2.78.111" ) // сахарный Д.
+      vozvr := 111
+    Endif
+  Endif
+  If vozvr == 0
+    If check_diag_usl_disp_nabl( diag, "2.78.112" ) // ССО
+      vozvr := 112
+    Endif
+  Endif
+
+  Return vozvr
 
 // 01.07.24 Список пациентов, по которым были л/у с диспансерным наблюдением
 Function f_inf_disp_nabl( par )
@@ -1324,50 +1329,50 @@ Function f_inf_disp_nabl( par )
   // 1 -  "~Не было л/у с диспансерным наблюдением",;
   // 2 -  "~Были л/у с диспансерным наблюдением"
 
-   Local arr, arr_full_name, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir + "disp_nabl" + stxt, ;
+  Local arr, arr_full_name, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir + "disp_nabl" + stxt, ;
     ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := "___DN" + sdbf, arr_fl, fl_prikrep := Space( 6 ), kol_kartotek := 0, ;
     t_kartotek := 0, s1
-   Local arr_tip_DN := {"Прочие ДН - ","Онкологическое ДН - ","Сахарный диабет ДН - ","Сердечно-сосудистое ДН - "}
-   Local arr_tip_DN1 := {"2.78.109","2.78.110","2.78.111","2.78.112"}
-   Local arr_tip_KOD_USL := {109,110,111,112}
-   local arr_kol_ND := {0,0,0,0}
-   local arr_kol_ND1 := {0,0,0,0}
-   Local mas_str_ot := {}, mas_str_ot_FULL := {}
-   local flag_BILO := .F., flag_NAL := .T.
-   Local kol_umer := {0,0,0,0}, kol_smena := {0,0,0,0}, kol_itogo := {0,0,0,0}, kol_old := {0,0,0,0}
-   Local kol_umer1 := {0,0,0,0}, kol_smena1 := {0,0,0,0}, kol_itogo1 := {0,0,0,0}, kol_old1 := {0,0,0,0}
-   Local lExcel := .f., iOutput
-   Local name_fileXLS := 'DispNab_' + suffixfiletimestamp()
-   Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
-   local workbook, worksheet, row, column
-   local fmt_cell_header, fmtCellNumberRub, fmt_header, fmt_text, fmtCellNumberNDS
-   local VREM_N1 := "", VREM_N2 := ""
+  Local arr_tip_DN := { "Прочие ДН - ", "Онкологическое ДН - ", "Сахарный диабет ДН - ", "Сердечно-сосудистое ДН - " }
+  Local arr_tip_DN1 := { "2.78.109", "2.78.110", "2.78.111", "2.78.112" }
+  Local arr_tip_KOD_USL := { 109, 110, 111, 112 }
+  Local arr_kol_ND := { 0, 0, 0, 0 }
+  Local arr_kol_ND1 := { 0, 0, 0, 0 }
+  Local mas_str_ot := {}, mas_str_ot_FULL := {}
+  Local flag_BILO := .f., flag_NAL := .t.
+  Local kol_umer := { 0, 0, 0, 0 }, kol_smena := { 0, 0, 0, 0 }, kol_itogo := { 0, 0, 0, 0 }, kol_old := { 0, 0, 0, 0 }
+  Local kol_umer1 := { 0, 0, 0, 0 }, kol_smena1 := { 0, 0, 0, 0 }, kol_itogo1 := { 0, 0, 0, 0 }, kol_old1 := { 0, 0, 0, 0 }
+  Local lExcel := .f., iOutput
+  Local name_fileXLS := 'DispNab_' + suffixfiletimestamp()
+  Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
+  Local workbook, worksheet, row, column
+  Local fmt_cell_header, fmtCellNumberRub, fmt_header, fmt_text, fmtCellNumberNDS
+  Local VREM_N1 := "", VREM_N2 := ""
 
-   If par == 1
+  If par == 1
     s := "Список пациентов, состоящих на ДН, у которых отсутствуют л/у с диспансерным наблюдением"
   Elseif par == 2
     s := "Список пациентов, состоящих на ДН, у которых присутствуют л/у с диспансерным наблюдением"
   Endif
   //
-   row := 0
-   column := 0
-   workbook  := workbook_new( name_fileXLS_full )
-   worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
+  row := 0
+  column := 0
+  workbook  := workbook_new( name_fileXLS_full )
+  worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
 
-   fmt_cell_header := fmt_excel_hC_vC( workbook )
-   format_set_text_wrap( fmt_cell_header )
-   format_set_bold( fmt_cell_header )
-   format_set_font_size( fmt_cell_header, 15 ) //20
+  fmt_cell_header := fmt_excel_hc_vc( workbook )
+  format_set_text_wrap( fmt_cell_header )
+  format_set_bold( fmt_cell_header )
+  format_set_font_size( fmt_cell_header, 15 ) // 20
 
-   fmt_header := fmt_excel_hC_vC( workbook )
-   format_set_text_wrap( fmt_header )
-   format_set_border( fmt_header, LXW_BORDER_THIN )
-   format_set_fg_color( fmt_header, 0xC6EFCE )
-   format_set_bold( fmt_header )
+  fmt_header := fmt_excel_hc_vc( workbook )
+  format_set_text_wrap( fmt_header )
+  format_set_border( fmt_header, LXW_BORDER_THIN )
+  format_set_fg_color( fmt_header, 0xC6EFCE )
+  format_set_bold( fmt_header )
 
-   fmt_text := fmt_excel_hL_vC( workbook )
-   format_set_text_wrap( fmt_text )
-   format_set_border( fmt_text, LXW_BORDER_THIN )
+  fmt_text := fmt_excel_hl_vc( workbook )
+  format_set_text_wrap( fmt_text )
+  format_set_border( fmt_text, LXW_BORDER_THIN )
 
   // fmtCellNumberRub := fmt_excel_hR_vC( workbook )
   // format_set_border( fmtCellNumberRub, LXW_BORDER_THIN )
@@ -1377,27 +1382,27 @@ Function f_inf_disp_nabl( par )
   // format_set_border( fmtCellNumberNDS, LXW_BORDER_THIN )
   // format_set_num_format( fmtCellNumberNDS, '#,##0' )
 
-   worksheet_set_row( worksheet,  0, 40,  nil )
-   worksheet_set_column( worksheet, 0, 0, 40, nil )
-   worksheet_set_column( worksheet, 2, 2, 11, nil )
-   worksheet_set_column( worksheet, 5, 5, 40, nil )
-   worksheet_merge_range( worksheet, row, column, row, 5, '', nil )
-   worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( s ), fmt_cell_header )
-   worksheet_write_string( worksheet, row, 0, hb_StrToUTF8( '             ФИО                 ' ), fmt_header )
-   worksheet_write_string( worksheet, row, 1, hb_StrToUTF8( 'Участок' ), fmt_header )
-   worksheet_write_string( worksheet, row, 2, hb_StrToUTF8( 'Дата рождения' ), fmt_header )
-   worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( 'Диагноз' ), fmt_header )
-   worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( 'Прикрепление' ), fmt_header )
-   worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( '             Адрес             ' ), fmt_header )
-   //
-   dbCreate( cur_dir + "_disp_NB", { ;
-       { "FIO",        "c", 50, 0 }, ;
-       { "UCHAST",     "c",  3, 0 }, ;
-       { "date_r",     "c", 10, 0 }, ;   
-       { "Arr_d",      "c", 10, 0 }, ;
-       { "prikrep",    "c",  3, 0 }, ;
-       { "usluga",     "c",  8, 0 }, ;
-       { "adres",      "c", 50, 0 }} )
+  worksheet_set_row( worksheet,  0, 40,  nil )
+  worksheet_set_column( worksheet, 0, 0, 40, nil )
+  worksheet_set_column( worksheet, 2, 2, 11, nil )
+  worksheet_set_column( worksheet, 5, 5, 40, nil )
+  worksheet_merge_range( worksheet, row, column, row, 5, '', nil )
+  worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( s ), fmt_cell_header )
+  worksheet_write_string( worksheet, row, 0, hb_StrToUTF8( '             ФИО                 ' ), fmt_header )
+  worksheet_write_string( worksheet, row, 1, hb_StrToUTF8( 'Участок' ), fmt_header )
+  worksheet_write_string( worksheet, row, 2, hb_StrToUTF8( 'Дата рождения' ), fmt_header )
+  worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( 'Диагноз' ), fmt_header )
+  worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( 'Прикрепление' ), fmt_header )
+  worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( '             Адрес             ' ), fmt_header )
+  //
+  dbCreate( cur_dir + "_disp_NB", { ;
+    { "FIO",        "c", 50, 0 }, ;
+    { "UCHAST",     "c",  3, 0 }, ;
+    { "date_r",     "c", 10, 0 }, ;
+    { "Arr_d",      "c", 10, 0 }, ;
+    { "prikrep",    "c",  3, 0 }, ;
+    { "usluga",     "c",  8, 0 }, ;
+    { "adres",      "c", 50, 0 } } )
   Use ( cur_dir + '_disp_NB' ) new
   stat_msg( "Поиск информации..." )
   fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
@@ -1407,7 +1412,7 @@ Function f_inf_disp_nabl( par )
     "              ФИО пациента                   │уч-к│ рождения │  ДН   │прикреп│           Адрес                     ", ;
     "─────────────────────────────────────────────┴────┴──────────┴───────┴───────┴─────────────────────────────────────" }
   sh := Len( arr_title[ 1 ] )
- 
+
   add_string( "" )
   add_string( Center( s, sh ) )
   add_string( "" )
@@ -1437,16 +1442,16 @@ Function f_inf_disp_nabl( par )
   r_use( dir_server + "kartote_",, "KART_" )
   r_use( dir_server + "kartote2",, "KART2" )
   r_use( dir_server + "mo_d01k",, "RHUM" )
-  Set Relation To kod_k into KART, to reestr into D01
-  // добавляем фильтр - год 
+  Set Relation To kod_k into KART, To reestr into D01
+  // добавляем фильтр - год
   Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kart->kod, 7 ) to ( cur_dir + "tmp_rhum" ) ;
     For kart->kod > 0 .and. rhum->oplata == 1 .and. d01->nyear == 2023
   //
-  for iii := 1 to 4    
-      add_string( "" )
-      add_string( Center( arr_tip_DN[iii], sh ) )
-      add_string( "" )
-      Go Top
+  For iii := 1 To 4
+    add_string( "" )
+    add_string( Center( arr_tip_DN[ iii ], sh ) )
+    add_string( "" )
+    Go Top
     Do While !Eof()  // цикл по всей базе картотеки ДИСПАНСЕРНОГО НАБЛЮДЕНИЯ
       // цикл идет по только по ПРИНЯТЫМ ПАЦИЕНТАМ
       arr := {}
@@ -1457,15 +1462,15 @@ Function f_inf_disp_nabl( par )
       // если человек стоит на Д-учете - создаем массив его Д диагнозов
       Do While dd->kod_d == rhum->( RecNo() ) .and. !Eof()
         If dd->next_data >= 0d20240101 .and. dd->next_data <= 0d20241231 .and. dd->oplata == 1 // !!!!!!! ВНИМАНИЕ год
-          if arr_tip_KOD_USL[iii] == check_tip_disp_nabl(dd->kod_diag)
-            AAdd( arr, padr(dd->kod_diag,4) )   // было 5
+          If arr_tip_KOD_USL[ iii ] == check_tip_disp_nabl( dd->kod_diag )
+            AAdd( arr, PadR( dd->kod_diag, 4 ) )   // было 5
             AAdd( arr_fl, .f. )
-            AAdd( arr_full_name, dd->kod_diag ) 
-          endif  
+            AAdd( arr_full_name, dd->kod_diag )
+          Endif
         Endif
         Skip
       Enddo
-      // 
+      //
       If Len( arr ) > 0
         // есть ДД
         fl1 := .f.
@@ -1475,27 +1480,27 @@ Function f_inf_disp_nabl( par )
         Goto kart->kod
         If kart2->mo_pr != glob_mo[ _MO_KOD_TFOMS ]
           fl_prikrep := kart2->mo_pr
-          kol_smena[iii] := kol_smena[iii] + 1
+          kol_smena[ iii ] := kol_smena[ iii ] + 1
         Endif
         If Left( kart2->PC2, 1 ) == "1"
           fl_prikrep := " УМЕР "
-          kol_umer[iii] :=  kol_umer[iii] + 1
+          kol_umer[ iii ] :=  kol_umer[ iii ] + 1
         Endif
-        kol_itogo[iii] := kol_itogo[iii] + 1
-        // 
+        kol_itogo[ iii ] := kol_itogo[ iii ] + 1
+        //
         Select KART_
         Goto kart->kod
         // Пациент состоит на ДН
-        fl_disp := .f. 
+        fl_disp := .f.
         diag_disp := ""
         Select HUMAN
         find ( Str( kart->kod, 7 ) )
         Do While human->kod_k == kart->kod .and. !Eof()
           If !fl_disp .and. human->k_data >= 0d20240101 // !!!!!!! ВНИМАНИЕ год
-            s := PadR( human->kod_diag, 5 ) 
+            s := PadR( human->kod_diag, 5 )
             diag_disp := s
             // проверяем на ВООБЩЕ диагноз из ДН
-            if arr_tip_KOD_USL[iii] == check_tip_disp_nabl(s)
+            If arr_tip_KOD_USL[ iii ] == check_tip_disp_nabl( s )
               Select HU
               find ( Str( human->kod, 7 ) )
               Do While hu->kod == human->kod .and. !Eof()
@@ -1505,17 +1510,9 @@ Function f_inf_disp_nabl( par )
                   lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
                   usl_disp := lshifr
                   left_lshifr_8 := Left( lshifr, 8 )
-                  if left(left_lshifr_8,4) == "72.6" .or. getPCEL_usl( left_lshifr_8 ) == "1.3"
-                    if iii == 1 .and. left_lshifr_8 == "2.78.109" 
-                      fl_disp := .t.
-                    elseif  iii == 2 .and. left_lshifr_8 == "2.78.110" 
-                      fl_disp := .t.
-                    elseif  iii == 3 .and. left_lshifr_8 == "2.78.111" 
-                      fl_disp := .t.
-                    elseif  iii == 4 .and. left_lshifr_8 == "2.78.112" 
-                      fl_disp := .t.
-                    Endif
-                  endif  
+                  If Left( left_lshifr_8, 4 ) == "72.6" .or. getpcel_usl( left_lshifr_8 ) == "1.3"
+                    fl_disp := .t.
+                  Endif
                 Endif
                 Select HU
                 Skip
@@ -1529,114 +1526,110 @@ Function f_inf_disp_nabl( par )
         If verify_ff( HH, .t., sh )
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
-        if fl_disp .and. par == 2 // Были л/у с диспансерным наблюдением при наличии ДД
-         ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +"  "+ diag_disp  + "   " + fl_prikrep + " " + ;
-                 PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
-          add_string(padl(lstr( ++ii2 ),5)+ttt)
+        If fl_disp .and. par == 2 // Были л/у с диспансерным наблюдением при наличии ДД
+          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + diag_disp  + "   " + fl_prikrep + " " + ;
+            PadR( iif( Len( AllTrim( kart->adres ) ) < 3, AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ), kart->adres ), 40 )
+          add_string( PadL( lstr( ++ii2 ), 5 ) + ttt )
           //
-          arr_kol_ND[iii] := arr_kol_ND[iii] + 1 
-          select _disp_NB
-          VREM_N1 := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"ДА","НЕТ") 
-          VREM_N2  := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
-            //
-            worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim(padr(kart->fio,50) ) ), fmt_text )
-            worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( alltrim(str(kart->uchast )) ), fmt_text )
-            worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( alltrim(full_date(kart->date_r)) ), fmt_text )
-            worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
-            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1  ) ), fmt_text )
-            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
-            //
-        elseif  !fl_disp .and. par == 1
-          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +"  "+ arr_full_name[1]  + "   " + fl_prikrep + " " + ;
-            PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
-          add_string(padl(lstr( ++ii2 ),5)+ttt)
+          arr_kol_ND[ iii ] := arr_kol_ND[ iii ] + 1
+          Select _disp_NB
+          VREM_N1 := iif( fl_prikrep == glob_mo[ _MO_KOD_TFOMS ] .or. Len( AllTrim( fl_prikrep ) ) < 1, "ДА", "НЕТ" )
+          VREM_N2  := iif( Len( AllTrim( kart->adres ) ) < 3, AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ), PadR( kart->adres, 40 ) )
           //
-          arr_kol_ND[iii] := arr_kol_ND[iii] + 1 
-          select _disp_NB
-          VREM_N1 := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"ДА","НЕТ") 
-          VREM_N2  := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
-            //
-            worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( kart->fio ) ), fmt_text )
-            worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( alltrim(str(kart->uchast )) ), fmt_text )
-            worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( alltrim(full_date(kart->date_r)) ), fmt_text )
-            worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( arr_full_name[1] ) ), fmt_text )
-            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1  ) ), fmt_text )
-            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
-//            my_debug(,kart->fio)
-//            my_debug(,print_array(arr))
-            //
-        endif  
-      endif
-      //endif
+          worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( PadR( kart->fio, 50 ) ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( AllTrim( Str( kart->uchast ) ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( AllTrim( full_date( kart->date_r ) ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1  ) ), fmt_text )
+          worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
+          //
+        Elseif  !fl_disp .and. par == 1
+          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + arr_full_name[ 1 ]  + "   " + fl_prikrep + " " + ;
+            PadR( iif( Len( AllTrim( kart->adres ) ) < 3, AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ), kart->adres ), 40 )
+          add_string( PadL( lstr( ++ii2 ), 5 ) + ttt )
+          //
+          arr_kol_ND[ iii ] := arr_kol_ND[ iii ] + 1
+          Select _disp_NB
+          VREM_N1 := iif( fl_prikrep == glob_mo[ _MO_KOD_TFOMS ] .or. Len( AllTrim( fl_prikrep ) ) < 1, "ДА", "НЕТ" )
+          VREM_N2  := iif( Len( AllTrim( kart->adres ) ) < 3, AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ), PadR( kart->adres, 40 ) )
+          //
+          worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( kart->fio ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( AllTrim( Str( kart->uchast ) ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( AllTrim( full_date( kart->date_r ) ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( arr_full_name[ 1 ] ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1  ) ), fmt_text )
+          worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
+          //
+        Endif
+      Endif
       Select RHUM
       Skip
-    Enddo 
-  next
+    Enddo
+  Next
   // ---------------------------------------------------------------------------------------------------------------------
   // за текущий год встали на ДН
-  for iii := 1 to 4    
+  For iii := 1 To 4
     add_string( "" )
-    add_string( Center( arr_tip_DN[iii] +"Встали на ДН в текущем году", sh ) )
+    add_string( Center( arr_tip_DN[ iii ] + "Встали на ДН в текущем году", sh ) )
     add_string( "" )
     //
-    select DN
+    Select DN
     Set Relation To kod_k into KART, To kod_k into KART_
-    Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( dn->kod_k, 7 ) + descend(dtos(dn->n_data)) to ( cur_dir + "tmp_dn" ) ; 
-         For kart->kod > 0  
+    Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( dn->kod_k, 7 ) + Descend( DToS( dn->n_data ) ) to ( cur_dir + "tmp_dn" ) ;
+      For kart->kod > 0
     Go Top
     Do While !Eof()  // цикл по всей базе картотеки ДИСПАНСЕРНОГО НАБЛЮДЕНИЯ
       arr := {}
       arr_fl := {}
       arr_full_name := {}
-      //создаем массив его Д диагнозов
+      // создаем массив его Д диагнозов
       t_kod_k := dn->kod_k
-      select DN
+      Select DN
       Do While dn->kod_k == t_kod_k .and. !Eof()
-        if arr_tip_KOD_USL[iii] == check_tip_disp_nabl(alltrim(dn->kod_diag))
+        If arr_tip_KOD_USL[ iii ] == check_tip_disp_nabl( AllTrim( dn->kod_diag ) )
           // проверяем - не добавлен ли к старым диагнозам
-          if year(DN->N_data)== 2024 .and. year(DN->lu_data)== 2024 
-            AAdd( arr, padr(dn->kod_diag,4) )   // было 5
+          If Year( DN->N_data ) == 2024 .and. Year( DN->lu_data ) == 2024
+            AAdd( arr, PadR( dn->kod_diag, 4 ) )   // было 5
             AAdd( arr_fl, .f. )
-            AAdd( arr_full_name, dn->kod_diag ) 
-          else  
+            AAdd( arr_full_name, dn->kod_diag )
+          Else
             arr := {}
             Skip
-            exit
-          endif  
-        endif  
+            Exit
+          Endif
+        Endif
         Skip
       Enddo
       // открутили пацианта
       If Len( arr ) > 0
-       // есть ДД
-       // проверяем пациента на прикрепление
+        // есть ДД
+        // проверяем пациента на прикрепление
         fl_prikrep := Space( 6 )
         Select KART2
         Goto kart->kod
         If kart2->mo_pr != glob_mo[ _MO_KOD_TFOMS ]
           fl_prikrep := kart2->mo_pr
-          kol_smena1[iii] := kol_smena1[iii] + 1
+          kol_smena1[ iii ] := kol_smena1[ iii ] + 1
         Endif
         If Left( kart2->PC2, 1 ) == "1"
           fl_prikrep := " УМЕР "
-          kol_umer1[iii] :=  kol_umer1[iii] + 1
+          kol_umer1[ iii ] :=  kol_umer1[ iii ] + 1
         Endif
-        kol_itogo1[iii] := kol_itogo1[iii] + 1
+        kol_itogo1[ iii ] := kol_itogo1[ iii ] + 1
         // проверяем на прошлый год
         Select KART_
         Goto kart->kod
-      
-        fl_disp := .f. 
+        fl_disp := .f.
         diag_disp := ""
         usl_disp := ""
         Select HUMAN
         find ( Str( kart->kod, 7 ) )
         Do While human->kod_k == kart->kod .and. !Eof()
           If !fl_disp .and. human->k_data >= 0d20240101 // !!!!!!! ВНИМАНИЕ год
-            s := PadR( human->kod_diag, 5 ) 
+            s := PadR( human->kod_diag, 5 )
             diag_disp := s
             // проверяем на ВООБЩЕ диагноз из ДН
-            if arr_tip_KOD_USL[iii] == check_tip_disp_nabl(s)
+            If arr_tip_KOD_USL[ iii ] == check_tip_disp_nabl( s )
               Select HU
               find ( Str( human->kod, 7 ) )
               Do While hu->kod == human->kod .and. !Eof()
@@ -1646,17 +1639,9 @@ Function f_inf_disp_nabl( par )
                   lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
                   usl_disp := lshifr
                   left_lshifr_8 := Left( lshifr, 8 )
-                  if left(left_lshifr_8,4) == "72.6" .or. getPCEL_usl( left_lshifr_8 ) == "1.3"
-                    if iii == 1 .and. left_lshifr_8 == "2.78.109" 
-                      fl_disp := .t.
-                    elseif  iii == 2 .and. left_lshifr_8 == "2.78.110" 
-                      fl_disp := .t.
-                    elseif  iii == 3 .and. left_lshifr_8 == "2.78.111" 
-                      fl_disp := .t.
-                    elseif  iii == 4 .and. left_lshifr_8 == "2.78.112" 
-                      fl_disp := .t.
-                    Endif
-                  endif  
+                  If Left( left_lshifr_8, 4 ) == "72.6" .or. getpcel_usl( left_lshifr_8 ) == "1.3"
+                    fl_disp := .t.
+                  Endif
                 Endif
                 Select HU
                 Skip
@@ -1671,80 +1656,81 @@ Function f_inf_disp_nabl( par )
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
 
-        if fl_disp .and. par == 2 // Были л/у с диспансерным наблюдением при наличии ДД
-          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +" "+ diag_disp  + "   " + fl_prikrep + " " + ;
-                  PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
-          add_string(padl(lstr( ++ii2 ),5)+ttt)
+        If fl_disp .and. par == 2 // Были л/у с диспансерным наблюдением при наличии ДД
+          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + " " + diag_disp  + "   " + fl_prikrep + " " + ;
+            PadR( iif( Len( AllTrim( kart->adres ) ) < 3, AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ), kart->adres ), 40 )
+          add_string( PadL( lstr( ++ii2 ), 5 ) + ttt )
           //
-          arr_kol_ND1[iii] := arr_kol_ND1[iii] + 1 
-          select _disp_NB
-          VREM_N1 := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"ДА","НЕТ") 
-          VREM_N2   := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )  
+          arr_kol_ND1[ iii ] := arr_kol_ND1[ iii ] + 1
+          Select _disp_NB
+          VREM_N1 := iif( fl_prikrep == glob_mo[ _MO_KOD_TFOMS ] .or. Len( AllTrim( fl_prikrep ) ) < 1, "ДА", "НЕТ" )
+          VREM_N2   := iif( Len( AllTrim( kart->adres ) ) < 3, AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ), PadR( kart->adres, 40 ) )
           //
-            //
-            worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim(padr(kart->fio,50) ) ), fmt_text )
-            worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( alltrim(str(kart->uchast )) ), fmt_text )
-            worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( alltrim(full_date(kart->date_r)) ), fmt_text )
-            worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
-            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1 ) ), fmt_text )
-            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
-              //
-        elseif !fl_disp .and. par == 1
-          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) +" "+ arr_full_name[1]  + "   " + fl_prikrep + " " + ;
-            PadR( iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),kart->adres ), 40 ) 
-          add_string(padl(lstr( ++ii2 ),5)+ttt)
-           //
-          arr_kol_ND1[iii] := arr_kol_ND1[iii] + 1 
-          select _disp_NB
-          VREM_N1 := iif(fl_prikrep == glob_mo[_MO_KOD_TFOMS].or.len(alltrim(fl_prikrep))<1,"ДА","НЕТ") 
-          VREM_N2   := iif(len(alltrim(kart->adres))<3,AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ),PadR( kart->adres, 40 ) )   
-            //
-            worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( kart->fio ) ), fmt_text )
-            worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( alltrim(str(kart->uchast )) ), fmt_text )
-            worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( alltrim(full_date(kart->date_r)) ), fmt_text )
-            worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( arr_full_name[1] ) ), fmt_text )
-            worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1  ) ), fmt_text )
-            worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
-  //          my_debug(,"1")
-  //          my_debug(,kart->fio)
-  //          my_debug(,print_array(arr))
-            //
+          //
+          worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( PadR( kart->fio, 50 ) ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( AllTrim( Str( kart->uchast ) ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( AllTrim( full_date( kart->date_r ) ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1 ) ), fmt_text )
+          worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
+          //
+        Elseif !fl_disp .and. par == 1
+          ttt :=  PadR( ". " + kart->fio, 40 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + " " + arr_full_name[ 1 ]  + "   " + fl_prikrep + " " + ;
+            PadR( iif( Len( AllTrim( kart->adres ) ) < 3, AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ), kart->adres ), 40 )
+          add_string( PadL( lstr( ++ii2 ), 5 ) + ttt )
+          //
+          arr_kol_ND1[ iii ] := arr_kol_ND1[ iii ] + 1
+          Select _disp_NB
+          VREM_N1 := iif( fl_prikrep == glob_mo[ _MO_KOD_TFOMS ] .or. Len( AllTrim( fl_prikrep ) ) < 1, "ДА", "НЕТ" )
+          VREM_N2   := iif( Len( AllTrim( kart->adres ) ) < 3, AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) ) + " " + LTrim( kart->adres ), PadR( kart->adres, 40 ) )
+          //
+          worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( kart->fio ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   1, hb_StrToUTF8( AllTrim( Str( kart->uchast ) ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   2, hb_StrToUTF8( AllTrim( full_date( kart->date_r ) ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( arr_full_name[ 1 ] ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1  ) ), fmt_text )
+          worksheet_write_string( worksheet, row++, 5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
+          // my_debug(,"1")
+          // my_debug(,kart->fio)
+          // my_debug(,print_array(arr))
+          //
         Endif
-      endif  
+      Endif
       Select DN
-      //Skip
-    Enddo 
-  next  
+      // Skip
+    Enddo
+  Next
   //
-  for iii := 1 to 4
+  For iii := 1 To 4
     If verify_ff( HH, .t., sh )
       AEval( arr_title, {| x| add_string( x ) } )
     Endif
-    add_string( padr(arr_tip_DN[iii],33))
-    add_string( "по состоянию на конец 2023 года: "+lstr(kol_itogo[iii])) 
-    add_string( "из них умерло: "+ padr(lstr(kol_umer[iii]),8) + "поменяли МО прикрепления: "+padr(lstr(kol_smena[iii]),8))
-    if par == 1
-      add_string( "НЕ прошли ДН : "+ lstr(arr_kol_ND[iii])) 
-    else
-      add_string( "прошли ДН : "+ lstr(arr_kol_ND[iii])) 
-    endif  
-    add_string( "добавилось за 2024 года: "+lstr(kol_itogo1[iii])) 
-    add_string( "из них умерло: "+ padr(lstr(kol_umer1[iii]),8) + "поменяли МО прикрепления: "+padr(lstr(kol_smena1[iii]),8))
-    if par == 1
-      add_string( "НЕ прошли ДН : "+ lstr(arr_kol_ND1[iii])) 
-    else
-      add_string( "прошли ДН : "+ lstr(arr_kol_ND1[iii])) 
-    endif  
-    add_string( "------------------------------------------------------------------------------------------------------------------------------------------")
-  next
+    add_string( PadR( arr_tip_DN[ iii ], 33 ) )
+    add_string( "по состоянию на конец 2023 года: " + lstr( kol_itogo[ iii ] ) )
+    add_string( "из них умерло: " + PadR( lstr( kol_umer[ iii ] ), 8 ) + "поменяли МО прикрепления: " + PadR( lstr( kol_smena[ iii ] ), 8 ) )
+    If par == 1
+      add_string( "НЕ прошли ДН : " + lstr( arr_kol_ND[ iii ] ) )
+    Else
+      add_string( "прошли ДН : " + lstr( arr_kol_ND[ iii ] ) )
+    Endif
+    add_string( "добавилось за 2024 года: " + lstr( kol_itogo1[ iii ] ) )
+    add_string( "из них умерло: " + PadR( lstr( kol_umer1[ iii ] ), 8 ) + "поменяли МО прикрепления: " + PadR( lstr( kol_smena1[ iii ] ), 8 ) )
+    If par == 1
+      add_string( "НЕ прошли ДН : " + lstr( arr_kol_ND1[ iii ] ) )
+    Else
+      add_string( "прошли ДН : " + lstr( arr_kol_ND1[ iii ] ) )
+    Endif
+    add_string( "------------------------------------------------------------------------------------------------------------------------------------------" )
+  Next
   Close databases
   FClose( fp )
   rest_box( buf )
   workbook_close( workbook )
   viewtext( name_file,,,, ( sh > 80 ),,, 3 )
-  //inf_drz_excel( hb_OEMToANSI( name_file_full ), arr_m, arr )
-  work_with_Excel_file( name_fileXLS_full )
-//  n_message( { "Создан файл для загрузки в Excel: _disp_NB" },, cColorStMsg, cColorStMsg,,, cColorSt2Msg )
+  // inf_drz_excel( hb_OEMToANSI( name_file_full ), arr_m, arr )
+  work_with_excel_file( name_fileXLS_full )
+  // n_message( { "Создан файл для загрузки в Excel: _disp_NB" },, cColorStMsg, cColorStMsg,,, cColorSt2Msg )
+
   Return Nil
 
 // 09.12.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
@@ -1753,7 +1739,7 @@ Function vvod_disp_nabl()
   Local buf := SaveScreen(), k, s, s1, t_arr := Array( BR_LEN ), str_sem1, lcolor
   Private str_find, muslovie
 
-  If input_perso( T_ROW, T_COL - 5 )
+  If input_perso( T_ROW, T_COL -5 )
     Do While .t.
       buf := SaveScreen()
       k := -ret_new_spec( glob_human[ 7 ], glob_human[ 8 ] )
@@ -1880,14 +1866,14 @@ Function f1_vvod_disp_nabl( nKey, oBrow, regim )
       Endif
       Private gl_area := { 1, 0, MaxRow() -1, 79, 0 }, ;
         mKOD_DIAG := iif( nKey == K_INS, Space( 5 ), dn->kod_diag ), ;
-        mN_DATA := iif( nKey == K_INS, sys_date - 1, dn->n_data ), ;
+        mN_DATA := iif( nKey == K_INS, sys_date -1, dn->n_data ), ;
         mNEXT_DATA := iif( nKey == K_INS, 0d20240201, dn->next_data ), ; // ЮЮ - ВРЕМЕННО
       mfrequency := iif( nKey == K_INS, 3, dn->frequency ), ;
         mMESTO, m1mesto := iif( nKey == K_INS, 0, dn->mesto )
       mmesto := inieditspr( A__MENUVERT, mm_dom, m1mesto )
-      r1 := pr2 - 7 ; r2 := pr2 - 1
+      r1 := pr2 -7 ; r2 := pr2 -1
       tmp_color := SetColor( cDataCScr )
-      box_shadow( r1, pc1 + 1, r2, pc2 - 1,, iif( nKey == K_INS, "Добавление", "Редактирование" ), cDataPgDn )
+      box_shadow( r1, pc1 + 1, r2, pc2 -1,, iif( nKey == K_INS, "Добавление", "Редактирование" ), cDataPgDn )
       SetColor( cDataCGet )
       Do While .t.
         @ r1 + 1, pc1 + 3 Say "Диагноз, по поводу которого пациент подлежит дисп.наблюдению" Get mkod_diag ;
@@ -2004,19 +1990,20 @@ Function inf_disp_nabl()
   Static suchast := 0, svrach := 0, sdiag := '', ;
     mm_spisok := { { "весь список пациентов", 0 }, { "с неполным вводом", 1 }, { "с корректным вводом", 2 } }
   Local bg := {| o, k| get_mkb10( o, k, .f. ) }
-  Local buf := SaveScreen(), r := 12, sh, HH := 60, name_file := cur_dir + "info_dn" + stxt, ru := 0, ;
-    rd := 0, rd1 := 0, rpr := 0, ro_f := .f., ro := 0, rod := 0
+  Local buf := SaveScreen(), r := 13, sh, HH := 60, name_file := cur_dir + "info_dn" + stxt, ru := 0, ;
+    rd := 0, rd1 := 0, rpr := 0, ro_f := .f., ro := 0, rod := 0, t_vr
   Local mas_tip_dz := { 0, 0, 0, 0, 0 }, mas_tip_pc := { 0, 0, 0, 0, 0, 0 }, fl_1 := 0, fl_2 := 0, fl_3 := 0, fl_4 := 0, ;
-    fl_5 := 0, fl_31 := 0, fl_32 := 0, fl_33 := 0, fl_umer := .t., otvet := "      ", fl_prinet := .F.,;
-    mas_tip_prin := { 0, 0, 0, 0, 0, 0 } , t_mo_prik := "", iii := 0, iii1 := 0, iii2 := 0 , s
+    fl_5 := 0, fl_31 := 0, fl_32 := 0, fl_33 := 0, fl_umer := .t., otvet := "      ", fl_prinet := .f., ;
+    mas_tip_prin := { 0, 0, 0, 0, 0, 0 }, t_mo_prik := "", iii := 0, iii1 := 0, iii2 := 0, s
+
   // это эксель
   Local lExcel := .f., iOutput
   Local name_fileXLS := 'DispN_spis_' + suffixfiletimestamp()
   Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
-  local workbook, worksheet, row, column
-  local fmt_cell_header, fmtCellNumberRub, fmt_header, fmt_text, fmtCellNumberNDS
-  local old_row_XLS := 0
-  local old_fio := "", old_adres := "", old_DR := "", old_PRIKREP := "", old_num_UCH := ""
+  Local workbook, worksheet, row, column
+  Local fmt_cell_header, fmtCellNumberRub, fmt_header, fmt_text, fmtCellNumberNDS
+  Local old_row_XLS := 0
+  Local old_fio := "", old_adres := "", old_DR := "", old_PRIKREP := "", old_num_UCH := ""
 
   SetColor( cDataCGet )
   myclear( r )
@@ -2026,12 +2013,12 @@ Function inf_disp_nabl()
     mkod_diag1 := "   ", mkod_diag2 := "   ", ;
     m1spisok := 0, mspisok := mm_spisok[ 1, 1 ], ;
     m1adres := 0, madres := mm_danet[ 1, 1 ], ;
-    m1umer := mm_danet[1, 2], mumer := mm_danet[ 1, 1 ], ;   
+    m1umer := mm_danet[ 1, 2 ], mumer := mm_danet[ 1, 1 ], ;
     m1period := 0, mperiod := Space( 10 ), parr_m, ;
     gl_area := { r, 0, MaxRow() -1, MaxCol(), 0 }
   status_key( "^<Esc>^ - выход;  ^<PgDn>^ - составление документа" )
   //
-  @ r, 0 To r + 11, MaxCol() Color color8
+  @ r, 0 To r + 10, MaxCol() Color color8
   str_center( r, " Запрос информации по ведённому диспансерному наблюдению ", color14 )
   @ r + 2, 2 Say "Номер участка (0 - по всем участкам)" Get muchast Pict "99999"
   @ r + 3, 2 Say "Табельный номер врача (0 - по всем врачам)" Get mvrach Pict "99999"
@@ -2041,16 +2028,16 @@ Function inf_disp_nabl()
     Pict "@K@!" reader {| o| mygetreader( o, bg ) } When Empty( mkod_diag )
   @ Row(), Col() Say " -" Get mkod_diag2 ;
     Pict "@K@!" reader {| o| mygetreader( o, bg ) } When Empty( mkod_diag )
-  @ r + 6, 2 Say "Полнота списка" Get mspisok ;
-    reader {| x| menu_reader( x, mm_spisok, A__MENUVERT,,, .f. ) }
-  @ r + 7, 2 Say "Дата постановки на диспансерное наблюдение" Get mperiod ;
+  // @ r + 6, 2 Say "Полнота списка" Get mspisok ;
+  // reader {| x| menu_reader( x, mm_spisok, A__MENUVERT,,, .f. ) }
+  @ r + 6, 2 Say "Дата постановки на диспансерное наблюдение" Get mperiod ;
     reader {| x| menu_reader( x, ;
     { {| k, r, c| k := year_month( r + 1, c ), ;
     if( k == nil, nil, ( parr_m := AClone( k ), k := { k[ 1 ], k[ 4 ] } ) ), ;
     k } }, A__FUNCTION,,, .f. ) }
-  @ r + 8, 2 Say "Выводить адреса пациентов" Get madres ;
+  @ r + 7, 2 Say "Выводить адреса пациентов" Get madres ;
     reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
-  @ r + 9, 2 Say "Выводить Умерших пациентов" Get mumer ;
+  @ r + 8, 2 Say "Выводить Умерших пациентов" Get mumer ;
     reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
   myread()
   If LastKey() != K_ESC
@@ -2097,56 +2084,56 @@ Function inf_disp_nabl()
     suchast := muchast
     svrach := mvrach
     sdiag := mkod_diag
-//
-   row := 0
-   column := 0
-   workbook  := workbook_new( name_fileXLS_full )
-   worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
+    //
+    row := 0
+    column := 0
+    workbook  := workbook_new( name_fileXLS_full )
+    worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
 
-   fmt_cell_header := fmt_excel_hC_vC( workbook )
-   format_set_text_wrap( fmt_cell_header )
-   format_set_bold( fmt_cell_header )
-   format_set_font_size( fmt_cell_header, 20 )
+    fmt_cell_header := fmt_excel_hc_vc( workbook )
+    format_set_text_wrap( fmt_cell_header )
+    format_set_bold( fmt_cell_header )
+    format_set_font_size( fmt_cell_header, 20 )
 
-   fmt_header := fmt_excel_hC_vC( workbook )
-   format_set_text_wrap( fmt_header )
-   format_set_border( fmt_header, LXW_BORDER_THIN )
-   format_set_fg_color( fmt_header, 0xC6EFCE )
-   format_set_bold( fmt_header )
+    fmt_header := fmt_excel_hc_vc( workbook )
+    format_set_text_wrap( fmt_header )
+    format_set_border( fmt_header, LXW_BORDER_THIN )
+    format_set_fg_color( fmt_header, 0xC6EFCE )
+    format_set_bold( fmt_header )
 
-   fmt_text := fmt_excel_hL_vC( workbook )
-   format_set_text_wrap( fmt_text )
-   format_set_border( fmt_text, LXW_BORDER_THIN )
+    fmt_text := fmt_excel_hl_vc( workbook )
+    format_set_text_wrap( fmt_text )
+    format_set_border( fmt_text, LXW_BORDER_THIN )
 
-  // fmtCellNumberRub := fmt_excel_hR_vC( workbook )
-  // format_set_border( fmtCellNumberRub, LXW_BORDER_THIN )
-  // format_set_num_format( fmtCellNumberRub, '#,##0.00' )
+    // fmtCellNumberRub := fmt_excel_hR_vC( workbook )
+    // format_set_border( fmtCellNumberRub, LXW_BORDER_THIN )
+    // format_set_num_format( fmtCellNumberRub, '#,##0.00' )
 
-  // fmtCellNumberNDS := fmt_excel_hR_vC( workbook )
-  // format_set_border( fmtCellNumberNDS, LXW_BORDER_THIN )
-  // format_set_num_format( fmtCellNumberNDS, '#,##0' )
-  s:= "Список пациентов, состоящих на диспансерном учёте"
-   worksheet_set_row( worksheet,  0, 40,  nil )
-   worksheet_set_column( worksheet, 1, 1, 40, nil )
-   worksheet_set_column( worksheet, 2, 2, 40, nil )
-   worksheet_set_column( worksheet, 3, 3, 11, nil )
-   worksheet_set_column( worksheet, 8, 8, 11, nil )
-   worksheet_set_column( worksheet, 9, 9, 11, nil )
-   worksheet_set_column( worksheet, 10, 10, 11, nil )
-   worksheet_merge_range( worksheet, row, column, row, 11, '', nil )
-   worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( s ), fmt_cell_header )
-   worksheet_write_string( worksheet, row, 0, hb_StrToUTF8( 'Ответ ТФОМС' ), fmt_header )
-   worksheet_write_string( worksheet, row, 1, hb_StrToUTF8( 'ФИО' ), fmt_header )
-   worksheet_write_string( worksheet, row, 2, hb_StrToUTF8( 'Адрес' ), fmt_header )
-   worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( 'Дата рождения' ), fmt_header )
-   worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( 'Прикрепление' ), fmt_header )
-   worksheet_write_string( worksheet, row, 5, hb_StrToUTF8( 'Участок' ), fmt_header )
-   worksheet_write_string( worksheet, row, 6, hb_StrToUTF8( 'Таб. номер врача' ), fmt_header )
-   worksheet_write_string( worksheet, row, 7, hb_StrToUTF8( 'Диагноз' ), fmt_header )
-   worksheet_write_string( worksheet, row, 8, hb_StrToUTF8( 'Дата последнего ЛУ' ), fmt_header )
-   worksheet_write_string( worksheet, row, 9, hb_StrToUTF8( 'Дата постановки на ДН' ), fmt_header )
-   worksheet_write_string( worksheet, row, 10, hb_StrToUTF8( 'Дата следующего визита' ), fmt_header )
-   worksheet_write_string( worksheet, row++, 11, hb_StrToUTF8( 'через N месяцев' ), fmt_header )
+    // fmtCellNumberNDS := fmt_excel_hR_vC( workbook )
+    // format_set_border( fmtCellNumberNDS, LXW_BORDER_THIN )
+    // format_set_num_format( fmtCellNumberNDS, '#,##0' )
+    s := "Список пациентов, состоящих на диспансерном учёте"
+    worksheet_set_row( worksheet,  0, 40,  nil )
+    worksheet_set_column( worksheet, 1, 1, 40, nil )
+    worksheet_set_column( worksheet, 2, 2, 40, nil )
+    worksheet_set_column( worksheet, 3, 3, 11, nil )
+    worksheet_set_column( worksheet, 8, 8, 11, nil )
+    worksheet_set_column( worksheet, 9, 9, 11, nil )
+    worksheet_set_column( worksheet, 10, 10, 11, nil )
+    worksheet_merge_range( worksheet, row, column, row, 11, '', nil )
+    worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( s ), fmt_cell_header )
+    worksheet_write_string( worksheet, row, 0, hb_StrToUTF8( 'Ответ ТФОМС' ), fmt_header )
+    worksheet_write_string( worksheet, row, 1, hb_StrToUTF8( 'ФИО' ), fmt_header )
+    worksheet_write_string( worksheet, row, 2, hb_StrToUTF8( 'Адрес' ), fmt_header )
+    worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( 'Дата рождения' ), fmt_header )
+    worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( 'Прикрепление' ), fmt_header )
+    worksheet_write_string( worksheet, row, 5, hb_StrToUTF8( 'Участок' ), fmt_header )
+    worksheet_write_string( worksheet, row, 6, hb_StrToUTF8( 'Таб. номер врача' ), fmt_header )
+    worksheet_write_string( worksheet, row, 7, hb_StrToUTF8( 'Диагноз' ), fmt_header )
+    worksheet_write_string( worksheet, row, 8, hb_StrToUTF8( 'Дата последнего ЛУ' ), fmt_header )
+    worksheet_write_string( worksheet, row, 9, hb_StrToUTF8( 'Дата постановки на ДН' ), fmt_header )
+    worksheet_write_string( worksheet, row, 10, hb_StrToUTF8( 'Дата следующего визита' ), fmt_header )
+    worksheet_write_string( worksheet, row++, 11, hb_StrToUTF8( 'через N месяцев' ), fmt_header )
     //
     arr_title := { ;
       "──────┬──────────────────────────────────────┬──────────┬──────┬──┬─────┬─────┬────────┬────────┬────────────────", ;
@@ -2161,11 +2148,11 @@ Function inf_disp_nabl()
     add_string( Center( "Список пациентов, состоящих на диспансерном учёте", sh ) )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
-    //r_use( dir_server + "mo_D01",,   "D01" )  //реестры
-    //r_use( dir_server + "mo_D01K",,  "D01K" ) // пациенты в реестрах
-    //index on str(reestr,6)+str(kod_k,7) to (cur_dir +"tmp_D01")
-    r_use( dir_server + "mo_D01D",,  "D01D" ) // диагнозы у пациентов   
-    index on str(kod_n,6)+str(kod_d,7) to (cur_dir +"tmp_D01") DESCENDING
+    // r_use( dir_server + "mo_D01",,   "D01" )  //реестры
+    // r_use( dir_server + "mo_D01K",,  "D01K" ) // пациенты в реестрах
+    // index on str(reestr,6)+str(kod_k,7) to (cur_dir +"tmp_D01")
+    r_use( dir_server + "mo_D01D",,  "D01D" ) // диагнозы у пациентов
+    Index On Str( kod_n, 6 ) + Str( kod_d, 7 ) to ( cur_dir + "tmp_D01" ) DESCENDING
     r_use( dir_server + "mo_pers",,  "PERS" )
     r_use( dir_server + "kartote2",, "KART2" )
     r_use( dir_server + "kartote_",, "KART_" )
@@ -2179,23 +2166,30 @@ Function inf_disp_nabl()
     fl_umer := .t.
     waitstatus( "Ждите! Составляется список, состоящих на диспансерном учёте" )
     Go Top
+    ZZZ := 0
     Do While !Eof()   // ЦИКЛ по файлу со всеми ДН
+      ZZZ++
+      my_debug(, zzz )
       updatestatus()
       otvet := "       "
       ro_f := .f.
       fl := .t.
-      //fl_umer := .t.
+      // fl_umer := .t.
+      my_debug(, print_array( parr_m ) )
       If Between( dn->n_data, parr_m[ 5 ], parr_m[ 6 ] )
         fl := .t.
       Else
         fl := .f.
       Endif
+      my_debug(, fl )
       If muchast > 0
         fl := ( kart->uchast == muchast )
       Endif
+      my_debug(, fl )
       If fl .and. mvrach > 0
         fl := ( glob_human[ 1 ] == dn->vrach )
       Endif
+      my_debug(, fl )
       If fl .and. !Empty( mkod_diag )
         If fl_all_diag
           fl := ( AllTrim( dn->kod_diag ) == mkod_diag )
@@ -2203,73 +2197,77 @@ Function inf_disp_nabl()
           fl := ( Left( dn->kod_diag, l ) == mkod_diag )
         Endif
       Endif
+      my_debug(, fl )
       If fl .and. !emptyany( d1, d2 )
         fl := Between( diag_to_num( dn->kod_diag, 1 ), d1, d2 )
       Endif
-      If fl .and. m1spisok > 0
+      my_debug(, fl )
+      /*If fl .and. m1spisok > 0
         If dn->next_data < 0d20240101 .or. Empty( dn->frequency )  // ЮЮ
           fl := iif( m1spisok == 1, .t., .f. )
         Else
           fl := iif( m1spisok == 2, .t., .f. )
         Endif
-      Endif
+      Endif*/
       If fl .and. ( 1 == fvdn_date_r( sys_date, kart->date_r ) .or. 2 == fvdn_date_r( sys_date, kart->date_r ) )
         fl := .f.
       Endif
-     //
-      If fl 
-         If old == dn->kod_k // не первая строка у пациента
+      my_debug(, fl )
+      my_debug(, "Надо выводить" )
+      //
+      If fl
+        If old == dn->kod_k // не первая строка у пациента
           If !Empty( sadres )
-            s := PadR( "  " + sadres, 38 + 1 + 10 + 3 + 7 -1 )
+            s := PadR( "  " + sadres, 38 + 1 + 10 + 3 + 7  )
             sadres := ""
           Else
-            s := Space( 38 ) + Space( 1 + 10 + 3 + 7 -1 )
+            s := Space( 38 ) + Space( 1 + 10 + 3 + 7  )
           Endif
-          worksheet_write_string( worksheet, row, 1, hb_StrToUTF8(  alltrim(kart->fio) ), fmt_text )
-          worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( full_date( kart->date_r ) ), fmt_text ) 
-          worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( old_PRIKREP), fmt_text ) 
+          worksheet_write_string( worksheet, row, 1, hb_StrToUTF8(  AllTrim( kart->fio ) ), fmt_text )
+          worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( full_date( kart->date_r ) ), fmt_text )
+          worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( old_PRIKREP ), fmt_text )
           worksheet_write_string( worksheet, row, 5, hb_StrToUTF8(  old_num_UCH ), fmt_text )
         Else
-          if old_row_XLS > 0 
-             if (row - old_row_XLS) > 1
-               worksheet_merge_range(  worksheet, old_row_XLS, 1, row-1 , 1,  hb_StrToUTF8( old_fio ), fmt_text )
-               worksheet_merge_range(  worksheet, old_row_XLS, 2, row-1 , 2,  hb_StrToUTF8( old_adres ), fmt_text )
-               worksheet_merge_range(  worksheet, old_row_XLS, 3, row-1 , 3,  hb_StrToUTF8( old_DR ), fmt_text ) 
-               worksheet_merge_range(  worksheet, old_row_XLS, 4, row-1 , 4,  hb_StrToUTF8( old_PRIKREP ), fmt_text ) 
-               worksheet_merge_range(  worksheet, old_row_XLS, 5, row-1 , 5,  hb_StrToUTF8( old_num_UCH  ), fmt_text ) 
-             endif  
-          endif  
+          If old_row_XLS > 0
+            If ( row - old_row_XLS ) > 1
+              worksheet_merge_range(  worksheet, old_row_XLS, 1, row - 1, 1,  hb_StrToUTF8( old_fio ), fmt_text )
+              worksheet_merge_range(  worksheet, old_row_XLS, 2, row - 1, 2,  hb_StrToUTF8( old_adres ), fmt_text )
+              worksheet_merge_range(  worksheet, old_row_XLS, 3, row - 1, 3,  hb_StrToUTF8( old_DR ), fmt_text )
+              worksheet_merge_range(  worksheet, old_row_XLS, 4, row - 1, 4,  hb_StrToUTF8( old_PRIKREP ), fmt_text )
+              worksheet_merge_range(  worksheet, old_row_XLS, 5, row - 1, 5,  hb_StrToUTF8( old_num_UCH  ), fmt_text )
+            Endif
+          Endif
           old_row_XLS := row
-          worksheet_write_string( worksheet, row, 1, hb_StrToUTF8(  alltrim(kart->fio) ), fmt_text )
-          worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( full_date( kart->date_r ) ), fmt_text ) 
-          old_fio := alltrim(kart->fio)
-          old_DR := full_date( kart->date_r ) 
+          worksheet_write_string( worksheet, row, 1, hb_StrToUTF8(  AllTrim( kart->fio ) ), fmt_text )
+          worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( full_date( kart->date_r ) ), fmt_text )
+          old_fio := AllTrim( kart->fio )
+          old_DR := full_date( kart->date_r )
           // первая строка на человека
-          fl_prinet := .F. // по умолчанию - не принят
+          fl_prinet := .f. // по умолчанию - не принят
           If !Empty( sadres )
-            add_string( "  " + sadres )
+            add_string( "        " + sadres )
           Endif
           s := PadR( kart->fio, 38 ) + " " + full_date( kart->date_r )
           Select KART2
           Goto kart->kod
           If !Empty( kart2->mo_pr )
             If glob_mo[ _MO_KOD_TFOMS ] == kart2->mo_pr
-              s := s + "      "
-              //worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( "" ), fmt_text )
+              s := s + "       "
+              // worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( "" ), fmt_text )
               old_PRIKREP := ""
             Else
-              //s := s + " " + kart2->mo_pr
+              // s := s + " " + kart2->mo_pr
               ++rpr
               ro_f := .t.
-              if len(alltrim(kart2->mo_pr)) < 4
+              If Len( AllTrim( kart2->mo_pr ) ) < 4
                 worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( "неизв" ), fmt_text )
                 s := s + " " + " неизв"
                 old_PRIKREP := "неизв"
-              else  
+              Else
                 worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( kart2->mo_pr ), fmt_text )
                 s := s + " " + kart2->mo_pr
                 old_PRIKREP := kart2->mo_pr
-              endif  
+              Endif
             Endif
             t_mo_prik := kart2->mo_pr
           Else
@@ -2288,7 +2286,7 @@ Function inf_disp_nabl()
             s := s + Str( kart->uchast, 3 )
             worksheet_write_string( worksheet, row, 5, hb_StrToUTF8(  Str( kart->uchast, 3 ) ), fmt_text )
             old_num_UCH :=   Str( kart->uchast, 3 )
-            fl_umer := .T.  // отметка пациент умер
+            fl_umer := .t.  // отметка пациент умер
           Endif
           If m1adres == 1
             sadres := ret_okato_ulica( kart->adres, kart_->okatog, 0, 1 )
@@ -2298,7 +2296,7 @@ Function inf_disp_nabl()
             ++ro
           Endif
         Endif
-        old_adres := alltrim( ret_okato_ulica( kart->adres, kart_->okatog, 0, 1 )) 
+        old_adres := AllTrim( ret_okato_ulica( kart->adres, kart_->okatog, 0, 1 ) )
         worksheet_write_string( worksheet, row, 2, hb_StrToUTF8( old_adres ), fmt_text )
         s += Str( pers->tab_nom, 6 ) + " " + dn->kod_diag + " " + date_8( dn->lu_data ) + " " + date_8( dn->n_data ) + " " + date_8( dn->next_data )
         s += iif( dn->next_data < 0d20240101, "___", "   " )   // ЮЮ
@@ -2306,8 +2304,8 @@ Function inf_disp_nabl()
         worksheet_write_string( worksheet, row, 7, hb_StrToUTF8( dn->kod_diag ), fmt_text )
         worksheet_write_string( worksheet, row, 8, hb_StrToUTF8( full_date( dn->lu_data ) ), fmt_text )
         worksheet_write_string( worksheet, row, 9, hb_StrToUTF8( full_date( dn->n_data ) ), fmt_text )
-        worksheet_write_string( worksheet, row,10, hb_StrToUTF8( full_date( dn->next_data ) ), fmt_text )
-        worksheet_write_string( worksheet, row,11, hb_StrToUTF8( lstr( dn->frequency ) ), fmt_text )
+        worksheet_write_string( worksheet, row, 10, hb_StrToUTF8( full_date( dn->next_data ) ), fmt_text )
+        worksheet_write_string( worksheet, row, 11, hb_StrToUTF8( lstr( dn->frequency ) ), fmt_text )
         If dn->next_data < 0d20240101
           s += "_____"
         Else
@@ -2317,29 +2315,29 @@ Function inf_disp_nabl()
           s += " **"
         Endif
         //
-        t_vr := select()
-        select D01D
-        fl_prinet := .F.
+        t_vr := Select()
+        Select D01D
+        fl_prinet := .f.
         otvet  :=  "       "
-        find(str(dn->(recno()),6))
-        if found()
-          if d01d->OPLATA == 1 
+        find( Str( dn->( RecNo() ), 6 ) )
+        /* if found()
+          if d01d->OPLATA == 1
              fl_prinet := .T.
-             otvet  := "принят " 
-          elseif d01d->OPLATA == 0    
+             otvet  := "принят "
+          elseif d01d->OPLATA == 0
              otvet  := "       "
-          else 
-             otvet  := "ОШИБКА " 
+          else
+             otvet  := "ОШИБКА "
           endif
-        else
-          otvet  := "       "
-        endif  
-        select(t_vr)
+        else */
+        otvet  := "       "
+        // endif
+        Select( t_vr )
         s := otvet + s
-        ////
+        // //
         worksheet_write_string( worksheet, row, 0, hb_StrToUTF8( AllTrim( otvet ) ), fmt_text )
         row++
-        ////
+        // //
         If dn->next_data < 0d20240101  // ЮЮ
           ++rd
         Endif
@@ -2349,33 +2347,33 @@ Function inf_disp_nabl()
         If verify_ff( HH, .t., sh )
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
-        if m1umer == 1
-          //add_string( s )
-          //++iii1 
-        else
-          if fl_umer
+        If m1umer == 1
+          // add_string( s )
+          // ++iii1
+        Else
+          If fl_umer
             add_string( s )
-            ++iii1 
-          endif 
-        endif  
+            ++iii1
+          Endif
+        Endif
         old := dn->kod_k
         ++rs
         If !ro_f
           ++rod
         Endif
-        // Выборки по отдельным группам ДИАГНОЗОВ 
+        // Выборки по отдельным группам ДИАГНОЗОВ
         // УМЕРШИХ  !!! НЕ СЧИТАЕМ
         // только данное МО и ЖИВЫЕ
-       //   If fl_umer 
-          //my_debug(,str(dn->(recno()))+" -----  "+ t_mo_prik + " --- "+ dtos(dn->next_data) )
-          //my_debug(,fl_prinet)
-       //     If glob_mo[ _MO_KOD_TFOMS ] ==  t_mo_prik  .and. dn->next_data >= 0d20240101
-            //++iii
-            //my_debug(,iii)
-            // диагнозов по приказу №168н
-            // диагнозов МКБ-10 E10
-       //     Endif
-       // Endif
+        // If fl_umer
+        // my_debug(,str(dn->(recno()))+" -----  "+ t_mo_prik + " --- "+ dtos(dn->next_data) )
+        // my_debug(,fl_prinet)
+        // If glob_mo[ _MO_KOD_TFOMS ] ==  t_mo_prik  .and. dn->next_data >= 0d20240101
+        // ++iii
+        // my_debug(,iii)
+        // диагнозов по приказу №168н
+        // диагнозов МКБ-10 E10
+        // Endif
+        // Endif
         // Конец ВЫБОРКИ
       Endif
       Select DN
@@ -2391,12 +2389,12 @@ Function inf_disp_nabl()
       add_string( "=== из них УМЕРЛО   - " + lstr( ru ) + " чел., в ТФОМС отправлены не будут ===" )
       add_string( "=== пациентов прикрепленных не к нашему МО - " + lstr( rpr ) + " чел. ===" )
       add_string( "      ТФОМСом вероятно приняты не будут " )
-   //   add_string( "===   Вероятно будут приняты: " )
-   //   add_string( "===   диагнозов БСК              - " + PadL( lstr( mas_tip_dz[ 1 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 1 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 1 ] ),8) )
-   //   add_string( "===   диагнозов МКБ-10 С00-D09   - " + PadL( lstr( mas_tip_dz[ 2 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 2 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 2 ] ),8) )
-   //   add_string( "===   диагнозов по приказу №168н - " + PadL( lstr( mas_tip_dz[ 3 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 3 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 3 ] ),8) )
-   //   add_string( "===   диагнозов МКБ-10 E10       - " + PadL( lstr( mas_tip_dz[ 4 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 4 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 4 ] ),8) )
-   //   add_string( "===   диагнозов МКБ-10 E11       - " + PadL( lstr( mas_tip_dz[ 5 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 5 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 5 ] ),8) )
+      // add_string( "===   Вероятно будут приняты: " )
+      // add_string( "===   диагнозов БСК              - " + PadL( lstr( mas_tip_dz[ 1 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 1 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 1 ] ),8) )
+      // add_string( "===   диагнозов МКБ-10 С00-D09   - " + PadL( lstr( mas_tip_dz[ 2 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 2 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 2 ] ),8) )
+      // add_string( "===   диагнозов по приказу №168н - " + PadL( lstr( mas_tip_dz[ 3 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 3 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 3 ] ),8) )
+      // add_string( "===   диагнозов МКБ-10 E10       - " + PadL( lstr( mas_tip_dz[ 4 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 4 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 4 ] ),8) )
+      // add_string( "===   диагнозов МКБ-10 E11       - " + PadL( lstr( mas_tip_dz[ 5 ] ), 8 ) + " из них принято " +padl(lstr( mas_tip_prin[ 5 ] ),8) + " пациентов - " + padl(lstr( mas_tip_pc[ 5 ] ),8) )
       add_string( "** Обоснованность постановки на ДН с такими диагнозами необходимо проверить врачу, т.к. " )
       add_string( "данный диагноз не является строго обязательным для постановки на Диспансерное наблюдение" )
     Endif
@@ -2404,7 +2402,7 @@ Function inf_disp_nabl()
     FClose( fp )
     viewtext( name_file,,,, ( sh > 80 ),,, 3 )
     workbook_close( workbook )
-    work_with_Excel_file( name_fileXLS_full )
+    work_with_excel_file( name_fileXLS_full )
   Endif
   RestScreen( buf )
 
@@ -2508,16 +2506,16 @@ Function f_create_d01()
   Enddo
   Commit
 
-  dbCreate( cur_dir + "tmp", { { "KOD_K", "N", 7, 0 },;
-                               { "KOD_DN", "N", 7, 0 },;
-                               { "KOD_DIAG", "C", 5, 0 },;
-                               { "KOD_T", "N", 7, 0 }  } )
+  dbCreate( cur_dir + "tmp", { { "KOD_K", "N", 7, 0 }, ;
+    { "KOD_DN", "N", 7, 0 }, ;
+    { "KOD_DIAG", "C", 5, 0 }, ;
+    { "KOD_T", "N", 7, 0 }  } )
   Use ( cur_dir + "tmp" ) new
-  dbCreate( cur_dir + "tmp1", { { "KOD_K", "N", 7, 0 },;
-                                { "KOD_DN", "N", 7, 0 },;
-                                { "KOD_DIAG", "C", 5, 0 },;
-                                { "KOD_T", "N", 7, 0 }  } )
-Use ( cur_dir + "tmp1" ) new
+  dbCreate( cur_dir + "tmp1", { { "KOD_K", "N", 7, 0 }, ;
+    { "KOD_DN", "N", 7, 0 }, ;
+    { "KOD_DIAG", "C", 5, 0 }, ;
+    { "KOD_T", "N", 7, 0 }  } )
+  Use ( cur_dir + "tmp1" ) new
   Select DK
   Set Relation To reestr into REES
   Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_d01k" ) For rees->nyear == 2023 // ЮЮ
@@ -2525,8 +2523,8 @@ Use ( cur_dir + "tmp1" ) new
   r_use( dir_server + "kartote2",, "KART2" )
   r_use( dir_server + "mo_dnab",, "DN" )
   Set Relation To kod_k into KART
-  Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kod_k, 7 ) to ( cur_dir + "tmp_dn" ) For kart->kod > 0 .and. dn->next_data > 0d20240101 // временно 
-   //unique - переходим - одна запись - один диагноз
+  Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kod_k, 7 ) to ( cur_dir + "tmp_dn" ) For kart->kod > 0 .and. dn->next_data > 0d20240101 // временно
+  // unique - переходим - одна запись - один диагноз
   Go Top
   Do While !Eof()
     fl := .t.
@@ -2549,11 +2547,11 @@ Use ( cur_dir + "tmp1" ) new
       If ( 1 == fvdn_date_r( sys_date, kart->date_r ) .or. 2 == fvdn_date_r( sys_date, kart->date_r ) )
         fl := .f.
       Endif
-      if fl 
-        if kart->date_r < 0d19000101
+      If fl
+        If kart->date_r < 0d19000101
           fl := .f.
-        endif  
-      endif  
+        Endif
+      Endif
     Endif
     // еще один контороль по смерти
     If fl
@@ -2568,9 +2566,9 @@ Use ( cur_dir + "tmp1" ) new
       Select TMP
       Append Blank
       tmp->kod_k    := dn->kod_k
-      tmp->kod_dn   := dn->(recno())
+      tmp->kod_dn   := dn->( RecNo() )
       tmp->kod_diag := dn->kod_diag
-      tmp->kod_t    := tmp->(recno())
+      tmp->kod_t    := tmp->( RecNo() )
     Endif
     Select DN
     Skip
@@ -2578,58 +2576,58 @@ Use ( cur_dir + "tmp1" ) new
   kart2->( dbCloseArea() )
   // подготовка завершена в разрезе Пациентов
   // Очищаем от уже принятых пациентов/диагнозов
-  select TMP
-  Index On Str( kod_dn, 7 ) to ( cur_dir + "tmp_dnn" ) 
-  r_use( dir_server + "mo_d01d" ,,"mo_d01d") // список диагнозов пациентов
-  go Top
-  do while !eof()
-    if year(mo_d01d->next_data) == 2024
-      if mo_d01d->kod_n > 0 .and. mo_d01d->oplata == 1 // принятые
-        select TMP
-        find (str(mo_d01d->kod_n,7)) 
-        if found()
-          delete 
-        endif  
-      endif 
-    endif 
-    select MO_D01D
-    skip
-  enddo
+  Select TMP
+  Index On Str( kod_dn, 7 ) to ( cur_dir + "tmp_dnn" )
+  r_use( dir_server + "mo_d01d",, "mo_d01d" ) // список диагнозов пациентов
+  Go Top
+  Do While !Eof()
+    If Year( mo_d01d->next_data ) == 2024
+      If mo_d01d->kod_n > 0 .and. mo_d01d->oplata == 1 // принятые
+        Select TMP
+        find ( Str( mo_d01d->kod_n, 7 ) )
+        If Found()
+          Delete
+        Endif
+      Endif
+    Endif
+    Select MO_D01D
+    Skip
+  Enddo
   // очистим от не нужных
-  select TMP 
-  pack
+  Select TMP
+  Pack
   // очищаем от дублей по диагнозу
-  select TMP 
-  Index On Str( kod_k, 7 )+kod_diag to ( cur_dir + "tmp_dnn" ) unique
-  go top
-  do while !eof()
-    If f_is_diag_dn( tmp->kod_diag,,, .f. ) .or. padr(alltrim(tmp->kod_diag),3) == "E10"// только диагнозы из последнего списка от 21 ноября + E10
-      select TMP1
-      append blank
+  Select TMP
+  Index On Str( kod_k, 7 ) + kod_diag to ( cur_dir + "tmp_dnn" ) unique
+  Go Top
+  Do While !Eof()
+    If f_is_diag_dn( tmp->kod_diag,,, .f. ) .or. PadR( AllTrim( tmp->kod_diag ), 3 ) == "E10"// только диагнозы из последнего списка от 21 ноября + E10
+      Select TMP1
+      Append Blank
       tmp1->KOD_K    := tmp->KOD_K
       tmp1->KOD_DN   := tmp->KOD_DN
       tmp1->KOD_DIAG := tmp->KOD_DIAG
-      tmp1->KOD_T    := tmp->KOD_T 
-    endif  
-    select TMP
-    skip
-  enddo
-  select TMP 
-  set index to
-  zap
-  select TMP1 
-  Index On Str( kod_t, 7 ) to ( cur_dir + "tmp_dnn" ) 
-  go top
-  do while !eof()
-    select TMP
-    append blank
+      tmp1->KOD_T    := tmp->KOD_T
+    Endif
+    Select TMP
+    Skip
+  Enddo
+  Select TMP
+  Set Index To
+  Zap
+  Select TMP1
+  Index On Str( kod_t, 7 ) to ( cur_dir + "tmp_dnn" )
+  Go Top
+  Do While !Eof()
+    Select TMP
+    Append Blank
     tmp->KOD_K    := tmp1->KOD_K
     tmp->KOD_DN   := tmp1->KOD_DN
     tmp->KOD_DIAG := tmp1->KOD_DIAG
-    tmp->KOD_T    := tmp1->KOD_T 
-    select TMP1
-    skip
-  enddo
+    tmp->KOD_T    := tmp1->KOD_T
+    Select TMP1
+    Skip
+  Enddo
   //
   //
   If tmp->( LastRec() ) == 0
@@ -2691,23 +2689,23 @@ Use ( cur_dir + "tmp1" ) new
     Do While !Eof()
       arr := {} ; lmesto := 0
       Select DN
-      goto (tmp->kod_dn)
+      Goto ( tmp->kod_dn )
       If dn->next_data > SToD( "20240101" )   // 11.12.2024
         lspec := ret_prvs_v021( iif( Empty( perso->prvs_new ), perso->prvs, -perso->prvs_new ) )
-        If Empty( dn->next_data ) .or. !Between( dn->next_data, 0d20240101, 0d20250101 ) 
-          tnext_data := 0d20240201  
-        else
-          tnext_data := dn->next_data  
+        If Empty( dn->next_data ) .or. !Between( dn->next_data, 0d20240101, 0d20250101 )
+          tnext_data := 0d20240201
+        Else
+          tnext_data := dn->next_data
         Endif
         If !Between( dn->FREQUENCY, 1, 36 )
           tFREQUENCY := 3
-        else
+        Else
           tFREQUENCY := dn->FREQUENCY
         Endif
         If dn->mesto == 1
           lmesto := 1
         Endif
-         // 
+        //
         Select DK
         addrec( 7 )
         dk->REESTR  := 0                     // код реестра по файлу "mo_d01"
@@ -2719,11 +2717,11 @@ Use ( cur_dir + "tmp1" ) new
         Select DD
         addrec( 6 )
         dd->KOD_D     := dk->( RecNo() ) // код (номер записи) по файлу "mo_d01k"
-        dd->PRVS      := lspec  //ar2[ i, 1 ]     // Специальность врача по справочнику V021
-        dd->KOD_DIAG  := dn->kod_diag   //ar2[ i, 2 ]      // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
-        dd->N_DATA    := dn->n_data     //ar2[ i, 3 ]      // дата начала диспансерного наблюдения
-        dd->NEXT_DATA := tnext_data  //ar2[ i, 4 ]      // дата явки с целью диспансерного наблюдения
-        dd->FREQUENCY := tFREQUENCY     //ar2[ i, 5 ]
+        dd->PRVS      := lspec  // ar2[ i, 1 ]     // Специальность врача по справочнику V021
+        dd->KOD_DIAG  := dn->kod_diag   // ar2[ i, 2 ]      // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
+        dd->N_DATA    := dn->n_data     // ar2[ i, 3 ]      // дата начала диспансерного наблюдения
+        dd->NEXT_DATA := tnext_data  // ar2[ i, 4 ]      // дата явки с целью диспансерного наблюдения
+        dd->FREQUENCY := tFREQUENCY     // ar2[ i, 5 ]
         dd->KOD_N     := tmp->kod_dn    // код диспансерного наблюдения
         dd->oplata    := 0
         If id01 % 500 == 0
@@ -3155,7 +3153,7 @@ Function f3_view_d01( oBrow )
   If r <= 12
     r1 := r + 1 ; r2 := r1 + Len( mm_menu ) + 1
   Else
-    r2 := r - 1 ; r1 := r2 - Len( mm_menu ) -1
+    r2 := r -1 ; r1 := r2 - Len( mm_menu ) -1
   Endif
   rest_box( buf )
   If Len( mm_menu ) == 1
@@ -3354,14 +3352,14 @@ Function reestr_d02_tmpfile( oXmlDoc, aerr, mname_xml )
     { "_NAME_F",    "C", 26, 0 }, ;
     { "_NAME_FE",   "C", 26, 0 }, ;
     { "KOL",        "N",  6, 0 }, ; // количество пациентов в реестре/файле
-    { "KOL_ERR",    "N",  6, 0 };  // количество пациентов с ошибками в реестре
-  } )
+  { "KOL_ERR",    "N",  6, 0 };  // количество пациентов с ошибками в реестре
+    } )
   dbCreate( cur_dir + "tmp2file", { ;
     { "_N_ZAP",     "N",  6, 0 }, ;
     { "_SMO",       "C",  5, 0 }, ;
     { "_ENP",       "C", 16, 0 }, ;
     { "_OPLATA",    "N",  1, 0 }, ;
-    { "_ERROR",     "N",  3, 0 };   
+    { "_ERROR",     "N",  3, 0 };
     } )
   dbCreate( cur_dir + "tmp3file", { ;
     { "_N_ZAP",     "N",  6, 0 }, ;
@@ -3439,14 +3437,14 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
         AAdd( aerr, "Некорректное значение атрибута SMO: " + tmp2->_SMO )
       Endif
     Elseif Between( tmp2->_OPLATA, 2, 4 )
-      if tmp2->_OPLATA == 2 .and. tmp2->_ERROR == 131 // правка 01.02.24
+      If tmp2->_OPLATA == 2 .and. tmp2->_ERROR == 131 // правка 01.02.24
         g_rlock( forever )
         tmp2->_OPLATA := 1
         Unlock
         ++ii1
-      else  
+      Else
         ++ii2
-      endif  
+      Endif
     Else
       AAdd( aerr, "Некорректное значение атрибута RESULT: " + lstr( tmp2->_OPLATA ) )
     Endif
@@ -3530,9 +3528,9 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
           // else
           // strfile(space(8)+"ошибка "+lstr(tmp3->_ERROR)+" (неизвестная ошибка)"+hb_eol(),cFileProtokol,.t.)
           // endif
-          if tmp3->_ERROR != 131
+          If tmp3->_ERROR != 131
             StrFile( Space( 8 ) + geterror_t012( tmp3->_ERROR ) + hb_eol(), cFileProtokol, .t. )
-          endif  
+          Endif
           Select TMP3
           Skip
         Enddo
@@ -3630,28 +3628,28 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
   Endif
   Close databases
   // вставить перенос оплаты из DK в DD
-  g_use( dir_server + "mo_d01d" ,,"mo_d01d",.T.,.T.) // список диагнозов пациентов в реестрах
-  Index On Str( kod_d, 7 ) to ( cur_dir + "tmp_kodd" ) 
-  //{ "KOD_D",    "N", 6, 0 }, ; // код (номер записи) по файлу "mo_d01k"
+  g_use( dir_server + "mo_d01d",, "mo_d01d", .t., .t. ) // список диагнозов пациентов в реестрах
+  Index On Str( kod_d, 7 ) to ( cur_dir + "tmp_kodd" )
+  // { "KOD_D",    "N", 6, 0 }, ; // код (номер записи) по файлу "mo_d01k"
   r_use( dir_server + "mo_d01k"  ) // список пациентов в реестрах
   Index On Str( D01_ZAP, 6 ) to ( cur_dir + "tmp_rhum" ) For REESTR == mkod_reestr
   //
-  go top
-  do while !eof()
+  Go Top
+  Do While !Eof()
     // пациенты из реестра
-    select MO_D01D
-    find (str(mo_d01k->(recno()),7))
-    do while mo_d01d->kod_d == mo_d01k->(recno()) .and. !eof()
+    Select MO_D01D
+    find ( Str( mo_d01k->( RecNo() ), 7 ) )
+    Do While mo_d01d->kod_d == mo_d01k->( RecNo() ) .and. !Eof()
       // идем по диагнозам данного пациента
       g_rlock( forever )
       mo_d01d->oplata := mo_d01k->oplata
       Unlock
-      select MO_D01D
-      skip  // диагнозы
-    enddo    
-    select MO_D01K // люди
-    skip  
-  enddo
+      Select MO_D01D
+      Skip  // диагнозы
+    Enddo
+    Select MO_D01K // люди
+    Skip
+  Enddo
   Close databases
 
   Return count_in_schet
@@ -3741,7 +3739,7 @@ Function delete_reestr_d02( mkod_reestr, mname_reestr )
   If r <= 18
     r1 := r + 1 ; r2 := r1 + Len( mm_menu ) + 1
   Else
-    r2 := r - 1 ; r1 := r2 - Len( mm_menu ) -1
+    r2 := r -1 ; r1 := r2 - Len( mm_menu ) -1
   Endif
   If ( i := popup_prompt( r1, 10, 1, mm_menu,,, color5 ) ) > 0
     is_allow_delete := mm_flag[ i ]

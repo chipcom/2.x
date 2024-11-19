@@ -3276,7 +3276,7 @@ Static Function s1_mnog_poisk( cv, cf )
   Return Nil
 
 // 12.10.23
-Function titlen_uchexcel( worksheet, row, column, arr_u, lsh, c_uch )
+Function titlen_uchexcel( worksheet, row, column, arr_u, lsh, c_uch, format  )
 
   Local s := ''
 
@@ -3285,11 +3285,11 @@ Function titlen_uchexcel( worksheet, row, column, arr_u, lsh, c_uch )
   Endif
   If count_uch > 1
     If count_uch == Len( arr_u )
-      worksheet_write_string( worksheet, row, column, hb_StrToUTF8( Center( '[ по всем учреждениям ]' ) ), nil )
+      worksheet_write_string( worksheet, row, column, hb_StrToUTF8( '[ по всем учреждениям ]' ), format )
     Else
       AEval( arr_u, {| x| s += '"' + AllTrim( x[ 2 ] ) + '", ' } )
       s := SubStr( s, 1, Len( s ) -2 )
-      worksheet_write_string( worksheet, row, column, hb_StrToUTF8( Center( s ) ), nil )
+      worksheet_write_string( worksheet, row, column, hb_StrToUTF8(  s  ), format )
     Endif
   Endif
 
