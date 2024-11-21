@@ -1618,21 +1618,22 @@ Function save_arr_drz( lkod, mk_data )
 
   Return Nil
 
-// 20.07.24
+// 21.11.24
 Function read_arr_drz( lkod, is_all )
 
   Local arr, i, sk
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
   Local oldSelect
 
+  Private mvar
+  Default is_all To .t.
+
   If ! aliasIsUse
     oldSelect := Select()
     r_use( dir_server + 'mo_pers', , 'TPERS' )
   Endif
 
-  Private mvar
   arr := read_arr_dispans( lkod )
-  Default is_all To .t.
   For i := 1 To Len( arr )
     If ValType( arr[ i ] ) == 'A' .and. ValType( arr[ i, 1 ] ) == 'C'
       Do Case
