@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 19.10.24
+// 21.11.24
 Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkdata )
 
   // lkiro - список возможных КИРО для КСГ
@@ -101,7 +101,7 @@ Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkda
         Return vkiro
       Endif
     Else // количество дней лечения 3 и менее дней
-      If is_opt_dlit_do_3_dnej // opt_dlitelnost_ksg_do_3dnej( cKSG, lkdata )
+      If is_opt_dlit_do_3_dnej .and. ( AScan( { 102, 105, 107, 110, 202, 205, 207 }, lrslt ) == 0 )  // проверем результат лечения
         Return vkiro
       Endif
       If AScan( lkiro, 1 ) > 0
