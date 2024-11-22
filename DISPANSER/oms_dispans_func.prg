@@ -4,12 +4,23 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.11.24
+// 22.11.24
 function read_napr_dispanser( lkod )
+  // возврат arr_napr
+  // arr_napr[1,1], arr_napr[1,2], arr_napr[1,3] - виды доп обследования (вид, 0, номер записи в справочнике персонала)
+  // arr_napr[2,1], arr_napr[2,2], arr_napr[2,3] - напр. в МО (куда отправляем, массив кодов специализации, номер записи в справочнике персонала)
+  // arr_napr[3,1], arr_napr[3,2], arr_napr[3,3] - напр. на лечение (куда направляем, код профиля, номер записи в справочнике персонала)
+  // arr_napr[4,1], arr_napr[4,2], arr_napr[4,3] - напр. реабилитации (да/нет, код профиля, номер записи в справочнике персонала)
+  // arr_napr[5,1], arr_napr[5,2], arr_napr[5,3] - напр. на сан.-кур. (да/нет, 0, номер записи в справочнике персонала)
 
-  local arr_napr := Array( 5, 3 ), i, arr
+  local i, j, arr
+  local arr_napr := Array( 5, 3 )
 
-  AFill( arr_napr, { 0, 0, 0 } )
+  for i := 1 to 5
+    for j := 1 to 3
+      arr_napr[ i, j ] := 0
+    next
+  next
 
   arr := read_arr_dispans( lkod )
 
@@ -29,68 +40,26 @@ function read_napr_dispanser( lkod )
           // arr_napr[ 1, 1 ] := arr[ i, 2 ][ 1 ]
           arr_napr[ 1, 3 ] := arr[ i, 2 ][ 2 ]
         Case arr[ i, 1 ] == '50'
-            // If ValType( arr[ i, 2 ] ) == 'N'
-            //   m1sank_na  := arr[ i, 2 ]
-            // Elseif ValType( arr[ i, 2 ] ) == 'A'
-            //   m1sank_na  := arr[ i, 2 ][ 1 ]
-            //   If arr[ i, 2 ][ 2 ] > 0
-            //     TPERS->( dbGoto( arr[ i, 2 ][ 2 ] ) )
-            //     mtab_v_sanat := TPERS->tab_nom
-            //   Endif
-            // Endif
           arr_napr[ 5, 1 ] := arr[ i, 2 ][ 1 ]
           arr_napr[ 5, 3 ] := arr[ i, 2 ][ 2 ]
         Case arr[ i, 1 ] == '52'
-    altd()
-          // If ValType( arr[ i, 2 ] ) == 'N'
-            //   m1napr_v_mo  := arr[ i, 2 ]
-            // Elseif ValType( arr[ i, 2 ] ) == 'A'
-            //   m1napr_v_mo  := arr[ i, 2 ][ 1 ]
-            //   If arr[ i, 2 ][ 2 ] > 0
-            //     TPERS->( dbGoto( arr[ i, 2 ][ 2 ] ) )
-            //     mtab_v_mo := TPERS->tab_nom
-            //   Endif
-            // Endif
           arr_napr[ 2, 1 ] := arr[ i, 2 ][ 1 ]
           arr_napr[ 2, 3 ] := arr[ i, 2 ][ 2 ]
         Case arr[ i, 1 ] == '53' .and. ValType( arr[ i, 2 ] ) == 'A'
-            // arr_mo_spec := arr[ i, 2 ]
           arr_napr[ 2, 2 ] := arr[ i, 2 ]
         Case arr[ i, 1 ] == '54'
-            // If ValType( arr[ i, 2 ] ) == 'N'
-            //   m1napr_stac := arr[ i, 2 ]
-            // Elseif ValType( arr[ i, 2 ] ) == 'A'
-            //   m1napr_stac := arr[ i, 2 ][ 1 ]
-            //   If arr[ i, 2 ][ 2 ] > 0
-            //     TPERS->( dbGoto( arr[ i, 2 ][ 2 ] ) )
-            //     mtab_v_stac := TPERS->tab_nom
-            //   Endif
-            // Endif
           arr_napr[ 3, 1 ] := arr[ i, 2 ][ 1 ]
           arr_napr[ 3, 3 ] := arr[ i, 2 ][ 2 ]
         Case arr[ i, 1 ] == '55' .and. ValType( arr[ i, 2 ] ) == 'N'
-            // m1profil_stac := arr[ i, 2 ]
           arr_napr[ 3, 2 ] := arr[ i, 2 ]
         Case arr[ i, 1 ] == '56'
-            // If ValType( arr[ i, 2 ] ) == 'N'
-            //   m1napr_reab := arr[ i, 2 ]
-            // Elseif ValType( arr[ i, 2 ] ) == 'A'
-            //   m1napr_reab := arr[ i, 2 ][ 1 ]
-            //   If arr[ i, 2 ][ 2 ] > 0
-            //     TPERS->( dbGoto( arr[ i, 2 ][ 2 ] ) )
-            //     mtab_v_reab := TPERS->tab_nom
-            //   Endif
-            // Endif
           arr_napr[ 4, 1 ] := arr[ i, 2 ][ 1 ]
           arr_napr[ 4, 3 ] := arr[ i, 2 ][ 2 ]
         Case arr[ i, 1 ] == '57' .and. ValType( arr[ i, 2 ] ) == 'N'
-            // m1profil_kojki := arr[ i, 2 ]
           arr_napr[ 4, 2 ] := arr[ i, 2 ]
       endcase
     endif
   next
-altd()
-
   return arr_napr
 
 // 01.08.24
