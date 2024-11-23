@@ -736,10 +736,6 @@ Function is_usluga_tfoms( lshifr, lshifr1, ldate_usl, ;
   Endif
 
   lal := create_name_alias( lal, y )
-  // if select(lal) == 0
-  // lal := 'lusl'
-  // endif
-
   lst := 0
   lvidpoms := ''
   lbukva := ' '
@@ -766,10 +762,6 @@ Function is_usluga_tfoms( lshifr, lshifr1, ldate_usl, ;
     Endif
     lal := 'luslf'
     lal := create_name_alias( lal, y )
-    // if select(lal) == 0
-    // lal := 'luslf'
-    // endif
-
     dbSelectArea( lal )
     find ( PadR( _shifr, 20 ) )
     If Found() // .and. between_date(luslf->datebeg, luslf->dateend, ldate_usl)
@@ -779,7 +771,6 @@ Function is_usluga_tfoms( lshifr, lshifr1, ldate_usl, ;
     Endif
   Endif
   Select ( tmp_select )
-
   Return fl // подтверждение, что услуга - ОМС
 
 // 15.01.19
@@ -803,15 +794,18 @@ Function ret_tfoms_uet( lshifr, lshifr1, lvzros_reb )
 
   Return luet
 
-// 02.11.20 проверка на код лабораторной услуги, направляемой в ЦКДЛ
+// 22.11.24 проверка на код лабораторной услуги, направляемой в ЦКДЛ
 Function is_lab_usluga( lshifr )
 
   Static sl := '4.'
   Static arr := { '8.5', '11.5', '12.5', '12.6', '13.5', '15.5', '16.5', '17.5' }
-  Local fl := .f.
+  Local i, fl := .f.
 
   If Left( lshifr, 2 ) == sl
     lshifr := AllTrim( lshifr )
+    if lshifr == '4.15.546' // исключение для антител к гепатиту
+      return .f.
+    endif
     For i := 1 To Len( arr )
       If Like( sl + arr[ i ] + '??', lshifr )
         fl := .t.
@@ -819,7 +813,6 @@ Function is_lab_usluga( lshifr )
       Endif
     Next
   Endif
-
   Return fl
 
 // 10.09.18
@@ -1051,9 +1044,6 @@ Function ret_par_org( lshifr, _k_data )
 
   Local s := '', lalf := 'LUSLF', tmp_select := Select()
 
-  // if year(_k_data) < 2020 // т.к. в 2020 году пополнился список операций на парных органах
-  // lalf += '19'
-  // endif
   lalf := create_name_alias( lalf, _k_data )
   dbSelectArea( lalf )
   If FieldNum( 'par_org' ) > 0
