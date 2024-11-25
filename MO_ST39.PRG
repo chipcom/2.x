@@ -1,4 +1,4 @@
-// **** mo_st39.prg - стоматологическая форма 39 и прочие функции
+// mo_st39.prg - стоматологическая форма 39 и прочие функции
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
@@ -14,21 +14,21 @@ Static f39tdp_sect  := "Форма 39TDP - "
 Static f39tdz_sect  := "Форма 39TDZ - "
 Static f39tdd_sect  := "Форма 39TDD - "
 
-// **** 16.11.16
+// 16.11.16
 Function f_stom_39_hirur()
 
   f39_hir()
 
   Return Nil
 
-// **** 16.11.16
+// 16.11.16
 Function f_stom_39_terap()
 
   f39_ter()
 
   Return Nil
 
-// **** 06.08.19 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
+// 06.08.19 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
 Function mnog_poisk_dvn1()
 
   Local mm_tmp := {}, mm_sort, t_arr[ 2 ]
@@ -103,7 +103,7 @@ Function mnog_poisk_dvn1()
     };
     )
   AAdd( mm_tmp, { "v_period", "C", 255, 0, NIL, ;
-    {| x| menu_reader( x, { {|k, r, c| f2_mnog_poisk_dvn2( k, r, c ) } }, A__FUNCTION ) }, ;
+    {| x| menu_reader( x, { {| k, r, c| f2_mnog_poisk_dvn2( k, r, c ) } }, A__FUNCTION ) }, ;
     ta[ 1 ], {| x| ta[ 2 ] }, ;
     'Возрастные периоды диспансеризации' } )
   AAdd( mm_tmp, { "o_disp", "N", 1, 0, NIL, ;
@@ -126,7 +126,7 @@ Function mnog_poisk_dvn1()
       "Буква (перед участком)" } )
     AAdd( mm_tmp, { "uchast", "N", 1, 0,, ;
       {| x| menu_reader( x, ;
-      { {|k, r, c| get_uchast( r + 1, c ) } }, A__FUNCTION ) }, ;
+      { {| k, r, c| get_uchast( r + 1, c ) } }, A__FUNCTION ) }, ;
       0, {|| init_uchast( arr_uchast ) }, ;
       "Участок (участки)" } )
     mm_sort := { ;
@@ -160,7 +160,7 @@ Function mnog_poisk_dvn1()
     "Место жительства:" } )
   AAdd( mm_tmp, { "_okato", "C", 11, 0, NIL, ;
     {| x| menu_reader( x, ;
-    { {|k, r, c| get_okato_ulica( k, r, c, { k, m_okato, } ) } }, A__FUNCTION ) }, ;
+    { {| k, r, c| get_okato_ulica( k, r, c, { k, m_okato, } ) } }, A__FUNCTION ) }, ;
     Space( 11 ), {| x| Space( 11 ) }, ;
     'Адрес регистрации (ОКАТО)' } )
   AAdd( mm_tmp, { "adres", "C", 20, 0, "@!", ;
@@ -531,7 +531,7 @@ Function mnog_poisk_dvn1()
 
   Return Nil
 
-// **** 21.09.17
+// 21.09.17
 Function write_mn_p_dvn1( k )
 
   Local fl := .t.
@@ -548,7 +548,7 @@ Function write_mn_p_dvn1( k )
 
   Return fl
 
-// **** 17.07.19
+// 17.07.19
 Static Function f1_mnog_poisk_dvn1( cv, cf )
 
   Local i, j, k, n, s, arr, fl := .t., fl_disp := .f., god_r, arr1
@@ -659,7 +659,7 @@ Static Function f1_mnog_poisk_dvn1( cv, cf )
 
   Return Nil
 
-// **** 17.07.19
+// 17.07.19
 Static Function f11_mnog_poisk_dvn1( date_otbor_old )
 
   Local fl_f11 := .t.
@@ -762,7 +762,7 @@ Static Function f11_mnog_poisk_dvn1( date_otbor_old )
 
 // 
 
-// **** 22.12.14 Многовариантный запрос по диспансеризации/профилактике взрослого населения
+// 22.12.14 Многовариантный запрос по диспансеризации/профилактике взрослого населения
 Function mnog_poisk_dvn2()
 
   Static mm_perevyst := { ;
@@ -781,8 +781,8 @@ Function mnog_poisk_dvn2()
     { "к другому МО", 2 }, ;
     { "неизвестно  ", 3 };
     }
-  Static mm_gruppa := { { "Присвоена I группа здоровья",1 }, ;
-    { "Присвоена II группа здоровья",2 }, ;
+  Static mm_gruppa := { { "Присвоена I группа здоровья", 1 }, ;
+    { "Присвоена II группа здоровья", 2 }, ;
     { "Присвоена III группа здоровья", 3 } }
   Static mm_regschet := { { "Не зарегистрированные счета", 1 }, { "Зарегистрированные счета", 2 } }
   Static mm_schet := { { "Не попавшие в счета", 1 }, { "Попавшие в счета", 2 } }
@@ -849,7 +849,7 @@ Function mnog_poisk_dvn2()
     "Вид обследования", ;
     {| g, o| f_valid_mnog_poisk_dvn2( g, o ) } } )
   AAdd( mm_tmp, { "v_period", "C", 100, 0, NIL, ;
-    {| x| menu_reader( x, { {|k, r, c| f2_mnog_poisk_dvn2( k, r, c ) } }, A__FUNCTION ) }, ;
+    {| x| menu_reader( x, { {| k, r, c| f2_mnog_poisk_dvn2( k, r, c ) } }, A__FUNCTION ) }, ;
     Space( 100 ), {| x| Space( 10 ) }, ;
     ' Возрастные периоды диспансеризации',, ;
     {|| m1vid_obsl < 2 } } )
@@ -875,7 +875,7 @@ Function mnog_poisk_dvn2()
     "Прикрепление", ;
     {|| iif( m1prikrepl == 2, nil, ( mmo_prik := Space( 70 ), m1mo_prik := Space( 6 ), update_get( "mmo_prik" ) ) ), .t. } } )
   AAdd( mm_tmp, { "mo_prik", "C", 6, 0, NIL, ;
-    {| x| menu_reader( x, { {|k, r, c| f_get_mo( k, r, c, "loc_arr_MO[10].and.loc_arr_MO[2]!=glob_mo[2]" ) } }, A__FUNCTION ) }, ;
+    {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c, "loc_arr_MO[10].and.loc_arr_MO[2]!=glob_mo[2]" ) } }, A__FUNCTION ) }, ;
     Space( 6 ), {| x| Space( 10 ) }, ;
     '└─> к какому МО',, ;
     {|| m1prikrepl == 2 } } )
@@ -895,7 +895,7 @@ Function mnog_poisk_dvn2()
       "Буква (перед участком)" } )
     AAdd( mm_tmp, { "uchast", "N", 1, 0,, ;
       {| x| menu_reader( x, ;
-      { {|k, r, c| get_uchast( r + 1, c ) } }, A__FUNCTION ) }, ;
+      { {| k, r, c| get_uchast( r + 1, c ) } }, A__FUNCTION ) }, ;
       0, {|| init_uchast( arr_uchast ) }, ;
       "Участок (участки)" } )
   Endif
@@ -905,7 +905,7 @@ Function mnog_poisk_dvn2()
     "ФИО (начальные буквы или шаблон)" } )
   AAdd( mm_tmp, { "_okato", "C", 11, 0, NIL, ;
     {| x| menu_reader( x, ;
-    { {|k, r, c| get_okato_ulica( k, r, c, { k, m_okato, } ) } }, A__FUNCTION ) }, ;
+    { {| k, r, c| get_okato_ulica( k, r, c, { k, m_okato, } ) } }, A__FUNCTION ) }, ;
     Space( 11 ), {| x| Space( 11 ) }, ;
     'Адрес регистрации (ОКАТО)' } )
   AAdd( mm_tmp, { "adres", "C", 20, 0, "@!", ;
@@ -1339,7 +1339,7 @@ Function mnog_poisk_dvn2()
 
 // 
 
-// **** 18.12.14 valid на переменную "vid_obsl"
+// 18.12.14 valid на переменную "vid_obsl"
 Function f_valid_mnog_poisk_dvn2( get, old )
 
   If m1vid_obsl != old .and. old != Nil // при смене значения
@@ -1357,7 +1357,7 @@ Function f_valid_mnog_poisk_dvn2( get, old )
 
   Return .t.
 
-// **** 17.07.19 запрос в GET-е возрастных периодов диспансеризации
+// 17.07.19 запрос в GET-е возрастных периодов диспансеризации
 Function f2_mnog_poisk_dvn2( k, r, c, par )
 
   Static sast, sarr, sast2, sarr2
@@ -1456,7 +1456,7 @@ Function f2_mnog_poisk_dvn2( k, r, c, par )
 
   Return { s, s1 }
 
-// **** 16.12.14
+// 16.12.14
 Function write_mn_p_dvn2( k )
 
   Local fl := .t.
@@ -1469,7 +1469,7 @@ Function write_mn_p_dvn2( k )
 
   Return fl
 
-// **** 22.12.14
+// 22.12.14
 Function f1_mnog_poisk_dvn2( cv, cf )
 
   Static P_BEGIN_RSLT := 342, D_BEGIN_RSLT := 316, D_BEGIN_RSLT2 := 351
@@ -1493,7 +1493,7 @@ Function f1_mnog_poisk_dvn2( cv, cf )
   Next
   If mn->vid_obsl == 0      // ДИСПАНСЕРИЗАЦИЯ проведена
     If ( fl := eq_any( human->ishod, 201, 202 ) )
-      metap := human->ishod - 200
+      metap := human->ishod -200
       If human_->RSLT_NEW > D_BEGIN_RSLT2
         m1GRUPPA := human_->RSLT_NEW - D_BEGIN_RSLT2
       Else
@@ -1687,7 +1687,7 @@ Function f1_mnog_poisk_dvn2( cv, cf )
 
 // 
 
-// **** 16.11.16
+// 16.11.16
 Function f39_hir( k )
 
   Static si1 := 1
@@ -1708,7 +1708,7 @@ Function f39_hir( k )
       "f39_hir(2)", ;
       "f39_hir(3)", ;
       "f39_hir(4)" }
-    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 1
     forma_39hall( 3 )
   Case k == 2
@@ -1727,7 +1727,7 @@ Function f39_hir( k )
 
 // 
 
-// ****
+//
 Function get_nastr_stom_f39h()
 
   Local nf := dir_server + f39h_nastr, fl, i
@@ -1783,7 +1783,7 @@ Function get_nastr_stom_f39h()
 
 // 
 
-// ****
+//
 Function forma_39hall( tip_f39 )
 
   Static sds := 0
@@ -1816,14 +1816,14 @@ Function forma_39hall( tip_f39 )
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  If ( krvz := fbp_tip_f39( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_f39( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
-  If ( j := popup_prompt( T_ROW, T_COL - 5, sds, mas_pmt,,, "B/BG,W+/B,N/BG,BG+/B" ) ) > 0
+  If ( j := popup_prompt( T_ROW, T_COL -5, sds, mas_pmt,,, "B/BG,W+/B,N/BG,BG+/B" ) ) > 0
     sds := j
   Endif
   Pi1 := j
-  If tip_f39 == 1 .and. !input_perso( T_ROW, T_COL - 5, .f. )
+  If tip_f39 == 1 .and. !input_perso( T_ROW, T_COL -5, .f. )
     Return Nil
   Endif
   Private speriod := arr_m[ 4 ]
@@ -2088,7 +2088,7 @@ Function forma_39hall( tip_f39 )
       Skip
     Enddo
   Endif
-  // *******************
+  //
   Close databases
 
   rest_box( buf )
@@ -2143,7 +2143,7 @@ Function preobr_mkb()
 // 
 
 
-// **** проверить больного по БД human и вернуть результат в виде массива
+// проверить больного по БД human и вернуть результат в виде массива
 Static Function yes_f_39h( par1, vozrast, vrach )
 
   Local i, j, k, s, arr, ret, t_human := .t.
@@ -2213,7 +2213,7 @@ Static Function yes_f_39h( par1, vozrast, vrach )
 
 // 
 
-// ****
+//
 Function ___f_39h( k )
 
   Local _1, _2, t_rec, t_flag, t_kart, t_date
@@ -2319,7 +2319,7 @@ Function ___f_39h( k )
 
 // 
 
-// **** записать одну строку из массива в TMP-файл
+// записать одну строку из массива в TMP-файл
 Function write_f39h( ar )
 
   Local i, pole
@@ -2335,15 +2335,15 @@ Function write_f39h( ar )
 
 // 
 
-// ****
+//
 Function forma_39h_na( tip )
 
   Static arr := { 'Посещение первичное', ;                  // 1
     'Посещение повторное', ;                  // 2
     'Блокада', ;                              // 3
     'Экстракция зубов с обезболиванием', ;    // 4
-  'Экстракция зубов без обезболивания', ;   // 5
-    'Экстракция корней зубов', ;              // 6
+    'Экстракция зубов без обезболивания', ;   // 5
+  'Экстракция корней зубов', ;              // 6
     'Экстракция молочных зубов ', ;           // 7
     'Экстракция постоянных зубов ', ;         // 8
     'Экстракция зубов периостит', ;           // 9
@@ -2376,12 +2376,12 @@ Function forma_39h_na( tip )
     "──────────┴──────────────────────────────────────────────────────────────────" }
   If tip == 1
     AEval( arr, {| x| sh := Max( sh, Len( x ) ) } )
-    Do While ( l := Popup( T_ROW, T_COL - 5, 22, T_COL + sh - 2, arr, l ) ) > 0
+    Do While ( l := Popup( T_ROW, T_COL -5, 22, T_COL + sh -2, arr, l ) ) > 0
       Default si1 To 1
       mas_pmt := { "Основная услуга", ;
         "Сопутствующая услуга", ;
         "Обязательный диагноз" }
-      If ( j := popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt ) ) > 0
+      If ( j := popup_prompt( T_ROW, T_COL -5, si1, mas_pmt ) ) > 0
         si1 := j
         RestScreen( f39_scr )
         If j == 1
@@ -2463,7 +2463,7 @@ Function forma_39h_na( tip )
 
 // 
 
-// ****
+//
 Function f1_forma_39h_na( par, title, tip )
 
   Local nfile := dir_server + f39h_nastr, name_sect
@@ -2479,7 +2479,7 @@ Function f1_forma_39h_na( par, title, tip )
   adbf := { ;
     { "U_KOD",    "N",      4,      0 }, ;  // код услуги
   { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-  { "U_NAME",     "C",     65,      0 };   // наименование услуги
+    { "U_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir + "tmp", adbf )
   r_use( dir_server + "uslugi",, "USL" )
@@ -2520,7 +2520,7 @@ Function f1_forma_39h_na( par, title, tip )
 
 // 
 
-// ****
+//
 Function f1_forma_39h_prn_na( par, title, tip )
 
   Local nfile := dir_server + f39h_nastr, name_sect
@@ -2536,7 +2536,7 @@ Function f1_forma_39h_prn_na( par, title, tip )
   adbf := { ;
     { "U_KOD",    "N",      4,      0 }, ;  // код услуги
   { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-  { "U_NAME",     "C",     65,      0 };   // наименование услуги
+    { "U_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir + "tmp", adbf )
   r_use( dir_server + "uslugi",, "USL" )
@@ -2559,7 +2559,7 @@ Function f1_forma_39h_prn_na( par, title, tip )
 
 // 
 
-// ****
+//
 Function f1_forma_39h_prn_diag_na( par, title )
 
   Local nfile := dir_server + f39h_nastr, name_sect
@@ -2571,7 +2571,7 @@ Function f1_forma_39h_prn_diag_na( par, title )
   adbf := { ;
     { "d_KOD",    "N",      4,      0 }, ;  // код услуги
   { "d_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-  { "d_NAME",     "C",     65,      0 };   // наименование услуги
+    { "d_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir + "tmp", adbf )
   r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
@@ -2596,7 +2596,7 @@ Function f1_forma_39h_prn_diag_na( par, title )
 
 // 
 
-// ****
+//
 Static Function cre_tmp_39h( adbf )
 
   Local i
@@ -2612,7 +2612,7 @@ Static Function cre_tmp_39h( adbf )
 
 // 
 
-// **** вернуть тип услуги (bit-овый вариант)
+// вернуть тип услуги (bit-овый вариант)
 Function fbp_tip_f39( r, c, ret_arr )
 
   Static sast := { .t., .f., .t., .f., .f. }
@@ -2633,7 +2633,7 @@ Function fbp_tip_f39( r, c, ret_arr )
 
 // 
 
-// ****
+//
 Function f1_forma_39h_na_diag( par, title, tip )
 
   Local nfile := dir_server + f39h_nastr, name_sect
@@ -2645,7 +2645,7 @@ Function f1_forma_39h_na_diag( par, title, tip )
   adbf := { ;
     { "D_KOD",    "N",      4,      0 }, ;  // код услуги
   { "D_SHIFR",    "C",      6,      0 }, ;  // шифр услуги
-  { "D_NAME",     "C",     65,      0 };   // наименование услуги
+    { "D_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir + "tmp", adbf )
   r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
@@ -2682,7 +2682,7 @@ Function f1_forma_39h_na_diag( par, title, tip )
 
 // 
 
-// ****
+//
 Function ob2_v_diag( is_get, r1, mtitul )
 
   Local t_arr[ BR_LEN ], buf := SaveScreen(), k, ret
@@ -2722,7 +2722,7 @@ Function ob2_v_diag( is_get, r1, mtitul )
 
   Return ret
 
-// ****
+//
 Function ob21v_diag( nKey, oBrow, regim, mtitul )
 
   Local ret := -1, s
@@ -2735,7 +2735,7 @@ Function ob21v_diag( nKey, oBrow, regim, mtitul )
       Save Screen To buf
       Private mshifr := Space( 6 )
       tmp_color := SetColor( cDataCScr )
-      box_shadow( k, pc1 + 1, 21, pc2 - 1,, "Добавление диагноза", cDataPgDn )
+      box_shadow( k, pc1 + 1, 21, pc2 -1,, "Добавление диагноза", cDataPgDn )
       SetColor( cDataCGet )
       @ k + 1, pc1 + 27 Say "Шифр диагн" Get mshifr Picture "@!"
       // valid valid_shifr()
@@ -2791,7 +2791,7 @@ Function ob21v_diag( nKey, oBrow, regim, mtitul )
 
 // 
 
-// **** 16.11.16
+// 16.11.16
 Function f39_ter( k )
 
   Static si1 := 1
@@ -2812,7 +2812,7 @@ Function f39_ter( k )
       "f39_ter(2)", ;
       "f39_ter(3)", ;
       "f39_ter(4)" }
-    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 1
     forma_39tall( 3 )
   Case k == 2
@@ -2831,7 +2831,7 @@ Function f39_ter( k )
 
 // 
 
-// ****
+//
 Function get_nastr_stom_f39t()
 
   Local nf := dir_server + f39t_nastr, fl, i
@@ -2887,7 +2887,7 @@ Function get_nastr_stom_f39t()
 
 // 
 
-// **** записать одну строку из массива в TMP-файл
+// записать одну строку из массива в TMP-файл
 Function write_f39t( ar )
 
   Local i, pole
@@ -2903,7 +2903,7 @@ Function write_f39t( ar )
 
 // 
 
-// ****
+//
 Function forma_39t_na( tip )
 
   Static arr := { '02 - Посещений Всего', ;
@@ -2973,13 +2973,13 @@ Function forma_39t_na( tip )
 
   If tip == 1
     AEval( arr, {| x| sh := Max( sh, Len( x ) ) } )
-    Do While ( l := Popup( T_ROW, T_COL - 5, 22, T_COL + sh - 2, arr, l ) ) > 0
+    Do While ( l := Popup( T_ROW, T_COL -5, 22, T_COL + sh -2, arr, l ) ) > 0
       Default si1 To 1
       mas_pmt := { "Основная услуга", ;
         "Сопутствующая услуга", ;
         "Обязательный диагноз", ;
         "Исключительная услуга" }
-      If ( j := popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt ) ) > 0
+      If ( j := popup_prompt( T_ROW, T_COL -5, si1, mas_pmt ) ) > 0
         si1 := j
         RestScreen( f39_scr )
         If j == 1
@@ -3078,7 +3078,7 @@ Function forma_39t_na( tip )
 
 // 
 
-// ****
+//
 Function f1_forma_39t_na( par, title, tip )
 
   Local nfile := dir_server + f39t_nastr, name_sect
@@ -3096,7 +3096,7 @@ Function f1_forma_39t_na( par, title, tip )
   adbf := { ;
     { "U_KOD",    "N",      4,      0 }, ;  // код услуги
   { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-  { "U_NAME",     "C",     65,      0 };   // наименование услуги
+    { "U_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir + "tmp", adbf )
   r_use( dir_server + "uslugi",, "USL" )
@@ -3139,7 +3139,7 @@ Function f1_forma_39t_na( par, title, tip )
 
 // 
 
-// ****
+//
 Function f1_forma_39t_prn_na( par, title, tip )
 
   Local nfile := dir_server + f39t_nastr, name_sect
@@ -3157,7 +3157,7 @@ Function f1_forma_39t_prn_na( par, title, tip )
   adbf := { ;
     { "U_KOD",    "N",      4,      0 }, ;  // код услуги
   { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-  { "U_NAME",     "C",     65,      0 };   // наименование услуги
+    { "U_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir + "tmp", adbf )
   r_use( dir_server + "uslugi",, "USL" )
@@ -3180,7 +3180,7 @@ Function f1_forma_39t_prn_na( par, title, tip )
 
 // 
 
-// ****
+//
 Function f1_forma_39t_prn_diag_na( par, title )
 
   Local nfile := dir_server + f39t_nastr, name_sect
@@ -3192,7 +3192,7 @@ Function f1_forma_39t_prn_diag_na( par, title )
   adbf := { ;
     { "d_KOD",    "N",      4,      0 }, ;  // код услуги
   { "d_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-  { "d_NAME",     "C",     65,      0 };   // наименование услуги
+    { "d_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir + "tmp", adbf )
   r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
@@ -3217,7 +3217,7 @@ Function f1_forma_39t_prn_diag_na( par, title )
 
 // 
 
-// ****
+//
 Static Function cre_tmp_39t( adbf )
 
   Local i
@@ -3232,7 +3232,7 @@ Static Function cre_tmp_39t( adbf )
 
 // 
 
-// ****
+//
 Function f1_forma_39t_na_diag( par, title, tip )
 
   Local nfile := dir_server + f39t_nastr, name_sect
@@ -3244,7 +3244,7 @@ Function f1_forma_39t_na_diag( par, title, tip )
   adbf := { ;
     { "D_KOD",    "N",      4,      0 }, ;  // код услуги
   { "D_SHIFR",    "C",      6,      0 }, ;  // шифр услуги
-  { "D_NAME",     "C",     65,      0 };   // наименование услуги
+    { "D_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir + "tmp", adbf )
   r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
@@ -3282,7 +3282,7 @@ Function f1_forma_39t_na_diag( par, title, tip )
 
 // 
 
-// ****
+//
 Function forma_39tall( tip_f39 )
 
   Static sds := 0
@@ -3315,14 +3315,14 @@ Function forma_39tall( tip_f39 )
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  If ( krvz := fbp_tip_f39( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_f39( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
-  If ( j := popup_prompt( T_ROW, T_COL - 5, sds, mas_pmt,,, "B/BG,W+/B,N/BG,BG+/B" ) ) > 0
+  If ( j := popup_prompt( T_ROW, T_COL -5, sds, mas_pmt,,, "B/BG,W+/B,N/BG,BG+/B" ) ) > 0
     sds := j
   Endif
   Pi1 := j
-  If tip_f39 == 1 .and. !input_perso( T_ROW, T_COL - 5, .f. )
+  If tip_f39 == 1 .and. !input_perso( T_ROW, T_COL -5, .f. )
     Return Nil
   Endif
   Private speriod := arr_m[ 4 ]
@@ -3595,7 +3595,7 @@ Function forma_39tall( tip_f39 )
       Skip
     Enddo
   Endif
-  // *******************
+  //
 
   Close databases
 
@@ -3636,7 +3636,7 @@ Function forma_39tall( tip_f39 )
 // 
 
 
-// **** проверить больного по БД human и вернуть результат в виде массива
+// проверить больного по БД human и вернуть результат в виде массива
 Static Function yes_f_39t( par1, vozrast, vrach )
 
   Local i, j, k, s, arr, ret, t_human := .t., t_select
@@ -3708,7 +3708,7 @@ Static Function yes_f_39t( par1, vozrast, vrach )
 
 // 
 
-// ****
+//
 Function ___f_39t( k )
 
   Local _1, _2, t_rec, t_flag, t_kart, t_date, tt1 := 0, tt2 := 0, tt3 := 0, tt4 := 0, ;

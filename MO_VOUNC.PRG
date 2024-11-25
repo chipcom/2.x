@@ -785,7 +785,7 @@ Function vounc_info_recept( k )
     mas_fun := { 'vounc_info_recept(1)', ;
       'vounc_info_recept(2)', ;
       'vounc_info_recept(3)' }
-    popup_prompt( T_ROW, T_COL -5, sk, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL - 5, sk, mas_pmt, mas_msg, mas_fun )
   Case k == 1
     f1vounc_info_recept()
   Case k == 2
@@ -958,7 +958,7 @@ Function f2vounc_info_recept()
   Endif
   mywait()
   adbf := { { 'TOVAR', 'N', 5, 0 }, ;
-    { 'kol','N', 6, 0 } }
+    { 'kol', 'N', 6, 0 } }
   For i := 1 To 12
     AAdd( adbf, { 'kol' + lstr( i ), 'N', 6, 0 } )
   Next
@@ -1138,7 +1138,7 @@ Function f3vounc_info_recept()
           Space( 5 * Len( arr ) )
       Endif
       If ( i := AScan( arr, {| x| x[ 6 ] == tmp->tovar } ) ) > 0
-        s := Stuff( s, n + 5 * ( i -1 ), 5, put_val( tmp->kol, 5 ) )
+        s := Stuff( s, n + 5 * ( i - 1 ), 5, put_val( tmp->kol, 5 ) )
       Endif
       Skip
     Enddo
@@ -1381,7 +1381,7 @@ Static Function vounc_val_nom()
     func_error( 4, 'Начальный (конечный) номер должен быть положительным числом' )
   Elseif mnom1 > mnom2
     func_error( 4, 'Начальный номер рецепта должен быть меньше конечного' )
-  Elseif !Between( mlast_rc, mnom1 -1, mnom2 )
+  Elseif !Between( mlast_rc, mnom1 - 1, mnom2 )
     func_error( 4, 'Номер последнего (автоматически) добавленного рецепта не попадает в диапазон' )
   Endif
 
@@ -1490,7 +1490,7 @@ Function vounc_get_tovar( k, r, c, _tip_mnn )
     If k != NIL
       i := AScan( arr_kod, k )
     Endif
-    r2 := r -1
+    r2 := r - 1
     r1 := r2 - Len( arr_kod ) -1
     If r1 < 2
       r1 := 2
@@ -1499,7 +1499,7 @@ Function vounc_get_tovar( k, r, c, _tip_mnn )
     c2 := c1 + l + 3
     If c2 > 77
       c2 := 77
-      c1 := c2 - l -3
+      c1 := c2 - l - 3
       If c1 < 0
         c1 := 0
       Endif

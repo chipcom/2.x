@@ -32,7 +32,7 @@ Function menu_schet_akt( r, c )
     'По всем выставленным случаям, но без учёта повторно выставленных случаев' }
   Local j, buf := save_maxrow()
 
-  Default r To T_ROW, c To T_COL - 5
+  Default r To T_ROW, c To T_COL -5
   If ( j := popup_prompt( r, c, glob_schet_akt, mas_pmt, mas_msg, , 'BG+/RB,W+/B,GR+/RB,BG+/B' ) ) > 0
     glob_schet_akt := j
   Endif
@@ -85,7 +85,7 @@ Function e_statist( k )
       'e_statist(14)', ;
       'e_statist(15)', ;
       'e_statist(16)' }
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
     restuchotd( uch_otd )
   Case k == 11
     Private pds := 2
@@ -104,7 +104,7 @@ Function e_statist( k )
       'e_statist(123)', ;
       'e_statist(124)', ;
       'e_statist(125)' }
-    popup_prompt( T_ROW, T_COL - 5, si12, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si12, mas_pmt, mas_msg, mas_fun )
   Case k == 121
     mas_pmt := { '~Счета за период', ;
       '~Конкретный счет', ;
@@ -118,7 +118,7 @@ Function e_statist( k )
       'e_statist(22)', ;
       'e_statist(23)', ;
       'e_statist(24)' }
-    popup_prompt( T_ROW, T_COL - 5, si3, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si3, mas_pmt, mas_msg, mas_fun )
   Case k == 122
     pds := 3 // по дате регистрации счёта
     mas_pmt := { '~Счета за период', ;
@@ -142,7 +142,7 @@ Function e_statist( k )
       'e_statist(145)', ;
       'e_statist(146)', ;
       'e_statist(147)' }
-    popup_prompt( T_ROW, T_COL - 5, si14, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si14, mas_pmt, mas_msg, mas_fun )
   Case k == 123
     mas_pmt := { '~Суммы снятий', ;
       'С~уммы снятий по дате РАК', ;
@@ -165,12 +165,12 @@ Function e_statist( k )
       'e_statist(154)', ;
       'e_statist(155)', ;
       'e_statist(156)' }
-    popup_prompt( T_ROW, T_COL - 5, si15, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si15, mas_pmt, mas_msg, mas_fun )
   Case k == 124
     mas_pmt := { '~Платёжные поручения' }
     mas_msg := { 'Список платёжных поручений' }
     mas_fun := { 'e_statist(161)' }
-    popup_prompt( T_ROW, T_COL - 5, si16, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si16, mas_pmt, mas_msg, mas_fun )
   Case k == 125
     mas_pmt := { '~Акты сверки по СМО', ;
       '~Оборотная ведомость' }
@@ -178,7 +178,7 @@ Function e_statist( k )
       'Составление оборотной ведомости' }
     mas_fun := { 'e_statist(171)', ;
       'e_statist(172)' }
-    popup_prompt( T_ROW, T_COL - 5, si17, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si17, mas_pmt, mas_msg, mas_fun )
   Case k == 12
     mas_pmt := { 'Объём работ (по дате оказания ~услуги)', ;
       'Объём работ (по дате ~выписки счета)', ;
@@ -193,7 +193,7 @@ Function e_statist( k )
       'ob1_statist(0, 3)', ;
       'ob1_statist(0, 4)' }
     Private pi1 := si2, psz, _arr_if, _what_if := _init_if(), _arr_komit := {}
-    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
     If pi1 != NIL ; si2 := pi1 ; Endif
   Case k == 13
     mas_pmt := { 'Объём работ (по дате оказания ~услуги)', ;
@@ -209,7 +209,7 @@ Function e_statist( k )
       'obF_statist(0, 3)', ;
       'obF_statist(0, 4)' }
     Private pi1 := si2, psz, _arr_if, _what_if := _init_if(), _arr_komit := {}
-    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
     If pi1 != NIL ; si2 := pi1 ; Endif
   Case k == 14
     mas_pmt := { 'Статистические формы (по дате ~окончания лечения)', ;
@@ -227,7 +227,7 @@ Function e_statist( k )
       'e_statist(43)', ;
       'e_statist(44)', ;
       'e_statist(45)' }
-    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL -5, si5, mas_pmt, mas_msg, mas_fun )
   Case k == 15
     s_mnog_poisk()
   Case k == 16
@@ -257,7 +257,7 @@ Function e_statist( k )
       AAdd( mas_msg, 'Отчёт для ФГБУ "НМИЦ онкологии им.Н.Н.Петрова"' )
       AAdd( mas_fun, 'ot_nmic_petrova()' )
     Endif
-    popup_prompt( T_ROW, T_COL - 5, si18, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si18, mas_pmt, mas_msg, mas_fun )
   Case k == 181
     pr_inog_inostr()
   Case k == 182
@@ -277,7 +277,7 @@ Function e_statist( k )
     If eq_any( k, 21, 23 ) // для счетов и формы 14
       mas_pmt := { 'По дате ~выписки счета', ;
         'По ~отчётному периоду' }
-      If ( j := popup_prompt( T_ROW, T_COL - 5, sds, mas_pmt, , , 'B/BG,W+/B,N/BG,BG+/B' ) ) > 0
+      If ( j := popup_prompt( T_ROW, T_COL -5, sds, mas_pmt, , , 'B/BG,W+/B,N/BG,BG+/B' ) ) > 0
         sds := j
       Endif
       pds := j
@@ -294,7 +294,7 @@ Function e_statist( k )
           'e_statist(31)', ;
           's3_statist(4)' }
         Private pi4 := si4
-        popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+        popup_prompt( T_ROW, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
         If pi4 != NIL ; si4 := pi4 ; Endif
       Case k == 22
         s4_statist()
@@ -310,7 +310,7 @@ Function e_statist( k )
     mas_fun := { 's3_statist(1)', ;
       's3_statist(2)' }
     Private pi4 := si4
-    popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
     If pi4 != NIL ; si4 := pi4 ; Endif
   Case k == 142
     s5_statist()
@@ -352,7 +352,7 @@ Function e_statist( k )
     mas_fun := { 'e_statist(191)', ;
       'e_statist(192)', ;
       'e_statist(193)' }
-    popup_prompt( T_ROW, T_COL - 5, si19, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si19, mas_pmt, mas_msg, mas_fun )
   Case k == 191 // Выставлено/снято/оплачено
     pr1_oborot_schet()
   Case k == 192 // Оборотная ведомость
@@ -364,19 +364,19 @@ Function e_statist( k )
       'По отделениям, где оказаны ~услуги' }
     mas_fun := { 's3_statist(3, 1)', ;
       's3_statist(3, 2)' }
-    popup_prompt( T_ROW, T_COL - 5, 2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, 2, mas_pmt, mas_msg, mas_fun )
   Case k == 41 .or. k == 42
     Private pi_schet := 1
     If k == 41
       mas_pmt := { 'По ~всем случаям', ;
         'По случаям, ~попавшим в счета', ;
         'По случаям, ~не попавшим в счета' }
-      If ( j := popup_prompt( T_ROW, T_COL - 5, si61, mas_pmt, , , 'B/BG,W+/B,N/BG,BG+/B' ) ) == 0
+      If ( j := popup_prompt( T_ROW, T_COL -5, si61, mas_pmt, , , 'B/BG,W+/B,N/BG,BG+/B' ) ) == 0
         Return Nil
       Endif
       pi_schet := si61 := j
     Endif
-    Private pi1 := k - 40
+    Private pi1 := k -40
     mas_pmt := { 'По ~диагнозам', ;
       'Форма № 1~2', ;
       'Форма № 1~4', ;
@@ -404,7 +404,7 @@ Function e_statist( k )
       'e_statist(57)', ;
       'e_statist(58)', ;
       'e_statist(59)' }
-    popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si6, mas_pmt, mas_msg, mas_fun )
   Case k == 43
     prover_rule()
   Case k == 44
@@ -414,7 +414,7 @@ Function e_statist( k )
       'Ввод/редактирование правил статистики Вашего лечебного учреждения' }
     mas_fun := { 'e_statist(61)', ;
       'e_statist(62)' }
-    popup_prompt( T_ROW, T_COL - 5, si7, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si7, mas_pmt, mas_msg, mas_fun )
   Case k == 45
     nastr_rule()
   Case k == 51
@@ -441,7 +441,7 @@ Function e_statist( k )
       AAdd( mas_msg, 'Статистика по диагнозам: участок + диагнозы' )
       AAdd( mas_fun, 'e_statist(77)' )
     Endif
-    popup_prompt( T_ROW, T_COL - 5, si8, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si8, mas_pmt, mas_msg, mas_fun )
   Case k == 52
     forma_12()
   Case k == 53
@@ -459,7 +459,7 @@ Function e_statist( k )
   Case k == 59
     f_stat_boln()
   Case k == 61 .or. k == 62
-    Private prs := k - 60
+    Private prs := k -60
     Private file_stat := { f_stat_com, f_stat_lpu }[ prs ]
     Private dostup_stat := { .f., .t. }[ prs ]
     If kod_polzovat == Chr( 0 )
@@ -495,7 +495,7 @@ Function e_statist( k )
       i := i + 1
       AAdd( mas_msg, 'Правило ' + iif( prs == 1, 'КОМ-', 'ЛПУ-' ) + Str( i, 1 ) + ': ' + rule_section[ i ] )
     Enddo
-    popup_prompt( T_ROW, T_COL - 5, si9, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si9, mas_pmt, mas_msg, mas_fun )
   Case k == 71
     diag0statist()
   Case k == 72
@@ -568,7 +568,7 @@ Function vosst_ob_em_rak()
   Static mm_eks := { { 'все ', 0 }, { 'МЭК ', 1 }, { 'МЭЭ ', 2 }, { 'ЭКМП', 3 } }
   Static s1eks := 0, s1smo := 0, s1pz := 0, s1poisk := 0
   Local buf := SaveScreen(), i, ar, s, r := 14
-  Local nameArr //, funcGetPZ
+  Local nameArr // , funcGetPZ
 
   If arr_smo == NIL
     arr_smo := mo_cut_menu( glob_arr_smo )
@@ -586,16 +586,16 @@ Function vosst_ob_em_rak()
     // for i := 1 to len(glob_array_PZ_19)
     // aadd(mm_pz, {glob_array_PZ_19[i, 3],glob_array_PZ_19[i, 1]})
     // For i := 1 To Len( &nameArr )
-    //   AAdd( mm_pz, { &nameArr.[ i, 3 ], &nameArr.[ i, 1 ] } )
+    // AAdd( mm_pz, { &nameArr.[ i, 3 ], &nameArr.[ i, 1 ] } )
     // Next
 
     // funcGetPZ := 'get_array_PZ_19()'
     // nameArr := &funcGetPZ
-    nameArr := get_array_PZ( 2024 )
+    nameArr := get_array_pz( 2024 )
     For i := 1 To Len( nameArr )
       AAdd( mm_pz, { nameArr[ i, 3 ], nameArr[ i, 1 ] } )
     Next
-  
+
   Endif
   If Empty( s1smo )
     s1smo := 0
@@ -610,7 +610,7 @@ Function vosst_ob_em_rak()
     mpoisk, m1poisk := s1poisk, ;
     myear := 2024, mkvartal := 0
   Private pdate, gl_arr := { ;  // для битовых полей
-  { 'smo', 'N', 10, 0, , , , {| x| inieditspr( A__MENUBIT, arr_smo, x ) } };
+    { 'smo', 'N', 10, 0, , , , {| x| inieditspr( A__MENUBIT, arr_smo, x ) } };
     }
   mpoisk := inieditspr( A__MENUVERT, mm_poisk, m1poisk )
   meks   := inieditspr( A__MENUVERT, mm_eks,   m1eks )
@@ -873,7 +873,7 @@ Function ob1_statist( k, k1 )
       mas_pmt := { 'По ~всем случаям', ;
         'По случаям, ~попавшим в счета', ;
         'По случаям, ~не попавшим в счета' }
-      If ( j := popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, , , 'B/BG,W+/B,N/BG,BG+/B' ) ) == 0
+      If ( j := popup_prompt( T_ROW, T_COL -5, si6, mas_pmt, , , 'B/BG,W+/B,N/BG,BG+/B' ) ) == 0
         Return Nil
       Endif
       pi_schet := si6 := j
@@ -884,7 +884,7 @@ Function ob1_statist( k, k1 )
       'Статистика по объёму работ с подсчетом заработной платы' }
     mas_fun := { 'ob1_statist(1, 1)', ;
       'ob1_statist(1, 2)' }
-    popup_prompt( T_ROW, T_COL - 5, si0, mas_pmt, mas_msg, mas_fun, color0 + ',R/BG,GR+/N' )
+    popup_prompt( T_ROW, T_COL -5, si0, mas_pmt, mas_msg, mas_fun, color0 + ',R/BG,GR+/N' )
   Case k == 1
     psz := si0 := k1
     mas_pmt := { '~Отделения', ;
@@ -899,7 +899,7 @@ Function ob1_statist( k, k1 )
       'ob1_statist(12)', ;
       'ob1_statist(13)', ;
       'ob1_statist(14)' }
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11  // отделения
     mas_pmt := { '~Список отделений', ;
       'Отделение + ~персонал', ;
@@ -922,7 +922,7 @@ Function ob1_statist( k, k1 )
       'ob1_statist(25)', ;
       'ob1_statist(26)', ;
       'ob1_statist(27)' }
-    popup_prompt( T_ROW, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 12  // службы
     mas_pmt := { 'Службы + ~отделения', ;
       'Отделения + ~службы', ;
@@ -942,7 +942,7 @@ Function ob1_statist( k, k1 )
       'ob1_statist(34)', ;
       'ob1_statist(35)', ;
       'ob1_statist(36)' }
-    popup_prompt( T_ROW, T_COL - 5, si3, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si3, mas_pmt, mas_msg, mas_fun )
   Case k == 13  // персонал
     mas_pmt := { '1 человек + ~услуги', ;
       '1 человек + услуги + ~больные', ;
@@ -959,7 +959,7 @@ Function ob1_statist( k, k1 )
       'ob1_statist(43)', ;
       'ob1_statist(44)', ;
       'ob1_statist(45)' }
-    popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
   Case k == 14  // услуги
     mas_pmt := { '~Список услуг', ;
       'Все ~услуги', ;
@@ -970,8 +970,8 @@ Function ob1_statist( k, k1 )
     mas_fun := { 'ob1_statist(51)', ;
       'ob1_statist(52)', ;
       'ob1_statist(53)' }
-    popup_prompt( T_ROW, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
-    // * отделения
+    popup_prompt( T_ROW, T_COL -5, si5, mas_pmt, mas_msg, mas_fun )
+    // отделения
   Case k == 21    // список отделений
     ob2_statist( 1 )
   Case k == 22    // отделение + персонал
@@ -986,7 +986,7 @@ Function ob1_statist( k, k1 )
     ob2_statist( 8 )
   Case k == 27    // отделение + персонал + больные
     ob2_statist( 9 )
-    // * службы
+    // службы
   Case k == 31    // службы + отделения
     ob2_statist( 0 )
   Case k == 32    // отделения + службы
@@ -1001,7 +1001,7 @@ Function ob1_statist( k, k1 )
     Else
       find ( Str( si_slugba, 3 ) )
     Endif
-    If alpha_browse( T_ROW, T_COL - 5, MaxRow() -2, T_COL + 45, 'f2spr_other', color0 )
+    If alpha_browse( T_ROW, T_COL -5, MaxRow() -2, T_COL + 45, 'f2spr_other', color0 )
       fl := .t. ; si_slugba := sl->shifr
       j := { sl->shifr, lstr( sl->shifr ) + '. ' + AllTrim( sl->name ) }
     Endif
@@ -1011,7 +1011,7 @@ Function ob1_statist( k, k1 )
     Endif
   Case k == 35    // отделение + службы + услуги
     ob2_statist( 110 )
-    // * персонал
+    // персонал
   Case k == 41    // конкретный работающий + услуги
     ob2_statist( 5 )
   Case k == 42    // конкретный работающий + услуги + больные
@@ -1022,7 +1022,7 @@ Function ob1_statist( k, k1 )
     ob2_statist( 5, { 1 } )
   Case k == 45    // весь персонал + услуги
     ob2_statist( 5, { 2 } )
-    // * услуги
+    // услуги
   Case k == 51    // список услуг
     ob2_statist( 6 )
   Case k == 52    // все услуги
@@ -1032,15 +1032,15 @@ Function ob1_statist( k, k1 )
   Endcase
   If k > 10
     If Between( k, 11, 19 )
-      si1 := k - 10
+      si1 := k -10
     Elseif Between( k, 21, 29 )
-      si2 := k - 20
+      si2 := k -20
     Elseif Between( k, 31, 39 )
-      si3 := k - 30
+      si3 := k -30
     Elseif Between( k, 41, 49 )
-      si4 := k - 40
+      si4 := k -40
     Elseif Between( k, 51, 59 )
-      si5 := k - 50
+      si5 := k -50
     Endif
   Endif
 
@@ -1060,7 +1060,7 @@ Function obf_statist( k, k1 )
       mas_pmt := { 'По ~всем случаям', ;
         'По случаям, ~попавшим в счета', ;
         'По случаям, ~не попавшим в счета' }
-      If ( j := popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, , , 'B/BG,W+/B,N/BG,BG+/B' ) ) == 0
+      If ( j := popup_prompt( T_ROW, T_COL -5, si6, mas_pmt, , , 'B/BG,W+/B,N/BG,BG+/B' ) ) == 0
         Return Nil
       Endif
       pi_schet := si6 := j
@@ -1084,7 +1084,7 @@ Function obf_statist( k, k1 )
     mas_fun := { 'obF_statist(11)', ;
       'obF_statist(12)', ;
       'obF_statist(13)' }
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11  // отделения
     mas_pmt := { '~Список отделений', ;
       'Отделение + ~персонал', ;
@@ -1107,7 +1107,7 @@ Function obf_statist( k, k1 )
       'obF_statist(25)', ;
       'obF_statist(26)', ;
       'obF_statist(27)' }
-    popup_prompt( T_ROW, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 12  // персонал
     mas_pmt := { '1 человек + ~услуги', ;
       '1 человек + услуги + ~больные', ;
@@ -1124,7 +1124,7 @@ Function obf_statist( k, k1 )
       'obF_statist(43)', ;
       'obF_statist(44)', ;
       'obF_statist(45)' }
-    popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
   Case k == 13  // услуги
     mas_pmt := { '~Список услуг', ;
       'Все ~услуги', ;
@@ -1135,8 +1135,8 @@ Function obf_statist( k, k1 )
     mas_fun := { 'obF_statist(51)', ;
       'obF_statist(52)', ;
       'obF_statist(53)' }
-    popup_prompt( T_ROW, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
-    // * отделения
+    popup_prompt( T_ROW, T_COL -5, si5, mas_pmt, mas_msg, mas_fun )
+    // отделения
   Case k == 21    // список отделений
     obf2_statist( 1 )
   Case k == 22    // отделение + персонал
@@ -1151,7 +1151,7 @@ Function obf_statist( k, k1 )
     obf2_statist( 8 )
   Case k == 27    // отделение + персонал + больные
     obf2_statist( 9 )
-    // * персонал
+    // персонал
   Case k == 41    // конкретный работающий + услуги
     obf2_statist( 5 )
   Case k == 42    // конкретный работающий + услуги + больные
@@ -1162,7 +1162,7 @@ Function obf_statist( k, k1 )
     obf2_statist( 5, { 1 } )
   Case k == 45    // весь персонал + услуги
     obf2_statist( 5, { 2 } )
-    // * услуги
+    // услуги
   Case k == 51    // список услуг
     obf2_statist( 6 )
   Case k == 52    // все услуги
@@ -1172,15 +1172,15 @@ Function obf_statist( k, k1 )
   Endcase
   If k > 10
     If Between( k, 11, 19 )
-      si1 := k - 10
+      si1 := k -10
     Elseif Between( k, 21, 29 )
-      si2 := k - 20
+      si2 := k -20
     Elseif Between( k, 31, 39 )
-      si3 := k - 30
+      si3 := k -30
     Elseif Between( k, 41, 49 )
-      si4 := k - 40
+      si4 := k -40
     Elseif Between( k, 51, 59 )
-      si5 := k - 50
+      si5 := k -50
     Endif
   Endif
 
@@ -1195,7 +1195,7 @@ Function ret_g_o_i( r, c )
     { 'иногородние  ', 2 } }
   Local ret, i, j, a
 
-  If ( a := bit_popup( T_ROW, T_COL - 5, sarr, sast ) ) != NIL
+  If ( a := bit_popup( T_ROW, T_COL -5, sarr, sast ) ) != NIL
     ret := {} ; AFill( sast, .f. )
     For i := 1 To Len( a )
       AAdd( ret, a[ i, 2 ] )
@@ -1212,10 +1212,10 @@ Function ret_z_n( r, c )
 
   Static sast := { .t., .t. }, ;
     sarr := { { 'не закончившие лечение', B_END }, ;
-    { 'закончившие лечение',B_STANDART } }
+    { 'закончившие лечение', B_STANDART } }
   Local ret, i, j, a
 
-  If ( a := bit_popup( T_ROW, T_COL - 5, sarr, sast ) ) != NIL
+  If ( a := bit_popup( T_ROW, T_COL -5, sarr, sast ) ) != NIL
     ret := {} ; AFill( sast, .f. )
     For i := 1 To Len( a )
       AAdd( ret, a[ i, 2 ] )
@@ -1235,7 +1235,7 @@ Function ret_reestr_no( r, c )
     { 'попавшие в реестры', 2 } }
   Local ret, i, j, a
 
-  If ( a := bit_popup( T_ROW, T_COL - 5, sarr, sast ) ) != NIL
+  If ( a := bit_popup( T_ROW, T_COL -5, sarr, sast ) ) != NIL
     ret := {} ; AFill( sast, .f. )
     For i := 1 To Len( a )
       AAdd( ret, a[ i, 2 ] )
@@ -1428,9 +1428,9 @@ Function st_operator()
       For i := 1 To Len( arr_oper )
         For j := 1 To Len( arr_oper[ i, 2 ] )
           If arr_oper[ i, 2, j, 10 ] == 1 .and. j > 1 ;
-              .and. arr_oper[ i, 2, j - 1, 10 ] == 0 ;
-              .and. arr_oper[ i, 2, j - 1, 1 ] == arr_oper[ i, 2, j, 1 ]
-            arr_oper[ i, 2, j - 1, 7 ] += arr_oper[ i, 2, j, 7 ]
+              .and. arr_oper[ i, 2, j -1, 10 ] == 0 ;
+              .and. arr_oper[ i, 2, j -1, 1 ] == arr_oper[ i, 2, j, 1 ]
+            arr_oper[ i, 2, j -1, 7 ] += arr_oper[ i, 2, j, 7 ]
           Endif
           If arr_oper[ i, 2, j, 10 ] == 0   // учет только добавлений
             skart += ( arr_oper[ i, 2, j, 4 ] + arr_oper[ i, 2, j, 5 ] )
@@ -1497,7 +1497,7 @@ Function st_operator()
             add_string( s )
           Endif
         Next
-        add_string( Space( sh - 25 ) + Replicate( '-', 25 ) )
+        add_string( Space( sh -25 ) + Replicate( '-', 25 ) )
         s := PadL( 'Итого : ' + lput_kop( sum1 ), 84 )
         If mprocent > 0
           s += put_kope( zrp1, 9 )
@@ -1563,13 +1563,13 @@ Function st_operator()
       Skip
     Enddo
     arr_task := { ;
-      { 'Регистратура',X_REGIST }, ;
-      { 'Приёмный покой',X_PPOKOJ }, ;
-      { 'ОМС',X_OMS   }, ;
-      { 'Платные услуги',X_PLATN }, ;
+      { 'Регистратура', X_REGIST }, ;
+      { 'Приёмный покой', X_PPOKOJ }, ;
+      { 'ОМС', X_OMS   }, ;
+      { 'Платные услуги', X_PLATN }, ;
       { 'Ортопедия ПЛАТНАЯ', X_ORTO  }, ;
-      { 'Ортопедия БЮДЖЕТ',X_ORTO + 100 }, ;
-      { 'Касса МО',X_KASSA };
+      { 'Ортопедия БЮДЖЕТ', X_ORTO + 100 }, ;
+      { 'Касса МО', X_KASSA };
       }
     AEval( arrNtitle, {| x| add_string( x ) } )
     Select TMP
@@ -1623,9 +1623,9 @@ Function fst_operator( get )
     &mvar := get:original
     Return func_error( 4, s + '3 - 50.' )
   Endif
-  If mvar == 'KOEF21' .and. !Between( &mvar, 2, KOEF2 - 1 )
+  If mvar == 'KOEF21' .and. !Between( &mvar, 2, KOEF2 -1 )
     &mvar := get:original
-    Return func_error( 4, s + '2 - ' + lstr( KOEF2 - 1 ) + '.' )
+    Return func_error( 4, s + '2 - ' + lstr( KOEF2 -1 ) + '.' )
   Endif
 
   Return .t.
@@ -1674,7 +1674,7 @@ Function prn_blank( k )
       'prn_blank(16)', ;
       'prn_blank(17)', ;
       'prn_blank(18)' }
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
     mas_pmt := { '~Контрольный лист учёта ЗНО', ;
       '~Правила заполнения контрольного листа учёта ЗНО' }
@@ -1682,7 +1682,7 @@ Function prn_blank( k )
       'Распечатка правил заполнения контрольного листа учёта ЗНО' }
     mas_fun := { 'prn_blank(61)', ;
       'prn_blank(62)' }
-    popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si6, mas_pmt, mas_msg, mas_fun )
   Case k == 12
     mas_pmt := { 'Приложение к ~карте вызова СМП', ;
       '~Правила заполнения приложения' }
@@ -1690,7 +1690,7 @@ Function prn_blank( k )
       'Распечатка правил заполнения приложения к карте вызова скорой помощи' }
     mas_fun := { 'prn_blank(21)', ;
       'prn_blank(22)' }
-    popup_prompt( T_ROW, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 13
     mas_pmt := { 'Диспансеризация детей-~сирот', ;
       '~Памятка по заполнению л/у по диспансеризации детей-сирот' }
@@ -1698,7 +1698,7 @@ Function prn_blank( k )
       'Распечатка памятки по заполнению л/у по диспансеризации детей-сирот' }
     mas_fun := { 'prn_blank(31)', ;
       'prn_blank(32)' }
-    popup_prompt( T_ROW, T_COL - 5, si3, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si3, mas_pmt, mas_msg, mas_fun )
   Case k == 14
     mas_pmt := { '~Диспансеризация I этап', ;
       'Диспансеризация II ~этап', ;
@@ -1712,7 +1712,7 @@ Function prn_blank( k )
       'prn_blank(42)', ;
       'prn_blank(43)' }
     // 'prn_blank(44)'}
-    popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
   Case k == 15
     mas_pmt := { 'Лист учёта ~профилактики несовершеннолетних', ;
       '~Вклыдыш(и) услуг к л/у профилактики несовершеннолетних' }
@@ -1726,7 +1726,7 @@ Function prn_blank( k )
       'prn_blank(52)' }
     // 'prn_blank(53)', ;
     // 'prn_blank(54)'}
-    popup_prompt( T_ROW, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si5, mas_pmt, mas_msg, mas_fun )
   Case k == 16
     mas_pmt := { 'Углубленная ~диспансеризация I этап', ;
       'Углубленная диспансеризация II ~этап' }
@@ -1734,7 +1734,7 @@ Function prn_blank( k )
       'Распечатка бланка листа учёта для углубленной диспансеризации II этап' }
     mas_fun := { 'prn_blank(71)', ;
       'prn_blank(72)' }
-    popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
   Case k == 17
     mas_pmt := { 'Реабилитация ~ССС', ;
       'Реабилитация органов ~дыхания', ;
@@ -1757,7 +1757,7 @@ Function prn_blank( k )
       'prn_blank(87)', ;
       'prn_blank(86)' }
     // 'prn_blank(84)', ;
-    popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
   Case k == 18
     mas_pmt := { 'Диспансеризация репродуктивного здоровья женщины I этап', ;
       'Диспансеризация репродуктивного здоровья мужчины I этап', ;
@@ -1768,7 +1768,7 @@ Function prn_blank( k )
     mas_fun := { 'prn_blank(88)', ;
       'prn_blank(89)', ;
       'prn_blank(90)' }
-    popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
   Case k == 21
     call_fr( 'smp_2' )
   Case k == 22
@@ -2193,11 +2193,11 @@ Function report_f_mpp()
     { 'usl_ok', 'N', 1, 0 }, ;
     { 'profil', 'N', 3, 0 }, ;  // профиль в БД
   { 'is_our', 'N', 1, 0 }, ;  // 0-наш, 1-иногородний
-  { 'vz_reb', 'N', 1, 0 }, ;  // 0-взрослые, 1-ребёнок
+    { 'vz_reb', 'N', 1, 0 }, ;  // 0-взрослые, 1-ребёнок
   { 'vid',    'N', 1, 0 }, ;  // 1-3
-  { 'kol',    'N', 6, 0 }, ;  // случаев
+    { 'kol',    'N', 6, 0 }, ;  // случаев
   { 'usl',    'N', 6, 0 }, ;  // услуг
-  { 'summa',  'N', 14, 2 } } )  // оплаченная сумма
+    { 'summa',  'N', 14, 2 } } )  // оплаченная сумма
   Use ( cur_dir + 'tmp1' ) new
   Index On Str( usl_ok, 1 ) + Str( profil, 3 ) + Str( is_our, 1 ) + Str( vid, 1 ) + Str( vz_reb, 1 ) to ( cur_dir + 'tmp1' )
   use_base( 'lusl' )
@@ -2243,12 +2243,12 @@ Function report_f_mpp()
       // дата отчетного периода
       mdate1 := SToD( StrZero( schet_->nyear, 4 ) + StrZero( schet_->nmonth, 2 ) + '15' )
       //
-      // * 18 год
+      // 18 год
       k := iif( arr_m[ 3 ] == 12, 21, 10 ) // дата регистрации по 10.04.18
       If arr_m[ 3 ] == 12 .and. glob_mo[ _MO_KOD_TFOMS ] == '134505'
         k := 23
       Endif
-      // *
+      //
       fl := Between( mdate, arr_m[ 5 ], arr_m[ 6 ] + k ) ;
         .and. Between( mdate1, arr_m[ 5 ], arr_m[ 6 ] ) // !!отч.период 18 год
     Endif
@@ -2400,7 +2400,7 @@ Function report_f_mpp()
     sh := Len( arr_title[ 1 ] )
     reg_print := 5
     fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-    add_string( PadR( glob_mo[ _MO_SHORT_NAME ], sh - 10 ) + '(в рублях)' )
+    add_string( PadR( glob_mo[ _MO_SHORT_NAME ], sh -10 ) + '(в рублях)' )
     add_string( Center( 'Сведения о медицинской помощи, оказываемой по территориальной программе ОМС (Ф-МПП)', sh ) )
     add_string( Center( 'по состоянию на " 1 " ' + month_r( arr_m[ 6 ] + 1 ) + Str( Year( arr_m[ 6 ] + 1 ), 5 ) + ' г.', sh ) )
     add_string( '' )
@@ -2419,7 +2419,7 @@ Function report_f_mpp()
           Skip
         Enddo
         If Len( arr_profil ) > 0
-          If verify_ff( HH - 2, .t., sh )
+          If verify_ff( HH -2, .t., sh )
             AEval( arr_title, {| x| add_string( x ) } )
           Endif
           add_string( Center( 'поликлиника ' + iif( mour == 0, '(наши)', '(иногородние)' ), sh ) )
@@ -2465,7 +2465,7 @@ Function report_f_mpp()
     Select TMP1
     find ( Str( ii, 1 ) )
     If Found()
-      verify_ff( HH - 10, .t., sh )
+      verify_ff( HH -10, .t., sh )
       AEval( arr_title, {| x| add_string( x ) } )
       For mour := 0 To 1
         arr_profil := {}
@@ -2477,7 +2477,7 @@ Function report_f_mpp()
           Skip
         Enddo
         If Len( arr_profil ) > 0
-          If verify_ff( HH - 2, .t., sh )
+          If verify_ff( HH -2, .t., sh )
             AEval( arr_title, {| x| add_string( x ) } )
           Endif
           add_string( Center( 'дневной стационар ' + iif( mour == 0, '(наши)', '(иногородние)' ), sh ) )
@@ -2525,7 +2525,7 @@ Function report_f_mpp()
     Select TMP1
     find ( Str( ii, 1 ) )
     If Found()
-      verify_ff( HH - 10, .t., sh )
+      verify_ff( HH -10, .t., sh )
       AEval( arr_title, {| x| add_string( x ) } )
       For mour := 0 To 1
         arr_profil := {}
@@ -2537,7 +2537,7 @@ Function report_f_mpp()
           Skip
         Enddo
         If Len( arr_profil ) > 0
-          If verify_ff( HH - 2, .t., sh )
+          If verify_ff( HH -2, .t., sh )
             AEval( arr_title, {| x| add_string( x ) } )
           Endif
           add_string( Center( 'стационар ' + iif( mour == 0, '(наши)', '(иногородние)' ), sh ) )
@@ -2854,8 +2854,6 @@ Function pril_5_6_62()
       Endif
     Endif
     tmp->stroke := pr->stroke
-    // my_debug(,tmp->stroke)
-    // my_debug(,tmp->shifr)
     Select PR
     Skip
   Enddo
@@ -2970,8 +2968,8 @@ Function monitoring_zog()
   If !del_dbf_file( 'tmp' + sdbf )
     Return .f.
   Endif
-  If ( par := popup_prompt( T_ROW, T_COL - 5, 1, mas1pmt ) ) > 0 .and. ;
-      ( st_a_uch := inputn_uch( T_ROW, T_COL - 5, , , @lcount_uch ) ) != Nil .and. ( arr_m := year_month(, , , 5 ) ) != NIL
+  If ( par := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0 .and. ;
+      ( st_a_uch := inputn_uch( T_ROW, T_COL -5, , , @lcount_uch ) ) != Nil .and. ( arr_m := year_month(, , , 5 ) ) != NIL
     mywait()
     dbCreate( cur_dir + 'tmp', { { 'kod_k', 'N', 7, 0 }, ;
       { 'pens', 'L', 1, 0 }, ;
