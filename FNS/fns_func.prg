@@ -1,5 +1,7 @@
 #require 'hbhpdf'
 
+#include 'common.ch'
+#include 'hbhash.ch' 
 #include 'harupdf.ch'
 #include 'chip_mo.ch'
 
@@ -155,3 +157,65 @@ function fill_string( str, width )
     str += replicate( '-', width - len( str ) )
   endif
   return str
+
+// 26.11.24
+function create_string_EanGnivc( str )
+
+  local rez := '', charCoding := "#$%&'()*+,"
+  local leftProtectTemplate := '!'
+  local middleProtectTemplate := '-'
+  local rightProtectTemplate := '!'
+  local codingLeftPart := {}
+  local codingRightPart := 'RRRRRR'
+  local kolSymbolGroup, symbolsTypeCoding
+  local indexTypeCoding
+  local leftPartCode
+  local rightPartCode
+
+  local symbolTypeCode := hb_hash()
+
+  if HB_ISSTRING( str ) .and. IsDigit( str )
+    rez := str
+  endif
+
+  hb_hSet( symbolTypeCode, 'L', '0123456789' )
+  hb_hSet( symbolTypeCode, 'G', 'ABCDEFGHIJ' )
+  hb_hSet( symbolTypeCode, 'R', 'abcdefghij' )
+
+  AAdd( codingLeftPart, 'LLLLLL')
+  AAdd( codingLeftPart, 'LLGLGG')
+  AAdd( codingLeftPart, 'LLGGLG')
+  AAdd( codingLeftPart, 'LLGGGL')
+  AAdd( codingLeftPart, 'LGLLGG')
+  AAdd( codingLeftPart, 'LGGLLG')
+  AAdd( codingLeftPart, 'LGGGLL')
+  AAdd( codingLeftPart, 'LGLGLG')
+  AAdd( codingLeftPart, 'LGLGGL')
+  AAdd( codingLeftPart, 'LGGLGL')
+
+
+  if len( str ) == 13
+    kolSymbolGroup := 6
+  elseif len( str ) == 8
+    kolSymbolGroup := 4
+    symbolsTypeCoding := ''
+    str := '0' + str
+  else
+    return ''
+  endif
+
+  indexTypeCoding = val( left( str, 1 ) )
+
+  leftPartCode := ''
+  rightPartCode := ''
+altd()
+  for i := 1 to kolSymbolGroup
+    leftPartCode = leftPartCode ;
+      + substr( symbolTypeCode[ substr( codingLeftPart[ indexTypeCoding ], i, 1 ) ] ;
+              , val( substr( str, ( i + 1 ), 1 ) ) + 1 ,1 )
+    rightPartCode = rightPartCode ;
+      + substr( symbolTypeCode[ substr( codingRightPart, i, 1 ) ] ;
+              , val( substr( str, ( i + kolSymbolGroup + 1 ), 1 ) ) + 1, 1 )
+  next
+
+  return rez
