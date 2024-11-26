@@ -653,7 +653,7 @@ Function ret_tip_mas( _WEIGHT, _HEIGHT, /*@*/ret)
 72.5.712 Комплексное посещение при профилактическом медицинском осмотре взрослых (женщины 35) - осмотр выходного дня
 */
 
-// 19.10.24 вернуть шифр услуги законченного случая для ДВН
+// 26.11.24 вернуть шифр услуги законченного случая для ДВН
 Function ret_shifr_zs_dvn( _etap, _vozrast, _pol, _date )
 
   Local lshifr := '', fl, is_disp, n := 1
@@ -796,11 +796,11 @@ Function ret_shifr_zs_dvn( _etap, _vozrast, _pol, _date )
           n += 300
         elseif is_prazdnik
           // условия из-за ошибки в справочнике ТФОМС
-          if n == 57  // для женщин 71 год не определена услуга
-          elseif n > 57
-            n -= 1
-          endif
-          if _date >= 0d20240901
+          if _date >= 0d20240901 .and. _pol == 'Ж'
+            if n == 57  // для женщин 71 год не определена услуга
+            elseif n > 57
+              n -= 1
+            endif
             if _vozrast == 65
               n = 60
             endif

@@ -20,6 +20,7 @@ Function inf_drz()
   Local sdate1, sdate, blk
   Local pole_diag, pole_1pervich, iii, pole_1dispans
   Local is_weekend
+  Local fl_d_full := .t.,   fl_d_city := .t.,  fl_d_full_1 := .t.,   fl_d_city_1 := .t.
 
   Default sdate To sys_date
   Default sdate1 To sys_date
@@ -39,13 +40,12 @@ Function inf_drz()
     arr_m := input_diapazon( MaxRow() -4, 2, MaxRow() -2, 76, cDataCGet, ;
       { 'Введите начальную', 'и конечную', 'даты диспансеризации' }, ;
       { sdate1, sdate },, blk )
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5,,, @lcount_uch ) ) == NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5,,, @lcount_uch ) ) == NIL
       Return Nil
     Endif
   Else
-    arr_m := year_month( T_ROW, T_COL -5, , 1 )
+    arr_m := year_month( T_ROW, T_COL - 5, , 1 )
   Endif
-  // my_debug(,print_array(arr_m))
   If  arr_m != NIL
     // arr[1, ...]-мужчины, arr[2, ...]-мужчины село, arr[3, ...]-женщины, arr[4, ...]-женщины село
     // arr[..., 12]- в выходные и праздничные дни
@@ -73,7 +73,6 @@ Function inf_drz()
     Else
       beginPeriod := BoY( arr_m[ 6 ] )  // начало периода, расчет идет нарастающим способом
     Endif
-    // my_debug(,print_array(arr_m))
     Private m1nazn_l  := 0, m1dopo_na := 0, m1ssh_na  := 0, ;
       m1spec_na := 0, m1napr_stac := 0, m1napr_reab := 0, m1sank_na := 0
 
@@ -101,9 +100,21 @@ Function inf_drz()
         kart->( dbGoto( human->kod_k ) )
         lCity := f_is_selo( kart_->gorod_selo, kart_->okatog )
         is_weekend := ! is_work_day( human->n_data )
+        For iii := 1 To 4
+          pole_diag := 'mdiag' + lstr( iii )
+          pole_1pervich := 'm1pervich' + lstr( iii )
+          pole_1dispans := 'm1dispans' + lstr( iii )
+          &pole_diag := ''
+          &pole_1dispans := 0
+          &pole_1pervich := 0
+        Next
         read_arr_drz( human->kod, .t. )
         If human->pol == 'М'
           If human->ishod - BASE_ISHOD_RZD != 2  // не второй этап
+            fl_d_full := .t.
+            fl_d_city := .t.
+            fl_d_full_1 := .t. // впервые всего
+            fl_d_city_1 := .t. // впервые не город
             For iii := 1 To 4
               pole_diag := 'mdiag' + lstr( iii )
               pole_1pervich := 'm1pervich' + lstr( iii )
@@ -111,20 +122,32 @@ Function inf_drz()
               If !Empty( &pole_diag )
                 if &pole_1dispans > 0 // состот на ДН
                   arr[ 1, 18 ]++
-                  arr_1[ 1, 9 ] ++
                   if &pole_1pervich == 1 // впервые
                     arr[ 1, 19 ]++
-                    arr_1[ 1, 11 ] ++
+                    If fl_d_full_1
+                      arr_1[ 1, 11 ] ++
+                      fl_d_full_1 := .f.
+                    Endif
+                  Endif
+                  If fl_d_full
+                    arr_1[ 1, 9 ] ++
+                    fl_d_full := .f.
                   Endif
                 Endif
                 If ! lCity
                   if &pole_1dispans > 0 // состот на ДН
                     arr[ 2, 18 ]++
-                    arr_1[ 1, 10 ] ++
                     if &pole_1pervich == 1 // впервые
                       arr[ 2, 19 ]++
-                      arr_1[ 1, 12 ] ++
+                      If fl_d_city_1
+                        arr_1[ 1, 12 ] ++
+                        fl_d_city_1 := .f.
+                      Endif
                     Endif
+                  Endif
+                  If fl_d_city
+                    arr_1[ 1, 10 ] ++
+                    fl_d_city := .f.
                   Endif
                 Endif
               Endif
@@ -189,6 +212,10 @@ Function inf_drz()
           Endif
         Else  // женщины
           If human->ishod - BASE_ISHOD_RZD != 2  // не второй этап
+            fl_d_full := .t.
+            fl_d_city := .t.
+            fl_d_full_1 := .t. // впервые всего
+            fl_d_city_1 := .t. // впервые не город
             For iii := 1 To 4
               pole_diag := 'mdiag' + lstr( iii )
               pole_1pervich := 'm1pervich' + lstr( iii )
@@ -196,22 +223,35 @@ Function inf_drz()
               If !Empty( &pole_diag )
                 if &pole_1dispans > 0 // состот на ДН
                   arr[ 3, 18 ]++
-                  arr_1[ 2, 9 ] ++
                   if &pole_1pervich == 1 // впервые
                     arr[ 3, 19 ]++
-                    arr_1[ 2, 11 ] ++
+                    If fl_d_full_1
+                      arr_1[ 2, 11 ] ++
+                      fl_d_full_1 := .f.
+                    Endif
+                  Endif
+                  If fl_d_full
+                    arr_1[ 2, 9 ] ++
+                    fl_d_full := .f.
                   Endif
                 Endif
                 If ! lCity
                   if &pole_1dispans > 0 // состот на ДН
                     arr[ 4, 18 ]++
-                    arr_1[ 2, 10 ] ++
                     if &pole_1pervich == 1 // впервые
                       arr[ 4, 19 ]++
-                      arr_1[ 2, 12 ] ++
+                      If fl_d_city_1
+                        arr_1[ 2, 12 ] ++
+                        fl_d_city_1 := .f.
+                      Endif
+                    Endif
+                    If fl_d_city
+                      arr_1[ 2, 10 ] ++
+                      fl_d_city := .f.
                     Endif
                   Endif
                 Endif
+                //
               Endif
             Next
           Endif
@@ -352,7 +392,6 @@ Function inf_drz()
       Skip
     Enddo
     dbCloseAll()
-
     inf_drz_excel( hb_OEMToANSI( name_file_full ), arr_m, arr, arr_1, lcount_uch )
     work_with_excel_file( name_file_full )
   Endif

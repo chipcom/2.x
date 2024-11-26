@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-#define max_rec_reestr 9999
+#define MAX_REC_REESTR 4999 // 9999
 #define BASE_ISHOD_RZD 500
 
 // 03.07.24
@@ -169,7 +169,7 @@ Function verify_oms( arr_m, fl_view )
                 Endif
               Endif
             Endif
-            If iprov >= max_rec_reestr // если число проверенных без ошибок достигло максимума,
+            If iprov >= MAX_REC_REESTR // если число проверенных без ошибок достигло максимума,
               Exit                     // остальных не проверяем, начинаем составление реестра
             Endif
           Endif

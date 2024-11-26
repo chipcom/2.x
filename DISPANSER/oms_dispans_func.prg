@@ -1,7 +1,66 @@
+#include 'common.ch'
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+
+// 22.11.24
+function read_napr_dispanser( lkod )
+  // возврат arr_napr
+  // arr_napr[1,1], arr_napr[1,2], arr_napr[1,3] - виды доп обследования (вид, 0, номер записи в справочнике персонала)
+  // arr_napr[2,1], arr_napr[2,2], arr_napr[2,3] - напр. в МО (куда отправляем, массив кодов специализации, номер записи в справочнике персонала)
+  // arr_napr[3,1], arr_napr[3,2], arr_napr[3,3] - напр. на лечение (куда направляем, код профиля, номер записи в справочнике персонала)
+  // arr_napr[4,1], arr_napr[4,2], arr_napr[4,3] - напр. реабилитации (да/нет, код профиля, номер записи в справочнике персонала)
+  // arr_napr[5,1], arr_napr[5,2], arr_napr[5,3] - напр. на сан.-кур. (да/нет, 0, номер записи в справочнике персонала)
+
+  local i, j, arr
+  local arr_napr := Array( 5, 3 )
+
+  for i := 1 to 5
+    for j := 1 to 3
+      arr_napr[ i, j ] := 0
+    next
+  next
+
+  arr := read_arr_dispans( lkod )
+
+  for i := 1 to len( arr )
+    If ValType( arr[ i ] ) == 'A' .and. ValType( arr[ i, 1 ] ) == 'C'
+      do case
+        Case arr[ i, 1 ] == '47'
+          // If ValType( arr[ i, 2 ] ) == 'N'
+          //   m1dopo_na  := arr[ i, 2 ]
+          // Elseif ValType( arr[ i, 2 ] ) == 'A'
+          //   m1dopo_na  := arr[ i, 2 ][ 1 ]
+          //   If arr[ i, 2 ][ 2 ] > 0
+          //     TPERS->( dbGoto( arr[ i, 2 ][ 2 ] ) )
+          //     mtab_v_dopo_na := TPERS->tab_nom
+          //   Endif
+          // Endif
+          // arr_napr[ 1, 1 ] := arr[ i, 2 ][ 1 ]
+          arr_napr[ 1, 3 ] := arr[ i, 2 ][ 2 ]
+        Case arr[ i, 1 ] == '50'
+          arr_napr[ 5, 1 ] := arr[ i, 2 ][ 1 ]
+          arr_napr[ 5, 3 ] := arr[ i, 2 ][ 2 ]
+        Case arr[ i, 1 ] == '52'
+          arr_napr[ 2, 1 ] := arr[ i, 2 ][ 1 ]
+          arr_napr[ 2, 3 ] := arr[ i, 2 ][ 2 ]
+        Case arr[ i, 1 ] == '53' .and. ValType( arr[ i, 2 ] ) == 'A'
+          arr_napr[ 2, 2 ] := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '54'
+          arr_napr[ 3, 1 ] := arr[ i, 2 ][ 1 ]
+          arr_napr[ 3, 3 ] := arr[ i, 2 ][ 2 ]
+        Case arr[ i, 1 ] == '55' .and. ValType( arr[ i, 2 ] ) == 'N'
+          arr_napr[ 3, 2 ] := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '56'
+          arr_napr[ 4, 1 ] := arr[ i, 2 ][ 1 ]
+          arr_napr[ 4, 3 ] := arr[ i, 2 ][ 2 ]
+        Case arr[ i, 1 ] == '57' .and. ValType( arr[ i, 2 ] ) == 'N'
+          arr_napr[ 4, 2 ] := arr[ i, 2 ]
+      endcase
+    endif
+  next
+  return arr_napr
 
 // 01.08.24
 function check_group_nazn( type, ... )
