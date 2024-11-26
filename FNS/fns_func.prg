@@ -5,16 +5,18 @@
 #include 'harupdf.ch'
 #include 'chip_mo.ch'
 
-// 12.11.24
+// 26.11.24
 FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   Local detail_font_name, detail_font_nameBold
   Local detail_font_courier
+  Local detail_font_eangnivc
   local aFonts := {}
 
   Local TTFArial := dir_fonts() + 'arial.ttf'
   Local TTFArialBold := dir_fonts() + 'arialbd.ttf'
   Local TTFCourier := dir_fonts() + 'cour.ttf'
+  Local TTFEanGnivc := dir_fonts() + 'Eang000'
 
   LOCAL pdf := HPDF_New()
 
@@ -27,10 +29,12 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
   detail_font_name := HPDF_LoadTTFontFromFile ( pdf, TTFArial, HPDF_TRUE )
   detail_font_nameBold := HPDF_LoadTTFontFromFile ( pdf, TTFArialBold, HPDF_TRUE )
   detail_font_courier := HPDF_LoadTTFontFromFile ( pdf, TTFCourier, HPDF_TRUE )
+  detail_font_eangnivc := HPDF_LoadTTFontFromFile ( pdf, TTFEanGnivc, HPDF_TRUE )
   AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_name, 'CP1251' ) )
   AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_nameBold, 'CP1251' ) )
   AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_courier, 'CP1251' ) )
-
+  AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_eangnivc, 'CP1251' ) )
+  
   /* установим режим сжатия */
   HPDF_SetCompressionMode( pdf, HPDF_COMP_ALL )
 
@@ -161,7 +165,7 @@ function fill_string( str, width )
 // 26.11.24
 function create_string_EanGnivc( str )
 
-  local rez := '', charCoding := "#$%&'()*+,"
+  local i, rez := '', charCoding := "#$%&'()*+,"
   local leftProtectTemplate := '!'
   local middleProtectTemplate := '-'
   local rightProtectTemplate := '!'
@@ -169,9 +173,8 @@ function create_string_EanGnivc( str )
   local codingRightPart := 'RRRRRR'
   local kolSymbolGroup, symbolsTypeCoding
   local indexTypeCoding
-  local leftPartCode
-  local rightPartCode
-
+  local leftPartCode := ''
+  local rightPartCode := ''
   local symbolTypeCode := hb_hash()
 
   if HB_ISSTRING( str ) .and. IsDigit( str )
@@ -206,16 +209,20 @@ function create_string_EanGnivc( str )
 
   indexTypeCoding = val( left( str, 1 ) )
 
-  leftPartCode := ''
-  rightPartCode := ''
-altd()
   for i := 1 to kolSymbolGroup
     leftPartCode = leftPartCode ;
-      + substr( symbolTypeCode[ substr( codingLeftPart[ indexTypeCoding ], i, 1 ) ] ;
+      + substr( symbolTypeCode[ substr( codingLeftPart[ indexTypeCoding + 1 ], i, 1 ) ] ;
               , val( substr( str, ( i + 1 ), 1 ) ) + 1 ,1 )
     rightPartCode = rightPartCode ;
       + substr( symbolTypeCode[ substr( codingRightPart, i, 1 ) ] ;
               , val( substr( str, ( i + kolSymbolGroup + 1 ), 1 ) ) + 1, 1 )
   next
+
+  rez := ''  + substr( charCoding, indexTypeCoding + 1, 1 ) ;
+      + leftProtectTemplate ;
+      + leftPartCode ;
+      + middleProtectTemplate ;
+      + rightPartCode ;
+      + rightProtectTemplate
 
   return rez

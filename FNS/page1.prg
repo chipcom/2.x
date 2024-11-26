@@ -24,6 +24,10 @@ function designPage1( pdf, hArr, aFonts )
   out_text( page, 168, 283, 'от "08" ноября 2023 г.' )
   out_text( page, 168, 279, '№ ЕА-7-11/824@' )
   //
+
+//  HPDF_Page_SetFontAndSize( page, aFonts[ FONT_EANGNIVC ], 10 )
+//  out_text( page, 25.5, 270, create_string_EanGnivc( '26901015' ) )
+
   HPDF_Page_SetFontAndSize( page, aFonts[ FONT_ARIAL ], 11 )
 
   out_text( page, 58.5, 288, 'ИНН' )
@@ -119,7 +123,7 @@ function designPage1( pdf, hArr, aFonts )
   y := HPDF_Page_GetHeight( page ) - 48
 
   /* Draw image to the canvas. (normal-mode with actual size.) */
-  HPDF_Page_DrawImage( page, sh_code26901015, x, y, iw, ih )
+//  HPDF_Page_DrawImage( page, sh_code26901015, x, y, iw, ih )
 
   // заполняем поля
   HPDF_Page_SetFontAndSize( page, aFonts[ FONT_COURIER ], 16 )
