@@ -53,7 +53,7 @@ Function f_valid_novor( get, old )
   If m1novor != old .and. old != NIL
     If old == 0 // было 'нет' - стало 'да'
       mcount_reb := 1
-      mDATE_R2 := sys_date - 5
+      mDATE_R2 := sys_date -5
       mpol2 := 'М'
     Else
       mcount_reb := 0
@@ -369,7 +369,7 @@ Function oms_add()
   Local buf, str_sem
 
   change_sys_date() // перечитать системную дату (для травмпунктов, работающих ночами)
-  If input_uch( T_ROW - 1, T_COL + 5, sys_date ) != Nil .and. input_otd( T_ROW - 1, T_COL + 5, sys_date ) != NIL
+  If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL
     buf := box_shadow( 0, 41, 2, 77, color13 )
     @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
     Private fl_edit_oper, fl_edit_smp, fl_edit_DDS, fl_edit_DVN, fl_edit_DVN_COVID, fl_edit_dvn_drz
@@ -455,8 +455,8 @@ Function f1oms_edit()
   Local lek_pr := .f.
 
   If ( arr_m := input_year() ) != Nil .and. ;
-      input_uch( T_ROW - 1, T_COL + 5, sys_date ) != Nil .and. ;
-      iif( yes_h_otd == 1, input_otd( T_ROW - 1, T_COL + 5, sys_date ) != NIL, .t. )
+      input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
+      iif( yes_h_otd == 1, input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL, .t. )
     If yes_vypisan == B_END
       If ( k := popup_prompt( T_ROW, T_COL + 5, sk, ;
           { '~Не закончившие лечение', '~Закончившие лечение' } ) ) > 0
@@ -466,7 +466,7 @@ Function f1oms_edit()
         Return Nil
       Endif
     Endif
-    dostup := yes_vypisan + k - 1
+    dostup := yes_vypisan + k -1
     str_error := 'В данный момент'
     mtitul := AllTrim( glob_uch[ 2 ] )
     str_find := Str( dostup, 1 )
@@ -912,8 +912,8 @@ Function oms_smena_otd()
   Static si := 1, sk := 1
   Local buf, buf1, buf2, str_sem, i, sou, old_otd, fl, fl1, mas_pmt, k := 1
 
-  If input_uch( T_ROW - 1, T_COL + 5, sys_date ) != Nil .and. ;
-      input_otd( T_ROW - 1, T_COL + 5, sys_date ) != NIL
+  If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
+      input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL
     If yes_vypisan == B_END
       If ( k := popup_prompt( T_ROW, T_COL + 5, sk, ;
           { '~Не закончившие лечение', '~Закончившие лечение' } ) ) > 0
@@ -922,7 +922,7 @@ Function oms_smena_otd()
     Endif
     buf := box_shadow( 0, 41, 2, 77, color13 )
     @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
-    If k > 0 .and. ret_oms_human( yes_vypisan + k - 1 )
+    If k > 0 .and. ret_oms_human( yes_vypisan + k -1 )
       rest_box( buf )
       buf := box_shadow( 0, 41, 3, 77, color13 )
       @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
@@ -932,8 +932,8 @@ Function oms_smena_otd()
       buf1 := box_shadow( 0, 0, 3, 35, color5 )
       @ 1, 1 Say PadC( 'Теперь выберите', 34 ) Color color5
       @ 2, 1 Say PadC( 'новое отделение', 34 ) Color color5
-      If input_uch( T_ROW - 1, T_COL + 5, sys_date ) != Nil .and. ;
-          input_otd( T_ROW - 1, T_COL + 5, sys_date ) != NIL
+      If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
+          input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL
         rest_box( buf1 )
         If old_otd == glob_otd[ 1 ]
           fl := func_error( 4, 'Выбрано то же самое отделение!' )
@@ -1028,8 +1028,8 @@ Function oms_del()
     Return func_error( 4, err_admin )
   Endif
   If ( arr_m := input_year() ) != Nil .and. ;
-      input_uch( T_ROW - 1, T_COL + 5, sys_date ) != Nil .and. ;
-      iif( yes_h_otd == 1, input_otd( T_ROW - 1, T_COL + 5, sys_date ) != NIL, .t. )
+      input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
+      iif( yes_h_otd == 1, input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL, .t. )
     If yes_vypisan == B_END
       If ( k := popup_prompt( T_ROW, T_COL + 5, sk, ;
           { '~Не закончившие лечение', '~Закончившие лечение' } ) ) > 0
@@ -1040,7 +1040,7 @@ Function oms_del()
       buf := box_shadow( 0, 41, 2, 77, color13 )
       @ 1, 42 Say PadC( glob_otd[ 2 ], 35 ) Color color14
     Endif
-    If k > 0 .and. ret_oms_human( yes_vypisan + k - 1, arr_m ) .and. f_esc_enter( 2, .t. )
+    If k > 0 .and. ret_oms_human( yes_vypisan + k -1, arr_m ) .and. f_esc_enter( 2, .t. )
       str_sem := 'Редактирование человека ' + lstr( glob_perso )
       If g_slock( str_sem )
         g_use( dir_server + 'mo_pp', dir_server + 'mo_pp_h', 'PP' )
@@ -1256,8 +1256,8 @@ Function f1oms_zav_lech( k )
 
   Local buf, str_sem, k1, k2, tmp_color, dbf_tmp, r := 8, mtitul
 
-  If input_uch( T_ROW - 1, T_COL + 5, sys_date ) != Nil .and. ;
-      iif( yes_h_otd == 1, input_otd( T_ROW - 1, T_COL + 5, sys_date ) != NIL, .t. )
+  If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
+      iif( yes_h_otd == 1, input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL, .t. )
     If k == 1 .or. k == 3  // один человек из отделения
       If ret_oms_human( iif( k == 1, B_END, B_STANDART ) )
         str_sem := 'Редактирование человека ' + lstr( glob_perso )
@@ -1292,11 +1292,12 @@ Function f1oms_zav_lech( k )
     Elseif k == 2  // целое отделение/учреждение
       dbf_tmp := { ;
         { 'KOD',   'N',     7,     0 }, ;
-        { 'N_DATA',   'D',     8,     0 }, ; // дата начала лечения
-      { 'K_DATA',   'D',     8,     0 }, ; // дата окончания лечения
-      { 'FIO',   'C',    50,     0 }, ; // Ф.И.О. больного
-      { 'CENA',   'N',    12,     2 }, ; // стоимость лечения
-      { 'PLUS',   'L',     1,     0 } }  // включается ли в счет
+        { 'N_DATA','D',     8,     0 }, ; // дата начала лечения
+        { 'K_DATA','D',     8,     0 }, ; // дата окончания лечения
+        { 'FIO',   'C',    50,     0 }, ; // Ф.И.О. больного
+        { 'CENA',  'N',    12,     2 }, ; // стоимость лечения
+        { 'PLUS',  'L',     1,     0 } ;  // включается ли в счет
+      }
       buf := save_maxrow()
       mywait()
       dbCreate( cur_dir + 'tmp', dbf_tmp )
@@ -1418,7 +1419,7 @@ Function f3oms_zav_lech( nKey, oBrow )
   Case nkey == K_F8
     mdate := input_value( 21, 1, 23, 78, 'W+/N, N/W', ;
       Space( 7 ) + 'Введите дату, ранее которой не завершено лечение', ;
-      sys_date - 30 )
+      sys_date -30 )
     If mdate != Nil .and. f_esc_enter( 'удаления' ) .and. ;
         f_alert( { 'После подтверждения данного режима будут удалены', ;
         'все листки учета с незавершенным лечением, у которых', ;
@@ -1481,7 +1482,7 @@ Function f3oms_zav_lech( nKey, oBrow )
   Case nkey == K_F9
     mdate := input_value( 21, 1, 23, 78, color1, ;
       Space( 7 ) + 'Введите дату, ранее которой не завершено лечение', ;
-      sys_date - 10 )
+      sys_date -10 )
     If mdate != Nil .and. f_esc_enter( 'печати' )
       buf := save_maxrow()
       mywait()
@@ -1545,7 +1546,7 @@ Function f3oms_zav_lech( nKey, oBrow )
                 s += ', '
               Endif
             Next
-            For j := 1 To perenos( arr_usl, s, sh - 10 )
+            For j := 1 To perenos( arr_usl, s, sh -10 )
               add_string( Space( 10 ) + arr_usl[ j ] )
             Next
           Endif
@@ -1754,14 +1755,14 @@ Function f1ret_oms_human( oBrow )
 
   Return Nil
 
-// 08.07.24
+// 26.11.24
 Function f2ret_oms_human( nkey )
 
   Static tmp := ' '
   Local buf := SaveScreen(), buf1, rec1 := RecNo(), fl := -1, ss := 0, ;
     j, n_file := cur_dir + 'omserror' + stxt, sh := 80, HH := 60, ii
-  Local mas_otchet := {}
-  Local tmpSelect, flag_RDL := .F.
+  Local mas_otchet := {}, tmp_2
+  Local tmpSelect, flag_RDL := .f.
 
   For ii := 1 To 48
     AAdd( mas_otchet, { 0, 0, 0, 0 } )
@@ -1770,6 +1771,8 @@ Function f2ret_oms_human( nkey )
   If Type( 'p_del_error' ) == 'A' .and. p_del_error[ 2 ] > 0
     If nkey == K_F9
       mywait()
+      tmp_2 := Select()
+      r_use( dir_server + 'mo_otd', , 'mo_otd' )
       fp := FCreate( n_file )
       tek_stroke := 0
       n_list := 1
@@ -1778,12 +1781,18 @@ Function f2ret_oms_human( nkey )
       add_string( Center( p_del_error[ 1 ], sh ) )
       add_string( Center( arr_m[ 4 ], sh ) )
       j := 0
+      Select ( TMP_2 )
       Go Top
       Do While !Eof()
-        verify_ff( HH - 3, .f., sh )
+        verify_ff( HH -3, .f., sh )
         add_string( '' )
         ++j
-        add_string( PadR( lstr( j ) + '.', 6 ) + AllTrim( human->fio ) + ', д.р.' + full_date( human->date_r ) + ',' )
+        // add_string( PadR( lstr( j ) + '.', 6 ) + AllTrim( human->fio ) + ', д.р.' + full_date( human->date_r ) + ',' )
+        // добавить отделение
+        Select MO_OTD
+        Goto human->otd
+        Select ( TMP_2 )
+        add_string( PadR( lstr( j ) + '.', 6 ) + AllTrim( human->fio ) + ', д.р.' + full_date( human->date_r ) + ', отд. ' + AllTrim( mo_otd->name ) )
         If otd->IDUMP == 4
           add_string( Space( 6 ) + 'карта вызова № ' + AllTrim( human->uch_doc ) + ;
             ', дата выезда ' + date_8( human->k_data ) )
@@ -1794,6 +1803,8 @@ Function f2ret_oms_human( nkey )
         ss += human->cena_1
         Skip
       Enddo
+      mo_otd->( dbCloseArea() )
+      Select ( TMP_2 )
       Goto rec1
       add_string( '' )
       add_string( 'Итого стоимость всех случаев ' + lstr( ss, 15, 2 ) + 'р.' )
@@ -1822,25 +1833,25 @@ Function f2ret_oms_human( nkey )
     Elseif nkey == K_CTRL_F5
       If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
         tmpSelect := Select()
-        if hb_vfExists(cur_dir + fr_data + '2' + sdbf)  
+        If hb_vfExists( cur_dir + fr_data + '2' + sdbf )
           Use ( cur_dir + fr_data + '2' ) New Alias FRD2
-          if frd2->(lastrec()) > 1
-            flag_RDL := .T.
-          endif     
-          frd2->(dbCloseArea())
-        endif
-        if flag_RDL
+          If frd2->( LastRec() ) > 1
+            flag_RDL := .t.
+          Endif
+          frd2->( dbCloseArea() )
+        Endif
+        If flag_RDL
           // надо фильтр по коду ошибки
           adbf1 :=  { { 'num_usl', 'C', 10, 0 }, ;    // номер услуги по порядку
-          { 'shifr_usl', 'C', 10, 0 }, ;  // шифр услуги
-          { 'name_usl', 'C', 250, 0 }, ; // наименование услуги
-          { 'NUMORDER', 'N', 10, 0 }, ;   // Номер заявки(ORDER Number)
-          { 'fio', 'C', 70, 0 }, ;
-          { 'kol_usl', 'N', 10, 0 }, ;    // кол-во услуг
-          { 'cena_1', 'N', 11, 2 }, ;
-          { 'otd', 'C', 42, 0 }, ;
-          { 'otd_kod', 'N', 3, 0 }, ;
-          { 'napr_uch', 'C', 6, 0 }  }
+            { 'shifr_usl', 'C', 10, 0 }, ;  // шифр услуги
+            { 'name_usl', 'C', 250, 0 }, ; // наименование услуги
+            { 'NUMORDER', 'N', 10, 0 }, ;   // Номер заявки(ORDER Number)
+            { 'fio', 'C', 70, 0 }, ;
+            { 'kol_usl', 'N', 10, 0 }, ;    // кол-во услуг
+            { 'cena_1', 'N', 11, 2 }, ;
+            { 'otd', 'C', 42, 0 }, ;
+            { 'otd_kod', 'N', 3, 0 }, ;
+            { 'napr_uch', 'C', 6, 0 }  }
           dbCreate( cur_dir + 'tmp_err', adbf1 )
           Use ( cur_dir + fr_data + '2' ) New Alias FRD2
           Use ( cur_dir + 'tmp_err' ) New Alias FRD3
@@ -1928,10 +1939,10 @@ Function f2ret_oms_human( nkey )
           // Здесь запрос на запись ЭКСЕЛЯ
           create_xls_rdl( 'rdl_report' )  // , arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
           saveto( cur_dir + 'rdl_report.xlsx' )
-        else
+        Else
           Select( tmpSelect )
-          func_error(4,"Отчет не формировался !")
-        endif  
+          func_error( 4, "Отчет не формировался !" )
+        Endif
 
       Endif
     Elseif nkey == K_CTRL_F9
@@ -1971,7 +1982,7 @@ Function f2ret_oms_human( nkey )
         fl_povtor2 := .t.
         fl_povtor3 := .t.
         fl_povtor4 := .t.
-        verify_ff( HH - 3, .f., sh )
+        verify_ff( HH -3, .f., sh )
         //
         flag_covid := .f.
         flag_gepat_C := .f.
@@ -2017,8 +2028,8 @@ Function f2ret_oms_human( nkey )
         // goto (human->(recno()))
         //
         // Диспансеризация
-        // If eq_any( human->ishod, 401, 402 ) .and. HUMAN_->Usl_ok == 3 // амбулаторная// УД 
-        If is_sluch_dispanser_COVID( human->ishod ) .and. HUMAN_->Usl_ok == 3 // амбулаторная// УД 
+        // If eq_any( human->ishod, 401, 402 ) .and. HUMAN_->Usl_ok == 3 // амбулаторная// УД
+        If is_sluch_dispanser_covid( human->ishod ) .and. HUMAN_->Usl_ok == 3 // амбулаторная// УД
           If human->vzros_reb == 0 // взрослый
             mas_otchet[ 10, 1 ] += 1
             mas_otchet[ 10, 2 ] += human->cena_1
@@ -2191,7 +2202,7 @@ Function f2ret_oms_human( nkey )
           If HUMAN_->Usl_ok == 3 // амбулаторная
             // Диспансеризация
             // If eq_any( human->ishod, 401, 402 ) // УД
-            If is_sluch_dispanser_COVID( human->ishod ) // УД
+            If is_sluch_dispanser_covid( human->ishod ) // УД
               // mas_otchet[10, 1] += 1
               // mas_otchet[10, 2] += human->cena_1
             Elseif eq_any( human->ishod, 201, 202, 101, 102 ) // Диспансеризация
@@ -2200,7 +2211,7 @@ Function f2ret_oms_human( nkey )
             Elseif eq_any( human->ishod, 203, 301, 302, 303, 304, 305 ) // Профосмотры
               // mas_otchet[7, 1] += 1
               // mas_otchet[7, 2] += human->cena_1
-            Elseif eq_any( human->ishod, 501 ) // Репродуктивка 
+            Elseif eq_any( human->ishod, 501 ) // Репродуктивка
               //
             Else  // прочее
               If PadR( lshifr, 3 ) == '60.' // Диагностика
@@ -2677,7 +2688,7 @@ Function f2ret_oms_human( nkey )
     Else
       box_shadow( mr1, 2, 22, 77 )
       SetColor( col_tit_popup )
-      @ k1 - 2, 15 Say 'Шаблон: ' + tmp2
+      @ k1 -2, 15 Say 'Шаблон: ' + tmp2
       SetColor( color0 )
       If k1 + t_len + 2 < 21
         k2 := k1 + t_len + 2
