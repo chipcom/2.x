@@ -284,10 +284,11 @@ Function val_st_trav( get )
 
   Return fl
 
-// 11.08.20
+// 28.11.24
 Function inp_dop_diag()
 
   Local arr, jt, mshifr, tmp_keys, tmp_gets, buf, tmp_color
+  Local message := 'Диспансерный учет  ' + iif( mk_data >= 0d20241201, '(1, 2, 3, 4, 6) ', '(1, 2, 3) ')
 
   Private mvar := Upper( ReadVar() )
 
@@ -314,7 +315,8 @@ Function inp_dop_diag()
     box_shadow( pr, 2, pr + 4, 77, color0, 'Диагноз "' + AllTrim( mshifr ) + '"', 'W+/BG' )
     tmp_color := SetColor( 'N/BG, W+/N, , , B/BG' )
     @ pr + 1, 5 Say 'Характер заболевания (1, 2) ' Get m1 Pict '9' valid {| g| v_i_d_diag( g, 1 ) }
-    @ pr + 2, 5 Say 'Диспансерный учет  (1, 2, 3) ' Get m2 Pict '9' valid {| g| v_i_d_diag( g, 2 ) }
+//    @ pr + 2, 5 Say 'Диспансерный учет  (1, 2, 3) ' Get m2 Pict '9' valid {| g| v_i_d_diag( g, 2 ) }
+    @ pr + 2, 5 Say message Get m2 Pict '9' valid {| g| v_i_d_diag( g, 2 ) }
     status_key( '^<Esc>^ - выход;  ^<PgDn>^ - подтверждение ввода' )
     myread()
     If LastKey() != K_ESC
@@ -332,7 +334,7 @@ Function inp_dop_diag()
 
   Return .t.
 
-//
+// 28.11.24
 Function v_i_d_diag( get, par )
 
   Local fl := .t., mval, s := ''
@@ -348,14 +350,22 @@ Function v_i_d_diag( get, par )
           'Ранее зарегистрированное заболевание' }[ m1 ]
       Endif
     Case par == 2
-      If ( fl := Between( m2, 1, 3 ) )
+//      If ( fl := Between( m2, 1, 6 ) )
+      If ( fl := eq_any( m2, 1, 2, 3, 4, 6 ) )
         s := { 'Состоит', ;
           'Взят', ;
-          'Снят' }[ m2 ]
+          'Снят', ;
+          'Снят по причине выздоровления', ;
+          '', ;
+          'Снят по другим причинам' }[ m2 ]
       Endif
     Endcase
   Endif
-  @ pr + par, 35 Say PadR( s, 42 ) Color 'G+/BG'
+  if par == 1
+    @ pr + par, 35 Say PadR( s, 42 ) Color 'G+/BG'
+  else
+    @ pr + par, iif( mk_data < 0d20241201, 35, 42 ) Say PadR( s, 35 ) Color 'G+/BG'
+  endif
   If !fl
     &mvar := get:original
     mybell()
