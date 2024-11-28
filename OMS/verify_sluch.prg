@@ -8,7 +8,7 @@
 
 // Static sadiag1
 
-// 28.10.24
+// 28.11.24
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -30,7 +30,7 @@ Function verify_sluch( fl_view )
   Local arrImplant
   Local arrLekPreparat, arrGroupPrep, mMNN
   Local flLekPreparat := .f.
-  Local arrUslugi := {} // массив содержаший коды услуг в случае
+  Local arrUslugi := {} // массив содержаший коды услуг в случае 
   Local lTypeLUMedReab := .f.
   Local aUslMedReab
   Local obyaz_uslugi_med_reab, iUsluga
@@ -4457,6 +4457,24 @@ Function verify_sluch( fl_view )
       Next
     Endif
   Endif
+
+  //
+  // ПРОВЕРКА РЕЗУЛЬТАТА ОБРАЩЕНИЯ "109-лечение продолжено", ОШИБКА 356
+  // письмо Л.Н.Антоновой 26.11.24
+  //
+  if ( human_->USL_OK == USL_OK_HOSPITAL ) .and. ( human_->RSLT_NEW == 109 ) // лечение продолжено
+    fl := .f.
+    for counter := 1 to len( arrUslugi )
+      if ! eq_any( arrUslugi[ counter ], 'st19.090', 'st19.091', 'st19.092', 'st19.093', ;
+          'st19.094', 'st19.095', 'st19.096', 'st19.097', 'st19.098', 'st19.099', ;
+          'st19.100', 'st19.101', 'st19.102' )
+        fl := .t.
+      endif
+    next
+    if fl
+      AAdd( ta, 'для выбранного КСГ не допустимо применение результата обращения "109-лечение продолжено"' )
+    endif
+  endif
 
   //
   // ПРОВЕРКА НАПРАВИВШИХ МЕД. УЧРЕЖДЕНИЙ, ОШИБКА 348
