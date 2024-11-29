@@ -9,10 +9,11 @@
 
 // Static sadiag1
 
-// 28.10.24 создание XML-файлов реестра
+// 29.11.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
+  Local i
   Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
   Local arrLP, row
@@ -26,6 +27,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
   local dPUMPver40 := 0d20240301
   local aFilesName
+  local oSL, oSLUCH
 
   //
   Close databases
@@ -927,7 +929,13 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         Endif
 
         If !Empty( ldate_next )
-          mo_add_xml_stroke( oSL, 'NEXT_VISIT', date2xml( BoM( ldate_next ) ) )
+          if human->N_DATA < 0d20241201
+            mo_add_xml_stroke( oSL, 'NEXT_VISIT', date2xml( BoM( ldate_next ) ) )
+          else  // согласно письма ТФОМС 09-20-615 от 21.11.24
+            if ( adiag_talon[ 2 ] == 1 ) .or. ( adiag_talon[ 2 ] == 2 )
+              mo_add_xml_stroke( oSL, 'NEXT_VISIT', date2xml( BoM( ldate_next ) ) )
+            endif
+          endif
         Endif
         //
         j := 0
