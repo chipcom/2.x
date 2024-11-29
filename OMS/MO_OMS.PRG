@@ -284,11 +284,11 @@ Function val_st_trav( get )
 
   Return fl
 
-// 28.11.24
+// 29.11.24
 Function inp_dop_diag()
 
   Local arr, jt, mshifr, tmp_keys, tmp_gets, buf, tmp_color
-  Local message := 'Диспансерный учет  ' + iif( mk_data >= 0d20241201, '(1, 2, 3, 4, 6) ', '(1, 2, 3) ')
+  Local message := 'Диспансерный учет ' + iif( mk_data >= 0d20241201, '(1,2,3,4,6)', '(1, 2, 3) ')
 
   Private mvar := Upper( ReadVar() )
 
@@ -296,14 +296,16 @@ Function inp_dop_diag()
     Return .t.
   Endif
   mshifr := &mvar
-  arr := { 'MKOD_DIAG', ;
+  arr := { ;
+    'MKOD_DIAG', ;
     'MKOD_DIAG2', ;
     'MKOD_DIAG3', ;
     'MKOD_DIAG4', ;
     'MSOPUT_B1', ;
     'MSOPUT_B2', ;
     'MSOPUT_B3', ;
-    'MSOPUT_B4' }
+    'MSOPUT_B4' ;
+  }
   If !Empty( mshifr ) .and. ( jt := AScan( arr, mvar ) ) > 0
     tmp_keys := my_savekey()
     Save gets To tmp_gets
@@ -314,7 +316,7 @@ Function inp_dop_diag()
     m2 := adiag_talon[ jt * 2  ]
     box_shadow( pr, 2, pr + 4, 77, color0, 'Диагноз "' + AllTrim( mshifr ) + '"', 'W+/BG' )
     tmp_color := SetColor( 'N/BG, W+/N, , , B/BG' )
-    @ pr + 1, 5 Say 'Характер заболевания (1, 2) ' Get m1 Pict '9' valid {| g| v_i_d_diag( g, 1 ) }
+    @ pr + 1, 5 Say 'Характер заболевания (1, 2) ' + iif( mk_data >= 0d20241201, ' ', '' ) Get m1 Pict '9' valid {| g| v_i_d_diag( g, 1 ) }
 //    @ pr + 2, 5 Say 'Диспансерный учет  (1, 2, 3) ' Get m2 Pict '9' valid {| g| v_i_d_diag( g, 2 ) }
     @ pr + 2, 5 Say message Get m2 Pict '9' valid {| g| v_i_d_diag( g, 2 ) }
     status_key( '^<Esc>^ - выход;  ^<PgDn>^ - подтверждение ввода' )
@@ -334,10 +336,11 @@ Function inp_dop_diag()
 
   Return .t.
 
-// 28.11.24
+// 29.11.24
 Function v_i_d_diag( get, par )
 
   Local fl := .t., mval, s := ''
+  local arr_mes
 
   Private mvar := Upper( ReadVar() )
 
@@ -352,19 +355,33 @@ Function v_i_d_diag( get, par )
     Case par == 2
 //      If ( fl := Between( m2, 1, 6 ) )
       If ( fl := eq_any( m2, 1, 2, 3, 4, 6 ) )
-        s := { 'Состоит', ;
+        arr_mes := { 'Состоит', ;
           'Взят', ;
-          'Снят', ;
-          'Снят по причине выздоровления', ;
-          '', ;
-          'Снят по другим причинам' }[ m2 ]
+          'Снят' ;
+        }
+        if mk_data >= 0d20241201
+          AAdd( arr_mes, 'Снят по причине выздоровления' )
+          AAdd( arr_mes, '' )
+          AAdd( arr_mes, 'Снят по другим причинам' )
+        else
+          if m2 > 3
+            m2 := 3
+          endif
+        endif
+        s := arr_mes[ m2 ]
+        // s := { 'Состоит', ;
+        //   'Взят', ;
+        //   'Снят', ;
+        //   'Снят по причине выздоровления', ;
+        //   '', ;
+        //   'Снят по другим причинам' }[ m2 ]
       Endif
     Endcase
   Endif
   if par == 1
-    @ pr + par, 35 Say PadR( s, 42 ) Color 'G+/BG'
+    @ pr + par, iif( mk_data < 0d20241201, 36, 38 ) Say  s Color 'G+/BG' // PadR( s, 40 ) Color 'G+/BG'
   else
-    @ pr + par, iif( mk_data < 0d20241201, 35, 42 ) Say PadR( s, 35 ) Color 'G+/BG'
+    @ pr + par, iif( mk_data < 0d20241201, 36, 38 ) Say s Color 'G+/BG' // PadR( s, 35 ) Color 'G+/BG'
   endif
   If !fl
     &mvar := get:original
