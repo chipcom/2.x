@@ -44,7 +44,6 @@ Static skod_volg := '18400'
   inkey(0)
   return NIL*/
 
-
 // 09.03.23 переиндексировать все файлы адресного реестра ОКАТО
 Function okato_index( flag )
 
@@ -54,8 +53,6 @@ Function okato_index( flag )
     arr_f  := { '_okator', '_okatoo', '_okatos', '_okatoo8', '_okatos8' }, ;
     arr_i1 := { '_okatr', '_okato', '_okats', '_okato8', '_okats8' }, ;
     arr_i2 := { '_okatrn', '_okaton', '_okatsn', '_okaton8', '_okatsn8' }
-  Local sbase
-  Local file_index
 
   Default flag To .f.
 
@@ -68,14 +65,9 @@ Function okato_index( flag )
   Next
   If flag .or. fl_index
     For i := 1 To Len( arr_f )
-      // if hb_FileExists(dir_exe() + arr_f[i] + sdbf)
-      // if ! hb_FileExists(cur_dir + arr_i1[i] + sntx) .or. ;
-      // ! hb_FileExists(cur_dir + arr_i2[i] + sntx)
       r_use( dir_exe() + arr_f[ i ] )
       oktadindbase( arr_f[ i ] )
       Use
-      // endif
-      // endif
     Next
   Endif
 
@@ -651,5 +643,4 @@ Function ret_okato_array( kod11, open_base )
     Endif
   Endif
   //
-
   Return arr_okato
