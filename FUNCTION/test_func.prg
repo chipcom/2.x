@@ -5,13 +5,13 @@ function test_init()
 
   local aaa
 
-  aaa := create_string_EanGnivc( '26901015' )
+  // aaa := create_string_EanGnivc( '26901015' )
   // use_base( 'reg_fns', 'reg_fns' )
   // use_base( 'link_fns', 'link_fns' )
   // use_base( 'xml_fns', 'xml_fns' )
   // use_base( 'xml_link_fns', 'xml_link' )
-  altd()
-  aaa := create_string_EanGnivc( '26901022' )
+  // altd()
+  // aaa := create_string_EanGnivc( '26901022' )
 
   // aaa := loadCriteria21(2023)
   return nil

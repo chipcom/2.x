@@ -112,18 +112,20 @@ function designPage1( pdf, hArr, aFonts )
   out_kvadr( page, 0, 7 )
   out_kvadr( page, 195, 7 )
 
-  /* load image file. */
-  //  sh_code26901015 := HPDF_LoadPngImageFromFile( pdf, cImagePath + '26901015.png' )
-  sh_code26901015 := HPDF_LoadPngImageFromFile( pdf, dir_exe + '26901015.png' )
+  // out_text( page, 7, 284, create_string_EanGnivc( '26901015' ) )
 
-  iw := HPDF_Image_GetWidth( sh_code26901015 )
-  ih := HPDF_Image_GetHeight( sh_code26901015 )
+//   /* load image file. */
+//   //  sh_code26901015 := HPDF_LoadPngImageFromFile( pdf, cImagePath + '26901015.png' )
+//   sh_code26901015 := HPDF_LoadPngImageFromFile( pdf, dir_exe + '26901015.png' )
 
-  x := 37
-  y := HPDF_Page_GetHeight( page ) - 48
+//   iw := HPDF_Image_GetWidth( sh_code26901015 )
+//   ih := HPDF_Image_GetHeight( sh_code26901015 )
 
-  /* Draw image to the canvas. (normal-mode with actual size.) */
-//  HPDF_Page_DrawImage( page, sh_code26901015, x, y, iw, ih )
+//   x := 37
+//   y := HPDF_Page_GetHeight( page ) - 48
+
+//   /* Draw image to the canvas. (normal-mode with actual size.) */
+// //  HPDF_Page_DrawImage( page, sh_code26901015, x, y, iw, ih )
 
   // заполняем поля
   HPDF_Page_SetFontAndSize( page, aFonts[ FONT_COURIER ], 16 )

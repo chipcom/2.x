@@ -47,7 +47,8 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
   endif
 
   IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
-    func_error( 4, '0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+//    func_error( 4, '0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    func_error( 4, hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ) ) // + ' ' + HPDF_GetErrorDetail( pdf ) )
   ENDIF
 
   HPDF_Free( pdf )
