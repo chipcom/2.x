@@ -1296,7 +1296,7 @@ Function fs_opl_72( arr )
 
   Return Nil
 
-// 01.04.23 редактирование справочников персонала, отделений, учреждений, организации
+// 02.12.24 редактирование справочников персонала, отделений, учреждений, организации
 Function spr_struct_org( k )
 
   Static sk := 1
@@ -1330,13 +1330,14 @@ Function spr_struct_org( k )
   Case k == 3
     edit_uch()
 //    editDepartments()
-  Case k == 4
+  Case k == 4 
     str_sem := 'Редактирование реквизитов организации'
     If g_slock( str_sem )
       f_edit_spr( A__EDIT, get_struct_organiz(), 'реквизитам Вашей организации', ;
         'use_base("organiz")', 0, 1 )
       g_sunlock( str_sem )
       reread_glob_mo() // перечитать массив glob_MO
+      hb_main_curOrg := torganizationdb():getorganization()
     Else
       func_error( 4, err_slock )
     Endif

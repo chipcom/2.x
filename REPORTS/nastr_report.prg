@@ -6,15 +6,16 @@
 #include 'hbxlsxwriter.ch'
 
 // 16.03.24
-function string_output( sText, lExcel, ws, row, column, fmt )
+Function string_output( sText, lExcel, ws, row, column, fmt )
 
-  default fmt to nil
+  Default fmt To Nil
   If lExcel
     worksheet_write_string( ws, row, column, hb_StrToUTF8( sText ), fmt )
-  else
+  Else
     add_string( sText )
   Endif
-  return nil
+
+  Return Nil
 
 // 25.07.24 многовариантный поиск
 Function s_mnog_poisk()
@@ -48,12 +49,18 @@ Function s_mnog_poisk()
     { 'углубленная диспансеризация II этап (COVID-19)', 16 }, ;
     { 'диспансеризация репродуктивного здоровья I этап', 17 }, ;
     { 'диспансеризация репродуктивного здоровья II этап', 18 } ;
-  }
+    }
   Static mm_perevyst := { ;
     { 'все случаи', 1 }, ;
     { 'без учёта случаев с отказом (перевыставленных)', 0 }, ;
     { 'только случаи с отказом (которые были перевыставлены)', 2 } ;
     }
+  Static mm_tip_mas := { { 'Дефицит массы тела', 1 }, ;
+    { 'Нормальная масса тела', 2 }, ;
+    { 'Избыточная масса тела', 3 }, ;
+    { 'Ожирение I степени', 4 }, ;
+    { 'Ожирение II степени', 5 }, ;
+    { 'Ожирение III степени', 6 } }
   Static mm_g_selo :=  { { 'город', 1 }, { 'село', 2 } }
   Static mm_regschet := { { 'Не зарегистрированные счета', 1 }, { 'Зарегистрированные счета', 2 } }
   Static mm_schet := { { 'Не попавшие в счета', 1 }, { 'Попавшие в счета', 2 } }
@@ -86,11 +93,11 @@ Function s_mnog_poisk()
   Local row, column, rowWS, columnWS
   Local wsCommon_format, wsCommon_format_header, wsCommon_format_wrap, wsCommon_Number, wsCommon_Number_Rub
 
-  local mm_output := { ;
+  Local mm_output := { ;
     { 'на экран                  ', 1 }, ;
     { 'в файл Excel (формат xlsx)', 2 } ;
     }
-  local arr_title
+  Local arr_title
 
   If mem_dom_aktiv == 1
     AAdd( mm_dom, { 'на дому-АКТИВ', 3 } )
@@ -116,7 +123,7 @@ Function s_mnog_poisk()
     AAdd( arr_doc, 'Дата ввода' )
   Endif
   AAdd( arr_doc, 'Номера Тел.' )
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5, , , @lcount_uch ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5, , , @lcount_uch ) ) == NIL
     Return Nil
   Endif
   If yes_bukva
@@ -151,7 +158,7 @@ Function s_mnog_poisk()
   //
   dbCreate( cur_dir + 'tmp', { ;
     { 'U_KOD',    'N',      4,      0 }, ;  // код услуги
-    { 'U_SHIFR',  'C',     10,      0 }, ;  // шифр услуги
+  { 'U_SHIFR',  'C',     10,      0 }, ;  // шифр услуги
     { 'U_NAME',   'C',     65,      0 } ;   // наименование услуги
   } )
   Use ( cur_dir + 'tmp' )
@@ -161,7 +168,7 @@ Function s_mnog_poisk()
   //
   dbCreate( cur_dir + 'tmpF', { ;
     { 'U_KOD',    'N',      6,      0 }, ;  // код услуги
-    { 'U_SHIFR',  'C',     20,      0 }, ;  // шифр услуги
+  { 'U_SHIFR',  'C',     20,      0 }, ;  // шифр услуги
     { 'U_NAME',   'C',    255,      0 } ;   // наименование услуги
   } )
   Use ( cur_dir + 'tmpF' )
@@ -241,12 +248,17 @@ Function s_mnog_poisk()
     {| x| menu_reader( x, mm_da_net, A__MENUVERT ) }, ;
     0, {|| Space( 10 ) }, ;
     'Признак подозрения на ЗНО?' } )
-//
+  //
+  AAdd( mm_tmp, { 'massa_t', 'N', 1, 0, NIL, ;
+    {| x| menu_reader( x, mm_tip_mas, A__MENUVERT ) }, ;
+    0, {|| Space( 10 ) }, ;
+    'Масса тела (при диспансеризации)' } )
+  //
   AAdd( mm_tmp, { 'npr_mo', 'C', 6, 0, '@!', ;
-    { | x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. )}, ;
-    Space( 6 ), {| x| Space( 6 ) }, ;    
-  'МО направитель?' } )
-//
+    {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) }, ;
+    Space( 6 ), {| x| Space( 6 ) }, ;
+    'МО направитель?' } )
+  //
   AAdd( mm_tmp, { 'kol_lu', 'N', 2, 0, , ;
     nil, ;
     0, NIL, ;
@@ -266,7 +278,7 @@ Function s_mnog_poisk()
       ' ', NIL, ;
       'Буква (перед участком)' } )
     AAdd( mm_tmp, { 'uchast', 'N', 1, 0, , ;
-      {| x| menu_reader( x, { {|k, r, c| get_uchast( r + 1, c ) } }, A__FUNCTION ) }, ;
+      {| x| menu_reader( x, { {| k, r, c| get_uchast( r + 1, c ) } }, A__FUNCTION ) }, ;
       0, {|| init_uchast( arr_uchast ) }, ;
       'Участок (участки)' } )
   Endif
@@ -293,7 +305,7 @@ Function s_mnog_poisk()
     -1, {|| Space( 10 ) }, ;
     'Место жительства:' } )
   AAdd( mm_tmp, { '_okato', 'C', 11, 0, NIL, ;
-    {| x| menu_reader( x, { {|k, r, c| get_okato_ulica( k, r, c, { k, m_okato, } ) } }, A__FUNCTION ) }, ;
+    {| x| menu_reader( x, { {| k, r, c| get_okato_ulica( k, r, c, { k, m_okato, } ) } }, A__FUNCTION ) }, ;
     Space( 11 ), {| x| Space( 11 ) }, ;
     'Адрес регистрации (ОКАТО)' } )
   AAdd( mm_tmp, { 'adres', 'C', 20, 0, '@!', ;
@@ -463,7 +475,7 @@ Function s_mnog_poisk()
       {|| !emptyall( mdiag, mkod_diag, msoput_d ) } } )
   Endif
   AAdd( mm_tmp, { 'otd', 'N', 3, 0, NIL, ;
-    {| x| menu_reader( x, { {|k, r, c| get_otd( k, r + 1, c ) } }, A__FUNCTION ) }, ;
+    {| x| menu_reader( x, { {| k, r, c| get_otd( k, r + 1, c ) } }, A__FUNCTION ) }, ;
     0, {|| Space( 10 ) }, ;
     'Отделение, в котором выписан счет' } )
   AAdd( mm_tmp, { 'ist_fin', 'N', 2, 0, NIL, ;
@@ -480,11 +492,11 @@ Function s_mnog_poisk()
     0, {|| Space( 10 ) }, ;
     '  ==>', , {|| eq_any( m1komu, 0, 1, 3 ) } } )
   AAdd( mm_tmp, { 'uslugi', 'N', 4, 0, NIL, ;
-    {| x| menu_reader( x, { {|k, r, c| ob2_v_usl( .t., r + 1, 'Услуги (ТФОМС)' ) } }, A__FUNCTION ) }, ;
+    {| x| menu_reader( x, { {| k, r, c| ob2_v_usl( .t., r + 1, 'Услуги (ТФОМС)' ) } }, A__FUNCTION ) }, ;
     0, {|| Space( 10 ) }, ;
     'Оказанные услуги (ТФОМС)' } )
   AAdd( mm_tmp, { 'uslugiF', 'N', 4, 0, NIL, ;
-    {| x| menu_reader( x, { {|k, r, c| obf2_v_usl( .t., r + 1, 'Услуги (ФФОМС)', 'tmpF' ) } }, A__FUNCTION ) }, ;
+    {| x| menu_reader( x, { {| k, r, c| obf2_v_usl( .t., r + 1, 'Услуги (ФФОМС)', 'tmpF' ) } }, A__FUNCTION ) }, ;
     0, {|| Space( 10 ) }, ;
     'Оказанные услуги (ФФОМС)' } )
   AAdd( mm_tmp, { 'dom', 'N', 1, 0, NIL, ;
@@ -493,7 +505,7 @@ Function s_mnog_poisk()
     'Где оказана услуга', , ;
     {|| m1usl_ok == USL_OK_POLYCLINIC } } )
   AAdd( mm_tmp, { 'otd_usl', 'N', 3, 0, NIL, ;
-    {| x| menu_reader( x, { {|k, r, c| get_otd( k, r + 1, c ) } }, A__FUNCTION ) }, ;
+    {| x| menu_reader( x, { {| k, r, c| get_otd( k, r + 1, c ) } }, A__FUNCTION ) }, ;
     0, {|| Space( 10 ) }, ;
     'Отделение, в котором оказана услуга' } )
   AAdd( mm_tmp, { 'vr1', 'N', 5, 0, NIL, ;
@@ -538,7 +550,7 @@ Function s_mnog_poisk()
     {|| .f. } } )
   AAdd( mm_tmp, { 'slug_usl', 'N', 3, 0, NIL, ;
     {| x| menu_reader( x, ;
-    { {|k, r, c| get_slugba( k, r, c ) } }, A__FUNCTION ) }, ;
+    { {| k, r, c| get_slugba( k, r, c ) } }, A__FUNCTION ) }, ;
     0, {|| Space( 10 ) }, ;
     'Служба, в которой оказана услуга' } )
   AAdd( mm_tmp, { 'srok_min', 'N', 3, 0, , ;
@@ -561,12 +573,12 @@ Function s_mnog_poisk()
     {| x| menu_reader( x, arr_doc, A__MENUBIT ) }, ;
     lvid_doc, {| x| inieditspr( A__MENUBIT, arr_doc, x ) }, ;
     'Колонки для вывода', NIL } )
-//  'Вид документа', NIL } )
+  // 'Вид документа', NIL } )
   AAdd( mm_tmp, { 'output', 'N', 1, 0, NIL, ;
     {| x| menu_reader( x, mm_output, A__MENUVERT ) }, ;
     1, {| x | inieditspr( A__MENUVERT, mm_output, x ) }, ;
     'Вывод отчета', , ;
-     } )
+    } )
 
   Delete File ( tmp_file )
   init_base( tmp_file, , mm_tmp, 0 )
@@ -578,7 +590,7 @@ Function s_mnog_poisk()
     mywait()
     Use ( tmp_file ) New Alias MN
 
-    lExcel := iif(mn->output == 2, .t., .f. )
+    lExcel := iif( mn->output == 2, .t., .f. )
 
     If mn->ist_fin >= 0
       Private _arr_if := { mn->ist_fin }, _what_if := _init_if(), _arr_komit := {}
@@ -588,7 +600,7 @@ Function s_mnog_poisk()
     Endif
     If yes_vypisan == B_END .and. mn->zav_lech > 0
       Private p_zak_sl := ( mn->zav_lech == 2 )  // ? законченный случай
-      mn->zav_lech := yes_vypisan + mn->zav_lech -1
+      mn->zav_lech := yes_vypisan + mn->zav_lech - 1
     Endif
     // заменить таб.номер на код
     r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'PERSO' )
@@ -853,49 +865,49 @@ Function s_mnog_poisk()
         workbook  := workbook_new( name_fileXLS_full )
         wsCommon := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Описание' ) )
         worksheet_set_column( wsCommon, 7, 7, 15, nil )
-        wsCommon_format := fmt_excel_hC_vC( workbook )
+        wsCommon_format := fmt_excel_hc_vc( workbook )
         format_set_bold( wsCommon_format )
 
-        wsCommon_format_wrap := fmt_excel_hL_vC( workbook )
+        wsCommon_format_wrap := fmt_excel_hl_vc( workbook )
         format_set_text_wrap( wsCommon_format_wrap )
 
-        wsCommon_format_header := fmt_excel_hC_vC( workbook )
+        wsCommon_format_header := fmt_excel_hc_vc( workbook )
         format_set_bold( wsCommon_format_header )
         format_set_font_size( wsCommon_format_header, 20 )
 
-        wsCommon_Number := fmt_excel_hC_vC( workbook )
+        wsCommon_Number := fmt_excel_hc_vc( workbook )
 
-        wsCommon_Number_Rub := fmt_excel_hR_vC( workbook )
+        wsCommon_Number_Rub := fmt_excel_hr_vc( workbook )
         format_set_num_format( wsCommon_Number_Rub, '#,##0.00' )
 
         worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список пациентов' ) )
-        formatDate := fmt_excel_hC_vC( workbook )
+        formatDate := fmt_excel_hc_vc( workbook )
         format_set_num_format( formatDate, 'dd/mm/yyyy' )
         format_set_border( formatDate, LXW_BORDER_THIN )
 
-        header = fmt_excel_hC_vC( workbook )
+        header = fmt_excel_hc_vc( workbook )
         format_set_fg_color( header, 0xD7E4BC )
         format_set_bold( header )
         format_set_border( header, LXW_BORDER_THIN )
 
-        header_wrap = fmt_excel_hC_vC( workbook )
+        header_wrap = fmt_excel_hc_vc( workbook )
         format_set_fg_color( header_wrap, 0xD7E4BC )
         format_set_bold( header_wrap )
         format_set_border( header_wrap, LXW_BORDER_THIN )
         format_set_text_wrap( header_wrap )
 
-        fmtCellNumber := fmt_excel_hC_vC( workbook )
+        fmtCellNumber := fmt_excel_hc_vc( workbook )
         format_set_border( fmtCellNumber, LXW_BORDER_THIN )
 
-        fmtCellNumberRub := fmt_excel_hR_vC( workbook )
+        fmtCellNumberRub := fmt_excel_hr_vc( workbook )
         format_set_border( fmtCellNumberRub, LXW_BORDER_THIN )
         format_set_num_format( fmtCellNumberRub, '#,##0.00' )
 
-        fmtCellString := fmt_excel_hL_vC( workbook )
+        fmtCellString := fmt_excel_hl_vc( workbook )
         format_set_text_wrap( fmtCellString )
         format_set_border( fmtCellString, LXW_BORDER_THIN )
 
-        fmtCellStringCenter := fmt_excel_hC_vC( workbook )
+        fmtCellStringCenter := fmt_excel_hc_vc( workbook )
         format_set_text_wrap( fmtCellStringCenter )
         format_set_border( fmtCellStringCenter, LXW_BORDER_THIN )
 
@@ -919,7 +931,7 @@ Function s_mnog_poisk()
         worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'СНИЛС' ), header )
         worksheet_set_column( worksheet, column, column, 11, nil )
         worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( iif( fl_summa, 'Сумма лечения', 'Стоимость услуг' ) ), header_wrap )
-      else
+      Else
         arr_title := { ;
           '────────────────────────────────────────┬─────────', ;
           '             Ф.И.О. больного            │' + s1, ;
@@ -930,7 +942,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Дата рождения' ), header_wrap )
-        else
+        Else
           arr_title[ 1 ] += '┬────────'
           arr_title[ 2 ] += '│  Дата  '
           arr_title[ 3 ] += '│рождения'
@@ -941,7 +953,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_set_column( worksheet, column, column, 22.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Адрес' ), header )
-        else
+        Else
           arr_title[ 1 ] += '┬────────────────────────'
           arr_title[ 2 ] += '│         Адрес          '
           arr_title[ 3 ] += '│                        '
@@ -952,7 +964,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_set_column( worksheet, column, column, 11.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Номера телефонов' ), header_wrap )
-        else
+        Else
           arr_title[ 1 ] += '┬──────────'
           arr_title[ 2 ] += '│   Номера '
           arr_title[ 3 ] += '│ телефонов'
@@ -963,7 +975,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'N карты' ), header )
-        else
+        Else
           arr_title[ 1 ] += '┬──────────'
           arr_title[ 2 ] += '│  N карты '
           arr_title[ 3 ] += '│          '
@@ -974,7 +986,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Сроки лечения' ), header_wrap )
-        else
+        Else
           arr_title[ 1 ] += '┬────────'
           arr_title[ 2 ] += '│ Сроки  '
           arr_title[ 3 ] += '│лечения '
@@ -985,7 +997,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_set_column( worksheet, column, column, 11, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Диагноз' ), header )
-        else
+        Else
           arr_title[ 1 ] += '┬─────────────'
           arr_title[ 2 ] += '│   Диагноз   '
           arr_title[ 3 ] += '│             '
@@ -996,7 +1008,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_set_column( worksheet, column, column, 19.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Номер и дата счета' ), header_wrap )
-        else
+        Else
           arr_title[ 1 ] += '┬───────────────'
           arr_title[ 2 ] += '│ Номер и дата  '
           arr_title[ 3 ] += '│    счета      '
@@ -1008,7 +1020,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_set_column( worksheet, column, column, 13.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'РАК' ), header_wrap )
-        else
+        Else
           arr_title[ 1 ] += '┬─────────'
           arr_title[ 2 ] += '│   РАК   '
           arr_title[ 3 ] += '│         '
@@ -1019,7 +1031,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Леч. врач' ), header_wrap )
-        else
+        Else
           arr_title[ 1 ] += '┬─────'
           arr_title[ 2 ] += '│ Леч.'
           arr_title[ 3 ] += '│ врач'
@@ -1030,7 +1042,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Список услуг' ), header_wrap )
-        else
+        Else
           arr_title[ 1 ] += '┬───────────────────────'
           arr_title[ 2 ] += '│                       '
           arr_title[ 3 ] += '│     Список услуг      '
@@ -1041,7 +1053,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Дополнит. критерий' ), header_wrap )
-        else
+        Else
           arr_title[ 1 ] += '┬────────'
           arr_title[ 2 ] += '│Дополнит'
           arr_title[ 3 ] += '│критерий'
@@ -1053,7 +1065,7 @@ Function s_mnog_poisk()
           If lExcel
             worksheet_set_column( worksheet, column, column, 10.0, nil )
             worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Дата ввода и оператор' ), header_wrap )
-          else
+          Else
             arr_title[ 1 ] += '┬──────────'
             arr_title[ 2 ] += '│Дата ввода'
             arr_title[ 3 ] += '│и оператор'
@@ -1061,9 +1073,9 @@ Function s_mnog_poisk()
           Endif
         Endif
       Endif
-      if ! lExcel
+      If ! lExcel
         reg_print := f_reg_print( arr_title, @sh, 2 )
-      endif
+      Endif
       If sh < 65
         sh := 65
       Endif
@@ -1100,7 +1112,7 @@ Function s_mnog_poisk()
         rowWS++
         worksheet_merge_range( wsCommon, rowWS, columnWS, rowWS, 12, '', wsCommon_format )
         worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sZag1 ), wsCommon_format )
-      else
+      Else
         fp := FCreate( name_file )
         n_list := 1
         tek_stroke := 0
@@ -1114,82 +1126,82 @@ Function s_mnog_poisk()
       If mn->date_lech > 0
         sOutput := 'Дата окончания лечения: ' + pdate_lech[ 4 ]
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->date_schet > 0
         sOutput := 'Дата выписки счета: ' + pdate_schet[ 4 ]
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->date_usl > 0
         sOutput := 'Дата оказания услуг: ' + pdate_usl[ 4 ]
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->perevyst != 1
         sOutput := Upper( inieditspr( A__MENUVERT, mm_perevyst, mn->perevyst ) )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->rak > 0
         sOutput := Upper( inieditspr( A__MENUVERT, mm_rak, mn->rak ) )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If yes_vypisan == B_END .and. mn->zav_lech > 0
         sOutput := 'Лечение завершено?: ' + iif( mn->zav_lech == B_STANDART, 'да', 'нет' )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->reestr > 0
         sOutput := inieditspr( A__MENUVERT, mm_reestr, mn->reestr )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->schet > 0
         sOutput := inieditspr( A__MENUVERT, mm_schet, mn->schet )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
         If mn->schet == 2 .and. mn->regschet > 0
           sOutput :=  inieditspr( A__MENUVERT, mm_regschet, mn->regschet )
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Endif
       Endif
       If mn->d_p_m > 0
@@ -1197,7 +1209,7 @@ Function s_mnog_poisk()
           inieditspr( A__MENUBIT, mm_d_p_m, mn->d_p_m )
         If lExcel
           worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( s ), nil )
-        else
+        Else
           k := perenos( a_diagnoz, s, sh )
           add_string( a_diagnoz[ 1 ] )
           For i := 2 To k
@@ -1208,234 +1220,239 @@ Function s_mnog_poisk()
       If mn->pz > 0
         sOutput := 'Вид план-заказа: ' + inieditspr( A__MENUVERT, mm_pz, mn->pz )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->dvojn > 1
         sOutput := 'Двойные случаи: ' + inieditspr( A__MENUVERT, mm_dvojn, mn->dvojn )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->zno == 2
         sOutput := 'Признак подорения на злокачественное новообразование: да'
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
-      If !Empty( mn->npr_mo )
-        t_massiv_mo := ret_mo( mn->NPR_MO ) 
-        sOutput := 'Организация направитель ' +  t_massiv_mo[1]
+      If mn->massa_t > 0
+        sOutput := 'Масса тела (при диспансеризации): ' + inieditspr( A__MENUVERT, mm_tip_mas, mn->massa_t )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-      endif  
+      Endif
+      //
+      If !Empty( mn->npr_mo )
+        t_massiv_mo := ret_mo( mn->NPR_MO )
+        sOutput := 'Организация направитель ' +  t_massiv_mo[ 1 ]
+        string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
+      Endif
       If mn->kol_lu > 0
         sOutput := 'Количество листов учета по одному больному более ' + lstr( mn->kol_lu )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If !Empty( much_doc )
         sOutput := '№ амб.карты/истории болезни: ' + much_doc
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If is_uchastok > 0
         If !Empty( mn->bukva )
           sOutput := 'Буква: ' + mn->bukva
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Endif
         If !Empty( mn->uchast )
           sOutput := 'Участок: ' + init_uchast( arr_uchast )
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Endif
       Endif
       If glob_mo[ _MO_IS_UCH ] .and. !Empty( mn->o_prik )
         sOutput := 'Отношение к прикреплению: ' + inieditspr( A__MENUVERT, mm_prik, mn->o_prik )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If !Empty( mfio )
         sOutput := 'ФИО: ' + mfio
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->inostran > 0
         sOutput := 'Документы иностранных граждан: ' + inieditspr( A__MENUVERT, mm_da_net, mn->inostran )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->gorod_selo > 0
         sOutput := 'Житель: ' + inieditspr( A__MENUVERT, mm_g_selo, mn->gorod_selo )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->mi_git > 0
         sOutput := 'Место жительства: ' + inieditspr( A__MENUVERT, mm_mest, mn->mi_git )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If !Empty( mn->_okato )
         sOutput := 'Адрес регистрации (ОКАТО): ' + ret_okato_ulica( '', mn->_okato )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If !Empty( madres )
         sOutput := 'Улица: ' + madres
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If !Empty( mmr_dol )
         sOutput := 'Место работы: ' + mmr_dol
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->invalid > 0
         sOutput := 'Наличие инвалидности: ' + inieditspr( A__MENUVERT, mm_invalid, mn->invalid )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->kategor > 0
         sOutput := 'Код категории льготы: ' + inieditspr( A__MENUVERT, stm_kategor, mn->kategor )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If is_talon .and. is_kategor2 .and. mn->kategor2 > 0
         sOutput := 'Категория МО: ' + inieditspr( A__MENUVERT, stm_kategor2, mn->kategor2 )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If !Empty( mn->pol )
         sOutput := 'Пол: '
         If lExcel
           worksheet_write_string( wsCommon, rowWS, columnWS, hb_StrToUTF8( sOutput ), nil )
           worksheet_write_string( wsCommon, rowWS++, 1, hb_StrToUTF8( iif( Upper( mn->pol ) == 'М', 'мужской', 'женский' ) ), nil )
-        else
+        Else
           add_string( sOutput + iif( Upper( mn->pol ) == 'М', 'мужской', 'женский' ) )
         Endif
       Endif
       If mn->vzros_reb >= 0
         sOutput := 'Возрастная принадлежность: ' + inieditspr( A__MENUVERT, menu_vzros, mn->vzros_reb )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If !Empty( mn->god_r_min ) .or. !Empty( mn->god_r_max )
         If Empty( mn->god_r_min )
           sOutput := 'Лица, родившиеся до ' + full_date( mn->god_r_max )
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Elseif Empty( mn->god_r_max )
           sOutput := 'Лица, родившиеся после ' + full_date( mn->god_r_min )
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Else
           sOutput := 'Лица, родившиеся с ' + full_date( mn->god_r_min ) + ' по ' + full_date( mn->god_r_max )
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Endif
       Endif
       If mn->rab_nerab >= 0
         sOutput := Upper( inieditspr( A__MENUVERT, menu_rab, mn->rab_nerab ) )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->USL_OK > 0
         sOutput := 'Условия оказания: ' + inieditspr( A__MENUVERT, tmp_V006, mn->USL_OK )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       /*if mn->VIDPOM > 0
         if lExcel
@@ -1447,20 +1464,20 @@ Function s_mnog_poisk()
       If mn->PROFIL > 0
         sOutput := 'Профиль (в случае): ' + inieditspr( A__MENUVERT, tmp_V002, mn->PROFIL )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->PROFIL_U > 0
         sOutput := 'Профиль (в услуге): ' + inieditspr( A__MENUVERT, tmp_V002, mn->PROFIL_U )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       /*if mn->IDSP > 0
         if lExcel
@@ -1472,20 +1489,20 @@ Function s_mnog_poisk()
       If mn->rslt > 0
         sOutput := 'Результат обращения: ' + inieditspr( A__MENUVERT, mm_rslt, mn->rslt )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->ishod > 0
         sOutput := 'Исход заболевания: ' + inieditspr( A__MENUVERT, mm_ishod, mn->ishod )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       /*if is_talon .and. mn->povod > 0
         add_string('Повод обращения: '+;
@@ -1498,301 +1515,301 @@ Function s_mnog_poisk()
       If mn->bolnich1 > 0
         sOutput := 'Больничный: ' + inieditspr( A__MENUVERT, menu_bolnich, mn->bolnich1 )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->bolnich > 0
         sOutput := 'Кол-во дней на больничном более ' + lstr( mn->bolnich )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->vrach1 > 0
         sOutput := 'Лечащий врач: ' + AllTrim( mn->vrach )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If yes_bukva .and. ! Empty( mn->status_st )
         sOutput := 'Статус стоматологического больного: ' + AllTrim( mn->status_st )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If !emptyany( mn->diag, mn->diag1 )
         sOutput := 'Шифр диагноза (осн.+сопут.): с ' + AllTrim( mn->diag ) + ' по ' + AllTrim( mn->diag1 )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Elseif !Empty( mn->diag )
         sOutput := 'Шифр диагноза (осн.+сопут.): ' + mn->diag
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If !emptyany( mn->kod_diag, mn->kod_diag1 )
         sOutput := 'Шифр основного диагноза: с ' + AllTrim( mn->kod_diag ) + ' по ' + AllTrim( mn->kod_diag1 )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Elseif !Empty( mn->kod_diag )
         sOutput := 'Шифр основного диагноза: ' + mn->kod_diag
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If !emptyany( mn->soput_d, mn->soput_d1 )
         sOutput := 'Шифр сопутствующего диагноза: с ' + AllTrim( mn->soput_d ) + ' по ' + AllTrim( mn->soput_d1 )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Elseif !Empty( mn->soput_d )
         sOutput := 'Шифр сопутствующего диагноза: ' + mn->soput_d
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If !emptyany( mn->osl_d, mn->osl_d1 )
         sOutput := 'Шифр диагноза осложнения: с ' + AllTrim( mn->osl_d ) + ' по ' + AllTrim( mn->osl_d1 )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Elseif !Empty( mn->osl_d )
         sOutput := 'Шифр диагноза осложнения: ' + mn->osl_d
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If !emptyany( mn->pred_d, mn->pred_d1 )
         sOutput := 'Шифр предварительного диагноза: с ' + AllTrim( mn->pred_d ) + ' по ' + AllTrim( mn->pred_d1 )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Elseif !Empty( mn->pred_d )
         sOutput := 'Шифр предварительного диагноза: ' + mn->pred_d
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If lExcel
         // вывод информации о характере, диспансеризации...
         f_put_tal_diagexcel( wsCommon, rowWS++, columnWS )
-      else
+      Else
         f_put_tal_diag()
       Endif
       If yes_h_otd == 1 .and. mn->otd > 0
         sOutput := 'Отделение, в котором выписан счет: ' + inieditspr( A__POPUPMENU, dir_server + 'mo_otd', mn->otd )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->ist_fin >= 0
         sOutput := 'Источник финансирования ' + inieditspr( A__MENUVERT, mm_ist_fin, mn->ist_fin )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->komu >= 0
         sOutput := 'Принадлежность счёта: ' + inieditspr( A__MENUVERT, mm_komu, mn->komu )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
 
         If mn->company > 0
           sOutput := '  ==> ' + inieditspr( A__MENUVERT, mm_company, mn->company )
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Endif
       Endif
       If mn->srok_min > 0 .or. mn->srok_max > 0
         sOutput := 'Срок лечения (максимальный) ' + lstr( mn->srok_max ) + ' дн.'
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
         If Empty( mn->srok_min )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Elseif Empty( mn->srok_max )
           sOutput := 'Срок лечения (минимальный) ' + lstr( mn->srok_min ) + ' дн.'
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Else
           sOutput := 'Срок лечения от ' + lstr( mn->srok_min ) + ' до ' + lstr( mn->srok_max ) + ' дн.'
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Endif
       Endif
       If mn->summa_min > 0 .or. mn->summa_max > 0
         If Empty( mn->summa_min )
           sOutput := 'Стоимость лечения менее ' + lstr( mn->summa_max, 10, 2 )
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Elseif Empty( mn->summa_max )
           sOutput := 'Стоимость лечения более ' + lstr( mn->summa_min, 10, 2 )
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Else
           sOutput := 'Стоимость лечения в диапазоне от ' + lstr( mn->summa_min, 10, 2 ) + ' до ' + lstr( mn->summa_max, 10, 2 )
           string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//          If lExcel
-//            worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//          else
-//            add_string( sOutput )
-//          Endif
+          // If lExcel
+          // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+          // else
+          // add_string( sOutput )
+          // Endif
         Endif
       Endif
       If mn->dom > 0
         sOutput := 'Где оказана услуга: ' + inieditspr( A__MENUVERT, mm_dom, mn->dom )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->otd_usl > 0
         sOutput := 'Отделение, в котором оказана услуга: ' + inieditspr( A__POPUPMENU, dir_server + 'mo_otd', mn->otd_usl )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->vr1 > 0
         sOutput := 'Врач, оказавший услугу(и): ' + AllTrim( mn->vr )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->isvr > 0
         sOutput := 'Код врача ' + if( mn->isvr == 1, 'не ', '' ) + 'проставлен'
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->as1 > 0
         sOutput := 'Ассистент, оказавший услугу(и): ' + AllTrim( mn->as )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->isas > 0
         sOutput := 'Код ассистента ' + if( mn->isas == 1, 'не ', '' ) + 'проставлен'
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->vras1 > 0
         sOutput := 'Человек, оказавший услугу(и): ' + AllTrim( mn->vras )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->date_vvod > 0
         sOutput := 'Дата ввода: ' + pdate_vvod[ 4 ]
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->slug_usl > 0
         sOutput := 'Служба, в которой оказаны услуги: ' + mslugba[ 2 ]
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
-//        If lExcel
-//          worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-//        else
-//          add_string( sOutput )
-//        Endif
+        // If lExcel
+        // worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
+        // else
+        // add_string( sOutput )
+        // Endif
       Endif
       If mn->uslugi > 0
         l := s := k := 0
@@ -1809,8 +1826,8 @@ Function s_mnog_poisk()
             worksheet_write_string( wsCommon, rowWS, 8, hb_StrToUTF8( 'Снято РАК' ), wsCommon_format )
           Endif
           rowWS++
-        else
-          verify_ff( HH -1, .t., sh )
+        Else
+          verify_ff( HH - 1, .t., sh )
           add_string( PadR( sOutput, l + 13 ) + '|Кол-во|  Ст-ть   ' + iif( fl_rak_usl, '| Снято РАК', '' ) )
         Endif
         For i := 1 To Len( arr_usl )
@@ -1822,7 +1839,7 @@ Function s_mnog_poisk()
               worksheet_write_number( wsCommon, rowWS, 8, arr_usl[ i, 6 ], wsCommon_Number_Rub )
             Endif
             rowWS++
-          else
+          Else
             verify_ff( HH, .t., sh )
             add_string( '  ' + arr_usl[ i, 2 ] + ' ' + ;
               PadR( arr_usl[ i, 3 ], l ) + '|' + put_val( arr_usl[ i, 4 ], 5 ) + ' |' + put_kope( arr_usl[ i, 5 ], 10 ) + ;
@@ -1835,7 +1852,7 @@ Function s_mnog_poisk()
           worksheet_write_string( wsCommon, rowWS, 1, hb_StrToUTF8( 'ИТОГО:' ), nil )
           worksheet_write_number( wsCommon, rowWS, 6, k, wsCommon_Number )
           worksheet_write_number( wsCommon, rowWS++, 7, s, wsCommon_Number_Rub )
-        else
+        Else
           add_string( '  ИТОГО:     Оказано услуг ' + lstr( k ) + ' на сумму ' + lstr( s, 12, 2 ) + 'р.' )
         Endif
       Endif
@@ -1848,15 +1865,15 @@ Function s_mnog_poisk()
           rowWS++
           worksheet_merge_range( wsCommon, rowWS, 0, rowWS, 5, hb_StrToUTF8( sOutput ), wsCommon_format )
           worksheet_write_string( wsCommon, rowWS++, 6, hb_StrToUTF8( sZag1 ), wsCommon_Number )
-        else
-          verify_ff( HH - 1, .t., sh )
+        Else
+          verify_ff( HH -1, .t., sh )
           add_string( PadR( sOutput, l + 23 ) + sZag1 )
         Endif
         For i := 1 To Len( arr_uslF )
           If lExcel
             worksheet_merge_range( wsCommon, rowWS, 0, rowWS, 5, hb_StrToUTF8( arr_uslF[ i, 2 ] + ' ' + PadR( arr_uslF[ i, 3 ], l ) ), wsCommon_format_wrap )
             worksheet_write_number( wsCommon, rowWS++, 6, arr_uslF[ i, 4 ], wsCommon_Number )
-          else
+          Else
             verify_ff( HH, .t., sh )
             add_string( '  ' + arr_uslF[ i, 2 ] + ' ' + ;
               PadR( arr_uslF[ i, 3 ], l ) + '|' + put_val( arr_uslF[ i, 4 ], 5 ) )
@@ -1866,7 +1883,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_write_string( wsCommon, rowWS, 1, hb_StrToUTF8( 'ИТОГО:' ), nil )
           worksheet_write_number( wsCommon, rowWS++, 6, k, nil )
-        else
+        Else
           add_string( '  ИТОГО:     Оказано услуг ' + lstr( k ) )
         Endif
       Endif
@@ -1876,14 +1893,14 @@ Function s_mnog_poisk()
         sOutput := 'Стоматологический статус|Больн.|Случаев'
         If lExcel
           worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( sOutput ), nil )
-        else
-          verify_ff( HH -3, .t., sh )
+        Else
+          verify_ff( HH - 3, .t., sh )
           add_string( sOutput )
         Endif
         w1 := 17
-        if ! lExcel
+        If ! lExcel
           f3_diag_statist_bukva( HH, sh )
-        endif
+        Endif
       Endif
       sOutput := ' == РЕЗУЛЬТАТЫ ПОИСКА =='
       If lExcel
@@ -1893,7 +1910,7 @@ Function s_mnog_poisk()
         worksheet_merge_range( wsCommon, rowWS, columnWS, rowWS, 12, '', wsCommon_format )
         worksheet_write_string( wsCommon, rowWS++, columnWS, hb_StrToUTF8( '(см. на листе "Список пациентов")' ), nil )
         rowWS++
-      else
+      Else
         add_string( '' )
         add_string( sOutput )
       Endif
@@ -1926,7 +1943,7 @@ Function s_mnog_poisk()
             worksheet_write_string( wsCommon, rowWS, 8, hb_StrToUTF8( '(' + AllTrim( str_0( suet, 15, 4 ) ) + ' УЕТ)' ), nil )
           Endif
           rowWS++
-        else
+        Else
           add_string( s )
         Endif
       Endif
@@ -1935,7 +1952,7 @@ Function s_mnog_poisk()
         If lExcel
           worksheet_write_string( wsCommon, rowWS, columnWS, hb_StrToUTF8( sOutput + ' (руб.)' ), nil )
           worksheet_write_number( wsCommon, rowWS++, 7, srak_s, nil )
-        else
+        Else
           add_string( sOutput + lput_kop( srak_s, .t. ) + ' руб.' )
         Endif
       Endif
@@ -1952,8 +1969,8 @@ Function s_mnog_poisk()
           worksheet_write_number( wsCommon, rowWS++, 7, pol_pos_stom2, nil )
           worksheet_write_string( wsCommon, rowWS, 3, hb_StrToUTF8( 'при оказании неотложной помощи:' ), nil )
           worksheet_write_number( wsCommon, rowWS++, 7, pol_pos_stom3, nil )
-        else
-          verify_ff( HH -5, .t., sh )
+        Else
+          verify_ff( HH - 5, .t., sh )
           add_string( 'Количество амбулаторных посещений: ' + lstr( kol_pos_amb ) )
           add_string( 'Количество стоматологических посещений всего: ' + lstr( pol_pos_stom1 + pol_pos_stom2 + pol_pos_stom3 ) )
           add_string( PadL(  'в том числе с лечебной целью: ', 47 ) + lstr( pol_pos_stom1 ) )
@@ -1961,10 +1978,10 @@ Function s_mnog_poisk()
           add_string( PadL( 'при оказании неотложной помощи: ', 47 ) + lstr( pol_pos_stom3 ) )
         Endif
       Endif
-      if ! lExcel
+      If ! lExcel
         add_string( '' )
         AEval( arr_title, {| x| add_string( x ) } )
-      endif
+      Endif
       ssumma := skol_lu := 0
       Keyboard ''
       Select TMP
@@ -1977,11 +1994,11 @@ Function s_mnog_poisk()
         row++
         used_column := column + 1
         column := 0
-        if ! lExcel
+        If ! lExcel
           If verify_ff( HH, .t., sh )
             AEval( arr_title, {| x| add_string( x ) } )
           Endif
-        endif
+        Endif
         //
         Select ONKSL
         find ( Str( human->kod, 7 ) )
@@ -2075,7 +2092,7 @@ Function s_mnog_poisk()
         ++skol_lu
         //
         //
-        If IsBit( mn->vid_doc, 1 ) 
+        If IsBit( mn->vid_doc, 1 )
           s1 += ' ' + date_8( human->date_r )
           s2 += Space( 9 )
           s3 += Space( 9 )
@@ -2313,13 +2330,13 @@ Function s_mnog_poisk()
           AFill( a_diagnoz, '' )
           i := 0
           If !Empty( human_2->pc3 ) .and. !Left( human_2->pc3, 1 ) == '6' // кроме 'старости'
-            a_diagnoz[ ++i ] := human_2->pc3
+            a_diagnoz[++i ] := human_2->pc3
           Elseif is_oncology  == 2
             If !Empty( onksl->crit )
-              a_diagnoz[ ++i ] := onksl->crit
+              a_diagnoz[++i ] := onksl->crit
             Endif
             If !Empty( onksl->crit2 )
-              a_diagnoz[ ++i ] := onksl->crit2  // второй критерий
+              a_diagnoz[++i ] := onksl->crit2  // второй критерий
             Endif
           Endif
           s1 += ' ' + PadC( a_diagnoz[ 1 ], 8 )
@@ -2350,11 +2367,11 @@ Function s_mnog_poisk()
             Endif
           Endif
         Endif
-        if ! lExcel
+        If ! lExcel
           add_string( s1 )
           add_string( s2 )
           add_string( s3 )
-        endif
+        Endif
         If k_diagnoz > 3 .or. k_usl > 3
           For i := 4 To Min( 10, Max( k_diagnoz, k_usl ) )
             s3 := Space( 50 )
@@ -2382,44 +2399,44 @@ Function s_mnog_poisk()
             If IsBit( mn->vid_doc, 8 )
               s3 += ' ' + PadC( AllTrim( tt_usl[ i ] ), 23 )
             Endif
-            if ! lExcel
+            If ! lExcel
               add_string( s3 )
-            endif
+            Endif
           Next
         Endif
         If is_2
-          if ! lExcel
+          If ! lExcel
             add_string( Space( 5 ) + '! Это двойной случай !' )
-          endif
+          Endif
         Endif
         Select TMP
         Skip
       Enddo
-      if ! lExcel
+      If ! lExcel
         add_string( Replicate( '─', sh ) )
-      endif
+      Endif
       If fl_exit
-        if ! lExcel
+        If ! lExcel
           add_string( '*** ' + Expand( 'ОПЕРАЦИЯ ПРЕРВАНА' ) )
-        endif
+        Endif
       Else
         If mn->kol_lu > 0
-          if ! lExcel
+          If ! lExcel
             add_string( 'Итого количество больных: ' + lstr( skol ) + ' чел.' )
             add_string( 'Итого листов учета: ' + lstr( skol_lu ) + ;
               ' на сумму  ' + lput_kop( ssumma, .t. ) + ' руб.' )
-          endif
+          Endif
         Else
-          if ! lExcel
+          If ! lExcel
             add_string( '  Итого листов учета: ' + lstr( tmp->( LastRec() ) ) + ;
               ' на сумму  ' + lput_kop( ssumma, .t. ) + ' руб.' )
-          endif
+          Endif
           If yes_bukva
             For i := 1 To k_plus
               If !Empty( sd_plus[ i ] )
-                if ! lExcel
+                If ! lExcel
                   add_string( PadL( '"' + md_plus[ i ] + '"  : ', 29 ) + lstr( sd_plus[ i ] ) )
-                endif
+                Endif
               Endif
             Next
           Endif
@@ -2428,8 +2445,8 @@ Function s_mnog_poisk()
       Close databases
       If lExcel
         workbook_close( workbook )
-        work_with_Excel_file( name_fileXLS_full )
-      else
+        work_with_excel_file( name_fileXLS_full )
+      Else
         FClose( fp )
         viewtext( name_file, , , , .t., , , reg_print )
       Endif
@@ -2441,13 +2458,14 @@ Function s_mnog_poisk()
 
   Return Nil
 
-// 27.05.23
+// 27.11.24
 Static Function s1_mnog_poisk( cv, cf )
 
   Static a_stom_vp := { {}, {}, {} }
   Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2, vid_vp := 1, ;
     au := {}, au_lu := {}, au_flu := {}, msumma, mn_data, rec_1 := 0, is_2 := .f., ;
     mrak_p := 0, mrak_s := 0, d, lshifr, muet := 0, god_r, arr1, adiag_talon[ 16 ]  // из статталона к диагнозам
+  Private m1tip_mas
 
   If Empty( a_stom_vp[ 1 ] )
     f_vid_p_stom( {}, {}, a_stom_vp[ 1 ], { 1 } )
@@ -2635,7 +2653,7 @@ Static Function s1_mnog_poisk( cv, cf )
   Endif
   If fl .and. !Empty( mn->npr_mo )
     fl := ( human_->npr_mo  == mn->npr_mo  )
-  endif 
+  Endif
   If fl .and. !Empty( much_doc )
     fl := Like( much_doc, human->uch_doc )
   Endif
@@ -2809,7 +2827,6 @@ Static Function s1_mnog_poisk( cv, cf )
         Private &pole_diag := Space( 6 )
         Private &pole_1pervich := 0
       Next
-      read_arr_dvn( human->kod )
       arr := {}
       For i := 1 To 5
         pole_diag := 'mdiag' + lstr( i )
@@ -2987,6 +3004,20 @@ Static Function s1_mnog_poisk( cv, cf )
     Endif
   Endif
   k := human->k_data - mn_data + 1
+  // масса в Диспансеризации
+  If fl .and. mn->massa_t > 0
+    If Between( human->ishod, 201, 203 )
+      pole_weight := 'mweight'
+      pole_heght  := 'mheight'
+      Private := &pole_weight := 160
+      Private := &pole_heght := 60
+      read_arr_dvn( human->kod )
+      ret_tip_mas( mweight, mheight, @m1tip_mas )
+      fl := ( mn->massa_t == m1tip_mas )
+    Else
+      fl := .f.
+    Endif
+  Endif
   If fl .and. mn->srok_min > 0
     fl := ( mn->srok_min <= k )
   Endif
@@ -3017,7 +3048,7 @@ Static Function s1_mnog_poisk( cv, cf )
             lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
             AAdd( au_lu, { lshifr, ;              // 1
               c4tod( hu->date_u ), ;               // 2
-            hu_->profil, ;         // 3
+              hu_->profil, ;         // 3
             hu_->PRVS, ;           // 4
             AllTrim( usl->shifr ), ; // 5
             hu->kol_1, ;           // 6
@@ -3182,7 +3213,7 @@ Static Function s1_mnog_poisk( cv, cf )
                   If i == 1
                     s := hu->date_u
                   Else
-                    s := dtoc4( c4tod( hu->date_u ) + i -1 )
+                    s := dtoc4( c4tod( hu->date_u ) + i - 1 )
                   Endif
                   Select TMP_KP
                   find ( Str( human->kod_k, 7 ) + s )
@@ -3264,7 +3295,7 @@ Static Function s1_mnog_poisk( cv, cf )
       suet += muet
     Endif
     f2_diag_statist_bukva()
-    If ++cf % 5000 == 0
+    If++cf % 5000 == 0
       tmp->( dbCommit() )
       tmp_k->( dbCommit() )
     Endif

@@ -2,7 +2,6 @@
 chip_mo.rc
 mo_adres.prg
 mo_main.prg
-mo_omsi.prg
 mo_st39.prg
 mo_vounc.prg
 mo_version.prg
@@ -135,6 +134,7 @@ mo_version.prg
 .\oms\conditionKSLP_22.prg
 .\oms\conditionKSLP_23.prg
 .\oms\conditionKSLP_24.prg
+.\oms\conditionKSLP_25.prg
 .\oms\diagnoze.prg
 .\oms\mo_oms131.prg
 .\oms\errorFromTFOMS.prg
@@ -159,6 +159,7 @@ mo_version.prg
 .\oms\mo_oms1.prg
 .\oms\mo_omsf.prg
 .\oms\disability_certificate.prg
+.\oms\mo_omsi.prg
 
 .\personal\personal_func.prg
 
