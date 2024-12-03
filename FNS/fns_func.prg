@@ -5,7 +5,7 @@
 #include 'harupdf.ch'
 #include 'chip_mo.ch'
 
-// 26.11.24
+// 03.12.24
 FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   Local detail_font_name, detail_font_nameBold
@@ -16,9 +16,10 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
   Local TTFArial := dir_fonts() + 'arial.ttf'
   Local TTFArialBold := dir_fonts() + 'arialbd.ttf'
   Local TTFCourier := dir_fonts() + 'cour.ttf'
-  Local TTFEanGnivc := dir_fonts() + 'Eang000'
+  Local TTFEanGnivc := dir_fonts() + 'Eang000.ttf'
 
   LOCAL pdf := HPDF_New()
+  local fl := .t.
 
   IF pdf == NIL
     func_error( 4, 'Справка для ФНС не может быть создана!' )
@@ -34,7 +35,7 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
   AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_nameBold, 'CP1251' ) )
   AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_courier, 'CP1251' ) )
   AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_eangnivc, 'CP1251' ) )
-  
+
   /* установим режим сжатия */
   HPDF_SetCompressionMode( pdf, HPDF_COMP_ALL )
 
@@ -48,12 +49,13 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
 //    func_error( 4, '0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
-    func_error( 4, hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ) ) // + ' ' + HPDF_GetErrorDetail( pdf ) )
+    func_error( 4, 'Ошибка создания печатной формы справки для ФНС!' )
+    fl := .f.
   ENDIF
 
   HPDF_Free( pdf )
 
-  RETURN hb_FileExists( cFileToSave )
+  RETURN fl //  hb_FileExists( cFileToSave )
 
 // 27.07.24
 function mm_to_pt( x_y )
@@ -92,14 +94,11 @@ function out_kvadr( pg, x, y )
    HPDF_Page_SetDash( pg, , 0, 0 )
 
    HPDF_Page_SetLineWidth( pg, 15 )
-//   HPDF_Page_SetRGBStroke( pg, 0.0, 0.5, 0.0 )
 
    /* Line Cap Style */
    HPDF_Page_SetLineCap( pg, HPDF_BUTT_END )
 
-//   HPDF_Page_MoveTo( pg, x + 30, y - 25 )
    HPDF_Page_MoveTo( pg, mm_to_pt( x ) + 15, mm_to_pt( y ) ) //- 25 )
-//   HPDF_Page_LineTo( pg, x + 160, y - 25 )
    HPDF_Page_LineTo( pg, mm_to_pt( x ) + 30, mm_to_pt( y ) ) //- 25 )
    HPDF_Page_Stroke( pg )
 
@@ -129,7 +128,6 @@ function out_format( pg, x, y, sText )
 
   local i
 
-//  sText := win_OEMToANSI( sText )
   for i := 1 to len( sText )
     out_text( pg, x + ( i - 1 ) * 5, y, substr( sText, i, 1 ) )
   next

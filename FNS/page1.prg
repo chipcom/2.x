@@ -3,11 +3,10 @@
 #include 'harupdf.ch'
 #include 'chip_mo.ch'
 
-// 11.11.24
+// 03.12.24
 function designPage1( pdf, hArr, aFonts )
 
   local page, i, j, t_arr := {}
-  local sh_code26901015, x, y, iw, ih
   local old_set := __SetCentury( 'on' )
 
   /* добавим новый объект СТРАНИЦА. */
@@ -112,20 +111,8 @@ function designPage1( pdf, hArr, aFonts )
   out_kvadr( page, 0, 7 )
   out_kvadr( page, 195, 7 )
 
-  // out_text( page, 7, 284, create_string_EanGnivc( '26901015' ) )
-
-//   /* load image file. */
-//   //  sh_code26901015 := HPDF_LoadPngImageFromFile( pdf, cImagePath + '26901015.png' )
-//   sh_code26901015 := HPDF_LoadPngImageFromFile( pdf, dir_exe + '26901015.png' )
-
-//   iw := HPDF_Image_GetWidth( sh_code26901015 )
-//   ih := HPDF_Image_GetHeight( sh_code26901015 )
-
-//   x := 37
-//   y := HPDF_Page_GetHeight( page ) - 48
-
-//   /* Draw image to the canvas. (normal-mode with actual size.) */
-// //  HPDF_Page_DrawImage( page, sh_code26901015, x, y, iw, ih )
+  HPDF_Page_SetFontAndSize( page, aFonts[ 4 ], 43 )
+  out_text( page, 7, 284, create_string_EanGnivc( '26901015' ) )
 
   // заполняем поля
   HPDF_Page_SetFontAndSize( page, aFonts[ FONT_COURIER ], 16 )
