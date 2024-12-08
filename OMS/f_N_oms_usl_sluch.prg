@@ -3,8 +3,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
     
-// 25.06.24 ввод услуг в лист учёта
-Function f2oms_usl_sluch(nKey, oBrow)
+// 08.12.24 ввод услуг в лист учёта 
+Function f2oms_usl_sluch( nKey, oBrow )
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF, ;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
   LOCAL flag := -1, buf := savescreen(), fl := .f., rec, max_date, new_date, ;
@@ -22,6 +22,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
   local aUslMedReab
   local mdate_end
   local aReab, mvto := 0
+  local info_disp_nabl := 0
 
   static old_date_usl, new_date_usl
 
@@ -590,8 +591,11 @@ Function f2oms_usl_sluch(nKey, oBrow)
                   reader {|x|menu_reader(x,{{|k, r, c|f_get_mo(k, r, c, , 2)}}, A__FUNCTION, , , .f.)} ;
                   when iif(empty(mshifr), pr_amb_reab, pr_amb_reab .and. left(mshifr1, 2) == '4.')
             endif
-            if !(is_gist .or. pr_amb_reab)
-              @ row_dom, 35 say 'Дата след.явки для дисп.набл-ия' get mdate_next when fl_date_next
+            if ! ( is_gist .or. pr_amb_reab )
+              info_disp_nabl := val( substr( human_->DISPANS, 2, 1 ) )  // получим сведения по диспансерному наблюдению по основному заболеванию
+              if ! ( eq_any( info_disp_nabl, 4, 6 ) ) // согласно письму ТФОМС 09-20-615 от 21.11.24
+                @ row_dom, 35 say 'Дата след.явки для дисп.набл-ия' get mdate_next when fl_date_next
+              endif
             endif
           endif
           if human_->usl_ok < 3
