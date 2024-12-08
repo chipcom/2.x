@@ -8,7 +8,7 @@
 
 // Static sadiag1
 
-// 28.11.24
+// 08.12.24
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -51,6 +51,7 @@ Function verify_sluch( fl_view )
   local cuch_doc, gnot_disp, gkod_diag, gusl_ok
   local counter, arr_lfk
   local mPCEL := ''
+  local info_disp_nabl := 0, ldate_next
 
   Default fl_view To .t.
 
@@ -1202,11 +1203,14 @@ Function verify_sluch( fl_view )
         If is_usluga_disp_nabl( alltrim_lshifr )
           mpovod := 4 // 1.3-Диспансерное наблюдение
           ldate_next := c4tod( human->DATE_OPL )
-          If Empty( ldate_next )
-            AAdd( ta, 'для услуги ' + alltrim_lshifr + ' не заполнена "Дата следующей явки пациента для диспансерного наблюдения"' )
-          Elseif ldate_next < dEnd
-            AAdd( ta, 'для услуги ' + alltrim_lshifr + ' "дата следующей явки пациента для диспансерного наблюдения" меньше даты окончания лечения' )
-          Endif
+          info_disp_nabl := val( substr( human_->DISPANS, 2, 1 ) )  // получим сведения по диспансерному наблюдению по основному заболеванию
+          if ! ( eq_any( info_disp_nabl, 4, 6 ) ) // согласно письму ТФОМС 09-20-615 от 21.11.24
+            If Empty( ldate_next )
+              AAdd( ta, 'для услуги ' + alltrim_lshifr + ' не заполнена "Дата следующей явки пациента для диспансерного наблюдения"' )
+            Elseif ldate_next < dEnd
+              AAdd( ta, 'для услуги ' + alltrim_lshifr + ' "дата следующей явки пациента для диспансерного наблюдения" меньше даты окончания лечения' )
+            Endif
+          endif
         Endif
         kvp += hu->kol_1
         hu_->PZTIP := mPZTIP
