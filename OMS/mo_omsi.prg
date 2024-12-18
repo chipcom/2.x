@@ -53,7 +53,7 @@ Function f_usl_schet_akt( loplata )
 
   Return fl
 
-// 25.06.23 статистика
+// 18.12.24 статистика
 Function e_statist( k )
 
   Static si1 := 1, si2 := 3, si3 := 1, si4 := 1, si5 := 1, si6 := 1, ;
@@ -252,11 +252,11 @@ Function e_statist( k )
       'e_statist(185)', ;
       'e_statist(186)', ;
       'e_statist(187)' }
-    If glob_mo[ _MO_KOD_TFOMS ] == '103001' // онкодиспансер
-      AAdd( mas_pmt, 'Отчёт для ФГБУ "НМИЦ онкологии им.Н.Н.Петрова"' )
-      AAdd( mas_msg, 'Отчёт для ФГБУ "НМИЦ онкологии им.Н.Н.Петрова"' )
-      AAdd( mas_fun, 'ot_nmic_petrova()' )
-    Endif
+//    If glob_mo[ _MO_KOD_TFOMS ] == '103001' // онкодиспансер
+//      AAdd( mas_pmt, 'Отчёт для ФГБУ "НМИЦ онкологии им.Н.Н.Петрова"' )
+//      AAdd( mas_msg, 'Отчёт для ФГБУ "НМИЦ онкологии им.Н.Н.Петрова"' )
+//      AAdd( mas_fun, 'ot_nmic_petrova()' )
+//    Endif
     popup_prompt( T_ROW, T_COL -5, si18, mas_pmt, mas_msg, mas_fun )
   Case k == 181
     pr_inog_inostr()
