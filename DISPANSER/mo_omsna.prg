@@ -34,8 +34,8 @@ Function f_init_d01()
     { "KOD_DIAG", "C", 5, 0 }, ; // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
     { "N_DATA",   "D", 8, 0 }, ; // дата начала диспансерного наблюдения
     { "LU_DATA",  "D", 8, 0 }, ; // дата листа учёта с целью диспансерного наблюдения
-    { "NEXT_DATA","D", 8, 0 }, ; // дата следующей явки с целью диспансерного наблюдения
-    { "FREQUENCY","N", 2, 0 }, ; // количество месяцев в течение которых предполагается одна явка пациента
+    { "NEXT_DATA", "D", 8, 0 }, ; // дата следующей явки с целью диспансерного наблюдения
+    { "FREQUENCY", "N", 2, 0 }, ; // количество месяцев в течение которых предполагается одна явка пациента
     { "MESTO",    "N", 1, 0 }, ;  // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
     { "PEREHOD0", "N", 1, 0 };   // переход 2025
   }
@@ -188,7 +188,7 @@ Function disp_nabludenie( k )
       "Просмотр информации по результатам диспансерного наблюдения" }
     mas_fun := { "disp_nabludenie(11)", ;
       "disp_nabludenie(12)" }
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
     mas_pmt := { "Первичный ~ввод", ;
       "~Информация", ;
@@ -199,7 +199,7 @@ Function disp_nabludenie( k )
     mas_fun := { "disp_nabludenie(21)", ;
       "disp_nabludenie(22)", ;
       "disp_nabludenie(23)" }
-    popup_prompt( T_ROW, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 21
     mas_pmt := { "Ввод с поиском по лечащему ~врачу", ;
       "Ввод с поиском по ~пациенту", ;
@@ -210,7 +210,7 @@ Function disp_nabludenie( k )
     mas_fun := { "disp_nabludenie(51)", ;
       "disp_nabludenie(52)", ;
       "disp_nabludenie(53)"   }
-    popup_prompt( T_ROW, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si5, mas_pmt, mas_msg, mas_fun )
   Case k == 22
     mas_pmt := { "Информация по ~первичному вводу", ;
       "Список обязательных ~диагнозов" }
@@ -218,7 +218,7 @@ Function disp_nabludenie( k )
       "Список диагнозов, обязательных для диспансерного наблюдения" }
     mas_fun := { "disp_nabludenie(41)", ;
       "disp_nabludenie(42)" }
-    popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
   Case k == 23
     mas_pmt := { "~Создание файла обмена D01", ;
       "~Просмотр файлов обмена D01" }
@@ -226,7 +226,7 @@ Function disp_nabludenie( k )
       "Просмотр файлов обмена D01... и результатов работы с ними" }
     mas_fun := { "disp_nabludenie(31)", ;
       "disp_nabludenie(32)" }
-    popup_prompt( T_ROW, T_COL - 5, si3, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si3, mas_pmt, mas_msg, mas_fun )
   Case k == 41
     inf_disp_nabl()
   Case k == 42
@@ -243,7 +243,7 @@ Function disp_nabludenie( k )
     vvodn_disp_nabl()
   Case k == 12
     mas_pmt := { "~Отсутствуют л/у с диспансерным наблюдением", ;
-      "~Существуют л/у с диспансерным наблюдением",;
+      "~Существуют л/у с диспансерным наблюдением", ;
       "~Ежемесячный прирост ДН за 2024год" }
     mas_msg := { "Список пациентов, у которых осутствуют л/у с диспансерным наблюдением", ;
       "Список пациентов, у которых существуют л/у с диспансерным наблюдением", ;
@@ -251,14 +251,14 @@ Function disp_nabludenie( k )
     mas_fun := { "disp_nabludenie(61)", ;
       "disp_nabludenie(62)", ;
       "disp_nabludenie(63)"  }
-    popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si6, mas_pmt, mas_msg, mas_fun )
   Case k == 61
     f_inf_disp_nabl( 1 )
   Case k == 62
     f_inf_disp_nabl( 2 )
   Case k == 63
-    ne_real()
-    // f_inf_prirost_disp_nabl(  )
+    // ne_real()
+    f_inf_prirost_disp_nabl()
   Endcase
   If k > 10
     j := Int( Val( Right( lstr( k ), 1 ) ) )
@@ -467,178 +467,183 @@ Function  vvodn_disp_nabl()
   Local new_hum := 0, new_diag := 0
   Static S_sem := "disp_nabludenie"
 
-  If f_esc_enter( "Подгрузка новых ДН", .t. )
-    Close databases
-    If !g_slock( S_sem )
-      Return func_error( 4, "Доступ в данный режим пока запрещён" )
-    Endif
-    buf := save_maxrow()
-    waitstatus( "Ждите! Составляется список по диспансерному наблюдению на 2024 год" )
-    // f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
-    // проверяем на изменение приказа - если диагноза нет - удаляем пациента из списка
-    Use ( dir_server + "mo_dnab" ) New Alias DN
-    Index On Str( KOD_K, 7 ) + KOD_DIAG to ( dir_server + "mo_dnab" )
-    // очистка завершена
-    //
-    r_use( dir_server + "uslugi",, "USL" )
-    r_use( dir_server + "human_u_",, "HU_" )
-    r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-    Set Relation To RecNo() into HU_, To u_kod into USL
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human",, "HUMAN" )
-    Set Relation To RecNo() into HUMAN_
-    Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_hfio" ) For human_->usl_ok == 3 .and. k_data > 0d20240101 // ЮЮ
-    // ОТрабатываем 2024 ТЕКУЩИЙ
-    Go Top
-    Do While !Eof()
-      updatestatus()
-      If 0 == fvdn_date_r( sys_date, human->date_r )  // контроль по ДР
-        mdiagnoz := diag_for_xml(, .t.,,, .t. )
-        ar_dn := {}
-        If Between( human->ishod, 201, 205 )
-          adiag_talon := Array( 16 )
-          AFill( adiag_talon, 0 )
-          For i := 1 To 16
-            adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
-          Next
-          For i := 1 To Len( mdiagnoz )
-            If !Empty( mdiagnoz[ i ] ) .and. f_is_diag_dn( mdiagnoz[ i ],,, .f. )
-              s := 3 // не подлежит диспансерному наблюдению
-              If adiag_talon[ i * 2 -1 ] == 1 // впервые
-                If adiag_talon[ i * 2 ] == 2
-                  s := 2 // взят на диспансерное наблюдение
-                Endif
-              Elseif adiag_talon[ i * 2 -1 ] == 2 // ранее
-                If adiag_talon[ i * 2 ] == 1
-                  s := 1 // состоит на диспансерном наблюдении
-                Elseif adiag_talon[ i * 2 ] == 2
-                  s := 2 // взят на диспансерное наблюдение
-                Endif
-              Endif
-              If eq_any( s, 1, 2 ) // взят или состоит на диспансерное наблюдение
-                AAdd( ar_dn, AllTrim( mdiagnoz[ i ] ) )
-              Endif
-            Endif
-          Next
-          If !Empty( ar_dn ) // взят на диспансерное наблюдение
-            For i := 1 To 5
-              sk := lstr( i )
-              pole_diag := "mdiag" + sk
-              pole_1dispans := "m1dispans" + sk
-              pole_dn_dispans := "mdndispans" + sk
-              &pole_diag := Space( 6 )
-              &pole_1dispans := 0
-              &pole_dn_dispans := CToD( "" )
+  If f_esc_enter( "Загрузка новых ДН за 2024год", .t. )
+    s := 'Подтвердите загрузку новых ДН из листов учета за текущий год'
+    stat_msg( s )
+    mybell( 2 )
+    If f_esc_enter( "Загрузить новые ДН за 2024год", .t. )
+      Close databases
+      If !g_slock( S_sem )
+        Return func_error( 4, "Доступ в данный режим пока запрещён" )
+      Endif
+      buf := save_maxrow()
+      waitstatus( "Ждите! Составляется список по диспансерному наблюдению на 2024 год" )
+      // f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
+      // проверяем на изменение приказа - если диагноза нет - удаляем пациента из списка
+      Use ( dir_server + "mo_dnab" ) New Alias DN
+      Index On Str( KOD_K, 7 ) + KOD_DIAG to ( dir_server + "mo_dnab" )
+      // очистка завершена
+      //
+      r_use( dir_server + "uslugi",, "USL" )
+      r_use( dir_server + "human_u_",, "HU_" )
+      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+      Set Relation To RecNo() into HU_, To u_kod into USL
+      r_use( dir_server + "human_",, "HUMAN_" )
+      r_use( dir_server + "human",, "HUMAN" )
+      Set Relation To RecNo() into HUMAN_
+      Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_hfio" ) For human_->usl_ok == 3 .and. k_data > 0d20240101 // ЮЮ
+      // ОТрабатываем 2024 ТЕКУЩИЙ
+      Go Top
+      Do While !Eof()
+        updatestatus()
+        If 0 == fvdn_date_r( sys_date, human->date_r )  // контроль по ДР
+          mdiagnoz := diag_for_xml(, .t.,,, .t. )
+          ar_dn := {}
+          If Between( human->ishod, 201, 205 )
+            adiag_talon := Array( 16 )
+            AFill( adiag_talon, 0 )
+            For i := 1 To 16
+              adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
             Next
-            read_arr_dvn( human->kod )
-            For i := 1 To 5
-              sk := lstr( i )
-              pole_diag := "mdiag" + sk
-              pole_1dispans := "m1dispans" + sk
-              pole_dn_dispans := "mdndispans" + sk
-              If !Empty( &pole_diag ) .and. &pole_1dispans == 1 .and. !Empty( &pole_dn_dispans ) ;
-                  .and. ( j := AScan( ar_dn, AllTrim( &pole_diag ) ) ) > 0
-                Select DN
-                find ( Str( human->KOD_K, 7 ) + PadR( ar_dn[ j ], 5 ) )
-                If !Found()
-                  new_diag++
-                  addrec( 7 )
-                  dn->KOD_K := human->KOD_K
-                  dn->KOD_DIAG := ar_dn[ j ]
-                Endif
-                dn->VRACH := human_->vrach
-                dn->PRVS := human_->prvs
-                If Empty( dn->N_DATA )
-                  dn->N_DATA := human->k_data // дата начала диспансерного наблюдения
-                Endif
-                //
-                dn->LU_DATA := human->k_data // дата листа учёта с целью диспансерного наблюдения
-                dn->NEXT_DATA := &pole_dn_dispans // дата следующей явки с целью диспансерного наблюдения
-                If !emptyany( dn->LU_DATA, dn->NEXT_DATA ) .and. dn->NEXT_DATA > dn->LU_DATA
-                  n := Round( ( dn->NEXT_DATA - dn->LU_DATA ) / 30, 0 ) // количество месяцев в течение которых предполагается одна явка пациента
-                  If Between( n, 1, 99 )
-                    dn->FREQUENCY := n
+            For i := 1 To Len( mdiagnoz )
+              If !Empty( mdiagnoz[ i ] ) .and. f_is_diag_dn( mdiagnoz[ i ],,, .f. )
+                s := 3 // не подлежит диспансерному наблюдению
+                If adiag_talon[ i * 2 -1 ] == 1 // впервые
+                  If adiag_talon[ i * 2 ] == 2
+                    s := 2 // взят на диспансерное наблюдение
+                  Endif
+                Elseif adiag_talon[ i * 2 -1 ] == 2 // ранее
+                  If adiag_talon[ i * 2 ] == 1
+                    s := 1 // состоит на диспансерном наблюдении
+                  Elseif adiag_talon[ i * 2 ] == 2
+                    s := 2 // взят на диспансерное наблюдение
                   Endif
                 Endif
-              Endif
-            Next
-          Endif
-        Else
-          For i := 1 To Len( mdiagnoz )
-            If !Empty( mdiagnoz[ i ] ) .and. f_is_diag_dn( mdiagnoz[ i ],,, .f. )
-              AAdd( ar_dn, PadR( mdiagnoz[ i ], 5 ) )
-            Endif
-          Next
-          If !Empty( ar_dn ) // диагнозы из списка диспансерного наблюдения
-            Select HU
-            find ( Str( human->kod, 7 ) )
-            Do While hu->kod == human->kod .and. !Eof()
-              lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
-              If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data )
-                lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
-                If is_usluga_disp_nabl( lshifr )
-                  For i := 1 To Len( ar_dn )
-                    Select DN
-                    find ( Str( human->KOD_K, 7 ) + ar_dn[ i ] )
-                    If !Found()
-                      addrec( 7 )
-                      dn->KOD_K := human->KOD_K
-                      dn->KOD_DIAG := ar_dn[ i ]
-                    Endif
-                    dn->VRACH := hu->KOD_VR
-                    dn->PRVS := hu_->prvs // Специальность врача по справочнику V004, с минусом - по справочнику V015
-                    If Empty( dn->N_DATA )
-                      dn->N_DATA := human->k_data // дата начала диспансерного наблюдения
-                    Endif
-                    //
-                    dn->LU_DATA := human->k_data // дата листа учёта с целью диспансерного наблюдения
-                    dn->NEXT_DATA := c4tod( human->DATE_OPL ) // дата следующей явки с целью диспансерного наблюдения
-                    If !emptyany( dn->LU_DATA, dn->NEXT_DATA ) .and. dn->NEXT_DATA > dn->LU_DATA
-                      n := Round( ( dn->NEXT_DATA - dn->LU_DATA ) / 30, 0 ) // количество месяцев в течение которых предполагается одна явка пациента
-                      If Between( n, 1, 99 )
-                        dn->FREQUENCY := n
-                      Endif
-                    Endif
-                    dn->MESTO := iif( hu->KOL_RCP < 0, 1, 0 ) // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
-                  Next i
+                If eq_any( s, 1, 2 ) // взят или состоит на диспансерное наблюдение
+                  AAdd( ar_dn, AllTrim( mdiagnoz[ i ] ) )
                 Endif
               Endif
+            Next
+            If !Empty( ar_dn ) // взят на диспансерное наблюдение
+              For i := 1 To 5
+                sk := lstr( i )
+                pole_diag := "mdiag" + sk
+                pole_1dispans := "m1dispans" + sk
+                pole_dn_dispans := "mdndispans" + sk
+                &pole_diag := Space( 6 )
+                &pole_1dispans := 0
+                &pole_dn_dispans := CToD( "" )
+              Next
+              read_arr_dvn( human->kod )
+              For i := 1 To 5
+                sk := lstr( i )
+                pole_diag := "mdiag" + sk
+                pole_1dispans := "m1dispans" + sk
+                pole_dn_dispans := "mdndispans" + sk
+                If !Empty( &pole_diag ) .and. &pole_1dispans == 1 .and. !Empty( &pole_dn_dispans ) ;
+                    .and. ( j := AScan( ar_dn, AllTrim( &pole_diag ) ) ) > 0
+                  Select DN
+                  find ( Str( human->KOD_K, 7 ) + PadR( ar_dn[ j ], 5 ) )
+                  If !Found()
+                    new_diag++
+                    addrec( 7 )
+                    dn->KOD_K := human->KOD_K
+                    dn->KOD_DIAG := ar_dn[ j ]
+                  Endif
+                  dn->VRACH := human_->vrach
+                  dn->PRVS := human_->prvs
+                  If Empty( dn->N_DATA )
+                    dn->N_DATA := human->k_data // дата начала диспансерного наблюдения
+                  Endif
+                  //
+                  dn->LU_DATA := human->k_data // дата листа учёта с целью диспансерного наблюдения
+                  dn->NEXT_DATA := &pole_dn_dispans // дата следующей явки с целью диспансерного наблюдения
+                  If !emptyany( dn->LU_DATA, dn->NEXT_DATA ) .and. dn->NEXT_DATA > dn->LU_DATA
+                    n := Round( ( dn->NEXT_DATA - dn->LU_DATA ) / 30, 0 ) // количество месяцев в течение которых предполагается одна явка пациента
+                    If Between( n, 1, 99 )
+                      dn->FREQUENCY := n
+                    Endif
+                  Endif
+                Endif
+              Next
+            Endif
+          Else
+            For i := 1 To Len( mdiagnoz )
+              If !Empty( mdiagnoz[ i ] ) .and. f_is_diag_dn( mdiagnoz[ i ],,, .f. )
+                AAdd( ar_dn, PadR( mdiagnoz[ i ], 5 ) )
+              Endif
+            Next
+            If !Empty( ar_dn ) // диагнозы из списка диспансерного наблюдения
               Select HU
-              Skip
-            Enddo
+              find ( Str( human->kod, 7 ) )
+              Do While hu->kod == human->kod .and. !Eof()
+                lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
+                If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data )
+                  lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
+                  If is_usluga_disp_nabl( lshifr )
+                    For i := 1 To Len( ar_dn )
+                      Select DN
+                      find ( Str( human->KOD_K, 7 ) + ar_dn[ i ] )
+                      If !Found()
+                        addrec( 7 )
+                        dn->KOD_K := human->KOD_K
+                        dn->KOD_DIAG := ar_dn[ i ]
+                      Endif
+                      dn->VRACH := hu->KOD_VR
+                      dn->PRVS := hu_->prvs // Специальность врача по справочнику V004, с минусом - по справочнику V015
+                      If Empty( dn->N_DATA )
+                        dn->N_DATA := human->k_data // дата начала диспансерного наблюдения
+                      Endif
+                      //
+                      dn->LU_DATA := human->k_data // дата листа учёта с целью диспансерного наблюдения
+                      dn->NEXT_DATA := c4tod( human->DATE_OPL ) // дата следующей явки с целью диспансерного наблюдения
+                      If !emptyany( dn->LU_DATA, dn->NEXT_DATA ) .and. dn->NEXT_DATA > dn->LU_DATA
+                        n := Round( ( dn->NEXT_DATA - dn->LU_DATA ) / 30, 0 ) // количество месяцев в течение которых предполагается одна явка пациента
+                        If Between( n, 1, 99 )
+                          dn->FREQUENCY := n
+                        Endif
+                      Endif
+                      dn->MESTO := iif( hu->KOL_RCP < 0, 1, 0 ) // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
+                    Next i
+                  Endif
+                Endif
+                Select HU
+                Skip
+              Enddo
+            Endif
           Endif
         Endif
-      Endif
-      Select HUMAN
-      Skip
-    Enddo
-    Commit
-    Select DN
-    Go Top
-    Do While !Eof()
-      updatestatus()
-      If !Empty( dn->LU_DATA )
-        If dn->FREQUENCY == 0
-          dn->FREQUENCY := 1
+        Select HUMAN
+        Skip
+      Enddo
+      Commit
+      Select DN
+      Go Top
+      Do While !Eof()
+        updatestatus()
+        If !Empty( dn->LU_DATA )
+          If dn->FREQUENCY == 0
+            dn->FREQUENCY := 1
+          Endif
+          k := Year( dn->NEXT_DATA )
+          If !Between( k, 2023, 2025 ) // ЮЮ если некорректная дата след.визита
+            dn->NEXT_DATA := AddMonth( dn->LU_DATA, 12 )
+          Endif
+          Do While dn->NEXT_DATA < 0d20250101 // ЮЮ
+            dn->NEXT_DATA := AddMonth( dn->NEXT_DATA, dn->FREQUENCY )
+          Enddo
+          If dn->NEXT_DATA < 0d20250101
+            dn->FREQUENCY := 0
+          Endif
         Endif
-        k := Year( dn->NEXT_DATA )
-        If !Between( k, 2023, 2025 ) // ЮЮ если некорректная дата след.визита
-          dn->NEXT_DATA := AddMonth( dn->LU_DATA, 12 )
-        Endif
-        Do While dn->NEXT_DATA < 0d20250101 // ЮЮ
-          dn->NEXT_DATA := AddMonth( dn->NEXT_DATA, dn->FREQUENCY )
-        Enddo
-        If dn->NEXT_DATA < 0d20250101
-          dn->FREQUENCY := 0
-        Endif
-      Endif
-      Skip
-    Enddo
-    Close databases
-    //
-    rest_box( buf )
-    g_sunlock( S_sem )
-    func_error( 4, "Добавлено " + lstr( new_diag ) + " пациентов на ДН" )
+        Skip
+      Enddo
+      Close databases
+      //
+      rest_box( buf )
+      g_sunlock( S_sem )
+      func_error( 4, "Добавлено " + lstr( new_diag ) + " пациентов на ДН" )
+    Endif
   Endif
 
   Return Nil
@@ -651,10 +656,10 @@ Function vvodp_disp_nabl()
   mywait()
   dbCreate( "tmp_kart", { ;
     { "KOD_K",    "N", 7, 0 }, ; // код по картотеке
-  { "FIO",      "C", 50, 0 }, ;
+    { "FIO",      "C", 50, 0 }, ;
     { "POL",      "C", 1, 0 }, ;
     { "DATE_R",   "D", 8, 0 };
-    } )
+  } )
   Use ( cur_dir + "tmp_kart" ) new
   r_use( dir_server + "kartotek",, "_KART" )
   use_base( "mo_dnab" )
@@ -775,7 +780,7 @@ Function f3vvodp_disp_nabl( nKey, oBrow, regim )
       Endif
       Private gl_area := { 1, 0, MaxRow() -1, 79, 0 }, ;
         mKOD_DIAG := iif( nKey == K_INS, Space( 5 ), dn->kod_diag ), ;
-        mN_DATA := iif( nKey == K_INS, sys_date - 1, dn->n_data ), ;
+        mN_DATA := iif( nKey == K_INS, sys_date -1, dn->n_data ), ;
         mNEXT_DATA := iif( nKey == K_INS, 0d20240101, dn->next_data ), ;  // ЮЮ
       mfrequency := iif( nKey == K_INS, 3, dn->frequency ), ;
         MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
@@ -789,9 +794,9 @@ Function f3vvodp_disp_nabl( nKey, oBrow, regim )
         mvrach := PadR( fam_i_o( p2->fio ) + " " + ret_tmp_prvs( m1prvs ), 36 )
       Endif
       p2->( dbCloseArea() )
-      r1 := pr2 - 8 ; r2 := pr2 - 1
+      r1 := pr2 -8 ; r2 := pr2 -1
       tmp_color := SetColor( cDataCScr )
-      box_shadow( r1, pc1 + 1, r2, pc2 - 1,, iif( nKey == K_INS, "Добавление", "Редактирование" ), cDataPgDn )
+      box_shadow( r1, pc1 + 1, r2, pc2 -1,, iif( nKey == K_INS, "Добавление", "Редактирование" ), cDataPgDn )
       SetColor( cDataCGet )
       Do While .t.
         @ r1 + 1, pc1 + 3 Say "Лечащий врач" Get MTAB_NOM Pict "99999" ;
@@ -1333,7 +1338,7 @@ Function vvod_disp_nabl()
   Local buf := SaveScreen(), k, s, s1, t_arr := Array( BR_LEN ), str_sem1, lcolor
   Private str_find, muslovie
 
-  If input_perso( T_ROW, T_COL - 5 )
+  If input_perso( T_ROW, T_COL -5 )
     Do While .t.
       buf := SaveScreen()
       k := -ret_new_spec( glob_human[ 7 ], glob_human[ 8 ] )
@@ -1418,8 +1423,8 @@ Function  f_inf_prirost_disp_nabl()
     { "KOD_K",  "N",  7, 0 }, ;
     { "FIO",    "C",  50, 0 }, ;
     { "tip",    "N",  3, 0 }, ;   // 1-2-3-4
-  { "MES",    "N",  2, 0 };
-    } )
+    { "MES",    "N",  2, 0 };
+  } )
   afillall( arr_DN_new, 0 )
   Close databases
   If !g_slock( S_sem )
@@ -1445,7 +1450,7 @@ Function  f_inf_prirost_disp_nabl()
   Go Top
   Do While !Eof()
     updatestatus()
-    If 0 == fvdn_date_r( sys_date, human->date_r )  // контроль по ДР
+    If 0 == fvdn_date_r( sys_date, human->date_r ) .and. human->schet > 0 // контроль по ДР и отправка в ТФОМС
       mdiagnoz := diag_for_xml(, .t.,,, .t. )
       ar_dn := {}
       If Between( human->ishod, 201, 205 )
@@ -1521,7 +1526,7 @@ Function  f_inf_prirost_disp_nabl()
             AAdd( ar_dn, PadR( mdiagnoz[ i ], 5 ) )
           Endif
         Next
-        If !Empty( ar_dn ) // диагнозы из списка диспансерного наблюдения
+        /*If !Empty( ar_dn ) // диагнозы из списка диспансерного наблюдения
           Select HU
           find ( Str( human->kod, 7 ) )
           Do While hu->kod == human->kod .and. !Eof()
@@ -1550,7 +1555,7 @@ Function  f_inf_prirost_disp_nabl()
             Select HU
             Skip
           Enddo
-        Endif
+        Endif*/
       Endif
     Endif
     Select HUMAN
@@ -1703,14 +1708,14 @@ Function f1_vvod_disp_nabl( nKey, oBrow, regim )
       Endif
       Private gl_area := { 1, 0, MaxRow() -1, 79, 0 }, ;
         mKOD_DIAG := iif( nKey == K_INS, Space( 5 ), dn->kod_diag ), ;
-        mN_DATA := iif( nKey == K_INS, sys_date - 1, dn->n_data ), ;
+        mN_DATA := iif( nKey == K_INS, sys_date -1, dn->n_data ), ;
         mNEXT_DATA := iif( nKey == K_INS, 0d20240201, dn->next_data ), ; // ЮЮ - ВРЕМЕННО
       mfrequency := iif( nKey == K_INS, 3, dn->frequency ), ;
         mMESTO, m1mesto := iif( nKey == K_INS, 0, dn->mesto )
       mmesto := inieditspr( A__MENUVERT, mm_dom, m1mesto )
-      r1 := pr2 - 7 ; r2 := pr2 - 1
+      r1 := pr2 -7 ; r2 := pr2 -1
       tmp_color := SetColor( cDataCScr )
-      box_shadow( r1, pc1 + 1, r2, pc2 - 1,, iif( nKey == K_INS, "Добавление", "Редактирование" ), cDataPgDn )
+      box_shadow( r1, pc1 + 1, r2, pc2 -1,, iif( nKey == K_INS, "Добавление", "Редактирование" ), cDataPgDn )
       SetColor( cDataCGet )
       Do While .t.
         @ r1 + 1, pc1 + 3 Say "Диагноз, по поводу которого пациент подлежит дисп.наблюдению" Get mkod_diag ;
@@ -2079,13 +2084,13 @@ Function inf_disp_nabl()
         Else
           If old_row_XLS > 0
             If ( row - old_row_XLS ) > 1
-              worksheet_merge_range(  worksheet, old_row_XLS, 1, row -1, 1,  hb_StrToUTF8( old_fio ), fmt_text )
-              worksheet_merge_range(  worksheet, old_row_XLS, 2, row -1, 2,  hb_StrToUTF8( old_adres ), fmt_text )
-              worksheet_merge_range(  worksheet, old_row_XLS, 3, row -1, 3,  hb_StrToUTF8( old_DR ), fmt_text )
-              worksheet_merge_range(  worksheet, old_row_XLS, 4, row -1, 4,  hb_StrToUTF8( old_SNILS ), fmt_text )
-              worksheet_merge_range(  worksheet, old_row_XLS, 5, row -1, 5,  hb_StrToUTF8( old_ENP ), fmt_text )
-              worksheet_merge_range(  worksheet, old_row_XLS, 6, row -1, 6,  hb_StrToUTF8( old_PRIKREP ), fmt_text )
-              worksheet_merge_range(  worksheet, old_row_XLS, 7, row -1, 7,  hb_StrToUTF8( old_num_UCH  ), fmt_text )
+              worksheet_merge_range(  worksheet, old_row_XLS, 1, row - 1, 1,  hb_StrToUTF8( old_fio ), fmt_text )
+              worksheet_merge_range(  worksheet, old_row_XLS, 2, row - 1, 2,  hb_StrToUTF8( old_adres ), fmt_text )
+              worksheet_merge_range(  worksheet, old_row_XLS, 3, row - 1, 3,  hb_StrToUTF8( old_DR ), fmt_text )
+              worksheet_merge_range(  worksheet, old_row_XLS, 4, row - 1, 4,  hb_StrToUTF8( old_SNILS ), fmt_text )
+              worksheet_merge_range(  worksheet, old_row_XLS, 5, row - 1, 5,  hb_StrToUTF8( old_ENP ), fmt_text )
+              worksheet_merge_range(  worksheet, old_row_XLS, 6, row - 1, 6,  hb_StrToUTF8( old_PRIKREP ), fmt_text )
+              worksheet_merge_range(  worksheet, old_row_XLS, 7, row - 1, 7,  hb_StrToUTF8( old_num_UCH  ), fmt_text )
             Endif
           Endif
           old_row_XLS := row
@@ -2350,14 +2355,15 @@ Function f_create_d01()
     rest_box( buf )
     Return Nil
   Endif
-
   Select REES
   Set Index To
   g_use( dir_server + "mo_d01d",, "DD" )
   Index On Str( kod_d, 6 ) to ( cur_dir + "tmp_d01d" )
   g_use( dir_server + "mo_d01k",, "DK" )
   Index On Str( reestr, 6 ) to ( cur_dir + "tmp_d01k" )
+  iii := 0
   Do While .t.
+    iii++
     Select DK
     find ( Str( 0, 6 ) ) // если во время создания D01...XML операция не была корректно завершена
     If Found()
@@ -2375,20 +2381,25 @@ Function f_create_d01()
     Else
       Exit
     Endif
+    If iii % 500 == 0
+      Commit
+      my_debug(, iii )
+      my_debug(, Time() )
+    Endif
   Enddo
   Commit
-
+  // quit
   dbCreate( cur_dir + "tmp", { { "KOD_K", "N", 7, 0 }, ;
     { "KOD_DN", "N", 7, 0 }, ;
     { "KOD_DIAG", "C", 5, 0 }, ;
     { "KOD_T", "N", 7, 0 } ;
-    } )
+  } )
   Use ( cur_dir + "tmp" ) new
   dbCreate( cur_dir + "tmp1", { { "KOD_K", "N", 7, 0 }, ;
     { "KOD_DN", "N", 7, 0 }, ;
     { "KOD_DIAG", "C", 5, 0 }, ;
     { "KOD_T", "N", 7, 0 } ;
-    } )
+  } )
   Use ( cur_dir + "tmp1" ) new
   Select DK
   Set Relation To reestr into REES
@@ -3034,7 +3045,7 @@ Function f3_view_d01( oBrow )
   If r <= 12
     r1 := r + 1 ; r2 := r1 + Len( mm_menu ) + 1
   Else
-    r2 := r - 1 ; r1 := r2 - Len( mm_menu ) -1
+    r2 := r -1 ; r1 := r2 - Len( mm_menu ) -1
   Endif
   rest_box( buf )
   If Len( mm_menu ) == 1
@@ -3149,7 +3160,7 @@ Function reestr_d01_tmpfile( oXmlDoc, aerr, mname_xml )
     { "UL",         "C", 120, 0 }, ;
     { "kod_k",      "N",  7, 0 }, ;
     { "OPLATA",     "N",  1, 0 };
-    } )
+  } )
   dbCreate( cur_dir + "tmp5file", { ;
     { "ZAP",        "N",  6, 0 }, ;
     { "PRVS",   "C",  4, 0 }, ;
@@ -3157,7 +3168,7 @@ Function reestr_d01_tmpfile( oXmlDoc, aerr, mname_xml )
     { "DATE_B",   "C", 10, 0 }, ;
     { "DATE_VIZIT", "C", 10, 0 }, ;
     { "FREQUENCY",  "N",  2, 0 };
-    } )
+  } )
   Use ( cur_dir + "tmp4file" ) New Alias TMP2
   Use ( cur_dir + "tmp5file" ) New Alias TMP5
   For j := 1 To Len( oXmlDoc:aItems[ 1 ]:aItems )
@@ -3233,19 +3244,19 @@ Function reestr_d02_tmpfile( oXmlDoc, aerr, mname_xml )
     { "_NAME_F",    "C", 26, 0 }, ;
     { "_NAME_FE",   "C", 26, 0 }, ;
     { "KOL",        "N",  6, 0 }, ; // количество пациентов в реестре/файле
-  { "KOL_ERR",    "N",  6, 0 };  // количество пациентов с ошибками в реестре
-    } )
+    { "KOL_ERR",    "N",  6, 0 };  // количество пациентов с ошибками в реестре
+  } )
   dbCreate( cur_dir + "tmp2file", { ;
     { "_N_ZAP",     "N",  6, 0 }, ;
     { "_SMO",       "C",  5, 0 }, ;
     { "_ENP",       "C", 16, 0 }, ;
     { "_OPLATA",    "N",  1, 0 }, ;
     { "_ERROR",     "N",  3, 0 };
-    } )
+  } )
   dbCreate( cur_dir + "tmp3file", { ;
     { "_N_ZAP",     "N",  6, 0 }, ;
     { "_ERROR",     "N",  3, 0 };
-    } )
+  } )
   Use ( cur_dir + "tmp1file" ) New Alias TMP1
   Append Blank
   Use ( cur_dir + "tmp2file" ) New Alias TMP2
@@ -3620,7 +3631,7 @@ Function delete_reestr_d02( mkod_reestr, mname_reestr )
   If r <= 18
     r1 := r + 1 ; r2 := r1 + Len( mm_menu ) + 1
   Else
-    r2 := r - 1 ; r1 := r2 - Len( mm_menu ) -1
+    r2 := r -1 ; r1 := r2 - Len( mm_menu ) -1
   Endif
   If ( i := popup_prompt( r1, 10, 1, mm_menu,,, color5 ) ) > 0
     is_allow_delete := mm_flag[ i ]
