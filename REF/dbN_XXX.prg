@@ -892,7 +892,7 @@ Function loadn020()
   Static _N020
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI, dBeg, dEnd
 
   If timeout_load( @time_load )
@@ -915,7 +915,6 @@ Function loadn020()
     Endif
     db := nil
   Endif
-
   Return _N020
 
 // 07.01.22 вернуть МНН лекарственного препарата

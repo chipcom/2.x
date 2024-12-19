@@ -456,11 +456,12 @@ Function f2oms_sluch_lek_pr( nKey, oBrow )
   RestScreen( buf )
   Return flag
 
-// 29.03.22 функция для when и valid при вводе услуг в лист учёта
+// 19.12.24 функция для when и valid при вводе услуг в лист учёта
 Function f5editpreparat( get, nKey, when_valid, k )
 
   Local fl := .t., arr, row
-  Local arrN020 := {}, tmpSelect
+  Local arr_lek_pr_schema := {} //, tmpSelect
+  Local h_arr_N020 := loadn020(), key, t_arr
 
   If when_valid == 1    // when
     If k == 1     // Дата оказания услуги
@@ -512,26 +513,30 @@ Function f5editpreparat( get, nKey, when_valid, k )
       If ( arr := get_group_prep_by_kod( SubStr( m1SCHEDRUG, Len( m1SCHEDRUG ) ), mdate_u1 ) ) != nil
         mMNN := iif( arr[ 3 ] == 1, .t., .f. )
         If mMNN
-          arrN020 := get_drugcode_by_schema_lech( m1SCHEDRUG, mdate_u1 )
-          If Len( arrN020 ) != 0
-            tmpSelect := Select()
-            r_use( dir_exe() + '_mo_N020', cur_dir + '_mo_N020', 'N20' )
+          arr_lek_pr_schema := get_lek_preparat_by_schema_lech( 'covid', m1SCHEDRUG, mdate_u1 )
+          If Len( arr_lek_pr_schema ) != 0
+//            tmpSelect := Select()
+//            r_use( dir_exe() + '_mo_N020', cur_dir + '_mo_N020', 'N20' )
             arr_lek_pr := {}
-            For Each row in arrN020
-              find ( row[ 2 ] )
-              If Found()
-                AAdd( arr_lek_pr, { N20->MNN, N20->ID_LEKP, N20->DATEBEG, N20->DATEEND } )
-              Endif
+            For Each row in arr_lek_pr_schema
+              key := row[ 2 ]
+              if hb_hHaskey( h_arr_N020, key )
+                t_arr := h_arr_N020[ key ]
+                AAdd( arr_lek_pr, { t_arr[ 2 ], t_arr[ 1 ], t_arr[ 3 ], t_arr[ 4 ] } )
+              endif
+//              find ( row[ 2 ] )
+//              If Found()
+//                AAdd( arr_lek_pr, { N20->MNN, N20->ID_LEKP, N20->DATEBEG, N20->DATEEND } )
+//              Endif
             Next
-            N20->( dbCloseArea() )
-            Select( tmpSelect )
-            arrN020 := {}
+//            N20->( dbCloseArea() )
+//            Select( tmpSelect )
           Endif
         Else
           arr_lek_pr := {}
-          arrN020 := {}
           func_error( 1, 'У Данной схемы НЕТ МЕДИКАМЕНТОВ!' )
         Endif
+        arr_lek_pr_schema := {}
       Endif
     Elseif k == 3 // схема лечения
       If Empty( get:buffer )
@@ -651,7 +656,6 @@ Function collect_lek_pr( mkod_human )
 Function check_edit_field( get, when_valid, k )
 
   Local fl := .t.
-  Local arrN020 := {}
 
   If when_valid == 1    // when
     If k == 1     // Вес пациента в кг
@@ -971,3 +975,19 @@ Function f4_get_lek_pr( ret_rec, obrow )
   RestScreen( buf )
   SetColor( tmp_color )
   Return ret
+
+// 19.12.24 вернуть соответствие кода препарата схеме лечения
+Function get_lek_preparat_by_schema_lech( vid_lech, _schemeDrug, ldate )
+
+  Local _arr := {}, row
+
+  vid_lech := alltrim( Lower( vid_lech ) )
+
+  if vid_lech == 'covid'
+    For Each row in getv033()
+      If ( row[ 1 ] == _schemeDrug ) .and. between_date( row[ 3 ], row[ 4 ], ldate )
+        AAdd( _arr, { row[ 1 ], row[ 2 ], row[ 3 ], row[ 4 ] } )
+      Endif
+    Next
+  endif
+  Return _arr

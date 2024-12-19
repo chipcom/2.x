@@ -1267,19 +1267,6 @@ Function getv033()
 
   Return _arr
 
-// 04.01.22 вернуть соответствие кода препарата схеме лечения
-Function get_drugcode_by_schema_lech( _schemeDrug, ldate )
-
-  Local _arr := {}, row
-
-  For Each row in getv033()
-    If ( row[ 1 ] == AllTrim( _schemeDrug ) ) .and. between_date( row[ 3 ], row[ 4 ], ldate )
-      AAdd( _arr, { row[ 1 ], row[ 2 ], row[ 3 ], row[ 4 ] } )
-    Endif
-  Next
-
-  Return _arr
-
 // =========== V036 ===================
 //
 // 26.01.23 вернуть массив по справочнику ФФОМС V036.xml
