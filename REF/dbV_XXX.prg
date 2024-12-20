@@ -51,22 +51,20 @@ Function getv002( work_date )
       Endif
     Next
   Endif
-
   Return ret_array
 
 // =========== V004 ===================
 //
 // 20.12.24 вернуть массив по справочнику регионов ТФОМС V004.xml
-Function getv004_new()
+Function getv004()
 
   // V004.xml - Классификатор медицинских специальностей
   // MSPNAME(C), IDMSP(N), DATEBEG(D), DATEEND(D)
   Static _arr := {}
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
-  Local ret_array
 
   If timeout_load( @time_load )
     _arr := {}
@@ -89,7 +87,7 @@ Function getv004_new()
   return _arr
 
 // 22.10.22 вернуть массив по справочнику регионов ТФОМС V004.xml
-Function getv004()
+Function getv004_old()
 
   // V004.xml - Классификатор медицинских специальностей
   // 1 - MSPNAME(C)  2 - IDMSP(N)  3 - DATEBEG(D)  4 - DATEEND(D)
@@ -331,7 +329,6 @@ Function getv004()
     AAdd( _arr, { 'Биохимия', 32, date_20110101, empty_date } )
     AAdd( _arr, { 'Медицинская биохимия', 3201, date_20110101, empty_date } )
   Endif
-
   Return _arr
 
 // =========== V005 ===================
@@ -348,7 +345,6 @@ Function getv005()
     AAdd( _arr, { 'Мужской', 1, empty_date, empty_date } )
     AAdd( _arr, { 'Женский', 2, empty_date, empty_date } )
   Endif
-
   Return _arr
 
 // =========== V006 ===================
@@ -362,7 +358,6 @@ Function getuslovie_v006( kod )
   If ( i := AScan( getv006(), {| x| x[ 2 ] == kod } ) ) > 0
     ret := getv006()[ i, 1 ]
   Endif
-
   Return ret
 
 // 28.02.21 вернуть Классификатор условий оказания медицинской помощи V006.xml
@@ -380,7 +375,6 @@ Function getv006()
     AAdd( _arr, { 'Поликлиника', 3, date_20110101, empty_date } )
     AAdd( _arr, { 'Скорая помощь', 4, SToD( '20130101' ), empty_date } )
   Endif
-
   Return _arr
 
 // =========== V008 ===================
@@ -399,7 +393,6 @@ Function getv008()
     AAdd( _arr, { 'Скорая, в том числе специализированная (санитарно-авиационная), медицинская помощь', 2, SToD( '20130101' ), empty_date } )
     AAdd( _arr, { 'Специализированная, в том числе высокотехнологичная, медицинская помощь', 3, date_20110101, empty_date } )
   Endif
-
   Return _arr
 
 // =========== V009 ===================
@@ -450,7 +443,6 @@ Function getv009( work_date )
     Endif
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
-
   Endif
   If HB_ISNIL( work_date )
     Return _arr
@@ -462,7 +454,6 @@ Function getv009( work_date )
       Endif
     Next
   Endif
-
   Return ret_array
 
 // 04.11.22 вернуть результат обращения за медицинской помощью по коду
@@ -474,7 +465,6 @@ Function getrslt_v009( result )
   If ( i := AScan( getv009(), {| x| x[ 2 ] == result } ) ) > 0
     ret := getv009()[ i, 1 ]
   Endif
-
   Return ret
 
 // 23.01.23 вернуть результат обращения по условию оказания и дате
@@ -488,7 +478,6 @@ Function getrslt_usl_date( uslovie, date )
       AAdd( ret, row )
     Endif
   Next
-
   Return ret
 
 // =========== V010 ===================
@@ -540,7 +529,6 @@ Function getv010( work_date )
       Endif
     Next
   Endif
-
   Return ret_array
 
 // =========== V012 ===================
@@ -603,7 +591,6 @@ Function getv012( work_date )
       Endif
     Next
   Endif
-
   Return ret_array
 
 // 06.11.22 вернуть исход заболевания по коду
@@ -615,7 +602,6 @@ Function getishod_v012( ishod )
   If ( i := AScan( getv012(), {| x| x[ 2 ] == ishod } ) ) > 0
     ret := getv012()[ i, 1 ]
   Endif
-
   Return ret
 
 // 23.01.23 вернуть исход заболевания по условию оказания и дате
@@ -629,7 +615,6 @@ Function getishod_usl_date( uslovie, date )
       AAdd( ret, row )
     Endif
   Next
-
   Return ret
 
 // =========== V014 ===================
@@ -647,7 +632,6 @@ Function getv014()
     AAdd( _arr, { 'Неотложная', 2, SToD( '20130101' ), empty_date } )
     AAdd( _arr, { 'Плановая', 3, SToD( '20130101' ), empty_date } )
   Endif
-
   Return _arr
 
 // =========== V015 ===================
@@ -686,7 +670,6 @@ Function getv015()
 
     ASort( _arr, , , {| x, y| x[ 2 ] < y[ 2 ] } )
   Endif
-
   Return _arr
 
 // =========== V016 ===================
@@ -717,7 +700,6 @@ Function getv016()
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
   Endif
-
   Return _arr
 
 // 13.12.21 вернуть описатель типа диспнсеризации по коду
@@ -735,7 +717,6 @@ Function get_type_dispt( mdate, codeDispT )
       AAdd( _arr, tmpArr[ i, 3 ] )
     Endif
   Next
-
   Return _arr
 
 // =========== V017 ===================
@@ -764,7 +745,6 @@ Function getv017()
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
   Endif
-
   Return _arr
 
 // 13.12.21 вернуть список результатов диспансеризации на дату в соответствии со списком кодов
@@ -781,7 +761,6 @@ Function get_list_dispr( mdate, arrDR )
       Endif
     Next
   Next
-
   Return _arr
 
 // =========== V018 ===================
@@ -792,7 +771,7 @@ Function getv018( dateSl )
   Local yearSl := Year( dateSl )
   Local _arr
   Local db
-  Local aTable, stmt
+  Local aTable
   Local nI
 
   Static hV018, lHashV018 := .f.
@@ -834,7 +813,6 @@ Function getv018( dateSl )
   If Empty( _arr )
     alertx( 'На дату ' + DToC( dateSl ) + ' V018 отсутствуют!' )
   Endif
-
   Return _arr
 
 // =========== V019 ===================
@@ -845,7 +823,7 @@ Function getv019( dateSl )
   Local yearSl := Year( dateSl )
   Local _arr
   Local db
-  Local aTable, stmt
+  Local aTable
   Local nI
 
   Static hV019, lHashV019 := .f.
@@ -891,7 +869,6 @@ Function getv019( dateSl )
     ASort( _arr, , , {| x, y| x[ 1 ] < y[ 1 ] } )
     hV019[ yearSl ] := _arr
   Endif
-
   Return _arr
 
 // =========== V020 ===================
@@ -902,7 +879,7 @@ Function getv020()
   Static _arr
   Static time_load
   Local db
-  Local aTable, stmt
+  Local aTable
   Local nI
 
   If timeout_load( @time_load )
@@ -926,7 +903,6 @@ Function getv020()
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
   Endif
-
   Return _arr
 
 // =========== V021 ===================
@@ -937,7 +913,7 @@ Function getv021()
   // V021.xml - Классификатор медицинских специальностей (должностей) (MedSpec)
   // 1 - SPECNAME(C)  2 - IDSPEC(N)  3 - DATEBEG(D)  4 - DATEEND(D)  5 - POSTNAME(C)  6 - IDPOST_MZ(C)
 
-  Static _arr   // := {}
+  Static _arr
   Static time_load
   Local db
   Local aTable
@@ -963,7 +939,6 @@ Function getv021()
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
   Endif
-
   Return _arr
 
 // 27.02.23 вернуть массив описывающий специальность
@@ -975,7 +950,6 @@ Function doljbyspec_v021( idspec )
   If !Empty( idspec ) .and. ( ( i := AScan( aV021, {| x| x[ 2 ] == idspec } ) ) > 0 )
     retArray := aV021[ i, 5 ]
   Endif
-
   Return retArray
 
 // 25.06.24
@@ -986,9 +960,7 @@ Function ret_str_spec( kod )
   If ! Empty( kod ) .and. ( ( i := AScan( aV021, {| x | x[ 2 ] == kod } ) ) > 0 )
     s := aV021[ i, 1 ]
   Endif
-
   Return s
-
 
 // =========== V022 ===================
 //
@@ -998,7 +970,7 @@ Function getv022()
   Static _arr
   Static time_load
   Local db
-  Local aTable, stmt
+  Local aTable
   Local nI
 
   If timeout_load( @time_load )
@@ -1023,7 +995,6 @@ Function getv022()
     db := nil
     ASort( _arr, , , {| x, y| x[ 1 ] < y[ 1 ] } )
   Endif
-
   Return _arr
 
 // 11.02.21 вернуть строку модели пациента ВМП
@@ -1071,7 +1042,6 @@ Function getv025()
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
   Endif
-
   Return _arr
 
 Function get_idpc_from_v025_by_number( num )
@@ -1086,7 +1056,6 @@ Function get_idpc_from_v025_by_number( num )
       Exit
     Endif
   Next
-
   Return retIDPC
 
 // =========== V030 ===================
@@ -1126,7 +1095,6 @@ Function getv030()
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
   Endif
-
   Return _arr
 
 // 11.01.22 вернуть схемы лечения согласно тяжести пациента
@@ -1146,7 +1114,6 @@ Function get_schemas_lech( _degree, ldate )
       AAdd( _arr, { row[ 1 ], row[ 2 ], row[ 3 ], row[ 4 ], row[ 5 ], row[ 6 ] } )
     Endif
   Next
-
   Return _arr
 
 // 07.01.22 вернуть наименование схемы
@@ -1159,7 +1126,6 @@ Function ret_schema_v030( s_code )
   If !Empty( code ) .and. ( ( i := AScan( getv030(), {| x| x[ 2 ] == code } ) ) > 0 )
     ret := getv030()[ i, 1 ]
   Endif
-
   Return ret
 
 // =========== V031 ===================
@@ -1189,7 +1155,6 @@ Function getv031()
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
   Endif
-
   Return _arr
 
 // 29.08.22 вернуть группу препаратов
@@ -1210,7 +1175,6 @@ Function get_group_prep_by_kod( _code, ldate )
       _arr := { row[ 1 ], row[ 2 ], row[ 3 ], row[ 4 ], row[ 5 ] }
     Endif
   Next
-
   Return _arr
 
 // =========== V032 ===================
@@ -1240,7 +1204,6 @@ Function getv032()
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
   Endif
-
   Return _arr
 
 // 04.01.22 вернуть сочетание схемы и группы препаратов
@@ -1253,7 +1216,6 @@ Function get_group_by_schema_lech( _scheme, ldate )
       AAdd( _arr, { row[ 1 ], row[ 2 ], row[ 3 ], row[ 4 ], row[ 5 ] } )
     Endif
   Next
-
   Return _arr
 
 // 08.01.22 вернуть наименование кода схемы
@@ -1266,7 +1228,6 @@ Function ret_schema_v032( s_code )
   If !Empty( code ) .and. ( ( i := AScan( getv032(), {| x| x[ 2 ] == code } ) ) > 0 )
     ret := getv032()[ i, 1 ]
   Endif
-
   Return ret
 
 // =========== V033 ===================
@@ -1296,7 +1257,6 @@ Function getv033()
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
   Endif
-
   Return _arr
 
 // =========== V036 ===================
@@ -1326,7 +1286,6 @@ Function getv036()
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
   Endif
-
   Return _arr
 
 // =========== V024 ===================
@@ -1373,5 +1332,4 @@ Function getv024( dk )
     Next
   Endif
   db := nil
-
   Return arr
