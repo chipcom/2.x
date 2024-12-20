@@ -56,6 +56,38 @@ Function getv002( work_date )
 
 // =========== V004 ===================
 //
+// 20.12.24 вернуть массив по справочнику регионов ТФОМС V004.xml
+Function getv004_new()
+
+  // V004.xml - Классификатор медицинских специальностей
+  // MSPNAME(C), IDMSP(N), DATEBEG(D), DATEEND(D)
+  Static _arr := {}
+  Static time_load
+  Local db
+  Local aTable, row
+  Local nI
+  Local ret_array
+
+  If timeout_load( @time_load )
+    _arr := {}
+    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+    db := opensql_db()
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
+      'mspname, ' + ;
+      'idmsp, ' + ;
+      'datebeg, ' + ;
+      'dateend ' + ;
+      'FROM v004' )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        AAdd( _arr, { AllTrim( aTable[ nI, 1 ] ), Val( aTable[ nI, 2 ] ), CToD( aTable[ nI, 3 ] ), CToD( aTable[ nI, 4 ] ) } )
+      Next
+    Endif
+    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+    db := nil
+  Endif
+  return _arr
+
 // 22.10.22 вернуть массив по справочнику регионов ТФОМС V004.xml
 Function getv004()
 
