@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 29.11.24 создание XML-файлов реестра
+// 20.12.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -27,7 +27,15 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
   local dPUMPver40 := 0d20240301
   local aFilesName
+  local sVersion, fl_ver
+  local oXmlDoc, oXmlNode, oZAP
   local oSL, oSLUCH
+  local oPRESCRIPTION, oPRESCRIPTIONS, oKSG, oSLk, oNAPR, oCONS
+  local oONK_SL, oDIAG, oPROT, oONK
+  local oLEK, oDOSE
+  local oUSL, oMR_USL_N, oMED_DEV
+  local oPAC, oDISAB
+  local old_lek, old_sh
 
   //
   Close databases
@@ -232,15 +240,29 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
 
   // заполним заголовок XML-документа
-  s := '3.11'
+  sVersion := '3.11'
   controlVer := _nyear * 100 + _nmonth
-  If ( controlVer >= 202201 ) .and. ( p_tip_reestr == 1 ) // с января 2022 года
-    s := '3.2'
-  Endif
-  If ( controlVer >= 202403 ) .and. ( p_tip_reestr == 1 ) // с марта 2024 года
-    s := '4.0'
-  Endif
-  mo_add_xml_stroke( oXmlNode, 'VERSION',s )
+  if p_tip_reestr == 1
+    // Реестр случаев оказания медицинской помощи, за исключением медицинской помощи по диспансеризации,
+    // медицинским осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
+    If ( controlVer >= 202201 ) // с января 2022 года
+      sVersion := '3.2'
+    Endif
+    If ( controlVer >= 202403 ) // с марта 2024 года
+      sVersion := '4.0'
+    Endif
+    If ( controlVer >= 202501 ) // с января 2025 года
+      sVersion := '4.1'
+    Endif
+  elseif p_tip_reestr == 2
+    // Реестр случаев оказания медицинской помощи по диспансеризации, профилактическим медицинским
+    // осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
+    If ( controlVer >= 202501 ) // с января 2025 года
+      sVersion := '4.0'
+    Endif
+  endif
+
+  mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
   mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( rees->DSCHET ) )
   mo_add_xml_stroke( oXmlNode, 'FILENAME', mo_xml->FNAME )
   mo_add_xml_stroke( oXmlNode, 'SD_Z', lstr( pkol ) )
@@ -854,7 +876,8 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
                 mo_add_xml_stroke( oONK, 'LUCH_TIP', lstr( onkus->LUCH_TIP ) )
               Endif
               If eq_any( onkus->USL_TIP, 2, 4 )
-                old_lek := Space( 6 ) ; old_sh := Space( 10 )
+                old_lek := Space( 6 )
+                old_sh := Space( 10 )
                 Select ONKLE  // цикл по БД лекарств
                 find ( Str( human->kod, 7 ) )
                 Do While onkle->kod == human->kod .and. !Eof()
@@ -866,7 +889,8 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
                   Endif
                   // цикл по датам приёма данного лекарства
                   mo_add_xml_stroke( oLEK, 'DATE_INJ', date2xml( onkle->DATE_INJ ) )
-                  old_lek := onkle->REGNUM ; old_sh := onkle->CODE_SH
+                  old_lek := onkle->REGNUM
+                  old_sh := onkle->CODE_SH
                   Select ONKLE
                   Skip
                 Enddo
@@ -1302,12 +1326,12 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   oXmlDoc:add( hxmlnode():new( 'PERS_LIST' ) )
   // заполним заголовок файла реестра пациентов для XML-документа
   oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
-  s := '3.11'
+  sVersion := '3.11'
   If StrZero( _nyear, 4 ) + StrZero( _nmonth, 2 ) > '201910' // с ноября 2019 года
     fl_ver := 32
-    s := '3.2'
+    sVersion := '3.2'
   Endif
-  mo_add_xml_stroke( oXmlNode, 'VERSION',s )
+  mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
   mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( rees->DSCHET ) )
   mo_add_xml_stroke( oXmlNode, 'FILENAME', mo_xml->FNAME2 )
   mo_add_xml_stroke( oXmlNode, 'FILENAME1', mo_xml->FNAME )
@@ -1708,11 +1732,11 @@ Function f1_create2reestr19( _nyear, _nmonth )
             If ( i := AScan( np_arr_issled, {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
               AAdd( a_otkaz, { lshifr, ;
                 ar[ 6 ], ; // диагноз
-              ldate, ; // дата
-              correct_profil( ar[ 4 ] ), ; // профиль
-              ar[ 2 ], ; // специальность
-              0, ;     // цена
-              1 } )     // 1-отказ, 2-невозможность
+                ldate, ; // дата
+                correct_profil( ar[ 4 ] ), ; // профиль
+                ar[ 2 ], ; // специальность
+                0, ;     // цена
+                1 } )     // 1-отказ, 2-невозможность
             Endif
           Elseif ( i := AScan( np_arr_osmotr, {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0 // осмотры
             If ( i := AScan( np_arr_osmotr_KDP2, {| x| x[ 1 ] == lshifr } ) ) > 0
@@ -1720,11 +1744,11 @@ Function f1_create2reestr19( _nyear, _nmonth )
             Endif
             AAdd( a_otkaz, { lshifr, ;
               ar[ 6 ], ; // диагноз
-            ldate, ; // дата
-            correct_profil( ar[ 4 ] ), ; // профиль
-            ar[ 2 ], ; // специальность
-            0, ;     // цена
-            1 } )     // 1-отказ, 2-невозможность
+              ldate, ; // дата
+              correct_profil( ar[ 4 ] ), ; // профиль
+              ar[ 2 ], ; // специальность
+              0, ;     // цена
+              1 } )     // 1-отказ, 2-невозможность
           Endif
         Endif
       Next j
@@ -1751,11 +1775,11 @@ Function f1_create2reestr19( _nyear, _nmonth )
             If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
               AAdd( a_otkaz, { lshifr, ;
                 ar[ 6 ], ; // диагноз
-              human->N_DATA, ; // дата
-              correct_profil( ar[ 4 ] ), ; // профиль
-              ar[ 2 ], ; // специальность
-              ar[ 8 ], ; // цена
-              ar[ 10 ] } ) // 1-отказ, 2-невозможность
+                human->N_DATA, ; // дата
+                correct_profil( ar[ 4 ] ), ; // профиль
+                ar[ 2 ], ; // специальность
+                ar[ 8 ], ; // цена
+                ar[ 10 ] } ) // 1-отказ, 2-невозможность
             Endif
           Endif
         Endif
@@ -1785,11 +1809,11 @@ Function f1_create2reestr19( _nyear, _nmonth )
             If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
               AAdd( a_otkaz, { lshifr, ;
                 ar[ 6 ], ; // диагноз
-              human->N_DATA, ; // дата
-              correct_profil( ar[ 4 ] ), ; // профиль
-              ar[ 2 ], ; // специальность
-              ar[ 8 ], ; // цена
-              ar[ 10 ] } ) // 1-отказ, 2-невозможность
+                human->N_DATA, ; // дата
+                correct_profil( ar[ 4 ] ), ; // профиль
+                ar[ 2 ], ; // специальность
+                ar[ 8 ], ; // цена
+                ar[ 10 ] } ) // 1-отказ, 2-невозможность
             Endif
           Endif
         Endif
@@ -1824,11 +1848,11 @@ Function f1_create2reestr19( _nyear, _nmonth )
             If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
               AAdd( a_otkaz, { lshifr, ;
                 ar[ 6 ], ; // диагноз
-              human->N_DATA, ; // дата
-              correct_profil( ar[ 4 ] ), ; // профиль
-              ar[ 2 ], ; // специальность
-              ar[ 8 ], ; // цена
-              ar[ 10 ] } ) // 1-отказ, 2-невозможность
+                human->N_DATA, ; // дата
+                correct_profil( ar[ 4 ] ), ; // профиль
+                ar[ 2 ], ; // специальность
+                ar[ 8 ], ; // цена
+                ar[ 10 ] } ) // 1-отказ, 2-невозможность
             Endif
           Endif
         Endif
@@ -1846,11 +1870,11 @@ Function f1_create2reestr19( _nyear, _nmonth )
             If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
               AAdd( a_otkaz, { lshifr, ;
                 ar[ 6 ], ; // диагноз
-              human->N_DATA, ; // дата
-              correct_profil( ar[ 4 ] ), ; // профиль
-              ar[ 2 ], ; // специальность
-              ar[ 8 ], ; // цена
-              ar[ 10 ] } ) // 1-отказ, 2-невозможность
+                human->N_DATA, ; // дата
+                correct_profil( ar[ 4 ] ), ; // профиль
+                ar[ 2 ], ; // специальность
+                ar[ 8 ], ; // цена
+                ar[ 10 ] } ) // 1-отказ, 2-невозможность
             Endif
           Endif
         Endif

@@ -4,7 +4,6 @@
 #include 'chip_mo.ch'
 
 // 15.01.23
-// Function init_lek_pr(_usl_tip, _crit)
 Function init_lek_pr()
 
   Local s, n
@@ -66,7 +65,6 @@ Function check_oms_sluch_lek_pr( mkod_human )
   HUMAN_2->( dbCloseArea() )
   HUMAN_->( dbCloseArea() )
   HUMAN->( dbCloseArea() )
-
   Return retFl
 
 
@@ -77,7 +75,7 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
   // mkod_kartotek - код по БД kartotek
   Local aDbf, buf := SaveScreen(), l_color, fl_found
   Local mtitle, tmp_color := SetColor( color1 )
-  Local nBegin, strWeight
+  Local nBegin
 
   Private mSeverity, m1Severity := 0
 
@@ -102,20 +100,20 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
   g_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR' )
 
   adbf := { ;
-    { 'KOD_HUM',   'N',    7,     0 }, ; // код листа учёта по файлу 'human'
-  { 'DATE_INJ',   'D',    8,     0 }, ; // Дата введения лекарственного препарата
-  { 'SEVERITY',   'N',    5,     0 }, ; // код тяжести течения заболевания по справочнику _mo_severity.dbf
-  { 'SCHEME',   'C',   10,     0 }, ; // схема лечения пациента V030
-  { 'SCHEDRUG',   'C',   10,     0 }, ; // сочетание схемы лечения и группы препаратов V032
-  { 'REGNUM',   'C',    6,     0 }, ; // лекарственного препарата
-  { 'ED_IZM',   'N',    3,     0 }, ; // Единица измерения дозы лекарственного препарата
-  { 'DOZE',   'N',    8,     2 }, ; // Доза введения лекарственного препарата
-    { 'METHOD',   'N',    3,     0 }, ; // Путь введения лекарственного препарата
-  { 'COL_INJ',   'N',    5,     0 }, ; // Количество введений в течениедня, указанного в DATA_INJ
-  { 'COD_MARK',   'C',  100,     0 }, ; // Код маркировки лекарственного препарата
-  { 'NUMBER',   'N',    3,     0 }, ; // счетчик строк
-  { 'REC_N',   'N',    8,     0 };  // номер записи в файле human_lek_pr.dbf
-    }
+    { 'KOD_HUM',    'N',   7,  0 }, ; // код листа учёта по файлу 'human'
+    { 'DATE_INJ',   'D',   8,  0 }, ; // Дата введения лекарственного препарата
+    { 'SEVERITY',   'N',   5,  0 }, ; // код тяжести течения заболевания по справочнику _mo_severity.dbf
+    { 'SCHEME',     'C',  10,  0 }, ; // схема лечения пациента V030
+    { 'SCHEDRUG',   'C',  10,  0 }, ; // сочетание схемы лечения и группы препаратов V032
+    { 'REGNUM',     'C',   6,  0 }, ; // лекарственного препарата
+    { 'ED_IZM',     'N',   3,  0 }, ; // Единица измерения дозы лекарственного препарата
+    { 'DOZE',       'N',   8,  2 }, ; // Доза введения лекарственного препарата
+    { 'METHOD',     'N',   3,  0 }, ; // Путь введения лекарственного препарата
+    { 'COL_INJ',    'N',   5,  0 }, ; // Количество введений в течениедня, указанного в DATA_INJ
+    { 'COD_MARK',   'C', 100,  0 }, ; // Код маркировки лекарственного препарата
+    { 'NUMBER',     'N',   3,  0 }, ; // счетчик строк
+    { 'REC_N',      'N',   8,  0 };  // номер записи в файле human_lek_pr.dbf
+  }
  dbCreate( 'mem:lek_pr', adbf, , .t., 'TMP' )
 
   Select LEK_PR
@@ -178,7 +176,6 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
   SetColor( tmp_color )
   RestScreen( buf )
   verify_oms_sluch( mkod_human )
-
   Return Nil
 
 // 08.01.22
@@ -210,8 +207,6 @@ Function f_oms_sluch_lek_pr( oBrow )
   oColumn:colorBlock := blk_color
   oBrow:addcolumn( oColumn )
 
-  // oColumn := TBColumnNew(' Единица; измер-я', ;
-  // {|| iif(tmp->ED_IZM == 0, space(8), padr(ret_ed_izm_V034(tmp->ED_IZM), 8)) })
   oColumn := TBColumnNew( ' Единица; измер-я', ;
     {|| iif( tmp->ED_IZM == 0, Space( 8 ), PadR( ret_ed_izm( tmp->ED_IZM ), 8 ) ) } )
   oColumn:colorBlock := blk_color
@@ -227,10 +222,9 @@ Function f_oms_sluch_lek_pr( oBrow )
   oBrow:addcolumn( oColumn )
 
   status_key( '^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление' )
-
   Return Nil
 
-// //* 06.01.22
+// 06.01.22
 Function f1oms_sluch_lek_pr()
 
   Local nRow := Row(), nCol := Col()
@@ -287,7 +281,6 @@ Function add_lek_pr( dateInjection, nKey )
   Unlock
   // LEK_PR->COD_MARK
   Select tmp
-
   Return Nil
 
 // 18.10.22
@@ -296,7 +289,7 @@ Function f2oms_sluch_lek_pr( nKey, oBrow )
   Local flag := -1, buf := SaveScreen(), k_read := 0, count_edit := 0
   Local r1, ix, number
   Local last_date := human->n_data
-  Local flMany := .f., tDate
+  Local flMany := .f.
   Local arr_dni, row, i
 
   Do Case
@@ -461,14 +454,14 @@ Function f2oms_sluch_lek_pr( nKey, oBrow )
   Endcase
 
   RestScreen( buf )
-
   Return flag
 
-// 29.03.22 функция для when и valid при вводе услуг в лист учёта
+// 19.12.24 функция для when и valid при вводе услуг в лист учёта
 Function f5editpreparat( get, nKey, when_valid, k )
 
   Local fl := .t., arr, row
-  Local arrN020 := {}, tmpSelect
+  Local arr_lek_pr_schema := {} //, tmpSelect
+  Local h_arr_N020 := loadn020(), key, t_arr
 
   If when_valid == 1    // when
     If k == 1     // Дата оказания услуги
@@ -520,26 +513,30 @@ Function f5editpreparat( get, nKey, when_valid, k )
       If ( arr := get_group_prep_by_kod( SubStr( m1SCHEDRUG, Len( m1SCHEDRUG ) ), mdate_u1 ) ) != nil
         mMNN := iif( arr[ 3 ] == 1, .t., .f. )
         If mMNN
-          arrN020 := get_drugcode_by_schema_lech( m1SCHEDRUG, mdate_u1 )
-          If Len( arrN020 ) != 0
-            tmpSelect := Select()
-            r_use( dir_exe() + '_mo_N020', cur_dir + '_mo_N020', 'N20' )
+          arr_lek_pr_schema := get_lek_preparat_by_schema_lech( 'covid', m1SCHEDRUG, mdate_u1 )
+          If Len( arr_lek_pr_schema ) != 0
+//            tmpSelect := Select()
+//            r_use( dir_exe() + '_mo_N020', cur_dir + '_mo_N020', 'N20' )
             arr_lek_pr := {}
-            For Each row in arrN020
-              find ( row[ 2 ] )
-              If Found()
-                AAdd( arr_lek_pr, { N20->MNN, N20->ID_LEKP, N20->DATEBEG, N20->DATEEND } )
-              Endif
+            For Each row in arr_lek_pr_schema
+              key := row[ 2 ]
+              if hb_hHaskey( h_arr_N020, key )
+                t_arr := h_arr_N020[ key ]
+                AAdd( arr_lek_pr, { t_arr[ 2 ], t_arr[ 1 ], t_arr[ 3 ], t_arr[ 4 ] } )
+              endif
+//              find ( row[ 2 ] )
+//              If Found()
+//                AAdd( arr_lek_pr, { N20->MNN, N20->ID_LEKP, N20->DATEBEG, N20->DATEEND } )
+//              Endif
             Next
-            N20->( dbCloseArea() )
-            Select( tmpSelect )
-            arrN020 := {}
+//            N20->( dbCloseArea() )
+//            Select( tmpSelect )
           Endif
         Else
           arr_lek_pr := {}
-          arrN020 := {}
           func_error( 1, 'У Данной схемы НЕТ МЕДИКАМЕНТОВ!' )
         Endif
+        arr_lek_pr_schema := {}
       Endif
     Elseif k == 3 // схема лечения
       If Empty( get:buffer )
@@ -624,10 +621,9 @@ Function f5editpreparat( get, nKey, when_valid, k )
       Endif
     Endif
   Endif
-
   Return fl
 
-// ////* 06.03.22
+// 06.03.22
 Function collect_lek_pr( mkod_human )
 
   Local retArr := {}
@@ -654,14 +650,12 @@ Function collect_lek_pr( mkod_human )
   If lekAlias == 0
     ( cAlias )->( dbCloseArea() )
   Endif
-
   Return retArr
 
-// //* 10.01.22 функция для when и valid при вводе различных полей
+// 10.01.22 функция для when и valid при вводе различных полей
 Function check_edit_field( get, when_valid, k )
 
   Local fl := .t.
-  Local arrN020 := {}, tmpSelect
 
   If when_valid == 1    // when
     If k == 1     // Вес пациента в кг
@@ -681,7 +675,6 @@ Function check_edit_field( get, when_valid, k )
     Elseif k == 3 //
     Endif
   Endif
-
   Return fl
 
 // 27.09.23
@@ -704,9 +697,6 @@ Function get_lek_pr( k, r, c, _crit )
   If ( it := AScan( aN021, {| x| x[ 2 ] + x[ 3 ] == _crit } ) ) == 0
     yes_crit := .t.
   Endif
-
-  // find (_crit)
-  // yes_crit := found()
 
   Use ( cur_dir + 'tmp_onkle' ) New Alias TMPLE
   Index On REGNUM + DToS( DATE_INJ ) to ( cur_dir + 'tmp_onkle' ) UNIQUE
@@ -885,7 +875,6 @@ Function f1_get_lek_pr( nKey, oBrow, regim, get_row )
   Endif
   RestScreen( buf )
   SetColor( tmp_color )
-
   Return ret
 
 // 31.01.19
@@ -915,7 +904,6 @@ Function f2_get_lek_pr( r )
     Go Top
   Endif
   edit_browse( t_arr )
-
   Return ret
 
 // 31.01.19
@@ -929,7 +917,6 @@ Function f3_get_lek_pr( nk, ob )
       Goto ( rec )
     Endif
   Endif
-
   Return ret
 
 // 31.01.19
@@ -987,5 +974,20 @@ Function f4_get_lek_pr( ret_rec, obrow )
   Goto ( rec1 )
   RestScreen( buf )
   SetColor( tmp_color )
-
   Return ret
+
+// 19.12.24 вернуть соответствие кода препарата схеме лечения
+Function get_lek_preparat_by_schema_lech( vid_lech, _schemeDrug, ldate )
+
+  Local _arr := {}, row
+
+  vid_lech := alltrim( Lower( vid_lech ) )
+
+  if vid_lech == 'covid'
+    For Each row in getv033()
+      If ( row[ 1 ] == _schemeDrug ) .and. between_date( row[ 3 ], row[ 4 ], ldate )
+        AAdd( _arr, { row[ 1 ], row[ 2 ], row[ 3 ], row[ 4 ] } )
+      Endif
+    Next
+  endif
+  Return _arr

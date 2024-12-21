@@ -4,16 +4,18 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 01.08.23 
-Function print_l_uch(mkod, par, regim, lnomer)
+// 19.12.24 
+Function print_l_uch( mkod, par, regim, lnomer )
+  
   // mkod - ª®¤ ¡®«ì­®£® ¯® „ human
+
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
-      name_lpu, name_otd := '', mvzros_reb, mreg_lech, mmest_inog, mrab_nerab, ;
-      mkomu, name_org, mlech_vr := '', mishod, mprodol, msumma := 0, mmi_git, ;
-      mud_lich := '', arr, n_file := cur_dir + 'list_uch' + stxt, adiag_talon[16], ;
+      name_lpu, name_otd := '', mvzros_reb, mrab_nerab, ;
+      mkomu, name_org, mlech_vr := '', msumma := 0, ;
+      mud_lich := '', arr, n_file := cur_dir() + 'list_uch' + stxt, adiag_talon[16], ;
       madres, i := 1, j, k, tmp[2], tmp1, w1 := 37, s, s1, mnum_lu, lshifr1
   local tmpAlias
-  local arrLekPreparat, arrImplantant, aNameImp, aSerNum, nNameImp, nSerNum, row
+  local arrLekPreparat, arrImplantant, row
   local cREGNUM, cUNITCODE, cMETHOD
   local lTypeLUMedReab := .f., aMedReab
   local diagVspom := '', diagMemory := '', add_criteria
@@ -32,10 +34,10 @@ Function print_l_uch(mkod, par, regim, lnomer)
   R_Use(dir_server + 'organiz', , 'ORG')
   name_org := alltrim(org->name)
   dbCloseAll()
-  if !myFileDeleted(cur_dir + 'tmp1' + sdbf)
+  if !myFileDeleted(cur_dir() + 'tmp1' + sdbf)
     return NIL
   endif
-  dbcreate(cur_dir + 'tmp1', {{'kod', 'N', 4, 0}, ;
+  dbcreate(cur_dir() + 'tmp1', {{'kod', 'N', 4, 0}, ;
                          {'name', 'C', 255, 0}, ;
                          {'shifr', 'C', 20, 0}, ;
                          {'shifr1', 'C', 20, 0}, ;
@@ -53,10 +55,10 @@ Function print_l_uch(mkod, par, regim, lnomer)
                          {'profil', 'N', 4, 0}, ;
                          {'kol', 'N', 4, 0}, ;
                          {'summa', 'N', 11, 2}})
-  use (cur_dir + 'tmp1')
-  index on str(kod, 4) to (cur_dir + 'tmp11')
-  index on dtos(date_u1) +fsort_usl(shifr) to (cur_dir + 'tmp12')
-  use (cur_dir + 'tmp1') index (cur_dir + 'tmp11'), (cur_dir + 'tmp12') alias tmp1
+  use (cur_dir() + 'tmp1')
+  index on str(kod, 4) to (cur_dir() + 'tmp11')
+  index on dtos(date_u1) +fsort_usl(shifr) to (cur_dir() + 'tmp12')
+  use (cur_dir() + 'tmp1') index (cur_dir() + 'tmp11'), (cur_dir() + 'tmp12') alias tmp1
   Use_base('lusl')
   Use_base('luslf')
   R_Use(dir_server + 'uslugi', , 'USL')
@@ -139,7 +141,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
         R_Use(dir_server + 'mo_raksh', , 'RAKSH') 
         set relation to kod_raks into RAKS
         arr := {}
-        Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' ) for kod_h == mkod
+        Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) for kod_h == mkod
         //Locate for kod_h == mkod
         //do while found()
         //  aadd(arr, {rak->NAKT, rak->DAKT, raksh->REFREASON, raksh->NEXT_KOD})
@@ -432,7 +434,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
     endif
     add_string('')
   endif
-  print_luch_onk(sh)
+  print_luch_onk( human->k_data, sh )
   add_string(center('Ž_Š_€_‡_€__›   “_‘_‹_“_ƒ_ˆ', sh))
   Select HU
   find (str(mkod, 7))
@@ -723,6 +725,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
 
 //
 Function header_implantant(w1)
+
   add_string('ÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ')
   add_string('  „ â   ³ ¨¬¥­®¢ ­¨¥ ¨¬¯« ­â ­â                 ³‘¥à¨©­ë© ­®¬¥à')
   add_string('ÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ')
@@ -730,6 +733,7 @@ Function header_implantant(w1)
 
 //
 Function header_lek_preparat(w1)
+
   add_string('ÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄ')
   add_string('  „ â   ³ ¨¬¥­®¢ ­¨¥ ¯à¥¯ à â  ¨«¨ £àã¯¯ë³„®§-ª ³…¤¨­¨æ ³‘¯®á®¡ ¢¢¥¤¥­¨ï³Š®«-¢®')
   add_string('ÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄ')
@@ -737,6 +741,7 @@ Function header_lek_preparat(w1)
   
 //
 Function header_uslugi(w1)
+
   add_string('ÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂ' +replicate('Ä', w1)              + 'ÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÂÄÄÄÄÄÄÄÄ')
   add_string('  „ â   ³ Žâ¤.³ŒŠ10³' +padc(' ¨¬¥­®¢ ­¨¥ ãá«ã£¨', w1) + '³ ‚à ç³ €áá.³Š®«³ ‘ã¬¬   ')
   add_string('ÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁ' +replicate('Ä', w1)              + 'ÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÁÄÄÄÄÄÄÄÄ')
@@ -745,6 +750,7 @@ Function header_uslugi(w1)
 
 // 02.11.22 ¯¥ç âì ¤®¯.§ £®«®¢ª , ¥á«¨ íâ® «¨áâ ãçñâ  ¤¨á¯ ­á¥à¨§ æ¨¨/¯à®ä¨« ªâ¨ª¨
 Function print_l_uch_disp(sh)
+
   Local s := ''
 
   if eq_any(human->ishod, 101, 102)
@@ -774,23 +780,12 @@ Function print_l_uch_disp(sh)
   endif
   return NIL
 
-// 15.12.23 ¤®¡ ¢ª  ¯® ®­ª®«®£¨¨ ª «¨áâã ãçñâ 
-Function print_luch_onk(sh)
-  // Static mm_DS1_T := {{'¯¥à¢¨ç­®¥ «¥ç¥­¨¥', 0}, ;  // N018
-  //                     {'«¥ç¥­¨¥ ¯à¨ à¥æ¨¤¨¢¥', 1}, ;
-  //                     {'«¥ç¥­¨¥ ¯à¨ ¯à®£à¥áá¨à®¢ ­¨¨', 2}, ;
-  //                     {'¤¨­ ¬¨ç¥áª®¥ ­ ¡«î¤¥­¨¥', 3}, ;
-  //                     {'¤¨á¯ ­á¥à­®¥ ­ ¡«î¤¥­¨¥ (§¤®à®¢/à¥¬¨áá¨ï)', 4}, ;
-  //                     {'¤¨ £­®áâ¨ª  (¡¥§ á¯¥æ¨ä¨ç¥áª®£® «¥ç¥­¨ï)', 5}, ;
-  //                     {'á¨¬¯â®¬ â¨ç¥áª®¥ «¥ç¥­¨¥', 6}}
+// 19.12.24 ¤®¡ ¢ª  ¯® ®­ª®«®£¨¨ ª «¨áâã ãçñâ 
+Function print_luch_onk( dk,  sh )
+
   local mm_DS1_T := getN018()  // N018
-  // Static mm_usl_tip := {{'•¨àãà£¨ç¥áª®¥ «¥ç¥­¨¥', 1}, ;
-  //                     {'‹¥ª àáâ¢¥­­ ï ¯à®â¨¢®®¯ãå®«¥¢ ï â¥à ¯¨ï', 2}, ;
-  //                     {'‹ãç¥¢ ï â¥à ¯¨ï', 3}, ;
-  //                     {'•¨¬¨®«ãç¥¢ ï â¥à ¯¨ï', 4}, ;
-  //                     {'¥á¯¥æ¨ä¨ç¥áª®¥ «¥ç¥­¨¥ (ª â¥â¥à, ¯à®ç¥¥)', 5}, ;
-  //                     {'„¨ £­®áâ¨ª ', 6}}
   local mm_usl_tip := getN013()
+  local fname := prefixFileRefName( dk ) + 'shema'
 
   if f_is_oncology(1) == 2 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
     add_string('  Ž­ª®«®£¨ï:')
@@ -803,7 +798,7 @@ Function print_luch_onk(sh)
       if between(onkus->USL_TIP, 1, 6)
         add_string('   à®¢¥¤ñ­­®¥ «¥ç¥­¨¥: ' + inieditspr(A__MENUVERT, mm_usl_tip, onkus->USL_TIP))
         if eq_any(onkus->USL_TIP, 2, 4) .and. !empty(onksl->crit)
-          add_string('    ‘å¥¬ : ' + alltrim(onksl->crit) + ' ' + inieditspr(A__POPUPEDIT, dir_exe() + '_mo9shema', onksl->crit))
+          add_string('    ‘å¥¬ : ' + alltrim(onksl->crit) + ' ' + inieditspr(A__POPUPEDIT, dir_exe() + fname, onksl->crit))
         endif
         if eq_any(onkus->USL_TIP, 3, 4)
           add_string('    Š®«¨ç¥áâ¢® äà ªæ¨©: ' + lstr(onksl->k_fr))
@@ -813,11 +808,14 @@ Function print_luch_onk(sh)
       skip
     enddo
     add_string('')
+    ONKUS->( dbCloseArea() )
+    ONKSL->( dbCloseArea() )
   endif
   return NIL
 
 // 29.10.22 ¯à®á¬®âà/¯¥ç âì «¨áâ®¢ ãçñâ 
 Function o_list_uch()
+
   Local j := 0, buf := savescreen(), mtitul, func_step := '', r2 := maxrow() - 2
 
   if polikl1_kart() > 0
@@ -843,7 +841,7 @@ Function o_list_uch()
     find (str(glob_kartotek, 7))
     if found()
       mtitul := alltrim(fio)
-      index on dtos(k_data) + dtos(n_data) to (cur_dir + 'tmp_olu') while kod_k == glob_kartotek descending
+      index on dtos(k_data) + dtos(n_data) to (cur_dir() + 'tmp_olu') while kod_k == glob_kartotek descending
       dbeval( {|| ++j } )
       go top
       if yes_parol
@@ -870,6 +868,7 @@ Function o_list_uch()
 
 // 02.11.11
 Function f1o_list_uch(oBrow)
+
   Local oColumn, blk := {|_i| _i := iif(between(human->tip_h, 1, 6), human->tip_h, 2), ;
                             {{1, 2}, {3, 4}, {5, 6}, {7, 8}, {9, 10}, {11, 12}}[_i] }
   //
@@ -897,12 +896,13 @@ Function f1o_list_uch(oBrow)
 
 //
 Function f2o_list_uch(k)
-Static arr := {'«¥ç¨âáï', ;
-               '­¥ § ª®­ç¥­® «¥ç¥­¨¥', ;
-               '§ ª®­ç¥­® «¥ç¥­¨¥', ;
-               '', ;
-               '', ;
-               ''}
+
+  Static arr := {'«¥ç¨âáï', ;
+                 '­¥ § ª®­ç¥­® «¥ç¥­¨¥', ;
+                 '§ ª®­ç¥­® «¥ç¥­¨¥', ;
+                 '', ;
+                 '', ;
+                 ''}
 
   Local s
   k := iif(between(k, 1, 6), k, 4)
@@ -918,7 +918,8 @@ Static arr := {'«¥ç¨âáï', ;
 
 // 12.05.2019
 Function f3o_list_uch()
-Local s := '„®¡ ¢«¥­¨¥ ' + date_8(c4tod(human->date_e)) + '£. '
+
+  Local s := '„®¡ ¢«¥­¨¥ ' + date_8(c4tod(human->date_e)) + '£. '
 
   if asc(human->kod_p) > 0
     select BASE1
@@ -946,6 +947,7 @@ Local s := '„®¡ ¢«¥­¨¥ ' + date_8(c4tod(human->date_e)) + '£. '
 
 // 31.10.22
 Function f4o_list_uch(nKey, oBrow)
+
   Local buf, rec, k := -1, fl := .f., arr_m, arr_rec := {}
 
   rec := human->(recno())
@@ -979,19 +981,20 @@ Function f4o_list_uch(nKey, oBrow)
       print_spravka_OMS(glob_perso)
     endif
     eval(blk_open)
-    set index to (cur_dir + 'tmp_olu')
+    set index to (cur_dir() + 'tmp_olu')
     goto (rec)
   endif
   return k
 
 // 22.12.23 ¯¥ç âì ­¥áª®«ìª¨å «¨áâ®¢ ãçñâ 
 Function print_al_uch(arr_h, arr_m)
+
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
-        name_lpu, mvzros_reb, mreg_lech, mmest_inog, mrab_nerab, ;
-        mkomu, name_org, mlech_vr := '', mishod, mprodol, msumma := 0, mmi_git, ;
-        mud_lich := '', arr, n_file := cur_dir + 'list_uch' + stxt, adiag_talon[16], ;
-        i := 1, ii, j, k, tmp[2], tmp1, w1 := 65, s, mnum_lu, fl_parakl, lshifr1
-  local diagVspom := '', diagMemory := '', add_criteria
+        mvzros_reb, mrab_nerab, ;
+        mkomu, name_org, mlech_vr := '', msumma := 0, ;
+        mud_lich := '', arr, n_file := cur_dir() + 'list_uch' + stxt, adiag_talon[16], ;
+        i := 1, ii, j, k, tmp[2], tmp1, w1 := 65, s, mnum_lu, lshifr1
+  local diagVspom := '', diagMemory := '' 
   
   mywait()
   fp := fcreate(n_file)
@@ -1001,10 +1004,10 @@ Function print_al_uch(arr_h, arr_m)
   R_Use(dir_server + 'organiz')
   name_org := center(alltrim(name), sh)
   dbCloseAll()
-  if !myFileDeleted(cur_dir + 'tmp1' + sdbf)
+  if !myFileDeleted(cur_dir() + 'tmp1' + sdbf)
     return NIL
   endif
-  dbcreate(cur_dir + 'tmp1', {{'kod', 'N', 4, 0}, ;
+  dbcreate(cur_dir() + 'tmp1', {{'kod', 'N', 4, 0}, ;
                    {'name', 'C', 65, 0}, ;
                    {'shifr', 'C', 10, 0}, ;
                    {'dom', 'N', 1, 0}, ;
@@ -1020,9 +1023,9 @@ Function print_al_uch(arr_h, arr_m)
                    {'profil', 'N', 4, 0}, ;
                    {'kol', 'N', 4, 0}, ;
                    {'summa', 'N', 11, 2}})
-  use (cur_dir + 'tmp1')
-  index on str(kod, 4) to (cur_dir + 'tmp11')
-  index on dtos(date_u1) + fsort_usl(shifr) to (cur_dir + 'tmp12')
+  use (cur_dir() + 'tmp1')
+  index on str(kod, 4) to (cur_dir() + 'tmp11')
+  index on dtos(date_u1) + fsort_usl(shifr) to (cur_dir() + 'tmp12')
   dbCloseAll()
   //
   R_Use(dir_server + 'human_', , 'HUMAN_')
@@ -1095,7 +1098,7 @@ Function print_al_uch(arr_h, arr_m)
   set relation to recno() into HU_
   R_Use(dir_server + 'mo_su', , 'MOSU')
   R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU')
-  use (cur_dir + 'tmp1') index (cur_dir + 'tmp11'), (cur_dir + 'tmp12') new alias tmp1
+  use (cur_dir() + 'tmp1') index (cur_dir() + 'tmp11'), (cur_dir() + 'tmp12') new alias tmp1
   for ii := 1 to len(arr_h)
     select TMP1
     set order to 1
@@ -1295,7 +1298,7 @@ Function print_al_uch(arr_h, arr_m)
       s := alltrim(s) + ' (+ ' + lput_kop(mpsumma, .t.) + ')'
     endi
     add_string(padl(s, sh))
-  next  // ii
+  next
   close databases
   fclose(fp)
   rest_box(buf)
@@ -1304,6 +1307,7 @@ Function print_al_uch(arr_h, arr_m)
 
 // 27.11.14
 Function create_FR_file_for_spravkaOMS()
+
   dbCloseAll()
   delFRfiles()
   dbcreate(fr_titl, {{'name', 'C', 255, 0}, ;
@@ -1323,7 +1327,7 @@ Function create_FR_file_for_spravkaOMS()
                     {'cena', 'N', 11, 2}, ;
                     {'summa', 'N', 11, 2}})
   use (fr_data) new alias FRD
-  index on shifr to (cur_dir + 'tmp1')
+  index on shifr to (cur_dir() + 'tmp1')
   return NIL
 
 // 15.12.23 ¯¥ç âì á¯à ¢ª¨ ŽŒ‘ ¯® £®â®¢®¬ã «¨áâã ãçñâ 
@@ -1444,6 +1448,7 @@ Function print_spravka_OMS(mkod)
 
 // 27.11.14 ‚¢®¤ ¨ à á¯¥ç âª  á¯à ¢ª¨ ® áâ®¨¬®áâ¨ ®ª § ­­®© ¬¥¤¨æ¨­áª®© ¯®¬®é¨ ¢ áä¥à¥ ŽŒ‘')
 Function f_spravka_OMS()
+
   Local i, j, k, k1, buf := savescreen(), rec_spr_oms := 0
 
   k1 := polikl1_kart()
@@ -1588,6 +1593,7 @@ Function f_spravka_OMS()
 
 // 27.11.14
 Function fu_spravka_OMS(r, c)
+
   Local arr_title := {{1,' ˜¨äà ãá«.'}, ;
                       {2,'Š®«'}, ;
                       {3,'   –¥­    '}, ;
@@ -1615,6 +1621,7 @@ Function fu_spravka_OMS(r, c)
 
 // 27.11.14
 Function fu2spravka_OMS(b, ar, nDim, nElem, nKey)
+
   LOCAL nRow := ROW(), nCol := COL(), i, j, flag := .f., fl, lshifr, lshifr1
 
   DO CASE
@@ -1707,13 +1714,14 @@ Function fu2spravka_OMS(b, ar, nDim, nElem, nKey)
 
 // 27.11.14 Žâçñâ ® ª®«¨ç¥áâ¢¥ ¢ë¤ ­­ëå á¯à ¢®ª ŽŒ‘
 Function f_otchet_spravka_OMS()
+
   Local arr_m, buf := save_maxrow(), as := {0, 0, 0}, sh := 80, HH := 80, ;
-      i, n_file := cur_dir + 'o_sprOMS' + stxt
+      i, n_file := cur_dir() + 'o_sprOMS' + stxt
 
   if (arr_m := year_month()) != NIL
     mywait()
     R_Use(dir_server + 'mo_sprav', , 'SPR_OMS')
-    index on data to (cur_dir + 'tmp') for between(data, arr_m[5], arr_m[6])
+    index on data to (cur_dir() + 'tmp') for between(data, arr_m[5], arr_m[6])
     go top
     do while !eof()
       i := 1
