@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.03.24 создать счета по результатам прочитанного реестра СП
+// 20.12.24 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
 
   Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva, ;
@@ -15,6 +15,8 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
   Local tmpSelect
   Local ushifr
   local dPUMPver40 := 0d20240301
+  local sVersion
+  local old_lek, old_sh
 
 
   Default fl_msg To .t., arr_s TO {}
@@ -332,16 +334,28 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
     oXmlDoc := hxmldoc():new()
     oXmlDoc:add( hxmlnode():new( 'ZL_LIST' ) )
     oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
-    s := '3.11'
+
+    sVersion := '3.11'
     controlVer := tmp1->_YEAR * 100 + tmp1->_MONTH
-    If ( controlVer >= 202201 ) .and. ( p_tip_reestr == 1 ) // с января 2022 года
-      s := '3.2'
-    Endif
-    If ( controlVer >= 202403 ) .and. ( p_tip_reestr == 1 ) // с марта 2024 года
-      s := '4.0'
-    Endif
+    if p_tip_reestr == 1
+      // файла реестра случаев первого типа при формировании счета ОМС
+      If ( controlVer >= 202201 ) // с января 2022 года
+        sVersion := '3.2'
+      Endif
+      If ( controlVer >= 202403 ) // с марта 2024 года
+        sVersion := '4.0'
+      Endif
+      If ( controlVer >= 202501 ) // с января 2025 года
+        sVersion := '4.1'
+      Endif
+    elseif p_tip_reestr == 2
+      // файла реестра случаев второго типа при формировании счета ОМС
+      If ( controlVer >= 202501 ) // с января 2025 года
+        sVersion := '4.0'
+      Endif
+    endif
   
-    mo_add_xml_stroke( oXmlNode, 'VERSION', s )
+    mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
     mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( schet_->DSCHET ) )
     mo_add_xml_stroke( oXmlNode, 'FILENAME', mo_xml->FNAME )
     mo_add_xml_stroke( oXmlNode, 'SD_Z', lstr( arr_schet[ ii, 3 ] ) ) // новое поле
@@ -818,7 +832,8 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
                 mo_add_xml_stroke( oONK, 'LUCH_TIP', t9->LUCH_TIP )
               Endif
               If eq_any( Int( Val( t9->USL_TIP ) ), 2, 4 )
-                old_lek := Space( 6 ) ; old_sh := Space( 10 )
+                old_lek := Space( 6 )
+                old_sh := Space( 10 )
                 // цикл по БД лекарств
                 Select T10
                 find ( t1->IDCASE + Str( isl, 6 ) )
@@ -1004,11 +1019,11 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
     oXmlDoc := hxmldoc():new()
     oXmlDoc:add( hxmlnode():new( 'PERS_LIST' ) )
     oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
-    s := '3.11'
+    sVersion := '3.11'
     If StrZero( tmp1->_YEAR, 4 ) + StrZero( tmp1->_MONTH, 2 ) > '201910' // с ноября 2019 года
-      s := '3.2'
+      sVersion := '3.2'
     Endif
-    mo_add_xml_stroke( oXmlNode, 'VERSION', s )
+    mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
     mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( schet_->DSCHET ) )
     mo_add_xml_stroke( oXmlNode, 'FILENAME', mo_xml->FNAME2 )
     mo_add_xml_stroke( oXmlNode, 'FILENAME1', mo_xml->FNAME )
