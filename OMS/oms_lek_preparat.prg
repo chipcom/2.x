@@ -623,7 +623,39 @@ Function f5editpreparat( get, nKey, when_valid, k )
   Endif
   Return fl
 
-// 06.03.22
+// 21.12.24
+function collect_lek_pr_onko( mkod_human )
+
+  Local retArr := {}
+  Local existAlias := .f.
+  Local oldSelect := Select()
+  Local lekAlias
+  Local cAlias := 'LEK_PR'
+
+  lekAlias := Select( cAlias )
+  If lekAlias == 0
+//    r_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', cAlias )
+    r_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle',  cAlias ) // Сведения о применённых лекарственных препаратах
+  Endif
+  dbSelectArea( cAlias )
+  ( cAlias )->( dbSeek( Str( mkod_human, 7 ) ) )
+  If ( cAlias )->( Found() )
+//    Do While ( cAlias )->KOD_HUM == mkod_human .and. !Eof()
+    Do While ( cAlias )->kod == mkod_human .and. !Eof()
+        AAdd( retArr, { ( cAlias )->DATE_INJ, ( cAlias )->CODE_SH, ( cAlias )->REGNUM, 0, ;
+        0, 0, 0, '' } )
+      ( cAlias )->( dbSkip() )
+
+    Enddo
+  Endif
+
+  Select( oldSelect )
+  If lekAlias == 0
+    ( cAlias )->( dbCloseArea() )
+  Endif
+  Return retArr
+
+  // 06.03.22
 Function collect_lek_pr( mkod_human )
 
   Local retArr := {}

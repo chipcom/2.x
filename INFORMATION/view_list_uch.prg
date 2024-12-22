@@ -191,7 +191,6 @@ Function print_l_uch( mkod, par, regim, lnomer )
     func_error(4, 'Отсутствуют справочники ТФОМС за ' + str(year(human->k_data), 4) +' год.' )
   endif
 
-
   for i := 1 to perenos(tmp, name_org, sh)
     add_string(center(alltrim(tmp[i]), sh))
   next
@@ -434,7 +433,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
     endif
     add_string('')
   endif
-  print_luch_onk( human->k_data, sh )
+  print_luch_onk( human->k_data, human->KOD_DIAG, sh )
   add_string(center('О_К_А_З_А_Н_Ы   У_С_Л_У_Г_И', sh))
   Select HU
   find (str(mkod, 7))
@@ -672,7 +671,6 @@ Function print_l_uch( mkod, par, regim, lnomer )
     s := alltrim(s) + ' (+ ' + lput_kop(mpsumma, .t.) + ')'
   endif
   add_string(padl(s, sh))
-
   arrLekPreparat := collect_lek_pr(mkod) // выберем лекарственные препараты
   if len(arrLekPreparat) != 0  // не пустой список лекарственных препаратов
     add_string('')
@@ -780,18 +778,86 @@ Function print_l_uch_disp(sh)
   endif
   return NIL
 
-// 19.12.24 добавка по онкологии к листу учёта
-Function print_luch_onk( dk,  sh )
+// 21.12.24 добавка по онкологии к листу учёта
+Function print_luch_onk( dk,  diag, sh )
 
   local mm_DS1_T := getN018()  // N018
   local mm_usl_tip := getN013()
   local fname := prefixFileRefName( dk ) + 'shema'
 
+  local mm_N002 := f_define_tnm( 2, diag )
+  local mm_N003 := f_define_tnm( 3, diag )
+  local mm_N004 := f_define_tnm( 4, diag )
+  local mm_N005 := f_define_tnm( 5, diag )
+//  local mm_N013 := getn013()
+  local mm_N014 := getn014()
+  local mm_N015 := getn015()
+  local mm_N016 := getn016()
+  local mm_N017 := getn017()
+
+  local mm_str1 := { '',  'Тип лечения',  'Цикл терапии',  'Тип терапии',  'Тип терапии',  '' }
+  local mm_shema_err := { { 'соблюдён', 0 }, { 'не соблюдён', 1 } }
+  local tstr
+  local mWEI, mHEI, mBSA
+  local _arr_sh := ret_arr_shema( 1, dk ), _arr_mt := ret_arr_shema( 2, dk ), _arr_fr := ret_arr_shema( 3, dk )
+  local mm_shema_usl
+  local m1PR_CONS := 0, mDT_CONS
+  local arrLekPreparat, row, w1
+  Local HH := 77
+
   if f_is_oncology(1) == 2 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
+
+    dbCreate( cur_dir() + 'tmp_onkle',  { ; // Сведения о применённых лекарственных препаратах
+      { 'KOD',      'N',   7,  0 }, ; // код больного
+      { 'REGNUM',   'C',   6,  0 }, ; // IDD лек.препарата N020
+      { 'CODE_SH',  'C',  10,  0 }, ; // код схемы лек.терапии V024
+      { 'DATE_INJ', 'D',   8,  0 };  // дата введения лек.препарата
+    } )
+    Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE
+    r_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle',  'LE' ) // Сведения о применённых лекарственных препаратах
+    find ( Str( human->kod, 7 ) )
+    Do While le->kod == human->kod .and. !Eof()
+      Select TMPLE
+      Append Blank
+      tmple->REGNUM   := le->REGNUM
+      tmple->CODE_SH  := le->CODE_SH
+      tmple->DATE_INJ := le->DATE_INJ
+      Select LE
+      Skip
+    Enddo
+    r_use( dir_server + 'mo_onkco', dir_server + 'mo_onkco',  'CO' )
+    find ( Str( human->kod, 7 ) )
+    If Found()
+      m1PR_CONS := co->pr_cons
+      mDT_CONS := co->dt_cons
+    Endif
+    tmple->( dbCloseArea() )
+    le->( dbCloseArea() )
+    co->( dbCloseArea() )
+
+    mPR_CONS := inieditspr( A__MENUVERT, getn019(), m1PR_CONS )
+
     add_string('  Онкология:')
     R_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'ONKSL') // Сведения о случае лечения онкологического заболевания
     find (str(human->kod, 7))
     add_string('   Повод обращения: ' + inieditspr(A__MENUVERT, mm_DS1_T, onksl->DS1_T))
+    add_string('   Стадия заболевания: ' + alltrim( inieditspr( A__MENUVERT, mm_N002, onksl->STAD ) ) ;
+      + ', Tumor: ' + alltrim( inieditspr( A__MENUVERT, mm_N003, onksl->ONK_T ) ) ;
+      + ', Nodus: ' + alltrim( inieditspr( A__MENUVERT, mm_N004, onksl->ONK_N ) ) ;
+      + ', Metastasis: ' + alltrim( inieditspr( A__MENUVERT, mm_N005, onksl->ONK_M ) ) )
+    add_string( '   Наличие отдаленных метастазов (при рецидиве или прогрессировании): ' + alltrim( inieditspr( A__MENUVERT, mm_danet, onksl->MTSTZ ) ) )
+    add_string( '' )
+    tstr := space( 3 ) + 'Консилиум: ' + mPR_CONS
+    if m1PR_CONS != 0
+      tstr += ' дата ' + DToC( mDT_CONS )
+    endif
+    add_string( tstr )
+    add_string( '' )
+
+    add_string( space( 3 ) + 'Гистология / иммуногистохимия: ' + ;
+      inieditspr( A__MENUVERT, mmb_diag(), onksl->b_diag ) )
+    
+    add_string( '' )
     R_Use(dir_server + 'mo_onkus', dir_server + 'mo_onkus', 'ONKUS')
     find (str(human->kod, 7))
     do while onkus->kod == human->kod .and. !eof()
@@ -804,12 +870,101 @@ Function print_luch_onk( dk,  sh )
           add_string('    Количество фракций: ' + lstr(onksl->k_fr))
         endif
       endif
+      If ONKUS->USL_TIP == 1
+        m1usl_tip1 := ONKUS->HIR_TIP
+        mm_usl_tip1 := mm_N014
+      Elseif ONKUS->USL_TIP == 2
+        m1usl_tip1 := ONKUS->LEK_TIP_V
+        mm_usl_tip1 := mm_N016
+        m1usl_tip2 := ONKUS->LEK_TIP_L
+        mm_usl_tip2 := mm_N015
+      Elseif eq_any( ONKUS->USL_TIP, 3, 4 )
+        m1usl_tip1 := ONKUS->LUCH_TIP
+        mm_usl_tip1 := mm_N017
+//        mvsod := tmpou->sod
+      Endif
+
+
+      m1ad_cr := human_2->PC3
+      m1crit := onksl->crit
+      m1is_err := onksl->is_err
+
+      If Between( ONKUS->USL_TIP, 1, 4 )
+        add_string( space( 3 ) + PadR( mm_str1[ ONKUS->USL_TIP + 1 ], 12 ) + ': ' + ;
+          inieditspr( A__MENUVERT, mm_usl_tip1, m1usl_tip1 ) )
+        If ONKUS->USL_TIP == 2
+          add_string( space( 3 ) + 'Линия терапии: ' + ;
+            inieditspr( A__MENUVERT, mm_usl_tip2, m1usl_tip2 ) )
+          add_string( space( 3 ) + ret_str_onc( 6, 1 ) + ': ' + ;
+            inieditspr( A__MENUVERT, mm_shema_err, m1is_err ) )
+        Endif
+//        If eq_any( ONKUS->USL_TIP, 3, 4 )
+//          lstr_sod := ret_str_onc( 1, 1 )
+//          msod := PadR( AllTrim( str_0( mvsod, 6, 2 ) ), 6 )
+//          lstr_fr  := ret_str_onc( 2, 1 )
+//        Endif
+        If eq_any( ONKUS->USL_TIP, 2, 4 )
+          mWEI := AllTrim( str_0( onksl->WEI, 5, 1 ) )
+          mHEI := lstr( onksl->HEI )
+          mBSA := AllTrim( str_0( onksl->BSA, 4, 2 ) )
+          tstr := ret_str_onc( 3, 1 ) + ' ' + alltrim( mwei ) + ','
+          tstr += ' ' + ret_str_onc( 4, 1 ) + ' ' + mhei + ','
+          tstr += ' ' + ret_str_onc( 5, 1 ) + ' ' +  mbsa
+          add_string( space( 3 ) + tstr )
+//          lstr_she := ret_str_onc( 7, 1 )
+          If Left( m1crit, 2 ) == 'mt' .and. ONKUS->USL_TIP == 2
+            m1crit := Space( 10 )
+          Elseif eq_any( Left( m1crit, 2 ),  'не',  'sh' ) .and. ONKUS->USL_TIP == 4
+            m1crit := Space( 10 )
+          Endif
+          If !Empty( m1ad_cr ) .and. Left( Lower( m1ad_cr ), 5 ) == 'gemop' // после разговора с Л.Н.Антоновой 13.01.23
+            mm_shema_usl := f_valid2ad_cr( dk )  //mm_ad_cr
+            m1crit := AllTrim( m1ad_cr )
+          Else
+            mm_shema_usl := iif( ONKUS->USL_TIP == 2, _arr_sh, _arr_mt )
+          Endif
+          add_string( space( 3 ) + ret_str_onc( 7, 1 ) + ': ' + inieditspr( A__MENUVERT, mm_shema_usl, m1crit ) )
+          add_string( space( 3 ) + ret_str_onc( 8, 1 ) + ': ' + init_lek_pr() )
+          add_string( space( 3 ) + ret_str_onc( 9, 1 ) + ': ' + ;
+            inieditspr( A__MENUVERT, mm_danet, ONKUS->pptr ) )
+        Endif
+      Endif
       select ONKUS
       skip
     enddo
     add_string('')
     ONKUS->( dbCloseArea() )
     ONKSL->( dbCloseArea() )
+
+
+    w1 := 34
+    arrLekPreparat := collect_lek_pr_onko( human->kod ) // выберем лекарственные препараты
+    if len( arrLekPreparat ) != 0  // не пустой список лекарственных препаратов
+      add_string( '' )
+      add_string( center( 'Л_Е_К_А_Р_С_Т_В_Е_Н_Н_Ы_Е   П_Р_Е_П_А_Р_А_Т_Ы', sh ) )
+      header_lek_preparat( w1 )
+      for each row in arrLekPreparat
+        if verify_FF( HH )
+          header_lek_preparat( w1 )
+        endif
+        tstr := ''
+        cREGNUM := padr( get_Lek_pr_By_ID( row[ 3 ] ), 30)
+        cUNITCODE := padr( inieditspr( A__MENUVERT, get_ed_izm(), row[ 4 ] ),iif( mem_n_V034 == 0, 15, 30 ) )
+        cMETHOD := padr( inieditspr( A__MENUVERT, getMethodINJ(), row[ 6 ] ), 30 )
+        tstr := date_8( row[ 1 ] ) + ' '
+        if empty( cREGNUM )
+          tstr += padr( ret_schema_V032( row[ 8 ] ), 33 )
+        else
+          tstr += padr( cREGNUM, 33 ) + ' '
+          tstr += str( row[ 5 ], 6, 2 ) + ' ' ;
+              + padr( cUNITCODE, 7 ) + ' ' ;
+              + padr( cMETHOD, 15 ) + ' ' ;
+              + str(row[ 7 ], 6 )
+        endif
+        add_string( tstr )
+      next
+    endif
+  
   endif
   return NIL
 

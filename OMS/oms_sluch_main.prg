@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.05.24 добавление или редактирование случая (листа учета)
+// 21.12.24 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -462,7 +462,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         If sl->HEI > 0
           mHEI := PadR( lstr( sl->HEI ), 3 )
         Endif
-        If sl->BSA > 0
+        If sl->BSA > 0 
           mBSA := PadR( AllTrim( str_0( sl->BSA, 4, 2 ) ), 4 )
         Endif
       Endif
@@ -1364,15 +1364,15 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             mpptr := inieditspr( A__MENUVERT, mm_danet, m1pptr )
           Endif
         Endif
-        mmb_diag := { ;
-          { 'выполнено (результат получен)', 98 }, ;
-          { 'выполнено (результат не получен)', 97 }, ;
-          { 'выполнено (до 1 сентября 2018г.)', -1 }, ;
-          { 'отказ', 0 }, ;
-          { 'не показано', 7 }, ;
-          { 'противопоказано', 8 }, ;  // }
-          { 'не надо', 99 } }
-        mB_DIAG := inieditspr( A__MENUVERT, mmb_diag, m1B_DIAG )
+//        mmb_diag := { ;
+//          { 'выполнено (результат получен)', 98 }, ;
+//          { 'выполнено (результат не получен)', 97 }, ;
+//          { 'выполнено (до 1 сентября 2018г.)', -1 }, ;
+//          { 'отказ', 0 }, ;
+//          { 'не показано', 7 }, ;
+//          { 'противопоказано', 8 }, ;  // }
+//          { 'не надо', 99 } }
+        mB_DIAG := inieditspr( A__MENUVERT, mmb_diag(), m1B_DIAG )
       Endif
       // ////////////////////////////////////////////////////////
       SetMode( Max( 25, k ), 80 )
@@ -1442,7 +1442,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             Endif
           Else
             @ ++j, 3 Say 'Гистология / иммуногистохимия' Get mB_DIAG ;
-              reader {| x| menu_reader( x, mmb_diag, A__MENUVERT, , , .f. ) }
+              reader {| x| menu_reader( x, mmb_diag(), A__MENUVERT, , , .f. ) }
             @ ++j, 3 Say 'Дата взятия материала' Get mDIAG_DATE ;
               When eq_any( m1b_diag, 97, 98 ) // ;
             If Len( mm_N009 ) == 0

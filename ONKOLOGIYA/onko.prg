@@ -316,7 +316,20 @@ Function when_ds_onk()
 Function is_lymphoid(_diag) // ЗНО кроветворной или лимфоидной тканей
   
   return !empty(_diag) .and. between(left(_diag, 3), 'C81', 'C96')
+
+// 21.12.24
+function mmb_diag()
   
+  local mmb_diag := { ;
+    { 'выполнено (результат получен)', 98 }, ;
+    { 'выполнено (результат не получен)', 97 }, ;
+    { 'выполнено (до 1 сентября 2018г.)', -1 }, ;
+    { 'отказ', 0 }, ;
+    { 'не показано', 7 }, ;
+    { 'противопоказано', 8 }, ;  // }
+    { 'не надо', 99 } }
+  return mmb_diag
+
 // 02.02.19
 Function ret_str_onc(k, par)
   Static arr := { ;
