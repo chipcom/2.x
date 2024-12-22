@@ -1290,7 +1290,7 @@ Function getv036()
 
 // =========== V024 ===================
 //
-// 25.09.23 вернуть массив по справочнику ФФОМС V036.xml
+// 22.12.24 вернуть массив по справочнику ФФОМС V036.xml
 Function getv024( dk )
 
   // V024.xml - Классификатор классификационных критериев (DopKr)
@@ -1303,13 +1303,12 @@ Function getv024( dk )
 
   arr := {}
   If ValType( dk ) == 'N'
-    dBeg := "'" + Str( dk, 4 ) + "-01-01 00:00:00'"
-    dEnd := "'" + Str( dk, 4 ) + "-12-31 00:00:00'"
+    dBeg := "'" + Str( dk, 4 ) + "-01-01'"  // 00:00:00'"
+    dEnd := "'" + Str( dk, 4 ) + "-12-31'"  // 00:00:00'"
   Elseif ValType( dk ) == 'D'
-    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
-    dBeg := "'" + DToS( dk ) + "-01-01 00:00:00'"
-    dEnd := "'" + DToS( dk ) + "-12-31 00:00:00'"
-    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+    dk := Str( Year( dk ), 4 )
+    dBeg := "'" + dk + "-01-01'"  // 00:00:00'"
+    dEnd := "'" + dk + "-12-31'"  // 00:00:00'"
   Endif
 
   db := opensql_db()
