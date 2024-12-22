@@ -798,12 +798,14 @@ Function print_luch_onk( dk,  diag, sh )
   local mm_str1 := { '',  'Тип лечения',  'Цикл терапии',  'Тип терапии',  'Тип терапии',  '' }
   local mm_shema_err := { { 'соблюдён', 0 }, { 'не соблюдён', 1 } }
   local tstr
-  local mWEI, mHEI, mBSA
   local _arr_sh := ret_arr_shema( 1, dk ), _arr_mt := ret_arr_shema( 2, dk ), _arr_fr := ret_arr_shema( 3, dk )
   local mm_shema_usl
   local m1PR_CONS := 0, mDT_CONS
   local arrLekPreparat, row, w1
   Local HH := 77
+  local m1usl_tip1, mm_usl_tip1, m1usl_tip2, mm_usl_tip2
+  local m1crit  // ,m1ad_cr, m1is_err
+  local cREGNUM, cUNITCODE, cMETHOD
 
   if f_is_oncology(1) == 2 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
 
@@ -835,7 +837,6 @@ Function print_luch_onk( dk,  diag, sh )
     le->( dbCloseArea() )
     co->( dbCloseArea() )
 
-    mPR_CONS := inieditspr( A__MENUVERT, getn019(), m1PR_CONS )
 
     add_string('  Онкология:')
     R_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'ONKSL') // Сведения о случае лечения онкологического заболевания
@@ -847,7 +848,7 @@ Function print_luch_onk( dk,  diag, sh )
       + ', Metastasis: ' + alltrim( inieditspr( A__MENUVERT, mm_N005, onksl->ONK_M ) ) )
     add_string( '   Наличие отдаленных метастазов (при рецидиве или прогрессировании): ' + alltrim( inieditspr( A__MENUVERT, mm_danet, onksl->MTSTZ ) ) )
     add_string( '' )
-    tstr := space( 3 ) + 'Консилиум: ' + mPR_CONS
+    tstr := space( 3 ) + 'Консилиум: ' + inieditspr( A__MENUVERT, getn019(), m1PR_CONS )
     if m1PR_CONS != 0
       tstr += ' дата ' + DToC( mDT_CONS )
     endif
@@ -884,10 +885,9 @@ Function print_luch_onk( dk,  diag, sh )
 //        mvsod := tmpou->sod
       Endif
 
-
-      m1ad_cr := human_2->PC3
+//      m1ad_cr := human_2->PC3
       m1crit := onksl->crit
-      m1is_err := onksl->is_err
+//      m1is_err := onksl->is_err
 
       If Between( ONKUS->USL_TIP, 1, 4 )
         add_string( space( 3 ) + PadR( mm_str1[ ONKUS->USL_TIP + 1 ], 12 ) + ': ' + ;
@@ -896,7 +896,7 @@ Function print_luch_onk( dk,  diag, sh )
           add_string( space( 3 ) + 'Линия терапии: ' + ;
             inieditspr( A__MENUVERT, mm_usl_tip2, m1usl_tip2 ) )
           add_string( space( 3 ) + ret_str_onc( 6, 1 ) + ': ' + ;
-            inieditspr( A__MENUVERT, mm_shema_err, m1is_err ) )
+            inieditspr( A__MENUVERT, mm_shema_err, onksl->is_err ) )
         Endif
 //        If eq_any( ONKUS->USL_TIP, 3, 4 )
 //          lstr_sod := ret_str_onc( 1, 1 )
@@ -904,12 +904,9 @@ Function print_luch_onk( dk,  diag, sh )
 //          lstr_fr  := ret_str_onc( 2, 1 )
 //        Endif
         If eq_any( ONKUS->USL_TIP, 2, 4 )
-          mWEI := AllTrim( str_0( onksl->WEI, 5, 1 ) )
-          mHEI := lstr( onksl->HEI )
-          mBSA := AllTrim( str_0( onksl->BSA, 4, 2 ) )
-          tstr := ret_str_onc( 3, 1 ) + ' ' + alltrim( mwei ) + ','
-          tstr += ' ' + ret_str_onc( 4, 1 ) + ' ' + mhei + ','
-          tstr += ' ' + ret_str_onc( 5, 1 ) + ' ' +  mbsa
+          tstr := ret_str_onc( 3, 1 ) + ' ' + alltrim( str_0( onksl->WEI, 5, 1 ) ) + ','
+          tstr += ' ' + ret_str_onc( 4, 1 ) + ' ' + lstr( onksl->HEI ) + ','
+          tstr += ' ' + ret_str_onc( 5, 1 ) + ' ' +  AllTrim( str_0( onksl->BSA, 4, 2 ) )
           add_string( space( 3 ) + tstr )
 //          lstr_she := ret_str_onc( 7, 1 )
           If Left( m1crit, 2 ) == 'mt' .and. ONKUS->USL_TIP == 2
@@ -917,9 +914,9 @@ Function print_luch_onk( dk,  diag, sh )
           Elseif eq_any( Left( m1crit, 2 ),  'не',  'sh' ) .and. ONKUS->USL_TIP == 4
             m1crit := Space( 10 )
           Endif
-          If !Empty( m1ad_cr ) .and. Left( Lower( m1ad_cr ), 5 ) == 'gemop' // после разговора с Л.Н.Антоновой 13.01.23
+          If !Empty( human_2->PC3 ) .and. Left( Lower( human_2->PC3 ), 5 ) == 'gemop' // после разговора с Л.Н.Антоновой 13.01.23
             mm_shema_usl := f_valid2ad_cr( dk )  //mm_ad_cr
-            m1crit := AllTrim( m1ad_cr )
+            m1crit := AllTrim( human_2->PC3 )
           Else
             mm_shema_usl := iif( ONKUS->USL_TIP == 2, _arr_sh, _arr_mt )
           Endif
@@ -935,7 +932,6 @@ Function print_luch_onk( dk,  diag, sh )
     add_string('')
     ONKUS->( dbCloseArea() )
     ONKSL->( dbCloseArea() )
-
 
     w1 := 34
     arrLekPreparat := collect_lek_pr_onko( human->kod ) // выберем лекарственные препараты
@@ -964,7 +960,6 @@ Function print_luch_onk( dk,  diag, sh )
         add_string( tstr )
       next
     endif
-  
   endif
   return NIL
 
