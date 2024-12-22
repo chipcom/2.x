@@ -120,8 +120,6 @@ Function change_cena_oms()
                 Else
                   mcena_1 += hu->stoim_1
                 Endif
-                // my_debug(,"Сумма накопительная")
-                // my_debug(,mcena_1)
               Endif
             Endif
             Select HU
