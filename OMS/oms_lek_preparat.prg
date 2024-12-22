@@ -709,7 +709,7 @@ Function check_edit_field( get, when_valid, k )
   Endif
   Return fl
 
-// 27.09.23
+// 22.12.24
 Function get_lek_pr( k, r, c, _crit )
 
   Local i, j, nrec, t_arr := Array( BR_LEN ), ret := { Space( 10 ), Space( 10 ) }
@@ -717,6 +717,8 @@ Function get_lek_pr( k, r, c, _crit )
   Local aN021 := getn021( mk_data ), it, row
 
   Private arr_lek_pr := {}, yes_crit
+
+  _crit := AllTrim( _crit )
 
   dbCreate( cur_dir + 'tmp', { { 'id_lekp', 'C', 6, 0 }, ;
     { 'mnn', 'C', 70, 0 }, ;
@@ -735,7 +737,8 @@ Function get_lek_pr( k, r, c, _crit )
 
   If yes_crit // по данному критерию есть препараты в схеме
     For Each row in aN021
-      If AllTrim( row[ 2 ] ) == AllTrim( _crit )
+//      If AllTrim( row[ 2 ] ) == AllTrim( _crit )
+      If row[ 2 ] == _crit
         Select TMP
         Append Blank
         tmp->id_lekp := row[ 3 ]
