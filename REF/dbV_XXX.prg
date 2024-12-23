@@ -1290,7 +1290,7 @@ Function getv036()
 
 // =========== V024 ===================
 //
-// 22.12.24 вернуть массив по справочнику ФФОМС V036.xml
+// 23.12.24 вернуть массив по справочнику ФФОМС V024.xml
 Function getv024( dk )
 
   // V024.xml - Классификатор классификационных критериев (DopKr)
@@ -1317,9 +1317,10 @@ Function getv024( dk )
     "dkkname, " + ;
     "datebeg, " + ;
     "dateend " + ;
-    "FROM v024 " + ;
-    "WHERE datebeg <= " + dBeg + ;
-    "AND dateend >= " + dEnd )
+    "FROM v024 " )  //+ ;
+
+//      "WHERE datebeg <= " + dBeg + ;
+//    "AND dateend >= " + dEnd )
   If Len( aTable ) > 1
     For nI := 2 To Len( aTable )
       Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
@@ -1327,7 +1328,15 @@ Function getv024( dk )
       dEnd := CToD( aTable[ nI, 4 ] )
       Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
 
-      AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 2 ], dBeg, dEnd } )
+      if ValType( dk ) == 'D'
+        if dBeg <= dk .and. dk <= dEnd
+          AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 2 ], dBeg, dEnd } )
+        endif
+      else
+        if Year( dBeg ) <= dk .and. dk <= Year( dEnd )
+          AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 2 ], dBeg, dEnd } )
+        endif
+      endif
     Next
   Endif
   db := nil
