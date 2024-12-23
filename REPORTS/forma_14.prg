@@ -1675,11 +1675,9 @@ Function f1_f14( jh, jh1, is_diag )
   // проверяем таблицу 3000 (новорожденных)
   If nkd > 0 .and. human_->NOVOR > 0 .and. mvozrast == 0 .and. mmonth == 0 .and. mday <= 6
     k := ret_f_14_3000( mdiag )
-    // my_debug(,"3000 "+print_array(k))
     For j := 1 To Len( k )
       Select TMP_3000
       find ( PadR( k[ j, 1 ], 9 ) )
-      // my_debug(,"3000 "+padr(k[j,1],9))
       If human_2->VNR < 1000
         tmp_3000->p_boln++
         If fl_death
