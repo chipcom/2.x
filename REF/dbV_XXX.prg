@@ -1290,7 +1290,7 @@ Function getv036()
 
 // =========== V024 ===================
 //
-// 23.12.24 вернуть массив по справочнику ФФОМС V024.xml
+// 24.12.24 вернуть массив по справочнику ФФОМС V024.xml
 Function getv024( dk )
 
   // V024.xml - Классификатор классификационных критериев (DopKr)
@@ -1302,14 +1302,14 @@ Function getv024( dk )
   Local dBeg, dEnd
 
   arr := {}
-  If ValType( dk ) == 'N'
-    dBeg := "'" + Str( dk, 4 ) + "-01-01'"  // 00:00:00'"
-    dEnd := "'" + Str( dk, 4 ) + "-12-31'"  // 00:00:00'"
-  Elseif ValType( dk ) == 'D'
-    dk := Str( Year( dk ), 4 )
-    dBeg := "'" + dk + "-01-01'"  // 00:00:00'"
-    dEnd := "'" + dk + "-12-31'"  // 00:00:00'"
-  Endif
+  // If ValType( dk ) == 'N'
+  //   dBeg := "'" + Str( dk, 4 ) + "-01-01'"  // 00:00:00'"
+  //   dEnd := "'" + Str( dk, 4 ) + "-12-31'"  // 00:00:00'"
+  // Elseif ValType( dk ) == 'D'
+  //   dk := Str( Year( dk ), 4 )
+  //   dBeg := "'" + dk + "-01-01'"  // 00:00:00'"
+  //   dEnd := "'" + dk + "-12-31'"  // 00:00:00'"
+  // Endif
 
   db := opensql_db()
   aTable := sqlite3_get_table( db, "SELECT " + ;
@@ -1327,7 +1327,6 @@ Function getv024( dk )
       dBeg := CToD( aTable[ nI, 3 ] )
       dEnd := CToD( aTable[ nI, 4 ] )
       Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
-
       if ValType( dk ) == 'D'
         if dBeg <= dk .and. dk <= dEnd
           AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 2 ], dBeg, dEnd } )
