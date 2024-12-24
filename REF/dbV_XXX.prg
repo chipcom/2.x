@@ -1290,7 +1290,7 @@ Function getv036()
 
 // =========== V024 ===================
 //
-// 25.09.23 вернуть массив по справочнику ФФОМС V036.xml
+// 24.12.24 вернуть массив по справочнику ФФОМС V024.xml
 Function getv024( dk )
 
   // V024.xml - Классификатор классификационных критериев (DopKr)
@@ -1302,15 +1302,14 @@ Function getv024( dk )
   Local dBeg, dEnd
 
   arr := {}
-  If ValType( dk ) == 'N'
-    dBeg := "'" + Str( dk, 4 ) + "-01-01 00:00:00'"
-    dEnd := "'" + Str( dk, 4 ) + "-12-31 00:00:00'"
-  Elseif ValType( dk ) == 'D'
-    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
-    dBeg := "'" + DToS( dk ) + "-01-01 00:00:00'"
-    dEnd := "'" + DToS( dk ) + "-12-31 00:00:00'"
-    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
-  Endif
+  // If ValType( dk ) == 'N'
+  //   dBeg := "'" + Str( dk, 4 ) + "-01-01'"  // 00:00:00'"
+  //   dEnd := "'" + Str( dk, 4 ) + "-12-31'"  // 00:00:00'"
+  // Elseif ValType( dk ) == 'D'
+  //   dk := Str( Year( dk ), 4 )
+  //   dBeg := "'" + dk + "-01-01'"  // 00:00:00'"
+  //   dEnd := "'" + dk + "-12-31'"  // 00:00:00'"
+  // Endif
 
   db := opensql_db()
   aTable := sqlite3_get_table( db, "SELECT " + ;
@@ -1318,17 +1317,25 @@ Function getv024( dk )
     "dkkname, " + ;
     "datebeg, " + ;
     "dateend " + ;
-    "FROM v024 " + ;
-    "WHERE datebeg <= " + dBeg + ;
-    "AND dateend >= " + dEnd )
+    "FROM v024 " )  //+ ;
+
+//      "WHERE datebeg <= " + dBeg + ;
+//    "AND dateend >= " + dEnd )
   If Len( aTable ) > 1
     For nI := 2 To Len( aTable )
       Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
       dBeg := CToD( aTable[ nI, 3 ] )
       dEnd := CToD( aTable[ nI, 4 ] )
       Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
-
-      AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 2 ], dBeg, dEnd } )
+      if ValType( dk ) == 'D'
+        if dBeg <= dk .and. ( dk <= dEnd .or. Empty( dEnd ) )
+          AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 2 ], dBeg, dEnd } )
+        endif
+      else
+        if Year( dBeg ) <= dk .and. ( dk <= Year( dEnd ) .or. Empty( dEnd ) )
+          AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 2 ], dBeg, dEnd } )
+        endif
+      endif
     Next
   Endif
   db := nil

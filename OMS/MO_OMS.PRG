@@ -2555,7 +2555,6 @@ Function f2ret_oms_human( nkey )
         Skip
       Enddo
       // подбивка
-      my_debug(, print_array( mas_otchet ) )
       mas_otchet[ 8, 1 ] := mas_otchet[ 9, 1 ] + mas_otchet[ 10, 1 ] + mas_otchet[ 43, 1 ]
       mas_otchet[ 8, 2 ] := mas_otchet[ 9, 2 ] + mas_otchet[ 10, 2 ] + mas_otchet[ 43, 2 ]
       mas_otchet[ 8, 3 ] := mas_otchet[ 9, 3 ] + mas_otchet[ 10, 3 ] + mas_otchet[ 43, 3 ]

@@ -1,10 +1,10 @@
-// * информация по форма 1 ФФОМС (по счетам)
+// информация по форма 1 ФФОМС (по счетам)
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// * 01.03.23 распечатка формы №1 из приказа ФОМС №146
+// 01.03.23 распечатка формы №1 из приказа ФОМС №146
 FUNCTION forma1_ffoms()
 
   LOCAL mdate, i, j, k, d1, d2, arr_smo := {}, at1, at2, ta, fl_month, tmp, b1_1, a1_1, ;
@@ -176,7 +176,6 @@ FUNCTION forma1_ffoms()
   // for between(rak->DAKT,boy(arr_m[5]),arr_m[6])
   GO TOP
   DO WHILE !Eof()
-    // my_debug(,mo_xml->dfile)
     UpdateStatus()
     IF AScan( arr_h, raksh->kod_h ) == 0
       human->( dbGoto( raksh->kod_h ) )

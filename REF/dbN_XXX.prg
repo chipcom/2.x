@@ -1027,7 +1027,7 @@ Function loadn021()
 
   Return _arr
 
-// 18.12.24
+// 24.12.24
 Function getn021( dk )
 
   Static stYear
@@ -1038,15 +1038,16 @@ Function getn021( dk )
   Local year_dk
 
   If ValType( dk ) == 'N'
-    dBeg := "'" + Str( dk, 4 ) + "-01-01'"// 00:00:00'"
-    dEnd := "'" + Str( dk, 4 ) + "-12-31'"// 00:00:00'"
+    // dBeg := "'" + Str( dk, 4 ) + "-01-01 00:00:00'"
+    // dEnd := "'" + Str( dk, 4 ) + "-12-31 00:00:00'"
     year_dk := dk
   Elseif ValType( dk ) == 'D'
+    // year_dk := Str( Year( dk ), 4 )
+// //    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+//     dBeg := "'" + year_dk + "-01-01 00:00:00'"
+//     dEnd := "'" + year_dk + "-12-31 00:00:00'"
+// //    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     year_dk := Year( dk )
-    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
-    dBeg := "'" + DToS( dk ) + "'"  // "-01-01 00:00:00'"
-    dEnd := "'" + DToS( dk ) + "'"  // "-12-31 00:00:00'"
-    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
   Else
     Return {}
   Endif
@@ -1061,9 +1062,10 @@ Function getn021( dk )
       "dateend, " + ;
       "lekp_ext, " + ;
       "id_lekp_ext " + ;
-      "FROM n021 " + ;
-      "WHERE DATE(datebeg) <= " + dBeg + ;
-      "AND DATE(dateend) >= " + dEnd )
+      "FROM n021 " )  //  + ;
+//      "WHERE DATE(datebeg) <= " + dBeg + ;
+//      "AND DATE(dateend) >= " + dEnd )
+
     // "WHERE datebeg <= " + dBeg + ;
     // "AND dateend >= " + dEnd)
     If Len( aTable ) > 1
@@ -1072,7 +1074,15 @@ Function getn021( dk )
         dBeg := CToD( aTable[ nI, 4 ] )
         dEnd := CToD( aTable[ nI, 5 ] )
         Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
-        AAdd( _arr, { Val( aTable[ nI, 1 ] ), PadR( aTable[ nI, 2 ], 10 ), PadR( aTable[ nI, 3 ], 6 ), dBeg, dEnd, AllTrim( aTable[ nI, 6 ] ), AllTrim( aTable[ nI, 7 ] ) } )
+        If ValType( dk ) == 'D'
+          if dBeg <= dk .and. ( dk <= dEnd .or. Empty( dEnd ) )
+            AAdd( _arr, { Val( aTable[ nI, 1 ] ), alltrim( aTable[ nI, 2 ] ), PadR( aTable[ nI, 3 ], 6 ), dBeg, dEnd, AllTrim( aTable[ nI, 6 ] ), AllTrim( aTable[ nI, 7 ] ) } )
+          endif
+        else
+          if dk >= Year( dBeg ) .and. ( dk <= Year( dEnd ) .or. Empty( dEnd ) )
+            AAdd( _arr, { Val( aTable[ nI, 1 ] ), alltrim( aTable[ nI, 2 ] ), PadR( aTable[ nI, 3 ], 6 ), dBeg, dEnd, AllTrim( aTable[ nI, 6 ] ), AllTrim( aTable[ nI, 7 ] ) } )
+          endif
+        endif
       Next
     Endif
     db := nil
