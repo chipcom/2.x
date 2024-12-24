@@ -36,7 +36,7 @@ Function dispanserizacia( k )
       "dispanserizacia(13)", ;
       "dispanserizacia(14)", ;
       "dispanserizacia(15)" }
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
     inf_dds()
   Case k == 12
@@ -81,9 +81,9 @@ Function inf_dds( k )
       "inf_DDS(13)", ;
       "inf_DDS(14)", ;
       "inf_DDS(15)" }
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case Between( k, 11, 19 )
-    If ( j := popup_prompt( T_ROW, T_COL - 5, sj, ;
+    If ( j := popup_prompt( T_ROW, T_COL -5, sj, ;
         { "Находящиеся в стационаре", "Находящиеся под опекой" } ) ) == 0
       Return Nil
     Endif
@@ -93,12 +93,12 @@ Function inf_dds( k )
     Case k == 11
       inf_dds_karta()
     Case k == 12
-      If ( j1 := popup_prompt( T_ROW, T_COL - 5, 3, mas1pmt ) ) > 0
+      If ( j1 := popup_prompt( T_ROW, T_COL -5, 3, mas1pmt ) ) > 0
         inf_dds_svod( 1,, j1 )
       Endif
     Case k == 13
-      If ( j1 := popup_prompt( T_ROW, T_COL - 5, 1, mas1pmt ) ) > 0
-        If ( j := popup_prompt( T_ROW, T_COL - 5, sj2, ;
+      If ( j1 := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0
+        If ( j := popup_prompt( T_ROW, T_COL -5, sj2, ;
             { "Вывод таблицы со списком детей", ;
             "Вывод в Excel для ВОДКБ", ;
             "Вывод таблицы к письму №14-05/50", ;
@@ -112,11 +112,11 @@ Function inf_dds( k )
         Endif
       Endif
     Case k == 14
-      If ( j1 := popup_prompt( T_ROW, T_COL - 5, 1, mas1pmt ) ) > 0
+      If ( j1 := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0
         inf_dds_030dso( j1 )
       Endif
     Case k == 15
-      If ( j1 := popup_prompt( T_ROW, T_COL - 5, 1, mas1pmt ) ) > 0
+      If ( j1 := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0
         inf_dds_xmlfile( j1 )
       Endif
     Endcase
@@ -137,7 +137,7 @@ Function inf_dds_karta()
 
   Local arr_m, buf := save_maxrow(), blk, t_arr[ BR_LEN ]
 
-  If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) != NIL
+  If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
     If f0_inf_dds( arr_m, .f. )
       r_use( dir_server + "human",, "HUMAN" )
@@ -986,49 +986,49 @@ Function inf_dds_svod( par, par2, is_schet )
 
   Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec
 
-  If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) != NIL
+  If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
     If f0_inf_dds( arr_m, is_schet > 1, is_schet == 3 )
       adbf := { ;
         { "nomer",   "N",     6,     0 }, ;
         { "KOD",   "N",     7,     0 }, ; // код (номер записи)
-      { "KOD_K",   "N",     7,     0 }, ; // код по картотеке
-      { "FIO",   "C",    50,     0 }, ; // Ф.И.О. больного
-      { "DATE_R",   "D",     8,     0 }, ; // дата рождения больного
-      { "N_DATA",   "D",     8,     0 }, ; // дата начала лечения
-      { "K_DATA",   "D",     8,     0 }, ; // дата окончания лечения
-      { "sroki",   "C",    11,     0 }, ; // сроки лечения
-      { "noplata",   "N",     1,     0 }, ; //
-      { "oplata",   "C",    30,     0 }, ; // оплата
-      { "CENA_1",   "N",    10,     2 }, ; // оплачиваемая сумма лечения
-      { "KOD_DIAG",   "C",     5,     0 }, ; // шифр 1-ой осн.болезни
-      { "etap",   "N",     1,     0 }, ; //
-      { "gruppa_do",   "N",     1,     0 }, ; //
-      { "gruppa",   "N",     1,     0 }, ; //
-      { "gd1",   "C",     1,     0 }, ; //
-      { "gd2",   "C",     1,     0 }, ; //
-      { "gd3",   "C",     1,     0 }, ; //
-      { "gd4",   "C",     1,     0 }, ; //
-      { "gd5",   "C",     1,     0 }, ; //
-      { "g1",   "C",     1,     0 }, ; //
+        { "KOD_K",   "N",     7,     0 }, ; // код по картотеке
+        { "FIO",   "C",    50,     0 }, ; // Ф.И.О. больного
+        { "DATE_R",   "D",     8,     0 }, ; // дата рождения больного
+        { "N_DATA",   "D",     8,     0 }, ; // дата начала лечения
+        { "K_DATA",   "D",     8,     0 }, ; // дата окончания лечения
+        { "sroki",   "C",    11,     0 }, ; // сроки лечения
+        { "noplata",   "N",     1,     0 }, ; //
+        { "oplata",   "C",    30,     0 }, ; // оплата
+        { "CENA_1",   "N",    10,     2 }, ; // оплачиваемая сумма лечения
+        { "KOD_DIAG",   "C",     5,     0 }, ; // шифр 1-ой осн.болезни
+        { "etap",   "N",     1,     0 }, ; //
+        { "gruppa_do",   "N",     1,     0 }, ; //
+        { "gruppa",   "N",     1,     0 }, ; //
+        { "gd1",   "C",     1,     0 }, ; //
+        { "gd2",   "C",     1,     0 }, ; //
+        { "gd3",   "C",     1,     0 }, ; //
+        { "gd4",   "C",     1,     0 }, ; //
+        { "gd5",   "C",     1,     0 }, ; //
+        { "g1",   "C",     1,     0 }, ; //
         { "g2",   "C",     1,     0 }, ; //
-      { "g3",   "C",     1,     0 }, ; //
+        { "g3",   "C",     1,     0 }, ; //
         { "g4",   "C",     1,     0 }, ; //
-      { "g5",   "C",     1,     0 }, ; //
+        { "g5",   "C",     1,     0 }, ; //
         { "vperv",   "C",     1,     0 }, ; //
-      { "dispans",   "C",     1,     0 }, ; //
-      { "n1",   "C",     1,     0 }, ; //
+        { "dispans",   "C",     1,     0 }, ; //
+        { "n1",   "C",     1,     0 }, ; //
         { "n2",   "C",     1,     0 }, ; //
-      { "n3",   "C",     1,     0 }, ; //
+        { "n3",   "C",     1,     0 }, ; //
         { "p1",   "C",     1,     0 }, ; //
-      { "p2",   "C",     1,     0 }, ; //
+        { "p2",   "C",     1,     0 }, ; //
         { "p3",   "C",     1,     0 }, ; //
-      { "f1",   "C",     1,     0 }, ; //
+        { "f1",   "C",     1,     0 }, ; //
         { "f2",   "C",     1,     0 }, ; //
-      { "f3",   "C",     1,     0 }, ; //
+        { "f3",   "C",     1,     0 }, ; //
         { "f4",   "C",     1,     0 }, ; //
-      { "f5",   "C",     1,     0 }; //
-        }
+        { "f5",   "C",     1,     0 }; //
+      }
       For i := 1 To count_dds_arr_iss
         AAdd( adbf, { "di_" + lstr( i ), "C", 8, 0 } )
       Next
@@ -1084,28 +1084,28 @@ Function inf_dds_svod( par, par2, is_schet )
         { "kol3", "C", 60, 0 }, ;
         { "kol4", "C", 60, 0 }, ;
         { "gd1",   "N",     8,     0 }, ; //
-      { "gd2",   "N",     8,     0 }, ; //
-      { "gd3",   "N",     8,     0 }, ; //
-      { "gd4",   "N",     8,     0 }, ; //
-      { "gd5",   "N",     8,     0 }, ; //
-      { "g1",   "N",     8,     0 }, ; //
+        { "gd2",   "N",     8,     0 }, ; //
+        { "gd3",   "N",     8,     0 }, ; //
+        { "gd4",   "N",     8,     0 }, ; //
+        { "gd5",   "N",     8,     0 }, ; //
+        { "g1",   "N",     8,     0 }, ; //
         { "g2",   "N",     8,     0 }, ; //
-      { "g3",   "N",     8,     0 }, ; //
+        { "g3",   "N",     8,     0 }, ; //
         { "g4",   "N",     8,     0 }, ; //
-      { "g5",   "N",     8,     0 }, ; //
+        { "g5",   "N",     8,     0 }, ; //
         { "vperv",   "N",     8,     0 }, ; //
-      { "dispans",   "N",     8,     0 }, ; //
-      { "n1",   "N",     8,     0 }, ; //
+        { "dispans",   "N",     8,     0 }, ; //
+        { "n1",   "N",     8,     0 }, ; //
         { "n2",   "N",     8,     0 }, ; //
-      { "n3",   "N",     8,     0 }, ; //
+        { "n3",   "N",     8,     0 }, ; //
         { "p1",   "N",     8,     0 }, ; //
-      { "p2",   "N",     8,     0 }, ; //
+        { "p2",   "N",     8,     0 }, ; //
         { "p3",   "N",     8,     0 }, ; //
-      { "f1",   "N",     8,     0 }, ; //
+        { "f1",   "N",     8,     0 }, ; //
         { "f2",   "N",     8,     0 }, ; //
-      { "f3",   "N",     8,     0 }, ; //
+        { "f3",   "N",     8,     0 }, ; //
         { "f4",   "N",     8,     0 }, ; //
-      { "f5",   "N",     8,     0 } }
+        { "f5",   "N",     8,     0 } }
       For i := 1 To count_dds_arr_iss
         AAdd( adbf, { "di_" + lstr( i ), "N", 8, 0 } )
       Next
@@ -1368,7 +1368,7 @@ Function inf_dds_svod2( par2, is_schet )
 
   Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 91, HH := 60, n_file := cur_dir + "ddssvod2" + stxt
 
-  If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) != NIL
+  If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
     If f0_inf_dds( arr_m, is_schet > 1, is_schet == 3 )
       Private arr_deti := { ;
@@ -1603,9 +1603,6 @@ Function f2_inf_dds_svod2( Loc_kod, kod_kartotek )
         ar2[ 20 ] := 1
       Endif
       //
-      // my_debug(,left(ad[i, 1], 5))
-      // my_debug(,str(ar2[19])+"    "+str(ar2[20]))
-      //
       If Left( ad[ i, 1 ], 1 ) == "C" .or. Between( Left( ad[ i, 1 ], 3 ), "D00", "D09" ) // ЗНО
         ar2[ 9 ] := 1  // arr_deti[k, 9] ++
       Endif
@@ -1621,12 +1618,9 @@ Function f2_inf_dds_svod2( Loc_kod, kod_kartotek )
     Endif
   Next i
   // надо деффицит массы тела
-  // my_debug(,kart->fio)
-  // my_debug(,str(m1fiz_razv1)+"   "+mfiz_razv1)
   If m1fiz_razv1 == 1
     ar2[ 20 ] := 1
   Endif
-  // my_debug(,str(ar2[20]))
 
   For j := 1 To 2
     k := ar[ j ]
@@ -1692,7 +1686,7 @@ Function inf_dds_030dso( is_schet )
 
   Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 80, n_file := cur_dir + "f_030dso" + stxt, d1, d2
 
-  If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) != NIL
+  If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
     If f0_inf_dds( arr_m, is_schet > 1, is_schet == 3 )
       Private arr_deti[ 5 ] ; AFill( arr_deti, 0 )
@@ -1755,7 +1749,7 @@ Function inf_dds_030dso( is_schet )
         { "17", "Травмы, отравления и некоторые...", "S00-T98",, }, ;
         { "18", "Прочие", "",, }, ;
         { "19", "ВСЕГО ЗАБОЛЕВАНИЙ", "A00-T98",, };
-        }
+      }
       For n := 1 To Len( arr_4 )
         If "-" $ arr_4[ n, 3 ]
           d1 := Token( arr_4[ n, 3 ], "-", 1 )
@@ -1873,7 +1867,7 @@ Function inf_dds_030dso( is_schet )
       add_string( "  2.1.3. в возрасте от 10 до 14 лет включительно    " + Str( arr_deti[ 4 ], 6 ) + " (человек)," )
       add_string( "  2.1.4. в возрасте от 15 до 17 лет включительно    " + Str( arr_deti[ 5 ], 6 ) + " (человек)." )
       For i := 1 To Len( arr_vozrast )
-        verify_ff( HH - 50, .t., sh )
+        verify_ff( HH -50, .t., sh )
         add_string( "" )
         add_string( Center( lstr( arr_vozrast[ i, 1 ] ) + ;
           ". Структура выявленных заболеваниях (сосотояний) у детей в возрасте от " + ;
@@ -1930,12 +1924,12 @@ Function inf_dds_030dso( is_schet )
         "────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────", ;
         "    1   │  2  │  3  │  4  │  5  │  6  │  7  │  8  │  9  │  10 │  11 │  12 │  13 ", ;
         "────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────" }
-      verify_ff( HH - 50, .t., sh )
+      verify_ff( HH -50, .t., sh )
       add_string( "10. Результаты дополнительных консультаций, исследований, лечения и медицинской" )
       add_string( "    реабилитации детей по результатам проведения настоящей диспансеризации:" )
       Use ( cur_dir + "tmp10" ) index ( cur_dir + "tmp10" ) New Alias TMP10
       For i := 1 To 8
-        verify_ff( HH - 16, .t., sh )
+        verify_ff( HH -16, .t., sh )
         add_string( "" )
         s := Space( 5 )
         If i == 1
@@ -1981,7 +1975,7 @@ Function inf_dds_030dso( is_schet )
               skol += v
               If eq_any( i, 2, 4 )
                 s1 += Str( v, 6 )
-                find ( Str( j, 1 ) + Str( i - 1, 1 ) + Str( k, 1 ) )
+                find ( Str( j, 1 ) + Str( i -1, 1 ) + Str( k, 1 ) )
                 If Found() .and. tmp10->kol > 0
                   s1 += " " + umest_val( v / tmp10->kol * 100, 5, 2 )
                   oldkol += tmp10->kol
@@ -2010,14 +2004,14 @@ Function inf_dds_030dso( is_schet )
       Next
       Use
       //
-      verify_ff( HH - 50, .t., sh )
+      verify_ff( HH -50, .t., sh )
       add_string( "11. Результаты лечения, медицинской реабилитации и (или) санаторно-курортного" )
       add_string( "    лечения детей до проведения настоящей диспансеризации:" )
       vkol := 0
       Use ( cur_dir + "tmp11" ) index ( cur_dir + "tmp11" ) New Alias TMP11
       For i := 1 To 12
         If i % 3 > 0
-          verify_ff( HH - 16, .t., sh )
+          verify_ff( HH -16, .t., sh )
           add_string( "" )
         Endif
         s := Space( 5 )
@@ -2082,7 +2076,7 @@ Function inf_dds_030dso( is_schet )
                 skol += v
                 If eq_any( i, 2, 5, 8, 11 )
                   s1 += Str( v, 6 )
-                  find ( Str( j, 1 ) + Str( i - 1, 2 ) + Str( k, 1 ) )
+                  find ( Str( j, 1 ) + Str( i -1, 2 ) + Str( k, 1 ) )
                   If Found() .and. tmp11->kol > 0
                     s1 += " " + umest_val( v / tmp11->kol * 100, 5, 2 )
                     oldkol += tmp11->kol
@@ -2114,13 +2108,13 @@ Function inf_dds_030dso( is_schet )
         Endif
       Next
       Use
-      verify_ff( HH - 3, .t., sh )
+      verify_ff( HH -3, .t., sh )
       add_string( "" )
       add_string( "12. Оказание высокотехнологичной медицинской помощи:" )
       add_string( "  12.1. рекомендована (по итогам настоящей диспанc-ции): " + lstr( s12_1 ) + " чел., в т.ч. " + lstr( s12_1m ) + " мальчикам" )
       add_string( "  12.2. оказана (по итогам диспансеризации в пред.году): " + lstr( s12_2 ) + " чел., в т.ч. " + lstr( s12_2m ) + " мальчикам" )
       Use ( cur_dir + "tmp13" ) index ( cur_dir + "tmp13" ) New Alias TMP13
-      verify_ff( HH - 16, .t., sh )
+      verify_ff( HH -16, .t., sh )
       n := 32
       add_string( "" )
       add_string( "13. Число детей-инвалидов из числа детей, прошедших диспансеризацию" )
@@ -2147,7 +2141,7 @@ Function inf_dds_030dso( is_schet )
         add_string( s )
       Next
       add_string( Replicate( "─", sh ) )
-      verify_ff( HH - 16, .t., sh )
+      verify_ff( HH -16, .t., sh )
       n := 26
       add_string( "" )
       add_string( "14. Выполнение индивидуальных программ реабилитации (ИПР) детей-инвалидов" )
@@ -2178,7 +2172,7 @@ Function inf_dds_030dso( is_schet )
         add_string( s )
       Next
       add_string( Replicate( "─", sh ) )
-      verify_ff( HH - 15, .t., sh )
+      verify_ff( HH -15, .t., sh )
       n := 20
       add_string( "" )
       add_string( "15. Охват профилактическими прививками в отчетном периоде" )
@@ -2209,7 +2203,7 @@ Function inf_dds_030dso( is_schet )
       Next
       add_string( Replicate( "─", sh ) )
       Use ( cur_dir + "tmp16" ) index ( cur_dir + "tmp16" ) New Alias TMP16
-      verify_ff( HH - 21, .t., sh )
+      verify_ff( HH -21, .t., sh )
       n := 20
       add_string( "" )
       add_string( "16. Распределение детей по уровню физического развития" )
@@ -2242,7 +2236,7 @@ Function inf_dds_030dso( is_schet )
         Next
       Next
       add_string( Replicate( "─", sh ) )
-      verify_ff( HH - 21, .t., sh )
+      verify_ff( HH -21, .t., sh )
       n := 20
       add_string( "" )
       add_string( "17. Распределение детей по группам состояния здоровья" )
@@ -2653,7 +2647,7 @@ Function inf_dds_xmlfile( is_schet )
   Static stitle := "XML-портал: диспансеризация детей-сирот "
   Local arr_m, n, buf := save_maxrow(), lkod_h, lkod_k, rec, blk, t_arr[ BR_LEN ]
 
-  If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) != NIL
+  If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
     If f0_inf_dds( arr_m, is_schet > 1, is_schet == 3, .t. )
       r_use( dir_server + "human",, "HUMAN" )
@@ -2773,15 +2767,15 @@ Function inf_dvn( k )
       "inf_DVN(17)", ;
       "inf_DVN(15)", ;
       "inf_DVN(16)" }
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
     f_131_u()
   Case k == 12
     mas_pmt := AClone( mas1pmt )
     AAdd( mas_pmt, "случаи, ещё ~не попавшие в счета" )
-    If ( j := popup_prompt( T_ROW, T_COL - 5, sj, mas_pmt ) ) > 0
+    If ( j := popup_prompt( T_ROW, T_COL -5, sj, mas_pmt ) ) > 0
       sj := j
-      If ( j := popup_prompt( T_ROW, T_COL - 5, sj1, ;
+      If ( j := popup_prompt( T_ROW, T_COL -5, sj1, ;
           { "Диспансеризация ~1 этап", ;
           "Направлены на 2 этап - ещё ~не прошли", ;
           "Диспансеризация ~2 этап", ;
@@ -2803,9 +2797,9 @@ Function inf_dvn( k )
       "Индикаторы мониторинга диспансеризации взрослых" }
     mas_fun := { "inf_DVN(21)", ;
       "inf_DVN(22)" }
-    popup_prompt( T_ROW, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 15
-    If ( j := popup_prompt( T_ROW, T_COL - 5, 1, mas1pmt ) ) > 0
+    If ( j := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0
       forma_131( j )
     Endif
   Case k == 16
@@ -2821,7 +2815,7 @@ Function inf_dvn( k )
     str_sem := "ИСОМП"
     If g_slock( str_sem )
       fff_init_r01() // открыл
-      popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+      popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
       g_sunlock( str_sem )
     Else
       func_error( 4, "В данный момент с этим режимом работает другой пользователь." )
@@ -2830,35 +2824,35 @@ Function inf_dvn( k )
     inf_ydvn()
   Case k == 41
     // ne_real()
-    if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
-      mas_pmt := { "~Создание плана-графика", ;
-                   "~Просмотр файлов обмена" }
-      mas_msg := { "Создание файла обмена R05... с планом-графиком по месяцам", ;
-                   "Просмотр файлов обмена R05... и результатов работы с ними" }
-      mas_fun := { "inf_DVN(51)", ;
-                   "inf_DVN(52)" }
-      popup_prompt( T_ROW, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
-    endif  
+    // if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
+    mas_pmt := { "~Создание плана-графика", ;
+      "~Просмотр файлов обмена" }
+    mas_msg := { "Создание файла обмена R05... с планом-графиком по месяцам", ;
+      "Просмотр файлов обмена R05... и результатов работы с ними" }
+    mas_fun := { "inf_DVN(51)", ;
+      "inf_DVN(52)" }
+    popup_prompt( T_ROW, T_COL -5, si5, mas_pmt, mas_msg, mas_fun )
+    // endif
   Case k == 42
     // ne_real()
-    if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
-      mas_pmt := { "~Создание файлов обмена", ;
-                   "~Просмотр файлов обмена" }
-      mas_msg := { "Создание файлов обмена R01... по всем месяцам", ;
-                   "Просмотр файлов обмена R01... и результатов работы с ними" }
-      mas_fun := { "inf_DVN(61)", ;
-                   "inf_DVN(62)" }
-      If need_delete_reestr_r01()
-        AAdd( mas_pmt, "~Аннулирование пакета" )
-        AAdd( mas_msg, "Аннулирование недописанного пакета файлов R01" )
-        AAdd( mas_fun, "delete_reestr_R01()" )
-      Endif
-      // set key K_CTRL_F10 to delete_month_R01()
-      popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
-      // set key K_CTRL_F10 to
-    endif
+    // if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
+    mas_pmt := { "~Создание файлов обмена", ;
+      "~Просмотр файлов обмена" }
+    mas_msg := { "Создание файлов обмена R01... по всем месяцам", ;
+      "Просмотр файлов обмена R01... и результатов работы с ними" }
+    mas_fun := { "inf_DVN(61)", ;
+      "inf_DVN(62)" }
+    If need_delete_reestr_r01()
+      AAdd( mas_pmt, "~Аннулирование пакета" )
+      AAdd( mas_msg, "Аннулирование недописанного пакета файлов R01" )
+      AAdd( mas_fun, "delete_reestr_R01()" )
+    Endif
+    // set key K_CTRL_F10 to delete_month_R01()
+    popup_prompt( T_ROW, T_COL -5, si6, mas_pmt, mas_msg, mas_fun )
+    // set key K_CTRL_F10 to
+    // endif
   Case k == 21
-    If ( j := popup_prompt( T_ROW, T_COL - 5, 1, mas1pmt ) ) > 0
+    If ( j := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0
       f21_inf_dvn( j )
     Endif
   Case k == 22
@@ -2870,35 +2864,32 @@ Function inf_dvn( k )
   Case k == 52
     f_view_r05()
   Case k == 61
-    //my_debug(, "00000000" )
     f_create_r01()
   Case k == 62
     f_view_r01()
   Case k == 43
-    //ne_real()
-    if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
-      mas_pmt := {"~Создание файлов обмена", ;
-                  "~Просмотр файлов обмена"}
-      mas_msg := {"Создание файлов обмена R11... за конкретный месяц", ;
-                  "Просмотр файлов обмена R11... и результатов работы с ними"}
-      mas_fun := {"inf_DVN(71)", ;
-                  "inf_DVN(72)"}
-      if need_delete_reestr_R01()
-        aadd(mas_pmt, "~Аннулирование пакета")
-        aadd(mas_msg, "Аннулирование недописанного пакета R11")
-        aadd(mas_fun, "delete_reestr_R11()")
-      endif
-      
-      //if glob_mo[_MO_KOD_TFOMS] == '161015' // КБ-11
-        aadd(mas_pmt, "~Повторный подбор пациентов")
-        aadd(mas_msg, "Повторный подбор пациентов")
-        aadd(mas_fun, "find_new_R00()")
-      //endif
-      
+    // ne_real()
+    If glob_mo[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
+      mas_pmt := { "~Создание файлов обмена", ;
+        "~Просмотр файлов обмена" }
+      mas_msg := { "Создание файлов обмена R11... за конкретный месяц", ;
+        "Просмотр файлов обмена R11... и результатов работы с ними" }
+      mas_fun := { "inf_DVN(71)", ;
+        "inf_DVN(72)" }
+      If need_delete_reestr_r01()
+        AAdd( mas_pmt, "~Аннулирование пакета" )
+        AAdd( mas_msg, "Аннулирование недописанного пакета R11" )
+        AAdd( mas_fun, "delete_reestr_R11()" )
+      Endif
+      AAdd( mas_pmt, "~Повторный подбор пациентов" )
+      AAdd( mas_msg, "Повторный подбор пациентов" )
+      AAdd( mas_fun, "find_new_R00()" )
+
+
       // set key K_CTRL_F10 to delete_month_R11()
-      popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
+      popup_prompt( T_ROW, T_COL - 5, si7, mas_pmt, mas_msg, mas_fun )
       // set key K_CTRL_F10 to
-    endif  
+    Endif
   Case k == 71
     f_create_r11()
   Case k == 72
@@ -3015,7 +3006,7 @@ Function f_131_u()
 
   Local arr_m, buf := save_maxrow(), k, blk, t_arr[ BR_LEN ], rec := 0
 
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5,,, @lcount_uch ) ) != NIL ;
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5,,, @lcount_uch ) ) != NIL ;
       .and. ( arr_m := year_month(,,, 5 ) ) != Nil .and. f0_inf_dvn( arr_m, .f. )
     mywait()
     r_use( dir_server + "kartotek",, "KART" )
@@ -3146,9 +3137,9 @@ Function f1_131_u( nKey, oBrow, regim )
       is_disp := .f.
       human->( dbGoto( tmp->kod3h ) )
       If Between( human_->RSLT_NEW, 343, 345 )
-        m1GRUPPA := human_->RSLT_NEW -342
+        m1GRUPPA := human_->RSLT_NEW - 342
       Elseif Between( human_->RSLT_NEW, 373, 374 )
-        m1GRUPPA := human_->RSLT_NEW -370
+        m1GRUPPA := human_->RSLT_NEW - 370
       Endif
       If !Between( m1gruppa, 1, 4 )
         m1GRUPPA := 0 ; func_error( 4, s_smg )
@@ -3181,7 +3172,7 @@ Function f1_131_u( nKey, oBrow, regim )
       mdvozrast := ret_vozr_dvn_veteran( mdvozrast, human->k_data )
     Endif
 
-//    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
+    // ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
     ret_arrays_disp( mk_data )
     ret_tip_mas( mWEIGHT, mHEIGHT, @m1tip_mas )
     Select HU
@@ -3826,50 +3817,50 @@ Function f21_inf_dvn( par ) // свод
   Local kol_2_year_dvn := 0, kol_2_year_prof := 0
   Local kol_2_year_dvn_40 := 0, kol_2_year_prof_40 := 0
 
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5,,, @lcount_uch ) ) != NIL ;
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5,,, @lcount_uch ) ) != NIL ;
       .and. ( arr_m := year_month(,,, 5 ) ) != Nil .and. f0_inf_dvn( arr_m, par > 1, par == 3, .t. )
     Private arr_usl_bio := { { ;
       "A11.20.010", ;// Биопсия молочной железы чрескожная
-    "A11.20.010.001", ;// Биопсия новообразования молочной железы прицельная пункционная под контролем рентгенографического исследования
-    "A11.20.010.002", ;// Биопсия новообразования молочной железы аспирационная вакуумная под контролем рентгенографического исследования
-    "A11.20.010.004" ;// Биопсия непальпируемых новообразования молочной железы аспирационная вакуумная под контролем ультразвукового исследования
+      "A11.20.010.001", ;// Биопсия новообразования молочной железы прицельная пункционная под контролем рентгенографического исследования
+      "A11.20.010.002", ;// Биопсия новообразования молочной железы аспирационная вакуумная под контролем рентгенографического исследования
+      "A11.20.010.004" ;// Биопсия непальпируемых новообразования молочной железы аспирационная вакуумная под контролем ультразвукового исследования
     }, ;
-      { ;
+    { ;
       "A11.18.001", ;// Биопсия ободочной кишки эндоскопическая
-    "A11.18.002", ;// Биопсия ободочной кишки оперативная
-    "A11.19.001", ;// Биопсия сигмовидной кишки с помощью видеоэндоскопических технологий
-    "A11.19.002", ;// Биопсия прямой кишки с помощью видеоэндоскопических технологий
-    "A11.19.003", ;// Биопсия ануса и перианальной области
-    "A11.19.009" ;// Биопсия толстой кишки при лапароскопии
+      "A11.18.002", ;// Биопсия ободочной кишки оперативная
+      "A11.19.001", ;// Биопсия сигмовидной кишки с помощью видеоэндоскопических технологий
+      "A11.19.002", ;// Биопсия прямой кишки с помощью видеоэндоскопических технологий
+      "A11.19.003", ;// Биопсия ануса и перианальной области
+      "A11.19.009" ;// Биопсия толстой кишки при лапароскопии
     }, ;
-      { ;
+    { ;
       "A11.20.011", ;// Биопсия шейки матки
-    "A11.20.011.001", ;// Биопсия шейки матки радиоволновая
-    "A11.20.011.002", ;// Биопсия шейки матки радиоволновая конусовидная
-    "A11.20.011.003" ;// Биопсия шейки матки ножевая
+      "A11.20.011.001", ;// Биопсия шейки матки радиоволновая
+      "A11.20.011.002", ;// Биопсия шейки матки радиоволновая конусовидная
+      "A11.20.011.003" ;// Биопсия шейки матки ножевая
     }, ;
-      { ;
+    { ;
       "A11.01.001", ;// Биопсия кожи
-    "A11.07.001", ;// Биопсия слизистой полости рта
-    "A11.07.002", ;// Биопсия языка
-    "A11.07.003", ;// Биопсия миндалины, зева и аденоидов
-    "A11.07.004", ;// Биопсия глотки, десны и язычка
-    "A11.07.005", ;// Биопсия слизистой преддверия полости рта
-    "A11.07.006", ;// Биопсия пульпы
-    "A11.07.007", ;// Биопсия тканей губы
-    "A11.07.016", ;// Биопсия слизистой ротоглотки
-    "A11.07.016.001", ;// Биопсия слизистой ротоглотки под контролем эндоскопического исследования
-    "A11.07.020", ;// Биопсия слюнной железы
-    "A11.07.020.001", ;// Биопсия околоушной слюнной железы
-    "A11.08.001", ;// Биопсия слизистой оболочки гортани
-    "A11.08.001.001", ;// Биопсия тканей гортани под контролем ларингоскопического исследования
-    "A11.08.002", ;// Биопсия слизистой оболочки полости носа
-    "A11.08.003", ;// Биопсия слизистой оболочки носоглотки
-    "A11.08.003.001", ;// Биопсия слизистой оболочки носоглотки под контролем эндоскопического исследования
-    "A11.08.015", ;// Биопсия слизистой оболочки околоносовых пазух
-    "A11.08.016", ;// Биопсия тканей грушевидного кармана
-    "A11.08.016.001", ;// Биопсия тканей грушевидного кармана под контролем эндоскопического исследования
-    "A11.26.001" ;// Биопсия новообразования век, конъюнктивы или роговицы
+      "A11.07.001", ;// Биопсия слизистой полости рта
+      "A11.07.002", ;// Биопсия языка
+      "A11.07.003", ;// Биопсия миндалины, зева и аденоидов
+      "A11.07.004", ;// Биопсия глотки, десны и язычка
+      "A11.07.005", ;// Биопсия слизистой преддверия полости рта
+      "A11.07.006", ;// Биопсия пульпы
+      "A11.07.007", ;// Биопсия тканей губы
+      "A11.07.016", ;// Биопсия слизистой ротоглотки
+      "A11.07.016.001", ;// Биопсия слизистой ротоглотки под контролем эндоскопического исследования
+      "A11.07.020", ;// Биопсия слюнной железы
+      "A11.07.020.001", ;// Биопсия околоушной слюнной железы
+      "A11.08.001", ;// Биопсия слизистой оболочки гортани
+      "A11.08.001.001", ;// Биопсия тканей гортани под контролем ларингоскопического исследования
+      "A11.08.002", ;// Биопсия слизистой оболочки полости носа
+      "A11.08.003", ;// Биопсия слизистой оболочки носоглотки
+      "A11.08.003.001", ;// Биопсия слизистой оболочки носоглотки под контролем эндоскопического исследования
+      "A11.08.015", ;// Биопсия слизистой оболочки околоносовых пазух
+      "A11.08.016", ;// Биопсия тканей грушевидного кармана
+      "A11.08.016.001", ;// Биопсия тканей грушевидного кармана под контролем эндоскопического исследования
+      "A11.26.001" ;// Биопсия новообразования век, конъюнктивы или роговицы
     };
       }
     Private arr_21[ 50 ], arr_316 := {}, arr_ne := {}
@@ -4097,9 +4088,9 @@ Function f21_inf_dvn( par ) // свод
         mdvozrast := Year( human->n_data ) - Year( human->date_r )
         g1 := 0
         If Between( human_->RSLT_NEW, 343, 345 )
-          g1 := human_->RSLT_NEW -342
+          g1 := human_->RSLT_NEW - 342
         Elseif Between( human_->RSLT_NEW, 373, 374 )
-          g1 := human_->RSLT_NEW -370
+          g1 := human_->RSLT_NEW - 370
         Endif
         If Between( g1, 1, 4 )
           arr_21[ 14 ] ++
@@ -4112,7 +4103,7 @@ Function f21_inf_dvn( par ) // свод
             arr_21[ 42 ] ++
           Endif
           If g1 == 4 ; g1 := 3 ; Endif // Итого III группа
-          arr_21[ 15 + g1 ]++ // профосмотры по группам здоровья
+          arr_21[ 15 + g1 ]++   // профосмотры по группам здоровья
           If f_starshe_trudosp( human->POL, human->DATE_R, human->n_data )
             arr_21[ 40 ] ++
           Endif
@@ -4146,15 +4137,15 @@ Function f21_inf_dvn( par ) // свод
         If human->kod_k == t_kod_k
           If ( ( t_date - human->n_data ) > 730 )
             kol_2_year_prof++
-            if (mvozrast := count_years( human->date_r, human->n_data ) > 39) .and. (mvozrast := count_years( human->date_r, human->n_data ) < 66)
+            If ( mvozrast := count_years( human->date_r, human->n_data ) > 39 ) .and. ( mvozrast := count_years( human->date_r, human->n_data ) < 66 )
               kol_2_year_prof_40++
             Endif
           Endif
         Else
           kol_2_year_prof++
-          if (mvozrast := count_years( human->date_r, human->n_data ) > 39) .and. (mvozrast := count_years( human->date_r, human->n_data ) < 66)
+          If ( mvozrast := count_years( human->date_r, human->n_data ) > 39 ) .and. ( mvozrast := count_years( human->date_r, human->n_data ) < 66 )
             kol_2_year_prof_40++
-          Endif 
+          Endif
         Endif
       Else// диспансеризация
         If ( tmp->kod1h > 0 )
@@ -4166,15 +4157,15 @@ Function f21_inf_dvn( par ) // свод
           If human->kod_k == t_kod_k
             If ( ( t_date - human->n_data ) > 730 )
               kol_2_year_dvn++
-              if (mvozrast := count_years( human->date_r, human->n_data ) > 39) .and. (mvozrast := count_years( human->date_r, human->n_data ) < 66)
+              If ( mvozrast := count_years( human->date_r, human->n_data ) > 39 ) .and. ( mvozrast := count_years( human->date_r, human->n_data ) < 66 )
                 kol_2_year_dvn_40++
-              endif  
+              Endif
             Endif
           Else
             kol_2_year_dvn++
-            if (mvozrast := count_years( human->date_r, human->n_data ) > 39)  .and. (mvozrast := count_years( human->date_r, human->n_data ) < 66)
+            If ( mvozrast := count_years( human->date_r, human->n_data ) > 39 )  .and. ( mvozrast := count_years( human->date_r, human->n_data ) < 66 )
               kol_2_year_dvn_40++
-            endif   
+            Endif
           Endif
         Endif
       Endif
@@ -4232,8 +4223,8 @@ Function f21_inf_dvn( par ) // свод
     fp := FCreate( "tmp2.txt" ) ; n_list := 1 ; tek_stroke := 0
     fl := f_error_dvn( 3, 60, 80 )
     StrFile( "Лица прошедшие диспансеризацию/профосмотр, ранее не посещавшие учреждение более 2-х лет" + eos, "tmp1.txt", .t. )
-    StrFile( " Диспансеризация == " + lstr( kol_2_year_dvn ) + " чел. из них 40-65 лет == "+  lstr( kol_2_year_dvn_40 )  + " чел."  + eos, "tmp1.txt", .t. )
-    StrFile( " Профосмотр      == " + lstr( kol_2_year_prof ) + " чел. из них 40-65 лет == "+  lstr( kol_2_year_prof_40 )  + " чел."  +  + eos, "tmp1.txt", .t. )
+    StrFile( " Диспансеризация == " + lstr( kol_2_year_dvn ) + " чел. из них 40-65 лет == " +  lstr( kol_2_year_dvn_40 )  + " чел."  + eos, "tmp1.txt", .t. )
+    StrFile( " Профосмотр      == " + lstr( kol_2_year_prof ) + " чел. из них 40-65 лет == " +  lstr( kol_2_year_prof_40 )  + " чел."  +  + eos, "tmp1.txt", .t. )
     FClose( fp )
     If fl
       StrFile( "FF", "tmp1.txt", .t. )
@@ -4304,7 +4295,7 @@ Function inf_ydvn()
     Private &pole_1dispans := 0
   Next
 
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5,,, @lcount_uch ) ) != NIL ;
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5,,, @lcount_uch ) ) != NIL ;
       .and. ( arr_m := year_month(,,, 5 ) ) != NIL
     mywait()
     dbCreate( cur_dir + "tmp", { { "gruppa_1", "N", 1, 0 }, ;// 1-группа 2- группа 3 - без группа
@@ -4314,7 +4305,7 @@ Function inf_ydvn()
     { "gruppa", "N", 3, 0 }, ;  // Группа здоровья 1, 2.3a, 3b
     { "napr2", "N", 1, 0 }, ;   // Направлен на 2-й этап 0-нет 1-да
     { "selo", "N", 1, 0 }, ;    // Село 0-нет 1-да
-    { "pensia", "N", 1, 0 }, ;  // Пенсия 0-нет 1-да _pol=="М", 62, 57 по ЗАКОНУ за 2022 год - так в таблице
+      { "pensia", "N", 1, 0 }, ;  // Пенсия 0-нет 1-да _pol=="М", 62, 57 по ЗАКОНУ за 2022 год - так в таблице
     { "d_one", "N", 1, 0 }, ;   // Впервые взято на Д-учет 0-нет 1-да
     { "kod_k", "N", 7, 0 } } )
     r_use( dir_server + "human_",, "HUMAN_" )
@@ -4326,7 +4317,7 @@ Function inf_ydvn()
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
       // If Between( human->ishod, 401, 402 )
-      If is_sluch_dispanser_COVID( human->ishod )
+      If is_sluch_dispanser_covid( human->ishod )
         // read_arr_DVN_COVID(human->kod)
         // is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog)  // признак села
         Select KART_
@@ -4365,7 +4356,6 @@ Function inf_ydvn()
         // arr_usl := {} // array(len(uslugiEtap_DVN_COVID(metap)))
         //
         arr := read_arr_dispans( human->kod )
-        // my_debug(,print_array(arr))
         //
         For i := 1 To Len( arr )
           If ValType( arr[ i ] ) == "A" .and. ValType( arr[ i, 1 ] ) == "C"
@@ -4716,7 +4706,7 @@ Function f1_f21_inf_dvn()
     Endif
   Endif
   If fl2 // направлен на 2 этап
-    arr_21[ 12 ]++ // направлен на 2 этап
+    arr_21[ 12 ]++    // направлен на 2 этап
   Endif
   If !Empty( tmp->kod2h ) // диспансеризация II этап
     human->( dbGoto( tmp->kod2h ) )
@@ -4727,7 +4717,7 @@ Function f1_f21_inf_dvn()
       Else
         arr_21[ 13 ] ++
         If !fl2  // не был направлен, но всё равно прошёл
-          arr_21[ 12 ]++ // направлен на 2 этап
+          arr_21[ 12 ]++    // направлен на 2 этап
         Endif
       Endif
     Else
@@ -5061,7 +5051,7 @@ Function f22_inf_dvn()
     }
   Local i, ii, s, arr_m, buf := save_maxrow(), ar, arr_excel := {}
 
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5,,, @lcount_uch ) ) != NIL ;
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5,,, @lcount_uch ) ) != NIL ;
       .and. ( arr_m := year_month(,,, 5 ) ) != NIL
     Private mk1, mispoln, mtel_isp
     ar := getinisect( tmp_ini, group_ini )
@@ -5076,7 +5066,7 @@ Function f22_inf_dvn()
     displbox( s, ;
       , ;                   // цвет окна (умолч. - cDataCGet)
       { "mk1", "mispoln", "mtel_isp" }, ; // массив Private-переменных для редактирования
-      { "999999",, }, ; // массив Picture для редактирования
+    { "999999",, }, ; // массив Picture для редактирования
     17 )
     If LastKey() != K_ESC
       setinisect( tmp_ini, group_ini, { { "mk1", mk1 }, ;
@@ -5370,7 +5360,7 @@ Function f2_inf_dvn( is_schet, par )
   If par > 1
     ppar--
   Endif
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5,,, @lcount_uch ) ) != Nil .and. ( arr_m := year_month(,,, 5 ) ) != NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5,,, @lcount_uch ) ) != Nil .and. ( arr_m := year_month(,,, 5 ) ) != NIL
     mywait()
     If f0_inf_dvn( arr_m, eq_any( is_schet, 2, 3 ), is_schet == 3 )
       adbf := { ;
@@ -5389,12 +5379,12 @@ Function f2_inf_dvn( is_schet, par )
         { "vrach",   "C",    15,     0 }, ; // врач
         { "DATA_O",   "C",    35,     0 } ; // сроки другого этапа
       }
-//      ret_arrays_disp( .f. )
-      ret_arrays_disp( )
+      // ret_arrays_disp( .f. )
+      ret_arrays_disp()
       Private count_dvn_arr_usl18 := Len( dvn_arr_usl18 )
       Private count_dvn_arr_umolch18 := Len( dvn_arr_umolch18 )
-//      ret_arrays_disp( .t., .t. )
-      ret_arrays_disp( )
+      // ret_arrays_disp( .t., .t. )
+      ret_arrays_disp()
       For i := 1 To Max( count_dvn_arr_usl18, count_dvn_arr_usl )
         AAdd( adbf, { "d_" + lstr( i ), "C", 24, 0 } )
       Next
@@ -5469,7 +5459,7 @@ Function f2_inf_dvn( is_schet, par )
         { "Приём врача акушера-гинеколога", { { 2, .t., 25 }, { 2, .f., 30 } }, 0 }, ;
         { "Приём врача колопроктолога (хирурга)", { { 2, .t., 26 }, { 2, .f., 31 } }, 0 }, ;
         { "Приём врача терапевта", { { 1, .t., 27 }, { 1, .f., 32 }, { 2, .t., 27 }, { 2, .f., 32 }, { 3, .t., 27 }, { 3, .f., 32 } }, 0 };
-        }
+      }
       lat := Len( at )
       aitog := Array( lat ) ; AFill( aitog, 0 ) ; is_zs := 0
       Use ( cur_dir + "tmpfio" ) New Alias TF
@@ -5618,7 +5608,7 @@ Function f2_inf_dvn( is_schet, par )
         Endif
         s3 += AllTrim( tf->vrach )
         ss += tf->CENA_1
-        If verify_ff( HH - 3, .t., sh )
+        If verify_ff( HH -3, .t., sh )
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
         add_string( s1 )
@@ -5679,7 +5669,7 @@ Function f2_inf_dvn_svod( par, kod_h ) // сводная информация
   is_2021 := p := ( mk_data < 0d20210101 )
   is_2019 := !is_2018
   ret_arr_vozrast_dvn( mk_data )
-//  ret_arrays_disp( is_2019, is_2021 )
+  // ret_arrays_disp( is_2019, is_2021 )
   ret_arrays_disp( mk_data )
   If ppar == 1 // диспансеризация 1 этап
     m1GRUPPA := ret_gruppa_dvn( human_->RSLT_NEW, @fl2 )
@@ -5703,9 +5693,9 @@ Function f2_inf_dvn_svod( par, kod_h ) // сводная информация
   Elseif ppar == 3 // профилактика
     m1GRUPPA := 0
     If Between( human_->RSLT_NEW, 343, 345 )
-      m1GRUPPA := human_->RSLT_NEW -342
+      m1GRUPPA := human_->RSLT_NEW - 342
     Elseif Between( human_->RSLT_NEW, 373, 374 )
-      m1GRUPPA := human_->RSLT_NEW -370
+      m1GRUPPA := human_->RSLT_NEW - 370
     Endif
     If !Between( m1gruppa, 1, 4 )
       Return Nil
@@ -6006,7 +5996,7 @@ Function inf_dnl( k )
       "inf_DNL(15)", ;
       "inf_DNL(16)" }
     Private p_tip_lu := TIP_LU_PN
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
     inf_dnl_karta()
   Case k == 12
@@ -6017,9 +6007,9 @@ Function inf_dnl( k )
     mas_pmt := { "~Сведения о профосмотрах детей по состоянию на ..." }
     mas_msg := { "Приложение к Приказу ВОМИАЦ №1025 от 08.07.2019г." }
     mas_fun := { "inf_DNL(21)" }
-    popup_prompt( T_ROW, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 15
-    If ( j1 := popup_prompt( T_ROW, T_COL - 5, 1, mas1pmt ) ) > 0
+    If ( j1 := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0
       inf_dnl_030poo( j1 )
     Endif
   Case k == 16
@@ -6027,13 +6017,13 @@ Function inf_dnl( k )
     // sj2 := j2
     // p_tip_lu := {TIP_LU_PN,TIP_LU_PREDN,TIP_LU_PERN}[j2]
     p_tip_lu := TIP_LU_PN
-    If ( j1 := popup_prompt( T_ROW, T_COL - 5, 1, mas1pmt ) ) > 0
+    If ( j1 := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0
       // inf_DNL_XMLfile(j1,charrem("~",mas2pmt[j2]))
       inf_dnl_xmlfile( j1, "Профилактические осмотры" )
     Endif
     // endif
   Case k == 21
-    If ( j1 := popup_prompt( T_ROW, T_COL - 5, 1, mas1pmt ) ) > 0
+    If ( j1 := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0
       f21_inf_dnl( j1 )
     Endif
   Endcase
@@ -6053,7 +6043,7 @@ Function inf_dnl_karta()
 
   Local arr_m, buf := save_maxrow(), blk, t_arr[ BR_LEN ]
 
-  If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) != NIL
+  If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
     If f0_inf_dnl( arr_m, .f. )
       Copy File ( cur_dir + "tmp" + sdbf ) to ( cur_dir + "tmpDNL" + sdbf ) // т.к. внутри тоже есть TMP-файл
@@ -6642,7 +6632,7 @@ Function f4_inf_dnl_karta( par, _etap )
   ar := np_arr_1_etap[ mperiod ]
   If par == 1
     If iif( _etap == nil, .t., _etap == 1 )
-      For i := 1 To count_pn_arr_osm - 1
+      For i := 1 To count_pn_arr_osm -1
         mvart := "MTAB_NOMov" + lstr( i )
         mvard := "MDATEo" + lstr( i )
         fl := .t.
@@ -6659,7 +6649,7 @@ Function f4_inf_dnl_karta( par, _etap )
     Endif
     AAdd( arr, { "педиатр (врач общей практики)", MDATEp1, "", -1, 1 } )
     If metap == 2 .and. iif( _etap == nil, .t., _etap == 2 )
-      For i := 1 To count_pn_arr_osm - 1
+      For i := 1 To count_pn_arr_osm -1
         mvart := "MTAB_NOMov" + lstr( i )
         mvard := "MDATEo" + lstr( i )
         fl := .t.
@@ -6936,7 +6926,7 @@ Function f21_inf_dnl( par )
           put_val( tmp1->v2, 6 )
         // put_val(tmp1->g31, 6)+;
         // put_val(tmp1->g32, 6)+;
-        If verify_ff( HH - 1, .t., sh )
+        If verify_ff( HH -1, .t., sh )
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
         add_string( s )
@@ -6944,7 +6934,7 @@ Function f21_inf_dnl( par )
         Skip
       Enddo
       //
-      verify_ff( HH - 12, .t., sh )
+      verify_ff( HH -12, .t., sh )
 /*    arr_title := {;
 "────────┬───────────────────────────────────┬───────────────────────────────────", ;
 "        │      Юноши (15-17 лет)            │        Девушки (15-17 лет)        ", ;
@@ -6995,13 +6985,13 @@ Function f21_inf_dnl( par )
         put_val( tmp1->g15e, 6 ) + ;
         put_val( tmp1->g18, 6 ) + ;
         put_val( tmp1->g18s, 6 )
-      If verify_ff( HH - 1, .t., sh )
+      If verify_ff( HH -1, .t., sh )
         AEval( arr_title, {| x| add_string( x ) } )
       Endif
       add_string( s )
       add_string( Replicate( "─", sh ) )
       //
-      verify_ff( HH - 12, .t., sh )
+      verify_ff( HH -12, .t., sh )
       arr_title := { ;
         "─────────┬─────────────────┬─────────────────┬─────┬─────┬─────┬────────────────────────────────────────────────┬─────┬─────┬─────┬─────", ;
         "         │    Осмотрено    │из них сельских ж│осмо-│осмо-│впер-│                  из них                        │факт-│из г9│из г9│из   ", ;
@@ -7042,7 +7032,7 @@ Function f21_inf_dnl( par )
           put_val( tmp2->g13, 6 ) + ;
           put_val( tmp2->g14, 6 ) + ;
           put_val( tmp2->g15, 6 )
-        If verify_ff( HH - 1, .t., sh )
+        If verify_ff( HH -1, .t., sh )
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
         add_string( s )
@@ -7104,7 +7094,7 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // сводная информация
     Endif
   Endif
   //
-  mGRUPPA := human_->RSLT_NEW -331// L_BEGIN_RSLT
+  mGRUPPA := human_->RSLT_NEW - 331// L_BEGIN_RSLT
   If mvozrast == 0
     AAdd( ar, 2 )
   Endif
@@ -7206,7 +7196,7 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // сводная информация
         arr[ 13 ] ++
       Endif
       If ad[ i, 10 ] == 1 // 1-лечение назначено
-        arr[ 14 ] ++ // ?? было начато лечение
+        arr[ 14 ] ++    // ?? было начато лечение
         If is_selo
           arr[ 15 ] ++
         Endif
@@ -7243,7 +7233,7 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // сводная информация
         Endif
       Endif
     Endif
-   
+
     fl := .f.
     Select HU
     find ( Str( Loc_kod, 7 ) )
@@ -7256,27 +7246,27 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // сводная информация
         lshifr := usl->shifr
       Endif
       If Left( lshifr, 2 ) == "2."  // врачебный приём
-      if Left( lshifr, 4 ) != "2.91"  // не полноценные игнорируем
-        If j == 1
-          ar15[ 17 ] ++
-          If is_selo
-            ar15[ 18 ] ++
+        If Left( lshifr, 4 ) != "2.91"  // не полноценные игнорируем
+          If j == 1
+            ar15[ 17 ] ++
+            If is_selo
+              ar15[ 18 ] ++
+            Endif
+          Else
+            ar15[ 19 ] ++
+            If is_selo
+              ar15[ 20 ] ++
+            Endif
           Endif
-        Else
-          ar15[ 19 ] ++
-          If is_selo
-            ar15[ 20 ] ++
+          // mydebug(,human->fio)
+          If hu_->PROFIL == 19
+            arr[ 17 ] ++
+          Endif
+          If hu_->PROFIL == 136
+            arr[ 18 ] ++
+            // mydebug(,"2------------------------------------------")
           Endif
         Endif
-        //mydebug(,human->fio)
-        if hu_->PROFIL == 19
-          arr[ 17 ] ++
-        Endif
-        If hu_->PROFIL == 136
-          arr[ 18 ] ++
-        //    mydebug(,"2------------------------------------------")
-        Endif
-      Endif  
       Endif
       Select HU
       Skip
@@ -7332,7 +7322,7 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // сводная информация
     tmp1->m15ps += ar15[ 5 ]
     tmp1->m15p1 += ar15[ 13 ]
     tmp1->m15p1s += ar15[ 14 ]
-    tmp1->m15e += ar15[ 6 ] //2-й этап
+    tmp1->m15e += ar15[ 6 ] // 2-й этап
     tmp1->g15  += ar15[ 7 ]
     tmp1->g15s += ar15[ 8 ]
     tmp1->g15pos += ar15[ 19 ]
@@ -7342,7 +7332,7 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // сводная информация
     tmp1->g15ps += ar15[ 11 ]
     tmp1->g15p1 += ar15[ 15 ]
     tmp1->g15p1s += ar15[ 16 ]
-    tmp1->g15e += ar15[ 12 ] //2-й этап
+    tmp1->g15e += ar15[ 12 ] // 2-й этап
     tmp1->g18 += ar15[ 23 ]
     tmp1->g18s += ar15[ 24 ]
     tmp1->m18 += ar15[ 25 ]
@@ -7388,7 +7378,7 @@ Function inf_dnl_030poo( is_schet )
 
   Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 80, n_file := cur_dir + "f_030poo" + stxt, d1, d2
 
-  If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) != NIL
+  If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     If arr_m[ 1 ] < 2018
       Return func_error( 4, "Данная форма утверждена с 2018 года" )
     Endif
@@ -7557,7 +7547,7 @@ Function inf_dnl_030poo( is_schet )
       add_string( "  2.1.5. в возрасте от 15 до 17 лет включительно    " + Str( arr_deti[ 5 ], 6 ) + " (человек)," )
       add_string( "  2.1.6. детей-инвалидов от 0 до 17 лет включительно" + Str( arr_deti[ 6 ], 6 ) + " (человек)." )
       For i := 1 To Len( arr_vozrast )
-        verify_ff( HH - 50, .t., sh )
+        verify_ff( HH -50, .t., sh )
         add_string( "" )
         add_string( Center( lstr( arr_vozrast[ i, 1 ] ) + ;
           ". Структура выявленных заболеваниях (состояний) у детей в возрасте от " + ;
@@ -7614,12 +7604,12 @@ Function inf_dnl_030poo( is_schet )
         "────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────", ;
         "    1   │  2  │  3  │  4  │  5  │  6  │  7  │  8  │  9  │  10 │  11 │  12 │  13 ", ;
         "────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────" }
-      verify_ff( HH - 50, .t., sh )
+      verify_ff( HH -50, .t., sh )
       add_string( "4. Результаты дополнительных консультаций, исследований, лечения, медицинской" )
       add_string( "   реабилитации детей по результатам проведения профилактических осмотров:" )
       Use ( cur_dir + "tmp10" ) index ( cur_dir + "tmp10" ) New Alias TMP10
       For i := 1 To 2
-        verify_ff( HH - 16, .t., sh )
+        verify_ff( HH -16, .t., sh )
         add_string( "" )
         s := Space( 5 )
         If i == 1
@@ -7646,7 +7636,7 @@ Function inf_dnl_030poo( is_schet )
               skol += v
               If eq_any( i, 2, 4 )
                 s1 += Str( v, 6 )
-                find ( Str( j, 1 ) + Str( i - 1, 1 ) + Str( k, 1 ) )
+                find ( Str( j, 1 ) + Str( i -1, 1 ) + Str( k, 1 ) )
                 If Found() .and. tmp10->kol > 0
                   s1 += " " + umest_val( v / tmp10->kol * 100, 5, 2 )
                   oldkol += tmp10->kol
@@ -7682,7 +7672,7 @@ Function inf_dnl_030poo( is_schet )
       Use ( cur_dir + "tmp11" ) index ( cur_dir + "tmp11" ) New Alias TMP11
       For i := 1 To 0// 12
         If i % 3 > 0
-          verify_ff( HH - 16, .t., sh )
+          verify_ff( HH -16, .t., sh )
           add_string( "" )
         Endif
         s := Space( 5 )
@@ -7747,7 +7737,7 @@ Function inf_dnl_030poo( is_schet )
                 skol += v
                 If eq_any( i, 2, 5, 8, 11 )
                   s1 += Str( v, 6 )
-                  find ( Str( j, 1 ) + Str( i - 1, 2 ) + Str( k, 1 ) )
+                  find ( Str( j, 1 ) + Str( i -1, 2 ) + Str( k, 1 ) )
                   If Found() .and. tmp11->kol > 0
                     s1 += " " + umest_val( v / tmp11->kol * 100, 5, 2 )
                     oldkol += tmp11->kol
@@ -7780,7 +7770,7 @@ Function inf_dnl_030poo( is_schet )
       Next
       Use
       Use ( cur_dir + "tmp16" ) index ( cur_dir + "tmp16" ) New Alias TMP16
-      verify_ff( HH - 21, .t., sh )
+      verify_ff( HH -21, .t., sh )
       n := 20
       add_string( "" )
       add_string( "5. Число детей по уровню физического развития" )
@@ -7813,7 +7803,7 @@ Function inf_dnl_030poo( is_schet )
         Next
       Next
       add_string( Replicate( "─", sh ) )
-      verify_ff( HH - 21, .t., sh )
+      verify_ff( HH -21, .t., sh )
       n := 20
       add_string( "" )
       add_string( "6. Число детей по медицинским группам для занятий физической культурой" )
@@ -7845,7 +7835,7 @@ Function inf_dnl_030poo( is_schet )
           add_string( s )
         Next
       Next
-      verify_ff( HH - 21, .t., sh )
+      verify_ff( HH -21, .t., sh )
       n := 20
       add_string( "" )
       add_string( "7. Число детей по группам здоровья" )
@@ -7898,46 +7888,46 @@ Function f2_inf_dnl_030poo( Loc_kod, kod_kartotek ) // сводная информация
   blk_put_tip := {| _e, _k| iif( _k > _e, _k, _e ) }
   Private metap := 1, mperiod := 0, mshifr_zs := "", m1lis := 0, ;
     mkateg_uch, m1kateg_uch := 3, ; // Категория учета ребенка:
-  mMO_PR := Space( 10 ), m1MO_PR := Space( 6 ), ; // код МО прикрепления
-  mschool := Space( 10 ), m1school := 0, ; // код обр.учреждения
-  mWEIGHT := 0, ;   // вес в кг
+    mMO_PR := Space( 10 ), m1MO_PR := Space( 6 ), ; // код МО прикрепления
+    mschool := Space( 10 ), m1school := 0, ; // код обр.учреждения
+    mWEIGHT := 0, ;   // вес в кг
     mHEIGHT := 0, ;   // рост в см
-  mPER_HEAD := 0, ; // окружность головы в см
-  mfiz_razv, m1FIZ_RAZV := 0, ; // физическое развитие
-  mfiz_razv1, m1FIZ_RAZV1 := 0, ; // отклонение массы тела
-  mfiz_razv2, m1FIZ_RAZV2 := 0, ; // отклонение роста
-  m1psih11 := 0, ;  // познавательная функция (возраст развития)
+    mPER_HEAD := 0, ; // окружность головы в см
+    mfiz_razv, m1FIZ_RAZV := 0, ; // физическое развитие
+    mfiz_razv1, m1FIZ_RAZV1 := 0, ; // отклонение массы тела
+    mfiz_razv2, m1FIZ_RAZV2 := 0, ; // отклонение роста
+    m1psih11 := 0, ;  // познавательная функция (возраст развития)
     m1psih12 := 0, ;  // моторная функция (возраст развития)
-  m1psih13 := 0, ;  // эмоциональная и социальная (контакт с окружающим миром) функции (возраст развития)
+    m1psih13 := 0, ;  // эмоциональная и социальная (контакт с окружающим миром) функции (возраст развития)
     m1psih14 := 0, ;  // предречевое и речевое развитие (возраст развития)
-  mpsih21, m1psih21 := 0, ;  // Психомоторная сфера: (норма, отклонение)
+    mpsih21, m1psih21 := 0, ;  // Психомоторная сфера: (норма, отклонение)
     mpsih22, m1psih22 := 0, ;  // Интеллект: (норма, отклонение)
-  mpsih23, m1psih23 := 0, ;  // Эмоционально-вегетативная сфера: (норма, отклонение)
+    mpsih23, m1psih23 := 0, ;  // Эмоционально-вегетативная сфера: (норма, отклонение)
     m141p   := 0, ; // Половая формула мальчика P
-  m141ax  := 0, ; // Половая формула мальчика Ax
-  m141fa  := 0, ; // Половая формула мальчика Fa
-  m142p   := 0, ; // Половая формула девочки P
-  m142ax  := 0, ; // Половая формула девочки Ax
-  m142ma  := 0, ; // Половая формула девочки Ma
-  m142me  := 0, ; // Половая формула девочки Me
-  m142me1 := 0, ; // Половая формула девочки - menarhe (лет)
-  m142me2 := 0, ; // Половая формула девочки - menarhe (месяцев)
-  m142me3, m1142me3 := 0, ; // Половая формула девочки - menses (характеристика):
-  m142me4, m1142me4 := 1, ; // Половая формула девочки - menses (характеристика):
-  m142me5, m1142me5 := 1, ; // Половая формула девочки - menses (характеристика):
-  mdiag_15_1, m1diag_15_1 := 1, ; // Состояние здоровья до проведения профосмотра-Практически здоров
-  mdiag_15[ 5, 14 ], ; //
-  mGRUPPA_DO := 0, ; // группа здоровья до дисп-ии
-  mGR_FIZ_DO, m1GR_FIZ_DO := 1, ;
+    m141ax  := 0, ; // Половая формула мальчика Ax
+    m141fa  := 0, ; // Половая формула мальчика Fa
+    m142p   := 0, ; // Половая формула девочки P
+    m142ax  := 0, ; // Половая формула девочки Ax
+    m142ma  := 0, ; // Половая формула девочки Ma
+    m142me  := 0, ; // Половая формула девочки Me
+    m142me1 := 0, ; // Половая формула девочки - menarhe (лет)
+    m142me2 := 0, ; // Половая формула девочки - menarhe (месяцев)
+    m142me3, m1142me3 := 0, ; // Половая формула девочки - menses (характеристика):
+    m142me4, m1142me4 := 1, ; // Половая формула девочки - menses (характеристика):
+    m142me5, m1142me5 := 1, ; // Половая формула девочки - menses (характеристика):
+    mdiag_15_1, m1diag_15_1 := 1, ; // Состояние здоровья до проведения профосмотра-Практически здоров
+    mdiag_15[ 5, 14 ], ; //
+    mGRUPPA_DO := 0, ; // группа здоровья до дисп-ии
+    mGR_FIZ_DO, m1GR_FIZ_DO := 1, ;
     mdiag_16_1, m1diag_16_1 := 1, ; // Состояние здоровья по результатам проведения профосмотра (Практически здоров)
-  mdiag_16[ 5, 16 ], ; //
-  minvalid[ 8 ], ;  // раздел 16.7
-  mGRUPPA := 0, ;    // группа здоровья после дисп-ии
+    mdiag_16[ 5, 16 ], ; //
+    minvalid[ 8 ], ;  // раздел 16.7
+    mGRUPPA := 0, ;    // группа здоровья после дисп-ии
     mGR_FIZ, m1GR_FIZ := 1, ;
     mPRIVIVKI[ 3 ], ; // Проведение профилактических прививок
-  mrek_form := Space( 255 ), ; // "C100",Рекомендации по формированию здорового образа жизни, режиму дня, питанию, физическому развитию, иммунопрофилактике, занятиям физической культурой
-  mrek_disp := Space( 255 ), ; // "C100",Рекомендации по диспансерному наблюдению, лечению, медицинской реабилитации и санаторно-курортному лечению с указанием диагноза (код МКБ), вида медицинской организации и специальности (должности) врача
-  mhormon := "0 шт.", m1hormon := 1, not_hormon, ;
+    mrek_form := Space( 255 ), ; // "C100",Рекомендации по формированию здорового образа жизни, режиму дня, питанию, физическому развитию, иммунопрофилактике, занятиям физической культурой
+    mrek_disp := Space( 255 ), ; // "C100",Рекомендации по диспансерному наблюдению, лечению, медицинской реабилитации и санаторно-курортному лечению с указанием диагноза (код МКБ), вида медицинской организации и специальности (должности) врача
+    mhormon := "0 шт.", m1hormon := 1, not_hormon, ;
     mstep2, m1step2 := 0
   Private minvalid1, m1invalid1 := 0, ;
     minvalid2, m1invalid2 := 0, ;
@@ -8310,7 +8300,7 @@ Function f2_inf_dnl_030poo( Loc_kod, kod_kartotek ) // сводная информация
       AAdd( ad, 5 )
     Endif
   Endif
-  mGRUPPA := human_->RSLT_NEW -331 // L_BEGIN_RSLT
+  mGRUPPA := human_->RSLT_NEW - 331 // L_BEGIN_RSLT
   If !Between( mgruppa, 1, 5 )
     mgruppa := 1
   Endif
@@ -8357,7 +8347,7 @@ Function inf_dnl_xmlfile( is_schet, stitle )
 
   Local arr_m, n, buf := save_maxrow(), lkod_h, lkod_k, rec, blk, t_arr[ BR_LEN ], arr, n_func
 
-  If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) != NIL
+  If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
     Do Case
     Case p_tip_lu == TIP_LU_PN
@@ -8680,7 +8670,7 @@ Function mnog_poisk_dnl()
     Year( sys_date ), nil, ;
     "В каком году не было медомотра/диспансеризации" } )
   AAdd( mm_tmp, { "v_period", "C", 100, 0, NIL, ;
-    {| x| menu_reader( x, { {|k, r, c| f2_mnog_poisk_dnl( k, r, c ) } }, A__FUNCTION ) }, ;
+    {| x| menu_reader( x, { {| k, r, c| f2_mnog_poisk_dnl( k, r, c ) } }, A__FUNCTION ) }, ;
     ta[ 1 ], {| x| ta[ 2 ] }, ;
     'Возрастные периоды медомотра/диспансеризации' } )
   AAdd( mm_tmp, { "o_prik", "N", 1, 0, NIL, ;
@@ -8732,7 +8722,7 @@ Function mnog_poisk_dnl()
     "Место жительства:" } )
   AAdd( mm_tmp, { "_okato", "C", 11, 0, NIL, ;
     {| x| menu_reader( x, ;
-    { {|k, r, c| get_okato_ulica( k, r, c, { k, m_okato, } ) } }, A__FUNCTION ) }, ;
+    { {| k, r, c| get_okato_ulica( k, r, c, { k, m_okato, } ) } }, A__FUNCTION ) }, ;
     Space( 11 ), {| x| Space( 11 ) }, ;
     'Адрес регистрации (ОКАТО)' } )
   AAdd( mm_tmp, { "adres", "C", 20, 0, "@!", ;
@@ -9243,7 +9233,7 @@ Function inf_disp( k )
     mas_pmt := { "~Итоги для ТФОМС" }
     mas_msg := { "Итоги за период времени для ТФОМС" }
     mas_fun := { "inf_DISP(11)" }
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
     itog_svod_disp_tf()
   Endcase
@@ -9311,7 +9301,7 @@ Function itog_svod_disp_tf()
         Elseif eq_any( human->ishod, 301, 302 )
           ltip := 3
         Elseif eq_any( human->ishod, 303, 304 )
-          m1gruppa := human_->RSLT_NEW -316
+          m1gruppa := human_->RSLT_NEW - 316
           If Between( m1gruppa, 1, 3 )
             ltip := 4
           Endif

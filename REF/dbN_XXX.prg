@@ -1075,11 +1075,11 @@ Function getn021( dk )
         dEnd := CToD( aTable[ nI, 5 ] )
         Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
         If ValType( dk ) == 'D'
-          if dBeg <= dk .and. dk <= dEnd
+          if dBeg <= dk .and. ( dk <= dEnd .or. Empty( dEnd ) )
             AAdd( _arr, { Val( aTable[ nI, 1 ] ), alltrim( aTable[ nI, 2 ] ), PadR( aTable[ nI, 3 ], 6 ), dBeg, dEnd, AllTrim( aTable[ nI, 6 ] ), AllTrim( aTable[ nI, 7 ] ) } )
           endif
         else
-          if dk >= Year( dBeg ) .and. dk <= Year( dEnd )
+          if dk >= Year( dBeg ) .and. ( dk <= Year( dEnd ) .or. Empty( dEnd ) )
             AAdd( _arr, { Val( aTable[ nI, 1 ] ), alltrim( aTable[ nI, 2 ] ), PadR( aTable[ nI, 3 ], 6 ), dBeg, dEnd, AllTrim( aTable[ nI, 6 ] ), AllTrim( aTable[ nI, 7 ] ) } )
           endif
         endif

@@ -1328,11 +1328,11 @@ Function getv024( dk )
       dEnd := CToD( aTable[ nI, 4 ] )
       Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
       if ValType( dk ) == 'D'
-        if dBeg <= dk .and. dk <= dEnd
+        if dBeg <= dk .and. ( dk <= dEnd .or. Empty( dEnd ) )
           AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 2 ], dBeg, dEnd } )
         endif
       else
-        if Year( dBeg ) <= dk .and. dk <= Year( dEnd )
+        if Year( dBeg ) <= dk .and. ( dk <= Year( dEnd ) .or. Empty( dEnd ) )
           AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 2 ], dBeg, dEnd } )
         endif
       endif
