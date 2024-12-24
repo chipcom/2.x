@@ -629,7 +629,10 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
               s := 2 // взят
             Elseif adiag_talon[ 2 ] == 3 // снят
               s := 4 // снят по причине выздоровления
-            Elseif adiag_talon[ 2 ] == 4
+            Elseif adiag_talon[ 2 ] == 4 // снят
+              s := 4 // снят по причине выздоровления
+            Elseif adiag_talon[ 2 ] == 6
+//            Elseif adiag_talon[ 2 ] == 4
               s := 6 // снят по другим причинам
             Endif
           Endif
@@ -1442,7 +1445,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Return Nil
 
-// 20.07.24 работаем по текущей записи
+// 24.12.24 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1948,6 +1951,12 @@ Function f1_create2reestr19( _nyear, _nmonth )
         fl_DISABILITY := ( inv->DATE_INV < human->n_data .and. human->n_data <= AddMonth( inv->DATE_INV, 12 ) )
       Endif
     Endif
+/// 24.12.24
+    AFill( adiag_talon, 0 )
+    For i := 1 To 16
+      adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
+    Next
+///
   Else
     If human->OBRASHEN == '1' .and. AScan( mdiagnoz, {| x| PadR( x, 5 ) == 'Z03.1' } ) == 0
       AAdd( mdiagnoz, 'Z03.1' )
