@@ -61,7 +61,6 @@ function loadCriteria21(val_year)
     fl := notExistsFileNSI( dir_exe() + sbaseIt1 + sdbf )
   endif
   Select(tmp_select)
-
   return retCriteria
 
 // 30.10.22
@@ -187,7 +186,6 @@ function loadCriteria21_old(val_year)
     fl := notExistsFileNSI( dir_exe() + sbaseIt1 + sdbf )
   endif
   Select(tmp_select)
-
   return retCriteria
 
 // 14.10.24
