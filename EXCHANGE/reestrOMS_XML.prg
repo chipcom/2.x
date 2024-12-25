@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 24.12.24 создание XML-файлов реестра
+// 25.12.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -621,7 +621,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           mo_add_xml_stroke( oSL, 'DS_ONK', '0' )
         Endif
         If human_->USL_OK == 3 .and. human_->povod == 4 // Обязательно, если P_CEL=1.3
-          s := 2 // взят
+          s := 1 // состоит
           If adiag_talon[ 1 ] == 2 // ранее
             If adiag_talon[ 2 ] == 1
               s := 1 // состоит
