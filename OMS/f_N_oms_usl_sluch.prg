@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
     
-// 08.12.24 ввод услуг в лист учёта 
+// 25.12.24 ввод услуг в лист учёта 
 Function f2oms_usl_sluch( nKey, oBrow )
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF, ;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -594,7 +594,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
             if ! ( is_gist .or. pr_amb_reab )
               info_disp_nabl := val( substr( human_->DISPANS, 2, 1 ) )  // получим сведения по диспансерному наблюдению по основному заболеванию
               if ! ( eq_any( info_disp_nabl, 4, 6 ) ) // согласно письму ТФОМС 09-20-615 от 21.11.24
-                @ row_dom, 35 say 'Дата след.явки для дисп.набл-ия' get mdate_next when fl_date_next
+                @ row_dom, 35 say 'Дата след.явки для дисп.набл-ия' get mdate_next when fl_date_next valid { | g | check_next_visit_dn( g, mdate_u1 ) }
               endif
             endif
           endif
@@ -622,7 +622,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
             @ r1 + ix, 2 say 'Таб.№ ассистента' get mtabn_as pict '99999' ;
                 when {|g| mis_edit == 0 .and. f5editkusl(g, 1, 4)} ;
                 valid {|g| f5editkusl(g, 2, 4) }
-            @ row(), col() + 3 get massist when .f. color color14
+            @ row(), col() + 3 get massist when .f. color color14 
           endif
           if mem_por_kol == x
             ++ix
