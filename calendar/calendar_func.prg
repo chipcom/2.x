@@ -5,6 +5,27 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 25.12.24
+function check_next_visit_dn( gt, du )
+
+  // gt - объект getlist
+  // du - дата услуги
+
+  local dt, addOneMonth, addOneYear
+  local lRet := .f.
+
+  dt := CToD( gt:buffer )
+
+  addOneMonth := AddMonth( du, 1 )
+  addOneYear := AddMonth( du, 12 )
+
+  if addOneMonth <= dt .and. dt <= addOneYear
+    lRet := .t.
+  else
+    func_error( 4, 'Дата следующей явки допустима от одного месяца до одного года!' )
+  endif
+  return lRet
+
 // 18.02.20
 Function year_month( rr, cc, za_v, kmp, ch_mm, ret_time )
   // kmp = от 1 до 4(5) или массив {3,4}
