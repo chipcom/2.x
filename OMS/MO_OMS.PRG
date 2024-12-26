@@ -284,30 +284,15 @@ Function val_st_trav( get )
 
   Return fl
 
-// 10.12.24
+// 26.12.24
 Function inp_dop_diag()
 
   Local arr, jt, mshifr, tmp_keys, tmp_gets, buf, tmp_color
-  Local message := 'Диспансерный учет ' + iif( mk_data >= 0d20241201, '(1,2,3,4,6)', '(1, 2, 3) ')
-  // Local pr := 9
+  Local message := 'Диспансерный учет (1,2,4,6)'
+  local pr := 9
 
   Private mvar := Upper( ReadVar() )
-  // private mm_harakter_zab := { ;
-  //   { 'Выявлено впервые в жизни (или острое)', 1 }, ;
-  //   { 'Ранее зарегистрированное заболевание', 2 } ;
-  // }
-  // private mp_harakter, m1p_harakter
-  // private mm_dispanser_uchet := { ;
-  //   { 'Состоит', 1}, ;
-  //   { 'Взят', 2 }, ;
-  //   { 'Снят', 3 } ;
-  // }
-  // if mk_data >= 0d20241201
-  //   AAdd( mm_dispanser_uchet, { 'Снят по причине выздоровления', 4 } )
-  //   AAdd( mm_dispanser_uchet, { 'Снят по другим причинам', 6 } )
-  // endif
-  // private mp_dispanser, m1p_dispanser
-
+  private m1, m2
 
   If Empty( mvar ) .or. !( Type( mvar ) == 'C' )
     Return .t.
@@ -328,36 +313,20 @@ Function inp_dop_diag()
     Save gets To tmp_gets
     buf := SaveScreen()
     change_attr()
-    Private pr := 9, m1, m2
     m1 := adiag_talon[ jt * 2 -1 ]
-
-    // m1p_harakter := adiag_talon[ jt * 2 -1 ]
-    // mp_harakter := inieditspr( A__MENUVERT, mm_harakter_zab, m1p_harakter )
-
     m2 := adiag_talon[ jt * 2  ]
 
 
-//    box_shadow( pr, 2, pr + 4, 77, color0, 'Диагноз "' + AllTrim( mshifr ) + '"', 'W+/BG' )
     box_shadow( pr, 2, pr + 3, 77, color0, 'Диагноз "' + AllTrim( mshifr ) + '"', 'W+/BG' )
     tmp_color := SetColor( 'N/BG, W+/N, , , B/BG' )
-    @ pr + 1, 5 Say 'Характер заболевания (1, 2) '
-    // @ pr + 1, 5 Say 'Характер заболевания '
-    // @ pr + 1, 26 Get mp_harakter ;
-    //   reader {| x| menu_reader( x, mm_harakter_zab, A__MENUVERT, , , .f. ) }
 
-    @ pr + 1, 5 Say 'Характер заболевания (1, 2) ' + iif( mk_data >= 0d20241201, ' ', '' ) Get m1 Pict '9' valid {| g| v_i_d_diag( g, 1 ) }
-//    @ pr + 2, 5 Say 'Диспансерный учет  (1, 2, 3) ' Get m2 Pict '9' valid {| g| v_i_d_diag( g, 2 ) }
-    @ pr + 2, 5 Say message Get m2 Pict '9' valid {| g| v_i_d_diag( g, 2 ) }
-    // @ pr + 2, 5 Say 'Диспансерный учет '
-    // @ pr + 2, 26 Get mp_dispanser ;
-    //   reader {| x| menu_reader( x, mm_dispanser_uchet, A__MENUVERT, , , .f. ) }
+    @ pr + 1, 5 Say 'Характер заболевания (1, 2)' Get m1 Pict '9' valid {| g | v_i_d_diag( g, 1, pr ) }
+    @ pr + 2, 5 Say message Get m2 Pict '9' valid {| g | v_i_d_diag( g, 2, pr ) }
     status_key( '^<Esc>^ - выход;  ^<PgDn>^ - подтверждение ввода' )
     myread()
     If LastKey() != K_ESC
       adiag_talon[ jt * 2 -1 ] := m1
-      // adiag_talon[ jt * 2 -1 ] := m1p_harakter
       adiag_talon[ jt * 2  ] := m2
-      // adiag_talon[ jt * 2  ] := m1p_dispanser
     Endif
     Keyboard Chr( K_ENTER )
     RestScreen( buf )
@@ -367,11 +336,10 @@ Function inp_dop_diag()
     SetCursor()
     put_dop_diag()
   Endif
-
   Return .t.
 
-// 29.11.24
-Function v_i_d_diag( get, par )
+// 26.12.24
+Function v_i_d_diag( get, par, pr )
 
   Local fl := .t., mval, s := ''
   local arr_mes
@@ -382,41 +350,27 @@ Function v_i_d_diag( get, par )
   If mval > 0
     Do Case
     Case par == 1
-      If ( fl := Between( m1, 1, 2 ) )
+      If ( fl := Between( mval, 1, 2 ) )
         s := { 'Выявлено впервые в жизни (или острое)', ;
-          'Ранее зарегистрированное заболевание' }[ m1 ]
+          'Ранее зарегистрированное заболевание' }[ mval ]
       Endif
     Case par == 2
-//      If ( fl := Between( m2, 1, 6 ) )
-      If ( fl := eq_any( m2, 1, 2, 3, 4, 6 ) )
+      If ( fl := eq_any( mval, 1, 2, 4, 6 ) )
         arr_mes := { 'Состоит', ;
           'Взят', ;
-          'Снят' ;
+          '', ;
+          'Снят по причине выздоровления', ;
+          '', ;
+          'Снят по другим причинам' ;
         }
-        if mk_data >= 0d20241201
-          AAdd( arr_mes, 'Снят по причине выздоровления' )
-          AAdd( arr_mes, '' )
-          AAdd( arr_mes, 'Снят по другим причинам' )
-        else
-          if m2 > 3
-            m2 := 3
-          endif
-        endif
-        s := arr_mes[ m2 ]
-        // s := { 'Состоит', ;
-        //   'Взят', ;
-        //   'Снят', ;
-        //   'Снят по причине выздоровления', ;
-        //   '', ;
-        //   'Снят по другим причинам' }[ m2 ]
+        s := arr_mes[ mval ]
+      else
+        fl := .f.
+        func_error( 4, 'Неверный код состояния диспансерного учета. Допустимы 1, 2, 4, 6!' )
       Endif
     Endcase
   Endif
-  if par == 1
-    @ pr + par, iif( mk_data < 0d20241201, 36, 38 ) Say  s Color 'G+/BG' // PadR( s, 40 ) Color 'G+/BG'
-  else
-    @ pr + par, iif( mk_data < 0d20241201, 36, 38 ) Say s Color 'G+/BG' // PadR( s, 35 ) Color 'G+/BG'
-  endif
+  @ pr + par, 35 Say s Color 'G+/BG'
   If !fl
     &mvar := get:original
     mybell()

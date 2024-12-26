@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 25.12.24 создание XML-файлов реестра
+// 26.12.24 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -956,13 +956,13 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         Endif
 
         If !Empty( ldate_next )
-          // if human->N_DATA < 0d20241201
-          //   mo_add_xml_stroke( oSL, 'NEXT_VISIT', date2xml( BoM( ldate_next ) ) )
-          // else  // согласно письма ТФОМС 09-20-615 от 21.11.24
-          //   if eq_any( adiag_talon[ 2 ], 0, 1, 2 )
+          if human->N_DATA < 0d20241201
+            mo_add_xml_stroke( oSL, 'NEXT_VISIT', date2xml( BoM( ldate_next ) ) )
+          else  // согласно письма ТФОМС 09-20-615 от 21.11.24
+            if eq_any( adiag_talon[ 2 ], NIL, 0, 1, 2 ) // NIL или 0 - в поле human_->DISPANS ничего не проставлено
               mo_add_xml_stroke( oSL, 'NEXT_VISIT', date2xml( BoM( ldate_next ) ) )
-          //   endif
-          // endif
+            endif
+          endif
         Endif
         //
         j := 0
@@ -1445,7 +1445,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Return Nil
 
-// 24.12.24 работаем по текущей записи
+// 26.12.24 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1939,6 +1939,13 @@ Function f1_create2reestr19( _nyear, _nmonth )
     cSMOname := ret_inogsmo_name( 2 )
   Endif
   mdiagnoz := diag_for_xml( , .t., , , .t. )
+
+/// 26.12.24
+  AFill( adiag_talon, 0 )
+  For i := 1 To 16
+    adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
+  Next
+///
   If p_tip_reestr == 1
     If glob_mo[ _MO_IS_UCH ] .and. ;                    // наше МО имеет прикреплённое население
         human_->USL_OK == 3 .and. ;                    // поликлиника
@@ -1951,20 +1958,14 @@ Function f1_create2reestr19( _nyear, _nmonth )
         fl_DISABILITY := ( inv->DATE_INV < human->n_data .and. human->n_data <= AddMonth( inv->DATE_INV, 12 ) )
       Endif
     Endif
-/// 24.12.24
-    AFill( adiag_talon, 0 )
-    For i := 1 To 16
-      adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
-    Next
-///
   Else
     If human->OBRASHEN == '1' .and. AScan( mdiagnoz, {| x| PadR( x, 5 ) == 'Z03.1' } ) == 0
       AAdd( mdiagnoz, 'Z03.1' )
     Endif
-    AFill( adiag_talon, 0 )
-    For i := 1 To 16
-      adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
-    Next
+    // AFill( adiag_talon, 0 )
+    // For i := 1 To 16
+    //   adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
+    // Next
   Endif
   mdiagnoz3 := {}
   If !Empty( human_2->OSL1 )
