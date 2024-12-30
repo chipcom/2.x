@@ -2,12 +2,17 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 14.02.24
+// 29.12.24
 function baseRate( dt, type_USL_OK )
   static aRate
   local ret := 1, row
 
   if isnil( aRate )
+    // временно
+    // на 2025 базовая ставка стационарного случая 28003,9 руб
+    // на 2025 базовая ставка для случая дневного стационара 16026 руб
+    // временно
+
     // на 2024 базовая ставка стационарного случая 28003,9 руб
     // на 2024 базовая ставка для случая дневного стационара 16026 руб
     // на 2023 после 01.10.2023 базовая ставка стационарного случая 29995.8 руб
@@ -18,6 +23,8 @@ function baseRate( dt, type_USL_OK )
 
     // вид условия оказани, базовая ставка, дата начала, дата окончания
     aRate := { ;
+      { USL_OK_HOSPITAL, 28003.9, ctod( '01/01/2025' ), ctod( '31/12/2025' ) }, ; // временно 2025
+      { USL_OK_DAY_HOSPITAL, 16026, ctod( '01/01/2025' ), ctod( '31/12/2025' ) }, ; // временно 2025
       { USL_OK_HOSPITAL, 28003.9, ctod( '01/01/2024' ), ctod( '31/12/2024' ) }, ; // КС 2024 с 01.01.24
       { USL_OK_DAY_HOSPITAL, 16026, ctod( '01/01/2024' ), ctod( '31/12/2024' ) }, ; // ДС 2024 с 01.01.24
       { USL_OK_HOSPITAL, 29995.8, ctod( '01/10/2023' ), ctod( '31/12/2023' ) }, ; // КС 2023 с 01.10.23
@@ -34,12 +41,13 @@ function baseRate( dt, type_USL_OK )
   next
   return ret
 
-// 08.02.24
+// 28.12.24
 function code_services_VMP( nYear )
   static arrVMP
 
   if isnil( arrVMP )
     arrVMP := hb_Hash()
+    hb_HSet( arrVMP, 2025, '1.23.' )  // временно
     hb_HSet( arrVMP, 2024, '1.23.' )
     hb_HSet( arrVMP, 2023, '1.22.' )
     hb_HSet( arrVMP, 2022, '1.21.' )
