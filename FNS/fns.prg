@@ -316,7 +316,7 @@ function exist_spravka( get, kod_kart, onePerson )
 
   return .t.
 
-// 28.08.24
+// 30.12.24
 function input_spravka_fns()
 
   Local str_sem
@@ -394,8 +394,8 @@ function input_spravka_fns()
     Do While .t.
       j := 12
       @ j, 1 Clear To MaxRow() - 2, MaxCol() - 1
-      @ ++j, 2 Say 'Отчетный год ' + str( arr_m[ 1 ], 4)
-      @ j, 37 Say 'ИНН плательщика' Get mINN pict '999999999999'
+      @ ++j, 2 Say 'Отчетный год ' + str( arr_m[ 1 ], 4 )
+      @ j, 37 Say 'ИНН плательщика' Get mINN pict '999999999999' valid {| g | check_input_INN( g ) }
       @ ++j, 2 Say 'Оплаченная сумма по чекам за минусом возвратов - ' + str( mSumma, 10, 2 )
       @ ++j, 2 Say 'Сумма 1 -' Get mSum1 pict '999999999.99'
       @ j, 37 Say 'Сумма 2 -' Get mSum2 pict '999999999.99'
@@ -664,3 +664,4 @@ function short_FIO( mfio )
   local aFIO := razbor_str_fio( mfio )
 
   return 	aFIO[ 1 ] + ' ' + Left( aFIO[2], 1 ) + '.' + if( Empty( aFIO[3] ), '', Left( aFIO[3], 1 ) + '.' )
+
