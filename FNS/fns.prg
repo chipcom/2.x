@@ -67,13 +67,14 @@ Function defcolumn_spravka_fns( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  s := '<Esc> выход <F5> журнал справок <F9> печать <Del> аннулирование'
+//  s := '<Esc> выход <F5> журнал справок <F9> печать <Del> аннулирование'
+  s := '<Esc> выход <F5> журнал справок <F9> печать'
   @ MaxRow(), 0 Say PadC( s, 80 ) Color 'N/W'
   mark_keys( { '<Esc>', '<Del>', '<F5>', '<F9>' }, 'R/W' )
 
   Return Nil
 
-// 14.11.24
+// 02.01.25
 Function serv_spravka_fns( nKey, oBrow )
 
   Local j := 0, flag := -1, buf := save_row( MaxRow() ), ;
@@ -90,15 +91,15 @@ Function serv_spravka_fns( nKey, oBrow )
       func_error( 4, 'Справка включена в файл обмена с ФНС!' )
     endif
   Case nKey == K_F5
-    If ( arr_m := year_month( ) ) == NIL
-      return flag
-    endif
+//    If ( arr_m := year_month( ) ) == NIL
+//      return flag
+//    endif
 
-    fns_jornal_excel( hb_OEMToANSI( name_file_full ), arr_m )
-//    work_with_Excel_file( name_file_full )
+//    fns_jornal_excel( hb_OEMToANSI( name_file_full ), arr_m )
+////    work_with_Excel_file( name_file_full )
 
     Case nKey == K_DEL
-    anul_spravka_fns()
+//    anul_spravka_fns()
   Otherwise
     Keyboard ''
   Endcase
@@ -237,7 +238,7 @@ function anul_spravka_fns()
   endif
   return nil
 
-// 08.11.24 проверка существования справки за конкретный год
+// 03.01.25 проверка существования справки за конкретный год
 function exist_spravka( get, kod_kart, onePerson )
   // get - объект Get системы
   // kod_kart - код пациента по картотеке
@@ -245,6 +246,7 @@ function exist_spravka( get, kod_kart, onePerson )
 
   local nyear, str_find, tmp_select, i
   local zakaz_naryad := {}
+  local tData
 
   nyear := get
   str_find := Str( kod_kart, 7 ) + Str( nyear, 4 ) + Str( onePerson, 1 )
@@ -260,10 +262,12 @@ function exist_spravka( get, kod_kart, onePerson )
     use_base( 'hum_p', 'hum_p' )
     find ( str( glob_kartotek, 7 ) )
     do while hum_p->kod_k == glob_kartotek
-      if year( hum_p->K_DATA ) == nyear
+//      if year( hum_p->K_DATA ) == nyear // .and. ! empty( hum_p->FR_DATA )
+      tData := c4tod( hum_p->FR_DATA )
+      if ! empty( tData ) .and. year( tData ) == nyear
         AAdd( aCheck, { hum_p->( recno() ), PLAT, ;
-          hum_p->cena, ;
-          hum_p->sum_voz } )
+        hum_p->cena, ;
+        iif( year( c4tod( hum_p->VZFR_DATA ) ) == nyear, hum_p->sum_voz, 0 ) } )
       endif
       hum_p->( dbSkip() )
     enddo
@@ -285,10 +289,12 @@ function exist_spravka( get, kod_kart, onePerson )
       for i := 1 to len( zakaz_naryad )
         find ( str( zakaz_naryad[ i ], 7 ) )
         do while HO->kod == zakaz_naryad[ i ]
-          if year( c4tod( HO->PDATE ) ) == nyear
+          tData := c4tod( HO->FR_DATA )
+//          if year( c4tod( HO->PDATE ) ) == nyear
+          if year( tData ) == nyear
             AAdd( aCheck, { HO->( recno() ), ORTO, ;
               iif( HO->cena_opl > 0, HO->cena_opl, 0 ), ;
-              iif( HO->cena_opl < 0, Abs( HO->cena_opl ), 0 ) } )
+              iif( ( HO->cena_opl < 0 ) .and. ( year( c4tod( HO->VZFR_DATA ) ) == nyear ), Abs( HO->cena_opl ), 0 ) } )
           endif
           HO->( dbSkip() )
         enddo
@@ -302,10 +308,12 @@ function exist_spravka( get, kod_kart, onePerson )
     use_base( 'kas_pl', 'KASSA' )
     find ( str( glob_kartotek, 7 ) )
     do while KASSA->kod_k == glob_kartotek
-      if year( KASSA->K_DATA ) == nyear
+      tData := c4tod( KASSA->FR_DATA )
+//      if year( KASSA->K_DATA ) == nyear
+      if year( tData ) == nyear
         AAdd( aCheck, { KASSA->( recno() ), KASSA_MO, ;
           iif( KASSA->cena > 0, KASSA->cena, 0 ), ;
-          iif( KASSA->cena < 0, Abs( KASSA->cena ), 0 ) } )
+          iif( ( KASSA->cena < 0 ) .and. ( year( c4tod( KASSA->VZFR_DATA ) ) == nyear ), Abs( KASSA->cena ), 0 ) } )
       endif
       KASSA->( dbSkip() )
     enddo
@@ -316,7 +324,7 @@ function exist_spravka( get, kod_kart, onePerson )
 
   return .t.
 
-// 30.12.24
+// 03.01.25
 function input_spravka_fns()
 
   Local str_sem
@@ -324,7 +332,7 @@ function input_spravka_fns()
     arr_m, pos_read := 0, k_read := 0, count_edit := 0, ;
     mINN := space( 12 ), ;
     mSumma := 0.0, mSum1 := 0.0, mSum2 := 0.0, ;
-    j := 0, i, mkod, kol
+    j := 0, i, mkod
 
   local aFIOPlat, mDOB, mVID, mSerNomer, mKogda
   local predst := '', predst_doc := '', pred_ruk := 0
@@ -336,6 +344,10 @@ function input_spravka_fns()
   If ( arr_m := input_year() ) == NIL
     Return Nil
   Endif
+  if arr_m[ 1 ] != 2024
+    hb_Alert( 'Справки для ФНС составляются на 2024 год' )
+    return nil
+  endif
 
   _fns_nastr( 0 ) // проверим сущетствование настроек
   _fns_nastr( 1 ) // прочитаем сущетствующие настроеки
@@ -379,6 +391,11 @@ function input_spravka_fns()
     for i := 1 to len( aCheck )
       mSumma := mSumma + aCheck[ i, 3 ] - aCheck[ i, 4 ]
     next
+    if mSumma <= 0
+      hb_Alert( 'Сумма оплат за год равна или меньше нуля' )
+      return nil
+    endif
+
     str_sem := 'Справка ФНС человека ' + lstr( glob_kartotek )
     If ! g_slock( str_sem )
       Return func_error( 4, err_slock )
@@ -664,4 +681,3 @@ function short_FIO( mfio )
   local aFIO := razbor_str_fio( mfio )
 
   return 	aFIO[ 1 ] + ' ' + Left( aFIO[2], 1 ) + '.' + if( Empty( aFIO[3] ), '', Left( aFIO[3], 1 ) + '.' )
-
