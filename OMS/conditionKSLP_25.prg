@@ -1,8 +1,8 @@
 #include 'function.ch'
 
-// функции проверки применимости КСЛП в 2024 году
+// функции проверки применимости КСЛП в 2025 году
 //
-// 02.12.24 проверка услувия для применения КСЛП=30 для 2024 года
+// 02.12.24 проверка услувия для применения КСЛП=30 для 2025 года
 function conditionKSLP_1_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   // КСЛП=1 спальное место законному представителю, НУЖЕН ЗАПРОС
   // 3.1.1. Предоставление спального места и питания законному представителю
@@ -15,7 +15,7 @@ function conditionKSLP_1_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_di
 
   return conditionKSLP_1_22(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
 
-// 02.12.24 проверка услувия для применения КСЛП=31 для 2024 года
+// 02.12.24 проверка услувия для применения КСЛП=31 для 2025 года
 function conditionKSLP_2_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   // КСЛП=2 спальное место законному представителю, НУЖЕН ЗАПРОС
   // 3.1.1. Предоставление спального места и питания законному представителю
@@ -27,7 +27,7 @@ function conditionKSLP_2_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_di
   // документации.
   return conditionKSLP_2_22(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   
-// 02.12.24 проверка условия для применения КСЛП=3 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=3 для 2025 года
 function conditionKSLP_3_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
 
   // КСЛП=3 пациенты старше 75 лет
@@ -38,7 +38,7 @@ function conditionKSLP_3_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_di
     // Не применяется при госпитализации на профильные геронтологические койки.
    return conditionKSLP_3_22(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
 
-// 02.12.24 проверка условия для применения КСЛП=19 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=19 для 2025 года
 function conditionKSLP_19_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
 
@@ -64,7 +64,7 @@ function conditionKSLP_19_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   return fl 
 
-// 02.12.24 проверка условия для применения КСЛП=20 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=20 для 2025 года
 function conditionKSLP_20_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
 
   // 3.1.4
@@ -93,7 +93,7 @@ function conditionKSLP_20_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
 
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=21 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=21 для 2025 года
 function conditionKSLP_21_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
 
@@ -102,7 +102,7 @@ function conditionKSLP_21_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=22 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=22 для 2025 года
 function conditionKSLP_22_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f., aDiagnozis, y
   local diag, i := 0
@@ -146,7 +146,7 @@ function conditionKSLP_22_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   next
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=23 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=23 для 2025 года
 function conditionKSLP_23_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
 
@@ -156,7 +156,7 @@ function conditionKSLP_23_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=24 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=24 для 2025 года
 function conditionKSLP_24_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
 
@@ -166,7 +166,7 @@ function conditionKSLP_24_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=25 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=25 для 2025 года
 function conditionKSLP_25_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
 
@@ -176,7 +176,7 @@ function conditionKSLP_25_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=26 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=26 для 2025 года
 function conditionKSLP_26_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
 
@@ -186,7 +186,7 @@ function conditionKSLP_26_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=27 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=27 для 2025 года
 function conditionKSLP_27_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
 
@@ -196,7 +196,7 @@ function conditionKSLP_27_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=28 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=28 для 2025 года
 function conditionKSLP_28_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
   local valid_KSG := { ;
@@ -223,7 +223,7 @@ function conditionKSLP_28_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   endif
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=29 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=29 для 2025 года
 function conditionKSLP_29_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
 
@@ -238,7 +238,7 @@ function conditionKSLP_29_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
   fl := .t. // пока так
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=33 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=33 для 2025 года
 function conditionKSLP_33_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
   local valid_KSG := { ;
@@ -274,7 +274,7 @@ function conditionKSLP_33_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
 
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=34 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=34 для 2025 года
 function conditionKSLP_34_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
   local valid_KSG := { ;
@@ -310,7 +310,7 @@ function conditionKSLP_34_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
 
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=35 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=35 для 2025 года
 function conditionKSLP_35_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
   local valid_KSG := { ;
@@ -347,7 +347,7 @@ function conditionKSLP_35_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
 
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=36 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=36 для 2025 года
 function conditionKSLP_36_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
   local valid_KSG := { ;
@@ -384,7 +384,7 @@ function conditionKSLP_36_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
 
   return fl
 
-// 02.12.24 проверка условия для применения КСЛП=37 для 2024 года
+// 02.12.24 проверка условия для применения КСЛП=37 для 2025 года
 function conditionKSLP_37_25(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
   local valid_KSG := { ;
