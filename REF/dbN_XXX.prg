@@ -14,7 +14,7 @@ Function getn001()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N001 - Перечень противопоказаний и отказов (OnkPrOt)
@@ -50,7 +50,7 @@ Function getn002()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N002 - Классификатор стадий (OnkStad)
@@ -116,7 +116,7 @@ Function getn003()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N003 - Классификатор Tumor (OnkT)
@@ -184,7 +184,7 @@ Function getn004()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N004 - Классификатор Nodus (OnkN)
@@ -252,7 +252,7 @@ Function getn005()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N005 - Классификатор Metastasis (OnkM)
@@ -320,7 +320,7 @@ Function loadn006()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N006 - Перечень соответствия стадий TNM (OnkTNM)
@@ -364,7 +364,7 @@ Function getn007()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N007 - Перечень гистологических признаков (OnkMrf)
@@ -400,7 +400,7 @@ Function loadn008()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N008 - Перечень результатов гистологических исследований (OnkMrfRt)
@@ -450,7 +450,7 @@ Function getn009()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N009 - Перечень соответствия гистологических признаков диагнозам (OnkMrtDS)
@@ -488,7 +488,7 @@ Function loadn010()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N010 - Перечень маркёров (OnkIgh)
@@ -526,7 +526,7 @@ Function loadn011()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N011 - Перечень значений маркёров (OnkIghRt)
@@ -578,7 +578,7 @@ Function loadn012()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N012 - Перечень соответствия маркёров диагнозам (OnkIghDS)
@@ -640,7 +640,7 @@ Function getn013()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N013 - Перечень типов лечения (OnkLech)
@@ -676,7 +676,7 @@ Function getn014()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N014 - Перечень типов хирургического лечения (OnkHir)
@@ -712,7 +712,7 @@ Function getn015()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N015 - Перечень линий лекарственной терапии (OnkLek_L)
@@ -748,7 +748,7 @@ Function getn016()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N016 - Перечень циклов лекарственной терапии (OnkLek_V)
@@ -784,7 +784,7 @@ Function getn017()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N017 - Перечень типов лучевой терапии (OnkLuch)
@@ -820,7 +820,7 @@ Function getn018()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N018 - Перечень поводов обращения (OnkReas)
@@ -856,7 +856,7 @@ Function getn019()
   Static _arr
   Static time_load
   Local db
-  Local aTable, row
+  Local aTable
   Local nI
 
   // N019 - Перечень целей консилиума (OnkCons)
@@ -929,13 +929,13 @@ Function get_lek_pr_by_id( id_lekp )
 
   Return ret
 
-// 29.09.23
+// 06.01.25
 Function getn020( dk )
 
   Static stYear
   Static _arr
   Local db
-  Local aTable, row
+  Local aTable
   Local nI, dBeg, dEnd, year_dk
 
   If ValType( dk ) == 'N'
@@ -948,6 +948,7 @@ Function getn020( dk )
     dBeg := "'" + DToS( dk ) + "-01-01 00:00:00'"
     dEnd := "'" + DToS( dk ) + "-12-31 00:00:00'"
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+  elseif ISNIL( dk )
   Else
     Return {}
   Endif
@@ -955,14 +956,25 @@ Function getn020( dk )
   If ISNIL( stYear ) .or. Empty( _arr ) .or. year_dk != stYear
     _arr := {}
     db := opensql_db()
-    aTable := sqlite3_get_table( db, "SELECT " + ;
-      'id_lekp, ' + ;
-      'mnn, ' + ;
-      "datebeg, " + ;
-      "dateend " + ;
-      "FROM n020 " + ;
-      "WHERE datebeg <= " + dBeg + ;
-      "AND dateend >= " + dEnd )
+    if isnil( dk )
+      // получим все записи таблицы
+      aTable := sqlite3_get_table( db, "SELECT " + ;
+        'id_lekp, ' + ;
+        'mnn, ' + ;
+        "datebeg, " + ;
+        "dateend " + ;
+        "FROM n020 " )
+    else
+      // получим записи таблицы с ограничениями
+      aTable := sqlite3_get_table( db, "SELECT " + ;
+        'id_lekp, ' + ;
+        'mnn, ' + ;
+        "datebeg, " + ;
+        "dateend " + ;
+        "FROM n020 " + ;
+        "WHERE datebeg <= " + dBeg + ;
+        "AND dateend >= " + dEnd )
+    endif
     If Len( aTable ) > 1
       For nI := 2 To Len( aTable )
         Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
@@ -1038,15 +1050,8 @@ Function getn021( dk )
   Local year_dk
 
   If ValType( dk ) == 'N'
-    // dBeg := "'" + Str( dk, 4 ) + "-01-01 00:00:00'"
-    // dEnd := "'" + Str( dk, 4 ) + "-12-31 00:00:00'"
     year_dk := dk
   Elseif ValType( dk ) == 'D'
-    // year_dk := Str( Year( dk ), 4 )
-// //    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
-//     dBeg := "'" + year_dk + "-01-01 00:00:00'"
-//     dEnd := "'" + year_dk + "-12-31 00:00:00'"
-// //    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     year_dk := Year( dk )
   Else
     Return {}
@@ -1062,12 +1067,8 @@ Function getn021( dk )
       "dateend, " + ;
       "lekp_ext, " + ;
       "id_lekp_ext " + ;
-      "FROM n021 " )  //  + ;
-//      "WHERE DATE(datebeg) <= " + dBeg + ;
-//      "AND DATE(dateend) >= " + dEnd )
+      "FROM n021 " )
 
-    // "WHERE datebeg <= " + dBeg + ;
-    // "AND dateend >= " + dEnd)
     If Len( aTable ) > 1
       For nI := 2 To Len( aTable )
         Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )

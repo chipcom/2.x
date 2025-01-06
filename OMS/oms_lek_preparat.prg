@@ -709,24 +709,44 @@ Function check_edit_field( get, when_valid, k )
   Endif
   Return fl
 
-// 22.12.24
+// 06.01.25
 Function get_lek_pr( k, r, c, _crit )
 
   Local i, j, nrec, t_arr := Array( BR_LEN ), ret := { Space( 10 ), Space( 10 ) }
 
   Local aN021 := getn021( mk_data ), it, row
+  local aN020 := getn020()
+  local adbf
 
   Private arr_lek_pr := {}, yes_crit
 
+  adbf := { ;
+    { 'ID_LEKP',    'C',  6, 0 }, ; //
+    { 'MNN',        'C', 250, 0 }, ; //
+    { 'DATEBEG',    'D',  8, 0 }, ; // Дата начала действия записи
+    { 'DATEEND',    'D',  8, 0 };  // Дата окончания действия записи
+  }
   _crit := AllTrim( _crit )
+ 
+  dbCreate( 'mem:n020', adbf, , .t., 'N20' )
+  for each row in aN020
+    N20->( dbAppend() )
+    N20->ID_LEKP := row[ 1 ]
+    N20->MNN := row[ 2 ]
+    N20->DATEBEG := row[ 3 ]
+    N20->DATEEND := row[ 4 ]
+  next
+  Index On Upper( mnn ) Tag n020n
+  Index On ID_LEKP Tag n020
+  Set Filter To between_date( datebeg, dateend, mk_data )
 
   dbCreate( cur_dir + 'tmp', { { 'id_lekp', 'C', 6, 0 }, ;
     { 'mnn', 'C', 70, 0 }, ;
     { 'kol', 'N', 3, 0 } } )
   Use ( cur_dir + 'tmp' ) new
   Index On id_lekp to ( cur_dir + 'tmp' )
-  r_use( dir_exe() + '_mo_N020', { cur_dir + '_mo_N020', cur_dir + '_mo_N020n' }, 'N20' )
-  Set Filter To between_date( datebeg, dateend, mk_data )
+//  r_use( dir_exe() + '_mo_N020', { cur_dir + '_mo_N020', cur_dir + '_mo_N020n' }, 'N20' )
+//  Set Filter To between_date( datebeg, dateend, mk_data )
 
   If ( it := AScan( aN021, {| x| x[ 2 ] + x[ 3 ] == _crit } ) ) == 0
     yes_crit := .t.
@@ -841,6 +861,9 @@ Function get_lek_pr( k, r, c, _crit )
   tmp->( dbCloseArea() )
   tmple->( dbCloseArea() )
   n20->( dbCloseArea() )
+  dbDrop( 'mem:n020' )  /* освободим память */
+  hb_vfErase( 'mem:n020n.ntx' )  /* освободим память от индексного файла */
+  hb_vfErase( 'mem:n020.ntx' )  /* освободим память от индексного файла */
 
   Return ret
 

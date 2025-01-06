@@ -8,7 +8,7 @@
 
 // Static sadiag1
 
-// 08.12.24
+// 06.01.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -1972,10 +1972,10 @@ Function verify_sluch( fl_view )
             // if fl_zolend
             // aadd(ta, 'в составе случая оказания химиотерапии не может быть применен ТОЛЬКО один препарат из списка (золедроновая кислота, ибандроновая кислота, памидроновая кислота, клодроновая кислота или деносумаб)')
             // endif
-            If Select( 'N20' ) == 0
-              r_use( dir_exe() + '_mo_N020', cur_dir + '_mo_N020', 'N20' )
-              Set Filter To between_date( datebeg, dateend, dEnd )
-            Endif
+//            If Select( 'N20' ) == 0
+//              r_use( dir_exe() + '_mo_N020', cur_dir + '_mo_N020', 'N20' )
+//              Set Filter To between_date( datebeg, dateend, dEnd )
+//            Endif
             aN021 := getn021( dEnd )
             n := 0
             l_n021 := .f.
