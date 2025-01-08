@@ -3,6 +3,21 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 07.01.25
+function split_regnum_dop( regnum_dop )
+
+  local aTokens := hb_ATokens( regnum_dop, '.' )
+  local agregatForma := { 'твердое', 'жидкое', 'мягкое' }
+  local kodUtochnenia := { 'уточнение отсутствует', 'пегилированный липосомальный', 'лиофилизат' }
+  
+  aTokens[ 1 ] := aTokens[ 1 ]
+  aTokens[ 2 ] := ret_meth_method_inj( val( aTokens[ 2 ] ) )
+  aTokens[ 3 ] := kodUtochnenia[ val( aTokens[ 3 ] ) + 1 ]
+  aTokens[ 4 ] := agregatForma[ val( aTokens[ 4 ] ) ]
+  aTokens[ 5 ] := ret_character_vysv( val( aTokens[ 5 ] ) )
+  aTokens[ 6 ] := ret_ed_izm( aTokens[ 6 ] )
+  return aTokens
+
 // 15.01.23
 Function init_lek_pr()
 
@@ -62,6 +77,20 @@ Function check_oms_sluch_lek_pr( mkod_human )
     Endif
   Endif
 
+  If ( ( M1USL_OK == USL_OK_HOSPITAL ) .or. ( M1USL_OK == USL_OK_DAY_HOSPITAL ) ) .and. ( d2 >= 0d20250101 )
+    r_use( dir_server + 'mo_onksl', dir_server + 'mo_onksl',  'SL' )
+    find ( Str( mkod_human, 7 ) )
+    If Found()
+      retFl := iif( substr( lower( SL->crit ), 1, 2 ) == 'sh', .t., .f. )
+    endif
+    SL->( dbCloseArea() )
+  endif
+//  If check_diag_onko_lek_prep( human_kod_diag ) .and. mvozrast >= 18 .and. empty(human_->DATE_R2)
+//    If ( ( M1USL_OK == USL_OK_HOSPITAL ) .or. ( M1USL_OK == USL_OK_DAY_HOSPITAL ) ) .and. ( d2 >= 0d20250101 )
+//      retFl := ( vidPom != 32 ) // .and. ( ad_cr != 'stt5' )
+//    endif
+//  endif
+
   HUMAN_2->( dbCloseArea() )
   HUMAN_->( dbCloseArea() )
   HUMAN->( dbCloseArea() )
@@ -75,7 +104,8 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
   // mkod_kartotek - код по БД kartotek
   Local aDbf, buf := SaveScreen(), l_color, fl_found
   Local mtitle, tmp_color := SetColor( color1 )
-  Local nBegin
+  Local nBegin, regnum_dop, aReg_dop
+  Local is_oncology, funcHeaderTable := '', funcBrowse := ''
 
   Private mSeverity, m1Severity := 0
 
@@ -96,6 +126,15 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
 
   find ( Str( mkod_human, 7 ) ) // встанем на лист учета
+  is_oncology := iif( f_is_oncology( 1 ) == 2, .t., .f. )
+
+  if is_oncology
+    funcHeaderTable := 'f_oms_sluch_onko_lek_pr'
+    funcBrowse := 'f2oms_sluch_lek_pr'
+  else
+    funcHeaderTable := 'f_oms_sluch_lek_pr'
+    funcBrowse := 'f2oms_sluch_lek_pr'
+  endif
 
   g_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR' )
 
@@ -103,18 +142,23 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
     { 'KOD_HUM',    'N',   7,  0 }, ; // код листа учёта по файлу 'human'
     { 'DATE_INJ',   'D',   8,  0 }, ; // Дата введения лекарственного препарата
     { 'SEVERITY',   'N',   5,  0 }, ; // код тяжести течения заболевания по справочнику _mo_severity.dbf
-    { 'SCHEME',     'C',  10,  0 }, ; // схема лечения пациента V030
+    { 'CODE_SH',    'C',  10,  0 }, ; // схема лечения пациента V030
     { 'SCHEDRUG',   'C',  10,  0 }, ; // сочетание схемы лечения и группы препаратов V032
     { 'REGNUM',     'C',   6,  0 }, ; // лекарственного препарата
     { 'ED_IZM',     'N',   3,  0 }, ; // Единица измерения дозы лекарственного препарата
     { 'DOZE',       'N',   8,  2 }, ; // Доза введения лекарственного препарата
     { 'METHOD',     'N',   3,  0 }, ; // Путь введения лекарственного препарата
     { 'COL_INJ',    'N',   5,  0 }, ; // Количество введений в течениедня, указанного в DATA_INJ
+    { 'KIZ_INJ',    'N',   8, 3 }, ;  // Количество израсходованного(введенного+утилизированоого) лек. препарата
+    { 'S_INJ',      'N',  15, 6 }, ;  // Фактическая стоимость лек. препарата за единицу измерения
+    { 'SV_INJ',     'N',  15, 2 }, ;  // Стоимость введенного лек. препарата
+    { 'SIZ_INJ',    'N',  15, 2 }, ;  // Стоимость израсходованного лек. препарата
+    { 'RED_INJ',    'N',   1, 0 }, ;   // Признак применения редукции для лек. препарата (0 - без редукции, 1 - редукция присутствует)
     { 'COD_MARK',   'C', 100,  0 }, ; // Код маркировки лекарственного препарата
     { 'NUMBER',     'N',   3,  0 }, ; // счетчик строк
     { 'REC_N',      'N',   8,  0 };  // номер записи в файле human_lek_pr.dbf
   }
- dbCreate( 'mem:lek_pr', adbf, , .t., 'TMP' )
+  dbCreate( 'mem:lek_pr', adbf, , .t., 'TMP' )
 
   Select LEK_PR
   find ( Str( mkod_human, 7 ) )
@@ -126,13 +170,27 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
       tmp->KOD_HUM  := LEK_PR->KOD_HUM
       tmp->DATE_INJ := LEK_PR->DATE_INJ
       tmp->SEVERITY := LEK_PR->SEVERITY
-      tmp->SCHEME   := LEK_PR->CODE_SH
+      tmp->CODE_SH  := LEK_PR->CODE_SH
       tmp->SCHEDRUG := LEK_PR->SCHEDRUG
       tmp->REGNUM   := LEK_PR->REGNUM
-      tmp->ED_IZM   := LEK_PR->ED_IZM
+      if is_oncology
+        regnum_dop := get_sootv_n021( LEK_PR->CODE_SH, LEK_PR->DATE_INJ )[ 7 ]  // id_lekp_ext
+        aReg_dop := split_regnum_dop( regnum_dop )
+        if ! empty( regnum_dop )
+          tmp->ED_IZM := val( substr( regnum_dop, hb_RAt( '.', regnum_dop ) + 1 ) )
+        endif
+      else
+        tmp->ED_IZM   := LEK_PR->ED_IZM
+      endif
       tmp->DOZE     := LEK_PR->DOSE_INJ
       tmp->METHOD   := LEK_PR->METHOD_I
       tmp->COL_INJ  := LEK_PR->COL_INJ
+      tmp->KIZ_INJ  := LEK_PR->KIZ_INJ
+      tmp->S_INJ    := LEK_PR->S_INJ
+      tmp->SV_INJ   := LEK_PR->SV_INJ
+      tmp->SIZ_INJ  := LEK_PR->SIZ_INJ
+      tmp->RED_INJ  := LEK_PR->RED_INJ
+  
       // tmp->COD_MARK := LEK_PR->COD_MARK
       tmp->REC_N    :=  LEK_PR->( RecNo() )
       LEK_PR->( dbSkip() )
@@ -158,8 +216,10 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
   Endif
 
   mtitle := f_srok_lech( human->n_data, human->k_data, human_->usl_ok )
-  alpha_browse( nBegin, 0, MaxRow() -2, 79, 'f_oms_sluch_lek_pr', color1, mtitle, col_tit_popup, ;
-    .f., .t., , 'f1oms_sluch_lek_pr', 'f2oms_sluch_lek_pr', , ;
+//  alpha_browse( nBegin, 0, MaxRow() -2, 79, 'f_oms_sluch_lek_pr', color1, mtitle, col_tit_popup, ;
+//  .f., .t., , 'f1oms_sluch_lek_pr', 'f2oms_sluch_lek_pr', , ;
+  alpha_browse( nBegin, 0, MaxRow() -2, 79, funcHeaderTable, color1, mtitle, col_tit_popup, ;
+    .f., .t., , 'f1oms_sluch_lek_pr', funcBrowse, , ;
     { '═', '░', '═', l_color, .t., 180 } )
 
   LEK_PR->( dbCloseArea() )
@@ -176,6 +236,64 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
   SetColor( tmp_color )
   RestScreen( buf )
   verify_oms_sluch( mkod_human )
+  Return Nil
+
+// 07.0.25
+Function f_oms_sluch_onko_lek_pr( oBrow )
+
+  Local oColumn, blk_color
+
+  oColumn := TBColumnNew( ' Дата;инекц', ;
+    {|| Left( DToC( tmp->DATE_INJ ), 5 ) } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+
+//  oColumn := TBColumnNew( '  Схема   ', ;
+//    {|| iif( Empty( tmp->CODE_SH ), Space( 10 ), PadR( tmp->CODE_SH, 10 ) ) } )
+//  oColumn:colorBlock := blk_color
+//  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( '    Препарат   ', ;
+    {|| iif( Empty( tmp->REGNUM ), Space( 15 ), PadR( get_lek_pr_by_id( tmp->REGNUM ), 15 ) ) } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+
+//  oColumn := TBColumnNew( ' Единица; измер-я', ;
+//    {|| iif( tmp->ED_IZM == 0, Space( 8 ), PadR( ret_ed_izm( tmp->ED_IZM ), 8 ) ) } )
+//  oColumn:colorBlock := blk_color
+//  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'Кол.введ.', ;
+    {|| tmp->DOZE } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'Кол.израс.', ;
+    {|| tmp->KIZ_INJ } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'Факт.стоим.', ;
+    {|| tmp->S_INJ } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'Стоим.вв.', ;
+    {|| tmp->SV_INJ } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'Стоим.изр.', ;
+    {|| tmp->SIZ_INJ } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( 'Ред.', ;
+    {|| tmp->RED_INJ } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+
+  status_key( '^<Esc>^ выход; ^<Enter>^ ред-ие' ) //; ^<Ins>^ добавление; ^<Del>^ удаление' )
   Return Nil
 
 // 08.01.22
@@ -255,7 +373,7 @@ Function add_lek_pr( dateInjection, nKey )
   tmp->KOD_HUM      := HUMAN->KOD
   tmp->DATE_INJ     := dateInjection
   tmp->SEVERITY     := m1SEVERITY
-  tmp->SCHEME       := m1SCHEME
+  tmp->CODE_SH      := m1SCHEME
   tmp->SCHEDRUG     := m1SCHEDRUG
   tmp->REGNUM       := m1REGNUM
   If ! Empty( m1REGNUM )
@@ -264,6 +382,13 @@ Function add_lek_pr( dateInjection, nKey )
     tmp->METHOD       := m1METHOD
     tmp->COL_INJ      := mKOLVO
   Endif
+
+//  tmp->KIZ_INJ  := LEK_PR->KIZ_INJ
+//  tmp->S_INJ    := LEK_PR->S_INJ
+//  tmp->SV_INJ   := LEK_PR->SV_INJ
+//  tmp->SIZ_INJ  := LEK_PR->SIZ_INJ
+//  tmp->RED_INJ  := LEK_PR->RED_INJ
+
   // tmp->COD_MARK     := LEK_PR->COD_MARK
   Select LEK_PR
   LEK_PR->KOD_HUM     := HUMAN->KOD
@@ -278,6 +403,12 @@ Function add_lek_pr( dateInjection, nKey )
     LEK_PR->METHOD_I    := m1METHOD
     LEK_PR->COL_INJ     := mKOLVO
   Endif
+//  tmp->KIZ_INJ  := LEK_PR->KIZ_INJ
+//  tmp->S_INJ    := LEK_PR->S_INJ
+//  tmp->SV_INJ   := LEK_PR->SV_INJ
+//  tmp->SIZ_INJ  := LEK_PR->SIZ_INJ
+//  tmp->RED_INJ  := LEK_PR->RED_INJ
+
   Unlock
   // LEK_PR->COD_MARK
   Select tmp
@@ -301,7 +432,7 @@ Function f2oms_sluch_lek_pr( nKey, oBrow )
     Private m1date_u1
     Private mdate_u1 := iif( nKey == K_INS, last_date, tmp->DATE_INJ )  // для совместимости с f5editkusl
     Private m1SEVERITY := iif( nKey == K_INS, 0, tmp->SEVERITY ), mSEVERITY
-    Private m1SCHEME := iif( nKey == K_INS, '', tmp->SCHEME ), mSCHEME
+    Private m1SCHEME := iif( nKey == K_INS, '', tmp->CODE_SH ), mSCHEME
     Private m1SCHEDRUG := iif( nKey == K_INS, '', tmp->SCHEDRUG ), mSCHEDRUG
     Private m1UNITCODE := iif( nKey == K_INS, 0, tmp->ED_IZM ), mUNITCODE
     Private m1METHOD := iif( nKey == K_INS, 0, tmp->METHOD ), mMETHOD

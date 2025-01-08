@@ -2075,6 +2075,16 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             Endif
             deleterec( .t. )
           Enddo
+          if mk_data >= 0d20250101
+            g_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR' )
+            Do While .t.
+              find ( Str( mkod, 7 ) )
+              If !Found()
+                Exit
+              Endif
+              deleterec( .t. )
+            Enddo
+          Endif
         Endif
       Endif
       If is_oncology > 0 // онкология - направления
@@ -2265,13 +2275,24 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             AAdd( arr, RecNo() )
             Skip
           Enddo
+          if mk_data >= 0d20250101
+            arr_lek := {}
+            g_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR' )
+            find ( Str( mkod, 7 ) )
+            Do While lek_pr->kod_hum == mkod .and. !Eof()
+              AAdd( arr_lek, RecNo() )
+              Skip
+            Enddo
+            i_lek_pr := 0
+          endif
           i := 0
+          // (m1usl_tip лекарственная противоопухлевая терапия или химиолучевая терапия)
           If eq_any( m1usl_tip, 2, 4 ) .or. ( is_onko_VMP .and. mtipvmp == 1 .and. musl2vmp == 2 )
             Use ( cur_dir + 'tmp_onkle' ) New Alias TMPLE
             Go Top
             Do While !Eof()
               Select LE
-              If++i > Len( arr )
+              If ++i > Len( arr )
                 addrec( 7 )
                 le->kod := mkod
               Else
@@ -2285,12 +2306,28 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
                 le->CODE_SH  := m1crit // tmple->CODE_SH
               Endif
               le->DATE_INJ := tmple->DATE_INJ
+
+              if mk_data >= 0d20250101
+                select LEK_PR
+                If ++i_lek_pr > Len( arr_lek )
+                  addrec( 7 )
+                  lek_pr->kod_hum := mkod
+                Else
+                  Goto ( arr_lek[ i ] )
+                  g_rlock( forever )
+                Endif
+
+                lek_pr->REGNUM   := tmple->REGNUM
+                lek_pr->CODE_SH  := m1crit // tmple->CODE_SH
+                lek_pr->DATE_INJ := tmple->DATE_INJ
+              endif
+
               Select TMPLE
               Skip
             Enddo
           Endif
           Select LE
-          Do While++i <= Len( arr )
+          Do While ++i <= Len( arr )
             Goto ( arr[ i ] )
             deleterec( .t. )
           Enddo

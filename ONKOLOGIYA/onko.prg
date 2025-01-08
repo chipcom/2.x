@@ -4,6 +4,28 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 07.01.25
+function check_diag_onko_lek_prep( kod_diag )
+
+  local kod, lRet := .f., i, j
+  local arrDiag := { 'C40', 'C49', 'C62', 'C64', 'C70', 'C71', 'C72', 'C81', 'C95' }
+  local arrDiagFull := { ;
+    'C22.2', 'C38.1', 'C47.3', 'C47.4', 'C47.5', 'C47.6', ;
+    'C47.8', 'C47.9', 'C48.0', 'C74.1', 'C74.9', 'C76.0', ;
+    'C76.1', 'C76.2', 'C76.3', 'C76.7', 'C76.8', 'C83.3', ;
+    'C83.5', 'C83.7', 'C84.6', 'C84.7', 'C85.2', 'C91.0', ;
+    'C91.8', 'C92.0', 'C92.3', 'C92.4', 'C92.5', 'C92.6', ;
+    'C92.7', 'C92.8', 'C92.9', 'C93.0', 'C94.0', 'C94.2' ;
+  }
+
+  kod := Upper( AllTrim( kod_diag ) )
+  i := ascan( arrDiagFull, { | x | x == kod } )
+  j := ascan( arrDiag, { | x | x == substr( kod, 1, 3 ) } )
+
+  if ( i > 0 ) .or. ( j > 0 )
+    lRet := .t.
+  Endif
+  return lRet
 
 // 05.11.23 проходит только КТ, УЗИ, гистология диагностика при онкологии
 Function only_control_onko( napr, date, rslt, ishod )
