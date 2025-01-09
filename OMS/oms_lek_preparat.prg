@@ -4,18 +4,27 @@
 #include 'chip_mo.ch'
 
 // 07.01.25
-function split_regnum_dop( regnum_dop )
+function split_regnum_dop( regnum_dop, type )
 
   local aTokens := hb_ATokens( regnum_dop, '.' )
   local agregatForma := { 'твердое', 'жидкое', 'мягкое' }
   local kodUtochnenia := { 'уточнение отсутствует', 'пегилированный липосомальный', 'лиофилизат' }
-  
-  aTokens[ 1 ] := aTokens[ 1 ]
-  aTokens[ 2 ] := ret_meth_method_inj( val( aTokens[ 2 ] ) )
-  aTokens[ 3 ] := kodUtochnenia[ val( aTokens[ 3 ] ) + 1 ]
-  aTokens[ 4 ] := agregatForma[ val( aTokens[ 4 ] ) ]
-  aTokens[ 5 ] := ret_character_vysv( val( aTokens[ 5 ] ) )
-  aTokens[ 6 ] := ret_ed_izm( aTokens[ 6 ] )
+
+  if type == 1
+    aTokens[ 1 ] := aTokens[ 1 ]
+    aTokens[ 2 ] := ret_meth_method_inj( val( aTokens[ 2 ] ) )
+    aTokens[ 3 ] := kodUtochnenia[ val( aTokens[ 3 ] ) + 1 ]
+    aTokens[ 4 ] := agregatForma[ val( aTokens[ 4 ] ) ]
+    aTokens[ 5 ] := ret_character_vysv( val( aTokens[ 5 ] ) )
+    aTokens[ 6 ] := ret_ed_izm( aTokens[ 6 ] )
+  else
+    aTokens[ 1 ] := aTokens[ 1 ]
+    aTokens[ 2 ] := val( aTokens[ 2 ] )
+    aTokens[ 3 ] := val( aTokens[ 3 ] )
+    aTokens[ 4 ] := val( aTokens[ 4 ] )
+    aTokens[ 5 ] := val( aTokens[ 5 ] )
+    aTokens[ 6 ] := val( aTokens[ 6 ] )
+  endif
   return aTokens
 
 // 15.01.23
@@ -151,13 +160,14 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
     { 'COL_INJ',    'N',   5,  0 }, ; // Количество введений в течениедня, указанного в DATA_INJ
     { 'KIZ_INJ',    'N',   8, 3 }, ;  // Количество израсходованного(введенного+утилизированоого) лек. препарата
     { 'S_INJ',      'N',  15, 6 }, ;  // Фактическая стоимость лек. препарата за единицу измерения
-    { 'SV_INJ',     'N',  15, 2 }, ;  // Стоимость введенного лек. препарата
-    { 'SIZ_INJ',    'N',  15, 2 }, ;  // Стоимость израсходованного лек. препарата
     { 'RED_INJ',    'N',   1, 0 }, ;   // Признак применения редукции для лек. препарата (0 - без редукции, 1 - редукция присутствует)
     { 'COD_MARK',   'C', 100,  0 }, ; // Код маркировки лекарственного препарата
+    { 'REGNUM_DOP', 'C',  25,  0 }, ; // лекарственного препарата
     { 'NUMBER',     'N',   3,  0 }, ; // счетчик строк
     { 'REC_N',      'N',   8,  0 };  // номер записи в файле human_lek_pr.dbf
   }
+//  { 'SV_INJ',     'N',  15, 2 }, ;  // Стоимость введенного лек. препарата
+//  { 'SIZ_INJ',    'N',  15, 2 }, ;  // Стоимость израсходованного лек. препарата
   dbCreate( 'mem:lek_pr', adbf, , .t., 'TMP' )
 
   Select LEK_PR
@@ -175,7 +185,9 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
       tmp->REGNUM   := LEK_PR->REGNUM
       if is_oncology
         regnum_dop := get_sootv_n021( LEK_PR->CODE_SH, LEK_PR->DATE_INJ )[ 7 ]  // id_lekp_ext
-        aReg_dop := split_regnum_dop( regnum_dop )
+        tmp->REGNUM   := regnum_dop
+        tmp->ED_IZM := split_regnum_dop( regnum_dop, 2 )[ 6 ]
+        aReg_dop := split_regnum_dop( regnum_dop, 1 )
         if ! empty( regnum_dop )
           tmp->ED_IZM := val( substr( regnum_dop, hb_RAt( '.', regnum_dop ) + 1 ) )
         endif
@@ -187,8 +199,8 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
       tmp->COL_INJ  := LEK_PR->COL_INJ
       tmp->KIZ_INJ  := LEK_PR->KIZ_INJ
       tmp->S_INJ    := LEK_PR->S_INJ
-      tmp->SV_INJ   := LEK_PR->SV_INJ
-      tmp->SIZ_INJ  := LEK_PR->SIZ_INJ
+//      tmp->SV_INJ   := LEK_PR->SV_INJ
+//      tmp->SIZ_INJ  := LEK_PR->SIZ_INJ
       tmp->RED_INJ  := LEK_PR->RED_INJ
   
       // tmp->COD_MARK := LEK_PR->COD_MARK
@@ -258,10 +270,10 @@ Function f_oms_sluch_onko_lek_pr( oBrow )
   oColumn:colorBlock := blk_color
   oBrow:addcolumn( oColumn )
 
-//  oColumn := TBColumnNew( ' Единица; измер-я', ;
-//    {|| iif( tmp->ED_IZM == 0, Space( 8 ), PadR( ret_ed_izm( tmp->ED_IZM ), 8 ) ) } )
-//  oColumn:colorBlock := blk_color
-//  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( ' Единица; измер-я', ;
+    {|| iif( tmp->ED_IZM == 0, Space( 8 ), PadR( ret_ed_izm( tmp->ED_IZM ), 8 ) ) } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( 'Кол.введ.', ;
     {|| tmp->DOZE } )
@@ -278,15 +290,15 @@ Function f_oms_sluch_onko_lek_pr( oBrow )
   oColumn:colorBlock := blk_color
   oBrow:addcolumn( oColumn )
 
-  oColumn := TBColumnNew( 'Стоим.вв.', ;
-    {|| tmp->SV_INJ } )
-  oColumn:colorBlock := blk_color
-  oBrow:addcolumn( oColumn )
+//  oColumn := TBColumnNew( 'Стоим.вв.', ;
+//    {|| tmp->SV_INJ } )
+//  oColumn:colorBlock := blk_color
+//  oBrow:addcolumn( oColumn )
 
-  oColumn := TBColumnNew( 'Стоим.изр.', ;
-    {|| tmp->SIZ_INJ } )
-  oColumn:colorBlock := blk_color
-  oBrow:addcolumn( oColumn )
+//  oColumn := TBColumnNew( 'Стоим.изр.', ;
+//    {|| tmp->SIZ_INJ } )
+//  oColumn:colorBlock := blk_color
+//  oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( 'Ред.', ;
     {|| tmp->RED_INJ } )
@@ -383,11 +395,11 @@ Function add_lek_pr( dateInjection, nKey )
     tmp->COL_INJ      := mKOLVO
   Endif
 
-//  tmp->KIZ_INJ  := LEK_PR->KIZ_INJ
-//  tmp->S_INJ    := LEK_PR->S_INJ
+  tmp->KIZ_INJ  := LEK_PR->KIZ_INJ
+  tmp->S_INJ    := LEK_PR->S_INJ
 //  tmp->SV_INJ   := LEK_PR->SV_INJ
 //  tmp->SIZ_INJ  := LEK_PR->SIZ_INJ
-//  tmp->RED_INJ  := LEK_PR->RED_INJ
+  tmp->RED_INJ  := LEK_PR->RED_INJ
 
   // tmp->COD_MARK     := LEK_PR->COD_MARK
   Select LEK_PR
@@ -403,11 +415,11 @@ Function add_lek_pr( dateInjection, nKey )
     LEK_PR->METHOD_I    := m1METHOD
     LEK_PR->COL_INJ     := mKOLVO
   Endif
-//  tmp->KIZ_INJ  := LEK_PR->KIZ_INJ
-//  tmp->S_INJ    := LEK_PR->S_INJ
+  tmp->KIZ_INJ  := LEK_PR->KIZ_INJ
+  tmp->S_INJ    := LEK_PR->S_INJ
 //  tmp->SV_INJ   := LEK_PR->SV_INJ
 //  tmp->SIZ_INJ  := LEK_PR->SIZ_INJ
-//  tmp->RED_INJ  := LEK_PR->RED_INJ
+  tmp->RED_INJ  := LEK_PR->RED_INJ
 
   Unlock
   // LEK_PR->COD_MARK
