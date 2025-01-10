@@ -1,11 +1,11 @@
 #require 'hbsqlit3'
 
-// 31.01.23 вернуть массив по справочнику Минздрава РФ OID 1.2.643.5.1.13.13.11.1468_2.1.xml
+// 08.01.25 вернуть массив по справочнику Минздрава РФ OID 1.2.643.5.1.13.13.11.1468_2.1.xml
 function getMethodINJ()
   // OID 1.2.643.5.1.13.13.11.1468_2.1.xml - Пути введения лекарственных препаратов
   //  1 - ID(N) 2 - NAME_RUS(C) 3 - NAME_ENG(C) 4 - PARENT(N) 5 - TYPE(C)
   static _arr := {}
-  local dBegin := 0d20220101, dEnd := 0d20241231  // для совместимости
+  local dBegin := 0d20220101, dEnd := 0d22221231  // для совместимости
   local cmdText
   local db
   local aTable
@@ -14,9 +14,12 @@ function getMethodINJ()
   if len(_arr) == 0
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
     db := openSQL_DB()
+//    cmdText := 'SELECT id, ' + ;
+//      iif(mem_methodinj == 0, 'name_rus, ', 'name_eng, ') + ;
+//      'parent, type FROM MethIntro WHERE type = "L"'
     cmdText := 'SELECT id, ' + ;
         iif(mem_methodinj == 0, 'name_rus, ', 'name_eng, ') + ;
-        'parent, type FROM MethIntro WHERE type = "L"'
+        'parent, type FROM MethIntro'
     aTable := sqlite3_get_table(db, cmdText)
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
