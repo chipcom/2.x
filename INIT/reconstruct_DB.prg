@@ -67,7 +67,7 @@ Function reconstruct_security( is_local_version )
 
   Return Nil
 
-// 09.01.25 реконстукция баз данных
+// 10.01.25 реконстукция баз данных
 Function reconstruct_db( is_local_version, is_create )
 
   Local base1 := { ;
@@ -1308,18 +1308,6 @@ Function reconstruct_db( is_local_version, is_create )
     { 'FRNUMBER',   'C', 16,  0 }, ;    // заводской номер ККТ, при оплате/возврате через ККТ
     { 'IDUSER',     'N', 4,  0 } ;     // ID-пользователя проводившего оплату/возврат
   }
-  Local _payer := { ;
-    { 'NAME',       'C',  50, 0 }, ;        // Ф.И.О. плательщика
-    { 'VID_UD',     'N',   2, 0 }, ;        // вид удостоверения личности
-    { 'SER_UD',     'C',  10, 0 }, ;        // серия удостоверения личности
-    { 'NOM_UD',     'C',  20, 0 }, ;        // номер удостоверения личности
-    { 'KEMVYD',     'N',   6, 0 }, ;        // кем выдан документ из справочника s_kemvyd
-    { 'KOGDAVYD',   'D',   8, 0 }, ;        // когда выдан документ
-    { 'INN',        'C',  12, 0 }, ;        // ИНН плательщика
-    { 'ADDRESS',    'C', 100, 0 }, ;        // адрес регистрации плательщика
-    { 'PHONE',      'C',  10, 0 }, ;        // телефон плательщика
-    { 'IDSPRAV',    'N',   7, 0 } ;         // ID ссылки на выданную справку
-  }
   // ортопедия
   Local diag_ort := { ;
     { 'SHIFR',      'C',   6, 0 }, ; // шифр диагноза
@@ -1549,8 +1537,23 @@ Function reconstruct_db( is_local_version, is_create )
     { 'PRED_RUK',   'N',   1, 0 }, ; // признак 1 - представитель руководитель МО; 2 - представитель, сотрудник МО
     { 'PREDST',     'C',  50, 0 }, ; // представитель организации
     { 'PRED_DOC',   'C',  50, 0 }, ; // документ представителя
-    { 'KOD_XML',    'N',   6, 0 } ; // ссылка на файл 'mo_xml_fns', для отправки в ФНС или число -1 если печатная форма, 0 - если xml файл не формировался
+    { 'KOD_XML',    'N',   6, 0 }, ; // ссылка на файл 'mo_xml_fns', для отправки в ФНС или число -1 если печатная форма, 0 - если xml файл не формировался
+    { 'KOD_PAYER',  'N',   7, 0 } ;  // номер записи в файле payer.dbf при ATTRIBUT == 0 (плательщик)
   }
+  Local fns_payer := { ;   // список плательщиков при ATTRIBUT == 0 (налогоплательщик и пациент не являются одним лицом)
+    { 'NAME',       'C',  50, 0 }, ; // Ф.И.О. плательщика
+    { 'VID_UD',     'N',   2, 0 }, ; // вид удостоверения личности
+    { 'KEMVYD',     'N',   6, 0 }, ; // кем выдан документ из справочника s_kemvyd
+    { 'KOGDAVYD',   'D',   8, 0 }, ; // когда выдан документ
+    { 'INN',        'C',  12, 0 }, ; // ИНН плательщика
+    { 'ADDRESS',    'C', 100, 0 }, ; // адрес регистрации плательщика
+    { 'PHONE',      'C',  10, 0 }, ; // телефон плательщика
+    { 'KOD_PAYER',  'N',   7, 0 }, ; // recno()
+    { 'SER_NUM',    'C',  20, 0 }  ; // серия и номер документа налогоплательщика
+  }
+//  { 'SER_UD',     'C',  10, 0 }, ; // серия удостоверения личности
+//  { 'NOM_UD',     'C',  20, 0 }, ; // номер удостоверения личности
+//  { 'IDSPRAV',    'N',   7, 0 } ;  // ID ссылки на выданную справку
   Local mo_reg_fns_link := { ;  // ссылки на документы в справке ФНС
     { 'KOD_SPR',    'N',   7, 0 }, ; // код справки по 'register_fns'
     { 'TYPE',       'N',   2, 0 }, ; // тип источника для справки ( 1 - платные услуги, 2 - касса ЛПУ, 3 - ортопедия )
@@ -1778,7 +1781,6 @@ Function reconstruct_db( is_local_version, is_create )
   reconstruct( dir_server + 'plat_vz', plat_vz, 'index_base("plat_vz")', , .t. )
   reconstruct( dir_server + 'hum_plat', hum_plat, 'index_base("hum_plat")', 'плательщикам', .t. )
   reconstruct( dir_server + 'payments', _payments, 'index_base("payments")', 'платежам платных услуг', .t. )
-  reconstruct( dir_server + 'payer', _payer, 'index_base("payer")', , .t. )
   reconstruct( dir_server + 'pu_cena', pu_cena, 'index_base("pu_cena")', , .t. )
   reconstruct( dir_server + 'pu_date', { { 'data', 'D', 8, 0 } }, 'index_base("pu_date")', , .t. )
   init_base( dir_server + 'p_pr_vz', , get_dms(), 0, , .t. )
@@ -1812,6 +1814,7 @@ Function reconstruct_db( is_local_version, is_create )
   reconstruct( dir_server + 'register_fns', mo_register_fns, 'index_base( "register_fns" )', 'журнал ФНС', .t. )
   reconstruct( dir_server + 'reg_link_fns', mo_reg_fns_link, 'index_base( "reg_link_fns" )', 'ссылки для справок ФНС', .t. )
   reconstruct( dir_server + 'reg_xml_fns', mo_xml_fns, 'index_base( "reg_xml_fns" )', 'файлы XML для ФНС', .t. )
+  reconstruct( dir_server + 'payer', fns_payer, 'index_base("payer")', , .t. )
   //
   // reconstruct(dir_server + 'mo_kekez', kek_eksz, 'index_base("mo_kekez")', 'экспертизам', .t.)
   // reconstruct(dir_server + 'mo_kekh', kek_h, 'index_base("mo_kekh")', 'экспертизам2', .t.)
