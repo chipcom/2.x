@@ -5,10 +5,119 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'tbox.ch'
 
 #define PLAT 1  // подзадача платные услуги
 #define ORTO 2  // подзадача ортопедия
 #define KASSA_MO 3 // подзадача касса МО
+
+// 12.01.25
+function control_number_phone( get )
+
+  local phoneTemplate := '^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$'  
+//  local phoneTemplate := "^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$"
+  local lRet := .f.
+
+  lRet := hb_RegexLike( phoneTemplate, get:Buffer )
+  if ! lRet
+    func_error( 4, 'Не допустимый номер телефона!' )
+  endif
+
+  return lRet
+
+// 12.01.25
+function check_payer( g )
+
+  local oBox, lRet := .f., tmp_keys, tmp_list
+  local tmp_select
+
+  local MFIO := Space( 50 ) // Ф.И.О. больного
+  local mfam := Space( 20 ), mim := Space( 20 ), mot := Space( 20 )
+  local mdate_r := CToD( '  /  /    ')
+  local mSearch := '', lFind := .f., mINN := space( 12 )
+  local mser_ud := Space( 10 ), mnom_ud := Space( 20 ), MKOGDAVYD := CToD( '' ) // когда выдан паспорт
+  local mSer_num, oPassport
+
+  private MVID_UD, ; // вид удостоверения
+          M1VID_UD    := 14, ; // 1-18
+          mPHONE_M := Space( 11 )
+      
+  if m1P_ATTR == 1  // плательщик и пациент одно лицо
+    return .t.
+  endif
+
+  tmp_select := select()
+  tmp_keys := my_savekey()
+  Save gets To tmp_list
+
+  oBox := tbox():new( 5, 5, 15, MaxCol() - 5, .t. )
+  oBox:ChangeAttr := .t.
+  oBox:CaptionColor := color8
+  oBox:Caption := 'Плательщик'
+  // oBox:Color := color1
+  oBox:Save := .t.
+  oBox:view()
+
+	do while .t.
+    mvid_ud   := PadR( inieditspr( A__MENUVERT, TPassport():aMenuType, m1vid_ud ), 23 )
+
+    @ 1, 6 TBOX oBox Say 'Фамилия' Get mfam Pict '@K@!' //'@S33'
+    @ 1, Col() + 1 TBOX oBox Say 'Имя' Get mim Pict '@K@!'  //'@S32'
+    @ 2, 6 TBOX oBox Say 'Отчество' Get mot Pict '@K@!' //'@S32'
+    @ 3, 6 TBOX oBox Say 'Дата рождения' Get mdate_r //;
+
+    @ 4, 6 TBOX oBox Say 'ИНН' Get mINN pict '999999999999' valid {| g | check_input_INN( g ) }
+    @ 5, 6 TBOX oBox Say 'Уд-ие личности:' Get mvid_ud ;
+      reader {| x| menu_reader( x, TPassport():aMenuType, A__MENUVERT, , , .f. ) }
+    @ 6, 6 TBOX oBox Say 'Серия' Get mser_ud Pict '@!' valid {| oGet | checkdocumentseries( oGet, m1vid_ud ) }
+    @ 6, Col() + 1 TBOX oBox Say '№' Get mnom_ud Pict '@!S18' Valid val_ud_nom( 1, m1vid_ud, mnom_ud )
+    @ 6, Col() + 1 TBOX oBox Say 'Выдан' Get mkogdavyd
+  
+//    @ 7, 6 TBOX oBox Say 'Телефон мобильный' Get mPHONE_M valid {| g | control_number_phone( g ) } //valid_phone( g, .t. ) }
+    @ 7, 6 TBOX oBox Say 'Телефон мобильный' Get mPHONE_M valid {| g | valid_phone( g, .t. ) }
+
+    myread()
+    if lastkey() != K_ESC
+//      oPassport := TPassport():New( M1VID_UD, mser_ud, mnom_ud, , )
+      use_base( 'payer', 'payer' )
+      MFIO := upper( alltrim( mfam ) + ' ' + alltrim( mim ) + ' ' + alltrim( mot ) )
+      mSearch := MFIO + DToC( mdate_r )
+      mSer_num := alltrim( mser_ud ) + ' ' + alltrim( mnom_ud )
+      mINN := alltrim( mINN )
+
+      payer->( dbSeek( padr( MFIO, 50 ) ) )
+      if payer->( found() )
+        Do While alltrim( payer->NAME ) == MFIO .and. payer->DOB == mdate_r .and. !Eof()
+          if ( ! Empty( mINN ) ) .and. ( alltrim( payer->INN ) == mINN ) .or. ;
+                ( payer->VID_UD == M1VID_UD .and. alltrim( payer->SER_NUM ) == mSer_num )
+            mKod_payer := payer->KOD_PAYER
+            lFind := .t.
+            exit
+          endif
+        enddo
+      endif
+      if ! lFind
+        payer->( dbAppend() )
+        payer->NAME := MFIO
+        payer->VID_UD := M1VID_UD
+        payer->INN := mINN
+        payer->PHONE := mPHONE_M
+        payer->KOD_PAYER := recno()
+        payer->SER_NUM := mSer_num
+        payer->DOB := mdate_r
+      endif
+      mKod_payer := payer->KOD_PAYER
+      payer->( dbCloseArea() )
+      lRet := .t.
+      exit
+    else
+      exit
+    endif
+  enddo
+  Restore gets From tmp_list
+  my_restkey( tmp_keys )
+  select( tmp_select )
+  return lRet
 
 // 13.08.24
 function reestr_spravka_fns()
@@ -29,17 +138,22 @@ function reestr_spravka_fns()
 
   return nil
 
-// 22.08.24
+// 11.01.25
 Function defcolumn_spravka_fns( oBrow )
 
   Local oColumn, s
+  local mm_plat := { { 'он же ', 1 }, { 'другой', 0 } }
   Local blk := {|| iif( Empty( fns->kod_xml ), { 5, 6 }, { 3, 4 } ) }
 
-  oColumn := TBColumnNew( ' Год ', {|| str( fns->nyear, 4 ) } )
+//  oColumn := TBColumnNew( ' Год ', {|| str( fns->nyear, 4 ) } )
+//  oColumn:colorBlock := blk
+//  oBrow:addcolumn( oColumn )
+
+  oColumn := TBColumnNew( ' Номер ', {|| str( fns->num_s, 5 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  oColumn := TBColumnNew( ' Номер ', {|| str( fns->num_s, 7 ) } )
+  oColumn := TBColumnNew( '  Дата', {|| date_8( fns->date ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
@@ -51,15 +165,15 @@ Function defcolumn_spravka_fns( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
+  oColumn := TBColumnNew( 'Плат. ', {|| inieditspr( A__MENUVERT, mm_plat, fns->attribut ) } ) //substr( short_FIO( fns->plat_fio ), 1, 15 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+
   oColumn := TBColumnNew( 'Сумма 1', {|| str( fns->sum1, 9, 2 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( 'Сумма 2', {|| str( fns->sum2, 9, 2 ) } )
-  oColumn:colorBlock := blk
-  oBrow:addcolumn( oColumn )
-
-  oColumn := TBColumnNew( '  Дата', {|| date_8( fns->date ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
@@ -106,14 +220,47 @@ Function serv_spravka_fns( nKey, oBrow )
 
   Return flag
 
-// 30.08.24
+// 12.01.25
 function print_spravka_fns()
 
-  local hSpravka, pos, aFIO, cFileToSave
+  local hSpravka, pos, cFileToSave
   local org := hb_main_curOrg
+  local aFIOPlat, aFIOPacient
+  local innPlat, dobPlat, vidDocPlat, sernumPlat, dateVydPlat := CToD( '  /  /    ')
+  local innPacient := '', dobPacient := CToD( '  /  /    '), vidDocpacient := 21, sernumPacient := '', dateVydPacient := CToD( '  /  /    ')
+  local tmp_select
 
   pos := hb_At( '/', org:INN() )
-  aFIO := razbor_str_fio( fns->plat_fio )
+  if fns->attribut == 0
+    tmp_select := select()
+    r_use( dir_server + 'payer', , 'payer' )
+    payer->( dbGoto( fns->kod_payer ) )
+    if ! payer->( eof() ) .and. ! payer->( bof() )
+      aFIOPlat := razbor_str_fio( payer->name )
+      aFIOPacient := razbor_str_fio( fns->plat_fio )
+      innPlat := payer->inn
+      dobPlat := payer->DOB
+      vidDocPlat := soot_doc( payer->VID_UD )
+      sernumPlat := payer->SER_NUM
+      dateVydPlat := payer->KOGDAVYD
+
+      innPacient := fns->inn
+      dobPacient := fns->plat_dob
+      vidDocPacient := fns->viddoc
+      sernumPacient := fns->SER_NUM
+      dateVydPacient := fns->datevyd
+    endif
+    payer->( dbCloseArea() )
+    select( tmp_select )
+  else
+    aFIOPlat := razbor_str_fio( fns->plat_fio )
+    innPlat := fns->inn
+    dobPlat := fns->plat_dob
+    vidDocPlat := fns->VIDDOC
+    sernumPlat := fns->SER_NUM
+    dateVydPlat := fns->datevyd
+    aFIOPacient := { '', '', '' }
+  endif
 
   cFileToSave := cur_dir() + 'spravkaFNS.pdf'
 
@@ -130,30 +277,30 @@ function print_spravka_fns()
   hb_HSet( hSpravka, 'cor', fns->version )
   hb_HSet( hSpravka, 'name', org:Name() )
   hb_HSet( hSpravka, 'full_name', org:Name() )
-  hb_HSet( hSpravka, 'fam', aFIO[ 1 ] )
-  hb_HSet( hSpravka, 'im', aFIO[ 2 ] )
-  hb_HSet( hSpravka, 'ot', aFIO[ 3 ] )
-  hb_HSet( hSpravka, 'inn_plat', fns->INN )
-  hb_HSet( hSpravka, 'dob', fns->plat_dob )
-  hb_HSet( hSpravka, 'vid_d', fns->viddoc )
-  hb_HSet( hSpravka, 'ser', fns->ser_num )
+
+  hb_HSet( hSpravka, 'fam', aFIOPlat[ 1 ] )
+  hb_HSet( hSpravka, 'im', aFIOPlat[ 2 ] )
+  hb_HSet( hSpravka, 'ot', aFIOPlat[ 3 ] )
+  hb_HSet( hSpravka, 'inn_plat', innPlat ) // fns->INN )
+  hb_HSet( hSpravka, 'dob', dobPlat ) // fns->plat_dob )
+  hb_HSet( hSpravka, 'vid_d', vidDocPlat ) // fns->viddoc )
+  hb_HSet( hSpravka, 'ser', sernumPlat ) // fns->ser_num )
 //  hb_HSet( hSpravka, 'nomer', '123456' )
-  hb_HSet( hSpravka, 'dVydach', fns->datevyd )
+  hb_HSet( hSpravka, 'dVydach', dateVydPlat ) // fns->datevyd )
   hb_HSet( hSpravka, 'attribut', fns->attribut )
   hb_HSet( hSpravka, 'sum1', fns->sum1 )
   hb_HSet( hSpravka, 'sum2', fns->sum2 )
   hb_HSet( hSpravka, 'fioSost', fns->predst )
   hb_HSet( hSpravka, 'dSost', fns->Date )
-  hb_HSet( hSpravka, 'kolStr', 1 )
-//  hb_HSet( hSpravka, 'famPacient', 'Кукуев' )
-//  hb_HSet( hSpravka, 'imPacient', 'Ростислав' )
-//  hb_HSet( hSpravka, 'otPacient', 'Илларионович' )
-//  hb_HSet( hSpravka, 'dobPacient', 0d19990912 )
-//  hb_HSet( hSpravka, 'innPacient', '344408677499' )
-//  hb_HSet( hSpravka, 'vid_d_pacient', 21 )
-//  hb_HSet( hSpravka, 'ser_pacient', '10 07' )
-//  hb_HSet( hSpravka, 'nomer_pacient', '654321' )
-//  hb_HSet( hSpravka, 'dVydachPacient', 0d20200507 )
+  hb_HSet( hSpravka, 'kolStr', iif( fns->attribut == 1, 1, 2 ) )
+  hb_HSet( hSpravka, 'famPacient', aFIOPacient[ 1 ] )
+  hb_HSet( hSpravka, 'imPacient', aFIOPacient[ 2 ] )
+  hb_HSet( hSpravka, 'otPacient', aFIOPacient[ 3 ] )
+  hb_HSet( hSpravka, 'dobPacient', dobPacient )
+  hb_HSet( hSpravka, 'innPacient', innPacient )
+  hb_HSet( hSpravka, 'vid_d_pacient', vidDocpacient )
+  hb_HSet( hSpravka, 'ser_pacient', sernumPacient )
+  hb_HSet( hSpravka, 'dVydachPacient', dateVydPacient )
 //  hb_HSet( hSpravka, 'annul', 1 ) // справка на аннулирование, 1 - да, 0 - нет
 
   if DesignSpravkaPDF( cFileToSave, hSpravka )
@@ -329,10 +476,12 @@ function input_spravka_fns()
 
   Local str_sem
   Local buf := SaveScreen(), str_1, tmp_color := SetColor(), ;
-    arr_m, pos_read := 0, k_read := 0, count_edit := 0, ;
+    pos_read := 0, k_read := 0, count_edit := 0, ;
     mINN := space( 12 ), ;
     mSumma := 0.0, mSum1 := 0.0, mSum2 := 0.0, ;
     j := 0, i, mkod
+  local nYear := 2024 // отчетный год
+//  local arr_m
 
   local aFIOPlat, mDOB, mVID, mSerNomer, mKogda
   local predst := '', predst_doc := '', pred_ruk := 0
@@ -340,15 +489,20 @@ function input_spravka_fns()
   local aFIOPredst
 
   Private aCheck := {}
+  private mm_plat := { { 'он же ', 1 }, ;
+    { 'другой', 0 } }, ;
+    m1P_ATTR := 1, mP_ATTR  // вид плательщика
+  private mKod_payer := 0   // код плательщика
 
-  If ( arr_m := input_year() ) == NIL
-    Return Nil
-  Endif
-  if arr_m[ 1 ] != 2024
-    hb_Alert( 'Справки для ФНС составляются на 2024 год' )
-    return nil
-  endif
+//  If ( arr_m := input_year() ) == NIL
+//    Return Nil
+//  Endif
+//  if arr_m[ 1 ] != 2024
+//    hb_Alert( 'Справки для ФНС составляются на 2024 год' )
+//    return nil
+//  endif
 
+  mP_ATTR := inieditspr( A__MENUVERT, mm_plat, m1p_attr )
   _fns_nastr( 0 ) // проверим сущетствование настроек
   _fns_nastr( 1 ) // прочитаем сущетствующие настроеки
   pred_ruk := fns_PODPISANT
@@ -382,7 +536,8 @@ function input_spravka_fns()
 
     use_base( 'link_fns', 'link_fns' )
     use_base( 'reg_fns', 'fns' )
-    if ! exist_spravka( arr_m[ 1 ], glob_kartotek, 1 )
+//    if ! exist_spravka( arr_m[ 1 ], glob_kartotek, 1 )
+    if ! exist_spravka( nYear, glob_kartotek, 1 )
       dbCloseAll()
       return nil
     endif
@@ -402,17 +557,24 @@ function input_spravka_fns()
     Endif
 
     SetColor( cDataCGet )
-    str_1 := 'за ' + str( arr_m[ 1 ], 4 ) + ' для ' + aFIOPlat[ 1 ] + ' ' + aFIOPlat[ 2 ] + ' ' + aFIOPlat[ 3 ]
-    j := 11
+//    str_1 := 'за ' + str( arr_m[ 1 ], 4 ) + ' для ' + aFIOPlat[ 1 ] + ' ' + aFIOPlat[ 2 ] + ' ' + aFIOPlat[ 3 ]
+    str_1 := 'за ' + str( nYear, 4 ) + ' для ' + aFIOPlat[ 1 ] + ' ' + aFIOPlat[ 2 ] + ' ' + aFIOPlat[ 3 ]
+    j := 10
     Private gl_area := { j, 0, MaxRow() -1, MaxCol(), 0 }
     box_shadow( j, 0, MaxRow() -1, MaxCol(), color1, 'Справка для ФНС ' + str_1, color8 )
     status_key( '^<Esc>^ - выход;  ^<PgDn>^ - запись' )
     //
     Do While .t.
-      j := 12
+      j := 11
       @ j, 1 Clear To MaxRow() - 2, MaxCol() - 1
-      @ ++j, 2 Say 'Отчетный год ' + str( arr_m[ 1 ], 4 )
-      @ j, 37 Say 'ИНН плательщика' Get mINN pict '999999999999' valid {| g | check_input_INN( g ) }
+//      @ ++j, 2 Say 'Отчетный год ' + str( arr_m[ 1 ], 4 )
+      @ ++j, 2 Say 'ИНН пациента' Get mINN pict '999999999999' valid {| g | check_input_INN( g ) }
+
+      @ j, 37 say 'Плательщик:' Get mP_ATTR ;
+        reader {| x| menu_reader( x, mm_plat, A__MENUVERT, , , .f. ) } ;
+        valid {| g | check_payer( g ) }
+
+      ++j
       @ ++j, 2 Say 'Оплаченная сумма по чекам за минусом возвратов - ' + str( mSumma, 10, 2 )
       @ ++j, 2 Say 'Сумма 1 -' Get mSum1 pict '999999999.99'
       @ j, 37 Say 'Сумма 2 -' Get mSum2 pict '999999999.99'
@@ -463,7 +625,7 @@ function input_spravka_fns()
           fns->kod := mkod
           fns->kod_k := glob_kartotek
           fns->date := date()
-          fns->nyear := arr_m[ 1 ]
+          fns->nyear := nYear   //  arr_m[ 1 ]
           fns->num_s := ++fns_N_SPR_FNS
           fns->version := 0
           fns->inn := mINN
@@ -473,7 +635,12 @@ function input_spravka_fns()
           fns->ser_num := mSerNomer
           fns->datevyd := mKogda
 
-          fns->attribut := 1  // плательщик, пациент одно лицо
+          fns->attribut := m1P_ATTR  // вид плательщика
+          if m1P_ATTR == 0  // плательщик и пациент разные лица
+            fns->kod_payer := mKod_payer
+          else              // плательщик и пациент одно лицо
+            fns->kod_payer := 0
+          endif
 
           fns->sum1 := mSum1
           fns->sum2 := mSum2

@@ -3,7 +3,7 @@
 // #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 27.08.24
+// 12.01.25
 Function index_base( sBase )
 
   Millisec( 100 )  // задержка на 0.1 с
@@ -185,7 +185,8 @@ Function index_base( sBase )
     Index On DToS( DATE ) to ( dir_server + 'payments_date' ) progress
     Index On Str( TYPEPAYER, 1 ) + Str( IDPAYER, 7 ) to ( dir_server + 'payments_payer' ) progress
   Case sBase == "payer"
-    Index On Upper( NAME ) to ( dir_server + sBase ) progress
+//    Index On alltrim( Upper( NAME ) ) + DToC( DOB ) to ( dir_server + sBase ) progress
+    Index On NAME to ( dir_server + sBase ) progress
   Case sBase == "pu_date"
     Index On DToS( data ) to ( dir_server + sBase ) descending
   Case sBase == "pu_cena"

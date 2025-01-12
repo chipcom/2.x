@@ -30,6 +30,7 @@ mo_version.prg
 .\BLL\ORGANIZATION\T_Mo_podr.prg
 .\BLL\ORGANIZATION\TBank.prg
 .\BLL\EMPLOYEES\TEmployee.prg
+.\BLL\DOCUMENTS\TPassport.prg
 
 .\init\mo_init.prg
 .\init\init_mo.prg

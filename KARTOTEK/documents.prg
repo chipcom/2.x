@@ -184,7 +184,8 @@ Function val_ud_ser( par, k, s, /*@*/msg )
     endif
   endif
   return fl
-  
+
+// 10.01.25
 // проверка на правильность номера удостоверения личности
 Function val_ud_nom( par, k, s, /*@*/msg )
   Static arr_d := { ;
@@ -194,10 +195,11 @@ Function val_ud_nom( par, k, s, /*@*/msg )
    { 6, 6  }, ;
    { 7, 6, 7}, ;
    { 8, 7  }, ;
-   {14, 6, 7}, ;
+   {14, 6  }, ;
    {15, 7  }, ;
    {16, 6, 7}, ;
    {17, 6  }}
+//  {14, 6, 7}, ;
   Local fl := .t., d1, d2
   
   DEFAULT msg TO ''

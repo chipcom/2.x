@@ -3,7 +3,7 @@
 #include 'harupdf.ch'
 #include 'chip_mo.ch'
 
-// 29.07.24
+// 12.01.25
 function designPage2( pdf, hArr, aFonts )
 
   local page
@@ -53,6 +53,9 @@ function designPage2( pdf, hArr, aFonts )
   out_kvadr( page, 0, 7 )
   out_kvadr( page, 195, 7 )
 
+  HPDF_Page_SetFontAndSize( page, aFonts[ 4 ], 43 )
+  out_text( page, 7, 284, create_string_EanGnivc( '26901022' ) )
+
   // заполняем поля
   HPDF_Page_SetFontAndSize( page, aFonts[ FONT_COURIER ], 16 )
 
@@ -70,7 +73,7 @@ function designPage2( pdf, hArr, aFonts )
 
   if empty( hArr[ 'innPacient' ] )
     out_format( page, 38, 214, str( hArr[ 'vid_d_pacient' ], 2 ) )
-    out_format( page, 104, 214, alltrim( hArr[ 'ser_pacient' ] ) + ' ' + alltrim( hArr[ 'nomer_pacient' ] ) )
+    out_format( page, 104, 214, alltrim( hArr[ 'ser_pacient' ] ) )
     out_format( page, 38, 205, DToC( hArr[ 'dVydachPacient' ] ) )
   endif
 
