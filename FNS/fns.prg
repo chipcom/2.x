@@ -25,7 +25,7 @@ function control_number_phone( get )
 
   return lRet
 
-// 12.01.25
+// 13.01.25
 function check_payer( g )
 
   local oBox, lRet := .f., tmp_keys, tmp_list
@@ -61,17 +61,17 @@ function check_payer( g )
 	do while .t.
     mvid_ud   := PadR( inieditspr( A__MENUVERT, TPassport():aMenuType, m1vid_ud ), 23 )
 
-    @ 1, 6 TBOX oBox Say 'Фамилия' Get mfam Pict '@K@!' //'@S33'
-    @ 1, Col() + 1 TBOX oBox Say 'Имя' Get mim Pict '@K@!'  //'@S32'
-    @ 2, 6 TBOX oBox Say 'Отчество' Get mot Pict '@K@!' //'@S32'
-    @ 3, 6 TBOX oBox Say 'Дата рождения' Get mdate_r //;
+    @ 1, 6 TBOX oBox Say 'Фамилия' Get mfam Pict '@K@!' VALID { | g | LastKey() == K_UP .or. valfamimot( 1, mfam ) }
+    @ 1, Col() + 1 TBOX oBox Say 'Имя' Get mim Pict '@K@!' valid { | g | valfamimot( 2, mim ) }
+    @ 2, 6 TBOX oBox Say 'Отчество' Get mot Pict '@K@!' valid { | g | valfamimot( 3, mot ) }
+    @ 3, 6 TBOX oBox Say 'Дата рождения' Get mdate_r
 
-    @ 4, 6 TBOX oBox Say 'ИНН' Get mINN pict '999999999999' valid {| g | check_input_INN( g ) }
+    @ 4, 6 TBOX oBox Say 'ИНН' Get mINN pict '999999999999' valid { | g | check_input_INN( g ) }
     @ 5, 6 TBOX oBox Say 'Уд-ие личности:' Get mvid_ud ;
       reader {| x| menu_reader( x, TPassport():aMenuType, A__MENUVERT, , , .f. ) }
     @ 6, 6 TBOX oBox Say 'Серия' Get mser_ud Pict '@!' valid {| oGet | checkdocumentseries( oGet, m1vid_ud ) }
-    @ 6, Col() + 1 TBOX oBox Say '№' Get mnom_ud Pict '@!S18' Valid val_ud_nom( 1, m1vid_ud, mnom_ud )
-    @ 6, Col() + 1 TBOX oBox Say 'Выдан' Get mkogdavyd
+    @ 6, 25 TBOX oBox Say '№' Get mnom_ud Pict '@!S18' Valid val_ud_nom( 1, m1vid_ud, mnom_ud )
+    @ 6, 50 TBOX oBox Say 'Выдан' Get mkogdavyd
   
 //    @ 7, 6 TBOX oBox Say 'Телефон мобильный' Get mPHONE_M valid {| g | control_number_phone( g ) } //valid_phone( g, .t. ) }
     @ 7, 6 TBOX oBox Say 'Телефон мобильный' Get mPHONE_M valid {| g | valid_phone( g, .t. ) }
@@ -220,7 +220,7 @@ Function serv_spravka_fns( nKey, oBrow )
 
   Return flag
 
-// 12.01.25
+// 13.01.25
 function print_spravka_fns()
 
   local hSpravka, pos, cFileToSave
@@ -246,7 +246,7 @@ function print_spravka_fns()
 
       innPacient := fns->inn
       dobPacient := fns->plat_dob
-      vidDocPacient := fns->viddoc
+      vidDocPacient := soot_doc( fns->viddoc )
       sernumPacient := fns->SER_NUM
       dateVydPacient := fns->datevyd
     endif
@@ -471,7 +471,7 @@ function exist_spravka( get, kod_kart, onePerson )
 
   return .t.
 
-// 03.01.25
+// 13.01.25
 function input_spravka_fns()
 
   Local str_sem
@@ -529,7 +529,8 @@ function input_spravka_fns()
     if ! kart->( eof() )
       aFIOPlat := razbor_str_fio( kart->fio )
       mDOB      := kart->date_r
-      mVID      := soot_doc( kart_->vid_ud )
+//      mVID      := soot_doc( kart_->vid_ud )
+      mVID      := kart_->vid_ud
       mSerNomer := alltrim( kart_->ser_ud ) + iif( empty( kart_->ser_ud ), '', ' ' ) + alltrim( kart_->nom_ud )
       mKogda    := kart_->kogdavyd
     endif
