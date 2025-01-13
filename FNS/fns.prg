@@ -36,7 +36,8 @@ function check_payer( g )
   local mdate_r := CToD( '  /  /    ')
   local mSearch := '', lFind := .f., mINN := space( 12 )
   local mser_ud := Space( 10 ), mnom_ud := Space( 20 ), MKOGDAVYD := CToD( '' ) // когда выдан паспорт
-  local mSer_num, oPassport
+  local mSer_num
+//  local oPassport
 
   private MVID_UD, ; // вид удостоверения
           M1VID_UD    := 14, ; // 1-18
@@ -125,8 +126,9 @@ function reestr_spravka_fns()
   Local mtitle
   Local buf := SaveScreen()
 
+//  use_base( 'payer', 'payer' )
   use_base( 'reg_fns', 'fns' )
-
+//  set relation to kod_payer into payer
   fns->( dbGoBottom() )
   mtitle := 'Сформированные справки для ФНС'
   alpha_browse( 5, 0, MaxRow() - 2, 79, 'defColumn_Spravka_FNS', color0, mtitle, 'BG+/GR', ;
@@ -161,19 +163,23 @@ Function defcolumn_spravka_fns( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  oColumn := TBColumnNew( 'ФИО', {|| substr( short_FIO( fns->plat_fio ), 1, 15 ) } )
+  oColumn := TBColumnNew( 'Пациент', {|| substr( short_FIO( fns->plat_fio ), 1, 15 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
+
+//  oColumn := TBColumnNew( 'Плательщик', {|| substr( short_FIO( payer->name ), 1, 15 ) } )
+//  oColumn:colorBlock := blk
+//  oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( 'Плат. ', {|| inieditspr( A__MENUVERT, mm_plat, fns->attribut ) } ) //substr( short_FIO( fns->plat_fio ), 1, 15 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  oColumn := TBColumnNew( 'Сумма 1', {|| str( fns->sum1, 9, 2 ) } )
+  oColumn := TBColumnNew( 'Сумма 1', {|| str( fns->sum1, 6, 0 ) } ) // str( fns->sum1, 9, 2 )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  oColumn := TBColumnNew( 'Сумма 2', {|| str( fns->sum2, 9, 2 ) } )
+  oColumn := TBColumnNew( 'Сумма 2', {|| str( fns->sum2, 6, 0 ) } ) // str( fns->sum2, 9, 2 )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
@@ -182,7 +188,7 @@ Function defcolumn_spravka_fns( oBrow )
   oBrow:addcolumn( oColumn )
 
 //  s := '<Esc> выход <F5> журнал справок <F9> печать <Del> аннулирование'
-  s := '<Esc> выход <F5> журнал справок <F9> печать'
+  s := '<Esc> выход <F9> печать'
   @ MaxRow(), 0 Say PadC( s, 80 ) Color 'N/W'
   mark_keys( { '<Esc>', '<Del>', '<F5>', '<F9>' }, 'R/W' )
 
