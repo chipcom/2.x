@@ -17,7 +17,7 @@ Static reestr_xml_fns_err := 'В данный момент с реестрами ФНС работает другой по
 // 25.08.24
 Function view_list_xml_fns()
 
-  Local i, k, buf := SaveScreen()
+  Local buf := SaveScreen()
 
   If ! g_slock( reestr_xml_fns_sem )
     Return func_error( 4, reestr_xml_fns_err )
@@ -136,8 +136,8 @@ Function view_list_xml( oBrow )
 // 26.08.24
 function defColumn_xml_FNS( oBrow )
 
-  Local oColumn, s, ;
-  blk := {|| iif( hb_FileExists( dir_XML_FNS() + AllTrim( xml->fname ) + sxml ), ;
+  Local oColumn, ;
+    blk := {|| iif( hb_FileExists( dir_XML_FNS() + AllTrim( xml->fname ) + sxml ), ;
     iif( Empty( xml->date_out ), { 3, 4 }, { 1, 2 } ), ;
     { 5, 6 } ) }
 
@@ -223,19 +223,21 @@ function name_file_fns_xml( org, dt, num, id_pol, id_end )
 
   return nameXML
 
-// 29.08.24
+// 13.01.25
 function createXMLtoFNS()
 
   local aPlat := Array( 2, 17 )
   local oXmlDoc, oXmlNode, oXmlNodeDoc
   local oPAC, oUch, oDoc, oPodp, oRash, oSved
-  local arr_m, i, mYear, curPreds := ''
+  local mYear, curPreds := ''
   local org := hb_main_curorg
   local ver := '5.01'
   local nameFileXML
   local xml_created := .f., kolSpravka := 0, arr_spravka := {}
   local totalSpravka := 0, totalFile := 0
+  local tmpSelect
   local dir_xml := dir_XML_FNS()
+//  local arr_m
 
   local tmp_fns := { ;  // журнал выданных справок для ФНС
     { 'KOD',     'N',     7,   0 }, ; // recno()
@@ -251,6 +253,12 @@ function createXMLtoFNS()
     { 'VIDDOC',  'N',     2,   0 }, ; // вид документа налогоплательщика
     { 'SER_NUM', 'C',    20,   0 }, ; // серия и номер документа налогоплательщика
     { 'DATEVYD', 'D',     8,   0 }, ; // дата выдачи документа налогоплательщика
+    { 'PAC_INN', 'C',    12,   0 }, ; // ИНН пациента
+    { 'PAC_FIO', 'C',    50,   0 }, ; // ФИО пациента
+    { 'PAC_DOB', 'D',     8,   0 }, ; // дата рождения пациента
+    { 'PAC_VID', 'N',     2,   0 }, ; // вид документа пациента
+    { 'PAC_SNM', 'C',    20,   0 }, ; // серия и номер документа пациента
+    { 'PAC_DVYD','D',     8,   0 }, ; // дата выдачи документа пациента
     { 'SUM1',    'N',    16,   2 }, ; // сумма 1
     { 'SUM2',    'N',    16,   2 }, ; // сумма 2
     { 'PRED_RUK','N',     1,   0 }, ; // признак 1 - представитель руководитель МО; 2 - представитель, сотрудник МО
@@ -259,15 +267,18 @@ function createXMLtoFNS()
     { 'KOD_XML', 'N',     6,   0 } ; // ссылка на файл 'mo_xml_fns', для отправки в ФНС или число -1 если печатная форма, 0 - если xml файл не формировался
   }
 
-  If ( arr_m := input_year() ) == NIL
-    Return Nil
-  Endif
-  mYear := arr_m[ 1 ]
+//  If ( arr_m := input_year() ) == NIL
+//    Return Nil
+//  Endif
+//  mYear := arr_m[ 1 ]
+  mYear := 2024
 
   use_base( 'xml_fns', 'xml_fns', .t. )
 
   dbCreate( cur_dir() + 'tmp_fns', tmp_fns,, .t., 'tmp_fns' )
   Index On predst + Str( num_s, 7 ) to ( cur_dir() + 'tmp_fns' )
+  r_use( dir_server + 'payer', , 'payer' )
+  payer->( dbGoTop() )
   use_base( 'reg_fns', 'fns', .t. )
   fns->( dbGoTop() )
   do while ! fns->( Eof() )
@@ -280,12 +291,33 @@ function createXMLtoFNS()
       tmp_fns->num_s := fns->num_s
       tmp_fns->version := fns->version
       tmp_fns->attribut := fns->attribut
-      tmp_fns->inn := fns->inn
-      tmp_fns->plat_fio := fns->plat_fio
-      tmp_fns->plat_dob := fns->plat_dob
-      tmp_fns->viddoc := fns->viddoc
-      tmp_fns->ser_num := fns->ser_num
-      tmp_fns->datevyd := fns->datevyd
+      if fns->attribut == 1
+        tmp_fns->inn := fns->inn
+        tmp_fns->plat_fio := fns->plat_fio
+        tmp_fns->plat_dob := fns->plat_dob
+        tmp_fns->viddoc := soot_doc( fns->viddoc )
+        tmp_fns->ser_num := fns->ser_num
+        tmp_fns->datevyd := fns->datevyd
+      else
+        tmpSelect := select()
+        select payer
+        payer->( dbGoto( fns->kod_payer ) )
+        if ! payer->( eof() ) .and. ! payer->( bof() )
+          tmp_fns->inn := payer->inn
+          tmp_fns->plat_fio := payer->name
+          tmp_fns->plat_dob := payer->dob
+          tmp_fns->viddoc := soot_doc( payer->vid_ud )
+          tmp_fns->ser_num := payer->ser_num
+          tmp_fns->datevyd := payer->kogdavyd
+        endif
+        select( tmpSelect )
+        tmp_fns->pac_inn := fns->inn
+        tmp_fns->pac_fio := fns->plat_fio
+        tmp_fns->pac_dob := fns->plat_dob
+        tmp_fns->pac_vid := soot_doc( fns->viddoc )
+        tmp_fns->pac_snm := fns->ser_num
+        tmp_fns->pac_dvyd := fns->datevyd
+      endif
       tmp_fns->sum1 := fns->sum1
       tmp_fns->sum2 := fns->sum2
       tmp_fns->pred_ruk := fns->pred_ruk
@@ -294,6 +326,7 @@ function createXMLtoFNS()
     endif
     fns->( dbSkip() )
   enddo
+  payer->( dbGoTop() )
   tmp_fns->( dbSelectArea() )
   tmp_fns->( dbGoTop() )
 
@@ -385,7 +418,7 @@ function createXMLtoFNS()
     node_DAN_FIO_TIP( oRash, NALOG_PLAT, tmp_fns->inn, tmp_fns->plat_dob, tmp_fns->plat_fio, tmp_fns->viddoc, tmp_fns->ser_num, tmp_fns->datevyd )
 
     if tmp_fns->attribut == 0 // проверка на совпадение налогоплательщика и пациента
-//      node_DAN_FIO_TIP( oRash, PACIENT, aPlat[ i, 12 ], aPlat[ i, 13 ], aPlat[ i, 17 ], aPlat[ i, 14 ], aPlat[ i, 15 ], aPlat[ i, 16 ] )
+      node_DAN_FIO_TIP( oRash, PACIENT, tmp_fns->pac_inn, tmp_fns->pac_dob, tmp_fns->pac_fio, tmp_fns->pac_vid, tmp_fns->pac_snm, tmp_fns->pac_dvyd )
     endif
 
     tmp_fns->( dbSkip() )
@@ -412,6 +445,7 @@ function createXMLtoFNS()
   tmp_fns->( dbCloseArea() )
   xml_fns->( dbCloseArea() )
   fns->( dbCloseArea() )
+  payer->( dbCloseArea() )
   if totalSpravka == 0
     hb_Alert( 'Отсутствуют не обработанные справки!' )
   else
