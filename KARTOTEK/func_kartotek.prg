@@ -4,6 +4,175 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 12.01.25
+function control_number_phone( get )
+
+  local phoneTemplate := '^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$'  
+//  local phoneTemplate := "^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$"
+  local lRet := .f.
+
+  lRet := hb_RegexLike( phoneTemplate, get:Buffer )
+  if ! lRet
+    func_error( 4, 'Не допустимый номер телефона!' )
+  endif
+
+  return lRet
+
+// 08.08.24
+function razbor_str_fio( mfio )
+
+  local k := 0, i, s := '', s1 := '', aFIO := { '', '', '' }
+
+  mfio := alltrim( mfio )
+  For i := 1 To NumToken( mfio, ' ' )
+    s1 := AllTrim( Token( mfio, ' ', i ) )
+    If ! Empty( s1 )
+      ++k
+      If k < 3
+        aFIO[ k ] := s1
+      Else
+        s += s1 + ' '
+      Endif
+    Endif
+  Next
+  aFIO[ 3 ] := AllTrim( s )
+  return aFIO
+
+// 09.08.24
+function short_FIO( mfio )
+
+  local aFIO := razbor_str_fio( mfio )
+
+  return 	aFIO[ 1 ] + ' ' + Left( aFIO[2], 1 ) + '.' + if( Empty( aFIO[3] ), '', Left( aFIO[3], 1 ) + '.' )
+    
+// проверить отдельно фамилию, имя и отчество в GET'ах
+Function valfamimot( ltip, s, par, /*@*/msg)
+
+  Static arr_pole := { 'Фамилия', 'Имя', 'Отчество' }
+  Static arr_char := { ' ', '-', '.', "'", '"' }
+  Local fl := .t., i, c, s1 := '', nword := 0, get, r := Row()
+
+  Default par To 1
+  s := AllTrim( s )
+  For i := 1 To Len( arr_char )
+    s := CharOne( arr_char[ i ], s )
+  Next
+  If Len( s ) > 0
+    s := Upper( Left( s, 1 ) ) + SubStr( s, 2 )
+  Endif
+  For i := 1 To Len( s )
+    c := SubStr( s, i, 1 )
+    If isralpha( c )
+      //
+    Elseif AScan( arr_char, c ) > 0
+      ++nword
+    Else
+      s1 += c
+    Endif
+  Next
+  msg := ''
+  If !Empty( s1 )
+    msg := 'В поле "' + arr_pole[ ltip ] + '" обнаружены недопустимые символы "' + s1 + '"'
+  Elseif Empty( s ) .and. ltip < 3
+    msg := 'Пустое значение поля "' + arr_pole[ ltip ] + '" недопустимо'
+  Endif
+  If par == 1  // для GET-системы
+    Private tmp := ReadVar()
+    &tmp := PadR( s, 40 )
+    If Empty( msg ) .and. nword > 0
+      If ( get := get_pointer( tmp ) ) != NIL
+        r := get:Row
+      Endif
+      fl := .f.
+      mybell()
+      If f_alert( { PadC( 'В поле "' + arr_pole[ ltip ] + '" занесено ' + lstr( nword + 1 ) + ' слова', 60, '.' ) }, ;
+          { ' Возврат в редактирование ', ' Правильное поле ' }, ;
+          1, 'W+/N', 'N+/N', r + 1, , 'W+/N,N/BG' ) == 2
+        fl := .t.
+      Endif
+    Endif
+  Endif
+  If !Empty( msg )
+    If par == 1  // для GET-системы
+      fl := func_error( 4, msg )
+    Else  // для проверки ТФОМС
+      fl := .f.
+    Endif
+  Endif
+
+  Return fl
+
+// 02.09.15 вернуть отдельно фамилию, имя и отчество в массиве
+Function retfamimot( ltip, fl_no, is_open_kfio )
+
+  Static cDelimiter := ' .'
+  Local i, k := 0, s := '', s1, mfio, tmp_select, ret_arr := { '', '', '' }
+
+  Default fl_no To .t., is_open_kfio To .f.
+  If ltip == 1 // вызвали из картотеки
+    mfio := kart->fio
+  Else  // вызвали из листа учёта
+    mfio := human->fio
+    If human->kod_k != kart->kod // если не связаны по relation
+      kart->( dbGoto( human->kod_k ) )
+    Endif
+  Endif
+  If kart->MEST_INOG == 9 // т.е. отдельно занесены Ф.И.О.
+    tmp_select := Select()
+    If is_open_kfio
+      Select KFIO
+    Else
+      r_use( dir_server + 'mo_kfio', , 'KFIO' )
+      Index On Str( kod, 7 ) to ( cur_dir + 'tmp_kfio' )
+    Endif
+    find ( Str( kart->kod, 7 ) )
+    If Found()
+      ret_arr[ 1 ] := AllTrim( kfio->FAM )
+      ret_arr[ 2 ] := AllTrim( kfio->IM )
+      ret_arr[ 3 ] := AllTrim( kfio->OT )
+    Endif
+    If !is_open_kfio
+      kfio->( dbCloseArea() )
+    Endif
+    Select ( tmp_select )
+  Endif
+  If Empty( ret_arr[ 1 ] ) // на всякий случай - вдруг не нашли в "mo_kfio"
+    mfio := AllTrim( mfio )
+    For i := 1 To NumToken( mfio, cDelimiter )
+      s1 := AllTrim( Token( mfio, cDelimiter, i ) )
+      If !Empty( s1 )
+        ++k
+        If k < 3
+          ret_arr[ k ] := s1
+        Else
+          s += s1 + ' '
+        Endif
+      Endif
+    Next
+    ret_arr[ 3 ] := AllTrim( s )
+  Endif
+  If fl_no .and. Empty( ret_arr[ 3 ] )
+    ret_arr[ 3 ] := 'НЕТ'
+  Endif
+
+  Return ret_arr
+
+// 26.10.14 проверка на правильность введённого ФИО
+Function val_fio( afio, aerr )
+
+  Local i, k := 0, msg
+
+  Default aerr TO {}
+  For i := 1 To 3
+    valfamimot( i, afio[ i ], 2, @msg )
+    If !Empty( msg )
+      ++k
+      AAdd( aerr, msg )
+    Endif
+  Next
+
+  Return ( k == 0 )
+
 function input_polis_OMS(cur_row, mkod)
 
   // переменные mvidpolis, m1vidpolis, mspolis, mnpolis объявлены ранее как PRIVATE

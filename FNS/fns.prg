@@ -11,20 +11,6 @@
 #define ORTO 2  // подзадача ортопедия
 #define KASSA_MO 3 // подзадача касса МО
 
-// 12.01.25
-function control_number_phone( get )
-
-  local phoneTemplate := '^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$'  
-//  local phoneTemplate := "^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$"
-  local lRet := .f.
-
-  lRet := hb_RegexLike( phoneTemplate, get:Buffer )
-  if ! lRet
-    func_error( 4, 'Не допустимый номер телефона!' )
-  endif
-
-  return lRet
-
 // 13.01.25
 function check_payer( g )
 
@@ -829,29 +815,3 @@ function soot_doc( nVid )
 
   return ret
 
-// 08.08.24
-function razbor_str_fio( mfio )
-
-  local k := 0, i, s := '', s1 := '', aFIO := { '', '', '' }
-
-  mfio := alltrim( mfio )
-  For i := 1 To NumToken( mfio, ' ' )
-    s1 := AllTrim( Token( mfio, ' ', i ) )
-    If ! Empty( s1 )
-      ++k
-      If k < 3
-        aFIO[ k ] := s1
-      Else
-        s += s1 + ' '
-      Endif
-    Endif
-  Next
-  aFIO[ 3 ] := AllTrim( s )
-  return aFIO
-
-// 09.08.24
-function short_FIO( mfio )
-
-  local aFIO := razbor_str_fio( mfio )
-
-  return 	aFIO[ 1 ] + ' ' + Left( aFIO[2], 1 ) + '.' + if( Empty( aFIO[3] ), '', Left( aFIO[3], 1 ) + '.' )
