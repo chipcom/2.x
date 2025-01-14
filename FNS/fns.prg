@@ -11,7 +11,7 @@
 #define ORTO 2  // подзадача ортопедия
 #define KASSA_MO 3 // подзадача касса МО
 
-// 13.01.25
+// 14.01.25
 function check_payer( g )
 
   local oBox, lRet := .f., tmp_keys, tmp_list
@@ -21,19 +21,18 @@ function check_payer( g )
   local mfam := Space( 20 ), mim := Space( 20 ), mot := Space( 20 )
   local mdate_r := CToD( '  /  /    ')
   local mSearch := '', lFind := .f., mINN := space( 12 )
-  local mser_ud := Space( 10 ), mnom_ud := Space( 20 ), MKOGDAVYD := CToD( '' ) // когда выдан паспорт
-  local mSer_num
+  local mser_ud := Space( 10 ), mnom_ud := Space( 20 ), mkogdavyd := CToD( '' ) // когда выдан паспорт
+  local mSer_num, picture_phone := '@R 8(999) 999-99-99'
 //  local oPassport
 
-  private MVID_UD, ; // вид удостоверения
-          M1VID_UD    := 14, ; // 1-18
-          mPHONE_M := Space( 11 )
+  private mvid_ud, ; // вид удостоверения
+          m1vid_ud    := 14, ; // 1-18
+          mPHONE_M := Space( 17 )
       
   if m1P_ATTR == 1  // плательщик и пациент одно лицо
     return .t.
   endif
 
-  tmp_select := select()
   tmp_keys := my_savekey()
   Save gets To tmp_list
 
@@ -61,12 +60,15 @@ function check_payer( g )
     @ 6, 50 TBOX oBox Say 'Выдан' Get mkogdavyd
   
 //    @ 7, 6 TBOX oBox Say 'Телефон мобильный' Get mPHONE_M valid {| g | control_number_phone( g ) } //valid_phone( g, .t. ) }
+//    picture picture_phone
     @ 7, 6 TBOX oBox Say 'Телефон мобильный' Get mPHONE_M valid {| g | valid_phone( g, .t. ) }
 
     myread()
     if lastkey() != K_ESC
-//      oPassport := TPassport():New( M1VID_UD, mser_ud, mnom_ud, , )
-      use_base( 'payer', 'payer' )
+//      oPassport := TPassport():New( m1vid_ud, mser_ud, mnom_ud, , )
+      tmp_select := select()
+      use_base( 'reg_people_fns', 'payer' )
+      payer->( dbSetOrder( 2 ) )
       MFIO := upper( alltrim( mfam ) + ' ' + alltrim( mim ) + ' ' + alltrim( mot ) )
       mSearch := MFIO + DToC( mdate_r )
       mSer_num := alltrim( mser_ud ) + ' ' + alltrim( mnom_ud )
@@ -74,26 +76,31 @@ function check_payer( g )
 
       payer->( dbSeek( padr( MFIO, 50 ) ) )
       if payer->( found() )
-        Do While alltrim( payer->NAME ) == MFIO .and. payer->DOB == mdate_r .and. !Eof()
-          if ( ! Empty( mINN ) ) .and. ( alltrim( payer->INN ) == mINN ) .or. ;
-                ( payer->VID_UD == M1VID_UD .and. alltrim( payer->SER_NUM ) == mSer_num )
-            mKod_payer := payer->KOD_PAYER
+        Do While alltrim( payer->fio ) == MFIO .and. payer->dob == mdate_r .and. !Eof()
+          if ( ! Empty( mINN ) ) .and. ( alltrim( payer->inn ) == mINN ) .or. ;
+                ( payer->vid_ud == m1vid_ud .and. ;
+                alltrim( payer->ser_ud ) == alltrim( mSer_ud ) .and. ;
+                alltrim( payer->nom_ud ) == alltrim( mnom_ud ) )
+            mKod_payer := payer->kod
             lFind := .t.
             exit
           endif
         enddo
       endif
       if ! lFind
-        payer->( dbAppend() )
-        payer->NAME := MFIO
-        payer->VID_UD := M1VID_UD
-        payer->INN := mINN
-        payer->PHONE := mPHONE_M
-        payer->KOD_PAYER := recno()
-        payer->SER_NUM := mSer_num
-        payer->DOB := mdate_r
+        AddRec( 7 )
+        payer->kod := recno()
+        payer->fio := MFIO
+        payer->dob := mdate_r
+        payer->vid_ud := m1vid_ud
+        payer->ser_ud := mser_ud
+        payer->nom_ud := mnom_ud
+        payer->kogdavyd := mkogdavyd
+        payer->inn := mINN
+        payer->phone := mPHONE_M
       endif
-      mKod_payer := payer->KOD_PAYER
+      mKod_payer := payer->kod
+      select( tmp_select )
       payer->( dbCloseArea() )
       lRet := .t.
       exit
@@ -103,7 +110,6 @@ function check_payer( g )
   enddo
   Restore gets From tmp_list
   my_restkey( tmp_keys )
-  select( tmp_select )
   return lRet
 
 // 13.08.24
@@ -112,8 +118,11 @@ function reestr_spravka_fns()
   Local mtitle
   Local buf := SaveScreen()
 
-//  use_base( 'payer', 'payer' )
+//  use_base( 'reg_people_fns', 'payer' )
   use_base( 'reg_fns', 'fns' )
+
+//  dbSetRelation( 'payer', {|| fns->kod_payer}, ;
+//    'fns->kod_payer')  
 //  set relation to kod_payer into payer
   fns->( dbGoBottom() )
   mtitle := 'Сформированные справки для ФНС'
@@ -153,7 +162,9 @@ Function defcolumn_spravka_fns( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-//  oColumn := TBColumnNew( 'Плательщик', {|| substr( short_FIO( payer->name ), 1, 15 ) } )
+//  oColumn := TBColumnNew( 'Плательщик', {|| substr( short_FIO( payer->fio ), 1, 15 ) } )
+//  oColumn := TBColumnNew( 'Плательщик', {|| substr( payer->fio, 1, 15 ) } )
+//  oColumn := TBColumnNew( 'Плательщик', {|| str( payer->kod, 7, 0 ) } )
 //  oColumn:colorBlock := blk
 //  oBrow:addcolumn( oColumn )
 
@@ -225,16 +236,16 @@ function print_spravka_fns()
   pos := hb_At( '/', org:INN() )
   if fns->attribut == 0
     tmp_select := select()
-    r_use( dir_server + 'payer', , 'payer' )
+    r_use( dir_server + 'reg_people_fns', , 'payer' )
     payer->( dbGoto( fns->kod_payer ) )
     if ! payer->( eof() ) .and. ! payer->( bof() )
-      aFIOPlat := razbor_str_fio( payer->name )
+      aFIOPlat := razbor_str_fio( payer->fio )
       aFIOPacient := razbor_str_fio( fns->plat_fio )
       innPlat := payer->inn
-      dobPlat := payer->DOB
-      vidDocPlat := soot_doc( payer->VID_UD )
-      sernumPlat := payer->SER_NUM
-      dateVydPlat := payer->KOGDAVYD
+      dobPlat := payer->dob
+      vidDocPlat := soot_doc( payer->vid_ud )
+      sernumPlat := iif( empty( payer->ser_ud ), '', alltrim( payer->ser_ud ) + ' ' ) + alltrim( payer->nom_ud )
+      dateVydPlat := payer->kogdavyd
 
       innPacient := fns->inn
       dobPacient := fns->plat_dob

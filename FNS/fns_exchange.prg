@@ -223,7 +223,7 @@ function name_file_fns_xml( org, dt, num, id_pol, id_end )
 
   return nameXML
 
-// 13.01.25
+// 14.01.25
 function createXMLtoFNS()
 
   local aPlat := Array( 2, 17 )
@@ -277,7 +277,7 @@ function createXMLtoFNS()
 
   dbCreate( cur_dir() + 'tmp_fns', tmp_fns,, .t., 'tmp_fns' )
   Index On predst + Str( num_s, 7 ) to ( cur_dir() + 'tmp_fns' )
-  r_use( dir_server + 'payer', , 'payer' )
+  r_use( dir_server + 'reg_people_fns', , 'payer' )
   payer->( dbGoTop() )
   use_base( 'reg_fns', 'fns', .t. )
   fns->( dbGoTop() )
@@ -304,10 +304,10 @@ function createXMLtoFNS()
         payer->( dbGoto( fns->kod_payer ) )
         if ! payer->( eof() ) .and. ! payer->( bof() )
           tmp_fns->inn := payer->inn
-          tmp_fns->plat_fio := payer->name
+          tmp_fns->plat_fio := payer->fio
           tmp_fns->plat_dob := payer->dob
           tmp_fns->viddoc := soot_doc( payer->vid_ud )
-          tmp_fns->ser_num := payer->ser_num
+          tmp_fns->ser_num := iif( empty( payer->ser_ud ), '', alltrim( payer->ser_ud ) + ' ' ) + alltrim( payer->nom_ud )  // payer->ser_num
           tmp_fns->datevyd := payer->kogdavyd
         endif
         select( tmpSelect )
