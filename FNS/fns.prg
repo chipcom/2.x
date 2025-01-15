@@ -474,7 +474,7 @@ function exist_spravka( get, kod_kart, onePerson )
 
   return .t.
 
-// 13.01.25
+// 15.01.25
 function input_spravka_fns()
 
   Local str_sem
@@ -552,7 +552,8 @@ function input_spravka_fns()
     next
     if mSumma <= 0
       hb_Alert( 'Сумма оплат за год равна или меньше нуля' )
-      return nil
+      dbCloseAll()
+    return nil
     endif
 
     str_sem := 'Справка ФНС человека ' + lstr( glob_kartotek )
