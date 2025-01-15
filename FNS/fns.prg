@@ -121,10 +121,11 @@ function reestr_spravka_fns()
   use_base( 'reg_people_fns', 'payer' )
   use_base( 'reg_fns', 'fns' )
 
-//  dbSetRelation( 'payer', {|| fns->kod_payer}, ;
-//    'fns->kod_payer')  
-  set relation to kod_payer into payer
-  fns->( dbGoBottom() )
+  dbSetRelation( 'payer', {|| fns->kod_payer}, 'fns->kod_payer')
+  
+  Index On kod to ( cur_dir + "tmp_reg" ) DESCENDING
+  fns->( dbGoTop() )
+//  fns->( dbGoBottom() )
   mtitle := 'Сформированные справки для ФНС'
   alpha_browse( 5, 0, MaxRow() - 2, 79, 'defColumn_Spravka_FNS', color0, mtitle, 'BG+/GR', ;
     .f., .t., , , 'serv_spravka_fns', , ;
@@ -139,7 +140,6 @@ function reestr_spravka_fns()
 Function defcolumn_spravka_fns( oBrow )
 
   Local oColumn, s
-  local mm_plat := { { 'он же ', 1 }, { 'другой', 0 } }
   Local blk := {|| iif( Empty( fns->kod_xml ), { 5, 6 }, { 3, 4 } ) }
 
 //  oColumn := TBColumnNew( ' Год ', {|| str( fns->nyear, 4 ) } )
@@ -162,19 +162,15 @@ Function defcolumn_spravka_fns( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  oColumn := TBColumnNew( 'Плательщик', {|| iif( fns->attribut == 0, substr( short_FIO( payer->fio ), 1, 15 ), 'он же' ) } )
+  oColumn := TBColumnNew( 'Плательщик', {|| iif( fns->attribut == 0, substr( short_FIO( payer->fio ), 1, 15 ), padr( 'он же', 15 ) ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-//  oColumn := TBColumnNew( 'Плат. ', {|| inieditspr( A__MENUVERT, mm_plat, fns->attribut ) } ) //substr( short_FIO( fns->plat_fio ), 1, 15 ) } )
-//  oColumn:colorBlock := blk
-//  oBrow:addcolumn( oColumn )
-
-  oColumn := TBColumnNew( 'Сумма 1', {|| str( fns->sum1, 6, 0 ) } ) // str( fns->sum1, 9, 2 )
+  oColumn := TBColumnNew( 'Сумма 1', {|| str( fns->sum1, 6, 0 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  oColumn := TBColumnNew( 'Сумма 2', {|| str( fns->sum2, 6, 0 ) } ) // str( fns->sum2, 9, 2 )
+  oColumn := TBColumnNew( 'Сумма 2', {|| str( fns->sum2, 6, 0 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
