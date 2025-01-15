@@ -112,18 +112,18 @@ function check_payer( g )
   my_restkey( tmp_keys )
   return lRet
 
-// 13.08.24
+// 15.08.24
 function reestr_spravka_fns()
 
   Local mtitle
   Local buf := SaveScreen()
 
-//  use_base( 'reg_people_fns', 'payer' )
+  use_base( 'reg_people_fns', 'payer' )
   use_base( 'reg_fns', 'fns' )
 
 //  dbSetRelation( 'payer', {|| fns->kod_payer}, ;
 //    'fns->kod_payer')  
-//  set relation to kod_payer into payer
+  set relation to kod_payer into payer
   fns->( dbGoBottom() )
   mtitle := 'Сформированные справки для ФНС'
   alpha_browse( 5, 0, MaxRow() - 2, 79, 'defColumn_Spravka_FNS', color0, mtitle, 'BG+/GR', ;
@@ -135,7 +135,7 @@ function reestr_spravka_fns()
 
   return nil
 
-// 11.01.25
+// 15.01.25
 Function defcolumn_spravka_fns( oBrow )
 
   Local oColumn, s
@@ -154,23 +154,21 @@ Function defcolumn_spravka_fns( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-  oColumn := TBColumnNew( 'Вер.', {|| str( fns->version, 3 ) } )
-  oColumn:colorBlock := blk
-  oBrow:addcolumn( oColumn )
+//  oColumn := TBColumnNew( 'Вер.', {|| str( fns->version, 3 ) } )
+//  oColumn:colorBlock := blk
+//  oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( 'Пациент', {|| substr( short_FIO( fns->plat_fio ), 1, 15 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 
-//  oColumn := TBColumnNew( 'Плательщик', {|| substr( short_FIO( payer->fio ), 1, 15 ) } )
-//  oColumn := TBColumnNew( 'Плательщик', {|| substr( payer->fio, 1, 15 ) } )
-//  oColumn := TBColumnNew( 'Плательщик', {|| str( payer->kod, 7, 0 ) } )
-//  oColumn:colorBlock := blk
-//  oBrow:addcolumn( oColumn )
-
-  oColumn := TBColumnNew( 'Плат. ', {|| inieditspr( A__MENUVERT, mm_plat, fns->attribut ) } ) //substr( short_FIO( fns->plat_fio ), 1, 15 ) } )
+  oColumn := TBColumnNew( 'Плательщик', {|| iif( fns->attribut == 0, substr( short_FIO( payer->fio ), 1, 15 ), 'он же' ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
+
+//  oColumn := TBColumnNew( 'Плат. ', {|| inieditspr( A__MENUVERT, mm_plat, fns->attribut ) } ) //substr( short_FIO( fns->plat_fio ), 1, 15 ) } )
+//  oColumn:colorBlock := blk
+//  oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( 'Сумма 1', {|| str( fns->sum1, 6, 0 ) } ) // str( fns->sum1, 9, 2 )
   oColumn:colorBlock := blk
