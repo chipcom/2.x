@@ -20,8 +20,9 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
 
   // local strMO := hb_StrToUtf8( glob_mo[ _MO_SHORT_NAME ] )
   Local strMO := hb_StrToUTF8( hb_main_curOrg:name_tfoms() )
-  Local arr_plan := get_array_plan_drz( Year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
   // local arr_plan := get_array_plan_drz( year( arr_m[ 6 ] ), hb_main_curOrg:Kod_Tfoms() )
+//  Local arr_plan := get_array_plan_drz( Year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
+  Local arr_plan := get_plan_drz( Year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
   Local i
   //
   For i := 1 To 8

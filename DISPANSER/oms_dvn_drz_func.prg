@@ -1943,3 +1943,29 @@ Function get_array_plan_drz_25()
     }
 
   Return arr
+
+// 16.01.25
+Function get_plan_drz( mYear, kod_mo )
+
+  // plan_drz - Получить плановые показатели по диспансеризации репродуктивного здоровья
+  //  1 - KOL_M(N) 2 - KOL_F(N)
+  Local arr
+  local db
+  local aTable
+
+  local s
+
+  kod_mo := AllTrim( kod_mo )
+  arr := {}
+  db := openSQL_DB()
+  s := 'SELECT kol_m, kol_f FROM plan_drz WHERE year=' + str( mYear, 4 ) + ' and kod_mo=' + kod_mo
+  aTable := sqlite3_get_table( db, s )
+    
+  if len( aTable ) > 1
+    aadd( arr, val( aTable[ 2, 1 ] ) ) // мужчины
+    aadd( arr, val( aTable[ 2, 2 ] ) ) // женщины
+  else
+    arr := { 0, 0 } // нет данных
+  endif
+  db := nil
+  return arr
