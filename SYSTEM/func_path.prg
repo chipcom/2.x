@@ -85,6 +85,21 @@ function chip_CurrPath()
 
   RETURN cPrefix + CurDir() + hb_ps()
 
+// 12.11.24
+function dir_fonts()
+
+  static dir
+
+  if isnil( dir )
+#ifdef __PLATFORM__UNIX
+    dir := '/'
+#else
+    dir := HB_GETENV( 'windir' ) + hb_ps() + 'Fonts' + hb_ps()
+#endif
+  endif
+
+  RETURN dir
+
 // 14.04.23
 // function chip_ExePath()
 

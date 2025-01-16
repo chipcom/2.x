@@ -6,12 +6,14 @@ copy *.frm  d:\_mo\_arc
 copy *.fr3  d:\_mo\_arc
 copy *.xls  d:\_mo\_arc
 copy *.xlsx  d:\_mo\_arc
+copy *.ttf  d:\_mo\_arc
 copy chip_mo.exe d:\_mo\chip\exe
 copy *.shb  d:\_mo\chip\exe
 copy *.frm  d:\_mo\chip\exe
 copy *.fr3  d:\_mo\chip\exe
 copy *.xls  d:\_mo\chip\exe
 copy *.xlsx  d:\_mo\chip\exe
+copy *.ttf  d:\_mo\chip\exe
 copy d:\_mo\_arc\*.dbf  d:\_mo\chip\exe
 copy d:\_mo\_arc\*.dbt  d:\_mo\chip\exe
 

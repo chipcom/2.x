@@ -98,7 +98,7 @@ Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 05.04.24
+// 10.01.25
 Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Static mm_kart_error := { { 'нет замечаний', 0 }, { 'полис недействителен', -8 }, { 'ошибки в реквизитах', -9 } }
@@ -526,7 +526,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     @ ++ix, 1 Say 'Уд-ие личности:' Get mvid_ud ;
       reader {| x| menu_reader( x, getvidud(), A__MENUVERT, , , .f. ) }
     // @ ix, 42 say 'Серия' get mser_ud pict '@!' valid val_ud_ser(1, m1vid_ud, mser_ud)
-    @ ix, 42 Say 'Серия' Get mser_ud Pict '@!' valid {| oGet | checkdocumentseries( oGet, m1vid_ud ) }
+    @ ix, 44 Say 'Серия' Get mser_ud Pict '@!' valid {| oGet | checkdocumentseries( oGet, m1vid_ud ) }
     @ ix, Col() + 1 Say '№' Get mnom_ud Pict '@!S18' Valid val_ud_nom( 1, m1vid_ud, mnom_ud )
     If !is_smp
       @ ++ix, 2 Say 'Место рождения' Get mmesto_r Pict '@S62'
@@ -1130,7 +1130,7 @@ Function valid_phone( get, is_mobil )
 
   Return fl
 
-// 29.03.23 поиск пациента в картотеке во время режима добавления
+// 10.01.25 поиск пациента в картотеке во время режима добавления
 Function findkartoteka( k, /*@*/lkod_k)
 
   Local s, buf, rec := 0
@@ -3169,7 +3169,7 @@ Function f2dubl_zap()
 
   Return Nil
 
-// 29.03.23
+// 10.01.25
 Function kartotek_to_screen( r1, r2 )
 
   Local i, s, s1, mmo_pr, arr := {}, tmp_select := Select()

@@ -3254,6 +3254,7 @@ Function pripisnoe_naselenie_create_oblsdrav()
 
   Return Nil
 
+// 07.08.24
 // Общие настройки каждой задачи
 Function nastr_all( k, nTask )
 
@@ -3288,6 +3289,12 @@ Function nastr_all( k, nTask )
       AAdd( mas_msg, 'Общие настройки задачи "' + array_tasks[ ind_task( X_ORTO ), 1 ] + '"' )
       AAdd( mas_fun, 'nastr_all(' + lstr( n ) + ',' + lstr( X_ORTO ) + ')' )
     Endif
+    If is_task( X_PLATN ) .or. is_task( X_KASSA ) .or. is_task( X_ORTO )
+      ++n
+      AAdd( mas_pmt, 'Обмен данными с ФНС' )
+      AAdd( mas_msg, 'Общие настройки задачи для обмена с ФНС' )
+      AAdd( mas_fun, 'nastr_all(' + lstr( n ) + ',' + lstr( X_FNS ) + ')' )
+    Endif
     If n == 1
       j := &( mas_fun[ 1 ] )
     Elseif n > 1
@@ -3304,7 +3311,7 @@ Function nastr_all( k, nTask )
 
 // 
 
-// 09.12.18 Общие настройки каждой задачи
+// 22.08.24 Общие настройки каждой задачи
 Function f1nastr_all( nameTask, nTask )
 
   Local mm_tmp := {}, ctitle
@@ -3346,6 +3353,8 @@ Function f1nastr_all( nameTask, nTask )
       { "на английском", 1 } }
     Private mm_dms := { { "внутренние", 0 }, ;
       { "ФФОМС", 1 } }
+    private mm_danet := { { 'да', 1 }, { 'нет', 0 } }
+
     Delete file tmp.dbf
     Do Case
     Case nTask == 0 .and. tools_ini_oms( 1, 0, 0, .t. ) //  настройка на все задачи
@@ -3647,6 +3656,49 @@ Function f1nastr_all( nameTask, nTask )
       tmp->ls_v034   := mem_n_V034
       tmp->ls_method := mem_methodinj
       Close databases
+    Case nTask == X_FNS //  Обмен данными с ФНС
+      ctitle := 'настройке обмена данными с ФНС'
+      _fns_nastr( 0 ) // проверить, а создан ли файл "fns_nastr.dbf"
+      AAdd( mm_tmp, { 'n_spr_fns', 'N', 7, 0, NIL, ;
+        NIL, ;
+        0, NIL, ;
+        'Номер последней введенной справки ФНС' } )
+      AAdd( mm_tmp, { 'n_file_up', 'N', 7, 0, NIL, ;
+        NIL, ;
+        0, NIL, ;
+        'Номер последнего файла выгрузки в ФНС' } )
+      AAdd( mm_tmp, { 'podpis', "N", 1, 0, NIL, ;
+        {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
+        0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+        'Подписант, руководитель МО:' } )
+      AAdd( mm_tmp, { 'predst', 'C', 50, 0, '@!S30', ;
+        NIL, ;
+        space( 50 ), NIL, ;
+        'Представитель МО' } )
+      AAdd( mm_tmp, { 'pred_doc', 'C', 50, 0, '@S30', ;
+        NIL, ;
+        space( 50 ), NIL, ;
+        'Документ представителя МО' } )
+      AAdd( mm_tmp, { 'id_pol', 'C', 4, 0, '9999', ;
+        NIL, ;
+        space( 4 ), NIL, ;
+        'Идентификатор получателя, которому направляется файл обмена' } )
+      AAdd( mm_tmp, { 'id_end', 'C', 4, 0, '9999', ;
+        NIL, ;
+        space( 4 ), NIL, ;
+        'Идентификатор конечного получателя, для которого предназначен файл обмена' } )
+      init_base( cur_dir + 'tmp',, mm_tmp, 0 )
+      r_use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+      Use ( cur_dir + 'tmp' ) new
+      Append Blank
+      tmp->N_SPR_FNS := NASTR_FNS->N_SPR_FNS
+      tmp->N_FILE_UP := NASTR_FNS->N_FILE_UP
+      tmp->PODPIS    := NASTR_FNS->PODPIS
+      tmp->PREDST    := NASTR_FNS->PREDST
+      tmp->PRED_DOC  := NASTR_FNS->PRED_DOC
+      tmp->ID_POL    := NASTR_FNS->ID_POL
+      tmp->ID_END    := NASTR_FNS->ID_END
+      Close databases
     Case nTask == X_PPOKOJ //  Приёмный покой
       ctitle := "настройке приёмного покоя"
       _pp_nastr( 0 ) // проверить, а создан ли файл "pp_nastr.dbf"
@@ -3898,6 +3950,21 @@ Function f1nastr_all( nameTask, nTask )
         mem_n_V034  := tmp->ls_v034
         mem_methodinj := tmp->ls_method
         tools_ini_oms( 2, 0, 0 )
+      Case nTask == X_FNS //  Обмен с ФНС
+        g_use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+        g_rlock( forever )
+        nastr_fns->N_SPR_FNS := tmp->N_SPR_FNS
+        nastr_fns->N_FILE_UP := tmp->N_FILE_UP
+        nastr_fns->PODPIS    := tmp->PODPIS
+        if tmp->PODPIS == 0
+          nastr_fns->PREDST    := tmp->PREDST
+          nastr_fns->PRED_DOC  := tmp->PRED_DOC
+        else
+          nastr_fns->PREDST    := ''  //tmp->PREDST
+          nastr_fns->PRED_DOC  := ''  //tmp->PRED_DOC
+        endif
+        nastr_fns->ID_POL    := tmp->ID_POL
+        nastr_fns->ID_END    := tmp->ID_END
       Case nTask == X_PPOKOJ //  Приёмный покой
         g_use( dir_server + "pp_nastr",, "MV" )
         g_rlock( forever )

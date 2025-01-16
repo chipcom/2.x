@@ -3,7 +3,7 @@
 // #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 27.08.24
+// 15.01.25
 Function index_base( sBase )
 
   Millisec( 100 )  // задержка на 0.1 с
@@ -180,12 +180,13 @@ Function index_base( sBase )
     Index On Str( kod_as, 4 ) + date_u to ( dir_server + "hum_p_ua" ) progress
   Case sBase == "hum_plat"
     Index On Str( kod, 7 ) to ( dir_server + sBase ) progress
-  Case sBase == "payments"
-    Index On Str( IDCONTR, 7 ) to ( dir_server + 'payments' ) progress
-    Index On DToS( DATE ) to ( dir_server + 'payments_date' ) progress
-    Index On Str( TYPEPAYER, 1 ) + Str( IDPAYER, 7 ) to ( dir_server + 'payments_payer' ) progress
-  Case sBase == "payer"
-    Index On Upper( NAME ) to ( dir_server + sBase ) progress
+//  Case sBase == "payments"
+//    Index On Str( IDCONTR, 7 ) to ( dir_server + 'payments' ) progress
+//    Index On DToS( DATE ) to ( dir_server + 'payments_date' ) progress
+//    Index On Str( TYPEPAYER, 1 ) + Str( IDPAYER, 7 ) to ( dir_server + 'payments_payer' ) progress
+//  Case sBase == "payer"
+//    Index On NAME to ( dir_server + sBase ) progress
+
   Case sBase == "pu_date"
     Index On DToS( data ) to ( dir_server + sBase ) descending
   Case sBase == "pu_cena"
@@ -238,6 +239,11 @@ Function index_base( sBase )
     Index On Str( kod_spr, 7 ) to ( dir_server + 'reg_link' ) progress
   Case sBase == 'reg_xml_fns'
     Index On Str( kod, 6 ) to ( dir_server + 'reg_xml' ) progress
+  Case sBase == 'reg_people_fns'
+//    Index On str( kod, 7 ) to ( dir_server + sBase ) progress
+    Index On kod to ( dir_server + sBase ) progress
+    Index On fio to ( dir_server + sBase + '_fio' ) progress
+  
   //
   // Case sBase == "mo_kekh"
   //   Index On Str( kod_lu, 7 ) to ( dir_server + sBase ) progress

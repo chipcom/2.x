@@ -30,6 +30,7 @@ mo_version.prg
 .\BLL\ORGANIZATION\T_Mo_podr.prg
 .\BLL\ORGANIZATION\TBank.prg
 .\BLL\EMPLOYEES\TEmployee.prg
+.\BLL\DOCUMENTS\TPassport.prg
 
 .\init\mo_init.prg
 .\init\init_mo.prg
@@ -85,6 +86,12 @@ mo_version.prg
 .\KASSA\mo_orto.prg
 .\KASSA\mo_ortop.prg
 .\KASSA\mo_plat_func.prg
+
+.\FNS\fns.prg
+.\FNS\fns_func.prg
+.\FNS\fns_exchange.prg
+.\FNS\page1.prg
+.\FNS\page2.prg
 
 #.\KEK\mo_kek.prg
 #.\KEK\mo_keki.prg
@@ -180,6 +187,7 @@ mo_version.prg
 .\reports\forma_39.prg
 .\reports\forma_57.prg
 .\reports\inf_drz_excel.prg
+.\reports\fns_reports_excel.prg
 
 .\util\workWithZIP.prg
 .\util\runExternalProgram.prg

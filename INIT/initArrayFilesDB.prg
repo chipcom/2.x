@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.08.24 инициализировать массив DBF-файлов базы данных
+// 14.01.25 инициализировать массив DBF-файлов базы данных
 Function init_Array_Files_DB()
   local i, arr
 
@@ -138,8 +138,8 @@ Function init_Array_Files_DB()
   aadd(array_files_DB, 'plat_ms')
   aadd(array_files_DB, 'plat_vz')
   aadd(array_files_DB, 'hum_plat')
-  aadd(array_files_DB, 'payments')
-  aadd(array_files_DB, 'payer')
+//  aadd(array_files_DB, 'payments')
+//  aadd(array_files_DB, 'payer')
   aadd(array_files_DB, 'pu_cena')
   aadd(array_files_DB, 'pu_date')
   aadd(array_files_DB, 'p_pr_vz')
@@ -176,9 +176,11 @@ Function init_Array_Files_DB()
   aadd(array_files_DB, 'mo_n7out'); array_task_DB[X_263, 2] := len(array_files_DB)
   //
   // справки для ФНС
+  aadd(array_files_DB, 'reg_fns_nastr')
   aadd(array_files_DB, 'register_fns')
   aadd(array_files_DB, 'reg_link_fns')
   aadd(array_files_DB, 'reg_xml_fns')
+  aadd(array_files_DB, 'reg_people_fns')
 
 
   if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC  // для ВОУНЦ
