@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 01.08.24 ДВН - добавление или редактирование случая (листа учета)
+// 17.01.25 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -30,7 +30,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   //
   Private oms_sluch_DVN := .t., ps1dispans := s1dispans, is_prazdnik
 
-  hb_alert( 'ВНИМАНИЕ! С 19 июля 2024 года углубленная диспансеризация после COVID закрыта.')
+//  hb_alert( 'ВНИМАНИЕ! С 19 июля 2024 года углубленная диспансеризация после COVID закрыта.')
   If kod_kartotek == 0 // добавление в картотеку
     If ( kod_kartotek := edit_kartotek( 0,,, .t. ) ) == 0
       Return Nil
@@ -805,10 +805,10 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         func_error( 4, "Не введена дата окончания углубленной диспансеризации после COVID." )
         Loop
       Endif
-      If ! Empty( mk_data ) .and. mk_data > 0d20240719  // письмо 09-20-360 от 22.07.24
-        func_error( 4, "После 19.07.24 года углубленная диспансеризация после COVID не проводится." )
-        Loop
-      Endif
+//      If ! Empty( mk_data ) .and. mk_data > 0d20240719  // письмо 09-20-360 от 22.07.24
+//        func_error( 4, "После 19.07.24 года углубленная диспансеризация после COVID не проводится." )
+//        Loop
+//      Endif
       If Empty( CharRepl( "0", much_doc, Space( 10 ) ) )
         func_error( 4, 'Не заполнен номер амбулаторной карты' )
         Loop
