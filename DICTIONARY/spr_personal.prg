@@ -77,7 +77,7 @@ Function f1edit_pers( oBrow )
 
   Return Nil
 
-// 17.01.25
+// 18.01.25
 Function f2edit_pers( nKey, oBrow )
 
   Static gmenu_kateg := { { 'врач                ', 1 }, ;
@@ -90,7 +90,8 @@ Function f2edit_pers( nKey, oBrow )
     { 'высшая категория', 3 } }
   Static osn_sovm := { { 'основная работа', 0 }, ;
     { 'совмещение     ', 1 } }
-  Local buf, fl := .f., rec, j, k, tmp_color, mkod, r, ret := -1, iSort
+  Local buf, fl := .f., rec, j, k, tmp_color, mkod, r, ret := -1
+  local i, max_nom, iSort, name_file := cur_dir() + 'personal' + stxt, s
   local typeSort := { ;
     'по фамилии          ', ;
     'по табельному номеру', ;
@@ -107,23 +108,23 @@ Function f2edit_pers( nKey, oBrow )
       return ret
     endif
     if iSort == 1
-      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir + 'tmp_pers' )
-      Set Index to ( cur_dir + 'tmp_pers' ), ( dir_server + 'mo_pers' )
+      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir() + 'tmp_pers' )
+      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server + 'mo_pers' )
       GOTO Top
     elseif iSort == 2
-      Index On tab_nom to ( cur_dir + 'tmp_persTN' )
-      Set Index to ( cur_dir + 'tmp_persTN' ), ( dir_server + 'mo_pers' )
+      Index On tab_nom to ( cur_dir() + 'tmp_persTN' )
+      Set Index to ( cur_dir() + 'tmp_persTN' ), ( dir_server + 'mo_pers' )
       GOTO Top
     elseif iSort == 3
-      Index On prvs_021 to ( cur_dir + 'tmp_pers21' )
-      Set Index to ( cur_dir + 'tmp_pers21' ), ( dir_server + 'mo_pers' )
+      Index On prvs_021 to ( cur_dir() + 'tmp_pers21' )
+      Set Index to ( cur_dir() + 'tmp_pers21' ), ( dir_server + 'mo_pers' )
       GOTO Top
     elseif iSort == 4
-      Index On otd to ( cur_dir + 'tmp_persOTD' )
-      Set Index to ( cur_dir + 'tmp_persOTD' ), ( dir_server + 'mo_pers' )
+      Index On otd to ( cur_dir() + 'tmp_persOTD' )
+      Set Index to ( cur_dir() + 'tmp_persOTD' ), ( dir_server + 'mo_pers' )
       GOTO Top
     endif
-    Return ret
+    Return 0
   Case nKey == K_F9
     If ( j := f_alert( { PadC( 'Выберите порядок сортировки при печати', 60, '.' ) }, ;
         { ' По ФИО ', ' По таб.номеру ' }, ;
@@ -133,7 +134,6 @@ Function f2edit_pers( nKey, oBrow )
     rec := p2->( RecNo() )
     buf := save_maxrow()
     mywait()
-    name_file := 'tab_nom' + stxt
     fp := FCreate( name_file )
     n_list := 1
     tek_stroke := 0
@@ -145,32 +145,23 @@ Function f2edit_pers( nKey, oBrow )
     If j == 1
       Set Order To 1
       find ( str_find )
-      Do While !Eof()
-        If between_date( dbegin, dend )
-          verify_ff( HH, .t., sh )
-          s := Str( p2->tab_nom, 5 ) + ;
-            iif( Empty( p2->svod_nom ), Space( 7 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 7 ) ) + ;
-            ' ' + PadR( p2->fio, 40 ) + ' ' + Transform( p2->SNILS, picture_pf ) + ' ' + ;
-            ret_tmp_prvs( p2->prvs, p2->prvs_new )
-          add_string( s )
-        Endif
-        Skip
-      Enddo
     Else
       Set Order To 2
       Go Top
-      Do While !Eof()
-        If kod > 0 .and. between_date( dbegin, dend )
-          verify_ff( HH, .t., sh )
-          s := Str( p2->tab_nom, 5 ) + ;
-            iif( Empty( p2->svod_nom ), Space( 7 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 7 ) ) + ;
-            ' ' + PadR( p2->fio, 40 ) + ' ' + Transform( p2->SNILS, picture_pf ) + ' ' + ;
-            ret_tmp_prvs( p2->prvs, p2->prvs_new )
-          add_string( s )
-        Endif
-        Skip
-      Enddo
     Endif
+
+    Do While !Eof()
+      If iif( j == 2, kod > 0, .t. ) .and. between_date( dbegin, dend )
+        verify_ff( HH, .t., sh )
+        s := Str( p2->tab_nom, 5 ) + ;
+          iif( Empty( p2->svod_nom ), Space( 7 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 7 ) ) + ;
+          ' ' + PadR( p2->fio, 35 ) + ' ' + Transform( p2->SNILS, picture_pf ) + ' ' + ;
+          ret_tmp_prvs( p2->prvs, p2->prvs_new )
+        add_string( s )
+      Endif
+      Skip
+    Enddo
+
     Set Order To 2
     Go Bottom
     max_nom := p2->tab_nom
@@ -187,7 +178,7 @@ Function f2edit_pers( nKey, oBrow )
           verify_ff( HH, .t., sh )
           add_string( s )
           s := ''
-          If++k > 10
+          If ++k > 10
             add_string( '...' )
             Exit
           Endif
