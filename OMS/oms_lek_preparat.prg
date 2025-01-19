@@ -27,7 +27,7 @@ function split_regnum_dop( regnum_dop, type )
   endif
   return aTokens
 
-// 15.01.23
+// 15.01.23 
 Function init_lek_pr()
 
   Local s, n
@@ -106,7 +106,7 @@ Function check_oms_sluch_lek_pr( mkod_human )
   Return retFl
 
 
-// 08.04.22 ввода лекарственных препаратов
+// 19.01.25 ввода лекарственных препаратов
 Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
 
   // mkod_human - код по БД human
@@ -115,6 +115,7 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
   Local mtitle, tmp_color := SetColor( color1 )
   Local nBegin, regnum_dop, aReg_dop
   Local is_oncology, funcHeaderTable := '', funcBrowse := ''
+  local dkSluch
 
   Private mSeverity, m1Severity := 0
 
@@ -136,10 +137,12 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
 
   find ( Str( mkod_human, 7 ) ) // встанем на лист учета
   is_oncology := iif( f_is_oncology( 1 ) == 2, .t., .f. )
+  dkSluch := human->k_data
 
   if is_oncology
     funcHeaderTable := 'f_oms_sluch_onko_lek_pr'
-    funcBrowse := 'f2oms_sluch_lek_pr'
+    funcBrowse := 'f2oms_sluch_onko_lek_pr'
+    private alpha_1_rect := .t. // выделяет только ячейку
   else
     funcHeaderTable := 'f_oms_sluch_lek_pr'
     funcBrowse := 'f2oms_sluch_lek_pr'
@@ -184,7 +187,8 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
       tmp->SCHEDRUG := LEK_PR->SCHEDRUG
       tmp->REGNUM   := LEK_PR->REGNUM
       if is_oncology
-        regnum_dop := get_sootv_n021( LEK_PR->CODE_SH, LEK_PR->DATE_INJ )[ 7 ]  // id_lekp_ext
+//        regnum_dop := get_sootv_n021( LEK_PR->CODE_SH, LEK_PR->REGNUM, LEK_PR->DATE_INJ )[ 7 ]  // id_lekp_ext
+        regnum_dop := get_sootv_n021( LEK_PR->CODE_SH, LEK_PR->REGNUM, dkSluch )[ 7 ]  // id_lekp_ext
         tmp->REGNUM   := regnum_dop
         tmp->ED_IZM := split_regnum_dop( regnum_dop, 2 )[ 6 ]
         aReg_dop := split_regnum_dop( regnum_dop, 1 )
@@ -362,7 +366,9 @@ Function f1oms_sluch_lek_pr()
   Return Nil
 
 // 08.04.22
-Function add_lek_pr( dateInjection, nKey )
+Function add_lek_pr( dateInjection, nKey, lOnko )
+
+  default lOnko to .f.
 
   If ValType( dateInjection ) == 'C'
     dateInjection := CToD( dateInjection )
@@ -384,9 +390,11 @@ Function add_lek_pr( dateInjection, nKey )
   tmp->REC_N        := LEK_PR->( RecNo() )
   tmp->KOD_HUM      := HUMAN->KOD
   tmp->DATE_INJ     := dateInjection
-  tmp->SEVERITY     := m1SEVERITY
-  tmp->CODE_SH      := m1SCHEME
-  tmp->SCHEDRUG     := m1SCHEDRUG
+  if ! lOnko
+    tmp->SEVERITY     := m1SEVERITY
+    tmp->CODE_SH      := m1SCHEME
+    tmp->SCHEDRUG     := m1SCHEDRUG
+  endif
   tmp->REGNUM       := m1REGNUM
   If ! Empty( m1REGNUM )
     tmp->ED_IZM       := m1UNITCODE
@@ -405,9 +413,11 @@ Function add_lek_pr( dateInjection, nKey )
   Select LEK_PR
   LEK_PR->KOD_HUM     := HUMAN->KOD
   LEK_PR->DATE_INJ    := dateInjection
-  LEK_PR->SEVERITY    := m1SEVERITY
-  LEK_PR->CODE_SH     := m1SCHEME
-  LEK_PR->SCHEDRUG    := m1SCHEDRUG
+  if ! lOnko
+    LEK_PR->SEVERITY    := m1SEVERITY
+    LEK_PR->CODE_SH     := m1SCHEME
+    LEK_PR->SCHEDRUG    := m1SCHEDRUG
+  endif
   LEK_PR->REGNUM      := m1REGNUM
   If ! Empty( m1REGNUM )
     LEK_PR->ED_IZM      := m1UNITCODE
@@ -425,6 +435,104 @@ Function add_lek_pr( dateInjection, nKey )
   // LEK_PR->COD_MARK
   Select tmp
   Return Nil
+
+// 19.01.25
+Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
+
+  Local flag := -1
+  local i
+  local fipos
+  local oCol, mGetVar, oGet, lFresh, lExitSave
+
+  i := 1
+  Do Case
+    Case nKey == K_ENTER .and. oBrow:colPos > 3 .and. oBrow:colPos < 7
+      flag := nKey
+      fipos := 4
+//altd()
+      lExitSave := Set(_SET_EXIT, .t.)
+
+      /* get column object from browse */
+      oCol := oBrow:getColumn( oBrow:colPos )
+
+      /* use temp for safety */
+      mGetVar := Eval( oCol:block )
+
+      SetCursor( 1 )
+      /* create a corresponding GET with ambiguous set/get block */
+      oGet := GetNew( Row(), Col(), ;
+                { | x | if( PCount() == 0, mGetVar, mGetVar := x ) }, ;
+                'mGetVar' )
+
+      /* setup a scrolling GET if it's too long to fit on the screen */
+      if oGet:type == 'C' .AND. LEN( oGet:varGet() ) > MaxCol() - 1
+        oGet:picture := '@S' + hb_ntos( MaxCol() - 1 )
+      endif
+
+      /* refresh flag */
+      lFresh := .f.
+
+      /* read it */
+      BEGIN SEQUENCE
+        if ( ReadModal( { oGet } ) )
+          /* new data has been entered */
+//          if ( lAppend .and. Recno() == LastRec() + 1 )
+            /* new record confirmed */
+//            IF !NetAppBlank()
+//               BREAK    // Let's bail out, we couldn't APPEND BLANK
+//            ENDIF
+//         end
+
+//          IF NetRLock()
+            Eval( oCol:block, mGetVar )  // Replace with new data
+//          ELSE
+//            BREAK                      // Abort change, we couldn't RLOCK()
+//          ENDIF
+
+          // We appended and/or locked successfully, so now we commit and unlock
+          COMMIT
+          UNLOCK
+
+          /* test for change in index order */
+//          if ( !Empty(cExpr) .and. !lAppend )
+//            if ( xEval != &cExpr )
+//              /* change in index key eval */
+//             lFresh := .t.
+//            end
+//          end
+        end
+      END SEQUENCE
+
+//      Select(nWaSave)
+      if ( lFresh )
+        /* record in new indexed order */
+//        FreshOrder( oBrow )
+
+        /* no other action */
+        nKey := 0
+      else
+        /* refresh the current row only */
+        oBrow:refreshCurrent()
+
+        /* certain keys move cursor after edit if no refresh */
+//        nKey := ExitKey( lAppend )
+      end
+
+      /* restore state */
+      SetCursor( 0 )
+      Set( _SET_EXIT, lExitSave )
+//      set key K_INS to
+//      xkey_norm()
+
+    Case nKey == K_ENTER .and. oBrow:colPos == 7
+hb_alert('Enter')
+    Case nKey == K_ESC
+      flag := 0
+    Otherwise
+      Keyboard ''
+  end case
+//  altd()
+  Return flag
 
 // 18.10.22
 Function f2oms_sluch_lek_pr( nKey, oBrow )

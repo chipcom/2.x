@@ -1091,8 +1091,8 @@ Function getn021( dk )
   Endif
   Return _arr
 
-// 07.01.25
-function get_sootv_n021( sh, dk )
+// 19.01.25
+function get_sootv_n021( sh, reg, dk )
   // sh - схема
   // dk - дата применения схемы
 
@@ -1100,11 +1100,10 @@ function get_sootv_n021( sh, dk )
   local arr := {}
 
   sh := alltrim( lower( sh ) )
+  reg := alltrim( reg )
 
   For nI := 1 To Len( aN021 )
-//    If ValType( dk ) == 'D'
-      if sh == lower( aN021[ nI, 2 ] ) .and. aN021[ nI, 4 ] <= dk .and. ( dk <= aN021[ nI, 5 ] .or. Empty( aN021[ nI, 5 ] ) )
-//        AAdd( arr, { aN021[ nI, 1 ], aN021[ nI, 2 ], aN021[ nI, 3 ], aN021[ nI, 4 ], aN021[ nI, 5 ], aN021[ nI, 6 ], aN021[ nI, 7 ] } )
+      if reg == alltrim( aN021[ nI, 3 ] ) .and.  sh == lower( aN021[ nI, 2 ] ) .and. aN021[ nI, 4 ] <= dk .and. ( dk <= aN021[ nI, 5 ] .or. Empty( aN021[ nI, 5 ] ) )
         AAdd( arr, aN021[ nI, 1 ] )
         AAdd( arr, aN021[ nI, 2 ] )
         AAdd( arr, aN021[ nI, 3 ] )
@@ -1113,10 +1112,5 @@ function get_sootv_n021( sh, dk )
         AAdd( arr, aN021[ nI, 6 ] )
         AAdd( arr, aN021[ nI, 7 ] )
       endif
-//    else
-//      if sh == lower( aN021[ nI, 2 ] ) .and. dk >= Year( aN021[ nI, 4 ] ) .and. ( dk <= Year( aN021[ nI, 5 ] ) .or. Empty( aN021[ nI, 5 ] ) )
-//        AAdd( arr, { aN021[ nI, 1 ], aN021[ nI, 2 ], aN021[ nI, 3 ], aN021[ nI, 4 ], aN021[ nI, 5 ], aN021[ nI, 6 ], aN021[ nI, 7 ] } )
-//      endif
-//    endif
   next
   return arr

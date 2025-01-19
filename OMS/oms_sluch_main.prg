@@ -2331,6 +2331,21 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             Goto ( arr[ i ] )
             deleterec( .t. )
           Enddo
+          if mk_data >= 0d20250101
+            Select LEK_PR
+            do while ++i_lek_pr <= Len( arr_lek )
+              Goto ( arr_lek[ i_lek_pr ] )
+              deleterec( .t. )
+            Enddo
+//            g_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR' )
+//            Do While .t.
+//              find ( Str( mkod, 7 ) )
+//              If !Found()
+//                Exit
+//              Endif
+//              deleterec( .t. )
+//            Enddo
+          Endif
         Endif
       Endif
       Private fl_nameismo := .f.
