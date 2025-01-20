@@ -143,7 +143,7 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
   if is_oncology
     funcHeaderTable := 'f_oms_sluch_onko_lek_pr'
     funcBrowse := 'f2oms_sluch_onko_lek_pr'
-    private alpha_1_rect := .t. // выделяет только ячейку
+//    private alpha_1_rect := .t. // выделяет только ячейку
   else
     funcHeaderTable := 'f_oms_sluch_lek_pr'
     funcBrowse := 'f2oms_sluch_lek_pr'
@@ -188,7 +188,6 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
       tmp->SCHEDRUG := LEK_PR->SCHEDRUG
       tmp->REGNUM   := LEK_PR->REGNUM
       if is_oncology
-//        regnum_dop := get_sootv_n021( LEK_PR->CODE_SH, LEK_PR->REGNUM, LEK_PR->DATE_INJ )[ 7 ]  // id_lekp_ext
         regnum_dop := get_sootv_n021( LEK_PR->CODE_SH, LEK_PR->REGNUM, dkSluch )[ 7 ]  // id_lekp_ext
         tmp->REGNUM   := regnum_dop
         tmp->ED_IZM := split_regnum_dop( regnum_dop, 2 )[ 6 ]
@@ -370,7 +369,7 @@ Function f1oms_sluch_lek_pr()
 
   Return Nil
 
-// 08.04.22
+// 20.01.25
 Function add_lek_pr( dateInjection, nKey, lOnko )
 
   default lOnko to .f.
@@ -392,49 +391,49 @@ Function add_lek_pr( dateInjection, nKey, lOnko )
     Goto ( number )
   Endif
 
-  tmp->REC_N        := LEK_PR->( RecNo() )
-  tmp->KOD_HUM      := HUMAN->KOD
-  tmp->DATE_INJ     := dateInjection
-  if ! lOnko
+  if lOnko
+    Select LEK_PR
+    LEK_PR->KOD_HUM     := HUMAN->KOD
+    LEK_PR->DATE_INJ    := dateInjection
+    LEK_PR->REGNUM      := tmp->REGNUM
+    LEK_PR->ED_IZM      := tmp->ED_IZM
+    LEK_PR->DOSE_INJ    := tmp->doze
+//    LEK_PR->METHOD_I    := m1METHOD
+    LEK_PR->KIZ_INJ     := tmp->KIZ_INJ
+    LEK_PR->S_INJ       := tmp->S_INJ
+//    LEK_PR->SV_INJ := tmp->SV_INJ
+//    LEK_PR->SIZ_INJ := tmp->SIZ_INJ
+    LEK_PR->RED_INJ     := tmp->RED_INJ
+//    LEK_PR->COD_MARK := tmp->COD_MARK
+  else
+    tmp->REC_N        := LEK_PR->( RecNo() )
+    tmp->KOD_HUM      := HUMAN->KOD
+    tmp->DATE_INJ     := dateInjection
     tmp->SEVERITY     := m1SEVERITY
     tmp->CODE_SH      := m1SCHEME
     tmp->SCHEDRUG     := m1SCHEDRUG
-  endif
-  tmp->REGNUM       := m1REGNUM
-  If ! Empty( m1REGNUM )
-    tmp->ED_IZM       := m1UNITCODE
-    tmp->DOZE         := mDOZE
-    tmp->METHOD       := m1METHOD
-    tmp->COL_INJ      := mKOLVO
-  Endif
-
-  tmp->KIZ_INJ  := LEK_PR->KIZ_INJ
-  tmp->S_INJ    := LEK_PR->S_INJ
-//  tmp->SV_INJ   := LEK_PR->SV_INJ
-//  tmp->SIZ_INJ  := LEK_PR->SIZ_INJ
-  tmp->RED_INJ  := LEK_PR->RED_INJ
-
-  // tmp->COD_MARK     := LEK_PR->COD_MARK
-  Select LEK_PR
-  LEK_PR->KOD_HUM     := HUMAN->KOD
-  LEK_PR->DATE_INJ    := dateInjection
-  if ! lOnko
+    tmp->REGNUM       := m1REGNUM
+    If ! Empty( m1REGNUM )
+      tmp->ED_IZM       := m1UNITCODE
+      tmp->DOZE         := mDOZE
+      tmp->METHOD       := m1METHOD
+      tmp->COL_INJ      := mKOLVO
+    Endif
+    // tmp->COD_MARK     := LEK_PR->COD_MARK
+    Select LEK_PR
+    LEK_PR->KOD_HUM     := HUMAN->KOD
+    LEK_PR->DATE_INJ    := dateInjection
     LEK_PR->SEVERITY    := m1SEVERITY
     LEK_PR->CODE_SH     := m1SCHEME
     LEK_PR->SCHEDRUG    := m1SCHEDRUG
+    LEK_PR->REGNUM      := m1REGNUM
+    If ! Empty( m1REGNUM )
+      LEK_PR->ED_IZM      := m1UNITCODE
+      LEK_PR->DOSE_INJ    := mDOZE
+      LEK_PR->METHOD_I    := m1METHOD
+      LEK_PR->COL_INJ     := mKOLVO
+    Endif
   endif
-  LEK_PR->REGNUM      := m1REGNUM
-  If ! Empty( m1REGNUM )
-    LEK_PR->ED_IZM      := m1UNITCODE
-    LEK_PR->DOSE_INJ    := mDOZE
-    LEK_PR->METHOD_I    := m1METHOD
-    LEK_PR->COL_INJ     := mKOLVO
-  Endif
-  tmp->KIZ_INJ  := LEK_PR->KIZ_INJ
-  tmp->S_INJ    := LEK_PR->S_INJ
-//  tmp->SV_INJ   := LEK_PR->SV_INJ
-//  tmp->SIZ_INJ  := LEK_PR->SIZ_INJ
-  tmp->RED_INJ  := LEK_PR->RED_INJ
 
   Unlock
   // LEK_PR->COD_MARK
@@ -446,18 +445,29 @@ Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
 
   Local flag := -1
   local i
-  local oCol, mGetVar, oGet, lFresh, lExitSave
+//  local oCol, mGetVar, oGet, lFresh, lExitSave
   local oBox
-//  local mfam := Space( 20 ), mim := Space( 20 ), mot := Space( 20 )
   local tmp_keys, tmp_list
   local mm_red := { ;
-    { 'без редукции         ', 0 }, ;
-    { 'редукция присутствует', 1 } ;
+    { 'без редукции', 0 }, ;
+    { 'присутствует', 1 } ;
   }
+  local mKv_inj // Количество введенного лекарственного препарата (действующего вещества)
+  local mKiz_inj // Количество израсходованного (введеного + утилизированного) лекарственного препарата
+  local mS_inj // Фактическая стоимость лекарственного препарата за единицу измерения
+  
+  private mred := Space( 12 ), m1red // Признак применения редукции для лекарственного препарата
+
+  mKv_inj := tmp->doze
+  mKiz_inj := tmp->kiz_inj
+  mS_inj := tmp->s_inj
+  m1red := tmp->red_inj
+  mred := inieditspr( A__MENUVERT, mm_red, m1red )
+
 
   i := 1
   Do Case
-    Case nKey == K_ENTER .and. oBrow:colPos > 3 .and. oBrow:colPos < 7
+    Case nKey == K_ENTER
       flag := nKey
 
       tmp_keys := my_savekey()
@@ -473,15 +483,18 @@ Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
 
       do while .t.
     
-        @ 1, 6 TBOX oBox Say 'Количество введенного' Get tmp->doze
-        @ 2, 6 TBOX oBox Say 'Количество израсходованного' Get tmp->kiz_inj
-        @ 3, 6 TBOX oBox Say 'Фактическая стоимость' Get tmp->s_inj
-//        @ 4, 6 TBOX oBox Say 'Применение редукции для лекарственного препарата' Get tmp->red_inj
-//          reader {| x | menu_reader( x, mm_red, A__MENUVERT, , , .f. ) }
-    
+        @ 1, 2 TBOX oBox Say 'Количество введенного' Get mKv_inj Picture '9999.999'
+        @ 2, 2 TBOX oBox Say 'Количество израсходованного' Get mKiz_inj Picture '9999.999'
+        @ 3, 2 TBOX oBox Say 'Фактическая стоимость' Get mS_inj Picture '99999999.999999'
+        @ 4, 2 TBOX oBox Say 'Применение редукции для лекарственного препарата' Get mred ;
+          reader {| x | menu_reader( x, mm_red, A__MENUVERT, , , .f. ) }
 
         myread()
         if lastkey() != K_ESC
+          tmp->doze := mKv_inj
+          tmp->kiz_inj := mKiz_inj
+          tmp->s_inj := mS_inj
+          tmp->red_inj := m1red
           exit
         else
           exit
@@ -489,89 +502,13 @@ Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
       enddo
       Restore gets From tmp_list
       my_restkey( tmp_keys )
-              
-//       lExitSave := Set(_SET_EXIT, .t.)
 
-//       /* get column object from browse */
-//       oCol := oBrow:getColumn( oBrow:colPos )
-
-//       /* use temp for safety */
-//       mGetVar := Eval( oCol:block )
-
-//       SetCursor( 1 )
-//       /* create a corresponding GET with ambiguous set/get block */
-//       oGet := GetNew( Row(), Col(), ;
-//                 { | x | if( PCount() == 0, mGetVar, mGetVar := x ) }, ;
-//                 'mGetVar' )
-
-//       /* setup a scrolling GET if it's too long to fit on the screen */
-// //      if oGet:type == 'C' .AND. LEN( oGet:varGet() ) > MaxCol() - 1
-// //        oGet:picture := '@S' + hb_ntos( MaxCol() - 1 )
-// //      endif
-
-//       /* refresh flag */
-//       lFresh := .f.
-//       /* read it */
-//       BEGIN SEQUENCE
-//         if ( ReadModal( { oGet } ) )
-// altd()
-//           /* new data has been entered */
-// //          if ( lAppend .and. Recno() == LastRec() + 1 )
-//             /* new record confirmed */
-// //            IF !NetAppBlank()
-// //               BREAK    // Let's bail out, we couldn't APPEND BLANK
-// //            ENDIF
-// //         end
-
-// //          IF NetRLock()
-//             Eval( oCol:block, mGetVar )  // Replace with new data
-// //          ELSE
-// //            BREAK                      // Abort change, we couldn't RLOCK()
-// //          ENDIF
-
-//           // We appended and/or locked successfully, so now we commit and unlock
-//           COMMIT
-//           UNLOCK
-
-//           /* test for change in index order */
-// //          if ( !Empty(cExpr) .and. !lAppend )
-// //            if ( xEval != &cExpr )
-// //              /* change in index key eval */
-// //             lFresh := .t.
-// //            end
-// //          end
-//         end
-//       END SEQUENCE
-
-// //      Select(nWaSave)
-//       if ( lFresh )
-//         /* record in new indexed order */
-// //        FreshOrder( oBrow )
-
-//         /* no other action */
-//         nKey := 0
-//       else
-//         /* refresh the current row only */
-//         oBrow:refreshCurrent()
-
-//         /* certain keys move cursor after edit if no refresh */
-// //        nKey := ExitKey( lAppend )
-//       end
-
-//       /* restore state */
-//       SetCursor( 0 )
-//       Set( _SET_EXIT, lExitSave )
-// //      set key K_INS to
-// //      xkey_norm()
-
-    Case nKey == K_ENTER .and. oBrow:colPos == 7
-hb_alert('Enter')
+      add_lek_pr( tmp->date_inj, nKey, .t. )
     Case nKey == K_ESC
       flag := 0
     Otherwise
       Keyboard ''
   end case
-//  altd()
   Return flag
 
 // 18.10.22
@@ -946,7 +883,7 @@ function collect_lek_pr_onko( mkod_human )
   Endif
   Return retArr
 
-  // 06.03.22
+// 20.01.25
 Function collect_lek_pr( mkod_human )
 
   Local retArr := {}
@@ -963,12 +900,15 @@ Function collect_lek_pr( mkod_human )
   ( cAlias )->( dbSeek( Str( mkod_human, 7 ) ) )
   If ( cAlias )->( Found() )
     Do While ( cAlias )->KOD_HUM == mkod_human .and. !Eof()
-      AAdd( retArr, { ( cAlias )->DATE_INJ, ( cAlias )->CODE_SH, ( cAlias )->REGNUM, ( cAlias )->ED_IZM, ;
-        ( cAlias )->DOSE_INJ, ( cAlias )->METHOD_I, ( cAlias )->COL_INJ, ( cAlias )->SCHEDRUG } )
-      ( cAlias )->( dbSkip() )
+      AAdd( retArr, { ( cAlias )->DATE_INJ, ( cAlias )->CODE_SH, ( cAlias )->REGNUM, ;
+        ( cAlias )->ED_IZM, ;
+        ( cAlias )->DOSE_INJ, ( cAlias )->METHOD_I, ( cAlias )->COL_INJ, ( cAlias )->SCHEDRUG, ;
+        ( cAlias )->KIZ_INJ, ( cAlias )->S_INJ, ( cAlias )->RED_INJ } ;
+      )
+
+        ( cAlias )->( dbSkip() )
     Enddo
   Endif
-
   Select( oldSelect )
   If lekAlias == 0
     ( cAlias )->( dbCloseArea() )
