@@ -2,6 +2,7 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'tbox.ch'
 
 // 07.01.25
 function split_regnum_dop( regnum_dop, type )
@@ -282,16 +283,19 @@ Function f_oms_sluch_onko_lek_pr( oBrow )
   oColumn := TBColumnNew( 'Кол.введ.', ;
     {|| tmp->DOZE } )
   oColumn:colorBlock := blk_color
+  oColumn:cargo := 'tmp->doze'
   oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( 'Кол.израс.', ;
     {|| tmp->KIZ_INJ } )
   oColumn:colorBlock := blk_color
+  oColumn:cargo := 'tmp->kiz_inj'
   oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( 'Факт.стоим.', ;
     {|| tmp->S_INJ } )
   oColumn:colorBlock := blk_color
+  oColumn:cargo := 'tmp->s_inj'
   oBrow:addcolumn( oColumn )
 
 //  oColumn := TBColumnNew( 'Стоим.вв.', ;
@@ -307,6 +311,7 @@ Function f_oms_sluch_onko_lek_pr( oBrow )
   oColumn := TBColumnNew( 'Ред.', ;
     {|| tmp->RED_INJ } )
   oColumn:colorBlock := blk_color
+  oColumn:cargo := 'tmp->red_inj'
   oBrow:addcolumn( oColumn )
 
   status_key( '^<Esc>^ выход; ^<Enter>^ ред-ие' ) //; ^<Ins>^ добавление; ^<Del>^ удаление' )
@@ -436,93 +441,128 @@ Function add_lek_pr( dateInjection, nKey, lOnko )
   Select tmp
   Return Nil
 
-// 19.01.25
+// 20.01.25
 Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
 
   Local flag := -1
   local i
-  local fipos
   local oCol, mGetVar, oGet, lFresh, lExitSave
+  local oBox
+//  local mfam := Space( 20 ), mim := Space( 20 ), mot := Space( 20 )
+  local tmp_keys, tmp_list
+  local mm_red := { ;
+    { 'без редукции         ', 0 }, ;
+    { 'редукция присутствует', 1 } ;
+  }
 
   i := 1
   Do Case
     Case nKey == K_ENTER .and. oBrow:colPos > 3 .and. oBrow:colPos < 7
       flag := nKey
-      fipos := 4
-//altd()
-      lExitSave := Set(_SET_EXIT, .t.)
 
-      /* get column object from browse */
-      oCol := oBrow:getColumn( oBrow:colPos )
+      tmp_keys := my_savekey()
+      Save gets To tmp_list
+    
+      oBox := tbox():new( 5, 5, 15, MaxCol() - 5, .t. )
+      oBox:ChangeAttr := .t.
+      oBox:CaptionColor := color8
+      oBox:Caption := 'Расход лекарственного препарата'
+      // oBox:Color := color1
+      oBox:Save := .t.
+      oBox:view()
 
-      /* use temp for safety */
-      mGetVar := Eval( oCol:block )
+      do while .t.
+    
+        @ 1, 6 TBOX oBox Say 'Количество введенного' Get tmp->doze
+        @ 2, 6 TBOX oBox Say 'Количество израсходованного' Get tmp->kiz_inj
+        @ 3, 6 TBOX oBox Say 'Фактическая стоимость' Get tmp->s_inj
+//        @ 4, 6 TBOX oBox Say 'Применение редукции для лекарственного препарата' Get tmp->red_inj
+//          reader {| x | menu_reader( x, mm_red, A__MENUVERT, , , .f. ) }
+    
 
-      SetCursor( 1 )
-      /* create a corresponding GET with ambiguous set/get block */
-      oGet := GetNew( Row(), Col(), ;
-                { | x | if( PCount() == 0, mGetVar, mGetVar := x ) }, ;
-                'mGetVar' )
+        myread()
+        if lastkey() != K_ESC
+          exit
+        else
+          exit
+        endif
+      enddo
+      Restore gets From tmp_list
+      my_restkey( tmp_keys )
+              
+//       lExitSave := Set(_SET_EXIT, .t.)
 
-      /* setup a scrolling GET if it's too long to fit on the screen */
-      if oGet:type == 'C' .AND. LEN( oGet:varGet() ) > MaxCol() - 1
-        oGet:picture := '@S' + hb_ntos( MaxCol() - 1 )
-      endif
+//       /* get column object from browse */
+//       oCol := oBrow:getColumn( oBrow:colPos )
 
-      /* refresh flag */
-      lFresh := .f.
+//       /* use temp for safety */
+//       mGetVar := Eval( oCol:block )
 
-      /* read it */
-      BEGIN SEQUENCE
-        if ( ReadModal( { oGet } ) )
-          /* new data has been entered */
-//          if ( lAppend .and. Recno() == LastRec() + 1 )
-            /* new record confirmed */
-//            IF !NetAppBlank()
-//               BREAK    // Let's bail out, we couldn't APPEND BLANK
-//            ENDIF
+//       SetCursor( 1 )
+//       /* create a corresponding GET with ambiguous set/get block */
+//       oGet := GetNew( Row(), Col(), ;
+//                 { | x | if( PCount() == 0, mGetVar, mGetVar := x ) }, ;
+//                 'mGetVar' )
+
+//       /* setup a scrolling GET if it's too long to fit on the screen */
+// //      if oGet:type == 'C' .AND. LEN( oGet:varGet() ) > MaxCol() - 1
+// //        oGet:picture := '@S' + hb_ntos( MaxCol() - 1 )
+// //      endif
+
+//       /* refresh flag */
+//       lFresh := .f.
+//       /* read it */
+//       BEGIN SEQUENCE
+//         if ( ReadModal( { oGet } ) )
+// altd()
+//           /* new data has been entered */
+// //          if ( lAppend .and. Recno() == LastRec() + 1 )
+//             /* new record confirmed */
+// //            IF !NetAppBlank()
+// //               BREAK    // Let's bail out, we couldn't APPEND BLANK
+// //            ENDIF
+// //         end
+
+// //          IF NetRLock()
+//             Eval( oCol:block, mGetVar )  // Replace with new data
+// //          ELSE
+// //            BREAK                      // Abort change, we couldn't RLOCK()
+// //          ENDIF
+
+//           // We appended and/or locked successfully, so now we commit and unlock
+//           COMMIT
+//           UNLOCK
+
+//           /* test for change in index order */
+// //          if ( !Empty(cExpr) .and. !lAppend )
+// //            if ( xEval != &cExpr )
+// //              /* change in index key eval */
+// //             lFresh := .t.
+// //            end
+// //          end
 //         end
+//       END SEQUENCE
 
-//          IF NetRLock()
-            Eval( oCol:block, mGetVar )  // Replace with new data
-//          ELSE
-//            BREAK                      // Abort change, we couldn't RLOCK()
-//          ENDIF
+// //      Select(nWaSave)
+//       if ( lFresh )
+//         /* record in new indexed order */
+// //        FreshOrder( oBrow )
 
-          // We appended and/or locked successfully, so now we commit and unlock
-          COMMIT
-          UNLOCK
+//         /* no other action */
+//         nKey := 0
+//       else
+//         /* refresh the current row only */
+//         oBrow:refreshCurrent()
 
-          /* test for change in index order */
-//          if ( !Empty(cExpr) .and. !lAppend )
-//            if ( xEval != &cExpr )
-//              /* change in index key eval */
-//             lFresh := .t.
-//            end
-//          end
-        end
-      END SEQUENCE
+//         /* certain keys move cursor after edit if no refresh */
+// //        nKey := ExitKey( lAppend )
+//       end
 
-//      Select(nWaSave)
-      if ( lFresh )
-        /* record in new indexed order */
-//        FreshOrder( oBrow )
-
-        /* no other action */
-        nKey := 0
-      else
-        /* refresh the current row only */
-        oBrow:refreshCurrent()
-
-        /* certain keys move cursor after edit if no refresh */
-//        nKey := ExitKey( lAppend )
-      end
-
-      /* restore state */
-      SetCursor( 0 )
-      Set( _SET_EXIT, lExitSave )
-//      set key K_INS to
-//      xkey_norm()
+//       /* restore state */
+//       SetCursor( 0 )
+//       Set( _SET_EXIT, lExitSave )
+// //      set key K_INS to
+// //      xkey_norm()
 
     Case nKey == K_ENTER .and. oBrow:colPos == 7
 hb_alert('Enter')
