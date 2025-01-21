@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 27.12.24 создание XML-файлов реестра
+// 21.01.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -34,8 +34,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   local oONK_SL, oDIAG, oPROT, oONK
   local oLEK, oDOSE
   local oUSL, oMR_USL_N, oMED_DEV
-  local oPAC, oDISAB
+  local oPAC, oDISAB, oINJ
   local old_lek, old_sh
+  local aRegnum, iLekPr
 
   //
   Close databases
@@ -879,24 +880,56 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
                 mo_add_xml_stroke( oONK, 'LUCH_TIP', lstr( onkus->LUCH_TIP ) )
               Endif
               If eq_any( onkus->USL_TIP, 2, 4 )
-                old_lek := Space( 6 )
-                old_sh := Space( 10 )
-                Select ONKLE  // цикл по БД лекарств
-                find ( Str( human->kod, 7 ) )
-                Do While onkle->kod == human->kod .and. !Eof()
-                  If !( old_lek == onkle->REGNUM .and. old_sh == onkle->CODE_SH )
-                    // заполним сведения о примененных лекарственных препаратах при лечении онкологического больного для XML-документа
-                    oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
-                    mo_add_xml_stroke( oLEK, 'REGNUM', onkle->REGNUM )
-                    mo_add_xml_stroke( oLEK, 'CODE_SH', onkle->CODE_SH )
-                  Endif
-                  // цикл по датам приёма данного лекарства
-                  mo_add_xml_stroke( oLEK, 'DATE_INJ', date2xml( onkle->DATE_INJ ) )
-                  old_lek := onkle->REGNUM
-                  old_sh := onkle->CODE_SH
-                  Select ONKLE
-                  Skip
-                Enddo
+                
+                if human->k_data >= 0d20250101
+                  arrLP := collect_lek_pr( human->( RecNo() ) )
+                  if len( arrLP ) > 0
+                    aRegnum := unique_val_in_array( arrLP, 3 ) // получим уникальные REGNUM
+                    for i := 1 to len( aRegnum )
+// Соберем типы лек. препаратов                      
+                      // заполним сведения о примененных лекарственных препаратах при лечении онкологического больного для XML-документа
+                      oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
+                      mo_add_xml_stroke( oLEK, 'REGNUM', aRegnum[ i, 3 ] )
+                      mo_add_xml_stroke( oLEK, 'REGNUM_DOP', ;
+                          get_sootv_n021( aRegnum[ i, 2 ], aRegnum[ i, 3 ], human->k_data )[ 7 ] )
+                      mo_add_xml_stroke( oLEK, 'CODE_SH', aRegnum[ i, 2 ] )
+                      for iLekPr := 1 to len( arrLp )
+                        if arrLP[ iLekPr, 3 ] == aRegnum[ i, 3 ]
+                          oINJ := oLek:add( hxmlnode():new( 'INJ' ) )
+                          mo_add_xml_stroke( oINJ, 'DATE_INJ', date2xml( arrLP[ iLekPr, 1 ] ) )
+                          mo_add_xml_stroke( oINJ, 'KV_INJ', str( arrLP[ iLekPr, 5 ], 8, 3 ) )
+                          mo_add_xml_stroke( oINJ, 'KIZ_INJ', str( arrLP[ iLekPr, 9 ], 8, 3 ) )
+                          mo_add_xml_stroke( oINJ, 'S_INJ', str( arrLP[ iLekPr, 10 ], 15, 6 ) )
+                          mo_add_xml_stroke( oINJ, 'SV_INJ', ;
+                            str( arrLP[ iLekPr, 5 ] * arrLP[ iLekPr, 10 ], 15, 2 ) )
+                          mo_add_xml_stroke( oINJ, 'SIZ_INJ', ;
+                            str( arrLP[ iLekPr, 9 ] * arrLP[ iLekPr, 10 ], 15, 2 ) )
+                          mo_add_xml_stroke( oINJ, 'RED_INJ', str( arrLP[ iLekPr, 11 ], 1, 0 ) )
+                        endif
+                      next
+                    next
+                  endif
+                else
+                  old_lek := Space( 6 )
+                  old_sh := Space( 10 )
+                  Select ONKLE  // цикл по БД лекарств
+                  find ( Str( human->kod, 7 ) )
+                  Do While onkle->kod == human->kod .and. !Eof()
+                    If !( old_lek == onkle->REGNUM .and. old_sh == onkle->CODE_SH )
+                      // заполним сведения о примененных лекарственных препаратах при лечении онкологического больного для XML-документа
+                      oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
+                      mo_add_xml_stroke( oLEK, 'REGNUM', onkle->REGNUM )
+                      mo_add_xml_stroke( oLEK, 'CODE_SH', onkle->CODE_SH )
+                    Endif
+                    // цикл по датам приёма данного лекарства
+                    mo_add_xml_stroke( oLEK, 'DATE_INJ', date2xml( onkle->DATE_INJ ) )
+                    old_lek := onkle->REGNUM
+                    old_sh := onkle->CODE_SH
+                    Select ONKLE
+                    Skip
+                  Enddo
+                endif
+
                 If onkus->PPTR > 0
                   mo_add_xml_stroke( oONK, 'PPTR', '1' )
                 Endif

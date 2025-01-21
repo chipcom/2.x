@@ -440,7 +440,7 @@ Function add_lek_pr( dateInjection, nKey, lOnko )
   Select tmp
   Return Nil
 
-// 20.01.25
+// 21.01.25
 Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
 
   Local flag := -1
@@ -452,17 +452,22 @@ Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
     { 'без редукции', 0 }, ;
     { 'присутствует', 1 } ;
   }
+  local mm_da_net := { { 'нет', 0 }, { 'да ', 1 } }
   local mKv_inj // Количество введенного лекарственного препарата (действующего вещества)
   local mKiz_inj // Количество израсходованного (введеного + утилизированного) лекарственного препарата
   local mS_inj // Фактическая стоимость лекарственного препарата за единицу измерения
+  local tmpRegnum, tmpRec
   
   private mred := Space( 12 ), m1red // Признак применения редукции для лекарственного препарата
+  private mCopy := Space( 3 ), m1Copy := 0 // признак копирования на все препараты ( 0 - нет, 1 - да )
 
+  tmpRegnum := tmp->regnum
   mKv_inj := tmp->doze
   mKiz_inj := tmp->kiz_inj
   mS_inj := tmp->s_inj
   m1red := tmp->red_inj
   mred := inieditspr( A__MENUVERT, mm_red, m1red )
+  mCopy := inieditspr( A__MENUVERT, mm_da_net, m1Copy )
 
 
   i := 1
@@ -489,6 +494,9 @@ Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
         @ 4, 2 TBOX oBox Say 'Применение редукции для лекарственного препарата' Get mred ;
           reader {| x | menu_reader( x, mm_red, A__MENUVERT, , , .f. ) }
 
+        @ 5, 2 TBOX oBox Say 'Дублировать на другие препараты' Get mCopy ;
+          reader {| x| menu_reader( x, mm_da_net, A__MENUVERT, , , .f. ) }
+  
         myread()
         if lastkey() != K_ESC
           tmp->doze := mKv_inj
@@ -503,7 +511,24 @@ Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
       Restore gets From tmp_list
       my_restkey( tmp_keys )
 
-      add_lek_pr( tmp->date_inj, nKey, .t. )
+      if m1Copy == 1
+        tmpRec := tmp->( recno() )
+        tmp->( dbGoTop() )
+        do while !tmp->( Eof() )
+          if tmpRegnum == tmp->regnum
+            tmp->doze := mKv_inj
+            tmp->kiz_inj := mKiz_inj
+            tmp->s_inj := mS_inj
+            tmp->red_inj := m1red
+            add_lek_pr( tmp->date_inj, nKey, .t. )
+          endif
+          tmp->( dbSkip() )
+        enddo
+        tmp->( dbGoto( tmpRec ) )
+      else
+        add_lek_pr( tmp->date_inj, nKey, .t. )
+      endif
+      flag := 0
     Case nKey == K_ESC
       flag := 0
     Otherwise
