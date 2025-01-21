@@ -37,7 +37,8 @@ Function f_init_d01()
     { "NEXT_DATA", "D", 8, 0 }, ; // дата следующей явки с целью диспансерного наблюдения
     { "FREQUENCY", "N", 2, 0 }, ; // количество месяцев в течение которых предполагается одна явка пациента
     { "MESTO",    "N", 1, 0 }, ;  // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
-    { "PEREHOD0", "N", 1, 0 };   // переход 2025
+    { "PEREHOD0", "N", 1, 0 },;   // переход 2025
+    { "PEREHOD1", "N", 1, 0 };   // ошибка 131
   }
   Local mo_d01 := { ; // отсылаемые файлы D01
     { "KOD",         "N", 6, 0 }, ; // код реестра (номер записи)
@@ -91,25 +92,30 @@ Function disp_nabludenie( k )
   Static S_sem := "disp_nabludenie"
   Static si1 := 2, si2 := 1, si3 := 2, si4 := 1, si5 := 1, si6 := 1
   Local mas_pmt, mas_msg, mas_fun, j, buf, fl_umer := .f., zaplatka_D01 := .f., ;
-    zaplatka_D_OPL := .f.
+    zaplatka_D_OPL := .f., zaplatka_D_131 := .f., kol_err := 0
 
   Default k To 1
 
   Do Case
   Case k == 1
     // временное начало
-    r_use( dir_server + "mo_d01d" )
-    If FieldNum( "OPLATA" ) == 0 //
-      zaplatka_D_OPL := .t.
-    Endif
-    Close databases
+    //r_use( dir_server + "mo_d01d" )
+    //If FieldNum( "OPLATA" ) == 0 //
+    //  zaplatka_D_OPL := .t.
+    //Endif
+    //Close databases
+    //
+    //r_use( dir_server + "mo_dnab" )
+    //If FieldNum( "PEREHOD0" ) == 0 // Преход 2025
+    //  zaplatka_D_OPL := .t.
+    //Endif
     //
     r_use( dir_server + "mo_dnab" )
-    If FieldNum( "PEREHOD0" ) == 0 // Преход 2025
-      zaplatka_D_OPL := .t.
+    If FieldNum( "PEREHOD1" ) == 0 // Правка ошибки 131
+      zaplatka_D_131 := .t.
     Endif
     //
-    //
+    Close databases
 
     If zaplatka_D_OPL
       Close databases
@@ -177,7 +183,89 @@ Function disp_nabludenie( k )
       rest_box( buf )
       g_sunlock( S_sem )
     Endif
-
+    //
+    If zaplatka_D_131 
+      Close databases
+      If !g_slock( S_sem )
+        Return func_error( 4, "Доступ в данный режим пока запрещён" )
+      Endif
+      buf := save_maxrow()
+      waitstatus( "Ждите! Исправление ошибки 131 " )
+      f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
+      r_use( dir_server + "mo_dnab",, "DN" )
+      r_use( dir_server + "mo_d01",, "D01" )
+      g_use( dir_server + "mo_d01k",, "RHUM",.T.,.T. )
+      g_use( dir_server + "mo_d01d",, "DD",.T.,.T. )
+      set relation to KOD_D into RHUM
+      Index On Str( rhum->REESTR, 6 ) + Str( rhum->KOD_K, 7 ) + padr(alltrim(KOD_DIAG),3) to ( cur_dir + "tmp_dd" ) 
+      //{ "REESTR",   "N", 6, 0 }, ; // код реестра по файлу "mo_d01"
+      //{ "KOD_K",    "N", 7, 0 }, ; // код по картотеке
+      // { "KOD_DIAG", "C", 5, 0 }, ;  // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
+      g_use( dir_server + "mo_d01e",, "RHUM_E",.T.,.T. )
+      //
+      select D01 
+      go Top 
+      do while !eof()
+        if d01-> NYEAR == 2024
+          select dd
+          t_hum := 0 
+          t_diag := ""
+          go Top
+          do while !eof()
+           // записи (люди) в пакете  
+            if rhum->reestr == d01->kod 
+              my_debug(,"=====")
+              my_debug(,rhum->kod_k)
+              my_debug(,t_diag)
+              my_debug(,padr(alltrim(dd->kod_diag),3))
+              my_debug(,dd->(recno()))
+              if RHUM->kod_k == t_hum .and. padr(alltrim(dd->kod_diag),3) == t_diag
+                //текущий и предыдущий диагноз  - в ошибки  
+                t_hum := RHUM->kod_k 
+                t_diag := padr(alltrim(dd->kod_diag),3) 
+                my_debug(,"--------------------------------")
+                if rhum->oplata == 1
+                  dd->oplata := 2
+                  rhum->oplata := 2
+                  ++ kol_err
+                  my_debug(,"+++")
+                endif  
+                my_debug(,rhum->kod_k)
+                my_debug(,t_diag)
+                my_debug(,dd->(recno()))
+                // доб RHUM_E
+                skip -1
+                if rhum->oplata == 1
+                  dd->oplata := 2
+                  rhum->oplata := 2
+                  ++ kol_err
+                  my_debug(,"+++")
+                endif  
+                my_debug(,dd->(recno()))
+                
+                // доб RHUM_E
+                skip
+              else
+                t_hum := RHUM->kod_k 
+                t_diag := padr(alltrim(dd->kod_diag),3) 
+                my_debug(,dd->(recno()))
+              endif  
+            endif 
+            select dd
+            skip 
+          enddo
+        endif  
+        select D01
+        skip
+      enddo 
+      Commit
+      Close databases
+      //
+      rest_box( buf )
+      g_sunlock( S_sem )
+      stat_msg(' Исправлено '+lstr(kol_err)+ '')
+      mybell(2)
+    Endif
     Close databases
     Private mdate_r, M1VZROS_REB
 
@@ -232,7 +320,8 @@ Function disp_nabludenie( k )
   Case k == 42
     spr_disp_nabl()
   Case k == 31
-    f_create_d01()
+    ne_real()
+    //f_create_d01()
   Case k == 32
     f_view_d01()
   Case k == 51
@@ -257,7 +346,7 @@ Function disp_nabludenie( k )
   Case k == 62
     f_inf_disp_nabl( 2 )
   Case k == 63
-    // ne_real()
+    
     f_inf_prirost_disp_nabl()
   Endcase
   If k > 10
@@ -1826,7 +1915,7 @@ Function f2_vvod_disp_nabl( ldiag )
 
 
 
-// 25.11.24 Информация по первичному вводу сведений о состоящих на диспансерном учёте
+// 17.01.25 Информация по первичному вводу сведений о состоящих на диспансерном учёте
 Function inf_disp_nabl()
 
   Static suchast := 0, svrach := 0, sdiag := '', ;
@@ -1846,11 +1935,14 @@ Function inf_disp_nabl()
   Local fmt_cell_header, fmtCellNumberRub, fmt_header, fmt_text, fmtCellNumberNDS
   Local old_row_XLS := 0
   Local old_fio := "", old_adres := "", old_DR := "", old_PRIKREP := "", old_num_UCH := "", old_SNILS := "", old_ENP := ""
-  Local arr_DN := Array( 2, 4 )
+  Local arr_DN := Array( 5, 5 ) // всего наших - принято- ошибка - не отправл - нет ответа
   Local arr_tip_DN1 := { "2.78.109", "2.78.110", "2.78.111", "2.78.112" }
   Local arr_tip_KOD_USL := { 109, 110, 111, 112 }
   Local flag_1 := .t., flag_2 := .t., flag_3 := .t., flag_4 := .t., t_kart_kod := 0
   Local flag_1_1 := .t., flag_2_1 := .t., flag_3_1 := .t., flag_4_1 := .t.
+  Local flag_1_2 := .t., flag_2_2 := .t., flag_3_2 := .t., flag_4_2 := .t.
+  Local flag_1_3 := .t., flag_2_3 := .t., flag_3_3 := .t., flag_4_3 := .t.
+  Local flag_1_4 := .t., flag_2_4 := .t., flag_3_4 := .t., flag_4_4 := .t.
 
   afillall( arr_DN, 0 )
   SetColor( cDataCGet )
@@ -1892,7 +1984,7 @@ Function inf_disp_nabl()
     If !( ValType( parr_m ) == "A" )
       parr_m := Array( 8 )
       parr_m[ 5 ] := 0d19000101    // ЮЮ
-      parr_m[ 6 ] := 0d20241231    // ЮЮ
+      parr_m[ 6 ] := 0d20251231    // ЮЮ
     Endif
     If mvrach > 0
       r_use( dir_server + "mo_pers", dir_server + "mo_pers", "PERSO" )
@@ -2000,10 +2092,9 @@ Function inf_disp_nabl()
     add_string( Center( "Список пациентов, состоящих на диспансерном учёте", sh ) )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
-    // r_use( dir_server + "mo_D01",,   "D01" )  //реестры
-    // r_use( dir_server + "mo_D01K",,  "D01K" ) // пациенты в реестрах
-    // index on str(reestr,6)+str(kod_k,7) to (cur_dir +"tmp_D01")
-    r_use( dir_server + "mo_D01D",,  "D01D" ) // диагнозы у пациентов
+    r_use( dir_server + "mo_D01",,  "D01" )  // пакеты D01
+    r_use( dir_server + "mo_D01K",,  "D01K" ) // пациента в пакете D01
+    r_use( dir_server + "mo_D01D",,  "D01D" ) // диагнозы у пациентов в пакете D01
     Index On Str( kod_n, 6 ) + Str( kod_d, 7 ) to ( cur_dir + "tmp_D01" ) DESCENDING
     r_use( dir_server + "mo_pers",,  "PERS" )
     r_use( dir_server + "kartote2",, "KART2" )
@@ -2021,14 +2112,10 @@ Function inf_disp_nabl()
     Do While !Eof()   // ЦИКЛ по файлу со всеми ДН
       If t_kart_kod != kart->kod
         t_kart_kod := kart->kod
-        flag_1 := .t.
-        flag_2 := .t.
-        flag_3 := .t.
-        flag_4 := .t.
-        flag_1_1 := .t.
-        flag_2_1 := .t.
-        flag_3_1 := .t.
-        flag_4_1 := .t.
+        flag_1 := flag_2 := flag_3 := flag_4 := .t.
+        flag_1_1 := flag_2_1 := flag_3_1 := flag_4_1 := .t.
+        flag_1_2 := flag_2_2 := flag_3_2 := flag_4_2 := .t.
+        flag_1_4 := flag_2_4 := flag_3_4 := flag_4_4 := .t.
       Endif
       updatestatus()
       otvet := "       "
@@ -2056,13 +2143,6 @@ Function inf_disp_nabl()
       If fl .and. !emptyany( d1, d2 )
         fl := Between( diag_to_num( dn->kod_diag, 1 ), d1, d2 )
       Endif
-       /*If fl .and. m1spisok > 0
-        If dn->next_data < 0d20240101 .or. Empty( dn->frequency )  // ЮЮ
-          fl := iif( m1spisok == 1, .t., .f. )
-        Else
-          fl := iif( m1spisok == 2, .t., .f. )
-        Endif
-      Endif*/
       If fl .and. ( 1 == fvdn_date_r( sys_date, kart->date_r ) .or. 2 == fvdn_date_r( sys_date, kart->date_r ) )
         fl := .f.
       Endif
@@ -2186,7 +2266,11 @@ Function inf_disp_nabl()
             arr_DN[ 1, 2 ] ++
             flag_2 := .f.
           Elseif flag_3 .and. arr_tip_KOD_USL[ 3 ] == check_tip_disp_nabl( dn->kod_diag ) // 111
-            arr_DN[ 1, 3 ] ++
+            if substr(alltrim(dn->kod_diag),1,3) == "E10"
+              arr_DN[ 1, 5 ] ++
+            else  
+              arr_DN[ 1, 3 ] ++
+            endif
             flag_3 := .f.
           Elseif flag_4 .and. arr_tip_KOD_USL[ 4 ] == check_tip_disp_nabl( dn->kod_diag ) // 112
             arr_DN[ 1, 4 ] ++
@@ -2197,25 +2281,67 @@ Function inf_disp_nabl()
         find( Str( dn->( RecNo() ), 6 ) )
         If Found()
           If d01d->OPLATA == 1
-            fl_prinet := .t.
-            otvet  := "принят "
-            If flag_1_1 .and. arr_tip_KOD_USL[ 1 ] == check_tip_disp_nabl( dn->kod_diag ) // 109
-              arr_DN[ 2, 1 ] ++
-              flag_1_1 := .f.
-            Elseif flag_2_1 .and. arr_tip_KOD_USL[ 2 ] == check_tip_disp_nabl( dn->kod_diag ) // 110
-              arr_DN[ 2, 2 ] ++
-              flag_2_1 := .f.
-            Elseif flag_3_1 .and. arr_tip_KOD_USL[ 3 ] == check_tip_disp_nabl( dn->kod_diag ) // 111
-              arr_DN[ 2, 3 ] ++
-              flag_3_1 := .f.
-            Elseif flag_4_1 .and. arr_tip_KOD_USL[ 4 ] == check_tip_disp_nabl( dn->kod_diag ) // 112
-              arr_DN[ 2, 4 ] ++
-              flag_4_1 := .f.
-            Endif
+            // контрольная проверка 
+            // r_use( dir_server + "mo_D01",,  "D01" )  // пакеты D01
+            // r_use( dir_server + "mo_D01K",,  "D01K" ) // пациента в пакете D01
+            // r_use( dir_server + "mo_D01D",,  "D01D" ) // диагнозы у пациентов в пакете D01
+            // Index On Str( kod_n, 6 ) + Str( kod_d, 7 ) to ( cur_dir + "tmp_D01" ) DESCENDING
+            select D01K 
+            goto (D01D->kod_d)
+            select D01
+            goto (d01k->REESTR)
+            if d01->nyear == 2024 // на 2025 год
+              fl_prinet := .t.
+              otvet  := "принят "
+              If flag_1_1 .and. arr_tip_KOD_USL[ 1 ] == check_tip_disp_nabl( dn->kod_diag ) // 109
+                arr_DN[ 2, 1 ] ++
+                flag_1_1 := .f.
+              Elseif flag_2_1 .and. arr_tip_KOD_USL[ 2 ] == check_tip_disp_nabl( dn->kod_diag ) // 110
+                arr_DN[ 2, 2 ] ++
+                flag_2_1 := .f.
+              Elseif flag_3_1 .and. arr_tip_KOD_USL[ 3 ] == check_tip_disp_nabl( dn->kod_diag ) // 111
+                  arr_DN[ 2, 3 ] ++
+                flag_3_1 := .f.
+              Elseif flag_4_1 .and. arr_tip_KOD_USL[ 4 ] == check_tip_disp_nabl( dn->kod_diag ) // 112
+                arr_DN[ 2, 4 ] ++
+                flag_4_1 := .f.
+              Else
+ //               my_debug(,substr(alltrim(dn->kod_diag),1,3))
+              Endif
+            else
+              //my_debug(,d01d->kod_n)  
+              otvet  := "НЕ ПОС."
+            endif  
           Elseif d01d->OPLATA == 0
-            otvet  := "       "
+            otvet  := "НЕТ ОТВ"
+            If flag_1_4 .and. arr_tip_KOD_USL[ 1 ] == check_tip_disp_nabl( dn->kod_diag ) // 109
+              arr_DN[ 5, 1 ] ++
+              flag_1_4 := .f.
+            Elseif flag_2_4 .and. arr_tip_KOD_USL[ 2 ] == check_tip_disp_nabl( dn->kod_diag ) // 110
+              arr_DN[ 5, 2 ] ++
+              flag_2_4 := .f.
+            Elseif flag_3_4 .and. arr_tip_KOD_USL[ 3 ] == check_tip_disp_nabl( dn->kod_diag ) // 111
+                arr_DN[ 5, 3 ] ++
+              flag_3_4 := .f.
+            Elseif flag_4_4 .and. arr_tip_KOD_USL[ 4 ] == check_tip_disp_nabl( dn->kod_diag ) // 112
+              arr_DN[ 5, 4 ] ++
+              flag_4_4 := .f.
+             Endif
           Else
             otvet  := "ОШИБКА "
+            If flag_1_2 .and. arr_tip_KOD_USL[ 1 ] == check_tip_disp_nabl( dn->kod_diag ) // 109
+              arr_DN[ 3, 1 ] ++
+              flag_1_2 := .f.
+            Elseif flag_2_2 .and. arr_tip_KOD_USL[ 2 ] == check_tip_disp_nabl( dn->kod_diag ) // 110
+              arr_DN[ 3, 2 ] ++
+              flag_2_2 := .f.
+            Elseif flag_3_2 .and. arr_tip_KOD_USL[ 3 ] == check_tip_disp_nabl( dn->kod_diag ) // 111
+              arr_DN[ 3, 3 ] ++
+              flag_3_2 := .f.
+            Elseif flag_4_2 .and. arr_tip_KOD_USL[ 4 ] == check_tip_disp_nabl( dn->kod_diag ) // 112
+              arr_DN[ 3, 4 ] ++
+              flag_4_2 := .f.
+            Endif
           Endif
         Else
           otvet  := "       "
@@ -2264,13 +2390,18 @@ Function inf_disp_nabl()
     Else
       add_string( "=== Итого пациентов - " + lstr( r ) + " чел., итого диагнозов - " + lstr( rs ) + " ===" )
       add_string( "=== из них УМЕРЛО   - " + lstr( ru ) + " чел., в ТФОМС отправлены не будут ===" )
-      add_string( "=== пациентов прикрепленных не к нашему МО - " + lstr( rpr ) + " чел. ===" )
-      add_string( " и ТФОМСом вероятно приняты не будут " )
-      add_string( "===   Прикреплены к нашему МО : " )
-      add_string( "===   пациентов ПРОЧИЕ/принято   - " + PadL( lstr( arr_DN[ 1, 1 ]  ), 8 ) + " / " + PadL( lstr( arr_DN[ 2, 1 ]  ), 8 ) )
-      add_string( "===   пациентов ОНКО/принято     - " + PadL( lstr( arr_DN[ 1, 2 ]  ), 8 ) + " / " + PadL( lstr( arr_DN[ 2, 2 ]  ), 8 ) )
-      add_string( "===   пациентов С.ДИАБЕТ/принято - " + PadL( lstr( arr_DN[ 1, 3 ]  ), 8 ) + " / " + PadL( lstr( arr_DN[ 2, 3 ]  ), 8 ) )
-      add_string( "===   пациентов БСК/принято      - " + PadL( lstr( arr_DN[ 1, 4 ]  ), 8 ) + " / " + PadL( lstr( arr_DN[ 2, 4 ]  ), 8 ) )
+      add_string( "=== пациентов прикрепленных не к нашему МО - " + lstr( rpr ) + " чел. и ТФОМСом вероятно приняты не будут " )
+      add_string( "===                       Прикреплены к нашему МО : " )
+      // всего наших - принято- ошибка - не отправл - нет ответа
+      add_string("─────────────────┬───────────┬─────────┬───────────┬──────────┬")
+      add_string("  Заболевание    │ Пациентов │ Принято │ Вернулось │НЕ получен│")
+      add_string("                 │   всего   │в 12.2024│ с ошибкой │   ответ  │")
+      add_string("─────────────────┴───────────┴─────────┴───────────┴──────────┴") 
+      add_string( " ПРОЧИЕ         " + PadL(lstr(arr_DN[1,1]),12) + PadL(lstr(arr_DN[2,1]),10)+ PadL(lstr(arr_DN[3,1]),12)+ PadL(lstr(arr_DN[5,1]),12) )
+      add_string( " ОНКО           " + PadL(lstr(arr_DN[1,2]),12) + PadL(lstr(arr_DN[2,2]),10)+ PadL(lstr(arr_DN[3,2]),12)+ PadL(lstr(arr_DN[5,2]),12) )
+      add_string( " С.ДИАБЕТ - E11 " + PadL(lstr(arr_DN[1,3]),12) + PadL(lstr(arr_DN[2,3]),10)+ PadL(lstr(arr_DN[3,3]),12)+ PadL(lstr(arr_DN[5,3]),12) )
+    //  add_string( " С.ДИАБЕТ - E10 " + PadL(lstr(arr_DN[1,5]),12) + PadL(lstr(arr_DN[2,5]),10)+ PadL(lstr(arr_DN[3,5]),12)+ PadL(lstr(arr_DN[5,5]),12) )
+      add_string( " БСК            " + PadL(lstr(arr_DN[1,4]),12) + PadL(lstr(arr_DN[2,4]),10)+ PadL(lstr(arr_DN[3,4]),12)+ PadL(lstr(arr_DN[5,4]),12) )
       //
       add_string( "** Обоснованность постановки на ДН с такими диагнозами необходимо проверить врачу, т.к. " )
       add_string( "данный диагноз не является строго обязательным для постановки на Диспансерное наблюдение" )
@@ -3007,15 +3138,14 @@ Function f2_view_d01( nKey, oBrow )
   Return ret
 
 
-
-// 29.11.18
+// 18.01.25
 Function f3_view_d01( oBrow )
 
   Static si := 1
   Local i, r := Row(), r1, r2, buf := save_maxrow(), fl, s, ;
     mm_func := { -99 }, ;
     mm_menu := { "Список ~всех пациентов из D01" }
-
+ 
   mywait()
   Select MO_XML
   Index On FNAME to ( cur_dir + "tmp_xml" ) ;
@@ -3069,12 +3199,15 @@ Function f3_view_d01( oBrow )
 
 
 
-// 29.11.18
+// 19.01.25
 Function  f31_view_d01( reg, s )
 
   Local fl := .t., buf := save_maxrow(), k := 0, n_file := cur_dir + "D01_spis" + stxt
+  Local t_kod := 0, arr_DN[ 4 ],  flag_1 := .t.,  flag_2 := .t.,  flag_3 := .t.,   flag_4 := .t.
+  Local arr_tip_KOD_USL := { 109, 110, 111, 112 }, kn := 0
 
   mywait()
+  arr_DN := {0,0,0,0}
   fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
   add_string( "" )
   add_string( Center( "Список пациентов файла " + AllTrim( rees->NAME_XML ) + " от " + date_8( rees->dschet ), 80 ) )
@@ -3085,6 +3218,7 @@ Function  f31_view_d01( reg, s )
   add_string( "" )
   r_use( dir_server + "mo_d01d",, "DD" )
   Index On Str( kod_d, 6 ) to ( cur_dir + "tmp_dd" )
+  r_use( dir_server + "kartote2",, "KART2" )
   r_use( dir_server + "kartotek",, "KART" )
   r_use( dir_server + "mo_d01k",, "RHUM" )
   Set Relation To kod_k into KART
@@ -3094,21 +3228,57 @@ Function  f31_view_d01( reg, s )
     If iif( reg == 99, .t., rhum->OPLATA == reg )
       // добавить фильтр по реестру
       If rhum->reestr == rees->kod // 19.12.2020
-        ++k
+        ++kn
         s := Str( rhum->D01_ZAP, 5 ) + ". "
         If Empty( kart->fio )
           s += "удалён дубликат в картотеке (код=" + lstr( kod_k ) + ")"
         Else
           s += PadR( Upper( kart->fio ), 35 ) + " " + full_date( kart->date_r )
+          select kart2
+          goto(kart->kod)
+          s += "  "+AllTrim( kart2->KOD_MIS )
         Endif
         s += " ("
         Select DD
         find ( Str( rhum->( RecNo() ), 6 ) )
         Do While dd->kod_d == rhum->( RecNo() ) .and. !Eof()
-          s += " " + AllTrim( dd->kod_diag )
+          s += " " + AllTrim( dd->kod_diag ) + f300_view_d01( dd->kod_diag )
+          if t_kod == rhum->kod_k
+            If flag_1 .and. arr_tip_KOD_USL[ 1 ] == check_tip_disp_nabl( dd->kod_diag )     // 109
+              arr_DN[ 1 ] ++
+              flag_1 := .f.
+            Elseif flag_2 .and. arr_tip_KOD_USL[ 2 ] == check_tip_disp_nabl( dd->kod_diag ) // 110
+              arr_DN[ 2 ] ++
+              flag_2 := .f.
+            Elseif flag_3 .and. arr_tip_KOD_USL[ 3 ] == check_tip_disp_nabl( dd->kod_diag ) // 111
+              arr_DN[ 3 ] ++
+              flag_3 := .f.
+            Elseif  flag_4 .and. arr_tip_KOD_USL[ 4 ] == check_tip_disp_nabl( dd->kod_diag ) // 112
+              arr_DN[ 4 ] ++
+              flag_4 := .f.
+            Endif
+          else // первая запись ФИО в файле 
+            flag_1 := flag_2 := flag_3 :=  flag_4 := .t.
+            If arr_tip_KOD_USL[ 1 ] == check_tip_disp_nabl( dd->kod_diag ) // 109
+              arr_DN[ 1 ] ++
+              flag_1 := .f.
+            Elseif arr_tip_KOD_USL[ 2 ] == check_tip_disp_nabl( dd->kod_diag ) // 110
+              arr_DN[ 2 ] ++
+              flag_2 := .f.
+            Elseif arr_tip_KOD_USL[ 3 ] == check_tip_disp_nabl( dd->kod_diag ) // 111
+              arr_DN[ 3 ] ++
+              flag_3 := .f.
+            Elseif  arr_tip_KOD_USL[ 4 ] == check_tip_disp_nabl( dd->kod_diag ) // 112
+              arr_DN[ 4 ] ++
+              flag_4 := .f.
+            Endif
+            t_kod := rhum->kod_k
+            ++k
+          endif  
           Skip
         Enddo
-        s += " )"
+        s += " )" + str(kart->kod)
+         //
         verify_ff( 60, .t., 80 )
         add_string( s )
       Endif
@@ -3117,17 +3287,38 @@ Function  f31_view_d01( reg, s )
     Skip
   Enddo
   add_string( "" )
-  add_string( "Всего " + lstr( k ) + " чел." )
+  add_string( "Всего       " + lstr( kn ) + " диагнозов." )
+  add_string( "Всего       " + lstr( k ) + " чел." )
+  add_string( "  из них ПРОЧИЕ " + lstr( arr_DN[ 1 ]  ) + " чел." )
+  add_string( "         ОНКО   " + lstr( arr_DN[ 2 ]  ) + " чел." )
+  add_string( "    САХ.ДИАБЕТ  " + lstr( arr_DN[ 3 ]  ) + " чел." )
+  add_string( "         БСК    " + lstr( arr_DN[ 4 ]  ) + " чел." )
   kart->( dbCloseArea() )
+  kart2->( dbCloseArea() )
   rhum->( dbCloseArea() )
   dd->( dbCloseArea() )
   FClose( fp )
   rest_box( buf )
-  viewtext( n_file,,,, .t.,,, 2 )
+  viewtext( n_file,,,, .t.,,, 3 )
 
   Return Nil
 
+// 19.01.25 
+Function f300_view_d01( diag )
 
+Local arr_tip_KOD_USL := { 109, 110, 111, 112 }
+Local arr_tip_TIP_DN := { "ПРОЧ", "ОНКО", "ДИАБ", "БСК" } 
+
+if arr_tip_KOD_USL[ 1 ] == check_tip_disp_nabl( dd->kod_diag ) // 109
+  return  " ["+arr_tip_TIP_DN[1]+"]" 
+elseif  arr_tip_KOD_USL[ 2 ] == check_tip_disp_nabl( dd->kod_diag ) // 110 
+  return " ["+arr_tip_TIP_DN[2]+"]"  
+elseif  arr_tip_KOD_USL[ 3 ] == check_tip_disp_nabl( dd->kod_diag ) // 111 
+  return  " ["+arr_tip_TIP_DN[3]+"]"  
+elseif  arr_tip_KOD_USL[ 4 ] == check_tip_disp_nabl( dd->kod_diag ) // 112 
+  return " ["+arr_tip_TIP_DN[4]+"]"  
+endif 
+return " "
 
 // 03.12.19 зачитать D01 во временные файлы
 Function reestr_d01_tmpfile( oXmlDoc, aerr, mname_xml )
@@ -3329,14 +3520,14 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
         AAdd( aerr, "Некорректное значение атрибута SMO: " + tmp2->_SMO )
       Endif
     Elseif Between( tmp2->_OPLATA, 2, 4 )
-      If tmp2->_OPLATA == 2 .and. tmp2->_ERROR == 131 // правка 01.02.24
+     /* If tmp2->_OPLATA == 2 .and. tmp2->_ERROR == 131 // правка 01.02.24
         g_rlock( forever )
         tmp2->_OPLATA := 1
         Unlock
         ++ii1
-      Else
+      Else*/
         ++ii2
-      Endif
+      //Endif
     Else
       AAdd( aerr, "Некорректное значение атрибута RESULT: " + lstr( tmp2->_OPLATA ) )
     Endif
@@ -3420,9 +3611,9 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
           // else
           // strfile(space(8)+"ошибка "+lstr(tmp3->_ERROR)+" (неизвестная ошибка)"+hb_eol(),cFileProtokol,.t.)
           // endif
-          If tmp3->_ERROR != 131
+         // If tmp3->_ERROR != 131 /////////////////////////////////////////////////////////////////////////////////////
             StrFile( Space( 8 ) + geterror_t012( tmp3->_ERROR ) + hb_eol(), cFileProtokol, .t. )
-          Endif
+         // Endif
           Select TMP3
           Skip
         Enddo
@@ -3478,8 +3669,11 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
           If Empty( kart->fio )
             StrFile( Str( tmp2->_N_ZAP, 6 ) + ". Пациент с кодом по картотеке " + lstr( kart->( RecNo() ) ) + hb_eol(), cFileProtokol, .t. )
           Else
-            StrFile( Str( tmp2->_N_ZAP, 6 ) + ". " + AllTrim( kart->fio ) + ", " + full_date( kart->date_r ) + hb_eol(), cFileProtokol, .t. )
+            select KART2
+            goto (kart->kod)  
+            StrFile( Str( tmp2->_N_ZAP, 6 ) + ". " + AllTrim( kart->fio ) + ", " + full_date( kart->date_r ) +" "+ alltrim(kart2->kod_mis) + hb_eol(), cFileProtokol, .t. )
           Endif
+          select kart
           Select REFR
           Do While .t.
             find ( Str( mkod_reestr, 6 ) + Str( tmp2->_N_ZAP, 6 ) )
@@ -3494,11 +3688,11 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
             refr->reestr := mkod_reestr
             refr->D01_ZAP := tmp2->_N_ZAP
             refr->KOD_ERR := tmp3->_ERROR
-            // if (j := ascan(getT012(), {|x| x[2] == tmp3->_ERROR })) > 0
+            //if (j := ascan(getT012(), {|x| x[2] == tmp3->_ERROR })) > 0
             // strfile(space(8) + "ошибка " + lstr(tmp3->_ERROR) + " - " + getT012()[j,1] + hb_eol(), cFileProtokol, .t.)
-            // else
+            //else
             // strfile(space(8)+"ошибка "+lstr(tmp3->_ERROR)+" (неизвестная ошибка)"+hb_eol(),cFileProtokol,.t.)
-            // endif
+            //endif
             StrFile( Space( 8 ) + geterror_t012( tmp3->_ERROR ) + hb_eol(), cFileProtokol, .t. )
             Select TMP3
             Skip

@@ -7,7 +7,7 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-// 19.12.22 прочитать и "разнести" по базам данных РАК
+// 19.12.22 прочитать и "разнести" по базам данных РАК 
 Function read_xml_file_rak( arr_XML_info, aerr )
 
   Local fl_akt, fl_schet, blk_akt, blk_schet, i, k, s, s1, arr_s := {}, t_arr[ 2 ], ;
@@ -448,12 +448,18 @@ Function read_xml_file_rak( arr_XML_info, aerr )
               raksherr->PENALTY   := tmp6->PENALTY
               raksherr->SL_ID     := tmp6->SL_ID
               raksherr->SL_ID2    := tmp6->SL_ID2
+              raksherr->S_COM     := alltrim(substr(alltrim(tmp6->S_COM),12,5))
               If Empty( s := ret_t005( tmp6->REFREASON ) )
                 StrFile( Space( 5 ) + lstr( tmp6->REFREASON ) + " неизвестная причина отказа" + ;
                   hb_eol(), cFileProtokol, .t. )
               Else
                 put_long_str( "код дефекта: " + s, cFileProtokol, 5 )
               Endif
+              if len(alltrim(tmp6->S_COM)) > 0
+                if !Empty( s := ret_t005(val(alltrim(substr(alltrim(tmp6->S_COM),12,5)))))
+                  put_long_str( "Уточнение кода дефекта: " + s, cFileProtokol, 5 )
+                endif
+              endif  
               If !emptyall( tmp6->S_SUM, tmp6->PENALTY )
                 raksh->REFREASON := tmp6->REFREASON
                 StrFile( Space( 5 ) + "... снятие по данному дефекту ..."  + hb_eol(), cFileProtokol, .t. )
@@ -479,7 +485,6 @@ Function read_xml_file_rak( arr_XML_info, aerr )
   g_rlock( forever )
   mo_xml->TWORK2 := hour_min( Seconds() )
   Close databases
-
   Return Nil
 
 // 22.04.19
