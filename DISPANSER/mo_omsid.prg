@@ -2869,7 +2869,7 @@ Function inf_dvn( k )
     f_view_r01()
   Case k == 43
     // ne_real()
-    If glob_mo[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
+//    If glob_mo[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
       mas_pmt := { "~Создание файлов обмена", ;
         "~Просмотр файлов обмена" }
       mas_msg := { "Создание файлов обмена R11... за конкретный месяц", ;
@@ -2889,9 +2889,10 @@ Function inf_dvn( k )
       // set key K_CTRL_F10 to delete_month_R11()
       popup_prompt( T_ROW, T_COL - 5, si7, mas_pmt, mas_msg, mas_fun )
       // set key K_CTRL_F10 to
-    Endif
+//    Endif
   Case k == 71
-    f_create_r11()
+//    f_create_r11()
+      ne_real()
   Case k == 72
     f_view_r01( _XML_FILE_R11 )
   Endcase
