@@ -254,7 +254,7 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
   verify_oms_sluch( mkod_human )
   Return Nil
 
-// 07.0.25
+// 22.01.25
 Function f_oms_sluch_onko_lek_pr( oBrow )
 
   Local oColumn, blk_color
@@ -263,11 +263,6 @@ Function f_oms_sluch_onko_lek_pr( oBrow )
     {|| Left( DToC( tmp->DATE_INJ ), 5 ) } )
   oColumn:colorBlock := blk_color
   oBrow:addcolumn( oColumn )
-
-//  oColumn := TBColumnNew( '  Схема   ', ;
-//    {|| iif( Empty( tmp->CODE_SH ), Space( 10 ), PadR( tmp->CODE_SH, 10 ) ) } )
-//  oColumn:colorBlock := blk_color
-//  oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( '    Препарат   ', ;
     {|| iif( Empty( tmp->REGNUM ), Space( 15 ), PadR( get_lek_pr_by_id( tmp->REGNUM ), 15 ) ) } )
@@ -297,23 +292,13 @@ Function f_oms_sluch_onko_lek_pr( oBrow )
   oColumn:cargo := 'tmp->s_inj'
   oBrow:addcolumn( oColumn )
 
-//  oColumn := TBColumnNew( 'Стоим.вв.', ;
-//    {|| tmp->SV_INJ } )
-//  oColumn:colorBlock := blk_color
-//  oBrow:addcolumn( oColumn )
-
-//  oColumn := TBColumnNew( 'Стоим.изр.', ;
-//    {|| tmp->SIZ_INJ } )
-//  oColumn:colorBlock := blk_color
-//  oBrow:addcolumn( oColumn )
-
   oColumn := TBColumnNew( 'Ред.', ;
     {|| tmp->RED_INJ } )
   oColumn:colorBlock := blk_color
   oColumn:cargo := 'tmp->red_inj'
   oBrow:addcolumn( oColumn )
 
-  status_key( '^<Esc>^ выход; ^<Enter>^ ред-ие' ) //; ^<Ins>^ добавление; ^<Del>^ удаление' )
+  status_key( '^<Esc>^ выход; ^<Enter>^ редактирование' )
   Return Nil
 
 // 08.01.22
@@ -440,12 +425,11 @@ Function add_lek_pr( dateInjection, nKey, lOnko )
   Select tmp
   Return Nil
 
-// 21.01.25
+// 22.01.25
 Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
 
   Local flag := -1
   local i
-//  local oCol, mGetVar, oGet, lFresh, lExitSave
   local oBox
   local tmp_keys, tmp_list
   local mm_red := { ;
@@ -456,7 +440,7 @@ Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
   local mKv_inj // Количество введенного лекарственного препарата (действующего вещества)
   local mKiz_inj // Количество израсходованного (введеного + утилизированного) лекарственного препарата
   local mS_inj // Фактическая стоимость лекарственного препарата за единицу измерения
-  local tmpRegnum, tmpRec
+  local tmpRegnum, tmpRec, ed_izm
   
   private mred := Space( 12 ), m1red // Признак применения редукции для лекарственного препарата
   private mCopy := Space( 3 ), m1Copy := 0 // признак копирования на все препараты ( 0 - нет, 1 - да )
@@ -468,9 +452,8 @@ Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
   m1red := tmp->red_inj
   mred := inieditspr( A__MENUVERT, mm_red, m1red )
   mCopy := inieditspr( A__MENUVERT, mm_da_net, m1Copy )
+  ed_izm := alltrim( ret_ed_izm( tmp->ED_IZM ) )
 
-
-  i := 1
   Do Case
     Case nKey == K_ENTER
       flag := nKey
@@ -489,12 +472,18 @@ Function f2oms_sluch_onko_lek_pr( nKey, oBrow )
       do while .t.
     
         @ 1, 2 TBOX oBox Say 'Количество введенного' Get mKv_inj Picture '9999.999'
-        @ 2, 2 TBOX oBox Say 'Количество израсходованного' Get mKiz_inj Picture '9999.999'
-        @ 3, 2 TBOX oBox Say 'Фактическая стоимость' Get mS_inj Picture '99999999.999999'
-        @ 4, 2 TBOX oBox Say 'Применение редукции для лекарственного препарата' Get mred ;
+        @ 1, col() + 1 TBOX oBox Say ed_izm
+
+        @ 3, 2 TBOX oBox Say 'Количество израсходованного' Get mKiz_inj Picture '9999.999'
+        @ 3, col() + 1 TBOX oBox Say ed_izm
+
+        @ 5, 2 TBOX oBox Say 'Фактическая стоимость за ' + ed_izm Get mS_inj Picture '99999999.999999'
+        @ 5, col() + 1 TBOX oBox Say 'руб.'
+
+        @ 7, 2 TBOX oBox Say 'Применение редукции для лекарственного препарата' Get mred ;
           reader {| x | menu_reader( x, mm_red, A__MENUVERT, , , .f. ) }
 
-        @ 5, 2 TBOX oBox Say 'Дублировать на другие препараты' Get mCopy ;
+        @ 9, 2 TBOX oBox Say 'Дублировать на другие препараты' Get mCopy ;
           reader {| x| menu_reader( x, mm_da_net, A__MENUVERT, , , .f. ) }
   
         myread()
