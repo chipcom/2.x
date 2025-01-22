@@ -5,9 +5,9 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-#define MONTH_UPLOAD 12 // МЕСЯЦ для выгрузки R11
+#define MONTH_UPLOAD 02 // МЕСЯЦ для выгрузки R11
 
-// 22.01.24 Создание файла обмена R11...
+// 22.01.25 Создание файла обмена R11...
 Function f_create_r11()
 
   Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
@@ -15,7 +15,7 @@ Function f_create_r11()
   Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {}, ;
     pkol := 0, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], CODE_MO := glob_mo[ _MO_KOD_FFOMS ], ;
     mkol := { 0, 0, 0, 0, 0 }, skol[ 5 ], ames[ 12, 5 ], ame[ 12 ], bm := SMONTH, ; // начальный месяц минус один
-    _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20231201 )
+    _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 )
 
   Private sgod := 2025
   //
