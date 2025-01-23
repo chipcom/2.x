@@ -3,15 +3,16 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 22.01.25 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+// 23.01.25 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
 
   Local p_tip_reestr
   Local tmpSelect
-  Local arr_f, ii, oXmlDoc, j, j1, j2, j3, _ar, buf := save_maxrow(), fl := .f., is_old := .f.
+  Local arr_f, ii, oXmlDoc, j, j1, j2, j3, j4, _ar, buf := save_maxrow(), fl := .f., is_old := .f.
   local name_zip := AllTrim( mname_xml ) + szip
   Local ushifr
-  local oNode1, oNode11, oNode2, oNode3, oNode4, oNode7
+  local oNode1, oNode11, oNode2, oNode3, oNode4, oNode5
+  local lREGNUM, lREGNUM_DOP, lCODE_SH
 
   Local _table1 := { ;
     { "KOD",      "N", 6, 0 }, ; // код
@@ -270,13 +271,13 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
     { "REGNUM_DOP","C", 25, 0 }, ;
     { "CODE_SH",  "C", 10, 0 }, ;
     { "DATE_INJ", "C", 10, 0 }, ;
-    { "KV_INJ",   "N", 8, 3 }, ; // Количество введенного лекарственного препарата(действующего вещества)
-    { "KIZ_INJ",  "N", 8, 3 }, ; // Количество израсходованного (введеного + утилизированного) лекарственного препарата
-    { "S_INJ",    "N",15, 6 }, ; // Фактическая стоимость лекарственного препарата за единицу измерения
-    { "SV_INJ",   "N",15, 2 }, ; // Стоимость введенного лекарственного препарата
-    { "SIZ_INJ",  "N",15, 2 }, ; // Стоимость израсходованного лекарственного препарата
-    { "RED_INJ",  "N", 1, 0 } ; // Признак применения редукции для лекарственного препарата
-    }
+    { "KV_INJ",   "C", 11, 0 }, ; // Количество введенного лекарственного препарата(действующего вещества)
+    { "KIZ_INJ",  "C", 11, 0 }, ; // Количество израсходованного (введеного + утилизированного) лекарственного препарата
+    { "S_INJ",    "C", 21, 0 }, ; // Фактическая стоимость лекарственного препарата за единицу измерения
+    { "SV_INJ",   "C", 21, 0 }, ; // Стоимость введенного лекарственного препарата
+    { "SIZ_INJ",  "C", 21, 0 }, ; // Стоимость израсходованного лекарственного препарата
+    { "RED_INJ",  "C", 1, 0 } ; // Признак применения редукции для лекарственного препарата
+  }
   Local _table11 := { ;  // Сведения лек.препаратах применявшихся при лечении
     { "SLUCH",    "N",   6, 0 }, ; // номер случая
     { "KOD",      "N",   6, 0 }, ; // код
@@ -649,21 +650,48 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
                         t9->LUCH_TIP := mo_read_xml_stroke( oNode2, "LUCH_TIP",, .f. )
                         t9->PPTR     := mo_read_xml_stroke( oNode2, "PPTR",, .f. )
                         For j2 := 1 To Len( oNode2:aitems ) // последовательный просмотр
-                          oNode4 := oNode2:aItems[ j2 ]     // т.к. услуг м.б. несколько
+                          oNode4 := oNode2:aItems[ j2 ]     // т.к. лекарственных препаратов м.б. несколько
                           If ValType( oNode4 ) != "C" .and. oNode4:title == "LEK_PR"
-                            lREGNUM := mo_read_xml_stroke( oNode4, "REGNUM",, .f. )
-                            lCODE_SH := mo_read_xml_stroke( oNode4, "CODE_SH",, .f. )
-                            _ar := mo_read_xml_array( oNode4, "DATE_INJ" ) // М.Б.НЕСКОЛЬКО дат
-                            For j3 := 1 To Len( _ar )
-                              Select T10
-                              Append Blank
-                              t10->sluch  := iisl
-                              t10->KOD    := mkod
-                              t10->IDCASE := &lal.->IDCASE // для связи со случаем
-                              t10->REGNUM := lREGNUM
-                              t10->CODE_SH := lCODE_SH
-                              t10->DATE_INJ := _ar[ j3 ]
-                            Next j3
+                            If p_tip_reestr == 1 .and. ( xml2date( t1->DATE_Z_2 ) >= 0d20250101 ) // после 01.01.25
+                              lREGNUM := mo_read_xml_stroke( oNode4, "REGNUM",, .f. )
+                              lREGNUM_DOP := mo_read_xml_stroke( oNode4, "REGNUM_DOP",, .f. )
+                              lCODE_SH := mo_read_xml_stroke( oNode4, "CODE_SH",, .f. )
+
+                              For j4 := 1 To Len( oNode4:aitems ) // последовательный просмотр лекарственных препаратов
+                                oNode5 := oNode4:aItems[ j4 ]     // т.к. препаратов м.б. несколько
+                                If ValType( oNode5 ) != 'C' .and. oNode5:title == 'INJ'
+                                  Select T10
+                                  T10->( dbAppend() )
+                                  t10->sluch  := iisl
+                                  t10->KOD    := mkod
+                                  t10->IDCASE := &lal.->IDCASE // для связи со случаем
+                                  t10->REGNUM := lREGNUM
+                                  t10->REGNUM_DOP := lREGNUM_DOP
+                                  t10->CODE_SH := lCODE_SH
+                                  t10->DATE_INJ := mo_read_xml_stroke( oNode5, "DATE_INJ",, .f. )
+                                  t10->KV_INJ := mo_read_xml_stroke( oNode5, "KV_INJ",, .f. )
+                                  t10->KIZ_INJ := mo_read_xml_stroke( oNode5, "KIZ_INJ",, .f. )
+                                  t10->S_INJ := mo_read_xml_stroke( oNode5, "S_INJ",, .f. )
+                                  t10->SV_INJ := mo_read_xml_stroke( oNode5, "SV_INJ",, .f. )
+                                  t10->SIZ_INJ := mo_read_xml_stroke( oNode5, "SIZ_INJ",, .f. )
+                                  t10->RED_INJ := mo_read_xml_stroke( oNode5, "RED_INJ",, .f. )
+                                endif
+                              next            
+                            else  // до 01.01.25
+                              lREGNUM := mo_read_xml_stroke( oNode4, "REGNUM",, .f. )
+                              lCODE_SH := mo_read_xml_stroke( oNode4, "CODE_SH",, .f. )
+                              _ar := mo_read_xml_array( oNode4, "DATE_INJ" ) // М.Б.НЕСКОЛЬКО дат
+                              For j3 := 1 To Len( _ar )
+                                Select T10
+                                Append Blank
+                                t10->sluch  := iisl
+                                t10->KOD    := mkod
+                                t10->IDCASE := &lal.->IDCASE // для связи со случаем
+                                t10->REGNUM := lREGNUM
+                                t10->CODE_SH := lCODE_SH
+                                t10->DATE_INJ := _ar[ j3 ]
+                              Next j3                            
+                            endif
                           Endif
                         Next j2
                       Endif
