@@ -98,7 +98,7 @@ Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 10.01.25
+// 24.01.25
 Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Static mm_kart_error := { { 'нет замечаний', 0 }, { 'полис недействителен', -8 }, { 'ошибки в реквизитах', -9 } }
@@ -110,6 +110,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     is_append := ( mkod == 0 ), old_arr_kart, flag_DVN, ;
     pos_read := 0, k_read := 0, count_edit := 0, ;
     count_row := 0, title_top, fl_mr_dol := .f., fl_kis := .f.
+  local mm_SVO := { { 'нет', 0 }, { 'участник СВО', 1 }, { 'член семьи участника СВО', 2 } }
 
   Default fl_oms To .f., _Human_kod To 0
   change_attr()
@@ -225,7 +226,9 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
       mkod_vu := kart->kod_vu
     Endif
     if kart->PN1 == 30
-      m1SVO := YES
+      m1SVO := 1
+    elseif kart->PN1 == 31
+      m1SVO := 2
     endif
     Select KART2
     Goto ( mkod )
@@ -384,7 +387,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   mkomu      := inieditspr( A__MENUVERT, mm_komu, m1komu )
   minvalid   := inieditspr( A__MENUVERT, mm_invalid, m1invalid )
   mosn_preb  := inieditspr( A__MENUVERT, get_osn_preb_rf(), m1osn_preb )
-  mSVO := inieditspr( A__MENUVERT, mm_danet, m1SVO )
+  mSVO := inieditspr( A__MENUVERT, mm_SVO, m1SVO )
   madres_reg := ini_adres( 1 )
   madres_pre := ini_adres( 2 )
   If Empty( m1namesmo := Int( Val( msmo ) ) )
@@ -595,7 +598,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
         reader {| x| menu_reader( x, mm_invalid, A__MENUVERT, , , .f. ) } ;
         valid {|| f_kart_valid_inv( ix ) }
       @ ix, Col() + 6 Say 'Участник СВО?' Get mSVO ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_SVO, A__MENUVERT, , , .f. ) }
   
     Endif
     If eq_any( glob_task, X_MO )
@@ -715,8 +718,10 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
           kart->uchast := muchast
           kart->kod_vu := mkod_vu
         Endif
-        if m1SVO == YES
+        if m1SVO == 1
           kart->PN1 := 30
+        elseif m1SVO == 2
+          kart->PN1 := 31
         else
           kart->PN1 := 0
         endif
