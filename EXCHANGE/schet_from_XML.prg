@@ -349,12 +349,12 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
         sVersion := '4.0'
       Endif
       If ( controlVer >= 202501 ) // с января 2025 года
-        sVersion := '4.1'
+        sVersion := '5.0'
       Endif
     elseif p_tip_reestr == 2
       // файла реестра случаев второго типа при формировании счета ОМС
       If ( controlVer >= 202501 ) // с января 2025 года
-        sVersion := '4.0'
+        sVersion := '5.0'
       Endif
     endif
   
