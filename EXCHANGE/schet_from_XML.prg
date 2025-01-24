@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.12.24 создать счета по результатам прочитанного реестра СП
+// 24.01.25 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
 
   Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva, ;
@@ -17,6 +17,9 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
   local dPUMPver40 := 0d20240301
   local sVersion
   local old_lek, old_sh
+  local oZAP, oPAC, oDISAB, oSLUCH, oPRESCRIPTION, oPRESCRIPTIONS, oD
+  local oSl, oOnk, oProt, oDiag, oNAPR, oKSG, oSLk, oOnk_sl, oCONS, oLek, oINJ
+  local dEndZsl // дата окончания случая
 
 
   Default fl_msg To .t., arr_s TO {}
@@ -832,6 +835,7 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
                 mo_add_xml_stroke( oONK, 'LUCH_TIP', t9->LUCH_TIP )
               Endif
               If eq_any( Int( Val( t9->USL_TIP ) ), 2, 4 )
+                dEndZsl := xml2date( t1->DATE_Z_2 )
                 old_lek := Space( 6 )
                 old_sh := Space( 10 )
                 // цикл по БД лекарств
@@ -841,11 +845,35 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
                   If !( old_lek == t10->REGNUM .and. old_sh == t10->CODE_SH )
                     oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
                     mo_add_xml_stroke( oLEK, 'REGNUM', t10->REGNUM )
+                    if dEndZsl >= 0d20250101
+                      mo_add_xml_stroke( oLEK, 'REGNUM_DOP', t10->REGNUM_DOP )
+                    endif
                     mo_add_xml_stroke( oLEK, 'CODE_SH', t10->CODE_SH )
                   Endif
                   // цикл по датам приёма данного лекарства
-                  mo_add_xml_stroke( oLEK, 'DATE_INJ', t10->DATE_INJ )
-                  old_lek := t10->REGNUM ; old_sh := t10->CODE_SH
+                  if dEndZsl >= 0d20250101
+                    oINJ := oLEK:add( hxmlnode():new( 'INJ' ) )
+                    mo_add_xml_stroke( oINJ, 'DATE_INJ', t10->DATE_INJ )
+                    mo_add_xml_stroke( oINJ, 'KV_INJ', t10->KV_INJ )
+                    mo_add_xml_stroke( oINJ, 'KIZ_INJ', t10->KIZ_INJ )
+                    mo_add_xml_stroke( oINJ, 'S_INJ', t10->S_INJ )
+                    mo_add_xml_stroke( oINJ, 'SV_INJ', t10->SV_INJ )
+                    mo_add_xml_stroke( oINJ, 'SIZ_INJ', t10->SIZ_INJ )
+                    mo_add_xml_stroke( oINJ, 'RED_INJ', t10->RED_INJ )
+                  else
+                    mo_add_xml_stroke( oLEK, 'DATE_INJ', t10->DATE_INJ )
+                  endif
+                  old_lek := t10->REGNUM
+                  old_sh := t10->CODE_SH
+//                    If !( old_lek == t10->REGNUM .and. old_sh == t10->CODE_SH )
+//                      oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
+//                      mo_add_xml_stroke( oLEK, 'REGNUM', t10->REGNUM )
+//                      mo_add_xml_stroke( oLEK, 'CODE_SH', t10->CODE_SH )
+//                    Endif
+//                    // цикл по датам приёма данного лекарства
+//                    mo_add_xml_stroke( oLEK, 'DATE_INJ', t10->DATE_INJ )
+//                    old_lek := t10->REGNUM
+//                    old_sh := t10->CODE_SH
                   Select T10
                   Skip
                 Enddo
