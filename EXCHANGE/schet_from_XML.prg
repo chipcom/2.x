@@ -460,6 +460,11 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
             If !Empty( t1->VNOV_D )
               mo_add_xml_stroke( oPAC, 'VNOV_D', t1->VNOV_D )
             Endif
+
+            if xml2date( t1->DATE_Z_2 ) >= 0d20250101
+              mo_add_xml_stroke( oPAC, 'SOC', t1->SOC )
+            endif
+
             If !Empty( t1->INV ) // Сведения о первичном признании застрахованного лица инвалидом
               oDISAB := oPAC:add( hxmlnode():new( 'DISABILITY' ) )
               mo_add_xml_stroke( oDISAB, 'INV', t1->INV )

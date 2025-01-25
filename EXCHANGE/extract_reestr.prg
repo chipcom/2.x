@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.01.25 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+// 24.01.25 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
 
   Local p_tip_reestr
@@ -29,6 +29,7 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
     { "MO_PR",    "C", 6, 0 }, ; //
     { "NOVOR",    "C", 9, 0 }, ; //
     { "VNOV_D",   "C", 4, 0 }, ; // вес новорожденного в граммах
+    { "SOC",      "C", 3, 0 }, ; // участники и члены семей участников СВО
     { "INV",      "C", 1, 0 }, ; //
     { "DATA_INV", "C", 10, 0 }, ; //
     { "REASON_INV","C", 2, 0 }, ; //
@@ -403,6 +404,7 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
               t1->MO_PR   := mo_read_xml_stroke( oNode1, "MO_PR",, .f. )
               t1->NOVOR   := mo_read_xml_stroke( oNode1, "NOVOR",, .f. )
               t1->VNOV_D  := mo_read_xml_stroke( oNode1, "VNOV_D",, .f. )
+              t1->SOC     := mo_read_xml_stroke( oNode1, "SOC",, .f. )
               If ( oNode2 := oNode1:find( "DISABILITY" ) ) != NIL
                 t1->INV        := mo_read_xml_stroke( oNode2, "INV" )
                 t1->DATA_INV   := mo_read_xml_stroke( oNode2, "DATA_INV" )

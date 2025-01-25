@@ -37,7 +37,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   local oPAC, oDISAB, oINJ
   local old_lek, old_sh
   local aRegnum, iLekPr
-
+  local mnovor
   //
   Close databases
 
@@ -376,11 +376,14 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             StrZero( human_->NOVOR, 2 )
           mo_add_xml_stroke( oPAC, 'NOVOR', mnovor )
         Endif
-        // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
         If human_->USL_OK == 1 .and. human_2->VNR > 0
           // стационар + л/у на недоношенного ребёнка
           mo_add_xml_stroke( oPAC, 'VNOV_D', lstr( human_2->VNR ) )
         Endif
+        if human->k_data >= 0d20250101
+          mo_add_xml_stroke( oPAC, 'SOC', iif( kart->pn1 == 30, '035', iif( kart->pn1 == 31, '065', '000' ) ) )
+        endif
+        // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
         If fl_DISABILITY // Сведения о первичном признании застрахованного лица инвалидом
           // заполним сведения об инвалидности пациента для XML-документа
           oDISAB := oPAC:add( hxmlnode():new( 'DISABILITY' ) )
