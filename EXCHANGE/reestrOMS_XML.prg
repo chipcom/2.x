@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 24.01.25 создание XML-файлов реестра
+// 26.01.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -894,7 +894,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
                       oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
                       mo_add_xml_stroke( oLEK, 'REGNUM', aRegnum[ i, 3 ] )
                       mo_add_xml_stroke( oLEK, 'REGNUM_DOP', ;
-                          get_sootv_n021( aRegnum[ i, 2 ], aRegnum[ i, 3 ], human->k_data )[ 7 ] )
+                      get_sootv_n021( aRegnum[ i, 2 ], aRegnum[ i, 3 ], human->k_data )[ 7 ] )
                       mo_add_xml_stroke( oLEK, 'CODE_SH', aRegnum[ i, 2 ] )
                       for iLekPr := 1 to len( arrLp )
                         if arrLP[ iLekPr, 3 ] == aRegnum[ i, 3 ]

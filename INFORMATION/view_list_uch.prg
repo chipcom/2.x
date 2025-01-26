@@ -778,7 +778,7 @@ Function print_l_uch_disp(sh)
   endif
   return NIL
 
-// 21.12.24 добавка по онкологии к листу учёта
+// 26.01.25 добавка по онкологии к листу учёта
 Function print_luch_onk( dk,  diag, sh )
 
   local mm_DS1_T := getN018()  // N018
@@ -812,7 +812,7 @@ Function print_luch_onk( dk,  diag, sh )
     dbCreate( cur_dir() + 'tmp_onkle',  { ; // Сведения о применённых лекарственных препаратах
       { 'KOD',      'N',   7,  0 }, ; // код больного
       { 'REGNUM',   'C',   6,  0 }, ; // IDD лек.препарата N020
-      { 'CODE_SH',  'C',  10,  0 }, ; // код схемы лек.терапии V024
+      { 'CODE_SH',  'C',  20,  0 }, ; // код схемы лек.терапии V024
       { 'DATE_INJ', 'D',   8,  0 };  // дата введения лек.препарата
     } )
     Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE

@@ -107,7 +107,7 @@ Function check_oms_sluch_lek_pr( mkod_human )
   Return retFl
 
 
-// 19.01.25 ввода лекарственных препаратов
+// 26.01.25 ввода лекарственных препаратов
 Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
 
   // mkod_human - код по БД human
@@ -155,7 +155,7 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
     { 'KOD_HUM',    'N',   7,  0 }, ; // код листа учёта по файлу 'human'
     { 'DATE_INJ',   'D',   8,  0 }, ; // Дата введения лекарственного препарата
     { 'SEVERITY',   'N',   5,  0 }, ; // код тяжести течения заболевания по справочнику _mo_severity.dbf
-    { 'CODE_SH',    'C',  10,  0 }, ; // схема лечения пациента V030
+    { 'CODE_SH',    'C',  20,  0 }, ; // схема лечения пациента V030
     { 'SCHEDRUG',   'C',  10,  0 }, ; // сочетание схемы лечения и группы препаратов V032
     { 'REGNUM',     'C',   6,  0 }, ; // лекарственного препарата
     { 'ED_IZM',     'N',   3,  0 }, ; // Единица измерения дозы лекарственного препарата
