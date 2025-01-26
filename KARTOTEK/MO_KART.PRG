@@ -98,7 +98,7 @@ Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 24.01.25
+// 26.01.25
 Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Static mm_kart_error := { { 'нет замечаний', 0 }, { 'полис недействителен', -8 }, { 'ошибки в реквизитах', -9 } }
@@ -110,7 +110,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     is_append := ( mkod == 0 ), old_arr_kart, flag_DVN, ;
     pos_read := 0, k_read := 0, count_edit := 0, ;
     count_row := 0, title_top, fl_mr_dol := .f., fl_kis := .f.
-  local mm_SVO := { { 'нет', 0 }, { 'участник СВО', 1 }, { 'член семьи участника СВО', 2 } }
+  local mm_SVO := { { 'категория отсутствует', 0 }, { 'участник СВО', 1 }, { 'член семьи участника СВО', 2 } }
 
   Default fl_oms To .f., _Human_kod To 0
   change_attr()
@@ -225,9 +225,9 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
       muchast := kart->uchast
       mkod_vu := kart->kod_vu
     Endif
-    if kart->PN1 == 30
+    if kart->PN1 == 30  // участник СВО
       m1SVO := 1
-    elseif kart->PN1 == 31
+    elseif kart->PN1 == 65  // член семьи участника СВО
       m1SVO := 2
     endif
     Select KART2
@@ -597,7 +597,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
       @ ++ix, 1 Say 'Инвалидность' Get minvalid ;
         reader {| x| menu_reader( x, mm_invalid, A__MENUVERT, , , .f. ) } ;
         valid {|| f_kart_valid_inv( ix ) }
-      @ ix, Col() + 6 Say 'Участник СВО?' Get mSVO ;
+      @ ix, Col() + 6 Say 'Социальная категория' Get mSVO ;
         reader {| x| menu_reader( x, mm_SVO, A__MENUVERT, , , .f. ) }
   
     Endif
@@ -719,9 +719,9 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
           kart->kod_vu := mkod_vu
         Endif
         if m1SVO == 1
-          kart->PN1 := 30
+          kart->PN1 := 30  // участник СВО
         elseif m1SVO == 2
-          kart->PN1 := 31
+          kart->PN1 := 65  // член семьи участника СВО
         else
           kart->PN1 := 0
         endif
@@ -1198,7 +1198,7 @@ Function findkartoteka( k, /*@*/lkod_k)
       If kart->MEST_INOG == 9 // т.е. отдельно занесены Ф.И.О.
         m1MEST_INOG := kart->MEST_INOG
       Endif
-      m1SVO := kart->PN1
+      m1SVO := iif( kart->PN1 == 30, 1, iif( kart->PN1 == 65, 2, 0 ) )
       m1vidpolis  := kart_->VPOLIS // вид полиса (от 1 до 3);1-старый, 2-врем., 3-новый
       mspolis     := kart_->SPOLIS // серия полиса
       mnpolis     := kart_->NPOLIS // номер полиса
