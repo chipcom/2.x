@@ -381,7 +381,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           mo_add_xml_stroke( oPAC, 'VNOV_D', lstr( human_2->VNR ) )
         Endif
         if human->k_data >= 0d20250101
-          mo_add_xml_stroke( oPAC, 'SOC', iif( kart->pn1 == 30, '035', iif( kart->pn1 == 31, '065', '000' ) ) )
+          mo_add_xml_stroke( oPAC, 'SOC', iif( kart->pn1 == 30, '035', iif( kart->pn1 == 65, '065', '000' ) ) )
         endif
         // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
         If fl_DISABILITY // Сведения о первичном признании застрахованного лица инвалидом
