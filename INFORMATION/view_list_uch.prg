@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.12.24 
+// 27.01.25
 Function print_l_uch( mkod, par, regim, lnomer )
   
   // mkod - ™Æ§ °Æ´Ï≠Æ£Æ ØÆ ÅÑ human
@@ -247,7 +247,9 @@ Function print_l_uch( mkod, par, regim, lnomer )
   if !empty(human->mr_dol)
     add_string('  å•·‚Æ ‡†°Æ‚Î/„Á•°Î: ' + human->mr_dol)
   endif
-  add_string('  ë‚†‚„· Ø†Ê®•≠‚†: ' + mrab_nerab)
+  add_string( '  ë‚†‚„· Ø†Ê®•≠‚†: ' + mrab_nerab )
+  add_string( '  ëÆÊ®†´Ï≠†Ô ™†‚•£Æ‡®Ô Ø†Ê®•≠‚†: ' + inieditspr( A__MENUVERT, mm_SVO(), val( kart->PC3 ) ) )
+
   if human_->NOVOR > 0
     add_string('')
     add_string('  çÆ¢Æ‡Æ¶§•≠≠Î©: ' + lstr(human_->NOVOR) + '-© ‡•°Ò≠Æ™, §.‡. ' + ;
@@ -433,7 +435,6 @@ Function print_l_uch( mkod, par, regim, lnomer )
     endif
     add_string('')
   endif
-  print_luch_onk( human->k_data, human->KOD_DIAG, sh )
   add_string(center('é_ä_Ä_á_Ä_ç_õ   ì_ë_ã_ì_É_à', sh))
   Select HU
   find (str(mkod, 7))
@@ -671,31 +672,36 @@ Function print_l_uch( mkod, par, regim, lnomer )
     s := alltrim(s) + ' (+ ' + lput_kop(mpsumma, .t.) + ')'
   endif
   add_string(padl(s, sh))
-  arrLekPreparat := collect_lek_pr(mkod) // ¢Î°•‡•¨ ´•™†‡·‚¢•≠≠Î• Ø‡•Ø†‡†‚Î
-  if len(arrLekPreparat) != 0  // ≠• Ø„·‚Æ© ·Ø®·Æ™ ´•™†‡·‚¢•≠≠ÎÂ Ø‡•Ø†‡†‚Æ¢
-    add_string('')
-    add_string(center('ã_Ö_ä_Ä_ê_ë_í_Ç_Ö_ç_ç_õ_Ö   è_ê_Ö_è_Ä_ê_Ä_í_õ', sh))
-    header_lek_preparat(w1)
-    for each row in arrLekPreparat
-      if verify_FF(HH)
-        header_lek_preparat(w1)
-      endif
-      s := ''
-      cREGNUM := padr(get_Lek_pr_By_ID(row[3]), 30)
-      cUNITCODE := padr(inieditspr(A__MENUVERT, get_ed_izm(), row[4]),iif(mem_n_V034==0, 15, 30))
-      cMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), row[6]), 30)
-      s := date_8(row[1]) + ' '
-      if empty(cREGNUM)
-        s += padr(ret_schema_V032(row[8]), 33)
-      else
-        s += padr(cREGNUM, 33) + ' '
-        s := s + str(row[5], 6, 2) + ' ' ;
-            + padr(cUNITCODE, 7) + ' ' ;
-            + padr(cMETHOD, 15) + ' ' ;
-            + str(row[7], 6)
-      endif
-      add_string(s)
-    next
+
+  if f_is_oncology( 1 ) == 2 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
+    print_luch_onk( human->k_data, human->KOD_DIAG, sh )
+  else
+    arrLekPreparat := collect_lek_pr( mkod ) // ¢Î°•‡•¨ ´•™†‡·‚¢•≠≠Î• Ø‡•Ø†‡†‚Î
+    if len( arrLekPreparat ) != 0  // ≠• Ø„·‚Æ© ·Ø®·Æ™ ´•™†‡·‚¢•≠≠ÎÂ Ø‡•Ø†‡†‚Æ¢
+      add_string('')
+      add_string(center('ã_Ö_ä_Ä_ê_ë_í_Ç_Ö_ç_ç_õ_Ö   è_ê_Ö_è_Ä_ê_Ä_í_õ', sh))
+      header_lek_preparat( w1 )
+      for each row in arrLekPreparat
+        if verify_FF( HH )
+          header_lek_preparat( w1 )
+        endif
+        s := ''
+        cREGNUM := padr(get_Lek_pr_By_ID(row[3]), 30)
+        cUNITCODE := padr(inieditspr(A__MENUVERT, get_ed_izm(), row[4]),iif(mem_n_V034==0, 15, 30))
+        cMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), row[6]), 30)
+        s := date_8(row[1]) + ' '
+        if empty(cREGNUM)
+          s += padr(ret_schema_V032(row[8]), 33)
+        else
+          s += padr(cREGNUM, 33) + ' '
+          s := s + str(row[5], 6, 2) + ' ' ;
+              + padr(cUNITCODE, 7) + ' ' ;
+              + padr(cMETHOD, 15) + ' ' ;
+              + str(row[7], 6)
+        endif
+        add_string(s)
+      next
+    endif
   endif
 
   arrImplantant := collect_implantant(mkod) // ¢Î°•‡•¨ ®¨Ø´†≠‚†≠‚
@@ -730,11 +736,19 @@ Function header_implantant(w1)
   return NIL
 
 //
-Function header_lek_preparat(w1)
+Function header_lek_preparat( w1 )
 
   add_string('ƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒ')
   add_string('  Ñ†‚†  ≥ç†®¨•≠Æ¢†≠®• Ø‡•Ø†‡†‚† ®´® £‡„ØØÎ≥ÑÆß-™†≥Ö§®≠®Ê†≥ëØÆ·Æ° ¢¢•§•≠®Ô≥äÆ´-¢Æ')
   add_string('ƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒ')
+  return NIL
+  
+// 27.01.25
+Function header_lek_preparat_onko( w1 )
+
+  add_string('ƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒ')
+  add_string('  Ñ†‚†  ≥ç†®¨•≠Æ¢†≠®• Ø‡•Ø†‡†‚† ®´® £‡„ØØÎ≥Ö§®≠®Ê†≥Ç¢•§•≠Æ≥àß‡†·ÂÆ§Æ¢†≠Æ≥ë‚Æ®¨Æ·‚Ï •§.')
+  add_string('ƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒ')
   return NIL
   
 //
@@ -778,7 +792,7 @@ Function print_l_uch_disp(sh)
   endif
   return NIL
 
-// 26.01.25 §Æ°†¢™† ØÆ Æ≠™Æ´Æ£®® ™ ´®·‚„ „ÁÒ‚†
+// 27.01.25 §Æ°†¢™† ØÆ Æ≠™Æ´Æ£®® ™ ´®·‚„ „ÁÒ‚†
 Function print_luch_onk( dk,  diag, sh )
 
   local mm_DS1_T := getN018()  // N018
@@ -789,7 +803,6 @@ Function print_luch_onk( dk,  diag, sh )
   local mm_N003 := f_define_tnm( 3, diag )
   local mm_N004 := f_define_tnm( 4, diag )
   local mm_N005 := f_define_tnm( 5, diag )
-//  local mm_N013 := getn013()
   local mm_N014 := getn014()
   local mm_N015 := getn015()
   local mm_N016 := getn016()
@@ -804,8 +817,8 @@ Function print_luch_onk( dk,  diag, sh )
   local arrLekPreparat, row, w1
   Local HH := 77
   local m1usl_tip1, mm_usl_tip1, m1usl_tip2, mm_usl_tip2
-  local m1crit  // ,m1ad_cr, m1is_err
-  local cREGNUM, cUNITCODE, cMETHOD
+  local m1crit
+  local cREGNUM, cUNITCODE
 
   if f_is_oncology(1) == 2 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
 
@@ -882,12 +895,9 @@ Function print_luch_onk( dk,  diag, sh )
       Elseif eq_any( ONKUS->USL_TIP, 3, 4 )
         m1usl_tip1 := ONKUS->LUCH_TIP
         mm_usl_tip1 := mm_N017
-//        mvsod := tmpou->sod
       Endif
 
-//      m1ad_cr := human_2->PC3
       m1crit := onksl->crit
-//      m1is_err := onksl->is_err
 
       If Between( ONKUS->USL_TIP, 1, 4 )
         add_string( space( 3 ) + PadR( mm_str1[ ONKUS->USL_TIP + 1 ], 12 ) + ': ' + ;
@@ -898,17 +908,11 @@ Function print_luch_onk( dk,  diag, sh )
           add_string( space( 3 ) + ret_str_onc( 6, 1 ) + ': ' + ;
             inieditspr( A__MENUVERT, mm_shema_err, onksl->is_err ) )
         Endif
-//        If eq_any( ONKUS->USL_TIP, 3, 4 )
-//          lstr_sod := ret_str_onc( 1, 1 )
-//          msod := PadR( AllTrim( str_0( mvsod, 6, 2 ) ), 6 )
-//          lstr_fr  := ret_str_onc( 2, 1 )
-//        Endif
         If eq_any( ONKUS->USL_TIP, 2, 4 )
           tstr := ret_str_onc( 3, 1 ) + ' ' + alltrim( str_0( onksl->WEI, 5, 1 ) ) + ','
           tstr += ' ' + ret_str_onc( 4, 1 ) + ' ' + lstr( onksl->HEI ) + ','
           tstr += ' ' + ret_str_onc( 5, 1 ) + ' ' +  AllTrim( str_0( onksl->BSA, 4, 2 ) )
           add_string( space( 3 ) + tstr )
-//          lstr_she := ret_str_onc( 7, 1 )
           If Left( m1crit, 2 ) == 'mt' .and. ONKUS->USL_TIP == 2
             m1crit := Space( 10 )
           Elseif eq_any( Left( m1crit, 2 ),  '≠•',  'sh' ) .and. ONKUS->USL_TIP == 4
@@ -938,24 +942,23 @@ Function print_luch_onk( dk,  diag, sh )
     if len( arrLekPreparat ) != 0  // ≠• Ø„·‚Æ© ·Ø®·Æ™ ´•™†‡·‚¢•≠≠ÎÂ Ø‡•Ø†‡†‚Æ¢
       add_string( '' )
       add_string( center( 'ã_Ö_ä_Ä_ê_ë_í_Ç_Ö_ç_ç_õ_Ö   è_ê_Ö_è_Ä_ê_Ä_í_õ', sh ) )
-      header_lek_preparat( w1 )
+      header_lek_preparat_onko( w1 )
       for each row in arrLekPreparat
         if verify_FF( HH )
-          header_lek_preparat( w1 )
+          header_lek_preparat_onko( w1 )
         endif
         tstr := ''
         cREGNUM := padr( get_Lek_pr_By_ID( row[ 3 ] ), 30)
-        cUNITCODE := padr( inieditspr( A__MENUVERT, get_ed_izm(), row[ 4 ] ),iif( mem_n_V034 == 0, 15, 30 ) )
-        cMETHOD := padr( inieditspr( A__MENUVERT, getMethodINJ(), row[ 6 ] ), 30 )
+        cUNITCODE := padr( inieditspr( A__MENUVERT, get_ed_izm(), row[ 2 ] ),iif( mem_n_V034 == 0, 15, 30 ) )
         tstr := date_8( row[ 1 ] ) + ' '
         if empty( cREGNUM )
           tstr += padr( ret_schema_V032( row[ 8 ] ), 33 )
         else
           tstr += padr( cREGNUM, 33 ) + ' '
-          tstr += str( row[ 5 ], 6, 2 ) + ' ' ;
-              + padr( cUNITCODE, 7 ) + ' ' ;
-              + padr( cMETHOD, 15 ) + ' ' ;
-              + str(row[ 7 ], 6 )
+          tstr += + padr( cUNITCODE, 7 ) + ' ' ;
+              + str( row[ 4 ], 8, 3 ) + ' ' ;
+              + str( row[ 5 ], 8, 3 ) + ' ' ;
+              + str( row[ 6 ], 15, 6 )
         endif
         add_string( tstr )
       next

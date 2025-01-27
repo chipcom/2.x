@@ -876,17 +876,19 @@ function collect_lek_pr_onko( mkod_human )
 
   lekAlias := Select( cAlias )
   If lekAlias == 0
-//    r_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', cAlias )
-    r_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle',  cAlias ) // Сведения о применённых лекарственных препаратах
+    r_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', cAlias )
+//    r_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle',  cAlias ) // Сведения о применённых лекарственных препаратах
   Endif
   dbSelectArea( cAlias )
   ( cAlias )->( dbSeek( Str( mkod_human, 7 ) ) )
   If ( cAlias )->( Found() )
-//    Do While ( cAlias )->KOD_HUM == mkod_human .and. !Eof()
-    Do While ( cAlias )->kod == mkod_human .and. !Eof()
-        AAdd( retArr, { ( cAlias )->DATE_INJ, ( cAlias )->CODE_SH, ( cAlias )->REGNUM, 0, ;
-        0, 0, 0, '' } )
-      ( cAlias )->( dbSkip() )
+    Do While ( cAlias )->KOD_HUM == mkod_human .and. !Eof()
+//    Do While ( cAlias )->kod == mkod_human .and. !Eof()
+//        AAdd( retArr, { ( cAlias )->DATE_INJ, ( cAlias )->CODE_SH, ( cAlias )->REGNUM, 0, ;
+//        0, 0, 0, '' } )
+        AAdd( retArr, { ( cAlias )->DATE_INJ, ( cAlias )->ED_IZM, ( cAlias )->REGNUM, ;
+          ( cAlias )->DOSE_INJ, ( cAlias )->KIZ_INJ, ( cAlias )->S_INJ, ( cAlias )->RED_INJ, '' } )
+        ( cAlias )->( dbSkip() )
 
     Enddo
   Endif
