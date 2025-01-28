@@ -3309,9 +3309,7 @@ Function nastr_all( k, nTask )
 
   Return Nil
 
-// 
-
-// 22.08.24 Общие настройки каждой задачи
+// 28.01.25 Общие настройки каждой задачи
 Function f1nastr_all( nameTask, nTask )
 
   Local mm_tmp := {}, ctitle
@@ -3679,6 +3677,10 @@ Function f1nastr_all( nameTask, nTask )
         NIL, ;
         space( 50 ), NIL, ;
         'Документ представителя МО' } )
+      AAdd( mm_tmp, { 'edit_sum', "N", 1, 0, NIL, ;
+        {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
+        0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+        'Разрешать редактирование суммы оплаты:' } )
       AAdd( mm_tmp, { 'id_pol', 'C', 4, 0, '9999', ;
         NIL, ;
         space( 4 ), NIL, ;
@@ -3698,6 +3700,8 @@ Function f1nastr_all( nameTask, nTask )
       tmp->PRED_DOC  := NASTR_FNS->PRED_DOC
       tmp->ID_POL    := NASTR_FNS->ID_POL
       tmp->ID_END    := NASTR_FNS->ID_END
+      tmp->EDIT_SUM  := NASTR_FNS->EDIT_SUM
+
       Close databases
     Case nTask == X_PPOKOJ //  Приёмный покой
       ctitle := "настройке приёмного покоя"
@@ -3965,6 +3969,7 @@ Function f1nastr_all( nameTask, nTask )
         endif
         nastr_fns->ID_POL    := tmp->ID_POL
         nastr_fns->ID_END    := tmp->ID_END
+        nastr_fns->EDIT_SUM  := tmp->EDIT_SUM
       Case nTask == X_PPOKOJ //  Приёмный покой
         g_use( dir_server + "pp_nastr",, "MV" )
         g_rlock( forever )
@@ -4015,8 +4020,6 @@ Function f1nastr_all( nameTask, nTask )
   Endif
 
   Return Nil
-
-// 
 
 // сделать копию tools.ini с сервера в локальный каталог с именем loctools.ini
 Function copy_tools_ini()
@@ -4080,8 +4083,6 @@ Function semaphor_tools_ini( k )
   Endif
 
   Return fl
-
-// 
 
 // 09.12.18
 Function tools_ini_oms( reg, k1, k2, fll )
@@ -4195,8 +4196,6 @@ Function tools_ini_oms( reg, k1, k2, fll )
 
   Return fl
 
-// 
-
 //
 Function tools_ini_pp( reg, k1, k2, fll )
 
@@ -4233,8 +4232,6 @@ Function tools_ini_pp( reg, k1, k2, fll )
   Endif
 
   Return fl
-
-// 
 
 //
 Function tools_ini_platn( reg, k1, k2, fll )
@@ -4281,8 +4278,6 @@ Function tools_ini_platn( reg, k1, k2, fll )
 
   Return fl
 
-// 
-
 //
 Function tools_ini_orto( reg, k1, k2, fll )
 
@@ -4327,8 +4322,6 @@ Function tools_ini_orto( reg, k1, k2, fll )
   Endif
 
   Return fl
-
-// 
 
 // настройки по вводу данных в каждой задаче
 Function nastr_input( k, nTask )
@@ -4463,8 +4456,6 @@ Function nastr_rab_mesto()
   Close databases
 
   Return Nil
-
-// 
 
 #define SW_HIDE 0
 #define SW_SHOWNORMAL 1
@@ -4913,9 +4904,6 @@ Function create_main_base_from_reestrs()
 
   Return Nil
 
-// 
-
-
 // 22.11.19
 Function f1_create_main_base_from_reestrs( a_reestr )
 
@@ -5092,8 +5080,6 @@ Function f1_create_main_base_from_reestrs( a_reestr )
   Close databases
 
   Return fl
-
-// 
 
 // 11.04.19
 Function f2_create_main_base_from_reestrs( mname_xml )
@@ -5775,8 +5761,6 @@ Function f2_create_main_base_from_reestrs( mname_xml )
   Close databases
 
   Return fl
-
-// 
 
 // 11.04.19 перезаписать лист учёта, если таковой уже есть в БД
 Function f3_create_main_base_from_reestrs()

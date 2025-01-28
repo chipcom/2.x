@@ -468,7 +468,7 @@ function exist_spravka( get, kod_kart, onePerson )
 
   return .t.
 
-// 15.01.25
+// 28.01.25
 function input_spravka_fns()
 
   Local str_sem
@@ -483,7 +483,7 @@ function input_spravka_fns()
   local aFIOPlat, mDOB, mVID, mSerNomer, mKogda
   local predst := '', predst_doc := '', pred_ruk := 0
   local org := hb_main_curOrg
-  local aFIOPredst
+  local aFIOPredst, oldSumma := 0.0
 
   Private aCheck := {}
   private mm_plat := { { 'он же ', 1 }, ;
@@ -498,7 +498,6 @@ function input_spravka_fns()
 //    hb_Alert( 'Справки для ФНС составляются на 2024 год' )
 //    return nil
 //  endif
-
   mP_ATTR := inieditspr( A__MENUVERT, mm_plat, m1p_attr )
   _fns_nastr( 0 ) // проверим сущетствование настроек
   _fns_nastr( 1 ) // прочитаем сущетствующие настроеки
@@ -544,10 +543,16 @@ function input_spravka_fns()
     for i := 1 to len( aCheck )
       mSumma := mSumma + aCheck[ i, 3 ] - aCheck[ i, 4 ]
     next
-    if mSumma <= 0
+    if mSumma <= 0 .and. fns_edit_summ == 0
       hb_Alert( 'Сумма оплат за год равна или меньше нуля' )
       dbCloseAll()
-    return nil
+      return nil
+    else
+      oldSumma := mSumma
+			if ( mSumma := input_value( 18, 23, 20, 56, color1, 'Введите сумму', mSumma, '9999999999999.99' ) ) == nil
+        dbCloseAll()
+        return nil
+      endif
     endif
 
     str_sem := 'Справка ФНС человека ' + lstr( glob_kartotek )
@@ -599,7 +604,7 @@ function input_spravka_fns()
             func_error( 4, 'Сумма расходов по чекам равна нулю!' )
             Loop
           Endif
-          if len( aCheck ) == 0
+          if len( aCheck ) == 0 .and. fns_edit_summ == 0
             func_error( 4, 'Отсутствуют чеки оплаты!' )
             Loop
           Endif
@@ -650,6 +655,9 @@ function input_spravka_fns()
           else
             fns->predst := predst
             fns->pred_doc := ''
+          endif
+          if mSumma != oldSumma
+            fns->edit_summ := 1
           endif
           g_rlock( forever )
           select link_fns
@@ -728,7 +736,7 @@ Function inf_fns( k )
 
   Return Nil
 
-// 22.08.24
+// 28.01.25
 function _fns_nastr( k )
 
   Static file_mem := 'reg_fns_nastr'
@@ -746,8 +754,9 @@ function _fns_nastr( k )
           fns_PREDST       := space( 50 ), ;
           fns_PREDST_DOC   := space( 50 ), ;
           fns_ID_POL       := space( 4 ), ;
-          fns_ID_END       := space( 4 )
-  endif
+          fns_ID_END       := space( 4 ), ;
+          fns_edit_summ    := 0
+    endif
 
   if k == 0 // инициализация файла и переменных
     mm_tmp := { ;  // справочник настроек обмена с ФНС
@@ -757,7 +766,8 @@ function _fns_nastr( k )
       { 'PREDST',     'C',  50,  0 }, ; // представитель МО
       { 'PRED_DOC',   'C',  50,  0 }, ; // документ по которому действует представитель
       { 'ID_POL',     'C',   4,  0 }, ; // идентификатор получателя, кому направляется файл выгрузок
-      { 'ID_END',     'C',   4,  0 } ; // идентификатор конечного получателя, для которого предназначен файл выгрузок
+      { 'ID_END',     'C',   4,  0 }, ; // идентификатор конечного получателя, для которого предназначен файл выгрузок
+      { 'EDIT_SUM',   'N',   1,  0 } ;  // разрешение редактирования оплаченной суммы ( 0 - нет, 1 - да )
    }
     reconstruct( dir_server + file_mem, mm_tmp, , , .t. )
     G_Use( dir_server + file_mem, , 'NASTR_FNS' )
@@ -784,6 +794,7 @@ function _fns_nastr( k )
     fns_PREDST_DOC      := nastr_fns->PRED_DOC
     fns_ID_POL := nastr_fns->ID_POL
     fns_ID_END := nastr_fns->ID_END
+    fns_edit_summ := nastr_fns->EDIT_SUM
     NASTR_FNS->( dbCloseAre() ) //Use
   endif
   return NIL

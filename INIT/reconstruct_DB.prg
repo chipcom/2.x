@@ -67,7 +67,7 @@ Function reconstruct_security( is_local_version )
 
   Return Nil
 
-// 27.01.25 реконстукция баз данных
+// 28.01.25 реконстукция баз данных
 Function reconstruct_db( is_local_version, is_create )
 
   Local base1 := { ;
@@ -1539,7 +1539,8 @@ Function reconstruct_db( is_local_version, is_create )
     { 'PREDST',     'C',  50, 0 }, ; // представитель организации
     { 'PRED_DOC',   'C',  50, 0 }, ; // документ представителя
     { 'KOD_XML',    'N',   6, 0 }, ; // ссылка на файл 'mo_xml_fns', для отправки в ФНС или число -1 если печатная форма, 0 - если xml файл не формировался
-    { 'KOD_PAYER',  'N',   7, 0 } ;  // номер записи в файле payer.dbf при ATTRIBUT == 0 (плательщик)
+    { 'KOD_PAYER',  'N',   7, 0 }, ;  // номер записи в файле payer.dbf при ATTRIBUT == 0 (плательщик)
+    { 'EDIT_SUMM',  'N',   1, 0 } ;  // сумма оплат редактировалась (1-да, 0-нет)
   }
 //  Local fns_payer := { ;   // список плательщиков при ATTRIBUT == 0 (налогоплательщик и пациент не являются одним лицом)
 //    { 'NAME',       'C',  50, 0 }, ; // Ф.И.О. плательщика
