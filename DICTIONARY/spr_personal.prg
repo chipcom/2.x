@@ -41,7 +41,7 @@ Function edit_pers()
 
   Return Nil
 
-// 18.10.22
+// 28.01.25
 Function f1edit_pers( oBrow )
 
   Static ak := { '   ', 'вр.', 'ср.', 'мл.', 'пр.' }
@@ -72,12 +72,14 @@ Function f1edit_pers( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
   status_key( '^<Esc>^ выход ^<Enter>^ редактирование ^<Ins>^ добавление ^<Del>^ удаление ^<F9>^ печать' )
-  @ mr, 45 Say ' <F2> - поиск <F3> - сортировка' Color 'GR+/BG'
+//  @ mr, 45 Say ' <F2> - поиск <F3> - сортировка' Color 'GR+/BG'
+//  mark_keys( { '<F2>', '<F3>' }, 'R/BG' )
+  @ mr, 45 Say ' <F2> - поиск' Color 'GR+/BG'
   mark_keys( { '<F2>', '<F3>' }, 'R/BG' )
 
   Return Nil
 
-// 18.01.25
+// 28.01.25
 Function f2edit_pers( nKey, oBrow )
 
   Static gmenu_kateg := { { 'врач                ', 1 }, ;
@@ -103,28 +105,28 @@ Function f2edit_pers( nKey, oBrow )
   Case nKey == K_F2
     Return f4edit_pers( K_F2 )
   Case nKey == K_F3
-    iSort := 1
-    if ( iSort := popup_prompt( 10, 20, iSort, typeSort ) ) == 0
-      return ret
-    endif
-    if iSort == 1
-      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir() + 'tmp_pers' )
-      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server + 'mo_pers' )
-      GOTO Top
-    elseif iSort == 2
-      Index On tab_nom to ( cur_dir() + 'tmp_persTN' )
-      Set Index to ( cur_dir() + 'tmp_persTN' ), ( dir_server + 'mo_pers' )
-      GOTO Top
-    elseif iSort == 3
-      Index On prvs_021 to ( cur_dir() + 'tmp_pers21' )
-      Set Index to ( cur_dir() + 'tmp_pers21' ), ( dir_server + 'mo_pers' )
-      GOTO Top
-    elseif iSort == 4
-      Index On otd to ( cur_dir() + 'tmp_persOTD' )
-      Set Index to ( cur_dir() + 'tmp_persOTD' ), ( dir_server + 'mo_pers' )
-      GOTO Top
-    endif
-    Return 0
+//    iSort := 1
+//    if ( iSort := popup_prompt( 10, 20, iSort, typeSort ) ) == 0
+//      return ret
+//    endif
+//    if iSort == 1
+//      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir() + 'tmp_pers' )
+//      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server + 'mo_pers' )
+//      GOTO Top
+//    elseif iSort == 2
+//      Index On tab_nom to ( cur_dir() + 'tmp_persTN' )
+//      Set Index to ( cur_dir() + 'tmp_persTN' ), ( dir_server + 'mo_pers' )
+//      GOTO Top
+//    elseif iSort == 3
+//      Index On prvs_021 to ( cur_dir() + 'tmp_pers21' )
+//      Set Index to ( cur_dir() + 'tmp_pers21' ), ( dir_server + 'mo_pers' )
+//      GOTO Top
+//    elseif iSort == 4
+//      Index On otd to ( cur_dir() + 'tmp_persOTD' )
+//      Set Index to ( cur_dir() + 'tmp_persOTD' ), ( dir_server + 'mo_pers' )
+//      GOTO Top
+//    endif
+//    Return 0
   Case nKey == K_F9
     If ( j := f_alert( { PadC( 'Выберите порядок сортировки при печати', 60, '.' ) }, ;
         { ' По ФИО ', ' По таб.номеру ' }, ;
