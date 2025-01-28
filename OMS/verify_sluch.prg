@@ -8,7 +8,7 @@
 
 // Static sadiag1
 
-// 08.12.24
+// 21.01.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -52,6 +52,7 @@ Function verify_sluch( fl_view )
   local counter, arr_lfk
   local mPCEL := ''
   local info_disp_nabl := 0, ldate_next
+  local s_lek_pr
 
   Default fl_view To .t.
 
@@ -1972,10 +1973,6 @@ Function verify_sluch( fl_view )
             // if fl_zolend
             // aadd(ta, 'в составе случая оказания химиотерапии не может быть применен ТОЛЬКО один препарат из списка (золедроновая кислота, ибандроновая кислота, памидроновая кислота, клодроновая кислота или деносумаб)')
             // endif
-            If Select( 'N20' ) == 0
-              r_use( dir_exe() + '_mo_N020', cur_dir + '_mo_N020', 'N20' )
-              Set Filter To between_date( datebeg, dateend, dEnd )
-            Endif
             aN021 := getn021( dEnd )
             n := 0
             l_n021 := .f.
@@ -4409,21 +4406,29 @@ Function verify_sluch( fl_view )
   //
   // ПРОВЕРКА ЛЕКАРСТВЕННЫХ ПРЕПАРАТОВ
   //
-  If eq_any( AllTrim( mdiagnoz[ 1 ] ), 'U07.1', 'U07.2' ) .and. ( count_years( human->DATE_R, human->k_data ) >= 18 ) ;
-      .and. !check_diag_pregant() .and. Empty( human_->DATE_R2 )
+  If ( eq_any( AllTrim( mdiagnoz[ 1 ] ), 'U07.1', 'U07.2' ) .and. ( count_years( human->DATE_R, human->k_data ) >= 18 ) ;
+      .and. !check_diag_pregant() .and. Empty( human_->DATE_R2 ) ) ;
+      .or. ( is_oncology == 2 .and. iif( substr( lower( ONKSL->crit ), 1, 2 ) == 'sh', .t., .f. ) )
     If ( human_->USL_OK == USL_OK_HOSPITAL ) .and. ( human->k_data >= 0d20220101 )
       flLekPreparat := ( human_->PROFIL != 158 ) .and. ( human_->VIDPOM != 32 ) ;
         .and. ( Lower( AllTrim( human_2->PC3 ) ) != 'stt5' )
     Elseif ( human_->USL_OK == USL_OK_POLYCLINIC ) .and. ( human->k_data >= 0d20220401 )
       flLekPreparat := ( human_->PROFIL != 158 ) .and. ( human_->VIDPOM != 32 ) ;
         .and. ( get_idpc_from_v025_by_number( human_->povod ) == '3.0' )
+    elseIf ( human_->USL_OK == USL_OK_HOSPITAL .or. human_->USL_OK == USL_OK_DAY_HOSPITAL ) ;
+        .and. ( human->k_data >= 0d20250101 ) .and. is_oncology == 2
+      flLekPreparat := .t.
     Endif
   Endif
 
   If flLekPreparat
     arrLekPreparat := collect_lek_pr( rec_human ) // выберем лекарственные препараты
     If Len( arrLekPreparat ) == 0  // пустой список лекарственных препаратов
-      AAdd( ta, 'для диагнозов U07.1 и U07.2 необходим ввод лекараственных препаратов' )
+      if is_oncology == 2
+        AAdd( ta, 'для выбранного вида химиотерапии ' + alltrim( lower( ONKSL->crit ) ) + ' необходим ввод лекараственных препаратов' )
+      else
+        AAdd( ta, 'для диагнозов U07.1 и U07.2 необходим ввод лекараственных препаратов' )
+      endif
     Else  // не пустой проверим его
       For Each row in arrLekPreparat
         If Empty( row[ 1 ] )
@@ -4432,30 +4437,43 @@ Function verify_sluch( fl_view )
         If ! between_date( human->n_data, human->k_data, row[ 1 ] )
           AAdd( ta, 'дата инъекции не входит в период случая' )
         Endif
-        If Empty( row[ 2 ] )
-          AAdd( ta, 'пустая схема лечения' )
-        Endif
-        If Empty( row[ 8 ] )
-          AAdd( ta, 'пустая схема соответствия препаратам' )
-        Endif
-        If ( arrGroupPrep := get_group_prep_by_kod( AllTrim( row[ 8 ] ), row[ 1 ] ) ) != nil
-          mMNN := iif( arrGroupPrep[ 3 ] == 1, .t., .f. )
-          If mMNN
-            If Empty( row[ 3 ] )
-              AAdd( ta, 'для "' + AllTrim( arrGroupPrep[ 2 ] ) + '" не выбран лекарственный препарат' )
-            Endif
-            If Empty( row[ 4 ] )
-              AAdd( ta, 'для "' + AllTrim( arrGroupPrep[ 2 ] ) + '" не выбрана единица измерения' )
-            Endif
-            If Empty( row[ 5 ] )
-              AAdd( ta, 'для "' + AllTrim( arrGroupPrep[ 2 ] ) + '" не выбрана доза препарата' )
-            Endif
-            If Empty( row[ 6 ] )
-              AAdd( ta, 'для "' + AllTrim( arrGroupPrep[ 2 ] ) + '" не выбран способ введения препарата' )
-            Endif
-            If Empty( row[ 7 ] )
-              AAdd( ta, 'для "' + AllTrim( arrGroupPrep[ 2 ] ) + '" не количество инъекций в день' )
-            Endif
+        if is_oncology == 2
+          s_lek_pr := AllTrim( get_lek_pr_by_id( row[ 3 ] ) )
+          If Empty( row[ 5 ] )
+            AAdd( ta, 'Дата: ' + dtoc( row[ 1 ] ) + ' для "' + s_lek_pr + '" не введено количество лекарственного препарата (действующего вещества)' )
+          Endif
+          If Empty( row[ 9 ] )
+            AAdd( ta, 'Дата: ' + dtoc( row[ 1 ] ) + ' для "' + s_lek_pr + '" не введено количество израсходованного (введеного + утилизированного) лекарственного препарата' )
+          Endif
+          If Empty( row[ 10 ] )
+            AAdd( ta, 'Дата: ' + dtoc( row[ 1 ] ) + ' для "' + s_lek_pr + '" не введена фактическая стоимость лек. препарата за единицу измерения' )
+          Endif
+        else    // для COVID19
+          If Empty( row[ 2 ] )
+            AAdd( ta, 'пустая схема лечения' )
+          Endif
+          If Empty( row[ 8 ] )
+            AAdd( ta, 'пустая схема соответствия препаратам' )
+          Endif
+          If ( arrGroupPrep := get_group_prep_by_kod( AllTrim( row[ 8 ] ), row[ 1 ] ) ) != nil
+            mMNN := iif( arrGroupPrep[ 3 ] == 1, .t., .f. )
+            If mMNN
+              If Empty( row[ 3 ] )
+                AAdd( ta, 'для "' + AllTrim( arrGroupPrep[ 2 ] ) + '" не выбран лекарственный препарат' )
+              Endif
+              If Empty( row[ 4 ] )
+                AAdd( ta, 'для "' + AllTrim( arrGroupPrep[ 2 ] ) + '" не выбрана единица измерения' )
+              Endif
+              If Empty( row[ 5 ] )
+                AAdd( ta, 'для "' + AllTrim( arrGroupPrep[ 2 ] ) + '" не выбрана доза препарата' )
+              Endif
+              If Empty( row[ 6 ] )
+                AAdd( ta, 'для "' + AllTrim( arrGroupPrep[ 2 ] ) + '" не выбран способ введения препарата' )
+              Endif
+              If Empty( row[ 7 ] )
+                AAdd( ta, 'для "' + AllTrim( arrGroupPrep[ 2 ] ) + '" не количество инъекций в день' )
+              Endif
+            endif
           Endif
         Endif
       Next

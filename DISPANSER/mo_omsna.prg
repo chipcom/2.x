@@ -214,41 +214,28 @@ Function disp_nabludenie( k )
           do while !eof()
            // § ¯¨á¨ («î¤¨) ¢ ¯ ª¥â¥  
             if rhum->reestr == d01->kod 
-              my_debug(,"=====")
-              my_debug(,rhum->kod_k)
-              my_debug(,t_diag)
-              my_debug(,padr(alltrim(dd->kod_diag),3))
-              my_debug(,dd->(recno()))
               if RHUM->kod_k == t_hum .and. padr(alltrim(dd->kod_diag),3) == t_diag
                 //â¥ªãé¨© ¨ ¯à¥¤ë¤ãé¨© ¤¨ £­®§  - ¢ ®è¨¡ª¨  
                 t_hum := RHUM->kod_k 
                 t_diag := padr(alltrim(dd->kod_diag),3) 
-                my_debug(,"--------------------------------")
                 if rhum->oplata == 1
                   dd->oplata := 2
                   rhum->oplata := 2
                   ++ kol_err
-                  my_debug(,"+++")
                 endif  
-                my_debug(,rhum->kod_k)
-                my_debug(,t_diag)
-                my_debug(,dd->(recno()))
                 // ¤®¡ RHUM_E
                 skip -1
                 if rhum->oplata == 1
                   dd->oplata := 2
                   rhum->oplata := 2
                   ++ kol_err
-                  my_debug(,"+++")
                 endif  
-                my_debug(,dd->(recno()))
                 
                 // ¤®¡ RHUM_E
                 skip
               else
                 t_hum := RHUM->kod_k 
                 t_diag := padr(alltrim(dd->kod_diag),3) 
-                my_debug(,dd->(recno()))
               endif  
             endif 
             select dd
@@ -320,8 +307,8 @@ Function disp_nabludenie( k )
   Case k == 42
     spr_disp_nabl()
   Case k == 31
-    ne_real()
-    //f_create_d01()
+    //ne_real()
+    f_create_d01()
   Case k == 32
     f_view_d01()
   Case k == 51
@@ -1578,25 +1565,19 @@ Function  f_inf_prirost_disp_nabl()
             &pole_d_dispans := CToD( "" )
           Next
           read_arr_dvn( human->kod )
-          my_debug(, human->fio )
           For i := 1 To 5
             sk := lstr( i )
             pole_diag := "mdiag" + sk
             pole_1dispans := "m1dispans" + sk
             pole_d_dispans := "mddispans" + sk
-            // my_debug(, &pole_diag)
-            // my_debug(, &pole_d_dispans)
-            // my_debug(,check_tip_disp_nabl(  &pole_diag))
             vr_tip := 0
             vr_tip := check_tip_disp_nabl(  &pole_diag )
             If !Empty( &pole_diag ) .and. !Empty( ( &pole_d_dispans ) ) .and. &pole_1dispans == 1 .and. vr_tip > 100
               // .and. ( j := AScan( ar_dn, AllTrim( &pole_diag ) ) ) > 0
 
-              // my_debug(,"++++++++++++++++++++++++++++")
               Select DN_SPIS
               find ( Str( human->KOD_K, 7 ) + Str( vr_tip, 3 ) )
               If !Found()
-                // my_debug(, "----------------")
                 addrec( 7 )
                 dn_SPIS->KOD_K := human->KOD_K
                 dn_spis->fio   := human->fio
@@ -2054,11 +2035,14 @@ Function inf_disp_nabl()
     // format_set_num_format( fmtCellNumberNDS, '#,##0' )
     s := "‘¯¨á®ª ¯ æ¨¥­â®¢, á®áâ®ïé¨å ­  ¤¨á¯ ­á¥à­®¬ ãçñâ¥"
     worksheet_set_row( worksheet,  0, 40,  nil )
+    worksheet_set_column( worksheet, 0, 0, 12, nil )
     worksheet_set_column( worksheet, 1, 1, 40, nil )
     worksheet_set_column( worksheet, 2, 2, 40, nil )
-    worksheet_set_column( worksheet, 3, 3, 11, nil )
-    worksheet_set_column( worksheet, 4, 4, 14, nil )
-    worksheet_set_column( worksheet, 5, 5, 20, nil )
+    worksheet_set_column( worksheet, 3, 3, 10, nil )
+    worksheet_set_column( worksheet, 4, 4, 13, nil )
+    worksheet_set_column( worksheet, 5, 5, 16, nil )
+    worksheet_set_column( worksheet, 7, 7, 7, nil )
+    worksheet_set_column( worksheet, 8, 8, 7, nil )
     worksheet_set_column( worksheet, 10, 10, 11, nil )
     worksheet_set_column( worksheet, 11, 11, 11, nil )
     worksheet_set_column( worksheet, 12, 12, 11, nil )
@@ -2080,11 +2064,11 @@ Function inf_disp_nabl()
     worksheet_write_string( worksheet, row++, 13, hb_StrToUTF8( 'ç¥à¥§ N ¬¥áïæ¥¢' ), fmt_header )
     //
     arr_title := { ;
-      "ÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", ;
-      " Žâ¢¥â³                                      ³   „ â    ³  ŒŽ  ³“ç³ ’ ¡.³„¨ £-³„ â  ¯®-³„ â  ¯®-³_‘«¥¤ãîé¨©_¢¨§¨â", ;
-      "      ³        ”ˆŽ ¯ æ¨¥­â                   ³ à®¦¤¥­¨ï ³¯à¨ª-ï³ á³­®¬¥à³­®§  ³á«¥¤­¥£®³áâ ­®¢ª¨³        ³ç¥à¥§ N", ;
-      " ’”ŽŒ‘³                                      ³   „ â    ³      ³â®³¢à ç ³     ³   ‹“   ³ ­  „  ³  ¤ â   ³¬¥áïæ¥¢", ;
-      "ÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄ" }
+      "ÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", ;
+      "   Žâ¢¥â  ³                                      ³   „ â    ³  ŒŽ  ³“ç³ ’ ¡.³„¨ £-³„ â  ¯®-³„ â  ¯®-³_‘«¥¤ãîé¨©_¢¨§¨â", ;
+      "          ³        ”ˆŽ ¯ æ¨¥­â                   ³ à®¦¤¥­¨ï ³¯à¨ª-ï³ á³­®¬¥à³­®§  ³á«¥¤­¥£®³áâ ­®¢ª¨³        ³ç¥à¥§ N", ;
+      "   ’”ŽŒ‘  ³                                      ³   „ â    ³      ³â®³¢à ç ³     ³   ‹“   ³ ­  „  ³  ¤ â   ³¬¥áïæ¥¢", ;
+      "ÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄ" }
     sh := Len( arr_title[ 1 ] )
     mywait()
     fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
@@ -2092,6 +2076,9 @@ Function inf_disp_nabl()
     add_string( Center( "‘¯¨á®ª ¯ æ¨¥­â®¢, á®áâ®ïé¨å ­  ¤¨á¯ ­á¥à­®¬ ãçñâ¥", sh ) )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
+    //
+    r_use( dir_server + "mo_D01E",,  "D01E" ) // ®è¨¡ª¨ ¯ æ¨¥­â  ¢ ¯ ª¥â¥ D01
+    index on str(reestr,6) + str(d01_zap,6) to  ( cur_dir + "tmp_D01E" )
     r_use( dir_server + "mo_D01",,  "D01" )  // ¯ ª¥âë D01
     r_use( dir_server + "mo_D01K",,  "D01K" ) // ¯ æ¨¥­â  ¢ ¯ ª¥â¥ D01
     r_use( dir_server + "mo_D01D",,  "D01D" ) // ¤¨ £­®§ë ã ¯ æ¨¥­â®¢ ¢ ¯ ª¥â¥ D01
@@ -2306,11 +2293,9 @@ Function inf_disp_nabl()
                 arr_DN[ 2, 4 ] ++
                 flag_4_1 := .f.
               Else
- //               my_debug(,substr(alltrim(dn->kod_diag),1,3))
               Endif
             else
-              //my_debug(,d01d->kod_n)  
-              otvet  := "… Ž‘."
+              //otvet  := "… Ž‘."
             endif  
           Elseif d01d->OPLATA == 0
             otvet  := "…’ Ž’‚"
@@ -2328,7 +2313,26 @@ Function inf_disp_nabl()
               flag_4_4 := .f.
              Endif
           Else
+             // { "REESTR",   "N", 6, 0 }, ; // ª®¤ à¥¥áâà ;¯® ä ©«ã "mo_d01"
+             // { "D01_ZAP",  "N", 6, 0 }, ; // ­®¬¥à ¯®§¨æ¨¨ § ¯¨á¨ ¢ à¥¥áâà¥;"ZAP") ¢ D01
+             // { "KOD_ERR",  "N", 3, 0 }, ; // ª®¤ ®è¨¡ª¨ ’Š
+             // { "MESTO",    "N", 1, 0 };  // ¬¥áâ® ¯à®¢¥¤¥­¨ï ¤¨á¯ ­á¥à­®£® ­ ¡«î¤¥­¨ï: 0 - ¢ ŒŽ ¨«¨ 1 - ­  ¤®
             otvet  := "Ž˜ˆŠ€ "
+            if d01d->OPLATA == 2
+              // ¨¤¥¬ ¢ ®è¨¡ª¨
+              select D01K 
+              goto (D01D->kod_d)
+              select D01E 
+              find (str(d01k->reestr,6) + str(d01k->d01_zap,6))   
+              //index on str(reestr,6) + str(d01_zap,6) to  ( cur_dir + "tmp_D01E" )
+              if found()
+                otvet  := "Ž˜ˆŠ€ "+lstr(D01E->kod_err)
+              else
+                otvet  := "Ž˜ˆŠ€ 131" 
+              endif
+            else
+              otvet := otvet+lstr(d01d->OPLATA)
+            endif    
             If flag_1_2 .and. arr_tip_KOD_USL[ 1 ] == check_tip_disp_nabl( dn->kod_diag ) // 109
               arr_DN[ 3, 1 ] ++
               flag_1_2 := .f.
@@ -2348,7 +2352,7 @@ Function inf_disp_nabl()
         Endif
         // Š®­¥æ ‚›ŽŠˆ
         Select( t_vr )
-        s := otvet + s
+        s := padr(otvet,11) + s
         // //
         worksheet_write_string( worksheet, row, 0, hb_StrToUTF8( AllTrim( otvet ) ), fmt_text )
         row++
@@ -2385,6 +2389,7 @@ Function inf_disp_nabl()
     If !Empty( sadres )
       add_string( "  " + sadres )
     Endif
+    verify_ff( HH, .t., sh )
     If Empty( r )
       add_string( "¥ ­ ©¤¥­® ¯ æ¨¥­â®¢ ¯® § ¤ ­­®¬ã ãá«®¢¨î" )
     Else
@@ -2393,9 +2398,10 @@ Function inf_disp_nabl()
       add_string( "=== ¯ æ¨¥­â®¢ ¯à¨ªà¥¯«¥­­ëå ­¥ ª ­ è¥¬ã ŒŽ - " + lstr( rpr ) + " ç¥«. ¨ ’”ŽŒ‘®¬ ¢¥à®ïâ­® ¯à¨­ïâë ­¥ ¡ã¤ãâ " )
       add_string( "===                       à¨ªà¥¯«¥­ë ª ­ è¥¬ã ŒŽ : " )
       // ¢á¥£® ­ è¨å - ¯à¨­ïâ®- ®è¨¡ª  - ­¥ ®â¯à ¢« - ­¥â ®â¢¥â 
+      verify_ff( HH, .t., sh )
       add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂ")
       add_string("  ‡ ¡®«¥¢ ­¨¥    ³  æ¨¥­â®¢ ³ à¨­ïâ® ³ ‚¥à­ã«®áì ³… ¯®«ãç¥­³")
-      add_string("                 ³   ¢á¥£®   ³¢ 12.2024³ á ®è¨¡ª®© ³   ®â¢¥â  ³")
+      add_string("                 ³   ¢á¥£®   ³  ¢ D01  ³ á ®è¨¡ª®© ³   ®â¢¥â  ³")
       add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁ") 
       add_string( " Ž—ˆ…         " + PadL(lstr(arr_DN[1,1]),12) + PadL(lstr(arr_DN[2,1]),10)+ PadL(lstr(arr_DN[3,1]),12)+ PadL(lstr(arr_DN[5,1]),12) )
       add_string( " ŽŠŽ           " + PadL(lstr(arr_DN[1,2]),12) + PadL(lstr(arr_DN[2,2]),10)+ PadL(lstr(arr_DN[3,2]),12)+ PadL(lstr(arr_DN[5,2]),12) )
@@ -2448,7 +2454,7 @@ Function spr_disp_nabl()
 
 
 
-// 03.12.23 Ž¡¬¥­ á ’”ŽŒ‘ ¨­ä®à¬ æ¨¥© ¯® ¤¨á¯ ­á¥à­®¬ã ­ ¡«î¤¥­¨î
+// 21.01.25 Ž¡¬¥­ á ’”ŽŒ‘ ¨­ä®à¬ æ¨¥© ¯® ¤¨á¯ ­á¥à­®¬ã ­ ¡«î¤¥­¨î
 Function f_create_d01()
 
   Local fl := .t., arr, id01 := 0, lspec, lmesto, buf := save_maxrow()
@@ -2514,8 +2520,6 @@ Function f_create_d01()
     Endif
     If iii % 500 == 0
       Commit
-      my_debug(, iii )
-      my_debug(, Time() )
     Endif
   Enddo
   Commit
@@ -2537,9 +2541,9 @@ Function f_create_d01()
   Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_d01k" ) For rees->nyear == 2024 // žž
   r_use( dir_server + "kartotek",, "KART" )
   r_use( dir_server + "kartote2",, "KART2" )
-  r_use( dir_server + "mo_dnab",, "DN" )
+  g_use( dir_server + "mo_dnab",, "DN",.T.,.T. )
   Set Relation To kod_k into KART
-  Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kod_k, 7 ) to ( cur_dir + "tmp_dn" ) For kart->kod > 0 .and. dn->next_data > 0d20250101 // ¢à¥¬¥­­®
+  Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kod_k, 7 ) to ( cur_dir + "tmp_dn" ) For kart->kod > 0 .and. dn->next_data > 0d20250131 // ¢à¥¬¥­­®
   // unique - ¯¥à¥å®¤¨¬ - ®¤­  § ¯¨áì - ®¤¨­ ¤¨ £­®§
   Go Top
   Do While !Eof()
@@ -2552,8 +2556,13 @@ Function f_create_d01()
       Endif
       Skip
     Enddo
+    // 
+    If month(dn->next_data) == 1 .and. year(dn->next_data) == 2025 //¯à ¢ª  20.02.25
+      // § ¯« âª 
+      dn->next_data := dn->next_data +31    
+    endif
     // ¯à®¢¥àï¥¬ ¤ âã ­  25 £®¤
-    If dn->next_data > 0d20250101 .and. dn->next_data < 0d20260101
+    If dn->next_data > 0d20250131 .and. dn->next_data < 0d20260101 //¯à ¢ª  20.02.25
       //
     Else
       fl := .f.
@@ -2614,7 +2623,7 @@ Function f_create_d01()
   Pack
   // ®ç¨é ¥¬ ®â ¤ã¡«¥© ¯® ¤¨ £­®§ã
   Select TMP
-  Index On Str( kod_k, 7 ) + kod_diag to ( cur_dir + "tmp_dnn" ) unique
+  Index On Str( kod_k, 7 ) + PadR( AllTrim( kod_diag ), 3 ) to ( cur_dir + "tmp_dnn" ) unique //21.01.25 ã­¨ª «ì­®áâì ­  3 §­ ª  ¢ ç¥«®¢¥ª¥
   Go Top
   Do While !Eof()
     If f_is_diag_dn( tmp->kod_diag,,, .f. ) .or. PadR( AllTrim( tmp->kod_diag ), 3 ) == "E10"// â®«ìª® ¤¨ £­®§ë ¨§ ¯®á«¥¤­¥£® á¯¨áª  ®â 21 ­®ï¡àï + E10
@@ -2645,6 +2654,7 @@ Function f_create_d01()
     Skip
   Enddo
   //
+//quit
   //
   If tmp->( LastRec() ) == 0
     func_error( 4, "¥ ®¡­ àã¦¥­® ¯ æ¨¥­â®¢, á®áâ®ïé¨å ¯®¤ ¤¨á¯.­ ¡«î¤¥­¨¥¬, ¥éñ ­¥ ®â¯à ¢«¥­­ëå ¢ ’”ŽŒ‘" )
@@ -3277,7 +3287,7 @@ Function  f31_view_d01( reg, s )
           endif  
           Skip
         Enddo
-        s += " )" + str(kart->kod)
+        s += " )" // + str(kart->kod)
          //
         verify_ff( 60, .t., 80 )
         add_string( s )

@@ -4,6 +4,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 27.01.25
+function mm_SVO()
+
+  return { { 'категория отсутствует', 0 }, ;
+    { 'участник СВО уволенный в запас (отставку)', 35 }, ;
+    { 'член семьи участника СВО', 65 } }
+
 // 12.01.25
 function control_number_phone( get )
 

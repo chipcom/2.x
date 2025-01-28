@@ -4,7 +4,7 @@
 #define NUMBER_YEAR 3 // число лет для переиндексации назад
 #define INDEX_NEED  2 // число лет обязательной переиндексации
 
-// 24.10.24 проверка наличия справочников НСИ
+// 06.01.25 проверка наличия справочников НСИ
 Function files_nsi_exists( dir_file )
 
   Local lRet := .t.
@@ -17,10 +17,9 @@ Function files_nsi_exists( dir_file )
   Local arr_check := {}
   Local prefix
   Local arr_TFOMS
-//  Local n_file := cur_dir + 'error_init' + stxt, sh := 80, HH := 60
   Local nSize
 
-  sbase := dir_file + FILE_NAME_SQL // 'chip_mo.db'
+  sbase := dir_file + FILE_NAME_SQL
   If ! hb_FileExists( sbase )
     AAdd( aError, 'Отсутствует файл: ' + sbase )
   Else
@@ -55,12 +54,12 @@ Function files_nsi_exists( dir_file )
   sbase := dir_file + '_mo_ovmp' + cDbf
   AAdd( arr_check, sbase )
 
-  // N0__
-  // for i := 1 to 21
-  For i := 20 To 21
-    sbase := dir_file + '_mo_N' + StrZero( i, 3 ) + cDbf
-    AAdd( arr_check, sbase )
-  Next
+//  // N0__
+//  // for i := 1 to 21
+//  For i := 20 To 21
+//    sbase := dir_file + '_mo_N' + StrZero( i, 3 ) + cDbf
+//    AAdd( arr_check, sbase )
+//  Next
 
   // справочник подразделений из паспорта ЛПУ
   sbase := dir_file + '_mo_podr' + cDbf
@@ -101,14 +100,13 @@ Function files_nsi_exists( dir_file )
 
   Return lRet
 
-// 29.09.23 проверка и переиндексирование справочников ТФОМС
+// 06.01.25 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir( dir_spavoch, cur_dir, flag )
 
   Local fl := .t., i, buf := save_maxrow()
   Local arrRefFFOMS := {}, row_flag := .t.
   Local lSchema := .f.
   Local countYear
-//  Local file_index, sbase
   Local cVar
   Local sbase
 
@@ -124,21 +122,18 @@ Function index_work_dir( dir_spavoch, cur_dir, flag )
 
   // справочник диагнозов
   sbase := '_mo_mkb'
-  // file_index := cur_dir + sbase + sntx
   r_use( dir_spavoch + sbase )
   Index On shifr + Str( ks, 1 ) to ( cur_dir + sbase )
   Close databases
 
   // услуги <-> специальности
   sbase := '_mo_spec'
-  // file_index := cur_dir + sbase + sntx
   r_use( dir_spavoch + sbase )
   Index On shifr + Str( vzros_reb, 1 ) + Str( prvs_new, 6 ) to ( cur_dir + sbase )
   Use
 
   // услуги <-> профили
   sbase := '_mo_prof'
-  // file_index := cur_dir + sbase + sntx
   r_use( dir_spavoch + sbase )
   Index On shifr + Str( vzros_reb, 1 ) + Str( profil, 3 ) to ( cur_dir + sbase )
   Use
@@ -170,7 +165,6 @@ Function index_work_dir( dir_spavoch, cur_dir, flag )
 
   // справочник страховых компаний РФ
   sbase := '_mo_smo'
-  // file_index := cur_dir + sbase + sntx
   glob_array_srf := {}
   r_use( dir_spavoch + sbase )
   Index On okato to ( cur_dir + sbase ) UNIQUE
@@ -182,29 +176,26 @@ Function index_work_dir( dir_spavoch, cur_dir, flag )
 
   // onkko_vmp
   sbase := '_mo_ovmp'
-  // file_index := cur_dir + sbase + sntx
   r_use( dir_spavoch + sbase )
   Index On Str( metod, 3 ) to ( cur_dir + sbase )
   Use
 
-  // N020
-  sbase := '_mo_N020'
-  // file_index := cur_dir + sbase + sntx
-  r_use( dir_spavoch + sbase )
-  Index On id_lekp to ( cur_dir + sbase )
-  Index On Upper( mnn ) to ( cur_dir + sbase + 'n' )
-  Use
+//  // N020
+//  sbase := '_mo_N020'
+//  // file_index := cur_dir + sbase + sntx
+//  r_use( dir_spavoch + sbase )
+//  Index On id_lekp to ( cur_dir + sbase )
+//  Index On Upper( mnn ) to ( cur_dir + sbase + 'n' )
+//  Use
 
   // справочник подразделений из паспорта ЛПУ
   sbase := '_mo_podr'
-  // file_index := cur_dir + sbase + sntx
   r_use( dir_spavoch + sbase )
   Index On codemo + PadR( Upper( kodotd ), 25 ) to ( cur_dir + sbase )
   Use
 
   // справочник соответствия профиля мед.помощи с профилем койки
   sbase := '_mo_prprk'
-  // file_index := cur_dir + sbase + sntx
   r_use( dir_spavoch + sbase )
   Index On Str( profil, 3 ) + Str( profil_k, 3 ) to ( cur_dir + sbase )
   Use
@@ -244,12 +235,10 @@ Function index_work_dir( dir_spavoch, cur_dir, flag )
 Function dep_index_and_fill( val_year, dir_spavoch, cur_dir, flag )
 
   Local sbase
-//  Local file_index
 
   Default flag To .f.
   sbase := prefixfilerefname( val_year ) + 'dep'  // справочник отделений на конкретный год
   If hb_vfExists( dir_spavoch + sbase + sdbf )
-    // file_index := cur_dir + sbase + sntx
     r_use( dir_spavoch + sbase, , 'DEP' )
     Index On Str( code, 3 ) to ( cur_dir + sbase ) For codem == glob_mo[ _MO_KOD_TFOMS ]
 
@@ -261,10 +250,8 @@ Function dep_index_and_fill( val_year, dir_spavoch, cur_dir, flag )
     Endif
     Use
     If is_otd_dep
-      // lIndex := .f.
       sbase := prefixfilerefname( val_year ) + 'deppr' // справочник отделения + профили  на конкретный год
       If hb_vfExists( dir_spavoch + sbase + sdbf )
-        // file_index := cur_dir + sbase + sntx
         r_use( dir_spavoch + sbase, , 'DEP' )
         Index On Str( code, 3 ) + Str( pr_mp, 3 ) to ( cur_dir + sbase ) For codem == glob_mo[ _MO_KOD_TFOMS ]
         Use
@@ -278,13 +265,11 @@ Function dep_index_and_fill( val_year, dir_spavoch, cur_dir, flag )
 Function usl_index( val_year, dir_spavoch, cur_dir, flag )
 
   Local sbase
-//  Local file_index
   Local shifrVMP
 
   Default flag To .f.
   sbase := prefixfilerefname( val_year ) + 'usl'  // справочник услуг ТФОМС на конкретный год
   If hb_vfExists( dir_spavoch + sbase + sdbf )
-    // file_index := cur_dir + sbase + sntx
     r_use( dir_spavoch + sbase, , 'LUSL' )
     Index On shifr to ( cur_dir + sbase )
     If val_year == WORK_YEAR
@@ -311,14 +296,12 @@ Function uslc_index( val_year, dir_spavoch, cur_dir, flag )
 
   Local sbase, prefix
   Local index_usl_name
-//  Local file_index
 
   Default flag To .f.
   prefix := prefixfilerefname( val_year )
   sbase :=  prefix + 'uslc'  // цены на услуги на конкретный год
   If hb_vfExists( dir_spavoch + sbase + sdbf )
     index_usl_name :=  prefix + 'uslu'  //
-    // file_index := cur_dir + sbase + sntx
 
     r_use( dir_spavoch + sbase, , 'LUSLC' )
     Index On shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( cur_dir + sbase ) ;
@@ -336,13 +319,9 @@ Function uslf_index( val_year, dir_spavoch, cur_dir, flag )
 
   Local sbase
 
-  // local lIndex := .f.
-//  Local file_index
-
   Default flag To .f.
   sbase := prefixfilerefname( val_year ) + 'uslf'  // справочник услуг ФФОМС на конкретный год
   If hb_vfExists( dir_spavoch + sbase + sdbf )
-    // file_index := cur_dir + sbase + sntx
     r_use( dir_spavoch + sbase, , 'LUSLF' )
     Index On shifr to ( cur_dir + sbase )
     Use
@@ -354,12 +333,10 @@ Function uslf_index( val_year, dir_spavoch, cur_dir, flag )
 Function unit_index( val_year, dir_spavoch, cur_dir, flag )
 
   Local sbase
-//  Local file_index
 
   Default flag To .f.
   sbase := prefixfilerefname( val_year ) + 'unit'  // план-заказ на конкретный год
   If hb_vfExists( dir_spavoch + sbase + sdbf )
-    // file_index := cur_dir + sbase + sntx
     r_use( dir_spavoch + sbase )
     Index On Str( code, 3 ) to ( cur_dir + sbase )
     Use
@@ -371,13 +348,11 @@ Function unit_index( val_year, dir_spavoch, cur_dir, flag )
 Function k006_index( val_year, dir_spavoch, cur_dir, flag )
 
   Local sbase
-//  Local file_index
 
   Default flag To .f.
 
   sbase := prefixfilerefname( val_year ) + 'k006'  //
   If hb_vfExists( dir_spavoch + sbase + sdbf ) .and. hb_vfExists( dir_spavoch + sbase + sdbt )
-    // file_index := cur_dir + sbase + sntx
     r_use( dir_spavoch + sbase )
     Index On SubStr( shifr, 1, 2 ) + ds + sy + age + sex + los to ( cur_dir + sbase ) // по диагнозу/операции
     Index On SubStr( shifr, 1, 2 ) + sy + ds + age + sex + los to ( cur_dir + sbase + '_' ) // по операции/диагнозу

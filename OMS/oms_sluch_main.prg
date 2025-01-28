@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.05.24 добавление или редактирование случая (листа учета)
+// 26.01.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -248,7 +248,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   dbCreate( cur_dir + 'tmp_onkle',  { ; // Сведения о применённых лекарственных препаратах
     { 'KOD',      'N',   7,  0 }, ; // код больного
     { 'REGNUM',   'C',   6,  0 }, ; // IDD лек.препарата N020
-    { 'CODE_SH',  'C',  10,  0 }, ; // код схемы лек.терапии V024
+    { 'CODE_SH',  'C',  20,  0 }, ; // код схемы лек.терапии V024
     { 'DATE_INJ', 'D',   8,  0 };  // дата введения лек.препарата
   } )
 
@@ -462,7 +462,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         If sl->HEI > 0
           mHEI := PadR( lstr( sl->HEI ), 3 )
         Endif
-        If sl->BSA > 0
+        If sl->BSA > 0 
           mBSA := PadR( AllTrim( str_0( sl->BSA, 4, 2 ) ), 4 )
         Endif
       Endif
@@ -1364,15 +1364,15 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             mpptr := inieditspr( A__MENUVERT, mm_danet, m1pptr )
           Endif
         Endif
-        mmb_diag := { ;
-          { 'выполнено (результат получен)', 98 }, ;
-          { 'выполнено (результат не получен)', 97 }, ;
-          { 'выполнено (до 1 сентября 2018г.)', -1 }, ;
-          { 'отказ', 0 }, ;
-          { 'не показано', 7 }, ;
-          { 'противопоказано', 8 }, ;  // }
-          { 'не надо', 99 } }
-        mB_DIAG := inieditspr( A__MENUVERT, mmb_diag, m1B_DIAG )
+//        mmb_diag := { ;
+//          { 'выполнено (результат получен)', 98 }, ;
+//          { 'выполнено (результат не получен)', 97 }, ;
+//          { 'выполнено (до 1 сентября 2018г.)', -1 }, ;
+//          { 'отказ', 0 }, ;
+//          { 'не показано', 7 }, ;
+//          { 'противопоказано', 8 }, ;  // }
+//          { 'не надо', 99 } }
+        mB_DIAG := inieditspr( A__MENUVERT, mmb_diag(), m1B_DIAG )
       Endif
       // ////////////////////////////////////////////////////////
       SetMode( Max( 25, k ), 80 )
@@ -1442,7 +1442,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             Endif
           Else
             @ ++j, 3 Say 'Гистология / иммуногистохимия' Get mB_DIAG ;
-              reader {| x| menu_reader( x, mmb_diag, A__MENUVERT, , , .f. ) }
+              reader {| x| menu_reader( x, mmb_diag(), A__MENUVERT, , , .f. ) }
             @ ++j, 3 Say 'Дата взятия материала' Get mDIAG_DATE ;
               When eq_any( m1b_diag, 97, 98 ) // ;
             If Len( mm_N009 ) == 0
@@ -2075,6 +2075,16 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             Endif
             deleterec( .t. )
           Enddo
+          if mk_data >= 0d20250101
+            g_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR' )
+            Do While .t.
+              find ( Str( mkod, 7 ) )
+              If !Found()
+                Exit
+              Endif
+              deleterec( .t. )
+            Enddo
+          Endif
         Endif
       Endif
       If is_oncology > 0 // онкология - направления
@@ -2265,13 +2275,24 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             AAdd( arr, RecNo() )
             Skip
           Enddo
+          if mk_data >= 0d20250101
+            arr_lek := {}
+            g_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR' )
+            find ( Str( mkod, 7 ) )
+            Do While lek_pr->kod_hum == mkod .and. !Eof()
+              AAdd( arr_lek, RecNo() )
+              Skip
+            Enddo
+            i_lek_pr := 0
+          endif
           i := 0
+          // (m1usl_tip лекарственная противоопухлевая терапия или химиолучевая терапия)
           If eq_any( m1usl_tip, 2, 4 ) .or. ( is_onko_VMP .and. mtipvmp == 1 .and. musl2vmp == 2 )
             Use ( cur_dir + 'tmp_onkle' ) New Alias TMPLE
             Go Top
             Do While !Eof()
               Select LE
-              If++i > Len( arr )
+              If ++i > Len( arr )
                 addrec( 7 )
                 le->kod := mkod
               Else
@@ -2285,15 +2306,46 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
                 le->CODE_SH  := m1crit // tmple->CODE_SH
               Endif
               le->DATE_INJ := tmple->DATE_INJ
+
+              if mk_data >= 0d20250101
+                select LEK_PR
+                If ++i_lek_pr > Len( arr_lek )
+                  addrec( 7 )
+                  lek_pr->kod_hum := mkod
+                Else
+                  Goto ( arr_lek[ i ] )
+                  g_rlock( forever )
+                Endif
+
+                lek_pr->REGNUM   := tmple->REGNUM
+                lek_pr->CODE_SH  := m1crit // tmple->CODE_SH
+                lek_pr->DATE_INJ := tmple->DATE_INJ
+              endif
+
               Select TMPLE
               Skip
             Enddo
           Endif
           Select LE
-          Do While++i <= Len( arr )
+          Do While ++i <= Len( arr )
             Goto ( arr[ i ] )
             deleterec( .t. )
           Enddo
+          if mk_data >= 0d20250101
+            Select LEK_PR
+            do while ++i_lek_pr <= Len( arr_lek )
+              Goto ( arr_lek[ i_lek_pr ] )
+              deleterec( .t. )
+            Enddo
+//            g_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR' )
+//            Do While .t.
+//              find ( Str( mkod, 7 ) )
+//              If !Found()
+//                Exit
+//              Endif
+//              deleterec( .t. )
+//            Enddo
+          Endif
         Endif
       Endif
       Private fl_nameismo := .f.

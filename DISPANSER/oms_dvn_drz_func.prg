@@ -98,7 +98,13 @@ Function inf_drz()
       // if between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
       If is_sluch_dispanser_drz( human->ishod ) .and. iif( glob_mo[ _MO_KOD_TFOMS ] == '711001', f_is_uch( st_a_uch, human->lpu ), .t. )
         kart->( dbGoto( human->kod_k ) )
-        lCity := f_is_selo( kart_->gorod_selo, kart_->okatog )
+        lCity := f_is_selo( kart_->gorod_selo, kart_->okatog ) // .Т. - село .F. - город
+        // переворот
+        if lCity
+          lCity := .f.
+        else
+          lCity := .t.  
+        endif  
         is_weekend := ! is_work_day( human->n_data )
         For iii := 1 To 4
           pole_diag := 'mdiag' + lstr( iii )
@@ -114,7 +120,7 @@ Function inf_drz()
             fl_d_full := .t.
             fl_d_city := .t.
             fl_d_full_1 := .t. // впервые всего
-            fl_d_city_1 := .t. // впервые не город
+            fl_d_city_1 := .t. // впервые не город - правка ГОРОД
             For iii := 1 To 4
               pole_diag := 'mdiag' + lstr( iii )
               pole_1pervich := 'm1pervich' + lstr( iii )

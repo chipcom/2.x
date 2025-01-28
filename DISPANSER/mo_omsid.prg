@@ -2737,7 +2737,7 @@ Function inf_dds_xmlfile( is_schet )
 
   Return Nil
 
-// 06.09.21 Информация по диспансеризации и профилактике взрослого населения
+// 23.01.25 Информация по диспансеризации и профилактике взрослого населения
 Function inf_dvn( k )
 
   Static si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 2, si6 := 2, si7 := 2, sj := 1, sj1 := 1
@@ -2868,8 +2868,7 @@ Function inf_dvn( k )
   Case k == 62
     f_view_r01()
   Case k == 43
-    // ne_real()
-    If glob_mo[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
+//    If glob_mo[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
       mas_pmt := { "~Создание файлов обмена", ;
         "~Просмотр файлов обмена" }
       mas_msg := { "Создание файлов обмена R11... за конкретный месяц", ;
@@ -2889,7 +2888,7 @@ Function inf_dvn( k )
       // set key K_CTRL_F10 to delete_month_R11()
       popup_prompt( T_ROW, T_COL - 5, si7, mas_pmt, mas_msg, mas_fun )
       // set key K_CTRL_F10 to
-    Endif
+//    Endif
   Case k == 71
     f_create_r11()
   Case k == 72

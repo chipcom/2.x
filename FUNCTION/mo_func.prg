@@ -4,6 +4,21 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 21.01.25
+function unique_val_in_array( arr, col )
+
+  local i, retArr := {}, tmpArr := {}, j
+
+  if ValType( arr ) != 'A'
+    return retArr
+  endif
+  for i := 1 to len( arr )
+    if ( j := AScan( retArr, {| x| alltrim( x[ col ] ) ==  AllTrim( arr[ i, col ] ) } ) ) == 0
+      AAdd( retArr, arr[ i ] )
+    endif
+  next
+  return retArr
+
 // 21.08.17
 Function run_my_hrb( name_hrb, name_func )
 
