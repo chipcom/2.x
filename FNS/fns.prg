@@ -468,7 +468,7 @@ function exist_spravka( get, kod_kart, onePerson )
 
   return .t.
 
-// 28.01.25
+// 29.01.25
 function input_spravka_fns()
 
   Local str_sem
@@ -549,7 +549,8 @@ function input_spravka_fns()
       return nil
     else
       oldSumma := mSumma
-			if ( mSumma := input_value( 18, 23, 20, 56, color1, '‚Ά¥¤¨β¥ αγ¬¬γ', mSumma, '9999999999999.99' ) ) == nil
+			if ( ( mSumma := input_value( 18, 23, 20, 56, color1, '‚Ά¥¤¨β¥ αγ¬¬γ', mSumma, '9999999999999.99' ) ) == nil ) ;
+          .or. ( mSumma == 0.0 )
         dbCloseAll()
         return nil
       endif

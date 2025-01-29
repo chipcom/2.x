@@ -66,7 +66,7 @@ Function update_v____()
 
   Return Nil
   
-//  16.12.22 проведение изменений в содержимом БД при обновлении
+// 29.01.25 проведение изменений в содержимом БД при обновлении
 Function update_data_db( aVersion )
 
   Local snversion := Int( aVersion[ 1 ] * 10000 + aVersion[ 2 ] * 100 + aVersion[ 3 ] )
@@ -84,7 +84,11 @@ Function update_data_db( aVersion )
     update_v21208()     // заполним поле PRVS_V021 кодами из справочника мед. специальностей V021
   Endif
 
-  Return Nil
+  If ver_base < 50104 // переход на версию 5.1.4
+    update_v50104()     // перенос данных об участниках СВО
+  Endif
+
+Return Nil
 
 //  12.03.22
 Function update_v21203()
@@ -247,3 +251,15 @@ Function update_v21130()
   Endif
 
   Return Nil
+
+// 29.01.25
+function update_v50104()     // перенос данных об участниках СВО
+
+  stat_msg( 'Переносим информацию об участниках СВО' )
+  use_base( 'kartotek', 'kart', .t. ) // откроем файл kartotek
+
+  dbEval( { || kart->PC3 := iif( kart->PN1 == 30, '035', ;
+      iif( Empty( kart->PC3 ), '000', kart->PC3 ) ) } )
+
+  dbCloseAll()        // закроем все
+  return nil

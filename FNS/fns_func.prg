@@ -3,9 +3,10 @@
 #include 'common.ch'
 #include 'hbhash.ch' 
 #include 'harupdf.ch'
+#include 'tfile.ch'
 #include 'chip_mo.ch'
 
-// 03.12.24
+// 29.01.25
 FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   Local detail_font_name, detail_font_nameBold
@@ -20,6 +21,7 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   LOCAL pdf := HPDF_New()
   local fl := .t.
+  local fError
 
   IF pdf == NIL
     func_error( 4, 'Справка для ФНС не может быть создана!' )
@@ -49,9 +51,13 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
 //    func_error( 4, '0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError := tfiletext():new( cur_dir() + 'error_pdf.txt', , .t., , .t. ) 
+    fError:width := 100
+    fError:add_string( '0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError := nil
     func_error( 4, 'Ошибка создания печатной формы справки для ФНС!' )
     fl := .f.
-  ENDIF
+  ENDIF 
 
   HPDF_Free( pdf )
 

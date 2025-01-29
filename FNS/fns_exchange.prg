@@ -210,14 +210,14 @@ Function reestr_xml_fns()
 //  RestScreen( buf )
   Return Nil
 
-// 22.08.24
+// 29.01.25
 function name_file_fns_xml( org, dt, num, id_pol, id_end )
 
   local nameXML
   local prefix := 'UT_SVOPLMEDUSL'
 
   nameXML := prefix + '_' + id_pol + '_' + id_end + '_' + ;
-    iif( org:UrOrIP(), org:INN() + org:KPP(), org:INN() ) + '_' + ;
+    iif( org:UrOrIP(), org:INN() + org:KPP(), alltrim( org:INN() ) ) + '_' + ;
     str( year( dt ), 4 ) + strzero( Month( dt ), 2, 0 ) + strzero( Day( dt ), 2, 0 ) + '_' + ;
     alltrim( str( num, 36 ) )
 
