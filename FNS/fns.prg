@@ -217,7 +217,7 @@ Function serv_spravka_fns( nKey, oBrow )
 
   Return flag
 
-// 13.01.25
+// 29.01.25
 function print_spravka_fns()
 
   local hSpravka, pos, cFileToSave
@@ -230,8 +230,8 @@ function print_spravka_fns()
   pos := hb_At( '/', org:INN() )
   if fns->attribut == 0
     tmp_select := select()
-    r_use( dir_server + 'reg_people_fns', , 'payer' )
-    payer->( dbGoto( fns->kod_payer ) )
+//    r_use( dir_server + 'reg_people_fns', , 'payer' )
+//    payer->( dbGoto( fns->kod_payer ) )
     if ! payer->( eof() ) .and. ! payer->( bof() )
       aFIOPlat := razbor_str_fio( payer->fio )
       aFIOPacient := razbor_str_fio( fns->plat_fio )
@@ -247,7 +247,7 @@ function print_spravka_fns()
       sernumPacient := fns->SER_NUM
       dateVydPacient := fns->datevyd
     endif
-    payer->( dbCloseArea() )
+//    payer->( dbCloseArea() )
     select( tmp_select )
   else
     aFIOPlat := razbor_str_fio( fns->plat_fio )
