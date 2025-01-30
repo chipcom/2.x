@@ -6,7 +6,7 @@
 #include 'tfile.ch'
 #include 'chip_mo.ch'
 
-// 29.01.25
+// 30.01.25
 FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   Local detail_font_name, detail_font_nameBold
@@ -19,11 +19,16 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
   Local TTFCourier := dir_fonts() + 'cour.ttf'
   Local TTFEanGnivc := dir_fonts() + 'Eang000.ttf'
 
-  LOCAL pdf := HPDF_New()
+  LOCAL pdf
   local fl := .t.
-  local fError
+  local fError, pdfReturn
 
-  IF pdf == NIL
+  fError := tfiletext():new( cur_dir() + 'error_pdf.txt', , .t., , .t. ) 
+  fError:width := 100
+  
+  IF ( pdf := HPDF_New() ) == NIL   // создание pdf - объекта файла
+    fError:add_string( 'HPDF_New() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError := nil
     func_error( 4, 'Справка для ФНС не может быть создана!' )
     RETURN .f.
   ENDIF
@@ -39,27 +44,29 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
   AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_eangnivc, 'CP1251' ) )
 
   /* установим режим сжатия */
-  HPDF_SetCompressionMode( pdf, HPDF_COMP_ALL )
+  if ( pdfReturn := HPDF_SetCompressionMode( pdf, HPDF_COMP_ALL ) ) != HPDF_OK
+    fError:add_string( 'HPDF_SetCompressionMode() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+  endif
 
-  HPDF_SetPageMode( pdf, HPDF_PAGE_MODE_USE_OUTLINE )
+  if ( pdfReturn := HPDF_SetPageMode( pdf, HPDF_PAGE_MODE_USE_OUTLINE ) ) != HPDF_OK
+    fError:add_string( 'HPDF_SetPageMode() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+  endif
 
-  designPage1( pdf, hArr, aFonts )
+  designPage1( pdf, hArr, aFonts, fError )
 
   if hArr[ 'attribut' ] == 0
-    designPage2( pdf, hArr, aFonts )
+    designPage2( pdf, hArr, aFonts, fError )
   endif
 
   IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
 //    func_error( 4, '0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
-    fError := tfiletext():new( cur_dir() + 'error_pdf.txt', , .t., , .t. ) 
-    fError:width := 100
-    fError:add_string( '0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
-    fError := nil
+    fError:add_string( 'HPDF_SaveToFile() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
     func_error( 4, 'Ошибка создания печатной формы справки для ФНС!' )
     fl := .f.
   ENDIF 
 
   HPDF_Free( pdf )
+  fError := nil
 
   RETURN fl //  hb_FileExists( cFileToSave )
 

@@ -3,20 +3,29 @@
 #include 'harupdf.ch'
 #include 'chip_mo.ch'
 
-// 03.12.24
-function designPage1( pdf, hArr, aFonts )
+// 30.01.25
+function designPage1( pdf, hArr, aFonts, fError )
 
   local page, i, j, t_arr := {}
+  local pdfError
   local old_set := __SetCentury( 'on' )
 
   /* добавим новый объект СТРАНИЦА. */
-  page := HPDF_AddPage( pdf )
+  if ( page := HPDF_AddPage( pdf ) ) == nil
+    fError:add_string( 'HPDF_AddPage() (Page 1) - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+  endif
 
-  HPDF_Page_SetSize( page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT )
+  if ( pdfError := HPDF_Page_SetSize( page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT ) ) != HPDF_OK
+    fError:add_string( 'HPDF_Page_SetSize() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+  endif
 
-  HPDF_Page_SetLineWidth( page, 0.5 )
+  if ( pdfError := HPDF_Page_SetLineWidth( page, 0.5 ) ) != HPDF_OK
+    fError:add_string( 'HPDF_Page_SetLineWidth() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+  endif
 
-  HPDF_Page_SetFontAndSize( page, aFonts[ FONT_ARIAL ], 8 )
+  if ( pdfError := HPDF_Page_SetFontAndSize( page, aFonts[ FONT_ARIAL ], 8 ) ) != HPDF_OK
+    fError:add_string( 'HPDF_Page_SetFontAndSize() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+  endif
 
   out_text( page, 168, 291, 'Приложение № 1' )
   out_text( page, 168, 287, 'к приказу ФНС России' )
