@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 23.07.24 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 30.01.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -22,7 +22,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       p_uch_doc := '@!', pic_diag := '@K@!', arr_usl := {}, ;
       colget_menu := 'R/W', colgetImenu := 'R/BG', ;
       pos_read := 0, k_read := 0, count_edit := 0, ;
-      fl, fl_write_sluch := .f., lrslt_1_etap := 0
+      fl, fl_write_sluch := .f., lrslt_1_etap := 0, date_pred := ctod( '  /  /    ' )
 
   local iUslDop := 0, iUslOtklon := 0, iUslNeNazn := 0, iUslNeVozm := 0   // счетчики
   local sk, i, j, k, s, ah, ar, larr, lu_kod, mu_cena
@@ -259,6 +259,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       letap := human->ishod - BASE_ISHOD_RZD
       if eq_any( letap, 1, 2 )
         lrslt_1_etap := human_->RSLT_NEW
+        date_pred := human->K_DATA
       endif
     endif
   endif
@@ -495,7 +496,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
   endif
 
-  if loc_kod == 0 .and. eq_any( lrslt_1_etap, 378, 379 )
+  if loc_kod == 0 .and. eq_any( lrslt_1_etap, 378, 379 ) .and. Year( date_pred ) == Year( mk_data )
     metap := 2
     uslugi_etapa := uslugietap_drz( metap, nAge, nGender )  // получим услуги этапа
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
