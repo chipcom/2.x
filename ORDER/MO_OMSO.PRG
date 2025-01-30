@@ -2951,6 +2951,7 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
     Select MO_XML
     Skip
   Enddo
+  //
   dbCreate( cur_dir + "tmp1", adbf )
   Use ( cur_dir + "tmp1" ) new
   Index On Str( rak, 6 ) + Str( akt, 6 ) + op + Str( schet, 6 ) + Str( otd, 3 ) + Str( REFREASON, 3 ) to ( cur_dir + "tmp1" )
@@ -3029,6 +3030,7 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
     Select TMP
     Skip
   Enddo
+ // 
   arr_title := { ;
     "_______________________________________________________________________________", ;
     " № акта, дата       | Проверяемый счёт   |кол-во|  Сумма      |  Коды    |Отде-", ;
@@ -3079,6 +3081,9 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
         s1 += SubStr( s2, i, 1 )
       Next
     Endif
+    if  Empty( s1 )
+      s1 := lstr( tmp1->REFREASON )
+    endif  
     // select T5
     // find (str(tmp1->REFREASON, 3))
     // if found()
