@@ -98,7 +98,7 @@ Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 27.01.25
+// 30.01.25
 Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Static mm_kart_error := { { 'нет замечаний', 0 }, { 'полис недействителен', -8 }, { 'ошибки в реквизитах', -9 } }
@@ -190,7 +190,8 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     MPOLIS_PR2 := Space( 25 ), ;
     mmo_pr := '', ;
     gl_area := { 1, 0, MaxRow() -1, 79, 0 }
-  private m1SVO := 0, mSVO
+  private m1SVO := 0, mSVO  // социальная категория
+  private m1UchastSVO := 0, mUchastSVO  // участник СВО
   //
   If !is_append .and. r_use( dir_server + 'kartote_', , 'KART_' ) ;
       .and. r_use( dir_server + 'kartote2', , 'KART2' ) ;
@@ -224,6 +225,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
       muchast := kart->uchast
       mkod_vu := kart->kod_vu
     Endif
+    m1UchastSVO := iif( kart->PN1 == 30, 1, 0 )
     m1SVO := val( kart->PC3 )
 
     Select KART2
@@ -383,6 +385,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   mkomu      := inieditspr( A__MENUVERT, mm_komu, m1komu )
   minvalid   := inieditspr( A__MENUVERT, mm_invalid, m1invalid )
   mosn_preb  := inieditspr( A__MENUVERT, get_osn_preb_rf(), m1osn_preb )
+  mUchastSVO := inieditspr( A__MENUVERT, mm_danet, m1UchastSVO )
   mSVO := inieditspr( A__MENUVERT, mm_SVO(), m1SVO )
   madres_reg := ini_adres( 1 )
   madres_pre := ini_adres( 2 )
@@ -589,13 +592,12 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     @ ++ix, 1 Say 'Телефоны: домашний' Get mPHONE_H valid {| g| valid_phone( g ) }
     @ Row(), Col() + 1 Say ', мобильный' Get mPHONE_M valid {| g| valid_phone( g, .t. ) }
     @ Row(), Col() + 1 Say   ', рабочий' Get mPHONE_W valid {| g| valid_phone( g ) }
-    If !eq_any( glob_task, X_PLATN, X_ORTO, X_KASSA ) // инвалидность
+    If ! eq_any( glob_task, X_PLATN, X_ORTO, X_KASSA ) // инвалидность
       @ ++ix, 1 Say 'Инвалидность' Get minvalid ;
         reader {| x| menu_reader( x, mm_invalid, A__MENUVERT, , , .f. ) } ;
         valid {|| f_kart_valid_inv( ix ) }
       @ ix, Col() + 6 Say 'Социальная категория' Get mSVO ;
         reader {| x| menu_reader( x, mm_SVO(), A__MENUVERT, , , .f. ) }
-  
     Endif
     If eq_any( glob_task, X_MO )
       @ ++ix, 1 Say 'Льгота по ДЛО' Get mKOD_LGOT ;
@@ -603,7 +605,9 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     Endif
     @ ++ix, 1 Say 'Житель:' Get mgorod_selo ;
       reader {| x| menu_reader( x, mm_gorod_selo, A__MENUVERT, , , .f. ) }
-    @ ix, Col() + 6 Say 'Гражданин РФ?' Get mgragd ;
+    @ ix, 19 Say 'Участник СВО?' get mUchastSVO ;
+      reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+    @ ix, Col() + 3 Say 'Гражданин РФ?' Get mgragd ;
       reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
       valid {|| iif( m1gragd == 1, .t., get_oksm( ix ) ) }
     @ ix, Col() + 5 Get mstrana When .f. Color color14
@@ -714,6 +718,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
           kart->uchast := muchast
           kart->kod_vu := mkod_vu
         Endif
+        kart->PN1 := iif( m1UchastSVO == 1, 30, kart->PN1 )
         kart->PC3 := StrZero( m1SVO, 3 )
         Select KART2
         Do While kart2->( LastRec() ) < mkod
@@ -1188,7 +1193,7 @@ Function findkartoteka( k, /*@*/lkod_k)
       If kart->MEST_INOG == 9 // т.е. отдельно занесены Ф.И.О.
         m1MEST_INOG := kart->MEST_INOG
       Endif
-//      m1SVO := iif( kart->PN1 == 30, 1, iif( kart->PN1 == 65, 2, 0 ) )
+      m1UchastSVO := iif( kart->PN1 == 30, 1, 0 )
       m1SVO := val( kart->PC3 )
       m1vidpolis  := kart_->VPOLIS // вид полиса (от 1 до 3);1-старый, 2-врем., 3-новый
       mspolis     := kart_->SPOLIS // серия полиса
