@@ -68,7 +68,7 @@ Function viewf003()
   oBoxRegion:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
   oBoxRegion:Save := .t.
   oBoxRegion:view()
-  nRegion := AChoice( oBoxRegion:Top + 1, oBoxRegion:Left + 1, oBoxRegion:Bottom -1, oBoxRegion:Right -1, ar, , , 34 )
+  nRegion := AChoice( oBoxRegion:Top + 1, oBoxRegion:Left + 1, oBoxRegion:Bottom -1, oBoxRegion:Right - 1, ar, , , 34 )
   If nRegion == 0
     ( dbName )->( dbCloseArea() )
     ( tmpAlias )->( dbCloseArea() )
@@ -101,7 +101,7 @@ Function viewf003()
   dbCreateIndex( tmpName, 'NAMEMOK', , NIL )
 
   ( tmpAlias )->( dbGoTop() )
-  If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right -1, 'ColumnF003', color0, , , , , , 'ViewRecordF003', 'controlF003', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
+  If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, 'ColumnF003', color0, , , , , , 'ViewRecordF003', 'controlF003', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
     // проверяем выбор
     If ( ifi := hb_AScan( glob_arr_mo, {| x| x[ _MO_KOD_FFOMS ] == ( tmpAlias )->MCOD }, , , .t. ) ) > 0
       // нашли в файле
@@ -175,7 +175,7 @@ Function viewrecordf003()
   count := iif( Len( arr ) > oBoxCompany:Height, oBoxCompany:Height, Len( arr ) )
 
   For i := 1 To count
-    @ oBoxCompany:Top + i -1, oBoxCompany:Left + 1 Say arr[ i ]
+    @ oBoxCompany:Top + i - 1, oBoxCompany:Left + 1 Say arr[ i ]
   Next
 
   Return Nil
@@ -493,6 +493,20 @@ Function getf014()
   Endif
 
   Return _arr
+
+// 31.01.25 вернуть строку для кода дефекта с описанием ошибки ФФОМС из справочника F014
+Function retarr_f014( lkod, isEmpty )
+
+  Local arrErrors := getf014()
+  Local row := {}
+
+  For Each row in arrErrors
+    If row[ 1 ] == lkod
+      Return row
+    Endif
+  Next
+
+Return iif( isEmpty, {}, { 'Неизвестная категория проверки с идентификатором: ' + Str( lkod ), '', '' } )
 
 // =========== F015 ===================
 //

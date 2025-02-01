@@ -3,17 +3,10 @@
 
 function test_init()
 
-  local aaa
+//  local aaa
 
-  // aaa := create_string_EanGnivc( '26901015' )
-  // use_base( 'reg_fns', 'reg_fns' )
-  // use_base( 'link_fns', 'link_fns' )
-  // use_base( 'xml_fns', 'xml_fns' )
-  // use_base( 'xml_link_fns', 'xml_link' )
-  // altd()
-  // aaa := create_string_EanGnivc( '26901022' )
-
-  // aaa := loadCriteria21(2023)
+//  aaa := retarr_f014( 304 )
+//  altd()
   return nil
 
 // 12.07.24

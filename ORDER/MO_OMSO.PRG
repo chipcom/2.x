@@ -2503,7 +2503,7 @@ Function pr_schet_bez_rak()
 
   Return Nil
 
-// 25.06.23 суммы снятий по актам
+// 31.01.25 суммы снятий по актам
 Function akt_summa_of_refusal( tip )
 
   // 1 - по дате АКТА в РАК
@@ -2677,7 +2677,8 @@ Function akt_summa_of_refusal( tip )
     If tmp->REFREASON == 0
       tmp->srefr := 'Итого'
     Else
-      retT005 := retarr_t005( tmp->REFREASON, .t. )
+//      retT005 := retarr_t005( tmp->REFREASON, .t. )
+      retT005 := retarr_f014( tmp->REFREASON, .t. )
       If ! Empty( retT005 )
         s := AllTrim( retT005[ 2 ] )
         s1 := ''
@@ -2843,7 +2844,7 @@ Function akt_list_of_refusal_defect()
 
   Return Nil
 
-// 19.10.23 функция для списка снятий по актам (дефекты)
+// 31.01.25 функция для списка снятий по актам (дефекты)
 Function f1akt_list_of_refusal_defect( asmo, ssmo )
 
   Local adbf, s, otch_period, n_file := cur_dir + 'sp_sn' + stxt, HH := 60, buf := save_maxrow()
@@ -3070,7 +3071,8 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
       add_string( PadC( AllTrim( tmp1->srak ), sh, "_" ) )
     Endif
     s1 := lstr( tmp1->REFREASON )
-    retT005 := retarr_t005( tmp1->REFREASON, .t. )
+//    retT005 := retarr_t005( tmp1->REFREASON, .t. )
+    retT005 := retarr_f014( tmp1->REFREASON, .t. )
     If ! Empty( retT005 )
       s1 := ""
       s2 := LTrim( retT005[ 2 ] )

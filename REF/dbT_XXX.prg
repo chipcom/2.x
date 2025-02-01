@@ -1,4 +1,4 @@
-#include 'hbhash.ch' 
+#include 'hbhash.ch'
 #include 'function.ch'
 #include 'chip_mo.ch'
 #include 'edit_spr.ch'
@@ -8,209 +8,222 @@
 // =========== T005 ===================
 //
 // 19.05.23 вернуть массив ошибок ТФОМС T005.dbf
-function loadT005()
+Function loadt005()
+
   // возвращает массив ошибок T005
-  static _arr
-  static time_load
-  local db
-  local aTable, row
-  local nI
+  Static _arr
+  Static time_load
+  Local db
+  Local aTable, row
+  Local nI
 
   // T005 - Перечень ошибок ТФОМС
-  //  1 - code(3)  2 - error(C) 3 - opis(M)
-  if timeout_load(@time_load)
+  // 1 - code(3)  2 - error(C) 3 - opis(M)
+  If timeout_load( @time_load )
     _arr := {}
-    Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
-    db := openSQL_DB()
-    aTable := sqlite3_get_table(db, 'SELECT ' + ;
-        'code, ' + ;
-        'error, ' + ;
-        'opis ' + ;
-        'FROM t005')
-    if len(aTable) > 1
-      for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3])})
-      next
-    endif
-    Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
+    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+    db := opensql_db()
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
+      'code, ' + ;
+      'error, ' + ;
+      'opis ' + ;
+      'FROM t005' )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        AAdd( _arr, { Val( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 2 ] ), AllTrim( aTable[ nI, 3 ] ) } )
+      Next
+    Endif
+    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
     db := nil
 
     // добавим из справочника _mo_f014.dbf
-    for each row in getF014()
-      if (j := ascan(_arr, {|x| x[1] == row[1] })) == 0
-        AAdd(_arr, {row[1], alltrim(row[2]), alltrim(row[3])} )
-      endif
-    next
-  endif
-  return _arr
+    For Each row in getf014()
+      If ( j := AScan( _arr, {| x| x[ 1 ] == row[ 1 ] } ) ) == 0
+        AAdd( _arr, { row[ 1 ], AllTrim( row[ 2 ] ), AllTrim( row[ 3 ] ) } )
+      Endif
+    Next
+  Endif
+
+  Return _arr
 
 // 04.08.21 вернуть строку для кода дефекта с описанием ошибки ТФОМС из справочника T005.dbf
-Function ret_t005(lkod)
-  local arrErrors := loadT005()
-  local row := {}
+Function ret_t005( lkod )
 
-  for each row in arrErrors
-    if row[1] == lkod
-      return '(' + lstr(row[1]) + ') ' + row[2] + ', [' + row[3] + ']'
-    endif
-  next
+  Local arrErrors := loadt005()
+  Local row := {}
 
-  return 'Неизвестная категория проверки с идентификатором: ' + str(lkod)
+  For Each row in arrErrors
+    If row[ 1 ] == lkod
+      Return '(' + lstr( row[ 1 ] ) + ') ' + row[ 2 ] + ', [' + row[ 3 ] + ']'
+    Endif
+  Next
+
+  Return 'Неизвестная категория проверки с идентификатором: ' + Str( lkod )
 
 // 28.06.22 вернуть строку для кода дефекта с описанием ошибки ТФОМС из справочника T005.dbf
-Function ret_t005_smol(lkod)
-  local arrErrors := loadT005()
-  local row := {}
+Function ret_t005_smol( lkod )
 
-  for each row in arrErrors
-    if row[1] == lkod
-      return '(' + lstr(row[1]) + ') ' + row[2] 
-    endif
-  next
+  Local arrErrors := loadt005()
+  Local row := {}
 
-  return 'Неизвестная категория проверки с идентификатором: ' + str(lkod)
+  For Each row in arrErrors
+    If row[ 1 ] == lkod
+      Return '(' + lstr( row[ 1 ] ) + ') ' + row[ 2 ]
+    Endif
+  Next
+
+  Return 'Неизвестная категория проверки с идентификатором: ' + Str( lkod )
 
 // 05.08.21 вернуть массив описателя ошибки для кода дефекта с описанием ошибки ТФОМС из справочника T005.dbf
-Function retArr_t005(lkod, isEmpty)
-  local arrErrors := loadT005()
-  local row := {}
-  default isEmpty to .f.
-   for each row in arrErrors
-    if row[1] == lkod
-      return row
-    endif
-  next
+Function retarr_t005( lkod, isEmpty )
 
-  return iif(isEmpty, {}, {'Неизвестная категория проверки с идентификатором: ' + str(lkod), '', ''})
+  Local arrErrors := loadt005()
+  Local row := {}
+
+  Default isEmpty To .f.
+  For Each row in arrErrors
+    If row[ 1 ] == lkod
+      Return row
+    Endif
+  Next
+
+  Return iif( isEmpty, {}, { 'Неизвестная категория проверки с идентификатором: ' + Str( lkod ), '', '' } )
 
 // =========== T007 ===================
 //
 // 02.06.23 вернуть массив ТФОМС T007.dbf
-function loadT007()
+Function loadt007()
+
   // возвращает массив T007
-  static _arr
-  static time_load
-  local db
-  local aTable, row
-  local nI
+  Static _arr
+  Static time_load
+  Local db
+  Local aTable, row
+  Local nI
 
   // T007 - Перечень
   // PROFIL_K,  N,  2
   // PK_V020,   N,  2
   // PROFIL,    N,  2
   // NAME,      C,  255
-  if timeout_load(@time_load)
+  If timeout_load( @time_load )
     _arr := {}
-    db := openSQL_DB()
-    aTable := sqlite3_get_table(db, 'SELECT ' + ;
-        'profil_k, ' + ;
-        'pk_v020, ' + ;
-        'profil, ' + ;
-        'name ' + ;
-        'FROM t007')
-    if len(aTable) > 1
-      for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), val(aTable[nI, 2]), val(aTable[nI, 3]), alltrim(aTable[nI, 4])})
-      next
-    endif
+    db := opensql_db()
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
+      'profil_k, ' + ;
+      'pk_v020, ' + ;
+      'profil, ' + ;
+      'name ' + ;
+      'FROM t007' )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        AAdd( _arr, { Val( aTable[ nI, 1 ] ), Val( aTable[ nI, 2 ] ), Val( aTable[ nI, 3 ] ), AllTrim( aTable[ nI, 4 ] ) } )
+      Next
+    Endif
     db := nil
-  endif
-  return _arr
+  Endif
+
+  Return _arr
 
 // 04.06.23 массив T007 для выбора
-function arr_t007() 
-  static arr
-  static time_load
-  local arrT007 := loadT007()
-  local row
+Function arr_t007()
 
-  if timeout_load(@time_load)
+  Static arr
+  Static time_load
+  Local arrT007 := loadt007()
+  Local row
+
+  If timeout_load( @time_load )
     arr := {}
-    for each row in arrT007
-      if AScan(arr, {|x| x[2] == row[1]}) == 0
-        aadd(arr, {alltrim(row[4]), row[1], row[2]})
-      endif
-    next
-  endif
-  return arr
+    For Each row in arrT007
+      If AScan( arr, {| x| x[ 2 ] == row[ 1 ] } ) == 0
+        AAdd( arr, { AllTrim( row[ 4 ] ), row[ 1 ], row[ 2 ] } )
+      Endif
+    Next
+  Endif
+
+  Return arr
 
 // 02.06.23 вернуть массив профилей мед. помощи
-Function ret_arr_V002_profil_k_t007(lprofil_k)
-  local arrT007 := loadT007()
-  local arr := {}, row := {}
+Function ret_arr_v002_profil_k_t007( lprofil_k )
 
-  for each row in arrT007
-    if row[1] == lprofil_k
-      aadd(arr, {inieditspr(A__MENUVERT, getV002(), row[3]), row[3]})
-    endif
-  next
+  Local arrT007 := loadt007()
+  Local arr := {}, row := {}
 
-  return arr
+  For Each row in arrT007
+    If row[ 1 ] == lprofil_k
+      AAdd( arr, { inieditspr( A__MENUVERT, getv002(), row[ 3 ] ), row[ 3 ] } )
+    Endif
+  Next
+
+  Return arr
 
 // =========== T008 ===================
 //
 // 23.10.22 вернуть Коды ошибок в протоколах обработки инф.пакетов T008.xml
-function getT008()
+Function gett008()
+
   // T008.xml - Коды ошибок в протоколах обработки инф.пакетов
   // 1 - NAME (C), 2 - CODE (N), 3 - NAME_F (C), 4 - DATE_B (D), 5 - DATE_E (D)
-  static _arr := {}
+  Static _arr := {}
 
-  if len(_arr) == 0
-    aadd(_arr, {'Файл уже был загружен', 0, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Файл не соответствует xsd-схеме', 1, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Некорректное сочетание кодов МО (codeM и Mcod)', 2, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Некорректный код профиля', 3, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Некорректный код профиля койки', 4, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Некорректный код диагноза', 5, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Некорректная форма оказания МП (V014)', 6, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Некорректный тип документа (F008)', 7, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Некорректный пол (V005)', 8, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Некорректный реестровый код МО юридического лица', 9, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Некорректный регистрационный код МО по ТФОМС', 10, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Данного направления нет в выписанных', 11, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Некорректный код причины аннулирования', 12, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Некорректный реестровый код СМО', 13, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Профиль койки не соответствует профилю МП', 14, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Некорректная дата госпитализации', 15, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Запись по данному направлению уже была загружена', 16, '', stod('20140701'), stod('22220101')})
-    aadd(_arr, {'Отсутствуют сведения о выполненных объемах для СМО', 17, '', stod('20160915'), stod('22220101')})
-    aadd(_arr, {'Отчетная дата отлична от текущей', 18, '', stod('20170220'), stod('22220101')})
-    aadd(_arr, {'Нарушена уникальность ID_D', 19, '', stod('20180829'), stod('22220101')})
-    aadd(_arr, {'Дата в имени файла не соответствует DATE_R', 20, '', stod('20180907'), stod('22220101')})
-    aadd(_arr, {'Дата в записи не соответствует DATE_R', 21, '', stod('20180907'), stod('22220101')})
-    aadd(_arr, {'Превышен срок действия направления (30 дней)', 22, '', stod('20180907'), stod('22220101')})
-    aadd(_arr, {'Ошибка в других записях файла', 999, '', stod('20140701'), stod('22220101')})
-  endif
+  If Len( _arr ) == 0
+    AAdd( _arr, { 'Файл уже был загружен', 0, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Файл не соответствует xsd-схеме', 1, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Некорректное сочетание кодов МО (codeM и Mcod)', 2, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Некорректный код профиля', 3, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Некорректный код профиля койки', 4, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Некорректный код диагноза', 5, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Некорректная форма оказания МП (V014)', 6, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Некорректный тип документа (F008)', 7, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Некорректный пол (V005)', 8, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Некорректный реестровый код МО юридического лица', 9, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Некорректный регистрационный код МО по ТФОМС', 10, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Данного направления нет в выписанных', 11, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Некорректный код причины аннулирования', 12, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Некорректный реестровый код СМО', 13, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Профиль койки не соответствует профилю МП', 14, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Некорректная дата госпитализации', 15, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Запись по данному направлению уже была загружена', 16, '', SToD( '20140701' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Отсутствуют сведения о выполненных объемах для СМО', 17, '', SToD( '20160915' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Отчетная дата отлична от текущей', 18, '', SToD( '20170220' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Нарушена уникальность ID_D', 19, '', SToD( '20180829' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Дата в имени файла не соответствует DATE_R', 20, '', SToD( '20180907' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Дата в записи не соответствует DATE_R', 21, '', SToD( '20180907' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Превышен срок действия направления (30 дней)', 22, '', SToD( '20180907' ), SToD( '22220101' ) } )
+    AAdd( _arr, { 'Ошибка в других записях файла', 999, '', SToD( '20140701' ), SToD( '22220101' ) } )
+  Endif
 
-  return _arr
+  Return _arr
 
 // =========== T012 ===================
 //
 // 26.12.22 вернуть описание ошибки из Классификатора ошибок ИСОМП ISDErr.xml
-function getError_T012(code)
-  static arr
-  local db
-  local aTable
-  local nI
-  local s := 'ошибка ' + lstr(code) + ': '
+Function geterror_t012( code )
 
-  if arr == nil
-    arr := hb_hash()
-  
-    db := openSQL_DB()
-    aTable := sqlite3_get_table(db, 'SELECT code, name FROM isderr')
-    if len(aTable) > 1
-      for nI := 2 to Len(aTable)
-        hb_hSet(arr, val(aTable[nI, 1]), alltrim(aTable[nI, 2]))
-      next
-    endif
+  Static arr
+  Local db
+  Local aTable
+  Local nI
+  Local s := 'ошибка ' + lstr( code ) + ': '
+
+  If arr == nil
+    arr := hb_Hash()
+
+    db := opensql_db()
+    aTable := sqlite3_get_table( db, 'SELECT code, name FROM isderr' )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        hb_HSet( arr, Val( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 2 ] ) )
+      Next
+    Endif
     db := nil
-  endif
+  Endif
 
-  if hb_hHaskey(arr, code) 
-    s += alltrim(arr[code])
-  else
+  If hb_HHasKey( arr, code )
+    s += AllTrim( arr[ code ] )
+  Else
     s += '(неизвестная ошибка)'
-  endif
+  Endif
 
-  return s
+  Return s
