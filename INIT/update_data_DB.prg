@@ -273,32 +273,32 @@ Function update_v50202()     // ¯¥à¥­®á ¤ ­­ëå ® £¨­¥ª®«£¨ç¥áª¨å ãá«ã£ å
 
   local  i
   Local org_gen_N_PNF := { ;  
-  { "101001"},; //	ƒ“‡ "‚ŽŠ ü 1"
-  { "101002"},; //	ƒ“‡ "‚Ž„Š"
-  { "101003"},; //	ƒ“‡ "‚ŽŠ ü 3"
-  { "101201"},; //	ƒ“‡ "‚ŽŠƒ‚‚"
-  { "102604"},; //	ƒ“‡ "‚ŽŠŠ‚„"
-  { "104001"},; //	ƒ“‡ "‚ŽŠ–Œ"
-  { "104401"},; //	ƒ“‡ "‚ŽŠŠ–"
-  { "106001"},; //	ƒ“‡ "‚ŽŠ– ü 1", £.‚®«¦áª¨©
-  { "106002"},; //	ƒ“‡ "‚ŽŠ– ü 2"
-  { "131001"},; //	ƒ“‡ "ƒŠ ü 1"
-  { "131940"},; //	”ƒ“‡ ‚ŒŠ– ”Œ€ ®áá¨¨
-  { "146004"},; //	ƒ“‡ "®¤¨«ì­ë© ¤®¬ ü 4"
-  { "151005"},; //	ƒ“‡ "Š ü 5"
-  { "161007"},; //	ƒ“‡ "Š ‘Œ ü 7"
-  { "171004"},; //	ƒ“‡ "Š«¨­¨ç¥áª ï ¡®«ì­¨æ  ü 4 "
-  { "184551"},; //	”¨«¨ « ŽŽŽ "Œ…„ˆ‘" ¢ £.‚®«£®£à ¤¥
-  { "186002"},; //	ƒ“‡ "Š«¨­¨ç¥áª¨© à®¤¨«ì­ë© ¤®¬ ü 2"
-  { "254570"},; //	€Ž "‚’‡"
-  { "731002"},; //	”Š“‡ "Œ‘— Œ‚„ ®áá¨¨ ¯® ‚®«£®£à ¤áª®© ®¡« áâ¨"
-  { "741904"},; //	”ƒ“ "413 ‚ƒ" Œ¨­®¡®à®­ë ®áá¨¨
-  { "801926"},; //	ŽŽŽ "ƒ¥­®¬-‚®«£ "
-  { "804504"},; //	€Ž "”– "’¨â ­- àà¨ª ¤ë"
-  { "805929"},; //	ŽŽŽ "ŒŠ "¥ä«¥ªá"
-  { "805938"},; //	Œ—“ "‡„ŽŽ‚œ…+"
-  { "805960"},; //	ŽŽŽ "‚¨â -‹ ©â"
-  { "805972"}} //	ŽŽŽ "Š«¨­¨ª  ‘¥¬ìï"
+   "101001",; //	ƒ“‡ "‚ŽŠ ü 1"
+   "101002",; //	ƒ“‡ "‚Ž„Š"
+   "101003",; //	ƒ“‡ "‚ŽŠ ü 3"
+   "101201",; //	ƒ“‡ "‚ŽŠƒ‚‚"
+   "102604",; //	ƒ“‡ "‚ŽŠŠ‚„"
+   "104001",; //	ƒ“‡ "‚ŽŠ–Œ"
+   "104401",; //	ƒ“‡ "‚ŽŠŠ–"
+   "106001",; //	ƒ“‡ "‚ŽŠ– ü 1", £.‚®«¦áª¨©
+   "106002",; //	ƒ“‡ "‚ŽŠ– ü 2"
+   "131001",; //	ƒ“‡ "ƒŠ ü 1"
+   "131940",; //	”ƒ“‡ ‚ŒŠ– ”Œ€ ®áá¨¨
+   "146004",; //	ƒ“‡ "®¤¨«ì­ë© ¤®¬ ü 4"
+   "151005",; //	ƒ“‡ "Š ü 5"
+   "161007",; //	ƒ“‡ "Š ‘Œ ü 7"
+   "171004",; //	ƒ“‡ "Š«¨­¨ç¥áª ï ¡®«ì­¨æ  ü 4 "
+   "184551",; //	”¨«¨ « ŽŽŽ "Œ…„ˆ‘" ¢ £.‚®«£®£à ¤¥
+   "186002",; //	ƒ“‡ "Š«¨­¨ç¥áª¨© à®¤¨«ì­ë© ¤®¬ ü 2"
+   "254570",; //	€Ž "‚’‡"
+   "731002",; //	”Š“‡ "Œ‘— Œ‚„ ®áá¨¨ ¯® ‚®«£®£à ¤áª®© ®¡« áâ¨"
+   "741904",; //	”ƒ“ "413 ‚ƒ" Œ¨­®¡®à®­ë ®áá¨¨
+   "801926",; //	ŽŽŽ "ƒ¥­®¬-‚®«£ "
+   "804504",; //	€Ž "”– "’¨â ­- àà¨ª ¤ë"
+   "805929",; //	ŽŽŽ "ŒŠ "¥ä«¥ªá"
+   "805938",; //	Œ—“ "‡„ŽŽ‚œ…+"
+   "805960",; //	ŽŽŽ "‚¨â -‹ ©â"
+   "805972"} //	ŽŽŽ "Š«¨­¨ª  ‘¥¬ìï"
   
   Local mas_usl_gen0      := {"2.79.13", "2.79.47", "2.80.8",  "2.88.33",  "2.78.26"}
   Local mas_usl_gen_N_PNF := {"2.79.78", "2.79.80", "2.80.70", "2.88.147", "2.78.118"}
@@ -308,6 +308,8 @@ Function update_v50202()     // ¯¥à¥­®á ¤ ­­ëå ® £¨­¥ª®«£¨ç¥áª¨å ãá«ã£ å
   Local mas_kod_gen0      := {0,0,0,0,0}
   Local cena, flag := .F. 
   
+  
+  stat_msg( 'ˆ§¬¥­¥­¨¥ ¨­ä®à¬ æ¨¨ ® £¨­¥ª®«®£¨ç¥áª¨å ¯à¨¥¬ å' )
   Use_base('lusl')
   Use_base('luslc')
   Use_base('uslugi')
@@ -317,6 +319,10 @@ Function update_v50202()     // ¯¥à¥­®á ¤ ­­ëå ® £¨­¥ª®«£¨ç¥áª¨å ãá«ã£ å
   // ¨ á®§¤ ¥¬ ¬ áá¨¢ ¯®§¨æ¨© ¢ ä ©«¥ ãá«ã£
   //Function foundourusluga( lshifr, ldate, lprofil, lvzros_reb, /*@*/lu_cena, ipar, not_cycle)
   for i := 1 to len(org_gen_N_PNF)
+     my_debug(,i)
+     my_debug(,org_gen_N_PNF[i])
+     my_debug(,glob_mo[ _MO_KOD_TFOMS ])
+     my_debug(,_MO_KOD_TFOMS)
     if org_gen_N_PNF[i] == glob_mo[ _MO_KOD_TFOMS ] 
       flag := .T. 
     endif
@@ -342,47 +348,51 @@ Function update_v50202()     // ¯¥à¥­®á ¤ ­­ëå ® £¨­¥ª®«£¨ç¥áª¨å ãá«ã£ å
   find (dtos(stod("20250101")))
   do while year(human->k_data)== 2025 .and. !eof()    
     // ¯® á«ãç - ®âä¨«ìâà®¢ « - â¥¯¥àì ­ ¤® ¯® ãá«ã£ ¬
-    select human_u
+    select hu
     set order to 1
     find (str(human->kod,7))
-    do while human->kod == human_u->kod .and. !eof() 
+    do while human->kod == hu->kod .and. !eof() 
       // ¯à®¢¥àï¥¬ ­  è¨äà ãá«ã£¨ ¯® á¯¨áªã 
-      if human_u->u_kod == mas_kod_gen0[1]
+      g_rlock( forever )
+      if hu->u_kod == mas_kod_gen0[1]
         if flag
-          human_u->u_kod := mas_kod_gen_N_PNF[1]
+          hu->u_kod := mas_kod_gen_N_PNF[1]
         else
-          human_u->u_kod := mas_kod_gen_PNF[1]
+          hu->u_kod := mas_kod_gen_PNF[1]
         endif
-      elseif human_u->u_kod == mas_kod_gen0[2]
+      elseif hu->u_kod == mas_kod_gen0[2]
         if flag
-          human_u->u_kod := mas_kod_gen_N_PNF[2]
+          hu->u_kod := mas_kod_gen_N_PNF[2]
         else
-          human_u->u_kod := mas_kod_gen_PNF[2]
+          hu->u_kod := mas_kod_gen_PNF[2]
         endif
-      elseif human_u->u_kod == mas_kod_gen0[3]  
+      elseif hu->u_kod == mas_kod_gen0[3]  
         if flag
-          human_u->u_kod := mas_kod_gen_N_PNF[3]
+          hu->u_kod := mas_kod_gen_N_PNF[3]
         else
-          human_u->u_kod := mas_kod_gen_PNF[3]
+          hu->u_kod := mas_kod_gen_PNF[3]
         endif
-      elseif human_u->u_kod == mas_kod_gen0[4]
+      elseif hu->u_kod == mas_kod_gen0[4]
         if flag
-          human_u->u_kod := mas_kod_gen_N_PNF[4]
+          hu->u_kod := mas_kod_gen_N_PNF[4]
         else
-          human_u->u_kod := mas_kod_gen_PNF[4]
+          hu->u_kod := mas_kod_gen_PNF[4]
         endif
-      elseif human_u->u_kod == mas_kod_gen0[5]
+      elseif hu->u_kod == mas_kod_gen0[5]
         if flag
-          human_u->u_kod := mas_kod_gen_N_PNF[5]
+          hu->u_kod := mas_kod_gen_N_PNF[5]
         else
-          human_u->u_kod := mas_kod_gen_PNF[5]
+          hu->u_kod := mas_kod_gen_PNF[5]
         endif
       endif  
-      select human_u 
+      select hu 
+      Unlock
       skip
     enddo 
     select human
     skip
   enddo
+
+  dbCloseAll()        // § ªà®¥¬ ¢á¥
   Return Nil
   
