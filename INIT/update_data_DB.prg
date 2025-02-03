@@ -66,7 +66,7 @@ Function update_v____()
 
   Return Nil
   
-// 29.01.25 проведение изменений в содержимом БД при обновлении
+// 03.02.25 проведение изменений в содержимом БД при обновлении
 Function update_data_db( aVersion )
 
   Local snversion := Int( aVersion[ 1 ] * 10000 + aVersion[ 2 ] * 100 + aVersion[ 3 ] )
@@ -87,6 +87,10 @@ Function update_data_db( aVersion )
   If ver_base < 50104 // переход на версию 5.1.4
     update_v50104()     // перенос данных об участниках СВО
   Endif
+
+  If ver_base < 50202 // переход на версию 5.2.2
+    update_v50202()     // перенос данных о гинеколгических услугах
+  endif
 
 Return Nil
 
@@ -263,3 +267,122 @@ function update_v50104()     // перенос данных об участниках СВО
 
   dbCloseAll()        // закроем все
   return nil
+
+// 03.02.25
+Function update_v50202()     // перенос данных о гинеколгических услугах
+
+  local  i
+  Local org_gen_N_PNF := { ;  
+  { "101001"},; //	ГБУЗ "ВОКБ № 1"
+  { "101002"},; //	ГБУЗ "ВОДКБ"
+  { "101003"},; //	ГБУЗ "ВОКБ № 3"
+  { "101201"},; //	ГБУЗ "ВОКГВВ"
+  { "102604"},; //	ГБУЗ "ВОККВД"
+  { "104001"},; //	ГБУЗ "ВОКЦМР"
+  { "104401"},; //	ГБУЗ "ВОККЦ"
+  { "106001"},; //	ГБУЗ "ВОКПЦ № 1", г.Волжский
+  { "106002"},; //	ГБУЗ "ВОКПЦ № 2"
+  { "131001"},; //	ГУЗ "ГКБ № 1"
+  { "131940"},; //	ФГБУЗ ВМКЦ ФМБА России
+  { "146004"},; //	ГУЗ "Родильный дом № 4"
+  { "151005"},; //	ГУЗ "КБ № 5"
+  { "161007"},; //	ГУЗ "КБ СМП № 7"
+  { "171004"},; //	ГУЗ "Клиническая больница № 4 "
+  { "184551"},; //	Филиал ООО "МЕДИС" в г.Волгограде
+  { "186002"},; //	ГУЗ "Клинический родильный дом № 2"
+  { "254570"},; //	АО "ВТЗ"
+  { "731002"},; //	ФКУЗ "МСЧ МВД России по Волгоградской области"
+  { "741904"},; //	ФГБУ "413 ВГ" Минобороны России
+  { "801926"},; //	ООО "Геном-Волга"
+  { "804504"},; //	АО "ФНПЦ "Титан-Баррикады"
+  { "805929"},; //	ООО "МК "Рефлекс"
+  { "805938"},; //	НМЧУ "ЗДОРОВЬЕ+"
+  { "805960"},; //	ООО "Вита-Лайт"
+  { "805972"}} //	ООО "Клиника Семья"
+  
+  Local mas_usl_gen0      := {"2.79.13", "2.79.47", "2.80.8",  "2.88.33",  "2.78.26"}
+  Local mas_usl_gen_N_PNF := {"2.79.78", "2.79.80", "2.80.70", "2.88.147", "2.78.118"}
+  Local mas_usl_gen_PNF   := {"2.79.77", "2.79.79", "2.80.69", "2.88.146", "2.78.117"}
+  Local mas_kod_gen_N_PNF := {0,0,0,0,0}
+  Local mas_kod_gen_PNF   := {0,0,0,0,0}
+  Local mas_kod_gen0      := {0,0,0,0,0}
+  Local cena, flag := .F. 
+  
+  Use_base('lusl')
+  Use_base('luslc')
+  Use_base('uslugi')
+  R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1',;
+                              dir_server + 'uslugi1s'}, 'USL1')
+  //проверяем наличие услуг в нашем справочнике - если нет - добавляем
+  // и создаем массив позиций в файле услуг
+  //Function foundourusluga( lshifr, ldate, lprofil, lvzros_reb, /*@*/lu_cena, ipar, not_cycle)
+  for i := 1 to len(org_gen_N_PNF)
+    if org_gen_N_PNF[i] == glob_mo[ _MO_KOD_TFOMS ] 
+      flag := .T. 
+    endif
+  next  
+  if flag
+    for i := 1 to 5
+      mas_kod_gen_N_PNF[i] := foundourusluga( mas_usl_gen_N_PNF[i], 0d20250102,136,0,cena)
+    next
+  else
+    for i := 1 to 5
+      mas_kod_gen_PNF[i] := foundourusluga( mas_usl_gen_PNF[i], 0d20250102,136,0,cena)
+    next
+  endif  
+  // теперь старые услуги   
+  for i := 1 to 5
+    mas_kod_gen0[i] := foundourusluga( mas_usl_gen0[i], 0d20241202,136,0,cena) // смотрю по декабрю 2024 года
+  next    
+  // массивы для замены готовы
+  Use_base('human')
+  Use_base('human_u')
+  select HUMAN
+  set order to 4 //   dir_server + 'humand'
+  find (dtos(stod("20250101")))
+  do while year(human->k_data)== 2025 .and. !eof()    
+    // по случ - отфильтровал - теперь надо по услугам
+    select human_u
+    set order to 1
+    find (str(human->kod,7))
+    do while human->kod == human_u->kod .and. !eof() 
+      // проверяем на шифр услуги по списку 
+      if human_u->u_kod == mas_kod_gen0[1]
+        if flag
+          human_u->u_kod := mas_kod_gen_N_PNF[1]
+        else
+          human_u->u_kod := mas_kod_gen_PNF[1]
+        endif
+      elseif human_u->u_kod == mas_kod_gen0[2]
+        if flag
+          human_u->u_kod := mas_kod_gen_N_PNF[2]
+        else
+          human_u->u_kod := mas_kod_gen_PNF[2]
+        endif
+      elseif human_u->u_kod == mas_kod_gen0[3]  
+        if flag
+          human_u->u_kod := mas_kod_gen_N_PNF[3]
+        else
+          human_u->u_kod := mas_kod_gen_PNF[3]
+        endif
+      elseif human_u->u_kod == mas_kod_gen0[4]
+        if flag
+          human_u->u_kod := mas_kod_gen_N_PNF[4]
+        else
+          human_u->u_kod := mas_kod_gen_PNF[4]
+        endif
+      elseif human_u->u_kod == mas_kod_gen0[5]
+        if flag
+          human_u->u_kod := mas_kod_gen_N_PNF[5]
+        else
+          human_u->u_kod := mas_kod_gen_PNF[5]
+        endif
+      endif  
+      select human_u 
+      skip
+    enddo 
+    select human
+    skip
+  enddo
+  Return Nil
+  
