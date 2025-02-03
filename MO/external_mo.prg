@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 09.01.25 в GET-е вернуть {_MO_SHORT_NAME, _MO_KOD_TFOMS} и по пробелу - очистка поля
+// 03.02.25 в GET-е вернуть {_MO_SHORT_NAME, _MO_KOD_TFOMS} и по пробелу - очистка поля
 Function f_get_mo( k, r, c, lusl, lpar )
 
   Static skodN := ''
@@ -74,7 +74,7 @@ Function f_get_mo( k, r, c, lusl, lpar )
     Else
       lcolor := 'N/W*, GR+/R'
       For j := 1 To Len( arr_mo3 )
-        If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == arr_mo3[ j ] } ) ) > 0 .and. Year( sys_date ) <= Year( glob_arr_mo[ i, _MO_DEND ] )
+        If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == arr_mo3[ j ] } ) ) > 0 // .and. Year( sys_date ) <= Year( glob_arr_mo[ i, _MO_DEND ] )
           Append Blank
           rg->kodN := glob_arr_mo[ i, _MO_KOD_TFOMS ]
           rg->kodF := glob_arr_mo[ i, _MO_KOD_FFOMS ]
