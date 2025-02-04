@@ -292,7 +292,7 @@ Function add_pediatr_pern( _pv, _pa, _date, _diag )
 
   Return arr
 
-// 08.07.24 ¢¥à­ãâì â¨¯ ¢¢®¤¨¬®£® «¨áâ  ãçñâ 
+// 04.01.25 ¢¥à­ãâì â¨¯ ¢¢®¤¨¬®£® «¨áâ  ãçñâ 
 Function ret_tip_lu( /*@*/stip)
 
   Local k := 0, tmp_select
@@ -301,14 +301,20 @@ Function ret_tip_lu( /*@*/stip)
   If Between( human->ishod, 101, 102 )
     k := iif( !Empty( human->ZA_SMO ), TIP_LU_DDS, TIP_LU_DDSOP )
     If human->ishod == 101
-      stip := iif( !Empty( human->ZA_SMO ), '„‘1', '„“1' )
+//      stip := iif( !Empty( human->ZA_SMO ), '„‘1', '„“1' )
+      stip := iif( !Empty( human->ZA_SMO ), '„‘1', '„C2' )   // ¯¨áì¬® ’”ŽŒ‘ 09-20-674 ®â 19.12.24
     Else // 102
-      stip := iif( !Empty( human->ZA_SMO ), '„‘2', '„“2' )
+//      stip := iif( !Empty( human->ZA_SMO ), '„‘2', '„“2' )
+      stip := iif( !Empty( human->ZA_SMO ), '„‘3', '„‘4' )   // ¯¨áì¬® ’”ŽŒ‘ 09-20-674 ®â 19.12.24
     Endif
   Elseif Between( human->ishod, 201, 205 )
     k := TIP_LU_DVN
     If human->ishod == 201
-      stip := '„‚1'
+      if human->k_data < 0d20250101
+        stip := '„‚1'
+      else
+        stip := '„‚4'   // ¯¨áì¬® ’”ŽŒ‘ 09-20-674 ®â 19.12.24
+      endif
     Elseif eq_any( human->ishod, 202, 205 )
       stip := '„‚2'
     Elseif human->ishod == 204
@@ -319,9 +325,11 @@ Function ret_tip_lu( /*@*/stip)
   Elseif Between( human->ishod, 301, 302 )
     k := TIP_LU_PN
     If human->ishod == 301
-      stip := 'Ž1'
+//      stip := 'Ž1'
+      stip := '1'   // ¯¨áì¬® ’”ŽŒ‘ 09-20-674 ®â 19.12.24
     Else // 302
-      stip := 'Ž2'
+//      stip := 'Ž2'
+      stip := '2'   // ¯¨áì¬® ’”ŽŒ‘ 09-20-674 ®â 19.12.24
     Endif
   Elseif Between( human->ishod, 303, 304 )
     k := TIP_LU_PREDN

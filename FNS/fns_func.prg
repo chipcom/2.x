@@ -6,7 +6,7 @@
 #include 'tfile.ch'
 #include 'chip_mo.ch'
 
-// 31.01.25
+// 04.02.25
 FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   Local detail_font_name, detail_font_nameBold
@@ -37,15 +37,23 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
   if ( detail_font_name := HPDF_LoadTTFontFromFile ( pdf, TTFArial, HPDF_TRUE ) ) == NIL
     fError:add_string( 'HPDF_LoadTTFontFromFile() ARIAL - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   endif
+  fError:add_string( 'HPDF_LoadTTFontFromFile() ARIAL - ' + detail_font_name )
+
   if ( detail_font_nameBold := HPDF_LoadTTFontFromFile ( pdf, TTFArialBold, HPDF_TRUE ) ) == NIL
     fError:add_string( 'HPDF_LoadTTFontFromFile() ARIAL Bold - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   endif
+  fError:add_string( 'HPDF_LoadTTFontFromFile() ARIAL Bold - ' + detail_font_nameBold )
+
   if ( detail_font_courier := HPDF_LoadTTFontFromFile ( pdf, TTFCourier, HPDF_TRUE ) ) == NIL
     fError:add_string( 'HPDF_LoadTTFontFromFile() COURIER - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   endif
+  fError:add_string( 'HPDF_LoadTTFontFromFile() COURIER - ' + detail_font_courier )
+
   if ( detail_font_eangnivc := HPDF_LoadTTFontFromFile ( pdf, TTFEanGnivc, HPDF_TRUE ) ) == NIL
     fError:add_string( 'HPDF_LoadTTFontFromFile() EANGNIVC - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   endif
+  fError:add_string( 'HPDF_LoadTTFontFromFile() EANGNIVC - ' + detail_font_eangnivc )
+
   if ( tFont := HPDF_GetFont ( pdf, detail_font_name, 'CP1251' ) ) == NIL
     fError:add_string( 'HPDF_GetFont() ARIAL - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   else
@@ -53,19 +61,19 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
     AAdd( aFonts, tFont )
   endif
   if ( tFont := HPDF_GetFont ( pdf, detail_font_nameBold, 'CP1251' ) ) == NIL
-    fError:add_string( 'HPDF_GetFont() ARIAL Bold- 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( 'HPDF_GetFont() ARIAL Bold - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   else
 //    AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_nameBold, 'CP1251' ) )
     AAdd( aFonts, tFont )
   endif
   if ( tFont := HPDF_GetFont ( pdf, detail_font_courier, 'CP1251' ) ) == NIL
-    fError:add_string( 'HPDF_GetFont() Courier- 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( 'HPDF_GetFont() Courier - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   else
 //    AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_courier, 'CP1251' ) )
     AAdd( aFonts, tFont )
   endif
   if ( tFont := HPDF_GetFont ( pdf, detail_font_eangnivc, 'CP1251' ) ) == NIL
-    fError:add_string( 'HPDF_GetFont() EANGNIVC- 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( 'HPDF_GetFont() EANGNIVC - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   else
 //    AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_eangnivc, 'CP1251' ) )
     AAdd( aFonts, tFont )
