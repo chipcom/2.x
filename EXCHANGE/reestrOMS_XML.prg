@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 27.01.25 создание XML-файлов реестра
+// 04.02.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -380,8 +380,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           // стационар + л/у на недоношенного ребёнка
           mo_add_xml_stroke( oPAC, 'VNOV_D', lstr( human_2->VNR ) )
         Endif
-        if human->k_data >= 0d20250101
-//          mo_add_xml_stroke( oPAC, 'SOC', iif( kart->pn1 == 30, '035', iif( kart->pn1 == 65, '065', '000' ) ) )
+        if ( p_tip_reestr == 1 ) .and. ( human->k_data >= 0d20250101 )
           mo_add_xml_stroke( oPAC, 'SOC', kart->pc3 )
         endif
         // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
@@ -398,6 +397,11 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             mo_add_xml_stroke( oDISAB, 'DS_INV', inv->DIAG_INV )
           Endif
         Endif
+
+        if ( p_tip_reestr == 2 ) .and. ( human->k_data >= 0d20250101 )
+          mo_add_xml_stroke( oPAC, 'SOC', kart->pc3 )
+        endif
+          
         // заполним сведения о законченном случае оказания медицинской помощи для XML-документа
         oSLUCH := oZAP:add( hxmlnode():new( 'Z_SL' ) )
         mo_add_xml_stroke( oSLUCH, 'IDCASE', lstr( rhum->REES_ZAP ) )
