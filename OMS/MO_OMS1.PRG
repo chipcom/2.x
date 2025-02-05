@@ -302,7 +302,7 @@ Function ret_tip_lu( /*@*/stip)
     k := iif( !Empty( human->ZA_SMO ), TIP_LU_DDS, TIP_LU_DDSOP )
     If human->ishod == 101
 //      stip := iif( !Empty( human->ZA_SMO ), '„‘1', '„“1' )
-      stip := iif( !Empty( human->ZA_SMO ), '„‘1', '„C2' )   // ―¨αμ¬® ’”‘ 09-20-674 ®β 19.12.24
+      stip := iif( !Empty( human->ZA_SMO ), '„‘1', '„‘2' )   // ―¨αμ¬® ’”‘ 09-20-674 ®β 19.12.24
     Else // 102
 //      stip := iif( !Empty( human->ZA_SMO ), '„‘2', '„“2' )
       stip := iif( !Empty( human->ZA_SMO ), '„‘3', '„‘4' )   // ―¨αμ¬® ’”‘ 09-20-674 ®β 19.12.24
