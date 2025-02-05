@@ -669,6 +669,7 @@ Function f2_import_from_lis( par )
     lkod_k := kart->kod := RecNo()
     kart->FIO := mfio
     kart->DATE_R := arr_pac[ LIS_DATE_R ]
+    kart->PC3 := '000'
     mdate_r := kart->DATE_R
     fv_date_r()
     kart->pol := arr_pac[ LIS_POL ]
@@ -1812,6 +1813,7 @@ Function f1_import_sluch_oms()
           lkod_k := kart->kod := RecNo()
           kart->FIO    := mFIO
           kart->DATE_R := ihuman->dr
+          kart->PC3 := '000'
         Else
           Goto ( lkod_k )
           g_rlock( forever )
@@ -4653,6 +4655,7 @@ Function mo_read_el_polis( /*@*/k)
       If rec == 0  // добавление в картотеку
         add1rec( 7 )
         kart->kod := RecNo()
+        kart->PC3 := '000'
       Else
         Goto ( rec )
         g_rlock( forever )
@@ -5231,6 +5234,7 @@ Function f2_create_main_base_from_reestrs( mname_xml )
         If Empty( lkod_k )
           add1rec( 7 )
           lkod_k := kart->kod := RecNo()
+          kart->PC3 := '000'
           my_debug(, print_array( { "добавление", lkod_k, mfio } ) )
         Else
           find ( Str( lkod_k, 7 ) )
