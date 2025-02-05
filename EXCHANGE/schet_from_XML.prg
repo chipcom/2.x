@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.01.25 создать счета по результатам прочитанного реестра СП
+// 05.02.25 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
 
   Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva, ;
@@ -456,12 +456,17 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
               mo_add_xml_stroke( oPAC, 'SMO_NAM', t1->SMO_NAM )
             Endif
             mo_add_xml_stroke( oPAC, 'NOVOR', t1->NOVOR )
+            
+            if ( p_tip_reestr == 2 ) .and. xml2date( t1->DATE_Z_2 ) >= 0d20250101
+              mo_add_xml_stroke( oPAC, 'SOC', t1->SOC )
+            endif
+
             mo_add_xml_stroke( oPAC, 'MO_PR', t1->MO_PR )
             If !Empty( t1->VNOV_D )
               mo_add_xml_stroke( oPAC, 'VNOV_D', t1->VNOV_D )
             Endif
 
-            if xml2date( t1->DATE_Z_2 ) >= 0d20250101
+            if ( p_tip_reestr == 1 ) .and. xml2date( t1->DATE_Z_2 ) >= 0d20250101
               mo_add_xml_stroke( oPAC, 'SOC', t1->SOC )
             endif
 
