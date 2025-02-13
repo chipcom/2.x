@@ -8,7 +8,7 @@
 
 // Static sadiag1
 
-// 21.01.25
+// 05.02.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -1038,7 +1038,7 @@ Function verify_sluch( fl_view )
           mdate_u2 := dtoc4( human->k_data )
         Elseif left_lshifr_5 == '2.79.'
           d_sroks := AfterAtNum( '.', alltrim_lshifr )
-          If between_shifr( alltrim_lshifr, '2.79.44', '2.79.50' )
+          If between_shifr( alltrim_lshifr, '2.79.44', '2.79.50' ) .or. eq_any( alltrim_lshifr, '2.79.79', '2.79.80' )
             mpovod := 8 // 2.5 - патронаж
           Else
             mpovod := 9 // 2.6
@@ -4844,7 +4844,8 @@ Function verify_sluch( fl_view )
     human_->POVOD := arr_povod[ 1, 1 ]
   Endif
 
-  if ( human_->USL_OK == USL_OK_POLYCLINIC ) .and. empty( human_->P_CEL ) .and. ( len( arr_povod ) == 1 )
+//  if ( human_->USL_OK == USL_OK_POLYCLINIC ) .and. empty( human_->P_CEL ) .and. ( len( arr_povod ) == 1 )
+  if ( human_->USL_OK == USL_OK_POLYCLINIC ) .and. ( len( arr_povod ) == 1 )
     for counter := 1 to len( arrUslugi )
       mPCEL := getPCEL_usl( arrUslugi[ counter ] )
       human_->P_CEL := mPCEL

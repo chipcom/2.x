@@ -170,9 +170,14 @@ Function f_valid2ad_cr(k_date)
           aadd(mm_ad_cr, {alltrim(arr_ad_criteria[i, 2]) + ' ' + arr_ad_criteria[i, 6], arr_ad_criteria[i, 2]})
         endif
       next
+    elseif m1usl_ok == USL_OK_DAY_HOSPITAL .and. m1profil == 65  // офтольмология дневной стационар
+      for i := 1 to len(arr_ad_criteria) 
+        if m1usl_ok == arr_ad_criteria[i, 1] .and. lower(substr(arr_ad_criteria[i, 2], 1, 3)) == 'icv'
+          aadd(mm_ad_cr, {alltrim(arr_ad_criteria[i, 2]) + ' ' + arr_ad_criteria[i, 6], arr_ad_criteria[i, 2]})
+        endif
+      next 
     elseif m1usl_ok == USL_OK_DAY_HOSPITAL .and. !empty(MKOD_DIAG)
       for i := 1 to len(arr_ad_criteria)
-        
         if m1usl_ok == arr_ad_criteria[i, 1] .and. ascan(arr_ad_criteria[i, 3], padr(MKOD_DIAG, 5)) > 0
           aadd(mm_ad_cr, {alltrim(arr_ad_criteria[i, 2]) + ' ' + arr_ad_criteria[i, 6], arr_ad_criteria[i, 2]})
         endif
@@ -227,6 +232,7 @@ Function f_valid2ad_cr(k_date)
       aadd(mm_ad_cr, mm_mgi[1])
       aadd(mm_ad_cr, mm_mgi[2])
     endif
+
     if input_ad_cr
       if (i := ascan(mm_ad_cr, {|x| padr(x[2], 10) == padr(m1ad_cr, 10)})) > 0
         mad_cr := padr(mm_ad_cr[i, 1], 65)  // 66
