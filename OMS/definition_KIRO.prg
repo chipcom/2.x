@@ -139,7 +139,7 @@ Function f_cena_kiro( /*@*/_cena, lkiro, dateSl )
 
   Return _akiro
 
-// 18.10.24
+// 13.02.25
 Function opt_dlitelnost_ksg_do_3dnej( cKSG, lkdata )
 
   // п. 3.2 инструкии по применению КСГ 24 года
@@ -338,9 +338,65 @@ Function opt_dlitelnost_ksg_do_3dnej( cKSG, lkdata )
     AAdd( arrKSG, 'st30.016' )
   Endif
 
+  If Year( lkdata ) >= 2025
+    AAdd( arrKSG, 'st02.015' )
+    AAdd( arrKSG, 'st02.016' )
+    AAdd( arrKSG, 'st02.017' )
+    AAdd( arrKSG, 'st10.008' )
+    AAdd( arrKSG, 'st14.004' )
+    AAdd( arrKSG, 'st19.163' )
+    AAdd( arrKSG, 'st19.164' )
+    AAdd( arrKSG, 'st19.165' )
+    AAdd( arrKSG, 'st19.166' )
+    AAdd( arrKSG, 'st19.167' )
+    AAdd( arrKSG, 'st19.168' )
+    AAdd( arrKSG, 'st19.169' )
+    AAdd( arrKSG, 'st19.170' )
+    AAdd( arrKSG, 'st19.171' )
+    AAdd( arrKSG, 'st19.172' )
+    AAdd( arrKSG, 'st19.173' )
+    AAdd( arrKSG, 'st19.174' )
+    AAdd( arrKSG, 'st19.175' )
+    AAdd( arrKSG, 'st19.176' )
+    AAdd( arrKSG, 'st19.177' )
+    AAdd( arrKSG, 'st19.178' )
+    AAdd( arrKSG, 'st19.179' )
+    AAdd( arrKSG, 'st19.180' )
+    AAdd( arrKSG, 'st19.181' )
+    AAdd( arrKSG, 'st21.010' )
+    AAdd( arrKSG, 'st21.011' )
+    AAdd( arrKSG, 'st30.017' )
+    AAdd( arrKSG, 'st32.020' )
+    AAdd( arrKSG, 'st32.021' )
+    AAdd( arrKSG, 'st36.048' )
+    AAdd( arrKSG, 'ds19.135' )
+    AAdd( arrKSG, 'ds19.136' )
+    AAdd( arrKSG, 'ds19.137' )
+    AAdd( arrKSG, 'ds19.138' )
+    AAdd( arrKSG, 'ds19.139' )
+    AAdd( arrKSG, 'ds19.141' )
+    AAdd( arrKSG, 'ds19.142' )
+    AAdd( arrKSG, 'ds19.143' )
+    AAdd( arrKSG, 'ds19.144' )
+    AAdd( arrKSG, 'ds19.145' )
+    AAdd( arrKSG, 'ds19.146' )
+    AAdd( arrKSG, 'ds19.147' )
+    AAdd( arrKSG, 'ds19.148' )
+    AAdd( arrKSG, 'ds19.149' )
+    AAdd( arrKSG, 'ds19.150' )
+    AAdd( arrKSG, 'ds19.151' )
+    AAdd( arrKSG, 'ds19.152' )
+    AAdd( arrKSG, 'ds19.153' )
+    AAdd( arrKSG, 'ds19.154' )
+    AAdd( arrKSG, 'ds19.155' )
+    AAdd( arrKSG, 'ds19.156' )
+    AAdd( arrKSG, 'ds21.008' )
+    AAdd( arrKSG, 'ds21.009' )
+  endif
+
   Return AScan( arrKsg, Lower( cKSG ) ) > 0
 
-// 18.10.24
+// 13.02.25
 function obyazat_srok_lech( cKSG, lkdata )
   // согласно п/п.9 пункта 3.2 инструкции по КСГ
   // КСГ по услугам мед. реабилитации в стационаре и дневном стационаре
@@ -362,7 +418,24 @@ function obyazat_srok_lech( cKSG, lkdata )
     { 'ds12.021', 30 } ;
   }
   local i, ret := 0
-  
+
+  if lkdata >= 0d20250101             // инструкции по КСГ ТФОМС на 25 год
+    AAdd( arrKSG, { 'st37.027', 18 } )
+    AAdd( arrKSG, { 'st37.028', 18 } )
+    AAdd( arrKSG, { 'st37.029', 18 } )
+    AAdd( arrKSG, { 'st37.030', 17 } )
+    AAdd( arrKSG, { 'st37.031', 17 } )
+    AAdd( arrKSG, { 'ds37.017', 18 } )
+    AAdd( arrKSG, { 'ds37.018', 18 } )
+    AAdd( arrKSG, { 'ds37.019', 18 } )
+    AAdd( arrKSG, { 'ds12.022', 28 } )
+    AAdd( arrKSG, { 'ds12.023', 28 } )
+    AAdd( arrKSG, { 'ds12.024', 28 } )
+    AAdd( arrKSG, { 'ds12.025', 28 } )
+    AAdd( arrKSG, { 'ds12.026', 28 } )
+    AAdd( arrKSG, { 'ds12.027', 28 } )
+  endif
+
   if ( i := AScan( arrKsg, {| x | x[ 1 ] == Lower( alltrim( cKSG ) ) } ) ) > 0
     ret := arrKSG[ i, 2 ]
   endif
