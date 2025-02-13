@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 03.02.25
+// 13.02.25
 function load_exists_uslugi()
   local countYear, lAlias, cVar
   local cSearch
@@ -92,9 +92,8 @@ function load_exists_uslugi()
         endif
         glob_menu_mz_rf[2] := found()
       endif
-// временно 03.02.25
-is_napr_stac := .t.
-// временно 03.02.25
+
+      // is_napr_stac := .t.  // включал в начале года для госпитализации
     
     //
       tmp_stom := {'2.78.54', '2.78.55', '2.78.56', '2.78.57', '2.78.58', '2.78.59', '2.78.60'}

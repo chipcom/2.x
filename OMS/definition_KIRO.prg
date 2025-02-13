@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 21.11.24
+// 13.02.25
 Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkdata )
 
   // lkiro - α―¨α®ª Ά®§¬®¦­λε  ¤«ο ‘ƒ
@@ -73,7 +73,7 @@ Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkda
           vkiro := 5
         endif
       endif
-    elseif eq_any( lrslt, 102, 103, 105, 107, 110, 202, 203, 205, 207, 210 )
+    elseif eq_any( lrslt, 102, 103, 105, 107, 108, 110, 202, 203, 205, 207, 208, 210 )
 //      if is_opt_dlit_do_3_dnej
         If AScan( lkiro, 3 ) > 0
           vkiro := 3
