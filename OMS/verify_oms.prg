@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-#define MAX_REC_REESTR 4999 // 9999
+#define MAX_REC_REESTR 9999
 #define BASE_ISHOD_RZD 500
 
 // 03.07.24
