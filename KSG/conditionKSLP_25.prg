@@ -2,7 +2,7 @@
 
 // функции проверки применимости КСЛП в 2025 году
 //
-// 13.02.25 проверка услувия для применения КСЛП=30 для 2025 года
+// 13.02.25 проверка услувия для применения КСЛП=1 для 2025 года
 Function conditionkslp_1_25( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration )
 
   // КСЛП=1 спальное место законному представителю, НУЖЕН ЗАПРОС
@@ -18,7 +18,7 @@ Function conditionkslp_1_25( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
 
   Return conditionkslp_1_22( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration )
 
-// 13.02.25 проверка услувия для применения КСЛП=31 для 2025 года
+// 13.02.25 проверка услувия для применения КСЛП=2 для 2025 года
 Function conditionkslp_2_25( aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration )
 
   // КСЛП=2 спальное место законному представителю, НУЖЕН ЗАПРОС
