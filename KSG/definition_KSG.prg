@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 
 
-// 02.07.24 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 15.02.25 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -879,7 +879,8 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         lprofil_k, ;
         mdiagnoz, ;
         lpar_org, ;
-        lad_cr )
+        lad_cr, ;
+        lusl )
       If Year( lk_data ) >= 2021  // added 29.01.21
         If !Empty( akslp )
           For iKSLP := 1 To Len( akslp ) Step 2

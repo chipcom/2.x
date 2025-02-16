@@ -2,6 +2,47 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+// 15.02.25
+function ksgInList( lshifr, strKSG )
+
+  local arr := strKSGtoArray( strKSG )
+
+  lshifr := lower( lshifr )
+  return ( hb_AScan( arr, lshifr, , , .t. ) > 0 )
+
+// 15.02.25
+function strKSGtoArray( strKSG )
+
+  local i, j, arr, aTmp, aResult := {}, beg, end, nPos, prefix
+
+  strKSG := Lower( strKSG )
+  arr := split( strKSG, ',' )
+  for i := 1 to len( arr )
+    arr[ i ] := alltrim( arr[ i ] )
+    if Empty( arr[ i ] )
+      loop
+    endif
+    aTmp := split( arr[ i ], '-' )
+    if len( aTmp ) == 1 // одна услуга
+      AAdd( aResult, arr[ i ] )
+    else  // интервал услуг
+      if Empty( aTmp[ 1 ] ) .or. Empty( aTmp[ 2 ] )
+        loop
+      endif
+      nPos := 0
+      nPos := At( '.', aTmp[ 1 ] )
+      prefix := SubStr( aTmp[ 1 ], 1, nPos )
+      beg := val( SubStr( aTmp[ 1 ], nPos + 1 ) )
+      nPos := 0
+      nPos := At( '.', aTmp[ 2 ] )
+      end := val( SubStr( aTmp[ 2 ], nPos + 1 ) )
+      for j := beg to end
+        AAdd( aResult, prefix + StrZero( j, 3 ) )
+      next
+    endif
+  next
+  return aResult
+
 // 28.01.20 вывести строку в отладочный массив о КСГ
 Function f_put_debug_ksg( k, arr, ars )
 

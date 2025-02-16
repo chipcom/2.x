@@ -17,7 +17,7 @@ Function buildstringkslp( row )
 
   Return ret
 
-// 28.04.23 функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
+// 15.02.25 функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
 Function selectkslp( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
 
   // lkslp - значение КСЛП (выбранные КСЛП)
@@ -184,7 +184,7 @@ Function selectkslp( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   mlen := Len( t_mas )
 
   // используем popupN из библиотеки FunLib
-  If ( ret := popupn( 5, 10, 5 + mlen + 1, 71, t_mas, i, color0, .t., 'fmenu_readerN', , ;
+  If ( ret := popupn( 4, 10, 4 + mlen + 1, 71, t_mas, i, color0, .t., 'fmenu_readerN', , ;
       'Отметьте КСЛП', col_tit_popup,, strStatus ) ) > 0
     For i := 1 To mlen
       If '*' == SubStr( t_mas[ i, 1 ], 2, 1 )
@@ -262,8 +262,8 @@ Function calckslp( cKSLP, dateSl )
 
   Return summ
 
-// 13.03.24 определить коэф-т сложности лечения пациента и пересчитать цену
-Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr_usl, lPROFIL_K, arr_diag, lpar_org, lad_cr)
+// 15.02.25 определить коэф-т сложности лечения пациента и пересчитать цену
+Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr_usl, lPROFIL_K, arr_diag, lpar_org, lad_cr, usl_ok )
 
   Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
   Static s_20 := 0d20201231
@@ -300,7 +300,8 @@ Function f_cena_kslp( /*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr
     argc := '(' + savedKSLP + ',' + ;
       '"' + DToC( _date_r ) + '",' + '"' + DToC( _k_data ) + '",' + ;
       lstr( lPROFIL_K ) + ',' + '"' + _lshifr + '",' + lstr( lpar_org ) + ',' + ;
-      '"' + arr2slistn( arr_diag ) + '",' + lstr( countDays ) + ')'
+      '"' + arr2slistn( arr_diag ) + '",' + lstr( countDays ) + ',' + lstr( usl_ok ) + ',"' + ;
+      + AllTrim( lad_cr ) + '")'
 
     For Each row in getkslptable( _k_data )
       nameFunc := 'conditionKSLP_' + AllTrim( Str( row[ 1 ], 2 ) ) + '_' + last_digits_year( _k_data )
