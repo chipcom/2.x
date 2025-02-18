@@ -173,7 +173,7 @@ Function f_valid2ad_cr( k_date )
           aadd(mm_ad_cr, {alltrim(arr_ad_criteria[i, 2]) + ' ' + arr_ad_criteria[i, 6], arr_ad_criteria[i, 2]})
         endif
       next
-    elseif m1usl_ok == USL_OK_DAY_HOSPITAL .and. m1profil == 65  // офтольмология дневной стационар
+    elseif ( ( m1usl_ok == USL_OK_DAY_HOSPITAL ) .or. ( m1usl_ok == USL_OK_HOSPITAL ) ) .and. m1profil == 65  // офтольмология стационар
       for i := 1 to len(arr_ad_criteria) 
         if m1usl_ok == arr_ad_criteria[i, 1] .and. lower(substr(arr_ad_criteria[i, 2], 1, 3)) == 'icv'
           aadd(mm_ad_cr, {alltrim(arr_ad_criteria[i, 2]) + ' ' + arr_ad_criteria[i, 6], arr_ad_criteria[i, 2]})
