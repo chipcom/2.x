@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.01.25 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+// 18.02.25 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
 
   Local p_tip_reestr
@@ -128,8 +128,8 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
     { "COMENTSL", "C", 250, 0 }, ; //
     { "ED_COL",   "C", 1, 0 }, ; //
     { "N_KSG",    "C", 20, 0 }, ; //
-    { "CRIT",     "C", 10, 0 }, ; //
-    { "CRIT2",    "C", 10, 0 }, ; //
+    { "CRIT",     "C", 20, 0 }, ; //
+    { "CRIT2",    "C", 20, 0 }, ; //
     { "SL_K",     "C", 9, 0 }, ; //
     { "IT_SL",    "C", 9, 0 }, ; //
     { "AD_CR",    "C", 10, 0 }, ; //
