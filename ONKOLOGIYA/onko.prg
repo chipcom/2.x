@@ -223,11 +223,11 @@ Function f_valid_tnm( g )
 
   Return .t.
 
-// 25.09.23
+// 18.02.25
 Function ret_arr_shema( k, dk )
 
   // возвращает схемы лекарственных терапий для онкологии на дату
-  Static ashema := { {}, {}, {} }
+  Static ashema := { {}, {}, {}, {} }
   Static stYear
   Local i, db, aTable, row, arr := {}
   Local year_dk, dBeg, dEnd
@@ -239,7 +239,7 @@ Function ret_arr_shema( k, dk )
   Endif
 
   If ISNIL( stYear ) .or. Empty( ashema[ 1 ] ) .or. year_dk != stYear
-    ashema := { {}, {}, {} }
+    ashema := { {}, {}, {}, {} }
     arr := getv024( dk )
     AAdd( ashema[ 1 ], { '-----     без схемы лекарственной терапии', PadR( 'нет', 10 ) } )
     AEval( arr, {| x, j| iif( Left( x[ 1 ], 2 ) == 'sh', AAdd( ashema[ 1 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 10 ) } ), '' ) } )
@@ -249,6 +249,7 @@ Function ret_arr_shema( k, dk )
       ashema[ 3, i, 3 ] := Int( Val( SubStr( ashema[ 3, i, 1 ], 3, 2 ) ) )
       ashema[ 3, i, 4 ] := Int( Val( SubStr( ashema[ 3, i, 1 ], 6, 2 ) ) )
     Next
+    AEval( arr, {| x, j| iif( Left( x[ 1 ], 4 ) == 'supt', AAdd( ashema[ 4 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 10 ) } ), '' ) } )
     stYear := year_dk
   Endif
 
