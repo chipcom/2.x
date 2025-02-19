@@ -4,6 +4,20 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 19.05.25
+function lekPreparatInList( aLek )
+
+  local ret := .f., i, j
+  local exclude_preparat := { '002212', '000764', '002400' }  // препараты для которых нельзя использовать доп критерий 2
+
+  for i := 1 to Len( aLek )
+    if ( j := ascan( exclude_preparat, aLek[ i ] ) ) > 0
+      ret := .t.
+      exit
+    endif
+  next
+  return ret
+
 // 07.01.25
 function check_diag_onko_lek_prep( kod_diag )
 
@@ -223,15 +237,18 @@ Function f_valid_tnm( g )
 
   Return .t.
 
-// 18.02.25
+// 19.02.25
 Function ret_arr_shema( k, dk )
 
   // возвращает схемы лекарственных терапий для онкологии на дату
-  Static ashema := { {}, {}, {} }
+  Static ashema := { {}, {}, {}, {} }
   Static stYear
   Local i, arr := {}
   Local year_dk
 
+  if dk == Nil
+    dk := sys_date
+  endif
   If ValType( dk ) == 'N'
     year_dk := dk
   Elseif ValType( dk ) == 'D'
@@ -239,12 +256,12 @@ Function ret_arr_shema( k, dk )
   Endif
 
   If ISNIL( stYear ) .or. Empty( ashema[ 1 ] ) .or. year_dk != stYear
-    ashema := { {}, {}, {} }
+    ashema := { {}, {}, {}, {} }
     arr := getv024( dk )
     AAdd( ashema[ 1 ], { '-----     без схемы лекарственной терапии', PadR( 'нет', 10 ) } )
     AEval( arr, {| x, j| iif( Left( x[ 1 ], 2 ) == 'sh', AAdd( ashema[ 1 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 10 ) } ), '' ) } )
 
-//    AEval( arr, {| x, j| iif( Left( x[ 1 ], 4 ) == 'supt', AAdd( ashema[ 1 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 10 ) } ), '' ) } )
+    AEval( arr, {| x, j| iif( Left( x[ 1 ], 4 ) == 'supt', AAdd( ashema[ 4 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 10 ) } ), '' ) } )
 
     AEval( arr, {| x, j| iif( Left( x[ 1 ], 2 ) == 'mt', AAdd( ashema[ 2 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 10 ) } ), '' ) } )
     AEval( arr, {| x, j| iif( Left( x[ 1 ], 2 ) == 'fr', AAdd( ashema[ 3 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 10 ), 0, 0 } ), '' ) } )
@@ -371,7 +388,7 @@ Function mmb_diag()
 
   Return mmb_diag
 
-// 02.02.19
+// 19.02.25
 Function ret_str_onc( k, par )
 
   Static arr := { ;
@@ -383,7 +400,8 @@ Function ret_str_onc( k, par )
     'Режим введения лекарственного препарата (дней введения)', ; // 6 lstr_err
     'Схема лекарственной терапии', ;        // 7 lstr_she
     'Список лекарственных препаратов', ;    // 8 lstr_lek
-    'Проводилась ли профилактика тошноты и рвотного рефлекса' }     // 9 lstr_ptr
+    'Проводилась ли профилактика тошноты и рвотного рефлекса', ;    // 9 lstr_ptr
+    'Дополнительный критерий для онкологии' }    // 10 доп критерий для онкологии lstr_dop2
   Local s := arr[ k ]
 
   Default par To 1

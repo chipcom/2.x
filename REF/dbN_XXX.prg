@@ -1102,7 +1102,7 @@ function get_sootv_n021( sh, reg, dk )
   sh := alltrim( lower( sh ) )
   reg := alltrim( reg )
 
-  For nI := 1 To Len( aN021 )
+  For nI := 1 To Len( aN021 ) 
       if reg == alltrim( aN021[ nI, 3 ] ) .and.  sh == lower( aN021[ nI, 2 ] ) .and. aN021[ nI, 4 ] <= dk .and. ( dk <= aN021[ nI, 5 ] .or. Empty( aN021[ nI, 5 ] ) )
         AAdd( arr, aN021[ nI, 1 ] )
         AAdd( arr, aN021[ nI, 2 ] )
@@ -1111,6 +1111,22 @@ function get_sootv_n021( sh, reg, dk )
         AAdd( arr, aN021[ nI, 5 ] )
         AAdd( arr, aN021[ nI, 6 ] )
         AAdd( arr, aN021[ nI, 7 ] )
+      endif
+  next
+  return arr
+
+// 19.02.25
+function get_lek_by_shema_n021( sh, dk )
+  // sh - схема
+  // dk - дата применения схемы
+
+  local aN021 := getn021( dk ), nI
+  local arr := {}
+
+  sh := alltrim( lower( sh ) )
+  For nI := 1 To Len( aN021 ) 
+      if AllTrim( aN021[ nI, 2 ] ) == AllTrim( sh )
+        AAdd( arr, aN021[ nI, 3 ] )
       endif
   next
   return arr

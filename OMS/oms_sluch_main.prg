@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.01.25 добавление или редактирование случая (листа учета)
+// 19.02.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -26,6 +26,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Local i_n007, aN007 := getn007(), i_n008, aN008 := loadn008(), i_n009, aN009 := getn009()
   Local i_n012, aN012_DS := getds_n012(), ar_N012 := {}
   Local i_n010, aN010 := loadn010(), i_n011, aN011 := loadn011()
+  local _arr_supt, lstr_dop2 := ret_str_onc( 10, 1 )
 
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
@@ -177,8 +178,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     mMTSTZ, m1MTSTZ := 0, ;   // Признак выявления отдалённых метастазов       Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2
     mB_DIAG, m1B_DIAG := 98, ; // гистология:99-не надо, 98-сделана, 97-нет результата, 0-отказ, 7-не показано, 8-противопоказано
     mK_FR := Space( 2 ), ; // кол-во фракций проведения лучевой терапии Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0
-    mCRIT, m1crit := Space( 10 ), ; // код схемы лек.терапии V024 (sh..., mt...)
-    mCRIT2, ; // доп.критерий (fr...)
+    mCRIT, m1crit := Space( 20 ), ; // код схемы лек.терапии V024 (sh..., mt...)
+    mCRIT2, m1crit2 := Space( 20 ),  ; // доп.критерий (fr..., supt...)
     mm_shema_err := { { 'соблюдён', 0 }, { 'не соблюдён', 1 } }, ;
     mm_shema_usl := {}, ;
     mWEI := Space( 5 ), ; // масса тела в кг Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
@@ -260,6 +261,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     _arr_sh := ret_arr_shema( 1, MK_DATA ),  _arr_mt := ret_arr_shema( 2, MK_DATA ),  _arr_fr := ret_arr_shema( 3, MK_DATA ), ;
     mm_usl_tip := AClone( getn013() ) // N013
 
+  _arr_supt := ret_arr_shema( 4, MK_DATA )
+  
   mm_usl_tip := hb_AIns( mm_usl_tip, 1, { 'не проводилось', 0 }, .t. )
 
   mm_USL_TIP_all := AClone( mm_USL_TIP )
@@ -455,6 +458,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           mK_FR := PadR( lstr( sl->k_fr ), 2 )
         Endif
         m1crit := sl->crit
+        m1crit2 := sl->crit2
         m1is_err := sl->is_err
         If sl->WEI > 0
           mWEI := PadR( AllTrim( str_0( sl->WEI, 5, 1 ) ), 5 )
@@ -1345,9 +1349,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             lstr_bsa := ret_str_onc( 5, 1 )
             lstr_she := ret_str_onc( 7, 1 )
             If Left( m1crit, 2 ) == 'mt' .and. m1usl_tip == 2
-              m1crit := Space( 10 )
+              m1crit := Space( 20 )
             Elseif eq_any( Left( m1crit, 2 ),  'не',  'sh' ) .and. m1usl_tip == 4
-              m1crit := Space( 10 )
+              m1crit := Space( 20 )
             Endif
             If !Empty( m1ad_cr ) .and. Left( Lower( m1ad_cr ), 5 ) == 'gemop' // после разговора с Л.Н.Антоновой 13.01.23
               mm_shema_usl := mm_ad_cr
@@ -1553,6 +1557,12 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             @ j, Col() + 1 Get mpptr ;
               reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
               When eq_any( m1usl_tip, 2, 4 )
+
+            // работа со вторым доп критерием
+            @ ++j, 5 Get lstr_dop2 Color color1 When .f.
+            @ j, Col() + 1 Get mCRIT2 ;
+              reader {| x| menu_reader( x, _arr_supt, A__MENUVERT, , , .f. ) } ;
+              When eq_any( m1usl_tip, 2, 4 ) .and. ! lekPreparatInList( get_lek_by_shema_n021( m1crit, MK_DATA ) )
           Endif
           If is_onko_VMP .and. mtipvmp == 1 // две услуги
             @ ++j, 3 Say 'ВМП: дополнительное лечение' Get musl_vmp When .f. ;
@@ -2132,7 +2142,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             sl->crit := ''
           Endif
           If sl->k_fr == 0
-            sl->crit2 := ''
+//            sl->crit2 := ''
+            sl->crit2 := m1crit2
           Elseif ( i := AScan( _arr_fr, {| x| Between( sl->k_fr, x[ 3 ], x[ 4 ] ) } ) ) > 0
             sl->crit2 := _arr_fr[ i, 2 ]
           Endif
