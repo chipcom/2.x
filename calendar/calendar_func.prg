@@ -5,6 +5,26 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 20.02.25
+function is_work_day_new( mdate )
+
+  Local db
+  Local aTable
+  Local nameView
+  local strSQL, standart
+
+  standart := {}
+  nameView := 'year' + str( Year( mdate ), 4 )
+
+  db := opensql_db()
+  strSQL := 'SELECT m_month, description FROM ' + nameView + ' WHERE m_month=' + alltrim( str( Month( mdate ), 4 ) )
+  aTable := sqlite3_get_table( db, strSQL )
+  If Len( aTable ) > 1
+    hb_jsonDecode( alltrim( aTable[ 2, 2 ] ), @standart )
+  Endif
+  db := nil
+  return ( AScan( standart, Day( mdate ) ) == 0 ) // не в массиве выходных
+
 // 25.12.24
 function check_next_visit_dn( gt, du )
 
