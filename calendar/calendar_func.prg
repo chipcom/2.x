@@ -5,6 +5,44 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 21.02.25
+function getArrayHoliday( mYear )
+
+  static hArray
+  Local db
+  local arr := {}, aTable, nI
+  local nameView, strSQL, standart, fl := .f.
+
+  if hArray == nil
+    hArray := hb_Hash()
+  Endif
+
+  if ! hb_hHaskey( hArray, mYear )
+    standart := {}
+    nameView := 'year' + str( mYear, 4 )
+  
+    db := opensql_db()
+    strSQL := 'SELECT m_month, description FROM ' + nameView // + ' WHERE m_month=' + alltrim( str( Month( mYear ), 4 ) )
+    aTable := sqlite3_get_table( db, strSQL )
+    If Len( aTable ) > 1
+
+      For nI := 2 To Len( aTable )
+        hb_jsonDecode( alltrim( aTable[ nI, 2 ] ), @standart )
+        AAdd( arr, { val( aTable[ nI, 1 ] ), standart } )
+        fl := .t.
+      Next
+      hb_HSet( hArray, mYear, arr )
+    Endif
+    db := nil
+  else
+    fl := .t.
+  endif
+
+  if fl
+    arr := hArray[ mYear ]
+  endif
+  return arr
+
 // 20.02.25
 function is_work_day_new( mdate )
 
