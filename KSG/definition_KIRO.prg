@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 13.02.25
+// 25.02.25
 Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkdata )
 
   // lkiro - список возможных КИРО для КСГ
@@ -22,7 +22,7 @@ Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkda
   // проверим услуги с обязательным сроком лечения
   if ( obyaz_kol_dnej := obyazat_srok_lech( lksg, lkdata ) ) != 0
     If lkdata >= 0d20240101
-      If ( obyaz_kol_dnej >= ldnej ) .and. ( AScan( lkiro, 7 ) > 0 )
+      If ( obyaz_kol_dnej > ldnej ) .and. ( AScan( lkiro, 7 ) > 0 )
         vkiro := 7
       endif
     Else
