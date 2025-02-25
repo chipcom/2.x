@@ -98,7 +98,7 @@ Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 30.01.25
+// 25.02.25
 Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Static mm_kart_error := { { 'нет замечаний', 0 }, { 'полис недействителен', -8 }, { 'ошибки в реквизитах', -9 } }
@@ -718,7 +718,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
           kart->uchast := muchast
           kart->kod_vu := mkod_vu
         Endif
-        kart->PN1 := iif( m1UchastSVO == 1, 30, kart->PN1 )
+        kart->PN1 := iif( m1UchastSVO == 1, 30, 0 ) // iif( m1UchastSVO == 1, 30, kart->PN1 )
         kart->PC3 := StrZero( m1SVO, 3 )
         Select KART2
         Do While kart2->( LastRec() ) < mkod
