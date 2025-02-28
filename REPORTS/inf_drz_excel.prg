@@ -6,7 +6,7 @@
 
 Static lcount_uch  := 1
 
-// 17.11.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 28.02.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
 
   Local workbook, worksheet, ws2511, ws2517   // , analiz
@@ -20,8 +20,6 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
 
   // local strMO := hb_StrToUtf8( glob_mo[ _MO_SHORT_NAME ] )
   Local strMO := hb_StrToUTF8( hb_main_curOrg:name_tfoms() )
-  // local arr_plan := get_array_plan_drz( year( arr_m[ 6 ] ), hb_main_curOrg:Kod_Tfoms() )
-//  Local arr_plan := get_array_plan_drz( Year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
   Local arr_plan := get_plan_drz( Year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
   Local i
   //
@@ -34,7 +32,6 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     workbook  := workbook_new( file_name )
     worksheet := workbook_add_worksheet( workbook, 'Табл_1' )
     worksheet_set_tab_color( worksheet, 0x56ff21 )
-    // analiz := workbook_add_worksheet( workbook,  'Дополнительный анализ' )
 
     /* Установить высоту строки */
     worksheet_set_row( worksheet, 0, 39.8 )
@@ -56,14 +53,6 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     worksheet_set_column( worksheet, 4, 4, 13.56 )
     worksheet_set_column( worksheet, 5, 5, 13.56 )
     worksheet_set_column( worksheet, 6, 6, 13.56 )
-    // WORKSHEET_SET_COLUMN( worksheet, 7, 7, 18.11 )
-    // WORKSHEET_SET_COLUMN( worksheet, 8, 8, 19.89 )
-    // WORKSHEET_SET_COLUMN( worksheet, 9, 9, 15.33 )
-    // WORKSHEET_SET_COLUMN( worksheet, 10, 10, 14.56 )
-    // WORKSHEET_SET_COLUMN( worksheet, 11, 11, 22.11 )
-    // WORKSHEET_SET_COLUMN( worksheet, 12, 12, 19.78 )
-    // WORKSHEET_SET_COLUMN( worksheet, 13, 13, 19.78 )
-    // WORKSHEET_SET_COLUMN( worksheet, 14, 14, 18.56 )
 
     For i := 7 To 24
       worksheet_set_column( worksheet, i, i, 18.56 )
@@ -73,7 +62,6 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     /* Конфигурируем формат для объединенных ячеек. */
     format_set_bold( merge_format_head )
     format_set_font_size( merge_format_head, 14 )
-    // FORMAT_SET_BG_COLOR( merge_format_head, 0xffffea )
     format_set_border( merge_format_head, LXW_BORDER_THIN )
 
     merge_format := fmt_excel_hc_vc_wrap( workbook ) // WORKBOOK_ADD_FORMAT( workbook )
@@ -130,13 +118,11 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
 
     cell_format_man := fmt_excel_hc_vc_wrap( workbook )
     format_set_font_size( cell_format_man, 12 )
-    // FORMAT_SET_BOLD( cell_format_man )
     format_set_bg_color( cell_format_man, 0xdae6f1 )
     format_set_border( cell_format_man, LXW_BORDER_THIN )
 
     cell_format_woman := fmt_excel_hc_vc_wrap( workbook )
     format_set_font_size( cell_format_woman, 12 )
-    // FORMAT_SET_BOLD( cell_format_woman )
     format_set_bg_color( cell_format_woman, 0xf1dddd )
     format_set_border( cell_format_woman, LXW_BORDER_THIN )
 
@@ -521,19 +507,15 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
 
     merge_format2511 := fmt_excel_hc_vc_wrap( workbook ) // WORKBOOK_ADD_FORMAT( workbook )
     /* Конфигурируем формат для объединенных ячеек. */
-    // FORMAT_SET_BOLD( merge_format2511 )
     format_set_font_size( merge_format2511, 10 )
-    // FORMAT_SET_BG_COLOR( merge_format2511, 0xffffea )
     format_set_border( merge_format2511, LXW_BORDER_THIN )
 
     form_text2511 := fmt_excel_hc_vc_wrap( workbook )
     format_set_font_size( form_text2511, 10 )
-    // FORMAT_SET_BG_COLOR( form_text2511, 0xffffea )
     format_set_border( form_text2511, LXW_BORDER_THIN )
 
     cell_format2511 := fmt_excel_hc_vc_wrap( workbook )
     format_set_font_size( cell_format2511, 10 )
-    // FORMAT_SET_BG_COLOR( cell_format2511, 0xffffea )
     format_set_border( cell_format2511, LXW_BORDER_THIN )
 
     ws2511 := workbook_add_worksheet( workbook,  'табл.2511' )
@@ -703,5 +685,4 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     workbook_close( workbook )
 
   Endif
-
   Return Nil
