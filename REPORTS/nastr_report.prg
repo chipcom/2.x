@@ -17,7 +17,7 @@ Function string_output( sText, lExcel, ws, row, column, fmt )
 
   Return Nil
 
-// 25.07.24 ¬­®£®¢ à¨ ­â­ë© ¯®¨áª
+// 28.02.25 ¬­®£®¢ à¨ ­â­ë© ¯®¨áª
 Function s_mnog_poisk()
 
   Static lcount_uch  := 1
@@ -965,10 +965,10 @@ Function s_mnog_poisk()
           worksheet_set_column( worksheet, column, column, 11.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( '®¬¥à  â¥«¥ä®­®¢' ), header_wrap )
         Else
-          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄ'
-          arr_title[ 2 ] += '³   ®¬¥à  '
-          arr_title[ 3 ] += '³ â¥«¥ä®­®¢'
-          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄ'
+          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄ'
+          arr_title[ 2 ] += '³    ®¬¥à   '
+          arr_title[ 3 ] += '³  â¥«¥ä®­®¢ '
+          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄ'
         Endif
       Endif
       If IsBit( mn->vid_doc, 3 )
@@ -2113,9 +2113,9 @@ Function s_mnog_poisk()
         //
         If IsBit( mn->vid_doc, 12 ) // â¥«¥ä®­ë
           KART->( dbSelectArea( human->kod_k ) )
-          s1 += ' ' + PadR( AllTrim( kart_->Phone_h ), 10 )
-          s2 += ' ' + PadR( AllTrim( kart_->Phone_m ), 10 )
-          s3 += ' ' + PadR( AllTrim( kart_->Phone_w ), 10 )
+          s1 += ' ' + PadR( AllTrim( kart_->Phone_h ), 12 )
+          s2 += ' ' + PadR( AllTrim( kart_->Phone_m ), 12 )
+          s3 += ' ' + PadR( AllTrim( kart_->Phone_w ), 12 )
           If lExcel
             worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( AllTrim( kart_->Phone_h ) + ' ' + AllTrim( kart_->Phone_m ) + ' ' + AllTrim( kart_->Phone_w ) ), fmtCellString )
           Endif
