@@ -262,8 +262,9 @@ function update_v50104()     // перенос данных об участниках СВО
   stat_msg( 'Переносим информацию об участниках СВО' )
   use_base( 'kartotek', 'kart', .t. ) // откроем файл kartotek
 
-  dbEval( { || kart->PC3 := iif( kart->PN1 == 30, '035', ;
-      iif( Empty( kart->PC3 ), '000', kart->PC3 ) ) } )
+//  dbEval( { || kart->PC3 := iif( kart->PN1 == 30, '035', ;
+//      iif( Empty( kart->PC3 ), '000', kart->PC3 ) ) } )
+  dbEval( { || kart->PC3 := '000' } )
 
   dbCloseAll()        // закроем все
   return nil
