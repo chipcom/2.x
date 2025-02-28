@@ -262,7 +262,8 @@ Function verify_dend_mo( cCode, ldate, is_record )
       fl := .t. // пока так
 
       If fl
-        human_->NPR_MO := lstr( a_mo[ j, 1 ] ) // перезаписываем код направляющего МО в листе учёта ОМС
+//        human_->NPR_MO := lstr( a_mo[ j, 1 ] ) // перезаписываем код направляющего МО в листе учёта ОМС
+        human_->NPR_MO := cCode
       Else
         s := '<' + glob_arr_mo[ i, _MO_SHORT_NAME ] + '> закончила свою деятельность ' + date_8( glob_arr_mo[ i, _MO_DEND ] ) + 'г.'
       Endif
