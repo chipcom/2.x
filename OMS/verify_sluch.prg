@@ -6,9 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// Static sadiag1
-
-// 05.02.25
+// 02.03.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -905,7 +903,8 @@ Function verify_sluch( fl_view )
         is_disp_DVN := .t.
         is_exist_Prescription := .t.
       Elseif eq_any( left_lshifr_5, '60.4.', '60.5.', '60.6.', '60.7.', '60.8.', '60.9.' ) .or. ;
-          eq_any( alltrim_lshifr, '4.20.702', '4.15.746' ) // ЛДП
+          eq_any( alltrim_lshifr, '4.20.702', '4.15.746' ) .or. ; // ЛДП
+          eq_any( alltrim_lshifr, '7.2.706', '7.57.704', '7.61.704' ) // услуги с применением ИИ
         If alltrim_lshifr == '4.15.746' // пренатальный скрининг
           mpovod := 1 // 1.0-Посещение по заболеванию
         Else
@@ -3789,13 +3788,9 @@ Function verify_sluch( fl_view )
     m1mobilbr := 0
     human_->profil := 151  // медицинским осмотрам профилактическим
     ret_arr_vozrast_dvn( dEnd )
-//    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
     ret_arrays_disp( dEnd )
     m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := f_is_prazdnik_dvn( dBegin )
 
-    // If ISNIL( sadiag1 )
-    //   sadiag1 := load_diagnoze_disp_nabl_from_file()
-    // Endif
     For i := 1 To 5
       sk := lstr( i )
       pole_diag := 'mdiag' + sk
@@ -3868,7 +3863,6 @@ Function verify_sluch( fl_view )
           s := 2 // взят на диспансерное наблюдение
         Endif
       Endif
-      // If !Empty( arr_diag[ 1 ] ) .and. AScan( sadiag1, arr_diag[ 1 ] ) > 0
       If !Empty( arr_diag[ 1 ] ) .and. diag_in_list_dn( arr_diag[ 1 ] )
         If Empty( arr_diag[ 4 ] )
           If s == 2
