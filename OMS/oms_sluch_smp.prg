@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.06.24 СМП - добавление или редактирование случая (листа учета)
+// 05.03.25 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -22,6 +22,8 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
   Default st_N_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
   Private row_diag_screen, rdiag := 1
+  private m1SVO := 0, mSVO  // социальная категория
+
   If mem_smp_input == 0
     If  kod_kartotek == 0 // добавление в картотеку
       If ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
@@ -35,17 +37,17 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     row_diag_screen := 9
     Private ;
       MFIO        := Space( 50 ), ; // Ф.И.О. больного
-    mfam := Space( 40 ), mim := Space( 40 ), mot := Space( 40 ), ;
+      mfam := Space( 40 ), mim := Space( 40 ), mot := Space( 40 ), ;
       mpol        := 'М', ;
       mdate_r     := BoY( AddMonth( sys_date, -12 * 30 ) ), ;
       MVZROS_REB, M1VZROS_REB := 0, ;
       MADRES      := Space( 50 ), ; // адрес больного
-    m1MEST_INOG := 0, newMEST_INOG := 0, ;
+      m1MEST_INOG := 0, newMEST_INOG := 0, ;
       MVID_UD, ; // вид удостоверения
-    M1VID_UD    := 14, ; // 1-18
-    mser_ud := Space( 10 ), mnom_ud := Space( 20 ), mmesto_r := Space( 100 ), ;
+      M1VID_UD    := 14, ; // 1-18
+      mser_ud := Space( 10 ), mnom_ud := Space( 20 ), mmesto_r := Space( 100 ), ;
       MKEMVYD, M1KEMVYD := 0, MKOGDAVYD := CToD( '' ), ; // кем и когда выдан паспорт
-    mspolis := Space( 10 ), mnpolis := Space( 20 ), msmo := '34007', ;
+      mspolis := Space( 10 ), mnpolis := Space( 20 ), msmo := '34007', ;
       mnamesmo, m1namesmo, ;
       m1company := 0, mcompany, mm_company, ;
       m1KOMU := 0, MKOMU, M1STR_CRB := 0, ;
@@ -72,9 +74,13 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         m1KOMU    := kart->KOMU
         M1STR_CRB := kart->STR_CRB
       Endif
+      m1SVO := val( kart->PC3 )
       If kart->MEST_INOG == 9 // т.е. отдельно занесены Ф.И.О.
         m1MEST_INOG := kart->MEST_INOG
       Endif
+
+      m1SVO := val( kart->PC3 )
+
       m1vidpolis  := kart_->VPOLIS // вид полиса (от 1 до 3);1-старый, 2-врем., 3-новый
       mspolis     := kart_->SPOLIS // серия полиса
       mnpolis     := kart_->NPOLIS // номер полиса
@@ -436,6 +442,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
   mtip      := inieditspr( A__MENUVERT, mm_danet, m1tip )
   musluga   := inieditspr( A__MENUBIT,  mm_usluga, m1usluga )
   mismo     := init_ismo( m1ismo )
+  mSVO := inieditspr( A__MENUVERT, mm_SVO(), m1SVO )
   If ibrm > 0
     mm_prer_b := iif( ibrm == 1, mm1prer_b, iif( ibrm == 2, mm2prer_b, mm3prer_b ) )
     If ibrm == 1 .and. m1prer_b == 0
@@ -487,7 +494,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
   @ top2 - 1, 0 Say PadC( str_1, 80 ) Color 'B/BG*'
   Private gl_area := { 1, 0, MaxRow() -1, MaxCol(), 0 }
   Private gl_arr := { ;  // для битовых полей
-  { 'usluga', 'N', 10, 0, , , , {| x| inieditspr( A__MENUBIT, mm_usluga, x ) } };
+    { 'usluga', 'N', 10, 0, , , , {| x| inieditspr( A__MENUBIT, mm_usluga, x ) } } ;
     }
   @ MaxRow(), 0 Say PadC( '<Esc> - выход;  <PgDn> - запись;  <F1> - помощь', MaxCol() + 1 ) Color color0
   mark_keys( { '<F1>', '<Esc>', '<PgDn>' }, 'R/BG' )
@@ -500,25 +507,25 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       @ j, 50 Say PadL( 'Лист учета № ' + lstr( Loc_kod ), 29 ) Color color14
     Endif
     //
-    ++j; @ j, 1 Say 'Учреждение' Get mlpu When .f. Color cDataCSay
+    @ ++j, 1 Say 'Учреждение' Get mlpu When .f. Color cDataCSay
     @ Row(), Col() + 2 Say 'Отделение' Get motd When .f. Color cDataCSay
     //
     If tip_lu == TIP_LU_SMP
-      ++j; @ j, 1 Say 'Карта вызова: №' Get much_doc Picture '999999'
+      @ ++j, 1 Say 'Карта вызова: №' Get much_doc Picture '999999'
       @ Row(), Col() Say ', дата выезда' Get mn_data ;
         valid {| g| mk_data := mn_data, f_k_data( g, 1 ) }
     Else
-      ++j; @ j, 1 Say 'Карта №' Get much_doc Picture '999999'
+      @ ++j, 1 Say 'Карта №' Get much_doc Picture '999999'
       @ Row(), Col() Say ', дата приёма' Get mn_data ;
         valid {| g| mk_data := mn_data, f_k_data( g, 1 ) }
     Endif
     //
     If mem_smp_input == 0
-      ++j; @ j, 1 Say 'ФИО' Get mfio_kart ;
+      @ ++j, 1 Say 'ФИО' Get mfio_kart ;
         reader {| x| menu_reader( x, { {| k, r, c| get_fio_kart( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
         valid {| g, o| update_get( 'mkomu' ), update_get( 'mcompany' ) }
     Else
-      ++j; @ j, 1 Say 'Полис ОМС: серия' Get mspolis When m1komu == 0
+      @ ++j, 1 Say 'Полис ОМС: серия' Get mspolis When m1komu == 0
       @ Row(), Col() + 3 Say 'номер'  Get mnpolis When m1komu == 0 ;
         valid {|| findkartoteka( 2, @mkod_k ) }
       @ Row(), Col() + 3 Say 'вид'    Get mvidpolis ;
@@ -561,8 +568,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       @ j, 1 Say 'Адрес регистрации' Get madres_reg ;
         reader {| x| menu_reader( x, { {| k, r, c| get_adres( 1, k, r, c ) } }, A__FUNCTION, , , .f. ) }
     Endif
-    ++j
-    @ j, 1 Say 'Принадлежность счёта' Get mkomu ;
+    @ ++j, 1 Say 'Принадлежность счёта' Get mkomu ;
       reader {| x| menu_reader( x, mm_komu, A__MENUVERT, , , .f. ) } ;
       valid {| g, o| f_valid_komu( g, o ) } ;
       Color colget_menu
@@ -572,15 +578,19 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       valid {| g| func_valid_ismo( g, m1komu, 38 ) }
     //
     If mem_smp_input == 0
-      ++j; @ j, 1 Say 'Полис ОМС: серия' Get mspolis When m1komu == 0
+      @ ++j, 1 Say 'Полис ОМС: серия' Get mspolis When m1komu == 0
       @ Row(), Col() + 3 Say 'номер'  Get mnpolis When m1komu == 0
       @ Row(), Col() + 3 Say 'вид'    Get mvidpolis ;
         reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
         When m1komu == 0 ;
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
     Endif
+
+    @ ++j, 1 Say 'Социальная категория' Get mSVO ;
+      reader {| x| menu_reader( x, mm_SVO(), A__MENUVERT, , , .f. ) }
+
     //
-    ++j; @ j, 1 Say 'Новорожденный?' Get mnovor ;
+    @ ++j, 1 Say 'Новорожденный?' Get mnovor ;
       reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
       valid {| g, o| f_valid_novor( g, o ) } ;
       Color colget_menu
@@ -597,7 +607,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         When diag_screen( 2 ) .and. ( m1novor == 1 )
     Endif
     //
-    ++j; @ j, 1 Say 'Диагноз(ы)' Get mkod_diag Picture pic_diag ;
+    @ ++j, 1 Say 'Диагноз(ы)' Get mkod_diag Picture pic_diag ;
       reader {| o| mygetreader( o, bg ) } ;
       When when_diag() ;
       valid {|| val1_10diag( .t., .t., .t., mk_data, iif( m1novor == 0, mpol, mpol2 ) ), f_valid_beremenn( mkod_diag, mk_data ) }
@@ -624,34 +634,34 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       mm_prer_b := iif( ibrm == 1, mm1prer_b, iif( ibrm == 2, mm2prer_b, mm3prer_b ) ), ;
       ( ibrm > 0 ) }
     //
-    ++j; @ j, 1 Say 'Результат обращения' Get mrslt ;
+    @ ++j, 1 Say 'Результат обращения' Get mrslt ;
       reader {| x| menu_reader( x, mm_rslt, A__MENUVERT, , , .f. ) } ;
       valid {| g, o| f_valid_rslt( g, o ) }
     //
-    ++j; @ j, 1 Say 'Исход заболевания' Get mishod ;
+    @ ++j, 1 Say 'Исход заболевания' Get mishod ;
       reader {| x| menu_reader( x, mm_ishod, A__MENUVERT, , , .f. ) }
     //
     If tip_lu == TIP_LU_SMP
       If Empty( mm_trombolit )
-        ++j; @ j, 1 Say 'Бригада СМП' Get mbrig ;
+        @ ++j, 1 Say 'Бригада СМП' Get mbrig ;
           reader {| x| menu_reader( x, mm_brig, A__MENUVERT, , , .f. ) }
       Else
-        ++j; @ j, 1 Say 'Тромболитическая терапия:' Get mtip ;
+        @ ++j, 1 Say 'Тромболитическая терапия:' Get mtip ;
           reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
           valid {| g, o| f_valid_brig( g, o, mm_brigada, mm_trombolit, st_brigada, st_trombolit ) }
         @ j, 32 Say 'Бригада СМП' Get mbrig ;
           reader {| x| menu_reader( x, mm_brig, A__MENUVERT, , , .f. ) }
       Endif
       If mem_smp_tel == 1
-        ++j; @ j, 1 Say 'Услуга(и) телемедицины' Get musluga ;
+        @ ++j, 1 Say 'Услуга(и) телемедицины' Get musluga ;
           reader {| x| menu_reader( x, mm_usluga, A__MENUBIT, , , .f. ) }
       Endif
     Else
-      ++j; @ j, 1 Say 'Врач (фельдшер)' Get mspec ;
+      @ ++j, 1 Say 'Врач (фельдшер)' Get mspec ;
         reader {| x| menu_reader( x, mm_spec, A__MENUVERT, , , .f. ) }
     Endif
     //
-    ++j; @ j, 1 Say 'Таб.№ врача (фельдшера)' Get MTAB_NOM Pict '99999' ;
+    @ ++j, 1 Say 'Таб.№ врача (фельдшера)' Get MTAB_NOM Pict '99999' ;
       valid {| g| v_kart_vrach( g, .t. ) } When diag_screen( 2 )
     @ Row(), Col() + 1 Get mvrach When .f. Color color14
     If !Empty( a_smert )
@@ -793,6 +803,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         kart->STR_CRB   := m1str_crb
         kart->MI_GIT    := 9
         kart->MEST_INOG := newMEST_INOG
+        kart->PC3 := StrZero( m1SVO, 3 )
         //
         Select KART2
         Do While kart2->( LastRec() ) < mkod_k
