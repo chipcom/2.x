@@ -6,7 +6,7 @@
 #include 'chip_mo.ch'
 
 // 22.02.25
-function is_work_day_new( mdate )
+function is_work_day( mdate )
 
 return ( AScan( getArrayHoliday( Year( mdate ) )[ Month( mdate ), 2 ], Day( mdate ) ) == 0 )
 
