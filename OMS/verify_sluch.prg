@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 02.03.25
+// 06.03.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -51,6 +51,7 @@ Function verify_sluch( fl_view )
   local mPCEL := ''
   local info_disp_nabl := 0, ldate_next
   local s_lek_pr
+  local iFind := 0, aCheck
 
   Default fl_view To .t.
 
@@ -902,15 +903,17 @@ Function verify_sluch( fl_view )
       Elseif alltrim_lshifr == '56.1.723' .and. human->ishod == 202 .and. !is_disp_19 // второй этап ДВН - одна услуга
         is_disp_DVN := .t.
         is_exist_Prescription := .t.
+      elseif eq_any( alltrim_lshifr, '7.2.706', '7.57.704', '7.61.704' ) // услуги с применением ИИ
+        mpovod := 7 // 2.3-Комплексное обследование
+        mIDSP := 28 // за медицинскую услугу
       Elseif eq_any( left_lshifr_5, '60.4.', '60.5.', '60.6.', '60.7.', '60.8.', '60.9.' ) .or. ;
-          eq_any( alltrim_lshifr, '4.20.702', '4.15.746' ) .or. ; // ЛДП
-          eq_any( alltrim_lshifr, '7.2.706', '7.57.704', '7.61.704' ) // услуги с применением ИИ
+          eq_any( alltrim_lshifr, '4.20.702', '4.15.746' ) // ЛДП
         If alltrim_lshifr == '4.15.746' // пренатальный скрининг
           mpovod := 1 // 1.0-Посещение по заболеванию
         Else
           mpovod := 7 // 2.3-Комплексное обследование
         Endif
-        mIDSP := 4 // лечебно-диагностическая процедура
+        mIDSP := 4 // лечебно-диагностическая процедура 
         kkt += hu->kol_1
         hu_->PZTIP := 5
         hu_->PZKOL := hu->kol_1
@@ -1628,8 +1631,9 @@ Function verify_sluch( fl_view )
             'B01.057.001', 'B01.057.002', ;
             'B03.053.002', ;
             'B01.070.009', 'B01.070.010', ;
-            'A25.28.001.001', 'A25.28.001.002' ;
-            )
+            'A25.28.001.001', 'A25.28.001.002', ;
+            'A06.09.007.002', 'A06.20.004', 'A06.09.006.001' ;
+          )
           AAdd( ta, 'услугу ' + s + ' нельзя вводить для амбулаторной помощи' )
         Endif
       Case human_->usl_ok == USL_OK_AMBULANCE // 4
@@ -4397,6 +4401,34 @@ Function verify_sluch( fl_view )
     Endif
 
   Endif
+
+  //
+  // ПРОВЕРКА УСЛУГ С ИСКУСТВЕННЫМ ИНТЕЛЕКТОМ без учета услуг 60.4.583, 60.4.584
+  //
+  fl := .f.
+  aCheck := { { '7.2.706', 'A06.09.007.002' }, { '7.57.704', 'A06.20.004' }, { '7.61.704', 'A06.09.006.001' } }
+  for counter := 1 to len( arrUslugi )
+    if AScan( aCheck, {| x | x[ 1 ] == arrUslugi[ counter ] } ) > 0
+        iFind := counter
+        fl := .t.
+    endif
+  next
+  if fl
+    if Empty( human_2->NPR_DATE )
+      AAdd( ta, 'для услуг 7.2.706, 7.57.704, 7.61.704 обязательно направление' )
+    endif
+    if ( human_->USL_OK != USL_OK_POLYCLINIC )
+      AAdd( ta, 'услуги 7.2.706, 7.57.704, 7.61.704 оказываются только в амбулаторных условиях' )
+    endif
+    if ( AllTrim( mdiagnoz[ 1 ] ) != 'Z01.8' )
+      AAdd( ta, 'для услуг 7.2.706, 7.57.704, 7.61.704 необходимо установить основной диагноз Z01.8, ' ;
+        + 'у вас выбран ' + AllTrim( mdiagnoz[ 1 ] ) + '!' )
+    endif
+    if AScan( arrUslugi, aCheck[ iFind, 2] ) == 0
+      AAdd( ta, 'в случай необходимо добавить услугу ' + aCheck[ iFind, 2] )
+    endif
+  endif
+
   //
   // ПРОВЕРКА ЛЕКАРСТВЕННЫХ ПРЕПАРАТОВ
   //
