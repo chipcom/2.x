@@ -1,6 +1,6 @@
 #include 'chip_mo.ch'
 
-// 11.07.24 реконстукция подсистемы паролей
+// 09.03.25 реконстукция подсистемы паролей
 Function reconstruct_security( is_local_version )
 
   Local base1 := { ;
@@ -50,16 +50,19 @@ Function reconstruct_security( is_local_version )
     { 'VER',        'N',   6, 0 }, ; // номер версии БД
     { 'DONE',       'N',   1, 0 } ;  // переход выполнен - 1, нет - 0
   }
+  //
+  local path_DB // путь к БД приложения
 
   If controlbases( 1, _version() ) // если необходимо
     If g_slock1task( sem_task, sem_vagno )  // запрет доступа всем
+      path_DB := dir_server
       // реконструкция файлов доступа к системе и обновлений БД
-      If !is_local_version .or. hb_FileExists( dir_server + 'base1' + sdbf )
-        reconstruct( dir_server + 'base1', base1, , , .t. )
-        reconstruct( dir_server + 'mo_oper', mo_oper, 'index_base("mo_oper")', , .t. )
-        reconstruct( dir_server + 'mo_opern', mo_opern, 'index_base("mo_opern")', , .t. )
-        reconstruct( dir_server + 'roles', roles, , , .t. )
-        reconstruct( dir_server + 'ver_updateDB', mo_updateDB, , , .t. )
+      If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf )
+        reconstruct( path_DB + 'base1', base1, , , .t. )
+        reconstruct( path_DB + 'mo_oper', mo_oper, 'index_base("mo_oper")', , .t. )
+        reconstruct( path_DB + 'mo_opern', mo_opern, 'index_base("mo_opern")', , .t. )
+        reconstruct( path_DB + 'roles', roles, , , .t. )
+        reconstruct( path_DB + 'ver_updateDB', mo_updateDB, , , .t. )
       Endif
       g_sunlock( sem_vagno )
     Endif
@@ -1554,6 +1557,8 @@ Function reconstruct_db( is_local_version, is_create )
     { 'KOL1',       'N',   6, 0 } ; // количество справок в файле
   }
   //
+  local path_DB // путь к БД приложения
+  //
   // КЭК
   // Local kek_h := {; // 'mo_kekh'
   // {'KOD_LU'   ,   'N',     7,     0}, ; // код (номер записи) в human.dbf
@@ -1651,161 +1656,164 @@ Function reconstruct_db( is_local_version, is_create )
   // {'NAME',       'C',     65,      0} ;
   // }
   //
+
+  path_DB := dir_server
+
   f_init_r01() // инициализация всех файлов инф.сопровождения по диспансеризации
   // f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
-  If !is_local_version .or. hb_FileExists( dir_server + 'base1' + sdbf )
-    reconstruct( dir_server + 'base1', base1, , , .t. )
-    reconstruct( dir_server + 'mo_oper', mo_oper, 'index_base("mo_oper")', , .t. )
-    reconstruct( dir_server + 'mo_opern', mo_opern, 'index_base("mo_opern")', , .t. )
-    reconstruct( dir_server + 'roles', roles, , , .t. )
+  If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf )
+    reconstruct( path_DB + 'base1', base1, , , .t. )
+    reconstruct( path_DB + 'mo_oper', mo_oper, 'index_base("mo_oper")', , .t. )
+    reconstruct( path_DB + 'mo_opern', mo_opern, 'index_base("mo_opern")', , .t. )
+    reconstruct( path_DB + 'roles', roles, , , .t. )
   Endif
   // простые справочники
-  reconstruct( dir_server + 's_adres', { { 'name', 'C', 40, 0 } }, 'index_base("s_adres")', , .t. )
-  reconstruct( dir_server + 's_kemvyd', { { 'name', 'C', 150, 0 } }, 'index_base("s_kemvyd")', , .t. )
-  reconstruct( dir_server + 's_mr', { { 'name', 'C', 50, 0 } }, , , .t. )
-  reconstruct( dir_server + 'mo_kfio', mo_kfio, , , .t. )
-  reconstruct( dir_server + 'mo_kismo', inog_smo, , , .t. )
-  reconstruct( dir_server + 'mo_hismo', inog_smo, , , .t. )
-  reconstruct( dir_server + 'mo_stdds', stacDDS, , , .t. )
-  reconstruct( dir_server + 'mo_schoo', school, , , .t. )
+  reconstruct( path_DB + 's_adres', { { 'name', 'C', 40, 0 } }, 'index_base("s_adres")', , .t. )
+  reconstruct( path_DB + 's_kemvyd', { { 'name', 'C', 150, 0 } }, 'index_base("s_kemvyd")', , .t. )
+  reconstruct( path_DB + 's_mr', { { 'name', 'C', 50, 0 } }, , , .t. )
+  reconstruct( path_DB + 'mo_kfio', mo_kfio, , , .t. )
+  reconstruct( path_DB + 'mo_kismo', inog_smo, , , .t. )
+  reconstruct( path_DB + 'mo_hismo', inog_smo, , , .t. )
+  reconstruct( path_DB + 'mo_stdds', stacDDS, , , .t. )
+  reconstruct( path_DB + 'mo_schoo', school, , , .t. )
   // услуги
-  reconstruct( dir_server + 'slugba', slugba, 'index_base("slugba")', , .t. )
-  reconstruct( dir_server + 'mo_su', mo_su, 'index_base("mo_su")', , .t. )
-  reconstruct( dir_server + 'uslugi', uslugi, 'index_base("uslugi")', , .t. )
-  reconstruct( dir_server + 'uslugi1', uslugi1, 'index_base("uslugi1")', , .t. )
-  reconstruct( dir_server + 'uch_usl', uch_usl, 'index_base("uch_usl")', , .t. )
-  reconstruct( dir_server + 'uch_usl1', uch_usl1, 'index_base("uch_usl1")', , .t. )
-  reconstruct( dir_server + 'uch_pers', uch_pers, 'index_base("uch_pers")', , .t. )
-  reconstruct( dir_server + 'uslugi_k', uslugi_k, 'index_base("uslugi_k")', , .t. )
-  reconstruct( dir_server + 'uslugi1k', uslugi1k, 'index_base("uslugi1k")', , .t. )
-  reconstruct( dir_server + 'ns_usl', ns_usl, , , .t. )
-  reconstruct( dir_server + 'ns_usl_k', ns_usl_k, 'index_base("ns_usl_k")', , .t. )
-  reconstruct( dir_server + 'usl_uva', usl_uva, 'index_base("usl_uva")', , .t. )
-  reconstruct( dir_server + 'usl_otd', usl_otd, 'index_base("usl_otd")', , .t. )
-  reconstruct( dir_server + 'u_usl_5', u_usl_5, , , .t. )
-  reconstruct( dir_server + 'u_usl_7', u_usl_7, , , .t. )
+  reconstruct( path_DB + 'slugba', slugba, 'index_base("slugba")', , .t. )
+  reconstruct( path_DB + 'mo_su', mo_su, 'index_base("mo_su")', , .t. )
+  reconstruct( path_DB + 'uslugi', uslugi, 'index_base("uslugi")', , .t. )
+  reconstruct( path_DB + 'uslugi1', uslugi1, 'index_base("uslugi1")', , .t. )
+  reconstruct( path_DB + 'uch_usl', uch_usl, 'index_base("uch_usl")', , .t. )
+  reconstruct( path_DB + 'uch_usl1', uch_usl1, 'index_base("uch_usl1")', , .t. )
+  reconstruct( path_DB + 'uch_pers', uch_pers, 'index_base("uch_pers")', , .t. )
+  reconstruct( path_DB + 'uslugi_k', uslugi_k, 'index_base("uslugi_k")', , .t. )
+  reconstruct( path_DB + 'uslugi1k', uslugi1k, 'index_base("uslugi1k")', , .t. )
+  reconstruct( path_DB + 'ns_usl', ns_usl, , , .t. )
+  reconstruct( path_DB + 'ns_usl_k', ns_usl_k, 'index_base("ns_usl_k")', , .t. )
+  reconstruct( path_DB + 'usl_uva', usl_uva, 'index_base("usl_uva")', , .t. )
+  reconstruct( path_DB + 'usl_otd', usl_otd, 'index_base("usl_otd")', , .t. )
+  reconstruct( path_DB + 'u_usl_5', u_usl_5, , , .t. )
+  reconstruct( path_DB + 'u_usl_7', u_usl_7, , , .t. )
   // для стоматологий
-  reconstruct( dir_server + 'kartdelz', kart_delz, 'index_base("kartdelz")', , .t. )
-  reconstruct( dir_server + 'kart_st', kart_st, 'index_base("kart_st")', , .t. )
-  reconstruct( dir_server + 'humanst', humanst, 'index_base("humanst")', , .t. )
+  reconstruct( path_DB + 'kartdelz', kart_delz, 'index_base("kartdelz")', , .t. )
+  reconstruct( path_DB + 'kart_st', kart_st, 'index_base("kart_st")', , .t. )
+  reconstruct( path_DB + 'humanst', humanst, 'index_base("humanst")', , .t. )
   //
-  reconstruct( dir_server + 'kartotek', kartotek, 'index_base("kartotek")', 'картотеке', .t. )
-  reconstruct( dir_server + 'kartote_', kartotek_, , 'картотеке1', .t. )
-  reconstruct( dir_server + 'kartote2', kartotek2, , 'картотеке2', .t. )
-  reconstruct( dir_server + 'kart_et', _kart_et, , 'картотеке', .t. )
-  reconstruct( dir_server + 'kart_inv', _kart_inv, , 'картотеке', .t. )
-  reconstruct( dir_server + 'kart_etk', _kart_etk, , 'картотеке', .t. )
-  reconstruct( dir_server + 'k_prim1', k_prim1, 'index_base("k_prim1")', 'картотеке', .t. )
-  reconstruct( dir_server + 'mo_regi', mo_regi, 'index_base("mo_regi")', 'регистрации', .t. )
-  reconstruct( dir_server + 'mo_kpred', mo_kpred, 'index_base("mo_kpred")', , .t. )
-  reconstruct( dir_server + 'mo_kinos', mo_kinos, 'index_base("mo_kinos")', , .t. )
-  reconstruct( dir_server + 'msek', msek, 'index_base("msek")', 'МСЭК', .t. )
-  reconstruct( dir_server + 'p_priem', { { 'NAME', 'C', 25, 0 } }, , , .t. )
-  reconstruct( dir_server + 'mo_kartp', mo_kartp, 'index_base("mo_kartp")', , .t. )
-  reconstruct( dir_server + 'mo_krtp', mo_krtp, , , .t. )
-  reconstruct( dir_server + 'mo_krte', mo_krte, , , .t. )
-  reconstruct( dir_server + 'mo_krtr', mo_krtr, , , .t. )
-  reconstruct( dir_server + 'mo_krto', mo_krto, , , .t. )
-  reconstruct( dir_server + 'mo_krtf', mo_krtf, , , .t. )
+  reconstruct( path_DB + 'kartotek', kartotek, 'index_base("kartotek")', 'картотеке', .t. )
+  reconstruct( path_DB + 'kartote_', kartotek_, , 'картотеке1', .t. )
+  reconstruct( path_DB + 'kartote2', kartotek2, , 'картотеке2', .t. )
+  reconstruct( path_DB + 'kart_et', _kart_et, , 'картотеке', .t. )
+  reconstruct( path_DB + 'kart_inv', _kart_inv, , 'картотеке', .t. )
+  reconstruct( path_DB + 'kart_etk', _kart_etk, , 'картотеке', .t. )
+  reconstruct( path_DB + 'k_prim1', k_prim1, 'index_base("k_prim1")', 'картотеке', .t. )
+  reconstruct( path_DB + 'mo_regi', mo_regi, 'index_base("mo_regi")', 'регистрации', .t. )
+  reconstruct( path_DB + 'mo_kpred', mo_kpred, 'index_base("mo_kpred")', , .t. )
+  reconstruct( path_DB + 'mo_kinos', mo_kinos, 'index_base("mo_kinos")', , .t. )
+  reconstruct( path_DB + 'msek', msek, 'index_base("msek")', 'МСЭК', .t. )
+  reconstruct( path_DB + 'p_priem', { { 'NAME', 'C', 25, 0 } }, , , .t. )
+  reconstruct( path_DB + 'mo_kartp', mo_kartp, 'index_base("mo_kartp")', , .t. )
+  reconstruct( path_DB + 'mo_krtp', mo_krtp, , , .t. )
+  reconstruct( path_DB + 'mo_krte', mo_krte, , , .t. )
+  reconstruct( path_DB + 'mo_krtr', mo_krtr, , , .t. )
+  reconstruct( path_DB + 'mo_krto', mo_krto, , , .t. )
+  reconstruct( path_DB + 'mo_krtf', mo_krtf, , , .t. )
   //
-  reconstruct( dir_server + 'mo_sprav', spr_OMS, , , .t. )
-  reconstruct( dir_server + 'human', human, 'index_base("human")', 'пролеченным больным', .t. )
-  reconstruct( dir_server + 'human_', human_, , 'пролеченным больным1', .t. )
-  reconstruct( dir_server + 'human_2', human_2, , 'пролеченным больным2', .t. )
-  reconstruct( dir_server + 'human_im', mo_implant, 'index_base("human_im")', 'установленным имплантам', .t. )
-  reconstruct( dir_server + 'human_lek_pr', mo_lek_pr, 'index_base("human_lek_pr")', 'введенным лекарственным препратам', .t. )
-  reconstruct( dir_server + 'human_ser_num', mo_ser_num, 'index_base("human_ser_num")', 'введенным лекарственным препратам', .t. )
+  reconstruct( path_DB + 'mo_sprav', spr_OMS, , , .t. )
+  reconstruct( path_DB + 'human', human, 'index_base("human")', 'пролеченным больным', .t. )
+  reconstruct( path_DB + 'human_', human_, , 'пролеченным больным1', .t. )
+  reconstruct( path_DB + 'human_2', human_2, , 'пролеченным больным2', .t. )
+  reconstruct( path_DB + 'human_im', mo_implant, 'index_base("human_im")', 'установленным имплантам', .t. )
+  reconstruct( path_DB + 'human_lek_pr', mo_lek_pr, 'index_base("human_lek_pr")', 'введенным лекарственным препратам', .t. )
+  reconstruct( path_DB + 'human_ser_num', mo_ser_num, 'index_base("human_ser_num")', 'введенным лекарственным препратам', .t. )
   reconstruct_double_sl()
-  reconstruct( dir_server + 'mo_rhum', mo_rhum, , 'реестру случаев', .t. )
-  reconstruct( dir_server + 'mo_refr', mo_refr, 'index_base("mo_refr")', 'списку отказов', .t. )
-  reconstruct( dir_server + 'mo_os', mo_os, , 'оплате и санкциям', .t. )
-  reconstruct( dir_server + 'mo_hu', mo_hu, 'index_base("mo_hu")', 'пролеченным больным5', .t. )
-  reconstruct( dir_server + 'human_u', human_u, 'index_base("human_u")', 'пролеченным больным3', .t. )
-  reconstruct( dir_server + 'human_u_', human_u_, , 'пролеченным больным4', .t. )
-  reconstruct( dir_server + 'mo_hdisp', mo_hdisp, , 'диспансеризациям', .t. )
-  reconstruct( dir_server + 'mo_hod', mo_hod, , 'ходатайствам', .t. )
-  reconstruct( dir_server + 'mo_hod_k', mo_hod_k, , 'ходатайствам1', .t. )
-  reconstruct( dir_server + 'mo_rak', mo_rak, , 'актам контроля', .t. )
-  reconstruct( dir_server + 'mo_rakexp', mo_rakexp, , 'актам контроля4', .t. )
-  reconstruct( dir_server + 'mo_raks', mo_raks, , 'актам контроля2', .t. )
-  reconstruct( dir_server + 'mo_raksh', mo_raksh, , 'актам контроля3', .t. )
-  reconstruct( dir_server + 'mo_raksherr', mo_raksherr, , 'актам контроля5', .t. )
-  reconstruct( dir_server + 'mo_rpd', mo_rpd, , 'платёжным документам', .t. )
-  reconstruct( dir_server + 'mo_rpds', mo_rpds, , 'платёжным документам2', .t. )
-  reconstruct( dir_server + 'mo_rpdsh', mo_rpdsh, , 'платёжным документам3', .t. )
-  reconstruct( dir_server + 'mo_onkna', mo_onkna, 'index_base("mo_onkna")', 'онкологии1', .t. )
-  reconstruct( dir_server + 'mo_onksl', mo_onksl, 'index_base("mo_onksl")', 'онкологии2', .t. )
-  reconstruct( dir_server + 'mo_onkdi', mo_onkdi, 'index_base("mo_onkdi")', 'онкологии3', .t. )
-  reconstruct( dir_server + 'mo_onkpr', mo_onkpr, 'index_base("mo_onkpr")', 'онкологии4', .t. )
-  reconstruct( dir_server + 'mo_onkus', mo_onkus, 'index_base("mo_onkus")', 'онкологии5', .t. )
-  reconstruct( dir_server + 'mo_onkco', mo_onkco, 'index_base("mo_onkko")', 'онкологии5', .t. )
-  reconstruct( dir_server + 'mo_onkle', mo_onkle, 'index_base("mo_onkle")', 'онкологии5', .t. )
+  reconstruct( path_DB + 'mo_rhum', mo_rhum, , 'реестру случаев', .t. )
+  reconstruct( path_DB + 'mo_refr', mo_refr, 'index_base("mo_refr")', 'списку отказов', .t. )
+  reconstruct( path_DB + 'mo_os', mo_os, , 'оплате и санкциям', .t. )
+  reconstruct( path_DB + 'mo_hu', mo_hu, 'index_base("mo_hu")', 'пролеченным больным5', .t. )
+  reconstruct( path_DB + 'human_u', human_u, 'index_base("human_u")', 'пролеченным больным3', .t. )
+  reconstruct( path_DB + 'human_u_', human_u_, , 'пролеченным больным4', .t. )
+  reconstruct( path_DB + 'mo_hdisp', mo_hdisp, , 'диспансеризациям', .t. )
+  reconstruct( path_DB + 'mo_hod', mo_hod, , 'ходатайствам', .t. )
+  reconstruct( path_DB + 'mo_hod_k', mo_hod_k, , 'ходатайствам1', .t. )
+  reconstruct( path_DB + 'mo_rak', mo_rak, , 'актам контроля', .t. )
+  reconstruct( path_DB + 'mo_rakexp', mo_rakexp, , 'актам контроля4', .t. )
+  reconstruct( path_DB + 'mo_raks', mo_raks, , 'актам контроля2', .t. )
+  reconstruct( path_DB + 'mo_raksh', mo_raksh, , 'актам контроля3', .t. )
+  reconstruct( path_DB + 'mo_raksherr', mo_raksherr, , 'актам контроля5', .t. )
+  reconstruct( path_DB + 'mo_rpd', mo_rpd, , 'платёжным документам', .t. )
+  reconstruct( path_DB + 'mo_rpds', mo_rpds, , 'платёжным документам2', .t. )
+  reconstruct( path_DB + 'mo_rpdsh', mo_rpdsh, , 'платёжным документам3', .t. )
+  reconstruct( path_DB + 'mo_onkna', mo_onkna, 'index_base("mo_onkna")', 'онкологии1', .t. )
+  reconstruct( path_DB + 'mo_onksl', mo_onksl, 'index_base("mo_onksl")', 'онкологии2', .t. )
+  reconstruct( path_DB + 'mo_onkdi', mo_onkdi, 'index_base("mo_onkdi")', 'онкологии3', .t. )
+  reconstruct( path_DB + 'mo_onkpr', mo_onkpr, 'index_base("mo_onkpr")', 'онкологии4', .t. )
+  reconstruct( path_DB + 'mo_onkus', mo_onkus, 'index_base("mo_onkus")', 'онкологии5', .t. )
+  reconstruct( path_DB + 'mo_onkco', mo_onkco, 'index_base("mo_onkko")', 'онкологии5', .t. )
+  reconstruct( path_DB + 'mo_onkle', mo_onkle, 'index_base("mo_onkle")', 'онкологии5', .t. )
   //
-  reconstruct( dir_server + 'mo_rees', mo_rees, , 'реестрам случаев', .t. )
-  reconstruct( dir_server + 'mo_xml', mo_xml, , 'принятым файлам', .t. )
-  reconstruct( dir_server + 'schet', schet, 'index_base("schet")', 'счетам', .t. )
-  reconstruct( dir_server + 'schet_', schet_, , 'счетам', .t. )
-  reconstruct( dir_server + 'schetd', schetd, , , .t. )
+  reconstruct( path_DB + 'mo_rees', mo_rees, , 'реестрам случаев', .t. )
+  reconstruct( path_DB + 'mo_xml', mo_xml, , 'принятым файлам', .t. )
+  reconstruct( path_DB + 'schet', schet, 'index_base("schet")', 'счетам', .t. )
+  reconstruct( path_DB + 'schet_', schet_, , 'счетам', .t. )
+  reconstruct( path_DB + 'schetd', schetd, , , .t. )
   //
-  reconstruct( dir_server + 'mo_uch', mo_uch, , 'учреждениям', .t. )
-  reconstruct( dir_server + 'mo_otd', mo_otd, , 'отделениям', .t. )
-  reconstruct( dir_server + 'mo_uchvr', mo_uchvr, , 'участковым врачам', .t. )
-  reconstruct( dir_server + 'mo_pers', mo_pers, 'index_base("mo_pers")', 'персоналу', .t. )
+  reconstruct( path_DB + 'mo_uch', mo_uch, , 'учреждениям', .t. )
+  reconstruct( path_DB + 'mo_otd', mo_otd, , 'отделениям', .t. )
+  reconstruct( path_DB + 'mo_uchvr', mo_uchvr, , 'участковым врачам', .t. )
+  reconstruct( path_DB + 'mo_pers', mo_pers, 'index_base("mo_pers")', 'персоналу', .t. )
   //
-  reconstruct( dir_server + 'mo_ppst', mo_ppst, , , .t. )
-  reconstruct( dir_server + 'mo_pp', mo_pp, 'index_base("mo_pp")', 'приемному покою', .t. )
-  reconstruct( dir_server + 'mo_ppdia', mo_ppdia, 'index_base("mo_ppdia")', , .t. )
-  reconstruct( dir_server + 'mo_ppper', mo_ppper, 'index_base("mo_ppper")', , .t. )
-  reconstruct( dir_server + 'mo_ppadd', mo_ppadd, , , .t. )
+  reconstruct( path_DB + 'mo_ppst', mo_ppst, , , .t. )
+  reconstruct( path_DB + 'mo_pp', mo_pp, 'index_base("mo_pp")', 'приемному покою', .t. )
+  reconstruct( path_DB + 'mo_ppdia', mo_ppdia, 'index_base("mo_ppdia")', , .t. )
+  reconstruct( path_DB + 'mo_ppper', mo_ppper, 'index_base("mo_ppper")', , .t. )
+  reconstruct( path_DB + 'mo_ppadd', mo_ppadd, , , .t. )
   //
-  reconstruct( dir_server + 'hum_p', hum_p, 'index_base("hum_p")', 'пролеченным больным6', .t. )
-  reconstruct( dir_server + 'hum_p_u', hum_p_u, 'index_base("hum_p_u")', 'пролеченным больным7', .t. )
-  reconstruct( dir_server + 'plat_ms', plat_ms, 'index_base("plat_ms")', , .t. )
-  reconstruct( dir_server + 'plat_vz', plat_vz, 'index_base("plat_vz")', , .t. )
-  reconstruct( dir_server + 'hum_plat', hum_plat, 'index_base("hum_plat")', 'плательщикам', .t. )
-  reconstruct( dir_server + 'pu_cena', pu_cena, 'index_base("pu_cena")', , .t. )
-  reconstruct( dir_server + 'pu_date', { { 'data', 'D', 8, 0 } }, 'index_base("pu_date")', , .t. )
-  init_base( dir_server + 'p_pr_vz', , get_dms(), 0, , .t. )
-  init_base( dir_server + 'p_d_smo', , get_dms(), 0, , .t. )
+  reconstruct( path_DB + 'hum_p', hum_p, 'index_base("hum_p")', 'пролеченным больным6', .t. )
+  reconstruct( path_DB + 'hum_p_u', hum_p_u, 'index_base("hum_p_u")', 'пролеченным больным7', .t. )
+  reconstruct( path_DB + 'plat_ms', plat_ms, 'index_base("plat_ms")', , .t. )
+  reconstruct( path_DB + 'plat_vz', plat_vz, 'index_base("plat_vz")', , .t. )
+  reconstruct( path_DB + 'hum_plat', hum_plat, 'index_base("hum_plat")', 'плательщикам', .t. )
+  reconstruct( path_DB + 'pu_cena', pu_cena, 'index_base("pu_cena")', , .t. )
+  reconstruct( path_DB + 'pu_date', { { 'data', 'D', 8, 0 } }, 'index_base("pu_date")', , .t. )
+  init_base( path_DB + 'p_pr_vz', , get_dms(), 0, , .t. )
+  init_base( path_DB + 'p_d_smo', , get_dms(), 0, , .t. )
   //
-  reconstruct( dir_server + 'ortoped', { { 'NAME',     'C', 80, 0 }, ;
+  reconstruct( path_DB + 'ortoped', { { 'NAME',     'C', 80, 0 }, ;
                                          { 'kod',      'N',  1, 0 }, ;
                                          { 'kod1',     'N',  1, 0 } }, , , .t. )
-  reconstruct( dir_server + 'ortoped1', { { 'kod_ort',  'N', 4, 0 }, ;
+  reconstruct( path_DB + 'ortoped1', { { 'kod_ort',  'N', 4, 0 }, ;
                                           { 'kod_menu', 'N', 4, 0 }, ;
                                           { 'massa',    'N', 7, 3 } }, , , .t. )
-  reconstruct( dir_server + 'ortoped2', { { 'kod_tip', 'N', 4, 0 }, ;
+  reconstruct( path_DB + 'ortoped2', { { 'kod_tip', 'N', 4, 0 }, ;
                                           { 'kod_usl', 'N', 4, 0 } }, ;
             'index_base("ortoped2")', 'материалам', .t. )
-  reconstruct( dir_server + 'diag_ort', diag_ort, 'index_base("diag_ort")', 'диагнозам', .t. )
-  reconstruct( dir_server + 'ort_brk', { { 'NAME', 'C', 40, 0 } }, , , .t. )
-  reconstruct( dir_server + 'orto_uva', orto_uva, 'index_base("orto_uva")', , .t. )
-  reconstruct( dir_server + 'hum_ort', hum_o, 'index_base("hum_ort")', 'пролеченным больным8', .t. )
-  reconstruct( dir_server + 'hum_oro', hum_o_o, 'index_base("hum_oro")', 'пролеченным больным9', .t. )
-  reconstruct( dir_server + 'hum_oru', hum_o_u, 'index_base("hum_oru")', 'пролеченным больным10', .t. )
-  reconstruct( dir_server + 'hum_orpl', hum_orpl, 'index_base("hum_orpl")', 'плательщикам', .t. )
-  init_base( dir_server + 'tip_orto', , gmenutorto, 0, , .t. )
+  reconstruct( path_DB + 'diag_ort', diag_ort, 'index_base("diag_ort")', 'диагнозам', .t. )
+  reconstruct( path_DB + 'ort_brk', { { 'NAME', 'C', 40, 0 } }, , , .t. )
+  reconstruct( path_DB + 'orto_uva', orto_uva, 'index_base("orto_uva")', , .t. )
+  reconstruct( path_DB + 'hum_ort', hum_o, 'index_base("hum_ort")', 'пролеченным больным8', .t. )
+  reconstruct( path_DB + 'hum_oro', hum_o_o, 'index_base("hum_oro")', 'пролеченным больным9', .t. )
+  reconstruct( path_DB + 'hum_oru', hum_o_u, 'index_base("hum_oru")', 'пролеченным больным10', .t. )
+  reconstruct( path_DB + 'hum_orpl', hum_orpl, 'index_base("hum_orpl")', 'плательщикам', .t. )
+  init_base( path_DB + 'tip_orto', , gmenutorto, 0, , .t. )
   //
-  reconstruct( dir_server + 'kas_pl', kas_pl, 'index_base("kas_pl")', 'кассе-1', .t. )
-  reconstruct( dir_server + 'kas_pl_u', kas_pl_u, 'index_base("kas_pl_u")', 'кассе-2', .t. )
-  reconstruct( dir_server + 'kas_ort', kas_ort, 'index_base("kas_ort")', 'кассе-3', .t. )
-  reconstruct( dir_server + 'kas_ortu', kas_ortu, 'index_base("kas_ortu")', 'кассе-4', .t. )
-  reconstruct( dir_server + 'kas_usl', kas_usl, , 'кассе-5', .t. )
-  reconstruct( dir_server + 'kas_usld', kas_usl, , 'кассе-6', .t. )
+  reconstruct( path_DB + 'kas_pl', kas_pl, 'index_base("kas_pl")', 'кассе-1', .t. )
+  reconstruct( path_DB + 'kas_pl_u', kas_pl_u, 'index_base("kas_pl_u")', 'кассе-2', .t. )
+  reconstruct( path_DB + 'kas_ort', kas_ort, 'index_base("kas_ort")', 'кассе-3', .t. )
+  reconstruct( path_DB + 'kas_ortu', kas_ortu, 'index_base("kas_ortu")', 'кассе-4', .t. )
+  reconstruct( path_DB + 'kas_usl', kas_usl, , 'кассе-5', .t. )
+  reconstruct( path_DB + 'kas_usld', kas_usl, , 'кассе-6', .t. )
   //
-  reconstruct( dir_server + 'register_fns', mo_register_fns, 'index_base( "register_fns" )', 'журнал ФНС', .t. )
-  reconstruct( dir_server + 'reg_link_fns', mo_reg_fns_link, 'index_base( "reg_link_fns" )', 'ссылки для справок ФНС', .t. )
-  reconstruct( dir_server + 'reg_xml_fns', mo_xml_fns, 'index_base( "reg_xml_fns" )', 'файлы XML для ФНС', .t. )
-  // reconstruct( dir_server + 'payer', fns_payer, 'index_base("payer")', , .t. )
-  reconstruct( dir_server + 'reg_people_fns', people_fns, 'index_base("reg_people_fns")', , .t. )
+  reconstruct( path_DB + 'register_fns', mo_register_fns, 'index_base( "register_fns" )', 'журнал ФНС', .t. )
+  reconstruct( path_DB + 'reg_link_fns', mo_reg_fns_link, 'index_base( "reg_link_fns" )', 'ссылки для справок ФНС', .t. )
+  reconstruct( path_DB + 'reg_xml_fns', mo_xml_fns, 'index_base( "reg_xml_fns" )', 'файлы XML для ФНС', .t. )
+  // reconstruct( path_DB + 'payer', fns_payer, 'index_base("payer")', , .t. )
+  reconstruct( path_DB + 'reg_people_fns', people_fns, 'index_base("reg_people_fns")', , .t. )
   //
-  // reconstruct(dir_server + 'mo_kekez', kek_eksz, 'index_base("mo_kekez")', 'экспертизам', .t.)
-  // reconstruct(dir_server + 'mo_kekh', kek_h, 'index_base("mo_kekh")', 'экспертизам2', .t.)
-  // reconstruct(dir_server + 'mo_keke', kek_eks, 'index_base("mo_keke")', 'экспертизам3', .t.)
+  // reconstruct(path_DB + 'mo_kekez', kek_eksz, 'index_base("mo_kekez")', 'экспертизам', .t.)
+  // reconstruct(path_DB + 'mo_kekh', kek_h, 'index_base("mo_kekh")', 'экспертизам2', .t.)
+  // reconstruct(path_DB + 'mo_keke', kek_eks, 'index_base("mo_keke")', 'экспертизам3', .t.)
   //
-  init_base( dir_server + 'komitet', , get_komitet(), 2, , .t. )
-  init_base( dir_server + 'str_komp', , get_strah(), 2, , .t. )
-  init_base( dir_server + 'organiz', , get_struct_organiz(), 0, , .t. )
+  init_base( path_DB + 'komitet', , get_komitet(), 2, , .t. )
+  init_base( path_DB + 'str_komp', , get_strah(), 2, , .t. )
+  init_base( path_DB + 'organiz', , get_struct_organiz(), 0, , .t. )
   use_base( "organiz" )
   If LastRec() == 0
     addrecn()
@@ -1820,7 +1828,7 @@ Function reconstruct_db( is_local_version, is_create )
 
   Return Nil
 
-//
+// 09.03.25
 Function vounc_reconstruct_db()
 
   Local vouncmnn := { ;
@@ -1862,14 +1870,19 @@ Function vounc_reconstruct_db()
     { 'DATE_E2',    'C',   4, 0 }, ; // дата редактирования
     { 'KOD_P2',     'C',   1, 0 } ;  // код пользователя, исправившего
   }
-  reconstruct( dir_server + 'vouncmnn', vouncmnn, , , .t. )
-  reconstruct( dir_server + 'vounctrn', vounctrn, , , .t. )
-  reconstruct( dir_server + 'vouncnaz', vouncnaz, , , .t. )
-  reconstruct( dir_server + 'vouncrec', vouncrec, , , .t. )
+  //
+  local path_DB // путь к БД приложения
+
+  path_DB := dir_server
+
+  reconstruct( path_DB + 'vouncmnn', vouncmnn, , , .t. )
+  reconstruct( path_DB + 'vounctrn', vounctrn, , , .t. )
+  reconstruct( path_DB + 'vouncnaz', vouncnaz, , , .t. )
+  reconstruct( path_DB + 'vouncrec', vouncrec, , , .t. )
 
   Return Nil
 
-// 02.03.23
+// 09.03.25
 Function reconstruct_double_sl()
 
   Local human_3 := { ;
@@ -1905,6 +1918,10 @@ Function reconstruct_double_sl()
     { 'SCHET_ZAP',  'N',   6, 0 }, ; // номер позиции записи в счете;поле 'IDCASE' (и 'ZAP') в реестре счетов;сформировать по индексу humans для schet > 0
     { 'ID_C',       'C',  36, 0 } ;  // код случая оказания;GUID для двойного вложенного случая; создается в случае пересечения дат входящих случаев при формировнии двойного случая - добавлении записи
   }
-  reconstruct( dir_server + 'human_3', human_3, 'index_base("human_3")', 'пролеченным больным3', .t. )
+  //
+  local path_DB // путь к БД приложения
+
+  path_DB := dir_server
+  reconstruct( path_DB + 'human_3', human_3, 'index_base("human_3")', 'пролеченным больным3', .t. )
 
   Return Nil
