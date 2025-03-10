@@ -16,7 +16,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 23.10.24
+// 10.03.25
 Procedure Main( ... )
 
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
@@ -190,7 +190,8 @@ Procedure Main( ... )
       // провести реконструкцию БД
       reconstruct_db( is_local_version, is_create )
       // провести реконструкцию БД учёта направлений на госпитализацию
-      _263_init()
+//      _263_init()
+      reconstruct_263()
       // для начала работы _first_run() (убрал в NOT_USED)
       pereindex() // обязательно
       update_data_db( _version() )    // провести изменения в базе если необходимо
