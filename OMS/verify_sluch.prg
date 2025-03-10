@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 06.03.25
+// 10.03.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -51,7 +51,7 @@ Function verify_sluch( fl_view )
   local mPCEL := ''
   local info_disp_nabl := 0, ldate_next
   local s_lek_pr
-  local iFind := 0, aCheck
+  local iFind, aCheck, cUsluga
 
   Default fl_view To .t.
 
@@ -4406,11 +4406,14 @@ Function verify_sluch( fl_view )
   // ПРОВЕРКА УСЛУГ С ИСКУСТВЕННЫМ ИНТЕЛЕКТОМ без учета услуг 60.4.583, 60.4.584
   //
   fl := .f.
+  iFind := 0
+  cUsluga := ''
   aCheck := { { '7.2.706', 'A06.09.007.002' }, { '7.57.704', 'A06.20.004' }, { '7.61.704', 'A06.09.006.001' } }
   for counter := 1 to len( arrUslugi )
-    if AScan( aCheck, {| x | x[ 1 ] == arrUslugi[ counter ] } ) > 0
-        iFind := counter
+    if ( iFind := AScan( aCheck, {| x | x[ 1 ] == arrUslugi[ counter ] } ) ) > 0
+        cUsluga := aCheck[ iFind, 2 ]
         fl := .t.
+        exit
     endif
   next
   if fl
@@ -4424,8 +4427,8 @@ Function verify_sluch( fl_view )
       AAdd( ta, 'для услуг 7.2.706, 7.57.704, 7.61.704 необходимо установить основной диагноз Z01.8, ' ;
         + 'у вас выбран ' + AllTrim( mdiagnoz[ 1 ] ) + '!' )
     endif
-    if AScan( arrUslugi, aCheck[ iFind, 2] ) == 0
-      AAdd( ta, 'в случай необходимо добавить услугу ' + aCheck[ iFind, 2] )
+    if AScan( arrUslugi, cUsluga ) == 0
+      AAdd( ta, 'в случай необходимо добавить услугу ' + cUsluga )
     endif
   endif
 
