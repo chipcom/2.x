@@ -4408,7 +4408,7 @@ Function verify_sluch( fl_view )
   fl := .f.
   iFind := 0
   cUsluga := ''
-  aCheck := { { '7.2.706', 'A06.09.007.002' }, { '7.57.704', 'A06.20.004' }, { '7.61.704', 'A06.09.006.001' } }
+  aCheck := { { '7.2.706', 'A06.09.007.002' }, { '7.57.704', 'A06.20.004' }, { '7.61.704', 'A06.09.006.001' }, { '60.4.583', 'A06.09.005' }, { '60.4.584', 'A06.23.004' } }
   for counter := 1 to len( arrUslugi )
     if ( iFind := AScan( aCheck, {| x | x[ 1 ] == arrUslugi[ counter ] } ) ) > 0
         cUsluga := aCheck[ iFind, 2 ]
@@ -4418,13 +4418,13 @@ Function verify_sluch( fl_view )
   next
   if fl
     if Empty( human_2->NPR_DATE )
-      AAdd( ta, 'для услуг 7.2.706, 7.57.704, 7.61.704 обязательно направление' )
+      AAdd( ta, 'для услуги ' + arrUslugi[ iFind ] + ' обязательно направление' )
     endif
     if ( human_->USL_OK != USL_OK_POLYCLINIC )
-      AAdd( ta, 'услуги 7.2.706, 7.57.704, 7.61.704 оказываются только в амбулаторных условиях' )
+      AAdd( ta, 'услуга ' + arrUslugi[ iFind ] + ' оказывается только в амбулаторных условиях' )
     endif
-    if ( AllTrim( mdiagnoz[ 1 ] ) != 'Z01.8' )
-      AAdd( ta, 'для услуг 7.2.706, 7.57.704, 7.61.704 необходимо установить основной диагноз Z01.8, ' ;
+    if ( AllTrim( mdiagnoz[ 1 ] ) != 'Z01.8' ) .and. SubStr( arrUslugi[ iFind ], 1, 5 ) != '60.4.'
+      AAdd( ta, 'для услуги ' + arrUslugi[ iFind ] + ' необходимо выбрать основной диагноз Z01.8, ' ;
         + 'у вас выбран ' + AllTrim( mdiagnoz[ 1 ] ) + '!' )
     endif
     if AScan( arrUslugi, cUsluga ) == 0
