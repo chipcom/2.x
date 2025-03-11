@@ -59,13 +59,10 @@ function check_payer( g )
     @ 6, 25 TBOX oBox Say '№' Get mnom_ud Pict '@!S18' Valid val_ud_nom( 1, m1vid_ud, mnom_ud )
     @ 6, 50 TBOX oBox Say 'Выдан' Get mkogdavyd
   
-//    @ 7, 6 TBOX oBox Say 'Телефон мобильный' Get mPHONE_M valid {| g | control_number_phone( g ) } //valid_phone( g, .t. ) }
-//    picture picture_phone
     @ 7, 6 TBOX oBox Say 'Телефон мобильный' Get mPHONE_M valid {| g | valid_phone( g, .t. ) }
 
     myread()
     if lastkey() != K_ESC
-//      oPassport := TPassport():New( m1vid_ud, mser_ud, mnom_ud, , )
       tmp_select := select()
       use_base( 'reg_people_fns', 'payer' )
       payer->( dbSetOrder( 2 ) )
@@ -230,8 +227,6 @@ function print_spravka_fns()
   pos := hb_At( '/', org:INN() )
   if fns->attribut == 0
     tmp_select := select()
-//    r_use( dir_server + 'reg_people_fns', , 'payer' )
-//    payer->( dbGoto( fns->kod_payer ) )
     if ! payer->( eof() ) .and. ! payer->( bof() )
       aFIOPlat := razbor_str_fio( payer->fio )
       aFIOPacient := razbor_str_fio( fns->plat_fio )
@@ -247,7 +242,6 @@ function print_spravka_fns()
       sernumPacient := fns->SER_NUM
       dateVydPacient := fns->datevyd
     endif
-//    payer->( dbCloseArea() )
     select( tmp_select )
   else
     aFIOPlat := razbor_str_fio( fns->plat_fio )

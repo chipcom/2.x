@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 10.03.25
+// 11.03.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -18,7 +18,7 @@ Function verify_sluch( fl_view )
     i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
     a_period_amb := {}, a_1_11, u_1_stom := '', lprofil, ;
     lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[ 2 ], ltip, lkol, ;
-    a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0, ; // 1.0
+    a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0, ;
     lal, lalf
   Local reserveKSG_1 := .f., reserveKSG_2 := .f.
   Local sbase
@@ -51,7 +51,7 @@ Function verify_sluch( fl_view )
   local mPCEL := ''
   local info_disp_nabl := 0, ldate_next
   local s_lek_pr
-  local iFind, aCheck, cUsluga
+  local iFind, aCheck, cUsluga, iCount
 
   Default fl_view To .t.
 
@@ -4407,13 +4407,15 @@ Function verify_sluch( fl_view )
   //
   fl := .f.
   iFind := 0
+  iCount := 0
   cUsluga := ''
   aCheck := { { '7.2.706', 'A06.09.007.002' }, { '7.57.704', 'A06.20.004' }, { '7.61.704', 'A06.09.006.001' }, { '60.4.583', 'A06.09.005' }, { '60.4.584', 'A06.23.004' } }
   for counter := 1 to len( arrUslugi )
     if ( iFind := AScan( aCheck, {| x | x[ 1 ] == arrUslugi[ counter ] } ) ) > 0
-        cUsluga := aCheck[ iFind, 2 ]
-        fl := .t.
-        exit
+      iCount := counter
+      cUsluga := aCheck[ iFind, 2 ]
+      fl := .t.
+      exit
     endif
   next
   if fl
@@ -4423,8 +4425,9 @@ Function verify_sluch( fl_view )
     if ( human_->USL_OK != USL_OK_POLYCLINIC )
       AAdd( ta, 'услуга ' + arrUslugi[ iFind ] + ' оказывается только в амбулаторных условиях' )
     endif
-    if ( AllTrim( mdiagnoz[ 1 ] ) != 'Z01.8' ) .and. SubStr( arrUslugi[ iFind ], 1, 5 ) != '60.4.'
-      AAdd( ta, 'для услуги ' + arrUslugi[ iFind ] + ' необходимо выбрать основной диагноз Z01.8, ' ;
+altd()
+    if ( AllTrim( mdiagnoz[ 1 ] ) != 'Z01.8' ) .and. SubStr( arrUslugi[ iCount ], 1, 5 ) != '60.4.'
+      AAdd( ta, 'для услуги ' + arrUslugi[ iCount ] + ' необходимо выбрать основной диагноз Z01.8, ' ;
         + 'у вас выбран ' + AllTrim( mdiagnoz[ 1 ] ) + '!' )
     endif
     if AScan( arrUslugi, cUsluga ) == 0
