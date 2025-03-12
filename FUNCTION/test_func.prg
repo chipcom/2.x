@@ -3,14 +3,14 @@
 
 function test_init()
 
-  local a
-  local b, c
+//   local a
+//   local b, c
 
-  a := get_array_PZ_new( 2025 )
-//  a := ksgInList( 'st19.089', 'st19.084-st19.089, st19.094-st19.102, st19.163-st19.181, ds19.058-ds19.062, ds19.067-ds19.078, ds19.135-ds19.156' ) 
-  b := get_array_PZ_new( 2018 ) 
-  c := get_array_PZ_new( 2017 ) 
-  altd()
+//   a := get_array_PZ_new( 2025 )
+// //  a := ksgInList( 'st19.089', 'st19.084-st19.089, st19.094-st19.102, st19.163-st19.181, ds19.058-ds19.062, ds19.067-ds19.078, ds19.135-ds19.156' ) 
+//   b := get_array_PZ_new( 2018 ) 
+//   c := get_array_PZ_new( 2017 ) 
+//   altd()
   return nil
 
 // 12.07.24
