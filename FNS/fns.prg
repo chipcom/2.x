@@ -214,7 +214,7 @@ Function serv_spravka_fns( nKey, oBrow )
 
   Return flag
 
-// 29.01.25
+// 12.03.25
 function print_spravka_fns()
 
   local hSpravka, pos, cFileToSave
@@ -247,7 +247,7 @@ function print_spravka_fns()
     aFIOPlat := razbor_str_fio( fns->plat_fio )
     innPlat := fns->inn
     dobPlat := fns->plat_dob
-    vidDocPlat := fns->VIDDOC
+    vidDocPlat := soot_doc( fns->VIDDOC )
     sernumPlat := fns->SER_NUM
     dateVydPlat := fns->datevyd
     aFIOPacient := { '', '', '' }
