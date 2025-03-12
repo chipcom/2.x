@@ -6,6 +6,40 @@ function fill_PZ_array_from_file( work_year, arr )
 
 return nil
 
+// 12.03.25
+function get_array_PZ_new( mYear)
+
+  static hArray
+  Local db
+  local arr := {}, aTable, nI
+  local nameView, strSQL, standart, fl := .f.
+
+  if hArray == nil
+    hArray := hb_Hash()
+  Endif
+  if ! hb_hHaskey( hArray, mYear )
+    db := opensql_db()
+
+    nameView := 'PZ_year' + str( mYear, 4 )
+    strSQL := 'SELECT id, code, description, short, kd, add_t FROM ' + nameView
+    aTable := sqlite3_get_table( db, strSQL )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        AAdd( arr, { val( aTable[ nI, 1 ] ), val( aTable[ nI, 2 ] ), alltrim( aTable[ nI, 3 ] ), ;
+          alltrim( aTable[ nI, 4 ] ), alltrim( aTable[ nI, 5 ] ), alltrim( aTable[ nI, 6 ] ) } )
+        fl := .t.
+      Next
+      hb_HSet( hArray, mYear, arr )
+    Endif
+    db := nil
+  else
+    fl := .t.
+  endif
+  if fl
+    arr := hArray[ mYear ]
+  endif
+  return arr
+
 // 26.12.23
 function get_array_PZ( nyear )
   local nameArr, funcGetPZ

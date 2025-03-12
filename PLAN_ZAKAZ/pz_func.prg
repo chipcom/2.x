@@ -32,7 +32,7 @@ function get_unit_uslugi( lshifr, ldate_usl )
 
   return strUnit
 
-// 10.03.24
+// 12.03.25
 Function arr_plan_zakaz( ly )
   Local i, apz := {}
   local nameArr //, funcGetPZ
@@ -40,19 +40,8 @@ Function arr_plan_zakaz( ly )
 
   DEFAULT ly TO WORK_YEAR
   nameArr := get_array_PZ( ly )
-
   aValues := hb_hValues( getUnitsForYear( ly ) )
   ASort( aValues, , , { | x, y | x[ 1 ] < y[ 1 ] } )
-
-  //// for i := 1 to len(&nameArr)
-  ////   aadd(apz, {&nameArr.[i,3], ;
-  ////               &nameArr.[i,1], ;
-  ////               0, ;
-  ////               &nameArr.[i,6], ;
-  ////               &nameArr.[i,5], ;
-  ////               {} ;
-  ////             })
-  //// next
   for i := 1 to len( nameArr )
     aadd( apz, { nameArr[ i, 3 ], ;
                 nameArr[ i, 1 ], ;
@@ -62,18 +51,9 @@ Function arr_plan_zakaz( ly )
                 { } ;
               } )
   next
-//  for i := 1 to len( aValues )
-//    aadd( apz, { aValues[ i, 5 ], ;
-//                aValues[ i, 1 ], ;
-//                0, ;
-//                aValues[ i, 8 ], ;
-//                aValues[ i, 7 ], ;
-//                { } ;
-//              } )
-//  next
   return apz
 
-// 26.12.23 по шифру услуги у году вернуть номер элемента массива 'arr_plan_zakaz' для года
+// 12.03.25 по шифру услуги у году вернуть номер элемента массива 'arr_plan_zakaz' для года
 Function f_arr_plan_zakaz( lshifr, lyear )
   Local k := 0, i := 0
   local sbase, sAlias, sAliasUnit
@@ -102,12 +82,7 @@ Function f_arr_plan_zakaz( lshifr, lyear )
     endif
   endif
   if k > 0 .and. empty( i )
-    // nameArrayPZ := 'glob_array_PZ_' + last_digits_year(lyear)
-    // i := ascan(&nameArrayPZ, {|x| x[1] == k })
-    // funcGetPZ := 'get_array_PZ_' + last_digits_year(lyear) + '()'
-    // nameArrayPZ := &funcGetPZ
     nameArrayPZ := get_array_PZ( lyear )
-
     i := ascan( nameArrayPZ, { | x | x[ 1 ] == k } )
   endif
   return i
