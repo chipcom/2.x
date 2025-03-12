@@ -34,8 +34,9 @@ function get_unit_uslugi( lshifr, ldate_usl )
 
 // 12.03.25
 Function arr_plan_zakaz( ly )
+
   Local i, apz := {}
-  local nameArr //, funcGetPZ
+  local nameArr
   local aValues
 
   DEFAULT ly TO WORK_YEAR
@@ -46,7 +47,7 @@ Function arr_plan_zakaz( ly )
     aadd( apz, { nameArr[ i, 3 ], ;
                 nameArr[ i, 1 ], ;
                 0, ;
-                nameArr[ i, 4 ], ;  // nameArr[ i, 6 ], ;
+                nameArr[ i, 4 ], ;
                 nameArr[ i, 5 ], ;
                 { } ;
               } )
@@ -87,10 +88,13 @@ Function f_arr_plan_zakaz( lshifr, lyear )
   endif
   return i
 
-// 29.12.21 вернуть код план-заказа по методу ВМП
+// 12.03.25 вернуть код план-заказа по методу ВМП
 Function ret_PZ_VMP( lunit, kDate )
+
+  Local arr, i
   Local mpztip := 0
-  local sbase, nYear := WORK_YEAR
+  local nYear := WORK_YEAR
+//  local sbase
 
   hb_default( @kDate, WORK_YEAR )
 
@@ -100,15 +104,20 @@ Function ret_PZ_VMP( lunit, kDate )
     nYear := kDate
   endif
 
-  if select( 'MOUNIT' ) == 0
-    sbase := prefixFileRefName( nYear ) + 'unit'
-    R_Use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
+  arr := get_array_PZ( nYear )
+  if ( i := hb_AScan( arr, { | x | x[ 2 ] == lunit } ) ) > 0
+    mpztip := arr[ i, 1 ]
   endif
-  select MOUNIT
-  find ( str( lunit, 3 ) )
-  if found() .and. mounit->pz > 0
-    mpztip := mounit->pz
-  endif
+
+//  if select( 'MOUNIT' ) == 0
+//    sbase := prefixFileRefName( nYear ) + 'unit'
+//    R_Use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
+//  endif
+//  select MOUNIT
+//  find ( str( lunit, 3 ) )
+//  if found() .and. mounit->pz > 0
+//    mpztip := mounit->pz
+//  endif
   return mpztip
 
 // 23.01.24
