@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 11.03.25
+// 13.03.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -1377,7 +1377,7 @@ Function verify_sluch( fl_view )
     Next
   Endif
   fl := ( AScan( mdiagnoz, {| x| PadR( x, 5 ) == 'Z03.1' } ) > 0 )
-  If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID  // .or. is_disp_DRZ
+  If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID .or. is_disp_DRZ
     If is_oncology == 2
       is_oncology := 1
     Endif
