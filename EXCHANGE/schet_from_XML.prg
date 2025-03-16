@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.03.24 создать счета по результатам прочитанного реестра СП
+// 05.02.25 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
 
   Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva, ;
@@ -15,6 +15,11 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
   Local tmpSelect
   Local ushifr
   local dPUMPver40 := 0d20240301
+  local sVersion
+  local old_lek, old_sh
+  local oZAP, oPAC, oDISAB, oSLUCH, oPRESCRIPTION, oPRESCRIPTIONS, oD
+  local oSl, oOnk, oProt, oDiag, oNAPR, oKSG, oSLk, oOnk_sl, oCONS, oLek, oINJ
+  local dEndZsl // дата окончания случая
 
 
   Default fl_msg To .t., arr_s TO {}
@@ -332,16 +337,28 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
     oXmlDoc := hxmldoc():new()
     oXmlDoc:add( hxmlnode():new( 'ZL_LIST' ) )
     oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
-    s := '3.11'
+
+    sVersion := '3.11'
     controlVer := tmp1->_YEAR * 100 + tmp1->_MONTH
-    If ( controlVer >= 202201 ) .and. ( p_tip_reestr == 1 ) // с января 2022 года
-      s := '3.2'
-    Endif
-    If ( controlVer >= 202403 ) .and. ( p_tip_reestr == 1 ) // с марта 2024 года
-      s := '4.0'
-    Endif
+    if p_tip_reestr == 1
+      // файла реестра случаев первого типа при формировании счета ОМС
+      If ( controlVer >= 202201 ) // с января 2022 года
+        sVersion := '3.2'
+      Endif
+      If ( controlVer >= 202403 ) // с марта 2024 года
+        sVersion := '4.0'
+      Endif
+      If ( controlVer >= 202501 ) // с января 2025 года
+        sVersion := '5.0'
+      Endif
+    elseif p_tip_reestr == 2
+      // файла реестра случаев второго типа при формировании счета ОМС
+      If ( controlVer >= 202501 ) // с января 2025 года
+        sVersion := '5.0'
+      Endif
+    endif
   
-    mo_add_xml_stroke( oXmlNode, 'VERSION', s )
+    mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
     mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( schet_->DSCHET ) )
     mo_add_xml_stroke( oXmlNode, 'FILENAME', mo_xml->FNAME )
     mo_add_xml_stroke( oXmlNode, 'SD_Z', lstr( arr_schet[ ii, 3 ] ) ) // новое поле
@@ -439,10 +456,20 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
               mo_add_xml_stroke( oPAC, 'SMO_NAM', t1->SMO_NAM )
             Endif
             mo_add_xml_stroke( oPAC, 'NOVOR', t1->NOVOR )
+            
+            if ( p_tip_reestr == 2 ) .and. xml2date( t1->DATE_Z_2 ) >= 0d20250101
+              mo_add_xml_stroke( oPAC, 'SOC', t1->SOC )
+            endif
+
             mo_add_xml_stroke( oPAC, 'MO_PR', t1->MO_PR )
             If !Empty( t1->VNOV_D )
               mo_add_xml_stroke( oPAC, 'VNOV_D', t1->VNOV_D )
             Endif
+
+            if ( p_tip_reestr == 1 ) .and. xml2date( t1->DATE_Z_2 ) >= 0d20250101
+              mo_add_xml_stroke( oPAC, 'SOC', t1->SOC )
+            endif
+
             If !Empty( t1->INV ) // Сведения о первичном признании застрахованного лица инвалидом
               oDISAB := oPAC:add( hxmlnode():new( 'DISABILITY' ) )
               mo_add_xml_stroke( oDISAB, 'INV', t1->INV )
@@ -818,7 +845,9 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
                 mo_add_xml_stroke( oONK, 'LUCH_TIP', t9->LUCH_TIP )
               Endif
               If eq_any( Int( Val( t9->USL_TIP ) ), 2, 4 )
-                old_lek := Space( 6 ) ; old_sh := Space( 10 )
+                dEndZsl := xml2date( t1->DATE_Z_2 )
+                old_lek := Space( 6 )
+                old_sh := Space( 10 )
                 // цикл по БД лекарств
                 Select T10
                 find ( t1->IDCASE + Str( isl, 6 ) )
@@ -826,11 +855,35 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
                   If !( old_lek == t10->REGNUM .and. old_sh == t10->CODE_SH )
                     oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
                     mo_add_xml_stroke( oLEK, 'REGNUM', t10->REGNUM )
+                    if dEndZsl >= 0d20250101
+                      mo_add_xml_stroke( oLEK, 'REGNUM_DOP', t10->REGNUM_DOP )
+                    endif
                     mo_add_xml_stroke( oLEK, 'CODE_SH', t10->CODE_SH )
                   Endif
                   // цикл по датам приёма данного лекарства
-                  mo_add_xml_stroke( oLEK, 'DATE_INJ', t10->DATE_INJ )
-                  old_lek := t10->REGNUM ; old_sh := t10->CODE_SH
+                  if dEndZsl >= 0d20250101
+                    oINJ := oLEK:add( hxmlnode():new( 'INJ' ) )
+                    mo_add_xml_stroke( oINJ, 'DATE_INJ', t10->DATE_INJ )
+                    mo_add_xml_stroke( oINJ, 'KV_INJ', t10->KV_INJ )
+                    mo_add_xml_stroke( oINJ, 'KIZ_INJ', t10->KIZ_INJ )
+                    mo_add_xml_stroke( oINJ, 'S_INJ', t10->S_INJ )
+                    mo_add_xml_stroke( oINJ, 'SV_INJ', t10->SV_INJ )
+                    mo_add_xml_stroke( oINJ, 'SIZ_INJ', t10->SIZ_INJ )
+                    mo_add_xml_stroke( oINJ, 'RED_INJ', t10->RED_INJ )
+                  else
+                    mo_add_xml_stroke( oLEK, 'DATE_INJ', t10->DATE_INJ )
+                  endif
+                  old_lek := t10->REGNUM
+                  old_sh := t10->CODE_SH
+//                    If !( old_lek == t10->REGNUM .and. old_sh == t10->CODE_SH )
+//                      oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
+//                      mo_add_xml_stroke( oLEK, 'REGNUM', t10->REGNUM )
+//                      mo_add_xml_stroke( oLEK, 'CODE_SH', t10->CODE_SH )
+//                    Endif
+//                    // цикл по датам приёма данного лекарства
+//                    mo_add_xml_stroke( oLEK, 'DATE_INJ', t10->DATE_INJ )
+//                    old_lek := t10->REGNUM
+//                    old_sh := t10->CODE_SH
                   Select T10
                   Skip
                 Enddo
@@ -1004,11 +1057,11 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
     oXmlDoc := hxmldoc():new()
     oXmlDoc:add( hxmlnode():new( 'PERS_LIST' ) )
     oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
-    s := '3.11'
+    sVersion := '3.11'
     If StrZero( tmp1->_YEAR, 4 ) + StrZero( tmp1->_MONTH, 2 ) > '201910' // с ноября 2019 года
-      s := '3.2'
+      sVersion := '3.2'
     Endif
-    mo_add_xml_stroke( oXmlNode, 'VERSION', s )
+    mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
     mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( schet_->DSCHET ) )
     mo_add_xml_stroke( oXmlNode, 'FILENAME', mo_xml->FNAME2 )
     mo_add_xml_stroke( oXmlNode, 'FILENAME1', mo_xml->FNAME )

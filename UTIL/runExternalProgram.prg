@@ -25,12 +25,15 @@
 //   endif
 //   return nil
 
-***** 07.03.22
+// 14.10.24
 Function f_help()
   Local spar := ''
   local error
-  local cFile := dir_exe + cslash + 'CHIP_MO.CHM'
-  
+  local cFile := dir_exe() + 'CHIP_MO.CHM'
+
+#ifdef __PLATFORM__UNIX
+  alertx('Помощь не доступна!')
+#else
   if chm_help_code >= 0
     spar := '-mapid ' + lstr(chm_help_code) + ' '
   endif
@@ -38,49 +41,33 @@ Function f_help()
   if error <= 32
     Err_WAPI_ShellExecute(error, cFile)
   endif
+#endif
   return NIL
   
-***** 07.03.22
-// Function file_AdobeReader(cFile)
-//   local error
-
-//   // error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', 'AcroRd32.exe', cFile, , SW_SHOWNORMAL)
-//   error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', cFile, , , SW_SHOWNORMAL)
-//   if error <= 32
-//     Err_WAPI_ShellExecute(error, cFile)
-//   endif
-//   return NIL
-
-***** 07.03.22
-// Function file_Wordpad(cFile)
-//   local error
-
-//   error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', cFile, , , SW_SHOWNORMAL)
-//   if error <= 32
-//     Err_WAPI_ShellExecute(error, cFile)
-//   endif
-//   return NIL
-  
-***** 09.03.22
+// 14.10.24
 Function view_file_in_Viewer(cFile)
   local error
 
+#ifdef __PLATFORM__UNIX
+#else
   error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', cFile, , , SW_SHOWNORMAL)
   if error <= 32
     Err_WAPI_ShellExecute(error, cFile)
   endif
+#endif
+
   return NIL
   
-***** 07.03.22
+// 14.10.24
 function Err_WAPI_ShellExecute(nCode, cFile)
 
   do case
     case nCode == SE_ERR_FNF
       alertx('Файл ' + cFile + ' не найден.')
     case nCode == SE_ERR_PNF
-      alertx('Эуть ' + hb_FNameDir(cFile ) + ' отсутствует.')
+      alertx('Путь ' + hb_FNameDir(cFile ) + ' отсутствует.')
     case nCode == SE_ERR_SHARE
-      alertx('Эроизошла ошибка совместного доступа.')
+      alertx('Произошла ошибка совместного доступа.')
     case nCode == SE_ERR_ASSOCINCOMPLETE
       alertx('Ассоциация имени файла с расширением ' + hb_FNameExt( cFile ) + ' является или неполной или недействительной.')
     case nCode == SE_ERR_NOASSOC

@@ -3,17 +3,18 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 09.02.23 инициализировать массив DBF-файлов базы данных
+// 14.01.25 инициализировать массив DBF-файлов базы данных
 Function init_Array_Files_DB()
   local i, arr
 
-  Public array_files_DB := {}, array_task_DB[24, 2]
+  Public array_files_DB := {}, array_task_DB[ 24, 2 ]
 
   afillall(array_task_DB, 0)
   // общие справочники
   aadd(array_files_DB, 'base1')
   aadd(array_files_DB, 'roles')
   aadd(array_files_DB, 'ver_base')
+  aadd(array_files_DB, 'ver_updateDB')
   aadd(array_files_DB, 'mo_add')
   aadd(array_files_DB, 'organiz')
   aadd(array_files_DB, 'mo_oper')
@@ -137,8 +138,8 @@ Function init_Array_Files_DB()
   aadd(array_files_DB, 'plat_ms')
   aadd(array_files_DB, 'plat_vz')
   aadd(array_files_DB, 'hum_plat')
-  aadd(array_files_DB, 'payments')
-  aadd(array_files_DB, 'payer')
+//  aadd(array_files_DB, 'payments')
+//  aadd(array_files_DB, 'payer')
   aadd(array_files_DB, 'pu_cena')
   aadd(array_files_DB, 'pu_date')
   aadd(array_files_DB, 'p_pr_vz')
@@ -163,9 +164,9 @@ Function init_Array_Files_DB()
   aadd(array_files_DB, 'kas_usl')
   aadd(array_files_DB, 'kas_usld'); array_task_DB[X_KASSA, 2] := len(array_files_DB)
   // КЭК
-  aadd(array_files_DB, 'mo_kekh') ; array_task_DB[X_KEK, 1] := len(array_files_DB)
-  aadd(array_files_DB, 'mo_keke')
-  aadd(array_files_DB, 'mo_kekez'); array_task_DB[X_KEK, 2] := len(array_files_DB)
+//  aadd(array_files_DB, 'mo_kekh') ; array_task_DB[X_KEK, 1] := len(array_files_DB)
+//  aadd(array_files_DB, 'mo_keke')
+//  aadd(array_files_DB, 'mo_kekez'); array_task_DB[X_KEK, 2] := len(array_files_DB)
   // госпитализация
   aadd(array_files_DB, 'mo_nfile'); array_task_DB[X_263, 1] := len(array_files_DB)
   aadd(array_files_DB, 'mo_nfina')
@@ -174,6 +175,12 @@ Function init_Array_Files_DB()
   aadd(array_files_DB, 'mo_n7in')
   aadd(array_files_DB, 'mo_n7out'); array_task_DB[X_263, 2] := len(array_files_DB)
   //
+  // справки для ФНС
+  aadd(array_files_DB, 'reg_fns_nastr')
+  aadd(array_files_DB, 'register_fns')
+  aadd(array_files_DB, 'reg_link_fns')
+  aadd(array_files_DB, 'reg_xml_fns')
+  aadd(array_files_DB, 'reg_people_fns')
 
 
   if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC  // для ВОУНЦ

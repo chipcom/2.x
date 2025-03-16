@@ -1,4 +1,4 @@
-** mo_omsit.prg - информация по ОМС (правила, статистические формы)
+// mo_omsit.prg - информация по ОМС (правила, статистические формы)
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
@@ -13,7 +13,7 @@ Static nastr_diagn := 'DIAGN'
 Static nastr_f12   := 'F12'
 Static nastr_f57   := 'F57'
 
-**
+//
 Function prover_rule()
 Local i, k, n, hGauge, buf := save_maxrow(), arr_m, ;
       n_file := cur_dir + 'ver_rule' + stxt, sh := 80, HH := 78, reg_print := 5, ;
@@ -108,7 +108,7 @@ endif
 return NIL
 
 
-** 05.01.17
+// 05.01.17
 Function f1_prover_rule(blk_usl,ab,n_forma)
 Static a_d_talon[16]
 Local i, j, k, n, arr_d, lshifr, lta, lbukva, s, arr1, rec, lnum_kol, tip_travma := {}
@@ -304,7 +304,7 @@ if rec != NIL
 endif
 return (tmp1rule->(lastrec()) > 0)
 
-**
+//
 Function st_rule_1()
 Local arr, i, s, adbf, t_arr[BR_LEN], mtitle := rule_section[1]
 adbf := {{"diag1","C", 5, 0}, ;
@@ -369,7 +369,7 @@ endif
 close databases
 return NIL
 
-**
+//
 Function f1_rule_1(nKey,oBrow,regim)
 Local ret := -1
 Local buf, fl := .f., rec, rec1, k := 16, tmp_color
@@ -442,7 +442,7 @@ do case
 endcase
 return ret
 
-**
+//
 Function st_rule_2()
 Local arr, i, s, adbf, t_arr[BR_LEN], mtitle := rule_section[2]
 adbf := {{"diag1","C", 5, 0}, ;
@@ -501,7 +501,7 @@ endif
 close databases
 return NIL
 
-**
+//
 Function f1_rule_2(nKey,oBrow,regim)
 Local ret := -1
 Local buf, fl := .f., rec, rec1, k := 16, tmp_color
@@ -567,7 +567,7 @@ do case
 endcase
 return ret
 
-**
+//
 Function st_rule_3()
 Local arr, i, s, adbf, t_arr[BR_LEN], mtitle := rule_section[3]
 adbf := {{"diag1","C", 5, 0}, ;
@@ -629,7 +629,7 @@ endif
 close databases
 return NIL
 
-**
+//
 Function f1_rule_3(nKey,oBrow,regim)
 Local ret := -1
 Local buf, fl := .f., rec, rec1, k := 16, tmp_color
@@ -702,7 +702,7 @@ do case
 endcase
 return ret
 
-**
+//
 Function st_rule_4()
 Local arr, i, s, adbf, t_arr[BR_LEN], mtitle := rule_section[4]
 adbf := {{"diag1","C", 5, 0}, ;
@@ -761,7 +761,7 @@ endif
 close databases
 return NIL
 
-**
+//
 Function f1_rule_4(nKey,oBrow,regim)
 Local ret := -1
 Local buf, fl := .f., rec, rec1, k := 16, tmp_color
@@ -827,7 +827,7 @@ do case
 endcase
 return ret
 
-**
+//
 Function st_rule_5()
 Local i, s, arr, mbukva := ""
 arr := GetIniSect( file_stat, rule_section[5] )
@@ -854,7 +854,7 @@ endif
 //help_code := -1
 return NIL
 
-**
+//
 Function st_rule_6()
 Local arr, i, s, adbf, t_arr[BR_LEN], mtitle := rule_section[6]
 adbf := {{"bukva1","C", 1, 0}, ;
@@ -913,7 +913,7 @@ endif
 close databases
 return NIL
 
-**
+//
 Function f1_rule_6(nKey,oBrow,regim)
 Local ret := -1
 Local buf, fl := .f., rec, rec1, k := 16, tmp_color
@@ -977,7 +977,7 @@ do case
 endcase
 return ret
 
-**
+//
 Function print_rule(n)
 Local sh := 80, HH := 58, reg_print := 2, ;
       s, n_file := cur_dir + 'rule' + iif(prs == 1, 'KOM', 'LPU') + lstr(n) + stxt, ;
@@ -1052,7 +1052,7 @@ rest_box(buf)
 viewtext(n_file,,,,(sh>80),,,reg_print)
 return NIL
 
-**
+//
 Function get_nas_rule()
 Local ar := GetIniSect( f_stat_lpu, sect_nastr ), ar2, i, j
 if len(ar) == 0
@@ -1078,7 +1078,7 @@ for i := 1 to len(ar)
 next
 return NIL
 
-**
+//
 Function a_nastr_rule()
 Local arr := {{"КОМ-1", 11}, ;
               {"КОМ-2", 12}, ;
@@ -1093,7 +1093,7 @@ if yes_bukva
 endif
 return arr
 
-**
+//
 Function i_nastr_rule(ar)
 Local sk := "КОМ: ", sl := "ЛПУ: ", flk := .f., fll := .f., i, s := ""
 for i := 1 to len(ar)
@@ -1116,7 +1116,7 @@ if fll
 endif
 return iif(empty(s), "-= нет =-", s)
 
-**
+//
 Function inp_nas_rule(k,r,c)
 Local nr, i, s, r1, r2, ret, t_mas := {}, buf, buf1
 nr := len(arr_name_rule)
@@ -1147,7 +1147,7 @@ rest_box(buf)
 rest_box(buf1)
 return ret
 
-**
+//
 Function nastr_rule()
 Local buf := savescreen()
 Local r1 := 12, c1 := 2, r2 := 22, c2 := 77, tmp_color, s, arr
@@ -1203,7 +1203,7 @@ setcolor(tmp_color)
 restscreen(buf)
 return NIL
 
-** 05.01.17
+// 05.01.17
 Function read_rule(regim)
 Local sregim := ""
 Local i, j, j1, s, arr, adbf, file_stat, val_stroke := " ", ret := .f.
@@ -1304,7 +1304,7 @@ next
 index on str(rule, 1)+str(dnum2, 6) to (cur_dir + "tmp_rule")
 return ret
 
-** для проверялки
+// для проверялки
 Function verify_rule(arr_bukva,lpol)
 Local i, j, k, ta := {}, lb := len(arr_bukva), s, ta3 := {}
 // правило 1
@@ -1447,7 +1447,7 @@ do while tmp_rule->rule == 6 .and. !eof()
 enddo
 return ta
 
-**
+//
 Function f1_ver_rule(_a,_n,_p,_p2)
 Local i, s := " [правило "+iif(_n==1,"КОМ","ЛПУ")+"-"+lstr(_p)+"]", ;
       fl_date := .f., blk := {|| .t. }
@@ -1494,7 +1494,7 @@ if fl_date
 endif
 return s
 
-** Слишком часто указан характер ПЕРВИЧНОЕ - проверялка
+// Слишком часто указан характер ПЕРВИЧНОЕ - проверялка
 Function f2_ver_rule(_a,_dni)
 Static sdate
 Local i, mdate1, mdate2, ret := .f.
@@ -1515,7 +1515,7 @@ do while tmp2rule->kod == tmp1rule->kod .and. !eof()
 enddo
 return ret
 
-** Слишком часто указан характер ПЕРВИЧНОЕ - исправлялка
+// Слишком часто указан характер ПЕРВИЧНОЕ - исправлялка
 Function f3_ver_rule(_a,_dni)
 Static sdate
 Local i, k := 0, mdate1, mdate2
@@ -1537,7 +1537,7 @@ do while tmp2rule->kod == tmp1rule->kod .and. !eof()
 enddo
 return k
 
-**
+//
 Static Function ret_f_rule(lshifr)
 Local ret := {}, i, j, d, r
 d := diag_to_num(lshifr, 1)
@@ -1553,7 +1553,7 @@ next
 if len(ret) == 0 ; ret := NIL ; endif
 return ret
 
-** 12.03.13
+// 14.10.24
 Function diag0statist()
 Static sz := 1
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
@@ -1637,8 +1637,8 @@ dbcreate(cur_dir + "tmp_b",arr)
 use (cur_dir + "tmp_b") new
 index on shifr+str(tip, 1)+str(kod, 7) to (cur_dir + "tmp_b")
 f1_diag_statist_bukva()
-name_pgr := dir_exe + "_mo_mkbg"
-name_gr := dir_exe + "_mo_mkbk"
+name_pgr := dir_exe() + "_mo_mkbg"
+name_gr := dir_exe() + "_mo_mkbk"
 R_Use(name_pgr,,"PGR")
 index on sh_e to (cur_dir + "tmp_pgr")
 R_Use(name_gr,,"GR")
@@ -1751,7 +1751,7 @@ else
   index on sh_b to (cur_dir + "tmp_pgr")
   R_Use(name_gr,,"GR")
   index on sh_b to (cur_dir + "tmp_gr")
-  R_Use(dir_exe + "_mo_mkb",cur_dir + "_mo_mkb","MKB10")
+  R_Use(dir_exe() + "_mo_mkb",cur_dir + "_mo_mkb","MKB10")
   use (cur_dir + "tmp_b") index (cur_dir + "tmp_b") new
   use (cur_dir + "tmp") index (cur_dir + "tmp") new
   go top
@@ -1851,7 +1851,7 @@ else
 endif
 return NIL
 
-**
+//
 Function f1diag0statist(sz)
 Local arr_d1 := {}, arr_d2 := {}, arr_d3 := {}, arr_d4 := {}
 Local arr, i, j, mshifr, ar, pshifr, s, pole, fl_i, all_i := .f.
@@ -2063,7 +2063,7 @@ for j := 1 to len(arr_d4)
 next
 return NIL
 
-** 12.03.13
+// 14.10.24
 Function diag_statist(reg)
 Static sz := 1
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
@@ -2144,9 +2144,9 @@ index on shifr+str(kod, 7) to (cur_dir + "tmp_b")
 f1_diag_statist_bukva()
 if reg > 2
   if reg == 3
-    name_gr := dir_exe + "_mo_mkbg"
+    name_gr := dir_exe() + "_mo_mkbg"
   else
-    name_gr := dir_exe + "_mo_mkbk"
+    name_gr := dir_exe() + "_mo_mkbk"
   endif
   R_Use(name_gr,,"GR")
   index on sh_e to (cur_dir + "tmp_gr")
@@ -2256,7 +2256,7 @@ else
   aeval(arr_title, {|x| add_string(x) } )
   //
   if reg < 3
-    R_Use(dir_exe + "_mo_mkb",cur_dir + "_mo_mkb","MKB10")
+    R_Use(dir_exe() + "_mo_mkb",cur_dir + "_mo_mkb","MKB10")
     use (cur_dir + "tmp_b") index (cur_dir + "tmp_b") new
     use (cur_dir + "tmp") index (cur_dir + "tmp") new
     go top
@@ -2386,7 +2386,7 @@ else
 endif
 return NIL
 
-**
+//
 Function f1diag_statist(reg,sz)
 Local arr_d := {}, arr, i, j, mshifr, s, pole, fl_i, all_i := .f.
 f2_diag_statist_bukva()
@@ -2496,7 +2496,7 @@ if len(arr_d) > 0
 endif
 return NIL
 
-** 12.03.13
+// 14.10.24
 Function diagLVstatist()
 Static sz := 1
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
@@ -2672,7 +2672,7 @@ else
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
   //
-  R_Use(dir_exe + "_mo_mkb",cur_dir + "_mo_mkb","MKB10")
+  R_Use(dir_exe() + "_mo_mkb",cur_dir + "_mo_mkb","MKB10")
   use (cur_dir + "tmp_k") index (cur_dir + "tmp_k") new
   use (cur_dir + "tmp_b") index (cur_dir + "tmp_b") new
   use (cur_dir + "tmp") index (cur_dir + "tmp") new
@@ -2761,7 +2761,7 @@ else
 endif
 return NIL
 
-**
+//
 Function f1diagLVstatist()
 Local arr_d := {}, arr, i, j, mvrach := 0, mshifr, s, pole, fl
 if (fl := (human_->vrach > 0))
@@ -2843,7 +2843,7 @@ if len(arr_d) > 0
 endif
 return NIL
 
-**
+//
 Function f2diagLVstatist(kod_vr,sd_plus,sh)
 Local ls_lu := 0, ls_human := 0, i, s
 select TMP_K
@@ -2859,7 +2859,7 @@ endif
 add_string(s)
 return NIL
 
-** 12.03.13
+// 14.10.24
 Function diagLUstatist()
 Static sz := 1
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
@@ -3032,7 +3032,7 @@ else
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
   //
-  R_Use(dir_exe + "_mo_mkb",cur_dir + "_mo_mkb","MKB10")
+  R_Use(dir_exe() + "_mo_mkb",cur_dir + "_mo_mkb","MKB10")
   old_uchast := -1
   use (cur_dir + "tmp_k") index (cur_dir + "tmp_k") new
   use (cur_dir + "tmp_b") index (cur_dir + "tmp_b") new
@@ -3097,7 +3097,7 @@ else
 endif
 return NIL
 
-**
+//
 Function f1diagLUstatist()
 Local arr_d := {}, arr, i, j, muchast := 0, mshifr, s, pole, fl
 if human->kod_k > 0
@@ -3179,7 +3179,7 @@ if len(arr_d) > 0
 endif
 return NIL
 
-**
+//
 Function f2diagLUstatist(kod_uch,sd_plus,sh)
 Local ls_lu := 0, ls_human := 0, i, s
 select TMP_K
@@ -3195,7 +3195,7 @@ endif
 add_string(s)
 return NIL
 
-**
+//
 Function f1_diag_statist_bukva()
 dbcreate(cur_dir + "tmp_buk",{{"bukva","C", 1, 0}, ;
                             {"vu","N", 4, 0}, ;
@@ -3210,7 +3210,7 @@ use (cur_dir + "tmp_bbuk") new
 index on str(vu, 4)+bukva+str(kod, 7) to (cur_dir + "tmp_bbuk")
 return NIL
 
-**
+//
 Function f2_diag_statist_bukva(lvu)
 Local i, c, s := upper(charrem(" ",alltrim(human_->STATUS_ST)))
 DEFAULT lvu TO 0
@@ -3237,7 +3237,7 @@ for i := 1 to len(s)
 next
 return NIL
 
-**
+//
 Function f3_diag_statist_bukva(HH,sh,arr_title,lvu)
 Local j
 DEFAULT lvu TO 0
@@ -3261,7 +3261,7 @@ do while tmp_buk->vu == lvu .and. !eof()
 enddo
 return NIL
 
-**
+//
 Function f_stat_boln()
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
       fl_exit := .f., jh := 0, is_talon := .t., t_arr[BR_LEN], a_otd := {}
@@ -3406,7 +3406,7 @@ close databases
 rest_box(buf)
 return NIL
 
-**
+//
 Function f1_stat_boln(jh)
 Local is_talon := .t., arr, i, j, k, s, k1 := 0, k2 := 0
 afill(adiag_talon, 0)
@@ -3465,7 +3465,7 @@ if k1 > 0 .or. k2 > 0 .or. !empty(human_->STATUS_ST)
 endif
 return jh
 
-**
+//
 Function f2_stat_boln(nKey,oBrow,regim)
 Local ret := -1, fl := .f., rec, arr := {}
 do case
@@ -3497,7 +3497,7 @@ do case
 endcase
 return ret
 
-**
+//
 Function f3_stat_boln()
 Local i, s, sh, HH := 80, reg_print, arr_title, name_file := "stat_b"+stxt, ;
       buf := save_maxrow()
@@ -3542,11 +3542,11 @@ viewtext(name_file,,,,.t.,,,reg_print)
 return NIL
 
 
-** 15.03.23 Подсчёт стационарных случаев по профилям (по диагнозам, КСГ и операциям)
+// 14.10.24 Подсчёт стационарных случаев по профилям (по диагнозам, КСГ и операциям)
 Function i_stac_sl_profil()
   Local buf := savescreen(), sh := 80, HH := 80, n_file := cur_dir + 'stac_pro' + stxt
 
-  Private arr_m := {2023, 1, 6, 'за январь - июнь 2023 года', 0d20230101, 0d20230630}, ;
+  Private arr_m := {2024, 1, 6, 'за январь - июнь 2024 года', 0d20240101, 0d20240630}, ;
           mm_uslov := {{'по всем случаям                      ', 2}, ;
                        {'по счетам отч.периода (без учёта РАК)', 0}, ;
                        {'с учётом РАК (как в форме 14-МЕД/ОМС)', 1}}
@@ -3567,8 +3567,8 @@ Function i_stac_sl_profil()
   restscreen(buf)
   if lastkey() == K_ESC
     return nil
-  elseif !between(arr_m[1], 2018, 2023)
-    return func_error(4, 'Данный отчёт работает только с 2018-23 годами')
+  elseif !between(arr_m[1], 2018, 2024)
+    return func_error(4, 'Данный отчёт работает только с 2018-24 годами')
   else
     begin_date := dtoc4(arr_m[5])
     end_date := dtoc4(arr_m[6])
@@ -3591,10 +3591,13 @@ Function i_stac_sl_profil()
     elseif arr_m[1] == 2023 .and. arr_m[3] == 12
       kds := 21    // !!! ВНИМАНИЕ -проверить
       kdr := 22   
+    elseif arr_m[1] == 2024 .and. arr_m[3] == 12
+      kds := 21    // !!! ВНИМАНИЕ -проверить
+      kdr := 22    
     endif
-  ******************************
+  //////////////////////////////
   mdate_rak := arr_m[6] + kdr
-  ******************************
+  //////////////////////////////
   dbcreate(cur_dir + 'tmp', {{'shifr', 'C', 20, 0}, ;
                           {'usl_ok', 'N', 1, 0}, ;
                           {'tip', 'N', 1, 0}, ;
@@ -3755,7 +3758,7 @@ Function i_stac_sl_profil()
   close databases
   Use_base("lusl")
   Use_base("luslf")
-  R_Use(dir_exe + "_mo_mkb",cur_dir + "_mo_mkb","DIAG")
+  R_Use(dir_exe() + "_mo_mkb",cur_dir + "_mo_mkb","DIAG")
   use (cur_dir + "tmp") index (cur_dir + "tmp") new
   arr_title := {;
 "───────────────────────────────────────────────────────────╥──────╥──────┬──────", ;

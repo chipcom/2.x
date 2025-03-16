@@ -4,10 +4,25 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 21.01.25
+function unique_val_in_array( arr, col )
+
+  local i, retArr := {}, tmpArr := {}, j
+
+  if ValType( arr ) != 'A'
+    return retArr
+  endif
+  for i := 1 to len( arr )
+    if ( j := AScan( retArr, {| x| alltrim( x[ col ] ) ==  AllTrim( arr[ i, col ] ) } ) ) == 0
+      AAdd( retArr, arr[ i ] )
+    endif
+  next
+  return retArr
+
 // 21.08.17
 Function run_my_hrb( name_hrb, name_func )
 
-  Local x, handle, n_file := dir_exe + name_hrb + '.hrb'
+  Local x, handle, n_file := dir_exe() + name_hrb + '.hrb'
 
   If hb_FileExists( n_file )
     handle := hb_hrbLoad( n_file )
@@ -74,134 +89,6 @@ Function twowordfamimot( s )
   Next
 
   Return fl
-
-// проверить отдельно фамилию, имя и отчество в GET'ах
-Function valfamimot( ltip, s, par, /*@*/msg)
-
-  Static arr_pole := { 'Фамилия', 'Имя', 'Отчество' }
-  Static arr_char := { ' ', '-', '.', "'", '"' }
-  Local fl := .t., i, c, s1 := '', nword := 0, get, r := Row()
-
-  Default par To 1
-  s := AllTrim( s )
-  For i := 1 To Len( arr_char )
-    s := CharOne( arr_char[ i ], s )
-  Next
-  If Len( s ) > 0
-    s := Upper( Left( s, 1 ) ) + SubStr( s, 2 )
-  Endif
-  For i := 1 To Len( s )
-    c := SubStr( s, i, 1 )
-    If isralpha( c )
-      //
-    Elseif AScan( arr_char, c ) > 0
-      ++nword
-    Else
-      s1 += c
-    Endif
-  Next
-  msg := ''
-  If !Empty( s1 )
-    msg := 'В поле "' + arr_pole[ ltip ] + '" обнаружены недопустимые символы "' + s1 + '"'
-  Elseif Empty( s ) .and. ltip < 3
-    msg := 'Пустое значение поля "' + arr_pole[ ltip ] + '" недопустимо'
-  Endif
-  If par == 1  // для GET-системы
-    Private tmp := ReadVar()
-    &tmp := PadR( s, 40 )
-    If Empty( msg ) .and. nword > 0
-      If ( get := get_pointer( tmp ) ) != NIL
-        r := get:Row
-      Endif
-      fl := .f.
-      mybell()
-      If f_alert( { PadC( 'В поле "' + arr_pole[ ltip ] + '" занесено ' + lstr( nword + 1 ) + ' слова', 60, '.' ) }, ;
-          { ' Возврат в редактирование ', ' Правильное поле ' }, ;
-          1, 'W+/N', 'N+/N', r + 1, , 'W+/N,N/BG' ) == 2
-        fl := .t.
-      Endif
-    Endif
-  Endif
-  If !Empty( msg )
-    If par == 1  // для GET-системы
-      fl := func_error( 4, msg )
-    Else  // для проверки ТФОМС
-      fl := .f.
-    Endif
-  Endif
-
-  Return fl
-
-// 02.09.15 вернуть отдельно фамилию, имя и отчество в массиве
-Function retfamimot( ltip, fl_no, is_open_kfio )
-
-  Static cDelimiter := ' .'
-  Local i, k := 0, s := '', s1, mfio, tmp_select, ret_arr := { '', '', '' }
-
-  Default fl_no To .t., is_open_kfio To .f.
-  If ltip == 1 // вызвали из картотеки
-    mfio := kart->fio
-  Else  // вызвали из листа учёта
-    mfio := human->fio
-    If human->kod_k != kart->kod // если не связаны по relation
-      kart->( dbGoto( human->kod_k ) )
-    Endif
-  Endif
-  If kart->MEST_INOG == 9 // т.е. отдельно занесены Ф.И.О.
-    tmp_select := Select()
-    If is_open_kfio
-      Select KFIO
-    Else
-      r_use( dir_server + 'mo_kfio', , 'KFIO' )
-      Index On Str( kod, 7 ) to ( cur_dir + 'tmp_kfio' )
-    Endif
-    find ( Str( kart->kod, 7 ) )
-    If Found()
-      ret_arr[ 1 ] := AllTrim( kfio->FAM )
-      ret_arr[ 2 ] := AllTrim( kfio->IM )
-      ret_arr[ 3 ] := AllTrim( kfio->OT )
-    Endif
-    If !is_open_kfio
-      kfio->( dbCloseArea() )
-    Endif
-    Select ( tmp_select )
-  Endif
-  If Empty( ret_arr[ 1 ] ) // на всякий случай - вдруг не нашли в "mo_kfio"
-    mfio := AllTrim( mfio )
-    For i := 1 To NumToken( mfio, cDelimiter )
-      s1 := AllTrim( Token( mfio, cDelimiter, i ) )
-      If !Empty( s1 )
-        ++k
-        If k < 3
-          ret_arr[ k ] := s1
-        Else
-          s += s1 + ' '
-        Endif
-      Endif
-    Next
-    ret_arr[ 3 ] := AllTrim( s )
-  Endif
-  If fl_no .and. Empty( ret_arr[ 3 ] )
-    ret_arr[ 3 ] := 'НЕТ'
-  Endif
-
-  Return ret_arr
-
-// 26.10.14 проверка на правильность введённого ФИО
-Function val_fio( afio, aerr )
-
-  Local i, k := 0, msg
-
-  Default aerr TO {}
-  For i := 1 To 3
-    valfamimot( i, afio[ i ], 2, @msg )
-    If !Empty( msg )
-      ++k
-      AAdd( aerr, msg )
-    Endif
-  Next
-
-  Return ( k == 0 )
 
 // 26.08.14 вернуть иногороднюю СМО
 Function ret_inogsmo_name( ltip, /*@*/rec, fl_close)
@@ -911,7 +798,7 @@ Function input_perso( r, c, is_null, is_rab )
 
   Return fl1
 
-// 29.10.18
+// 25.06.24
 Function f1inp_perso( oBrow )
 
   Local oColumn
@@ -922,7 +809,8 @@ Function f1inp_perso( oBrow )
   oColumn:defColor := { 3, 3 }
   oColumn:colorBlock := {|| { 3, 3 } }
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( Center( 'Специальность', 21 ), {|| PadR( ret_tmp_prvs( perso->prvs, perso->prvs_new ), 21 ) } )
+//  oColumn := TBColumnNew( Center( 'Специальность', 21 ), {|| PadR( ret_tmp_prvs( perso->prvs, perso->prvs_new ), 21 ) } )
+  oColumn := TBColumnNew( Center( 'Специальность', 21 ), {|| PadR( ret_str_spec( perso->PRVS_021 ), 21 ) } )
   oBrow:addcolumn( oColumn )
 
   Return Nil
@@ -1582,197 +1470,3 @@ Function _f_usl_danet( a_da, a_net )
   Endif
 
   Return fl
-
-// 28.01.20 вывести строку в отладочный массив о КСГ
-Function f_put_debug_ksg( k, arr, ars )
-
-  // k = 1 - терапевтическая
-  // k = 2 - хирургическая
-  Local s := ' ', i, s1, arr1 := {}
-  If k == 1
-    s += 'терап.'
-  Elseif k == 2
-    s += 'хирур.'
-  Endif
-  s += 'КСГ'
-  If Len( arr ) == 0
-    s += ' не определена'
-  Else
-    s += ': '
-    For i := 1 To Len( arr )
-      s1 := ''
-      If k == 0 .and. !Empty( arr[ i, 5 ] )
-        s1 += 'осн.диаг.,'
-      Endif
-      If eq_any( k, 0, 1 ) .and. !Empty( arr[ i, 6 ] )
-        If AllTrim( arr[ i, 10 ] ) == 'mgi'
-          //
-        Else
-          s1 += 'усл.,'
-        Endif
-      Endif
-      If !Empty( arr[ i, 7 ] )
-        s1 += 'возр.,'
-      Endif
-      If !Empty( arr[ i, 8 ] )
-        s1 += 'пол,'
-      Endif
-      If !Empty( arr[ i, 9 ] )
-        s1 += 'дл-ть,'
-      Endif
-      If !Empty( arr[ i, 10 ] )
-        s1 += 'доп.критерий,'
-      Endif
-      If Len( arr[ i ] ) >= 15 .and. !Empty( arr[ i, 15 ] )
-        s1 += 'иной критерий,'
-      Endif
-      If !Empty( arr[ i, 11 ] )
-        s1 += 'соп.диаг.,'
-      Endif
-      If !Empty( arr[ i, 12 ] )
-        s1 += 'диаг.осл.,'
-      Endif
-      If !Empty( s1 )
-        s1 := ' (' + Left( s1, Len( s1 ) -1 ) + ')'
-      Endif
-      s1 := AllTrim( arr[ i, 1 ] ) + s1 + ' [КЗ=' + lstr( arr[ i, 3 ] ) + ']'
-      If AScan( arr1, s1 ) == 0
-        AAdd( arr1, s1 )
-      Endif
-    Next
-    For i := 1 To Len( arr1 )
-      s += arr1[ i ] + ' '
-    Next
-  Endif
-  AAdd( ars, s )
-
-  Return Len( arr1 )
-
-// 20.01.14 вернуть цену КСГ
-Function ret_cena_ksg( lshifr, lvr, ldate, ta )
-
-  Local fl_del := .f., fl_uslc := .f., v := 0
-
-  Default ta TO {}
-  v := fcena_oms( lshifr, ;
-    ( lvr == 0 ), ;
-    ldate, ;
-    @fl_del, ;
-    @fl_uslc )
-  If fl_uslc  // если нашли в справочнике ТФОМС
-    If fl_del
-      AAdd( ta, ' цена на услугу ' + RTrim( lshifr ) + ' отсутствует в справочнике ТФОМС' )
-    Endif
-  Else
-    AAdd( ta, ' для Вашей МО в справочнике ТФОМС не найдена услуга: ' + lshifr )
-  Endif
-
-  Return v
-
-// 28.01.14 вывести в центре экрана протокол определения КСГ
-Function f_put_arr_ksg( cLine )
-
-  Local buf := SaveScreen(), i, nLLen := 0, mc := MaxCol() -1, ;
-    nLCol, nRCol, nTRow, nBRow, nNumRows := Len( cLine )
-
-  AEval( cLine, {| x, i| nLLen := Max( nLLen, Len( x ) ) } )
-  If nLLen > mc
-    nLLen := mc
-  Endif
-  // вычисление координат углов
-  nLCol := Int( ( mc - nLLen ) / 2 )
-  nRCol := nLCol + nLLen + 1
-  nTRow := Int( ( MaxRow() - nNumRows ) / 2 )
-  nBRow := nTRow + nNumRows + 1
-  put_shadow( nTRow, nLCol, nBRow, nRCol )
-  @ nTRow, nLCol Clear To nBRow, nRCol
-  DispBox( nTRow, nLCol, nBRow, nRCol, 2, 'GR/GR*' )
-  AEval( cLine, {| cSayStr, i| ;
-    nSayRow := nTRow + i, ;
-    nSayCol := nLCol + 1, ;
-    SetPos( nSayRow, nSayCol ), DispOut( PadR( cSayStr, nLLen ), 'N/GR*' ) ;
-    } )
-  Inkey( 0 )
-  RestScreen( buf )
-
-  Return Nil
-
-// // 26.01.18 тест определения КСГ
-// Function test_definition_KSG()
-// Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t.
-// stat_msg("Определение КСГ")
-// R_Use(dir_server + "mo_uch",,'UCH')
-// R_Use(dir_server + 'mo_otd',,'OTD')
-// Use_base("lusl")
-// Use_base("luslc")
-// Use_base('uslugi')
-// R_Use(dir_server + "schet_",,"SCHET_")
-// R_Use(dir_server + "uslugi1",{dir_server + "uslugi1", ;
-// dir_server + "uslugi1s"},"USL1")
-// use_base("human_u") // если понадобится, удалить старый КСГ и добавить новый
-// R_Use(dir_server + "mo_su",,"MOSU")
-// R_Use(dir_server + "mo_hu",dir_server + "mo_hu","MOHU")
-// set relation to u_kod into MOSU
-// R_Use(dir_server + "human_2",,"HUMAN_2")
-// R_Use(dir_server + "human_",,"HUMAN_")
-// G_Use(dir_server + "human",,"HUMAN") // перезаписать сумму
-// set relation to recno() into HUMAN_, to recno() into HUMAN_2
-// n_file := "test_ksg"+stxt
-// fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
-// go top
-// do while !eof()
-// @ maxrow(),0 say str(recno()/lastrec()*100,7,2)+"%" color cColorStMsg
-// if inkey() == K_ESC
-// exit
-// endif
-// if human->K_DATA > stod("20190930") .and. eq_any(human_->USL_OK,1,2)
-// arr := definition_KSG()
-// if len(arr) == 7 // диализ
-// add_string("== диализ == ")
-// else
-// aeval(arr[1],{|x| add_string(x) })
-// if !empty(arr[2])
-// add_string("ОШИБКА:")
-// aeval(arr[2],{|x| add_string(x) })
-// endif
-// select HU
-// find (str(human->kod,7))
-// do while hu->kod == human->kod .and. !eof()
-// usl->(dbGoto(hu->u_kod))
-// if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
-// lshifr := usl->shifr
-// endif
-// if alltrim(lshifr) == arr[3] // уже стоит тот же КСГ
-// if !(round(hu->u_cena,2) == round(arr[4],2)) // не та цена
-// add_string("в л/у для КСГ="+arr[3]+" стоит цена "+lstr(hu->u_cena,10,2)+", а должна быть "+lstr(arr[4],10,2))
-// if human->schet > 0
-// schet_->(dbGoto(human->schet))
-// add_string("..счёт № "+alltrim(schet_->nschet)+" от "+date_8(schet_->dschet)+"г.")
-// endif
-// endif
-// exit
-// endif
-// select LUSL
-// find (lshifr) // длина lshifr 10 знаков
-// if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
-// add_string("в л/у стоит КСГ="+alltrim(lshifr)+"("+lstr(hu->u_cena,10,2)+;
-// "), а должна быть "+arr[3]+"("+lstr(arr[4],10,2)+")")
-// if human->schet > 0
-// schet_->(dbGoto(human->schet))
-// add_string("..счёт № "+alltrim(schet_->nschet)+" от "+date_8(schet_->dschet)+"г.")
-// endif
-// exit
-// endif
-// select HU
-// skip
-// enddo
-// endif
-// add_string(replicate("*",80))
-// endif
-// select HUMAN
-// skip
-// enddo
-// close databases
-// rest_box(buf)
-// fclose(fp)
-// return NIL

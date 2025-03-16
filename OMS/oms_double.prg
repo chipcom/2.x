@@ -34,7 +34,7 @@ Function oms_double(k)
   endif
   return NIL
 
-// 19.02.24 склеить два случая
+// 27.05.24 склеить два случая
 Function create_double_sl()
   Local buf, str_sem, str_sem2, i, d, fl, lshifr, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
   local fl_reserve_1, fl_reserve_2  // если в случае присутствуют 
@@ -184,7 +184,7 @@ Function create_double_sl()
                           {'═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R'} )
               if (glob_perso2 := tmp_h->kod) == 0
                 func_error(4, 'Не найдено нужных записей!')
-              elseif !(ldiag == human->kod_diag) .and. ! (diagnosis_for_replacement(ldiag, human_->USL_OK) .or. diagnosis_for_replacement(human->kod_diag, human_->USL_OK))
+              elseif ! ( ldiag == human->kod_diag ) .and. ! ( diagnosis_for_replacement( ldiag, human_->USL_OK, .t. ) .or. diagnosis_for_replacement( human->kod_diag, human_->USL_OK, .t. ) )
                 func_error(4, 'Основной диагноз в обоих случаях должен совпадать!')
               elseif lprofil != human_->profil
                 func_error(4, 'Профиль медицинской помощи в обоих случаях должен совпадать!')

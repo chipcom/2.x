@@ -46,7 +46,7 @@ Function forma_14( k )
   Return Nil
 
 
-// 27.05.23
+// 14.10.24
 Function forma_14_( is_diag, is_otd, is_pereved )
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
@@ -444,7 +444,7 @@ Function forma_14_( is_diag, is_otd, is_pereved )
   add_string( "" )
   //
   If is_diag
-    r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
     Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
     Index On Str( tip, 1 ) + stroke + diagnoz to ( cur_dir + "tmp_dia" )
     Use ( cur_dir + "tmp_d3" ) new
@@ -1675,11 +1675,9 @@ Function f1_f14( jh, jh1, is_diag )
   // проверяем таблицу 3000 (новорожденных)
   If nkd > 0 .and. human_->NOVOR > 0 .and. mvozrast == 0 .and. mmonth == 0 .and. mday <= 6
     k := ret_f_14_3000( mdiag )
-    // my_debug(,"3000 "+print_array(k))
     For j := 1 To Len( k )
       Select TMP_3000
       find ( PadR( k[ j, 1 ], 9 ) )
-      // my_debug(,"3000 "+padr(k[j,1],9))
       If human_2->VNR < 1000
         tmp_3000->p_boln++
         If fl_death
@@ -2180,7 +2178,7 @@ Function f1_frm14ds( is_diag, is_otd )
   add_string( "" )
   //
   If is_diag
-    r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
     Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
     Index On Str( tip, 1 ) + Str( stroke, 2 ) + diagnoz to ( cur_dir + "tmp_dia" )
   Endif

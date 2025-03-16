@@ -24,7 +24,7 @@ Function f_is_selo( _gorod_selo, _okatog )
   Endif
   If !fl
     tmp_select := Select()
-    r_use( dir_exe + '_okatos', cur_dir + '_okats', 'SELO' )
+    r_use( dir_exe() + '_okatos', cur_dir + '_okats', 'SELO' )
     find ( PadR( _okatog, 11, '0' ) )
     If Found()
       fl := .t.  // нашли
@@ -32,7 +32,7 @@ Function f_is_selo( _gorod_selo, _okatog )
     Endif
     Use
     If !fl
-      r_use( dir_exe + '_okatoo', cur_dir + '_okato', 'OBLAST' )
+      r_use( dir_exe() + '_okatoo', cur_dir + '_okato', 'OBLAST' )
       find ( PadR( _okatog, 5, '0' ) )
       If Found()
         fl := .t.  // нашли
@@ -619,7 +619,8 @@ Function v_kart_vrach( get, is_prvs )
         m1vrach := p2->kod
         m1prvs := -ret_new_spec( p2->prvs, p2->prvs_new )
         If is_prvs
-          mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_tmp_prvs( m1prvs ), 36 )
+//          mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_tmp_prvs( m1prvs ), 36 )
+          mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_str_spec( p2->PRVS_021 ), 36 )
         Else
           mvrach := PadR( fam_i_o( p2->fio ), 30 )
         Endif

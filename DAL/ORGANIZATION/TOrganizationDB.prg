@@ -42,7 +42,11 @@ METHOD Save( oOrganization ) CLASS TOrganizationDB
 		hb_hSet(aHash, 'UROVEN',		oOrganization:Uroven )
 		hb_hSet(aHash, 'NAME',			oOrganization:Name )
 		hb_hSet(aHash, 'NAME_SCHET',	oOrganization:Name_schet )
-		hb_hSet(aHash, 'INN',			oOrganization:INN )
+		if len( oOrganization:INN ) == 0
+			hb_hSet(aHash, 'INN',			oOrganization:INN )
+		else
+			hb_hSet(aHash, 'INN',			alltrim( oOrganization:INN ) + '/' + alltrim( oOrganization:KPP ) )
+		endif
 		hb_hSet(aHash, 'ADRES',			oOrganization:Address )
 		hb_hSet(aHash, 'TELEFON',		oOrganization:Phone )
 		
@@ -81,6 +85,8 @@ METHOD Save( oOrganization ) CLASS TOrganizationDB
 	
 METHOD FillFromHash( hbArray )     CLASS TOrganizationDB
 	local obj, oBank1, oBank2
+	local pos
+
 	
 	obj := TOrganization():New( hbArray[ 'ID' ], ;
 			hbArray[ 'REC_NEW' ], ;
@@ -91,7 +97,16 @@ METHOD FillFromHash( hbArray )     CLASS TOrganizationDB
 		obj:Uroven := hbArray[ 'UROVEN' ]
 		obj:Name := hbArray[ 'NAME' ]
 		obj:Name_schet := hbArray[ 'NAME_SCHET' ]
-		obj:INN := hbArray[ 'INN' ]
+
+		pos := hb_At( '/', hbArray[ 'INN' ] )
+		if pos == 0
+			obj:INN := hbArray[ 'INN' ]
+			obj:KPP := ''
+		else
+			obj:INN := substr( hbArray[ 'INN' ], 1, pos - 1)
+			obj:KPP := substr( hbArray[ 'INN' ], pos + 1 )
+		endif
+
 		obj:Address := hbArray[ 'ADRES' ]
 		obj:Phone := hbArray[ 'TELEFON' ]
 

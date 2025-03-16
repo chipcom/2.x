@@ -435,7 +435,7 @@ Function create_file_hodatajstvo(arr_m)
                  {"proch","C",60,0}}
         dbcreate(fr_data,adbf)
         use (fr_data) new alias FRD
-        R_Use(dir_exe+"_mo_smo",cur_dir+"_mo_smo2","SMO")
+        R_Use(dir_exe()+"_mo_smo",cur_dir+"_mo_smo2","SMO")
         R_Use(dir_server+"kartote_",,"KART_")
         R_Use(dir_server+"kartotek",,"KART")
         set relation to recno() into KART_
@@ -612,7 +612,7 @@ Static Function f11_view_list_hodatajstvo()
   endif
   return padr(s,10)
   
-***** 24.02.17
+// 15.10.24
 Function f2_view_list_hodatajstvo(nKey,oBrow)
   Local ret := -1, tmp_color := setcolor(), r, r1, r2, arr_f,;
         s, buf := savescreen(), arr, i, k, mdate, t_arr[2], arr_pmt := {}
@@ -629,8 +629,8 @@ Function f2_view_list_hodatajstvo(nKey,oBrow)
         endif
         mybell(2,OK)
         for i := 1 to k
-          // openExcel(_tmp_dir1+arr_f[i])
-          view_file_in_Viewer(_tmp_dir1+arr_f[i])
+          // openExcel(_tmp_dir1()+arr_f[i])
+          view_file_in_Viewer(_tmp_dir1()+arr_f[i])
         next
       endif
     case nKey == K_F5

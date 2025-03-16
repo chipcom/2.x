@@ -130,7 +130,7 @@ Function val1_10diag(fl_search, fl_plus, fl_screen, ldate, lpol, lUp)
   if empty(mshifr)
     diag_screen( 2)
   elseif fl_search
-    R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
+    R_Use(dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
     mshifr := mshifr6
     find (mshifr)
     if found()
@@ -244,7 +244,7 @@ Function val2_10diag()
   mshifr := alltrim(&mvar)
   mshifr := padr(alltrim(&mvar), 5)
   if !empty(mshifr)
-    R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
+    R_Use(dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
     find (mshifr)
     fl := found()
     diag->(dbCloseArea())
@@ -274,7 +274,7 @@ Function input_10diag()
   if fl_F3
     sshifr := mshifr
   elseif lastkey() != K_ESC .and. !empty(mshifr)
-    R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
+    R_Use(dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
     find (mshifr)
     if found()
       sshifr := mshifr
@@ -295,7 +295,7 @@ Function f1input_10diag()
   Private pregim := 1, uregim := 1
   set key K_F3 TO
   SAVE GETS TO agets
-  R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
+  R_Use(dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
   if !empty(mshifr)
     find (alltrim(mshifr))
     fl := found()
@@ -448,7 +448,7 @@ Function diag_to_array(al, fl_trim, fl_dop, fl_del, fl_6, adiag_talon)
   endif
   if fl_6
     if select('MKB_10') == 0
-      R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10')
+      R_Use(dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10')
     endif
     select MKB_10
   endif

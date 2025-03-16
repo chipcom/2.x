@@ -38,7 +38,7 @@ Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
     s1 := '(' + alltrim(short_shifr) + ')'
   endif
   if select('MOPROF') == 0
-    R_Use(dir_exe + '_mo_prof', cur_dir + '_mo_prof', 'MOPROF')
+    R_Use(dir_exe() + '_mo_prof', cur_dir + '_mo_prof', 'MOPROF')
   endif
   lshifr := padr(lshifr, 20)
   lvzros_reb := iif(lvzros_reb == 0, 0, 1)
@@ -75,7 +75,7 @@ Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach
     s1 := '(' + alltrim(short_shifr) + ')'
   endif
   if select('MOSPEC') == 0
-    R_Use(dir_exe + '_mo_spec', cur_dir + '_mo_spec', 'MOSPEC')
+    R_Use(dir_exe() + '_mo_spec', cur_dir + '_mo_spec', 'MOSPEC')
   endif
   lshifr := padr(lshifr, 20)
   lvzros_reb := iif(lvzros_reb == 0, 0, 1)
@@ -111,78 +111,78 @@ Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach
   endif
   return nil
   
-// 26.05.22 собрать шифры услуг в случае
-function collect_uslugi(rec_human)
+// 07.06.24 собрать шифры услуг в случае
+function collect_uslugi( rec_number )
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrUslugi := {}
 
-  human_number := hb_DefaultValue(rec_human, human->(recno()))
-  human_uslugi := hu->(recno())
-  mohu_usluga := mohu->(recno())
-  dbSelectArea('HU')
+  human_number := hb_DefaultValue( rec_number, human->( recno() ) )
+  human_uslugi := hu->( recno() )
+  mohu_usluga := mohu->( recno() )
+  dbSelectArea( 'HU' )
 
-  find (str(human_number, 7))
-  do while hu->kod == human_number .and. !eof()
-    aadd(arrUslugi, alltrim(usl->shifr))
-    hu->(dbSkip())
+  find ( str( human_number, 7 ) )
+  do while hu->kod == human_number .and. ! eof()
+    aadd( arrUslugi, alltrim( usl->shifr ) )
+    hu->( dbSkip() )
   enddo
 
-  hu->(dbGoto(human_uslugi))
+  hu->( dbGoto( human_uslugi ) )
 
-  dbSelectArea('MOHU')
+  dbSelectArea( 'MOHU' )
   set relation to u_kod into MOSU
-  find (str(human_number, 7))
-  do while mohu->kod == human_number .and. !eof()
-    aadd(arrUslugi, alltrim(iif(empty(mosu->shifr), mosu->shifr1, mosu->shifr)))
-    mohu->(dbSkip())
+  find ( str( human_number, 7 ) )
+  do while mohu->kod == human_number .and. ! eof()
+    aadd( arrUslugi, alltrim( iif( empty( mosu->shifr ), mosu->shifr1, mosu->shifr ) ) )
+    mohu->( dbSkip() )
   enddo
-  mohu->(dbGoto(mohu_usluga))
+  mohu->( dbGoto( mohu_usluga ) )
 
-  select(tmp_select)
+  select( tmp_select )
   return arrUslugi
 
-// 26.05.22 собрать даты оказания услуг в случае
-function collect_date_uslugi(rec_human)
+// 07.06.24 собрать даты оказания услуг в случае
+function collect_date_uslugi( rec_number )
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrDate := {}, aSortDate
   local i := 0, sDate, dDate
 
-  human_number := hb_DefaultValue(rec_human, human->(recno()))
-  human_uslugi := hu->(recno())
-  mohu_usluga := mohu->(recno())
-  dbSelectArea('HU')
+  human_number := hb_DefaultValue( rec_number, human->( recno() ) )
+  human_uslugi := hu->( recno() )
+  mohu_usluga := mohu->( recno() )
+  dbSelectArea( 'HU' )
 
-  find (str(human_number, 7))
-  do while hu->kod == human_number .and. !eof()
-    dDate := c4tod(hu->date_u)
-    sDate := dtoc(dDate)
-    if ascan(arrDate, {|x| x[1] == sDate }) == 0
+  find ( str( human_number, 7 ) )
+  do while hu->kod == human_number .and. ! eof()
+    dDate := c4tod( hu->date_u )
+    sDate := dtoc( dDate )
+    if ascan( arrDate, { | x | x[ 1 ] == sDate } ) == 0
       i++
-      aadd(arrDate, {sDate, i, dDate})
+      aadd( arrDate, { sDate, i, dDate } )
     endif
-    hu->(dbSkip())
+    hu->( dbSkip() )
   enddo
 
-  hu->(dbGoto(human_uslugi))
+  hu->( dbGoto( human_uslugi ) )
 
-  dbSelectArea('MOHU')
+  dbSelectArea( 'MOHU' )
   // set relation to u_kod into MOSU
-  find (str(human_number, 7))
-  do while mohu->kod == human_number .and. !eof()
-    dDate := c4tod(mohu->date_u)
-    sDate := dtoc(dDate)
-    if ascan(arrDate, {|x| x[1] == sDate }) == 0
+  find ( str(human_number, 7 ) )
+  do while mohu->kod == human_number .and. ! eof()
+    dDate := c4tod( mohu->date_u )
+    sDate := dtoc( dDate )
+    if ascan( arrDate, { | x | x[ 1 ] == sDate } ) == 0
       i++
-      aadd(arrDate, {sDate, i, dDate})
+      aadd( arrDate, { sDate, i, dDate } )
     endif
-    mohu->(dbSkip())
+    mohu->( dbSkip() )
   enddo
-  mohu->(dbGoto(mohu_usluga))
+  mohu->( dbGoto( mohu_usluga ) )
 
-  aSortDate := ASort(arrDate,,, { |x, y| x[3] < y[3] })  
-  select(tmp_select)
+  aSortDate := ASort( arrDate, , , { | x, y | x[ 3 ] < y[ 3 ] } )  
+  select( tmp_select )
   return aSortDate
 
 // 06.11.19
@@ -657,7 +657,7 @@ Function is_issl_DDS(ausl, _vozrast, arr)
   return fl
 
 
-// 09.06.15 функция проверки лицензии на диспансеризацию/профилактику
+// 21.08.24 функция проверки лицензии на диспансеризацию/профилактику
 Function license_for_dispans(_tip, _n_data, _ta)
   // список учреждений с датой лицензии на диспансеризацию
   Static arr_date_disp := { ;
@@ -747,7 +747,8 @@ Function license_for_dispans(_tip, _n_data, _ta)
     {601001, 1, 1, 20130809}, ;  // 601001;ГБУЗ Урюпинская ЦРБ;+;+;09.08.2013
     {611001, 1, 1, 20130802}, ;  // 611001;ГБУЗ "Фроловская ЦРБ";+;+;02.08.2013
     {621001, 1, 1, 20130805}, ;  // 621001;ГБУЗ "Чернышковская ЦРБ";+;+;05.08.2013
-    {711001, 1, 0, 20130731};   // 711001;НУЗ "Отделенческая клиническая больница на ст. Волгоград-1 ОАО "РЖД";+;;31.07.2013
+    {711001, 1, 0, 20130731}, ;  // 711001;НУЗ "Отделенческая клиническая больница на ст. Волгоград-1 ОАО "РЖД";+;;31.07.2013
+    {101201, 1, 0, 20240430} ;   // 101201;ГБУЗ госпиталь ветеранов войн;+;;30.04.2024
    }
   Static mm_tip := {'диспансеризацию/профилактику взрослых', ;
                     'профилактику несовершеннолетних'}
@@ -924,84 +925,8 @@ Function is_1_etap_PN(ausl, _period, _etap)
     fl := (ascan(np_arr_1_etap[_period, 4], lshifr) > 0)
   endif
   return fl
-  
-// инициализация прочих справочников
-// Function InitSpravOthers()
-// /////////////////////////////////////////////////
-// // glob_katl - Классификатор кодов льгот по ДЛО
-// //  1 - NAME(C)  2 - KOD(C)
-//   Public glob_katl := {}
-
-//   aadd(glob_katl, {"000 --- без льготы ---","   "})
-//   aadd(glob_katl, {"010 Инвалиды войны","010"})
-//   aadd(glob_katl, {"011 Участники Великой Отечественной войны, ставшие инвалидами","011"})
-//   aadd(glob_katl, {"012 Военнослужащие органов внутренних дел, Государственной противопожарной службы, учреждений и органов уголовно-исполнительной системы, ставших инвалидами вследствие ранения, контузии или увечья, полученных при исполнении обязанностей военной службы","012"})
-//   aadd(glob_katl, {"020 Участники Великой Отечественной войны","020"})
-//   aadd(glob_katl, {"030 Ветераны боевых действий","030"})
-//   aadd(glob_katl, {"040 Военнослужащие, проходившие военную службу в воинских частях, не входивших в состав действующей армии, в период с 22 июня 1941 года по 3 сентября 1945 года не менее шести месяцев, военнослужащие, награжденные орденами или медалями СССР","040"})
-//   aadd(glob_katl, {'050 Лица, награжденные знаком "Жителю блокадного Ленинграда"',"050"})
-//   aadd(glob_katl, {"060 Члены семей погибших (умерших) инвалидов войны, участников Великой Отечественной войны и ветеранов боевых действий","060"})
-//   aadd(glob_katl, {"061 Члены семей погибших в Великой Отечественной войне лиц из числа личного состава групп самозащиты объектовых и аварийных команд местной противовоздушной обороны, а также члены семей погибших работников госпиталей и больниц города Ленинграда","061"})
-//   aadd(glob_katl, {"062 Члены семей военнослужащих органов внутренних дел, Государственной противопожарной службы, учреждений и органов уголовно-исполнительной системы и органов государственной безопасности, погибших при исполнении обязанностей военной службы","062"})
-//   aadd(glob_katl, {"063 Члены семей военнослужащих, погибших в плену, признанных в установленном порядке пропавшими без вести в районах боевых действий","063"})
-//   aadd(glob_katl, {"081 Инвалиды I степени","081"})
-//   aadd(glob_katl, {"082 Инвалиды II степени","082"})
-//   aadd(glob_katl, {"083 Инвалиды III степени","083"})
-//   aadd(glob_katl, {"084 Дети-инвалиды","084"})
-//   aadd(glob_katl, {"085 Инвалиды, не имеющие степени ограничения способности к трудовой деятельности","085"})
-//   aadd(glob_katl, {"091 Граждане, получившие или перенесшие лучевую болезнь и другие заболевания, связанные с радиационным воздействием вследствие чернобыльской катастрофы или с работами по ликвидации последствий катастрофы на Чернобыльской АЭС","091"})
-//   aadd(glob_katl, {"092 Инвалиды вследствие чернобыльской катастрофы","092"})
-//   aadd(glob_katl, {"093 Граждане, принимавшие в 1986-1987 годах участие в работах по ликвидации последствий чернобыльской катастрофы","093"})
-//   aadd(glob_katl, {"094 Граждане, принимавшие участие в 1988-90гг. участие в работах по ликвидации последствий чернобыльской катастрофы","094"})
-//   aadd(glob_katl, {"095 Граждане, постоянно проживающие (работающие) на территории зоны проживания с правом на отселение","095"})
-//   aadd(glob_katl, {"096 Граждане, постоянно проживающие (работающие) на территории зоны проживания с льготным социально-экономическим статусом","096"})
-//   aadd(glob_katl, {"097 Граждане, постоянно проживающие (работающие) в зоне отселения до их переселения в другие районы","097"})
-//   aadd(glob_katl, {"098 Граждане, эвакуированные (в том числе выехавшие добровольно) в 1986 году из зоны отчуждения","098"})
-//   aadd(glob_katl, {"099 Дети и подростки в возрасте до 18 лет, проживающие в зоне отселения и зоне проживания с правом на отселение, эвакуированные и переселенные из зон отчуждения, отселения, проживания с правом на отселение","099"})
-//   aadd(glob_katl, {"100 Дети и подростки в возрасте до 18 лет, постоянно проживающие в зоне с льготным социально-экономическим статусом","100"})
-//   aadd(glob_katl, {"101 Дети и подростки, страдающие болезнями вследствие чернобыльской катастрофы, ставшие инвалидами","101"})
-//   aadd(glob_katl, {"102 Дети и подростки, страдающие болезнями вследствие чернобыльской катастрофы","102"})
-//   aadd(glob_katl, {"111 Граждане, получившие суммарную (накопительную) эффективную дозу облучения, превышающую 25 сЗв (бэр)","111"})
-//   aadd(glob_katl, {"112 Граждане, получившие суммарную (накопительную) эффективную дозу облучения более 5 сЗв (бэр), но не превышающую 25 сЗв (бэр)","112"})
-//   aadd(glob_katl, {"113 Дети в возрасте до 18 лет первого и второго поколения граждан, получившие суммарную (накопительную) эффективную дозу облучения более 5 сЗв (бэр), страдающих заболеваниями вследствие радиационного воздействия на одного из родителей","113"})
-//   aadd(glob_katl, {"120 Лица, работавшие в период Великой Отечественной войны на объектах противовоздушной обороны, на строительстве оборонительных сооружений, военно-морских баз, аэродромов и других военных объектов","120"})
-//   aadd(glob_katl, {'121 Граждане, получившие лучевую болезнь, обусловленную воздействием радиации вследствие аварии в 1957 году на производственном объединении "Маяк" и сбросов радиоактивных отходов в реку Теча',"121"})
-//   aadd(glob_katl, {'122 Граждане, ставшие инвалидами в результате воздействия радиации вследствие аварии в 1957 году на производственном объединении "Маяк" и сбросов радиоактивных отходов в реку Теча',"122"})
-//   aadd(glob_katl, {'123 Граждане, принимавшие в 1957-58гг. участие в работах по ликвидации последствий аварии в 1957 году на производственном объединении "Маяк", а также граждане, занятые на работах по проведению мероприятий вдоль реки Теча в 1949-56гг.',"123"})
-//   aadd(glob_katl, {'124 Граждане, принимавшие в 1959-61гг. участие в работах по ликвидации последствий аварии в 1957 году на производственном объединении "Маяк", а также граждане, занятые на работах по проведению мероприятий вдоль реки Теча в 1957-62гг.',"124"})
-//   aadd(glob_katl, {'125 Граждане, проживающие в населенных пунктах, подвергшихся радиоактивному загрязнению вследствие аварии в 1957 году на производственном объединении "Маяк" и сбросов радиоактивных отходов в реку Теча',"125"})
-//   aadd(glob_katl, {'128 Граждане, эвакуированные из населенных пунктов, подвергшихся радиоактивному загрязнению вследствие аварии в 1957 году на производственном объединении "Маяк" и сбросов радиоактивных отходов в реку Теча',"128"})
-//   aadd(glob_katl, {"129 Дети первого и второго поколения граждан, указанных в статье 1 Федерального закона от 26.11.98 № 175-ФЗ, страдающие заболеваниями вследствие воздействия радиации на их родителей","129"})
-//   aadd(glob_katl, {"131 Граждане из подразделений особого риска, не имеющие инвалидности","131"})
-//   aadd(glob_katl, {"132 Граждане из подразделений особого риска, имеющие инвалидность","132"})
-//   aadd(glob_katl, {"140 Бывшие несовершеннолетние узники концлагерей, признанные инвалидами вследствие общего заболевания, трудового увечья и других причин (за исключением лиц, инвалидность которых наступила вследствие их противоправных действий)","140"})
-//   aadd(glob_katl, {"141 Рабочие и служащие, а также военнослужащих органов внутренних дел, Государственной противопожарной службы, получившие профессиональные заболевания, связанные с лучевым воздействием на работах в зоне отчуждения","141"})
-//   aadd(glob_katl, {"142 Рабочие и служащие, а также военнослужащие органов внутренних дел, Государственной противопожарной службы, получивших профессиональные заболевания, связанные с лучевым воздействием на работах в зоне отчуждения, ставшие инвалидами","142"})
-//   aadd(glob_katl, {"150 Бывшие несовершеннолетние узники концлагерей","150"})
-//   return NIL
 
 // проверка, умер ли пациент
 Function is_death(_rslt)
   return eq_any(_rslt, 105, 106, 205, 206, 313, 405, 406, 411) // по результату лечения
 
-
-// 08.08.23
-// проверка исхода = СМЕРТЬ 
-// function result_is_death(mkod_k, Loc_kod)
-//  local a_smert := {}
-
-//  select HUMAN
-//  set index to (dir_server + 'humankk')
-//  find (str(mkod_k, 7))
-//  do while human->kod_k == mkod_k .and. !eof()
-//    if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
-//                                  human_->oplata != 9 .and. human_->NOVOR == 0
-//      a_smert := {'Данный больной умер!', ;
-//                    'Лечение с ' + full_date(human->N_DATA) + ;
-//                          ' по ' + full_date(human->K_DATA)}
-//      exit
-//    endif
-//    skip
-//  enddo
-//  set index to
-//  return a_smert

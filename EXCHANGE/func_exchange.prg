@@ -4,6 +4,24 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 27.06.24 сформировать массив имен файлов реестра сведений и пациентов
+function name_reestr_XML( type, nyear, nmonth, mnn, nsh )
+  // type - тип реестра (обычный, для диспансеризации)
+  // nyear - номер года
+  // nmonth - номер месяца
+  // mnn - 
+  // nsh - 
+  // Возврат - массив { имя файла реестра сведений, имя файла реестра пациентов }
+
+  local sName := ''
+  local aFiles
+
+  sName := 'RM' + CODE_LPU + 'T34' + '_' ;
+    + Right( StrZero( NYEAR, 4 ), 2 ) + StrZero( NMONTH, 2 ) + StrZero( mnn, nsh )
+  aFiles := { { 'H', 'F' }[ type ] + sName, ;
+    'L' + sName }
+  return aFiles
+
 // 17.12.19 проверить, нам ли предназначен данный XML-файл
 Function is_our_xml( cName, ret_arr )
 
@@ -407,7 +425,7 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Return fl
 
-// 09.03.22 если это укрупнённый архив, распаковать и прочитать
+// 15.10.24 если это укрупнённый архив, распаковать и прочитать
 Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Static cStFile, si
@@ -453,11 +471,11 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
         cStFile := cName
         si := i
         If arr[ i, 4 ] == spdf
-          // file_AdobeReader(_tmp2dir1+arr[i,3])
-          view_file_in_viewer( _tmp2dir1 + arr[ i, 3 ] )
+          // file_AdobeReader(_tmp2dir1()+arr[i,3])
+          view_file_in_viewer( _tmp2dir1() + arr[ i, 3 ] )
         Elseif arr[ i, 4 ] == szip
           fl := .t.
-          full_zip := _tmp2dir1 + arr[ i, 3 ] // переопределяем Private-переменную
+          full_zip := _tmp2dir1() + arr[ i, 3 ] // переопределяем Private-переменную
         Endif
       Endif
     Endif
@@ -478,8 +496,8 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       AEval( arr, {| x| AAdd( arr_f, x[ 2 ] ) } )
       If ( i := popup_prompt( T_ROW, T_COL -5, 1, arr_f ) ) > 0
         If arr[ i, 4 ] == spdf
-          // file_AdobeReader(_tmp2dir1+arr[i,3])
-          view_file_in_viewer( _tmp2dir1 + arr[ i, 3 ] )
+          // file_AdobeReader(_tmp2dir1()+arr[i,3])
+          view_file_in_viewer( _tmp2dir1() + arr[ i, 3 ] )
         Endif
       Endif
     Endif
@@ -496,7 +514,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
             ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2, 'tmp' + szip ) ) != NIL
           For i := 1 To Len( arr_f )
             If Upper( cName + szip ) == Upper( arr_f[ i ] )
-              full_zip := _tmp2dir1 + arr_f[ i ] // переопределяем Private-переменную
+              full_zip := _tmp2dir1() + arr_f[ i ] // переопределяем Private-переменную
               Exit
             Endif
           Next

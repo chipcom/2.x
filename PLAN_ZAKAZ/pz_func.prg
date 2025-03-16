@@ -32,48 +32,29 @@ function get_unit_uslugi( lshifr, ldate_usl )
 
   return strUnit
 
-// 10.03.24
+// 12.03.25
 Function arr_plan_zakaz( ly )
+
   Local i, apz := {}
-  local nameArr //, funcGetPZ
+  local nameArr
   local aValues
 
   DEFAULT ly TO WORK_YEAR
   nameArr := get_array_PZ( ly )
-
   aValues := hb_hValues( getUnitsForYear( ly ) )
   ASort( aValues, , , { | x, y | x[ 1 ] < y[ 1 ] } )
-
-  //// for i := 1 to len(&nameArr)
-  ////   aadd(apz, {&nameArr.[i,3], ;
-  ////               &nameArr.[i,1], ;
-  ////               0, ;
-  ////               &nameArr.[i,6], ;
-  ////               &nameArr.[i,5], ;
-  ////               {} ;
-  ////             })
-  //// next
   for i := 1 to len( nameArr )
     aadd( apz, { nameArr[ i, 3 ], ;
                 nameArr[ i, 1 ], ;
                 0, ;
-                nameArr[ i, 4 ], ;  // nameArr[ i, 6 ], ;
+                nameArr[ i, 4 ], ;
                 nameArr[ i, 5 ], ;
                 { } ;
               } )
   next
-//  for i := 1 to len( aValues )
-//    aadd( apz, { aValues[ i, 5 ], ;
-//                aValues[ i, 1 ], ;
-//                0, ;
-//                aValues[ i, 8 ], ;
-//                aValues[ i, 7 ], ;
-//                { } ;
-//              } )
-//  next
   return apz
 
-// 26.12.23 по шифру услуги у году вернуть номер элемента массива 'arr_plan_zakaz' для года
+// 12.03.25 по шифру услуги у году вернуть номер элемента массива 'arr_plan_zakaz' для года
 Function f_arr_plan_zakaz( lshifr, lyear )
   Local k := 0, i := 0
   local sbase, sAlias, sAliasUnit
@@ -91,7 +72,7 @@ Function f_arr_plan_zakaz( lshifr, lyear )
   if found() .and. ! empty( (sAlias)->unit_code )
     if select( sAliasUnit ) == 0
       sbase := prefixFileRefName( lyear ) + 'unit'
-      R_Use( dir_exe + sbase, cur_dir + sbase, sAliasUnit )
+      R_Use( dir_exe() + sbase, cur_dir + sbase, sAliasUnit )
     endif
     select ( sAliasUnit )
     set order to 1
@@ -102,20 +83,18 @@ Function f_arr_plan_zakaz( lshifr, lyear )
     endif
   endif
   if k > 0 .and. empty( i )
-    // nameArrayPZ := 'glob_array_PZ_' + last_digits_year(lyear)
-    // i := ascan(&nameArrayPZ, {|x| x[1] == k })
-    // funcGetPZ := 'get_array_PZ_' + last_digits_year(lyear) + '()'
-    // nameArrayPZ := &funcGetPZ
     nameArrayPZ := get_array_PZ( lyear )
-
     i := ascan( nameArrayPZ, { | x | x[ 1 ] == k } )
   endif
   return i
 
-// 29.12.21 вернуть код план-заказа по методу ВМП
+// 12.03.25 вернуть код план-заказа по методу ВМП
 Function ret_PZ_VMP( lunit, kDate )
+
+  Local arr, i
   Local mpztip := 0
-  local sbase, nYear := WORK_YEAR
+  local nYear := WORK_YEAR
+//  local sbase
 
   hb_default( @kDate, WORK_YEAR )
 
@@ -125,15 +104,20 @@ Function ret_PZ_VMP( lunit, kDate )
     nYear := kDate
   endif
 
-  if select( 'MOUNIT' ) == 0
-    sbase := prefixFileRefName( nYear ) + 'unit'
-    R_Use( dir_exe + sbase, cur_dir + sbase, 'MOUNIT' )
+  arr := get_array_PZ( nYear )
+  if ( i := hb_AScan( arr, { | x | x[ 2 ] == lunit } ) ) > 0
+    mpztip := arr[ i, 1 ]
   endif
-  select MOUNIT
-  find ( str( lunit, 3 ) )
-  if found() .and. mounit->pz > 0
-    mpztip := mounit->pz
-  endif
+
+//  if select( 'MOUNIT' ) == 0
+//    sbase := prefixFileRefName( nYear ) + 'unit'
+//    R_Use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
+//  endif
+//  select MOUNIT
+//  find ( str( lunit, 3 ) )
+//  if found() .and. mounit->pz > 0
+//    mpztip := mounit->pz
+//  endif
   return mpztip
 
 // 23.01.24
@@ -167,7 +151,7 @@ function getUnitsForYear( nYear )
     dbName := prefixFileRefName( yearSl ) + 'unit'
     tmp_select := select()
     dbAlias := '__UNIT'
-    r_use( dir_exe + dbName, , dbAlias )
+    r_use( dir_exe() + dbName, , dbAlias )
 
     //  1 - CODE(N)  2 - PZ(N)  3 - II(N)  4 - C_T(N)  5 - NAME(C)  6 - DATEBEG(D)  7 - DATEEND(D)
     ( dbAlias )->( dbGoTop() )

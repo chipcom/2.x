@@ -5,6 +5,70 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 22.02.25
+function is_work_day( mdate )
+
+return ( AScan( getArrayHoliday( Year( mdate ) )[ Month( mdate ), 2 ], Day( mdate ) ) == 0 )
+
+// 21.02.25
+function getArrayHoliday( mYear )
+
+  static hArray
+  Local db
+  local arr := {}, aTable, nI
+  local nameView, strSQL, standart, fl := .f.
+
+  if hArray == nil
+    hArray := hb_Hash()
+  Endif
+
+  if ! hb_hHaskey( hArray, mYear )
+    standart := {}
+    nameView := 'year' + str( mYear, 4 )
+  
+    db := opensql_db()
+    strSQL := 'SELECT m_month, description FROM ' + nameView // + ' WHERE m_month=' + alltrim( str( Month( mYear ), 4 ) )
+    aTable := sqlite3_get_table( db, strSQL )
+    If Len( aTable ) > 1
+
+      For nI := 2 To Len( aTable )
+        hb_jsonDecode( alltrim( aTable[ nI, 2 ] ), @standart )
+        AAdd( arr, { val( aTable[ nI, 1 ] ), standart } )
+        fl := .t.
+      Next
+      hb_HSet( hArray, mYear, arr )
+    Endif
+    db := nil
+  else
+    fl := .t.
+  endif
+
+  if fl
+    arr := hArray[ mYear ]
+  endif
+  return arr
+
+// 25.12.24
+function check_next_visit_dn( gt, du )
+
+  // gt - объект getlist
+  // du - дата услуги
+
+  local dt, addOneMonth, addOneYear
+  local lRet := .f.
+
+  dt := CToD( gt:buffer )
+
+  addOneMonth := AddMonth( du, 1 )
+  addOneYear := AddMonth( du, 12 )
+
+  if addOneMonth <= dt .and. dt <= addOneYear
+    lRet := .t.
+  else
+    func_error( 4, 'Дата следующей явки допустима от одного месяца до одного года!' )
+  endif
+  return lRet
+
 // 18.02.20
 Function year_month( rr, cc, za_v, kmp, ch_mm, ret_time )
   // kmp = от 1 до 4(5) или массив {3,4}

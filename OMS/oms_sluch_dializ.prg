@@ -12,7 +12,7 @@ Function f_d_dializ()
 
   Return .t.
 
-// 27.02.24 гемодиализ (1) и перитонеальный диализ (2)
+// 25.06.24 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -180,7 +180,8 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
     Goto ( m1vrach )
     MTAB_NOM := p2->tab_nom
     m1prvs := -ret_new_spec( p2->prvs, p2->prvs_new )
-    mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_tmp_prvs( m1prvs ), 36 )
+//    mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_tmp_prvs( m1prvs ), 36 )
+    mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_str_spec( p2->PRVS_021 ), 36 )
   Endif
   Close databases
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )

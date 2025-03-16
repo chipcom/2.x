@@ -25,7 +25,7 @@ Static skod_volg := '18400'
 //
 // 5xx - ПОДЧИНЕННЫЕ ГОРОДА (ПОСЁЛКИ)
 
-/// инициализация всех БД адресного реестра
+// / инициализация всех БД адресного реестра
 /*Function main()
   cls
   f_first()
@@ -44,578 +44,603 @@ Static skod_volg := '18400'
   inkey(0)
   return NIL*/
 
-
 // 09.03.23 переиндексировать все файлы адресного реестра ОКАТО
-Function okato_index(flag)
+Function okato_index( flag )
+
   Local i
-  local fl_index := .f.
+  Local fl_index := .f.
   local ;
-    arr_f  := {'_okator', '_okatoo', '_okatos', '_okatoo8', '_okatos8'}, ;
-    arr_i1 := {'_okatr', '_okato', '_okats', '_okato8', '_okats8'}, ;
-    arr_i2 := {'_okatrn', '_okaton', '_okatsn', '_okaton8', '_okatsn8'}
-    local sbase
-    local file_index
-  
-  DEFAULT flag TO .f.
+    arr_f  := { '_okator', '_okatoo', '_okatos', '_okatoo8', '_okatos8' }, ;
+    arr_i1 := { '_okatr', '_okato', '_okats', '_okato8', '_okats8' }, ;
+    arr_i2 := { '_okatrn', '_okaton', '_okatsn', '_okaton8', '_okatsn8' }
 
-  for i := 1 to len(arr_f)
-    if files_time(dir_exe + arr_f[i] + sdbf, cur_dir + arr_i1[i] + sntx) .or. ;
-        files_time(dir_exe + arr_f[i] + sdbf, cur_dir + arr_i2[i] + sntx)
+  Default flag To .f.
+
+  For i := 1 To Len( arr_f )
+    If files_time( dir_exe() + arr_f[ i ] + sdbf, cur_dir + arr_i1[ i ] + sntx ) .or. ;
+        files_time( dir_exe() + arr_f[ i ] + sdbf, cur_dir + arr_i2[ i ] + sntx )
       fl_index := .t.
-      exit
-    endif
-  next
-  if flag .or. fl_index
-    for i := 1 to len(arr_f)
-      // if hb_FileExists(dir_exe + arr_f[i] + sdbf)
-        // if ! hb_FileExists(cur_dir + arr_i1[i] + sntx) .or. ;
-        //       ! hb_FileExists(cur_dir + arr_i2[i] + sntx)
-          R_Use(dir_exe + arr_f[i])
-          oktAdIndBase(arr_f[i])
-          use
-        // endif
-      // endif
-    next
-  endif
-  return NIL
+      Exit
+    Endif
+  Next
+  If flag .or. fl_index
+    For i := 1 To Len( arr_f )
+      r_use( dir_exe() + arr_f[ i ] )
+      oktadindbase( arr_f[ i ] )
+      Use
+    Next
+  Endif
+
+  Return Nil
 
 //
-Static Function oktAdIndBase(k)
-  k := lower(k)
-  do case
-    case k == '_okator'
-      index on okato to (cur_dir + '_okatr') progress
-      index on okato + upper(substr(name, 1, 30)) to (cur_dir + '_okatrn') progress
-    case k == '_okatoo'
-      index on okato to (cur_dir + '_okato') progress
-      index on substr(okato, 1, 5) + upper(substr(name, 1, 30)) to (cur_dir + '_okaton') progress
-    case k == '_okatos'
-      index on okato to (cur_dir + '_okats') progress
-      index on substr(okato, 1, 8) + upper(substr(name, 1, 30)) to (cur_dir + '_okatsn') progress
-    case k == '_okatoo8'
-      index on okato to (cur_dir + '_okato8') progress
-      index on substr(okato, 1, 5) + upper(substr(name, 1, 30)) to (cur_dir + '_okaton8') progress
-    case k == '_okatos8'
-      index on okato to (cur_dir + '_okats8') progress
-      index on substr(okato, 1, 8) + upper(substr(name, 1, 30)) to (cur_dir + '_okatsn8') progress
-  endcase
-  return NIL
+Static Function oktadindbase( k )
+
+  k := Lower( k )
+  Do Case
+  Case k == '_okator'
+    Index On okato to ( cur_dir + '_okatr' ) progress
+    Index On okato + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir + '_okatrn' ) progress
+  Case k == '_okatoo'
+    Index On okato to ( cur_dir + '_okato' ) progress
+    Index On SubStr( okato, 1, 5 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir + '_okaton' ) progress
+  Case k == '_okatos'
+    Index On okato to ( cur_dir + '_okats' ) progress
+    Index On SubStr( okato, 1, 8 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir + '_okatsn' ) progress
+  Case k == '_okatoo8'
+    Index On okato to ( cur_dir + '_okato8' ) progress
+    Index On SubStr( okato, 1, 5 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir + '_okaton8' ) progress
+  Case k == '_okatos8'
+    Index On okato to ( cur_dir + '_okats8' ) progress
+    Index On SubStr( okato, 1, 8 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir + '_okatsn8' ) progress
+  Endcase
+
+  Return Nil
 
 //
-Static Function oktAdUseBase(k, _region)
-  k := lower(k)
-  if _region != NIL .and. _region == '18'
+Static Function oktadusebase( k, _region )
+
+  k := Lower( k )
+  If _region != Nil .and. _region == '18'
     k += '8'
-  endif
-  do case
-    case k == '_okator'
-      R_Use(dir_exe + '_okator', {cur_dir + '_okatr', cur_dir + '_okatrn'}, 'REGION')
-    case k == '_okatoo'
-      R_Use(dir_exe + '_okatoo', {cur_dir + '_okato', cur_dir + '_okaton'}, 'OBLAST')
-    case k == '_okatos'
-      R_Use(dir_exe + '_okatos', {cur_dir + '_okats', cur_dir + '_okatsn'}, 'SELO')
-    case k == '_okatoo8'
-      R_Use(dir_exe + '_okatoo8', {cur_dir + '_okato8', cur_dir + '_okaton8'}, 'OBLAST')
-    case k == '_okatos8'
-      R_Use(dir_exe + '_okatos8', {cur_dir + '_okats8', cur_dir + '_okatsn8'}, 'SELO')
-  endcase
-  return NIL
+  Endif
+  Do Case
+  Case k == '_okator'
+    r_use( dir_exe() + '_okator', { cur_dir + '_okatr', cur_dir + '_okatrn' }, 'REGION' )
+  Case k == '_okatoo'
+    r_use( dir_exe() + '_okatoo', { cur_dir + '_okato', cur_dir + '_okaton' }, 'OBLAST' )
+  Case k == '_okatos'
+    r_use( dir_exe() + '_okatos', { cur_dir + '_okats', cur_dir + '_okatsn' }, 'SELO' )
+  Case k == '_okatoo8'
+    r_use( dir_exe() + '_okatoo8', { cur_dir + '_okato8', cur_dir + '_okaton8' }, 'OBLAST' )
+  Case k == '_okatos8'
+    r_use( dir_exe() + '_okatos8', { cur_dir + '_okats8', cur_dir + '_okatsn8' }, 'SELO' )
+  Endcase
+
+  Return Nil
 
 // ввод адреса по ОКАТО в GET'е
-Function get_okato_ulica(kod11, r, c, mas_adr)
+Function get_okato_ulica( kod11, r, c, mas_adr )
+
   Local ret, buf, tmp_help := chm_help_code, tmp_keys
 
-  Private madrs := space(120), m1adrs := space(11), madrs1 := space(120), ;
-        mulicadom
-  if valtype(mas_adr) == 'A'
+  Private madrs := Space( 120 ), m1adrs := Space( 11 ), madrs1 := Space( 120 ), ;
+    mulicadom
+
+  If ValType( mas_adr ) == 'A'
     m1adrs := kod11 // или mas_adr[1]
-    madrs := madrs1 := mas_adr[2]
-    mulicadom := mas_adr[3]
-  endif
+    madrs := madrs1 := mas_adr[ 2 ]
+    mulicadom := mas_adr[ 3 ]
+  Endif
   old_adrs1 := madrs1
-  buf := savescreen()
+  buf := SaveScreen()
   tmp_keys := my_savekey()
-  chm_help_code := 1  //H_Vvod_adrs
-  ret := oktAdGetSt(r, c)
+  chm_help_code := 1  // H_Vvod_adrs
+  ret := oktadgetst( r, c )
   chm_help_code := tmp_help
-  my_restkey(tmp_keys)
-  restscreen(buf)
-  if ret != NIL
-    aadd(ret, mulicadom) // добавляем в возврат третим элементом улицу и дом
-  endif
-  return ret
+  my_restkey( tmp_keys )
+  RestScreen( buf )
+  If ret != NIL
+    AAdd( ret, mulicadom ) // добавляем в возврат третим элементом улицу и дом
+  Endif
+
+  Return ret
 
 // 07.02.13 ф-ия get-а адреса
-Static Function oktAdGetSt(r, c)
+Static Function oktadgetst( r, c )
+
   Local tmp_color, ret, s
 
   Private r1, c1, r2, c2
+
   r1 := r + 1
   r2 := r1 + 7
-  if r2 > maxrow() - 2
-    r2 := r - 1
-    r1 := r2 - 7
-  endif
+  If r2 > MaxRow() -2
+    r2 := r -1
+    r1 := r2 -7
+  Endif
   c1 := 2
   c2 := 77
-  box_shadow(r1, c1, r2, c2, 'N+/W', 'Ввод адреса по ОКАТО', 'GR/W')
-  @ r2 - 2, c1 say '╟' + replicate('─', c2 - c1 - 1) + '╢' color 'N+/W'
+  box_shadow( r1, c1, r2, c2, 'N+/W', 'Ввод адреса по ОКАТО', 'GR/W' )
+  @ r2 -2, c1 Say '╟' + Replicate( '─', c2 - c1 -1 ) + '╢' Color 'N+/W'
   Private pr_adrs := m1adrs, ;
-        mregion := space(63), m1region := space(11), ;
-        moblast := space(50), m1oblast := space(11), ;
-        mnas_punkt := space(39), m1nas_punkt := space(11), ;
-        mstr_adrs := alltrim(madrs)
-  Private blk_s_adrs := {|| DevPos(r2 - 1, c1 + 1), ;
-                          DevOut(padc(alltrim(mstr_adrs), c2 - c1 - 1), 'W+/W')}
-  if empty(m1adrs)
-    madrs1 := space(120)
-  else  // т.е. редактирование
-    m1region    := left(m1adrs, 2)
-    m1oblast    := left(m1adrs, 5)
-    m1nas_punkt := left(m1adrs, 11)
-  endif
-  if !empty(m1adrs)
-    oktAdUseBase('_okator')
-    find (m1region)
-    mregion := padr(region->name, 63)
-    region->(dbCloseArea())
+    mregion := Space( 63 ), m1region := Space( 11 ), ;
+    moblast := Space( 50 ), m1oblast := Space( 11 ), ;
+    mnas_punkt := Space( 39 ), m1nas_punkt := Space( 11 ), ;
+    mstr_adrs := AllTrim( madrs )
+  Private blk_s_adrs := {|| DevPos( r2 -1, c1 + 1 ), ;
+    DevOut( PadC( AllTrim( mstr_adrs ), c2 - c1 -1 ), 'W+/W' ) }
+  If Empty( m1adrs )
+    madrs1 := Space( 120 )
+  Else  // т.е. редактирование
+    m1region    := Left( m1adrs, 2 )
+    m1oblast    := Left( m1adrs, 5 )
+    m1nas_punkt := Left( m1adrs, 11 )
+  Endif
+  If !Empty( m1adrs )
+    oktadusebase( '_okator' )
+    find ( m1region )
+    mregion := PadR( region->name, 63 )
+    region->( dbCloseArea() )
     //
-    oktAdUseBase('_okatoo')
-    find (m1oblast)
-    moblast := padr(oblast->name, 50)
-    oblast->(dbCloseArea())
+    oktadusebase( '_okatoo' )
+    find ( m1oblast )
+    moblast := PadR( oblast->name, 50 )
+    oblast->( dbCloseArea() )
     //
-    oktAdUseBase('_okatos')
-    find (m1nas_punkt)
-    mnas_punkt := padr(selo->name, 39)
-    selo->(dbCloseArea())
-  endif
+    oktadusebase( '_okatos' )
+    find ( m1nas_punkt )
+    mnas_punkt := PadR( selo->name, 39 )
+    selo->( dbCloseArea() )
+  Endif
   //
-  eval(blk_s_adrs)
+  Eval( blk_s_adrs )
   //
-  tmp_color := setcolor('N/W, W+/N, , , B/W')
-  @ r1 + 1, c1 + 3 say 'Регион' get mregion ;
-            reader {|x| menu_reader(x, ;
-                  {{|k, r, c| get_region(k, r, c) },63}, A__FUNCTION, , , .f.)} ;
-            valid {|g, o| val_AdGetSt(g, o, 1)}
-  @ r1 + 2, c1 + 3 say 'Район области/Город' get moblast ;
-            reader {|x| menu_reader(x, ;
-                  {{|k, r, c| get_oblast(k, r, c) }, 50}, A__FUNCTION, , , .f.)} ;
-            when when_AdGetSt(2) ;
-            valid {|g, o| val_AdGetSt(g, o, 2)}
-  @ r1 + 3, c1 + 3 say 'Населенный пункт/район города' get mnas_punkt ;
-            reader {|x| menu_reader(x, ;
-                  {{|k, r, c| get_nas_punkt(k, r, c) }, 39}, A__FUNCTION, , , .f.)} ;
-            when when_AdGetSt(3) ;
-            valid {|g, o| val_AdGetSt(g, o, 3)}
+  tmp_color := SetColor( 'N/W, W+/N, , , B/W' )
+  @ r1 + 1, c1 + 3 Say 'Регион' Get mregion ;
+    reader {| x| menu_reader( x, ;
+    { {| k, r, c| get_region( k, r, c ) }, 63 }, A__FUNCTION, , , .f. ) } ;
+    valid {| g, o| val_adgetst( g, o, 1 ) }
+  @ r1 + 2, c1 + 3 Say 'Район области/Город' Get moblast ;
+    reader {| x| menu_reader( x, ;
+    { {| k, r, c| get_oblast( k, r, c ) }, 50 }, A__FUNCTION, , , .f. ) } ;
+    When when_adgetst( 2 ) ;
+    valid {| g, o| val_adgetst( g, o, 2 ) }
+  @ r1 + 3, c1 + 3 Say 'Населенный пункт/район города' Get mnas_punkt ;
+    reader {| x| menu_reader( x, ;
+    { {| k, r, c| get_nas_punkt( k, r, c ) }, 39 }, A__FUNCTION, , , .f. ) } ;
+    When when_adgetst( 3 ) ;
+    valid {| g, o| val_adgetst( g, o, 3 ) }
   s := '^<Esc>^ - выход;  ^<PgDn>^ - подтверждение ввода адреса'
-  if mulicadom != NIL
-    @ r1 + 4, c1 + 3 say 'Улица, дом, квартира' get mulicadom ;
-            when when_AdGetSt(3) ;
-            valid {|g| val_AdGetSt(g, , 4) }
-    set key K_F3 TO v_vvod_adres
+  If mulicadom != NIL
+    @ r1 + 4, c1 + 3 Say 'Улица, дом, квартира' Get mulicadom ;
+      When when_adgetst( 3 ) ;
+      valid {| g| val_adgetst( g, , 4 ) }
+    Set Key K_F3 To v_vvod_adres
     s += ';  ^<F3>^ - выбор улицы'
-  endif
-  status_key(s)
+  Endif
+  status_key( s )
   myread()
-  if mulicadom != NIL
-    set key K_F3 TO
-  endif
-  if lastkey() != K_ESC
-    ret := {padr(alltrim(pr_adrs), 11, '0'), mstr_adrs}
-  endif
-  setcolor(tmp_color)
-  return ret
+  If mulicadom != NIL
+    Set Key K_F3 To
+  Endif
+  If LastKey() != K_ESC
+    ret := { PadR( AllTrim( pr_adrs ), 11, '0' ), mstr_adrs }
+  Endif
+  SetColor( tmp_color )
+
+  Return ret
 
 // 31.05.15
-Static Function get_region(k, r, c)
-  Local ret, t_arr[BR_LEN], fl := .f.
+Static Function get_region( k, r, c )
+
+  Local ret, t_arr[ BR_LEN ], fl := .f.
 
   Private muslovie := '.t.', str_find := ''
-  if r <= maxrow() / 2
-    t_arr[BR_TOP] := r
-    t_arr[BR_BOTTOM] := maxrow() - 2
-  else
-    t_arr[BR_TOP] := 2
-    t_arr[BR_BOTTOM] := r - 1
-  endif
-  t_arr[BR_LEFT] := 2
-  t_arr[BR_RIGHT] := 77
-  t_arr[BR_COLOR] := color0
-  t_arr[BR_TITUL] := 'Выбор региона РФ'
-  t_arr[BR_TITUL_COLOR] := 'BG+/GR'
-  t_arr[BR_ARR_BROWSE] := {'═', '░', '═', 'N/BG, W+/N, B/BG, W+/B', .f., 72}
-  t_arr[BR_COLUMN] := {{ center('Наименование', 72), {|| (region->okato + ' ' + region->name)}}}
-  t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<Enter>^ - выбор;  ^<F2>^ - поиск по подстроке')}
-  t_arr[BR_EDIT] := {|nk, ob| f2_adrs(nk, ob, 1, 'region', 1)}
-  t_arr[BR_ENTER] := {|| ret := {region->okato, region->name}}
+
+  If r <= MaxRow() / 2
+    t_arr[ BR_TOP ] := r
+    t_arr[ BR_BOTTOM ] := MaxRow() -2
+  Else
+    t_arr[ BR_TOP ] := 2
+    t_arr[ BR_BOTTOM ] := r -1
+  Endif
+  t_arr[ BR_LEFT ] := 2
+  t_arr[ BR_RIGHT ] := 77
+  t_arr[ BR_COLOR ] := color0
+  t_arr[ BR_TITUL ] := 'Выбор региона РФ'
+  t_arr[ BR_TITUL_COLOR ] := 'BG+/GR'
+  t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B', .f., 72 }
+  t_arr[ BR_COLUMN ] := { { Center( 'Наименование', 72 ), {|| ( region->okato + ' ' + region->name ) } } }
+  t_arr[ BR_STAT_MSG ] := {|| status_key( '^<Esc>^ - выход;  ^<Enter>^ - выбор;  ^<F2>^ - поиск по подстроке' ) }
+  t_arr[ BR_EDIT ] := {| nk, ob| f2_adrs( nk, ob, 1, 'region', 1 ) }
+  t_arr[ BR_ENTER ] := {|| ret := { region->okato, region->name } }
   //
-  oktAdUseBase('_okator')
-  if empty(m1region)
-    find ('18')
-  else
-    find (m1region)
-  endif
-  fl := found()
-  set order to 2
-  if !fl
-    go top
-  endif
-  edit_browse(t_arr)
-  region->(dbCloseArea())
-  return ret
+  oktadusebase( '_okator' )
+  If Empty( m1region )
+    find ( '18' )
+  Else
+    find ( m1region )
+  Endif
+  fl := Found()
+  Set Order To 2
+  If !fl
+    Go Top
+  Endif
+  edit_browse( t_arr )
+  region->( dbCloseArea() )
+
+  Return ret
 
 // 05.06.15
-Static Function get_oblast(k, r, c)
-  Local ret, t_arr[BR_LEN], fl := .f., blk
+Static Function get_oblast( k, r, c )
+
+  Local ret, t_arr[ BR_LEN ], fl := .f., blk
 
   Private muslovie := 'substr(oblast->okato, 1, 2) == m1region', ;
-                 str_find := m1region, vozvr
-  if r <= maxrow() / 2
-    t_arr[BR_TOP] := r
-    t_arr[BR_BOTTOM] := maxrow() - 2
-  else
-    t_arr[BR_TOP] := 2
-    t_arr[BR_BOTTOM] := r - 1
-  endif
-  t_arr[BR_LEFT] := 2
-  t_arr[BR_RIGHT] := 77
-  t_arr[BR_COLOR] := color0
-  t_arr[BR_TITUL] := 'Выбор района области/города'
-  t_arr[BR_TITUL_COLOR] := 'BG+/GR'
-  t_arr[BR_ARR_BROWSE] := {'═', '░', '═', 'N/BG, W+/N, GR+/BG, GR+/N', .t., 60}
-  t_arr[BR_ARR_BLOCK] := {{| | FindFirst(str_find)}, ;
-                          {| | FindLast(str_find)}, ;
-                          {|_n| SkipPointer(_n, muslovie)}, ;
-                          str_find, muslovie ;
-                         }
-  blk := {|| if(oblast->fl_zagol == 1, {3, 4}, {1, 2})}
-  t_arr[BR_COLUMN] := {{ center('Наименование', 60), {|| oblast->name}, blk }}
-  t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<Enter>^ - выбор;  ^<F2>^ - поиск по подстроке')}
-  t_arr[BR_EDIT] := {|nk,ob| f2_adrs(nk, ob, 1, 'OBLAST', 2)}
-  t_arr[BR_ENTER] := {|| ret := {oblast->okato, oblast->name}}
+    str_find := m1region, vozvr
+
+  If r <= MaxRow() / 2
+    t_arr[ BR_TOP ] := r
+    t_arr[ BR_BOTTOM ] := MaxRow() -2
+  Else
+    t_arr[ BR_TOP ] := 2
+    t_arr[ BR_BOTTOM ] := r -1
+  Endif
+  t_arr[ BR_LEFT ] := 2
+  t_arr[ BR_RIGHT ] := 77
+  t_arr[ BR_COLOR ] := color0
+  t_arr[ BR_TITUL ] := 'Выбор района области/города'
+  t_arr[ BR_TITUL_COLOR ] := 'BG+/GR'
+  t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG, W+/N, GR+/BG, GR+/N', .t., 60 }
+  t_arr[ BR_ARR_BLOCK ] := { {|| findfirst( str_find ) }, ;
+    {|| findlast( str_find ) }, ;
+    {| _n| skippointer( _n, muslovie ) }, ;
+    str_find, muslovie ;
+    }
+  blk := {|| if( oblast->fl_zagol == 1, { 3, 4 }, { 1, 2 } ) }
+  t_arr[ BR_COLUMN ] := { { Center( 'Наименование', 60 ), {|| oblast->name }, blk } }
+  t_arr[ BR_STAT_MSG ] := {|| status_key( '^<Esc>^ - выход;  ^<Enter>^ - выбор;  ^<F2>^ - поиск по подстроке' ) }
+  t_arr[ BR_EDIT ] := {| nk, ob| f2_adrs( nk, ob, 1, 'OBLAST', 2 ) }
+  t_arr[ BR_ENTER ] := {|| ret := { oblast->okato, oblast->name } }
   //
-  oktAdUseBase('_okatoo', m1region)
-  if empty(m1oblast)
-    if !empty(okato_umolch) .and. m1region == left(okato_umolch, 2)
-      find (left(okato_umolch, 5))
-      fl := found()
-    endif
-  else
-    find (m1oblast)
-    fl := found()
-  endif
-  set order to 2
-  if !fl
-    find (str_find)
-    if !found()
-      fl_find := func_error(4, 'Не найдено областей/городов для данного региона!')
-      keyboard chr(K_ESC)
-    endif
-  endif
-  edit_browse(t_arr)
+  oktadusebase( '_okatoo', m1region )
+  If Empty( m1oblast )
+    If !Empty( okato_umolch ) .and. m1region == Left( okato_umolch, 2 )
+      find ( Left( okato_umolch, 5 ) )
+      fl := Found()
+    Endif
+  Else
+    find ( m1oblast )
+    fl := Found()
+  Endif
+  Set Order To 2
+  If !fl
+    find ( str_find )
+    If !Found()
+      fl_find := func_error( 4, 'Не найдено областей/городов для данного региона!' )
+      Keyboard Chr( K_ESC )
+    Endif
+  Endif
+  edit_browse( t_arr )
   ret := vozvr
-  oblast->(dbCloseArea())
-  return ret
+  oblast->( dbCloseArea() )
+
+  Return ret
 
 //
-Static Function get_nas_punkt(k, r, c)
-  Local ret, t_arr[BR_LEN], fl := .f.
+Static Function get_nas_punkt( k, r, c )
+
+  Local ret, t_arr[ BR_LEN ], fl := .f.
 
   Private muslovie := 'substr(selo->okato, 1, 5) == m1oblast', ;
-        str_find := m1oblast
-  if r <= maxrow() / 2
-    t_arr[BR_TOP] := r
-    t_arr[BR_BOTTOM] := maxrow() - 2
-  else
-    t_arr[BR_TOP] := 2
-    t_arr[BR_BOTTOM] := r - 1
-  endif
-  t_arr[BR_LEFT] := 2
-  t_arr[BR_RIGHT] := 77
-  t_arr[BR_COLOR] := color0
-  t_arr[BR_TITUL] := 'Выбор населенного пункта [' + alltrim(moblast) + ']'
-  t_arr[BR_TITUL_COLOR] := 'BG+/GR'
-  t_arr[BR_ARR_BROWSE] := {'═', '░', '═', 'N/BG, W+/N, GR+/BG, GR+/N', .t., 60}
-  t_arr[BR_ARR_BLOCK] := {{| | FindFirst(str_find)}, ;
-                          {| | FindLast(str_find)}, ;
-                          {|_n| SkipPointer(_n, muslovie)}, ;
-                          str_find, muslovie ;
-                          }
-  blk := {|| if(selo->fl_zagol == 1, {3, 4}, {1, 2})}
-  t_arr[BR_COLUMN] := {{ center('Наименование', 60), {|| selo->name}, blk}}
-  t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<Enter>^ - выбор;  ^<F2>^ - поиск по подстроке')}
-  t_arr[BR_EDIT] := {|nk, ob| f2_adrs(nk, ob, 1, 'SELO', 3)}
-  t_arr[BR_ENTER] := {|| ret := {selo->okato, selo->name}}
+    str_find := m1oblast
+
+  If r <= MaxRow() / 2
+    t_arr[ BR_TOP ] := r
+    t_arr[ BR_BOTTOM ] := MaxRow() -2
+  Else
+    t_arr[ BR_TOP ] := 2
+    t_arr[ BR_BOTTOM ] := r -1
+  Endif
+  t_arr[ BR_LEFT ] := 2
+  t_arr[ BR_RIGHT ] := 77
+  t_arr[ BR_COLOR ] := color0
+  t_arr[ BR_TITUL ] := 'Выбор населенного пункта [' + AllTrim( moblast ) + ']'
+  t_arr[ BR_TITUL_COLOR ] := 'BG+/GR'
+  t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG, W+/N, GR+/BG, GR+/N', .t., 60 }
+  t_arr[ BR_ARR_BLOCK ] := { {|| findfirst( str_find ) }, ;
+    {|| findlast( str_find ) }, ;
+    {| _n| skippointer( _n, muslovie ) }, ;
+    str_find, muslovie ;
+    }
+  blk := {|| if( selo->fl_zagol == 1, { 3, 4 }, { 1, 2 } ) }
+  t_arr[ BR_COLUMN ] := { { Center( 'Наименование', 60 ), {|| selo->name }, blk } }
+  t_arr[ BR_STAT_MSG ] := {|| status_key( '^<Esc>^ - выход;  ^<Enter>^ - выбор;  ^<F2>^ - поиск по подстроке' ) }
+  t_arr[ BR_EDIT ] := {| nk, ob| f2_adrs( nk, ob, 1, 'SELO', 3 ) }
+  t_arr[ BR_ENTER ] := {|| ret := { selo->okato, selo->name } }
   //
-  oktAdUseBase('_okatos', m1region)
-  if !empty(m1nas_punkt)
-    find (m1nas_punkt)
-    fl := found()
-  endif
-  set order to 2
-  if !fl
-    find (str_find)
-    if !found()
-      fl_find := func_error(4, 'Не найдено населенных пунктов для данного района!')
-      keyboard chr(K_ESC)
-    endif
-  endif
-  edit_browse(t_arr)
-  selo->(dbCloseArea())
-  return ret
+  oktadusebase( '_okatos', m1region )
+  If !Empty( m1nas_punkt )
+    find ( m1nas_punkt )
+    fl := Found()
+  Endif
+  Set Order To 2
+  If !fl
+    find ( str_find )
+    If !Found()
+      fl_find := func_error( 4, 'Не найдено населенных пунктов для данного района!' )
+      Keyboard Chr( K_ESC )
+    Endif
+  Endif
+  edit_browse( t_arr )
+  selo->( dbCloseArea() )
+
+  Return ret
 
 //
-Static Function f2_adrs(nk, ob, regim, lalias, regim1)
+Static Function f2_adrs( nk, ob, regim, lalias, regim1 )
+
   Local ret := -1, tmp_color, i, j, lf, s, rec
 
-  if nk == K_F2
-    if (ret := f_poisk_adrs(@rec, ob, regim, lalias)) == 0
-      ob:goTop()
-      goto (rec)
-    endif
-  elseif nk == K_ENTER
+  If nk == K_F2
+    If ( ret := f_poisk_adrs( @rec, ob, regim, lalias ) ) == 0
+      ob:gotop()
+      Goto ( rec )
+    Endif
+  Elseif nk == K_ENTER
     if &lalias.->fl_zagol == 1
       // невыбираемая
-    else
-      if regim1 == 2
-        vozvr := {oblast->okato, oblast->name}
-      elseif regim1 == 3
-        vozvr := {selo->okato, selo->name}
-      endif
+    Else
+      If regim1 == 2
+        vozvr := { oblast->okato, oblast->name }
+      Elseif regim1 == 3
+        vozvr := { selo->okato, selo->name }
+      Endif
       ret := 1
-    endif
-  endif
-  return ret
+    Endif
+  Endif
+
+  Return ret
 
 //
-Static Function f_poisk_adrs(ret_rec, obrow, regim, lalias)
+Static Function f_poisk_adrs( ret_rec, obrow, regim, lalias )
+
   Static stmp1 := '', stmp2 := ''
-  Local rec1 := recno(), buf := savescreen(), tmp_color, ret := -1, j, ;
-      r1 := pr2 - 6, r2 := pr2 - 1
+  Local rec1 := RecNo(), buf := SaveScreen(), tmp_color, ret := -1, j, ;
+    r1 := pr2 -6, r2 := pr2 -1
 
-  box_shadow(r1, pc1 + 1, r2, pc2 - 1, cDataPgDn, 'Поиск по ключу', cDataCSay)
-  tmp_color := setcolor(cDataCGet)
-  @ r1 + 2, pc1 + 2 say center('Введите ключевое слово', pc2 - pc1 - 3)
-  do while .t.
-    setcolor(cDataCGet)
-    if regim == 1
-      tmp := padr(stmp1, pc2 - pc1 - 3)
-    else
-      tmp := padr(stmp2, pc2 - pc1 - 3)
-    endif
-    status_key('^<Esc>^ - отказ от ввода')
-    @ r1 + 3, pc1 + 2 get tmp picture '@K@!'
+  box_shadow( r1, pc1 + 1, r2, pc2 -1, cDataPgDn, 'Поиск по ключу', cDataCSay )
+  tmp_color := SetColor( cDataCGet )
+  @ r1 + 2, pc1 + 2 Say Center( 'Введите ключевое слово', pc2 - pc1 -3 )
+  Do While .t.
+    SetColor( cDataCGet )
+    If regim == 1
+      tmp := PadR( stmp1, pc2 - pc1 -3 )
+    Else
+      tmp := PadR( stmp2, pc2 - pc1 -3 )
+    Endif
+    status_key( '^<Esc>^ - отказ от ввода' )
+    @ r1 + 3, pc1 + 2 Get tmp Picture '@K@!'
     myread()
-    setcolor(color0)
-    if lastkey() == K_ESC .or. empty(tmp)
-      goto (rec1)
-    else
+    SetColor( color0 )
+    If LastKey() == K_ESC .or. Empty( tmp )
+      Goto ( rec1 )
+    Else
       mywait()
-      tmp := alltrim(tmp)
-      if regim == 1
+      tmp := AllTrim( tmp )
+      If regim == 1
         stmp1 := tmp
-      else
+      Else
         stmp2 := tmp
-      endif
+      Endif
       Private tmp_mas := {}, tmp_kod := {}, i := 0, t_len, ;
-            k1 := pr1 + 3, k2 := pr2 - 1
-      oBrow:goTop()
-      do while &muslovie .and. !eof()
-        if tmp $ upper(&lalias.->name)
+        k1 := pr1 + 3, k2 := pr2 -1
+      oBrow:gotop()
+      Do while &muslovie .and. !Eof()
+        If tmp $ Upper( &lalias.->name )
           ++i
-          aadd(tmp_mas, &lalias.->name)
-          aadd(tmp_kod, recno())
-        endif
-        skip
-      enddo
-      if (t_len := len(tmp_kod)) == 0
-        func_error(3, 'Неудачный поиск!')
-        loop
-      else
-        box_shadow(pr1, pc1, pr2, pc2)
-        SETCOLOR('B/BG')
-        @ pr1 + 1, pc1 + 2 say 'Ключ: ' + tmp
-        SETCOLOR(color0)
-        if t_len < pr2 - pr1 - 5
+          AAdd( tmp_mas, &lalias.->name )
+          AAdd( tmp_kod, RecNo() )
+        Endif
+        Skip
+      Enddo
+      If ( t_len := Len( tmp_kod ) ) == 0
+        func_error( 3, 'Неудачный поиск!' )
+        Loop
+      Else
+        box_shadow( pr1, pc1, pr2, pc2 )
+        SetColor( 'B/BG' )
+        @ pr1 + 1, pc1 + 2 Say 'Ключ: ' + tmp
+        SetColor( color0 )
+        If t_len < pr2 - pr1 -5
           k2 := k1 + t_len + 2
-        endif
-        @ k1, pc1 + 1 say padc('Найденное количество - ' + lstr(i), pc2 - pc1 - 1)
-        status_key('^<Esc>^ - отказ от выбора')
-        if (i := popup(k1 + 1, pc1 + 1, k2, pc2 - 1, tmp_mas, 1, 0)) > 0
-          ret_rec := tmp_kod[i]
+        Endif
+        @ k1, pc1 + 1 Say PadC( 'Найденное количество - ' + lstr( i ), pc2 - pc1 -1 )
+        status_key( '^<Esc>^ - отказ от выбора' )
+        If ( i := Popup( k1 + 1, pc1 + 1, k2, pc2 -1, tmp_mas, 1, 0 ) ) > 0
+          ret_rec := tmp_kod[ i ]
           ret := 0
-        endif
-      endif
-    endif
-    exit
-  enddo
-  goto (rec1)
-  restscreen(buf)
-  setcolor(tmp_color)
-  return ret
+        Endif
+      Endif
+    Endif
+    Exit
+  Enddo
+  Goto ( rec1 )
+  RestScreen( buf )
+  SetColor( tmp_color )
+
+  Return ret
 
 //
-Static Function when_AdGetSt(regim)
-  Local ret := .T., len_okato := len(alltrim(pr_adrs))
+Static Function when_adgetst( regim )
 
-  if regim == 2 .and. len_okato < 2 // районы
-    ret := func_error(3, 'Не выбран РЕГИОН!')
-  elseif regim == 3 .and. len_okato < 5 // нас.пункт (улица)
-    ret := func_error(3, 'Не выбран РАЙОН области или ГОРОД!')
-  endif
-  return ret
+  Local ret := .t., len_okato := Len( AllTrim( pr_adrs ) )
+
+  If regim == 2 .and. len_okato < 2 // районы
+    ret := func_error( 3, 'Не выбран РЕГИОН!' )
+  Elseif regim == 3 .and. len_okato < 5 // нас.пункт (улица)
+    ret := func_error( 3, 'Не выбран РАЙОН области или ГОРОД!' )
+  Endif
+
+  Return ret
 
 //
-Static Function val_AdGetSt(get, old, regim)
+Static Function val_adgetst( get, old, regim )
 
-  if regim < 4 .and. old == NIL
-    return .t.
-  endif
-  do case
-    case regim == 1  // районы
-      if !(m1region == old) //.and. m1region > 0
-        pr_adrs := padr(m1region, 11, '0')
-        mstr_adrs := ret_okato_ulica(mulicadom, pr_adrs)
-        m1oblast := m1nas_punkt := space(11)
-        moblast := space(50)
-        mnas_punkt := space(39)
-      endif
-    case regim == 2  // районы
-      if !(m1oblast == old)
-        pr_adrs := padr(m1oblast, 11, '0')
-        mstr_adrs := ret_okato_ulica(mulicadom, pr_adrs)
-        m1nas_punkt := space(11)
-        mnas_punkt := space(39)
-      endif
-    case regim == 3  // поселки
-      if !(m1nas_punkt == old)
-        pr_adrs := padr(m1nas_punkt, 11, '0')
-        mstr_adrs := ret_okato_ulica(mulicadom, pr_adrs)
-      endif
-    case regim == 4  // улица
-      if !(mulicadom == get:original)
-        mstr_adrs := ret_okato_ulica(mulicadom, pr_adrs)
-      endif
-  endcase
-  eval(blk_s_adrs)
-  return update_gets()
+  If regim < 4 .and. old == NIL
+    Return .t.
+  Endif
+  Do Case
+  Case regim == 1  // районы
+    If !( m1region == old ) // .and. m1region > 0
+      pr_adrs := PadR( m1region, 11, '0' )
+      mstr_adrs := ret_okato_ulica( mulicadom, pr_adrs )
+      m1oblast := m1nas_punkt := Space( 11 )
+      moblast := Space( 50 )
+      mnas_punkt := Space( 39 )
+    Endif
+  Case regim == 2  // районы
+    If !( m1oblast == old )
+      pr_adrs := PadR( m1oblast, 11, '0' )
+      mstr_adrs := ret_okato_ulica( mulicadom, pr_adrs )
+      m1nas_punkt := Space( 11 )
+      mnas_punkt := Space( 39 )
+    Endif
+  Case regim == 3  // поселки
+    If !( m1nas_punkt == old )
+      pr_adrs := PadR( m1nas_punkt, 11, '0' )
+      mstr_adrs := ret_okato_ulica( mulicadom, pr_adrs )
+    Endif
+  Case regim == 4  // улица
+    If !( mulicadom == get:original )
+      mstr_adrs := ret_okato_ulica( mulicadom, pr_adrs )
+    Endif
+  Endcase
+  Eval( blk_s_adrs )
+
+  Return update_gets()
 
 // 16.11.23 вернуть адрес в строке
-Static Function oktAdRetS(kod11, is_region, open_base)
+Static Function oktadrets( kod11, is_region, open_base )
+
   // is_region = 0 - не выводить нашу область
   // is_region = 1 - не выводить нашу область для Волгограда
   // is_region = 2 - выводить область
   // is_region = 3 - выводить область с сокращенным наименованием
-  Local lregion, lnas_punkt, loblast, tmp_select := select()
+  Local lregion, lnas_punkt, loblast, tmp_select := Select()
 
-  DEFAULT is_region TO 0, open_base TO .t.
+  Default is_region To 0, open_base To .t.
   //
-  if open_base
-    oktAdUseBase('_okator')
-  else
-    select REGION
-  endif
-  find (left(kod11, 2))
+  If open_base
+    oktadusebase( '_okator' )
+  Else
+    Select REGION
+  Endif
+  find ( Left( kod11, 2 ) )
   lregion := region->name
-  if open_base
-    region->(dbCloseArea())
-    oktAdUseBase('_okatoo')
-  else
-    select OBLAST
-  endif
-  find (left(kod11, 5))
+  If open_base
+    region->( dbCloseArea() )
+    oktadusebase( '_okatoo' )
+  Else
+    Select OBLAST
+  Endif
+  find ( Left( kod11, 5 ) )
   loblast := oblast->name
-  if open_base
-    oblast->(dbCloseArea())
-    oktAdUseBase('_okatos')
-  else
-    select SELO
-  endif
-  find (kod11)
+  If open_base
+    oblast->( dbCloseArea() )
+    oktadusebase( '_okatos' )
+  Else
+    Select SELO
+  Endif
+  find ( kod11 )
   lnas_punkt := selo->name
-  if open_base
-    selo->(dbCloseArea())
-  endif
-  if left(kod11, 2) == '18' .and. is_region == 0
+  If open_base
+    selo->( dbCloseArea() )
+  Endif
+  If Left( kod11, 2 ) == '18' .and. is_region == 0
     lregion := '' // не выводим наименование Волгоградской области
-  elseif left(kod11, 2) == '18' .and. is_region == 3
-    if left(kod11, 5) == '18401'
+  Elseif Left( kod11, 2 ) == '18' .and. is_region == 3
+    If Left( kod11, 5 ) == '18401'
       lregion := '' // для Волгограда не выводим наименование области
-    else  
+    Else
       lregion := "Волгогр. обл." // выводить область с сокращенным наименованием, а для Волгограда - не выводим
-    endif
-  elseif left(kod11, 5) == '18401' .and. is_region == 1
+    Endif
+  Elseif Left( kod11, 5 ) == '18401' .and. is_region == 1
     lregion := '' // для Волгограда не выводим наименование области
-  endif
-  select (tmp_select)
-  return alltrim(rtrim(lregion) + ' ' + rtrim(loblast) + ' ' + lnas_punkt)
+  Endif
+  Select ( tmp_select )
+
+  Return AllTrim( RTrim( lregion ) + ' ' + RTrim( loblast ) + ' ' + lnas_punkt )
 
 // 11.03.15 вернуть адрес вместе с улицей
-Function ret_okato_ulica(_adres, _okato, _region, _par)
+Function ret_okato_ulica( _adres, _okato, _region, _par )
+
   Local s
 
-  DEFAULT _par TO 1
-  _adres := alltrim(charone(' ', _adres))
-  if _par == 1 // сначала улица
-    s := iif(empty(_adres), '', _adres + ' / ') + oktAdRetS(_okato, _region)
-  else // в конце улица
-    s := oktAdRetS(_okato, _region) + iif(empty(_adres), '', ' ' + _adres)
-  endif
-  return iif(empty(s), space(10), s)
+  Default _par To 1
+  _adres := AllTrim( CharOne( ' ', _adres ) )
+  If _par == 1 // сначала улица
+    s := iif( Empty( _adres ), '', _adres + ' / ' ) + oktadrets( _okato, _region )
+  Else // в конце улица
+    s := oktadrets( _okato, _region ) + iif( Empty( _adres ), '', ' ' + _adres )
+  Endif
+
+  Return iif( Empty( s ), Space( 10 ), s )
 
 // вернуть адрес в массиве
-Function ret_okato_Array(kod11, open_base)
-  Local arr_okato := {'','','',''}
+Function ret_okato_array( kod11, open_base )
 
-  DEFAULT open_base TO .t.
+  Local arr_okato := { '', '', '', '' }
+
+  Default open_base To .t.
   //
-  if open_base
-    oktAdUseBase('_okator')
-  else
-    select REGION
-  endif
-  find (left(kod11, 2))
-  arr_okato[1] := alltrim(region->name)
-  if left(kod11, 2) == '40'
-    arr_okato[1] := 'г.Санкт-Петербург'
-  elseif left(kod11, 2) == '45'
-    arr_okato[1] := 'г.Москва'
-  elseif left(kod11, 2) == '67'
-    arr_okato[1] := 'г.Севастополь'
-  endif
+  If open_base
+    oktadusebase( '_okator' )
+  Else
+    Select REGION
+  Endif
+  find ( Left( kod11, 2 ) )
+  arr_okato[ 1 ] := AllTrim( region->name )
+  If Left( kod11, 2 ) == '40'
+    arr_okato[ 1 ] := 'г.Санкт-Петербург'
+  Elseif Left( kod11, 2 ) == '45'
+    arr_okato[ 1 ] := 'г.Москва'
+  Elseif Left( kod11, 2 ) == '67'
+    arr_okato[ 1 ] := 'г.Севастополь'
+  Endif
   //
-  if open_base
-    region->(dbCloseArea())
-    oktAdUseBase('_okatoo')
-  else
-    select OBLAST
-  endif
-  find (left(kod11, 5))
-  if oblast->tip == 3 // города
-    arr_okato[3] := alltrim( oblast->name)
-  elseif oblast->tip == 4 // федеральные города
-    arr_okato[3] := alltrim( oblast->name)
-  else
-    arr_okato[2] := alltrim( oblast->name)
-  endif
-  if open_base
-    oblast->(dbCloseArea())
-  endif
+  If open_base
+    region->( dbCloseArea() )
+    oktadusebase( '_okatoo' )
+  Else
+    Select OBLAST
+  Endif
+  find ( Left( kod11, 5 ) )
+  If oblast->tip == 3 // города
+    arr_okato[ 3 ] := AllTrim( oblast->name )
+  Elseif oblast->tip == 4 // федеральные города
+    arr_okato[ 3 ] := AllTrim( oblast->name )
+  Else
+    arr_okato[ 2 ] := AllTrim( oblast->name )
+  Endif
+  If open_base
+    oblast->( dbCloseArea() )
+  Endif
   //
-  if !(left(kod11, 6) == '184013') // ни один из районов Волгограда
-    if open_base
-      oktAdUseBase('_okatos')
-    else
-      select SELO
-    endif
-    find (kod11)
-    if found()
-      arr_okato[4] := alltrim(selo->name)
-    endif
-    if open_base
-      selo->(dbCloseArea())
-    endif
-  endif
+  If !( Left( kod11, 6 ) == '184013' ) // ни один из районов Волгограда
+    If open_base
+      oktadusebase( '_okatos' )
+    Else
+      Select SELO
+    Endif
+    find ( kod11 )
+    If Found()
+      arr_okato[ 4 ] := AllTrim( selo->name )
+    Endif
+    If open_base
+      selo->( dbCloseArea() )
+    Endif
+  Endif
   //
-  return arr_okato
+  Return arr_okato

@@ -1,8 +1,8 @@
 d:\_mo\_arc\chip_mo.db
 d:\_mo\_arc\*.rtf
 d:\_mo\_arc\CHIP_MO.CHM
-d:\_mo\_arc\CHIP_MO.EXE
-d:\_mo\_arc\UNRAR.EXE
+d:\_mo\_arc\chip_mo.exe
+d:\_mo\_arc\unrar.exe
 d:\_mo\_arc\*.DLL
 d:\_mo\_arc\SMP_2.FR3
 d:\_mo\_arc\SMPP_2.FR3
@@ -29,7 +29,8 @@ d:\_mo\_arc\ReadEPolis.application
 d:\_mo\_arc\ReadEPolis.exe
 d:\_mo\_arc\ReadEPolis.exe.config
 d:\_mo\_arc\ReadEPolis.exe.manifest
-d:\_mo\_arc\*.XLS
-d:\_mo\_arc\*.XLSX
-d:\_mo\_arc\*.DBF
-d:\_mo\_arc\*.DBT
+d:\_mo\_arc\*.xls
+d:\_mo\_arc\*.xlsx
+d:\_mo\_arc\*.dbf
+d:\_mo\_arc\*.dbt
+d:\_mo\_arc\*.ttf

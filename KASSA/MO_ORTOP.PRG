@@ -3063,9 +3063,8 @@ add_string("")
 if Tip_data == 1
   if  f_is_ist_pr(glob_mas_pr,3) .and. !f_is_ist_pr(glob_mas_pr,1) .and. !f_is_ist_pr(glob_mas_pr,2)
     add_string(center("Ведомость расходования жидкости, содержащей прекурсор метилметакрила",sh))
-    //my_debug(,arr[3])
     if empty(arr[3])
-      add_string(center("Ведомость № _____ , от "+full_date(date()),sh))
+      add_string(center("Ведомость № _____ , от  '____' ___________ 202  г.",sh)) //full_date(date())
     else  
       add_string(center("Ведомость № "+lstr(arr[3]) +" , от "+full_date(date()),sh))
     endif
@@ -3248,7 +3247,6 @@ for prr := 1 to len(mm_orto_mat)
           select TMP_VAH
           skip
         enddo
- //my_debug(,"arr_mt_vah  "+print_array(arr_mt_vah))
         // присваиваем наименование и ключ важности
         if len(arr_mt) > 0
           select OR

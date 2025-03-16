@@ -354,7 +354,7 @@ Function regi_nastr( k )
     If hb_FileExists( 'memvar' + smem )
       Restore From Memvar Additive
     Else
-      Save All Like mem_ * To memvar
+      Save All Like mem_* To memvar
     Endif
     If !is_talon
       mem_lu_stt := 1
@@ -535,7 +535,7 @@ Function regi_nastr( k )
       If is_talon
         mem_lu_stt := m1a_lu_stt
       Endif
-      Save All Like mem_ * To memvar
+      Save All Like mem_* To memvar
       // if !empty(mem_reg_lr) .and. !('R_MU.DBF' $ upper(mem_reg_lr))
       // func_error(4, 'Неверно выбран регистр федеральных льготников (должен быть файл R_MU.DBF)')
       // endif
@@ -793,6 +793,7 @@ Function new_list_uch( par, name_func )
       ru->( dbCloseArea() )
     Endif
   Endif
+  mregistrator := ''
   If !( kod_polzovat == Chr( 0 ) )
     mregistrator := AllTrim( fio_polzovat )
   Endif
@@ -1127,7 +1128,7 @@ Function pr_sh_f5()
   Private file_sh
 
   If !Empty( mem_file5 ) .and. ;
-      !Empty( file_sh := menu_shablon( 3, 3, dir_exe + '*.' + mem_file5, color8, .f., .f. ) )
+      !Empty( file_sh := menu_shablon( 3, 3, dir_exe() + '*.' + mem_file5, color8, .f., .f. ) )
     Private msnils := '', mlgota := '', ;
       madres_lpu := '', mogrn := '', name_lpu
     r_use( dir_server + 'organiz', , 'ORG' )
@@ -2669,7 +2670,7 @@ Function f2_view_otkrep_pr_nas( nKey, oBrow )
 
   Return ret
 
-// 17.06.15 чтение в память и анализ CSV-файла
+// 15.10.24 чтение в память и анализ CSV-файла
 Function read_csv_from_tf( cFile, nTypeFile, nkod_reestr )
 
   Local aerr := {}, j, nCountWithErr := 0, adbf, go_to_answer := .f., ;
@@ -2689,13 +2690,13 @@ Function read_csv_from_tf( cFile, nTypeFile, nkod_reestr )
     // read_CSV_FILE_PRIK_FLK_ANS(cFile,aerr,nTypeFile,nkod_reestr)
     go_to_answer := Empty( aerr )
   Elseif nTypeFile == _CSV_FILE_ANSWER // тип принимаемого файла;2-ответ на реестр
-    read_csv_file_answer( _tmp_dir1 + cFile, aerr, nkod_reestr )
+    read_csv_file_answer( _tmp_dir1() + cFile, aerr, nkod_reestr )
     go_to_answer := Empty( aerr )
   Elseif nTypeFile == _CSV_FILE_OTKREP // тип принимаемого файла;3-открепление
-    read_csv_file_otkrep( _tmp_dir1 + cFile, aerr )
+    read_csv_file_otkrep( _tmp_dir1() + cFile, aerr )
     go_to_otkrep := Empty( aerr )
   Elseif nTypeFile == _CSV_FILE_SVERKAO // тип принимаемого файла;4-ответ на запрос для сверки
-    read_csv_file_sverkao( _tmp_dir1 + cFile, aerr, nkod_reestr )
+    read_csv_file_sverkao( _tmp_dir1() + cFile, aerr, nkod_reestr )
     go_to_answer := Empty( aerr )
   Endif
   Close databases
@@ -3401,7 +3402,12 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
       find ( Str( arr_csv[ i, CSV_A_NREC ], 6 ) )
       g_rlock( forever )
       krtp->OPLATA := mstatus
-      krtp->UCHAST   := arr_csv[ i, CSV_A_UCH ] // номер участка
+      if arr_csv[ i, CSV_A_UCH ] <= 99
+        krtp->UCHAST   := arr_csv[ i, CSV_A_UCH ] // номер участка
+      else
+        krtp->UCHAST  := 0
+        arr_csv[ i, CSV_A_UCH ] := 0
+      endif  
       krtp->SNILS_VR := arr_csv[ i, CSV_A_VRACH ] // СНИЛС участкового врача
       krtp->KOD_PODR := arr_csv[ i, CSV_A_PODR ] // код подразделения по паспорту ЛПУ
       krtp->D_PRIK1 := iif( eq_any( mstatus, 1, 3 ), arr_csv[ i, CSV_A_DT ], CToD( '' ) )
@@ -3432,6 +3438,9 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
         Endif
       Else // !emptyany(arr_csv[i, CSV_A_MO], arr_csv[i, CSV_A_DT])
         If mstatus == 1 // прикреплен к нам
+
+
+
           fl_et := f_put_et_etk( arr_csv[ i, CSV_A_PID ], arr_csv[ i, CSV_A_ENP ], ;
             arr_csv[ i, CSV_A_DT ], arr_csv[ i, CSV_A_UCH ], ;
             glob_mo[ _MO_KOD_TFOMS ], arr_csv[ i, CSV_A_VRACH ], ;

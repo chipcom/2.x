@@ -118,14 +118,14 @@ Function f1_impxml_from_lis( name_file )
     //
     t1 := Seconds()
     @ MaxRow(), 0 Say PadL( sname, 80 ) Color "W/R"
-    r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
     use_base( "lusl" )
     use_base( "luslc" )
     use_base( "uslugi" )
-    r_use( dir_exe + "_mo_prof", cur_dir + "_mo_prof", "MOPROF" )
+    r_use( dir_exe() + "_mo_prof", cur_dir + "_mo_prof", "MOPROF" )
     r_use( dir_server + "uslugi1", { dir_server + "uslugi1", ;
       dir_server + "uslugi1s" }, "USL1" )
-    // R_Use(dir_exe+"_mo_N012",,"N12")
+    // R_Use(dir_exe()+"_mo_N012",,"N12")
     g_use( dir_server + "mo_onkco", dir_server + "mo_onkco", "CO" )
     g_use( dir_server + "mo_onksl", dir_server + "mo_onksl", "SL" )
     g_use( dir_server + "mo_onkdi", dir_server + "mo_onkdi", "DIAG" ) // Диагностический блок
@@ -294,11 +294,11 @@ Function f1_import_from_lis( name_file )
     //
     t1 := Seconds()
     @ MaxRow(), 0 Say PadL( sname, 80 ) Color "W/R"
-    r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
     use_base( "lusl" )
     use_base( "luslc" )
     use_base( "uslugi" )
-    r_use( dir_exe + "_mo_prof", cur_dir + "_mo_prof", "MOPROF" )
+    r_use( dir_exe() + "_mo_prof", cur_dir + "_mo_prof", "MOPROF" )
     r_use( dir_server + "uslugi1", { dir_server + "uslugi1", ;
       dir_server + "uslugi1s" }, "USL1" )
     use_base( "human_u" )
@@ -669,6 +669,7 @@ Function f2_import_from_lis( par )
     lkod_k := kart->kod := RecNo()
     kart->FIO := mfio
     kart->DATE_R := arr_pac[ LIS_DATE_R ]
+    kart->PC3 := '000'
     mdate_r := kart->DATE_R
     fv_date_r()
     kart->pol := arr_pac[ LIS_POL ]
@@ -1354,10 +1355,10 @@ Function f1_import_sluch_oms()
       { "CODE_USL", "C",    10,     0 }, ;
       { "TARIF",    "N",    10,     2 } } )
     Use ( cur_dir + "tmp_ksg" ) new
-    r_use( dir_exe + "_okator", cur_dir + "_okatr", "REGION" )
-    r_use( dir_exe + "_okatoo", cur_dir + "_okato", "OBLAST" )
-    r_use( dir_exe + "_okatos", cur_dir + "_okats", "SELO" )
-    r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
+    r_use( dir_exe() + "_okator", cur_dir + "_okatr", "REGION" )
+    r_use( dir_exe() + "_okatoo", cur_dir + "_okato", "OBLAST" )
+    r_use( dir_exe() + "_okatos", cur_dir + "_okats", "SELO" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
     use_base( "lusl" )
     use_base( "luslc" )
     use_base( "luslf" )
@@ -1371,7 +1372,7 @@ Function f1_import_sluch_oms()
     use_base( "human_u" )
     use_base( "human" )
     //
-    r_use( dir_exe + "_mo_smo", { cur_dir + "_mo_smo", cur_dir + "_mo_smo2" }, "SMO" )
+    r_use( dir_exe() + "_mo_smo", { cur_dir + "_mo_smo", cur_dir + "_mo_smo2" }, "SMO" )
     Use ( name_path + "_lpu" ) New Alias ILPU
     Index On Str( kod, 3 ) to ( cur_dir + "tmp_ilpu" )
     Use ( name_path + "_otd" ) New Alias IOTD
@@ -1812,6 +1813,7 @@ Function f1_import_sluch_oms()
           lkod_k := kart->kod := RecNo()
           kart->FIO    := mFIO
           kart->DATE_R := ihuman->dr
+          kart->PC3 := '000'
         Else
           Goto ( lkod_k )
           g_rlock( forever )
@@ -2418,8 +2420,6 @@ Function import_verify_okato( s )
 
   Return fl
 
-// 
-
 // Импорт данных из программы "Флюоротека" фирмы "ЧИП плюс"
 Function import_fluoroteka()
 
@@ -2437,7 +2437,7 @@ Function import_fluoroteka()
       Else
         hGauge := gaugenew(,,, "Синхронизация флюоротеки с картотекой", .t. )
         gaugedisplay( hGauge )
-        Use ( _tmp_dir1 + "_reg.d" ) New Alias RG
+        Use ( _tmp_dir1() + "_reg.d" ) New Alias RG
         Index On Upper( fio ) + DToS( data_r ) to ( cur_dir + "tmp_r" ) progress
         g_use( dir_server + "kartote_",, "KART_" )
         r_use( dir_server + "kartotek",, "KART" )
@@ -3154,7 +3154,7 @@ Function pripisnoe_naselenie_create_oblsdrav()
   gaugedisplay( hGauge )
   curr := 0
   r_use( dir_server + "s_kemvyd",, "VID" )
-  r_use( dir_exe + "_mo_smo", cur_dir + "_mo_smo2", "SMO" )
+  r_use( dir_exe() + "_mo_smo", cur_dir + "_mo_smo2", "SMO" )
   // index on smo to (cur_dir+sbase+'2')
   // G_Use(dir_server + "mo_krtr",,"KRTR")
   // index on str(kod,6) to (cur_dir + "tmp_krtr")
@@ -3256,6 +3256,7 @@ Function pripisnoe_naselenie_create_oblsdrav()
 
   Return Nil
 
+// 07.08.24
 // Общие настройки каждой задачи
 Function nastr_all( k, nTask )
 
@@ -3290,6 +3291,12 @@ Function nastr_all( k, nTask )
       AAdd( mas_msg, 'Общие настройки задачи "' + array_tasks[ ind_task( X_ORTO ), 1 ] + '"' )
       AAdd( mas_fun, 'nastr_all(' + lstr( n ) + ',' + lstr( X_ORTO ) + ')' )
     Endif
+    If is_task( X_PLATN ) .or. is_task( X_KASSA ) .or. is_task( X_ORTO )
+      ++n
+      AAdd( mas_pmt, 'Обмен данными с ФНС' )
+      AAdd( mas_msg, 'Общие настройки задачи для обмена с ФНС' )
+      AAdd( mas_fun, 'nastr_all(' + lstr( n ) + ',' + lstr( X_FNS ) + ')' )
+    Endif
     If n == 1
       j := &( mas_fun[ 1 ] )
     Elseif n > 1
@@ -3304,9 +3311,7 @@ Function nastr_all( k, nTask )
 
   Return Nil
 
-// 
-
-// 09.12.18 Общие настройки каждой задачи
+// 28.01.25 Общие настройки каждой задачи
 Function f1nastr_all( nameTask, nTask )
 
   Local mm_tmp := {}, ctitle
@@ -3348,6 +3353,8 @@ Function f1nastr_all( nameTask, nTask )
       { "на английском", 1 } }
     Private mm_dms := { { "внутренние", 0 }, ;
       { "ФФОМС", 1 } }
+    private mm_danet := { { 'да', 1 }, { 'нет', 0 } }
+
     Delete file tmp.dbf
     Do Case
     Case nTask == 0 .and. tools_ini_oms( 1, 0, 0, .t. ) //  настройка на все задачи
@@ -3639,7 +3646,7 @@ Function f1nastr_all( nameTask, nTask )
       tmp->v_zav_l   := mem_zav_l     //
       tmp->ls_parakl := mem_ls_parakl     //
       tmp->path_rab  := cur_dir
-      tmp->path_exe  := dir_exe
+      tmp->path_exe  := dir_exe()
       tmp->path_dbf  := Upper( dir_server )
       tmp->beg_rees  := mem_beg_rees
       tmp->end_rees  := mem_end_rees
@@ -3648,6 +3655,55 @@ Function f1nastr_all( nameTask, nTask )
       tmp->date_edit := public_date        //
       tmp->ls_v034   := mem_n_V034
       tmp->ls_method := mem_methodinj
+      Close databases
+    Case nTask == X_FNS //  Обмен данными с ФНС
+      ctitle := 'настройке обмена данными с ФНС'
+      _fns_nastr( 0 ) // проверить, а создан ли файл "fns_nastr.dbf"
+      AAdd( mm_tmp, { 'n_spr_fns', 'N', 7, 0, NIL, ;
+        NIL, ;
+        0, NIL, ;
+        'Номер последней введенной справки ФНС' } )
+      AAdd( mm_tmp, { 'n_file_up', 'N', 7, 0, NIL, ;
+        NIL, ;
+        0, NIL, ;
+        'Номер последнего файла выгрузки в ФНС' } )
+      AAdd( mm_tmp, { 'podpis', "N", 1, 0, NIL, ;
+        {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
+        0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+        'Подписант, руководитель МО:' } )
+      AAdd( mm_tmp, { 'predst', 'C', 50, 0, '@!S30', ;
+        NIL, ;
+        space( 50 ), NIL, ;
+        'Представитель МО' } )
+      AAdd( mm_tmp, { 'pred_doc', 'C', 50, 0, '@S30', ;
+        NIL, ;
+        space( 50 ), NIL, ;
+        'Документ представителя МО' } )
+      AAdd( mm_tmp, { 'edit_sum', "N", 1, 0, NIL, ;
+        {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
+        0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+        'Разрешать редактирование суммы оплаты:' } )
+      AAdd( mm_tmp, { 'id_pol', 'C', 4, 0, '9999', ;
+        NIL, ;
+        space( 4 ), NIL, ;
+        'Идентификатор получателя, которому направляется файл обмена' } )
+      AAdd( mm_tmp, { 'id_end', 'C', 4, 0, '9999', ;
+        NIL, ;
+        space( 4 ), NIL, ;
+        'Идентификатор конечного получателя, для которого предназначен файл обмена' } )
+      init_base( cur_dir + 'tmp',, mm_tmp, 0 )
+      r_use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+      Use ( cur_dir + 'tmp' ) new
+      Append Blank
+      tmp->N_SPR_FNS := NASTR_FNS->N_SPR_FNS
+      tmp->N_FILE_UP := NASTR_FNS->N_FILE_UP
+      tmp->PODPIS    := NASTR_FNS->PODPIS
+      tmp->PREDST    := NASTR_FNS->PREDST
+      tmp->PRED_DOC  := NASTR_FNS->PRED_DOC
+      tmp->ID_POL    := NASTR_FNS->ID_POL
+      tmp->ID_END    := NASTR_FNS->ID_END
+      tmp->EDIT_SUM  := NASTR_FNS->EDIT_SUM
+
       Close databases
     Case nTask == X_PPOKOJ //  Приёмный покой
       ctitle := "настройке приёмного покоя"
@@ -3900,6 +3956,22 @@ Function f1nastr_all( nameTask, nTask )
         mem_n_V034  := tmp->ls_v034
         mem_methodinj := tmp->ls_method
         tools_ini_oms( 2, 0, 0 )
+      Case nTask == X_FNS //  Обмен с ФНС
+        g_use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+        g_rlock( forever )
+        nastr_fns->N_SPR_FNS := tmp->N_SPR_FNS
+        nastr_fns->N_FILE_UP := tmp->N_FILE_UP
+        nastr_fns->PODPIS    := tmp->PODPIS
+        if tmp->PODPIS == 0
+          nastr_fns->PREDST    := tmp->PREDST
+          nastr_fns->PRED_DOC  := tmp->PRED_DOC
+        else
+          nastr_fns->PREDST    := ''  //tmp->PREDST
+          nastr_fns->PRED_DOC  := ''  //tmp->PRED_DOC
+        endif
+        nastr_fns->ID_POL    := tmp->ID_POL
+        nastr_fns->ID_END    := tmp->ID_END
+        nastr_fns->EDIT_SUM  := tmp->EDIT_SUM
       Case nTask == X_PPOKOJ //  Приёмный покой
         g_use( dir_server + "pp_nastr",, "MV" )
         g_rlock( forever )
@@ -3950,8 +4022,6 @@ Function f1nastr_all( nameTask, nTask )
   Endif
 
   Return Nil
-
-// 
 
 // сделать копию tools.ini с сервера в локальный каталог с именем loctools.ini
 Function copy_tools_ini()
@@ -4015,8 +4085,6 @@ Function semaphor_tools_ini( k )
   Endif
 
   Return fl
-
-// 
 
 // 09.12.18
 Function tools_ini_oms( reg, k1, k2, fll )
@@ -4130,8 +4198,6 @@ Function tools_ini_oms( reg, k1, k2, fll )
 
   Return fl
 
-// 
-
 //
 Function tools_ini_pp( reg, k1, k2, fll )
 
@@ -4168,8 +4234,6 @@ Function tools_ini_pp( reg, k1, k2, fll )
   Endif
 
   Return fl
-
-// 
 
 //
 Function tools_ini_platn( reg, k1, k2, fll )
@@ -4216,8 +4280,6 @@ Function tools_ini_platn( reg, k1, k2, fll )
 
   Return fl
 
-// 
-
 //
 Function tools_ini_orto( reg, k1, k2, fll )
 
@@ -4262,8 +4324,6 @@ Function tools_ini_orto( reg, k1, k2, fll )
   Endif
 
   Return fl
-
-// 
 
 // настройки по вводу данных в каждой задаче
 Function nastr_input( k, nTask )
@@ -4399,8 +4459,6 @@ Function nastr_rab_mesto()
 
   Return Nil
 
-// 
-
 #define SW_HIDE 0
 #define SW_SHOWNORMAL 1
 
@@ -4414,7 +4472,7 @@ Function f_read_sc_reader()
   Local fl := .f., t1 := Seconds(), ar, sr, se, buf := save_maxrow()
 
   mywait( "Определение списка ридеров" )
-  If hb_FileExists( dir_exe + task_polis )
+  If hb_FileExists( dir_exe() + task_polis )
     Do While Seconds() - t1 < max_seconds
       If hb_FileExists( name_ini )
         Delete File ( name_ini )
@@ -4424,7 +4482,7 @@ Function f_read_sc_reader()
     Enddo
     shellexecute( getdesktopwindow(), ;
       'open', ;
-      dir_exe + task_polis, ;
+      dir_exe() + task_polis, ;
       '-rdl', ;
       , ;
       SW_HIDE )
@@ -4450,7 +4508,7 @@ Function f_read_sc_reader()
       fl := func_error( 4, smsg + "!" )
     Endif
   Else
-    fl := func_error( 4, "Не обнаружен файл: " + dir_exe + task_polis )
+    fl := func_error( 4, "Не обнаружен файл: " + dir_exe() + task_polis )
   Endif
   If !fl
     msc_reader := "нет"
@@ -4470,7 +4528,7 @@ Function f_read_sc_polis()
   Local fl := .t., t1 := Seconds(), ar, se, buf := save_maxrow()
 
   mywait( "Чтение электронного полиса" )
-  If hb_FileExists( dir_exe + task_polis )
+  If hb_FileExists( dir_exe() + task_polis )
     Do While Seconds() - t1 < max_seconds
       If hb_FileExists( name_ini )
         Delete File ( name_ini )
@@ -4480,7 +4538,7 @@ Function f_read_sc_polis()
     Enddo
     shellexecute( getdesktopwindow(), ;
       'open', ;
-      dir_exe + task_polis, ;
+      dir_exe() + task_polis, ;
       '-roi="' + name_reader + '"', ;
       , ;
       SW_HIDE )
@@ -4510,14 +4568,14 @@ Function f_read_sc_polis()
       fl := func_error( 4, smsg + "!" )
     Endif
   Else
-    fl := func_error( 4, "Не обнаружен файл: " + dir_exe + task_polis )
+    fl := func_error( 4, "Не обнаружен файл: " + dir_exe() + task_polis )
   Endif
   If fl
     If emptyall( arr_epolis[ _EP_OGRN ], arr_epolis[ _EP_OKATO ], arr_epolis[ _EP_FAM ], ;
         arr_epolis[ _EP_IM ], arr_epolis[ _EP_NPOLIS ] )
       fl := func_error( 4, iif( Empty( se ), smsg + ".", se ) )
     Else
-      r_use( dir_exe + "_mo_smo", cur_dir + "_mo_smo3", "_SMO" )
+      r_use( dir_exe() + "_mo_smo", cur_dir + "_mo_smo3", "_SMO" )
       find ( arr_epolis[ _EP_OKATO ] + PadR( arr_epolis[ _EP_OGRN ], 13 ) )
       If Found()
         arr_epolis[ _EP_SMO ] := _smo->smo
@@ -4597,6 +4655,7 @@ Function mo_read_el_polis( /*@*/k)
       If rec == 0  // добавление в картотеку
         add1rec( 7 )
         kart->kod := RecNo()
+        kart->PC3 := '000'
       Else
         Goto ( rec )
         g_rlock( forever )
@@ -4654,10 +4713,7 @@ Function mo_read_el_polis( /*@*/k)
 
   Return fl
 
-
-// 
-
-// 08.11.20 создание первичной БД из реестров
+// 15.10.24 создание первичной БД из реестров
 Function create_main_base_from_reestrs()
 
   Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(), ;
@@ -4800,7 +4856,7 @@ Function create_main_base_from_reestrs()
             s := name_without_ext( arr_rsptk[ i ] )
             cFile := s + sxml
             // читаем XML-файл в память
-            oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+            oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
             reestr_sp_tk_tmpfile( oXmlDoc,, cFile )
             n := Int( Val( tmp1->_NSCHET ) )  // в число (отрезать всё, что после "-")
             If ( k := AScan( a_reestr, {| x| x[ 3 ] == n .and. x[ 5 ] == tmp1->_YEAR } ) ) > 0
@@ -4851,9 +4907,6 @@ Function create_main_base_from_reestrs()
 
   Return Nil
 
-// 
-
-
 // 22.11.19
 Function f1_create_main_base_from_reestrs( a_reestr )
 
@@ -4885,7 +4938,7 @@ Function f1_create_main_base_from_reestrs( a_reestr )
                 // читаем файл в память
                 cFile := arr_f[ n ]
                 // читаем XML-файл в память
-                oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+                oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
                 If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
                   StrFile( full_zip + ": ошибка в чтении файла" + hb_eol(), cImportProtokol, .t. )
                   fl := .f. ; Exit
@@ -4953,7 +5006,7 @@ Function f1_create_main_base_from_reestrs( a_reestr )
               If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( s ) } ) ) > 0
                 cFile := arr_f[ n ]
                 // читаем XML-файл в память
-                oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+                oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
                 If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
                   StrFile( a_reestr[ i, 7, j, 1 ] + ": ошибка в чтении файла" + hb_eol(), cImportProtokol, .t. )
                   fl := .f. ; Exit
@@ -5030,8 +5083,6 @@ Function f1_create_main_base_from_reestrs( a_reestr )
   Close databases
 
   Return fl
-
-// 
 
 // 11.04.19
 Function f2_create_main_base_from_reestrs( mname_xml )
@@ -5183,6 +5234,7 @@ Function f2_create_main_base_from_reestrs( mname_xml )
         If Empty( lkod_k )
           add1rec( 7 )
           lkod_k := kart->kod := RecNo()
+          kart->PC3 := '000'
           my_debug(, print_array( { "добавление", lkod_k, mfio } ) )
         Else
           find ( Str( lkod_k, 7 ) )
@@ -5713,8 +5765,6 @@ Function f2_create_main_base_from_reestrs( mname_xml )
   Close databases
 
   Return fl
-
-// 
 
 // 11.04.19 перезаписать лист учёта, если таковой уже есть в БД
 Function f3_create_main_base_from_reestrs()

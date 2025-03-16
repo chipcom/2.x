@@ -7,7 +7,7 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-// 19.12.22 прочитать и "разнести" по базам данных РАК
+// 19.12.22 прочитать и "разнести" по базам данных РАК 
 Function read_xml_file_rak( arr_XML_info, aerr )
 
   Local fl_akt, fl_schet, blk_akt, blk_schet, i, k, s, s1, arr_s := {}, t_arr[ 2 ], ;
@@ -448,12 +448,18 @@ Function read_xml_file_rak( arr_XML_info, aerr )
               raksherr->PENALTY   := tmp6->PENALTY
               raksherr->SL_ID     := tmp6->SL_ID
               raksherr->SL_ID2    := tmp6->SL_ID2
+              raksherr->S_COM     := alltrim(substr(alltrim(tmp6->S_COM),12,5))
               If Empty( s := ret_t005( tmp6->REFREASON ) )
                 StrFile( Space( 5 ) + lstr( tmp6->REFREASON ) + " неизвестная причина отказа" + ;
                   hb_eol(), cFileProtokol, .t. )
               Else
                 put_long_str( "код дефекта: " + s, cFileProtokol, 5 )
               Endif
+              if len(alltrim(tmp6->S_COM)) > 0
+                if !Empty( s := ret_t005(val(alltrim(substr(alltrim(tmp6->S_COM),12,5)))))
+                  put_long_str( "Уточнение кода дефекта: " + s, cFileProtokol, 5 )
+                endif
+              endif  
               If !emptyall( tmp6->S_SUM, tmp6->PENALTY )
                 raksh->REFREASON := tmp6->REFREASON
                 StrFile( Space( 5 ) + "... снятие по данному дефекту ..."  + hb_eol(), cFileProtokol, .t. )
@@ -479,7 +485,6 @@ Function read_xml_file_rak( arr_XML_info, aerr )
   g_rlock( forever )
   mo_xml->TWORK2 := hour_min( Seconds() )
   Close databases
-
   Return Nil
 
 // 22.04.19
@@ -2312,7 +2317,7 @@ Function akt_list_of_refusal_pacient()
 
   rest_box( buf )
   name_fr := "mo_spis_sn" + sfr3
-  If _upr_epson() .or. !File( dir_exe + name_fr )
+  If _upr_epson() .or. !File( dir_exe() + name_fr )
     viewtext( n_file, , , , .f., , , 2 )
   Else
     call_fr( name_fr )
@@ -2498,7 +2503,7 @@ Function pr_schet_bez_rak()
 
   Return Nil
 
-// 25.06.23 суммы снятий по актам
+// 31.01.25 суммы снятий по актам
 Function akt_summa_of_refusal( tip )
 
   // 1 - по дате АКТА в РАК
@@ -2665,14 +2670,15 @@ Function akt_summa_of_refusal( tip )
     add_string( Center( 'даты РЕЕСТРОВ АКТОВ КОНТРОЛЯ - ' + arr_m[ 4 ], sh ) )
   Endif
   AEval( arr_title, {| x| add_string( x ) } )
-  // R_Use(dir_exe + '_mo_t005', cur_dir + '_mo_t005', 'T5')
+  // R_Use(dir_exe() + '_mo_t005', cur_dir + '_mo_t005', 'T5')
   Select TMP
   Go Top
   Do While !Eof()
     If tmp->REFREASON == 0
       tmp->srefr := 'Итого'
     Else
-      retT005 := retarr_t005( tmp->REFREASON, .t. )
+//      retT005 := retarr_t005( tmp->REFREASON, .t. )
+      retT005 := retarr_f014( tmp->REFREASON, .t. )
       If ! Empty( retT005 )
         s := AllTrim( retT005[ 2 ] )
         s1 := ''
@@ -2838,7 +2844,7 @@ Function akt_list_of_refusal_defect()
 
   Return Nil
 
-// 19.10.23 функция для списка снятий по актам (дефекты)
+// 31.01.25 функция для списка снятий по актам (дефекты)
 Function f1akt_list_of_refusal_defect( asmo, ssmo )
 
   Local adbf, s, otch_period, n_file := cur_dir + 'sp_sn' + stxt, HH := 60, buf := save_maxrow()
@@ -2946,6 +2952,7 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
     Select MO_XML
     Skip
   Enddo
+  //
   dbCreate( cur_dir + "tmp1", adbf )
   Use ( cur_dir + "tmp1" ) new
   Index On Str( rak, 6 ) + Str( akt, 6 ) + op + Str( schet, 6 ) + Str( otd, 3 ) + Str( REFREASON, 3 ) to ( cur_dir + "tmp1" )
@@ -3024,6 +3031,7 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
     Select TMP
     Skip
   Enddo
+ // 
   arr_title := { ;
     "_______________________________________________________________________________", ;
     " № акта, дата       | Проверяемый счёт   |кол-во|  Сумма      |  Коды    |Отде-", ;
@@ -3041,7 +3049,7 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
   add_string( Center( "СМО: " + ssmo, sh ) )
   add_string( Center( "даты " + iif( m1poisk == 0, "РАК - ", "актов контроля - " ) + pdate[ 4 ], sh ) )
   AEval( arr_title, {| x| add_string( x ) } )
-  // R_Use(dir_exe + '_mo_t005', cur_dir + '_mo_t005', 'T5')
+  // R_Use(dir_exe() + '_mo_t005', cur_dir + '_mo_t005', 'T5')
   ssum := skol := sum_rak := kol_rak := 0
   n := 20
   ssump := skolp := sump_rak := kolp_rak := 0
@@ -3063,7 +3071,8 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
       add_string( PadC( AllTrim( tmp1->srak ), sh, "_" ) )
     Endif
     s1 := lstr( tmp1->REFREASON )
-    retT005 := retarr_t005( tmp1->REFREASON, .t. )
+//    retT005 := retarr_t005( tmp1->REFREASON, .t. )
+    retT005 := retarr_f014( tmp1->REFREASON, .t. )
     If ! Empty( retT005 )
       s1 := ""
       s2 := LTrim( retT005[ 2 ] )
@@ -3074,6 +3083,9 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
         s1 += SubStr( s2, i, 1 )
       Next
     Endif
+    if  Empty( s1 )
+      s1 := lstr( tmp1->REFREASON )
+    endif  
     // select T5
     // find (str(tmp1->REFREASON, 3))
     // if found()

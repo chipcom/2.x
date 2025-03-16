@@ -1296,7 +1296,7 @@ Function fs_opl_72( arr )
 
   Return Nil
 
-// 01.04.23 редактирование справочников персонала, отделений, учреждений, организации
+// 02.12.24 редактирование справочников персонала, отделений, учреждений, организации
 Function spr_struct_org( k )
 
   Static sk := 1
@@ -1330,13 +1330,14 @@ Function spr_struct_org( k )
   Case k == 3
     edit_uch()
 //    editDepartments()
-  Case k == 4
+  Case k == 4 
     str_sem := 'Редактирование реквизитов организации'
     If g_slock( str_sem )
       f_edit_spr( A__EDIT, get_struct_organiz(), 'реквизитам Вашей организации', ;
         'use_base("organiz")', 0, 1 )
       g_sunlock( str_sem )
       reread_glob_mo() // перечитать массив glob_MO
+      hb_main_curOrg := torganizationdb():getorganization()
     Else
       func_error( 4, err_slock )
     Endif
@@ -1780,7 +1781,7 @@ Function get_kod_podr( k, r, c )
   If arr == Nil // только при первом вызове
     arr := {}
     tmp_select := Select()
-    r_use( dir_exe + '_mo_podr', cur_dir + '_mo_podr', 'PODR' )
+    r_use( dir_exe() + '_mo_podr', cur_dir + '_mo_podr', 'PODR' )
     find ( glob_mo[ _MO_KOD_TFOMS ] )
     Do While podr->codemo == glob_mo[ _MO_KOD_TFOMS ] .and. !Eof()
       AAdd( arr, { '(' + AllTrim( podr->KODOTD ) + ') ' + AllTrim( podr->NAMEOTD ), podr->KODOTD } )
@@ -1805,7 +1806,7 @@ Function ini_kod_podr( lkod )
 
   Local s := Space( 10 ), tmp_select := Select()
 
-  r_use( dir_exe + '_mo_podr', cur_dir + '_mo_podr', 'PODR' )
+  r_use( dir_exe() + '_mo_podr', cur_dir + '_mo_podr', 'PODR' )
   find ( glob_mo[ _MO_KOD_TFOMS ] + PadR( Upper( lkod ), 25 ) )
   If Found()
     s := '(' + AllTrim( podr->KODOTD ) + ') ' + AllTrim( podr->NAMEOTD )
@@ -1815,10 +1816,20 @@ Function ini_kod_podr( lkod )
 
   Return s
 
-// 15.01.24 редактирование справочника учреждений
+// 24.08.24 редактирование справочника учреждений
 Function edit_uch()
 
   Local blk, arr[ US_LEN ]
+  local obj, menu_users := {}
+
+  private m1idchief
+
+  // собирем доступных сотрудников
+  for each obj in TEmployeeDB():getList()
+    aadd( menu_users, { obj:Name, obj:ID } )
+  next
+  ASort( menu_users, , , { | x, y | x[ 1 ] < y[ 1 ] } )
+  hb_AIns( menu_users, 1, { 'Сотрудник не выбран', 0 }, .t. )
 
   blk := {|| iif( between_date( dbegin, dend ), { 1, 2 }, { 3, 4 } ) }
   arr[ US_BOTTOM   ] := MaxRow() -2
@@ -1831,15 +1842,18 @@ Function edit_uch()
     { 'Работа с;талоном', {|| PadC( inieditspr( A__MENUVERT, mm_danet, is_talon ), 8 ) }, blk } }
   arr[ US_BLK_DEL  ] := {| _k| fdel_uch( _k ) }
   arr[ US_IM_PADEG ] := arr[ US_SEMAPHORE ] := 'учреждения'
-  arr[ US_ROD_PADEG ] := 'учреждений'
+  arr[ US_ROD_PADEG ] := 'учреждений' 
   arr[ US_EDIT_SPR ] := { { 'name', 'C', 30, 0, , , Space( 30 ), , 'Наименование учреждения' }, ;
     { 'short_name', 'C', 5, 0, , , Space( 5 ), , 'Сокращённое наименование' }, ;
     { 'ADDRESS', 'C', 150, 0, , , Space( 150 ), , 'Адрес' }, ;
-    { 'IDCHIEF', 'N', 4, 0, , , , , 'Таб.№ руководителя (временно код из MO_PERS)' }, ;
+    { 'IDCHIEF', 'N', 4, 0, , ;
+      { | x | menu_reader( x, menu_users, A__MENUVERT, , , .f. ) }, ;
+      , { | x | inieditspr( A__MENUVERT, menu_users, x ) }, ;
+      'Таб.№ руководителя' }, ;
     { 'is_talon', 'N', 1, 0, , ;
-    {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }, ;
-    0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
-    'Работаем со стат.талоном?' }, ;
+      { | x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }, ;
+      0, { | x | inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+      'Работаем со стат.талоном?' }, ;
     { 'dbegin', 'D', 8, 0, , , BoY( sys_date ), , ;
     'Дата начала работы с учреждением' }, ;
     { 'dend', 'D', 8, 0, , , CToD( '' ), , ;

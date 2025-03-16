@@ -6,10 +6,10 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-Static st_version := { 4, 4, 1, 'b' }
+Static st_version := { 5, 3, 1, 'b' }
 Static st_date_version := _DATA_VER
-Static st__s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
-Static st_s_short_name := '[ЧИП + Учёт работы МО]'
+Static st_full_name := 'ЧИП + Учёт работы Медицинской Организации'
+Static st_short_name := '[ЧИП + Учёт работы МО]'
 
 // 24.06.21 возврат номера версии
 Function _version()
@@ -21,24 +21,24 @@ Function _date_version()
 
   Return st_date_version
 
-// 24.06.21 возврат наименования программного комплекса
-Function __s_full_name()
+// 12.12.24 возврат наименования программного комплекса
+Function app_full_name()
 
-  Return st__s_full_name
+  Return st_full_name
 
-// 23.06.21 возврат строкового представления версии
-Function __s_version()
+// 12.12.24 возврат строкового представления версии
+Function str_version()
   Return '  в. ' + fs_version( _version() ) + ' от ' + _date_version() + ' тел.(8442)23-69-56'
 
-// 16.11.23
+// 12.12.24
 Function full_name_version()
 
-  Return __s_full_name() + __s_version()
+  Return app_full_name() + str_version()
 
-// 16.11.23
+// 12.12.24
 Function short_name_version()
 
-  Return st_s_short_name + __s_version()
+  Return st_short_name + str_version()
 
 // вернуть строку с номером версии
 Function fs_version( aVersion )
@@ -46,6 +46,13 @@ Function fs_version( aVersion )
   // aVersion - 4-мерный массив
 
   Return lstr( aVersion[ 1 ] ) + '.' + lstr( aVersion[ 2 ] ) + '.' + lstr( aVersion[ 3 ] ) + iif( Len( aVersion ) == 4, aVersion[ 4 ], '' )
+
+// 20.08.24 вернуть строку с номером версии короткую
+Function fs_version_short( aVersion )
+
+  // aVersion - 4-мерный массив
+
+  Return lstr( aVersion[ 1 ] ) + '.' + lstr( aVersion[ 2 ] ) + '.' + lstr( aVersion[ 3 ] )
 
 // 17.12.21 получить числовое значение версии БД задачи
 Function get_version_db()

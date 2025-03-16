@@ -3,6 +3,7 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'hbxlsxwriter.ch'
 
 // 08.09.23 просмотр/печать общих справочников
 Function o_sprav( k )
@@ -252,20 +253,34 @@ Function fspr_uslugi( k )
 
   Return Nil
 
-// 26.05.23
+// 08.05.24
 Function f4_uslugi( reg )
 
   Local i, s := 'Список услуг ', mas[ 2 ], buf := save_maxrow(), ;
     n_file := cur_dir + 'uslugi' + stxt, sh := 80, HH := 60, l, k, j, lshifr, lshifr1, lname
-  Local tmpAlias
+  Local lExcel := .f., iOutput
+  Local name_fileXLS := 'Price_' + suffixfiletimestamp()
+  Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
+  local workbook, worksheet, row, column
+  local fmt_cell_header, fmtCellNumberRub, fmt_header, fmt_text, fmtCellNumberNDS
 
-  If ( j := f_alert( { 'Необходим вывод списка отделений,', ;
-      'в которых разрешается ввод услуги?', ;
-      '' }, ;
-      { ' ~Нет ', ' ~Да ' }, ;
-      1, 'N+/BG', 'R/BG', 17, , col1menu ) ) == 0
+  // определим направление вывода отчета
+  if ( iOutput := type_output( T_ROW, T_COL - 5, 1 ) ) == 0
+    RestScreen( buf )
     Return Nil
+  else
+    lExcel := iif( iOutput == 2, .t., .f. )
   Endif
+
+  if ! lExcel
+    If ( j := f_alert( { 'Необходим вывод списка отделений,', ;
+        'в которых разрешается ввод услуги?', ;
+        '' }, ;
+        { ' ~Нет ', ' ~Да ' }, ;
+        1, 'N+/BG', 'R/BG', 17, , col1menu ) ) == 0
+      Return Nil
+    Endif
+  endif
   mywait()
   Do Case
   Case reg == 1
@@ -275,21 +290,66 @@ Function f4_uslugi( reg )
   Case reg == 3
     s += 'с ценами по ДМС'
   Endcase
-  fp := FCreate( n_file )
-  n_list := 1
-  tek_stroke := 0
-  add_string( '' )
-  add_string( Center( s, sh ) )
-  add_string( '' )
-  If mem_trudoem == 2
-    Private arr_title := { Space( sh -15 ) + 'УЕТ ' + iif( is_oplata == 7, 'вр.', 'взр' ) + '│УЕТ ' + iif( is_oplata == 7, 'асс', 'дет' ), ;
-      Space( sh -15 ) + '───────┴───────' }
-    AEval( arr_title, {| x| add_string( x ) } )
-    useuch_usl()
-    l := sh -16
-  Else
-    l := sh
-  Endif
+  if lExcel
+    row := 0
+    column := 0
+    workbook  := workbook_new( name_fileXLS_full )
+    worksheet := workbook_add_worksheet( workbook, hb_StrToUTF8( 'Список' ) )
+
+    fmt_cell_header := fmt_excel_hC_vC( workbook )
+    format_set_text_wrap( fmt_cell_header )
+    format_set_bold( fmt_cell_header )
+    format_set_font_size( fmt_cell_header, 20 )
+
+    fmt_header := fmt_excel_hC_vC( workbook )
+    format_set_text_wrap( fmt_header )
+    format_set_border( fmt_header, LXW_BORDER_THIN )
+    format_set_fg_color( fmt_header, 0xC6EFCE )
+    format_set_bold( fmt_header )
+
+    fmt_text := fmt_excel_hL_vC( workbook )
+    format_set_text_wrap( fmt_text )
+    format_set_border( fmt_text, LXW_BORDER_THIN )
+
+    fmtCellNumberRub := fmt_excel_hR_vC( workbook )
+    format_set_border( fmtCellNumberRub, LXW_BORDER_THIN )
+    format_set_num_format( fmtCellNumberRub, '#,##0.00' )
+
+    fmtCellNumberNDS := fmt_excel_hR_vC( workbook )
+    format_set_border( fmtCellNumberNDS, LXW_BORDER_THIN )
+    format_set_num_format( fmtCellNumberNDS, '#,##0' )
+
+    worksheet_set_row( worksheet,  0, 40,  nil )
+    worksheet_set_column( worksheet, 2, 2, 30, nil )
+    worksheet_set_column( worksheet, 3, 3, 45, nil )
+    worksheet_merge_range( worksheet, row, column, row, 8, '', nil )
+    worksheet_write_string( worksheet, row++, column, hb_StrToUTF8( s ), fmt_cell_header )
+    worksheet_write_string( worksheet, row, 0, hb_StrToUTF8( 'Шифр' ), fmt_header )
+    worksheet_write_string( worksheet, row, 1, hb_StrToUTF8( 'Шифр ТФОМС' ), fmt_header )
+    worksheet_write_string( worksheet, row, 2, hb_StrToUTF8( 'Наименование' ), fmt_header )
+    worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( 'Полное наименование' ), fmt_header )
+    worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( 'Цена' ), fmt_header )
+    worksheet_write_string( worksheet, row, 5, hb_StrToUTF8( 'Цена дет.' ), fmt_header )
+    worksheet_write_string( worksheet, row, 6, hb_StrToUTF8( 'Цена ДМС' ), fmt_header )
+    worksheet_write_string( worksheet, row, 7, hb_StrToUTF8( 'НДС' ), fmt_header )
+    worksheet_write_string( worksheet, row++, 8, hb_StrToUTF8( 'НДС дет.' ), fmt_header )
+  else
+    fp := FCreate( n_file )
+    n_list := 1
+    tek_stroke := 0
+    add_string( '' )
+    add_string( Center( s, sh ) )
+    add_string( '' )
+    If mem_trudoem == 2
+      Private arr_title := { Space( sh - 15 ) + 'УЕТ ' + iif( is_oplata == 7, 'вр.', 'взр' ) + '│УЕТ ' + iif( is_oplata == 7, 'асс', 'дет' ), ;
+        Space( sh - 15 ) + '───────┴───────' }
+      AEval( arr_title, {| x| add_string( x ) } )
+      useuch_usl()
+      l := sh -16
+    Else
+      l := sh
+    Endif
+  endif
   use_base( 'lusl' )
   use_base( 'luslc' )
   r_use( dir_server + 'mo_uch', , 'LPU' )
@@ -301,6 +361,7 @@ Function f4_uslugi( reg )
   Do While !Eof()
     lshifr := ''
     If !Empty( usl->shifr )
+  
       s := usl->shifr
       lname := AllTrim( usl->name )
       lshifr += AllTrim( usl->shifr )
@@ -310,76 +371,78 @@ Function f4_uslugi( reg )
         lshifr += '(' + AllTrim( lshifr1 ) + ')'
       Endif
       lshifr += '.'
-      // if usl->zf == 1
-      // lshifr += " [ЗФ] "
-      // endif
       s := f42_uslugi( reg, s )
       If !Empty( s )
-        If mem_trudoem == 2
-          If verify_ff( HH, .t., sh )
-            AEval( arr_title, {| x| add_string( x ) } )
-          Endif
-        Else
-          verify_ff( HH, .t., sh )
-        Endif
-        If Empty( lshifr1 ) .or. lshifr1 == usl->shifr
-          Select LUSL
-          find ( usl->shifr )
-          If Found()
-            lname := AllTrim( lusl->name )
-          Endif
-          // else
-          // select LUSL19
-          // find (usl->shifr)
-          // if found()
-          // lname := alltrim(lusl19->name)
-          // else
-          // select LUSL18
-          // find (usl->shifr)
-          // if found()
-          // lname := alltrim(lusl18->name)
-          // endif
-          // endif
-          // endif
-        Endif
-        k := perenos( mas, lshifr + lname + ' [' + s + ']', l, ' , ;' )
-        s := PadR( mas[ 1 ], l )
-        If mem_trudoem == 2
-          Select UU
-          find ( Str( usl->kod, 4 ) )
-          If is_oplata == 7
-            s += put_val_0( uu->vkoef_v, 8, 4 ) + put_val_0( uu->akoef_v, 8, 4 )
+        if lExcel
+          worksheet_write_string( worksheet, row, 0, hb_StrToUTF8( AllTrim( usl->shifr ) ), fmt_text )
+          worksheet_write_string( worksheet, row, 1, hb_StrToUTF8( lshifr1 ), fmt_text )
+          worksheet_write_string( worksheet, row, 2, hb_StrToUTF8( AllTrim( usl->name ) ), fmt_text )
+          worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( AllTrim( usl->full_name ) ), fmt_text )
+          worksheet_write_number( worksheet, row, 4, usl->pcena, fmtCellNumberRub )
+          worksheet_write_number( worksheet, row, 5, usl->pcena_d, fmtCellNumberRub )
+          worksheet_write_number( worksheet, row, 6, usl->dms_cena, fmtCellNumberRub )
+          worksheet_write_number( worksheet, row, 7, usl->pnds, fmtCellNumberNDS )
+          worksheet_write_number( worksheet, row++, 8, usl->pnds_d, fmtCellNumberNDS )
+        else
+          If mem_trudoem == 2
+            If verify_ff( HH, .t., sh )
+              AEval( arr_title, {| x| add_string( x ) } )
+            Endif
           Else
-            s += put_val_0( uu->koef_v, 8, 4 ) + put_val_0( uu->koef_r, 8, 4 )
+            verify_ff( HH, .t., sh )
+          Endif
+          If Empty( lshifr1 ) .or. lshifr1 == usl->shifr
+            //
+            Select LUSL
+            find ( usl->shifr )
+            If Found()
+              lname := AllTrim( lusl->name )
+            Endif
+          Endif
+          k := perenos( mas, lshifr + lname + ' [' + s + ']', l, ' , ;' )
+          s := PadR( mas[ 1 ], l )
+          If mem_trudoem == 2
+            Select UU
+            find ( Str( usl->kod, 4 ) )
+            If is_oplata == 7
+              s += put_val_0( uu->vkoef_v, 8, 4 ) + put_val_0( uu->akoef_v, 8, 4 )
+            Else
+              s += put_val_0( uu->koef_v, 8, 4 ) + put_val_0( uu->koef_r, 8, 4 )
+            Endif
+          Endif
+          add_string( s )
+          For i := 2 To k
+            add_string( PadL( AllTrim( mas[ i ] ), l ) )
+          Next
+          If j == 2
+            Select UO
+            find ( Str( usl->kod, 4 ) )
+            If Found()
+              k := 1
+              Do While !( SubStr( uo->otdel, k, 1 ) == Chr( 0 ) )
+                otd->( dbGoto( Asc( SubStr( uo->otdel, k, 1 ) ) ) )
+                lpu->( dbGoto( otd->kod_lpu ) )
+                add_string( Space( 18 ) + '= ' + AllTrim( otd->name ) + ' [' + AllTrim( lpu->name ) + ']' )
+                ++k
+              Enddo
+            Endif
           Endif
         Endif
-        add_string( s )
-        For i := 2 To k
-          add_string( PadL( AllTrim( mas[ i ] ), l ) )
-        Next
-        If j == 2
-          Select UO
-          find ( Str( usl->kod, 4 ) )
-          If Found()
-            k := 1
-            Do While !( SubStr( uo->otdel, k, 1 ) == Chr( 0 ) )
-              otd->( dbGoto( Asc( SubStr( uo->otdel, k, 1 ) ) ) )
-              lpu->( dbGoto( otd->kod_lpu ) )
-              add_string( Space( 18 ) + '= ' + AllTrim( otd->name ) + ' [' + AllTrim( lpu->name ) + ']' )
-              ++k
-            Enddo
-          Endif
-        Endif
-      Endif
+      endif
     Endif
     Select USL
     Skip
   Enddo
   Close databases
-  FClose( fp )
-  viewtext( n_file, , , , , , , 2 )
-
+  If lExcel
+    workbook_close( workbook )
+    work_with_Excel_file( name_fileXLS_full )
+  else
+    FClose( fp )
+    viewtext( n_file, , , , , , , 2 )
+  Endif
   Return Nil
+
 
 //
 Function f42_uslugi( reg, _shifr )
@@ -437,7 +500,7 @@ Function v_1usluga()
     n_list := 1
     tek_stroke := 0
 
-    r_use( dir_exe + prefix + 'dep', cur_dir + prefix + 'dep', 'DEP' )
+    r_use( dir_exe() + prefix + 'dep', cur_dir + prefix + 'dep', 'DEP' )
     use_base( 'lusl' )
     use_base( 'luslc' )
     r_use( dir_server + 'uslugi', dir_server + 'uslugi', 'USL' )
@@ -760,7 +823,7 @@ Function usl1tfoms()
       { 'cenad',   'N', 10, 2 } } )
 
     sbase := prefixfilerefname( dy ) + 'dep'
-    r_use( dir_exe + sbase, cur_dir + sbase, 'DEP' )
+    r_use( dir_exe() + sbase, cur_dir + sbase, 'DEP' )
 
     Use ( cur_dir + 'tmp1' ) new
     Index On shifr + Str( depart, 3 ) to ( cur_dir + 'tmp1' )
@@ -1056,7 +1119,7 @@ Function usl2tfoms()
       Next
 
       sbase := prefixfilerefname( lyear ) + 'k006'
-      r_use( dir_exe + sbase, , 'K006' )
+      r_use( dir_exe() + sbase, , 'K006' )
 
       Index On SHIFR + Str( ns, 6 ) to ( cur_dir + 'tmp_k006' ) unique
       Index On SHIFR + Str( ns, 6 ) + ds + sy to ( cur_dir + 'tmp_k006_' )
@@ -1971,7 +2034,7 @@ Function usl6ffoms( lksg )
   mdate := sys_date
 
   sbase := prefixfilerefname( WORK_YEAR ) + 'k006'
-  r_use( dir_exe + sbase, , 'K006' )
+  r_use( dir_exe() + sbase, , 'K006' )
   Index On SHIFR + SY to ( cur_dir + 'tmp_t009' )
   use_base( 'luslc' )
   use_base( 'lusl' )
@@ -2084,7 +2147,7 @@ Function usl6ffoms( lksg )
   rest_box( buf )
   FClose( fp )
   name_fr := 'mo_v1ksg' + sfr3
-  If _upr_epson() .or. ! File( dir_exe + name_fr )
+  If _upr_epson() .or. ! File( dir_exe() + name_fr )
     viewtext( name_file, , , , .t., , , 5 )
   Else
     call_fr( name_fr, , , {|| FrPrn:setmasterdetail( '_data', '_data1', {|| _data->shifr1 } ) } )
@@ -2488,25 +2551,25 @@ Function f_10diag( k )
   Do Case
   Case k == 1
     mywait()
-    r_use( dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
+    r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
     Go Top
     alpha_browse( 2, c1, MaxRow() -2, c2, 'f1_10diag', color0, , , .t., , , , 'f2_10diag', , {, , , 'N/BG, W+/N, B/BG, BG+/B, GR/BG, BG+/GR', .t. } )
   Case k == 2
-    r_use( dir_exe + '_mo_mkbk' )
+    r_use( dir_exe() + '_mo_mkbk' )
     Index On sh_b + Str( ks, 1 ) to ( cur_dir + 'tmp' )
     Go Top
     alpha_browse( 2, 0, MaxRow() -2, 79, 'f1_10diag', color0, , , .t., , , , , , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
   Case k == 3
-    r_use( dir_exe + '_mo_mkbg' )
+    r_use( dir_exe() + '_mo_mkbg' )
     Index On sh_b + Str( ks, 1 ) to ( cur_dir + 'tmp' )
     Go Top
     alpha_browse( 2, c1, MaxRow() -2, c2, 'f1_10diag', color0, , , .t., , , , , , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
   Case k == 4 .or. k == 5
-    r_use( dir_exe + '_mo_mkb' + iif( pregim == 4, 'k', 'g' ) )
+    r_use( dir_exe() + '_mo_mkb' + iif( pregim == 4, 'k', 'g' ) )
     Index On sh_b + Str( ks, 1 ) to ( cur_dir + 'tmp_d' )
     Use
     Do While .t.
-      r_use( dir_exe + '_mo_mkb' + iif( pregim == 4, 'k', 'g' ) )
+      r_use( dir_exe() + '_mo_mkb' + iif( pregim == 4, 'k', 'g' ) )
       Set Index To 'tmp_d'
       Goto ( i )
       If pregim == 4
@@ -2540,7 +2603,7 @@ Function f_10diag( k )
         n_list := 1
         tek_stroke := 0
         add_string( '' )
-        r_use( dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
+        r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
         For k := 1 To Len( arr_t )
           add_string( Center( arr_t[ k ], sh ) )
         Next
@@ -2771,7 +2834,7 @@ Function f10_diagnoz()
 
   change_attr()
   mywait()
-  r_use( dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
   Go Top
   If srec != NIL
     Goto ( srec )
@@ -3015,7 +3078,7 @@ Function init_all_mem_public()
 
   Return Nil
 
-// 22.06.23 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
+// 15.10.24 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
 Function recreate_some_schet_from_file_sp( arr )
 
   Local arr_XML_info[ 8 ], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[ 2 ], ;
@@ -3094,7 +3157,7 @@ Function recreate_some_schet_from_file_sp( arr )
         hb_eol(), cFileProtokol, .t. )
       mywait( "Производится анализ файла " + cFile )
       // читаем файл в память
-      oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+      oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
       If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
         AAdd( aerr, "Ошибка в чтении файла " + cFile )
       Else
@@ -3320,7 +3383,7 @@ Function recreate_some_schet_from_file_sp( arr )
               Else
                 s := 'код ошибки = ' + tmp3->SREFREASON + ' '
                 s += '"' + getcategorycheckerrorbyid_q017( Left( tmp3->SREFREASON, 4 ) )[ 2 ] + '" '
-                // s += alltrim(inieditspr(A__POPUPMENU, dir_exe + "_mo_Q015", tmp3->SREFREASON))
+                // s += alltrim(inieditspr(A__POPUPMENU, dir_exe() + "_mo_Q015", tmp3->SREFREASON))
                 s += AllTrim( inieditspr( A__MENUVERT, loadq015(), tmp3->SREFREASON ) )
               Endif
               k := perenos( t_arr, s, 75 )

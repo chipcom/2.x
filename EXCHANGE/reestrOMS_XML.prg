@@ -5,12 +5,15 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-Static sadiag1  // := {}
+#define BASE_ISHOD_RZD 500  //
 
-// 05.04.24 создание XML-файлов реестра
+// Static sadiag1
+
+// 25.02.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
+  Local i
   Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
   Local arrLP, row
@@ -23,20 +26,24 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Local lReplaceDiagnose := .f.
   Local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
   local dPUMPver40 := 0d20240301
-
+  local aFilesName
+  local sVersion, fl_ver
+  local oXmlDoc, oXmlNode, oZAP
+  local oSL, oSLUCH
+  local oPRESCRIPTION, oPRESCRIPTIONS, oKSG, oSLk, oNAPR, oCONS
+  local oONK_SL, oDIAG, oPROT, oONK
+  local oLEK, oDOSE
+  local oUSL, oMR_USL_N, oMED_DEV
+  local oPAC, oDISAB, oINJ
+  local old_lek, old_sh
+  local aRegnum, iLekPr
+  local mnovor
   //
   Close databases
-  // if empty(sadiag1)
-  // Private file_form, diag1 := {}, len_diag := 0
-  // if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
-  // return func_error(4, 'Не обнаружен файл DISP_NAB' + sfrm)
-  // endif
-  // f2_vvod_disp_nabl('A00')
-  // sadiag1 := diag1
-  // endif
-  If ISNIL( sadiag1 )
-    sadiag1 := load_diagnoze_disp_nabl_from_file()
-  Endif
+
+  // If ISNIL( sadiag1 )
+  //   sadiag1 := load_diagnoze_disp_nabl_from_file()
+  // Endif
   For i := 1 To 5
     sk := lstr( i )
     pole_diag := 'mdiag' + sk
@@ -48,7 +55,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Next
   stat_msg( 'Составление реестра случаев' )
   nsh := f_mb_me_nsh( _nyear, @mb, @me )
-  r_use( dir_exe + '_mo_mkb', , 'MKB_10' )
+  r_use( dir_exe() + '_mo_mkb', , 'MKB_10' )
   Index On shifr + Str( ks, 1 ) to ( cur_dir + '_mo_mkb' )
   g_use( dir_server + 'mo_rees', , 'REES' )
   Index On Str( nn, nsh ) to ( cur_dir + 'tmp_rees' ) For nyear == _nyear .and. nmonth == _nmonth
@@ -91,8 +98,10 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   rees->NYEAR  := _NYEAR
   rees->NMONTH := _NMONTH
   rees->NN     := mnn
-  s := 'RM' + CODE_LPU + 'T34' + '_' + Right( StrZero( _NYEAR, 4 ), 2 ) + StrZero( _NMONTH, 2 ) + StrZero( mnn, nsh )
-  rees->NAME_XML := { 'H', 'F' }[ p_tip_reestr ] + s
+  aFilesName := name_reestr_XML( p_tip_reestr, _NYEAR, _NMONTH, mnn, nsh )
+//  s := 'RM' + CODE_LPU + 'T34' + '_' + Right( StrZero( _NYEAR, 4 ), 2 ) + StrZero( _NMONTH, 2 ) + StrZero( mnn, nsh )
+//  rees->NAME_XML := { 'H', 'F' }[ p_tip_reestr ] + s
+  rees->NAME_XML := aFilesName[ 1 ]
   mkod_reestr := rees->KOD
   rees->CODE  := ret_unique_code( mkod_reestr )
   code_reestr := rees->CODE
@@ -101,7 +110,8 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   addrecn()
   mo_xml->KOD    := RecNo()
   mo_xml->FNAME  := rees->NAME_XML
-  mo_xml->FNAME2 := 'L' + s
+//  mo_xml->FNAME2 := 'L' + s
+  mo_xml->FNAME2 := aFilesName[ 2 ]
   mo_xml->DFILE  := rees->DSCHET
   mo_xml->TFILE  := hour_min( Seconds() )
   mo_xml->TIP_OUT := _XML_FILE_REESTR // тип высылаемого файла;1-реестр
@@ -152,7 +162,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   g_use( dir_server + 'human_', , 'HUMAN_' )
   r_use( dir_server + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
-  r_use( dir_exe + '_mo_t2_v1', , 'T21' )
+  r_use( dir_exe() + '_mo_t2_v1', , 'T21' )
   Index On shifr to ( cur_dir + 'tmp_t21' )
   Use ( cur_dir + 'tmpb' ) new
   If reg_sort == 1
@@ -231,15 +241,29 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
 
   // заполним заголовок XML-документа
-  s := '3.11'
+  sVersion := '3.11'
   controlVer := _nyear * 100 + _nmonth
-  If ( controlVer >= 202201 ) .and. ( p_tip_reestr == 1 ) // с января 2022 года
-    s := '3.2'
-  Endif
-  If ( controlVer >= 202403 ) .and. ( p_tip_reestr == 1 ) // с марта 2024 года
-    s := '4.0'
-  Endif
-  mo_add_xml_stroke( oXmlNode, 'VERSION',s )
+  if p_tip_reestr == 1
+    // Реестр случаев оказания медицинской помощи, за исключением медицинской помощи по диспансеризации,
+    // медицинским осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
+    If ( controlVer >= 202201 ) // с января 2022 года
+      sVersion := '3.2'
+    Endif
+    If ( controlVer >= 202403 ) // с марта 2024 года
+      sVersion := '4.0'
+    Endif
+    If ( controlVer >= 202501 ) // с января 2025 года
+      sVersion := '5.0'
+    Endif
+  elseif p_tip_reestr == 2
+    // Реестр случаев оказания медицинской помощи по диспансеризации, профилактическим медицинским
+    // осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
+    If ( controlVer >= 202501 ) // с января 2025 года
+      sVersion := '5.0'
+    Endif
+  endif
+
+  mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
   mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( rees->DSCHET ) )
   mo_add_xml_stroke( oXmlNode, 'FILENAME', mo_xml->FNAME )
   mo_add_xml_stroke( oXmlNode, 'SD_Z', lstr( pkol ) )
@@ -265,6 +289,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
     fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
     lshifr_zak_sl := lvidpoms := cSMOname := ''
     a_usl := {}
+    a_usl_name := {}
     a_fusl := {}
     lvidpom := 1
     lfor_pom := 3
@@ -276,11 +301,11 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
     is_KSG := is_mgi := .f.
     kol_kd := v_reabil_slux := m1veteran := m1mobilbr := 0  // мобильная бригада
     tarif_zak_sl := m1mesto_prov := m1p_otk := 0    // признак отказа
-    m1dopo_na := m1napr_v_mo := 0 // {{'-- нет --', 0}, {'в нашу МО', 1}, {'в иную МО', 2}}, ;
+    m1dopo_na := m1napr_v_mo := 0
     arr_mo_spec := {}
-    m1napr_stac := 0 // {{'--- нет ---', 0}, {'в стационар', 1}, {'в дн. стац.', 2}}, ;
+    m1napr_stac := 0
     m1profil_stac := m1napr_reab := m1profil_kojki := 0
-    pr_amb_reab := fl_disp_nabl := is_disp_DVN := is_disp_DVN_COVID := .f.
+    pr_amb_reab := fl_disp_nabl := is_disp_DVN := is_disp_DVN_COVID := is_disp_DRZ := .f.
     ldate_next := CToD( '' )
     ar_dn := {}
     is_oncology_smp := is_oncology := 0
@@ -290,6 +315,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
     arr_onk_usl := {}
     a_otkaz := {}
     arr_nazn := {}
+    arr_ne_vozm := {}
 
     mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
 
@@ -315,7 +341,6 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
       Endif
       f1_create2reestr19( _nyear, _nmonth ) 
-
       // заполним реестр записями для XML-документа
       If isl == 1
         oZAP := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZAP' ) )
@@ -351,11 +376,17 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             StrZero( human_->NOVOR, 2 )
           mo_add_xml_stroke( oPAC, 'NOVOR', mnovor )
         Endif
-        // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
         If human_->USL_OK == 1 .and. human_2->VNR > 0
           // стационар + л/у на недоношенного ребёнка
           mo_add_xml_stroke( oPAC, 'VNOV_D', lstr( human_2->VNR ) )
         Endif
+        if ( p_tip_reestr == 1 )
+          if ( kol_sl == 1 .and. ( human->k_data >= 0d20250101 ) ) ;  // одинарный случай
+              .or. ( kol_sl == 2 .and. ( ksl_date >= 0d20250101 ) )   // двойной случай
+            mo_add_xml_stroke( oPAC, 'SOC', kart->pc3 )
+          endif
+        endif
+        // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
         If fl_DISABILITY // Сведения о первичном признании застрахованного лица инвалидом
           // заполним сведения об инвалидности пациента для XML-документа
           oDISAB := oPAC:add( hxmlnode():new( 'DISABILITY' ) )
@@ -369,6 +400,11 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             mo_add_xml_stroke( oDISAB, 'DS_INV', inv->DIAG_INV )
           Endif
         Endif
+
+        if ( p_tip_reestr == 2 ) .and. ( human->k_data >= 0d20250101 )
+          mo_add_xml_stroke( oPAC, 'SOC', kart->pc3 )
+        endif
+          
         // заполним сведения о законченном случае оказания медицинской помощи для XML-документа
         oSLUCH := oZAP:add( hxmlnode():new( 'Z_SL' ) )
         mo_add_xml_stroke( oSLUCH, 'IDCASE', lstr( rhum->REES_ZAP ) )
@@ -501,6 +537,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           If lTypeLUOnkoDisp
             s := '1.3'
           Endif
+          if ( ascan( a_usl_name, '2.80.67' ) > 0 ) .or. ( ascan( a_usl_name, '2.88.14' ) > 0 )
+            s := '1.0'
+          endif
           mo_add_xml_stroke( oSL, 'P_CEL', s )
         Endif
       Endif
@@ -556,7 +595,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           Endif
         Endif
         mo_add_xml_stroke( oSL, 'PR_D_N', lstr( s ) )
-        If ( is_disp_DVN .or. is_disp_DVN_COVID ) .and. s == 2 // взят на диспансерное наблюдение
+        If ( is_disp_DVN .or. is_disp_DVN_COVID .or. is_disp_DRZ ) .and. s == 2 // взят на диспансерное наблюдение
           AAdd( ar_dn, { '2', RTrim( mdiagnoz[ 1 ] ), '', '' } )
         Endif
       Endif
@@ -573,10 +612,12 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         Next
         If need_reestr_c_zab( human_->USL_OK, mdiagnoz[ 1 ] ) .or. is_oncology_smp > 0
           If lTypeLUOnkoDisp
-            mo_add_xml_stroke( oSL, 'C_ZAB', '2' ) //
+//            mo_add_xml_stroke( oSL, 'C_ZAB', '2' ) //
+            mo_add_xml_stroke( oSL, 'C_ZAB', '3' ) // согласно разговора с Антоновой 23.10.24
           Else
             If human_->USL_OK == 3 .and. human_->povod == 4 // если P_CEL=1.3
-              mo_add_xml_stroke( oSL, 'C_ZAB', '2' ) // При диспансерном наблюдении характер заболевания не может быть <Острое>
+//              mo_add_xml_stroke( oSL, 'C_ZAB', '2' ) // При диспансерном наблюдении характер заболевания не может быть <Острое>
+              mo_add_xml_stroke( oSL, 'C_ZAB', '3' ) // согласно разговора с Антоновой 23.10.24
             Else
               mo_add_xml_stroke( oSL, 'C_ZAB', '1' ) // Характер основного заболевания
             Endif
@@ -592,7 +633,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           mo_add_xml_stroke( oSL, 'DS_ONK', '0' )
         Endif
         If human_->USL_OK == 3 .and. human_->povod == 4 // Обязательно, если P_CEL=1.3
-          s := 2 // взят
+          s := 1 // состоит
           If adiag_talon[ 1 ] == 2 // ранее
             If adiag_talon[ 2 ] == 1
               s := 1 // состоит
@@ -600,7 +641,10 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
               s := 2 // взят
             Elseif adiag_talon[ 2 ] == 3 // снят
               s := 4 // снят по причине выздоровления
-            Elseif adiag_talon[ 2 ] == 4
+            Elseif adiag_talon[ 2 ] == 4 // снят
+              s := 4 // снят по причине выздоровления
+            Elseif adiag_talon[ 2 ] == 6
+//            Elseif adiag_talon[ 2 ] == 4
               s := 6 // снят по другим причинам
             Endif
           Endif
@@ -628,7 +672,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
               Endif
             Endif
             mo_add_xml_stroke( oDiag, 'PR_D', lstr( s ) )
-            If ( is_disp_DVN .or. is_disp_DVN_COVID ) .and. s == 2 // взят на диспансерное наблюдение
+            If ( is_disp_DVN .or. is_disp_DVN_COVID .or. is_disp_DRZ ) .and. s == 2 // взят на диспансерное наблюдение
               AAdd( ar_dn, { '2', RTrim( mdiagnoz[ i ] ), '', '' } )
             Endif
           Endif
@@ -651,7 +695,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
               mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_SPDOCT', arr_nazn[ j, 4 ] )
             Endif
 
-            If eq_any( arr_nazn[ j, 1 ], 1, 2 ) // {'в нашу МО', 1}, {'в иную МО', 2}}
+            If eq_any( arr_nazn[ j, 1 ], 1, 2 )
               // к какому специалисту направлен
               mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_SP', arr_nazn[ j, 2 ] ) // результат ф-ии put_prvs_to_reestr(human_->PRVS, _NYEAR)
             Elseif arr_nazn[ j, 1 ] == 3
@@ -818,8 +862,8 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             mo_add_xml_stroke( oDIAG, 'DIAG_CODE', lstr( arr_onkdi[ j, 3 ] ) )
             If arr_onkdi[ j, 4 ] > 0
               mo_add_xml_stroke( oDIAG, 'DIAG_RSLT', lstr( arr_onkdi[ j, 4 ] ) )
-              mo_add_xml_stroke( oDIAG, 'REC_RSLT', '1' )
             Endif
+            mo_add_xml_stroke( oDIAG, 'REC_RSLT', '1' )
           endif
         Next j
         For j := 1 To Len( arr_onkpr )
@@ -847,22 +891,56 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
                 mo_add_xml_stroke( oONK, 'LUCH_TIP', lstr( onkus->LUCH_TIP ) )
               Endif
               If eq_any( onkus->USL_TIP, 2, 4 )
-                old_lek := Space( 6 ) ; old_sh := Space( 10 )
-                Select ONKLE  // цикл по БД лекарств
-                find ( Str( human->kod, 7 ) )
-                Do While onkle->kod == human->kod .and. !Eof()
-                  If !( old_lek == onkle->REGNUM .and. old_sh == onkle->CODE_SH )
-                    // заполним сведения о примененных лекарственных препаратах при лечении онкологического больного для XML-документа
-                    oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
-                    mo_add_xml_stroke( oLEK, 'REGNUM', onkle->REGNUM )
-                    mo_add_xml_stroke( oLEK, 'CODE_SH', onkle->CODE_SH )
-                  Endif
-                  // цикл по датам приёма данного лекарства
-                  mo_add_xml_stroke( oLEK, 'DATE_INJ', date2xml( onkle->DATE_INJ ) )
-                  old_lek := onkle->REGNUM ; old_sh := onkle->CODE_SH
-                  Select ONKLE
-                  Skip
-                Enddo
+                
+                if human->k_data >= 0d20250101
+                  arrLP := collect_lek_pr( human->( RecNo() ) )
+                  if len( arrLP ) > 0
+                    aRegnum := unique_val_in_array( arrLP, 3 ) // получим уникальные REGNUM
+                    for i := 1 to len( aRegnum )
+// Соберем типы лек. препаратов                      
+                      // заполним сведения о примененных лекарственных препаратах при лечении онкологического больного для XML-документа
+                      oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
+                      mo_add_xml_stroke( oLEK, 'REGNUM', aRegnum[ i, 3 ] )
+                      mo_add_xml_stroke( oLEK, 'REGNUM_DOP', ;
+                      get_sootv_n021( aRegnum[ i, 2 ], aRegnum[ i, 3 ], human->k_data )[ 7 ] )
+                      mo_add_xml_stroke( oLEK, 'CODE_SH', aRegnum[ i, 2 ] )
+                      for iLekPr := 1 to len( arrLp )
+                        if arrLP[ iLekPr, 3 ] == aRegnum[ i, 3 ]
+                          oINJ := oLek:add( hxmlnode():new( 'INJ' ) )
+                          mo_add_xml_stroke( oINJ, 'DATE_INJ', date2xml( arrLP[ iLekPr, 1 ] ) )
+                          mo_add_xml_stroke( oINJ, 'KV_INJ', str( arrLP[ iLekPr, 5 ], 8, 3 ) )
+                          mo_add_xml_stroke( oINJ, 'KIZ_INJ', str( arrLP[ iLekPr, 9 ], 8, 3 ) )
+                          mo_add_xml_stroke( oINJ, 'S_INJ', str( arrLP[ iLekPr, 10 ], 15, 6 ) )
+                          mo_add_xml_stroke( oINJ, 'SV_INJ', ;
+                            str( arrLP[ iLekPr, 5 ] * arrLP[ iLekPr, 10 ], 15, 2 ) )
+                          mo_add_xml_stroke( oINJ, 'SIZ_INJ', ;
+                            str( arrLP[ iLekPr, 9 ] * arrLP[ iLekPr, 10 ], 15, 2 ) )
+                          mo_add_xml_stroke( oINJ, 'RED_INJ', str( arrLP[ iLekPr, 11 ], 1, 0 ) )
+                        endif
+                      next
+                    next
+                  endif
+                else
+                  old_lek := Space( 6 )
+                  old_sh := Space( 10 )
+                  Select ONKLE  // цикл по БД лекарств
+                  find ( Str( human->kod, 7 ) )
+                  Do While onkle->kod == human->kod .and. !Eof()
+                    If !( old_lek == onkle->REGNUM .and. old_sh == onkle->CODE_SH )
+                      // заполним сведения о примененных лекарственных препаратах при лечении онкологического больного для XML-документа
+                      oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
+                      mo_add_xml_stroke( oLEK, 'REGNUM', onkle->REGNUM )
+                      mo_add_xml_stroke( oLEK, 'CODE_SH', onkle->CODE_SH )
+                    Endif
+                    // цикл по датам приёма данного лекарства
+                    mo_add_xml_stroke( oLEK, 'DATE_INJ', date2xml( onkle->DATE_INJ ) )
+                    old_lek := onkle->REGNUM
+                    old_sh := onkle->CODE_SH
+                    Select ONKLE
+                    Skip
+                  Enddo
+                endif
+
                 If onkus->PPTR > 0
                   mo_add_xml_stroke( oONK, 'PPTR', '1' )
                 Endif
@@ -922,7 +1000,13 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         Endif
 
         If !Empty( ldate_next )
-          mo_add_xml_stroke( oSL, 'NEXT_VISIT', date2xml( BoM( ldate_next ) ) )
+          if human->N_DATA < 0d20241201
+            mo_add_xml_stroke( oSL, 'NEXT_VISIT', date2xml( BoM( ldate_next ) ) )
+          else  // согласно письма ТФОМС 09-20-615 от 21.11.24
+            if eq_any( adiag_talon[ 2 ], NIL, 0, 1, 2 ) // NIL или 0 - в поле human_->DISPANS ничего не проставлено
+              mo_add_xml_stroke( oSL, 'NEXT_VISIT', date2xml( BoM( ldate_next ) ) )
+            endif
+          endif
         Endif
         //
         j := 0
@@ -956,7 +1040,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             j := iif( human->RAB_NERAB == 0, 21, 11 )
           Endif
           ( 'kart' )->( dbGoto( human->kod_k ) )  // для участников СВО
-          if kart->pn1 == 30
+          if kart->pn1 == 30 .and. eq_any( hb_main_curOrg:Kod_Tfoms, '101201', '451001', '391002')
             j := 30
           endif
           sCOMENTSL := lstr( j )
@@ -1046,7 +1130,11 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
               mo_add_xml_stroke( oUSL, 'DS', hu_->kod_diag )
             Endif
           Else
-            mo_add_xml_stroke( oUSL, 'P_OTK','0' )
+            if ascan( arr_ne_vozm, lshifr ) > 0
+              mo_add_xml_stroke( oUSL, 'P_OTK','2' )
+            else
+              mo_add_xml_stroke( oUSL, 'P_OTK','0' )
+            endif
           Endif
           mo_add_xml_stroke( oUSL, 'CODE_USL', lshifr )
           mo_add_xml_stroke( oUSL, 'KOL_USL', lstr( hu->KOL_1, 6, 2 ) )
@@ -1156,7 +1244,11 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           Endif
           If p_tip_reestr == 2
             // разобраться с отказами услугами ФФОМС
-            mo_add_xml_stroke( oUSL, 'P_OTK','0' )
+            if ascan( arr_ne_vozm, lshifr ) > 0
+              mo_add_xml_stroke( oUSL, 'P_OTK','2' )
+            else
+              mo_add_xml_stroke( oUSL, 'P_OTK','0' )
+            endif
           Endif
           mo_add_xml_stroke( oUSL, 'CODE_USL', lshifr )
           mo_add_xml_stroke( oUSL, 'KOL_USL', lstr( mohu->KOL_1, 6, 2 ) )
@@ -1228,7 +1320,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         Next j
       Endif
       If p_tip_reestr == 2 .and. !Empty( sCOMENTSL )   // для реестров по диспансеризации
-        If ( is_disp_DVN .or. is_disp_DVN_COVID )
+        If ( is_disp_DVN .or. is_disp_DVN_COVID .or. is_disp_DRZ )
           sCOMENTSL += ':'
           If !Empty( ar_dn ) // взят на диспансерное наблюдение
             For i := 1 To 5
@@ -1236,7 +1328,8 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
               pole_diag := 'mdiag' + sk
               pole_1dispans := 'm1dispans' + sk
               pole_dn_dispans := 'mdndispans' + sk
-              If !Empty( &pole_diag ) .and. &pole_1dispans == 1 .and. AScan( sadiag1, AllTrim( &pole_diag ) ) > 0 ;
+              // If !Empty( &pole_diag ) .and. &pole_1dispans == 1 .and. AScan( sadiag1, AllTrim( &pole_diag ) ) > 0 ;
+              If !Empty( &pole_diag ) .and. &pole_1dispans == 1 .and. diag_in_list_dn( &pole_diag ) ;
                   .and. !Empty( &pole_dn_dispans ) ;
                   .and. ( j := AScan( ar_dn, {| x| AllTrim( x[ 2 ] ) == AllTrim( &pole_diag ) } ) ) > 0
                 ar_dn[ j, 4 ] := date2xml( BoM( &pole_dn_dispans ) )
@@ -1280,12 +1373,12 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   oXmlDoc:add( hxmlnode():new( 'PERS_LIST' ) )
   // заполним заголовок файла реестра пациентов для XML-документа
   oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
-  s := '3.11'
+  sVersion := '3.11'
   If StrZero( _nyear, 4 ) + StrZero( _nmonth, 2 ) > '201910' // с ноября 2019 года
     fl_ver := 32
-    s := '3.2'
+    sVersion := '3.2'
   Endif
-  mo_add_xml_stroke( oXmlNode, 'VERSION',s )
+  mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
   mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( rees->DSCHET ) )
   mo_add_xml_stroke( oXmlNode, 'FILENAME', mo_xml->FNAME2 )
   mo_add_xml_stroke( oXmlNode, 'FILENAME1', mo_xml->FNAME )
@@ -1396,8 +1489,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Return Nil
 
-
-// 04.03.24 работаем по текущей записи
+// 26.12.24 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1405,6 +1497,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
   fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
   lshifr_zak_sl := lvidpoms := ''
   a_usl := {} ; a_fusl := {} ; lvidpom := 1 ; lfor_pom := 3
+  a_usl_name := {}
   atmpusl := {} ; akslp := {} ; akiro := {} ; tarif_zak_sl := human->cena_1
   kol_kd := 0
   is_KSG := is_mgi := .f.
@@ -1414,9 +1507,9 @@ Function f1_create2reestr19( _nyear, _nmonth )
   m1mesto_prov := 0
   m1p_otk := 0    // признак отказа
   m1dopo_na := 0
-  m1napr_v_mo := 0 // {{'-- нет --', 0}, {'в нашу МО', 1}, {'в иную МО', 2}}, ;
+  m1napr_v_mo := 0
   arr_mo_spec := {}
-  m1napr_stac := 0 // {{'--- нет ---', 0}, {'в стационар', 1}, {'в дн. стац.', 2}}, ;
+  m1napr_stac := 0
   m1profil_stac := 0
   m1napr_reab := 0
   m1profil_kojki := 0
@@ -1424,6 +1517,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
   fl_disp_nabl := .f.
   is_disp_DVN := .f.
   is_disp_DVN_COVID := .f.
+  is_disp_DRZ := .f.
   ldate_next := CToD( '' )
   ar_dn := {}
   //
@@ -1568,6 +1662,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
         Endif
       Else
         AAdd( a_usl, hu->( RecNo() ) )
+        AAdd( a_usl_name, lshifr )
       Endif
     Endif
     Select HU
@@ -1684,11 +1779,11 @@ Function f1_create2reestr19( _nyear, _nmonth )
             If ( i := AScan( np_arr_issled, {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
               AAdd( a_otkaz, { lshifr, ;
                 ar[ 6 ], ; // диагноз
-              ldate, ; // дата
-              correct_profil( ar[ 4 ] ), ; // профиль
-              ar[ 2 ], ; // специальность
-              0, ;     // цена
-              1 } )     // 1-отказ, 2-невозможность
+                ldate, ; // дата
+                correct_profil( ar[ 4 ] ), ; // профиль
+                ar[ 2 ], ; // специальность
+                0, ;     // цена
+                1 } )     // 1-отказ, 2-невозможность
             Endif
           Elseif ( i := AScan( np_arr_osmotr, {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0 // осмотры
             If ( i := AScan( np_arr_osmotr_KDP2, {| x| x[ 1 ] == lshifr } ) ) > 0
@@ -1696,11 +1791,11 @@ Function f1_create2reestr19( _nyear, _nmonth )
             Endif
             AAdd( a_otkaz, { lshifr, ;
               ar[ 6 ], ; // диагноз
-            ldate, ; // дата
-            correct_profil( ar[ 4 ] ), ; // профиль
-            ar[ 2 ], ; // специальность
-            0, ;     // цена
-            1 } )     // 1-отказ, 2-невозможность
+              ldate, ; // дата
+              correct_profil( ar[ 4 ] ), ; // профиль
+              ar[ 2 ], ; // специальность
+              0, ;     // цена
+              1 } )     // 1-отказ, 2-невозможность
           Endif
         Endif
       Next j
@@ -1727,17 +1822,18 @@ Function f1_create2reestr19( _nyear, _nmonth )
             If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
               AAdd( a_otkaz, { lshifr, ;
                 ar[ 6 ], ; // диагноз
-              human->N_DATA, ; // дата
-              correct_profil( ar[ 4 ] ), ; // профиль
-              ar[ 2 ], ; // специальность
-              ar[ 8 ], ; // цена
-              ar[ 10 ] } ) // 1-отказ, 2-невозможность
+                human->N_DATA, ; // дата
+                correct_profil( ar[ 4 ] ), ; // профиль
+                ar[ 2 ], ; // специальность
+                ar[ 8 ], ; // цена
+                ar[ 10 ] } ) // 1-отказ, 2-невозможность
             Endif
           Endif
         Endif
       Next j
     Endif
-  Elseif Between( human->ishod, 401, 402 ) // углубленная диспансеризация после COVID
+  // Elseif Between( human->ishod, 401, 402 ) // углубленная диспансеризация после COVID
+  Elseif is_sluch_dispanser_COVID( human->ishod ) // углубленная диспансеризация после COVID
     is_disp_DVN_COVID := .t.
     arr_usl_otkaz := {}
     For i := 1 To 5
@@ -1760,11 +1856,72 @@ Function f1_create2reestr19( _nyear, _nmonth )
             If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
               AAdd( a_otkaz, { lshifr, ;
                 ar[ 6 ], ; // диагноз
-              human->N_DATA, ; // дата
-              correct_profil( ar[ 4 ] ), ; // профиль
-              ar[ 2 ], ; // специальность
-              ar[ 8 ], ; // цена
-              ar[ 10 ] } ) // 1-отказ, 2-невозможность
+                human->N_DATA, ; // дата
+                correct_profil( ar[ 4 ] ), ; // профиль
+                ar[ 2 ], ; // специальность
+                ar[ 8 ], ; // цена
+                ar[ 10 ] } ) // 1-отказ, 2-невозможность
+            Endif
+          Endif
+        Endif
+      Next j
+    Endif
+  // elseif Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 ) // диспансеризации репродуктивного здоровья
+  elseif is_sluch_dispanser_DRZ( human->ishod ) // диспансеризации репродуктивного здоровья
+    is_disp_DRZ := .t.
+    arr_usl_otkaz := {}
+    arr_ne_nazn := {}
+    arr_ne_vozm := {}
+    For i := 1 To 5
+      sk := lstr( i )
+      pole_diag := 'mdiag' + sk
+      pole_1dispans := 'm1dispans' + sk
+      pole_dn_dispans := 'mdndispans' + sk
+      &pole_diag := Space( 6 )
+      &pole_1dispans := 0
+      &pole_dn_dispans := CToD( '' )
+    Next
+    read_arr_drz( human->kod )
+    // не понятно что делать с неназначенными услугами
+    If ValType( arr_ne_nazn ) == 'A'
+      For j := 1 To Len( arr_ne_nazn )
+        ar := arr_ne_nazn[ j ]
+        If ValType( ar ) == 'A' .and. Len( ar ) >= 10 .and. ValType( ar[ 5 ] ) == 'C'
+          lshifr := AllTrim( ar[ 5 ] )
+
+          If ( i := AScan( uslugietap_drz( iif( human->ishod == BASE_ISHOD_RZD + 1, 1, 2 ), count_years( human->DATE_R, human->k_data ), human->pol ), {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
+//            
+          Else   // записываем только федеральные услуги
+            If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
+              AAdd( a_otkaz, { lshifr, ;
+                ar[ 6 ], ; // диагноз
+                human->N_DATA, ; // дата
+                correct_profil( ar[ 4 ] ), ; // профиль
+                ar[ 2 ], ; // специальность
+                ar[ 8 ], ; // цена
+                ar[ 10 ] } ) // 1-отказ, 2-невозможность
+            Endif
+          Endif
+        Endif
+      Next j
+    Endif
+    If ValType( arr_ne_vozm ) == 'A'
+      For j := 1 To Len( arr_ne_vozm )
+        ar := arr_ne_vozm[ j ]
+        If ValType( ar ) == 'A' .and. Len( ar ) >= 10 .and. ValType( ar[ 5 ] ) == 'C'
+          lshifr := AllTrim( ar[ 5 ] )
+
+          If ( i := AScan( uslugietap_drz( iif( human->ishod == BASE_ISHOD_RZD + 1, 1, 2 ), count_years( human->DATE_R, human->k_data ), human->pol ), {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
+//            
+          Else   // записываем только федеральные услуги
+            If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
+              AAdd( a_otkaz, { lshifr, ;
+                ar[ 6 ], ; // диагноз
+                human->N_DATA, ; // дата
+                correct_profil( ar[ 4 ] ), ; // профиль
+                ar[ 2 ], ; // специальность
+                ar[ 8 ], ; // цена
+                ar[ 10 ] } ) // 1-отказ, 2-невозможность
             Endif
           Endif
         Endif
@@ -1786,7 +1943,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
       Endif
     Next
   Endif
-  If Between( m1napr_v_mo, 1, 2 ) .and. !Empty( arr_mo_spec ) // {{'-- нет --', 0}, {'в нашу МО', 1}, {'в иную МО', 2}}, ;
+  If Between( m1napr_v_mo, 1, 2 ) .and. !Empty( arr_mo_spec )
     For i := 1 To Len( arr_mo_spec ) // теперь каждая специальность в отдельном PRESCRIPTIONS
       If mtab_v_mo != 0
         If P2TABN->( dbSeek( Str( mtab_v_mo, 5 ) ) )
@@ -1799,7 +1956,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
       Endif
     Next
   Endif
-  If Between( m1napr_stac, 1, 2 ) .and. m1profil_stac > 0 // {{'--- нет ---', 0}, {'в стационар', 1}, {'в дн. стац.', 2}}, ;
+  If Between( m1napr_stac, 1, 2 ) .and. m1profil_stac > 0
     If mtab_v_stac != 0
       If P2TABN->( dbSeek( Str( mtab_v_stac, 5 ) ) )
         AAdd( arr_nazn, { iif( m1napr_stac == 1, 5, 4 ), m1profil_stac, P2TABN->snils, lstr( ret_prvs_v015tov021( P2TABN->PRVS_NEW ) ) } )
@@ -1826,6 +1983,13 @@ Function f1_create2reestr19( _nyear, _nmonth )
     cSMOname := ret_inogsmo_name( 2 )
   Endif
   mdiagnoz := diag_for_xml( , .t., , , .t. )
+
+/// 26.12.24
+  AFill( adiag_talon, 0 )
+  For i := 1 To 16
+    adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
+  Next
+///
   If p_tip_reestr == 1
     If glob_mo[ _MO_IS_UCH ] .and. ;                    // наше МО имеет прикреплённое население
         human_->USL_OK == 3 .and. ;                    // поликлиника
@@ -1842,10 +2006,10 @@ Function f1_create2reestr19( _nyear, _nmonth )
     If human->OBRASHEN == '1' .and. AScan( mdiagnoz, {| x| PadR( x, 5 ) == 'Z03.1' } ) == 0
       AAdd( mdiagnoz, 'Z03.1' )
     Endif
-    AFill( adiag_talon, 0 )
-    For i := 1 To 16
-      adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
-    Next
+    // AFill( adiag_talon, 0 )
+    // For i := 1 To 16
+    //   adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
+    // Next
   Endif
   mdiagnoz3 := {}
   If !Empty( human_2->OSL1 )
@@ -1868,21 +2032,13 @@ Function create1reestr19( _recno, _nyear, _nmonth )
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
 
   Private mpz, oldpz, atip
-//  private p_array_PZ  // перенес в create_reestr
 
-  // nameArr := 'glob_array_PZ_' + last_digits_year( _nyear )
-  // p_array_PZ := &nameArr
-  // funcGetPZ := 'get_array_PZ_' + last_digits_year( _nyear ) + '()'
-  // p_array_PZ := &funcGetPZ
-
-//  p_array_PZ := get_array_pz( _nyear )  // перенес в create_reestr
   lenPZ := len( p_array_PZ )
 
   mpz := Array( lenPZ + 1 )
   oldpz := Array( lenPZ + 1 )
   atip := Array( lenPZ + 1 )
 
-//  For j := 0 To 150    // для таблицы _moXunit 03.02.23
   For j := 0 To lenPZ    // для таблицы _moXunit 03.02.23
     pole := 'tmp->PZ' + lstr( j )
     mpz[ j + 1 ] := oldpz[ j + 1 ] := &pole

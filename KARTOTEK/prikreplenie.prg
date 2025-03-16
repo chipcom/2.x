@@ -39,7 +39,7 @@ Function wq_if_last_file(lname, /*@*/flast)
   endif
   return fl
 
-// 20.10.15 импорт файла из ТФОМС с остатками прикреплённых без врача
+// 15.10.24 импорт файла из ТФОМС с остатками прикреплённых без врача
 Function wq_import()
   Local adbf, cName, i, s, buf, arr, arr_f, fbase
 
@@ -68,8 +68,8 @@ Function wq_import()
       endif
     endif
     /*if (fl := Extract_RAR(KeepPath(full_zip),name_zip)) .and. ;
-                                       !hb_fileExists(_tmp_dir1+cName+sdbf)
-      fl := func_error(4, 'Возникла ошибка при разархивировании '+_tmp_dir1+cName+szip)
+                                       !hb_fileExists(_tmp_dir1()+cName+sdbf)
+      fl := func_error(4, 'Возникла ошибка при разархивировании '+_tmp_dir1()+cName+szip)
     endif*/
     last_file := ' '
     if fl .and. wq_if_last_file(cName, @last_file)
@@ -98,7 +98,7 @@ Function wq_import()
             fl := func_error(4, 'По предыдущему файлу mo_wq' + rtrim(last_file) + sdbf + ' не был составлен файл прикрепления')
           endif
           if fl
-            R_Use(_tmp_dir1 + cName, , 'T1')
+            R_Use(_tmp_dir1() + cName, , 'T1')
             k := lastrec()
             Use
           else
@@ -157,7 +157,7 @@ Function wq_import()
               G_Use(dir_server + 'mo_kfio', , 'KFIO')
               index on str(kod, 7) to (cur_dir + 'tmp_kfio')
               use_base('kartotek')
-              R_Use(_tmp_dir1 + cName, , 'T1')
+              R_Use(_tmp_dir1() + cName, , 'T1')
               go top
               do while !eof()
                 @ maxrow(), 0 say padr(str(recno() / lastrec() * 100, 6, 2) + '%', maxcol() + 1) color 'W/R'
@@ -769,7 +769,7 @@ Function wq_prikreplenie()
     index on str(reestr, 6) to (cur_dir + 'tmp_krtp')
     mywait('Создание файла прикрепления')
     j := ii := 0
-    R_Use(dir_exe + '_mo_podr', cur_dir + '_mo_podr', 'PODR')
+    R_Use(dir_exe() + '_mo_podr', cur_dir + '_mo_podr', 'PODR')
     find (glob_mo[_MO_KOD_TFOMS])
     loidmo := alltrim(podr->oidmo)
     R_Use(dir_server + 'mo_otd', , 'OTD')

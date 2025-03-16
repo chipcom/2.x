@@ -2,7 +2,6 @@
 chip_mo.rc
 mo_adres.prg
 mo_main.prg
-mo_omsi.prg
 mo_st39.prg
 mo_vounc.prg
 mo_version.prg
@@ -31,6 +30,7 @@ mo_version.prg
 .\BLL\ORGANIZATION\T_Mo_podr.prg
 .\BLL\ORGANIZATION\TBank.prg
 .\BLL\EMPLOYEES\TEmployee.prg
+.\BLL\DOCUMENTS\TPassport.prg
 
 .\init\mo_init.prg
 .\init\init_mo.prg
@@ -64,6 +64,7 @@ mo_version.prg
 .\function\iniGetSetVar.prg
 .\function\inieditspr_bay.prg
 .\function\retpopupedit_bay.prg
+.\function\test_func.prg
 
 .\KARTOTEK\mo_kart.prg
 .\KARTOTEK\mo_regi.prg
@@ -73,6 +74,7 @@ mo_version.prg
 .\KARTOTEK\prikreplenie.prg
 .\KARTOTEK\delete_dubl_pacient.prg
 .\KARTOTEK\func_kartotek.prg
+.\KARTOTEK\func_smo.prg
 
 .\KASSA\mo_fr.prg
 .\KASSA\mo_kassa.prg
@@ -83,10 +85,17 @@ mo_version.prg
 .\KASSA\mo_platp.prg
 .\KASSA\mo_orto.prg
 .\KASSA\mo_ortop.prg
+.\KASSA\mo_plat_func.prg
 
-.\KEK\mo_kek.prg
-.\KEK\mo_keki.prg
-.\KEK\mo_keki_17.prg
+.\FNS\fns.prg
+.\FNS\fns_func.prg
+.\FNS\fns_exchange.prg
+.\FNS\page1.prg
+.\FNS\page2.prg
+
+#.\KEK\mo_kek.prg
+#.\KEK\mo_keki.prg
+#.\KEK\mo_keki_17.prg
 
 .\ref\initSpravFFOMS.prg
 .\ref\dbAdditionalCriteria.prg
@@ -107,24 +116,29 @@ mo_version.prg
 .\ref\dbQ0XX.prg
 .\ref\dbOther.prg
 .\ref\dbKomitet.prg
+.\ref\dbMzrf798.prg
+
+.\KSG\KSG_func.prg
+.\KSG\definition_KSG.prg
+.\KSG\definition_KIRO.prg
+.\KSG\definition_KSLP.prg
+.\KSG\f_usl_definition_KSG.prg
+.\KSG\f_1pac_definition_KSG.prg
+.\KSG\f_valid2ad_cr.prg
+.\KSG\conditionKSLP_21.prg
+.\KSG\conditionKSLP_22.prg
+.\KSG\conditionKSLP_23.prg
+.\KSG\conditionKSLP_24.prg
+.\KSG\conditionKSLP_25.prg
 
 .\oms\oms_func.prg
 .\oms\oms_double.prg
-.\oms\definition_KSG.prg
 .\oms\oms_sluch.prg
 .\oms\oms_sluch_main.prg
 .\oms\oms_usl_sluch.prg
 .\oms\f_N_oms_usl_sluch.prg
 .\oms\f5editkusl.prg
-.\oms\f_usl_definition_KSG.prg
-.\oms\f_valid2ad_cr.prg
-.\oms\kiroANDkslp.prg
-.\oms\f_1pac_definition_KSG.prg
 .\oms\Change_Cena_OMS.prg
-.\oms\conditionKSLP_21.prg
-.\oms\conditionKSLP_22.prg
-.\oms\conditionKSLP_23.prg
-.\oms\conditionKSLP_24.prg
 .\oms\diagnoze.prg
 .\oms\mo_oms131.prg
 .\oms\errorFromTFOMS.prg
@@ -149,6 +163,7 @@ mo_version.prg
 .\oms\mo_oms1.prg
 .\oms\mo_omsf.prg
 .\oms\disability_certificate.prg
+.\oms\mo_omsi.prg
 
 .\personal\personal_func.prg
 
@@ -173,6 +188,8 @@ mo_version.prg
 .\reports\forma_30.prg
 .\reports\forma_39.prg
 .\reports\forma_57.prg
+.\reports\inf_drz_excel.prg
+.\reports\fns_reports_excel.prg
 
 .\util\workWithZIP.prg
 .\util\runExternalProgram.prg
@@ -204,8 +221,10 @@ mo_version.prg
 .\dispanser\mo_r11.prg
 .\dispanser\mo_omsid.prg
 .\dispanser\disp_nab_func.prg
+.\dispanser\disp_nab_diag_usl.prg
 .\dispanser\oms_dvn_drz.prg
 .\dispanser\oms_dvn_drz_func.prg
+.\dispanser\diag_disp_nabl.prg
 
 .\EXCHANGE\reestrOMS_XML.prg
 .\EXCHANGE\schet_from_XML.prg
@@ -232,6 +251,7 @@ mo_version.prg
 .\SYSTEM\extension.prg
 .\SYSTEM\plugins.prg
 .\SYSTEM\system.prg
+.\SYSTEM\func_path.prg
 
 .\ORDER\mo_omso.prg
 .\ORDER\mo_omsp.prg
@@ -254,3 +274,6 @@ mo_version.prg
 
 .\PLAN_ZAKAZ\pz_report.prg
 .\PLAN_ZAKAZ\pz_func.prg
+
+#.\FUNC_LIB\prview.prg
+#.\FUNC_LIB\fastreph.prg

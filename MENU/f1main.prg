@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 20.01.24
+// 14.10.24
 Function f1main( n_Task )
   Local it, s, k, fl := .t., cNameIcon
 
@@ -484,6 +484,10 @@ Function f1main( n_Task )
       AAdd( first_message[ 2 ], "Информация по работе с кассой" )
       AAdd( func_menu[ 2 ], "inf_fr()" )
     Endif
+    AAdd( first_menu[ 2 ], 0 )
+    AAdd( first_menu[ 2 ], 'Справки для ~ФНС' )
+    AAdd( first_message[ 2 ], 'Составление и работа со справками для ФНС' )
+    AAdd( func_menu[ 2 ], 'inf_fns()' )
     If yes_parol
       AAdd( first_menu[ 2 ], 0 )
       AAdd( first_menu[ 2 ], "Работа ~операторов" )
@@ -546,21 +550,25 @@ Function f1main( n_Task )
       "Спра~вочники", ;
       "~Проверки" } )
     AAdd( first_message,  { ;   // информация
-    "Просмотр статистики", ;
+      "Просмотр статистики", ;
       "Просмотр общих справочников", ;
       "Различные проверочные режимы";
-      } )
+    } )
     AAdd( func_menu, { ;    // информация
-    "Oo_statist()", ;
+      "Oo_statist()", ;
       "o_sprav(-5)", ;   // X_ORTO = 5
-    "Oo_proverka()";
-      } )
+      "Oo_proverka()";
+    } )
     If glob_kassa == 1   // 10.10.14
       AAdd( first_menu[ 2 ], 0 )
       AAdd( first_menu[ 2 ], "Работа с ~кассой" )
       AAdd( first_message[ 2 ], "Информация по работе с кассой" )
       AAdd( func_menu[ 2 ], "inf_fr_orto()" )
     Endif
+    AAdd( first_menu[ 2 ], 0 )
+    AAdd( first_menu[ 2 ], 'Справки для ~ФНС' )
+    AAdd( first_message[ 2 ], 'Составление и работа со справками для ФНС' )
+    AAdd( func_menu[ 2 ], 'inf_fns()' )
     If yes_parol
       AAdd( first_menu[ 2 ], 0 )
       AAdd( first_menu[ 2 ], "Работа ~операторов" )
@@ -640,20 +648,20 @@ Function f1main( n_Task )
     AAdd( main_message, "Просмотр / печать" )
     AAdd( first_menu, { iif( is_task( X_ORTO ), "~Платные услуги", "~Статистика" ), ;
       "Сводная с~татистика", ; // 10.05
-    "Спра~вочники", ;
+      "Спра~вочники", ;
       "Работа с ~кассой" } )
     AAdd( first_message,  { ;   // информация
-    "Просмотр / печать статистических отчетов по платным услугам", ;
+      "Просмотр / печать статистических отчетов по платным услугам", ;
       "Просмотр / печать сводных статистических отчетов", ;
       "Просмотр общих справочников", ;
       "Информация по работе с кассой";
-      } )
+    } )
     AAdd( func_menu, { ;    // информация
-    "prn_k_plat()", ;
+      "prn_k_plat()", ;
       "regi_s_plat()", ;
       "o_sprav()", ;
       "prn_k_fr()";
-      } )
+    } )
     If is_task( X_ORTO )
       ins_array( first_menu[ 3 ], 2, "~Ортопедия" )
       ins_array( first_message[ 3 ], 2, "Просмотр / печать статистических отчетов по ортопедии" )
@@ -676,47 +684,51 @@ Function f1main( n_Task )
       "fk_usl_dogov()", ;
       "fr_nastrojka()", ;
       "nastr_kassa(2)" } )
-  Case glob_task == X_KEK  //
-    If !Between( hb_user_curUser:KEK, 1, 3 )
-      n_message( { "Недопустимая группа экспертизы (КЭК): " + lstr( hb_user_curUser:KEK ), ;
-        '', ;
-        'Пользователям, которым разрешено работать в подзадаче "КЭК МО",', ;
-        'необходимо установить группу экспертизы (от 1 до 3)', ;
-        'в подзадаче "Редактирование справочников" в режиме "Справочники/Пароли"' },, ;
-        "GR+/R", "W+/R",,, "G+/R" )
-    Else
-      fl := begin_task_kek()
-      AAdd( cmain_menu, 1 )
-      AAdd( main_menu, " ~КЭК " )
-      AAdd( main_message, "Ввод данных по КЭК медицинской организации" )
-      AAdd( first_menu, { "~Добавление", ;
-        "~Редактирование", ;
-        "~Удаление" } )
-      AAdd( first_message, { ;
-        "Добавление данных по экпертизе", ;
-        "Редактирование данных по экпертизе", ;
-        "Удаление данных по экпертизе";
-        } )
-      AAdd( func_menu, { "kek_vvod(1)", ;
-        "kek_vvod(2)", ;
-        "kek_vvod(3)" } )
-      AAdd( cmain_menu, 34 )
-      AAdd( main_menu, " ~Информация " )
-      AAdd( main_message, "Просмотр / печать статистики по экспертизам" )
-      AAdd( first_menu, { "~Экспертная карта", ;
-        "Оценка ~качества" } )
-      AAdd( first_message, { ;
-        "Распечатка экспертной карты", ;
-        "Распечатка раличных отчётов по оцеке качества экспертизы" } )
-      AAdd( func_menu, { "kek_prn_eks()", ;
-        "kek_info2017()" } )
-      AAdd( cmain_menu, 51 )
-      AAdd( main_menu, " ~Справочники " )
-      AAdd( main_message, "Ведение справочников" )
-      AAdd( first_menu, { "~Настройка" } )
-      AAdd( first_message, { "Настройка значений по умолчанию" } )
-      AAdd( func_menu, { "kek_nastr()" } )
-    Endif
+    AAdd( first_menu[ 2 ], 0 )
+    AAdd( first_menu[ 2 ], 'Справки для ~ФНС' )
+    AAdd( first_message[ 2 ], 'Составление и работа со справками для ФНС' )
+    AAdd( func_menu[ 2 ], 'inf_fns()' )
+//  Case glob_task == X_KEK  //
+//    If !Between( hb_user_curUser:KEK, 1, 3 )
+//      n_message( { "Недопустимая группа экспертизы (КЭК): " + lstr( hb_user_curUser:KEK ), ;
+//        '', ;
+//        'Пользователям, которым разрешено работать в подзадаче "КЭК МО",', ;
+//        'необходимо установить группу экспертизы (от 1 до 3)', ;
+//        'в подзадаче "Редактирование справочников" в режиме "Справочники/Пароли"' },, ;
+//        "GR+/R", "W+/R",,, "G+/R" )
+//    Else
+//      fl := begin_task_kek()
+//      AAdd( cmain_menu, 1 )
+//      AAdd( main_menu, " ~КЭК " )
+//      AAdd( main_message, "Ввод данных по КЭК медицинской организации" )
+//      AAdd( first_menu, { "~Добавление", ;
+//        "~Редактирование", ;
+//        "~Удаление" } )
+//      AAdd( first_message, { ;
+//        "Добавление данных по экпертизе", ;
+//        "Редактирование данных по экпертизе", ;
+//        "Удаление данных по экпертизе";
+//        } )
+//      AAdd( func_menu, { "kek_vvod(1)", ;
+//        "kek_vvod(2)", ;
+//        "kek_vvod(3)" } )
+//      AAdd( cmain_menu, 34 )
+//      AAdd( main_menu, " ~Информация " )
+//      AAdd( main_message, "Просмотр / печать статистики по экспертизам" )
+//      AAdd( first_menu, { "~Экспертная карта", ;
+//        "Оценка ~качества" } )
+//      AAdd( first_message, { ;
+//        "Распечатка экспертной карты", ;
+//        "Распечатка раличных отчётов по оцеке качества экспертизы" } )
+//      AAdd( func_menu, { "kek_prn_eks()", ;
+//        "kek_info2017()" } )
+//      AAdd( cmain_menu, 51 )
+//      AAdd( main_menu, " ~Справочники " )
+//      AAdd( main_message, "Ведение справочников" )
+//      AAdd( first_menu, { "~Настройка" } )
+//      AAdd( first_message, { "Настройка значений по умолчанию" } )
+//      AAdd( func_menu, { "kek_nastr()" } )
+//    Endif
   Case glob_task == X_MO //
     fl := my_mo_begin_task()
     my_mo_f1main()
@@ -747,11 +759,11 @@ Function f1main( n_Task )
       hb_AIns( first_menu[ Len( first_menu ) ], 6, '~Группы пользователей', .t. )
       hb_AIns( first_message[ Len( first_message ) ], 4, 'Редактирование справочника пользователей системы', .t. )
       hb_AIns( first_message[ Len( first_message ) ], 5, 'Редактирование справочника групп пользователей в системе', .t. )
-      If hb_main_curOrg:KOD_TFOMS == '102604'
-        hb_AIns( func_menu[ Len( func_menu ) ], 4, 'edit_Users_bay()', .t. )
-      Else
+//      If hb_main_curOrg:KOD_TFOMS == '102604'
+//        hb_AIns( func_menu[ Len( func_menu ) ], 4, 'edit_Users_bay()', .t. )
+//      Else
         hb_AIns( func_menu[ Len( func_menu ) ], 4, 'edit_password()', .t. )
-      Endif
+//      Endif
       hb_AIns( func_menu[ Len( func_menu ) ], 5, 'editRoles()', .t. )
     Endif
     // конец перестройки меню
@@ -923,16 +935,16 @@ Function f1main( n_Task )
     "Переидексирование справочников НСИ в рабочем каталоге", ;
     "Режим просмотра - кто находится в задаче и в каком режиме", ;
     "Просмотр файла ошибок" } )
-  // aadd(func_menu, {"file_Wordpad(dir_exe + cslash + 'README.RTF')",;
-  AAdd( func_menu, { "view_file_in_Viewer(dir_exe + cslash + 'README.RTF')", ;
+  AAdd( func_menu, { "view_file_in_Viewer(dir_exe() + 'README.RTF')", ;
     "m_help()", ;
     "nastr_rab_mesto()", ;
     "ust_printer(T_ROW)", ;
-    "index_work_dir(dir_exe, cur_dir, .t.)", ;
-    "net_monitor(T_ROW,T_COL-7,(hb_user_curUser:IsAdmin()))", ;
+    "index_work_dir(dir_exe(), cur_dir(), .t.)", ;
+    "net_monitor(T_ROW, T_COL - 7, (hb_user_curUser:IsAdmin()))", ;
     "view_errors()" } )
-  // добавим переиндексирование некоторых файлов внутри задачи
-  If eq_any( glob_task, X_PPOKOJ, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_KEK, X_263 )
+// добавим переиндексирование некоторых файлов внутри задачи
+//  If eq_any( glob_task, X_PPOKOJ, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_KEK, X_263 )
+  If eq_any( glob_task, X_PPOKOJ, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_263 )
     AAdd( ATail( first_menu ), 0 )
     AAdd( ATail( first_menu ), "Пере~индексирование" )
     AAdd( ATail( first_message ), 'Переиндексирование части базы данных для задачи "' + array_tasks[ ind_task(), 5 ] + '"' )

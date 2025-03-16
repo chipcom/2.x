@@ -3,7 +3,7 @@
 // #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 11.03.22
+// 15.01.25
 Function index_base( sBase )
 
   Millisec( 100 )  // задержка на 0.1 с
@@ -180,12 +180,13 @@ Function index_base( sBase )
     Index On Str( kod_as, 4 ) + date_u to ( dir_server + "hum_p_ua" ) progress
   Case sBase == "hum_plat"
     Index On Str( kod, 7 ) to ( dir_server + sBase ) progress
-  Case sBase == "payments"
-    Index On Str( IDCONTR, 7 ) to ( dir_server + 'payments' ) progress
-    Index On DToS( DATE ) to ( dir_server + 'payments_date' ) progress
-    Index On Str( TYPEPAYER, 1 ) + Str( IDPAYER, 7 ) to ( dir_server + 'payments_payer' ) progress
-  Case sBase == "payer"
-    Index On Upper( NAME ) to ( dir_server + sBase ) progress
+//  Case sBase == "payments"
+//    Index On Str( IDCONTR, 7 ) to ( dir_server + 'payments' ) progress
+//    Index On DToS( DATE ) to ( dir_server + 'payments_date' ) progress
+//    Index On Str( TYPEPAYER, 1 ) + Str( IDPAYER, 7 ) to ( dir_server + 'payments_payer' ) progress
+//  Case sBase == "payer"
+//    Index On NAME to ( dir_server + sBase ) progress
+
   Case sBase == "pu_date"
     Index On DToS( data ) to ( dir_server + sBase ) descending
   Case sBase == "pu_cena"
@@ -232,15 +233,26 @@ Function index_base( sBase )
   Case sBase == "kas_ortu"
     Index On Str( kod, 7 ) + Str( vid, 1 ) to ( dir_server + "kas_or1u" ) progress
     Index On Str( u_kod, 4 ) to ( dir_server + "kas_or2u" ) progress
-    //
-  Case sBase == "mo_kekh"
-    Index On Str( kod_lu, 7 ) to ( dir_server + sBase ) progress
-  Case sBase == "mo_keke"
-    Index On Str( kod, 7 ) + Str( tip_eks, 1 ) to ( dir_server + "mo_keket" ) progress
-    Index On Str( kod_eks, 3 ) + DToS( date_eks ) to ( dir_server + "mo_kekee" ) descending progress
-    Index On DToS( date_eks ) to ( dir_server + "mo_keked" ) progress
-  Case sBase == "mo_kekez"
-    Index On Str( kod, 7 ) + Str( stroke, 2 ) to ( dir_server + sBase ) progress
+  Case sBase == 'register_fns'
+    Index On Str( kod_k, 7 ) + Str( nyear, 4 ) + Str( attribut, 1 ) + Str( num_s, 7 ) + Str( version, 3 ) to ( dir_server + 'reg_fns' ) progress
+  Case sBase == 'reg_link_fns'
+    Index On Str( kod_spr, 7 ) to ( dir_server + 'reg_link' ) progress
+  Case sBase == 'reg_xml_fns'
+    Index On Str( kod, 6 ) to ( dir_server + 'reg_xml' ) progress
+  Case sBase == 'reg_people_fns'
+//    Index On str( kod, 7 ) to ( dir_server + sBase ) progress
+    Index On kod to ( dir_server + sBase ) progress
+    Index On fio to ( dir_server + sBase + '_fio' ) progress
+  
+  //
+  // Case sBase == "mo_kekh"
+  //   Index On Str( kod_lu, 7 ) to ( dir_server + sBase ) progress
+  // Case sBase == "mo_keke"
+  //   Index On Str( kod, 7 ) + Str( tip_eks, 1 ) to ( dir_server + "mo_keket" ) progress
+  //   Index On Str( kod_eks, 3 ) + DToS( date_eks ) to ( dir_server + "mo_kekee" ) descending progress
+  //   Index On DToS( date_eks ) to ( dir_server + "mo_keked" ) progress
+  // Case sBase == "mo_kekez"
+  //   Index On Str( kod, 7 ) + Str( stroke, 2 ) to ( dir_server + sBase ) progress
   Endcase
   If Type( "fl_open" ) == "L" .and. fl_open
     __tmp__->( dbCloseArea() )

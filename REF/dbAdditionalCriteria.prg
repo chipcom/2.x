@@ -2,7 +2,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 26.09.23
+// 14.10.24
 function loadCriteria21(val_year)
   local fl, ar, ar1, ar2, i
   local retCriteria := {}, lSchema := .f.
@@ -11,12 +11,12 @@ function loadCriteria21(val_year)
   local aV024, it, sIt1code
 
   // исходный файл T006 21 года и выше
-  if hb_FileExists(dir_exe + sbaseIt1 + sdbf)
+  if hb_FileExists(dir_exe() + sbaseIt1 + sdbf)
     aV024 := getV024(val_year)
 
     tmp_select := select()
 
-    R_Use(dir_exe + sbaseIt1, ,'IT1')
+    R_Use(dir_exe() + sbaseIt1, ,'IT1')
     ('IT1')->(dbGoTop())
     do while !('IT1')->(eof())
       lSchema := .f.
@@ -58,10 +58,9 @@ function loadCriteria21(val_year)
 
     asort(retCriteria, , , {|x, y| x[2] < y[2] })
   else
-    fl := notExistsFileNSI( dir_exe + sbaseIt1 + sdbf )
+    fl := notExistsFileNSI( dir_exe() + sbaseIt1 + sdbf )
   endif
   Select(tmp_select)
-
   return retCriteria
 
 // 30.10.22
@@ -127,7 +126,7 @@ function getAdditionalCriteria( dateSl )
   endif
   return retCriteria
 
-// 04.02.23
+// 14.10.24
 function loadCriteria21_old(val_year)
   local fl, ar, ar1, ar2, i
   local retCriteria := {}, lSchema := .f.
@@ -136,12 +135,12 @@ function loadCriteria21_old(val_year)
   local sbaseShema := prefixFileRefName(val_year) + 'shema'
 
   // исходный файл T006 21 года и выше
-  if hb_FileExists(dir_exe + sbaseIt1 + sdbf)
+  if hb_FileExists(dir_exe() + sbaseIt1 + sdbf)
     tmp_select := select()
-    R_Use(dir_exe + sbaseShema, , 'SCHEMA')
+    R_Use(dir_exe() + sbaseShema, , 'SCHEMA')
     index on KOD to tmpit memory  //(cur_dir + sbaseShema)
 
-    R_Use(dir_exe + sbaseIt1, ,'IT1')
+    R_Use(dir_exe() + sbaseIt1, ,'IT1')
     ('IT1')->(dbGoTop())
     do while !('IT1')->(eof())
       lSchema := .f.
@@ -184,13 +183,12 @@ function loadCriteria21_old(val_year)
 
     asort(retCriteria, , , {|x, y| x[2] < y[2] })
   else
-    fl := notExistsFileNSI( dir_exe + sbaseIt1 + sdbf )
+    fl := notExistsFileNSI( dir_exe() + sbaseIt1 + sdbf )
   endif
   Select(tmp_select)
-
   return retCriteria
 
-// 06.02.22
+// 14.10.24
 function loadCriteria20(val_year)
   local fl, ar, ar1, ar2, i
   local retCriteria := {}
@@ -198,9 +196,9 @@ function loadCriteria20(val_year)
   local sbaseIt1 := prefixFileRefName(val_year) + 'it1'
 
   // исходный файл T006 20 года
-  if hb_FileExists(dir_exe + sbaseIt1 + sdbf)
+  if hb_FileExists(dir_exe() + sbaseIt1 + sdbf)
     tmp_select := select()
-    R_Use(dir_exe + sbaseIt1, , 'IT1')
+    R_Use(dir_exe() + sbaseIt1, , 'IT1')
     ('IT1')->(dbGoTop())
     do while !('IT1')->(eof())
       ar := {}
@@ -229,45 +227,45 @@ function loadCriteria20(val_year)
     enddo
     ('IT1')->(dbCloseArea())
   else
-    fl := notExistsFileNSI( dir_exe + sbaseIt1 + sdbf )
+    fl := notExistsFileNSI( dir_exe() + sbaseIt1 + sdbf )
   endif
   Select(tmp_select)
   return retCriteria
 
-// 06.02.22
+// 14.10.24
 function loadCriteria19(val_year)
   local retCriteria := {}
   local tmp_select := select()
   local sbaseIt := prefixFileRefName(val_year) + 'it'
 
   // исходный файл T006 19 года
-  if hb_FileExists(dir_exe + sbaseIt + sdbf)
+  if hb_FileExists(dir_exe() + sbaseIt + sdbf)
     tmp_select := select()
-    R_Use(dir_exe + sbaseIt, ,'IT')
+    R_Use(dir_exe() + sbaseIt, ,'IT')
     index on ds to tmpit memory
     dbeval({|| aadd(retCriteria, {it->ds, it->it}) })
     ('IT')->(dbCloseArea())
   else
-    fl := notExistsFileNSI( dir_exe + sbaseIt + sdbf )
+    fl := notExistsFileNSI( dir_exe() + sbaseIt + sdbf )
   endif
   Select(tmp_select)
   return retCriteria
 
-// 06.02.22
+// 14.10.24
 function loadCriteria18(val_year)
   local retCriteria := {}
   local tmp_select := select()
   local sbaseIt := prefixFileRefName(val_year) + 'it'
 
   // исходный файл T006 18 года
-  if hb_FileExists(dir_exe + sbaseIt + sdbf)
+  if hb_FileExists(dir_exe() + sbaseIt + sdbf)
     tmp_select := select()
-    R_Use(dir_exe + sbaseIt, ,'IT')
+    R_Use(dir_exe() + sbaseIt, ,'IT')
     index on ds to tmpit memory
     dbeval({|| aadd(retCriteria, {it->ds, it->it}) })
     ('IT')->(dbCloseArea())
   else
-    fl := notExistsFileNSI( dir_exe + sbaseIt + sdbf )
+    fl := notExistsFileNSI( dir_exe() + sbaseIt + sdbf )
   endif
   Select(tmp_select)
   return retCriteria

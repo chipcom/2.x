@@ -51,7 +51,7 @@ Function pz_statist( k )
 
   Return Nil
 
-// 17.04.24
+// 14.05.24
 Function pz1statist( par, par2 )
 
   Static _su := 2
@@ -117,7 +117,7 @@ Function pz1statist( par, par2 )
       Return Nil
     Endif
     If par2 == 1
-      Private mdate_reg
+      Private mdate_reg, mdate_reg_begin
       If !is_otch_period( arr_m )
         Return Nil
       Elseif !ret_date_reg_otch_period()
@@ -158,7 +158,7 @@ Function pz1statist( par, par2 )
   _su := su 
   If Between( par, 2, 3 ) .and. eq_any( su, 1, 2, 5 )
     sbase := prefixfilerefname( arr_m[ 1 ] ) + 'unit'
-    r_use( dir_exe + sbase, , 'MOUNIT' )
+    r_use( dir_exe() + sbase, , 'MOUNIT' )
     Index On Str( ii, 3 ) to ( cur_dir + 'tmp_unitii' )
     Set Index to ( cur_dir + sbase ), ( cur_dir + 'tmp_unitii' )
     apz2016 := arr_plan_zakaz( arr_m[ 1 ] )
@@ -300,9 +300,17 @@ Function pz1statist( par, par2 )
             fl_period := .t.
           Endif
         Endif
-        If fl .and. mdate_reg != NIL
-          fl := ( schet_->NREGISTR == 0 .and. date_reg_schet() <= mdate_reg )
-        Endif
+        if glob_mo[_MO_KOD_TFOMS] == '805965' // РДЛ
+          If fl .and. mdate_reg != NIL .and. mdate_reg_begin != NIL
+            fl := ( schet_->NREGISTR == 0 .and. date_reg_schet() <= mdate_reg .and. date_reg_schet() >= mdate_reg_begin)
+          elseif fl .and. mdate_reg != NIL
+            fl := ( schet_->NREGISTR == 0 .and. date_reg_schet() <= mdate_reg )
+          Endif
+        else   
+          If fl .and. mdate_reg != NIL
+            fl := ( schet_->NREGISTR == 0 .and. date_reg_schet() <= mdate_reg )
+          Endif
+        endif
       Else
         If emptyany( schet_->nyear, schet_->nmonth )
           fl := .f.
@@ -528,7 +536,11 @@ Function pz1statist( par, par2 )
       endif
     endif
     If mdate_reg != NIL
-      strOut := '[ по счетам, зарегистрированным по ' + full_date( mdate_reg ) + 'г. включительно ]'
+      if glob_mo[_MO_KOD_TFOMS] == '805965' .and. mdate_reg != NIL .and. mdate_reg_begin != NIL //РДЛ
+        strOut := '[ по счетам, зарегистрированным c'  + full_date( mdate_reg_begin ) + ' по ' + full_date( mdate_reg ) + 'г. включительно ]'
+      else  
+        strOut := '[ по счетам, зарегистрированным по ' + full_date( mdate_reg ) + 'г. включительно ]'
+      endif  
       tmp_sel := select()
       Select TMP_XLS
       Append Blank
@@ -537,11 +549,11 @@ Function pz1statist( par, par2 )
       if lExcel
         worksheet_merge_range( wsCommon, row, column, row, 8, '', wsCommon_format )
         worksheet_write_string( wsCommon, row++, column, ;
-          hb_StrToUTF8( strOut ), wsCommon_format )
+        hb_StrToUTF8( strOut ), wsCommon_format )
       else
         add_string( Center( strOut, sh ) )
       endif
-    Endif
+    endif
   Elseif par == 2 .and. par2 == 2
     strOut := 'по счетам (дата окончания лечения ' + arr_m[ 4 ] + ')'
     tmp_xls->u_name := strOut
@@ -1659,7 +1671,7 @@ Function f1pz1statist( arr_otd, par )
 
   Return Nil
 
-// 14.03.24
+// 14.05.24
 Function pz2statist( arr_m, par2, lAdult )
 
   Local begin_date, end_date, buf := save_maxrow(), fl := .f., mstr_crb, mismo
@@ -1700,9 +1712,18 @@ Function pz2statist( arr_m, par2, lAdult )
         mdate := SToD( StrZero( schet_->nyear, 4 ) + StrZero( schet_->nmonth, 2 ) + '15' )
         fl := Between( mdate, arr_m[ 5 ], arr_m[ 6 ] )
       Endif
-      If fl .and. mdate_reg != NIL
-        fl := ( schet_->NREGISTR == 0 .and. date_reg_schet() <= mdate_reg )
-      Endif
+
+      if glob_mo[_MO_KOD_TFOMS] == '805965' // РДЛ
+        If fl .and. mdate_reg != NIL .and. mdate_reg_begin != NIL
+          fl := ( schet_->NREGISTR == 0 .and. date_reg_schet() <= mdate_reg .and. date_reg_schet() >= mdate_reg_begin)
+        elseIf fl .and. mdate_reg != NIL
+          fl := ( schet_->NREGISTR == 0 .and. date_reg_schet() <= mdate_reg )
+        Endif
+      else  
+        If fl .and. mdate_reg != NIL
+          fl := ( schet_->NREGISTR == 0 .and. date_reg_schet() <= mdate_reg )
+        Endif
+      endif   
     Else
       If emptyany( schet_->nyear, schet_->nmonth )
         fl := .f.
@@ -1727,7 +1748,7 @@ Function pz2statist( arr_m, par2, lAdult )
       Endif
     Endif
     If fl .and. schet->komu != 5
-      If schet_->ifin > 0
+      If schet_->ifin > 0   
         mkomu := 0
         mstr_crb := 0
         msmo := schet_->smo

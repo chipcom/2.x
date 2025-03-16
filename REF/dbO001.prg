@@ -16,11 +16,9 @@ function getO001()
 
   if len(_O001) == 0
     db := openSQL_DB()
-    // aTable := sqlite3_get_table( db, "SELECT name11, kod, datebeg, dateend, alfa2, alfa3, name12 FROM o001" )
     aTable := sqlite3_get_table(db, 'SELECT name11, kod, alfa2, alfa3, name12 FROM o001')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        // aadd(_O001, {alltrim(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4]), alltrim(aTable[nI, 5]), alltrim(aTable[nI, 6]), alltrim(aTable[nI, 7])})
         aadd(_O001, {alltrim(aTable[nI, 1]), alltrim(aTable[nI, 2]), aTable[nI, 3], aTable[nI, 4], alltrim(aTable[nI, 5])})
       next
     endif
@@ -28,8 +26,9 @@ function getO001()
   endif
   return _O001
 
-** 01.11.22 вернуть страну
+// 01.11.22 вернуть страну
 Function getCountry(lstrana)
+  
   Static kod_RF := '643'
 
   Local s := space(10), i

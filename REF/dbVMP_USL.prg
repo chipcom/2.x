@@ -23,7 +23,7 @@ function getServiceForVMP(lvidvmp, dateSl, hVid, hMethod, model, sDiag)
   next
   return ret
 
-// 01.12.21 возвращает массив соответствия видов и методов ВМП услугам ФФОС
+// 14.10.24 возвращает массив соответствия видов и методов ВМП услугам ФФОС
 function getVMP_USL( dateSl)
   static arrVMP_USL := {}
 
@@ -34,7 +34,7 @@ function getVMP_USL( dateSl)
     dbName := prefixFileRefName(dateSl) + 'vmp_usl'
 
     tmp_select := select()
-    dbUseArea(.t., 'DBFNTX', dir_exe + dbName, dbAlias , .t., .f.)
+    dbUseArea(.t., 'DBFNTX', dir_exe() + dbName, dbAlias , .t., .f.)
   
     //  1 - SHIFR(C)  2 - HVID(C)  3 - HMETHOD(N) 4 - MODEL(N) 5 - DIAGNOZIS(C)
     (dbAlias)->(dbGoTop())

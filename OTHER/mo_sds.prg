@@ -53,7 +53,7 @@ if k > 0
 endif
 return NIL
 
-// 29.03.23
+// 17.02.25
 Function read_file_XML_SDS(n_file)
 Static cDelimiter := " , "
 Local _sluch := {;
@@ -189,7 +189,7 @@ Local _sluch_us := {; // Сведения о проведённых лечениях
 Local _sluch_le := {; // Сведения о применённых лекарственных препаратах
    {"KOD"      ,   "N",     7,     0},; // код больного
    {"REGNUM",      "C",     6,     0},; // IDD лек.препарата N020
-   {"CODE_SH",     "C",    10,     0},; // код схемы лек.терапии V024
+   {"CODE_SH",     "C",    20,     0},; // код схемы лек.терапии V024
    {"DATE_INJ",    "D",     8,     0};  // дата введения лек.препарата
   }
 Local _sluch_p := {; // подразделения (отделения)
@@ -567,16 +567,16 @@ strfile(center(n_file,80) +eos+eos,file_error,.t.)
 strfile(center("Протокол чтения файла",80) +eos, "ttt.ttt")
 strfile(center(n_file,80) +eos+eos, "ttt.ttt",.t.)
 Private paso, pasv, pasp, pass
-R_Use(dir_exe + "_okator", cur_dir + "_okatr", "REGION")
-R_Use(dir_exe + "_okatoo", cur_dir + "_okato", "OBLAST")
-R_Use(dir_exe + "_okatos", cur_dir + "_okats", "SELO")
-R_Use(dir_exe + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10")
+R_Use(dir_exe() + "_okator", cur_dir + "_okatr", "REGION")
+R_Use(dir_exe() + "_okatoo", cur_dir + "_okato", "OBLAST")
+R_Use(dir_exe() + "_okatos", cur_dir + "_okats", "SELO")
+R_Use(dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10")
 use_base("lusl")
 use_base("luslc")
 use_base("luslf")
-R_Use(dir_exe + "_mo_t2_v1", , "T2V1")
+R_Use(dir_exe() + "_mo_t2_v1", , "T2V1")
 index on padr(shifr_mz,20) to (cur_dir + "tmp_t2v1")
-R_Use(dir_exe + "_mo_prof", , "MOPROF")
+R_Use(dir_exe() + "_mo_prof", , "MOPROF")
 index on str(vzros_reb,1) +str(profil,3) +shifr to (cur_dir + "tmp_prof")
 R_Use(dir_server + "mo_pers", dir_server + "mo_pers", "PERS")
 index on snils+str(prvs_new,4) to (cur_dir + "tmppsnils")
@@ -586,7 +586,7 @@ Use_base("mo_su")
 Use_base("uslugi")
 R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
                             dir_server + "uslugi1s"}, "USL1")
-R_Use(dir_exe+"_mo_smo",{cur_dir + "_mo_smo", cur_dir + "_mo_smo2"}, "SMO")
+R_Use(dir_exe()+"_mo_smo",{cur_dir + "_mo_smo", cur_dir + "_mo_smo2"}, "SMO")
 //
 select IHUMAN
 go top
@@ -963,7 +963,7 @@ do while !eof()
       aadd(ae, 'не заполнен профиль койки')
     elseif !empty(ihuman->PROFIL)
       if select("PRPRK") == 0
-        R_Use(dir_exe + "_mo_prprk", cur_dir + "_mo_prprk", "PRPRK")
+        R_Use(dir_exe() + "_mo_prprk", cur_dir + "_mo_prprk", "PRPRK")
         //index on str(profil,3) +str(profil_k,3) to (cur_dir+sbase)
       endif
       select PRPRK
@@ -1055,7 +1055,7 @@ do while !eof()
       {2, "2.79."},; //	Посещение с профилактической целью
       {22, "2.79.44", "2.79.50"},; //	патронажное посещение на дому
       {3, "2.80."},; //	Посещение в неотложной форме
-      {4, "2.88.1", "2.88.51"},; //	Разовое посещение по поводу заболевания
+      {4, "2.88.1", "2.88.147"},; //	Разовое посещение по поводу заболевания (замена 2.88.51 на 2.88.147)
       {40, "2.88.78", "2.88.106"},; //	Разовое посещение по поводу заболевания с целью проведения диспансерного наблюдения первичное
       {41, "2.88.52", "2.88.77"},; //	Разовое посещение по поводу заболевания с целью проведения диспансерного наблюдения повторное
       {5, "2.82."},; //	Врачебный приём в приёмном покое стационара

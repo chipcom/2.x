@@ -4,6 +4,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+#define BASE_ISHOD_RZD 500  //
+
 // 28.09.18 добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
 Function np_oftal_2_85_21( _period, _k_data )
 
@@ -290,7 +292,7 @@ Function add_pediatr_pern( _pv, _pa, _date, _diag )
 
   Return arr
 
-// 18.10.22 вернуть тип вводимого листа учёта
+// 04.01.25 вернуть тип вводимого листа учёта
 Function ret_tip_lu( /*@*/stip)
 
   Local k := 0, tmp_select
@@ -299,14 +301,20 @@ Function ret_tip_lu( /*@*/stip)
   If Between( human->ishod, 101, 102 )
     k := iif( !Empty( human->ZA_SMO ), TIP_LU_DDS, TIP_LU_DDSOP )
     If human->ishod == 101
-      stip := iif( !Empty( human->ZA_SMO ), 'ДС1', 'ДУ1' )
+//      stip := iif( !Empty( human->ZA_SMO ), 'ДС1', 'ДУ1' )
+      stip := iif( !Empty( human->ZA_SMO ), 'ДС1', 'ДС2' )   // письмо ТФОМС 09-20-674 от 19.12.24
     Else // 102
-      stip := iif( !Empty( human->ZA_SMO ), 'ДС2', 'ДУ2' )
+//      stip := iif( !Empty( human->ZA_SMO ), 'ДС2', 'ДУ2' )
+      stip := iif( !Empty( human->ZA_SMO ), 'ДС3', 'ДС4' )   // письмо ТФОМС 09-20-674 от 19.12.24
     Endif
   Elseif Between( human->ishod, 201, 205 )
     k := TIP_LU_DVN
     If human->ishod == 201
-      stip := 'ДВ1'
+      if human->k_data < 0d20250101
+        stip := 'ДВ1'
+      else
+        stip := 'ДВ4'   // письмо ТФОМС 09-20-674 от 19.12.24
+      endif
     Elseif eq_any( human->ishod, 202, 205 )
       stip := 'ДВ2'
     Elseif human->ishod == 204
@@ -317,9 +325,11 @@ Function ret_tip_lu( /*@*/stip)
   Elseif Between( human->ishod, 301, 302 )
     k := TIP_LU_PN
     If human->ishod == 301
-      stip := 'ОН1'
+//      stip := 'ОН1'
+      stip := 'ПН1'   // письмо ТФОМС 09-20-674 от 19.12.24
     Else // 302
-      stip := 'ОН2'
+//      stip := 'ОН2'
+      stip := 'ПН2'   // письмо ТФОМС 09-20-674 от 19.12.24
     Endif
   Elseif Between( human->ishod, 303, 304 )
     k := TIP_LU_PREDN
@@ -331,12 +341,21 @@ Function ret_tip_lu( /*@*/stip)
   Elseif human->ishod == 305
     k := TIP_LU_PERN
     stip := 'ОПН'
-  Elseif Between( human->ishod, 401, 402 )  // при углубленной диспансеризации после COVID
+  // Elseif Between( human->ishod, 401, 402 )  // при углубленной диспансеризации после COVID
+  Elseif is_sluch_dispanser_COVID( human->ishod )  // при углубленной диспансеризации после COVID
     k := TIP_LU_DVN_COVID
     If human->ishod == 401
       stip := 'УД1'             // для 1-го этапа
     Else // 402
       stip := 'УД2'             // для 2-го этапа
+    Endif
+  // Elseif Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )  // при диспансеризации репродуктивного здоровья
+  Elseif is_sluch_dispanser_DRZ( human->ishod )  // при диспансеризации репродуктивного здоровья
+    k := TIP_LU_DRZ
+    If human->ishod == BASE_ISHOD_RZD + 1
+      stip := 'ДР1'             // для 1-го этапа
+    Else // 502
+      stip := 'ДР2'             // для 2-го этапа
     Endif
   Elseif human->ishod == 98
     k := TIP_LU_G_CIT

@@ -233,7 +233,7 @@ Function fillzip( arr_f, sFileName )
 
   Return sFileName
 
-// 22.03.24
+// 22.08.24
 Function create_zip( par, dir_archiv )
   Static sast := '*', sfile_begin := '_begin.txt', sfile_end := '_end.txt'
   Local arr_f, ar
@@ -243,14 +243,14 @@ Function create_zip( par, dir_archiv )
   Local cFile, nLen
   Local zip_file, lCompress
   Local buf := SaveScreen()
-  Local zip_xml_mo, zip_xml_tf, zip_napr_mo, zip_napr_tf
+  Local zip_xml_mo, zip_xml_tf, zip_napr_mo, zip_napr_tf, zip_xml_fns
   local afterDate := BoY( AddMonth( date(), - ( 12 * YEAR_COMPRESSION ) ) )
 
   // Local time_zip := 0, t1
 
   // t1 := seconds()
 
-  zip_xml_mo := zip_xml_tf := zip_napr_mo := zip_napr_tf := ''
+  zip_xml_mo := zip_xml_tf := zip_napr_mo := zip_napr_tf := zip_xml_fns := ''
   If par == 1
     If ! g_slock1task( sem_task, sem_vagno )  // запрет доступа всем
       func_error( 4, 'В данный момент работают другие задачи. Копирование запрещено!' )
@@ -272,6 +272,7 @@ Function create_zip( par, dir_archiv )
     zip_xml_tf := dir_XML_TF + szip
     zip_napr_mo := dir_NAPR_MO + szip
     zip_napr_tf := dir_NAPR_TF + szip
+    zip_xml_fns := 'XML_FNS' + szip
 
     hb_vfErase( sfile_begin )
     hb_MemoWrit( sfile_begin, full_date( sys_date ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
@@ -305,6 +306,12 @@ Function create_zip( par, dir_archiv )
 
     zip_napr_tf := fillzip( arr_f, zip_napr_tf )
 
+    //
+    arr_f := {}
+    scandirfiles_for_backup( dir_XML_FNS(), sast + sxml, blk, afterDate )
+
+    zip_xml_fns := fillzip( arr_f, zip_xml_fns )
+
     hb_vfErase( dir_archiv + zip_file )
 
     // сначала прочие файлы
@@ -325,6 +332,9 @@ Function create_zip( par, dir_archiv )
     Endif
     If ! Empty( zip_napr_tf )
       AAdd( ar, cur_dir() + zip_napr_tf )
+    Endif
+    If ! Empty( zip_xml_fns )
+      AAdd( ar, cur_dir() + zip_xml_fns )
     Endif
 
     For i := 1 To Len( array_files_DB )
@@ -383,6 +393,9 @@ Function create_zip( par, dir_archiv )
   Endif
   If !Empty( zip_napr_tf )
     hb_vfErase( zip_napr_tf )
+  Endif
+  If !Empty( zip_xml_fns )
+    hb_vfErase( zip_xml_fns )
   Endif
 
   // разрешение доступа всем

@@ -46,6 +46,7 @@ CREATE CLASS TEmployee	INHERIT	TBaseObjectBLL
 		PROPERTY Dsertif READ getDsertif WRITE setDsertif
 		PROPERTY PRVS READ getPRVS WRITE setPRVS
 		PROPERTY PRVSNEW READ getPRVSNew WRITE setPRVSNew
+		PROPERTY PRVS021 READ getPRVS021 WRITE setPRVS021
 		
 		PROPERTY PRVS_F READ getPRVSFormat
 		
@@ -94,6 +95,7 @@ CREATE CLASS TEmployee	INHERIT	TBaseObjectBLL
 		DATA FDsertif	INIT ctod( '' )
 		DATA FPRVS		INIT 0
 		DATA FPRVSNEW	INIT 0
+		DATA FPRVS021	INIT 0
 		
 		DATA FSNILS		INIT space( 11 )
 		DATA FDBegin	INIT ctod( '' )
@@ -154,7 +156,9 @@ CREATE CLASS TEmployee	INHERIT	TBaseObjectBLL
 		METHOD setPRVS( nVal )
 		METHOD getPRVSNew			INLINE ::FPRVSNEW
 		METHOD setPRVSNew( nVal )
-		
+		METHOD getPRVS021			INLINE ::FPRVS021
+		METHOD setPRVS021( nVal )
+				
 		METHOD getTabNom				INLINE ::FTabNom
 		METHOD setTabNom( nVal )
 		METHOD getSvodNom			INLINE ::FSvodNom
@@ -284,6 +288,11 @@ METHOD PROCEDURE setPRVSNew( nVal )	CLASS TEmployee
 	::FPRVSNEW := nVal
 	return
 
+METHOD PROCEDURE setPRVS021( nVal )	CLASS TEmployee
+
+	::FPRVS021 := nVal
+	return
+		
 METHOD PROCEDURE setTabNom( nVal )	CLASS TEmployee
 
 	::FTabNom := nVal

@@ -4,16 +4,18 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 22.12.23 
-Function print_l_uch(mkod, par, regim, lnomer)
+// 27.01.25
+Function print_l_uch( mkod, par, regim, lnomer )
+  
   // mkod - код больного по БД human
+
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
-      name_lpu, name_otd := '', mvzros_reb, mreg_lech, mmest_inog, mrab_nerab, ;
-      mkomu, name_org, mlech_vr := '', mishod, mprodol, msumma := 0, mmi_git, ;
-      mud_lich := '', arr, n_file := cur_dir + 'list_uch' + stxt, adiag_talon[16], ;
+      name_lpu, name_otd := '', mvzros_reb, mrab_nerab, ;
+      mkomu, name_org, mlech_vr := '', msumma := 0, ;
+      mud_lich := '', arr, n_file := cur_dir() + 'list_uch' + stxt, adiag_talon[16], ;
       madres, i := 1, j, k, tmp[2], tmp1, w1 := 37, s, s1, mnum_lu, lshifr1
   local tmpAlias
-  local arrLekPreparat, arrImplantant, aNameImp, aSerNum, nNameImp, nSerNum, row
+  local arrLekPreparat, arrImplantant, row
   local cREGNUM, cUNITCODE, cMETHOD
   local lTypeLUMedReab := .f., aMedReab
   local diagVspom := '', diagMemory := '', add_criteria
@@ -32,10 +34,10 @@ Function print_l_uch(mkod, par, regim, lnomer)
   R_Use(dir_server + 'organiz', , 'ORG')
   name_org := alltrim(org->name)
   dbCloseAll()
-  if !myFileDeleted(cur_dir + 'tmp1' + sdbf)
+  if !myFileDeleted(cur_dir() + 'tmp1' + sdbf)
     return NIL
   endif
-  dbcreate(cur_dir + 'tmp1', {{'kod', 'N', 4, 0}, ;
+  dbcreate(cur_dir() + 'tmp1', {{'kod', 'N', 4, 0}, ;
                          {'name', 'C', 255, 0}, ;
                          {'shifr', 'C', 20, 0}, ;
                          {'shifr1', 'C', 20, 0}, ;
@@ -53,10 +55,10 @@ Function print_l_uch(mkod, par, regim, lnomer)
                          {'profil', 'N', 4, 0}, ;
                          {'kol', 'N', 4, 0}, ;
                          {'summa', 'N', 11, 2}})
-  use (cur_dir + 'tmp1')
-  index on str(kod, 4) to (cur_dir + 'tmp11')
-  index on dtos(date_u1) +fsort_usl(shifr) to (cur_dir + 'tmp12')
-  use (cur_dir + 'tmp1') index (cur_dir + 'tmp11'), (cur_dir + 'tmp12') alias tmp1
+  use (cur_dir() + 'tmp1')
+  index on str(kod, 4) to (cur_dir() + 'tmp11')
+  index on dtos(date_u1) +fsort_usl(shifr) to (cur_dir() + 'tmp12')
+  use (cur_dir() + 'tmp1') index (cur_dir() + 'tmp11'), (cur_dir() + 'tmp12') alias tmp1
   Use_base('lusl')
   Use_base('luslf')
   R_Use(dir_server + 'uslugi', , 'USL')
@@ -136,14 +138,23 @@ Function print_l_uch(mkod, par, regim, lnomer)
         R_Use(dir_server + 'mo_rak', , 'RAK')
         R_Use(dir_server + 'mo_raks', , 'RAKS')
         set relation to akt into RAK
-        R_Use(dir_server + 'mo_raksh', , 'RAKSH')
+        R_Use(dir_server + 'mo_raksh', , 'RAKSH') 
         set relation to kod_raks into RAKS
         arr := {}
-        Locate for kod_h == mkod
-        do while found()
-          aadd(arr, {rak->NAKT, rak->DAKT, raksh->REFREASON, raksh->NEXT_KOD})
-          continue
-        enddo
+        Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) for kod_h == mkod
+        //Locate for kod_h == mkod
+        //do while found()
+        //  aadd(arr, {rak->NAKT, rak->DAKT, raksh->REFREASON, raksh->NEXT_KOD})
+        //  continue
+        //enddo
+        find(str(mkod,7))
+        if found()
+          do while raksh->kod_h == mkod .and. !eof()
+            aadd(arr, {rak->NAKT, rak->DAKT, raksh->REFREASON, raksh->NEXT_KOD})
+            skip 
+          enddo
+        endif 
+        //
         asort(arr, , ,{|x,y| x[2] < y[2] })
         for i := 1 to len(arr)
           s += 'Акт № ' + alltrim(arr[i, 1]) + ' от ' +date_8(arr[i, 2]) + '. '
@@ -179,7 +190,6 @@ Function print_l_uch(mkod, par, regim, lnomer)
   if ! (lExistFilesTFOMS := check_files_TFOMS(year(human->k_data)))  // проверим наличие справочников ТФОМС
     func_error(4, 'Отсутствуют справочники ТФОМС за ' + str(year(human->k_data), 4) +' год.' )
   endif
-
 
   for i := 1 to perenos(tmp, name_org, sh)
     add_string(center(alltrim(tmp[i]), sh))
@@ -237,7 +247,9 @@ Function print_l_uch(mkod, par, regim, lnomer)
   if !empty(human->mr_dol)
     add_string('  Место работы/учебы: ' + human->mr_dol)
   endif
-  add_string('  Статус пациента: ' + mrab_nerab)
+  add_string( '  Статус пациента: ' + mrab_nerab )
+  add_string( '  Социальная категория пациента: ' + inieditspr( A__MENUVERT, mm_SVO(), val( kart->PC3 ) ) )
+
   if human_->NOVOR > 0
     add_string('')
     add_string('  Новорожденный: ' + lstr(human_->NOVOR) + '-й ребёнок, д.р. ' + ;
@@ -264,7 +276,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
     add_string(s)
   endif
   s := ''
-  if eq_any(human->ishod, 201, 202, 203, 401, 402 )  // дисп-ия (профосмотр) взрослого населения
+  if eq_any(human->ishod, 201, 202, 203, 401, 402, 501, 502 )  // дисп-ия (профосмотр) взрослого населения
     Private pole_diag, pole_1pervich
     for i := 1 to 5
       pole_diag := 'mdiag' + lstr(i)
@@ -272,7 +284,11 @@ Function print_l_uch(mkod, par, regim, lnomer)
       Private &pole_diag := space(6)
       Private &pole_1pervich := 0
     next
-    read_arr_DVN(human->kod)
+    if eq_any(human->ishod, 501, 502 )  // дисп-ия  репродуктивного здоровья взрослого населения
+      read_arr_drz( human->kod )
+    else
+      read_arr_DVN(human->kod)
+    endif
     arr := {}
     for i := 1 to 5
       pole_diag := 'mdiag' + lstr(i)
@@ -419,7 +435,6 @@ Function print_l_uch(mkod, par, regim, lnomer)
     endif
     add_string('')
   endif
-  print_luch_onk(sh)
   add_string(center('О_К_А_З_А_Н_Ы   У_С_Л_У_Г_И', sh))
   Select HU
   find (str(mkod, 7))
@@ -572,7 +587,8 @@ Function print_l_uch(mkod, par, regim, lnomer)
     endif
     s += put_kopE(tmp1->summa, 9)
     //
-    if eq_any(human->ishod, 401, 402 ) .and. tmp1->kod_vr == 0 
+    // if eq_any(human->ishod, 401, 402 ) .and. tmp1->kod_vr == 0 
+    if is_sluch_dispanser_COVID( human->ishod ) .and. tmp1->kod_vr == 0 
     // УГЛУБЛЕННАЯ дисп-ия взрослого населения
     else
       add_string(s)
@@ -645,10 +661,6 @@ Function print_l_uch(mkod, par, regim, lnomer)
           endif
         endif
     endif
-    if eq_any(human->ishod, 401, 402 ) .and. tmp1->kod_vr == 0 
-      // УГЛУБЛЕННАЯ дисп-ия взрослого населения
-    else
-    endif
     select TMP1
     skip
   enddo
@@ -661,31 +673,35 @@ Function print_l_uch(mkod, par, regim, lnomer)
   endif
   add_string(padl(s, sh))
 
-  arrLekPreparat := collect_lek_pr(mkod) // выберем лекарственные препараты
-  if len(arrLekPreparat) != 0  // не пустой список лекарственных препаратов
-    add_string('')
-    add_string(center('Л_Е_К_А_Р_С_Т_В_Е_Н_Н_Ы_Е   П_Р_Е_П_А_Р_А_Т_Ы', sh))
-    header_lek_preparat(w1)
-    for each row in arrLekPreparat
-      if verify_FF(HH)
-        header_lek_preparat(w1)
-      endif
-      s := ''
-      cREGNUM := padr(get_Lek_pr_By_ID(row[3]), 30)
-      cUNITCODE := padr(inieditspr(A__MENUVERT, get_ed_izm(), row[4]),iif(mem_n_V034==0, 15, 30))
-      cMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), row[6]), 30)
-      s := date_8(row[1]) + ' '
-      if empty(cREGNUM)
-        s += padr(ret_schema_V032(row[8]), 33)
-      else
-        s += padr(cREGNUM, 33) + ' '
-        s := s + str(row[5], 6, 2) + ' ' ;
-            + padr(cUNITCODE, 7) + ' ' ;
-            + padr(cMETHOD, 15) + ' ' ;
-            + str(row[7], 6)
-      endif
-      add_string(s)
-    next
+  if f_is_oncology( 1 ) == 2 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
+    print_luch_onk( human->k_data, human->KOD_DIAG, sh )
+  else
+    arrLekPreparat := collect_lek_pr( mkod ) // выберем лекарственные препараты
+    if len( arrLekPreparat ) != 0  // не пустой список лекарственных препаратов
+      add_string('')
+      add_string(center('Л_Е_К_А_Р_С_Т_В_Е_Н_Н_Ы_Е   П_Р_Е_П_А_Р_А_Т_Ы', sh))
+      header_lek_preparat( w1 )
+      for each row in arrLekPreparat
+        if verify_FF( HH )
+          header_lek_preparat( w1 )
+        endif
+        s := ''
+        cREGNUM := padr(get_Lek_pr_By_ID(row[3]), 30)
+        cUNITCODE := padr(inieditspr(A__MENUVERT, get_ed_izm(), row[4]),iif(mem_n_V034==0, 15, 30))
+        cMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), row[6]), 30)
+        s := date_8(row[1]) + ' '
+        if empty(cREGNUM)
+          s += padr(ret_schema_V032(row[8]), 33)
+        else
+          s += padr(cREGNUM, 33) + ' '
+          s := s + str(row[5], 6, 2) + ' ' ;
+              + padr(cUNITCODE, 7) + ' ' ;
+              + padr(cMETHOD, 15) + ' ' ;
+              + str(row[7], 6)
+        endif
+        add_string(s)
+      next
+    endif
   endif
 
   arrImplantant := collect_implantant(mkod) // выберем имплантант
@@ -713,20 +729,31 @@ Function print_l_uch(mkod, par, regim, lnomer)
 
 //
 Function header_implantant(w1)
+
   add_string('────────┬────────────────────────────────────────┬──────────────────────────────')
   add_string('  Дата  │Наименование имплантанта                │Серийный номер')
   add_string('────────┴────────────────────────────────────────┴──────────────────────────────')
   return NIL
 
 //
-Function header_lek_preparat(w1)
+Function header_lek_preparat( w1 )
+
   add_string('────────┬─────────────────────────────────┬──────┬───────┬───────────────┬──────')
   add_string('  Дата  │Наименование препарата или группы│Доз-ка│Единица│Способ введения│Кол-во')
   add_string('────────┴─────────────────────────────────┴──────┴───────┴───────────────┴──────')
   return NIL
   
+// 27.01.25
+Function header_lek_preparat_onko( w1 )
+
+  add_string('────────┬─────────────────────────────────┬───────┬───────┬─────────────┬─────────────')
+  add_string('  Дата  │Наименование препарата или группы│Единица│Введено│Израсходовано│Стоимость ед.')
+  add_string('────────┴─────────────────────────────────┴───────┴───────┴─────────────┴─────────────')
+  return NIL
+  
 //
 Function header_uslugi(w1)
+
   add_string('────────┬─────┬─────┬' +replicate('─', w1)              + '┬─────┬─────┬───┬────────')
   add_string('  Дата  │ Отд.│МКБ10│' +padc('Наименование услуги', w1) + '│ Врач│ Асс.│Кол│ Сумма  ')
   add_string('────────┴─────┴─────┴' +replicate('─', w1)              + '┴─────┴─────┴───┴────────')
@@ -735,6 +762,7 @@ Function header_uslugi(w1)
 
 // 02.11.22 печать доп.заголовка, если это лист учёта диспансеризации/профилактики
 Function print_l_uch_disp(sh)
+
   Local s := ''
 
   if eq_any(human->ishod, 101, 102)
@@ -764,50 +792,183 @@ Function print_l_uch_disp(sh)
   endif
   return NIL
 
-// 15.12.23 добавка по онкологии к листу учёта
-Function print_luch_onk(sh)
-  // Static mm_DS1_T := {{'первичное лечение', 0}, ;  // N018
-  //                     {'лечение при рецидиве', 1}, ;
-  //                     {'лечение при прогрессировании', 2}, ;
-  //                     {'динамическое наблюдение', 3}, ;
-  //                     {'диспансерное наблюдение (здоров/ремиссия)', 4}, ;
-  //                     {'диагностика (без специфического лечения)', 5}, ;
-  //                     {'симптоматическое лечение', 6}}
+// 27.01.25 добавка по онкологии к листу учёта
+Function print_luch_onk( dk,  diag, sh )
+
   local mm_DS1_T := getN018()  // N018
-  // Static mm_usl_tip := {{'Хирургическое лечение', 1}, ;
-  //                     {'Лекарственная противоопухолевая терапия', 2}, ;
-  //                     {'Лучевая терапия', 3}, ;
-  //                     {'Химиолучевая терапия', 4}, ;
-  //                     {'Неспецифическое лечение (катетер, прочее)', 5}, ;
-  //                     {'Диагностика', 6}}
   local mm_usl_tip := getN013()
+  local fname := prefixFileRefName( dk ) + 'shema'
+
+  local mm_N002 := f_define_tnm( 2, diag )
+  local mm_N003 := f_define_tnm( 3, diag )
+  local mm_N004 := f_define_tnm( 4, diag )
+  local mm_N005 := f_define_tnm( 5, diag )
+  local mm_N014 := getn014()
+  local mm_N015 := getn015()
+  local mm_N016 := getn016()
+  local mm_N017 := getn017()
+
+  local mm_str1 := { '',  'Тип лечения',  'Цикл терапии',  'Тип терапии',  'Тип терапии',  '' }
+  local mm_shema_err := { { 'соблюдён', 0 }, { 'не соблюдён', 1 } }
+  local tstr
+  local _arr_sh := ret_arr_shema( 1, dk ), _arr_mt := ret_arr_shema( 2, dk ), _arr_fr := ret_arr_shema( 3, dk )
+  local mm_shema_usl
+  local m1PR_CONS := 0, mDT_CONS
+  local arrLekPreparat, row, w1
+  Local HH := 77
+  local m1usl_tip1, mm_usl_tip1, m1usl_tip2, mm_usl_tip2
+  local m1crit
+  local cREGNUM, cUNITCODE
 
   if f_is_oncology(1) == 2 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
+
+    dbCreate( cur_dir() + 'tmp_onkle',  { ; // Сведения о применённых лекарственных препаратах
+      { 'KOD',      'N',   7,  0 }, ; // код больного
+      { 'REGNUM',   'C',   6,  0 }, ; // IDD лек.препарата N020
+      { 'CODE_SH',  'C',  20,  0 }, ; // код схемы лек.терапии V024
+      { 'DATE_INJ', 'D',   8,  0 };  // дата введения лек.препарата
+    } )
+    Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE
+    r_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle',  'LE' ) // Сведения о применённых лекарственных препаратах
+    find ( Str( human->kod, 7 ) )
+    Do While le->kod == human->kod .and. !Eof()
+      Select TMPLE
+      Append Blank
+      tmple->REGNUM   := le->REGNUM
+      tmple->CODE_SH  := le->CODE_SH
+      tmple->DATE_INJ := le->DATE_INJ
+      Select LE
+      Skip
+    Enddo
+    r_use( dir_server + 'mo_onkco', dir_server + 'mo_onkco',  'CO' )
+    find ( Str( human->kod, 7 ) )
+    If Found()
+      m1PR_CONS := co->pr_cons
+      mDT_CONS := co->dt_cons
+    Endif
+    tmple->( dbCloseArea() )
+    le->( dbCloseArea() )
+    co->( dbCloseArea() )
+
+
     add_string('  Онкология:')
     R_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'ONKSL') // Сведения о случае лечения онкологического заболевания
     find (str(human->kod, 7))
     add_string('   Повод обращения: ' + inieditspr(A__MENUVERT, mm_DS1_T, onksl->DS1_T))
+    add_string('   Стадия заболевания: ' + alltrim( inieditspr( A__MENUVERT, mm_N002, onksl->STAD ) ) ;
+      + ', Tumor: ' + alltrim( inieditspr( A__MENUVERT, mm_N003, onksl->ONK_T ) ) ;
+      + ', Nodus: ' + alltrim( inieditspr( A__MENUVERT, mm_N004, onksl->ONK_N ) ) ;
+      + ', Metastasis: ' + alltrim( inieditspr( A__MENUVERT, mm_N005, onksl->ONK_M ) ) )
+    add_string( '   Наличие отдаленных метастазов (при рецидиве или прогрессировании): ' + alltrim( inieditspr( A__MENUVERT, mm_danet, onksl->MTSTZ ) ) )
+    add_string( '' )
+    tstr := space( 3 ) + 'Консилиум: ' + inieditspr( A__MENUVERT, getn019(), m1PR_CONS )
+    if m1PR_CONS != 0
+      tstr += ' дата ' + DToC( mDT_CONS )
+    endif
+    add_string( tstr )
+    add_string( '' )
+
+    add_string( space( 3 ) + 'Гистология / иммуногистохимия: ' + ;
+      inieditspr( A__MENUVERT, mmb_diag(), onksl->b_diag ) )
+    
+    add_string( '' )
     R_Use(dir_server + 'mo_onkus', dir_server + 'mo_onkus', 'ONKUS')
     find (str(human->kod, 7))
     do while onkus->kod == human->kod .and. !eof()
       if between(onkus->USL_TIP, 1, 6)
         add_string('   Проведённое лечение: ' + inieditspr(A__MENUVERT, mm_usl_tip, onkus->USL_TIP))
         if eq_any(onkus->USL_TIP, 2, 4) .and. !empty(onksl->crit)
-          add_string('    Схема: ' + alltrim(onksl->crit) + ' ' + inieditspr(A__POPUPEDIT, dir_exe + '_mo9shema', onksl->crit))
+          add_string('    Схема: ' + alltrim(onksl->crit) + ' ' + inieditspr(A__POPUPEDIT, dir_exe() + fname, onksl->crit))
         endif
         if eq_any(onkus->USL_TIP, 3, 4)
           add_string('    Количество фракций: ' + lstr(onksl->k_fr))
         endif
       endif
+      If ONKUS->USL_TIP == 1
+        m1usl_tip1 := ONKUS->HIR_TIP
+        mm_usl_tip1 := mm_N014
+      Elseif ONKUS->USL_TIP == 2
+        m1usl_tip1 := ONKUS->LEK_TIP_V
+        mm_usl_tip1 := mm_N016
+        m1usl_tip2 := ONKUS->LEK_TIP_L
+        mm_usl_tip2 := mm_N015
+      Elseif eq_any( ONKUS->USL_TIP, 3, 4 )
+        m1usl_tip1 := ONKUS->LUCH_TIP
+        mm_usl_tip1 := mm_N017
+      Endif
+
+      m1crit := onksl->crit
+
+      If Between( ONKUS->USL_TIP, 1, 4 )
+        add_string( space( 3 ) + PadR( mm_str1[ ONKUS->USL_TIP + 1 ], 12 ) + ': ' + ;
+          inieditspr( A__MENUVERT, mm_usl_tip1, m1usl_tip1 ) )
+        If ONKUS->USL_TIP == 2
+          add_string( space( 3 ) + 'Линия терапии: ' + ;
+            inieditspr( A__MENUVERT, mm_usl_tip2, m1usl_tip2 ) )
+          add_string( space( 3 ) + ret_str_onc( 6, 1 ) + ': ' + ;
+            inieditspr( A__MENUVERT, mm_shema_err, onksl->is_err ) )
+        Endif
+        If eq_any( ONKUS->USL_TIP, 2, 4 )
+          tstr := ret_str_onc( 3, 1 ) + ' ' + alltrim( str_0( onksl->WEI, 5, 1 ) ) + ','
+          tstr += ' ' + ret_str_onc( 4, 1 ) + ' ' + lstr( onksl->HEI ) + ','
+          tstr += ' ' + ret_str_onc( 5, 1 ) + ' ' +  AllTrim( str_0( onksl->BSA, 4, 2 ) )
+          add_string( space( 3 ) + tstr )
+          If Left( m1crit, 2 ) == 'mt' .and. ONKUS->USL_TIP == 2
+            m1crit := Space( 10 )
+          Elseif eq_any( Left( m1crit, 2 ),  'не',  'sh' ) .and. ONKUS->USL_TIP == 4
+            m1crit := Space( 10 )
+          Endif
+          If !Empty( human_2->PC3 ) .and. Left( Lower( human_2->PC3 ), 5 ) == 'gemop' // после разговора с Л.Н.Антоновой 13.01.23
+            mm_shema_usl := f_valid2ad_cr( dk )  //mm_ad_cr
+            m1crit := AllTrim( human_2->PC3 )
+          Else
+            mm_shema_usl := iif( ONKUS->USL_TIP == 2, _arr_sh, _arr_mt )
+          Endif
+          add_string( space( 3 ) + ret_str_onc( 7, 1 ) + ': ' + inieditspr( A__MENUVERT, mm_shema_usl, m1crit ) )
+          add_string( space( 3 ) + ret_str_onc( 8, 1 ) + ': ' + init_lek_pr() )
+          add_string( space( 3 ) + ret_str_onc( 9, 1 ) + ': ' + ;
+            inieditspr( A__MENUVERT, mm_danet, ONKUS->pptr ) )
+        Endif
+      Endif
       select ONKUS
       skip
     enddo
     add_string('')
+    ONKUS->( dbCloseArea() )
+    ONKSL->( dbCloseArea() )
+
+    w1 := 34
+    arrLekPreparat := collect_lek_pr_onko( human->kod ) // выберем лекарственные препараты
+    if len( arrLekPreparat ) != 0  // не пустой список лекарственных препаратов
+      add_string( '' )
+      add_string( center( 'Л_Е_К_А_Р_С_Т_В_Е_Н_Н_Ы_Е   П_Р_Е_П_А_Р_А_Т_Ы', sh ) )
+      header_lek_preparat_onko( w1 )
+      for each row in arrLekPreparat
+        if verify_FF( HH )
+          header_lek_preparat_onko( w1 )
+        endif
+        tstr := ''
+        cREGNUM := padr( get_Lek_pr_By_ID( row[ 3 ] ), 30)
+        cUNITCODE := padr( inieditspr( A__MENUVERT, get_ed_izm(), row[ 2 ] ),iif( mem_n_V034 == 0, 15, 30 ) )
+        tstr := date_8( row[ 1 ] ) + ' '
+        if empty( cREGNUM )
+          tstr += padr( ret_schema_V032( row[ 8 ] ), 33 )
+        else
+          tstr += padr( cREGNUM, 33 ) + ' '
+          tstr += + padr( cUNITCODE, 7 ) + ' ' ;
+              + str( row[ 4 ], 8, 3 ) + ' ' ;
+              + str( row[ 5 ], 8, 3 ) + ' ' ;
+              + str( row[ 6 ], 15, 6 )
+        endif
+        add_string( tstr )
+      next
+    endif
   endif
   return NIL
 
 // 29.10.22 просмотр/печать листов учёта
 Function o_list_uch()
+
   Local j := 0, buf := savescreen(), mtitul, func_step := '', r2 := maxrow() - 2
 
   if polikl1_kart() > 0
@@ -833,7 +994,7 @@ Function o_list_uch()
     find (str(glob_kartotek, 7))
     if found()
       mtitul := alltrim(fio)
-      index on dtos(k_data) + dtos(n_data) to (cur_dir + 'tmp_olu') while kod_k == glob_kartotek descending
+      index on dtos(k_data) + dtos(n_data) to (cur_dir() + 'tmp_olu') while kod_k == glob_kartotek descending
       dbeval( {|| ++j } )
       go top
       if yes_parol
@@ -860,6 +1021,7 @@ Function o_list_uch()
 
 // 02.11.11
 Function f1o_list_uch(oBrow)
+
   Local oColumn, blk := {|_i| _i := iif(between(human->tip_h, 1, 6), human->tip_h, 2), ;
                             {{1, 2}, {3, 4}, {5, 6}, {7, 8}, {9, 10}, {11, 12}}[_i] }
   //
@@ -887,12 +1049,13 @@ Function f1o_list_uch(oBrow)
 
 //
 Function f2o_list_uch(k)
-Static arr := {'лечится', ;
-               'не закончено лечение', ;
-               'закончено лечение', ;
-               '', ;
-               '', ;
-               ''}
+
+  Static arr := {'лечится', ;
+                 'не закончено лечение', ;
+                 'закончено лечение', ;
+                 '', ;
+                 '', ;
+                 ''}
 
   Local s
   k := iif(between(k, 1, 6), k, 4)
@@ -908,7 +1071,8 @@ Static arr := {'лечится', ;
 
 // 12.05.2019
 Function f3o_list_uch()
-Local s := 'Добавление ' + date_8(c4tod(human->date_e)) + 'г. '
+
+  Local s := 'Добавление ' + date_8(c4tod(human->date_e)) + 'г. '
 
   if asc(human->kod_p) > 0
     select BASE1
@@ -936,6 +1100,7 @@ Local s := 'Добавление ' + date_8(c4tod(human->date_e)) + 'г. '
 
 // 31.10.22
 Function f4o_list_uch(nKey, oBrow)
+
   Local buf, rec, k := -1, fl := .f., arr_m, arr_rec := {}
 
   rec := human->(recno())
@@ -969,19 +1134,20 @@ Function f4o_list_uch(nKey, oBrow)
       print_spravka_OMS(glob_perso)
     endif
     eval(blk_open)
-    set index to (cur_dir + 'tmp_olu')
+    set index to (cur_dir() + 'tmp_olu')
     goto (rec)
   endif
   return k
 
 // 22.12.23 печать нескольких листов учёта
 Function print_al_uch(arr_h, arr_m)
+
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
-        name_lpu, mvzros_reb, mreg_lech, mmest_inog, mrab_nerab, ;
-        mkomu, name_org, mlech_vr := '', mishod, mprodol, msumma := 0, mmi_git, ;
-        mud_lich := '', arr, n_file := cur_dir + 'list_uch' + stxt, adiag_talon[16], ;
-        i := 1, ii, j, k, tmp[2], tmp1, w1 := 65, s, mnum_lu, fl_parakl, lshifr1
-  local diagVspom := '', diagMemory := '', add_criteria
+        mvzros_reb, mrab_nerab, ;
+        mkomu, name_org, mlech_vr := '', msumma := 0, ;
+        mud_lich := '', arr, n_file := cur_dir() + 'list_uch' + stxt, adiag_talon[16], ;
+        i := 1, ii, j, k, tmp[2], tmp1, w1 := 65, s, mnum_lu, lshifr1
+  local diagVspom := '', diagMemory := '' 
   
   mywait()
   fp := fcreate(n_file)
@@ -991,10 +1157,10 @@ Function print_al_uch(arr_h, arr_m)
   R_Use(dir_server + 'organiz')
   name_org := center(alltrim(name), sh)
   dbCloseAll()
-  if !myFileDeleted(cur_dir + 'tmp1' + sdbf)
+  if !myFileDeleted(cur_dir() + 'tmp1' + sdbf)
     return NIL
   endif
-  dbcreate(cur_dir + 'tmp1', {{'kod', 'N', 4, 0}, ;
+  dbcreate(cur_dir() + 'tmp1', {{'kod', 'N', 4, 0}, ;
                    {'name', 'C', 65, 0}, ;
                    {'shifr', 'C', 10, 0}, ;
                    {'dom', 'N', 1, 0}, ;
@@ -1010,9 +1176,9 @@ Function print_al_uch(arr_h, arr_m)
                    {'profil', 'N', 4, 0}, ;
                    {'kol', 'N', 4, 0}, ;
                    {'summa', 'N', 11, 2}})
-  use (cur_dir + 'tmp1')
-  index on str(kod, 4) to (cur_dir + 'tmp11')
-  index on dtos(date_u1) + fsort_usl(shifr) to (cur_dir + 'tmp12')
+  use (cur_dir() + 'tmp1')
+  index on str(kod, 4) to (cur_dir() + 'tmp11')
+  index on dtos(date_u1) + fsort_usl(shifr) to (cur_dir() + 'tmp12')
   dbCloseAll()
   //
   R_Use(dir_server + 'human_', , 'HUMAN_')
@@ -1085,7 +1251,7 @@ Function print_al_uch(arr_h, arr_m)
   set relation to recno() into HU_
   R_Use(dir_server + 'mo_su', , 'MOSU')
   R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU')
-  use (cur_dir + 'tmp1') index (cur_dir + 'tmp11'), (cur_dir + 'tmp12') new alias tmp1
+  use (cur_dir() + 'tmp1') index (cur_dir() + 'tmp11'), (cur_dir() + 'tmp12') new alias tmp1
   for ii := 1 to len(arr_h)
     select TMP1
     set order to 1
@@ -1285,7 +1451,7 @@ Function print_al_uch(arr_h, arr_m)
       s := alltrim(s) + ' (+ ' + lput_kop(mpsumma, .t.) + ')'
     endi
     add_string(padl(s, sh))
-  next  // ii
+  next
   close databases
   fclose(fp)
   rest_box(buf)
@@ -1294,6 +1460,7 @@ Function print_al_uch(arr_h, arr_m)
 
 // 27.11.14
 Function create_FR_file_for_spravkaOMS()
+
   dbCloseAll()
   delFRfiles()
   dbcreate(fr_titl, {{'name', 'C', 255, 0}, ;
@@ -1313,7 +1480,7 @@ Function create_FR_file_for_spravkaOMS()
                     {'cena', 'N', 11, 2}, ;
                     {'summa', 'N', 11, 2}})
   use (fr_data) new alias FRD
-  index on shifr to (cur_dir + 'tmp1')
+  index on shifr to (cur_dir() + 'tmp1')
   return NIL
 
 // 15.12.23 печать справки ОМС по готовому листу учёта
@@ -1434,6 +1601,7 @@ Function print_spravka_OMS(mkod)
 
 // 27.11.14 Ввод и распечатка справки о стоимости оказанной медицинской помощи в сфере ОМС')
 Function f_spravka_OMS()
+
   Local i, j, k, k1, buf := savescreen(), rec_spr_oms := 0
 
   k1 := polikl1_kart()
@@ -1578,6 +1746,7 @@ Function f_spravka_OMS()
 
 // 27.11.14
 Function fu_spravka_OMS(r, c)
+
   Local arr_title := {{1,' Шифр усл.'}, ;
                       {2,'Кол'}, ;
                       {3,'   Цена   '}, ;
@@ -1605,6 +1774,7 @@ Function fu_spravka_OMS(r, c)
 
 // 27.11.14
 Function fu2spravka_OMS(b, ar, nDim, nElem, nKey)
+
   LOCAL nRow := ROW(), nCol := COL(), i, j, flag := .f., fl, lshifr, lshifr1
 
   DO CASE
@@ -1697,13 +1867,14 @@ Function fu2spravka_OMS(b, ar, nDim, nElem, nKey)
 
 // 27.11.14 Отчёт о количестве выданных справок ОМС
 Function f_otchet_spravka_OMS()
+
   Local arr_m, buf := save_maxrow(), as := {0, 0, 0}, sh := 80, HH := 80, ;
-      i, n_file := cur_dir + 'o_sprOMS' + stxt
+      i, n_file := cur_dir() + 'o_sprOMS' + stxt
 
   if (arr_m := year_month()) != NIL
     mywait()
     R_Use(dir_server + 'mo_sprav', , 'SPR_OMS')
-    index on data to (cur_dir + 'tmp') for between(data, arr_m[5], arr_m[6])
+    index on data to (cur_dir() + 'tmp') for between(data, arr_m[5], arr_m[6])
     go top
     do while !eof()
       i := 1

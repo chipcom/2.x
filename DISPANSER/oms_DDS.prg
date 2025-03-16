@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 20.02.24 ДДС - добавление или редактирование случая (листа учета)
+// 30.03.24 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -215,15 +215,14 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
   Private mvar, m1var, m1lis := 0, m1onko8 := 0, monko8, m1onko10 := 0, monko10
   //Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
   Private mdopo_na, m1dopo_na := 0
-  Private mm_dopo_na := {{"лаб.диагностика",1},{"инстр.диагностика",2},{"лучевая диагностика",3},{"КТ, МРТ, ангиография",4}}
+  Private mm_dopo_na := arr_mm_dopo_na()
   Private gl_arr := {;  // для битовых полей
     {"dopo_na","N",10,0,,,,{|x|inieditspr(A__MENUBIT,mm_dopo_na,x)} };
    }
-  Private mnapr_v_mo, m1napr_v_mo := 0, ;
-          mm_napr_v_mo := {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
+  Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
           arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
   Private mnapr_stac, m1napr_stac := 0, ;
-          mm_napr_stac := {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
+          mm_napr_stac := arr_mm_napr_stac(), ;
           mprofil_stac, m1profil_stac := 0
   Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
 
@@ -1472,7 +1471,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
         mdef_diagnoz := "Z00.3 "
       endif
       arr_iss := array(count_dds_arr_iss,10) ; afillall(arr_iss,0)
-      R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
+      R_Use(dir_exe()+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
       R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2")
       num_screen := 2
       max_date1 := max_date2 := mn_data

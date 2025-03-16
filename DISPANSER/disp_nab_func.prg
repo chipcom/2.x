@@ -1,3 +1,4 @@
+#include 'hbhash.ch' 
 #include 'inkey.ch'
 #include 'fastreph.ch'
 #include 'function.ch'
@@ -8,7 +9,7 @@
 // 08.11.23 Загрузка диагнозов диспансерного учёта
 Function load_diagnoze_disp_nabl_from_file()
 
-  Local diag := {}, lfp, s, file_form := dir_exe + 'DISP_NAB' + sfrm
+  Local diag := {}, lfp, s, file_form := dir_exe() + 'DISP_NAB' + sfrm
 
   If hb_vfExists( file_form )
     lfp := FOpen( file_form )
@@ -25,7 +26,7 @@ Function load_diagnoze_disp_nabl_from_file()
 
   Return diag
 
-// 09.02.24
+// 23.12.24
 Function is_usluga_disp_nabl( _shifr, _shifr1 )
 
   If Empty( _shifr1 )
@@ -44,7 +45,8 @@ Function is_usluga_disp_nabl( _shifr, _shifr1 )
     .or. _shifr == '2.78.109' ; // добавил согласно письму ТФОМС 09-20-57 от 13.02.24 года
     .or. _shifr == '2.78.110' ; // добавил согласно письму ТФОМС 09-20-57 от 13.02.24 года
     .or. _shifr == '2.78.111' ; // добавил согласно письму ТФОМС 09-20-57 от 13.02.24 года
-    .or. _shifr == '2.78.112'   // добавил согласно письму ТФОМС 09-20-57 от 13.02.24 года
+    .or. _shifr == '2.78.112' ; // добавил согласно письму ТФОМС 09-20-57 от 13.02.24 года
+    .or. _shifr == '2.78.116'   // добавил согласно Комиссии от 17.12.24
 
 
 // 12.02.23 проверить диагноз для диспансерного наблюдения
@@ -81,7 +83,7 @@ Function f_is_diag_dn( ldiag, /*@*/arr_dn, dUsluga, not_del )
       { 'B18-B24' }, ;
       { 'C00-C97' }, ;
       { 'D00-D10' }, ;   // до D09.9 может быть добавить  {'D45-D47')
-    { 'D11' }, ;
+      { 'D11' }, ;
       { 'D11.0' }, ;
       { 'D11.7' }, ;
       { 'D12.6' }, ;
@@ -115,7 +117,7 @@ Function f_is_diag_dn( ldiag, /*@*/arr_dn, dUsluga, not_del )
       { 'E05.2' }, ;
       { 'E10-E10.9'},; // 
       { 'E11-E11.9' }, ;   // c E10.2 {'E10.2-E10.9'}, ;
-    { 'E21.0' }, ;
+      { 'E21.0' }, ;
       { 'E22.0' }, ;
       { 'E28.2' }, ;
       { 'E34.5' }, ;

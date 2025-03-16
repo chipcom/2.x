@@ -1,177 +1,399 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-** 16.12.22 проведение изменений в содержимом БД при обновлении
-function update_data_DB(aVersion)
-  local snversion := int(aVersion[1]*10000 + aVersion[2]*100 + aVersion[3])
-  local ver_base := get_version_DB()
+// 12.07.24 получение статуса обновления БД до определенной версии
+function get_status_updateDB( idVer )
+  // Возврат: .t. - обновление присутствует
+  //          .f. - обновление отсутствует
 
-  if ver_base < 21130 // переход на версию 2.11.30
-    update_v21130()     // скоректироем листы углубленной диспансеризации
+  local ret := .f., fl
+
+  fl := g_use( dir_server + 'ver_updatedb', , 'UPD', , .t. )
+
+  Locate For ver == idVer
+  If Found() .and. ( UPD->done == 1 )
+    ret := .t.
   endif
 
-  if ver_base < 21203 // переход на версию 2.12.3
-    update_v21203()     // заполним поле MO_HU_K файла human_im.dbf
-  endif
+  UPD->( dbCloseArea() )
 
-  if ver_base < 21208 // переход на версию 2.12.08
-    update_v21208()     // заполним поле PRVS_V021 кодами из справочника мед. специальностей V021
-  endif
+  return ret
 
-  return nil
+// 12.07.24 установка статуса обновления БД до определенной версии
+function set_status_updateDB( idVer )
+  // Возврат: .t. - обновление прошло успешно
+  //          .f. - обновление не прошло или его не было
 
-** 12.03.22
-function update_v21203()
-  local cAlias := 'IMPL'
-  // Local t1 := 0, t2 := 0
+  local fl := .f.
 
-  // t1 := seconds()
-  R_Use(dir_server + 'human', dir_server + 'humank', 'HUMAN')
-  R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'HU')
+  fl := g_use( dir_server + 'ver_updatedb', , 'UPD', , .t. )
 
-  G_Use(dir_server + 'human_im', dir_server + 'human_im', cAlias)
-  (cAlias)->(dbSelectArea())
-  (cAlias)->(dbGoTop())
-  do while ! (cAlias)->(Eof())
-    if (cAlias)->KOD_HUM != 0
-      HU->(dbseek(str((cAlias)->KOD_HUM, 7)))
-      if HU->(found())
-        HUMAN->(dbseek(str((cAlias)->KOD_HUM, 7)))
-        if HUMAN->(found())
-          if (cAlias)->(dbRLock())
-            (cAlias)->MO_HU_K := HU->(recno())
-          endif
-          (cAlias)->(dbRUnlock())
-        endif
-      endif
-    endif
-    (cAlias)->(dbSkip())
-  end do
-  HU->(dbCloseAre())
-  HUMAN->(dbCloseAre())
-  (cAlias)->(dbSelectArea())
-  index_base('human_im')
-  dbCloseAll()        // закроем все
-// t2 := seconds() - t1
-  // if t2 > 0
-  //   n_message({"","Время обхода БД - "+sectotime(t2)},,;
-  //         color1,cDataCSay,,,color8)
-  // endif
-  // alertx(i, 'Количество сотрудников')
-  return nil
+  UPD->( dbAppend() )
+  UPD->ver := idVer
+  UPD->done := 1
 
-** 16.12.22
-function update_v21208()
-  local i := 0, j := 0
-  local arr_conv_V015_V021 := conversion_V015_V021()
+  UPD->( dbCloseArea() )
 
-  Stat_Msg('Заполняем специальность')
-  use_base('mo_pers', 'PERS', .t.) // откроем файл mo_pers
+  return fl
 
-  pers->(dbSelectArea())
-  pers->(dbGoTop())
-  do while ! pers->(Eof())
-    i++
-    @ maxrow(),1 say pers->fio color cColorStMsg
-    if ! empty(pers->PRVS_NEW)
-      j := 0
-      if (j := ascan(arr_conv_V015_V021, {|x| x[1] == pers->PRVS_NEW })) > 0
-        pers->PRVS_021 := arr_conv_V015_V021[j, 2]
-      endif
-    elseif ! empty(pers->PRVS)
-      pers->PRVS_021 := ret_prvs_V021(pers->PRVS)
-    endif
-    pers->(dbSkip())
-  end do
-  dbCloseAll()        // закроем все
-  return nil
+// 10.07.24 
+Function update_v____()
 
-***** 17.12.21
-function update_v21130()
-  local is_DVN_COVID := .f.
-  local mkod
-  local begin_DVN_COVID := 0d20210701   // дата начала углубленной диспансеризации
-  local i := 0, j := 0
-  local lshifr := ''
+  Local i := 0, j := 0, fl
 
-  R_Use(dir_server + 'mo_otd', , 'otd')
-  OTD->(dbGoTop())
-  do while ! otd->(Eof())
-    if otd->TIPLU == TIP_LU_DVN_COVID
-      is_DVN_COVID := .t.
-      exit
-    endif
-    otd->(dbSkip())
-  end do
-  otd->(dbCloseArea())
+  stat_msg( 'Заполняем поле "Цель посещения"' )
+  fl := g_use( dir_server + 'human_', , 'HUMAN_', , .t. )
 
-  if is_DVN_COVID
-
-    Stat_Msg('Проверка и исправление кода врача в листах учета Углубленной диспансеризации')
-
-    R_Use(dir_server + 'uslugi', , 'USL')
-    R_Use(dir_server + 'mo_su', , 'MOSU')
-
-    use_base('mo_hu')
-    use_base('human_u') // откроем файл human_u и сопутствующие файлы
-
-    use_base('human') // откроем файл human_u и сопутствующие файлы
-
-    human->(dbSelectArea())
-    human->(dbGoTop())
-
-    do while ! human->(Eof())
-      mkod := human->kod
-      if human->k_data >= begin_DVN_COVID
-        if human->ishod == 401
-          hu->(dbSelectArea())
-          hu->(dbseek(str(mkod,7)))
-          do while hu->kod == mkod .and. !eof()
-            usl->(dbGoto(hu->u_kod))
-            if empty(lshifr := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data))
-              lshifr := usl->shifr
-            endif
-            lshifr := alltrim(lshifr)
-      
-            if lshifr == '70.8.1' .and. human_->VRACH != hu->KOD_VR
-              i++
-              @ maxrow(),1 say human->fio color cColorStMsg
-              human_->(dbSelectArea())
-              if human_->(dbRLock())
-                human_->VRACH := hu->KOD_VR
-              endif
-              human_->(dbRUnlock())
-              hu->(dbSelectArea())
-            endif
-            hu->(dbSkip())
-          end do
-
-        elseif human->ishod == 402
-          select MOHU
-          set relation to u_kod into MOSU 
-          mohu->(dbseek(str(mkod, 7)))
-          do while MOHU->kod == mkod .and. !eof()
-            MOSU->(dbGoto(MOHU->u_kod))
-            lshifr := alltrim(iif(empty(MOSU->shifr), MOSU->shifr1, MOSU->shifr))
-      
-            if (lshifr == 'B01.026.002' .or. lshifr == 'B01.047.002' .or. lshifr == 'B01.047.006') .and. human_->VRACH != mohu->KOD_VR
-              j++
-              @ maxrow(), 1 say human->fio color cColorStMsg
-              human_->(dbSelectArea())
-              if human_->(dbRLock())
-                human_->VRACH := mohu->KOD_VR
-              endif
-              human_->(dbRUnlock())
-              mohu->(dbSelectArea())
-            endif
-            mohu->(dbSkip())
-          enddo
-        endif
-      endif
-      human->(dbSelectArea())
-      human->(dbSkip())
-    end do
+//  use_base( 'mo_pers', 'PERS', .t. ) // откроем файл mo_pers
+  if fl
+    HUMAN_->( dbSelectArea() )
+    HUMAN_->( dbGoTop() )
+    Do While ! HUMAN_->( Eof() )
+  //    i++
+      @ MaxRow(), 1 Say HUMAN_->( RecNo() ) Color cColorStMsg
+  //    If ! Empty( HUMAN_->PRVS_NEW )
+  //      j := 0
+  //      If ( j := AScan( arr_conv_V015_V021, {| x| x[ 1 ] == pers->PRVS_NEW } ) ) > 0
+  //        HUMAN_->PRVS_021 := arr_conv_V015_V021[ j, 2 ]
+  //      Endif
+  //    Elseif ! Empty( HUMAN_->PRVS )
+  //      HUMAN_->PRVS_021 := ret_prvs_v021( HUMAN_->PRVS )
+  //    Endif
+      HUMAN_->( dbSkip() )
+    End Do
     dbCloseAll()        // закроем все
   endif
 
+  Return Nil
+  
+// 03.02.25 проведение изменений в содержимом БД при обновлении
+Function update_data_db( aVersion )
+
+  Local snversion := Int( aVersion[ 1 ] * 10000 + aVersion[ 2 ] * 100 + aVersion[ 3 ] )
+  Local ver_base := get_version_db()
+
+  If ver_base < 21130 // переход на версию 2.11.30
+    update_v21130()     // скоректироем листы углубленной диспансеризации
+  Endif
+
+  If ver_base < 21203 // переход на версию 2.12.3
+    update_v21203()     // заполним поле MO_HU_K файла human_im.dbf
+  Endif
+
+  If ver_base < 21208 // переход на версию 2.12.08
+    update_v21208()     // заполним поле PRVS_V021 кодами из справочника мед. специальностей V021
+  Endif
+
+  If ver_base < 50104 // переход на версию 5.1.4
+    update_v50104()     // перенос данных об участниках СВО
+  Endif
+
+  If ver_base < 50202 // переход на версию 5.2.2
+    update_v50202()     // перенос данных о гинеколгических услугах
+  endif
+
+Return Nil
+
+//  12.03.22
+Function update_v21203()
+
+  Local cAlias := 'IMPL'
+
+  // Local t1 := 0, t2 := 0
+
+  // t1 := seconds()
+  r_use( dir_server + 'human', dir_server + 'humank', 'HUMAN' )
+  r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'HU' )
+
+  g_use( dir_server + 'human_im', dir_server + 'human_im', cAlias )
+  ( cAlias )->( dbSelectArea() )
+  ( cAlias )->( dbGoTop() )
+  Do While ! ( cAlias )->( Eof() )
+    If ( cAlias )->KOD_HUM != 0
+      HU->( dbSeek( Str( ( cAlias )->KOD_HUM, 7 ) ) )
+      If HU->( Found() )
+        HUMAN->( dbSeek( Str( ( cAlias )->KOD_HUM, 7 ) ) )
+        If HUMAN->( Found() )
+          If ( cAlias )->( dbRLock() )
+            ( cAlias )->MO_HU_K := HU->( RecNo() )
+          Endif
+          ( cAlias )->( dbRUnlock() )
+        Endif
+      Endif
+    Endif
+    ( cAlias )->( dbSkip() )
+  End Do
+  HU->( dbCloseAre() )
+  HUMAN->( dbCloseAre() )
+  ( cAlias )->( dbSelectArea() )
+  index_base( 'human_im' )
+  dbCloseAll()        // закроем все
+  // t2 := seconds() - t1
+  // if t2 > 0
+  // n_message({"","Время обхода БД - "+sectotime(t2)},,;
+  // color1,cDataCSay,,,color8)
+  // endif
+  // alertx(i, 'Количество сотрудников')
+
+  Return Nil
+
+//  16.12.22
+Function update_v21208()
+
+  Local i := 0, j := 0
+  Local arr_conv_V015_V021 := conversion_v015_v021()
+
+  stat_msg( 'Заполняем специальность' )
+  use_base( 'mo_pers', 'PERS', .t. ) // откроем файл mo_pers
+
+  pers->( dbSelectArea() )
+  pers->( dbGoTop() )
+  Do While ! pers->( Eof() )
+    i++
+    @ MaxRow(), 1 Say pers->fio Color cColorStMsg
+    If ! Empty( pers->PRVS_NEW )
+      j := 0
+      If ( j := AScan( arr_conv_V015_V021, {| x| x[ 1 ] == pers->PRVS_NEW } ) ) > 0
+        pers->PRVS_021 := arr_conv_V015_V021[ j, 2 ]
+      Endif
+    Elseif ! Empty( pers->PRVS )
+      pers->PRVS_021 := ret_prvs_v021( pers->PRVS )
+    Endif
+    pers->( dbSkip() )
+  End Do
+  dbCloseAll()        // закроем все
+
+  Return Nil
+
+// 17.12.21
+Function update_v21130()
+
+  Local is_DVN_COVID := .f.
+  Local mkod
+  Local begin_DVN_COVID := 0d20210701   // дата начала углубленной диспансеризации
+  Local i := 0, j := 0
+  Local lshifr := ''
+
+  r_use( dir_server + 'mo_otd', , 'otd' )
+  OTD->( dbGoTop() )
+  Do While ! otd->( Eof() )
+    If otd->TIPLU == TIP_LU_DVN_COVID
+      is_DVN_COVID := .t.
+      Exit
+    Endif
+    otd->( dbSkip() )
+  End Do
+  otd->( dbCloseArea() )
+
+  If is_DVN_COVID
+
+    stat_msg( 'Проверка и исправление кода врача в листах учета Углубленной диспансеризации' )
+
+    r_use( dir_server + 'uslugi', , 'USL' )
+    r_use( dir_server + 'mo_su', , 'MOSU' )
+
+    use_base( 'mo_hu' )
+    use_base( 'human_u' ) // откроем файл human_u и сопутствующие файлы
+
+    use_base( 'human' ) // откроем файл human_u и сопутствующие файлы
+
+    human->( dbSelectArea() )
+    human->( dbGoTop() )
+
+    Do While ! human->( Eof() )
+      mkod := human->kod
+      If human->k_data >= begin_DVN_COVID
+        If human->ishod == 401
+          hu->( dbSelectArea() )
+          hu->( dbSeek( Str( mkod, 7 ) ) )
+          Do While hu->kod == mkod .and. !Eof()
+            usl->( dbGoto( hu->u_kod ) )
+            If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data ) )
+              lshifr := usl->shifr
+            Endif
+            lshifr := AllTrim( lshifr )
+
+            If lshifr == '70.8.1' .and. human_->VRACH != hu->KOD_VR
+              i++
+              @ MaxRow(), 1 Say human->fio Color cColorStMsg
+              human_->( dbSelectArea() )
+              If human_->( dbRLock() )
+                human_->VRACH := hu->KOD_VR
+              Endif
+              human_->( dbRUnlock() )
+              hu->( dbSelectArea() )
+            Endif
+            hu->( dbSkip() )
+          End Do
+
+        Elseif human->ishod == 402
+          Select MOHU
+          Set Relation To u_kod into MOSU
+          mohu->( dbSeek( Str( mkod, 7 ) ) )
+          Do While MOHU->kod == mkod .and. !Eof()
+            MOSU->( dbGoto( MOHU->u_kod ) )
+            lshifr := AllTrim( iif( Empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
+
+            If ( lshifr == 'B01.026.002' .or. lshifr == 'B01.047.002' .or. lshifr == 'B01.047.006' ) .and. human_->VRACH != mohu->KOD_VR
+              j++
+              @ MaxRow(), 1 Say human->fio Color cColorStMsg
+              human_->( dbSelectArea() )
+              If human_->( dbRLock() )
+                human_->VRACH := mohu->KOD_VR
+              Endif
+              human_->( dbRUnlock() )
+              mohu->( dbSelectArea() )
+            Endif
+            mohu->( dbSkip() )
+          Enddo
+        Endif
+      Endif
+      human->( dbSelectArea() )
+      human->( dbSkip() )
+    End Do
+    dbCloseAll()        // закроем все
+  Endif
+
+  Return Nil
+
+// 29.01.25
+function update_v50104()     // перенос данных об участниках СВО
+
+  stat_msg( 'Переносим информацию об участниках СВО' )
+  use_base( 'kartotek', 'kart', .t. ) // откроем файл kartotek
+
+//  dbEval( { || kart->PC3 := iif( kart->PN1 == 30, '035', ;
+//      iif( Empty( kart->PC3 ), '000', kart->PC3 ) ) } )
+  dbEval( { || kart->PC3 := '000' } )
+
+  dbCloseAll()        // закроем все
   return nil
+
+// 03.02.25
+Function update_v50202()     // перенос данных о гинеколгических услугах
+
+  local  i
+  Local org_gen_N_PNF := { ;  
+   "101001",; //	ГБУЗ "ВОКБ № 1"
+   "101002",; //	ГБУЗ "ВОДКБ"
+   "101003",; //	ГБУЗ "ВОКБ № 3"
+   "101201",; //	ГБУЗ "ВОКГВВ"
+   "102604",; //	ГБУЗ "ВОККВД"
+   "104001",; //	ГБУЗ "ВОКЦМР"
+   "104401",; //	ГБУЗ "ВОККЦ"
+   "106001",; //	ГБУЗ "ВОКПЦ № 1", г.Волжский
+   "106002",; //	ГБУЗ "ВОКПЦ № 2"
+   "131001",; //	ГУЗ "ГКБ № 1"
+   "131940",; //	ФГБУЗ ВМКЦ ФМБА России
+   "146004",; //	ГУЗ "Родильный дом № 4"
+   "151005",; //	ГУЗ "КБ № 5"
+   "161007",; //	ГУЗ "КБ СМП № 7"
+   "171004",; //	ГУЗ "Клиническая больница № 4 "
+   "184551",; //	Филиал ООО "МЕДИС" в г.Волгограде
+   "186002",; //	ГУЗ "Клинический родильный дом № 2"
+   "254570",; //	АО "ВТЗ"
+   "731002",; //	ФКУЗ "МСЧ МВД России по Волгоградской области"
+   "741904",; //	ФГБУ "413 ВГ" Минобороны России
+   "801926",; //	ООО "Геном-Волга"
+   "804504",; //	АО "ФНПЦ "Титан-Баррикады"
+   "805929",; //	ООО "МК "Рефлекс"
+   "805938",; //	НМЧУ "ЗДОРОВЬЕ+"
+   "805960",; //	ООО "Вита-Лайт"
+   "805972"} //	ООО "Клиника Семья"
+  
+  Local mas_usl_gen0      := {"2.79.13", "2.79.47", "2.80.8",  "2.88.33",  "2.78.26"}
+  Local mas_usl_gen_N_PNF := {"2.79.78", "2.79.80", "2.80.70", "2.88.147", "2.78.118"}
+  Local mas_usl_gen_PNF   := {"2.79.77", "2.79.79", "2.80.69", "2.88.146", "2.78.117"}
+  Local mas_kod_gen_N_PNF := {0,0,0,0,0}
+  Local mas_kod_gen_PNF   := {0,0,0,0,0}
+  Local mas_kod_gen0      := {0,0,0,0,0}
+  Local cena, flag := .F. 
+  
+  
+  stat_msg( 'Изменение информации о гинекологических приемах' )
+  Use_base('lusl')
+  Use_base('luslc')
+  Use_base('uslugi')
+  R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1',;
+                              dir_server + 'uslugi1s'}, 'USL1')
+  //проверяем наличие услуг в нашем справочнике - если нет - добавляем
+  // и создаем массив позиций в файле услуг
+  //Function foundourusluga( lshifr, ldate, lprofil, lvzros_reb, /*@*/lu_cena, ipar, not_cycle)
+  for i := 1 to len(org_gen_N_PNF)
+     my_debug(,i)
+     my_debug(,org_gen_N_PNF[i])
+     my_debug(,glob_mo[ _MO_KOD_TFOMS ])
+     my_debug(,_MO_KOD_TFOMS)
+    if org_gen_N_PNF[i] == glob_mo[ _MO_KOD_TFOMS ] 
+      flag := .T. 
+    endif
+  next  
+  if flag
+    for i := 1 to 5
+      mas_kod_gen_N_PNF[i] := foundourusluga( mas_usl_gen_N_PNF[i], 0d20250102,136,0,cena)
+    next
+  else
+    for i := 1 to 5
+      mas_kod_gen_PNF[i] := foundourusluga( mas_usl_gen_PNF[i], 0d20250102,136,0,cena)
+    next
+  endif  
+  // теперь старые услуги   
+  for i := 1 to 5
+    mas_kod_gen0[i] := foundourusluga( mas_usl_gen0[i], 0d20241202,136,0,cena) // смотрю по декабрю 2024 года
+  next    
+  // массивы для замены готовы
+  Use_base('human')
+  Use_base('human_u')
+  select HUMAN
+  set order to 4 //   dir_server + 'humand'
+  find (dtos(stod("20250101")))
+  do while year(human->k_data)== 2025 .and. !eof()    
+    // по случ - отфильтровал - теперь надо по услугам
+    select hu
+    set order to 1
+    find (str(human->kod,7))
+    do while human->kod == hu->kod .and. !eof() 
+      // проверяем на шифр услуги по списку 
+      g_rlock( forever )
+      if hu->u_kod == mas_kod_gen0[1]
+        if flag
+          hu->u_kod := mas_kod_gen_N_PNF[1]
+        else
+          hu->u_kod := mas_kod_gen_PNF[1]
+        endif
+      elseif hu->u_kod == mas_kod_gen0[2]
+        if flag
+          hu->u_kod := mas_kod_gen_N_PNF[2]
+        else
+          hu->u_kod := mas_kod_gen_PNF[2]
+        endif
+      elseif hu->u_kod == mas_kod_gen0[3]  
+        if flag
+          hu->u_kod := mas_kod_gen_N_PNF[3]
+        else
+          hu->u_kod := mas_kod_gen_PNF[3]
+        endif
+      elseif hu->u_kod == mas_kod_gen0[4]
+        if flag
+          hu->u_kod := mas_kod_gen_N_PNF[4]
+        else
+          hu->u_kod := mas_kod_gen_PNF[4]
+        endif
+      elseif hu->u_kod == mas_kod_gen0[5]
+        if flag
+          hu->u_kod := mas_kod_gen_N_PNF[5]
+        else
+          hu->u_kod := mas_kod_gen_PNF[5]
+        endif
+      endif  
+      select hu 
+      Unlock
+      skip
+    enddo 
+    select human
+    skip
+  enddo
+
+  dbCloseAll()        // закроем все
+  Return Nil
+  
