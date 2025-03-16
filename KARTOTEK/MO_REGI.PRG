@@ -793,6 +793,7 @@ Function new_list_uch( par, name_func )
       ru->( dbCloseArea() )
     Endif
   Endif
+  mregistrator := ''
   If !( kod_polzovat == Chr( 0 ) )
     mregistrator := AllTrim( fio_polzovat )
   Endif

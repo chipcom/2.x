@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 14.02.25 создание XML-файлов реестра
+// 25.02.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -1039,10 +1039,10 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           If human->ishod != 203 .and. m1veteran == 1
             j := iif( human->RAB_NERAB == 0, 21, 11 )
           Endif
-//          ( 'kart' )->( dbGoto( human->kod_k ) )  // для участников СВО
-//          if kart->pn1 == 30 .and. eq_any( hb_main_curOrg:Kod_Tfoms, '101201', '451001', '391002')
-//            j := 30
-//          endif
+          ( 'kart' )->( dbGoto( human->kod_k ) )  // для участников СВО
+          if kart->pn1 == 30 .and. eq_any( hb_main_curOrg:Kod_Tfoms, '101201', '451001', '391002')
+            j := 30
+          endif
           sCOMENTSL := lstr( j )
         Elseif Between( human->ishod, 301, 302 )
           j := iif( Between( m1mesto_prov, 0, 1 ), m1mesto_prov, 0 )

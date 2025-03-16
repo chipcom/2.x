@@ -931,7 +931,7 @@ Function collect_lek_pr( mkod_human )
   Endif
   Return retArr
 
-// 10.01.22 функция для when и valid при вводе различных полей
+// 25.02.25 функция для when и valid при вводе различных полей
 Function check_edit_field( get, when_valid, k )
 
   Local fl := .t.
@@ -943,9 +943,9 @@ Function check_edit_field( get, when_valid, k )
     Endif
   Else  // valid
     If k == 1     // Вес пациента в кг
-      If Val( get:buffer ) > 500
+      If Val( get:buffer ) > 498
         get:varput( get:original )
-        fl := func_error( 4, 'Введенный вес не может быть выше 500 кг!' )
+        fl := func_error( 4, 'Введенный вес не может быть выше 498 кг!' )
       Elseif Val( get:buffer ) < 0
         get:varput( get:original )
         fl := func_error( 4, 'Введенный вес не может быть отрицательным!' )

@@ -6,9 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// Static sadiag1
-
-// 05.02.25
+// 16.03.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -20,7 +18,7 @@ Function verify_sluch( fl_view )
     i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
     a_period_amb := {}, a_1_11, u_1_stom := '', lprofil, ;
     lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[ 2 ], ltip, lkol, ;
-    a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0, ; // 1.0
+    a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0, ;
     lal, lalf
   Local reserveKSG_1 := .f., reserveKSG_2 := .f.
   Local sbase
@@ -53,6 +51,8 @@ Function verify_sluch( fl_view )
   local mPCEL := ''
   local info_disp_nabl := 0, ldate_next
   local s_lek_pr
+  local iFind, aCheck, cUsluga, iCount
+  local arrPZ
 
   Default fl_view To .t.
 
@@ -110,6 +110,9 @@ Function verify_sluch( fl_view )
   cd2 := dtoc4( dEnd )
   yearBegin := Year( dBegin )
   yearEnd := Year( dEnd )
+
+  arrPZ := get_array_PZ( yearEnd )
+
   ym2 := Left( DToS( dEnd ), 6 )
 
   kol_dney := kol_dney_lecheniya( human->n_data, human->k_data, human_->usl_ok )
@@ -904,6 +907,9 @@ Function verify_sluch( fl_view )
       Elseif alltrim_lshifr == '56.1.723' .and. human->ishod == 202 .and. !is_disp_19 // второй этап ДВН - одна услуга
         is_disp_DVN := .t.
         is_exist_Prescription := .t.
+      elseif eq_any( alltrim_lshifr, '7.2.706', '7.57.704', '7.61.704' ) // услуги с применением ИИ
+        mpovod := 7 // 2.3-Комплексное обследование
+        mIDSP := 28 // за медицинскую услугу
       Elseif eq_any( left_lshifr_5, '60.4.', '60.5.', '60.6.', '60.7.', '60.8.', '60.9.' ) .or. ;
           eq_any( alltrim_lshifr, '4.20.702', '4.15.746' ) // ЛДП
         If alltrim_lshifr == '4.15.746' // пренатальный скрининг
@@ -911,7 +917,7 @@ Function verify_sluch( fl_view )
         Else
           mpovod := 7 // 2.3-Комплексное обследование
         Endif
-        mIDSP := 4 // лечебно-диагностическая процедура
+        mIDSP := 4 // лечебно-диагностическая процедура 
         kkt += hu->kol_1
         hu_->PZTIP := 5
         hu_->PZKOL := hu->kol_1
@@ -1375,7 +1381,7 @@ Function verify_sluch( fl_view )
     Next
   Endif
   fl := ( AScan( mdiagnoz, {| x| PadR( x, 5 ) == 'Z03.1' } ) > 0 )
-  If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID  // .or. is_disp_DRZ
+  If is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID .or. is_disp_DRZ
     If is_oncology == 2
       is_oncology := 1
     Endif
@@ -1629,8 +1635,9 @@ Function verify_sluch( fl_view )
             'B01.057.001', 'B01.057.002', ;
             'B03.053.002', ;
             'B01.070.009', 'B01.070.010', ;
-            'A25.28.001.001', 'A25.28.001.002' ;
-            )
+            'A25.28.001.001', 'A25.28.001.002', ;
+            'A06.09.007.002', 'A06.20.004', 'A06.09.006.001' ;
+          )
           AAdd( ta, 'услугу ' + s + ' нельзя вводить для амбулаторной помощи' )
         Endif
       Case human_->usl_ok == USL_OK_AMBULANCE // 4
@@ -3789,13 +3796,9 @@ Function verify_sluch( fl_view )
     m1mobilbr := 0
     human_->profil := 151  // медицинским осмотрам профилактическим
     ret_arr_vozrast_dvn( dEnd )
-//    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
     ret_arrays_disp( dEnd )
     m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := f_is_prazdnik_dvn( dBegin )
 
-    // If ISNIL( sadiag1 )
-    //   sadiag1 := load_diagnoze_disp_nabl_from_file()
-    // Endif
     For i := 1 To 5
       sk := lstr( i )
       pole_diag := 'mdiag' + sk
@@ -3868,7 +3871,6 @@ Function verify_sluch( fl_view )
           s := 2 // взят на диспансерное наблюдение
         Endif
       Endif
-      // If !Empty( arr_diag[ 1 ] ) .and. AScan( sadiag1, arr_diag[ 1 ] ) > 0
       If !Empty( arr_diag[ 1 ] ) .and. diag_in_list_dn( arr_diag[ 1 ] )
         If Empty( arr_diag[ 4 ] )
           If s == 2
@@ -4403,6 +4405,39 @@ Function verify_sluch( fl_view )
     Endif
 
   Endif
+
+  //
+  // ПРОВЕРКА УСЛУГ С ИСКУСТВЕННЫМ ИНТЕЛЕКТОМ без учета услуг 60.4.583, 60.4.584
+  //
+  fl := .f.
+  iFind := 0
+  iCount := 0
+  cUsluga := ''
+  aCheck := { { '7.2.706', 'A06.09.007.002' }, { '7.57.704', 'A06.20.004' }, { '7.61.704', 'A06.09.006.001' }, { '60.4.583', 'A06.09.005' }, { '60.4.584', 'A06.23.004' } }
+  for counter := 1 to len( arrUslugi )
+    if ( iFind := AScan( aCheck, {| x | x[ 1 ] == arrUslugi[ counter ] } ) ) > 0
+      iCount := counter
+      cUsluga := aCheck[ iFind, 2 ]
+      fl := .t.
+      exit
+    endif
+  next
+  if fl
+    if Empty( human_2->NPR_DATE )
+      AAdd( ta, 'для услуги ' + arrUslugi[ iFind ] + ' обязательно направление' )
+    endif
+    if ( human_->USL_OK != USL_OK_POLYCLINIC )
+      AAdd( ta, 'услуга ' + arrUslugi[ iFind ] + ' оказывается только в амбулаторных условиях' )
+    endif
+    if ( AllTrim( mdiagnoz[ 1 ] ) != 'Z01.8' ) .and. SubStr( arrUslugi[ iCount ], 1, 5 ) != '60.4.'
+      AAdd( ta, 'для услуги ' + arrUslugi[ iCount ] + ' необходимо выбрать основной диагноз Z01.8, ' ;
+        + 'у вас выбран ' + AllTrim( mdiagnoz[ 1 ] ) + '!' )
+    endif
+    if AScan( arrUslugi, cUsluga ) == 0
+      AAdd( ta, 'в случай необходимо добавить услугу ' + cUsluga )
+    endif
+  endif
+
   //
   // ПРОВЕРКА ЛЕКАРСТВЕННЫХ ПРЕПАРАТОВ
   //
@@ -4639,17 +4674,21 @@ Function verify_sluch( fl_view )
     AAdd( ta, 'вернулся из ТФОМС с ошибкой и ещё не отредактирован' )
   Endif
   If Len( arr_unit ) > 1
-    If Select( 'MOUNIT' ) == 0
-      sbase := prefixfilerefname( yearEnd ) + 'unit'
-      r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
-    Endif
+//    If Select( 'MOUNIT' ) == 0
+//      sbase := prefixfilerefname( yearEnd ) + 'unit'
+//      r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
+//    Endif
     s := 'совокупность услуг должна быть из одной учётной единицы объёма, а в данном случае: '
-    Select MOUNIT
+//    Select MOUNIT
     For i := 1 To Len( arr_unit )
-      find ( Str( arr_unit[ i ], 3 ) )
-      If Found()
-        s += AllTrim( mounit->name ) + ', '
-      Endif
+//      find ( Str( arr_unit[ i ], 3 ) )
+//      If Found()
+//        s += AllTrim( mounit->name ) + ', '
+//      Endif
+      if ( iFind := AScan( arrPZ, { | x | x[ 2 ] == arr_unit[ i ] } ) ) > 0
+//        s += arrPZ[ iFind, 3 ] + ', '
+        s += arrPZ[ iFind, PZ_ARRAY_NAME ] + ', '
+      endif
     Next
     AAdd( ta, Left( s, Len( s ) -2 ) )
   Endif
@@ -4816,15 +4855,19 @@ Function verify_sluch( fl_view )
       mpzkol := Len( au_lu ) // кол-во анализов
     Endif
     If Len( arr_unit ) == 1
-      If Select( 'MOUNIT' ) == 0
-        sbase := prefixfilerefname( yearEnd ) + 'unit'
-        r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
-      Endif
-      Select MOUNIT
-      find ( Str( arr_unit[ 1 ], 3 ) )
-      If Found() .and. mounit->pz > 0
-        mpztip := mounit->pz
-      Endif
+//      If Select( 'MOUNIT' ) == 0
+//        sbase := prefixfilerefname( yearEnd ) + 'unit'
+//        r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
+//      Endif
+//      Select MOUNIT
+//      find ( Str( arr_unit[ 1 ], 3 ) )
+//      If Found() .and. mounit->pz > 0
+//        mpztip := mounit->pz
+//      Endif
+      if ( iFind := AScan( arrPZ, { | x | x[ 2 ] == arr_unit[ 1 ] } ) ) > 0
+//        mpztip := arrPZ[ iFind, 1 ]
+        mpztip := arrPZ[ iFind, PZ_ARRAY_ID ]
+      endif
     Endif
     human_->POVOD := iif( Len( arr_povod ) > 0, arr_povod[ 1, 1 ], 1 )
     human_->PZTIP := mpztip

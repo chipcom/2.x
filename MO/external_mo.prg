@@ -205,7 +205,7 @@ Function ret_mo( cCode )
 
   Return arr
 
-// 14.09.20 проверить направляющую МО по дате направления и дате окончания действия
+// 28.02.25 проверить направляющую МО по дате направления и дате окончания действия
 Function verify_dend_mo( cCode, ldate, is_record )
 
   Static a_mo := { ;
@@ -258,8 +258,12 @@ Function verify_dend_mo( cCode, ldate, is_record )
           Endif
         Next
       Endif
+
+      fl := .t. // пока так
+
       If fl
-        human_->NPR_MO := lstr( a_mo[ j, 1 ] ) // перезаписываем код направляющего МО в листе учёта ОМС
+//        human_->NPR_MO := lstr( a_mo[ j, 1 ] ) // перезаписываем код направляющего МО в листе учёта ОМС
+        human_->NPR_MO := cCode
       Else
         s := '<' + glob_arr_mo[ i, _MO_SHORT_NAME ] + '> закончила свою деятельность ' + date_8( glob_arr_mo[ i, _MO_DEND ] ) + 'г.'
       Endif

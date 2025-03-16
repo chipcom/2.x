@@ -1,7 +1,7 @@
 #include 'function.ch'
 
 // 11.11.24 определить, является ли данный день рабочим днём
-Function is_work_day( mdate )
+Function is_work_day_old( mdate )
   Local iy, im, m, d, y, am, fl := .t.
   Static arr_holiday := { ;
     { 2013, { ;
