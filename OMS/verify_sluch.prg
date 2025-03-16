@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 13.03.25
+// 16.03.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -52,6 +52,7 @@ Function verify_sluch( fl_view )
   local info_disp_nabl := 0, ldate_next
   local s_lek_pr
   local iFind, aCheck, cUsluga, iCount
+  local arrPZ
 
   Default fl_view To .t.
 
@@ -109,6 +110,9 @@ Function verify_sluch( fl_view )
   cd2 := dtoc4( dEnd )
   yearBegin := Year( dBegin )
   yearEnd := Year( dEnd )
+
+  arrPZ := get_array_PZ( yearEnd )
+
   ym2 := Left( DToS( dEnd ), 6 )
 
   kol_dney := kol_dney_lecheniya( human->n_data, human->k_data, human_->usl_ok )
@@ -4425,7 +4429,6 @@ Function verify_sluch( fl_view )
     if ( human_->USL_OK != USL_OK_POLYCLINIC )
       AAdd( ta, 'услуга ' + arrUslugi[ iFind ] + ' оказывается только в амбулаторных условиях' )
     endif
-altd()
     if ( AllTrim( mdiagnoz[ 1 ] ) != 'Z01.8' ) .and. SubStr( arrUslugi[ iCount ], 1, 5 ) != '60.4.'
       AAdd( ta, 'для услуги ' + arrUslugi[ iCount ] + ' необходимо выбрать основной диагноз Z01.8, ' ;
         + 'у вас выбран ' + AllTrim( mdiagnoz[ 1 ] ) + '!' )
@@ -4671,17 +4674,21 @@ altd()
     AAdd( ta, 'вернулся из ТФОМС с ошибкой и ещё не отредактирован' )
   Endif
   If Len( arr_unit ) > 1
-    If Select( 'MOUNIT' ) == 0
-      sbase := prefixfilerefname( yearEnd ) + 'unit'
-      r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
-    Endif
+//    If Select( 'MOUNIT' ) == 0
+//      sbase := prefixfilerefname( yearEnd ) + 'unit'
+//      r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
+//    Endif
     s := 'совокупность услуг должна быть из одной учётной единицы объёма, а в данном случае: '
-    Select MOUNIT
+//    Select MOUNIT
     For i := 1 To Len( arr_unit )
-      find ( Str( arr_unit[ i ], 3 ) )
-      If Found()
-        s += AllTrim( mounit->name ) + ', '
-      Endif
+//      find ( Str( arr_unit[ i ], 3 ) )
+//      If Found()
+//        s += AllTrim( mounit->name ) + ', '
+//      Endif
+      if ( iFind := AScan( arrPZ, { | x | x[ 2 ] == arr_unit[ i ] } ) ) > 0
+//        s += arrPZ[ iFind, 3 ] + ', '
+        s += arrPZ[ iFind, PZ_ARRAY_NAME ] + ', '
+      endif
     Next
     AAdd( ta, Left( s, Len( s ) -2 ) )
   Endif
@@ -4848,15 +4855,19 @@ altd()
       mpzkol := Len( au_lu ) // кол-во анализов
     Endif
     If Len( arr_unit ) == 1
-      If Select( 'MOUNIT' ) == 0
-        sbase := prefixfilerefname( yearEnd ) + 'unit'
-        r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
-      Endif
-      Select MOUNIT
-      find ( Str( arr_unit[ 1 ], 3 ) )
-      If Found() .and. mounit->pz > 0
-        mpztip := mounit->pz
-      Endif
+//      If Select( 'MOUNIT' ) == 0
+//        sbase := prefixfilerefname( yearEnd ) + 'unit'
+//        r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
+//      Endif
+//      Select MOUNIT
+//      find ( Str( arr_unit[ 1 ], 3 ) )
+//      If Found() .and. mounit->pz > 0
+//        mpztip := mounit->pz
+//      Endif
+      if ( iFind := AScan( arrPZ, { | x | x[ 2 ] == arr_unit[ 1 ] } ) ) > 0
+//        mpztip := arrPZ[ iFind, 1 ]
+        mpztip := arrPZ[ iFind, PZ_ARRAY_ID ]
+      endif
     Endif
     human_->POVOD := iif( Len( arr_povod ) > 0, arr_povod[ 1, 1 ], 1 )
     human_->PZTIP := mpztip
