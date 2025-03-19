@@ -366,33 +366,34 @@ Function inf_drz()
               arr[ 4, 20 ]++
             Endif
           Endif
-          If m1napr_reab != 0
-            If human->pol == 'Œ'
-              arr[ 1, 21 ]++
-              If ! lCity
-                arr[ 2, 21 ]++
-              Endif
-            Else
-              arr[ 3, 21 ]++
-              If ! lCity
-                arr[ 4, 21 ]++
-              Endif
+		Endif  
+        If m1napr_reab != 0
+          If human->pol == 'Œ'
+            arr[ 1, 21 ]++
+            If ! lCity
+              arr[ 2, 21 ]++
             Endif
-          Endif
-          If m1sank_na != 0
-            If human->pol == 'Œ'
-              arr[ 1, 22 ]++
-              If ! lCity
-                arr[ 2, 22 ]++
-              Endif
-            Else
-              arr[ 3, 22 ]++
-              If ! lCity
-                arr[ 4, 22 ]++
-              Endif
+          Else
+            arr[ 3, 21 ]++
+            If ! lCity
+              arr[ 4, 21 ]++
             Endif
           Endif
         Endif
+        If m1sank_na != 0
+          If human->pol == 'Œ'
+            arr[ 1, 22 ]++
+            If ! lCity
+              arr[ 2, 22 ]++
+            Endif
+          Else
+            arr[ 3, 22 ]++
+            If ! lCity
+              arr[ 4, 22 ]++
+            Endif
+          Endif
+        Endif
+        //Endif
       Endif
       Select HUMAN
       Skip
