@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 16.03.25
+// 20.03.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -1385,7 +1385,7 @@ Function verify_sluch( fl_view )
     If is_oncology == 2
       is_oncology := 1
     Endif
-    If fl
+    If fl  .and. ! eq_any( human_->RSLT_NEW, 375, 376, 377, 378, 379 ) // для ДРЗ исключаем согласно письма 09-20-214 от 21.05.24
       AAdd( ta, 'при диспансеризации не должно быть основного (или сопутствующего) диагноза Z03.1 "наблюдение при подозрении на злокачественную опухоль"' )
     Endif
   Else
