@@ -4433,9 +4433,9 @@ Function verify_sluch( fl_view )
       AAdd( ta, 'для услуги ' + arrUslugi[ iCount ] + ' необходимо выбрать основной диагноз Z01.8, ' ;
         + 'у вас выбран ' + AllTrim( mdiagnoz[ 1 ] ) + '!' )
     endif
-//    if AScan( arrUslugi, cUsluga ) == 0
-//      AAdd( ta, 'в случай необходимо добавить услугу ' + cUsluga )
-//    endif
+    if AScan( arrUslugi, cUsluga ) > 0
+      AAdd( ta, 'в случае необходимо удалить услугу ' + cUsluga )
+    endif
   endif
 
   //
