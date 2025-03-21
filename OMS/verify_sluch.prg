@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 20.03.25
+// 21.03.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -4433,9 +4433,9 @@ Function verify_sluch( fl_view )
       AAdd( ta, 'для услуги ' + arrUslugi[ iCount ] + ' необходимо выбрать основной диагноз Z01.8, ' ;
         + 'у вас выбран ' + AllTrim( mdiagnoz[ 1 ] ) + '!' )
     endif
-    if AScan( arrUslugi, cUsluga ) == 0
-      AAdd( ta, 'в случай необходимо добавить услугу ' + cUsluga )
-    endif
+//    if AScan( arrUslugi, cUsluga ) == 0
+//      AAdd( ta, 'в случай необходимо добавить услугу ' + cUsluga )
+//    endif
   endif
 
   //
