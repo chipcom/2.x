@@ -2376,7 +2376,9 @@ Function f2ret_oms_human( nkey )
                 // Травматология и ортопедия == 100
                 // Стоматологии 85, 86, 87, 88, 89, 90, 171,
                 // Медреабилитация 158
-                If PadR( lshifr, 8 ) == '2.78.110' // онкология
+               // if p_cel == "1.3"   //
+
+                If PadR( lshifr, 8 ) == '2.78.110' // онкология check_tip_disp_nabl( dd->kod_diag )
                   If human->vzros_reb == 0 // взрослый
                     mas_otchet[ 44, 1 ] += 1
                     mas_otchet[ 44, 2 ] += human->cena_1
@@ -2384,8 +2386,7 @@ Function f2ret_oms_human( nkey )
                     mas_otchet[ 44, 3 ] += 1
                     mas_otchet[ 44, 4 ] += human->cena_1
                   Endif
-                Endif
-                If PadR( lshifr, 8 ) == '2.78.112' // ССЗ
+                elseIf PadR( lshifr, 8 ) == '2.78.112' // ССЗ
                   If human->vzros_reb == 0 // взрослый
                     mas_otchet[ 45, 1 ] += 1
                     mas_otchet[ 45, 2 ] += human->cena_1
@@ -2393,8 +2394,7 @@ Function f2ret_oms_human( nkey )
                     mas_otchet[ 45, 3 ] += 1
                     mas_otchet[ 45, 4 ] += human->cena_1
                   Endif
-                Endif
-                If PadR( lshifr, 8 ) == '2.78.111' // Сахарный диабет
+                elseIf PadR( lshifr, 8 ) == '2.78.111' // Сахарный диабет
                   If human->vzros_reb == 0 // взрослый
                     mas_otchet[ 46, 1 ] += 1
                     mas_otchet[ 46, 2 ] += human->cena_1
@@ -2402,8 +2402,7 @@ Function f2ret_oms_human( nkey )
                     mas_otchet[ 46, 3 ] += 1
                     mas_otchet[ 46, 4 ] += human->cena_1
                   Endif
-                Endif
-                If  PadR( lshifr, 8 ) == '2.78.109' // прочее диспансерное наблюдение
+                elseIf  PadR( lshifr, 8 ) == '2.78.109' // прочее диспансерное наблюдение
                   If human->vzros_reb == 0 // взрослый
                     mas_otchet[ 47, 1 ] += 1
                     mas_otchet[ 47, 2 ] += human->cena_1
@@ -2411,13 +2410,13 @@ Function f2ret_oms_human( nkey )
                     mas_otchet[ 47, 3 ] += 1
                     mas_otchet[ 47, 4 ] += human->cena_1
                   Endif
-                Endif
-                mas_otchet[ 35, 1 ] := mas_otchet[ 44, 1 ] + mas_otchet[ 45, 1 ] + mas_otchet[ 46, 1 ] + mas_otchet[ 47, 1 ]
-                mas_otchet[ 35, 2 ] := mas_otchet[ 44, 2 ] + mas_otchet[ 45, 2 ] + mas_otchet[ 46, 2 ] + mas_otchet[ 47, 2 ]
-                mas_otchet[ 35, 3 ] := mas_otchet[ 44, 3 ] + mas_otchet[ 45, 3 ] + mas_otchet[ 46, 3 ] + mas_otchet[ 47, 3 ]
-                mas_otchet[ 35, 4 ] := mas_otchet[ 44, 4 ] + mas_otchet[ 45, 4 ] + mas_otchet[ 46, 4 ] + mas_otchet[ 47, 4 ]
-                //
-                If eq_any( human_->profil, 2, 136, 137, 16, 60, 100, 85, 86, 87, 89, 90, 171, 158 )
+                else                //
+                //If eq_any( human_->profil, 2, 136, 137, 16, 60, 100, 85, 86, 87, 89, 90, 171, 158, 97, 108, 122, 77, 53, 11, 112, 29 )
+                  //97 - терапия
+                  //108 - урология
+                  //122 - эндокринология
+                  //77 - ревматологии
+                  // 53- неврология 11- гачтро
                   mas_otch[ 7, 1 ] += 1
                   mas_otch[ 8, 1 ] += hu->stoim
                   If flag_covid
@@ -2451,6 +2450,10 @@ Function f2ret_oms_human( nkey )
                     Endif
                   Endif
                 Endif
+                mas_otchet[ 35, 1 ] := mas_otchet[ 44, 1 ] + mas_otchet[ 45, 1 ] + mas_otchet[ 46, 1 ] + mas_otchet[ 47, 1 ]
+                mas_otchet[ 35, 2 ] := mas_otchet[ 44, 2 ] + mas_otchet[ 45, 2 ] + mas_otchet[ 46, 2 ] + mas_otchet[ 47, 2 ]
+                mas_otchet[ 35, 3 ] := mas_otchet[ 44, 3 ] + mas_otchet[ 45, 3 ] + mas_otchet[ 46, 3 ] + mas_otchet[ 47, 3 ]
+                mas_otchet[ 35, 4 ] := mas_otchet[ 44, 4 ] + mas_otchet[ 45, 4 ] + mas_otchet[ 46, 4 ] + mas_otchet[ 47, 4 ]
               Else // посещения с иными целями
                 // отсекаем нулевки
                 If hu->stoim > 0
