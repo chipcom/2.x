@@ -98,6 +98,7 @@ Function s_mnog_poisk()
     { 'в файл Excel (формат xlsx)', 2 } ;
     }
   Local arr_title
+  local arr_SVO :=  mm_SVO()
 
   If mem_dom_aktiv == 1
     AAdd( mm_dom, { 'на дому-АКТИВ', 3 } )
@@ -352,6 +353,16 @@ Function s_mnog_poisk()
     {| x| menu_reader( x, menu_rab, A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
     'Работающий/неработающий' } )
+//
+AAdd( mm_tmp, { 'svo', 'N', 1, 0, NIL, ;
+  {| x| menu_reader( x,  mm_da_net, A__MENUVERT ) }, ;
+  1, {|| Space( 10 ) }, ;
+  'Участник СВО' } )
+AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
+  {| x| menu_reader( x, arr_SVO, A__MENUVERT ) }, ;
+  -1, {|| Space( 10 ) }, ;
+  'Социальная категория' } )
+//
   AAdd( mm_tmp, { 'USL_OK', 'N', 3, 0, NIL, ;
     {| x| menu_reader( x, tmp_V006, A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
@@ -1445,6 +1456,16 @@ Function s_mnog_poisk()
         // add_string( sOutput )
         // Endif
       Endif
+      //
+      if mn->svo >= 0
+        sOutput := "Участник СВО " + Upper( inieditspr( A__MENUVERT, mm_da_net, mn->svo ) )
+        string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
+      endif  
+      if mn->svo2 >= 0
+        sOutput := "Социальная категория " + Upper( inieditspr( A__MENUVERT, arr_SVO, mn->svo2 ) )
+        string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
+      endif  
+      //
       If mn->USL_OK > 0
         sOutput := 'Условия оказания: ' + inieditspr( A__MENUVERT, tmp_V006, mn->USL_OK )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
@@ -2741,6 +2762,22 @@ Static Function s1_mnog_poisk( cv, cf )
   If fl .and. mn->rab_nerab >= 0
     fl := ( kart->rab_nerab == mn->rab_nerab )
   Endif
+  if fl .and. mn->svo > 0
+     if mn->svo == 2 //СВО
+       fl := (kart->pn1 == 30)
+     else
+     //  fl := (kart->pn1 != 30)
+     endif   
+  endif  
+  if fl .and. mn->svo2 >= 0
+    if mn->svo2 == 0
+      fl := ( alltrim(kart->pc3) == '000' )
+    elseif mn->svo2 == 35
+      fl := ( alltrim(kart->pc3) == '035' )
+    elseif mn->svo2 == 65
+      fl := ( alltrim(kart->pc3) == '065' )
+    endif 
+  endif  
   If fl .and. mn->mi_git > 0
     If mn->mi_git == 1
       fl := ( Left( kart_->okatog, 2 ) == '18' )
@@ -3395,7 +3432,6 @@ Function f3_diag_statist_bukvaexcel( HH, sh, arr_title, lvu )
 
   Return Nil
 
-// 12.03.25
 Function st_pz_poisk( get )
 
   Local t_year

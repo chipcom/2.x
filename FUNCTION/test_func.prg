@@ -3,36 +3,35 @@
 
 function test_init()
 
-//  local a
-//  local b, c
+//   local HTTPQuery, result, timeout := 5
+//   local status, statusText, bodyJSON
+//   local token := "d34ab9d4-a6fc-47fe-aafb-bc914dac665f"
+// //   local cURL := "https://cdn.crpt.ru//api/v4/true-api/cdn/info"
+//   local cURL := "https://nsi.ffoms.ru/data?pageId=refbookList&containerId=refbookList&size=110"
 
-  // local HTTPQuery, result, timeout := 5
-  // local status, statusText, bodyJSON
-  // local token := "d34ab9d4-a6fc-47fe-aafb-bc914dac665f"
-  // local cURL := "https://cdn.crpt.ru//api/v4/true-api/cdn/info"
+//   HTTPQuery := CreateObject("WinHttp.WinHttpRequest.5.1")
+//   HTTPQuery:Option(2, "utf-8")
 
-  // HTTPQuery := CreateObject("WinHttp.WinHttpRequest.5.1")
-  // HTTPQuery:Option(2, "utf-8")
-  // HTTPQuery:SetTimeouts(15000, 15000, 15000, 15000)
-  // HTTPQuery:Open( "GET", cURL, 1 )
-  // HTTPQuery:SetRequestHeader("X-API-KEY", AllTrim(token))
-  // HTTPQuery:SetRequestHeader("Accept-Charset", "utf-8")
-  // HTTPQuery:SetRequestHeader("Content-Type", "application/json; charset=utf-8")
-  // HTTPQuery:Send()
-  // result := HTTPQuery:WaitForResponse(timeout)
+//   HTTPQuery:Option(4, 0x3300)
+// //   HTTPQuery:Option(12, .t.)
+// //   HTTPQuery:Option(6, .f.)
+
+//   HTTPQuery:SetTimeouts(15000, 15000, 15000, 15000)
+//   HTTPQuery:Open( "GET", cURL, 1 )
+// //   HTTPQuery:SetRequestHeader("X-API-KEY", AllTrim(token))
+//   HTTPQuery:SetRequestHeader("Accept-Charset", "utf-8")
+//   HTTPQuery:SetRequestHeader("Content-Type", "application/json; charset=utf-8")
+//   HTTPQuery:Send()
+//   result := HTTPQuery:WaitForResponse(timeout)
 
   // //  if result == -1
-		// status := HTTPQuery:status()
-    // statusText := HTTPQuery:statusText()
-    // bodyJSON := AllTrim(HTTPQuery:ResponseText())
+//		 status := HTTPQuery:status()
+//     statusText := HTTPQuery:statusText()
+//     bodyJSON := AllTrim(HTTPQuery:ResponseText())
 // //  endif
 
-// //   a := ksgInList( 'st19.089', 'st19.084-st19.089, st19.094-st19.102, st19.163-st19.181, ds19.058-ds19.062, ds19.067-ds19.078, ds19.135-ds19.156' ) 
-// //   b := get_array_PZ_new( 2018 ) 
-// //   c := get_array_PZ_new( 2017 ) 
-
-  // altd()
-  // HTTPQuery := nil
+//   altd()
+//   HTTPQuery := nil
   return nil
 
 // 12.07.24
