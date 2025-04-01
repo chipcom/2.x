@@ -3,35 +3,28 @@
 
 function test_init()
 
-//   local HTTPQuery, result, timeout := 5
-//   local status, statusText, bodyJSON
-//   local token := "d34ab9d4-a6fc-47fe-aafb-bc914dac665f"
-// //   local cURL := "https://cdn.crpt.ru//api/v4/true-api/cdn/info"
-//   local cURL := "https://nsi.ffoms.ru/data?pageId=refbookList&containerId=refbookList&size=110"
+//  local HTTPQuery, result, timeout := 5
+//  local status, statusText, bodyJSON
+//  local cURL := 'https://nsi.ffoms.ru/data?pageId=refbookList&containerId=refbookList&size=110'
 
-//   HTTPQuery := CreateObject("WinHttp.WinHttpRequest.5.1")
-//   HTTPQuery:Option(2, "utf-8")
+//  HTTPQuery := CreateObject( 'WinHttp.WinHttpRequest.5.1' )
+//  HTTPQuery:Option( 2, 'utf-8' )
 
-//   HTTPQuery:Option(4, 0x3300)
-// //   HTTPQuery:Option(12, .t.)
-// //   HTTPQuery:Option(6, .f.)
+//  HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
+//  HTTPQuery:Open( 'GET', cURL, 0 )
+//  HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
+//  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/json; charset=utf-8' )
+//  HTTPQuery:Send()
+//  result := HTTPQuery:WaitForResponse( timeout )
 
-//   HTTPQuery:SetTimeouts(15000, 15000, 15000, 15000)
-//   HTTPQuery:Open( "GET", cURL, 1 )
-// //   HTTPQuery:SetRequestHeader("X-API-KEY", AllTrim(token))
-//   HTTPQuery:SetRequestHeader("Accept-Charset", "utf-8")
-//   HTTPQuery:SetRequestHeader("Content-Type", "application/json; charset=utf-8")
-//   HTTPQuery:Send()
-//   result := HTTPQuery:WaitForResponse(timeout)
+//  if result
+//		status := HTTPQuery:status()
+//    statusText := HTTPQuery:statusText()
+//    bodyJSON := AllTrim( HTTPQuery:ResponseText() )
+//  endif
 
-  // //  if result == -1
-//		 status := HTTPQuery:status()
-//     statusText := HTTPQuery:statusText()
-//     bodyJSON := AllTrim(HTTPQuery:ResponseText())
-// //  endif
-
-//   altd()
-//   HTTPQuery := nil
+//  altd()
+//  HTTPQuery := nil
   return nil
 
 // 12.07.24
