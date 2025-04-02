@@ -1,10 +1,25 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+// FindDictionary получает последнюю версию справочника по его коду
+function FindDictionary( code )
+
+  local collection := GetDictionaryListFFOMS()
+  local aValues, arr, v
+
+  code := Upper( code )
+	for each v in collection
+    arr := hb_hValues( v )
+    if arr[ 6 ][ 'code' ] == code
+      aValues := v
+    endif
+  next
+  return aValues
+
 // GetDictionaryList получает список справочников с сайта ФФОМС
 function GetDictionaryListFFOMS()
 
-  local aDict
+  local aDict, aRet
   local HTTPQuery, result, timeout := 5
   local status, statusText, bodyJSON, nLengthDecoded
   local cURL := 'http://nsi.ffoms.ru/data?pageId=refbookList&containerId=refbookList&size=110'
@@ -16,7 +31,6 @@ function GetDictionaryListFFOMS()
   HTTPQuery:Open( 'GET', cURL, 0 )
   HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
   HTTPQuery:SetRequestHeader( 'Content-Type', 'application/json; charset=utf-8' )
-altd()
   HTTPQuery:Send()
   result := HTTPQuery:WaitForResponse( timeout )
 
@@ -24,16 +38,17 @@ altd()
 		status := HTTPQuery:status()
     statusText := HTTPQuery:statusText()
     bodyJSON := AllTrim( HTTPQuery:ResponseText() )
-//    nLengthDecoded := hb_jsonDecode( bodyJSON, @xValue )
     nLengthDecoded := hb_jsonDecode( bodyJSON, @aDict )
   endif
+  aRet := aDict[ 'list' ]
 
   HTTPQuery := nil
-  return aDict
+  return aRet
 
 function test_init()
 
-  GetDictionaryListFFOMS()
+//  GetDictionaryListFFOMS()
+  FindDictionary( 'F001' )
   return nil
 
 // 12.07.24
