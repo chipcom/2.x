@@ -1,20 +1,61 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
+#include 'fileio.ch'
+
+//GetFile загружает указанную версию справочника в формате XML
+//func (d *Dictionary) GetFile() ([]byte, error) {
+function GetFile( hValues )
+
+  local s, id, version
+  local cUrl, HTTPQuery, result, status, statusText, body
+  local timeout := 5
+  local pHandle
+
+  s := Split( hValues[ 'providerParam' ], 'v' )
+  id := AllTrim( s[ 1 ] )
+  version := AllTrim( s[ 2 ] )
+
+//	url := fmt.Sprintf("http://nsi.ffoms.ru/refbook?type=XML&id=%s&version=%s", id, version)
+	cUrl := 'http://nsi.ffoms.ru/refbook?type=XML&' + 'id=' + id + '&' + 'version=' + version
+
+  HTTPQuery := CreateObject( 'WinHttp.WinHttpRequest.5.1' )
+  HTTPQuery:Option( 2, 'utf-8' )
+
+  HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
+  HTTPQuery:Open( 'GET', cURL, 0 )
+//  HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
+//  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/json; charset=utf-8' )
+  HTTPQuery:Send()
+  result := HTTPQuery:WaitForResponse( timeout )
+
+  if result
+		status := HTTPQuery:status()
+    statusText := HTTPQuery:statusText()
+    body := HTTPQuery:ResponseText()
+    pHandle := HB_VFOPEN( cur_dir() + 'test.zip', HB_FO_CREAT )  // , [ <nMode> ], [ <nAttr> ] ) -> <pHandle> | NIL
+    HB_VFWRITE( pHandle, body, len( body ) )  //      -> <nWritten>
+    hb_vfclose( pHandle )
+
+  endif
+
+  HTTPQuery := nil
+  altd()
+  return nil
 
 // FindDictionary получает последнюю версию справочника по его коду
 function FindDictionary( code )
 
   local collection := GetDictionaryListFFOMS()
-  local aValues, arr, v
+  local hValues, arr, v
 
   code := Upper( code )
 	for each v in collection
     arr := hb_hValues( v )
     if arr[ 6 ][ 'code' ] == code
-      aValues := v
+      hValues := v
     endif
   next
-  return aValues
+  return hValues
 
 // GetDictionaryList получает список справочников с сайта ФФОМС
 function GetDictionaryListFFOMS()
@@ -39,8 +80,8 @@ function GetDictionaryListFFOMS()
     statusText := HTTPQuery:statusText()
     bodyJSON := AllTrim( HTTPQuery:ResponseText() )
     nLengthDecoded := hb_jsonDecode( bodyJSON, @aDict )
+    aRet := aDict[ 'list' ]
   endif
-  aRet := aDict[ 'list' ]
 
   HTTPQuery := nil
   return aRet
@@ -48,7 +89,8 @@ function GetDictionaryListFFOMS()
 function test_init()
 
 //  GetDictionaryListFFOMS()
-  FindDictionary( 'F001' )
+//  FindDictionary( 'F001' )
+//  GetFile( FindDictionary( 'F001' ) )
   return nil
 
 // 12.07.24
