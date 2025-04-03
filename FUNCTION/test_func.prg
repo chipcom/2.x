@@ -2,14 +2,21 @@
 #include 'chip_mo.ch'
 #include 'fileio.ch'
 
+function test_init()
+
+  //  GetDictionaryListFFOMS()
+  //  FindDictionary( 'F001' )
+  //  GetFile( FindDictionary( 'F032' ) )
+    return nil
+  
 //GetFile загружает указанную версию справочника в формате XML
 //func (d *Dictionary) GetFile() ([]byte, error) {
 function GetFile( hValues )
 
-  local s, id, version
+  local lReturn := .f., s, id, version
   local cUrl, HTTPQuery, result, status, statusText, body
-  local timeout := 5
-  local pHandle
+  local timeout := 5, headers
+  local hUnzip, zipFile, n, nErr, cFile
 
   s := Split( hValues[ 'providerParam' ], 'v' )
   id := AllTrim( s[ 1 ] )
@@ -24,23 +31,33 @@ function GetFile( hValues )
   HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
   HTTPQuery:Open( 'GET', cURL, 0 )
 //  HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
-//  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/json; charset=utf-8' )
+  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/zip' )
   HTTPQuery:Send()
   result := HTTPQuery:WaitForResponse( timeout )
 
   if result
+    headers := HTTPQuery:getAllResponseHeaders()
 		status := HTTPQuery:status()
     statusText := HTTPQuery:statusText()
-    body := HTTPQuery:ResponseText()
-    pHandle := HB_VFOPEN( cur_dir() + 'test.zip', HB_FO_CREAT )  // , [ <nMode> ], [ <nAttr> ] ) -> <pHandle> | NIL
-    HB_VFWRITE( pHandle, body, len( body ) )  //      -> <nWritten>
-    hb_vfclose( pHandle )
-
+//    body := HTTPQuery:ResponseText()
+    body := HTTPQuery:ResponseBody()
+    zipFile := cur_dir() + hValues[ 'd' ][ 'code' ] + '_' + hValues[ 'user_version' ] + '_XML.zip'
+    hb_MemoWrit( zipFile, body )
+    If ! Empty( hUnzip := hb_unzipOpen( zipFile ) )
+      hb_unzipGlobalInfo( hUnzip, @n, NIL )
+      If n > 0
+        nErr := hb_unzipFileFirst( hUnzip )
+        hb_unzipFileInfo( hUnzip, @cFile )// , @dDate, @cTime,,,, @nSize, @nCompSize, @lCrypted, @cComment )
+        hb_unzipExtractCurrentFile( hUnzip, cur_dir() + cFile )// , cPassword)
+        lReturn := .t.
+      endif
+      hb_unzipClose( hUnzip )
+    endif
   endif
+  hb_vfErase( zipFile )
 
   HTTPQuery := nil
-  altd()
-  return nil
+  return lReturn
 
 // FindDictionary получает последнюю версию справочника по его коду
 function FindDictionary( code )
@@ -85,13 +102,6 @@ function GetDictionaryListFFOMS()
 
   HTTPQuery := nil
   return aRet
-
-function test_init()
-
-//  GetDictionaryListFFOMS()
-//  FindDictionary( 'F001' )
-//  GetFile( FindDictionary( 'F001' ) )
-  return nil
 
 // 12.07.24
 function convert_P_CEL()
