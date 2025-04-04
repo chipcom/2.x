@@ -1,24 +1,33 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 #include 'fileio.ch'
+#include 'common.ch'
 
 function test_init()
 
   //  GetDictionaryListFFOMS()
   //  FindDictionary( 'F001' )
-  //  GetFile( FindDictionary( 'F032' ) )
+  //  GetFile( FindDictionary( 'F032' ), cur_dir() ) //, .t., cur_dir() )
     return nil
   
 //GetFile загружает указанную версию справочника в формате XML
-//func (d *Dictionary) GetFile() ([]byte, error) {
-function GetFile( hValues )
+function GetFile( hDict, destination, lSave, pathZip )
 
   local lReturn := .f., s, id, version
   local cUrl, HTTPQuery, result, status, statusText, body
   local timeout := 5, headers
   local hUnzip, zipFile, n, nErr, cFile
 
-  s := Split( hValues[ 'providerParam' ], 'v' )
+  if isnil( lSave )
+    lSave := .f.
+  endif
+  if isnil( destination ) .or. Empty( destination )
+    destination := '.\'
+  endif
+  if isnil( pathZip ) .or. Empty( pathZip )
+    pathZip := '.\'
+  endif
+  s := Split( hDict[ 'providerParam' ], 'v' )
   id := AllTrim( s[ 1 ] )
   version := AllTrim( s[ 2 ] )
 
@@ -30,7 +39,6 @@ function GetFile( hValues )
 
   HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
   HTTPQuery:Open( 'GET', cURL, 0 )
-//  HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
   HTTPQuery:SetRequestHeader( 'Content-Type', 'application/zip' )
   HTTPQuery:Send()
   result := HTTPQuery:WaitForResponse( timeout )
@@ -39,22 +47,23 @@ function GetFile( hValues )
     headers := HTTPQuery:getAllResponseHeaders()
 		status := HTTPQuery:status()
     statusText := HTTPQuery:statusText()
-//    body := HTTPQuery:ResponseText()
     body := HTTPQuery:ResponseBody()
-    zipFile := cur_dir() + hValues[ 'd' ][ 'code' ] + '_' + hValues[ 'user_version' ] + '_XML.zip'
+    zipFile := pathZip + hDict[ 'd' ][ 'code' ] + '_' + hDict[ 'user_version' ] + '_XML.zip'
     hb_MemoWrit( zipFile, body )
     If ! Empty( hUnzip := hb_unzipOpen( zipFile ) )
       hb_unzipGlobalInfo( hUnzip, @n, NIL )
       If n > 0
         nErr := hb_unzipFileFirst( hUnzip )
         hb_unzipFileInfo( hUnzip, @cFile )// , @dDate, @cTime,,,, @nSize, @nCompSize, @lCrypted, @cComment )
-        hb_unzipExtractCurrentFile( hUnzip, cur_dir() + cFile )// , cPassword)
+        hb_unzipExtractCurrentFile( hUnzip, destination + cFile )// , cPassword)
         lReturn := .t.
       endif
       hb_unzipClose( hUnzip )
     endif
   endif
-  hb_vfErase( zipFile )
+  if ! lSave
+    hb_vfErase( zipFile )
+  endif
 
   HTTPQuery := nil
   return lReturn
