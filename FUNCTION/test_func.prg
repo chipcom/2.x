@@ -2,36 +2,104 @@
 #include 'chip_mo.ch'
 #include 'fileio.ch'
 #include 'common.ch'
+#include 'hbstruct.ch'
 
 function test_init()
 
   //  GetDictionaryListFFOMS()
   //  FindDictionary( 'F001' )
-  //  GetFile( FindDictionary( 'F032' ), cur_dir() ) //, .t., cur_dir() )
-    return nil
+  //  GetFile( FindDictionary( 'F032' ), cur_dir() )
+  //  GetStructure( 'F032' )
+  //  GetVersions( 'N020' )
+//  local hMy, a, b
+
+//  STRUCTURE hMy
+//  MEMBER name AS STRING INIT 'vova'
+//  MEMBER age AS NUMERIC INIT 63
+//  ENDSTRUCTURE
+
+//  a := hMy[ 'age' ]
+//  b := hMy[ 'name' ]
+
+//  DESTROY STRUCTURE hMy
+// altd()
+return nil
   
-//GetFile загружает указанную версию справочника в формате XML
-function GetFile( hDict, destination, lSave, pathZip )
+function GetVersions( code )
+
+  local hArr, aRet
+  local cUrl, HTTPQuery, result, status, bodyJSON, nLengthDecoded
+  local timeout := 5
+
+  cUrl := hb_StrFormat( 'http://nsi.ffoms.ru/nsi-int/api/versions?identifier=%s', code )
+
+  HTTPQuery := CreateObject( 'WinHttp.WinHttpRequest.5.1' )
+  HTTPQuery:Option( 2, 'utf-8' )
+
+  HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
+  HTTPQuery:Open( 'GET', cURL, 0 )
+  HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
+  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/json; charset=utf-8' )
+  HTTPQuery:Send()
+  result := HTTPQuery:WaitForResponse( timeout )
+
+  if result
+    status := HTTPQuery:status()
+    if status == 200
+      bodyJSON := AllTrim( HTTPQuery:ResponseText() )
+      nLengthDecoded := hb_jsonDecode( bodyJSON, @hArr )
+      aRet := hArr[ 'list' ]
+    endif
+  endif
+  HTTPQuery := nil
+  return aRet
+
+function GetStructure( code )
+
+  local hArr
+  local cUrl, HTTPQuery, result, status, bodyJSON, nLengthDecoded
+  local timeout := 5
+
+	cUrl := hb_StrFormat( 'http://nsi.ffoms.ru/nsi-int/api/structure?identifier=%s', code )
+
+  HTTPQuery := CreateObject( 'WinHttp.WinHttpRequest.5.1' )
+  HTTPQuery:Option( 2, 'utf-8' )
+
+  HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
+  HTTPQuery:Open( 'GET', cURL, 0 )
+  HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
+  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/json; charset=utf-8' )
+  HTTPQuery:Send()
+  result := HTTPQuery:WaitForResponse( timeout )
+
+  if result
+		status := HTTPQuery:status()
+    if status == 200
+      bodyJSON := AllTrim( HTTPQuery:ResponseText() )
+      nLengthDecoded := hb_jsonDecode( bodyJSON, @hArr )
+//    aRet := aDict[ 'list' ]
+    endif
+  endif
+  HTTPQuery := nil
+
+  return hArr
+
+//GetFile загружает zip-архив последней версии справочника в формате XML
+function GetFile( hDict, destination )
 
   local lReturn := .f., s, id, version
-  local cUrl, HTTPQuery, result, status, statusText, body
+  local cUrl, HTTPQuery, result, status, body
   local timeout := 5, headers
-  local hUnzip, zipFile, n, nErr, cFile
+  local zipFile
 
-  if isnil( lSave )
-    lSave := .f.
-  endif
   if isnil( destination ) .or. Empty( destination )
     destination := '.\'
-  endif
-  if isnil( pathZip ) .or. Empty( pathZip )
-    pathZip := '.\'
   endif
   s := Split( hDict[ 'providerParam' ], 'v' )
   id := AllTrim( s[ 1 ] )
   version := AllTrim( s[ 2 ] )
 
-//	url := fmt.Sprintf("http://nsi.ffoms.ru/refbook?type=XML&id=%s&version=%s", id, version)
+//	cUrl := hb_StrFormat( 'http://nsi.ffoms.ru/refbook?type=XML&id=%s&version=%s', id, version)
 	cUrl := 'http://nsi.ffoms.ru/refbook?type=XML&' + 'id=' + id + '&' + 'version=' + version
 
   HTTPQuery := CreateObject( 'WinHttp.WinHttpRequest.5.1' )
@@ -46,25 +114,13 @@ function GetFile( hDict, destination, lSave, pathZip )
   if result
     headers := HTTPQuery:getAllResponseHeaders()
 		status := HTTPQuery:status()
-    statusText := HTTPQuery:statusText()
-    body := HTTPQuery:ResponseBody()
-    zipFile := pathZip + hDict[ 'd' ][ 'code' ] + '_' + hDict[ 'user_version' ] + '_XML.zip'
-    hb_MemoWrit( zipFile, body )
-    If ! Empty( hUnzip := hb_unzipOpen( zipFile ) )
-      hb_unzipGlobalInfo( hUnzip, @n, NIL )
-      If n > 0
-        nErr := hb_unzipFileFirst( hUnzip )
-        hb_unzipFileInfo( hUnzip, @cFile )// , @dDate, @cTime,,,, @nSize, @nCompSize, @lCrypted, @cComment )
-        hb_unzipExtractCurrentFile( hUnzip, destination + cFile )// , cPassword)
+    if status == 200
+      body := HTTPQuery:ResponseBody()
+      zipFile := destination + hDict[ 'd' ][ 'code' ] + '_' + hDict[ 'user_version' ] + '_XML.zip'
+      hb_MemoWrit( zipFile, body )
         lReturn := .t.
-      endif
-      hb_unzipClose( hUnzip )
     endif
   endif
-  if ! lSave
-    hb_vfErase( zipFile )
-  endif
-
   HTTPQuery := nil
   return lReturn
 

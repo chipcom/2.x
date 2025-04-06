@@ -22,6 +22,10 @@ hbhpdf.hbc
 hbct.hbc
 
 -mt
+
+#turn off macro-text substitution
+-km
+
 #-compr=yes
 -inc
 -workdir=..\TEMP\TEMPDEV
