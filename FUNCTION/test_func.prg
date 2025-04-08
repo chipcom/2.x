@@ -2,7 +2,6 @@
 #include 'chip_mo.ch'
 #include 'fileio.ch'
 #include 'common.ch'
-#include 'hbstruct.ch'
 
 function test_init()
 
@@ -11,18 +10,7 @@ function test_init()
   //  GetFile( FindDictionary( 'F032' ), cur_dir() )
   //  GetStructure( 'F032' )
   //  GetVersions( 'N020' )
-//  local hMy, a, b
-
-//  STRUCTURE hMy
-//  MEMBER name AS STRING INIT 'vova'
-//  MEMBER age AS NUMERIC INIT 63
-//  ENDSTRUCTURE
-
-//  a := hMy[ 'age' ]
-//  b := hMy[ 'name' ]
-
-//  DESTROY STRUCTURE hMy
-// altd()
+  //  altd()
 return nil
   
 function GetVersions( code )
