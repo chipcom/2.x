@@ -8,7 +8,7 @@
 
 Static lcount_uch  := 1
 
-// 17.11.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 09.04.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz()
 
   Local arr_m, buf := save_maxrow()
@@ -138,6 +138,12 @@ Function inf_drz()
                   If fl_d_full
                     arr_1[ 1, 9 ] ++
                     fl_d_full := .f.
+                    If ! lCity
+                      If fl_d_city 
+                        arr_1[ 1, 10 ] ++
+                        fl_d_city := .f.
+                      Endif
+                    endif  
                   Endif
                 Endif
                 If ! lCity
@@ -150,11 +156,12 @@ Function inf_drz()
                         fl_d_city_1 := .f.
                       Endif
                     Endif
-                  Endif
-                  If fl_d_city
-                    arr_1[ 1, 10 ] ++
-                    fl_d_city := .f.
-                  Endif
+                 // Endif
+                    If fl_d_city 
+                   // arr_1[ 1, 10 ] ++
+                   // fl_d_city := .f.
+                   Endif
+                  endif
                 Endif
               Endif
             Next

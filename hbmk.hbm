@@ -24,7 +24,7 @@ hbct.hbc
 -mt
 
 #turn off macro-text substitution
--km
+#-km
 
 #-compr=yes
 -inc
