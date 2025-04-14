@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 25.02.25 создание XML-файлов реестра
+// 14.04.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -539,6 +539,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           Endif
           if ( ascan( a_usl_name, '2.80.67' ) > 0 ) .or. ( ascan( a_usl_name, '2.88.14' ) > 0 )
             s := '1.0'
+            if human->K_DATA >= 0d20250401 .and. ( ascan( a_usl_name, '2.80.67' ) > 0 ) // письмо Мызгин А.В. от 14.04.25
+              s := '1.1'
+            endif
           endif
           mo_add_xml_stroke( oSL, 'P_CEL', s )
         Endif
