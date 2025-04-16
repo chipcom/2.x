@@ -651,19 +651,23 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     worksheet_write_number( ws2517, 6, 2, 0, cell_format )
 
     worksheet_write_string( ws2517, 7, 0, Space( 5 ) + 'направлено на санаторно-курортное лечение', cell_format2517 )
-    worksheet_write_number( ws2517, 7, 1, arr[ 1, 22 ] + arr[ 2, 22 ] + arr[ 3, 22 ] + arr[ 4, 22 ], cell_format )
+    //worksheet_write_number( ws2517, 7, 1, arr[ 1, 22 ] + arr[ 2, 22 ] + arr[ 3, 22 ] + arr[ 4, 22 ], cell_format )
+    worksheet_write_number( ws2517, 7, 1, arr[ 1, 22 ] + arr[ 3, 22 ] , cell_format )
     worksheet_write_number( ws2517, 7, 2, arr[ 2, 22 ] + arr[ 4, 22 ], cell_format )
 
     worksheet_write_string( ws2517, 8, 0, Space( 10 ) + 'из них женщин', cell_format2517 )
-    worksheet_write_number( ws2517, 8, 1, arr[ 3, 22 ] + arr[ 4, 22 ], cell_format )
+    //worksheet_write_number( ws2517, 8, 1, arr[ 3, 22 ] + arr[ 4, 22 ], cell_format )
+    worksheet_write_number( ws2517, 8, 1, arr[ 3, 22 ] , cell_format )
     worksheet_write_number( ws2517, 8, 2, arr[ 4, 22 ], cell_format )
 
     worksheet_write_string( ws2517, 9, 0, Space( 5 ) + 'нуждалось в оперативном лечении', cell_format2517 )
-    worksheet_write_number( ws2517, 9, 1, arr[ 1, 20 ] + arr[ 2, 20 ] + arr[ 3, 20 ] + arr[ 4, 20 ], cell_format )
+    //worksheet_write_number( ws2517, 9, 1, arr[ 1, 20 ] + arr[ 2, 20 ] + arr[ 3, 20 ] + arr[ 4, 20 ], cell_format )
+    worksheet_write_number( ws2517, 9, 1, arr[ 1, 20 ] + arr[ 3, 20 ] , cell_format )
     worksheet_write_number( ws2517, 9, 2, arr[ 2, 20 ] + arr[ 4, 20 ], cell_format )
 
     worksheet_write_string( ws2517, 10, 0, Space( 10 ) + 'из них женщин', cell_format2517 )
-    worksheet_write_number( ws2517, 10, 1, arr[ 3, 20 ] + arr[ 4, 20 ], cell_format )
+    //worksheet_write_number( ws2517, 10, 1, arr[ 3, 20 ] + arr[ 4, 20 ], cell_format )
+    worksheet_write_number( ws2517, 10, 1, arr[ 3, 20 ] , cell_format )
     worksheet_write_number( ws2517, 10, 2, arr[ 4, 20 ], cell_format )
 
     worksheet_write_string( ws2517, 11, 0, Space( 5 ) + 'оперировано', cell_format2517 )
@@ -675,11 +679,13 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     worksheet_write_number( ws2517, 12, 2, 0, cell_format )
 
     worksheet_write_string( ws2517, 13, 0, Space( 5 ) + 'направлено на медицинскую реабилитацию', cell_format2517 )
-    worksheet_write_number( ws2517, 13, 1, arr[ 1, 21 ] + arr[ 2, 21 ] + arr[ 3, 21 ] + arr[ 4, 21 ], cell_format )
+    //worksheet_write_number( ws2517, 13, 1, arr[ 1, 21 ] + arr[ 2, 21 ] + arr[ 3, 21 ] + arr[ 4, 21 ], cell_format )
+    worksheet_write_number( ws2517, 13, 1, arr[ 1, 21 ]  + arr[ 3, 21 ] , cell_format )
     worksheet_write_number( ws2517, 13, 2, arr[ 2, 21 ] + arr[ 4, 21 ], cell_format )
 
     worksheet_write_string( ws2517, 14, 0, Space( 10 ) + 'из них женщин', cell_format2517 )
-    worksheet_write_number( ws2517, 14, 1, arr[ 3, 21 ] + arr[ 4, 21 ], cell_format )
+    //worksheet_write_number( ws2517, 14, 1, arr[ 3, 21 ] + arr[ 4, 21 ], cell_format )
+    worksheet_write_number( ws2517, 14, 1, arr[ 3, 21 ], cell_format )
     worksheet_write_number( ws2517, 14, 2, arr[ 4, 21 ], cell_format )
 
     workbook_close( workbook )

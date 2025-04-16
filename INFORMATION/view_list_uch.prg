@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.01.25
+// 08.04.25
 Function print_l_uch( mkod, par, regim, lnomer )
   
   // mkod - код больного по БД human
@@ -128,8 +128,9 @@ Function print_l_uch( mkod, par, regim, lnomer )
       Locate for kod == mkod
       if found()
         s += 'Акт № ' + alltrim(mo_os->AKT) + ' от ' +date_8(mo_os->DATE_OPL) + ' '
-        if !empty(s1 := ret_t005(mo_os->REFREASON))
-          s += 'Код дефекта ' +s1+ '. '
+//        if !empty(s1 := ret_t005(mo_os->REFREASON))
+        if ! empty( s1 := ret_f014( mo_os->REFREASON ) )
+          s += 'Код дефекта ' + s1 + '. '
         endif
         if mo_os->IS_REPEAT == 1
           s += 'Лист учёта выставлен повторно.'
@@ -158,7 +159,8 @@ Function print_l_uch( mkod, par, regim, lnomer )
         asort(arr, , ,{|x,y| x[2] < y[2] })
         for i := 1 to len(arr)
           s += 'Акт № ' + alltrim(arr[i, 1]) + ' от ' +date_8(arr[i, 2]) + '. '
-          if !empty(s1 := ret_t005(arr[i, 3]))
+//        if !empty(s1 := ret_t005(arr[i, 3]))
+          if ! empty( s1 := ret_f014( arr[i, 3] ) )
             s += 'Код дефекта ' + s1 + '. '
           endif
           if arr[i, 4] > 0

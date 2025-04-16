@@ -494,6 +494,20 @@ Function getf014()
 
   Return _arr
 
+// 08.04.25 вернуть строку для кода дефекта с описанием ошибки ФФОМС из справочника F014
+Function ret_f014( lkod )
+
+  Local arrErrors := getf014()
+  Local row := {}
+
+  For Each row in arrErrors
+    If row[ 1 ] == lkod
+      Return '(' + lstr( row[ 1 ] ) + ') ' + row[ 2 ] + ', [' + row[ 3 ] + ']'
+    Endif
+  Next
+
+  Return 'Неизвестная категория проверки с идентификатором: ' + Str( lkod )
+
 // 31.01.25 вернуть строку для кода дефекта с описанием ошибки ФФОМС из справочника F014
 Function retarr_f014( lkod, isEmpty )
 

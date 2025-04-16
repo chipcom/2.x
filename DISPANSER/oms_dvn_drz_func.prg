@@ -8,7 +8,7 @@
 
 Static lcount_uch  := 1
 
-// 17.11.24 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 09.04.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz()
 
   Local arr_m, buf := save_maxrow()
@@ -138,6 +138,12 @@ Function inf_drz()
                   If fl_d_full
                     arr_1[ 1, 9 ] ++
                     fl_d_full := .f.
+                    If ! lCity
+                      If fl_d_city 
+                        arr_1[ 1, 10 ] ++
+                        fl_d_city := .f.
+                      Endif
+                    endif  
                   Endif
                 Endif
                 If ! lCity
@@ -150,11 +156,12 @@ Function inf_drz()
                         fl_d_city_1 := .f.
                       Endif
                     Endif
-                  Endif
-                  If fl_d_city
-                    arr_1[ 1, 10 ] ++
-                    fl_d_city := .f.
-                  Endif
+                 // Endif
+                    If fl_d_city 
+                   // arr_1[ 1, 10 ] ++
+                   // fl_d_city := .f.
+                   Endif
+                  endif
                 Endif
               Endif
             Next
@@ -366,33 +373,34 @@ Function inf_drz()
               arr[ 4, 20 ]++
             Endif
           Endif
-          If m1napr_reab != 0
-            If human->pol == 'М'
-              arr[ 1, 21 ]++
-              If ! lCity
-                arr[ 2, 21 ]++
-              Endif
-            Else
-              arr[ 3, 21 ]++
-              If ! lCity
-                arr[ 4, 21 ]++
-              Endif
+		Endif  
+        If m1napr_reab != 0
+          If human->pol == 'М'
+            arr[ 1, 21 ]++
+            If ! lCity
+              arr[ 2, 21 ]++
             Endif
-          Endif
-          If m1sank_na != 0
-            If human->pol == 'М'
-              arr[ 1, 22 ]++
-              If ! lCity
-                arr[ 2, 22 ]++
-              Endif
-            Else
-              arr[ 3, 22 ]++
-              If ! lCity
-                arr[ 4, 22 ]++
-              Endif
+          Else
+            arr[ 3, 21 ]++
+            If ! lCity
+              arr[ 4, 21 ]++
             Endif
           Endif
         Endif
+        If m1sank_na != 0
+          If human->pol == 'М'
+            arr[ 1, 22 ]++
+            If ! lCity
+              arr[ 2, 22 ]++
+            Endif
+          Else
+            arr[ 3, 22 ]++
+            If ! lCity
+              arr[ 4, 22 ]++
+            Endif
+          Endif
+        Endif
+        //Endif
       Endif
       Select HUMAN
       Skip
