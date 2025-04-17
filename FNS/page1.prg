@@ -6,7 +6,7 @@
 // 30.01.25
 function designPage1( pdf, hArr, aFonts, fError )
 
-  local page, i, j, t_arr := {}
+  local page, j, t_arr := {}
   local pdfError
   local old_set := __SetCentury( 'on' )
 
@@ -32,9 +32,6 @@ function designPage1( pdf, hArr, aFonts, fError )
   out_text( page, 168, 283, '®â "08" ­®ï¡àï 2023 £.' )
   out_text( page, 168, 279, 'ü …€-7-11/824@' )
   //
-
-//  HPDF_Page_SetFontAndSize( page, aFonts[ FONT_EANGNIVC ], 10 )
-//  out_text( page, 25.5, 270, create_string_EanGnivc( '26901015' ) )
 
   HPDF_Page_SetFontAndSize( page, aFonts[ FONT_ARIAL ], 11 )
 
@@ -179,5 +176,4 @@ function designPage1( pdf, hArr, aFonts, fError )
   out_format( page, 44, 47, str( iif( hArr[ 'attribut' ] == 1, 1, 2), 3 ) )
 
   __SetCentury( old_set )
-
   return nil

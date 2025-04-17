@@ -23,7 +23,6 @@ function check_payer( g )
   local mSearch := '', lFind := .f., mINN := space( 12 )
   local mser_ud := Space( 10 ), mnom_ud := Space( 20 ), mkogdavyd := CToD( '' ) // когда выдан паспорт
   local mSer_num, picture_phone := '@R 8(999) 999-99-99'
-//  local oPassport
 
   private mvid_ud, ; // вид удостоверения
           m1vid_ud    := 14, ; // 1-18
@@ -40,7 +39,6 @@ function check_payer( g )
   oBox:ChangeAttr := .t.
   oBox:CaptionColor := color8
   oBox:Caption := 'Плательщик'
-  // oBox:Color := color1
   oBox:Save := .t.
   oBox:view()
 
@@ -122,7 +120,6 @@ function reestr_spravka_fns()
   
   Index On kod to ( cur_dir + "tmp_reg" ) DESCENDING
   fns->( dbGoTop() )
-//  fns->( dbGoBottom() )
   mtitle := 'Сформированные справки для ФНС'
   alpha_browse( 5, 0, MaxRow() - 2, 79, 'defColumn_Spravka_FNS', color0, mtitle, 'BG+/GR', ;
     .f., .t., , , 'serv_spravka_fns', , ;
@@ -187,7 +184,6 @@ Function serv_spravka_fns( nKey, oBrow )
 
   Local j := 0, flag := -1, buf := save_row( MaxRow() ), ;
     tmp_color := SetColor(), r1 := 15, c1 := 2
-  local arr_m
   Local name_file := 'Журнал сформированных справок'
   Local name_file_full := name_file + '.xlsx'
 

@@ -57,25 +57,21 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
   if ( tFont := HPDF_GetFont ( pdf, detail_font_name, 'CP1251' ) ) == NIL
     fError:add_string( 'HPDF_GetFont() ARIAL - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   else
-//    AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_name, 'CP1251' ) )
     AAdd( aFonts, tFont )
   endif
   if ( tFont := HPDF_GetFont ( pdf, detail_font_nameBold, 'CP1251' ) ) == NIL
     fError:add_string( 'HPDF_GetFont() ARIAL Bold - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   else
-//    AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_nameBold, 'CP1251' ) )
     AAdd( aFonts, tFont )
   endif
   if ( tFont := HPDF_GetFont ( pdf, detail_font_courier, 'CP1251' ) ) == NIL
     fError:add_string( 'HPDF_GetFont() Courier - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   else
-//    AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_courier, 'CP1251' ) )
     AAdd( aFonts, tFont )
   endif
   if ( tFont := HPDF_GetFont ( pdf, detail_font_eangnivc, 'CP1251' ) ) == NIL
     fError:add_string( 'HPDF_GetFont() EANGNIVC - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   else
-//    AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_eangnivc, 'CP1251' ) )
     AAdd( aFonts, tFont )
   endif
 
@@ -84,7 +80,6 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
     fError:add_string( 'HPDF_SetCompressionMode() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   endif
 
-//  if ( pdfReturn := HPDF_SetPageMode( pdf, HPDF_PAGE_MODE_USE_OUTLINE ) ) != HPDF_OK
   if ( pdfReturn := HPDF_SetPageMode( pdf, HPDF_PAGE_MODE_USE_NONE ) ) != HPDF_OK
     fError:add_string( 'HPDF_SetPageMode() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   endif
@@ -96,7 +91,6 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
   endif
 
   IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
-//    func_error( 4, '0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
     fError:add_string( 'HPDF_SaveToFile() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
     func_error( 4, 'Ошибка создания печатной формы справки для ФНС!' )
     fl := .f.
@@ -104,8 +98,7 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   HPDF_Free( pdf )
   fError := nil
-
-  RETURN fl //  hb_FileExists( cFileToSave )
+  RETURN fl
 
 // 27.07.24
 function mm_to_pt( x_y )
@@ -121,7 +114,6 @@ function out_text( pg, x, y, sText )
    HPDF_Page_BeginText( pg )
    HPDF_Page_TextOut( pg, mm_to_pt( x ), mm_to_pt( y ), win_OEMToANSI( sText ) )
    HPDF_Page_EndText( pg )
- 
    return nil
 
 // 26.07.24
@@ -135,7 +127,6 @@ function out_text_center( pg, y, sText )
   HPDF_Page_BeginText( pg )
   HPDF_Page_TextOut( pg, ( width - tw ) / 2, mm_to_pt( y ), sText )
   HPDF_Page_EndText( pg )
- 
   return nil
 
 // 27.07.24
@@ -151,7 +142,6 @@ function out_kvadr( pg, x, y )
    HPDF_Page_MoveTo( pg, mm_to_pt( x ) + 15, mm_to_pt( y ) ) //- 25 )
    HPDF_Page_LineTo( pg, mm_to_pt( x ) + 30, mm_to_pt( y ) ) //- 25 )
    HPDF_Page_Stroke( pg )
-
    return nil
 
 // 29.07.24
@@ -170,7 +160,6 @@ function fill_INN( pg, inn, kpp, num )
   for i := 1 to len( tStr )
    out_text( pg, 124 + ( i - 1 ) * 5, 280, substr( tStr, i, 1 ) ) //58
   next
-
   return nil
 
 // 29.07.24
@@ -181,7 +170,6 @@ function out_format( pg, x, y, sText )
   for i := 1 to len( sText )
     out_text( pg, x + ( i - 1 ) * 5, y, substr( sText, i, 1 ) )
   next
-
   return nil
 
 // 30.07.24
@@ -195,7 +183,6 @@ function transform_sum( sum )
     ret := ret + replicate( '-', 13 - len( ret ) ) + '.'
   endif
   ret := ret + transform( ( sum - cel ) * 100, '@L 99' )
-
   return ret
 
 // 30.07.24
@@ -273,5 +260,4 @@ function create_string_EanGnivc( str )
       + middleProtectTemplate ;
       + rightPartCode ;
       + rightProtectTemplate
-
   return rez
