@@ -21,7 +21,6 @@ function designPage2( pdf, hArr, aFonts, fError )
     fError:add_string( 'HPDF_Page_SetSize() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   endif
 
-//  HPDF_Page_SetFontAndSize( page, aFonts[ FONT_ARIAL ], 11 )
   if ( pdfError := HPDF_Page_SetFontAndSize( page, aFonts[ FONT_ARIAL ], 11 ) ) != HPDF_OK
     fError:add_string( 'HPDF_Page_SetFontAndSize() (page 2) - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   endif
@@ -86,5 +85,4 @@ function designPage2( pdf, hArr, aFonts, fError )
   endif
 
   __SetCentury( old_set )
-
   return nil
