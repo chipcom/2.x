@@ -1787,7 +1787,8 @@ Function print_schet_s( reg )
   frt->( dbCloseArea() )
   Do Case
   Case reg == 1
-    call_fr( 'mo_schet' )
+//    call_fr( 'mo_schet' )
+    print_pdf_order( cur_dir() + 'order.pdf' )
   Case reg == 2
     call_fr( 'mo_reesv' )
   Case reg == 3

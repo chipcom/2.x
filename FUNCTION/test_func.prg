@@ -10,7 +10,6 @@ function test_init()
   //  GetFile( FindDictionary( 'F032' ), cur_dir() )
   //  GetStructure( 'F032' )
   //  GetVersions( 'N020' )
-  print_pdf_order( cur_dir() + 'order.pdf' )
   //  altd()
 return nil
   
