@@ -10,7 +10,8 @@ function test_init()
   //  GetFile( FindDictionary( 'F032' ), cur_dir() )
   //  GetStructure( 'F032' )
   //  GetVersions( 'N020' )
-  //  altd()
+  print_pdf_reestr( cur_dir() + 'reestr.pdf' )
+//  altd()
 return nil
   
 function GetVersions( code )
