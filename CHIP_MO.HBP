@@ -190,6 +190,8 @@ mo_version.prg
 .\reports\forma_57.prg
 .\reports\inf_drz_excel.prg
 .\reports\fns_reports_excel.prg
+.\reports\pdf_func.prg
+.\reports\doc_order_pdf.prg
 
 .\util\workWithZIP.prg
 .\util\runExternalProgram.prg
@@ -234,7 +236,6 @@ mo_version.prg
 .\EXCHANGE\mo_omss.prg
 .\EXCHANGE\mo_omsr.prg
 .\EXCHANGE\func_exchange.prg
-.\EXCHANGE\doc_order_pdf.prg
 
 .\263\mo_263.prg
 .\263\mo_263p.prg

@@ -1494,11 +1494,13 @@ Function print_schet( oBrow )
 
   Return Nil
 
-// 22.12.23 печать счета
+// 18.04.25 печать счета
 Function print_schet_s( reg )
 
   Local adbf, j, s, ii := 0, fl_numeration := .f., buf := save_maxrow(), ;
     lshifr1, ldate1, ldate2, hGauge
+
+  local fNameSchet
 
   mywait()
   delfrfiles()
@@ -1569,6 +1571,12 @@ Function print_schet_s( reg )
   frt->plat := s
   frt->nschet := schet_->nschet
   frt->dschet := date_month( schet_->dschet )
+
+  fNameSchet := iif( reg == 1, 'SCM', 'SRM' ) + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) ;
+    + iif( AllTrim( schet_->SMO ) == '34', 'T34', 'S' + AllTrim( schet_->SMO ) ) ;
+    + '_' + AllTrim( schet_->nschet ) + '_' ;
+    + str( Year( schet_->DSCHET ), 4 ) + StrZero( Month( schet_->DSCHET ), 2 ) + StrZero( Day( schet_->DSCHET ), 2 )
+
   s := 'За медицинскую помощь, оказанную '
   If !Empty( schet_->SMO )
     s += 'застрахованным лицам '
@@ -1788,7 +1796,8 @@ Function print_schet_s( reg )
   Do Case
   Case reg == 1
 //    call_fr( 'mo_schet' )
-    print_pdf_order( cur_dir() + 'order.pdf' )
+    fNameSchet := cur_dir() + fNameSchet + '.pdf'
+    print_pdf_order( fNameSchet )
   Case reg == 2
     call_fr( 'mo_reesv' )
   Case reg == 3
