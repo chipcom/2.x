@@ -4,87 +4,92 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 20.04.25
-function pdf_header_reestr( page, top_text, bottom )
-  
-  local sText, err
+// 21.04.25
+function pdf_header_reestr( page, nX, nY, nHeight )
 
-  sText := '1'
-  out_text_rectangle( page, 12, top_text, 20, bottom, sText, HPDF_TALIGN_CENTER )
-  err := HPDF_Page_Rectangle( page, mm_to_pt( 12 ), mm_to_pt( bottom ), mm_to_pt( 8 ), mm_to_pt( 30 ) )
-  err := HPDF_Page_Stroke( page )
-//  sText := '2'
-//  out_text_rectangle( page, 20, top_text, 44, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 20 ), mm_to_pt( bottom ), mm_to_pt( 24 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '3'
-//  out_text_rectangle( page, 44, top_text, 50, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 44 ), mm_to_pt( bottom ), mm_to_pt( 6 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '4'
-//  out_text_rectangle( page, 50, top_text, 63, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 50 ), mm_to_pt( bottom ), mm_to_pt( 13 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '5'
-//  out_text_rectangle( page, 63, top_text, 84, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 63 ), mm_to_pt( bottom ), mm_to_pt( 21 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '6'
-//  out_text_rectangle( page, 84, top_text, 102, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 84 ), mm_to_pt( bottom ), mm_to_pt( 18 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '7'
-//  out_text_rectangle( page, 102, top_text, 125, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 102 ), mm_to_pt( bottom ), mm_to_pt( 23 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '8'
-//  out_text_rectangle( page, 125, top_text, 148, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 125 ), mm_to_pt( bottom ), mm_to_pt( 23 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '9'
-//  out_text_rectangle( page, 148, top_text, 160, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 148 ), mm_to_pt( bottom ), mm_to_pt( 12 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '10'
-//  out_text_rectangle( page, 160, top_text, 176, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 160 ), mm_to_pt( bottom ), mm_to_pt( 16 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '11'
-//  out_text_rectangle( page, 176, top_text, 185, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 176 ), mm_to_pt( bottom ), mm_to_pt( 9 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '12'
-//  out_text_rectangle( page, 185, top_text, 195, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 185 ), mm_to_pt( bottom ), mm_to_pt( 10 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '13'
-//  out_text_rectangle( page, 195, top_text, 208, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 195 ), mm_to_pt( bottom ), mm_to_pt( 13 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '14'
-//  out_text_rectangle( page, 208, top_text, 218, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 208 ), mm_to_pt( bottom ), mm_to_pt( 10 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '15'
-//  out_text_rectangle( page, 218, top_text, 232, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 218 ), mm_to_pt( bottom ), mm_to_pt( 14 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '16'
-//  out_text_rectangle( page, 232, top_text, 247, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 232 ), mm_to_pt( bottom ), mm_to_pt( 15 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '17'
-//  out_text_rectangle( page, 247, top_text, 261, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 247 ), mm_to_pt( bottom ), mm_to_pt( 14 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '18'
-//  out_text_rectangle( page, 261, top_text, 278, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 261 ), mm_to_pt( bottom ), mm_to_pt( 17 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
-//  sText := '19'
-//  out_text_rectangle( page, 278, top_text, 288, bottom, sText, HPDF_TALIGN_CENTER )
-//  HPDF_Page_Rectangle( page, mm_to_pt( 278 ), mm_to_pt( bottom ), mm_to_pt( 10 ), mm_to_pt( 30 ) )
-//  HPDF_Page_Stroke( page )
+  // Вывод шапки таблицы с левого нижнего угла nX nY по указанной высоте nHeght.
+  
+  local sText, textLeading, err
+
+  textLeading := HPDF_Page_GetTextLeading( page )
+  HPDF_Page_SetTextLeading( page, 9.0 ) // по умолчанию 15.74
+
+  sText := '№ позиц ии реест ра'
+  err := out_text_in_rectangle( page, sText, nX, nY, 8, nHeight, HPDF_TALIGN_CENTER )
+  nX += 8
+
+  sText := 'Фамилия, имя, отчество (при наличии)'
+  err := out_text_in_rectangle( page, sText, nX, nY, 24, nHeight, HPDF_TALIGN_CENTER )
+  nX += 24
+
+  sText := 'Пол'
+  err := out_text_in_rectangle( page, sText, nX, nY, 6, nHeight, HPDF_TALIGN_CENTER )
+  nX += 6
+  
+  sText := 'Дата рождения'
+  err := out_text_in_rectangle( page, sText, nX, nY, 13, nHeight, HPDF_TALIGN_CENTER )
+  nX += 13
+
+  sText := 'Место рождения'
+  err := out_text_in_rectangle( page, sText, nX, nY, 21, nHeight, HPDF_TALIGN_CENTER )
+  nX += 21
+
+  sText := 'Данные документа удостоверяющ его личность'
+  err := out_text_in_rectangle( page, sText, nX, nY, 18, nHeight, HPDF_TALIGN_CENTER )
+  nX += 18
+  
+  sText := 'Место жительства'
+  err := out_text_in_rectangle( page, sText, nX, nY, 23, nHeight, HPDF_TALIGN_CENTER )
+  nX += 23
+
+  sText := 'Место регистрации'
+  err := out_text_in_rectangle( page, sText, nX, nY, 23, nHeight, HPDF_TALIGN_CENTER )
+  nX += 23
+
+  sText := 'СНИЛС (при наличии)'
+  err := out_text_in_rectangle( page, sText, nX, nY, 12, nHeight, HPDF_TALIGN_CENTER )
+  nX += 12
+
+  sText := '№ полиса обязательно го медицинског о страхования'
+  err := out_text_in_rectangle( page, sText, nX, nY, 16, nHeight, HPDF_TALIGN_CENTER )
+  nX += 16
+
+  sText := 'Вид оказан ной медиц инской помощ и (код)'
+  err := out_text_in_rectangle( page, sText, nX, nY, 9, nHeight, HPDF_TALIGN_CENTER )
+  nX += 9
+
+  sText := 'Диагноз в соответ ствии с МКБ-10'
+  err := out_text_in_rectangle( page, sText, nX, nY, 10, nHeight, HPDF_TALIGN_CENTER )
+  nX += 10
+
+  sText := 'Дата начала и дата окончания лечения'
+  err := out_text_in_rectangle( page, sText, nX, nY, 13, nHeight, HPDF_TALIGN_CENTER )
+  nX += 13
+
+  sText := 'Объемы оказанн ой медици нской помощи'
+  err := out_text_in_rectangle( page, sText, nX, nY, 10, nHeight, HPDF_TALIGN_CENTER )
+  nX += 10
+
+  sText := 'Профиль оказанной медицинск ой помощи (код)'
+  err := out_text_in_rectangle( page, sText, nX, nY, 14, nHeight, HPDF_TALIGN_CENTER )
+  nX += 14
+
+  sText := 'Специальн ость медицинско го работника, оказавшего медицинску ю помощь (код)'
+  err := out_text_in_rectangle( page, sText, nX, nY, 15, nHeight, HPDF_TALIGN_CENTER )
+  nX += 15
+
+  sText := 'Тариф на оплату медицинск ой помощи, оказанной застрахов анному лицу'
+  err := out_text_in_rectangle( page, sText, nX, nY, 14, nHeight, HPDF_TALIGN_CENTER )
+  nX += 14
+
+  sText := 'Стоимость оказанной медицинской помощи'
+  err := out_text_in_rectangle( page, sText, nX, nY, 17, nHeight, HPDF_TALIGN_CENTER )
+  nX += 17
+
+  sText := 'Результ ат обраще ния за медици нской помощь ю (код)'
+  err := out_text_in_rectangle( page, sText, nX, nY, 10, nHeight, HPDF_TALIGN_CENTER )
+  nX += 10
+  HPDF_Page_SetTextLeading( page, textLeading )
   return nil
 
 // 20.04.25
@@ -170,7 +175,7 @@ function print_pdf_header_page_reestr( page, top_text, bottom )
   HPDF_Page_Stroke( page )
   return nil
 
-// 20.04.25
+// 21.04.25
 function print_pdf_reestr( cFileToSave )
 
   LOCAL pdf
@@ -235,8 +240,8 @@ function print_pdf_reestr( cFileToSave )
       out_text_rectangle( page, 12, 185, 282, 175, sText, HPDF_TALIGN_CENTER )
 
       HPDF_Page_SetFontAndSize( page, r_t, 7 ) // выбор шрифта из подключенных и его размер
-//      pdf_header_reestr( page, 165, 150 )
-      print_pdf_header_page_reestr( page, 165, 135 )
+      pdf_header_reestr( page, 12, 135, 30 )
+//      print_pdf_header_page_reestr( page, 165, 135 )
     else
       HPDF_Page_SetFontAndSize( page, r_ti, 7 ) // выбор шрифта из подключенных и его размер
       out_text_rectangle( page, 12, 205, 290, 200, sTextReestr + ' стр.' + AllTrim( str( q1, 4 ) ), HPDF_TALIGN_RIGHT )

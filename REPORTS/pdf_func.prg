@@ -10,6 +10,29 @@ function mm_to_pt( x_y )
   t := t * 72
   return t
 
+// 21.04.25
+function out_text_in_rectangle( pg, sText, nX, nY, nWidth, nHeight, align )
+
+  // Рисование прямоугольника с левого нижнего угла nX nY по указанной ширине/высоте nW nH.
+  // После указатель устанавливается на nX nY. И вывод текста
+
+  local err
+
+  if ( err := HPDF_Page_Rectangle( pg, mm_to_pt( nX ), mm_to_pt( nY ), mm_to_pt( nWidth ), mm_to_pt( nHeight ) ) ) != HPDF_OK
+    return err
+  endif
+    
+  if ( err := HPDF_Page_Stroke( pg ) ) != HPDF_OK
+    return err
+  endif
+
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( nX ), mm_to_pt( nY + nHeight ), mm_to_pt( nX + nWidth ), mm_to_pt( nY - nHeight ), ;
+    win_OEMToANSI( sText ), align )
+  err := HPDF_Page_EndText( pg )
+
+  return err
+
 // 20.04.25
 function out_text_rectangle( pg, rLEFT, rTOP, rRIGHT, rBOTTOM, sText, align )
 
