@@ -1793,13 +1793,15 @@ Function print_schet_s( reg )
     closegauge( hGauge )
   Endif
   frt->( dbCloseArea() )
+
+  fNameSchet := cur_dir() + fNameSchet + '.pdf'
   Do Case
   Case reg == 1
 //    call_fr( 'mo_schet' )
-    fNameSchet := cur_dir() + fNameSchet + '.pdf'
     print_pdf_order( fNameSchet )
   Case reg == 2
-    call_fr( 'mo_reesv' )
+//    call_fr( 'mo_reesv' )
+    print_pdf_reestr( fNameSchet )
   Case reg == 3
     call_fr( 'mo_reesi' )
   Endcase
