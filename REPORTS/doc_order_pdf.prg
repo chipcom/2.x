@@ -4,6 +4,99 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+// 22.04.25
+function footer_reestr( pg, dbAlias, nY, nWidth, nHeight, align, r_t )
+
+  local err
+
+  HPDF_Page_SetFontAndSize( pg, r_t, 6 ) // выбор шрифта из подключенных и его размер
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 12 ), mm_to_pt( nY + nHeight ), mm_to_pt( 57 ), mm_to_pt( nY - nHeight ), ;
+    win_OEMToANSI( 'Руководитель медицинской организации' ), align )
+  err := HPDF_Page_EndText( pg )
+  HPDF_Page_MoveTo( pg, mm_to_pt( 55 ), mm_to_pt( nY ) )
+  HPDF_Page_LineTo( pg, mm_to_pt( 103 ), mm_to_pt( nY ) )
+  HPDF_Page_Stroke( pg )
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 105 ), mm_to_pt( nY + 5 ), mm_to_pt( 140 ), mm_to_pt( nY + 5 ), ;
+    win_OEMToANSI( AllTrim( ( dbAlias )->ruk ) ), HPDF_TALIGN_CENTER )
+  err := HPDF_Page_EndText( pg )
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 55 ), mm_to_pt( nY ), mm_to_pt( 103 ), mm_to_pt( nY ), ;
+    win_OEMToANSI( '( подпись )' ), HPDF_TALIGN_CENTER )
+  err := HPDF_Page_EndText( pg )
+  HPDF_Page_MoveTo( pg, mm_to_pt( 105 ), mm_to_pt( nY ) )
+  HPDF_Page_LineTo( pg, mm_to_pt( 140 ), mm_to_pt( nY ) )
+  HPDF_Page_Stroke( pg )
+
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 17 ), mm_to_pt( nY - 7.5 + nHeight ), mm_to_pt( 25 ), mm_to_pt( nY - 7.5 - nHeight ), ;
+    win_OEMToANSI( 'М.П.' ), align )
+  err := HPDF_Page_EndText( pg )
+
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 187 ), mm_to_pt( nY + nHeight ), mm_to_pt( 210 ), mm_to_pt( nY - nHeight ), ;
+    win_OEMToANSI( 'Главный бухгалтер' ), align )
+  err := HPDF_Page_EndText( pg )
+  HPDF_Page_MoveTo( pg, mm_to_pt( 215 ), mm_to_pt( nY ) )
+  HPDF_Page_LineTo( pg, mm_to_pt( 255 ), mm_to_pt( nY ) )
+  HPDF_Page_Stroke( pg )
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 215 ), mm_to_pt( nY ), mm_to_pt( 255 ), mm_to_pt( nY ), ;
+    win_OEMToANSI( '( подпись )' ), HPDF_TALIGN_CENTER )
+  err := HPDF_Page_EndText( pg )
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 257 ), mm_to_pt( nY + 5 ), mm_to_pt( 290 ), mm_to_pt( nY + 5 ), ;
+    win_OEMToANSI( AllTrim( ( dbAlias )->bux ) ), HPDF_TALIGN_CENTER )
+  err := HPDF_Page_EndText( pg )
+  HPDF_Page_MoveTo( pg, mm_to_pt( 257 ), mm_to_pt( nY ) )
+  HPDF_Page_LineTo( pg, mm_to_pt( 290 ), mm_to_pt( nY ) )
+  HPDF_Page_Stroke( pg )
+
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 12 ), mm_to_pt( nY - 15 + nHeight ), mm_to_pt( 57 ), mm_to_pt( nY - 15 - nHeight ), ;
+    win_OEMToANSI( 'Исполнитель' ), align )
+  err := HPDF_Page_EndText( pg )
+  HPDF_Page_MoveTo( pg, mm_to_pt( 55 ), mm_to_pt( nY - 20 + nHeight ) )
+  HPDF_Page_LineTo( pg, mm_to_pt( 103 ), mm_to_pt( nY - 20 + nHeight ) )
+  HPDF_Page_Stroke( pg )
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 55 ), mm_to_pt( nY - 20 + nHeight ), mm_to_pt( 103 ), mm_to_pt( nY - 20 - nHeight ), ;
+    win_OEMToANSI( AllTrim( '( подпись )' ) ), HPDF_TALIGN_CENTER )
+  err := HPDF_Page_EndText( pg )
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 105 ), mm_to_pt( nY - 15 + nHeight ), mm_to_pt( 140 ), mm_to_pt( nY - 15 - nHeight ), ;
+    win_OEMToANSI( AllTrim( ( dbAlias )->ispolnit ) ), HPDF_TALIGN_CENTER )
+  err := HPDF_Page_EndText( pg )
+  HPDF_Page_MoveTo( pg, mm_to_pt( 105 ), mm_to_pt( nY - 20 + nHeight ) )
+  HPDF_Page_LineTo( pg, mm_to_pt( 140 ), mm_to_pt( nY - 20 + nHeight ) )
+  HPDF_Page_Stroke( pg )
+
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 12 ), mm_to_pt( nY - 25 + nHeight ), mm_to_pt( 22 ), mm_to_pt( nY - 25 - nHeight ), ;
+    win_OEMToANSI( 'Дата' ), align )
+  err := HPDF_Page_EndText( pg )
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 25 ), mm_to_pt( nY - 25 + nHeight ), mm_to_pt( 55 ), mm_to_pt( nY - 25 - nHeight ), ;
+    win_OEMToANSI( Transform( Date(), '99.99.9999' ) + ' г.' ), HPDF_TALIGN_CENTER )
+  err := HPDF_Page_EndText( pg )
+  HPDF_Page_MoveTo( pg, mm_to_pt( 25 ), mm_to_pt( nY - 30 + nHeight ) )
+  HPDF_Page_LineTo( pg, mm_to_pt( 55 ), mm_to_pt( nY - 30 + nHeight ) )
+  HPDF_Page_Stroke( pg )
+
+//  HPDF_Page_SetFontAndSize( page, r_t, 10 ) // выбор шрифта из подключенных и его размер
+//  out_text( page, 12, 108, 'Руководитель предприятия' )
+//  HPDF_Page_MoveTo( page, mm_to_pt( 60 ), mm_to_pt( 108 ) )
+//  HPDF_Page_LineTo( page, mm_to_pt( 132 ), mm_to_pt( 108 ) )
+//  HPDF_Page_Stroke( page )
+//  out_text( page, 135, 108, '( ' + AllTrim( ( dbAlias )->ruk ) + ' )' )
+//  out_text( page, 12, 96, 'Главный бухгалтер' )
+//  HPDF_Page_MoveTo( page, mm_to_pt( 46 ), mm_to_pt( 96 ) )
+//  HPDF_Page_LineTo( page, mm_to_pt( 132 ), mm_to_pt( 96 ) )
+//  HPDF_Page_Stroke( page )
+//  out_text( page, 135, 96, '( ' + AllTrim( ( dbAlias )->bux ) + ' )' )
+  return err
+
 // 21.04.25
 function text_header( reg )
 
@@ -51,7 +144,7 @@ function pdf_header_reestr( page, nX, nY, nHeight, aText )
   HPDF_Page_SetTextLeading( page, textLeading )
   return nil
 
-// 21.04.25
+// 22.04.25
 function print_pdf_reestr( cFileToSave )
 
   LOCAL pdf
@@ -62,6 +155,7 @@ function print_pdf_reestr( cFileToSave )
   local nPatients, nCurrent
   local iPage, q1
   local curX
+  local ost, ost1, ost2
 
   fError := tfiletext():new( cur_dir() + 'error_pdf.txt', , .t., , .t. ) 
   fError:width := 100
@@ -98,11 +192,18 @@ function print_pdf_reestr( cFileToSave )
   dbUseArea( .t., , cur_dir() + dbName, dbAlias, .t., .f. )
   ( dbAlias )->( dbGoto( 1 ) )
   dbUseArea( .t., , cur_dir() + dbNameDT, dbAliasDT, .t., .f. )
-  nPatient := ( dbAliasDT )->( LastRec() )
+  nPatients := ( dbAliasDT )->( LastRec() )
   nCurrent := 0
+  if nPatients <= 13
+    iPage := 1
+  else
+    ost := ( nPatients - 13 )
+    ost1 := ost % 18
+    ost2 := ( ost - ost1 ) / 18
+    iPage := ost2 + 1 + iif( ost1 == 0, 0, 1 )
+  endif
 
   // тело печати
-  iPage := 2 // временно
   For q1 = 1 To iPage // цикл создания страниц (к примеру)
     /* добавим новый объект СТРАНИЦА. */
     if ( page := HPDF_AddPage( pdf ) ) == nil
@@ -124,18 +225,21 @@ function print_pdf_reestr( cFileToSave )
       out_text_rectangle( page, 12, 185, 282, 175, sText, HPDF_TALIGN_CENTER )
 
       HPDF_Page_SetFontAndSize( page, r_t, 7 ) // выбор шрифта из подключенных и его размер
-      pdf_header_reestr( page, 12, 135, 30, text_header( 1 ) )
-      pdf_header_reestr( page, 12, 130, 5, text_header( 2 ) )
+      pdf_header_reestr( page, 12, 145, 30, text_header( 1 ) )
+      pdf_header_reestr( page, 12, 140, 5, text_header( 2 ) )
+      curX := 140
     else
       HPDF_Page_SetFontAndSize( page, r_ti, 7 ) // выбор шрифта из подключенных и его размер
       out_text_rectangle( page, 12, 205, 290, 200, sTextReestr + ' стр.' + AllTrim( str( q1, 4 ) ), HPDF_TALIGN_RIGHT )
       HPDF_Page_SetFontAndSize( page, r_t, 7 ) // выбор шрифта из подключенных и его размер
       pdf_header_reestr( page, 12, 195, 5, text_header( 2 ) )
+      curX := 195
     endif
 
-    curX := HPDF_Page_GetCurrentTextPos( page )
-altd()
+//    curX := HPDF_Page_GetCurrentTextPos( page )
   next
+
+  footer_reestr( page, dbAlias, 140, 42, 5, HPDF_TALIGN_LEFT, r_t )
 
   ( dbAlias )->( dbCloseArea() )
   ( dbAliasDT )->( dbCloseArea() )
