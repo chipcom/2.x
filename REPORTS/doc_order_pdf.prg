@@ -9,7 +9,7 @@ function pdf_row_reestr( page, nX, nY, nHeight, aText )
 
   // Вывод шапки таблицы с левого нижнего угла nX, nY по указанной высоте nHeght.
   
-  local textLeading, err, aDash
+  local textLeading, err
   local row
 
 //  HPDF_Page_GetDash( page )
@@ -51,11 +51,18 @@ function pdf_header_reestr( page, nX, nY, nHeight, aText )
   return nil
 
 // 22.04.25
-function footer_reestr( pg, dbAlias, nY, nHeight, align, r_t )
+function footer_reestr( pg, dbAlias, nY, nHeight, align, r_t, total )
 
   local err
 
   HPDF_Page_SetFontAndSize( pg, r_t, 6 ) // выбор шрифта из подключенных и его размер
+
+  err := HPDF_Page_BeginText( pg )
+  err := HPDF_Page_TextRect( pg, mm_to_pt( 257 ), mm_to_pt( nY + nHeight ), mm_to_pt( 290 ), mm_to_pt( nY - nHeight ), ;
+    win_OEMToANSI( 'Всего: ' + AllTrim( str( total, 10, 2 ) ) ), align )
+  err := HPDF_Page_EndText( pg )
+  nY -= 5
+
   err := HPDF_Page_BeginText( pg )
   err := HPDF_Page_TextRect( pg, mm_to_pt( 12 ), mm_to_pt( nY + nHeight ), mm_to_pt( 57 ), mm_to_pt( nY - nHeight ), ;
     win_OEMToANSI( 'Руководитель медицинской организации' ), align )
@@ -174,8 +181,8 @@ function arr_to_print_pdf( reg, dbAliasDT )
     AAdd( arr, { AllTrim( str( ( dbAliasDT )->ob_em ), 4 ), 10, HPDF_TALIGN_CENTER } )
     AAdd( arr, { AllTrim( ( dbAliasDT )->profil ), 15, HPDF_TALIGN_CENTER } )
     AAdd( arr, { AllTrim( ( dbAliasDT )->vrach ), 15, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { AllTrim( str( ( dbAliasDT )->cena ), 10, 2 ), 14, HPDF_TALIGN_RIGHT } )
-    AAdd( arr, { AllTrim( str( ( dbAliasDT )->stoim ), 10, 2 ), 17, HPDF_TALIGN_RIGHT } )
+    AAdd( arr, { AllTrim( str( ( dbAliasDT )->cena, 10, 2 ) ), 14, HPDF_TALIGN_RIGHT } )
+    AAdd( arr, { AllTrim( str( ( dbAliasDT )->stoim , 10, 2 ) ), 17, HPDF_TALIGN_RIGHT } )
     AAdd( arr, { AllTrim( ( dbAliasDT )->rezultat ), 10, HPDF_TALIGN_CENTER } )
   else
     return arr
@@ -190,7 +197,7 @@ function print_pdf_reestr( cFileToSave )
   local page, c1 := 'CP1251', sText, sTextReestr
   local fnt_arial, fnt_arial_bold, fnt_arial_italic, r_t, r_tb, r_ti
   local dbName := '_titl.dbf', dbAlias := 'FRT', dbNameDT := '_data.dbf', dbAliasDT := 'DT'
-  local nPatients, nCurrent
+  local nPatients, nCurrent, total
   local iPage
   local curX
 
@@ -234,6 +241,7 @@ function print_pdf_reestr( cFileToSave )
   nCurrent := 0
   sTextReestr := 'РЕЕСТР СЧЕТА № ' + AllTrim( ( dbAlias )->nschet ) + ' от ' + ( dbAlias )->dschet
   curX := 0
+  total := 0
   iPage := 1
   do while ! ( dbAliasDT )->( Eof() )
     nCurrent++
@@ -271,8 +279,8 @@ function print_pdf_reestr( cFileToSave )
     endif
 
     curX -= 10
+    total += ( dbAliasDT )->stoim
     pdf_row_reestr( page, 12, curX, 10, arr_to_print_pdf( 3, dbAliasDT ) )
-
     ( dbAliasDT )->( dbSkip() )
   end do
   if curX < 45
@@ -284,9 +292,9 @@ function print_pdf_reestr( cFileToSave )
     pdf_header_reestr( page, 12, 195, 5, arr_to_print_pdf( 2 ) )
     curX := 180
   else
-    curX := curX - 15
+    curX := curX - 10
   endif
-  footer_reestr( page, dbAlias, curX, 5, HPDF_TALIGN_LEFT, r_t )
+  footer_reestr( page, dbAlias, curX, 5, HPDF_TALIGN_LEFT, r_t, total )
 
   ( dbAlias )->( dbCloseArea() )
   ( dbAliasDT )->( dbCloseArea() )

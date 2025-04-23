@@ -1177,13 +1177,136 @@ Function f23_view_list_schet()
 
   Return arr
 
-// 02.04.13
+// 23.04.25
 Function f2_view_list_schet( nKey, oBrow )
 
   Local ret := -1, rec := schet->( RecNo() ), tmp_color := SetColor(), r, r1, r2, ;
     s, buf := SaveScreen(), arr, i, k, mdate, t_arr[ 2 ], arr_pmt := {}
+  local destination
 
   Do Case
+  Case nKey == K_F9
+    print_schet( oBrow )
+    Select SCHET
+    ret := 0
+  Case nKey == K_F6
+    r := Row()
+    arr := {}
+    k := 0
+    mdate := schet_->dschet
+    find ( DToS( mdate ) )
+    Do While schet_->dschet == mdate .and. !Eof()
+      If !emptyany( schet_->name_xml, schet_->kod_xml )
+        AAdd( arr, { schet_->nschet, schet_->name_xml, schet_->kod_xml, schet->( RecNo() ) } )
+//        If Empty( schet_->date_out )
+//          ++k
+//        Endif
+      Endif
+      Skip
+    Enddo
+    If Len( arr ) == 0
+      func_error( 4, 'Нечего записывать!' )
+    Else
+      If Len( arr ) > 1
+        ASort( arr, , , {| x, y| x[ 1 ] < y[ 1 ] } )
+        For i := 1 To Len( arr )
+          schet->( dbGoto( arr[ i, 4 ] ) )
+//          AAdd( arr_pmt, { 'Счёт № ' + AllTrim( schet_->nschet ) + ' (' + ;
+//            lstr( schet_->nyear ) + '/' + StrZero( schet_->nmonth, 2 ) + ;
+//            ') файл ' + AllTrim( schet_->name_xml ), AClone( arr[ i ] ) } )
+          AAdd( arr_pmt, { 'Счёт № ' + AllTrim( schet_->nschet ) + ' (' + ;
+            lstr( schet_->nyear ) + '/' + StrZero( schet_->nmonth, 2 ) + ')', ;
+            AClone( arr[ i ] ) } )
+        Next
+        If r + 2 + Len( arr ) > MaxRow() - 2
+          r2 := r - 1
+          r1 := r2 - Len( arr ) - 1
+          If r1 < 0
+            r1 := 0
+          Endif
+        Else
+          r1 := r + 1
+        Endif
+        arr := {} // массив печатаемых счетов
+        If ( t_arr := bit_popup( r1, 10, arr_pmt, , color5, 1, 'Запись счетов (' + date_8( mdate ) + ')', 'B/W' ) ) != nil
+          AEval( t_arr, {| x | AAdd( arr, AClone( x[ 2 ] ) ) } )
+        Endif
+        t_arr := Array( 2 )
+      Endif
+      If Len( arr ) > 0
+//        s := 'Количество счетов - ' + lstr( Len( arr ) ) + ;
+//          ', записываются в первый раз - ' + lstr( k ) + ':'
+//        For i := 1 To Len( arr )
+//          If i > 1
+//            s += ','
+//          Endif
+//          s += ' ' + AllTrim( arr[ i, 1 ] ) + ' (' + AllTrim( arr[ i, 2 ] ) + szip + ')'
+//        Next
+//        perenos( t_arr, s, 74 )
+//        f_message( t_arr, , color1, color8 )
+        If f_esc_enter( 'записи счетов за ' + date_8( mdate ) + 'г.' )
+          Private p_var_manager := 'copy_schet'
+          destination := manager( T_ROW, T_COL + 5, MaxRow() -2, , .t., 2, .f., , , ) // 'norton' для выбора каталога
+altd()          
+          If !Empty( destination )
+//            goal_dir := dir_server + dir_XML_MO + cslash
+//            If Upper( destination ) == Upper( goal_dir )
+//              func_error( 4, 'Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо.' )
+//            Else
+//              cFileProtokol := 'prot_sch' + stxt
+//              StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
+//              smsg := 'Счета записаны на: ' + destination + ;
+//                ' (' + full_date( sys_date ) + 'г. ' + hour_min( Seconds() ) + ')'
+//              StrFile( Center( smsg, 80 ) + hb_eol(), cFileProtokol, .t. )
+//              k := 0
+//              For i := 1 To Len( arr )
+//                zip_file := AllTrim( arr[ i, 2 ] ) + szip
+//                If hb_FileExists( goal_dir + zip_file )
+//                 mywait( 'Копирование "' + zip_file + '" в каталог "' + destination + '"' )
+//                  Copy File ( goal_dir + zip_file ) to ( destination + zip_file )
+//                  If hb_FileExists( destination + zip_file )
+//                    ++k
+//                    schet->( dbGoto( arr[ i, 4 ] ) )
+//                    smsg := lstr( i ) + '. Счёт № ' + AllTrim( schet_->nschet ) + ;
+//                      ' от ' + date_8( mdate ) + 'г. (отч.период ' + ;
+//                      lstr( schet_->nyear ) + '/' + StrZero( schet_->nmonth, 2 ) + ;
+//                      ') ' + AllTrim( schet_->name_xml ) + szip
+//                    StrFile( hb_eol() + smsg + hb_eol(), cFileProtokol, .t. )
+//                    smsg := '   количество пациентов - ' + lstr( schet->kol ) + ;
+//                      ', сумма счёта - ' + expand_value( schet->summa, 2 )
+//                    StrFile( smsg + hb_eol(), cFileProtokol, .t. )
+//                    schet_->( g_rlock( forever ) )
+//                    schet_->DATE_OUT := sys_date
+//                    If schet_->NUMB_OUT < 99
+//                      schet_->NUMB_OUT++
+//                    Endif
+//                    //
+//                    mo_xml->( dbGoto( arr[ i, 3 ] ) )
+//                    mo_xml->( g_rlock( forever ) )
+//                    mo_xml->DREAD := sys_date
+//                    mo_xml->TREAD := hour_min( Seconds() )
+//                  Else
+//                    smsg := '! Ошибка записи файла ' + destination + zip_file
+//                    func_error( 4, smsg )
+//                    StrFile( smsg + hb_eol(), cFileProtokol, .t. )
+//                  Endif
+//                Else
+//                  smsg := '! Не обнаружен файл ' + goal_dir + zip_file
+//                  func_error( 4, smsg )
+//                  StrFile( smsg + hb_eol(), cFileProtokol, .t. )
+//                Endif
+//              Next
+//              Unlock
+//              Commit
+//              viewtext( cFileProtokol, , , , .t., , , 2 )
+//            Endif
+          Endif
+        Endif
+      Endif
+    Endif
+    Select SCHET
+    Goto ( rec )
+    ret := 0
   Case nKey == K_F5
     r := Row()
     arr := {}
@@ -1304,10 +1427,6 @@ Function f2_view_list_schet( nKey, oBrow )
     Endif
     Select SCHET
     Goto ( rec )
-    ret := 0
-  Case nKey == K_F9
-    print_schet( oBrow )
-    Select SCHET
     ret := 0
   Case nKey == K_CTRL_F11 .and. !Empty( schet_->NAME_XML ) .and. schet_->XML_REESTR > 0
     k := schet_->XML_REESTR // ссылка на реестр СП и ТК
