@@ -2,6 +2,20 @@
 
 #include 'harupdf.ch'
 
+// 23.04.25
+function new_page( pdf, fError )
+
+  local page, pdfReturn
+
+  /* добавим новый объект СТРАНИЦА. */
+  if ( page := HPDF_AddPage( pdf ) ) == nil
+    fError:add_string( 'HPDF_AddPage() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+  endif
+  if ( pdfReturn := HPDF_Page_SetSize( page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_LANDSCAPE ) ) != HPDF_OK
+    fError:add_string( 'HPDF_Page_SetSize() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+  endif
+  return page
+
 // 27.07.24
 function mm_to_pt( x_y )
 

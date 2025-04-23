@@ -31,8 +31,24 @@ function pdf_row_reestr( page, nX, nY, nHeight, aText )
   next
   HPDF_Page_SetTextLeading( page, textLeading )
 //  HPDF_Page_SetDash( page, aDash, 1, 1 )
-
 return nil
+
+// 21.04.25
+function pdf_header_reestr( page, nX, nY, nHeight, aText )
+
+  // Вывод шапки таблицы с левого нижнего угла nX, nY по указанной высоте nHeght.
+  
+  local textLeading, err
+  local row
+
+  textLeading := HPDF_Page_GetTextLeading( page )
+  HPDF_Page_SetTextLeading( page, 9.0 ) // по умолчанию 15.74
+  for each row in aText
+    err := out_text_in_rectangle( page, row[ 1 ], nX, nY, row[ 2 ], nHeight, HPDF_TALIGN_CENTER )
+    nX += row[ 2 ]
+  next
+  HPDF_Page_SetTextLeading( page, textLeading )
+  return nil
 
 // 22.04.25
 function footer_reestr( pg, dbAlias, nY, nHeight, align, r_t )
@@ -115,54 +131,58 @@ function footer_reestr( pg, dbAlias, nY, nHeight, align, r_t )
   HPDF_Page_Stroke( pg )
   return err
 
-// 21.04.25
-function text_header( reg )
+// 23.04.25
+function arr_to_print_pdf( reg, dbAliasDT )
 
   local arr := {}
 
-  if reg != 1 .and. reg != 2
+  if reg == 1 .or. reg == 2
+    // { техт, щирина столбца, выравнивание}
+    AAdd( arr, { iif( reg == 1, '№ позиц ии реест ра', '1' ), 8, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Фамилия, имя, отчество (при наличии)', '2' ), 24, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Пол', '3' ), 6, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Дата рождения', '4' ), 13, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Место рождения', '5' ), 21, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Данные документа удостоверяющ его личность', '6' ), 18, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Место жительства', '7' ), 23, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Место регистрации', '8' ), 23, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'СНИЛС (при наличии)', '9' ), 12, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, '№ полиса обязательно го медицинског о страхования', '10' ), 16, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Вид оказан ной медиц инской помощ и (код)', '11' ), 9, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Диагноз в соответ ствии с МКБ-10', '12' ), 10, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Дата начала и дата окончания лечения', '13' ), 13, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Объемы оказанн ой медици нской помощи', '14' ), 10, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Профиль оказанной медицинск ой помощи (код)', '15' ), 15, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Специальн ость медицинско го работника, оказавшего медицинску ю помощь (код)', '16' ), 15, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Тариф на оплату медицинск ой помощи, оказанной застрахов анному лицу', '17' ), 14, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Стоимость оказанной медицинской помощи', '18' ), 17, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { iif( reg == 1, 'Результ ат обраще ния за медици нской помощь ю (код)', '19' ), 10, HPDF_TALIGN_CENTER } )
+  elseif reg == 3
+    AAdd( arr, { AllTrim( str( ( dbAliasDT )->nomer, 4 ) ), 8, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->fio ), 24, HPDF_TALIGN_LEFT } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->pol ), 6, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->date_r ), 13, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { SubStr( ( dbAliasDT )->mesto_r, 1, 45 ), 21, HPDF_TALIGN_LEFT } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->pasport ), 18, HPDF_TALIGN_LEFT } )
+    AAdd( arr, { SubStr( ( dbAliasDT )->adresp, 1, 45 ), 23, HPDF_TALIGN_LEFT } )
+    AAdd( arr, { SubStr( ( dbAliasDT )->adresg, 1, 45 ), 23, HPDF_TALIGN_LEFT } )
+    AAdd( arr, { SubStr( ( dbAliasDT )->snils, 1, 9 ) + ' ' + AllTrim( SubStr( ( dbAliasDT )->snils, 10 ) ), 12, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { Substr( ( dbAliasDT )->polis, 1, 10 ) + ' ' + AllTrim( Substr( ( dbAliasDT )->polis, 11 ) ), 16, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->vid_pom ), 9, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->diagnoz ), 10, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->n_data + ' ' + ( dbAliasDT )->k_data), 13, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { AllTrim( str( ( dbAliasDT )->ob_em ), 4 ), 10, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->profil ), 15, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->vrach ), 15, HPDF_TALIGN_CENTER } )
+    AAdd( arr, { AllTrim( str( ( dbAliasDT )->cena ), 10, 2 ), 14, HPDF_TALIGN_RIGHT } )
+    AAdd( arr, { AllTrim( str( ( dbAliasDT )->stoim ), 10, 2 ), 17, HPDF_TALIGN_RIGHT } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->rezultat ), 10, HPDF_TALIGN_CENTER } )
+  else
     return arr
   endif
-  // { техт, щирина столбца}
-  AAdd( arr, { iif( reg == 1, '№ позиц ии реест ра', '1' ), 8 } )
-  AAdd( arr, { iif( reg == 1, 'Фамилия, имя, отчество (при наличии)', '2' ), 24 } )
-  AAdd( arr, { iif( reg == 1, 'Пол', '3' ), 6 } )
-  AAdd( arr, { iif( reg == 1, 'Дата рождения', '4' ), 13 } )
-  AAdd( arr, { iif( reg == 1, 'Место рождения', '5' ), 21 } )
-  AAdd( arr, { iif( reg == 1, 'Данные документа удостоверяющ его личность', '6' ), 18 } )
-  AAdd( arr, { iif( reg == 1, 'Место жительства', '7' ), 23 } )
-  AAdd( arr, { iif( reg == 1, 'Место регистрации', '8' ), 23 } )
-  AAdd( arr, { iif( reg == 1, 'СНИЛС (при наличии)', '9' ), 12 } )
-  AAdd( arr, { iif( reg == 1, '№ полиса обязательно го медицинског о страхования', '10' ), 16 } )
-  AAdd( arr, { iif( reg == 1, 'Вид оказан ной медиц инской помощ и (код)', '11' ), 9 } )
-  AAdd( arr, { iif( reg == 1, 'Диагноз в соответ ствии с МКБ-10', '12' ), 10 } )
-  AAdd( arr, { iif( reg == 1, 'Дата начала и дата окончания лечения', '13' ), 13 } )
-  AAdd( arr, { iif( reg == 1, 'Объемы оказанн ой медици нской помощи', '14' ), 10 } )
-  AAdd( arr, { iif( reg == 1, 'Профиль оказанной медицинск ой помощи (код)', '15' ), 15 } )
-  AAdd( arr, { iif( reg == 1, 'Специальн ость медицинско го работника, оказавшего медицинску ю помощь (код)', '16' ), 15 } )
-  AAdd( arr, { iif( reg == 1, 'Тариф на оплату медицинск ой помощи, оказанной застрахов анному лицу', '17' ), 14 } )
-  AAdd( arr, { iif( reg == 1, 'Стоимость оказанной медицинской помощи', '18' ), 17 } )
-  AAdd( arr, { iif( reg == 1, 'Результ ат обраще ния за медици нской помощь ю (код)', '19' ), 10 } )
   return arr
 
-// 21.04.25
-function pdf_header_reestr( page, nX, nY, nHeight, aText )
-
-  // Вывод шапки таблицы с левого нижнего угла nX, nY по указанной высоте nHeght.
-  
-  local textLeading, err
-  local row
-
-  textLeading := HPDF_Page_GetTextLeading( page )
-  HPDF_Page_SetTextLeading( page, 9.0 ) // по умолчанию 15.74
-  for each row in aText
-    err := out_text_in_rectangle( page, row[ 1 ], nX, nY, row[ 2 ], nHeight, HPDF_TALIGN_CENTER )
-    nX += row[ 2 ]
-  next
-  HPDF_Page_SetTextLeading( page, textLeading )
-  return nil
-
-// 22.04.25
+// 23.04.25
 function print_pdf_reestr( cFileToSave )
 
   LOCAL pdf
@@ -171,8 +191,8 @@ function print_pdf_reestr( cFileToSave )
   local fnt_arial, fnt_arial_bold, fnt_arial_italic, r_t, r_tb, r_ti
   local dbName := '_titl.dbf', dbAlias := 'FRT', dbNameDT := '_data.dbf', dbAliasDT := 'DT'
   local nPatients, nCurrent
-  local lFirst := .f., iPage, q1
-  local curX, arr
+  local iPage
+  local curX
 
   fError := tfiletext():new( cur_dir() + 'error_pdf.txt', , .t., , .t. ) 
   fError:width := 100
@@ -212,80 +232,61 @@ function print_pdf_reestr( cFileToSave )
   ( dbAliasDT )->( dbGoto( 1 ) )
   nPatients := ( dbAliasDT )->( LastRec() )
   nCurrent := 0
-  if nPatients <= 13
-    iPage := 1
-  else
-    iPage := 1 + floor( ( nPatients - 13 ) / 18 ) + iif( Int( ( nPatients - 13 ) % 18 ) == 0, 0, 1 )
-  endif
-  // тело печати
   sTextReestr := 'РЕЕСТР СЧЕТА № ' + AllTrim( ( dbAlias )->nschet ) + ' от ' + ( dbAlias )->dschet
   curX := 0
+  iPage := 1
   do while ! ( dbAliasDT )->( Eof() )
     nCurrent++
-    if nCurrent > 13
-      exit
+    if ( iPage == 2 .and. nCurrent > 13 ) .or. ( iPage > 2 .and. nCurrent > 18 )
+      nCurrent := 1
     endif
-    if nCurrent == 1
-      /* добавим новый объект СТРАНИЦА. */
-      if ( page := HPDF_AddPage( pdf ) ) == nil
-        fError:add_string( 'HPDF_AddPage() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
-      endif
-      if ( pdfReturn := HPDF_Page_SetSize( page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_LANDSCAPE ) ) != HPDF_OK
-        fError:add_string( 'HPDF_Page_SetSize() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
-      endif
-      if ! lFirst
-        HPDF_Page_SetFontAndSize( page, r_t, 10 ) // выбор шрифта из подключенных и его размер
-        out_text_rectangle( page, 12, 200, 282, 195, sTextReestr, HPDF_TALIGN_CENTER )
-        sText := AllTrim( ( dbAlias )->name ) + ', ОГРН ' + AllTrim( ( dbAlias )->ogrn )
-        out_text_rectangle( page, 12, 195, 282, 190, sText, HPDF_TALIGN_CENTER )
-        sText := 'за период с ' + AllTrim( ( dbAlias )->date_begin ) + ' по ' + AllTrim( ( dbAlias )->date_end )
-        out_text_rectangle( page, 12, 190, 282, 185, sText, HPDF_TALIGN_CENTER )
+
+    if nCurrent == 1 .and. iPage == 1
+      iPage += 1
+      page := new_page( pdf, fError )
+
+      HPDF_Page_SetFontAndSize( page, r_t, 10 ) // выбор шрифта из подключенных и его размер
+      out_text_rectangle( page, 12, 200, 282, 195, sTextReestr, HPDF_TALIGN_CENTER )
+      sText := AllTrim( ( dbAlias )->name ) + ', ОГРН ' + AllTrim( ( dbAlias )->ogrn )
+      out_text_rectangle( page, 12, 195, 282, 190, sText, HPDF_TALIGN_CENTER )
+      sText := 'за период с ' + AllTrim( ( dbAlias )->date_begin ) + ' по ' + AllTrim( ( dbAlias )->date_end )
+      out_text_rectangle( page, 12, 190, 282, 185, sText, HPDF_TALIGN_CENTER )
     
-        sText := 'на оплату медицинской помощи, оказанной застрахованным лицам, в ' + AllTrim( ( dbAlias )->plat )
-        out_text_rectangle( page, 12, 185, 282, 175, sText, HPDF_TALIGN_CENTER )
+      sText := 'на оплату медицинской помощи, оказанной застрахованным лицам, в ' + AllTrim( ( dbAlias )->plat )
+      out_text_rectangle( page, 12, 185, 282, 175, sText, HPDF_TALIGN_CENTER )
 
-        HPDF_Page_SetFontAndSize( page, r_t, 7 ) // выбор шрифта из подключенных и его размер
-        pdf_header_reestr( page, 12, 145, 30, text_header( 1 ) )
-        pdf_header_reestr( page, 12, 140, 5, text_header( 2 ) )
-        lFirst := .t.
-        curX := 140
-      else
-        HPDF_Page_SetFontAndSize( page, r_ti, 7 ) // выбор шрифта из подключенных и его размер
-        out_text_rectangle( page, 12, 205, 290, 200, sTextReestr + ' стр.' + AllTrim( str( q1, 4 ) ), HPDF_TALIGN_RIGHT )
-        HPDF_Page_SetFontAndSize( page, r_t, 7 ) // выбор шрифта из подключенных и его размер
-        pdf_header_reestr( page, 12, 195, 5, text_header( 2 ) )
-        curX := 195
-      endif
+      HPDF_Page_SetFontAndSize( page, r_t, 7 ) // выбор шрифта из подключенных и его размер
+      pdf_header_reestr( page, 12, 145, 30, arr_to_print_pdf( 1 ) )
+      pdf_header_reestr( page, 12, 140, 5, arr_to_print_pdf( 2 ) )
+      curX := 140
+    elseif nCurrent == 1 .and. iPage > 1
+      page := new_page( pdf, fError )
+
+      iPage += 1
+      HPDF_Page_SetFontAndSize( page, r_ti, 7 ) // выбор шрифта из подключенных и его размер
+      out_text_rectangle( page, 12, 205, 290, 200, sTextReestr + ' стр.' + AllTrim( str( iPage - 1, 4 ) ), HPDF_TALIGN_RIGHT )
+      HPDF_Page_SetFontAndSize( page, r_t, 7 ) // выбор шрифта из подключенных и его размер
+      pdf_header_reestr( page, 12, 195, 5, arr_to_print_pdf( 2 ) )
+      curX := 195
     endif
 
-    arr := {}
-    // { техт, щирина столбца}
-    AAdd( arr, { AllTrim( str( ( dbAliasDT )->nomer, 4 ) ), 8, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->fio ), 24, HPDF_TALIGN_LEFT } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->pol ), 6, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->date_r ), 13, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->mesto_r ), 21, HPDF_TALIGN_LEFT } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->pasport ), 18, HPDF_TALIGN_LEFT } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->adresp ), 23, HPDF_TALIGN_LEFT } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->adresg ), 23, HPDF_TALIGN_LEFT } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->snils ), 12, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->polis ), 16, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->vid_pom ), 9, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->diagnoz ), 10, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->n_data + '-' + ( dbAliasDT )->k_data), 13, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { AllTrim( str( ( dbAliasDT )->ob_em ), 4 ), 10, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->profil ), 15, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->vrach ), 15, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { AllTrim( str( ( dbAliasDT )->cena ), 10, 2 ), 14, HPDF_TALIGN_RIGHT } )
-    AAdd( arr, { AllTrim( str( ( dbAliasDT )->stoim ), 10, 2 ), 17, HPDF_TALIGN_RIGHT } )
-    AAdd( arr, { AllTrim( ( dbAliasDT )->rezultat ), 10, HPDF_TALIGN_CENTER } )
     curX -= 10
-    pdf_row_reestr( page, 12, curX, 10, arr )
+    pdf_row_reestr( page, 12, curX, 10, arr_to_print_pdf( 3, dbAliasDT ) )
 
     ( dbAliasDT )->( dbSkip() )
   end do
-//  footer_reestr( page, dbAlias, 140, 5, HPDF_TALIGN_LEFT, r_t )
-//  footer_reestr( page, dbAlias, curX + 10, 5, HPDF_TALIGN_LEFT, r_t )
+  if curX < 45
+    page := new_page( pdf, fError )
+    iPage += 1
+    HPDF_Page_SetFontAndSize( page, r_ti, 7 ) // выбор шрифта из подключенных и его размер
+    out_text_rectangle( page, 12, 205, 290, 200, sTextReestr + ' стр.' + AllTrim( str( iPage - 1, 4 ) ), HPDF_TALIGN_RIGHT )
+    HPDF_Page_SetFontAndSize( page, r_t, 7 ) // выбор шрифта из подключенных и его размер
+    pdf_header_reestr( page, 12, 195, 5, arr_to_print_pdf( 2 ) )
+    curX := 180
+  else
+    curX := curX - 15
+  endif
+  footer_reestr( page, dbAlias, curX, 5, HPDF_TALIGN_LEFT, r_t )
 
   ( dbAlias )->( dbCloseArea() )
   ( dbAliasDT )->( dbCloseArea() )
