@@ -194,12 +194,13 @@ function print_pdf_reestr( cFileToSave )
 
   LOCAL pdf
   local fError, pdfReturn
-  local page, c1 := 'CP1251', sText, sTextReestr
+  local page, sText, sTextReestr
   local fnt_arial, fnt_arial_bold, fnt_arial_italic, r_t, r_tb, r_ti
-  local dbName := '_titl.dbf', dbAlias := 'FRT', dbNameDT := '_data.dbf', dbAliasDT := 'DT'
+  local dbAliasDT := 'FRD', dbAlias := 'FRT'
   local nPatients, nCurrent, total
   local iPage
   local curX
+//  local dbName := '_titl.dbf', dbNameDT := '_data.dbf', 
 
   fError := tfiletext():new( cur_dir() + 'error_pdf.txt', , .t., , .t. ) 
   fError:width := 100
@@ -224,9 +225,9 @@ function print_pdf_reestr( cFileToSave )
   fnt_arial = HPDF_LoadTTFontFromFile( pdf, GetEnv( 'SystemRoot' ) + '\Fonts\arial.ttf', .t. ) // текст Arial
   fnt_arial_bold = HPDF_LoadTTFontFromFile( pdf, GetEnv( 'SystemRoot' ) + '\Fonts\arialbd.ttf', .t. ) // текст Arial Bold
   fnt_arial_italic = HPDF_LoadTTFontFromFile( pdf, GetEnv( 'SystemRoot' ) + '\Fonts\ariali.ttf', .t. ) // текст Arial Italic
-  r_t = HPDF_GetFont( pdf, fnt_arial, c1 ) // указатели для шрифтов текст
-  r_tb = HPDF_GetFont( pdf, fnt_arial_bold, c1 ) // текст BOLD
-  r_ti = HPDF_GetFont( pdf, fnt_arial_italic, c1 ) // текст ITALIC
+  r_t = HPDF_GetFont( pdf, fnt_arial, 'CP1251' ) // указатели для шрифтов текст
+  r_tb = HPDF_GetFont( pdf, fnt_arial_bold, 'CP1251' ) // текст BOLD
+  r_ti = HPDF_GetFont( pdf, fnt_arial_italic, 'CP1251' ) // текст ITALIC
   If Empty( r_t ) .or. Empty( r_tb )
     fError:add_string( 'HPDF_GetFont() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
     HPDF_Free( pdf ) // аннулирование pdf
@@ -313,9 +314,9 @@ function print_pdf_order( cFileToSave )
 
   LOCAL pdf
   local fError, pdfReturn
-  local page, c1 := 'CP1251'
+  local page, dbAlias := 'FRT'
   local fnt_arial, fnt_arial_bold, r_t, r_tb
-  local dbName := '_titl.dbf', dbAlias := 'FRT'
+//  local dbName := '_titl.dbf'
 
   fError := tfiletext():new( cur_dir() + 'error_pdf.txt', , .t., , .t. ) 
   fError:width := 100
@@ -339,8 +340,8 @@ function print_pdf_order( cFileToSave )
   // регистрация шрифтов с вложением в pdf
   fnt_arial = HPDF_LoadTTFontFromFile( pdf, GetEnv( 'SystemRoot' ) + '\Fonts\arial.ttf', .t. ) // текст Arial
   fnt_arial_bold = HPDF_LoadTTFontFromFile( pdf, GetEnv( 'SystemRoot' ) + '\Fonts\arialbd.ttf', .t. ) // текст Arial Bold
-  r_t = HPDF_GetFont( pdf, fnt_arial, c1 ) // указатели для шрифтов текст
-  r_tb = HPDF_GetFont( pdf, fnt_arial_bold, c1 ) // текст BOLD
+  r_t = HPDF_GetFont( pdf, fnt_arial, 'CP1251' ) // указатели для шрифтов текст
+  r_tb = HPDF_GetFont( pdf, fnt_arial_bold, 'CP1251' ) // текст BOLD
   If Empty( r_t ) .or. Empty( r_tb )
     fError:add_string( 'HPDF_GetFont() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
     HPDF_Free( pdf ) // аннулирование pdf
