@@ -236,6 +236,7 @@ mo_version.prg
 .\EXCHANGE\mo_omss.prg
 .\EXCHANGE\mo_omsr.prg
 .\EXCHANGE\func_exchange.prg
+.\EXCHANGE\print_schet_reestr.prg
 
 .\263\mo_263.prg
 .\263\mo_263p.prg

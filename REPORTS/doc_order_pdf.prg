@@ -233,10 +233,10 @@ function print_pdf_reestr( cFileToSave )
     Return nil
   Endif
 
-  dbUseArea( .t., , cur_dir() + dbName, dbAlias, .t., .f. )
-  ( dbAlias )->( dbGoto( 1 ) )
-  dbUseArea( .t., , cur_dir() + dbNameDT, dbAliasDT, .t., .f. )
-  ( dbAliasDT )->( dbGoto( 1 ) )
+  // dbUseArea( .t., , cur_dir() + dbName, dbAlias, .t., .f. )
+  // ( dbAlias )->( dbGoto( 1 ) )
+  // dbUseArea( .t., , cur_dir() + dbNameDT, dbAliasDT, .t., .f. )
+  // ( dbAliasDT )->( dbGoto( 1 ) )
   nPatients := ( dbAliasDT )->( LastRec() )
   nCurrent := 0
   sTextReestr := '……‘’ ‘—…’€ ü ' + AllTrim( ( dbAlias )->nschet ) + ' ®â ' + ( dbAlias )->dschet
@@ -296,8 +296,8 @@ function print_pdf_reestr( cFileToSave )
   endif
   footer_reestr( page, dbAlias, curX, 5, HPDF_TALIGN_LEFT, r_t, total )
 
-  ( dbAlias )->( dbCloseArea() )
-  ( dbAliasDT )->( dbCloseArea() )
+  // ( dbAlias )->( dbCloseArea() )
+  // ( dbAliasDT )->( dbCloseArea() )
 
   IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
     fError:add_string( 'HPDF_SaveToFile() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
@@ -356,8 +356,8 @@ function print_pdf_order( cFileToSave )
     fError:add_string( 'HPDF_Page_SetSize() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   endif
 
-  dbUseArea( .t., , cur_dir() + dbName, dbAlias, .t., .f. )
-  ( dbAlias )->( dbGoto( 1 ) )
+//  dbUseArea( .t., , cur_dir() + dbName, dbAlias, .t., .f. )
+//  ( dbAlias )->( dbGoto( 1 ) )
 
   // è ¯ª  áç¥â 
   HPDF_Page_SetLineWidth( page, 0.5 )
@@ -471,7 +471,7 @@ function print_pdf_order( cFileToSave )
   HPDF_Page_Stroke( page )
   out_text( page, 135, 96, '( ' + AllTrim( ( dbAlias )->bux ) + ' )' )
 
-  ( dbAlias )->( dbCloseArea() )
+//  ( dbAlias )->( dbCloseArea() )
 
   IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
     fError:add_string( 'HPDF_SaveToFile() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
