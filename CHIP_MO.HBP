@@ -64,6 +64,7 @@ mo_version.prg
 .\function\iniGetSetVar.prg
 .\function\inieditspr_bay.prg
 .\function\retpopupedit_bay.prg
+.\function\pdf_func.prg
 .\function\test_func.prg
 
 .\KARTOTEK\mo_kart.prg
@@ -190,8 +191,11 @@ mo_version.prg
 .\reports\forma_57.prg
 .\reports\inf_drz_excel.prg
 .\reports\fns_reports_excel.prg
-.\reports\pdf_func.prg
-.\reports\doc_order_pdf.prg
+
+.\invoice\mo_invoice.prg
+.\invoice\print_schet_reestr.prg
+.\invoice\doc_order_pdf.prg
+
 
 .\util\workWithZIP.prg
 .\util\runExternalProgram.prg
@@ -236,7 +240,6 @@ mo_version.prg
 .\EXCHANGE\mo_omss.prg
 .\EXCHANGE\mo_omsr.prg
 .\EXCHANGE\func_exchange.prg
-.\EXCHANGE\print_schet_reestr.prg
 
 .\263\mo_263.prg
 .\263\mo_263p.prg
