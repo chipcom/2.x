@@ -3166,5 +3166,9 @@ Function spisok_s_not_registred()
   FClose( fp )
   Close databases
   viewtext( n_file, , , , ( sh > 80 ), , , reg_print )
-
   Return Nil
+
+// для совместимости со старой версией программы
+Function func1_komu( lkomu, lstr_crb )
+  Return f4_view_list_schet( lkomu, '', lstr_crb )
+
