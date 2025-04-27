@@ -5,19 +5,20 @@
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
 
+// определение соответсивия с массивом arr_doc
 #define VIEW_DOB          1   // Дата рожд.
-#define VIEW_ADRESS       2   // Адрес
-#define VIEW_NUMBER_CARD  3   // Номер карты
-#define VIEW_SROK_LECH    4   // Сроки леч.
-#define VIEW_DIAGNOZ      5   // Диагноз
-#define VIEW_SCHET        6   // Счет
-#define VIEW_RAK          7   // РАК
-#define VIEW_VRACH        8   // Леч.врач
-#define VIEW_SERVICE      9   // Услуги
-#define VIEW_DOP_CRIT    10   // Доп.критерий
-#define VIEW_DATE_INPUT  11   // Дата ввода
+#define VIEW_ENP          2   // единый номер полиса ОМС
+#define VIEW_ADRESS       3   // Адрес
+#define VIEW_NUMBER_CARD  4   // Номер карты
+#define VIEW_SROK_LECH    5   // Сроки леч.
+#define VIEW_DIAGNOZ      6   // Диагноз
+#define VIEW_SCHET        7   // Счет
+#define VIEW_RAK          8   // РАК
+#define VIEW_VRACH        9   // Леч.врач
+#define VIEW_SERVICE     10   // Услуги
+#define VIEW_DOP_CRIT    11   // Доп.критерий
 #define VIEW_PHONE       12   // Номера Тел.
-#define VIEW_ENP         13   // единый номер полиса ОМС
+#define VIEW_DATE_INPUT  13   // Дата ввода
 
 // 16.03.24
 Function string_output( sText, lExcel, ws, row, column, fmt )
@@ -114,7 +115,9 @@ Function s_mnog_poisk()
   Local arr_title
   local arr_SVO :=  mm_SVO()
 
-  local arr_doc := { 'Дата рожд.', ;
+  local arr_doc := { ;
+    'Дата рожд.', ;
+    'Единый номер полиса ОМС', ;
     'Адрес', ;
     'Номер карты', ;
     'Сроки леч.', ;
@@ -124,9 +127,8 @@ Function s_mnog_poisk()
     'Леч.врач', ;
     'Услуги', ;
     'Доп.критерий', ;
-    'Дата ввода', ;
-    'Номера Тел.', ;
-    'единый номер полиса ОМС' }
+    'Номера Тел.' }
+//  'Дата ввода', ;
   
   If mem_dom_aktiv == 1
     AAdd( mm_dom, { 'на дому-АКТИВ', 3 } )
@@ -139,9 +141,9 @@ Function s_mnog_poisk()
   Private tmp_V009 := getv009( sys_date ) // rslt
   Private tmp_V012 := getv012( sys_date ) // ishod
 
-//  If yes_parol
-//    AAdd( arr_doc, 'Дата ввода' )
-//  Endif
+  If yes_parol
+    AAdd( arr_doc, 'Дата ввода' )
+  Endif
 //  AAdd( arr_doc, 'Номера Тел.' )
 //  AAdd( arr_doc, 'единый номер полиса ОМС' )
   If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5, , , @lcount_uch ) ) == NIL
@@ -736,7 +738,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         iif( Left( tmp->u_shifr, 3 ) == '71.', fl_rak_usl := .t., ) ;
         } )
       tmp->( dbCloseArea() )
-      If !IsBit( mn->vid_doc, 6 )
+      If !IsBit( mn->vid_doc, VIEW_SCHET )
         fl_rak_usl := .f.
       Endif
     Endif
@@ -792,7 +794,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
       useuch_usl()
     Endif
     status_key( '^<Esc>^ - прервать поиск' )
-    If IsBit( mn->vid_doc, 6 ) .or. mn->rak > 0
+    If IsBit( mn->vid_doc, VIEW_SCHET ) .or. mn->rak > 0
       r_use( dir_server + 'mo_raksh', , 'RAKSH' )
       Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' )
     Endif
@@ -969,7 +971,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           '                                        │' + s2, ;
           '────────────────────────────────────────┴─────────' }
       Endif
-      If IsBit( mn->vid_doc, 1 )
+      If IsBit( mn->vid_doc, VIEW_DOB )
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Дата рождения' ), header_wrap )
@@ -980,13 +982,13 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           arr_title[ 4 ] += '┴────────'
         Endif
       Endif
-      If IsBit( mn->vid_doc, 13 ) // единый номер полиса ОМС
+      If IsBit( mn->vid_doc, VIEW_ENP ) // единый номер полиса ОМС
         If lExcel
           worksheet_set_column( worksheet, column, column, 17, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'единый номер полиса ОМС' ), header_wrap )
         Endif
       Endif
-      If IsBit( mn->vid_doc, 2 )
+      If IsBit( mn->vid_doc, VIEW_ADRESS )
         If lExcel
           worksheet_set_column( worksheet, column, column, 22.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Адрес' ), header )
@@ -997,7 +999,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           arr_title[ 4 ] += '┴────────────────────────'
         Endif
       Endif
-      If IsBit( mn->vid_doc, 12 )
+      If IsBit( mn->vid_doc, VIEW_PHONE )
         If lExcel
           worksheet_set_column( worksheet, column, column, 11.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Номера телефонов' ), header_wrap )
@@ -1008,7 +1010,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           arr_title[ 4 ] += '┴────────────'
         Endif
       Endif
-      If IsBit( mn->vid_doc, 3 )
+      If IsBit( mn->vid_doc, VIEW_NUMBER_CARD )
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'N карты' ), header )
@@ -1019,7 +1021,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           arr_title[ 4 ] += '┴──────────'
         Endif
       Endif
-      If IsBit( mn->vid_doc, 4 )
+      If IsBit( mn->vid_doc, VIEW_SROK_LECH )
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Сроки лечения' ), header_wrap )
@@ -1030,7 +1032,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           arr_title[ 4 ] += '┴────────'
         Endif
       Endif
-      If IsBit( mn->vid_doc, 5 )
+      If IsBit( mn->vid_doc, VIEW_DIAGNOZ )
         If lExcel
           worksheet_set_column( worksheet, column, column, 11, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Диагноз' ), header )
@@ -1041,7 +1043,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           arr_title[ 4 ] += '┴─────────────'
         Endif
       Endif
-      If IsBit( mn->vid_doc, 6 )
+      If IsBit( mn->vid_doc, VIEW_SCHET )
         If lExcel
           worksheet_set_column( worksheet, column, column, 19.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Номер и дата счета' ), header_wrap )
@@ -1052,7 +1054,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           arr_title[ 4 ] += '┴───────────────'
         Endif
       Endif
-      If IsBit( mn->vid_doc, 7 )
+      If IsBit( mn->vid_doc, VIEW_RAK )
         r_use( dir_server + 'mo_raksh', cur_dir + 'tmp_raksh', 'RAKSH' )
         If lExcel
           worksheet_set_column( worksheet, column, column, 13.0, nil )
@@ -1064,7 +1066,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           arr_title[ 4 ] += '┴─────────'
         Endif
       Endif
-      If IsBit( mn->vid_doc, 8 )
+      If IsBit( mn->vid_doc, VIEW_VRACH )
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Леч. врач' ), header_wrap )
@@ -1075,7 +1077,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           arr_title[ 4 ] += '┴─────'
         Endif
       Endif
-      If IsBit( mn->vid_doc, 9 )
+      If IsBit( mn->vid_doc, VIEW_SERVICE )
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Список услуг' ), header_wrap )
@@ -1086,7 +1088,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           arr_title[ 4 ] += '┴───────────────────────'
         Endif
       Endif
-      If IsBit( mn->vid_doc, 10 )
+      If IsBit( mn->vid_doc, VIEW_DOP_CRIT )
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Дополнит. критерий' ), header_wrap )
@@ -1098,7 +1100,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         Endif
       Endif
       If yes_parol
-        If IsBit( mn->vid_doc, 11 )
+        If IsBit( mn->vid_doc, VIEW_DATE_INPUT )
           If lExcel
             worksheet_set_column( worksheet, column, column, 10.0, nil )
             worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'Дата ввода и оператор' ), header_wrap )
@@ -1788,7 +1790,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         ++skol_lu
         //
         //
-        If IsBit( mn->vid_doc, 1 )
+        If IsBit( mn->vid_doc, VIEW_DOB )
           s1 += ' ' + date_8( human->date_r )
           s2 += Space( 9 )
           s3 += Space( 9 )
@@ -1797,14 +1799,14 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           Endif
         Endif
         //
-        If IsBit( mn->vid_doc, 13 ) // единый номер полиса ОМС
+        If IsBit( mn->vid_doc, VIEW_ENP ) // единый номер полиса ОМС
           If lExcel
             KART->( dbSelectArea( human->kod_k ) )
             worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( AllTrim( kart->kod_mis ) ), fmtCellString )
           Endif
         Endif
         //
-        If IsBit( mn->vid_doc, 2 ) // адрес
+        If IsBit( mn->vid_doc, VIEW_ADRESS ) // адрес
           perenos( a_diagnoz, ret_okato_ulica( kart->adres, kart_->okatog, 0, 2 ), 24 )
           s1 += ' ' + PadR( AllTrim( a_diagnoz[ 1 ] ), 24 )
           s2 += ' ' + PadR( AllTrim( a_diagnoz[ 2 ] ), 24 )
@@ -1814,7 +1816,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           Endif
         Endif
         //
-        If IsBit( mn->vid_doc, 12 ) // телефоны
+        If IsBit( mn->vid_doc, VIEW_PHONE ) // телефоны
           KART->( dbSelectArea( human->kod_k ) )
           s1 += ' ' + PadR( AllTrim( kart_->Phone_h ), 12 )
           s2 += ' ' + PadR( AllTrim( kart_->Phone_m ), 12 )
@@ -1824,7 +1826,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           Endif
         Endif
         //
-        If IsBit( mn->vid_doc, 3 ) // номер карты
+        If IsBit( mn->vid_doc, VIEW_NUMBER_CARD ) // номер карты
           s1 += Space( 11 )
           s2 += ' ' + human->uch_doc
           s3 += Space( 11 )
@@ -1833,7 +1835,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           Endif
         Endif
         //
-        If IsBit( mn->vid_doc, 4 )
+        If IsBit( mn->vid_doc, VIEW_SROK_LECH )
           If mn_data == human->k_data
             s1 += ' ' + date_8( human->k_data )
             s2 += Space( 9 )
@@ -1847,7 +1849,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           Endif
         Endif
         //
-        If IsBit( mn->vid_doc, 5 )
+        If IsBit( mn->vid_doc, VIEW_DIAGNOZ )
           AFill( adiag_talon, 0 )
           For i := 1 To 16
             adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
@@ -1876,7 +1878,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           Endif
         Endif
         //
-        If IsBit( mn->vid_doc, 6 )
+        If IsBit( mn->vid_doc, VIEW_SCHET )
           If human->tip_h >= B_SCHET .and. human->schet > 0
             Select SCHET
             Goto ( human->schet )
@@ -1892,7 +1894,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           Endif
         Endif
         //
-        If IsBit( mn->vid_doc, 7 )
+        If IsBit( mn->vid_doc, VIEW_RAK )
           If tmp->rak_p == 0
             s1 += ' ' + PadC( 'оплачи-', 9 )
             s2 += ' ' + PadC( 'вается', 9 )
@@ -1920,7 +1922,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           Endif
         Endif
         //
-        If IsBit( mn->vid_doc, 8 )
+        If IsBit( mn->vid_doc, VIEW_VRACH )
           If human_->vrach > 0
             Select PERSO
             Goto ( human_->vrach )
@@ -1935,7 +1937,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           Endif
         Endif
         //
-        If IsBit( mn->vid_doc, 9 )
+        If IsBit( mn->vid_doc, VIEW_SERVICE )
           tmp1 := ''
           aup := {}
           ar := { human->kod }
@@ -2029,7 +2031,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           Endif
         Endif
         //
-        If IsBit( mn->vid_doc, 10 )
+        If IsBit( mn->vid_doc, VIEW_DOP_CRIT )
           AFill( a_diagnoz, '' )
           i := 0
           If !Empty( human_2->pc3 ) .and. !Left( human_2->pc3, 1 ) == '6' // кроме 'старости'
@@ -2050,7 +2052,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           Endif
         Endif
         If yes_parol
-          If IsBit( mn->vid_doc, 11 )
+          If IsBit( mn->vid_doc, VIEW_DATE_INPUT )
             s1 += ' ' + date_8( c4tod( human->date_e ) ) + 'г.'
             If Asc( human->kod_p ) > 0
               Select BASE1
@@ -2078,28 +2080,28 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         If k_diagnoz > 3 .or. k_usl > 3
           For i := 4 To Min( 10, Max( k_diagnoz, k_usl ) )
             s3 := Space( 50 )
-            If IsBit( mn->vid_doc, 1 )
+            If IsBit( mn->vid_doc, VIEW_DOB )
               s3 += Space( 9 )
             Endif
-            If IsBit( mn->vid_doc, 2 )
+            If IsBit( mn->vid_doc, VIEW_ADRESS )
               s3 += ' ' + Space( 24 )
             Endif
-            If IsBit( mn->vid_doc, 3 )
+            If IsBit( mn->vid_doc, VIEW_NUMBER_CARD )
               s3 += Space( 9 )
             Endif
-            If IsBit( mn->vid_doc, 4 )
+            If IsBit( mn->vid_doc, VIEW_SROK_LECH )
               s3 += ' ' + PadC( AllTrim( tt_diagnoz[ i ] ), 13 )
             Endif
-            If IsBit( mn->vid_doc, 5 )
+            If IsBit( mn->vid_doc, VIEW_DIAGNOZ )
               s3 += Space( 16 )
             Endif
-            If IsBit( mn->vid_doc, 6 )
+            If IsBit( mn->vid_doc, VIEW_SCHET )
               s3 += Space( 10 )
             Endif
-            If IsBit( mn->vid_doc, 7 )
+            If IsBit( mn->vid_doc, VIEW_RAK )
               s3 += Space( 6 )
             Endif
-            If IsBit( mn->vid_doc, 8 )
+            If IsBit( mn->vid_doc, VIEW_VRACH )
               s3 += ' ' + PadC( AllTrim( tt_usl[ i ] ), 23 )
             Endif
             If ! lExcel
