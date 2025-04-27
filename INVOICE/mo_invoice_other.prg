@@ -1,4 +1,4 @@
-// mo_omspr.prg - прочие счета для задачи ОМС
+// mo_invoice_other.prg - прочие счета для задачи ОМС
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"

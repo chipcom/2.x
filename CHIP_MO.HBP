@@ -195,6 +195,7 @@ mo_version.prg
 .\invoice\mo_invoice.prg
 .\invoice\print_schet_reestr.prg
 .\invoice\doc_order_pdf.prg
+.\invoice\mo_invoice_other.prg
 
 
 .\util\workWithZIP.prg
@@ -261,7 +262,6 @@ mo_version.prg
 
 .\ORDER\mo_omso.prg
 .\ORDER\mo_omsp.prg
-.\ORDER\mo_omspr.prg
 
 .\OTHER\mo_mzxml.prg
 .\OTHER\mo_serv.prg

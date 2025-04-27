@@ -1,10 +1,12 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 24.04.25
-function schet_reestr( arr, destination )
+// 26.04.25
+function schet_reestr( arr, destination, one, reg )
   // arr - массив счетов
   // destination - целевой каталог
+  // one - флаг печати одиночного счета, .t. - да, .f. - нет
+  // reg - что печаем, если one == .t., 1 - счет, 2 - реестр счета
 
   Local adbf, adbf1, i, j, s, ii := 0, fl_numeration := .f., ;
     lshifr, lshifr1, ldate, ldate1, ldate2, hGauge, iSchet
@@ -14,6 +16,7 @@ function schet_reestr( arr, destination )
 
   local fNameSchet, fNameReestr, tailName
 
+  default reg to 0, one to .t.
   mywait()
   adbf := { { 'name', 'C', 130, 0 }, ;
     { 'name_schet', 'C', 130, 0 }, ;
@@ -89,6 +92,9 @@ function schet_reestr( arr, destination )
     fNameSchet := destination + 'SCM' + tailName
     fNameReestr := destination + 'SRM' + tailName
   
+    Use ( fr_data ) New Alias FRD
+    Index On Str( nomer, 4 ) to ( fr_data )
+    
     Use ( fr_titl ) New Alias FRT
     Append Blank
     frt->name := frt->name_schet := org->name
@@ -151,14 +157,17 @@ function schet_reestr( arr, destination )
     frt->susluga := s
     frt->summa := schet->summa
 
-    print_pdf_order( fNameSchet )
-    
-//    hGauge := gaugenew( , , { 'GR+/RB', 'BG+/RB', 'G+/RB' }, 'Составление счёта', .t. )
+//    if one .and. reg == 1
+//      call_fr( 'mo_schet' )
+//    else
+//      print_pdf_order( fNameSchet )
+//    endif
+if ! one .or. ( one .and. reg == 2 )
     hGauge := gaugenew( , , { 'GR+/RB', 'BG+/RB', 'G+/RB' }, 'Составление реестра счёта № ' + AllTrim( schet_->nschet ), .t. )
     gaugedisplay( hGauge )
 
-    Use ( fr_data ) New Alias FRD
-    Index On Str( nomer, 4 ) to ( fr_data )
+//    Use ( fr_data ) New Alias FRD
+//    Index On Str( nomer, 4 ) to ( fr_data )
 
     Select HUMAN
     find ( Str( schet->kod, 6 ) )
@@ -307,12 +316,22 @@ function schet_reestr( arr, destination )
       frt->date_end   := date_month( ldate2 )
     Endif
     closegauge( hGauge )
-
+  endif
     frd->( dbGoTop() )
-    print_pdf_reestr( fNameReestr )
-
-    frd->( dbCloseArea() )
-    frt->( dbCloseArea() )
+    if one
+      frd->( dbCloseArea() )
+      frt->( dbCloseArea() )
+      if reg == 1
+        call_fr( 'mo_schet' )
+      elseif reg == 2
+      call_fr( 'mo_reesv' )
+      endif
+    else
+      print_pdf_order( fNameSchet )
+      print_pdf_reestr( fNameReestr )
+      frd->( dbCloseArea() )
+      frt->( dbCloseArea() )
+    endif
 
   next
   org->( dbCloseArea() )
@@ -325,6 +344,11 @@ function schet_reestr( arr, destination )
   human_3->( dbCloseArea() )
   human_->( dbCloseArea() )
   human->( dbCloseArea() )
+
+//  if one
+//    frd->( dbCloseArea() )
+//    frt->( dbCloseArea() )
+//  endif
 
   rest_box( buf )
   return nil
