@@ -32,7 +32,7 @@ Function string_output( sText, lExcel, ws, row, column, fmt )
 
   Return Nil
 
-// 27.04.25 многовариантный поиск
+// 28.04.25 многовариантный поиск
 Function s_mnog_poisk()
 
   Static lcount_uch  := 1
@@ -116,19 +116,19 @@ Function s_mnog_poisk()
   local arr_SVO :=  mm_SVO()
 
   local arr_doc := { ;
-    'Дата рожд.', ;
-    'Единый номер полиса ОМС', ;
-    'Адрес', ;
-    'Номер карты', ;
-    'Сроки леч.', ;
-    'Диагноз', ;
-    'Счет', ;
-    'РАК', ;
-    'Леч.врач', ;
-    'Услуги', ;
-    'Доп.критерий', ;
-    'Номера Тел.' }
-//  'Дата ввода', ;
+    'Дата рожд.', ;               // VIEW_DOB
+    'Единый номер полиса ОМС', ;  // VIEW_ENP
+    'Адрес', ;                    // VIEW_ADRESS
+    'Номер карты', ;              // VIEW_NUMBER_CARD
+    'Сроки леч.', ;               // VIEW_SROK_LECH
+    'Диагноз', ;                  // VIEW_DIAGNOZ
+    'Счет', ;                     // VIEW_SCHET
+    'РАК', ;                      // VIEW_RAK
+    'Леч.врач', ;                 // VIEW_VRACH
+    'Услуги', ;                   // VIEW_SERVICE
+    'Доп.критерий', ;             // VIEW_DOP_CRIT
+    'Номера Тел.' }               // VIEW_PHONE
+//  'Дата ввода', ;               // VIEW_DATE_INPUT
   
   If mem_dom_aktiv == 1
     AAdd( mm_dom, { 'на дому-АКТИВ', 3 } )
@@ -142,7 +142,7 @@ Function s_mnog_poisk()
   Private tmp_V012 := getv012( sys_date ) // ishod
 
   If yes_parol
-    AAdd( arr_doc, 'Дата ввода' )
+    AAdd( arr_doc, 'Дата ввода' )   // VIEW_DATE_INPUT
   Endif
 //  AAdd( arr_doc, 'Номера Тел.' )
 //  AAdd( arr_doc, 'единый номер полиса ОМС' )
