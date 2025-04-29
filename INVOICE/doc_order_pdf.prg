@@ -4,22 +4,28 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 22.04.25
-function pdf_row_reestr( page, nX, nY, nHeight, aText )
+// 29.04.25
+function pdf_row_reestr( page, nX, nY, nHeight, aText, hFont )
 
-  // Вывод шапки таблицы с левого нижнего угла nX, nY по указанной высоте nHeght.
+  // Вывод строки таблицы с левого нижнего угла nX, nY по указанной высоте nHeght.
   
   local textLeading, err
-  local row
+  local i
 
 //  HPDF_Page_GetDash( page )
   textLeading := HPDF_Page_GetTextLeading( page )
   HPDF_Page_SetTextLeading( page, 9.0 ) // по умолчанию 15.74
-  for each row in aText
+  for i := 1 to len( aText )
+    if eq_any( i, 5, 7, 8 )
+      HPDF_Page_SetFontAndSize( page, hFont, 4 ) // выбор шрифта из подключенных и его размер
+    endif
     err := HPDF_Page_BeginText( page )
-    err := HPDF_Page_TextRect( page, mm_to_pt( nX ), mm_to_pt( nY + nHeight ), mm_to_pt( nX + row[ 2 ] ), mm_to_pt( nY - nHeight ), ;
-      win_OEMToANSI( row[ 1 ] ), row[ 3 ] )
+    err := HPDF_Page_TextRect( page, mm_to_pt( nX ), mm_to_pt( nY + nHeight ), mm_to_pt( nX + aText[ i, 2 ] ), mm_to_pt( nY - nHeight ), ;
+      win_OEMToANSI( aText[ i, 1 ] ), aText[ i, 3 ] )
     err := HPDF_Page_EndText( page )
+    if eq_any( i, 5, 7, 8 )
+      HPDF_Page_SetFontAndSize( page, hFont, 7 ) // выбор шрифта из подключенных и его размер
+    endif
 
 //    HPDF_Page_SetDash( page, { 3 }, 1, 1 )
     HPDF_Page_SetLineWidth( page, 0 )
@@ -27,11 +33,11 @@ function pdf_row_reestr( page, nX, nY, nHeight, aText )
     HPDF_Page_LineTo( page, mm_to_pt( 288 ), mm_to_pt( nY ) )
     HPDF_Page_Stroke( page )
  
-    nX += row[ 2 ]
+    nX += aText[ i, 2 ]
   next
   HPDF_Page_SetTextLeading( page, textLeading )
 //  HPDF_Page_SetDash( page, aDash, 1, 1 )
-return nil
+  return nil
 
 // 21.04.25
 function pdf_header_reestr( page, nX, nY, nHeight, aText )
@@ -138,7 +144,7 @@ function footer_reestr( pg, dbAlias, nY, nHeight, align, r_t, total )
   HPDF_Page_Stroke( pg )
   return err
 
-// 23.04.25
+// 29.04.25
 function arr_to_print_pdf( reg, dbAliasDT )
 
   local arr := {}
@@ -169,10 +175,17 @@ function arr_to_print_pdf( reg, dbAliasDT )
     AAdd( arr, { AllTrim( ( dbAliasDT )->fio ), 24, HPDF_TALIGN_LEFT } )
     AAdd( arr, { AllTrim( ( dbAliasDT )->pol ), 6, HPDF_TALIGN_CENTER } )
     AAdd( arr, { AllTrim( ( dbAliasDT )->date_r ), 13, HPDF_TALIGN_CENTER } )
-    AAdd( arr, { SubStr( ( dbAliasDT )->mesto_r, 1, 45 ), 21, HPDF_TALIGN_LEFT } )
+
+//    AAdd( arr, { SubStr( ( dbAliasDT )->mesto_r, 1, 45 ), 21, HPDF_TALIGN_LEFT } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->mesto_r ), 21, HPDF_TALIGN_LEFT } )
+
     AAdd( arr, { AllTrim( ( dbAliasDT )->pasport ), 18, HPDF_TALIGN_LEFT } )
-    AAdd( arr, { SubStr( ( dbAliasDT )->adresp, 1, 45 ), 23, HPDF_TALIGN_LEFT } )
-    AAdd( arr, { SubStr( ( dbAliasDT )->adresg, 1, 45 ), 23, HPDF_TALIGN_LEFT } )
+
+    // AAdd( arr, { SubStr( ( dbAliasDT )->adresp, 1, 45 ), 23, HPDF_TALIGN_LEFT } )
+    // AAdd( arr, { SubStr( ( dbAliasDT )->adresg, 1, 45 ), 23, HPDF_TALIGN_LEFT } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->adresp ), 23, HPDF_TALIGN_LEFT } )
+    AAdd( arr, { AllTrim( ( dbAliasDT )->adresg ), 23, HPDF_TALIGN_LEFT } )
+
     AAdd( arr, { SubStr( ( dbAliasDT )->snils, 1, 9 ) + ' ' + AllTrim( SubStr( ( dbAliasDT )->snils, 10 ) ), 12, HPDF_TALIGN_CENTER } )
     AAdd( arr, { Substr( ( dbAliasDT )->polis, 1, 10 ) + ' ' + AllTrim( Substr( ( dbAliasDT )->polis, 11 ) ), 16, HPDF_TALIGN_CENTER } )
     AAdd( arr, { AllTrim( ( dbAliasDT )->vid_pom ), 9, HPDF_TALIGN_CENTER } )
@@ -189,7 +202,7 @@ function arr_to_print_pdf( reg, dbAliasDT )
   endif
   return arr
 
-// 23.04.25
+// 29.04.25
 function print_pdf_reestr( cFileToSave )
 
   LOCAL pdf
@@ -200,7 +213,6 @@ function print_pdf_reestr( cFileToSave )
   local nPatients, nCurrent, total
   local iPage
   local curX
-//  local dbName := '_titl.dbf', dbNameDT := '_data.dbf', 
 
   fError := tfiletext():new( cur_dir() + 'error_pdf.txt', , .t., , .t. ) 
   fError:width := 100
@@ -234,10 +246,6 @@ function print_pdf_reestr( cFileToSave )
     Return nil
   Endif
 
-  // dbUseArea( .t., , cur_dir() + dbName, dbAlias, .t., .f. )
-  // ( dbAlias )->( dbGoto( 1 ) )
-  // dbUseArea( .t., , cur_dir() + dbNameDT, dbAliasDT, .t., .f. )
-  // ( dbAliasDT )->( dbGoto( 1 ) )
   nPatients := ( dbAliasDT )->( LastRec() )
   nCurrent := 0
   sTextReestr := 'РЕЕСТР СЧЕТА № ' + AllTrim( ( dbAlias )->nschet ) + ' от ' + ( dbAlias )->dschet
@@ -279,9 +287,9 @@ function print_pdf_reestr( cFileToSave )
       curX := 195
     endif
 
-    curX -= 10
     total += ( dbAliasDT )->stoim
-    pdf_row_reestr( page, 12, curX, 10, arr_to_print_pdf( 3, dbAliasDT ) )
+    curX -= 10
+    pdf_row_reestr( page, 12, curX, 10, arr_to_print_pdf( 3, dbAliasDT ), r_t )
     ( dbAliasDT )->( dbSkip() )
   end do
   if curX < 45
@@ -296,9 +304,6 @@ function print_pdf_reestr( cFileToSave )
     curX := curX - 10
   endif
   footer_reestr( page, dbAlias, curX, 5, HPDF_TALIGN_LEFT, r_t, total )
-
-  // ( dbAlias )->( dbCloseArea() )
-  // ( dbAliasDT )->( dbCloseArea() )
 
   IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
     fError:add_string( 'HPDF_SaveToFile() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
@@ -316,7 +321,6 @@ function print_pdf_order( cFileToSave )
   local fError, pdfReturn
   local page, dbAlias := 'FRT'
   local fnt_arial, fnt_arial_bold, r_t, r_tb
-//  local dbName := '_titl.dbf'
 
   fError := tfiletext():new( cur_dir() + 'error_pdf.txt', , .t., , .t. ) 
   fError:width := 100
@@ -356,9 +360,6 @@ function print_pdf_order( cFileToSave )
   if ( pdfReturn := HPDF_Page_SetSize( page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT ) ) != HPDF_OK
     fError:add_string( 'HPDF_Page_SetSize() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
   endif
-
-//  dbUseArea( .t., , cur_dir() + dbName, dbAlias, .t., .f. )
-//  ( dbAlias )->( dbGoto( 1 ) )
 
   // шапка счета
   HPDF_Page_SetLineWidth( page, 0.5 )
@@ -471,8 +472,6 @@ function print_pdf_order( cFileToSave )
   HPDF_Page_LineTo( page, mm_to_pt( 132 ), mm_to_pt( 96 ) )
   HPDF_Page_Stroke( page )
   out_text( page, 135, 96, '( ' + AllTrim( ( dbAlias )->bux ) + ' )' )
-
-//  ( dbAlias )->( dbCloseArea() )
 
   IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
     fError:add_string( 'HPDF_SaveToFile() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
