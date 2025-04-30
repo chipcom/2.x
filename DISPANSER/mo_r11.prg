@@ -954,3 +954,59 @@ Function f32_view_r11( lm )
   viewtext( n_file,,,, .t.,,, 2 )
 
   Return Nil
+
+// 14.12.23 проверить, есть ли не до конца обработанные операции с файлами R11...
+// перенесен в MO_R11
+Function find_unfinished_r11()
+
+  Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t.
+
+
+  Private mrec := 1, smonth := MONTH_UPLOAD // МЕСЯЦ для выгрузки R11
+  Private sgod := YEAR_UPLOAD_DISPANSER
+
+  If glob_mo[ _MO_IS_UCH ]
+    If ( fl := verify_packet_r05( 2, arr ) )
+      r_use( dir_server + "mo_dr05p",, "R05p" )
+      Goto ( mrec )
+      skol := &( "r05p->kol1_" + StrZero( smonth, 2 ) ) + &( "r05p->kol2_" + StrZero( smonth, 2 ) ) 
+      Select MO_XML
+      Index On Str( reestr, 6 ) to ( cur_dir + "tmp_xml" ) For tip_in == _XML_FILE_R12 .and. Empty( TIP_OUT )
+      r_use( dir_server + "mo_dr01",, "REES" )
+      Index On Str( nn, 3 ) to ( cur_dir + "tmp_dr01" ) For NYEAR == sgod .and. NMONTH == smonth .and. tip == 1
+      Go Top
+      Do While fl .and. !Eof()
+        If rees->kol_err < 0
+          fl := .f.
+          AAdd( arr, "В файле PR11 за " + lstr( rees->NMONTH ) + "-й месяц " + lstr( sgod ) + "г. ошибки на уровне файла" )
+        Elseif Empty( rees->answer )
+          fl := .f.
+          AAdd( arr, "Файл PR11 за " + lstr( rees->NMONTH ) + "-й месяц " + lstr( sgod ) + " года не был прочитан" )
+        Else
+          mkol += ( rees->KOL - rees->KOL_ERR )
+          Select MO_XML
+          find ( Str( rees->kod, 6 ) )
+          If Found() .and. Empty( mo_xml->TWORK2 )
+            fl := .f.
+            AAdd( arr, "Прервано чтение файла " + AllTrim( mo_xml->FNAME ) + "! Аннулируйте (Ctrl+F12) и прочитайте снова" )
+          Endif
+        Endif
+        Select REES
+        Skip
+      Enddo
+      If fl .and. skol != mkol
+        fl := .f.
+        AAdd( arr, "Количество, определённое в план-графике = " + lstr( skol ) )
+        AAdd( arr, "Количество, отправленное в ТФОМС        = " + lstr( mkol ) )
+      Endif
+    Endif
+    Close databases
+    If !fl .and. !Empty( arr )
+      ins_array( arr, 1, "" )
+      ins_array( arr, 1, "-------------------------------------------" )
+      ins_array( arr, 1, "Операции создания (обмена) файлов R11(PR11)" )
+      n_message( arr,, "GR+/R", "W+/R",,, "G+/R" )
+    Endif
+  Endif
+
+  Return Nil
