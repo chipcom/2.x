@@ -7,7 +7,7 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-// 19.12.22 ¯à®ç¨â âì ¨ "à §­¥áâ¨" ¯® ¡ § ¬ ¤ ­­ëå €Š 
+// 30.04.25 ¯à®ç¨â âì ¨ "à §­¥áâ¨" ¯® ¡ § ¬ ¤ ­­ëå €Š 
 Function read_xml_file_rak( arr_XML_info, aerr )
 
   Local fl_akt, fl_schet, blk_akt, blk_schet, i, k, s, s1, arr_s := {}, t_arr[ 2 ], ;
@@ -395,7 +395,8 @@ Function read_xml_file_rak( arr_XML_info, aerr )
                 Endif
                 put_long_str( s, cFileProtokol, 5 )
               Elseif tmp4->_REFREASON > 0
-                If Empty( s := ret_t005( tmp4->_REFREASON ) )
+                If Empty( s := ret_f014( tmp4->_REFREASON ) )
+                //If Empty( s := ret_t005( tmp4->_REFREASON ) )
                   StrFile( Space( 5 ) + lstr( tmp4->_REFREASON ) + " ­¥¨§¢¥áâ­ ï ¯à¨ç¨­  ®âª § " + ;
                     hb_eol(), cFileProtokol, .t. )
                 Else
@@ -449,7 +450,8 @@ Function read_xml_file_rak( arr_XML_info, aerr )
               raksherr->SL_ID     := tmp6->SL_ID
               raksherr->SL_ID2    := tmp6->SL_ID2
               raksherr->S_COM     := alltrim(substr(alltrim(tmp6->S_COM),12,5))
-              If Empty( s := ret_t005( tmp6->REFREASON ) )
+            //If Empty( s := ret_t005( tmp6->REFREASON ) )
+              If Empty( s := ret_f014( tmp6->REFREASON ) )
                 StrFile( Space( 5 ) + lstr( tmp6->REFREASON ) + " ­¥¨§¢¥áâ­ ï ¯à¨ç¨­  ®âª § " + ;
                   hb_eol(), cFileProtokol, .t. )
               Else
@@ -457,6 +459,7 @@ Function read_xml_file_rak( arr_XML_info, aerr )
               Endif
               if len(alltrim(tmp6->S_COM)) > 0
                 if !Empty( s := ret_t005(val(alltrim(substr(alltrim(tmp6->S_COM),12,5)))))
+                // -- ??????????  
                   put_long_str( "“â®ç­¥­¨¥ ª®¤  ¤¥ä¥ªâ : " + s, cFileProtokol, 5 )
                 endif
               endif  
@@ -1904,7 +1907,7 @@ Function ret_menu_rak_schet( r, c )
 
   Return ret
 
-// 17.08.22 á¯¨á®ª á­ïâ¨© ¯®  ªâ ¬
+// 30.04.25 á¯¨á®ª á­ïâ¨© ¯®  ªâ ¬
 Function akt_list_of_refusal_pacient()
 
   Static si := 3
@@ -1999,7 +2002,7 @@ Function akt_list_of_refusal_pacient()
   Use ( fr_data ) New Alias FRD
   adbf := { { "REFREASON", "N", 3, 0 }, ;
     { "kol", "N", 6, 0 }, ;
-    { "name", "C", 120, 0 } }
+    { "name", "C", 140, 0 } }
   dbCreate( fr_data + "1", adbf )
   Use ( fr_data + "1" ) New Alias FRD1
   Index On Str( REFREASON, 3 ) to ( fr_data + "1" )
@@ -2170,8 +2173,9 @@ Function akt_list_of_refusal_pacient()
                   Else
                     frd->sum_sn := lstr( s, 15, 2 ) + eos + lstr( ssh, 15, 2 ) + "èâ"
                   Endif
-                  If Empty( s := ret_t005( raksh->REFREASON ) )
-                    s := lstr( raksh->REFREASON ) + " ­¥¨§¢¥áâ­ ï ¯à¨ç¨­  ®âª § "
+                 // If Empty( s := ret_t005( raksh->REFREASON ) ) /// !!!!!!!
+                  If Empty( s := ret_f014( raksh->REFREASON ) ) 
+                     s := lstr( raksh->REFREASON ) + " ­¥¨§¢¥áâ­ ï ¯à¨ç¨­  ®âª § "
                   Endif
                   frd->REFREASON := lstr( raksh->REFREASON ) + s1
                   frd->NUMORDER  :=  HUMAN_2->pn3
@@ -2351,10 +2355,10 @@ Function pr_list_rak()
     s += asmo[ i, 1 ] + ", "
   Next
   arr_title := { ;
-    "ÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄ", ;
-    "   „ â    ³Žâçñâ³                         ³     ³ª®«-¢®³ª®«-¢®³ª®«-¢®³ª®«-¢®³ª®«-¢®", ;
-    "   €Š    ³¯¥à¨®³      €ªâ ª®­âà®«ï       ³ ‘ŒŽ ³ ªâ®¢ ³áç¥â®¢³¯ æ¨¥­³á­ïâ¨©³èâà ä®¢", ;
-    "ÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄ" }
+    "ÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄ", ;
+    "   „ â    ³Žâçñâ³                          ³     ³ª®«-¢®³ª®«-¢®³ª®«-¢®³ª®«-¢®³ª®«-¢®", ;
+    "   €Š    ³¯¥à¨®³      €ªâ ª®­âà®«ïÄ       ³ ‘ŒŽ ³ ªâ®¢ ³áç¥â®¢³¯ æ¨¥­³á­ïâ¨©³èâà ä®¢", ;
+    "ÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄ" }
   sh := Len( arr_title[ 1 ] )
   k := perenos( ta, Left( s, Len( s ) -2 ), sh )
   //
@@ -2423,7 +2427,8 @@ Function pr_list_rak()
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
         krak++
-        add_string( full_date( mo_xml->DFILE ) + " " + otch_period + PadR( mo_xml->FNAME, 26 ) + lsmo + ;
+        otch_period := padr(otch_period, 7)
+        add_string( full_date( mo_xml->DFILE ) + " " + otch_period + PadR( alltrim(mo_xml->FNAME), 26 ) + lsmo + ;
           put_val( kakt, 7 ) + put_val( ksch, 7 ) + put_val( kpac, 7 ) + put_val( kerr, 7 ) + put_val( kpen, 7 ) )
       Endif
     Endif
@@ -2515,7 +2520,7 @@ Function akt_summa_of_refusal( tip )
   Endif
   mywait()
   adbf := { { 'REFREASON', 'N', 3, 0 }, ;
-    { 'srefr', 'C', 12, 0 }, ;
+    { 'srefr', 'C', 13, 0 }, ;
     { 'smo', 'C', 5, 0 }, ;
     { 'kol', 'N', 6, 0 }, ;
     { 'summa', 'N', 15, 2 }, ;
@@ -2650,11 +2655,11 @@ Function akt_summa_of_refusal( tip )
     Enddo
   Endif
   arr_title := { ;
-    '______________________________________________________________________________________________', ;
-    'ª®¤       |ª®«-¢®|áã¬¬  ®âª §  |______________________¢_â®¬_ç¨á«¥_____________________________', ;
-    '­ àãè¥­¨ï |­ àã- |¢ ®¯« â¥ àã¡.|________ŒŠ_________|________Œ_________|________ŠŒ________', ;
-    '          |è¥­¨© |             |ª®«-¢®| áã¬¬  á­ïâ¨©|ª®«-¢®| áã¬¬  á­ïâ¨©|ª®«-¢®| áã¬¬  á­ïâ¨©', ;
-    '__________|______|_____________|­ àãè_|_____________|­ àãè_|_____________|­ àãè_|_____________' }
+    '________________________________________________________________________________________________', ;
+    '  ª®¤       |ª®«-¢®|áã¬¬  ®âª §  |______________________¢_â®¬_ç¨á«¥_____________________________', ;
+    '  ­ àãè¥­¨ï |­ àã- |¢ ®¯« â¥ àã¡.|________ŒŠ_________|________Œ_________|________ŠŒ________', ;
+    '            |è¥­¨© |             |ª®«-¢®| áã¬¬  á­ïâ¨©|ª®«-¢®| áã¬¬  á­ïâ¨©|ª®«-¢®| áã¬¬  á­ïâ¨©', ;
+    '____________|______|_____________|­ àãè_|_____________|­ àãè_|_____________|­ àãè_|_____________' }
   sh := Len( arr_title[ 1 ] )
   //
   fp := FCreate( n_file )
@@ -2729,7 +2734,7 @@ Function akt_summa_of_refusal( tip )
         If tmp->REFREASON == 0
           add_string( Replicate( '-', sh ) )
         Endif
-        add_string( PadR( tmp->srefr, 11 ) + Str( tmp->kol, 6 ) + put_kop( tmp->summa, 14 ) + ;
+        add_string( PadR( tmp->srefr, 13 ) + Str( tmp->kol, 6 ) + put_kop( tmp->summa, 14 ) + ;
           put_val( tmp->kol1, 7 ) + put_kope( tmp->summa1, 14 ) + ;
           put_val( tmp->kol2, 7 ) + put_kope( tmp->summa2, 14 ) + ;
           put_val( tmp->kol3, 7 ) + put_kope( tmp->summa3, 14 ) )
