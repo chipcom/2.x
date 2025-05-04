@@ -25,31 +25,50 @@ Function check_files_tfoms( nYear )
   Return lRet
 
 // 31.01.17
-Function r_use_base( sBase, lAlias )
-  Return use_base( sBase, lAlias, , .t. )
+Function r_use_base( sBase, lAlias, lUseIndex )
+  // sBase - 
+  // lAlias - 
+  // lUseIndex - использовать индексные файлы, .t. - да (по умолчанию), .f. - нет
+  Return use_base( sBase, lAlias, , .t., lUseIndex )
 
-// 18.03.23 закрывает алиасы для lusl, luslc и luslf
+// 01.05.25 закрывает пакеты алиасов
 Function close_use_base( sBase )
 
   Local countYear, lAlias
 
-  sBase := Lower( sBase ) // проверим, что алиас открыт и выйдем если нет, пока lusl, luslc, luslf
-  If ! SubStr( sBase, 1, 4 ) == 'lusl'
-    Return Nil
-  Endif
-  If Select( sBase ) == 0
-    Return Nil
-  Endif
-
-  For countYear := 2018 To WORK_YEAR
-    lAlias := sBase + iif( countYear == WORK_YEAR, '', SubStr( Str( countYear, 4 ), 3 ) )
-    If exists_file_tfoms( countYear, SubStr( sBase, 2 ) )
-      If ( lAlias )->( Used() )
-        ( lAlias )->( dbCloseArea() )
-      Endif
+  sBase := Lower( sBase )
+  if sBase == 'kartotek'  //  для kart, kart_, kart2
+    if Select( 'kart' ) != 0
+      kart2->( dbCloseArea() )
+      kart_->( dbCloseArea() )
+      kart->( dbCloseArea() )
+    endif
+//  elseIf ! SubStr( sBase, 1, 4 ) == 'lusl' // проверим, что алиас открыт и выйдем если нет, пока lusl, luslc, luslf
+//    Return Nil
+  elseIf SubStr( sBase, 1, 4 ) == 'lusl' //  для lusl, luslc и luslf
+    If Select( sBase ) != 0
+      For countYear := 2018 To WORK_YEAR
+        lAlias := sBase + iif( countYear == WORK_YEAR, '', SubStr( Str( countYear, 4 ), 3 ) )
+        If exists_file_tfoms( countYear, SubStr( sBase, 2 ) )
+          If ( lAlias )->( Used() )
+            ( lAlias )->( dbCloseArea() )
+          Endif
+        Endif
+      Next
     Endif
-  Next
+  Endif
+//  If Select( sBase ) == 0
+//    Return Nil
+//  Endif
 
+//  For countYear := 2018 To WORK_YEAR
+//    lAlias := sBase + iif( countYear == WORK_YEAR, '', SubStr( Str( countYear, 4 ), 3 ) )
+//    If exists_file_tfoms( countYear, SubStr( sBase, 2 ) )
+//      If ( lAlias )->( Used() )
+//        ( lAlias )->( dbCloseArea() )
+//      Endif
+//    Endif
+//  Next
   Return Nil
 
 // 14.10.24
@@ -97,13 +116,21 @@ Function existsnsifile( sbase, vYear )
 
   Return fl
 
-// 14.01.25
-Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
+// 01.05.25
+Function use_base( sBase, lAlias, lExcluUse, lREADONLY, lUseIndex )
+
+  // sBase - 
+  // lAlias - 
+  // lExcluUse - 
+  // lREADONLY - только для чтения
+  // lUseIndex - использовать индексные файлы, .t. - да (по умолчанию), .f. - нет
 
   Local fl := .t., sind1 := '', sind2 := ''
   Local fname, fname_add
   Local countYear
   Local lExistHash
+
+  Default lUseIndex To .t.
 
   sBase := Lower( sBase )
   Do Case
@@ -194,12 +221,12 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY )
   Case sBase == 'kartotek'
     fl := g_use( dir_server + 'kartote_', , 'KART_', , lExcluUse, lREADONLY ) .and. ;
       g_use( dir_server + 'kartote2', , 'KART2', , lExcluUse, lREADONLY ) .and. ;
-      g_use( dir_server + 'kartotek', { dir_server + 'kartotek', ;
+      g_use( dir_server + 'kartotek', iif( lUseIndex, { dir_server + 'kartotek', ;
       dir_server + 'kartoten', ;
       dir_server + 'kartotep', ;
       dir_server + 'kartoteu', ;
       dir_server + 'kartotes', ;
-      dir_server + 'kartotee' }, 'KART', , lExcluUse, lREADONLY )
+      dir_server + 'kartotee' }, nil ), 'KART', , lExcluUse, lREADONLY )
     If fl
       Set Relation To RecNo() into KART_, To RecNo() into KART2
     Endif

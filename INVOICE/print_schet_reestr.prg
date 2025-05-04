@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 26.04.25
+// 01.05.25
 function schet_reestr( arr, destination, one, reg )
   // arr - массив счетов
   // destination - целевой каталог
@@ -68,9 +68,12 @@ function schet_reestr( arr, destination, one, reg )
   r_use( dir_server + 'uslugi', , 'USL' )
   r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
   Set Relation To u_kod into USL
-  r_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
-  Set Relation To RecNo() into KART_
+//  r_use( dir_server + 'kartote_', , 'KART_' )
+//  r_use( dir_server + 'kartotek', , 'KART' )
+//  Set Relation To RecNo() into KART_
+
+  r_use_base( 'kartotek', , .f. ) // индексы не нужны
+
   g_use( dir_server + 'human_3', { dir_server + 'human_3', dir_server + 'human_32' }, 'HUMAN_3' )
   r_use( dir_server + 'human_', , 'HUMAN_' )
   r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
@@ -335,12 +338,14 @@ if ! one .or. ( one .and. reg == 2 )
 
   next
   org->( dbCloseArea() )
+//  kart_->( dbCloseArea() )
+//  kart->( dbCloseArea() )
+  close_use_base( 'kartotek' )
   close_use_base( 'lusl' )
   usl1->( dbCloseArea() )
   usl->( dbCloseArea() )
   hu->( dbCloseArea() )
-  kart_->( dbCloseArea() )
-  kart->( dbCloseArea() )
+
   human_3->( dbCloseArea() )
   human_->( dbCloseArea() )
   human->( dbCloseArea() )
