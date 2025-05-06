@@ -1,6 +1,34 @@
 #require 'hbhpdf'
 
 #include 'harupdf.ch'
+#include 'common.ch'
+
+// 06.05.25
+function HPDF_SaveToFile_Wrap( pdf, cFileToSave, cStr, fError )
+  // pdf - объект pdf
+  // cFileToSave - полное имя файла для сохранения
+  // cStr - строка наименования
+  // fError - объект для записи отчета
+
+  local nRet, nDetail
+
+  if isnil( cStr )
+    cStr := ''
+  endif
+  cStr := 'Ошибка создания печатной формы ' + cStr + '!'
+  nRet := HPDF_SaveToFile( pdf, win_OEMToANSI( cFileToSave ) )
+  if nRet != HPDF_OK
+    nDetail := HPDF_GetErrorDetail( pdf )
+    if nRet == HPDF_FILE_OPEN_ERROR .and. nDetail == 13 // файл открыт
+      cStr += ' Форма открыта.'
+    endif
+    if ! isnil( fError )
+      fError:add_string( 'HPDF_SaveToFile() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ) ;
+        + ', Error: ' + hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ) + ', detail: ' + AllTrim( str( nDetail ) ) )
+    endif
+    func_error( 4, cStr )
+  endif
+  return nRet
 
 // 23.04.25
 function new_page( pdf, fError )

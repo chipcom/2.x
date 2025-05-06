@@ -12,7 +12,6 @@ function pdf_row_reestr( page, nX, nY, nHeight, aText, hFont )
   local textLeading, err
   local i
 
-//  HPDF_Page_GetDash( page )
   textLeading := HPDF_Page_GetTextLeading( page )
   HPDF_Page_SetTextLeading( page, 9.0 ) // по умолчанию 15.74
   for i := 1 to len( aText )
@@ -26,8 +25,6 @@ function pdf_row_reestr( page, nX, nY, nHeight, aText, hFont )
     if eq_any( i, 5, 7, 8 )
       HPDF_Page_SetFontAndSize( page, hFont, 7 ) // выбор шрифта из подключенных и его размер
     endif
-
-//    HPDF_Page_SetDash( page, { 3 }, 1, 1 )
     HPDF_Page_SetLineWidth( page, 0 )
     HPDF_Page_MoveTo( page, mm_to_pt( 12 ), mm_to_pt( nY ) )
     HPDF_Page_LineTo( page, mm_to_pt( 288 ), mm_to_pt( nY ) )
@@ -36,7 +33,6 @@ function pdf_row_reestr( page, nX, nY, nHeight, aText, hFont )
     nX += aText[ i, 2 ]
   next
   HPDF_Page_SetTextLeading( page, textLeading )
-//  HPDF_Page_SetDash( page, aDash, 1, 1 )
   return nil
 
 // 21.04.25
@@ -175,17 +171,10 @@ function arr_to_print_pdf( reg, dbAliasDT )
     AAdd( arr, { AllTrim( ( dbAliasDT )->fio ), 24, HPDF_TALIGN_LEFT } )
     AAdd( arr, { AllTrim( ( dbAliasDT )->pol ), 6, HPDF_TALIGN_CENTER } )
     AAdd( arr, { AllTrim( ( dbAliasDT )->date_r ), 13, HPDF_TALIGN_CENTER } )
-
-//    AAdd( arr, { SubStr( ( dbAliasDT )->mesto_r, 1, 45 ), 21, HPDF_TALIGN_LEFT } )
     AAdd( arr, { AllTrim( ( dbAliasDT )->mesto_r ), 21, HPDF_TALIGN_LEFT } )
-
     AAdd( arr, { AllTrim( ( dbAliasDT )->pasport ), 18, HPDF_TALIGN_LEFT } )
-
-    // AAdd( arr, { SubStr( ( dbAliasDT )->adresp, 1, 45 ), 23, HPDF_TALIGN_LEFT } )
-    // AAdd( arr, { SubStr( ( dbAliasDT )->adresg, 1, 45 ), 23, HPDF_TALIGN_LEFT } )
     AAdd( arr, { AllTrim( ( dbAliasDT )->adresp ), 23, HPDF_TALIGN_LEFT } )
     AAdd( arr, { AllTrim( ( dbAliasDT )->adresg ), 23, HPDF_TALIGN_LEFT } )
-
     AAdd( arr, { SubStr( ( dbAliasDT )->snils, 1, 9 ) + ' ' + AllTrim( SubStr( ( dbAliasDT )->snils, 10 ) ), 12, HPDF_TALIGN_CENTER } )
     AAdd( arr, { Substr( ( dbAliasDT )->polis, 1, 10 ) + ' ' + AllTrim( Substr( ( dbAliasDT )->polis, 11 ) ), 16, HPDF_TALIGN_CENTER } )
     AAdd( arr, { AllTrim( ( dbAliasDT )->vid_pom ), 9, HPDF_TALIGN_CENTER } )
@@ -202,20 +191,17 @@ function arr_to_print_pdf( reg, dbAliasDT )
   endif
   return arr
 
-// 29.04.25
-function print_pdf_reestr( cFileToSave )
+// 06.05.25
+function print_pdf_reestr( cFileToSave, fError )
 
   LOCAL pdf
-  local fError, pdfReturn
   local page, sText, sTextReestr
   local fnt_arial, fnt_arial_bold, fnt_arial_italic, r_t, r_tb, r_ti
   local dbAliasDT := 'FRD', dbAlias := 'FRT'
   local nPatients, nCurrent, total
   local iPage
   local curX
-
-  fError := tfiletext():new( cur_dir() + 'error_pdf.txt', , .t., , .t. ) 
-  fError:width := 100
+  local pdfReturn
 
   IF ( pdf := HPDF_New() ) == NIL   // создание pdf - объекта файла
     fError:add_string( 'HPDF_New() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
@@ -305,26 +291,19 @@ function print_pdf_reestr( cFileToSave )
   endif
   footer_reestr( page, dbAlias, curX, 5, HPDF_TALIGN_LEFT, r_t, total )
 
-  IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
-    fError:add_string( 'HPDF_SaveToFile() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
-    func_error( 4, 'Ошибка создания печатной формы реестра счета!' )
-  ENDIF 
-    
+  HPDF_SaveToFile_Wrap( pdf, cFileToSave, 'реестра счета', fError )
   HPDF_Free( pdf )
   fError := nil
   return nil
 
-// 20.04.25
-function print_pdf_order( cFileToSave )
+// 06.05.25
+function print_pdf_order( cFileToSave, fError )
 
   LOCAL pdf
-  local fError, pdfReturn
   local page, dbAlias := 'FRT'
   local fnt_arial, fnt_arial_bold, r_t, r_tb
+  local pdfReturn
 
-  fError := tfiletext():new( cur_dir() + 'error_pdf.txt', , .t., , .t. ) 
-  fError:width := 100
-  
   IF ( pdf := HPDF_New() ) == NIL   // создание pdf - объекта файла
     fError:add_string( 'HPDF_New() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
     fError := nil
@@ -473,12 +452,7 @@ function print_pdf_order( cFileToSave )
   HPDF_Page_Stroke( page )
   out_text( page, 135, 96, '( ' + AllTrim( ( dbAlias )->bux ) + ' )' )
 
-  IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
-    fError:add_string( 'HPDF_SaveToFile() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
-    func_error( 4, 'Ошибка создания печатной формы счета!' )
-  ENDIF 
-    
+  HPDF_SaveToFile_Wrap( pdf, cFileToSave, 'счета', fError )
   HPDF_Free( pdf )
   fError := nil
-    
   return nil

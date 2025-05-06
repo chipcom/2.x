@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 01.05.25
+// 06.05.25
 function schet_reestr( arr, destination, one, reg )
   // arr - массив счетов
   // destination - целевой каталог
@@ -14,9 +14,13 @@ function schet_reestr( arr, destination, one, reg )
   local sinn, skpp, fl, fl_2, lal
   local a_diag, is_zak_sl, is_zak_sl_d, is_zak_sl_v, lst, kol_dn, mcena, lvidpom, au
 
-  local fNameSchet, fNameReestr, tailName
+  local fNameSchet, fNameReestr, tailName, fError
 
   default reg to 0, one to .t.
+  if ! one
+    fError := tfiletext():new( cur_dir() + 'error_pdf.txt', , .t., , .t. ) 
+    fError:width := 80
+  endif
   mywait()
   adbf := { { 'name', 'C', 130, 0 }, ;
     { 'name_schet', 'C', 130, 0 }, ;
@@ -68,9 +72,6 @@ function schet_reestr( arr, destination, one, reg )
   r_use( dir_server + 'uslugi', , 'USL' )
   r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
   Set Relation To u_kod into USL
-//  r_use( dir_server + 'kartote_', , 'KART_' )
-//  r_use( dir_server + 'kartotek', , 'KART' )
-//  Set Relation To RecNo() into KART_
 
   r_use_base( 'kartotek', , .f. ) // индексы не нужны
 
@@ -80,10 +81,7 @@ function schet_reestr( arr, destination, one, reg )
   Set Relation To RecNo() into HUMAN_, To kod_k into KART
 
   For iSchet := 1 To Len( arr )
-
-//    schet->( dbGoto( arr[ iSchet, 4 ] ) )  // встанем на счет
     schet->( dbGoto( arr[ iSchet ] ) )  // встанем на счет
-
     delfrfiles()
     dbCreate( fr_titl, adbf )
     dbCreate( fr_data, adbf1 )
@@ -130,9 +128,6 @@ function schet_reestr( arr, destination, one, reg )
     s := ''
     If ( j := AScan( get_rekv_smo(), {| x| x[ 1 ] == schet_->SMO } ) ) > 0
       s := get_rekv_smo()[ j, 2 ]
-      // If reg == 2 .and. Int( Val( schet_->SMO ) ) == 34 // иногородние !
-      //   reg := 3
-      // Endif
     Elseif schet->str_crb > 0
       If schet->komu == 3
         s := inieditspr( A__POPUPMENU, dir_server + 'komitet', schet->str_crb )
@@ -160,18 +155,9 @@ function schet_reestr( arr, destination, one, reg )
     frt->susluga := s
     frt->summa := schet->summa
 
-//    if one .and. reg == 1
-//      call_fr( 'mo_schet' )
-//    else
-//      print_pdf_order( fNameSchet )
-//    endif
 if ! one .or. ( one .and. reg == 2 )
     hGauge := gaugenew( , , { 'GR+/RB', 'BG+/RB', 'G+/RB' }, 'Составление реестра счёта № ' + AllTrim( schet_->nschet ), .t. )
     gaugedisplay( hGauge )
-
-//    Use ( fr_data ) New Alias FRD
-//    Index On Str( nomer, 4 ) to ( fr_data )
-
     Select HUMAN
     find ( Str( schet->kod, 6 ) )
     Do While human->schet == schet->kod .and. !Eof()
@@ -330,30 +316,21 @@ if ! one .or. ( one .and. reg == 2 )
       call_fr( 'mo_reesv' )
       endif
     else
-      print_pdf_order( fNameSchet )
-      print_pdf_reestr( fNameReestr )
+      print_pdf_order( fNameSchet, fError )
+      print_pdf_reestr( fNameReestr, fError )
       frd->( dbCloseArea() )
       frt->( dbCloseArea() )
     endif
 
   next
   org->( dbCloseArea() )
-//  kart_->( dbCloseArea() )
-//  kart->( dbCloseArea() )
   close_use_base( 'kartotek' )
   close_use_base( 'lusl' )
   usl1->( dbCloseArea() )
   usl->( dbCloseArea() )
   hu->( dbCloseArea() )
-
   human_3->( dbCloseArea() )
   human_->( dbCloseArea() )
   human->( dbCloseArea() )
-
-//  if one
-//    frd->( dbCloseArea() )
-//    frt->( dbCloseArea() )
-//  endif
-
   rest_box( buf )
   return nil

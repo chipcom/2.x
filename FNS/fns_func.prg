@@ -6,7 +6,7 @@
 #include 'tfile.ch'
 #include 'chip_mo.ch'
 
-// 04.02.25
+// 06.05.25
 FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   Local detail_font_name, detail_font_nameBold
@@ -90,9 +90,7 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
     designPage2( pdf, hArr, aFonts, fError )
   endif
 
-  IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
-    fError:add_string( 'HPDF_SaveToFile() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
-    func_error( 4, 'Ошибка создания печатной формы справки для ФНС!' )
+  IF HPDF_SaveToFile_Wrap( pdf, cFileToSave, 'справки для ФНС', fError ) != 0
     fl := .f.
   ENDIF 
 
