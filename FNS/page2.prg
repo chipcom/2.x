@@ -3,7 +3,7 @@
 #include 'harupdf.ch'
 #include 'chip_mo.ch'
 
-// 30.01.25
+// 07.05.25
 function designPage2( pdf, hArr, aFonts, fError )
 
   local page
@@ -14,15 +14,15 @@ function designPage2( pdf, hArr, aFonts, fError )
 
   /* §Æ°†¢®¨ ≠Æ¢Î© Æ°Í•™‚ ëíêÄçàñÄ. */
   if ( page := HPDF_AddPage( pdf ) ) == nil
-    fError:add_string( 'HPDF_AddPage() (Page 2) - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_AddPage() (Page 2)' ) )
   endif
 
   if ( pdfError := HPDF_Page_SetSize( page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT ) ) != HPDF_OK
-    fError:add_string( 'HPDF_Page_SetSize() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_Page_SetSize()' ) )
   endif
 
   if ( pdfError := HPDF_Page_SetFontAndSize( page, aFonts[ FONT_ARIAL ], 11 ) ) != HPDF_OK
-    fError:add_string( 'HPDF_Page_SetFontAndSize() (page 2) - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_Page_SetFontAndSize() (page 2)' ) )
   endif
 
   out_text( page, 58.5, 288, 'àçç' )

@@ -3,7 +3,7 @@
 #include 'harupdf.ch'
 #include 'chip_mo.ch'
 
-// 30.01.25
+// 07.05.25
 function designPage1( pdf, hArr, aFonts, fError )
 
   local page, j, t_arr := {}
@@ -12,19 +12,19 @@ function designPage1( pdf, hArr, aFonts, fError )
 
   /* добавим новый объект СТРАНИЦА. */
   if ( page := HPDF_AddPage( pdf ) ) == nil
-    fError:add_string( 'HPDF_AddPage() (Page 1) - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_AddPage() (Page 1)' ) )
   endif
 
   if ( pdfError := HPDF_Page_SetSize( page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT ) ) != HPDF_OK
-    fError:add_string( 'HPDF_Page_SetSize() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_Page_SetSize()' ) )
   endif
 
   if ( pdfError := HPDF_Page_SetLineWidth( page, 0.5 ) ) != HPDF_OK
-    fError:add_string( 'HPDF_Page_SetLineWidth() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_Page_SetLineWidth()' ) )
   endif
 
   if ( pdfError := HPDF_Page_SetFontAndSize( page, aFonts[ FONT_ARIAL ], 8 ) ) != HPDF_OK
-    fError:add_string( 'HPDF_Page_SetFontAndSize() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_Page_SetFontAndSize()' ) )
   endif
 
   out_text( page, 168, 291, 'Приложение № 1' )

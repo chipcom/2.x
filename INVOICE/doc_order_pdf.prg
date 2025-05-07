@@ -191,7 +191,7 @@ function arr_to_print_pdf( reg, dbAliasDT )
   endif
   return arr
 
-// 06.05.25
+// 07.05.25
 function print_pdf_reestr( cFileToSave, fError )
 
   LOCAL pdf
@@ -204,7 +204,7 @@ function print_pdf_reestr( cFileToSave, fError )
   local pdfReturn
 
   IF ( pdf := HPDF_New() ) == NIL   // создание pdf - объекта файла
-    fError:add_string( 'HPDF_New() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_New()' ) )
     fError := nil
     func_error( 4, 'Реестр счета не может быть создан!' )
     RETURN nil
@@ -212,11 +212,11 @@ function print_pdf_reestr( cFileToSave, fError )
 
   /* установим режим сжатия */
   if ( pdfReturn := HPDF_SetCompressionMode( pdf, HPDF_COMP_ALL ) ) != HPDF_OK
-    fError:add_string( 'HPDF_SetCompressionMode() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_SetCompressionMode()' ) )
   endif
 
   if ( pdfReturn := HPDF_SetPageMode( pdf, HPDF_PAGE_MODE_USE_NONE ) ) != HPDF_OK
-    fError:add_string( 'HPDF_SetPageMode() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_SetPageMode()' ) )
   endif
 
   // регистрация шрифтов с вложением в pdf
@@ -227,7 +227,7 @@ function print_pdf_reestr( cFileToSave, fError )
   r_tb = HPDF_GetFont( pdf, fnt_arial_bold, 'CP1251' ) // текст BOLD
   r_ti = HPDF_GetFont( pdf, fnt_arial_italic, 'CP1251' ) // текст ITALIC
   If Empty( r_t ) .or. Empty( r_tb )
-    fError:add_string( 'HPDF_GetFont() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_GetFont()' ) )
     HPDF_Free( pdf ) // аннулирование pdf
     Return nil
   Endif
@@ -296,7 +296,7 @@ function print_pdf_reestr( cFileToSave, fError )
   fError := nil
   return nil
 
-// 06.05.25
+// 07.05.25
 function print_pdf_order( cFileToSave, fError )
 
   LOCAL pdf
@@ -305,7 +305,7 @@ function print_pdf_order( cFileToSave, fError )
   local pdfReturn
 
   IF ( pdf := HPDF_New() ) == NIL   // создание pdf - объекта файла
-    fError:add_string( 'HPDF_New() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_New()' ) )
     fError := nil
     func_error( 4, 'Счет на оплату медицинской помощи не может быть создан!' )
     RETURN nil
@@ -313,11 +313,11 @@ function print_pdf_order( cFileToSave, fError )
 
   /* установим режим сжатия */
   if ( pdfReturn := HPDF_SetCompressionMode( pdf, HPDF_COMP_ALL ) ) != HPDF_OK
-    fError:add_string( 'HPDF_SetCompressionMode() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_SetCompressionMode()' ) )
   endif
 
   if ( pdfReturn := HPDF_SetPageMode( pdf, HPDF_PAGE_MODE_USE_NONE ) ) != HPDF_OK
-    fError:add_string( 'HPDF_SetPageMode() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_SetPageMode()' ) )
   endif
 
   // регистрация шрифтов с вложением в pdf
@@ -326,18 +326,18 @@ function print_pdf_order( cFileToSave, fError )
   r_t = HPDF_GetFont( pdf, fnt_arial, 'CP1251' ) // указатели для шрифтов текст
   r_tb = HPDF_GetFont( pdf, fnt_arial_bold, 'CP1251' ) // текст BOLD
   If Empty( r_t ) .or. Empty( r_tb )
-    fError:add_string( 'HPDF_GetFont() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_GetFont()' ) )
     HPDF_Free( pdf ) // аннулирование pdf
     Return nil
   Endif
 
   /* добавим новый объект СТРАНИЦА. */
   if ( page := HPDF_AddPage( pdf ) ) == nil
-    fError:add_string( 'HPDF_AddPage() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_AddPage()' ) )
   endif
 
   if ( pdfReturn := HPDF_Page_SetSize( page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT ) ) != HPDF_OK
-    fError:add_string( 'HPDF_Page_SetSize() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_Page_SetSize()' ) )
   endif
 
   // шапка счета

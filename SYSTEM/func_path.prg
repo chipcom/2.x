@@ -85,7 +85,7 @@ function chip_CurrPath()
 
   RETURN cPrefix + CurDir() + hb_ps()
 
-// 12.11.24
+// 07.05.25
 function dir_fonts()
 
   static dir
@@ -94,7 +94,7 @@ function dir_fonts()
 #ifdef __PLATFORM__UNIX
     dir := '/'
 #else
-    dir := HB_GETENV( 'windir' ) + hb_ps() + 'Fonts' + hb_ps()
+    dir := getenv( 'SystemRoot' ) + '\fonts\'
 #endif
   endif
 

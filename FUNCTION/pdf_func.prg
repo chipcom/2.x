@@ -3,7 +3,18 @@
 #include 'harupdf.ch'
 #include 'common.ch'
 
-// 06.05.25
+// 07.05.25
+function strErrorPdf( pdf, strFunc )
+
+  local str, nDetail, pdfError
+
+  nDetail := HPDF_GetErrorDetail( pdf )
+  pdfError := HPDF_GetError( pdf )
+  str := strFunc + ' - 0x' + hb_NumToHex( pdfError, 4 ) + ;
+    ', Error: ' + hb_HPDF_GetErrorString( pdfError ) + ', detail: ' + iif( nDetail != nil, AllTrim( str( nDetail ) ), '' )
+  return str
+
+// 07.05.25
 function HPDF_SaveToFile_Wrap( pdf, cFileToSave, cStr, fError )
   // pdf - объект pdf
   // cFileToSave - полное имя файла для сохранения
@@ -23,24 +34,23 @@ function HPDF_SaveToFile_Wrap( pdf, cFileToSave, cStr, fError )
       cStr += ' Форма открыта.'
     endif
     if ! isnil( fError )
-      fError:add_string( 'HPDF_SaveToFile() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ) ;
-        + ', Error: ' + hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ) + ', detail: ' + AllTrim( str( nDetail ) ) )
+      fError:add_string( strErrorPdf( pdf, 'HPDF_SaveToFile()' ) )
     endif
     func_error( 4, cStr )
   endif
   return nRet
 
-// 23.04.25
+// 07.05.25
 function new_page( pdf, fError )
 
   local page, pdfReturn
 
   /* добавим новый объект СТРАНИЦА. */
   if ( page := HPDF_AddPage( pdf ) ) == nil
-    fError:add_string( 'HPDF_AddPage() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_AddPage()' ) )
   endif
   if ( pdfReturn := HPDF_Page_SetSize( page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_LANDSCAPE ) ) != HPDF_OK
-    fError:add_string( 'HPDF_Page_SetSize() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_Page_SetSize()' ) )
   endif
   return page
 

@@ -6,7 +6,7 @@
 #include 'tfile.ch'
 #include 'chip_mo.ch'
 
-// 06.05.25
+// 07.05.25
 FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   Local detail_font_name, detail_font_nameBold
@@ -27,7 +27,7 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
   fError:width := 100
   
   IF ( pdf := HPDF_New() ) == NIL   // создание pdf - объекта файла
-    fError:add_string( 'HPDF_New() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_New()' ) )
     fError := nil
     func_error( 4, 'Справка для ФНС не может быть создана!' )
     RETURN .f.
@@ -35,53 +35,53 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   // загрузим шрифты
   if ( detail_font_name := HPDF_LoadTTFontFromFile ( pdf, TTFArial, HPDF_TRUE ) ) == NIL
-    fError:add_string( 'HPDF_LoadTTFontFromFile() ARIAL - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() ARIAL' ) )
   endif
-  fError:add_string( 'HPDF_LoadTTFontFromFile() ARIAL - ' + detail_font_name )
+  fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() ARIAL' ) )  // + detail_font_name )
 
   if ( detail_font_nameBold := HPDF_LoadTTFontFromFile ( pdf, TTFArialBold, HPDF_TRUE ) ) == NIL
-    fError:add_string( 'HPDF_LoadTTFontFromFile() ARIAL Bold - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() ARIAL Bold' ) )
   endif
-  fError:add_string( 'HPDF_LoadTTFontFromFile() ARIAL Bold - ' + detail_font_nameBold )
+  fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() ARIAL Bold' ) ) // + detail_font_nameBold )
 
   if ( detail_font_courier := HPDF_LoadTTFontFromFile ( pdf, TTFCourier, HPDF_TRUE ) ) == NIL
-    fError:add_string( 'HPDF_LoadTTFontFromFile() COURIER - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() COURIER' ) )
   endif
-  fError:add_string( 'HPDF_LoadTTFontFromFile() COURIER - ' + detail_font_courier )
+  fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() COURIER' ) ) // + detail_font_courier )
 
   if ( detail_font_eangnivc := HPDF_LoadTTFontFromFile ( pdf, TTFEanGnivc, HPDF_TRUE ) ) == NIL
-    fError:add_string( 'HPDF_LoadTTFontFromFile() EANGNIVC - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() EANGNIVC' ) )
   endif
-  fError:add_string( 'HPDF_LoadTTFontFromFile() EANGNIVC - ' + detail_font_eangnivc )
+  fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() EANGNIVC' ) ) // + detail_font_eangnivc )
 
   if ( tFont := HPDF_GetFont ( pdf, detail_font_name, 'CP1251' ) ) == NIL
-    fError:add_string( 'HPDF_GetFont() ARIAL - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_GetFont() ARIAL' ) )
   else
     AAdd( aFonts, tFont )
   endif
   if ( tFont := HPDF_GetFont ( pdf, detail_font_nameBold, 'CP1251' ) ) == NIL
-    fError:add_string( 'HPDF_GetFont() ARIAL Bold - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_GetFont() ARIAL Bold' ) )
   else
     AAdd( aFonts, tFont )
   endif
   if ( tFont := HPDF_GetFont ( pdf, detail_font_courier, 'CP1251' ) ) == NIL
-    fError:add_string( 'HPDF_GetFont() Courier - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_GetFont() Courier' ) )
   else
     AAdd( aFonts, tFont )
   endif
   if ( tFont := HPDF_GetFont ( pdf, detail_font_eangnivc, 'CP1251' ) ) == NIL
-    fError:add_string( 'HPDF_GetFont() EANGNIVC - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_GetFont() EANGNIVC' ) )
   else
     AAdd( aFonts, tFont )
   endif
 
   /* установим режим сжатия */
   if ( pdfReturn := HPDF_SetCompressionMode( pdf, HPDF_COMP_ALL ) ) != HPDF_OK
-    fError:add_string( 'HPDF_SetCompressionMode() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_SetCompressionMode()' ) )
   endif
 
   if ( pdfReturn := HPDF_SetPageMode( pdf, HPDF_PAGE_MODE_USE_NONE ) ) != HPDF_OK
-    fError:add_string( 'HPDF_SetPageMode() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_SetPageMode()' ) )
   endif
 
   designPage1( pdf, hArr, aFonts, fError )
