@@ -688,51 +688,62 @@ Function f1main( n_Task )
     AAdd( first_menu[ 2 ], 'Справки для ~ФНС' )
     AAdd( first_message[ 2 ], 'Составление и работа со справками для ФНС' )
     AAdd( func_menu[ 2 ], 'inf_fns()' )
-//  Case glob_task == X_KEK  //
-//    If !Between( hb_user_curUser:KEK, 1, 3 )
-//      n_message( { "Недопустимая группа экспертизы (КЭК): " + lstr( hb_user_curUser:KEK ), ;
-//        '', ;
-//        'Пользователям, которым разрешено работать в подзадаче "КЭК МО",', ;
-//        'необходимо установить группу экспертизы (от 1 до 3)', ;
-//        'в подзадаче "Редактирование справочников" в режиме "Справочники/Пароли"' },, ;
-//        "GR+/R", "W+/R",,, "G+/R" )
-//    Else
-//      fl := begin_task_kek()
-//      AAdd( cmain_menu, 1 )
-//      AAdd( main_menu, " ~КЭК " )
-//      AAdd( main_message, "Ввод данных по КЭК медицинской организации" )
-//      AAdd( first_menu, { "~Добавление", ;
-//        "~Редактирование", ;
-//        "~Удаление" } )
-//      AAdd( first_message, { ;
-//        "Добавление данных по экпертизе", ;
-//        "Редактирование данных по экпертизе", ;
-//        "Удаление данных по экпертизе";
-//        } )
-//      AAdd( func_menu, { "kek_vvod(1)", ;
-//        "kek_vvod(2)", ;
-//        "kek_vvod(3)" } )
-//      AAdd( cmain_menu, 34 )
-//      AAdd( main_menu, " ~Информация " )
-//      AAdd( main_message, "Просмотр / печать статистики по экспертизам" )
-//      AAdd( first_menu, { "~Экспертная карта", ;
-//        "Оценка ~качества" } )
-//      AAdd( first_message, { ;
-//        "Распечатка экспертной карты", ;
-//        "Распечатка раличных отчётов по оцеке качества экспертизы" } )
-//      AAdd( func_menu, { "kek_prn_eks()", ;
-//        "kek_info2017()" } )
-//      AAdd( cmain_menu, 51 )
-//      AAdd( main_menu, " ~Справочники " )
-//      AAdd( main_message, "Ведение справочников" )
-//      AAdd( first_menu, { "~Настройка" } )
-//      AAdd( first_message, { "Настройка значений по умолчанию" } )
-//      AAdd( func_menu, { "kek_nastr()" } )
-//    Endif
+/*  Case glob_task == X_KEK  //
+    If !Between( hb_user_curUser:KEK, 1, 3 )
+      n_message( { "Недопустимая группа экспертизы (КЭК): " + lstr( hb_user_curUser:KEK ), ;
+        '', ;
+        'Пользователям, которым разрешено работать в подзадаче "КЭК МО",', ;
+        'необходимо установить группу экспертизы (от 1 до 3)', ;
+        'в подзадаче "Редактирование справочников" в режиме "Справочники/Пароли"' },, ;
+        "GR+/R", "W+/R",,, "G+/R" )
+    Else
+      fl := begin_task_kek()
+      AAdd( cmain_menu, 1 )
+      AAdd( main_menu, " ~КЭК " )
+      AAdd( main_message, "Ввод данных по КЭК медицинской организации" )
+      AAdd( first_menu, { "~Добавление", ;
+        "~Редактирование", ;
+        "~Удаление" } )
+      AAdd( first_message, { ;
+        "Добавление данных по экпертизе", ;
+        "Редактирование данных по экпертизе", ;
+        "Удаление данных по экпертизе";
+        } )
+      AAdd( func_menu, { "kek_vvod(1)", ;
+        "kek_vvod(2)", ;
+        "kek_vvod(3)" } )
+      AAdd( cmain_menu, 34 )
+      AAdd( main_menu, " ~Информация " )
+      AAdd( main_message, "Просмотр / печать статистики по экспертизам" )
+      AAdd( first_menu, { "~Экспертная карта", ;
+        "Оценка ~качества" } )
+      AAdd( first_message, { ;
+        "Распечатка экспертной карты", ;
+        "Распечатка раличных отчётов по оцеке качества экспертизы" } )
+      AAdd( func_menu, { "kek_prn_eks()", ;
+        "kek_info2017()" } )
+      AAdd( cmain_menu, 51 )
+      AAdd( main_menu, " ~Справочники " )
+      AAdd( main_message, "Ведение справочников" )
+      AAdd( first_menu, { "~Настройка" } )
+      AAdd( first_message, { "Настройка значений по умолчанию" } )
+      AAdd( func_menu, { "kek_nastr()" } )
+    Endif
+*/
   Case glob_task == X_MO //
     fl := my_mo_begin_task()
     my_mo_f1main()
+    old := is_uchastok
+
+    If glob_mo[ _MO_KOD_TFOMS ] == kod_VOUNC
+      is_uchastok := 1 // буква + № участка + № в участке "У25/123"
+      vounc_f1main()
+      is_uchastok := old
+    Endif
+//    fl := menu_X_vounc()
   Case glob_task == X_SPRAV //
+    fl := menu_X_sprav()
+/*
     fl := begin_task_sprav()
     //
     AAdd( cmain_menu, 1 )
@@ -776,6 +787,7 @@ Function f1main( n_Task )
       "Просмотр/печать общих справочников";
       } )
     AAdd( func_menu, { "o_sprav()" } )
+*/
   Case glob_task == X_SERVIS //
     AAdd( cmain_menu, 1 )
     AAdd( main_menu, " ~Сервисы " )
@@ -955,7 +967,6 @@ Function f1main( n_Task )
     func_main( .t., blk_ekran )
     g_sminus( f_name_task() )  // минус 1 пользователь (вышел из задачи)
   Endif
-
   Return Nil
 
 // 25.05.13 подсчитать следующую позицию для главного меню задачи

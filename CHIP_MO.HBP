@@ -1,10 +1,12 @@
 
 chip_mo.rc
-mo_adres.prg
 mo_main.prg
-mo_st39.prg
-mo_vounc.prg
 mo_version.prg
+
+### Главное меню программы
+.\MENU\f1main.prg
+.\MENU\menu_X_sprav.prg
+#.\MENU\menu_X_vounc.prg
 
 .\DAL\TBaseObjectDB.prg
 .\DAL\TDataAccessDB.prg
@@ -207,8 +209,6 @@ mo_version.prg
 .\util\inp_bit_dep_bay
 .\util\HasNumberInString.prg
 
-.\menu\f1main.prg
-
 .\mo\external_mo.prg
 
 .\dispanser\oms_DVN_setup.prg
@@ -232,6 +232,7 @@ mo_version.prg
 .\dispanser\oms_dvn_drz.prg
 .\dispanser\oms_dvn_drz_func.prg
 .\dispanser\diag_disp_nabl.prg
+.\dispanser\mo_st39.prg
 
 .\EXCHANGE\reestrOMS_XML.prg
 .\EXCHANGE\schet_from_XML.prg
@@ -280,6 +281,10 @@ mo_version.prg
 
 .\PLAN_ZAKAZ\pz_report.prg
 .\PLAN_ZAKAZ\pz_func.prg
+
+.\ADDRESS\mo_adres.prg
+
+.\VOUNC\mo_vounc.prg
 
 #.\FUNC_LIB\prview.prg
 #.\FUNC_LIB\fastreph.prg

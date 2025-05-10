@@ -32,7 +32,6 @@ Function vounc_begin_task()
 
   Return fl
 
-//
 Function vounc_f1main()
 
   AAdd( cmain_menu, 1 )
