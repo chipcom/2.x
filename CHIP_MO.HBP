@@ -41,6 +41,7 @@ mo_version.prg
 .\init\index_base.prg
 .\init\index_work_dir.prg
 .\init\initArrayFilesDB.prg
+.\init\init_all_mem_public.prg
 .\init\update_data_DB.prg
 
 .\information\view_list_uch.prg
