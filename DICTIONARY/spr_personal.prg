@@ -4,6 +4,7 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'tfile.ch'
 
 // 15.08.17 à¥¤ ªâ¨à®¢ ­¨¥ á¯à ¢®ç­¨ª  ¯¥àá®­ « 
 Function edit_pers()
@@ -38,7 +39,6 @@ Function edit_pers()
   Else
     func_error( 4, err_slock )
   Endif
-
   Return Nil
 
 // 28.01.25
@@ -76,7 +76,6 @@ Function f1edit_pers( oBrow )
 //  mark_keys( { '<F2>', '<F3>' }, 'R/BG' )
   @ mr, 45 Say ' <F2> - ¯®¨áª' Color 'GR+/BG'
   mark_keys( { '<F2>', '<F3>' }, 'R/BG' )
-
   Return Nil
 
 // 28.01.25
@@ -93,7 +92,8 @@ Function f2edit_pers( nKey, oBrow )
   Static osn_sovm := { { '®á­®¢­ ï à ¡®â ', 0 }, ;
     { 'á®¢¬¥é¥­¨¥     ', 1 } }
   Local buf, fl := .f., rec, j, k, tmp_color, mkod, r, ret := -1
-  local i, max_nom, iSort, name_file := cur_dir() + 'personal' + stxt, s
+  local i, max_nom, iSort, s
+//  local name_file := cur_dir() + 'personal' + stxt
   local typeSort := { ;
     '¯® ä ¬¨«¨¨          ', ;
     '¯® â ¡¥«ì­®¬ã ­®¬¥àã', ;
@@ -105,28 +105,29 @@ Function f2edit_pers( nKey, oBrow )
   Case nKey == K_F2
     Return f4edit_pers( K_F2 )
   Case nKey == K_F3
-//    iSort := 1
-//    if ( iSort := popup_prompt( 10, 20, iSort, typeSort ) ) == 0
-//      return ret
-//    endif
-//    if iSort == 1
-//      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir() + 'tmp_pers' )
-//      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server + 'mo_pers' )
-//      GOTO Top
-//    elseif iSort == 2
-//      Index On tab_nom to ( cur_dir() + 'tmp_persTN' )
-//      Set Index to ( cur_dir() + 'tmp_persTN' ), ( dir_server + 'mo_pers' )
-//      GOTO Top
-//    elseif iSort == 3
-//      Index On prvs_021 to ( cur_dir() + 'tmp_pers21' )
-//      Set Index to ( cur_dir() + 'tmp_pers21' ), ( dir_server + 'mo_pers' )
-//      GOTO Top
-//    elseif iSort == 4
-//      Index On otd to ( cur_dir() + 'tmp_persOTD' )
-//      Set Index to ( cur_dir() + 'tmp_persOTD' ), ( dir_server + 'mo_pers' )
-//      GOTO Top
-//    endif
-//    Return 0
+/*    iSort := 1
+    if ( iSort := popup_prompt( 10, 20, iSort, typeSort ) ) == 0
+      return ret
+    endif
+    if iSort == 1
+      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir() + 'tmp_pers' )
+      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server + 'mo_pers' )
+      GOTO Top
+    elseif iSort == 2
+      Index On tab_nom to ( cur_dir() + 'tmp_persTN' )
+      Set Index to ( cur_dir() + 'tmp_persTN' ), ( dir_server + 'mo_pers' )
+      GOTO Top
+    elseif iSort == 3
+      Index On prvs_021 to ( cur_dir() + 'tmp_pers21' )
+      Set Index to ( cur_dir() + 'tmp_pers21' ), ( dir_server + 'mo_pers' )
+      GOTO Top
+    elseif iSort == 4
+      Index On otd to ( cur_dir() + 'tmp_persOTD' )
+      Set Index to ( cur_dir() + 'tmp_persOTD' ), ( dir_server + 'mo_pers' )
+      GOTO Top
+    endif
+    Return 0
+*/
   Case nKey == K_F9
     If ( j := f_alert( { PadC( '‚ë¡¥à¨â¥ ¯®àï¤®ª á®àâ¨à®¢ª¨ ¯à¨ ¯¥ç â¨', 60, '.' ) }, ;
         { ' ® ”ˆŽ ', ' ® â ¡.­®¬¥àã ' }, ;
@@ -135,7 +136,9 @@ Function f2edit_pers( nKey, oBrow )
     Endif
     rec := p2->( RecNo() )
     buf := save_maxrow()
-    mywait()
+    
+    spr_personal( 1, j )
+/*    mywait()
     fp := FCreate( name_file )
     n_list := 1
     tek_stroke := 0
@@ -191,10 +194,11 @@ Function f2edit_pers( nKey, oBrow )
       add_string( s )
     Endif
     Set Order To 1
-    Goto ( rec )
     FClose( fp )
-    rest_box( buf )
     viewtext( name_file, , , , .t., , , 2 )
+*/
+    rest_box( buf )
+    Goto ( rec )
   Case nKey == K_INS .or. ( nKey == K_ENTER .and. kod > 0 )
     Save Screen To buf
     Private mfio := Space( 50 ), m1uch := 0, m1otd := 0, m1kateg := 1, ;
@@ -421,7 +425,6 @@ Function f2edit_pers( nKey, oBrow )
       ret := 0
     Endif
   Endcase
-
   Return ret
 
 // 27.02.23
@@ -445,7 +448,6 @@ Function set_prvs( get, regim )
     update_get( 'mprvs' )
     update_get( 'mname_dolj' )
   Endif
-
   Return fl
 
 // ¯à®¢¥àª  ­  ¤®¯ãáâ¨¬®áâì â ¡¥«ì­®£® ­®¬¥à 
@@ -478,7 +480,6 @@ Function val_tab_nom( get, nKey )
       mtab_nom := get:original
     Endif
   Endif
-
   Return fl
 
 //
@@ -568,5 +569,138 @@ Function f4edit_pers( nkey )
     Goto rec1
   Endif
   RestScreen( buf )
-
   Return fl
+
+// 12.05.25
+function spr_personal( type_report, type_sort )
+
+  local ft, arr_title := {}
+  local s, max_nom, i, k
+  local name_file := cur_dir() + 'personal' + stxt()
+
+  if type_report == 1
+    If type_sort == 1
+      Set Order To 1
+      find ( str_find )
+    Else
+      Set Order To 2
+      Go Top
+    Endif
+  elseif type_report == 2
+    r_use( dir_server + 'mo_pers',, 'P2' )
+    Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
+  endif
+
+  mywait()
+  ft := tfiletext():new( name_file, , .t., , .t. )
+  ft:add_string( '' )
+  ft:add_string( '‘¯¨á®ª à ¡®â îé¥£® ¯¥àá®­ «  á â ¡¥«ì­ë¬¨ ­®¬¥à ¬¨', FILE_CENTER, ' ' )
+  ft:add_string( '' )
+  if type_report == 2
+    AAdd( arr_title, 'ÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
+    AAdd( arr_title, '’ ¡.ü³                  ”.ˆ.Ž.                ³ ‘¯¥æ¨ «ì­®áâì             ' )
+    AAdd( arr_title, 'ÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
+    ft:TableHeader := arr_title
+    ft:EnableTableHeader := .t.
+    ft:printTableHeader()
+  endif
+  Do While !Eof()
+    if type_report == 1
+      If iif( type_sort == 2, kod > 0, .t. ) .and. between_date( p2->dbegin, p2->dend )
+        s := Str( p2->tab_nom, 5 ) + ;
+          iif( Empty( p2->svod_nom ), Space( 7 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 7 ) ) + ;
+          ' ' + PadR( p2->fio, 35 ) + ' ' + Transform( p2->SNILS, picture_pf ) + ' ' + ;
+          ret_tmp_prvs( p2->prvs, p2->prvs_new )
+        ft:add_string( s )
+      Endif
+    elseif type_report == 2
+      s := put_val( p2->tab_nom, 5 ) + ;
+        iif( Empty( p2->svod_nom ), Space( 5 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 5 ) ) + ;
+        ' ' + PadR( AllTrim( p2->fio ), 35 )
+      If !emptyall( p2->prvs, p2->prvs_new )
+        s += ' ' + ret_tmp_prvs( p2->prvs, p2->prvs_new )
+      Endif
+      ft:add_string( s )
+    endif
+    Skip
+  Enddo
+
+  if type_report == 1
+    Set Order To 2
+    Go Bottom
+    max_nom := p2->tab_nom
+    ft:add_string( Replicate( '=', ft:Width ) )
+    ft:add_string( '‘¯¨á®ª á¢®¡®¤­ëå â ¡¥«ì­ëå ­®¬¥à®¢:', FILE_CENTER, ' ' )
+    s := ''
+    k := 0
+    For i := 1 To max_nom
+      find ( Str( i, 5 ) )
+      If !Found()
+        s += lstr( i ) + ', '
+        If Len( s ) > ft:Width
+          ft:add_string( s )
+          s := ''
+          If ++k > 10
+            ft:add_string( '...' )
+            Exit
+          Endif
+        Endif
+      Endif
+    Next
+    If !Empty( s )
+      ft:add_string( s )
+    Endif
+    Set Order To 1
+  endif
+  ft := nil
+  if type_report == 2
+    p2->( dbCloseArea() )
+  endif
+  viewtext( name_file, , , , .t., , , 2 )
+  return nil
+
+// 07.03.21 á¯¨á®ª ¯¥àá®­ « 
+/* Function spr_personal() 
+
+  Local sh := 80, HH := 57, fl := .t., s
+
+  mywait()
+  fp := FCreate( cur_dir() + 'spisok' + stxt() )
+  n_list := 1
+  tek_stroke := 0
+  add_string( '' )
+  add_string( Center( '‘¯¨á®ç­ë© á®áâ ¢ ¯¥àá®­ «  á â ¡¥«ì­ë¬¨ ­®¬¥à ¬¨', sh ) )
+  add_string( '' )
+  add_string( Center( AllTrim( glob_uch[ 2 ] ) + ' (' + AllTrim( glob_otd[ 2 ] ) + ')', sh ) )
+  add_string( PadL( date_8( sys_date ) + '£.', sh ) )
+  If r_use( dir_server + 'mo_pers',, 'PERSO' )
+    Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
+    Do While !Eof()
+      If fl .or. tek_stroke > HH
+        If !fl
+          add_string( Chr( 12 ) )
+          tek_stroke := 0
+          n_list++
+          next_list( sh )
+        Endif
+        add_string( 'ÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
+        add_string( '’ ¡.ü³                       ”.ˆ.Ž.                     ³ ‘¯¥æ¨ «ì­®áâì        ' )
+        add_string( 'ÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
+      Endif
+      fl := .f.
+      s := put_val( perso->tab_nom, 5 ) + ;
+        iif( Empty( perso->svod_nom ), Space( 5 ), PadL( '(' + lstr( perso->svod_nom ) + ')', 5 ) ) + ;
+        ' ' + PadR( AllTrim( perso->fio ), 45 )
+      If !emptyall( perso->prvs, perso->prvs_new )
+        s += ' ' + ret_tmp_prvs( perso->prvs, perso->prvs_new )
+      Endif
+      add_string( s )
+      Select PERSO
+      Skip
+    Enddo
+  Endif
+  Close databases
+  FClose( fp )
+  viewtext( 'spisok' + stxt(),,,,,,, 2 )
+  Return Nil
+*/

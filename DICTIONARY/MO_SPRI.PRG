@@ -5,7 +5,7 @@
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
 
-// 08.09.23 просмотр/печать общих справочников
+// 12.05.25 просмотр/печать общих справочников
 Function o_sprav( k )
 
   Static sk := 1, sk1 := 1, sk2 := 1
@@ -42,7 +42,7 @@ Function o_sprav( k )
   Case k == 2
     spr_info_diagn()
   Case k == 3
-    spr_personal()
+    spr_personal( 2, 1 )
   Case k == 4
     mas_pmt := { 'Услуги диагностики при дообследовании на ~ЗНО', ;
       'Услуги по типам лечения ~ОНКОзаболеваний', ;
@@ -2375,51 +2375,6 @@ Function f5spr_other()
     fl := ( slugba <= 0 )
   Endif
   Return fl
-
-// 07.03.21 список персонала
-Function spr_personal()
-
-  Local sh := 80, HH := 57, fl := .t., s
-
-  mywait()
-  fp := FCreate( cur_dir() + 'spisok' + stxt() )
-  n_list := 1
-  tek_stroke := 0
-  add_string( '' )
-  add_string( Center( 'Списочный состав персонала с табельными номерами', sh ) )
-  add_string( '' )
-  add_string( Center( AllTrim( glob_uch[ 2 ] ) + ' (' + AllTrim( glob_otd[ 2 ] ) + ')', sh ) )
-  add_string( PadL( date_8( sys_date ) + 'г.', sh ) )
-  If r_use( dir_server + 'mo_pers',, 'PERSO' )
-    Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
-    Do While !Eof()
-      If fl .or. tek_stroke > HH
-        If !fl
-          add_string( Chr( 12 ) )
-          tek_stroke := 0
-          n_list++
-          next_list( sh )
-        Endif
-        add_string( '─────┬──────────────────────────────────────────────────┬──────────────────────' )
-        add_string( 'Таб.№│                       Ф.И.О.                     │ Специальность        ' )
-        add_string( '─────┴──────────────────────────────────────────────────┴──────────────────────' )
-      Endif
-      fl := .f.
-      s := put_val( perso->tab_nom, 5 ) + ;
-        iif( Empty( perso->svod_nom ), Space( 5 ), PadL( '(' + lstr( perso->svod_nom ) + ')', 5 ) ) + ;
-        ' ' + PadR( AllTrim( perso->fio ), 45 )
-      If !emptyall( perso->prvs, perso->prvs_new )
-        s += ' ' + ret_tmp_prvs( perso->prvs, perso->prvs_new )
-      Endif
-      add_string( s )
-      Select PERSO
-      Skip
-    Enddo
-  Endif
-  Close databases
-  FClose( fp )
-  viewtext( 'spisok' + stxt(),,,,,,, 2 )
-  Return Nil
 
 // список отделений с кодами
 Function spr_kod_otd()
