@@ -792,7 +792,9 @@ Function f1main( n_Task )
     AAdd( func_menu, { "o_sprav()" } )
 */
   Case glob_task == X_SERVIS //
-    AAdd( cmain_menu, 1 )
+    menu_X_servis()
+    
+/*    AAdd( cmain_menu, 1 )
     AAdd( main_menu, " ~Сервисы " )
     AAdd( main_message, "Сервисы и настройки" )
     //
@@ -902,7 +904,10 @@ Function f1main( n_Task )
         'run_my_hrb("mo_hrb1","b_25_perinat_2()")' } )
       // "modern_statist()",;
     Endif
+*/
   Case glob_task == X_COPY //
+    menu_X_copy()
+/*
     AAdd( cmain_menu, 1 )
     AAdd( main_menu, " ~Резервное копирование " )
     AAdd( main_message, "Резервное копирование базы данных" )
@@ -921,8 +926,10 @@ Function f1main( n_Task )
       'm_copy_DB(2)', ;
       'errorFileToFTP()' ;
       } )
+*/
   Case glob_task == X_INDEX //
-    AAdd( cmain_menu, 1 )
+    menu_X_index()
+/*    AAdd( cmain_menu, 1 )
     AAdd( main_menu, " ~Переиндексирование " )
     AAdd( main_message, "Переиндексирование базы данных" )
     AAdd( first_menu, { "~Переиндексирование" } )
@@ -930,8 +937,10 @@ Function f1main( n_Task )
       "Переиндексирование базы данных";
       } )
     AAdd( func_menu, { "m_index_DB()" } )
+*/
   Endcase
-  // последнее меню для всех одно и то же
+  menu_X_common()
+/*  // последнее меню для всех одно и то же
   AAdd( cmain_menu, MaxCol() -9 )
   AAdd( main_menu, " Помо~щь " )
   AAdd( main_message, "Помощь, настройка принтера" )
@@ -965,6 +974,7 @@ Function f1main( n_Task )
     AAdd( ATail( first_message ), 'Переиндексирование части базы данных для задачи "' + array_tasks[ ind_task(), 5 ] + '"' )
     AAdd( ATail( func_menu ), "pereindex_task()" )
   Endif
+*/
   If fl
     g_splus( f_name_task() )   // плюс 1 пользователь зашёл в задачу
     func_main( .t., blk_ekran )

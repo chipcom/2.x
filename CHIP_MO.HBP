@@ -7,6 +7,10 @@ mo_version.prg
 .\MENU\f1main.prg
 .\MENU\menu_X_sprav.prg
 .\MENU\menu_X_263.prg
+.\MENU\menu_X_servis.prg
+.\MENU\menu_X_copy.prg
+.\MENU\menu_X_index.prg
+.\MENU\menu_X_common.prg
 #.\MENU\menu_X_vounc.prg
 
 .\DAL\TBaseObjectDB.prg
