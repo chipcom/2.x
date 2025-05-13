@@ -297,7 +297,7 @@ Function f1main( n_Task )
     AAdd( func_menu, { "dispanserizacia()", ;
       "disp_nabludenie()" } )
   Case glob_task == X_263 //
-    menu_X_263()
+    fl := menu_X_263()
 /*
     fl := begin_task_263()
     If is_napr_pol
