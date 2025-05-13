@@ -6,6 +6,7 @@ mo_version.prg
 ### Главное меню программы
 .\MENU\f1main.prg
 .\MENU\menu_X_sprav.prg
+.\MENU\menu_X_263.prg
 #.\MENU\menu_X_vounc.prg
 
 .\DAL\TBaseObjectDB.prg

@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 14.10.24
+// 13.05.25
 Function f1main( n_Task )
   Local it, s, k, fl := .t., cNameIcon
 
@@ -297,6 +297,8 @@ Function f1main( n_Task )
     AAdd( func_menu, { "dispanserizacia()", ;
       "disp_nabludenie()" } )
   Case glob_task == X_263 //
+    menu_X_263()
+/*
     fl := begin_task_263()
     If is_napr_pol
       AAdd( cmain_menu, 1 )
@@ -436,6 +438,7 @@ Function f1main( n_Task )
     AAdd( first_message[ k ], "Настройка каталогов обмена - откуда зачитывать полученные из ТФОМС файлы" )
     AAdd( func_menu[ k ], "_263_to_nastr()" )
     //
+*/
   Case glob_task == X_PLATN //
     fl := begin_task_plat()
     AAdd( cmain_menu, 1 )
