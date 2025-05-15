@@ -4424,10 +4424,10 @@ Function verify_sluch( fl_view )
   next
   if fl
     if Empty( human_2->NPR_DATE )
-      AAdd( ta, 'для услуги ' + arrUslugi[ iFind ] + ' обязательно направление' )
+      AAdd( ta, 'для услуги ' + arrUslugi[ iCount ] + ' обязательно направление (дата и направившее МО)' )
     endif
     if ( human_->USL_OK != USL_OK_POLYCLINIC )
-      AAdd( ta, 'услуга ' + arrUslugi[ iFind ] + ' оказывается только в амбулаторных условиях' )
+      AAdd( ta, 'услуга ' + arrUslugi[ iCount ] + ' оказывается только в амбулаторных условиях' )
     endif
     if ( AllTrim( mdiagnoz[ 1 ] ) != 'Z01.8' ) .and. SubStr( arrUslugi[ iCount ], 1, 5 ) != '60.4.'
       AAdd( ta, 'для услуги ' + arrUslugi[ iCount ] + ' необходимо выбрать основной диагноз Z01.8, ' ;
