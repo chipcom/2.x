@@ -571,12 +571,13 @@ Function f4edit_pers( nkey )
   RestScreen( buf )
   Return fl
 
-// 13.05.25
+// 15.05.25
 function spr_personal( type_report, type_sort )
 
   local ft, arr_title := {}
   local s, max_nom, i, k
   local name_file := cur_dir() + 'personal' + stxt()
+  local aRow
 
   if type_report == 1
     If type_sort == 1
@@ -596,38 +597,58 @@ function spr_personal( type_report, type_sort )
   ft:add_string( '' )
   ft:add_string( '‘¯¨á®ª à ¡®â îé¥£® ¯¥àá®­ «  á â ¡¥«ì­ë¬¨ ­®¬¥à ¬¨', FILE_CENTER, ' ' )
   ft:add_string( '' )
-  AAdd( arr_title, 'ÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ' )
-  AAdd( arr_title, '’ ¡.ü³                  ”.ˆ.Ž.                ³' )
-  AAdd( arr_title, 'ÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁ' )
+
+  ft:Add_Column( '’ ¡.ü', 5, FILE_RIGHT )
+  ft:Add_Column( '”.ˆ.Ž.', 40, FILE_LEFT, , .t. )
+
+//  AAdd( arr_title, 'ÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ' )
+//  AAdd( arr_title, '’ ¡.ü³                  ”.ˆ.Ž.                ³' )
+//  AAdd( arr_title, 'ÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁ' )
   if type_report == 1
-    arr_title[ 1 ] += 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
-    arr_title[ 2 ] += '     ‘ˆ‹‘    ³ ‘¯¥æ¨ «ì­®áâì'
-    arr_title[ 3 ] += 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+    ft:Add_Column( '‘ˆ‹‘', 14, FILE_LEFT )
+    ft:Add_Column( '‘¯¥æ¨ «ì­®áâì', 26, FILE_LEFT )
+//    arr_title[ 1 ] += 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+//    arr_title[ 2 ] += '     ‘ˆ‹‘    ³ ‘¯¥æ¨ «ì­®áâì'
+//    arr_title[ 3 ] += 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
   elseif type_report == 2
-    arr_title[ 1 ] += 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
-    arr_title[ 2 ] += ' ‘¯¥æ¨ «ì­®áâì'
-    arr_title[ 3 ] += 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+    ft:Add_Column( '‘¯¥æ¨ «ì­®áâì', 26, FILE_LEFT )
+//    arr_title[ 1 ] += 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+//    arr_title[ 2 ] += ' ‘¯¥æ¨ «ì­®áâì'
+//    arr_title[ 3 ] += 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
   endif
-  ft:TableHeader := arr_title
+//  ft:TableHeader := arr_title
   ft:EnableTableHeader := .t.
   ft:printTableHeader()
   Do While !Eof()
+    aRow := {}
     if type_report == 1
       If iif( type_sort == 2, kod > 0, .t. ) .and. between_date( p2->dbegin, p2->dend )
-        s := Str( p2->tab_nom, 5 ) + ;
+/*        s := Str( p2->tab_nom, 5 ) + ;
           iif( Empty( p2->svod_nom ), Space( 5 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 7 ) ) + ;
           ' ' + PadR( p2->fio, 35 ) + ' ' + Transform( p2->SNILS, picture_pf ) + ' ' + ;
           ret_tmp_prvs( p2->prvs, p2->prvs_new )
+*/        
+        AAdd( aRow, put_val( p2->tab_nom, 5 ) )
+        AAdd( aRow, iif( Empty( p2->svod_nom ), Space( 5 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 5 ) ) + ;
+          ' ' + AllTrim( p2->fio ) )
+        AAdd( aRow, Transform( p2->SNILS, picture_pf ) )
+        AAdd( aRow, ret_tmp_prvs( p2->prvs, p2->prvs_new ) )
       Endif
     elseif type_report == 2
-      s := put_val( p2->tab_nom, 5 ) + ;
+/*      s := put_val( p2->tab_nom, 5 ) + ;
         iif( Empty( p2->svod_nom ), Space( 5 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 5 ) ) + ;
         ' ' + PadR( AllTrim( p2->fio ), 35 )
       If !emptyall( p2->prvs, p2->prvs_new )
         s += ' ' + ret_tmp_prvs( p2->prvs, p2->prvs_new )
       Endif
+*/
+      AAdd( aRow, put_val( p2->tab_nom, 5 ) )
+      AAdd( aRow, iif( Empty( p2->svod_nom ), Space( 5 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 5 ) ) + ;
+        ' ' + AllTrim( p2->fio ) )
+      AAdd( aRow, ret_tmp_prvs( p2->prvs, p2->prvs_new ) )
     endif
-    ft:add_string( s )
+    ft:Add_Row( aRow )
+//    ft:add_string( s )
     Skip
   Enddo
 
