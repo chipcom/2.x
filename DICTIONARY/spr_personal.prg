@@ -599,7 +599,7 @@ function spr_personal( type_report, type_sort )
   ft:add_string( '' )
 
   ft:Add_Column( '’ ¡.ü', 5, FILE_RIGHT )
-  ft:Add_Column( '”.ˆ..', 40, FILE_LEFT, , .t. )
+  ft:Add_Column( '”.ˆ..', 40, FILE_LEFT, , .t., FILE_CENTER )
 
 //  AAdd( arr_title, 'ÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ' )
 //  AAdd( arr_title, '’ ¡.ü³                  ”.ˆ..                ³' )
