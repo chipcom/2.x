@@ -5,6 +5,12 @@ mo_version.prg
 
 ### Главное меню программы
 .\MENU\f1main.prg
+.\MENU\menu_X_registr.prg
+.\MENU\menu_X_prokoj.prg
+.\MENU\menu_X_oms.prg
+.\MENU\menu_X_platn.prg
+.\MENU\menu_X_orto.prg
+.\MENU\menu_X_kassa.prg
 .\MENU\menu_X_sprav.prg
 .\MENU\menu_X_263.prg
 .\MENU\menu_X_servis.prg

@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 13.05.25
+// 18.05.25
 Function f1main( n_Task )
   Local it, s, k, fl := .t., cNameIcon
 
@@ -29,7 +29,8 @@ Function f1main( n_Task )
   fillscreen( p_char_screen, p_color_screen )
   Do Case
   Case glob_task == X_REGIST //
-    fl := begin_task_regist()
+    fl := menu_X_registr()
+/*    fl := begin_task_regist()
     AAdd( cmain_menu, 1 )
     AAdd( main_menu, " ~Регистратура " )
     AAdd( main_message, "Регистратура амбулаторно-поликлинического учреждения" )
@@ -106,8 +107,10 @@ Function f1main( n_Task )
         "Сводная информация по нашему контингенту из федерального регистра льготников" } )
       ins_array( func_menu, 2, { "r_mu_human()", "r_mu_poisk()", "r_mu_svod()" } )
     Endif
+*/
   Case glob_task == X_PPOKOJ  //
-    fl := begin_task_ppokoj()
+    fl := menu_X_prokoj()
+/*    fl := begin_task_ppokoj()
     AAdd( cmain_menu, 1 )
     AAdd( main_menu, " ~Приёмный покой " )
     AAdd( main_message, "Ввод данных в приёмном покое стационара" )
@@ -156,7 +159,10 @@ Function f1main( n_Task )
       } )
     AAdd( func_menu, { "f_pp_stol()", ;
       "pp_nastr()" } )
+*/
   Case glob_task == X_OMS  //
+    fl := menu_X_oms()
+/*
     fl := begin_task_oms()
     AAdd( cmain_menu, 1 )
     AAdd( main_menu, " ~ОМС " )
@@ -296,6 +302,7 @@ Function f1main( n_Task )
       } )
     AAdd( func_menu, { "dispanserizacia()", ;
       "disp_nabludenie()" } )
+*/
   Case glob_task == X_263 //
     fl := menu_X_263()
 /*
@@ -440,6 +447,8 @@ Function f1main( n_Task )
     //
 */
   Case glob_task == X_PLATN //
+    fl := menu_X_platn()
+/*
     fl := begin_task_plat()
     AAdd( cmain_menu, 1 )
     AAdd( main_menu, " ~Платные услуги " )
@@ -530,7 +539,10 @@ Function f1main( n_Task )
       AAdd( first_message[ 3 ], "Настройка работы с кассовым аппаратом" )
       AAdd( func_menu[ 3 ], "fr_nastrojka()" )
     Endif
+*/
   Case glob_task == X_ORTO  //
+    fl := menu_X_orto()
+/*
     fl := begin_task_orto()
     AAdd( cmain_menu, 1 )
     AAdd( main_menu, " ~Ортопедия " )
@@ -612,7 +624,10 @@ Function f1main( n_Task )
       AAdd( first_message[ 3 ], "Настройка работы с кассовым аппаратом" )
       AAdd( func_menu[ 3 ], "fr_nastrojka()" )
     Endif
+*/
   Case glob_task == X_KASSA //
+    fl := menu_X_kassa()
+/*
     fl := begin_task_kassa()
     //
     AAdd( cmain_menu, 1 )
@@ -691,6 +706,7 @@ Function f1main( n_Task )
     AAdd( first_menu[ 2 ], 'Справки для ~ФНС' )
     AAdd( first_message[ 2 ], 'Составление и работа со справками для ФНС' )
     AAdd( func_menu[ 2 ], 'inf_fns()' )
+*/
 /*  Case glob_task == X_KEK  //
     If !Between( hb_user_curUser:KEK, 1, 3 )
       n_message( { "Недопустимая группа экспертизы (КЭК): " + lstr( hb_user_curUser:KEK ), ;
@@ -734,7 +750,8 @@ Function f1main( n_Task )
     Endif
 */
   Case glob_task == X_MO //
-    fl := my_mo_begin_task()
+//    fl := menu_X_vounc()
+    fl := begin_task_vounc()
     my_mo_f1main()
     old := is_uchastok
 
@@ -743,7 +760,6 @@ Function f1main( n_Task )
       vounc_f1main()
       is_uchastok := old
     Endif
-//    fl := menu_X_vounc()
   Case glob_task == X_SPRAV //
     fl := menu_X_sprav()
 /*
@@ -982,8 +998,8 @@ Function f1main( n_Task )
   Endif
   Return Nil
 
-// 25.05.13 подсчитать следующую позицию для главного меню задачи
-Static Function cmain_next_pos( n )
+// 18.05.25 подсчитать следующую позицию для главного меню задачи
+Function cmain_next_pos( n )
 
   Default n To 5
 
