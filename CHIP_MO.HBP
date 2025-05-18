@@ -60,7 +60,6 @@ mo_version.prg
 
 .\dictionary\mo_spr.prg
 .\dictionary\mo_spri.prg
-.\dictionary\spr_personal.prg
 .\dictionary\spr_uslugi.prg
 .\dictionary\spr_func.prg
 
@@ -174,6 +173,7 @@ mo_version.prg
 .\oms\disability_certificate.prg
 .\oms\mo_omsi.prg
 
+.\personal\spr_personal.prg
 .\personal\personal_func.prg
 
 .\onkologiya\onko.prg
