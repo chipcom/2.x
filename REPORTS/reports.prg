@@ -5,7 +5,7 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 06.10.22 создать файл Excel из картотеки
+// 19.05.25 создать файл Excel из картотеки
 Function kartotekToExcel()
   Local mlen, t_mas := {}, i, ret
   Local strStatus := '^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - отметить / снять отметку'
@@ -29,53 +29,61 @@ Function kartotekToExcel()
   aadd(t_mas, { sBlank + 'Адрес регистрации', .t., .f., .f., 50.0, 'C' })
   aadd(t_mas, { sBlank + 'Адрес пребывания', .t., .f., .f., 50.0, 'C' })
   aadd(t_mas, { sBlank + 'Телефон', .t., .f., .f., 17.0, 'C' })
+  aadd(t_mas, { sBlank + 'Социальная категория', .t., .f., .f., 11.0, 'C' })
 
-  mlen := len(t_mas)
+  mlen := len( t_mas )
 
   // используем popupN из библиотеки FunLib
-  if (ret := popupN( 5, 10, 15, 71, t_mas, i, color0, .t., 'fmenu_readerN',,;
-      'Отметьте нужные поля', col_tit_popup,, strStatus)) > 0
+  if ( ret := popupN( 5, 10, 15, 71, t_mas, i, color0, .t., 'fmenu_readerN', , ;
+      'Отметьте нужные поля', col_tit_popup, , strStatus ) ) > 0
     for i := 1 to mlen
-      if "*" == substr(t_mas[i, 1],2,1)
-        t_mas[i,3] := .t.
+      if '*' == substr( t_mas[ i, 1 ], 2, 1 )
+        t_mas[ i, 3 ] := .t.
       endif
-      t_mas[i, 1] := substr(t_mas[i, 1], 4)
+      t_mas[ i, 1 ] := substr( t_mas[ i, 1 ], 4 )
     next
   endif 
 
   aFilter := filter_to_kartotek_Excel()
-  if exportKartExcel(hb_OemToAnsi(name_file_full), t_mas, aFilter)
-    hb_vfErase(cur_dir + name_file_full)
+  if exportKartExcel( hb_OemToAnsi( name_file_full ), t_mas, aFilter )
+    hb_vfErase( cur_dir() + name_file_full )
   else
-    SaveTo(cur_dir + name_file_full)
+    SaveTo( cur_dir() + name_file_full )
   endif
-
   return nil
 
-// 18.04.22
+// 19.05.25
 function filter_to_kartotek_Excel()
-  local aCondition := {{' = ', 1}, {' > ', 2}, {' < ', 3}}
-  local notUsed := {'не применять', 1}
-  local aGender := {notUsed, {'мужской', 2}, {'женский', 3}}
-  local aDOB := {notUsed, {'по дате рождения', 2}, {'по возрасту', 3}}
+
+  local aCondition := { { ' = ', 1 }, { ' > ', 2 }, { ' < ', 3 } }
+  local notUsed := { 'не применять', 1 }
+  local aGender := { notUsed, { 'мужской', 2 }, { 'женский', 3 } }
+  local aDOB := { notUsed, {'по дате рождения', 2 }, { 'по возрасту', 3 } }
+  local aSocKat := { notUsed, { 'категория отсутствует', 2 }, ;
+    { 'участник СВО уволенный в запас', 3 }, ;
+    { 'член семьи участника СВО', 4 } }
   local minDOB := CToD('')
   local maxDOB := minDOB
   local dAge := minDOB
   local nAge := 0
+  local nSocAge := 0
   local iRow := 9
   local oBox, tmp_keys, tmp_gets
-  local aReturn := Array(5)
+  local aReturn := Array( 6 )
 
   private mGender, m1Gender
   private mDOB, m1DOB
   private mCondition, m1Condition
+  private mSocKat, m1SocKat
 
   m1Gender := 1
-  mGender := inieditspr(A__MENUVERT, aGender, m1Gender)
+  mGender := inieditspr( A__MENUVERT, aGender, m1Gender )
   m1DOB := 1
-  mDOB := inieditspr(A__MENUVERT, aDOB, m1DOB)
+  mDOB := inieditspr( A__MENUVERT, aDOB, m1DOB )
   m1Condition := 1
-  mCondition := inieditspr(A__MENUVERT, aCondition, m1Condition)
+  mCondition := inieditspr( A__MENUVERT, aCondition, m1Condition )
+  m1SocKat := 1
+  mSocKat := inieditspr( A__MENUVERT, aSocKat, m1SocKat )
 
 	tmp_keys := my_savekey()
 	save gets to tmp_gets
@@ -91,10 +99,10 @@ function filter_to_kartotek_Excel()
 		iRow := 9
 
     @ ++iRow, 12 say 'Пол:' get mGender ;
-          reader {|x| menu_reader(x, aGender, A__MENUVERT, , , .f.)}
+          reader { | x | menu_reader( x, aGender, A__MENUVERT, , , .f. ) }
 
     @ ++iRow, 12 say 'Дата рождения:' get mDOB ;
-      reader {|x| menu_reader(x, aDOB, A__MENUVERT, , , .f.)}
+      reader { | x | menu_reader( x, aDOB, A__MENUVERT, , , .f. ) }
 
     // @ ++iRow, 12 say 'Дата рождения (минимальная):' get minDOB
     // @ ++iRow, 12 say 'Дата рождения (максимальная):' get maxDOB
@@ -104,22 +112,25 @@ function filter_to_kartotek_Excel()
     elseif m1DOB == 3
       @ ++iRow, 15 say 'возраст:' get nAge picture '999' when m1DOB == 3
       @ iRow, col() + 2 say 'условие:' get mCondition ;
-          reader {|x| menu_reader(x, aCondition, A__MENUVERT, , , .f.)} ;
+          reader { | x | menu_reader( x, aCondition, A__MENUVERT, , , .f. ) } ;
           when m1DOB == 3
       @ iRow, col() + 2 say 'дата отчета:' get dAge when m1DOB == 3
     endif
+    @ ++iRow, 12 say 'Социальная категория:' get mSocKat ;
+          reader { | x | menu_reader( x, aSocKat, A__MENUVERT, , , .f. ) }
 
 		myread()
 		if lastkey() == K_PGDN
-      aReturn[1] := m1Gender
-      aReturn[2] := m1DOB
+      aReturn[ 1 ] := m1Gender
+      aReturn[ 2 ] := m1DOB
+      aReturn[ 6 ] := m1SocKat
       if m1DOB == 2 // отбор по дате рождения
-        aReturn[3] := minDOB
-        aReturn[4] := maxDOB
+        aReturn[ 3 ] := minDOB
+        aReturn[ 4 ] := maxDOB
       elseif m1DOB == 3 // отбор по возрасту
-        aReturn[3] := nAge
-        aReturn[4] := m1Condition
-        aReturn[5] := dAge
+        aReturn[ 3 ] := nAge
+        aReturn[ 4 ] := m1Condition
+        aReturn[ 5 ] := dAge
       endif
 			exit
 		elseif lastkey() == K_ESC
@@ -128,98 +139,112 @@ function filter_to_kartotek_Excel()
 		endif
 	enddo
 	update_gets()
-
 	oBox := nil
 	restore gets from tmp_gets
 	my_restkey( tmp_keys )
   return aReturn
 
-// 18.04.22 проверка для фильтра на строку БД
-function control_filter_kartotek(cAliasKart, cAliasKart2, cAliasKart_, aFilter)
+// 19.05.25 проверка для фильтра на строку БД
+function control_filter_kartotek( cAliasKart, cAliasKart2, cAliasKart_, aFilter )
   local lRet := .t.
   local age
 
-  if (cAliasKart)->KOD == 0   // пропустим пустые записи
+  if ( cAliasKart )->KOD == 0   // пропустим пустые записи
     lRet := .f.
   endif
 
-  if left((cAliasKart2)->PC2, 1) == '1'  // выбираем только живых
+  if left( ( cAliasKart2 )->PC2, 1 ) == '1'  // выбираем только живых
     lRet := .f.
   endif
 
   if lRet .and. aFilter != nil
-    if aFilter[1] != 1  // фильтр по полу
-      if aFilter[1] == 2
-        if (cAliasKart)->pol != 'М'
+    if aFilter[ 1 ] != 1  // фильтр по полу
+      if aFilter[ 1 ] == 2
+        if ( cAliasKart )->pol != 'М'
           lRet := .f.
         endif
-      elseif lRet .and. aFilter[1] == 3
-        if (cAliasKart)->pol != 'Ж'
+      elseif lRet .and. aFilter[ 1 ] == 3
+        if ( cAliasKart )->pol != 'Ж'
             lRet := .f.
         endif
       endif
     endif
-    if lRet .and. aFilter[2] == 2
-      if !empty(aFilter[3])   // фильтр по дате рождения (мин)
-        if (cAliasKart)->DATE_R < aFilter[3]
+    if lRet .and. aFilter[ 2 ] == 2
+      if ! empty( aFilter[ 3 ] )   // фильтр по дате рождения (мин)
+        if ( cAliasKart )->DATE_R < aFilter[ 3 ]
           lRet := .f.
         endif
       endif
-      if !empty(aFilter[4])   // фильтр по дате рождения (макс)
-        if (cAliasKart)->DATE_R > aFilter[4]
+      if ! empty( aFilter[ 4 ])   // фильтр по дате рождения (макс)
+        if ( cAliasKart )->DATE_R > aFilter[ 4 ]
           lRet := .f.
         endif
       endif
-    elseif lRet .and. aFilter[2] == 3
-      age := count_years((cAliasKart)->DATE_R, aFilter[5])
-      if aFilter[4] == 1
-        if aFilter[3] != age  // возраст равен
+    elseif lRet .and. aFilter[ 2 ] == 3
+      age := count_years( ( cAliasKart )->DATE_R, aFilter[ 5 ] )
+      if aFilter[ 4 ] == 1
+        if aFilter[ 3 ] != age  // возраст равен
           lRet := .f.
         endif
-      elseif aFilter[4] == 2  // возраст больше
-        if aFilter[3] < age
+      elseif aFilter[ 4 ] == 2  // возраст больше
+        if aFilter[ 3 ] < age
           lRet := .f.
         endif
-      elseif aFilter[4] == 3  // возраст меньше
-        if aFilter[3] > age
+      elseif aFilter[ 4 ] == 3  // возраст меньше
+        if aFilter[ 3 ] > age
           lRet := .f.
+        endif
+      endif
+    endif
+    if aFilter[ 6 ] != 1  // фильтр по социальной категории
+      if aFilter[ 6 ] == 2
+        if ( cAliasKart )->PC3 != '000'
+          lRet := .f.
+        endif
+      elseif lRet .and. aFilter[ 6 ] == 3
+        if ( cAliasKart )->PC3 != '035'
+            lRet := .f.
+        endif
+      elseif lRet .and. aFilter[ 6 ] == 4
+        if ( cAliasKart )->PC3 != '065'
+            lRet := .f.
         endif
       endif
     endif
   endif
   return lRet
 
-** 14.08.22
-Function string_selected_uch(arr_u, c_uch)
-  Local i, t_arr[2], s := ''
+// 14.08.22
+Function string_selected_uch( arr_u, c_uch )
+  Local t_arr[ 2 ], s := ''
   local count_uch
 
-  if ! (type('count_uch') == 'N')
-    count_uch := iif(c_uch == NIL, 1, c_uch)
+  if ! ( type( 'count_uch' ) == 'N' )
+    count_uch := iif( c_uch == NIL, 1, c_uch )
   endif
   if count_uch > 1
-    if count_uch == len(arr_u)
+    if count_uch == len( arr_u )
       return '[ по всем учреждениям ]'
     else
-      aeval(arr_u, {|x| s += '"' + alltrim(x[2]) + '", ' } )
-      s := substr(s, 1, len(s) - 2)
+      aeval( arr_u, { | x | s += '"' + alltrim( x[ 2 ] ) + '", ' } )
+      s := substr( s, 1, len( s ) - 2 )
     endif
   endif
   return s
 
-** 14.08.22
-Function string_selected_otd(arr_o, c_otd)
-  Local i, t_arr[2], s := ''
+// 14.08.22
+Function string_selected_otd( arr_o, c_otd )
+  Local t_arr[ 2 ], s := ''
 
-  if ! (type('c_otd') == 'N')
-    c_otd := iif(c_otd == NIL, 1, c_otd)
+  if ! ( type( 'c_otd' ) == 'N' )
+    c_otd := iif( c_otd == NIL, 1, c_otd )
   endif
-  if c_otd > 1 .and. valtype(arr_o) == 'A'
-    if c_otd == len(arr_o)
+  if c_otd > 1 .and. valtype( arr_o ) == 'A'
+    if c_otd == len( arr_o )
       return '[ по всем отделениям ]'
     else
-      aeval(arr_o, {|x| s += '"' + alltrim(x[2]) + '", ' })
-      s := substr(s, 1, len(s) - 2)
+      aeval( arr_o, { | x | s += '"' + alltrim( x[ 2 ] ) + '", ' } )
+      s := substr( s, 1, len( s ) - 2 )
     endif
   endif
   return s
