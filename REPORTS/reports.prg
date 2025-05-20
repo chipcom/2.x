@@ -5,7 +5,7 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 19.05.25 создать файл Excel из картотеки
+// 20.05.25 создать файл Excel из картотеки
 Function kartotekToExcel()
   Local mlen, t_mas := {}, i, ret
   Local strStatus := '^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - отметить / снять отметку'
@@ -30,6 +30,7 @@ Function kartotekToExcel()
   aadd(t_mas, { sBlank + 'Адрес пребывания', .t., .f., .f., 50.0, 'C' })
   aadd(t_mas, { sBlank + 'Телефон', .t., .f., .f., 17.0, 'C' })
   aadd(t_mas, { sBlank + 'Социальная категория', .t., .f., .f., 11.0, 'C' })
+  aadd(t_mas, { sBlank + 'Инвалидность', .t., .f., .f., 12.0, 'C' })
 
   mlen := len( t_mas )
 
@@ -48,7 +49,7 @@ Function kartotekToExcel()
   if exportKartExcel( hb_OemToAnsi( name_file_full ), t_mas, aFilter )
     hb_vfErase( cur_dir() + name_file_full )
   else
-    SaveTo( cur_dir() + name_file_full )
+    work_with_Excel_file( cur_dir() + name_file_full )
   endif
   return nil
 

@@ -78,7 +78,10 @@ function exportKartExcel( fName, aCondition, aFilter )
       j++
     endif
   next
- 
+  
+  // устоновим автофильтр
+  WORKSHEET_AUTOFILTER( worksheet, 2, 1, 2, j - 1 )
+
   R_Use(dir_server + 'kartote2', , 'KART2')
   R_Use(dir_server + 'kartote_', , 'KART_')
   R_Use(dir_server + 'kartotek', , 'KART')
@@ -176,8 +179,17 @@ function exportKartExcel( fName, aCondition, aFilter )
           j++
         endif
         if i == 14 .and. aCondition[ i, 3 ]
-//          s := ''
           WORKSHEET_WRITE_STRING( worksheet, row, j, KART->PC3, fmtCellStringCenter )
+          j++
+        endif
+        if i == 15 .and. aCondition[ i, 3 ]
+          s := ''
+          if kart_->INVALID == 4
+            s := 'дет'
+          elseif kart_->INVALID >= 1 .and. kart_->INVALID <= 4
+            s := str( kart_->INVALID, 1 )
+          endif
+          WORKSHEET_WRITE_STRING( worksheet, row, j, s, fmtCellStringCenter )
           j++
         endif
       next
