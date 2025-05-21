@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 18.05.25
+// 21.05.25
 Function f1main( n_Task )
   Local it, s, k, fl := .t., cNameIcon
 
@@ -750,16 +750,17 @@ Function f1main( n_Task )
     Endif
 */
   Case glob_task == X_MO //
-//    fl := menu_X_vounc()
-    fl := begin_task_vounc()
+    fl := menu_X_vounc()
+/*    fl := begin_task_vounc()
     my_mo_f1main()
     old := is_uchastok
 
-    If glob_mo[ _MO_KOD_TFOMS ] == kod_VOUNC
+    If glob_mo[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
       is_uchastok := 1 // ΅γªΆ  + ό γη αβª  + ό Ά γη αβª¥ "“25/123"
       vounc_f1main()
       is_uchastok := old
     Endif
+*/
   Case glob_task == X_SPRAV //
     fl := menu_X_sprav()
 /*
@@ -1004,15 +1005,3 @@ Function cmain_next_pos( n )
   Default n To 5
 
   Return ATail( cmain_menu ) + Len( ATail( main_menu ) ) + n
-
-// 05.11.15
-Function my_mo_f1main()
-  Local old := is_uchastok
-
-  If glob_mo[ _MO_KOD_TFOMS ] == kod_VOUNC
-    is_uchastok := 1 // ΅γªΆ  + ό γη αβª  + ό Ά γη αβª¥ "“25/123"
-    vounc_f1main()
-    is_uchastok := old
-  Endif
-
-  Return Nil

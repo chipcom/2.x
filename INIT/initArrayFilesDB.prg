@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 14.01.25 инициализировать массив DBF-файлов базы данных
+// 21.05.25 инициализировать массив DBF-файлов базы данных
 Function init_Array_Files_DB()
   local i, arr
 
@@ -183,7 +183,7 @@ Function init_Array_Files_DB()
   aadd(array_files_DB, 'reg_people_fns')
 
 
-  if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC  // для ВОУНЦ
+  if glob_mo[_MO_KOD_TFOMS] == TF_KOD_MO_VOUNC  // для ВОУНЦ
     arr := { 'vouncmnn', 'vounctrn', 'vouncnaz', 'vouncrec' }
     for i := 1 to len( arr )
       aadd( array_files_DB, arr[ i ] )

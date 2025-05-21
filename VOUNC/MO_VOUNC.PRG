@@ -6,7 +6,18 @@
 
 // Static sadiag1 := {}
 
-//
+// 21.05.25
+/*
+Function begin_task_vounc()
+
+  Local fl := .t.
+
+  If glob_mo[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
+    fl := vounc_begin_task()
+  Endif
+  Return fl
+*/
+// 
 Function vounc_begin_task()
 
   Static n_zapusk := 0
@@ -15,8 +26,10 @@ Function vounc_begin_task()
   If n_zapusk == 0
     ++n_zapusk
     Public sem_vagno_VOUNC := 'Важный режим в задаче VOUNC', ;
-      mm_tip_mnn := { { 'ингибитор кальцинейрина', 0 }, ;
-      { 'микофенолат            ', 1 } }, ;
+      mm_tip_mnn := { ;
+        { 'ингибитор кальцинейрина', 0 }, ;
+        { 'микофенолат            ', 1 } ;
+      }, ;
       mm_lf_lat := { { 'mg', 0 }, { 'mg/ml', 1 } }, ;
       mm_lf := { { 'мг   ', 0 }, { 'мг/мл', 1 } }
     vounc_sprav_nastr( 1 )
@@ -29,9 +42,10 @@ Function vounc_begin_task()
   Else
     fl := .f.
   Endif
-
   Return fl
 
+//
+/*
 Function vounc_f1main()
 
   AAdd( cmain_menu, 1 )
@@ -78,9 +92,8 @@ Function vounc_f1main()
   AAdd( func_menu, { 'vounc_sprav_trn()', ;
     'vounc_sprav_mnn()', ;
     'vounc_sprav_nastr(2)' } )
-
   Return Nil
-
+*/
 //
 Function vounc_input_nazn()
 
@@ -131,7 +144,6 @@ Function vounc_input_nazn()
     Endif
   Endif
   g_sunlock( str_sem )
-
   Return Nil
 
 //
@@ -173,7 +185,6 @@ Function f1_vounc_input_nazn( oBrow )
   oBrow:addcolumn( oColumn )
   //
   status_key( '^<Esc>^-выход; ^<Enter>^-редактирование; ^<Ins>^-добавление; ^<Del>^-удаление' )
-
   Return Nil
 
 //
@@ -266,7 +277,6 @@ Function f2_vounc_input_nazn( nKey, oBrow )
   Otherwise
     Keyboard ''
   Endcase
-
   Return flag
 
 //
@@ -306,7 +316,6 @@ Function vounc_input_recept()
     RestScreen( buf )
   Endif
   g_sunlock( str_sem )
-
   Return Nil
 
 //
@@ -356,7 +365,6 @@ Function f1_vounc_input_recept( oBrow )
   oBrow:addcolumn( oColumn )
   //
   status_key( '^<Esc>^ выход ^<Del>^ аннулирование ^<Enter>^ редакт-ие ^<Ins>^ добавление ^<F9>^ печать' )
-
   Return Nil
 
 //
@@ -635,7 +643,6 @@ Function f2_vounc_input_recept( nKey, oBrow )
     Endif
   Endif
   rest_box( buf )
-
   Return flag
 
 //
@@ -756,14 +763,12 @@ Function vounc_print_recept()
   frd->( dbCloseArea() )
   call_fr( 'mo_rcp' )
   Select RCP
-
   Return Nil
 
 //
 Function vounc_info_nazn()
 
   ne_real()
-
   Return Nil
 
 //
@@ -795,7 +800,6 @@ Function vounc_info_recept( k )
   If k > 0
     sk := k
   Endif
-
   Return Nil
 
 // 28.02.13
@@ -943,7 +947,6 @@ Function f1vounc_info_recept()
   FClose( fp )
   Keyboard Chr( K_END )
   viewtext( n_file, , , , .t., , , 2, , , .f. )
-
   Return Nil
 
 //
@@ -1027,7 +1030,6 @@ Function f2vounc_info_recept()
     viewtext( n_file, , , , ( sh > 80 ), , , 2 )
   Endif
   Close databases
-
   Return Nil
 
 //
@@ -1151,7 +1153,6 @@ Function f3vounc_info_recept()
     viewtext( n_file, , , , ( sh > 80 ), , , 5 )
   Endif
   Close databases
-
   Return Nil
 
 //
@@ -1194,7 +1195,6 @@ Function vounc_info_sprav()
   FClose( fp )
   rest_box( buf )
   viewtext( n_file )
-
   Return Nil
 
 //
@@ -1230,7 +1230,6 @@ Function vounc_sprav_trn()
     'МНН' };
     }
   edit_u_spr( 1, arr )
-
   Return Nil
 
 //
@@ -1252,7 +1251,6 @@ Function vounc_del_trn( k )
     dbCloseArea()
   Endif
   rest_box( buf )
-
   Return !_fl
 
 //
@@ -1279,7 +1277,6 @@ Function vounc_sprav_mnn()
     'Тип' };
     }
   edit_u_spr( 1, arr )
-
   Return Nil
 
 //
@@ -1291,7 +1288,6 @@ Function vounc_del_mnn( k )
   dblocateprogress( {|| __b->mnn == k } )
   _fl := !Found()
   dbCloseArea()
-
   Return _fl
 
 //
@@ -1370,7 +1366,6 @@ Function vounc_sprav_nastr( reg )
       func_error( 4, err_slock )
     Endif
   Endcase
-
   Return Nil
 
 //
@@ -1383,7 +1378,6 @@ Static Function vounc_val_nom()
   Elseif !Between( mlast_rc, mnom1 - 1, mnom2 )
     func_error( 4, 'Номер последнего (автоматически) добавленного рецепта не попадает в диапазон' )
   Endif
-
   Return .t.
 
 //
@@ -1419,7 +1413,6 @@ Function vounc_tools_ini( reg, k1, k2 )
     Endif
     semaphor_tools_ini( 2 )
   Endif
-
   Return fl
 
 //
@@ -1433,7 +1426,6 @@ Static Function vounc_ret_name_trn( ltovar, k, fl_upak )
     ret := vounc_ret1_name_trn( k, fl_upak )
     Use
   Endif
-
   Return ret
 
 //
@@ -1455,7 +1447,6 @@ Static Function vounc_ret1_name_trn( k, fl_upak )
       ret += ' N' + lstr( trn->n_lf )
     Endif
   Endif
-
   Return ret
 
 //
@@ -1509,5 +1500,4 @@ Function vounc_get_tovar( k, r, c, _tip_mnn )
     Endif
   Endif
   RestScreen( buf )
-
   Return ret

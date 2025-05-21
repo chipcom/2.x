@@ -49,7 +49,7 @@ Procedure Main( ... )
 
   //
   Public Err_version := fs_version( _version() ) + ' от ' + _date_version()
-  Public kod_VOUNC := '101004'
+//  Public kod_VOUNC := '101004'
   Public kod_LIS   := { '125901', '805965' }
   //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
@@ -283,7 +283,7 @@ Function read_server_mem()
 
   Return is_local_version
 
-// 21.04.25
+// 21.05.25
 Function f_main( r0, is_local_version, a_parol )
 
   Static arr1 := { ;
@@ -315,7 +315,7 @@ Function f_main( r0, is_local_version, a_parol )
     sem_vagno_task[ arr1[ i, 2 ] ] := 'Важный режим в задаче "' + arr1[ i, 5 ] + '"'
   Next
 
-  If glob_mo[ _MO_KOD_TFOMS ] == kod_VOUNC
+  If glob_mo[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
     AAdd( array_tasks, { 'ВОУНЦ - трансплантированные', X_MO, 'TABLET_ICON', .t. } )
   Endif
 
@@ -946,18 +946,7 @@ Function f1find_time_limit_human_reestr_sp_tk( i, arr )
   Close databases
   FClose( fp )
   viewtext( n_file, , , , .f., , , 2 )
-
   Return Nil
-
-Function begin_task_vounc()
-
-  Local fl := .t.
-
-  If glob_mo[ _MO_KOD_TFOMS ] == kod_VOUNC
-    fl := vounc_begin_task()
-  Endif
-
-  Return fl
 
 // 17.11.23
 Function app_finish()

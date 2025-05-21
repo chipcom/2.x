@@ -69,7 +69,7 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 18.02.25 реконстукция баз данных
+// 21.05.25 реконстукция баз данных
 Function reconstruct_db( is_local_version, is_create )
 
   Local base1 := { ;
@@ -1821,7 +1821,7 @@ Function reconstruct_db( is_local_version, is_create )
     org->uroven := get_uroven()
   Endif
   Use
-  If glob_mo[ _MO_KOD_TFOMS ] == kod_VOUNC
+  If glob_mo[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
     vounc_reconstruct_db()
   Endif
 

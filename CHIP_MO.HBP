@@ -17,7 +17,7 @@ mo_version.prg
 .\MENU\menu_X_copy.prg
 .\MENU\menu_X_index.prg
 .\MENU\menu_X_common.prg
-#.\MENU\menu_X_vounc.prg
+.\MENU\menu_X_vounc.prg
 
 .\DAL\TBaseObjectDB.prg
 .\DAL\TDataAccessDB.prg

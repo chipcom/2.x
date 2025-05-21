@@ -5,12 +5,12 @@
 
 // #require 'hbsqlit3'
 
-// 13.08.24
+// 21.05.25
 // íâ® ŒŽ "‚®«£®¬¥¤« ¡" ¨«¨ Œ‘—-40 (”Œ€)
 function is_VOLGAMEDLAB()
 
-  return hb_main_curOrg:Kod_Tfoms == VOLGAMEDLAB ;
-    .or. hb_main_curOrg:Kod_Tfoms == MSCH40FMBA
+  return hb_main_curOrg:Kod_Tfoms == TF_KOD_MO_VOLGAMEDLAB ;
+    .or. hb_main_curOrg:Kod_Tfoms == TF_KOD_MO_MSCH40FMBA
 
 // 23.10.23
 function getUCH()
@@ -43,7 +43,6 @@ function getUCH()
     (dbAlias)->(dbCloseAre())
     Select(oldSelect)
   endif
-
   return arr
 
 // 23.10.23
@@ -109,7 +108,6 @@ function getOTD()
     (dbAlias)->(dbCloseAre())
     Select(oldSelect)
   endif
-
   return arr
 
 // 24.10.23
@@ -135,4 +133,3 @@ function getOTD_record(kod)
     endif
   endif
   return retArr
-
