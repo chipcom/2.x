@@ -1,7 +1,6 @@
 #include 'inkey.ch'
 #include 'chip_mo.ch'
 #include 'function.ch'
-// #include 'hblibxlsxwriter.ch'
 #include 'hbxlsxwriter.ch'
 
 // 19.05.25 создать файл Excel
@@ -198,19 +197,6 @@ function exportKartExcel( fName, aCondition, aFilter )
     KART->( dbSkip() )
   enddo
   KART->( dbCloseAll() )
-
-  // lxw_worksheet_autofilter(worksheet, 2, 3, row - 1, 4)
-  // 1 - название столбца, 2 - выбор, 3 - отметка, что нужен, 4 - автофильтр,  5 - ширина столбца, 6 - гор. расположение
-  // j := 0
-  // for i := 1 to len(aCondition)
-  //   if aCondition[i, 3]
-  //     if aCondition[i, 4] // включить автофильтр
-  //       lxw_worksheet_autofilter(worksheet, 2, j, row - 1, j)
-  //     endif
-  //     j++
-  //   endif
-  // next
-
   if fl_exit
     func_error( 4, hb_Utf8ToStr( 'Операция прервана!', 'RU866' ) )
   endif
