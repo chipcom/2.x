@@ -2,6 +2,7 @@
 #include 'chip_mo.ch'
 #include 'function.ch'
 #include 'hbxlsxwriter.ch'
+#include 'reports_XLS.ch'
 
 // 19.05.25 создать файл Excel
 function exportKartExcel( fName, aCondition, aFilter )
@@ -101,44 +102,44 @@ function exportKartExcel( fName, aCondition, aFilter )
     if control_filter_kartotek('KART', 'KART2', 'KART_', aFilter)
       j := 0
       for i := 1 to len( aCondition )
-        if i == 1
+        if i == KART_XLS_NUMBER //  1
           WORKSHEET_WRITE_NUMBER( worksheet, row, j, row - 2, fmtCellNumber )
           j++
         endif
-        if i == 2 .and. aCondition[ i, 3 ]
+        if i == KART_XLS_UCH .and. aCondition[ i, 3 ] //  2
           WORKSHEET_WRITE_STRING( worksheet, row, j, hb_StrToUtf8( iif( ! empty( kart->uchast ), lstr( kart->uchast ), '' ) ), fmtCellStringCenter )
           j++
         endif
-        if i == 3
+        if i == KART_XLS_FIO  //  3
           arr_fio := retFamImOt( 1, .f., .f. )
           WORKSHEET_WRITE_STRING( worksheet, row, j, hb_StrToUtf8( arr_fio[ 1 ] + ' ' + arr_fio[ 2 ] + ' ' + arr_fio[ 3 ] ), fmtCellString )
           j++
         endif
-        if i == 4
+        if i == KART_XLS_DOB  //  4
           WORKSHEET_WRITE_DATETIME( worksheet, row, j, HB_STOT( DToS( KART->DATE_R ) ), formatDate )
           j++
         endif
-        if i == 5
+        if i == KART_XLS_GENDER //  5
           WORKSHEET_WRITE_STRING( worksheet, row, j, hb_StrToUtf8( KART->POL ), fmtCellStringCenter )
           j++
         endif
-        if i == 6 .and. aCondition[ i, 3 ]
+        if i == KART_XLS_AGE .and. aCondition[ i, 3 ] // 6
           WORKSHEET_WRITE_NUMBER( worksheet, row, j, count_years( KART->DATE_R, date() ), fmtCellNumber )
           j++
         endif
-        if i == 7 .and. aCondition[ i, 3 ]
+        if i == KART_XLS_SNILS .and. aCondition[ i, 3 ] //  7
           WORKSHEET_WRITE_STRING( worksheet, row, j, iif( empty( KART->SNILS ), '', transform( KART->SNILS, picture_pf ) ), fmtCellStringCenter )
           j++
         endif
-        if i == 8 .and. aCondition[ i, 3 ]
+        if i == KART_XLS_INSURANCE .and. aCondition[ i, 3 ] //  8
           WORKSHEET_WRITE_STRING( worksheet, row, j, hb_StrToUtf8( smo_to_screen( 1 ) ), fmtCellString )
           j++
         endif
-        if i == 9 .and. aCondition[ i, 3 ]
+        if i == KART_XLS_POLIS .and. aCondition[ i, 3 ] //  9
           WORKSHEET_WRITE_STRING( worksheet, row, j, hb_StrToUtf8( ltrim( KART_->NPOLIS ) ), fmtCellString )
           j++
         endif
-        if i == 10 .and. aCondition[ i, 3 ]
+        if i == KART_XLS_ATTACHMENT .and. aCondition[ i, 3 ]  //  10
           if empty( KART2->MO_PR )
             s := '?'
           elseif kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
@@ -149,11 +150,11 @@ function exportKartExcel( fName, aCondition, aFilter )
           WORKSHEET_WRITE_STRING( worksheet, row, j, s, fmtCellStringCenter )
           j++
         endif
-        if i == 11 .and. aCondition[ i, 3 ]  // адрес регистрации
+        if i == KART_XLS_ADDRESS_REG .and. aCondition[ i, 3 ]  // 11 адрес регистрации
           WORKSHEET_WRITE_STRING( worksheet, row, j, hb_StrToUtf8( ret_okato_ulica( KART->adres, KART_->okatog ) ), fmtCellString )
           j++
         endif
-        if i == 12 .and. aCondition[ i, 3]  // адрес пребывания
+        if i == KART_XLS_ADDRESS_STAY .and. aCondition[ i, 3]  // 12 адрес пребывания
           if empty( KART_->adresp ) .and. aCondition[ 11, 3 ]
             WORKSHEET_WRITE_STRING( worksheet, row, j, 'тот же', fmtCellString )
           elseif empty( KART_->adresp ) .and. ! aCondition[ 11, 3 ]
@@ -163,7 +164,7 @@ function exportKartExcel( fName, aCondition, aFilter )
           endif
           j++
         endif
-        if i == 13 .and. aCondition[ i, 3 ]
+        if i == KART_XLS_PHONE .and. aCondition[ i, 3 ] //  13
           s := ''
           if ! empty( kart_->PHONE_H )
             s += 'д.' + alltrim( kart_->PHONE_H ) + ' '
@@ -177,11 +178,11 @@ function exportKartExcel( fName, aCondition, aFilter )
           WORKSHEET_WRITE_STRING( worksheet, row, j, s, fmtCellString )
           j++
         endif
-        if i == 14 .and. aCondition[ i, 3 ]
+        if i == KART_XLS_SOC_KAT .and. aCondition[ i, 3 ] //  14
           WORKSHEET_WRITE_STRING( worksheet, row, j, KART->PC3, fmtCellStringCenter )
           j++
         endif
-        if i == 15 .and. aCondition[ i, 3 ]
+        if i == KART_XLS_INVALID .and. aCondition[ i, 3 ] //  15
           s := ''
           if kart_->INVALID == 4
             s := 'дет'
