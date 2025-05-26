@@ -9,7 +9,7 @@ Function fget_tmp_v015( k, r, c, a_spec )
 
   Local ret, fl, kolRec, nRec, tmp_select := Select(), s, blk, t_arr[ BR_LEN ]
 
-  Use ( cur_dir + 'tmp_v015' ) index ( cur_dir + 'tmpsV015' ), ( cur_dir + 'tmpkV015' ) New Alias tmp_ga
+  Use ( cur_dir() + 'tmp_v015' ) index ( cur_dir() + 'tmpsV015' ), ( cur_dir() + 'tmpkV015' ) New Alias tmp_ga
   kolRec := LastRec()
   If r <= MaxRow() / 2
     t_arr[ BR_TOP ] := r + 1
@@ -98,7 +98,6 @@ Function fget_tmp_v015( k, r, c, a_spec )
   Endif
   tmp_ga->( dbCloseArea() )
   Select ( tmp_select )
-
   Return ret
 
 // 07.08.16
@@ -107,5 +106,4 @@ Function f1get_tmp_v015()
   Local s := AfterAtNum( '.', tmp_ga->name, 1 )
 
   s := Space( 2 * tmp_ga->uroven ) + s
-
   Return s

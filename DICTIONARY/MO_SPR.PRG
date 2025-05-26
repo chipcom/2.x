@@ -20,10 +20,7 @@ Function begin_task_sprav()
   Else
     fl := .f.
   Endif
-
   Return fl
-
-
 
 //
 Function inp_bit_otd( k, r, c )
@@ -70,7 +67,6 @@ Function inp_bit_otd( k, r, c )
   Endif
   RestScreen( buf )
   SetColor( tmp_color )
-
   Return iif( ret == 0, NIL, { m1var, s } )
 
 //
@@ -88,7 +84,6 @@ Function fget_slugba( k, r, c )
     k1 := { sl->shifr, lstr( sl->shifr ) + '. ' + AllTrim( sl->name ) }
   Endif
   chm_help_code := tmp_help
-
   Return k1
 
 //
@@ -99,14 +94,13 @@ Function f1_ns_uslugi( oBrow )
   oColumn := TBColumnNew( Center( 'Несовместимые услуги', 30 ), {|| uk->name } )
   oBrow:addcolumn( oColumn )
   status_key( '^<Esc>^ выход; ^<Enter>^ ред-ние; ^<Ins>^ добавление; ^<Del>^ удал.; ^<Ctrl+Enter>^ услуги' )
-
   Return Nil
 
 // прочие справочники
 Function edit_proch_spr( k )
 
   Static sk1 := 1, sk2 := 1
-  Local str_sem, mas_pmt, mas_msg, mas_fun, j
+  Local str_sem, mas_pmt, mas_msg, mas_fun
 
   Default k To 0
   Do Case
@@ -178,7 +172,6 @@ Function edit_proch_spr( k )
   Elseif Between( k, 11, 20 )
     sk2 := k
   Endif
-
   Return Nil
 
 // справочник подстроки адреса
@@ -199,14 +192,13 @@ Function edit_s_adres()
   t_arr[ BR_EDIT ] := {| nk, ob| f1_s_adres( nk, ob, 'edit' ) }
   edit_browse( t_arr )
   RestScreen( buf )
-
   Return Nil
 
 //
 Function f1_s_adres( nKey, oBrow, regim )
 
   Local ret := -1, j := 0, flag := -1, buf := save_maxrow(), buf1, ;
-    fl := .f., rec, mkod, tmp_color := SetColor()
+    fl := .f., rec, tmp_color := SetColor()
 
   Do Case
   Case regim == 'open'
@@ -249,7 +241,6 @@ Function f1_s_adres( nKey, oBrow, regim )
       Keyboard ''
     Endif
   Endcase
-
   Return ret
 
 //
@@ -271,14 +262,13 @@ Function fedit_s_kem()
   t_arr[ BR_EDIT ] := {| nk, ob| f1_s_kemvyd( nk, ob, 'edit', 1 ) }
   edit_browse( t_arr )
   RestScreen( buf )
-
   Return Nil
 
 // 12.07.17
 Function f1_s_kemvyd( nKey, oBrow, regim, par )
 
   Local ret := -1, j := 0, flag := -1, buf := save_maxrow(), buf1, ;
-    fl := .f., rec, mkod, tmp_color := SetColor()
+    fl := .f., rec, tmp_color := SetColor()
 
   Do Case
   Case regim == 'open'
@@ -337,7 +327,6 @@ Function f1_s_kemvyd( nKey, oBrow, regim, par )
       Keyboard ''
     Endif
   Endcase
-
   Return ret
 
 //
@@ -396,7 +385,6 @@ Function poisk_kemvyd( mr1 )
   Enddo
   Goto ( rec )
   RestScreen( buf )
-
   Return ret
 
 //
@@ -410,7 +398,6 @@ Function get_s_kemvyd( k, r, c )
   Else
     r2 := MaxRow() -2
   Endif
-
   Return input_s_kemvyd( k, r1, r2 )
 
 //
@@ -441,13 +428,12 @@ Function input_s_kemvyd( k, r1, r2 )
   If _fl_space
     ret := { 0, Space( 10 ) }
   Endif
-
   Return ret
 
 //
 Function yes_d_kemvyd( rec )
 
-  Local tmp_select := Select(), fl := .t., arr, i, j, s, kr
+  Local tmp_select := Select(), fl := .t.
 
   r_use( dir_server + 'kartote_', , 'TMPKART' )
   Locate For kemvyd == rec progress
@@ -458,7 +444,6 @@ Function yes_d_kemvyd( rec )
   If tmp_select > 0
     Select( tmp_select )
   Endif
-
   Return fl
 
 // удаление дубликатов организаций, выдающих документы
@@ -530,7 +515,6 @@ Function fdeld_s_kem()
   Endif
   RestScreen( buf )
   g_sunlock( sem_vagno )
-
   Return Nil
 
 // 29.07.13
@@ -557,7 +541,6 @@ Function edit_school()
     0, {| x| inieditspr( A__MENUVERT, mm_tip_school, x ) }, 'Тип' };
     }
   edit_u_spr( 1, arr )
-
   Return Nil
 
 // 08.11.22
@@ -566,7 +549,7 @@ Function fdel_school( k )
   Local _fl := .t., arr, i
 
   r_use( dir_server + 'human', , '__B' )
-  Index On kod to ( cur_dir + 'tmp_b' ) For Between( ishod, 301, 309 )
+  Index On kod to ( cur_dir() + 'tmp_b' ) For Between( ishod, 301, 309 )
   Go Top
   Do While !Eof()
     arr := read_arr_dispans( __b->kod )
@@ -586,7 +569,6 @@ Function fdel_school( k )
     Skip
   Enddo
   dbCloseArea()
-
   Return _fl
 
 // 25.05.13
@@ -617,7 +599,6 @@ Function edit_dds_stac()
     'Ведомственная принадлежность' };
     }
   edit_u_spr( 1, arr )
-
   Return Nil
 
 // 08.11.22
@@ -629,14 +610,13 @@ Function fdel_dds_stac( k )
   dblocateprogress( {|| __b->ZA_SMO == k } )
   _fl := ! Found()
   dbCloseArea()
-
   Return _fl
 
 //
 Function spr_opl_5( k )
 
   Static si1 := 1
-  Local mas_pmt, mas_msg, mas_fun, j, buf
+  Local mas_pmt, mas_msg, mas_fun
 
   Default k To 1
   Do Case
@@ -678,14 +658,13 @@ Function spr_opl_5( k )
   If Between( k, 11, 20 )
     si1 := k -10
   Endif
-
   Return Nil
 
 //
 Function spr_opl_7( k )
 
   Static si1 := 1
-  Local mas_pmt, mas_msg, mas_fun, j, buf
+  Local mas_pmt, mas_msg, mas_fun
 
   Default k To 1
   Do Case
@@ -732,7 +711,6 @@ Function spr_opl_7( k )
   If Between( k, 11, 20 )
     si1 := k -10
   Endif
-
   Return Nil
 
 //
@@ -769,14 +747,13 @@ Function spr_opl_51( reg, s )
     status_key( '^<Esc>^ выход ^<Enter>^ редактирование ^<Ins>^ добавление ^<Del>^ удаление ^<F9>^ печать' ) }
   t_arr[ BR_EDIT ] := {| nk, ob| fs_opl_51( nk, ob, 'edit', reg ) }
   edit_browse( t_arr )
-
   Return Nil
 
 //
 Function fs_opl_51( nKey, oBrow, regim, lregim )
 
   Local ret := -1
-  Local buf, fl := .f., rec, rec1, k := 14, tmp_color
+  Local buf, fl := .f., rec, k := 14, tmp_color
 
   Do Case
   Case regim == 'open'
@@ -792,7 +769,7 @@ Function fs_opl_51( nKey, oBrow, regim, lregim )
       Skip
     Enddo
     Commit
-    Index On Str( tip, 2 ) + _usl_1 + Str( razryad, 2 ) + Str( otdal, 1 ) to ( cur_dir + 'tmp_u5' )
+    Index On Str( tip, 2 ) + _usl_1 + Str( razryad, 2 ) + Str( otdal, 1 ) to ( cur_dir() + 'tmp_u5' )
     find ( str_find )
     ret := Found()
     rest_box( buf )
@@ -823,7 +800,7 @@ Function fs_opl_51( nKey, oBrow, regim, lregim )
           arr_title[ 5 ] := arr_title[ 5 ] + '╨──────┴──────╨──────'
         Endif
       Endif
-      n_file := 'pers_o51' + stxt
+      n_file := 'pers_o51' + stxt()
       HH := 58
       sh := 60
       Private reg_print := f_reg_print( arr_title, @sh )
@@ -939,7 +916,6 @@ Function fs_opl_51( nKey, oBrow, regim, lregim )
       Endif
     Endcase
   Endcase
-
   Return ret
 
 //
@@ -954,13 +930,12 @@ Function ft_opl_51( p1, p2, n )
     Endif
     s1 += '(' + s2 + ')'
   Endif
-
   Return PadC( s1, n )
 
 //
 Function spr_opl_52()
 
-  Local i, buf := SaveScreen(), t_arr[ BR_LEN ], n := 36
+  Local buf := SaveScreen(), t_arr[ BR_LEN ], n := 36
 
   Private menu_kateg := { { ' без', 0 }, ;
     { '2-ая', 1 }, ;
@@ -969,7 +944,7 @@ Function spr_opl_52()
 
   mywait()
   g_use( dir_server + 'mo_pers', , 'PERSO' )
-  Index On Upper( fio ) to ( cur_dir + 'tmp_pers' )
+  Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' )
   Go Top
   t_arr[ BR_TOP ] := 2
   t_arr[ BR_BOTTOM ] := MaxRow() -2
@@ -994,7 +969,6 @@ Function spr_opl_52()
   edit_browse( t_arr )
   Close databases
   RestScreen( buf )
-
   Return Nil
 
 //
@@ -1016,7 +990,7 @@ Function fs_opl_52( nKey, oBrow, cregim )
         '                     Ф.И.О.                       │опла-│лен- ', ;
         '                                                  │ты   │ность', ;
         '──────────────────────────────────────────────────┴─────┴─────' }
-      n_file := 'pers_o52' + stxt
+      n_file := 'pers_o52' + stxt()
       sh := Len( arr_title[ 1 ] )
       HH := 57
       fp := FCreate( n_file )
@@ -1070,7 +1044,6 @@ Function fs_opl_52( nKey, oBrow, cregim )
     Endcase
   Endcase
   @ r, c Say ''
-
   Return ret
 
 //
@@ -1092,7 +1065,6 @@ Function get_c_symb( oGet, nKey, char_symbol )
       Endif
     Endif
   Endif
-
   Return Nil
 
 //
@@ -1126,7 +1098,6 @@ Function spr_opl_71()
     status_key( '^<Esc>^ выход ^<Enter>^ ред-е ^<Ins>^ доб. ^<Del>^ удал. ^<Ctrl+Enter>^ услуги ^<F9>^ печать' ) }
   t_arr[ BR_EDIT ] := {| nk, ob| fs_opl_71( nk, ob, 'edit', mtitle ) }
   edit_browse( t_arr )
-
   Return Nil
 
 //
@@ -1135,12 +1106,12 @@ Function fs_opl_71( nKey, oBrow, regim, mtitle )
   Static menu_variant := { { '1 - при отсутствии асс-та врачу кол-во УЕТ врача и асс-та', 1 }, ;
     { '2 - при отсутствии асс-та врачу ст-ть УЕТ врача и асс-та', 0 } }
   Local ret := -1, sh
-  Local buf, fl := .f., rec, rec1, k := 12, tmp_color, a_da, a_net, t_arr[ 2 ]
+  Local buf, fl := .f., rec, k := 12, tmp_color, a_da, a_net, t_arr[ 2 ]
 
   Do Case
   Case regim == 'open'
     g_use( dir_server + 'u_usl_7', , 'U7' )
-    Index On Upper( name ) to ( cur_dir + 'tmp_u7' )
+    Index On Upper( name ) to ( cur_dir() + 'tmp_u7' )
     Go Top
     ret := !Eof()
   Case regim == 'edit'
@@ -1154,7 +1125,7 @@ Function fs_opl_71( nKey, oBrow, regim, mtitle )
         '                                                                    │ Врач│Ассис', ;
         '           Наименование услуги                                      │ УЕТ │ УЕТ ', ;
         '────────────────────────────────────────────────────────────────────┴─────┴─────' }
-      n_file := 'pers_o71' + stxt
+      n_file := 'pers_o71' + stxt()
       HH := 58
       Private reg_print := f_reg_print( arr_title, @sh )
       fp := FCreate( n_file )
@@ -1177,7 +1148,7 @@ Function fs_opl_71( nKey, oBrow, regim, mtitle )
       a_net := slist2arr( u7->usl_del )
       useuch_usl()
       r_use( dir_server + 'uslugi', , 'USL' )
-      Index On fsort_usl( shifr ) to ( cur_dir + 'tmpu' )
+      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmpu' )
       Go Top
       Do While !Eof()
         If _f_usl_danet( a_da, a_net )
@@ -1274,10 +1245,7 @@ Function fs_opl_71( nKey, oBrow, regim, mtitle )
       ret := 0
     Endcase
   Endcase
-
   Return ret
-
-  Return Nil
 
 //
 Function fs_opl_72( arr )
@@ -1293,14 +1261,13 @@ Function fs_opl_72( arr )
       u7->usl_del With arr2slist( ar[ 2 ] )
     Unlock
   Endif
-
   Return Nil
 
 // 02.12.24 редактирование справочников персонала, отделений, учреждений, организации
 Function spr_struct_org( k )
 
   Static sk := 1
-  Local str_sem, mas_pmt, mas_msg, mas_fun, j
+  Local str_sem, mas_pmt, mas_msg, mas_fun
 
   Default k To 0
   Do Case
@@ -1353,7 +1320,6 @@ Function spr_struct_org( k )
   If k > 0
     sk := k
   Endif
-
   Return Nil
 
 // 11.10.15 привязка участковых врачей к участкам
@@ -1375,7 +1341,7 @@ Function f_attach_uch_vrach()
   Private p2blk := {| i| i := iif( Between( p2->kateg, 1, 4 ), p2->kateg, 1 ), ;
     ' (' + { 'вр', 'ср', 'мл', 'пр' }[ i ] + '.) ' }
   g_use( dir_server + 'mo_uchvr', , 'UV' )
-  Index On Str( uch, 2 ) to ( cur_dir + 'tmp' )
+  Index On Str( uch, 2 ) to ( cur_dir() + 'tmp' )
   For i := 1 To Len( arr )
     find ( Str( arr[ i ], 2 ) )
     If !Found()
@@ -1397,7 +1363,7 @@ Function f_attach_uch_vrach()
     Skip
   Enddo
   dbUnlockAll()
-  Index On Str( uch, 2 ) to ( cur_dir + 'tmp' ) For is == 1
+  Index On Str( uch, 2 ) to ( cur_dir() + 'tmp' ) For is == 1
   t_arr[ BR_TOP ] := T_ROW
   t_arr[ BR_BOTTOM ] := MaxRow() -2
   t_arr[ BR_LEFT ]  := 2
@@ -1415,7 +1381,6 @@ Function f_attach_uch_vrach()
   Go Top
   edit_browse( t_arr )
   Close databases
-
   Return Nil
 
 // 11.10.15
@@ -1441,13 +1406,12 @@ Function f1_attach_uch_vrach()
     s := 'дети: ' + AllTrim( p2->fio ) + Eval( p2blk ) + ' [' + lstr( p2->tab_nom ) + ']'
   Endif
   Select UV
-
   Return s
 
 // 11.10.15
 Function f2_attach_uch_vrach( nKey, oBrow, regim )
 
-  Local ret := -1, buf, r1, r2
+  Local ret := -1, buf
 
   If regim == 'edit' .and. nKey == K_ENTER
     Save Screen To buf
@@ -1510,7 +1474,6 @@ Function f2_attach_uch_vrach( nKey, oBrow, regim )
     SetColor( tmp_color )
     Restore Screen From buf
   Endif
-
   Return ret
 
 // 08.11.22 определить врача по табельному номеру для редактирования справочников
@@ -1566,7 +1529,6 @@ Function v_kart_vrach_spr( get, k )
       update_get( 'mvrachd' )
     Endcase
   Endif
-
   Return .t.
 
 // 08.11.22 проверка правильности введенного кода ТФОМС
@@ -1582,7 +1544,6 @@ Function valid_kod_tfoms( get )
     fl := func_error( 4, 'Вы ввели несуществующий код МО "' + cCode + '". Попробуйте ешё раз.' )
     mkod_tfoms := get:original
   Endif
-
   Return fl
 
 // 27.03.24 редактирование справочника отделений
@@ -1684,31 +1645,6 @@ Function edit_otd()
       0, {| x| inieditspr( A__MENUVERT, mm_otd_dep, x ) }, ;
       'По справочнику ТФОМС' } )
   Endif
-  /*if is_adres_podr
-    if (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
-      for j := 1 to len(glob_adres_podr[i, 2])
-        aadd(mm_adres_podr, {glob_adres_podr[i, 2,j, 3],glob_adres_podr[i, 2,j, 2]})
-      next
-    endif
-    Ins_Array(arr[US_EDIT_SPR], 7, {'ADRES_PODR', 'N', 2, 0, , ;
-                                {|x|menu_reader(x,mm_adres_podr,A__MENUVERT, , , .f.)}, ;
-                                0, {|x|inieditspr(A__MENUVERT,mm_adres_podr,x)}, ;
-                                'Адрес удалённого подразделения для стационара'})
-  endif
-  if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
-    G_Use(dir_server + 'mo_otd', , 'OTD')
-    go top
-    do while !eof()
-      if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr[i, 2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;
-                           .and. !(otd->CODE_TFOMS == glob_adres_podr[i, 2,j, 1])
-        G_RLock(forever)
-        otd->CODE_TFOMS := glob_adres_podr[i, 2,j, 1]
-        UnLock
-      endif
-      skip
-    enddo
-    close databases
-  endif*/
   If is_task( X_PLATN )
     AAdd( arr[ US_EDIT_SPR ], { 'dbeginp', 'D', 8, 0, , , BoY( sys_date ), , ;
       'Дата начала работы в задаче "Платные услуги"' } )
@@ -1725,21 +1661,6 @@ Function edit_otd()
   AAdd( arr[ US_EDIT_SPR ], { 'PLAN_PF', 'N', 6, 0, , , 0, , 'План профилактик на месяц' } )
   AAdd( arr[ US_EDIT_SPR ], { 'PLAN_PD', 'N', 6, 0, , , 0, , 'План приемов на дому на месяц' } )
   edit_u_spr( 1, arr )
-  /*if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
-    G_Use(dir_server + 'mo_otd', , 'OTD')
-    go top
-    do while !eof()
-      if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr[i, 2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;
-                           .and. !(otd->CODE_TFOMS == glob_adres_podr[i, 2,j, 1])
-        G_RLock(forever)
-        otd->CODE_TFOMS := glob_adres_podr[i, 2,j, 1]
-        UnLock
-      endif
-      skip
-    enddo
-    close databases
-  endif*/
-
   Return Nil
 
 // 08.11.22
@@ -1769,7 +1690,6 @@ Function fdel_otd( k )
     dbCloseArea()
   Endif
   Select ( tmp_select )
-
   Return _fl
 
 // 08.11.22
@@ -1781,7 +1701,7 @@ Function get_kod_podr( k, r, c )
   If arr == Nil // только при первом вызове
     arr := {}
     tmp_select := Select()
-    r_use( dir_exe() + '_mo_podr', cur_dir + '_mo_podr', 'PODR' )
+    r_use( dir_exe() + '_mo_podr', cur_dir() + '_mo_podr', 'PODR' )
     find ( glob_mo[ _MO_KOD_TFOMS ] )
     Do While podr->codemo == glob_mo[ _MO_KOD_TFOMS ] .and. !Eof()
       AAdd( arr, { '(' + AllTrim( podr->KODOTD ) + ') ' + AllTrim( podr->NAMEOTD ), podr->KODOTD } )
@@ -1796,24 +1716,20 @@ Function get_kod_podr( k, r, c )
     ret[ 1 ] := ret_arr[ 2 ]
     ret[ 2 ] := ret_arr[ 1 ]
   Endif
-
   Return ret
-
-  Return { lkod, s }
 
 // 08.11.22
 Function ini_kod_podr( lkod )
 
   Local s := Space( 10 ), tmp_select := Select()
 
-  r_use( dir_exe() + '_mo_podr', cur_dir + '_mo_podr', 'PODR' )
+  r_use( dir_exe() + '_mo_podr', cur_dir() + '_mo_podr', 'PODR' )
   find ( glob_mo[ _MO_KOD_TFOMS ] + PadR( Upper( lkod ), 25 ) )
   If Found()
     s := '(' + AllTrim( podr->KODOTD ) + ') ' + AllTrim( podr->NAMEOTD )
   Endif
   dbCloseArea()
   Select ( tmp_select )
-
   Return s
 
 // 24.08.24 редактирование справочника учреждений
@@ -1860,7 +1776,6 @@ Function edit_uch()
     '     Дата окончания работы' };
     }
   edit_u_spr( 1, arr )
-
   Return Nil
 
 // 08.11.22
@@ -1873,7 +1788,6 @@ Function fdel_uch( k )
   _fl := !Found()
   dbCloseArea()
   Select ( tmp_select )
-
   Return _fl
 
 // 01.04.23 редактирование справочника прочих компаний
@@ -1910,7 +1824,6 @@ Function edit_strah()
   Enddo
   g_sunlock( str_sem )
   RestScreen( buf )
-
   Return Nil
 
 // редактирование справочника комитетов (МО)
@@ -1945,29 +1858,26 @@ Function edit_komit( d )
   Enddo
   g_sunlock( str_sem )
   RestScreen( buf )
-
   Return Nil
 
 //
 Function fdel_strah( k )
 
-  Local fl := fdel_ksc( 1, k )
+  Local fl
 
-  If !fl
+  If ! ( fl := fdel_ksc( 1, k ) )
     func_error( 4, 'Данная компания встречается в других базах данных!' )
   Endif
-
   Return fl
 
 //
 Function fdel_komit( k )
 
-  Local fl := fdel_ksc( 3, k )
+  Local fl
 
-  If !fl
+  If !( fl := fdel_ksc( 3, k ) )
     func_error( 4, 'Данный комитет (МО) встречается в других базах данных!' )
   Endif
-
   Return fl
 
 // 08.11.22
@@ -1990,7 +1900,6 @@ Function fdel_ksc( n, k )
     Next
     rest_box( buf )
   Endif
-
   Return fl
 
 //
@@ -2001,5 +1910,4 @@ Function f_emp_strah( k )
   If k == 1 .and. Empty( mname )
     fl := func_error( 4, 'Поле НАЗВАНИЕ не должно быть пустым!' )
   Endif
-
   Return fl

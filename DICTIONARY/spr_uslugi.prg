@@ -10,7 +10,7 @@
 Function edit_spr_uslugi( k )
 
   Static sk := 1
-  Local str_sem, mas_pmt, mas_msg, mas_fun, j
+  Local mas_pmt, mas_msg, mas_fun
 
   Default k To 0
   Do Case
@@ -68,7 +68,6 @@ Function edit_spr_uslugi( k )
   If k > 0
     sk := k
   Endif
-
   Return Nil
 
 // 30.05.23
@@ -101,20 +100,20 @@ Function f1_uslugi()
         Loop
       Endif
       Select ( tmpAlias )
-      Index On DToS( datebeg ) to ( cur_dir + 'tmp1' ) unique
+      Index On DToS( datebeg ) to ( cur_dir() + 'tmp1' ) unique
       dbEval( {|| AAdd( arr_date_usl, ( tmpAlias )->datebeg ) } )
-      Set Index to ( cur_dir + prefixfilerefname( i ) + 'uslc' ), ( cur_dir + prefixfilerefname( i ) + 'uslu' )
+      Set Index to ( cur_dir() + prefixfilerefname( i ) + 'uslc' ), ( cur_dir() + prefixfilerefname( i ) + 'uslu' )
     Next
   Endif
   Private tmp_V002 := create_classif_ffoms( 0, 'V002' ) // PROFIL
-  dbCreate( cur_dir + 'tmp_usl1', { { 'shifr1',  'C', 10, 0 }, ;
+  dbCreate( cur_dir() + 'tmp_usl1', { { 'shifr1',  'C', 10, 0 }, ;
     { 'name',    'C', 77, 0 }, ;
     { 'date_b',  'D', 8, 0 } } )
-  Use ( cur_dir + 'tmp_usl1' ) new
-  Index On DToS( date_b ) to ( cur_dir + 'tmp_usl1' )
+  Use ( cur_dir() + 'tmp_usl1' ) new
+  Index On DToS( date_b ) to ( cur_dir() + 'tmp_usl1' )
   Select USL
-  Index On iif( kod > 0, '1', '0' ) + fsort_usl( shifr ) to ( cur_dir + 'tmp_usl' )
-  Set Index to ( cur_dir + 'tmp_usl' ), ;
+  Index On iif( kod > 0, '1', '0' ) + fsort_usl( shifr ) to ( cur_dir() + 'tmp_usl' )
+  Set Index to ( cur_dir() + 'tmp_usl' ), ;
     ( dir_server + 'uslugi' ), ;
     ( dir_server + 'uslugish' ), ;
     ( dir_server + 'uslugis1' ), ;
@@ -140,7 +139,6 @@ Function f1_uslugi()
   Close databases
   g_sunlock( str_sem )
   RestScreen( buf )
-
   Return Nil
 
 //
@@ -165,14 +163,13 @@ Function f1_es_uslugi( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
   status_key( '^<Esc>^ выход ^<Enter>^ редактирование ^<Ins>^ добавление ^<F4>^ копирование ^<Del>^ удаление ^<F2>^ поиск' )
-
   Return Nil
 
 //
 Function f2_es_uslugi( nKey, oBrow )
 
   Static sshifr := '          '
-  Local j := 0, k := -1, buf := save_maxrow(), buf1, fl := .f., rec, ;
+  Local j := 0, k := -1, buf := save_maxrow(), fl := .f., rec, ;
     tmp_color := SetColor(), r1 := 14, c1 := 2
 
   Do Case
@@ -290,7 +287,6 @@ Function f2_es_uslugi( nKey, oBrow )
     Endif
   Endcase
   rest_box( buf )
-
   Return k
 
 // 22.12.22
@@ -511,13 +507,12 @@ Function f3_es_uslugi( nKey )
   SetColor( tmp_color )
   Select USL
   Set Order To 1
-
   Return ret
 
 // 22.12.22
 Function f4_es_uslugi( k, fl_poisk, nKey )
 
-  Local fl, v1, v2, s, rec, fl1del, fl2del
+  Local v1, v2, s, rec, fl1del, fl2del
 
   If k > 0
     Default fl_poisk To .f.
@@ -579,7 +574,6 @@ Function f4_es_uslugi( k, fl_poisk, nKey )
     Endif
     Select USL
   Endif
-
   Return update_gets()
 
 // 15.01.19
@@ -603,7 +597,6 @@ Function f0_es_uslugi()
     k := 2  // есть платная цена
   Endif
   Select USL
-
   Return k
 
 //
@@ -644,7 +637,6 @@ Function f0_e_uslugi1( lkod, ldate, is_base )
     tmp_usl1->name := lusl->name
   Endif
   Select ( tmp_select )
-
   Return s
 
 //
@@ -677,13 +669,12 @@ Function f1_e_uslugi1( k, r, c )
     Skip
   Enddo
   Select ( tmp_select )
-
   Return ret
 
 //
 Function f2_e_uslugi1( nKey, oBrow, regim )
 
-  Local ret := -1, buf, fl := .f., rec, rec1, r1, r2, tmp_color
+  Local ret := -1, buf, fl := .f., rec, tmp_color
 
   Do Case
   Case regim == 'open'
@@ -745,7 +736,6 @@ Function f2_e_uslugi1( nKey, oBrow, regim )
       Endif
     Endcase
   Endcase
-
   Return ret
 
 //
@@ -769,7 +759,6 @@ Function f3_e_uslugi1( get, ldate )
     Endif
     fl := func_error( 4, 'Неверное значение (ближайшая дата смены цен ' + date_8( arr_date_usl[ i ] ) + 'г.)' )
   Endif
-
   Return fl
 
 // 16.01.13
@@ -794,7 +783,6 @@ Function f4_e_uslugi1( get )
       mshifr1 := get:original
     Endif
   Endif
-
   Return fl
 
 //
@@ -814,8 +802,8 @@ Function spr_uslugi_ffoms()
   mywait()
   Private tmp_V002 := create_classif_ffoms( 0, 'V002' ) // PROFIL
   Select MOSU
-  Index On iif( kod > 0, '1', '0' ) + shifr1 to ( cur_dir + 'tmp_usl' )
-  Set Index to ( cur_dir + 'tmp_usl' ), ;
+  Index On iif( kod > 0, '1', '0' ) + shifr1 to ( cur_dir() + 'tmp_usl' )
+  Set Index to ( cur_dir() + 'tmp_usl' ), ;
     ( dir_server + 'mo_su' ), ;
     ( dir_server + 'mo_sush' ), ;
     ( dir_server + 'mo_sush1' )
@@ -837,7 +825,6 @@ Function spr_uslugi_ffoms()
   Close databases
   g_sunlock( str_sem )
   RestScreen( buf )
-
   Return Nil
 
 // 05.08.16
@@ -861,14 +848,13 @@ Function f1_ff_uslugi( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
   status_key( '^<Esc>^ выход ^<Enter>^ редактирование ^<Ins>^ добавление ^<Del>^ удаление ^<F2>^ поиск' )
-
   Return Nil
 
 // 09.09.18
 Function f2_ff_uslugi( nKey, oBrow )
 
   Static sshifr := '          '
-  Local j := 0, k := -1, buf := save_maxrow(), buf1, fl := .f., rec, ;
+  Local j := 0, k := -1, buf := save_maxrow(), fl := .f., rec, ;
     tmp_color := SetColor(), r1 := MaxRow() -10, c1 := 2
 
   Do Case
@@ -930,7 +916,6 @@ Function f2_ff_uslugi( nKey, oBrow )
     Endif
   Endcase
   rest_box( buf )
-
   Return k
 
 // 31.01.17
@@ -938,7 +923,7 @@ Function f3_ff_uslugi( nKey )
 
   Static menu_nul := { { 'нет', .f. }, { 'да', .t. } }
   Local buf := SaveScreen(), r1 := MaxRow() -9, ;
-    k, tmp_color := SetColor(), ret := mosu->( RecNo() )
+    tmp_color := SetColor(), ret := mosu->( RecNo() )
 
   Private mkod, mname, mshifr, mshifr1, m1PROFIL, mPROFIL, mzf, m1zf, m1tip, ;
     mname1, gl_area := { r1 + 1, 0, MaxRow() -1, MaxCol(), 0 }
@@ -1019,7 +1004,6 @@ Function f3_ff_uslugi( nKey )
   SetColor( tmp_color )
   Select MOSU
   Set Order To 1
-
   Return ret
 
 // 31.01.17
@@ -1105,7 +1089,6 @@ Function f4_ff_uslugi( k, nKey )
   Select MOSU
   Set Order To 1
   Goto ( rec )
-
   Return fl
 
 // Редактирование справочника комплексных услуг (для удобства ввода данных)
@@ -1129,7 +1112,6 @@ Function f_k_uslugi( r1 )
     { '═', '░', '═', , .t. } )
   Close databases
   g_sunlock( str_sem )
-
   Return Nil
 
 //
@@ -1150,13 +1132,12 @@ Function f1_k_uslugi( oBrow )
   Else
     status_key( '^<Esc>^ - выход;  ^<Enter>^ - выбор комплексной услуги' )
   Endif
-
   Return Nil
 
 //
 Function f2_k_uslugi( nKey, oBrow )
 
-  Local buf, fl := .f., rec, rec1, k := -1, r := MaxRow() -9, tmp_color
+  Local buf, fl := .f., rec, k := -1, r := MaxRow() -9, tmp_color
 
   Do Case
   Case ( nKey == K_INS .or. ( nKey == K_ENTER .and. !emptyall( uk->shifr, uk->name ) ) ) ;
@@ -1279,7 +1260,6 @@ Function f2_k_uslugi( nKey, oBrow )
     f3_k_uslugi()
     k := 0
   Endcase
-
   Return k
 
 //
@@ -1295,9 +1275,9 @@ Function f3_k_uslugi()
   adbf := dbStruct()
   AAdd( adbf, { 'rec_u1k', 'N', 6, 0 } )
   AAdd( adbf, { 'name', 'C', 64, 0 } )
-  dbCreate( cur_dir + 'tmp', adbf )
-  Use ( cur_dir + 'tmp' ) New Alias TMP
-  Index On shifr1 to ( cur_dir + 'tmp' )
+  dbCreate( cur_dir() + 'tmp', adbf )
+  Use ( cur_dir() + 'tmp' ) New Alias TMP
+  Index On shifr1 to ( cur_dir() + 'tmp' )
   Select U1K
   find ( uk->shifr )
   If ( fl_found := Found() )
@@ -1330,7 +1310,6 @@ Function f3_k_uslugi()
   tmp->( dbCloseArea() )
   Select UK
   RestScreen( buf )
-
   Return Nil
 
 //
@@ -1343,7 +1322,6 @@ Function f4_k_uslugi( oBrow )
   oColumn := TBColumnNew( Center( 'Наименование услуги', 64 ), {|| tmp->name } )
   oBrow:addcolumn( oColumn )
   status_key( '^<Esc>^ - выход;  ^<Ins>^ - добавление;  ^<Del>^ - удаление' )
-
   Return Nil
 
 //
@@ -1418,15 +1396,14 @@ Function f5_k_uslugi( nKey, oBrow )
   Otherwise
     Keyboard ''
   Endcase
-
   Return k
 
 //
 Function f6_k_uslugi()
 
-  Local fl := valid_shifr()
+  Local fl
 
-  If fl
+  If ( fl := valid_shifr() )
     Select USL
     find ( mshifr )
     If Found()
@@ -1435,7 +1412,6 @@ Function f6_k_uslugi()
       fl := func_error( 4, 'Нет такого шифра в базе данных услуг!' )
     Endif
   Endif
-
   Return fl
 
 
@@ -1459,9 +1435,9 @@ Function f_trkoef()
     Return func_error( 4, err_slock )
   Endif
   mywait()
-  dbCreate( cur_dir + 'tmp', uslugi )
-  Use ( cur_dir + 'tmp' ) Alias tmp
-  Index On fsort_usl( shifr ) to ( cur_dir + 'tmp' )
+  dbCreate( cur_dir() + 'tmp', uslugi )
+  Use ( cur_dir() + 'tmp' ) Alias tmp
+  Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp' )
   If useuch_usl() .and. r_use( dir_server + 'uslugi', , 'USL' )
     k1 := usl->( LastRec() )
     k2 := uu->( LastRec() )
@@ -1518,7 +1494,6 @@ Function f_trkoef()
   Close databases
   rest_box( buf )
   g_sunlock( str_sem )
-
   Return Nil
 
 //
@@ -1560,7 +1535,6 @@ Function f1_trkoef( oBrow )
     oBrow:addcolumn( oColumn )
   Endif
   status_key( '^<Esc>^ - выход;  ^<Enter>^ - редактирование коэффициентов;  ^<F2>^ - поиск по шифру' )
-
   Return Nil
 
 //
@@ -1609,7 +1583,6 @@ Function f2_trkoef( nKey, oBrow )
     Select TMP
     flag := 0
   Endif
-
   Return flag
 
 //
@@ -1624,7 +1597,6 @@ Function f2_e_trk()
     Skip
   Enddo
   Select UU
-
   Return rec
 
 //
@@ -1676,7 +1648,6 @@ Function f3_e_trk( r )
   Endif
   edit_browse( t_arr )
   Select UU
-
   Return f2_e_trk()
 
 //
@@ -1770,7 +1741,6 @@ Function f4_e_trk( nKey, oBrow, regim )
       Endif
     Endcase
   Endcase
-
   Return ret
 
 // плановая месячная трудоемкость персонала
@@ -1802,7 +1772,7 @@ Function f_trpers()
   mywait()
   If g_use( dir_server + 'uch_pers', dir_server + 'uch_pers', 'UCHP' ) .and. ;
       r_use( dir_server + 'mo_pers', , 'PERSO' )
-    Index On Str( kod, 4 ) to ( cur_dir + 'tmp_pers' ) For kod > 0
+    Index On Str( kod, 4 ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
     Select UCHP
     Set Order To 0
     Go Top
@@ -1840,8 +1810,8 @@ Function f_trpers()
     Commit
     Select UCHP
     Set Relation To Str( kod, 4 ) into PERSO
-    Index On Upper( perso->fio ) to ( cur_dir + 'tmp_uch' ) For god == lgod .and. mes == lmes
-    Set Index to ( cur_dir + 'tmp_uch' ), ( dir_server + 'uch_pers' )
+    Index On Upper( perso->fio ) to ( cur_dir() + 'tmp_uch' ) For god == lgod .and. mes == lmes
+    Set Index to ( cur_dir() + 'tmp_uch' ), ( dir_server + 'uch_pers' )
     Go Top
     alpha_browse( 2, 2, MaxRow() -2, 77, 'f1_trpers', color0, mtitle, 'BG+/GR', ;
       .f., , , , 'f2_trpers', , {, , , 'N/BG,W+/N,B/BG,BG+/B', .t., 180 } )
@@ -1849,7 +1819,6 @@ Function f_trpers()
   Close databases
   rest_box( buf )
   g_sunlock( str_sem )
-
   Return Nil
 
 //
@@ -1868,7 +1837,6 @@ Function f1_trpers( oBrow )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
   status_key( '^<Esc>^ - выход;  ^<Enter>^ - редактирование плановых УЕТ' )
-
   Return Nil
 
 //
@@ -1901,7 +1869,6 @@ Function f2_trpers( nKey, oBrow )
     rest_box( buf )
     SetColor( tmp_color ) ; flag := 0
   Endif
-
   Return flag
 
 // Редактирование справочника услуг, которые не должны быть оказаны в один день
@@ -1916,7 +1883,7 @@ Function f_ns_uslugi()
     Return func_error( 4, err_slock )
   Endif
   g_use( dir_server + 'ns_usl', , 'UK' )
-  Index On Upper( name ) to ( cur_dir + 'tmp_usl' )
+  Index On Upper( name ) to ( cur_dir() + 'tmp_usl' )
   Go Top
   If Eof()
     fl_found := .f.
@@ -1926,7 +1893,6 @@ Function f_ns_uslugi()
     {, , , , .t. } )
   Close databases
   g_sunlock( str_sem )
-
   Return Nil
 
 //
@@ -1940,7 +1906,7 @@ Function f2_ns_uslugi( nKey, oBrow )
     buf := save_maxrow()
     rec := RecNo()
     mywait()
-    fp := FCreate( 'n_uslugi' + stxt ) ; n_list := 1 ; tek_stroke := 0
+    fp := FCreate( 'n_uslugi' + stxt() ) ; n_list := 1 ; tek_stroke := 0
     add_string( '' )
     add_string( Center( 'Услуги, не совместимые по дате', sh ) )
     r_use( dir_server + 'uslugi', dir_server + 'uslugish', 'USL' )
@@ -1963,7 +1929,7 @@ Function f2_ns_uslugi( nKey, oBrow )
       Skip
     Enddo
     FClose( fp )
-    viewtext( 'n_uslugi' + stxt, , , , , , , 2 )
+    viewtext( 'n_uslugi' + stxt(), , , , , , , 2 )
     usl->( dbCloseArea() )
     u1k->( dbCloseArea() )
     Select UK
@@ -2030,7 +1996,6 @@ Function f2_ns_uslugi( nKey, oBrow )
     f3_ns_uslugi()
     k := 0
   Endcase
-
   Return k
 
 //
@@ -2045,9 +2010,9 @@ Function f3_ns_uslugi()
   adbf := dbStruct()
   AAdd( adbf, { 'rec_u1k', 'N', 6, 0 } )
   AAdd( adbf, { 'name', 'C', 64, 0 } )
-  dbCreate( cur_dir + 'tmp', adbf )
-  Use ( cur_dir + 'tmp' ) New Alias TMP
-  Index On shifr to ( cur_dir + 'tmp' )
+  dbCreate( cur_dir() + 'tmp', adbf )
+  Use ( cur_dir() + 'tmp' ) New Alias TMP
+  Index On shifr to ( cur_dir() + 'tmp' )
   Select U1K
   find ( Str( uk->( RecNo() ), 6 ) )
   If ( fl_found := Found() )
@@ -2076,7 +2041,6 @@ Function f3_ns_uslugi()
   tmp->( dbCloseArea() )
   Select UK
   RestScreen( buf )
-
   Return Nil
 
 //
@@ -2089,7 +2053,6 @@ Function f4_ns_uslugi( oBrow )
   oColumn := TBColumnNew( Center( 'Наименование услуги', 64 ), {|| tmp->name } )
   oBrow:addcolumn( oColumn )
   status_key( '^<Esc>^ - выход;  ^<Ins>^ - добавление;  ^<Del>^ - удаление' )
-
   Return Nil
 
 //
@@ -2161,15 +2124,14 @@ Function f5_ns_uslugi( nKey, oBrow )
   Otherwise
     Keyboard ''
   Endcase
-
   Return k
 
 //
 Function f6_ns_uslugi()
 
-  Local fl := valid_shifr()
+  Local fl
 
-  If fl
+  If ( fl := valid_shifr() )
     Select USL
     find ( mshifr )
     If Found()
@@ -2179,9 +2141,7 @@ Function f6_ns_uslugi()
       fl := func_error( 4, 'Нет такого шифра в базе данных услуг!' )
     Endif
   Endif
-
   Return fl
-
 
 // Ввод/редактирование услуг, у которых не вводится врач (ассистент)
 Function f_usl_uva()
@@ -2204,9 +2164,7 @@ Function f_usl_uva()
     { 'Асс-та нет?', {|| PadC( if( dbf1->kod_as == 1, '//', '' ), 12 ) } } }
   t_arr[ BR_EDIT ] := {| nk, ob| f1_usl_uva( nk, ob, 'edit' ) }
   edit_browse( t_arr )
-
   Return Nil
-
 
 //
 Function f1_usl_uva( nKey, oBrow, regim, lrec )
@@ -2277,7 +2235,6 @@ Function f1_usl_uva( nKey, oBrow, regim, lrec )
       Endif
     Endcase
   Endcase
-
   Return ret
 
 //
@@ -2297,13 +2254,12 @@ Function f2_usl_diag( get, nKey )
       mshifr := get:original
     Endif
   Endif
-
   Return fl
 
 // Ввод/редактирование услуг, которые могут быть оказаны человеку только раз в году
 Function f_usl_raz()
 
-  Local buf := SaveScreen(), adbf, i, n_file := dir_server + 'usl1year' + smem
+  Local buf := SaveScreen(), adbf, i, n_file := dir_server + 'usl1year' + smem()
 
   Private fl_found := .f., arr_usl1year := {}
 
@@ -2315,9 +2271,9 @@ Function f_usl_raz()
   adbf := { { 'kod', 'N', 4, 0 }, ;
     { 'shifr', 'C', 10, 0 }, ;
     { 'name', 'C', 64, 0 } }
-  dbCreate( cur_dir + 'tmp', adbf )
-  Use ( cur_dir + 'tmp' ) New Alias TMP
-  Index On fsort_usl( shifr ) to ( cur_dir + 'tmp' )
+  dbCreate( cur_dir() + 'tmp', adbf )
+  Use ( cur_dir() + 'tmp' ) New Alias TMP
+  Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp' )
   For i := 1 To Len( arr_usl1year )
     fl_found := .t.
     Select USL
@@ -2340,7 +2296,7 @@ Function f_usl_raz()
   RestScreen( buf )
   If f_esc_enter( 1 )
     arr_usl1year := {}
-    Use ( cur_dir + 'tmp' )
+    Use ( cur_dir() + 'tmp' )
     Go Top
     Do While !Eof()
       If !Empty( tmp->kod )
@@ -2351,7 +2307,6 @@ Function f_usl_raz()
     save_arr( arr_usl1year, n_file )
   Endif
   Close databases
-
   Return Nil
 
 //
@@ -2415,7 +2370,6 @@ Function f1_usl_raz( nKey, oBrow )
   Otherwise
     Keyboard ''
   Endcase
-
   Return k
 
 // 08.11.22
@@ -2447,7 +2401,6 @@ Function f5_uslugi( r1, c1 )
     {, , , , .t. } )
   dbCloseArea()
   g_sunlock( str_sem )
-
   Return Nil
 
 //
@@ -2464,7 +2417,6 @@ Function f51_uslugi( oBrow )
   Else
     status_key( '^<Esc>^ - выход;  ^<Enter>^ - выбор службы' )
   Endif
-
   Return Nil
 
 //
@@ -2567,5 +2519,4 @@ Function f52_uslugi( nKey, oBrow )
       Return 0
     Endif
   Endcase
-
   Return -1

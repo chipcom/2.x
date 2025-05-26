@@ -240,7 +240,6 @@ Function fspr_uslugi( k )
       sk := k
     Endif
   Endif
-
   Return Nil
 
 // 08.05.24
@@ -638,21 +637,7 @@ Function v_implantant()
   add_string( '' )
   l := sh
   ASort( arrImplantant, , , {| x, y| ( PadR( x[ 7 ], 75 ) + x[ 1 ] ) < ( PadR( y[ 7 ], 75 ) + y[ 1 ] ) } )
-  // vrem_local := arrImplantant[1, 7]
-  // if len(alltrim(vrem_local)) < 2
-  // add_string(center('Без группы', sh))
-  // else
-  // add_string(center(vrem_local, sh))
-  // endif
   For i := 1 To Len( arrImplantant )
-    // if vrem_local != arrImplantant[i, 7]
-    // if verify_FF(HH, .t., sh)
-    // endif
-    // vrem_local := arrImplantant[i, 7]
-    // add_string('')
-    // add_string(center(vrem_local, sh))
-    // add_string('')
-    // endif
     If verify_ff( HH, .t., sh )
     Endif
     k := perenos( mas, AllTrim( arrImplantant[ i, 1 ] ), l, ' , ;' )
@@ -703,9 +688,6 @@ Function v_nulusluga()
         verify_ff( HH, .t., sh )
       Endif
       s := RTrim( usl->shifr ) + ' '
-      // if usl->zf == 1
-      // s += '[ЗФ] '
-      // endif
       k := perenos( mas, s + AllTrim( usl->name ), l, ' , ;' )
       s := PadR( mas[ 1 ], l )
       If mem_trudoem == 2
@@ -818,9 +800,6 @@ Function usl1tfoms()
       use_base( 'luslc' )
       tmpAlias := create_name_alias( 'LUSLC', dy )
       Select ( tmpAlias )
-      // set order to 2 // работаем с собственными ценами
-      // find (scode)
-      // do while (tmpAlias)->CODEMO == scode .and. !eof()
       Go Top
       Do While !Eof()
         If ( tmpAlias )->datebeg == mdate
@@ -899,9 +878,6 @@ Function usl1tfoms()
       use_base( 'luslc' )
       tmpAlias := create_name_alias( 'LUSLC', dy )
       Select ( tmpAlias )
-      // set order to 2 // работаем с собственными ценами
-      // find (scode)
-      // do while (tmpAlias)->CODEMO == scode .and. !eof()
       Go Top
       Do While !Eof()
         If !Empty( ( tmpAlias )->dateend ) .and. ( tmpAlias )->dateend == mdate
@@ -1053,11 +1029,6 @@ Function usl2tfoms()
     n_list := 1
     tek_stroke := 0
     nu := get_uroven( mdate )
-    /*if between(nu, 1, 3)
-      s := "Уровень цен на мед.услуги: "+lstr(nu)
-    else
-      s := "Индивидуальные тарифы на мед.услуги"
-    endif*/
     add_string( glob_mo[ _MO_SHORT_NAME ] + iif( ValType( ret_arr ) == 'A', ' (' + ret_arr[ 1 ] + ')', '' ) )
     add_string( '' )
     add_string( Center( 'Список услуг по группе', sh ) )
@@ -1630,7 +1601,6 @@ Function usl_stom_ffoms()
   r_use_base( "luslf" )
   Index On Str( grp, 1 ) + shifr to ( cur_dir() + "tmp_uslf" )
   fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
-  // add_string("2020 год")
   add_string( Str( WORK_YEAR, 4, 0 ) + ' год' )
   add_string( Center( "Номенклатура стоматологических услуг Минздрава РФ (ФФОМС)", sh ) )
   add_string( "" )
@@ -1680,7 +1650,6 @@ Function usl_telemedicina()
   add_string( '' )
   Go Top
   Do While !Eof()
-    // k := perenos(t_arr, alltrim(luslf->shifr) + ' ' + luslf->name, sh)
     k := perenos( t_arr, PadR( luslf->shifr, 15 ) + ' ' + luslf->name, sh )
     verify_ff( HH - k, .t., sh )
     add_string( t_arr[ 1 ] )
@@ -2780,402 +2749,4 @@ Function diag_to_num( lshifr, j )
     Next
     lnum := Int( Val( s ) )
   Endif
-
   Return lnum
-
-// 15.10.24 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
-Function recreate_some_schet_from_file_sp( arr )
-
-  Local arr_XML_info[ 8 ], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[ 2 ], ;
-    i, s, rec_schet, rec_schet_xml, go_to_schet := .f., arr_schet := {}
-
-  Private name_schet, _date_schet, mXML_REESTR
-
-  For i := 1 To Len( arr )
-    Select SCHET
-    Goto ( arr[ i ] )
-    If emptyany( schet_->name_xml, schet_->kod_xml ) .or. schet_->IS_MODERN == 1
-      Return func_error( 4, "Некорректно заполнены поля счёта " + RTrim( schet_->nschet ) + ". Операция запрещена." )
-    Endif
-    If i == 1
-      mXML_REESTR := schet_->XML_REESTR // ссылка на реестр СП и ТК
-    Elseif mXML_REESTR != schet_->XML_REESTR
-      Return func_error( 4, "Счёт " + RTrim( schet_->nschet ) + " из другого реестра СП и ТК. Операция запрещена." )
-    Endif
-    AAdd( arr_schet, { ;
-      arr[ i ], ;                  // 1 - schet->(recno())
-      schet_->kod_xml, ;         // 2 - ссылка на файл "mo_xml"
-      schet_->name_xml, ;        // 3 - имя XML-файла без расширения (и ZIP-архива)
-      AllTrim( schet_->nschet ), ; // 4 - номер счета
-    schet_->dschet ;          // 5 - дата формирования счета
-      } )
-  Next
-  //
-  mo_xml->( dbGoto( mXML_REESTR ) )
-  If Empty( mo_xml->REESTR )
-    Return func_error( 4, "Отсутствует ссылка на первичный реестр! Операция запрещена." )
-  Endif
-  Private cReadFile := AllTrim( mo_xml->FNAME ) // имя файла реестра СП и ТК
-  Private cFileProtokol := cReadFile + stxt()     // имя файла протокола чтения реестра СП и ТК
-  Private mkod_reestr := mo_xml->REESTR       // код первичного реестра
-  Private cTimeBegin := hour_min( Seconds() )
-  Private name_zip := cReadFile + szip          // имя архива файла реестра СП и ТК
-  cFile := cReadFile + sxml                     // имя XML-файла реестра СП и ТК
-  //
-  rees->( dbGoto( mkod_reestr ) )
-  Private name_reestr := AllTrim( rees->name_xml ) + szip // имя архива файла первичного реестра
-  // распаковываем первичный реестр
-  If ( arr_f := extract_zip_xml( dir_server + dir_XML_MO + cslash, name_reestr ) ) == NIL
-    Return func_error( 4, "Ошибка в распаковке архива реестра " + name_reestr )
-  Endif
-  // распаковываем реестр СП и ТК
-  If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF + cslash, name_zip ) ) == NIL
-    Return func_error( 4, "Ошибка в распаковке архива реестра СП и ТК " + name_zip )
-  Endif
-  If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( cReadFile ) } ) ) == 0
-    Return func_error( 4, "В архиве " + name_zip + " нет файла " + cReadFile + sxml )
-  Endif
-  Close databases
-
-  If mo_lock_task( X_OMS ) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
-    k := Len( arr_schet )
-    s := iif( k == 1, "счёта ", lstr( k ) + " счетов " )
-    If iif( arr_schet[ 1, 5 ] > SToD( "20220224" ) .and. arr_schet[ 1, 5 ] < SToD( "20220228" ), .t., involved_password( 3, arr_schet[ 1, 4 ], "пересоздания " + s + arr_schet[ 1, 4 ] ) ) ;
-        .and. f_esc_enter( "пересоздания " + s ) // .and. m_copy_DB_from_end(.t.) // резервное копирование
-      Private fl_open := .t.
-      index_base( "schet" ) // для составления счетов
-      index_base( "human" ) // для разноски счетов
-      index_base( "human_3" ) // двойные случаи
-      Use ( dir_server + "human_u" ) New READONLY
-      Index On Str( kod, 7 ) + date_u to ( dir_server + "human_u" ) progress
-      Use
-      Use ( dir_server + "mo_hu" ) New READONLY
-      Index On Str( kod, 7 ) + date_u to ( dir_server + "mo_hu" ) progress
-      Use
-      index_base( "mo_refr" )  // для записи причин отказов
-      //
-      mywait()
-      StrFile( hb_eol() + ;
-        Space( 10 ) + "Повторная обработка файла: " + cFile + ;
-        hb_eol(), cFileProtokol )
-      StrFile( Space( 10 ) + full_date( sys_date ) + "г. " + cTimeBegin + ;
-        hb_eol(), cFileProtokol, .t. )
-      mywait( "Производится анализ файла " + cFile )
-      // читаем файл в память
-      oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
-      If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
-        AAdd( aerr, "Ошибка в чтении файла " + cFile )
-      Else
-        reestr_sp_tk_tmpfile( oXmlDoc, aerr, cReadFile )
-      Endif
-      If Empty( aerr )
-        r_use( dir_server + "mo_rees",, "REES" )
-        Goto ( mkod_reestr )
-        If !extract_reestr( rees->( RecNo() ), rees->name_xml )
-          AAdd( aerr, Center( "Не найден ZIP-архив с РЕЕСТРом № " + lstr( mnschet ) + " от " + date_8( tmp1->_DSCHET ), 80 ) )
-          AAdd( aerr, "" )
-          AAdd( aerr, Center( dir_server + dir_XML_MO + cslash + AllTrim( rees->name_xml ) + szip, 80 ) )
-          AAdd( aerr, "" )
-          AAdd( aerr, Center( "Без данного архива дальнейшая работа НЕВОЗМОЖНА!", 80 ) )
-        Endif
-      Endif
-      Close databases
-      If Empty( aerr )
-        dbCreate( cur_dir() + "tmpsh", { { "kod_h", "N", 7, 0 } } )
-        Use ( cur_dir() + "tmpsh" ) new
-        r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
-        For i := 1 To Len( arr_schet )
-          find ( Str( arr_schet[ i, 1 ], 6 ) )
-          Do While human->schet == arr_schet[ i, 1 ] .and. !Eof()
-            Select tmpsh
-            Append Blank
-            Replace kod_h With human->kod
-            Select HUMAN
-            Skip
-          Enddo
-        Next
-        Select tmpsh
-        Index On Str( kod_h, 7 ) to ( cur_dir() + "tmpsh" )
-        r_use( dir_server + "mo_rhum",, "RHUM" )
-        Index On Str( REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For reestr == mkod_reestr
-        // открыть распакованный реестр
-        Use ( cur_dir() + "tmp_r_t1" ) New Alias T1
-        Index On Str( Val( n_zap ), 6 ) to ( cur_dir() + "tmpt1" )
-        Use ( cur_dir() + "tmp_r_t2" ) New Alias T2
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt2" )
-        Use ( cur_dir() + "tmp_r_t3" ) New Alias T3
-        Index On Upper( ID_PAC ) to ( cur_dir() + "tmpt3" )
-        Use ( cur_dir() + "tmp_r_t4" ) New Alias T4
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt4" )
-        Use ( cur_dir() + "tmp_r_t5" ) New Alias T5
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt5" )
-        Use ( cur_dir() + "tmp_r_t6" ) New Alias T6
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt6" )
-        Use ( cur_dir() + "tmp_r_t7" ) New Alias T7
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt7" )
-        Use ( cur_dir() + "tmp_r_t8" ) New Alias T8
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt8" )
-        Use ( cur_dir() + "tmp_r_t9" ) New Alias T
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt9" )
-        Use ( cur_dir() + "tmp_r_t10" ) New Alias T10
-        Index On IDCASE + Str( sluch, 6 ) + regnum + code_sh + date_inj to ( cur_dir() + "tmpt10" )
-        Use ( cur_dir() + "tmp_r_t11" ) New Alias T11
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt11" )
-        Use ( cur_dir() + "tmp_r_t12" ) New Alias T12
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt12" )
-        Use ( cur_dir() + "tmp_r_t1_1" ) New Alias T1_1
-        Index On IDCASE to ( cur_dir() + "tmpt1_1" )
-        Use ( cur_dir() + "tmp2file" ) New Alias TMP2
-        is_new_err := .f.  // ушли ли какие-либо случаи в ошибки (т.е. новые ошибки)
-        Go Top
-        Do While !Eof()
-          If tmp2->_OPLATA == 1
-            Select T1
-            find ( Str( tmp2->_N_ZAP, 6 ) )
-            If Found()
-              t1->VPOLIS := lstr( tmp2->_VPOLIS )
-              t1->SPOLIS := tmp2->_SPOLIS
-              t1->NPOLIS := tmp2->_NPOLIS
-              t1->ENP    := tmp2->_ENP
-              t1->SMO    := tmp2->_SMO
-              t1->SMO_OK := tmp2->_SMO_OK
-              t1->MO_PR  := tmp2->_MO_PR
-            Endif
-          Endif
-          Select RHUM
-          find ( Str( tmp2->_N_ZAP, 6 ) )
-          If Found() .and. rhum->KOD_HUM > 0
-            Select tmpsh
-            find ( Str( rhum->KOD_HUM, 7 ) )
-            If Found()
-              tmp2->kod_human := rhum->KOD_HUM
-              If tmp2->_OPLATA > 1
-                is_new_err := .t. // т.е. в новом реестре СП и ТК человек ушёл в ошибки (а раньше попадал в счёт)
-              Endif
-            Endif
-          Else
-            AAdd( aerr, "" )
-            AAdd( aerr, " - не найден пациент с номером записи " + lstr( tmp2->_N_ZAP ) )
-          Endif
-          Select TMP2
-          Skip
-        Enddo
-        Select TMP2
-        Delete For kod_human == 0 // удалим тех, кто не входит в выбранные счета
-        Pack
-      Endif
-      Close databases
-      If Empty( aerr ) .and. is_new_err
-        r_use( dir_server + 'mo_otd',, 'OTD' )
-        g_use( dir_server + "human_",, "HUMAN_" )
-        g_use( dir_server + "human", { dir_server + "humann", dir_server + "humans" }, "HUMAN" )
-        Set Order To 0 // индексы открыты для реконструкции при перезаписи ФИО
-        Set Relation To RecNo() into HUMAN_, To otd into OTD
-        g_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
-        g_use( dir_server + "mo_rhum",, "RHUM" )
-        Index On Str( REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For reestr == mkod_reestr
-        g_use( dir_server + "mo_refr", dir_server + "mo_refr", "REFR" )
-        Use ( cur_dir() + "tmp3file" ) New Alias TMP3
-        Index On Str( _n_zap, 8 ) to ( cur_dir() + "tmp3" )
-        Use ( cur_dir() + "tmp2file" ) New Alias TMP2
-        Go Top
-        Do While !Eof()
-          If tmp2->_OPLATA > 1 // удаляем из счёта, удаляем из реестра, оформляем ошибку
-            Select RHUM
-            find ( Str( tmp2->_N_ZAP, 6 ) )
-            g_rlock( forever )
-            rhum->OPLATA := tmp2->_OPLATA
-            is_2 := 0
-            Select HUMAN
-            Goto ( rhum->KOD_HUM )
-            If eq_any( human->ishod, 88, 89 )
-              Select HUMAN_3
-              If human->ishod == 88
-                Set Order To 1
-                is_2 := 1
-              Else
-                Set Order To 2
-                is_2 := 2
-              Endif
-              find ( Str( rhum->KOD_HUM, 7 ) )
-              If Found() // если нашли двойной случай
-                Select HUMAN
-                If human->ishod == 88  // если реестр составлен по 1-му листу
-                  Goto ( human_3->kod2 )  // встать на 2-ой
-                Else
-                  Goto ( human_3->kod )   // иначе - на 1-ый
-                Endif
-                human->( g_rlock( forever ) )
-                human->schet := 0 ; human->tip_h := B_STANDART
-                //
-                human_->( g_rlock( forever ) )
-                human_->OPLATA := tmp2->_OPLATA
-                human_->REESTR := 0 // направляется на дальнейшее редактирование
-                human_->ST_VERIFY := 0 // снова ещё не проверен
-                If human_->REES_NUM > 0
-                  human_->REES_NUM := human_->REES_NUM - 1
-                Endif
-                human_->REES_ZAP := 0
-                If human_->schet_zap > 0
-                  If human_->SCHET_NUM > 0
-                    human_->SCHET_NUM := human_->SCHET_NUM - 1
-                  Endif
-                  human_->schet_zap := 0
-                Endif
-                //
-                human_3->( g_rlock( forever ) )
-                human_3->OPLATA := tmp2->_OPLATA
-                human_3->schet := 0
-                human_3->REESTR := 0
-                If human_3->REES_NUM > 0
-                  human_3->REES_NUM := human_3->REES_NUM - 1
-                Endif
-                human_3->REES_ZAP := 0
-                If human_3->SCHET_NUM > 0
-                  human_3->SCHET_NUM := human_3->SCHET_NUM -1
-                Endif
-                human_3->schet_zap := 0
-              Endif
-            Endif
-            Select HUMAN
-            Goto ( rhum->KOD_HUM )
-            g_rlock( forever )
-            human->schet := 0 ; human->tip_h := B_STANDART
-            human_->( g_rlock( forever ) )
-            human_->OPLATA := tmp2->_OPLATA
-            human_->REESTR := 0 // а направляется на дальнейшее редактирование
-            human_->ST_VERIFY := 0 // снова ещё не проверен
-            If human_->REES_NUM > 0
-              human_->REES_NUM := human_->REES_NUM - 1
-            Endif
-            human_->REES_ZAP := 0
-            If human_->SCHET_NUM > 0
-              human_->SCHET_NUM := human_->SCHET_NUM - 1
-            Endif
-            human_->schet_zap := 0
-            //
-            lal := "human"
-            If is_2 > 0
-              lal += "_3"
-            Endif
-            StrFile( "!!! " + AllTrim( human->fio ) + ", " + full_date( human->date_r ) + ;
-              iif( Empty( otd->SHORT_NAME ), "", " [" + AllTrim( otd->SHORT_NAME ) + "]" ) + ;
-              " " + AllTrim( human->KOD_DIAG ) + ;
-              " " + date_8( &lal.->n_data ) + "-" + date_8( &lal.->k_data ) + ;
-              hb_eol(), cFileProtokol, .t. )
-            Select REFR
-            Do While .t.
-              find ( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) )
-              If !Found() ; exit ; Endif
-              deleterec( .t. )
-            Enddo
-            Select TMP3
-            find ( Str( tmp2->_N_ZAP, 8 ) )
-            Do While tmp2->_N_ZAP == tmp3->_N_ZAP .and. !Eof()
-              Select REFR
-              addrec( 1 )
-              refr->TIPD := 1
-              refr->KODD := mkod_reestr
-              refr->TIPZ := 1
-              refr->KODZ := rhum->KOD_HUM
-              refr->IDENTITY := tmp2->_IDENTITY
-              refr->REFREASON := tmp3->_REFREASON
-              refr->SREFREASON := tmp3->SREFREASON
-              If Empty( refr->SREFREASON )
-                If Empty( s := ret_t005( refr->REFREASON ) )
-                  s := lstr( refr->REFREASON ) + ' неизвестная причина отказа'
-                Endif
-              Else
-                s := 'код ошибки = ' + tmp3->SREFREASON + ' '
-                s += '"' + getcategorycheckerrorbyid_q017( Left( tmp3->SREFREASON, 4 ) )[ 2 ] + '" '
-                // s += alltrim(inieditspr(A__POPUPMENU, dir_exe() + "_mo_Q015", tmp3->SREFREASON))
-                s += AllTrim( inieditspr( A__MENUVERT, loadq015(), tmp3->SREFREASON ) )
-              Endif
-              k := perenos( t_arr, s, 75 )
-              For i := 1 To k
-                StrFile( Space( 5 ) + t_arr[ i ] + hb_eol(), cFileProtokol, .t. )
-              Next
-              Select TMP3
-              Skip
-            Enddo
-            If is_2 > 0
-              StrFile( Space( 5 ) + '- разбейте двойной случай в режиме "ОМС/Двойные случаи/Разделить"' + ;
-                hb_eol(), cFileProtokol, .t. )
-              StrFile( Space( 5 ) + '- отредактируйте каждый из случаев в режиме "ОМС/Редактирование"' + ;
-                hb_eol(), cFileProtokol, .t. )
-              StrFile( Space( 5 ) + '- снова соберите случай в режиме "ОМС/Двойные случаи/Создать"' + ;
-                hb_eol(), cFileProtokol, .t. )
-            Endif
-          Endif
-          Select TMP2
-          Skip
-        Enddo
-        Close databases
-        StrFile( hb_eol(), cFileProtokol, .t. )
-      Endif
-      If Empty( aerr )
-        arr_f := {}
-        // создадим новые счета
-        go_to_schet := create_schet_from_xml( arr_XML_info, aerr,, arr_f, cReadFile )
-        Close databases
-        If Empty( aerr ) // если нет ошибок
-          use_base( "schet" )
-          Set Relation To
-          g_use( dir_server + "mo_xml",, "MO_XML" )
-          // удалим старые счета
-          For i := 1 To Len( arr_schet )
-            StrFile( hb_eol() + ;
-              "удалён старый счёт № " + arr_schet[ i, 4 ] + " от " + full_date( arr_schet[ i, 5 ] ) + ;
-              hb_eol(), cFileProtokol, .t. )
-            Select SCHET_
-            Goto ( arr_schet[ i, 1 ] )
-            deleterec( .t., .f. )  // без пометки на удаление
-            //
-            Select SCHET
-            Goto ( arr_schet[ i, 1 ] )
-            deleterec( .t. )
-            //
-            Select MO_XML
-            Goto ( arr_schet[ i, 2 ] )
-            deleterec( .t. )
-          Next
-          Close databases
-        Endif
-      Endif
-      If Empty( aerr )
-        // дозапишем предыдущий файл протокола обработки новым протоколом
-        f_append_file( dir_server + dir_XML_TF + cslash + cFileProtokol, cFileProtokol )
-        viewtext( devide_into_pages( dir_server + dir_XML_TF + cslash + cFileProtokol, 60, 80 ),,,, .t.,,, 2 )
-      Else
-        AEval( aerr, {| x| StrFile( x + hb_eol(), cFileProtokol, .t. ) } )
-        viewtext( devide_into_pages( cFileProtokol, 60, 80 ),,,, .t.,,, 2 )
-      Endif
-      Delete File ( cFileProtokol )
-    Endif
-    Close databases
-    // разрешение доступа всем
-    // G_SUnLock(sem_vagno)
-    mo_unlock_task( X_OMS )
-    Keyboard ""
-    If go_to_schet // если выписаны счета
-      Keyboard Chr( K_ENTER )
-    Endif
-  Else
-    func_error( 4, "В данный момент работают другие задачи. Операция запрещена!" )
-  Endif
-  Return Nil
-
-// 08.02.23 дополнить файл ofile строками из файла nfile
-Function f_append_file( ofile, nfile )
-
-  Local s
-
-  ft_use( nfile )
-  ft_gotop()
-  Do While !ft_eof()
-    s := ft_readln()
-    StrFile( s + hb_eol(), ofile, .t. )
-    ft_skip()
-  Enddo
-  ft_use()
-  Return Nil
