@@ -8,7 +8,6 @@
 Function _263_p_proverka()
 
   ne_real()
-
   Return Nil
 
 // 19.02.17 Ввод направлений на госпитализацию по поликлинике
@@ -75,7 +74,6 @@ Function _263_p_napr()
   Close databases
   g_sunlock( str_sem )
   rest_box( buf )
-
   Return Nil
 
 // 11.09.14
@@ -93,7 +91,6 @@ Function _263_put_otd( lotd )
     _otd->( dbCloseArea() )
     Select ( tmp_select )
   Endif
-
   Return s
 
 // 04.06.23
@@ -119,7 +116,6 @@ Function f1_263_p_napr()
       // s := 'будет гос-ван ' + date_8(napr->date_h_2)
     Endif
   Endif
-
   Return s
 
 // 06.11.22
@@ -452,7 +448,6 @@ Function f2_263_p_napr( nKey, oBrow, regim )
       Keyboard ''
     Endif
   Endcase
-
   Return ret
 
 // 21.02.17
@@ -471,7 +466,6 @@ Function for_263_p_annul()
   If fl
     fl := ( !Empty( napr->date_3 ) .or. Empty( KOD_F_4in ) )  // и не госпитализирован
   Endif
-
   Return fl
 
 // 21.02.17 Аннулирование выписанных направлений на госпитализацию по поликлинике
@@ -535,7 +529,6 @@ Function _263_p_annul()
   Close databases
   g_sunlock( str_sem )
   rest_box( buf )
-
   Return Nil
 
 // 19.02.17
@@ -558,7 +551,6 @@ Function f1_263_p_annul()
   Elseif napr->TIP_ANNUL == 2
     s := 'аннулировано в стационаре'
   Endif
-
   Return s
 
 // 04.06.23
@@ -745,14 +737,12 @@ Function f2_263_p_annul( nKey, oBrow, regim )
       Keyboard ''
     Endif
   Endcase
-
   Return ret
 
 // 29.06.14 Информирование наших пациентов о дате предстоящей госпитализации
 Function _263_p_inform()
 
   ne_real()
-
   Return Nil
 
 // 04.06.23 Просмотр количества свободных коек по профилям в стационарах
@@ -891,7 +881,6 @@ Function _263_p_svob_kojki()
     Endif
   Endif
   Close databases
-
   Return Nil
 
 // 06.08.14
@@ -920,7 +909,6 @@ Function f1_263_p_svob_kojki( k )
     Select NF
     Return PadR( lstr( k1 ) + ', свободно ' + lstr( k2 ), 20 )
   Endif
-
   Return Nil
 
 // 19.02.17
@@ -1054,5 +1042,4 @@ Function f2_263_p_svob_kojki( nKey, oBrow, regim, par )
       viewtext( n_file, , , , ( sh > 80 ), , , 6 )
     Endcase
   Endif
-
   Return ret

@@ -8,7 +8,6 @@
 Function _263_s_proverka()
 
   ne_real()
-
   Return Nil
 
 // 08.03.17 добавление / редактирование госпитализаций в стационаре
@@ -22,7 +21,6 @@ Function for_263_s_gospit()
   If fl .and. not_out
     fl := Empty( KOD_F_4out )
   Endif
-
   Return fl
 
 // 08.03.17 добавление / редактирование госпитализаций в стационаре
@@ -95,7 +93,6 @@ Function _263_s_gospit()
   Close databases
   g_sunlock( str_sem )
   rest_box( buf )
-
   Return Nil
 
 // 06.11.22
@@ -122,7 +119,6 @@ Function f0_263_s_gospit()
   Case napr->TYPE_H_4 == 4 // госп-ия: 4-экстр./неотл. (I05)
     s := inieditspr( A__MENUVERT, getv014(), napr->F_MEDC_4 ) + ' госпитализация'
   Endcase
-
   Return s
 
 // 19.02.17
@@ -146,7 +142,6 @@ Function f1_263_s_gospit()
       s := 'отправлено в ТФОМС'
     Endif
   Endif
-
   Return s
 
 // 19.02.17
@@ -241,7 +236,6 @@ Function f2_263_s_gospit( nKey, oBrow, regim )
       Keyboard ''
     Endif
   Endcase
-
   Return ret
 
 // 04.06.23 работа с направлениями на госпитализацию в стационаре
@@ -546,7 +540,6 @@ Function _263_edit_s_gospit( nKey )
   Endif
   SetColor( tmp_color )
   RestScreen( buf )
-
   Return flag
 
 // 14.09.16 подставить срок лечения по умолчанию для конкретного профиля
@@ -564,7 +557,6 @@ Function f1_263_edit_s_gospit()
     n7->( dbCloseArea() )
     Select ( tmp_select )
   Endif
-
   Return .t.
 
 // 08.03.17
@@ -590,7 +582,6 @@ Function for_263_input_napr()
   If fl .and. is_annul
     fl := ( TIP_ANNUL == 0 )
   Endif
-
   Return fl
 
 // * 08.03.17 выбор фильтра направлений для госпитализации
@@ -635,7 +626,6 @@ Function f1_263_input_napr()
       is_annul := ( i == 2 )
     Endif
   Endif
-
   Return fl
 
 // * 08.03.17 выбор направления для госпитализации
@@ -692,7 +682,6 @@ Function _263_input_napr()
   edit_browse( t_arr )
   Close databases
   rest_box( buf )
-
   Return lkod
 
 // 16.03.17 выписка (выбытие) пациента из стационара
@@ -770,7 +759,6 @@ Function _263_s_vybytie()
   Close databases
   g_sunlock( str_sem )
   rest_box( buf )
-
   Return Nil
 
 // 19.02.17
@@ -785,7 +773,6 @@ Function f1_263_s_vybytie()
   Elseif napr->t_ans_6 == 1
     s := 'получен ответ из ТФОМС'
   Endif
-
   Return s
 
 // 04.06.23
@@ -1008,7 +995,6 @@ Function f2_263_s_vybytie( nKey, oBrow, regim )
       Keyboard ''
     Endif
   Endcase
-
   Return ret
 
 // 08.03.17
@@ -1029,7 +1015,6 @@ Function for_263_s_napr()
   If fl
     fl := ( napr->KOD_F_4out == 0 .and. Between( date_d, arr_m[ 5 ], arr_m[ 6 ] ) )
   Endif
-
   Return fl
 
 // 08.03.17 работа с направлениями на госпитализацию в стационаре
@@ -1106,7 +1091,6 @@ Function _263_s_napr()
   Close databases
   g_sunlock( str_sem )
   rest_box( buf )
-
   Return Nil
 
 // 13.05.22
@@ -1121,7 +1105,6 @@ Function f1_263_s_napr()
   Elseif napr->KOD_F_3in > 0 .or. napr->KOD_F_3out > 0
     s := 'аннулировано ' + date_8( napr->date_3 )
   Endif
-
   Return s
 
 // 04.06.23
@@ -1338,7 +1321,6 @@ Function f2_263_s_napr( nKey, oBrow, regim )
       Keyboard ''
     Endif
   Endcase
-
   Return ret
 
 // 08.03.17
@@ -1359,7 +1341,6 @@ Function for_263_s_annul()
   If fl
     fl := Between( date_h_1, arr_m[ 5 ], arr_m[ 6 ] )
   Endif
-
   Return fl
 
 // 21.02.17 Аннулирование направлений, поступивших из поликлиник через ТФОМС
@@ -1427,7 +1408,6 @@ Function _263_s_annul()
   Close databases
   g_sunlock( str_sem )
   rest_box( buf )
-
   Return Nil
 
 // 08.03.17
@@ -1456,7 +1436,6 @@ Function f1_263_s_annul()
   Elseif napr->TIP_ANNUL == 3
     s := 'аннулировано в поликлинике'
   Endif
-
   Return s
 
 // 04.06.23
@@ -1642,7 +1621,6 @@ Function f2_263_s_annul( nKey, oBrow, regim )
       Keyboard ''
     Endif
   Endcase
-
   Return ret
 
 // 04.06.23 Ввод / редактирование количества свободных коек по профилям в стационаре
@@ -1761,7 +1739,6 @@ Function _263_s_svob_kojki()
   Close databases
   g_sunlock( str_sem )
   RestScreen( buf )
-
   Return Nil
 
 // 24.08.14
@@ -1787,7 +1764,6 @@ Function f0_263_s_svob_kojki()
       Return { 5, 6 }
     Endif
   Endif
-
   Return { 1, 2 }
 
 // 04.06.23
@@ -1804,7 +1780,6 @@ Function f1_263_s_svob_kojki( k )
   Elseif k == 2
     rest_box( buf )
   Endif
-
   Return Nil
 
 // 04.06.23
@@ -2005,7 +1980,6 @@ Function f2_263_s_svob_kojki( nKey, oBrow, regim )
       viewtext( n_file, , , , ( sh > 80 ), , , 6 )
     Endcase
   Endif
-
   Return ret
 
 // 24.08.14
@@ -2014,7 +1988,6 @@ Static Function count_place_free()
   mplace_free := mQUANTITY - ( mQ_P + mQ_AP - mQ_DP + mQ_HP )
   mPLACE_FREE2 := mPF_M + mPF_W + mPF_C
   update_get( 'mplace_free' )
-
   Return update_get( 'mplace_free2' )
 
 // 19.02.17
@@ -2094,5 +2067,4 @@ Function _263_put_10_days( mdate )
   Commit
   kart->( dbCloseArea() )
   napr->( dbCloseArea() )
-
   Return arr
