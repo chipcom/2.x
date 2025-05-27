@@ -38,7 +38,6 @@ Function getn001()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N002 ===================
@@ -76,35 +75,40 @@ Function getn002()
     Endif
     db := nil
   Endif
-
   Return _arr
 
-// 09.09.23
-Function getds_n002()
-
-  Static aStadii
-  Static time_load
+// 27.05.25
+Function getds_n002( mdate )
+ 
+  local aStadii
   Local row, it, i := 0
 
-  If timeout_load( @time_load )
-    aStadii := {}
-    For Each row in getn002()
-      If ! Empty( row[ 5 ] )
-        Loop
-      Endif
-      If ( it := AScan( aStadii, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
-        AAdd( aStadii[ it, 2 ], { row[ 1 ], row[ 2 ] } )
-      Else
-        AAdd( aStadii, { row[ 3 ], {} } )
-        i++
-        AAdd( aStadii[ i, 2 ], { row[ 1 ], row[ 2 ] } )
-      Endif
-    Next
-    For i := 1 To Len( aStadii )
-      ASort( aStadii[ i, 2 ], , , {| x, y| x[ 1 ] < y[ 1 ] } )
-    Next
-  Endif
+  default mdate to sys_date
+  if ValType( mdate ) == 'C'
+    mdate := CToD( mdate )
+  endif
+  aStadii := {}
+  For Each row in getn002()
+    if ! Empty( row[ 5 ] )
+      if ( row[ 4 ] <= mdate .and. row[ 5 ] >= mdate )
+        loop
+      endif
+    endif
 
+//      If ! Empty( row[ 5 ] )
+//        Loop
+//      Endif
+    If ( it := AScan( aStadii, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
+      AAdd( aStadii[ it, 2 ], { row[ 1 ], row[ 2 ] } )
+    Else
+      AAdd( aStadii, { row[ 3 ], {} } )
+      i++
+      AAdd( aStadii[ i, 2 ], { row[ 1 ], row[ 2 ] } )
+    Endif
+  Next
+  For i := 1 To Len( aStadii )
+    ASort( aStadii[ i, 2 ], , , {| x, y| x[ 1 ] < y[ 1 ] } )
+  Next
   Return aStadii
 
 // =========== N003 ===================
@@ -144,35 +148,40 @@ Function getn003()
     Endif
     db := nil
   Endif
-
   Return _arr
 
-// 09.09.23
-Function getds_n003()
+// 27.05.25
+Function getds_n003( mdate )
 
-  Static aTumor
-  Static time_load
+  local aTumor
   Local row, it, i := 0
 
-  If timeout_load( @time_load )
-    aTumor := {}
-    For Each row in getn003()
-      If ! Empty( row[ 6 ] )
-        Loop
-      Endif
-      If ( it := AScan( aTumor, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
-        AAdd( aTumor[ it, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
-      Else
-        AAdd( aTumor, { row[ 3 ], {} } )
-        i++
-        AAdd( aTumor[ i, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
-      Endif
-    Next
-    For i := 1 To Len( aTumor )
-      ASort( aTumor[ i, 2 ], , , {| x, y| x[ 1 ] < y[ 1 ] } )
-    Next
-  Endif
+  default mdate to sys_date
+  if ValType( mdate ) == 'C'
+    mdate := CToD( mdate )
+  endif
+  aTumor := {}
+  For Each row in getn003()
+    if ! Empty( row[ 6 ] )
+      if ( row[ 5 ] <= mdate .and. row[ 6 ] >= mdate )
+        loop
+      endif
+    endif
 
+//    If ! Empty( row[ 6 ] )
+//      Loop
+//    Endif
+    If ( it := AScan( aTumor, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
+      AAdd( aTumor[ it, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
+    Else
+      AAdd( aTumor, { row[ 3 ], {} } )
+      i++
+      AAdd( aTumor[ i, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
+    Endif
+  Next
+  For i := 1 To Len( aTumor )
+    ASort( aTumor[ i, 2 ], , , {| x, y| x[ 1 ] < y[ 1 ] } )
+  Next
   Return aTumor
 
 // =========== N004 ===================
@@ -212,35 +221,39 @@ Function getn004()
     Endif
     db := nil
   Endif
-
   Return _arr
 
-// 09.09.23
-Function getds_n004()
+// 27.05.25
+Function getds_n004( mdate )
 
   Static aNodus
-  Static time_load
   Local row, it, i := 0
 
-  If timeout_load( @time_load )
-    aNodus := {}
-    For Each row in getn004()
-      If ! Empty( row[ 6 ] )
-        Loop
-      Endif
-      If ( it := AScan( aNodus, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
-        AAdd( aNodus[ it, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
-      Else
-        AAdd( aNodus, { row[ 3 ], {} } )
-        i++
-        AAdd( aNodus[ i, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
-      Endif
-    Next
-    For i := 1 To Len( aNodus )
-      ASort( aNodus[ i, 2 ], , , {| x, y| x[ 1 ] < y[ 1 ] } )
-    Next
-  Endif
-
+  default mdate to sys_date
+  if ValType( mdate ) == 'C'
+    mdate := CToD( mdate )
+  endif
+  aNodus := {}
+  For Each row in getn004()
+    if ! Empty( row[ 6 ] )
+      if ( row[ 5 ] <= mdate .and. row[ 6 ] >= mdate )
+        loop
+      endif
+    endif
+//      If ! Empty( row[ 6 ] )
+//        Loop
+//      Endif
+    If ( it := AScan( aNodus, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
+      AAdd( aNodus[ it, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
+    Else
+      AAdd( aNodus, { row[ 3 ], {} } )
+      i++
+      AAdd( aNodus[ i, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
+    Endif
+  Next
+  For i := 1 To Len( aNodus )
+    ASort( aNodus[ i, 2 ], , , {| x, y| x[ 1 ] < y[ 1 ] } )
+  Next
   Return aNodus
 
 // =========== N005 ===================
@@ -280,35 +293,39 @@ Function getn005()
     Endif
     db := nil
   Endif
-
   Return _arr
 
-// 09.09.23
-Function getds_n005()
+// 27.05.25
+Function getds_n005( mdate )
 
-  Static aMetastasis
-  Static time_load
+  local aMetastasis
   Local row, it, i := 0
 
-  If timeout_load( @time_load )
-    aMetastasis := {}
-    For Each row in getn005()
-      If ! Empty( row[ 6 ] )
-        Loop
-      Endif
-      If ( it := AScan( aMetastasis, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
-        AAdd( aMetastasis[ it, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
-      Else
-        AAdd( aMetastasis, { row[ 3 ], {} } )
-        i++
-        AAdd( aMetastasis[ i, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
-      Endif
-    Next
-    For i := 1 To Len( aMetastasis )
-      ASort( aMetastasis[ i, 2 ], , , {| x, y| x[ 1 ] < y[ 1 ] } )
-    Next
-  Endif
-
+  default mdate to sys_date
+  if ValType( mdate ) == 'C'
+    mdate := CToD( mdate )
+  endif
+  aMetastasis := {}
+  For Each row in getn005()
+    if ! Empty( row[ 6 ] )
+      if ( row[ 5 ] <= mdate .and. row[ 6 ] >= mdate )
+        loop
+      endif
+    endif
+//      If ! Empty( row[ 6 ] )
+//        Loop
+//      Endif
+    If ( it := AScan( aMetastasis, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
+      AAdd( aMetastasis[ it, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
+    Else
+      AAdd( aMetastasis, { row[ 3 ], {} } )
+      i++
+      AAdd( aMetastasis[ i, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
+    Endif
+  Next
+  For i := 1 To Len( aMetastasis )
+    ASort( aMetastasis[ i, 2 ], , , {| x, y| x[ 1 ] < y[ 1 ] } )
+  Next
   Return aMetastasis
 
 // =========== N006 ===================
@@ -352,7 +369,6 @@ Function loadn006()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N007 ===================
@@ -388,7 +404,6 @@ Function getn007()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N008 ===================
@@ -426,7 +441,6 @@ Function loadn008()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // 12.09.23
@@ -438,7 +452,6 @@ Function getn008()
   For Each row in loadn008()
     AAdd( arr, { row[ 3 ], row[ 2 ] } )
   Next
-
   Return arr
 
 // =========== N009 ===================
@@ -476,7 +489,6 @@ Function getn009()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N010 ===================
@@ -514,7 +526,6 @@ Function loadn010()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N011 ===================
@@ -554,7 +565,6 @@ Function loadn011()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // 13.09.23
@@ -566,7 +576,6 @@ Function getn011()
   For Each row in loadn011()
     AAdd( arr, { row[ 4 ], row[ 2 ] } )
   Next
-
   Return arr
 
 // =========== N012 ===================
@@ -604,7 +613,6 @@ Function loadn012()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // 12.09.23
@@ -664,7 +672,6 @@ Function getn013()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N014 ===================
@@ -700,7 +707,6 @@ Function getn014()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N015 ===================
@@ -736,7 +742,6 @@ Function getn015()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N016 ===================
@@ -772,7 +777,6 @@ Function getn016()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N017 ===================
@@ -808,7 +812,6 @@ Function getn017()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N018 ===================
@@ -844,7 +847,6 @@ Function getn018()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N019 ===================
@@ -880,7 +882,6 @@ Function getn019()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N020 ===================
@@ -926,7 +927,6 @@ Function get_lek_pr_by_id( id_lekp )
   If hb_HHasKey( arr, id_lekp )
     ret := arr[ id_lekp ][ 2 ]
   Endif
-
   Return ret
 
 // 06.01.25
@@ -988,7 +988,6 @@ Function getn020( dk )
     stYear := year_dk
     db := nil
   Endif
-
   Return _arr
 
 // =========== N021 ===================
@@ -1036,7 +1035,6 @@ Function loadn021()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // 24.12.24
