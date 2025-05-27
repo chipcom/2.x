@@ -35,6 +35,14 @@ function menu_X_common()
     AAdd( ATail( first_menu ), 0 )
     AAdd( ATail( first_menu ), 'Пере~индексирование' )
     AAdd( ATail( first_message ), 'Переиндексирование части базы данных для задачи "' + array_tasks[ ind_task(), 5 ] + '"' )
-    AAdd( ATail( func_menu ), 'pereindex_task()' )
+    If glob_mo[ _MO_KOD_TFOMS ] == '103001'
+      If !hb_user_curUser:isadmin()
+        AAdd( ATail( func_menu ),  'func_error( 4, "Вход только АДМИНИСТРАТОРУ !" )'  )
+      else
+        AAdd( ATail( func_menu ), 'pereindex_task()' )
+      endif
+    else
+      AAdd( ATail( func_menu ), 'pereindex_task()' )
+    endif  
   Endif
   return nil
