@@ -115,13 +115,15 @@ Function f_verify_tnm( n, lkod, ldiag, ar )
 
   Return fl
 
-// 02.11.23 функция определения массива в ф-ии редактирования листа учёта
-Function f_define_tnm( n, ldiag )
+// 27.05.25 функция определения массива в ф-ии редактирования листа учёта
+Function f_define_tnm( n, ldiag, mdata )
 
   Local aRet := {}, sd, fl := .f.
   Local aTmp, it
-  Local nameFunc := 'getDS_N00' + lstr( n ) + '()'
+  Local nameFunc
 
+//  nameFunc := 'getDS_N00' + lstr( n ) + '( mdata )'
+  nameFunc := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdata ) + '")'  
   aTmp := &nameFunc
   sd := PadR( ldiag, 5 )
   If ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0

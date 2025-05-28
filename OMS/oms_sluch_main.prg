@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.01.25 добавление или редактирование случая (листа учета)
+// 27.05.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1013,10 +1013,10 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         If AScan( lmm_DS1_T, {| x| x[ 2 ] == m1DS1_T } ) == 0
           m1DS1_T := lmm_DS1_T[ 1, 2 ]
         Endif
-        mm_N002 := f_define_tnm( 2, mkod_diag )
-        mm_N003 := f_define_tnm( 3, mkod_diag )
-        mm_N004 := f_define_tnm( 4, mkod_diag )
-        mm_N005 := f_define_tnm( 5, mkod_diag )
+        mm_N002 := f_define_tnm( 2, mkod_diag, mk_data )
+        mm_N003 := f_define_tnm( 3, mkod_diag, mk_data )
+        mm_N004 := f_define_tnm( 4, mkod_diag, mk_data )
+        mm_N005 := f_define_tnm( 5, mkod_diag, mk_data )
         mDS1_T := inieditspr( A__MENUVERT, mm_DS1_T, m1DS1_T )
         mMTSTZ := inieditspr( A__MENUVERT, mm_danet, m1MTSTZ )
         If Len( mm_N002 ) == 1

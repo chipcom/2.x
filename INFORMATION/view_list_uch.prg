@@ -794,17 +794,17 @@ Function print_l_uch_disp(sh)
   endif
   return NIL
 
-// 27.01.25 добавка по онкологии к листу учёта
+// 27.05.25 добавка по онкологии к листу учёта
 Function print_luch_onk( dk,  diag, sh )
 
   local mm_DS1_T := getN018()  // N018
   local mm_usl_tip := getN013()
   local fname := prefixFileRefName( dk ) + 'shema'
 
-  local mm_N002 := f_define_tnm( 2, diag )
-  local mm_N003 := f_define_tnm( 3, diag )
-  local mm_N004 := f_define_tnm( 4, diag )
-  local mm_N005 := f_define_tnm( 5, diag )
+  local mm_N002 := f_define_tnm( 2, diag, dk )
+  local mm_N003 := f_define_tnm( 3, diag, dk )
+  local mm_N004 := f_define_tnm( 4, diag, dk )
+  local mm_N005 := f_define_tnm( 5, diag, dk )
   local mm_N014 := getn014()
   local mm_N015 := getn015()
   local mm_N016 := getn016()
