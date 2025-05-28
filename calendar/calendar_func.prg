@@ -21,16 +21,13 @@ function getArrayHoliday( mYear )
   if hArray == nil
     hArray := hb_Hash()
   Endif
-
   if ! hb_hHaskey( hArray, mYear )
     standart := {}
     nameView := 'year' + str( mYear, 4 )
-  
     db := opensql_db()
     strSQL := 'SELECT m_month, description FROM ' + nameView // + ' WHERE m_month=' + alltrim( str( Month( mYear ), 4 ) )
     aTable := sqlite3_get_table( db, strSQL )
     If Len( aTable ) > 1
-
       For nI := 2 To Len( aTable )
         hb_jsonDecode( alltrim( aTable[ nI, 2 ] ), @standart )
         AAdd( arr, { val( aTable[ nI, 1 ] ), standart } )
@@ -42,7 +39,6 @@ function getArrayHoliday( mYear )
   else
     fl := .t.
   endif
-
   if fl
     arr := hArray[ mYear ]
   endif
@@ -58,10 +54,8 @@ function check_next_visit_dn( gt, du )
   local lRet := .f.
 
   dt := CToD( gt:buffer )
-
   addOneMonth := AddMonth( du, 1 )
   addOneYear := AddMonth( du, 12 )
-
   if addOneMonth <= dt .and. dt <= addOneYear
     lRet := .t.
   else
@@ -283,11 +277,11 @@ Function year_month( rr, cc, za_v, kmp, ch_mm, ret_time )
     { 'mbeg', lstr( mbeg ) }, { 'mend', lstr( mend ) }, { 'sdate', DToS( sdate ) }, ;
     { 's1date', DToS( s1date ) }, { 'sdek', lstr( sdek ) }, ;
     { 's1time', s1time }, { 's2time', s2time } } )
-
   Return { ret_year, k1, k2, s_mes_god, c4tod( begin_date ), c4tod( end_date ), begin_date, end_date }
 
 // 26.09.13 запрос года
 Function input_year()
+
   Local ky, begin_date, end_date, r1, c1, r2, c2
 
   Store 0 To r1, c1, r2, c2
@@ -299,7 +293,6 @@ Function input_year()
   begin_date += Chr( 1 ) + Chr( 1 )
   end_date += Chr( 12 ) + Chr( 1 )
   end_date := dtoc4( EoM( c4tod( end_date ) ) )
-
   Return { ky, 1, 12, 'за' + Str( ky, 5 ) + ' год', c4tod( begin_date ), c4tod( end_date ), begin_date, end_date }
 
 // 18.01.22 функция выбора используемых дат из диапазона
@@ -320,19 +313,18 @@ Function select_arr_days( begin_date, end_date )
     Endif
     arr := bit_popup( r, 63, arr1, , color5 )
   Endif
-
   Return arr
 
 // 24.05.22 количество дней между датами
 Function count_days( d1, d2 )
+
   Local mdni
 
   If d1 <= d2
     mdni := d2 - d1 + 1
   Endif
-
   Return mdni
 
 // 16.02.2020 является ли выходным (праздничным) днём проведения диспансеризации
 Function f_is_prazdnik_dvn( _n_data )
-  Return !is_work_day( _n_data )
+  Return ! is_work_day( _n_data )
