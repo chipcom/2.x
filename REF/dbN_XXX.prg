@@ -77,7 +77,7 @@ Function getn002()
   Endif
   Return _arr
 
-// 27.05.25
+// 29.05.25
 Function getds_n002( mdate )
  
   local aStadii
@@ -88,16 +88,15 @@ Function getds_n002( mdate )
     mdate := CToD( mdate )
   endif
   aStadii := {}
-  For Each row in getn002()
-    if ! Empty( row[ 5 ] )
-      if ( row[ 4 ] <= mdate .and. row[ 5 ] >= mdate )
-        loop
-      endif
+  For Each row in getn002() 
+    // if ! Empty( row[ 5 ] )
+    //   if ( row[ 4 ] <= mdate .and. row[ 5 ] >= mdate )
+    //     loop
+    //   endif
+    // endif
+    if ! correct_date_dictionary( mdate, row[ 4 ], row[ 5 ] )
+      loop
     endif
-
-//      If ! Empty( row[ 5 ] )
-//        Loop
-//      Endif
     If ( it := AScan( aStadii, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
       AAdd( aStadii[ it, 2 ], { row[ 1 ], row[ 2 ] } )
     Else
@@ -150,7 +149,7 @@ Function getn003()
   Endif
   Return _arr
 
-// 27.05.25
+// 29.05.25
 Function getds_n003( mdate )
 
   local aTumor
@@ -162,15 +161,15 @@ Function getds_n003( mdate )
   endif
   aTumor := {}
   For Each row in getn003()
-    if ! Empty( row[ 6 ] )
-      if ( row[ 5 ] <= mdate .and. row[ 6 ] >= mdate )
-        loop
-      endif
+    // if ! Empty( row[ 6 ] )
+    //   if ( row[ 5 ] <= mdate .and. row[ 6 ] >= mdate )
+    //     loop
+    //   endif
+    // endif
+    if ! correct_date_dictionary( mdate, row[ 5 ], row[ 6 ] )
+      loop
     endif
 
-//    If ! Empty( row[ 6 ] )
-//      Loop
-//    Endif
     If ( it := AScan( aTumor, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
       AAdd( aTumor[ it, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
     Else
@@ -223,7 +222,7 @@ Function getn004()
   Endif
   Return _arr
 
-// 27.05.25
+// 29.05.25
 Function getds_n004( mdate )
 
   Static aNodus
@@ -235,14 +234,14 @@ Function getds_n004( mdate )
   endif
   aNodus := {}
   For Each row in getn004()
-    if ! Empty( row[ 6 ] )
-      if ( row[ 5 ] <= mdate .and. row[ 6 ] >= mdate )
-        loop
-      endif
+    // if ! Empty( row[ 6 ] )
+    //   if ( row[ 5 ] <= mdate .and. row[ 6 ] >= mdate )
+    //     loop
+    //   endif
+    // endif
+    if ! correct_date_dictionary( mdate, row[ 5 ], row[ 6 ] )
+      loop
     endif
-//      If ! Empty( row[ 6 ] )
-//        Loop
-//      Endif
     If ( it := AScan( aNodus, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
       AAdd( aNodus[ it, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
     Else
@@ -295,7 +294,7 @@ Function getn005()
   Endif
   Return _arr
 
-// 27.05.25
+// 29.05.25
 Function getds_n005( mdate )
 
   local aMetastasis
@@ -307,14 +306,14 @@ Function getds_n005( mdate )
   endif
   aMetastasis := {}
   For Each row in getn005()
-    if ! Empty( row[ 6 ] )
-      if ( row[ 5 ] <= mdate .and. row[ 6 ] >= mdate )
-        loop
-      endif
+    // if ! Empty( row[ 6 ] )
+    //   if ( row[ 5 ] <= mdate .and. row[ 6 ] >= mdate )
+    //     loop
+    //   endif
+    // endif
+    if ! correct_date_dictionary( mdate, row[ 5 ], row[ 6 ] )
+      loop
     endif
-//      If ! Empty( row[ 6 ] )
-//        Loop
-//      Endif
     If ( it := AScan( aMetastasis, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
       AAdd( aMetastasis[ it, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
     Else
