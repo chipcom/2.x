@@ -5,17 +5,16 @@
 
 #require 'hbsqlit3'
 
-// 22.10.24
+// 29.05.25
 function dir_server( path_server )
   // вызов с параметром path_server устанавливает переменную пути к БД программы,
   // без параметра возвращает путь к БД программы
 
   static dir
-  local cslash := hb_ps()
 
   if ! isnil( path_server )
-    If Right( path_server, 1 ) != cslash
-      path_server += cslash
+    If Right( path_server, 1 ) != hb_ps()
+      path_server += hb_ps()
     Endif
     dir := path_server
   endif
