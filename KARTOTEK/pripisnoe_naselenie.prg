@@ -101,7 +101,7 @@ Function pripisnoe_naselenie( k )
 Function view_reestr_pripisnoe_naselenie()
   Local buf := SaveScreen()
 
-  Private goal_dir := dir_server + dir_XML_MO + hb_ps()
+  Private goal_dir := dir_server + dir_XML_MO() + hb_ps()
 
   g_use( dir_server + "mo_krtf",, "KRTF" )
   g_use( dir_server + "mo_krtr",, "KRTR" )
@@ -451,7 +451,7 @@ Function f3_view_r_pr_nas( oBrow )
       Endif
     Else
       krtf->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + AllTrim( krtf->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( krtf->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select KRTR
@@ -1124,7 +1124,7 @@ Function preparation_for_pripisnoe_naselenie()
         Endif
         FClose( fp )
         If hb_FileExists( n_file )
-          chip_copy_zipxml( n_file, dir_server + dir_XML_MO, .t. )
+          chip_copy_zipxml( n_file, dir_server + dir_XML_MO(), .t. )
           Keyboard Chr( K_HOME ) + Chr( K_ENTER )
           Select KRTF
           g_rlock( forever )

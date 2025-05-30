@@ -1148,8 +1148,8 @@ Function read_xml_file_r06( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
   Close databases
   If Empty( aerr ) // если проверка прошла успешно
     // запишем принимаемый файл (реестр СП)
-    // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
-    chip_copy_zipxml( full_zip, dir_server + dir_XML_TF )
+    // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF())
+    chip_copy_zipxml( full_zip, dir_server + dir_XML_TF() )
     g_use( dir_server + "mo_xml",, "MO_XML" )
     If Empty( lrec_xml )
       addrecn()
@@ -1253,7 +1253,7 @@ Function read_xml_file_r06( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
 Function f_view_r05()
 
   Local i, k, buf := SaveScreen()
-  Private goal_dir := dir_server + dir_XML_MO + hb_ps()
+  Private goal_dir := dir_server + dir_XML_MO() + hb_ps()
 
   g_use( dir_server + "mo_xml",, "MO_XML" )
   r_use( dir_server + "mo_dr05p",, "R05p" )
@@ -1420,7 +1420,7 @@ Function f3_view_r05( oBrow )
       f31_view_r05( Abs( mm_func[ i ] ), mm_menu[ i ] )
     Else
       mo_xml->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select REES
@@ -2111,7 +2111,7 @@ Function f_view_r01( tip_f )
   Local i, k, buf := SaveScreen()
 
   Default tip_f To _XML_FILE_R01
-  Private goal_dir := dir_server + dir_XML_MO + hb_ps(), ptip_f := tip_f, pname_f := iif( tip_f == _XML_FILE_R01, "R01", "R11" )
+  Private goal_dir := dir_server + dir_XML_MO() + hb_ps(), ptip_f := tip_f, pname_f := iif( tip_f == _XML_FILE_R01, "R01", "R11" )
   g_use( dir_server + "mo_xml",, "MO_XML" )
   g_use( dir_server + "mo_dr01",, "REES" )
   If tip_f == _XML_FILE_R01
@@ -2362,7 +2362,7 @@ Function f3_view_r01( oBrow )
       f31_view_r01( Abs( mm_func[ i ] ), mm_menu[ i ] )
     Else
       mo_xml->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select REES
@@ -2802,8 +2802,8 @@ Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
   Close databases
   If Empty( aerr ) // если проверка прошла успешно
     // запишем принимаемый файл (реестр СП)
-    // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
-    chip_copy_zipxml( full_zip, dir_server + dir_XML_TF )
+    // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF())
+    chip_copy_zipxml( full_zip, dir_server + dir_XML_TF() )
     g_use( dir_server + "mo_xml",, "MO_XML" )
     addrecn()
     mo_xml->KOD := RecNo()
@@ -2990,7 +2990,7 @@ Function delete_reestr_r02( mkod_reestr, mname_reestr )
       func_error( 4, "Файл " + cFile + sxml + " корректно прочитан. Аннулирование запрещено!" )
       Return 0
     Endif
-    If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF, cFile + szip ) ) != NIL
+    If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF(), cFile + szip ) ) != NIL
       cFile += sxml
       // читаем файл в память
       oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )

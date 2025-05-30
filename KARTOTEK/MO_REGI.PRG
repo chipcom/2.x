@@ -2618,7 +2618,7 @@ Function view_otkrep_pripisnoe_naselenie()
 
   Local buf := SaveScreen()
 
-  Private goal_dir := dir_server + dir_XML_TF + hb_ps()
+  Private goal_dir := dir_server + dir_XML_TF() + hb_ps()
 
   r_use( dir_server + 'mo_krtf', , 'KRTF' )
   Index On DToS( dfile ) to ( cur_dir() + 'tmp_krtf' ) For TIP_IN == _CSV_FILE_OTKREP DESCENDING
@@ -2703,9 +2703,9 @@ Function read_csv_from_tf( cFile, nTypeFile, nkod_reestr )
   rest_box( buf )
   If Empty( aerr )
     // запишем принимаемый файл
-    chip_copy_zipxml( full_zip, dir_server + dir_XML_TF )
+    chip_copy_zipxml( full_zip, dir_server + dir_XML_TF() )
     // запишем файл протокола обработки
-    chip_copy_zipxml( cFileProtokol, dir_server + dir_XML_TF )
+    chip_copy_zipxml( cFileProtokol, dir_server + dir_XML_TF() )
   Endif
   If !Empty( aerr )
     AEval( aerr, {| x| StrFile( x + hb_eol(), cFileProtokol, .t. ) } )

@@ -551,7 +551,7 @@ Function view_list_hodatajstvo()
   if !G_SLock(Shodata_sem)
     return func_error(4,Shodata_err)
   endif
-  Private goal_dir := dir_server+dir_XML_MO+hb_ps()
+  Private goal_dir := dir_server+dir_XML_MO()+hb_ps()
   G_Use(dir_server+"mo_hod",,"HOD")
   index on str(year(dfile),4)+str(nn,4) to (cur_dir()+"tmp_hod") DESCENDING
   go top

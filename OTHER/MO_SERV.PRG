@@ -2540,7 +2540,7 @@ Function f_export( k )
       "Создание файла экспорта сведений о медицинской помощи, оказанной военнослужащим" }
     mas_fun := { "f_export(21)", ;
       "f_export(22)" }
-    Private sbase := "mo_voen", goal_dir := dir_server + dir_XML_MO + hb_ps(), ;
+    Private sbase := "mo_voen", goal_dir := dir_server + dir_XML_MO() + hb_ps(), ;
       Svoenn_sem := "Работа с военнослужащими", ;
       Svoenn_err := "В данный момент с военнослужащими работает другой пользователь"
     popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL + 5, 1, mas_pmt, mas_msg, mas_fun )
@@ -3047,7 +3047,7 @@ Function create_schets_oblsdrav()
     For schet_->nyear == 2018 .or. ( schet_->nyear == 2019 .and. Between( schet_->nmonth, 1, 6 ) )
   Go Top
   Do While !Eof()
-    cFile := dir_server + dir_XML_MO + hb_ps() + AllTrim( schet_->name_xml ) + szip()
+    cFile := dir_server + dir_XML_MO() + hb_ps() + AllTrim( schet_->name_xml ) + szip()
     If hb_FileExists( cFile )
       AAdd( arr_f, cFile )
     Endif
@@ -3244,11 +3244,11 @@ Function pripisnoe_naselenie_create_oblsdrav()
   //
   If hb_FileExists( name_file + sdbf() )
     If chip_create_zipxml( name_zip, { name_file + sdbf() }, .t. )
-      Copy File ( dir_server + dir_XML_MO + hb_ps() + name_zip ) to ( cur_dir() + name_zip )
+      Copy File ( dir_server + dir_XML_MO() + hb_ps() + name_zip ) to ( cur_dir() + name_zip )
       n_message( { "В каталоге " + cur_dir() + " создан файл " + Upper( name_zip ), ;
         "c прикрепленным населением для отправки в ВОМИАЦ." },, ;
         cColorSt2Msg, cColorStMsg,,, "G+/R" )
-      Delete File ( dir_server + dir_XML_MO + hb_ps() + name_zip )
+      Delete File ( dir_server + dir_XML_MO() + hb_ps() + name_zip )
     Endif
   Else
     func_error( 4, "Ошибка создания файла " + name_file )
@@ -4758,7 +4758,7 @@ Function create_main_base_from_reestrs()
       s := SubStr( strippath( arr_r[ i ] ), 4, 6 )
       If s == glob_MO[ _MO_KOD_TFOMS ]
         s := name_without_ext( arr_r[ i ] )
-        If chip_copy_zipxml( arr_r[ i ], dir_server + dir_XML_MO )
+        If chip_copy_zipxml( arr_r[ i ], dir_server + dir_XML_MO() )
           If extract_reestr( 1, s, .t., .f. )
             Use ( cur_dir() + "tmp1file" ) New Alias TMP1
             s1 := SubStr( AfterAtNum( "_", name_without_ext( strippath( arr_r[ i ] ) ) ), 5 )
@@ -4795,7 +4795,7 @@ Function create_main_base_from_reestrs()
       s := SubStr( strippath( arr_s[ i ] ), 3, 6 )
       If s == glob_MO[ _MO_KOD_TFOMS ]
         s := name_without_ext( arr_s[ i ] )
-        If chip_copy_zipxml( arr_s[ i ], dir_server + dir_XML_MO )
+        If chip_copy_zipxml( arr_s[ i ], dir_server + dir_XML_MO() )
           k := Len( pr_array_schet ) + 1
           If extract_reestr( k, s, .t., .t. )
             Use ( cur_dir() + "tmp1file" ) New Alias TMP1
@@ -4824,7 +4824,7 @@ Function create_main_base_from_reestrs()
             StrFile( arr_s[ i ] + ": не удалось открыть архив счетов" + hb_eol(), cImportProtokol, .t. )
             fl := .f. ; Exit
           Endif
-          Delete File ( dir_server + dir_XML_MO + hb_ps() + s + szip() )
+          Delete File ( dir_server + dir_XML_MO() + hb_ps() + s + szip() )
         Else
           StrFile( arr_s[ i ] + ": ошибка записи счёта в XML_MO" + hb_eol(), cImportProtokol, .t. )
           fl := .f. ; Exit
@@ -4919,7 +4919,7 @@ Function f1_create_main_base_from_reestrs( a_reestr )
   Private cReadFile, cTimeBegin, mkod_reestr, mdate_schet, is_err_FLK, cFileProtokol, full_zip, mXML_REESTR
   glob_podr := "" ; glob_otd_dep := 0 // пока без кода подразделения
   For i := 1 To Len( a_reestr )
-    If chip_copy_zipxml( a_reestr[ i, 1 ], dir_server + dir_XML_MO )
+    If chip_copy_zipxml( a_reestr[ i, 1 ], dir_server + dir_XML_MO() )
       StrFile( strippath( a_reestr[ i, 1 ] ) + ": обработка реестра № " + lstr( a_reestr[ i, 3 ] ) + hb_eol(), cImportProtokol, .t. )
       s := name_without_ext( a_reestr[ i, 1 ] )
       If extract_reestr( 1, s, .t. )
@@ -4963,8 +4963,8 @@ Function f1_create_main_base_from_reestrs( a_reestr )
                 StrFile( hb_eol() + "Тип файла: протокол ФЛК (форматно-логического контроля)" + hb_eol() + hb_eol(), cFileProtokol, .t. )
                 If read_xml_file_flk( arr_XML_info, aerr )
                   // запишем принимаемый файл (протокол ФЛК)
-                  // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
-                  chip_copy_zipxml( full_zip, dir_server + dir_XML_TF )
+                  // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF())
+                  chip_copy_zipxml( full_zip, dir_server + dir_XML_TF() )
                   Use ( cur_dir() + "tmp1file" ) New Alias TMP1
                   g_use( dir_server + "mo_xml",, "MO_XML" )
                   addrecn()
@@ -4982,7 +4982,7 @@ Function f1_create_main_base_from_reestrs( a_reestr )
                 Endif
                 If Empty( aerr )
                   // запишем файл протокола обработки
-                  chip_copy_zipxml( cFileProtokol, dir_server + dir_XML_TF )
+                  chip_copy_zipxml( cFileProtokol, dir_server + dir_XML_TF() )
                   Delete File ( cFileProtokol )
                 Else
                   ins_array( aerr, 1, "" )
@@ -5046,7 +5046,7 @@ Function f1_create_main_base_from_reestrs( a_reestr )
                 Endif
                 If Empty( aerr ) .or. nCountWithErr > 0
                   // запишем файл протокола обработки
-                  chip_copy_zipxml( cFileProtokol, dir_server + dir_XML_TF )
+                  chip_copy_zipxml( cFileProtokol, dir_server + dir_XML_TF() )
                   Delete File ( cFileProtokol )
                 Endif
                 If !Empty( aerr )

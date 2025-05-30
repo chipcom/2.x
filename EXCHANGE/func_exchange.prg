@@ -397,7 +397,7 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
         fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
-        viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
+        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
       Else
         find ( PadR( 'M' + SubStr( s, 2 ), 26 ) ) // имя то же самое, начиная со второго знака
         If Found()
@@ -531,7 +531,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
         fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
-        viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
+        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
       Elseif tip_csv_file == _CSV_FILE_ANSWER
         find ( PadR( 'MO' + SubStr( s, 2 ), 26 ) ) // имя то же самое, начиная с третьего знака
         If Found()
@@ -557,7 +557,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
         fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
-        viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
+        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
       Else
         find ( PadR( 'SZ' + SubStr( s, 3 ), 26 ) ) // имя то же самое, начиная с третьего знака
         If Found()

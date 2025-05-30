@@ -109,8 +109,8 @@ Function read_xml_file_rpd( arr_XML_info, aerr )
     Return Nil
   Endif
   // запишем принимаемый файл (РАК)
-  // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
-  chip_copy_zipxml( full_zip, dir_server + dir_XML_TF )
+  // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF())
+  chip_copy_zipxml( full_zip, dir_server + dir_XML_TF() )
   g_use( dir_server + "mo_xml", , "MO_XML" )
   addrecn()
   mo_xml->KOD := RecNo()
@@ -441,7 +441,7 @@ Function f2_view_rpd( nKey, oBrow )
 
   Do Case
   Case nKey == K_F3
-    viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ), , , , .t., , , 2 )
+    viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ), , , , .t., , , 2 )
     ret := 0
   Case nKey == K_ENTER
     view_rpd_pd( rec )

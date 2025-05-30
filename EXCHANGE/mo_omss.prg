@@ -56,7 +56,7 @@ Function read_from_tf()
     If verify_is_already_xml( cName, @_date, @_time )
       // спросить надо ли ещё раз читать, т.к. уже читали
       func_error( 4, 'Данный файл уже был прочитан и обработан в ' + _time + ' ' + date_8( _date ) + 'г.' )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
+      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
       Return fl
     Else
       s := 'чтения '
@@ -168,8 +168,8 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       StrFile( hb_eol() + 'Тип файла: протокол ФЛК (форматно-логического контроля)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
       If read_xml_file_flk( arr_XML_info, aerr )
         // запишем принимаемый файл (протокол ФЛК)
-        // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
-        chip_copy_zipxml( full_zip, dir_server + dir_XML_TF )
+        // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF())
+        chip_copy_zipxml( full_zip, dir_server + dir_XML_TF() )
         Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
         g_use( dir_server + 'mo_xml', , 'MO_XML' )
         addrecn()
@@ -245,7 +245,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
     mo_unlock_task( X_OMS )
   Endif
   If Empty( aerr ) .or. nCountWithErr > 0 // запишем файл протокола обработки
-    chip_copy_zipxml( cFileProtokol, dir_server + dir_XML_TF )
+    chip_copy_zipxml( cFileProtokol, dir_server + dir_XML_TF() )
   Endif
   If !Empty( aerr )
     AEval( aerr, {| x| put_long_str( x, cFileProtokol ) } )
@@ -285,7 +285,7 @@ Function read_xml_file_flk( arr_XML_info, aerr )
     If !extract_reestr( rees->( RecNo() ), rees->name_xml )
       AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом № ' + lstr( rees->nschet ) + ' от ' + date_8( rees->DSCHET ), 80 ) )
       AAdd( aerr, '' )
-      AAdd( aerr, Center( dir_server + dir_XML_MO + hb_ps() + AllTrim( rees->name_xml ) + szip, 80 ) )
+      AAdd( aerr, Center( dir_server + dir_XML_MO() + hb_ps() + AllTrim( rees->name_xml ) + szip, 80 ) )
       AAdd( aerr, '' )
       AAdd( aerr, Center( 'Без данного архива дальнейшая работа НЕВОЗМОЖНА!', 80 ) )
       Close databases
@@ -547,7 +547,7 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
   If Empty( aerr ) .and. !extract_reestr( rees->( RecNo() ), rees->name_xml )
     AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом № ' + lstr( mnschet ) + ' от ' + date_8( tmp1->_DSCHET ), 80 ) )
     AAdd( aerr, '' )
-    AAdd( aerr, Center( dir_server + dir_XML_MO + hb_ps() + AllTrim( rees->name_xml ) + szip, 80 ) )
+    AAdd( aerr, Center( dir_server + dir_XML_MO() + hb_ps() + AllTrim( rees->name_xml ) + szip, 80 ) )
     AAdd( aerr, '' )
     AAdd( aerr, Center( 'Без данного архива дальнейшая работа НЕВОЗМОЖНА!', 80 ) )
   Endif
@@ -648,8 +648,8 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
     Endif
     If Empty( aerr ) // если проверка прошла успешно
       // запишем принимаемый файл (реестр СП)
-      // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
-      chip_copy_zipxml( full_zip, dir_server + dir_XML_TF )
+      // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF())
+      chip_copy_zipxml( full_zip, dir_server + dir_XML_TF() )
       g_use( dir_server + 'mo_xml', , 'MO_XML' )
       addrecn()
       mo_xml->KOD := RecNo()

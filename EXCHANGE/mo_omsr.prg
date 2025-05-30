@@ -395,7 +395,7 @@ Function view_list_reestr()
   If !g_slock( Sreestr_sem )
     Return func_error( 4, Sreestr_err )
   Endif
-  Private goal_dir := dir_server + dir_XML_MO + hb_ps()
+  Private goal_dir := dir_server + dir_XML_MO() + hb_ps()
   g_use( dir_server + "mo_xml",, "MO_XML" )
   g_use( dir_server + "mo_rees",, "REES" )
   Index On DToS( dschet ) + Str( nschet, 6 ) to ( cur_dir() + "tmp_rees" ) DESCENDING
@@ -714,7 +714,7 @@ Function f3_view_list_reestr( oBrow )
       f31_view_list_reestr( Abs( mm_func[ i ] ), mm_menu[ i ] )
     Else
       mo_xml->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select REES
@@ -803,7 +803,7 @@ Function vozvrat_reestr()
   If !g_slock( Sreestr_sem )
     Return func_error( 4, Sreestr_err )
   Endif
-  Private goal_dir := dir_server + dir_XML_MO + hb_ps()
+  Private goal_dir := dir_server + dir_XML_MO() + hb_ps()
   g_use( dir_server + "mo_rees",, "REES" )
   Index On DToS( dschet ) + Str( nschet, 6 ) to ( cur_dir() + "tmp_rees" ) DESCENDING For Empty( date_out )
   Go Top
@@ -1093,7 +1093,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
     mtip_in := mo_xml->TIP_IN
     Close databases
     If mtip_in == _XML_FILE_SP // возврат реестра СП и ТК
-      If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF, cFile + szip ) ) != Nil .and. mo_lock_task( X_OMS )
+      If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF(), cFile + szip ) ) != Nil .and. mo_lock_task( X_OMS )
         cFile += sxml
         // читаем файл в память
         oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
@@ -1380,7 +1380,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                     Select MO_XML
                     Goto ( arr_schet[ i, 3 ] )
                     If !Empty( mo_xml->FNAME )
-                      s := dir_server + dir_XML_MO + hb_ps() + AllTrim( mo_xml->FNAME ) + szip
+                      s := dir_server + dir_XML_MO() + hb_ps() + AllTrim( mo_xml->FNAME ) + szip
                       If hb_FileExists( s )
                         Delete File ( s )
                       Endif
@@ -1400,7 +1400,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
         mo_unlock_task( X_OMS )
       Endif
     Elseif mTIP_IN == _XML_FILE_FLK // возврат протокола ФЛК
-      If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF, cFile + szip ) ) != Nil .and. mo_lock_task( X_OMS )
+      If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF(), cFile + szip ) ) != Nil .and. mo_lock_task( X_OMS )
         cFile += sxml
         // читаем файл в память
         oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )

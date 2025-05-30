@@ -11,9 +11,9 @@
 function XML_files_to_FTP( name_xml, kod )
 
   local zip_file, i
-  local out_dir := dir_server + dir_XML_MO + hb_ps()
+  local out_dir := dir_server + dir_XML_MO() + hb_ps()
   local xml_file := out_dir + AllTrim( name_xml ) + szip()
-  local in_dir := dir_server + dir_XML_TF + hb_ps()
+  local in_dir := dir_server + dir_XML_TF() + hb_ps()
   local fileName
   local ar := {}
   local ar_hrt := {}
@@ -250,8 +250,8 @@ Function create_zip( par, dir_archiv )
     // формируем имена архивов
     zip_file := 'mo' + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) + '_' + DToS( sys_date ) + ;
       Lower( iif( par != 3, szip(), schip ) )
-    zip_xml_mo := dir_XML_MO + szip()
-    zip_xml_tf := dir_XML_TF + szip()
+    zip_xml_mo := dir_XML_MO() + szip()
+    zip_xml_tf := dir_XML_TF() + szip()
     zip_napr_mo := dir_NAPR_MO() + szip()
     zip_napr_tf := dir_NAPR_TF() + szip()
     zip_xml_fns := 'XML_FNS' + szip()
@@ -259,14 +259,14 @@ Function create_zip( par, dir_archiv )
     hb_MemoWrit( sfile_begin, full_date( sys_date ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_XML_MO + hb_ps(), sast + szip(), blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_XML_MO + hb_ps(), sast + scsv(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_XML_MO() + hb_ps(), sast + szip(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_XML_MO() + hb_ps(), sast + scsv(), blk, afterDate )
     zip_xml_mo := fillzip( arr_f, zip_xml_mo )
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_XML_TF + hb_ps(), sast + szip(), blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_XML_TF + hb_ps(), sast + scsv(), blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_XML_TF + hb_ps(), sast + stxt(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_XML_TF() + hb_ps(), sast + szip(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_XML_TF() + hb_ps(), sast + scsv(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_XML_TF() + hb_ps(), sast + stxt(), blk, afterDate )
     zip_xml_tf := fillzip( arr_f, zip_xml_tf )
     //
     arr_f := {}

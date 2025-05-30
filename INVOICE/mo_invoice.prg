@@ -80,7 +80,7 @@ Function f21_view_list_schet()
   Local s := '', fl := .t., r := Row(), c := Col()
 
   If !emptyany( schet_->name_xml, schet_->kod_xml )
-    fl := hb_FileExists( dir_server + dir_XML_MO + hb_ps() + AllTrim( schet_->name_xml ) + szip() )
+    fl := hb_FileExists( dir_server + dir_XML_MO() + hb_ps() + AllTrim( schet_->name_xml ) + szip() )
     s := iif( fl, 'XML-файл: ', 'Нет XML-файла: ' ) + AllTrim( schet_->name_xml )
     mo_xml->( dbGoto( schet_->XML_REESTR ) )
     If mo_xml->REESTR > 0
@@ -270,7 +270,7 @@ Function f2_view_list_schet( nKey, oBrow )
           Private p_var_manager := 'copy_schet'
           s := manager( T_ROW, T_COL + 5, MaxRow() -2, , .t., 2, .f., , , ) // 'norton' для выбора каталога
           If !Empty( s )
-            goal_dir := dir_server + dir_XML_MO + hb_ps()
+            goal_dir := dir_server + dir_XML_MO() + hb_ps()
             If Upper( s ) == Upper( goal_dir )
               func_error( 4, 'Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо.' )
             Else
@@ -524,11 +524,11 @@ Function recreate_some_schet_from_file_sp( arr )
   rees->( dbGoto( mkod_reestr ) )
   Private name_reestr := AllTrim( rees->name_xml ) + szip() // имя архива файла первичного реестра
   // распаковываем первичный реестр
-  If ( arr_f := extract_zip_xml( dir_server + dir_XML_MO + hb_ps(), name_reestr ) ) == NIL
+  If ( arr_f := extract_zip_xml( dir_server + dir_XML_MO() + hb_ps(), name_reestr ) ) == NIL
     Return func_error( 4, "Ошибка в распаковке архива реестра " + name_reestr )
   Endif
   // распаковываем реестр СП и ТК
-  If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF + hb_ps(), name_zip ) ) == NIL
+  If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF() + hb_ps(), name_zip ) ) == NIL
     Return func_error( 4, "Ошибка в распаковке архива реестра СП и ТК " + name_zip )
   Endif
   If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( cReadFile ) } ) ) == 0
@@ -573,7 +573,7 @@ Function recreate_some_schet_from_file_sp( arr )
         If !extract_reestr( rees->( RecNo() ), rees->name_xml )
           AAdd( aerr, Center( "Не найден ZIP-архив с РЕЕСТРом № " + lstr( mnschet ) + " от " + date_8( tmp1->_DSCHET ), 80 ) )
           AAdd( aerr, "" )
-          AAdd( aerr, Center( dir_server + dir_XML_MO + hb_ps() + AllTrim( rees->name_xml ) + szip(), 80 ) )
+          AAdd( aerr, Center( dir_server + dir_XML_MO() + hb_ps() + AllTrim( rees->name_xml ) + szip(), 80 ) )
           AAdd( aerr, "" )
           AAdd( aerr, Center( "Без данного архива дальнейшая работа НЕВОЗМОЖНА!", 80 ) )
         Endif
@@ -843,8 +843,8 @@ Function recreate_some_schet_from_file_sp( arr )
       Endif
       If Empty( aerr )
         // дозапишем предыдущий файл протокола обработки новым протоколом
-        f_append_file( dir_server + dir_XML_TF + hb_ps() + cFileProtokol, cFileProtokol )
-        viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + cFileProtokol, 60, 80 ),,,, .t.,,, 2 )
+        f_append_file( dir_server + dir_XML_TF() + hb_ps() + cFileProtokol, cFileProtokol )
+        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cFileProtokol, 60, 80 ),,,, .t.,,, 2 )
       Else
         AEval( aerr, {| x| StrFile( x + hb_eol(), cFileProtokol, .t. ) } )
         viewtext( devide_into_pages( cFileProtokol, 60, 80 ),,,, .t.,,, 2 )
