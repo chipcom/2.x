@@ -980,7 +980,7 @@ Function dubl_zap_kod_tf()
       Skip
     Enddo
     Close databases
-    Delete File ( "t1dubl" + sntx )
+    Delete File ( "t1dubl" + sntx() )
     FClose( fp )
   Endif
   Delete File ( "t_dubl" + sdbf )

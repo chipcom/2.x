@@ -2127,8 +2127,8 @@ Function st_plat_ms( reg )
     Return Nil
   Endif
   If psz == 1
-  /*Private usl_dop := rest_arr(dir_server+"usl_pl_d"+smem),;
-          usl_mat := rest_arr(dir_server+"usl_pl_m"+smem)*/
+  /*Private usl_dop := rest_arr(dir_server+"usl_pl_d"+smem()),;
+          usl_mat := rest_arr(dir_server+"usl_pl_m"+smem())*/
   Endif
   adbf := { ;
     { "KOD",        "N",      4,      0 }, ;  // код персонала
@@ -9200,8 +9200,8 @@ Function sv2_ved_plat( arr, arr_otd )
     xx, yy, pole_va, lrec, t_date1, t_date2, arr_title, msum, msum_opl, ;
     musluga, mperso, mkod_perso, arr_usl := {}, adbf1, adbf2
   Private skol := { 0, 0 }, strud := { 0, 0 }, sstoim := { 0, 0 }
-/*Private usl_dop := rest_arr(dir_server+"usl_pl_d"+smem),;
-        usl_mat := rest_arr(dir_server+"usl_pl_m"+smem)*/
+/*Private usl_dop := rest_arr(dir_server+"usl_pl_d"+smem()),;
+        usl_mat := rest_arr(dir_server+"usl_pl_m"+smem())*/
 
   begin_date := arr[ 7 ]
   end_date := arr[ 8 ]
@@ -11131,7 +11131,7 @@ Function pl_print_faktura( ret, sk, ss )
   _t->fio_ruk := AllTrim( org->ruk )
   _t->fio_bux := AllTrim( org->bux )
   Close databases
-  call_fr( "mo_faktu" + sfr3 )
+  call_fr( "mo_faktu" + sfr3() )
 
   Return Nil
 
@@ -11192,7 +11192,7 @@ Function pl_print_akt( ret, sk, ss )
   _t->stoim := lstr( ss, 15, 2 )
   _t->sstoim := srub_kop( ss, .t. )
   Close databases
-  call_fr( "mo_akt" + sfr3 )
+  call_fr( "mo_akt" + sfr3() )
 
   Return Nil
 
@@ -11369,7 +11369,7 @@ Function rees_new_vzaim( nd_faktura )
   Close databases
   rest_box( buf )
   message_fr_excel()
-  call_fr( "mo_reesdms" + sfr3 )
+  call_fr( "mo_reesdms" + sfr3() )
 
   Return Nil
 
@@ -11540,7 +11540,7 @@ Function rees_new_vzaim_pol3( nd_faktura )
   Close databases
   rest_box( buf )
   message_fr_excel()
-  call_fr( "mo_reesdmsP3" + sfr3 )
+  call_fr( "mo_reesdmsP3" + sfr3() )
 
   Return Nil
 

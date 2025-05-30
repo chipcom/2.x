@@ -2320,7 +2320,7 @@ Function akt_list_of_refusal_pacient()
   Close databases
 
   rest_box( buf )
-  name_fr := "mo_spis_sn" + sfr3
+  name_fr := "mo_spis_sn" + sfr3()
   If _upr_epson() .or. !File( dir_exe() + name_fr )
     viewtext( n_file, , , , .f., , , 2 )
   Else

@@ -2795,12 +2795,12 @@ Function pril_5_6_62()
   If fl_999
     viewtext( name_file, , , , .t., , , 5 )
   Endif
-  fill_in_excel_book( dir_exe() + 'mo_pr5_62' + sxls, ;
-    cur_dir() + '__pr5_62' + sxls, ;
+  fill_in_excel_book( dir_exe() + 'mo_pr5_62' + sxls(), ;
+    cur_dir() + '__pr5_62' + sxls(), ;
     ar_pr5, ;
     'присланный из ТФОМС' )
-  fill_in_excel_book( dir_exe() + 'mo_pr6_62' + sxls, ;
-    cur_dir() + '__pr6_62' + sxls, ;
+  fill_in_excel_book( dir_exe() + 'mo_pr6_62' + sxls(), ;
+    cur_dir() + '__pr6_62' + sxls(), ;
     ar_pr6, ;
     'присланный из ТФОМС' )
 

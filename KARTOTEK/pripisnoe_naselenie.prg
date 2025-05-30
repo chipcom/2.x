@@ -122,7 +122,7 @@ Function view_reestr_pripisnoe_naselenie()
 Function f1_view_r_pr_nas( oBrow )
   Local oColumn, ;
     blk := {| _s| _s := goal_dir + AllTrim( krtr->FNAME ), ;
-    iif( hb_FileExists( _s + scsv ) .or. hb_FileExists( _s + szip ), ;
+    iif( hb_FileExists( _s + scsv() ) .or. hb_FileExists( _s + szip ), ;
     iif( Empty( krtr->date_out ), { 3, 4 }, { 1, 2 } ), ;
     { 5, 6 } ) }
 
@@ -155,7 +155,7 @@ Function f1_view_r_pr_nas( oBrow )
 Function f11_view_r_pr_nas()
   Local s := ""
 
-  If !( hb_FileExists( goal_dir + AllTrim( krtr->FNAME ) + scsv ) .or. ;
+  If !( hb_FileExists( goal_dir + AllTrim( krtr->FNAME ) + scsv() ) .or. ;
       hb_FileExists( goal_dir + AllTrim( krtr->FNAME ) + szip ) )
     krtf->( dbGoto( krtr->kod_f ) )
     If Empty( krtf->TWORK2 )
@@ -184,7 +184,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
     If LastKey() == K_ENTER .and. AScan( tmp_pss, Crypt( pss, gpasskod ) ) > 0 ;
         .and. f_esc_enter( "аннулирования файла", .t. )
       krtf->( dbGoto( krtr->kod_f ) )
-      zip_file := AllTrim( krtr->FNAME ) + iif( krtf->TIP_OUT == _CSV_FILE_REESTR, scsv, szip )
+      zip_file := AllTrim( krtr->FNAME ) + iif( krtf->TIP_OUT == _CSV_FILE_REESTR, scsv(), szip )
       str_sem := "f2_view_r_pr_nas_K_CTRL_F12"
       If g_slock( str_sem )
         mywait()
@@ -215,7 +215,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
     Endif
   Case nKey == K_CTRL_F12
     If Empty( krtf->TWORK2 ) // не дописан
-      zip_file := AllTrim( krtr->FNAME ) + iif( krtf->TIP_OUT == _CSV_FILE_REESTR, scsv, szip )
+      zip_file := AllTrim( krtr->FNAME ) + iif( krtf->TIP_OUT == _CSV_FILE_REESTR, scsv(), szip )
       If krtr->ANSWER > 0
         func_error( 4, "Ответ для данного файла уже был прочитан - аннулирование запрещено!" )
       Elseif hb_FileExists( goal_dir + zip_file )
@@ -260,7 +260,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
         If Upper( s ) == Upper( goal_dir )
           func_error( 4, "Вы выбрали каталог, в котором уже записан данный файл! Это недопустимо." )
         Else
-          zip_file := AllTrim( krtr->FNAME ) + iif( Left( krtr->FNAME, 2 ) == "MO", scsv, szip )
+          zip_file := AllTrim( krtr->FNAME ) + iif( Left( krtr->FNAME, 2 ) == "MO", scsv(), szip )
           If hb_FileExists( goal_dir + zip_file )
             mywait( 'Копирование "' + zip_file + '" в каталог "' + s + '"' )
             // copy file (goal_dir+zip_file) to (hb_OemToAnsi(s)+zip_file)
@@ -831,7 +831,7 @@ Function preparation_for_pripisnoe_naselenie()
       Elseif f_esc_enter( "создания файла прикрепления", .t. )
         mywait()
         s += glob_mo[ _MO_KOD_TFOMS ] + DToS( sys_date )
-        n_file := s + scsv
+        n_file := s + scsv()
         r_use( dir_exe() + "_mo_podr", cur_dir() + "_mo_podr", "PODR" )
         find ( glob_mo[ _MO_KOD_TFOMS ] )
         loidmo := AllTrim( podr->oidmo )
@@ -1350,7 +1350,7 @@ Function pripisnoe_naselenie_create_sverka()
   Index On DToS( DFILE ) to ( cur_dir() + "tmp_krtr" ) For Left( FNAME, 3 ) == s
   ar := {}
   For i := 1 To Len( arr )
-    n_file := s + glob_mo[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] ) + scsv
+    n_file := s + glob_mo[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] ) + scsv()
     s1 := ""
     find ( DToS( arr[ i, 2 ] ) )
     If Found()
@@ -1420,7 +1420,7 @@ Function pripisnoe_naselenie_create_sverka()
       dbUnlockAll()
       Commit
       //
-      n_file += scsv
+      n_file += scsv()
       Delete File ( n_file )
       fp := FCreate( n_file )
       //

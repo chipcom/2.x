@@ -51,7 +51,7 @@ FUNCTION initPZarray()
     sbase :=  prefixFileRefName( nYear ) + 'unit'  // справочник на конкретный год
     if exists_file_TFOMS( nYear, 'unit')
       arrPZ := get_array_PZ( nYear )
-      file_index := cur_dir() + sbase + sntx
+      file_index := cur_dir() + sbase + sntx()
       if hb_FileExists( file_index )
         G_Use( dir_exe() + sbase, cur_dir() + sbase, 'UNIT' )
       else

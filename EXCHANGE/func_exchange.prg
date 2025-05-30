@@ -405,7 +405,7 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
           r_use( dir_server + 'mo_krtr', , 'KRTR' )
           Goto ( kod_csv_reestr )
           If krtr->ANSWER == 0 .and. tip_csv_file == _CSV_FILE_PRIKANS
-            fl := func_error( 4, 'Сначала необходимо прочитать файл L' + SubStr( s, 2 ) + scsv )
+            fl := func_error( 4, 'Сначала необходимо прочитать файл L' + SubStr( s, 2 ) + scsv() )
           Endif
           krtr->( dbCloseArea() )
         Else
@@ -441,7 +441,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
         s := Upper( arr_f[ i ] )
         name_ext := name_extention( s )
         Do Case
-        Case Left( s, 8 ) == 'P' + c + 'RT34_M' .and. name_ext == spdf
+        Case Left( s, 8 ) == 'P' + c + 'RT34_M' .and. name_ext == spdf()
           AAdd( arr, { 1, 'протокол обработки поступивших сведений ' + s, s, name_ext } )
         Case eq_any( Left( s, 4 ), 'V' + c + 'RM', 'P' + c + 'RM' ) .and. name_ext == szip
           s1 := 'протокол ФЛК ' + s
@@ -450,9 +450,9 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
             s1 += ' [прочитан в ' + _time + ' ' + date_8( _date ) + 'г.]'
           Endif
           AAdd( arr, { 2, s1, s, name_ext } )
-        Case Left( s, 8 ) == 'M' + c + 'RT34_M' .and. name_ext == spdf
+        Case Left( s, 8 ) == 'M' + c + 'RT34_M' .and. name_ext == spdf()
           AAdd( arr, { 3, 'сведения о выполнении плана-задания ' + s, s, name_ext } )
-        Case Left( s, 8 ) == 'F' + c + 'RT34_M' .and. name_ext == spdf
+        Case Left( s, 8 ) == 'F' + c + 'RT34_M' .and. name_ext == spdf()
           AAdd( arr, { 4, 'сведения о выполнении обьемов ФО ' + s, s, name_ext } )
         Case Left( s, 7 ) == c + 'RT34_M' .and. name_ext == szip
           s1 := 'реестр СП и ТК ' + s
@@ -470,7 +470,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       If ( i := popup_prompt( T_ROW, T_COL -5, i, arr_f ) ) > 0
         cStFile := cName
         si := i
-        If arr[ i, 4 ] == spdf
+        If arr[ i, 4 ] == spdf()
           // file_AdobeReader(_tmp2dir1()+arr[i,3])
           view_file_in_viewer( _tmp2dir1() + arr[ i, 3 ] )
         Elseif arr[ i, 4 ] == szip
@@ -485,9 +485,9 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
         s := Upper( arr_f[ i ] )
         name_ext := name_extention( s )
         Do Case
-        Case Left( s, 1 ) == 'R' .and. name_ext == spdf
+        Case Left( s, 1 ) == 'R' .and. name_ext == spdf()
           AAdd( arr, { 1, 'протокол приёма поступивших счетов ОМС ' + s, s, name_ext } )
-        Case Left( s, 2 ) == 'NR' .and. name_ext == spdf
+        Case Left( s, 2 ) == 'NR' .and. name_ext == spdf()
           AAdd( arr, { 2, 'протокол отклонения поступивших счетов ОМС ' + s, s, name_ext } )
         Endcase
       Next
@@ -495,7 +495,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       arr_f := {}
       AEval( arr, {| x| AAdd( arr_f, x[ 2 ] ) } )
       If ( i := popup_prompt( T_ROW, T_COL -5, 1, arr_f ) ) > 0
-        If arr[ i, 4 ] == spdf
+        If arr[ i, 4 ] == spdf()
           // file_AdobeReader(_tmp2dir1()+arr[i,3])
           view_file_in_viewer( _tmp2dir1() + arr[ i, 3 ] )
         Endif

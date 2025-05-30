@@ -102,7 +102,7 @@ Function init_all_mem_public()
 
   Public MUSIC_ON_OFF := ( mem_sound == 2 )
 
-  If ( j := search_file( "lpu" + sini, 2 ) ) != NIL
+  If ( j := search_file( "lpu" + sini(), 2 ) ) != NIL
   /*i := GetIniVar( j, {{"kartoteka","uchastok",}} )
   if i[1] != NIL .and. eq_any(i[1],"1","2")
     is_uchastok := int(val(i[1]))
@@ -171,7 +171,7 @@ Function init_all_mem_public()
     Endif
   Endif
   //
-  If ( j := search_file( "lpu_stom" + sini ) ) != NIL
+  If ( j := search_file( "lpu_stom" + sini() ) ) != NIL
     k := getinisect( j, "Категория" )
     If !Empty( k )
       stm_kategor2 := {}

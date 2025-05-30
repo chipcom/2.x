@@ -2659,7 +2659,7 @@ Function export_military()
 Function f1_export_military( oBrow )
 
   Local oColumn, ;
-    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( voen->FNAME ) + sxls ), ;
+    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( voen->FNAME ) + sxls() ), ;
     iif( Empty( voen->date_out ), { 3, 4 }, { 1, 2 } ), ;
     { 5, 6 } ) }
 
@@ -2687,7 +2687,7 @@ Static Function f11_export_military()
 
   Local s := ""
 
-  If !hb_FileExists( goal_dir + AllTrim( voen->FNAME ) + sxls )
+  If !hb_FileExists( goal_dir + AllTrim( voen->FNAME ) + sxls() )
     s := "нет файла"
   Elseif Empty( voen->date_out )
     s := "не записан"
@@ -2711,7 +2711,7 @@ Function f2_export_military( nKey, oBrow )
         If Upper( s ) == Upper( goal_dir )
           func_error( 4, "Вы выбрали каталог, в котором уже записан целевой файл! Это недопустимо." )
         Else
-          zip_file := AllTrim( voen->FNAME ) + sxls
+          zip_file := AllTrim( voen->FNAME ) + sxls()
           If hb_FileExists( goal_dir + zip_file )
             mywait( 'Копирование "' + zip_file + '" в каталог "' + s + '"' )
             // copy file (goal_dir+zip_file) to (hb_OemToAnsi(s)+zip_file)
@@ -2741,7 +2741,7 @@ Function f2_export_military( nKey, oBrow )
       stat_msg( "Подтвердите удаление ещё раз." ) ; mybell( 2 )
       If f_esc_enter( "удаления файла за " + date_8( voen->dfile ), .t. )
         mywait( "Ждите. Производится удаление файла с военнослужащими." )
-        zip_file := AllTrim( voen->fname ) + sxls
+        zip_file := AllTrim( voen->fname ) + sxls()
         If hb_FileExists( goal_dir + zip_file )
           Delete File ( goal_dir + zip_file )
         Endif
@@ -2936,7 +2936,7 @@ Function f_create_military()
         Endif
       Next
       n_file := "V_" + glob_mo[ _MO_KOD_TFOMS ] + "_" + DToS( sys_date )
-      Delete File ( n_file + sxls )
+      Delete File ( n_file + sxls() )
       delfrfiles()
       adbf := { { "name_f", "C", 30, 0 }, ;
         { "codemo", "C", 6, 0 }, ;
@@ -2946,7 +2946,7 @@ Function f_create_military()
       dbCreate( fr_titl, adbf )
       Use ( fr_titl ) New Alias FRT
       Append Blank
-      frt->name_f := n_file + sxls
+      frt->name_f := n_file + sxls()
       frt->codemo := glob_mo[ _MO_KOD_TFOMS ]
       frt->name   := glob_mo[ _MO_SHORT_NAME ]
       frt->data   := full_date( sys_date )
@@ -2980,7 +2980,7 @@ Function f_create_military()
         Skip
       Enddo
       Close databases
-      call_fr( "mo_voenn", 3, n_file + sxls,, .f. )
+      call_fr( "mo_voenn", 3, n_file + sxls(),, .f. )
       g_use( dir_server + sbase,, "VOEN" )
       addrecn()
       voen->period := arr_m[ 4 ]
@@ -2992,7 +2992,7 @@ Function f_create_military()
       voen->NUMB_OUT := 0
       voen->company := s
       Close databases
-      If chip_copy_zipxml( n_file + sxls, goal_dir, .t. )
+      If chip_copy_zipxml( n_file + sxls(), goal_dir, .t. )
         Keyboard Chr( K_HOME ) + Chr( K_ENTER )
       Endif
     Endif

@@ -1656,7 +1656,7 @@ Function forma_12_o()
   //
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   //
-  nf := dir_server + "f39_nast" + smem
+  nf := dir_server + "f39_nast" + smem()
   If File( nf )
     arv := rest_arr( nf )
     au1 := arv[ 1 ]

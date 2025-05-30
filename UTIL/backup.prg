@@ -153,7 +153,7 @@ Function m_copy_db_from_end( del_last, spath )
   dir_archiv += hb_ps()
   // все уже сохранённые архивы - в массив
   arr_f := Directory( dir_archiv + 'mo*' + szip() )
-  ta := Directory( dir_archiv + 'mo*' + schip )
+  ta := Directory( dir_archiv + 'mo*' + schip() )
   For i := 1 To Len( ta )
     AAdd( arr_f, AClone( ta[ i ] ) )
   Next
@@ -249,7 +249,7 @@ Function create_zip( par, dir_archiv )
       'не прерывайте процесс!' }, , 'GR+/R', 'W+/R', 13 )
     // формируем имена архивов
     zip_file := 'mo' + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) + '_' + DToS( sys_date ) + ;
-      Lower( iif( par != 3, szip(), schip ) )
+      Lower( iif( par != 3, szip(), schip() ) )
     zip_xml_mo := dir_XML_MO() + szip()
     zip_xml_tf := dir_XML_TF() + szip()
     zip_napr_mo := dir_NAPR_MO() + szip()

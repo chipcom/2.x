@@ -80,7 +80,7 @@ Function existsnsifile( sbase, vYear )
   If ( fl := hb_vfExists( dir_exe() + fName + sdbf ) )
     Do Case
     Case sBase == 'lusl'
-      fIndex := cur_dir() + fName + sntx
+      fIndex := cur_dir() + fName + sntx()
       If ( fl := hb_vfExists( dir_exe() + fName + sdbf ) )
         If ! hb_vfExists( fIndex )
           r_use( dir_exe() + fName, , sBase )
@@ -89,10 +89,10 @@ Function existsnsifile( sbase, vYear )
         Endif
       Endif
     Case sBase == 'luslc'
-      fIndex := cur_dir() + fName + sntx
+      fIndex := cur_dir() + fName + sntx()
       fIndex_add :=  prefixfilerefname( vYear ) + 'uslu'  //
       If ( fl := hb_vfExists( dir_exe() + fName + sdbf ) )
-        If ( ! hb_vfExists( fIndex ) ) .or. ( ! hb_vfExists( cur_dir() + fIndex_add + sntx ) )
+        If ( ! hb_vfExists( fIndex ) ) .or. ( ! hb_vfExists( cur_dir() + fIndex_add + sntx() ) )
           r_use( dir_exe() + fName, , sBase )
           Index On shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( findex ) ;
             For codemo == glob_mo[ _MO_KOD_TFOMS ]
@@ -103,7 +103,7 @@ Function existsnsifile( sbase, vYear )
       Endif
     Case sBase == 'luslf'
       fName := prefixfilerefname( vYear ) + 'uslf'
-      fIndex := cur_dir() + fName + sntx
+      fIndex := cur_dir() + fName + sntx()
       If ( fl := hb_vfExists( dir_exe() + fName + sdbf ) )
         If ! hb_vfExists( fIndex )
           r_use( dir_exe() + fName, , sBase )
@@ -144,7 +144,7 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY, lUseIndex )
         fName := prefixfilerefname( countYear ) + SubStr( sbase, 2 )
         lAlias := create_name_alias( sBase, countYear )
         If ! ( lAlias )->( Used() )
-          sind1 := cur_dir() + fName + sntx
+          sind1 := cur_dir() + fName + sntx()
           If ! hb_vfExists( sind1 )
             r_use( dir_exe() + fName, , lAlias )
             Index On shifr to ( sind1 )
@@ -163,8 +163,8 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY, lUseIndex )
         fname_add := prefixfilerefname( countYear ) + SubStr( sbase, 2, 3 ) + 'u'
         lAlias := sBase + iif( countYear == WORK_YEAR, '', SubStr( Str( countYear, 4 ), 3 ) )
         If ! ( lAlias )->( Used() )
-          sind1 := cur_dir() + fName + sntx
-          sind2 := cur_dir() + fname_add + sntx
+          sind1 := cur_dir() + fName + sntx()
+          sind2 := cur_dir() + fname_add + sntx()
           If ! ( hb_vfExists( sind1 ) .or. hb_vfExists( sind2 ) )
             r_use( dir_exe() + fName, , lAlias )
             Index On shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( sind1 ) ;
@@ -183,7 +183,7 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY, lUseIndex )
         fName := prefixfilerefname( countYear ) + SubStr( sbase, 2 )
         lAlias := sBase + iif( countYear == WORK_YEAR, '', SubStr( Str( countYear, 4 ), 3 ) )
         If ! ( lAlias )->( Used() )
-          sind1 := cur_dir() + fName + sntx
+          sind1 := cur_dir() + fName + sntx()
           If ! hb_vfExists( sind1 )
             r_use( dir_exe() + fName, , lAlias )
             Index On shifr to ( sind1 )

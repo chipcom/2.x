@@ -53,10 +53,19 @@ Procedure Main( ... )
   Public kod_LIS   := { '125901', '805965' }
   //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
-  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT', szip := '.ZIP', ;
-    smem := '.MEM', srar := '.RAR', sxml := '.XML', sini := '.INI', ;
-    sfr3 := '.FR3', sfrm := '.FRM', spdf := '.PDF', scsv := '.CSV', ;
-    sxls := '.xls', schip := '.CHIP', sdbt := '.dbt'
+  Public sdbf := '.DBF', stxt := '.TXT', szip := '.ZIP', ;
+    sxml := '.XML'
+//  , sntx := '.NTX'
+//  srar := '.RAR', 
+//  smem := '.MEM', 
+//  , sini := '.INI'
+//  , ; sfr3 := '.FR3'
+//  , sfrm := '.FRM'
+//  , spdf := '.PDF'
+//  , scsv := '.CSV'
+//  , ; sxls := '.xls'
+//  , schip := '.CHIP'
+//  , sdbt := '.dbt'
 //  Public cslash := hb_ps()    // '\'
 
   Public public_mouse := .f., pravo_write := .t., pravo_read := .t., ;

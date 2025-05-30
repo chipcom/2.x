@@ -296,7 +296,7 @@ Function forma_39_()
   If j == 0
     func_error( 4, "Нет информации!" )
   Else
-    name_fr := "mo_f39" + sfr3
+    name_fr := "mo_f39" + sfr3()
     If _upr_epson() .or. !File( dir_exe() + name_fr )
       viewtext( name_file,,,, .t.,,, reg_print )
     Else
@@ -601,7 +601,7 @@ Function forma_39otd()
   If j == 0
     func_error( 4, "Нет информации!" )
   Else
-    name_fr := "mo_f39" + sfr3
+    name_fr := "mo_f39" + sfr3()
     If _upr_epson() .or. !File( dir_exe() + name_fr )
       viewtext( name_file,,,, .t.,,, reg_print )
     Else
@@ -935,7 +935,7 @@ Function f_39all_1( par )
   FClose( fp )
   Close databases
   rest_box( buf )
-  name_fr := "mo_f39" + sfr3
+  name_fr := "mo_f39" + sfr3()
   If _upr_epson() .or. !File( dir_exe() + name_fr )
     viewtext( name_file,,,, .t.,,, reg_print )
   Else
@@ -1426,7 +1426,7 @@ Function f_39org_1( par )
   FClose( fp )
   Close databases
   rest_box( buf )
-  name_fr := "mo_f39" + sfr3
+  name_fr := "mo_f39" + sfr3()
   If _upr_epson() .or. !File( dir_exe() + name_fr )
     viewtext( name_file,,,, .t.,,, reg_print )
   Else

@@ -89,7 +89,7 @@ Function wq_import()
               ++k
             endif
             if krtr->ANSWER == 0
-              fl := func_error(4, 'На файл прикрепления ' + rtrim(krtr->fname) + scsv + ' не получен ответ из ТФОМС!')
+              fl := func_error(4, 'На файл прикрепления ' + rtrim(krtr->fname) + scsv() + ' не получен ответ из ТФОМС!')
             endif
             skip
           enddo
@@ -562,7 +562,7 @@ Function wq_prikreplenie()
   else
     find (padr(substr(filename, 10), 11))
     if (fl := found())
-      func_error(4, 'Файл прикрепления ' + rtrim(krtr->fname) + scsv + ' по файлу ' + filename + sdbf + ' уже отправлен в ТФОМС!')
+      func_error(4, 'Файл прикрепления ' + rtrim(krtr->fname) + scsv() + ' по файлу ' + filename + sdbf + ' уже отправлен в ТФОМС!')
     else
       go bottom
       if krtr->ANSWER == 1
@@ -730,7 +730,7 @@ Function wq_prikreplenie()
     endif
     mywait()
     s := 'MO2' + glob_mo[_MO_KOD_TFOMS] + dtos(mdate)
-    n_file := s + scsv
+    n_file := s + scsv()
     G_Use(dir_server + 'mo_krtr', , 'KRTR')
     index on str(kod, 6) to (cur_dir + 'tmp_krtr')
     AddRec(6)

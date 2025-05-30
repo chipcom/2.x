@@ -1935,8 +1935,8 @@ Function forma14_med_oms()
   If fl_error
     viewtext( devide_into_pages( cFileProtokol, 60, 80 ),,,, .t.,,, 3 )
   Endif
-  fill_in_excel_book( dir_exe() + 'mo_14med' + sxls, ;
-    cur_dir() + '__14med' + sxls, ;
+  fill_in_excel_book( dir_exe() + 'mo_14med' + sxls(), ;
+    cur_dir() + '__14med' + sxls(), ;
     arr_excel, ;
     'присланный из ТФОМС' )
   Return Nil

@@ -351,7 +351,7 @@ Function regi_nastr( k )
       mem_regi_p := 1, ;
       mem_regi6p := 0, ;
       mem_fluor  := 2
-    If hb_FileExists( 'memvar' + smem )
+    If hb_FileExists( 'memvar' + smem() )
       Restore From Memvar Additive
     Else
       Save All Like mem_* To memvar
@@ -541,10 +541,10 @@ Function regi_nastr( k )
       // endif
       arr := { mem_file4, mem_file8, mem_file9 }
       If m1a_t_025u == 6
-        AAdd( arr, mem_filg8 + sfr3 )
+        AAdd( arr, mem_filg8 + sfr3() )
       Endif
       If m1a_2_lt12 == 6
-        AAdd( arr, mem_filg6 + sfr3 )
+        AAdd( arr, mem_filg6 + sfr3() )
       Endif
       For i := 1 To Len( arr )
         If !Empty( arr[ i ] ) .and. search_file( arr[ i ] ) == NIL
@@ -1205,10 +1205,10 @@ Function f_f025u()
   If i == 6
     If Empty( mem_filg8 )
       func_error( 4, 'Не настроено имя файла шаблона для печати амбулаторной карты' )
-    Elseif hb_FileExists( mem_filg8 + sfr3 )
+    Elseif hb_FileExists( mem_filg8 + sfr3() )
       call_fr( mem_filg8 )
     Else
-      func_error( 4, 'Не обнаружен файл шаблона ' + mem_filg8 + sfr3 )
+      func_error( 4, 'Не обнаружен файл шаблона ' + mem_filg8 + sfr3() )
     Endif
   Else
     call_fr( arr_f[ i ] )
@@ -1226,10 +1226,10 @@ Function f_talon025()
   Else
     If Empty( mem_filg6 )
       func_error( 4, 'Не настроено имя файла шаблона для печати талона' )
-    Elseif hb_FileExists( mem_filg6 + sfr3 )
+    Elseif hb_FileExists( mem_filg6 + sfr3() )
       call_fr( mem_filg6 )
     Else
-      func_error( 4, 'Не обнаружен файл шаблона ' + mem_filg6 + sfr3 )
+      func_error( 4, 'Не обнаружен файл шаблона ' + mem_filg6 + sfr3() )
     Endif
   Endif
 

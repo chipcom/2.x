@@ -182,7 +182,7 @@ Function index_work_dir( dir_spavoch, cur_dir, flag )
 
 //  // N020
 //  sbase := '_mo_N020'
-//  // file_index := cur_dir + sbase + sntx
+//  // file_index := cur_dir + sbase + sntx()
 //  r_use( dir_spavoch + sbase )
 //  Index On id_lekp to ( cur_dir + sbase )
 //  Index On Upper( mnn ) to ( cur_dir + sbase + 'n' )
@@ -352,7 +352,7 @@ Function k006_index( val_year, dir_spavoch, cur_dir, flag )
   Default flag To .f.
 
   sbase := prefixfilerefname( val_year ) + 'k006'  //
-  If hb_vfExists( dir_spavoch + sbase + sdbf ) .and. hb_vfExists( dir_spavoch + sbase + sdbt )
+  If hb_vfExists( dir_spavoch + sbase + sdbf ) .and. hb_vfExists( dir_spavoch + sbase + sdbt() )
     r_use( dir_spavoch + sbase )
     Index On SubStr( shifr, 1, 2 ) + ds + sy + age + sex + los to ( cur_dir + sbase ) // по диагнозу/операции
     Index On SubStr( shifr, 1, 2 ) + sy + ds + age + sex + los to ( cur_dir + sbase + '_' ) // по операции/диагнозу

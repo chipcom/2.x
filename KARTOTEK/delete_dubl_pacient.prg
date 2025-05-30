@@ -498,7 +498,7 @@ Function f2dubl_zap_1()
         // enddo
         // close databases // на всякий случай
         //
-        if hb_fileExists(dir_server + 'mo_dnab' + sntx)
+        if hb_fileExists(dir_server + 'mo_dnab' + sntx())
           Use_base('mo_dnab') // алиас 'DN'
           delete_dubl_rec_in_file('DN', kod_k, dubl1_kart, dubl2_kart, .f.)
           // do while .t.

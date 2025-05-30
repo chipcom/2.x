@@ -1621,7 +1621,7 @@ Function print_other_schet( is_vyp, is_usl, n_file )
   frt->( dbCloseArea() )
   rest_box( buf )
   If is_view
-    name_fr := "mo_schpr" + sfr3
+    name_fr := "mo_schpr" + sfr3()
     If _upr_epson() .or. !File( dir_exe() + name_fr )
       Private yes_albom := .t.
       viewtext( n_file, , , , .t., , , regim )
@@ -3032,7 +3032,7 @@ Function print_faktura( regim )
   org->( dbCloseArea() )
   _d->( dbCloseArea() )
   _t->( dbCloseArea() )
-  call_fr( "mo_faktu" + sfr3 )
+  call_fr( "mo_faktu" + sfr3() )
 
   Return Nil
 
@@ -3121,7 +3121,7 @@ Function print_akt( regim )
   org->( dbCloseArea() )
   _d->( dbCloseArea() )
   _t->( dbCloseArea() )
-  call_fr( "mo_akt" + sfr3 )
+  call_fr( "mo_akt" + sfr3() )
 
   Return Nil
 

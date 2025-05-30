@@ -606,8 +606,8 @@ Function f_arr_usl1()
 
   Local i, s, arr := {}, arr1 := { '2.76.5', '2.76.7' }
 
-  If hb_FileExists( dir_server + 'usl1year' + smem )
-    arr := rest_arr( dir_server + 'usl1year' + smem )
+  If hb_FileExists( dir_server + 'usl1year' + smem() )
+    arr := rest_arr( dir_server + 'usl1year' + smem() )
     For i := 1 To Len( arr )
       Select USL
       Goto ( arr[ i ] )

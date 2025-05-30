@@ -25,7 +25,7 @@ Function read_from_tf()
     full_zip := Upper( full_zip )
     name_zip := strippath( full_zip )
     cName := name_without_ext( name_zip )
-    /*if right(full_zip, 4) == scsv
+    /*if right(full_zip, 4) == scsv()
       if Is_Our_CSV(cName,@tip_csv_file,@kod_csv_reestr)
         fl := read_CSV_from_TF(full_zip,tip_csv_file,kod_csv_reestr)
       endif
@@ -40,7 +40,7 @@ Function read_from_tf()
         If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( cName ) } ) ) > 0
           fl := read_csv_from_tf( arr_f[ n ], tip_csv_file, kod_csv_reestr )
         Else
-          fl := func_error( 4, 'В архиве ' + name_zip + ' нет файла ' + cName + scsv )
+          fl := func_error( 4, 'В архиве ' + name_zip + ' нет файла ' + cName + scsv() )
         Endif
       Endif
       Return Nil

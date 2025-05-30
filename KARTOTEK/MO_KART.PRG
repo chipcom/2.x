@@ -1855,7 +1855,7 @@ Function view_kart( regim, r1, r2 )
                 func_error( 4, 'По данному больному выписан лист учета. Удаление запрещено!' )
               Elseif f_esc_enter( 2 )
                 mywait()
-                If hb_FileExists( dir_server + 'mo_dnab' + sntx )
+                If hb_FileExists( dir_server + 'mo_dnab' + sntx() )
                   use_base( 'mo_dnab' )
                   Do While .t.
                     find ( Str( glob_kartotek, 7 ) )
@@ -2925,7 +2925,7 @@ Function f2dubl_zap()
         Enddo
         Close databases // на всякий случай
         //
-        If hb_FileExists( dir_server + 'mo_dnab' + sntx )
+        If hb_FileExists( dir_server + 'mo_dnab' + sntx() )
           use_base( 'mo_dnab' )
           Do While .t.
             find ( Str( dubl2_kart, 7 ) )

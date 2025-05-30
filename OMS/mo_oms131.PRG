@@ -1039,8 +1039,8 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     rest_box(buf)
     close databases
     viewtext(n_file,,,,.t.,,,5)
-//    fill_in_Excel_Book(dir_exe()+"mo_131_21"+sxls,;
-//                       cur_dir+"__131_21"+sxls,;
+//    fill_in_Excel_Book(dir_exe()+"mo_131_21"+sxls(),;
+//                       cur_dir+"__131_21"+sxls(),;
 //                       arr_excel,;
 //                       "¯à¨á« ­­ë© ¨§ ‚ŽŒˆ€–")
   endif

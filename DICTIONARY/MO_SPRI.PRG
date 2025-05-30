@@ -2082,7 +2082,7 @@ Function usl6ffoms( lksg )
   Close databases
   rest_box( buf )
   FClose( fp )
-  name_fr := 'mo_v1ksg' + sfr3
+  name_fr := 'mo_v1ksg' + sfr3()
   If _upr_epson() .or. ! File( dir_exe() + name_fr )
     viewtext( name_file, , , , .t., , , 5 )
   Else

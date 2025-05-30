@@ -52,8 +52,8 @@ Function forma_16_vn( is_diag )
     lmenu := { "~Сводная ведомость", "Ведомость по ~отделению" }
 
   n_file := iif( is_diag, "_frm_16d", "_form_16" ) + stxt
-  If ( file_form := search_file( "forma_16" + sfrm ) ) == NIL
-    Return func_error( 4, "Не обнаружен файл FORMA_16" + sfrm )
+  If ( file_form := search_file( "forma_16" + sfrm() ) ) == NIL
+    Return func_error( 4, "Не обнаружен файл FORMA_16" + sfrm() )
   Endif
   // if count_uch > 1
   AAdd( lmenu, "Ведомость по ~учреждению" )

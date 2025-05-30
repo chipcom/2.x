@@ -735,11 +735,11 @@ Function delfrfiles()
 
   Delete File ( fr_titl + sdbf )
   Delete File ( fr_data + sdbf )
-  Delete File ( fr_data + sntx )
+  Delete File ( fr_data + sntx() )
   For j := 1 To max_FR_date_dbf
     nfile := fr_data + LTrim( Str( j ) )
     Delete File ( nfile + sdbf )
-    Delete File ( nfile + sntx )
+    Delete File ( nfile + sntx() )
   Next
 
   Return Nil
@@ -759,7 +759,7 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
   FrPrn:seticon( 'MAIN_ICON' )
   If File( fr_data + sdbf )
     Use ( fr_data ) NEW
-    If File( fr_data + sntx )
+    If File( fr_data + sntx() )
       Set Index to ( fr_data )
     Endif
     Go Top
@@ -774,7 +774,7 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
     nfile := fr_data + LTrim( Str( j ) )
     If File( nfile + sdbf )
       Use ( nfile ) NEW
-      If File( nfile + sntx )
+      If File( nfile + sntx() )
         Set Index to ( nfile )
       Endif
       Go Top
