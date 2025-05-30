@@ -1,5 +1,6 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
+#include 'tfile.ch'
 
 // 12.07.24 получение статуса обновления БД до определенной версии
 function get_status_updateDB( idVer )
@@ -397,3 +398,43 @@ Function update_v50202()     // перенос данных о гинеколгических услугах
   dbCloseAll()        // закроем все
   Return Nil
   
+// 30.05.25
+function illegal_stad_kod()
+
+  local cAlias, cAliasHum, ft, exist, i
+  local name_file := cur_dir() + 'error_stad.txt', reg_print := 2
+
+  exist := .f.
+  i := 0
+  cAlias := 'ONKOSL'
+  cAliasHum := 'HUMAN'
+
+  r_use( dir_server + 'human', , cAliasHum )
+  r_use( dir_server + 'mo_onksl', , cAlias )
+  ( cAlias )->( dbGoTop() )
+  do while ! ( cAlias )->( Eof() )
+
+    if ( cAlias )->STAD > 333 // последний код старого N002
+      if ! exist
+        ft := tfiletext():new( name_file, , .t., , .t. )
+        ft:add_string( '' )
+        ft:add_string( 'Список пациентов с ошибками стадии онкозаболевания', FILE_CENTER, ' ' )
+        ft:add_string( '' )
+        exist := .t.
+      endif
+      ( cAliasHum )->( dbGoto( ( cAlias )->KOD ) )
+      if ( ! ( cAliasHum )->( Eof() ) ) .and. ( ! ( cAliasHum )->( Bof() ) )
+        ft:add_string( AllTrim( ( cAliasHum )->FIO ) + '  ' + DToC( ( cAliasHum )->Date_R ) )
+      endif
+      i++
+    endif
+    ( cAlias )->( dbSkip() )
+  Enddo
+
+  ( cAlias )->( dbCloseArea() )
+  ( cAliasHum )->( dbCloseArea() )
+  if i > 0
+    ft := nil
+    viewtext( name_file, , , , .t., , , reg_print )
+  endif
+  return nil

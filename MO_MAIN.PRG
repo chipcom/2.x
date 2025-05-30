@@ -170,7 +170,7 @@ Procedure Main( ... )
   If ! hb_user_curUser:isadmin()  // tip_polzovat != TIP_ADM
     verify_fio_polzovat := .f.
   Endif
-  If !g_sopen( sem_task, sem_vagno, fio_polzovat, p_name_comp )
+  If ! g_sopen( sem_task, sem_vagno, fio_polzovat, p_name_comp )
     If Type( 'verify_fio_polzovat' ) == 'L' .and. verify_fio_polzovat
       func_error( 'В данный момент работает другой оператор под фамилией "' + fio_polzovat + '"' )
     Else
@@ -180,13 +180,15 @@ Procedure Main( ... )
         func_error( 'Доступ запрещен! В данный момент другой задачей выполняется ответственный режим.' )
       Endif
     Endif
-    If !hb_user_curUser:isadmin()
+    If ! hb_user_curUser:isadmin()
       f_end()
     Endif
   Endif
   //
 
   checkversioninternet( r + 3, _version() )
+
+  illegal_stad_kod()  // проверка стадии онкозаболеваний
 
   init_first() // начальная инициализация программы (переменных, массивов,...)
 
