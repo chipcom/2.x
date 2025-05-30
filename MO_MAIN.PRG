@@ -71,7 +71,7 @@ Procedure Main( ... )
   Public err_sdemo := 'Это демонстрационная версия. Операция запрещена!'
   Public fr_data := '_data', fr_titl := '_titl'
   Public dir_XML_MO := 'XML_MO', dir_XML_TF := 'XML_TF'
-  Public dir_NAPR_MO := 'NAPR_MO', dir_NAPR_TF := 'NAPR_TF'
+//  Public dir_NAPR_MO := 'NAPR_MO', dir_NAPR_TF := 'NAPR_TF'
 
   Public dir_exe := dir_exe()
 //  Public _tmp_dir  := 'TMP___'

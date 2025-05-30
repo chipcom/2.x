@@ -252,8 +252,8 @@ Function create_zip( par, dir_archiv )
       Lower( iif( par != 3, szip(), schip ) )
     zip_xml_mo := dir_XML_MO + szip()
     zip_xml_tf := dir_XML_TF + szip()
-    zip_napr_mo := dir_NAPR_MO + szip()
-    zip_napr_tf := dir_NAPR_TF + szip()
+    zip_napr_mo := dir_NAPR_MO() + szip()
+    zip_napr_tf := dir_NAPR_TF() + szip()
     zip_xml_fns := 'XML_FNS' + szip()
     hb_vfErase( sfile_begin )
     hb_MemoWrit( sfile_begin, full_date( sys_date ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
@@ -270,13 +270,13 @@ Function create_zip( par, dir_archiv )
     zip_xml_tf := fillzip( arr_f, zip_xml_tf )
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_NAPR_MO + hb_ps(), sast + szip(), blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_NAPR_MO + hb_ps(), sast + stxt(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_NAPR_MO() + hb_ps(), sast + szip(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_NAPR_MO() + hb_ps(), sast + stxt(), blk, afterDate )
     zip_napr_mo := fillzip( arr_f, zip_napr_mo )
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_NAPR_TF + hb_ps(), sast + szip(), blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_NAPR_TF + hb_ps(), sast + stxt(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_NAPR_TF() + hb_ps(), sast + szip(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_NAPR_TF() + hb_ps(), sast + stxt(), blk, afterDate )
     zip_napr_tf := fillzip( arr_f, zip_napr_tf )
     //
     arr_f := {}

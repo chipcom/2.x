@@ -1527,7 +1527,7 @@ Function _263_to_sostavlenie()
     If Found()
       g_rlock( forever ) // бесконечная попытка блокировать запись
       // удалим предыдущий XML-файл
-      Delete File ( dir_server + dir_NAPR_MO + hb_ps() + AllTrim( nf->NAME_F ) + szip() )
+      Delete File ( dir_server + dir_NAPR_MO() + hb_ps() + AllTrim( nf->NAME_F ) + szip() )
     Else
       g_rlock( .t., forever ) // бесконечная попытка добавить запись
       nf->KOD := RecNo()            // код файла
@@ -1641,7 +1641,7 @@ Function _263_to_sostavlenie()
     If Len( arr_f ) > 0
       ASort( arr_f, , , {| x, y| x[ 1 ] < y[ 1 ] } )
       For i := 1 To Len( arr_f )
-        chip_copy_zipxml( dir_server + dir_NAPR_MO + hb_ps() + arr_f[ i, 1 ] + szip(), Left( dir_263_to, Len( dir_263_to ) -1 ) )
+        chip_copy_zipxml( dir_server + dir_NAPR_MO() + hb_ps() + arr_f[ i, 1 ] + szip(), Left( dir_263_to, Len( dir_263_to ) -1 ) )
         StrFile( hb_eol() + ;
           'Создан файл пакета ' + arr_f[ i, 1 ] + iif( arr_f[ i, 2 ] == 0, '', ' - ' + lstr( arr_f[ i, 2 ] ) + ' чел.' ) + ;
           hb_eol(), cFileProtokol, .t. )
@@ -1660,7 +1660,7 @@ Function _263_to_sostavlenie()
         hb_eol(), cFileProtokol, .t. )
       Copy File ( cFileProtokol ) to ( name_txt )
       // запишем файл протокола записи
-      chip_copy_zipxml( name_txt, dir_server + dir_NAPR_MO, .t. )
+      chip_copy_zipxml( name_txt, dir_server + dir_NAPR_MO(), .t. )
     Endif
     viewtext( devide_into_pages( cFileProtokol, 60, 80 ), , , , .t., , , 2 )
   Else
@@ -1687,7 +1687,7 @@ Function _263_to_protokol()
     tmp->named := SToD( Left( s, 8 ) ), ;
     tmp->namet := Left( Right( s, 6 ), 2 ) + ':' + Left( Right( s, 4 ), 2 ) + ':' + Right( s, 2 ), ;
     tmp->txt_f := s }
-  scandirfiles( dir_server + dir_NAPR_MO + hb_ps(), '*' + stxt(), blk )
+  scandirfiles( dir_server + dir_NAPR_MO() + hb_ps(), '*' + stxt(), blk )
   If LastRec() == 0
     Close databases
     rest_box( buf )
@@ -1719,7 +1719,7 @@ Function f2_263_to_protokol( nKey, oBrow, regim )
   Do Case
   Case regim == 'edit'
     If nKey == K_ENTER
-      viewtext( devide_into_pages( dir_server + dir_NAPR_MO + hb_ps() + tmp->txt_f + stxt(), 60, 80 ), , , , .t., , , 2 )
+      viewtext( devide_into_pages( dir_server + dir_NAPR_MO() + hb_ps() + tmp->txt_f + stxt(), 60, 80 ), , , , .t., , , 2 )
     Else
       Keyboard ''
     Endif
@@ -1735,7 +1735,7 @@ Function _263_to_i01()
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  Private goal_dir := dir_server + dir_NAPR_MO + hb_ps()
+  Private goal_dir := dir_server + dir_NAPR_MO() + hb_ps()
   g_use( dir_server + 'mo_nfile', , 'NF' )
   Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
     For in_out == 1 .and. tip_f == 1 DESCENDING
@@ -1925,7 +1925,7 @@ Function _263_to_i03()
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  Private goal_dir := dir_server + dir_NAPR_MO + hb_ps()
+  Private goal_dir := dir_server + dir_NAPR_MO() + hb_ps()
   g_use( dir_server + 'mo_nfile', , 'NF' )
   Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
     For in_out == 1 .and. tip_f == 3 DESCENDING
@@ -2096,7 +2096,7 @@ Function _263_to_i04( k )
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  Private goal_dir := dir_server + dir_NAPR_MO + hb_ps()
+  Private goal_dir := dir_server + dir_NAPR_MO() + hb_ps()
   g_use( dir_server + 'mo_nfile', , 'NF' )
   Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
     For in_out == 1 .and. tip_f == ppaket DESCENDING
@@ -2270,7 +2270,7 @@ Function _263_to_i06()
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  Private goal_dir := dir_server + dir_NAPR_MO + hb_ps(), ;
+  Private goal_dir := dir_server + dir_NAPR_MO() + hb_ps(), ;
     mm_tip_vyb := { { 'выписан', 1 }, { 'умер', 2 }, { 'перевод в другое отделение', 3 } }
 
   g_use( dir_server + 'mo_nfile', , 'NF' )
@@ -3042,7 +3042,7 @@ Function _263_from_read()
                     Skip
                   Enddo
                   nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
-                  chip_copy_zipxml( arr_f[ ii ], dir_server + dir_NAPR_TF )
+                  chip_copy_zipxml( arr_f[ ii ], dir_server + dir_NAPR_TF() )
                 Endif
               Case type_paket == 3
                 If _263_i03_tmpfile( af[ 1 ], aerr )
@@ -3122,7 +3122,7 @@ Function _263_from_read()
                     Skip
                   Enddo
                   nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
-                  chip_copy_zipxml( arr_f[ ii ], dir_server + dir_NAPR_TF )
+                  chip_copy_zipxml( arr_f[ ii ], dir_server + dir_NAPR_TF() )
                 Endif
               Case type_paket == 4 .or. type_paket == 5
                 If _263_i04_tmpfile( af[ 1 ], aerr )
@@ -3267,7 +3267,7 @@ Function _263_from_read()
                     Skip
                   Enddo
                   nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
-                  chip_copy_zipxml( arr_f[ ii ], dir_server + dir_NAPR_TF )
+                  chip_copy_zipxml( arr_f[ ii ], dir_server + dir_NAPR_TF() )
                 Endif
               Case type_paket == 6
                 If _263_i06_tmpfile( af[ 1 ], aerr )
@@ -3396,7 +3396,7 @@ Function _263_from_read()
                     Skip
                   Enddo
                   nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
-                  chip_copy_zipxml( arr_f[ ii ], dir_server + dir_NAPR_TF )
+                  chip_copy_zipxml( arr_f[ ii ], dir_server + dir_NAPR_TF() )
                 Endif
               Case type_paket == 7
                 fl := .t.
@@ -3519,7 +3519,7 @@ Function _263_from_read()
                     Skip
                   Enddo
                   nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
-                  // chip_copy_zipXML(arr_f[ii], dir_server + dir_NAPR_TF)
+                  // chip_copy_zipXML(arr_f[ii], dir_server + dir_NAPR_TF())
                 Endif
               Endcase
               dbUnlockAll()
@@ -3548,7 +3548,7 @@ Function _263_from_read()
     If is_read
       Copy File ( cFileProtokol ) to ( name_txt )
       // запишем файл протокола обработки
-      chip_copy_zipxml( name_txt, dir_server + dir_NAPR_TF, .t. )
+      chip_copy_zipxml( name_txt, dir_server + dir_NAPR_TF(), .t. )
     Endif
     If !Empty( dir_263_copy )
       StrFile( hb_eol() + 'Перезапись прочитанных файлов в каталог ' + dir_263_copy + hb_eol() + ;
@@ -3585,7 +3585,7 @@ Function _263_from_protokol()
     tmp->named := SToD( Left( s, 8 ) ), ;
     tmp->namet := Left( Right( s, 6 ), 2 ) + ':' + Left( Right( s, 4 ), 2 ) + ':' + Right( s, 2 ), ;
     tmp->txt_f := s }
-  scandirfiles( dir_server + dir_NAPR_TF + hb_ps(), '*' + stxt(), blk )
+  scandirfiles( dir_server + dir_NAPR_TF() + hb_ps(), '*' + stxt(), blk )
   If LastRec() == 0
     Close databases
     rest_box( buf )
@@ -3617,7 +3617,7 @@ Function f2_263_from_protokol( nKey, oBrow, regim )
   Do Case
   Case regim == 'edit'
     If nKey == K_ENTER
-      viewtext( devide_into_pages( dir_server + dir_NAPR_TF + hb_ps() + tmp->txt_f + stxt(), 60, 80 ), , , , .t., , , 2 )
+      viewtext( devide_into_pages( dir_server + dir_NAPR_TF() + hb_ps() + tmp->txt_f + stxt(), 60, 80 ), , , , .t., , , 2 )
     Else
       Keyboard ''
     Endif
