@@ -3850,7 +3850,7 @@ Function delete_reestr_d02( mkod_reestr, mname_reestr )
     If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF, cFile + szip() ) ) != NIL
       cFile += sxml()
       // читаем файл в память
-      oXmlDoc := hxmldoc():read( _tmp_dir1 + cFile )
+      oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
       If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
         func_error( 4, 'Ошибка в чтении файла ' + cFile )
       Else // читаем и записываем XML-файл во временные TMP-файлы

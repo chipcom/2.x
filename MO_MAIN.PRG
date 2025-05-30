@@ -74,10 +74,10 @@ Procedure Main( ... )
   Public dir_NAPR_MO := 'NAPR_MO', dir_NAPR_TF := 'NAPR_TF'
 
   Public dir_exe := dir_exe()
-  Public _tmp_dir  := 'TMP___'
-  Public _tmp_dir1 := _tmp_dir + hb_ps()
-  Public _tmp2dir  := 'TMP2___'
-  Public _tmp2dir1 := _tmp2dir() + hb_ps()
+//  Public _tmp_dir  := 'TMP___'
+//  Public _tmp_dir1 := _tmp_dir() + hb_ps()
+//  Public _tmp2dir  := 'TMP2___'
+//  Public _tmp2dir1 := _tmp2dir() + hb_ps()
   //
   // объект пользователя зарегистрировавшегося в системе
   Public hb_user_curUser := nil

@@ -263,3 +263,39 @@ function schip()
 
 function sdbt()
   return '.dbt'
+
+// 30.05.25
+function dir_XML_MO()
+  return 'XML_MO'
+
+  // 30.05.25
+function dir_XML_TF()
+  return 'XML_TF'
+
+  // 30.05.25
+function dir_NAPR_MO()
+  return 'NAPR_MO'
+
+  // 30.05.25
+function dir_NAPR_TF()
+  return 'NAPR_TF'
+
+// 15.10.24
+function _tmp_dir()
+  
+return 'TMP___'
+
+// 15.10.24
+function _tmp_dir1()
+
+return 'TMP___' + hb_ps()
+
+// 15.10.24
+function _tmp2dir()
+  
+  return 'TMP2___'
+
+// 15.10.24
+function _tmp2dir1()
+  
+  return 'TMP2___' + hb_ps()
