@@ -675,8 +675,8 @@ Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
     { 'drak', 'D', 8, 0 }, ;
     { 'usluga', 'C', 10, 0 };
     }
-  dbCreate( cur_dir + 'v_ob_em', adbf )
-  Use ( cur_dir + 'v_ob_em' ) New Alias TMP
+  dbCreate( cur_dir() + 'v_ob_em', adbf )
+  Use ( cur_dir() + 'v_ob_em' ) New Alias TMP
   use_base( 'lusl' )
   use_base( 'luslc' )
   r_use( dir_server + 'uslugi', , 'USL' )
@@ -791,9 +791,9 @@ Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
     { 'nrak', 'C', 26, 0 }, ;
     { 'drak', 'D', 8, 0 };
     }
-  dbCreate( cur_dir + 'tmp1', adbf )
-  Use ( cur_dir + 'tmp1' ) new
-  Index On nrak + vid_pz to ( cur_dir + 'tmp1' )
+  dbCreate( cur_dir() + 'tmp1', adbf )
+  Use ( cur_dir() + 'tmp1' ) new
+  Index On nrak + vid_pz to ( cur_dir() + 'tmp1' )
   Select TMP
   Go Top
   Do While !Eof()
@@ -838,7 +838,7 @@ Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
     Close databases
     rest_box( buf )
     viewtext( n_file, , , , .t., , , 2 )
-    t_arr := { 'В каталоге ' + cur_dir, ;
+    t_arr := { 'В каталоге ' + cur_dir(), ;
       'создан файл V_OB_EM.DBF', ;
       'со списком пациентов для загрузки в Excel' }
     n_message( t_arr, , 'GR+/R', 'W+/R', , , 'G+/R' )
@@ -1516,7 +1516,7 @@ Function st_operator()
     Endif
   Endif
   If fl_new
-    dbCreate( cur_dir + 'tmp', { ;
+    dbCreate( cur_dir() + 'tmp', { ;
       { 'PO',      'N',   3,   0 }, ; // код оператора
     { 'FO',      'C',  20,   0 }, ; // ФИО оператора
     { 'PT',      'N',   3,   0 }, ; // код задачи
@@ -1525,7 +1525,7 @@ Function st_operator()
     { 'KK',      'N',   9,   0 }, ; // кол-во (карточек, л/у или услуг)
     { 'KP',      'N',   9,   0 };  // количество введённых полей
     } )
-    Use ( cur_dir + 'tmp' ) new
+    Use ( cur_dir() + 'tmp' ) new
     Index On Str( pt, 3 ) + Str( po, 3 ) + Str( ae, 1 ) + Str( tp, 1 ) to ( cur_dir + 'tmp' )
     r_use( dir_server + 'base1', , 'B1' )
     r_use( dir_server + 'mo_opern', dir_server + 'mo_opern', 'OP' )
@@ -1786,8 +1786,7 @@ Function prn_blank( k )
   Case k == 61 // Контрольный лист учёта ЗНО
     call_fr( 'mo_onko_KL' )
   Case k == 62 // Правила заполнения контрольного листа учёта ЗНО
-    // file_Wordpad(dir_exe() + cslash + 'RULE_KL.RTF')
-    view_file_in_viewer( dir_exe() + cslash + 'RULE_KL.RTF' )
+    view_file_in_viewer( dir_exe() + hb_ps() + 'RULE_KL.RTF' )
   Case k == 71
     call_fr( 'mo_y1dvn' )
   Case k == 72
@@ -1838,7 +1837,7 @@ Function prn_blank( k )
 // 19.09.23
 Function pr_sprav_onk_vmp()
 
-  Local buf := save_maxrow(), name_file := cur_dir + 'metodVMPonko' + stxt, sh := 80, HH := 60, t_arr[ 2 ], i, s
+  Local buf := save_maxrow(), name_file := cur_dir() + 'metodVMPonko' + stxt, sh := 80, HH := 60, t_arr[ 2 ], i, s
 
   Local row, mm_usl_tip := {}
 
@@ -1850,7 +1849,7 @@ Function pr_sprav_onk_vmp()
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
-  r_use( dir_exe() + '_mo_ovmp', cur_dir + '_mo_ovmp', 'OVMP' )
+  r_use( dir_exe() + '_mo_ovmp', cur_dir() + '_mo_ovmp', 'OVMP' )
   add_string( '' )
   add_string( Center( 'Классификатор методов ВМП по онкозаболеваниям с указанием типов лечения', sh ) )
   add_string( '' )
@@ -1882,7 +1881,7 @@ Function pr_sprav_onko( n )
   Local aStadii, t_arr, k
 
   aStadii := &nameFunc
-  r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
+  r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'DIAG' )
 
   ft := tfiletext():new( name_file, , .t., , .t. )
   // ft:TableHeader := arr_title
@@ -2044,7 +2043,7 @@ Function report_f_mpp()
     Return func_error( 4, 'Первый месяц должен быть ЯНВАРЬ.' )
   Endif
   waitstatus( arr_m[ 4 ] )
-  dbCreate( cur_dir + 'tmp1', { ;
+  dbCreate( cur_dir() + 'tmp1', { ;
     { 'usl_ok', 'N', 1, 0 }, ;
     { 'profil', 'N', 3, 0 }, ;  // профиль в БД
   { 'is_our', 'N', 1, 0 }, ;  // 0-наш, 1-иногородний
@@ -2053,10 +2052,10 @@ Function report_f_mpp()
     { 'kol',    'N', 6, 0 }, ;  // случаев
   { 'usl',    'N', 6, 0 }, ;  // услуг
     { 'summa',  'N', 14, 2 } } )  // оплаченная сумма
-  Use ( cur_dir + 'tmp1' ) new
-  Index On Str( usl_ok, 1 ) + Str( profil, 3 ) + Str( is_our, 1 ) + Str( vid, 1 ) + Str( vz_reb, 1 ) to ( cur_dir + 'tmp1' )
+  Use ( cur_dir() + 'tmp1' ) new
+  Index On Str( usl_ok, 1 ) + Str( profil, 3 ) + Str( is_our, 1 ) + Str( vid, 1 ) + Str( vz_reb, 1 ) to ( cur_dir() + 'tmp1' )
   use_base( 'lusl' )
-  r_use( dir_exe() + '_mo9unit', cur_dir + '_mo9unit', 'MOUNIT' )
+  r_use( dir_exe() + '_mo9unit', cur_dir() + '_mo9unit', 'MOUNIT' )
   r_use( dir_server + 'uslugi', , 'USL' )
   r_use( dir_server + 'human_u_', , 'HU_' )
   r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
@@ -2082,7 +2081,7 @@ Function report_f_mpp()
   Set Relation To akt into RAK
   r_use( dir_server + 'mo_raksh', , 'RAKSH' )
   Set Relation To kod_raks into RAKS
-  Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
+  Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
   //
   r_use( dir_server + 'schet_', , 'SCHET_' )
   r_use( dir_server + 'schet', , 'SCHET' )
@@ -2511,7 +2510,7 @@ Function pril_5_6_62()
   use_base( 'luslf' )
 
   sbase := prefixfilerefname( arr_m[ 1 ] ) + 'unit'
-  r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
+  r_use( dir_exe() + sbase, cur_dir() + sbase, 'MOUNIT' )
 
   r_use( dir_server + 'mo_su', , 'MOSU' )
   r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
@@ -2567,17 +2566,17 @@ Function pril_5_6_62()
   Set Relation To akt into RAK
   r_use( dir_server + 'mo_raksh', , 'RAKSH' )
   Set Relation To kod_raks into RAKS
-  Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
+  Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
   //
-  dbCreate( cur_dir + 'tmp', { { 'usl_ok', 'N', 1, 0 }, ;
+  dbCreate( cur_dir() + 'tmp', { { 'usl_ok', 'N', 1, 0 }, ;
     { 'stroke', 'C', 3, 0 }, ;
     { 'shifr', 'C', 10, 0 }, ;
     { 'kols', 'N', 6, 0 }, ;
     { 'kold', 'N', 10, 0 }, ;
     { 'summa', 'N', 15, 2 }, ;
     { 'sr_kol', 'N', 5, 1 } } )
-  Use ( cur_dir + 'tmp' ) New Alias TMP
-  Index On Str( usl_ok, 1 ) + shifr to ( cur_dir + 'tmp' )
+  Use ( cur_dir() + 'tmp' ) New Alias TMP
+  Index On Str( usl_ok, 1 ) + shifr to ( cur_dir() + 'tmp' )
   r_use( dir_server + 'schet_', , 'SCHET_' )
   r_use( dir_server + 'schet', , 'SCHET' )
   Set Relation To RecNo() into SCHET_
@@ -2736,7 +2735,7 @@ Function pril_5_6_62()
     Skip
   Enddo
   Select TMP
-  Index On Str( usl_ok, 1 ) + stroke to ( cur_dir + 'tmp' )
+  Index On Str( usl_ok, 1 ) + stroke to ( cur_dir() + 'tmp' )
   For i := 1 To 2
     ar := {}
     bk := { 4, 5 }[ i ] ; j := 0
@@ -2797,11 +2796,11 @@ Function pril_5_6_62()
     viewtext( name_file, , , , .t., , , 5 )
   Endif
   fill_in_excel_book( dir_exe() + 'mo_pr5_62' + sxls, ;
-    cur_dir + '__pr5_62' + sxls, ;
+    cur_dir() + '__pr5_62' + sxls, ;
     ar_pr5, ;
     'присланный из ТФОМС' )
   fill_in_excel_book( dir_exe() + 'mo_pr6_62' + sxls, ;
-    cur_dir + '__pr6_62' + sxls, ;
+    cur_dir() + '__pr6_62' + sxls, ;
     ar_pr6, ;
     'присланный из ТФОМС' )
 
@@ -2826,13 +2825,13 @@ Function monitoring_zog()
   If ( par := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0 .and. ;
       ( st_a_uch := inputn_uch( T_ROW, T_COL -5, , , @lcount_uch ) ) != Nil .and. ( arr_m := year_month(, , , 5 ) ) != NIL
     mywait()
-    dbCreate( cur_dir + 'tmp', { { 'kod_k', 'N', 7, 0 }, ;
+    dbCreate( cur_dir() + 'tmp', { { 'kod_k', 'N', 7, 0 }, ;
       { 'pens', 'L', 1, 0 }, ;
       { 'diag', 'C', 5, 0 }, ;
       { 'is_1', 'L', 1, 0 }, ;
       { 'disp', 'L', 1, 0 } } )
-    Use ( cur_dir + 'tmp' ) new
-    Index On Str( kod_k, 7 ) + diag to ( cur_dir + 'tmp' )
+    Use ( cur_dir() + 'tmp' ) new
+    Index On Str( kod_k, 7 ) + diag to ( cur_dir() + 'tmp' )
     r_use( dir_server + 'schet_', , 'SCHET_' )
     r_use( dir_server + 'human_', , 'HUMAN_' )
     r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )

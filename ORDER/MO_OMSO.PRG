@@ -17,30 +17,30 @@ Function read_xml_file_rak( arr_XML_info, aerr )
 
   blk_akt := {|| AAdd( aerr, "АКТ № " + AllTrim( tmp2->_nakt ) + " от " + date_8( tmp2->_dakt ) ) }
   blk_schet := {|| AAdd( aerr, " СЧЁТ № " + AllTrim( tmp3->_nschet ) + " от " + date_8( tmp3->_dschet ) ) }
-  Use ( cur_dir + "tmp1file" ) New Alias TMP1
+  Use ( cur_dir() + "tmp1file" ) New Alias TMP1
   fl_2019 := ( Val( tmp1->_VERSION ) > 3.1 )
   tmp1->_SMO     := arr_XML_info[ 2 ]
   tmp1->_CODE_MO := arr_XML_info[ 3 ]
   tmp1->_YEAR    := arr_XML_info[ 4 ]
   tmp1->_MONTH   := arr_XML_info[ 5 ]
-  Use ( cur_dir + "tmp2file" ) New Alias TMP2
-  Use ( cur_dir + "tmp3file" ) New Alias TMP3
-  Index On Str( kod_a, 6 ) to ( cur_dir + "tmp3" )
-  Use ( cur_dir + "tmp4file" ) New Alias TMP4
-  Index On Str( kod_a, 6 ) + Str( kod_s, 6 ) to ( cur_dir + "tmp4" )
-  Use ( cur_dir + "tmp5file" ) New Alias TMP5
-  Index On Str( kod_a, 6 ) to ( cur_dir + "tmp5" )
-  Use ( cur_dir + "tmp6file" ) New Alias TMP6
-  Index On Str( kod_a, 6 ) + Str( kod_s, 6 ) + Str( _idcase, 8 ) to ( cur_dir + "tmp6" )
+  Use ( cur_dir() + "tmp2file" ) New Alias TMP2
+  Use ( cur_dir() + "tmp3file" ) New Alias TMP3
+  Index On Str( kod_a, 6 ) to ( cur_dir() + "tmp3" )
+  Use ( cur_dir() + "tmp4file" ) New Alias TMP4
+  Index On Str( kod_a, 6 ) + Str( kod_s, 6 ) to ( cur_dir() + "tmp4" )
+  Use ( cur_dir() + "tmp5file" ) New Alias TMP5
+  Index On Str( kod_a, 6 ) to ( cur_dir() + "tmp5" )
+  Use ( cur_dir() + "tmp6file" ) New Alias TMP6
+  Index On Str( kod_a, 6 ) + Str( kod_s, 6 ) + Str( _idcase, 8 ) to ( cur_dir() + "tmp6" )
   // сначала найдём коды счетов и коды листов учёта
   g_use( dir_server + "schet_", , "SCHET_" )
-  Index On DToS( dschet ) + Upper( nschet ) to ( cur_dir + "tmp_sch_" )
+  Index On DToS( dschet ) + Upper( nschet ) to ( cur_dir() + "tmp_sch_" )
   r_use( dir_server + "mo_otd", , "OTD" )
   g_use( dir_server + "human_", , "HUMAN_" )
   r_use( dir_server + "human", , "HUMAN" )
   Set Relation To RecNo() into HUMAN_, To otd into OTD
   // R_Use(dir_server + "mo_os", , "MO_OS")
-  // index on str(kod, 7) to (cur_dir + "tmp_moos") for NEXT_KOD > 0
+  // index on str(kod, 7) to (cur_dir() + "tmp_moos") for NEXT_KOD > 0
   ia := is := ih := 0
   @ MaxRow(), 0 Say Space( MaxCol() + 1 ) Color "G+/R*"
   Select TMP2
@@ -75,7 +75,7 @@ Function read_xml_file_rak( arr_XML_info, aerr )
         Select HUMAN
         Set Index to ( dir_server + "humans" )
         find ( Str( tmp3->kod_schet, 6 ) )
-        Index On Str( human_->schet_zap, 6 ) to ( cur_dir + "tmp_hum" ) For ishod != 89 While schet == tmp3->kod_schet
+        Index On Str( human_->schet_zap, 6 ) to ( cur_dir() + "tmp_hum" ) For ishod != 89 While schet == tmp3->kod_schet
         Select TMP4
         find ( Str( tmp3->kod_a, 6 ) + Str( tmp3->kod_s, 6 ) )
         Do While tmp3->kod_a == tmp4->kod_a .and. tmp3->kod_s == tmp4->kod_s .and. !Eof()
@@ -183,17 +183,17 @@ Function read_xml_file_rak( arr_XML_info, aerr )
   r_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
   g_use( dir_server + "mo_rak", , "RAK" )
   Set Relation To KOD_XML into MO_XML
-  Index On Str( akt, 6 ) to ( cur_dir + "tmprak" )
-  Index On ret_owner_rak( mo_xml->FNAME ) + Str( Year( dakt ), 4 ) + Upper( PadR( nakt, 30 ) ) to ( cur_dir + "tmprak1" )
-  Set Index to ( cur_dir + "tmprak" ), ( cur_dir + "tmprak1" )
+  Index On Str( akt, 6 ) to ( cur_dir() + "tmprak" )
+  Index On ret_owner_rak( mo_xml->FNAME ) + Str( Year( dakt ), 4 ) + Upper( PadR( nakt, 30 ) ) to ( cur_dir() + "tmprak1" )
+  Set Index to ( cur_dir() + "tmprak" ), ( cur_dir() + "tmprak1" )
   g_use( dir_server + "mo_rakexp", , "RAKEXP" )
-  Index On Str( akt, 6 ) to ( cur_dir + "tmprakexp" )
+  Index On Str( akt, 6 ) to ( cur_dir() + "tmprakexp" )
   g_use( dir_server + "mo_raks", , "RAKS" )
-  Index On Str( akt, 6 ) to ( cur_dir + "tmpraks" )
+  Index On Str( akt, 6 ) to ( cur_dir() + "tmpraks" )
   g_use( dir_server + "mo_raksh", , "RAKSH" )
-  Index On Str( kod_raks, 6 ) to ( cur_dir + "tmpraksh" )
+  Index On Str( kod_raks, 6 ) to ( cur_dir() + "tmpraksh" )
   g_use( dir_server + "mo_raksherr", , "RAKSHERR" )
-  Index On Str( kod_raksh, 8 ) to ( cur_dir + "tmpraksherr" )
+  Index On Str( kod_raksh, 8 ) to ( cur_dir() + "tmpraksherr" )
   ia := is := ih := 0
   @ MaxRow(), 0 Say Space( MaxCol() + 1 ) Color "G+/R*"
   Select TMP2
@@ -544,7 +544,7 @@ Function view_rak()
     Return func_error( 4, "В данный момент с реестрами актов контроля работает другой пользователь." )
   Endif
   g_use( dir_server + "mo_xml", , "MO_XML" )
-  Index On DToS( DFILE ) to ( cur_dir + "tmp_xml" ) For tip_in == _XML_FILE_RAK DESCENDING
+  Index On DToS( DFILE ) to ( cur_dir() + "tmp_xml" ) For tip_in == _XML_FILE_RAK DESCENDING
   Go Top
   If Eof()
     func_error( 4, "Нет реестров актов контроля" )
@@ -594,19 +594,19 @@ Function f2_view_rak( nKey, oBrow )
 
   Do Case
   Case nKey == K_F3
-    viewtext( devide_into_pages( dir_server + dir_XML_TF + cslash + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ), , , , .t., , , 2 )
+    viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ), , , , .t., , , 2 )
     ret := 0
   Case nKey == K_ENTER
     view_rak_akt( rec )
     Close databases
     //
-    g_use( dir_server + "mo_xml", cur_dir + "tmp_xml", "MO_XML" )
+    g_use( dir_server + "mo_xml", cur_dir() + "tmp_xml", "MO_XML" )
     Goto ( rec )
     ret := 0
   Case nKey == K_CTRL_F12
     ret := delete_rak( rec, AllTrim( Upper( mo_xml->FNAME ) ), Empty( mo_xml->TWORK2 ) )
     Close databases
-    g_use( dir_server + "mo_xml", cur_dir + "tmp_xml", "MO_XML" )
+    g_use( dir_server + "mo_xml", cur_dir() + "tmp_xml", "MO_XML" )
     Goto ( rec )
   Endcase
   RestScreen( buf )
@@ -623,15 +623,15 @@ Function delete_rak( lrec, lname, not_end )
   r_use( dir_server + "mo_raksh", , "RAKSH" )
   r_use( dir_server + "mo_raks", , "RAKS" )
   r_use( dir_server + "mo_rak", , "RAK" )
-  Index On nakt to ( cur_dir + "tmp_rak" ) For kod_xml == mo_xml->( RecNo() ) .and. KOL_ERR > 0
+  Index On nakt to ( cur_dir() + "tmp_rak" ) For kod_xml == mo_xml->( RecNo() ) .and. KOL_ERR > 0
   Go Top
   Do While !Eof()
     Select RAKS
-    Index On Str( kod_raks, 6 ) to ( cur_dir + "tmp_raks" ) For akt == rak->akt .and. KOL_ERR > 0
+    Index On Str( kod_raks, 6 ) to ( cur_dir() + "tmp_raks" ) For akt == rak->akt .and. KOL_ERR > 0
     Go Top
     Do While !Eof()
       Select RAKSH
-      Index On Str( kod_h, 7 ) to ( cur_dir + "tmp_raksh" ) For KOD_RAKS == raks->KOD_RAKS .and. oplata > 1
+      Index On Str( kod_h, 7 ) to ( cur_dir() + "tmp_raksh" ) For KOD_RAKS == raks->KOD_RAKS .and. oplata > 1
       Go Top
       Do While !Eof()
         If raksh->next_kod > 0
@@ -683,7 +683,7 @@ Function delete_rak( lrec, lname, not_end )
       mywait( "Ждите. Производится удаление РАК." )
       If ih > 0
         g_use( dir_server + "mo_os", , "MO_OS" )
-        Index On Str( kod, 7 ) to ( cur_dir + "tmp_moos" )
+        Index On Str( kod, 7 ) to ( cur_dir() + "tmp_moos" )
         For i := 1 To ih
           find ( Str( arr_next[ i, 1 ], 7 ) )
           If Found()
@@ -704,15 +704,15 @@ Function delete_rak( lrec, lname, not_end )
         Next
       Endif
       g_use( dir_server + "mo_raksherr", , "RAKSHERR" )
-      Index On Str( kod_raksh, 8 ) to ( cur_dir + "tmpraksherr" )
+      Index On Str( kod_raksh, 8 ) to ( cur_dir() + "tmpraksherr" )
       g_use( dir_server + "mo_raksh", , "RAKSH" )
-      Index On Str( kod_raks, 6 ) to ( cur_dir + "tmpraksh" )
+      Index On Str( kod_raks, 6 ) to ( cur_dir() + "tmpraksh" )
       g_use( dir_server + "mo_raks", , "RAKS" )
-      Index On Str( akt, 6 ) to ( cur_dir + "tmpraks" )
+      Index On Str( akt, 6 ) to ( cur_dir() + "tmpraks" )
       g_use( dir_server + "mo_rakexp", , "RAKEXP" )
-      Index On Str( akt, 6 ) to ( cur_dir + "tmprakexp" )
+      Index On Str( akt, 6 ) to ( cur_dir() + "tmprakexp" )
       g_use( dir_server + "mo_rak", , "RAK" )
-      Index On Str( kod_xml, 6 ) to ( cur_dir + "tmprak" )
+      Index On Str( kod_xml, 6 ) to ( cur_dir() + "tmprak" )
       ia := is := ih := 0
       Do While .t.
         Select RAKEXP
@@ -781,7 +781,7 @@ Function view_rak_akt( lrec )
   Local blk, blk_akt, blk_typek, blk_skont, t_arr[ BR_LEN ]
 
   r_use( dir_server + 'mo_rak', , 'RAK' )
-  Index On nakt to ( cur_dir + 'tmp_rak' ) For kod_xml == lrec
+  Index On nakt to ( cur_dir() + 'tmp_rak' ) For kod_xml == lrec
   Go Top
   If Eof()
     Return func_error( 4, 'Не обнаружено актов в данном РАКе' )
@@ -836,7 +836,7 @@ Function f1_view_rak_akt( nk, ob, regim )
     view_rak_akt_schet( rak->akt )
     Close databases
     //
-    r_use( dir_server + 'mo_rak', cur_dir + 'tmp_rak', 'RAK' )
+    r_use( dir_server + 'mo_rak', cur_dir() + 'tmp_rak', 'RAK' )
     Goto ( rec )
     ret := 0
   Endif
@@ -852,7 +852,7 @@ Function view_rak_akt_schet( lakt, lkont )
   r_use( dir_server + "schet_", , "SCHET_" )
   r_use( dir_server + "mo_raks", , "RAKS" )
   Set Relation To schet into SCHET_
-  Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir + "tmp_raks" ) For akt == lakt
+  Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir() + "tmp_raks" ) For akt == lakt
   Go Top
   If Eof()
     Return func_error( 4, "Не обнаружено счетов в данном акте" )
@@ -893,7 +893,7 @@ Function f1_view_rak_akt_schet( nk, ob, regim )
     Close databases
     //
     r_use( dir_server + "schet_", , "SCHET_" )
-    r_use( dir_server + "mo_raks", cur_dir + "tmp_raks", "RAKS" )
+    r_use( dir_server + "mo_raks", cur_dir() + "tmp_raks", "RAKS" )
     Set Relation To schet into SCHET_
     Goto ( rec )
     ret := 0
@@ -914,7 +914,7 @@ Function view_rak_akt_schet_human( lkod_raks )
   Set Relation To RecNo() into HUMAN_
   g_use( dir_server + "mo_raksh", , "RAKSH" )
   Set Relation To KOD_H into HUMAN
-  Index On Str( human_->SCHET_ZAP, 6 ) to ( cur_dir + "tmp_raksh" ) For KOD_RAKS == lkod_raks
+  Index On Str( human_->SCHET_ZAP, 6 ) to ( cur_dir() + "tmp_raksh" ) For KOD_RAKS == lkod_raks
   Go Top
   If Eof()
     Return func_error( 4, "Не обнаружено пациентов в данном счете" )
@@ -1035,7 +1035,7 @@ Function f1_view_rak_akt_schet_human( nk, ob, regim )
     r_use( dir_server + "human_", , "HUMAN_" )
     r_use( dir_server + "human", , "HUMAN" )
     Set Relation To RecNo() into HUMAN_
-    r_use( dir_server + "mo_raksh", cur_dir + "tmp_raksh", "RAKSH" )
+    r_use( dir_server + "mo_raksh", cur_dir() + "tmp_raksh", "RAKSH" )
     Set Relation To KOD_H into HUMAN
     Goto ( rec )
     ret := 0
@@ -1149,7 +1149,7 @@ Function rak_akt_schet_human_add_next( s, s1, lrec )
       ahuman_2 := get_field()
       If ( fl_iname := ( human_->smo == '34   ' ) )
         g_use( dir_server + "mo_hismo", , "SN" )
-        Index On Str( kod, 7 ) to ( cur_dir + "tmp_ismo" )
+        Index On Str( kod, 7 ) to ( cur_dir() + "tmp_ismo" )
         find ( Str( glob_perso, 7 ) )
         mnameismo := sn->smo_name
       Endif
@@ -1243,7 +1243,7 @@ Function rak_akt_schet_human_add_next( s, s1, lrec )
           ahuman_2h3 := get_field()
           If ( fl_inameh3 := ( human_->smo == '34   ' ) )
             g_use( dir_server + "mo_hismo", , "SNh3" )
-            Index On Str( kod, 7 ) to ( cur_dir + "tmp_ismoh3" )
+            Index On Str( kod, 7 ) to ( cur_dir() + "tmp_ismoh3" )
             find ( Str( glob_persoh3, 7 ) )
             mnameismoh3 := sn->smo_name
           Endif
@@ -1658,7 +1658,7 @@ Function rak_akt_schet_human_del_next( s, s1, lrec )
       Endif
       g_use( dir_server + "mo_raksh", , "RAKSH" )
       g_use( dir_server + "mo_os", , "MO_OS" )
-      Index On Str( kod, 7 ) to ( cur_dir + "tmp_moos" ) For NEXT_KOD > 0
+      Index On Str( kod, 7 ) to ( cur_dir() + "tmp_moos" ) For NEXT_KOD > 0
       find ( Str( glob_perso, 7 ) )
       If Found()
         deleterec( .t. )
@@ -1917,7 +1917,7 @@ Function akt_list_of_refusal_pacient()
     "перевыставленные случаи полного снятия", ;
     "не перевыставленные случаи полного снятия" }
   Local buf := save_maxrow(), lsmo, lmenu, i, j, k, s, t_arr[ 2 ], ;
-    ireg, fl, arr_m, n_file := cur_dir + "spis_sn" + stxt, sh := 80, HH := 60
+    ireg, fl, arr_m, n_file := cur_dir() + "spis_sn" + stxt, sh := 80, HH := 60
 
   Private a_otd := {}
 
@@ -2048,13 +2048,13 @@ Function akt_list_of_refusal_pacient()
   r_use( dir_server + "human", , "HUMAN" )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To otd into OTD
   r_use( dir_server + "mo_raksh", , "RAKSH" )
-  Index On Str( kod_raks, 6 ) to ( cur_dir + "tmpraksh" )
+  Index On Str( kod_raks, 6 ) to ( cur_dir() + "tmpraksh" )
   r_use( dir_server + "mo_raks", , "RAKS" )
-  Index On Str( akt, 6 ) to ( cur_dir + "tmpraks" ) For plat == lsmo[ 1 ]
+  Index On Str( akt, 6 ) to ( cur_dir() + "tmpraks" ) For plat == lsmo[ 1 ]
   r_use( dir_server + "mo_rak", , "RAK" )
-  Index On Str( kod_xml, 6 ) + DToS( dakt ) + nakt to ( cur_dir + "tmprak" )
+  Index On Str( kod_xml, 6 ) + DToS( dakt ) + nakt to ( cur_dir() + "tmprak" )
   r_use( dir_server + "mo_xml", , "MO_XML" )
-  Index On dfile to ( cur_dir + "tmp_xml" ) For TIP_IN == _XML_FILE_RAK
+  Index On dfile to ( cur_dir() + "tmp_xml" ) For TIP_IN == _XML_FILE_RAK
   j := 0
   Go Top
   Do While !Eof()
@@ -2329,7 +2329,7 @@ Function akt_list_of_refusal_pacient()
 
   If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
     create_xls_rdl( 'rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd )
-    saveto( cur_dir + 'rdl_report.xlsx' )
+    saveto( cur_dir() + 'rdl_report.xlsx' )
   Endif
 
   Return Nil
@@ -2338,7 +2338,7 @@ Function akt_list_of_refusal_pacient()
 Function pr_list_rak()
 
   Static arr_smo
-  Local buf := save_maxrow(), arr_m, n_file := cur_dir + "list_RAK" + stxt, ta[ 2 ], i, s, asmo, ;
+  Local buf := save_maxrow(), arr_m, n_file := cur_dir() + "list_RAK" + stxt, ta[ 2 ], i, s, asmo, ;
     krak := 0, kakt, ksch, kpac, kerr, kpen, sh, HH := 60
 
   If arr_smo == NIL
@@ -2447,7 +2447,7 @@ Function pr_list_rak()
 // 29.11.15 Список счетов без РАК
 Function pr_schet_bez_rak()
 
-  Local buf := save_maxrow(), arr_m, n_file := cur_dir + "s_bezRAK" + stxt, sh, HH := 60
+  Local buf := save_maxrow(), arr_m, n_file := cur_dir() + "s_bezRAK" + stxt, sh, HH := 60
 
   If ( arr_m := year_month( T_ROW, T_COL -5, , 4 ) ) == NIL
     Return Nil
@@ -2469,11 +2469,11 @@ Function pr_schet_bez_rak()
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
   r_use( dir_server + "mo_raks", , "RAKS" )
-  Index On Str( schet, 6 ) to ( cur_dir + "tmpraks" )
+  Index On Str( schet, 6 ) to ( cur_dir() + "tmpraks" )
   r_use( dir_server + "schet_", , "SCHET_" )
   r_use( dir_server + "schet", , "SCHET" )
   Set Relation To RecNo() into SCHET_
-  Index On Str( schet_->nyear, 4 ) + Str( schet_->nmonth, 2 ) to ( cur_dir + "tmp_schet" ) ;
+  Index On Str( schet_->nyear, 4 ) + Str( schet_->nmonth, 2 ) to ( cur_dir() + "tmp_schet" ) ;
     For Empty( schet_->IS_DOPLATA )
   dbSeek( Str( arr_m[ 1 ], 4 ) + Str( arr_m[ 2 ], 2 ), .t. )
   Do While schet_->nyear == arr_m[ 1 ] .and. schet_->nmonth <= arr_m[ 3 ] .and. !Eof()
@@ -2513,7 +2513,7 @@ Function akt_summa_of_refusal( tip )
 
   // 1 - по дате АКТА в РАК
   // 2  - по дате РАК
-  Local buf := save_maxrow(), arr_m, n_file := cur_dir + 'sum_RAK' + stxt, sh, HH := 40, arr_smo := AClone( glob_arr_smo )
+  Local buf := save_maxrow(), arr_m, n_file := cur_dir() + 'sum_RAK' + stxt, sh, HH := 40, arr_smo := AClone( glob_arr_smo )
 
   If ( arr_m := year_month( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
@@ -2532,16 +2532,16 @@ Function akt_summa_of_refusal( tip )
     { 'summa4', 'N', 15, 2 }, ;
     { 'kol3', 'N', 6, 0 }, ;
     { 'summa3', 'N', 15, 2 } }
-  dbCreate( cur_dir + 'tmp', adbf )
-  Use ( cur_dir + 'tmp' ) new
-  Index On smo + Str( REFREASON, 3 ) to ( cur_dir + 'tmp' )
+  dbCreate( cur_dir() + 'tmp', adbf )
+  Use ( cur_dir() + 'tmp' ) new
+  Index On smo + Str( REFREASON, 3 ) to ( cur_dir() + 'tmp' )
   r_use( dir_server + 'mo_raksh', , 'RAKSH' )
-  Index On Str( kod_raks, 6 ) to ( cur_dir + 'tmpraksh' )
+  Index On Str( kod_raks, 6 ) to ( cur_dir() + 'tmpraksh' )
   r_use( dir_server + 'mo_raks', , 'RAKS' )
-  Index On Str( akt, 6 ) to ( cur_dir + 'tmpraks' )
+  Index On Str( akt, 6 ) to ( cur_dir() + 'tmpraks' )
   r_use( dir_server + 'mo_rak', , 'RAK' )
   If TIP == 1 // дата АКТА
-    Index On DToS( dakt ) to ( cur_dir + 'tmprak' ) For Between( dakt, arr_m[ 5 ], arr_m[ 6 ] )
+    Index On DToS( dakt ) to ( cur_dir() + 'tmprak' ) For Between( dakt, arr_m[ 5 ], arr_m[ 6 ] )
     Go Top
     Do While !Eof()
       @ MaxRow(), 0 Say PadR( date_8( rak->dakt ), 80 ) Color 'W/R'
@@ -2599,7 +2599,7 @@ Function akt_summa_of_refusal( tip )
     r_use( dir_server + 'mo_XML', , 'MO_XML' )
     Select RAK
     Set Relation To kod_xml into MO_XML
-    Index On DToS( dakt ) to ( cur_dir + 'tmprak' ) For Between( mo_xml->dfile, arr_m[ 5 ], arr_m[ 6 ] )
+    Index On DToS( dakt ) to ( cur_dir() + 'tmprak' ) For Between( mo_xml->dfile, arr_m[ 5 ], arr_m[ 6 ] )
     Go Top
     Do While !Eof()
       @ MaxRow(), 0 Say PadR( date_8( rak->dakt ), 80 ) Color 'W/R'
@@ -2675,7 +2675,7 @@ Function akt_summa_of_refusal( tip )
     add_string( Center( 'даты РЕЕСТРОВ АКТОВ КОНТРОЛЯ - ' + arr_m[ 4 ], sh ) )
   Endif
   AEval( arr_title, {| x| add_string( x ) } )
-  // R_Use(dir_exe() + '_mo_t005', cur_dir + '_mo_t005', 'T5')
+  // R_Use(dir_exe() + '_mo_t005', cur_dir() + '_mo_t005', 'T5')
   Select TMP
   Go Top
   Do While !Eof()
@@ -2712,7 +2712,7 @@ Function akt_summa_of_refusal( tip )
     Select TMP
     Skip
   Enddo
-  Index On smo + Str( iif( Empty( REFREASON ), 999, REFREASON ), 3 ) to ( cur_dir + 'tmp' )
+  Index On smo + Str( iif( Empty( REFREASON ), 999, REFREASON ), 3 ) to ( cur_dir() + 'tmp' )
   For i := 1 To Len( arr_smo )
     arr_smo[ i, 2 ] := PadR( lstr( arr_smo[ i, 2 ] ), 5 )
   Next
@@ -2852,7 +2852,7 @@ Function akt_list_of_refusal_defect()
 // 31.01.25 функция для списка снятий по актам (дефекты)
 Function f1akt_list_of_refusal_defect( asmo, ssmo )
 
-  Local adbf, s, otch_period, n_file := cur_dir + 'sp_sn' + stxt, HH := 60, buf := save_maxrow()
+  Local adbf, s, otch_period, n_file := cur_dir() + 'sp_sn' + stxt, HH := 60, buf := save_maxrow()
 
   mywait()
   adbf := { { "nrak", "C", 26, 0 }, ;
@@ -2875,8 +2875,8 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
     { "kolp", "N", 6, 0 }, ;
     { "penalty", "N", 15, 2 }, ;
     { "REFREASON", "N", 3, 0 } }
-  dbCreate( cur_dir + "tmp", adbf )
-  Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir() + "tmp", adbf )
+  Use ( cur_dir() + "tmp" ) new
   r_use( dir_server + "schet_", , "SCHET_" )
   r_use( dir_server + "mo_otd", , "OTD" )
   r_use( dir_server + "human", , "HUMAN" )
@@ -2958,9 +2958,9 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
     Skip
   Enddo
   //
-  dbCreate( cur_dir + "tmp1", adbf )
-  Use ( cur_dir + "tmp1" ) new
-  Index On Str( rak, 6 ) + Str( akt, 6 ) + op + Str( schet, 6 ) + Str( otd, 3 ) + Str( REFREASON, 3 ) to ( cur_dir + "tmp1" )
+  dbCreate( cur_dir() + "tmp1", adbf )
+  Use ( cur_dir() + "tmp1" ) new
+  Index On Str( rak, 6 ) + Str( akt, 6 ) + op + Str( schet, 6 ) + Str( otd, 3 ) + Str( REFREASON, 3 ) to ( cur_dir() + "tmp1" )
   old_rak := old_akt := old_schet := -1
   old_op := Space( 18 )
   Select TMP
@@ -3054,7 +3054,7 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
   add_string( Center( "СМО: " + ssmo, sh ) )
   add_string( Center( "даты " + iif( m1poisk == 0, "РАК - ", "актов контроля - " ) + pdate[ 4 ], sh ) )
   AEval( arr_title, {| x| add_string( x ) } )
-  // R_Use(dir_exe() + '_mo_t005', cur_dir + '_mo_t005', 'T5')
+  // R_Use(dir_exe() + '_mo_t005', cur_dir() + '_mo_t005', 'T5')
   ssum := skol := sum_rak := kol_rak := 0
   n := 20
   ssump := skolp := sump_rak := kolp_rak := 0

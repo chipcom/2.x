@@ -17,18 +17,18 @@ Function TFOMS_hodatajstvo(arr_m,iRefr,par)
   //      2 - Оформление (печать) ХОДАТАЙСТВА (по старому)
   Local buf24 := save_maxrow(), t_arr[BR_LEN], blk
 
-  if !myFileDeleted(cur_dir+"tmp_k"+sdbf)
+  if !myFileDeleted(cur_dir()+"tmp_k"+sdbf)
     return NIL
   endif
 
   mywait()
-  dbcreate(cur_dir+"tmp_k",{{"kod","N",7,0},;
+  dbcreate(cur_dir()+"tmp_k",{{"kod","N",7,0},;
                             {"kod_lu","N",7,0},;
                             {"k_data","D",8,0},;
                             {"is","N",1,0}})
-  use (cur_dir+"tmp_k") new
+  use (cur_dir()+"tmp_k") new
   R_Use(dir_server+"human",,"HUMAN")
-  use (cur_dir+"tmp_h") new
+  use (cur_dir()+"tmp_h") new
   go top
   do while !eof()
     if tmp_h->REFREASON == iRefr
@@ -50,9 +50,9 @@ Function TFOMS_hodatajstvo(arr_m,iRefr,par)
   //
   R_Use(dir_server+"kartote_",,"KART_")
   R_Use(dir_server+"kartotek",,"KART")
-  use (cur_dir+"tmp_k") new alias TMP
+  use (cur_dir()+"tmp_k") new alias TMP
   set relation to kod into KART, to kod into KART_
-  index on upper(kart->fio) to (cur_dir+"tmp_k")
+  index on upper(kart->fio) to (cur_dir()+"tmp_k")
   rest_box(buf24)
   //
   t_arr[BR_TOP] := 2
@@ -291,15 +291,15 @@ Function create_file_hodatajstvo(arr_m)
   endif
 
   mywait()
-  dbcreate(cur_dir+"tmp_k1",{{"kod","N",7,0},;
+  dbcreate(cur_dir()+"tmp_k1",{{"kod","N",7,0},;
                              {"kod_lu","N",7,0},;
                              {"k_data","D",8,0},;
                              {"ntable","N",1,0},;
                              {"is","N",1,0}})
-  use (cur_dir+"tmp_k1") new
-  index on str(kod,7) to (cur_dir+"tmp_k1")
+  use (cur_dir()+"tmp_k1") new
+  index on str(kod,7) to (cur_dir()+"tmp_k1")
 
-  use (cur_dir+"tmp_k") new
+  use (cur_dir()+"tmp_k") new
   go top
   do while !eof()
     select TMP_K1
@@ -323,7 +323,7 @@ Function create_file_hodatajstvo(arr_m)
   f_mb_me_nsh(2013,@mb,@me)
 
   R_Use(dir_server+"mo_hod",,"HOD")
-  index on str(nn,3) to (cur_dir+"tmp_rees") for year(dfile)==year(sys_date)
+  index on str(nn,3) to (cur_dir()+"tmp_rees") for year(dfile)==year(sys_date)
 
   for mnn := mb to me
     find (str(mnn,3))
@@ -342,7 +342,7 @@ Function create_file_hodatajstvo(arr_m)
 
   R_Use(dir_server+"mo_hod_k",,"HODK")
   set relation to kod into HOD
-  index on str(kod_k,7) to (cur_dir+"tmp_hodk") ;
+  index on str(kod_k,7) to (cur_dir()+"tmp_hodk") ;
         for hod->nyear==arr_m[1] .and. hod->nmonth==arr_m[2]
 
   select TMP_K1
@@ -435,16 +435,16 @@ Function create_file_hodatajstvo(arr_m)
                  {"proch","C",60,0}}
         dbcreate(fr_data,adbf)
         use (fr_data) new alias FRD
-        R_Use(dir_exe()+"_mo_smo",cur_dir+"_mo_smo2","SMO")
+        R_Use(dir_exe()+"_mo_smo",cur_dir()+"_mo_smo2","SMO")
         R_Use(dir_server+"kartote_",,"KART_")
         R_Use(dir_server+"kartotek",,"KART")
         set relation to recno() into KART_
         R_Use(dir_server+"human_",,"HUMAN_")
         R_Use(dir_server+"human",,"HUMAN")
         set relation to recno() into HUMAN_, kod_k into KART
-        use (cur_dir+"tmp_k1") new
+        use (cur_dir()+"tmp_k1") new
         set relation to kod_lu into HUMAN
-        index on upper(human->fio) to (cur_dir+"tmp_k1")
+        index on upper(human->fio) to (cur_dir()+"tmp_k1")
         k := 0
         go top
         do while !eof()
@@ -515,8 +515,8 @@ Function create_file_hodatajstvo(arr_m)
     hod->DATE_OUT := ctod("")
     hod->NUMB_OUT := 0
     G_Use(dir_server+"mo_hod_k",,"HODK")
-    index on str(kod,6) to (cur_dir+"tmp_hodk")
-    use (cur_dir+"tmp_k1") new
+    index on str(kod,6) to (cur_dir()+"tmp_hodk")
+    use (cur_dir()+"tmp_k1") new
     arr_zip := {}
     for i := 1 to 3
       if as[i,1] > 0
@@ -551,9 +551,9 @@ Function view_list_hodatajstvo()
   if !G_SLock(Shodata_sem)
     return func_error(4,Shodata_err)
   endif
-  Private goal_dir := dir_server+dir_XML_MO+cslash
+  Private goal_dir := dir_server+dir_XML_MO+hb_ps()
   G_Use(dir_server+"mo_hod",,"HOD")
-  index on str(year(dfile),4)+str(nn,4) to (cur_dir+"tmp_hod") DESCENDING
+  index on str(year(dfile),4)+str(nn,4) to (cur_dir()+"tmp_hod") DESCENDING
   go top
   if eof()
     func_error(4,"Нет файлов ходатайств")
@@ -672,7 +672,7 @@ Function f2_view_list_hodatajstvo(nKey,oBrow)
         if f_Esc_Enter("удаления файла за "+date_8(hod->dfile),.t.)
           mywait("Ждите. Производится удаление файла ходатайства.")
           G_Use(dir_server+"mo_hod_k",,"HODK")
-          index on str(kod,6) to (cur_dir+"tmp_hodk")
+          index on str(kod,6) to (cur_dir()+"tmp_hodk")
           do while .t.
             find (str(hod->kod,6))
             if !found() ; exit ; endif

@@ -304,7 +304,7 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
 
 
   //
-  Default flag_tmp1 To .f., is_all To .t., goal_dir To dir_server + dir_XML_MO + cslash
+  Default flag_tmp1 To .f., is_all To .t., goal_dir To dir_server + dir_XML_MO + hb_ps()
   Private pole
   stat_msg( "Распаковка/чтение/анализ " + iif( eq_any( Left( mname_xml, 3 ), "HRM", "FRM" ), "реестра ", "счёта " ) + mname_xml )
 
@@ -312,34 +312,34 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
 
   If ( arr_f := extract_zip_xml( goal_dir, name_zip ) ) != NIL
     fl := .t.
-    dbCreate( cur_dir + "tmp_r_t1", _table1 )
-    dbCreate( cur_dir + "tmp_r_t1_1", _table1 )
-    dbCreate( cur_dir + "tmp_r_t2", _table2 )
-    dbCreate( cur_dir + "tmp_r_t3", _table3 )
-    dbCreate( cur_dir + "tmp_r_t4", _table4 )
-    dbCreate( cur_dir + "tmp_r_t5", _table5 )
-    dbCreate( cur_dir + "tmp_r_t6", _table6 )
-    dbCreate( cur_dir + "tmp_r_t7", _table7 )
-    dbCreate( cur_dir + "tmp_r_t8", _table8 )
-    dbCreate( cur_dir + "tmp_r_t9", _table9 )
-    dbCreate( cur_dir + "tmp_r_t10", _table10 )
-    dbCreate( cur_dir + "tmp_r_t11", _table11 )
-    dbCreate( cur_dir + "tmp_r_t12", _table12 )
-    Use ( cur_dir + "tmp_r_t1" ) New Alias T1
-    Use ( cur_dir + "tmp_r_t2" ) New Alias T2
-    Use ( cur_dir + "tmp_r_t3" ) New Alias T3
-    Use ( cur_dir + "tmp_r_t4" ) New Alias T4
-    Use ( cur_dir + "tmp_r_t5" ) New Alias T5
-    Use ( cur_dir + "tmp_r_t6" ) New Alias T6
-    Use ( cur_dir + "tmp_r_t7" ) New Alias T7
-    Use ( cur_dir + "tmp_r_t8" ) New Alias T8
-    Use ( cur_dir + "tmp_r_t9" ) New Alias T9
-    Use ( cur_dir + "tmp_r_t10" ) New Alias T10
-    Use ( cur_dir + "tmp_r_t11" ) New Alias T11
-    Use ( cur_dir + "tmp_r_t12" ) New Alias T12
-    Use ( cur_dir + "tmp_r_t1_1" ) New Alias T1_1
+    dbCreate( cur_dir() + "tmp_r_t1", _table1 )
+    dbCreate( cur_dir() + "tmp_r_t1_1", _table1 )
+    dbCreate( cur_dir() + "tmp_r_t2", _table2 )
+    dbCreate( cur_dir() + "tmp_r_t3", _table3 )
+    dbCreate( cur_dir() + "tmp_r_t4", _table4 )
+    dbCreate( cur_dir() + "tmp_r_t5", _table5 )
+    dbCreate( cur_dir() + "tmp_r_t6", _table6 )
+    dbCreate( cur_dir() + "tmp_r_t7", _table7 )
+    dbCreate( cur_dir() + "tmp_r_t8", _table8 )
+    dbCreate( cur_dir() + "tmp_r_t9", _table9 )
+    dbCreate( cur_dir() + "tmp_r_t10", _table10 )
+    dbCreate( cur_dir() + "tmp_r_t11", _table11 )
+    dbCreate( cur_dir() + "tmp_r_t12", _table12 )
+    Use ( cur_dir() + "tmp_r_t1" ) New Alias T1
+    Use ( cur_dir() + "tmp_r_t2" ) New Alias T2
+    Use ( cur_dir() + "tmp_r_t3" ) New Alias T3
+    Use ( cur_dir() + "tmp_r_t4" ) New Alias T4
+    Use ( cur_dir() + "tmp_r_t5" ) New Alias T5
+    Use ( cur_dir() + "tmp_r_t6" ) New Alias T6
+    Use ( cur_dir() + "tmp_r_t7" ) New Alias T7
+    Use ( cur_dir() + "tmp_r_t8" ) New Alias T8
+    Use ( cur_dir() + "tmp_r_t9" ) New Alias T9
+    Use ( cur_dir() + "tmp_r_t10" ) New Alias T10
+    Use ( cur_dir() + "tmp_r_t11" ) New Alias T11
+    Use ( cur_dir() + "tmp_r_t12" ) New Alias T12
+    Use ( cur_dir() + "tmp_r_t1_1" ) New Alias T1_1
     If flag_tmp1
-      dbCreate( cur_dir + "tmp1file", { ;
+      dbCreate( cur_dir() + "tmp1file", { ;
         { "_VERSION",   "C",  5, 0 }, ;
         { "_DATA",      "D",  8, 0 }, ;
         { "_FILENAME",  "C", 26, 0 }, ;
@@ -354,7 +354,7 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
         { "_KOL",       "N",  6, 0 }, ;
         { "_MAX",       "N",  8, 0 };
         } )
-      Use ( cur_dir + "tmp1file" ) New Alias TMP1
+      Use ( cur_dir() + "tmp1file" ) New Alias TMP1
       Append Blank
     Endif
     For ii := 1 To Len( arr_f )

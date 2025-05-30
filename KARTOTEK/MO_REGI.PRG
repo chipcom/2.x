@@ -57,7 +57,7 @@ Function regi_stat( k )
 //
 Function f1regi_stat()
 
-  Local arr_g, sh, HH := 57, reg_print := 1, n_file := cur_dir + 'reg1stat' + stxt, ;
+  Local arr_g, sh, HH := 57, reg_print := 1, n_file := cur_dir() + 'reg1stat' + stxt, ;
     buf := save_maxrow(), arr_otd := {}, arr_vp := {}, i, j1, j2, ;
     arr_p := {}, arr_title, ssumma := 0
 
@@ -174,7 +174,7 @@ Function f1regi_stat()
 //
 Function f2regi_stat( par )
 
-  Local arr_g, sh, HH := 58, reg_print := 2, n_file := cur_dir + 'reg2stat' + stxt, ;
+  Local arr_g, sh, HH := 58, reg_print := 2, n_file := cur_dir() + 'reg2stat' + stxt, ;
     buf := save_maxrow(), i, j1, j2, arr_title, a_f[ 10 ], a_a[ 10 ], kf, ka, ;
     nf, na, a_o[ 10 ], ko
 
@@ -209,7 +209,7 @@ Function f2regi_stat( par )
     r_use( dir_server + 'mo_regi', dir_server + 'mo_regi2', 'RU' )
     Set Relation To kod_k into KART
     dbSeek( arr_g[ 7 ], .t. )
-    Index On Upper( kart->fio ) to ( cur_dir + 'tmp_ru' ) While ru->pdate <= arr_g[ 8 ]
+    Index On Upper( kart->fio ) to ( cur_dir() + 'tmp_ru' ) While ru->pdate <= arr_g[ 8 ]
     Go Top
     Do While !Eof()
       fl := .t.
@@ -1083,7 +1083,7 @@ Function new_list_uch( par, name_func )
 Function ind_karta()
 
   Local file_sh, k := 10, arr, sh, HH, reg_print, n_file
-  Local tmp_file := cur_dir + '___tmp' + stxt, lfp, s
+  Local tmp_file := cur_dir() + '___tmp' + stxt, lfp, s
 
   If ( file_sh := search_file( f_file8() ) ) == NIL
     Return func_error( 4, 'Не обнаружен файл шаблона ' + f_file8() )
@@ -1240,7 +1240,7 @@ Function list_uch( is_lgotnik )
 
   Local sh := 80, HH := 55, buf := save_maxrow(), regim_print := 2
   Local i := 1, j, k, tmp[ 2 ], tmp1, w1 := 65, s, fl, rec
-  Local n_file := cur_dir + 'list_uch' + stxt, arr, mfam1, mima1, mots1, m1vid_ud, ;
+  Local n_file := cur_dir() + 'list_uch' + stxt, arr, mfam1, mima1, mots1, m1vid_ud, ;
     m1kategor := ATail( stm_kategor )[ 2 ]  // т.е. прочие (последнее значение)
 
   //
@@ -1731,7 +1731,7 @@ Function pr_invalid()
     mm_pens := { { 'все', 0 }, { 'пенсионеры', 1 }, { 'не пенсионеры', 2 } }, ;
     mm_gorod := { { 'все', 0 }, { 'город', 1 }, { 'село', 2 } }, ;
     mm_spisok := { { 'список инвалидов', 1 }, { 'общее количество', 2 } }
-  Local buf := SaveScreen(), r := 14, sh, HH := 60, name_file := cur_dir + 'invalid' + stxt, k_fio, tt_fio[ 2 ]
+  Local buf := SaveScreen(), r := 14, sh, HH := 60, name_file := cur_dir() + 'invalid' + stxt, k_fio, tt_fio[ 2 ]
 
   SetColor( cDataCGet )
   myclear( r )
@@ -1769,7 +1769,7 @@ Function pr_invalid()
     sprik := m1prik
     sspisok := m1spisok
     //
-    dbCreate( cur_dir + 'tmp', { ;
+    dbCreate( cur_dir() + 'tmp', { ;
       { 'kod',       'N',  7, 0 }, ;
       { 'INVALID',   'N',  1, 0 }, ; // группа инвалидности
     { 'UCHAST',   'N',  2, 0 }, ; // номер участка
@@ -1785,7 +1785,7 @@ Function pr_invalid()
     r_use( dir_server + 'kartote2', , 'KART2' )
     r_use( dir_server + 'kartote_', , 'KART_' )
     Set Relation To RecNo() into KART, RecNo() into KART2
-    Index On Str( kart->kod, 7 ) to ( cur_dir + 'tmp_kart' ) For Between( kart_->INVALID, 1, 4 )
+    Index On Str( kart->kod, 7 ) to ( cur_dir() + 'tmp_kart' ) For Between( kart_->INVALID, 1, 4 )
     Go Top
     Do While !Eof()
       f1_pr_invalid()
@@ -1850,9 +1850,9 @@ Function pr_invalid()
         r_use( dir_server + 'kartote_', , 'KART_' )
         r_use( dir_server + 'kartotek', , 'KART' )
         Set Relation To RecNo() into KART_, To RecNo() into KART2
-        Use ( cur_dir + 'tmp' ) new
+        Use ( cur_dir() + 'tmp' ) new
         Set Relation To kod into KART
-        Index On Upper( kart->fio ) to ( cur_dir + 'tmp' )
+        Index On Upper( kart->fio ) to ( cur_dir() + 'tmp' )
         Select TMP
         Go Top
         Do While !Eof()
@@ -1899,7 +1899,7 @@ Function pr_invalid()
       Else // общее количество
         arr := Array( 4 )
         afillall( arr, 0 )
-        Use ( cur_dir + 'tmp' ) new
+        Use ( cur_dir() + 'tmp' ) new
         Go Top
         Do While !Eof()
           arr[ tmp->INVALID ] ++
@@ -2028,7 +2028,7 @@ Function create_dbf_for_lis( par )
   hGauge := gaugenew(, , , 'Создание файла ' + Upper( n_file + sdbf ), .t. )
   gaugedisplay( hGauge )
   r_use( dir_server + 'mo_kfio', , 'KFIO' )
-  Index On Str( kod, 7 ) to ( cur_dir + 'tmp_kfio' )
+  Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
   r_use_base( 'kartotek' )
   Set Order To 2
   Go Top
@@ -2075,7 +2075,7 @@ Function create_dbf_for_lis( par )
   Elseif i  == 0
     func_error( 4, 'Некого включать в файл!' )
   Else
-    n_message( { 'В каталоге ' + cur_dir + ' создан файл ' + Upper( n_file + sdbf ), ;
+    n_message( { 'В каталоге ' + cur_dir() + ' создан файл ' + Upper( n_file + sdbf ), ;
       lstr( i ) + ' пациентов.' }, , ;
       cColorSt2Msg, cColorStMsg, , , 'G+/R' )
   Endif
@@ -2130,7 +2130,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
       Return Nil
     Endif
     si1 := pr_uchast
-    n_file := cur_dir + 'uchast' + StrZero( nuch, 2 )
+    n_file := cur_dir() + 'uchast' + StrZero( nuch, 2 )
     dbCreate( n_file, adbf )
     Use ( n_file ) New Alias TMP
     hGauge := gaugenew(, , , 'Создание файла ' + Upper( n_file + sdbf ), .t. )
@@ -2221,7 +2221,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
     Close databases
     closegauge( hGauge )
   Case par == 2
-    n_file := cur_dir + 'smo' + nsmo
+    n_file := cur_dir() + 'smo' + nsmo
     dbCreate( n_file, adbf )
     Use ( n_file ) New Alias TMP
     hGauge := gaugenew(, , , 'Создание файла ' + Upper( n_file + sdbf ), .t. )
@@ -2310,7 +2310,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
 // 09.09.15
 Function pripisnoe_naselenie_view()
 
-  Local i, j, s, arr_mo := {}, n_file := cur_dir + 'pr_nas' + stxt, ;
+  Local i, j, s, arr_mo := {}, n_file := cur_dir() + 'pr_nas' + stxt, ;
     sh := 80, HH := 60, buf := save_maxrow()
 
   mywait()
@@ -2366,14 +2366,14 @@ Function find_change_snils( /*@*/curr)
   Local k := 2, hGauge
 
   clrline( MaxRow(), color0 )
-  dbCreate( cur_dir + 'tmpu', { { 'kod', 'N', 7, 0 }, { 'kodp', 'N', 5, 0 } } )
-  Use ( cur_dir + 'tmpu' ) new
+  dbCreate( cur_dir() + 'tmpu', { { 'kod', 'N', 7, 0 }, { 'kodp', 'N', 5, 0 } } )
+  Use ( cur_dir() + 'tmpu' ) new
   hGauge := gaugenew(, , , 'Поиск пациентов в картотеке с изменившимися участками', .t. )
   gaugedisplay( hGauge )
   curr := 0
   r_use( dir_server + 'mo_pers', , 'P2' )
   r_use( dir_server + 'mo_uchvr', , 'UV' )
-  Index On Str( uch, 2 ) to ( cur_dir + 'tmp_uv' )
+  Index On Str( uch, 2 ) to ( cur_dir() + 'tmp_uv' )
   r_use_base( 'kartotek' )
   Set Order To 2
   find ( '1' )
@@ -2618,10 +2618,10 @@ Function view_otkrep_pripisnoe_naselenie()
 
   Local buf := SaveScreen()
 
-  Private goal_dir := dir_server + dir_XML_TF + cslash
+  Private goal_dir := dir_server + dir_XML_TF + hb_ps()
 
   r_use( dir_server + 'mo_krtf', , 'KRTF' )
-  Index On DToS( dfile ) to ( cur_dir + 'tmp_krtf' ) For TIP_IN == _CSV_FILE_OTKREP DESCENDING
+  Index On DToS( dfile ) to ( cur_dir() + 'tmp_krtf' ) For TIP_IN == _CSV_FILE_OTKREP DESCENDING
   Go Top
   If Eof()
     func_error( 4, 'Нет принятых файлов открепления' )
@@ -2740,17 +2740,17 @@ Function read_csv_file_prik_flk_ans( cFile, aerr, nTypeFile, nkod_reestr, nkod_f
   use_base( 'kartotek' )
   // список карточек в реестрах на прикрепление
   g_use( dir_server + 'mo_krtp', , 'KRTP' )
-  Index On Str( rees_zap, 6 ) to ( cur_dir + 'tmp_krtp' ) For reestr == nkod_reestr
+  Index On Str( rees_zap, 6 ) to ( cur_dir() + 'tmp_krtp' ) For reestr == nkod_reestr
   // список ошибок в реестрах на прикрепление
   g_use( dir_server + 'mo_krte', , 'KRTE' )
-  Index On Str( reestr, 6 ) + Str( REES_ZAP, 6 ) + Str( REFREASON, 3 ) to ( cur_dir + 'tmp_krte' )
+  Index On Str( reestr, 6 ) + Str( REES_ZAP, 6 ) + Str( REFREASON, 3 ) to ( cur_dir() + 'tmp_krte' )
   // Реестр сведений о прикреплении
   g_use( dir_server + 'mo_krtr', , 'KRTR' )
   Goto ( nkod_reestr )
   // Список отосланных и принятых CSV-файлов
   g_use( dir_server + 'mo_krtf', , 'KRTF' )
   If nkod_file == NIL
-    Index On Str( kod, 6 ) to ( cur_dir + 'tmp_krtf' )
+    Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_krtf' )
   Endif
   arr_csv := read_csv_to_array( cFile )
   k := Len( arr_csv )
@@ -2922,21 +2922,21 @@ Function read_csv_file_answer( cFile, aerr, nkod_reestr )
   g_use( dir_server + 'mo_kartp', dir_server + 'mo_kartp', 'KARTP' )
   // список карточек в реестрах на прикрепление
   g_use( dir_server + 'mo_krtp', , 'KRTP' )
-  Index On Str( rees_zap, 6 ) to ( cur_dir + 'tmp_krtp' ) For reestr == nkod_reestr
+  Index On Str( rees_zap, 6 ) to ( cur_dir() + 'tmp_krtp' ) For reestr == nkod_reestr
   // список ошибок в реестрах на прикрепление
   g_use( dir_server + 'mo_krte', , 'KRTE' )
-  Index On Str( reestr, 6 ) + Str( rees_zap, 6 ) + Str( REFREASON, 3 ) to ( cur_dir + 'tmp_krte' )
+  Index On Str( reestr, 6 ) + Str( rees_zap, 6 ) + Str( REFREASON, 3 ) to ( cur_dir() + 'tmp_krte' )
   // открыть собственный сегмент застрахованных
   g_use( dir_server + 'kart_et' )
-  Index On Str( kod_tf, 10 ) to ( cur_dir + 'tmp_kart_et' )
+  Index On Str( kod_tf, 10 ) to ( cur_dir() + 'tmp_kart_et' )
   g_use( dir_server + 'kart_etk' )
-  Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp_kart_etk' )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_kart_etk' )
   // Реестр сведений о прикреплении
   g_use( dir_server + 'mo_krtr', , 'KRTR' )
   Goto ( nkod_reestr )
   // Список отосланных и принятых CSV-файлов
   g_use( dir_server + 'mo_krtf', , 'KRTF' )
-  Index On Str( kod, 6 ) to ( cur_dir + 'tmp_krtf' )
+  Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_krtf' )
   arr_csv := read_csv_to_array( cFile )
   k := Len( arr_csv )
   If k != krtr->kol
@@ -3148,15 +3148,15 @@ Function read_csv_file_otkrep( cFile, aerr )
   g_use( dir_server + 'mo_kartp', dir_server + 'mo_kartp', 'KARTP' )
   // список карточек в реестрах на открепление
   g_use( dir_server + 'mo_krto', , 'KRTO' )
-  Index On Str( kod_krtf, 6 ) to ( cur_dir + 'tmp_krto' )
+  Index On Str( kod_krtf, 6 ) to ( cur_dir() + 'tmp_krto' )
   // открыть собственный сегмент застрахованных
   g_use( dir_server + 'kart_et' )
-  Index On Str( kod_tf, 10 ) to ( cur_dir + 'tmp_kart_et' )
+  Index On Str( kod_tf, 10 ) to ( cur_dir() + 'tmp_kart_et' )
   g_use( dir_server + 'kart_etk' )
-  Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp_kart_etk' )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_kart_etk' )
   // Список отосланных и принятых CSV-файлов
   g_use( dir_server + 'mo_krtf', , 'KRTF' )
-  Index On Str( kod, 6 ) to ( cur_dir + 'tmp_krtf' )
+  Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_krtf' )
   arr_csv := read_csv_to_array( cFile )
 
   For i := 1 To Len( arr_csv )
@@ -3323,21 +3323,21 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
   g_use( dir_server + 'mo_kartp', dir_server + 'mo_kartp', 'KARTP' )
   // список карточек в реестрах на прикрепление
   g_use( dir_server + 'mo_krtp', , 'KRTP' )
-  Index On Str( rees_zap, 6 ) to ( cur_dir + 'tmp_krtp' ) For reestr == nkod_reestr
+  Index On Str( rees_zap, 6 ) to ( cur_dir() + 'tmp_krtp' ) For reestr == nkod_reestr
   // список ошибок в реестрах на прикрепление
   g_use( dir_server + 'mo_krte', , 'KRTE' )
-  Index On Str( reestr, 6 ) + Str( rees_zap, 6 ) + Str( REFREASON, 3 ) to ( cur_dir + 'tmp_krte' )
+  Index On Str( reestr, 6 ) + Str( rees_zap, 6 ) + Str( REFREASON, 3 ) to ( cur_dir() + 'tmp_krte' )
   // открыть собственный сегмент застрахованных
   g_use( dir_server + 'kart_et' )
-  Index On Str( kod_tf, 10 ) to ( cur_dir + 'tmp_kart_et' )
+  Index On Str( kod_tf, 10 ) to ( cur_dir() + 'tmp_kart_et' )
   g_use( dir_server + 'kart_etk' )
-  Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp_kart_etk' )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_kart_etk' )
   // Реестр сведений о прикреплении
   g_use( dir_server + 'mo_krtr', , 'KRTR' )
   Goto ( nkod_reestr )
   // Список отосланных и принятых CSV-файлов
   g_use( dir_server + 'mo_krtf', , 'KRTF' )
-  Index On Str( kod, 6 ) to ( cur_dir + 'tmp_krtf' )
+  Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_krtf' )
   arr_csv := read_csv_to_array( cFile )
   k := Len( arr_csv )
   If k != krtr->kol

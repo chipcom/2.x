@@ -1,10 +1,10 @@
-***** mo_sds.prg - интеграция с программой Smart Delta Systems
+// mo_sds.prg - интеграция с программой Smart Delta Systems
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 11.08.17 Интеграция с программой Smart Delta Systems
+// 11.08.17 Интеграция с программой Smart Delta Systems
 Function integration_SDS(k)
 Static sk := 1
 Local mas_pmt, mas_msg, mas_fun, j, s, n_file
@@ -22,7 +22,7 @@ do case
                 "integration_SDS(3)"}
     popup_prompt(T_ROW-len(mas_pmt)-3, T_COL+5, sk, mas_pmt, mas_msg, mas_fun)
   case k == 1
-    Private pikol := {0,0,0}, file_error := "err_sds"+stxt
+    Private pikol := {0,0,0}, file_error := "err_sds"+stxt()
     if (n_file := f_get_file_XML_SDS()) != NIL .and. read_file_XML_SDS(n_file)
       n_message({"Просмотр XML-файла "+n_file,;
                  "",;
@@ -37,7 +37,7 @@ do case
       endif
     endif
   case k == 2
-    Private pikol := {0,0,0}, file_error := "err_sds"+stxt, t1 := seconds()
+    Private pikol := {0,0,0}, file_error := "err_sds"+stxt(), t1 := seconds()
     if (n_file := f_get_file_XML_SDS(@s)) != NIL .and. read_file_XML_SDS(n_file)
       if pikol[3] > 0
         viewtext(Devide_Into_Pages(file_error,60,80), ,, ,.t., ,,2)
@@ -231,34 +231,34 @@ local arrV018
 local arrV019
 //
 mywait("Чтение XML-файла ...")
-dbcreate(cur_dir + "_sluch",_sluch)
-dbcreate(cur_dir + "_sluch_p",_sluch_p)
-dbcreate(cur_dir + "_sluch_u",_sluch_u)
-dbcreate(cur_dir + "_sluch_na",_sluch_na)
-dbcreate(cur_dir + "_sluch_di",_sluch_di)
-dbcreate(cur_dir + "_sluch_pr",_sluch_pr)
-dbcreate(cur_dir + "_sluch_us",_sluch_us)
-dbcreate(cur_dir + "_sluch_le",_sluch_le)
-use (cur_dir + "_sluch") new alias IHUMAN
-index on str(kod,10) to (cur_dir + "tmp_ihum")
-use (cur_dir + "_sluch_na") new alias NA
-index on str(kod,10) to (cur_dir + "tmp_na")
-use (cur_dir + "_sluch_di") new alias DI
-index on str(kod,10) to (cur_dir + "tmp_di")
-use (cur_dir + "_sluch_pr") new alias PR
-index on str(kod,10) to (cur_dir + "tmp_pr")
-use (cur_dir + "_sluch_us") new alias US
-index on str(kod,10) to (cur_dir + "tmp_us")
-use (cur_dir + "_sluch_le") new alias LE
-index on str(kod,10) to (cur_dir + "tmp_le")
-use (cur_dir + "_sluch_p") new alias IPODR
-index on str(kod,10) to (cur_dir + "tmp_ip")
-use (cur_dir + "_sluch_u") new alias IHU
-index on str(kod,10) to (cur_dir + "tmp_ihu")
-index on str(kodp,10) to (cur_dir + "tmp_ihup")
-set index to (cur_dir + "tmp_ihu"),(cur_dir + "tmp_ihup")
+dbcreate(cur_dir() + "_sluch",_sluch)
+dbcreate(cur_dir() + "_sluch_p",_sluch_p)
+dbcreate(cur_dir() + "_sluch_u",_sluch_u)
+dbcreate(cur_dir() + "_sluch_na",_sluch_na)
+dbcreate(cur_dir() + "_sluch_di",_sluch_di)
+dbcreate(cur_dir() + "_sluch_pr",_sluch_pr)
+dbcreate(cur_dir() + "_sluch_us",_sluch_us)
+dbcreate(cur_dir() + "_sluch_le",_sluch_le)
+use (cur_dir() + "_sluch") new alias IHUMAN
+index on str(kod,10) to (cur_dir() + "tmp_ihum")
+use (cur_dir() + "_sluch_na") new alias NA
+index on str(kod,10) to (cur_dir() + "tmp_na")
+use (cur_dir() + "_sluch_di") new alias DI
+index on str(kod,10) to (cur_dir() + "tmp_di")
+use (cur_dir() + "_sluch_pr") new alias PR
+index on str(kod,10) to (cur_dir() + "tmp_pr")
+use (cur_dir() + "_sluch_us") new alias US
+index on str(kod,10) to (cur_dir() + "tmp_us")
+use (cur_dir() + "_sluch_le") new alias LE
+index on str(kod,10) to (cur_dir() + "tmp_le")
+use (cur_dir() + "_sluch_p") new alias IPODR
+index on str(kod,10) to (cur_dir() + "tmp_ip")
+use (cur_dir() + "_sluch_u") new alias IHU
+index on str(kod,10) to (cur_dir() + "tmp_ihu")
+index on str(kodp,10) to (cur_dir() + "tmp_ihup")
+set index to (cur_dir() + "tmp_ihu"),(cur_dir() + "tmp_ihup")
 set order to 2
-dbcreate(cur_dir + "tmp1file", {;
+dbcreate(cur_dir() + "tmp1file", {;
   {"VERSION",   "C",  5,0},;
   {"FILENAME",  "C", 26,0},;
   {"DATA",      "D",  8,0},;
@@ -270,7 +270,7 @@ dbcreate(cur_dir + "tmp1file", {;
   {"TIME2",     "C",  5,0},;
   {"KOL",       "N",  6,0};
 })
-use (cur_dir + "tmp1file") new alias TMP1
+use (cur_dir() + "tmp1file") new alias TMP1
 append blank
 // читаем файл в память
 oXmlDoc := HXMLDoc():Read(n_file)
@@ -567,26 +567,26 @@ strfile(center(n_file,80) +eos+eos,file_error,.t.)
 strfile(center("Протокол чтения файла",80) +eos, "ttt.ttt")
 strfile(center(n_file,80) +eos+eos, "ttt.ttt",.t.)
 Private paso, pasv, pasp, pass
-R_Use(dir_exe() + "_okator", cur_dir + "_okatr", "REGION")
-R_Use(dir_exe() + "_okatoo", cur_dir + "_okato", "OBLAST")
-R_Use(dir_exe() + "_okatos", cur_dir + "_okats", "SELO")
-R_Use(dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10")
+R_Use(dir_exe() + "_okator", cur_dir() + "_okatr", "REGION")
+R_Use(dir_exe() + "_okatoo", cur_dir() + "_okato", "OBLAST")
+R_Use(dir_exe() + "_okatos", cur_dir() + "_okats", "SELO")
+R_Use(dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "MKB_10")
 use_base("lusl")
 use_base("luslc")
 use_base("luslf")
 R_Use(dir_exe() + "_mo_t2_v1", , "T2V1")
-index on padr(shifr_mz,20) to (cur_dir + "tmp_t2v1")
+index on padr(shifr_mz,20) to (cur_dir() + "tmp_t2v1")
 R_Use(dir_exe() + "_mo_prof", , "MOPROF")
-index on str(vzros_reb,1) +str(profil,3) +shifr to (cur_dir + "tmp_prof")
+index on str(vzros_reb,1) +str(profil,3) +shifr to (cur_dir() + "tmp_prof")
 R_Use(dir_server + "mo_pers", dir_server + "mo_pers", "PERS")
-index on snils+str(prvs_new,4) to (cur_dir + "tmppsnils")
-index on snils+str(prvs,9) to (cur_dir + "tmppsnils1")
-set index to (dir_server + "mo_pers"),(cur_dir + "tmppsnils"),(cur_dir + "tmppsnils1")
+index on snils+str(prvs_new,4) to (cur_dir() + "tmppsnils")
+index on snils+str(prvs,9) to (cur_dir() + "tmppsnils1")
+set index to (dir_server + "mo_pers"),(cur_dir() + "tmppsnils"),(cur_dir() + "tmppsnils1")
 Use_base("mo_su")
 Use_base("uslugi")
 R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
                             dir_server + "uslugi1s"}, "USL1")
-R_Use(dir_exe()+"_mo_smo",{cur_dir + "_mo_smo", cur_dir + "_mo_smo2"}, "SMO")
+R_Use(dir_exe()+"_mo_smo",{cur_dir() + "_mo_smo", cur_dir() + "_mo_smo2"}, "SMO")
 //
 select IHUMAN
 go top
@@ -963,8 +963,8 @@ do while !eof()
       aadd(ae, 'не заполнен профиль койки')
     elseif !empty(ihuman->PROFIL)
       if select("PRPRK") == 0
-        R_Use(dir_exe() + "_mo_prprk", cur_dir + "_mo_prprk", "PRPRK")
-        //index on str(profil,3) +str(profil_k,3) to (cur_dir+sbase)
+        R_Use(dir_exe() + "_mo_prprk", cur_dir() + "_mo_prprk", "PRPRK")
+        //index on str(profil,3) +str(profil_k,3) to (cur_dir()+sbase)
       endif
       select PRPRK
       find (str(ihuman->profil,3) +str(ihuman->profil_k,3))
@@ -1452,18 +1452,18 @@ elseif !empty(k := &lal.->vr_snils) .and. !empty(&lal.->prvs)
 endif
 return ret
 
-***** 19.10.17
+// 19.10.17
 Function write_file_XML_SDS(n_file,path2_sds)
 Local i, fl := .f.
 Local name_file := StripPath(n_file)  // имя файла без пути
-Private cFileProtokol := "protokol"+stxt
-delete file (cur_dir+cFileProtokol)
+Private cFileProtokol := "protokol"+stxt()
+delete file (cur_dir()+cFileProtokol)
 if mo_Lock_Task(X_OMS)
   fl := f1_write_file_XML_SDS(n_file)
   mo_UnLock_Task(X_OMS)
 endif
-if hb_FileExists(cur_dir+cFileProtokol)
-  viewtext(Devide_Into_Pages(cur_dir+cFileProtokol,60,80), ,, ,.t., ,,2)
+if hb_FileExists(cur_dir()+cFileProtokol)
+  viewtext(Devide_Into_Pages(cur_dir()+cFileProtokol,60,80), ,, ,.t., ,,2)
 endif
 if fl
   for i := 1 to 3
@@ -1476,7 +1476,7 @@ if fl
 endif
 return NIL
 
-***** 04.02.22
+// 04.02.22
 Function f1_write_file_XML_SDS(n_file)
 Local buf := save_maxrow(), aerr := {}, arr, fl, i, j, t2, s, s1, afio[3], adiag_talon[16]
 mywait("Импорт XML-файла ...")
@@ -1505,22 +1505,22 @@ Use_base("human_u", ,.t.)
 Use_base("human", ,.t.)
 set relation to
 select HUMAN_2
-index on str(pn3,10) to (cur_dir + "tmp_human2")
+index on str(pn3,10) to (cur_dir() + "tmp_human2")
 G_Use(dir_server + "mo_kfio", , "KFIO")
-index on str(kod,7) to (cur_dir + "tmp_kfio")
+index on str(kod,7) to (cur_dir() + "tmp_kfio")
 G_Use(dir_server + "mo_kismo", , "KSN")
-index on str(kod,7) to (cur_dir + "tmpkismo")
+index on str(kod,7) to (cur_dir() + "tmpkismo")
 G_Use(dir_server + "mo_hismo", , "HSN")
-index on str(kod,7) to (cur_dir + "tmphismo")
+index on str(kod,7) to (cur_dir() + "tmphismo")
 Use_base("kartotek")
-use (cur_dir + "_sluch_na") index (cur_dir + "tmp_na") new alias NA
-use (cur_dir + "_sluch_di") index (cur_dir + "tmp_di") new alias TDIAG
-use (cur_dir + "_sluch_pr") index (cur_dir + "tmp_pr") new alias TPR
-use (cur_dir + "_sluch_us") index (cur_dir + "tmp_us") new alias TMPOU
-use (cur_dir + "_sluch_le") index (cur_dir + "tmp_le") new alias TMPLE
-use (cur_dir + "_sluch_p") index (cur_dir + "tmp_ip") new alias IPODR
-use (cur_dir + "_sluch_u") index (cur_dir + "tmp_ihu"),(cur_dir + "tmp_ihup") new alias IHU
-use (cur_dir + "_sluch") new alias IHUMAN
+use (cur_dir() + "_sluch_na") index (cur_dir() + "tmp_na") new alias NA
+use (cur_dir() + "_sluch_di") index (cur_dir() + "tmp_di") new alias TDIAG
+use (cur_dir() + "_sluch_pr") index (cur_dir() + "tmp_pr") new alias TPR
+use (cur_dir() + "_sluch_us") index (cur_dir() + "tmp_us") new alias TMPOU
+use (cur_dir() + "_sluch_le") index (cur_dir() + "tmp_le") new alias TMPLE
+use (cur_dir() + "_sluch_p") index (cur_dir() + "tmp_ip") new alias IPODR
+use (cur_dir() + "_sluch_u") index (cur_dir() + "tmp_ihu"),(cur_dir() + "tmp_ihup") new alias IHU
+use (cur_dir() + "_sluch") new alias IHUMAN
 go top
 do while !eof()
   ++is
@@ -2063,7 +2063,7 @@ n_message(arr, , "GR+/R", "W+/R", ,, "G+/R")
 viewtext(Devide_Into_Pages("ttt.ttt",60,80), ,, ,.t., ,,2)
 return .t.
 
-***** 28.12.21
+// 28.12.21
 Function f_get_file_XML_SDS(/*@*/path2_sds)
 Static ini_file := "_manager", ini_group := "Read_Write"
 Local path1_sds, name_zip, ar
@@ -2086,11 +2086,11 @@ else
     func_error(4, "Не настроен каталог для обработанных файлов Smart Delta Systems!")
     return NIL
   endif
-  if right(path1_sds,1) != cslash
-    path1_sds += cslash
+  if right(path1_sds,1) != hb_ps()
+    path1_sds += hb_ps()
   endif
-  if right(path2_sds,1) != cslash
-    path2_sds += cslash
+  if right(path2_sds,1) != hb_ps()
+    path2_sds += hb_ps()
   endif
   if upper(path1_sds) == upper(path2_sds)
     path1_sds := NIL
@@ -2105,7 +2105,7 @@ return iif(empty(name_zip), NIL, name_zip)
 
 *
 
-***** 25.03.16 Согласование кодов отделений с кодами из программы Smart Delta Systems
+// 25.03.16 Согласование кодов отделений с кодами из программы Smart Delta Systems
 Function SDS_kod_sogl_otd()
 Private t_arr := array(BR_LEN), s_msg, bc, n, c_plus, buf := save_maxrow()
 mywait()
@@ -2132,7 +2132,7 @@ t_arr[BR_EDIT] := {|nk,ob| f1SDS_kod_sogl_otd(nk,ob, 'edit') }
 R_Use(dir_server + "mo_uch", , "UCH")
 G_Use(dir_server + "mo_otd", , "OTD")
 set relation to kod_lpu into UCH
-index on upper(uch->name) +str(kod_lpu,3) +upper(name) +str(kod,3) to (cur_dir + "tmp_otd")
+index on upper(uch->name) +str(kod_lpu,3) +upper(name) +str(kod,3) to (cur_dir() + "tmp_otd")
 rest_box(buf)
 go top
 if !eof()
@@ -2141,7 +2141,7 @@ endif
 close databases
 return NIL
 
-***** 05.06.17
+// 05.06.17
 Function f1SDS_kod_sogl_otd(nKey,oBrow,cregim)
 Local ret := -1, i, s := "", buf, tmp_color := setcolor()
 do case
@@ -2180,11 +2180,11 @@ return ret
 
 *
 
-***** обмен информацией с программой Smart Delta Systems
+// обмен информацией с программой Smart Delta Systems
 Function is_obmen_sds()
 return .t.//substr(glob_mo[_MO_PROD],X_RISZ,1) == '1'
 
-***** 21.09.16 ф-ия для обмена информацией с программой Smart Delta Systems
+// 21.09.16 ф-ия для обмена информацией с программой Smart Delta Systems
 Function import_kart_from_sds()
 Static struct_sds := {;
    {"PCODE",      "N",     18,      0},; //      ID
@@ -2266,11 +2266,11 @@ if path1_sds == NIL // проверяем только один раз
       path1_sds := NIL
       return func_error(4, "Не настроен каталог для обработанных файлов Smart Delta Systems!")
     endif
-    if right(path1_sds,1) != cslash
-      path1_sds += cslash
+    if right(path1_sds,1) != hb_ps()
+      path1_sds += hb_ps()
     endif
-    if right(path2_sds,1) != cslash
-      path2_sds += cslash
+    if right(path2_sds,1) != hb_ps()
+      path2_sds += hb_ps()
     endif
     if upper(path1_sds) == upper(path2_sds)
       path1_sds := NIL
@@ -2279,7 +2279,7 @@ if path1_sds == NIL // проверяем только один раз
   endif
 endif
 if !empty(path1_sds)
-  arr_f := directory(path1_sds+"*"+sdbf) // все DBF-файлы - в массив
+  arr_f := directory(path1_sds+"*"+sdbf()) // все DBF-файлы - в массив
   if empty(arr_f)
     return NIL
   endif
@@ -2287,13 +2287,13 @@ if !empty(path1_sds)
   stat_msg("Ждите! Обрабатываются изменения в картотеке (от Smart Delta Systems)")
   G_Use(dir_server + "s_kemvyd", dir_server + "s_kemvyd", "SA")
   G_Use(dir_server + "mo_kfio", , "KFIO")
-  index on str(kod,7) to (cur_dir + "tmp_kfio")
+  index on str(kod,7) to (cur_dir() + "tmp_kfio")
   G_Use(dir_server + "mo_kismo", , "KSN")
-  index on str(kod,7) to (cur_dir + "tmp_ismo")
+  index on str(kod,7) to (cur_dir() + "tmp_ismo")
   Use_base("kartotek")
   for ic := 1 to 20 // для надёжности 20 циклов опроса каталога
     if ic > 1 // второй и т.д. циклы
-      arr_f := directory(path1_sds+"*"+sdbf) // все DBF-файлы - в массив
+      arr_f := directory(path1_sds+"*"+sdbf()) // все DBF-файлы - в массив
       if empty(arr_f)
         exit
       endif
@@ -2560,7 +2560,7 @@ if !empty(path1_sds)
 endif
 return NIL
 
-*****
+//
 Static Function f_adres_sds(s)
 Static cDelimiter := ", ", sa := {"д.", "к.", "стр.", "кв."}
 Local i, j, s1, s2 := ""
@@ -2588,7 +2588,7 @@ do while len(s2) > 50
 enddo
 return s2
 
-*****
+//
 Static Function f_vid_ud_sds(n)
 Local v := 0
 do case
@@ -2612,7 +2612,7 @@ do case
 endcase
 return v
 
-***** 12.07.17
+// 12.07.17
 Static Function f_kemvyd_sds(s)
 Local l, lkod := 0, fl := .f.
 if !empty(s)

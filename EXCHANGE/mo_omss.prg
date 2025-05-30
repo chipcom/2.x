@@ -56,7 +56,7 @@ Function read_from_tf()
     If verify_is_already_xml( cName, @_date, @_time )
       // спросить надо ли ещё раз читать, т.к. уже читали
       func_error( 4, 'Данный файл уже был прочитан и обработан в ' + _time + ' ' + date_8( _date ) + 'г.' )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF + cslash + cName + stxt, 60, 80 ), , , , .t., , , 2 )
+      viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
       Return fl
     Else
       s := 'чтения '
@@ -118,12 +118,12 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   nTypeFile := arr_XML_info[ 1 ]
   For j := 1 To 4
-    If !myfiledeleted( cur_dir + 'tmp' + lstr( j ) + 'file' + sdbf )
+    If !myfiledeleted( cur_dir() + 'tmp' + lstr( j ) + 'file' + sdbf() )
       Return Nil
     Endif
   Next
   For j := 1 To 8
-    If !myfiledeleted( cur_dir + 'tmp_r_t' + lstr( j ) + sdbf )
+    If !myfiledeleted( cur_dir() + 'tmp_r_t' + lstr( j ) + sdbf() )
       Return Nil
     Endif
   Next
@@ -170,7 +170,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         // запишем принимаемый файл (протокол ФЛК)
         // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
         chip_copy_zipxml( full_zip, dir_server + dir_XML_TF )
-        Use ( cur_dir + 'tmp1file' ) New Alias TMP1
+        Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
         g_use( dir_server + 'mo_xml', , 'MO_XML' )
         addrecn()
         mo_xml->KOD := RecNo()
@@ -267,7 +267,7 @@ Function read_xml_file_flk( arr_XML_info, aerr )
   Local ii, pole, i, k, t_arr[ 2 ], adbf, ar
 
   mkod_reestr := arr_XML_info[ 7 ]
-  Use ( cur_dir + 'tmp1file' ) New Alias TMP1
+  Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
   r_use( dir_server + 'mo_rees', , 'REES' )
   Goto ( arr_XML_info[ 7 ] )
   StrFile( 'Обрабатывается ответ ТФОМС на реестр № ' + ;
@@ -279,27 +279,27 @@ Function read_xml_file_flk( arr_XML_info, aerr )
       mm_month[ rees->nmonth ] + Str( rees->nyear, 5 ) + ' года' + ;
       hb_eol(), cFileProtokol, .t. )
   Endif
-  Use ( cur_dir + 'tmp2file' ) New Alias TMP2
-  Index On Str( tip, 1 ) + Str( oshib, 3 ) + soshib to ( cur_dir + 'tmp2' )
+  Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
+  Index On Str( tip, 1 ) + Str( oshib, 3 ) + soshib to ( cur_dir() + 'tmp2' )
   If is_err_FLK
     If !extract_reestr( rees->( RecNo() ), rees->name_xml )
       AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом № ' + lstr( rees->nschet ) + ' от ' + date_8( rees->DSCHET ), 80 ) )
       AAdd( aerr, '' )
-      AAdd( aerr, Center( dir_server + dir_XML_MO + cslash + AllTrim( rees->name_xml ) + szip, 80 ) )
+      AAdd( aerr, Center( dir_server + dir_XML_MO + hb_ps() + AllTrim( rees->name_xml ) + szip, 80 ) )
       AAdd( aerr, '' )
       AAdd( aerr, Center( 'Без данного архива дальнейшая работа НЕВОЗМОЖНА!', 80 ) )
       Close databases
       Return .f.
     Endif
-    Use ( cur_dir + 'tmp_r_t1' ) New Alias T1
-    Index On Upper( ID_PAC ) to ( cur_dir + 'tmp_r_t1' )
-    Use ( cur_dir + 'tmp_r_t2' ) New Alias T2
-    Use ( cur_dir + 'tmp_r_t3' ) New Alias T3
-    Use ( cur_dir + 'tmp_r_t4' ) New Alias T4
-    Use ( cur_dir + 'tmp_r_t5' ) New Alias T5
-    Use ( cur_dir + 'tmp_r_t6' ) New Alias T6
-    Use ( cur_dir + 'tmp_r_t7' ) New Alias T7
-    Use ( cur_dir + 'tmp_r_t8' ) New Alias T8
+    Use ( cur_dir() + 'tmp_r_t1' ) New Alias T1
+    Index On Upper( ID_PAC ) to ( cur_dir() + 'tmp_r_t1' )
+    Use ( cur_dir() + 'tmp_r_t2' ) New Alias T2
+    Use ( cur_dir() + 'tmp_r_t3' ) New Alias T3
+    Use ( cur_dir() + 'tmp_r_t4' ) New Alias T4
+    Use ( cur_dir() + 'tmp_r_t5' ) New Alias T5
+    Use ( cur_dir() + 'tmp_r_t6' ) New Alias T6
+    Use ( cur_dir() + 'tmp_r_t7' ) New Alias T7
+    Use ( cur_dir() + 'tmp_r_t8' ) New Alias T8
     // заполнить поле 'N_ZAP' в файле 'tmp2'
     fill_tmp2_file_flk()
     r_use( dir_server + 'mo_otd', , 'OTD' )
@@ -307,7 +307,7 @@ Function read_xml_file_flk( arr_XML_info, aerr )
     g_use( dir_server + 'human', , 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To otd into OTD
     g_use( dir_server + 'mo_rhum', , 'RHUM' )
-    Index On Str( REES_ZAP, 6 ) to ( cur_dir + 'tmp_rhum' ) For reestr == mkod_reestr
+    Index On Str( REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == mkod_reestr
     Select TMP2 // сначала проверка
     Go Top
     Do While !Eof()
@@ -413,7 +413,7 @@ Function fill_tmp2_file_flk()
 
   Local i, s, s1, adbf, ar
 
-  Use ( cur_dir + 'tmp22fil' ) New Alias TMP22
+  Use ( cur_dir() + 'tmp22fil' ) New Alias TMP22
   Select TMP2
   adbf := Array( FCount() )
   Go Top
@@ -500,7 +500,7 @@ Function fill_tmp2_file_flk()
   If i > 0
     Select TMP2
     Append From tmp22fil codepage 'RU866'
-    Index On Str( tip, 1 ) + Str( oshib, 3 ) to ( cur_dir + 'tmp2' )
+    Index On Str( tip, 1 ) + Str( oshib, 3 ) to ( cur_dir() + 'tmp2' )
   Endif
   Return Nil
 
@@ -515,12 +515,12 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
   If !( Type( 'p_ctrl_enter_sp_tk' ) == 'L' )
     Private p_ctrl_enter_sp_tk := .f.
   Endif
-  Use ( cur_dir + 'tmp1file' ) New Alias TMP1
+  Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
   ldate_sptk := tmp1->_DATA
   mnschet := Int( Val( tmp1->_NSCHET ) )  // в число (отрезать всё, что после '-')
   mANSREESTR := AfterAtNum( '-', tmp1->_NSCHET )
   r_use( dir_server + 'mo_rees', , 'REES' )
-  Index On Str( NSCHET, 6 ) to ( cur_dir + 'tmp_rees' ) For NYEAR == tmp1->_YEAR
+  Index On Str( NSCHET, 6 ) to ( cur_dir() + 'tmp_rees' ) For NYEAR == tmp1->_YEAR
   find ( Str( mnschet, 6 ) )
   If Found()
     mkod_reestr := arr_XML_info[ 7 ] := rees->kod
@@ -536,7 +536,7 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
     StrFile( hb_eol(), cFileProtokol, .t. )
     //
     r_use( dir_server + 'mo_xml', , 'MO_XML' )
-    Index On ANSREESTR to ( cur_dir + 'tmp_xml' ) For reestr == mkod_reestr
+    Index On ANSREESTR to ( cur_dir() + 'tmp_xml' ) For reestr == mkod_reestr
     find ( mANSREESTR )
     If Found()
       AAdd( aerr, 'По реестру № ' + lstr( mnschet ) + ' от ' + date_8( tmp1->_DSCHET ) + ' уже прочитан ответ номер "' + AllTrim( tmp1->_NSCHET ) + '"' )
@@ -547,7 +547,7 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
   If Empty( aerr ) .and. !extract_reestr( rees->( RecNo() ), rees->name_xml )
     AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом № ' + lstr( mnschet ) + ' от ' + date_8( tmp1->_DSCHET ), 80 ) )
     AAdd( aerr, '' )
-    AAdd( aerr, Center( dir_server + dir_XML_MO + cslash + AllTrim( rees->name_xml ) + szip, 80 ) )
+    AAdd( aerr, Center( dir_server + dir_XML_MO + hb_ps() + AllTrim( rees->name_xml ) + szip, 80 ) )
     AAdd( aerr, '' )
     AAdd( aerr, Center( 'Без данного архива дальнейшая работа НЕВОЗМОЖНА!', 80 ) )
   Endif
@@ -556,8 +556,8 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
     r_use( dir_server + 'human', , 'HUMAN' )
     r_use( dir_server + 'human_', , 'HUMAN_' )
     r_use( dir_server + 'mo_rhum', , 'RHUM' )
-    Index On Str( REES_ZAP, 6 ) to ( cur_dir + 'tmp_rhum' ) For reestr == mkod_reestr
-    Use ( cur_dir + 'tmp2file' ) New Alias TMP2
+    Index On Str( REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == mkod_reestr
+    Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
     // сначала проверка
     ii1 := ii2 := 0
     Go Top
@@ -673,38 +673,38 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
           g_use( dir_server + 'mo_refr', dir_server + 'mo_refr', 'REFR' )
         Endif
         // G_Use(dir_server + 'mo_kfio',,'KFIO')
-        // index on str(kod, 7) to (cur_dir + 'tmp_kfio')
+        // index on str(kod, 7) to (cur_dir() + 'tmp_kfio')
       Endif
       // открыть распакованный реестр
-      Use ( cur_dir + 'tmp_r_t1' ) New Alias T1
-      Index On Str( Val( n_zap ), 6 ) to ( cur_dir + 'tmpt1' )
-      Use ( cur_dir + 'tmp_r_t2' ) New Alias T2
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + 'tmpt2' )
-      Use ( cur_dir + 'tmp_r_t3' ) New Alias T3
-      Index On Upper( ID_PAC ) to ( cur_dir + 'tmpt3' )
-      Use ( cur_dir + 'tmp_r_t4' ) New Alias T4
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + 'tmpt4' )
-      Use ( cur_dir + 'tmp_r_t5' ) New Alias T5
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + 'tmpt5' )
-      Use ( cur_dir + 'tmp_r_t6' ) New Alias T6
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + 'tmpt6' )
-      Use ( cur_dir + 'tmp_r_t7' ) New Alias T7
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + 'tmpt7' )
-      Use ( cur_dir + 'tmp_r_t8' ) New Alias T8
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + 'tmpt8' )
-      Use ( cur_dir + 'tmp_r_t9' ) New Alias T9
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + 'tmpt9' )
-      Use ( cur_dir + 'tmp_r_t10' ) New Alias T10
-      Index On IDCASE + Str( sluch, 6 ) + regnum + code_sh + date_inj to ( cur_dir + 'tmpt10' )
-      Use ( cur_dir + 'tmp_r_t11' ) New Alias T11
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + 'tmpt11' )
-      Use ( cur_dir + 'tmp_r_t12' ) New Alias T12
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + 'tmpt12' )
-      Use ( cur_dir + 'tmp_r_t1_1' ) New Alias T1_1
-      Index On IDCASE to ( cur_dir + 'tmpt1_1' )
+      Use ( cur_dir() + 'tmp_r_t1' ) New Alias T1
+      Index On Str( Val( n_zap ), 6 ) to ( cur_dir() + 'tmpt1' )
+      Use ( cur_dir() + 'tmp_r_t2' ) New Alias T2
+      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt2' )
+      Use ( cur_dir() + 'tmp_r_t3' ) New Alias T3
+      Index On Upper( ID_PAC ) to ( cur_dir() + 'tmpt3' )
+      Use ( cur_dir() + 'tmp_r_t4' ) New Alias T4
+      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt4' )
+      Use ( cur_dir() + 'tmp_r_t5' ) New Alias T5
+      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt5' )
+      Use ( cur_dir() + 'tmp_r_t6' ) New Alias T6
+      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt6' )
+      Use ( cur_dir() + 'tmp_r_t7' ) New Alias T7
+      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt7' )
+      Use ( cur_dir() + 'tmp_r_t8' ) New Alias T8
+      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt8' )
+      Use ( cur_dir() + 'tmp_r_t9' ) New Alias T9
+      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt9' )
+      Use ( cur_dir() + 'tmp_r_t10' ) New Alias T10
+      Index On IDCASE + Str( sluch, 6 ) + regnum + code_sh + date_inj to ( cur_dir() + 'tmpt10' )
+      Use ( cur_dir() + 'tmp_r_t11' ) New Alias T11
+      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt11' )
+      Use ( cur_dir() + 'tmp_r_t12' ) New Alias T12
+      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt12' )
+      Use ( cur_dir() + 'tmp_r_t1_1' ) New Alias T1_1
+      Index On IDCASE to ( cur_dir() + 'tmpt1_1' )
       //
       g_use( dir_server + 'mo_kfio', , 'KFIO' )
-      Index On Str( kod, 7 ) to ( cur_dir + 'tmp_kfio' )
+      Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
       g_use( dir_server + 'kartote2', , 'KART2' )
       g_use( dir_server + 'kartote_', , 'KART_' )
       g_use( dir_server + 'kartotek', dir_server + 'kartoten', 'KART' )
@@ -716,10 +716,10 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
       Set Relation To RecNo() into HUMAN_, To otd into OTD
       g_use( dir_server + 'human_3', { dir_server + 'human_3', dir_server + 'human_32' }, 'HUMAN_3' )
       g_use( dir_server + 'mo_rhum', , 'RHUM' )
-      Index On Str( REES_ZAP, 6 ) to ( cur_dir + 'tmp_rhum' ) For reestr == mkod_reestr
-      Use ( cur_dir + 'tmp3file' ) New Alias TMP3
-      Index On Str( _n_zap, 8 ) to ( cur_dir + 'tmp3' )
-      Use ( cur_dir + 'tmp2file' ) New Alias TMP2
+      Index On Str( REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == mkod_reestr
+      Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
+      Index On Str( _n_zap, 8 ) to ( cur_dir() + 'tmp3' )
+      Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
       count_in_schet := LastRec()
       current_i2 := 0
       Go Top
@@ -1037,7 +1037,7 @@ Function create_schet_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
   Default fl_msg To .t., arr_s TO {}
   Private pole
   //
-  Use ( cur_dir + 'tmp1file' ) New Alias TMP1
+  Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
   mdate_schet := tmp1->_DSCHET
   nsh := f_mb_me_nsh( tmp1->_year, @mb, @me )
   k := tmp1->_year
@@ -1060,7 +1060,7 @@ Function my_extract_reestr()
   If !Empty( full_zip )
     cName := name_without_ext( strippath( full_zip ) )
     If Left( cName, 3 ) == 'HRM' // файл реестра
-      extract_reestr( 1, cName, , , keeppath( full_zip ) + cslash )
+      extract_reestr( 1, cName, , , keeppath( full_zip ) + hb_ps() )
     Else
       func_error( 4, 'Это не файл реестра' )
     Endif
@@ -1079,7 +1079,7 @@ Function protokol_flk_tmpfile( arr_f, aerr )
     { 'DATE_F', 'D',  8, 0 }, ;
     { 'KOL2',   'N',  6, 0 };   // кол-во ошибок
   }
-  dbCreate( cur_dir + 'tmp1file', adbf )
+  dbCreate( cur_dir() + 'tmp1file', adbf )
   adbf := { ; // элементы PR
   { 'TIP',        'N',  1, 0 }, ;  // тип(номер) обрабатываемого файла
   { 'OSHIB',      'N',  3, 0 }, ;  // код ошибки T005
@@ -1091,11 +1091,11 @@ Function protokol_flk_tmpfile( arr_f, aerr )
   { 'N_ZAP',      'N',  6, 0 }, ;  // поле из первичного реестра
   { 'KOD_HUMAN',  'N',  7, 0 };   // код по БД листов учёта
   }
-  dbCreate( cur_dir + 'tmp2file', adbf ) // элементы PR
-  dbCreate( cur_dir + 'tmp22fil', adbf ) // доп.файл, если по одному пациенту > 1 листа учёта
-  Use ( cur_dir + 'tmp1file' ) New Alias TMP1
+  dbCreate( cur_dir() + 'tmp2file', adbf ) // элементы PR
+  dbCreate( cur_dir() + 'tmp22fil', adbf ) // доп.файл, если по одному пациенту > 1 листа учёта
+  Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
   Append Blank
-  Use ( cur_dir + 'tmp2file' ) New Alias TMP2
+  Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
   For ii := 1 To Len( arr_f )
     // т.к. в ZIP'е два XML-файла, второй файл также прочитать
     If Upper( Right( arr_f[ ii ], 4 ) ) == sxml .and. ValType( oXmlDoc := hxmldoc():read( _tmp_dir1() + arr_f[ ii ] ) ) == 'O'
@@ -1144,7 +1144,7 @@ Function reestr_sp_tk_tmpfile( oXmlDoc, aerr, mname_xml )
 
   Default aerr TO {}, mname_xml To ''
   stat_msg( 'Распаковка/чтение/анализ реестра СП и ТК ' + BeforAtNum( '.', mname_xml ) )
-  dbCreate( cur_dir + 'tmp1file', { ;
+  dbCreate( cur_dir() + 'tmp1file', { ;
     { '_VERSION',   'C',  5, 0 }, ;
     { '_DATA',      'D',  8, 0 }, ;
     { '_FILENAME',  'C', 26, 0 }, ;
@@ -1157,7 +1157,7 @@ Function reestr_sp_tk_tmpfile( oXmlDoc, aerr, mname_xml )
     { 'KOL1',       'N',  6, 0 }, ;
     { 'KOL2',       'N',  6, 0 };
     } )
-  dbCreate( cur_dir + 'tmp2file', { ;
+  dbCreate( cur_dir() + 'tmp2file', { ;
     { '_N_ZAP',     'N',  8, 0 }, ;
     { '_ID_PAC',    'C', 36, 0 }, ;
     { '_VPOLIS',    'N',  1, 0 }, ;
@@ -1182,15 +1182,15 @@ Function reestr_sp_tk_tmpfile( oXmlDoc, aerr, mname_xml )
     { '_DR',     'C', 10, 0 }, ; //
     { '_OPLATA',    'N',  1, 0 };
     } )
-  dbCreate( cur_dir + 'tmp3file', { ;
+  dbCreate( cur_dir() + 'tmp3file', { ;
     { '_N_ZAP',     'N',  8, 0 }, ;
     { '_REFREASON', 'N',  3, 0 }, ;
     { 'SREFREASON', 'C', 12, 0 };
     } )
-  Use ( cur_dir + 'tmp1file' ) New Alias TMP1
+  Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
   Append Blank
-  Use ( cur_dir + 'tmp2file' ) New Alias TMP2
-  Use ( cur_dir + 'tmp3file' ) New Alias TMP3
+  Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
+  Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
   For j := 1 To Len( oXmlDoc:aItems[ 1 ]:aItems )
     @ MaxRow(), 1 Say PadR( lstr( j ), 6 ) Color cColorSt2Msg
     oXmlNode := oXmlDoc:aItems[ 1 ]:aItems[ j ]

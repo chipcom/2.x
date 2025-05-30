@@ -2988,7 +2988,7 @@ Function f_create_d01()
 Function f_view_d01()
 
   Local i, k, buf := SaveScreen()
-  Private goal_dir := dir_server + dir_XML_MO + cslash
+  Private goal_dir := dir_server + dir_XML_MO + hb_ps()
 
   g_use( dir_server + 'mo_xml',, 'MO_XML' )
   g_use( dir_server + 'mo_d01',, 'REES' )
@@ -3212,7 +3212,7 @@ Function f3_view_d01( oBrow )
       f31_view_d01( Abs( mm_func[ i ] ), mm_menu[ i ] )
     Else
       mo_xml->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF + cslash + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server + dir_XML_TF + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select REES

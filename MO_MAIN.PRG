@@ -57,7 +57,7 @@ Procedure Main( ... )
     smem := '.MEM', srar := '.RAR', sxml := '.XML', sini := '.INI', ;
     sfr3 := '.FR3', sfrm := '.FRM', spdf := '.PDF', scsv := '.CSV', ;
     sxls := '.xls', schip := '.CHIP', sdbt := '.dbt'
-  Public cslash := hb_ps()    // '\'
+//  Public cslash := hb_ps()    // '\'
 
   Public public_mouse := .f., pravo_write := .t., pravo_read := .t., ;
     MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;
@@ -75,9 +75,9 @@ Procedure Main( ... )
 
   Public dir_exe := dir_exe()
   Public _tmp_dir  := 'TMP___'
-  Public _tmp_dir1 := _tmp_dir + cslash
+  Public _tmp_dir1 := _tmp_dir + hb_ps()
   Public _tmp2dir  := 'TMP2___'
-  Public _tmp2dir1 := _tmp2dir() + cslash
+  Public _tmp2dir1 := _tmp2dir() + hb_ps()
   //
   // объект пользователя зарегистрировавшегося в системе
   Public hb_user_curUser := nil
@@ -152,7 +152,7 @@ Procedure Main( ... )
   // a_parol := inp_password(is_local_version,is_create)
   a_parol := inp_password_bay( is_local_version, is_create )
 
-  index_work_dir( dir_exe(), cur_dir, .f. )    // checkFilesTFOMS() переименовал
+  index_work_dir( dir_exe(), cur_dir(), .f. )    // checkFilesTFOMS() переименовал
 
   initpzarray()
 
@@ -268,12 +268,12 @@ Function read_server_mem()
     // If !ft_eof()
     // ft_skip()
     // p_name_comp := AllTrim( ft_readln() )
-    // If cslash $ p_name_comp
+    // If hb_ps() $ p_name_comp
     // p_name_comp := ''
     // Endif
     // Endif
     // If Len( p_name_comp ) < 2
-    // p_name_comp := AllTrim( NetName() ) + cslash + hb_UserName()
+    // p_name_comp := AllTrim( NetName() ) + hb_ps() + hb_UserName()
     // Endif
     ft_use()
     is_local_version := .f.
@@ -585,22 +585,22 @@ Function f_first( is_create )
     If !ft_eof()
       ft_skip()
       p_name_comp := AllTrim( ft_readln() )
-      If cslash $ p_name_comp
+      If hb_ps() $ p_name_comp
         p_name_comp := ''
       Endif
     Endif
     If Len( p_name_comp ) < 2
-      p_name_comp := AllTrim( NetName() ) + cslash + hb_UserName()
+      p_name_comp := AllTrim( NetName() ) + hb_ps() + hb_UserName()
     Endif
     ft_use()
     is_local_version := .f.
   Else // иначе = текущий каталог
-    dir_server := cur_dir
+    dir_server := cur_dir()
   Endif
-  If Right( dir_server, 1 ) != cslash
-    dir_server += cslash
+  If Right( dir_server, 1 ) != hb_ps()
+    dir_server += hb_ps()
   Endif
-  is_server( dir_server, cur_dir )
+  is_server( dir_server, cur_dir() )
   If !is_create .and. !hb_FileExists( dir_server + 'human' + sdbf )
     func_error( 'Не обнаружены файлы базы данных! Обратитесь к системному администратору.' )
     app_finish()
@@ -754,7 +754,7 @@ Function find_unfinished_reestr_sp_tk( is_oper, is_count )
     r_use( dir_server + 'mo_rees', , 'REES' )
     r_use( dir_server + 'mo_xml', , 'MO_XML' )
     Set Relation To REESTR into REES
-    Index On FNAME to ( cur_dir + 'tmp_xml' ) For TIP_IN == _XML_FILE_SP .and. Empty( TWORK2 )
+    Index On FNAME to ( cur_dir() + 'tmp_xml' ) For TIP_IN == _XML_FILE_SP .and. Empty( TWORK2 )
     Go Top
     Do While !Eof()
       AAdd( af, { RTrim( mo_xml->FNAME ), lstr( rees->NSCHET ) } )
@@ -798,10 +798,10 @@ Function find_time_limit_human_reestr_sp_tk()
 
   mywait( 'Подождите, проверяем просроченные случаи (неотправленные в ТФОМС)...' )
   Begin Sequence
-    dbCreate( cur_dir + 'tmp_tl', { { 'kod_h', 'N', 8, 0 }, ;
+    dbCreate( cur_dir() + 'tmp_tl', { { 'kod_h', 'N', 8, 0 }, ;
       { 'kod_xml', 'N', 6, 0 }, ;
       { 'dni', 'N', 2, 0 } } )
-    Use ( cur_dir + 'tmp_tl' ) new
+    Use ( cur_dir() + 'tmp_tl' ) new
     r_use( dir_server + 'human_', , 'HUMAN_' )
     r_use( dir_server + 'human', , 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
@@ -811,7 +811,7 @@ Function find_time_limit_human_reestr_sp_tk()
     Set Relation To KOD_XML into MO_XML
     r_use( dir_server + 'mo_rhum', , 'RHUM' )
     Set Relation To reestr into REES
-    Index On Str( reestr, 6 ) to ( cur_dir + 'tmp_rhum' ) For OPLATA == 2 .and. d < rees->DSCHET
+    Index On Str( reestr, 6 ) to ( cur_dir() + 'tmp_rhum' ) For OPLATA == 2 .and. d < rees->DSCHET
     Go Top
     Do While !Eof()
       If ( r := sys_date - rees->DSCHET ) <= 0
@@ -854,7 +854,7 @@ Function find_time_limit_human_reestr_sp_tk()
   If LastRec() > 0
     afillall( arr, 0 )
     i := 0
-    Index On dni to ( cur_dir + 'tmp_tl' ) unique
+    Index On dni to ( cur_dir() + 'tmp_tl' ) unique
     Go Top
     If tmp_tl->dni <= 10 // не более 10 дней просрочено, иначе не выводим
       Do While !Eof()
@@ -908,7 +908,7 @@ Function find_time_limit_human_reestr_sp_tk()
 //
 Function f1find_time_limit_human_reestr_sp_tk( i, arr )
 
-  Local n_file := cur_dir + 'time_lim' + stxt, sh := 80, HH := 60
+  Local n_file := cur_dir() + 'time_lim' + stxt, sh := 80, HH := 60
 
   fp := FCreate( n_file )
   n_list := 1
@@ -926,12 +926,12 @@ Function f1find_time_limit_human_reestr_sp_tk( i, arr )
   r_use( dir_server + 'human_', , 'HUMAN_' )
   r_use( dir_server + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To otd into OTD
-  Use ( cur_dir + 'tmp_tl' ) new
+  Use ( cur_dir() + 'tmp_tl' ) new
   Set Relation To kod_h into HUMAN
   If i == 10
-    Index On Upper( human->fio ) to ( cur_dir + 'tmp_tl' ) For dni > arr[ 9, 1 ]
+    Index On Upper( human->fio ) to ( cur_dir() + 'tmp_tl' ) For dni > arr[ 9, 1 ]
   Else
-    Index On Upper( human->fio ) to ( cur_dir + 'tmp_tl' ) For dni == arr[ i, 1 ]
+    Index On Upper( human->fio ) to ( cur_dir() + 'tmp_tl' ) For dni == arr[ i, 1 ]
   Endif
   i := 0
   Go Top
@@ -994,16 +994,16 @@ Function f_end( yes_copy )
   ErrorBlock( bSaveHandler )
   //
   hard_err( 'delete' )
-  If __mvExist( 'cur_dir' )
-    FileDelete( cur_dir + 'tmp*.dbf' )
-    FileDelete( cur_dir + 'tmp*.ntx' )
+  If __mvExist( 'cur_dir()' )
+    FileDelete( cur_dir() + 'tmp*.dbf' )
+    FileDelete( cur_dir() + 'tmp*.ntx' )
     FileDelete( _tmp_dir1() + '*.*' )
-    If hb_DirExists( cur_dir + _tmp_dir() ) .and. hb_DirDelete( cur_dir + _tmp_dir() ) != 0
-      // func_error(4, 'Не могу удалить каталог ''+'cur_dir'+'_tmp_dir())
+    If hb_DirExists( cur_dir() + _tmp_dir() ) .and. hb_DirDelete( cur_dir() + _tmp_dir() ) != 0
+      // func_error(4, 'Не могу удалить каталог ''+'cur_dir()'+'_tmp_dir())
     Endif
     FileDelete( _tmp2dir1() + '*.*' )
-    If hb_DirExists( cur_dir + _tmp2dir() ) .and. hb_DirDelete( cur_dir + _tmp2dir() ) != 0
-      // func_error(4, 'Не могу удалить каталог ' + cur_dir + _tmp2dir())
+    If hb_DirExists( cur_dir() + _tmp2dir() ) .and. hb_DirDelete( cur_dir() + _tmp2dir() ) != 0
+      // func_error(4, 'Не могу удалить каталог ' + cur_dir() + _tmp2dir())
     Endif
   Endif
   // удалим файлы отчетов в формате '*.HTML' из временной директории

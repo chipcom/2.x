@@ -54,9 +54,9 @@ Function forma_14_( is_diag, is_otd, is_pereved )
     arr_title, name_file, jh := 0, jh1 := 0, arr_m, nf, file_form
 
   Default is_pereved To .f.
-  name_file := cur_dir + iif( is_diag, '_frm_14d', '_form_14' ) + stxt
-  If ( file_form := search_file( 'forma_14' + sfrm ) ) == NIL
-    Return func_error( 4, 'ç• Æ°≠†‡„¶•≠ ‰†©´ FORMA_14' + sfrm )
+  name_file := cur_dir() + iif( is_diag, '_frm_14d', '_form_14' ) + stxt()
+  If ( file_form := search_file( 'forma_14' + sfrm() ) ) == NIL
+    Return func_error( 4, 'ç• Æ°≠†‡„¶•≠ ‰†©´ FORMA_14' + sfrm() )
   Endif
 
   Private len_name := 28, arr_usl, yes_vmp := .f., yes_perevod := is_pereved
@@ -96,9 +96,9 @@ Function forma_14_( is_diag, is_otd, is_pereved )
     { "p_udo1", "N", 7, 0 } }
   //
 
-  dbCreate( cur_dir + "tmp_tab", adbf )
-  Use ( cur_dir + "tmp_tab" ) New Alias TMP_TAB
-  Index On Str( tip, 1 ) + stroke to ( cur_dir + "tmp_tab" )
+  dbCreate( cur_dir() + "tmp_tab", adbf )
+  Use ( cur_dir() + "tmp_tab" ) New Alias TMP_TAB
+  Index On Str( tip, 1 ) + stroke to ( cur_dir() + "tmp_tab" )
   //
   Private diag1 := {}, len_diag
   lfp := FOpen( file_form )
@@ -118,8 +118,8 @@ Function forma_14_( is_diag, is_otd, is_pereved )
       s3 := SubStr( s, AtNum( s3, s, 1 ) )
       //
       k := st_nom_stroke( s1 )
-      For i := 1 To NumToken( s3, cslash )
-        s4 := k + AllTrim( Token( s3, cslash, i ) )
+      For i := 1 To NumToken( s3, hb_ps() )
+        s4 := k + AllTrim( Token( s3, hb_ps(), i ) )
         len_name := Max( len_name, Len( s4 ) )
       Next
       diapazon := {}
@@ -146,9 +146,9 @@ Function forma_14_( is_diag, is_otd, is_pereved )
   len_diag := Len( diag1 )
   If is_diag
     AAdd( adbf, { "diagnoz", "C", 6, 0 } )
-    dbCreate( cur_dir + "tmp_dia", adbf )
-    Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
-    Index On Str( tip, 1 ) + diagnoz to ( cur_dir + "tmp_dia" )
+    dbCreate( cur_dir() + "tmp_dia", adbf )
+    Use ( cur_dir() + "tmp_dia" ) New Alias TMP_D
+    Index On Str( tip, 1 ) + diagnoz to ( cur_dir() + "tmp_dia" )
   Endif
   //
   adbf := { { "stroke", "C", 9, 0 }, ;
@@ -159,9 +159,9 @@ Function forma_14_( is_diag, is_otd, is_pereved )
     { "p1umer", "N", 7, 0 }, ;
     { "p1umer6", "N", 7, 0 } }
   //
-  dbCreate( cur_dir + "tmp_3000", adbf )
-  Use ( cur_dir + "tmp_3000" ) new
-  Index On stroke to ( cur_dir + "tmp_3000" )
+  dbCreate( cur_dir() + "tmp_3000", adbf )
+  Use ( cur_dir() + "tmp_3000" ) new
+  Index On stroke to ( cur_dir() + "tmp_3000" )
   //
   Private arr_3000 := f14_arr_3000(), diag1_3000 := {}, len_diag_3000
   For j := 1 To Len( arr_3000 )
@@ -188,9 +188,9 @@ Function forma_14_( is_diag, is_otd, is_pereved )
   len_diag_3000 := Len( diag1_3000 )
   If is_diag
     AAdd( adbf, { "diagnoz", "C", 6, 0 } )
-    dbCreate( cur_dir + "tmp_d3", adbf )
-    Use ( cur_dir + "tmp_d3" ) new
-    Index On diagnoz to ( cur_dir + "tmp_d3" )
+    dbCreate( cur_dir() + "tmp_d3", adbf )
+    Use ( cur_dir() + "tmp_d3" ) new
+    Index On diagnoz to ( cur_dir() + "tmp_d3" )
   Endif
   //
   adbf := { { "stroke", "C", 9, 0 }, ;
@@ -216,9 +216,9 @@ Function forma_14_( is_diag, is_otd, is_pereved )
     { "_p_umer4", "N", 7, 0 }, ;
     { "p_onko", "N", 7, 0 } }
   //
-  dbCreate( cur_dir + "tmp_4000", adbf )
-  Use ( cur_dir + "tmp_4000" ) new
-  Index On stroke to ( cur_dir + "tmp_4000" )
+  dbCreate( cur_dir() + "tmp_4000", adbf )
+  Use ( cur_dir() + "tmp_4000" ) new
+  Index On stroke to ( cur_dir() + "tmp_4000" )
   //
   Private arr_4000 := f14_arr_4000(), usl1_4000 := {}, len_usl_4000
   For j := 1 To Len( arr_4000 )
@@ -258,9 +258,9 @@ Function forma_14_( is_diag, is_otd, is_pereved )
   len_usl_4000 := Len( usl1_4000 )
   If is_diag
     AAdd( adbf, { "shifr", "C", 14, 0 } )
-    dbCreate( cur_dir + "tmp_d4", adbf )
-    Use ( cur_dir + "tmp_d4" ) new
-    Index On shifr to ( cur_dir + "tmp_d4" )
+    dbCreate( cur_dir() + "tmp_d4", adbf )
+    Use ( cur_dir() + "tmp_d4" ) new
+    Index On shifr to ( cur_dir() + "tmp_d4" )
   Endif
   //
   adbf := { { "stroke", "C", 9, 0 }, ;
@@ -297,9 +297,9 @@ Function forma_14_( is_diag, is_otd, is_pereved )
     { "umer_80_84", "N", 7, 0 }, ;
     { "umer_85_99", "N", 7, 0 } }
   //
-  dbCreate( cur_dir + "tmp_2910", adbf )
-  Use ( cur_dir + "tmp_2910" ) new
-  Index On stroke to ( cur_dir + "tmp_2910" )
+  dbCreate( cur_dir() + "tmp_2910", adbf )
+  Use ( cur_dir() + "tmp_2910" ) new
+  Index On stroke to ( cur_dir() + "tmp_2910" )
   //
   Private arr_2910 := f14_arr_2910(), diag1_2910 := {}, len_diag_2910
   For j := 1 To Len( arr_2910 )
@@ -326,9 +326,9 @@ Function forma_14_( is_diag, is_otd, is_pereved )
   len_diag_2910 := Len( diag1_2910 )
   If is_diag
     AAdd( adbf, { "diagnoz", "C", 6, 0 } )
-    dbCreate( cur_dir + "tmp_d5", adbf )
-    Use ( cur_dir + "tmp_d5" ) new
-    Index On diagnoz to ( cur_dir + "tmp_d5" )
+    dbCreate( cur_dir() + "tmp_d5", adbf )
+    Use ( cur_dir() + "tmp_d5" ) new
+    Index On diagnoz to ( cur_dir() + "tmp_d5" )
   Endif
   //
   r_use( dir_server + "uslugi",, "USL" )
@@ -444,20 +444,20 @@ Function forma_14_( is_diag, is_otd, is_pereved )
   add_string( "" )
   //
   If is_diag
-    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
-    Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
-    Index On Str( tip, 1 ) + stroke + diagnoz to ( cur_dir + "tmp_dia" )
-    Use ( cur_dir + "tmp_d3" ) new
-    Index On stroke + diagnoz to ( cur_dir + "tmp_d3" )
-    Use ( cur_dir + "tmp_d4" ) new
-    Index On stroke + shifr to ( cur_dir + "tmp_d4" )
-    Use ( cur_dir + "tmp_d5" ) new
-    Index On stroke + diagnoz to ( cur_dir + "tmp_d5" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "MKB10" )
+    Use ( cur_dir() + "tmp_dia" ) New Alias TMP_D
+    Index On Str( tip, 1 ) + stroke + diagnoz to ( cur_dir() + "tmp_dia" )
+    Use ( cur_dir() + "tmp_d3" ) new
+    Index On stroke + diagnoz to ( cur_dir() + "tmp_d3" )
+    Use ( cur_dir() + "tmp_d4" ) new
+    Index On stroke + shifr to ( cur_dir() + "tmp_d4" )
+    Use ( cur_dir() + "tmp_d5" ) new
+    Index On stroke + diagnoz to ( cur_dir() + "tmp_d5" )
   Endif
-  Use ( cur_dir + "tmp_2910" ) index ( cur_dir + "tmp_2910" ) new
-  Use ( cur_dir + "tmp_3000" ) index ( cur_dir + "tmp_3000" ) new
-  Use ( cur_dir + "tmp_4000" ) index ( cur_dir + "tmp_4000" ) new
-  Use ( cur_dir + "tmp_tab" ) index ( cur_dir + "tmp_tab" ) New Alias TMP
+  Use ( cur_dir() + "tmp_2910" ) index ( cur_dir() + "tmp_2910" ) new
+  Use ( cur_dir() + "tmp_3000" ) index ( cur_dir() + "tmp_3000" ) new
+  Use ( cur_dir() + "tmp_4000" ) index ( cur_dir() + "tmp_4000" ) new
+  Use ( cur_dir() + "tmp_tab" ) index ( cur_dir() + "tmp_tab" ) New Alias TMP
   ft_use( file_form )
   add_string( Center( "1. ëéëíÄÇ èÄñàÖçíéÇ Ç ëíÄñàéçÄêÖ, ëêéäà à àëïéÑõ ãÖóÖçàü", sh ) )
   add_string( " (2000)" + PadL( "äÆ§ ØÆ éäÖà: Á•´Æ¢•™ - 792", sh - 8 ) )
@@ -482,8 +482,8 @@ Function forma_14_( is_diag, is_otd, is_pereved )
           k := st_nom_stroke( s1 )
           //
           j1 := 0 ; t_arr1 := {} ; t_arr2 := Array( 12 )
-          For i := 1 To NumToken( s3, cslash )
-            s := AllTrim( Token( s3, cslash, i ) )
+          For i := 1 To NumToken( s3, hb_ps() )
+            s := AllTrim( Token( s3, hb_ps(), i ) )
             ++j1 ; AAdd( t_arr1, k + s )
           Next
           j2 := perenos( t_arr2, s2, 12, "," )
@@ -2002,7 +2002,7 @@ Function f1_frm14ds( is_diag, is_otd )
     arr_title, name_file, t_arr1[ 2 ], ;
     jh := 0, jh1 := 0, arr_m, nf, file_form
 
-  name_file := iif( is_diag, "_fr14dsd", "_frm14ds" ) + stxt
+  name_file := iif( is_diag, "_fr14dsd", "_frm14ds" ) + stxt()
   Private len_name := 28
   If is_otd
     st_a_uchast := {}
@@ -2040,9 +2040,9 @@ Function f1_frm14ds( is_diag, is_otd )
     { "p3kd","N", 9, 0 }, ;
     { "p3umer", "N", 7, 0 } }
   //
-  dbCreate( cur_dir + "tmp_tab", adbf )
-  Use ( cur_dir + "tmp_tab" ) New Alias TMP_TAB
-  Index On Str( tip, 1 ) + Str( stroke, 2 ) to ( cur_dir + "tmp_tab" )
+  dbCreate( cur_dir() + "tmp_tab", adbf )
+  Use ( cur_dir() + "tmp_tab" ) New Alias TMP_TAB
+  Index On Str( tip, 1 ) + Str( stroke, 2 ) to ( cur_dir() + "tmp_tab" )
   //
   Private diag1 := {}, len_diag, arr_frm14 := f14ds_arr()
   For s1 := 1 To Len( arr_frm14 )
@@ -2075,9 +2075,9 @@ Function f1_frm14ds( is_diag, is_otd )
   //
   If is_diag
     AAdd( adbf, { "diagnoz", "C", 5, 0 } )
-    dbCreate( cur_dir + "tmp_dia", adbf )
-    Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
-    Index On Str( tip, 1 ) + diagnoz to ( cur_dir + "tmp_dia" )
+    dbCreate( cur_dir() + "tmp_dia", adbf )
+    Use ( cur_dir() + "tmp_dia" ) New Alias TMP_D
+    Index On Str( tip, 1 ) + diagnoz to ( cur_dir() + "tmp_dia" )
   Endif
   // ØÆ §†‚• Æ™Æ≠Á†≠®Ô ´•Á•≠®Ô
   r_use( dir_server + "uslugi",, "USL" )
@@ -2178,11 +2178,11 @@ Function f1_frm14ds( is_diag, is_otd )
   add_string( "" )
   //
   If is_diag
-    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
-    Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
-    Index On Str( tip, 1 ) + Str( stroke, 2 ) + diagnoz to ( cur_dir + "tmp_dia" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "MKB10" )
+    Use ( cur_dir() + "tmp_dia" ) New Alias TMP_D
+    Index On Str( tip, 1 ) + Str( stroke, 2 ) + diagnoz to ( cur_dir() + "tmp_dia" )
   Endif
-  Use ( cur_dir + "tmp_tab" ) index ( cur_dir + "tmp_tab" ) New Alias TMP
+  Use ( cur_dir() + "tmp_tab" ) index ( cur_dir() + "tmp_tab" ) New Alias TMP
   For x := 1 To 2
     s2 := "ëéëíÄÇ Åéãúçõï Ç ÑçÖÇçéå ëíÄñàéçÄêÖ, ëêéäà à àëïéÑõ ãÖóÖçàü"
     If x == 1
