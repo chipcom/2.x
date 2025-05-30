@@ -6,7 +6,7 @@ Function chip_create_zipxml( zip_file, arr_f, is_delete_files, type_dir )
   // zip_file - имя архива с расширением
   // arr_f - массив файлов
   // is_delete_files - удалять ли файлы после создания архива (по-умолчанию - нет)
-  Local hZip, i, cPassword, fl := .t., hGauge, s
+  Local hZip, i, fl := .t.
 
   Default is_delete_files To .f., type_dir To 1
   Delete File ( zip_file )
@@ -26,7 +26,6 @@ Function chip_create_zipxml( zip_file, arr_f, is_delete_files, type_dir )
   If fl
     fl := chip_copy_zipxml( zip_file, dir_server + iif( type_dir == 1, dir_XML_MO, dir_NAPR_MO ), .t. )
   Endif
-
   Return fl
 
 // переписать ZIP-архив (с XML-файлами) в целевой каталог
@@ -39,7 +38,7 @@ Function chip_copy_zipxml( zip_file, goal_dir, is_delete_files )
   Default is_delete_files To .f.
   If !Empty( goal_dir )
     DirMake( goal_dir )
-    goal_dir += cslash
+    goal_dir += hb_ps()
     zip_file2 := strippath( zip_file ) // если в имени присутствует путь - убрать
     Delete File ( goal_dir + zip_file2 )
     Copy File ( zip_file ) to ( goal_dir + zip_file2 )
@@ -52,18 +51,18 @@ Function chip_copy_zipxml( zip_file, goal_dir, is_delete_files )
   If fl .and. is_delete_files
     Delete File ( zip_file )
   Endif
-
   Return fl
 
 // 15.10.14 переписать архив во временный каталог и распаковать
 Function extract_zip_xml( goal_dir, name_zip, regim, new_name )
-  Local arr_f := {}, fl := .f., n, hUnzip, nErr, cFile, cName, _dir, _dir1
+
+  Local arr_f := {}, fl := .f., n, hUnzip, nErr, cFile, _dir, _dir1
 
   Default regim To 1, new_name To name_zip
   _dir  := iif( regim == 1, _tmp_dir(),  _tmp2dir() )
   _dir1 := iif( regim == 1, _tmp_dir1(), _tmp2dir1() )
-  If Right( goal_dir, 1 ) != cslash
-    goal_dir += cslash
+  If Right( goal_dir, 1 ) != hb_ps()
+    goal_dir += hb_ps()
   Endif
   // if !hb_FileExists(hb_OemToAnsi(goal_dir)+name_zip)
   If !hb_FileExists( goal_dir + name_zip )
@@ -95,27 +94,25 @@ Function extract_zip_xml( goal_dir, name_zip, regim, new_name )
       func_error( 4, "Возникла ошибка при разархивировании " + _dir1 + name_zip )
     Endif
   Endif
-
   Return iif( fl, arr_f, nil )
 
 // 15.10.24 переписать архив во временный каталог и распаковать
 Function extract_rar( goal_dir, name_zip, regim, new_name )
+
   Local fl := .f., buf, _dir, _dir1
 
   Default regim To 1, new_name To name_zip
   _dir  := iif( regim == 1, _tmp_dir(),  _tmp2dir() )
   _dir1 := iif( regim == 1, _tmp_dir1(), _tmp2dir1() )
-  If Right( goal_dir, 1 ) != cslash
-    goal_dir += cslash
+  If Right( goal_dir, 1 ) != hb_ps()
+    goal_dir += hb_ps()
   Endif
-  // if !hb_FileExists(hb_OemToAnsi(goal_dir)+name_zip)
   If !hb_FileExists( goal_dir + name_zip )
     func_error( 4, "Не найден архив " + goal_dir + name_zip )
     Return Nil
   Endif
   DirMake( _dir )
   FileDelete( _dir1 + "*.*" )
-  // copy file (hb_OemToAnsi(goal_dir)+name_zip) to (_dir1+new_name)
   Copy File ( goal_dir + name_zip ) to ( _dir1 + new_name )
   If !hb_FileExists( _dir1 + new_name )
     func_error( 4, "Ошибка при копировании архива " + name_zip + " во временный каталог" )
@@ -125,5 +122,4 @@ Function extract_rar( goal_dir, name_zip, regim, new_name )
     RestScreen( buf )
     fl := .t.
   Endif
-
   Return fl

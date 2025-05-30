@@ -11,11 +11,10 @@
 function XML_files_to_FTP( name_xml, kod )
 
   local zip_file, i
-  local out_dir := dir_server + dir_XML_MO + cslash
-  local xml_file := out_dir + AllTrim( name_xml ) + szip
-  local in_dir := dir_server + dir_XML_TF + cslash
+  local out_dir := dir_server + dir_XML_MO + hb_ps()
+  local xml_file := out_dir + AllTrim( name_xml ) + szip()
+  local in_dir := dir_server + dir_XML_TF + hb_ps()
   local fileName
-  
   local ar := {}
   local ar_hrt := {}
 
@@ -32,7 +31,7 @@ function XML_files_to_FTP( name_xml, kod )
     For reestr == kod .and. Between( TIP_IN, _XML_FILE_FLK, _XML_FILE_SP ) .and. Empty( TIP_OUT )
   Go Top
   Do While !Eof()
-    fileName := in_dir + RTrim( mo_xml->FNAME ) + szip
+    fileName := in_dir + RTrim( mo_xml->FNAME ) + szip()
     if hb_FileExists( fileName )
       AAdd( ar, fileName )
       if upper( substr( RTrim( mo_xml->FNAME ), 1, 3 ) ) == 'HRT'
@@ -42,16 +41,14 @@ function XML_files_to_FTP( name_xml, kod )
     Skip
   Enddo
   Set Index To
-
   if len( ar_hrt ) > 0
     g_use( dir_server + 'schet_', , 'SCHET_' )
-  
     for i := 1 to len( ar_hrt )
       Index On XML_REESTR to ( cur_dir() + 'tmp_sch' ) ;
         For xml_reestr == ar_hrt[ i ]
       Go Top
       Do While ! Eof()
-        fileName := out_dir + RTrim( schet_->name_xml ) + szip
+        fileName := out_dir + RTrim( schet_->name_xml ) + szip()
         if hb_FileExists( fileName )
           AAdd( ar, fileName )
         endif
@@ -63,7 +60,6 @@ function XML_files_to_FTP( name_xml, kod )
     Select REES
   endif
   create_zip_to_ftp( zip_file, ar, 'reestr' )
-
   return nil
 
 // 25.03.24 резервное копирование файла ошибок на FTP
@@ -74,9 +70,7 @@ function errorFileToFTP()
   
   zip_file := 'mo' + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) + '_error'
   AAdd( ar, dir_server + 'error.txt' )
-
   create_zip_to_ftp( zip_file, ar, 'Error' )
-
   return nil
 
 // 25.03.24 создание zip-файла и отправка на FTP сервер
@@ -86,23 +80,18 @@ function create_zip_to_ftp( name, ar, strPath )
   local name_file, ft
 
   // создадим файл с названием медицинской организации
-  name_file := cur_dir() + 'Название_МО' + stxt
+  name_file := cur_dir() + 'Название_МО' + stxt()
   ft := tfiletext():new( name_file, , , , )
   ft:add_string( hb_main_curOrg:Name_Tfoms )
   ft := nil
-
   AAdd( ar, name_file )
-
-  zip_file := cur_dir() + name + Lower( szip )
-
+  zip_file := cur_dir() + name + Lower( szip() )
   nLen := Len( ar )
   aGauge := gaugenew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + zip_file, .t. )
-
   lCompress := hb_ZipFile( zip_file, ar, COMPRESSION, ;
     {| cFile, nPos | gaugedisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) + ' ( ' + AllTrim( lstr( nPos ) ) + ' из ' + AllTrim( lstr( nLen ) ) + ' )' ) }, ;
     .t., , .f., , {| nPos, nLen | gaugeupdate( aGauge, nPos / nLen ) } )
   closegauge( aGauge ) // Закроем окно отображения бегунка
-
   If ! lCompress
     func_error( 4, 'Возникла ошибка при архивировании файла.' ) 
   else
@@ -115,7 +104,6 @@ function create_zip_to_ftp( name, ar, strPath )
     Endif
     hb_vfErase( zip_file )
   Endif
-
   return nil
 
 // 22.03.24 запуск режима резервного копирования из меню
@@ -141,11 +129,11 @@ Function m_copy_db( par )
     hb_vfErase( zip_file )
   Endif
   mybell( 2, OK )
-
   Return Nil
 
 // 22.03.24 запуск режима резервного копирования из f_end()
 Function m_copy_db_from_end( del_last, spath )
+
   Local hCurrent, hFile, nSize, fl := .t., ta, zip_file, ;
     i, k, arr_f, dir_archiv := cur_dir() + 'OwnChipArchiv'
 
@@ -153,7 +141,7 @@ Function m_copy_db_from_end( del_last, spath )
 
   If !Empty( spath )
     dir_archiv := AllTrim( spath )
-    If Right( dir_archiv, 1 ) == cslash
+    If Right( dir_archiv, 1 ) == hb_ps()
       dir_archiv := Left( dir_archiv, Len( dir_archiv ) -1 )
     Endif
   Endif
@@ -162,9 +150,9 @@ Function m_copy_db_from_end( del_last, spath )
       Return func_error( 4, 'Невозможно создать подкаталог для архивирования!' )
     Endif
   Endif
-  dir_archiv += cslash
+  dir_archiv += hb_ps()
   // все уже сохранённые архивы - в массив
-  arr_f := Directory( dir_archiv + 'mo*' + szip )
+  arr_f := Directory( dir_archiv + 'mo*' + szip() )
   ta := Directory( dir_archiv + 'mo*' + schip )
   For i := 1 To Len( ta )
     AAdd( arr_f, AClone( ta[ i ] ) )
@@ -203,12 +191,12 @@ Function m_copy_db_from_end( del_last, spath )
   If fl
     zip_file := create_zip( 3, dir_archiv )
   Endif
-
   Return fl
 
 // 20.11.21
 Function fillzip( arr_f, sFileName )
-  Local aGauge, cFile
+
+  Local aGauge
   Local lCompress, nLen
 
   If Empty( arr_f )
@@ -218,7 +206,6 @@ Function fillzip( arr_f, sFileName )
 
     nLen := Len( arr_f )
     aGauge := gaugenew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + hb_FNameNameExt( sFileName ), .t. )
-
     // lCompress := hb_ZipFile( sFileName, arr_f, COMPRESSION, ;
     // , ;
     // .t., , .f., ,  )
@@ -230,14 +217,13 @@ Function fillzip( arr_f, sFileName )
     Endif
     closegauge( aGauge ) // Закроем окно отображения бегунка
   Endif
-
   Return sFileName
 
 // 22.08.24
 Function create_zip( par, dir_archiv )
+
   Static sast := '*', sfile_begin := '_begin.txt', sfile_end := '_end.txt'
   Local arr_f, ar
-  // Local blk := {| x | f_aadd_copy_db( arr_f, x ) }
   Local blk := {| x | AAdd( arr_f, x ) }
   Local i, fl := .t., aGauge, y
   Local cFile, nLen
@@ -245,10 +231,8 @@ Function create_zip( par, dir_archiv )
   Local buf := SaveScreen()
   Local zip_xml_mo, zip_xml_tf, zip_napr_mo, zip_napr_tf, zip_xml_fns
   local afterDate := BoY( AddMonth( date(), - ( 12 * YEAR_COMPRESSION ) ) )
-
+  // Local blk := {| x | f_aadd_copy_db( arr_f, x ) }
   // Local time_zip := 0, t1
-
-  // t1 := seconds()
 
   zip_xml_mo := zip_xml_tf := zip_napr_mo := zip_napr_tf := zip_xml_fns := ''
   If par == 1
@@ -263,64 +247,49 @@ Function create_zip( par, dir_archiv )
       '', ;
       'Во избежание разрушения данных', ;
       'не прерывайте процесс!' }, , 'GR+/R', 'W+/R', 13 )
-
     // формируем имена архивов
     zip_file := 'mo' + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) + '_' + DToS( sys_date ) + ;
-      Lower( iif( par != 3, szip, schip ) )
-
-    zip_xml_mo := dir_XML_MO + szip
-    zip_xml_tf := dir_XML_TF + szip
-    zip_napr_mo := dir_NAPR_MO + szip
-    zip_napr_tf := dir_NAPR_TF + szip
-    zip_xml_fns := 'XML_FNS' + szip
-
+      Lower( iif( par != 3, szip(), schip ) )
+    zip_xml_mo := dir_XML_MO + szip()
+    zip_xml_tf := dir_XML_TF + szip()
+    zip_napr_mo := dir_NAPR_MO + szip()
+    zip_napr_tf := dir_NAPR_TF + szip()
+    zip_xml_fns := 'XML_FNS' + szip()
     hb_vfErase( sfile_begin )
     hb_MemoWrit( sfile_begin, full_date( sys_date ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
-
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_XML_MO + cslash, sast + szip, blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_XML_MO + cslash, sast + scsv, blk, afterDate )
-
+    scandirfiles_for_backup( dir_server + dir_XML_MO + hb_ps(), sast + szip(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_XML_MO + hb_ps(), sast + scsv(), blk, afterDate )
     zip_xml_mo := fillzip( arr_f, zip_xml_mo )
-
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_XML_TF + cslash, sast + szip, blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_XML_TF + cslash, sast + scsv, blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_XML_TF + cslash, sast + stxt, blk, afterDate )
-
+    scandirfiles_for_backup( dir_server + dir_XML_TF + hb_ps(), sast + szip(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_XML_TF + hb_ps(), sast + scsv(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_XML_TF + hb_ps(), sast + stxt(), blk, afterDate )
     zip_xml_tf := fillzip( arr_f, zip_xml_tf )
-
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_NAPR_MO + cslash, sast + szip, blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_NAPR_MO + cslash, sast + stxt, blk, afterDate )
-
+    scandirfiles_for_backup( dir_server + dir_NAPR_MO + hb_ps(), sast + szip(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_NAPR_MO + hb_ps(), sast + stxt(), blk, afterDate )
     zip_napr_mo := fillzip( arr_f, zip_napr_mo )
-
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_NAPR_TF + cslash, sast + szip, blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_NAPR_TF + cslash, sast + stxt, blk, afterDate )
-
+    scandirfiles_for_backup( dir_server + dir_NAPR_TF + hb_ps(), sast + szip(), blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_NAPR_TF + hb_ps(), sast + stxt(), blk, afterDate )
     zip_napr_tf := fillzip( arr_f, zip_napr_tf )
-
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_XML_FNS(), sast + sxml, blk, afterDate )
-
+    scandirfiles_for_backup( dir_XML_FNS(), sast + sxml(), blk, afterDate )
     zip_xml_fns := fillzip( arr_f, zip_xml_fns )
-
     hb_vfErase( dir_archiv + zip_file )
-
     // сначала прочие файлы
     ar := { sfile_begin, ;
       tools_ini, ;
       f_stat_lpu, ;
-      dir_server + 'f39_nast' + sini, ;
-      dir_server + 'usl1year' + smem, ;
-      dir_server + 'error' + stxt }
+      dir_server + 'f39_nast' + sini(), ;
+      dir_server + 'usl1year' + smem(), ;
+      dir_server + 'error' + stxt() }
     If ! Empty( zip_xml_mo )
       AAdd( ar, cur_dir() + zip_xml_mo )
     Endif
@@ -336,26 +305,22 @@ Function create_zip( par, dir_archiv )
     If ! Empty( zip_xml_fns )
       AAdd( ar, cur_dir() + zip_xml_fns )
     Endif
-
     For i := 1 To Len( array_files_DB )
-      cFile := Upper( array_files_DB[ i ] ) + sdbf
+      cFile := Upper( array_files_DB[ i ] ) + sdbf()
       If hb_vfExists( dir_server + cFile )
         AAdd( ar, dir_server + cFile )
       Endif
     Next
-
     // а теперь файлы WQ...
     arr_f := {}
     y := Year( sys_date )
     // только текущий год
-    scandirfiles_for_backup( dir_server, 'mo_wq' + SubStr( Str( y, 4 ), 3 ) + '*' + sdbf, {| x | AAdd( arr_f, x ) }, afterDate )
+    scandirfiles_for_backup( dir_server, 'mo_wq' + SubStr( Str( y, 4 ), 3 ) + '*' + sdbf(), {| x | AAdd( arr_f, x ) }, afterDate )
     For i := 1 To Len( arr_f )
       AAdd( ar, arr_f[ i ] )
     Next
-
     nLen := Len( ar )
     aGauge := gaugenew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + zip_file, .t. )
-
     // lCompress := hb_ZipFile( dir_archiv + zip_file, ar, COMPRESSION, ;
     // , ;
     // .t., , .f., , )
@@ -363,24 +328,13 @@ Function create_zip( par, dir_archiv )
       {| cFile, nPos | gaugedisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) + ' ( ' + AllTrim( lstr( nPos ) ) + ' из ' + AllTrim( lstr( nLen ) ) + ' )' ) }, ;
       .t., , .f., , {| nPos, nLen | gaugeupdate( aGauge, nPos / nLen ) } )
     closegauge( aGauge ) // Закроем окно отображения бегунка
-
     If ! lCompress
       fl := func_error( 4, 'Возникла ошибка при архивировании базы данных.' )
     Endif
-
-    // time_zip := seconds() - t1
-
-    // if fl .and. time_zip > 0
-    // n_message({'', 'Время создания резервной копии - ' + sectotime(time_zip)}, , ;
-    // color1, cDataCSay, , , color8)
-    // endif
-
     hb_vfErase( sfile_end )
     hb_MemoWrit( sfile_end, full_date( sys_date ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
-
     RestScreen( buf )
   Endif
-
   // удаляем ненужные архивы
   If ! Empty( zip_xml_mo )
     hb_vfErase( zip_xml_mo )
@@ -397,7 +351,6 @@ Function create_zip( par, dir_archiv )
   If !Empty( zip_xml_fns )
     hb_vfErase( zip_xml_fns )
   Endif
-
   // разрешение доступа всем
   If par == 1
     g_sunlock( sem_vagno )
@@ -406,7 +359,6 @@ Function create_zip( par, dir_archiv )
   If ! fl
     Return Nil
   Endif
-
   Return zip_file
 
 // 07.11.23
@@ -420,7 +372,7 @@ Function create_zip( par, dir_archiv )
   // Endif
 
   // x := Upper( x )
-  // If eq_any( Right( x, 4 ), szip, stxt )
+  // If eq_any( Right( x, 4 ), szip(), stxt() )
   //   s := strippath( x )
   //   // реестры, ФЛК и счета
   //   If eq_any( Left( s, 3 ), 'FRM', 'HRM' ) .or. eq_any( Left( s, 4 ), 'PFRM', 'PHRM' ) ;
@@ -449,6 +401,7 @@ Function create_zip( par, dir_archiv )
 
 // 06.11.23 то же, что и ScanFiles, но по одной директории cPath
 FUNCTION scandirfiles_for_backup( cPath, cFilespec, blk, afterDate )
+
   LOCAL cFile
 
   DEFAULT cPath TO '', cFilespec TO '*.*'

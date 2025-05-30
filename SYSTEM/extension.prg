@@ -263,5 +263,3 @@ function schip()
 
 function sdbt()
   return '.dbt'
-
-//  Public cslash := hb_ps()    // '\'
