@@ -47,7 +47,7 @@ Function f_import( k )
 Function import_from_lis()
 
   Local full_o79
-  Private p_var_manager := "Read_from_LIS", cFileProtokol := "protokol" + stxt()
+  Private p_var_manager := "Read_from_LIS", cFileProtokol := "protokol.txt"
 
   // full_o79 := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,1,,,,"export*.o79")
   full_o79 := manager( T_ROW, T_COL + 5, MaxRow() -2,, .t., 1,,,, "*.?79" )
@@ -1187,7 +1187,7 @@ Function import_sluch_oms()
 
   Local full_dbf, name_dbf, i, s := "", fl := .t.
   Private arr_f := { "_lpu", "_otd", "_sluch", "_sluch_u" }, ;
-    cFileProtokol := "protokol" + stxt()
+    cFileProtokol := "protokol.txt"
   Private p_var_manager := "Read_sluch_OMS"
 
   full_dbf := manager( T_ROW, T_COL + 5, MaxRow() -2,, .t., 1,,,, "*" + sdbf() )
@@ -4730,7 +4730,7 @@ Function create_main_base_from_reestrs()
   Elseif k > 0 // иначе работаем только с пустой БД листов учёта
     Return Nil
   Endif
-  Private cImportProtokol := "protokol" + stxt(), pr_array_schet := {}
+  Private cImportProtokol := "protokol.txt", pr_array_schet := {}
   Private p_var_manager := "Read_reestrs"
   full_zip := manager( T_ROW, T_COL + 5, MaxRow() -2,, .t., 1,,,, "*" + szip() )
   If !Empty( full_zip )
@@ -4854,7 +4854,7 @@ Function create_main_base_from_reestrs()
         If s == glob_MO[ _MO_KOD_TFOMS ]
           If extract_zip_xml( keeppath( arr_rsptk[ i ] ), strippath( arr_rsptk[ i ] ) ) != NIL
             s := name_without_ext( arr_rsptk[ i ] )
-            cFile := s + sxml
+            cFile := s + sxml()
             // читаем XML-файл в память
             oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
             reestr_sp_tk_tmpfile( oXmlDoc,, cFile )
@@ -4993,7 +4993,7 @@ Function f1_create_main_base_from_reestrs( a_reestr )
                 //
                 sys_date := old_sys_date
               Else
-                StrFile( s + ": нет файла " + s + sxml + hb_eol(), cImportProtokol, .t. )
+                StrFile( s + ": нет файла " + s + sxml() + hb_eol(), cImportProtokol, .t. )
                 fl := .f. ; Exit
               Endif
             Endif
@@ -5057,11 +5057,11 @@ Function f1_create_main_base_from_reestrs( a_reestr )
                 Endif
                 sys_date := old_sys_date
               Else
-                StrFile( a_reestr[ i, 7, j, 1 ] + ": нет файла " + s + sxml + hb_eol(), cImportProtokol, .t. )
+                StrFile( a_reestr[ i, 7, j, 1 ] + ": нет файла " + s + sxml() + hb_eol(), cImportProtokol, .t. )
                 fl := .f. ; Exit
               Endif
             Else
-              StrFile( a_reestr[ i, 7, j, 1 ] + ": ошибка Extract_Zip_XML " + s + sxml + hb_eol(), cImportProtokol, .t. )
+              StrFile( a_reestr[ i, 7, j, 1 ] + ": ошибка Extract_Zip_XML " + s + sxml() + hb_eol(), cImportProtokol, .t. )
               fl := .f. ; Exit
             Endif
             Close databases

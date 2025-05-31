@@ -80,7 +80,7 @@ function create_zip_to_ftp( name, ar, strPath )
   local name_file, ft
 
   // создадим файл с названием медицинской организации
-  name_file := cur_dir() + 'Название_МО' + stxt()
+  name_file := cur_dir() + 'Название_МО.txt'
   ft := tfiletext():new( name_file, , , , )
   ft:add_string( hb_main_curOrg:Name_Tfoms )
   ft := nil
@@ -289,7 +289,7 @@ Function create_zip( par, dir_archiv )
       f_stat_lpu, ;
       dir_server + 'f39_nast' + sini(), ;
       dir_server + 'usl1year' + smem(), ;
-      dir_server + 'error' + stxt() }
+      dir_server + 'error.txt' }
     If ! Empty( zip_xml_mo )
       AAdd( ar, cur_dir() + zip_xml_mo )
     Endif

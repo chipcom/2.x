@@ -20,8 +20,8 @@ Function dubl_zap_1(r, c)
 // 09.07.18
 Function f1dubl_zap_1()
   Static si := 1
-  Local hGauge, sh, HH := 77, name_file := cur_dir + 'dubl_zap' + stxt, j1, ;
-      fl := .t., sfio, old_fio, k := 0, rec1, curr := 0, buf, ;
+  Local hGauge, sh, HH := 77, name_file := cur_dir() + 'dubl_zap.txt', j1, ;
+      fl := .t., k := 0, rec1, curr := 0, ;
       mfio, mdate_r, mpolis, arr_title, reg_print := 4, ;
       arr := {' ® ~”+¤ β  ΰ®¦¤. ', ' ® ~―®«¨αγ ', ' ® ~‘‹‘ ', ' ® ~… '}
 

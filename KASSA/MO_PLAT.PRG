@@ -254,7 +254,7 @@ do case
           func_error(4,"Нет информации по оплате ДМС ортопедических услуг за последний год!")
         else
           asort(arr,,,{|x,y| x[1] < y[1]})
-          nfile := "_dms_ort"+stxt
+          nfile := "_dms_ort.txt"
           strfile(center("Оплата по ДМС ортопедических услуг за последний год",sh)+eos,nfile)
           strfile(center(glob_k_fio,sh)+eos+eos,nfile,.t.)
           strfile("─────────────┬─────────────────────┬────────────────────────"+eos,nfile,.t.)

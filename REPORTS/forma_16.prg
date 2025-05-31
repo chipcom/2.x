@@ -51,7 +51,7 @@ Function forma_16_vn( is_diag )
     yes_otd, fl, lshifr, arr_stroke := {}, ;
     lmenu := { "~Сводная ведомость", "Ведомость по ~отделению" }
 
-  n_file := iif( is_diag, "_frm_16d", "_form_16" ) + stxt
+  n_file := iif( is_diag, "_frm_16d", "_form_16" ) + stxt()
   If ( file_form := search_file( "forma_16" + sfrm() ) ) == NIL
     Return func_error( 4, "Не обнаружен файл FORMA_16" + sfrm() )
   Endif

@@ -9,7 +9,7 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
   Local p_tip_reestr
   Local tmpSelect
   Local arr_f, ii, oXmlDoc, j, j1, j2, j3, j4, _ar, buf := save_maxrow(), fl := .f., is_old := .f.
-  local name_zip := AllTrim( mname_xml ) + szip
+  local name_zip := AllTrim( mname_xml ) + szip()
   Local ushifr
   local oNode1, oNode11, oNode2, oNode3, oNode4, oNode5
   local lREGNUM, lREGNUM_DOP, lCODE_SH

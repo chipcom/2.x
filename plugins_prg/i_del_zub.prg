@@ -78,7 +78,7 @@ Function i_kol_del_zub( par )
     Use ( cur_dir + 'tmp' ) new
     Index On god To tmp Unique memory
     dbEval( {|| AAdd( agod, tmp->god ) } )
-    name_file := 'del_zub' + stxt
+    name_file := 'del_zub.txt'
     HH := 60
     arr_title := { ;
       '컴컴컴컴컴컴컴컴컫컴컴컴컴컴컴컴컫컴컴컴컴컴컴컴컫컴컴컴컴컴컴컴�', ;

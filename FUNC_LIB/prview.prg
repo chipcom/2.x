@@ -519,7 +519,7 @@ Static Function put_code( s )
 //
 Function export_to_win_editor()
 
-  Local k, s, name_win := "WIN_FILE" + stxt
+  Local k, s, name_win := "WIN_FILE.txt"
 
   Delete File ( name_win )
   If File( name_win )

@@ -33,7 +33,7 @@ Function mnog_poisk_dvn1()
 
   Local mm_tmp := {}, mm_sort, t_arr[ 2 ]
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
-    tmp_help := help_code, hGauge, name_file := "_kartDVN" + stxt, ;
+    tmp_help := help_code, hGauge, name_file := "_kartDVN.txt", ;
     sh := 80, HH := 77, i, j, a_diagnoz[ 10 ], ta, name_dbf := cur_dir + "_kartDVN" + sdbf, ;
     mm_da_net := { { "­¥â", 1 }, { "¤  ", 2 } }, ;
     mm_tip := { { "¤¨á¯ ­á¥à¨§ æ¨ï", 1 }, { "¯à®ä¨« ªâ¨ç¥áª¨© ®á¬®âà", 2 } }, ;
@@ -790,7 +790,7 @@ Function mnog_poisk_dvn2()
   Static mm_da_net := { { "­¥â", 1 }, { "¤  ", 2 } }
   Local mm_tmp := {}, k
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
-    tmp_help := help_code, hGauge, name_file := "mn_z2dvn" + stxt, ;
+    tmp_help := help_code, hGauge, name_file := "mn_z2dvn.txt", ;
     sh := 80, HH := 77, i, a_diagnoz[ 10 ], lvid_doc := 0, ;
     tmp_file := "tmp_mn_p" + sdbf, ;
     k_diagnoz, k_usl, tt_diagnoz[ 10 ], tt_usl[ 10 ]
@@ -2368,7 +2368,7 @@ Function forma_39h_na( tip )
     'à®ç¨¥ § ¡®«¥¢ ­¨ï' }                    // 28
   Static si1
   Local l, sh := 0, f39_scr := SaveScreen(), i, j
-  Local HH := 58, name_file := "orto_ns" + stxt, ;
+  Local HH := 58, name_file := "orto_ns.txt", ;
     arr_title := { ;
     "ÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", ;
     "   ˜¨äà   ³                                                                  ", ;
@@ -2964,7 +2964,7 @@ Function forma_39t_na( tip )
     }
   Static si1
   Local l, sh := 0, f39_scr := SaveScreen(), i, j
-  Local HH := 58, name_file := "orto_ns" + stxt, ;
+  Local HH := 58, name_file := "orto_ns.txt", ;
     arr_title := { ;
     "ÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", ;
     "   ˜¨äà   ³                                                                  ", ;

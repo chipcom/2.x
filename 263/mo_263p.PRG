@@ -914,8 +914,8 @@ Function f1_263_p_svob_kojki( k )
 // 19.02.17
 Function f2_263_p_svob_kojki( nKey, oBrow, regim, par )
 
-  Local lkod, buf, r1, rec, i, ret := -1, lcodem, n1, n2, ad[ 10, 4 ], d, ;
-    n_file := cur_dir() + 'sv_kojki' + stxt(), sh := 80, HH := 80, t_arr[ 4 ], s1, s2, s3, s4
+  Local i, ret := -1, lcodem, n1, n2, ad[ 10, 4 ], d, ;
+    n_file := cur_dir() + 'sv_kojki.txt', sh := 80, HH := 80, t_arr[ 4 ], s1, s2, s3, s4
 
   If regim == 'edit'
     Do Case

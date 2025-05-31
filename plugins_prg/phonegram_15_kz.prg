@@ -167,7 +167,7 @@ Function phonegram_15_kz()
         '────────────────┴──────────┴────────────┴────────────┴────────────┴────────────┴────────────┴────────────┴─────────────' }
       sh := Len( arr_title[ 1 ] )
       //
-      nfile := 'phone_15' + stxt
+      nfile := 'phone_15.txt'
       fp := FCreate( nfile ) ; n_list := 1 ; tek_stroke := 0
       add_string( Center( 'Статистика оказания стационарной медицинской помощи лицам пожилого возраста', sh ) )
       add_string( Center( arr_m[ 4 ], sh ) )

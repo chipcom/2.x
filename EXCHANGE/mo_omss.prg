@@ -56,7 +56,7 @@ Function read_from_tf()
     If verify_is_already_xml( cName, @_date, @_time )
       // спросить надо ли ещё раз читать, т.к. уже читали
       func_error( 4, 'Данный файл уже был прочитан и обработан в ' + _time + ' ' + date_8( _date ) + 'г.' )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
+      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
       Return fl
     Else
       s := 'чтения '
@@ -103,7 +103,7 @@ Function read_from_tf()
       If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( cName ) } ) ) > 0
         fl := read_xml_from_tf( arr_f[ n ], arr_XML_info, arr_f )
       Else
-        fl := func_error( 4, 'В архиве ' + name_zip + ' нет файла ' + cName + sxml )
+        fl := func_error( 4, 'В архиве ' + name_zip + ' нет файла ' + cName + sxml() )
       Endif
     Endif
   Endif
@@ -136,7 +136,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
   Private cReadFile := name_without_ext( cFile ), ;
     cTimeBegin := hour_min( Seconds() ), ;
     mkod_reestr := 0, mXML_REESTR := 0, mdate_schet, is_err_FLK := .f.
-  Private cFileProtokol := cReadFile + stxt
+  Private cFileProtokol := cReadFile + stxt()
   StrFile( Space( 10 ) + 'Протокол обработки файла: ' + cFile + hb_eol(), cFileProtokol )
   StrFile( Space( 10 ) + full_date( sys_date ) + 'г. ' + cTimeBegin + hb_eol(), cFileProtokol, .t. )
   // читаем файл в память
@@ -285,7 +285,7 @@ Function read_xml_file_flk( arr_XML_info, aerr )
     If !extract_reestr( rees->( RecNo() ), rees->name_xml )
       AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом № ' + lstr( rees->nschet ) + ' от ' + date_8( rees->DSCHET ), 80 ) )
       AAdd( aerr, '' )
-      AAdd( aerr, Center( dir_server + dir_XML_MO() + hb_ps() + AllTrim( rees->name_xml ) + szip, 80 ) )
+      AAdd( aerr, Center( dir_server + dir_XML_MO() + hb_ps() + AllTrim( rees->name_xml ) + szip(), 80 ) )
       AAdd( aerr, '' )
       AAdd( aerr, Center( 'Без данного архива дальнейшая работа НЕВОЗМОЖНА!', 80 ) )
       Close databases
@@ -547,7 +547,7 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
   If Empty( aerr ) .and. !extract_reestr( rees->( RecNo() ), rees->name_xml )
     AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом № ' + lstr( mnschet ) + ' от ' + date_8( tmp1->_DSCHET ), 80 ) )
     AAdd( aerr, '' )
-    AAdd( aerr, Center( dir_server + dir_XML_MO() + hb_ps() + AllTrim( rees->name_xml ) + szip, 80 ) )
+    AAdd( aerr, Center( dir_server + dir_XML_MO() + hb_ps() + AllTrim( rees->name_xml ) + szip(), 80 ) )
     AAdd( aerr, '' )
     AAdd( aerr, Center( 'Без данного архива дальнейшая работа НЕВОЗМОЖНА!', 80 ) )
   Endif
@@ -1056,7 +1056,7 @@ Function my_extract_reestr()
 
   Local cName, full_zip
 
-  full_zip := manager( T_ROW, T_COL + 5, MaxRow() -2, , .t., 1, , , , '*' + szip )
+  full_zip := manager( T_ROW, T_COL + 5, MaxRow() -2, , .t., 1, , , , '*' + szip() )
   If !Empty( full_zip )
     cName := name_without_ext( strippath( full_zip ) )
     If Left( cName, 3 ) == 'HRM' // файл реестра
@@ -1098,7 +1098,7 @@ Function protokol_flk_tmpfile( arr_f, aerr )
   Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
   For ii := 1 To Len( arr_f )
     // т.к. в ZIP'е два XML-файла, второй файл также прочитать
-    If Upper( Right( arr_f[ ii ], 4 ) ) == sxml .and. ValType( oXmlDoc := hxmldoc():read( _tmp_dir1() + arr_f[ ii ] ) ) == 'O'
+    If Upper( Right( arr_f[ ii ], 4 ) ) == sxml() .and. ValType( oXmlDoc := hxmldoc():read( _tmp_dir1() + arr_f[ ii ] ) ) == 'O'
       For j := 1 To Len( oXmlDoc:aItems[ 1 ]:aItems )
         oXmlNode := oXmlDoc:aItems[ 1 ]:aItems[ j ]
         Do Case

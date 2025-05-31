@@ -779,7 +779,7 @@ Function f1_263_s_vybytie()
 Function f2_263_s_vybytie( nKey, oBrow, regim )
 
   Local ret := -1, rec, i, k, r1, tmp_color, buf, fl, s_error := '', ;
-    n_file := cur_dir() + 'spisokne' + stxt(), sh := 84, HH := 80, t_arr[ 3 ], s1
+    n_file := cur_dir() + 'spisokne.txt', sh := 84, HH := 80, t_arr[ 3 ], s1
 
   Do Case
   Case regim == 'edit'
@@ -1113,7 +1113,7 @@ Function f2_263_s_napr( nKey, oBrow, regim )
   Static s_arr
   Local ret := -1, rec, i, k, tmp_color, buf, s_error := '', arr_p := {}, sast := {}, a, fl, ;
     tmp_V006 := { { 'Стационар', 1 }, { 'Дневной стационар', 2 } }, ;
-    n_file := cur_dir() + 'spisok' + stxt(), sh := 84, HH := 60, t_arr[ 3 ], s1, s2, s3
+    n_file := cur_dir() + 'spisok.txt', sh := 84, HH := 60, t_arr[ 3 ], s1, s2, s3
 
   Do Case
   Case regim == 'edit'
@@ -1786,7 +1786,7 @@ Function f1_263_s_svob_kojki( k )
 Function f2_263_s_svob_kojki( nKey, oBrow, regim )
 
   Local lkod, buf, r1, rec, i, ret := -1, lcodem, n1, n2, tmp_color, arr_p := {}, ;
-    n_file := cur_dir() + 'sv_kojki' + stxt(), sh := 80, HH := 80, t_arr[ 4 ], s1, s2, s3, s4, ;
+    n_file := cur_dir() + 'sv_kojki.txt', sh := 80, HH := 80, t_arr[ 4 ], s1, s2, s3, s4, ;
     tmp_V006 := { { 'Стационар', 1 }, { 'Дневной стационар', 2 } }
 
   If regim == 'open'

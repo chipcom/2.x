@@ -1049,9 +1049,9 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
     Enddo
     Commit
     @ MaxRow(), 0 Say ' запись' Color cColorSt2Msg
-    oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml )
-    name_zip := AllTrim( mo_xml->FNAME ) + szip
-    arr_zip := { AllTrim( mo_xml->FNAME ) + sxml }
+    oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml() )
+    name_zip := AllTrim( mo_xml->FNAME ) + szip()
+    arr_zip := { AllTrim( mo_xml->FNAME ) + sxml() }
     //
     stat_msg( 'Составление реестра пациентов по счёту № ' + mn_schet )
     oXmlDoc := hxmldoc():new()
@@ -1131,8 +1131,8 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
       Skip
     Enddo
     @ MaxRow(), 0 Say ' запись' Color cColorSt2Msg
-    oXmlDoc:save( AllTrim( mo_xml->FNAME2 ) + sxml )
-    AAdd( arr_zip, AllTrim( mo_xml->FNAME2 ) + sxml )
+    oXmlDoc:save( AllTrim( mo_xml->FNAME2 ) + sxml() )
+    AAdd( arr_zip, AllTrim( mo_xml->FNAME2 ) + sxml() )
     If chip_create_zipxml( name_zip, arr_zip, .t. )
       // может быть, сделать ещё что-нибудь после записи счёта?
     Endif

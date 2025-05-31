@@ -7,8 +7,8 @@
 Function monitoring_vid_pom()
   Static mm_schet := { { 'все случаи', 1 }, { 'в выставленных счетах', 2 }, { 'в зарегистрированных счетах', 3 } }
   Local mm_tmp := {}, buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
-    tmp_help := help_code, hGauge, name_file := 'mon_kz' + stxt, ;
-    sh := 80, HH := 60, i, k, tmp_file := 'tmp_mon' + sdbf, r1, r2
+    tmp_help := help_code, name_file := 'mon_kz.txt', ;
+    sh := 80, HH := 60, i, k, tmp_file := 'tmp_mon' + sdbf(), r1, r2
 
   Private pdate_lech
 

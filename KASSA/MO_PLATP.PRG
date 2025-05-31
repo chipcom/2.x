@@ -1040,7 +1040,7 @@ Function pob2_statist( k, serv_arr, is_all )
       Endif
     Endif
     Set( _SET_DELETED, .t. )
-    fp := FCreate( "ob_stat" + stxt ) ; tek_stroke := 0 ; n_list := 1
+    fp := FCreate( "ob_stat.txt" ) ; tek_stroke := 0 ; n_list := 1
     add_string( "ПЛАТНЫЕ УСЛУГИ" )
     If k == 0
       add_string( Center( "Статистика по службам (с разбивкой по отделениям)", sh ) )
@@ -1375,7 +1375,7 @@ Function pob2_statist( k, serv_arr, is_all )
     Endif
     FClose( fp )
     Close databases
-    viewtext( "ob_stat" + stxt,,,, ( sh > 80 ),,, regim )
+    viewtext( "ob_stat.txt",,,, ( sh > 80 ),,, regim )
   Endif
 
   Return Nil
@@ -1782,8 +1782,8 @@ Function st_plat_fio( reg )
   Static svr_as := 1, mas_pmt := { "~Врачи", "~Ассистенты", "~Медсестры", "~Санитарки" }
   Local vr_as, adbf, i, j, arr[ 2 ], begin_date, end_date, ;
     fl_exit := .f., sh, HH := 57, reg_print, s, xx, n, nvr, ;
-    arr_otd := {}, n_file := "plat_fio" + stxt, buf := save_row( MaxRow() )
-  Private krvz, arr_dms, d_file := "PLAT_FIO" + sdbf
+    arr_otd := {}, n_file := "plat_fio.txt", buf := save_row( MaxRow() )
+  Private krvz, arr_dms, d_file := "PLAT_FIO" + sdbf()
   If !del_dbf_file( d_file )
     Return Nil
   Endif
@@ -2114,7 +2114,7 @@ Function f1_plat_fio( reg, vr_as )
 //
 Function st_plat_ms( reg )
 
-  Local i, j, arr[ 2 ], begin_date, end_date, n_file := "plat_ms" + stxt, ;
+  Local i, j, arr[ 2 ], begin_date, end_date, n_file := "plat_ms.txt", ;
     fl_exit := .f., sh, HH := 57, reg_print := 1, s, arr_dms, ;
     ss, ss1, ss2, ss3, arr_title, adbf, krvz, xx
 
@@ -2403,14 +2403,14 @@ Function pl_mnog_poisk()
   Local mm_tmp := {}, k
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
     mm_mest := { { "Волгоград или область", 1 }, { "иногородние", 2 } }, ;
-    tmp_help := 0, hGauge, name_file := "pl_mnog" + stxt, ;
+    tmp_help := 0, hGauge, name_file := "pl_mnog.txt", ;
     sh := 80, HH := 77, r1 := 2, a_diagnoz[ 3 ], a_uslugi[ 20 ], ;
     k_usl, fl_stom := .f., ;
     mm_da_net := { { "нет", 1 }, { "да ", 2 } }, lvid_doc := 0, ;
     menu_plat := { { "платные    ", PU_PLAT }, ;
     { "добр/страх.", PU_D_SMO }, ;
     { "взаимозачет", PU_PR_VZ } }, ;
-    tmp_file := "tmp_mn_p" + sdbf
+    tmp_file := "tmp_mn_p" + sdbf()
 
   // help_code
   Private ssumma := 0
@@ -3464,7 +3464,7 @@ Function pl_napr_vrach()
 
   Local i, j, arr, begin_date, end_date, s, buf := save_row( MaxRow() ), ;
     fl_exit := .f., sh, HH := 60, reg_print, speriod, ;
-    arr_title, name_file := "napr_vr" + stxt, arr_m, adbf
+    arr_title, name_file := "napr_vr.txt", arr_m, adbf
 
   If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
     Return Nil
@@ -3578,7 +3578,7 @@ Function pl_napr2vrach()
 
   Local i, j, arr[ 2 ], begin_date, end_date, s, buf := save_row( MaxRow() ), ;
     fl_exit := .f., sh, HH := 60, reg_print, speriod, ;
-    arr_title, name_file := "napr_vr2" + stxt, arr_m, adbf, mperso
+    arr_title, name_file := "napr_vr2.txt", arr_m, adbf, mperso
 
   If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
     Return Nil
@@ -3933,7 +3933,7 @@ Function ob_ved_vz()
 Function f1ob_ved_vz( nKey, oBrow, regim )
 
   Local ret := -1, buf, fl := .f., rec, tmp_color, i, j, ;
-    s, sh, HH := 58, reg_print := 2, arr_title, name_file := "ob_ved" + stxt
+    s, sh, HH := 58, reg_print := 2, arr_title, name_file := "ob_ved.txt"
 
   Do Case
   Case regim == "edit"
@@ -4031,7 +4031,7 @@ Function f2ob_ved_vz()
 Function f3ob_ved_vz( nKey, oBrow, regim )
 
   Local ret := -1, buf, fl := .f., rec, tmp_color, i, j, k, t_arr[ 2 ], ;
-    s, sh, HH := 58, reg_print := 2, arr_title, name_file := "ob_ved" + stxt
+    s, sh, HH := 58, reg_print := 2, arr_title, name_file := "ob_ved.txt"
 
   Do Case
   Case regim == "edit"
@@ -4115,7 +4115,7 @@ Function f3ob_ved_vz( nKey, oBrow, regim )
 //
 Function f4ob_ved_vz( par )
 
-  Local s, sh, HH := 58, reg_print, arr_title, n_file := "ob_ved" + stxt, ;
+  Local s, sh, HH := 58, reg_print, arr_title, n_file := "ob_ved.txt", ;
     buf := save_row( MaxRow() ), adbf, msaldo1, msaldo2, sum1, sum2
 
   mywait()
@@ -5753,7 +5753,7 @@ return NIL
 Function Pd2_statist(k)
 Local i, j, arr, begin_date, end_date, s, buf := save_row(maxrow()),;
       fl_exit := .f., sh, HH := 40, reg_print, speriod,;
-      arr_title, name_file := "r_dohod"+stxt, arr_m
+      arr_title, name_file := "r_dohod.txt", arr_m
 if (arr_m := year_month()) == NIL
   return NIL
 endif
@@ -5957,7 +5957,7 @@ Function f1r_s_plat()
 
   Local i, j, arr, begin_date, end_date, s, buf := save_row( MaxRow() ), ;
     fl_exit := .f., sh, HH := 57, reg_print, lyear, slyear, speriod, ;
-    arr_title, name_file := "r_dopl" + stxt, old_vr := 0, ;
+    arr_title, name_file := "r_dopl.txt", old_vr := 0, ;
     vstoim := 0, sstoim := 0, blk
   Private arr_m, kv[ 2 ]
 
@@ -6134,7 +6134,7 @@ Function f2r_spl_plat( reg )
   Static snomer := 1, sreg1 := 1
   Local i, j, k, arr[ 2 ], s, buf := save_row( MaxRow() ), buf1, reg1, ;
     fl_exit := .f., sh, HH := 57, reg_print, ;
-    arr_title, name_file := "n_kvit" + stxt, ;
+    arr_title, name_file := "n_kvit.txt", ;
     vstoim := 0, sstoim := 0, old := 0, up_usl, ;
     speriod, begin_date, end_date, cp := " "
 
@@ -6292,7 +6292,7 @@ Function f3r_s_plat()
   Static snomer := 1, sreg1 := 1
   Local i, j, k, arr[ 2 ], s, buf := save_row( MaxRow() ), buf1, reg1, ;
     fl_exit := .f., sh, HH := 57, reg_print, ;
-    arr_title, name_file := "n_kvitan" + stxt, ;
+    arr_title, name_file := "n_kvitan.txt", ;
     vstoim := 0, sstoim := 0, old := 0, ;
     speriod, begin_date, end_date, cp := " ", ss := 0
 
@@ -6413,7 +6413,7 @@ Function f4r_s_plat()
     blk := {| b, ar, nDim, nElem, nKey| f1_s_vyruchka( b, ar, nDim, nElem, nKey ) }, ;
     i, j, k, arr[ 2 ], s, buf1, reg1, min_date, max_date, ;
     fl_exit := .f., sh, HH := 78, reg_print, ;
-    arr_title, name_file := "boln_usl" + stxt, ;
+    arr_title, name_file := "boln_usl.txt", ;
     vstoim := 0, sstoim := 0, old := 0, arr_otd, ;
     speriod, begin_date, end_date, cp := " ", ss := 0
 
@@ -6640,7 +6640,7 @@ Function f4r_s_plat()
 //
 Function f5r_s_plat()
 
-  Local buf, i, k, mas12, arr_m, n_file := "spis_kvi" + stxt, sh := 64, ssum := 0
+  Local buf, i, k, mas12, arr_m, n_file := "spis_kvi.txt", sh := 64, ssum := 0
 
   If ( arr_m := year_month() ) == NIL
     Return Nil
@@ -6734,7 +6734,7 @@ Function pl_vyruchka()
   Local lyear, slyear, s_date, arr_kv := { { 1, 999999 } }, buf, i, k, ;
     mas12 := { { 1, " с ..." }, { 2, "по ..." } }, mpic := { { 6, 0 }, { 6, 0 } }, ;
     blk := {| b, ar, nDim, nElem, nKey| f1_s_vyruchka( b, ar, nDim, nElem, nKey ) }, ;
-    n_file := "s_vyruch" + stxt, sh := 64, ssum := 0, hGauge
+    n_file := "s_vyruch.txt", sh := 64, ssum := 0, hGauge
 
   If ( lyear := input_value( 20, 15, 22, 64, color1, ;
       "За какой год желаете получить информацию", ;
@@ -6971,7 +6971,7 @@ Function po_proverka( k )
 Function po_isp_nap( reg )
 
   Local i, j, k, arr, fl, fl_exit := .f., buf := save_row( MaxRow() ), ;
-    s, sh, HH := 57, arr_title, name_file := "proverka" + stxt, ;
+    s, sh, HH := 57, arr_title, name_file := "proverka.txt", ;
     arr_usl := {}
 
   If ( arr := year_month() ) == NIL
@@ -7117,7 +7117,7 @@ Function po_isp_nap( reg )
 Function po_pr_vr_as( reg )
 
   Local i, j, k, arr, fl, fl_exit := .f., buf := save_row( MaxRow() ), ;
-    s, sh, HH := 57, arr_title, name_file := "proverka" + stxt, ;
+    s, sh, HH := 57, arr_title, name_file := "proverka.txt", ;
     arr_usl := {}
 
   If ( arr := year_month() ) == NIL
@@ -7247,7 +7247,7 @@ Function po_pr_vr_as( reg )
 Function po_pr_oms( reg )
 
   Local i, j, k, arr, fl, fl_exit := .f., buf := save_row( MaxRow() ), s, sh := 81, ;
-    HH := 57, name_file := "proverka" + stxt, arr_usl := {}, numer := 1
+    HH := 57, name_file := "proverka.txt", arr_usl := {}, numer := 1
 
   If ( arr := year_month() ) == NIL
     Return Nil
@@ -7334,7 +7334,7 @@ Function po_pr_oms( reg )
 Function po_pr_ot_pe()
 
   Local i := 0, j, k, arr, fl, fl_exit := .f., buf := save_row( MaxRow() ), ;
-    s, sh, HH := 57, arr_title, name_file := "prov_otd" + stxt, ;
+    s, sh, HH := 57, arr_title, name_file := "prov_otd.txt", ;
     arr_usl := {}
 
   If ( arr := year_month() ) == NIL
@@ -7748,7 +7748,7 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
 
   Static sf_nomer, sf_date, sa_nomer, sa_date
   Local ret := -1, buf, fl := .f., rec, tmp_color, ah, ahu, i, j, k, fl_one, ;
-    s, sh, HH := 76, reg_print, arr_title, name_file := "vzaimoza" + stxt, ;
+    s, sh, HH := 76, reg_print, arr_title, name_file := "vzaimoza.txt", ;
     d, sd, kol_usl, sk, ss, is_fio, is_sokr, old, mas_pmt
 
   Do Case
@@ -8034,7 +8034,7 @@ Function f3_pl_vzaim()
 Function vr_vzaimozach( regim )
 
   Local i, j, k, fl, fl_exit := .f., buf := save_row( MaxRow() ), ;
-    sh, HH := 60, reg_print := 2, arr_title, n_file := "vr_vzaim" + stxt
+    sh, HH := 60, reg_print := 2, arr_title, n_file := "vr_vzaim.txt"
   Private arr_m
 
   If ( arr_m := year_month() ) == NIL
@@ -8268,7 +8268,7 @@ Function pr_opl_vz()
 
   Local i, j, arr, begin_date, end_date, s, buf := save_row( MaxRow() ), ;
     fl_exit := .f., sh, HH := 58, reg_print, ssumma := 0, ;
-    arr_title, name_file := "vzoplata" + stxt, arr_m, adbf, ;
+    arr_title, name_file := "vzoplata.txt", arr_m, adbf, ;
     menu_opl := { { "безналичн.", 0 }, ;
     { "наличными ", 1 }, ;
     { "в/зачет   ", 2 } }
@@ -8579,7 +8579,7 @@ Function ob21v_usl( nKey, oBrow, regim, mtitul )
       mywait()
       rec := RecNo()
       Private reg_print := 2
-      n_file := "ob2_v_us" + stxt
+      n_file := "ob2_v_us.txt"
       fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
       add_string( "" )
       add_string( Center( mtitul, sh ) )
@@ -8961,7 +8961,7 @@ Function fp_ret_lpu( k, r, c )
 Function sv_ved_plat()
 
   Local arr, arr_m, buf, arr_title, sh, HH := 40, reg_print := 3, ;
-    n_file := "svod_ved" + stxt, arr_otd := {}, old_kateg, lfio
+    n_file := "svod_ved.txt", arr_otd := {}, old_kateg, lfio
 
   pi := 3
   If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
@@ -10704,8 +10704,8 @@ Function st1_plat_fio()
   Local reg := 1
   Local vr_as, adbf, i, j, arr[ 2 ], begin_date, end_date, ;
     fl_exit := .f., sh, HH := 57, reg_print, s, xx, n, nvr, ;
-    arr_otd := {}, n_file := "plat_fio" + stxt, buf := save_maxrow()
-  Private krvz, arr_dms, d_file := "PLAT_FIO" + sdbf, otdeleni := {}
+    arr_otd := {}, n_file := "plat_fio.txt", buf := save_maxrow()
+  Private krvz, arr_dms, d_file := "PLAT_FIO" + sdbf(), otdeleni := {}
 
   If !del_dbf_file( d_file )
     Return Nil

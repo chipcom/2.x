@@ -84,7 +84,7 @@ Function s_mnog_poisk()
   Static mm_dvojn := { { 'все случаи', 1 }, { 'только двойные случаи', 2 }, { 'все, кроме двойных случаев', 3 } }
   Local mm_tmp := {}, k, adiag_talon[ 16 ]
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
-    tmp_help := help_code, hGauge, name_file := cur_dir + 'report' + stxt, ;
+    tmp_help := help_code, hGauge, name_file := cur_dir + 'report.txt', ;
     sh := 80, HH := 77, i, a_diagnoz[ 10 ], ;
     mm_da_net := { { 'нет', 1 }, { 'да ', 2 } }, lvid_doc := 0, ;
     menu_bolnich := { { 'нет', 1 }, { 'да', 2 }, { 'родители', 3 } }, ;

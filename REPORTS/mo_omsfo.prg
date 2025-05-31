@@ -733,7 +733,7 @@ Function obF2_statist(k, serv_arr)
       endif
     endif
     SET(_SET_DELETED, .T.)
-    fp := fcreate(cur_dir + 'obF_stat' + stxt)
+    fp := fcreate(cur_dir + 'obF_stat.txt')
     tek_stroke := 0
     n_list := 1
     add_string(padl('дата печати ' + date_8(sys_date), sh))
@@ -1019,7 +1019,7 @@ Function obF2_statist(k, serv_arr)
     endif
     fclose(fp)
     close databases
-    viewtext(cur_dir + 'obF_stat' + stxt, , , ,(sh > 80), , , regim)
+    viewtext(cur_dir + 'obF_stat.txt', , , ,(sh > 80), , , regim)
   endif
   return NIL
 
@@ -1384,7 +1384,7 @@ Function obF21v_usl(nKey, oBrow, regim, mtitul)
           mywait()
           rec := recno()
           Private reg_print := 2
-          n_file := cur_dir + 'obF2v_us' + stxt
+          n_file := cur_dir + 'obF2v_us.txt'
           fp := fcreate(n_file)
           n_list := 1
           tek_stroke := 0

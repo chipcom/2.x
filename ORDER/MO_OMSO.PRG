@@ -594,7 +594,7 @@ Function f2_view_rak( nKey, oBrow )
 
   Do Case
   Case nKey == K_F3
-    viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ), , , , .t., , , 2 )
+    viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ), , , , .t., , , 2 )
     ret := 0
   Case nKey == K_ENTER
     view_rak_akt( rec )
@@ -790,7 +790,7 @@ Function view_rak_akt( lrec )
   t_arr[ BR_BOTTOM ] := MaxRow() -2
   t_arr[ BR_LEFT ] := 2
   t_arr[ BR_RIGHT ] := MaxCol() -2
-  t_arr[ BR_TITUL ] := 'РАК ' + AllTrim( mo_xml->FNAME ) + sxml + ' от ' + date_8( mo_xml->dfile )
+  t_arr[ BR_TITUL ] := 'РАК ' + AllTrim( mo_xml->FNAME ) + sxml() + ' от ' + date_8( mo_xml->dfile )
   t_arr[ BR_TITUL_COLOR ] := 'B/G*'
   t_arr[ BR_COLOR ] := color0
   t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B', .t. }
@@ -1917,7 +1917,7 @@ Function akt_list_of_refusal_pacient()
     "перевыставленные случаи полного снятия", ;
     "не перевыставленные случаи полного снятия" }
   Local buf := save_maxrow(), lsmo, lmenu, i, j, k, s, t_arr[ 2 ], ;
-    ireg, fl, arr_m, n_file := cur_dir() + "spis_sn" + stxt, sh := 80, HH := 60
+    ireg, fl, arr_m, n_file := cur_dir() + "spis_sn.txt", sh := 80, HH := 60
 
   Private a_otd := {}
 
@@ -2338,7 +2338,7 @@ Function akt_list_of_refusal_pacient()
 Function pr_list_rak()
 
   Static arr_smo
-  Local buf := save_maxrow(), arr_m, n_file := cur_dir() + "list_RAK" + stxt, ta[ 2 ], i, s, asmo, ;
+  Local buf := save_maxrow(), arr_m, n_file := cur_dir() + "list_RAK.txt", ta[ 2 ], i, s, asmo, ;
     krak := 0, kakt, ksch, kpac, kerr, kpen, sh, HH := 60
 
   If arr_smo == NIL
@@ -2447,7 +2447,7 @@ Function pr_list_rak()
 // 29.11.15 Список счетов без РАК
 Function pr_schet_bez_rak()
 
-  Local buf := save_maxrow(), arr_m, n_file := cur_dir() + "s_bezRAK" + stxt, sh, HH := 60
+  Local buf := save_maxrow(), arr_m, n_file := cur_dir() + "s_bezRAK.txt", sh, HH := 60
 
   If ( arr_m := year_month( T_ROW, T_COL -5, , 4 ) ) == NIL
     Return Nil
@@ -2513,7 +2513,7 @@ Function akt_summa_of_refusal( tip )
 
   // 1 - по дате АКТА в РАК
   // 2  - по дате РАК
-  Local buf := save_maxrow(), arr_m, n_file := cur_dir() + 'sum_RAK' + stxt, sh, HH := 40, arr_smo := AClone( glob_arr_smo )
+  Local buf := save_maxrow(), arr_m, n_file := cur_dir() + 'sum_RAK' + stxt(), sh, HH := 40, arr_smo := AClone( glob_arr_smo )
 
   If ( arr_m := year_month( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
@@ -2852,7 +2852,7 @@ Function akt_list_of_refusal_defect()
 // 31.01.25 функция для списка снятий по актам (дефекты)
 Function f1akt_list_of_refusal_defect( asmo, ssmo )
 
-  Local adbf, s, otch_period, n_file := cur_dir() + 'sp_sn' + stxt, HH := 60, buf := save_maxrow()
+  Local adbf, s, otch_period, n_file := cur_dir() + 'sp_sn.txt', HH := 60, buf := save_maxrow()
 
   mywait()
   adbf := { { "nrak", "C", 26, 0 }, ;

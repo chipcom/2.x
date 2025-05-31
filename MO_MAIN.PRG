@@ -53,8 +53,10 @@ Procedure Main( ... )
   Public kod_LIS   := { '125901', '805965' }
   //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
-  Public sdbf := '.DBF', stxt := '.TXT', szip := '.ZIP', ;
-    sxml := '.XML'
+  Public sdbf := '.DBF'
+//  , stxt := '.TXT'
+//, ;    sxml() := '.XML'
+//  , szip := '.ZIP'
 //  , sntx := '.NTX'
 //  srar := '.RAR', 
 //  smem := '.MEM', 
@@ -919,7 +921,7 @@ Function find_time_limit_human_reestr_sp_tk()
 //
 Function f1find_time_limit_human_reestr_sp_tk( i, arr )
 
-  Local n_file := cur_dir() + 'time_lim' + stxt, sh := 80, HH := 60
+  Local n_file := cur_dir() + 'time_lim.txt', sh := 80, HH := 60
 
   fp := FCreate( n_file )
   n_list := 1

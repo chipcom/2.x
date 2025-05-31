@@ -44,7 +44,7 @@ Function wq_import()
   Local adbf, cName, i, s, buf, arr, arr_f, fbase
 
   Private p_var_manager := 'Read_WQ_TFOMS', full_zip
-  if !empty(full_zip := manager(T_ROW, T_COL + 5,maxrow() - 2, , .t., 1, , , ,'WQ2*' + szip))
+  if !empty(full_zip := manager(T_ROW, T_COL + 5,maxrow() - 2, , .t., 1, , , ,'WQ2*' + szip()))
     name_zip := StripPath(full_zip)  // имя файла без пути
     cName := Name_Without_Ext(name_zip)
     fbase := 'mo_wq' + substr(cName, 10)
@@ -69,7 +69,7 @@ Function wq_import()
     endif
     /*if (fl := Extract_RAR(KeepPath(full_zip),name_zip)) .and. ;
                                        !hb_fileExists(_tmp_dir1()+cName+sdbf)
-      fl := func_error(4, 'Возникла ошибка при разархивировании '+_tmp_dir1()+cName+szip)
+      fl := func_error(4, 'Возникла ошибка при разархивировании '+_tmp_dir1()+cName+szip())
     endif*/
     last_file := ' '
     if fl .and. wq_if_last_file(cName, @last_file)
@@ -393,7 +393,7 @@ Function wq_import()
 
 // 13.07.15
 Function wq_view()
-  Local sh, HH := 78, name_file := cur_dir + 'imp_prip' + stxt, i := 0, arr_title, lu, la, ;
+  Local sh, HH := 78, name_file := cur_dir + 'imp_prip.txt', i := 0, arr_title, lu, la, ;
         buf := save_maxrow(), fname := wq_ret_last_name()
 
   if empty(fname)
@@ -486,8 +486,8 @@ Function f1_wq_edit_uchast(oBrow)
 
 // 14.07.15
 Function f2_wq_edit_uchast(nKey, oBrow)
-  Local j := 0, flag := -1, buf := save_maxrow(), buf1, fl := .f., nr := row(), c1, rec, arr_title, ;
-      mkod, buf0, tmp_color := setcolor(), t_vr, sh, HH := 78, name_file := cur_dir + 'wq' + stxt, i := 0
+  Local j := 0, flag := -1, buf := save_maxrow(), fl := .f., nr := row(), c1, rec, arr_title, ;
+      mkod, buf0, tmp_color := setcolor(), sh, HH := 78, name_file := cur_dir() + 'wq.txt', i := 0
 
   Private  much, old_uch
   do case
@@ -614,7 +614,7 @@ Function wq_prikreplenie()
   if fl_err
     if !empty(arr_uch)
       mywait()
-      cFileProtokol := cur_dir + 'prot' + stxt
+      cFileProtokol := cur_dir() + 'prot.txt'
       strfile(space(5) + 'Список пациентов из файла ' + filename + sdbf + ' без участка' + hb_eol() + hb_eol(), cFileProtokol)
       for i := 1 to len(arr_uch)
         strfile(lstr(i) + '. ' + arr_uch[i] + hb_eol(), cFileProtokol, .t.)
@@ -661,7 +661,7 @@ Function wq_prikreplenie()
     return func_error(4, 'Не найдено прикреплённых пациентов с участками, не отправленных в ТФОМС')
   endif
   asort(arr_uch, , , {|x, y| x[1] < y[1] })
-  cFileProtokol := cur_dir + 'prot' + stxt
+  cFileProtokol := cur_dir + 'prot.txt'
   strfile(space(5) + 'Список участков' + hb_eol() + hb_eol(), cFileProtokol)
   R_Use(dir_server + 'mo_otd', , 'OTD')
   R_Use(dir_server + 'mo_pers', , 'P2')

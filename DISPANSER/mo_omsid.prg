@@ -1366,7 +1366,7 @@ Function f2_inf_dds_svod( Loc_kod, kod_kartotek ) // сводная информация
 // 20.06.21 Приложение к письму КЗВО №14-05/50 от 07.02.2020г.
 Function inf_dds_svod2( par2, is_schet )
 
-  Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 91, HH := 60, n_file := cur_dir + "ddssvod2" + stxt
+  Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 91, HH := 60, n_file := cur_dir + "ddssvod2.txt"
 
   If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
@@ -1684,7 +1684,7 @@ Function f2_inf_dds_svod2( Loc_kod, kod_kartotek )
 // 08.11.13
 Function inf_dds_030dso( is_schet )
 
-  Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 80, n_file := cur_dir + "f_030dso" + stxt, d1, d2
+  Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 80, n_file := cur_dir + "f_030dso.txt", d1, d2
 
   If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
@@ -4240,7 +4240,7 @@ Function f21_inf_dvn( par ) // свод
 Function inf_ydvn()
 
   Local i, ii, s, arr_m, buf := save_maxrow(), ar, arr_excel := {}, is_all
-  Local sh, HH := 53,  n_file := cur_dir + "gor_YDVN" + stxt, reg_print, arr_itog[ 20 ]
+  Local sh, HH := 53,  n_file := cur_dir + "gor_YDVN.txt", reg_print, arr_itog[ 20 ]
   Local t_rec, t_poisk, t_rezult, is_pesia
 /*local arr_title := {;
 "──────┬───────┬────────┬───────┬─────────┬──────┬──────┬──────┬──────┬──────┬───────┬──────┬──────┬──────┬──────┬──────┬──────┬───────", ;
@@ -5353,7 +5353,7 @@ Function f1_f22_inf_dvn() // сводная информация
 Function f2_inf_dvn( is_schet, par )
 
   Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, as := {}, ;
-    a, sh, HH := 53, n, n_file := cur_dir + "spis_dvn" + stxt, reg_print
+    a, sh, HH := 53, n, n_file := cur_dir + "spis_dvn.txt", reg_print
   Private ppar := par, p_is_schet := is_schet
 
   If par > 1
@@ -6766,7 +6766,7 @@ Function f5_inf_dnl_karta( i )
 // 09.06.20 Приложение к письму ГБУЗ "ВОМИАЦ" №1025 от 08.07.2019г.
 Function f21_inf_dnl( par )
 
-  Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, adbf, as, i, j, k, sh, HH := 40, n, n_file := cur_dir + "svod_dnl" + stxt
+  Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, adbf, as, i, j, k, sh, HH := 40, n, n_file := cur_dir() + "svod_dnl.txt"
 
   If ( arr_m := year_month(,,, 5 ) ) != NIL
     If arr_m[ 1 ] < 2020
@@ -7375,7 +7375,7 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // сводная информация
 // 25.03.18
 Function inf_dnl_030poo( is_schet )
 
-  Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 80, n_file := cur_dir + "f_030poo" + stxt, d1, d2
+  Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 80, n_file := cur_dir() + "f_030poo.txt", d1, d2
 
   If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     If arr_m[ 1 ] < 2018
@@ -8620,8 +8620,8 @@ Function mnog_poisk_dnl()
 
   Local mm_tmp := {}, mm_sort
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
-    tmp_help := help_code, hGauge, name_file := cur_dir + "_kartDNL" + stxt, ;
-    sh := 80, HH := 77, i, a_diagnoz[ 10 ], ta, name_dbf := cur_dir + "_kartDNL" + sdbf, ;
+    tmp_help := help_code, hGauge, name_file := cur_dir() + "_kartDNL.txt", ;
+    sh := 80, HH := 77, i, a_diagnoz[ 10 ], ta, name_dbf := cur_dir() + "_kartDNL" + sdbf(), ;
     mm_da_net := { { "нет", 1 }, { "да ", 2 } }, ;
     mm_mest := { { "Волгоград или область", 1 }, { "иногородние", 2 } }, ;
     mm_disp := { { "неважно", 0 }, { "не проходили", 1 }, { "прошли", 2 } }, ;
@@ -9251,7 +9251,7 @@ Function inf_disp( k )
 Function itog_svod_disp_tf()
 
   Local i, k, arr_m, buf := save_maxrow(), ;
-    sh := 80, hh := 60, n_file := cur_dir + "svod_dis" + stxt
+    sh := 80, hh := 60, n_file := cur_dir + "svod_dis.txt"
 
   If ( arr_m := year_month(,,, 5 ) ) != NIL
     mywait()

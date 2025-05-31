@@ -104,7 +104,7 @@ Function forma_39_()
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
     fl_exit := .f., HH := 58, reg_print := 3, speriod, ;
-    arr_title, name_file := cur_dir + "_form_39" + stxt, s_lu := 0, s_human := 0, ;
+    arr_title, name_file := cur_dir + "_form_39.txt", s_lu := 0, s_human := 0, ;
     kh := 0, jh := 0, arr_m, arr_pl
 
   If !get_nastr()
@@ -409,7 +409,7 @@ Function forma_39otd()
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
     fl_exit := .f., HH := 58, reg_print := 3, speriod, ;
-    arr_title, name_file := cur_dir + "_form_39" + stxt, s_lu := 0, s_human := 0, ;
+    arr_title, name_file := cur_dir + "_form_39.txt", s_lu := 0, s_human := 0, ;
     kh := 0, jh := 0, arr_m, arr_pl
 
   If !get_nastr()
@@ -852,7 +852,7 @@ Function f_39all_1( par )
 
   Static sotd := 1
   Local buf, HH := 58, reg_print := 3, ;
-    arr_title, name_file := cur_dir + "_form_39" + stxt, s, ls1, ;
+    arr_title, name_file := cur_dir + "_form_39.txt", s, ls1, ;
     arr := {}, arr_otd := {}, r := T_ROW, r2, c := T_COL - 5, i
 
   If par == 2
@@ -949,7 +949,7 @@ Function f_39all_2( par )
 
   Static sotd := 1
   Local buf, sh, HH := 58, reg_print := 3, ;
-    arr_title, name_file := cur_dir + "_form_39" + stxt, s, ls1, ;
+    arr_title, name_file := cur_dir + "_form_39.txt", s, ls1, ;
     arr := {}, arr_otd := {}, r := T_ROW, r2, c := T_COL - 5, i
 
   If par == 2
@@ -1341,7 +1341,7 @@ Function f_39org_1( par )
 
   Static such := 1
   Local buf, HH := 58, reg_print := 3, ;
-    arr_title, name_file := cur_dir + "_form_39" + stxt, s, ls1, ;
+    arr_title, name_file := cur_dir + "_form_39.txt", s, ls1, ;
     arr := {}, arr_uch := {}, r := T_ROW, r2, c := T_COL - 5, i
 
   If par == 2

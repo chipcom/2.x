@@ -660,7 +660,7 @@ Function vosst_ob_em_rak()
 // 02.10.19 функция для списка для восстановления объёмов
 Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
 
-  Local adbf, i, nkvartal, n_file := 'v_ob_em' + stxt, HH := 60, sh := 80, buf := save_maxrow(), t_arr[ 2 ]
+  Local adbf, i, nkvartal, n_file := 'v_ob_em.txt', HH := 60, sh := 80, buf := save_maxrow(), t_arr[ 2 ]
 
   mywait()
   adbf := { { 'kvartal', 'N', 1, 0 }, ;
@@ -1242,7 +1242,7 @@ Function ret_reestr_no( r, c )
 Function st_operator()
 
   Local i, j, k, mdate, buf24, sh := 0, arr_oper := {}, arr_g, ;
-    s0, s1, s2, s3, s4, buf, name_file := 'operator' + stxt, ;
+    s0, s1, s2, s3, s4, buf, name_file := 'operator.txt', ;
     arr_title, reg_print := 2, ls, fl_orto := .f., r1 := 9, ;
     arrNtitle, llen, ldec, fl_old, fl_new
   Private koef0, koef1 := 20, koef2 := 9, koef21 := 3, koef3 := 1, ;
@@ -1340,7 +1340,7 @@ Function st_operator()
     arrNtitle[ 5 ] := '──────────────────────────────┴─────┴──────┴─────┴──────┴─────┴──────┴──────────'
     sh := Max( sh, Len( arrNtitle[ 1 ] ) )
   Endif
-  fp := FCreate( 'operator' + stxt ) ; tek_stroke := 0 ; n_list := 1
+  fp := FCreate( 'operator.txt' ) ; tek_stroke := 0 ; n_list := 1
   add_string( '' )
   add_string( Center( 'Объём работы операторов', sh ) )
   add_string( Center( arr_g[ 4 ], sh ) )
@@ -1837,7 +1837,7 @@ Function prn_blank( k )
 // 19.09.23
 Function pr_sprav_onk_vmp()
 
-  Local buf := save_maxrow(), name_file := cur_dir() + 'metodVMPonko' + stxt, sh := 80, HH := 60, t_arr[ 2 ], i, s
+  Local buf := save_maxrow(), name_file := cur_dir() + 'metodVMPonko.txt', sh := 80, HH := 60, t_arr[ 2 ], i, s
 
   Local row, mm_usl_tip := {}
 
@@ -2239,7 +2239,7 @@ Function report_f_mpp()
   Elseif tmp1->( LastRec() ) == 0
     func_error( 4, 'Нет информации!' )
   Else
-    name_file := '_fmpp' + stxt
+    name_file := '_fmpp.txt'
     HH := 55
     arr_title := { ;
       '────────────────────────────────────────┬────────────────────────────────┬────────────────────────────────┬────────────────────────────────', ;
@@ -2462,7 +2462,7 @@ Function report_f_mpp()
 Function pril_5_6_62()
 
   Local begin_date, end_date, buf := SaveScreen(), i, j, k, k1, k2, ;
-    t_arr[ 10 ], t_arr1[ 10 ], name_file := 'f14med' + stxt, tfoms_pz[ 5, 11 ], ;
+    t_arr[ 10 ], t_arr1[ 10 ], name_file := 'f14med.txt', tfoms_pz[ 5, 11 ], ;
     sh, HH := 80, reg_print := 5, is_trudosp, is_rebenok, is_inogoro, ;
     is_reabili, is_ekstra, lshifr1, koef, vid_vp, r1 := 9, fl_exit := .f., ;
     is_vmp, d2_year, ar, arr_excel := {}, fl_error := .f., is_z_sl, ;
@@ -2815,7 +2815,7 @@ Function monitoring_zog()
   Static mas1pmt := { '~все оказанные случаи', ;
     'случаи в выставленных ~счетах', ;
     'случаи в за~регистрированных счетах' }
-  Local sh := 80, HH := 80, n_file := 'monitoring_zog' + stxt
+  Local sh := 80, HH := 80, n_file := 'monitoring_zog.txt'
   Local fl, par, arr_m, i, j, n, ad, arr, adiag_talon[ 16 ], lcount_uch := 1, buf := save_maxrow()
   Private mdate_r, M1VZROS_REB, is_disp_19, m1tip_mas := 0, m1glukozadn := 0, mglukoza := 0
 

@@ -93,7 +93,7 @@ Function f2edit_pers( nKey, oBrow )
     { 'совмещение     ', 1 } }
   Local buf, fl := .f., rec, j, k, tmp_color, mkod, r, ret := -1
   local i, max_nom, iSort, s
-//  local name_file := cur_dir() + 'personal' + stxt
+//  local name_file := cur_dir() + 'personal.txt'
   local typeSort := { ;
     'по фамилии          ', ;
     'по табельному номеру', ;
@@ -576,7 +576,7 @@ function spr_personal( type_report, type_sort )
 
   local ft, arr_title := {}
   local s, max_nom, i, k
-  local name_file := cur_dir() + 'personal' + stxt()
+  local name_file := cur_dir() + 'personal.txt'
   local aRow
 
   if type_report == 1

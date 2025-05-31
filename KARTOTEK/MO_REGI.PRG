@@ -57,7 +57,7 @@ Function regi_stat( k )
 //
 Function f1regi_stat()
 
-  Local arr_g, sh, HH := 57, reg_print := 1, n_file := cur_dir() + 'reg1stat' + stxt, ;
+  Local arr_g, sh, HH := 57, reg_print := 1, n_file := cur_dir() + 'reg1stat.txt', ;
     buf := save_maxrow(), arr_otd := {}, arr_vp := {}, i, j1, j2, ;
     arr_p := {}, arr_title, ssumma := 0
 
@@ -174,8 +174,8 @@ Function f1regi_stat()
 //
 Function f2regi_stat( par )
 
-  Local arr_g, sh, HH := 58, reg_print := 2, n_file := cur_dir() + 'reg2stat' + stxt, ;
-    buf := save_maxrow(), i, j1, j2, arr_title, a_f[ 10 ], a_a[ 10 ], kf, ka, ;
+  Local arr_g, sh, HH := 58, reg_print := 2, n_file := cur_dir() + 'reg2stat.txt', ;
+    buf := save_maxrow(), i, j1, arr_title, a_f[ 10 ], a_a[ 10 ], kf, ka, ;
     nf, na, a_o[ 10 ], ko
 
   If ( arr_g := year_month() ) != NIL
@@ -1083,12 +1083,12 @@ Function new_list_uch( par, name_func )
 Function ind_karta()
 
   Local file_sh, k := 10, arr, sh, HH, reg_print, n_file
-  Local tmp_file := cur_dir() + '___tmp' + stxt, lfp, s
+  Local tmp_file := cur_dir() + '___tmp.txt', lfp, s
 
   If ( file_sh := search_file( f_file8() ) ) == NIL
     Return func_error( 4, 'Не обнаружен файл шаблона ' + f_file8() )
   Endif
-  n_file := strippath( BeforAtNum( '.', file_sh ) ) + stxt
+  n_file := strippath( BeforAtNum( '.', file_sh ) ) + stxt()
   arr := print_shablon( file_sh, , n_file, .f. )
   If ValType( arr ) == 'A'
     sh := arr[ 1 ]
@@ -1167,7 +1167,7 @@ Function f1_pr_shab( lsh )
 
   width := arr[ 1 ]
   regim := arr[ 3 ]
-  n_file := strippath( BeforAtNum( '.', lsh ) ) + stxt
+  n_file := strippath( BeforAtNum( '.', lsh ) ) + stxt()
   Private yes_albom := arr[ 5 ]
   If glob_mo[ _MO_KOD_TFOMS ] == '175303' // ксп-3
     If regim == 6
@@ -1240,7 +1240,7 @@ Function list_uch( is_lgotnik )
 
   Local sh := 80, HH := 55, buf := save_maxrow(), regim_print := 2
   Local i := 1, j, k, tmp[ 2 ], tmp1, w1 := 65, s, fl, rec
-  Local n_file := cur_dir() + 'list_uch' + stxt, arr, mfam1, mima1, mots1, m1vid_ud, ;
+  Local n_file := cur_dir() + 'list_uch.txt', arr, mfam1, mima1, mots1, m1vid_ud, ;
     m1kategor := ATail( stm_kategor )[ 2 ]  // т.е. прочие (последнее значение)
 
   //
@@ -1731,7 +1731,7 @@ Function pr_invalid()
     mm_pens := { { 'все', 0 }, { 'пенсионеры', 1 }, { 'не пенсионеры', 2 } }, ;
     mm_gorod := { { 'все', 0 }, { 'город', 1 }, { 'село', 2 } }, ;
     mm_spisok := { { 'список инвалидов', 1 }, { 'общее количество', 2 } }
-  Local buf := SaveScreen(), r := 14, sh, HH := 60, name_file := cur_dir() + 'invalid' + stxt, k_fio, tt_fio[ 2 ]
+  Local buf := SaveScreen(), r := 14, sh, HH := 60, name_file := cur_dir() + 'invalid.txt', k_fio, tt_fio[ 2 ]
 
   SetColor( cDataCGet )
   myclear( r )
@@ -2310,7 +2310,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
 // 09.09.15
 Function pripisnoe_naselenie_view()
 
-  Local i, j, s, arr_mo := {}, n_file := cur_dir() + 'pr_nas' + stxt, ;
+  Local i, j, s, arr_mo := {}, n_file := cur_dir() + 'pr_nas.txt', ;
     sh := 80, HH := 60, buf := save_maxrow()
 
   mywait()
@@ -2638,7 +2638,7 @@ Function view_otkrep_pripisnoe_naselenie()
 Function f1_view_otkrep_pr_nas( oBrow )
 
   Local oColumn, ;
-    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( krtf->FNAME ) + szip ), { 1, 2 }, { 3, 4 } ) }
+    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( krtf->FNAME ) + szip() ), { 1, 2 }, { 3, 4 } ) }
 
   oColumn := TBColumnNew( 'Дата файла', {|| full_date( krtf->dfile ) } )
   oColumn:colorBlock := blk
@@ -2663,7 +2663,7 @@ Function f2_view_otkrep_pr_nas( nKey, oBrow )
 
   Do Case
   Case nKey == K_F3
-    viewtext( devide_into_pages( goal_dir + AllTrim( krtf->FNAME ) + stxt, 60, 80 ), , , , .t., , , 2 )
+    viewtext( devide_into_pages( goal_dir + AllTrim( krtf->FNAME ) + stxt(), 60, 80 ), , , , .t., , , 2 )
     ret := 0
   Endcase
   RestScreen( buf )
@@ -2679,7 +2679,7 @@ Function read_csv_from_tf( cFile, nTypeFile, nkod_reestr )
   mywait( 'Производится анализ файла ' + cFile )
   Private cReadFile := name_without_ext( cFile ), ;
     cTimeBegin := hour_min( Seconds() )
-  Private cFileProtokol := cReadFile + stxt
+  Private cFileProtokol := cReadFile + stxt()
   StrFile( Space( 10 ) + 'Протокол обработки файла: ' + cFile + ;
     hb_eol(), cFileProtokol )
   StrFile( Space( 10 ) + full_date( sys_date ) + 'г. ' + cTimeBegin + ;

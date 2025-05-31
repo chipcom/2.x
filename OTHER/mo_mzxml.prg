@@ -742,10 +742,10 @@ Function mo_mzxml_N(_regim, n_file, stitle, lvozrast)
   else
     buf := save_maxrow()
     mywait('Ждите! Производится сохранение XML-файла...')
-    oXmlDoc:Save(n_file + sxml)
+    oXmlDoc:Save(n_file + sxml())
     rest_box(buf)
     n_message({stitle + '- ' + lstr(_kol) + ' чел.;', ;
-             'в каталоге ' + upper(cur_dir) + ' создан файл ' + upper(n_file + sxml), ;
+             'в каталоге ' + upper(cur_dir) + ' создан файл ' + upper(n_file + sxml()), ;
              'для загрузки на портал Минздрава РФ.'}, , ;
              cColorStMsg, cColorStMsg, , , cColorSt2Msg)
   endif

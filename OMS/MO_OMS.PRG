@@ -1510,7 +1510,7 @@ Function f3oms_zav_lech( nKey, oBrow )
         'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ', ;
         '               ”.ˆ..                           ³ ‘à®ª¨ «¥ç¥­¨ï  ³    ‘ã¬¬      ', ;
         'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' }
-      n_file := cur_dir + 'z_lech' + stxt
+      n_file := cur_dir + 'z_lech.txt'
       sh := 80
       HH := 57
       fp := FCreate( n_file )
@@ -1775,7 +1775,7 @@ Function f2ret_oms_human( nkey )
 
   Static tmp := ' '
   Local buf := SaveScreen(), buf1, rec1 := RecNo(), fl := -1, ss := 0, ;
-    j, n_file := cur_dir + 'omserror' + stxt, sh := 80, HH := 60, ii
+    j, n_file := cur_dir + 'omserror.txt', sh := 80, HH := 60, ii
   Local mas_otchet := {}, tmp_2
   Local tmpSelect, flag_RDL := .f.
 

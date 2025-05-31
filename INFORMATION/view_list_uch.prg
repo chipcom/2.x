@@ -12,7 +12,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
       name_lpu, name_otd := '', mvzros_reb, mrab_nerab, ;
       mkomu, name_org, mlech_vr := '', msumma := 0, ;
-      mud_lich := '', arr, n_file := cur_dir() + 'list_uch' + stxt, adiag_talon[16], ;
+      mud_lich := '', arr, n_file := cur_dir() + 'list_uch.txt', adiag_talon[16], ;
       madres, i := 1, j, k, tmp[2], tmp1, w1 := 37, s, s1, mnum_lu, lshifr1
   local tmpAlias
   local arrLekPreparat, arrImplantant, row
@@ -1147,7 +1147,7 @@ Function print_al_uch(arr_h, arr_m)
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
         mvzros_reb, mrab_nerab, ;
         mkomu, name_org, mlech_vr := '', msumma := 0, ;
-        mud_lich := '', arr, n_file := cur_dir() + 'list_uch' + stxt, adiag_talon[16], ;
+        mud_lich := '', arr, n_file := cur_dir() + 'list_uch.txt', adiag_talon[16], ;
         i := 1, ii, j, k, tmp[2], tmp1, w1 := 65, s, mnum_lu, lshifr1
   local diagVspom := '', diagMemory := '' 
   
@@ -1871,7 +1871,7 @@ Function fu2spravka_OMS(b, ar, nDim, nElem, nKey)
 Function f_otchet_spravka_OMS()
 
   Local arr_m, buf := save_maxrow(), as := {0, 0, 0}, sh := 80, HH := 80, ;
-      i, n_file := cur_dir() + 'o_sprOMS' + stxt
+      i, n_file := cur_dir() + 'o_sprOMS.txt'
 
   if (arr_m := year_month()) != NIL
     mywait()

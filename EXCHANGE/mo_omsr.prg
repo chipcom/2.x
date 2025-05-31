@@ -420,7 +420,7 @@ Function view_list_reestr()
 Function f1_view_list_reestr( oBrow )
 
   Local oColumn, ;
-    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip ), ;
+    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() ), ;
     iif( Empty( rees->date_out ), { 3, 4 }, { 1, 2 } ), ;
     { 5, 6 } ) }
 
@@ -462,7 +462,7 @@ Static Function f11_view_list_reestr()
 
   Local s := ""
 
-  If !hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip )
+  If !hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() )
     s := "нет файла"
   Elseif Empty( rees->date_out )
     s := "не записан"
@@ -530,7 +530,7 @@ Function f2_view_list_reestr( nKey, oBrow )
           If i > 1
             s += ","
           Endif
-          s += " " + lstr( arr[ i, 1 ] ) + " (" + AllTrim( arr[ i, 2 ] ) + szip + ")"
+          s += " " + lstr( arr[ i, 1 ] ) + " (" + AllTrim( arr[ i, 2 ] ) + szip() + ")"
         Next
         If k > 0
           f_message( { "Обращаем Ваше внимание, что после записи реестра", ;
@@ -545,7 +545,7 @@ Function f2_view_list_reestr( nKey, oBrow )
             If Upper( s ) == Upper( goal_dir )
               func_error( 4, "Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо." )
             Else
-              cFileProtokol := "protrees" + stxt
+              cFileProtokol := "protrees.txt"
               StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
               smsg := "Реестры записаны на: " + s + ;
                 " (" + full_date( sys_date ) + "г. " + hour_min( Seconds() ) + ")"
@@ -556,12 +556,12 @@ Function f2_view_list_reestr( nKey, oBrow )
                 smsg := lstr( i ) + ". Реестр № " + lstr( rees->nschet ) + ;
                   " от " + date_8( mdate ) + "г. (отч.период " + ;
                   lstr( rees->nyear ) + "/" + StrZero( rees->nmonth, 2 ) + ;
-                  ") " + AllTrim( rees->name_xml ) + szip
+                  ") " + AllTrim( rees->name_xml ) + szip()
                 StrFile( hb_eol() + smsg + hb_eol(), cFileProtokol, .t. )
                 smsg := "   количество пациентов - " + lstr( rees->kol ) + ;
                   ", сумма реестра - " + expand_value( rees->summa, 2 )
                 StrFile( smsg + hb_eol(), cFileProtokol, .t. )
-                zip_file := AllTrim( arr[ i, 2 ] ) + szip
+                zip_file := AllTrim( arr[ i, 2 ] ) + szip()
                 If hb_FileExists( goal_dir + zip_file )
                   mywait( 'Копирование "' + zip_file + '" в каталог "' + s + '"' )
                   // copy file (goal_dir+zip_file) to (hb_OemToAnsi(s)+zip_file)
@@ -612,7 +612,7 @@ Function f2_view_list_reestr( nKey, oBrow )
   Case nKey == K_F9
     mywait()
     r_use( dir_server + "mo_rhum",, "RHUM" )
-    nfile := "reesstat" + stxt ; sh := 80 ; HH := 60
+    nfile := "reesstat.txt" ; sh := 80 ; HH := 60
     fp := FCreate( nfile ) ; n_list := 1 ; tek_stroke := 0
     add_string( "" )
     add_string( Center( "Статистика по реестрам", sh ) )
@@ -714,7 +714,7 @@ Function f3_view_list_reestr( oBrow )
       f31_view_list_reestr( Abs( mm_func[ i ] ), mm_menu[ i ] )
     Else
       mo_xml->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select REES
@@ -725,7 +725,7 @@ Function f3_view_list_reestr( oBrow )
 //  15.02.19
 Function f31_view_list_reestr( reg, s )
 
-  Local fl := .t., buf := save_maxrow(), s1, lal, n_file := "reesspis" + stxt
+  Local fl := .t., buf := save_maxrow(), s1, lal, n_file := "reesspis.txt"
 
   mywait()
   fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
@@ -1014,7 +1014,7 @@ Static Function f1vozvrat_reestr( mkod_reestr )
         Select RHUM
         deleterec( .t. )
       Enddo
-      zip_file := AllTrim( rees->name_xml ) + szip
+      zip_file := AllTrim( rees->name_xml ) + szip()
       If hb_FileExists( goal_dir + zip_file )
         Delete File ( goal_dir + zip_file )
       Endif
@@ -1040,7 +1040,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
     mm_menu := {}, mm_func := {}, mm_flag := {}, mreestr_sp_tk, ;
     arr_f, cFile, oXmlDoc, aerr := {}, is_allow_delete, ;
-    cFileProtokol := "tmp" + stxt, is_other_reestr, bSaveHandler, ;
+    cFileProtokol := "tmp.txt", is_other_reestr, bSaveHandler, ;
     arr_schet, rees_nschet := rees->nschet, mtip_in
 
   mywait()
@@ -1093,8 +1093,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
     mtip_in := mo_xml->TIP_IN
     Close databases
     If mtip_in == _XML_FILE_SP // возврат реестра СП и ТК
-      If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF(), cFile + szip ) ) != Nil .and. mo_lock_task( X_OMS )
-        cFile += sxml
+      If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF(), cFile + szip() ) ) != Nil .and. mo_lock_task( X_OMS )
+        cFile += sxml()
         // читаем файл в память
         oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
         If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
@@ -1380,7 +1380,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                     Select MO_XML
                     Goto ( arr_schet[ i, 3 ] )
                     If !Empty( mo_xml->FNAME )
-                      s := dir_server + dir_XML_MO() + hb_ps() + AllTrim( mo_xml->FNAME ) + szip
+                      s := dir_server + dir_XML_MO() + hb_ps() + AllTrim( mo_xml->FNAME ) + szip()
                       If hb_FileExists( s )
                         Delete File ( s )
                       Endif
@@ -1400,8 +1400,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
         mo_unlock_task( X_OMS )
       Endif
     Elseif mTIP_IN == _XML_FILE_FLK // возврат протокола ФЛК
-      If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF(), cFile + szip ) ) != Nil .and. mo_lock_task( X_OMS )
-        cFile += sxml
+      If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF(), cFile + szip() ) ) != Nil .and. mo_lock_task( X_OMS )
+        cFile += sxml()
         // читаем файл в память
         oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
         If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )

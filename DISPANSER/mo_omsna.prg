@@ -310,7 +310,7 @@ Function fvdn_date_r( _data, mdate_r )
 // 03.12.23
 Function f_inf_dop_disp_nabl()
 
-  Local arr, adiagnoz, sh := 80, HH := 60, buf := save_maxrow(), name_file := cur_dir() + 'disp_nabl' + stxt(), ;
+  Local arr, adiagnoz, sh := 80, HH := 60, buf := save_maxrow(), name_file := cur_dir() + 'disp_nabl.txt', ;
     buf1, ii1 := 0, s, s2, i, t_arr[ 2 ], ar, ausl, fl
 
   Private mm_dopo_na := { { '2.78', 1 }, { '2.79', 2 }, { '2.88 ДН', 3 }, { '2.88 не ДН', 4 } }
@@ -930,7 +930,7 @@ Function f_inf_disp_nabl( par )
   // 1 -  '~Не было л/у с диспансерным наблюдением',;
   // 2 -  '~Были л/у с диспансерным наблюдением'
 
-  Local arr, arr_full_name, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir() + 'disp_nabl' + stxt(), ;
+  Local arr, arr_full_name, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir() + 'disp_nabl.txt', ;
     ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := '___DN' + sdbf, arr_fl, fl_prikrep := Space( 6 ), kol_kartotek := 0, ;
     t_kartotek := 0, s1
   Local arr_tip_DN := { 'Прочие ДН - ', 'Онкологическое ДН - ', 'Сахарный диабет ДН - ', 'Сердечно-сосудистое ДН - ' }
@@ -1442,7 +1442,7 @@ Function  f_inf_prirost_disp_nabl()
   Local new_hum := 0, new_diag := 0, s
   Local arr_tip_KOD_USL := { 109, 110, 111, 112 }
   Local arr_DN_new[ 12, 4 ]
-  Local sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir() + 'disp_new' + stxt()
+  Local sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir() + 'disp_new.txt'
   Local i_1 := i_2 := i_3 := i_4 := 0
   Local arr_tip_TIP_DN := { 'ПРОЧ', 'ОНКО', 'ДИАБ', 'БСК' } 
   Local name_tip := ''
@@ -1929,7 +1929,7 @@ Function inf_disp_nabl()
   Static suchast := 0, svrach := 0, sdiag := '', ;
     mm_spisok := { { 'весь список пациентов', 0 }, { 'с неполным вводом', 1 }, { 'с корректным вводом', 2 } }
   Local bg := {| o, k| get_mkb10( o, k, .f. ) }
-  Local buf := SaveScreen(), r := 13, sh, HH := 60, name_file := cur_dir() + 'info_dn' + stxt(), ru := 0, ;
+  Local buf := SaveScreen(), r := 13, sh, HH := 60, name_file := cur_dir() + 'info_dn.txt', ru := 0, ;
     rd := 0, rd1 := 0, rpr := 0, ro_f := .f., ro := 0, rod := 0, t_vr
   Local mas_tip_dz := { 0, 0, 0, 0, 0 }, mas_tip_pc := { 0, 0, 0, 0, 0, 0 }, fl_1 := 0, fl_2 := 0, fl_3 := 0, fl_4 := 0, ;
     fl_5 := 0, fl_31 := 0, fl_32 := 0, fl_33 := 0, fl_umer := .t., otvet := '      ', fl_prinet := .f., ;
@@ -2451,7 +2451,7 @@ Function inf_disp_nabl()
 // 03.12.23 Список диагнозов, обязательных для диспансерного наблюдения
 Function spr_disp_nabl()
 
-  Local i, j, s := '', c := '  ', sh := 80, HH := 60, diag1 := {}, buf := save_maxrow(), name_file := cur_dir() + 'diagn_dn' + stxt()
+  Local i, j, s := '', c := '  ', sh := 80, HH := 60, diag1 := {}, buf := save_maxrow(), name_file := cur_dir() + 'diagn_dn.txt'
 
   f_is_diag_dn(, @diag1,, .f. )
   fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
@@ -3084,7 +3084,7 @@ Function f2_view_d01( nKey, oBrow )
         If Upper( s ) == Upper( goal_dir )
           func_error( 4, 'Вы выбрали каталог, в котором уже записан целевой файл! Это недопустимо.' )
         Else
-          cFileProtokol := cur_dir() + 'prot_sch' + stxt()
+          cFileProtokol := cur_dir() + 'prot_sch.txt'
           StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
           smsg := 'Файл D01 записан на: ' + s + ' (' + full_date( sys_date ) + 'г. ' + hour_min( Seconds() ) + ')'
           StrFile( Center( smsg, 80 ) + hb_eol(), cFileProtokol, .t. )
@@ -3221,7 +3221,7 @@ Function f3_view_d01( oBrow )
 // 19.01.25
 Function  f31_view_d01( reg, s )
 
-  Local fl := .t., buf := save_maxrow(), k := 0, n_file := cur_dir() + 'D01_spis' + stxt()
+  Local fl := .t., buf := save_maxrow(), k := 0, n_file := cur_dir() + 'D01_spis.txt'
   Local t_kod := 0, arr_DN[ 4 ],  flag_1 := .t.,  flag_2 := .t.,  flag_3 := .t.,   flag_4 := .t.
   Local arr_tip_KOD_USL := { 109, 110, 111, 112 }, kn := 0
 
@@ -3803,7 +3803,7 @@ Function delete_reestr_d02( mkod_reestr, mname_reestr )
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
     mm_menu := {}, mm_func := {}, mm_flag := {}, mreestr_sp_tk, ;
     arr_f, cFile, oXmlDoc, aerr := {}, is_allow_delete, ;
-    cFileProtokol := cur_dir() + 'tmp' + stxt()
+    cFileProtokol := cur_dir() + 'tmp.txt'
 
   mywait()
   Select MO_XML

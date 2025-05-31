@@ -14,7 +14,7 @@ Function s3_statist(k3,k4)
 //   k4 = 2 - С разбивкой по отделениям (где оказана услуга)
 Local arr_g, buf := save_maxrow(), ind_human, ind_schet, mname,;
       i, j, s, fl, sh, HH := 57, arr_title, reg_print, ;
-      name_file := cur_dir + 'spisok_s' + stxt, pp[8], old_smo, old_komu, old_str_crb, ;
+      name_file := cur_dir + 'spisok_s.txt', pp[8], old_smo, old_komu, old_str_crb, ;
       arr_bukva := {}, hGauge, cur_rec := 0, fl_exit := .f.
 
 pi4 := k3
@@ -429,7 +429,7 @@ return NIL
 ** информация по конкретному счету
 Function s4_statist()
 Local buf := savescreen(), buf24 := save_maxrow(), i, j, arr_blk,;
-  sh := 108, HH := 57, reg_print := 3, name_file := cur_dir + 'infschet' + stxt
+  sh := 108, HH := 57, reg_print := 3, name_file := cur_dir + 'infschet.txt'
 Private atmp_os[8], arr_uch[8]
 if input_schet(0)
   WaitStatus()
@@ -521,15 +521,17 @@ oBrow:addColumn(oColumn)
 status_key("^<Esc>^ - выход;  ^<F9>^ - информация о счете")
 return NIL
 
-**
-Function s42_statist(nKey,oBrow)
-Local buf, rec, k := -1
-if nkey == K_F9
-  viewtext("infschet"+stxt,,,,.t.,,,3)
-endif
-return k
+//
+Function s42_statist( nKey, oBrow )
 
-** для ТФОМС (по ф.14)
+  Local k := -1
+
+  if nkey == K_F9
+    viewtext( "infschet.txt", , , , .t., , , 3 )
+  endif
+  return k
+
+// для ТФОМС (по ф.14)
 Function s5_statist()
 Local si := 1
 Local begin_date, end_date, buf := save_maxrow(), arr_m, mstr_crb, ltip
@@ -670,7 +672,7 @@ return ret
 Function s53statist(ltip, arr_m, begin_date, end_date)
 Local i, j, k, s, buf := save_maxrow(), arr, mstr_crb, mismo,;
       fl_exit := .f., sh := 80, HH := 59, reg_print := 2, lshifr1,;
-      arr_title, name_file := cur_dir + 'tfomsf14' + stxt, flag_uet := .t., koef,;
+      arr_title, name_file := cur_dir + 'tfomsf14.txt', flag_uet := .t., koef,;
       kol_schet := 0, lreg_lech, ta, arr_name := f14tf_array(),;
       arr_lp := {}, arr_dn_st, d2_year
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
@@ -1107,7 +1109,7 @@ Function uzkie2spec()
 
 **
 Function f1uzkie2spec()
-Local fl_exit := .f., sh, HH := 60, reg_print, n_file := "_uz_spec"+stxt,;
+Local fl_exit := .f., sh, HH := 60, reg_print, n_file := "_uz_spec.txt",;
       adbf := {}, lshifr, mkol := 0, delta, arr_fields := {}, abitusl,;
       begin_date := parr_m[7], end_date := parr_m[8]
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
@@ -1737,7 +1739,7 @@ close databases
 if k == 0
   return func_error(4,"Нет информации")
 endif
-name_file := cur_dir + 'prik_848' + stxt ; HH := 42
+name_file := cur_dir + 'prik_848.txt' ; HH := 42
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
 use (cur_dir + "tmp") index (cur_dir + "tmp") new
 if m1usl == 1

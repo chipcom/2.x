@@ -800,7 +800,7 @@ Function fs_opl_51( nKey, oBrow, regim, lregim )
           arr_title[ 5 ] := arr_title[ 5 ] + 'ĞÄÄÄÄÄÄÁÄÄÄÄÄÄĞÄÄÄÄÄÄ'
         Endif
       Endif
-      n_file := 'pers_o51' + stxt()
+      n_file := 'pers_o51.txt'
       HH := 58
       sh := 60
       Private reg_print := f_reg_print( arr_title, @sh )
@@ -990,7 +990,7 @@ Function fs_opl_52( nKey, oBrow, cregim )
         '                     ”.ˆ..                       ³®¯« -³«¥­- ', ;
         '                                                  ³âë   ³­®áâì', ;
         'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄ' }
-      n_file := 'pers_o52' + stxt()
+      n_file := 'pers_o52.txt'
       sh := Len( arr_title[ 1 ] )
       HH := 57
       fp := FCreate( n_file )
@@ -1125,7 +1125,7 @@ Function fs_opl_71( nKey, oBrow, regim, mtitle )
         '                                                                    ³ ‚à ç³€áá¨á', ;
         '            ¨¬¥­®¢ ­¨¥ ãá«ã£¨                                      ³ “…’ ³ “…’ ', ;
         'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄ' }
-      n_file := 'pers_o71' + stxt()
+      n_file := 'pers_o71.txt'
       HH := 58
       Private reg_print := f_reg_print( arr_title, @sh )
       fp := FCreate( n_file )

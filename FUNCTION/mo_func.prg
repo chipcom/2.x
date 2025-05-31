@@ -1348,7 +1348,7 @@ Function forma_nastr( s_titul, arr_strok, nfile, arr, fl )
 //
 Function f9_f_nastr( l_titul, a_strok )
 
-  Local sh := 80, HH := 77, buf := save_maxrow(), n_file := cur_dir + 'frm_nast' + stxt
+  Local sh := 80, HH := 77, buf := save_maxrow(), n_file := cur_dir() + 'frm_nast.txt'
   Local i, k, nrow := Row(), ncol := Col(), tmp_keys, tmp_gets, ta := {}
 
   mywait()

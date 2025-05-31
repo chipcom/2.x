@@ -1364,9 +1364,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   stat_msg( 'Запись XML-документа в файл реестра случаев' )
 
-  oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml )
-  name_zip := AllTrim( mo_xml->FNAME ) + szip
-  AAdd( arr_zip, AllTrim( mo_xml->FNAME ) + sxml )
+  oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml() )
+  name_zip := AllTrim( mo_xml->FNAME ) + szip()
+  AAdd( arr_zip, AllTrim( mo_xml->FNAME ) + sxml() )
   //
   //
   fl_ver := 311
@@ -1482,8 +1482,8 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
     Skip
   Enddo
   stat_msg( 'Запись XML-документа в файл реестр пациентов' )
-  oXmlDoc:save( AllTrim( mo_xml->FNAME2 ) + sxml )
-  AAdd( arr_zip, AllTrim( mo_xml->FNAME2 ) + sxml )
+  oXmlDoc:save( AllTrim( mo_xml->FNAME2 ) + sxml() )
+  AAdd( arr_zip, AllTrim( mo_xml->FNAME2 ) + sxml() )
   //
   Close databases
   If chip_create_zipxml( name_zip, arr_zip, .t. )

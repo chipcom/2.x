@@ -1899,14 +1899,14 @@ Function f_ns_uslugi()
 Function f2_ns_uslugi( nKey, oBrow )
 
   Local buf, fl := .f., rec, rec1, k := -1, r := MaxRow() -7, tmp_color
-  Local sh := 80, HH := 57
+  Local sh := 80, HH := 57, nameFile := cur_dir() + 'n_uslugi.txt'
 
   Do Case
   Case nKey == K_F9
     buf := save_maxrow()
     rec := RecNo()
     mywait()
-    fp := FCreate( 'n_uslugi' + stxt() ) ; n_list := 1 ; tek_stroke := 0
+    fp := FCreate( nameFile ) ; n_list := 1 ; tek_stroke := 0
     add_string( '' )
     add_string( Center( 'Услуги, не совместимые по дате', sh ) )
     r_use( dir_server + 'uslugi', dir_server + 'uslugish', 'USL' )
@@ -1929,7 +1929,7 @@ Function f2_ns_uslugi( nKey, oBrow )
       Skip
     Enddo
     FClose( fp )
-    viewtext( 'n_uslugi' + stxt(), , , , , , , 2 )
+    viewtext( nameFile, , , , , , , 2 )
     usl->( dbCloseArea() )
     u1k->( dbCloseArea() )
     Select UK

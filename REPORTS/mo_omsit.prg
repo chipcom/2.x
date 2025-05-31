@@ -16,7 +16,7 @@ Static nastr_f57   := 'F57'
 //
 Function prover_rule()
 Local i, k, n, hGauge, buf := save_maxrow(), arr_m, ;
-      n_file := cur_dir + 'ver_rule' + stxt, sh := 80, HH := 78, reg_print := 5, ;
+      n_file := cur_dir + 'ver_rule.txt', sh := 80, HH := 78, reg_print := 5, ;
       fl_exit := .f., taa[2], ab := {}, s, arr1, blk, jkart, jhuman, jerr, t1, t2, i1
 if (arr_m := year_month()) == NIL
   return NIL
@@ -980,7 +980,7 @@ return ret
 //
 Function print_rule(n)
 Local sh := 80, HH := 58, reg_print := 2, ;
-      s, n_file := cur_dir + 'rule' + iif(prs == 1, 'KOM', 'LPU') + lstr(n) + stxt, ;
+      s, n_file := cur_dir + 'rule' + iif(prs == 1, 'KOM', 'LPU') + lstr(n) + stxt(), ;
       buf := save_maxrow()
 //
 mywait()
@@ -1558,7 +1558,7 @@ Function diag0statist()
 Static sz := 1
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
       fl_exit := .f., sh, HH := 77, reg_print, speriod, fl, ;
-      arr_title, name_file := "s_diagn0"+stxt, fl_itogo := .f., ;
+      arr_title, name_file := 's_diagn0.txt', fl_itogo := .f., ;
       jh := 0, arr_m, name_gr, j_1 := 0, j_2 := 0, a_otd := {}
 Local mas_pmt := {"по ~всем диагнозам (заболеваниям)", ;
                   "по ~основному заболеванию"}
@@ -2068,7 +2068,7 @@ Function diag_statist(reg)
 Static sz := 1
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
       fl_exit := .f., sh, HH := 77, reg_print, speriod, fl, ;
-      arr_title, name_file := "s_diagn"+stxt, fl_itogo := .f., ;
+      arr_title, name_file := 's_diagn.txt', fl_itogo := .f., ;
       jh := 0, arr_m, name_gr, j_1 := 0, j_2 := 0, a_otd := {}
 Local mas_pmt := {"по ~всем диагнозам (заболеваниям)", ;
                   "по ~основному заболеванию"}
@@ -2501,7 +2501,7 @@ Function diagLVstatist()
 Static sz := 1
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
       fl_exit := .f., sh, HH := 76, reg_print, speriod, fl, ;
-      arr_title, name_file := "s_diag_v"+stxt, ;
+      arr_title, name_file := 's_diag_v.txt', ;
       jh := 0, arr_m, name_gr, j_1 := 0, j_2 := 0, a_otd := {}
 Local mas_pmt := {"С ~разбивкой по врачам", ;
                   "~Объединенный документ"}
@@ -2864,7 +2864,7 @@ Function diagLUstatist()
 Static sz := 1
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
       fl_exit := .f., sh, HH := 76, reg_print, speriod, fl, ;
-      arr_title, name_file := "s_diag_u"+stxt, ;
+      arr_title, name_file := 's_diag_u.txt', ;
       jh := 0, arr_m, name_gr, j_1 := 0, j_2 := 0, a_otd := {}
 Private is_talon := .t., adiag_talon[16], s_lu := 0, s_human := 0, ;
         s_dispan := "Диспансер", fl_plus := .f., md_plus := {}, ;
@@ -3499,7 +3499,7 @@ return ret
 
 //
 Function f3_stat_boln()
-Local i, s, sh, HH := 80, reg_print, arr_title, name_file := "stat_b"+stxt, ;
+Local i, s, sh, HH := 80, reg_print, arr_title, name_file := "stat_b.txt", ;
       buf := save_maxrow()
 mywait()
 reg_print := 4
@@ -3544,7 +3544,7 @@ return NIL
 
 // 14.10.24 Подсчёт стационарных случаев по профилям (по диагнозам, КСГ и операциям)
 Function i_stac_sl_profil()
-  Local buf := savescreen(), sh := 80, HH := 80, n_file := cur_dir + 'stac_pro' + stxt
+  Local buf := savescreen(), sh := 80, HH := 80, n_file := cur_dir + 'stac_pro.txt'
 
   Private arr_m := {2024, 1, 6, 'за январь - июнь 2024 года', 0d20240101, 0d20240630}, ;
           mm_uslov := {{'по всем случаям                      ', 2}, ;

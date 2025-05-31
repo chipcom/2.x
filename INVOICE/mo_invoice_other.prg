@@ -263,7 +263,7 @@ Function f1nevyp_schet( oBrow )
 Function f2nevyp_schet( nKey, oBrow )
 
   Local iprov := 0, inprov := 0
-  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := "err_sl" + stxt, j := 0
+  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := "err_sl.txt", j := 0
 
   Do Case
   Case nkey == K_F10
@@ -1166,8 +1166,12 @@ Function f9pr_vklad( nKey, oBrow )
       human_->( dbCloseArea() )
       human->( dbCloseArea() )
       If n > 0
-        mywait() ; i := 0 ; n_file := "list_uch" + stxt
-        fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
+        mywait()
+        i := 0
+        n_file := "list_uch.txt"
+        fp := FCreate( n_file )
+        tek_stroke := 0
+        n_list := 1
         add_string( "Приложение к счету № " + AllTrim( p_number ) + " от " + DToC( p_date ) + " г." )
         add_string( "" )
         add_string( Center( "Листы учета пролеченных больных [ >=" + lstr( srazmer ) + "руб. ]", 80 ) )
@@ -1315,7 +1319,7 @@ Function print_other_schet( is_vyp, is_usl, n_file )
     tel_org, razmer_usl := 0, is_view := .t., mdate_r[ 10 ], arr
 
   Default is_vyp To 0, ;  // по умолчанию счет еще не выписан
-    n_file To cur_dir + 'schet_o' + stxt
+    n_file To cur_dir + 'schet_o.txt'
   Private name_org, adres_org, inn_org, pok_name, pok_adres, pok_inn, ;
     schet_org, bank_org, mfo_org, mkorr_schet, ;
     mfio_ruk, mfio_bux, ob_summa := 0, pj
@@ -3129,7 +3133,7 @@ Function print_akt( regim )
 Function spisok_s_not_registred()
 
   Local i, k, mdate := SToD( "20110101" ), ;
-    sh, HH := 60, reg_print, n_file := "ne_zag_s" + stxt
+    sh, HH := 60, reg_print, n_file := "ne_zag_s.txt"
 
   mywait()
   r_use( dir_server + "schet_", , "SCHET_" )

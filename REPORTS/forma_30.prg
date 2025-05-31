@@ -6,8 +6,8 @@
 // 06.11.22
 Function forma_30()
 
-  Local i, j, k, arr, s, buf := save_maxrow(), fl_exit := .f., ;
-    reg_print, name_file := cur_dir + "_form_30" + stxt, ;
+  Local buf := save_maxrow(), fl_exit := .f., ;
+    reg_print, name_file := cur_dir + "_form_30.txt", ;
     jh := 0, jh1 := 0, arr_m
 
   If ( arr_m := year_month() ) == NIL

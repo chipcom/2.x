@@ -135,7 +135,7 @@ Function forma_131(par)
 Static arr_v := {"18-34","35-39","40-54","55-59","60-64",;
                  "65-74","75 и старше"}
 Local arr_m, buf := save_maxrow(), s, as := {}, ar, sh := 90, HH := 80, n, ;
-      ii, n_file := "f_131"+stxt, d1, d2, fl, arr_excel := {}, arr_plan_god
+      ii, n_file := "f_131.txt", d1, d2, fl, arr_excel := {}, arr_plan_god
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := year_month(,,,5)) != NIL
   mywait()
   if f0_inf_DVN(arr_m,par > 1,par == 3,.t.)

@@ -282,7 +282,8 @@ FUNCTION forma1_ffoms()
   IF ireg == 2
     name_file += 'p'
   ENDIF
-  fp := FCreate( name_file + stxt ) ; n_list := 1 ; tek_stroke := 0
+  name_file += stxt()
+  fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
   USE ( cur_dir + 'tmp1' ) index ( cur_dir + 'tmp1' ) new
   USE ( cur_dir + 'tmp2' ) index ( cur_dir + 'tmp2' ) new
   IF ireg == 2 // протокол созданияя формы 1
@@ -630,7 +631,7 @@ FUNCTION forma1_ffoms()
   ENDIF
   CLOSE databases
   FClose( fp )
-  viewtext( name_file + stxt,,,, .T.,,, 5 )
+  viewtext( name_file,,,, .T.,,, 5 )
 
   RETURN NIL
 

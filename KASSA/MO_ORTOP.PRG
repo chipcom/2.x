@@ -274,7 +274,7 @@ return fl
 *****
 Function Ort_boln(par1)
 Local arr, arr_title, reg_print, sh, HH := 58, buf, s, s1, s2, fl, j,;
-      begin_date, end_date, fl_exit := .f., name_file := "orto_b1"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "orto_b1.txt",;
       mperso, i, k
 DEFAULT par1 TO ""
 if (pr_pl_bes := O_ret_pl_b()) == 0
@@ -583,7 +583,7 @@ return k
 *****
 Function Ort_oborot()
 Local arr, arr_title, reg_print, sh, HH := 38, buf, s, s1, s2, s3, fl, j,;
-      begin_date, end_date, fl_exit := .f., name_file := "orto_OB"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "orto_OB.txt",;
       mperso, i, k, s4, s5, s11, s21, s31, s41, s51
 if (pr_pl_bes := O_ret_pl_b()) == 0
   return NIL
@@ -839,7 +839,7 @@ return NIL
 *****
 Function Ort_diagnoz()
 Local arr, arr_title, reg_print := 2, sh, HH := 58, i, s, s1, s2, fl,;
-      begin_date, end_date, fl_exit := .f., name_file := "ort_diag"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "ort_diag.txt",;
       adbf, arr_diag := {}, ob_kol := 0, t_arr[4], kol_bez := 0
 Local buf := save_row(maxrow())
 if (arr := year_month()) == NIL
@@ -1224,7 +1224,7 @@ return ret
 *****
 Function f2_Ort_vzaim(nKey,oBrow,regim)
 Local ret := -1, buf, fl := .f., rec, tmp_color, ah, ahu, i, j, fl_one,;
-      s, sh, HH := 76, reg_print, arr_title, name_file := "ortorees"+stxt,;
+      s, sh, HH := 76, reg_print, arr_title, name_file := "ortorees.txt",;
       d, sd, kol_usl, sk, ss, is_sokr, old
 do case
   case regim == "edit"
@@ -1433,7 +1433,7 @@ return NIL
 ***** ‘à ¢­¥­¨¥ áã¬¬ë ®¯« âë ¨ ãá«ã£ ¯® â¨¯ã ®¯« âë
 Function Oo_1_proverka()
 Local arr, arr_title, reg_print := 1, sh := 60, HH := 58, s, ;
-      begin_date, end_date, fl_exit := .f., name_file := "orto_pro"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "orto_pro.txt",;
       mperso, i, j := 0, k, buf := save_row(maxrow())
 if (arr := year_month()) == NIL
   return NIL
@@ -1534,7 +1534,7 @@ return NIL
 ***** ‘à ¢­¥­¨¥ áã¬¬ë ®¯« âë ¨ ãá«ã£ ¯® â¨¯ã ®¯« âë
 Function Oo_2_proverka()
 Local arr, arr_title, reg_print := 1, sh := 60, HH := 58, s, ;
-      begin_date, end_date, fl_exit := .f., name_file := "orto_pro"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "orto_pro.txt",;
       mperso, i, j := 0, k, buf := save_row(maxrow()), flag_VR
 if (arr := year_month()) == NIL
   return NIL
@@ -1657,7 +1657,7 @@ return NIL
 *****
 Function Ort_den_sr(par)
 Local arr, arr_title, reg_print, sh, HH := 77, buf, s, s1, s2, fl, j,;
-      begin_date, end_date, fl_exit := .f., name_file := "orto_den"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "orto_den.txt",;
       mperso, i, k, muslovie := ".t.", s3, s4, s5
 if (pr_pl_bes := O_ret_pl_b()) == 0
   return NIL
@@ -2378,7 +2378,7 @@ return NIL
 *****
 Function Oob_statist(par1,par2,par3)
 Local arr, arr_title, reg_print := 2, sh, HH := 58, s, s1, s2, s3, fl,;
-      begin_date, end_date, fl_exit := .f., name_file := "orto_st"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "orto_st.txt",;
       tip_tit, s4, parametr4 := 1 // ¯® ã¬®«ç ­¨î 
 Local reg, reg1, mperso, musluga, mkod, buf := save_row(maxrow())
 Local msl1usluga, msl2usluga, l_delen, mslusluga
@@ -2799,7 +2799,7 @@ return NIL
 *****
 Function Oob1_statist(par1)
 Local arr, arr_title, reg_print := 2, sh, HH := 58, s, s1, s2, fl,;
-      begin_date, end_date, fl_exit := .f., name_file := "orto_st1"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "orto_st1.txt",;
       tip_tit
 Local reg, reg1, mperso, mkod, buf := save_row(maxrow())
 DEFAULT par1 TO ""
@@ -3019,7 +3019,7 @@ Function Ort_material(Tip_data)
 Local reg, reg1, mperso, musluga, mkod, buf := save_row(maxrow()),;
       msl1usluga, msl2usluga, l_delen, mslusluga, arr, sh, HH := 76,;
       s, s1, s2, s3, fl, begin_date, end_date, fl_exit := .f.,;
-      name_file := "orto_mt"+stxt, tip_tit, s4, arr_title := {;
+      name_file := "orto_mt.txt", tip_tit, s4, arr_title := {;
 "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
 "                            ¨¬¥­®¢ ­¨¥ ¬ â¥à¨ «                                ³              ",;
 "------------------------------------------------------------------------------- ³     áå®¤    ",;
@@ -3580,7 +3580,7 @@ Function Ort_OMS_material()
 Local reg, reg1, mperso, musluga, mkod, buf := save_row(maxrow()),;
       msl1usluga, msl2usluga, l_delen, mslusluga, arr, sh, HH := 76,;
       s, s1, s2, s3, fl, begin_date, end_date, fl_exit := .f.,;
-      name_file := "orto_mt"+stxt, tip_tit, s4, arr_title := {;
+      name_file := "orto_mt.txt", tip_tit, s4, arr_title := {;
 "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
 "                            ¨¬¥­®¢ ­¨¥ ¬ â¥à¨ «                                ³     áå®¤    ",;
 "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"}
@@ -4068,7 +4068,7 @@ return ( ascan(arr_s,{|x| ist_pr==x[1] }) > 0 )
 *****
 Function Ort_dolgi(tip)
 Local arr, arr_title, reg_print, sh, HH := 77, buf, s, s1, s2, fl, j,;
-      begin_date, fl_exit := .f., name_file := "ort_dolg"+stxt,;
+      begin_date, fl_exit := .f., name_file := "ort_dolg.txt",;
       mperso, i, k
 if (arr := year_month()) == NIL
   return NIL
@@ -4204,7 +4204,7 @@ return NIL
 ***** 09.03.14
 Function Ort_otkr_nar(par1,par2)
 Local arr, arr_title, reg_print, sh, HH := 58, buf, s, s1, s2, fl, j,;
-      begin_date, end_date, fl_exit := .f., name_file := "orto_o1"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "orto_o1.txt",;
       mperso, i, k, is_fio := 1
 DEFAULT par2 TO 1
 if (pr_pl_bes := O_ret_pl_b()) == 0
@@ -4431,7 +4431,7 @@ return NIL
 Function Ort_mnog_poisk()
 Local mm_tmp := {}, k
 Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
-      tmp_help := help_code, hGauge, name_file := "ort_mnog"+stxt,;
+      tmp_help := help_code, hGauge, name_file := "ort_mnog.txt",;
       sh := 80, HH := 77, r1 := 1, a_diagnoz[3], fl_stom := .f.,;
       mm_da_net := {{"­¥â",1},{"¤  ",2}}, lvid_doc := 0,;
       menu_plat := {{"¯« â­ë¥    ",0},;
@@ -5481,7 +5481,7 @@ Static sname1 := "", s1d1, s1d2,;
        sname2 := "", s2d1, s2d2,;
        sname3 := "", s3d1, s3d2
 Local arr, arr_title, reg_print := 6, sh, HH := 80, s, s1, s2, fl,;
-      begin_date, end_date, fl_exit := .f., name_file := "orto_ved"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "orto_ved.txt",;
       tip_tit, i, sitogo
 Local par, mperso, mkod, buf := save_row(maxrow()), ;
       arr_diag := {}, a_diag, all_diag := .f.
@@ -5812,7 +5812,7 @@ return NIL
 ***** 28.10.14 ¢à ç¨/â¥å­¨ª¨ + ª®«¨ç¥áâ¢® ­ àï¤®¢
 Function O_vr_kol_nar()
 Local buf := save_maxrow(), sh, HH := 51, arr_title, s, reg_print := 5,;
-      j, arr_m, name_file := "o_kolnar"+stxt, fl_exit := .f.,;
+      j, arr_m, name_file := "o_kolnar.txt", fl_exit := .f.,;
       arr_sm := {0,0,0,0,0,0,0,0}, pr_pl_bes := 0, fl := .F.
 if (pr_pl_bes := O_ret_pl_b()) == 0
   return NIL
@@ -6488,7 +6488,7 @@ return NIL
 ***** 13.11.18
 Function oo_spmater()
 Local arr, sh, HH := 58, s, s1, s2, s3, fl,;
-      begin_date, end_date, fl_exit := .f., name_file := "orto_mt"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "orto_mt.txt",;
       tip_tit, s4,;
     arr_title := {;
 "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄ",;
@@ -6560,7 +6560,7 @@ return NIL
 ***** 13.11.18
 Function oo1spmater()
 Local arr, sh, HH := 58, s, s1, s2, s3, fl,;
-      begin_date, end_date, fl_exit := .f., name_file := "orto1mt"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "orto1mt.txt",;
       tip_tit, s4,;
     arr_title := {;
 "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄ",;
@@ -6887,7 +6887,7 @@ Static arr := {'˜â¨äâ®¢®-ªã«ìâ¥¢ ï ª®­áâàãªæ¨ï',;                        // 1
                '…‡…‚',;                                                // 40
                '®ç¨­ª¨ ¯à®â¥§®¢'}                                       // 41
 Local l, sh := 0, f39_scr := savescreen(), i
-Local HH := 58, name_file := "orto_ns"+stxt,;
+Local HH := 58, name_file := "orto_ns.txt",;
 arr_title := {;
 "ÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
 "   ˜¨äà   ³                                                                  ",;

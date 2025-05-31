@@ -9,12 +9,12 @@ Function forma14_med_oms()
 
   Static group_ini := 'f14_med_oms'
   Local begin_date, end_date, buf := SaveScreen(), arr_m, i, j, k, k1, k2, ;
-    t_arr[ 10 ], t_arr1[ 10 ], name_file := cur_dir() + 'f14med' + stxt, tfoms_pz[ 5, 11 ], ;
+    t_arr[ 10 ], t_arr1[ 10 ], name_file := cur_dir() + 'f14med.txt', tfoms_pz[ 5, 11 ], ;
     sh, HH := 80, reg_print := 5, is_trudosp, is_rebenok, is_inogoro, is_onkologia, ;
     is_reabili, is_ekstra, lshifr1, koef, vid_vp, r1 := 9, fl_exit := .f., ;
     is_vmp, d2_year, ar, arr_excel := {}, fl_error := .f., is_z_sl, ;
-    cFileProtokol := cur_dir + 'tmp' + stxt, arr_prof := {}, arr_usl, au, ii, is_school, ;
-    filetmp14 := cur_dir + 'tmp14' + stxt, sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0, sum_d := 0
+    cFileProtokol := cur_dir + 'tmp.txt', arr_prof := {}, arr_usl, au, ii, is_school, ;
+    filetmp14 := cur_dir + 'tmp14.txt', sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0, sum_d := 0
   Local arr_skor[ 81, 2 ], arr_eko[ 2, 2 ], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[ 4 ], fl_pol1[ 15 ], ;
     arr_pol[ 32 ], arr_pol1[ 15, 5 ], arr_pril5[ 32, 3 ], ifff := 0, kol_stom_pos := 0, ;
     arr_pol3000[ 29, 6 ], vr_rec := 0, arr_full_usl, ;

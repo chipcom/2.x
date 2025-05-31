@@ -397,7 +397,7 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
         fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
-        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
+        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
       Else
         find ( PadR( 'M' + SubStr( s, 2 ), 26 ) ) // имя то же самое, начиная со второго знака
         If Found()
@@ -443,7 +443,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
         Do Case
         Case Left( s, 8 ) == 'P' + c + 'RT34_M' .and. name_ext == spdf()
           AAdd( arr, { 1, 'протокол обработки поступивших сведений ' + s, s, name_ext } )
-        Case eq_any( Left( s, 4 ), 'V' + c + 'RM', 'P' + c + 'RM' ) .and. name_ext == szip
+        Case eq_any( Left( s, 4 ), 'V' + c + 'RM', 'P' + c + 'RM' ) .and. name_ext == szip()
           s1 := 'протокол ФЛК ' + s
           // проверим, читали ли уже данный файл
           If verify_is_already_xml( name_without_ext( s ), @_date, @_time )
@@ -454,7 +454,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
           AAdd( arr, { 3, 'сведения о выполнении плана-задания ' + s, s, name_ext } )
         Case Left( s, 8 ) == 'F' + c + 'RT34_M' .and. name_ext == spdf()
           AAdd( arr, { 4, 'сведения о выполнении обьемов ФО ' + s, s, name_ext } )
-        Case Left( s, 7 ) == c + 'RT34_M' .and. name_ext == szip
+        Case Left( s, 7 ) == c + 'RT34_M' .and. name_ext == szip()
           s1 := 'реестр СП и ТК ' + s
           // проверим, читали ли уже данный файл
           If verify_is_already_xml( name_without_ext( s ), @_date, @_time )
@@ -473,7 +473,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
         If arr[ i, 4 ] == spdf()
           // file_AdobeReader(_tmp2dir1()+arr[i,3])
           view_file_in_viewer( _tmp2dir1() + arr[ i, 3 ] )
-        Elseif arr[ i, 4 ] == szip
+        Elseif arr[ i, 4 ] == szip()
           fl := .t.
           full_zip := _tmp2dir1() + arr[ i, 3 ] // переопределяем Private-переменную
         Endif
@@ -511,9 +511,9 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       If AScan( glob_arr_smo, {| x| x[ 2 ] == nSMO } ) > 0
         s := AfterAtNum( 'M', s )
         If BeforAtNum( '_', s ) == glob_MO[ _MO_KOD_TFOMS ] .and. ;
-            ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2, 'tmp' + szip ) ) != NIL
+            ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2, 'tmp' + szip() ) ) != NIL
           For i := 1 To Len( arr_f )
-            If Upper( cName + szip ) == Upper( arr_f[ i ] )
+            If Upper( cName + szip() ) == Upper( arr_f[ i ] )
               full_zip := _tmp2dir1() + arr_f[ i ] // переопределяем Private-переменную
               Exit
             Endif
@@ -531,7 +531,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
         fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
-        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
+        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
       Elseif tip_csv_file == _CSV_FILE_ANSWER
         find ( PadR( 'MO' + SubStr( s, 2 ), 26 ) ) // имя то же самое, начиная с третьего знака
         If Found()
@@ -557,7 +557,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
         fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
-        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt, 60, 80 ), , , , .t., , , 2 )
+        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
       Else
         find ( PadR( 'SZ' + SubStr( s, 3 ), 26 ) ) // имя то же самое, начиная с третьего знака
         If Found()

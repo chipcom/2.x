@@ -274,7 +274,7 @@ Function f2_view_list_schet( nKey, oBrow )
             If Upper( s ) == Upper( goal_dir )
               func_error( 4, 'Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо.' )
             Else
-              cFileProtokol := 'prot_sch' + stxt()
+              cFileProtokol := 'prot_sch.txt'
               StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
               smsg := 'Счета записаны на: ' + s + ;
                 ' (' + full_date( sys_date ) + 'г. ' + hour_min( Seconds() ) + ')'
@@ -519,7 +519,7 @@ Function recreate_some_schet_from_file_sp( arr )
   Private mkod_reestr := mo_xml->REESTR       // код первичного реестра
   Private cTimeBegin := hour_min( Seconds() )
   Private name_zip := cReadFile + szip()          // имя архива файла реестра СП и ТК
-  cFile := cReadFile + sxml                     // имя XML-файла реестра СП и ТК
+  cFile := cReadFile + sxml()                     // имя XML-файла реестра СП и ТК
   //
   rees->( dbGoto( mkod_reestr ) )
   Private name_reestr := AllTrim( rees->name_xml ) + szip() // имя архива файла первичного реестра
@@ -532,7 +532,7 @@ Function recreate_some_schet_from_file_sp( arr )
     Return func_error( 4, "Ошибка в распаковке архива реестра СП и ТК " + name_zip )
   Endif
   If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( cReadFile ) } ) ) == 0
-    Return func_error( 4, "В архиве " + name_zip + " нет файла " + cReadFile + sxml )
+    Return func_error( 4, "В архиве " + name_zip + " нет файла " + cReadFile + sxml() )
   Endif
   Close databases
 

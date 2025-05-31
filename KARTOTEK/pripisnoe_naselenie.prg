@@ -122,7 +122,7 @@ Function view_reestr_pripisnoe_naselenie()
 Function f1_view_r_pr_nas( oBrow )
   Local oColumn, ;
     blk := {| _s| _s := goal_dir + AllTrim( krtr->FNAME ), ;
-    iif( hb_FileExists( _s + scsv() ) .or. hb_FileExists( _s + szip ), ;
+    iif( hb_FileExists( _s + scsv() ) .or. hb_FileExists( _s + szip() ), ;
     iif( Empty( krtr->date_out ), { 3, 4 }, { 1, 2 } ), ;
     { 5, 6 } ) }
 
@@ -156,7 +156,7 @@ Function f11_view_r_pr_nas()
   Local s := ""
 
   If !( hb_FileExists( goal_dir + AllTrim( krtr->FNAME ) + scsv() ) .or. ;
-      hb_FileExists( goal_dir + AllTrim( krtr->FNAME ) + szip ) )
+      hb_FileExists( goal_dir + AllTrim( krtr->FNAME ) + szip() ) )
     krtf->( dbGoto( krtr->kod_f ) )
     If Empty( krtf->TWORK2 )
       s := "не завершён"
@@ -184,7 +184,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
     If LastKey() == K_ENTER .and. AScan( tmp_pss, Crypt( pss, gpasskod ) ) > 0 ;
         .and. f_esc_enter( "аннулирования файла", .t. )
       krtf->( dbGoto( krtr->kod_f ) )
-      zip_file := AllTrim( krtr->FNAME ) + iif( krtf->TIP_OUT == _CSV_FILE_REESTR, scsv(), szip )
+      zip_file := AllTrim( krtr->FNAME ) + iif( krtf->TIP_OUT == _CSV_FILE_REESTR, scsv(), szip() )
       str_sem := "f2_view_r_pr_nas_K_CTRL_F12"
       If g_slock( str_sem )
         mywait()
@@ -215,7 +215,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
     Endif
   Case nKey == K_CTRL_F12
     If Empty( krtf->TWORK2 ) // не дописан
-      zip_file := AllTrim( krtr->FNAME ) + iif( krtf->TIP_OUT == _CSV_FILE_REESTR, scsv(), szip )
+      zip_file := AllTrim( krtr->FNAME ) + iif( krtf->TIP_OUT == _CSV_FILE_REESTR, scsv(), szip() )
       If krtr->ANSWER > 0
         func_error( 4, "Ответ для данного файла уже был прочитан - аннулирование запрещено!" )
       Elseif hb_FileExists( goal_dir + zip_file )
@@ -260,7 +260,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
         If Upper( s ) == Upper( goal_dir )
           func_error( 4, "Вы выбрали каталог, в котором уже записан данный файл! Это недопустимо." )
         Else
-          zip_file := AllTrim( krtr->FNAME ) + iif( Left( krtr->FNAME, 2 ) == "MO", scsv(), szip )
+          zip_file := AllTrim( krtr->FNAME ) + iif( Left( krtr->FNAME, 2 ) == "MO", scsv(), szip() )
           If hb_FileExists( goal_dir + zip_file )
             mywait( 'Копирование "' + zip_file + '" в каталог "' + s + '"' )
             // copy file (goal_dir+zip_file) to (hb_OemToAnsi(s)+zip_file)
@@ -451,7 +451,7 @@ Function f3_view_r_pr_nas( oBrow )
       Endif
     Else
       krtf->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( krtf->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( krtf->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select KRTR
@@ -460,7 +460,7 @@ Function f3_view_r_pr_nas( oBrow )
 
 // 04.11.14
 Function f31_view_r_pr_nas( reg, s, s1 )
-  Local fl := .t., buf := save_maxrow(), n_file := cur_dir() + "prikspis" + stxt, lmo, lerr, ;
+  Local fl := .t., buf := save_maxrow(), n_file := cur_dir() + "prikspis.txt", lmo, lerr, ;
     i, j, k, ii, ar[ 2 ]
 
   mywait()
@@ -674,7 +674,7 @@ Function preparation_for_pripisnoe_naselenie()
       cur_year := Year( human->k_data )
     Endif
     Use
-    cFileProtokol := cur_dir() + "prot" + stxt
+    cFileProtokol := cur_dir() + "prot.txt"
     StrFile( Space( 10 ) + "Список ошибок" + hb_eol() + hb_eol(), cFileProtokol )
     ii := i := 0
     r_use( dir_server + "mo_otd",, "OTD" )
@@ -1525,7 +1525,7 @@ Function pripisnoe_naselenie_create_sverka()
         Endif
       Next ii
       FClose( fp )
-      name_zip := AllTrim( krtr->FNAME ) + szip
+      name_zip := AllTrim( krtr->FNAME ) + szip()
       Select KRTR
       g_rlock( forever )
       krtr->KOL := arr[ i, 1 ]
@@ -1827,7 +1827,7 @@ Function f2_vvod_uchast_spisok( nKey, oBrow )
 Function f3_vvod_uchast_spisok( tip )
   // tip - 1 адрес
   // 2 место работы
-  Local sh, HH := 78, name_file := cur_dir() + "reg_prip" + stxt, i := 0, arr_title, s
+  Local sh, HH := 78, name_file := cur_dir() + "reg_prip.txt", i := 0, arr_title, s
 
   s := { "Адрес", "Место работы" }[ tip ]
   arr_title := { ;
@@ -1860,7 +1860,7 @@ Function f3_vvod_uchast_spisok( tip )
 // 09.09.15 Просмотр/печать прикреплённого населения
 Function spisok_pripisnoe_naselenie( par )
   Static sj, smo := "      "
-  Local i, j, k, s, arr := {}, n_file := cur_dir() + "pr_nas" + lstr( par ) + stxt, ll := 0, ;
+  Local i, j, k, s, arr := {}, n_file := cur_dir() + "pr_nas" + lstr( par ) + stxt(), ll := 0, ;
     ret_arr, sh := 120, HH := 57, buf := save_maxrow() // 81 b 80
 
   If Empty( arr_mo )
@@ -1990,7 +1990,7 @@ Function spisok_pripisnoe_naselenie( par )
 
 // 25.03.18 Подсчёт количества прикреплённого населения по участкам
 Function kol_uch_pripisnoe_naselenie()
-  Local sh, HH := 60, name_file := cur_dir() + "uch_prik" + stxt, arr_title, i, j, k, arr1 := {}, arr2 := {}, ;
+  Local sh, HH := 60, name_file := cur_dir() + "uch_prik.txt", arr_title, i, j, k, arr1 := {}, arr2 := {}, ;
     fl, arr, buf := save_maxrow()
 
   mywait()

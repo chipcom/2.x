@@ -7,9 +7,9 @@
 // 29.03.23
 Function pr_gurnal_pp()
 Static spar := 1, spar2 := 1
-Local par, par2, arr_m, i, j, k, arr, begin_date, end_date, s, ;
+Local par, par2, arr_m, i, j, k, s, ;
       buf := save_maxrow(), fl_exit := .f., sh, HH, reg_print, ;
-      arr_title, name_file := "stgurnal"+stxt, atime
+      arr_title, name_file := "stgurnal.txt", atime
 if (arr_m := year_month(T_ROW,T_COL-5,,,2,@atime)) == NIL
   return NIL
 endif
@@ -345,8 +345,8 @@ return NIL
 ***** 26.12.12
 Function pr_ob_svod_pp()
 Static spar := 1
-Local arr_m, i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(),;
-      sh := 60, HH := 58, reg_print := 2, name_file := "pp_otd"+stxt,;
+Local arr_m, i, j, k, s, buf := save_maxrow(),;
+      sh := 60, HH := 58, reg_print := 2, name_file := "pp_otd.txt",;
       arr_otd := {}, arr_uch := {}, arr_gs := {0,0,0},;
       arr_prin := {}, arr_raj := {}, arr_kat := {}, arr_pol := {0,0},;
       arr_vz_reb := {0,0,0}, arr_stol := {}, atime, ra[5],;
@@ -640,8 +640,8 @@ return NIL
 
 *****
 Function pr_otd_lpu_pp()
-Local arr_m, i, j, l, k, k1, arr, begin_date, end_date, s, buf := save_maxrow(),;
-      sh, HH := 58, reg_print, name_file := "pp_otd2"+stxt,;
+Local arr_m, i, j, l, k, k1, s, buf := save_maxrow(),;
+      sh, HH := 58, reg_print, name_file := "pp_otd2.txt",;
       arr_otd := {}, arr_uch := {}, arr_title, atime
 if (arr_m := year_month(T_ROW,T_COL-5,,,2,@atime)) == NIL
   return NIL
@@ -816,8 +816,8 @@ return NIL
 
 ***** 24.01.17
 Function pr_otd_stol_pp()
-Local arr_m, i, j, l, k, k1, arr, begin_date, end_date, s, buf := save_maxrow(),;
-      sh, HH := 58, reg_print, name_file := "pp_otd3"+stxt, fl := .f.,;
+Local arr_m, i, j, l, k, k1, arr, s, buf := save_maxrow(),;
+      sh, HH := 58, reg_print, name_file := "pp_otd3.txt", fl := .f.,;
       arr_otd := {}, arr_stol := {}, arr_title, atime, is_perevod := 1
 if (arr_m := year_month(T_ROW,T_COL-5,,,2,@atime)) == NIL
   return NIL
@@ -1198,8 +1198,8 @@ return NIL
 
 *****
 Function pr_otd_gosp_pp()
-Local arr_m, i, j, l, k, k1, arr, begin_date, end_date, s, buf := save_maxrow(),;
-      sh, HH := 58, reg_print, name_file := "pp_otd4"+stxt,;
+Local arr_m, i, j, k, s, buf := save_maxrow(),;
+      sh, HH := 58, reg_print, name_file := "pp_otd4.txt",;
       arr_otd := {}, arr_stol := {}, arr_title, atime, ak[12]
 if (arr_m := year_month(T_ROW,T_COL-5,,,2,@atime)) == NIL
   return NIL
@@ -1327,8 +1327,8 @@ return NIL
 *****
 Function pr_otd_vozr_pp()
 Static spar := 1
-Local arr_m, i, j, l, k, k1, arr, begin_date, end_date, s, buf := save_maxrow(),;
-      sh, HH := 58, reg_print, name_file := "pp_otd5"+stxt,;
+Local arr_m, i, j, s, buf := save_maxrow(),;
+      sh, HH := 58, reg_print, name_file := "pp_otd5.txt",;
       arr_otd := {}, arr_title, atime, ak, vozrast,;
       mas_pmt := {"Все больные","Стационарные больные","Дневной стационар"}
 if (par := popup_prompt(T_ROW,T_COL-5,spar,mas_pmt)) == NIL
@@ -1504,8 +1504,8 @@ return NIL
 *****
 Function pr_otd_vozr_deti_pp()
 Static spar := 1
-Local arr_m, i, j, l, k, k1, arr, begin_date, end_date, s, buf := save_maxrow(),;
-      s1, sh, HH := 58, reg_print, name_file := "pp_otd6"+stxt,;
+Local arr_m, i, j, s, buf := save_maxrow(),;
+      s1, sh, HH := 58, reg_print, name_file := "pp_otd6.txt",;
       arr_otd := {}, arr_title, atime, ak, vozrast, mmonth,;
       mas_pmt := {"Все больные","Стационарные больные","Дневной стационар"}
 if (par := popup_prompt(T_ROW,T_COL-5,spar,mas_pmt)) == NIL
@@ -1665,7 +1665,7 @@ return NIL
 Function pr_otd_tek_pp()
 Static sdate, stime
 Local arr_m, i, j, l, k, k1, arr, begin_date, end_date, s, buf := save_maxrow(),;
-      sh, HH := 58, reg_print, name_file := "pp_otd7"+stxt,;
+      sh, HH := 58, reg_print, name_file := "pp_otd7.txt",;
       arr_otd := {}, arr_title, tm, hGauge, fl_exit := .f.
 DEFAULT sdate TO sys_date, stime TO "12:00"
 Private mdate := sdate, mtime := stime
@@ -1878,8 +1878,8 @@ Static mm_mest := {{"Волгоград или область",1},{"иногородние",2}}
 Static spar := 1, spar2 := 1
 Local mm_tmp := {}
 Local buf := savescreen(), tmp_color := setcolor(cDataCGet), fl_exit := .f.,;
-      tmp_help := help_code, hGauge, name_file := "stgurnal"+stxt,;
-      sh, HH, i, j, k, tmp_file := "tmp_mn_p"+sdbf, arr_title, arr
+      tmp_help := help_code, hGauge, name_file := "stgurnal.txt",;
+      sh, HH, i, j, k, tmp_file := "tmp_mn_p"+sdbf(), arr_title, arr
 //
 Private arr_m, arr_mv, mm_company := {}, atime, atimev
 Private pr_arr := {}, pr_arr_otd := {}
@@ -2510,7 +2510,7 @@ return NIL
 *****
 Function pr_perevod_pp()
 Local arr_m, i, j, l, k, k1, begin_date, end_date, s, buf := save_maxrow(),;
-      sh := 81, HH := 58, reg_print := 2, name_file := "pp_perev"+stxt,;
+      sh := 81, HH := 58, reg_print := 2, name_file := "pp_perev.txt",;
       arr, atime
 if (arr_m := year_month(T_ROW,T_COL-5,,,2,@atime)) == NIL
   return NIL
@@ -2647,8 +2647,10 @@ return NIL
 
 *****
 Function dubl_ist_b_pp()
-Local g1, j := 0, k := 0, sh := 80, HH := 80, n_file := "dubl_ist"+stxt
-dbcreate(cur_dir+"tmp",{{"N_DATA","D",8,0},; // дата поступления
+
+  Local g1, j := 0, k := 0, sh := 80, HH := 80, n_file := "dubl_ist.txt"
+
+  dbcreate(cur_dir+"tmp",{{"N_DATA","D",8,0},; // дата поступления
                         {"kol","N",6,0}})
 fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
 add_string("")

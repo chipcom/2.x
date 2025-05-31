@@ -800,7 +800,7 @@ return NIL
 //
 Function view_p_kvit(nkey)
 Local sh := 80, HH := 57, reg_print := 2, buf := save_row(maxrow()), i, ;
-      name_file := "tmp"+stxt, j := 0, tmp_select := select(), arr_lpu := {}, ;
+      name_file := "tmp.txt", j := 0, tmp_select := select(), arr_lpu := {}, ;
       rec := human->(recno())
 mywait()
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
@@ -2242,7 +2242,7 @@ return NIL
 Function f3_k_close(nKey,oBrow)
 LOCAL j := 0, ret := -1, buf := save_row(maxrow()), buf1, fl := .f., tmp_rec, ;
       tmp_color := setcolor(), j1,;
-      n_file := "_close"+stxt, sh := 80, HH := 60, reg_print := 2
+      n_file := "_close.txt", sh := 80, HH := 60, reg_print := 2
 do case
   case nKey == K_F3
     mywait()
@@ -2651,7 +2651,7 @@ return ret
 //
 Function f2_usl_date(rec)
 Local arr[2], s, i, k, buf := save_row(maxrow()), ;
-      sh := 80, HH := 60, name_file := "pl_cena"+stxt
+      sh := 80, HH := 60, name_file := "pl_cena.txt"
 mywait()
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 add_string("")

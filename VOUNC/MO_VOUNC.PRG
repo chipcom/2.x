@@ -813,7 +813,7 @@ Function f1vounc_info_recept()
     { 'Пятница', 6 }, ;
     { 'Суббота', 7 }, ;
     { 'Воскресенье', 1 } }
-  Local sh, HH := 58, buf := save_maxrow(), n_file := cur_dir + 'kol_rcp' + stxt, ;
+  Local sh, HH := 58, buf := save_maxrow(), n_file := cur_dir + 'kol_rcp.txt', ;
     arr_m, adbf, d, in, in2, last_d, skol := 0, am := {}
 
   If ( arr_m := year_month() ) == NIL
@@ -952,7 +952,7 @@ Function f1vounc_info_recept()
 //
 Function f2vounc_info_recept()
 
-  Local sh, HH := 57, buf := save_maxrow(), n_file := cur_dir + 'trn_year' + stxt, ;
+  Local sh, HH := 57, buf := save_maxrow(), n_file := cur_dir + 'trn_year.txt', ;
     arr_m, adbf
 
   If ( arr_m := year_month(, , , 4 ) ) == NIL
@@ -1035,7 +1035,7 @@ Function f2vounc_info_recept()
 //
 Function f3vounc_info_recept()
 
-  Local sh, HH := 54, buf := save_maxrow(), n_file := cur_dir + 'pac_trn' + stxt, ;
+  Local sh, HH := 54, buf := save_maxrow(), n_file := cur_dir + 'pac_trn.txt', ;
     arr_m, adbf
 
   If ( arr_m := year_month() ) == NIL
@@ -1158,7 +1158,7 @@ Function f3vounc_info_recept()
 //
 Function vounc_info_sprav()
 
-  Local sh := 64, HH := 57, buf := save_maxrow(), n_file := cur_dir + 'mnn_trn' + stxt, ;
+  Local sh := 64, HH := 57, buf := save_maxrow(), n_file := cur_dir + 'mnn_trn.txt', ;
     old_tip_mnn := -1
 
   mywait()

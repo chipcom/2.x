@@ -22,7 +22,7 @@ do case
                 "integration_SDS(3)"}
     popup_prompt(T_ROW-len(mas_pmt)-3, T_COL+5, sk, mas_pmt, mas_msg, mas_fun)
   case k == 1
-    Private pikol := {0,0,0}, file_error := "err_sds"+stxt()
+    Private pikol := {0,0,0}, file_error := "err_sds.txt"
     if (n_file := f_get_file_XML_SDS()) != NIL .and. read_file_XML_SDS(n_file)
       n_message({"Просмотр XML-файла "+n_file,;
                  "",;
@@ -37,7 +37,7 @@ do case
       endif
     endif
   case k == 2
-    Private pikol := {0,0,0}, file_error := "err_sds"+stxt(), t1 := seconds()
+    Private pikol := {0,0,0}, file_error := "err_sds.txt", t1 := seconds()
     if (n_file := f_get_file_XML_SDS(@s)) != NIL .and. read_file_XML_SDS(n_file)
       if pikol[3] > 0
         viewtext(Devide_Into_Pages(file_error,60,80), ,, ,.t., ,,2)
@@ -1456,7 +1456,7 @@ return ret
 Function write_file_XML_SDS(n_file,path2_sds)
 Local i, fl := .f.
 Local name_file := StripPath(n_file)  // имя файла без пути
-Private cFileProtokol := "protokol"+stxt()
+Private cFileProtokol := "protokol.txt"
 delete file (cur_dir()+cFileProtokol)
 if mo_Lock_Task(X_OMS)
   fl := f1_write_file_XML_SDS(n_file)

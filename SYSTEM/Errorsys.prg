@@ -160,7 +160,7 @@ function view_errors()
 
 // разбить текстовый файл на страницы
 function Devide_Into_Pages( cFile, HH, sh )
-	local tmp_file := '_TMP_' + stxt
+	local tmp_file := '_TMP_.txt'
 	
 	DEFAULT HH TO 60
 	fp := fcreate( tmp_file ) ; n_list := 1 ; tek_stroke := 0

@@ -64,9 +64,9 @@ Function forma_12_( is_diag, is_100000 )
     file_form, is_talon := .t., bbuf, blk_usl, ab := {}
 
   If is_100000
-    name_file := cur_dir + "_form12a" + stxt
+    name_file := cur_dir + "_form12a.txt"
   Else
-    name_file := cur_dir + iif( is_diag, "_frm_12d", "_form_12" ) + stxt
+    name_file := cur_dir + iif( is_diag, "_frm_12d", "_form_12" ) + stxt()
   Endif
   Private adiag_talon[ 16 ], arr_v := { { 0, 14 }, { 0, 3 }, { 15, 17 }, { 18, 999 } }, ;
     len_name := { 28, 28, 28, 28, 28 }, kol_dt, koef_dt[ 5 ], p_is_voz[ 5 ], ;
@@ -1632,7 +1632,7 @@ Function forma_12_o()
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
     fl_exit := .f., sh := 79, HH := 80, reg_print := 5, speriod, ;
-    arr_title, name_file :=  cur_dir + "_frm_12o" + stxt, s_lu := 0, s_human := 0, ;
+    arr_title, name_file :=  cur_dir + "_frm_12o.txt", s_lu := 0, s_human := 0, ;
     fl_plus := .f., md_plus, sd_plus, k_plus, jh := 0, arr_m, ;
     is_talon := .t., pole, arv, nf, adbf, kh, s1, s2, s3
   Private au1, au2, adiag_talon[ 16 ], GOD_PENSIONEROV

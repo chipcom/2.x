@@ -246,7 +246,7 @@ Function fspr_uslugi( k )
 Function f4_uslugi( reg )
 
   Local i, s := 'Список услуг ', mas[ 2 ], buf := save_maxrow(), ;
-    n_file := cur_dir() + 'uslugi' + stxt(), sh := 80, HH := 60, l, k, j, lshifr, lshifr1, lname
+    n_file := cur_dir() + 'uslugi.txt', sh := 80, HH := 60, l, k, j, lshifr, lshifr1, lname
   Local lExcel := .f., iOutput
   Local name_fileXLS := 'Price_' + suffixfiletimestamp()
   Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
@@ -477,7 +477,7 @@ Function f42_uslugi( reg, _shifr )
 Function v_1usluga()
 
   Local arr_usl, atf := { 0, '', '' }, i := 1, k, mas[ 2 ], sh := 80, HH := 60, j := 0, ;
-    lshifr, s, n_file := cur_dir() + 'usluga_1' + stxt()
+    lshifr, s, n_file := cur_dir() + 'usluga_1.txt'
   Local prefix := prefixfilerefname( WORK_YEAR )
 
   If ( arr_usl := input_usluga( atf ) ) != NIL
@@ -588,7 +588,7 @@ Function v_1usluga()
 // 08.02.23
 Function v_k_uslugi()
 
-  Local sh := 80, HH := 57, n_file := cur_dir() + 'k_uslugi' + stxt()
+  Local sh := 80, HH := 57, n_file := cur_dir() + 'k_uslugi.txt'
 
   mywait()
   fp := FCreate( n_file )
@@ -624,7 +624,7 @@ Function v_k_uslugi()
 // 31.01.23
 Function v_implantant()
 
-  Local vrem_local := '', k, l, s, i, sh := 80, HH := 57, n_file := cur_dir() + 'implant' + stxt()
+  Local vrem_local := '', k, l, s, i, sh := 80, HH := 57, n_file := cur_dir() + 'implant.txt'
   Local mas[ 2 ]
   Local arrImplantant := get_implantant()
 
@@ -654,7 +654,7 @@ Function v_implantant()
 // 08.02.23
 Function v_nulusluga()
 
-  Local mas[ 2 ], k, l, s, sh := 80, HH := 57, n_file := cur_dir() + 'n_uslugi' + stxt()
+  Local mas[ 2 ], k, l, s, sh := 80, HH := 57, n_file := cur_dir() + 'n_uslugi.txt'
 
   mywait()
   fp := FCreate( n_file )
@@ -715,7 +715,7 @@ Function v_nulusluga()
 // 30.05.23 даты смены цен
 Function usl1tfoms()
 
-  Local k, buf := save_maxrow(), name_file := cur_dir() + 'uslugi' + stxt(), sh := 80, HH := 60, ;
+  Local k, buf := save_maxrow(), name_file := cur_dir() + 'uslugi.txt', sh := 80, HH := 60, ;
     i, s, mdate, t_arr[ BR_LEN ], ret, ret_arr, scode, dy
   Local sbase, tmpAlias
 
@@ -994,7 +994,7 @@ Function f_spr_usl_adres_podr()
 Function usl2tfoms()
 
   Static sdate
-  Local k, buf := save_maxrow(), name_file := cur_dir() + 'uslugi' + stxt(), nu, ret_arr, ;
+  Local k, buf := save_maxrow(), name_file := cur_dir() + 'uslugi.txt', nu, ret_arr, ;
     sh := 80, HH := 60, t_arr, i, s, v1, v2, mdate, fl1uslc, fl2uslc, ;
     ta[ 2 ], lyear, fl1del, fl2del, len_ksg := 10
   Local arrKSLP, rowKSLP, tmpKSLP, arrKIRO, rowKIRO, tmpKIRO
@@ -1244,7 +1244,7 @@ Function f_ret_kz_ksg( lkz, lkslp, lkiro )
 // 08.02.23
 Function usl3tfoms()
 
-  Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugi' + stxt(), ;
+  Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugi.txt', ;
     sh := 85, HH := 80, mas1[ 5 ], mas2[ 5 ], arr[ 5 ], k1, k2, t_arr, mdate, lyear
 
   //
@@ -1595,7 +1595,7 @@ Function usl5ffoms()
 Function usl_stom_ffoms()
 
   Static arr_gr := { "Общепрофильные", "Ортодонтия", "Терапевтическая стоматология", "Физиотерапия", "Хирургическая стоматология" }
-  Local i, j, k, s, buf := save_maxrow(), name_file := cur_dir() + "uslugiS" + stxt(), sh := 80, HH := 60, t_arr[ 2 ], fl
+  Local i, j, k, s, buf := save_maxrow(), name_file := cur_dir() + "uslugiS.txt", sh := 80, HH := 60, t_arr[ 2 ], fl
 
   mywait()
   r_use_base( "luslf" )
@@ -1637,7 +1637,7 @@ Function usl_stom_ffoms()
 // 24.05.23 Распечатка списка услуг с использованием телемедицинских технологий
 Function usl_telemedicina()
 
-  Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiT' + stxt(), sh := 80, HH := 60, t_arr[ 2 ]
+  Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiT.txt', sh := 80, HH := 60, t_arr[ 2 ]
 
   mywait()
   r_use_base( 'luslf' )
@@ -1667,7 +1667,7 @@ Function usl_telemedicina()
 // 28.03.23 Распечатка списка операций на парных органах
 Function usl_par_organ()
 
-  Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiT' + stxt(), sh := 80, HH := 60, t_arr[ 2 ]
+  Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiT.txt', sh := 80, HH := 60, t_arr[ 2 ]
 
   mywait()
   r_use_base( 'luslf' )
@@ -1708,7 +1708,7 @@ Function usl_napr_ffoms()
     { '2 - инструментальная диагностика', 2 }, ;
     { '3 - методы лучевой диагностики, за исключением дорогостоящих', 3 }, ;
     { '4 - дорогостоящие методы лучевой диагностики (КТ, МРТ, ангиография)', 4 } }
-  Local i, j, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiON' + stxt(), sh := 80, HH := 60, t_arr[ 2 ], fl, ar
+  Local i, j, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiON.txt', sh := 80, HH := 60, t_arr[ 2 ], fl, ar
 
   If ( t_arr := bit_popup( T_ROW, T_COL -5, arr_gr, , color0, 1, 'Метод диагностического исследования', 'B/BG' ) ) == NIL
     Return Nil
@@ -1759,7 +1759,7 @@ Function usl_ksg_ffoms()
     { '4 - Химиолучевая терапия', 4 }, ;
     { '5 - Неспецифическое лечение (осложнения противоопухолевой терапии, установка/замена порт системы (катетера))', 5 }, ;
     { '6 - Диагностика', 6 } }
-  Local i, j, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiOK' + stxt(), sh := 80, HH := 60, t_arr[ 2 ], fl, ar
+  Local i, j, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiOK.txt', sh := 80, HH := 60, t_arr[ 2 ], fl, ar
 
   If ( t_arr := bit_popup( T_ROW, T_COL -5, arr_gr, , color0, 1, 'Тип лечения онкологических заболеваний', 'B/BG' ) ) == NIL
     Return Nil
@@ -1808,7 +1808,7 @@ Function usl_ksg_ffoms()
 Function usl1ffoms()
 
   Static su := 'A01', suA := '01', suB := '001'
-  Local k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiF' + stxt(), arr[ 2 ], ;
+  Local k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiF.txt', arr[ 2 ], ;
     sh := 80, HH := 60, t_arr[ 2 ], t_aA[ 2 ], t_aB[ 2 ], i, n, s, fl := .f.
 
   If !Empty( popup_2array( usl3ffoms(), T_ROW, T_COL -5, su, 1, @t_arr, ;
@@ -1889,7 +1889,7 @@ Function usl1ffoms()
 // 27.05.23
 Function usl2ffoms()
 
-  Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiF' + stxt(), sh := 85, HH := 80, mas1[ 5 ]
+  Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiF.txt', sh := 85, HH := 80, mas1[ 5 ]
 
   //
   mywait()
@@ -1947,7 +1947,7 @@ Function usl2ffoms()
 // 08.02.23
 Function usl6ffoms( lksg )
 
-  Local k, buf := save_maxrow(), name_file := cur_dir() + 'usl_ksg' + stxt(), sh := 80, HH := 78, ;
+  Local k, buf := save_maxrow(), name_file := cur_dir() + 'usl_ksg.txt', sh := 80, HH := 78, ;
     i, s, v1, v2, mdate, fl1uslc, fl2uslc, ta[ 2 ], fl1del, fl2del, ret_arr
   Local sbase
 
@@ -2093,7 +2093,7 @@ Function usl6ffoms( lksg )
 // 25.01.23
 Function usl11ffoms()
 
-  Local buf := save_maxrow(), name_file := cur_dir() + 'vidVMP' + stxt(), sh := 80, HH := 60, t_arr[ 2 ], i, j, k
+  Local buf := save_maxrow(), name_file := cur_dir() + 'vidVMP.txt', sh := 80, HH := 60, t_arr[ 2 ], i, j, k
   Local arrV018 := getv018( BoY() )
 
   mywait()
@@ -2121,7 +2121,7 @@ Function usl11ffoms()
 Function usl12ffoms()
 
   Static sast, sarr
-  Local buf := save_maxrow(), name_file := cur_dir() + 'metodVMP' + stxt(), sh := 80, HH := 60, t_arr[ 2 ], ;
+  Local buf := save_maxrow(), name_file := cur_dir() + 'metodVMP.txt', sh := 80, HH := 60, t_arr[ 2 ], ;
     a, i, j, k, n, s, l
   Local arrV018 := getv018( BoY() )
   Local arrV019 := getv019( BoY() )
@@ -2238,7 +2238,7 @@ Function f2spr_other( oBrow )
 // 08.02.23
 Function f3spr_other( reg )
 
-  Local buf := save_maxrow(), n_file := cur_dir() + 'uslugi' + stxt(), ;
+  Local buf := save_maxrow(), n_file := cur_dir() + 'uslugi.txt', ;
     sh := 80, HH := 60, l, k, mas[ 2 ]
 
   mywait()
@@ -2348,7 +2348,7 @@ Function f5spr_other()
 // список отделений с кодами
 Function spr_kod_otd()
 
-  Local sh := 64, HH := 57, buf := save_maxrow(), n_file := cur_dir() + "kod_otd" + stxt()
+  Local sh := 64, HH := 57, buf := save_maxrow(), n_file := cur_dir() + "kod_otd.txt"
 
   mywait()
   Private t_arr := {}, count_uch := 0

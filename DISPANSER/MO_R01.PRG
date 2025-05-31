@@ -601,7 +601,7 @@ Function read_r05( full_zip )
       cFile := arr_f[ n ]
       mywait( "Производится анализ файла " + cFile )
       cReadFile := name_without_ext( cFile )
-      cFileProtokol := cReadFile + stxt
+      cFileProtokol := cReadFile + stxt()
       StrFile( Space( 10 ) + "Протокол обработки файла: " + cFile + hb_eol(), cFileProtokol )
       // читаем файл в память
       oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
@@ -620,7 +620,7 @@ Function read_r05( full_zip )
       Endif
       Close databases
     Else
-      fl := func_error( 4, "В архиве " + name_zip + " нет файла " + cName + sxml )
+      fl := func_error( 4, "В архиве " + name_zip + " нет файла " + cName + sxml() )
     Endif
   Endif
 
@@ -851,10 +851,10 @@ Function f3_create_r05()
           Next k
         Next j
       Next i
-      name_zip := AllTrim( mo_xml->FNAME ) + szip ; arr_zip := {}
+      name_zip := AllTrim( mo_xml->FNAME ) + szip() ; arr_zip := {}
       stat_msg( "Запись XML-файла" )
-      oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml )
-      AAdd( arr_zip, AllTrim( mo_xml->FNAME ) + sxml )
+      oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml() )
+      AAdd( arr_zip, AllTrim( mo_xml->FNAME ) + sxml() )
       //
       Close databases
       If chip_create_zipxml( name_zip, arr_zip, .t. )
@@ -1122,7 +1122,7 @@ Function read_xml_file_r06( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
   ldate_R06 := tmp1->_DATE_F
   r_use( dir_server + "mo_dr05",, "REES" )
   Goto ( arr_XML_info[ 7 ] )
-  StrFile( "Обрабатывается ответ ТФОМС на информационный пакет " + AllTrim( rees->NAME_XML ) + sxml + hb_eol() + ;
+  StrFile( "Обрабатывается ответ ТФОМС на информационный пакет " + AllTrim( rees->NAME_XML ) + sxml() + hb_eol() + ;
     "за " + lstr( rees->NYEAR ) + " год от " + date_8( rees->DSCHET ) + "г." + hb_eol() + hb_eol(), cFileProtokol, .t. )
   //
   r_use( dir_server + "mo_dr05k",, "RHUM" )
@@ -1277,7 +1277,7 @@ Function f_view_r05()
 Function f1_view_r05( oBrow )
 
   Local oColumn, ;
-    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip ), ;
+    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() ), ;
     iif( Empty( rees->date_out ), { 3, 4 }, { 1, 2 } ), ;
     { 5, 6 } ) }
 
@@ -1312,7 +1312,7 @@ Static Function f11_view_r05()
 
   Local s := ""
 
-  If !hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip )
+  If !hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() )
     s := "нет файла"
   Elseif Empty( rees->date_out )
     s := "не записан"
@@ -1330,7 +1330,7 @@ Function f2_view_r05( nKey, oBrow )
 
   Do Case
   Case nKey == K_F5
-    zip_file := AllTrim( rees->NAME_XML ) + szip
+    zip_file := AllTrim( rees->NAME_XML ) + szip()
     If f_esc_enter( "записи файла R05 за " + date_8( mdate ) )
       Private p_var_manager := "copy_schet"
       s := manager( T_ROW, T_COL + 5, MaxRow() -2,, .t., 2, .f.,,, ) // "norton" для выбора каталога
@@ -1420,7 +1420,7 @@ Function f3_view_r05( oBrow )
       f31_view_r05( Abs( mm_func[ i ] ), mm_menu[ i ] )
     Else
       mo_xml->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select REES
@@ -1430,7 +1430,7 @@ Function f3_view_r05( oBrow )
 // 12.12.19
 Function f31_view_r05( reg, s )
 
-  Local fl, buf := save_maxrow(), i, j, v, sh := 80, HH := 60, n_file := "r05_spis" + stxt
+  Local fl, buf := save_maxrow(), i, j, v, sh := 80, HH := 60, n_file := "r05_spis.txt"
 
   mywait()
   fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
@@ -2094,8 +2094,8 @@ Function f1_create_r01()
       Skip
     Enddo
     stat_msg( "Запись XML-файла" )
-    oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml )
-    chip_create_zipxml( AllTrim( mo_xml->FNAME ) + szip, { AllTrim( mo_xml->FNAME ) + sxml }, .t. )
+    oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml() )
+    chip_create_zipxml( AllTrim( mo_xml->FNAME ) + szip(), { AllTrim( mo_xml->FNAME ) + sxml() }, .t. )
   Next SMONTH
   rm->( g_rlock( forever ) )
   rm->TWORK2 := hour_min( Seconds() )
@@ -2136,7 +2136,7 @@ Function f_view_r01( tip_f )
 Function f1_view_r01( oBrow )
 
   Local oColumn, ;
-    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip ), ;
+    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() ), ;
     iif( Empty( rees->date_out ), { 3, 4 }, { 1, 2 } ), ;
     { 5, 6 } ) }
 
@@ -2177,7 +2177,7 @@ Static Function f11_view_r01()
 
   Local s := ""
 
-  If !hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip )
+  If !hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() )
     s := "нет файла"
   Elseif Empty( rees->date_out )
     s := "не записан"
@@ -2229,7 +2229,7 @@ Function f2_view_r01( nKey, oBrow )
           If i > 1
             s += ","
           Endif
-          s += " " + AllTrim( arr[ i, 1 ] ) + " (" + AllTrim( arr[ i, 2 ] ) + szip + ")"
+          s += " " + AllTrim( arr[ i, 1 ] ) + " (" + AllTrim( arr[ i, 2 ] ) + szip() + ")"
         Next
         perenos( t_arr, s, 74 )
         f_message( t_arr,, color1, color8 )
@@ -2240,13 +2240,13 @@ Function f2_view_r01( nKey, oBrow )
             If Upper( s ) == Upper( goal_dir )
               func_error( 4, "Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо." )
             Else
-              cFileProtokol := "prot_sch" + stxt
+              cFileProtokol := "prot_sch.txt"
               StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
               smsg := "Файлы R01 записаны на: " + s + " (" + full_date( sys_date ) + "г. " + hour_min( Seconds() ) + ")"
               StrFile( Center( smsg, 80 ) + hb_eol(), cFileProtokol, .t. )
               k := 0
               For i := 1 To Len( arr )
-                zip_file := AllTrim( arr[ i, 2 ] ) + szip
+                zip_file := AllTrim( arr[ i, 2 ] ) + szip()
                 If hb_FileExists( goal_dir + zip_file )
                   mywait( 'Копирование "' + zip_file + '" в каталог "' + s + '"' )
                   // copy file (goal_dir+zip_file) to (hb_OemToAnsi(s)+zip_file)
@@ -2258,7 +2258,7 @@ Function f2_view_r01( nKey, oBrow )
                     smsg := lstr( i ) + ". Пакет " + pname_f + " № " + lstr( rees->nn ) + ;
                       " от " + date_8( mdate ) + "г. (отч.период " + ;
                       lstr( rees->nyear ) + "/" + StrZero( rees->NMONTH, 2 ) + ;
-                      ") " + AllTrim( rees->name_xml ) + szip
+                      ") " + AllTrim( rees->name_xml ) + szip()
                     StrFile( hb_eol() + smsg + hb_eol(), cFileProtokol, .t. )
                     smsg := "   количество пациентов - " + lstr( rees->kol )
                     StrFile( smsg + hb_eol(), cFileProtokol, .t. )
@@ -2362,7 +2362,7 @@ Function f3_view_r01( oBrow )
       f31_view_r01( Abs( mm_func[ i ] ), mm_menu[ i ] )
     Else
       mo_xml->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select REES
@@ -2372,7 +2372,7 @@ Function f3_view_r01( oBrow )
 // 17.08.23
 Function f31_view_r01( reg, s )
 
-  Local fl := .t., buf := save_maxrow(), k := 0, n_file := pname_f + "_SPIS" + stxt, tt := " "
+  Local fl := .t., buf := save_maxrow(), k := 0, n_file := pname_f + "_SPIS.txt", tt := " "
 
   mywait()
   // arr_title := {"────┬───┬───────┬───────────────────────────────────────────┬──────────┬─────────────────────────────────────────┬──────────────────",;
@@ -2489,7 +2489,7 @@ Function f31_view_r01( reg, s )
 // 18.12.19
 Function f32_view_r01()
 
-  Local fl := .t., buf := save_maxrow(), k := 0, skol[ 5, 3 ], ames[ 12, 5, 3 ], mrec := 2, n_file := "r01_itog" + stxt
+  Local fl := .t., buf := save_maxrow(), k := 0, skol[ 5, 3 ], ames[ 12, 5, 3 ], mrec := 2, n_file := "r01_itog.txt"
   Private par := .f.
 
   afillall( skol, 0 )
@@ -2760,7 +2760,7 @@ Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
   ldate_R02 := tmp1->_DATE_F
   r_use( dir_server + "mo_dr01",, "REES" )
   Goto ( arr_XML_info[ 7 ] )
-  StrFile( "Обрабатывается ответ ТФОМС на информационный пакет " + AllTrim( rees->NAME_XML ) + sxml + hb_eol() + ;
+  StrFile( "Обрабатывается ответ ТФОМС на информационный пакет " + AllTrim( rees->NAME_XML ) + sxml() + hb_eol() + ;
     "за " + lstr( rees->NMONTH ) + " мес. " + lstr( rees->NYEAR ) + " года от " + date_8( rees->DSCHET ) + ;
     "г. (" + lstr( rees->kol ) + " чел.)" + hb_eol() + hb_eol(), cFileProtokol, .t. )
   //
@@ -2944,7 +2944,7 @@ Function delete_reestr_r02( mkod_reestr, mname_reestr )
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
     mm_menu := {}, mm_func := {}, mm_flag := {}, mreestr_sp_tk, ;
     arr_f, cFile, oXmlDoc, aerr := {}, is_allow_delete, ;
-    cFileProtokol := "tmp" + stxt
+    cFileProtokol := "tmp.txt"
 
   mywait()
   Select MO_XML
@@ -2987,11 +2987,11 @@ Function delete_reestr_r02( mkod_reestr, mname_reestr )
     mtip_in := mo_xml->TIP_IN
     Close databases
     If !is_allow_delete
-      func_error( 4, "Файл " + cFile + sxml + " корректно прочитан. Аннулирование запрещено!" )
+      func_error( 4, "Файл " + cFile + sxml() + " корректно прочитан. Аннулирование запрещено!" )
       Return 0
     Endif
-    If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF(), cFile + szip ) ) != NIL
-      cFile += sxml
+    If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF(), cFile + szip() ) ) != NIL
+      cFile += sxml()
       // читаем файл в память
       oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
       If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
@@ -3015,7 +3015,7 @@ Function delete_reestr_r02( mkod_reestr, mname_reestr )
             Use ( cur_dir() + "tmp1file" ) New Alias TMP1
             Use ( cur_dir() + "tmp2file" ) New Alias TMP2
             arr := {}
-            AAdd( arr, "Информационный пакет " + AllTrim( rees->NAME_XML ) + sxml + " от " + date_8( rees->DSCHET ) + "г." )
+            AAdd( arr, "Информационный пакет " + AllTrim( rees->NAME_XML ) + sxml() + " от " + date_8( rees->DSCHET ) + "г." )
             AAdd( arr, "за " + lstr( rees->NMONTH ) + " мес. " + lstr( rees->NYEAR ) + ;
               " года, кол-во пациентов " + lstr( rees->kol ) + " чел." )
             AAdd( arr, "" )

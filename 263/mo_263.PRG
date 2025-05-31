@@ -794,7 +794,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
       mybell( 4, OK )
     Endif
   Else
-    name_file := cur_dir() + '263error' + stxt()
+    name_file := cur_dir() + '263error.txt'
     fp := FCreate( name_file )
     n_list := 1
     tek_stroke := 0
@@ -887,7 +887,7 @@ Function _263_to_sostavlenie()
   Endif
   mywait()
   //
-  Private cFileProtokol := cur_dir() + 'tmp' + stxt(), cTimeBegin := hour_min( Seconds() )
+  Private cFileProtokol := cur_dir() + 'tmp.txt', cTimeBegin := hour_min( Seconds() )
   name_txt := DToS( sys_date ) + '_' + CharRem( ':', PadR( SecToTime( Seconds() ), 8 ) ) + stxt()
   //
   r_use( dir_server + 'mo_pers', , 'P2' )
@@ -1029,9 +1029,9 @@ Function _263_to_sostavlenie()
         mo_add_xml_stroke( oCon, 'TEL_F', Left( kart_->PHONE_W, 1 ) + '-' + SubStr( kart_->PHONE_W, 2, 4 ) + '-' + SubStr( kart_->PHONE_W, 6 ) )
       Endif
     Next
-    oXmlDoc:save( nfile + sxml )
+    oXmlDoc:save( nfile + sxml() )
     name_zip := nfile + szip()
-    If chip_create_zipxml( name_zip, { nfile + sxml }, .t., 2 )
+    If chip_create_zipxml( name_zip, { nfile + sxml() }, .t., 2 )
       nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
       nf->TXT_F := name_txt
       AAdd( arr_f, { nfile, Len( arr_i01[ i, 2 ] ) } )
@@ -1125,9 +1125,9 @@ Function _263_to_sostavlenie()
           mo_add_xml_stroke( oDate_hosp, 'DATE_REF', date2xml( napr->DATE_3 ) )
           mo_add_xml_stroke( oDate_hosp, 'REASON_REF', lstr( napr->REA_ANNUL ) )
         Next
-        oXmlDoc:save( nfile + sxml )
+        oXmlDoc:save( nfile + sxml() )
         name_zip := nfile + szip()
-        If chip_create_zipxml( name_zip, { nfile + sxml }, .t., 2 )
+        If chip_create_zipxml( name_zip, { nfile + sxml() }, .t., 2 )
           nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
           nf->TXT_F := name_txt
           AAdd( arr_f, { nfile, Len( arr_i03[ i, 2 ] ) } )
@@ -1261,9 +1261,9 @@ Function _263_to_sostavlenie()
         Endif
         mo_add_xml_stroke( oPAC, 'REG_OMS', mokato )
       Next
-      oXmlDoc:save( nfile + sxml )
+      oXmlDoc:save( nfile + sxml() )
       name_zip := nfile + szip()
-      If chip_create_zipxml( name_zip, { nfile + sxml }, .t., 2 )
+      If chip_create_zipxml( name_zip, { nfile + sxml() }, .t., 2 )
         nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
         nf->TXT_F := name_txt
         AAdd( arr_f, { nfile, Len( arr_i04[ i, 2 ] ) } )
@@ -1394,9 +1394,9 @@ Function _263_to_sostavlenie()
           mo_add_xml_stroke( oPAC, 'REG_OMS', mokato )
         Endif
       Next
-      oXmlDoc:save( nfile + sxml )
+      oXmlDoc:save( nfile + sxml() )
       name_zip := nfile + szip()
-      If chip_create_zipxml( name_zip, { nfile + sxml }, .t., 2 )
+      If chip_create_zipxml( name_zip, { nfile + sxml() }, .t., 2 )
         nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
         nf->TXT_F := name_txt
         AAdd( arr_f, { nfile, Len( arr_i05[ i, 2 ] ) } )
@@ -1500,9 +1500,9 @@ Function _263_to_sostavlenie()
           mo_add_xml_stroke( oPAC, 'ENP', kart_->NPOLIS )
         Endif
       Next
-      oXmlDoc:save( nfile + sxml )
+      oXmlDoc:save( nfile + sxml() )
       name_zip := nfile + szip()
-      If chip_create_zipxml( name_zip, { nfile + sxml }, .t., 2 )
+      If chip_create_zipxml( name_zip, { nfile + sxml() }, .t., 2 )
         nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
         nf->TXT_F := name_txt
         AAdd( arr_f, { nfile, Len( arr_i06[ i, 2 ] ) } )
@@ -1612,9 +1612,9 @@ Function _263_to_sostavlenie()
       Select N7
       Skip
     Enddo
-    oXmlDoc:save( nfile + sxml )
+    oXmlDoc:save( nfile + sxml() )
     name_zip := nfile + szip()
-    If chip_create_zipxml( name_zip, { nfile + sxml }, .t., 2 )
+    If chip_create_zipxml( name_zip, { nfile + sxml() }, .t., 2 )
       nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
       nf->TXT_F := name_txt
       Select D7
@@ -1803,7 +1803,7 @@ Function f1_263_to_i01( k )
 Function f2_263_to_i01( nKey, oBrow, regim )
 
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
-    n_file := cur_dir() + 'i01' + stxt(), sh := 80, HH := 60, t_arr[ 4 ], s, s1, s2, s3, s4
+    n_file := cur_dir() + 'i01.txt', sh := 80, HH := 60, t_arr[ 4 ], s, s1, s2, s3, s4
 
   If regim == 'edit'
     Do Case
@@ -1960,7 +1960,7 @@ Function _263_to_i03()
 Function f2_263_to_i03( nKey, oBrow, regim )
 
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
-    n_file := cur_dir() + 'I03' + stxt(), sh := 80, HH := 60, t_arr[ 4 ], s1, s2, s3, s4
+    n_file := cur_dir() + 'I03.txt', sh := 80, HH := 60, t_arr[ 4 ], s1, s2, s3, s4
 
   If regim == 'edit'
     Do Case
@@ -2307,7 +2307,7 @@ Function _263_to_i06()
 Function f2_263_to_i06( nKey, oBrow, regim )
 
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, s1, s2, s3, s4, ;
-    n_file := cur_dir() + 'i06' + stxt(), sh := 80, HH := 60, t_arr[ 4 ]
+    n_file := cur_dir() + 'i06.txt', sh := 80, HH := 60, t_arr[ 4 ]
 
   If regim == 'edit'
     Do Case
@@ -2571,7 +2571,7 @@ Function _263_from_read()
       AAdd( arr_f, af[ i ] )
     Endif
   Next
-  Private cFileProtokol := cur_dir() + 'tmp' + stxt(), cTimeBegin := hour_min( Seconds() )
+  Private cFileProtokol := cur_dir() + 'tmp.txt', cTimeBegin := hour_min( Seconds() )
   StrFile( Space( 10 ) + 'Протокол чтения информационных пакетов из ТФОМС' + hb_eol(), cFileProtokol )
   StrFile( Space( 10 ) + full_date( sys_date ) + 'г. ' + cTimeBegin + hb_eol(), cFileProtokol, .t. )
   name_txt := DToS( sys_date ) + '_' + CharRem( ':', PadR( SecToTime( Seconds() ), 8 ) ) + stxt()
@@ -2598,7 +2598,7 @@ Function _263_from_read()
       Elseif ( n := AScan( af, {| x| Upper( name_without_ext( x ) ) == Upper( cName ) } ) ) > 0
         // нормально
       Else
-        AAdd( aerr, 'В архиве ' + name_zip + ' нет файла ' + cName + sxml )
+        AAdd( aerr, 'В архиве ' + name_zip + ' нет файла ' + cName + sxml() )
       Endif
     Endif
     If Empty( aerr )
@@ -2624,7 +2624,7 @@ Function _263_from_read()
             //
             If tmp1->OSHIB == 0 // файл уже был загружен в ТФОМС
               // ???????????????nf->T_ANS := 2  // тип ответа (2-ошибка)
-              AAdd( aerr, 'Файл ' + AllTrim( nf->NAME_F ) + sxml + ' уже был загружен в ТФОМС (а у нас нет информации об этом)?' )
+              AAdd( aerr, 'Файл ' + AllTrim( nf->NAME_F ) + sxml() + ' уже был загружен в ТФОМС (а у нас нет информации об этом)?' )
             Elseif is_err // ошибки
               If tmp1->kol2 == 0
                 Select TMP2
@@ -2927,7 +2927,7 @@ Function _263_from_read()
               If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == sFrom } ) ) > 0
                 s := 'от МО "' + glob_arr_mo[ i, _MO_SHORT_NAME ] + '"'
               Else
-                AAdd( aerr, 'Файл ' + cName + sxml + ' неизвестно от кого (неизвестный код МО ' + sFrom + ')' )
+                AAdd( aerr, 'Файл ' + cName + sxml() + ' неизвестно от кого (неизвестный код МО ' + sFrom + ')' )
               Endif
             Elseif c == 'S'
               s := SubStr( s, 2 )
@@ -2940,10 +2940,10 @@ Function _263_from_read()
               Elseif s == '34006'
                 s := 'от СМО "Максимус"'
               Else
-                AAdd( aerr, 'Файл ' + cName + sxml + ' от неизвестной СМО (код ' + s + ')' )
+                AAdd( aerr, 'Файл ' + cName + sxml() + ' от неизвестной СМО (код ' + s + ')' )
               Endif
             Else
-              AAdd( aerr, 'Файл ' + cName + sxml + ' неизвестно от кого' )
+              AAdd( aerr, 'Файл ' + cName + sxml() + ' неизвестно от кого' )
             Endif
             If Empty( aerr )
               ar := { 'о выписанных в поликлинике направлениях', ;
@@ -3690,7 +3690,7 @@ Function f1_263_from_i01( k )
 Function f2_263_from_i01( nKey, oBrow, regim )
 
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
-    n_file := cur_dir() + 'i01' + stxt(), sh := 80, HH := 60, t_arr[ 4 ], s1, s2, s3, s4
+    n_file := cur_dir() + 'i01.txt', sh := 80, HH := 60, t_arr[ 4 ], s1, s2, s3, s4
 
   If regim == 'edit'
     Do Case
@@ -3955,7 +3955,7 @@ Function _263_protokol_tmpfile( nfile, aerr )
   { 'KOD_NAPR',   'N',  6, 0 } ;   // код по БД направлений
   }
   dbCreate( cur_dir() + 'tmp2file', adbf, , .t., 'TMP2' )  // элементы PR
-  If Upper( Right( nfile, 4 ) ) == sxml
+  If Upper( Right( nfile, 4 ) ) == sxml()
     // читаем файл в память
     oXmlDoc := hxmldoc():read( _tmp_dir1() + nfile )
     is_err_FLK := ( oXmlDoc == NIL )
@@ -4042,7 +4042,7 @@ Function _263_i01_tmpfile( nfile, aerr )
   dbCreate( cur_dir() + 'tmp1file', _table1, , .t., 'TMP1' )
   Append Blank
   dbCreate( cur_dir() + 'tmp2file', _table2, , .t., 'TMP2' )
-  If Upper( Right( nfile, 4 ) ) == sxml
+  If Upper( Right( nfile, 4 ) ) == sxml()
     fl := .t.
     // читаем файл в память
     oXmlDoc := hxmldoc():read( _tmp_dir1() + nfile )
@@ -4148,7 +4148,7 @@ Function _263_i03_tmpfile( nfile, aerr )
   dbCreate( cur_dir() + 'tmp1file', _table1, , .t., 'TMP1' )
   Append Blank
   dbCreate( cur_dir() + 'tmp2file', _table2, , .t., 'TMP2' )
-  If Upper( Right( nfile, 4 ) ) == sxml
+  If Upper( Right( nfile, 4 ) ) == sxml()
     fl := .t.
     // читаем файл в память
     oXmlDoc := hxmldoc():read( _tmp_dir1() + nfile )
@@ -4244,7 +4244,7 @@ Function _263_i04_tmpfile( nfile, aerr )
   dbCreate( cur_dir() + 'tmp1file', _table1, , .t., 'TMP1' )
   Append Blank
   dbCreate( cur_dir() + 'tmp2file', _table2, , .t., 'TMP2' )
-  If Upper( Right( nfile, 4 ) ) == sxml
+  If Upper( Right( nfile, 4 ) ) == sxml()
     fl := .t.
     // читаем файл в память
     oXmlDoc := hxmldoc():read( _tmp_dir1() + nfile )
@@ -4362,7 +4362,7 @@ Function _263_i06_tmpfile( nfile, aerr )
   dbCreate( cur_dir() + 'tmp1file', _table1, , .t., 'TMP1' )
   Append Blank
   dbCreate( cur_dir() + 'tmp2file', _table2, , .t., 'TMP2' )
-  If Upper( Right( nfile, 4 ) ) == sxml
+  If Upper( Right( nfile, 4 ) ) == sxml()
     fl := .t.
     // читаем файл в память
     oXmlDoc := hxmldoc():read( _tmp_dir1() + nfile )
@@ -4504,7 +4504,7 @@ Function _263_i07_tmpfile( nfile, aerr )
   dbCreate( cur_dir() + 'tmp1file', _table1, , .t., 'TMP1' )
   Append Blank
   dbCreate( cur_dir() + 'tmp2file', _table2, , .t., 'TMP2' )
-  If Upper( Right( nfile, 4 ) ) == sxml
+  If Upper( Right( nfile, 4 ) ) == sxml()
     fl := .t.
     // читаем файл в память
     oXmlDoc := hxmldoc():read( _tmp_dir1() + nfile )

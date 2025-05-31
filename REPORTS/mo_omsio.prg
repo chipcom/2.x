@@ -777,7 +777,7 @@ Function ob2_statist( k, serv_arr )
       Endif
     Endif
     Set( _SET_DELETED, .t. )
-    fp := FCreate( "ob_stat" + stxt ) ; tek_stroke := 0 ; n_list := 1
+    fp := FCreate( "ob_stat.txt" ) ; tek_stroke := 0 ; n_list := 1
     add_string( PadL( "дата печати " + date_8( sys_date ), sh ) )
     If k == 0
       ob6_statist()
@@ -1144,7 +1144,7 @@ Function ob2_statist( k, serv_arr )
     Endif
     FClose( fp )
     Close databases
-    viewtext( "ob_stat" + stxt,,,, ( sh > 80 ),,, regim )
+    viewtext( "ob_stat.txt",,,, ( sh > 80 ),,, regim )
   Endif
   Return Nil
 
@@ -2251,7 +2251,7 @@ Function proch_proverka()
   Static mm_logical := { { "логическое И  ", 1 }, ;
     { "логическое ИЛИ", 2 } }
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
-    name_file := "proverka" + stxt, i, j, arr_usl, ;
+    name_file := "proverka.txt", i, j, arr_usl, ;
     sh := 64, HH := 57, reg_print := 2, r1 := 9, cdate, mdiagnoz, ;
     mm_da_net := { { "нет", 1 }, { "да ", 2 } }, lcount_uch
 
@@ -2911,7 +2911,7 @@ Function o_pr_vr_as( reg )
   Local mas_msg := { "Проверка на отсутствие кода по невыписанным счетам", ;
     "Проверка на отсутствие кода по дате выписки счета" }
   Local i, j, k, arr, fl, fl_exit := .f., buf := save_maxrow(), ;
-    s, sh, HH := 57, arr_title, name_file := "proverka" + stxt, ;
+    s, sh, HH := 57, arr_title, name_file := "proverka.txt", ;
     arr_usl := {}, lcount_uch
 
   If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5,,, @lcount_uch ) ) == NIL
@@ -3103,7 +3103,7 @@ Function o_pr_vr_as( reg )
 Function i_vr_boln()
 
   Local sh := 80, HH := 60, old_d := "", begin_date, end_date, arr_m, ;
-    name_file := "lech_vr" + stxt, i, j, s, skol := 0, ab := {}
+    name_file := "lech_vr.txt", i, j, s, skol := 0, ab := {}
 
   If ( arr_m := year_month() ) == NIL
     Return Nil
@@ -3187,7 +3187,7 @@ Function posik_smp_n_d()
 /*
 Local i, j, k, arr, s, buf := save_maxrow(), fl_exit := .f., sh := 65, ;
       old_f, old_n, old_d, HH := 80, reg_print := 1, ;
-      name_file := "smp_n_d"+stxt
+      name_file := "smp_n_d.txt"
 if (arr_m := year_month()) == NIL
   return NIL
 endif
@@ -3254,7 +3254,7 @@ Function poisk_rassogl()
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
     fl_exit := .f., sh := 80, HH := 80, reg_print := 5, pi1, fl_parakl, ;
-    name_file := "rassogl" + stxt, lcount_uch, sschet
+    name_file := "rassogl.txt", lcount_uch, sschet
 
   If ( arr_m := year_month() ) == NIL
     Return Nil

@@ -586,7 +586,7 @@ return ret
 ***** 13.11.18 à¨ç¨­ë ¯®«®¬®ª ¯à®â¥§®¢
 Function O_pr_polom()
 Local buf := save_row(maxrow()), sh, HH := 58, skol, arr, arr_title,;
-      begin_date, end_date, name_file := "orto_pp"+stxt
+      begin_date, end_date, name_file := "orto_pp.txt"
 arr_title := {;
 "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
 "      à¨ç¨­ë ¯®«®¬®ª ¯à®â¥§®¢          ³  Š®«¨ç¥áâ¢®  ",;
@@ -661,7 +661,7 @@ return NIL
 Function O_sb_pr_polom()
 Static sk
 Local buf := save_row(maxrow()), sh, HH := 58, skol, arr, arr_title,;
-      k, begin_date, end_date, name_file := "orto_pps"+stxt
+      k, begin_date, end_date, name_file := "orto_pps.txt"
 arr_title := {;
 "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄ",;
 "                                                  ³   àï¤-§ ª § ³’ ¡.ü",;
@@ -2983,7 +2983,7 @@ usl->(dbclosearea())
 // Œ€’…ˆ€‹›
 //
 //Local arr, sh, HH := 58, s, s1, s2, s3, fl,;
-//      begin_date, end_date, fl_exit := .f., name_file := "orto_mt"+stxt,;
+//      begin_date, end_date, fl_exit := .f., name_file := "orto_mt.txt",;
 //      tip_tit, s4
 //Local reg, reg1, mperso, musluga, mkod
 //Local msl1usluga, msl2usluga, l_delen, mslusluga
@@ -3160,7 +3160,7 @@ return NIL
 Function orto_list_uch(tip_print)
 Local sh := 80, HH := 55, buf := save_row(maxrow()), regim_print := 2
 Local i := 1, j, k, tmp[2], tmp1, w1 := 65, s, fl, rec
-Local n_file := "narad"+stxt, arr, mfam1, mima1, mots1, m1vid_ud
+Local n_file := "narad.txt", arr, mfam1, mima1, mots1, m1vid_ud
 if tip_print == 1
   if !empty(file_sh1)
     f1_pr_shab(file_sh1)
@@ -3362,7 +3362,7 @@ return NIL
 ***** 05.09.18
 Function Ort_nar_material()
 Local arr, sh, HH := 58, s, s1, s2, s3, fl,;
-      begin_date, end_date, fl_exit := .f., name_file := "orto_mt"+stxt,;
+      begin_date, end_date, fl_exit := .f., name_file := "orto_mt.txt",;
       tip_tit, s4,;
     arr_title := {;
 "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;

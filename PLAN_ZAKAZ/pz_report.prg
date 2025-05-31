@@ -56,7 +56,7 @@ Function pz1statist( par, par2 )
 
   Static _su := 2
   Local buf := SaveScreen(), fl_exit := .f., fl := .t., a_otd := {}, ;
-    name_file := cur_dir + 'plan_z' + stxt, arr_m, ta[ 2 ], arr_title, ;
+    name_file := cur_dir + 'plan_z.txt', arr_m, ta[ 2 ], arr_title, ;
     sh := 80, HH := 60, reg_print := 2, ;
     mstr_crb, ltrud, lplan, lcount_uch, lcount_otd, mismo
   Local sbase, i, k, j
@@ -1865,7 +1865,7 @@ Function pz22statist( nKey, oBrow )
 Function pz_raschet_potr()
 
   Local buf := SaveScreen(), fl_exit := .f., i, j, k, lreg_lech[ 9 ], ;
-    name_file := cur_dir + 'pz_r_p' + stxt, arr_m, ta[ 2 ], arr_title, lshifr, ;
+    name_file := cur_dir + 'pz_r_p.txt', arr_m, ta[ 2 ], arr_title, lshifr, ;
     d2_year, sh := 80, HH := 80, reg_print := 5, au
   local s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim
   // для Excel

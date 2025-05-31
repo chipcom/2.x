@@ -549,7 +549,7 @@ if !fl_exit .and. k > 0
   use (cur_dir+"tmp") new
   index on god to tmp unique memory
   dbeval({|| aadd(agod,tmp->god) })
-  name_file := "del_zub"+stxt
+  name_file := "del_zub.txt"
   HH := 60
   arr_title := {;
     "─────────────────┬───────────────┬───────────────┬───────────────",;
@@ -778,7 +778,7 @@ if !fl_exit
 "────────────────┴──────────┴────────────┴────────────┴────────────┴────────────┴────────────┴────────────┴─────────────"}
     sh := len(arr_title[1])
     //
-    nfile := "phone_15"+stxt
+    nfile := "phone_15.txt"
     fp := fcreate(nfile) ; n_list := 1 ; tek_stroke := 0
     add_string(center("Статистика оказания стационарной медицинской помощи лицам пожилого возраста",sh))
     add_string(center(arr_m[4],sh))
@@ -1194,7 +1194,7 @@ if !fl_exit
   "───────┴──────┴────────────┴──────┴────────────┴──────┴────────────┴──────┴────────────┴──────┴────────────"}
     sh := len(arr_title[1])
     //
-    nfile := "pr_792"+stxt
+    nfile := "pr_792.txt"
     fp := fcreate(nfile) ; n_list := 1 ; tek_stroke := 0
     add_string(center("Фактические показатели объёма и финансового обеспечения специализированной медицинской помощи, оказанной в",sh))
     add_string(center("стационарных условиях, по отдельным профилям медицинской помощи за 2016 год (в тыс.руб.)",sh))
@@ -1308,8 +1308,8 @@ return k
 Function monitoring_vid_pom()
 Static mm_schet := {{"все случаи",1},{"в выставленных счетах",2},{"в зарегистрированных счетах",3}}
 Local mm_tmp := {}, buf := savescreen(), tmp_color := setcolor(cDataCGet),;
-      tmp_help := help_code, hGauge, name_file := "mon_kz"+stxt,;
-      sh := 80, HH := 60, i, k, tmp_file := "tmp_mon"+sdbf, r1, r2
+      tmp_help := help_code, hGauge, name_file := "mon_kz.txt",;
+      sh := 80, HH := 60, i, k, tmp_file := "tmp_mon"+sdbf(), r1, r2
 Private pdate_lech
 //
 aadd(mm_tmp, {"date_lech","N",4,0,NIL,;

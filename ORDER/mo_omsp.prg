@@ -531,7 +531,7 @@ Function view_rpd_pd( lrec )
   t_arr[ BR_BOTTOM ] := 22
   t_arr[ BR_LEFT ] := 2
   t_arr[ BR_RIGHT ] := 77
-  t_arr[ BR_TITUL ] := "„ " + AllTrim( mo_xml->FNAME ) + sxml + " ®â " + date_8( mo_xml->dfile )
+  t_arr[ BR_TITUL ] := "„ " + AllTrim( mo_xml->FNAME ) + sxml() + " ®â " + date_8( mo_xml->dfile )
   t_arr[ BR_TITUL_COLOR ] := "B/G*"
   t_arr[ BR_COLOR ] := color0
   t_arr[ BR_ARR_BROWSE ] := { 'Í', '°', 'Í', "N/BG,W+/N,B/BG,W+/B", .t. }
@@ -1450,8 +1450,9 @@ Function akt_sverki_smo()
   Elseif ireg == 3
     name_file += "s"
   Endif
+  name_file += stxt()
   mywait()
-  fp := FCreate( name_file + stxt() ) ; n_list := 1 ; tek_stroke := 0
+  fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
   add_string( glob_mo[ _MO_SHORT_NAME ] )
   If ireg == 1
     For i := 1 To 2
@@ -1544,8 +1545,7 @@ Function akt_sverki_smo()
   Close databases
   FClose( fp )
   rest_box( buf )
-  viewtext( name_file + stxt(), , , , .t., , , 2 )
-
+  viewtext( name_file, , , , .t., , , 2 )
   Return Nil
 
 // 14.02.19
@@ -1704,7 +1704,7 @@ Function pr1_oborot_schet()
 // 30.03.23
 Function f1pr1_oborot_schet( asmo, ssmo )
 
-  Local adbf, i, n, arr_title, n_file := "oborot1" + stxt(), sh, HH := 60, buf := save_maxrow()
+  Local adbf, i, n, arr_title, n_file := "oborot1.txt", sh, HH := 60, buf := save_maxrow()
 
   mywait()
   adbf := { { "nschet", "C", 15, 0 }, ;

@@ -12,7 +12,7 @@ Function verify_oms( arr_m, fl_view )
   // 1 эл. - кол-во обычных случаев, 
   // 2 эл. - кол-во случаев диспансеризации
 
-  Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := cur_dir + 'err_sl' + stxt, ;
+  Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := cur_dir + 'err_sl.txt', ;
     name_file2, name_file3, kr_unlock, i, ;
     mas_pmt := { 'Список обнаруженных ошибок в результате проверки' }, mas_file := {}
   // local kol_1r := 0, ; // количество обычных случаев
@@ -259,7 +259,7 @@ Function verify_oms( arr_m, fl_view )
     Enddo
   Endif
   If fl_view .and. d_srok->( LastRec() ) > 0
-    name_file2 := cur_dir + 'err_sl2' + stxt
+    name_file2 := cur_dir + 'err_sl2.txt'
     Delete File ( name_file2 )
     AAdd( mas_pmt, 'Случаи повторных обращений по поводу одного заболевания' )
     AAdd( mas_file, name_file2 )
@@ -340,7 +340,7 @@ Function verify_oms( arr_m, fl_view )
     Enddo
   Endif
   If fl_view .and. tmp_no->( LastRec() ) > 0
-    name_file3 := cur_dir + 'err_sl3' + stxt
+    name_file3 := cur_dir + 'err_sl3.txt'
     AAdd( mas_pmt, 'Список листов учёта, которые не проверялись' )
     AAdd( mas_file, name_file3 )
     fp := FCreate( name_file3 )
@@ -425,7 +425,7 @@ Function verify_oms( arr_m, fl_view )
 // 15.06.24
 Function verify_oms_sluch( mkod )
 
-  Local buf := save_maxrow(), fl := .t., name_file := cur_dir + 'err_sl' + stxt
+  Local buf := save_maxrow(), fl := .t., name_file := cur_dir + 'err_sl.txt'
 
   mywait()
   f_create_diag_srok( 'tmp_d_srok' )

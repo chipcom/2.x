@@ -557,8 +557,8 @@ Function f1_create_r11( lm, fl_dr00 )
     Skip
   Enddo
   stat_msg( "‡ ―¨αμ XML-δ ©« " )
-  oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml )
-  chip_create_zipxml( AllTrim( mo_xml->FNAME ) + szip, { AllTrim( mo_xml->FNAME ) + sxml }, .t. )
+  oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml() )
+  chip_create_zipxml( AllTrim( mo_xml->FNAME ) + szip(), { AllTrim( mo_xml->FNAME ) + sxml() }, .t. )
   rm->( g_rlock( forever ) )
   rm->TWORK2 := hour_min( Seconds() )
   Close databases
@@ -837,7 +837,7 @@ return NIL
 // 25.02.21
 Function f32_view_r11( lm )
 
-  Local fl := .t., buf := save_maxrow(), k := 0, skol[ 5, 3 ], ames[ 12, 5, 3 ], mrec := 2, n_file := "r11_itog" + stxt, ;
+  Local fl := .t., buf := save_maxrow(), k := 0, skol[ 5, 3 ], ames[ 12, 5, 3 ], mrec := 2, n_file := "r11_itog.txt", ;
     arr_rees := {}, mkod_reestr := 0
   Private par := .f.
 

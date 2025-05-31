@@ -309,7 +309,7 @@ Function f1create_reestr( oBrow )
 // 19.11.23
 Function f2create_reestr( nKey, oBrow )
 
-  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := cur_dir + 'spisok' + stxt, j := 0
+  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := cur_dir() + 'spisok.txt', j := 0
 
   Do Case
   Case nkey == K_F9

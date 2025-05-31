@@ -538,7 +538,7 @@ Function create_file_hodatajstvo(arr_m)
       endif
     next
     close databases
-    if chip_create_zipXML(n_file+szip,arr_zip,.t.)
+    if chip_create_zipXML(n_file+szip(),arr_zip,.t.)
       view_list_hodatajstvo()
     endif
   endif
@@ -569,7 +569,7 @@ Function view_list_hodatajstvo()
   ***** 22.02.17
   Function f1_view_list_hodatajstvo(oBrow)
   Local oColumn, ;
-        blk := {|| iif(hb_fileExists(goal_dir+alltrim(hod->FNAME)+szip), ;
+        blk := {|| iif(hb_fileExists(goal_dir+alltrim(hod->FNAME)+szip()), ;
                        iif(empty(hod->date_out), {3,4}, {1,2}),;
                        {5,6}) }
   oColumn := TBColumnNew("Номер",{|| hod->nn })
@@ -603,7 +603,7 @@ Function view_list_hodatajstvo()
 Static Function f11_view_list_hodatajstvo()
   Local s := ""
 
-  if !hb_fileExists(goal_dir+alltrim(hod->FNAME)+szip)
+  if !hb_fileExists(goal_dir+alltrim(hod->FNAME)+szip())
     s := "нет файла"
   elseif empty(hod->date_out)
     s := "не записан"
@@ -621,7 +621,7 @@ Function f2_view_list_hodatajstvo(nKey,oBrow)
 
   do case
     case nKey == K_ENTER
-      if (arr_f := Extract_Zip_XML(goal_dir,alltrim(hod->FNAME)+szip)) != NIL
+      if (arr_f := Extract_Zip_XML(goal_dir,alltrim(hod->FNAME)+szip())) != NIL
         if (k := len(arr_f)) > 1
           stat_msg("Ждите. Сейчас будут открыты "+lstr(k)+" таблицы Excel в разных окнах.")
         else
@@ -641,7 +641,7 @@ Function f2_view_list_hodatajstvo(nKey,oBrow)
           if upper(s) == upper(goal_dir)
             func_error(4,"Вы выбрали каталог, в котором уже записан целевой файл! Это недопустимо.")
           else
-            zip_file := alltrim(hod->FNAME)+szip
+            zip_file := alltrim(hod->FNAME)+szip()
             if hb_fileExists(goal_dir+zip_file)
               mywait('Копирование "'+zip_file+'" в каталог "'+s+'"')
               //copy file (goal_dir+zip_file) to (hb_OemToAnsi(s)+zip_file)
@@ -678,7 +678,7 @@ Function f2_view_list_hodatajstvo(nKey,oBrow)
             if !found() ; exit ; endif
             DeleteRec(.t.)
           enddo
-          zip_file := alltrim(hod->fname)+szip
+          zip_file := alltrim(hod->fname)+szip()
           if hb_fileExists(goal_dir+zip_file)
             delete file (goal_dir+zip_file)
           endif

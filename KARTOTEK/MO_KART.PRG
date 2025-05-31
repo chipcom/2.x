@@ -2447,7 +2447,7 @@ Function dubl_zap( r, c )
 Function f1dubl_zap()
 
   Static si := 1
-  Local hGauge, sh, HH := 77, name_file := cur_dir + 'dubl_zap' + stxt, j1, ;
+  Local hGauge, sh, HH := 77, name_file := cur_dir() + 'dubl_zap.txt', j1, ;
     fl := .t., sfio, old_fio, k := 0, rec1, curr := 0, buf, ;
     mfio, mdate_r, mpolis, arr_title, reg_print := 4, ;
     arr := { ' По ~ФИО+дата рожд. ', ' По ~полису ', ' По ~СНИЛС ', ' По ~ЕНП ' }
@@ -3320,7 +3320,7 @@ Function kartotek_to_screen( r1, r2 )
 // 20.11.15 Подсчёт количества пациентов, прикреплённых ко всем участковым врачам
 Function prn_itogo_uch_vrach()
 
-  Local sh, HH := 60, name_file := cur_dir + 'uchvrach' + stxt, arr_title
+  Local sh, HH := 60, name_file := cur_dir + 'uchvrach.txt', arr_title
   Local ii := 0, buf := save_maxrow(), i, j, k, fl, arr := ret_arr_uch_vrach()
 
   mywait()
