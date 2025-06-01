@@ -439,7 +439,7 @@ Function fget_spec_dvn( k, r, c, a_spec, lFull )
     { 31, 1 }, ;
     { 97, 1 };
     }
-  local s, blk, t_arr[ BR_LEN ], n_file := cur_dir + 'tmpspecdvn', i
+  local s, blk, t_arr[ BR_LEN ], n_file := cur_dir() + 'tmpspecdvn', i
   Local tmp_select := Select()
 
   default lFull to .f.
@@ -454,7 +454,7 @@ Function fget_spec_dvn( k, r, c, a_spec, lFull )
       { 'is', 'L', 1, 0 } ;
     } )
     Use ( n_file ) New Alias SDVN
-    Use ( cur_dir + 'tmp_v015' ) index ( cur_dir + 'tmpkV015' ) New Alias tmp_ga
+    Use ( cur_dir() + 'tmp_v015' ) index ( cur_dir() + 'tmpkV015' ) New Alias tmp_ga
     Go Top
     Do While !Eof()
       if lFull

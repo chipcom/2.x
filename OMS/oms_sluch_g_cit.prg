@@ -462,7 +462,7 @@ Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
       endif
       if fl_nameismo .or. rec_inogSMO > 0
         G_Use(dir_server + 'mo_hismo', , 'SN')
-        index on str(kod, 7) to (cur_dir + 'tmp_ismo')
+        index on str(kod, 7) to (cur_dir() + 'tmp_ismo')
         find (str(mkod, 7))
         if found()
           if fl_nameismo

@@ -57,8 +57,8 @@ Function okato_index( flag )
   Default flag To .f.
 
   For i := 1 To Len( arr_f )
-    If files_time( dir_exe() + arr_f[ i ] + sdbf, cur_dir + arr_i1[ i ] + sntx() ) .or. ;
-        files_time( dir_exe() + arr_f[ i ] + sdbf, cur_dir + arr_i2[ i ] + sntx() )
+    If files_time( dir_exe() + arr_f[ i ] + sdbf, cur_dir() + arr_i1[ i ] + sntx() ) .or. ;
+        files_time( dir_exe() + arr_f[ i ] + sdbf, cur_dir() + arr_i2[ i ] + sntx() )
       fl_index := .t.
       Exit
     Endif
@@ -79,20 +79,20 @@ Static Function oktadindbase( k )
   k := Lower( k )
   Do Case
   Case k == '_okator'
-    Index On okato to ( cur_dir + '_okatr' ) progress
-    Index On okato + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir + '_okatrn' ) progress
+    Index On okato to ( cur_dir() + '_okatr' ) progress
+    Index On okato + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir() + '_okatrn' ) progress
   Case k == '_okatoo'
-    Index On okato to ( cur_dir + '_okato' ) progress
-    Index On SubStr( okato, 1, 5 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir + '_okaton' ) progress
+    Index On okato to ( cur_dir() + '_okato' ) progress
+    Index On SubStr( okato, 1, 5 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir() + '_okaton' ) progress
   Case k == '_okatos'
-    Index On okato to ( cur_dir + '_okats' ) progress
-    Index On SubStr( okato, 1, 8 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir + '_okatsn' ) progress
+    Index On okato to ( cur_dir() + '_okats' ) progress
+    Index On SubStr( okato, 1, 8 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir() + '_okatsn' ) progress
   Case k == '_okatoo8'
-    Index On okato to ( cur_dir + '_okato8' ) progress
-    Index On SubStr( okato, 1, 5 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir + '_okaton8' ) progress
+    Index On okato to ( cur_dir() + '_okato8' ) progress
+    Index On SubStr( okato, 1, 5 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir() + '_okaton8' ) progress
   Case k == '_okatos8'
-    Index On okato to ( cur_dir + '_okats8' ) progress
-    Index On SubStr( okato, 1, 8 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir + '_okatsn8' ) progress
+    Index On okato to ( cur_dir() + '_okats8' ) progress
+    Index On SubStr( okato, 1, 8 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir() + '_okatsn8' ) progress
   Endcase
 
   Return Nil
@@ -106,15 +106,15 @@ Static Function oktadusebase( k, _region )
   Endif
   Do Case
   Case k == '_okator'
-    r_use( dir_exe() + '_okator', { cur_dir + '_okatr', cur_dir + '_okatrn' }, 'REGION' )
+    r_use( dir_exe() + '_okator', { cur_dir() + '_okatr', cur_dir() + '_okatrn' }, 'REGION' )
   Case k == '_okatoo'
-    r_use( dir_exe() + '_okatoo', { cur_dir + '_okato', cur_dir + '_okaton' }, 'OBLAST' )
+    r_use( dir_exe() + '_okatoo', { cur_dir() + '_okato', cur_dir() + '_okaton' }, 'OBLAST' )
   Case k == '_okatos'
-    r_use( dir_exe() + '_okatos', { cur_dir + '_okats', cur_dir + '_okatsn' }, 'SELO' )
+    r_use( dir_exe() + '_okatos', { cur_dir() + '_okats', cur_dir() + '_okatsn' }, 'SELO' )
   Case k == '_okatoo8'
-    r_use( dir_exe() + '_okatoo8', { cur_dir + '_okato8', cur_dir + '_okaton8' }, 'OBLAST' )
+    r_use( dir_exe() + '_okatoo8', { cur_dir() + '_okato8', cur_dir() + '_okaton8' }, 'OBLAST' )
   Case k == '_okatos8'
-    r_use( dir_exe() + '_okatos8', { cur_dir + '_okats8', cur_dir + '_okatsn8' }, 'SELO' )
+    r_use( dir_exe() + '_okatos8', { cur_dir() + '_okats8', cur_dir() + '_okatsn8' }, 'SELO' )
   Endcase
 
   Return Nil

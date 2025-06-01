@@ -544,7 +544,7 @@ Function export_to_win_editor()
   Endif
   s := { "write.exe", "Winword.exe", "swriter.exe" }[ k + 1 ]
   stat_msg( "Выгрузка файла в редактор " + s )
-  // ShellExecute(GetDeskTopWindow(),'open',s,cur_dir+'\'+name_win,,1)
+  // ShellExecute(GetDeskTopWindow(),'open',s,cur_dir()+'\'+name_win,,1)
   shellexecute( getdesktopwindow(), 'open', s, name_win,, 1 )
 
   Return Nil

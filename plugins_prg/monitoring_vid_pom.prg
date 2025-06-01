@@ -43,7 +43,7 @@ Function monitoring_vid_pom()
   fillscrarea( r1 - 1, 0, r1 - 1, 79, '░', color1 )
   str_center( r1 - 1, ' Мониторинг по видам медицинской помощи ', color8 )
   fillscrarea( r2 + 1, 0, r2 + 1, 79, '░', color1 )
-  If f_edit_spr( A__APPEND, mm_tmp, '', 'e_use(cur_dir+"tmp_mon")', 0, 1,,,, { r1, 0, r2, 79, -1 }, 'write_mon' ) > 0
+  If f_edit_spr( A__APPEND, mm_tmp, '', 'e_use(cur_dir()+"tmp_mon")', 0, 1,,,, { r1, 0, r2, 79, -1 }, 'write_mon' ) > 0
     RestScreen( buf )
     If Year( pdate_lech[ 5 ] ) < 2016
       Return func_error( 4, 'Данный алгоритм работает с 2016 года' )
@@ -73,7 +73,7 @@ Function monitoring_vid_pom()
       Set Relation To akt into RAK
       r_use( dir_server + 'mo_raksh',, 'RAKSH' )
       Set Relation To kod_raks into RAKS
-      Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' ) For rak->DAKT <= mn->date_rak
+      Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For rak->DAKT <= mn->date_rak
     Endif
     r_use( dir_server + 'schet_',, 'SCHET_' )
     r_use( dir_server + 'schet',, 'SCHET' )

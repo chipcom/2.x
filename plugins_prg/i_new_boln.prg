@@ -10,15 +10,15 @@ Function i_new_boln( oEdit )
   If ( arr_m := year_month() ) != NIL
     mywait()
     //
-    dbCreate( cur_dir + 'tmp', { { 'is', 'N', 1, 0 }, ;
+    dbCreate( cur_dir() + 'tmp', { { 'is', 'N', 1, 0 }, ;
       { 'kod_k', 'N', 7, 0 }, ;
       { 'task', 'N', 1, 0 }, ;
       { 'uch', 'N', 3, 0 }, ;
       { 'otd', 'N', 3, 0 }, ;
       { 'data', 'D', 8, 0 }, ;
       { 'KOD_P', 'C', 1, 0 } } ) // код пользователя, добавившего л/у
-    Use ( cur_dir + 'tmp' ) new
-    Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp' )
+    Use ( cur_dir() + 'tmp' ) new
+    Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp' )
     If is_task( X_REGIST )
       waitstatus( 'Подзадача РЕГИСТРАТУРА' )
       r_use( dir_server + 'mo_regi', dir_server + 'mo_regi2', 'REGI' )
@@ -88,7 +88,7 @@ Function i_new_boln( oEdit )
       r_use( dir_server + 'hum_p', dir_server + 'hum_pd', 'PLAT' )
       // index on dtos(k_data) to (dir_server+'hum_pd') progress
       dbSeek( DToS( AddMonth( arr_m[ 5 ], -6 ) ), .t. )
-      Index On DToS( n_data ) to ( cur_dir + 'tmp_plat' ) ;
+      Index On DToS( n_data ) to ( cur_dir() + 'tmp_plat' ) ;
         For Between( n_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
         While k_data <= arr_m[ 6 ]
       Go Top
@@ -152,7 +152,7 @@ Function i_new_boln( oEdit )
       r_use( dir_server + 'hum_ort', dir_server + 'hum_ortd', 'ORT' )
       // index on dtos(k_data) to (dir_server+'hum_ortd') progress
       dbSeek( DToS( AddMonth( arr_m[ 5 ], -6 ) ), .t. )
-      Index On DToS( n_data ) to ( cur_dir + 'tmp_ort' ) ;
+      Index On DToS( n_data ) to ( cur_dir() + 'tmp_ort' ) ;
         For Between( n_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
         While k_data <= arr_m[ 6 ]
       Go Top
@@ -215,7 +215,7 @@ Function i_new_boln( oEdit )
     r_use( dir_server + 'human', dir_server + 'humand', 'OMS' )
     // index on dtos(k_data)+uch_doc to (dir_server+'humand') progress
     dbSeek( DToS( AddMonth( arr_m[ 5 ], -6 ) ), .t. )
-    Index On DToS( n_data ) to ( cur_dir + 'tmp_oms' ) ;
+    Index On DToS( n_data ) to ( cur_dir() + 'tmp_oms' ) ;
       For Between( n_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
       While k_data <= arr_m[ 6 ]
     Go Top
@@ -378,7 +378,7 @@ Function i_new_boln( oEdit )
     waitstatus( 'Новые пациенты' )
 
     r_use( dir_server + 'kartote2',, 'KART2' )
-    Index On pc1 to ( cur_dir + 'tmpkart2' ) For !Empty( pc1 ) .and. Between( SubStr( pc1, 2, 4 ), arr_m[ 7 ], arr_m[ 8 ] )
+    Index On pc1 to ( cur_dir() + 'tmpkart2' ) For !Empty( pc1 ) .and. Between( SubStr( pc1, 2, 4 ), arr_m[ 7 ], arr_m[ 8 ] )
     Go Top
     Do While !Eof()
       updatestatus()
@@ -421,12 +421,12 @@ Function i_new_boln( oEdit )
     r_use( dir_server + 'kartote2',, 'KART2' )
     r_use( dir_server + 'kartote_',, 'KART_' )
     r_use( dir_server + 'kartotek',, 'KART' )
-    Use ( cur_dir + 'tmp' ) new
+    Use ( cur_dir() + 'tmp' ) new
     Set Relation To kod_k into KART, To kod_k into KART_, To kod_k into KART2
 
     waitstatus( 'Подождите, идет обработка' )
 
-    Index On Upper( kart->fio ) to ( cur_dir + 'tmp' ) For is > 0
+    Index On Upper( kart->fio ) to ( cur_dir() + 'tmp' ) For is > 0
     Go Top
     Do While !Eof()
       updatestatus()

@@ -29,10 +29,10 @@ Function create_reestr()
   If DONT_CREATE_REESTR_YEAR == arr_m[ 1 ]
     Return func_error( 4, 'Реестры за ' + Str( DONT_CREATE_REESTR_YEAR, 4 ) + ' год недоступны' )
   Endif
-  If !myfiledeleted( cur_dir + 'tmpb' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmpb' + sdbf )
     Return Nil
   Endif
-  If !myfiledeleted( cur_dir + 'tmp' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp' + sdbf )
     Return Nil
   Endif
 
@@ -45,7 +45,7 @@ Function create_reestr()
     CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], ;
     CODE_MO  := glob_mo[ _MO_KOD_FFOMS ]
   stat_msg( 'Подождите, работаю...' )
-  dbCreate( cur_dir + 'tmpb', { ;
+  dbCreate( cur_dir() + 'tmpb', { ;
     { 'kod_tmp', 'N', 6, 0 }, ;
     { 'kod_human', 'N', 7, 0 }, ;
     { 'fio', 'C', 50, 0 }, ;
@@ -59,8 +59,8 @@ Function create_reestr()
     { 'yes_del', 'L', 1, 0 }, ; // надо ли удалить после дополнительной проверки
     { 'PLUS', 'L', 1, 0 } ;  // включается ли в счет
   } )
-  Use ( cur_dir + 'tmpb' ) new
-  Index On Str( kod_human, 7 ) to ( cur_dir + 'tmpb' )
+  Use ( cur_dir() + 'tmpb' ) new
+  Index On Str( kod_human, 7 ) to ( cur_dir() + 'tmpb' )
 
   adbf := { ;
     { 'MIN_DATE',    'D',     8,     0 }, ;
@@ -85,9 +85,9 @@ Function create_reestr()
     AAdd( adbf, { 'PZ' + lstr( i ), 'N', 9, 2 } )
   Next
 
-  dbCreate( cur_dir + 'tmp', adbf )
+  dbCreate( cur_dir() + 'tmp', adbf )
 
-  Use ( cur_dir + 'tmp' ) New Alias TMP
+  Use ( cur_dir() + 'tmp' ) New Alias TMP
   Append Blank
   Replace tmp->nyear With mnyear, tmp->nmonth With mnmonth, tmp->min_date With arr_m[ 6 ]
   r_use( dir_server + 'mo_otd', , 'OTD' )
@@ -127,7 +127,7 @@ Function create_reestr()
     rest_box( buf )
     func_error( 4, 'Нет пациентов для включения в реестр с датой окончания ' + arr_m[ 4 ] )
   Else
-    Use ( cur_dir + 'tmp' ) new
+    Use ( cur_dir() + 'tmp' ) new
     k := sys_date - tmp->min_date
     tmp->dni := iif( Between( k, 1, 999 ), k, 0 )
     Go Top
@@ -206,7 +206,7 @@ Function create_reestr()
             p_tip_reestr := 2
           Endif
           mywait()
-          Use ( cur_dir + "tmp" ) new
+          Use ( cur_dir() + "tmp" ) new
           _k := tmp->kol
           tmp->kol := 0
           tmp->summa := 0
@@ -219,7 +219,7 @@ Function create_reestr()
           Set Order To 2
           r_use( dir_server + "human_",, "HUMAN_" )
           r_use( dir_server + "human",, "HUMAN" )
-          Use ( cur_dir + "tmpb" ) new
+          Use ( cur_dir() + "tmpb" ) new
           Set Relation To kod_human into HUMAN, To kod_human into HUMAN_
           Go Top
           Do While !Eof()
@@ -325,9 +325,9 @@ Function f2create_reestr( nKey, oBrow )
     r_use( dir_server + 'mo_otd', , 'OTD' )
     r_use( dir_server + 'human', , 'HUMAN' )
     Set Relation To otd into OTD
-    Use ( cur_dir + 'tmpb' ) new
+    Use ( cur_dir() + 'tmpb' ) new
     Set Relation To kod_human into HUMAN
-    Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir + 'tmpb' ) For kod_tmp == rec
+    Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir() + 'tmpb' ) For kod_tmp == rec
     Go Top
     Do While !Eof()
       verify_ff( HH, .t., sh )

@@ -13,8 +13,8 @@ Function forma14_med_oms()
     sh, HH := 80, reg_print := 5, is_trudosp, is_rebenok, is_inogoro, is_onkologia, ;
     is_reabili, is_ekstra, lshifr1, koef, vid_vp, r1 := 9, fl_exit := .f., ;
     is_vmp, d2_year, ar, arr_excel := {}, fl_error := .f., is_z_sl, ;
-    cFileProtokol := cur_dir + 'tmp.txt', arr_prof := {}, arr_usl, au, ii, is_school, ;
-    filetmp14 := cur_dir + 'tmp14.txt', sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0, sum_d := 0
+    cFileProtokol := cur_dir() + 'tmp.txt', arr_prof := {}, arr_usl, au, ii, is_school, ;
+    filetmp14 := cur_dir() + 'tmp14.txt', sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0, sum_d := 0
   Local arr_skor[ 81, 2 ], arr_eko[ 2, 2 ], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[ 4 ], fl_pol1[ 15 ], ;
     arr_pol[ 32 ], arr_pol1[ 15, 5 ], arr_pril5[ 32, 3 ], ifff := 0, kol_stom_pos := 0, ;
     arr_pol3000[ 29, 6 ], vr_rec := 0, arr_full_usl, ;
@@ -197,15 +197,15 @@ Function forma14_med_oms()
   @ MaxRow(), 0 Say ' ждите...' Color 'W/R'
   begin_date := dtoc4( arr_m[ 5 ] )
   end_date := dtoc4( arr_m[ 6 ] )
-  dbCreate( cur_dir + 'tmp', { { 'nstr', 'N', 2, 0 }, ;
+  dbCreate( cur_dir() + 'tmp', { { 'nstr', 'N', 2, 0 }, ;
     { 'sum4', 'N', 15, 2 }, ;
     { 'sum5', 'N', 15, 2 }, ;
     { 'sum6', 'N', 15, 2 }, ;
     { 'sum7', 'N', 15, 2 }, ;
     { 'sum8', 'N', 15, 2 }, ;
     { 'sum9', 'N', 15, 2 } } )
-  Use ( cur_dir + 'tmp' ) New Alias TMP
-  Index On Str( nstr, 2 ) to ( cur_dir + 'tmp' )
+  Use ( cur_dir() + 'tmp' ) New Alias TMP
+  Index On Str( nstr, 2 ) to ( cur_dir() + 'tmp' )
   Append blank ; tmp->nstr :=  1 ; tmp->sum4 := tmp->sum5 := mk1
   Append blank ; tmp->nstr :=  2 ; tmp->sum4 := tmp->sum5 := mk2
   Append blank ; tmp->nstr :=  3 ; tmp->sum4 := tmp->sum5 := mk3
@@ -214,7 +214,7 @@ Function forma14_med_oms()
   Append blank ; tmp->nstr := 47 ; tmp->sum4 := tmp->sum5 := md2 ; tmp->sum7 := md21 ; tmp->sum8 := md22
   Append blank ; tmp->nstr := 48 ; tmp->sum4 := tmp->sum5 := md3
   Append blank ; tmp->nstr := 49 ; tmp->sum4 := tmp->sum5 := md4
-  dbCreate( cur_dir + 'tmpf14', { ;
+  dbCreate( cur_dir() + 'tmpf14', { ;
     { 'KOD_XML',  'N', 6, 0 }, ; // ссылка на файл 'mo_xml'
     { 'SCHET',    'N', 6, 0 }, ; //
     { 'KOD_RAK',  'N', 6, 0 }, ; // № записи в файле RAK
@@ -224,7 +224,7 @@ Function forma14_med_oms()
     { 'usl_ok',   'N', 1, 0 }, ; //
     { 'KOD_H',    'N', 7, 0 };  // код листа учета по БД 'human'
   } )
-  Use ( cur_dir + 'tmpf14' ) New Alias TMPF14
+  Use ( cur_dir() + 'tmpf14' ) New Alias TMPF14
   use_base( 'lusl' )
   use_base( 'luslf' )
 
@@ -256,7 +256,7 @@ Function forma14_med_oms()
   Set Relation To akt into RAK
   r_use( dir_server + 'mo_raksh', , 'RAKSH' )
   Set Relation To kod_raks into RAKS
-  Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
+  Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
   //
   r_use( dir_server + 'schet_', , 'SCHET_' )
   r_use( dir_server + 'schet', , 'SCHET' )
@@ -1466,7 +1466,7 @@ Function forma14_med_oms()
     Select TMPF14
     Set Relation To KOD_RAKSH into RAKSH, To schet into SCHET, To kod_h into HUMAN
     Index On Str( usl_ok, 1 ) + Str( schet_->nyear, 4 ) + Str( schet_->nmonth, 2 ) + ;
-      Str( human_->SCHET_ZAP, 6 ) to ( cur_dir + 'tmpf14' )
+      Str( human_->SCHET_ZAP, 6 ) to ( cur_dir() + 'tmpf14' )
     For j := 1 To 5
       find ( Str( j, 1 ) )
       If Found()
@@ -1542,7 +1542,7 @@ Function forma14_med_oms()
   AAdd( ar, { 42, 19, org->okpo } )
   AAdd( arr_excel, { 'Лист 1', AClone( ar ) } )
   //
-  Use ( cur_dir + 'tmp' ) index ( cur_dir + 'tmp' ) new
+  Use ( cur_dir() + 'tmp' ) index ( cur_dir() + 'tmp' ) new
   For i := 1 To Len( arr_razdel )
     ar := {}
     i_stroke := iif( eq_any( i, 1, 4 ), 7, 6 )
@@ -1609,7 +1609,7 @@ Function forma14_med_oms()
     hb_eol(), cFileProtokol, .t. )
   If kol_stom_pos > 0
     fl_error := .t.
-    Use ( cur_dir + 'TMP_STOM' ) new
+    Use ( cur_dir() + 'TMP_STOM' ) new
     StrFile( hb_eol() + ;
       'Отчёт о количестве и стоимости обращений и посещений при оказании стоматологической помощи' + ;
       hb_eol() + ;

@@ -9,13 +9,13 @@ Function i_kol_del_zub( par )
 
   hGauge := gaugenew(,,, 'Информация о количестве удалённых зубов', .t. )
   gaugedisplay( hGauge )
-  dbCreate( cur_dir + 'tmp', { ;
+  dbCreate( cur_dir() + 'tmp', { ;
     { 'god', 'N', 4, 0 }, ;
     { 'kod_k', 'N', 7, 0 }, ;
     { 'pol', 'C', 1, 0 }, ;
     { 'vozr', 'N', 2, 0 }, ;
     { 'kol', 'N', 6, 0 } } )
-  Use ( cur_dir + 'tmp' ) new
+  Use ( cur_dir() + 'tmp' ) new
   Index On Str( god, 4 ) + Str( kod_k, 7 ) To tmp memory
   use_base( 'lusl' )
   r_use( dir_server + 'uslugi',, 'USL' )
@@ -75,7 +75,7 @@ Function i_kol_del_zub( par )
   Close databases
   If !fl_exit .and. k > 0
     agod := {}
-    Use ( cur_dir + 'tmp' ) new
+    Use ( cur_dir() + 'tmp' ) new
     Index On god To tmp Unique memory
     dbEval( {|| AAdd( agod, tmp->god ) } )
     name_file := 'del_zub.txt'

@@ -104,7 +104,7 @@ Function forma_39_()
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
     fl_exit := .f., HH := 58, reg_print := 3, speriod, ;
-    arr_title, name_file := cur_dir + "_form_39.txt", s_lu := 0, s_human := 0, ;
+    arr_title, name_file := cur_dir() + "_form_39.txt", s_lu := 0, s_human := 0, ;
     kh := 0, jh := 0, arr_m, arr_pl
 
   If !get_nastr()
@@ -133,8 +133,8 @@ Function forma_39_()
   mark_keys( { "<Esc>" } )
   //
   cre_tmp( { { "data", "C", 4, 0 } } )
-  Use ( cur_dir + "tmp" ) New Alias TMP
-  Index On Data to ( cur_dir + "tmp" )
+  Use ( cur_dir() + "tmp" ) New Alias TMP
+  Index On Data to ( cur_dir() + "tmp" )
   r_use( dir_server + "mo_otd",, "OTD" )
   If AScan( arr_pl, F_YES_OMS ) > 0
     If pi1 == 1  // ¯® ¤ â¥ ®ª®­ç ­¨ï «¥ç¥­¨ï
@@ -409,7 +409,7 @@ Function forma_39otd()
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
     fl_exit := .f., HH := 58, reg_print := 3, speriod, ;
-    arr_title, name_file := cur_dir + "_form_39.txt", s_lu := 0, s_human := 0, ;
+    arr_title, name_file := cur_dir() + "_form_39.txt", s_lu := 0, s_human := 0, ;
     kh := 0, jh := 0, arr_m, arr_pl
 
   If !get_nastr()
@@ -436,8 +436,8 @@ Function forma_39otd()
   cre_tmp( { { "p_kod", "N", 4, 0 }, ;
     { "tab_nom", "N", 5, 0 }, ;
     { "name", "C", 30, 0 } } )
-  Use ( cur_dir + "tmp" ) New Alias TMP
-  Index On Str( p_kod, 4 ) to ( cur_dir + "tmp" )
+  Use ( cur_dir() + "tmp" ) New Alias TMP
+  Index On Str( p_kod, 4 ) to ( cur_dir() + "tmp" )
   r_use( dir_server + "mo_otd",, "OTD" )
   If AScan( arr_pl, F_YES_OMS ) > 0
     If pi1 == 1  // ¯® ¤ â¥ ®ª®­ç ­¨ï «¥ç¥­¨ï
@@ -555,7 +555,7 @@ Function forma_39otd()
       tmp->tab_nom := p2->tab_nom, ;
       tmp->name := fam_i_o( p2->fio ) } ) )
     Select TMP
-    Index On Upper( name ) to ( cur_dir + "tmp" )
+    Index On Upper( name ) to ( cur_dir() + "tmp" )
   Endif
   Private regim := 2
   arr_title := f39_title()
@@ -645,8 +645,8 @@ Function forma_39all()
   { "otd", "N", 3, 0 }, ;
     { "tab_nom", "N", 5, 0 }, ;
     { "name", "C", 30, 0 } } )
-  Use ( cur_dir + "tmp" ) New Alias TMP
-  Index On Str( tip, 1 ) + Str( p_kod, 4 ) + Str( otd, 3 ) to ( cur_dir + "tmp" )
+  Use ( cur_dir() + "tmp" ) New Alias TMP
+  Index On Str( tip, 1 ) + Str( p_kod, 4 ) + Str( otd, 3 ) to ( cur_dir() + "tmp" )
   r_use( dir_server + "mo_otd",, "OTD" )
   If AScan( arr_pl, F_YES_OMS ) > 0
     If pi1 == 1  // ¯® ¤ â¥ ®ª®­ç ­¨ï «¥ç¥­¨ï
@@ -852,13 +852,13 @@ Function f_39all_1( par )
 
   Static sotd := 1
   Local buf, HH := 58, reg_print := 3, ;
-    arr_title, name_file := cur_dir + "_form_39.txt", s, ls1, ;
+    arr_title, name_file := cur_dir() + "_form_39.txt", s, ls1, ;
     arr := {}, arr_otd := {}, r := T_ROW, r2, c := T_COL - 5, i
 
   If par == 2
     buf := SaveScreen( r, 0, MaxRow(), MaxCol() )
-    Use ( cur_dir + "tmp" ) new
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 3
+    Use ( cur_dir() + "tmp" ) new
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 3
     dbEval( {|| AAdd( arr, tmp->otd ), AAdd( arr_otd, tmp->name ) } )
     Use
     i := AScan( arr, sotd )
@@ -878,14 +878,14 @@ Function f_39all_1( par )
   Use ( fr_data ) New Alias FRD
   Zap
   Use ( fr_titl ) New Alias FRT
-  Use ( cur_dir + "tmp" ) new
+  Use ( cur_dir() + "tmp" ) new
   Do Case
   Case par == 1
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 1
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 1
   Case par == 2
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 2 .and. otd == glob_otd[ 1 ]
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 2 .and. otd == glob_otd[ 1 ]
   Case par == 3
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 3
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 3
   Endcase
   Private regim := 2
   arr_title := f39_title()
@@ -949,13 +949,13 @@ Function f_39all_2( par )
 
   Static sotd := 1
   Local buf, sh, HH := 58, reg_print := 3, ;
-    arr_title, name_file := cur_dir + "_form_39.txt", s, ls1, ;
+    arr_title, name_file := cur_dir() + "_form_39.txt", s, ls1, ;
     arr := {}, arr_otd := {}, r := T_ROW, r2, c := T_COL - 5, i
 
   If par == 2
     buf := SaveScreen( r, 0, MaxRow(), MaxCol() )
-    Use ( cur_dir + "tmp" ) new
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 3
+    Use ( cur_dir() + "tmp" ) new
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 3
     dbEval( {|| AAdd( arr, tmp->otd ), AAdd( arr_otd, tmp->name ) } )
     Use
     i := AScan( arr, sotd )
@@ -972,14 +972,14 @@ Function f_39all_2( par )
   Endif
   buf := save_maxrow()
   mywait()
-  Use ( cur_dir + "tmp" ) new
+  Use ( cur_dir() + "tmp" ) new
   Do Case
   Case par == 1
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 1
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 1
   Case par == 2
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 2 .and. otd == glob_otd[ 1 ]
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 2 .and. otd == glob_otd[ 1 ]
   Case par == 3
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 3
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 3
   Endcase
   arr_title := { ;
     "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", ;
@@ -1106,8 +1106,8 @@ Function forma_39org()
     { "otd", "N", 3, 0 }, ;
     { "tab_nom", "N", 5, 0 }, ;
     { "name", "C", 30, 0 } } )
-  Use ( cur_dir + "tmp" ) New Alias TMP
-  Index On Str( tip, 1 ) + Str( p_kod, 4 ) + Str( uch, 3 ) + Str( otd, 3 ) to ( cur_dir + "tmp" )
+  Use ( cur_dir() + "tmp" ) New Alias TMP
+  Index On Str( tip, 1 ) + Str( p_kod, 4 ) + Str( uch, 3 ) + Str( otd, 3 ) to ( cur_dir() + "tmp" )
   r_use( dir_server + "mo_otd",, "OTD" )
   r_use( dir_server + "mo_uch",, "UCH" )
   If AScan( arr_pl, F_YES_OMS ) > 0
@@ -1341,13 +1341,13 @@ Function f_39org_1( par )
 
   Static such := 1
   Local buf, HH := 58, reg_print := 3, ;
-    arr_title, name_file := cur_dir + "_form_39.txt", s, ls1, ;
+    arr_title, name_file := cur_dir() + "_form_39.txt", s, ls1, ;
     arr := {}, arr_uch := {}, r := T_ROW, r2, c := T_COL - 5, i
 
   If par == 2
     buf := SaveScreen( r, 0, MaxRow(), MaxCol() )
-    Use ( cur_dir + "tmp" ) new
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 3
+    Use ( cur_dir() + "tmp" ) new
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 3
     dbEval( {|| AAdd( arr, tmp->uch ), AAdd( arr_uch, tmp->name ) } )
     Use
     i := AScan( arr, such )
@@ -1367,16 +1367,16 @@ Function f_39org_1( par )
   Use ( fr_data ) New Alias FRD
   Zap
   Use ( fr_titl ) New Alias FRT
-  Use ( cur_dir + "tmp" ) new
+  Use ( cur_dir() + "tmp" ) new
   Do Case
   Case par == 1
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 1
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 1
   Case par == 2
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 2 .and. uch == glob_uch[ 1 ]
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 2 .and. uch == glob_uch[ 1 ]
   Case par == 3
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 3
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 3
   Case par == 4
-    Index On Upper( name ) to ( cur_dir + "tmp" ) For tip == 4
+    Index On Upper( name ) to ( cur_dir() + "tmp" ) For tip == 4
   Endcase
   Private regim := 2
   arr_title := f39_title()
@@ -1451,9 +1451,9 @@ Function forma_39_na( par )
   { "U_SHIFR",    "C",     10,      0 }, ;  // è¨äà ãá«ã£¨
   { "U_NAME",     "C",     65,      0 };   // ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨
   }
-  dbCreate( cur_dir + "tmp", adbf )
+  dbCreate( cur_dir() + "tmp", adbf )
   r_use( dir_server + "uslugi",, "USL" )
-  Use ( cur_dir + "tmp" ) new
+  Use ( cur_dir() + "tmp" ) new
   For i := 1 To Len( arr_usl )
     Select USL
     Goto ( Val( arr_usl[ i, 2 ] ) )
@@ -1466,13 +1466,13 @@ Function forma_39_na( par )
     Endif
   Next
   Select TMP
-  Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-  Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+  Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+  Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Close databases
   ob2_v_usl(, 2, " áâà®©ª  ä®à¬ë 39: ª®«®­ª  " + arr[ par ] )
   If f_esc_enter( 1 )
     arr_usl := {}
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpn" ) New Alias TMP
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpn" ) New Alias TMP
     Go Top
     Do While !Eof()
       AAdd( arr_usl, { tmp->u_shifr, lstr( tmp->u_kod ) } )
@@ -1719,7 +1719,7 @@ Static Function cre_tmp( adbf )
   AAdd( adbf, { "p18", "N", 7, 0 } )
   AAdd( adbf, { "p19", "N", 7, 0 } )
   AAdd( adbf, { "p20", "N", 7, 0 } )
-  dbCreate( cur_dir + "tmp", adbf )
+  dbCreate( cur_dir() + "tmp", adbf )
   delfrfiles()
   dbCreate( fr_titl, { { "name_org", "C", 130, 0 }, ;
     { "name1", "C", 130, 0 }, ;

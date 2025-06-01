@@ -22,8 +22,8 @@ Function edit_pers()
       str_find, muslovie;
       }
     If use_base( 'mo_pers' )
-      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir + 'tmp_pers' )
-      Set Index to ( cur_dir + 'tmp_pers' ), ( dir_server + 'mo_pers' )
+      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir() + 'tmp_pers' )
+      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server + 'mo_pers' )
       find ( str_find )
       If !Found()
         Keyboard Chr( K_INS )
@@ -397,17 +397,17 @@ Function f2edit_pers( nKey, oBrow )
     If !fl
       mywait( s + 'kas_pl_u' )
       r_use( dir_server + 'kas_pl_u', , 'HU' ) // проверить Кассу
-      Index On Str( kod_vr, 4 ) to ( cur_dir + 'tmp_hu' ) For kod_vr > 0
+      Index On Str( kod_vr, 4 ) to ( cur_dir() + 'tmp_hu' ) For kod_vr > 0
       find ( Str( k, 4 ) )
       fl := Found()
       hu->( dbCloseArea() )
       If !fl
         mywait( s + 'kas_ort' )
         r_use( dir_server + 'kas_ort', , 'HU' )
-        Index On Str( kod_vr, 4 ) to ( cur_dir + 'tmp_hu' ) For kod_vr > 0
+        Index On Str( kod_vr, 4 ) to ( cur_dir() + 'tmp_hu' ) For kod_vr > 0
         find ( Str( k, 4 ) )
         If !( fl := Found() )
-          Index On Str( kod_tex, 4 ) to ( cur_dir + 'tmp_hu' ) For kod_tex > 0
+          Index On Str( kod_tex, 4 ) to ( cur_dir() + 'tmp_hu' ) For kod_tex > 0
           find ( Str( k, 4 ) )
           fl := Found()
         Endif

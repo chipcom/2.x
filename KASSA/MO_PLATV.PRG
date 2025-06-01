@@ -346,7 +346,7 @@ do case
     set relation to u_kod into USL
     find (str(human->(recno()),7))
     // сразу сортируем по шифру услуг
-    index on fsort_usl(usl->shifr) to (cur_dir+"tmp") while hu->kod == human->(recno())
+    index on fsort_usl(usl->shifr) to (cur_dir()+"tmp") while hu->kod == human->(recno())
     adbf := {{"name", "C",128,0},;
              {"vrach","C", 50,0},;
              {"cena", "N", 10,2},;
@@ -354,8 +354,8 @@ do case
              {"nds20","N",  1,0},;
              {"nds18","N",  1,0},;
              {"nds10","N",  1,0}}
-    dbcreate(cur_dir+"tmp",adbf)
-    use (cur_dir+"tmp") new
+    dbcreate(cur_dir()+"tmp",adbf)
+    use (cur_dir()+"tmp") new
     adbf := {}
     select HU
     go top
@@ -556,7 +556,7 @@ do case
     set relation to u_kod into USL
     find (str(human->(recno()),7))
     // сразу сортируем по шифру услуг
-    index on fsort_usl(usl->shifr) to (cur_dir+"tmp") while hu->kod == human->(recno())
+    index on fsort_usl(usl->shifr) to (cur_dir()+"tmp") while hu->kod == human->(recno())
     adbf := {{"name",      "C", 65, 0},; // наименование услуги
              {"shifr",     "C", 10, 0},; // шифр услуги
              {"cena",      "N", 10, 2},;
@@ -569,8 +569,8 @@ do case
              {"nds10",     "N",  1, 0},;
              {"kod_diag",  "C",  6, 0},; 
              {"zf",        "C",  20,0} }
-    dbcreate(cur_dir+"tmp",adbf)
-    use (cur_dir+"tmp") new
+    dbcreate(cur_dir()+"tmp",adbf)
+    use (cur_dir()+"tmp") new
     select HU
     go top
     do while !eof()
@@ -614,7 +614,7 @@ do case
     hu->(dbCloseArea())
     HUMANST->(dbCloseArea())
     select TMP
-    index on fsort_usl(shifr) to (cur_dir+"tmp")
+    index on fsort_usl(shifr) to (cur_dir()+"tmp")
     Private p_summa := round_5(human->cena,2)
     rec := human->(recno()) ; c1 := human->lpu
     if len(alltrim(mem_dogovor)) > 3
@@ -1537,8 +1537,8 @@ myread()
 if lastkey() != K_ESC .and. ver_pub_date(mdate,.t.) .and. f_Esc_Enter("ввода")
   sdate := mdate ; sn_kvit := mn_kvit ; skv1 := mkv1 ; skv2 := mkv2
   mywait()
-  dbcreate(cur_dir+"tmp",adbf)
-  use (cur_dir+"tmp") new
+  dbcreate(cur_dir()+"tmp",adbf)
+  use (cur_dir()+"tmp") new
   G_Use(dir_server+"plat_ms",dir_server+"plat_ms","MS")
   G_Use(dir_server+"kartotek",,"KART")
   G_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HU")
@@ -1646,7 +1646,7 @@ if lastkey() != K_ESC .and. ver_pub_date(mdate,.t.) .and. f_Esc_Enter("ввода")
   enddo
   if (j := tmp->(lastrec())) > 0
     select TMP
-    sort on n_kvit,kv_cia to (cur_dir+"tmp1")
+    sort on n_kvit,kv_cia to (cur_dir()+"tmp1")
   endif
   close databases
   if j == 0
@@ -1658,7 +1658,7 @@ if j > 0
   R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
   use_base("hum_p","HUMAN")
   set order to 0
-  use (cur_dir+"tmp1") new alias TMP
+  use (cur_dir()+"tmp1") new alias TMP
   go top
   box_shadow(maxrow()-4,2,maxrow()-2,77,"W/B")
   Alpha_Browse(T_ROW,0,maxrow()-6,79,"f1_po_plat",color0,,,;
@@ -1921,7 +1921,7 @@ if nKey == K_ENTER .or. nKey == K_CTRL_RET
   use_base("hum_p","HUMAN")
   set order to 0
   goto (rec)
-  use (cur_dir+"tmp1") new alias TMP
+  use (cur_dir()+"tmp1") new alias TMP
   goto (rec1)
   tmp->cena := human->cena
   setcolor(tmp_color)
@@ -2038,9 +2038,9 @@ return NIL
 Function f2close_lu()
 Local buf := savescreen(), j, fl
 mywait()
-dbcreate(cur_dir+"tmp",{{"rec","N",7,0},;
+dbcreate(cur_dir()+"tmp",{{"rec","N",7,0},;
                         {"is","N",1,0}})
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 G_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HUP")
 G_Use(dir_server+"hum_p",dir_server+"hum_pc","HU")
 find (str_find)
@@ -2100,9 +2100,9 @@ else
   G_Use(dir_server+"kartotek",,"KART")
   G_Use(dir_server+"hum_p",,"HU")
   set relation to kod_k into KART
-  use (cur_dir+"tmp") new
+  use (cur_dir()+"tmp") new
   set relation to rec into HU
-  index on upper(kart->fio)+str(hu->kod_k,7)+dtos(hu->k_data) to (cur_dir+"tmp")
+  index on upper(kart->fio)+str(hu->kod_k,7)+dtos(hu->k_data) to (cur_dir()+"tmp")
   go top
   fl := .f.
   if Alpha_Browse(2,1,maxrow()-2,78,"f2_k_close",color0,mtitle,"BG+/GR",;
@@ -2260,7 +2260,7 @@ do case
     R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HUP")
     set relation to u_kod into USL
     find (str(hu->(recno()),7))
-    index on hup->date_u+fsort_usl(usl->shifr) to (cur_dir+"tmp_hup") ;
+    index on hup->date_u+fsort_usl(usl->shifr) to (cur_dir()+"tmp_hup") ;
           while hup->kod == hu->(recno())
     go top
     do while !eof()
@@ -2341,9 +2341,9 @@ do case
         mywait()
         select TMP
         if j == 1
-          index on upper(kart->fio)+str(hu->kod_k,7)+dtos(hu->k_data) to (cur_dir+"tmp")
+          index on upper(kart->fio)+str(hu->kod_k,7)+dtos(hu->k_data) to (cur_dir()+"tmp")
         else
-          index on dtos(hu->k_data)+upper(kart->fio) to (cur_dir+"tmp")
+          index on dtos(hu->k_data)+upper(kart->fio) to (cur_dir()+"tmp")
         endif
         fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
         add_string(center(mtitle,sh))
@@ -2379,9 +2379,9 @@ do case
         set relation to kod_k into KART, to pr_smo into DMS
         select TMP
         if j == 1
-          index on upper(dms->name)+upper(kart->fio)+dtos(hu->k_data) to (cur_dir+"tmp")
+          index on upper(dms->name)+upper(kart->fio)+dtos(hu->k_data) to (cur_dir()+"tmp")
         else
-          index on upper(dms->name)+dtos(hu->k_data)+upper(kart->fio) to (cur_dir+"tmp")
+          index on upper(dms->name)+dtos(hu->k_data)+upper(kart->fio) to (cur_dir()+"tmp")
         endif
         fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
         add_string(center(mtitle,sh))
@@ -2421,9 +2421,9 @@ do case
     G_Use(dir_server+"kartotek",,"KART")
     G_Use(dir_server+"hum_p",,"HU")
     set relation to kod_k into KART
-    use (cur_dir+"tmp") new
+    use (cur_dir()+"tmp") new
     set relation to rec into HU
-    index on upper(kart->fio)+str(hu->kod_k,7)+dtos(hu->k_data) to (cur_dir+"tmp")
+    index on upper(kart->fio)+str(hu->kod_k,7)+dtos(hu->k_data) to (cur_dir()+"tmp")
     goto (tmp_rec)
     rest_box(buf)
   otherwise
@@ -2437,20 +2437,20 @@ return ret
 Function f1CloseDms()
 mywait()
 //
-dbcreate(cur_dir+"tmpk",{{"kod_k","N",7,0},;
+dbcreate(cur_dir()+"tmpk",{{"kod_k","N",7,0},;
                          {"pr_smo","N",6,0},;
                          {"summa","N",11,2},;
                          {"sum_opl","N",11,2}})
-use (cur_dir+"tmpk") new
-index on str(pr_smo,6)+str(kod_k,7) to (cur_dir+"tmpk")
-dbcreate(cur_dir+"tmph",{{"kod","N",7,0},;
+use (cur_dir()+"tmpk") new
+index on str(pr_smo,6)+str(kod_k,7) to (cur_dir()+"tmpk")
+dbcreate(cur_dir()+"tmph",{{"kod","N",7,0},;
                          {"kod_k","N",7,0},;
                          {"pr_smo","N",6,0},;
                          {"k_data","D",8,0},;
                          {"date_opl","D",8,0},;
                          {"summa","N",11,2},;
                          {"sum_opl","N",11,2}})
-use (cur_dir+"tmph") new
+use (cur_dir()+"tmph") new
 G_Use(dir_server+"hum_p",dir_server+"hum_pc","HU")
 find (str(atip_usl[2],1))
 do while hu->tip_usl==atip_usl[2] .and. !eof()
@@ -2476,7 +2476,7 @@ do while hu->tip_usl==atip_usl[2] .and. !eof()
   skip
 enddo
 select TMPH
-index on str(pr_smo,6)+str(kod_k,7)+dtos(k_data) to (cur_dir+"tmph")
+index on str(pr_smo,6)+str(kod_k,7)+dtos(k_data) to (cur_dir()+"tmph")
 select HU
 set order to 0
 //
@@ -2661,7 +2661,7 @@ G_Use(dir_server+"uslugi",,"USL")
 G_Use(dir_server+"pu_cena",dir_server+"pu_cena","PUC")
 set relation to kod_usl into USL
 find (str(rec,4))
-index on fsort_usl(usl->shifr) to (cur_dir+"tmp_usl") while puc->kod_date == rec
+index on fsort_usl(usl->shifr) to (cur_dir()+"tmp_usl") while puc->kod_date == rec
 go top
 do while !eof()
   s := alltrim(usl->shifr)+" "+alltrim(usl->name)+;
@@ -2696,9 +2696,9 @@ adbf := dbstruct()
 aadd(adbf, {"rec_puc","N",6,0} )
 aadd(adbf, {"shifr","C",10,0} )
 aadd(adbf, {"name","C",64,0} )
-dbcreate(cur_dir+"tmp",adbf)
-use (cur_dir+"tmp") new alias TMP
-index on shifr to (cur_dir+"tmp")
+dbcreate(cur_dir()+"tmp",adbf)
+use (cur_dir()+"tmp") new alias TMP
+index on shifr to (cur_dir()+"tmp")
 select PUC
 find (str(prec,4))
 if (fl_found := found())
@@ -2915,9 +2915,9 @@ aadd(adbf, {"nds20",  "N",  1,0} )
 aadd(adbf,  {"nds18", "N",  1,0} )
 aadd(adbf,  {"nds10", "N",  1,0} )
 //
-dbcreate(cur_dir+"tmp_usl",adbf)
-use (cur_dir+"tmp_usl") new alias tmp
-index on str(u_kod,4)+str(kod_vr,4)+date_u to (cur_dir+"tmp1usl")
+dbcreate(cur_dir()+"tmp_usl",adbf)
+use (cur_dir()+"tmp_usl") new alias tmp
+index on str(u_kod,4)+str(kod_vr,4)+date_u to (cur_dir()+"tmp1usl")
 select HU
 set relation to u_kod into USL
 find (str(kod_human,7))
@@ -2965,9 +2965,9 @@ if (fl_found := found())
 endif
 select TMP
 if mem_ordusl == 1
-  index on dtos(date_u1)+fsort_usl(shifr_u) to (cur_dir+"tmp_usl")
+  index on dtos(date_u1)+fsort_usl(shifr_u) to (cur_dir()+"tmp_usl")
 else
-  index on fsort_usl(shifr_u)+dtos(date_u1) to (cur_dir+"tmp_usl")
+  index on fsort_usl(shifr_u)+dtos(date_u1) to (cur_dir()+"tmp_usl")
 endif
 tmp->(dbeval({|| tmp->number := ++j } ) )
 hu->(dbCloseArea())

@@ -63,11 +63,11 @@ if (arr_m := year_month(T_ROW,T_COL+5,,1)) == NIL
 endif
 buf := save_row(maxrow())
 mywait()
-dbcreate(cur_dir+"tmp", {{"n_chek","N", 8,0},; // номер чека
+dbcreate(cur_dir()+"tmp", {{"n_chek","N", 8,0},; // номер чека
                  {"pl_ort","N", 1,0},; // 1-платные, 2-ортопедия
                  {"stoim", "N",10,2}}) // сумма чека
-use (cur_dir+"tmp") new
-index on str(n_chek,8) to (cur_dir+"tmp")
+use (cur_dir()+"tmp") new
+index on str(n_chek,8) to (cur_dir()+"tmp")
 R_Use(dir_server+"kas_pl",dir_server+"kas_pl2","KPL")
 find (dtos(arr_m[5]))
 do while kpl->k_data == arr_m[5] .and. !eof()
@@ -267,12 +267,12 @@ endif
 buf := save_row(maxrow())
 mywait()
 //
-dbcreate(cur_dir+"tmp", {{"kod_k", "N", 7,0},; // код больного по картотеке
+dbcreate(cur_dir()+"tmp", {{"kod_k", "N", 7,0},; // код больного по картотеке
                  {"rec_hp","N", 7,0},; // номер записи по базе "hum_..."
                  {"n_chek","N", 8,0},; // номер чека
                  {"KOL"   ,"N", 5,0},; // количество услуг
                  {"STOIM" ,"N",10,2}}) // итоговая стоимость услуги
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 R_Use(dir_server+"kas_pl_u",dir_server+"kas_pl1u","HPU")
 R_Use(dir_server+"kas_pl",dir_server+"kas_pl2","HP")
 if tip_ot == 1
@@ -330,9 +330,9 @@ else
   set relation to u_kod into USL
   R_Use(dir_server+"kas_pl",,"HP")
   R_Use(dir_server+"kartotek",,"KART")
-  use (cur_dir+"tmp") new alias TMP
+  use (cur_dir()+"tmp") new alias TMP
   set relation to kod_k into KART, to rec_hp into HP
-  index on str(n_chek,8) to (cur_dir+"tmp")
+  index on str(n_chek,8) to (cur_dir()+"tmp")
   arr_title := {;
 "──────────┬─────────────────────────────────────────────────┬───────┬─────┬─────────",;
 "Номер амб.│ Ф.И.О. больного                                 │ N чека│ Кол.│Стоимость",;
@@ -438,7 +438,7 @@ endif
 buf := save_row(maxrow())
 mywait()
 //
-dbcreate(cur_dir+"tmp", {{"kod_k", "N", 7,0},; // код больного по картотеке
+dbcreate(cur_dir()+"tmp", {{"kod_k", "N", 7,0},; // код больного по картотеке
                  {"rec_hp","N", 7,0},; // номер записи по базе "hum_..."
                  {"nomer_n","N",6,0},; // номер наряда
                  {"year_n","N",4,0},;  // год наряда
@@ -448,7 +448,7 @@ dbcreate(cur_dir+"tmp", {{"kod_k", "N", 7,0},; // код больного по картотеке
                  {"KOD_TEX"  ,   "N",     4,     0},; // код техника
                  {"KOL"   ,"N", 5,0},; // количество услуг
                  {"STOIM" ,"N",10,2}}) // итоговая стоимость услуги
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 R_Use(dir_server+"kas_ortu",dir_server+"kas_or1u","HPU")
 R_Use(dir_server+"kas_ort",dir_server+"kas_ort2","HP")
 find (dtos(arr_m[5]))
@@ -507,9 +507,9 @@ else
   set relation to u_kod into USL
   R_Use(dir_server+"kas_ort",,"HP")
   R_Use(dir_server+"kartotek",,"KART")
-  use (cur_dir+"tmp") new alias TMP
+  use (cur_dir()+"tmp") new alias TMP
   set relation to kod_k into KART, to rec_hp into HP
-  index on str(n_chek,8)+str(nomer_n,6) to (cur_dir+"tmp")
+  index on str(n_chek,8)+str(nomer_n,6) to (cur_dir()+"tmp")
   afill(ss,0) ; afill(susl,0)
   arr_title := {;
 "──────────┬──────┬───────────────────────────────────┬──────────────┬─────┬─────────",;
@@ -596,17 +596,17 @@ Function prn_nez_nar()
 Local buf := save_row(maxrow()), i, s1, s2, sh, HH := 60, reg_print, arr_title,;
       name_file := "nez_nar.txt"
 mywait()
-dbcreate(cur_dir+"tmp", {{"kod_k", "N", 7,0},; // код больного по картотеке
+dbcreate(cur_dir()+"tmp", {{"kod_k", "N", 7,0},; // код больного по картотеке
                  {"rec_hp","N", 7,0},; // номер записи по базе "hum_..."
                  {"nomer_n","N",6,0},; // номер наряда
                  {"year_n","N",4,0},;  // год наряда
                  {"summa","N",10,2},;  // сумма наряда без бесплатных услуг
                  {"sum_opl","N",10,2},; // сумма оплаты
                  {"KOD_VR","N",4,0}})  // код врача
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 use_base("kas_ortu","HU")
 R_Use(dir_server+"kas_ort",,"HUMAN")
-index on iif(tip_n>0,"1","2") to (cur_dir+"tmphum")
+index on iif(tip_n>0,"1","2") to (cur_dir()+"tmphum")
 find ("1")
 do while human->tip_n > 0 .and. !eof()
   select TMP
@@ -622,7 +622,7 @@ do while human->tip_n > 0 .and. !eof()
   skip
 enddo
 select TMP
-index on str(year_n,4)+str(nomer_n,6) to (cur_dir+"tmp")
+index on str(year_n,4)+str(nomer_n,6) to (cur_dir()+"tmp")
 select HUMAN
 find ("2")
 do while human->tip_n == 0 .and. !eof()
@@ -649,7 +649,7 @@ add_string("")
 aeval(arr_title, {|x| add_string(x) } )
 select TMP
 set relation to kod_vr into PERSO
-index on upper(perso->fio)+str(year_n,4)+str(nomer_n,6) to (cur_dir+"tmp") ;
+index on upper(perso->fio)+str(year_n,4)+str(nomer_n,6) to (cur_dir()+"tmp") ;
       for !empty(round(summa-sum_opl,2))
 i := s1 := s2 := 0
 go top

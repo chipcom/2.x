@@ -81,12 +81,12 @@ Function f_valid_komu( get, old )
       mm_company := AClone( glob_arr_smo )
     Elseif m1komu == 1 // è‡ÆÁ®• ™Æ¨Ø†≠®®
       r_use( dir_server + 'str_komp' )
-      Index On Upper( name ) to ( cur_dir + 'tmp_comp' ) For !Between( tfoms, 44, 47 )
+      Index On Upper( name ) to ( cur_dir() + 'tmp_comp' ) For !Between( tfoms, 44, 47 )
       dbEval( {|| AAdd( mm_company, { AllTrim( name ), kod } ) } )
       Use
     Elseif m1komu == 3 // äÆ¨®‚•‚Î/åé
       r_use( dir_server + 'komitet' )
-      Index On Upper( name ) to ( cur_dir + 'tmp_comp' )
+      Index On Upper( name ) to ( cur_dir() + 'tmp_comp' )
       dbEval( {|| AAdd( mm_company, { AllTrim( name ), kod } ) } )
       Use
     Endif
@@ -502,29 +502,29 @@ Function f1oms_edit()
     Endif
     buf24 := save_maxrow()
     mywait()
-    dbCreate( cur_dir + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
-    Use ( cur_dir + 'tmp_h' ) new
+    dbCreate( cur_dir() + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
+    Use ( cur_dir() + 'tmp_h' ) new
     r_use( dir_server + 'human_', , 'HUMAN_' )
     r_use( dir_server + 'human', dir_server + 'humann', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     find ( str_find )
     If yes_h_otd == 1
       If dostup == B_STANDART
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
           For Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) .and. human_->reestr == 0
       Else
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
           For Between( k_data, arr_m[ 5 ], arr_m[ 6 ] )
       Endif
     Else
       If dostup == B_STANDART
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup ;
           For lpu == glob_uch[ 1 ] .and. Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) .and. human_->reestr == 0
       Else
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup ;
           For lpu == glob_uch[ 1 ] .and. Between( k_data, arr_m[ 5 ], arr_m[ 6 ] )
       Endif
@@ -553,9 +553,9 @@ Function f1oms_edit()
         r_use( dir_server + 'human_', , 'HUMAN_' )
         r_use( dir_server + 'human', , 'HUMAN' )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
-        Use ( cur_dir + 'tmp_h' ) new
+        Use ( cur_dir() + 'tmp_h' ) new
         Set Relation To kod into HUMAN
-        Index On Upper( human->fio ) to ( cur_dir + 'tmp_h' )
+        Index On Upper( human->fio ) to ( cur_dir() + 'tmp_h' )
         Goto ( srec )
         mkod := 0
         buf_scr := SaveScreen()
@@ -650,19 +650,19 @@ Function f2oms_edit()
   Local buf, str_sem, i, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
   Local lek_pr := .f.
 
-  If !myfiledeleted( cur_dir + 'tmp_h' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_h' + sdbf )
     Return Nil
   Endif
   If ( arr_m := year_month( T_ROW, T_COL + 5, , 3 ) ) != NIL
     buf24 := save_maxrow()
     mywait()
-    dbCreate( cur_dir + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
-    Use ( cur_dir + 'tmp_h' ) new
+    dbCreate( cur_dir() + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
+    Use ( cur_dir() + 'tmp_h' ) new
     r_use( dir_server + 'human_', , 'HUMAN_' )
     r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
-    Index On Upper( fio ) to ( cur_dir + 'tmp_h2' ) ;
+    Index On Upper( fio ) to ( cur_dir() + 'tmp_h2' ) ;
       While human->k_data <= arr_m[ 6 ] ;
       For schet < 1 .and. human_->reestr == 0
     srec := 1
@@ -689,9 +689,9 @@ Function f2oms_edit()
         r_use( dir_server + 'human_', , 'HUMAN_' )
         r_use( dir_server + 'human', , 'HUMAN' )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
-        Use ( cur_dir + 'tmp_h' ) new
+        Use ( cur_dir() + 'tmp_h' ) new
         Set Relation To kod into HUMAN
-        Index On Upper( human->fio ) to ( cur_dir + 'tmp_h' )
+        Index On Upper( human->fio ) to ( cur_dir() + 'tmp_h' )
         Goto ( srec )
         mkod := 0
         yes_h_otd := 2
@@ -791,19 +791,19 @@ Function f4oms_edit()
     iRefr, srec, buf24, buf_scr, mas_pmt
   Local lek_pr := .f.
 
-  If !myfiledeleted( cur_dir + 'tmp_h' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_h' + sdbf )
     Return Nil
   Endif
   If ( arr_m := year_month( T_ROW, T_COL + 5 ) ) != NIL
     buf24 := save_maxrow()
     mywait()
-    dbCreate( cur_dir + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
-    Use ( cur_dir + 'tmp_h' ) new
+    dbCreate( cur_dir() + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
+    Use ( cur_dir() + 'tmp_h' ) new
     r_use( dir_server + 'human_', , 'HUMAN_' )
     r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
-    Index On Upper( fio ) to ( cur_dir + 'tmp_h2' ) ;
+    Index On Upper( fio ) to ( cur_dir() + 'tmp_h2' ) ;
       While human->k_data <= arr_m[ 6 ] ;
       For emptyall( human_->reestr, human->schet ) .and. human_->kod_up > 0
     Go Top
@@ -827,9 +827,9 @@ Function f4oms_edit()
         r_use( dir_server + 'human_', , 'HUMAN_' )
         r_use( dir_server + 'human', , 'HUMAN' )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
-        Use ( cur_dir + 'tmp_h' ) new
+        Use ( cur_dir() + 'tmp_h' ) new
         Set Relation To kod into HUMAN
-        Index On Upper( human->fio ) to ( cur_dir + 'tmp_h' )
+        Index On Upper( human->fio ) to ( cur_dir() + 'tmp_h' )
         Goto ( srec )
         mkod := 0
         yes_h_otd := 2
@@ -1315,9 +1315,9 @@ Function f1oms_zav_lech( k )
       }
       buf := save_maxrow()
       mywait()
-      dbCreate( cur_dir + 'tmp', dbf_tmp )
+      dbCreate( cur_dir() + 'tmp', dbf_tmp )
       k1 := k2 := 0
-      Use ( cur_dir + 'tmp' ) Alias TMP
+      Use ( cur_dir() + 'tmp' ) Alias TMP
       r_use( dir_server + 'human', dir_server + 'humann', 'HUMAN' )
       find ( Str( B_END, 1 ) )
       Do While human->tip_h == B_END .and. !Eof()
@@ -1350,8 +1350,8 @@ Function f1oms_zav_lech( k )
         If yes_h_otd == 1
           mtitul += ' [ ' + AllTrim( glob_otd[ 2 ] ) + ' ]'
         Endif
-        Use ( cur_dir + 'tmp' ) Alias TMP
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' )
+        Use ( cur_dir() + 'tmp' ) Alias TMP
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' )
         If alpha_browse( T_ROW, 0, MaxRow() -4, 79, 'f2oms_zav_lech', color1, ;
             mtitul, 'G+/B', .t., .t., ,, 'f3oms_zav_lech', , ;
             { 'Õ', '∞', 'Õ', 'W+/B, BG+/R, GR+/B, GR+/R', , 300 } )
@@ -1489,7 +1489,7 @@ Function f3oms_zav_lech( nKey, oBrow )
       Close databases
       stat_msg( 'Ç·•£Æ „§†´•≠Æ ´®·‚Æ¢ „Á•‚† - ' + lstr( j ) )
       mybell( 2, OK )
-      Use ( cur_dir + 'tmp' ) Alias TMP
+      Use ( cur_dir() + 'tmp' ) Alias TMP
       rest_box( buf )
       k := 0
       Keyboard Chr( K_ESC )
@@ -1510,7 +1510,7 @@ Function f3oms_zav_lech( nKey, oBrow )
         'ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒ', ;
         '               î.à.é.                           ≥ ë‡Æ™® ´•Á•≠®Ô  ≥    ë„¨¨†     ', ;
         'ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒ' }
-      n_file := cur_dir + 'z_lech.txt'
+      n_file := cur_dir() + 'z_lech.txt'
       sh := 80
       HH := 57
       fp := FCreate( n_file )
@@ -1632,7 +1632,7 @@ Function ret_oms_human( dostup, arr_m )
     r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To otd into OTD
     dbSeek( str_find, .t. )
-    Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+    Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
       While human->k_data <= arr_m[ 6 ] ;
       For schet < 1 .and. human_->reestr == 0
     str_error += ' ≠•‚ Ø†Ê®•≠‚Æ¢ · §†‚Æ© Æ™Æ≠Á†≠®Ô ' + arr_m[ 4 ]
@@ -1661,23 +1661,23 @@ Function ret_oms_human( dostup, arr_m )
     find ( str_find )
     If yes_h_otd == 1
       If dostup == B_STANDART
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
           For iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) .and. human_->reestr == 0
       Else
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
           For iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) )
       Endif
     Else
       If dostup == B_STANDART
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup ;
           For lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) ;
           .and. human_->reestr == 0
 
       Else
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup ;
           For lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) )
       Endif
@@ -1775,7 +1775,7 @@ Function f2ret_oms_human( nkey )
 
   Static tmp := ' '
   Local buf := SaveScreen(), buf1, rec1 := RecNo(), fl := -1, ss := 0, ;
-    j, n_file := cur_dir + 'omserror.txt', sh := 80, HH := 60, ii
+    j, n_file := cur_dir() + 'omserror.txt', sh := 80, HH := 60, ii
   Local mas_otchet := {}, tmp_2
   Local tmpSelect, flag_RDL := .f.
 
@@ -1848,8 +1848,8 @@ Function f2ret_oms_human( nkey )
     Elseif nkey == K_CTRL_F5
       If glob_mo[ _MO_KOD_TFOMS ] == '805965' // êÑã
         tmpSelect := Select()
-        If hb_vfExists( cur_dir + fr_data + '2' + sdbf )
-          Use ( cur_dir + fr_data + '2' ) New Alias FRD2
+        If hb_vfExists( cur_dir() + fr_data + '2' + sdbf )
+          Use ( cur_dir() + fr_data + '2' ) New Alias FRD2
           If frd2->( LastRec() ) > 1
             flag_RDL := .t.
           Endif
@@ -1867,9 +1867,9 @@ Function f2ret_oms_human( nkey )
             { 'otd', 'C', 42, 0 }, ;
             { 'otd_kod', 'N', 3, 0 }, ;
             { 'napr_uch', 'C', 6, 0 }  }
-          dbCreate( cur_dir + 'tmp_err', adbf1 )
-          Use ( cur_dir + fr_data + '2' ) New Alias FRD2
-          Use ( cur_dir + 'tmp_err' ) New Alias FRD3
+          dbCreate( cur_dir() + 'tmp_err', adbf1 )
+          Use ( cur_dir() + fr_data + '2' ) New Alias FRD2
+          Use ( cur_dir() + 'tmp_err' ) New Alias FRD3
 
           Private ii_otd
           For ii_otd := 1 To 4
@@ -1953,7 +1953,7 @@ Function f2ret_oms_human( nkey )
           Select( tmpSelect )
           // á§•·Ï ß†Ø‡Æ· ≠† ß†Ø®·Ï ùäëÖãü
           create_xls_rdl( 'rdl_report' )  // , arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
-          saveto( cur_dir + 'rdl_report.xlsx' )
+          saveto( cur_dir() + 'rdl_report.xlsx' )
         Else
           Select( tmpSelect )
           func_error( 4, "é‚Á•‚ ≠• ‰Æ‡¨®‡Æ¢†´·Ô !" )

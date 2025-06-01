@@ -25,24 +25,24 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
   Default fl_msg To .t., arr_s TO {}
   Private pole
   //
-  Use ( cur_dir + 'tmp1file' ) New Alias TMP1
+  Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
   mdate_schet := tmp1->_DSCHET
   nsh := f_mb_me_nsh( tmp1->_year, @mb, @me )
   // составляем массив будущих счетов
   // открыть распакованный реестр
-  Use ( cur_dir + 'tmp_r_t1' ) New index ( cur_dir + 'tmpt1' ) Alias T1
-  Use ( cur_dir + 'tmp_r_t2' ) New index ( cur_dir + 'tmpt2' ) Alias T2
-  Use ( cur_dir + 'tmp_r_t3' ) New index ( cur_dir + 'tmpt3' ) Alias T3
-  Use ( cur_dir + 'tmp_r_t4' ) New index ( cur_dir + 'tmpt4' ) Alias T4
-  Use ( cur_dir + 'tmp_r_t5' ) New index ( cur_dir + 'tmpt5' ) Alias T5
-  Use ( cur_dir + 'tmp_r_t6' ) New index ( cur_dir + 'tmpt6' ) Alias T6
-  Use ( cur_dir + 'tmp_r_t7' ) New index ( cur_dir + 'tmpt7' ) Alias T7
-  Use ( cur_dir + 'tmp_r_t8' ) New index ( cur_dir + 'tmpt8' ) Alias T8
-  Use ( cur_dir + 'tmp_r_t9' ) New index ( cur_dir + 'tmpt9' ) Alias T9
-  Use ( cur_dir + 'tmp_r_t10' ) New index ( cur_dir + 'tmpt10' ) Alias T10
-  Use ( cur_dir + 'tmp_r_t11' ) New index ( cur_dir + 'tmpt11' ) Alias T11
-  Use ( cur_dir + 'tmp_r_t12' ) New index ( cur_dir + 'tmpt12' ) Alias T12
-  Use ( cur_dir + 'tmp_r_t1_1' ) New index ( cur_dir + 'tmpt1_1' ) Alias T1_1
+  Use ( cur_dir() + 'tmp_r_t1' ) New index ( cur_dir() + 'tmpt1' ) Alias T1
+  Use ( cur_dir() + 'tmp_r_t2' ) New index ( cur_dir() + 'tmpt2' ) Alias T2
+  Use ( cur_dir() + 'tmp_r_t3' ) New index ( cur_dir() + 'tmpt3' ) Alias T3
+  Use ( cur_dir() + 'tmp_r_t4' ) New index ( cur_dir() + 'tmpt4' ) Alias T4
+  Use ( cur_dir() + 'tmp_r_t5' ) New index ( cur_dir() + 'tmpt5' ) Alias T5
+  Use ( cur_dir() + 'tmp_r_t6' ) New index ( cur_dir() + 'tmpt6' ) Alias T6
+  Use ( cur_dir() + 'tmp_r_t7' ) New index ( cur_dir() + 'tmpt7' ) Alias T7
+  Use ( cur_dir() + 'tmp_r_t8' ) New index ( cur_dir() + 'tmpt8' ) Alias T8
+  Use ( cur_dir() + 'tmp_r_t9' ) New index ( cur_dir() + 'tmpt9' ) Alias T9
+  Use ( cur_dir() + 'tmp_r_t10' ) New index ( cur_dir() + 'tmpt10' ) Alias T10
+  Use ( cur_dir() + 'tmp_r_t11' ) New index ( cur_dir() + 'tmpt11' ) Alias T11
+  Use ( cur_dir() + 'tmp_r_t12' ) New index ( cur_dir() + 'tmpt12' ) Alias T12
+  Use ( cur_dir() + 'tmp_r_t1_1' ) New index ( cur_dir() + 'tmpt1_1' ) Alias T1_1
   r_use( dir_server + 'mo_pers', , 'PERS' )
   r_use( dir_server + 'mo_otd', , 'OTD' )
   r_use( dir_server + 'uslugi', , 'USL' )
@@ -60,8 +60,8 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
   use_base( 'human' )
   Set Order To 0
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
-  Use ( cur_dir + 'tmp2file' ) New Alias TMP2
-  Index On Upper( fio ) to ( cur_dir + 'tmp2' ) For _OPLATA == 1
+  Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
+  Index On Upper( fio ) to ( cur_dir() + 'tmp2' ) For _OPLATA == 1
   Go Top
   Do While !Eof()
     c := ' '
@@ -169,10 +169,10 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
         i := arr_schet[ ii, 10 ]
         arr_schet[ ii, 3 ] := arr_schet[ ii, 4 ] := 0
         Select TMP2
-        Index On Upper( _ID_C ) to ( cur_dir + 'tmp2' ) For schet == ii
+        Index On Upper( _ID_C ) to ( cur_dir() + 'tmp2' ) For schet == ii
         dbEval( {|| tmp2->SCHET_ZAP := 0 } ) // обнуляем номер позиции в счёте
-        Use ( cur_dir + 'tmp_s_id' ) New Alias TS
-        Index On NIDCASE to ( cur_dir + 'tmp_ts' ) For kod == pr_array_schet[ i, 11 ]
+        Use ( cur_dir() + 'tmp_s_id' ) New Alias TS
+        Index On NIDCASE to ( cur_dir() + 'tmp_ts' ) For kod == pr_array_schet[ i, 11 ]
         Go Top
         Do While !Eof()
           Select TMP2
@@ -230,7 +230,7 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
     Next
   Endif
   r_use( dir_server + 'schet_',, 'SCH' )
-  Index On smo + Str( nn, nsh ) to ( cur_dir + 'tmp_sch' ) For nyear == tmp1->_YEAR .and. nmonth == tmp1->_MONTH
+  Index On smo + Str( nn, nsh ) to ( cur_dir() + 'tmp_sch' ) For nyear == tmp1->_YEAR .and. nmonth == tmp1->_MONTH
   fl := .f.
   For i := 1 To Len( arr_schet )
     fl := .f. ; sKodSMO := arr_schet[ i, 1 ]
@@ -270,7 +270,7 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
   mdate_schet := Max( mdate_schet, sys_date )
   StrFile( Space( 10 ) + 'Список составленных счетов:' + hb_eol(), cFileProtokol, .t. )
   Select TMP2
-  Index On Str( schet, 6 ) + Str( schet_zap, 6 ) to ( cur_dir + 'tmp2' ) For schet_zap > 0
+  Index On Str( schet, 6 ) + Str( schet_zap, 6 ) to ( cur_dir() + 'tmp2' ) For schet_zap > 0
   For ii := 1 To Len( arr_schet )
     mnn := arr_schet[ ii, 9 ]
     sKodSMO := AllTrim( arr_schet[ ii, 1 ] )

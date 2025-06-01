@@ -12,10 +12,10 @@ Function s3_statist(k3,k4)
 // k3 = 4 - С разбивкой по службам
 //   k4 = 1 - С разбивкой по отделениям (где выписан счет)
 //   k4 = 2 - С разбивкой по отделениям (где оказана услуга)
-Local arr_g, buf := save_maxrow(), ind_human, ind_schet, mname,;
+Local arr_g, buf := save_maxrow(), ;
       i, j, s, fl, sh, HH := 57, arr_title, reg_print, ;
-      name_file := cur_dir + 'spisok_s.txt', pp[8], old_smo, old_komu, old_str_crb, ;
-      arr_bukva := {}, hGauge, cur_rec := 0, fl_exit := .f.
+      name_file := cur_dir() + 'spisok_s.txt', pp[8], old_smo, old_komu, old_str_crb, ;
+      arr_bukva := {}, cur_rec := 0, fl_exit := .f.
 
 pi4 := k3
 DEFAULT k4 TO 2
@@ -73,30 +73,30 @@ if R_Use(dir_server + "human_",,"HUMAN_") .and. ;
     if k3 == 2  // с объединением по принадлежности
       index on schet_->smo+iif(empty(schet_->smo),str(komu,1)+str(str_crb,2),;
                                                   str(0,1)+str(0,2))+;
-                            pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp") ;
+                            pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir() + "tmp") ;
             while pdate <= arr_g[8]
     else
-      index on pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp") ;
+      index on pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir() + "tmp") ;
                                                       while pdate <= arr_g[8]
     endif
   elseif pds == 2
     if k3 == 2  // с объединением по принадлежности
       index on schet_->smo+iif(empty(schet_->smo),str(komu,1)+str(str_crb,2),;
                                                   str(0,1)+str(0,2))+;
-                            pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp") ;
+                            pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir() + "tmp") ;
             for between_otch_period(schet_->dschet,schet_->NYEAR,schet_->NMONTH,arr_g[5],arr_g[6])
     else
-      index on pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp") ;
+      index on pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir() + "tmp") ;
             for between_otch_period(schet_->dschet,schet_->NYEAR,schet_->NMONTH,arr_g[5],arr_g[6])
     endif
   else
     if k3 == 2  // с объединением по принадлежности
       index on schet_->smo+iif(empty(schet_->smo),str(komu,1)+str(str_crb,2),;
                                                   str(0,1)+str(0,2))+;
-                            pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp") ;
+                            pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir() + "tmp") ;
         for schet_->NREGISTR==0 .and. between(date_reg_schet(),arr_g[5],arr_g[6])
     else
-      index on pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp") ;
+      index on pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir() + "tmp") ;
         for schet_->NREGISTR==0 .and. between(date_reg_schet(),arr_g[5],arr_g[6])
     endif
   endif
@@ -308,11 +308,11 @@ return arr_title
 **
 Static Function s33_statist(k3,k4)
 Local j, arr_os := {}
-dbcreate(cur_dir + "tmp_os", {{"kod","N",3,0},{"name","C",30,0},;
+dbcreate(cur_dir() + "tmp_os", {{"kod","N",3,0},{"name","C",30,0},;
                     {"p3","N",17,2},{"p4","N",7,0},;
                     {"p5","N",17,2},{"p6","N",7,0}} )
-use (cur_dir + "tmp_os") new
-index on str(kod,3) to (cur_dir + "tmp_os")
+use (cur_dir() + "tmp_os") new
+index on str(kod,3) to (cur_dir() + "tmp_os")
 if k3 == 3  // С разбивкой по отделениям
   otd->( dbeval({|| aadd(arr_os, {kod,name}) }))
   asort(arr_os,,,{|x,y| x[2] < y[2] } )
@@ -428,8 +428,8 @@ return NIL
 
 ** информация по конкретному счету
 Function s4_statist()
-Local buf := savescreen(), buf24 := save_maxrow(), i, j, arr_blk,;
-  sh := 108, HH := 57, reg_print := 3, name_file := cur_dir + 'infschet.txt'
+Local buf := savescreen(), buf24 := save_maxrow(), arr_blk,;
+  sh := 108, HH := 57, reg_print := 3, name_file := cur_dir() + 'infschet.txt'
 Private atmp_os[8], arr_uch[8]
 if input_schet(0)
   WaitStatus()
@@ -565,29 +565,29 @@ adbf := {{"KOMU"     ,   "N",     1,     0},; // от 1 до 5
          {"KOL_BOLN" ,   "N",     6,     0},;
          {"SUMMA"    ,   "N",    13,     2},;
          {"is","N",1,0}}
-dbcreate(cur_dir + "tmp_smo",adbf)
-use (cur_dir + "tmp_smo") new alias TMP
-index on smo to (cur_dir + "tmp_smo1")
-index on nkomu to (cur_dir + "tmp_smo2")
-set index to (cur_dir + "tmp_smo1"),(cur_dir + "tmp_smo2")
+dbcreate(cur_dir() + "tmp_smo",adbf)
+use (cur_dir() + "tmp_smo") new alias TMP
+index on smo to (cur_dir() + "tmp_smo1")
+index on nkomu to (cur_dir() + "tmp_smo2")
+set index to (cur_dir() + "tmp_smo1"),(cur_dir() + "tmp_smo2")
 R_Use(dir_server + "schet_",,"SCHET_")
 R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
 set relation to recno() into SCHET_
 set filter to empty(schet_->IS_DOPLATA)
 if pds == 1
   dbseek(begin_date,.t.)
-  index on pdate to (cur_dir + "tmp_s") while pdate <= end_date
+  index on pdate to (cur_dir() + "tmp_s") while pdate <= end_date
 elseif pds == 2
   if mdate_reg == NIL
-    index on pdate to (cur_dir + "tmp_s") ;
+    index on pdate to (cur_dir() + "tmp_s") ;
           for between_otch_period(schet_->dschet,schet_->NYEAR,schet_->NMONTH,arr_m[5],arr_m[6])
   else
-    index on pdate to (cur_dir + "tmp_s") ;
+    index on pdate to (cur_dir() + "tmp_s") ;
           for between_otch_period(schet_->dschet,schet_->NYEAR,schet_->NMONTH,arr_m[5],arr_m[6]) ;
                  .and. schet_->NREGISTR==0 .and. date_reg_schet() <= mdate_reg
   endif
 else
-  index on pdate to (cur_dir + "tmp_s") ;
+  index on pdate to (cur_dir() + "tmp_s") ;
         for schet_->NREGISTR==0 .and. between(date_reg_schet(),arr_m[5],arr_m[6])
 endif
 go top
@@ -670,9 +670,9 @@ return ret
 
 // 02.02.24
 Function s53statist(ltip, arr_m, begin_date, end_date)
-Local i, j, k, s, buf := save_maxrow(), arr, mstr_crb, mismo,;
+Local i, j, k, s, buf := save_maxrow(), ;
       fl_exit := .f., sh := 80, HH := 59, reg_print := 2, lshifr1,;
-      arr_title, name_file := cur_dir + 'tfomsf14.txt', flag_uet := .t., koef,;
+      arr_title, name_file := cur_dir() + 'tfomsf14.txt', flag_uet := .t., koef,;
       kol_schet := 0, lreg_lech, ta, arr_name := f14tf_array(),;
       arr_lp := {}, arr_dn_st, d2_year
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
@@ -683,10 +683,10 @@ adbf := {{"tip","N",2,0},;
          {"kol","N",11,3},;
          {"uet","N",11,4},;
          {"sum","N",16,2}}
-dbcreate(cur_dir + "tmp",adbf)
-use (cur_dir + "tmp") new alias TMP
-index on str(tip,2)+shifr to (cur_dir + "tmp")
-use (cur_dir + "tmp_smo") index (cur_dir + "tmp_smo1") new alias TMP_SMO
+dbcreate(cur_dir() + "tmp",adbf)
+use (cur_dir() + "tmp") new alias TMP
+index on str(tip,2)+shifr to (cur_dir() + "tmp")
+use (cur_dir() + "tmp_smo") index (cur_dir() + "tmp_smo1") new alias TMP_SMO
 R_Use(dir_server + "uslugi",,"USL")
 R_Use(dir_server + "human_u",dir_server + "human_u","HU")
 set relation to u_kod into USL
@@ -699,18 +699,18 @@ set relation to recno() into SCHET_
 set filter to empty(schet_->IS_DOPLATA) .and. !empty(val(schet_->smo))
 if pds == 1
   dbseek(begin_date,.t.)
-  index on pdate to (cur_dir + "tmp_s") while pdate <= end_date
+  index on pdate to (cur_dir() + "tmp_s") while pdate <= end_date
 elseif pds == 2
   if mdate_reg == NIL
-    index on pdate to (cur_dir + "tmp_s") ;
+    index on pdate to (cur_dir() + "tmp_s") ;
           for between_otch_period(schet_->dschet,schet_->NYEAR,schet_->NMONTH,arr_m[5],arr_m[6])
   else
-    index on pdate to (cur_dir + "tmp_s") ;
+    index on pdate to (cur_dir() + "tmp_s") ;
           for between_otch_period(schet_->dschet,schet_->NYEAR,schet_->NMONTH,arr_m[5],arr_m[6]) ;
                  .and. schet_->NREGISTR==0 .and. date_reg_schet() <= mdate_reg
   endif
 else
-  index on pdate to (cur_dir + "tmp_s") ;
+  index on pdate to (cur_dir() + "tmp_s") ;
         for schet_->NREGISTR==0 .and. between(date_reg_schet(),arr_m[5],arr_m[6])
 endif
 as := array(10,3) ; afillall(as,0)
@@ -945,7 +945,7 @@ add_string(replicate("─",sh))
 add_string("")
 add_string(center("Расшифровка по услугам",sh))
 select TMP
-index on str(tip,2)+fsort_usl(shifr) to (cur_dir + "tmp")
+index on str(tip,2)+fsort_usl(shifr) to (cur_dir() + "tmp")
 for i := 1 to 11
   if i < 9 .or. i == 11
     ta := arr_title
@@ -1173,12 +1173,12 @@ aadd(adbf, {"usl_shifr","C",10,0})
 aadd(adbf, {"usl_name","C",60,0})
 aadd(adbf, {"kol_usl","N",12,5})
 aadd(adbf, {"summa","N",15,2})
-dbcreate(cur_dir + "tmp",adbf)
-use (cur_dir + "tmp") new
+dbcreate(cur_dir() + "tmp",adbf)
+use (cur_dir() + "tmp") new
 if m1perso < 3
-  index on str(kod_perso,4)+usl_shifr to (cur_dir + "tmp")
+  index on str(kod_perso,4)+usl_shifr to (cur_dir() + "tmp")
 else
-  index on usl_shifr+str(kod_perso,4) to (cur_dir + "tmp")
+  index on usl_shifr+str(kod_perso,4) to (cur_dir() + "tmp")
 endif
 R_Use(dir_server + "uslugi",,"USL")
 R_Use(dir_server + "human_u",dir_server + "human_u","HU")
@@ -1293,7 +1293,7 @@ if !fl_exit
   arr_title := array(3) ; afill(arr_title,"")
   select TMP
   if m1perso < 3
-    index on upper(fio_perso)+usl_shifr to (cur_dir + "tmp")
+    index on upper(fio_perso)+usl_shifr to (cur_dir() + "tmp")
     arr_title[1] += titl_perso[1]
     arr_title[2] += titl_perso[2]
     arr_title[3] += titl_perso[3]
@@ -1373,11 +1373,11 @@ if !fl_exit
   viewtext(n_file,,,,(sh>80),,,reg_print)
   if mkol > 0
     ClrLine(24,color0)
-    d_file := cur_dir + "UZ_SPEC"+sdbf
+    d_file := cur_dir() + "UZ_SPEC"+sdbf
     if !del_dbf_file(d_file)
       return NIL
     endif
-    use (cur_dir + "tmp") new
+    use (cur_dir() + "tmp") new
     __dbCopy(d_file,arr_fields,,,,,.F.,) // copy fields kod_perso,fio_perso,kol_usl to (d_file)
     close databases
     n_message({"Создан файл для загрузки в Excel: "+d_file},,cColorStMsg,cColorStMsg,,,cColorSt2Msg)
@@ -1689,13 +1689,13 @@ adbf := {{"nn","N",1,0},;       // 0-основная,1-старики
          {"p18","N",10,0},;       //
          {"p19","N",10,0},;       //
          {"p20","N",10,0}}        //
-dbcreate(cur_dir + "tmp",adbf)
-use (cur_dir + "tmp") new alias TMP
-index on str(nn,1)+str(ist_fin,1)+str(tip,1)+str(spec,9) to (cur_dir + "tmp")
+dbcreate(cur_dir() + "tmp",adbf)
+use (cur_dir() + "tmp") new alias TMP
+index on str(nn,1)+str(ist_fin,1)+str(tip,1)+str(spec,9) to (cur_dir() + "tmp")
 if m1usl == 1
-  dbcreate(cur_dir + "tmpu",adbf)
-  use (cur_dir + "tmpu") new alias TMPU
-  index on str(nn,1)+str(ist_fin,1)+str(tip,1)+str(spec,9)+str(u_kod,5) to (cur_dir + "tmpu")
+  dbcreate(cur_dir() + "tmpu",adbf)
+  use (cur_dir() + "tmpu") new alias TMPU
+  index on str(nn,1)+str(ist_fin,1)+str(tip,1)+str(spec,9)+str(u_kod,5) to (cur_dir() + "tmpu")
 endif
 //
 R_Use(dir_server + "mo_su",,"MOSU")
@@ -1739,13 +1739,13 @@ close databases
 if k == 0
   return func_error(4,"Нет информации")
 endif
-name_file := cur_dir + 'prik_848.txt' ; HH := 42
+name_file := cur_dir() + 'prik_848.txt' ; HH := 42
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-use (cur_dir + "tmp") index (cur_dir + "tmp") new
+use (cur_dir() + "tmp") index (cur_dir() + "tmp") new
 if m1usl == 1
   R_Use(dir_server + "mo_su",,"MOSU")
   R_Use(dir_server + "uslugi",,"USL")
-  use (cur_dir + "tmpu") index (cur_dir + "tmpu") new
+  use (cur_dir() + "tmpu") index (cur_dir() + "tmpu") new
 endif
 for _tip := 1 to 5
   arr_title := {}

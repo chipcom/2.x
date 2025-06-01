@@ -83,7 +83,7 @@ return .t.
 Function fk_usl_cena()
 Local buf := savescreen(), adbf, i
 Private fl_found := .f.
-if !myFileDeleted(cur_dir+"tmp"+sdbf)
+if !myFileDeleted(cur_dir()+"tmp"+sdbf)
   return NIL
 endif
 mywait()
@@ -91,11 +91,11 @@ R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
 adbf := {{"kod","N",4,0},;
          {"shifr","C",10,0},;
          {"name","C",64,0}}
-dbcreate(cur_dir+"tmp",adbf)
-use (cur_dir+"tmp") new alias TMP
-index on fsort_usl(shifr) to (cur_dir+"tmp")
+dbcreate(cur_dir()+"tmp",adbf)
+use (cur_dir()+"tmp") new alias TMP
+index on fsort_usl(shifr) to (cur_dir()+"tmp")
 G_Use(dir_server+"kas_usl",,"KU")
-index on str(u_kod,4) to (cur_dir+"tmp_ku")
+index on str(u_kod,4) to (cur_dir()+"tmp_ku")
 go top
 do while !eof()
   fl_found := .t.
@@ -229,7 +229,7 @@ return fl
 Function fk_usl_dogov()
 Local buf := savescreen(), adbf, i
 Private fl_found := .f.
-if !myFileDeleted(cur_dir+"tmp"+sdbf)
+if !myFileDeleted(cur_dir()+"tmp"+sdbf)
   return NIL
 endif
 mywait()
@@ -237,11 +237,11 @@ R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
 adbf := {{"kod","N",4,0},;
          {"shifr","C",10,0},;
          {"name","C",64,0}}
-dbcreate(cur_dir+"tmp",adbf)
-use (cur_dir+"tmp") new alias TMP
-index on fsort_usl(shifr) to (cur_dir+"tmp")
+dbcreate(cur_dir()+"tmp",adbf)
+use (cur_dir()+"tmp") new alias TMP
+index on fsort_usl(shifr) to (cur_dir()+"tmp")
 G_Use(dir_server+"kas_usld",,"KU")
-index on str(u_kod,4) to (cur_dir+"tmp_ku")
+index on str(u_kod,4) to (cur_dir()+"tmp_ku")
 go top
 do while !eof()
   fl_found := .t.
@@ -404,8 +404,8 @@ elseif k == 2
                   "",NIL,;
                   'Расширение для шаблонов документов по ортопедическим услугам'})
   endif
-  init_base(cur_dir+"tmp",,mm_tmp,0)
-  use (cur_dir+"tmp") new
+  init_base(cur_dir()+"tmp",,mm_tmp,0)
+  use (cur_dir()+"tmp") new
   append blank
   tmp->pl_ext  := mem_pl_ext
   tmp->vozvrat := mem_vozvra
@@ -415,8 +415,8 @@ elseif k == 2
   endif
   close databases
   if f_edit_spr(A__EDIT,mm_tmp,'настройке работы с задачей "Касса МО"',;
-                "g_use(cur_dir+'tmp',,,.t.,.t.)",0,1) > 0
-    use (cur_dir+"tmp") new
+                "g_use(cur_dir()+'tmp',,,.t.,.t.)",0,1) > 0
+    use (cur_dir()+"tmp") new
     mem_pl_ext  := tmp->pl_ext
     mem_vozvra  := tmp->vozvrat
     mem_dop_st  := tmp->dop_str
@@ -660,7 +660,7 @@ LOCAL j := 0, flag := -1, buf := save_row(maxrow()), buf1, fl := .f., rec, mkod,
 Private ldate_voz, lsum_voz, nom_prihod := 0
 do case
   case nKey == K_F9 .and. !empty(human->cena)
-    if !myFileDeleted(cur_dir+"tmp"+sdbf)
+    if !myFileDeleted(cur_dir()+"tmp"+sdbf)
       return flag
     endif
     rec := human->(recno())
@@ -679,12 +679,12 @@ do case
              {"vrach","C",40,0},;
              {"cena", "N",10,2},;
              {"kol",  "N", 4,0}}
-    dbcreate(cur_dir+"tmp",adbf)
-    use (cur_dir+"tmp") new
+    dbcreate(cur_dir()+"tmp",adbf)
+    use (cur_dir()+"tmp") new
     adbf := {}
     select HU
     find (str(rec,7))
-    index on str(kod_vr,4)+fsort_usl(usl->shifr) to (cur_dir+"tmp") while hu->kod == rec
+    index on str(kod_vr,4)+fsort_usl(usl->shifr) to (cur_dir()+"tmp") while hu->kod == rec
     go top
     do while !eof()
       if hu->kod_vr > 0 .and. ascan(adbf,hu->kod_vr) == 0
@@ -811,7 +811,7 @@ goto (glob_kartotek)
 smvzros_reb := kart->vzros_reb
 kart->(dbCloseArea())
 G_Use(dir_server+"kas_usl",,"KU")
-index on str(u_kod,4) to (cur_dir+"tmp_ku")
+index on str(u_kod,4) to (cur_dir()+"tmp_ku")
 adbf := {;
     {"rec_hu"   ,   "N",     7,     0},; // номер записи по БД "HU"
     {"KOD_VR"   ,   "N",     4,     0},; // код врача
@@ -821,9 +821,9 @@ adbf := {;
     {"STOIM"    ,   "N",    10,     2},; // итоговая стоимость услуги
     {"shifr_u"  ,   "C",    10,     0},;
     {"name_u"   ,   "C",   128,     0}}
-dbcreate(cur_dir+"tmp_usl",adbf)
-use (cur_dir+"tmp_usl") new alias tmp
-index on fsort_usl(shifr_u) to (cur_dir+"tmp_usl")
+dbcreate(cur_dir()+"tmp_usl",adbf)
+use (cur_dir()+"tmp_usl") new alias tmp
+index on fsort_usl(shifr_u) to (cur_dir()+"tmp_usl")
 use_base("kas_pl_u","HU")
 R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
 R_Use(dir_server+"usl_otd",dir_server+"usl_otd","UO")
@@ -907,7 +907,7 @@ do while .t.
       maddress := mphone_m
     endif
     //
-    use (cur_dir+"tmp_usl") new index (cur_dir+"tmp_usl")
+    use (cur_dir()+"tmp_usl") new index (cur_dir()+"tmp_usl")
     adbf := {{"name",   "C",128,0},; // 24.12.17
              {"name_u", "C",128,0},;
              {"vrach",  "C", 40,0},;
@@ -919,8 +919,8 @@ do while .t.
              {"nds20",  "N",  1,0},; //10.08.08
              {"nds18",  "N",  1,0},; //10.08.08
              {"nds10",  "N",  1,0}}
-    dbcreate(cur_dir+"tmp",adbf)
-    use (cur_dir+"tmp") new
+    dbcreate(cur_dir()+"tmp",adbf)
+    use (cur_dir()+"tmp") new
     adbf := {}
     select TMP_USL
     go top
@@ -1542,7 +1542,7 @@ Local i, j, k, arr[2], s, buf := save_row(maxrow()), buf1, reg1,;
 if (arr_m := year_month()) == NIL
   return NIL
 endif
-if !myFileDeleted(cur_dir+"tmp"+sdbf)
+if !myFileDeleted(cur_dir()+"tmp"+sdbf)
   return NIL
 endif
 speriod := arr_m[4]
@@ -1550,13 +1550,13 @@ begin_date := arr_m[5]
 end_date := arr_m[6]
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
 //
-dbcreate(cur_dir+"tmp", {{"U_KOD" ,"N", 4,0},; // код услуги
+dbcreate(cur_dir()+"tmp", {{"U_KOD" ,"N", 4,0},; // код услуги
                  {"KOD_VR","N", 4,0},; // код врача
                  {"KOD_B", "N", 7,0},; // код больного
                  {"KOL"   ,"N", 5,0},; // количество услуг
                  {"STOIM" ,"N",10,2}}) // итоговая стоимость услуги
-use (cur_dir+"tmp") new
-index on str(kod_vr,4)+str(u_kod,4)+str(kod_b,7) to (cur_dir+"tmp")
+use (cur_dir()+"tmp") new
+index on str(kod_vr,4)+str(u_kod,4)+str(kod_b,7) to (cur_dir()+"tmp")
 R_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
 R_Use(dir_server+"kas_pl",dir_server+"kas_pl2","KP")
 R_Use(dir_server+"kas_pl_u",dir_server+"kas_pl1u","KPU")
@@ -1609,18 +1609,18 @@ else
   reg_print := 2
   R_Use(dir_server+"uslugi",,"USL")
   R_Use(dir_server+"mo_pers",,"PERSO")
-  use (cur_dir+"tmp") new alias TMP
+  use (cur_dir()+"tmp") new alias TMP
   set relation to kod_vr into PERSO, to u_kod into USL
   if equalany(reg,1,3)
-    index on str(kod_vr,4)+fsort_usl(usl->shifr) to (cur_dir+"tmp")
+    index on str(kod_vr,4)+fsort_usl(usl->shifr) to (cur_dir()+"tmp")
   elseif equalany(reg,2,4)
-    index on str(u_kod,4)+fsort_usl(usl->shifr)+str(kod_vr,4) to (cur_dir+"tmp")
+    index on str(u_kod,4)+fsort_usl(usl->shifr)+str(kod_vr,4) to (cur_dir()+"tmp")
   elseif reg == 5
     cp := "."
     R_Use(dir_server+"kartotek",,"KART")
     select TMP
     set relation to kod_b into KART additive
-    index on str(kod_vr,4)+fsort_usl(usl->shifr)+upper(left(kart->fio,20)) to (cur_dir+"tmp")
+    index on str(kod_vr,4)+fsort_usl(usl->shifr)+upper(left(kart->fio,20)) to (cur_dir()+"tmp")
   endif
   arr_title := {;
 "───────────────────────────────────────────────────────────┬─────┬─────────────",;
@@ -1716,21 +1716,21 @@ sh := len(arr_title[1])
 if (arr_m := year_month()) == NIL
   return NIL
 endif
-if !myFileDeleted(cur_dir+"tmp"+sdbf)
+if !myFileDeleted(cur_dir()+"tmp"+sdbf)
   return NIL
 endif
 //
 mywait()
-dbcreate(cur_dir+"tmp", {{"kod",     "N", 4,   0},;
+dbcreate(cur_dir()+"tmp", {{"kod",     "N", 4,   0},;
                  {"name",    "C", 60,  0},;
                  {"kod_1",   "C", 10,  0},;
                  {"kol_vo",  "N", 10,  0},;
                  {"summa",   "N", 12,  2}})
-use (cur_dir+"tmp") new
-index on kod to (cur_dir+"tmp_u")
+use (cur_dir()+"tmp") new
+index on kod to (cur_dir()+"tmp_u")
 R_Use(dir_server+"kas_pl_u",dir_server+"kas_pl1u","HUM_U")
 R_Use(dir_server+"kas_pl",,"HUM")
-index on str(kod_oper,3) to (cur_dir+"tmp_hum") for between(k_data,arr_m[5],arr_m[6])
+index on str(kod_oper,3) to (cur_dir()+"tmp_hum") for between(k_data,arr_m[5],arr_m[6])
 go top
 do while !eof()
   select HUM_U
@@ -1760,7 +1760,7 @@ do while !eof()
   skip
 enddo
 select TMP
-index on fsort_usl(kod_1) to (cur_dir+"tmp_u")
+index on fsort_usl(kod_1) to (cur_dir()+"tmp_u")
 fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
 add_string(center("Оплата услуг",sh))
 add_string(center("по дате НАЧАЛА лечения",sh))
@@ -1818,7 +1818,7 @@ R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"uslugi",,"USL")
 R_Use(dir_server+"kas_pl_u",dir_server+"kas_pl1u","HPU")
 R_Use(dir_server+"kas_pl",,"HU")
-index on dtos(k_data)+str(n_chek,6) to (cur_dir+"tmp_hum") for between(k_data,arr_m[5],arr_m[6])
+index on dtos(k_data)+str(n_chek,6) to (cur_dir()+"tmp_hum") for between(k_data,arr_m[5],arr_m[6])
 aeval(arr_title, {|x| add_string(x) } )
 j := sk := ss := 0
 select HU
@@ -2008,7 +2008,7 @@ next
 sh := len(arr_title[1])
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
 R_Use(dir_server+"kas_usld",,"PUSL")
-index on str(u_kod,4) to (cur_dir+"tmp_ud")
+index on str(u_kod,4) to (cur_dir()+"tmp_ud")
 R_Use(dir_server+"mo_pers",,"P2")
 R_Use(dir_server+"organiz",,"ORG")
 add_string(center("Ж У Р Н А Л",sh))
@@ -2018,7 +2018,7 @@ R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"uslugi",,"USL")
 R_Use(dir_server+"kas_pl_u",dir_server+"kas_pl1u","HPU")
 R_Use(dir_server+"kas_pl",,"HU")
-index on dtos(k_data)+str(n_chek,6) to (cur_dir+"tmp_hum") for between(k_data,arr_m[5],arr_m[6])
+index on dtos(k_data)+str(n_chek,6) to (cur_dir()+"tmp_hum") for between(k_data,arr_m[5],arr_m[6])
 aeval(arr_title, {|x| add_string(x) } )
 j := sk := ss := 0
 select HU

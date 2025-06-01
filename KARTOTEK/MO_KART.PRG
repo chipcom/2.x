@@ -302,7 +302,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     //
     If Between( m1invalid, 1, 4 )
       r_use( dir_server + 'kart_inv', , 'INV' )
-      Index On Str( kod, 7 ) to ( cur_dir + 'tmp_inv' )
+      Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_inv' )
       find ( Str( mkod, 7 ) )
       If ( fl_invalid := Found() )
         MDATE_INV := inv->DATE_INV
@@ -790,7 +790,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
         Endif
         If m1MEST_INOG == 9 .or. newMEST_INOG == 9
           g_use( dir_server + 'mo_kfio', , 'KFIO' )
-          Index On Str( kod, 7 ) to ( cur_dir + 'tmp_kfio' )
+          Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
           find ( Str( mkod, 7 ) )
           If Found()
             If newMEST_INOG == 9
@@ -813,7 +813,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
         Endif
         If Between( m1invalid, 1, 4 ) .or. fl_invalid
           g_use( dir_server + 'kart_inv', , 'INV' )
-          Index On Str( kod, 7 ) to ( cur_dir + 'tmp_inv' )
+          Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_inv' )
           find ( Str( mkod, 7 ) )
           If Found()
             If m1invalid == 0
@@ -834,7 +834,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
         Endif
         If fl_nameismo .or. rec_inogSMO > 0
           g_use( dir_server + 'mo_kismo', , 'SN' )
-          Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+          Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
           find ( Str( mkod, 7 ) )
           If Found()
             If fl_nameismo
@@ -996,7 +996,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
               msmo        := kart_->SMO
               m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
               g_use( dir_server + 'mo_hismo', , 'SN' )
-              Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+              Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
               Select HUMAN
               Set Order To 0
               For i := 1 To Len( arr )
@@ -1333,13 +1333,13 @@ Function f1get_oksm( k, r, c )
       lsng := 0
     Endif
   Endif
-  dbCreate( cur_dir + 'tmp_oksm', { ;
+  dbCreate( cur_dir() + 'tmp_oksm', { ;
     { 'kodN', 'C', 3, 0 }, ;
     { 'kodA', 'C', 3, 0 }, ;
     { 'sng', 'N', 1, 0 }, ;
     { 'name', 'C', 60, 0 } ;
     } )
-  Use ( cur_dir + 'tmp_oksm' ) New Alias RG
+  Use ( cur_dir() + 'tmp_oksm' ) New Alias RG
   Do While .t.
     Zap
     If lsng == 0
@@ -1368,7 +1368,7 @@ Function f1get_oksm( k, r, c )
         Endif
       Next
     Endif
-    Index On name to ( cur_dir + 'tmp_oksm' )
+    Index On name to ( cur_dir() + 'tmp_oksm' )
     Go Top
     If !Empty( pkodN )
       Locate For kodN == pkodN
@@ -1875,7 +1875,7 @@ Function view_kart( regim, r1, r2 )
                 Enddo
                 //
                 g_use( dir_server + 'mo_kismo', , 'SN' )
-                Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+                Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
                 Do While .t.
                   find ( Str( glob_kartotek, 7 ) )
                   If !Found()
@@ -1885,7 +1885,7 @@ Function view_kart( regim, r1, r2 )
                 Enddo
                 // подобие регистра застрахованных
                 g_use( dir_server + 'kart_etk' )
-                Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp_kart_etk' )
+                Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_kart_etk' )
                 Do While .t.
                   find ( Str( glob_kartotek, 7 ) )
                   If !Found()
@@ -2459,13 +2459,13 @@ Function f1dubl_zap()
     Return Nil
   Endif
   si := i
-  If !myfiledeleted( cur_dir + 'tmp' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp' + sdbf )
     Return Nil
   Endif
-  If !myfiledeleted( cur_dir + 'tmpitg' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmpitg' + sdbf )
     Return Nil
   Endif
-  dbCreate( cur_dir + 'tmpitg', { ;
+  dbCreate( cur_dir() + 'tmpitg', { ;
     { 'ID', 'N', 8, 0 }, ;
     { 'fio', 'C', 50, 0 }, ;
     { 'DATE_R', 'D', 8, 0 }, ;
@@ -2482,7 +2482,7 @@ Function f1dubl_zap()
     { 'DATE_PR', 'D', 8, 0 }, ;
     { 'MO_PR', 'C', 6, 0 } ;
     } )
-  Use ( cur_dir + 'tmpitg' ) new
+  Use ( cur_dir() + 'tmpitg' ) new
   r_use( dir_server + 'kartote2', , 'KART2' )
   //
   status_key( '^<Esc>^ - прервать поиск' )
@@ -2501,12 +2501,12 @@ Function f1dubl_zap()
     add_string( Center( '(сравнение по полю "Ф.И.О." + "Дата рождения")', sh ) )
     add_string( '' )
     AEval( arr_title, {| x| add_string( x ) } )
-    dbCreate( cur_dir + 'tmp', { { 'fio', 'C', 50, 0 }, { 'DATE_R', 'D', 8, 0 } } )
-    Use ( cur_dir + 'tmp' ) new
-    Index On Upper( fio ) + DToS( date_r ) to ( cur_dir + 'tmp' )
+    dbCreate( cur_dir() + 'tmp', { { 'fio', 'C', 50, 0 }, { 'DATE_R', 'D', 8, 0 } } )
+    Use ( cur_dir() + 'tmp' ) new
+    Index On Upper( fio ) + DToS( date_r ) to ( cur_dir() + 'tmp' )
     r_use( dir_server + 'kartotek', dir_server + 'kartoten', 'KART' )
     Set Relation To RecNo() into KART2
-    Index On Upper( fio ) + DToS( date_r ) to ( cur_dir + 'tmp_kart' ) For kod > 0
+    Index On Upper( fio ) + DToS( date_r ) to ( cur_dir() + 'tmp_kart' ) For kod > 0
     Go Top
     Do While !Eof()
       gaugeupdate( hGauge, ++curr / LastRec() )
@@ -2584,9 +2584,9 @@ Function f1dubl_zap()
     add_string( Center( '(сравнение по полю "Полис")', sh ) )
     add_string( '' )
     AEval( arr_title, {| x| add_string( x ) } )
-    dbCreate( cur_dir + 'tmp', { { 'POLIS', 'C', 17, 0 } } )
-    Use ( cur_dir + 'tmp' ) new
-    Index On polis to ( cur_dir + 'tmp' )
+    dbCreate( cur_dir() + 'tmp', { { 'POLIS', 'C', 17, 0 } } )
+    Use ( cur_dir() + 'tmp' ) new
+    Index On polis to ( cur_dir() + 'tmp' )
     r_use( dir_server + 'kartotek', dir_server + 'kartotep', 'KART' )
     Set Relation To RecNo() into KART2
     find ( '1' )
@@ -2677,9 +2677,9 @@ Function f1dubl_zap()
     add_string( Center( '(сравнение по полю "СНИЛС")', sh ) )
     add_string( '' )
     AEval( arr_title, {| x| add_string( x ) } )
-    dbCreate( cur_dir + 'tmp', { { 'SNILS', 'C', 11, 0 } } )
-    Use ( cur_dir + 'tmp' ) new
-    Index On snils to ( cur_dir + 'tmp' )
+    dbCreate( cur_dir() + 'tmp', { { 'SNILS', 'C', 11, 0 } } )
+    Use ( cur_dir() + 'tmp' ) new
+    Index On snils to ( cur_dir() + 'tmp' )
     r_use( dir_server + 'kartotek', dir_server + 'kartotes', 'KART' )
     Set Relation To RecNo() into KART2
     find ( '1' )
@@ -2770,14 +2770,14 @@ Function f1dubl_zap()
     add_string( Center( '(сравнение по полю ЕНП "Единый Номер Полиса")', sh ) )
     add_string( '' )
     AEval( arr_title, {| x| add_string( x ) } )
-    dbCreate( cur_dir + 'tmp', { { 'kod_mis', 'C', 20, 0 } } )
-    Use ( cur_dir + 'tmp' ) new
-    Index On kod_mis to ( cur_dir + 'tmp' )
+    dbCreate( cur_dir() + 'tmp', { { 'kod_mis', 'C', 20, 0 } } )
+    Use ( cur_dir() + 'tmp' ) new
+    Index On kod_mis to ( cur_dir() + 'tmp' )
     r_use( dir_server + 'kartote_', , 'KART_' )
     r_use( dir_server + 'kartotek', , 'KART' )
     Select KART2
     Set Relation To RecNo() into KART, To RecNo() into KART_
-    Index On kod_mis to ( cur_dir + 'tmp_kodmis' ) For !Empty( kod_mis ) .and. !Empty( kart->kod )
+    Index On kod_mis to ( cur_dir() + 'tmp_kodmis' ) For !Empty( kod_mis ) .and. !Empty( kart->kod )
     Go Top
     Do While !Eof()
       gaugeupdate( hGauge, ++curr / LastRec() )
@@ -2904,7 +2904,7 @@ Function f2dubl_zap()
         mywait()
         // список пациентов в реестрах будущих диспансеризаций
         /*G_Use(dir_server + 'mo_r01k', ,'R01K')
-        index on str(kod_k, 7) to (cur_dir + 'tmp_r01k')
+        index on str(kod_k, 7) to (cur_dir() + 'tmp_r01k')
         do while .t.
           find (str(dubl2_kart, 7))
           if !found() ; exit ; endif
@@ -2914,7 +2914,7 @@ Function f2dubl_zap()
         close databases*/
         // направления на госпитализацию
         g_use( dir_server + 'mo_nnapr', , 'NAPR' )
-        Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp_napr' )
+        Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_napr' )
         Do While .t.
           find ( Str( dubl2_kart, 7 ) )
           If !Found()
@@ -2959,7 +2959,7 @@ Function f2dubl_zap()
         Enddo
         //
         g_use( dir_server + 'mo_kismo', , 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         Do While .t.
           find ( Str( dubl2_kart, 7 ) )
           If !Found()
@@ -3024,7 +3024,7 @@ Function f2dubl_zap()
         Enddo
         // подобие регистра застрахованных
         g_use( dir_server + 'kart_etk' )
-        Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp_kart_etk' )
+        Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_kart_etk' )
         Do While .t.
           find ( Str( dubl2_kart, 7 ) )
           If !Found()
@@ -3043,8 +3043,8 @@ Function f2dubl_zap()
         Enddo
         // оплата по ДМС и взаимозачету
         g_use( dir_server + 'plat_vz', , 'PVZ' )
-        Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp_pvz' )
-        Set Index to ( cur_dir + 'tmp_pvz' ), ( dir_server + 'plat_vz' )
+        Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_pvz' )
+        Set Index to ( cur_dir() + 'tmp_pvz' ), ( dir_server + 'plat_vz' )
         Do While .t.
           find ( Str( dubl2_kart, 7 ) )
           If !Found()
@@ -3081,7 +3081,7 @@ Function f2dubl_zap()
         Enddo
         // cписок карточек пациентов в отосланных ходатайствах
         g_use( dir_server + 'mo_hod_k', , 'HK' )
-        Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp_hk' )
+        Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_hk' )
         Do While .t.
           find ( Str( dubl2_kart, 7 ) )
           If !Found()
@@ -3104,7 +3104,7 @@ Function f2dubl_zap()
         Enddo
         // список карточек в реестрах на прикрепление
         g_use( dir_server + 'mo_krtp', , 'KRTP' )
-        Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp_krtp' )
+        Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_krtp' )
         Do While .t.
           find ( Str( dubl2_kart, 7 ) )
           If !Found()
@@ -3116,7 +3116,7 @@ Function f2dubl_zap()
         Enddo
         // список ошибок в реестрах на прикрепление
         g_use( dir_server + 'mo_krte', , 'KRTE' )
-        Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp_krte' )
+        Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_krte' )
         Do While .t.
           find ( Str( dubl2_kart, 7 ) )
           If !Found()
@@ -3128,7 +3128,7 @@ Function f2dubl_zap()
         Enddo
         // список карточек в файлах на открепление
         g_use( dir_server + 'mo_krto', , 'KRTO' )
-        Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp_krto' )
+        Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_krto' )
         Do While .t.
           find ( Str( dubl2_kart, 7 ) )
           If !Found()
@@ -3320,12 +3320,12 @@ Function kartotek_to_screen( r1, r2 )
 // 20.11.15 Подсчёт количества пациентов, прикреплённых ко всем участковым врачам
 Function prn_itogo_uch_vrach()
 
-  Local sh, HH := 60, name_file := cur_dir + 'uchvrach.txt', arr_title
+  Local sh, HH := 60, name_file := cur_dir() + 'uchvrach.txt', arr_title
   Local ii := 0, buf := save_maxrow(), i, j, k, fl, arr := ret_arr_uch_vrach()
 
   mywait()
   r_use( dir_server + 'mo_pers', , 'P2' )
-  Index On snils to ( cur_dir + 'tmp_pers' ) For !Empty( snils )
+  Index On snils to ( cur_dir() + 'tmp_pers' ) For !Empty( snils )
   r_use_base( 'kartotek' )
   Go Top
   Do While !Eof()
@@ -3377,9 +3377,9 @@ Function prn_itogo_uch_vrach()
     Skip
   Enddo
   Use ( dir_server + 'kart_etk' ) new
-  Index On Str( kod_tf, 10 ) to ( cur_dir + 'tmp_kart_etk' )
+  Index On Str( kod_tf, 10 ) to ( cur_dir() + 'tmp_kart_etk' )
   r_use( dir_server + 'kart_et' )
-  Index On Str( kod_tf, 10 ) to ( cur_dir + 'tmp_kart_et' ) ;
+  Index On Str( kod_tf, 10 ) to ( cur_dir() + 'tmp_kart_et' ) ;
     For mo_pr == glob_MO[ _MO_KOD_TFOMS ] .and. !Empty( snils_vr ) .and. !( kart_et->PC2 == '1' )
   Go Top
   Do While !Eof()

@@ -155,7 +155,7 @@ Function f_define_tnm( n, ldiag, mdata )
 // polek := lal + '->kod_' + s
 // poled := lal + '->ds_' + s
 // if select(lal) == 0
-// R_Use(dir_exe() + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
+// R_Use(dir_exe() + '_mo_N00' + sn, {cur_dir() + '_mo_N00' + sn, cur_dir() + '_mo_N00' + sn + 'd'}, lal)
 // endif
 // dbSelectArea(lal) // встать на справочник N0...
 // set order to 1    // переключиться на индекс по коду
@@ -270,11 +270,11 @@ Function ret_arr_shema_old( k, k_data )
   If Empty( ashema[ 1 ] )
     r_use( dir_exe() + prefixfilerefname( _data ) + 'shema', , 'IT' )
     AAdd( ashema[ 1 ], { '-----     без схемы лекарственной терапии', PadR( 'нет', 10 ) } )
-    Index On kod to ( cur_dir + 'tmp_schema' ) For Left( kod, 2 ) == 'sh' .and. between_date( it->datebeg, it->dateend, _data )
+    Index On kod to ( cur_dir() + 'tmp_schema' ) For Left( kod, 2 ) == 'sh' .and. between_date( it->datebeg, it->dateend, _data )
     dbEval( {|| AAdd( ashema[ 1 ], { it->kod + Left( it->name, 68 ), it->kod } ) } )
-    Index On kod to ( cur_dir + 'tmp_schema' ) For Left( kod, 2 ) == 'mt' .and. between_date( it->datebeg, it->dateend, _data )
+    Index On kod to ( cur_dir() + 'tmp_schema' ) For Left( kod, 2 ) == 'mt' .and. between_date( it->datebeg, it->dateend, _data )
     dbEval( {|| AAdd( ashema[ 2 ], { it->kod + Left( it->name, 68 ), it->kod } ) } )
-    Index On kod to ( cur_dir + 'tmp_schema' ) For Left( kod, 2 ) == 'fr' .and. between_date( it->datebeg, it->dateend, _data )
+    Index On kod to ( cur_dir() + 'tmp_schema' ) For Left( kod, 2 ) == 'fr' .and. between_date( it->datebeg, it->dateend, _data )
     dbEval( {|| AAdd( ashema[ 3 ], { it->kod + Left( it->name, 68 ), it->kod, 0, 0 } ) } )
     Use
     For i := 1 To Len( ashema[ 3 ] )

@@ -67,9 +67,9 @@ if fl
   use_base("kas_ort","HUMAN")
   Private adbf := dbstruct()
   aadd(adbf, {"rec_hum","N",7,0})
-  dbcreate(cur_dir+"tmphum",adbf)
-  use (cur_dir+"tmphum") new
-  index on iif(tip_n>0,"1","2")+dtos(k_data) to (cur_dir+"tmphum")
+  dbcreate(cur_dir()+"tmphum",adbf)
+  use (cur_dir()+"tmphum") new
+  index on iif(tip_n>0,"1","2")+dtos(k_data) to (cur_dir()+"tmphum")
   if par == 2
     select HUMAN
     adbf := array(fcount())
@@ -91,7 +91,7 @@ if fl
   Private bOrt_open := ;
           {|| R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO"),;
               use_base("kas_ort","HUMAN"),;
-              G_Use(cur_dir+"tmphum",cur_dir+"tmphum",,.t.,.t.), dbGoTop() }
+              G_Use(cur_dir()+"tmphum",cur_dir()+"tmphum",,.t.,.t.), dbGoTop() }
   eval(bOrt_open)
   if par == 1
     f3_kas_ort(K_INS)
@@ -463,7 +463,7 @@ else
 endif
 //
 G_Use(dir_server+"kas_usl",,"KU")
-index on str(u_kod,4) to (cur_dir+"tmp_ku")
+index on str(u_kod,4) to (cur_dir()+"tmp_ku")
 f41_kas_ort(1)
 if par == 2
   f42_kas_ort()
@@ -517,8 +517,8 @@ do while .t.
                  {"nds20","N",  1,0},; //10.08.08
                  {"nds18","N",  1,0},; //10.08.08
                  {"nds10","N",  1,0}}
-        dbcreate(cur_dir+"tmp",adbf)
-        use (cur_dir+"tmp") new
+        dbcreate(cur_dir()+"tmp",adbf)
+        use (cur_dir()+"tmp") new
         append blank
         tmp->name := "Наряд номер "+lstr(human->nomer_n)
         tmp->cena := mcena[_KO_CENA]
@@ -556,7 +556,7 @@ do while .t.
       tmphum->fr_tip     := 2
       Commit
     endif
-    use (cur_dir+"tmp_usl") new alias tmp
+    use (cur_dir()+"tmp_usl") new alias tmp
     restscreen(buf)
     exit
   elseif j == 3
@@ -642,9 +642,9 @@ do case
     R_Use(dir_server+"pu_cena",{dir_server+"pu_cena",;
                                 dir_server+"pu_cenau"},"PUC")
     use_base("kas_ortu","HU")
-    G_Use(dir_server+"kas_usl",cur_dir+"tmp_ku","KU")
+    G_Use(dir_server+"kas_usl",cur_dir()+"tmp_ku","KU")
     R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
-    use (cur_dir+"tmp_usl") new index (cur_dir+"tmp_usl") alias tmp
+    use (cur_dir()+"tmp_usl") new index (cur_dir()+"tmp_usl") alias tmp
     goto (rec_tmp)
   case nKey == K_INS .or. (nKey == K_ENTER .and. tmp->rec_hu > 0 .and. tmp->is==0)
     chm_help_code := 1//HM_Edit1_kart
@@ -1047,12 +1047,12 @@ Local adbf := {;
   {"STOIM"    ,   "N",    10,     2},; // итоговая стоимость услуги
   {"shifr_u"  ,   "C",    10,     0},;
   {"name_u"   ,   "C",    65,     0}}
-dbcreate(cur_dir+"tmp_usl",adbf)
-use (cur_dir+"tmp_usl") new alias tmp
+dbcreate(cur_dir()+"tmp_usl",adbf)
+use (cur_dir()+"tmp_usl") new alias tmp
 if par == 1
-  index on str(2-is,1)+str(vid,1)+dtos(k_data)+fsort_usl(shifr_u) to (cur_dir+"tmp_usl")
+  index on str(2-is,1)+str(vid,1)+dtos(k_data)+fsort_usl(shifr_u) to (cur_dir()+"tmp_usl")
 else
-  index on str(vid,1)+dtos(k_data)+fsort_usl(shifr_u) to (cur_dir+"tmp_usl")
+  index on str(vid,1)+dtos(k_data)+fsort_usl(shifr_u) to (cur_dir()+"tmp_usl")
 endif
 use_base("kas_ortu","HU")
 R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
@@ -1160,7 +1160,7 @@ if !empty(mem_or_ext) .and. ;
   base1->(dbCloseArea())
   asort(t_arr_opl,,,{|x,y| iif(x[5]==y[5], x[2]<y[2], x[5]<y[5]) })
   select TMP
-  index on str(vid,1)+dtos(k_data)+fsort_usl(shifr_u) to (cur_dir+"tmp_usl2")
+  index on str(vid,1)+dtos(k_data)+fsort_usl(shifr_u) to (cur_dir()+"tmp_usl2")
   go top
   kassa_r_list_uch(1,"f1_pr_shab(file_sh)")
 endif

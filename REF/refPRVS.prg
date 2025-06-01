@@ -178,7 +178,7 @@ Function ret_tmp_prvs( kod_old, kod_new )
     If k < 0 // новая специальность занесена в лист учёта
       k := Abs( k )
       k := PadR( lstr( k ), 4 )
-      Use ( cur_dir + 'tmp_V015' ) index ( cur_dir + 'tmpkV015' ) new
+      Use ( cur_dir() + 'tmp_V015' ) index ( cur_dir() + 'tmpkV015' ) new
       find ( k )
       If Found()
         ret := AllTrim( tmp_V015->name )
@@ -195,7 +195,7 @@ Function ret_tmp_prvs( kod_old, kod_new )
     Else
       k := kod_old
     Endif
-    Use ( cur_dir + 'tmp_V004' ) index ( cur_dir + 'tmpkV004' ) new
+    Use ( cur_dir() + 'tmp_V004' ) index ( cur_dir() + 'tmpkV004' ) new
     find ( k )
     If Found()
       ret := AllTrim( tmp_V004->name )
@@ -207,7 +207,7 @@ Function ret_tmp_prvs( kod_old, kod_new )
     Else
       k := kod_new
     Endif
-    Use ( cur_dir + 'tmp_V015' ) index ( cur_dir + 'tmpkV015' ) new
+    Use ( cur_dir() + 'tmp_V015' ) index ( cur_dir() + 'tmpkV015' ) new
     find ( k )
     If Found()
       ret := AllTrim( tmp_V015->name )
@@ -231,10 +231,10 @@ Function init_tmp_prvs( _date, is_all )
       len1 := Max( len1, Len( lstr( _glob_array[ i, 2 ] ) + AllTrim( _glob_array[ i, 1 ] ) ) + 1 )
     Endif
   Next
-  dbCreate( cur_dir + 'tmp_V004', { { 'name', 'C', len1, 0 }, ;
+  dbCreate( cur_dir() + 'tmp_V004', { { 'name', 'C', len1, 0 }, ;
     { 'kod', 'C', 9, 0 }, ;
     { 'is', 'L', 1, 0 } } )
-  Use ( cur_dir + 'tmp_V004' ) new
+  Use ( cur_dir() + 'tmp_V004' ) new
   For i := 1 To Len( _glob_array )
     fl_is := between_date( _glob_array[ i, 3 ], _glob_array[ i, 4 ], _date )
     If iif( is_all, .t., fl_is )
@@ -244,8 +244,8 @@ Function init_tmp_prvs( _date, is_all )
         is With fl_is
     Endif
   Next
-  Index On Upper( name ) to ( cur_dir + 'tmp_V004' )
-  Index On kod to ( cur_dir + 'tmpkV004' )
+  Index On Upper( name ) to ( cur_dir() + 'tmp_V004' )
+  Index On kod to ( cur_dir() + 'tmpkV004' )
   tmp_V004->( dbCloseArea() )
   //
   len1 := 0
@@ -255,7 +255,7 @@ Function init_tmp_prvs( _date, is_all )
       len1 := Max( len1, Len( lstr( _glob_array[ i, 2 ] ) + AllTrim( _glob_array[ i, 1 ] ) ) + 1 )
     Endif
   Next
-  dbCreate( cur_dir + 'tmp_V015', { { 'name', 'C', len1, 0 }, ;
+  dbCreate( cur_dir() + 'tmp_V015', { { 'name', 'C', len1, 0 }, ;
     { 'kod', 'C', 4, 0 }, ;
     { 'kod_up', 'C', 4, 0 }, ;
     { 'vs', 'C', 4, 0 }, ;
@@ -264,7 +264,7 @@ Function init_tmp_prvs( _date, is_all )
     { 'sindex', 'C', 56, 0 }, ;
     { 'isn', 'N', 1, 0 }, ;
     { 'is', 'L', 1, 0 } } )
-  Use ( cur_dir + 'tmp_V015' ) new
+  Use ( cur_dir() + 'tmp_V015' ) new
   For i := 1 To Len( _glob_array )
     fl_is := between_date( _glob_array[ i, 5 ], _glob_array[ i, 6 ], _date )
     If iif( is_all, .t., fl_is )
@@ -275,8 +275,8 @@ Function init_tmp_prvs( _date, is_all )
         is With fl_is
     Endif
   Next
-  Index On Upper( name ) to ( cur_dir + 'tmp_V015' )
-  Index On kod to ( cur_dir + 'tmpkV015' )
+  Index On Upper( name ) to ( cur_dir() + 'tmp_V015' )
+  Index On kod to ( cur_dir() + 'tmpkV015' )
   Set Order To 0
   Go Top
   Do While !Eof()
@@ -319,7 +319,7 @@ Function init_tmp_prvs( _date, is_all )
     tmp_V015->name_up := s
     Skip
   Enddo
-  Index On sindex to ( cur_dir + 'tmpsV015' )
+  Index On sindex to ( cur_dir() + 'tmpsV015' )
   tmp_V015->( dbCloseArea() )
   Select ( tmp_select )
 

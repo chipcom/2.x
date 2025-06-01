@@ -84,7 +84,7 @@ Function s_mnog_poisk()
   Static mm_dvojn := { { 'все случаи', 1 }, { 'только двойные случаи', 2 }, { 'все, кроме двойных случаев', 3 } }
   Local mm_tmp := {}, k, adiag_talon[ 16 ]
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
-    tmp_help := help_code, hGauge, name_file := cur_dir + 'report.txt', ;
+    tmp_help := help_code, hGauge, name_file := cur_dir() + 'report.txt', ;
     sh := 80, HH := 77, i, a_diagnoz[ 10 ], ;
     mm_da_net := { { 'нет', 1 }, { 'да ', 2 } }, lvid_doc := 0, ;
     menu_bolnich := { { 'нет', 1 }, { 'да', 2 }, { 'родители', 3 } }, ;
@@ -94,7 +94,7 @@ Function s_mnog_poisk()
     mm_prik := { { 'неважно', 0 }, ;
     { 'прикреплён к нашей МО', 1 }, ;
     { 'не прикреплён к нашей МО', 2 } }, ;
-    tmp_file := cur_dir + 'tmp_mn_p' + sdbf, ;
+    tmp_file := cur_dir() + 'tmp_mn_p' + sdbf(), ;
     k_diagnoz, k_usl, tt_diagnoz[ 10 ], tt_usl[ 10 ]
   Local s := '', s1, s2, s3, sOutput := '', sZag1 := ''
   Local name_fileXLS := 'Report_' + suffixfiletimestamp()
@@ -179,24 +179,24 @@ Function s_mnog_poisk()
   //
   Private pdate_lech, pdate_schet, pdate_usl, pdate_vvod, mstr_crb := 0, mstr_crbM := {}, mslugba
   //
-  dbCreate( cur_dir + 'tmp', { ;
+  dbCreate( cur_dir() + 'tmp', { ;
     { 'U_KOD',    'N',      4,      0 }, ;  // код услуги
-  { 'U_SHIFR',  'C',     10,      0 }, ;  // шифр услуги
+    { 'U_SHIFR',  'C',     10,      0 }, ;  // шифр услуги
     { 'U_NAME',   'C',     65,      0 } ;   // наименование услуги
   } )
-  Use ( cur_dir + 'tmp' )
-  Index On Str( u_kod, 4 ) to ( cur_dir + 'tmpk' )
-  Index On fsort_usl( u_shifr ) to ( cur_dir + 'tmpn' )
+  Use ( cur_dir() + 'tmp' )
+  Index On Str( u_kod, 4 ) to ( cur_dir() + 'tmpk' )
+  Index On fsort_usl( u_shifr ) to ( cur_dir() + 'tmpn' )
   tmp->( dbCloseArea() )
   //
-  dbCreate( cur_dir + 'tmpF', { ;
+  dbCreate( cur_dir() + 'tmpF', { ;
     { 'U_KOD',    'N',      6,      0 }, ;  // код услуги
-  { 'U_SHIFR',  'C',     20,      0 }, ;  // шифр услуги
+    { 'U_SHIFR',  'C',     20,      0 }, ;  // шифр услуги
     { 'U_NAME',   'C',    255,      0 } ;   // наименование услуги
   } )
-  Use ( cur_dir + 'tmpF' )
-  Index On Str( u_kod, 6 ) to ( cur_dir + 'tmpFk' )
-  Index On fsort_usl( u_shifr ) to ( cur_dir + 'tmpFn' )
+  Use ( cur_dir() + 'tmpF' )
+  Index On Str( u_kod, 6 ) to ( cur_dir() + 'tmpFk' )
+  Index On fsort_usl( u_shifr ) to ( cur_dir() + 'tmpFn' )
   tmpF->( dbCloseArea() )
   //
   AAdd( mm_tmp, { 'date_lech', 'N', 4, 0, NIL, ;
@@ -618,7 +618,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
   //
   r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'PERSO' )
   k := f_edit_spr( A__APPEND, mm_tmp, 'множественному запросу', ;
-    'e_use(cur_dir + "tmp_mn_p")', 0, 1, , , , , 'write_mn_p' )
+    'e_use(cur_dir() + "tmp_mn_p")', 0, 1, , , , , 'write_mn_p' )
   If k > 0
     mywait()
     Use ( tmp_file ) New Alias MN
@@ -732,7 +732,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
     Endif
     If mn->uslugi > 0
       fl_rak_usl := .f.
-      Use ( cur_dir + 'tmp' ) index ( cur_dir + 'tmpn' ) new
+      Use ( cur_dir() + 'tmp' ) index ( cur_dir() + 'tmpn' ) new
       Go Top
       dbEval( {|| AAdd( arr_usl, { tmp->u_kod, tmp->u_shifr, tmp->u_name, 0, 0, 0 } ), ;
         iif( Left( tmp->u_shifr, 3 ) == '71.', fl_rak_usl := .t., ) ;
@@ -743,7 +743,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
       Endif
     Endif
     If mn->uslugiF > 0
-      Use ( cur_dir + 'tmpF' ) index ( cur_dir + 'tmpFn' ) new
+      Use ( cur_dir() + 'tmpF' ) index ( cur_dir() + 'tmpFn' ) new
       Go Top
       dbEval( {|| AAdd( arr_uslF, { tmpf->u_kod, tmpf->u_shifr, tmpf->u_name, 0, 0, 0 } ) } )
       tmpf->( dbCloseArea() )
@@ -754,31 +754,31 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
     flag_huF := ( mn->otd_usl > 0 .or. mn->vr1 > 0 .or. mn->as1 > 0 .or. mn->vras1 > 0 .or. ;
       mn->uslugiF > 0 .or. mn->dom > 0 .or. ;
       mn->kol_pos == 2 .or. mn->date_usl > 0 .or. mn->profil_u > 0 )
-    dbCreate( cur_dir + 'tmp', { { 'kod',      'N', 7, 0 }, ;
+    dbCreate( cur_dir() + 'tmp', { { 'kod',      'N', 7, 0 }, ;
       { 'kod_k',    'N', 7, 0 }, ;
       { 'stoim',    'N', 10, 2 }, ;
       { 'rak_p',    'N', 3, 0 }, ;
       { 'rak_s',    'N', 10, 2 } } )
-    Use ( cur_dir + 'tmp' ) new
-    dbCreate( cur_dir + 'tmp_k', { { 'kod_k', 'N', 7, 0 }, ;
+    Use ( cur_dir() + 'tmp' ) new
+    dbCreate( cur_dir() + 'tmp_k', { { 'kod_k', 'N', 7, 0 }, ;
       { 'kol',  'N', 6, 0 } } )
-    Use ( cur_dir + 'tmp_k' ) new
-    Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp_k' )
+    Use ( cur_dir() + 'tmp_k' ) new
+    Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_k' )
     If mn->kol_pos == 2
       Private kol_pos_amb := 0, pol_pos_stom1 := 0, pol_pos_stom2 := 0, pol_pos_stom3 := 0
-      dbCreate( cur_dir + 'tmp_kp', { { 'kod_k', 'N', 7, 0 }, ;
+      dbCreate( cur_dir() + 'tmp_kp', { { 'kod_k', 'N', 7, 0 }, ;
         { 'data', 'C', 4, 0 } } )
-      Use ( cur_dir + 'tmp_kp' ) new
-      Index On Str( kod_k, 7 ) + Data to ( cur_dir + 'tmp_kp' )
+      Use ( cur_dir() + 'tmp_kp' ) new
+      Index On Str( kod_k, 7 ) + Data to ( cur_dir() + 'tmp_kp' )
     Endif
     f1_diag_statist_bukva()
     fl_exit := .f.
     If p_regim == 3  // по дате оказания усуги
-      dbCreate( cur_dir + 'tmp_hum', { { 'kod', 'N', 7, 0 } } )
-      Use ( cur_dir + 'tmp_hum' ) new
+      dbCreate( cur_dir() + 'tmp_hum', { { 'kod', 'N', 7, 0 } } )
+      Use ( cur_dir() + 'tmp_hum' ) new
       r_use( dir_server + 'human_u', dir_server + 'human_ud', 'HU' )
       find ( pdate_usl[ 7 ] )
-      Index On kod to ( cur_dir + 'tmp_hu' ) While date_u <= pdate_usl[ 8 ] UNIQUE
+      Index On kod to ( cur_dir() + 'tmp_hu' ) While date_u <= pdate_usl[ 8 ] UNIQUE
       Go Top
       Do While !Eof()
         Select TMP_HUM
@@ -796,7 +796,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
     status_key( '^<Esc>^ - прервать поиск' )
     If IsBit( mn->vid_doc, VIEW_SCHET ) .or. mn->rak > 0
       r_use( dir_server + 'mo_raksh', , 'RAKSH' )
-      Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' )
+      Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' )
     Endif
     use_base( 'lusl' )
     use_base( 'luslc' )
@@ -870,7 +870,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         Skip
       Enddo
     Case p_regim == 3  // по дате оказания усуги
-      Use ( cur_dir + 'tmp_hum' ) new
+      Use ( cur_dir() + 'tmp_hum' ) new
       Set Relation To kod into HUMAN
       Go Top
       Do While !Eof()
@@ -1055,7 +1055,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         Endif
       Endif
       If IsBit( mn->vid_doc, VIEW_RAK )
-        r_use( dir_server + 'mo_raksh', cur_dir + 'tmp_raksh', 'RAKSH' )
+        r_use( dir_server + 'mo_raksh', cur_dir() + 'tmp_raksh', 'RAKSH' )
         If lExcel
           worksheet_set_column( worksheet, column, column, 13.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'РАК' ), header_wrap )
@@ -1585,8 +1585,8 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
           add_string( '  ИТОГО:     Оказано услуг ' + lstr( k ) )
         Endif
       Endif
-      Use ( cur_dir + 'tmp_bbuk' ) index ( cur_dir + 'tmp_bbuk' ) new
-      Use ( cur_dir + 'tmp_buk' ) index ( cur_dir + 'tmp_buk' ) new
+      Use ( cur_dir() + 'tmp_bbuk' ) index ( cur_dir() + 'tmp_bbuk' ) new
+      Use ( cur_dir() + 'tmp_buk' ) index ( cur_dir() + 'tmp_buk' ) new
       If LastRec() > 0
         sOutput := 'Стоматологический статус|Больн.|Случаев'
         If lExcel
@@ -1614,17 +1614,17 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
       Endif
 
       If mn->kol_lu > 0
-        Use ( cur_dir + 'tmp_k' ) index ( cur_dir + 'tmp_k' ) new
+        Use ( cur_dir() + 'tmp_k' ) index ( cur_dir() + 'tmp_k' ) new
         Count To skol For tmp_k->kol > mn->kol_lu
-        Use ( cur_dir + 'tmp' ) new
+        Use ( cur_dir() + 'tmp' ) new
         Set Relation To Str( kod, 7 ) into HUMAN, To Str( kod_k, 7 ) into TMP_K
-        Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir + 'tmp' ) ;
+        Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir() + 'tmp' ) ;
           For tmp_k->kol > mn->kol_lu
       Else
-        Use ( cur_dir + 'tmp_k' ) new
-        Use ( cur_dir + 'tmp' ) new
+        Use ( cur_dir() + 'tmp_k' ) new
+        Use ( cur_dir() + 'tmp' ) new
         Set Relation To Str( kod, 7 ) into HUMAN
-        Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir + 'tmp' )
+        Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir() + 'tmp' )
         add_string( 'Итого количество больных: ' + lstr( tmp_k->( LastRec() ) ) + ' чел.' )
         s := 'Итого листов учета: ' + lstr( tmp->( LastRec() ) ) + ' на сумму ' + lput_kop( ssumma, .t. ) + ' руб.'
         If suet > 0
@@ -3096,8 +3096,8 @@ Function f3_diag_statist_bukvaexcel( HH, sh, arr_title, lvu )
 
   Default lvu To 0
   If Select( 'TMP_BUK' ) == 0
-    Use ( cur_dir + 'tmp_bbuk' ) index ( cur_dir + 'tmp_bbuk' ) new
-    Use ( cur_dir + 'tmp_buk' ) index ( cur_dir + 'tmp_buk' ) new
+    Use ( cur_dir() + 'tmp_bbuk' ) index ( cur_dir() + 'tmp_bbuk' ) new
+    Use ( cur_dir() + 'tmp_buk' ) index ( cur_dir() + 'tmp_buk' ) new
   Endif
   Select TMP_BUK
   find ( Str( lvu, 4 ) )

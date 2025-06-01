@@ -12,21 +12,21 @@ Function phonegram_15_kz()
     begin_date, end_date, dtoc4( begin_date ), dtoc4( end_date ) }
 
   waitstatus( arr_m[ 4 ] )
-  dbCreate( cur_dir + 'tmp', { { 'nstr', 'N', 1, 0 }, ;
+  dbCreate( cur_dir() + 'tmp', { { 'nstr', 'N', 1, 0 }, ;
     { 'oms', 'N', 1, 0 }, ;
     { 'mm', 'N', 2, 0 }, ;
     { 'kol', 'N', 6, 0 }, ;
     { 'dni', 'N', 6, 0 }, ;
     { 'sum', 'N', 15, 2 }, ;
     { 'kslp', 'N', 15, 2 } } )
-  Use ( cur_dir + 'tmp' ) New Alias TMP
-  Index On Str( oms, 1 ) + Str( nstr, 1 ) + Str( mm, 2 ) to ( cur_dir + 'tmp' )
+  Use ( cur_dir() + 'tmp' ) New Alias TMP
+  Index On Str( oms, 1 ) + Str( nstr, 1 ) + Str( mm, 2 ) to ( cur_dir() + 'tmp' )
   r_use( dir_server + 'mo_rak',, 'RAK' )
   r_use( dir_server + 'mo_raks',, 'RAKS' )
   Set Relation To akt into RAK
   r_use( dir_server + 'mo_raksh',, 'RAKSH' )
   Set Relation To kod_raks into RAKS
-  Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' )
+  Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' )
   //
   r_use( dir_server + 'schet_',, 'SCHET_' )
   r_use( dir_server + 'schet',, 'SCHET' )

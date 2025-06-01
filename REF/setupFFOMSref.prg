@@ -99,11 +99,10 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
     name_arr := 'get_implantant()'
   endif
   
-  // if !init_tmp_glob_array(, &name_arr, sys_date, _name == 'V002')
   if !init_tmp_glob_array(, &name_arr, sys_date, .f.)
     return NIL
   endif
-  use (cur_dir + 'tmp_ga') new
+  use (cur_dir() + 'tmp_ga') new
   ob_kol := lastrec()
   sKey := lstr(reg)
   s := 'Настройка по '
@@ -161,7 +160,7 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
     close databases
     return NIL
   endif
-  index on upper(name) to (cur_dir + 'tmp_ga')
+  index on upper(name) to (cur_dir() + 'tmp_ga')
   buf := savescreen()
   box_shadow(0, 50, 2, 77, color1)
   p_blk := {|| SetPos(1, 51), DispOut(padc('Выбрано строк: ' + lstr(ob_kol), 26), color8) }

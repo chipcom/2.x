@@ -79,7 +79,7 @@ Function f5editkusl( get, when_valid, k, lMedReab, vidReab, shrm, adult )
             mshifr := Space( 20 )
           Else // услуга разрешена данной МО
             If Select( 'MOPROF' ) == 0
-              r_use( dir_exe() + '_mo_prof', cur_dir + '_mo_prof', 'MOPROF' )
+              r_use( dir_exe() + '_mo_prof', cur_dir() + '_mo_prof', 'MOPROF' )
               // index on shifr+str(vzros_reb,1)+str(profil,3) to (sbase)
             Endif
             m1profil := iif( Left( mshifr, 5 ) == '4.16.', 6, 34 )

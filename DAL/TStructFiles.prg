@@ -402,7 +402,7 @@ METHOD New() CLASS TStructFiles
 				}             
 	cAlias := 'DIAGDB'
 	aIndex :=	{ ;
-				{ cur_dir + '_MO_MKB', 'SHIFR + STR( KS, 1 )' } ;
+				{ cur_dir() + '_MO_MKB', 'SHIFR + STR( KS, 1 )' } ;
 				}
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'Диагнозы' ) )
 //---------
@@ -767,7 +767,7 @@ METHOD New() CLASS TStructFiles
 					}
 	cAlias := 'TServiceFFOMSDB'
 	aIndex := { ;
-				{ cur_dir + '_mo_uslf', 'shifr' } ;
+				{ cur_dir() + '_mo_uslf', 'shifr' } ;
 				}
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'Файл справочника услуг ФФОМС' ) )
 //---------
@@ -787,7 +787,7 @@ METHOD New() CLASS TStructFiles
 					}
 	cAlias := 'TServiceFFOMS7DB'
 	aIndex := { ;
-				{ cur_dir + '_mo7uslf', 'shifr' } ;
+				{ cur_dir() + '_mo7uslf', 'shifr' } ;
 				}
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'Файл справочника услуг ФФОМС 2017' ) )
 //---------
@@ -1282,7 +1282,7 @@ METHOD New() CLASS TStructFiles
 					}
 	cAlias := '_MO_PODRDB'
 	aIndex := { ;
-		{ cur_dir + '_mo_podr', 'codemo + padr( upper( kodotd ), 25 )' } ;
+		{ cur_dir() + '_mo_podr', 'codemo + padr( upper( kodotd ), 25 )' } ;
 	}
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'справочник подразделений из паспорта ЛПУ' ) )
 //---------
@@ -1300,9 +1300,9 @@ METHOD New() CLASS TStructFiles
 					}
 	cAlias := '_MO_SMO'
 	aIndex := { ;
-		{ cur_dir + '_mo_smo', 'okato + smo' }, ;
-		{ cur_dir + '_mo_smo2', 'smo' }, ;
-		{ cur_dir + '_mo_smo3', 'okato + ogrn' } ;
+		{ cur_dir() + '_mo_smo', 'okato + smo' }, ;
+		{ cur_dir() + '_mo_smo2', 'smo' }, ;
+		{ cur_dir() + '_mo_smo3', 'okato + ogrn' } ;
 	}
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'справочник _mo_smo' ) )
 //---------
@@ -1320,8 +1320,8 @@ METHOD New() CLASS TStructFiles
 					}
 	cAlias := 'OBLAST'
 	aIndex := { ;
-				{ cur_dir + '_okato', 'okato' }, ;
-				{ cur_dir + '_okaton', 'substr( okato, 1, 5 ) + upper( substr( name, 1, 30 ) )' } ;
+				{ cur_dir() + '_okato', 'okato' }, ;
+				{ cur_dir() + '_okaton', 'substr( okato, 1, 5 ) + upper( substr( name, 1, 30 ) )' } ;
 				}
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'справочник ОКАТО областей' ) )
 //---------
@@ -1339,8 +1339,8 @@ METHOD New() CLASS TStructFiles
 					}
 	cAlias := '_OKATOO8'
 	aIndex := { ;
-				{ cur_dir + '_okato8', 'okato' }, ;
-				{ cur_dir + '_okaton8', 'substr( okato, 1, 5 ) + upper( substr( name, 1, 30 ) )' } ;
+				{ cur_dir() + '_okato8', 'okato' }, ;
+				{ cur_dir() + '_okaton8', 'substr( okato, 1, 5 ) + upper( substr( name, 1, 30 ) )' } ;
 				}
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'справочник _okatoo8' ) )
 //---------
@@ -1354,8 +1354,8 @@ METHOD New() CLASS TStructFiles
 					}
 	cAlias := 'REGION'
 	aIndex := { ;
-				{ cur_dir + '_okatr', 'okato' }, ;
-				{ cur_dir + '_okatrn', 'okato + upper( substr( name, 1, 30 ) )' } ;
+				{ cur_dir() + '_okatr', 'okato' }, ;
+				{ cur_dir() + '_okatrn', 'okato + upper( substr( name, 1, 30 ) )' } ;
 				}
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'справочник ОКАТО регионов' ) )
 //---------
@@ -1373,8 +1373,8 @@ METHOD New() CLASS TStructFiles
 					}
 	cAlias := '_OKATOS'
 	aIndex := { ;
-				{ cur_dir + '_okats', 'okato' }, ;
-				{ cur_dir + '_okatsn', 'substr( okato, 1, 8 ) + upper( substr( name, 1, 30 ) )' } ;
+				{ cur_dir() + '_okats', 'okato' }, ;
+				{ cur_dir() + '_okatsn', 'substr( okato, 1, 8 ) + upper( substr( name, 1, 30 ) )' } ;
 				}
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'справочник ОКАТО село' ) )
 //---------
@@ -1392,8 +1392,8 @@ METHOD New() CLASS TStructFiles
 					}
 	cAlias := '_OKATOS8'
 	aIndex := { ;
-				{ cur_dir + '_okats8', 'okato' }, ;
-				{ cur_dir + '_okatsn8', 'substr( okato, 1, 8 ) + upper( substr( name, 1, 30 ) )' } ;
+				{ cur_dir() + '_okats8', 'okato' }, ;
+				{ cur_dir() + '_okatsn8', 'substr( okato, 1, 8 ) + upper( substr( name, 1, 30 ) )' } ;
 				}
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'справочник _okatos8' ) )
 //---------

@@ -33,12 +33,12 @@ Function init_lek_pr()
 
   Local s, n
 
-  Use ( cur_dir + 'tmp_onkle' ) New Alias TMPLE
-  Index On REGNUM to ( cur_dir + 'tmp_onkle' ) UNIQUE
+  Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE
+  Index On REGNUM to ( cur_dir() + 'tmp_onkle' ) UNIQUE
   n := 0
   dbEval( {|| ++n } )
   s := 'препаратов - ' + lstr( n )
-  Index On DToS( DATE_INJ ) to ( cur_dir + 'tmp_onkle' ) UNIQUE
+  Index On DToS( DATE_INJ ) to ( cur_dir() + 'tmp_onkle' ) UNIQUE
   n := 0
   dbEval( {|| ++n } )
   s += ', дней приёма - ' + lstr( n )
@@ -758,7 +758,7 @@ Function f5editpreparat( get, nKey, when_valid, k )
           arr_lek_pr_schema := get_lek_preparat_by_schema_lech( 'covid', m1SCHEDRUG, mdate_u1 )
           If Len( arr_lek_pr_schema ) != 0
 //            tmpSelect := Select()
-//            r_use( dir_exe() + '_mo_N020', cur_dir + '_mo_N020', 'N20' )
+//            r_use( dir_exe() + '_mo_N020', cur_dir() + '_mo_N020', 'N20' )
             arr_lek_pr := {}
             For Each row in arr_lek_pr_schema
               key := row[ 2 ]
@@ -987,20 +987,20 @@ Function get_lek_pr( k, r, c, _crit )
   Index On ID_LEKP Tag n020
   Set Filter To between_date( datebeg, dateend, mk_data )
 
-  dbCreate( cur_dir + 'tmp', { { 'id_lekp', 'C', 6, 0 }, ;
+  dbCreate( cur_dir() + 'tmp', { { 'id_lekp', 'C', 6, 0 }, ;
     { 'mnn', 'C', 70, 0 }, ;
     { 'kol', 'N', 3, 0 } } )
-  Use ( cur_dir + 'tmp' ) new
-  Index On id_lekp to ( cur_dir + 'tmp' )
-//  r_use( dir_exe() + '_mo_N020', { cur_dir + '_mo_N020', cur_dir + '_mo_N020n' }, 'N20' )
+  Use ( cur_dir() + 'tmp' ) new
+  Index On id_lekp to ( cur_dir() + 'tmp' )
+//  r_use( dir_exe() + '_mo_N020', { cur_dir() + '_mo_N020', cur_dir() + '_mo_N020n' }, 'N20' )
 //  Set Filter To between_date( datebeg, dateend, mk_data )
 
   If ( it := AScan( aN021, {| x| x[ 2 ] + x[ 3 ] == _crit } ) ) == 0
     yes_crit := .t.
   Endif
 
-  Use ( cur_dir + 'tmp_onkle' ) New Alias TMPLE
-  Index On REGNUM + DToS( DATE_INJ ) to ( cur_dir + 'tmp_onkle' ) UNIQUE
+  Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE
+  Index On REGNUM + DToS( DATE_INJ ) to ( cur_dir() + 'tmp_onkle' ) UNIQUE
 
   If yes_crit // по данному критерию есть препараты в схеме
     For Each row in aN021
@@ -1079,7 +1079,7 @@ Function get_lek_pr( k, r, c, _crit )
   Endif
   t_arr[ BR_STAT_MSG ] := {|| status_key( s ) }
   Select TMP
-  Index On Upper( mnn ) to ( cur_dir + 'tmp' )
+  Index On Upper( mnn ) to ( cur_dir() + 'tmp' )
   Go Top
   If Eof() .and. !yes_crit
     Keyboard Chr( K_INS )
@@ -1100,7 +1100,7 @@ Function get_lek_pr( k, r, c, _crit )
       Next
     Endif
   Next
-  Index On DToS( DATE_INJ ) to ( cur_dir + 'tmp_onkle' ) UNIQUE
+  Index On DToS( DATE_INJ ) to ( cur_dir() + 'tmp_onkle' ) UNIQUE
   ndn := 0
   dbEval( {|| ++ndn } )
   ret[ 1 ] := ret[ 2 ] := PadR( 'препаратов - ' + lstr( nrec ) + ', дней приёма - ' + lstr( ndn ), 53 )

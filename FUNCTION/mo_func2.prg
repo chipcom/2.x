@@ -46,7 +46,7 @@ Function ret_koef_from_rak( lkod )
 
   If Select( 'RAKSH' ) == 0
     r_use( dir_server + 'mo_raksh', , 'RAKSH' )
-    Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' )
+    Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' )
   Endif
   Select RAKSH
   find ( Str( lkod, 7 ) )

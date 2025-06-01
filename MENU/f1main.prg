@@ -980,7 +980,7 @@ Function f1main( n_Task )
     "m_help()", ;
     "nastr_rab_mesto()", ;
     "ust_printer(T_ROW)", ;
-    "index_work_dir(dir_exe(), cur_dir(), .t.)", ;
+    "index_work_dir(dir_exe(), cur_dir()(), .t.)", ;
     "net_monitor(T_ROW, T_COL - 7, (hb_user_curUser:IsAdmin()))", ;
     "view_errors()" } )
 // добавим переиндексирование некоторых файлов внутри задачи

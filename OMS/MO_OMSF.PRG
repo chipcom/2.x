@@ -302,7 +302,7 @@ Function init_ismo( lsmo )
 
   If !Empty( lsmo )
     tmp_select := Select()
-    r_use( dir_exe() + '_mo_smo', cur_dir + '_mo_smo2', 'SMO' )
+    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
     find ( PadR( lsmo, 5 ) )
     If Found()
       s := RTrim( smo->name )
@@ -425,7 +425,7 @@ Function zaksluchaccordancediagnoz( lshifr, mdiagnoz, ta )
   Local i, fl := { .f., .f. }
 
   If Select( 'UZK' ) == 0
-    r_use( dir_exe() + '_mo_uslz', cur_dir + '_mo_uslz', 'UZK' )
+    r_use( dir_exe() + '_mo_uslz', cur_dir() + '_mo_uslz', 'UZK' )
     // index on shifr+str(type_diag, 1)+kod_diag to (sbase)
   Endif
   lshifr := PadR( lshifr, 10 )
@@ -861,7 +861,7 @@ Function ret_kod_usl_lek_ter( lVZROS_REB )
 // poled := lal + '->ds_' + s
 // polei := lal + '->id_' + s
 // if select(lal) == 0
-// R_Use(dir_exe() + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
+// R_Use(dir_exe() + '_mo_N00' + sn, {cur_dir() + '_mo_N00' + sn, cur_dir() + '_mo_N00' + sn + 'd'}, lal)
 // endif
 // dbSelectArea(lal) // встать на справочник N0...
 // set order to 2
@@ -1964,7 +1964,7 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
     tmp2 := '', c1, fl_bukva, s_msg, rec_tmp := 0
 
   Default lregim To 1, mbukva To ''
-  If !myfiledeleted( cur_dir + 'tmp_kart' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_kart' + sdbf )
     Return fl
   Endif
   Private top_frm
@@ -1980,15 +1980,15 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
   //
   Private tmp1, ch
   buf := SaveScreen()
-  dbCreate( cur_dir + 'tmp_kart', { { 'kod', 'N', 7, 0 }, ;
+  dbCreate( cur_dir() + 'tmp_kart', { { 'kod', 'N', 7, 0 }, ;
     { 'fio', 'C', 50, 0 }, ;
     { 'mest_inog', 'N', 1, 0 }, ;
     { 'bukva', 'C', 1, 0 }, ;
     { 'uchast', 'N', 2, 0 }, ;
     { 'kod_vu', 'N', 5, 0 }, ;
     { 'kod_AK', 'C', 6, 0 } } )
-  Use ( cur_dir + 'tmp_kart' ) New Alias TMP
-  Index On Upper( fio ) to ( cur_dir + 'tmp_kart' )
+  Use ( cur_dir() + 'tmp_kart' ) New Alias TMP
+  Index On Upper( fio ) to ( cur_dir() + 'tmp_kart' )
   If lregim == 1
     If fl_number
       If is_uchastok == 1
@@ -2194,7 +2194,7 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
     r_use( dir_server + 'kartote2', , 'KART2' )
     r_use( dir_server + 'kartote_', , 'KART_' )
     r_use( dir_server + 'kartotek', , 'KART' )
-    Use ( cur_dir + 'tmp_kart' ) index ( cur_dir + 'tmp_kart' ) New Alias TMP
+    Use ( cur_dir() + 'tmp_kart' ) index ( cur_dir() + 'tmp_kart' ) New Alias TMP
     Set Relation To kod into KART, To kod into KART_, To kod into KART2
     If rec_tmp > 0
       Goto ( rec_tmp )
@@ -2313,7 +2313,7 @@ Function input_schet( rr, r, c )
     }
 
   Default r To T_ROW, c To T_COL -5
-  If !myfiledeleted( cur_dir + 'tmp' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp' + sdbf )
     Return fl
   Endif
   ar := getinisect( tmp_ini, 'schet' )
@@ -2330,8 +2330,8 @@ Function input_schet( rr, r, c )
       @ 18, 22 Say 'Введите номер счета' Get mnomer Picture '@!@K'
       myread( { 'confirm' } )
       If LastKey() != K_ESC .and. !Empty( mnomer )
-        dbCreate( cur_dir + 'tmp', adbf_tmp )
-        Use ( cur_dir + 'tmp' ) New Alias TMP
+        dbCreate( cur_dir() + 'tmp', adbf_tmp )
+        Use ( cur_dir() + 'tmp' ) New Alias TMP
         r_use( dir_server + 'schet_', , 'SCHET_' )
         r_use( dir_server + 'schet', dir_server + 'schetn', 'SCHET' )
         Set Relation To RecNo() into SCHET_
@@ -2369,7 +2369,7 @@ Function input_schet( rr, r, c )
             glob_schet := tmp->kod
           Else
             dbEval( {|| tmp->name := f4_view_list_schet( tmp->komu, tmp->smo, tmp->str_crb ) } )
-            Index On Descend( DToS( date_s ) ) to ( cur_dir + 'tmp' )
+            Index On Descend( DToS( date_s ) ) to ( cur_dir() + 'tmp' )
             Go Top
             If ( fl := alpha_browse( T_ROW, 2, MaxRow() -2, 77, 'f1inp_schet', color0, ;
                 'Счета с номером ' + AllTrim( mnomer ), 'R/BG', ;
@@ -2386,9 +2386,9 @@ Function input_schet( rr, r, c )
         /*if (k := func2_komu(,,r-1,c, .t.)) != NIL
           buf24 := save_maxrow()
           mywait()
-          dbcreate(cur_dir + 'tmp',adbf_tmp)
-          Use (cur_dir + 'tmp') new alias TMP
-          index on descend(date_s) to (cur_dir + 'tmp')
+          dbcreate(cur_dir() + 'tmp',adbf_tmp)
+          Use (cur_dir() + 'tmp') new alias TMP
+          index on descend(date_s) to (cur_dir() + 'tmp')
           G_Use(dir_server + 'schet', dir_server + 'schetp','SCHET')
           find (str(glob_komu, 1)+str(glob_all[1], 2))
           do while schet->komu == glob_komu .and. schet->str_crb == glob_all[1] .and. !eof()

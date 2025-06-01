@@ -7,8 +7,8 @@
 // 01.03.23 распечатка формы №1 из приказа ФОМС №146
 FUNCTION forma1_ffoms()
 
-  LOCAL mdate, i, j, k, d1, d2, arr_smo := {}, at1, at2, ta, fl_month, tmp, b1_1, a1_1, ;
-    _bd, fl, b1, b2, a1, a2, lsmo, name_file := cur_dir + 'forma1', HH := 80, sh := 84
+  LOCAL mdate, i, j, k, d1, d2, arr_smo := {}, at1, at2, fl_month, tmp, b1_1, a1_1, ;
+    fl, b1, b2, a1, a2, lsmo, name_file := cur_dir() + 'forma1', HH := 80, sh := 84
 
   PRIVATE arr_m
 
@@ -24,12 +24,12 @@ FUNCTION forma1_ffoms()
     { 'schet', 'N', 6, 0 }, ;
     { 'summa1', 'N', 15, 2 }, ; // за месяц
     { 'summa2', 'N', 15, 2 } } // снг
-  dbCreate( cur_dir + 'tmp1', adbf )
-  USE ( cur_dir + 'tmp1' ) new
-  INDEX ON Str( smo, 5 ) + Str( s1, 1 ) + Str( s2, 1 ) to ( cur_dir + 'tmp1' )
-  dbCreate( cur_dir + 'tmp1prot', adbf )
-  USE ( cur_dir + 'tmp1prot' ) new
-  INDEX ON Str( smo, 5 ) + Str( s1, 1 ) + Str( s2, 1 ) + Str( schet, 6 ) to ( cur_dir + 'tmp1prot' )
+  dbCreate( cur_dir() + 'tmp1', adbf )
+  USE ( cur_dir() + 'tmp1' ) new
+  INDEX ON Str( smo, 5 ) + Str( s1, 1 ) + Str( s2, 1 ) to ( cur_dir() + 'tmp1' )
+  dbCreate( cur_dir() + 'tmp1prot', adbf )
+  USE ( cur_dir() + 'tmp1prot' ) new
+  INDEX ON Str( smo, 5 ) + Str( s1, 1 ) + Str( s2, 1 ) + Str( schet, 6 ) to ( cur_dir() + 'tmp1prot' )
   //
   adbf := { { 'smo', 'N', 5, 0 }, ;
     { 'pz', 'N', 1, 0 }, ;
@@ -41,17 +41,17 @@ FUNCTION forma1_ffoms()
     { 'kol4', 'N', 6, 0 }, ; // снг
     { 'summa1', 'N', 15, 2 }, ; // за месяц
     { 'summa2', 'N', 15, 2 } } // снг
-  dbCreate( cur_dir + 'tmp2', adbf )
-  USE ( cur_dir + 'tmp2' ) new
-  INDEX ON Str( smo, 5 ) + Str( vid, 1 ) + Str( pz, 1 ) to ( cur_dir + 'tmp2' )
-  dbCreate( cur_dir + 'tmp2prot', adbf )
-  USE ( cur_dir + 'tmp2prot' ) new
-  INDEX ON Str( smo, 5 ) + Str( vid, 1 ) + Str( pz, 1 ) + Str( schet, 6 ) to ( cur_dir + 'tmp2prot' )
-  dbCreate( cur_dir + 'tmp2pr_u', { { 'kod', 'N', 6, 0 }, ;
+  dbCreate( cur_dir() + 'tmp2', adbf )
+  USE ( cur_dir() + 'tmp2' ) new
+  INDEX ON Str( smo, 5 ) + Str( vid, 1 ) + Str( pz, 1 ) to ( cur_dir() + 'tmp2' )
+  dbCreate( cur_dir() + 'tmp2prot', adbf )
+  USE ( cur_dir() + 'tmp2prot' ) new
+  INDEX ON Str( smo, 5 ) + Str( vid, 1 ) + Str( pz, 1 ) + Str( schet, 6 ) to ( cur_dir() + 'tmp2prot' )
+  dbCreate( cur_dir() + 'tmp2pr_u', { { 'kod', 'N', 6, 0 }, ;
     { 'shifr', 'C', 20, 0 }, ;
     { 'kol', 'N', 15, 2 } } )
-  USE ( cur_dir + 'tmp2pr_u' ) new
-  INDEX ON Str( kod, 6 ) + shifr to ( cur_dir + 'tmp2pr_u' )
+  USE ( cur_dir() + 'tmp2pr_u' ) new
+  INDEX ON Str( kod, 6 ) + shifr to ( cur_dir() + 'tmp2pr_u' )
   adbf := { { 'smo', 'N', 5, 0 }, ;
     { 'kod_k', 'N', 7, 0 }, ;
     { 'enp', 'C', 16, 0 }, ;
@@ -59,10 +59,10 @@ FUNCTION forma1_ffoms()
     { 'vid', 'N', 1, 0 }, ;
     { 'kol3', 'N', 6, 0 }, ; // за месяц
     { 'kol4', 'N', 6, 0 } }  // снг
-  dbCreate( cur_dir + 'tmp3', adbf )
-  USE ( cur_dir + 'tmp3' ) new
-  // index on str(smo, 5) + str(vid, 1) + str(pz, 1) + str(kod_k, 7) to (cur_dir + 'tmp3')
-  INDEX ON Str( smo, 5 ) + Str( vid, 1 ) + Str( pz, 1 ) + enp to ( cur_dir + 'tmp3' )
+  dbCreate( cur_dir() + 'tmp3', adbf )
+  USE ( cur_dir() + 'tmp3' ) new
+  // index on str(smo, 5) + str(vid, 1) + str(pz, 1) + str(kod_k, 7) to (cur_dir() + 'tmp3')
+  INDEX ON Str( smo, 5 ) + Str( vid, 1 ) + Str( pz, 1 ) + enp to ( cur_dir() + 'tmp3' )
   //
   tmp := AClone( arr_m )
   tmp[ 5 ] := 1 // январь
@@ -172,7 +172,7 @@ FUNCTION forma1_ffoms()
   SET RELATION TO akt into RAK
   R_Use( dir_server + 'mo_raksh',, 'RAKSH' )
   SET RELATION TO kod_raks into RAKS
-  INDEX ON Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' ) FOR Between( mo_xml->dfile, BoY( arr_m[ 5 ] ), arr_m[ 6 ] + a2 )
+  INDEX ON Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) FOR Between( mo_xml->dfile, BoY( arr_m[ 5 ] ), arr_m[ 6 ] + a2 )
   // for between(rak->DAKT,boy(arr_m[5]),arr_m[6])
   GO TOP
   DO WHILE !Eof()
@@ -284,20 +284,20 @@ FUNCTION forma1_ffoms()
   ENDIF
   name_file += stxt()
   fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
-  USE ( cur_dir + 'tmp1' ) index ( cur_dir + 'tmp1' ) new
-  USE ( cur_dir + 'tmp2' ) index ( cur_dir + 'tmp2' ) new
+  USE ( cur_dir() + 'tmp1' ) index ( cur_dir() + 'tmp1' ) new
+  USE ( cur_dir() + 'tmp2' ) index ( cur_dir() + 'tmp2' ) new
   IF ireg == 2 // протокол созданияя формы 1
     R_Use( dir_server + 'schet_',, 'SCHET_' )
     R_Use( dir_server + 'schet',, 'SCHET' )
     SET RELATION TO RecNo() into SCHET_
-    USE ( cur_dir + 'tmp1prot' ) new
+    USE ( cur_dir() + 'tmp1prot' ) new
     SET RELATION TO schet into SCHET
-    INDEX ON Str( smo, 5 ) + Str( s1, 1 ) + Str( s2, 1 ) + DToS( date_reg_schet() ) + schet_->nschet to ( cur_dir + 'tmp1prot' )
-    USE ( cur_dir + 'tmp2pr_u' ) new
-    INDEX ON Str( kod, 6 ) + fsort_usl( shifr ) to ( cur_dir + 'tmp2pr_u' )
-    USE ( cur_dir + 'tmp2prot' ) new
+    INDEX ON Str( smo, 5 ) + Str( s1, 1 ) + Str( s2, 1 ) + DToS( date_reg_schet() ) + schet_->nschet to ( cur_dir() + 'tmp1prot' )
+    USE ( cur_dir() + 'tmp2pr_u' ) new
+    INDEX ON Str( kod, 6 ) + fsort_usl( shifr ) to ( cur_dir() + 'tmp2pr_u' )
+    USE ( cur_dir() + 'tmp2prot' ) new
     SET RELATION TO schet into SCHET
-    INDEX ON Str( smo, 5 ) + Str( vid, 1 ) + Str( pz, 1 ) + DToS( date_reg_schet() ) + schet_->nschet to ( cur_dir + 'tmp2prot' )
+    INDEX ON Str( smo, 5 ) + Str( vid, 1 ) + Str( pz, 1 ) + DToS( date_reg_schet() ) + schet_->nschet to ( cur_dir() + 'tmp2prot' )
     add_string( 'Протокол создания формы №1 для ФФОМС ' + arr_m[ 4 ] )
     add_string( ' [ зарегистрированные счета по дате РЕГИСТРАЦИИ ]' )
     FOR i := 1 TO Len( arr_smo )

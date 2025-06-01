@@ -160,13 +160,13 @@ Function ob2_statist( k, serv_arr )
     { "STOIM",    "N",     16,      4 };   // итоговая стоимость услуги
   }
   If !is_all
-    dbCreate( cur_dir + "tmp", adbf2 )
-    Use ( cur_dir + "tmp" ) new
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    dbCreate( cur_dir() + "tmp", adbf2 )
+    Use ( cur_dir() + "tmp" ) new
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
-    Use ( cur_dir + "tmp" ) new
+    Use ( cur_dir() + "tmp" ) new
     dbEval( {|| AAdd( arr_usl, tmp->u_kod ) } )
     Use
     If Len( arr_usl ) == 0
@@ -174,77 +174,77 @@ Function ob2_statist( k, serv_arr )
     Endif
   Endif
   If eq_any( k, 8, 9, 13, 14 )  // вывод списка больных
-    dbCreate( cur_dir + "tmp", adbf1 )
+    dbCreate( cur_dir() + "tmp", adbf1 )
   Else
-    dbCreate( cur_dir + "tmp", adbf2 )
+    dbCreate( cur_dir() + "tmp", adbf2 )
   Endif
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
-  Use ( cur_dir + "tmp" )
+  Use ( cur_dir() + "tmp" )
   Do Case
   Case k == 0  // Количество услуг и сумма лечения по службам (с разбивкой по отделениям)
-    Index On Str( kod_vr_as, 4 ) + Str( otd, 3 ) to ( cur_dir + "tmpk" )
-    Index On Str( kod_vr_as, 4 ) + Str( u_kod, 4 ) + Upper( Left( u_name, 20 ) ) to ( cur_dir + "tmpn" )
+    Index On Str( kod_vr_as, 4 ) + Str( otd, 3 ) to ( cur_dir() + "tmpk" )
+    Index On Str( kod_vr_as, 4 ) + Str( u_kod, 4 ) + Upper( Left( u_name, 20 ) ) to ( cur_dir() + "tmpn" )
   Case k == 100  // Количество услуг и сумма лечения по отделениям (с разбивкой по службам)
-    Index On Str( kod_vr_as, 4 ) + Str( otd, 3 ) to ( cur_dir + "tmpk" )
-    Index On Str( u_kod, 4 ) + Str( otd, 3 ) + Upper( Left( u_name, 20 ) ) to ( cur_dir + "tmpn" )
+    Index On Str( kod_vr_as, 4 ) + Str( otd, 3 ) to ( cur_dir() + "tmpk" )
+    Index On Str( u_kod, 4 ) + Str( otd, 3 ) + Upper( Left( u_name, 20 ) ) to ( cur_dir() + "tmpn" )
   Case k == 1  // Количество услуг и сумма лечения по отделениям
-    Index On Str( otd, 3 ) to ( cur_dir + "tmpk" )
-    Index On Str( u_kod, 4 ) + Upper( fio ) to ( cur_dir + "tmpn" )
+    Index On Str( otd, 3 ) to ( cur_dir() + "tmpk" )
+    Index On Str( u_kod, 4 ) + Upper( fio ) to ( cur_dir() + "tmpn" )
   Case k == 2  // Статистика по работе персонала в конкретном отделении
-    Index On Str( vr_as, 1 ) + Str( kod_vr_as, 4 ) to ( cur_dir + "tmpk" )
-    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr_as, 4 ) + Str( vr_as, 1 ) to ( cur_dir + "tmpn" )
+    Index On Str( vr_as, 1 ) + Str( kod_vr_as, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr_as, 4 ) + Str( vr_as, 1 ) to ( cur_dir() + "tmpn" )
   Case k == 3  // Статистика по услугам, оказанным в конкретном отделении
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 31  // Статистика по услугам, оказанным в конкретных отделениях
-    Index On Str( otd, 3 ) + Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On Upper( fio ) + Str( otd, 3 ) + fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( otd, 3 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Upper( fio ) + Str( otd, 3 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 4  // Статистика по работе персонала (плюс оказанные услуги) в конкретном отделении
-    Index On Str( vr_as, 1 ) + Str( kod_vr_as, 4 ) + Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr_as, 4 ) + Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( vr_as, 1 ) + Str( kod_vr_as, 4 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr_as, 4 ) + Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 5  // Статистика по работе конкретного человека (плюс оказанные услуги)
-    Index On Str( vr_as, 1 ) + Str( kod_vr_as, 4 ) + Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
+    Index On Str( vr_as, 1 ) + Str( kod_vr_as, 4 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
     If serv_arr == NIL
-      Index On Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+      Index On Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
     Else
-      Index On Upper( Left( fio, 30 ) ) + Str( kod_vr_as, 4 ) + Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+      Index On Upper( Left( fio, 30 ) ) + Str( kod_vr_as, 4 ) + Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
     Endif
   Case k == 6  // Статистика по конкретным услугам
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
   Case k == 7  // Статистика по работе всего персонала
-    Index On Str( vr_as, 1 ) + Str( kod_vr_as, 4 ) to ( cur_dir + "tmpk" )
-    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr_as, 4 ) + Str( vr_as, 1 ) to ( cur_dir + "tmpn" )
+    Index On Str( vr_as, 1 ) + Str( kod_vr_as, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr_as, 4 ) + Str( vr_as, 1 ) to ( cur_dir() + "tmpn" )
   Case eq_any( k, 8, 9 )  // вывод списка больных
-    Index On Str( kod, 7 ) to ( cur_dir + "tmpk" )
-    Index On DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir + "tmpn" )
+    Index On Str( kod, 7 ) to ( cur_dir() + "tmpk" )
+    Index On DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir() + "tmpn" )
   Case eq_any( k, 10, 110 ) // Статистика по услугам по всем службам
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On Str( kod_vr_as, 4 ) + fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Str( kod_vr_as, 4 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Case eq_any( k, 11, 111 ) // Статистика по услугам конкретной службы
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 12 // Статистика по всем услугам
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 13  // вывод услуг + списка больных
-    Index On Str( u_kod, 4 ) + Str( kod, 7 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) + Str( u_kod, 4 ) + DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) + Str( kod, 7 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) + Str( u_kod, 4 ) + DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir() + "tmpn" )
   Case k == 14  // Статистика по конкретным услугам + список больных
-    Index On Str( u_kod, 4 ) + Str( kod, 7 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) + Str( u_kod, 4 ) + DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) + Str( kod, 7 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) + Str( u_kod, 4 ) + DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
   Endcase
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpk" ), ( cur_dir + "tmpn" ) Alias TMP
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpk" ), ( cur_dir() + "tmpn" ) Alias TMP
   If mem_trudoem == 2
     useuch_usl()
   Endif
   If hb_FileExists( dir_server + "usl_del" + sdbf )
     r_use( dir_server + "usl_del",, "UD" )
-    Index On Str( kod, 4 ) to ( cur_dir + "tmp_ud" )
+    Index On Str( kod, 4 ) to ( cur_dir() + "tmp_ud" )
   Endif
   r_use( dir_server + "uslugi",, "USL" )
   Private is_1_usluga := ( Len( arr_usl ) == 1 )
@@ -679,7 +679,7 @@ Function ob2_statist( k, serv_arr )
     Endif
     sh := Len( arr_title[ 1 ] )
     Set( _SET_DELETED, .f. )
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpk" ), ( cur_dir + "tmpn" ) New Alias TMP
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpk" ), ( cur_dir() + "tmpn" ) New Alias TMP
     If !eq_any( k, 1, 8, 9 )
       If eq_any( k, 0, 10, 100, 110 )
         r_use( dir_server + "slugba", dir_server + "slugba", "SL" )
@@ -1933,7 +1933,7 @@ Function open_opl_5()
   Endif
   g_use( dir_server + "u_usl_5",, "U5" )
   Index On Str( tip, 2 ) + fsort_usl( iif( Empty( usl_2 ), usl_1, usl_2 ) ) + ;
-    Str( razryad, 2 ) + Str( otdal, 1 ) to ( cur_dir + "tmp_u5" )
+    Str( razryad, 2 ) + Str( otdal, 1 ) to ( cur_dir() + "tmp_u5" )
 
   Return Nil
 
@@ -2051,7 +2051,7 @@ Function _f_trud( lkol, lvzros_reb, lkod_vr, lkod_as )
 //
 Function cre_tmp7()
 
-  dbCreate( cur_dir + "tmp7", { { "kod_vr", "N", 4, 0 }, ;
+  dbCreate( cur_dir() + "tmp7", { { "kod_vr", "N", 4, 0 }, ;
     { "kod_as", "N", 4, 0 }, ;
     { "tip", "N", 1, 0 }, ;
     { "kol", "N", 4, 0 }, ;
@@ -2059,8 +2059,8 @@ Function cre_tmp7()
     { "uet_as", "N", 11, 4 }, ;
     { "zrp_vr", "N", 11, 2 }, ;
     { "zrp_as", "N", 11, 2 } } )
-  Use ( cur_dir + "tmp7" ) new
-  Index On Str( tip, 1 ) + Str( kod_vr, 4 ) + Str( kod_as, 4 ) to ( cur_dir + "tmp7" )
+  Use ( cur_dir() + "tmp7" ) new
+  Index On Str( tip, 1 ) + Str( kod_vr, 4 ) + Str( kod_as, 4 ) to ( cur_dir() + "tmp7" )
 
   Return Nil
 
@@ -2106,7 +2106,7 @@ Function file_tmp7( ausl, sh, HH, k )
     r_use( dir_server + "mo_pers",, "PERSO" )
   Endif
   If Select( "TMP7" ) == 0
-    Use ( cur_dir + "tmp7" ) index ( cur_dir + "tmp7" ) new
+    Use ( cur_dir() + "tmp7" ) index ( cur_dir() + "tmp7" ) new
   Endif
   If Select( "UU" ) == 0
     useuch_usl()
@@ -2327,14 +2327,14 @@ Function proch_proverka()
     If f_esc_enter( "начала проверки" )
       sd := mdate_schet ; sl := m1logic
       mywait()
-      dbCreate( cur_dir + "tmp", { { "schet", "N", 6, 0 }, ;
+      dbCreate( cur_dir() + "tmp", { { "schet", "N", 6, 0 }, ;
         { "kod", "N", 7, 0 } } )
-      dbCreate( cur_dir + "tmpk", { { "rec", "N", 7, 0 }, ;
+      dbCreate( cur_dir() + "tmpk", { { "rec", "N", 7, 0 }, ;
         { "name", "C", 100, 0 } } )
-      Use ( cur_dir + "tmp" ) new
-      Index On Str( schet, 6 ) + Str( kod, 7 ) to ( cur_dir + "tmp" )
-      Use ( cur_dir + "tmpk" ) new
-      Index On Str( rec, 7 ) to ( cur_dir + "tmpk" )
+      Use ( cur_dir() + "tmp" ) new
+      Index On Str( schet, 6 ) + Str( kod, 7 ) to ( cur_dir() + "tmp" )
+      Use ( cur_dir() + "tmpk" ) new
+      Index On Str( rec, 7 ) to ( cur_dir() + "tmpk" )
       fl_exit := .f.
       fl_srok := ( msrok1 > 0 .or. msrok2 > 0 )
       r_use( dir_server + "kartotek",, "KART" )
@@ -2362,7 +2362,7 @@ Function proch_proverka()
           m1ns_usl := 0 ; mns_usl := Space( 3 )
         Endif
       Endif
-      r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
+      r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "MKB_10" )
       r_use( dir_server + "mo_uch",, "UCH" )
       r_use( dir_server + "mo_otd",, "OTD" )
       use_base( "lusl" )
@@ -2452,11 +2452,11 @@ Function proch_proverka()
         r_use( dir_server + "human_",, "HUMAN_" )
         r_use( dir_server + "human", dir_server + "humank", "HUMAN" )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
-        Use ( cur_dir + "tmp" ) new
+        Use ( cur_dir() + "tmp" ) new
         Set Relation To Str( kod, 7 ) into HUMAN, To schet into SCHET
-        Index On schet->nomer_s + Str( tmp->schet, 6 ) + Upper( Left( human->fio, 20 ) ) to ( cur_dir + "tmp" )
-        Use ( cur_dir + "tmpk" ) new
-        Index On Str( rec, 7 ) to ( cur_dir + "tmpk" )
+        Index On schet->nomer_s + Str( tmp->schet, 6 ) + Upper( Left( human->fio, 20 ) ) to ( cur_dir() + "tmp" )
+        Use ( cur_dir() + "tmpk" ) new
+        Index On Str( rec, 7 ) to ( cur_dir() + "tmpk" )
         fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
         add_string( "" )
         If m1schet == 1
@@ -2931,22 +2931,22 @@ Function o_pr_vr_as( reg )
       1, "N+/BG", "R/BG",,, col1menu ) ) == 0
     Return Nil
   Elseif k == 2
-    dbCreate( cur_dir + "tmp", { ;
+    dbCreate( cur_dir() + "tmp", { ;
       { "U_KOD",    "N",      4,      0 }, ;  // код услуги
       { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
       { "U_NAME",     "C",     65,      0 } } )  // наименование услуги
-    Use ( cur_dir + "tmp" )
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Use ( cur_dir() + "tmp" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
-    Use ( cur_dir + "tmp" )
+    Use ( cur_dir() + "tmp" )
     dbEval( {|| AAdd( arr_usl, tmp->u_kod ) } )
     Use
   Endif
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
-  dbCreate( cur_dir + "tmp", { { "rec", "N", 7, 0 } } )
-  Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir() + "tmp", { { "rec", "N", 7, 0 } } )
+  Use ( cur_dir() + "tmp" ) new
   If j == 1
     r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
     r_use( dir_server + "human_",, "HUMAN_" )
@@ -3067,7 +3067,7 @@ Function o_pr_vr_as( reg )
     r_use( dir_server + "mo_otd",, "OTD" )
     Select TMP
     Set Relation To rec into HUMAN
-    Index On Upper( human->fio ) to ( cur_dir + "tmp" )
+    Index On Upper( human->fio ) to ( cur_dir() + "tmp" )
     Go Top
     i := 0
     Do While !Eof()
@@ -3197,8 +3197,8 @@ add_string("")
 add_string(center("Поиск повторов номера карты вызова (за день)",sh))
 add_string(center(arr_m[4],sh))
 add_string("")
-dbcreate(cur_dir+"tmp",{{"uch_doc","C",10,0}})
-use (cur_dir+"tmp") new
+dbcreate(cur_dir()+"tmp",{{"uch_doc","C",10,0}})
+use (cur_dir()+"tmp") new
 R_Use(dir_server+"mo_otd",,"OTD")
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",dir_server+"humand","HUMAN")

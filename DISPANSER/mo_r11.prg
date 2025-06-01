@@ -23,7 +23,7 @@ Function f_create_r11()
   fl := .t.
   fl_1 := .f.
   SMONTH := lm := MONTH_UPLOAD // МЕСЯЦ
-  dbCreate( cur_dir + "tmp_00", { ;
+  dbCreate( cur_dir() + "tmp_00", { ;
     { "reestr",     "N", 6, 0 }, ;
     { "kod",        "N", 7, 0 }, ; // код по картотеке
     { "tip",        "N", 1, 0 }, ; // 1-диспансеризация, 2-профосмотр
@@ -31,9 +31,9 @@ Function f_create_r11()
     { "voz",        "N", 1, 0 };  // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-остальные
   } )
   r_use( dir_server + "mo_xml",, "MO_XML" )
-  Index On Str( reestr, 6 ) to ( cur_dir + "tmp_xml" ) For tip_in == _XML_FILE_R12 .and. Empty( TIP_OUT )
+  Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_xml" ) For tip_in == _XML_FILE_R12 .and. Empty( TIP_OUT )
   r_use( dir_server + "mo_dr01",, "REES" )
-  Index On Str( nn, 3 ) to ( cur_dir + "tmp_dr01" ) For NYEAR == sgod .and. eq_any( NMONTH, SMONTH - 1, SMONTH ) .and. tip == 1
+  Index On Str( nn, 3 ) to ( cur_dir() + "tmp_dr01" ) For NYEAR == sgod .and. eq_any( NMONTH, SMONTH - 1, SMONTH ) .and. tip == 1
   Go Top
   Do While !Eof()
 
@@ -96,10 +96,10 @@ Function f_create_r11()
     //
     If fl
       r_use( dir_server + "mo_dr01k",, "R01k" )
-      Index On Str( reestr, 6 ) + Str( kod_k, 7 ) to ( cur_dir + "tmp_dr01k" )
+      Index On Str( reestr, 6 ) + Str( kod_k, 7 ) to ( cur_dir() + "tmp_dr01k" )
       r_use( dir_server + "kartotek",, "KART" )
       Use ( dir_server + "mo_dr00" ) New Alias TMP
-      Index On kod to ( cur_dir + "tmp_dr00" ) For reestr == 0 .and. kod > 0
+      Index On kod to ( cur_dir() + "tmp_dr00" ) For reestr == 0 .and. kod > 0
       Go Top
       Do While !Eof()
         kart->( dbGoto( tmp->kod ) )
@@ -121,7 +121,7 @@ Function f_create_r11()
       Enddo
       Commit
 
-      Index On Str( reestr, 6 ) to ( cur_dir + "tmp_dr00" )
+      Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_dr00" )
       For ir := 1 To Len( arr_rees )
         Select R01k
         find ( Str( arr_rees[ ir ], 6 ) )
@@ -175,11 +175,11 @@ Function f_create_r11()
         Do While skol[ j ] > 0
           Select TMP
           If j == 2
-            Index On kod to ( cur_dir + "tmp_dr00" ) For tmp->tip == 2 .and. tmp->n_q == 0 // DESCENDING
+            Index On kod to ( cur_dir() + "tmp_dr00" ) For tmp->tip == 2 .and. tmp->n_q == 0 // DESCENDING
           Elseif j == 1
-            Index On kod to ( cur_dir + "tmp_dr00" ) For tmp->tip == 1 .and. tmp->tip1 == 0 .and. tmp->n_q == 0 // DESCENDING
+            Index On kod to ( cur_dir() + "tmp_dr00" ) For tmp->tip == 1 .and. tmp->tip1 == 0 .and. tmp->n_q == 0 // DESCENDING
           Else
-            Index On kod to ( cur_dir + "tmp_dr00" ) For eq_any( tmp->tip, 1, 2 ) .and. tmp->tip1 == pj - 2 .and. tmp->n_q == 0 // DESCENDING
+            Index On kod to ( cur_dir() + "tmp_dr00" ) For eq_any( tmp->tip, 1, 2 ) .and. tmp->tip1 == pj - 2 .and. tmp->n_q == 0 // DESCENDING
           Endif
           Go Top
           Do While !Eof()
@@ -200,11 +200,11 @@ Function f_create_r11()
           Enddo
           Select TMP
           If j == 2
-            Index On kod to ( cur_dir + "tmp_dr00" ) For tmp->tip == 2 .and. tmp->n_m > 0
+            Index On kod to ( cur_dir() + "tmp_dr00" ) For tmp->tip == 2 .and. tmp->n_m > 0
           Elseif j == 1
-            Index On kod to ( cur_dir + "tmp_dr00" ) For tmp->tip == 1 .and. tmp->tip1 == 0 .and. tmp->n_m > 0
+            Index On kod to ( cur_dir() + "tmp_dr00" ) For tmp->tip == 1 .and. tmp->tip1 == 0 .and. tmp->n_m > 0
           Else
-            Index On kod to ( cur_dir + "tmp_dr00" ) For eq_any( tmp->tip, 1, 2 ) .and. tmp->tip1 == pj - 2 .and. tmp->n_m > 0
+            Index On kod to ( cur_dir() + "tmp_dr00" ) For eq_any( tmp->tip, 1, 2 ) .and. tmp->tip1 == pj - 2 .and. tmp->n_m > 0
           Endif
           Go Top
           Do While !Eof()
@@ -216,9 +216,9 @@ Function f_create_r11()
           Enddo
         Enddo
       Next v
-      Use ( cur_dir + "tmp_00" ) New Alias TMP1
+      Use ( cur_dir() + "tmp_00" ) New Alias TMP1
       Select TMP
-      Index On kod to ( cur_dir + "tmp_dr00" ) For reestr == 0 .and. n_m > 0
+      Index On kod to ( cur_dir() + "tmp_dr00" ) For reestr == 0 .and. n_m > 0
       Go Top
       Do While !Eof()
         Select TMP1
@@ -234,16 +234,16 @@ Function f_create_r11()
     // quit
   Else // первый раз
   /*  select REES
-    index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
+    index on str(NMONTH,2)+str(nn,3) to (cur_dir()+"tmp_dr01") for NYEAR == sgod .and. tip == 0
     find (str(lm,2))
     do while lm == rees->NMONTH .and. !eof()
       aadd(arr_rees,rees->kod) // список R01 за февраль
       skip
     enddo
-    Use (cur_dir+"tmp_00") new alias TMP
+    Use (cur_dir()+"tmp_00") new alias TMP
     R_Use(dir_server+"kartotek",,"KART")
     G_Use(dir_server+"mo_dr01k",,"RHUM",.T.,.T.)
-    index on str(REESTR,6) to (cur_dir+"tmp_rhum")
+    index on str(REESTR,6) to (cur_dir()+"tmp_rhum")
     for i := 1 to len(arr_rees)
       select RHUM
       find (str(arr_rees[i],6))
@@ -271,16 +271,16 @@ Function f_create_r11()
 
     //
     Select REES
-    Index On Str( NMONTH, 2 ) + Str( nn, 3 ) to ( cur_dir + "tmp_dr01" ) For NYEAR == sgod .and. tip == 0
+    Index On Str( NMONTH, 2 ) + Str( nn, 3 ) to ( cur_dir() + "tmp_dr01" ) For NYEAR == sgod .and. tip == 0
     find ( Str( lm, 2 ) )
     Do While lm == rees->NMONTH .and. !Eof()
       AAdd( arr_rees, rees->kod ) // список R01 за февраль
       Skip
     Enddo
-    Use ( cur_dir + "tmp_00" ) New Alias TMP
+    Use ( cur_dir() + "tmp_00" ) New Alias TMP
     r_use( dir_server + "kartotek",, "KART" )
     g_use( dir_server + "mo_dr01k",, "RHUM" )
-    Index On Str( REESTR, 6 ) to ( cur_dir + "tmp_rhum" )
+    Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_rhum" )
     For i := 1 To Len( arr_rees )
       Select RHUM
       find ( Str( arr_rees[ i ], 6 ) )
@@ -358,9 +358,9 @@ Function f1_create_r11( lm, fl_dr00 )
   Unlock
   //
   g_use( dir_server + "mo_dr01k",, "RHUM" )
-  Index On Str( REESTR, 6 ) to ( cur_dir + "tmp_rhum" )
+  Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_rhum" )
   g_use( dir_server + "mo_dr01",, "REES" )
-  Index On Str( NMONTH, 2 ) + Str( nn, 3 ) to ( cur_dir + "tmp_dr01" ) For NYEAR == sgod .and. tip == 1
+  Index On Str( NMONTH, 2 ) + Str( nn, 3 ) to ( cur_dir() + "tmp_dr01" ) For NYEAR == sgod .and. tip == 1
   find ( Str( lm, 2 ) )
   Do While lm == rees->NMONTH .and. !Eof()
     If lnn < rees->nn
@@ -376,11 +376,11 @@ Function f1_create_r11( lm, fl_dr00 )
   Set Relation To RecNo() into KART_, RecNo() into KART2
   If fl_dr00
     g_use( dir_server + "mo_dr00",, "DR00" )
-    Index On Str( kod, 7 ) to ( cur_dir + "tmp_dr00" )
+    Index On Str( kod, 7 ) to ( cur_dir() + "tmp_dr00" )
   Endif
-  Use ( cur_dir + "tmp_00" ) New Alias TMP
+  Use ( cur_dir() + "tmp_00" ) New Alias TMP
   Set Relation To kod into KART
-  Index On Upper( kart->fio ) + DToS( kart->date_r ) to ( cur_dir + "tmp_00" )
+  Index On Upper( kart->fio ) + DToS( kart->date_r ) to ( cur_dir() + "tmp_00" )
   //
   SMONTH := lm
   smsg := "Составление файла R11 за " + lstr( SMONTH ) + "-й месяц"
@@ -472,7 +472,7 @@ Function f1_create_r11( lm, fl_dr00 )
   //
   Select RHUM
   Set Relation To kod_k into KART
-  Index On Str( R01_ZAP, 6 ) to ( cur_dir + "tmp_rhum" ) For REESTR == mkod_reestr
+  Index On Str( R01_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For REESTR == mkod_reestr
   Go Top
   Do While !Eof()
     @ MaxRow(), 0 Say Str( rhum->R01_ZAP / pkol * 100, 6, 2 ) + "%" Color cColorSt2Msg
@@ -576,7 +576,7 @@ Function delete_reestr_r11()
     Return func_error( 4, err_admin )
   Endif
   g_use( dir_server + "mo_dr01m",, "R01m" )
-  Index On Descend( DToS( DWORK ) + TWORK1 ) to ( cur_dir + "tmp_dr01m" )
+  Index On Descend( DToS( DWORK ) + TWORK1 ) to ( cur_dir() + "tmp_dr01m" )
   Go Top
   If Eof()
     func_error( 4, "Не было создано файлов R11..." )
@@ -661,9 +661,9 @@ Function f2_delete_reestr_r11( rec_m )
 
   g_use( dir_server + "mo_xml",, "MO_XML" )
   g_use( dir_server + "mo_dr00",, "TMP" )
-  Index On Str( REESTR, 6 ) to ( cur_dir + "tmp_dr00" )
+  Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_dr00" )
   g_use( dir_server + "mo_dr01k",, "RHUM" )
-  Index On Str( REESTR, 6 ) to ( cur_dir + "tmp_rhum" )
+  Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_rhum" )
   g_use( dir_server + "mo_dr01",, "REES" )
   Select R01m
   Goto ( rec_m )
@@ -731,7 +731,7 @@ Function delete_month_r11()
     Endif
   Endif
   g_use( dir_server + "mo_xml",, "MO_XML" )
-  Index On Str( reestr, 6 ) to ( cur_dir + "tmp_xml" ) For tip_in == _XML_FILE_R12 .and. TIP_OUT == 0
+  Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_xml" ) For tip_in == _XML_FILE_R12 .and. TIP_OUT == 0
   g_use( dir_server + "mo_dr01",, "REES" )
   g_use( dir_server + "mo_dr01m",, "R01m" )
   Go Top
@@ -793,7 +793,7 @@ else
   endif
 endif
 G_Use(dir_server+"mo_xml",,"MO_XML")
-index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R02 .and. TIP_OUT == 0
+index on str(reestr,6) to (cur_dir()+"tmp_xml") for tip_in == _XML_FILE_R02 .and. TIP_OUT == 0
 G_Use(dir_server+"mo_dr01",,"REES")
 G_Use(dir_server+"mo_dr01m",,"R01m")
 go top
@@ -875,7 +875,7 @@ Function f32_view_r11( lm )
     skol[ j ] := ames[ lm, j, 1 ]
   Next
   r_use( dir_server + "mo_dr01k",, "RHUM" )
-  Index On Str( reestr, 6 ) + Str( rhum->R01_ZAP, 6 ) to ( cur_dir + "tmp_rhum" )
+  Index On Str( reestr, 6 ) + Str( rhum->R01_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" )
   Select REES
   Go Top
   Do While !Eof()
@@ -971,9 +971,9 @@ Function find_unfinished_r11()
       Goto ( mrec )
       skol := &( "r05p->kol1_" + StrZero( smonth, 2 ) ) + &( "r05p->kol2_" + StrZero( smonth, 2 ) ) 
       Select MO_XML
-      Index On Str( reestr, 6 ) to ( cur_dir + "tmp_xml" ) For tip_in == _XML_FILE_R12 .and. Empty( TIP_OUT )
+      Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_xml" ) For tip_in == _XML_FILE_R12 .and. Empty( TIP_OUT )
       r_use( dir_server + "mo_dr01",, "REES" )
-      Index On Str( nn, 3 ) to ( cur_dir + "tmp_dr01" ) For NYEAR == sgod .and. NMONTH == smonth .and. tip == 1
+      Index On Str( nn, 3 ) to ( cur_dir() + "tmp_dr01" ) For NYEAR == sgod .and. NMONTH == smonth .and. tip == 1
       Go Top
       Do While fl .and. !Eof()
         If rees->kol_err < 0

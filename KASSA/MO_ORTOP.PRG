@@ -300,22 +300,22 @@ if eq_any(par1,"vr","tehn")
     enddo
     perso->(dbCloseArea())
   endif
-  dbcreate(cur_dir+"tmp1", {;
+  dbcreate(cur_dir()+"tmp1", {;
      {"KOD",        "N",      4,      0},;  // код персонала
      {"FIO",        "C",     50,      0},;  // Ф.И.О.
      {"STOIM_B",    "N",     12,      2},;  // бесплатная стоимость лечения
      {"STOIM_P",    "N",     12,      2},;  // платная стоимость лечения
      {"STOIM_N",    "N",     12,      2} ;  // стоимость напыления
     })
-  use (cur_dir+"tmp1") new
-  index on str(kod,4) to (cur_dir+"tmp1")
+  use (cur_dir()+"tmp1") new
+  index on str(kod,4) to (cur_dir()+"tmp1")
 endif
 musluga := alltrim(mem_ort_na)
 if empty(musluga) .or. musluga == "*"
   musluga := "9999999999"
 endif
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir()+"tmp", {;
    {"KOD",        "N",      4,      0},;  // код по БД tmp1
    {"KOD_H",      "N",      7,      0},;  // код по БД hum_ort
    {"FIO",        "C",     50,      0},;  // Ф.И.О. больного
@@ -328,7 +328,7 @@ dbcreate(cur_dir+"tmp", {;
    {"STOIM_N",    "N",     12,      2},;  // стоимость напыления
    {"KOL_POS",    "N",      2,      0};   // количество посещений
   })
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 R_Use(dir_server+"uslugi",,"USL")
 R_Use(dir_server+"mo_pers",,"PERSO")
 R_Use(dir_server+"kartotek",,"KART")
@@ -457,10 +457,10 @@ R_Use(dir_server+"uslugi",,"USL")
 R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
 set relation to u_kod into USL
 if eq_any(par1,"vr","tehn")
-  use (cur_dir+"tmp") new
-  index on str(kod,4)+upper(fio) to (cur_dir+"tmp")
-  use (cur_dir+"tmp1") new
-  index on upper(fio) to (cur_dir+"tmp1")
+  use (cur_dir()+"tmp") new
+  index on str(kod,4)+upper(fio) to (cur_dir()+"tmp")
+  use (cur_dir()+"tmp1") new
+  index on upper(fio) to (cur_dir()+"tmp1")
   go top
   do while !eof()
     s := padr(space(4)+"["+lstr(tmp1->kod)+"]  "+upper(tmp1->fio),61)
@@ -511,8 +511,8 @@ if eq_any(par1,"vr","tehn")
   endif
 else
   s1 := s2 := s3 := 0
-  use (cur_dir+"tmp") new
-  index on upper(fio) to (cur_dir+"tmp")
+  use (cur_dir()+"tmp") new
+  index on upper(fio) to (cur_dir()+"tmp")
   go top
   do while !eof()
     s := left(tmp->fio,30)+padc(lstr(tmp->n_nar),7)+;
@@ -599,7 +599,7 @@ if empty(musluga) .or. musluga == "*"
   musluga := "9999999999"
 endif
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir()+"tmp", {;
    {"KOD",        "N",      4,      0},;  // код по БД tmp1
    {"KOD_H",      "N",      7,      0},;  // код по БД hum_ort
    {"FIO",        "C",     50,      0},;  // Ф.И.О. больного
@@ -615,7 +615,7 @@ dbcreate(cur_dir+"tmp", {;
    {"D_OPLATA",   "N",     12,      2},;  // оплаченая сумма
    {"D_OPLATA_N", "N",     12,      2};   // оплаченая сумма напыление
   })
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
 R_Use(dir_server+"uslugi",,"USL")
 R_Use(dir_server+"mo_pers",,"PERSO")
@@ -745,8 +745,8 @@ aeval(arr_title, {|x| add_string(x) } )
 s1 := s2 := s3 := s4 := s5 := 0
 s11 := s21 := s31 := s41 := s51 := 0
 s6 := s7 := s8 := s9 := 0
-use (cur_dir+"tmp") new
-index on n_nar to (cur_dir+"tmp")
+use (cur_dir()+"tmp") new
+index on n_nar to (cur_dir()+"tmp")
 go top
 j := 1
 do while !eof()
@@ -858,9 +858,9 @@ for i := 1 to len(arr_diag)
   aadd(adbf, {"diag"+lstr(arr_diag[i,1]),"N",5,0} )
 next
 aadd(adbf, {"diag999999","N",5,0} )
-dbcreate(cur_dir+"tmp", adbf)
-use (cur_dir+"tmp") new
-index on str(kod,4) to (cur_dir+"tmp")
+dbcreate(cur_dir()+"tmp", adbf)
+use (cur_dir()+"tmp") new
+index on str(kod,4) to (cur_dir()+"tmp")
 R_Use(dir_server+"mo_pers",,"PERSO")
 R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
 dbseek(dtos(begin_date),.t.)
@@ -972,8 +972,8 @@ fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
 add_string("")
 add_string(center("Статистика по диагнозам",sh))
 add_string(center(arr[4],sh))
-use (cur_dir+"tmp") new
-index on upper(fio) to (cur_dir+"tmp")
+use (cur_dir()+"tmp") new
+index on upper(fio) to (cur_dir()+"tmp")
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
 go top
@@ -1021,7 +1021,7 @@ if (arr_m := year_month()) == NIL
 endif
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
 //
-dbcreate(cur_dir+"tmp", {{"kod_k"  ,"N", 7,0},; // код больного по картотеке
+dbcreate(cur_dir()+"tmp", {{"kod_k"  ,"N", 7,0},; // код больного по картотеке
                          {"tip_usl","N", 1,0},; // взаимозачет или добр.СМО
                          {"pr_smo" ,"N", 6,0},; // код предприятия / СМО
                          {"nar_z"  ,"N", 5,0},; // наряд-заказ
@@ -1029,12 +1029,12 @@ dbcreate(cur_dir+"tmp", {{"kod_k"  ,"N", 7,0},; // код больного по картотеке
                          {"N_DATA" ,"D", 8,0},; // дата начала лечения
                          {"K_DATA" ,"D", 8,0},; // дата окончания лечения
                          {"STOIM"  ,"N",10,2}}) // итоговая стоимость услуг
-use (cur_dir+"tmp") new
-index on str(tip_usl,1)+str(pr_smo,6)+str(kod_k,7) to (cur_dir+"tmp")
-dbcreate(cur_dir+"tmp2", {{"rec_tmp","N", 6,0},;
+use (cur_dir()+"tmp") new
+index on str(tip_usl,1)+str(pr_smo,6)+str(kod_k,7) to (cur_dir()+"tmp")
+dbcreate(cur_dir()+"tmp2", {{"rec_tmp","N", 6,0},;
                           {"rec_hp" ,"N", 7,0},;
                           {"D_POLIS","C",25,0}}) // полис
-use (cur_dir+"tmp2") new
+use (cur_dir()+"tmp2") new
 R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
 R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
 dbseek(dtos(arr_m[5]),.t.)
@@ -1091,15 +1091,15 @@ do while human->k_data <= arr_m[6] .and. !eof()
 enddo
 j := tmp->(lastrec())
 if !fl_exit .and. j > 0
-  dbcreate(cur_dir+"tmp1", {{"name"   ,"C",30,0},; // наименование предприятия
+  dbcreate(cur_dir()+"tmp1", {{"name"   ,"C",30,0},; // наименование предприятия
                             {"tip_usl","N", 1,0},; // взаимозачет или добр.СМО
                             {"pr_smo" ,"N", 6,0},; // код предприятия / СМО
                             {"KOL"    ,"N", 6,0},; // количество больных
                             {"STOIM"  ,"N",11,2}}) // итоговая стоимость лечения
   R_Use(dir_server+"p_pr_vz",,"PRED")
   R_Use(dir_server+"p_d_smo",,"SMO")
-  use (cur_dir+"tmp1") new
-  index on str(tip_usl,1)+str(pr_smo,6) to (cur_dir+"tmp1")
+  use (cur_dir()+"tmp1") new
+  index on str(tip_usl,1)+str(pr_smo,6) to (cur_dir()+"tmp1")
   select TMP
   go top
   do while !eof()
@@ -1134,7 +1134,7 @@ if !fl_exit .and. j > 0
   j := tmp1->(lastrec())
   mywait()
   select TMP2
-  index on str(rec_tmp,6) to (cur_dir+"tmp2")
+  index on str(rec_tmp,6) to (cur_dir()+"tmp2")
 endif
 close databases
 rest_box(buf)
@@ -1164,8 +1164,8 @@ else
   t_arr[BR_EDIT] := {|nk,ob| f1_Ort_vzaim(nk,ob,"edit") }
   t_arr[BR_STAT_MSG] := {|| ;
     status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор для печати") }
-  use (cur_dir+"tmp1") new
-  index on upper(name) to (cur_dir+"tmp1")
+  use (cur_dir()+"tmp1") new
+  index on upper(name) to (cur_dir()+"tmp1")
   go top
   edit_browse(t_arr)
   close databases
@@ -1205,16 +1205,16 @@ if regim == "edit" .and. nKey == K_ENTER
   t_arr[BR_STAT_MSG] := {|| ;
     status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор для печати;  ^<F9>^ - печать реестра") }
   mywait()
-  use (cur_dir+"tmp2") index (cur_dir+"tmp2") new
+  use (cur_dir()+"tmp2") index (cur_dir()+"tmp2") new
   R_Use(dir_server+"kartotek",,"KART")
-  use (cur_dir+"tmp") new alias TMP
+  use (cur_dir()+"tmp") new alias TMP
   set relation to kod_k into KART
-  index on upper(kart->fio) to (cur_dir+"tmp") ;
+  index on upper(kart->fio) to (cur_dir()+"tmp") ;
         for tmp1->tip_usl == tmp->tip_usl .and. tmp1->pr_smo == tmp->pr_smo
   edit_browse(t_arr)
   close databases
   restscreen(buf)
-  use (cur_dir+"tmp1") index (cur_dir+"tmp1") new
+  use (cur_dir()+"tmp1") index (cur_dir()+"tmp1") new
   goto (rec)
 endif
 return ret
@@ -1669,7 +1669,7 @@ begin_date := arr[5]
 end_date := arr[6]
 buf := save_row(maxrow())
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir()+"tmp", {;
    {"KOD_H",      "N",      7,      0},;  // код по БД hum_ort
    {"DATA",       "D",      8,      0},;  // дата наряда
    {"N_NAR",      "N",      5,      0},;  // номер наряда
@@ -1678,7 +1678,7 @@ dbcreate(cur_dir+"tmp", {;
    {"STOIM_B",    "N",     12,      2},;  // сумма оплаты бесплатно
    {"STOIM_N",    "N",     12,      2};   // сумма оплаты напыление
   })
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 do case
   case pr_pl_bes == 1  // платные
     muslovie := "human->tip_usl != 1"
@@ -1796,7 +1796,7 @@ do case
     enddo
   case par == 3
     select TMP
-    index on str(kod_h,7) to (cur_dir+"tmp")
+    index on str(kod_h,7) to (cur_dir()+"tmp")
     R_Use(dir_server+"hum_ort",,"HUMAN")
     R_Use(dir_server+"hum_oro",dir_server+"hum_orod","HO")
     set relation to kod into HUMAN
@@ -1916,11 +1916,11 @@ R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
 R_Use(dir_server+"hum_ort",,"HUMAN")
 set relation to kod_k into KART, to kod_vr into PERSO
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 if par == 2
-  index on dtos(data)+str(n_nar,5) to (cur_dir+"tmp")
+  index on dtos(data)+str(n_nar,5) to (cur_dir()+"tmp")
 else
-  index on str(n_nar,5) to (cur_dir+"tmp")
+  index on str(n_nar,5) to (cur_dir()+"tmp")
 endif
 set relation to kod_h into HUMAN
 j := s1  := s3 := s4 := s5:= 0 ; old_date := begin_date - 1
@@ -2433,7 +2433,7 @@ if par3 == "summa"
   if empty(musluga) .or. musluga == "*"
     musluga := "9999999999"
   endif
-  dbcreate(cur_dir+"tmp", {;
+  dbcreate(cur_dir()+"tmp", {;
      {"KOD",        "N",      4,      0},;  // код персонала (услуги)
      {"FIO",        "C",     50,      0},;  // Ф.И.О. (шифр услуги)
      {"KOL",        "N",     10,      3},;  // кол-во услуг
@@ -2445,7 +2445,7 @@ if par3 == "summa"
      {"STOIM",      "N",     14,      2} ;  // общая стоимость
     })
 else
-  dbcreate(cur_dir+"tmp", {;
+  dbcreate(cur_dir()+"tmp", {;
      {"KOD",        "N",      4,      0},;  // код персонала (услуги)
      {"FIO",        "C",     50,      0},;  // Ф.И.О. (шифр услуги)
      {"KOL",        "N",     10,      3},;  // кол-во услуг
@@ -2453,19 +2453,19 @@ else
      {"STOIM",      "N",     14,      2} ;  // стоимость лечения
     })
   if !empty(par3)
-    dbcreate(cur_dir+"tmp1", {;
+    dbcreate(cur_dir()+"tmp1", {;
        {"KOD",        "N",      4,      0},;  // код персонала
        {"KOD_H",      "N",      7,      0},;  // код больного по картотеке
        {"KOL",        "N",     10,      3},;  // кол-во услуг
        {"TRUDOEM",    "N",     11,      4},;  // трудоемкость услуг УЕТ
        {"STOIM",      "N",     14,      2} ;  // стоимость лечения
       })
-    use (cur_dir+"tmp1") new
-    index on str(kod,4)+str(kod_h,7) to (cur_dir+"tmp1")
+    use (cur_dir()+"tmp1") new
+    index on str(kod,4)+str(kod_h,7) to (cur_dir()+"tmp1")
   endif
 endif
-use (cur_dir+"tmp") new
-index on str(kod,4) to (cur_dir+"tmp")
+use (cur_dir()+"tmp") new
+index on str(kod,4) to (cur_dir()+"tmp")
 if mem_trudoem == 2
   useUch_Usl()
 endif
@@ -2655,27 +2655,27 @@ if !(par3 == "summa")
   add_string(center(pr_titul,sh))
 endif
 R_Use(dir_server+"mo_pers",,"PERSO")
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 if reg == 1
-  index on upper(fio) to (cur_dir+"tmp")
+  index on upper(fio) to (cur_dir()+"tmp")
   add_string(center({"[ По врачам ]",;
                      "[ По зубным техникам ]",;
                      "[ По медсестрам ]"}[reg1],sh))
   if par3 == "boln"
     R_Use(dir_server+"kartotek",,"KART")
-    use (cur_dir+"tmp1") new
+    use (cur_dir()+"tmp1") new
     set relation to kod_h into KART
-    index on str(kod,4)+upper(left(kart->fio,20)) to (cur_dir+"tmp1")
+    index on str(kod,4)+upper(left(kart->fio,20)) to (cur_dir()+"tmp1")
     select TMP
   elseif par3 == "usl"
     R_Use(dir_server+"uslugi",,"USL")
-    use (cur_dir+"tmp1") new
+    use (cur_dir()+"tmp1") new
     set relation to kod_h into USL
-    index on str(kod,4)+fsort_usl(usl->shifr) to (cur_dir+"tmp1")
+    index on str(kod,4)+fsort_usl(usl->shifr) to (cur_dir()+"tmp1")
     select TMP
   endif
 else
-  index on fsort_usl(left(fio,10)) to (cur_dir+"tmp")
+  index on fsort_usl(left(fio,10)) to (cur_dir()+"tmp")
   R_Use(dir_server+"uslugi",,"USL")
   select TMP
   set relation to kod into USL
@@ -2826,7 +2826,7 @@ endif
 begin_date := arr[5]
 end_date := arr[6]
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir()+"tmp", {;
    {"KOD",        "N",      4,      0},;  // код персонала
    {"FIO",        "C",     50,      0},;  // Ф.И.О. персонала
    {"KOL",        "N",      4,      0},;  // количество нарядов по врачу
@@ -2834,7 +2834,7 @@ dbcreate(cur_dir+"tmp", {;
    {"STOIM_P",    "N",     12,      2},;  // платная стоимость лечения
    {"STOIM_N",    "N",     12,      2} ;  // стоимость напыления
   })
-dbcreate(cur_dir+"tmp1", {;
+dbcreate(cur_dir()+"tmp1", {;
    {"KOD",        "N",      4,      0},;  // код персонала
    {"KOD_H",      "N",      7,      0},;  // код больного по hum_ort
    {"FIO",        "C",     50,      0},;  // Ф.И.О. больного
@@ -2844,10 +2844,10 @@ dbcreate(cur_dir+"tmp1", {;
    {"STOIM_P",    "N",     12,      2},;  // платная стоимость лечения
    {"STOIM_N",    "N",     12,      2} ;  // стоимость напыления
   })
-use (cur_dir+"tmp1") new
-index on str(kod,4)+str(kod_h,7) to (cur_dir+"tmp1")
-use (cur_dir+"tmp") new
-index on str(kod,4) to (cur_dir+"tmp")
+use (cur_dir()+"tmp1") new
+index on str(kod,4)+str(kod_h,7) to (cur_dir()+"tmp1")
+use (cur_dir()+"tmp") new
+index on str(kod,4) to (cur_dir()+"tmp")
 musluga := alltrim(mem_ort_na)
 if empty(musluga) .or. musluga == "*"
   musluga := "9999999999"
@@ -2964,11 +2964,11 @@ aeval(arr_title, {|x| add_string(x) } )
 //
 R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"mo_pers",,"PERSO")
-use (cur_dir+"tmp1") new
-index on str(kod,4)+upper(fio) to (cur_dir+"tmp1")
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp1") new
+index on str(kod,4)+upper(fio) to (cur_dir()+"tmp1")
+use (cur_dir()+"tmp") new
 set relation to kod into PERSO
-index on upper(fio) to (cur_dir+"tmp")
+index on upper(fio) to (cur_dir()+"tmp")
 go top
 do while !eof()
   if verify_FF(HH-3,.t.,sh)
@@ -3080,19 +3080,19 @@ else
   add_string(center("[ по дате начала лечения ]",sh))
 endif
 add_string("")
-dbcreate(cur_dir+"tmp_it", {;
+dbcreate(cur_dir()+"tmp_it", {;
    {"KOD",        "N",      4,      0},;  // код (услуги)
    {"KOL",        "N",     12,      3},;  // кол-во услуг
    {"STOIM",      "N",     14,      2} ;  // стоимость лечения
   })
 
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir()+"tmp", {;
    {"KOD",        "N",      4,      0},;  // код (услуги)
    {"KOL",        "N",     10,      3},;  // кол-во услуг
    {"STOIM",      "N",     14,      2} ;  // стоимость лечения
   })
 
-dbcreate(cur_dir+"tmp_vah", {;
+dbcreate(cur_dir()+"tmp_vah", {;
    {"KOD",        "N",      4,      0},;  // код (услуги)
    {"human",      "N",     10,      0},;  // код human
    {"FIO",        "C",     50,      0},;  //
@@ -3100,12 +3100,12 @@ dbcreate(cur_dir+"tmp_vah", {;
    {"KOL",        "N",     10,      3},;  // кол-во услуг
    {"STOIM",      "N",     14,      2} ;  // стоимость лечения
   })
-use (cur_dir+"tmp_vah") new
+use (cur_dir()+"tmp_vah") new
 
-use (cur_dir+"tmp_it") new
-index on str(kod,4) to (cur_dir+"tmp_it")
-use (cur_dir+"tmp") new
-index on str(kod,4) to (cur_dir+"tmp")
+use (cur_dir()+"tmp_it") new
+index on str(kod,4) to (cur_dir()+"tmp_it")
+use (cur_dir()+"tmp") new
+index on str(kod,4) to (cur_dir()+"tmp")
 R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"tip_orto",,"ORT")
 R_Use(dir_server+"ortoped",,"OR")
@@ -3622,21 +3622,21 @@ add_string(center("Расход материалов",sh))
 add_string(center(arr[4],sh))
 add_string(center("[ по дате окончания лечения ]",sh))
 add_string("")
-dbcreate(cur_dir+"tmp_it", {;
+dbcreate(cur_dir()+"tmp_it", {;
    {"KOD",        "N",      4,      0},;  // код (услуги)
    {"KOL",        "N",     12,      3},;  // кол-во услуг
    {"STOIM",      "N",     14,      2} ;  // стоимость лечения
   })
 
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir()+"tmp", {;
    {"KOD",        "N",      4,      0},;  // код (услуги)
    {"KOL",        "N",     10,      3},;  // кол-во услуг
    {"STOIM",      "N",     14,      2} ;  // стоимость лечения
   })
-use (cur_dir+"tmp_it") new
-index on str(kod,4) to (cur_dir+"tmp_it")
-use (cur_dir+"tmp") new
-index on str(kod,4) to (cur_dir+"tmp")
+use (cur_dir()+"tmp_it") new
+index on str(kod,4) to (cur_dir()+"tmp_it")
+use (cur_dir()+"tmp") new
+index on str(kod,4) to (cur_dir()+"tmp")
 R_Use(dir_server+"tip_orto",,"ORT")
 R_Use(dir_server+"ortoped",,"OR")
 R_Use(dir_server+"ortoped1",,"OR1")
@@ -4077,12 +4077,12 @@ begin_date := arr[5]
 Private end_date := arr[6], uslovie
 buf := save_row(maxrow())
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir()+"tmp", {;
    {"KOD_H",      "N",      7,      0},;  // код по БД hum_ort
    {"N_NAR",      "N",      5,      0},;  // номер наряда
    {"STOIM",      "N",     12,      2};   // сумма оплаты
   })
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
 R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
 if tip == 1
@@ -4166,8 +4166,8 @@ R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
 R_Use(dir_server+"hum_ort",,"HUMAN")
 set relation to kod_k into KART
-use (cur_dir+"tmp") new
-index on str(n_nar,5) to (cur_dir+"tmp")
+use (cur_dir()+"tmp") new
+index on str(n_nar,5) to (cur_dir()+"tmp")
 set relation to kod_h into HUMAN
 j := s1 := 0
 go top
@@ -4228,7 +4228,7 @@ if par2 == 1
 endif
 buf := save_row(maxrow())
 mywait()
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir()+"tmp", {;
    {"KOD",        "N",      4,      0},;  // код по БД tmp1
    {"KOD_H",      "N",      7,      0},;  // код по БД hum_ort
    {"FIO",        "C",     50,      0},;  // Ф.И.О. больного
@@ -4239,14 +4239,14 @@ dbcreate(cur_dir+"tmp", {;
    {"STOIM_B",    "N",     12,      2},;  // бесплатные больные
    {"STOIM_P",    "N",     12,      2} ;  // платные больные
   })
-use (cur_dir+"tmp") new
-dbcreate(cur_dir+"tmpvr", {;
+use (cur_dir()+"tmp") new
+dbcreate(cur_dir()+"tmpvr", {;
    {"KOD_VR",     "N",      4,      0},;  // код врача
    {"STOIM_B",    "N",     12,      2},;  // бесплатные больные
    {"STOIM_P",    "N",     12,      2} ;  // платные больные
   })
-use (cur_dir+"tmpvr") new
-index on str(kod_vr,4) to (cur_dir+"tmpvr")
+use (cur_dir()+"tmpvr") new
+index on str(kod_vr,4) to (cur_dir()+"tmpvr")
 R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"hum_ort",,"HUMAN")
 set relation to kod_k into KART
@@ -4254,12 +4254,12 @@ if par1 == 1
   set index to (dir_server+"hum_orto")
   dbseek(dtos(begin_date),.t.)
   if is_open
-    index on dtos(data) to (cur_dir+"tmp_hum") while data <= end_date for empty(k_data)
+    index on dtos(data) to (cur_dir()+"tmp_hum") while data <= end_date for empty(k_data)
   else
-    index on dtos(data) to (cur_dir+"tmp_hum") while data <= end_date
+    index on dtos(data) to (cur_dir()+"tmp_hum") while data <= end_date
   endif
 else
-  index on dtos(data) to (cur_dir+"tmp_hum") for empty(k_data)
+  index on dtos(data) to (cur_dir()+"tmp_hum") for empty(k_data)
 endif
 go top
 do while !eof()
@@ -4357,17 +4357,17 @@ add_string("")
 aeval(arr_title, {|x| add_string(x) } )
 s1 := s2 := 0
 R_Use(dir_server+"mo_pers",,"PERSO")
-use (cur_dir+"tmpvr") index (cur_dir+"tmpvr") new
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmpvr") index (cur_dir()+"tmpvr") new
+use (cur_dir()+"tmp") new
 if par2 == 1
   if is_fio == 1
-    index on upper(fio) to (cur_dir+"tmp")
+    index on upper(fio) to (cur_dir()+"tmp")
   else
-    index on str(n_nar,6) to (cur_dir+"tmp")
+    index on str(n_nar,6) to (cur_dir()+"tmp")
   endif
 else
   set relation to kod_vr into perso
-  index on upper(perso->fio)+upper(fio) to (cur_dir+"tmp")
+  index on upper(perso->fio)+upper(fio) to (cur_dir()+"tmp")
   old_vr := 0
 endif
 go top
@@ -4472,14 +4472,14 @@ close databases
 lvid_doc := setbit(lvid_doc,1)
 lvid_doc := setbit(lvid_doc,4)
 //
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir()+"tmp", {;
    {"U_KOD"  ,    "N",      4,      0},;  // код услуги
    {"U_SHIFR",    "C",     10,      0},;  // шифр услуги
    {"U_NAME",     "C",     65,      0} ;  // наименование услуги
   })
-use (cur_dir+"tmp")
-index on str(u_kod,4) to (cur_dir+"tmpk")
-index on fsort_usl(u_shifr) to (cur_dir+"tmpn")
+use (cur_dir()+"tmp")
+index on str(u_kod,4) to (cur_dir()+"tmpk")
+index on fsort_usl(u_shifr) to (cur_dir()+"tmpn")
 tmp->(dbCloseArea())
 aadd(mm_tmp, {"data","N",4,0,NIL,;
               {|x|menu_reader(x,;
@@ -4726,7 +4726,7 @@ init_base(tmp_file,,mm_tmp,0)
 R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
 pict_vr := "99999"
 k := f_edit_spr(A__APPEND,mm_tmp,"множественному запросу",;
-                "g_use(cur_dir+'tmp_mn_p',,,.t.,.t.)",0,1,,,,,"writeOmn_p")
+                "g_use(cur_dir()+'tmp_mn_p',,,.t.,.t.)",0,1,,,,,"writeOmn_p")
 if k > 0
   use (tmp_file) new alias MN
   if is_talon .and. mn->kategor == 0
@@ -4831,17 +4831,17 @@ if k > 0
     flag_hu := .t.
   endif
   if mn->uslugi > 0
-    use (cur_dir+"tmp") index (cur_dir+"tmpn") new
+    use (cur_dir()+"tmp") index (cur_dir()+"tmpn") new
     go top
     dbeval({|| aadd(arr_usl, {tmp->u_kod,tmp->u_shifr,tmp->u_name,0,0}) })
     tmp->(dbCloseArea())
   endif
-  dbcreate(cur_dir+"tmp",{{"kod","N",7,0},;
+  dbcreate(cur_dir()+"tmp",{{"kod","N",7,0},;
                           {"stoim","N",10,2}})
-  use (cur_dir+"tmp") new
-  dbcreate(cur_dir+"tmp1",{{"kod","N",7,0},;
+  use (cur_dir()+"tmp") new
+  dbcreate(cur_dir()+"tmp1",{{"kod","N",7,0},;
                            {"shifr","C",15,0}})
-  use (cur_dir+"tmp1") new
+  use (cur_dir()+"tmp1") new
   fl_exit := .f.
   Status_Key("^<Esc>^ - прервать поиск")
   Private c_view := 0, c_found := 0
@@ -4975,14 +4975,14 @@ if k > 0
     set relation to recno() into KART_, recno() into KART2
     R_Use(dir_server+"hum_ort",,"HUMAN")
     set relation to kod_k into KART
-    use (cur_dir+"tmp1") new
-    index on str(kod,7)+fsort_usl(shifr) to (cur_dir+"tmp1")
-    use (cur_dir+"tmp") new
+    use (cur_dir()+"tmp1") new
+    index on str(kod,7)+fsort_usl(shifr) to (cur_dir()+"tmp1")
+    use (cur_dir()+"tmp") new
     set relation to kod into HUMAN
     if pk_data != NIL
-      index on upper(kart->fio)+dtos(human->k_data) to (cur_dir+"tmp")
+      index on upper(kart->fio)+dtos(human->k_data) to (cur_dir()+"tmp")
     else
-      index on upper(kart->fio)+dtos(human->data) to (cur_dir+"tmp")
+      index on upper(kart->fio)+dtos(human->data) to (cur_dir()+"tmp")
     endif
     fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
     add_string("")
@@ -5570,9 +5570,9 @@ adbf := {{"KOD","N",4,0},;  // код персонала
          {"KOL_BS","N",4,0},;  // количество посещений в бесплатных нарядах
          {"STOIM_B","N",12,2},;  // бесплатная стоимость лечения
          {"STOIM_BP","N",12,2}}   // платные услуги (для бесплатных больных)
-dbcreate(cur_dir+"tmp",adbf)
-use (cur_dir+"tmp") new
-index on str(kod,4)+str(mes,2) to (cur_dir+"tmp")
+dbcreate(cur_dir()+"tmp",adbf)
+use (cur_dir()+"tmp") new
+index on str(kod,4)+str(mes,2) to (cur_dir()+"tmp")
 musluga := alltrim(mem_ort_na)
 if empty(musluga) .or. musluga == "*"
   musluga := "9999999999"
@@ -5718,7 +5718,7 @@ add_string("")
 aeval(arr_title, {|x| add_string(x) } )
 //
 R_Use(dir_server+"mo_pers",,"PERSO")
-use (cur_dir+"tmp") index (cur_dir+"tmp") new
+use (cur_dir()+"tmp") index (cur_dir()+"tmp") new
 asort(mperso,,,{|x,y| upper(x[2]) < upper(y[2]) } )
 for p := 1 to len(mperso)
   find (str(mperso[p,1],4))
@@ -5830,9 +5830,9 @@ adbf := {{"KOD",   "N", 4,0},;  // код персонала
          {"STOIM1","N",12,2},;  //
          {"STOIM2","N",12,2},;  //
          {"STOIM3","N",12,2}}   //
-dbcreate(cur_dir+"tmp", adbf)
-use (cur_dir+"tmp") new
-index on str(kod,4) to (cur_dir+"tmp")
+dbcreate(cur_dir()+"tmp", adbf)
+use (cur_dir()+"tmp") new
+index on str(kod,4) to (cur_dir()+"tmp")
 R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
 // наряды, ещё не закрытые на начало (конец) периода
 R_Use(dir_server+"hum_ort",dir_server+"hum_orto","HUMAN")
@@ -5998,9 +5998,9 @@ add_string(center("Количество нарядов-заказов",sh))
 add_string(center(arr_m[4],sh))
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
-use (cur_dir+"TMP") new
+use (cur_dir()+"TMP") new
 set relation to kod into PERSO
-index on upper(perso->fio) to (cur_dir+"tmp")
+index on upper(perso->fio) to (cur_dir()+"tmp")
 go top
 do while !eof()
   s := padr("["+lstr(perso->tab_nom)+"] "+perso->fio,41)+;
@@ -6357,9 +6357,9 @@ R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HPU")
 R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HPO")
 R_Use(dir_server+"hum_ort",,"HU")
 if tip_jurn==1
-  index on N_data to (cur_dir+"tmp_hum") for between(N_data,arr_m[5],arr_m[6])
+  index on N_data to (cur_dir()+"tmp_hum") for between(N_data,arr_m[5],arr_m[6])
 ELSE
-  index on k_data to (cur_dir+"tmp_hum") for between(k_data,arr_m[5],arr_m[6])
+  index on k_data to (cur_dir()+"tmp_hum") for between(k_data,arr_m[5],arr_m[6])
 ENDIF
 aeval(arr_title, {|x| add_string(x) } )
 j := sk := ss := 0
@@ -6504,11 +6504,11 @@ add_string(center("Настройка расхода материалов",sh))
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
 R_Use(dir_server+"tip_orto",,"OR0")
-index on str(tip,1)+name to (cur_dir+"tmp1")
+index on str(tip,1)+name to (cur_dir()+"tmp1")
 R_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
 R_Use(dir_server+"ortoped",,"OR")
 R_Use(dir_server+"ortoped1",,"OR1")
-index on str(kod_menu,4) to (cur_dir+"tmp2")
+index on str(kod_menu,4) to (cur_dir()+"tmp2")
 set relation to kod_ort into OR
 R_Use(dir_server+"ortoped2",,"OR2")
 set relation to str(kod_usl,4) into USL
@@ -6523,7 +6523,7 @@ do while !eof()
    add_string(or0->name)
    add_string("  - исполнитель "+alltrim(inieditspr(A__MENUVERT,mm_ortispol,or0->tip)))
    select OR2
-   index on usl->shifr to (cur_dir+"tmp4") for kod_tip == or0->(recno())
+   index on usl->shifr to (cur_dir()+"tmp4") for kod_tip == or0->(recno())
    go top
    do while !eof()
      if verify_FF(HH,.t.,sh)
@@ -6579,12 +6579,12 @@ R_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
 R_Use(dir_server+"ortoped",,"OR")
 //
 R_Use(dir_server+"ortoped1",,"OR1")
-index on str(kod_menu,4) to (cur_dir+"tmp2")
+index on str(kod_menu,4) to (cur_dir()+"tmp2")
 set relation to kod_ort into OR
 //
 R_Use(dir_server+"ortoped2",,"OR2")
 set relation to str(kod_usl,4) into USL
-index on usl->shifr to (cur_dir+"tmp1")
+index on usl->shifr to (cur_dir()+"tmp1")
 //
 select OR2
 go top
@@ -6660,7 +6660,7 @@ cre_tmp_30({{"p_kod","C",4,0},;
             {"bud_prot","N",4,0};
            })
 use (fr_data) new alias TMP
-index on str(tip,1)+p_kod to (cur_dir+"tmp")
+index on str(tip,1)+p_kod to (cur_dir()+"tmp")
 R_Use(dir_server+"mo_otd",,"OTD")
 R_Use(dir_server+"diag_ort",dir_server+"diag_ort","DBF1")
 R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
@@ -6946,9 +6946,9 @@ adbf := {;
      {"U_SHIFR",    "C",     10,      0},;  // шифр услуги
      {"U_NAME",     "C",     65,      0};   // наименование услуги
     }
-dbcreate(cur_dir+"tmp", adbf)
+dbcreate(cur_dir()+"tmp", adbf)
 R_Use(dir_server+"uslugi",,"USL")
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 for i := 1 to len(arr_usl)
   select USL
   goto (val(arr_usl[i,2]))
@@ -6961,13 +6961,13 @@ for i := 1 to len(arr_usl)
   endif
 next
 select TMP
-index on str(u_kod,4) to (cur_dir+"tmpk")
-index on fsort_usl(u_shifr) to (cur_dir+"tmpn")
+index on str(u_kod,4) to (cur_dir()+"tmpk")
+index on fsort_usl(u_shifr) to (cur_dir()+"tmpn")
 close databases
 ob2_v_usl(,2,"Настройка формы 39: колонка "+title)
 if f_Esc_Enter(1)
   arr_usl := {}
-  use (cur_dir+"tmp") index (cur_dir+"tmpn") new alias TMP
+  use (cur_dir()+"tmp") index (cur_dir()+"tmpn") new alias TMP
   go top
   do while !eof()
     aadd(arr_usl, {tmp->u_shifr,lstr(tmp->u_kod)})
@@ -7028,9 +7028,9 @@ adbf := {;
      {"U_SHIFR",    "C",     10,      0},;  // шифр услуги
      {"U_NAME",     "C",     65,      0};   // наименование услуги
     }
-dbcreate(cur_dir+"tmp", adbf)
+dbcreate(cur_dir()+"tmp", adbf)
 R_Use(dir_server+"uslugi",,"USL")
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 for i := 1 to len(arr_usl)
   select USL
   goto (val(arr_usl[i,2]))
@@ -7043,7 +7043,7 @@ for i := 1 to len(arr_usl)
   endif
 next
 select TMP
-index on fsort_usl(u_shifr) to (cur_dir+"tmpn")
+index on fsort_usl(u_shifr) to (cur_dir()+"tmpn")
 return NIL
 
 *
@@ -7130,12 +7130,12 @@ sh := len(arr_title[1])
 if (arr_m := year_month()) == NIL
   return NIL
 endif
-if !myFileDeleted(cur_dir+"tmp"+sdbf)
+if !myFileDeleted(cur_dir()+"tmp"+sdbf)
   return NIL
 endif
 //
 mywait()
-dbcreate(cur_dir+"tmp", {{"kod",     "N",  4,  0},;
+dbcreate(cur_dir()+"tmp", {{"kod",     "N",  4,  0},;
                  {"fio",     "C", 60,  0},;
                  {"chek",    "N", 10,  0},;
                  {"kod_hum", "N", 10,  0},;
@@ -7151,7 +7151,7 @@ dbcreate(cur_dir+"tmp", {{"kod",     "N",  4,  0},;
                  {"summa_bn","N", 12,  2},;
                  {"summaN",  "N", 12,  2},;
                  {"summa",   "N", 12,  2}})
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 if yes_parol
   R_Use(dir_server+"base1",,"BASE1")
 endif
@@ -7197,8 +7197,8 @@ do while !eof()
   skip
 enddo
 close databases
-use (cur_dir+"tmp") new
-index on operat to (cur_dir+"tmp_u") unique
+use (cur_dir()+"tmp") new
+index on operat to (cur_dir()+"tmp_u") unique
 go top
 do while !eof()
   aadd(mas_op1,tmp->operat)
@@ -7229,8 +7229,8 @@ if bkol_oper > 0
   add_string("")
   aeval(arr_title, {|x| add_string(x) })
   sm2 := ii := 0
-  use (cur_dir+"tmp") new
-  index on fr_time to (cur_dir+"tmp_u") for operat == mas_op1[bkol_oper]
+  use (cur_dir()+"tmp") new
+  index on fr_time to (cur_dir()+"tmp_u") for operat == mas_op1[bkol_oper]
   go top
   do while !eof()
     if verify_FF(HH,.t.,sh)

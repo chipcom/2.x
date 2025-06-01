@@ -141,14 +141,14 @@ Function inf_dds_karta()
     mywait()
     If f0_inf_dds( arr_m, .f. )
       r_use( dir_server + "human",, "HUMAN" )
-      Use ( cur_dir + "tmp" ) new
+      Use ( cur_dir() + "tmp" ) new
       Set Relation To kod into HUMAN
-      Index On Upper( human->fio ) to ( cur_dir + "tmp" )
+      Index On Upper( human->fio ) to ( cur_dir() + "tmp" )
       Private blk_open := {|| dbCloseAll(), ;
         r_use( dir_server + "human_",, "HUMAN_" ), ;
         r_use( dir_server + "human",, "HUMAN" ), ;
         dbSetRelation( "HUMAN_", {|| RecNo() }, "recno()" ), ;
-        r_use( cur_dir + "tmp", cur_dir + "tmp" ), ;
+        r_use( cur_dir() + "tmp", cur_dir() + "tmp" ), ;
         dbSetRelation( "HUMAN", {|| kod }, "kod" );
         }
       Eval( blk_open )
@@ -183,19 +183,19 @@ Function f0_inf_dds( arr_m, is_schet, is_reg, is_snils )
   Local fl := .t.
 
   Default is_schet To .t., is_reg To .f., is_snils To .f.
-  If !del_dbf_file( cur_dir + "tmp" + sdbf )
+  If !del_dbf_file( cur_dir() + "tmp" + sdbf )
     Return .f.
   Endif
-  dbCreate( cur_dir + "tmp", { { "kod", "N", 7, 0 }, ;
+  dbCreate( cur_dir() + "tmp", { { "kod", "N", 7, 0 }, ;
     { "is", "N", 1, 0 } } )
-  Use ( cur_dir + "tmp" ) new
+  Use ( cur_dir() + "tmp" ) new
   r_use( dir_server + "schet_",, "SCHET_" )
   r_use( dir_server + "kartotek",, "KART" )
   r_use( dir_server + "human_",, "HUMAN_" )
   r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
   Set Relation To RecNo() into HUMAN_, To kod_k into KART
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
-  Index On kod to ( cur_dir + "tmp_h" ) ;
+  Index On kod to ( cur_dir() + "tmp_h" ) ;
     For iif( p_tip_lu == TIP_LU_DDS, !Empty( za_smo ), Empty( za_smo ) ) .and. ;
     eq_any( ishod, 101, 102 ) .and. iif( is_schet, schet > 0, .t. ) ;
     While human->k_data <= arr_m[ 6 ] ;
@@ -1039,18 +1039,18 @@ Function inf_dds_svod( par, par2, is_schet )
       For i := 1 To count_dds_arr_osm2
         AAdd( adbf, { "d2_" + lstr( i ), "C", 8, 0 } )
       Next
-      dbCreate( cur_dir + "tmpfio", adbf )
+      dbCreate( cur_dir() + "tmpfio", adbf )
       r_use( dir_server + "mo_rak",, "RAK" )
       r_use( dir_server + "mo_raks",, "RAKS" )
       Set Relation To akt into RAK
       r_use( dir_server + "mo_raksh",, "RAKSH" )
       Set Relation To kod_raks into RAKS
-      Index On Str( kod_h, 7 ) + DToS( rak->DAKT ) to ( cur_dir + "tmp_raksh" )
+      Index On Str( kod_h, 7 ) + DToS( rak->DAKT ) to ( cur_dir() + "tmp_raksh" )
       Private blk_open := {|| dbCloseAll(), ;
         r_use( dir_server + "human_",, "HUMAN_" ), ;
         r_use( dir_server + "human",, "HUMAN" ), ;
         dbSetRelation( "HUMAN_", {|| RecNo() }, "recno()" ), ;
-        r_use( cur_dir + "tmp" ), ;
+        r_use( cur_dir() + "tmp" ), ;
         dbSetRelation( "HUMAN", {|| kod }, "kod" );
         }
       Do While .t.
@@ -1133,7 +1133,7 @@ Function inf_dds_svod( par, par2, is_schet )
         frt->kol3 := "« ­®¢ë¥ ¯®ª § â¥«¨"
         frt->kol4 := "” ªâ¨ç¥áª¨¥ ¯®ª § â¥«¨ ¢ë¯®«­¥­¨ï: ®á¬®âà¥­®/®¡à ¡®â ­® ª àâ"
       Endif
-      Copy File ( cur_dir + "tmpfio" + sdbf ) to ( fr_data + sdbf )
+      Copy File ( cur_dir() + "tmpfio" + sdbf ) to ( fr_data + sdbf )
       Do Case
       Case par == 1
         Use ( fr_data ) New Alias FRD
@@ -1252,7 +1252,7 @@ Function f2_inf_dds_svod( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
   Set Relation To akt into RAK
   r_use( dir_server + "mo_raksh",, "RAKSH" )
   Set Relation To kod_raks into RAKS
-  Set Index to ( cur_dir + "tmp_raksh" )
+  Set Index to ( cur_dir() + "tmp_raksh" )
   Select RAKSH
   find ( Str( Loc_kod, 7 ) )
   Do While Loc_kod == raksh->kod_h .and. !Eof()
@@ -1265,7 +1265,7 @@ Function f2_inf_dds_svod( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
     Endif
     Skip
   Enddo
-  Use ( cur_dir + "tmpfio" ) New Alias TF
+  Use ( cur_dir() + "tmpfio" ) New Alias TF
   Append Blank
   tf->KOD := Loc_kod
   tf->KOD_K := kod_kartotek
@@ -1366,7 +1366,7 @@ Function f2_inf_dds_svod( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
 // 20.06.21 à¨«®¦¥­¨¥ ª ¯¨áì¬ã Š‡‚ ü14-05/50 ®â 07.02.2020£.
 Function inf_dds_svod2( par2, is_schet )
 
-  Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 91, HH := 60, n_file := cur_dir + "ddssvod2.txt"
+  Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 91, HH := 60, n_file := cur_dir() + "ddssvod2.txt"
 
   If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
@@ -1387,7 +1387,7 @@ Function inf_dds_svod2( par2, is_schet )
         r_use( dir_server + "human_",, "HUMAN_" ), ;
         r_use( dir_server + "human",, "HUMAN" ), ;
         dbSetRelation( "HUMAN_", {|| RecNo() }, "recno()" ), ;
-        r_use( cur_dir + "tmp" ), ;
+        r_use( cur_dir() + "tmp" ), ;
         dbSetRelation( "HUMAN", {|| kod }, "kod" );
         }
 
@@ -1537,7 +1537,7 @@ Function f2_inf_dds_svod2( Loc_kod, kod_kartotek )
   // R_Use(dir_server + "human_",,"HUMAN_")
   r_use( dir_server + "human",, "HUMAN" )
   // set relation to recno() into HUMAN_, to kod_k into KART_
-  // use (cur_dir + "tmp") new
+  // use (cur_dir() + "tmp") new
   // set relation to kod into HUMAN
   // go top
 
@@ -1684,7 +1684,7 @@ Function f2_inf_dds_svod2( Loc_kod, kod_kartotek )
 // 08.11.13
 Function inf_dds_030dso( is_schet )
 
-  Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 80, n_file := cur_dir + "f_030dso.txt", d1, d2
+  Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 80, n_file := cur_dir() + "f_030dso.txt", d1, d2
 
   If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
@@ -1760,7 +1760,7 @@ Function inf_dds_030dso( is_schet )
         arr_4[ n, 4 ] := diag_to_num( d1, 1 )
         arr_4[ n, 5 ] := diag_to_num( d2, 2 )
       Next
-      dbCreate( cur_dir + "tmp4", { { "name", "C", 100, 0 }, ;
+      dbCreate( cur_dir() + "tmp4", { { "name", "C", 100, 0 }, ;
         { "diagnoz", "C", 20, 0 }, ;
         { "stroke", "C", 4, 0 }, ;
         { "ns", "N", 2, 0 }, ;
@@ -1775,7 +1775,7 @@ Function inf_dds_030dso( is_schet )
         { "k09", "N", 8, 0 }, ;
         { "k10", "N", 8, 0 }, ;
         { "k11", "N", 8, 0 } } )
-      Use ( cur_dir + "tmp4" ) New Alias TMP
+      Use ( cur_dir() + "tmp4" ) New Alias TMP
       For i := 1 To Len( arr_vozrast )
         For n := 1 To Len( arr_4 )
           Append Blank
@@ -1788,37 +1788,37 @@ Function inf_dds_030dso( is_schet )
           tmp->diapazon2 := arr_4[ n, 5 ]
         Next
       Next
-      Index On Str( tbl, 1 ) + Str( ns, 2 ) to ( cur_dir + "tmp4" )
+      Index On Str( tbl, 1 ) + Str( ns, 2 ) to ( cur_dir() + "tmp4" )
       Use
-      dbCreate( cur_dir + "tmp10", { { "voz", "N", 1, 0 }, ;
+      dbCreate( cur_dir() + "tmp10", { { "voz", "N", 1, 0 }, ;
         { "tbl", "N", 2, 0 }, ;
         { "tip", "N", 1, 0 }, ;
         { "kol", "N", 6, 0 } } )
-      Use ( cur_dir + "tmp10" ) New Alias TMP10
-      Index On Str( voz, 1 ) + Str( tbl, 1 ) + Str( tip, 1 ) to ( cur_dir + "tmp10" )
+      Use ( cur_dir() + "tmp10" ) New Alias TMP10
+      Index On Str( voz, 1 ) + Str( tbl, 1 ) + Str( tip, 1 ) to ( cur_dir() + "tmp10" )
       Use
       Copy file tmp10.dbf To tmp11.dbf
-      Use ( cur_dir + "tmp11" ) New Alias TMP11
-      Index On Str( voz, 1 ) + Str( tbl, 2 ) + Str( tip, 1 ) to ( cur_dir + "tmp11" )
+      Use ( cur_dir() + "tmp11" ) New Alias TMP11
+      Index On Str( voz, 1 ) + Str( tbl, 2 ) + Str( tip, 1 ) to ( cur_dir() + "tmp11" )
       Use
-      dbCreate( cur_dir + "tmp13", { { "voz", "N", 1, 0 }, ;
+      dbCreate( cur_dir() + "tmp13", { { "voz", "N", 1, 0 }, ;
         { "tip", "N", 2, 0 }, ;
         { "kol", "N", 6, 0 } } )
-      Use ( cur_dir + "tmp13" ) New Alias TMP13
-      Index On Str( voz, 1 ) + Str( tip, 2 ) to ( cur_dir + "tmp13" )
+      Use ( cur_dir() + "tmp13" ) New Alias TMP13
+      Index On Str( voz, 1 ) + Str( tip, 2 ) to ( cur_dir() + "tmp13" )
       Use
-      dbCreate( cur_dir + "tmp16", { { "voz", "N", 1, 0 }, ;
+      dbCreate( cur_dir() + "tmp16", { { "voz", "N", 1, 0 }, ;
         { "man", "N", 1, 0 }, ;
         { "tip", "N", 2, 0 }, ;
         { "kol", "N", 6, 0 } } )
-      Use ( cur_dir + "tmp16" ) New Alias TMP16
-      Index On Str( voz, 1 ) + Str( man, 1 ) + Str( tip, 2 ) to ( cur_dir + "tmp16" )
+      Use ( cur_dir() + "tmp16" ) New Alias TMP16
+      Index On Str( voz, 1 ) + Str( man, 1 ) + Str( tip, 2 ) to ( cur_dir() + "tmp16" )
       Use
       Private blk_open := {|| dbCloseAll(), ;
         r_use( dir_server + "human_",, "HUMAN_" ), ;
         r_use( dir_server + "human",, "HUMAN" ), ;
         dbSetRelation( "HUMAN_", {|| RecNo() }, "recno()" ), ;
-        r_use( cur_dir + "tmp" ), ;
+        r_use( cur_dir() + "tmp" ), ;
         dbSetRelation( "HUMAN", {|| kod }, "kod" );
         }
       Do While .t.
@@ -1879,7 +1879,7 @@ Function inf_dds_030dso( is_schet )
         add_string( "ÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄ" )
         add_string( " 1  ³          2        ³   3   ³  4  ³  5  ³  6  ³  7  ³  8  ³  9  ³ 10  ³ 11  " )
         add_string( "ÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄ" )
-        Use ( cur_dir + "tmp4" ) index ( cur_dir + "tmp4" ) New Alias TMP
+        Use ( cur_dir() + "tmp4" ) index ( cur_dir() + "tmp4" ) New Alias TMP
         find ( Str( arr_vozrast[ i, 1 ], 1 ) )
         Do While tmp->tbl == arr_vozrast[ i, 1 ] .and. !Eof()
           s := tmp->stroke + " " + PadR( tmp->name, 19 ) + " " + PadC( AllTrim( tmp->diagnoz ), 7 )
@@ -1927,7 +1927,7 @@ Function inf_dds_030dso( is_schet )
       verify_ff( HH -50, .t., sh )
       add_string( "10. ¥§ã«ìâ âë ¤®¯®«­¨â¥«ì­ëå ª®­áã«ìâ æ¨©, ¨áá«¥¤®¢ ­¨©, «¥ç¥­¨ï ¨ ¬¥¤¨æ¨­áª®©" )
       add_string( "    à¥ ¡¨«¨â æ¨¨ ¤¥â¥© ¯® à¥§ã«ìâ â ¬ ¯à®¢¥¤¥­¨ï ­ áâ®ïé¥© ¤¨á¯ ­á¥à¨§ æ¨¨:" )
-      Use ( cur_dir + "tmp10" ) index ( cur_dir + "tmp10" ) New Alias TMP10
+      Use ( cur_dir() + "tmp10" ) index ( cur_dir() + "tmp10" ) New Alias TMP10
       For i := 1 To 8
         verify_ff( HH -16, .t., sh )
         add_string( "" )
@@ -2008,7 +2008,7 @@ Function inf_dds_030dso( is_schet )
       add_string( "11. ¥§ã«ìâ âë «¥ç¥­¨ï, ¬¥¤¨æ¨­áª®© à¥ ¡¨«¨â æ¨¨ ¨ (¨«¨) á ­ â®à­®-ªãà®àâ­®£®" )
       add_string( "    «¥ç¥­¨ï ¤¥â¥© ¤® ¯à®¢¥¤¥­¨ï ­ áâ®ïé¥© ¤¨á¯ ­á¥à¨§ æ¨¨:" )
       vkol := 0
-      Use ( cur_dir + "tmp11" ) index ( cur_dir + "tmp11" ) New Alias TMP11
+      Use ( cur_dir() + "tmp11" ) index ( cur_dir() + "tmp11" ) New Alias TMP11
       For i := 1 To 12
         If i % 3 > 0
           verify_ff( HH -16, .t., sh )
@@ -2113,7 +2113,7 @@ Function inf_dds_030dso( is_schet )
       add_string( "12. ª § ­¨¥ ¢ëá®ª®â¥å­®«®£¨ç­®© ¬¥¤¨æ¨­áª®© ¯®¬®é¨:" )
       add_string( "  12.1. à¥ª®¬¥­¤®¢ ­  (¯® ¨â®£ ¬ ­ áâ®ïé¥© ¤¨á¯ ­c-æ¨¨): " + lstr( s12_1 ) + " ç¥«., ¢ â.ç. " + lstr( s12_1m ) + " ¬ «ìç¨ª ¬" )
       add_string( "  12.2. ®ª § ­  (¯® ¨â®£ ¬ ¤¨á¯ ­á¥à¨§ æ¨¨ ¢ ¯à¥¤.£®¤ã): " + lstr( s12_2 ) + " ç¥«., ¢ â.ç. " + lstr( s12_2m ) + " ¬ «ìç¨ª ¬" )
-      Use ( cur_dir + "tmp13" ) index ( cur_dir + "tmp13" ) New Alias TMP13
+      Use ( cur_dir() + "tmp13" ) index ( cur_dir() + "tmp13" ) New Alias TMP13
       verify_ff( HH -16, .t., sh )
       n := 32
       add_string( "" )
@@ -2202,7 +2202,7 @@ Function inf_dds_030dso( is_schet )
         add_string( s )
       Next
       add_string( Replicate( "Ä", sh ) )
-      Use ( cur_dir + "tmp16" ) index ( cur_dir + "tmp16" ) New Alias TMP16
+      Use ( cur_dir() + "tmp16" ) index ( cur_dir() + "tmp16" ) New Alias TMP16
       verify_ff( HH -21, .t., sh )
       n := 20
       add_string( "" )
@@ -2327,8 +2327,8 @@ Function f2_inf_dds_030dso( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
       Endif
     Next
   Next
-  Use ( cur_dir + "tmp4" ) index ( cur_dir + "tmp4" ) New Alias TMP
-  Use ( cur_dir + "tmp10" ) index ( cur_dir + "tmp10" ) New Alias TMP10
+  Use ( cur_dir() + "tmp4" ) index ( cur_dir() + "tmp4" ) New Alias TMP
+  Use ( cur_dir() + "tmp10" ) index ( cur_dir() + "tmp10" ) New Alias TMP10
   AFill( a10, 0 )
   For i := 1 To Len( ad ) // æ¨ª« ¯® ¤¨ £­®§ ¬
     au := {}
@@ -2462,7 +2462,7 @@ Function f2_inf_dds_030dso( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
       Endif
     Next
   Next
-  Use ( cur_dir + "tmp11" ) index ( cur_dir + "tmp11" ) New Alias TMP11
+  Use ( cur_dir() + "tmp11" ) index ( cur_dir() + "tmp11" ) New Alias TMP11
   AFill( a11, 0 )
   For i := 1 To Len( ad ) // æ¨ª« ¯® ¤¨ £­®§ ¬
     If ad[ i, 3 ] == 1 // 1-«¥ç¥­¨¥ ­ §­ ç¥­®
@@ -2586,7 +2586,7 @@ Function f2_inf_dds_030dso( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
   Else                    // ¯à¨¢¨â ¯® ¢®§à áâã", 0}, ;
     AAdd( ad, 20 )
   Endif
-  Use ( cur_dir + "tmp13" ) index ( cur_dir + "tmp13" ) New Alias TMP13
+  Use ( cur_dir() + "tmp13" ) index ( cur_dir() + "tmp13" ) New Alias TMP13
   For n := 1 To Len( av1 ) // æ¨ª« ¯® ¢®§à áâ ¬ â ¡«¨æë
     For j := 1 To Len( ad )
       find ( Str( av1[ n ], 1 ) + Str( ad[ j ], 2 ) )
@@ -2616,7 +2616,7 @@ Function f2_inf_dds_030dso( Loc_kod, kod_kartotek ) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
   AAdd( ad, mGRUPPA_DO + 10 )
   AAdd( ad, mGRUPPA + 20 )
   // index on str(voz, 1)+str(man, 1)+str(tip, 2) to tmp16
-  Use ( cur_dir + "tmp16" ) index ( cur_dir + "tmp16" ) New Alias TMP16
+  Use ( cur_dir() + "tmp16" ) index ( cur_dir() + "tmp16" ) New Alias TMP16
   For n := 1 To Len( av1 ) // æ¨ª« ¯® ¢®§à áâ ¬ â ¡«¨æë
     For j := 1 To Len( ad )
       find ( Str( av1[ n ], 1 ) + "0" + Str( ad[ j ], 2 ) )
@@ -2651,14 +2651,14 @@ Function inf_dds_xmlfile( is_schet )
     mywait()
     If f0_inf_dds( arr_m, is_schet > 1, is_schet == 3, .t. )
       r_use( dir_server + "human",, "HUMAN" )
-      Use ( cur_dir + "tmp" ) new
+      Use ( cur_dir() + "tmp" ) new
       Set Relation To kod into HUMAN
-      Index On Upper( human->fio ) to ( cur_dir + "tmp" )
+      Index On Upper( human->fio ) to ( cur_dir() + "tmp" )
       Private blk_open := {|| dbCloseAll(), ;
         r_use( dir_server + "human_",, "HUMAN_" ), ;
         r_use( dir_server + "human",, "HUMAN" ), ;
         dbSetRelation( "HUMAN_", {|| RecNo() }, "recno()" ), ;
-        e_use( cur_dir + "tmp", cur_dir + "tmp" ), ;
+        e_use( cur_dir() + "tmp", cur_dir() + "tmp" ), ;
         dbSetRelation( "HUMAN", {|| kod }, "kod" );
         }
       Eval( blk_open )
@@ -2692,16 +2692,16 @@ Function inf_dds_xmlfile( is_schet )
       Endif
       mywait()
       r_use( dir_server + "mo_rpdsh",, "RPDSH" )
-      Index On Str( KOD_H, 7 ) to ( cur_dir + "tmprpdsh" )
+      Index On Str( KOD_H, 7 ) to ( cur_dir() + "tmprpdsh" )
       Use
       r_use( dir_server + "mo_raksh",, "RAKSH" )
-      Index On Str( KOD_H, 7 ) to ( cur_dir + "tmpraksh" )
+      Index On Str( KOD_H, 7 ) to ( cur_dir() + "tmpraksh" )
       Use
       Private blk_open := {|| dbCloseAll(), ;
         r_use( dir_server + "human_",, "HUMAN_" ), ;
         r_use( dir_server + "human",, "HUMAN" ), ;
         dbSetRelation( "HUMAN_", {|| RecNo() }, "recno()" ), ;
-        r_use( cur_dir + "tmp", cur_dir + "tmp" ), ;
+        r_use( cur_dir() + "tmp", cur_dir() + "tmp" ), ;
         dbSetRelation( "HUMAN", {|| kod }, "kod" );
         }
       mo_mzxml_n( 1 )
@@ -2921,11 +2921,11 @@ Function f0_inf_dvn( arr_m, is_schet, is_reg, is_1_2 )
   Local fl := .t., j := 0, n, buf := save_maxrow()
 
   Default is_schet To .t., is_reg To .f., is_1_2 To .f.
-  If !del_dbf_file( cur_dir + "tmp" + sdbf )
+  If !del_dbf_file( cur_dir() + "tmp" + sdbf )
     Return .f.
   Endif
   mywait()
-  dbCreate( cur_dir + "tmp", { { "kod_k", "N", 7, 0 }, ;
+  dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ;
     { "kod1h", "N", 7, 0 }, ;
     { "date1", "D", 8, 0 }, ;
     { "kod2h", "N", 7, 0 }, ;
@@ -2934,15 +2934,15 @@ Function f0_inf_dvn( arr_m, is_schet, is_reg, is_1_2 )
     { "date3", "D", 8, 0 }, ;
     { "kod4h", "N", 7, 0 }, ;
     { "date4", "D", 8, 0 } } )
-  Use ( cur_dir + "tmp" ) new
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp" )
+  Use ( cur_dir() + "tmp" ) new
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp" )
   r_use( dir_server + "schet_",, "SCHET_" )
   r_use( dir_server + "human_",, "HUMAN_" )
   r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
   Set Relation To RecNo() into HUMAN_
   n := iif( is_1_2, 204, 203 )
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
-  Index On kod to ( cur_dir + "tmp_h" ) ;
+  Index On kod to ( cur_dir() + "tmp_h" ) ;
     For Between( ishod, 201, n ) .and. human->cena_1 > 0 .and. iif( is_schet, schet > 0, .t. ) ;
     While human->k_data <= arr_m[ 6 ] ;
     PROGRESS
@@ -3009,7 +3009,7 @@ Function f_131_u()
       .and. ( arr_m := year_month(,,, 5 ) ) != Nil .and. f0_inf_dvn( arr_m, .f. )
     mywait()
     r_use( dir_server + "kartotek",, "KART" )
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ) new
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ) new
     If glob_kartotek > 0
       find ( Str( glob_kartotek, 7 ) )
       If Found()
@@ -3017,7 +3017,7 @@ Function f_131_u()
       Endif
     Endif
     Set Relation To kod_k into KART
-    Index On Upper( kart->fio ) to ( cur_dir + "tmp" )
+    Index On Upper( kart->fio ) to ( cur_dir() + "tmp" )
     Private ;
       blk_open := {|| dbCloseAll(), ;
       r_use( dir_server + "uslugi",, "USL" ), ;
@@ -3030,7 +3030,7 @@ Function f_131_u()
       r_use( dir_server + "kartote_",, "KART_" ), ;
       r_use( dir_server + "kartotek",, "KART" ), ;
       dbSetRelation( "KART_", {|| RecNo() }, "recno()" ), ;
-      r_use( cur_dir + "tmp", cur_dir + "tmp" ), ;
+      r_use( cur_dir() + "tmp", cur_dir() + "tmp" ), ;
       dbSetRelation( "KART", {|| kod_k }, "kod_k" );
       }
     Eval( blk_open )
@@ -3876,9 +3876,9 @@ Function f21_inf_dvn( par ) // á¢®¤
       { "g7", "N", 6, 0 }, ;
       { "g8", "N", 6, 0 }, ;
       { "g9", "N", 6, 0 } }
-    dbCreate( cur_dir + "tmp1", adbf )
-    Use ( cur_dir + "tmp1" ) new
-    Index On Str( nn, 2 ) to ( cur_dir + "tmp1" )
+    dbCreate( cur_dir() + "tmp1", adbf )
+    Use ( cur_dir() + "tmp1" ) new
+    Index On Str( nn, 2 ) to ( cur_dir() + "tmp1" )
     Append Blank
     tmp1->nn := 2 ;  tmp1->name := "á¬®âà¥­® ¢á¥£® (§ ¢¥àè¨«¨ I íâ ¯)"
     Append Blank
@@ -3919,9 +3919,9 @@ Function f21_inf_dvn( par ) // á¢®¤
     tmp1->nn := 20 ; tmp1->name := "¨§ £à.9 ƒ€†„€ ¡ë«® ­ ç â® «¥ç¥­¨¥"
     Append Blank
     tmp1->nn := 21 ; tmp1->name := "   ¨§ £à.19 ¨§ ­¨å á¥«ìáª¨å ¦¨â¥«¥©"
-    dbCreate( cur_dir + "tmp11", adbf )
-    Use ( cur_dir + "tmp11" ) new
-    Index On Str( nn, 2 ) to ( cur_dir + "tmp11" )
+    dbCreate( cur_dir() + "tmp11", adbf )
+    Use ( cur_dir() + "tmp11" ) new
+    Index On Str( nn, 2 ) to ( cur_dir() + "tmp11" )
     Append Blank
     tmp11->nn :=  1 ; tmp11->name := "¢¯¥à¢ë¥ ¢§ïâë ­  ¤¨á¯ ­á¥à­ë© ãçñâ"
     Append Blank
@@ -3953,9 +3953,9 @@ Function f21_inf_dvn( par ) // á¢®¤
     Append Blank
     tmp11->nn := 15 ; tmp11->name := "¯à®æ¥­â ®å¢ â  £àã¯¯®¢ë¬ ¯à®ä¨« ªâ.ª®­á-¨¥¬"
     //
-    dbCreate( cur_dir + "tmp12", adbf )
-    Use ( cur_dir + "tmp12" ) new
-    Index On Str( nn, 2 ) to ( cur_dir + "tmp12" )
+    dbCreate( cur_dir() + "tmp12", adbf )
+    Use ( cur_dir() + "tmp12" ) new
+    Index On Str( nn, 2 ) to ( cur_dir() + "tmp12" )
     Append Blank
     tmp12->nn :=  1 ; tmp12->name := "Š®«-¢® ¬ ¬¬®£à ä¨© ¢ à ¬ª å ¤¨á¯ ­á¥à¨§ æ¨¨"
     Append Blank
@@ -4043,13 +4043,13 @@ Function f21_inf_dvn( par ) // á¢®¤
     Append Blank
     tmp12->nn := 43 ; tmp12->name := "    ¨§ ­¨å 4 áâ ¤¨ï"
     //
-    dbCreate( cur_dir + "tmp2", { { "kod_k", "N", 7, 0 }, ;
+    dbCreate( cur_dir() + "tmp2", { { "kod_k", "N", 7, 0 }, ;
       { "rslt1", "N", 3, 0 }, ;
       { "rslt2", "N", 3, 0 } } )
-    Use ( cur_dir + "tmp2" ) new
-    Index On Str( kod_k, 7 ) to ( cur_dir + "tmp2" )
+    Use ( cur_dir() + "tmp2" ) new
+    Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp2" )
     r_use( dir_server + "mo_rpdsh",, "RPDSH" )
-    Index On Str( KOD_H, 7 ) to ( cur_dir + "tmprpdsh" )
+    Index On Str( KOD_H, 7 ) to ( cur_dir() + "tmprpdsh" )
     r_use( dir_server + "kartote_",, "KART_" )
     r_use( dir_server + "uslugi",, "USL" )
     r_use( dir_server + "human_u_",, "HU_" )
@@ -4059,7 +4059,7 @@ Function f21_inf_dvn( par ) // á¢®¤
     r_use( dir_server + "human",, "HUMAN" )
     Set Relation To RecNo() into HUMAN_, To kod_k into KART_
     r_use( dir_server + "schet_",, "SCHET_" )
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ) new
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ) new
     f_error_dvn( 1 )
     ii := 0
     Go Top
@@ -4119,8 +4119,8 @@ Function f21_inf_dvn( par ) // á¢®¤
     // ¯à®¢¥à¨¬ ¯®á¥é¥­¨ï 2 £®¤  ­ § ¤
     mywait( "à®¢¥àª  ­  ¯®á¥é¥­¨¥ ãçà¥¦¤¥­¨ï ¢ ¡«¨¦ ©è¨¥ 2 £®¤ " )
     r_use( dir_server + "human",, "HUMAN" )
-    Index On Str( KOD_k, 7 ) + DToS( n_data ) to ( cur_dir + "tmp_2year" ) For n_data > ( Date() -800 )
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ) new
+    Index On Str( KOD_k, 7 ) + DToS( n_data ) to ( cur_dir() + "tmp_2year" ) For n_data > ( Date() -800 )
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ) new
     ii := 0
     Go Top
     Do While !Eof()
@@ -4172,15 +4172,15 @@ Function f21_inf_dvn( par ) // á¢®¤
       Skip
     Enddo
     Close databases
-    dbCreate( cur_dir + "tmp3", { { "et2", "N", 1, 0 }, ;
+    dbCreate( cur_dir() + "tmp3", { { "et2", "N", 1, 0 }, ;
       { "gr1", "N", 1, 0 }, ;
       { "gr2", "N", 1, 0 }, ;
       { "kol1", "N", 6, 0 }, ;
       { "kol2", "N", 6, 0 } } )
-    Use ( cur_dir + "tmp3" ) new
-    Index On Str( et2, 1 ) + Str( gr1, 1 ) + Str( gr2, 1 ) to ( cur_dir + "tmp3" )
+    Use ( cur_dir() + "tmp3" ) new
+    Index On Str( et2, 1 ) + Str( gr1, 1 ) + Str( gr2, 1 ) to ( cur_dir() + "tmp3" )
     r_use( dir_server + "kartotek",, "KART" )
-    Use ( cur_dir + "tmp2" ) new
+    Use ( cur_dir() + "tmp2" ) new
     Go Top
     Do While !Eof()
       fl := .f.
@@ -4240,7 +4240,7 @@ Function f21_inf_dvn( par ) // á¢®¤
 Function inf_ydvn()
 
   Local i, ii, s, arr_m, buf := save_maxrow(), ar, arr_excel := {}, is_all
-  Local sh, HH := 53,  n_file := cur_dir + "gor_YDVN.txt", reg_print, arr_itog[ 20 ]
+  Local sh, HH := 53,  n_file := cur_dir() + "gor_YDVN.txt", reg_print, arr_itog[ 20 ]
   Local t_rec, t_poisk, t_rezult, is_pesia
 /*local arr_title := {;
 "ÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄ", ;
@@ -4297,7 +4297,7 @@ Function inf_ydvn()
   If ( st_a_uch := inputn_uch( T_ROW, T_COL -5,,, @lcount_uch ) ) != NIL ;
       .and. ( arr_m := year_month(,,, 5 ) ) != NIL
     mywait()
-    dbCreate( cur_dir + "tmp", { { "gruppa_1", "N", 1, 0 }, ;// 1-£àã¯¯  2- £àã¯¯  3 - ¡¥§ £àã¯¯ 
+    dbCreate( cur_dir() + "tmp", { { "gruppa_1", "N", 1, 0 }, ;// 1-£àã¯¯  2- £àã¯¯  3 - ¡¥§ £àã¯¯ 
     { "etap_1", "N", 1, 0 }, ;  // â ¯ 1-© 2-©
     { "sub_day", "N", 1, 0 }, ; // ‚ë¯®«­¥­¨¥ ¢ áã¡¡®âã 0-­¥â 1-¤ 
     { "one_day", "N", 1, 0 }, ; // ‚ë¯®«­¥­¨¥ ¢ 1 ¤¥­ì 0-­¥â 1-¤ 
@@ -4310,7 +4310,7 @@ Function inf_ydvn()
     r_use( dir_server + "human_",, "HUMAN_" )
     r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
     Set Relation To RecNo() into HUMAN_
-    Use ( cur_dir + "tmp" ) new
+    Use ( cur_dir() + "tmp" ) new
     //
     Select HUMAN
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
@@ -5101,14 +5101,14 @@ Function f22_inf_dvn()
             frd->v1 := frd->v2 := mk1
           Endif
         Next
-        Index On Str( nn1, 2 ) + Str( nn2, 2 ) + Str( nn3, 2 ) to ( cur_dir + "tmp_frd" )
+        Index On Str( nn1, 2 ) + Str( nn2, 2 ) + Str( nn3, 2 ) to ( cur_dir() + "tmp_frd" )
         //
         r_use( dir_server + "human_",, "HUMAN_" )
         r_use( dir_server + "human",, "HUMAN" )
         Set Relation To RecNo() into HUMAN_
         r_use( dir_server + "schet_",, "SCHET_" )
         ii := 0
-        Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ) new
+        Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ) new
         Go Top
         Do While !Eof()
           @ MaxRow(), 0 Say Str( ++ii / tmp->( LastRec() ) * 100, 6, 2 ) + "%" Color cColorWait
@@ -5353,7 +5353,7 @@ Function f1_f22_inf_dvn() // á¢®¤­ ï ¨­ä®à¬ æ¨ï
 Function f2_inf_dvn( is_schet, par )
 
   Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, as := {}, ;
-    a, sh, HH := 53, n, n_file := cur_dir + "spis_dvn.txt", reg_print
+    a, sh, HH := 53, n, n_file := cur_dir() + "spis_dvn.txt", reg_print
   Private ppar := par, p_is_schet := is_schet
 
   If par > 1
@@ -5392,8 +5392,8 @@ Function f2_inf_dvn( is_schet, par )
       Next
       AAdd( adbf, { "fl_2018", "L", 1, 0 } )
       AAdd( adbf, { "d_zs", "C", 8, 0 } )
-      dbCreate( cur_dir + "tmpfio", adbf )
-      Use ( cur_dir + "tmpfio" ) New Alias TF
+      dbCreate( cur_dir() + "tmpfio", adbf )
+      Use ( cur_dir() + "tmpfio" ) New Alias TF
       r_use( dir_server + "uslugi",, "USL" )
       use_base( "human_u" )
       r_use( dir_server + "human_",, "HUMAN_" )
@@ -5401,7 +5401,7 @@ Function f2_inf_dvn( is_schet, par )
       Set Relation To RecNo() into HUMAN_
       r_use( dir_server + "mo_pers",, "PERS" )
       r_use( dir_server + "schet_",, "SCHET_" )
-      Use ( cur_dir + "tmp" ) new
+      Use ( cur_dir() + "tmp" ) new
       Go Top
       Do While !Eof()
         @ MaxRow(), 0 Say Str( tmp->( RecNo() ) / tmp->( LastRec() ) * 100, 6, 2 ) + "%" Color cColorWait
@@ -5461,8 +5461,8 @@ Function f2_inf_dvn( is_schet, par )
       }
       lat := Len( at )
       aitog := Array( lat ) ; AFill( aitog, 0 ) ; is_zs := 0
-      Use ( cur_dir + "tmpfio" ) New Alias TF
-      Index On Upper( fio ) to ( cur_dir + "tmpfio" )
+      Use ( cur_dir() + "tmpfio" ) New Alias TF
+      Index On Upper( fio ) to ( cur_dir() + "tmpfio" )
       Go Top
       Do While !Eof()
         For i := 1 To iif( tf->fl_2018, count_dvn_arr_usl18, count_dvn_arr_usl )
@@ -6045,16 +6045,16 @@ Function inf_dnl_karta()
   If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
     If f0_inf_dnl( arr_m, .f. )
-      Copy File ( cur_dir + "tmp" + sdbf ) to ( cur_dir + "tmpDNL" + sdbf ) // â.ª. ¢­ãâà¨ â®¦¥ ¥áâì TMP-ä ©«
+      Copy File ( cur_dir() + "tmp" + sdbf ) to ( cur_dir() + "tmpDNL" + sdbf ) // â.ª. ¢­ãâà¨ â®¦¥ ¥áâì TMP-ä ©«
       r_use( dir_server + "human",, "HUMAN" )
-      Use ( cur_dir + "tmpDNL" ) new
+      Use ( cur_dir() + "tmpDNL" ) new
       Set Relation To kod into HUMAN
-      Index On Upper( human->fio ) to ( cur_dir + "tmpDNL" )
+      Index On Upper( human->fio ) to ( cur_dir() + "tmpDNL" )
       Private blk_open := {|| dbCloseAll(), ;
         r_use( dir_server + "human_",, "HUMAN_" ), ;
         r_use( dir_server + "human",, "HUMAN" ), ;
         dbSetRelation( "HUMAN_", {|| RecNo() }, "recno()" ), ;
-        r_use( cur_dir + "tmpDNL", cur_dir + "tmpDNL", "TMP" ), ;
+        r_use( cur_dir() + "tmpDNL", cur_dir() + "tmpDNL", "TMP" ), ;
         dbSetRelation( "HUMAN", {|| kod }, "kod" );
         }
       Eval( blk_open )
@@ -6089,21 +6089,21 @@ Function f0_inf_dnl( arr_m, is_schet, is_reg, arr_ishod, is_snils )
   Local fl := .t.
 
   Default is_schet To .t., is_reg To .f., is_snils To .f., arr_ishod TO { 301, 302 } // ¯à®ä¨« ªâ¨ª  1 ¨ 2 íâ ¯
-  If !del_dbf_file( cur_dir + "tmp" + sdbf )
+  If !del_dbf_file( cur_dir() + "tmp" + sdbf )
     Return .f.
   Endif
-  dbCreate( cur_dir + "tmp", { { "kod", "N", 7, 0 }, ;
+  dbCreate( cur_dir() + "tmp", { { "kod", "N", 7, 0 }, ;
     { "kod_k", "N", 7, 0 }, ;
     { "is", "N", 1, 0 }, ;
     { "ishod", "N", 6, 0 } } )
-  Use ( cur_dir + "tmp" ) new
+  Use ( cur_dir() + "tmp" ) new
   r_use( dir_server + "schet_",, "SCHET_" )
   r_use( dir_server + "kartotek",, "KART" )
   r_use( dir_server + "human_",, "HUMAN_" )
   r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
   Set Relation To RecNo() into HUMAN_, To kod_k into KART
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
-  Index On kod to ( cur_dir + "tmp_h" ) ;
+  Index On kod to ( cur_dir() + "tmp_h" ) ;
     For AScan( arr_ishod, ishod ) > 0 .and. iif( is_schet, schet > 0, .t. ) ;
     While human->k_data <= arr_m[ 6 ] ;
     PROGRESS
@@ -6775,7 +6775,7 @@ Function f21_inf_dnl( par )
     mywait()
     If f0_inf_dnl( arr_m, par > 1, par == 3, { 301, 302 } )
       r_use( dir_server + "mo_rpdsh",, "RPDSH" )
-      Index On Str( KOD_H, 7 ) to ( cur_dir + "tmprpdsh" )
+      Index On Str( KOD_H, 7 ) to ( cur_dir() + "tmprpdsh" )
       adbf := { { "ti", "N", 1, 0 }, ;
         { "stroke", "C", 8, 0 }, ;
         { "mm", "N", 2, 0 }, ;
@@ -6822,9 +6822,9 @@ Function f21_inf_dnl( par )
         { "m18", "N", 6, 0 }, ;
         { "m18s", "N", 6, 0 } }
 
-      dbCreate( cur_dir + "tmp1", adbf )
-      Use ( cur_dir + "tmp1" ) new
-      Index On Str( mm, 2 ) to ( cur_dir + "tmp1" )
+      dbCreate( cur_dir() + "tmp1", adbf )
+      Use ( cur_dir() + "tmp1" ) new
+      Index On Str( mm, 2 ) to ( cur_dir() + "tmp1" )
       Append Blank
       tmp1->mm := 0 ; tmp1->stroke := "‚á¥£®"
       Append Blank
@@ -6861,9 +6861,9 @@ Function f21_inf_dnl( par )
         { "g13n", "N", 6, 0 }, ;
         { "g14n", "N", 6, 0 }, ;
         { "g16n", "N", 6, 0 } }
-      dbCreate( cur_dir + "tmp2", adbf )
-      Use ( cur_dir + "tmp2" ) new
-      Index On Str( ti, 1 ) to ( cur_dir + "tmp2" )
+      dbCreate( cur_dir() + "tmp2", adbf )
+      Use ( cur_dir() + "tmp2" ) new
+      Index On Str( ti, 1 ) to ( cur_dir() + "tmp2" )
       r_use( dir_server + "mo_schoo",, "SCH" )
       r_use( dir_server + "schet_",, "SCHET_" )
       r_use( dir_server + "uslugi",, "USL" )
@@ -6872,7 +6872,7 @@ Function f21_inf_dnl( par )
       r_use( dir_server + "human_",, "HUMAN_" )
       r_use( dir_server + "human",, "HUMAN" )
       Set Relation To RecNo() into HUMAN_, To kod_k into KART_
-      Use ( cur_dir + "tmp" ) new
+      Use ( cur_dir() + "tmp" ) new
       Set Relation To kod into HUMAN
       Go Top
       Do While !Eof()
@@ -6898,7 +6898,7 @@ Function f21_inf_dnl( par )
       add_string( "" )
       add_string( Center( "[ " + CharRem( "~", mas1pmt[ par ] ) + " ]", sh ) )
       add_string( Center( "(" + arr_m[ 4 ] + ")", sh ) )
-      Use ( cur_dir + "tmp1" ) index ( cur_dir + "tmp1" ) new
+      Use ( cur_dir() + "tmp1" ) index ( cur_dir() + "tmp1" ) new
       add_string( "" )
       add_string( Center( "‘¢¥¤¥­¨ï ® ¯à®ä¨« ªâ¨ç¥áª¨å ®á¬®âà å ­¥á®¢¥àè¥­­®«¥â­¨å", sh ) )
       add_string( "" )
@@ -7006,7 +7006,7 @@ Function f21_inf_dnl( par )
       add_string( "" )
       add_string( '‚ à ¬ª å ­ æ¨®­ «ì­®£® ¯à®¥ªâ  "‡¤à ¢®®åà ­¥­¨¥"' )
       AEval( arr_title, {| x| add_string( x ) } )
-      Use ( cur_dir + "tmp2" ) index ( cur_dir + "tmp2" ) new
+      Use ( cur_dir() + "tmp2" ) index ( cur_dir() + "tmp2" ) new
       Go Top
       Do While !Eof()
         s := PadR( { "0-14 «¥â", "15-17 «¥â", "‚á¥£®" }[ tmp2->ti ], 9 ) + ;
@@ -7449,7 +7449,7 @@ Function inf_dnl_030poo( is_schet )
         arr_4[ n, 4 ] := diag_to_num( d1, 1 )
         arr_4[ n, 5 ] := diag_to_num( d2, 2 )
       Next
-      dbCreate( cur_dir + "tmp4", { { "name", "C", 100, 0 }, ;
+      dbCreate( cur_dir() + "tmp4", { { "name", "C", 100, 0 }, ;
         { "diagnoz", "C", 20, 0 }, ;
         { "stroke", "C", 4, 0 }, ;
         { "ns", "N", 2, 0 }, ;
@@ -7464,7 +7464,7 @@ Function inf_dnl_030poo( is_schet )
         { "k09", "N", 8, 0 }, ;
         { "k10", "N", 8, 0 }, ;
         { "k11", "N", 8, 0 } } )
-      Use ( cur_dir + "tmp4" ) New Alias TMP
+      Use ( cur_dir() + "tmp4" ) New Alias TMP
       For i := 1 To Len( arr_vozrast )
         For n := 1 To Len( arr_4 )
           Append Blank
@@ -7477,42 +7477,42 @@ Function inf_dnl_030poo( is_schet )
           tmp->diapazon2 := arr_4[ n, 5 ]
         Next
       Next
-      Index On Str( tbl, 1 ) + Str( ns, 2 ) to ( cur_dir + "tmp4" )
+      Index On Str( tbl, 1 ) + Str( ns, 2 ) to ( cur_dir() + "tmp4" )
       Use
-      dbCreate( cur_dir + "tmp10", { { "voz", "N", 1, 0 }, ;
+      dbCreate( cur_dir() + "tmp10", { { "voz", "N", 1, 0 }, ;
         { "tbl", "N", 2, 0 }, ;
         { "tip", "N", 2, 0 }, ;
         { "kol", "N", 6, 0 } } )
-      Use ( cur_dir + "tmp10" ) New Alias TMP10
-      Index On Str( voz, 1 ) + Str( tbl, 1 ) + Str( tip, 2 ) to ( cur_dir + "tmp10" )
+      Use ( cur_dir() + "tmp10" ) New Alias TMP10
+      Index On Str( voz, 1 ) + Str( tbl, 1 ) + Str( tip, 2 ) to ( cur_dir() + "tmp10" )
       Use
-      Copy File ( cur_dir + "tmp10" + sdbf ) to ( cur_dir + "tmp11" + sdbf )
-      Use ( cur_dir + "tmp11" ) New Alias TMP11
-      Index On Str( voz, 1 ) + Str( tbl, 2 ) + Str( tip, 2 ) to ( cur_dir + "tmp11" )
+      Copy File ( cur_dir() + "tmp10" + sdbf ) to ( cur_dir() + "tmp11" + sdbf )
+      Use ( cur_dir() + "tmp11" ) New Alias TMP11
+      Index On Str( voz, 1 ) + Str( tbl, 2 ) + Str( tip, 2 ) to ( cur_dir() + "tmp11" )
       Use
-      dbCreate( cur_dir + "tmp13", { { "voz", "N", 1, 0 }, ;
+      dbCreate( cur_dir() + "tmp13", { { "voz", "N", 1, 0 }, ;
         { "tip", "N", 2, 0 }, ;
         { "kol", "N", 6, 0 } } )
-      Use ( cur_dir + "tmp13" ) New Alias TMP13
-      Index On Str( voz, 1 ) + Str( tip, 2 ) to ( cur_dir + "tmp13" )
+      Use ( cur_dir() + "tmp13" ) New Alias TMP13
+      Index On Str( voz, 1 ) + Str( tip, 2 ) to ( cur_dir() + "tmp13" )
       Use
-      dbCreate( cur_dir + "tmp16", { { "voz", "N", 1, 0 }, ;
+      dbCreate( cur_dir() + "tmp16", { { "voz", "N", 1, 0 }, ;
         { "man", "N", 1, 0 }, ;
         { "tip", "N", 2, 0 }, ;
         { "kol", "N", 6, 0 } } )
-      Use ( cur_dir + "tmp16" ) New Alias TMP16
-      Index On Str( voz, 1 ) + Str( man, 1 ) + Str( tip, 2 ) to ( cur_dir + "tmp16" )
+      Use ( cur_dir() + "tmp16" ) New Alias TMP16
+      Index On Str( voz, 1 ) + Str( man, 1 ) + Str( tip, 2 ) to ( cur_dir() + "tmp16" )
       Use
       dbCloseAll()
-      Use ( cur_dir + "tmp4" )  index ( cur_dir + "tmp4" )  new
-      Use ( cur_dir + "tmp10" ) index ( cur_dir + "tmp10" ) new
-      Use ( cur_dir + "tmp11" ) index ( cur_dir + "tmp11" ) new
-      Use ( cur_dir + "tmp13" ) index ( cur_dir + "tmp13" ) new
-      Use ( cur_dir + "tmp16" ) index ( cur_dir + "tmp16" ) new
+      Use ( cur_dir() + "tmp4" )  index ( cur_dir() + "tmp4" )  new
+      Use ( cur_dir() + "tmp10" ) index ( cur_dir() + "tmp10" ) new
+      Use ( cur_dir() + "tmp11" ) index ( cur_dir() + "tmp11" ) new
+      Use ( cur_dir() + "tmp13" ) index ( cur_dir() + "tmp13" ) new
+      Use ( cur_dir() + "tmp16" ) index ( cur_dir() + "tmp16" ) new
       r_use( dir_server + "human_",, "HUMAN_" )
       r_use( dir_server + "human",, "HUMAN" )
       Set Relation To RecNo() into HUMAN_
-      r_use( cur_dir + "tmp" )
+      r_use( cur_dir() + "tmp" )
       Set Relation To kod into HUMAN
       ii := 0
       mywait( " " )
@@ -7558,7 +7558,7 @@ Function inf_dnl_030poo( is_schet )
         add_string( "ÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄ" )
         add_string( " 1  ³          2        ³   3   ³  4  ³  5  ³  6  ³  7  ³  8  ³  9  ³ 10  ³ 11  " )
         add_string( "ÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄ" )
-        Use ( cur_dir + "tmp4" ) index ( cur_dir + "tmp4" ) New Alias TMP
+        Use ( cur_dir() + "tmp4" ) index ( cur_dir() + "tmp4" ) New Alias TMP
         find ( Str( arr_vozrast[ i, 1 ], 1 ) )
         Do While tmp->tbl == arr_vozrast[ i, 1 ] .and. !Eof()
           s := tmp->stroke + " " + PadR( tmp->name, 19 ) + " " + PadC( AllTrim( tmp->diagnoz ), 7 )
@@ -7606,7 +7606,7 @@ Function inf_dnl_030poo( is_schet )
       verify_ff( HH -50, .t., sh )
       add_string( "4. ¥§ã«ìâ âë ¤®¯®«­¨â¥«ì­ëå ª®­áã«ìâ æ¨©, ¨áá«¥¤®¢ ­¨©, «¥ç¥­¨ï, ¬¥¤¨æ¨­áª®©" )
       add_string( "   à¥ ¡¨«¨â æ¨¨ ¤¥â¥© ¯® à¥§ã«ìâ â ¬ ¯à®¢¥¤¥­¨ï ¯à®ä¨« ªâ¨ç¥áª¨å ®á¬®âà®¢:" )
-      Use ( cur_dir + "tmp10" ) index ( cur_dir + "tmp10" ) New Alias TMP10
+      Use ( cur_dir() + "tmp10" ) index ( cur_dir() + "tmp10" ) New Alias TMP10
       For i := 1 To 2
         verify_ff( HH -16, .t., sh )
         add_string( "" )
@@ -7668,7 +7668,7 @@ Function inf_dnl_030poo( is_schet )
       // add_string("11. ¥§ã«ìâ âë «¥ç¥­¨ï, ¬¥¤¨æ¨­áª®© à¥ ¡¨«¨â æ¨¨ ¨ (¨«¨) á ­ â®à­®-ªãà®àâ­®£®")
       // add_string("    «¥ç¥­¨ï ¤¥â¥© ¤® ¯à®¢¥¤¥­¨ï ­ áâ®ïé¥£® ¯à®ä¨« ªâ¨ç¥áª®£® ®á¬®âà :")
       vkol := 0
-      Use ( cur_dir + "tmp11" ) index ( cur_dir + "tmp11" ) New Alias TMP11
+      Use ( cur_dir() + "tmp11" ) index ( cur_dir() + "tmp11" ) New Alias TMP11
       For i := 1 To 0// 12
         If i % 3 > 0
           verify_ff( HH -16, .t., sh )
@@ -7768,7 +7768,7 @@ Function inf_dnl_030poo( is_schet )
         Endif
       Next
       Use
-      Use ( cur_dir + "tmp16" ) index ( cur_dir + "tmp16" ) New Alias TMP16
+      Use ( cur_dir() + "tmp16" ) index ( cur_dir() + "tmp16" ) New Alias TMP16
       verify_ff( HH -21, .t., sh )
       n := 20
       add_string( "" )
@@ -8357,16 +8357,16 @@ Function inf_dnl_xmlfile( is_schet, stitle )
       arr := { 305 } // ¯¥à¨®¤.®á¬®âàë
     Endcase
     If f0_inf_dnl( arr_m, is_schet > 1, is_schet == 3, arr, .t. )
-      Copy File ( cur_dir + "tmp" + sdbf ) to ( cur_dir + "tmpDNL" + sdbf ) // â.ª. ¢­ãâà¨ â®¦¥ ¥áâì TMP-ä ©«
+      Copy File ( cur_dir() + "tmp" + sdbf ) to ( cur_dir() + "tmpDNL" + sdbf ) // â.ª. ¢­ãâà¨ â®¦¥ ¥áâì TMP-ä ©«
       r_use( dir_server + "human",, "HUMAN" )
-      Use ( cur_dir + "tmpDNL" ) new
+      Use ( cur_dir() + "tmpDNL" ) new
       Set Relation To kod into HUMAN
-      Index On Upper( human->fio ) to ( cur_dir + "tmpDNL" )
+      Index On Upper( human->fio ) to ( cur_dir() + "tmpDNL" )
       Private blk_open := {|| dbCloseAll(), ;
         r_use( dir_server + "human_",, "HUMAN_" ), ;
         r_use( dir_server + "human",, "HUMAN" ), ;
         dbSetRelation( "HUMAN_", {|| RecNo() }, "recno()" ), ;
-        e_use( cur_dir + "tmpDNL", cur_dir + "tmpDNL", "TMP" ), ;
+        e_use( cur_dir() + "tmpDNL", cur_dir() + "tmpDNL", "TMP" ), ;
         dbSetRelation( "HUMAN", {|| kod }, "kod" );
         }
       Eval( blk_open )
@@ -8401,16 +8401,16 @@ Function inf_dnl_xmlfile( is_schet, stitle )
       Endif
       mywait()
       r_use( dir_server + "mo_rpdsh",, "RPDSH" )
-      Index On Str( KOD_H, 7 ) to ( cur_dir + "tmprpdsh" )
+      Index On Str( KOD_H, 7 ) to ( cur_dir() + "tmprpdsh" )
       Use
       r_use( dir_server + "mo_raksh",, "RAKSH" )
-      Index On Str( KOD_H, 7 ) to ( cur_dir + "tmpraksh" )
+      Index On Str( KOD_H, 7 ) to ( cur_dir() + "tmpraksh" )
       Use
       Private blk_open := {|| dbCloseAll(), ;
         r_use( dir_server + "human_",, "HUMAN_" ), ;
         r_use( dir_server + "human",, "HUMAN" ), ;
         dbSetRelation( "HUMAN_", {|| RecNo() }, "recno()" ), ;
-        e_use( cur_dir + "tmpDNL", cur_dir + "tmpDNL", "TMP" ), ;
+        e_use( cur_dir() + "tmpDNL", cur_dir() + "tmpDNL", "TMP" ), ;
         dbSetRelation( "HUMAN", {|| kod }, "kod" );
         }
       mo_mzxml_n( 1 )
@@ -8494,8 +8494,8 @@ Function f2_inf_n_xmlfile( Loc_kod, kod_kartotek, lvozrast )
   r_use( dir_server + "mo_pers",, "P2" )
   Goto ( m1vrach )
   r_use( dir_server + "organiz",, "ORG" )
-  r_use( dir_server + "mo_rpdsh", cur_dir + "tmprpdsh", "RPDSH" )
-  r_use( dir_server + "mo_raksh", cur_dir + "tmpraksh", "RAKSH" )
+  r_use( dir_server + "mo_rpdsh", cur_dir() + "tmprpdsh", "RPDSH" )
+  r_use( dir_server + "mo_raksh", cur_dir() + "tmpraksh", "RAKSH" )
   mo_mzxml_n( 2,,, lvozrast )
 
   Return Nil
@@ -8630,7 +8630,7 @@ Function mnog_poisk_dnl()
     { "¯à¨ªà¥¯«ñ­ ª ­ è¥© Œ", 1 }, ;
     { "¯à¨ªà¥¯«ñ­ ª ¤àã£¨¬ Œ", 2 }, ;
     { "¯à¨ªà¥¯«¥­¨¥ ­¥¨§¢¥áâ­®", 3 } }, ;
-    tmp_file := cur_dir + "tmp_mn_p" + sdbf, ;
+    tmp_file := cur_dir() + "tmp_mn_p" + sdbf, ;
     k_fio, k_adr, tt_fio[ 10 ], tt_adr[ 10 ], fl_exit := .f.
   Local adbf := { ;
     { "UCHAST",   "N",  2, 0 }, ; // ­®¬¥à ãç áâª 
@@ -8764,7 +8764,7 @@ Function mnog_poisk_dnl()
   init_base( tmp_file,, mm_tmp, 0 )
   //
   k := f_edit_spr( A__APPEND, mm_tmp, "¬­®¦¥áâ¢¥­­®¬ã § ¯à®áã", ;
-    "e_use(cur_dir+'tmp_mn_p')", 0, 1,,,,, "write_mn_p_DNL" )
+    "e_use(cur_dir()+'tmp_mn_p')", 0, 1,,,,, "write_mn_p_DNL" )
   If k > 0
     mywait()
     Use ( tmp_file ) New Alias MN
@@ -8792,7 +8792,7 @@ Function mnog_poisk_dnl()
     hGauge := gaugenew(,,, "®¨áª ¢ ª àâ®â¥ª¥", .t. )
     gaugedisplay( hGauge )
     //
-    dbCreate( cur_dir + "tmp", { { "kod", "N", 7, 0 } },, .t., "TMP" )
+    dbCreate( cur_dir() + "tmp", { { "kod", "N", 7, 0 } },, .t., "TMP" )
     r_use( dir_server + "human_",, "HUMAN_" )
     r_use( dir_server + "human", dir_server + "humankk", "HUMAN" )
     Set Relation To RecNo() into HUMAN_
@@ -8842,31 +8842,31 @@ Function mnog_poisk_dnl()
       r_use( dir_server + "kartote_",, "KART_" )
       r_use( dir_server + "kartotek",, "KART" )
       Set Relation To RecNo() into KART_, To RecNo() into KART2
-      Use ( cur_dir + "tmp" ) new
+      Use ( cur_dir() + "tmp" ) new
       Set Relation To kod into KART
       If is_uchastok > 0
         If mn->i_sort == 1 // ü ãç áâª  + ƒ®¤ à®¦¤¥­¨ï + ”ˆ
-          Index On Str( kart->uchast, 2 ) + Str( mn->god - Year( kart->date_r ), 4 ) + Upper( kart->fio ) to ( cur_dir + "tmp" )
+          Index On Str( kart->uchast, 2 ) + Str( mn->god - Year( kart->date_r ), 4 ) + Upper( kart->fio ) to ( cur_dir() + "tmp" )
         Elseif mn->i_sort == 2 // ü ãç áâª  + ƒ®¤ à®¦¤¥­¨ï + €¤à¥á
-          Index On Str( kart->uchast, 2 ) + Str( mn->god - Year( kart->date_r ), 4 ) + Upper( kart->adres ) to ( cur_dir + "tmp" )
+          Index On Str( kart->uchast, 2 ) + Str( mn->god - Year( kart->date_r ), 4 ) + Upper( kart->adres ) to ( cur_dir() + "tmp" )
         Elseif mn->i_sort == 4 // ü ãç áâª  + €¤à¥á + ƒ®¤ à®¦¤¥­¨ï
-          Index On Str( kart->uchast, 2 ) + Upper( kart->adres ) + Str( mn->god - Year( kart->date_r ), 4 ) to ( cur_dir + "tmp" )
+          Index On Str( kart->uchast, 2 ) + Upper( kart->adres ) + Str( mn->god - Year( kart->date_r ), 4 ) to ( cur_dir() + "tmp" )
         Elseif mn->i_sort == 3 // ü ãç áâª  + Š®¤
           If is_uchastok == 1 // ü ãç áâª  + ü ¢ ãç áâª¥
-            Index On Str( kart->uchast, 2 ) + Str( kart->kod_vu, 5 ) + Upper( kart->fio ) to ( cur_dir + "tmp" )
+            Index On Str( kart->uchast, 2 ) + Str( kart->kod_vu, 5 ) + Upper( kart->fio ) to ( cur_dir() + "tmp" )
           Elseif is_uchastok == 2 // ü ãç áâª  + Š®¤ ¯® ª àâ®â¥ª¥
-            Index On Str( kart->uchast, 2 ) + Str( kart->kod, 7 ) to ( cur_dir + "tmp" )
+            Index On Str( kart->uchast, 2 ) + Str( kart->kod, 7 ) to ( cur_dir() + "tmp" )
           Elseif is_uchastok == 3 // ü ãç áâª  + ­®¬¥à €Š Œˆ‘
-            Index On Str( kart->uchast, 2 ) + kart2->kod_AK + Upper( kart->fio ) to ( cur_dir + "tmp" )
+            Index On Str( kart->uchast, 2 ) + kart2->kod_AK + Upper( kart->fio ) to ( cur_dir() + "tmp" )
           Endif
         Endif
       Else
         If mn->i_sort == 1 // ƒ®¤ à®¦¤¥­¨ï + ”ˆ
-          Index On Str( mn->god - Year( kart->date_r ), 4 ) + Upper( kart->fio ) to ( cur_dir + "tmp" )
+          Index On Str( mn->god - Year( kart->date_r ), 4 ) + Upper( kart->fio ) to ( cur_dir() + "tmp" )
         Elseif mn->i_sort == 2 // ƒ®¤ à®¦¤¥­¨ï + €¤à¥á
-          Index On Str( mn->god - Year( kart->date_r ), 4 ) + Upper( kart->adres ) to ( cur_dir + "tmp" )
+          Index On Str( mn->god - Year( kart->date_r ), 4 ) + Upper( kart->adres ) to ( cur_dir() + "tmp" )
         Elseif mn->i_sort == 3 // Š®¤ ¯® ª àâ®â¥ª¥
-          Index On Str( kod, 7 ) to ( cur_dir + "tmp" )
+          Index On Str( kod, 7 ) to ( cur_dir() + "tmp" )
         Endif
       Endif
       fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
@@ -9251,38 +9251,38 @@ Function inf_disp( k )
 Function itog_svod_disp_tf()
 
   Local i, k, arr_m, buf := save_maxrow(), ;
-    sh := 80, hh := 60, n_file := cur_dir + "svod_dis.txt"
+    sh := 80, hh := 60, n_file := cur_dir() + "svod_dis.txt"
 
   If ( arr_m := year_month(,,, 5 ) ) != NIL
     mywait()
-    dbCreate( cur_dir + "tmpk", { { "kod", "N", 7, 0 }, ;
+    dbCreate( cur_dir() + "tmpk", { { "kod", "N", 7, 0 }, ;
       { "tip", "N", 1, 0 } } )
-    Use ( cur_dir + "tmpk" ) new
-    Index On Str( tip, 1 ) + Str( kod, 7 ) to ( cur_dir + "tmpk" )
-    dbCreate( cur_dir + "tmp", { { "tip",  "N", 1, 0 }, ;
+    Use ( cur_dir() + "tmpk" ) new
+    Index On Str( tip, 1 ) + Str( kod, 7 ) to ( cur_dir() + "tmpk" )
+    dbCreate( cur_dir() + "tmp", { { "tip",  "N", 1, 0 }, ;
       { "kol_s", "N", 6, 0 }, ;
       { "kol_o", "N", 6, 0 }, ;
       { "kol_p", "N", 6, 0 } } )
-    Use ( cur_dir + "tmp" ) new
-    Index On Str( tip, 1 ) to ( cur_dir + "tmp" )
+    Use ( cur_dir() + "tmp" ) new
+    Index On Str( tip, 1 ) to ( cur_dir() + "tmp" )
     r_use( dir_server + "mo_rak",, "RAK" )
     r_use( dir_server + "mo_raks",, "RAKS" )
     Set Relation To akt into RAK
     r_use( dir_server + "mo_raksh",, "RAKSH" )
     Set Relation To kod_raks into RAKS
-    Index On Str( kod_h, 7 ) + DToS( rak->dakt ) to ( cur_dir + "tmpraksh" )
+    Index On Str( kod_h, 7 ) + DToS( rak->dakt ) to ( cur_dir() + "tmpraksh" )
     r_use( dir_server + "mo_rpd",, "RPD" )
     r_use( dir_server + "mo_rpds",, "RPDS" )
     Set Relation To pd into RPD
     r_use( dir_server + "mo_rpdsh",, "RPDSH" )
     Set Relation To kod_rpds into RPDS
-    Index On Str( kod_h, 7 ) + DToS( rpd->d_pd ) to ( cur_dir + "tmprpdsh" )
+    Index On Str( kod_h, 7 ) + DToS( rpd->d_pd ) to ( cur_dir() + "tmprpdsh" )
     r_use( dir_server + "schet_",, "SCHET_" )
     r_use( dir_server + "human_",, "HUMAN_" )
     r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
-    Index On kod to ( cur_dir + "tmp_h" ) ;
+    Index On kod to ( cur_dir() + "tmp_h" ) ;
       For ishod > 100 .and. human_->oplata != 9 .and. schet > 0 ;
       While human->k_data <= arr_m[ 6 ] ;
       PROGRESS

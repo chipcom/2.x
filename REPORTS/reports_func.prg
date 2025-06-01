@@ -218,7 +218,7 @@ Function arr_titleN_otd( arr_o, c_otd )
 function test_excel()
   local wb
   Local name_fileXLS := 'test'
-  Local name_fileXLS_full := cur_dir + name_fileXLS + '.xlsx'
+  Local name_fileXLS_full := cur_dir() + name_fileXLS + '.xlsx'
   
   wb  := workbook_new( name_fileXLS_full )
   zakladka_excel_report( wb, 'Титульный лист' )

@@ -842,7 +842,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         Endif
         If m1MEST_INOG == 9 .or. newMEST_INOG == 9
           g_use( dir_server + 'mo_kfio', , 'KFIO' )
-          Index On Str( kod, 7 ) to ( cur_dir + 'tmp_kfio' )
+          Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
           find ( Str( mkod_k, 7 ) )
           If Found()
             If newMEST_INOG == 9
@@ -865,7 +865,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         Endif
         If fl_nameismo .or. rec_inogSMO > 0
           g_use( dir_server + 'mo_kismo', , 'SN' )
-          Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+          Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
           find ( Str( mkod_k, 7 ) )
           If Found()
             If fl_nameismo
@@ -1004,7 +1004,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server + 'mo_hismo', , 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo

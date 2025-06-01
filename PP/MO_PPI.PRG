@@ -90,13 +90,13 @@ set relation to kod_k into KART
 dbseek(dtos(arr_m[5]),.t.)
 do case
   case par == 1
-    index on dtos(n_data)+n_time+upper(substr(kart->fio,1,20)) to (cur_dir+"tmp_hu") ;
+    index on dtos(n_data)+n_time+upper(substr(kart->fio,1,20)) to (cur_dir()+"tmp_hu") ;
           while n_data <= arr_m[6]
   case par == 2
-    index on upper(kart->fio)+dtos(n_data)+n_time to (cur_dir+"tmp_hu") ;
+    index on upper(kart->fio)+dtos(n_data)+n_time to (cur_dir()+"tmp_hu") ;
           while n_data <= arr_m[6]
   case par == 3
-    index on upper(left(kart->fio,1))+dtos(n_data)+n_time to (cur_dir+"tmp_hu") ;
+    index on upper(left(kart->fio,1))+dtos(n_data)+n_time to (cur_dir()+"tmp_hu") ;
           while n_data <= arr_m[6]
 endcase
 WaitStatus("<Esc> - прервать операцию")
@@ -876,15 +876,15 @@ enddo
 if is_perevod == 2
   select HU
   set index to
-  dbcreate(cur_dir+"tmp",{{"kod",  "N",7,0},;
+  dbcreate(cur_dir()+"tmp",{{"kod",  "N",7,0},;
                           {"otd1", "N",3,0},;
                           {"stol1","N",3,0},;
                           {"otd2", "N",3,0},;
                           {"stol2","N",3,0},;
                           {"rec",  "N",7,0}})
-  use (cur_dir+"tmp") new
+  use (cur_dir()+"tmp") new
   R_Use(dir_server+"mo_ppper",,"PER")
-  index on str(kod,7) to (cur_dir+"tmp_per") for between(n_data,arr_m[5],arr_m[6])
+  index on str(kod,7) to (cur_dir()+"tmp_per") for between(n_data,arr_m[5],arr_m[6])
   go top
   do while !eof()
     if between_time(per->n_data,per->n_time,arr_m[5],atime[1],arr_m[6],atime[2])
@@ -1686,10 +1686,10 @@ rest_box(buf)
 if !fl
   return NIL
 endif
-dbcreate(cur_dir+"tmp1",{{"otd","N",3,0},;
+dbcreate(cur_dir()+"tmp1",{{"otd","N",3,0},;
                          {"n_data","D",8,0},;
                          {"n_time","C",5,0}})
-dbcreate(cur_dir+"tmp",{{"kod","N",7,0},;
+dbcreate(cur_dir()+"tmp",{{"kod","N",7,0},;
                         {"fio","C",50,0},;
                         {"n_data","D",8,0},;
                         {"k_data","D",8,0},;
@@ -1699,10 +1699,10 @@ dbcreate(cur_dir+"tmp",{{"kod","N",7,0},;
                         {"reg_lech","N",1,0}})
 hGauge := GaugeNew(,,,"<Esc> - выход из режима",.t.)
 GaugeDisplay( hGauge )
-use (cur_dir+"tmp") new
-index on str(otd,3)+dtos(n_data)+n_time to (cur_dir+"tmp")
-use (cur_dir+"tmp1") new
-index on dtos(n_data)+n_time to (cur_dir+"tmp1")
+use (cur_dir()+"tmp") new
+index on str(otd,3)+dtos(n_data)+n_time to (cur_dir()+"tmp")
+use (cur_dir()+"tmp1") new
+index on dtos(n_data)+n_time to (cur_dir()+"tmp1")
 R_Use(dir_server+"mo_ppper",dir_server+"mo_ppper","HUP")
 R_Use(dir_server+"kartote_",,"KART_")
 R_Use(dir_server+"kartotek",,"KART")
@@ -1846,7 +1846,7 @@ do while (i := popup(r1,c1,r2,c2,mas_pmt,i,color0,.t.)) > 0
     s += put_val(ssd,7)
     add_string(s)
   else
-    use (cur_dir+"tmp") index (cur_dir+"tmp")
+    use (cur_dir()+"tmp") index (cur_dir()+"tmp")
     find (str(arr_otd[j,1],3))
     do while tmp->otd == arr_otd[j,1] .and. !eof()
       if verify_FF(HH,.t.,sh)
@@ -1995,7 +1995,7 @@ aadd(mm_tmp, {"god_r_max","D",8,0,,;
 delete file (tmp_file)
 init_base(tmp_file,,mm_tmp,0)
 k := f_edit_spr(A__APPEND,mm_tmp,"запросу для печати журнала",;
-                "g_use(cur_dir+'tmp_mn_p',,,.t.,.t.)",0,1,,,,,"wr_mn_pp")
+                "g_use(cur_dir()+'tmp_mn_p',,,.t.,.t.)",0,1,,,,,"wr_mn_pp")
 close databases
 restscreen(buf)
 setcolor(tmp_color)
@@ -2155,17 +2155,17 @@ if k > 0
   set relation to kod_k into KART
   if empty(mn->date_lech)
     select HU
-    index on dtos(k_data) to (cur_dir+"tmp_pp") for !empty(k_data) progress
+    index on dtos(k_data) to (cur_dir()+"tmp_pp") for !empty(k_data) progress
     dbseek(dtos(arr_mv[5]),.t.)
     do case
       case spar == 11
-        index on dtos(k_data)+k_time+upper(kart->fio) to (cur_dir+"tmp_hu") ;
+        index on dtos(k_data)+k_time+upper(kart->fio) to (cur_dir()+"tmp_hu") ;
               while k_data <= arr_mv[6]
       case spar == 2
-        index on upper(kart->fio)+dtos(k_data)+k_time to (cur_dir+"tmp_hu") ;
+        index on upper(kart->fio)+dtos(k_data)+k_time to (cur_dir()+"tmp_hu") ;
               while k_data <= arr_mv[6]
       case spar == 31
-        index on upper(left(kart->fio,1))+dtos(k_data)+k_time to (cur_dir+"tmp_hu") ;
+        index on upper(left(kart->fio,1))+dtos(k_data)+k_time to (cur_dir()+"tmp_hu") ;
               while k_data <= arr_mv[6]
     endcase
   else
@@ -2174,13 +2174,13 @@ if k > 0
     dbseek(dtos(arr_m[5]),.t.)
     do case
       case spar == 1
-        index on dtos(n_data)+n_time+upper(kart->fio) to (cur_dir+"tmp_hu") ;
+        index on dtos(n_data)+n_time+upper(kart->fio) to (cur_dir()+"tmp_hu") ;
               while n_data <= arr_m[6]
       case spar == 2
-        index on upper(kart->fio)+dtos(n_data)+n_time to (cur_dir+"tmp_hu") ;
+        index on upper(kart->fio)+dtos(n_data)+n_time to (cur_dir()+"tmp_hu") ;
               while n_data <= arr_m[6]
       case spar == 3
-        index on upper(left(kart->fio,1))+dtos(n_data)+n_time to (cur_dir+"tmp_hu") ;
+        index on upper(left(kart->fio,1))+dtos(n_data)+n_time to (cur_dir()+"tmp_hu") ;
               while n_data <= arr_m[6]
     endcase
   endif
@@ -2517,7 +2517,7 @@ if (arr_m := year_month(T_ROW,T_COL-5,,,2,@atime)) == NIL
 endif
 //
 mywait()
-dbcreate(cur_dir+"tmp",{{"kod", "N",7,0},;
+dbcreate(cur_dir()+"tmp",{{"kod", "N",7,0},;
                 {"otd1","N",3,0},;
                 {"stol1","N",3,0},;
                 {"N_DATA"   ,   "D",     8,     0},; // дата перевода
@@ -2525,10 +2525,10 @@ dbcreate(cur_dir+"tmp",{{"kod", "N",7,0},;
                 {"otd2","N",3,0},;
                 {"stol2","N",3,0},;
                 {"rec", "N",7,0}})
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 R_Use(dir_server+"mo_pp",,"HU")
 R_Use(dir_server+"mo_ppper",,"PER")
-index on str(kod,7) to (cur_dir+"tmp_per") for between(n_data,arr_m[5],arr_m[6])
+index on str(kod,7) to (cur_dir()+"tmp_per") for between(n_data,arr_m[5],arr_m[6])
 go top
 do while !eof()
   if between_time(per->n_data,per->n_time,arr_m[5],atime[1],arr_m[6],atime[2])
@@ -2588,9 +2588,9 @@ R_Use(dir_server+"kartotek",,"KART")
 set relation to recno() into KART_
 R_Use(dir_server+"mo_pp",,"HU")
 set relation to kod_k into KART
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 set relation to kod into HU
-index on dtos(n_data)+n_time to (cur_dir+"tmp")
+index on dtos(n_data)+n_time to (cur_dir()+"tmp")
 j := 0
 go top
 do while !eof()
@@ -2650,15 +2650,15 @@ Function dubl_ist_b_pp()
 
   Local g1, j := 0, k := 0, sh := 80, HH := 80, n_file := "dubl_ist.txt"
 
-  dbcreate(cur_dir+"tmp",{{"N_DATA","D",8,0},; // дата поступления
+  dbcreate(cur_dir()+"tmp",{{"N_DATA","D",8,0},; // дата поступления
                         {"kol","N",6,0}})
 fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
 add_string("")
 add_string(center("Дубликаты историй болезни",sh))
 add_string(center("по состоянию на "+full_date(sys_date),sh))
 add_string("")
-use (cur_dir+"tmp") new
-index on dtos(n_data) to (cur_dir+"tmp")
+use (cur_dir()+"tmp") new
+index on dtos(n_data) to (cur_dir()+"tmp")
 R_Use(dir_server+"mo_pp",dir_server+"mo_pp_r","HU")
 R_Use(dir_server+"kartotek",dir_server+"kartoten","KART")
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})

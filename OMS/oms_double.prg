@@ -48,7 +48,7 @@ Function create_double_sl()
 //  local cena_temp
   fl_reserve_1 := fl_reserve_2 := .f.
 
-  if !myFileDeleted(cur_dir + 'tmp_h' + sdbf)
+  if !myFileDeleted(cur_dir() + 'tmp_h' + sdbf)
     return NIL
   endif
   buf := box_shadow(0, 41, 4, 77, color13)
@@ -56,15 +56,15 @@ Function create_double_sl()
   if (arr_m := year_month(T_ROW, T_COL + 5, , 3)) != NIL
     buf24 := save_maxrow()
     mywait()
-    dbcreate(cur_dir + 'tmp_h',{{'kod', 'N', 7, 0}})
-    use (cur_dir + 'tmp_h') new
+    dbcreate(cur_dir() + 'tmp_h',{{'kod', 'N', 7, 0}})
+    use (cur_dir() + 'tmp_h') new
     R_Use(dir_server + 'human_2', , 'HUMAN_2')
     R_Use(dir_server + 'human_', , 'HUMAN_')
     R_Use(dir_server + 'human', dir_server + 'humand', 'HUMAN')
     set relation to recno() into HUMAN_, to recno() into HUMAN_2
     d := addmonth(arr_m[5], -2)  // учесть предыдущий месяц
     dbseek(dtos(d), .t.)
-    index on upper(fio) to (cur_dir + 'tmp_h2') ;
+    index on upper(fio) to (cur_dir() + 'tmp_h2') ;
         while human->k_data <= arr_m[6] ;
         for tip_h == B_STANDART .and. schet < 1 .and. human_->reestr == 0 .and. human_->USL_OK == 1 ;
                                 .and. empty(human->ishod) .and. human_->profil != 158 .and. human_2->vmp == 0
@@ -92,9 +92,9 @@ Function create_double_sl()
       R_Use(dir_server + 'human_', , 'HUMAN_')
       R_Use(dir_server + 'human', , 'HUMAN')
       set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
-      use (cur_dir + 'tmp_h') new
+      use (cur_dir() + 'tmp_h') new
       set relation to kod into HUMAN
-      index on upper(human->fio) to (cur_dir + 'tmp_h')
+      index on upper(human->fio) to (cur_dir() + 'tmp_h')
       goto (srec)
       mkod := 0
       yes_h_otd := 2
@@ -142,14 +142,14 @@ Function create_double_sl()
           @ 1, 42 say padc(glob_k_fio, 35) color color8
           @ 2, 42 say padc('1: с ' + date_8(ln_data)+ ' по ' + date_8(lk_data), 35) color color8
           @ 3, 42 say padc('Выберите второй случай', 35) color color14
-          use (cur_dir + 'tmp_h') new
+          use (cur_dir() + 'tmp_h') new
           zap
           R_Use(dir_server + 'human_2', , 'HUMAN_2')
           R_Use(dir_server + 'human_', , 'HUMAN_')
           R_Use(dir_server + 'human', dir_server + 'humand', 'HUMAN')
           set relation to recno() into HUMAN_, to recno() into HUMAN_2
           dbseek(dtos(arr_m[5]), .t.)
-          index on upper(fio) to (cur_dir + 'tmp_h2') ;
+          index on upper(fio) to (cur_dir() + 'tmp_h2') ;
               while human->k_data <= AddMonth(arr_m[6], 2) ;  // 11.03.21
               for kod_k == glob_kartotek .and. kod != glob_perso .and. schet < 1 .and. ;
                   tip_h == B_STANDART .and. human_->reestr == 0 .and. human_->USL_OK == 1 .and. ;
@@ -173,9 +173,9 @@ Function create_double_sl()
             R_Use(dir_server + 'human_', , 'HUMAN_')
             R_Use(dir_server + 'human', , 'HUMAN')
             set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
-            use (cur_dir + 'tmp_h') new
+            use (cur_dir() + 'tmp_h') new
             set relation to kod into HUMAN
-            index on dtos(human->k_data) to (cur_dir + 'tmp_h')
+            index on dtos(human->k_data) to (cur_dir() + 'tmp_h')
             go top
             mkod := 0
             buf_scr := savescreen()
@@ -420,8 +420,8 @@ Function recount_double_sl(mkod_human, k_data2)
   R_Use(dir_server + 'mo_otd', , 'OTD')
   otd->(dbGoto(human->OTD))
   f_put_glob_podr(human_->USL_OK, k_data2) // заполнить код подразделения
-  dbcreate(cur_dir + 'tmp_usl_', adbf)
-  use (cur_dir + 'tmp_usl_') new alias TMP
+  dbcreate(cur_dir() + 'tmp_usl_', adbf)
+  use (cur_dir() + 'tmp_usl_') new alias TMP
   select HUMAN
   set order to 1
   find (str(mkod_human, 7))
@@ -530,9 +530,9 @@ Function recount_double_sl(mkod_human, k_data2)
   fl_found := (tmp->(lastrec()) > 0)
   is_1_vvod := (tmp->(lastrec()) == 0 .and. mem_ordu_1 == 1)
   if mem_ordusl == 1
-    index on dtos(date_u1) + fsort_usl(shifr_u) to (cur_dir + 'tmp_usl_')
+    index on dtos(date_u1) + fsort_usl(shifr_u) to (cur_dir() + 'tmp_usl_')
   else
-    index on fsort_usl(shifr_u) + dtos(date_u1) to (cur_dir + 'tmp_usl_')
+    index on fsort_usl(shifr_u) + dtos(date_u1) to (cur_dir() + 'tmp_usl_')
   endif
   //
   old_is_zf_stomat := is_zf_stomat
@@ -665,7 +665,7 @@ Function input_double_sl(par)
     R_Use(dir_server + 'human', dir_server + 'humand', 'HUMAN')
     set relation to kod into HUMAN_, to str(kod, 7) into HUMAN_3
     dbseek(dtos(arr_m[5]), .t.)
-    index on upper(fio) to (cur_dir + 'tmp_h2') ;
+    index on upper(fio) to (cur_dir() + 'tmp_h2') ;
         while human->k_data <= arr_m[6] ;
         for ishod == 89 .and. schet < 1 .and. human_->reestr == 0
     go top
@@ -718,7 +718,7 @@ Function f1_input_double_sl()
     goto (human_3->kod) // встать на 1-ый случай
     fl := (human_->ST_VERIFY == 5)
     select HUMAN
-    set index to (cur_dir + 'tmp_h2')
+    set index to (cur_dir() + 'tmp_h2')
     set relation to kod into HUMAN_, to str(kod, 7) into HUMAN_3
     goto (rec)
   endif

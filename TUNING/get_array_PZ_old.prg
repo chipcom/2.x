@@ -1820,7 +1820,7 @@ FUNCTION initPZarray()
     if exists_file_TFOMS(j, 'unit')
       nameArr := 'glob_array_PZ_' + last_digits_year( j )
 
-      file_index := cur_dir + sbase + sntx()
+      file_index := cur_dir() + sbase + sntx()
       if hb_FileExists( file_index )
         G_Use( dir_exe() + sbase, cur_dir() + sbase, 'UNIT' )
       else

@@ -1,4 +1,4 @@
-***** mo_fr.prg - работа с фискальным регистратором
+// mo_fr.prg - работа с фискальным регистратором
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
@@ -11,7 +11,7 @@ static emailTemplate := "^[-._a-z0-9]+@(?:[a-z0-9][-a-z0-9]+\.)+[a-z]{2,6}$"
 static phoneTemplate := "^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$"
 
 
-*****
+//
 Function fr_nastrojka(k)
 Static si1 := 1, si2 := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -84,7 +84,7 @@ endif
 return NIL
 
 
-***** 28.12.21
+// 28.12.21
 Function f5_sist_fr(k)
 Static mm_da_net := {{"да ",1},{"нет",2}}
 Static mm_chek := {{"Сквозной номер документа ККМ",1},{"Номер чека продажи ККМ",2}}
@@ -108,7 +108,7 @@ if k == 1
   else
     save all like meK_* to _kassa_
   endif
-  ***************
+  //////
 // контроль
   if n_zapusk == 0
     ++n_zapusk
@@ -122,7 +122,7 @@ if k == 1
   endif
 //
 elseif k == 2
-  ***************
+  //////
   buf := box_shadow(1,0,22,78,"B+/B")
   // Настройки убраны
   //mek_nkassa := 1 //Работаем ТОЛЬКО через драйвер
@@ -193,10 +193,7 @@ elseif k == 2
 endif
 return NIL
 
-
-*
-
-***** 02.07.18
+// 02.07.18
 function f1_sist_fr()
 // Изменение даты в ККМ
 Local fl := .t.,  parol := 0, t, tt, tt1, s_err
@@ -237,7 +234,7 @@ else
 endif
 return NIL
 
-*****
+//
 Static function ret_dataedit()
 Local buf, r1 := 12, r2 := 20, i, tmp_color := setcolor(color1)
 buf := box_shadow(r1,5,r2,74,,"Установка даты в кассовом аппарате","W/B")
@@ -255,9 +252,7 @@ setcolor(tmp_color)
 rest_box(buf)
 return (i == 2)
 
-*
-
-*****  Синхронизация времени
+//  Синхронизация времени
 function f2_sist_fr()
 Local fl := .t., t, tt, tt1, x, cur_time,;
       r1 := 11, r2 := 20, i, tmp_color := setcolor(color1), buf
@@ -321,9 +316,7 @@ endif
 rest_box(buf)
 return NIL
 
-*
-
-*****
+//
 function f3_sist_fr(tip)
 // 0 - Снятие суточного отчета без гашения
 // 1 - с гашением
@@ -363,7 +356,7 @@ endif
 rest_box(buf)
 return NIL
 
-*****
+//
 function ret_fsytotch(tip)
 Local buf, r1 := 12, r2 := 20, i, tmp_color := setcolor(color1)
 buf := box_shadow(r1,5,r2,74,,"Снятие суточного отчета","W/B")
@@ -385,9 +378,7 @@ setcolor(tmp_color)
 rest_box(buf)
 return (i == 2)
 
-*
-
-*****
+//
 function f6_sist_fr()
 //  продолжение печати
 Local fl := .t., s_err, parol, t, tt, tt1, buf
@@ -413,9 +404,7 @@ endif
 rest_box(buf)
 return NIL
 
-*
-
-*****
+//
 function f7_sist_fr()
 //  аннулирование чека
 Local fl := .t., s_err, parol, t, tt, tt1, buf
@@ -441,10 +430,7 @@ endif
 rest_box(buf)
 return NIL
 
-
-*
-
-***** 03.09.17
+// 03.09.17
 function f8_sist_fr()
 //  Снятие суточного отчета по СЕКЦИЯМ
 Local fl := .t.,  s_err, parol, t, tt, tt1, buf
@@ -478,10 +464,7 @@ endif
 rest_box(buf)
 return NIL
 
-
-*
-
-***** 03.09.17
+// 03.09.17
 function f9_sist_fr()
 //  Снятие суточного отчета по НАЛОГАМ
 Local fl := .t., s_err, parol, t, tt, tt1, buf
@@ -515,10 +498,7 @@ endif
 rest_box(buf)
 return NIL
 
-
-*
-
-*****
+//
 function ret_PrintReport(tip)
 Local buf, r1 := 12, r2 := 20, i, tmp_color := setcolor(color1)
 buf := box_shadow(r1,5,r2,74,,"Снятие суточного отчета","W/B")
@@ -540,10 +520,7 @@ setcolor(tmp_color)
 rest_box(buf)
 return (i == 2)
 
-
-*
-
-***** 03.09.17
+// 03.09.17
 function f10_sist_fr()
 //  Кассиры в ФР
 Local fl := .t.,  s_err, parol, t, tt, tt1, buf
@@ -566,9 +543,7 @@ FRN_WritePassword()
 rest_box(buf)
 return NIL
 
-*
-
-*****
+//
 function ret_WriteKassir()
 Local buf, r1 := 12, r2 := 20, i, tmp_color := setcolor(color1)
 buf := box_shadow(r1,5,r2,74,,"Копирование ФИО Кассиров из Программы в ФР","W/B")
@@ -586,9 +561,7 @@ setcolor(tmp_color)
 rest_box(buf)
 return (i == 2)
 
-*
-
-*****
+//
 Static Function write_err_kassa(s1,s2)
 Local _tmp, i, t_arr[2], ar := {""}
 
@@ -612,9 +585,7 @@ strfile(_tmp,dir_server+"error.txt",.t.)
 n_message(ar,,cColorStMsg,cColorStMsg,,,cColorSt2Msg)
 return NIL
 
-*
-
-*****
+//
 Static Function f_err_annul(s1)
 Local _tmp, i, t_arr[2], ar := {}, ar2 := {""}
 //
@@ -638,9 +609,7 @@ aadd(ar2, "Проведите аннулирование вручную")
 n_message(ar2,,"GR+/R","GR+/R",,,"BG+/R")
 return NIL
 
-*
-
-***** 03.06.19
+// 03.06.19
 Function yes_chek(/*@*/vsum,/*@*/vsd,/*@*/vbank,rm,/*@*/address,/*@*/tip_kart)
 Static spict := "9999999.99"
 Local tip_bank_kart := {{"МИР",1},;
@@ -761,9 +730,7 @@ else
 endif
 return fl
 
-*
-
-***** 11.05.14
+// 11.05.14
 Function val_y_chek(get,n)
 if n == 1  // сумма наличными
   vnos_summa := round_5(vnos_summa,2)
@@ -788,9 +755,7 @@ else       // сумма безналичными
 endif
 return update_gets()
 
-*
-
-***** 02.05.18
+// 02.05.18
 Function val_u_chek(get,n)
 if n == 1  // сумма наличными
   vnos_summa := round_5(vnos_summa,2)
@@ -815,10 +780,7 @@ else       // сумма безналичными
 endif
 return update_gets()
 
-*
-
-
-*****  22.10.19
+//  22.10.19
 Function chek_fr(vsum,vsd,/*@*/cur_chek,vbank,sekcia,/*@*/fr_serial_number,address,tip_kart,tip_oplat)
 Local fl := .t., name_tov, buf := save_maxrow(), ;
       s_err := "", s, last_chek := 0, fl_str := 0, fl_err_annul := .f., ;
@@ -980,11 +942,7 @@ FR_otrezka(1,2)
 //endif
 return fl
 
-
-
-*
-
-***** 28.03.23
+// 28.03.23
 Function vozvrat_fr(value,bn_value,/*@*/cur_chek,sekcia,tip_banka)
 Local fl := .t.,  buf := save_maxrow(), tmp_color := setcolor(color1), ;
       s_err := "", s, last_chek, fl_err_annul := .f., summa_kassa := 0,;
@@ -1124,10 +1082,7 @@ FR_otrezka(1)
 //
 return fl
 
-*
-
-
-***** 16.11.18 запрос к кассовому аппарату
+// 16.11.18 запрос к кассовому аппарату
 Function f1_inf_fr(tip)
 Local arr := {}, s,  sd, buf := save_row(maxrow()),;
       c4date := dtoc4(sys_date), n_file := "_kassa.txt",;
@@ -1191,7 +1146,7 @@ if tip < 5
   s := sv := sd := 0
   if tip == 1
     R_Use(dir_server+"hum_p",,"HUMAN")
-    index on str(kod_k,7) to (cur_dir+"tmp") ;
+    index on str(kod_k,7) to (cur_dir()+"tmp") ;
           for is_kas==1 .and. equalany(c4date,pdate,date_voz) ;
           progress
     go top
@@ -1210,7 +1165,7 @@ if tip < 5
     enddo
   elseif tip == 2
     R_Use(dir_server+"hum_oro",,"HUMAN")
-    index on str(kod,7) to (cur_dir+"tmp") ;
+    index on str(kod,7) to (cur_dir()+"tmp") ;
           for equalany(c4date,pdate,date_voz) ;
           progress
     go top
@@ -1269,10 +1224,7 @@ rest_box(buf)
 viewtext(n_file)
 return NIL
 
-
-*
-
-***** 28.09.17 запрос к кассовому аппарату
+// 28.09.17 запрос к кассовому аппарату
 Function fiskal_inf_fr()
 Local lkexchangeStatus, lkmessageStatus := 0, lkmessageCount := 0,;
       lkdocumentNumber := 0, lkdateDoc, lktimeDoc
@@ -1291,11 +1243,7 @@ if empty(FRN_GetInfoExchangeStatusShtih( @lkexchangeStatus ,;
 endif
 return NIL
 
-
-
-*
-
-***** гудок на кассовом аппарате
+// гудок на кассовом аппарате
 function FR_gudok()
 
 IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
@@ -1304,10 +1252,7 @@ IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
 endif
 return
 
-
-*
-
-***** ДРАЙВЕР вывод строки на чековую ленту
+// ДРАЙВЕР вывод строки на чековую ленту
 function FR_stroka(stroka,flag)
 /* flag - 1 печать на контрольной ленте
           2 печать на чековой ленте
@@ -1336,10 +1281,7 @@ endif
 HB_CDPSELECT("RU866")
 return NIL
 
-
-*
-
-***** ДРАЙВЕР вывод строки на чековую ленту
+// ДРАЙВЕР вывод строки на чековую ленту
 function FR_b_stroka(stroka,flag)
 /* flag - 1 печать на контрольной ленте
           2 печать на чековой ленте
@@ -1367,10 +1309,7 @@ endif
 HB_CDPSELECT("RU866")
 return NIL
 
-
-*
-
-***** ДРАЙВЕР отрезка чековой ленты
+// ДРАЙВЕР отрезка чековой ленты
 function FR_otrezka(flag,zad_time)
 /* flag - 0 полная отрезка
           1 частичный отрез
@@ -1392,11 +1331,7 @@ if meK_otrez == 1
 endif
 return NIL
 
-
-
-*
-
-***** ДРАЙВЕР прогон чековой ленты
+// ДРАЙВЕР прогон чековой ленты
 function FR_progon(flag,kol_str)
 /*  flag - 0 контрольная лента
            1 чековая лента
@@ -1413,9 +1348,7 @@ endif
 drvFR:FeedDocument()
 return NIL
 
-*
-
-***** 12.08.18 Регистрация товара
+// 12.08.18 Регистрация товара
 function FRCHF_registr(cena,kol_vo,sekcia,name,t_nds,Tip_operation,tip_tovar,tip_rachet)
 /*  cena          - цена товара в рублях
     kol_vo        - количество товара
@@ -1457,11 +1390,7 @@ else
 endif
 return NIL
 
-
-*
-
-
-***** 10.09.18  Закрытие чека
+// 10.09.18  Закрытие чека
 function FRCH_close(summa,summa1,name,t_nds,tip_kart)
 /*  summa  - сумма наличных
     summa1 - по кредитной карте
@@ -1533,10 +1462,7 @@ else
 endif
 return NIL
 
-
-*
-
-***** Установка времени
+// Установка времени
 function FR_set_time(time)
 //  time   - время в формате ЧЧ:ММ:СС
 local t := ""
@@ -1549,10 +1475,7 @@ IF drvFR:SetTime() < 0
 endif
 return NIL
 
-
-*
-
-***** Программирование даты (подтверждение программирования даты)
+// Программирование даты (подтверждение программирования даты)
 Function FR_set_date(ldate)
 /*  n_prot - номер порта
     ldate  - дата в формате даты
@@ -1572,9 +1495,7 @@ IF drvFR:ConfirmDate() < 0
 endif
 return NIL
 
-*
-
-***** Снятие суточного отчета
+// Снятие суточного отчета
 Function FR_normgach(flag)
 Local t := ""
 
@@ -1626,9 +1547,7 @@ else
 endif
 return NIL
 
-*
-
-***** Снятие суточного отчета по НАЛОГАМ
+// Снятие суточного отчета по НАЛОГАМ
 Function FRN_PrintTaxReport()
 
 local t := ""
@@ -1639,9 +1558,7 @@ IF drvFR:PrintTaxReport() < 0
 endif
 return NIL
 
-*
-
-***** Снятие суточного отчета по СЕКЦИЯМ
+// Снятие суточного отчета по СЕКЦИЯМ
 Function FRN_PrintDepartmentReport()
 
 local t := ""
@@ -1652,10 +1569,7 @@ IF drvFR:PrintDepartmentReport() < 0
 endif
 return NIL
 
-
-*
-
-***** Аннулирование всего чека до его закрытия
+// Аннулирование всего чека до его закрытия
 function FRCH_annul()
 /*  1 - аннулирование неудачно
     0 - аннулирование удачно завершено
@@ -1669,10 +1583,7 @@ IF drvFR:CancelCheck() < 0
 endif
 return 0
 
-
-*
-
-***** продолжение печати
+// продолжение печати
 function FR_prodol()
 local t
 
@@ -1683,10 +1594,7 @@ IF drvFR:ContinuePrint() < 0
 endif
 return NIL
 
-
-*
-
-***** Возвращает текущий номер чека покупки
+// Возвращает текущий номер чека покупки
 Function FR_ret_chek()
 local num_chek := 0
 
@@ -1700,9 +1608,7 @@ else
 endif
 return num_chek
 
-*
-
-***** Возвращает текущий номер документа
+// Возвращает текущий номер документа
 Function FR_ret_dok()
 local num_chek := 0
 
@@ -1716,9 +1622,7 @@ else
 endif
 return num_chek
 
-*
-
-***** Запрос денежного регистра
+// Запрос денежного регистра
 function FRCH_d_registr(registr)
 //     registr - номер регистра
 Local t
@@ -1733,9 +1637,7 @@ else
 endif
 return t
 
-*
-
-***** Возвращает в виде массива состояние ФР
+// Возвращает в виде массива состояние ФР
 Function FR_ret_dan()
 Local mas_vozvr := {}, t, t1, t2, i, t4
 drvFR:Password := oper_parol
@@ -1783,10 +1685,7 @@ else
 endif
 return mas_vozvr
 
-
-*
-
-***** вызов драйвера
+// вызов драйвера
 function FR_draiver()
 LOCAL mas_kassa := {}, t := ""
 Local mas_sp_kassa :={0,0,0,0}
@@ -1800,9 +1699,7 @@ IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
 endif
 return NIL
 
-*
-
-***** вызов драйвера
+// вызов драйвера
 function FR_lenstring()
 
 Private drvFR
@@ -1815,9 +1712,7 @@ IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
 endif
 return NIL
 
-*
-
-***** 22.10.19  Открытие смены
+// 22.10.19  Открытие смены
 function FRCHN_OpenSession()
 Local t, tt1
 
@@ -1866,9 +1761,7 @@ do while waitperiod() // в цикле пробуем открыть с нужными параметрами
 enddo
 return t
 
-*
-
-***** передача телефона(электронки) покупателя
+// передача телефона(электронки) покупателя
 function FRN_CustomerEmail(address)
 local  t
 
@@ -1880,10 +1773,7 @@ IF drvFR:FNSendCustomerEmail() < 0
 endif
 return NIL
 
-
-*
-
-***** ДРАЙВЕР Получение статуса информационного обмена
+// ДРАЙВЕР Получение статуса информационного обмена
 function FRN_GetInfoExchangeStatusShtih( /*@*/exchangeStatus ,;
                                          /*@*/messageStatus,;
                                          /*@*/messageCount,;
@@ -1905,9 +1795,7 @@ dateDoc := drvFR:Date
 timeDoc := drvFR:Time
 return NIL
 
-*
-
-*****
+//
 function FR_WritePassword(N_zapis_tabl,name_kassir)
 Local t1
 
@@ -1934,9 +1822,7 @@ else
 endif
 return t
 
-*
-
-*****
+//
 function FR_ReadPassword(N_zapis_tabl,name_kassir)
 Local t1, t
 
@@ -1973,9 +1859,7 @@ else
 endif
 return {t1,drvFR:ValueOfFieldInteger}
 
-*
-
-*****
+//
 function FRN_WritePassword()
 Local name_kassir, password_kassir, T_vrem
 Local arr := {}, s,buf := save_row(maxrow()),;
@@ -2028,9 +1912,7 @@ viewtext(n_file)
 //
 return NIL
 
-*
-
-*****
+//
 function FRN_GetDriverFR()
 // открытие и проверки
 Local vozvrat := .F.
@@ -2045,9 +1927,7 @@ if glob_kassa == 1 .and. mek_kassa == 1
 endif
 return vozvrat
 
-*
-
-***** Контроль адреса электронной gjxns или телефона
+// Контроль адреса электронной gjxns или телефона
 
 function ControlAddress( get, address )
 	local ret := .f.
@@ -2061,7 +1941,7 @@ function ControlAddress( get, address )
 	endif
 	return ret
 
-*******************************************
+////////////////***
 
 * преобразование номера сотового
 function TransformPhone( address )
@@ -2088,9 +1968,7 @@ function TransformPhone( address )
 	endif
 	return address
 
-*
-
-***** 24.12.18
+// 24.12.18
 function FR_Read_otrezka()
 Local t1, t
 
@@ -2116,9 +1994,7 @@ else
 endif
 return drvFR:ValueOfFieldInteger
 
-*
-
-***** 24.12.18
+// 24.12.18
 function FR_ZAMENA_otrezka(tip)
 DEFAULT tip to 1
 
@@ -2131,10 +2007,7 @@ if tip > 1
 endif
 return NIL
 
-
-*
-
-***** 30.06.19
+// 30.06.19
 function FR_Write_INN_kassir(inn_kassir)
 Local t1
 

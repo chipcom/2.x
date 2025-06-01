@@ -490,7 +490,7 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
       r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
         dir_server + 'uslugi1s' }, 'USL1' )
       g_use( dir_server + 'mo_hismo', , 'SN' )
-      Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+      Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
       use_base( 'mo_hu' )
       use_base( 'human_u' )
       use_base( 'human' )

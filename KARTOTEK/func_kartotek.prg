@@ -130,7 +130,7 @@ Function retfamimot( ltip, fl_no, is_open_kfio )
       Select KFIO
     Else
       r_use( dir_server + 'mo_kfio', , 'KFIO' )
-      Index On Str( kod, 7 ) to ( cur_dir + 'tmp_kfio' )
+      Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
     Endif
     find ( Str( kart->kod, 7 ) )
     If Found()

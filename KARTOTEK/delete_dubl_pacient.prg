@@ -32,13 +32,13 @@ Function f1dubl_zap_1()
     return NIL
   endif
   si := i
-  if !myFileDeleted(cur_dir + 'tmp' + sdbf)
+  if !myFileDeleted(cur_dir() + 'tmp' + sdbf)
     return NIL
   endif
-  if !myFileDeleted(cur_dir + 'tmpitg' + sdbf)
+  if !myFileDeleted(cur_dir() + 'tmpitg' + sdbf)
     return NIL
   endif
-  dbcreate(cur_dir + 'tmpitg', { ;
+  dbcreate(cur_dir() + 'tmpitg', { ;
     {'ID','N', 8, 0}, ;
     {'fio','C', 50, 0}, ;
     {'DATE_R','D', 8, 0}, ;
@@ -55,7 +55,7 @@ Function f1dubl_zap_1()
     {'DATE_PR','D', 8, 0}, ;
     {'MO_PR','C', 6, 0} ;
   })
-  use (cur_dir + 'tmpitg') new
+  use (cur_dir() + 'tmpitg') new
   R_Use(dir_server + 'kartote2', , 'KART2')
   //
   status_key('^<Esc>^ - прервать поиск')
@@ -74,12 +74,12 @@ Function f1dubl_zap_1()
     add_string(center('(сравнение по полю "Ф.И.О." + "Дата рождения")', sh))
     add_string('')
     aeval(arr_title, {|x| add_string(x) })
-    dbcreate(cur_dir + 'tmp', {{'fio','C', 50, 0}, {'DATE_R','D', 8, 0}})
-    use (cur_dir + 'tmp') new
-    index on upper(fio) + dtos(date_r) to (cur_dir + 'tmp')
+    dbcreate(cur_dir() + 'tmp', {{'fio','C', 50, 0}, {'DATE_R','D', 8, 0}})
+    use (cur_dir() + 'tmp') new
+    index on upper(fio) + dtos(date_r) to (cur_dir() + 'tmp')
     R_Use(dir_server + 'kartotek', dir_server + 'kartoten', 'KART')
     set relation to recno() into KART2
-    index on upper(fio)+dtos(date_r) to (cur_dir + 'tmp_kart') for kod > 0
+    index on upper(fio)+dtos(date_r) to (cur_dir() + 'tmp_kart') for kod > 0
     go top
     do while !eof()
       GaugeUpdate( hGauge, ++curr / lastrec() )
@@ -157,9 +157,9 @@ Function f1dubl_zap_1()
     add_string(center('(сравнение по полю "Полис")', sh))
     add_string('')
     aeval(arr_title, {|x| add_string(x) } )
-    dbcreate(cur_dir + 'tmp', {{'POLIS','C', 17, 0}})
-    use (cur_dir + 'tmp') new
-    index on polis to (cur_dir + 'tmp')
+    dbcreate(cur_dir() + 'tmp', {{'POLIS','C', 17, 0}})
+    use (cur_dir() + 'tmp') new
+    index on polis to (cur_dir() + 'tmp')
     R_Use(dir_server + 'kartotek', dir_server + 'kartotep', 'KART')
     set relation to recno() into KART2
     find ('1')
@@ -250,9 +250,9 @@ Function f1dubl_zap_1()
     add_string(center('(сравнение по полю "СНИЛС")', sh))
     add_string('')
     aeval(arr_title, {|x| add_string(x) } )
-    dbcreate(cur_dir + 'tmp', {{'SNILS', 'C', 11, 0}})
-    use (cur_dir + 'tmp') new
-    index on snils to (cur_dir + 'tmp')
+    dbcreate(cur_dir() + 'tmp', {{'SNILS', 'C', 11, 0}})
+    use (cur_dir() + 'tmp') new
+    index on snils to (cur_dir() + 'tmp')
     R_Use(dir_server + 'kartotek', dir_server + 'kartotes', 'KART')
     set relation to recno() into KART2
     find ('1')
@@ -343,14 +343,14 @@ Function f1dubl_zap_1()
     add_string(center('(сравнение по полю ЕНП "Единый Номер Полиса")', sh))
     add_string('')
     aeval(arr_title, {|x| add_string(x) } )
-    dbcreate(cur_dir + 'tmp', {{'kod_mis', 'C', 20, 0}})
-    use (cur_dir + 'tmp') new
-    index on kod_mis to (cur_dir + 'tmp')
+    dbcreate(cur_dir() + 'tmp', {{'kod_mis', 'C', 20, 0}})
+    use (cur_dir() + 'tmp') new
+    index on kod_mis to (cur_dir() + 'tmp')
     R_Use(dir_server + 'kartote_', , 'KART_')
     R_Use(dir_server + 'kartotek', , 'KART')
     select KART2
     set relation to recno() into KART, to recno() into KART_
-    index on kod_mis to (cur_dir + 'tmp_kodmis') for !empty(kod_mis) .and. !empty(kart->kod)
+    index on kod_mis to (cur_dir() + 'tmp_kodmis') for !empty(kod_mis) .and. !empty(kart->kod)
     go top
     do while !eof()
       GaugeUpdate( hGauge, ++curr / lastrec() )
@@ -474,7 +474,7 @@ Function f2dubl_zap_1()
         mywait()
         // список пациентов в реестрах будущих диспансеризаций
         /*G_Use(dir_server + 'mo_r01k', ,'R01K')
-        index on str(kod_k, 7) to (cur_dir + 'tmp_r01k')
+        index on str(kod_k, 7) to (cur_dir() + 'tmp_r01k')
         do while .t.
           find (str(dubl2_kart, 7))
           if !found()
@@ -487,7 +487,7 @@ Function f2dubl_zap_1()
         // направления на госпитализацию
         G_Use(dir_server + 'mo_nnapr', , 'NAPR')
         delete_dubl_rec_in_file('NAPR', kod_k, dubl1_kart, dubl2_kart, .t.)
-        // index on str(kod_k, 7) to (cur_dir + 'tmp_napr')
+        // index on str(kod_k, 7) to (cur_dir() + 'tmp_napr')
         // do while .t.
         //   find (str(dubl2_kart, 7))
         //   if !found()
@@ -536,7 +536,7 @@ Function f2dubl_zap_1()
         //
         G_Use(dir_server + 'mo_kismo', , 'SN')
         delete_dubl_rec('SN', dubl2_kart, .t.)
-        // index on str(kod, 7) to (cur_dir + 'tmp_ismo')
+        // index on str(kod, 7) to (cur_dir() + 'tmp_ismo')
         // do while .t.
         //   find (str(dubl2_kart, 7))
         //   if !found()
@@ -607,7 +607,7 @@ Function f2dubl_zap_1()
         // подобие регистра застрахованных
         G_Use(dir_server + 'kart_etk')
         delete_dubl_rec('KPRIM1', dubl2_kart, .t.)
-        // index on str(kod_k, 7) to (cur_dir + 'tmp_kart_etk')
+        // index on str(kod_k, 7) to (cur_dir() + 'tmp_kart_etk')
         // do while .t.
         //   find (str(dubl2_kart, 7))
         //   if !found()
@@ -627,8 +627,8 @@ Function f2dubl_zap_1()
         // enddo
         // оплата по ДМС и взаимозачету
         G_Use(dir_server + 'plat_vz', , 'PVZ')
-        index on str(kod_k, 7) to (cur_dir + 'tmp_pvz')
-        set index to (cur_dir + 'tmp_pvz'), (dir_server + 'plat_vz')
+        index on str(kod_k, 7) to (cur_dir() + 'tmp_pvz')
+        set index to (cur_dir() + 'tmp_pvz'), (dir_server + 'plat_vz')
         delete_dubl_rec_in_file('PVZ', kod_k, dubl1_kart, dubl2_kart, .f.)
         // do while .t.
         //   find (str(dubl2_kart, 7))
@@ -669,7 +669,7 @@ Function f2dubl_zap_1()
         // cписок карточек пациентов в отосланных ходатайствах
         G_Use(dir_server + 'mo_hod_k', , 'HK')
         delete_dubl_rec_in_file('HK', kod_k, dubl1_kart, dubl2_kart, .t.)
-        // index on str(kod_k, 7) to (cur_dir + 'tmp_hk')
+        // index on str(kod_k, 7) to (cur_dir() + 'tmp_hk')
         // do while .t.
         //   find (str(dubl2_kart, 7))
         //   if !found()
@@ -694,7 +694,7 @@ Function f2dubl_zap_1()
         // список карточек в реестрах на прикрепление
         G_Use(dir_server + 'mo_krtp', , 'KRTP')
         delete_dubl_rec_in_file('KRTP', kod_k, dubl1_kart, dubl2_kart, .t.)
-        // index on str(kod_k, 7) to (cur_dir + 'tmp_krtp')
+        // index on str(kod_k, 7) to (cur_dir() + 'tmp_krtp')
         // do while .t.
         //   find (str(dubl2_kart, 7))
         //   if !found()
@@ -707,7 +707,7 @@ Function f2dubl_zap_1()
         // список ошибок в реестрах на прикрепление
         G_Use(dir_server + 'mo_krte', , 'KRTE')
         delete_dubl_rec_in_file('KRTE', kod_k, dubl1_kart, dubl2_kart, .t.)
-        // index on str(kod_k, 7) to (cur_dir + 'tmp_krte')
+        // index on str(kod_k, 7) to (cur_dir() + 'tmp_krte')
         // do while .t.
         //   find (str(dubl2_kart, 7))
         //   if !found()
@@ -720,7 +720,7 @@ Function f2dubl_zap_1()
         // список карточек в файлах на открепление
         G_Use(dir_server + 'mo_krto', , 'KRTO')
         delete_dubl_rec_in_file('KRTO', kod_k, dubl1_kart, dubl2_kart, .t.)
-        // index on str(kod_k, 7) to (cur_dir + 'tmp_krto')
+        // index on str(kod_k, 7) to (cur_dir() + 'tmp_krto')
         // do while .t.
         //   find (str(dubl2_kart, 7))
         //   if !found()
@@ -763,7 +763,7 @@ Function f2dubl_zap_1()
 
 // 20.07.23
 function delete_dubl_rec_in_file(cAlias, kod_k, dubl1_kart, dubl2_kart, lIndex)
-  local name_index := cur_dir + 'tmp_' + cAlias
+  local name_index := cur_dir() + 'tmp_' + cAlias
 
   default lIndex to .f.
   if lIndex
@@ -783,7 +783,7 @@ function delete_dubl_rec_in_file(cAlias, kod_k, dubl1_kart, dubl2_kart, lIndex)
 
 // 20.07.23
 function delete_dubl_rec(cAlias, dubl2_kart, lIndex)
-  local name_index := cur_dir + 'tmp_' + cAlias
+  local name_index := cur_dir() + 'tmp_' + cAlias
 
   default lIndex to .f.
   if lIndex

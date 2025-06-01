@@ -76,11 +76,11 @@ Function pereindex()
   //
   mywait()
   Use ( dir_server + "mo_raksh" ) New Alias RAKSH
-  Index On Str( kod_raks, 6 ) to ( cur_dir + "tmpraksh" )
+  Index On Str( kod_raks, 6 ) to ( cur_dir() + "tmpraksh" )
   Use ( dir_server + "mo_raks" ) New Alias RAKS
-  Index On Str( akt, 6 ) to ( cur_dir + "tmpraks" )
+  Index On Str( akt, 6 ) to ( cur_dir() + "tmpraks" )
   Use ( dir_server + "mo_rak" ) New Alias RAK
-  Index On Str( akt, 6 ) to ( cur_dir + "tmprak" )
+  Index On Str( akt, 6 ) to ( cur_dir() + "tmprak" )
   Use ( dir_server + "mo_xml" ) New Alias MO_XML
   Locate For kod == 0 .and. !Deleted()
   If Found()
@@ -151,7 +151,7 @@ Function pereindex()
   Close databases
   //
   /*Use (dir_server+"mo_rak") new alias RAK
-  index on str(akt,6) to (cur_dir+"tmprak") for empty(kod_xml)
+  index on str(akt,6) to (cur_dir()+"tmprak") for empty(kod_xml)
   arr_rak := {}
   dbeval({|| aadd(arr_rak, {akt,codea,nakt,dakt}) })
   if !empty(arr_rak) // не заполнен kod_xml из-за моей ошибки
@@ -165,7 +165,7 @@ Function pereindex()
     select RAK
     set index to
     Use (dir_server+"mo_xml") new alias MO_XML
-    index on str(kod,6) to (cur_dir+"tmpxml") ;
+    index on str(kod,6) to (cur_dir()+"tmpxml") ;
         for TIP_IN == _XML_FILE_RAK .and. between(DFILE,min_date,max_date)
     arr_xml := {}
     dbeval({|| aadd(arr_xml, {kod,fname,dfile}) })
@@ -250,9 +250,9 @@ Function pereindex_263()
   stat_msg( "Поиск/попытка исправления избыточных ошибок в направлениях на госпитализацию" )
   g_use( dir_server + "mo_nnapr",, "NAPR" )
   g_use( dir_server + "mo_nfina",, "NFN" )
-  Index On Str( KOD_F, 6 ) + Str( KOD_N, 6 ) to ( cur_dir + "tmp_nfn" )
+  Index On Str( KOD_F, 6 ) + Str( KOD_N, 6 ) to ( cur_dir() + "tmp_nfn" )
   g_use( dir_server + "mo_nfile",, "NF" )
-  Index On kod to ( cur_dir + "tmp_nf" ) For in_out == 1 .and. tip_f < 7 .and. Year( date_r ) > 2016
+  Index On kod to ( cur_dir() + "tmp_nf" ) For in_out == 1 .and. tip_f < 7 .and. Year( date_r ) > 2016
   Go Top
   Do While !Eof()
     If nf->T_ANS == 2 // в файле были ошибки
@@ -373,10 +373,10 @@ endif*/
   Set Order To 2
   //
   e_use( dir_server + "kas_usl",, "KUU" )
-  Index On Str( u_kod, 4 ) to ( cur_dir + "tmp_kuu" )
+  Index On Str( u_kod, 4 ) to ( cur_dir() + "tmp_kuu" )
   //
   e_use( dir_server + "kas_usld",, "KUUD" )
-  Index On Str( u_kod, 4 ) to ( cur_dir + "tmp_kuud" )
+  Index On Str( u_kod, 4 ) to ( cur_dir() + "tmp_kuud" )
   //
   e_use( dir_server + "uslugi1", { dir_server + "uslugi1", ;
     dir_server + "uslugi1s" }, "USL1" )
@@ -390,7 +390,7 @@ endif*/
   //
   If ( flag_udel := hb_FileExists( dir_server + "usl_del" + sdbf ) )
     e_use( dir_server + "usl_del",, "UDEL" )
-    Index On Str( kod, 4 ) to ( cur_dir + "tmp_udel" )
+    Index On Str( kod, 4 ) to ( cur_dir() + "tmp_udel" )
   Endif
   //
   e_use( dir_server + "usl_otd", dir_server + "usl_otd", "UOTD" )
@@ -404,11 +404,11 @@ endif*/
     { "cena",    "N", 10, 2 }, ;
     { "cena_d",  "N", 10, 2 };
     }
-  dbCreate( cur_dir + "tmp", adbf )
-  Use ( cur_dir + "tmp" ) new
-  Index On shifr + Str( cena, 10, 2 ) + Str( cena_d, 10, 2 ) to ( cur_dir + "tmp" )
-  dbCreate( cur_dir + "tmp1", adbf )
-  Use ( cur_dir + "tmp1" ) new
+  dbCreate( cur_dir() + "tmp", adbf )
+  Use ( cur_dir() + "tmp" ) new
+  Index On shifr + Str( cena, 10, 2 ) + Str( cena_d, 10, 2 ) to ( cur_dir() + "tmp" )
+  dbCreate( cur_dir() + "tmp1", adbf )
+  Use ( cur_dir() + "tmp1" ) new
   hGauge := gaugenew(,,, "Поиск дубликатов услуг", .t. )
   gaugedisplay( hGauge )
   Set Deleted Off
@@ -448,12 +448,12 @@ endif*/
   closegauge( hGauge )
   Select TMP
   If LastRec() > 0
-    Index On Str( kol, 6 ) to ( cur_dir + "tmp" )
+    Index On Str( kol, 6 ) to ( cur_dir() + "tmp" )
     Go Bottom
     If tmp->kol > 10
       i := 0
       Select TMP1
-      Index On Str( kod, 4 ) to ( cur_dir + "tmp1" ) For tmp1->kod_tmp == tmp->( RecNo() )
+      Index On Str( kod, 4 ) to ( cur_dir() + "tmp1" ) For tmp1->kod_tmp == tmp->( RecNo() )
       Go Top
       lkod_usl := tmp1->kod // первая запись
       Do While !Eof()
@@ -585,18 +585,18 @@ Function dubl_zap_kod_tf()
     "во избежание нежелательных последствий!" },, "G+/R", "GR+/R", 13 )
   stat_msg( 'Поиск дубликатов по ключу "код ТФ(PID)+ФИО+дата рождения"' )
   adbf := { { "kod", "N", 7, 0 }, { "kodh", "N", 7, 0 } }
-  dbCreate( cur_dir + "t_dubl", adbf )
+  dbCreate( cur_dir() + "t_dubl", adbf )
   AAdd( adbf, { "kod1", "N", 7, 0 } )
-  dbCreate( cur_dir + "t1dubl", adbf )
-  Use ( cur_dir + "t_dubl" ) New Alias t
-  Use ( cur_dir + "t1dubl" ) New Alias t1
+  dbCreate( cur_dir() + "t1dubl", adbf )
+  Use ( cur_dir() + "t_dubl" ) New Alias t
+  Use ( cur_dir() + "t1dubl" ) New Alias t1
   Use ( dir_server + "human" ) New Alias HUMAN
-  Index On Str( kod_k, 7 ) + Str( Descend( k_data ), 10 ) to ( cur_dir + "tmp_human" ) For !Empty( k_data )
+  Index On Str( kod_k, 7 ) + Str( Descend( k_data ), 10 ) to ( cur_dir() + "tmp_human" ) For !Empty( k_data )
   Use ( dir_server + "kartote_" ) New Alias KART_
   Use ( dir_server + "kartotek" ) New Alias KART
   Use ( dir_server + "kartote2" ) New Alias KART2
   Set Relation To RecNo() into KART_, To RecNo() into KART
-  Index On Str( kart2->kod_tf, 10 ) to ( cur_dir + "tmp_kart2" ) ;
+  Index On Str( kart2->kod_tf, 10 ) to ( cur_dir() + "tmp_kart2" ) ;
     For kart2->kod_tf > 0 .and. !kart->( Eof() ) .and. kart->kod > 0
   Go Top
   Do While !Eof()
@@ -698,9 +698,9 @@ Function dubl_zap_kod_tf()
     e_use( dir_server + "human", dir_server + "humankk", "HUMAN" ) // монопольно
     use_base( "kartotek",, .t. ) // монопольно
     Set Order To 0
-    Use ( cur_dir + "t1dubl" ) New Alias t1
-    Index On Str( kod, 7 ) to ( cur_dir + "t1dubl" )
-    Use ( cur_dir + "t_dubl" ) New Alias t
+    Use ( cur_dir() + "t1dubl" ) New Alias t1
+    Index On Str( kod, 7 ) to ( cur_dir() + "t1dubl" )
+    Use ( cur_dir() + "t_dubl" ) New Alias t
     Go Top
     Do While !Eof()
       If RecNo() < 10 .or. RecNo() % 10 == 0
@@ -993,18 +993,18 @@ Function dubl_zap_kod_tf()
 Function f_open_files_dubl_zap( lExcluUse )
 
   g_use( dir_server + "mo_d01k",, "D01K",, lExcluUse )
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_d01k" )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_d01k" )
   // список пациентов в реестрах будущих диспансеризаций
   g_use( dir_server + "mo_dr01k",, "R01K",, lExcluUse )
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_r01k" )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_r01k" )
   // направления на госпитализацию
   g_use( dir_server + "mo_nnapr",, "NAPR",, lExcluUse )
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_napr" )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_napr" )
   //
   g_use( dir_server + "mo_kinos", dir_server + "mo_kinos", "KIS",, lExcluUse )
   //
   g_use( dir_server + "mo_kismo",, "SN",, lExcluUse )
-  Index On Str( kod, 7 ) to ( cur_dir + "tmp_ismo" )
+  Index On Str( kod, 7 ) to ( cur_dir() + "tmp_ismo" )
   // платные услуги
   g_use( dir_server + "hum_p", dir_server + "hum_pkk", "HUM_P",, lExcluUse )
   // ортопедия
@@ -1017,13 +1017,13 @@ Function f_open_files_dubl_zap( lExcluUse )
   g_use( dir_server + "kas_ort", dir_server + "kas_ort1", "KASO",, lExcluUse )
   // подобие регистра застрахованных
   g_use( dir_server + "kart_etk",, "kart_etk",, lExcluUse )
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_kart_etk" )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_kart_etk" )
   // примечания к картотеке
   g_use( dir_server + "k_prim1", dir_server + "k_prim1", "K_PRIM1",, lExcluUse )
   // оплата по ДМС и взаимозачету
   g_use( dir_server + "plat_vz",, "PVZ",, lExcluUse )
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_pvz" )
-  Set Index to ( cur_dir + "tmp_pvz" ), ( dir_server + "plat_vz" )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_pvz" )
+  Set Index to ( cur_dir() + "tmp_pvz" ), ( dir_server + "plat_vz" )
   // регистрация печати л/у
   g_use( dir_server + "mo_regi", { dir_server + "mo_regi1", ;
     dir_server + "mo_regi2", ;
@@ -1033,18 +1033,18 @@ Function f_open_files_dubl_zap( lExcluUse )
   g_use( dir_server + "msek", dir_server + "msek", "MSEK",, lExcluUse )
   // cписок карточек пациентов в отосланных ходатайствах
   g_use( dir_server + "mo_hod_k",, "HK",, lExcluUse )
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_hk" )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_hk" )
   // список прикреплений по пациенту во времени
   g_use( dir_server + "mo_kartp", dir_server + "mo_kartp", "KARTP",, lExcluUse )
   // список карточек в реестрах на прикрепление
   g_use( dir_server + "mo_krtp",, "KRTP",, lExcluUse )
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_krtp" )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_krtp" )
   // список ошибок в реестрах на прикрепление
   g_use( dir_server + "mo_krte",, "KRTE",, lExcluUse )
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_krte" )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_krte" )
   // список карточек в файлах на открепление
   g_use( dir_server + "mo_krto",, "KRTO",, lExcluUse )
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_krto" )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_krto" )
 
   Return Nil
 
@@ -1269,7 +1269,7 @@ Function correct_polis_from_sptk()
   Use ( dir_server + "human" ) new
   Set Relation To RecNo() into HUMAN_
   Private mdate := SToD( "20190630" )
-  Index On Str( kod_k, 7 ) + Str( Descend( k_data ), 10 ) to ( cur_dir + "tmp_human" ) For k_data > mdate
+  Index On Str( kod_k, 7 ) + Str( Descend( k_data ), 10 ) to ( cur_dir() + "tmp_human" ) For k_data > mdate
   use_base( "kartotek",, .t. ) // открываем в монопольном режиме
   Set Order To 2
   find ( "1" )

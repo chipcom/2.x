@@ -56,9 +56,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   stat_msg( 'Составление реестра случаев' )
   nsh := f_mb_me_nsh( _nyear, @mb, @me )
   r_use( dir_exe() + '_mo_mkb', , 'MKB_10' )
-  Index On shifr + Str( ks, 1 ) to ( cur_dir + '_mo_mkb' )
+  Index On shifr + Str( ks, 1 ) to ( cur_dir() + '_mo_mkb' )
   g_use( dir_server + 'mo_rees', , 'REES' )
-  Index On Str( nn, nsh ) to ( cur_dir + 'tmp_rees' ) For nyear == _nyear .and. nmonth == _nmonth
+  Index On Str( nn, nsh ) to ( cur_dir() + 'tmp_rees' ) For nyear == _nyear .and. nmonth == _nmonth
   fl := .f.
   For mnn := mb To me
     find ( Str( mnn, nsh ) )
@@ -71,7 +71,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
     Close databases
     Return func_error( 10, 'Не удалось найти свободный номер пакета в ТФОМС. Проверьте настройки!' )
   Endif
-  Index On Str( nschet, 6 ) to ( cur_dir + 'tmp_rees' ) For nyear == _nyear
+  Index On Str( nschet, 6 ) to ( cur_dir() + 'tmp_rees' ) For nyear == _nyear
   If !Eof()
     Go Bottom
     mnschet := rees->nschet + 1
@@ -134,7 +134,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2TABN' )
   r_use( dir_server + 'uslugi', , 'USL' )
   g_use( dir_server + 'mo_rhum', , 'RHUM' )
-  Index On Str( REESTR, 6 ) to ( cur_dir + 'tmp_rhum' )
+  Index On Str( REESTR, 6 ) to ( cur_dir() + 'tmp_rhum' )
   g_use( dir_server + 'human_u_', , 'HU_' )
   r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
@@ -143,7 +143,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Set Relation To u_kod into MOSU
   If p_tip_reestr == 1
     r_use( dir_server + 'kart_inv', , 'INV' )
-    Index On Str( kod, 7 ) to ( cur_dir + 'tmp_inv' )
+    Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_inv' )
   Endif
   r_use( dir_server + 'kartote2', , 'KART2' )
   r_use( dir_server + 'kartote_', , 'KART_' )
@@ -163,12 +163,12 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   r_use( dir_server + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
   r_use( dir_exe() + '_mo_t2_v1', , 'T21' )
-  Index On shifr to ( cur_dir + 'tmp_t21' )
-  Use ( cur_dir + 'tmpb' ) new
+  Index On shifr to ( cur_dir() + 'tmp_t21' )
+  Use ( cur_dir() + 'tmpb' ) new
   If reg_sort == 1
-    Index On Upper( fio ) to ( cur_dir + 'tmpb' ) For kod_tmp == _recno .and. plus
+    Index On Upper( fio ) to ( cur_dir() + 'tmpb' ) For kod_tmp == _recno .and. plus
   Else
-    Index On Str( pz, 2 ) + Str( 10000000 - cena_1, 11, 2 ) to ( cur_dir + 'tmpb' ) For kod_tmp == _recno .and. plus
+    Index On Str( pz, 2 ) + Str( 10000000 - cena_1, 11, 2 ) to ( cur_dir() + 'tmpb' ) For kod_tmp == _recno .and. plus
   Endif
   pkol := psumma := iusl := 0
   Go Top
@@ -281,7 +281,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   //
   //
   Select RHUM
-  Index On Str( REES_ZAP, 6 ) to ( cur_dir + 'tmp_rhum' ) For REESTR == mkod_reestr
+  Index On Str( REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For REESTR == mkod_reestr
   Go Top
   Do While !Eof()
     @ MaxRow(), 0 Say Str( rhum->REES_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
@@ -2059,9 +2059,9 @@ Function create1reestr19( _recno, _nyear, _nmonth )
   r_use( dir_server + 'human_', , 'HUMAN_' )
   r_use( dir_server + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
-  Use ( cur_dir + 'tmpb' ) New Alias TMP
+  Use ( cur_dir() + 'tmpb' ) New Alias TMP
   Set Relation To kod_human into HUMAN
-  Index On Upper( human->fio ) + DToS( tmp->k_data ) to ( cur_dir + 'tmpb' ) For kod_tmp == _recno
+  Index On Upper( human->fio ) + DToS( tmp->k_data ) to ( cur_dir() + 'tmpb' ) For kod_tmp == _recno
   Go Top
   Eval( p_blk )
   If alpha_browse( 3, 0, MaxRow() -4, 79, 'f1create1reestr19', color0, ;

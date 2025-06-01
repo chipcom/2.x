@@ -10,15 +10,15 @@ Local arr_m, fl, ldate, buf := save_maxrow()
 if (arr_m := year_month()) != NIL
   mywait()
   //
-  dbcreate(cur_dir+"tmp",{{"is","N",1,0},;
+  dbcreate(cur_dir()+"tmp",{{"is","N",1,0},;
                   {"kod_k","N",7,0},;
                   {"task","N",1,0},;
                   {"uch","N",3,0},;
                   {"otd","N",3,0},;
                   {"data","D",8,0},;
                   {"KOD_P","C",1,0}}) // код пользователя, добавившего л/у
-  use (cur_dir+"tmp") new
-  index on str(kod_k,7) to (cur_dir+"tmp")
+  use (cur_dir()+"tmp") new
+  index on str(kod_k,7) to (cur_dir()+"tmp")
   if is_task(X_REGIST)
     WaitStatus("Подзадача РЕГИСТРАТУРА")
     R_Use(dir_server+"mo_regi",dir_server+"mo_regi2","REGI")
@@ -88,7 +88,7 @@ if (arr_m := year_month()) != NIL
     R_Use(dir_server+"hum_p",dir_server+"hum_pd","PLAT")
     //index on dtos(k_data) to (dir_server+"hum_pd") progress
     dbseek(dtos(addmonth(arr_m[5],-6)),.t.)
-    index on dtos(n_data) to (cur_dir+"tmp_plat") ;
+    index on dtos(n_data) to (cur_dir()+"tmp_plat") ;
           for between(n_data,arr_m[5],arr_m[6]) ;
           while k_data <= arr_m[6]
     go top
@@ -152,7 +152,7 @@ if (arr_m := year_month()) != NIL
     R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","ORT")
     //index on dtos(k_data) to (dir_server+"hum_ortd") progress
     dbseek(dtos(addmonth(arr_m[5],-6)),.t.)
-    index on dtos(n_data) to (cur_dir+"tmp_ort") ;
+    index on dtos(n_data) to (cur_dir()+"tmp_ort") ;
           for between(n_data,arr_m[5],arr_m[6]) ;
           while k_data <= arr_m[6]
     go top
@@ -215,7 +215,7 @@ if (arr_m := year_month()) != NIL
   R_Use(dir_server+"human",dir_server+"humand","OMS")
   //index on dtos(k_data)+uch_doc to (dir_server+"humand") progress
   dbseek(dtos(addmonth(arr_m[5],-6)),.t.)
-  index on dtos(n_data) to (cur_dir+"tmp_oms") ;
+  index on dtos(n_data) to (cur_dir()+"tmp_oms") ;
         for between(n_data,arr_m[5],arr_m[6]) ;
         while k_data <= arr_m[6]
   go top
@@ -377,7 +377,7 @@ if (arr_m := year_month()) != NIL
   endif
   WaitStatus("Новые пациенты")
   R_Use(dir_server+"kartote2",,"KART2")
-  index on pc1 to (cur_dir+"tmpkart2") for !empty(pc1) .and. between(substr(pc1,2,4),arr_m[7],arr_m[8])
+  index on pc1 to (cur_dir()+"tmpkart2") for !empty(pc1) .and. between(substr(pc1,2,4),arr_m[7],arr_m[8])
   go top
   do while !eof()
     UpdateStatus()
@@ -418,9 +418,9 @@ if (arr_m := year_month()) != NIL
   R_Use(dir_server+"base1",,"BASE1")
   R_Use(dir_server+"kartote_",,"KART_")
   R_Use(dir_server+"kartotek",,"KART")
-  use (cur_dir+"tmp") new
+  use (cur_dir()+"tmp") new
   set relation to kod_k into KART, to kod_k into KART_
-  index on upper(kart->fio) to (cur_dir+"tmp") for is > 0
+  index on upper(kart->fio) to (cur_dir()+"tmp") for is > 0
   go top
   do while !eof()
     frt->itog ++
@@ -480,13 +480,13 @@ Function i_kol_del_zub()
 Local fl_exit := .f., hGauge
 hGauge := GaugeNew(,,,"Информация о количестве удалённых зубов",.t.)
 GaugeDisplay( hGauge )
-dbcreate(cur_dir+"tmp",{;
+dbcreate(cur_dir()+"tmp",{;
   {"god","N",4,0},;
   {"kod_k","N",7,0},;
   {"pol","C",1,0},;
   {"vozr","N",2,0},;
   {"kol","N",6,0}})
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 index on str(god,4)+str(kod_k,7) to tmp memory
 use_base("lusl")
 R_Use(dir_server+"uslugi",,"USL")
@@ -546,7 +546,7 @@ k := tmp->(lastrec())
 close databases
 if !fl_exit .and. k > 0
   agod := {}
-  use (cur_dir+"tmp") new
+  use (cur_dir()+"tmp") new
   index on god to tmp unique memory
   dbeval({|| aadd(agod,tmp->god) })
   name_file := "del_zub.txt"
@@ -623,21 +623,21 @@ Local fl_exit := .f., i, j, k, v, koef, msum, ifin, ldate_r, y, m, buf := save_m
 Private arr_m := {2017, 1, 6, "за 1-ое полугодие 2017 года", ;
                   begin_date, end_date, dtoc4(begin_date), dtoc4(end_date)}
 WaitStatus(arr_m[4])
-dbcreate(cur_dir+"tmp",{{"nstr","N",1,0},;
+dbcreate(cur_dir()+"tmp",{{"nstr","N",1,0},;
                         {"oms","N",1,0},;
                         {"mm","N",2,0},;
                         {"kol","N",6,0},;
                         {"dni","N",6,0},;
                         {"sum","N",15,2},;
                         {"kslp","N",15,2}})
-use (cur_dir+"tmp") new alias TMP
-index on str(oms,1)+str(nstr,1)+str(mm,2) to (cur_dir+"tmp")
+use (cur_dir()+"tmp") new alias TMP
+index on str(oms,1)+str(nstr,1)+str(mm,2) to (cur_dir()+"tmp")
 R_Use(dir_server+"mo_rak",,"RAK")
 R_Use(dir_server+"mo_raks",,"RAKS")
 set relation to akt into RAK
 R_Use(dir_server+"mo_raksh",,"RAKSH")
 set relation to kod_raks into RAKS
-index on str(kod_h,7) to (cur_dir+"tmp_raksh")
+index on str(kod_h,7) to (cur_dir()+"tmp_raksh")
 //
 R_Use(dir_server+"schet_",,"SCHET_")
 R_Use(dir_server+"schet",,"SCHET")
@@ -884,7 +884,7 @@ if (sk := mkomp) > 1
   endif
 endif
 WaitStatus(arr_m[4])
-dbcreate(cur_dir+"tmp",{;
+dbcreate(cur_dir()+"tmp",{;
   {"ID_PAC",  "N", 7,0},;
   {"ID_SL",   "N", 7,0},;
   {"VID_MP",  "N", 1,0},;
@@ -902,7 +902,7 @@ dbcreate(cur_dir+"tmp",{;
   {"REANIMAC","C", 3,0},;
   {"SEBESTO", "C",12,0},;
   {"USLUGI",  "C",99,0}})
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 R_Use(dir_server+"mo_otd",,"OTD")
 R_Use(dir_server+"mo_su",,"MOSU")
 G_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
@@ -1030,8 +1030,8 @@ close databases
 restscreen(buf)
 if !fl_exit
   n_file := "SVED"
-  copy file (cur_dir+"tmp"+sdbf) to (cur_dir+n_file+sdbf)
-  n_message({"В каталоге "+upper(cur_dir),;
+  copy file (cur_dir()+"tmp"+sdbf) to (cur_dir()+n_file+sdbf)
+  n_message({"В каталоге "+upper(cur_dir()),;
              "создан файл "+upper(n_file+sdbf),;
              "со сведениями о случаях лечения пациентов."},,;
              cColorStMsg,cColorStMsg,,,cColorSt2Msg)
@@ -1058,7 +1058,7 @@ for i := 1 to 3
     Use
   endif
 next
-dbcreate(cur_dir+"tmp",{{"nstr","N",1,0},;
+dbcreate(cur_dir()+"tmp",{{"nstr","N",1,0},;
                         {"oms","N",1,0},;
                         {"profil","N",3,0},;
                         {"kol1","N",6,0},;
@@ -1071,14 +1071,14 @@ dbcreate(cur_dir+"tmp",{{"nstr","N",1,0},;
                         {"sum4","N",15,2},;
                         {"kol","N",6,0},;
                         {"sum","N",15,2}})
-use (cur_dir+"tmp") new alias TMP
-index on str(oms,1)+str(nstr,1)+str(profil,3) to (cur_dir+"tmp")
+use (cur_dir()+"tmp") new alias TMP
+index on str(oms,1)+str(nstr,1)+str(profil,3) to (cur_dir()+"tmp")
 R_Use(dir_server+"mo_rak",,"RAK")
 R_Use(dir_server+"mo_raks",,"RAKS")
 set relation to akt into RAK
 R_Use(dir_server+"mo_raksh",,"RAKSH")
 set relation to kod_raks into RAKS
-index on str(kod_h,7) to (cur_dir+"tmp_raksh")
+index on str(kod_h,7) to (cur_dir()+"tmp_raksh")
 //
 R_Use(dir_server+"schet_",,"SCHET_")
 R_Use(dir_server+"schet",,"SCHET")
@@ -1342,7 +1342,7 @@ r1 := 16 ; r2 := 22
 FillScrArea(r1-1,0,r1-1,79,"░",color1)
 str_center(r1-1," Мониторинг по видам медицинской помощи ",color8)
 FillScrArea(r2+1,0,r2+1,79,"░",color1)
-if f_edit_spr(A__APPEND,mm_tmp,"","e_use(cur_dir+'tmp_mon')",0,1,,,,{r1,0,r2,79,-1},"write_mon") > 0
+if f_edit_spr(A__APPEND,mm_tmp,"","e_use(cur_dir()+'tmp_mon')",0,1,,,,{r1,0,r2,79,-1},"write_mon") > 0
   restscreen(buf)
   if year(pdate_lech[5]) < 2016
     return func_error(4,"Данный алгоритм работает с 2016 года")
@@ -1372,7 +1372,7 @@ if f_edit_spr(A__APPEND,mm_tmp,"","e_use(cur_dir+'tmp_mon')",0,1,,,,{r1,0,r2,79,
     set relation to akt into RAK
     R_Use(dir_server+"mo_raksh",,"RAKSH")
     set relation to kod_raks into RAKS
-    index on str(kod_h,7) to (cur_dir+"tmp_raksh") for rak->DAKT <= mn->date_rak
+    index on str(kod_h,7) to (cur_dir()+"tmp_raksh") for rak->DAKT <= mn->date_rak
   endif
   R_Use(dir_server+"schet_",,"SCHET_")
   R_Use(dir_server+"schet",,"SCHET")

@@ -74,7 +74,7 @@ Function get_srf( k, r, c )
   t_arr[ BR_EDIT ] := {| nk, ob| f2_srf( nk, ob ) }
   t_arr[ BR_ENTER ] := {|| ret := { tmp->okato, tmp->name } }
   //
-  Use ( cur_dir + 'tmp_srf' ) New Alias TMP
+  Use ( cur_dir() + 'tmp_srf' ) New Alias TMP
   Set Filter To !( okato == '18000' )
   If !Empty( k )
     Locate For okato == k
@@ -84,7 +84,6 @@ Function get_srf( k, r, c )
   Endif
   edit_browse( t_arr )
   tmp->( dbCloseArea() )
-
   Return ret
 
 //
@@ -153,7 +152,7 @@ Function when_ismo( get, old )
   Endif
   mm_ismo := {}
   If !Empty( m1okato )
-    r_use( dir_exe() + '_mo_smo', cur_dir + '_mo_smo', 'SMO' )
+    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo', 'SMO' )
     find ( m1okato )
     Do While smo->okato == m1okato .and. !Eof()
       s := AllTrim( smo->name )

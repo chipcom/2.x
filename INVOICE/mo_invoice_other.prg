@@ -65,7 +65,7 @@ Function other_schet_view()
   g_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
   Set Relation To RecNo() into SCHET_
   dbSeek( dtoc4( mdate ), .t. )
-  Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir + "tmp_sch" ) ;
+  Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir() + "tmp_sch" ) ;
     For schet_->dschet >= mdate .and. !Empty( pdate ) .and. ;
     !( schet_->IS_DOPLATA == 1 .or. !Empty( Val( schet_->smo ) ) ) ;
     DESCENDING
@@ -136,12 +136,12 @@ Function other_schet_nevyp()
 
   Local buf := save_maxrow(), k := 0, s1, s2, mstr_crb, gnevyp_schet := .f.
 
-  If !myfiledeleted( cur_dir + "tmp" + sdbf )
+  If !myfiledeleted( cur_dir() + "tmp" + sdbf )
     Return Nil
   Endif
   Private pkol := 0, psumma := 0
   mywait()
-  dbCreate( cur_dir + "tmp", { ;
+  dbCreate( cur_dir() + "tmp", { ;
     { "KOMU",   "N",     1,     0 }, ;
     { "STR_CRB",   "N",     2,     0 }, ;
     { "MIN_DATE",   "D",     8,     0 }, ;
@@ -151,10 +151,10 @@ Function other_schet_nevyp()
     { "NKOMU",   "C",    80,     0 }, ;
     { "KOD",   "N",     7,     0 }, ;
     { "PLUS",   "L",     1,     0 } } )
-  Use ( cur_dir + "tmp" ) Alias TMP
-  Index On Str( komu, 1 ) + Str( str_crb, 2 ) to ( cur_dir + "tmp" )
-  Index On nkomu to ( cur_dir + "tmp1" )
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ), ( cur_dir + "tmp1" ) Alias TMP
+  Use ( cur_dir() + "tmp" ) Alias TMP
+  Index On Str( komu, 1 ) + Str( str_crb, 2 ) to ( cur_dir() + "tmp" )
+  Index On nkomu to ( cur_dir() + "tmp1" )
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ), ( cur_dir() + "tmp1" ) Alias TMP
   r_use( dir_server + "human_", , "HUMAN_" )
   r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
   Set Relation To RecNo() into HUMAN_
@@ -327,7 +327,7 @@ Function f2nevyp_schet( nKey, oBrow )
     Close databases
     rest_box( buf )
     viewtext( nfile, , , , , , , 2 )
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ), ( cur_dir + "tmp1" ) Alias TMP
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ), ( cur_dir() + "tmp1" ) Alias TMP
     Set Order To 2
     Goto ( rec )
   Endcase
@@ -737,11 +737,11 @@ Function vyp0other_schet()
     { "NKOMU",   "C",    80,     0 }, ;
     { "KOD",   "N",     7,     0 }, ;
     { "PLUS",   "L",     1,     0 } }
-  dbCreate( cur_dir + "tmp", adbf )
-  Use ( cur_dir + "tmp" ) Alias TMP
-  Index On Str( komu, 1 ) + Str( str_crb, 2 ) to ( cur_dir + "tmp" )
-  Index On nkomu to ( cur_dir + "tmp1" )
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ), ( cur_dir + "tmp1" ) Alias TMP
+  dbCreate( cur_dir() + "tmp", adbf )
+  Use ( cur_dir() + "tmp" ) Alias TMP
+  Index On Str( komu, 1 ) + Str( str_crb, 2 ) to ( cur_dir() + "tmp" )
+  Index On nkomu to ( cur_dir() + "tmp1" )
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ), ( cur_dir() + "tmp1" ) Alias TMP
   r_use( dir_server + "human_", , "HUMAN_" )
   r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
   Set Relation To RecNo() into HUMAN_
@@ -867,9 +867,9 @@ Function vyp1other_schet( is_nul, lkomu, lstr_crb )
       k := { glob_komu, glob_all[ 2 ] }
     Endif
     If glob_komu == 5 // меню людей с личными счетами
-      dbCreate( cur_dir + "tmp", dbf_tmp )
-      Use ( cur_dir + "tmp" ) Alias TMP
-      Index On Upper( fio ) to ( cur_dir + "tmp" )
+      dbCreate( cur_dir() + "tmp", dbf_tmp )
+      Use ( cur_dir() + "tmp" ) Alias TMP
+      Index On Upper( fio ) to ( cur_dir() + "tmp" )
       r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
       find ( Str( 0, 6 ) + Str( B_STANDART, 1 ) )
       Do While human->schet == 0 .and. human->tip_h == B_STANDART .and. !Eof()
@@ -902,7 +902,7 @@ Function vyp1other_schet( is_nul, lkomu, lstr_crb )
         rest_box( buf )
         Return func_error( 4, "Не найдено людей с личными счетами!" )
       Endif
-      Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ) Alias TMP
+      Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ) Alias TMP
       If lkomu != NIL
         Locate For kod == glob_all[ 1 ]
         If !Found()
@@ -921,9 +921,9 @@ Function vyp1other_schet( is_nul, lkomu, lstr_crb )
       Endif
       k1 := 0
     Endif
-    dbCreate( cur_dir + "tmp", dbf_tmp )
-    Use ( cur_dir + "tmp" ) Alias TMP
-    Index On Upper( fio ) to ( cur_dir + "tmp" )
+    dbCreate( cur_dir() + "tmp", dbf_tmp )
+    Use ( cur_dir() + "tmp" ) Alias TMP
+    Index On Upper( fio ) to ( cur_dir() + "tmp" )
     k1 := 0
     If glob_komu == 5
       r_use( dir_server + "human", , "HUMAN" )
@@ -995,7 +995,7 @@ Function vyp1other_schet( is_nul, lkomu, lstr_crb )
         If iif( k1 == 1, .t., usl_vyp_schet() ) // выписать счет по условию
           mywait()
           lOldDeleted := Set( _SET_DELETED, .f. )
-          Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" )
+          Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" )
           Go Top
           i := ob_summa := ob_kol := 0
           Do While !Eof()
@@ -1050,7 +1050,7 @@ Function pr_vklad( k )
   Local i := 1, buf := SaveScreen()
   Private is_spisok := .t., p_k := k
 
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ) new
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ) new
   If LastRec() == 1
     Keyboard Chr( K_ENTER )
   Endif
@@ -1095,7 +1095,7 @@ Function f9pr_vklad( nKey, oBrow )
     rec := tmp->( RecNo() ) ; lkod := tmp->kod ; lnomer := tmp->nomer
     Close databases
     print_l_uch( lkod, 2, p_k, lnomer )
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ) new
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ) new
     Goto ( rec )
   Case nKey == K_F9 // непрерывная печать листов учета
     f_message( { "", "При просмотре списка листов учета", ;
@@ -1111,26 +1111,26 @@ Function f9pr_vklad( nKey, oBrow )
       hGauge := gaugenew(, , { "GR+/RB", "BG+/RB", "G+/RB" }, "Печать листов учета", .t. )
       gaugedisplay( hGauge )
       //
-      dbCreate( cur_dir + "tmps", { { "nomer", "N", 4, 0 }, ;
+      dbCreate( cur_dir() + "tmps", { { "nomer", "N", 4, 0 }, ;
         { "stroke", "C", 80, 0 } } )
-      Use ( cur_dir + "tmps" ) new
-      Index On Str( nomer, 4 ) to ( cur_dir + "tmps" )
+      Use ( cur_dir() + "tmps" ) new
+      Index On Str( nomer, 4 ) to ( cur_dir() + "tmps" )
       //
-      dbCreate( cur_dir + "tmpd", { { "nomer", "N", 4, 0 }, ;
+      dbCreate( cur_dir() + "tmpd", { { "nomer", "N", 4, 0 }, ;
         { "kol_s", "N", 3, 0 } } )
-      Use ( cur_dir + "tmpd" ) new
-      Index On Str( kol_s, 3 ) to ( cur_dir + "tmpd" )
+      Use ( cur_dir() + "tmpd" ) new
+      Index On Str( kol_s, 3 ) to ( cur_dir() + "tmpd" )
       //
-      dbCreate( cur_dir + "tmp1", { { "kod", "N", 4, 0 }, ;
+      dbCreate( cur_dir() + "tmp1", { { "kod", "N", 4, 0 }, ;
         { "name", "C", 65, 0 }, ;
         { "shifr", "C", 10, 0 }, ;
         { "plus", "L", 1, 0 }, ;
         { "kol", "N", 4, 0 }, ;
         { "summa", "N", 11, 2 } } )
-      Use ( cur_dir + "tmp1" ) new
-      Index On Str( kod, 4 ) to ( cur_dir + "tmp11" )
-      Index On fsort_usl( shifr ) to ( cur_dir + "tmp12" )
-      Set Index to ( cur_dir + "tmp11" ), ( cur_dir + "tmp12" )
+      Use ( cur_dir() + "tmp1" ) new
+      Index On Str( kod, 4 ) to ( cur_dir() + "tmp11" )
+      Index On fsort_usl( shifr ) to ( cur_dir() + "tmp12" )
+      Set Index to ( cur_dir() + "tmp11" ), ( cur_dir() + "tmp12" )
       //
       r_use( dir_server + "uslugi", dir_server + "uslugi", "USL" )
       r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
@@ -1319,7 +1319,7 @@ Function print_other_schet( is_vyp, is_usl, n_file )
     tel_org, razmer_usl := 0, is_view := .t., mdate_r[ 10 ], arr
 
   Default is_vyp To 0, ;  // по умолчанию счет еще не выписан
-    n_file To cur_dir + 'schet_o.txt'
+    n_file To cur_dir() + 'schet_o.txt'
   Private name_org, adres_org, inn_org, pok_name, pok_adres, pok_inn, ;
     schet_org, bank_org, mfo_org, mkorr_schet, ;
     mfio_ruk, mfio_bux, ob_summa := 0, pj
@@ -1385,13 +1385,13 @@ Function print_other_schet( is_vyp, is_usl, n_file )
   tek_stroke := 0
   n_list := 1
   If is_usl == 1
-    dbCreate( cur_dir + "tmp1", { { "shifr", "C", 10, 0 }, ;
+    dbCreate( cur_dir() + "tmp1", { { "shifr", "C", 10, 0 }, ;
       { "kol",  "N", 4, 0 }, ;
       { "data", "D", 8, 0 } } )
-    Use ( cur_dir + "tmp1" ) new
-    Index On shifr + DToS( data ) to ( cur_dir + "tmp11" )
-    Index On fsort_usl( shifr ) + DToS( data ) to ( cur_dir + "tmp12" )
-    Set Index to ( cur_dir + "tmp11" ), ( cur_dir + "tmp12" )
+    Use ( cur_dir() + "tmp1" ) new
+    Index On shifr + DToS( data ) to ( cur_dir() + "tmp11" )
+    Index On fsort_usl( shifr ) + DToS( data ) to ( cur_dir() + "tmp12" )
+    Set Index to ( cur_dir() + "tmp11" ), ( cur_dir() + "tmp12" )
   Endif
   r_use( dir_server + "mo_otd", , "OTD" )
   r_use( dir_server + "uslugi", dir_server + "uslugi", "USL" )
@@ -1402,8 +1402,8 @@ Function print_other_schet( is_vyp, is_usl, n_file )
   r_use( dir_server + "human_", , "HUMAN_" )
   r_use( dir_server + "human", , "HUMAN" )
   If is_vyp == 1
-    dbCreate( cur_dir + "tmp", { { "kod", "N", 7, 0 }, { "fio", "C", 50, 0 } } )
-    Use ( cur_dir + "tmp" ) new
+    dbCreate( cur_dir() + "tmp", { { "kod", "N", 7, 0 }, { "fio", "C", 50, 0 } } )
+    Use ( cur_dir() + "tmp" ) new
     Select HUMAN
     Set Index to ( dir_server + "humans" )
     find ( Str( schet->kod, 6 ) )
@@ -1416,7 +1416,7 @@ Function print_other_schet( is_vyp, is_usl, n_file )
       Skip
     Enddo
     Select TMP
-    Index On Upper( fio ) to ( cur_dir + "tmp" )
+    Index On Upper( fio ) to ( cur_dir() + "tmp" )
     Use
     Private p_number := AllTrim( schet->nomer_s ), p_date := c4tod( schet->pdate )
   Endif
@@ -1425,7 +1425,7 @@ Function print_other_schet( is_vyp, is_usl, n_file )
   Select HUMAN
   Set Index to ( dir_server + "humank" )
   Set Relation To RecNo() into HUMAN_, To otd into OTD, To kod_k into KART
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ) New Alias TMP
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ) New Alias TMP
   Go Top
   Select HUMAN
   find ( Str( tmp->kod, 7 ) )
@@ -1649,7 +1649,7 @@ Function f1vyp_schet()
     DevOut( PadR( "Сумма счета: " + ;
     expand_value( msum, 2 ) + " руб.", 40 ), color1 ) }
 
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" )
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" )
   fl := .f.
   If alpha_browse( T_ROW, 0, 20, 79, "f1_tmp_sch", color1, ;
       "Корректировка счета", "G+/B", .t., .t., , , "f2_tmp_sch", , ;
@@ -1717,8 +1717,8 @@ Function f2vyp_schet()
         func_error( 4, "В этом году счет с таким номером уже был выписан! Исправьте номер счета." )
         Loop
       Elseif f_esc_enter( "записи счета" )
-        Use ( cur_dir + "tmp" ) New Alias TMP
-        Index On Upper( fio ) to ( cur_dir + "tmp" )
+        Use ( cur_dir() + "tmp" ) New Alias TMP
+        Index On Upper( fio ) to ( cur_dir() + "tmp" )
         If use_base( "schet" ) .and. use_base( "human" )
           hGauge := gaugenew(, , { "GR+/RB", "BG+/RB", "G+/RB" }, ;
             "Запись номера счета по всем больным", .t. )
@@ -1834,7 +1834,7 @@ Function usl_vyp_schet( amp )
           muslovie += "tmp->k_data <= mk2_data .and. "
         Endif
       Endif
-      Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" )
+      Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" )
       If Empty( muslovie )
         muslovie := ".t."
         str_kriterij := "Все больные"
@@ -2028,7 +2028,7 @@ Function retnext0schet()
   mywait( "Поиск следующего номера счета" )
   c2 := Left( dtoc4( mdate ), 2 )
   g_use( dir_server + "schet", , "SCHET" )
-  Index On f_nom0sch( nomer_s ) to ( cur_dir + "tmp_sch" ) ;
+  Index On f_nom0sch( nomer_s ) to ( cur_dir() + "tmp_sch" ) ;
     For Left( nomer_s, 1 ) == c .and. Left( pdate, 2 ) == c2
   Go Top
   If !Eof()
@@ -2095,16 +2095,16 @@ Function akt_kontrol_2012()
         { "is_ekps", "N", 1, 0 }, ;
         { "IS_REPEAT", "N", 1, 0 }, ;
         { "prim", "C", 20, 0 } }
-      dbCreate( cur_dir + "tmps", adbf )
-      Use ( cur_dir + "tmps" ) new
+      dbCreate( cur_dir() + "tmps", adbf )
+      Use ( cur_dir() + "tmps" ) new
       r_use( dir_server + "mo_rak", , "RAK" )
       r_use( dir_server + "mo_raks", , "RAKS" )
       Set Relation To akt into RAK
       r_use( dir_server + "mo_raksh", , "RAKSH" )
       Set Relation To kod_raks into RAKS
-      Index On Str( kod_h, 7 ) to ( cur_dir + "tmp_raksh" ) For raks->SCHET == glob_schet
+      Index On Str( kod_h, 7 ) to ( cur_dir() + "tmp_raksh" ) For raks->SCHET == glob_schet
       r_use( dir_server + "mo_os", , "MO_OS" )
-      Index On Str( kod, 7 ) to ( cur_dir + "tmp_moos" )
+      Index On Str( kod, 7 ) to ( cur_dir() + "tmp_moos" )
       r_use( dir_server + "human_", , "HUMAN_" )
       r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
@@ -2173,8 +2173,8 @@ Function akt_kontrol_2012()
         { " Примечание", {|| PadR( tmps->prim, 20 ) }, blk } }
       t_arr[ BR_EDIT ] := {| nk, ob| f1akt_kontrol_2012( nk, ob, "edit" ) }
       t_arr[ BR_STAT_MSG ] := {|| status_key( "^<Esc>^ выход  ^<Del>^ отменить акт  ^<Enter>^ добавить акт  ^<F9>^ печать листа учёта" ) }
-      Use ( cur_dir + "tmps" ) new
-      Index On nomer to ( cur_dir + "tmps" )
+      Use ( cur_dir() + "tmps" ) new
+      Index On nomer to ( cur_dir() + "tmps" )
       edit_browse( t_arr )
       Close databases
     Endif
@@ -2211,7 +2211,7 @@ Static Function f1akt_kontrol_2012( nKey, oBrow, regim )
         mrepeat, m1repeat := tmps->IS_REPEAT, ;
         merror := Space( 10 ), m1error := 0, ;
         gl_area := { 1, 0, 23, 79, 0 }
-      g_use( dir_server + "mo_os", cur_dir + "tmp_moos", "MO_OS" )
+      g_use( dir_server + "mo_os", cur_dir() + "tmp_moos", "MO_OS" )
       If tmps->is_ekps == 1
         find ( Str( glob_perso, 7 ) )
         If Found()
@@ -2299,7 +2299,7 @@ Static Function f1akt_kontrol_2012( nKey, oBrow, regim )
           ahuman_2 := get_field()
           If ( fl_iname := ( human_->smo == '34   ' ) )
             g_use( dir_server + "mo_hismo", , "SN" )
-            Index On Str( kod, 7 ) to ( cur_dir + "tmp_ismo" )
+            Index On Str( kod, 7 ) to ( cur_dir() + "tmp_ismo" )
             find ( Str( glob_perso, 7 ) )
             mnameismo := sn->smo_name
           Endif
@@ -2427,7 +2427,7 @@ Static Function f1akt_kontrol_2012( nKey, oBrow, regim )
       Endif
       Close databases
       RestScreen( buf )
-      Use ( cur_dir + "tmps" ) index ( cur_dir + "tmps" ) new
+      Use ( cur_dir() + "tmps" ) index ( cur_dir() + "tmps" ) new
       Goto ( rec )
       ret := 0
     Case nKey == K_DEL
@@ -2441,7 +2441,7 @@ Static Function f1akt_kontrol_2012( nKey, oBrow, regim )
           fl := f_esc_enter( "удаления акта снятия", .t. )
         Endif
         If fl
-          g_use( dir_server + "mo_os", cur_dir + "tmp_moos", "MO_OS" )
+          g_use( dir_server + "mo_os", cur_dir() + "tmp_moos", "MO_OS" )
           find ( Str( glob_perso, 7 ) )
           mkod := mo_os->NEXT_KOD
           If tmps->IS_REPEAT == 1 .and. mkod > 0
@@ -2503,13 +2503,13 @@ Static Function f1akt_kontrol_2012( nKey, oBrow, regim )
         Endif
         RestScreen( buf )
         Close databases
-        Use ( cur_dir + "tmps" ) index ( cur_dir + "tmps" ) new
+        Use ( cur_dir() + "tmps" ) index ( cur_dir() + "tmps" ) new
         Goto ( rec )
       Endif
       ret := 0
     Case nKey == K_F9
       print_l_uch( glob_perso )
-      Use ( cur_dir + "tmps" ) index ( cur_dir + "tmps" ) new
+      Use ( cur_dir() + "tmps" ) index ( cur_dir() + "tmps" ) new
       Goto ( rec )
     Endcase
   Endif
@@ -2553,7 +2553,7 @@ Function registr_schet()
   g_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
   Set Relation To RecNo() into SCHET_
   dbSeek( dtoc4( mdate ), .t. )
-  Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir + "tmp_sch" ) ;
+  Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir() + "tmp_sch" ) ;
     For schet_->dschet >= mdate .and. !Empty( pdate ) .and. ;
     ( schet_->IS_DOPLATA == 1 .or. !Empty( Val( schet_->smo ) ) ) ;
     DESCENDING
@@ -2751,7 +2751,7 @@ Function f2_view_registr_schet( nKey, oBrow )
         Set Relation To // "отвязываем"
         If fl_iname
           g_use( dir_server + "mo_hismo", , "SN" )
-          Index On Str( kod, 7 ) to ( cur_dir + "tmp_ismo" )
+          Index On Str( kod, 7 ) to ( cur_dir() + "tmp_ismo" )
         Endif
         For ii := 1 To Len( arr_human )
           updatestatus()
@@ -2890,7 +2890,7 @@ Function f2_view_registr_schet( nKey, oBrow )
       func_error( 4, "В данный момент работают другие задачи. Операция запрещена!" )
     Endif
     g_use( dir_server + "schet_", , "SCHET_" )
-    g_use( dir_server + "schet", cur_dir + "tmp_sch", "SCHET" )
+    g_use( dir_server + "schet", cur_dir() + "tmp_sch", "SCHET" )
     Set Relation To RecNo() into SCHET_
     Goto ( rec )
     If fl
@@ -3140,7 +3140,7 @@ Function spisok_s_not_registred()
   r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
   Set Relation To RecNo() into SCHET_
   dbSeek( dtoc4( mdate ), .t. )
-  Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir + "tmp_sch" ) ;
+  Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir() + "tmp_sch" ) ;
     For schet_->NREGISTR > 0 .and. schet_->dschet >= mdate .and. !Empty( pdate ) .and. ;
     ( schet_->IS_DOPLATA == 1 .or. !Empty( Val( schet_->smo ) ) ) ;
     DESCENDING

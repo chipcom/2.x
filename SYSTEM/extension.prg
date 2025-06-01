@@ -34,7 +34,7 @@ function value_public_is_VMP( nYear )
   return __mvGet( cVar )
 
 // 26.09.23
-function fill_exists_files_TFOMS( cur_dir )
+function fill_exists_files_TFOMS( working_dir )
   local counterYear, prefix, arr
   local cDbf := '.dbf'
   local cDbt := '.dbt'
@@ -43,7 +43,7 @@ function fill_exists_files_TFOMS( cur_dir )
     hExistsFilesNSI := hb_Hash()
     for counterYear = 2018 to WORK_YEAR
       arr := {}
-      prefix := cur_dir + prefixFileRefName( counterYear )
+      prefix := working_dir + prefixFileRefName( counterYear )
       aadd(arr, { 'vmp_usl', hb_FileExists( prefix + 'vmp_usl' + cDbf ) } )
       aadd(arr, { 'dep', hb_FileExists( prefix + 'dep' + cDbf ) } )
       aadd(arr, { 'deppr', hb_FileExists( prefix + 'deppr' + cDbf ) } )
@@ -157,7 +157,7 @@ function checkNTXFile( cSource, cDest )
   local nPos
 
   if len( arrNTXFile ) == 0
-    arrNTXFile := hb_vfDirectory( cur_dir + '*.ntx' )
+    arrNTXFile := hb_vfDirectory( cur_dir() + '*.ntx' )
   endif
 
   HB_VFTIMEGET( cSource, @tsDateTimeSource )

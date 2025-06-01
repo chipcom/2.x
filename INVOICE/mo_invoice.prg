@@ -18,7 +18,7 @@ Function view_list_schet()
   g_use( dir_server + 'schet', dir_server + 'schetd', 'SCHET' )
   Set Relation To RecNo() into SCHET_
   dbSeek( dtoc4( mdate ), .t. )
-  Index On DToS( schet_->dschet ) + fsort_schet( schet_->nschet, nomer_s ) to ( cur_dir + 'tmp_sch' ) ;
+  Index On DToS( schet_->dschet ) + fsort_schet( schet_->nschet, nomer_s ) to ( cur_dir() + 'tmp_sch' ) ;
     For schet_->dschet >= mdate .and. !Empty( pdate ) .and. ;
     ( schet_->IS_DOPLATA == 1 .or. !Empty( Val( schet_->smo ) ) ) ;
     DESCENDING

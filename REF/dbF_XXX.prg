@@ -16,7 +16,7 @@ Function viewf003()
   Local nTop, nLeft, nBottom, nRight
   Local tmp_select := Select()
   Local l := 0, fl
-  Local ar, aStruct, dbName := '_mo_f003', indexName := cur_dir + dbName
+  Local ar, aStruct, dbName := '_mo_f003', indexName := cur_dir() + dbName
   Local color_say := 'N/W', color_get := 'W/N*'
   Local oBox, oBoxRegion
   Local strRegion := 'Выбор региона'
@@ -28,7 +28,7 @@ Function viewf003()
   Local prev_codem := 0, cur_codem := 0
 
   Private nRegion := 34
-  Private tmpName := cur_dir + 'tmp_F003', tmpAlias := 'tF003'
+  Private tmpName := cur_dir() + 'tmp_F003', tmpAlias := 'tF003'
   Private oBoxCompany
   Private fl_space := .f., fl_other_region := .f.
 
@@ -184,7 +184,7 @@ Function viewrecordf003()
 Function getf003mo( mCode )
 
   // mCode - код МО по F003
-  Local arr, dbName := '_mo_f003', indexName := cur_dir + dbName + 'cod'
+  Local arr, dbName := '_mo_f003', indexName := cur_dir() + dbName + 'cod'
   Local tmp_select := Select()
   Local i // возьмём первое по порядку МО
 

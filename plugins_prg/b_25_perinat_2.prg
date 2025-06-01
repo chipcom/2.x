@@ -6,7 +6,7 @@
 // * 24.01.23
 Function b_25_perinat_2()
   Static si := 1, sk := 1
-  Local buf := SaveScreen(), arr_m, i, j, k, _arr_komit := {}, fl_exit := .f.
+  Local buf := SaveScreen(), arr_m, i, _arr_komit := {}, fl_exit := .f.
 
   If ( arr_m := year_month(,,, 4 ) ) == NIL
     Return Nil
@@ -50,7 +50,7 @@ Function b_25_perinat_2()
     Endif
   Endif
   waitstatus( arr_m[ 4 ] )
-  dbCreate( cur_dir + 'tmp', { ;
+  dbCreate( cur_dir() + 'tmp', { ;
     { 'ID_PAC',  'N', 7, 0 }, ;
     { 'ID_SL',   'N', 7, 0 }, ;
     { 'VID_MP',  'N', 1, 0 }, ;
@@ -68,7 +68,7 @@ Function b_25_perinat_2()
   { 'REANIMAC', 'C', 3, 0 }, ;
     { 'SEBESTO', 'C', 12, 0 }, ;
     { 'USLUGI',  'C', 99, 0 } } )
-  Use ( cur_dir + 'tmp' ) new
+  Use ( cur_dir() + 'tmp' ) new
   r_use( dir_server + 'mo_otd',, 'OTD' )
   r_use( dir_server + 'mo_su',, 'MOSU' )
   g_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
@@ -196,8 +196,8 @@ Function b_25_perinat_2()
   RestScreen( buf )
   If !fl_exit
     n_file := 'SVED'
-    Copy File ( cur_dir + 'tmp' + sdbf ) to ( cur_dir + n_file + sdbf )
-    n_message( { 'В каталоге ' + Upper( cur_dir ), ;
+    Copy File ( cur_dir() + 'tmp' + sdbf ) to ( cur_dir() + n_file + sdbf )
+    n_message( { 'В каталоге ' + Upper( cur_dir() ), ;
       'создан файл ' + Upper( n_file + sdbf ), ;
       'со сведениями о случаях лечения пациентов.' },, ;
       cColorStMsg, cColorStMsg,,, cColorSt2Msg )

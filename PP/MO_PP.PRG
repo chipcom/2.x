@@ -178,8 +178,8 @@ if Tools_Ini_PP(1,0,0,.t.)
                 {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                 0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
                 'Запрещать ввод, если не закончено лечение по предыдущему случаю'})
-  init_base(cur_dir+"tmp",,mm_tmp,0)
-  use (cur_dir+"tmp") new
+  init_base(cur_dir()+"tmp",,mm_tmp,0)
+  use (cur_dir()+"tmp") new
   append blank
   tmp->NOVOR     := pp_NOVOR
   tmp->KEM_NAPR  := pp_KEM_NAPR
@@ -188,8 +188,8 @@ if Tools_Ini_PP(1,0,0,.t.)
   tmp->TRAVMA    := pp_TRAVMA
   tmp->NE_ZAK    := pp_NE_ZAK
   close databases
-  if f_edit_spr(A__EDIT,mm_tmp,smsg,"g_use(cur_dir+'tmp',,,.t.,.t.)",0,1) > 0
-    use (cur_dir+"tmp") new
+  if f_edit_spr(A__EDIT,mm_tmp,smsg,"g_use(cur_dir()+'tmp',,,.t.,.t.)",0,1) > 0
+    use (cur_dir()+"tmp") new
     pp_NOVOR     := tmp->NOVOR
     pp_KEM_NAPR  := rtrim(tmp->KEM_NAPR)
     pp_POB_D_LEK := tmp->POB_D_LEK
@@ -238,8 +238,8 @@ aadd(mm_tmp, {"dos_fast","N",1,0,NIL,;
               {|x|menu_reader(x,mm_dos_fast,A__MENUVERT)},;
               0,{|x|inieditspr(A__MENUVERT,mm_dos_fast,x)},;
               'Каким образом печатать документы'})
-init_base(cur_dir+"tmp",,mm_tmp,0)
-use (cur_dir+"tmp") new
+init_base(cur_dir()+"tmp",,mm_tmp,0)
+use (cur_dir()+"tmp") new
 append blank
 if pp_IST_BOL == 1 // да
   R_Use(dir_server+"pp_nastr",,"MV")
@@ -248,8 +248,8 @@ endif
 tmp->PRN_SVOD   := int(val(a2default(ar,"PRN_SVOD",  "3")))
 tmp->dos_fast   := int(val(a2default(ar,"dos_fast",  "0")))
 close databases
-if f_edit_spr(A__EDIT,mm_tmp,smsg,"g_use(cur_dir+'tmp',,,.t.,.t.)",0,1) > 0
-  use (cur_dir+"tmp") new
+if f_edit_spr(A__EDIT,mm_tmp,smsg,"g_use(cur_dir()+'tmp',,,.t.,.t.)",0,1) > 0
+  use (cur_dir()+"tmp") new
   if pp_IST_BOL == 1 .and. old_ib != tmp->N_IST_BOL
     G_Use(dir_server+"pp_nastr",,"MV")
     G_RLock(forever)
@@ -343,7 +343,7 @@ box_shadow(1,10,4,69,color1,glob_k_fio)
  alltrim(inieditspr(A__POPUPMENU, dir_server+"mo_otd", hu->otd))+'" ('+;
  alltrim(inieditspr(A__POPUPMENU, dir_server+"mo_uch", hu->lpu))+')',58) color color8
 //
-dbcreate(cur_dir+"tmp",{;
+dbcreate(cur_dir()+"tmp",{;
                 {"rec_per"  ,   "N",     7,     0},;
                 {"N_DATA"   ,   "D",     8,     0},; // дата перевода
                 {"N_TIME"   ,   "C",     5,     0},; // время перевода
@@ -353,8 +353,8 @@ dbcreate(cur_dir+"tmp",{;
                 {"DATE_VVOD",   "D",     8,     0},; // дата ввода данных
                 {"KOD_P"    ,   "C",     1,     0};  // код пользователя
                })
-use (cur_dir+"tmp") new
-index on dtos(n_data)+n_time to (cur_dir+"tmp") descending
+use (cur_dir()+"tmp") new
+index on dtos(n_data)+n_time to (cur_dir()+"tmp") descending
 append blank
 tmp->rec_per   := 0
 tmp->N_DATA    := hu->N_DATA
@@ -1145,7 +1145,7 @@ do while .t.
         f_write_pp_OMS(mkod)
       else // иначе запишем код истории болезни в промежуточный файл
         G_Use(dir_server+"mo_ppadd",,"PPA")
-        index on str(kod,7) to (cur_dir+"tmp_ppad")
+        index on str(kod,7) to (cur_dir()+"tmp_ppad")
         find (str(mkod,7))
         if !found()
           AddRec(7)
@@ -1227,7 +1227,7 @@ do while !eof()
 enddo  
 if len(arr) > 0 // запишем коды истории болезни в промежуточный файл
   G_Use(dir_server+"mo_ppadd",,"PPA")
-  index on str(kod,7) to (cur_dir+"tmp_ppad")
+  index on str(kod,7) to (cur_dir()+"tmp_ppad")
   for i := 1 to len(arr)
     find (str(arr[i],7))
     if !found()
@@ -1406,7 +1406,7 @@ put_0_human_2()
 human_2->P_PER := iif(eq_any(hu->KEM_DOST,1,2),2,1) // {"Поступил самостоятельно",1},{"Доставлен СМП",2},; 
 if alltrim(human_->SMO) == "34"
   select KSN
-  index on str(kod,7) to (cur_dir+"tmpkismo")
+  index on str(kod,7) to (cur_dir()+"tmpkismo")
   find (str(human->kod_k,7))
   if found()
     select HSN
@@ -1925,7 +1925,7 @@ else
             set order to 0
             goto (mkod)
             G_Use(dir_server+"mo_ppadd",,"PPA")
-            index on str(kod,7) to (cur_dir+"tmp_ppad")
+            index on str(kod,7) to (cur_dir()+"tmp_ppad")
             find (str(hu->kod,7))
             if found()
               DeleteRec(.t.)
@@ -2735,7 +2735,7 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
           print_shablon(arr[1]+sExt)
         else
           close databases
-          copy file (cur_dir+fr_data+".dbf") to (cur_dir+fr_titl+".dbf")
+          copy file (cur_dir()+fr_data+".dbf") to (cur_dir()+fr_titl+".dbf")
           call_fr(arr[1])
         endif
       else

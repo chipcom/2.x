@@ -235,7 +235,7 @@ do while i > 0
     MT_use_base('tip_orto')
     if fdel_t_orto(k[1]) .and. f_Esc_Enter(2)
       MT_use_base('ortoped1')
-      index on str(kod_menu,4) to (cur_dir+"tmp1")
+      index on str(kod_menu,4) to (cur_dir()+"tmp1")
       find (str(k[1],4))
       do while k[1] == kod_menu .and. !eof()
         G_RLock(forever)
@@ -279,7 +279,7 @@ aadd(mm_tmp, {"e_2","C",1,0,NIL,;
               "Нормы расхода материалов на одну услугу.",,;
               {||.f.} })
 MT_use_base('ortoped')
-index on name to (cur_dir+"tmp2")
+index on name to (cur_dir()+"tmp2")
 go top
 lOldDeleted := SET(_SET_DELETED, .F.)
 do while !eof()
@@ -292,13 +292,13 @@ do while !eof()
   skip
 enddo
 SET(_SET_DELETED, lOldDeleted)
-init_base(cur_dir+"tmp",,mm_tmp,0)
-use (cur_dir+"tmp") new
+init_base(cur_dir()+"tmp",,mm_tmp,0)
+use (cur_dir()+"tmp") new
 if tip != A__APPEND
   append blank
   MT_R_use_base('tip_orto')
   MT_R_use_base('ortoped1')
-  index on str(kod_menu,4)+str(kod_ort,4) to (cur_dir+"tmp1")
+  index on str(kod_menu,4)+str(kod_ort,4) to (cur_dir()+"tmp1")
   select TIP_ORTO
   goto kod
   //G_RLock(forever)
@@ -315,12 +315,12 @@ if tip != A__APPEND
   next
 endif
 close databases
-if f_edit_spr(tip,mm_tmp,"настройке программы","g_use(cur_dir+'tmp',,,.t.,.t.)",0,1) > 0
+if f_edit_spr(tip,mm_tmp,"настройке программы","g_use(cur_dir()+'tmp',,,.t.,.t.)",0,1) > 0
   MT_R_use_base('ortoped')
   MT_use_base('ortoped1')
-  index on str(kod_menu,4)+str(kod_ort,4) to (cur_dir+"tmp1")
+  index on str(kod_menu,4)+str(kod_ort,4) to (cur_dir()+"tmp1")
   MT_use_base('tip_orto')
-  use (cur_dir+"tmp") new
+  use (cur_dir()+"tmp") new
   select TIP_ORTO
   if tip == 3
     addrecn()
@@ -597,12 +597,12 @@ endif
 mywait()
 begin_date := arr[5]
 end_date := arr[6]
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir()+"tmp", {;
    {"KOD",        "N",      3,      0},;  // код поломки
    {"KOL",        "N",     10,      0};   // кол-во услуг
   })
-use (cur_dir+"tmp") new
-index on str(kod,3) to (cur_dir+"tmp")
+use (cur_dir()+"tmp") new
+index on str(kod,3) to (cur_dir()+"tmp")
 R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
 select HUMAN
 dbseek(dtos(begin_date),.t.)
@@ -633,7 +633,7 @@ else
   R_Use(dir_server+"ort_brk",,"PP")
   select TMP
   set relation to kod into PP
-  index on upper(pp->name) to (cur_dir+"tmp")
+  index on upper(pp->name) to (cur_dir()+"tmp")
   skol := 0
   go top
   do while !eof()
@@ -680,10 +680,10 @@ endif
 mywait()
 begin_date := arr[5]
 end_date := arr[6]
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir()+"tmp", {;
    {"KOD",        "N",      7,      0};  // код наряда
   })
-use (cur_dir+"tmp") new
+use (cur_dir()+"tmp") new
 R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
 select HUMAN
 dbseek(dtos(begin_date),.t.)
@@ -715,7 +715,7 @@ else
   set relation to kod_k into KART
   select TMP
   set relation to kod into HUMAN
-  index on upper(kart->fio)+str(human->nar_z,5) to (cur_dir+"tmp")
+  index on upper(kart->fio)+str(human->nar_z,5) to (cur_dir()+"tmp")
   skol := 0
   go top
   do while !eof()
@@ -1187,8 +1187,8 @@ do case
              {"nds20","N",  1,0},; //10.08.08
              {"nds18","N",  1,0},; //10.08.08
              {"nds10","N",  1,0}}
-    dbcreate(cur_dir+"tmp",adbf)
-    use (cur_dir+"tmp") new
+    dbcreate(cur_dir()+"tmp",adbf)
+    use (cur_dir()+"tmp") new
     adbf := {}
     select TMP
     append blank
@@ -1269,8 +1269,8 @@ else
            {"nds20",  "N",  1,0},; //10.08.08
            {"nds18",  "N",  1,0},; //10.08.08
            {"nds10",  "N",  1,0}}
-  dbcreate(cur_dir+"tmp",adbf)
-  use (cur_dir+"tmp") new
+  dbcreate(cur_dir()+"tmp",adbf)
+  use (cur_dir()+"tmp") new
   adbf := {}
   select TMP
   append blank
@@ -1340,15 +1340,15 @@ elseif i == 2
        "     Введите номер необходимого наряда-заказа",;
        snar_z,"99999")) != NIL .and. ln > 0
     snar_z := ln
-    dbcreate(cur_dir+"tmp_kart",{{"kod","N",7,0},;
+    dbcreate(cur_dir()+"tmp_kart",{{"kod","N",7,0},;
                          {"fio","C",50,0},;
                          {"data","D",8,0},;
                          {"rec_hum","N",7,0},;
                          {"bukva","C",1,0},;
                          {"uchast","N",2,0},;
                          {"kod_vu","N",5,0}} )
-    use (cur_dir+"tmp_kart") alias TMP
-    index on dtos(data) to (cur_dir+"tmp_kart") descending
+    use (cur_dir()+"tmp_kart") alias TMP
+    index on dtos(data) to (cur_dir()+"tmp_kart") descending
     //
     R_Use(dir_server+"kartotek",,"KART")
     R_Use(dir_server+"hum_ort",dir_server+"hum_ortn","HUMAN")
@@ -1376,7 +1376,7 @@ elseif i == 2
       R_Use(dir_server+"kartote2",,"KART2")
       R_Use(dir_server+"kartote_",,"KART_")
       R_Use(dir_server+"kartotek",,"KART")
-      use (cur_dir+"tmp_kart") index (cur_dir+"tmp_kart") new alias TMP
+      use (cur_dir()+"tmp_kart") index (cur_dir()+"tmp_kart") new alias TMP
       set relation to kod into KART, to kod into KART_, to kod into KART2
       change_attr()
       top_frm := 14
@@ -2119,12 +2119,12 @@ aadd(adbf, {"name_u", "C",65,0} )
 aadd(adbf, {"number", "N", 3,0} )
 aadd(adbf, {"is_nul", "L", 1,0} )
 aadd(adbf, {"rec_hu", "N", 7,0} )
-dbcreate(cur_dir+"tmp_usl",adbf)
-use (cur_dir+"tmp_usl") new alias tmp
+dbcreate(cur_dir()+"tmp_usl",adbf)
+use (cur_dir()+"tmp_usl") new alias tmp
 if mem_ordusl == 1
-  index on dtos(date_u1)+fsort_usl(shifr_u) to (cur_dir+"tmp_usl")
+  index on dtos(date_u1)+fsort_usl(shifr_u) to (cur_dir()+"tmp_usl")
 else
-  index on fsort_usl(shifr_u)+dtos(date_u1) to (cur_dir+"tmp_usl")
+  index on fsort_usl(shifr_u)+dtos(date_u1) to (cur_dir()+"tmp_usl")
 endif
 select HU
 set relation to u_kod into USL
@@ -2165,7 +2165,7 @@ if use_base("hum_ort").and. ;
   goto (mkod_human)
   last_date := max(human->n_data,last_date)
   pr1otd := human->otd
-  Use (cur_dir+"tmp_usl") index (cur_dir+"tmp_usl") new alias TMP
+  Use (cur_dir()+"tmp_usl") index (cur_dir()+"tmp_usl") new alias TMP
   set relation to otd into OTD
   go top
   cls
@@ -2952,12 +2952,12 @@ aadd(adbf, {"name_u", "C",65,0} )
 aadd(adbf, {"full_name", "C",255,0} )
 aadd(adbf, {"number", "N", 3,0} )
 aadd(adbf, {"rec_hu", "N", 7,0} )
-dbcreate(cur_dir+"tmp_usl",adbf)
-use (cur_dir+"tmp_usl") new alias tmp
+dbcreate(cur_dir()+"tmp_usl",adbf)
+use (cur_dir()+"tmp_usl") new alias tmp
 if mem_ordusl == 1
-  index on dtos(date_u1)+fsort_usl(shifr_u) to (cur_dir+"tmp_usl")
+  index on dtos(date_u1)+fsort_usl(shifr_u) to (cur_dir()+"tmp_usl")
 else
-  index on fsort_usl(shifr_u)+dtos(date_u1) to (cur_dir+"tmp_usl")
+  index on fsort_usl(shifr_u)+dtos(date_u1) to (cur_dir()+"tmp_usl")
 endif
 select HU
 set relation to u_kod into USL
@@ -2988,18 +2988,18 @@ usl->(dbclosearea())
 //Local reg, reg1, mperso, musluga, mkod
 //Local msl1usluga, msl2usluga, l_delen, mslusluga
 
-dbcreate(cur_dir+"tmp11", {;
+dbcreate(cur_dir()+"tmp11", {;
    {"KOD",        "N",      4,      0},;  // код (услуги)
    {"KOL",        "N",     10,      3},;  // кол-во услуг
    {"STOIM",      "N",     14,      2} ;  // стоимость лечения
   })
-dbcreate(cur_dir+"tmp12", {;
+dbcreate(cur_dir()+"tmp12", {;
    {"KOL",        "N",     10,      3},;  // кол-во услуг
    {"tname",      "C",     80,      0} ;  // стоимость лечения
   })
-use (cur_dir+"tmp12") new
-use (cur_dir+"tmp11") new
-index on str(kod,4) to (cur_dir+"tmp11")
+use (cur_dir()+"tmp12") new
+use (cur_dir()+"tmp11") new
+index on str(kod,4) to (cur_dir()+"tmp11")
 R_Use(dir_server+"tip_orto",,"ORT")
 R_Use(dir_server+"ortoped",,"OR")
 R_Use(dir_server+"ortoped1",,"OR1")
@@ -3377,13 +3377,13 @@ add_string("")
 add_string(center("Предварительный Расход материалов",sh))
 add_string("")
 
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir()+"tmp", {;
    {"KOD",        "N",      4,      0},;  // код (услуги)
    {"KOL",        "N",     10,      3},;  // кол-во услуг
    {"STOIM",      "N",     14,      2} ;  // стоимость лечения
   })
-use (cur_dir+"tmp") new
-index on str(kod,4) to (cur_dir+"tmp")
+use (cur_dir()+"tmp") new
+index on str(kod,4) to (cur_dir()+"tmp")
 R_Use(dir_server+"tip_orto",,"ORT")
 R_Use(dir_server+"ortoped",,"OR")
 R_Use(dir_server+"ortoped1",,"OR1")

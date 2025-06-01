@@ -159,13 +159,13 @@ Function obF2_statist(k, serv_arr)
       {'KOL1'   ,    'N',      6,      0} ;  // количество услуг
     }
   if !is_all
-    dbcreate(cur_dir + 'tmp', adbf2)
-    use (cur_dir + 'tmp') new
-    index on str(u_kod, 6) to (cur_dir + 'tmpk')
-    index on fsort_usl(u_shifr) to (cur_dir + 'tmpn')
+    dbcreate(cur_dir() + 'tmp', adbf2)
+    use (cur_dir() + 'tmp') new
+    index on str(u_kod, 6) to (cur_dir() + 'tmpk')
+    index on fsort_usl(u_shifr) to (cur_dir() + 'tmpn')
     close databases
     obF2_v_usl()
-    use (cur_dir + 'tmp') new
+    use (cur_dir() + 'tmp') new
     dbeval({|| aadd(arr_usl, tmp->u_kod) } )
     use
     if len(arr_usl) == 0
@@ -173,60 +173,60 @@ Function obF2_statist(k, serv_arr)
     endif
   endif
   if eq_any(k, 8, 9, 13, 14)  // вывод списка больных
-    dbcreate(cur_dir + 'tmp', adbf1)
+    dbcreate(cur_dir() + 'tmp', adbf1)
   else
-    dbcreate(cur_dir + 'tmp', adbf2)
+    dbcreate(cur_dir() + 'tmp', adbf2)
   endif
   WaitStatus('<Esc> - прервать поиск')
   mark_keys({'<Esc>'})
-  use (cur_dir + 'tmp')
+  use (cur_dir() + 'tmp')
   do case
     case k == 1  // Количество услуг и сумма лечения по отделениям
-      index on str(otd, 3) to (cur_dir + 'tmpk')
-      index on str(u_kod, 6) + upper(fio) to (cur_dir + 'tmpn')
+      index on str(otd, 3) to (cur_dir() + 'tmpk')
+      index on str(u_kod, 6) + upper(fio) to (cur_dir() + 'tmpn')
     case k == 2  // Статистика по работе персонала в конкретном отделении
-      index on str(vr_as, 1) + str(kod_vr_as, 4) to (cur_dir + 'tmpk')
-      index on upper(left(fio, 30)) + str(kod_vr_as, 4) + str(vr_as, 1) to (cur_dir + 'tmpn')
+      index on str(vr_as, 1) + str(kod_vr_as, 4) to (cur_dir() + 'tmpk')
+      index on upper(left(fio, 30)) + str(kod_vr_as, 4) + str(vr_as, 1) to (cur_dir() + 'tmpn')
     case k == 3  // Статистика по услугам, оказанным в конкретном отделении
-      index on str(u_kod, 6) to (cur_dir + 'tmpk')
-      index on fsort_usl(u_shifr) to (cur_dir + 'tmpn')
+      index on str(u_kod, 6) to (cur_dir() + 'tmpk')
+      index on fsort_usl(u_shifr) to (cur_dir() + 'tmpn')
     case k == 31  // Статистика по услугам, оказанным в конкретных отделениях
-      index on str(otd, 3) + str(u_kod, 6) to (cur_dir + 'tmpk')
-      index on upper(fio) + str(otd, 3) + fsort_usl(u_shifr) to (cur_dir + 'tmpn')
+      index on str(otd, 3) + str(u_kod, 6) to (cur_dir() + 'tmpk')
+      index on upper(fio) + str(otd, 3) + fsort_usl(u_shifr) to (cur_dir() + 'tmpn')
     case k == 4  // Статистика по работе персонала (плюс оказанные услуги) в конкретном отделении
-      index on str(vr_as, 1) + str(kod_vr_as, 4) + str(u_kod, 6) to (cur_dir + 'tmpk')
-      index on upper(left(fio, 30)) + str(kod_vr_as, 4) + str(vr_as, 1) + fsort_usl(u_shifr) to (cur_dir + 'tmpn')
+      index on str(vr_as, 1) + str(kod_vr_as, 4) + str(u_kod, 6) to (cur_dir() + 'tmpk')
+      index on upper(left(fio, 30)) + str(kod_vr_as, 4) + str(vr_as, 1) + fsort_usl(u_shifr) to (cur_dir() + 'tmpn')
     case k == 5  // Статистика по работе конкретного человека (плюс оказанные услуги)
-      index on str(vr_as, 1) + str(kod_vr_as, 4) + str(u_kod, 6) to (cur_dir + 'tmpk')
+      index on str(vr_as, 1) + str(kod_vr_as, 4) + str(u_kod, 6) to (cur_dir() + 'tmpk')
       if serv_arr == NIL
-        index on str(vr_as, 1) + fsort_usl(u_shifr) to (cur_dir + 'tmpn')
+        index on str(vr_as, 1) + fsort_usl(u_shifr) to (cur_dir() + 'tmpn')
       else
-        index on upper(left(fio, 30)) + str(kod_vr_as, 4) + str(vr_as, 1) + fsort_usl(u_shifr) to (cur_dir + 'tmpn')
+        index on upper(left(fio, 30)) + str(kod_vr_as, 4) + str(vr_as, 1) + fsort_usl(u_shifr) to (cur_dir() + 'tmpn')
       endif
     case k == 6  // Статистика по конкретным услугам
-      index on str(u_kod, 6) to (cur_dir + 'tmpk')
-      index on fsort_usl(u_shifr) to (cur_dir + 'tmpn')
+      index on str(u_kod, 6) to (cur_dir() + 'tmpk')
+      index on fsort_usl(u_shifr) to (cur_dir() + 'tmpn')
       close databases
       obF2_v_usl()
     case k == 7  // Статистика по работе всего персонала
-      index on str(vr_as, 1) + str(kod_vr_as, 4) to (cur_dir + 'tmpk')
-      index on upper(left(fio, 30)) + str(kod_vr_as, 4) + str(vr_as, 1) to (cur_dir + 'tmpn')
+      index on str(vr_as, 1) + str(kod_vr_as, 4) to (cur_dir() + 'tmpk')
+      index on upper(left(fio, 30)) + str(kod_vr_as, 4) + str(vr_as, 1) to (cur_dir() + 'tmpn')
     case eq_any(k, 8, 9)  // вывод списка больных
-      index on str(kod, 7) to (cur_dir + 'tmpk')
-      index on dtos(k_data) + upper(left(fio, 30)) to (cur_dir + 'tmpn')
+      index on str(kod, 7) to (cur_dir() + 'tmpk')
+      index on dtos(k_data) + upper(left(fio, 30)) to (cur_dir() + 'tmpn')
     case k == 12 // Статистика по всем услугам
-      index on str(u_kod, 6) to (cur_dir + 'tmpk')
-      index on fsort_usl(u_shifr) to (cur_dir + 'tmpn')
+      index on str(u_kod, 6) to (cur_dir() + 'tmpk')
+      index on fsort_usl(u_shifr) to (cur_dir() + 'tmpn')
     case k == 13  // вывод услуг + списка больных
-      index on str(u_kod, 6) + str(kod, 7) to (cur_dir + 'tmpk')
-      index on fsort_usl(u_shifr) + str(u_kod, 6)+dtos(k_data) + upper(left(fio, 30)) to (cur_dir + 'tmpn')
+      index on str(u_kod, 6) + str(kod, 7) to (cur_dir() + 'tmpk')
+      index on fsort_usl(u_shifr) + str(u_kod, 6)+dtos(k_data) + upper(left(fio, 30)) to (cur_dir() + 'tmpn')
     case k == 14  // Статистика по конкретным услугам + список больных
-      index on str(u_kod, 6) + str(kod, 7) to (cur_dir + 'tmpk')
-      index on fsort_usl(u_shifr) + str(u_kod, 6)+dtos(k_data) + upper(left(fio, 30)) to (cur_dir + 'tmpn')
+      index on str(u_kod, 6) + str(kod, 7) to (cur_dir() + 'tmpk')
+      index on fsort_usl(u_shifr) + str(u_kod, 6)+dtos(k_data) + upper(left(fio, 30)) to (cur_dir() + 'tmpn')
       close databases
       obF2_v_usl()
   endcase
-  use (cur_dir + 'tmp') index (cur_dir + 'tmpk'), (cur_dir + 'tmpn') alias TMP
+  use (cur_dir() + 'tmp') index (cur_dir() + 'tmpk'), (cur_dir() + 'tmpn') alias TMP
   R_Use(dir_server + 'mo_su', , 'USL')
   Private is_1_usluga := (len(arr_usl) == 1)
   use_base('luslf')
@@ -656,7 +656,7 @@ Function obF2_statist(k, serv_arr)
     SET(_SET_DELETED, .F.)
     use_base('luslf')
     R_Use(dir_server + 'mo_su', , 'USL')
-    use (cur_dir + 'tmp') index (cur_dir + 'tmpk'), (cur_dir + 'tmpn') NEW alias TMP
+    use (cur_dir() + 'tmp') index (cur_dir() + 'tmpk'), (cur_dir() + 'tmpn') NEW alias TMP
     if !eq_any(k, 1, 8, 9)
       R_Use(dir_server + 'mo_pers', , 'PERSO')
       select TMP
@@ -733,7 +733,7 @@ Function obF2_statist(k, serv_arr)
       endif
     endif
     SET(_SET_DELETED, .T.)
-    fp := fcreate(cur_dir + 'obF_stat.txt')
+    fp := fcreate(cur_dir() + 'obF_stat.txt')
     tek_stroke := 0
     n_list := 1
     add_string(padl('дата печати ' + date_8(sys_date), sh))
@@ -1019,7 +1019,7 @@ Function obF2_statist(k, serv_arr)
     endif
     fclose(fp)
     close databases
-    viewtext(cur_dir + 'obF_stat.txt', , , ,(sh > 80), , , regim)
+    viewtext(cur_dir() + 'obF_stat.txt', , , ,(sh > 80), , , regim)
   endif
   return NIL
 
@@ -1338,7 +1338,7 @@ Function obF2_v_usl(is_get, r1, mtitul, name_tmp)
   endif
   R_Use(dir_server + 'mo_su', {dir_server + 'mo_sush', ;
                           dir_server + 'mo_sush1'}, 'USL')
-  use (cur_dir + name_tmp) index (cur_dir + name_tmp + 'k'),(cur_dir + name_tmp + 'n') new alias TMP
+  use (cur_dir() + name_tmp) index (cur_dir() + name_tmp + 'k'),(cur_dir() + name_tmp + 'n') new alias TMP
   set order to 2
   t_arr[BR_TOP] := r1
   t_arr[BR_BOTTOM] := maxrow() - 2
@@ -1384,7 +1384,7 @@ Function obF21v_usl(nKey, oBrow, regim, mtitul)
           mywait()
           rec := recno()
           Private reg_print := 2
-          n_file := cur_dir + 'obF2v_us.txt'
+          n_file := cur_dir() + 'obF2v_us.txt'
           fp := fcreate(n_file)
           n_list := 1
           tek_stroke := 0
@@ -1529,7 +1529,7 @@ Function input_Fusluga()
     if fl
       s := iif(empty(usl->shifr), '', '(' + alltrim(usl->shifr) + ') ')
       sbase := prefixFileRefName(WORK_YEAR) + 'uslf'
-      R_Use(dir_exe() + sbase, cur_dir + sbase, 'luslf')
+      R_Use(dir_exe() + sbase, cur_dir() + sbase, 'luslf')
       find (usl->shifr1)
       arr_usl := {usl->kod, alltrim(usl->shifr1) + '. ' + s + alltrim(luslf->name), usl->shifr1}
       luslf->(dbCloseArea())

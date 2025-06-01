@@ -497,7 +497,7 @@ Function oms_sluch_PerN(Loc_kod, kod_kartotek, f_print)
       endif
       arr_iss := array(count_Pern_arr_iss, 10)
       afillall(arr_iss, 0)
-      R_Use(dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10')
+      R_Use(dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10')
       R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2')
       max_date1 := max_date2 := mn_data
       fl := .t.
@@ -747,7 +747,7 @@ Function oms_sluch_PerN(Loc_kod, kod_kartotek, f_print)
       endif
       if fl_nameismo .or. rec_inogSMO > 0
         G_Use(dir_server + 'mo_hismo', , 'SN')
-        index on str(kod, 7) to (cur_dir + 'tmp_ismo')
+        index on str(kod, 7) to (cur_dir() + 'tmp_ismo')
         find (str(mkod, 7))
         if found()
           if fl_nameismo

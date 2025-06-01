@@ -12,7 +12,7 @@ Function verify_oms( arr_m, fl_view )
   // 1 эл. - кол-во обычных случаев, 
   // 2 эл. - кол-во случаев диспансеризации
 
-  Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := cur_dir + 'err_sl.txt', ;
+  Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := cur_dir() + 'err_sl.txt', ;
     name_file2, name_file3, kr_unlock, i, ;
     mas_pmt := { 'Список обнаруженных ошибок в результате проверки' }, mas_file := {}
   // local kol_1r := 0, ; // количество обычных случаев
@@ -51,17 +51,17 @@ Function verify_oms( arr_m, fl_view )
   add_string( Center( 'по дате окончания лечения ' + arr_m[ 4 ], 80 ) )
   add_string( '' )
   If ! fl_view
-    Use ( cur_dir + 'tmp' ) new
-    Use ( cur_dir + 'tmpb' ) index ( cur_dir + 'tmpb' ) new
+    Use ( cur_dir() + 'tmp' ) new
+    Use ( cur_dir() + 'tmpb' ) index ( cur_dir() + 'tmpb' ) new
   Endif
-  dbCreate( cur_dir + 'tmp_no', { { 'kod', 'N', 7, 0 }, ;
+  dbCreate( cur_dir() + 'tmp_no', { { 'kod', 'N', 7, 0 }, ;
     { 'tip', 'N', 1, 0 }, ;
     { 'komu', 'N', 1, 0 }, ;
     { 'str_crb', 'N', 2, 0 } } )
-  Use ( cur_dir + 'tmp_no' ) new
+  Use ( cur_dir() + 'tmp_no' ) new
 
   f_create_diag_srok( 'tmp_d_srok' )
-  Use ( cur_dir + 'tmp_d_srok' ) New Alias D_SROK
+  Use ( cur_dir() + 'tmp_d_srok' ) New Alias D_SROK
 
   r_use( dir_server + 'mo_pers', , 'PERS' )
   r_use( dir_server + 'mo_uch', , 'UCH' )
@@ -96,15 +96,15 @@ Function verify_oms( arr_m, fl_view )
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
   If AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. fl_view
     Private old_npr_mo := '000000'
-    Index On f_napr_mo_lis() + Upper( fio ) + Str( kod_k, 7 ) to ( cur_dir + 'tmp_hfio' ) ;
+    Index On f_napr_mo_lis() + Upper( fio ) + Str( kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) ;
       While human->k_data <= arr_m[ 6 ] .and. !Eof() ;
       For tip_h == B_STANDART .and. Empty( schet ) .and. !Empty( k_data )
   Else
-    Index On Upper( fio ) + Str( kod_k, 7 ) to ( cur_dir + 'tmp_hfio' ) ;
+    Index On Upper( fio ) + Str( kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) ;
       While human->k_data <= arr_m[ 6 ] .and. !Eof() ;
       For tip_h == B_STANDART .and. Empty( schet ) .and. !Empty( k_data )
   Endif
-  Set Index to ( dir_server + 'humans' ), ( dir_server + 'humankk' ), ( dir_server + 'humand' ), ( cur_dir + 'tmp_hfio' )
+  Set Index to ( dir_server + 'humans' ), ( dir_server + 'humankk' ), ( dir_server + 'humand' ), ( cur_dir() + 'tmp_hfio' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
   Set Order To 4
   Go Top
@@ -205,7 +205,7 @@ Function verify_oms( arr_m, fl_view )
     Select HUMAN_3
     Set Order To 2 // встать на индекс по 2-му случаю
     Select TMPB
-    Index On Str( kod_human, 7 ) to ( cur_dir + 'tmpb' ) For ishod == 89  // 2-ой лист учёта в двойном случае
+    Index On Str( kod_human, 7 ) to ( cur_dir() + 'tmpb' ) For ishod == 89  // 2-ой лист учёта в двойном случае
     Go Top
     Do While !Eof()
       Select HUMAN_3
@@ -259,7 +259,7 @@ Function verify_oms( arr_m, fl_view )
     Enddo
   Endif
   If fl_view .and. d_srok->( LastRec() ) > 0
-    name_file2 := cur_dir + 'err_sl2.txt'
+    name_file2 := cur_dir() + 'err_sl2.txt'
     Delete File ( name_file2 )
     AAdd( mas_pmt, 'Случаи повторных обращений по поводу одного заболевания' )
     AAdd( mas_file, name_file2 )
@@ -340,7 +340,7 @@ Function verify_oms( arr_m, fl_view )
     Enddo
   Endif
   If fl_view .and. tmp_no->( LastRec() ) > 0
-    name_file3 := cur_dir + 'err_sl3.txt'
+    name_file3 := cur_dir() + 'err_sl3.txt'
     AAdd( mas_pmt, 'Список листов учёта, которые не проверялись' )
     AAdd( mas_file, name_file3 )
     fp := FCreate( name_file3 )
@@ -354,7 +354,7 @@ Function verify_oms( arr_m, fl_view )
     r_use( dir_server + 'komitet', , 'KOM' )
     Select TMP_NO
     Set Relation To kod into HUMAN
-    Index On Str( tip, 1 ) + Str( komu, 1 ) + Str( str_crb, 2 ) + Upper( human->fio ) to ( cur_dir + 'tmp_no' )
+    Index On Str( tip, 1 ) + Str( komu, 1 ) + Str( str_crb, 2 ) + Upper( human->fio ) to ( cur_dir() + 'tmp_no' )
     old_tip := old_komu := old_str_crb := -1
     Go Top
     Do While !Eof()
@@ -425,11 +425,11 @@ Function verify_oms( arr_m, fl_view )
 // 15.06.24
 Function verify_oms_sluch( mkod )
 
-  Local buf := save_maxrow(), fl := .t., name_file := cur_dir + 'err_sl.txt'
+  Local buf := save_maxrow(), fl := .t., name_file := cur_dir() + 'err_sl.txt'
 
   mywait()
   f_create_diag_srok( 'tmp_d_srok' )
-  Use ( cur_dir + 'tmp_d_srok' ) New Alias D_SROK
+  Use ( cur_dir() + 'tmp_d_srok' ) New Alias D_SROK
 
   fp := FCreate( name_file )
   n_list := 1

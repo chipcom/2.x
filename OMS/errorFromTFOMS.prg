@@ -12,7 +12,7 @@ Function f3oms_edit()
   local s1, aTokens, adbf
   Local lek_pr := .f.
 
-  If !myfiledeleted( cur_dir + "tmp_h" + sdbf )
+  If !myfiledeleted( cur_dir() + "tmp_h" + sdbf )
     Return Nil
   Endif
 
@@ -22,13 +22,13 @@ Function f3oms_edit()
     buf24 := save_maxrow()
     mywait()
     arr := {}
-    dbCreate( cur_dir + "tmp_h", ;
+    dbCreate( cur_dir() + "tmp_h", ;
       { { "kod", "N", 7, 0 }, ;
       { "SREFREASON", "C", 12, 0 }, ;
       { "REFREASON", "N", 10, 0 } } )
-    Use ( cur_dir + "tmp_h" ) new
+    Use ( cur_dir() + "tmp_h" ) new
     r_use( dir_server + "mo_refr",, "REFR" )
-    Index On Str( kodz, 8 ) to ( cur_dir + "tmp_refr" ) For tipz == 1
+    Index On Str( kodz, 8 ) to ( cur_dir() + "tmp_refr" ) For tipz == 1
     r_use( dir_server + "human_",, "HUMAN_" )
     r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
     Set Relation To RecNo() into HUMAN_, To Str( human->kod, 8 ) into REFR
@@ -88,10 +88,10 @@ Function f3oms_edit()
         { "otd_kod", "N", 3, 0 }, ;
         { "smo_kod", "C", 5, 0 }, ;
         { "napr_uch", "C", 6, 0 } }
-      dbCreate( cur_dir + fr_data + '2', adbf )
+      dbCreate( cur_dir() + fr_data + '2', adbf )
       If f_esc_enter( "создания отчета в Excel ", .t. )
-        // dbcreate(cur_dir + fr_data + '2', adbf)
-        Use ( cur_dir + fr_data + '2' ) New Alias FRD2
+        // dbcreate(cur_dir() + fr_data + '2', adbf)
+        Use ( cur_dir() + fr_data + '2' ) New Alias FRD2
         // база готова
         r_use( dir_server + "mo_otd",, "OTD" )
         r_use( dir_server + "human_2",, "HU2" )
@@ -162,9 +162,9 @@ Function f3oms_edit()
         g_use( dir_server + "human_",, "HUMAN_" )
         r_use( dir_server + "human",, "HUMAN" )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
-        Use ( cur_dir + "tmp_h" ) new
+        Use ( cur_dir() + "tmp_h" ) new
         Set Relation To kod into HUMAN
-        Index On Upper( human->fio ) to ( cur_dir + "tmp_h" ) For REFREASON == iRefr
+        Index On Upper( human->fio ) to ( cur_dir() + "tmp_h" ) For REFREASON == iRefr
         If srec == NIL
           Go Top
         Else

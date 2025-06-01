@@ -1526,7 +1526,7 @@ Function st_operator()
     { 'KP',      'N',   9,   0 };  // количество введённых полей
     } )
     Use ( cur_dir() + 'tmp' ) new
-    Index On Str( pt, 3 ) + Str( po, 3 ) + Str( ae, 1 ) + Str( tp, 1 ) to ( cur_dir + 'tmp' )
+    Index On Str( pt, 3 ) + Str( po, 3 ) + Str( ae, 1 ) + Str( tp, 1 ) to ( cur_dir() + 'tmp' )
     r_use( dir_server + 'base1', , 'B1' )
     r_use( dir_server + 'mo_opern', dir_server + 'mo_opern', 'OP' )
     dbSeek( arr_g[ 7 ], .t. )

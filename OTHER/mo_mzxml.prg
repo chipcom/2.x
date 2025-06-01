@@ -745,7 +745,7 @@ Function mo_mzxml_N(_regim, n_file, stitle, lvozrast)
     oXmlDoc:Save(n_file + sxml())
     rest_box(buf)
     n_message({stitle + '- ' + lstr(_kol) + ' чел.;', ;
-             'в каталоге ' + upper(cur_dir) + ' создан файл ' + upper(n_file + sxml()), ;
+             'в каталоге ' + upper(cur_dir()) + ' создан файл ' + upper(n_file + sxml()), ;
              'для загрузки на портал Минздрава РФ.'}, , ;
              cColorStMsg, cColorStMsg, , , cColorSt2Msg)
   endif
@@ -770,7 +770,7 @@ Function pr_inog_inostr()
     return NIL
   endif
   WaitStatus('ОМС')
-  dbcreate(cur_dir + 'tmp_kart',{{'kod', 'N', 7, 0}, ;
+  dbcreate(cur_dir() + 'tmp_kart',{{'kod', 'N', 7, 0}, ;
                                 {'vozr', 'N', 2, 0}, ;
                                 {'vid', 'N', 1, 0}, ;
                                 {'profil', 'N', 3, 0}, ;
@@ -782,11 +782,11 @@ Function pr_inog_inostr()
                                 {'k_day', 'N', 5, 0}, ;
                                 {'d_begin', 'C', 10, 0}, ;
                                 {'forma', 'N', 1, 0} })
-  use (cur_dir + 'tmp_kart') new
-  index on str(kod, 7) + str(vid, 1) + str(profil, 3) + region + str(osnov, 2) + str(ist_fin, 1) to (cur_dir + 'tmp_kart')
+  use (cur_dir() + 'tmp_kart') new
+  index on str(kod, 7) + str(vid, 1) + str(profil, 3) + region + str(osnov, 2) + str(ist_fin, 1) to (cur_dir() + 'tmp_kart')
   //
   Private _arr_if := {}, _what_if := _init_if(), _arr_komit := {}
-  R_Use(dir_exe()+'_okator', cur_dir + '_okatr', 'REGION')
+  R_Use(dir_exe()+'_okator', cur_dir() + '_okatr', 'REGION')
   R_Use(dir_server + 'kartote_', , 'KART_')
   R_Use(dir_server + 'kartotek', , 'KART')
   set relation to recno() into KART_
@@ -1095,14 +1095,14 @@ Function f3pr_inog_inostr(j, arr_m)
           {'d_begin', 'C', 10, 0}, ;
           {'forma', 'C', 60, 0}})
   use (fr_data) new alias FRD
-  R_Use(dir_exe()+'_okator',cur_dir + '_okatr', 'REGION')
+  R_Use(dir_exe()+'_okator',cur_dir() + '_okatr', 'REGION')
   R_Use(dir_server + 'kartotek', , 'KART')
-  use (cur_dir + 'tmp_kart') new
+  use (cur_dir() + 'tmp_kart') new
   if j == 1 .or. j == 2 .or. j == 5
     set relation to kod into KART
-    index on upper(kart->fio) + str(kart->kod, 7) + str(vid, 1) + str(profil, 3)+region+str(osnov, 2) + str(ist_fin, 1) to (cur_dir + 'tmp_kart')
+    index on upper(kart->fio) + str(kart->kod, 7) + str(vid, 1) + str(profil, 3)+region+str(osnov, 2) + str(ist_fin, 1) to (cur_dir() + 'tmp_kart')
   else
-    index on region+str(osnov, 2) + str(ist_fin, 1) + str(vid, 1) + str(profil, 3) to (cur_dir + 'tmp_kart')
+    index on region+str(osnov, 2) + str(ist_fin, 1) + str(vid, 1) + str(profil, 3) to (cur_dir() + 'tmp_kart')
   endif
   if j == 1 .or. j == 2 .or. j == 5
     select TMP_KART
@@ -1152,7 +1152,7 @@ Function f3pr_inog_inostr(j, arr_m)
       skip
     enddo
   else
-    dbcreate(cur_dir + 'tmp1',{{'vid', 'N', 1, 0}, ;
+    dbcreate(cur_dir() + 'tmp1',{{'vid', 'N', 1, 0}, ;
                              {'profil', 'N', 3, 0}, ;
                              {'region', 'C', 3, 0}, ;
                              {'osnov', 'N', 2, 0}, ;
@@ -1160,8 +1160,8 @@ Function f3pr_inog_inostr(j, arr_m)
                              {'kol', 'N', 6, 0}, ;
                              {'kols', 'N', 6, 0}, ;
                              {'summa', 'N', 15, 2}})
-    use (cur_dir + 'tmp1') new
-    index on region+str(osnov, 2) + str(ist_fin, 1) + str(vid, 1) + str(profil, 3) to (cur_dir + 'tmp1')
+    use (cur_dir() + 'tmp1') new
+    index on region+str(osnov, 2) + str(ist_fin, 1) + str(vid, 1) + str(profil, 3) to (cur_dir() + 'tmp1')
     select TMP_KART
     go top
     do while !eof()

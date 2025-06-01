@@ -118,7 +118,7 @@ function reestr_spravka_fns()
 
   dbSetRelation( 'payer', {|| fns->kod_payer}, 'fns->kod_payer')
   
-  Index On kod to ( cur_dir + "tmp_reg" ) DESCENDING
+  Index On kod to ( cur_dir() + "tmp_reg" ) DESCENDING
   fns->( dbGoTop() )
   mtitle := 'Сформированные справки для ФНС'
   alpha_browse( 5, 0, MaxRow() - 2, 79, 'defColumn_Spravka_FNS', color0, mtitle, 'BG+/GR', ;

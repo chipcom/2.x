@@ -502,7 +502,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
   endif
 
-  dbcreate(cur_dir + 'tmp_onkna', create_struct_temporary_onkna())
+  dbcreate(cur_dir() + 'tmp_onkna', create_struct_temporary_onkna())
   cur_napr := 1 // при ред-ии - сначала первое направление текущее
   count_napr := collect_napr_zno( Loc_kod )
   if count_napr > 0
@@ -809,7 +809,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       //
       // ////////////////////////////////////////////////////////////
       mdef_diagnoz := DGZ
-      r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10' )
+      r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
       r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2' )
       num_screen := 2
       fl := .t.
@@ -1495,7 +1495,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server + 'mo_hismo',, 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo

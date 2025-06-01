@@ -185,7 +185,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     mHEI := Space( 3 ), ; // рост в см Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
     mBSA := Space( 4 )   // площадь поверхности тела в кв.м. Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
 
-  dbCreate( cur_dir + 'tmp_onkna',  create_struct_temporary_onkna() )
+  dbCreate( cur_dir() + 'tmp_onkna',  create_struct_temporary_onkna() )
 
   Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
     mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
@@ -212,12 +212,12 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
 
   AFill( mgist, 0 )
   AFill( mmark, 0 )
-  dbCreate( cur_dir + 'tmp_onkco',  { ; // Сведения о проведении консилиума
+  dbCreate( cur_dir() + 'tmp_onkco',  { ; // Сведения о проведении консилиума
     { 'KOD',      'N',   7,  0 }, ; // код больного
     { 'PR_CONS',  'N',   1,  0 }, ; // Сведения о проведении консилиума(N019):0-отсутствует необходимость;1-определена тактика обследования;2-определена тактика лечения;3-изменена тактика лечения
     { 'DT_CONS',  'D',   8,  0 };  // Дата проведения консилиума Обязательно к заполнению при PR_CONS=1, 2, 3
   } )
-  dbCreate( cur_dir + 'tmp_onkdi',  { ; // Диагностический блок
+  dbCreate( cur_dir() + 'tmp_onkdi',  { ; // Диагностический блок
     { 'KOD',      'N',   7,  0 }, ; // код больного
     { 'DIAG_DATE','D',   8,  0 }, ; // Дата взятия материала для проведения диагностики
     { 'DIAG_TIP', 'N',   1,  0 }, ; // Тип диагностического показателя: 1 - гистологический признак; 2 - маркёр (ИГХ)
@@ -225,7 +225,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     { 'DIAG_RSLT','N',   3,  0 }, ; // Код результата диагностики При DIAG_TIP=1 в соответствии со справочником N008 При DIAG_TIP=2 в соответствии со справочником N011
     { 'REC_RSLT', 'N',   1,  0 };  // признак получения результата диагностики 1 - получен
   } )
-  dbCreate( cur_dir + 'tmp_onkpr',  { ; // Сведения об имеющихся противопоказаниях
+  dbCreate( cur_dir() + 'tmp_onkpr',  { ; // Сведения об имеющихся противопоказаниях
     { 'KOD',      'N',   7,  0 }, ; // код больного
     { 'PROT',     'N',   1,  0 }, ; // Код противопоказания или отказа в соответствии со справочником N001
     { 'D_PROT',   'D',   8,  0 };  // Дата регистрации противопоказания или отказа
@@ -235,7 +235,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     m1prot1, m1prot2, m1prot, m1prot4, m1prot5, m1prot6, ;
     mdprot1, mdprot2, mdprot, mdprot4, mdprot5, mdprot6
   //
-  dbCreate( cur_dir + 'tmp_onkus',  { ; // Сведения о проведённых лечениях
+  dbCreate( cur_dir() + 'tmp_onkus',  { ; // Сведения о проведённых лечениях
     { 'KOD',      'N',   7,  0 }, ; // код больного
     { 'USL_TIP',  'N',   1,  0 }, ; // Тип онкоуслуги в соответствии со справочником N013
     { 'HIR_TIP',  'N',   1,  0 }, ; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014
@@ -245,7 +245,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     { 'PPTR',     'N',   1,  0 }, ; // Признак проведения профилактики тошноты и рвотного рефлекса - указывается '1' при USL_TIP=2, 4
     { 'SOD',      'N',   6,  2 };  // SOD - Суммарная очаговая доза - При USL_TIP=3, 4
   } )
-  dbCreate( cur_dir + 'tmp_onkle',  { ; // Сведения о применённых лекарственных препаратах
+  dbCreate( cur_dir() + 'tmp_onkle',  { ; // Сведения о применённых лекарственных препаратах
     { 'KOD',      'N',   7,  0 }, ; // код больного
     { 'REGNUM',   'C',   6,  0 }, ; // IDD лек.препарата N020
     { 'CODE_SH',  'C',  20,  0 }, ; // код схемы лек.терапии V024
@@ -468,7 +468,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       Endif
       is_gisto := ( m1usl_ok == USL_OK_POLYCLINIC .and. m1profil == 15 )  // поликлиника + профиль = гистология
       i := j := 0
-      Use ( cur_dir + 'tmp_onkdi' ) New Alias TDIAG
+      Use ( cur_dir() + 'tmp_onkdi' ) New Alias TDIAG
       r_use( dir_server + 'mo_onkdi', dir_server + 'mo_onkdi',  'DIAG' ) // Диагностический блок
       find ( Str( Loc_kod, 7 ) )
       Do While diag->kod == Loc_kod .and. !Eof()
@@ -497,7 +497,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Select DIAG
         Skip
       Enddo
-      Use ( cur_dir + 'tmp_onkpr' ) New Alias TPR
+      Use ( cur_dir() + 'tmp_onkpr' ) New Alias TPR
       r_use( dir_server + 'mo_onkpr', dir_server + 'mo_onkpr',  'PR' ) // Сведения об имеющихся противопоказаниях
       find ( Str( Loc_kod, 7 ) )
       Do While pr->kod == Loc_kod .and. !Eof()
@@ -511,7 +511,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Select PR
         Skip
       Enddo
-      Use ( cur_dir + 'tmp_onkus' ) New Alias TMPOU
+      Use ( cur_dir() + 'tmp_onkus' ) New Alias TMPOU
       r_use( dir_server + 'mo_onkus', dir_server + 'mo_onkus',  'OU' ) // Сведения о проведённых лечениях
       find ( Str( Loc_kod, 7 ) )
       Do While ou->kod == Loc_kod .and. !Eof()
@@ -531,7 +531,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       If LastRec() == 0
         Append Blank
       Endif
-      Use ( cur_dir + 'tmp_onkle' ) New Alias TMPLE
+      Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE
       r_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle',  'LE' ) // Сведения о применённых лекарственных препаратах
       find ( Str( Loc_kod, 7 ) )
       Do While le->kod == Loc_kod .and. !Eof()
@@ -989,7 +989,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           &( 'm1prot' + lstr( i ) ) := 0
           &( 'mdprot' + lstr( i ) ) := CToD( '' )
         Next
-        Use ( cur_dir + 'tmp_onkpr' ) New Alias TPR
+        Use ( cur_dir() + 'tmp_onkpr' ) New Alias TPR
         Go Top
         Do While !Eof()
           &( 'm1prot' + lstr( tpr->prot ) ) := 1
@@ -1119,7 +1119,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Endif
         is_onko_VMP := .f. ; musl1vmp := musl2vmp := mtipvmp := 0
         if eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. m1vmp == 1 .and. m1metvmp > 0
-          r_use( dir_exe() + '_mo_ovmp', cur_dir + '_mo_ovmp',  'OVMP' )
+          r_use( dir_exe() + '_mo_ovmp', cur_dir() + '_mo_ovmp',  'OVMP' )
           find ( Str( m1metvmp, 3 ) ) // номер метода ВМП
           If Found()
             is_onko_VMP := .t.
@@ -1179,8 +1179,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         lstr_vmpshe := ret_str_onc( 7, 2 )
         lstr_vmplek := ret_str_onc( 8, 2 )
         lstr_vmpptr := ret_str_onc( 6, 2 )
-        Use ( cur_dir + 'tmp_onkus' ) New Alias TMPOU
-        Index On Str( usl_tip, 1 ) to ( cur_dir + 'tmp_onkus' )
+        Use ( cur_dir() + 'tmp_onkus' ) New Alias TMPOU
+        Index On Str( usl_tip, 1 ) to ( cur_dir() + 'tmp_onkus' )
         Go Top
         If LastRec() == 0
           Append Blank
@@ -1636,7 +1636,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Endif
       Endif
       If is_oncology == 2
-        Use ( cur_dir + 'tmp_onkdi' ) New Alias TDIAG
+        Use ( cur_dir() + 'tmp_onkdi' ) New Alias TDIAG
         Zap
         If eq_any( m1B_DIAG, 97, 98 ) // гистология:98-сделана, 97-нет результата
 
@@ -1680,7 +1680,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             Next
           Endif
         Endif
-        Use ( cur_dir + 'tmp_onkpr' ) New Alias TPR
+        Use ( cur_dir() + 'tmp_onkpr' ) New Alias TPR
         Zap
         For i := 1 To 6
           If !emptyany( &( 'm1prot' + lstr( i ) ), &( 'mdprot' + lstr( i ) ) )
@@ -1694,7 +1694,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           tpr->prot := m1B_DIAG
           tpr->d_prot := mn_data
         Endif
-        Use ( cur_dir + 'tmp_onkus' ) New Alias TMPOU
+        Use ( cur_dir() + 'tmp_onkus' ) New Alias TMPOU
         Go Top
         If LastRec() == 0
           Append Blank
@@ -2160,7 +2160,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             Skip
           Enddo
           i := 0
-          Use ( cur_dir + 'tmp_onkdi' ) New Alias TDIAG
+          Use ( cur_dir() + 'tmp_onkdi' ) New Alias TDIAG
           Go Top
           Do While !Eof()
             Select DIAG
@@ -2212,7 +2212,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             Skip
           Enddo
           i := 0
-          Use ( cur_dir + 'tmp_onkpr' ) New Alias TPR
+          Use ( cur_dir() + 'tmp_onkpr' ) New Alias TPR
           Go Top
           Do While !Eof()
             Select PR
@@ -2241,7 +2241,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             Skip
           Enddo
           i := 0
-          Use ( cur_dir + 'tmp_onkus' ) New Alias TMPOU
+          Use ( cur_dir() + 'tmp_onkus' ) New Alias TMPOU
           Go Top
           Do While !Eof()
             Select US
@@ -2288,7 +2288,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           i := 0
           // (m1usl_tip лекарственная противоопухлевая терапия или химиолучевая терапия)
           If eq_any( m1usl_tip, 2, 4 ) .or. ( is_onko_VMP .and. mtipvmp == 1 .and. musl2vmp == 2 )
-            Use ( cur_dir + 'tmp_onkle' ) New Alias TMPLE
+            Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE
             Go Top
             Do While !Eof()
               Select LE
@@ -2361,7 +2361,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server + 'mo_hismo', , 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo

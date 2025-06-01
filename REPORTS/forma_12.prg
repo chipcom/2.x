@@ -55,18 +55,18 @@ Function forma_12( k )
 // 14.10.24
 Function forma_12_( is_diag, is_100000 )
 
-  Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
+  Local i, k, begin_date, end_date, s, buf := save_maxrow(), ;
     s1_, s1, s2, s3, s4, d1, d2, diapazon, kh, hGauge, v, ;
     j1, j2, t_arr1, t_arr2, ls1, ls2, name1, ;
     fl_exit := .f., sh, sh1, HH := 80, reg_print, speriod, ;
-    arr_title, name_file, s_lu := 0, tmp_color, adbf, lfp, ;
+    arr_title, name_file, s_lu := 0, tmp_color, adbf, ;
     md_plus, sd_plus, k_plus, jh := 0, arr_m, yes_god, ;
     file_form, is_talon := .t., bbuf, blk_usl, ab := {}
 
   If is_100000
-    name_file := cur_dir + "_form12a.txt"
+    name_file := cur_dir() + "_form12a.txt"
   Else
-    name_file := cur_dir + iif( is_diag, "_frm_12d", "_form_12" ) + stxt()
+    name_file := cur_dir() + iif( is_diag, "_frm_12d", "_form_12" ) + stxt()
   Endif
   Private adiag_talon[ 16 ], arr_v := { { 0, 14 }, { 0, 3 }, { 15, 17 }, { 18, 999 } }, ;
     len_name := { 28, 28, 28, 28, 28 }, kol_dt, koef_dt[ 5 ], p_is_voz[ 5 ], ;
@@ -159,18 +159,18 @@ Function forma_12_( is_diag, is_100000 )
     { "i_pervich", "N", 7, 0 }, ;
     { "i_dispans", "N", 7, 0 } }
   //
-  dbCreate( cur_dir + "tmp_tab", adbf )
-  Use ( cur_dir + "tmp_tab" ) New Alias TMP_TAB
-  Index On stroke + Str( tip, 1 ) + Str( voz, 1 ) to ( cur_dir + "tmp_tab" )
+  dbCreate( cur_dir() + "tmp_tab", adbf )
+  Use ( cur_dir() + "tmp_tab" ) New Alias TMP_TAB
+  Index On stroke + Str( tip, 1 ) + Str( voz, 1 ) to ( cur_dir() + "tmp_tab" )
   //
-  dbCreate( cur_dir + "tmp_kart", { { "kod_k", "N", 7, 0 }, ;
+  dbCreate( cur_dir() + "tmp_kart", { { "kod_k", "N", 7, 0 }, ;
     { "voz", "N", 1, 0 }, ;   // 1 - 5
   { "let", "N", 2, 0 }, ;
     { "perv", "N", 1, 0 }, ;
     { "disp1", "N", 1, 0 }, ;
     { "disp", "N", 1, 0 } } )
-  Use ( cur_dir + "tmp_kart" ) new
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_kart" )
+  Use ( cur_dir() + "tmp_kart" ) new
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_kart" )
   //
   Private diag1 := { {}, {}, {}, {}, {} }, len_diag[ 5 ], p_tip := 1, x := 0
   Use ( file_form ) New Alias TMP
@@ -227,9 +227,9 @@ Function forma_12_( is_diag, is_100000 )
   Next
   If is_diag
     AAdd( adbf, { "diagnoz", "C", 5, 0 } )
-    dbCreate( cur_dir + "tmp_dia", adbf )
-    Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
-    Index On Str( voz, 1 ) + diagnoz to ( cur_dir + "tmp_dia" )
+    dbCreate( cur_dir() + "tmp_dia", adbf )
+    Use ( cur_dir() + "tmp_dia" ) New Alias TMP_D
+    Index On Str( voz, 1 ) + diagnoz to ( cur_dir() + "tmp_dia" )
   Endif
   delfrfiles()
   adbf := { { "name", "C", 255, 0 }, ;
@@ -290,7 +290,7 @@ Function forma_12_( is_diag, is_100000 )
       r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
       Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
       dbSeek( DToS( arr_m[ 5 ] ), .t. )
-      Index On Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir + "tmp_h" ) ;
+      Index On Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir() + "tmp_h" ) ;
         While k_data <= arr_m[ 6 ] ;
         For kod > 0 .and. human_->usl_ok == 3 .and. human_->oplata < 9 ;
         .and. human_->NOVOR == 0 .and. func_pi_schet()
@@ -299,7 +299,7 @@ Function forma_12_( is_diag, is_100000 )
       r_use( dir_server + "human_",, "HUMAN_" )
       r_use( dir_server + "human",, "HUMAN" )
       Set Relation To schet into SCHET, To RecNo() into HUMAN_, To RecNo() into HUMAN_2
-      Index On Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir + "tmp_h" ) ;
+      Index On Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir() + "tmp_h" ) ;
         For kod > 0 .and. schet > 0 .and. human_->usl_ok == 3 .and. human_->oplata < 9 ;
         .and. human_->NOVOR == 0 .and. Between( schet->pdate, arr_m[ 7 ], arr_m[ 8 ] ) ;
         progress
@@ -459,15 +459,15 @@ Function forma_12_( is_diag, is_100000 )
   For i := 0 To 9
     name_f := fr_data + iif( i > 0, lstr( i ), "" )
     al := "FRD" + iif( i > 0, lstr( i ), "" )
-    dbCreate( cur_dir + name_f, adbf )
-    e_use( cur_dir + name_f,, al )
+    dbCreate( cur_dir() + name_f, adbf )
+    e_use( cur_dir() + name_f,, al )
   Next
   If is_diag
-    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
-    Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
-    Index On stroke + Str( tip, 1 ) + Str( voz, 1 ) + diagnoz to ( cur_dir + "tmp_dia" )
+    r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "MKB10" )
+    Use ( cur_dir() + "tmp_dia" ) New Alias TMP_D
+    Index On stroke + Str( tip, 1 ) + Str( voz, 1 ) + diagnoz to ( cur_dir() + "tmp_dia" )
   Endif
-  Use ( cur_dir + "tmp_tab" ) index ( cur_dir + "tmp_tab" ) New Alias TMP
+  Use ( cur_dir() + "tmp_tab" ) index ( cur_dir() + "tmp_tab" ) New Alias TMP
   For x := 1 To 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
     If !p_is_voz[ x ] ; loop ; Endif
     If is_100000
@@ -816,13 +816,13 @@ Function f_bot_f12( x, HH, sh )
 
   Local v1 := 0, v2 := 0, v3 := 0, v4 := 0, v5 := 0, v6 := 0
 
-  Use ( cur_dir + "TMP_KART" ) new
+  Use ( cur_dir() + "TMP_KART" ) new
   If x == 1
-    Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_kart" ) For voz < 3 // т.к. дети и новорожденные считались отдельно
+    Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_kart" ) For voz < 3 // т.к. дети и новорожденные считались отдельно
   Elseif x == 4
-    Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_kart" ) For voz > 3 // т.к. взрослые и пенсионеры считались отдельно
+    Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_kart" ) For voz > 3 // т.к. взрослые и пенсионеры считались отдельно
   Else
-    Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_kart" ) For voz == x
+    Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_kart" ) For voz == x
   Endif
   Go Top
   Do While !Eof()
@@ -1632,7 +1632,7 @@ Function forma_12_o()
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
     fl_exit := .f., sh := 79, HH := 80, reg_print := 5, speriod, ;
-    arr_title, name_file :=  cur_dir + "_frm_12o.txt", s_lu := 0, s_human := 0, ;
+    arr_title, name_file :=  cur_dir() + "_frm_12o.txt", s_lu := 0, s_human := 0, ;
     fl_plus := .f., md_plus, sd_plus, k_plus, jh := 0, arr_m, ;
     is_talon := .t., pole, arv, nf, adbf, kh, s1, s2, s3
   Private au1, au2, adiag_talon[ 16 ], GOD_PENSIONEROV
@@ -1670,9 +1670,9 @@ Function forma_12_o()
     { "lu", "N", 7, 0 }, ;
     { "stt_lu", "N", 7, 0 }, ;
     { "stt_diag", "N", 7, 0 } }
-  dbCreate( cur_dir + "tmp_tab", adbf )
-  Use ( cur_dir + "tmp_tab" ) New Alias TMP_TAB
-  Index On Str( otd, 3 ) to ( cur_dir + "tmp_tab" )
+  dbCreate( cur_dir() + "tmp_tab", adbf )
+  Use ( cur_dir() + "tmp_tab" ) New Alias TMP_TAB
+  Index On Str( otd, 3 ) to ( cur_dir() + "tmp_tab" )
   //
   adbf := { { "otd", "N", 3, 0 }, ;
     { "kod", "N", 7, 0 }, ;
@@ -1685,8 +1685,8 @@ Function forma_12_o()
     { "diag6", "C", 6, 0 }, ;
     { "diag7", "C", 6, 0 }, ;
     { "diag8", "C", 6, 0 } }
-  dbCreate( cur_dir + "tmp_fio", adbf )
-  Use ( cur_dir + "tmp_fio" ) New Alias TMP_FIO
+  dbCreate( cur_dir() + "tmp_fio", adbf )
+  Use ( cur_dir() + "tmp_fio" ) New Alias TMP_FIO
   adbf := NIL
   //
   kh := 0
@@ -1785,9 +1785,9 @@ Function forma_12_o()
   AEval( arr_title, {| x| add_string( x ) } )
   //
   r_use( dir_server + "mo_otd",, "OTD" )
-  Use ( cur_dir + "tmp_tab" ) New Alias TMP
+  Use ( cur_dir() + "tmp_tab" ) New Alias TMP
   Set Relation To otd into OTD
-  Index On Upper( otd->name ) to ( cur_dir + "tmp_tab" )
+  Index On Upper( otd->name ) to ( cur_dir() + "tmp_tab" )
   Go Top
   s1 := s2 := s3 := 0
   Do While !Eof()
@@ -1814,9 +1814,9 @@ Function forma_12_o()
     //
     r_use( dir_server + "mo_otd",, "OTD" )
     r_use( dir_server + "human",, "HUMAN" )
-    Use ( cur_dir + "tmp_fio" ) New Alias TMP
+    Use ( cur_dir() + "tmp_fio" ) New Alias TMP
     Set Relation To otd into OTD, To kod into HUMAN
-    Index On Upper( otd->name ) + Left( Upper( human->fio ), 12 ) to ( cur_dir + "tmp_fio" )
+    Index On Upper( otd->name ) + Left( Upper( human->fio ), 12 ) to ( cur_dir() + "tmp_fio" )
     Go Top
     s1 := 0
     Do While !Eof()

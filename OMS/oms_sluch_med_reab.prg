@@ -535,7 +535,7 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server + 'mo_hismo', , 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo

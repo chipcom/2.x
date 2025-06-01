@@ -6,8 +6,8 @@
 // 05.01.16
 Function edit_bolnich( par )
 
-  Local arr_m, buf := SaveScreen(), i, mkod := 0, k, l_color, fl := .f., mtitul, ;
-    ind2, arr_blk, fl_schet := .f., str_error := "Не найдено нужных записей!"
+  Local arr_m, buf := SaveScreen(), mkod := 0, fl := .f., mtitul, ;
+    arr_blk, fl_schet := .f., str_error := "Не найдено нужных записей!"
 
   If ( arr_m := year_month() ) == NIL
     Return Nil
@@ -22,7 +22,7 @@ Function edit_bolnich( par )
   g_use( dir_server + "human", dir_server + "humand", "HUMAN" )
   Set Relation To RecNo() into HUMAN_, To lpu into UCH, To otd into OTD
   dbSeek( DToS( begin_date ), .t. )
-  Index On Upper( fio ) + DToS( k_data ) to ( cur_dir + "tmp_h" ) ;
+  Index On Upper( fio ) + DToS( k_data ) to ( cur_dir() + "tmp_h" ) ;
     For human_->oplata < 9 .and. !Between( ishod, 101, 305 ) ;
     While k_data <= end_date
   Go Top

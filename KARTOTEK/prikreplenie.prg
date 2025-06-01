@@ -52,7 +52,7 @@ Function wq_import()
       return func_error(4, 'Данный файл уже был импортирован!')
     endif
     R_Use(dir_server + 'mo_krtr', , 'KRTR')
-    index on wq to (cur_dir + 'tmp_krtr') for !empty(wq)
+    index on wq to (cur_dir() + 'tmp_krtr') for !empty(wq)
     find (padr(substr(cName, 10), 11))
     fl := found()
     Use
@@ -82,7 +82,7 @@ Function wq_import()
           last_file := padr(last_file, 11)
           k := 0
           R_Use(dir_server + 'mo_krtr', , 'KRTR')
-          index on wq to (cur_dir + 'tmp_krtr') for !empty(wq)
+          index on wq to (cur_dir() + 'tmp_krtr') for !empty(wq)
           go top
           do while !eof()
             if last_file == krtr->wq
@@ -155,7 +155,7 @@ Function wq_import()
               Use (dir_server + fbase) new alias WQ
               i1 := i2 := 0
               G_Use(dir_server + 'mo_kfio', , 'KFIO')
-              index on str(kod, 7) to (cur_dir + 'tmp_kfio')
+              index on str(kod, 7) to (cur_dir() + 'tmp_kfio')
               use_base('kartotek')
               R_Use(_tmp_dir1() + cName, , 'T1')
               go top
@@ -393,7 +393,7 @@ Function wq_import()
 
 // 13.07.15
 Function wq_view()
-  Local sh, HH := 78, name_file := cur_dir + 'imp_prip.txt', i := 0, arr_title, lu, la, ;
+  Local sh, HH := 78, name_file := cur_dir() + 'imp_prip.txt', i := 0, arr_title, lu, la, ;
         buf := save_maxrow(), fname := wq_ret_last_name()
 
   if empty(fname)
@@ -413,7 +413,7 @@ Function wq_view()
   add_string('')
   aeval(arr_title, {|x| add_string(x)})
   R_Use(dir_server+fname, , 'WQ')
-  index on upper(fio) + dtos(dr) to (cur_dir + 'tmp_wq')
+  index on upper(fio) + dtos(dr) to (cur_dir() + 'tmp_wq')
   go top
   do while !eof()
     if verify_FF(HH, .t., sh)
@@ -438,7 +438,7 @@ Function wq_edit_uchast()
     return func_error(4, 'Не было чтения файла в новом формате!')
   endif
   R_Use(dir_server + 'mo_krtr', , 'KRTR')
-  index on wq to (cur_dir + 'tmp_krtr') for !empty(wq)
+  index on wq to (cur_dir() + 'tmp_krtr') for !empty(wq)
   find (padr(substr(fname, 10), 11))
   fl := found()
   Use
@@ -449,7 +449,7 @@ Function wq_edit_uchast()
   Use_base('kartotek')
   set order to 0
   G_Use(dir_server+fname, , 'WQ')
-  index on upper(fio)+dtos(dr) to (cur_dir + 'tmp_wq')
+  index on upper(fio)+dtos(dr) to (cur_dir() + 'tmp_wq')
   go top
   Private ku := wq->(lastrec())
   if ku == 0
@@ -555,7 +555,7 @@ Function wq_prikreplenie()
   Private nkod_reestr := 0
   mywait()
   R_Use(dir_server + 'mo_krtr', , 'KRTR')
-  index on wq to (cur_dir + 'tmp_krtr') for !empty(wq)
+  index on wq to (cur_dir() + 'tmp_krtr') for !empty(wq)
   go top
   if eof() // т.е. первый раз
     nkod_reestr := 1
@@ -574,7 +574,7 @@ Function wq_prikreplenie()
     fl := !func_error(4, 'На последний файл прикрепления не был прочитан ответ. Запрет операции!')
   endif
   if !fl
-    index on dtos(dfile) to (cur_dir + 'tmp_krtr') for left(fname, 3) == 'MO2'
+    index on dtos(dfile) to (cur_dir() + 'tmp_krtr') for left(fname, 3) == 'MO2'
     find (dtos(sys_date))
     if found()
       fl := !func_error(4, 'Файл прикрепления с датой ' + full_date(sys_date) + 'г. уже был создан')
@@ -594,7 +594,7 @@ Function wq_prikreplenie()
     mywait()
     //
     R_Use(dir_server + filename, , 'WQ')
-    index on upper(fio) + dtos(dr) to (cur_dir + 'tmp_wq')
+    index on upper(fio) + dtos(dr) to (cur_dir() + 'tmp_wq')
     go top
     do while !eof()
       if empty(wq->uchast)
@@ -625,12 +625,12 @@ Function wq_prikreplenie()
     return NIL
   endif
   mywait()
-  dbcreate(cur_dir + 'tmp', { ;
+  dbcreate(cur_dir() + 'tmp', { ;
     {'kod_k',   'N', 7, 0}, ;
     {'kod_wq',  'N', 6, 0}, ;
     {'uchast',  'N', 2, 0}, ;
     {'vr',      'N', 1, 0}})
-  use (cur_dir + 'tmp') new
+  use (cur_dir() + 'tmp') new
   j := 0
   R_Use(dir_server + filename, , 'WQ')
   go top
@@ -661,12 +661,12 @@ Function wq_prikreplenie()
     return func_error(4, 'Не найдено прикреплённых пациентов с участками, не отправленных в ТФОМС')
   endif
   asort(arr_uch, , , {|x, y| x[1] < y[1] })
-  cFileProtokol := cur_dir + 'prot.txt'
+  cFileProtokol := cur_dir() + 'prot.txt'
   strfile(space(5) + 'Список участков' + hb_eol() + hb_eol(), cFileProtokol)
   R_Use(dir_server + 'mo_otd', , 'OTD')
   R_Use(dir_server + 'mo_pers', , 'P2')
   R_Use(dir_server + 'mo_uchvr', , 'UV')
-  index on str(uch, 2) to (cur_dir + 'tmp_uv')
+  index on str(uch, 2) to (cur_dir() + 'tmp_uv')
   j := 0
   for i := 1 to len(arr_uch)
     s := str(arr_uch[i, 1], 2) + ':'
@@ -732,7 +732,7 @@ Function wq_prikreplenie()
     s := 'MO2' + glob_mo[_MO_KOD_TFOMS] + dtos(mdate)
     n_file := s + scsv()
     G_Use(dir_server + 'mo_krtr', , 'KRTR')
-    index on str(kod, 6) to (cur_dir + 'tmp_krtr')
+    index on str(kod, 6) to (cur_dir() + 'tmp_krtr')
     AddRec(6)
     krtr->KOD := recno()
     krtr->FNAME := s
@@ -744,7 +744,7 @@ Function wq_prikreplenie()
     krtr->KOL_P := 0
     krtr->ANSWER := 0  // 0-не было ответа, 1-был прочитан ответ
     G_Use(dir_server + 'mo_krtf', , 'KRTF')
-    index on str(kod, 6) to (cur_dir + 'tmp_krtf')
+    index on str(kod, 6) to (cur_dir() + 'tmp_krtf')
     AddRec(6)
     krtf->KOD   := recno()
     krtf->FNAME := krtr->FNAME
@@ -766,21 +766,21 @@ Function wq_prikreplenie()
     fp := fcreate(n_file)
     //
     G_Use(dir_server + 'mo_krtp', , 'KRTP')
-    index on str(reestr, 6) to (cur_dir + 'tmp_krtp')
+    index on str(reestr, 6) to (cur_dir() + 'tmp_krtp')
     mywait('Создание файла прикрепления')
     j := ii := 0
-    R_Use(dir_exe() + '_mo_podr', cur_dir + '_mo_podr', 'PODR')
+    R_Use(dir_exe() + '_mo_podr', cur_dir() + '_mo_podr', 'PODR')
     find (glob_mo[_MO_KOD_TFOMS])
     loidmo := alltrim(podr->oidmo)
     R_Use(dir_server + 'mo_otd', , 'OTD')
     R_Use(dir_server + 'mo_pers', , 'P2')
-    R_Use(dir_server + 'mo_uchvr', cur_dir + 'tmp_uv', 'UV')
+    R_Use(dir_server + 'mo_uchvr', cur_dir() + 'tmp_uv', 'UV')
     R_Use(dir_server + filename, , 'WQ')
     use_base('kartotek')
     set order to 0
-    use (cur_dir + 'tmp') new
+    use (cur_dir() + 'tmp') new
     set relation to kod_wq into WQ
-    index on upper(wq->fio) to (cur_dir + 'tmp__')
+    index on upper(wq->fio) to (cur_dir() + 'tmp__')
     go top
     do while !eof()
       @ maxrow(), 0 say str(++j / tmp->(lastrec()) * 100, 6, 2) + '%' color cColorWait

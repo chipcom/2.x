@@ -56,7 +56,7 @@ Function pz1statist( par, par2 )
 
   Static _su := 2
   Local buf := SaveScreen(), fl_exit := .f., fl := .t., a_otd := {}, ;
-    name_file := cur_dir + 'plan_z.txt', arr_m, ta[ 2 ], arr_title, ;
+    name_file := cur_dir() + 'plan_z.txt', arr_m, ta[ 2 ], arr_title, ;
     sh := 80, HH := 60, reg_print := 2, ;
     mstr_crb, ltrud, lplan, lcount_uch, lcount_otd, mismo
   Local sbase, i, k, j
@@ -159,8 +159,8 @@ Function pz1statist( par, par2 )
   If Between( par, 2, 3 ) .and. eq_any( su, 1, 2, 5 )
     sbase := prefixfilerefname( arr_m[ 1 ] ) + 'unit'
     r_use( dir_exe() + sbase, , 'MOUNIT' )
-    Index On Str( ii, 3 ) to ( cur_dir + 'tmp_unitii' )
-    Set Index to ( cur_dir + sbase ), ( cur_dir + 'tmp_unitii' )
+    Index On Str( ii, 3 ) to ( cur_dir() + 'tmp_unitii' )
+    Set Index to ( cur_dir() + sbase ), ( cur_dir() + 'tmp_unitii' )
     apz2016 := arr_plan_zakaz( arr_m[ 1 ] )
     luapz2016 := arr_plan_zakaz( arr_m[ 1 ] )
     kol_sl_2 := Array( Len( apz2016 ) )
@@ -212,19 +212,19 @@ Function pz1statist( par, par2 )
     { 'sum', 'N', 13, 2 }, ;
     { 'unit', 'C', 16, 0 } }
 
-  dbCreate( cur_dir + 'tmp_xls', adbf )
-  Use ( cur_dir + 'tmp_xls' ) new
-  dbCreate( cur_dir + 'tmp', adbf )
-  Use ( cur_dir + 'tmp' ) new
+  dbCreate( cur_dir() + 'tmp_xls', adbf )
+  Use ( cur_dir() + 'tmp_xls' ) new
+  dbCreate( cur_dir() + 'tmp', adbf )
+  Use ( cur_dir() + 'tmp' ) new
   If su > 2
-    Index On Str( kod, 4 ) to ( cur_dir + 'tmp' )
+    Index On Str( kod, 4 ) to ( cur_dir() + 'tmp' )
   Else
-    Index On shifr to ( cur_dir + 'tmp' )
+    Index On shifr to ( cur_dir() + 'tmp' )
   Endif
   If su == 4  // Наработка по врачам (список услуг)
-    dbCreate( cur_dir + 'tmp1', adbf )
-    Use ( cur_dir + 'tmp1' ) new
-    Index On Str( kod, 4 ) + Str( kod1, 4 ) to ( cur_dir + 'tmp1' )
+    dbCreate( cur_dir() + 'tmp1', adbf )
+    Use ( cur_dir() + 'tmp1' ) new
+    Index On Str( kod, 4 ) + Str( kod1, 4 ) to ( cur_dir() + 'tmp1' )
   Endif
   adbf := { { 'otd', 'N', 3, 0 }, ;
     { 'uch', 'N', 3, 0 }, ;
@@ -238,15 +238,15 @@ Function pz1statist( par, par2 )
     { 'kol8', 'N', 7, 0 }, ;
     { 'kol9', 'N', 7, 0 }, ;
     { 'kol10', 'N', 7, 0 } }
-  dbCreate( cur_dir + 'tmpo', adbf )
-  Use ( cur_dir + 'tmpo' ) new
-  Index On Str( otd, 3 ) to ( cur_dir + 'tmpo' )
-  dbCreate( cur_dir + 'tmpok', { { 'otd', 'N', 3, 0 }, { 'kod_k', 'N', 7, 0 } } )
-  Use ( cur_dir + 'tmpok' ) new
-  Index On Str( otd, 3 ) + Str( kod_k, 7 ) to ( cur_dir + 'tmpok' )
-  dbCreate( cur_dir + 'tmpos', { { 'otd', 'N', 3, 0 }, { 'kod', 'N', 7, 0 } } )
-  Use ( cur_dir + 'tmpos' ) new
-  Index On Str( otd, 3 ) + Str( kod, 7 ) to ( cur_dir + 'tmpos' )
+  dbCreate( cur_dir() + 'tmpo', adbf )
+  Use ( cur_dir() + 'tmpo' ) new
+  Index On Str( otd, 3 ) to ( cur_dir() + 'tmpo' )
+  dbCreate( cur_dir() + 'tmpok', { { 'otd', 'N', 3, 0 }, { 'kod_k', 'N', 7, 0 } } )
+  Use ( cur_dir() + 'tmpok' ) new
+  Index On Str( otd, 3 ) + Str( kod_k, 7 ) to ( cur_dir() + 'tmpok' )
+  dbCreate( cur_dir() + 'tmpos', { { 'otd', 'N', 3, 0 }, { 'kod', 'N', 7, 0 } } )
+  Use ( cur_dir() + 'tmpos' ) new
+  Index On Str( otd, 3 ) + Str( kod, 7 ) to ( cur_dir() + 'tmpos' )
   r_use( dir_server + 'mo_su', , 'MOSU' )
   r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
@@ -284,7 +284,7 @@ Function pz1statist( par, par2 )
     r_use( dir_server + 'human_', , 'HUMAN_' )
     r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
-    Use ( cur_dir + 'tmp_smo' ) index ( cur_dir + 'tmp_smo1' ) new
+    Use ( cur_dir() + 'tmp_smo' ) index ( cur_dir() + 'tmp_smo1' ) new
     r_use( dir_server + 'schet_', , 'SCHET_' )
     r_use( dir_server + 'schet', dir_server + 'schetd', 'SCHET' )
     Set Relation To RecNo() into SCHET_
@@ -759,7 +759,7 @@ Function pz1statist( par, par2 )
     Set Index To
     dbEval( {|| otd->( dbGoto( tmpo->otd ) ), tmpo->uch := otd->kod_lpu } )
     Set Relation To otd into OTD
-    Index On Upper( uch->name ) + Str( uch, 3 ) + Upper( otd->name ) + Str( otd, 3 ) to ( cur_dir + 'tmpo' )
+    Index On Upper( uch->name ) + Str( uch, 3 ) + Upper( otd->name ) + Str( otd, 3 ) to ( cur_dir() + 'tmpo' )
     old_uch := 0
     Go Top
     Do While !Eof()
@@ -877,7 +877,7 @@ Function pz1statist( par, par2 )
     Set Relation To
     If su == 2  // Вывод списка услуг (план-заказ)
       Select TMP
-      Index On fsort_usl( shifr ) to ( cur_dir + 'tmp' )
+      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp' )
       Go Top
       Do While !Eof()
         columnWS := 0
@@ -994,7 +994,7 @@ Function pz1statist( par, par2 )
       Select USL
       Set Relation To Str( slugba, 3 ) into SL
       Select TMP
-      Index On Str( usl->slugba, 3 ) + fsort_usl( usl->shifr ) to ( cur_dir + 'tmp' )
+      Index On Str( usl->slugba, 3 ) + fsort_usl( usl->shifr ) to ( cur_dir() + 'tmp' )
       old_s := -999
       ssl := Array( 3 ) ; AFill( ssl, 0 )
       Go Top
@@ -1199,11 +1199,11 @@ Function pz1statist( par, par2 )
     Endif
     Select TMP1
     Set Relation To kod1 into USL
-    Index On Str( kod, 4 ) + fsort_usl( usl->shifr ) to ( cur_dir + 'tmp1' )
+    Index On Str( kod, 4 ) + fsort_usl( usl->shifr ) to ( cur_dir() + 'tmp1' )
     g_use( dir_server + 'mo_pers', , 'PERSO' )
     Select TMP
     Set Relation To kod into PERSO
-    Index On Upper( perso->fio ) to ( cur_dir + 'tmp' )
+    Index On Upper( perso->fio ) to ( cur_dir() + 'tmp' )
     Go Top
     Do While !Eof()
       if lExcel
@@ -1359,7 +1359,7 @@ Function pz1statist( par, par2 )
 
   If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
     create_xls_rdl( 'rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd )
-    saveto( cur_dir + 'rdl_report.xlsx' )
+    saveto( cur_dir() + 'rdl_report.xlsx' )
   Endif
 
   Return Nil
@@ -1689,11 +1689,11 @@ Function pz2statist( arr_m, par2, lAdult )
     { 'KOL_BOLN',   'N',     6,     0 }, ;
     { 'SUMMA',   'N',    13,     2 }, ;
     { 'is',   'N',     1,     0 } }
-  dbCreate( cur_dir + 'tmp_smo', adbf )
-  Use ( cur_dir + 'tmp_smo' ) New Alias TMP
-  Index On Str( komu, 1 ) + Str( str_crb, 2 ) + smo to ( cur_dir + 'tmp_smo1' )
-  Index On nkomu to ( cur_dir + 'tmp_smo2' )
-  Set Index to ( cur_dir + 'tmp_smo1' ), ( cur_dir + 'tmp_smo2' )
+  dbCreate( cur_dir() + 'tmp_smo', adbf )
+  Use ( cur_dir() + 'tmp_smo' ) New Alias TMP
+  Index On Str( komu, 1 ) + Str( str_crb, 2 ) + smo to ( cur_dir() + 'tmp_smo1' )
+  Index On nkomu to ( cur_dir() + 'tmp_smo2' )
+  Set Index to ( cur_dir() + 'tmp_smo1' ), ( cur_dir() + 'tmp_smo2' )
   If par2 == 2
     r_use( dir_server + 'human_', , 'HUMAN_' )
     r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
@@ -1865,7 +1865,7 @@ Function pz22statist( nKey, oBrow )
 Function pz_raschet_potr()
 
   Local buf := SaveScreen(), fl_exit := .f., i, j, k, lreg_lech[ 9 ], ;
-    name_file := cur_dir + 'pz_r_p.txt', arr_m, ta[ 2 ], arr_title, lshifr, ;
+    name_file := cur_dir() + 'pz_r_p.txt', arr_m, ta[ 2 ], arr_title, lshifr, ;
     d2_year, sh := 80, HH := 80, reg_print := 5, au
   local s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim
   // для Excel
@@ -1893,7 +1893,7 @@ Function pz_raschet_potr()
   s_stac := sdstac := s_amb := skt := ssmp := suet := sstoim := 0
   waitstatus( '<Esc> - прервать поиск' )
   mark_keys( { '<Esc>' } )
-  dbCreate( cur_dir + 'tmp', { ;
+  dbCreate( cur_dir() + 'tmp', { ;
     { 'shifr', 'C', 10, 0 }, ;
     { 'tip1', 'N', 1, 0 }, ;
     { 'tip2', 'N', 1, 0 }, ;
@@ -1905,8 +1905,8 @@ Function pz_raschet_potr()
     { 'kol3', 'N', 11, 2 }, ;
     { 'kol4', 'N', 11, 2 };
     } )
-  Use ( cur_dir + 'tmp' ) new
-  Index On shifr + Str( vr, 1 ) + Str( tarif, 10, 2 ) to ( cur_dir + 'tmp' )
+  Use ( cur_dir() + 'tmp' ) new
+  Index On shifr + Str( vr, 1 ) + Str( tarif, 10, 2 ) to ( cur_dir() + 'tmp' )
   r_use( dir_server + 'uslugi', , 'USL' )
   r_use( dir_server + 'human_u_', , 'HU_' )
   r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
@@ -1917,7 +1917,7 @@ Function pz_raschet_potr()
   r_use( dir_server + 'schet_', , 'SCHET_' )
   r_use( dir_server + 'schet', , 'SCHET' )
   Set Relation To RecNo() into SCHET_
-  Index On pdate + nomer_s to ( cur_dir + 'tmp_sch' ) ;
+  Index On pdate + nomer_s to ( cur_dir() + 'tmp_sch' ) ;
     For emptyall( schet_->NREGISTR, schet_->IS_DOPLATA ) .and. ;
     Int( Val( schet_->smo ) ) > 34000 .and. schet_->nyear == arr_m[ 1 ] .and. ;
     Between( date_reg_schet(), arr_m[ 5 ], arr_m[ 6 ] )
@@ -2230,7 +2230,7 @@ Function pz_raschet_potr()
     use_base( 'lusl' )
   Endif
   Select TMP
-  Index On Str( tip1, 1 ) + Str( tip2, 1 ) + fsort_usl( shifr ) + Str( mm, 2 ) + Str( vr, 1 ) to ( cur_dir + 'tmp' )
+  Index On Str( tip1, 1 ) + Str( tip2, 1 ) + fsort_usl( shifr ) + Str( mm, 2 ) + Str( vr, 1 ) to ( cur_dir() + 'tmp' )
   For i := 1 To 7
     For j := 1 To 2
       find ( Str( i, 1 ) + Str( j, 1 ) )

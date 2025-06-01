@@ -11,7 +11,7 @@ Function reestr_rak_tmpfile( oXmlDoc, aerr, mname_xml )
 
   Default aerr TO {}, mname_xml To ""
   stat_msg( "Распаковка/чтение/анализ реестра актов контроля " + BeforAtNum( ".", mname_xml ) )
-  dbCreate( cur_dir + "tmp1file", { ; // одна запись
+  dbCreate( cur_dir() + "tmp1file", { ; // одна запись
     { "_VERSION",   "C",  5, 0 }, ;
     { "_DATA",      "D",  8, 0 }, ;
     { "_FILENAME",  "C", 26, 0 }, ;
@@ -25,7 +25,7 @@ Function reestr_rak_tmpfile( oXmlDoc, aerr, mname_xml )
     { "_YEAR",      "N",  4, 0 }, ;
     { "_MONTH",     "N",  2, 0 };
   } )
-  dbCreate( cur_dir + "tmp2file", { ;  // много актов
+  dbCreate( cur_dir() + "tmp2file", { ;  // много актов
     { "kod_a",      "N",  6, 0 }, ; // код акта
     { "_CODEA",     "N", 16, 0 }, ; // код записи акта
     { "_NAKT",      "C", 30, 0 }, ; // номер акта контроля
@@ -38,7 +38,7 @@ Function reestr_rak_tmpfile( oXmlDoc, aerr, mname_xml )
     { "_TYPEK",     "N",  1, 0 }, ; // 1-первичный контроль, 2-повторный
     { "_SKONT",     "N",  1, 0 };  // вид экспертизы: 0-МЭК, 1-плановая, 2-целевая
   } )
-  dbCreate( cur_dir + "tmp3file", { ; // в каждом акте много счетов
+  dbCreate( cur_dir() + "tmp3file", { ; // в каждом акте много счетов
     { "kod_s",      "N",  6, 0 }, ; // код счета
     { "kod_a",      "N",  6, 0 }, ; // код акта
     { "_CODE",      "N", 12, 0 }, ; // код записи счета
@@ -59,7 +59,7 @@ Function reestr_rak_tmpfile( oXmlDoc, aerr, mname_xml )
     { "_SANK_EKMP", "N", 15, 2 }, ; // финансовые снкции ЭКМП
     { "PENALTY",    "N", 15, 2 };  // Сумма штрафов
   } )
-  dbCreate( cur_dir + "tmp4file", { ;
+  dbCreate( cur_dir() + "tmp4file", { ;
     { "kod_s",      "N",  6, 0 }, ; // код счета
     { "kod_a",      "N",  6, 0 }, ; // код акта
     { "_IDCASE",    "N",  8, 0 }, ; // номер записи в счете
@@ -74,11 +74,11 @@ Function reestr_rak_tmpfile( oXmlDoc, aerr, mname_xml )
     { "_SANK_EKMP", "N", 15, 2 }, ;
     { "PENALTY",    "N", 15, 2 };  // Сумма штрафов
   } )
-  dbCreate( cur_dir + "tmp5file", { ; // реестр актов контроля счетов + эксперты
+  dbCreate( cur_dir() + "tmp5file", { ; // реестр актов контроля счетов + эксперты
     { "kod_a",      "N",  6, 0 }, ; // код акта
     { "CODE_EXP",   "C",  11, 0 };  // код эксперта качества мед.помощи по F004
   } )
-  dbCreate( cur_dir + "tmp6file", { ; // реестр актов контроля + счета + листы учета + ошибки (по-новому - 2019 год)
+  dbCreate( cur_dir() + "tmp6file", { ; // реестр актов контроля + счета + листы учета + ошибки (по-новому - 2019 год)
     { "kod_s",      "N",  6, 0 }, ; // код счета
     { "kod_a",      "N",  6, 0 }, ; // код акта
     { "_IDCASE",    "N",  8, 0 }, ; // номер записи в счете
@@ -90,13 +90,13 @@ Function reestr_rak_tmpfile( oXmlDoc, aerr, mname_xml )
     { "SL_ID2",     "C", 36, 0 }, ; // идентификатор второго случая (в законченном случае)
     { "S_COM",      "C", 250, 0 } ; // Комментарий к санкции
   } )
-  Use ( cur_dir + "tmp1file" ) New Alias TMP1
+  Use ( cur_dir() + "tmp1file" ) New Alias TMP1
   Append Blank
-  Use ( cur_dir + "tmp2file" ) New Alias TMP2
-  Use ( cur_dir + "tmp3file" ) New Alias TMP3
-  Use ( cur_dir + "tmp4file" ) New Alias TMP4
-  Use ( cur_dir + "tmp5file" ) New Alias TMP5
-  Use ( cur_dir + "tmp6file" ) New Alias TMP6
+  Use ( cur_dir() + "tmp2file" ) New Alias TMP2
+  Use ( cur_dir() + "tmp3file" ) New Alias TMP3
+  Use ( cur_dir() + "tmp4file" ) New Alias TMP4
+  Use ( cur_dir() + "tmp5file" ) New Alias TMP5
+  Use ( cur_dir() + "tmp6file" ) New Alias TMP6
   For j := 1 To Len( oXmlDoc:aItems[ 1 ]:aItems )
     @ MaxRow(), 1 Say PadR( lstr( j ), 6 ) Color cColorSt2Msg
     oXmlNode := oXmlDoc:aItems[ 1 ]:aItems[ j ]

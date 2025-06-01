@@ -20,8 +20,8 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
           kod_lech_vr := 0, is_open_u1 := .f., arr_uva := {}, arr_usl1year, u_other := {}
   private arrImplant
 
-  if hb_vfExists(cur_dir + 'tmp_impl.dbf')
-    hb_vfErase(cur_dir + 'tmp_impl.dbf')
+  if hb_vfExists(cur_dir() + 'tmp_impl.dbf')
+    hb_vfErase(cur_dir() + 'tmp_impl.dbf')
   endif
 
   afillall(mvu,0)
@@ -131,8 +131,8 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
     {'is_edit'  ,   'N',     2,     0},;
     {'number'   ,   'N',     3,     0},;
     {'rec_hu'   ,   'N',     8,     0}}
-  dbcreate(cur_dir + 'tmp_usl_',adbf)
-  use (cur_dir + 'tmp_usl_') new alias TMP
+  dbcreate(cur_dir() + 'tmp_usl_',adbf)
+  use (cur_dir() + 'tmp_usl_') new alias TMP
   select HUMAN
   set order to 1
   find (str(mkod_human,7))
@@ -253,9 +253,9 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   is_1_vvod := (tmp->(lastrec()) == 0 .and. mem_ordu_1 == 1)
   if !is_1_vvod
     if mem_ordusl == 1
-      index on dtos(date_u1)+fsort_usl(shifr_u) to (cur_dir + 'tmp_usl_')
+      index on dtos(date_u1)+fsort_usl(shifr_u) to (cur_dir() + 'tmp_usl_')
     else
-      index on fsort_usl(shifr_u)+dtos(date_u1) to (cur_dir + 'tmp_usl_')
+      index on fsort_usl(shifr_u)+dtos(date_u1) to (cur_dir() + 'tmp_usl_')
     endif
   endif
   summa_usl(.f.)

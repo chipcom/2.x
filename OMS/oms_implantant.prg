@@ -24,8 +24,8 @@ function view_implantant(arrImplantant, date_usl, fl_change)
   local buf := savescreen()
   local k_hum, mo_hu_rec
 
-  dbCreate( cur_dir + 'tmp_impl', mo_implant )
-  G_Use( cur_dir + 'tmp_impl', , cAlias, , .t.)
+  dbCreate( cur_dir() + 'tmp_impl', mo_implant )
+  G_Use( cur_dir() + 'tmp_impl', , cAlias, , .t.)
   dbSelectArea(cAlias)
   for each row in arrImplantant
     (cAlias)->(dbAppend())
@@ -285,7 +285,7 @@ function save_implantants(mkod_human, rec_hu)
 
   Use_base("human_im")
 
-  R_Use( cur_dir + 'tmp_impl', , cAlias)
+  R_Use( cur_dir() + 'tmp_impl', , cAlias)
   dbSelectArea(cAlias)
   (cAlias)->(dbGoTop())
   do while ! (cAlias)->(EOF())

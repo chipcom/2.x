@@ -824,7 +824,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       //
       // ////////////////////////////////////////////////////////////
       mdef_diagnoz := 'U09.9 '
-      r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB_10" )
+      r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "MKB_10" )
       r_use( dir_server + "mo_pers", dir_server + "mo_pers", "P2" )
       num_screen := 2
       fl := .t.
@@ -1283,7 +1283,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server + "mo_hismo",, "SN" )
-        Index On Str( kod, 7 ) to ( cur_dir + "tmp_ismo" )
+        Index On Str( kod, 7 ) to ( cur_dir() + "tmp_ismo" )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo

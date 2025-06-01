@@ -98,7 +98,7 @@ Function ret_inogsmo_name( ltip, /*@*/rec, fl_close)
   Default fl_close To .f.
   If Select( 'SN' ) == 0
     r_use( dir_server + iif( ltip == 1, 'mo_kismo', 'mo_hismo' ), , 'SN' )
-    Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+    Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
     fl := .t.
   Endif
   Select SN
@@ -301,7 +301,7 @@ Function init_tmp_glob_array( name_base, _glob_array, _date, is_all )
   Local i, len1, len2, f2type, fl_is, tmp_select
 
   Default name_base To 'tmp_ga', is_all To .f.
-  If !myfiledeleted( cur_dir + name_base + sdbf )
+  If !myfiledeleted( cur_dir() + name_base + sdbf )
     Return .f.
   Endif
   tmp_select := Select()
@@ -603,7 +603,7 @@ Function input_uch( r, c, date1, date2 )
 
   Local ret, k, fl_is, tmp_select := Select()
 
-  If !myfiledeleted( cur_dir + 'tmp_ga' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_ga' + sdbf )
     Return ret
   Endif
   If Empty( glob_uch[ 1 ] )
@@ -612,10 +612,10 @@ Function input_uch( r, c, date1, date2 )
     glob_uch[ 1 ] := Int( Val( ar[ 1 ] ) )
     glob_otd[ 1 ] := Int( Val( ar[ 2 ] ) )
   Endif
-  dbCreate( cur_dir + 'tmp_ga', { { 'name', 'C', 30, 0 }, ;
+  dbCreate( cur_dir() + 'tmp_ga', { { 'name', 'C', 30, 0 }, ;
     { 'kod', 'N', 3, 0 }, ;
     { 'is', 'L', 1, 0 } } )
-  Use ( cur_dir + 'tmp_ga' ) new
+  Use ( cur_dir() + 'tmp_ga' ) new
   r_use( dir_server + 'mo_uch', , 'UCH' )
   Go Top
   Do While !Eof()
@@ -635,7 +635,7 @@ Function input_uch( r, c, date1, date2 )
   If ( k := tmp_ga->( LastRec() ) ) == 1
     ret := { tmp_ga->kod, AllTrim( tmp_ga->name ) }
   Else
-    Index On Upper( name ) to ( cur_dir + 'tmp_ga' )
+    Index On Upper( name ) to ( cur_dir() + 'tmp_ga' )
   Endif
   tmp_ga->( dbCloseArea() )
   Select ( tmp_select )
@@ -662,15 +662,15 @@ Function input_otd( r, c, date1, date2, nTask )
   Local ret, k, fl_is, tmp_select := Select()
 
   Default nTask To X_OMS
-  If !myfiledeleted( cur_dir + 'tmp_ga' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_ga' + sdbf )
     Return ret
   Endif
-  dbCreate( cur_dir + 'tmp_ga', { { 'name', 'C', 30, 0 }, ;
+  dbCreate( cur_dir() + 'tmp_ga', { { 'name', 'C', 30, 0 }, ;
     { 'kod', 'N', 3, 0 }, ;
     { 'idump', 'N', 2, 0 }, ;
     { 'tiplu', 'N', 2, 0 }, ;
     { 'is', 'L', 1, 0 } } )
-  Use ( cur_dir + 'tmp_ga' ) new
+  Use ( cur_dir() + 'tmp_ga' ) new
   r_use( dir_server + 'mo_otd', , 'OTD' )
   Go Top
   Do While !Eof()
@@ -700,7 +700,7 @@ Function input_otd( r, c, date1, date2, nTask )
   If ( k := tmp_ga->( LastRec() ) ) == 1
     ret := { tmp_ga->kod, AllTrim( tmp_ga->name ), tmp_ga->idump, tmp_ga->tiplu }
   Else
-    Index On Upper( name ) to ( cur_dir + 'tmp_ga' )
+    Index On Upper( name ) to ( cur_dir() + 'tmp_ga' )
   Endif
   tmp_ga->( dbCloseArea() )
   Select ( tmp_select )
@@ -767,7 +767,7 @@ Function input_perso( r, c, is_null, is_rab )
   mywait()
   // help_code := H_Input_fio
   If r_use( dir_server + 'mo_pers', , 'PERSO' )
-    Index On Upper( fio ) to ( cur_dir + 'tmp_pers' ) For kod > 0
+    Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
     If glob_human[ 1 ] > 0
       Goto ( glob_human[ 1 ] )
       fl := !Eof() .and. !Deleted()
@@ -1177,7 +1177,7 @@ Function f1_s_mr( nKey, oBrow, regim )
   Do Case
   Case regim == "open"
     g_use( dir_server + "s_mr",, "SA" )
-    Index On Upper( name ) to ( cur_dir + "tmp_mr" )
+    Index On Upper( name ) to ( cur_dir() + "tmp_mr" )
     Go Top
     ret := !Eof()
   Case regim == "edit"
@@ -1376,7 +1376,7 @@ Function f9_f_nastr( l_titul, a_strok )
     add_string( ta[ i ] )
   Next
   r_use( dir_server + 'uslugi', , 'USL' )
-  Index On fsort_usl( shifr ) to ( cur_dir + 'tmpu' )
+  Index On fsort_usl( shifr ) to ( cur_dir() + 'tmpu' )
   Go Top
   Do While !Eof()
     If _f_usl_danet( mda, mnet )

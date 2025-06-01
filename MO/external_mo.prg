@@ -43,13 +43,13 @@ Function f_get_mo( k, r, c, lusl, lpar )
   If Empty( arr_mo3 ) .or. ppar == 2
     lmo3 := 0
   Endif
-  dbCreate( cur_dir + 'tmp_mo', { ;
+  dbCreate( cur_dir() + 'tmp_mo', { ;
     { 'kodN', 'C', 6, 0 }, ;
     { 'kodF', 'C', 6, 0 }, ;
     { 'mo3', 'N', 1, 0 }, ;
     { 'name', 'C', 72, 0 } ;
     } )
-  Use ( cur_dir + 'tmp_mo' ) New Alias RG
+  Use ( cur_dir() + 'tmp_mo' ) New Alias RG
   Do While .t.
     Zap
     If lmo3 == 0
@@ -83,7 +83,7 @@ Function f_get_mo( k, r, c, lusl, lpar )
         Endif
       Next
     Endif
-    Index On Upper( name ) to ( cur_dir + 'tmp_mo' )
+    Index On Upper( name ) to ( cur_dir() + 'tmp_mo' )
     Go Top
     If Empty( pkodN )
       pkodN := glob_mo[ _MO_KOD_TFOMS ]

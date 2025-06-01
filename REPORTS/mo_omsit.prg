@@ -15,8 +15,8 @@ Static nastr_f57   := 'F57'
 
 //
 Function prover_rule()
-Local i, k, n, hGauge, buf := save_maxrow(), arr_m, ;
-      n_file := cur_dir + 'ver_rule.txt', sh := 80, HH := 78, reg_print := 5, ;
+Local i, k, hGauge, buf := save_maxrow(), arr_m, ;
+      n_file := cur_dir() + 'ver_rule.txt', sh := 80, HH := 78, reg_print := 5, ;
       fl_exit := .f., taa[2], ab := {}, s, arr1, blk, jkart, jhuman, jerr, t1, t2, i1
 if (arr_m := year_month()) == NIL
   return NIL
@@ -39,7 +39,7 @@ R_Use(dir_server + "human_",,"HUMAN_")
 R_Use(dir_server + "human",dir_server + "humand","HUMAN")
 set relation to recno() into HUMAN_
 dbseek(dtos(arr_m[5]),.t.)
-index on str(kod_k, 7)+dtos(k_data) to (cur_dir + "tmp_h") ;
+index on str(kod_k, 7)+dtos(k_data) to (cur_dir() + "tmp_h") ;
       while k_data <= arr_m[6] ;
       for kod > 0
 //
@@ -311,9 +311,9 @@ adbf := {{"diag1","C", 5, 0}, ;
          {"diag2","C", 5, 0}, ;
          {"dni4", "N", 3, 0}, ;
          {"dni3", "N", 3, 0}}
-dbcreate(cur_dir + "tmp",adbf)
-use (cur_dir + "tmp") new alias TMP
-index on diag1+diag2 to (cur_dir + "tmp")
+dbcreate(cur_dir() + "tmp",adbf)
+use (cur_dir() + "tmp") new alias TMP
+index on diag1+diag2 to (cur_dir() + "tmp")
 arr := GetIniSect( file_stat, rule_section[1] )
 if empty(arr)
   if !dostup_stat
@@ -447,9 +447,9 @@ Function st_rule_2()
 Local arr, i, s, adbf, t_arr[BR_LEN], mtitle := rule_section[2]
 adbf := {{"diag1","C", 5, 0}, ;
          {"diag2","C", 5, 0}}
-dbcreate(cur_dir + "tmp",adbf)
-use (cur_dir + "tmp") new alias TMP
-index on diag1+diag2 to (cur_dir + "tmp")
+dbcreate(cur_dir() + "tmp",adbf)
+use (cur_dir() + "tmp") new alias TMP
+index on diag1+diag2 to (cur_dir() + "tmp")
 arr := GetIniSect( file_stat, rule_section[2] )
 if empty(arr)
   if !dostup_stat
@@ -573,9 +573,9 @@ Local arr, i, s, adbf, t_arr[BR_LEN], mtitle := rule_section[3]
 adbf := {{"diag1","C", 5, 0}, ;
          {"diag2","C", 5, 0}, ;
          {"pol",  "C", 1, 0}}
-dbcreate(cur_dir + "tmp",adbf)
-use (cur_dir + "tmp") new alias TMP
-index on diag1+diag2 to (cur_dir + "tmp")
+dbcreate(cur_dir() + "tmp",adbf)
+use (cur_dir() + "tmp") new alias TMP
+index on diag1+diag2 to (cur_dir() + "tmp")
 arr := GetIniSect( file_stat, rule_section[3] )
 if empty(arr)
   if !dostup_stat
@@ -707,9 +707,9 @@ Function st_rule_4()
 Local arr, i, s, adbf, t_arr[BR_LEN], mtitle := rule_section[4]
 adbf := {{"diag1","C", 5, 0}, ;
          {"diag2","C", 5, 0}}
-dbcreate(cur_dir + "tmp",adbf)
-use (cur_dir + "tmp") new alias TMP
-index on diag1+diag2 to (cur_dir + "tmp")
+dbcreate(cur_dir() + "tmp",adbf)
+use (cur_dir() + "tmp") new alias TMP
+index on diag1+diag2 to (cur_dir() + "tmp")
 arr := GetIniSect( file_stat, rule_section[4] )
 if empty(arr)
   if !dostup_stat
@@ -860,9 +860,9 @@ Local arr, i, s, adbf, t_arr[BR_LEN], mtitle := rule_section[6]
 adbf := {{"bukva1","C", 1, 0}, ;
          {"bukva2","C", 1, 0}, ;
          {"bukva", "C", 1, 0}}
-dbcreate(cur_dir + "tmp",adbf)
-use (cur_dir + "tmp") new alias TMP
-index on bukva1+bukva2 to (cur_dir + "tmp")
+dbcreate(cur_dir() + "tmp",adbf)
+use (cur_dir() + "tmp") new alias TMP
+index on bukva1+bukva2 to (cur_dir() + "tmp")
 arr := GetIniSect( file_stat, rule_section[6] )
 if empty(arr)
   if !dostup_stat
@@ -980,7 +980,7 @@ return ret
 //
 Function print_rule(n)
 Local sh := 80, HH := 58, reg_print := 2, ;
-      s, n_file := cur_dir + 'rule' + iif(prs == 1, 'KOM', 'LPU') + lstr(n) + stxt(), ;
+      s, n_file := cur_dir() + 'rule' + iif(prs == 1, 'KOM', 'LPU') + lstr(n) + stxt(), ;
       buf := save_maxrow()
 //
 mywait()
@@ -1234,9 +1234,9 @@ adbf := {{"kod",   "N", 6, 0}, ;
          {"num_kol","N", 2, 0}, ;
          {"kol1",  "N", 6, 0}, ;
          {"kol2",  "N", 6, 0}}
-dbcreate(cur_dir + "tmp1rule",adbf)
-use (cur_dir + "tmp1rule") new
-index on str(tip, 1)+shifr to (cur_dir + "tmp1rule")
+dbcreate(cur_dir() + "tmp1rule",adbf)
+use (cur_dir() + "tmp1rule") new
+index on str(tip, 1)+shifr to (cur_dir() + "tmp1rule")
 adbf := {{"kod",   "N", 6, 0}, ;
          {"n_data","D", 8, 0}, ;
          {"k_data","D", 8, 0}, ;
@@ -1245,9 +1245,9 @@ adbf := {{"kod",   "N", 6, 0}, ;
          {"travma","C", 20, 0}, ;
          {"num_kol","N", 2, 0}, ;
          {"bukva", "C", 15, 0}}
-dbcreate(cur_dir + "tmp2rule",adbf)
-use (cur_dir + "tmp2rule") new
-index on str(kod, 6)+dtos(k_data) to (cur_dir + "tmp2rule")
+dbcreate(cur_dir() + "tmp2rule",adbf)
+use (cur_dir() + "tmp2rule") new
+index on str(kod, 6)+dtos(k_data) to (cur_dir() + "tmp2rule")
 adbf := {{"rule",  "N", 1, 0}, ;
          {"tip",   "N", 1, 0}, ;
          {"diag1", "C", 5, 0}, ;
@@ -1261,8 +1261,8 @@ adbf := {{"rule",  "N", 1, 0}, ;
          {"num_kol","N", 2, 0}, ;
          {"dni4",  "N", 3, 0}, ;
          {"dni3",  "N", 3, 0}}
-dbcreate(cur_dir + "tmp_rule",adbf)
-use (cur_dir + "tmp_rule") new
+dbcreate(cur_dir() + "tmp_rule",adbf)
+use (cur_dir() + "tmp_rule") new
 for j1 := 1 to 2   // 1 - комитет, 2 - ЛПУ
   file_stat := {f_stat_com,f_stat_lpu}[j1]
   for j := 1 to 6    // номер правила
@@ -1301,7 +1301,7 @@ for j1 := 1 to 2   // 1 - комитет, 2 - ЛПУ
     endif
   next
 next
-index on str(rule, 1)+str(dnum2, 6) to (cur_dir + "tmp_rule")
+index on str(rule, 1)+str(dnum2, 6) to (cur_dir() + "tmp_rule")
 return ret
 
 // для проверялки
@@ -1618,31 +1618,31 @@ if fl_plus
     aadd(arr, {"KOL"+lstr(i),"N", 6, 0} )
   next
 endif
-dbcreate(cur_dir + "tmp", arr)
-use (cur_dir + "tmp") new
-index on shifr+str(tip, 1) to (cur_dir + "tmp")
-dbcreate(cur_dir + "tmp_k", {{"kod","N", 7, 0}, ;
+dbcreate(cur_dir() + "tmp", arr)
+use (cur_dir() + "tmp") new
+index on shifr+str(tip, 1) to (cur_dir() + "tmp")
+dbcreate(cur_dir() + "tmp_k", {{"kod","N", 7, 0}, ;
                            {"kol","N", 6, 0}})
-use (cur_dir + "tmp_k") new
-index on str(kod, 7) to (cur_dir + "tmp_k")
-dbcreate(cur_dir + "tmp_i", {{"kod","N", 7, 0}, ;
+use (cur_dir() + "tmp_k") new
+index on str(kod, 7) to (cur_dir() + "tmp_k")
+dbcreate(cur_dir() + "tmp_i", {{"kod","N", 7, 0}, ;
                            {"kol","N", 6, 0}})
-use (cur_dir + "tmp_i") new
-index on str(kod, 7) to (cur_dir + "tmp_i")
+use (cur_dir() + "tmp_i") new
+index on str(kod, 7) to (cur_dir() + "tmp_i")
 arr := {{"kod","N", 7, 0}, ;
         {"shifr","C", 5, 0}, ;
         {"tip","N", 1, 0}, ;
         {"kol","N", 6, 0}}
-dbcreate(cur_dir + "tmp_b",arr)
-use (cur_dir + "tmp_b") new
-index on shifr+str(tip, 1)+str(kod, 7) to (cur_dir + "tmp_b")
+dbcreate(cur_dir() + "tmp_b",arr)
+use (cur_dir() + "tmp_b") new
+index on shifr+str(tip, 1)+str(kod, 7) to (cur_dir() + "tmp_b")
 f1_diag_statist_bukva()
 name_pgr := dir_exe() + "_mo_mkbg"
 name_gr := dir_exe() + "_mo_mkbk"
 R_Use(name_pgr,,"PGR")
-index on sh_e to (cur_dir + "tmp_pgr")
+index on sh_e to (cur_dir() + "tmp_pgr")
 R_Use(name_gr,,"GR")
-index on sh_e to (cur_dir + "tmp_gr")
+index on sh_e to (cur_dir() + "tmp_gr")
 if pi1 == 1  // по дате окончания лечения
   begin_date := arr_m[5]
   end_date := arr_m[6]
@@ -1748,12 +1748,12 @@ else
   aeval(arr_title, {|x| add_string(x) } )
   //
   R_Use(name_pgr,,"PGR")
-  index on sh_b to (cur_dir + "tmp_pgr")
+  index on sh_b to (cur_dir() + "tmp_pgr")
   R_Use(name_gr,,"GR")
-  index on sh_b to (cur_dir + "tmp_gr")
-  R_Use(dir_exe() + "_mo_mkb",cur_dir + "_mo_mkb","MKB10")
-  use (cur_dir + "tmp_b") index (cur_dir + "tmp_b") new
-  use (cur_dir + "tmp") index (cur_dir + "tmp") new
+  index on sh_b to (cur_dir() + "tmp_gr")
+  R_Use(dir_exe() + "_mo_mkb",cur_dir() + "_mo_mkb","MKB10")
+  use (cur_dir() + "tmp_b") index (cur_dir() + "tmp_b") new
+  use (cur_dir() + "tmp") index (cur_dir() + "tmp") new
   go top
   do while !eof()
     s := ""
@@ -2125,22 +2125,22 @@ arr := {;
 for i := 1 to k_plus
   aadd(arr, {"KOL"+lstr(i),"N", 6, 0} )
 next
-dbcreate(cur_dir + "tmp", arr)
-use (cur_dir + "tmp") new
-index on shifr to (cur_dir + "tmp")
-dbcreate(cur_dir + "tmp_k", {{"kod","N", 7, 0}, ;
+dbcreate(cur_dir() + "tmp", arr)
+use (cur_dir() + "tmp") new
+index on shifr to (cur_dir() + "tmp")
+dbcreate(cur_dir() + "tmp_k", {{"kod","N", 7, 0}, ;
                            {"kol","N", 6, 0}})
-use (cur_dir + "tmp_k") new
-index on str(kod, 7) to (cur_dir + "tmp_k")
-dbcreate(cur_dir + "tmp_i", {{"kod","N", 7, 0}, ;
+use (cur_dir() + "tmp_k") new
+index on str(kod, 7) to (cur_dir() + "tmp_k")
+dbcreate(cur_dir() + "tmp_i", {{"kod","N", 7, 0}, ;
                            {"kol","N", 6, 0}})
-use (cur_dir + "tmp_i") new
-index on str(kod, 7) to (cur_dir + "tmp_i")
-dbcreate(cur_dir + "tmp_b", {{"kod","N", 7, 0}, ;
+use (cur_dir() + "tmp_i") new
+index on str(kod, 7) to (cur_dir() + "tmp_i")
+dbcreate(cur_dir() + "tmp_b", {{"kod","N", 7, 0}, ;
                            {"shifr","C", 5, 0}, ;
                            {"kol","N", 6, 0}})
-use (cur_dir + "tmp_b") new
-index on shifr+str(kod, 7) to (cur_dir + "tmp_b")
+use (cur_dir() + "tmp_b") new
+index on shifr+str(kod, 7) to (cur_dir() + "tmp_b")
 f1_diag_statist_bukva()
 if reg > 2
   if reg == 3
@@ -2149,7 +2149,7 @@ if reg > 2
     name_gr := dir_exe() + "_mo_mkbk"
   endif
   R_Use(name_gr,,"GR")
-  index on sh_e to (cur_dir + "tmp_gr")
+  index on sh_e to (cur_dir() + "tmp_gr")
 endif
 if pi1 == 1  // по дате окончания лечения
   begin_date := arr_m[5]
@@ -2256,9 +2256,9 @@ else
   aeval(arr_title, {|x| add_string(x) } )
   //
   if reg < 3
-    R_Use(dir_exe() + "_mo_mkb",cur_dir + "_mo_mkb","MKB10")
-    use (cur_dir + "tmp_b") index (cur_dir + "tmp_b") new
-    use (cur_dir + "tmp") index (cur_dir + "tmp") new
+    R_Use(dir_exe() + "_mo_mkb",cur_dir() + "_mo_mkb","MKB10")
+    use (cur_dir() + "tmp_b") index (cur_dir() + "tmp_b") new
+    use (cur_dir() + "tmp") index (cur_dir() + "tmp") new
     go top
     do while !eof()
       s := ""
@@ -2313,9 +2313,9 @@ else
     enddo
   else
     R_Use(name_gr,,"GR")
-    index on sh_b to (cur_dir + "tmp_gr")
-    use (cur_dir + "tmp_b") index (cur_dir + "tmp_b") new
-    use (cur_dir + "tmp") index (cur_dir + "tmp") new
+    index on sh_b to (cur_dir() + "tmp_gr")
+    use (cur_dir() + "tmp_b") index (cur_dir() + "tmp_b") new
+    use (cur_dir() + "tmp") index (cur_dir() + "tmp") new
     go top
     do while !eof()
       s := "" ; fl := .f.
@@ -2557,20 +2557,20 @@ arr := {;
 for i := 1 to k_plus
   aadd(arr, {"KOL"+lstr(i),"N", 6, 0} )
 next
-dbcreate(cur_dir + "tmp", arr)
-use (cur_dir + "tmp") new
-index on str(vrach, 4)+shifr to (cur_dir + "tmp")
-dbcreate(cur_dir + "tmp_k", {{"vrach","N", 4, 0}, ;
+dbcreate(cur_dir() + "tmp", arr)
+use (cur_dir() + "tmp") new
+index on str(vrach, 4)+shifr to (cur_dir() + "tmp")
+dbcreate(cur_dir() + "tmp_k", {{"vrach","N", 4, 0}, ;
                            {"kod","N", 7, 0}, ;
                            {"kol","N", 6, 0}})
-use (cur_dir + "tmp_k") new
-index on str(vrach, 4)+str(kod, 7) to (cur_dir + "tmp_k")
-dbcreate(cur_dir + "tmp_b", {{"vrach","N", 4, 0}, ;
+use (cur_dir() + "tmp_k") new
+index on str(vrach, 4)+str(kod, 7) to (cur_dir() + "tmp_k")
+dbcreate(cur_dir() + "tmp_b", {{"vrach","N", 4, 0}, ;
                            {"kod","N", 7, 0}, ;
                            {"shifr","C", 5, 0}, ;
                            {"kol","N", 6, 0}})
-use (cur_dir + "tmp_b") new
-index on str(vrach, 4)+shifr+str(kod, 7) to (cur_dir + "tmp_b")
+use (cur_dir() + "tmp_b") new
+index on str(vrach, 4)+shifr+str(kod, 7) to (cur_dir() + "tmp_b")
 f1_diag_statist_bukva()
 if pi1 == 1  // по дате окончания лечения
   begin_date := arr_m[5]
@@ -2672,15 +2672,15 @@ else
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
   //
-  R_Use(dir_exe() + "_mo_mkb",cur_dir + "_mo_mkb","MKB10")
-  use (cur_dir + "tmp_k") index (cur_dir + "tmp_k") new
-  use (cur_dir + "tmp_b") index (cur_dir + "tmp_b") new
-  use (cur_dir + "tmp") index (cur_dir + "tmp") new
+  R_Use(dir_exe() + "_mo_mkb",cur_dir() + "_mo_mkb","MKB10")
+  use (cur_dir() + "tmp_k") index (cur_dir() + "tmp_k") new
+  use (cur_dir() + "tmp_b") index (cur_dir() + "tmp_b") new
+  use (cur_dir() + "tmp") index (cur_dir() + "tmp") new
   if regim == 1
     R_Use(dir_server + "mo_pers",,"PERSO")
     select TMP
     set relation to vrach into PERSO
-    index on upper(perso->fio)+str(vrach, 4)+shifr to (cur_dir + "tmp1")
+    index on upper(perso->fio)+str(vrach, 4)+shifr to (cur_dir() + "tmp1")
     old_vrach := 0
     afill(sd_plus, 0)
   endif
@@ -2916,20 +2916,20 @@ arr := {;
 for i := 1 to k_plus
   aadd(arr, {"KOL"+lstr(i),"N", 6, 0} )
 next
-dbcreate(cur_dir + "tmp", arr)
-use (cur_dir + "tmp") new
-index on str(uchast, 2)+shifr to (cur_dir + "tmp")
-dbcreate(cur_dir + "tmp_k", {{"uchast","N", 2, 0}, ;
+dbcreate(cur_dir() + "tmp", arr)
+use (cur_dir() + "tmp") new
+index on str(uchast, 2)+shifr to (cur_dir() + "tmp")
+dbcreate(cur_dir() + "tmp_k", {{"uchast","N", 2, 0}, ;
                            {"kod","N", 7, 0}, ;
                            {"kol","N", 6, 0}})
-use (cur_dir + "tmp_k") new
-index on str(uchast, 2)+str(kod, 7) to (cur_dir + "tmp_k")
-dbcreate(cur_dir + "tmp_b", {{"uchast","N", 2, 0}, ;
+use (cur_dir() + "tmp_k") new
+index on str(uchast, 2)+str(kod, 7) to (cur_dir() + "tmp_k")
+dbcreate(cur_dir() + "tmp_b", {{"uchast","N", 2, 0}, ;
                            {"kod","N", 7, 0}, ;
                            {"shifr","C", 5, 0}, ;
                            {"kol","N", 6, 0}})
-use (cur_dir + "tmp_b") new
-index on str(uchast, 2)+shifr+str(kod, 7) to (cur_dir + "tmp_b")
+use (cur_dir() + "tmp_b") new
+index on str(uchast, 2)+shifr+str(kod, 7) to (cur_dir() + "tmp_b")
 f1_diag_statist_bukva()
 R_Use(dir_server + "kartotek",,"KART")
 if pi1 == 1  // по дате окончания лечения
@@ -3032,11 +3032,11 @@ else
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
   //
-  R_Use(dir_exe() + "_mo_mkb",cur_dir + "_mo_mkb","MKB10")
+  R_Use(dir_exe() + "_mo_mkb",cur_dir() + "_mo_mkb","MKB10")
   old_uchast := -1
-  use (cur_dir + "tmp_k") index (cur_dir + "tmp_k") new
-  use (cur_dir + "tmp_b") index (cur_dir + "tmp_b") new
-  use (cur_dir + "tmp") index (cur_dir + "tmp") new
+  use (cur_dir() + "tmp_k") index (cur_dir() + "tmp_k") new
+  use (cur_dir() + "tmp_b") index (cur_dir() + "tmp_b") new
+  use (cur_dir() + "tmp") index (cur_dir() + "tmp") new
   go top
   do while !eof()
     if verify_FF(HH,.t.,sh)
@@ -3197,17 +3197,17 @@ return NIL
 
 //
 Function f1_diag_statist_bukva()
-dbcreate(cur_dir + "tmp_buk",{{"bukva","C", 1, 0}, ;
+dbcreate(cur_dir() + "tmp_buk",{{"bukva","C", 1, 0}, ;
                             {"vu","N", 4, 0}, ;
                             {"KOL","N", 6, 0}})
-use (cur_dir + "tmp_buk") new
-index on str(vu, 4)+bukva to (cur_dir + "tmp_buk")
-dbcreate(cur_dir + "tmp_bbuk",{{"bukva","C", 1, 0}, ;
+use (cur_dir() + "tmp_buk") new
+index on str(vu, 4)+bukva to (cur_dir() + "tmp_buk")
+dbcreate(cur_dir() + "tmp_bbuk",{{"bukva","C", 1, 0}, ;
                              {"vu","N", 4, 0}, ;
                              {"kod","N", 7, 0}, ;
                              {"KOL","N", 6, 0}})
-use (cur_dir + "tmp_bbuk") new
-index on str(vu, 4)+bukva+str(kod, 7) to (cur_dir + "tmp_bbuk")
+use (cur_dir() + "tmp_bbuk") new
+index on str(vu, 4)+bukva+str(kod, 7) to (cur_dir() + "tmp_bbuk")
 return NIL
 
 //
@@ -3242,8 +3242,8 @@ Function f3_diag_statist_bukva(HH,sh,arr_title,lvu)
 Local j
 DEFAULT lvu TO 0
 if select("TMP_BUK") == 0
-  use (cur_dir + "tmp_bbuk") index (cur_dir + "tmp_bbuk") new
-  use (cur_dir + "tmp_buk") index (cur_dir + "tmp_buk") new
+  use (cur_dir() + "tmp_bbuk") index (cur_dir() + "tmp_bbuk") new
+  use (cur_dir() + "tmp_buk") index (cur_dir() + "tmp_buk") new
 endif
 select TMP_BUK
 find (str(lvu, 4))
@@ -3297,14 +3297,14 @@ adbf := {{"kod_k","N", 7, 0}, ;
          {"STATUS_ST","C", 20, 0}, ;
          {"kol_1","N", 3, 0}, ;
          {"kol_2","N", 3, 0}}
-dbcreate(cur_dir + "tmp",adbf)
-use (cur_dir + "tmp") new
-index on str(kod_k, 7) to (cur_dir + "tmp")
+dbcreate(cur_dir() + "tmp",adbf)
+use (cur_dir() + "tmp") new
+index on str(kod_k, 7) to (cur_dir() + "tmp")
 //
 adbf := {{"kod_k","N", 7, 0}, ;
          {"kod_h","N", 7, 0}}
-dbcreate(cur_dir + "tmp_h",adbf)
-use (cur_dir + "tmp_h") new
+dbcreate(cur_dir() + "tmp_h",adbf)
+use (cur_dir() + "tmp_h") new
 //
 kh := 0
 if pi1 == 1 // по дате окончания лечения
@@ -3371,8 +3371,8 @@ if jh == 0
   return func_error(4,"Не вводилась информация о характере заболевания за указанный период!")
 endif
 mywait()
-use (cur_dir + "tmp_h") new
-index on str(kod_k, 7) to (cur_dir + "tmp_h")
+use (cur_dir() + "tmp_h") new
+index on str(kod_k, 7) to (cur_dir() + "tmp_h")
 use
 //
 t_arr[BR_TOP] := 2
@@ -3397,9 +3397,9 @@ t_arr[BR_EDIT] := {|nk,ob| f2_stat_boln(nk,ob,"edit") }
 t_arr[BR_STAT_MSG] := {|| ;
       status_key("^<Esc>^ выход;  ^<Enter>^ листы учета по больному;  ^<F9>^ печать списка") }
 R_Use(dir_server + "kartotek",,"KART")
-use (cur_dir + "tmp") new
+use (cur_dir() + "tmp") new
 set relation to kod_k into KART
-index on upper(kart->fio) to (cur_dir + "tmp")
+index on upper(kart->fio) to (cur_dir() + "tmp")
 go top
 edit_browse(t_arr)
 close databases
@@ -3478,7 +3478,7 @@ do case
         goto (rec)
       case nKey == K_ENTER
         rec := tmp->(recno())
-        use (cur_dir + "tmp_h") index (cur_dir + "tmp_h") new
+        use (cur_dir() + "tmp_h") index (cur_dir() + "tmp_h") new
         find (str(tmp->kod_k, 7))
         do while tmp->kod_k == tmp_h->kod_k .and. !eof()
           aadd(arr,{0,tmp_h->kod_h})
@@ -3489,9 +3489,9 @@ do case
         print_al_uch(arr,arr_m)
         //
         R_Use(dir_server + "kartotek",,"KART")
-        use (cur_dir + "tmp") new
+        use (cur_dir() + "tmp") new
         set relation to kod_k into KART
-        set index to (cur_dir + "tmp")
+        set index to (cur_dir() + "tmp")
         goto (rec)
     endcase
 endcase
@@ -3544,7 +3544,7 @@ return NIL
 
 // 14.10.24 Подсчёт стационарных случаев по профилям (по диагнозам, КСГ и операциям)
 Function i_stac_sl_profil()
-  Local buf := savescreen(), sh := 80, HH := 80, n_file := cur_dir + 'stac_pro.txt'
+  Local buf := savescreen(), sh := 80, HH := 80, n_file := cur_dir() + 'stac_pro.txt'
 
   Private arr_m := {2024, 1, 6, 'за январь - июнь 2024 года', 0d20240101, 0d20240630}, ;
           mm_uslov := {{'по всем случаям                      ', 2}, ;
@@ -3598,14 +3598,14 @@ Function i_stac_sl_profil()
   //////////////////////////////
   mdate_rak := arr_m[6] + kdr
   //////////////////////////////
-  dbcreate(cur_dir + 'tmp', {{'shifr', 'C', 20, 0}, ;
+  dbcreate(cur_dir() + 'tmp', {{'shifr', 'C', 20, 0}, ;
                           {'usl_ok', 'N', 1, 0}, ;
                           {'tip', 'N', 1, 0}, ;
                           {'profil', 'N', 3, 0}, ;
                           {'kv', 'N', 6, 0}, ;
                           {'kd', 'N', 6, 0}})
-  use (cur_dir + 'tmp') new
-  index on str(usl_ok, 1) + str(tip, 1) + shifr + str(profil, 3) to (cur_dir + 'tmp')
+  use (cur_dir() + 'tmp') new
+  index on str(usl_ok, 1) + str(tip, 1) + shifr + str(profil, 3) to (cur_dir() + 'tmp')
   if m1uslov == 1
     R_Use(dir_server + "mo_xml",,"MO_XML")
     R_Use(dir_server + "mo_rak",,"RAK")
@@ -3614,7 +3614,7 @@ Function i_stac_sl_profil()
     set relation to akt into RAK
     R_Use(dir_server + "mo_raksh",,"RAKSH")
     set relation to kod_raks into RAKS
-    index on str(kod_h, 7) to (cur_dir + "tmp_raksh") for mo_xml->DFILE <= mdate_rak
+    index on str(kod_h, 7) to (cur_dir() + "tmp_raksh") for mo_xml->DFILE <= mdate_rak
   endif
   R_Use(dir_server + "str_komp",,"SK")
   R_Use(dir_server + "komitet",,"KM")
@@ -3758,8 +3758,8 @@ Function i_stac_sl_profil()
   close databases
   Use_base("lusl")
   Use_base("luslf")
-  R_Use(dir_exe() + "_mo_mkb",cur_dir + "_mo_mkb","DIAG")
-  use (cur_dir + "tmp") index (cur_dir + "tmp") new
+  R_Use(dir_exe() + "_mo_mkb",cur_dir() + "_mo_mkb","DIAG")
+  use (cur_dir() + "tmp") index (cur_dir() + "tmp") new
   arr_title := {;
 "───────────────────────────────────────────────────────────╥──────╥──────┬──────", ;
 "                                                           ║Случаи║в т.ч.│в т.ч.", ;

@@ -26,7 +26,7 @@ R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"mo_dr01",,"RR")
 R_Use(dir_server+"mo_dr01k",,"R01")
 set relation to reestr into RR
-index on str(kod_k,7) to (cur_dir+"tmp_r01") ;
+index on str(kod_k,7) to (cur_dir()+"tmp_r01") ;
       for kod_k > 0 .and. oplata == 1 //.and. tip == 1
 // oplata == 1  - Ø‡®≠Ô‚Æ
 // tip == 1 - §®·Ø†≠·•‡®ß†Ê®Ô  2 - Ø‡Æ‰
@@ -141,7 +141,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
   if f0_inf_DVN(arr_m,par > 1,par == 3,.t.)
     mywait("ë°Æ‡ ·‚†‚®·‚®™®")
     arr_plan_god := ret_plan_disp_131_N(arr_m[5])
-    dbcreate(cur_dir+"tmp1000",{{"vozrast","N",1,0},;
+    dbcreate(cur_dir()+"tmp1000",{{"vozrast","N",1,0},;
                                 {"vm1","N",8,0},;
                                 {"vm2","N",8,0},;
                                 {"vg1","N",8,0},;
@@ -152,12 +152,12 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
                                 {"vg_2","N",8,0},;
                                 {"vmpro","N",8,0},;
                                 {"vgpro","N",8,0}})
-    use (cur_dir+"tmp1000") new alias TMP
+    use (cur_dir()+"tmp1000") new alias TMP
     for n := 1 to 7
       append blank
       tmp->vozrast := n
     next
-    index on str(vozrast,1) to (cur_dir+"tmp1000")
+    index on str(vozrast,1) to (cur_dir()+"tmp1000")
     use
     //
     Private arr_2000 := {;
@@ -186,19 +186,19 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
      }
 //  {  19,"è‡®•¨ (Æ·¨Æ‚‡) ¢‡†Á†-‚•‡†Ø•¢‚†",{{"2.3.1",97},{"2.3.1",57},{"2.3.2",97},{"2.3.2",57},{"2.3.3",42},{"2.3.5",57},{"2.3.5",97},{"2.3.6",57},{"2.3.6",97}}},;
 
-    dbcreate(cur_dir+"tmp2000",{{"name","C",100,0},;
+    dbcreate(cur_dir()+"tmp2000",{{"name","C",100,0},;
                                 {"ns","N",4,0},;
                                 {"vv","N",8,0},;
                                 {"vr","N",8,0},;
                                 {"vo","N",8,0},;
                                 {"vd","N",8,0}})
-    use (cur_dir+"tmp2000") new alias TMP
+    use (cur_dir()+"tmp2000") new alias TMP
     for n := 1 to len(arr_2000)
       append blank
       tmp->name := arr_2000[n,2]
       tmp->ns := arr_2000[n,1]
     next
-    index on str(ns,3) to (cur_dir+"tmp2000")
+    index on str(ns,3) to (cur_dir()+"tmp2000")
     use
     //
     Private v3001 := 0, arr_3000 := {;
@@ -222,17 +222,17 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       { 14,"è‡®•¨ (Æ·¨Æ‚‡) ¢‡†Á†-‚•‡†Ø•¢‚† ØÆ ‡•ß„´Ï‚†‚†¨ 2-£Æ Ì‚†Ø†","2.84.11"},;                    //+
       { 15,"ç†Ø‡†¢´•≠®• ≠† Æ·¨Æ‚‡ ¢‡†Á•¨-Æ≠™Æ´Æ£Æ¨","99.99.99"};                                      //+
      }
-    dbcreate(cur_dir+"tmp3000",{{"name","C",100,0},;
+    dbcreate(cur_dir()+"tmp3000",{{"name","C",100,0},;
                                 {"ns","N",4,0},;
                                 {"vv","N",8,0},;
                                 {"vd","N",8,0}})
-    use (cur_dir+"tmp3000") new alias TMP
+    use (cur_dir()+"tmp3000") new alias TMP
     for n := 1 to len(arr_3000)
       append blank
       tmp->name := arr_3000[n,2]
       tmp->ns := arr_3000[n,1]
     next
-    index on str(ns,2) to (cur_dir+"tmp3000")
+    index on str(ns,2) to (cur_dir()+"tmp3000")
     use
     //
     Private v4001_1 := 0, v4001_2 := 0, v4002_1 := 0, v4002_2 := 0, arr_4000 := {;
@@ -257,7 +257,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
      }
      // { 1,"èÆ¢ÎË•≠≠Î© „‡Æ¢•≠Ï †‡‚•‡®†´Ï≠Æ£Æ §†¢´•≠®Ô","mad1>140.and.mad2>90"},;
 
-    dbcreate(cur_dir+"tmp4000",{{"name","C",100,0},;
+    dbcreate(cur_dir()+"tmp4000",{{"name","C",100,0},;
                                 {"ns","N",2,0},;
                                 {"m36","N",8,0},;
                                 {"m39","N",8,0},;
@@ -268,21 +268,21 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
                                 {"v36","N",8,0},;
                                 {"v39","N",8,0},;
                                 {"vvv","N",8,0}})
-    dbcreate(cur_dir+"tmp4001",{{"m36","N",8,0},;
+    dbcreate(cur_dir()+"tmp4001",{{"m36","N",8,0},;
                                 {"m39","N",8,0},;
                                 {"g36","N",8,0},;
                                 {"g39","N",8,0}})
-    use (cur_dir+"tmp4001") new alias TMP
+    use (cur_dir()+"tmp4001") new alias TMP
     append blank
     append blank
     use
-    use (cur_dir+"tmp4000") new alias TMP
+    use (cur_dir()+"tmp4000") new alias TMP
     for n := 1 to len(arr_4000)
       append blank
       tmp->name := arr_4000[n,2]
       tmp->ns := arr_4000[n,1]
     next
-    index on str(ns,2) to (cur_dir+"tmp4000")
+    index on str(ns,2) to (cur_dir()+"tmp4000")
     use
     //
     Private arr_5000 := {;
@@ -377,8 +377,8 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
              {"vg11","N",8,0},;
              {"vg12","N",8,0},;
              {"vg13","N",8,0}}
-    dbcreate(cur_dir+"tmp5000",adbf)
-    use (cur_dir+"tmp5000") new alias TMP
+    dbcreate(cur_dir()+"tmp5000",adbf)
+    use (cur_dir()+"tmp5000") new alias TMP
     for n := 1 to len5000
       append blank
       tmp->name := arr_5000[n,3]
@@ -400,11 +400,11 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
         aadd(diag5000[n], {diag_to_num(d1,1),diag_to_num(d2,2)} )
       next
     next
-    index on str(ns,2) to (cur_dir+"tmp5000")
+    index on str(ns,2) to (cur_dir()+"tmp5000")
     use
     //
-    dbcreate(cur_dir+"tmp5001",adbf)
-    use (cur_dir+"tmp5001") new alias TMP
+    dbcreate(cur_dir()+"tmp5001",adbf)
+    use (cur_dir()+"tmp5001") new alias TMP
     for n := 1 to len5001
       append blank
       tmp->name := arr_5001[n,3]
@@ -426,7 +426,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
         aadd(diag5001[n], {diag_to_num(d1,1),diag_to_num(d2,2)} )
       next
     next
-    index on str(ns,2) to (cur_dir+"tmp5001")
+    index on str(ns,2) to (cur_dir()+"tmp5001")
     use
     //
     Private arr_7000 := {;
@@ -444,18 +444,18 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       {"8","ç†Ø‡†¢´•≠Æ ≠† ·†≠†‚Æ‡≠Æ-™„‡Æ‡‚≠Æ• ´•Á•≠®•"};
      }
      //
-    dbcreate(cur_dir+"tmp7000",{{"name","C",100,0},;
+    dbcreate(cur_dir()+"tmp7000",{{"name","C",100,0},;
                                 {"ns",  "C",  3,0},;
                                 {"tr" , "N",  8,0},;
                                 {"ntr", "N",  8,0};
                                 })
-    use (cur_dir+"tmp7000") new alias TMP
+    use (cur_dir()+"tmp7000") new alias TMP
     for n := 1 to len(arr_7000)
       append blank
       tmp->name := arr_7000[n,2]
       tmp->ns := arr_7000[n,1]
     next
-    index on ns to (cur_dir+"tmp7000")
+    index on ns to (cur_dir()+"tmp7000")
     use
     //
     Private arr_vrach := {}, arr_7001 := {;
@@ -486,14 +486,14 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       {"6010 ó®·´Æ ·•´Ï·™®Â ¶®‚•´•©, Ø‡ÆË•§Ë®Â §®·Ø†≠·•‡®ß†Ê®Ó",0,39};                    // 25
      }
 
-    use (cur_dir+"tmp1000") index (cur_dir+"tmp1000") new
-    use (cur_dir+"tmp2000") index (cur_dir+"tmp2000") new
-    use (cur_dir+"tmp3000") index (cur_dir+"tmp3000") new
-    use (cur_dir+"tmp4000") index (cur_dir+"tmp4000") new
-    use (cur_dir+"tmp4001") new
-    use (cur_dir+"tmp5000") index (cur_dir+"tmp5000") new
-    use (cur_dir+"tmp5001") index (cur_dir+"tmp5001") new
-    use (cur_dir+"tmp7000") index (cur_dir+"tmp7000") new
+    use (cur_dir()+"tmp1000") index (cur_dir()+"tmp1000") new
+    use (cur_dir()+"tmp2000") index (cur_dir()+"tmp2000") new
+    use (cur_dir()+"tmp3000") index (cur_dir()+"tmp3000") new
+    use (cur_dir()+"tmp4000") index (cur_dir()+"tmp4000") new
+    use (cur_dir()+"tmp4001") new
+    use (cur_dir()+"tmp5000") index (cur_dir()+"tmp5000") new
+    use (cur_dir()+"tmp5001") index (cur_dir()+"tmp5001") new
+    use (cur_dir()+"tmp7000") index (cur_dir()+"tmp7000") new
     R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR")
     R_Use(dir_server+"schet_",,"SCHET_")
     R_Use(dir_server+"uslugi",,"USL")
@@ -506,7 +506,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     R_Use(dir_server+"human_",,"HUMAN_")
     R_Use(dir_server+"human",,"HUMAN")
     set relation to recno() into HUMAN_
-    use (cur_dir+"tmp") index (cur_dir+"tmp") new
+    use (cur_dir()+"tmp") index (cur_dir()+"tmp") new
     set relation to kod_k into KART
     ii := 0
     f_error_DVN(1)
@@ -560,7 +560,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     ar := {}
     sm1 := sg1 := sm2 := sg2 := 0
     sm_1 := sg_1 := sm_2 := sg_2 := 0
-    use (cur_dir+"tmp1000") new alias TMP
+    use (cur_dir()+"tmp1000") new alias TMP
     go top
     do while !eof()
       i := recno()
@@ -649,7 +649,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string("è‡®•¨ (é·¨Æ‚‡) (™Æ≠·„´Ï‚†Ê®Ô), ®··´•§Æ¢†≠®•                  ≥¸·≥Ø‡Æ¢•§≥ ‡†≠••≥Æ‚™†ßÎ≥Æ‚™´Æ≠")
     add_string("ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒ")
     ar := {} ; i := 0
-    use (cur_dir+"tmp2000") new alias TMP
+    use (cur_dir()+"tmp2000") new alias TMP
     go top
     do while !eof()
       ++i
@@ -687,7 +687,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string("  ¢‚Æ‡Æ£Æ Ì‚†Ø† §®·Ø†≠·•‡®ß†Ê®                ≥ ·‚≥ØÆ™†ß.≥≠•≠Æ  ≥ ‡†≠••≥Æ‚™†ßÎ≥ß†°Æ´•")
     add_string("ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒ")
     ar := {} ; i := 0
-    use (cur_dir+"tmp3000") new alias TMP
+    use (cur_dir()+"tmp3000") new alias TMP
     sv := sd := 0
     go top
     do while !eof()
@@ -733,7 +733,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string("       ß†°Æ´•¢†≠®©                      ≥‡Æ≥¢·•£Æ≥‚‡„§ ≥çÖ ‚‡≥¢·•£Æ≥‚‡„§ ≥çÖ ‚‡≥¢·•£Æ≥‚‡„§ ≥çÖ ‚‡")
     add_string("ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ")
     ar := {} ; i := 0
-    use (cur_dir+"tmp4000") new alias TMP
+    use (cur_dir()+"tmp4000") new alias TMP
     go top
     do while !eof()
       ++i
@@ -762,7 +762,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       skip
     enddo
     use
-    use (cur_dir+"tmp4001") new alias TMP
+    use (cur_dir()+"tmp4001") new alias TMP
     add_string(replicate("ƒ",95))
     go top
     add_string(padr("Ñ®·Ø†≠·•‡®ß†Ê®Ô Ü®‚•´®",40)+space(3)+;
@@ -805,7 +805,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string("                       ≥      ≥       ≥¢·•£Æ≥ Ñç  ≥¢Æß‡ ≥‚‡.¢Æ≥¢·•£Æ≥ Ñç  ≥¢·•£Æ≥ Ñç  ≥¢·•£Æ≥ Ñç  ")
     add_string("ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ")
     ar := {}
-    use (cur_dir+"tmp5000") new alias TMP
+    use (cur_dir()+"tmp5000") new alias TMP
     go top
     do while !eof()
       if (i := arr_5000[tmp->ns,1]) > 0
@@ -866,7 +866,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string("                       ≥      ≥       ≥¢·•£Æ≥ Ñç  ≥¢Æß‡ ≥‚‡.¢Æ≥¢·•£Æ≥ Ñç  ≥¢·•£Æ≥ Ñç  ≥¢·•£Æ≥ Ñç  ")
     add_string("ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ")
         ar := {}
-    use (cur_dir+"tmp5001") new alias TMP
+    use (cur_dir()+"tmp5001") new alias TMP
     go top
     do while !eof()
       if (i := arr_5001[tmp->ns,1]) > 0
@@ -922,7 +922,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string("                       ≥      ≥       ≥§Æ 36≥39-60≥> 60´≥§Æ 36≥39-60≥> 60´≥Æ°·´•")
     add_string("ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒ")
     ar := {}
-    use (cur_dir+"tmp5000") new alias TMP
+    use (cur_dir()+"tmp5000") new alias TMP
     go top
     do while !eof()
       if (i := arr_5000[tmp->ns,1]) > 0
@@ -969,7 +969,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string("                                         ≥‡Æ≥          ≥               ≥               ")
     add_string("ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒ¡ƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ")
     ar := {} ; i := 0
-    use (cur_dir+"tmp7000") new alias TMP
+    use (cur_dir()+"tmp7000") new alias TMP
     go top
     do while !eof()
       ++i
@@ -1040,7 +1040,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     close databases
     viewtext(n_file,,,,.t.,,,5)
 //    fill_in_Excel_Book(dir_exe()+"mo_131_21"+sxls(),;
-//                       cur_dir+"__131_21"+sxls(),;
+//                       cur_dir()+"__131_21"+sxls(),;
 //                       arr_excel,;
 //                       "Ø‡®·´†≠≠Î© ®ß ÇéåàÄñ")
   endif
@@ -1089,8 +1089,8 @@ elseif k == 2
   endif
 elseif len(arr) > 1
   R_Use(dir_server+"kartotek",,"KART")
-  use (cur_dir+"tmp") new
-  index on str(kod_k,7) to (cur_dir+"tmp")
+  use (cur_dir()+"tmp") new
+  index on str(kod_k,7) to (cur_dir()+"tmp")
   verify_FF(HH-8, .f., sh)
   add_string("")
   add_string(center("ç•·Æ¢¨•·‚®¨Î• ¨•§Æ·¨Æ‚‡Î",sh))

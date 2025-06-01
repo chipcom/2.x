@@ -138,7 +138,7 @@ function loadCriteria21_old(val_year)
   if hb_FileExists(dir_exe() + sbaseIt1 + sdbf)
     tmp_select := select()
     R_Use(dir_exe() + sbaseShema, , 'SCHEMA')
-    index on KOD to tmpit memory  //(cur_dir + sbaseShema)
+    index on KOD to tmpit memory  //(cur_dir() + sbaseShema)
 
     R_Use(dir_exe() + sbaseIt1, ,'IT1')
     ('IT1')->(dbGoTop())
