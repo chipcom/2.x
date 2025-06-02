@@ -5,12 +5,9 @@
 
 function test_init()
 
-  //  GetDictionaryListFFOMS()
-  //  FindDictionary( 'F001' )
-  //  GetFile( FindDictionary( 'F032' ), cur_dir() )
-  //  GetStructure( 'F032' )
-  //  GetVersions( 'N020' )
-//  print_pdf_reestr( cur_dir() + 'reestr.pdf' )
+//  local aaa
+  
+//  aaa := glob_array_srf( 'D:\_MO\chip\exe\', 'D:\_MO\chip\work\')
 //  altd()
 return nil
   

@@ -88,7 +88,6 @@ mo_version.prg
 .\KARTOTEK\prikreplenie.prg
 .\KARTOTEK\delete_dubl_pacient.prg
 .\KARTOTEK\func_kartotek.prg
-.\KARTOTEK\func_smo.prg
 
 .\KASSA\mo_fr.prg
 .\KASSA\mo_kassa.prg
@@ -292,6 +291,9 @@ mo_version.prg
 .\ADDRESS\mo_adres.prg
 
 .\VOUNC\mo_vounc.prg
+
+.\INSURANCE\insurance_companies.prg
+.\INSURANCE\func_smo.prg
 
 #.\FUNC_LIB\prview.prg
 #.\FUNC_LIB\fastreph.prg
