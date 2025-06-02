@@ -137,7 +137,7 @@ Function f2get_mo( oBrow )
 
   Return Nil
 
-// 13.10.20
+// 02.06.25
 Function f3get_mo( nkey, oBrow )
 
   Local ret := -1, cCode, rec
@@ -159,7 +159,6 @@ Function f3get_mo( nkey, oBrow )
       ret := 0
     Endif
   Elseif nKey == K_F3 .and. glob_task != X_263 .and. muslovie == Nil .and. ppar == 1
-
     aRet := viewf003()
     If ! Empty( aRet[ 1 ] )
       _fl_add_mo := .t.
@@ -167,21 +166,13 @@ Function f3get_mo( nkey, oBrow )
       rg->kodN := aRet[ 1 ]
       rg->name := aRet[ 2 ]
       rg->mo3 := 0
-      glob_arr_mo := getmo_mo_new( '_mo_mo', .t. )
+      glob_arr_mo := getmo_mo( '_mo_mo', .t. )
     Endif
-
     ret := 1
-    // p_mo := 1
-    // pkodN := rg->kodN
-    // lmo3 := iif(lmo3 == 0, 1, 0)
-    // if lmo3 == 1 .and. rg->mo3 != lmo3
-    // pkodN := ''
-    // endif
   Elseif nKey == K_SPACE
     _fl_space := .t.
     ret := 1
   Endif
-
   Return ret
 
 // вернуть массив по МО с кодом ТФОМС cCode

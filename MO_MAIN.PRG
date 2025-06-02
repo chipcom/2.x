@@ -260,32 +260,22 @@ Set Color To
 
   Return Nil
 
-// 23.10.24
-Function read_server_mem()
+// 02.06.25
+Function read_server_mem( /*@*/is_local_version )
 
   Local nameFile := cur_dir() + 'server.mem'
-  Local is_local_version := .t.
+//  Local is_local_version := .t.
 
   If hb_FileExists( nameFile )
     ft_use( nameFile )
     dir_server( AllTrim( ft_readln() ) )
-    // If !ft_eof()
-    // ft_skip()
-    // p_name_comp := AllTrim( ft_readln() )
-    // If hb_ps() $ p_name_comp
-    // p_name_comp := ''
-    // Endif
-    // Endif
-    // If Len( p_name_comp ) < 2
-    // p_name_comp := AllTrim( NetName() ) + hb_ps() + hb_UserName()
-    // Endif
     ft_use()
     is_local_version := .f.
   Else // иначе = текущий каталог
     dir_server( cur_dir() )
   Endif
-
-  Return is_local_version
+//  Return is_local_version
+  Return dir_server()
 
 // 21.05.25
 Function f_main( r0, is_local_version, a_parol )
@@ -501,46 +491,24 @@ Function m_help()
 
   Return Nil
 
-// 23.10.24
+// 02.06.25
 Function f_first( is_create )
 
   Local is_local_version := .t.
 
-  // Local nameTask := strippath( hb_argv( 0 ) ) // имя запущенной задачи
-
-  // Request HB_CODEPAGE_RU866
-  // hb_cdpSelect( 'RU866' )
-  // Request HB_LANG_RU866
-  // hb_langSelect( 'RU866' )
-
-  // Request DBFNTX
-  // rddSetDefault( 'DBFNTX' )
-
-  // // SET(_SET_EVENTMASK,INKEY_KEYBOARD)
-  // Set Scoreboard Off
-  // Set Exact On
-  // Set Date GERMAN
-  // Set Wrap On
-  // Set Century On
-  // Set Exclusive On
-  // Set Deleted On
-  // SetBlink( .f. )
-
   Public help_code := -1
-
   Public yes_color := .t.
-
   Public color0, color1, cColorWait, cColorSt2Msg, cColorStMsg, ;
     cCalcMain, cHelpCMain, cColorText, ;
     cHelpCTitle, cHelpCStatus, cDataCScr, cDataCGet, cDataCSay, ;
     cDataCMenu, color13, color14, cColorSt1Msg, cDataPgDn, col_tit_popup, ;
     color5, color8, col1menu := '', col2menu := '', ;
     color_uch, col_tit_uch
-  Public n_list := 1, tek_stroke := 0, fp
+  Public n_list := 1, tek_stroke := 0, fp // для текстовых отчетов
   Public p_color_screen := 'W/N*', p_char_screen := ' ' // заполнение экрана
   Public c__cw := 'N+/N' // цвет теней
   //
-  Public cur_drv := DiskName()
+//  Public cur_drv := DiskName()
   Public cur_dir := chip_currpath()
   Public dir_server := '', p_name_comp := ''
   // Public dir_exe := hb_DirBase()
@@ -575,35 +543,34 @@ Function f_first( is_create )
   color13    := 'W/B, W+/R, , , BG+/B'             // некотоpое выделение
   color14    := 'G+/B, W+/R'
   //
-  Delete file ttt.ttt
   //
 
-  // If isexerunning( nameTask ) // проверить, запущена ли уже данная задача, если 'да' - выход из задачи
-  // func_error( 10, 'Программа "' + Upper( nameTask ) + '" уже запущена. Запуск второй копии не разрешён!' )
-  // app_finish()
-  // Endif
-  //
-  If hb_FileExists( 'server.mem' )
-    ft_use( 'server.mem' )
-    dir_server := AllTrim( ft_readln() )
-    If !ft_eof()
-      ft_skip()
-      p_name_comp := AllTrim( ft_readln() )
-      If hb_ps() $ p_name_comp
-        p_name_comp := ''
-      Endif
-    Endif
-    If Len( p_name_comp ) < 2
-      p_name_comp := AllTrim( NetName() ) + hb_ps() + hb_UserName()
-    Endif
-    ft_use()
-    is_local_version := .f.
-  Else // иначе = текущий каталог
-    dir_server := cur_dir()
-  Endif
-  If Right( dir_server, 1 ) != hb_ps()
-    dir_server += hb_ps()
-  Endif
+//  If hb_FileExists( 'server.mem' )
+//    ft_use( 'server.mem' )
+//    dir_server := AllTrim( ft_readln() )
+//    If !ft_eof()
+//      ft_skip()
+//      p_name_comp := AllTrim( ft_readln() )
+//      If hb_ps() $ p_name_comp
+//        p_name_comp := ''
+//      Endif
+//    Endif
+//    If Len( p_name_comp ) < 2
+//      p_name_comp := AllTrim( NetName() ) + hb_ps() + hb_UserName()
+//    Endif
+//    ft_use()
+//    is_local_version := .f.
+//  Else // иначе = текущий каталог
+//    dir_server := cur_dir()
+//  Endif
+
+  dir_server := read_server_mem( @is_local_version )
+  p_name_comp := iif( is_local_version, '', AllTrim( NetName() ) + hb_ps() + hb_UserName() )
+
+//  If Right( dir_server, 1 ) != hb_ps()
+//    dir_server += hb_ps()
+//  Endif
+
   is_server( dir_server, cur_dir() )
   If !is_create .and. !hb_FileExists( dir_server + 'human' + sdbf )
     func_error( 'Не обнаружены файлы базы данных! Обратитесь к системному администратору.' )
@@ -614,16 +581,8 @@ Function f_first( is_create )
     func_error( 'Вероятнее всего, Вы запускаете программу в каталоге СЧЕТА. Это недопустимо!' )
     app_finish()
   Endif
-  // Set Key K_ALT_F3 To calendar
-  // Set Key K_ALT_F2 To calc
-  // Set Key K_ALT_X  To f_end
-  Public flag_chip := .f.
-  // ReadInsert( .t. ) // режим редактирования по умолчанию Insert
-  // Keyboard ''
-  // KSetNum( .t. )    // включить NumLock
-  // SetCursor( 0 )
-  // Set Color To
-
+//  Public flag_chip := .f.
+  Delete file ttt.ttt
   Return is_local_version
 
 // 17.11.23

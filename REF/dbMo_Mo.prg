@@ -1,13 +1,12 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-
-// 14.06.21
+// 02.06.25
 Function create_mo_add()
 
-  Local sbase := 'mo_add'
+  Local sbase := 'mo_add', adbf
 
-  If !hb_FileExists( dir_server + sbase + sdbf )
+  If !hb_FileExists( dir_server() + sbase + sdbf() )
     adbf := { ;
       { 'MCOD',      'C',   6, 0 }, ; //
       { 'CODEM',     'C',   6, 0 }, ; //
@@ -16,14 +15,12 @@ Function create_mo_add()
       { 'ADRES',     'C', 250, 0 }, ; //
       { 'DEND',      'D',   8, 0 } ; //
     }
-    reconstruct( dir_server + sbase, adbf, 'index_base("mo_add")', , .t. )
+    reconstruct( dir_server() + sbase, adbf, 'index_base("mo_add")', , .t. )
     fill_mo_add( sbase )
-
   Endif
-
   Return Nil
 
-// 14.06.21
+// 02.06.25
 Function fill_mo_add( sbase )
 
   Local aa := { ;
@@ -59,8 +56,9 @@ Function fill_mo_add( sbase )
     { '080008', '999931', 'Åì êä "ë†‡Ø®≠·™†Ô êÅ"', 'Åì êä "ë†‡Ø®≠·™†Ô êÅ"', '', '20251231' }, ;
     { '510073', '999932', 'ééé "îêÖáÖçàìë çÖîêéäÖÄ"', 'ééé "îêÖáÖçàìë çÖîêéäÖÄ"', 'É.åìêåÄçëä ìã.èÄÇãéÇÄ, Ñ.6, çÄ íÖêêàíéêàà åìêåÄçëäéâ éäÅ åÖÑàñàçëäàâ ÑàÄãàáçõâ ñÖçíê', '20251231' } ;
   }
+  local i
 
-  If g_use( dir_server + sbase, dir_server + sbase, sbase, , .t., )
+  If g_use( dir_server() + sbase, dir_server() + sbase, sbase, , .t., )
     For i := 1 To Len( aa )
       ( sbase )->( dbAppend() )
       ( sbase )->MCOD := aa[ i, 1 ]
@@ -72,44 +70,10 @@ Function fill_mo_add( sbase )
     Next
     ( sbase )->( dbCloseArea() )
   Endif
-
   Return Nil
 
-// 13.06.21  ¢•‡≠„‚Ï ¨†··®¢ _mo_dbb.dbb
-Function getmo_mo( nfile )
-
-  Local i, arr, arr1
-  Local ret_arr := {}
-
-  arr1 := rest_arr( nfile )
-  For i := 1 To Len( arr1 )
-    arr := Array( _MO_LEN_ARR )
-    If !( ValType( arr1[ i ] ) == 'A' ) .or. Len( arr1[ i ] ) < 12
-      func_error( 4, 'ê†ß‡„Ë•≠ ‰†©´ ' + Upper( nfile ) )
-      Loop
-    Endif
-    arr[ _MO_KOD_FFOMS ]  := Crypt( arr1[ i, 1 ], gpasskod )
-    arr[ _MO_KOD_TFOMS ]  := Crypt( arr1[ i, 2 ], gpasskod )
-    arr[ _MO_FULL_NAME ]  := Crypt( arr1[ i, 3 ], gpasskod )
-    arr[ _MO_SHORT_NAME ] := Crypt( arr1[ i, 4 ], gpasskod )
-    arr[ _MO_ADRES ]      := Crypt( arr1[ i, 5 ], gpasskod )
-    arr[ _MO_PROD ]       := Crypt( arr1[ i, 9 ], gpasskod )
-    arr[ _MO_DEND ]       := CToD( Crypt( arr1[ i, 10 ], gpasskod ) )
-    arr[ _MO_STANDART ]   := arr1[ i, 11 ]
-    arr[ _MO_UROVEN ]     := arr1[ i, 12 ]
-    arr[ _MO_IS_MAIN ]    := ( arr1[ i, 6 ] == '1' )
-    arr[ _MO_IS_UCH ]     := ( arr1[ i, 7 ] == '1' )
-    arr[ _MO_IS_SMP ]     := ( arr1[ i, 8 ] == '1' )
-    If ValType( arr[ _MO_UROVEN ] ) != 'A'
-      arr[ _MO_UROVEN ] := {}
-    Endif
-    AAdd( ret_arr, AClone( arr ) )
-  Next
-
-  Return ret_arr
-
-// 14.10.24 ¢•‡≠„‚Ï ¨†··®¢ _mo_dbb.dbf
-Function getmo_mo_new( dbName, reload )
+// 02.06.25 ¢•‡≠„‚Ï ¨†··®¢ _mo_mo.dbf
+Function getmo_mo( dbName, reload )
 
   // reload - ‰´†£ „™†ßÎ¢†ÓÈ®© ≠† Ø•‡•ß†£‡„ß™„ ·Ø‡†¢ÆÁ≠®™†, .T. - Ø•‡•ß†£‡„ß®‚Ï, .F. - ≠•‚
 
@@ -118,9 +82,8 @@ Function getmo_mo_new( dbName, reload )
   // 7 - PFA(C) 8 - PFS(C) 9 - PROD(C) 10 - DOLG(C)
   // 11 - DEND(D)  12 - STANDART(C)  13 - UROVEN(C)
   Static _arr := {}
-  // local dbName := '_mo_mo'
   Local standart, uroven
-  Local row, tmp
+  Local row
   Local sbase := 'mo_add'
 
   Default reload To .f.
@@ -129,25 +92,20 @@ Function getmo_mo_new( dbName, reload )
     // ÆÁ®·‚®¨ ¨†··®¢ §´Ô ≠Æ¢Æ© ß†£‡„ß™® ·Ø‡†¢ÆÁ≠®™†
     _arr := {}
   Endif
-
   If Len( _arr ) == 0
     dbUseArea( .t.,, dir_exe() + dbName, dbName, .f., .f. )
-    // dbUseArea( .t., , dbName, dbName, .f., .f. )
     ( dbName )->( dbGoTop() )
     Do While !( dbName )->( Eof() )
       standart := {}
       uroven := {}
-
       hb_jsonDecode( ( dbName )->STANDART, @standart )
       hb_jsonDecode( ( dbName )->UROVEN, @uroven )
-
       For Each row in standart
         row[ 1 ] := hb_SToD( row[ 1 ] )
       Next
       For Each row in uroven
         row[ 1 ] := hb_SToD( row[ 1 ] )
       Next
-
       AAdd( _arr, { ;
         AllTrim( ( dbName )->NAMES ), ;
         AllTrim( ( dbName )->CODEM ), ;
@@ -156,23 +114,19 @@ Function getmo_mo_new( dbName, reload )
         AllTrim( ( dbName )->MCOD ), ;
         AllTrim( ( dbName )->NAMEF ), ;
         uroven, ; // „‡Æ¢•≠Ï ÆØ´†‚Î, · 2013 £Æ§† 4 - ®≠§®¢®§„†´Ï≠Î• ‚†‡®‰Î
-      standart, ;
+        standart, ;
         ( dbName )->MAIN == '1', ;
         ( dbName )->PFA == '1', ;
         ( dbName )->PFS == '1', ;
         AllTrim( ( dbName )->ADRES ) ;
         } )
-
       ( dbName )->( dbSkip() )
     Enddo
     ( dbName )->( dbCloseArea() )
-
-    If hb_FileExists( dir_server + sbase + sdbf )
-      dbUseArea( .t.,, dir_server + sbase, sbase, .f., .f. )
-      // dbUseArea( .t., , dbName, dbName, .f., .f. )
+    If hb_FileExists( dir_server() + sbase + sdbf() )
+      dbUseArea( .t.,, dir_server() + sbase, sbase, .f., .f. )
       ( sbase )->( dbGoTop() )
       Do While !( sbase )->( Eof() )
-
         AAdd( _arr, { ;
           AllTrim( ( sbase )->NAMES ), ;
           AllTrim( ( sbase )->CODEM ), ;
@@ -181,7 +135,7 @@ Function getmo_mo_new( dbName, reload )
           AllTrim( ( sbase )->MCOD ), ;
           AllTrim( ( sbase )->NAMEF ), ;
           {}, ; // „‡Æ¢•≠Ï ÆØ´†‚Î, · 2013 £Æ§† 4 - ®≠§®¢®§„†´Ï≠Î• ‚†‡®‰Î
-        {}, ;
+          {}, ;
           '1', ;
           '0', ;
           '0', ;
@@ -192,5 +146,4 @@ Function getmo_mo_new( dbName, reload )
       ( sbase )->( dbCloseArea() )
     Endif
   Endif
-
   Return _arr

@@ -1,8 +1,9 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 17.11.23 инициализация массива МО, запрос кода МО (при необходимости)
+// 02.06.25 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
+
   Local fl := .t., i, cCode := '', buf := save_maxrow()
 
   test_init()
@@ -36,7 +37,7 @@ Function init_mo()
   }
 
   create_mo_add()
-  glob_arr_mo := getMo_mo_New('_mo_mo')
+  glob_arr_mo := getmo_mo('_mo_mo')
 
   if hb_FileExists(dir_server + 'organiz' +sdbf)
     R_Use(dir_server + 'organiz',,'ORG')
@@ -83,12 +84,9 @@ Function init_mo()
   if empty(cCode)
     fl := func_error('Работа невозможна - не введён код МО.')
   endif
-
   rest_box(buf)
-
   if ! fl
     hard_err('delete')
     app_finish()
   endif
-
   return main_up_screen()
