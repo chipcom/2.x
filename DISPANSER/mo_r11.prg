@@ -30,9 +30,9 @@ Function f_create_r11()
     { "tip1",       "N", 1, 0 }, ; // 1-пенсионер,2-65 лет,3-66 лет и старше
     { "voz",        "N", 1, 0 };  // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-остальные
   } )
-  r_use( dir_server + "mo_xml",, "MO_XML" )
+  r_use( dir_server() + "mo_xml",, "MO_XML" )
   Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_xml" ) For tip_in == _XML_FILE_R12 .and. Empty( TIP_OUT )
-  r_use( dir_server + "mo_dr01",, "REES" )
+  r_use( dir_server() + "mo_dr01",, "REES" )
   Index On Str( nn, 3 ) to ( cur_dir() + "tmp_dr01" ) For NYEAR == sgod .and. eq_any( NMONTH, SMONTH - 1, SMONTH ) .and. tip == 1
   Go Top
   Do While !Eof()
@@ -66,7 +66,7 @@ Function f_create_r11()
   Endif
 
   If fl_1 // .or. code_lpu == "321001"// не первый раз
-    r_use( dir_server + "mo_dr05p",, "R05p" )
+    r_use( dir_server() + "mo_dr05p",, "R05p" )
     Goto ( mrec )
     skol[ 1 ] := r05p->KOL1
     skol[ 2 ] := r05p->KOL2
@@ -95,10 +95,10 @@ Function f_create_r11()
     AFill( ame, 0 )
     //
     If fl
-      r_use( dir_server + "mo_dr01k",, "R01k" )
+      r_use( dir_server() + "mo_dr01k",, "R01k" )
       Index On Str( reestr, 6 ) + Str( kod_k, 7 ) to ( cur_dir() + "tmp_dr01k" )
-      r_use( dir_server + "kartotek",, "KART" )
-      Use ( dir_server + "mo_dr00" ) New Alias TMP
+      r_use( dir_server() + "kartotek",, "KART" )
+      Use ( dir_server() + "mo_dr00" ) New Alias TMP
       Index On kod to ( cur_dir() + "tmp_dr00" ) For reestr == 0 .and. kod > 0
       Go Top
       Do While !Eof()
@@ -241,8 +241,8 @@ Function f_create_r11()
       skip
     enddo
     Use (cur_dir()+"tmp_00") new alias TMP
-    R_Use(dir_server+"kartotek",,"KART")
-    G_Use(dir_server+"mo_dr01k",,"RHUM",.T.,.T.)
+    R_Use(dir_server()+"kartotek",,"KART")
+    G_Use(dir_server()+"mo_dr01k",,"RHUM",.T.,.T.)
     index on str(REESTR,6) to (cur_dir()+"tmp_rhum")
     for i := 1 to len(arr_rees)
       select RHUM
@@ -278,8 +278,8 @@ Function f_create_r11()
       Skip
     Enddo
     Use ( cur_dir() + "tmp_00" ) New Alias TMP
-    r_use( dir_server + "kartotek",, "KART" )
-    g_use( dir_server + "mo_dr01k",, "RHUM" )
+    r_use( dir_server() + "kartotek",, "KART" )
+    g_use( dir_server() + "mo_dr01k",, "RHUM" )
     Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_rhum" )
     For i := 1 To Len( arr_rees )
       Select RHUM
@@ -351,15 +351,15 @@ Function f1_create_r11( lm, fl_dr00 )
   If !f_esc_enter( "создания файла R11", .t. )
     Return Nil
   Endif
-  g_use( dir_server + "mo_dr01m",, "RM" )
+  g_use( dir_server() + "mo_dr01m",, "RM" )
   addrecn()
   rm->DWORK := sys_date
   rm->TWORK1 := hour_min( Seconds() )
   Unlock
   //
-  g_use( dir_server + "mo_dr01k",, "RHUM" )
+  g_use( dir_server() + "mo_dr01k",, "RHUM" )
   Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_rhum" )
-  g_use( dir_server + "mo_dr01",, "REES" )
+  g_use( dir_server() + "mo_dr01",, "REES" )
   Index On Str( NMONTH, 2 ) + Str( nn, 3 ) to ( cur_dir() + "tmp_dr01" ) For NYEAR == sgod .and. tip == 1
   find ( Str( lm, 2 ) )
   Do While lm == rees->NMONTH .and. !Eof()
@@ -369,13 +369,13 @@ Function f1_create_r11( lm, fl_dr00 )
     Skip
   Enddo
   Set Index To
-  g_use( dir_server + "mo_xml",, "MO_XML" )
-  r_use( dir_server + "kartote2",, "KART2" )
-  r_use( dir_server + "kartote_",, "KART_" )
-  r_use( dir_server + "kartotek",, "KART" )
+  g_use( dir_server() + "mo_xml",, "MO_XML" )
+  r_use( dir_server() + "kartote2",, "KART2" )
+  r_use( dir_server() + "kartote_",, "KART_" )
+  r_use( dir_server() + "kartotek",, "KART" )
   Set Relation To RecNo() into KART_, RecNo() into KART2
   If fl_dr00
-    g_use( dir_server + "mo_dr00",, "DR00" )
+    g_use( dir_server() + "mo_dr00",, "DR00" )
     Index On Str( kod, 7 ) to ( cur_dir() + "tmp_dr00" )
   Endif
   Use ( cur_dir() + "tmp_00" ) New Alias TMP
@@ -575,7 +575,7 @@ Function delete_reestr_r11()
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, err_admin )
   Endif
-  g_use( dir_server + "mo_dr01m",, "R01m" )
+  g_use( dir_server() + "mo_dr01m",, "R01m" )
   Index On Descend( DToS( DWORK ) + TWORK1 ) to ( cur_dir() + "tmp_dr01m" )
   Go Top
   If Eof()
@@ -623,7 +623,7 @@ Function f1_delete_reestr_r11( nKey, oBrow, regim )
 
   If regim == "edit" .and. nKey == K_ENTER
     If Empty( r01m->twork2 )
-      g_use( dir_server + "mo_dr01",, "REES" )
+      g_use( dir_server() + "mo_dr01",, "REES" )
       For ir := 1 To 12
         mkod_reestr := &( "r01m->reestr" + StrZero( ir, 2 ) )
         If mkod_reestr > 0
@@ -659,12 +659,12 @@ Function f2_delete_reestr_r11( rec_m )
 
   Local ir, mkod_reestr
 
-  g_use( dir_server + "mo_xml",, "MO_XML" )
-  g_use( dir_server + "mo_dr00",, "TMP" )
+  g_use( dir_server() + "mo_xml",, "MO_XML" )
+  g_use( dir_server() + "mo_dr00",, "TMP" )
   Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_dr00" )
-  g_use( dir_server + "mo_dr01k",, "RHUM" )
+  g_use( dir_server() + "mo_dr01k",, "RHUM" )
   Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_rhum" )
-  g_use( dir_server + "mo_dr01",, "REES" )
+  g_use( dir_server() + "mo_dr01",, "REES" )
   Select R01m
   Goto ( rec_m )
   For ir := 12 To 1 Step -1
@@ -730,10 +730,10 @@ Function delete_month_r11()
       Return Nil
     Endif
   Endif
-  g_use( dir_server + "mo_xml",, "MO_XML" )
+  g_use( dir_server() + "mo_xml",, "MO_XML" )
   Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_xml" ) For tip_in == _XML_FILE_R12 .and. TIP_OUT == 0
-  g_use( dir_server + "mo_dr01",, "REES" )
-  g_use( dir_server + "mo_dr01m",, "R01m" )
+  g_use( dir_server() + "mo_dr01",, "REES" )
+  g_use( dir_server() + "mo_dr01m",, "R01m" )
   Go Top
   Do While !Eof()
     mkod_reestr := &( "r01m->reestr" + StrZero( lm, 2 ) )
@@ -761,7 +761,7 @@ Function delete_month_r11()
         f2_delete_reestr_r02( ar_m[ i, 2 ], ar_m[ i, 3 ] )
       Endif
       Close databases
-      g_use( dir_server + "mo_dr01m",, "R01m" )
+      g_use( dir_server() + "mo_dr01m",, "R01m" )
       f2_delete_reestr_r11( ar_m[ i, 1 ] )
     Next
     stat_msg( "Успешно удалено реестров R11 - " + lstr( Len( ar_m ) ) + " (и, соответственно, ответов на них PR11)" )
@@ -792,10 +792,10 @@ else
     return NIL
   endif
 endif
-G_Use(dir_server+"mo_xml",,"MO_XML")
+G_Use(dir_server()+"mo_xml",,"MO_XML")
 index on str(reestr,6) to (cur_dir()+"tmp_xml") for tip_in == _XML_FILE_R02 .and. TIP_OUT == 0
-G_Use(dir_server+"mo_dr01",,"REES")
-G_Use(dir_server+"mo_dr01m",,"R01m")
+G_Use(dir_server()+"mo_dr01",,"REES")
+G_Use(dir_server()+"mo_dr01m",,"R01m")
 go top
 do while !eof()
   mkod_reestr := &("r01m->reestr"+strzero(lm,2))
@@ -823,7 +823,7 @@ else
       f2_delete_reestr_R02(ar_m[i,2],ar_m[i,3])
     endif
     close databases
-    G_Use(dir_server+"mo_dr01m",,"R01m")
+    G_Use(dir_server()+"mo_dr01m",,"R01m")
     f2_delete_reestr_R01(ar_m[i,1])
   next
   stat_msg("Успешно удалено реестров R01 - "+lstr(len(ar_m))+" (и, соответственно, ответов на них PR01)")
@@ -844,7 +844,7 @@ Function f32_view_r11( lm )
   afillall( skol, 0 )
   afillall( ames, 0 )
   mywait()
-  r_use( dir_server + "mo_dr05p",, "R05p" )
+  r_use( dir_server() + "mo_dr05p",, "R05p" )
   Goto ( mrec )
   skol[ 1, 1 ] := r05p->KOL1
   skol[ 2, 1 ] := r05p->KOL2
@@ -874,7 +874,7 @@ Function f32_view_r11( lm )
   For j := 1 To 5
     skol[ j ] := ames[ lm, j, 1 ]
   Next
-  r_use( dir_server + "mo_dr01k",, "RHUM" )
+  r_use( dir_server() + "mo_dr01k",, "RHUM" )
   Index On Str( reestr, 6 ) + Str( rhum->R01_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" )
   Select REES
   Go Top
@@ -967,12 +967,12 @@ Function find_unfinished_r11()
 
   If glob_mo[ _MO_IS_UCH ]
     If ( fl := verify_packet_r05( 2, arr ) )
-      r_use( dir_server + "mo_dr05p",, "R05p" )
+      r_use( dir_server() + "mo_dr05p",, "R05p" )
       Goto ( mrec )
       skol := &( "r05p->kol1_" + StrZero( smonth, 2 ) ) + &( "r05p->kol2_" + StrZero( smonth, 2 ) ) 
       Select MO_XML
       Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_xml" ) For tip_in == _XML_FILE_R12 .and. Empty( TIP_OUT )
-      r_use( dir_server + "mo_dr01",, "REES" )
+      r_use( dir_server() + "mo_dr01",, "REES" )
       Index On Str( nn, 3 ) to ( cur_dir() + "tmp_dr01" ) For NYEAR == sgod .and. NMONTH == smonth .and. tip == 1
       Go Top
       Do While fl .and. !Eof()

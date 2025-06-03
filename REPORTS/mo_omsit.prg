@@ -35,8 +35,8 @@ for i := 1 to len5
   aadd(marr5, {substr(mbukva5,i, 1), 0} )
 next
 Private fl_plus := !empty(yes_d_plus)
-R_Use(dir_server + "human_",,"HUMAN_")
-R_Use(dir_server + "human",dir_server + "humand","HUMAN")
+R_Use(dir_server() + "human_",,"HUMAN_")
+R_Use(dir_server() + "human",dir_server() + "humand","HUMAN")
 set relation to recno() into HUMAN_
 dbseek(dtos(arr_m[5]),.t.)
 index on str(kod_k, 7)+dtos(k_data) to (cur_dir() + "tmp_h") ;
@@ -51,7 +51,7 @@ add_string("")
 add_string(center("Проверка на соответствие правилам статистики",sh))
 add_string(center(arr_m[4],sh))
 add_string("")
-R_Use(dir_server + "kartotek",dir_server + "kartoten","KART")
+R_Use(dir_server() + "kartotek",dir_server() + "kartoten","KART")
 go top
 jkart := jhuman := jerr := 0
 blk := {|| human_->USL_OK != 1 }  // режим лечения не "стационарно"
@@ -1583,7 +1583,7 @@ if len(st_a_uch) == 1
   endif
   aeval(st_a_otd, {|x| aadd(a_otd,x[1]) })
 else
-  R_Use(dir_server + "mo_otd",,"OTD")
+  R_Use(dir_server() + "mo_otd",,"OTD")
   go top
   do while !eof()
     if f_is_uch(st_a_uch,otd->kod_lpu)
@@ -1646,8 +1646,8 @@ index on sh_e to (cur_dir() + "tmp_gr")
 if pi1 == 1  // по дате окончания лечения
   begin_date := arr_m[5]
   end_date := arr_m[6]
-  R_Use(dir_server + "human_",,"HUMAN_")
-  R_Use(dir_server + "human",dir_server + "humand","HUMAN")
+  R_Use(dir_server() + "human_",,"HUMAN_")
+  R_Use(dir_server() + "human",dir_server() + "humand","HUMAN")
   set relation to recno() into HUMAN_
   dbseek(dtos(begin_date),.t.)
   do while human->k_data <= end_date .and. !eof()
@@ -1665,11 +1665,11 @@ if pi1 == 1  // по дате окончания лечения
 else
   begin_date := arr_m[7]
   end_date := arr_m[8]
-  R_Use(dir_server + "human_",,"HUMAN_")
-  R_Use(dir_server + "human",dir_server + "humans","HUMAN")
+  R_Use(dir_server() + "human_",,"HUMAN_")
+  R_Use(dir_server() + "human",dir_server() + "humans","HUMAN")
   set relation to recno() into HUMAN_
-  R_Use(dir_server + "schet_",,"SCHET_")
-  R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
+  R_Use(dir_server() + "schet_",,"SCHET_")
+  R_Use(dir_server() + "schet",dir_server() + "schetd","SCHET")
   set relation to recno() into SCHET_
   set filter to empty(schet_->IS_DOPLATA)
   dbseek(begin_date,.t.)
@@ -2093,7 +2093,7 @@ if len(st_a_uch) == 1
   endif
   aeval(st_a_otd, {|x| aadd(a_otd,x[1]) })
 else
-  R_Use(dir_server + "mo_otd",,"OTD")
+  R_Use(dir_server() + "mo_otd",,"OTD")
   go top
   do while !eof()
     if f_is_uch(st_a_uch,otd->kod_lpu)
@@ -2154,8 +2154,8 @@ endif
 if pi1 == 1  // по дате окончания лечения
   begin_date := arr_m[5]
   end_date := arr_m[6]
-  R_Use(dir_server + "human_",,"HUMAN_")
-  R_Use(dir_server + "human",dir_server + "humand","HUMAN")
+  R_Use(dir_server() + "human_",,"HUMAN_")
+  R_Use(dir_server() + "human",dir_server() + "humand","HUMAN")
   set relation to recno() into HUMAN_
   dbseek(dtos(begin_date),.t.)
   do while human->k_data <= end_date .and. !eof()
@@ -2173,11 +2173,11 @@ if pi1 == 1  // по дате окончания лечения
 else
   begin_date := arr_m[7]
   end_date := arr_m[8]
-  R_Use(dir_server + "human_",,"HUMAN_")
-  R_Use(dir_server + "human",dir_server + "humans","HUMAN")
+  R_Use(dir_server() + "human_",,"HUMAN_")
+  R_Use(dir_server() + "human",dir_server() + "humans","HUMAN")
   set relation to recno() into HUMAN_
-  R_Use(dir_server + "schet_",,"SCHET_")
-  R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
+  R_Use(dir_server() + "schet_",,"SCHET_")
+  R_Use(dir_server() + "schet",dir_server() + "schetd","SCHET")
   set relation to recno() into SCHET_
   set filter to empty(schet_->IS_DOPLATA)
   dbseek(begin_date,.t.)
@@ -2521,7 +2521,7 @@ if len(st_a_uch) == 1
   endif
   aeval(st_a_otd, {|x| aadd(a_otd,x[1]) })
 else
-  R_Use(dir_server + "mo_otd",,"OTD")
+  R_Use(dir_server() + "mo_otd",,"OTD")
   go top
   do while !eof()
     if f_is_uch(st_a_uch,otd->kod_lpu)
@@ -2575,8 +2575,8 @@ f1_diag_statist_bukva()
 if pi1 == 1  // по дате окончания лечения
   begin_date := arr_m[5]
   end_date := arr_m[6]
-  R_Use(dir_server + "human_",,"HUMAN_")
-  R_Use(dir_server + "human",dir_server + "humand","HUMAN")
+  R_Use(dir_server() + "human_",,"HUMAN_")
+  R_Use(dir_server() + "human",dir_server() + "humand","HUMAN")
   set relation to recno() into HUMAN_
   dbseek(dtos(begin_date),.t.)
   do while human->k_data <= end_date .and. !eof()
@@ -2594,11 +2594,11 @@ if pi1 == 1  // по дате окончания лечения
 else
   begin_date := arr_m[7]
   end_date := arr_m[8]
-  R_Use(dir_server + "human_",,"HUMAN_")
-  R_Use(dir_server + "human",dir_server + "humans","HUMAN")
+  R_Use(dir_server() + "human_",,"HUMAN_")
+  R_Use(dir_server() + "human",dir_server() + "humans","HUMAN")
   set relation to recno() into HUMAN_
-  R_Use(dir_server + "schet_",,"SCHET_")
-  R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
+  R_Use(dir_server() + "schet_",,"SCHET_")
+  R_Use(dir_server() + "schet",dir_server() + "schetd","SCHET")
   set relation to recno() into SCHET_
   set filter to empty(schet_->IS_DOPLATA)
   dbseek(begin_date,.t.)
@@ -2677,7 +2677,7 @@ else
   use (cur_dir() + "tmp_b") index (cur_dir() + "tmp_b") new
   use (cur_dir() + "tmp") index (cur_dir() + "tmp") new
   if regim == 1
-    R_Use(dir_server + "mo_pers",,"PERSO")
+    R_Use(dir_server() + "mo_pers",,"PERSO")
     select TMP
     set relation to vrach into PERSO
     index on upper(perso->fio)+str(vrach, 4)+shifr to (cur_dir() + "tmp1")
@@ -2882,7 +2882,7 @@ if len(st_a_uch) == 1
   endif
   aeval(st_a_otd, {|x| aadd(a_otd,x[1]) })
 else
-  R_Use(dir_server + "mo_otd",,"OTD")
+  R_Use(dir_server() + "mo_otd",,"OTD")
   go top
   do while !eof()
     if f_is_uch(st_a_uch,otd->kod_lpu)
@@ -2931,12 +2931,12 @@ dbcreate(cur_dir() + "tmp_b", {{"uchast","N", 2, 0}, ;
 use (cur_dir() + "tmp_b") new
 index on str(uchast, 2)+shifr+str(kod, 7) to (cur_dir() + "tmp_b")
 f1_diag_statist_bukva()
-R_Use(dir_server + "kartotek",,"KART")
+R_Use(dir_server() + "kartotek",,"KART")
 if pi1 == 1  // по дате окончания лечения
   begin_date := arr_m[5]
   end_date := arr_m[6]
-  R_Use(dir_server + "human_",,"HUMAN_")
-  R_Use(dir_server + "human",dir_server + "humand","HUMAN")
+  R_Use(dir_server() + "human_",,"HUMAN_")
+  R_Use(dir_server() + "human",dir_server() + "humand","HUMAN")
   set relation to recno() into HUMAN_
   dbseek(dtos(begin_date),.t.)
   do while human->k_data <= end_date .and. !eof()
@@ -2954,11 +2954,11 @@ if pi1 == 1  // по дате окончания лечения
 else
   begin_date := arr_m[7]
   end_date := arr_m[8]
-  R_Use(dir_server + "human_",,"HUMAN_")
-  R_Use(dir_server + "human",dir_server + "humans","HUMAN")
+  R_Use(dir_server() + "human_",,"HUMAN_")
+  R_Use(dir_server() + "human",dir_server() + "humans","HUMAN")
   set relation to recno() into HUMAN_
-  R_Use(dir_server + "schet_",,"SCHET_")
-  R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
+  R_Use(dir_server() + "schet_",,"SCHET_")
+  R_Use(dir_server() + "schet",dir_server() + "schetd","SCHET")
   set relation to recno() into SCHET_
   set filter to empty(schet_->IS_DOPLATA)
   dbseek(begin_date,.t.)
@@ -3280,7 +3280,7 @@ if len(st_a_uch) == 1
   endif
   aeval(st_a_otd, {|x| aadd(a_otd,x[1]) })
 else
-  R_Use(dir_server + "mo_otd",,"OTD")
+  R_Use(dir_server() + "mo_otd",,"OTD")
   go top
   do while !eof()
     if f_is_uch(st_a_uch,otd->kod_lpu)
@@ -3310,8 +3310,8 @@ kh := 0
 if pi1 == 1 // по дате окончания лечения
   begin_date := arr_m[5]
   end_date := arr_m[6]
-  R_Use(dir_server + "human_",,"HUMAN_")
-  R_Use(dir_server + "human",dir_server + "humand","HUMAN")
+  R_Use(dir_server() + "human_",,"HUMAN_")
+  R_Use(dir_server() + "human",dir_server() + "humand","HUMAN")
   set relation to recno() into HUMAN_
   dbseek(dtos(begin_date),.t.)
   do while human->k_data <= end_date .and. !eof()
@@ -3333,11 +3333,11 @@ if pi1 == 1 // по дате окончания лечения
 else
   begin_date := arr_m[7]
   end_date := arr_m[8]
-  R_Use(dir_server + "human_",,"HUMAN_")
-  R_Use(dir_server + "human",dir_server + "humans","HUMAN")
+  R_Use(dir_server() + "human_",,"HUMAN_")
+  R_Use(dir_server() + "human",dir_server() + "humans","HUMAN")
   set relation to recno() into HUMAN_
-  R_Use(dir_server + "schet_",,"SCHET_")
-  R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
+  R_Use(dir_server() + "schet_",,"SCHET_")
+  R_Use(dir_server() + "schet",dir_server() + "schetd","SCHET")
   set relation to recno() into SCHET_
   set filter to empty(schet_->IS_DOPLATA)
   dbseek(begin_date,.t.)
@@ -3396,7 +3396,7 @@ endif
 t_arr[BR_EDIT] := {|nk,ob| f2_stat_boln(nk,ob,"edit") }
 t_arr[BR_STAT_MSG] := {|| ;
       status_key("^<Esc>^ выход;  ^<Enter>^ листы учета по больному;  ^<F9>^ печать списка") }
-R_Use(dir_server + "kartotek",,"KART")
+R_Use(dir_server() + "kartotek",,"KART")
 use (cur_dir() + "tmp") new
 set relation to kod_k into KART
 index on upper(kart->fio) to (cur_dir() + "tmp")
@@ -3488,7 +3488,7 @@ do case
         close databases
         print_al_uch(arr,arr_m)
         //
-        R_Use(dir_server + "kartotek",,"KART")
+        R_Use(dir_server() + "kartotek",,"KART")
         use (cur_dir() + "tmp") new
         set relation to kod_k into KART
         set index to (cur_dir() + "tmp")
@@ -3607,28 +3607,28 @@ Function i_stac_sl_profil()
   use (cur_dir() + 'tmp') new
   index on str(usl_ok, 1) + str(tip, 1) + shifr + str(profil, 3) to (cur_dir() + 'tmp')
   if m1uslov == 1
-    R_Use(dir_server + "mo_xml",,"MO_XML")
-    R_Use(dir_server + "mo_rak",,"RAK")
+    R_Use(dir_server() + "mo_xml",,"MO_XML")
+    R_Use(dir_server() + "mo_rak",,"RAK")
     set relation to kod_xml into MO_XML
-    R_Use(dir_server + "mo_raks",,"RAKS")
+    R_Use(dir_server() + "mo_raks",,"RAKS")
     set relation to akt into RAK
-    R_Use(dir_server + "mo_raksh",,"RAKSH")
+    R_Use(dir_server() + "mo_raksh",,"RAKSH")
     set relation to kod_raks into RAKS
     index on str(kod_h, 7) to (cur_dir() + "tmp_raksh") for mo_xml->DFILE <= mdate_rak
   endif
-  R_Use(dir_server + "str_komp",,"SK")
-  R_Use(dir_server + "komitet",,"KM")
-  R_Use(dir_server + "mo_su",,"MOSU")
-  R_Use(dir_server + "mo_hu",dir_server + "mo_hu","MOHU")
+  R_Use(dir_server() + "str_komp",,"SK")
+  R_Use(dir_server() + "komitet",,"KM")
+  R_Use(dir_server() + "mo_su",,"MOSU")
+  R_Use(dir_server() + "mo_hu",dir_server() + "mo_hu","MOHU")
   set relation to u_kod into MOSU
-  R_Use(dir_server + "uslugi",,"USL")
-  R_Use(dir_server + "human_u",dir_server + "human_u","HU")
+  R_Use(dir_server() + "uslugi",,"USL")
+  R_Use(dir_server() + "human_u",dir_server() + "human_u","HU")
   set relation to u_kod into USL
-  R_Use(dir_server + "schet_",,"SCHET_")
-  R_Use(dir_server + "schet",,"SCHET")
+  R_Use(dir_server() + "schet_",,"SCHET_")
+  R_Use(dir_server() + "schet",,"SCHET")
   set relation to recno() into SCHET_
-  R_Use(dir_server + "human_",,"HUMAN_")
-  R_Use(dir_server + "human",dir_server + "humand","HUMAN")
+  R_Use(dir_server() + "human_",,"HUMAN_")
+  R_Use(dir_server() + "human",dir_server() + "humand","HUMAN")
   set relation to recno() into HUMAN_
   dbseek(dtos(arr_m[5]),.t.)
   do while human->k_data <= arr_m[6] .and. !eof()

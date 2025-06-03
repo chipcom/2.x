@@ -14,20 +14,20 @@ Function defenition_usluga_med_reab( lkod, vid, shrm, vto )
   shifr_reab := type_reabilitacia( vto )[ vid, 3 ][ shrm ]
 
   mywait( 'Добавление услуги' )
-  r_use( dir_server + 'mo_uch', , 'UCH' )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_uch', , 'UCH' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
   use_base( 'lusl' )
   use_base( 'luslc' )
   use_base( 'uslugi' )
-  r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
-    dir_server + 'uslugi1s' }, 'USL1' )
+  r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+    dir_server() + 'uslugi1s' }, 'USL1' )
   use_base( 'human_u' ) // если понадобится, удалить старую услугу и добавить новую
-  r_use( dir_server + 'mo_su', , 'MOSU' )
-  r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  r_use( dir_server() + 'mo_su', , 'MOSU' )
+  r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
-  g_use( dir_server + 'human_2', , 'HUMAN_2' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  g_use( dir_server + 'human', , 'HUMAN' ) // перезаписать сумму
+  g_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  g_use( dir_server() + 'human', , 'HUMAN' ) // перезаписать сумму
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   HUMAN->( dbGoto( lkod ) )
   lyear := Year( human->K_DATA )

@@ -231,35 +231,35 @@ Function forma14_med_oms()
   sbase := prefixfilerefname( arr_m[ 1 ] ) + 'unit'
   r_use( dir_exe() + sbase, cur_dir() + sbase, 'MOUNIT' )
 
-  r_use( dir_server + 'mo_su',, 'MOSU' )
-  r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  r_use( dir_server() + 'mo_su',, 'MOSU' )
+  r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'human_u_', , 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'human_u_', , 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
-  r_use( dir_server + 'human_2', , 'HUMAN_2' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
+  r_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
   //
   // //////////////////////////////////////////////////////////////////
   mdate_rak := arr_m[ 6 ] + 13 // по какую дату РАК сумма к оплате 13.04.25    Основание - письмо  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // //////////////////////////////////////////////////////////////////
-  r_use( dir_server + 'mo_xml', , 'MO_XML' )
-  r_use( dir_server + 'mo_rak', , 'RAK' )
+  r_use( dir_server() + 'mo_xml', , 'MO_XML' )
+  r_use( dir_server() + 'mo_rak', , 'RAK' )
   Set Relation To kod_xml into MO_XML
-  r_use( dir_server + 'mo_raks', , 'RAKS' )
+  r_use( dir_server() + 'mo_raks', , 'RAKS' )
   Set Relation To akt into RAK
-  r_use( dir_server + 'mo_raksh', , 'RAKSH' )
+  r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
   Set Relation To kod_raks into RAKS
   Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
   //
-  r_use( dir_server + 'schet_', , 'SCHET_' )
-  r_use( dir_server + 'schet', , 'SCHET' )
+  r_use( dir_server() + 'schet_', , 'SCHET_' )
+  r_use( dir_server() + 'schet', , 'SCHET' )
   Set Relation To RecNo() into SCHET_
   ob_kol := 0
   Go Top
@@ -1533,7 +1533,7 @@ Function forma14_med_oms()
     { '6. скорая медицинская помощь', 69, 81 };
     }
   //
-  r_use( dir_server + 'organiz', , 'ORG' )
+  r_use( dir_server() + 'organiz', , 'ORG' )
   ar := {}
   AAdd( ar, { 12, 77, mm_month[ arr_m[ 3 ] ] } )
   AAdd( ar, { 12, 94, Right( lstr( arr_m[ 1 ] ), 2 ) } )

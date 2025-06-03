@@ -76,18 +76,18 @@ FUNCTION forma1_ffoms()
   Use_base( 'lusl' )
   Use_base( 'luslf' )
 
-  R_Use( dir_server + 'mo_su', , 'MOSU' )
-  R_Use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  R_Use( dir_server() + 'mo_su', , 'MOSU' )
+  R_Use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   SET RELATION TO u_kod into MOSU
-  R_Use( dir_server + 'uslugi', , 'USL' )
-  R_Use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  R_Use( dir_server() + 'uslugi', , 'USL' )
+  R_Use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   SET RELATION TO u_kod into USL
-  R_Use( dir_server + 'kartote2', , 'KART2' )
-  R_Use( dir_server + 'human_', , 'HUMAN_' )
-  R_Use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
+  R_Use( dir_server() + 'kartote2', , 'KART2' )
+  R_Use( dir_server() + 'human_', , 'HUMAN_' )
+  R_Use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
   SET RELATION TO RecNo() into HUMAN_, TO kod_k into KART2
-  R_Use( dir_server + 'schet_', , 'SCHET_' )
-  R_Use( dir_server + 'schet', , 'SCHET' )
+  R_Use( dir_server() + 'schet_', , 'SCHET_' )
+  R_Use( dir_server() + 'schet', , 'SCHET' )
   SET RELATION TO RecNo() into SCHET_
   GO TOP
   DO WHILE !Eof()
@@ -165,12 +165,12 @@ FUNCTION forma1_ffoms()
   ENDDO
   @ MaxRow(), 0 SAY PadR( 'подсчёт снятий', 28 ) COLOR 'W/R'
   arr_h := {}
-  R_Use( dir_server + 'mo_xml',, 'MO_XML' )
-  R_Use( dir_server + 'mo_rak',, 'RAK' )
+  R_Use( dir_server() + 'mo_xml',, 'MO_XML' )
+  R_Use( dir_server() + 'mo_rak',, 'RAK' )
   SET RELATION TO KOD_XML into MO_XML
-  R_Use( dir_server + 'mo_raks',, 'RAKS' )
+  R_Use( dir_server() + 'mo_raks',, 'RAKS' )
   SET RELATION TO akt into RAK
-  R_Use( dir_server + 'mo_raksh',, 'RAKSH' )
+  R_Use( dir_server() + 'mo_raksh',, 'RAKSH' )
   SET RELATION TO kod_raks into RAKS
   INDEX ON Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) FOR Between( mo_xml->dfile, BoY( arr_m[ 5 ] ), arr_m[ 6 ] + a2 )
   // for between(rak->DAKT,boy(arr_m[5]),arr_m[6])
@@ -287,8 +287,8 @@ FUNCTION forma1_ffoms()
   USE ( cur_dir() + 'tmp1' ) index ( cur_dir() + 'tmp1' ) new
   USE ( cur_dir() + 'tmp2' ) index ( cur_dir() + 'tmp2' ) new
   IF ireg == 2 // протокол созданияя формы 1
-    R_Use( dir_server + 'schet_',, 'SCHET_' )
-    R_Use( dir_server + 'schet',, 'SCHET' )
+    R_Use( dir_server() + 'schet_',, 'SCHET_' )
+    R_Use( dir_server() + 'schet',, 'SCHET' )
     SET RELATION TO RecNo() into SCHET_
     USE ( cur_dir() + 'tmp1prot' ) new
     SET RELATION TO schet into SCHET

@@ -103,17 +103,17 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     {'общей врачебной практики', 57}}
 
   //
-  R_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'SL')
-  R_Use(dir_server + 'human_2', , 'HUMAN_2')
-  R_Use(dir_server + 'human_', , 'HUMAN_')
-  R_Use(dir_server + 'human', , 'HUMAN')
+  R_Use(dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'SL')
+  R_Use(dir_server() + 'human_2', , 'HUMAN_2')
+  R_Use(dir_server() + 'human_', , 'HUMAN_')
+  R_Use(dir_server() + 'human', , 'HUMAN')
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
   if mkod_k > 0
-    R_Use(dir_server + 'kartote2', , 'KART2')
+    R_Use(dir_server() + 'kartote2', , 'KART2')
     goto (mkod_k)
-    R_Use(dir_server + 'kartote_', , 'KART_')
+    R_Use(dir_server() + 'kartote_', , 'KART_')
     goto (mkod_k)
-    R_Use(dir_server + 'kartotek', , 'KART')
+    R_Use(dir_server() + 'kartotek', , 'KART')
     goto (mkod_k)
     M1FIO       := 1
     mfio        := kart->fio
@@ -143,7 +143,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     endif
     // проверка исхода = СМЕРТЬ
     select HUMAN
-    set index to (dir_server + 'humankk')
+    set index to (dir_server() + 'humankk')
 //    find (str(mkod_k, 7))
 //    do while human->kod_k == mkod_k .and. !eof()
 //      if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
@@ -210,7 +210,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     mSTAD  := padr(inieditspr(A__MENUVERT, mm_N002, m1STAD), 5)
 
     // выберем услуги
-    R_Use(dir_server + 'uslugi', , 'USL')
+    R_Use(dir_server() + 'uslugi', , 'USL')
     use_base('human_u')
     find (str(Loc_kod, 7))
     do while hu->kod == Loc_kod .and. !eof()
@@ -264,7 +264,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   endif
 
   if Loc_kod == 0
-    R_Use(dir_server + 'mo_otd', , 'OTD')
+    R_Use(dir_server() + 'mo_otd', , 'OTD')
     goto (m1otd)
     m1USL_OK := otd->IDUMP
     if empty(m1PROFIL)
@@ -274,12 +274,12 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       m1PROFIL_K := otd->PROFIL_K
     endif
   endif
-  R_Use(dir_server + 'mo_uch', , 'UCH')
+  R_Use(dir_server() + 'mo_uch', , 'UCH')
   goto (m1lpu)
   mlpu := rtrim(uch->name)
 
   if m1vrach > 0
-    R_Use(dir_server + 'mo_pers', , 'P2')
+    R_Use(dir_server() + 'mo_pers', , 'P2')
     goto (m1vrach)
     MTAB_NOM := p2->tab_nom
     m1prvs := -ret_new_spec(p2->prvs, p2->prvs_new)
@@ -295,7 +295,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   endif // на всякий случай
   mishod    := inieditspr(A__MENUVERT, getV012(), m1ishod)
   mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
-  motd      := inieditspr(A__POPUPMENU, dir_server + 'mo_otd',  m1otd)
+  motd      := inieditspr(A__POPUPMENU, dir_server() + 'mo_otd',  m1otd)
   mokato    := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
   mkomu     := inieditspr(A__MENUVERT, mm_komu, m1komu)
   mismo     := init_ismo(m1ismo)
@@ -462,8 +462,8 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       Use_base('lusl')
       Use_base('luslc')
       Use_base('uslugi')
-      R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1', ;
-                                dir_server + 'uslugi1s'}, 'USL1')
+      R_Use(dir_server() + 'uslugi1', {dir_server() + 'uslugi1', ;
+                                dir_server() + 'uslugi1s'}, 'USL1')
       Private mu_kod, mu_cena
       mu_kod := foundOurUsluga(lshifr, mk_data, m1PROFIL, M1VZROS_REB, @mu_cena)
 
@@ -593,7 +593,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       hu_->kod_diag := mkod_diag
       hu_->zf       := ''
 
-      G_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl',  'SL')
+      G_Use(dir_server() + 'mo_onksl', dir_server() + 'mo_onksl',  'SL')
       find (str(mkod, 7))
       if found()
         G_RLock(forever)
@@ -604,7 +604,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       sl->DS1_T := 4  // согласно письма ТФОМС
       sl->STAD := m1STAD
 
-      G_Use(dir_server + 'mo_onkco', dir_server + 'mo_onkco',  'CO')
+      G_Use(dir_server() + 'mo_onkco', dir_server() + 'mo_onkco',  'CO')
       find (str(mkod, 7))
       if found()
         G_RLock(forever)

@@ -18,13 +18,13 @@ Function i_kol_del_zub( par )
   Use ( cur_dir() + 'tmp' ) new
   Index On Str( god, 4 ) + Str( kod_k, 7 ) To tmp memory
   use_base( 'lusl' )
-  r_use( dir_server + 'uslugi',, 'USL' )
-  r_use( dir_server + 'human_u_',, 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  r_use( dir_server() + 'uslugi',, 'USL' )
+  r_use( dir_server() + 'human_u_',, 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'human_2',, 'HUMAN_2' )
-  r_use( dir_server + 'human_',, 'HUMAN_' )
-  r_use( dir_server + 'human',, 'HUMAN' )
+  r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+  r_use( dir_server() + 'human_',, 'HUMAN_' )
+  r_use( dir_server() + 'human',, 'HUMAN' )
   Set Relation To kod into HUMAN_, To kod into HUMAN_2
   Go Top
   Do While !Eof()

@@ -101,10 +101,10 @@ Function pripisnoe_naselenie( k )
 Function view_reestr_pripisnoe_naselenie()
   Local buf := SaveScreen()
 
-  Private goal_dir := dir_server + dir_XML_MO() + hb_ps()
+  Private goal_dir := dir_server() + dir_XML_MO() + hb_ps()
 
-  g_use( dir_server + "mo_krtf",, "KRTF" )
-  g_use( dir_server + "mo_krtr",, "KRTR" )
+  g_use( dir_server() + "mo_krtf",, "KRTF" )
+  g_use( dir_server() + "mo_krtr",, "KRTR" )
   Index On DToS( dfile ) to ( cur_dir() + "tmp_krtr" ) DESCENDING
   Go Top
   If Eof()
@@ -189,7 +189,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
       If g_slock( str_sem )
         mywait()
         i := 0
-        Use ( dir_server + "mo_krtp" ) New Alias KRTP
+        Use ( dir_server() + "mo_krtp" ) New Alias KRTP
         Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_k" )
         Do While .t.
           @ MaxRow(), 0 Say Str( i / krtr->KOL * 100, 6, 2 ) + "%" Color cColorWait
@@ -225,7 +225,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
         If g_slock( str_sem )
           mywait()
           i := 0
-          Use ( dir_server + "mo_krtp" ) New Alias KRTP
+          Use ( dir_server() + "mo_krtp" ) New Alias KRTP
           Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_k" )
           Do While .t.
             @ MaxRow(), 0 Say Str( i / krtr->KOL * 100, 6, 2 ) + "%" Color cColorWait
@@ -346,10 +346,10 @@ Function f3_view_r_pr_nas( oBrow )
     AAdd( mm_func, -3 ) ; AAdd( mm_menu, "Список вернувшихся из ТФОМС с кодом ~ошибки" )
     If fl
       ii := 0
-      r_use( dir_server + "mo_krte",, "KRTE" )
+      r_use( dir_server() + "mo_krte",, "KRTE" )
       Index On Str( rees_zap, 6 ) to ( cur_dir() + "tmp_krte" ) For reestr == krtr->kod
-      r_use( dir_server + "mo_kartp", dir_server + "mo_kartp", "KARTP" )
-      r_use( dir_server + "mo_krtp",, "KRTP" )
+      r_use( dir_server() + "mo_kartp", dir_server() + "mo_kartp", "KARTP" )
+      r_use( dir_server() + "mo_krtp",, "KRTP" )
       Index On Str( rees_zap, 6 ) to ( cur_dir() + "tmp_krtp" ) For reestr == krtr->kod
       Go Top
       Do While !Eof()
@@ -451,7 +451,7 @@ Function f3_view_r_pr_nas( oBrow )
       Endif
     Else
       krtf->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( krtf->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + AllTrim( krtf->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select KRTR
@@ -484,16 +484,16 @@ Function f31_view_r_pr_nas( reg, s, s1 )
     Endif
   Endif
   add_string( "" )
-  r_use( dir_server + "mo_krte",, "KRTE" )
+  r_use( dir_server() + "mo_krte",, "KRTE" )
   If reg == 3 .or. !fl_csv
     Index On Str( rees_zap, 6 ) to ( cur_dir() + "tmp_krte" ) For reestr == krtr->kod
   Endif
   // список прикреплений по пациенту во времени
-  r_use( dir_server + "mo_kartp", dir_server + "mo_kartp", "KARTP" )
-  r_use( dir_server + "kartote2",, "KART2" )
-  r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server() + "mo_kartp", dir_server() + "mo_kartp", "KARTP" )
+  r_use( dir_server() + "kartote2",, "KART2" )
+  r_use( dir_server() + "kartotek",, "KART" )
   Set Relation To RecNo() into KART2
-  r_use( dir_server + "mo_krtp",, "KRTP" )
+  r_use( dir_server() + "mo_krtp",, "KRTP" )
   Set Relation To kod_k into KART
   Index On Str( rees_zap, 6 ) to ( cur_dir() + "tmp_krtp" ) For reestr == krtr->kod
   ii := k := 0
@@ -583,7 +583,7 @@ Function preparation_for_pripisnoe_naselenie()
     str_sem := "preparation_for_pripisnoe_naselenie"
 
   mywait()
-  g_use( dir_server + "mo_krtp",, "KRTP" )
+  g_use( dir_server() + "mo_krtp",, "KRTP" )
   Index On kod_k to ( cur_dir() + "tmp_k" ) For reestr == 0
   dbCreate( cur_dir() + "tmp_krtp", { ;
     { "rec",   "N", 8, 0 }, ; // номер записи в файле "mo_krtp"
@@ -668,7 +668,7 @@ Function preparation_for_pripisnoe_naselenie()
   If tmp_krtp->( LastRec() ) > 0
     mywait()
     cur_year := Year( sys_date )
-    r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+    r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
     Go Bottom
     If !Empty( human->k_data )
       cur_year := Year( human->k_data )
@@ -677,9 +677,9 @@ Function preparation_for_pripisnoe_naselenie()
     cFileProtokol := cur_dir() + "prot.txt"
     StrFile( Space( 10 ) + "Список ошибок" + hb_eol() + hb_eol(), cFileProtokol )
     ii := i := 0
-    r_use( dir_server + "mo_otd",, "OTD" )
-    r_use( dir_server + "mo_pers",, "P2" )
-    r_use( dir_server + "mo_uchvr",, "UV" )
+    r_use( dir_server() + "mo_otd",, "OTD" )
+    r_use( dir_server() + "mo_pers",, "P2" )
+    r_use( dir_server() + "mo_uchvr",, "UV" )
     Index On Str( uch, 2 ) to ( cur_dir() + "tmp_uv" )
     Select TMP_KRTP
     Go Top
@@ -824,7 +824,7 @@ Function preparation_for_pripisnoe_naselenie()
     Endif
     If k > 1
       s := "MO2"
-      g_use( dir_server + "mo_krtr",, "KRTR" )
+      g_use( dir_server() + "mo_krtr",, "KRTR" )
       Locate For DFILE == sys_date .and. Left( FNAME, 3 ) == s
       If Found()
         func_error( 4, "Файл прикрепления с датой " + full_date( sys_date ) + "г. уже был создан" )
@@ -846,7 +846,7 @@ Function preparation_for_pripisnoe_naselenie()
         krtr->KOL := ii + j
         krtr->KOL_P := 0
         krtr->ANSWER := 0  // 0-не было ответа, 1-был прочитан ответ
-        g_use( dir_server + "mo_krtf",, "KRTF" )
+        g_use( dir_server() + "mo_krtf",, "KRTF" )
         Index On Str( kod, 6 ) to ( cur_dir() + "tmp_krtf" )
         addrec( 6 )
         krtf->KOD   := RecNo()
@@ -868,11 +868,11 @@ Function preparation_for_pripisnoe_naselenie()
         Delete File ( n_file )
         fp := FCreate( n_file )
         //
-        r_use( dir_server + "mo_otd",, "OTD" )
-        r_use( dir_server + "mo_pers",, "P2" )
-        r_use( dir_server + "mo_uchvr",, "UV" )
+        r_use( dir_server() + "mo_otd",, "OTD" )
+        r_use( dir_server() + "mo_pers",, "P2" )
+        r_use( dir_server() + "mo_uchvr",, "UV" )
         Index On Str( uch, 2 ) to ( cur_dir() + "tmp_uv" )
-        g_use( dir_server + "mo_krtp",, "KRTP" )
+        g_use( dir_server() + "mo_krtp",, "KRTP" )
         use_base( "kartotek" )
         Set Order To 0
         Use ( cur_dir() + "tmp_krtp" ) new
@@ -954,7 +954,7 @@ Function preparation_for_pripisnoe_naselenie()
           s := iif( Empty( kart_->kogdavyd ), "", DToS( kart_->kogdavyd ) )
           s1 += Eval( blk, s ) + ";"
           // 13 - Наименование органа, выдавшего документ
-          s := AllTrim( inieditspr( A__POPUPMENU, dir_server + "s_kemvyd", kart_->kemvyd ) )
+          s := AllTrim( inieditspr( A__POPUPMENU, dir_server() + "s_kemvyd", kart_->kemvyd ) )
           s1 += Eval( blk, f_s_csv( s ) ) + ";"
           // 14 - СНИЛС застрахованного лица
           s1 += Eval( blk, AllTrim( kart->snils ) ) + ";"
@@ -1083,7 +1083,7 @@ Function preparation_for_pripisnoe_naselenie()
             s := iif( Empty( lkogdavyd ), "", DToS( lkogdavyd ) )
             s1 += Eval( blk, s ) + ";"
             // 13 - Наименование органа, выдавшего документ
-            s := AllTrim( inieditspr( A__POPUPMENU, dir_server + "s_kemvyd", kart_->kemvyd ) )
+            s := AllTrim( inieditspr( A__POPUPMENU, dir_server() + "s_kemvyd", kart_->kemvyd ) )
             s1 += Eval( blk, f_s_csv( s ) ) + ";"
             // 14 - СНИЛС застрахованного лица
             If !Empty( lsnils := kart->snils ) .and. !val_snils( kart->snils, 2 )
@@ -1124,7 +1124,7 @@ Function preparation_for_pripisnoe_naselenie()
         Endif
         FClose( fp )
         If hb_FileExists( n_file )
-          chip_copy_zipxml( n_file, dir_server + dir_XML_MO(), .t. )
+          chip_copy_zipxml( n_file, dir_server() + dir_XML_MO(), .t. )
           Keyboard Chr( K_HOME ) + Chr( K_ENTER )
           Select KRTF
           g_rlock( forever )
@@ -1229,7 +1229,7 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
       { "smo", "C", 100, 0 }, ;
       { "ruk_fio", "C", 60, 0 }, ;
       { "ruk", "C", 20, 0 } } )
-    r_use( dir_server + "organiz",, "ORG" )
+    r_use( dir_server() + "organiz",, "ORG" )
     Use ( fr_titl ) New Alias FRT
     Append Blank
     frt->name_org := glob_MO[ _MO_SHORT_NAME ] + " (" + glob_MO[ _MO_KOD_TFOMS ] + ")"
@@ -1251,7 +1251,7 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
         s += "выдан " + full_date( kart_->kogdavyd ) + "г. "
       Endif
       If !Empty( kart_->kemvyd )
-        s += inieditspr( A__POPUPMENU, dir_server + "s_kemvyd", kart_->kemvyd )
+        s += inieditspr( A__POPUPMENU, dir_server() + "s_kemvyd", kart_->kemvyd )
       Endif
     Endif
     frt->pasport := s
@@ -1291,7 +1291,7 @@ Function pripisnoe_naselenie_create_sverka()
   hGauge := gaugenew(,,, "Составление списка для включения в файл сверки", .t. )
   gaugedisplay( hGauge )
   curr := 0
-  r_use( dir_server + "mo_kfio",, "KFIO" )
+  r_use( dir_server() + "mo_kfio",, "KFIO" )
   Index On Str( kod, 7 ) to ( cur_dir() + "tmp_kfio" )
   r_use_base( "kartotek" )
   Set Order To 2
@@ -1346,7 +1346,7 @@ Function pripisnoe_naselenie_create_sverka()
   Enddo
   fl := .f.
   s := "SZ2"
-  r_use( dir_server + "mo_krtr",, "KRTR" )
+  r_use( dir_server() + "mo_krtr",, "KRTR" )
   Index On DToS( DFILE ) to ( cur_dir() + "tmp_krtr" ) For Left( FNAME, 3 ) == s
   ar := {}
   For i := 1 To Len( arr )
@@ -1377,13 +1377,13 @@ Function pripisnoe_naselenie_create_sverka()
   If f_alert( ar, ar2, 1, "GR+/R", "W+/R",,, "GR+/R,N/BG" ) == 2
     mywait()
     blk := {| _s| iif( Empty( _s ), '', '"' + _s + '"' ) }
-    g_use( dir_server + "mo_krtr",, "KRTR" )
+    g_use( dir_server() + "mo_krtr",, "KRTR" )
     Index On Str( kod, 6 ) to ( cur_dir() + "tmp_krtr" )
-    g_use( dir_server + "mo_krtf",, "KRTF" )
+    g_use( dir_server() + "mo_krtf",, "KRTF" )
     Index On Str( kod, 6 ) to ( cur_dir() + "tmp_krtf" )
-    g_use( dir_server + "mo_krtp",, "KRTP" )
+    g_use( dir_server() + "mo_krtp",, "KRTP" )
     Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_k" )
-    r_use( dir_server + "mo_kfio", cur_dir() + "tmp_kfio", "KFIO" )
+    r_use( dir_server() + "mo_kfio", cur_dir() + "tmp_kfio", "KFIO" )
     r_use_base( "kartotek" )
     Set Order To 0
     Use ( cur_dir() + "tmp" ) new
@@ -1713,10 +1713,10 @@ Function edit_uchast_spisok()
   Endif
   //
   Private TIP_uchast  := 1 // 1-адрес 2-работа
-  g_use( dir_server + "kartotek", { dir_server + "kartotek", ;
-    dir_server + "kartoten", ;
-    dir_server + "kartotep", ;
-    dir_server + "kartoteu" }, "KART" )
+  g_use( dir_server() + "kartotek", { dir_server() + "kartotek", ;
+    dir_server() + "kartoten", ;
+    dir_server() + "kartotep", ;
+    dir_server() + "kartoteu" }, "KART" )
   Set Order To 0
   Use ( cur_dir() + "tmp_krtp" ) new
   Set Relation To kod_k into KART
@@ -1865,8 +1865,8 @@ Function spisok_pripisnoe_naselenie( par )
 
   If Empty( arr_mo )
     mywait()
-    r_use( dir_server + "kartotek",, "KART" )
-    r_use( dir_server + "kartote2",, "KART2" )
+    r_use( dir_server() + "kartotek",, "KART" )
+    r_use( dir_server() + "kartote2",, "KART2" )
     Set Relation To RecNo() into KART
     Index On mo_pr to ( cur_dir() + "tmp_kart2" ) For !kart->( Eof() ) .and. kart->kod > 0
     Go Top
@@ -1909,9 +1909,9 @@ Function spisok_pripisnoe_naselenie( par )
   sj := j
   mywait()
   fl := .t.
-  r_use( dir_server + "kartotek",, "KART" )
-  r_use( dir_server + "kartote_",, "KART_" )
-  r_use( dir_server + "kartote2",, "KART2" )
+  r_use( dir_server() + "kartotek",, "KART" )
+  r_use( dir_server() + "kartote_",, "KART_" )
+  r_use( dir_server() + "kartote2",, "KART2" )
   Set Relation To RecNo() into KART
   Set Index to ( cur_dir() + "tmp_kart2" )
   Do Case

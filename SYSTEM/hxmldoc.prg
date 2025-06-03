@@ -12,7 +12,7 @@
 #include "fileio.ch"
 #include "i_xml.ch"
 
-#define EOS chr(13)+chr(10)
+#define hb_eol() chr(13)+chr(10)
 
 /*
  *  CLASS DEFINITION
@@ -84,17 +84,17 @@ Local i, s, lNewLine
       NEXT
    ENDIF
    IF ::type == HBXML_TYPE_COMMENT
-      s += '-->' + EOS
+      s += '-->' + hb_eol()
    ELSEIF ::type == HBXML_TYPE_PI
-      s += '?>' + EOS
+      s += '?>' + hb_eol()
    ELSEIF ::type == HBXML_TYPE_SINGLE
-      s += '/>' + EOS
+      s += '/>' + hb_eol()
    ELSEIF ::type == HBXML_TYPE_TAG
       s += '>'
       IF Len(::aItems) == 1 .AND. Valtype(::aItems[1]) == "C"
          lNewLine := .F.
       ELSE
-         s += EOS
+         s += hb_eol()
          lNewLine := .T.
       ENDIF
    ENDIF
@@ -123,15 +123,15 @@ Local i, s, lNewLine
    NEXT
    IF handle >= 0
       IF ::type == HBXML_TYPE_TAG
-         FWrite( handle, Iif(lNewLine,Space(level*2),"") + '</' + ::title + '>' + EOS )
+         FWrite( handle, Iif(lNewLine,Space(level*2),"") + '</' + ::title + '>' + hb_eol() )
       ELSEIF ::type == HBXML_TYPE_CDATA
-         FWrite( handle, ']]>' + EOS )
+         FWrite( handle, ']]>' + hb_eol() )
       ENDIF
    ELSE
       IF ::type == HBXML_TYPE_TAG
-         s += Iif(lNewLine,Space(level*2),"") + '</' + ::title + '>' + EOS
+         s += Iif(lNewLine,Space(level*2),"") + '</' + ::title + '>' + hb_eol()
       ELSEIF ::type == HBXML_TYPE_CDATA
-         s += ']]>' + EOS
+         s += ']]>' + hb_eol()
       ENDIF
       Return s
    ENDIF
@@ -213,7 +213,7 @@ Local cEncod, i, s
          IF ( cEncod := ::GetAttribute( "encoding" ) ) == Nil
             cEncod := "Windows-1251"
          ENDIF
-         s := '<?xml version="1.0" encoding="'+cEncod+'"?>'+EOS
+         s := '<?xml version="1.0" encoding="'+cEncod+'"?>'+hb_eol()
          IF fname != Nil
             FWrite( handle, s )
          ENDIF

@@ -305,7 +305,7 @@ Function verify_sluch( fl_view )
         AAdd( ta, 'для иногородних без нового полиса обязательно заполнение поля "Дата выдачи документа, удостоверяющего личность"' )
       Endif
       If Empty( kart_->kemvyd ) .or. ;
-          Empty( del_spec_symbol( inieditspr( A__POPUPMENU, dir_server + 's_kemvyd', kart_->kemvyd ) ) )
+          Empty( del_spec_symbol( inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', kart_->kemvyd ) ) )
         AAdd( ta, 'для иногородних без нового полиса обязательно заполнение поля "Наименование органа, выдавшего документ, удостоверяющий личность"' )
       Endif
     Endif

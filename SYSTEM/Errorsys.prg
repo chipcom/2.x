@@ -151,11 +151,11 @@ static function isFuncErr( s )
 // 28.05.17 просмотр файла ошибок (рекомендуется включать в меню "Сервис")
 function view_errors()
 
-	if !file( dir_server + err_file )
+	if !file( dir_server() + err_file )
 		return func_error( 4, 'Не обнаружен файл ошибок!' )
 	endif
 	// keyboard chr( K_END )
-	viewtext( Devide_Into_Pages( dir_server + err_file, 80, 84 ), , , , .t., , , 5, , , .f. )
+	viewtext( Devide_Into_Pages( dir_server() + err_file, 80, 84 ), , , , .t., , , 5, , , .f. )
 	return nil
 
 // разбить текстовый файл на страницы
@@ -181,45 +181,45 @@ function __errMessage( arr_error )
 	set date german
 	s := exename()
 	cMessage += 'Дата: ' + dtoc( date() ) + ', время: ' + sectotime( seconds() ) + ' ' + StripPath( s )
-	cMessage += '(' + dtoc( directory( s )[ 1, F_DATE ] ) + ', ' + lstr( memory( 1 ) ) + 'Кб)' + eos
-//	cMessage += 'Версия: ' + Err_version + eos
-	cMessage += 'Версия: ' + Err_version() + eos
+	cMessage += '(' + dtoc( directory( s )[ 1, F_DATE ] ) + ', ' + lstr( memory( 1 ) ) + 'Кб)' + hb_eol()
+//	cMessage += 'Версия: ' + Err_version + hb_eol()
+	cMessage += 'Версия: ' + Err_version() + hb_eol()
 	if type( 'fio_polzovat' ) == 'C' .and. !empty( fio_polzovat )
 		cMessage += 'Пользователь: ' + alltrim( fio_polzovat )
 	endif
-	cMessage += eos
+	cMessage += hb_eol()
 	
-	cMessage += '->OS: ' + OS() + eos
-	cMessage += '->Computer Name: ' + GetEnv( 'COMPUTERNAME' ) + eos
-	cMessage += '->User Name: '     + GetEnv( 'USERNAME' ) + eos
-	cMessage += '->Logon Server: '  + Substr( GetEnv( 'LOGONSERVER' ), 2 ) + eos
-	cMessage += '->Client Name: '   + GetEnv( 'CLIENTNAME' ) + eos
-	cMessage += '->User Domain: '   + GetEnv( 'USERDOMAIN' ) + eos
+	cMessage += '->OS: ' + OS() + hb_eol()
+	cMessage += '->Computer Name: ' + GetEnv( 'COMPUTERNAME' ) + hb_eol()
+	cMessage += '->User Name: '     + GetEnv( 'USERNAME' ) + hb_eol()
+	cMessage += '->Logon Server: '  + Substr( GetEnv( 'LOGONSERVER' ), 2 ) + hb_eol()
+	cMessage += '->Client Name: '   + GetEnv( 'CLIENTNAME' ) + hb_eol()
+	cMessage += '->User Domain: '   + GetEnv( 'USERDOMAIN' ) + hb_eol()
 
-	aeval( arr_error, { | x | cMessage += x + eos } )
-	cMessage += replicate( '*', 79 ) + eos
+	aeval( arr_error, { | x | cMessage += x + hb_eol() } )
+	cMessage += replicate( '*', 79 ) + hb_eol()
 	return cMessage
 
 // функция записи в файл ошибок
 function __errSave( cMessage )
 	local cName
 
-	if __mvExist( 'DIR_SERVER' )
-		if type( 'DIR_SERVER' ) != 'C'
+	if __mvExist( 'dir_server' )
+		if type( 'dir_server' ) != 'C'
 			private dir_server := ''
 		endif
 	else
 		private dir_server := ''
 	endif
 	
-	cName := TempFile( dir_server, 'txt', SetFCreate() )
+	cName := TempFile( dir_server(), 'txt', SetFCreate() )
 	strfile( cMessage, cName, .t. )
-	if hb_FileExists( dir_server + err_file )
-		if filesize( dir_server + err_file ) > 500000  // если больше 0.5 Мб,
-			FErase( dir_server + err_file )        // удаляем файл и начинаем с нуля
+	if hb_FileExists( dir_server() + err_file )
+		if filesize( dir_server() + err_file ) > 500000  // если больше 0.5 Мб,
+			FErase( dir_server() + err_file )        // удаляем файл и начинаем с нуля
 		endif
-		nRet := FileAppend( dir_server + err_file, cName )
+		nRet := FileAppend( dir_server() + err_file, cName )
 	endif
-	FileCopy( cName, dir_server + err_file, )
+	FileCopy( cName, dir_server() + err_file, )
 	FErase( cName )        // удаляем временный файл
 	return nil

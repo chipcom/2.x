@@ -172,13 +172,13 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
     endif
     mkod_k := kod_kartotek
-    r_use( dir_server + 'kartotek', , 'KART' )
+    r_use( dir_server() + 'kartotek', , 'KART' )
     Goto ( mkod_k )
     mpol        := kart->pol
     mdate_r     := kart->date_r
     kart->( dbCloseArea() )
   Elseif Loc_kod > 0
-    r_use( dir_server + 'human', , 'HUMAN' )
+    r_use( dir_server() + 'human', , 'HUMAN' )
     Goto ( Loc_kod )
     mpol    := human->pol
     mdate_r := human->date_r
@@ -251,16 +251,16 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Next
   //
   AFill( adiag_talon, 0 )
-  r_use( dir_server + 'human_2', , 'HUMAN_2' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', , 'HUMAN' )
+  r_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   If mkod_k > 0
-    r_use( dir_server + 'kartote2', , 'KART2' )
+    r_use( dir_server() + 'kartote2', , 'KART2' )
     Goto ( mkod_k )
-    r_use( dir_server + 'kartote_', , 'KART_' )
+    r_use( dir_server() + 'kartote_', , 'KART_' )
     Goto ( mkod_k )
-    r_use( dir_server + 'kartotek', , 'KART' )
+    r_use( dir_server() + 'kartotek', , 'KART' )
     Goto ( mkod_k )
     M1FIO       := 1
     mfio        := kart->fio
@@ -292,7 +292,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     // проверка исхода = СМЕРТЬ
     ah := {}
     Select HUMAN
-    Set Index to ( dir_server + 'humankk' )
+    Set Index to ( dir_server() + 'humankk' )
     find ( Str( mkod_k, 7 ) )
     Do While human->kod_k == mkod_k .and. !Eof()
       If human_->oplata != 9 .and. human_->NOVOR == 0 .and. RecNo() != Loc_kod
@@ -425,7 +425,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     fl_4_1_12 := .f.
     larr := Array( 2, count_dvn_arr_usl )
     afillall( larr, 0 )
-    r_use( dir_server + 'uslugi', , 'USL' )
+    r_use( dir_server() + 'uslugi', , 'USL' )
     use_base( 'human_u' )
     find ( Str( Loc_kod, 7 ) )
     Do While hu->kod == Loc_kod .and. !Eof()
@@ -508,12 +508,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Select HU
       Skip
     Enddo
-    r_use( dir_server + 'mo_pers', , 'P2' )
+    r_use( dir_server() + 'mo_pers', , 'P2' )
     read_arr_dvn( Loc_kod )
     If metap == 1 .and. Between( m1GRUPPA, 11, 14 ) .and. m1p_otk == 1
       m1GRUPPA += 10
     Endif
-    // R_Use(dir_server + 'mo_pers',,'P2')
+    // R_Use(dir_server() + 'mo_pers',,'P2')
     For i := 1 To count_dvn_arr_usl
       If !Empty( larr[ 1, i ] )
         hu->( dbGoto( larr[ 1, i ] ) )
@@ -611,8 +611,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   mndisp    := inieditspr( A__MENUVERT, mm_ndisp, metap )
   mrab_nerab := inieditspr( A__MENUVERT, menu_rab, m1rab_nerab )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
-  mlpu      := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', m1lpu )
-  motd      := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', m1otd )
+  mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
+  motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf, m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
@@ -1157,7 +1157,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       //
       mdef_diagnoz := iif( metap == 2, 'Z01.8 ', 'Z00.8 ' )
       r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
-      r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2' )
+      r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2' )
       num_screen := 2
       max_date1 := mn_data
       fl := .t.
@@ -1680,8 +1680,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       use_base( 'lusl' )
       use_base( 'luslc' )
       use_base( 'uslugi' )
-      r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
-        dir_server + 'uslugi1s' }, 'USL1' )
+      r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+        dir_server() + 'uslugi1s' }, 'USL1' )
       mcena_1 := mu_cena := 0
       arr_usl_dop := {}
       arr_usl_otkaz := {}
@@ -1829,7 +1829,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
-        g_use( dir_server + 'mo_hismo', , 'SN' )
+        g_use( dir_server() + 'mo_hismo', , 'SN' )
         Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()

@@ -56,7 +56,7 @@ Function read_from_tf()
     If verify_is_already_xml( cName, @_date, @_time )
       // спросить надо ли ещё раз читать, т.к. уже читали
       func_error( 4, 'Данный файл уже был прочитан и обработан в ' + _time + ' ' + date_8( _date ) + 'г.' )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
+      viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
       Return fl
     Else
       s := 'чтения '
@@ -168,10 +168,10 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       StrFile( hb_eol() + 'Тип файла: протокол ФЛК (форматно-логического контроля)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
       If read_xml_file_flk( arr_XML_info, aerr )
         // запишем принимаемый файл (протокол ФЛК)
-        // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF())
-        chip_copy_zipxml( full_zip, dir_server + dir_XML_TF() )
+        // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server()+dir_XML_TF())
+        chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
         Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
-        g_use( dir_server + 'mo_xml', , 'MO_XML' )
+        g_use( dir_server() + 'mo_xml', , 'MO_XML' )
         addrecn()
         mo_xml->KOD := RecNo()
         mo_xml->FNAME := cReadFile
@@ -190,7 +190,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       If read_xml_file_sp( arr_XML_info, aerr, @nCountWithErr ) > 0
         go_to_schet := create_schet_from_xml( arr_XML_info, aerr, , , cReadFile )
       Elseif nCountWithErr > 0 // все пришли с ошибкой
-        g_use( dir_server + 'mo_xml', , 'MO_XML' )
+        g_use( dir_server() + 'mo_xml', , 'MO_XML' )
         Goto ( mXML_REESTR )
         g_rlock( forever )
         mo_xml->TWORK2 := hour_min( Seconds() )
@@ -207,7 +207,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       StrFile( hb_eol() + 'Тип файла: PR01 (ответ на файл R01)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
       nCountWithErr := 0
       read_xml_file_r02( arr_XML_info, aerr, @nCountWithErr, _XML_FILE_R02 )
-      g_use( dir_server + 'mo_xml', , 'MO_XML' )
+      g_use( dir_server() + 'mo_xml', , 'MO_XML' )
       Goto ( mXML_REESTR )
       g_rlock( forever )
       mo_xml->TWORK2 := hour_min( Seconds() )
@@ -215,7 +215,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       StrFile( hb_eol() + 'Тип файла: PR11 (ответ на файл R11)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
       nCountWithErr := 0
       read_xml_file_r02( arr_XML_info, aerr, @nCountWithErr, _XML_FILE_R12 )
-      g_use( dir_server + 'mo_xml', , 'MO_XML' )
+      g_use( dir_server() + 'mo_xml', , 'MO_XML' )
       Goto ( mXML_REESTR )
       g_rlock( forever )
       mo_xml->TWORK2 := hour_min( Seconds() )
@@ -223,7 +223,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       StrFile( hb_eol() + 'Тип файла: PR05 (ответ на файл R05)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
       nCountWithErr := 0
       read_xml_file_r06( arr_XML_info, aerr, @nCountWithErr )
-      g_use( dir_server + 'mo_xml', , 'MO_XML' )
+      g_use( dir_server() + 'mo_xml', , 'MO_XML' )
       Goto ( mXML_REESTR )
       g_rlock( forever )
       mo_xml->TWORK2 := hour_min( Seconds() )
@@ -231,7 +231,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       StrFile( hb_eol() + 'Тип файла: D02 (ответ на файл D01)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
       nCountWithErr := 0
       read_xml_file_d02( arr_XML_info, aerr, @nCountWithErr )
-      g_use( dir_server + 'mo_xml', , 'MO_XML' )
+      g_use( dir_server() + 'mo_xml', , 'MO_XML' )
       Goto ( mXML_REESTR )
       g_rlock( forever )
       mo_xml->TWORK2 := hour_min( Seconds() )
@@ -245,7 +245,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
     mo_unlock_task( X_OMS )
   Endif
   If Empty( aerr ) .or. nCountWithErr > 0 // запишем файл протокола обработки
-    chip_copy_zipxml( cFileProtokol, dir_server + dir_XML_TF() )
+    chip_copy_zipxml( cFileProtokol, dir_server() + dir_XML_TF() )
   Endif
   If !Empty( aerr )
     AEval( aerr, {| x| put_long_str( x, cFileProtokol ) } )
@@ -268,7 +268,7 @@ Function read_xml_file_flk( arr_XML_info, aerr )
 
   mkod_reestr := arr_XML_info[ 7 ]
   Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
-  r_use( dir_server + 'mo_rees', , 'REES' )
+  r_use( dir_server() + 'mo_rees', , 'REES' )
   Goto ( arr_XML_info[ 7 ] )
   StrFile( 'Обрабатывается ответ ТФОМС на реестр № ' + ;
     lstr( rees->NSCHET ) + ' от ' + full_date( rees->DSCHET ) + 'г. (' + ;
@@ -285,7 +285,7 @@ Function read_xml_file_flk( arr_XML_info, aerr )
     If !extract_reestr( rees->( RecNo() ), rees->name_xml )
       AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом № ' + lstr( rees->nschet ) + ' от ' + date_8( rees->DSCHET ), 80 ) )
       AAdd( aerr, '' )
-      AAdd( aerr, Center( dir_server + dir_XML_MO() + hb_ps() + AllTrim( rees->name_xml ) + szip(), 80 ) )
+      AAdd( aerr, Center( dir_server() + dir_XML_MO() + hb_ps() + AllTrim( rees->name_xml ) + szip(), 80 ) )
       AAdd( aerr, '' )
       AAdd( aerr, Center( 'Без данного архива дальнейшая работа НЕВОЗМОЖНА!', 80 ) )
       Close databases
@@ -302,11 +302,11 @@ Function read_xml_file_flk( arr_XML_info, aerr )
     Use ( cur_dir() + 'tmp_r_t8' ) New Alias T8
     // заполнить поле 'N_ZAP' в файле 'tmp2'
     fill_tmp2_file_flk()
-    r_use( dir_server + 'mo_otd', , 'OTD' )
-    g_use( dir_server + 'human_', , 'HUMAN_' )
-    g_use( dir_server + 'human', , 'HUMAN' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
+    g_use( dir_server() + 'human_', , 'HUMAN_' )
+    g_use( dir_server() + 'human', , 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To otd into OTD
-    g_use( dir_server + 'mo_rhum', , 'RHUM' )
+    g_use( dir_server() + 'mo_rhum', , 'RHUM' )
     Index On Str( REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == mkod_reestr
     Select TMP2 // сначала проверка
     Go Top
@@ -519,7 +519,7 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
   ldate_sptk := tmp1->_DATA
   mnschet := Int( Val( tmp1->_NSCHET ) )  // в число (отрезать всё, что после '-')
   mANSREESTR := AfterAtNum( '-', tmp1->_NSCHET )
-  r_use( dir_server + 'mo_rees', , 'REES' )
+  r_use( dir_server() + 'mo_rees', , 'REES' )
   Index On Str( NSCHET, 6 ) to ( cur_dir() + 'tmp_rees' ) For NYEAR == tmp1->_YEAR
   find ( Str( mnschet, 6 ) )
   If Found()
@@ -535,7 +535,7 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
     Endif
     StrFile( hb_eol(), cFileProtokol, .t. )
     //
-    r_use( dir_server + 'mo_xml', , 'MO_XML' )
+    r_use( dir_server() + 'mo_xml', , 'MO_XML' )
     Index On ANSREESTR to ( cur_dir() + 'tmp_xml' ) For reestr == mkod_reestr
     find ( mANSREESTR )
     If Found()
@@ -547,15 +547,15 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
   If Empty( aerr ) .and. !extract_reestr( rees->( RecNo() ), rees->name_xml )
     AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом № ' + lstr( mnschet ) + ' от ' + date_8( tmp1->_DSCHET ), 80 ) )
     AAdd( aerr, '' )
-    AAdd( aerr, Center( dir_server + dir_XML_MO() + hb_ps() + AllTrim( rees->name_xml ) + szip(), 80 ) )
+    AAdd( aerr, Center( dir_server() + dir_XML_MO() + hb_ps() + AllTrim( rees->name_xml ) + szip(), 80 ) )
     AAdd( aerr, '' )
     AAdd( aerr, Center( 'Без данного архива дальнейшая работа НЕВОЗМОЖНА!', 80 ) )
   Endif
   If Empty( aerr )
-    r_use( dir_server + 'human_3', { dir_server + 'human_3', dir_server + 'human_32' }, 'HUMAN_3' )
-    r_use( dir_server + 'human', , 'HUMAN' )
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'mo_rhum', , 'RHUM' )
+    r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+    r_use( dir_server() + 'human', , 'HUMAN' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'mo_rhum', , 'RHUM' )
     Index On Str( REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == mkod_reestr
     Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
     // сначала проверка
@@ -625,11 +625,11 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
           index_base( 'schet' ) // для составления счетов
           index_base( 'human' ) // для разноски счетов
           index_base( 'human_3' ) // двойные случаи
-          Use ( dir_server + 'human_u' ) New READONLY
-          Index On Str( kod, 7 ) + date_u to ( dir_server + 'human_u' ) progress
+          Use ( dir_server() + 'human_u' ) New READONLY
+          Index On Str( kod, 7 ) + date_u to ( dir_server() + 'human_u' ) progress
           Use
-          Use ( dir_server + 'mo_hu' ) New READONLY
-          Index On Str( kod, 7 ) + date_u to ( dir_server + 'mo_hu' ) progress
+          Use ( dir_server() + 'mo_hu' ) New READONLY
+          Index On Str( kod, 7 ) + date_u to ( dir_server() + 'mo_hu' ) progress
           Use
         Endif
         If ii2 > 0 // были пациенты с ошибками
@@ -648,9 +648,9 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
     Endif
     If Empty( aerr ) // если проверка прошла успешно
       // запишем принимаемый файл (реестр СП)
-      // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF())
-      chip_copy_zipxml( full_zip, dir_server + dir_XML_TF() )
-      g_use( dir_server + 'mo_xml', , 'MO_XML' )
+      // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server()+dir_XML_TF())
+      chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
+      g_use( dir_server() + 'mo_xml', , 'MO_XML' )
       addrecn()
       mo_xml->KOD := RecNo()
       mo_xml->FNAME := cReadFile
@@ -670,9 +670,9 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
       Use
       If ii2 > 0
         If !p_ctrl_enter_sp_tk
-          g_use( dir_server + 'mo_refr', dir_server + 'mo_refr', 'REFR' )
+          g_use( dir_server() + 'mo_refr', dir_server() + 'mo_refr', 'REFR' )
         Endif
-        // G_Use(dir_server + 'mo_kfio',,'KFIO')
+        // G_Use(dir_server() + 'mo_kfio',,'KFIO')
         // index on str(kod, 7) to (cur_dir() + 'tmp_kfio')
       Endif
       // открыть распакованный реестр
@@ -703,19 +703,19 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
       Use ( cur_dir() + 'tmp_r_t1_1' ) New Alias T1_1
       Index On IDCASE to ( cur_dir() + 'tmpt1_1' )
       //
-      g_use( dir_server + 'mo_kfio', , 'KFIO' )
+      g_use( dir_server() + 'mo_kfio', , 'KFIO' )
       Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
-      g_use( dir_server + 'kartote2', , 'KART2' )
-      g_use( dir_server + 'kartote_', , 'KART_' )
-      g_use( dir_server + 'kartotek', dir_server + 'kartoten', 'KART' )
+      g_use( dir_server() + 'kartote2', , 'KART2' )
+      g_use( dir_server() + 'kartote_', , 'KART_' )
+      g_use( dir_server() + 'kartotek', dir_server() + 'kartoten', 'KART' )
       Set Order To 0 // индекс открыт для реконструкции при перезаписи ФИО и даты рождения
-      r_use( dir_server + 'mo_otd', , 'OTD' )
-      g_use( dir_server + 'human_', , 'HUMAN_' )
-      g_use( dir_server + 'human', { dir_server + 'humann', dir_server + 'humans' }, 'HUMAN' )
+      r_use( dir_server() + 'mo_otd', , 'OTD' )
+      g_use( dir_server() + 'human_', , 'HUMAN_' )
+      g_use( dir_server() + 'human', { dir_server() + 'humann', dir_server() + 'humans' }, 'HUMAN' )
       Set Order To 0 // индексы открыты для реконструкции при перезаписи ФИО
       Set Relation To RecNo() into HUMAN_, To otd into OTD
-      g_use( dir_server + 'human_3', { dir_server + 'human_3', dir_server + 'human_32' }, 'HUMAN_3' )
-      g_use( dir_server + 'mo_rhum', , 'RHUM' )
+      g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+      g_use( dir_server() + 'mo_rhum', , 'RHUM' )
       Index On Str( REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == mkod_reestr
       Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
       Index On Str( _n_zap, 8 ) to ( cur_dir() + 'tmp3' )
@@ -841,30 +841,30 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
               arr_fio := retfamimot( 2, .f., .t. )
               mdate_r := human->date_r
               s := ''
-              // s := space(5) + '!Ошибки в персональных данных!'+eos
+              // s := space(5) + '!Ошибки в персональных данных!'+hb_eol()
               If !Empty( tmp2->_FAM )
-                // s += space(5) + 'старая фамилия '' + alltrim(arr_fio[1]) + '', изменена на '' + alltrim(tmp2->_FAM) + '''+eos
-                s += Space( 5 ) + 'фамилия в нашей БД "' + AllTrim( arr_fio[ 1 ] ) + '", в регистре ТФОМС "' + AllTrim( tmp2->_FAM ) + '"' + eos
+                // s += space(5) + 'старая фамилия '' + alltrim(arr_fio[1]) + '', изменена на '' + alltrim(tmp2->_FAM) + '''+hb_eol()
+                s += Space( 5 ) + 'фамилия в нашей БД "' + AllTrim( arr_fio[ 1 ] ) + '", в регистре ТФОМС "' + AllTrim( tmp2->_FAM ) + '"' + hb_eol()
                 arr_fio[ 1 ] := AllTrim( tmp2->_FAM )
               Endif
               If !Empty( tmp2->_IM )
-                // s += space(5) + 'старое имя '' + alltrim(arr_fio[2]) + '', изменено на '' + alltrim(tmp2->_IM) + '''+eos
-                s += Space( 5 ) + 'имя в нашей БД "' + AllTrim( arr_fio[ 2 ] ) + '", в регистре ТФОМС "' + AllTrim( tmp2->_IM ) + '"' + eos
+                // s += space(5) + 'старое имя '' + alltrim(arr_fio[2]) + '', изменено на '' + alltrim(tmp2->_IM) + '''+hb_eol()
+                s += Space( 5 ) + 'имя в нашей БД "' + AllTrim( arr_fio[ 2 ] ) + '", в регистре ТФОМС "' + AllTrim( tmp2->_IM ) + '"' + hb_eol()
                 arr_fio[ 2 ] := AllTrim( tmp2->_IM )
               Endif
               If !emptyall( tmp2->CORRECT, tmp2->_OT )
-                // s += space(5) + 'старое отчество '' + alltrim(arr_fio[3]) + '', изменено на '' + alltrim(tmp2->_OT) + '''+eos
-                s += Space( 5 ) + 'отчество в нашей БД "' + AllTrim( arr_fio[ 3 ] ) + '", в регистре ТФОМС "' + AllTrim( tmp2->_OT ) + '"' + eos
+                // s += space(5) + 'старое отчество '' + alltrim(arr_fio[3]) + '', изменено на '' + alltrim(tmp2->_OT) + '''+hb_eol()
+                s += Space( 5 ) + 'отчество в нашей БД "' + AllTrim( arr_fio[ 3 ] ) + '", в регистре ТФОМС "' + AllTrim( tmp2->_OT ) + '"' + hb_eol()
                 arr_fio[ 3 ] := AllTrim( tmp2->_OT )
               Endif
               If !Empty( tmp2->_DR )
                 mdate_r := xml2date( tmp2->_DR )
-                // s += space(5) + 'старая дата рождения ' + full_date(human->date_r) + ', изменена на ' + full_date(mdate_r) + eos
-                s += Space( 5 ) + 'дата рождения в нашей БД ' + full_date( human->date_r ) + ', в регистре ТФОМС ' + full_date( mdate_r ) + eos
+                // s += space(5) + 'старая дата рождения ' + full_date(human->date_r) + ', изменена на ' + full_date(mdate_r) + hb_eol()
+                s += Space( 5 ) + 'дата рождения в нашей БД ' + full_date( human->date_r ) + ', в регистре ТФОМС ' + full_date( mdate_r ) + hb_eol()
               Endif
-              // s += space(5) + '(исправлено - войти в редактирование л/у и подтвердить запись)'+eos
-              // s += space(5) + '(исправляйте самостоятельно; в случае несогласия обращайтесь в отдел ТФОМС'+eos
-              // s += space(5) + ' по ведению регистра застрахованных лиц, тел.94-71-59, 95-87-88, 94-67-41)'+eos
+              // s += space(5) + '(исправлено - войти в редактирование л/у и подтвердить запись)'+hb_eol()
+              // s += space(5) + '(исправляйте самостоятельно; в случае несогласия обращайтесь в отдел ТФОМС'+hb_eol()
+              // s += space(5) + ' по ведению регистра застрахованных лиц, тел.94-71-59, 95-87-88, 94-67-41)'+hb_eol()
               StrFile( s, cFileProtokol, .t. )
               /*
               newMEST_INOG := 0

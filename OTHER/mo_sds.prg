@@ -548,7 +548,7 @@ commit
 //
 mywait("Анализ XML-файла ...")
 Private pr_otd := {} // массив кодов согласования отделений
-R_Use(dir_server + "mo_otd", , "OTD")
+R_Use(dir_server() + "mo_otd", , "OTD")
 go top
 do while !eof()
   if otd->KOD_SOGL > 0
@@ -562,10 +562,10 @@ do while !eof()
   skip
 enddo
 //
-strfile(center("Список ошибок в импортируемом файле",80) +eos,file_error)
-strfile(center(n_file,80) +eos+eos,file_error,.t.)
-strfile(center("Протокол чтения файла",80) +eos, "ttt.ttt")
-strfile(center(n_file,80) +eos+eos, "ttt.ttt",.t.)
+strfile(center("Список ошибок в импортируемом файле",80) +hb_eol(),file_error)
+strfile(center(n_file,80) +hb_eol()+hb_eol(),file_error,.t.)
+strfile(center("Протокол чтения файла",80) +hb_eol(), "ttt.ttt")
+strfile(center(n_file,80) +hb_eol()+hb_eol(), "ttt.ttt",.t.)
 Private paso, pasv, pasp, pass
 R_Use(dir_exe() + "_okator", cur_dir() + "_okatr", "REGION")
 R_Use(dir_exe() + "_okatoo", cur_dir() + "_okato", "OBLAST")
@@ -578,14 +578,14 @@ R_Use(dir_exe() + "_mo_t2_v1", , "T2V1")
 index on padr(shifr_mz,20) to (cur_dir() + "tmp_t2v1")
 R_Use(dir_exe() + "_mo_prof", , "MOPROF")
 index on str(vzros_reb,1) +str(profil,3) +shifr to (cur_dir() + "tmp_prof")
-R_Use(dir_server + "mo_pers", dir_server + "mo_pers", "PERS")
+R_Use(dir_server() + "mo_pers", dir_server() + "mo_pers", "PERS")
 index on snils+str(prvs_new,4) to (cur_dir() + "tmppsnils")
 index on snils+str(prvs,9) to (cur_dir() + "tmppsnils1")
-set index to (dir_server + "mo_pers"),(cur_dir() + "tmppsnils"),(cur_dir() + "tmppsnils1")
+set index to (dir_server() + "mo_pers"),(cur_dir() + "tmppsnils"),(cur_dir() + "tmppsnils1")
 Use_base("mo_su")
 Use_base("uslugi")
-R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
-                            dir_server + "uslugi1s"}, "USL1")
+R_Use(dir_server() + "uslugi1",{dir_server() + "uslugi1",;
+                            dir_server() + "uslugi1s"}, "USL1")
 R_Use(dir_exe()+"_mo_smo",{cur_dir() + "_mo_smo", cur_dir() + "_mo_smo2"}, "SMO")
 //
 select IHUMAN
@@ -1003,7 +1003,7 @@ do while !eof()
     else
       // заплатка 23.11.2022 Резниченко
       if select('HUMAN_2') < 1
-        g_use (dir_server + 'human_2', , 'HUMAN_2')
+        g_use (dir_server() + 'human_2', , 'HUMAN_2')
       endif  
       //    
       select IHU
@@ -1303,8 +1303,8 @@ do while !eof()
     my_debug(,alltrim(ihuman->n_zap) +". "+alltrim(mfio) +" д.р."+full_date(ihuman->dr))
     my_debug(, "   "+date_8(ihuman->date_1) +"-"+date_8(ihuman->date_2) +" "+otd->name)
     if len(ae) > 0
-      strfile(alltrim(ihuman->n_zap) +". "+alltrim(mfio) +" д.р."+full_date(ihuman->dr) +eos,file_error,.t.)
-      strfile("   "+date_8(ihuman->date_1) +"-"+date_8(ihuman->date_2) +" "+otd->name+eos,file_error,.t.)
+      strfile(alltrim(ihuman->n_zap) +". "+alltrim(mfio) +" д.р."+full_date(ihuman->dr) +hb_eol(),file_error,.t.)
+      strfile("   "+date_8(ihuman->date_1) +"-"+date_8(ihuman->date_2) +" "+otd->name+hb_eol(),file_error,.t.)
       for i := 1 to len(ae)
         put_long_str("-error: "+ltrim(ae[i]), ,3) // my_debug
         put_long_str("-error: "+ltrim(ae[i]),file_error,3)
@@ -1480,8 +1480,8 @@ return NIL
 Function f1_write_file_XML_SDS(n_file)
 Local buf := save_maxrow(), aerr := {}, arr, fl, i, j, t2, s, s1, afio[3], adiag_talon[16]
 mywait("Импорт XML-файла ...")
-strfile(center("Протокол импорта файла",80) +eos, "ttt.ttt")
-strfile(center(n_file,80) +eos+eos, "ttt.ttt",.t.)
+strfile(center("Протокол импорта файла",80) +hb_eol(), "ttt.ttt")
+strfile(center(n_file,80) +hb_eol()+hb_eol(), "ttt.ttt",.t.)
 glob_podr := "" ; glob_otd_dep := 0
 Private is := 0, is1 := 0, iz := 0, isp1 := 0, isp2 := 0  //,;
         // _arr_sh := ret_arr_shema(1), _arr_mt := ret_arr_shema(2), _arr_fr := ret_arr_shema(3)
@@ -1490,27 +1490,27 @@ use_base("luslc")
 use_base("luslf")
 Use_base("mo_su")
 Use_base("uslugi")
-R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
-                            dir_server + "uslugi1s"}, "USL1")
-G_Use(dir_server + "mo_onkna", dir_server + "mo_onkna", "NAPR") // онконаправления
-G_Use(dir_server + "mo_onkco", dir_server + "mo_onkco", "CO")
-G_Use(dir_server + "mo_onksl", dir_server + "mo_onksl", "SL")
-G_Use(dir_server + "mo_onkdi", dir_server + "mo_onkdi", "DIAG") // Диагностический блок
-G_Use(dir_server + "mo_onkpr", dir_server + "mo_onkpr", "PR") // Сведения об имеющихся противопоказаниях
-G_Use(dir_server + "mo_onkus", dir_server + "mo_onkus", "US")
-G_Use(dir_server + "mo_onkle", dir_server + "mo_onkle", "LE")
+R_Use(dir_server() + "uslugi1",{dir_server() + "uslugi1",;
+                            dir_server() + "uslugi1s"}, "USL1")
+G_Use(dir_server() + "mo_onkna", dir_server() + "mo_onkna", "NAPR") // онконаправления
+G_Use(dir_server() + "mo_onkco", dir_server() + "mo_onkco", "CO")
+G_Use(dir_server() + "mo_onksl", dir_server() + "mo_onksl", "SL")
+G_Use(dir_server() + "mo_onkdi", dir_server() + "mo_onkdi", "DIAG") // Диагностический блок
+G_Use(dir_server() + "mo_onkpr", dir_server() + "mo_onkpr", "PR") // Сведения об имеющихся противопоказаниях
+G_Use(dir_server() + "mo_onkus", dir_server() + "mo_onkus", "US")
+G_Use(dir_server() + "mo_onkle", dir_server() + "mo_onkle", "LE")
 Use_base("mo_hu", ,.t.)
-R_Use(dir_server + "mo_otd", , "OTD")
+R_Use(dir_server() + "mo_otd", , "OTD")
 Use_base("human_u", ,.t.)
 Use_base("human", ,.t.)
 set relation to
 select HUMAN_2
 index on str(pn3,10) to (cur_dir() + "tmp_human2")
-G_Use(dir_server + "mo_kfio", , "KFIO")
+G_Use(dir_server() + "mo_kfio", , "KFIO")
 index on str(kod,7) to (cur_dir() + "tmp_kfio")
-G_Use(dir_server + "mo_kismo", , "KSN")
+G_Use(dir_server() + "mo_kismo", , "KSN")
 index on str(kod,7) to (cur_dir() + "tmpkismo")
-G_Use(dir_server + "mo_hismo", , "HSN")
+G_Use(dir_server() + "mo_hismo", , "HSN")
 index on str(kod,7) to (cur_dir() + "tmphismo")
 Use_base("kartotek")
 use (cur_dir() + "_sluch_na") index (cur_dir() + "tmp_na") new alias NA
@@ -2129,8 +2129,8 @@ t_arr[BR_COLUMN] := {;
 s_msg := "^<Esc>^ - выход;  ^<Enter>^ - редактирование кода согласования"
 t_arr[BR_STAT_MSG] := {|| status_key(s_msg) }
 t_arr[BR_EDIT] := {|nk,ob| f1SDS_kod_sogl_otd(nk,ob, 'edit') }
-R_Use(dir_server + "mo_uch", , "UCH")
-G_Use(dir_server + "mo_otd", , "OTD")
+R_Use(dir_server() + "mo_uch", , "UCH")
+G_Use(dir_server() + "mo_otd", , "OTD")
 set relation to kod_lpu into UCH
 index on upper(uch->name) +str(kod_lpu,3) +upper(name) +str(kod,3) to (cur_dir() + "tmp_otd")
 rest_box(buf)
@@ -2285,10 +2285,10 @@ if !empty(path1_sds)
   endif
   buf := save_maxrow()
   stat_msg("Ждите! Обрабатываются изменения в картотеке (от Smart Delta Systems)")
-  G_Use(dir_server + "s_kemvyd", dir_server + "s_kemvyd", "SA")
-  G_Use(dir_server + "mo_kfio", , "KFIO")
+  G_Use(dir_server() + "s_kemvyd", dir_server() + "s_kemvyd", "SA")
+  G_Use(dir_server() + "mo_kfio", , "KFIO")
   index on str(kod,7) to (cur_dir() + "tmp_kfio")
-  G_Use(dir_server + "mo_kismo", , "KSN")
+  G_Use(dir_server() + "mo_kismo", , "KSN")
   index on str(kod,7) to (cur_dir() + "tmp_ismo")
   Use_base("kartotek")
   for ic := 1 to 20 // для надёжности 20 циклов опроса каталога

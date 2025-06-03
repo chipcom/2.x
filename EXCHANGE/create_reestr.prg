@@ -90,9 +90,9 @@ Function create_reestr()
   Use ( cur_dir() + 'tmp' ) New Alias TMP
   Append Blank
   Replace tmp->nyear With mnyear, tmp->nmonth With mnmonth, tmp->min_date With arr_m[ 6 ]
-  r_use( dir_server + 'mo_otd', , 'OTD' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
   Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -144,35 +144,35 @@ Function create_reestr()
         fl := .t.
         bSaveHandler := ErrorBlock( {| x| Break( x ) } )
         Begin Sequence
-          r_use( dir_server + "human" )
-          Index On Str( schet, 6 ) + Str( tip_h, 1 ) + Upper( SubStr( fio, 1, 20 ) ) to ( dir_server + "humans" ) progress
-          Index On Str( if( kod > 0, kod_k, 0 ), 7 ) + Str( tip_h, 1 ) to ( dir_server + "humankk" ) progress
-          Index On DToS( k_data ) + uch_doc to ( dir_server + "humand" ) progress
+          r_use( dir_server() + "human" )
+          Index On Str( schet, 6 ) + Str( tip_h, 1 ) + Upper( SubStr( fio, 1, 20 ) ) to ( dir_server() + "humans" ) progress
+          Index On Str( if( kod > 0, kod_k, 0 ), 7 ) + Str( tip_h, 1 ) to ( dir_server() + "humankk" ) progress
+          Index On DToS( k_data ) + uch_doc to ( dir_server() + "humand" ) progress
           Use
-          r_use( dir_server + "human_u" )
-          Index On Str( kod, 7 ) + date_u to ( dir_server + "human_u" ) progress
+          r_use( dir_server() + "human_u" )
+          Index On Str( kod, 7 ) + date_u to ( dir_server() + "human_u" ) progress
           Use
-          r_use( dir_server + "mo_hu" )
-          Index On Str( kod, 7 ) + date_u to ( dir_server + "mo_hu" ) progress
+          r_use( dir_server() + "mo_hu" )
+          Index On Str( kod, 7 ) + date_u to ( dir_server() + "mo_hu" ) progress
           Use
-          r_use( dir_server + "human_3" )
-          Index On Str( kod, 7 ) to ( dir_server + "human_3" ) progress
-          Index On Str( kod2, 7 ) to ( dir_server + "human_32" ) progress
+          r_use( dir_server() + "human_3" )
+          Index On Str( kod, 7 ) to ( dir_server() + "human_3" ) progress
+          Index On Str( kod2, 7 ) to ( dir_server() + "human_32" ) progress
           Use
-          r_use( dir_server + "mo_onkna" )
-          Index On Str( kod, 7 ) to ( dir_server + "mo_onkna" ) progress
-          r_use( dir_server + "mo_onksl" )
-          Index On Str( kod, 7 ) to ( dir_server + "mo_onksl" ) progress
-          r_use( dir_server + "mo_onkco" )
-          Index On Str( kod, 7 ) to ( dir_server + "mo_onkco" ) progress
-          r_use( dir_server + "mo_onkdi" )
-          Index On Str( kod, 7 ) + Str( diag_tip, 1 ) + Str( diag_code, 3 ) to ( dir_server + "mo_onkdi" ) progress
-          r_use( dir_server + "mo_onkpr" )
-          Index On Str( kod, 7 ) + Str( prot, 1 ) to ( dir_server + "mo_onkpr" ) progress
-          r_use( dir_server + "mo_onkus" )
-          Index On Str( kod, 7 ) + Str( usl_tip, 1 ) to ( dir_server + "mo_onkus" ) progress
-          r_use( dir_server + "mo_onkle" )
-          Index On Str( kod, 7 ) + regnum + code_sh + DToS( date_inj ) to ( dir_server + "mo_onkle" ) progress
+          r_use( dir_server() + "mo_onkna" )
+          Index On Str( kod, 7 ) to ( dir_server() + "mo_onkna" ) progress
+          r_use( dir_server() + "mo_onksl" )
+          Index On Str( kod, 7 ) to ( dir_server() + "mo_onksl" ) progress
+          r_use( dir_server() + "mo_onkco" )
+          Index On Str( kod, 7 ) to ( dir_server() + "mo_onkco" ) progress
+          r_use( dir_server() + "mo_onkdi" )
+          Index On Str( kod, 7 ) + Str( diag_tip, 1 ) + Str( diag_code, 3 ) to ( dir_server() + "mo_onkdi" ) progress
+          r_use( dir_server() + "mo_onkpr" )
+          Index On Str( kod, 7 ) + Str( prot, 1 ) to ( dir_server() + "mo_onkpr" ) progress
+          r_use( dir_server() + "mo_onkus" )
+          Index On Str( kod, 7 ) + Str( usl_tip, 1 ) to ( dir_server() + "mo_onkus" ) progress
+          r_use( dir_server() + "mo_onkle" )
+          Index On Str( kod, 7 ) + regnum + code_sh + DToS( date_inj ) to ( dir_server() + "mo_onkle" ) progress
           Use
         RECOVER USING error
           fl := func_error( 10, "Возникла непредвиденная ошибка при переиндексировании!" )
@@ -215,10 +215,10 @@ Function create_reestr()
             pole := "tmp->PZ" + lstr( i )
             &pole := 0
           Next
-          r_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
+          r_use( dir_server() + "human_3", { dir_server() + "human_3", dir_server() + "human_32" }, "HUMAN_3" )
           Set Order To 2
-          r_use( dir_server + "human_",, "HUMAN_" )
-          r_use( dir_server + "human",, "HUMAN" )
+          r_use( dir_server() + "human_",, "HUMAN_" )
+          r_use( dir_server() + "human",, "HUMAN" )
           Use ( cur_dir() + "tmpb" ) new
           Set Relation To kod_human into HUMAN, To kod_human into HUMAN_
           Go Top
@@ -322,8 +322,8 @@ Function f2create_reestr( nKey, oBrow )
     add_string( '' )
     add_string( Center( 'Список пациентов за отчётный период ' + Str( tmp->nyear, 4 ) + '/' + StrZero( tmp->nmonth, 2 ), sh ) )
     add_string( '' )
-    r_use( dir_server + 'mo_otd', , 'OTD' )
-    r_use( dir_server + 'human', , 'HUMAN' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'human', , 'HUMAN' )
     Set Relation To otd into OTD
     Use ( cur_dir() + 'tmpb' ) new
     Set Relation To kod_human into HUMAN

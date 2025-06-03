@@ -69,7 +69,7 @@ Function forma_39( k )
   Case Between( k, 21, 24 )
     forma_39_na( k - 20 )
   Case k == 25
-    nfile := dir_server + f39_nastr
+    nfile := dir_server() + f39_nastr
     name_sect := f39_sect + "5"
     name_var := "ИСПРАВЛЕНИЕ"
     ar := getinivar( nFile, { { name_sect, name_var, "2" } } )
@@ -135,12 +135,12 @@ Function forma_39_()
   cre_tmp( { { "data", "C", 4, 0 } } )
   Use ( cur_dir() + "tmp" ) New Alias TMP
   Index On Data to ( cur_dir() + "tmp" )
-  r_use( dir_server + "mo_otd",, "OTD" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
   If AScan( arr_pl, F_YES_OMS ) > 0
     If pi1 == 1  // по дате окончания лечения
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
       dbSeek( DToS( arr_m[ 5 ] ), .t. )
       Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -169,12 +169,12 @@ Function forma_39_()
         Skip
       Enddo
     Else
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
-      r_use( dir_server + "schet_",, "SCHET_" )
-      r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+      r_use( dir_server() + "schet_",, "SCHET_" )
+      r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
       Set Relation To RecNo() into SCHET_
       Set Filter To Empty( schet_->IS_DOPLATA )
       dbSeek( begin_date, .t. )
@@ -216,9 +216,9 @@ Function forma_39_()
     Endif
   Endif
   If AScan( arr_pl, F_YES_PL ) > 0
-    r_use( dir_server + "kartotek",, "KART" )
-    r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU_P" )
-    r_use( dir_server + "hum_p", dir_server + "hum_pd", "HUM_P" )
+    r_use( dir_server() + "kartotek",, "KART" )
+    r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU_P" )
+    r_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUM_P" )
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While hum_p->k_data <= arr_m[ 6 ] .and. !Eof()
       updatestatus()
@@ -311,7 +311,7 @@ Function f39_shapka()
 
   Local arr_org := Array( 3 )
 
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   perenos( arr_org, org->name, 30 )
   frt->name_org := org->name
   org->( dbCloseArea() )
@@ -438,12 +438,12 @@ Function forma_39otd()
     { "name", "C", 30, 0 } } )
   Use ( cur_dir() + "tmp" ) New Alias TMP
   Index On Str( p_kod, 4 ) to ( cur_dir() + "tmp" )
-  r_use( dir_server + "mo_otd",, "OTD" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
   If AScan( arr_pl, F_YES_OMS ) > 0
     If pi1 == 1  // по дате окончания лечения
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
       dbSeek( DToS( arr_m[ 5 ] ), .t. )
       Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -472,12 +472,12 @@ Function forma_39otd()
         Skip
       Enddo
     Else
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
-      r_use( dir_server + "schet_",, "SCHET_" )
-      r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+      r_use( dir_server() + "schet_",, "SCHET_" )
+      r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
       Set Relation To RecNo() into SCHET_
       Set Filter To Empty( schet_->IS_DOPLATA )
       dbSeek( begin_date, .t. )
@@ -519,9 +519,9 @@ Function forma_39otd()
     Endif
   Endif
   If AScan( arr_pl, F_YES_PL ) > 0
-    r_use( dir_server + "kartotek",, "KART" )
-    r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU_P" )
-    r_use( dir_server + "hum_p", dir_server + "hum_pd", "HUM_P" )
+    r_use( dir_server() + "kartotek",, "KART" )
+    r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU_P" )
+    r_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUM_P" )
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While hum_p->k_data <= arr_m[ 6 ] .and. !Eof()
       updatestatus()
@@ -550,7 +550,7 @@ Function forma_39otd()
     Enddo
   Endif
   If ( j := tmp->( LastRec() ) ) > 0
-    r_use( dir_server + "mo_pers",, "P2" )
+    r_use( dir_server() + "mo_pers",, "P2" )
     tmp->( dbEval( {|| p2->( dbGoto( tmp->p_kod ) ), ;
       tmp->tab_nom := p2->tab_nom, ;
       tmp->name := fam_i_o( p2->fio ) } ) )
@@ -647,12 +647,12 @@ Function forma_39all()
     { "name", "C", 30, 0 } } )
   Use ( cur_dir() + "tmp" ) New Alias TMP
   Index On Str( tip, 1 ) + Str( p_kod, 4 ) + Str( otd, 3 ) to ( cur_dir() + "tmp" )
-  r_use( dir_server + "mo_otd",, "OTD" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
   If AScan( arr_pl, F_YES_OMS ) > 0
     If pi1 == 1  // по дате окончания лечения
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
       dbSeek( DToS( arr_m[ 5 ] ), .t. )
       Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -699,12 +699,12 @@ Function forma_39all()
         Skip
       Enddo
     Else
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
-      r_use( dir_server + "schet_",, "SCHET_" )
-      r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+      r_use( dir_server() + "schet_",, "SCHET_" )
+      r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
       Set Relation To RecNo() into SCHET_
       Set Filter To Empty( schet_->IS_DOPLATA )
       dbSeek( begin_date, .t. )
@@ -764,9 +764,9 @@ Function forma_39all()
     Endif
   Endif
   If AScan( arr_pl, F_YES_PL ) > 0
-    r_use( dir_server + "kartotek",, "KART" )
-    r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU_P" )
-    r_use( dir_server + "hum_p", dir_server + "hum_pd", "HUM_P" )
+    r_use( dir_server() + "kartotek",, "KART" )
+    r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU_P" )
+    r_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUM_P" )
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While hum_p->k_data <= arr_m[ 6 ] .and. !Eof()
       updatestatus()
@@ -814,9 +814,9 @@ Function forma_39all()
   Endif
   If ( j := tmp->( LastRec() ) ) > 0
     If Select( "OTD" ) == 0
-      r_use( dir_server + "mo_otd",, "OTD" )
+      r_use( dir_server() + "mo_otd",, "OTD" )
     Endif
-    r_use( dir_server + "mo_pers",, "P2" )
+    r_use( dir_server() + "mo_pers",, "P2" )
     tmp->( dbEval( {|| p2->( dbGoto( tmp->p_kod ) ), otd->( dbGoto( tmp->otd ) ), ;
       tmp->tab_nom := p2->tab_nom, ;
       tmp->name := iif( tmp->tip == 3, otd->name, fam_i_o( p2->fio ) ) } ) )
@@ -1002,7 +1002,7 @@ Function f_39all_2( par )
   add_string( "" )
   //
   sp1 := sp2 := sp3 := sp4 := sp5 := sp6 := 0
-  r_use( dir_server + "mo_otd",, "OTD" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
   Select TMP
   Set Relation To otd into OTD
   Go Top
@@ -1108,13 +1108,13 @@ Function forma_39org()
     { "name", "C", 30, 0 } } )
   Use ( cur_dir() + "tmp" ) New Alias TMP
   Index On Str( tip, 1 ) + Str( p_kod, 4 ) + Str( uch, 3 ) + Str( otd, 3 ) to ( cur_dir() + "tmp" )
-  r_use( dir_server + "mo_otd",, "OTD" )
-  r_use( dir_server + "mo_uch",, "UCH" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
+  r_use( dir_server() + "mo_uch",, "UCH" )
   If AScan( arr_pl, F_YES_OMS ) > 0
     If pi1 == 1  // по дате окончания лечения
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
       dbSeek( DToS( arr_m[ 5 ] ), .t. )
       Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -1169,12 +1169,12 @@ Function forma_39org()
         Skip
       Enddo
     Else
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
-      r_use( dir_server + "schet_",, "SCHET_" )
-      r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+      r_use( dir_server() + "schet_",, "SCHET_" )
+      r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
       Set Relation To RecNo() into SCHET_
       Set Filter To Empty( schet_->IS_DOPLATA )
       dbSeek( begin_date, .t. )
@@ -1242,9 +1242,9 @@ Function forma_39org()
     Endif
   Endif
   If AScan( arr_pl, F_YES_PL ) > 0
-    r_use( dir_server + "kartotek",, "KART" )
-    r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU_P" )
-    r_use( dir_server + "hum_p", dir_server + "hum_pd", "HUM_P" )
+    r_use( dir_server() + "kartotek",, "KART" )
+    r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU_P" )
+    r_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUM_P" )
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While hum_p->k_data <= arr_m[ 6 ] .and. !Eof()
       updatestatus()
@@ -1300,12 +1300,12 @@ Function forma_39org()
   Endif
   If ( j := tmp->( LastRec() ) ) > 0
     If Select( "UCH" ) == 0
-      r_use( dir_server + "mo_uch",, "UCH" )
+      r_use( dir_server() + "mo_uch",, "UCH" )
     Endif
     If Select( "OTD" ) == 0
-      r_use( dir_server + "mo_otd",, "OTD" )
+      r_use( dir_server() + "mo_otd",, "OTD" )
     Endif
-    r_use( dir_server + "mo_pers",, "P2" )
+    r_use( dir_server() + "mo_pers",, "P2" )
     tmp->( dbEval( {|| p2->( dbGoto( tmp->p_kod ) ), uch->( dbGoto( tmp->uch ) ), otd->( dbGoto( tmp->otd ) ), ;
       tmp->tab_nom := p2->tab_nom, ;
       tmp->name := iif( tmp->tip == 4, otd->name, iif( tmp->tip == 3, uch->name, fam_i_o( p2->fio ) ) ) } ) )
@@ -1438,7 +1438,7 @@ Function f_39org_1( par )
 //
 Function forma_39_na( par )
 
-  Local nfile := dir_server + f39_nastr, name_sect := f39_sect + lstr( par )
+  Local nfile := dir_server() + f39_nastr, name_sect := f39_sect + lstr( par )
   Local arr, adbf, arr_usl, i
 
   arr := { '"Посещений в п-ке по поводу заболеваний"', ;
@@ -1452,7 +1452,7 @@ Function forma_39_na( par )
   { "U_NAME",     "C",     65,      0 };   // наименование услуги
   }
   dbCreate( cur_dir() + "tmp", adbf )
-  r_use( dir_server + "uslugi",, "USL" )
+  r_use( dir_server() + "uslugi",, "USL" )
   Use ( cur_dir() + "tmp" ) new
   For i := 1 To Len( arr_usl )
     Select USL
@@ -1501,7 +1501,7 @@ Function forma_39_povod()
     { "профилактические приемы", 2 } }
   Static mm_p_u := { { "оказанных услуг ", 0 }, ;
     { "повода обращения", 1 } }
-  Local nfile := dir_server + f39_nastr, ;
+  Local nfile := dir_server() + f39_nastr, ;
     name_sect := f39_sect + "6", ;
     r, ar, i, j, k, n := Len( stm_povod ), ;
     buf := SaveScreen()
@@ -1568,7 +1568,7 @@ Function plan_39()
   If input_uch( T_ROW, T_COL - 5, sys_date ) == NIL
     Return Nil
   Endif
-  r_use( dir_server + "mo_otd",, "OTD" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
   dbEval( {|| if( between_date( otd->DBEGIN, otd->DEND, sys_date ) ;
     .or. between_date( otd->DBEGINP, otd->DENDP, sys_date ), ;
     AAdd( arr, { PadR( otd->name, 43 ), ;
@@ -1584,7 +1584,7 @@ Function plan_39()
   arrn_browse( 2, 2, MaxRow() -2, 77, arr, arr_title, 1,, color0, ;
     "Месячный план приемов в учреждении <" + AllTrim( glob_uch[ 2 ] ) + ">", 'b/bg',,, mpic, blk, { .f., .f., .f. } )
   If updt_koef .and. f_esc_enter( 1 )
-    g_use( dir_server + "mo_otd",, "OTD" )
+    g_use( dir_server() + "mo_otd",, "OTD" )
     For i := 1 To Len( arr )
       Goto ( arr[ i, 5 ] )
       g_rlock( forever )
@@ -1655,7 +1655,7 @@ Function f_str_39( ls1, par, par2 )
 Static Function get_nastr( yes_err )
 
   Static spovod := "povod"
-  Local nf := dir_server + f39_nastr, fl, i, ar := {}, ret := .t.
+  Local nf := dir_server() + f39_nastr, fl, i, ar := {}, ret := .t.
 
   Default yes_err To .t.
   au6 := {}
@@ -1761,7 +1761,7 @@ Static Function yes_f_39( par1, par2 )
     mvozrast := count_years( human->date_r, human->n_data )
   Endif
   If Select( "KART_" ) == 0
-    r_use( dir_server + "kartote_",, "KART_" )
+    r_use( dir_server() + "kartote_",, "KART_" )
   Endif
   kart_->( dbGoto( human->kod_k ) )
   is_selo := f_is_selo( kart_->gorod_selo, kart_->okatog )  // признак села
@@ -1769,8 +1769,8 @@ Static Function yes_f_39( par1, par2 )
   If i == 0
     j := 17   // ОМС
   Elseif eq_any( i, 1, 3 )  // прочие компании или комитеты (МО)
-    If hb_FileExists( dir_server + arr_f[ i ] + sdbf )
-      r_use( dir_server + arr_f[ i ],, "_B" )
+    If hb_FileExists( dir_server() + arr_f[ i ] + sdbf )
+      r_use( dir_server() + arr_f[ i ],, "_B" )
       Goto ( human->str_crb )
       If eq_any( _b->ist_fin, I_FIN_PLAT, I_FIN_LPU ) // платные, взаиморасчёты с ЛПУ
         j := 19   // платные
@@ -1786,7 +1786,7 @@ Static Function yes_f_39( par1, par2 )
   Endif
   If Between( j, 17, 20 )
     If Select( "USL" ) == 0
-      r_use( dir_server + "uslugi",, "USL" )
+      r_use( dir_server() + "uslugi",, "USL" )
     Endif
     If Year( human->k_data ) < 2016
       Select HU
@@ -1811,8 +1811,8 @@ Static Function yes_f_39( par1, par2 )
       Enddo
     Else // начиная с 2016 года
       If Select( "MOHU" ) == 0
-        r_use( dir_server + "mo_su",, "MOSU" )
-        r_use( dir_server + "mo_hu", dir_server + "mo_hu", "MOHU" )
+        r_use( dir_server() + "mo_su",, "MOSU" )
+        r_use( dir_server() + "mo_hu", dir_server() + "mo_hu", "MOHU" )
         Set Relation To u_kod into MOSU
       Endif
       arr := ___f_39_2016( par1, j, mvozrast, is_selo )
@@ -1855,7 +1855,7 @@ Static Function yes_f_39_pl( par1, par2 )
   kart->( dbGoto( hum_p->kod_k ) )
   mvozrast := count_years( kart->date_r, hum_p->n_data )
   If Select( "KART_" ) == 0
-    r_use( dir_server + "kartote_",, "KART_" )
+    r_use( dir_server() + "kartote_",, "KART_" )
   Endif
   Select KART_
   Goto ( kart->( RecNo() ) )
@@ -1920,7 +1920,7 @@ Function ___f_39( par, k, mvozrast, is_selo )
   Local _1, _2, _3, _4, lshifr, lshifr1 := "", ldiag, ta, i, j, is_dom := .f., d2_year := Year( sys_date )
 
   If Select( "USL" ) == 0
-    r_use( dir_server + "uslugi",, "USL" )
+    r_use( dir_server() + "uslugi",, "USL" )
   Endif
   _1 := _2 := _3 := _4 := .f.
   If par == 1

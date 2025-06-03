@@ -20,9 +20,9 @@ Function b_25_perinat_2()
   Endif
   If ( sk := mkomp ) > 1
     n_file := { '', 'str_komp', 'komitet' }[ sk ]
-    If hb_FileExists( dir_server + n_file + sdbf )
+    If hb_FileExists( dir_server() + n_file + sdbf )
       arr := {}
-      r_use( dir_server + n_file,, '_B' )
+      r_use( dir_server() + n_file,, '_B' )
       Go Top
       Do While !Eof()
         If iif( sk == 1, !Between( _b->tfoms, 44, 47 ), .t. )
@@ -46,7 +46,7 @@ Function b_25_perinat_2()
         Return func_error( 4, 'è¨¡ª ' )
       Endif
     Else
-      Return func_error( 4, '¥ ®¡­ àã¦¥­ ä ©« ' + dir_server + n_file + sdbf )
+      Return func_error( 4, '¥ ®¡­ àã¦¥­ ä ©« ' + dir_server() + n_file + sdbf )
     Endif
   Endif
   waitstatus( arr_m[ 4 ] )
@@ -69,18 +69,18 @@ Function b_25_perinat_2()
     { 'SEBESTO', 'C', 12, 0 }, ;
     { 'USLUGI',  'C', 99, 0 } } )
   Use ( cur_dir() + 'tmp' ) new
-  r_use( dir_server + 'mo_otd',, 'OTD' )
-  r_use( dir_server + 'mo_su',, 'MOSU' )
-  g_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  r_use( dir_server() + 'mo_otd',, 'OTD' )
+  r_use( dir_server() + 'mo_su',, 'MOSU' )
+  g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
   use_base( 'lusl' )
-  r_use( dir_server + 'uslugi',, 'USL' )
-  r_use( dir_server + 'human_u_',, 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  r_use( dir_server() + 'uslugi',, 'USL' )
+  r_use( dir_server() + 'human_u_',, 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'human_2',, 'HUMAN_2' )
-  r_use( dir_server + 'human_',, 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+  r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+  r_use( dir_server() + 'human_',, 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
   Do While human->k_data <= arr_m[ 6 ] .and. !Eof()

@@ -292,15 +292,15 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
   next
   //
   afill(adiag_talon,0)
-  R_Use(dir_server+"human_",,"HUMAN_")
-  R_Use(dir_server+"human",,"HUMAN")
+  R_Use(dir_server()+"human_",,"HUMAN_")
+  R_Use(dir_server()+"human",,"HUMAN")
   set relation to recno() into HUMAN_
   if mkod_k > 0
-    R_Use(dir_server+"kartote2",,"KART2")
+    R_Use(dir_server()+"kartote2",,"KART2")
     goto (mkod_k)
-    R_Use(dir_server+"kartote_",,"KART_")
+    R_Use(dir_server()+"kartote_",,"KART_")
     goto (mkod_k)
-    R_Use(dir_server+"kartotek",,"KART")
+    R_Use(dir_server()+"kartotek",,"KART")
     goto (mkod_k)
     M1FIO       := 1
     mfio        := kart->fio
@@ -331,7 +331,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
     endif
     // проверка исхода = СМЕРТЬ
     select HUMAN
-    set index to (dir_server+"humankk")
+    set index to (dir_server()+"humankk")
 //    find (str(mkod_k,7))
 //    do while human->kod_k == mkod_k .and. !eof()
 //      if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
@@ -399,7 +399,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
     //
     larr := array(3,count_dds_arr_osm2) ; afillall(larr,0)
     mdate1 := mdate2 := ctod("")
-    R_Use(dir_server+"uslugi",,"USL")
+    R_Use(dir_server()+"uslugi",,"USL")
     use_base("human_u")
     find (str(Loc_kod,7))
     do while hu->kod == Loc_kod .and. !eof()
@@ -457,7 +457,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
       larr[2,count_dds_arr_osm1] := larr[3,count_dds_arr_osm2]
       larr[3,count_dds_arr_osm2] := k // обменять значения
     endif
-    R_Use(dir_server+"mo_pers",,"P2")
+    R_Use(dir_server()+"mo_pers",,"P2")
     for j := 1 to 3
       if j == 1
         _arr := dds_arr_iss  ; bukva := "i"
@@ -510,8 +510,8 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
   fv_date_r( iif(Loc_kod>0,mn_data,) )
   MFIO_KART := _f_fio_kart()
   mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
-  mlpu      := inieditspr(A__POPUPMENU, dir_server+"mo_uch", m1lpu)
-  motd      := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
+  mlpu      := inieditspr(A__POPUPMENU, dir_server()+"mo_uch", m1lpu)
+  motd      := inieditspr(A__POPUPMENU, dir_server()+"mo_otd", m1otd)
   mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
   mokato    := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
   mkomu     := inieditspr(A__MENUVERT, mm_komu, m1komu)
@@ -543,7 +543,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
     Del_Array(mm_gde_nahod,1)
   endif
   mmobilbr := inieditspr(A__MENUVERT, mm_danet, m1mobilbr)
-  mstacionar := inieditspr(A__POPUPMENU, dir_server+"mo_stdds",m1stacionar)
+  mstacionar := inieditspr(A__POPUPMENU, dir_server()+"mo_stdds",m1stacionar)
   mkateg_uch := inieditspr(A__MENUVERT, mm_kateg_uch, m1kateg_uch)
   mgde_nahod := inieditspr(A__MENUVERT, mm_gde_nahod, m1gde_nahod)
   mprich_vyb := inieditspr(A__MENUVERT, mm_prich_vyb, m1prich_vyb)
@@ -650,7 +650,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
       if tip_lu == TIP_LU_DDS
         ++j; @ j,1 say "Стационарное учреждение" get mstacionar reader ;
               {|x| menu_reader(x,;
-                   {dir_server+"mo_stdds",,,,,color5,"Стационары, из которых проходит диспансеризация детей-сирот","B/W"},;
+                   {dir_server()+"mo_stdds",,,,,color5,"Стационары, из которых проходит диспансеризация детей-сирот","B/W"},;
                    A__POPUPMENU,,,.f.);
               }
       endif
@@ -1472,7 +1472,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
       endif
       arr_iss := array(count_dds_arr_iss,10) ; afillall(arr_iss,0)
       R_Use(dir_exe()+"_mo_mkb",cur_dir()+"_mo_mkb","MKB_10")
-      R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2")
+      R_Use(dir_server()+"mo_pers",dir_server()+"mo_pers","P2")
       num_screen := 2
       max_date1 := max_date2 := mn_data
       d12 := mn_data-1
@@ -1889,8 +1889,8 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
       Use_base("lusl")
       Use_base("luslc")
       Use_base("uslugi")
-      R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
-                                  dir_server+"uslugi1s"},"USL1")
+      R_Use(dir_server()+"uslugi1",{dir_server()+"uslugi1",;
+                                  dir_server()+"uslugi1s"},"USL1")
       Private mu_cena
       mcena_1 := 0
       arr_usl_dop := {}
@@ -2053,7 +2053,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
         endif
       endif
       if fl_nameismo .or. rec_inogSMO > 0
-        G_Use(dir_server+"mo_hismo",,"SN")
+        G_Use(dir_server()+"mo_hismo",,"SN")
         index on str(kod,7) to (cur_dir()+"tmp_ismo")
         find (str(mkod,7))
         if found()

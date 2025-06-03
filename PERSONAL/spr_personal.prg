@@ -23,7 +23,7 @@ Function edit_pers()
       }
     If use_base( 'mo_pers' )
       Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir() + 'tmp_pers' )
-      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server + 'mo_pers' )
+      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server() + 'mo_pers' )
       find ( str_find )
       If !Found()
         Keyboard Chr( K_INS )
@@ -111,19 +111,19 @@ Function f2edit_pers( nKey, oBrow )
     endif
     if iSort == 1
       Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir() + 'tmp_pers' )
-      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server + 'mo_pers' )
+      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server() + 'mo_pers' )
       GOTO Top
     elseif iSort == 2
       Index On tab_nom to ( cur_dir() + 'tmp_persTN' )
-      Set Index to ( cur_dir() + 'tmp_persTN' ), ( dir_server + 'mo_pers' )
+      Set Index to ( cur_dir() + 'tmp_persTN' ), ( dir_server() + 'mo_pers' )
       GOTO Top
     elseif iSort == 3
       Index On prvs_021 to ( cur_dir() + 'tmp_pers21' )
-      Set Index to ( cur_dir() + 'tmp_pers21' ), ( dir_server + 'mo_pers' )
+      Set Index to ( cur_dir() + 'tmp_pers21' ), ( dir_server() + 'mo_pers' )
       GOTO Top
     elseif iSort == 4
       Index On otd to ( cur_dir() + 'tmp_persOTD' )
-      Set Index to ( cur_dir() + 'tmp_persOTD' ), ( dir_server + 'mo_pers' )
+      Set Index to ( cur_dir() + 'tmp_persOTD' ), ( dir_server() + 'mo_pers' )
       GOTO Top
     endif
     Return 0
@@ -245,8 +245,8 @@ Function f2edit_pers( nKey, oBrow )
     If mstavka <= 0
       mstavka := 1
     Endif
-    much      := inieditspr( A__POPUPBASE, dir_server + 'mo_uch', m1uch )
-    motd      := inieditspr( A__POPUPBASE, dir_server + 'mo_otd', m1otd )
+    much      := inieditspr( A__POPUPBASE, dir_server() + 'mo_uch', m1uch )
+    motd      := inieditspr( A__POPUPBASE, dir_server() + 'mo_otd', m1otd )
     mkateg    := inieditspr( A__MENUVERT, gmenu_kateg, m1kateg )
     mvid      := inieditspr( A__MENUVERT, osn_sovm, m1vid )
     mvr_kateg := inieditspr( A__MENUVERT, menu_vr_kateg, m1vr_kateg )
@@ -361,22 +361,22 @@ Function f2edit_pers( nKey, oBrow )
     buf := save_maxrow()
     s := 'Ждите! Производится проверка на допустимость удаления '
     mywait( s + 'human_u' )
-    r_use( dir_server + 'human_u', , 'HU' )
-    Set Index to ( dir_server + 'human_uv' )
+    r_use( dir_server() + 'human_u', , 'HU' )
+    Set Index to ( dir_server() + 'human_uv' )
     find ( Str( k, 4 ) )
     If !( fl := Found() )
-      Set Index to ( dir_server + 'human_ua' )
+      Set Index to ( dir_server() + 'human_ua' )
       find ( Str( k, 4 ) )
       fl := Found()
     Endif
     hu->( dbCloseArea() )
     If !fl
       mywait( s + 'hum_p_u' )
-      r_use( dir_server + 'hum_p_u', , 'HU' )  // проверить Платные услуги
-      Set Index to ( dir_server + 'hum_p_uv' )
+      r_use( dir_server() + 'hum_p_u', , 'HU' )  // проверить Платные услуги
+      Set Index to ( dir_server() + 'hum_p_uv' )
       find ( Str( k, 4 ) )
       If !( fl := Found() )
-        Set Index to ( dir_server + 'hum_p_ua' )
+        Set Index to ( dir_server() + 'hum_p_ua' )
         find ( Str( k, 4 ) )
         fl := Found()
       Endif
@@ -384,11 +384,11 @@ Function f2edit_pers( nKey, oBrow )
     Endif
     If !fl
       mywait( s + 'hum_oru' )
-      r_use( dir_server + 'hum_oru', , 'HU' ) // проверить Ортопедию
-      Set Index to ( dir_server + 'hum_oruv' )
+      r_use( dir_server() + 'hum_oru', , 'HU' ) // проверить Ортопедию
+      Set Index to ( dir_server() + 'hum_oruv' )
       find ( Str( k, 4 ) )
       If !( fl := Found() )
-        Set Index to ( dir_server + 'hum_orua' )
+        Set Index to ( dir_server() + 'hum_orua' )
         find ( Str( k, 4 ) )
         fl := Found()
       Endif
@@ -396,14 +396,14 @@ Function f2edit_pers( nKey, oBrow )
     Endif
     If !fl
       mywait( s + 'kas_pl_u' )
-      r_use( dir_server + 'kas_pl_u', , 'HU' ) // проверить Кассу
+      r_use( dir_server() + 'kas_pl_u', , 'HU' ) // проверить Кассу
       Index On Str( kod_vr, 4 ) to ( cur_dir() + 'tmp_hu' ) For kod_vr > 0
       find ( Str( k, 4 ) )
       fl := Found()
       hu->( dbCloseArea() )
       If !fl
         mywait( s + 'kas_ort' )
-        r_use( dir_server + 'kas_ort', , 'HU' )
+        r_use( dir_server() + 'kas_ort', , 'HU' )
         Index On Str( kod_vr, 4 ) to ( cur_dir() + 'tmp_hu' ) For kod_vr > 0
         find ( Str( k, 4 ) )
         If !( fl := Found() )
@@ -588,7 +588,7 @@ function spr_personal( type_report, type_sort )
       Go Top
     Endif
   elseif type_report == 2
-    r_use( dir_server + 'mo_pers',, 'P2' )
+    r_use( dir_server() + 'mo_pers',, 'P2' )
     Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
   endif
 
@@ -677,7 +677,7 @@ function spr_personal( type_report, type_sort )
   add_string( '' )
   add_string( Center( AllTrim( glob_uch[ 2 ] ) + ' (' + AllTrim( glob_otd[ 2 ] ) + ')', sh ) )
   add_string( PadL( date_8( sys_date ) + 'г.', sh ) )
-  If r_use( dir_server + 'mo_pers',, 'PERSO' )
+  If r_use( dir_server() + 'mo_pers',, 'PERSO' )
     Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
     Do While !Eof()
       If fl .or. tek_stroke > HH

@@ -55,11 +55,11 @@ Function check_oms_sluch_lek_pr( mkod_human )
   Local vidPom, m1USL_OK, m1PROFIL, last_date, mdiagnoz, d1, d2, ad_cr
   Local retFl := .f., mvozrast, p_cel
 
-  g_use( dir_server + 'human_2', , 'HUMAN_2' )
-  g_use( dir_server + 'human_', , 'HUMAN_' )
-  g_use( dir_server + 'human', { dir_server + 'humank', ;
-    dir_server + 'humankk', ;
-    dir_server + 'humano' }, 'HUMAN' )
+  g_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  g_use( dir_server() + 'human_', , 'HUMAN_' )
+  g_use( dir_server() + 'human', { dir_server() + 'humank', ;
+    dir_server() + 'humankk', ;
+    dir_server() + 'humano' }, 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
 
   find ( Str( mkod_human, 7 ) )
@@ -88,7 +88,7 @@ Function check_oms_sluch_lek_pr( mkod_human )
   Endif
 
   If ( ( M1USL_OK == USL_OK_HOSPITAL ) .or. ( M1USL_OK == USL_OK_DAY_HOSPITAL ) ) .and. ( d2 >= 0d20250101 )
-    r_use( dir_server + 'mo_onksl', dir_server + 'mo_onksl',  'SL' )
+    r_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl',  'SL' )
     find ( Str( mkod_human, 7 ) )
     If Found()
       retFl := iif( substr( lower( SL->crit ), 1, 2 ) == 'sh', .t., .f. )
@@ -122,18 +122,18 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
 
   Default fl_edit To .f.
 
-  g_use( dir_server + 'human_u', { dir_server + 'human_u', ;
-    dir_server + 'human_uk', ;
-    dir_server + 'human_ud', ;
-    dir_server + 'human_uv', ;
-    dir_server + 'human_ua' }, 'HU' )
-  g_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  g_use( dir_server() + 'human_u', { dir_server() + 'human_u', ;
+    dir_server() + 'human_uk', ;
+    dir_server() + 'human_ud', ;
+    dir_server() + 'human_uv', ;
+    dir_server() + 'human_ua' }, 'HU' )
+  g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
 
-  g_use( dir_server + 'human_2', , 'HUMAN_2' )
-  g_use( dir_server + 'human_', , 'HUMAN_' )
-  g_use( dir_server + 'human', { dir_server + 'humank', ;
-    dir_server + 'humankk', ;
-    dir_server + 'humano' }, 'HUMAN' )
+  g_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  g_use( dir_server() + 'human_', , 'HUMAN_' )
+  g_use( dir_server() + 'human', { dir_server() + 'humank', ;
+    dir_server() + 'humankk', ;
+    dir_server() + 'humano' }, 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
 
   find ( Str( mkod_human, 7 ) ) // встанем на лист учета
@@ -149,7 +149,7 @@ Function oms_sluch_lek_pr( mkod_human, mkod_kartotek, fl_edit )
     funcBrowse := 'f2oms_sluch_lek_pr'
   endif
 
-  g_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR' )
+  g_use( dir_server() + 'human_lek_pr', dir_server() + 'human_lek_pr', 'LEK_PR' )
 
   adbf := { ;
     { 'KOD_HUM',    'N',   7,  0 }, ; // код листа учёта по файлу 'human'
@@ -876,8 +876,8 @@ function collect_lek_pr_onko( mkod_human )
 
   lekAlias := Select( cAlias )
   If lekAlias == 0
-    r_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', cAlias )
-//    r_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle',  cAlias ) // Сведения о применённых лекарственных препаратах
+    r_use( dir_server() + 'human_lek_pr', dir_server() + 'human_lek_pr', cAlias )
+//    r_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle',  cAlias ) // Сведения о применённых лекарственных препаратах
   Endif
   dbSelectArea( cAlias )
   ( cAlias )->( dbSeek( Str( mkod_human, 7 ) ) )
@@ -910,7 +910,7 @@ Function collect_lek_pr( mkod_human )
 
   lekAlias := Select( cAlias )
   If lekAlias == 0
-    r_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', cAlias )
+    r_use( dir_server() + 'human_lek_pr', dir_server() + 'human_lek_pr', cAlias )
   Endif
   dbSelectArea( cAlias )
   ( cAlias )->( dbSeek( Str( mkod_human, 7 ) ) )

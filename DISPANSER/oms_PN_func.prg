@@ -120,7 +120,7 @@ Function save_arr_pn( lkod )
 
   If ! aliasIsUse
     oldSelect := Select()
-    r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'TPERS' )
+    r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'TPERS' )
   Endif
 
   Private mvar
@@ -370,7 +370,7 @@ Function read_arr_pn( lkod, is_all )
 
   If ! aliasIsUse
     oldSelect := Select()
-    r_use( dir_server + 'mo_pers',, 'TPERS' )
+    r_use( dir_server() + 'mo_pers',, 'TPERS' )
   Endif
 
   Default is_all To .t.

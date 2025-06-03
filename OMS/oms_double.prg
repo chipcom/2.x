@@ -58,9 +58,9 @@ Function create_double_sl()
     mywait()
     dbcreate(cur_dir() + 'tmp_h',{{'kod', 'N', 7, 0}})
     use (cur_dir() + 'tmp_h') new
-    R_Use(dir_server + 'human_2', , 'HUMAN_2')
-    R_Use(dir_server + 'human_', , 'HUMAN_')
-    R_Use(dir_server + 'human', dir_server + 'humand', 'HUMAN')
+    R_Use(dir_server() + 'human_2', , 'HUMAN_2')
+    R_Use(dir_server() + 'human_', , 'HUMAN_')
+    R_Use(dir_server() + 'human', dir_server() + 'humand', 'HUMAN')
     set relation to recno() into HUMAN_, to recno() into HUMAN_2
     d := addmonth(arr_m[5], -2)  // учесть предыдущий месяц
     dbseek(dtos(d), .t.)
@@ -87,10 +87,10 @@ Function create_double_sl()
       func_error(4, 'В данный момент нет стационарных пациентов с датой окончания ' + arr_m[4])
     else
       Private mr1 := T_ROW, regim_vyb := 2
-      R_Use(dir_server + 'mo_otd', , 'OTD')
-      R_Use(dir_server + 'human_2', , 'HUMAN_2')
-      R_Use(dir_server + 'human_', , 'HUMAN_')
-      R_Use(dir_server + 'human', , 'HUMAN')
+      R_Use(dir_server() + 'mo_otd', , 'OTD')
+      R_Use(dir_server() + 'human_2', , 'HUMAN_2')
+      R_Use(dir_server() + 'human_', , 'HUMAN_')
+      R_Use(dir_server() + 'human', , 'HUMAN')
       set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
       use (cur_dir() + 'tmp_h') new
       set relation to kod into HUMAN
@@ -117,9 +117,9 @@ Function create_double_sl()
           rslt_fl1 := ascan(rslt_kiro, rslt_sl1) > 0
           glob_k_fio := fio_plus_novor()
           glob_otd[1] := human->otd
-          glob_otd[2] := inieditspr(A__POPUPMENU, dir_server + 'mo_otd', human->otd)
+          glob_otd[2] := inieditspr(A__POPUPMENU, dir_server() + 'mo_otd', human->otd)
           glob_uch[1] := human->LPU
-          glob_uch[2] := inieditspr(A__POPUPMENU, dir_server + 'mo_uch', human->LPU)
+          glob_uch[2] := inieditspr(A__POPUPMENU, dir_server() + 'mo_uch', human->LPU)
           fl := .f.
           use_base('lusl')
           fl_reserve_1 := exist_reserve_KSG(glob_perso, 'HUMAN', (HUMAN->ishod == 89 .or. HUMAN->ishod == 88) )
@@ -144,9 +144,9 @@ Function create_double_sl()
           @ 3, 42 say padc('Выберите второй случай', 35) color color14
           use (cur_dir() + 'tmp_h') new
           zap
-          R_Use(dir_server + 'human_2', , 'HUMAN_2')
-          R_Use(dir_server + 'human_', , 'HUMAN_')
-          R_Use(dir_server + 'human', dir_server + 'humand', 'HUMAN')
+          R_Use(dir_server() + 'human_2', , 'HUMAN_2')
+          R_Use(dir_server() + 'human_', , 'HUMAN_')
+          R_Use(dir_server() + 'human', dir_server() + 'humand', 'HUMAN')
           set relation to recno() into HUMAN_, to recno() into HUMAN_2
           dbseek(dtos(arr_m[5]), .t.)
           index on upper(fio) to (cur_dir() + 'tmp_h2') ;
@@ -168,10 +168,10 @@ Function create_double_sl()
           if i == 0
             func_error(4, 'В данный момент больше нет стационарных случаев по данному пациенту')
           else
-            R_Use(dir_server + 'mo_otd', , 'OTD')
-            R_Use(dir_server + 'human_2', , 'HUMAN_2')
-            R_Use(dir_server + 'human_', , 'HUMAN_')
-            R_Use(dir_server + 'human', , 'HUMAN')
+            R_Use(dir_server() + 'mo_otd', , 'OTD')
+            R_Use(dir_server() + 'human_2', , 'HUMAN_2')
+            R_Use(dir_server() + 'human_', , 'HUMAN_')
+            R_Use(dir_server() + 'human', , 'HUMAN')
             set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
             use (cur_dir() + 'tmp_h') new
             set relation to kod into HUMAN
@@ -244,8 +244,8 @@ Function create_double_sl()
 //                  use_base( "mo_su" )
 //                  Set Order To 0
             
-//                  g_use( dir_server + "uslugi", { dir_server + "uslugish", ;
-//                    dir_server + "uslugi" }, "USL" )
+//                  g_use( dir_server() + "uslugi", { dir_server() + "uslugish", ;
+//                    dir_server() + "uslugi" }, "USL" )
 //                  Set Order To 0
             
 //                  use_base( 'human_u' ) // если понадобится, пересчитать КСГ
@@ -253,7 +253,7 @@ Function create_double_sl()
                   use_base( 'human' )
                   goto (glob_perso)
                   lcena := human->cena_1
-                  G_Use(dir_server + 'human_3', {dir_server + 'human_3', dir_server + 'human_32'}, 'HUMAN_3')
+                  G_Use(dir_server() + 'human_3', {dir_server() + 'human_3', dir_server() + 'human_32'}, 'HUMAN_3')
                   AddRec(7)
                   human_3->KOD       := glob_perso
                   human_3->KOD2      := glob_perso2
@@ -400,24 +400,24 @@ Function recount_double_sl(mkod_human, k_data2)
   use_base('luslf')
   Use_base('mo_su')
   set order to 0
-  G_Use(dir_server + 'uslugi', {dir_server + 'uslugish', ;
-                           dir_server + 'uslugi'}, 'USL')
+  G_Use(dir_server() + 'uslugi', {dir_server() + 'uslugish', ;
+                           dir_server() + 'uslugi'}, 'USL')
   set order to 0
   Use_base('mo_hu')
   Use_base('human_u')
-  G_Use(dir_server + 'human_2', , 'HUMAN_2')
-  G_Use(dir_server + 'human_', , 'HUMAN_')
-  G_Use(dir_server + 'human',{dir_server + 'humank', ;
-                          dir_server + 'humankk', ;
-                          dir_server + 'humano'}, 'HUMAN')
+  G_Use(dir_server() + 'human_2', , 'HUMAN_2')
+  G_Use(dir_server() + 'human_', , 'HUMAN_')
+  G_Use(dir_server() + 'human',{dir_server() + 'humank', ;
+                          dir_server() + 'humankk', ;
+                          dir_server() + 'humano'}, 'HUMAN')
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
   find (str(mkod_human, 7))
   glob_kartotek := human->kod_k
   lcena := human->cena_1
   last_date := human->n_data
-  R_Use(dir_server + 'mo_uch', , 'UCH')
+  R_Use(dir_server() + 'mo_uch', , 'UCH')
   uch->(dbGoto(human->LPU))
-  R_Use(dir_server + 'mo_otd', , 'OTD')
+  R_Use(dir_server() + 'mo_otd', , 'OTD')
   otd->(dbGoto(human->OTD))
   f_put_glob_podr(human_->USL_OK, k_data2) // заполнить код подразделения
   dbcreate(cur_dir() + 'tmp_usl_', adbf)
@@ -541,8 +541,8 @@ Function recount_double_sl(mkod_human, k_data2)
   select USL
   set order to 1
   is_zf_stomat := 0
-  R_Use(dir_server + 'usl_otd', dir_server + 'usl_otd', 'UO')
-  R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'PERSO')
+  R_Use(dir_server() + 'usl_otd', dir_server() + 'usl_otd', 'UO')
+  R_Use(dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'PERSO')
   select TMP
   set relation to otd into OTD
   go top
@@ -561,12 +561,12 @@ Function view_double_sl()
 
   if (k := input_double_sl(1)) != NIL
     buf := savescreen()
-    G_Use(dir_server + 'human_3',{dir_server + 'human_3', dir_server + 'human_32'}, 'HUMAN_3')
+    G_Use(dir_server() + 'human_3',{dir_server() + 'human_3', dir_server() + 'human_32'}, 'HUMAN_3')
     find (str(k[1], 7))
-    R_Use(dir_server + 'mo_otd', , 'OTD')
-    G_Use(dir_server + 'human_2', , 'HUMAN_2')
-    G_Use(dir_server + 'human_', , 'HUMAN_')
-    G_Use(dir_server + 'human', , 'HUMAN')
+    R_Use(dir_server() + 'mo_otd', , 'OTD')
+    G_Use(dir_server() + 'human_2', , 'HUMAN_2')
+    G_Use(dir_server() + 'human_', , 'HUMAN_')
+    G_Use(dir_server() + 'human', , 'HUMAN')
     set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
     goto (k[1])
     aadd(arr, 'Двойной лист учёта по пациенту: ' +alltrim(k[2]))
@@ -598,12 +598,12 @@ Function delete_double_sl()
 
   if (k := input_double_sl(2)) != NIL .and. G_SLock(str_sem)
     buf := savescreen()
-    G_Use(dir_server + 'human_3',{dir_server + 'human_3', dir_server + 'human_32'}, 'HUMAN_3')
+    G_Use(dir_server() + 'human_3',{dir_server() + 'human_3', dir_server() + 'human_32'}, 'HUMAN_3')
     find (str(k[1], 7))
-    R_Use(dir_server + 'mo_otd', , 'OTD')
-    G_Use(dir_server + 'human_2', , 'HUMAN_2')
-    G_Use(dir_server + 'human_', , 'HUMAN_')
-    G_Use(dir_server + 'human', , 'HUMAN')
+    R_Use(dir_server() + 'mo_otd', , 'OTD')
+    G_Use(dir_server() + 'human_2', , 'HUMAN_2')
+    G_Use(dir_server() + 'human_', , 'HUMAN_')
+    G_Use(dir_server() + 'human', , 'HUMAN')
     set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
     goto (k[1])
     aadd(arr, 'Расформировывается двойной лист учёта')
@@ -660,9 +660,9 @@ Function input_double_sl(par)
   if (arr_m := year_month(T_ROW, T_COL + 5, , 3)) != NIL
     buf24 := save_maxrow()
     mywait()
-    R_Use(dir_server + 'human_3', dir_server + 'human_32', 'HUMAN_3')
-    R_Use(dir_server + 'human_', , 'HUMAN_')
-    R_Use(dir_server + 'human', dir_server + 'humand', 'HUMAN')
+    R_Use(dir_server() + 'human_3', dir_server() + 'human_32', 'HUMAN_3')
+    R_Use(dir_server() + 'human_', , 'HUMAN_')
+    R_Use(dir_server() + 'human', dir_server() + 'humand', 'HUMAN')
     set relation to kod into HUMAN_, to str(kod, 7) into HUMAN_3
     dbseek(dtos(arr_m[5]), .t.)
     index on upper(fio) to (cur_dir() + 'tmp_h2') ;
@@ -765,16 +765,16 @@ function exist_reserve_KSG(kod_pers, aliasHUMAN)
   aliasIsUseUSL := aliasIsAlreadyUse('__USL')
   if ! aliasIsUseUSL
     oldSelect := Select()
-    R_Use(dir_server + 'uslugi', , '__USL')
+    R_Use(dir_server() + 'uslugi', , '__USL')
   endif
 
   aliasIsUseHU := aliasIsAlreadyUse('__HU')
   if ! aliasIsUseHU
-    G_Use(dir_server + 'human_u', {dir_server + 'human_u', ;
-        dir_server + 'human_uk', ;
-        dir_server + 'human_ud', ;
-        dir_server + 'human_uv', ;
-        dir_server + 'human_ua'}, '__HU', , .f., .t.)
+    G_Use(dir_server() + 'human_u', {dir_server() + 'human_u', ;
+        dir_server() + 'human_uk', ;
+        dir_server() + 'human_ud', ;
+        dir_server() + 'human_uv', ;
+        dir_server() + 'human_ua'}, '__HU', , .f., .t.)
   endif
   set relation to u_kod into __USL
   find (str(kod_pers,7))

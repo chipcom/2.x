@@ -11,7 +11,7 @@ Function f_init_r01()
 
   reconstruct_dr()
 
-  g_use( dir_server + "mo_dr05p",, "R05p" )
+  g_use( dir_server() + "mo_dr05p",, "R05p" )
   Locate For n_y < YEAR_UPLOAD_DISPANSER  // ЮЮ 05.12.24
   fl := Found()
   Use
@@ -25,23 +25,23 @@ Function f_zap_all_mo_dr()
 
   Local i, arrx := {}
 
-  Use ( dir_server + "mo_dr01" ) new
+  Use ( dir_server() + "mo_dr01" ) new
   Zap
-  Use ( dir_server + "mo_dr01m" ) new
+  Use ( dir_server() + "mo_dr01m" ) new
   Zap
-  Use ( dir_server + "mo_dr01k" ) new
+  Use ( dir_server() + "mo_dr01k" ) new
   Zap
-  Use ( dir_server + "mo_dr01e" ) new
+  Use ( dir_server() + "mo_dr01e" ) new
   Zap
-  Use ( dir_server + "mo_dr05" ) new
+  Use ( dir_server() + "mo_dr05" ) new
   Zap
-  Use ( dir_server + "mo_dr05k" ) new
+  Use ( dir_server() + "mo_dr05k" ) new
   Zap
-  Use ( dir_server + "mo_dr05e" ) new
+  Use ( dir_server() + "mo_dr05e" ) new
   Zap
-  Use ( dir_server + "mo_dr00" ) new
+  Use ( dir_server() + "mo_dr00" ) new
   Zap
-  g_use( dir_server + "mo_xml",, "MO_XML" )
+  g_use( dir_server() + "mo_xml",, "MO_XML" )
   Index On FNAME to ( cur_dir() + "tmp_xml" ) ;
     For eq_any( tip_in, _XML_FILE_R02, _XML_FILE_R06 ) .or. eq_any( TIP_OUT, _XML_FILE_R01, _XML_FILE_R05 )
   Go Top
@@ -54,7 +54,7 @@ Function f_zap_all_mo_dr()
     Goto ( arrx[ i ] )
     deleterec( .t. )
   Next
-  Use ( dir_server + "mo_dr05p" ) new
+  Use ( dir_server() + "mo_dr05p" ) new
   Zap
   Close databases
 
@@ -65,7 +65,7 @@ Function fff_init_r01()
 
   Local buf := save_maxrow()
 
-  r_use( dir_server + "mo_dr05p",, "R05p" )
+  r_use( dir_server() + "mo_dr05p",, "R05p" )
   If FieldNum( "KOL11" ) == 0
     Close databases
     mywait()
@@ -86,7 +86,7 @@ Function f_create_r05()
   Private sgod := YEAR_UPLOAD_DISPANSER
 
   //
-  g_use( dir_server + "mo_dr05p",, "R05p" )
+  g_use( dir_server() + "mo_dr05p",, "R05p" )
   If LastRec() == 0
     g_rlock( .t., forever ) // добавить 2-ую запись
   Endif
@@ -186,7 +186,7 @@ Function f1_create_r05()
           func_error( 4, "План лиц старше труд.возраста должен быть меньше плана итого" )
           Loop
         Endif
-        g_use( dir_server + "mo_dr05p",, "R05p" )
+        g_use( dir_server() + "mo_dr05p",, "R05p" )
         Goto ( mrec )
         g_rlock( forever )
         If Empty( r05p->n_y )
@@ -216,9 +216,9 @@ Function f_pereschet_R05
 
   mywait( "Ждите! Производится подсчёт прикреплённого взрослого населения." )
   skol1 := skol2 := skol11 := skol12 := skol13 := 0
-  r_use( dir_server + "kartote2",, "KART2" )
-  r_use( dir_server + "kartote_",, "KART_" )
-  r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server() + "kartote2",, "KART2" )
+  r_use( dir_server() + "kartote_",, "KART_" )
+  r_use( dir_server() + "kartotek",, "KART" )
   Set Relation To RecNo() into KART_, RecNo() into KART2
   Go Top
   Do While !Eof()
@@ -266,7 +266,7 @@ Function f2_create_r05()
   AFill( ekol, 0 )
   // afill(tekol,0)
   tmp_color := SetColor( color5 )
-  r_use( dir_server + "mo_dr05p",, "R05p" )
+  r_use( dir_server() + "mo_dr05p",, "R05p" )
   Goto ( mrec )
   skol[ 1 ] := r05p->KOL1
   skol[ 2 ] := r05p->KOL2
@@ -465,7 +465,7 @@ Function f2_create_r05()
   // endif
   //
   If !is_reestr .and. f_esc_enter( 1 )
-    g_use( dir_server + "mo_dr05p",, "R05p" )
+    g_use( dir_server() + "mo_dr05p",, "R05p" )
     Goto ( mrec )
     g_rlock( forever )
     For i := 1 To 12
@@ -636,7 +636,7 @@ Function f3_create_r05()
   Endif
   Private auch := {}, ames[ 12, 5 ], aumes[ 12, 5 ]
   If fl
-    r_use( dir_server + "mo_dr05p",, "R05p" )
+    r_use( dir_server() + "mo_dr05p",, "R05p" )
     Goto ( mrec )
     For n := 1 To 5
       If n < 3
@@ -703,7 +703,7 @@ Function f3_create_r05()
     waitstatus( "Работа с участками..." )
     r_use_base( "kartotek" )
     Set Order To 4
-    r_use( dir_server + "mo_uchvr",, "UV" )
+    r_use( dir_server() + "mo_uchvr",, "UV" )
     Index On Str( uch, 2 ) to ( cur_dir() + "tmp_uv" )
     Go Top
     Do While !Eof()
@@ -744,11 +744,11 @@ Function f3_create_r05()
       // !!! ВНИМАНИЕ
       mmes := 1  // менял 3
       nsh := 3
-      r_use( dir_server + "mo_dr05p",, "R05p" )
+      r_use( dir_server() + "mo_dr05p",, "R05p" )
       Goto ( mrec )
-      g_use( dir_server + "mo_dr05k",, "RHUM" )
+      g_use( dir_server() + "mo_dr05k",, "RHUM" )
       Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_rhum" )
-      g_use( dir_server + "mo_dr05",, "REES" )
+      g_use( dir_server() + "mo_dr05",, "REES" )
       addrecn()
       rees->KOD    := RecNo()
       rees->REC_5P := mrec // номер записи в файле mo_dr05p
@@ -759,7 +759,7 @@ Function f3_create_r05()
       rees->NAME_XML := s
       mkod_reestr := rees->KOD
       //
-      g_use( dir_server + "mo_xml",, "MO_XML" )
+      g_use( dir_server() + "mo_xml",, "MO_XML" )
       addrecn()
       mo_xml->KOD    := RecNo()
       mo_xml->FNAME  := s
@@ -1120,12 +1120,12 @@ Function read_xml_file_r06( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
   mkod_reestr := arr_XML_info[ 7 ]
   Use ( cur_dir() + "tmp1file" ) New Alias TMP1
   ldate_R06 := tmp1->_DATE_F
-  r_use( dir_server + "mo_dr05",, "REES" )
+  r_use( dir_server() + "mo_dr05",, "REES" )
   Goto ( arr_XML_info[ 7 ] )
   StrFile( "Обрабатывается ответ ТФОМС на информационный пакет " + AllTrim( rees->NAME_XML ) + sxml() + hb_eol() + ;
     "за " + lstr( rees->NYEAR ) + " год от " + date_8( rees->DSCHET ) + "г." + hb_eol() + hb_eol(), cFileProtokol, .t. )
   //
-  r_use( dir_server + "mo_dr05k",, "RHUM" )
+  r_use( dir_server() + "mo_dr05k",, "RHUM" )
   Index On Str( R05_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For REESTR == mkod_reestr
   Use ( cur_dir() + "tmp2file" ) New Alias TMP2
   i := 0 ; k := LastRec()
@@ -1148,9 +1148,9 @@ Function read_xml_file_r06( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
   Close databases
   If Empty( aerr ) // если проверка прошла успешно
     // запишем принимаемый файл (реестр СП)
-    // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF())
-    chip_copy_zipxml( full_zip, dir_server + dir_XML_TF() )
-    g_use( dir_server + "mo_xml",, "MO_XML" )
+    // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server()+dir_XML_TF())
+    chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
+    g_use( dir_server() + "mo_xml",, "MO_XML" )
     If Empty( lrec_xml )
       addrecn()
     Else
@@ -1172,10 +1172,10 @@ Function read_xml_file_r06( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
     mXML_REESTR := mo_xml->KOD
     Use
     If ii2 > 0
-      g_use( dir_server + "mo_dr05e",, "REFR" )
+      g_use( dir_server() + "mo_dr05e",, "REFR" )
       Index On Str( REESTR, 6 ) + Str( R05_ZAP, 6 ) + Str( KOD_ERR, 3 ) to ( cur_dir() + "tmp_r05e" )
     Endif
-    g_use( dir_server + "mo_dr05k",, "RHUM" )
+    g_use( dir_server() + "mo_dr05k",, "RHUM" )
     Index On Str( R05_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For REESTR == mkod_reestr
     Use ( cur_dir() + "tmp2file" ) New Alias TMP2
     Index On Str( _n_zap, 6 ) + Str( _error, 3 ) to ( cur_dir() + "tmp2" )
@@ -1253,11 +1253,11 @@ Function read_xml_file_r06( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
 Function f_view_r05()
 
   Local i, k, buf := SaveScreen()
-  Private goal_dir := dir_server + dir_XML_MO() + hb_ps()
+  Private goal_dir := dir_server() + dir_XML_MO() + hb_ps()
 
-  g_use( dir_server + "mo_xml",, "MO_XML" )
-  r_use( dir_server + "mo_dr05p",, "R05p" )
-  g_use( dir_server + "mo_dr05",, "REES" )
+  g_use( dir_server() + "mo_xml",, "MO_XML" )
+  r_use( dir_server() + "mo_dr05p",, "R05p" )
+  g_use( dir_server() + "mo_dr05",, "REES" )
   Index On DToS( dschet ) + Str( nn, 3 ) to ( cur_dir() + "tmp_rees" ) DESCENDING
   Set Relation To rec_5p into R05p
   Go Top
@@ -1420,7 +1420,7 @@ Function f3_view_r05( oBrow )
       f31_view_r05( Abs( mm_func[ i ] ), mm_menu[ i ] )
     Else
       mo_xml->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select REES
@@ -1483,10 +1483,10 @@ Function verify_packet_r05( par, arr, /*@*/ret_nn)
 
   is_reestr := .f.
   ret_nn := 0 // !!! ВНИМАНИЕ  0
-  r_use( dir_server + "mo_dr05e",, "REFR" )
-  r_use( dir_server + "mo_xml",, "MO_XML" )
+  r_use( dir_server() + "mo_dr05e",, "REFR" )
+  r_use( dir_server() + "mo_xml",, "MO_XML" )
   Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_xml" ) For tip_in == _XML_FILE_R06 .and. Empty( TIP_OUT )
-  r_use( dir_server + "mo_dr05",, "R05" )
+  r_use( dir_server() + "mo_dr05",, "R05" )
   Index On Str( REC_5P, 3 ) + Str( 1000 -nn, 4 ) to ( cur_dir() + "tmp_r05" ) For nyear == sgod
   find ( Str( mrec, 3 ) )
   If Found()
@@ -1541,7 +1541,7 @@ Function f_create_r01()
   //
   mywait()
   If ( fl := verify_packet_r05( 1, arr ) )
-    r_use( dir_server + "mo_dr05p",, "R05p" )
+    r_use( dir_server() + "mo_dr05p",, "R05p" )
     Goto ( mrec )
     skol[ 1 ] := r05p->KOL1
     skol[ 2 ] := r05p->KOL2
@@ -1566,7 +1566,7 @@ Function f_create_r01()
     //
     Select MO_XML
     Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_xml" ) For tip_in == _XML_FILE_R02 .and. Empty( TIP_OUT )
-    r_use( dir_server + "mo_dr01",, "REES" )
+    r_use( dir_server() + "mo_dr01",, "REES" )
     Index On Str( nn, 3 ) + Str( NMONTH, 2 ) to ( cur_dir() + "tmp_dr01" ) For NYEAR == sgod .and. tip == 0
     Go Top
     Do While !Eof()
@@ -1595,9 +1595,9 @@ Function f_create_r01()
     //
     If fl
       If fl1 // не первый раз составляется реестр в отчётном году
-        r_use( dir_server + "mo_dr01k",, "R01k" )
+        r_use( dir_server() + "mo_dr01k",, "R01k" )
         Index On Str( reestr, 6 ) + Str( kod_k, 7 ) to ( cur_dir() + "tmp_dr01k" )
-        Use ( dir_server + "mo_dr00" ) New Alias TMP
+        Use ( dir_server() + "mo_dr00" ) New Alias TMP
         Index On kod to ( cur_dir() + "tmp_dr00" ) For reestr == 0
         Go Top
         Do While !Eof()
@@ -1665,14 +1665,14 @@ Function f_create_r01()
         status_key( "^<Esc>^ - прервать поиск" )
         hGauge := gaugenew(,,, "Поиск пациентов, подлежащих дисп-ии/профосмотрам", .t. )
         gaugedisplay( hGauge )
-        Use ( dir_server + "mo_dr00" ) New Alias TMP
+        Use ( dir_server() + "mo_dr00" ) New Alias TMP
         Zap  // т.к.первый раз
-        r_use( dir_server + "human_",, "HUMAN_" )
-        r_use( dir_server + "human", dir_server + "humankk", "HUMAN" )
+        r_use( dir_server() + "human_",, "HUMAN_" )
+        r_use( dir_server() + "human", dir_server() + "humankk", "HUMAN" )
         Set Relation To RecNo() into HUMAN_
-        r_use( dir_server + "kartote2",, "KART2" )
-        r_use( dir_server + "kartote_",, "KART_" )
-        r_use( dir_server + "kartotek",, "KART" )
+        r_use( dir_server() + "kartote2",, "KART2" )
+        r_use( dir_server() + "kartote_",, "KART_" )
+        r_use( dir_server() + "kartotek",, "KART" )
         Set Relation To RecNo() into KART_, RecNo() into KART2
         Go Top
         Do While !Eof()
@@ -1869,10 +1869,10 @@ Function f00_create_r01()
   status_key( "^<Esc>^ - прервать поиск" )
   hGauge := gaugenew(, , , "Проверка пациентов, подлежащих дисп-ии/профосмотрам", .t. )
   gaugedisplay( hGauge )
-  Use ( dir_server + "mo_dr00" ) New Alias TMP
-  r_use( dir_server + "kartote2", , "KART2" )
-  r_use( dir_server + "kartote_", , "KART_" )
-  r_use( dir_server + "kartotek", , "KART" )
+  Use ( dir_server() + "mo_dr00" ) New Alias TMP
+  r_use( dir_server() + "kartote2", , "KART2" )
+  r_use( dir_server() + "kartote_", , "KART_" )
+  r_use( dir_server() + "kartotek", , "KART" )
   Set Relation To RecNo() into KART_, RecNo() into KART2
   Select TMP
   Go Top
@@ -1907,15 +1907,15 @@ Function f1_create_r01()
     Return Nil
   Endif
   AFill( arr_nn, 0 )
-  g_use( dir_server + "mo_dr01m",, "RM" )
+  g_use( dir_server() + "mo_dr01m",, "RM" )
   addrecn()
   rm->DWORK := sys_date
   rm->TWORK1 := hour_min( Seconds() )
   Unlock
   //
-  g_use( dir_server + "mo_dr01k",, "RHUM" )
+  g_use( dir_server() + "mo_dr01k",, "RHUM" )
   Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_rhum" )
-  g_use( dir_server + "mo_dr01",, "REES" )
+  g_use( dir_server() + "mo_dr01",, "REES" )
   Index On Str( NMONTH, 2 ) + Str( nn, 3 ) to ( cur_dir() + "tmp_dr01" ) For NYEAR == sgod .and. tip == 0
   For SMONTH := 1 To 12
     find ( Str( SMONTH, 2 ) )
@@ -1927,12 +1927,12 @@ Function f1_create_r01()
     Enddo
   Next
   Set Index To
-  g_use( dir_server + "mo_xml",, "MO_XML" )
-  r_use( dir_server + "kartote2",, "KART2" )
-  r_use( dir_server + "kartote_",, "KART_" )
-  r_use( dir_server + "kartotek",, "KART" )
+  g_use( dir_server() + "mo_xml",, "MO_XML" )
+  r_use( dir_server() + "kartote2",, "KART2" )
+  r_use( dir_server() + "kartote_",, "KART_" )
+  r_use( dir_server() + "kartotek",, "KART" )
   Set Relation To RecNo() into KART_, RecNo() into KART2
-  g_use( dir_server + "mo_dr00",, "TMP" )
+  g_use( dir_server() + "mo_dr00",, "TMP" )
   Set Relation To kod into KART
   Index On Str( n_m, 2 ) + Upper( kart->fio ) + DToS( kart->date_r ) to ( cur_dir() + "tmp_dr00" )
   For SMONTH := 1 To 12
@@ -2111,9 +2111,9 @@ Function f_view_r01( tip_f )
   Local i, k, buf := SaveScreen()
 
   Default tip_f To _XML_FILE_R01
-  Private goal_dir := dir_server + dir_XML_MO() + hb_ps(), ptip_f := tip_f, pname_f := iif( tip_f == _XML_FILE_R01, "R01", "R11" )
-  g_use( dir_server + "mo_xml",, "MO_XML" )
-  g_use( dir_server + "mo_dr01",, "REES" )
+  Private goal_dir := dir_server() + dir_XML_MO() + hb_ps(), ptip_f := tip_f, pname_f := iif( tip_f == _XML_FILE_R01, "R01", "R11" )
+  g_use( dir_server() + "mo_xml",, "MO_XML" )
+  g_use( dir_server() + "mo_dr01",, "REES" )
   If tip_f == _XML_FILE_R01
     Index On Descend( DToS( dschet ) ) + Str( NMONTH, 2 ) + StrZero( nn, 3 ) to ( cur_dir() + "tmp_rees" ) For tip == 0
   Else
@@ -2205,7 +2205,7 @@ Function f2_view_r01( nKey, oBrow )
     ret := 0
   Case nKey == K_F5
     mdate := rees->dschet
-    r_use( dir_server + "mo_dr01m",, "RM" )
+    r_use( dir_server() + "mo_dr01m",, "RM" )
     Locate for &( "rm->reestr" + StrZero( rees->NMONTH, 2 ) ) == rees->kod
     If !Found()
       func_error( 4, "В файле MO_DR01M.DBF не найдена ссылка на данный реестр" )
@@ -2301,8 +2301,8 @@ Function f2_view_r01( nKey, oBrow )
   Case nKey == K_CTRL_F12
     ret := delete_reestr_r02( rees->( RecNo() ), AllTrim( rees->NAME_XML ) )
     Close databases
-    g_use( dir_server + "mo_xml",, "MO_XML" )
-    g_use( dir_server + "mo_dr01", cur_dir() + "tmp_rees", "REES" )
+    g_use( dir_server() + "mo_xml",, "MO_XML" )
+    g_use( dir_server() + "mo_dr01", cur_dir() + "tmp_rees", "REES" )
     Goto ( rec )
   Endcase
   SetColor( tmp_color )
@@ -2362,7 +2362,7 @@ Function f3_view_r01( oBrow )
       f31_view_r01( Abs( mm_func[ i ] ), mm_menu[ i ] )
     Else
       mo_xml->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select REES
@@ -2404,8 +2404,8 @@ Function f31_view_r01( reg, s )
     { "mes", "C", 7, 0 } } )
   Use ( cur_dir() + "_r01" ) new
   //
-  r_use( dir_server + "kartotek",, "KART" )
-  r_use( dir_server + "mo_dr01k",, "RHUM" )
+  r_use( dir_server() + "kartotek",, "KART" )
+  r_use( dir_server() + "mo_dr01k",, "RHUM" )
   Set Relation To kod_k into KART
   Index On Str( rhum->R01_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For reestr == rees->kod
   Go Top
@@ -2495,7 +2495,7 @@ Function f32_view_r01()
   afillall( skol, 0 )
   afillall( ames, 0 )
   mywait()
-  r_use( dir_server + "mo_dr05p",, "R05p" )
+  r_use( dir_server() + "mo_dr05p",, "R05p" )
   Goto ( mrec )
   skol[ 1, 1 ] := r05p->KOL1
   skol[ 2, 1 ] := r05p->KOL2
@@ -2521,9 +2521,9 @@ Function f32_view_r01()
     Endif
   Next
   r05p->( dbCloseArea() )
-  r_use( dir_server + "mo_dr01k",, "RHUM" )
+  r_use( dir_server() + "mo_dr01k",, "RHUM" )
   Index On Str( reestr, 6 ) + Str( rhum->R01_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" )
-  r_use( dir_server + "mo_dr01m",, "RM" )
+  r_use( dir_server() + "mo_dr01m",, "RM" )
   Go Top
   Do While !Eof()
     For i := 1 To 12
@@ -2758,13 +2758,13 @@ Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
   mkod_reestr := arr_XML_info[ 7 ]
   Use ( cur_dir() + "tmp1file" ) New Alias TMP1
   ldate_R02 := tmp1->_DATE_F
-  r_use( dir_server + "mo_dr01",, "REES" )
+  r_use( dir_server() + "mo_dr01",, "REES" )
   Goto ( arr_XML_info[ 7 ] )
   StrFile( "Обрабатывается ответ ТФОМС на информационный пакет " + AllTrim( rees->NAME_XML ) + sxml() + hb_eol() + ;
     "за " + lstr( rees->NMONTH ) + " мес. " + lstr( rees->NYEAR ) + " года от " + date_8( rees->DSCHET ) + ;
     "г. (" + lstr( rees->kol ) + " чел.)" + hb_eol() + hb_eol(), cFileProtokol, .t. )
   //
-  r_use( dir_server + "mo_dr01k",, "RHUM" )
+  r_use( dir_server() + "mo_dr01k",, "RHUM" )
   Index On Str( R01_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For REESTR == mkod_reestr
   Use ( cur_dir() + "tmp2file" ) New Alias TMP2
   i := 0 ; k := LastRec()
@@ -2802,9 +2802,9 @@ Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
   Close databases
   If Empty( aerr ) // если проверка прошла успешно
     // запишем принимаемый файл (реестр СП)
-    // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF())
-    chip_copy_zipxml( full_zip, dir_server + dir_XML_TF() )
-    g_use( dir_server + "mo_xml",, "MO_XML" )
+    // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server()+dir_XML_TF())
+    chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
+    g_use( dir_server() + "mo_xml",, "MO_XML" )
     addrecn()
     mo_xml->KOD := RecNo()
     mo_xml->KOD := RecNo()
@@ -2822,7 +2822,7 @@ Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
     //
     mXML_REESTR := mo_xml->KOD
     Use
-    g_use( dir_server + "mo_dr01",, "REES" )
+    g_use( dir_server() + "mo_dr01",, "REES" )
     Goto ( mkod_reestr )
     g_rlock( forever )
     rees->answer := 1
@@ -2835,7 +2835,7 @@ Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
     If ii2 > 0 .or. err_file
       Use ( cur_dir() + "tmp3file" ) New Alias TMP3
       Index On Str( _n_zap, 6 ) to ( cur_dir() + "tmp3" )
-      g_use( dir_server + "mo_dr01e",, "REFR" )
+      g_use( dir_server() + "mo_dr01e",, "REFR" )
       Index On Str( REESTR, 6 ) + Str( R01_ZAP, 6 ) to ( cur_dir() + "tmp_r01e" )
       If err_file
         Select REFR
@@ -2860,10 +2860,10 @@ Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
       Endif
       tmp3->( dbCloseArea() )
     Endif
-    g_use( dir_server + "kartote2",, "KART2" )
-    g_use( dir_server + "kartote_",, "KART_" )
-    g_use( dir_server + "kartotek",, "KART" )
-    g_use( dir_server + "mo_dr01k",, "RHUM" )
+    g_use( dir_server() + "kartote2",, "KART2" )
+    g_use( dir_server() + "kartote_",, "KART_" )
+    g_use( dir_server() + "kartotek",, "KART" )
+    g_use( dir_server() + "mo_dr01k",, "RHUM" )
     Index On Str( R01_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For REESTR == mkod_reestr
     Use ( cur_dir() + "tmp3file" ) New Alias TMP3
     Index On Str( _n_zap, 6 ) to ( cur_dir() + "tmp3" )
@@ -2990,7 +2990,7 @@ Function delete_reestr_r02( mkod_reestr, mname_reestr )
       func_error( 4, "Файл " + cFile + sxml() + " корректно прочитан. Аннулирование запрещено!" )
       Return 0
     Endif
-    If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF(), cFile + szip() ) ) != NIL
+    If ( arr_f := extract_zip_xml( dir_server() + dir_XML_TF(), cFile + szip() ) ) != NIL
       cFile += sxml()
       // читаем файл в память
       oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
@@ -3010,7 +3010,7 @@ Function delete_reestr_r02( mkod_reestr, mname_reestr )
           Endif
           If is_allow_delete
             Close databases
-            g_use( dir_server + "mo_dr01",, "REES" )
+            g_use( dir_server() + "mo_dr01",, "REES" )
             Goto ( mkod_reestr )
             Use ( cur_dir() + "tmp1file" ) New Alias TMP1
             Use ( cur_dir() + "tmp2file" ) New Alias TMP2
@@ -3019,7 +3019,7 @@ Function delete_reestr_r02( mkod_reestr, mname_reestr )
             AAdd( arr, "за " + lstr( rees->NMONTH ) + " мес. " + lstr( rees->NYEAR ) + ;
               " года, кол-во пациентов " + lstr( rees->kol ) + " чел." )
             AAdd( arr, "" )
-            g_use( dir_server + "mo_xml",, "MO_XML" )
+            g_use( dir_server() + "mo_xml",, "MO_XML" )
             Goto ( mreestr_sp_tk )
             AAdd( arr, "Аннулируется файл ответа " + cFile + " от " + date_8( mo_xml->DFILE ) + "г." )
             AAdd( arr, "После подтверждения аннулирования все последствия чтения данного" )
@@ -3052,14 +3052,14 @@ Function delete_reestr_r02( mkod_reestr, mname_reestr )
 // 09.02.20 аннулировать чтение реестра PR01(PR11)
 Function f2_delete_reestr_r02( mkod_reestr, mreestr_sp_tk )
 
-  g_use( dir_server + "mo_dr01e",, "REFR" )
+  g_use( dir_server() + "mo_dr01e",, "REFR" )
   Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_r01e" )
   Do While .t.
     find ( Str( mkod_reestr, 6 ) ) // удалим ошибки
     If !Found() ; exit ; Endif
     deleterec( .t. )
   Enddo
-  g_use( dir_server + "mo_dr01k",, "RHUM" )
+  g_use( dir_server() + "mo_dr01k",, "RHUM" )
   Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_rhum" )
   find ( Str( mkod_reestr, 6 ) )
   Do While rhum->reestr == mkod_reestr .and. !Eof()
@@ -3068,12 +3068,12 @@ Function f2_delete_reestr_r02( mkod_reestr, mreestr_sp_tk )
     Unlock
     Skip
   Enddo
-  g_use( dir_server + "mo_dr01",, "REES" )
+  g_use( dir_server() + "mo_dr01",, "REES" )
   Goto ( mkod_reestr )
   g_rlock( forever )
   rees->answer := 0
   rees->kol_err := 0
-  g_use( dir_server + "mo_xml",, "MO_XML" )
+  g_use( dir_server() + "mo_xml",, "MO_XML" )
   Goto ( mreestr_sp_tk )
   deleterec()
   Close databases
@@ -3086,7 +3086,7 @@ Function need_delete_reestr_r01()
   Local fl := .f.
 
   If hb_user_curUser:isadmin()
-    r_use( dir_server + "mo_dr01m",, "R01m" )
+    r_use( dir_server() + "mo_dr01m",, "R01m" )
     Go Top
     Do While !Eof()
       If Empty( r01m->twork2 )
@@ -3107,7 +3107,7 @@ Function delete_reestr_r01()
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, err_admin )
   Endif
-  g_use( dir_server + "mo_dr01m",, "R01m" )
+  g_use( dir_server() + "mo_dr01m",, "R01m" )
   Index On Descend( DToS( DWORK ) + TWORK1 ) to ( cur_dir() + "tmp_dr01m" )
   Go Top
   If Eof()
@@ -3155,7 +3155,7 @@ Function f1_delete_reestr_r01( nKey, oBrow, regim )
 
   If regim == "edit" .and. nKey == K_ENTER
     If Empty( r01m->twork2 )
-      g_use( dir_server + "mo_dr01",, "REES" )
+      g_use( dir_server() + "mo_dr01",, "REES" )
       For ir := 1 To 12
         mkod_reestr := &( "r01m->reestr" + StrZero( ir, 2 ) )
         If mkod_reestr > 0
@@ -3174,12 +3174,12 @@ Function f1_delete_reestr_r01( nKey, oBrow, regim )
       Select R01m
       If fl .and. f_esc_enter( "аннулирования R01" )
         mywait()
-        g_use( dir_server + "mo_xml",, "MO_XML" )
-        g_use( dir_server + "mo_dr00",, "TMP" )
+        g_use( dir_server() + "mo_xml",, "MO_XML" )
+        g_use( dir_server() + "mo_dr00",, "TMP" )
         Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_dr00" )
-        g_use( dir_server + "mo_dr01k",, "RHUM" )
+        g_use( dir_server() + "mo_dr01k",, "RHUM" )
         Index On Str( REESTR, 6 ) to ( cur_dir() + "tmp_rhum" )
-        g_use( dir_server + "mo_dr01",, "REES" )
+        g_use( dir_server() + "mo_dr01",, "REES" )
         For ir := 12 To 1 Step -1
           mkod_reestr := &( "r01m->reestr" + StrZero( ir, 2 ) )
           If mkod_reestr > 0
@@ -3237,7 +3237,7 @@ Function find_unfinished_r01()
 
   If glob_mo[ _MO_IS_UCH ]
     If ( fl := verify_packet_r05( 2, arr ) )
-      r_use( dir_server + "mo_dr05p",, "R05p" )
+      r_use( dir_server() + "mo_dr05p",, "R05p" )
       Goto ( mrec )
       // skol := r05p->KOL1 + r05p->KOL2
       For i := 1 To 12
@@ -3249,7 +3249,7 @@ Function find_unfinished_r01()
       Next
       Select MO_XML
       Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_xml" ) For tip_in == _XML_FILE_R02 .and. Empty( TIP_OUT )
-      r_use( dir_server + "mo_dr01",, "REES" )
+      r_use( dir_server() + "mo_dr01",, "REES" )
       Index On Str( nn, 3 ) + Str( NMONTH, 2 ) to ( cur_dir() + "tmp_dr01" ) For NYEAR == sgod .and. tip == 0
       Go Top
       Do While fl .and. !Eof()
@@ -3298,11 +3298,11 @@ Function find_new_r00()
   status_key( "^<Esc>^ - прервать поиск" )
   hGauge := gaugenew(,,, "Поиск пациентов, подлежащих дисп-ии/профосмотрам", .t. )
   gaugedisplay( hGauge )
-  g_use ( dir_server + "mo_dr00",, "TMP" )
+  g_use ( dir_server() + "mo_dr00",, "TMP" )
   Index On Str( kod, 7 ) To tmp2
-  r_use( dir_server + "kartote2",, "KART2" )
-  r_use( dir_server + "kartote_",, "KART_" )
-  r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server() + "kartote2",, "KART2" )
+  r_use( dir_server() + "kartote_",, "KART_" )
+  r_use( dir_server() + "kartotek",, "KART" )
   Set Relation To RecNo() into KART_, RecNo() into KART2
   Go Top
   Do While !Eof()

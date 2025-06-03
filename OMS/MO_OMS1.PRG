@@ -365,7 +365,7 @@ Function ret_tip_lu( /*@*/stip)
 
   If k == 0
     tmp_select := Select()
-    r_use( dir_server + 'mo_otd', , '__OTD' )
+    r_use( dir_server() + 'mo_otd', , '__OTD' )
     __otd->( dbGoto( glob_otd[ 1 ] ) )
     k := __otd->TIPLU
     __otd->( dbCloseArea() )

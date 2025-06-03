@@ -47,8 +47,8 @@ Function write_work_oper( _pt, _tp, _ae, _kk, _kp, _open )
   Static llen := 6
 
   Default _kk To 1, _kp To 0, _open To .t.
-  If yes_parol .and. hb_FileExists( dir_server + 'mo_opern' + sdbf ) .and. ;
-      iif( _open, g_use( dir_server + 'mo_opern', dir_server + 'mo_opern', 'OP' ), .t. )
+  If yes_parol .and. hb_FileExists( dir_server() + 'mo_opern' + sdbf ) .and. ;
+      iif( _open, g_use( dir_server() + 'mo_opern', dir_server() + 'mo_opern', 'OP' ), .t. )
     _pt := Chr( _pt )
     _tp := Chr( _tp )
     _ae := Chr( _ae )
@@ -97,7 +97,7 @@ Function ret_inogsmo_name( ltip, /*@*/rec, fl_close)
 
   Default fl_close To .f.
   If Select( 'SN' ) == 0
-    r_use( dir_server + iif( ltip == 1, 'mo_kismo', 'mo_hismo' ), , 'SN' )
+    r_use( dir_server() + iif( ltip == 1, 'mo_kismo', 'mo_hismo' ), , 'SN' )
     Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
     fl := .t.
   Endif
@@ -520,7 +520,7 @@ Function input_usluga( arr_tfoms )
     mywait()
     musl := transform_shifr( musl )
     setinisect( tmp_ini, 'uslugi', { { 'shifr', musl } } )
-    r_use( dir_server + 'uslugi', dir_server + 'uslugish', 'USL' )
+    r_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
     find ( musl )
     If Found()
       susl := musl
@@ -552,7 +552,7 @@ Function ret_1st_otd( lkod_uch )
 
   Local k, tmp_select := Select()
 
-  r_use( dir_server + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
   Locate For otd->kod_lpu == lkod_uch
   If Found()
     k := { otd->( RecNo() ), AllTrim( otd->name ) }
@@ -616,7 +616,7 @@ Function input_uch( r, c, date1, date2 )
     { 'kod', 'N', 3, 0 }, ;
     { 'is', 'L', 1, 0 } } )
   Use ( cur_dir() + 'tmp_ga' ) new
-  r_use( dir_server + 'mo_uch', , 'UCH' )
+  r_use( dir_server() + 'mo_uch', , 'UCH' )
   Go Top
   Do While !Eof()
     fl_is := between_date( uch->DBEGIN, uch->DEND, date1, date2 )
@@ -671,7 +671,7 @@ Function input_otd( r, c, date1, date2, nTask )
     { 'tiplu', 'N', 2, 0 }, ;
     { 'is', 'L', 1, 0 } } )
   Use ( cur_dir() + 'tmp_ga' ) new
-  r_use( dir_server + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
   Go Top
   Do While !Eof()
     If otd->KOD_LPU == glob_uch[ 1 ]
@@ -744,7 +744,7 @@ Function input_perso( r, c, is_null, is_rab )
     Elseif i < 0
       Return func_error( 4, 'Неверный ввод - отрицательный код!' )
     Endif
-    r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'PERSO' )
+    r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'PERSO' )
     find ( Str( i, 5 ) )
     If Found()
       glob_human := { perso->kod, ;
@@ -766,7 +766,7 @@ Function input_perso( r, c, is_null, is_rab )
   Private mr := r
   mywait()
   // help_code := H_Input_fio
-  If r_use( dir_server + 'mo_pers', , 'PERSO' )
+  If r_use( dir_server() + 'mo_pers', , 'PERSO' )
     Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
     If glob_human[ 1 ] > 0
       Goto ( glob_human[ 1 ] )
@@ -1176,7 +1176,7 @@ Function f1_s_mr( nKey, oBrow, regim )
 
   Do Case
   Case regim == "open"
-    g_use( dir_server + "s_mr",, "SA" )
+    g_use( dir_server() + "s_mr",, "SA" )
     Index On Upper( name ) to ( cur_dir() + "tmp_mr" )
     Go Top
     ret := !Eof()
@@ -1375,7 +1375,7 @@ Function f9_f_nastr( l_titul, a_strok )
   For i := 1 To k
     add_string( ta[ i ] )
   Next
-  r_use( dir_server + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
   Index On fsort_usl( shifr ) to ( cur_dir() + 'tmpu' )
   Go Top
   Do While !Eof()

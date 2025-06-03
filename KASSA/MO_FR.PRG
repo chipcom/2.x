@@ -573,14 +573,14 @@ for i := 1 to perenos(t_arr,s1,70)
 next
 aadd(ar, s2)
 //
-_tmp := dtoc(date())+"  "+sectotime(seconds())+"  "+StripPath(exename())+eos
+_tmp := dtoc(date())+"  "+sectotime(seconds())+"  "+StripPath(exename())+hb_eol()
 for i := 1 to len(ar)
   if !empty(ar[i])
-    _tmp += ar[i]+eos
+    _tmp += ar[i]+hb_eol()
   endif
 next
-_tmp += replicate("*",79)+eos
-strfile(_tmp,dir_server+"error.txt",.t.)
+_tmp += replicate("*",79)+hb_eol()
+strfile(_tmp,dir_server()+"error.txt",.t.)
 //
 n_message(ar,,cColorStMsg,cColorStMsg,,,cColorSt2Msg)
 return NIL
@@ -593,15 +593,15 @@ for i := 1 to perenos(t_arr,s1,70)
   aadd(ar, alltrim(t_arr[i]))
 next
 //
-_tmp := dtoc(date())+"  "+sectotime(seconds())+"  "+StripPath(exename())+eos
+_tmp := dtoc(date())+"  "+sectotime(seconds())+"  "+StripPath(exename())+hb_eol()
 for i := 1 to len(ar)
   if !empty(ar[i])
-    _tmp += ar[i]+eos
+    _tmp += ar[i]+hb_eol()
   endif
 next
-_tmp += upper("Программе не удалось провести аннулирование чека!")+eos
-_tmp += replicate("*",79)+eos
-strfile(_tmp,dir_server+"error.txt",.t.)
+_tmp += upper("Программе не удалось провести аннулирование чека!")+hb_eol()
+_tmp += replicate("*",79)+hb_eol()
+strfile(_tmp,dir_server()+"error.txt",.t.)
 //
 aadd(ar2, "При печати чека возникла ошибка!")
 aadd(ar2, "Программе не удалось провести аннулирование чека!")
@@ -1145,7 +1145,7 @@ if tip < 5
   aadd(arr, "ПО СВЕДЕНИЮ ПРОГРАММЫ:")
   s := sv := sd := 0
   if tip == 1
-    R_Use(dir_server+"hum_p",,"HUMAN")
+    R_Use(dir_server()+"hum_p",,"HUMAN")
     index on str(kod_k,7) to (cur_dir()+"tmp") ;
           for is_kas==1 .and. equalany(c4date,pdate,date_voz) ;
           progress
@@ -1164,7 +1164,7 @@ if tip < 5
       skip
     enddo
   elseif tip == 2
-    R_Use(dir_server+"hum_oro",,"HUMAN")
+    R_Use(dir_server()+"hum_oro",,"HUMAN")
     index on str(kod,7) to (cur_dir()+"tmp") ;
           for equalany(c4date,pdate,date_voz) ;
           progress
@@ -1183,7 +1183,7 @@ if tip < 5
       skip
     enddo
   else
-    R_Use(dir_server+"kas_pl",dir_server+"kas_pl2","KPL")
+    R_Use(dir_server()+"kas_pl",dir_server()+"kas_pl2","KPL")
     find (dtos(sys_date))
     do while kpl->k_data == sys_date .and. !eof()
       if kpl->smena == glob_smena
@@ -1192,7 +1192,7 @@ if tip < 5
       endif
       skip
     enddo
-    R_Use(dir_server+"kas_ort",dir_server+"kas_ort2","KOR")
+    R_Use(dir_server()+"kas_ort",dir_server()+"kas_ort2","KOR")
     find (dtos(sys_date))
     do while kor->k_data == sys_date .and. !eof()
       if kor->smena == glob_smena .and. kor->n_chek > 0
@@ -1217,8 +1217,8 @@ if tip < 5
     aadd(arr, " -Итого сумма наличных денег в ящике ККМ:      "+str(sd+meK_ostato,15,2))
   endif
 endif
-s := eos
-aeval(arr, {|x| s += space(10)+x+eos } )
+s := hb_eol()
+aeval(arr, {|x| s += space(10)+x+hb_eol() } )
 strfile(s, n_file)
 rest_box(buf)
 viewtext(n_file)
@@ -1875,7 +1875,7 @@ if glob_kassa == 1 .and. mek_kassa == 1
   endif
 endif
 //
-R_Use(dir_server+"base1",,"BASE1")
+R_Use(dir_server()+"base1",,"BASE1")
 select BASE1
 go top
 do while !eof()
@@ -1904,8 +1904,8 @@ do while !eof()
   skip
 enddo
 close databases
-s := eos
-aeval(arr, {|x| s += space(10)+x+eos } )
+s := hb_eol()
+aeval(arr, {|x| s += space(10)+x+hb_eol() } )
 strfile(s, n_file)
 rest_box(buf)
 viewtext(n_file)

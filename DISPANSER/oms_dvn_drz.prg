@@ -141,7 +141,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       return NIL
     endif
   elseif loc_kod > 0
-    R_Use( dir_server + 'human', , 'HUMAN' )
+    R_Use( dir_server() + 'human', , 'HUMAN' )
     goto (Loc_kod)
     fl := (human->k_data < 0d20240101)
     Use
@@ -189,17 +189,17 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // 
   afill( adiag_talon, 0 )
 
-  R_Use( dir_server + 'human_2', , 'HUMAN_2' )
-  R_Use( dir_server + 'human_', , 'HUMAN_' )
-  R_Use( dir_server + 'human', , 'HUMAN' )
+  R_Use( dir_server() + 'human_2', , 'HUMAN_2' )
+  R_Use( dir_server() + 'human_', , 'HUMAN_' )
+  R_Use( dir_server() + 'human', , 'HUMAN' )
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
 
   if mkod_k > 0
-    R_Use( dir_server + 'kartote2', , 'KART2' )
+    R_Use( dir_server() + 'kartote2', , 'KART2' )
     goto ( mkod_k )
-    R_Use( dir_server + 'kartote_', , 'KART_' )
+    R_Use( dir_server() + 'kartote_', , 'KART_' )
     goto ( mkod_k )
-    R_Use( dir_server + 'kartotek', , 'KART' )
+    R_Use( dir_server() + 'kartotek', , 'KART' )
     goto ( mkod_k )
     M1FIO       := 1
     mfio        := kart->fio
@@ -235,7 +235,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     // проверка исхода = СМЕРТЬ
     ah := {}
     select HUMAN
-    set index to (dir_server + 'humankk' )
+    set index to (dir_server() + 'humankk' )
     find ( str( mkod_k, 7 ) )
     do while human->kod_k == mkod_k .and. !eof()
       if human_->oplata != 9 .and. human_->NOVOR == 0 .and. recno() != Loc_kod
@@ -322,8 +322,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     larr := array( 2, lenArr_Uslugi_DRZ )
     arr_usl := {}
     afillall( larr, 0 )
-    R_Use( dir_server + 'uslugi', , 'USL')
-    R_Use( dir_server + 'mo_su', , 'MOSU')
+    R_Use( dir_server() + 'uslugi', , 'USL')
+    R_Use( dir_server() + 'mo_su', , 'MOSU')
     use_base( 'mo_hu' )
     use_base( 'human_u' )
 
@@ -399,7 +399,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       endif
     next
     //
-    R_Use(dir_server + 'mo_pers', , 'P2' )
+    R_Use(dir_server() + 'mo_pers', , 'P2' )
     read_arr_drz( Loc_kod, .t. )     // читаем сохраненные данные по углубленной диспансеризации
 
     view_uslugi := uslugi_to_view( uslugi_etapa )
@@ -522,8 +522,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   mndisp    := inieditspr( A__MENUVERT, mm_ndisp, metap )
   mrab_nerab := inieditspr( A__MENUVERT, menu_rab, m1rab_nerab )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
-  mlpu      := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', m1lpu )
-  motd      := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', m1otd )
+  mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
+  motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf, m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
@@ -810,7 +810,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       // ////////////////////////////////////////////////////////////
       mdef_diagnoz := DGZ
       r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
-      r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2' )
+      r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2' )
       num_screen := 2
       fl := .t.
       k := 0
@@ -1334,8 +1334,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       use_base( 'lusl' )
       use_base( 'luslc' )
       use_base( 'uslugi' )
-      r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
-        dir_server + 'uslugi1s' }, 'USL1' )
+      r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+        dir_server() + 'uslugi1s' }, 'USL1' )
       mcena_1 := mu_cena := 0
       For i := 1 To Len( arr_osm1 )
         If ValType( arr_osm1[ i, 5 ] ) == 'C'
@@ -1494,7 +1494,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
-        g_use( dir_server + 'mo_hismo',, 'SN' )
+        g_use( dir_server() + 'mo_hismo',, 'SN' )
         Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
@@ -1526,7 +1526,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       Enddo
       HDISP->( dbCloseArea() )
 
-      r_use( dir_server + 'mo_su',, 'MOSU' )
+      r_use( dir_server() + 'mo_su',, 'MOSU' )
       use_base( 'mo_hu' )
       // удалим старые услуги ФФОМС
       Do While .t.

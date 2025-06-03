@@ -54,9 +54,9 @@ Function _263_s_gospit()
     Endif
   Endif
   mywait()
-  r_use( dir_server + 'kartotek', , '_KART' )
-  r_use( dir_server + 'mo_nfile', , 'NF' )
-  g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+  r_use( dir_server() + 'kartotek', , '_KART' )
+  r_use( dir_server() + 'mo_nfile', , 'NF' )
+  g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
   Set Relation To kod_k into _KART, To KOD_F_4out into NF
   Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) ;
     For for_263_s_gospit()
@@ -279,7 +279,7 @@ Function _263_edit_s_gospit( nKey )
     Do Case
     Case sk == 1 // на основании направления
       If ( mkod := _263_input_napr() ) > 0
-        r_use( dir_server + 'mo_nnapr', , 'NAPR' )
+        r_use( dir_server() + 'mo_nnapr', , 'NAPR' )
         Goto ( mkod )
         m1kod_k := napr->kod_k
         mnum_d := napr->NUM_D
@@ -323,7 +323,7 @@ Function _263_edit_s_gospit( nKey )
     Close databases // если вдруг вышли из картотеки по <Esc>
     //
     If m1kod_k > 0
-      r_use( dir_server + 'kartotek', , '_KART' )
+      r_use( dir_server() + 'kartotek', , '_KART' )
       Goto ( m1kod_k )
       mfio    := _kart->fio
       mdate_r := _kart->date_r
@@ -361,7 +361,7 @@ Function _263_edit_s_gospit( nKey )
     If nKey == K_INS
       flag := .f.
     Elseif napr->t_ans_4 == 2
-      r_use( dir_server + 'mo_nfina', , 'NFN' )
+      r_use( dir_server() + 'mo_nfina', , 'NFN' )
       Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == napr->KOD_F_4out
       find ( Str( napr->kod, 6 ) )
       If Found()
@@ -492,7 +492,7 @@ Function _263_edit_s_gospit( nKey )
           Loop
         Endif
         If nKey == K_INS
-          g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+          g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
           If mTYPE_H_4 == 1
             Goto ( mkod )
             g_rlock( forever )
@@ -548,7 +548,7 @@ Function f1_263_edit_s_gospit()
   Local tmp_select := Select()
 
   If m1profil_k > 0 .and. m1profil > 0 .and. mDNEJ_H_4 <= 0
-    r_use( dir_server + 'mo_n7out', , 'N7' )
+    r_use( dir_server() + 'mo_n7out', , 'N7' )
     Index On Str( profil_k, 3 ) + Str( profil, 3 ) To tmpn7 memory
     find ( Str( m1profil_k, 3 ) + Str( m1profil, 3 ) )
     If Found() .and. n7->kol_kd > 0
@@ -639,8 +639,8 @@ Function _263_input_napr()
     Return lkod
   Endif
   mywait()
-  r_use( dir_server + 'kartotek', , '_KART' )
-  g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+  r_use( dir_server() + 'kartotek', , '_KART' )
+  g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
   Set Relation To kod_k into _KART
   Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) ;
     For for_263_input_napr()
@@ -706,9 +706,9 @@ Function _263_s_vybytie()
     Return Nil
   Endif
   mywait()
-  r_use( dir_server + 'kartotek', , '_KART' )
-  r_use( dir_server + 'mo_nfile', , 'NF' )
-  g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+  r_use( dir_server() + 'kartotek', , '_KART' )
+  r_use( dir_server() + 'mo_nfile', , 'NF' )
+  g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
   Set Relation To kod_k into _KART, To KOD_F_6out into NF
   If si == 1
     Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) ;
@@ -850,7 +850,7 @@ Function f2_263_s_vybytie( nKey, oBrow, regim )
         Endif
       Endif
       If napr->t_ans_6 == 2
-        r_use( dir_server + 'mo_nfina', , 'NFN' )
+        r_use( dir_server() + 'mo_nfina', , 'NFN' )
         Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == napr->KOD_F_6out
         find ( Str( napr->kod, 6 ) )
         If Found()
@@ -1041,9 +1041,9 @@ Function _263_s_napr()
     Return Nil
   Endif
   mywait()
-  r_use( dir_server + 'kartotek', , '_KART' )
-  r_use( dir_server + 'mo_nfile', , 'NF' )
-  g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+  r_use( dir_server() + 'kartotek', , '_KART' )
+  r_use( dir_server() + 'mo_nfile', , 'NF' )
+  g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
   Set Relation To kod_k into _KART// , to KOD_F_2out into NF
   Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) ;
     For for_263_s_napr()
@@ -1244,7 +1244,7 @@ Function f2_263_s_napr( nKey, oBrow, regim )
         Endif
       Endif
       If napr->t_ans_2 == 2
-        r_use( dir_server + 'mo_nfina', , 'NFN' )
+        r_use( dir_server() + 'mo_nfina', , 'NFN' )
         Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == napr->KOD_F_2out
         find ( Str( napr->kod, 6 ) )
         If Found()
@@ -1365,11 +1365,11 @@ Function _263_s_annul()
     Return Nil
   Endif
   mywait()
-  r_use( dir_server + 'kartote_', , '_KART_' )
-  r_use( dir_server + 'kartotek', , '_KART' )
+  r_use( dir_server() + 'kartote_', , '_KART_' )
+  r_use( dir_server() + 'kartotek', , '_KART' )
   Set Relation To kod into _KART_
-  r_use( dir_server + 'mo_nfile', , 'NF' )
-  g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+  r_use( dir_server() + 'mo_nfile', , 'NF' )
+  g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
   Set Relation To kod_k into _KART, To KOD_F_3out into NF
   Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) ;
     For for_263_s_annul()
@@ -1632,7 +1632,7 @@ Function _263_s_svob_kojki()
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  g_use( dir_server + 'mo_n7d', , 'D7' )
+  g_use( dir_server() + 'mo_n7d', , 'D7' )
   If LastRec() == 0
     Append Blank
     Unlock
@@ -1649,7 +1649,7 @@ Function _263_s_svob_kojki()
   @ T_ROW + 3, 4 Say 'Последний раз данные редактировались ' + date_8( d7->DATE_E ) + 'г. в ' + d7->TIME_E + ;
     ' - ' + iif( d7->END_EDIT == 1, '', 'не ' ) + 'завершено'
   If d7->KOD_OPER > 0
-    r_use( dir_server + 'base1', , 'base1' )
+    r_use( dir_server() + 'base1', , 'base1' )
     Goto ( d7->KOD_OPER )
     @ T_ROW + 4, 4 Say 'Данные редактировал пользователь: ' + Crypt( base1->p1, gpasskod )
     base1->( dbCloseArea() )
@@ -1680,7 +1680,7 @@ Function _263_s_svob_kojki()
     Unlock
     Commit
   Endif
-  g_use( dir_server + 'mo_n7out', , 'N7' )
+  g_use( dir_server() + 'mo_n7out', , 'N7' )
   Index On PadR( inieditspr( A__MENUVERT, arr_t007(), n7->PROFIL_K ), 60 ) + Str( PROFIL_K, 3 ) + Str( usl_ok, 1 ) + ;
     PadR( inieditspr( A__MENUVERT, getv002(), n7->PROFIL ), 20 ) + Str( PROFIL, 3 ) to ( cur_dir() + 'tmp_n7' )
   Go Top
@@ -2004,8 +2004,8 @@ Function _263_put_10_days( mdate )
       Endif
     Endif
   Enddo
-  r_use( dir_server + 'kartotek', , 'KART' )
-  r_use( dir_server + 'mo_nnapr', , 'NAPR' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'mo_nnapr', , 'NAPR' )
   Set Relation To kod_k into KART
   Index On Str( profil_k_4, 3 ) + Str( profil_4, 3 ) + Str( usl_ok_4, 1 ) to ( cur_dir() + 'tmp_napr' ) ;
     For Empty( TIP_ANNUL ) .and. KOD_F_4out >= 0 .and. TYPE_H_4 > 0 .and. !Empty( date_h_4 ) .and. Empty( date_6 )

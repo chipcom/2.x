@@ -16,8 +16,8 @@ Function f1main( n_Task )
   glob_task := n_Task
   sys_date := Date()
   c4sys_date := dtoc4( sys_date )
-  blk_ekran := {|| DevPos( MaxRow() -2, MaxCol() -Len( dir_server ) ), ;
-    DevOut( Upper( dir_server ), "W+/N*" ) }
+  blk_ekran := {|| DevPos( MaxRow() -2, MaxCol() -Len( dir_server() ) ), ;
+    DevOut( Upper( dir_server() ), "W+/N*" ) }
   main_menu := {}
   main_message := {}
   first_menu := {}

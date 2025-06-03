@@ -15,7 +15,7 @@ Function mo_mzxml_N(_regim, n_file, stitle, lvozrast)
     oXmlDoc := HXMLDoc():New(p_xml_code_page)
     oXmlDoc:Add( HXMLNode():New( 'children') )
     _kol := 0
-    R_Use(dir_server + 'organiz', , 'ORG')
+    R_Use(dir_server() + 'organiz', , 'ORG')
     sname_xml := alltrim(org->name_xml)
     use
   elseif _regim == 2
@@ -787,20 +787,20 @@ Function pr_inog_inostr()
   //
   Private _arr_if := {}, _what_if := _init_if(), _arr_komit := {}
   R_Use(dir_exe()+'_okator', cur_dir() + '_okatr', 'REGION')
-  R_Use(dir_server + 'kartote_', , 'KART_')
-  R_Use(dir_server + 'kartotek', , 'KART')
+  R_Use(dir_server() + 'kartote_', , 'KART_')
+  R_Use(dir_server() + 'kartotek', , 'KART')
   set relation to recno() into KART_
-  R_Use(dir_server + 'mo_otd', , 'OTD')
-  R_Use(dir_server + 'mo_kinos',dir_server + 'mo_kinos', 'KIS')
-  R_Use(dir_server + 'uslugi', , 'USL')
-  R_Use(dir_server + 'human_u', dir_server + 'human_u', 'HU')
-  R_Use(dir_server + 'human_3', {dir_server + 'human_3', ;
-                                dir_server + 'human_32'}, 'HUMAN_3')
-  R_Use(dir_server + 'human_2', , 'HUMAN_2')
-  R_Use(dir_server + 'human_', , 'HUMAN_')
-  R_Use(dir_server + 'human', {dir_server + 'humand', ;
-                              dir_server + 'humank', ;
-                              dir_server + 'humankk'}, 'HUMAN')
+  R_Use(dir_server() + 'mo_otd', , 'OTD')
+  R_Use(dir_server() + 'mo_kinos',dir_server() + 'mo_kinos', 'KIS')
+  R_Use(dir_server() + 'uslugi', , 'USL')
+  R_Use(dir_server() + 'human_u', dir_server() + 'human_u', 'HU')
+  R_Use(dir_server() + 'human_3', {dir_server() + 'human_3', ;
+                                dir_server() + 'human_32'}, 'HUMAN_3')
+  R_Use(dir_server() + 'human_2', , 'HUMAN_2')
+  R_Use(dir_server() + 'human_', , 'HUMAN_')
+  R_Use(dir_server() + 'human', {dir_server() + 'humand', ;
+                              dir_server() + 'humank', ;
+                              dir_server() + 'humankk'}, 'HUMAN')
   set relation to kod_k into KART, to recno() into HUMAN_, to recno() into HUMAN_2
   dbseek(dtos(arr_m[5]), .t.)
   
@@ -886,7 +886,7 @@ Function pr_inog_inostr()
   enddo
   if is_task(X_PLATN)
     WaitStatus('« â­ë¥ ãá«ã£¨')
-    R_Use(dir_server + 'hum_p',dir_server + 'hum_pd', 'HUMP')
+    R_Use(dir_server() + 'hum_p',dir_server() + 'hum_pd', 'HUMP')
     set relation to kod_k into KART
     dbseek(dtos(arr_m[5]), .t.)
     do while hump->k_data <= arr_m[6] .and. !eof()
@@ -937,7 +937,7 @@ Function pr_inog_inostr()
   endif
   if is_task(X_ORTO)
     WaitStatus('àâ®¯¥¤¨ï')
-    R_Use(dir_server + 'hum_ort',dir_server + 'hum_ortd', 'HUMO')
+    R_Use(dir_server() + 'hum_ort',dir_server() + 'hum_ortd', 'HUMO')
     set relation to kod_k into KART
     dbseek(dtos(arr_m[5]), .t.)
     do while humo->k_data <= arr_m[6] .and. !eof()
@@ -1096,7 +1096,7 @@ Function f3pr_inog_inostr(j, arr_m)
           {'forma', 'C', 60, 0}})
   use (fr_data) new alias FRD
   R_Use(dir_exe()+'_okator',cur_dir() + '_okatr', 'REGION')
-  R_Use(dir_server + 'kartotek', , 'KART')
+  R_Use(dir_server() + 'kartotek', , 'KART')
   use (cur_dir() + 'tmp_kart') new
   if j == 1 .or. j == 2 .or. j == 5
     set relation to kod into KART

@@ -109,15 +109,15 @@ Function oms_sluch_PREDN(Loc_kod, kod_kartotek, f_print)
   next
   //
   afill(adiag_talon, 0)
-  R_Use(dir_server + 'human_', , 'HUMAN_')
-  R_Use(dir_server + 'human', , 'HUMAN')
+  R_Use(dir_server() + 'human_', , 'HUMAN_')
+  R_Use(dir_server() + 'human', , 'HUMAN')
   set relation to recno() into HUMAN_
   if mkod_k > 0
-    R_Use(dir_server + 'kartote2', , 'KART2')
+    R_Use(dir_server() + 'kartote2', , 'KART2')
     goto (mkod_k)
-    R_Use(dir_server + 'kartote_', , 'KART_')
+    R_Use(dir_server() + 'kartote_', , 'KART_')
     goto (mkod_k)
-    R_Use(dir_server + 'kartotek', , 'KART')
+    R_Use(dir_server() + 'kartotek', , 'KART')
     goto (mkod_k)
     M1FIO       := 1
     mfio        := kart->fio
@@ -148,7 +148,7 @@ Function oms_sluch_PREDN(Loc_kod, kod_kartotek, f_print)
     endif
     // проверка исхода = СМЕРТЬ
     select HUMAN
-    set index to (dir_server + 'humankk')
+    set index to (dir_server() + 'humankk')
     arr_patient_died_during_treatment( mkod_k, loc_kod )
     set index to
 //    a_smert := result_is_death(mkod_k, Loc_kod)
@@ -208,7 +208,7 @@ Function oms_sluch_PREDN(Loc_kod, kod_kartotek, f_print)
     afill(larr_o, 0)
     larr_p := {}
     mdate1 := mdate2 := ctod('')
-    R_Use(dir_server + 'uslugi', , 'USL')
+    R_Use(dir_server() + 'uslugi', , 'USL')
     use_base('human_u')
     find (str(Loc_kod, 7))
     do while hu->kod == Loc_kod .and. !eof()
@@ -249,7 +249,7 @@ Function oms_sluch_PREDN(Loc_kod, kod_kartotek, f_print)
       asort(larr_p, , , {|x,y| x[2] < y[2]})
       asize(larr_p, 2) // отрезать лишние приёмы
     endif
-    R_Use(dir_server + 'mo_pers', , 'P2')
+    R_Use(dir_server() + 'mo_pers', , 'P2')
     for j := 1 to 3
       if j == 1
         _arr := larr_i
@@ -306,8 +306,8 @@ Function oms_sluch_PREDN(Loc_kod, kod_kartotek, f_print)
   fv_date_r( iif(Loc_kod>0, mn_data,) )
   MFIO_KART := _f_fio_kart()
   mvzros_reb:= inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
-  mlpu      := inieditspr(A__POPUPMENU, dir_server + 'mo_uch', m1lpu)
-  motd      := inieditspr(A__POPUPMENU, dir_server + 'mo_otd', m1otd)
+  mlpu      := inieditspr(A__POPUPMENU, dir_server() + 'mo_uch', m1lpu)
+  motd      := inieditspr(A__POPUPMENU, dir_server() + 'mo_otd', m1otd)
   mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
   mokato    := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
   mkomu     := inieditspr(A__MENUVERT, mm_komu, m1komu)
@@ -330,7 +330,7 @@ Function oms_sluch_PREDN(Loc_kod, kod_kartotek, f_print)
   if !empty(m1MO_PR)
     mMO_PR := ret_mo(m1MO_PR)[_MO_SHORT_NAME]
   endif
-  mschool := inieditspr(A__POPUPMENU, dir_server + 'mo_schoo', m1school)
+  mschool := inieditspr(A__POPUPMENU, dir_server() + 'mo_schoo', m1school)
   mtip_school := inieditspr(A__MENUVERT, mm_tip_school, m1tip_school)
   mstep2  := inieditspr(A__MENUVERT, mm_danet, m1step2)
   mgr_fiz := inieditspr(A__MENUVERT, mm_gr_fiz, m1gr_fiz)
@@ -422,7 +422,7 @@ Function oms_sluch_PREDN(Loc_kod, kod_kartotek, f_print)
           reader {|x|menu_reader(x, {{|k, r, c|f_get_mo(k, r, c)}}, A__FUNCTION, , , .f.)}
       ++j
       @ ++j, 1 say 'Общеобразовательное учреждение' get mschool ;
-          reader {|x|menu_reader(x, {dir_server + 'mo_schoo', , , , , ,'Общеобразовательные учр-ия','B/BG'},A__POPUPBASE1, , , .f.)}
+          reader {|x|menu_reader(x, {dir_server() + 'mo_schoo', , , , , ,'Общеобразовательные учр-ия','B/BG'},A__POPUPBASE1, , , .f.)}
       @ ++j, 1 say 'Тип общеобразовательного учреждения' get mtip_school ;
           reader {|x|menu_reader(x,mm_tip_school, A__MENUVERT, , , .f.)}
       status_key('^<Esc>^ выход без записи ^<PgDn>^ на 2-ю страницу')
@@ -647,7 +647,7 @@ Function oms_sluch_PREDN(Loc_kod, kod_kartotek, f_print)
       arr_iss := array(count_predn_arr_iss, 10)
       afillall(arr_iss, 0)
       R_Use(dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10')
-      R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2')
+      R_Use(dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2')
       num_screen := 2
       max_date1 := max_date2 := mn_data
       d12 := mn_data - 1
@@ -961,8 +961,8 @@ Function oms_sluch_PREDN(Loc_kod, kod_kartotek, f_print)
       Use_base('lusl')
       Use_base('luslc')
       Use_base('uslugi')
-      R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1', ;
-                                  dir_server + 'uslugi1s'}, 'USL1')
+      R_Use(dir_server() + 'uslugi1', {dir_server() + 'uslugi1', ;
+                                  dir_server() + 'uslugi1s'}, 'USL1')
       Private mu_cena
       mcena_1 := 0
       arr_usl_dop := {}
@@ -1115,7 +1115,7 @@ Function oms_sluch_PREDN(Loc_kod, kod_kartotek, f_print)
         endif
       endif
       if fl_nameismo .or. rec_inogSMO > 0
-        G_Use(dir_server + 'mo_hismo', , 'SN')
+        G_Use(dir_server() + 'mo_hismo', , 'SN')
         index on str(kod, 7) to (cur_dir() + 'tmp_ismo')
         find (str(mkod, 7))
         if found()

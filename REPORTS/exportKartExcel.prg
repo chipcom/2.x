@@ -82,9 +82,9 @@ function exportKartExcel( fName, aCondition, aFilter )
   // устоновим автофильтр
   WORKSHEET_AUTOFILTER( worksheet, 2, 1, 2, j - 1 )
 
-  R_Use(dir_server + 'kartote2', , 'KART2')
-  R_Use(dir_server + 'kartote_', , 'KART_')
-  R_Use(dir_server + 'kartotek', , 'KART')
+  R_Use(dir_server() + 'kartote2', , 'KART2')
+  R_Use(dir_server() + 'kartote_', , 'KART_')
+  R_Use(dir_server() + 'kartotek', , 'KART')
   set relation to recno() into KART_, to recno() into KART2
 
   hGauge := GaugeNew( , , , hb_Utf8ToStr( 'Экспорт картотеки в Excel', 'RU866' ), .t. )

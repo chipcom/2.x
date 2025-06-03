@@ -53,16 +53,16 @@ Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
       m1povod  := 1, ;   // Лечебно-диагностический
       m1travma := 0
     //
-  R_Use(dir_server + 'human_2', , 'HUMAN_2')
-  R_Use(dir_server + 'human_', , 'HUMAN_')
-  R_Use(dir_server + 'human', , 'HUMAN')
+  R_Use(dir_server() + 'human_2', , 'HUMAN_2')
+  R_Use(dir_server() + 'human_', , 'HUMAN_')
+  R_Use(dir_server() + 'human', , 'HUMAN')
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
   if mkod_k > 0
-    R_Use(dir_server + 'kartote2', , 'KART2')
+    R_Use(dir_server() + 'kartote2', , 'KART2')
     goto (mkod_k)
-    R_Use(dir_server + 'kartote_', , 'KART_')
+    R_Use(dir_server() + 'kartote_', , 'KART_')
     goto (mkod_k)
-    R_Use(dir_server + 'kartotek', , 'KART')
+    R_Use(dir_server() + 'kartotek', , 'KART')
     goto (mkod_k)
     M1FIO       := 1
     mfio        := kart->fio
@@ -93,7 +93,7 @@ Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
     endif
     // проверка исхода = СМЕРТЬ 
     select HUMAN
-    set index to (dir_server + 'humankk')
+    set index to (dir_server() + 'humankk')
     arr_patient_died_during_treatment( mkod_k, loc_kod )
     set index to
     // a_smert := result_is_death(mkod_k, Loc_kod)
@@ -148,7 +148,7 @@ Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
     msmo := '34'
   endif
   if m1vrach > 0
-    R_Use(dir_server + 'mo_pers', , 'P2')
+    R_Use(dir_server() + 'mo_pers', , 'P2')
     goto (m1vrach)
     MTAB_NOM := p2->tab_nom
     m1prvs := -ret_new_spec(p2->prvs, p2->prvs_new)
@@ -164,8 +164,8 @@ Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
   endif
   MKOD_DIAG := padr(MKOD_DIAG, 6)
   mvzros_reb:= inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
-  mlpu      := inieditspr(A__POPUPMENU, dir_server + 'mo_uch', m1lpu)
-  motd      := inieditspr(A__POPUPMENU, dir_server + 'mo_otd', m1otd)
+  mlpu      := inieditspr(A__POPUPMENU, dir_server() + 'mo_uch', m1lpu)
+  motd      := inieditspr(A__POPUPMENU, dir_server() + 'mo_otd', m1otd)
   mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
   mokato    := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
   mkomu     := inieditspr(A__MENUVERT, mm_komu, m1komu)
@@ -294,7 +294,7 @@ Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
       endif
       arr_iss := array(1, 9)
       afillall(arr_iss, 0)
-      R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2')
+      R_Use(dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2')
       find (str(MTAB_NOM, 5))
       if found()
         arr_iss[1, 1] := p2->kod
@@ -320,8 +320,8 @@ Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
       Use_base('lusl')
       Use_base('luslc')
       Use_base('uslugi')
-      R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1', ;
-                                    dir_server + 'uslugi1s'}, 'USL1')
+      R_Use(dir_server() + 'uslugi1', {dir_server() + 'uslugi1', ;
+                                    dir_server() + 'uslugi1s'}, 'USL1')
       Private mu_cena
       mcena_1 := 0
       arr_usl_dop := {}
@@ -461,7 +461,7 @@ Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
         endif
       endif
       if fl_nameismo .or. rec_inogSMO > 0
-        G_Use(dir_server + 'mo_hismo', , 'SN')
+        G_Use(dir_server() + 'mo_hismo', , 'SN')
         index on str(kod, 7) to (cur_dir() + 'tmp_ismo')
         find (str(mkod, 7))
         if found()

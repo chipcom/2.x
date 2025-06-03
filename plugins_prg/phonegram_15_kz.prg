@@ -21,25 +21,25 @@ Function phonegram_15_kz()
     { 'kslp', 'N', 15, 2 } } )
   Use ( cur_dir() + 'tmp' ) New Alias TMP
   Index On Str( oms, 1 ) + Str( nstr, 1 ) + Str( mm, 2 ) to ( cur_dir() + 'tmp' )
-  r_use( dir_server + 'mo_rak',, 'RAK' )
-  r_use( dir_server + 'mo_raks',, 'RAKS' )
+  r_use( dir_server() + 'mo_rak',, 'RAK' )
+  r_use( dir_server() + 'mo_raks',, 'RAKS' )
   Set Relation To akt into RAK
-  r_use( dir_server + 'mo_raksh',, 'RAKSH' )
+  r_use( dir_server() + 'mo_raksh',, 'RAKSH' )
   Set Relation To kod_raks into RAKS
   Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' )
   //
-  r_use( dir_server + 'schet_',, 'SCHET_' )
-  r_use( dir_server + 'schet',, 'SCHET' )
+  r_use( dir_server() + 'schet_',, 'SCHET_' )
+  r_use( dir_server() + 'schet',, 'SCHET' )
   Set Relation To RecNo() into SCHET_
   //
-  r_use( dir_server + 'uslugi',, 'USL' )
-  g_use( dir_server + 'human_u_',, 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  r_use( dir_server() + 'uslugi',, 'USL' )
+  g_use( dir_server() + 'human_u_',, 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
   //
-  r_use( dir_server + 'human_2',, 'HUMAN_2' )
-  r_use( dir_server + 'human_',, 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+  r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+  r_use( dir_server() + 'human_',, 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
   Do While human->k_data <= arr_m[ 6 ] .and. !Eof()

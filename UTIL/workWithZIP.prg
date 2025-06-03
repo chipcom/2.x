@@ -24,7 +24,7 @@ Function chip_create_zipxml( zip_file, arr_f, is_delete_files, type_dir )
     Next
   Endif
   If fl
-    fl := chip_copy_zipxml( zip_file, dir_server + iif( type_dir == 1, dir_XML_MO(), dir_NAPR_MO() ), .t. )
+    fl := chip_copy_zipxml( zip_file, dir_server() + iif( type_dir == 1, dir_XML_MO(), dir_NAPR_MO() ), .t. )
   Endif
   Return fl
 

@@ -62,7 +62,7 @@ Function ob2_statist( k, serv_arr )
     If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5,,, @lcount_uch ) ) == NIL
       Return Nil
     Endif
-    r_use( dir_server + "mo_otd",, "OTD" )
+    r_use( dir_server() + "mo_otd",, "OTD" )
     dbEval( {|| AAdd( arr_otd, { otd->( RecNo() ), otd->name, otd->kod_lpu } ) }, ;
       {|| f_is_uch( st_a_uch, otd->kod_lpu ) } )
     OTD->( dbCloseArea() )
@@ -105,9 +105,9 @@ Function ob2_statist( k, serv_arr )
     Elseif serv_arr[ 1 ] == 2  // ¢¥áì ¯¥àá®­ «
       mywait()
       mperso := {}
-      r_use( dir_server + "human_u", { dir_server + "human_uv", ;
-        dir_server + "human_ua" }, "HU" )
-      r_use( dir_server + "mo_pers",, "P2" )
+      r_use( dir_server() + "human_u", { dir_server() + "human_uv", ;
+        dir_server() + "human_ua" }, "HU" )
+      r_use( dir_server() + "mo_pers",, "P2" )
       Go Top
       Do While !Eof()
         If p2->kod > 0
@@ -242,11 +242,11 @@ Function ob2_statist( k, serv_arr )
   If mem_trudoem == 2
     useuch_usl()
   Endif
-  If hb_FileExists( dir_server + "usl_del" + sdbf )
-    r_use( dir_server + "usl_del",, "UD" )
+  If hb_FileExists( dir_server() + "usl_del" + sdbf )
+    r_use( dir_server() + "usl_del",, "UD" )
     Index On Str( kod, 4 ) to ( cur_dir() + "tmp_ud" )
   Endif
-  r_use( dir_server + "uslugi",, "USL" )
+  r_use( dir_server() + "uslugi",, "USL" )
   Private is_1_usluga := ( Len( arr_usl ) == 1 )
   If psz == 2 .and. eq_any( is_oplata, 5, 6, 7 )
     open_opl_5()
@@ -254,7 +254,7 @@ Function ob2_statist( k, serv_arr )
       cre_tmp7()
     Endif
   Endif
-  r_use( dir_server + "mo_pers",, "PERSO" )
+  r_use( dir_server() + "mo_pers",, "PERSO" )
   If eq_any( k, 5, 9, 13 )  // ‘â â¨áâ¨ª  ¯® à ¡®â¥ ª®­ªà¥â­®£® ç¥«®¢¥ª 
     If serv_arr == NIL
       mperso := { glob_human }
@@ -262,9 +262,9 @@ Function ob2_statist( k, serv_arr )
     If pi1 == 4  // ¯® ­¥¢ë¯¨á ­­ë¬ áç¥â ¬
       pole_kol := "hu->kol_1"
       pole_stoim := "hu->stoim_1"
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humann", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humann", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
       dbSeek( "1", .t. )
       Do While human->tip_h < B_SCHET .and. !Eof()
@@ -299,13 +299,13 @@ Function ob2_statist( k, serv_arr )
         Skip
       Enddo
     Else   // between(pi1,1,3)
-      r_use( dir_server + "schet",, "SCHET" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humank", "HUMAN" )
+      r_use( dir_server() + "schet",, "SCHET" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humank", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
-      r_use( dir_server + "human_u", { dir_server + "human_uv", ;
-        dir_server + "human_ua", ;
-        dir_server + "human_u" }, "HU" )
+      r_use( dir_server() + "human_u", { dir_server() + "human_uv", ;
+        dir_server() + "human_ua", ;
+        dir_server() + "human_u" }, "HU" )
       For yy := 1 To Len( mperso )
         mkod_perso := mperso[ yy, 1 ]
         For xx := 1 To 2
@@ -399,9 +399,9 @@ Function ob2_statist( k, serv_arr )
     If pi1 == 4  // ¯® ­¥¢ë¯¨á ­­ë¬ áç¥â ¬
       pole_kol := "hu->kol_1"
       pole_stoim := "hu->stoim_1"
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humann", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humann", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
       dbSeek( "1", .t. )
       Do While human->tip_h < B_SCHET .and. !Eof()
@@ -430,12 +430,12 @@ Function ob2_statist( k, serv_arr )
     Else   // between(pi1,1,3)
       t_date1 := dtoc4( arr[ 5 ] -180 )
       t_date2 := dtoc4( arr[ 5 ] -1 )
-      r_use( dir_server + "schet",, "SCHET" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humank", "HUMAN" )
+      r_use( dir_server() + "schet",, "SCHET" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humank", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
-      r_use( dir_server + "human_u", { dir_server + "human_uk", ;
-        dir_server + "human_u" }, "HU" )
+      r_use( dir_server() + "human_u", { dir_server() + "human_uk", ;
+        dir_server() + "human_u" }, "HU" )
       For xx := 1 To Len( arr_usl )
         If k == 6
           tmp->( dbGoto( arr_usl[ xx, 2 ] ) )
@@ -508,10 +508,10 @@ Function ob2_statist( k, serv_arr )
     Case pi1 == 1  // ¯® ¤ â¥ ®ª § ­¨ï ãá«ã£¨
       pole_kol := "hu->kol"
       pole_stoim := "hu->stoim"
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human",, "HUMAN" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human",, "HUMAN" )
       Set Relation To RecNo() into HUMAN_
-      r_use( dir_server + "human_u", dir_server + "human_ud", "HU" )
+      r_use( dir_server() + "human_u", dir_server() + "human_ud", "HU" )
       Set Relation To kod into HUMAN
       Select HU
       dbSeek( begin_date, .t. )
@@ -531,11 +531,11 @@ Function ob2_statist( k, serv_arr )
     Case pi1 == 2  // ¯® ¤ â¥ ¢ë¯¨áª¨ áç¥â 
       pole_kol := "hu->kol_1"
       pole_stoim := "hu->stoim_1"
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
-      r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+      r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
       Set Filter To !eq_any( mest_inog, 6, 7 )
       dbSeek( begin_date, .t. )
       Do While schet->pdate <= end_date .and. !Eof()
@@ -567,9 +567,9 @@ Function ob2_statist( k, serv_arr )
     Case pi1 == 3  // ¯® ¤ â¥ ®ª®­ç ­¨ï «¥ç¥­¨ï
       pole_kol := "hu->kol_1"
       pole_stoim := "hu->stoim_1"
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
       If glob_mo[ _MO_KOD_TFOMS ] == '154602' // 2
         //
       Else
@@ -601,9 +601,9 @@ Function ob2_statist( k, serv_arr )
     Case pi1 == 4  // ¯® ­¥¢ë¯¨á ­­ë¬ áç¥â ¬
       pole_kol := "hu->kol_1"
       pole_stoim := "hu->stoim_1"
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humann", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humann", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
       dbSeek( "1", .t. )
       Do While human->tip_h < B_SCHET .and. !Eof()
@@ -638,11 +638,11 @@ Function ob2_statist( k, serv_arr )
         "                         ³ Š®«.³‘â®¨¬®áâì ³  „ â   º               ³  „ â   º          ", ;
         "         ”.ˆ.Ž.          ³ãá«ã£³®ª §.ãá«ã£³®ª®­.«¥çº  ®¬¥à áç¥â   ³  áç¥â  ºà¨¬¥ç ­¨¥", ;
         "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÐÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÐÄÄÄÄÄÄÄÄÄÄ" }
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humank", "HUMAN" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humank", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
-      r_use( dir_server + "schet_",, "SCHET_" )
-      r_use( dir_server + "schet",, "SCHET" )
+      r_use( dir_server() + "schet_",, "SCHET_" )
+      r_use( dir_server() + "schet",, "SCHET" )
       Set Relation To RecNo() into SCHET_
     Else
       len_n := 58
@@ -682,13 +682,13 @@ Function ob2_statist( k, serv_arr )
     Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpk" ), ( cur_dir() + "tmpn" ) New Alias TMP
     If !eq_any( k, 1, 8, 9 )
       If eq_any( k, 0, 10, 100, 110 )
-        r_use( dir_server + "slugba", dir_server + "slugba", "SL" )
+        r_use( dir_server() + "slugba", dir_server() + "slugba", "SL" )
       Endif
       If eq_any( k, 3, 31, 4, 5, 6, 10, 11, 12, 13, 14, 110, 111 )
         use_base( "lusl" )
-        r_use( dir_server + "uslugi",, "USL" )
+        r_use( dir_server() + "uslugi",, "USL" )
       Endif
-      r_use( dir_server + "mo_pers",, "PERSO" )
+      r_use( dir_server() + "mo_pers",, "PERSO" )
       Select TMP
       Set Order To 0
       Go Top
@@ -863,7 +863,7 @@ Function ob2_statist( k, serv_arr )
     add_string( Center( s, sh ) )
     add_string( "" )
     If fl_plan
-      r_use( dir_server + "uch_pers", dir_server + "uch_pers", "UCHP" )
+      r_use( dir_server() + "uch_pers", dir_server() + "uch_pers", "UCHP" )
     Endif
     Select TMP
     Set Order To 2
@@ -1681,8 +1681,8 @@ Function _init_if()
   Local i, arr_f := { "str_komp",, "komitet" }, arr := { I_FIN_OMS }, arr2 := {}
 
   For i := 1 To 3
-    If i != 2 .and. hb_FileExists( dir_server + arr_f[ i ] + sdbf )
-      r_use( dir_server + arr_f[ i ],, "_B" )
+    If i != 2 .and. hb_FileExists( dir_server() + arr_f[ i ] + sdbf )
+      r_use( dir_server() + arr_f[ i ],, "_B" )
       Go Top
       Do While !Eof()
         If iif( i == 1, !Between( _b->tfoms, 44, 47 ), .t. )
@@ -1731,7 +1731,7 @@ Function fbp_ist_fin( r, c )
       Endif
       If Len( _arr_if ) == 1 .and. _arr_if[ 1 ] == I_FIN_BUD
         arr := {}
-        r_use( dir_server + "komitet",, "KOM" )
+        r_use( dir_server() + "komitet",, "KOM" )
         Go Top
         Do While !Eof()
           If kom->ist_fin == I_FIN_BUD
@@ -1913,7 +1913,7 @@ Function open_opl_5()
 
   If is_oplata == 7
     arr_opl_7 := {}
-    r_use( dir_server + "u_usl_7",, "U7" )
+    r_use( dir_server() + "u_usl_7",, "U7" )
     Go Top
     Do While !Eof()
       If !Empty( u7->name )
@@ -1931,7 +1931,7 @@ Function open_opl_5()
     u7->( dbCloseArea() )
     len_arr_7 := Len( arr_opl_7 )
   Endif
-  g_use( dir_server + "u_usl_5",, "U5" )
+  g_use( dir_server() + "u_usl_5",, "U5" )
   Index On Str( tip, 2 ) + fsort_usl( iif( Empty( usl_2 ), usl_1, usl_2 ) ) + ;
     Str( razryad, 2 ) + Str( otdal, 1 ) to ( cur_dir() + "tmp_u5" )
 
@@ -2103,7 +2103,7 @@ Function file_tmp7( ausl, sh, HH, k )
     "ÄÄÄÁÄÄÄÄÄÄÄÄÄÄÐÄÄÄÄÄÁÄÄÄÄÄÐÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÐÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ" }
   sh := Len( arr_title[ 1 ] )
   If Select( "PERSO" ) == 0
-    r_use( dir_server + "mo_pers",, "PERSO" )
+    r_use( dir_server() + "mo_pers",, "PERSO" )
   Endif
   If Select( "TMP7" ) == 0
     Use ( cur_dir() + "tmp7" ) index ( cur_dir() + "tmp7" ) new
@@ -2114,7 +2114,7 @@ Function file_tmp7( ausl, sh, HH, k )
   Select UU
   find ( Str( lkod_usl, 4 ) )
   If Select( "USL" ) == 0
-    r_use( dir_server + "uslugi",, "USL" )
+    r_use( dir_server() + "uslugi",, "USL" )
   Endif
   usl->( dbGoto( lkod_usl ) )
   //
@@ -2337,9 +2337,9 @@ Function proch_proverka()
       Index On Str( rec, 7 ) to ( cur_dir() + "tmpk" )
       fl_exit := .f.
       fl_srok := ( msrok1 > 0 .or. msrok2 > 0 )
-      r_use( dir_server + "kartotek",, "KART" )
-      r_use( dir_server + "ns_usl_k", dir_server + "ns_usl_k", "NSK" )
-      g_use( dir_server + "ns_usl",, "NS" )
+      r_use( dir_server() + "kartotek",, "KART" )
+      r_use( dir_server() + "ns_usl_k", dir_server() + "ns_usl_k", "NSK" )
+      g_use( dir_server() + "ns_usl",, "NS" )
       If m1ns_usl == 2
         js := 0
         Go Top
@@ -2363,27 +2363,27 @@ Function proch_proverka()
         Endif
       Endif
       r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "MKB_10" )
-      r_use( dir_server + "mo_uch",, "UCH" )
-      r_use( dir_server + "mo_otd",, "OTD" )
+      r_use( dir_server() + "mo_uch",, "UCH" )
+      r_use( dir_server() + "mo_otd",, "OTD" )
       use_base( "lusl" )
       use_base( "luslc" )
       use_base( "uslugi" )
-      r_use( dir_server + "uslugi1", { dir_server + "uslugi1", ;
-        dir_server + "uslugi1s" }, "USL1" )
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "mo_su",, "MOSU" )
-      r_use( dir_server + "mo_hu", dir_server + "mo_hu", "MOHU" )
+      r_use( dir_server() + "uslugi1", { dir_server() + "uslugi1", ;
+        dir_server() + "uslugi1s" }, "USL1" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "mo_su",, "MOSU" )
+      r_use( dir_server() + "mo_hu", dir_server() + "mo_hu", "MOHU" )
       Set Relation To u_kod into MOSU
       js := jh := jt := 0
       waitstatus( "<Esc> - ¯à¥à¢ âì ¯®¨áª" ) ; mark_keys( { "<Esc>" } )
       If m1schet == 1
-        r_use( dir_server + "human_2",, "HUMAN_2" )
-        r_use( dir_server + "human_",, "HUMAN_" )
-        r_use( dir_server + "human", { dir_server + "humans", ;
-          dir_server + "humankk" }, "HUMAN" )
+        r_use( dir_server() + "human_2",, "HUMAN_2" )
+        r_use( dir_server() + "human_",, "HUMAN_" )
+        r_use( dir_server() + "human", { dir_server() + "humans", ;
+          dir_server() + "humankk" }, "HUMAN" )
         Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
-        r_use( dir_server + "schet_",, "SCHET_" )
-        r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+        r_use( dir_server() + "schet_",, "SCHET_" )
+        r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
         Set Relation To RecNo() into SCHET_
         Set Filter To Empty( schet_->IS_DOPLATA )
         dbSeek( pdate_schet[ 7 ], .t. )
@@ -2413,10 +2413,10 @@ Function proch_proverka()
           Skip
         Enddo
       Else
-        r_use( dir_server + "human_2",, "HUMAN_2" )
-        r_use( dir_server + "human_",, "HUMAN_" )
-        r_use( dir_server + "human", { dir_server + "humann", ;
-          dir_server + "humankk" }, "HUMAN" )
+        r_use( dir_server() + "human_2",, "HUMAN_2" )
+        r_use( dir_server() + "human_",, "HUMAN_" )
+        r_use( dir_server() + "human", { dir_server() + "humann", ;
+          dir_server() + "humankk" }, "HUMAN" )
         Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
         dbSeek( "1", .t. )
         Do While human->tip_h < B_SCHET .and. !Eof()
@@ -2445,12 +2445,12 @@ Function proch_proverka()
         func_error( 4, "à®¢¥àª  ¯à®¢¥¤¥­  ãá¯¥è­®!  àãè¥­¨© ­¥â." )
       Else
         mywait()
-        r_use( dir_server + "mo_otd",, "OTD" )
-        r_use( dir_server + "schet_",, "SCHET_" )
-        r_use( dir_server + "schet",, "SCHET" )
+        r_use( dir_server() + "mo_otd",, "OTD" )
+        r_use( dir_server() + "schet_",, "SCHET_" )
+        r_use( dir_server() + "schet",, "SCHET" )
         Set Relation To RecNo() into SCHET_
-        r_use( dir_server + "human_",, "HUMAN_" )
-        r_use( dir_server + "human", dir_server + "humank", "HUMAN" )
+        r_use( dir_server() + "human_",, "HUMAN_" )
+        r_use( dir_server() + "human", dir_server() + "humank", "HUMAN" )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
         Use ( cur_dir() + "tmp" ) new
         Set Relation To Str( kod, 7 ) into HUMAN, To schet into SCHET
@@ -2948,9 +2948,9 @@ Function o_pr_vr_as( reg )
   dbCreate( cur_dir() + "tmp", { { "rec", "N", 7, 0 } } )
   Use ( cur_dir() + "tmp" ) new
   If j == 1
-    r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humann", "HUMAN" )
+    r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humann", "HUMAN" )
     Set Relation To RecNo() into HUMAN_
     dbSeek( "1", .t. )
     Do While human->tip_h < B_SCHET .and. !Eof()
@@ -2987,12 +2987,12 @@ Function o_pr_vr_as( reg )
       Skip
     Enddo
   Elseif j == 2
-    r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+    r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
     Set Relation To RecNo() into HUMAN_
-    r_use( dir_server + "schet_",, "SCHET_" )
-    r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+    r_use( dir_server() + "schet_",, "SCHET_" )
+    r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
     Set Relation To RecNo() into SCHET_
     Set Filter To Empty( schet_->IS_DOPLATA )
     dbSeek( arr[ 7 ], .t. )
@@ -3064,7 +3064,7 @@ Function o_pr_vr_as( reg )
     //
     Select HUMAN
     Set Index To
-    r_use( dir_server + "mo_otd",, "OTD" )
+    r_use( dir_server() + "mo_otd",, "OTD" )
     Select TMP
     Set Relation To rec into HUMAN
     Index On Upper( human->fio ) to ( cur_dir() + "tmp" )
@@ -3121,11 +3121,11 @@ Function i_vr_boln()
   add_string( Center( s, sh ) )
   add_string( Center( arr_m[ 4 ], sh ) )
   add_string( "" )
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "human_",, "HUMAN_" )
-  r_use( dir_server + "human",, "HUMAN" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "human_",, "HUMAN_" )
+  r_use( dir_server() + "human",, "HUMAN" )
   Set Relation To RecNo() into HUMAN_
-  r_use( dir_server + "human_u", dir_server + "human_uv", "HU" )
+  r_use( dir_server() + "human_u", dir_server() + "human_uv", "HU" )
   dbSeek( Str( glob_human[ 1 ], 4 ) + begin_date, .t. )
   Do While hu->kod_vr == glob_human[ 1 ] .and. hu->date_u <= end_date .and. !Eof()
     human->( dbGoto( hu->kod ) )
@@ -3199,9 +3199,9 @@ add_string(center(arr_m[4],sh))
 add_string("")
 dbcreate(cur_dir()+"tmp",{{"uch_doc","C",10,0}})
 use (cur_dir()+"tmp") new
-R_Use(dir_server+"mo_otd",,"OTD")
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+R_Use(dir_server()+"mo_otd",,"OTD")
+R_Use(dir_server()+"human_",,"HUMAN_")
+R_Use(dir_server()+"human",dir_server()+"humand","HUMAN")
 set relation to recno() into HUMAN_
 old_f := replicate("-",50)
 old_n := replicate("-",10)
@@ -3269,19 +3269,19 @@ Function poisk_rassogl()
   add_string( "" )
   add_string( Center( "Ž¡­ àã¦¥­­ë¥ à áá®£« á®¢ ­¨ï ¢ ¡ § å ¤ ­­ëå", sh ) )
   add_string( Center( arr_m[ 4 ], sh ) )
-  r_use( dir_server + "mo_uch",, "UCH" )
-  r_use( dir_server + "mo_otd",, "OTD" )
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+  r_use( dir_server() + "mo_uch",, "UCH" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
   Set Relation To u_kod into USL
   If pi1 == 1 // ¯® ¤ â¥ ®ª®­ç ­¨ï «¥ç¥­¨ï
     begin_date := arr_m[ 5 ]
     end_date := arr_m[ 6 ]
-    r_use( dir_server + "schet_",, "SCHET_" )
-    r_use( dir_server + "schet",, "SCHET" )
+    r_use( dir_server() + "schet_",, "SCHET_" )
+    r_use( dir_server() + "schet",, "SCHET" )
     Set Relation To RecNo() into SCHET_
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
     Set Relation To schet into SCHET, To RecNo() into HUMAN_
     dbSeek( DToS( begin_date ), .t. )
     Do While human->k_data <= end_date .and. !Eof()
@@ -3297,11 +3297,11 @@ Function poisk_rassogl()
   Else
     begin_date := arr_m[ 7 ]
     end_date := arr_m[ 8 ]
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
     Set Relation To RecNo() into HUMAN_
-    r_use( dir_server + "schet_",, "SCHET_" )
-    r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+    r_use( dir_server() + "schet_",, "SCHET_" )
+    r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
     Set Relation To RecNo() into SCHET_
     Set Filter To Empty( schet_->IS_DOPLATA )
     dbSeek( begin_date, .t. )

@@ -23,7 +23,7 @@ Function view_list_xml_fns()
     Return func_error( 4, reestr_xml_fns_err )
   Endif
 
-  g_use( dir_server + 'reg_xml_fns', , 'xml' )
+  g_use( dir_server() + 'reg_xml_fns', , 'xml' )
   Index On str( kod, 6 ) to ( cur_dir() + 'tmp_xml' ) DESCENDING
   Go Top
   xml->( dbGoTop() )
@@ -115,7 +115,7 @@ Function view_list_xml( oBrow )
   ft:add_string( '' )
   ft:printTableHeader()
 
-  r_use( dir_server + 'register_fns', , 'fns' )
+  r_use( dir_server() + 'register_fns', , 'fns' )
   fns->( dbGoTop() )
   Do While ! fns->( Eof() )
     if fns->kod_xml == xml->kod
@@ -277,7 +277,7 @@ function createXMLtoFNS()
 
   dbCreate( cur_dir() + 'tmp_fns', tmp_fns,, .t., 'tmp_fns' )
   Index On predst + Str( num_s, 7 ) to ( cur_dir() + 'tmp_fns' )
-  r_use( dir_server + 'reg_people_fns', , 'payer' )
+  r_use( dir_server() + 'reg_people_fns', , 'payer' )
   payer->( dbGoTop() )
   use_base( 'reg_fns', 'fns', .t. )
   fns->( dbGoTop() )
@@ -345,7 +345,7 @@ function createXMLtoFNS()
         xml_fns->kol1 := kolSpravka
         fill_pole_spravok( 'fns', arr_spravka, xml_fns->kod )
 
-        G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+        G_Use( dir_server() + 'reg_fns_nastr', , 'NASTR_FNS' )
         G_RLock( forever )
         NASTR_FNS->N_FILE_UP := fns_N_SPR_FILE
         nastr_fns->( dbCloseArea() )
@@ -435,7 +435,7 @@ function createXMLtoFNS()
     xml_fns->kol1 := kolSpravka
     fill_pole_spravok( 'fns', arr_spravka, xml_fns->kod )
 
-    G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+    G_Use( dir_server() + 'reg_fns_nastr', , 'NASTR_FNS' )
     G_RLock( forever )
     NASTR_FNS->N_FILE_UP := fns_N_SPR_FILE
     nastr_fns->( dbCloseArea() )

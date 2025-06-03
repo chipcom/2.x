@@ -11,9 +11,9 @@
 function XML_files_to_FTP( name_xml, kod )
 
   local zip_file, i
-  local out_dir := dir_server + dir_XML_MO() + hb_ps()
+  local out_dir := dir_server() + dir_XML_MO() + hb_ps()
   local xml_file := out_dir + AllTrim( name_xml ) + szip()
-  local in_dir := dir_server + dir_XML_TF() + hb_ps()
+  local in_dir := dir_server() + dir_XML_TF() + hb_ps()
   local fileName
   local ar := {}
   local ar_hrt := {}
@@ -42,7 +42,7 @@ function XML_files_to_FTP( name_xml, kod )
   Enddo
   Set Index To
   if len( ar_hrt ) > 0
-    g_use( dir_server + 'schet_', , 'SCHET_' )
+    g_use( dir_server() + 'schet_', , 'SCHET_' )
     for i := 1 to len( ar_hrt )
       Index On XML_REESTR to ( cur_dir() + 'tmp_sch' ) ;
         For xml_reestr == ar_hrt[ i ]
@@ -69,7 +69,7 @@ function errorFileToFTP()
   local ar := {}
   
   zip_file := 'mo' + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) + '_error'
-  AAdd( ar, dir_server + 'error.txt' )
+  AAdd( ar, dir_server() + 'error.txt' )
   create_zip_to_ftp( zip_file, ar, 'Error' )
   return nil
 
@@ -259,24 +259,24 @@ Function create_zip( par, dir_archiv )
     hb_MemoWrit( sfile_begin, full_date( sys_date ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_XML_MO() + hb_ps(), sast + szip(), blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_XML_MO() + hb_ps(), sast + scsv(), blk, afterDate )
+    scandirfiles_for_backup( dir_server() + dir_XML_MO() + hb_ps(), sast + szip(), blk, afterDate )
+    scandirfiles_for_backup( dir_server() + dir_XML_MO() + hb_ps(), sast + scsv(), blk, afterDate )
     zip_xml_mo := fillzip( arr_f, zip_xml_mo )
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_XML_TF() + hb_ps(), sast + szip(), blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_XML_TF() + hb_ps(), sast + scsv(), blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_XML_TF() + hb_ps(), sast + stxt(), blk, afterDate )
+    scandirfiles_for_backup( dir_server() + dir_XML_TF() + hb_ps(), sast + szip(), blk, afterDate )
+    scandirfiles_for_backup( dir_server() + dir_XML_TF() + hb_ps(), sast + scsv(), blk, afterDate )
+    scandirfiles_for_backup( dir_server() + dir_XML_TF() + hb_ps(), sast + stxt(), blk, afterDate )
     zip_xml_tf := fillzip( arr_f, zip_xml_tf )
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_NAPR_MO() + hb_ps(), sast + szip(), blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_NAPR_MO() + hb_ps(), sast + stxt(), blk, afterDate )
+    scandirfiles_for_backup( dir_server() + dir_NAPR_MO() + hb_ps(), sast + szip(), blk, afterDate )
+    scandirfiles_for_backup( dir_server() + dir_NAPR_MO() + hb_ps(), sast + stxt(), blk, afterDate )
     zip_napr_mo := fillzip( arr_f, zip_napr_mo )
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_NAPR_TF() + hb_ps(), sast + szip(), blk, afterDate )
-    scandirfiles_for_backup( dir_server + dir_NAPR_TF() + hb_ps(), sast + stxt(), blk, afterDate )
+    scandirfiles_for_backup( dir_server() + dir_NAPR_TF() + hb_ps(), sast + szip(), blk, afterDate )
+    scandirfiles_for_backup( dir_server() + dir_NAPR_TF() + hb_ps(), sast + stxt(), blk, afterDate )
     zip_napr_tf := fillzip( arr_f, zip_napr_tf )
     //
     arr_f := {}
@@ -287,9 +287,9 @@ Function create_zip( par, dir_archiv )
     ar := { sfile_begin, ;
       tools_ini, ;
       f_stat_lpu, ;
-      dir_server + 'f39_nast' + sini(), ;
-      dir_server + 'usl1year' + smem(), ;
-      dir_server + 'error.txt' }
+      dir_server() + 'f39_nast' + sini(), ;
+      dir_server() + 'usl1year' + smem(), ;
+      dir_server() + 'error.txt' }
     If ! Empty( zip_xml_mo )
       AAdd( ar, cur_dir() + zip_xml_mo )
     Endif
@@ -307,15 +307,15 @@ Function create_zip( par, dir_archiv )
     Endif
     For i := 1 To Len( array_files_DB )
       cFile := Upper( array_files_DB[ i ] ) + sdbf()
-      If hb_vfExists( dir_server + cFile )
-        AAdd( ar, dir_server + cFile )
+      If hb_vfExists( dir_server() + cFile )
+        AAdd( ar, dir_server() + cFile )
       Endif
     Next
     // а теперь файлы WQ...
     arr_f := {}
     y := Year( sys_date )
     // только текущий год
-    scandirfiles_for_backup( dir_server, 'mo_wq' + SubStr( Str( y, 4 ), 3 ) + '*' + sdbf(), {| x | AAdd( arr_f, x ) }, afterDate )
+    scandirfiles_for_backup( dir_server(), 'mo_wq' + SubStr( Str( y, 4 ), 3 ) + '*' + sdbf(), {| x | AAdd( arr_f, x ) }, afterDate )
     For i := 1 To Len( arr_f )
       AAdd( ar, arr_f[ i ] )
     Next

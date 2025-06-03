@@ -17,14 +17,14 @@ Function ret_plan_disp_131_N(d)
 Local arr[4,7], ar, s, s1, fl, sgod := year(d), v, i, j, group_ini := "DISP_PLAN_131",;
       max_mes_R11 := 4, kol_DISP := 0, kol_PROF :=0, kol_1DISP := 0, kol_1PROF := 0
 afillall(arr,0)
-R_Use(dir_server+"mo_dr05p",,"R05")
+R_Use(dir_server()+"mo_dr05p",,"R05")
 go bottom
 kol_DISP := r05->kol1
 kol_PROF := r05->kol2
 //
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"mo_dr01",,"RR")
-R_Use(dir_server+"mo_dr01k",,"R01")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"mo_dr01",,"RR")
+R_Use(dir_server()+"mo_dr01k",,"R01")
 set relation to reestr into RR
 index on str(kod_k,7) to (cur_dir()+"tmp_r01") ;
       for kod_k > 0 .and. oplata == 1 //.and. tip == 1
@@ -494,17 +494,17 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     use (cur_dir()+"tmp5000") index (cur_dir()+"tmp5000") new
     use (cur_dir()+"tmp5001") index (cur_dir()+"tmp5001") new
     use (cur_dir()+"tmp7000") index (cur_dir()+"tmp7000") new
-    R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR")
-    R_Use(dir_server+"schet_",,"SCHET_")
-    R_Use(dir_server+"uslugi",,"USL")
-    R_Use(dir_server+"human_u_",,"HU_")
-    R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+    R_Use(dir_server()+"mo_onkna",dir_server()+"mo_onkna","NAPR")
+    R_Use(dir_server()+"schet_",,"SCHET_")
+    R_Use(dir_server()+"uslugi",,"USL")
+    R_Use(dir_server()+"human_u_",,"HU_")
+    R_Use(dir_server()+"human_u",dir_server()+"human_u","HU")
     set relation to recno() into HU_
-    R_Use(dir_server+"kartote_",,"KART_")
-    R_Use(dir_server+"kartotek",,"KART")
+    R_Use(dir_server()+"kartote_",,"KART_")
+    R_Use(dir_server()+"kartotek",,"KART")
     set relation to recno() into KART_
-    R_Use(dir_server+"human_",,"HUMAN_")
-    R_Use(dir_server+"human",,"HUMAN")
+    R_Use(dir_server()+"human_",,"HUMAN_")
+    R_Use(dir_server()+"human",,"HUMAN")
     set relation to recno() into HUMAN_
     use (cur_dir()+"tmp") index (cur_dir()+"tmp") new
     set relation to kod_k into KART
@@ -551,7 +551,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string("‚®§à áâ­ ï £àã¯¯ ÃÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÅÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÅÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄ")
     add_string("                 ³ ŒŽ ³„Žƒ‚³I íâ ¯³II íâ ¯³ ŒŽ ³„Žƒ‚³I íâ ¯³II íâ ¯³ ŒŽ ³„Žƒ‚³I íâ ¯³II íâ ¯")
     add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄ")
-    R_Use(dir_server+"organiz",,"ORG")
+    R_Use(dir_server()+"organiz",,"ORG")
     ar := {}
     //aadd(ar, {15,1,glob_mo[_MO_FULL_NAME]})
     aadd(ar, {16,2,glob_mo[_MO_ADRES]})
@@ -1022,7 +1022,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string("     ‚à ç                                     ³1 íâ ¯³2 íâ ¯³¯à®ä- ³¤¨á¯-î")
     add_string("                                              ³(ç¥«.)³(ç¥«.)³®á¬®âà³1à.¢2£")
     add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄ")
-    R_Use(dir_server+"mo_pers",,"PERS")
+    R_Use(dir_server()+"mo_pers",,"PERS")
     for i := 1 to len(arr_vrach)
       goto (arr_vrach[i,1])
       arr_vrach[i,2] := pers->tab_nom
@@ -1088,7 +1088,7 @@ elseif k == 2
     endif
   endif
 elseif len(arr) > 1
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server()+"kartotek",,"KART")
   use (cur_dir()+"tmp") new
   index on str(kod_k,7) to (cur_dir()+"tmp")
   verify_FF(HH-8, .f., sh)
@@ -1444,7 +1444,7 @@ if !empty(tmp->kod2h)
       endif
     next
     // à®¢¥àï¥¬ ­  ­ «¨ç¨¥  ¯à ¢«¥­¨© ¯à¨ ¯®¤®§à¥­¨¨ ­  ‡Ž
-    //R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR")
+    //R_Use(dir_server()+"mo_onkna",dir_server()+"mo_onkna","NAPR")
     select NAPR
     find(str(tmp->kod2h,7))
     if found()

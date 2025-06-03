@@ -114,7 +114,7 @@ Function forma_16_vn( is_diag )
       s2 := AllTrim( Token( s, " ", 2 ) )
   /*for i := 1 to len(s2) // проверка на русские буквы в диагнозах
     if ISRALPHA(substr(s2,i,1))
-      strfile(s2+eos,"ttt.ttt",.t.)
+      strfile(s2+hb_eol(),"ttt.ttt",.t.)
       exit
     endif
   next*/
@@ -165,10 +165,10 @@ Function forma_16_vn( is_diag )
     Index On diagnoz + Upper( pol ) to ( cur_dir() + "tmp_dia" )
   Endif
   //
-  r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server() + "kartotek",, "KART" )
   If pi1 == 1 // по дате окончания лечения
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human",, "BO" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human",, "BO" )
     Set Relation To kod_k into KART, To RecNo() into HUMAN_
     Index On DToS( k_data ) to ( cur_dir() + "tmp_f16" ) ;
       For human_->oplata < 9 .and. func_pi_schet( .t., "bo" ) .and. ;
@@ -186,11 +186,11 @@ Function forma_16_vn( is_diag )
       Skip
     Enddo
   Else
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humans", "BO" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humans", "BO" )
     Set Relation To kod_k into KART, To RecNo() into HUMAN_
-    r_use( dir_server + "schet_",, "SCHET_" )
-    r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+    r_use( dir_server() + "schet_",, "SCHET_" )
+    r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
     Set Relation To RecNo() into SCHET_
     Set Filter To Empty( schet_->IS_DOPLATA )
     dbSeek( arr_m[ 7 ], .t. )
@@ -227,7 +227,7 @@ Function forma_16_vn( is_diag )
     "────────────────────────────┴────────────┴─┴──┴───────┴───────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴───────" }
   fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
   sh := Len( arr_title[ 1 ] )
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( PadR( org->name, 60 ) + PadL( "Форма 16-вн", sh -60 ) )
   add_string( PadL( "Утверждена", sh ) )
   add_string( PadL( "Приказом Росстата", sh ) )

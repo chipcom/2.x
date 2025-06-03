@@ -59,10 +59,10 @@ Function other_schet_view()
     mdate := SToD( "20110101" )
 
   mywait()
-  r_use( dir_server + "mo_rees", , "REES" )
-  g_use( dir_server + "mo_xml", , "MO_XML" )
-  g_use( dir_server + "schet_", , "SCHET_" )
-  g_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+  r_use( dir_server() + "mo_rees", , "REES" )
+  g_use( dir_server() + "mo_xml", , "MO_XML" )
+  g_use( dir_server() + "schet_", , "SCHET_" )
+  g_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
   Set Relation To RecNo() into SCHET_
   dbSeek( dtoc4( mdate ), .t. )
   Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir() + "tmp_sch" ) ;
@@ -155,8 +155,8 @@ Function other_schet_nevyp()
   Index On Str( komu, 1 ) + Str( str_crb, 2 ) to ( cur_dir() + "tmp" )
   Index On nkomu to ( cur_dir() + "tmp1" )
   Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ), ( cur_dir() + "tmp1" ) Alias TMP
-  r_use( dir_server + "human_", , "HUMAN_" )
-  r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+  r_use( dir_server() + "human_", , "HUMAN_" )
+  r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
   Set Relation To RecNo() into HUMAN_
   find ( Str( 0, 6 ) + Str( B_STANDART, 1 ) )
   Do While human->schet == 0 .and. human->tip_h == B_STANDART .and. !Eof()
@@ -276,20 +276,20 @@ Function f2nevyp_schet( nKey, oBrow )
     add_string( Center( AllTrim( tmp->nkomu ), 80 ) )
     add_string( "" )
     //
-    r_use( dir_server + "mo_pers", , "PERS" )
-    r_use( dir_server + "mo_uch", , "UCH" )
-    r_use( dir_server + "mo_otd", , "OTD" )
+    r_use( dir_server() + "mo_pers", , "PERS" )
+    r_use( dir_server() + "mo_uch", , "UCH" )
+    r_use( dir_server() + "mo_otd", , "OTD" )
     use_base( "lusl" )
     use_base( "luslc" )
-    r_use( dir_server + "uslugi", , "USL" )
-    r_use( dir_server + "human_u_", , "HU_" )
-    r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+    r_use( dir_server() + "uslugi", , "USL" )
+    r_use( dir_server() + "human_u_", , "HU_" )
+    r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
     Set Relation To RecNo() into HU_, To u_kod into USL
-    r_use( dir_server + "kartote_", , "KART_" )
-    r_use( dir_server + "kartotek", , "KART" )
+    r_use( dir_server() + "kartote_", , "KART_" )
+    r_use( dir_server() + "kartotek", , "KART" )
     Set Relation To RecNo() into KART_
-    r_use( dir_server + "human_", , "HUMAN_" )
-    r_use( dir_server + "human", , "HUMAN" )
+    r_use( dir_server() + "human_", , "HUMAN_" )
+    r_use( dir_server() + "human", , "HUMAN" )
     Set Relation To RecNo() into HUMAN_, To kod_k into KART
     If tmp->komu == 5
       Goto ( tmp->kod )
@@ -299,7 +299,7 @@ Function f2nevyp_schet( nKey, oBrow )
         ++inprov
       Endif
     Else
-      Set Index to ( dir_server + "humans" )
+      Set Index to ( dir_server() + "humans" )
       find ( Str( 0, 6 ) + Str( B_STANDART, 1 ) )
       Do While human->schet == 0 .and. human->tip_h == B_STANDART .and. !Eof()
         If human_->reestr == 0 .and. human->cena_1 > 0 .and. ;
@@ -696,7 +696,7 @@ Function func2_komu( kod_komu, kod_str_crb, r, c, fl_top )
     Do Case
     Case i == 1
       Default kod_str_crb To glob_strah[ 1 ]
-      If ( k := popup_edit( dir_server + "str_komp", r1, c, r2, kod_str_crb, ;
+      If ( k := popup_edit( dir_server() + "str_komp", r1, c, r2, kod_str_crb, ;
           PE_RETURN, , , , {|| !Between( tfoms, 44, 47 ) }, , , fl_top, "Прочие компании", col_tit_popup ) ) != NIL
         pp_str_crb := mstr_crb := k[ 1 ]
         glob_all := glob_strah := k
@@ -704,7 +704,7 @@ Function func2_komu( kod_komu, kod_str_crb, r, c, fl_top )
       Endif
     Case i == 2
       Default kod_str_crb To glob_komitet[ 1 ]
-      If ( k := popup_edit( dir_server + "komitet", r1, c, r2, kod_str_crb, ;
+      If ( k := popup_edit( dir_server() + "komitet", r1, c, r2, kod_str_crb, ;
           PE_RETURN, , , , , , , fl_top, "Комитеты (МО)", col_tit_popup ) ) != NIL
         pp_str_crb := mstr_crb := k[ 1 ]
         glob_all := glob_komitet := k
@@ -742,8 +742,8 @@ Function vyp0other_schet()
   Index On Str( komu, 1 ) + Str( str_crb, 2 ) to ( cur_dir() + "tmp" )
   Index On nkomu to ( cur_dir() + "tmp1" )
   Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ), ( cur_dir() + "tmp1" ) Alias TMP
-  r_use( dir_server + "human_", , "HUMAN_" )
-  r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+  r_use( dir_server() + "human_", , "HUMAN_" )
+  r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
   Set Relation To RecNo() into HUMAN_
   find ( Str( 0, 6 ) + Str( B_STANDART, 1 ) )
   Do While human->schet == 0 .and. human->tip_h == B_STANDART .and. !Eof()
@@ -870,7 +870,7 @@ Function vyp1other_schet( is_nul, lkomu, lstr_crb )
       dbCreate( cur_dir() + "tmp", dbf_tmp )
       Use ( cur_dir() + "tmp" ) Alias TMP
       Index On Upper( fio ) to ( cur_dir() + "tmp" )
-      r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+      r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
       find ( Str( 0, 6 ) + Str( B_STANDART, 1 ) )
       Do While human->schet == 0 .and. human->tip_h == B_STANDART .and. !Eof()
         If iif( is_nul, Empty( human->CENA_1 ), human->CENA_1 > 0 ) ;
@@ -926,7 +926,7 @@ Function vyp1other_schet( is_nul, lkomu, lstr_crb )
     Index On Upper( fio ) to ( cur_dir() + "tmp" )
     k1 := 0
     If glob_komu == 5
-      r_use( dir_server + "human", , "HUMAN" )
+      r_use( dir_server() + "human", , "HUMAN" )
       Goto ( glob_all[ 1 ] )
       k1++
       Select TMP
@@ -944,11 +944,11 @@ Function vyp1other_schet( is_nul, lkomu, lstr_crb )
       k := { 5, "Личный счет - " + RTrim( human->fio ) }
       glob_all := { 0, "" }
     Else
-      r_use( dir_server + "uslugi", , "USL" )
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+      r_use( dir_server() + "uslugi", , "USL" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
       Set Relation To u_kod into USL
-      r_use( dir_server + "human_", , "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+      r_use( dir_server() + "human_", , "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
       find ( Str( 0, 6 ) + Str( B_STANDART, 1 ) )
       Do While human->schet == 0 .and. human->tip_h == B_STANDART .and. !Eof()
@@ -1132,10 +1132,10 @@ Function f9pr_vklad( nKey, oBrow )
       Index On fsort_usl( shifr ) to ( cur_dir() + "tmp12" )
       Set Index to ( cur_dir() + "tmp11" ), ( cur_dir() + "tmp12" )
       //
-      r_use( dir_server + "uslugi", dir_server + "uslugi", "USL" )
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_", , "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humank", "HUMAN" )
+      r_use( dir_server() + "uslugi", dir_server() + "uslugi", "USL" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_", , "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humank", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
       For i := 1 To nrec
         Select TMP
@@ -1348,7 +1348,7 @@ Function print_other_schet( is_vyp, is_usl, n_file )
     { "summa", "N", 15, 2 }, ;
     { "kol", "N", 6, 0 } }
   dbCreate( fr_titl, adbf )
-  r_use( dir_server + "organiz", , "ORG" )
+  r_use( dir_server() + "organiz", , "ORG" )
   Use ( fr_titl ) New Alias FRT
   Append Blank
   frt->name_org := name_org := AllTrim( org->name )
@@ -1393,19 +1393,19 @@ Function print_other_schet( is_vyp, is_usl, n_file )
     Index On fsort_usl( shifr ) + DToS( data ) to ( cur_dir() + "tmp12" )
     Set Index to ( cur_dir() + "tmp11" ), ( cur_dir() + "tmp12" )
   Endif
-  r_use( dir_server + "mo_otd", , "OTD" )
-  r_use( dir_server + "uslugi", dir_server + "uslugi", "USL" )
-  r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-  r_use( dir_server + "kartote_", , "KART_" )
-  r_use( dir_server + "kartotek", , "KART" )
+  r_use( dir_server() + "mo_otd", , "OTD" )
+  r_use( dir_server() + "uslugi", dir_server() + "uslugi", "USL" )
+  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+  r_use( dir_server() + "kartote_", , "KART_" )
+  r_use( dir_server() + "kartotek", , "KART" )
   Set Relation To RecNo() into KART_
-  r_use( dir_server + "human_", , "HUMAN_" )
-  r_use( dir_server + "human", , "HUMAN" )
+  r_use( dir_server() + "human_", , "HUMAN_" )
+  r_use( dir_server() + "human", , "HUMAN" )
   If is_vyp == 1
     dbCreate( cur_dir() + "tmp", { { "kod", "N", 7, 0 }, { "fio", "C", 50, 0 } } )
     Use ( cur_dir() + "tmp" ) new
     Select HUMAN
-    Set Index to ( dir_server + "humans" )
+    Set Index to ( dir_server() + "humans" )
     find ( Str( schet->kod, 6 ) )
     Do While human->schet == schet->kod .and. !Eof()
       Select TMP
@@ -1423,7 +1423,7 @@ Function print_other_schet( is_vyp, is_usl, n_file )
   frt->nschet := p_number
   frt->dschet := p_date
   Select HUMAN
-  Set Index to ( dir_server + "humank" )
+  Set Index to ( dir_server() + "humank" )
   Set Relation To RecNo() into HUMAN_, To otd into OTD, To kod_k into KART
   Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ) New Alias TMP
   Go Top
@@ -1704,7 +1704,7 @@ Function f2vyp_schet()
       Endif
       mywait()
       fl := .f.
-      r_use( dir_server + "schet", dir_server + "schetn", "SCHET" )
+      r_use( dir_server() + "schet", dir_server() + "schetn", "SCHET" )
       find ( mnomer )
       Do While schet->nomer_s == mnomer .and. !Eof()
         If Year( mdate ) == Year( c4tod( schet->pdate ) )
@@ -1872,8 +1872,8 @@ Function other_schet_vozvrat()
   Local buf := SaveScreen(), i, s, mkod_opl, mdoplata, msmo, mdate, as := {}
 
   If input_schet( 0 )
-    r_use( dir_server + "schet_", , "SCHET_" )
-    r_use( dir_server + "schet", dir_server + "schetk", "SCHET" )
+    r_use( dir_server() + "schet_", , "SCHET_" )
+    r_use( dir_server() + "schet", dir_server() + "schetk", "SCHET" )
     Set Relation To RecNo() into SCHET_
     find ( Str( glob_schet, 6 ) )
     mkod_opl := schet->flag_opl ; mdate := c4tod( schet->pdate )
@@ -2027,7 +2027,7 @@ Function retnext0schet()
 
   mywait( "Поиск следующего номера счета" )
   c2 := Left( dtoc4( mdate ), 2 )
-  g_use( dir_server + "schet", , "SCHET" )
+  g_use( dir_server() + "schet", , "SCHET" )
   Index On f_nom0sch( nomer_s ) to ( cur_dir() + "tmp_sch" ) ;
     For Left( nomer_s, 1 ) == c .and. Left( pdate, 2 ) == c2
   Go Top
@@ -2071,8 +2071,8 @@ Function akt_kontrol_2012()
     fl := input_schet( 0 )
     RestScreen( buf )
     If fl
-      r_use( dir_server + "schet_", , "SCHET_" )
-      r_use( dir_server + "schet", dir_server + "schetk", "SCHET" )
+      r_use( dir_server() + "schet_", , "SCHET_" )
+      r_use( dir_server() + "schet", dir_server() + "schetk", "SCHET" )
       Set Relation To RecNo() into SCHET_
       find ( Str( glob_schet, 6 ) )
       Private snyear := schet_->nyear
@@ -2097,16 +2097,16 @@ Function akt_kontrol_2012()
         { "prim", "C", 20, 0 } }
       dbCreate( cur_dir() + "tmps", adbf )
       Use ( cur_dir() + "tmps" ) new
-      r_use( dir_server + "mo_rak", , "RAK" )
-      r_use( dir_server + "mo_raks", , "RAKS" )
+      r_use( dir_server() + "mo_rak", , "RAK" )
+      r_use( dir_server() + "mo_raks", , "RAKS" )
       Set Relation To akt into RAK
-      r_use( dir_server + "mo_raksh", , "RAKSH" )
+      r_use( dir_server() + "mo_raksh", , "RAKSH" )
       Set Relation To kod_raks into RAKS
       Index On Str( kod_h, 7 ) to ( cur_dir() + "tmp_raksh" ) For raks->SCHET == glob_schet
-      r_use( dir_server + "mo_os", , "MO_OS" )
+      r_use( dir_server() + "mo_os", , "MO_OS" )
       Index On Str( kod, 7 ) to ( cur_dir() + "tmp_moos" )
-      r_use( dir_server + "human_", , "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+      r_use( dir_server() + "human_", , "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
       Select HUMAN
       find ( Str( glob_schet, 6 ) )
@@ -2211,7 +2211,7 @@ Static Function f1akt_kontrol_2012( nKey, oBrow, regim )
         mrepeat, m1repeat := tmps->IS_REPEAT, ;
         merror := Space( 10 ), m1error := 0, ;
         gl_area := { 1, 0, 23, 79, 0 }
-      g_use( dir_server + "mo_os", cur_dir() + "tmp_moos", "MO_OS" )
+      g_use( dir_server() + "mo_os", cur_dir() + "tmp_moos", "MO_OS" )
       If tmps->is_ekps == 1
         find ( Str( glob_perso, 7 ) )
         If Found()
@@ -2298,7 +2298,7 @@ Static Function f1akt_kontrol_2012( nKey, oBrow, regim )
           Goto ( glob_perso )
           ahuman_2 := get_field()
           If ( fl_iname := ( human_->smo == '34   ' ) )
-            g_use( dir_server + "mo_hismo", , "SN" )
+            g_use( dir_server() + "mo_hismo", , "SN" )
             Index On Str( kod, 7 ) to ( cur_dir() + "tmp_ismo" )
             find ( Str( glob_perso, 7 ) )
             mnameismo := sn->smo_name
@@ -2342,7 +2342,7 @@ Static Function f1akt_kontrol_2012( nKey, oBrow, regim )
         If m1repeat == 1
           Select HUMAN_
         Else
-          g_use( dir_server + "human_", , "HUMAN_" )
+          g_use( dir_server() + "human_", , "HUMAN_" )
         Endif
         Goto ( glob_perso )
         g_rlock( forever )
@@ -2441,7 +2441,7 @@ Static Function f1akt_kontrol_2012( nKey, oBrow, regim )
           fl := f_esc_enter( "удаления акта снятия", .t. )
         Endif
         If fl
-          g_use( dir_server + "mo_os", cur_dir() + "tmp_moos", "MO_OS" )
+          g_use( dir_server() + "mo_os", cur_dir() + "tmp_moos", "MO_OS" )
           find ( Str( glob_perso, 7 ) )
           mkod := mo_os->NEXT_KOD
           If tmps->IS_REPEAT == 1 .and. mkod > 0
@@ -2478,7 +2478,7 @@ Static Function f1akt_kontrol_2012( nKey, oBrow, regim )
               Replace human->schet With -1  // (вместо нуля)
             Endif
           Else
-            g_use( dir_server + "human_", , "HUMAN_" )
+            g_use( dir_server() + "human_", , "HUMAN_" )
           Endif
           If fl
             Select HUMAN_
@@ -2549,8 +2549,8 @@ Function registr_schet()
     mdate := SToD( "20110101" )
 
   mywait()
-  g_use( dir_server + "schet_", , "SCHET_" )
-  g_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+  g_use( dir_server() + "schet_", , "SCHET_" )
+  g_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
   Set Relation To RecNo() into SCHET_
   dbSeek( dtoc4( mdate ), .t. )
   Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir() + "tmp_sch" ) ;
@@ -2750,7 +2750,7 @@ Function f2_view_registr_schet( nKey, oBrow )
         Set Order To 1
         Set Relation To // "отвязываем"
         If fl_iname
-          g_use( dir_server + "mo_hismo", , "SN" )
+          g_use( dir_server() + "mo_hismo", , "SN" )
           Index On Str( kod, 7 ) to ( cur_dir() + "tmp_ismo" )
         Endif
         For ii := 1 To Len( arr_human )
@@ -2889,8 +2889,8 @@ Function f2_view_registr_schet( nKey, oBrow )
     Else
       func_error( 4, "В данный момент работают другие задачи. Операция запрещена!" )
     Endif
-    g_use( dir_server + "schet_", , "SCHET_" )
-    g_use( dir_server + "schet", cur_dir() + "tmp_sch", "SCHET" )
+    g_use( dir_server() + "schet_", , "SCHET_" )
+    g_use( dir_server() + "schet", cur_dir() + "tmp_sch", "SCHET" )
     Set Relation To RecNo() into SCHET_
     Goto ( rec )
     If fl
@@ -2960,11 +2960,11 @@ Function print_faktura( regim )
   Use ( fr_titl ) New Alias _t
   Append Blank
   Use ( fr_data ) New Alias _d
-  r_use( dir_server + "organiz", , "ORG" )
-  r_use( dir_server + "kartote_", , "KART_" )
-  r_use( dir_server + "kartotek", , "KART" )
+  r_use( dir_server() + "organiz", , "ORG" )
+  r_use( dir_server() + "kartote_", , "KART_" )
+  r_use( dir_server() + "kartotek", , "KART" )
   Set Relation To RecNo() into KART_
-  r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+  r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
   Set Relation To kod_k into KART
   find ( Str( schet->kod, 6 ) )
   pok_name := pok_adres := pok_inn := ""
@@ -2980,10 +2980,10 @@ Function print_faktura( regim )
       s += lstr( schet->kol ) + " чел."
     Endif
     If schet->komu == 1
-      r_use( dir_server + "str_komp", , "PK" )
+      r_use( dir_server() + "str_komp", , "PK" )
       Goto ( schet->str_crb )
     Else
-      r_use( dir_server + "komitet", , "PK" )
+      r_use( dir_server() + "komitet", , "PK" )
       Goto ( schet->str_crb )
     Endif
     pok_name := AllTrim( iif( Empty( pk->fname ), pk->name, pk->fname ) )
@@ -2995,9 +2995,9 @@ Function print_faktura( regim )
   kart->( dbCloseArea() )
   human->( dbCloseArea() )
   //
-  _t->pril := "Приложение № 1" + eos + ;
-    "к постановлению Правительства" + eos + ;
-    "Российской Федерации" + eos + ;
+  _t->pril := "Приложение № 1" + hb_eol() + ;
+    "к постановлению Правительства" + hb_eol() + ;
+    "Российской Федерации" + hb_eol() + ;
     "от 26 декабря 2011 г. № 1137"
   _t->pril2 := "(в ред.Постановления Правительства РФ от 19.08.2017 №981)"
   _t->title1 := "СЧЕТ-ФАКТУРА  № " + AllTrim( ret[ 1 ] ) + " от " + date_month( ret[ 2 ], .t. )
@@ -3070,11 +3070,11 @@ Function print_akt( regim )
   Use ( fr_titl ) New Alias _t
   Append Blank
   Use ( fr_data ) New Alias _d
-  r_use( dir_server + "organiz", , "ORG" )
-  r_use( dir_server + "kartote_", , "KART_" )
-  r_use( dir_server + "kartotek", , "KART" )
+  r_use( dir_server() + "organiz", , "ORG" )
+  r_use( dir_server() + "kartote_", , "KART_" )
+  r_use( dir_server() + "kartotek", , "KART" )
   Set Relation To RecNo() into KART_
-  r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+  r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
   Set Relation To kod_k into KART
   find ( Str( schet->kod, 6 ) )
   p_name := p_adres := p_inn := ""
@@ -3090,10 +3090,10 @@ Function print_akt( regim )
       s += lstr( schet->kol ) + " чел."
     Endif
     If schet->komu == 1
-      r_use( dir_server + "str_komp", , "PK" )
+      r_use( dir_server() + "str_komp", , "PK" )
       Goto ( schet->str_crb )
     Else
-      r_use( dir_server + "komitet", , "PK" )
+      r_use( dir_server() + "komitet", , "PK" )
       Goto ( schet->str_crb )
     Endif
     p_name := AllTrim( iif( Empty( pk->fname ), pk->name, pk->fname ) )
@@ -3136,8 +3136,8 @@ Function spisok_s_not_registred()
     sh, HH := 60, reg_print, n_file := "ne_zag_s.txt"
 
   mywait()
-  r_use( dir_server + "schet_", , "SCHET_" )
-  r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+  r_use( dir_server() + "schet_", , "SCHET_" )
+  r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
   Set Relation To RecNo() into SCHET_
   dbSeek( dtoc4( mdate ), .t. )
   Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir() + "tmp_sch" ) ;

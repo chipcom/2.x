@@ -304,7 +304,7 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
 
 
   //
-  Default flag_tmp1 To .f., is_all To .t., goal_dir To dir_server + dir_XML_MO() + hb_ps()
+  Default flag_tmp1 To .f., is_all To .t., goal_dir To dir_server() + dir_XML_MO() + hb_ps()
   Private pole
   stat_msg( "Распаковка/чтение/анализ " + iif( eq_any( Left( mname_xml, 3 ), "HRM", "FRM" ), "реестра ", "счёта " ) + mname_xml )
 

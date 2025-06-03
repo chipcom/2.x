@@ -68,7 +68,7 @@ dbcreate(cur_dir()+"tmp", {{"n_chek","N", 8,0},; // номер чека
                  {"stoim", "N",10,2}}) // сумма чека
 use (cur_dir()+"tmp") new
 index on str(n_chek,8) to (cur_dir()+"tmp")
-R_Use(dir_server+"kas_pl",dir_server+"kas_pl2","KPL")
+R_Use(dir_server()+"kas_pl",dir_server()+"kas_pl2","KPL")
 find (dtos(arr_m[5]))
 do while kpl->k_data == arr_m[5] .and. !eof()
   if kpl->smena == glob_smena
@@ -90,7 +90,7 @@ do while kpl->k_data == arr_m[5] .and. !eof()
   select KPL
   skip
 enddo
-R_Use(dir_server+"kas_ort",dir_server+"kas_ort2","KOR")
+R_Use(dir_server()+"kas_ort",dir_server()+"kas_ort2","KOR")
 find (dtos(arr_m[5]))
 do while kor->k_data == arr_m[5] .and. !eof()
   if kor->smena == glob_smena .and. kor->n_chek > 0
@@ -183,7 +183,7 @@ if (arr_m := year_month(T_ROW,T_COL+5)) == NIL
 endif
 buf := save_row(maxrow())
 mywait()
-R_Use(dir_server+"kas_pl",dir_server+"kas_pl2","KPL")
+R_Use(dir_server()+"kas_pl",dir_server()+"kas_pl2","KPL")
 dbseek(dtos(arr_m[5]),.t.)
 do while kpl->k_data <= arr_m[6] .and. !eof()
   if kpl->n_chek > 0
@@ -197,7 +197,7 @@ do while kpl->k_data <= arr_m[6] .and. !eof()
   select KPL
   skip
 enddo
-R_Use(dir_server+"kas_ort",dir_server+"kas_ort2","KOR")
+R_Use(dir_server()+"kas_ort",dir_server()+"kas_ort2","KOR")
 dbseek(dtos(arr_m[5]),.t.)
 do while kor->k_data <= arr_m[6] .and. !eof()
   if kor->n_chek > 0
@@ -273,8 +273,8 @@ dbcreate(cur_dir()+"tmp", {{"kod_k", "N", 7,0},; // код больного по картотеке
                  {"KOL"   ,"N", 5,0},; // количество услуг
                  {"STOIM" ,"N",10,2}}) // итоговая стоимость услуги
 use (cur_dir()+"tmp") new
-R_Use(dir_server+"kas_pl_u",dir_server+"kas_pl1u","HPU")
-R_Use(dir_server+"kas_pl",dir_server+"kas_pl2","HP")
+R_Use(dir_server()+"kas_pl_u",dir_server()+"kas_pl1u","HPU")
+R_Use(dir_server()+"kas_pl",dir_server()+"kas_pl2","HP")
 if tip_ot == 1
   find (dtos(arr_m[5]))
   do while hp->k_data == arr_m[5] .and. !eof()
@@ -324,12 +324,12 @@ if j == 0
 else
   mywait()
   reg_print := 5
-  R_Use(dir_server+"mo_pers",,"PERSO")
-  R_Use(dir_server+"uslugi",,"USL")
-  R_Use(dir_server+"kas_pl_u",dir_server+"kas_pl1u","HPU")
+  R_Use(dir_server()+"mo_pers",,"PERSO")
+  R_Use(dir_server()+"uslugi",,"USL")
+  R_Use(dir_server()+"kas_pl_u",dir_server()+"kas_pl1u","HPU")
   set relation to u_kod into USL
-  R_Use(dir_server+"kas_pl",,"HP")
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server()+"kas_pl",,"HP")
+  R_Use(dir_server()+"kartotek",,"KART")
   use (cur_dir()+"tmp") new alias TMP
   set relation to kod_k into KART, to rec_hp into HP
   index on str(n_chek,8) to (cur_dir()+"tmp")
@@ -449,8 +449,8 @@ dbcreate(cur_dir()+"tmp", {{"kod_k", "N", 7,0},; // код больного по картотеке
                  {"KOL"   ,"N", 5,0},; // количество услуг
                  {"STOIM" ,"N",10,2}}) // итоговая стоимость услуги
 use (cur_dir()+"tmp") new
-R_Use(dir_server+"kas_ortu",dir_server+"kas_or1u","HPU")
-R_Use(dir_server+"kas_ort",dir_server+"kas_ort2","HP")
+R_Use(dir_server()+"kas_ortu",dir_server()+"kas_or1u","HPU")
+R_Use(dir_server()+"kas_ort",dir_server()+"kas_ort2","HP")
 find (dtos(arr_m[5]))
 do while hp->k_data == arr_m[5] .and. !eof()
   if hp->smena == glob_smena
@@ -476,7 +476,7 @@ do while hp->k_data == arr_m[5] .and. !eof()
 enddo
 if (j := tmp->(lastrec())) > 0
   select HP
-  set index to (dir_server+"kas_ort4")
+  set index to (dir_server()+"kas_ort4")
   select TMP
   go top
   do while !eof()
@@ -501,12 +501,12 @@ if j == 0
 else
   mywait()
   reg_print := 5
-  R_Use(dir_server+"mo_pers",,"PERSO")
-  R_Use(dir_server+"uslugi",,"USL")
-  R_Use(dir_server+"kas_ortu",dir_server+"kas_or1u","HPU")
+  R_Use(dir_server()+"mo_pers",,"PERSO")
+  R_Use(dir_server()+"uslugi",,"USL")
+  R_Use(dir_server()+"kas_ortu",dir_server()+"kas_or1u","HPU")
   set relation to u_kod into USL
-  R_Use(dir_server+"kas_ort",,"HP")
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server()+"kas_ort",,"HP")
+  R_Use(dir_server()+"kartotek",,"KART")
   use (cur_dir()+"tmp") new alias TMP
   set relation to kod_k into KART, to rec_hp into HP
   index on str(n_chek,8)+str(nomer_n,6) to (cur_dir()+"tmp")
@@ -605,7 +605,7 @@ dbcreate(cur_dir()+"tmp", {{"kod_k", "N", 7,0},; // код больного по картотеке
                  {"KOD_VR","N",4,0}})  // код врача
 use (cur_dir()+"tmp") new
 use_base("kas_ortu","HU")
-R_Use(dir_server+"kas_ort",,"HUMAN")
+R_Use(dir_server()+"kas_ort",,"HUMAN")
 index on iif(tip_n>0,"1","2") to (cur_dir()+"tmphum")
 find ("1")
 do while human->tip_n > 0 .and. !eof()
@@ -635,7 +635,7 @@ do while human->tip_n == 0 .and. !eof()
   select HUMAN
   skip
 enddo
-R_Use(dir_server+"mo_pers",,"PERSO")
+R_Use(dir_server()+"mo_pers",,"PERSO")
 arr_title := {;
 "────────────────────────────────────┬─────┬─────────┬──────────┬──────────╥──────────",;
 "                                    │     │  Номер  │  Сумма   │          ║ Осталось ",;

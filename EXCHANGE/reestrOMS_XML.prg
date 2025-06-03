@@ -57,7 +57,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   nsh := f_mb_me_nsh( _nyear, @mb, @me )
   r_use( dir_exe() + '_mo_mkb', , 'MKB_10' )
   Index On shifr + Str( ks, 1 ) to ( cur_dir() + '_mo_mkb' )
-  g_use( dir_server + 'mo_rees', , 'REES' )
+  g_use( dir_server() + 'mo_rees', , 'REES' )
   Index On Str( nn, nsh ) to ( cur_dir() + 'tmp_rees' ) For nyear == _nyear .and. nmonth == _nmonth
   fl := .f.
   For mnn := mb To me
@@ -106,7 +106,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   rees->CODE  := ret_unique_code( mkod_reestr )
   code_reestr := rees->CODE
   //
-  g_use( dir_server + 'mo_xml', , 'MO_XML' )
+  g_use( dir_server() + 'mo_xml', , 'MO_XML' )
   addrecn()
   mo_xml->KOD    := RecNo()
   mo_xml->FNAME  := rees->NAME_XML
@@ -124,43 +124,43 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   use_base( 'lusl' )
   use_base( 'luslc' )
   use_base( 'luslf' )
-  r_use( dir_server + 'human_im', dir_server + 'human_im', 'IMPL' )
-  r_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR' )
+  r_use( dir_server() + 'human_im', dir_server() + 'human_im', 'IMPL' )
+  r_use( dir_server() + 'human_lek_pr', dir_server() + 'human_lek_pr', 'LEK_PR' )
 
   laluslf := create_name_alias( 'luslf', _nyear )
-  r_use( dir_server + 'mo_uch', , 'UCH' )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
-  r_use( dir_server + 'mo_pers', , 'P2' )
-  r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2TABN' )
-  r_use( dir_server + 'uslugi', , 'USL' )
-  g_use( dir_server + 'mo_rhum', , 'RHUM' )
+  r_use( dir_server() + 'mo_uch', , 'UCH' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_pers', , 'P2' )
+  r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2TABN' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  g_use( dir_server() + 'mo_rhum', , 'RHUM' )
   Index On Str( REESTR, 6 ) to ( cur_dir() + 'tmp_rhum' )
-  g_use( dir_server + 'human_u_', , 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  g_use( dir_server() + 'human_u_', , 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'mo_su', , 'MOSU' )
-  g_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  r_use( dir_server() + 'mo_su', , 'MOSU' )
+  g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
   If p_tip_reestr == 1
-    r_use( dir_server + 'kart_inv', , 'INV' )
+    r_use( dir_server() + 'kart_inv', , 'INV' )
     Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_inv' )
   Endif
-  r_use( dir_server + 'kartote2', , 'KART2' )
-  r_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'kartote2', , 'KART2' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_, To RecNo() into KART2
-  r_use( dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'ONKNA' ) // онконаправления
-  r_use( dir_server + 'mo_onkco', dir_server + 'mo_onkco', 'ONKCO' )
-  r_use( dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'ONKSL' ) // Сведения о случае лечения онкологического заболевания
-  r_use( dir_server + 'mo_onkdi', dir_server + 'mo_onkdi', 'ONKDI' ) // Диагностический блок
-  r_use( dir_server + 'mo_onkpr', dir_server + 'mo_onkpr', 'ONKPR' ) // Сведения об имеющихся противопоказаниях
-  g_use( dir_server + 'mo_onkus', dir_server + 'mo_onkus', 'ONKUS' )
-  g_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle', 'ONKLE' )
-  g_use( dir_server + 'human_3', { dir_server + 'human_3', dir_server + 'human_32' }, 'HUMAN_3' )
+  r_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna', 'ONKNA' ) // онконаправления
+  r_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco', 'ONKCO' )
+  r_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'ONKSL' ) // Сведения о случае лечения онкологического заболевания
+  r_use( dir_server() + 'mo_onkdi', dir_server() + 'mo_onkdi', 'ONKDI' ) // Диагностический блок
+  r_use( dir_server() + 'mo_onkpr', dir_server() + 'mo_onkpr', 'ONKPR' ) // Сведения об имеющихся противопоказаниях
+  g_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus', 'ONKUS' )
+  g_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle', 'ONKLE' )
+  g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
   Set Order To 2 // индекс по 2-му случаю
-  g_use( dir_server + 'human_2', , 'HUMAN_2' )
-  g_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', , 'HUMAN' )
+  g_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  g_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
   r_use( dir_exe() + '_mo_t2_v1', , 'T21' )
   Index On shifr to ( cur_dir() + 'tmp_t21' )
@@ -1463,7 +1463,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         mo_add_xml_stroke( oPAC, 'DOCDATE', date2xml( kart_->kogdavyd ) )
       Endif
       If !Empty( kart_->kemvyd ) .and. ;
-          !Empty( smr := del_spec_symbol( inieditspr( A__POPUPMENU, dir_server + 's_kemvyd', kart_->kemvyd ) ) )
+          !Empty( smr := del_spec_symbol( inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', kart_->kemvyd ) ) )
         mo_add_xml_stroke( oPAC, 'DOCORG', smr )
       Endif
     Endif
@@ -2054,10 +2054,10 @@ Function create1reestr19( _recno, _nyear, _nmonth )
   Private pkol := tmp->kol, psumma := tmp->summa, pnyear := _nyear
   Private old_kol := pkol, old_summa := psumma, p_blk := {| mkol, msum| f_blk_create1reestr19( _nyear ) }
   Close databases
-  r_use( dir_server + 'human_3', { dir_server + 'human_3', dir_server + 'human_32' }, 'HUMAN_3' )
+  r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
   Set Order To 2
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', , 'HUMAN' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
   Use ( cur_dir() + 'tmpb' ) New Alias TMP
   Set Relation To kod_human into HUMAN

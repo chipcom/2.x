@@ -679,20 +679,20 @@ Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
   Use ( cur_dir() + 'v_ob_em' ) New Alias TMP
   use_base( 'lusl' )
   use_base( 'luslc' )
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'schet_', , 'SCHET_' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'schet_', , 'SCHET_' )
   r_use_base( 'human_u' )
   Set Relation To u_kod into USL
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', , 'HUMAN' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
-  r_use( dir_server + 'mo_raksh', , 'RAKSH' )
+  r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
   Index On Str( kod_raks, 6 ) To tmpraksh memory
-  r_use( dir_server + 'mo_raks', , 'RAKS' )
+  r_use( dir_server() + 'mo_raks', , 'RAKS' )
   Index On Str( akt, 6 ) To tmpraks memory
-  r_use( dir_server + 'mo_rak', , 'RAK' )
+  r_use( dir_server() + 'mo_rak', , 'RAK' )
   Index On Str( kod_xml, 6 ) + DToS( dakt ) + nakt To tmprak memory
-  r_use( dir_server + 'mo_xml', , 'MO_XML' )
+  r_use( dir_server() + 'mo_xml', , 'MO_XML' )
   Index On dfile To tmp_xml For TIP_IN == _XML_FILE_RAK memory
   Go Top
   Do While !Eof()
@@ -985,7 +985,7 @@ Function ob1_statist( k, k1 )
     ob2_statist( 10 )
   Case equalany( k, 34, 36 )    // служба + услуги
     fl := .f.
-    r_use( dir_server + 'slugba', dir_server + 'slugba', 'SL' )
+    r_use( dir_server() + 'slugba', dir_server() + 'slugba', 'SL' )
     If si_slugba == NIL
       Go Top
     Else
@@ -1256,12 +1256,12 @@ Function st_operator()
   If ( arr_g := year_month() ) == NIL
     Return Nil
   Endif
-  r_use( dir_server + 'mo_oper', dir_server + 'mo_oper', 'OP' )
+  r_use( dir_server() + 'mo_oper', dir_server() + 'mo_oper', 'OP' )
   dbSeek( arr_g[ 7 ], .t. )
   fl_old := ( op->pd <= arr_g[ 8 ] .and. !Eof() )
   Close databases
   //
-  r_use( dir_server + 'mo_opern', dir_server + 'mo_opern', 'OP' )
+  r_use( dir_server() + 'mo_opern', dir_server() + 'mo_opern', 'OP' )
   dbSeek( arr_g[ 7 ], .t. )
   fl_new := ( op->pd <= arr_g[ 8 ] .and. !Eof() )
   Close databases
@@ -1347,8 +1347,8 @@ Function st_operator()
   add_string( '' )
   If fl_old
     AEval( arr_title, {| x| add_string( x ) } )
-    r_use( dir_server + 'base1', , 'B1' )
-    r_use( dir_server + 'mo_oper', dir_server + 'mo_oper', 'OP' )
+    r_use( dir_server() + 'base1', , 'B1' )
+    r_use( dir_server() + 'mo_oper', dir_server() + 'mo_oper', 'OP' )
     dbSeek( arr_g[ 7 ], .t. )
     Do While op->pd <= arr_g[ 8 ] .and. !Eof()
       If ( i := AScan( arr_oper, {| x| x[ 1 ] == op->task } ) ) == 0
@@ -1527,8 +1527,8 @@ Function st_operator()
     } )
     Use ( cur_dir() + 'tmp' ) new
     Index On Str( pt, 3 ) + Str( po, 3 ) + Str( ae, 1 ) + Str( tp, 1 ) to ( cur_dir() + 'tmp' )
-    r_use( dir_server + 'base1', , 'B1' )
-    r_use( dir_server + 'mo_opern', dir_server + 'mo_opern', 'OP' )
+    r_use( dir_server() + 'base1', , 'B1' )
+    r_use( dir_server() + 'mo_opern', dir_server() + 'mo_opern', 'OP' )
     dbSeek( arr_g[ 7 ], .t. )
     Do While op->pd <= arr_g[ 8 ] .and. !Eof()
       _po := Asc( op->po )
@@ -2056,16 +2056,16 @@ Function report_f_mpp()
   Index On Str( usl_ok, 1 ) + Str( profil, 3 ) + Str( is_our, 1 ) + Str( vid, 1 ) + Str( vz_reb, 1 ) to ( cur_dir() + 'tmp1' )
   use_base( 'lusl' )
   r_use( dir_exe() + '_mo9unit', cur_dir() + '_mo9unit', 'MOUNIT' )
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'human_u_', , 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'human_u_', , 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
-  r_use( dir_server + 'human_2', , 'HUMAN_2' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
+  r_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
   //
   //
@@ -2074,17 +2074,17 @@ Function report_f_mpp()
     mdate_rak := 23
   Endif
   //
-  r_use( dir_server + 'mo_xml', , 'MO_XML' )
-  r_use( dir_server + 'mo_rak', , 'RAK' )
+  r_use( dir_server() + 'mo_xml', , 'MO_XML' )
+  r_use( dir_server() + 'mo_rak', , 'RAK' )
   Set Relation To kod_xml into MO_XML
-  r_use( dir_server + 'mo_raks', , 'RAKS' )
+  r_use( dir_server() + 'mo_raks', , 'RAKS' )
   Set Relation To akt into RAK
-  r_use( dir_server + 'mo_raksh', , 'RAKSH' )
+  r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
   Set Relation To kod_raks into RAKS
   Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
   //
-  r_use( dir_server + 'schet_', , 'SCHET_' )
-  r_use( dir_server + 'schet', , 'SCHET' )
+  r_use( dir_server() + 'schet_', , 'SCHET_' )
+  r_use( dir_server() + 'schet', , 'SCHET' )
   Set Relation To RecNo() into SCHET_
   ob_kol := 0
   Go Top
@@ -2512,19 +2512,19 @@ Function pril_5_6_62()
   sbase := prefixfilerefname( arr_m[ 1 ] ) + 'unit'
   r_use( dir_exe() + sbase, cur_dir() + sbase, 'MOUNIT' )
 
-  r_use( dir_server + 'mo_su', , 'MOSU' )
-  r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  r_use( dir_server() + 'mo_su', , 'MOSU' )
+  r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'human_u_', , 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'human_u_', , 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
-  r_use( dir_server + 'human_2', , 'HUMAN_2' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
+  r_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
   //
   kds := kdr := 10
@@ -2559,12 +2559,12 @@ Function pril_5_6_62()
   //
   mdate_rak := arr_m[ 6 ] + kdr
   //
-  r_use( dir_server + 'mo_xml', , 'MO_XML' )
-  r_use( dir_server + 'mo_rak', , 'RAK' )
+  r_use( dir_server() + 'mo_xml', , 'MO_XML' )
+  r_use( dir_server() + 'mo_rak', , 'RAK' )
   Set Relation To kod_xml into MO_XML
-  r_use( dir_server + 'mo_raks', , 'RAKS' )
+  r_use( dir_server() + 'mo_raks', , 'RAKS' )
   Set Relation To akt into RAK
-  r_use( dir_server + 'mo_raksh', , 'RAKSH' )
+  r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
   Set Relation To kod_raks into RAKS
   Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
   //
@@ -2577,8 +2577,8 @@ Function pril_5_6_62()
     { 'sr_kol', 'N', 5, 1 } } )
   Use ( cur_dir() + 'tmp' ) New Alias TMP
   Index On Str( usl_ok, 1 ) + shifr to ( cur_dir() + 'tmp' )
-  r_use( dir_server + 'schet_', , 'SCHET_' )
-  r_use( dir_server + 'schet', , 'SCHET' )
+  r_use( dir_server() + 'schet_', , 'SCHET_' )
+  r_use( dir_server() + 'schet', , 'SCHET' )
   Set Relation To RecNo() into SCHET_
   ob_kol := 0
   Go Top
@@ -2832,9 +2832,9 @@ Function monitoring_zog()
       { 'disp', 'L', 1, 0 } } )
     Use ( cur_dir() + 'tmp' ) new
     Index On Str( kod_k, 7 ) + diag to ( cur_dir() + 'tmp' )
-    r_use( dir_server + 'schet_', , 'SCHET_' )
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+    r_use( dir_server() + 'schet_', , 'SCHET_' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()

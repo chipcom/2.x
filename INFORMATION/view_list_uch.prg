@@ -31,7 +31,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
   tek_stroke := 0
   n_list := 1
   //
-  R_Use(dir_server + 'organiz', , 'ORG')
+  R_Use(dir_server() + 'organiz', , 'ORG')
   name_org := alltrim(org->name)
   dbCloseAll()
   if !myFileDeleted(cur_dir() + 'tmp1' + sdbf)
@@ -61,27 +61,27 @@ Function print_l_uch( mkod, par, regim, lnomer )
   use (cur_dir() + 'tmp1') index (cur_dir() + 'tmp11'), (cur_dir() + 'tmp12') alias tmp1
   Use_base('lusl')
   Use_base('luslf')
-  R_Use(dir_server + 'uslugi', , 'USL')
-  R_Use(dir_server + 'human_u_', , 'HU_')
-  R_Use(dir_server + 'human_u',dir_server + 'human_u', 'HU')
+  R_Use(dir_server() + 'uslugi', , 'USL')
+  R_Use(dir_server() + 'human_u_', , 'HU_')
+  R_Use(dir_server() + 'human_u',dir_server() + 'human_u', 'HU')
   set relation to recno() into HU_
-  R_Use(dir_server + 'mo_su', , 'MOSU')
-  R_Use(dir_server + 'mo_hu',dir_server + 'mo_hu', 'MOHU')
-  R_Use(dir_server + 'mo_otd', , 'OTD')
-  R_Use(dir_server + 'human_3',{dir_server + 'human_3',dir_server + 'human_32'}, 'HUMAN_3')
-  R_Use(dir_server + 'human_2', , 'HUMAN_2')
+  R_Use(dir_server() + 'mo_su', , 'MOSU')
+  R_Use(dir_server() + 'mo_hu',dir_server() + 'mo_hu', 'MOHU')
+  R_Use(dir_server() + 'mo_otd', , 'OTD')
+  R_Use(dir_server() + 'human_3',{dir_server() + 'human_3',dir_server() + 'human_32'}, 'HUMAN_3')
+  R_Use(dir_server() + 'human_2', , 'HUMAN_2')
   goto (mkod)
-  R_Use(dir_server + 'human_', , 'HUMAN_')
+  R_Use(dir_server() + 'human_', , 'HUMAN_')
   goto (mkod)
-  R_Use(dir_server + 'human', , 'HUMAN')
+  R_Use(dir_server() + 'human', , 'HUMAN')
   goto (mkod)
-  R_Use(dir_server + 'mo_pers', , 'PERSO')
+  R_Use(dir_server() + 'mo_pers', , 'PERSO')
   goto (human_->vrach)
   mlech_vr := iif(empty(perso->tab_nom), '', lstr(perso->tab_nom) + ' ') + alltrim(perso->fio)
   otd->(dbGoto(human->otd))
-  R_Use(dir_server + 'kartote_', , 'KART_')
+  R_Use(dir_server() + 'kartote_', , 'KART_')
   goto (human->kod_k)
-  R_Use(dir_server + 'kartotek', , 'KART')
+  R_Use(dir_server() + 'kartotek', , 'KART')
   goto (human->kod_k)
   //
   Private mvid_ud := kart_->vid_ud, ;
@@ -113,9 +113,9 @@ Function print_l_uch( mkod, par, regim, lnomer )
   madresp := iif(emptyall(kart_->okatop,kart_->adresp), '', ret_okato_ulica(kart_->adresp,kart_->okatop))
   //
   if human->tip_h >= B_SCHET .and. human->schet > 0 // добавление номера счета
-    R_Use(dir_server + 'schet_', , 'SCHET_')
+    R_Use(dir_server() + 'schet_', , 'SCHET_')
     goto (human->schet)
-    R_Use(dir_server + 'schet', , 'SCHET')
+    R_Use(dir_server() + 'schet', , 'SCHET')
     goto (human->schet)
     add_string('Счет № ' + alltrim(schet_->nschet) + ' от ' +date_8(schet_->dschet) + 'г.' +;
              if(human_->SCHET_ZAP==0, '', '  [ № ' + lstr(human_->SCHET_ZAP) + ' ]'))
@@ -124,7 +124,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
       if human_->oplata == 3
         s += '(' + lstr(human_->sump) + ') '
       endif
-      R_Use(dir_server + 'mo_os', , 'MO_OS')
+      R_Use(dir_server() + 'mo_os', , 'MO_OS')
       Locate for kod == mkod
       if found()
         s += 'Акт № ' + alltrim(mo_os->AKT) + ' от ' +date_8(mo_os->DATE_OPL) + ' '
@@ -136,10 +136,10 @@ Function print_l_uch( mkod, par, regim, lnomer )
           s += 'Лист учёта выставлен повторно.'
         endif
       else
-        R_Use(dir_server + 'mo_rak', , 'RAK')
-        R_Use(dir_server + 'mo_raks', , 'RAKS')
+        R_Use(dir_server() + 'mo_rak', , 'RAK')
+        R_Use(dir_server() + 'mo_raks', , 'RAKS')
         set relation to akt into RAK
-        R_Use(dir_server + 'mo_raksh', , 'RAKSH') 
+        R_Use(dir_server() + 'mo_raksh', , 'RAKSH') 
         set relation to kod_raks into RAKS
         arr := {}
         Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) for kod_h == mkod
@@ -831,7 +831,7 @@ Function print_luch_onk( dk,  diag, sh )
       { 'DATE_INJ', 'D',   8,  0 };  // дата введения лек.препарата
     } )
     Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE
-    r_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle',  'LE' ) // Сведения о применённых лекарственных препаратах
+    r_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle',  'LE' ) // Сведения о применённых лекарственных препаратах
     find ( Str( human->kod, 7 ) )
     Do While le->kod == human->kod .and. !Eof()
       Select TMPLE
@@ -842,7 +842,7 @@ Function print_luch_onk( dk,  diag, sh )
       Select LE
       Skip
     Enddo
-    r_use( dir_server + 'mo_onkco', dir_server + 'mo_onkco',  'CO' )
+    r_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco',  'CO' )
     find ( Str( human->kod, 7 ) )
     If Found()
       m1PR_CONS := co->pr_cons
@@ -854,7 +854,7 @@ Function print_luch_onk( dk,  diag, sh )
 
 
     add_string('  Онкология:')
-    R_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'ONKSL') // Сведения о случае лечения онкологического заболевания
+    R_Use(dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'ONKSL') // Сведения о случае лечения онкологического заболевания
     find (str(human->kod, 7))
     add_string('   Повод обращения: ' + inieditspr(A__MENUVERT, mm_DS1_T, onksl->DS1_T))
     add_string('   Стадия заболевания: ' + alltrim( inieditspr( A__MENUVERT, mm_N002, onksl->STAD ) ) ;
@@ -874,7 +874,7 @@ Function print_luch_onk( dk,  diag, sh )
       inieditspr( A__MENUVERT, mmb_diag(), onksl->b_diag ) )
     
     add_string( '' )
-    R_Use(dir_server + 'mo_onkus', dir_server + 'mo_onkus', 'ONKUS')
+    R_Use(dir_server() + 'mo_onkus', dir_server() + 'mo_onkus', 'ONKUS')
     find (str(human->kod, 7))
     do while onkus->kod == human->kod .and. !eof()
       if between(onkus->USL_TIP, 1, 6)
@@ -978,21 +978,21 @@ Function o_list_uch()
     if yes_parol
       func_step := 'f3o_list_uch'
     endif
-    Private blk_open := {|| iif(yes_parol, R_Use(dir_server + 'base1', , 'BASE1'), nil), ;
-          R_Use(dir_server + 'mo_otd', ,'OTD'), ;
-          R_Use(dir_server + 'mo_rees', , 'REES'), ;
-          R_Use(dir_server + 'schet_', , 'SCHET_'), ;
-          R_Use(dir_server + 'schet', , 'SCHET'), ;
+    Private blk_open := {|| iif(yes_parol, R_Use(dir_server() + 'base1', , 'BASE1'), nil), ;
+          R_Use(dir_server() + 'mo_otd', ,'OTD'), ;
+          R_Use(dir_server() + 'mo_rees', , 'REES'), ;
+          R_Use(dir_server() + 'schet_', , 'SCHET_'), ;
+          R_Use(dir_server() + 'schet', , 'SCHET'), ;
           dbSetRelation( 'SCHET_', {|| recno()}, 'recno()'), ;
-          R_Use(dir_server + 'human_2', , 'HUMAN_2'), ;
-          R_Use(dir_server + 'human_', , 'HUMAN_'), ;
-          R_Use(dir_server + 'human', , 'HUMAN'), ;
+          R_Use(dir_server() + 'human_2', , 'HUMAN_2'), ;
+          R_Use(dir_server() + 'human_', , 'HUMAN_'), ;
+          R_Use(dir_server() + 'human', , 'HUMAN'), ;
           dbSetRelation('HUMAN_2', {|| recno()}, 'recno()' ), ;
           dbSetRelation('HUMAN_', {|| recno()}, 'recno()' ), ;
           dbSetRelation('OTD', {|| otd}, 'otd' ), ;
           dbSetRelation('SCHET', {|| schet}, 'schet' )}
     eval(blk_open)
-    set index to (dir_server + 'humankk')
+    set index to (dir_server() + 'humankk')
     find (str(glob_kartotek, 7))
     if found()
       mtitul := alltrim(fio)
@@ -1156,7 +1156,7 @@ Function print_al_uch(arr_h, arr_m)
   tek_stroke := 0
   n_list := 1
   //
-  R_Use(dir_server + 'organiz')
+  R_Use(dir_server() + 'organiz')
   name_org := center(alltrim(name), sh)
   dbCloseAll()
   if !myFileDeleted(cur_dir() + 'tmp1' + sdbf)
@@ -1183,14 +1183,14 @@ Function print_al_uch(arr_h, arr_m)
   index on dtos(date_u1) + fsort_usl(shifr) to (cur_dir() + 'tmp12')
   dbCloseAll()
   //
-  R_Use(dir_server + 'human_', , 'HUMAN_')
-  R_Use(dir_server + 'human', , 'HUMAN')
+  R_Use(dir_server() + 'human_', , 'HUMAN_')
+  R_Use(dir_server() + 'human', , 'HUMAN')
   set relation to recno() into HUMAN_
   goto (atail(arr_h)[2])
   mpolis := alltrim(rtrim(human_->SPOLIS) + ' ' +human_->NPOLIS) + ' (' + ;
             alltrim(inieditspr(A__MENUVERT, mm_vid_polis, human_->VPOLIS)) + ')'
-  R_Use(dir_server + 'kartote_', , 'KART_')
-  R_Use(dir_server + 'kartotek', , 'KART')
+  R_Use(dir_server() + 'kartote_', , 'KART_')
+  R_Use(dir_server() + 'kartotek', , 'KART')
   set relation to recno() into KART_
   goto (human->kod_k)
   madres := iif(emptyall(kart_->okatog, kart->adres), '', ;
@@ -1241,18 +1241,18 @@ Function print_al_uch(arr_h, arr_m)
   // add_string('  Полис: ' + mpolis)
   add_string('  Серия и номер страхового полиса: ' + mpolis)
   //
-  // R_Use(dir_server + 'mo_uch', , 'UCH')
-  R_Use(dir_server + 'mo_otd', , 'OTD')
-  R_Use(dir_server + 'uslugi', , 'USL')
-  R_Use(dir_server + 'mo_pers', , 'PERSO')
-  R_Use(dir_server + 'schet_', , 'SCHET_')
-  R_Use(dir_server + 'schet', , 'SCHET')
+  // R_Use(dir_server() + 'mo_uch', , 'UCH')
+  R_Use(dir_server() + 'mo_otd', , 'OTD')
+  R_Use(dir_server() + 'uslugi', , 'USL')
+  R_Use(dir_server() + 'mo_pers', , 'PERSO')
+  R_Use(dir_server() + 'schet_', , 'SCHET_')
+  R_Use(dir_server() + 'schet', , 'SCHET')
   set relation to recno() into SCHET_
-  R_Use(dir_server + 'human_u_', , 'HU_')
-  R_Use(dir_server + 'human_u', dir_server + 'human_u', 'HU')
+  R_Use(dir_server() + 'human_u_', , 'HU_')
+  R_Use(dir_server() + 'human_u', dir_server() + 'human_u', 'HU')
   set relation to recno() into HU_
-  R_Use(dir_server + 'mo_su', , 'MOSU')
-  R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU')
+  R_Use(dir_server() + 'mo_su', , 'MOSU')
+  R_Use(dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU')
   use (cur_dir() + 'tmp1') index (cur_dir() + 'tmp11'), (cur_dir() + 'tmp12') new alias tmp1
   for ii := 1 to len(arr_h)
     select TMP1
@@ -1502,13 +1502,13 @@ Function print_spravka_OMS(mkod)
   create_FR_file_for_spravkaOMS()
   Use_base('lusl')
   Use_base('luslf')
-  R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1', ;
-                              dir_server + 'uslugi1s'}, 'USL1')
-  R_Use(dir_server + 'uslugi', , 'USL')
-  R_Use(dir_server + 'human_u', dir_server + 'human_u', 'HU')
-  R_Use(dir_server + 'human_', , 'HUMAN_')
+  R_Use(dir_server() + 'uslugi1', {dir_server() + 'uslugi1', ;
+                              dir_server() + 'uslugi1s'}, 'USL1')
+  R_Use(dir_server() + 'uslugi', , 'USL')
+  R_Use(dir_server() + 'human_u', dir_server() + 'human_u', 'HU')
+  R_Use(dir_server() + 'human_', , 'HUMAN_')
   goto (mkod)
-  R_Use(dir_server + 'human', , 'HUMAN')
+  R_Use(dir_server() + 'human', , 'HUMAN')
   goto (mkod)
   if mdate < human->k_data
     rest_box(buf)
@@ -1574,7 +1574,7 @@ Function print_spravka_OMS(mkod)
     Skip
   enddo
   index on str(summa, 11, 2) to (fr_data) descending
-  G_Use(dir_server + 'mo_sprav', , 'SPR_OMS')
+  G_Use(dir_server() + 'mo_sprav', , 'SPR_OMS')
   Locate for kod_h == mkod
   if found()
     G_RLock(forever)
@@ -1615,7 +1615,7 @@ Function f_spravka_OMS()
         p_box_buf, gl_area := {1, 0, 23, 79, 0}
 
   if k1 > 0
-    R_Use(dir_server + 'kartotek', , 'KART')
+    R_Use(dir_server() + 'kartotek', , 'KART')
     goto (glob_kartotek)
     mfio    := kart->fio
     mdate_r := kart->date_r
@@ -1722,7 +1722,7 @@ Function f_spravka_OMS()
         Skip
       enddo
       index on str(summa, 11, 2) to (fr_data) descending
-      G_Use(dir_server + 'mo_sprav', , 'SPR_OMS')
+      G_Use(dir_server() + 'mo_sprav', , 'SPR_OMS')
       if rec_spr_oms == 0
         append blank
         spr_oms->KOD_H  := 0
@@ -1766,7 +1766,7 @@ Function fu_spravka_OMS(r, c)
     endif
     Use_base('lusl')
     Use_base('luslc')
-    R_Use(dir_server + 'uslugi', dir_server + 'uslugish', 'USL')
+    R_Use(dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL')
     Arrn_Browse(r + 1, 2, maxrow() - 2, 77, parr_usl, arr_title, 1, , , , , .t., , mpic,blk, {.t., .t., .t.})
     p_box_buf := save_box(r + 1, 0, maxrow() - 1, 79)
     close databases
@@ -1875,7 +1875,7 @@ Function f_otchet_spravka_OMS()
 
   if (arr_m := year_month()) != NIL
     mywait()
-    R_Use(dir_server + 'mo_sprav', , 'SPR_OMS')
+    R_Use(dir_server() + 'mo_sprav', , 'SPR_OMS')
     index on data to (cur_dir() + 'tmp') for between(data, arr_m[5], arr_m[6])
     go top
     do while !eof()

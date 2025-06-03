@@ -220,7 +220,7 @@ function editSubdivision( oBrowse, aObjects, oSubdivision, nKey )
                                 "Адрес удалённого подразделения для стационара"})
 endif                       
 if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
- G_Use(dir_server+"mo_otd",,"OTD")
+ G_Use(dir_server()+"mo_otd",,"OTD")
  go top
  do while !eof()
     if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr[i,2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;

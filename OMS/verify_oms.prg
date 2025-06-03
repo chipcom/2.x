@@ -63,36 +63,36 @@ Function verify_oms( arr_m, fl_view )
   f_create_diag_srok( 'tmp_d_srok' )
   Use ( cur_dir() + 'tmp_d_srok' ) New Alias D_SROK
 
-  r_use( dir_server + 'mo_pers', , 'PERS' )
-  r_use( dir_server + 'mo_uch', , 'UCH' )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_pers', , 'PERS' )
+  r_use( dir_server() + 'mo_uch', , 'UCH' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
   use_base( 'lusl' )
   use_base( 'luslc' )
   use_base( 'luslf' )
-  r_use( dir_server + 'uslugi', , 'USL' )
-  g_use( dir_server + 'human_u_', , 'HU_' )
-  g_use( dir_server + 'human_u', { dir_server + 'human_u', ;
-    dir_server + 'human_uk', ;
-    dir_server + 'human_ud', ;
-    dir_server + 'human_uv', ;
-    dir_server + 'human_ua' }, 'HU' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  g_use( dir_server() + 'human_u_', , 'HU_' )
+  g_use( dir_server() + 'human_u', { dir_server() + 'human_u', ;
+    dir_server() + 'human_uk', ;
+    dir_server() + 'human_ud', ;
+    dir_server() + 'human_uv', ;
+    dir_server() + 'human_ua' }, 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'mo_su', , 'MOSU' )
-  g_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  r_use( dir_server() + 'mo_su', , 'MOSU' )
+  g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
-  g_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  g_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
-  g_use( dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'ONKNA' ) // ®­ª®­ ¯à ¢«¥­¨ï
-  g_use( dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'ONKSL' ) // ‘¢¥¤¥­¨ï ® á«ãç ¥ «¥ç¥­¨ï ®­ª®«®£¨ç¥áª®£® § ¡®«¥¢ ­¨ï
-  g_use( dir_server + 'mo_onkdi', dir_server + 'mo_onkdi', 'ONKDI' ) // „¨ £­®áâ¨ç¥áª¨© ¡«®ª
-  g_use( dir_server + 'mo_onkpr', dir_server + 'mo_onkpr', 'ONKPR' ) // ‘¢¥¤¥­¨ï ®¡ ¨¬¥îé¨åáï ¯à®â¨¢®¯®ª § ­¨ïå
-  g_use( dir_server + 'mo_onkus', dir_server + 'mo_onkus', 'ONKUS' )
-  g_use( dir_server + 'mo_onkco', dir_server + 'mo_onkco', 'ONKCO' )
-  g_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle', 'ONKLE' )
-  g_use( dir_server + 'human_2', , 'HUMAN_2' )
-  g_use( dir_server + 'human_', , 'HUMAN_' )
-  g_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+  g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna', 'ONKNA' ) // ®­ª®­ ¯à ¢«¥­¨ï
+  g_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'ONKSL' ) // ‘¢¥¤¥­¨ï ® á«ãç ¥ «¥ç¥­¨ï ®­ª®«®£¨ç¥áª®£® § ¡®«¥¢ ­¨ï
+  g_use( dir_server() + 'mo_onkdi', dir_server() + 'mo_onkdi', 'ONKDI' ) // „¨ £­®áâ¨ç¥áª¨© ¡«®ª
+  g_use( dir_server() + 'mo_onkpr', dir_server() + 'mo_onkpr', 'ONKPR' ) // ‘¢¥¤¥­¨ï ®¡ ¨¬¥îé¨åáï ¯à®â¨¢®¯®ª § ­¨ïå
+  g_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus', 'ONKUS' )
+  g_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco', 'ONKCO' )
+  g_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle', 'ONKLE' )
+  g_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  g_use( dir_server() + 'human_', , 'HUMAN_' )
+  g_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
   If AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. fl_view
     Private old_npr_mo := '000000'
@@ -104,7 +104,7 @@ Function verify_oms( arr_m, fl_view )
       While human->k_data <= arr_m[ 6 ] .and. !Eof() ;
       For tip_h == B_STANDART .and. Empty( schet ) .and. !Empty( k_data )
   Endif
-  Set Index to ( dir_server + 'humans' ), ( dir_server + 'humankk' ), ( dir_server + 'humand' ), ( cur_dir() + 'tmp_hfio' )
+  Set Index to ( dir_server() + 'humans' ), ( dir_server() + 'humankk' ), ( dir_server() + 'humand' ), ( cur_dir() + 'tmp_hfio' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
   Set Order To 4
   Go Top
@@ -200,7 +200,7 @@ Function verify_oms( arr_m, fl_view )
   If !fl_view
     Select HUMAN
     Set Index To  // ®â¢ï§ë¢ ¥¬ ãá«®¢­ë© ¨­¤¥ªá
-    g_use( dir_server + 'human_3', { dir_server + 'human_3', dir_server + 'human_32' }, 'HUMAN_3' )
+    g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
     // ¯à®¢¥àï¥¬ á«ãç ¨, £¤¥ 2-®© á«ãç © § ª®­ç¨«áï ¢ â¥ªãé¥¬ ®âçñâ­®¬ ¬¥áïæ¥,   1-ë© - ­¥¢ ¦­®
     Select HUMAN_3
     Set Order To 2 // ¢áâ âì ­  ¨­¤¥ªá ¯® 2-¬ã á«ãç î
@@ -350,8 +350,8 @@ Function verify_oms( arr_m, fl_view )
     Set Index To
     add_string( '' )
     add_string( Center( '‘¯¨á®ª «¨áâ®¢ ãçñâ , ª®â®àë¥ ­¥ ¯à®¢¥àï«¨áì', 80 ) )
-    r_use( dir_server + 'str_komp', , 'STR' )
-    r_use( dir_server + 'komitet', , 'KOM' )
+    r_use( dir_server() + 'str_komp', , 'STR' )
+    r_use( dir_server() + 'komitet', , 'KOM' )
     Select TMP_NO
     Set Relation To kod into HUMAN
     Index On Str( tip, 1 ) + Str( komu, 1 ) + Str( str_crb, 2 ) + Upper( human->fio ) to ( cur_dir() + 'tmp_no' )
@@ -439,38 +439,38 @@ Function verify_oms_sluch( mkod )
   add_string( Center( '¢ «¨áâ¥ ãçñâ ', 80 ) )
   add_string( '' )
   //
-  r_use( dir_server + 'mo_pers', , 'PERS' )
-  r_use( dir_server + 'mo_uch', , 'UCH' )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_pers', , 'PERS' )
+  r_use( dir_server() + 'mo_uch', , 'UCH' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
   use_base( 'lusl' )
   use_base( 'luslc' )
   use_base( 'luslf' )
-  r_use( dir_server + 'uslugi', , 'USL' )
-  g_use( dir_server + 'human_u_', , 'HU_' )
-  g_use( dir_server + 'human_u', { dir_server + 'human_u', ;
-    dir_server + 'human_uk', ;
-    dir_server + 'human_ud', ;
-    dir_server + 'human_uv', ;
-    dir_server + 'human_ua' }, 'HU' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  g_use( dir_server() + 'human_u_', , 'HU_' )
+  g_use( dir_server() + 'human_u', { dir_server() + 'human_u', ;
+    dir_server() + 'human_uk', ;
+    dir_server() + 'human_ud', ;
+    dir_server() + 'human_uv', ;
+    dir_server() + 'human_ua' }, 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'mo_su', , 'MOSU' )
-  g_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  r_use( dir_server() + 'mo_su', , 'MOSU' )
+  g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
-  g_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  g_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
-  g_use( dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'ONKNA' ) // ®­ª®­ ¯à ¢«¥­¨ï
-  g_use( dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'ONKSL' ) // ‘¢¥¤¥­¨ï ® á«ãç ¥ «¥ç¥­¨ï ®­ª®«®£¨ç¥áª®£® § ¡®«¥¢ ­¨ï
-  g_use( dir_server + 'mo_onkdi', dir_server + 'mo_onkdi', 'ONKDI' ) // „¨ £­®áâ¨ç¥áª¨© ¡«®ª
-  g_use( dir_server + 'mo_onkpr', dir_server + 'mo_onkpr', 'ONKPR' ) // ‘¢¥¤¥­¨ï ®¡ ¨¬¥îé¨åáï ¯à®â¨¢®¯®ª § ­¨ïå
-  g_use( dir_server + 'mo_onkus', dir_server + 'mo_onkus', 'ONKUS' )
-  g_use( dir_server + 'mo_onkco', dir_server + 'mo_onkco', 'ONKCO' )
-  g_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle', 'ONKLE' )
-  g_use( dir_server + 'human_2', , 'HUMAN_2' )
-  g_use( dir_server + 'human_', , 'HUMAN_' )
-  g_use( dir_server + 'human', { dir_server + 'humans', ;
-    dir_server + 'humankk', ;
-    dir_server + 'humand' }, 'HUMAN' )
+  g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna', 'ONKNA' ) // ®­ª®­ ¯à ¢«¥­¨ï
+  g_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'ONKSL' ) // ‘¢¥¤¥­¨ï ® á«ãç ¥ «¥ç¥­¨ï ®­ª®«®£¨ç¥áª®£® § ¡®«¥¢ ­¨ï
+  g_use( dir_server() + 'mo_onkdi', dir_server() + 'mo_onkdi', 'ONKDI' ) // „¨ £­®áâ¨ç¥áª¨© ¡«®ª
+  g_use( dir_server() + 'mo_onkpr', dir_server() + 'mo_onkpr', 'ONKPR' ) // ‘¢¥¤¥­¨ï ®¡ ¨¬¥îé¨åáï ¯à®â¨¢®¯®ª § ­¨ïå
+  g_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus', 'ONKUS' )
+  g_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco', 'ONKCO' )
+  g_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle', 'ONKLE' )
+  g_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  g_use( dir_server() + 'human_', , 'HUMAN_' )
+  g_use( dir_server() + 'human', { dir_server() + 'humans', ;
+    dir_server() + 'humankk', ;
+    dir_server() + 'humand' }, 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
   Goto ( mkod )
   If Empty( human->k_data )

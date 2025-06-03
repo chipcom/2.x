@@ -30,10 +30,10 @@ Function inp_bit_otd( k, r, c )
     tmp_select := Select(), r1, a_uch := {}
 
   mywait()
-  r_use( dir_server + 'mo_uch', , 'LPU' )
+  r_use( dir_server() + 'mo_uch', , 'LPU' )
   dbEval( {|| iif( between_date( lpu->dbegin, lpu->dend, sys_date ), ;
     AAdd( a_uch, lpu->( RecNo() ) ), nil ) } )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
   Set Relation To kod_lpu into LPU
   dbEval( {|| s := if( Chr( RecNo() ) $ k, ' * ', '   ' ) + ;
     PadR( otd->name, 30 ) + ' ' + PadR( lpu->short_name, 5 ) + Str( RecNo(), 10 ), ;
@@ -141,7 +141,7 @@ Function edit_proch_spr( k )
   Case k == 2
     str_sem := 'Редактирование места работы'
     If g_slock( str_sem )
-      popup_edit( dir_server + 's_mr', T_ROW, T_COL + 5, MaxRow() -2, , 1 )
+      popup_edit( dir_server() + 's_mr', T_ROW, T_COL + 5, MaxRow() -2, , 1 )
       g_sunlock( str_sem )
     Else
       func_error( 4, err_slock )
@@ -202,7 +202,7 @@ Function f1_s_adres( nKey, oBrow, regim )
 
   Do Case
   Case regim == 'open'
-    g_use( dir_server + 's_adres', dir_server + 's_adres', 'SA' )
+    g_use( dir_server() + 's_adres', dir_server() + 's_adres', 'SA' )
     Go Top
     ret := !Eof()
   Case regim == 'edit'
@@ -272,7 +272,7 @@ Function f1_s_kemvyd( nKey, oBrow, regim, par )
 
   Do Case
   Case regim == 'open'
-    g_use( dir_server + 's_kemvyd', dir_server + 's_kemvyd', 'SA' )
+    g_use( dir_server() + 's_kemvyd', dir_server() + 's_kemvyd', 'SA' )
     Go Top
     If par != Nil .and. par > 0
       Goto ( par )
@@ -435,7 +435,7 @@ Function yes_d_kemvyd( rec )
 
   Local tmp_select := Select(), fl := .t.
 
-  r_use( dir_server + 'kartote_', , 'TMPKART' )
+  r_use( dir_server() + 'kartote_', , 'TMPKART' )
   Locate For kemvyd == rec progress
   If Found()
     fl := func_error( 4, 'Данная организация уже "привязана" к пациенту. Удаление запрещено!' )
@@ -489,7 +489,7 @@ Function fdeld_s_kem()
           mywait()
           hGauge := gaugenew(, , , '', .t. )
           gaugedisplay( hGauge )
-          g_use( dir_server + 'kartote_', , 'TMPKART' )
+          g_use( dir_server() + 'kartote_', , 'TMPKART' )
           Go Top
           Do While !Eof()
             gaugeupdate( hGauge, RecNo() / LastRec() )
@@ -502,7 +502,7 @@ Function fdeld_s_kem()
           Enddo
           closegauge( hGauge )
           //
-          g_use( dir_server + 's_kemvyd', dir_server + 's_kemvyd', 'SA' )
+          g_use( dir_server() + 's_kemvyd', dir_server() + 's_kemvyd', 'SA' )
           Set Order To 0
           Goto ( k1[ 1 ] )
           deleterec( .t. )
@@ -525,7 +525,7 @@ Function edit_school()
   arr[ US_BOTTOM   ] := MaxRow() -2
   arr[ US_LEFT     ] := 2
   arr[ US_RIGHT    ] := 77
-  arr[ US_BASE     ] := dir_server + 'mo_schoo'
+  arr[ US_BASE     ] := dir_server() + 'mo_schoo'
   arr[ US_ARR_BROWSE ] := { '═', '░', '═', , .t. }
   arr[ US_COLUMN   ] := { { ' Наименование', {|| name }, blk }, ;
     { ' Адрес', {|| Left( adres, 26 ) }, blk }, ;
@@ -548,7 +548,7 @@ Function fdel_school( k )
 
   Local _fl := .t., arr, i
 
-  r_use( dir_server + 'human', , '__B' )
+  r_use( dir_server() + 'human', , '__B' )
   Index On kod to ( cur_dir() + 'tmp_b' ) For Between( ishod, 301, 309 )
   Go Top
   Do While !Eof()
@@ -583,7 +583,7 @@ Function edit_dds_stac()
   arr[ US_BOTTOM   ] := MaxRow() -2
   arr[ US_LEFT     ] := 2
   arr[ US_RIGHT    ] := 77
-  arr[ US_BASE     ] := dir_server + 'mo_stdds'
+  arr[ US_BASE     ] := dir_server() + 'mo_stdds'
   arr[ US_ARR_BROWSE ] := { '═', '░', '═', , .t. }
   arr[ US_COLUMN   ] := { { ' Наименование', {|| Left( name, 40 ) }, blk }, ;
     { ' Адрес', {|| Left( adres, 16 ) }, blk }, ;
@@ -606,7 +606,7 @@ Function fdel_dds_stac( k )
 
   Local _fl := .f.
 
-  r_use( dir_server + 'human', , '__B' )
+  r_use( dir_server() + 'human', , '__B' )
   dblocateprogress( {|| __b->ZA_SMO == k } )
   _fl := ! Found()
   dbCloseArea()
@@ -759,7 +759,7 @@ Function fs_opl_51( nKey, oBrow, regim, lregim )
   Case regim == 'open'
     buf := save_maxrow()
     mywait()
-    g_use( dir_server + 'u_usl_5', , 'U5' )
+    g_use( dir_server() + 'u_usl_5', , 'U5' )
     Go Top
     Do While !Eof()
       g_rlock( forever )
@@ -943,7 +943,7 @@ Function spr_opl_52()
     { 'высш', 3 } }
 
   mywait()
-  g_use( dir_server + 'mo_pers', , 'PERSO' )
+  g_use( dir_server() + 'mo_pers', , 'PERSO' )
   Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' )
   Go Top
   t_arr[ BR_TOP ] := 2
@@ -1110,7 +1110,7 @@ Function fs_opl_71( nKey, oBrow, regim, mtitle )
 
   Do Case
   Case regim == 'open'
-    g_use( dir_server + 'u_usl_7', , 'U7' )
+    g_use( dir_server() + 'u_usl_7', , 'U7' )
     Index On Upper( name ) to ( cur_dir() + 'tmp_u7' )
     Go Top
     ret := !Eof()
@@ -1147,7 +1147,7 @@ Function fs_opl_71( nKey, oBrow, regim, mtitle )
       a_da := slist2arr( u7->usl_ins )
       a_net := slist2arr( u7->usl_del )
       useuch_usl()
-      r_use( dir_server + 'uslugi', , 'USL' )
+      r_use( dir_server() + 'uslugi', , 'USL' )
       Index On fsort_usl( shifr ) to ( cur_dir() + 'tmpu' )
       Go Top
       Do While !Eof()
@@ -1327,7 +1327,7 @@ Function f_attach_uch_vrach()
 
   Local i, blk, arr := {}, t_arr[ BR_LEN ]
 
-  r_use( dir_server + 'kartotek', dir_server + 'kartoteu', 'KART' )
+  r_use( dir_server() + 'kartotek', dir_server() + 'kartoteu', 'KART' )
   For i := 1 To 99
     find ( StrZero( i, 2 ) )
     If Found()
@@ -1340,7 +1340,7 @@ Function f_attach_uch_vrach()
   Endif
   Private p2blk := {| i| i := iif( Between( p2->kateg, 1, 4 ), p2->kateg, 1 ), ;
     ' (' + { 'вр', 'ср', 'мл', 'пр' }[ i ] + '.) ' }
-  g_use( dir_server + 'mo_uchvr', , 'UV' )
+  g_use( dir_server() + 'mo_uchvr', , 'UV' )
   Index On Str( uch, 2 ) to ( cur_dir() + 'tmp' )
   For i := 1 To Len( arr )
     find ( Str( arr[ i ], 2 ) )
@@ -1376,7 +1376,7 @@ Function f_attach_uch_vrach()
     { ' Участковый врач', {|| PadR( f1_attach_uch_vrach(), 67 ) }, blk } }
   t_arr[ BR_EDIT ] := {| nk, ob| f2_attach_uch_vrach( nk, ob, 'edit' ) }
   t_arr[ BR_STAT_MSG ] := {|| status_key( '^<Esc>^ - выход;  ^<Enter>^ - редактирование участкового врача' ) }
-  r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2' )
+  r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2' )
   Select UV
   Go Top
   edit_browse( t_arr )
@@ -1592,7 +1592,7 @@ Function edit_otd()
   arr[ US_BOTTOM   ] := MaxRow() -2
   arr[ US_LEFT     ] := 2
   arr[ US_RIGHT    ] := 77
-  arr[ US_BASE     ] := dir_server + 'mo_otd'
+  arr[ US_BASE     ] := dir_server() + 'mo_otd'
   arr[ US_TITUL    ] := glob_uch[ 2 ]
   arr[ US_TITUL_COLOR ] := 'BG+/GR'
   arr[ US_ARR_BROWSE ] := { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B', .t. }
@@ -1668,12 +1668,12 @@ Function fdel_otd( k )
 
   Local _fl, i, tmp_select := Select()
 
-  r_use( dir_server + 'mo_pers', , '__B' )
+  r_use( dir_server() + 'mo_pers', , '__B' )
   dblocateprogress( {|| __b->otd == k } )
   _fl := !Found()
   dbCloseArea()
   If _fl
-    r_use( dir_server + 'human', dir_server + 'humann', '__B' )
+    r_use( dir_server() + 'human', dir_server() + 'humann', '__B' )
     For i := 0 To 9
       find ( Str( i, 1 ) + Str( k, 3 ) ) // index on str(tip_h, 1)+ str(otd, 3)+...
       If Found()
@@ -1684,7 +1684,7 @@ Function fdel_otd( k )
     dbCloseArea()
   Endif
   If _fl
-    r_use( dir_server + 'hum_p', dir_server + 'hum_pn', '__B' )
+    r_use( dir_server() + 'hum_p', dir_server() + 'hum_pn', '__B' )
     find ( Str( k, 3 ) ) // index on str(otd, 3)+...
     _fl := !Found()
     dbCloseArea()
@@ -1751,7 +1751,7 @@ Function edit_uch()
   arr[ US_BOTTOM   ] := MaxRow() -2
   arr[ US_LEFT     ] := T_COL + 5
   arr[ US_RIGHT    ] := arr[ US_LEFT ] + 48
-  arr[ US_BASE     ] := dir_server + 'mo_uch'
+  arr[ US_BASE     ] := dir_server() + 'mo_uch'
   arr[ US_ARR_BROWSE ] := { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B', .t. }
   arr[ US_COLUMN   ] := { { ' Наименование', {|| name }, blk }, ;
     { 'Сокр.;наим.', {|| SHORT_NAME }, blk }, ;
@@ -1783,7 +1783,7 @@ Function fdel_uch( k )
 
   Local _fl, tmp_select := Select()
 
-  r_use( dir_server + 'mo_otd', , '__B' )
+  r_use( dir_server() + 'mo_otd', , '__B' )
   dblocateprogress( {|| __b->kod_lpu == k } )
   _fl := !Found()
   dbCloseArea()
@@ -1815,7 +1815,7 @@ Function edit_strah()
         glob_strah[ 1 ] := k
       Endif
     Elseif i != 0 .and. ;
-        ( k := popup_edit( dir_server + 'str_komp', T_ROW + i + 1, T_COL + 5, ;
+        ( k := popup_edit( dir_server() + 'str_komp', T_ROW + i + 1, T_COL + 5, ;
         T_ROW + i + 7, glob_strah[ 1 ], PE_RETURN, , , , {|| !Between( tfoms, 44, 47 ) } ) ) != NIL
       glob_strah := k
       f_edit_spr( i, arr, 'прочей компании', ;
@@ -1847,7 +1847,7 @@ Function edit_komit( d )
         glob_komitet[ 1 ] := k
       Endif
     Elseif i != 0 .and. ;
-        ( k := popup_edit( dir_server + 'komitet', T_ROW + i + 1, T_COL + 5, ;
+        ( k := popup_edit( dir_server() + 'komitet', T_ROW + i + 1, T_COL + 5, ;
         T_ROW + i + 7, glob_komitet[ 1 ], PE_RETURN ) ) != NIL
       glob_komitet := k
       // f_edit_spr(i, gmenu_komit, 'комитету (МО)', ;
@@ -1889,7 +1889,7 @@ Function fdel_ksc( n, k )
     buf := save_maxrow()
     stat_msg( 'Ждите! Производится проверка на допустимость удаления.' )
     For i := 1 To Len( afile )
-      r_use( dir_server + afile[ i ], , 'KK' )
+      r_use( dir_server() + afile[ i ], , 'KK' )
       Locate For kk->komu == n .and. kk->str_crb == mkod ;
         progress { 'GR+/B', 'GR+/B', 'W*/B' } NUMPROCENT
       fl := !Found()

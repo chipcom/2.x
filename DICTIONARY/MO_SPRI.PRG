@@ -341,10 +341,10 @@ Function f4_uslugi( reg )
   endif
   use_base( 'lusl' )
   use_base( 'luslc' )
-  r_use( dir_server + 'mo_uch', , 'LPU' )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
-  r_use( dir_server + 'usl_otd', dir_server + 'usl_otd', 'UO' )
-  r_use( dir_server + 'uslugi',, 'USL' )
+  r_use( dir_server() + 'mo_uch', , 'LPU' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'usl_otd', dir_server() + 'usl_otd', 'UO' )
+  r_use( dir_server() + 'uslugi',, 'USL' )
   Index On iif( kod > 0, '1', '0' ) + fsort_usl( shifr ) to ( cur_dir() + 'tmp_usl' )
   Go Top
   Do While !Eof()
@@ -489,7 +489,7 @@ Function v_1usluga()
     r_use( dir_exe() + prefix + 'dep', cur_dir() + prefix + 'dep', 'DEP' )
     use_base( 'lusl' )
     use_base( 'luslc' )
-    r_use( dir_server + 'uslugi', dir_server + 'uslugi', 'USL' )
+    r_use( dir_server() + 'uslugi', dir_server() + 'uslugi', 'USL' )
     add_string( '' )
     add_string( Center( '‘’ “‘‹“ƒ', sh ) )
     add_string( '' )
@@ -597,10 +597,10 @@ Function v_k_uslugi()
   add_string( '' )
   add_string( Center( '‹…‘›… “‘‹“ƒ', sh ) )
   add_string( '' )
-  r_use( dir_server + 'uslugi', dir_server + 'uslugish', 'USL' )
-  r_use( dir_server + 'uslugi1k', dir_server + 'uslugi1k', 'U1K' )
+  r_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
+  r_use( dir_server() + 'uslugi1k', dir_server() + 'uslugi1k', 'U1K' )
   Set Relation To shifr1 into USL
-  r_use( dir_server + 'uslugi_k', dir_server + 'uslugi_k', 'UK' )
+  r_use( dir_server() + 'uslugi_k', dir_server() + 'uslugi_k', 'UK' )
   Go Top
   Do While !Eof()
     verify_ff( HH -3, .t., sh )
@@ -671,7 +671,7 @@ Function v_nulusluga()
   Else
     l := sh
   Endif
-  r_use( dir_server + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
   For i := 1 To 2
     add_string( '' )
     add_string( Center( iif( i == 1, '[ ‘ ]', '[ « β­λ¥ γα«γ£¨ ]' ), sh ) )
@@ -1275,7 +1275,7 @@ Function usl3tfoms()
     AEval( arr_title, {| x| add_string( x ) } )
     dbCreate( cur_dir() + "tmp", { { "shifr", "C", 10, 0 } } )
     Use ( cur_dir() + "tmp" ) new
-    r_use( dir_server + 'uslugi',, 'USL' )
+    r_use( dir_server() + 'uslugi',, 'USL' )
     Go Top
     Do While !Eof()
       lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, mdate )
@@ -1904,7 +1904,7 @@ Function usl2ffoms()
   add_string( '' )
   AEval( arr_title, {| x| add_string( x ) } )
   use_base( 'luslf' )
-  r_use( dir_server + 'mo_su', dir_server + 'mo_sush1', 'MOSU' )
+  r_use( dir_server() + 'mo_su', dir_server() + 'mo_sush1', 'MOSU' )
   Go Top
   Do While !Eof()
     k := 1
@@ -2210,11 +2210,11 @@ Function f1spr_other( k )
 
   Do Case
   Case k == 1
-    popup_edit( dir_server + "str_komp", T_ROW, T_COL - 5, T_ROW + 8,, PE_VIEW,,,, {|| !Between( tfoms, 44, 47 ) } )
+    popup_edit( dir_server() + "str_komp", T_ROW, T_COL - 5, T_ROW + 8,, PE_VIEW,,,, {|| !Between( tfoms, 44, 47 ) } )
   Case k == 2
-    popup_edit( dir_server + "komitet", T_ROW, T_COL - 5, T_ROW + 8,, PE_VIEW )
+    popup_edit( dir_server() + "komitet", T_ROW, T_COL - 5, T_ROW + 8,, PE_VIEW )
   Case k == 3
-    If r_use( dir_server + "slugba", dir_server + "slugba", "SL" )
+    If r_use( dir_server() + "slugba", dir_server() + "slugba", "SL" )
       Go Top
       Do While alpha_browse( T_ROW, T_COL - 5, MaxRow() -2, T_COL + 45, "f2spr_other", color0 )
         f3spr_other( 1 )
@@ -2254,7 +2254,7 @@ Function f3spr_other( reg )
   Endif
   use_base( 'lusl' )
   use_base( 'luslc' )
-  r_use( dir_server + 'uslugi', dir_server + "uslugisl", 'USL' )
+  r_use( dir_server() + 'uslugi', dir_server() + "uslugisl", 'USL' )
   If reg == 1
     add_string( Center( "‘―¨α®ª γα«γ£ ―® α«γ¦΅¥:", 80 ) )
     add_string( Center( lstr( sl->shifr ) + ". " + AllTrim( sl->name ), 80 ) )
@@ -2352,12 +2352,12 @@ Function spr_kod_otd()
 
   mywait()
   Private t_arr := {}, count_uch := 0
-  r_use( dir_server + 'mo_uch',, "UCH" )
+  r_use( dir_server() + 'mo_uch',, "UCH" )
   dbEval( {|| count_uch++, AAdd( t_arr, { kod, AllTrim( name ) } ) } )
   If count_uch == 0
     func_error( 4, " §  γηΰ¥¦¤¥­¨© ―γαβ !" )
   Else
-    r_use( dir_server + 'mo_otd',, 'OTD' )
+    r_use( dir_server() + 'mo_otd',, 'OTD' )
     Index On Str( kod_lpu, 3 ) + Upper( name ) to ( cur_dir() + "tmp_otd" ) For !Empty( name )
     fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
     add_string( "" )

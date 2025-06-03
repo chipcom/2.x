@@ -36,7 +36,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Return Nil
     Endif
   Elseif Loc_kod > 0
-    r_use( dir_server + "human",, "HUMAN" )
+    r_use( dir_server() + "human",, "HUMAN" )
     Goto ( Loc_kod )
     fl := ( human->k_data < 0d20210701 )
     Use
@@ -195,17 +195,17 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   //
   AFill( adiag_talon, 0 )
 
-  r_use( dir_server + "human_2",, "HUMAN_2" )
-  r_use( dir_server + "human_",, "HUMAN_" )
-  r_use( dir_server + "human",, "HUMAN" )
+  r_use( dir_server() + "human_2",, "HUMAN_2" )
+  r_use( dir_server() + "human_",, "HUMAN_" )
+  r_use( dir_server() + "human",, "HUMAN" )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
 
   If mkod_k > 0
-    r_use( dir_server + "kartote2",, "KART2" )
+    r_use( dir_server() + "kartote2",, "KART2" )
     Goto ( mkod_k )
-    r_use( dir_server + "kartote_",, "KART_" )
+    r_use( dir_server() + "kartote_",, "KART_" )
     Goto ( mkod_k )
-    r_use( dir_server + "kartotek",, "KART" )
+    r_use( dir_server() + "kartotek",, "KART" )
     Goto ( mkod_k )
     M1FIO       := 1
     mfio        := kart->fio
@@ -237,7 +237,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     // проверка исхода = СМЕРТЬ
     ah := {}
     Select HUMAN
-    Set Index to ( dir_server + "humankk" )
+    Set Index to ( dir_server() + "humankk" )
     find ( Str( mkod_k, 7 ) )
     Do While human->kod_k == mkod_k .and. !Eof()
       If human_->oplata != 9 .and. human_->NOVOR == 0 .and. RecNo() != Loc_kod
@@ -315,8 +315,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     arr_usl := {} // array(len(uslugiEtap_DVN_COVID(metap)))
     afillall( larr, 0 )
     // afillall(arr_usl,0)
-    r_use( dir_server + "uslugi",, "USL" )
-    r_use( dir_server + "mo_su",, "MOSU" )
+    r_use( dir_server() + "uslugi",, "USL" )
+    r_use( dir_server() + "mo_su",, "MOSU" )
     use_base( "mo_hu" )
     use_base( "human_u" )
 
@@ -384,7 +384,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Skip
     Enddo
     //
-    r_use( dir_server + "mo_pers",, "P2" )
+    r_use( dir_server() + "mo_pers",, "P2" )
     read_arr_dvn_covid( Loc_kod )     // читаем сохраненные данные по углубленной диспансеризации
 
     If metap == 1 .and. Between( m1GRUPPA, 11, 14 ) .and. m1p_otk == 1
@@ -510,8 +510,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   mndisp    := inieditspr( A__MENUVERT, mm_ndisp, metap )
   mrab_nerab := inieditspr( A__MENUVERT, menu_rab, m1rab_nerab )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
-  mlpu      := inieditspr( A__POPUPMENU, dir_server + "mo_uch", m1lpu )
-  motd      := inieditspr( A__POPUPMENU, dir_server + "mo_otd", m1otd )
+  mlpu      := inieditspr( A__POPUPMENU, dir_server() + "mo_uch", m1lpu )
+  motd      := inieditspr( A__POPUPMENU, dir_server() + "mo_otd", m1otd )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf, m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
@@ -825,7 +825,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       // ////////////////////////////////////////////////////////////
       mdef_diagnoz := 'U09.9 '
       r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "MKB_10" )
-      r_use( dir_server + "mo_pers", dir_server + "mo_pers", "P2" )
+      r_use( dir_server() + "mo_pers", dir_server() + "mo_pers", "P2" )
       num_screen := 2
       fl := .t.
       k := 0
@@ -1100,8 +1100,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       use_base( "lusl" )
       use_base( "luslc" )
       use_base( "uslugi" )
-      r_use( dir_server + "uslugi1", { dir_server + "uslugi1", ;
-        dir_server + "uslugi1s" }, "USL1" )
+      r_use( dir_server() + "uslugi1", { dir_server() + "uslugi1", ;
+        dir_server() + "uslugi1s" }, "USL1" )
       mcena_1 := mu_cena := 0
       arr_usl_dop := {}
       arr_usl_otkaz := {}
@@ -1282,7 +1282,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
-        g_use( dir_server + "mo_hismo",, "SN" )
+        g_use( dir_server() + "mo_hismo",, "SN" )
         Index On Str( kod, 7 ) to ( cur_dir() + "tmp_ismo" )
         find ( Str( mkod, 7 ) )
         If Found()
@@ -1302,7 +1302,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Endif
       i1 := Len( arr_usl )
 
-      r_use( dir_server + "mo_su",, "MOSU" )
+      r_use( dir_server() + "mo_su",, "MOSU" )
       use_base( "mo_hu" )
       use_base( "human_u" )
       For i := 1 To Len( arr_usl_dop )  // i2

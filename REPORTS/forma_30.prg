@@ -68,23 +68,23 @@ Function forma_30()
   Use ( cur_dir() + "tmp2" ) new
   Index On Str( tip, 1 ) + Str( kod, 9 ) to ( cur_dir() + "tmp2" )
   //
-  r_use( dir_server + "mo_su",, "MOSU" )
-  r_use( dir_server + "mo_hu", dir_server + "mo_hu", "MOHU" )
+  r_use( dir_server() + "mo_su",, "MOSU" )
+  r_use( dir_server() + "mo_hu", dir_server() + "mo_hu", "MOHU" )
   Set Relation To u_kod into MOSU
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "human_u_",, "HU_" )
-  r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "human_u_",, "HU_" )
+  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + "kartote_",, "KART_" )
-  r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server() + "kartote_",, "KART_" )
+  r_use( dir_server() + "kartotek",, "KART" )
   Set Relation To RecNo() into KART_
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   If pi1 == 1 // по дате окончания лечения
     begin_date := arr_m[ 5 ]
     end_date := arr_m[ 6 ]
-    r_use( dir_server + "human_2",, "HUMAN_2" )
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+    r_use( dir_server() + "human_2",, "HUMAN_2" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
     Set Relation To kod_k into KART, To RecNo() into HUMAN_, RecNo() into HUMAN_2
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -104,12 +104,12 @@ Function forma_30()
       Skip
     Enddo
   Else
-    r_use( dir_server + "human_2",, "HUMAN_2" )
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+    r_use( dir_server() + "human_2",, "HUMAN_2" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
     Set Relation To kod_k into KART, To RecNo() into HUMAN_, RecNo() into HUMAN_2
-    r_use( dir_server + "schet_",, "SCHET_" )
-    r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+    r_use( dir_server() + "schet_",, "SCHET_" )
+    r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
     Set Relation To RecNo() into SCHET_
     Set Filter To Empty( schet_->IS_DOPLATA )
     dbSeek( arr_m[ 7 ], .t. )
@@ -158,7 +158,7 @@ Function forma_30()
   sh := Len( arr_title[ 1 ] )
   reg_print := 6
   fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( PadR( org->name, 108 ) )
   add_string( PadL( "Форма № 30", sh ) )
   add_string( PadL( "Утверждена Приказом", sh ) )
@@ -183,7 +183,7 @@ Function forma_30()
     f2_f30( "Врачи всего", "01" )
     add_string( Replicate( "-", sh ) )
     add_string( "в т.ч. по врачам" )
-    r_use( dir_server + "mo_pers",, "PERS" )
+    r_use( dir_server() + "mo_pers",, "PERS" )
     Select TMP
     Set Relation To kod into PERS
     Index On Upper( pers->fio ) to ( cur_dir() + "tmp" ) For tip == 1
@@ -212,7 +212,7 @@ Function forma_30()
       f2_f30( inieditspr( A__MENUVERT, getv015(), tmp->kod ) )
       Skip
     Enddo
-    r_use( dir_server + "uslugi",, "USL" )
+    r_use( dir_server() + "uslugi",, "USL" )
     add_string( Replicate( "-", sh ) )
     add_string( "в т.ч. по услугам" )
     Select TMP
@@ -223,7 +223,7 @@ Function forma_30()
       f2_f30( AllTrim( usl->shifr ) + " " + usl->name )
       Skip
     Enddo
-    r_use( dir_server + "mo_su",, "MOSU" )
+    r_use( dir_server() + "mo_su",, "MOSU" )
     Select TMP
     Set Relation To kod into MOSU
     Index On fsort_usl( mosu->shifr ) to ( cur_dir() + "tmp" ) For tip == 5
@@ -300,7 +300,7 @@ Function forma_30()
     f2_f30_dop( "Врачи всего", "01" )
     add_string( Replicate( "-", sh ) )
     add_string( "в т.ч. по врачам" )
-    // R_Use(dir_server+"mo_pers",,"PERS")
+    // R_Use(dir_server()+"mo_pers",,"PERS")
     Select TMP2
     Set Relation To kod into PERS
     Index On Upper( pers->fio ) to ( cur_dir() + "tmp2" ) For tip == 1
@@ -329,7 +329,7 @@ Function forma_30()
       f2_f30_dop( inieditspr( A__MENUVERT, getv015(), tmp2->kod ) )
       Skip
     Enddo
-    // R_Use(dir_server+"uslugi",,"USL")
+    // R_Use(dir_server()+"uslugi",,"USL")
     add_string( Replicate( "-", sh ) )
     add_string( "в т.ч. по услугам" )
     Select TMP2
@@ -340,7 +340,7 @@ Function forma_30()
       f2_f30_dop( AllTrim( usl->shifr ) + " " + usl->name )
       Skip
     Enddo
-    // R_Use(dir_server+"mo_su",,"MOSU")
+    // R_Use(dir_server()+"mo_su",,"MOSU")
     Select TMP2
     Set Relation To kod into MOSU
     Index On fsort_usl( mosu->shifr ) to ( cur_dir() + "tmp2" ) For tip == 5

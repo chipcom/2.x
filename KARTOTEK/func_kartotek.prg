@@ -129,7 +129,7 @@ Function retfamimot( ltip, fl_no, is_open_kfio )
     If is_open_kfio
       Select KFIO
     Else
-      r_use( dir_server + 'mo_kfio', , 'KFIO' )
+      r_use( dir_server() + 'mo_kfio', , 'KFIO' )
       Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
     Endif
     find ( Str( kart->kod, 7 ) )
@@ -205,11 +205,11 @@ Function get_fio_kart( k, r, c )
   edit_kartotek( mkod_k, r + 1, , .t., mkod )
   my_restkey( tmp_keys )
   If fl_write_kartoteka
-    r_use( dir_server + 'kartote2', , 'KART2' )
+    r_use( dir_server() + 'kartote2', , 'KART2' )
     Goto ( mkod_k )
-    r_use( dir_server + 'kartote_', , 'KART_' )
+    r_use( dir_server() + 'kartote_', , 'KART_' )
     Goto ( mkod_k )
-    r_use( dir_server + 'kartotek', , 'KART' )
+    r_use( dir_server() + 'kartotek', , 'KART' )
     Goto ( mkod_k )
     M1FIO := 1
     mfio := kart->fio

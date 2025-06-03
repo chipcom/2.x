@@ -195,176 +195,176 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY, lUseIndex )
     Next
   Case sBase == 'organiz'
     Default lAlias To 'ORG'
-    fl := g_use( dir_server + 'organiz', , lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'organiz', , lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'komitet'
-    If ( fl := g_use( dir_server + 'komitet', , lAlias, , lExcluUse, lREADONLY ) )
+    If ( fl := g_use( dir_server() + 'komitet', , lAlias, , lExcluUse, lREADONLY ) )
       Index On Str( kod, 2 ) to ( cur_dir() + 'tmp_komi' )
     Endif
   Case sBase == 'str_komp'
-    If ( fl := g_use( dir_server + 'str_komp', , lAlias, , lExcluUse, lREADONLY ) )
+    If ( fl := g_use( dir_server() + 'str_komp', , lAlias, , lExcluUse, lREADONLY ) )
       Index On Str( kod, 2 ) to ( cur_dir() + 'tmp_strk' )
     Endif
   Case sBase == 'mo_pers'
     Default lAlias To 'P2'
-    fl := g_use( dir_server + 'mo_pers', dir_server + 'mo_pers', lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'mo_su'
     Default lAlias To 'MOSU'
-    fl := g_use( dir_server + 'mo_su', { dir_server + 'mo_su', ;
-      dir_server + 'mo_sush', ;
-      dir_server + 'mo_sush1' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'mo_su', { dir_server() + 'mo_su', ;
+      dir_server() + 'mo_sush', ;
+      dir_server() + 'mo_sush1' }, lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'uslugi'
     Default lAlias To 'USL'
-    fl := g_use( dir_server + 'uslugi', { dir_server + 'uslugi', ;
-      dir_server + 'uslugish', ;
-      dir_server + 'uslugis1', ;
-      dir_server + 'uslugisl' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'uslugi', { dir_server() + 'uslugi', ;
+      dir_server() + 'uslugish', ;
+      dir_server() + 'uslugis1', ;
+      dir_server() + 'uslugisl' }, lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'kartotek'
-    fl := g_use( dir_server + 'kartote_', , 'KART_', , lExcluUse, lREADONLY ) .and. ;
-      g_use( dir_server + 'kartote2', , 'KART2', , lExcluUse, lREADONLY ) .and. ;
-      g_use( dir_server + 'kartotek', iif( lUseIndex, { dir_server + 'kartotek', ;
-      dir_server + 'kartoten', ;
-      dir_server + 'kartotep', ;
-      dir_server + 'kartoteu', ;
-      dir_server + 'kartotes', ;
-      dir_server + 'kartotee' }, nil ), 'KART', , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'kartote_', , 'KART_', , lExcluUse, lREADONLY ) .and. ;
+      g_use( dir_server() + 'kartote2', , 'KART2', , lExcluUse, lREADONLY ) .and. ;
+      g_use( dir_server() + 'kartotek', iif( lUseIndex, { dir_server() + 'kartotek', ;
+      dir_server() + 'kartoten', ;
+      dir_server() + 'kartotep', ;
+      dir_server() + 'kartoteu', ;
+      dir_server() + 'kartotes', ;
+      dir_server() + 'kartotee' }, nil ), 'KART', , lExcluUse, lREADONLY )
     If fl
       Set Relation To RecNo() into KART_, To RecNo() into KART2
     Endif
   Case sBase == 'human'
     Default lAlias To 'HUMAN'
-    fl := g_use( dir_server + 'human_', , 'HUMAN_', , lExcluUse, lREADONLY ) .and. ;
-      g_use( dir_server + 'human_2', , 'HUMAN_2', , lExcluUse, lREADONLY ) .and. ;
-      g_use( dir_server + 'human', { dir_server + 'humank', ;
-      dir_server + 'humankk', ;
-      dir_server + 'humann', ;
-      dir_server + 'humand', ;
-      dir_server + 'humano', ;
-      dir_server + 'humans' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'human_', , 'HUMAN_', , lExcluUse, lREADONLY ) .and. ;
+      g_use( dir_server() + 'human_2', , 'HUMAN_2', , lExcluUse, lREADONLY ) .and. ;
+      g_use( dir_server() + 'human', { dir_server() + 'humank', ;
+      dir_server() + 'humankk', ;
+      dir_server() + 'humann', ;
+      dir_server() + 'humand', ;
+      dir_server() + 'humano', ;
+      dir_server() + 'humans' }, lAlias, , lExcluUse, lREADONLY )
     If fl
       Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
     Endif
   Case sBase == 'human_im'
     Default lAlias To 'IMPL'
-    fl := g_use( dir_server + 'human_im', dir_server + 'human_im', lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'human_im', dir_server() + 'human_im', lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'human_u'
     Default lAlias To 'HU'
-    fl := g_use( dir_server + 'human_u_', , 'HU_', , lExcluUse, lREADONLY ) .and. ;
-      g_use( dir_server + 'human_u', { dir_server + 'human_u', ;
-      dir_server + 'human_uk', ;
-      dir_server + 'human_ud', ;
-      dir_server + 'human_uv', ;
-      dir_server + 'human_ua' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'human_u_', , 'HU_', , lExcluUse, lREADONLY ) .and. ;
+      g_use( dir_server() + 'human_u', { dir_server() + 'human_u', ;
+      dir_server() + 'human_uk', ;
+      dir_server() + 'human_ud', ;
+      dir_server() + 'human_uv', ;
+      dir_server() + 'human_ua' }, lAlias, , lExcluUse, lREADONLY )
     If fl
       Set Relation To RecNo() into HU_
     Endif
   Case sBase == 'mo_hu'
     Default lAlias To 'MOHU'
-    fl := g_use( dir_server + 'mo_hu', { dir_server + 'mo_hu', ;
-      dir_server + 'mo_huk', ;
-      dir_server + 'mo_hud', ;
-      dir_server + 'mo_huv', ;
-      dir_server + 'mo_hua' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'mo_hu', { dir_server() + 'mo_hu', ;
+      dir_server() + 'mo_huk', ;
+      dir_server() + 'mo_hud', ;
+      dir_server() + 'mo_huv', ;
+      dir_server() + 'mo_hua' }, lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'mo_dnab'
     Default lAlias To 'DN'
-    fl := g_use( dir_server + 'mo_dnab', dir_server + 'mo_dnab', lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'mo_dnab', dir_server() + 'mo_dnab', lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'mo_hdisp'
     Default lAlias To 'HDISP'
-    fl := g_use( dir_server + 'mo_hdisp', dir_server + 'mo_hdisp', lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'mo_hdisp', dir_server() + 'mo_hdisp', lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'schet'
     Default lAlias To 'SCHET'
-    fl := g_use( dir_server + 'schet_', , 'SCHET_', , lExcluUse, lREADONLY ) .and. ;
-      g_use( dir_server + 'schet', { dir_server + 'schetk', ;
-      dir_server + 'schetn', ;
-      dir_server + 'schetp', ;
-      dir_server + 'schetd' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'schet_', , 'SCHET_', , lExcluUse, lREADONLY ) .and. ;
+      g_use( dir_server() + 'schet', { dir_server() + 'schetk', ;
+      dir_server() + 'schetn', ;
+      dir_server() + 'schetp', ;
+      dir_server() + 'schetd' }, lAlias, , lExcluUse, lREADONLY )
     If fl
       Set Relation To RecNo() into SCHET_
     Endif
   Case sBase == 'kartdelz'
-    fl := g_use( dir_server + 'kartdelz', dir_server + 'kartdelz', ,, lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'kartdelz', dir_server() + 'kartdelz', ,, lExcluUse, lREADONLY )
   Case sBase == 'kart_st'
-    fl := g_use( dir_server + 'kart_st', { dir_server + 'kart_st', ;
-      dir_server + 'kart_st1' }, ,, lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'kart_st', { dir_server() + 'kart_st', ;
+      dir_server() + 'kart_st1' }, ,, lExcluUse, lREADONLY )
   Case sBase == 'humanst'
-    fl := g_use( dir_server + 'humanst', dir_server + 'humanst', ,, lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'humanst', dir_server() + 'humanst', ,, lExcluUse, lREADONLY )
   Case sBase == 'mo_pp'
     Default lAlias To 'HU'
-    fl := g_use( dir_server + 'mo_pp', { dir_server + 'mo_pp_k', ;
-      dir_server + 'mo_pp_d', ;
-      dir_server + 'mo_pp_r', ;
-      dir_server + 'mo_pp_i', ;
-      dir_server + 'mo_pp_h' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'mo_pp', { dir_server() + 'mo_pp_k', ;
+      dir_server() + 'mo_pp_d', ;
+      dir_server() + 'mo_pp_r', ;
+      dir_server() + 'mo_pp_i', ;
+      dir_server() + 'mo_pp_h' }, lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'hum_p'
     Default lAlias To 'HU'
-    fl := g_use( dir_server + 'hum_p', { dir_server + 'hum_pkk', ;
-      dir_server + 'hum_pn', ;
-      dir_server + 'hum_pd', ;
-      dir_server + 'hum_pv', ;
-      dir_server + 'hum_pc' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'hum_p', { dir_server() + 'hum_pkk', ;
+      dir_server() + 'hum_pn', ;
+      dir_server() + 'hum_pd', ;
+      dir_server() + 'hum_pv', ;
+      dir_server() + 'hum_pc' }, lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'hum_p_u'
     Default lAlias To 'HU'
-    fl := g_use( dir_server + 'hum_p_u', { dir_server + 'hum_p_u', ;
-      dir_server + 'hum_p_uk', ;
-      dir_server + 'hum_p_ud', ;
-      dir_server + 'hum_p_uv', ;
-      dir_server + 'hum_p_ua' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'hum_p_u', { dir_server() + 'hum_p_u', ;
+      dir_server() + 'hum_p_uk', ;
+      dir_server() + 'hum_p_ud', ;
+      dir_server() + 'hum_p_uv', ;
+      dir_server() + 'hum_p_ua' }, lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'hum_ort'
-    fl := g_use( dir_server + 'hum_ort', { dir_server + 'hum_ortk', ;
-      dir_server + 'hum_ortn', ;
-      dir_server + 'hum_ortd', ;
-      dir_server + 'hum_orto' }, 'HUMAN', , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'hum_ort', { dir_server() + 'hum_ortk', ;
+      dir_server() + 'hum_ortn', ;
+      dir_server() + 'hum_ortd', ;
+      dir_server() + 'hum_orto' }, 'HUMAN', , lExcluUse, lREADONLY )
   Case sBase == 'hum_oru'
-    fl := g_use( dir_server + 'hum_oru', { dir_server + 'hum_oru', ;
-      dir_server + 'hum_oruk', ;
-      dir_server + 'hum_orud', ;
-      dir_server + 'hum_oruv', ;
-      dir_server + 'hum_orua' }, 'HU', , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'hum_oru', { dir_server() + 'hum_oru', ;
+      dir_server() + 'hum_oruk', ;
+      dir_server() + 'hum_orud', ;
+      dir_server() + 'hum_oruv', ;
+      dir_server() + 'hum_orua' }, 'HU', , lExcluUse, lREADONLY )
   Case sBase == 'hum_oro'
-    fl := g_use( dir_server + 'hum_oro', { dir_server + 'hum_oro', ;
-      dir_server + 'hum_orov', ;
-      dir_server + 'hum_orod' }, 'HO', , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'hum_oro', { dir_server() + 'hum_oro', ;
+      dir_server() + 'hum_orov', ;
+      dir_server() + 'hum_orod' }, 'HO', , lExcluUse, lREADONLY )
   Case sBase == 'kas_pl'
-    fl := g_use( dir_server + 'kas_pl', { dir_server + 'kas_pl1', ;
-      dir_server + 'kas_pl2', ;
-      dir_server + 'kas_pl3' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'kas_pl', { dir_server() + 'kas_pl1', ;
+      dir_server() + 'kas_pl2', ;
+      dir_server() + 'kas_pl3' }, lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'kas_pl_u'
-    fl := g_use( dir_server + 'kas_pl_u', { dir_server + 'kas_pl1u', ;
-      dir_server + 'kas_pl2u' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'kas_pl_u', { dir_server() + 'kas_pl1u', ;
+      dir_server() + 'kas_pl2u' }, lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'kas_ort'
-    fl := g_use( dir_server + 'kas_ort', { dir_server + 'kas_ort1', ;
-      dir_server + 'kas_ort2', ;
-      dir_server + 'kas_ort3', ;
-      dir_server + 'kas_ort4', ;
-      dir_server + 'kas_ort5' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'kas_ort', { dir_server() + 'kas_ort1', ;
+      dir_server() + 'kas_ort2', ;
+      dir_server() + 'kas_ort3', ;
+      dir_server() + 'kas_ort4', ;
+      dir_server() + 'kas_ort5' }, lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'kas_ortu'
-    fl := g_use( dir_server + 'kas_ortu', { dir_server + 'kas_or1u', ;
-      dir_server + 'kas_or2u' }, lAlias, , lExcluUse, lREADONLY )
+    fl := g_use( dir_server() + 'kas_ortu', { dir_server() + 'kas_or1u', ;
+      dir_server() + 'kas_or2u' }, lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'reg_fns'
-    fl := g_use( dir_server + 'register_fns', { dir_server + 'reg_fns' }, ;
+    fl := g_use( dir_server() + 'register_fns', { dir_server() + 'reg_fns' }, ;
       lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'link_fns'
-    fl := g_use( dir_server + 'reg_link_fns', { dir_server + 'reg_link' }, ;
+    fl := g_use( dir_server() + 'reg_link_fns', { dir_server() + 'reg_link' }, ;
       lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'xml_fns'
-    fl := g_use( dir_server + 'reg_xml_fns', { dir_server + 'reg_xml' }, ;
+    fl := g_use( dir_server() + 'reg_xml_fns', { dir_server() + 'reg_xml' }, ;
       lAlias, , lExcluUse, lREADONLY )
 //  Case sBase == 'payer'
-//    fl := g_use( dir_server + 'payer', { dir_server + 'payer' }, ;
+//    fl := g_use( dir_server() + 'payer', { dir_server() + 'payer' }, ;
 //      lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'reg_people_fns'
-    fl := g_use( dir_server + 'reg_people_fns', { dir_server + 'reg_people_fns', dir_server + 'reg_people_fns_fio' }, ;
+    fl := g_use( dir_server() + 'reg_people_fns', { dir_server() + 'reg_people_fns', dir_server() + 'reg_people_fns_fio' }, ;
       lAlias, , lExcluUse, lREADONLY )
   // Case sBase == 'mo_kekh'
   //   Default lAlias To 'HU'
-  //   fl := g_use( dir_server + 'mo_kekh', dir_server + 'mo_kekh', lAlias, , lExcluUse, lREADONLY )
+  //   fl := g_use( dir_server() + 'mo_kekh', dir_server() + 'mo_kekh', lAlias, , lExcluUse, lREADONLY )
   // Case sBase == 'mo_keke'
   //   Default lAlias To 'EKS'
-  //   fl := g_use( dir_server + 'mo_keke', { dir_server + 'mo_keket', ;
-  //     dir_server + 'mo_kekee', ;
-  //     dir_server + 'mo_keked' }, lAlias, , lExcluUse, lREADONLY )
+  //   fl := g_use( dir_server() + 'mo_keke', { dir_server() + 'mo_keket', ;
+  //     dir_server() + 'mo_kekee', ;
+  //     dir_server() + 'mo_keked' }, lAlias, , lExcluUse, lREADONLY )
   // Case sBase == 'mo_kekez'
   //   Default lAlias To 'EKSZ'
-  //   fl := g_use( dir_server + 'mo_kekez', dir_server + 'mo_kekez', lAlias, , lExcluUse, lREADONLY )
+  //   fl := g_use( dir_server() + 'mo_kekez', dir_server() + 'mo_kekez', lAlias, , lExcluUse, lREADONLY )
   Case sBase == 'lusld'
     fl := r_use( dir_exe() + '_mo_usld', cur_dir() + '_mo_usld', sBase )
   Endcase
@@ -374,8 +374,8 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY, lUseIndex )
 // *
 Function useuch_usl()
 
-  Return g_use( dir_server + 'uch_usl', dir_server + 'uch_usl', 'UU' ) .and. ;
-    g_use( dir_server + 'uch_usl1', dir_server + 'uch_usl1', 'UU1' )
+  Return g_use( dir_server() + 'uch_usl', dir_server() + 'uch_usl', 'UU' ) .and. ;
+    g_use( dir_server() + 'uch_usl1', dir_server() + 'uch_usl1', 'UU1' )
 
 
 // 21.01.19 проверить, заблокирована ли запись, и, если нет, то заблокировать её

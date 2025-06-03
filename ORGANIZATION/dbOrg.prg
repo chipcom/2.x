@@ -23,7 +23,7 @@ function getUCH()
     oldSelect := Select()
     dbAlias := '__UCH'
     arr := {}
-    R_Use(dir_server + 'mo_uch', , dbAlias)
+    R_Use(dir_server() + 'mo_uch', , dbAlias)
     (dbAlias)->(dbGoTop())
     while ! (dbAlias)->(Eof())
 
@@ -68,7 +68,7 @@ function getOTD()
     oldSelect := Select()
     dbAlias := '__OTD'
     arr := {}
-    R_Use(dir_server + 'mo_otd', , dbAlias)
+    R_Use(dir_server() + 'mo_otd', , dbAlias)
     (dbAlias)->(dbGoTop())
     while ! (dbAlias)->(Eof())
 

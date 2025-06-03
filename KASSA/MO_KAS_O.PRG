@@ -89,7 +89,7 @@ if fl
   endif
   close databases
   Private bOrt_open := ;
-          {|| R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO"),;
+          {|| R_Use(dir_server()+"mo_pers",dir_server()+"mo_pers","PERSO"),;
               use_base("kas_ort","HUMAN"),;
               G_Use(cur_dir()+"tmphum",cur_dir()+"tmphum",,.t.,.t.), dbGoTop() }
   eval(bOrt_open)
@@ -446,12 +446,12 @@ goto (t_hum_rec)*/
 //select(t_select)
 
 
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server()+"kartotek",,"KART")
 goto (glob_kartotek)
 Private smvzros_reb := kart->vzros_reb
 kart->(dbCloseArea())
 // поиск телефона
-R_Use(dir_server+"kartote_",,"KR_") //00.07.17
+R_Use(dir_server()+"kartote_",,"KR_") //00.07.17
 goto(glob_kartotek)
 mphone_m := kr_->phone_m
 kr_->(dbCloseArea())
@@ -462,15 +462,15 @@ else
   maddress := mphone_m
 endif
 //
-G_Use(dir_server+"kas_usl",,"KU")
+G_Use(dir_server()+"kas_usl",,"KU")
 index on str(u_kod,4) to (cur_dir()+"tmp_ku")
 f41_kas_ort(1)
 if par == 2
   f42_kas_ort()
 endif
-R_Use(dir_server+"pu_date",dir_server+"pu_date","PUD")
-R_Use(dir_server+"pu_cena",{dir_server+"pu_cena",;
-                            dir_server+"pu_cenau"},"PUC")
+R_Use(dir_server()+"pu_date",dir_server()+"pu_date","PUD")
+R_Use(dir_server()+"pu_cena",{dir_server()+"pu_cena",;
+                            dir_server()+"pu_cenau"},"PUC")
 cls
 pr_1_str("Ввод ортопед.услуг для больного < "+alltrim(glob_k_fio)+" >")
 l_color := "W+/B,W+/RB,BG+/B,BG+/RB,G+/B,GR+/B"
@@ -638,12 +638,12 @@ Private r1 := 13
 do case
   case nKey == K_F9
     prn_kas_ort(human->nomer_n,.t.)
-    R_Use(dir_server+"pu_date",dir_server+"pu_date","PUD")
-    R_Use(dir_server+"pu_cena",{dir_server+"pu_cena",;
-                                dir_server+"pu_cenau"},"PUC")
+    R_Use(dir_server()+"pu_date",dir_server()+"pu_date","PUD")
+    R_Use(dir_server()+"pu_cena",{dir_server()+"pu_cena",;
+                                dir_server()+"pu_cenau"},"PUC")
     use_base("kas_ortu","HU")
-    G_Use(dir_server+"kas_usl",cur_dir()+"tmp_ku","KU")
-    R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
+    G_Use(dir_server()+"kas_usl",cur_dir()+"tmp_ku","KU")
+    R_Use(dir_server()+"uslugi",dir_server()+"uslugish","USL")
     use (cur_dir()+"tmp_usl") new index (cur_dir()+"tmp_usl") alias tmp
     goto (rec_tmp)
   case nKey == K_INS .or. (nKey == K_ENTER .and. tmp->rec_hu > 0 .and. tmp->is==0)
@@ -882,7 +882,7 @@ else
       fl := .t.
     else
       asort(arr,,,{|x,y| iif(x[6]==y[6], x[1] > y[1], x[6] > y[6])})
-      R_Use(dir_server+"kartotek",,"KART")
+      R_Use(dir_server()+"kartotek",,"KART")
       for i := 1 to len(arr)
         goto (arr[i,5])
         aadd(arr1, "Наряд № "+lstr(arr[i,1])+"/"+lstr(arr[i,6])+"  "+fam_i_o(kart->fio))
@@ -900,7 +900,7 @@ else
       restscreen(buf)
     endif
     if fl
-      R_Use(dir_server+"kartotek",,"KART")
+      R_Use(dir_server()+"kartotek",,"KART")
       goto (glob_nar[5])
       glob_kartotek := kart->kod
       glob_k_fio := alltrim(kart->fio)
@@ -1055,7 +1055,7 @@ else
   index on str(vid,1)+dtos(k_data)+fsort_usl(shifr_u) to (cur_dir()+"tmp_usl")
 endif
 use_base("kas_ortu","HU")
-R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
+R_Use(dir_server()+"uslugi",dir_server()+"uslugish","USL")
 return NIL
 
 *****
@@ -1139,7 +1139,7 @@ if !empty(mem_or_ext) .and. ;
       mtexnik := alltrim(perso->fio)
     endif
   endif
-  R_Use(dir_server+"base1",,"BASE1")
+  R_Use(dir_server()+"base1",,"BASE1")
   for i := 1 to len(arr_opl)
     if !emptyall(arr_opl[i,8],arr_opl[i,9],arr_opl[i,9])
       base1->(dbGoto(arr_opl[i,11]))

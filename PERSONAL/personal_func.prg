@@ -20,7 +20,7 @@ function get_spec_vrach_V021_by_tabnom(tabnom)
   aliasIsUse := aliasIsAlreadyUse('TPERS')
   if ! aliasIsUse
     oldSelect := Select()
-    R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'TPERS')
+    R_Use(dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'TPERS')
   endif
 
   if TPERS->(dbSeek(str(tabnom, 5)))
@@ -44,7 +44,7 @@ function get_kod_vrach_by_tabnom(tabnom)
   aliasIsUse := aliasIsAlreadyUse('TPERS')
   if ! aliasIsUse
     oldSelect := Select()
-    R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'TPERS')
+    R_Use(dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'TPERS')
   endif
 
   if TPERS->(dbSeek(str(tabnom,5)))
@@ -69,7 +69,7 @@ function get_tabnom_vrach_by_kod(kod)
   aliasIsUse := aliasIsAlreadyUse('TPERS')
   if ! aliasIsUse
     oldSelect := Select()
-    R_Use(dir_server + 'mo_pers', , 'TPERS') 
+    R_Use(dir_server() + 'mo_pers', , 'TPERS') 
   endif
 
   TPERS->(dbGoto(kod))
@@ -103,7 +103,7 @@ function find_employee(mkod, dontClose)
   aliasIsUse := aliasIsAlreadyUse(aliasPersonal)
   if ! aliasIsUse
     oldSelect := Select()
-    R_Use(dir_server + 'mo_pers', , aliasPersonal)
+    R_Use(dir_server() + 'mo_pers', , aliasPersonal)
     if isnil(dbTmp)
       dbTmp := (aliasPersonal)->(dbStruct())
     endif

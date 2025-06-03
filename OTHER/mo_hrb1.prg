@@ -21,8 +21,8 @@ if (arr_m := year_month()) != NIL
   index on str(kod_k,7) to (cur_dir()+"tmp")
   if is_task(X_REGIST)
     WaitStatus("Подзадача РЕГИСТРАТУРА")
-    R_Use(dir_server+"mo_regi",dir_server+"mo_regi2","REGI")
-    //index on pdate to (dir_server+"mo_regi2") progress
+    R_Use(dir_server()+"mo_regi",dir_server()+"mo_regi2","REGI")
+    //index on pdate to (dir_server()+"mo_regi2") progress
     dbseek(arr_m[7],.t.)
     do while regi->pdate <= arr_m[8] .and. !eof()
       UpdateStatus()
@@ -53,8 +53,8 @@ if (arr_m := year_month()) != NIL
   endif
   if is_task(X_PPOKOJ)
     WaitStatus("Подзадача ПРИЁМНЫЙ ПОКОЙ")
-    R_Use(dir_server+"mo_pp",dir_server+"mo_pp_d","PP")
-    //index on dtos(n_data)+n_time to (dir_server+"mo_pp_d") progress
+    R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_d","PP")
+    //index on dtos(n_data)+n_time to (dir_server()+"mo_pp_d") progress
     dbseek(dtos(arr_m[5]),.t.)
     do while pp->n_data <= arr_m[6] .and. !eof()
       UpdateStatus()
@@ -85,8 +85,8 @@ if (arr_m := year_month()) != NIL
   endif
   if is_task(X_PLATN)
     WaitStatus("Подзадача ПЛАТНЫЕ УСЛУГИ")
-    R_Use(dir_server+"hum_p",dir_server+"hum_pd","PLAT")
-    //index on dtos(k_data) to (dir_server+"hum_pd") progress
+    R_Use(dir_server()+"hum_p",dir_server()+"hum_pd","PLAT")
+    //index on dtos(k_data) to (dir_server()+"hum_pd") progress
     dbseek(dtos(addmonth(arr_m[5],-6)),.t.)
     index on dtos(n_data) to (cur_dir()+"tmp_plat") ;
           for between(n_data,arr_m[5],arr_m[6]) ;
@@ -119,8 +119,8 @@ if (arr_m := year_month()) != NIL
     enddo
     plat->(dbCloseArea())
     if is_task(X_KASSA)
-      R_Use(dir_server+"kas_pl",dir_server+"kas_pl2","KP")
-      //index on dtos(k_data) to (dir_server+"kas_pl2") progress
+      R_Use(dir_server()+"kas_pl",dir_server()+"kas_pl2","KP")
+      //index on dtos(k_data) to (dir_server()+"kas_pl2") progress
       dbseek(dtos(arr_m[5]),.t.)
       do while kp->k_data <= arr_m[6] .and. !eof()
         UpdateStatus()
@@ -149,8 +149,8 @@ if (arr_m := year_month()) != NIL
     endif
   endif
   if is_task(X_ORTO)
-    R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","ORT")
-    //index on dtos(k_data) to (dir_server+"hum_ortd") progress
+    R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","ORT")
+    //index on dtos(k_data) to (dir_server()+"hum_ortd") progress
     dbseek(dtos(addmonth(arr_m[5],-6)),.t.)
     index on dtos(n_data) to (cur_dir()+"tmp_ort") ;
           for between(n_data,arr_m[5],arr_m[6]) ;
@@ -182,8 +182,8 @@ if (arr_m := year_month()) != NIL
     enddo
     ort->(dbCloseArea())
     if is_task(X_KASSA)
-      R_Use(dir_server+"kas_ort",dir_server+"kas_ort2","KP")
-      //index on dtos(k_data) to (dir_server+"kas_ort2") progress
+      R_Use(dir_server()+"kas_ort",dir_server()+"kas_ort2","KP")
+      //index on dtos(k_data) to (dir_server()+"kas_ort2") progress
       dbseek(dtos(arr_m[5]),.t.)
       do while kp->k_data <= arr_m[6] .and. !eof()
         UpdateStatus()
@@ -212,8 +212,8 @@ if (arr_m := year_month()) != NIL
     endif
   endif
   WaitStatus("Подзадача ОМС")
-  R_Use(dir_server+"human",dir_server+"humand","OMS")
-  //index on dtos(k_data)+uch_doc to (dir_server+"humand") progress
+  R_Use(dir_server()+"human",dir_server()+"humand","OMS")
+  //index on dtos(k_data)+uch_doc to (dir_server()+"humand") progress
   dbseek(dtos(addmonth(arr_m[5],-6)),.t.)
   index on dtos(n_data) to (cur_dir()+"tmp_oms") ;
         for between(n_data,arr_m[5],arr_m[6]) ;
@@ -245,7 +245,7 @@ if (arr_m := year_month()) != NIL
     skip
   enddo
   select OMS
-  set index to (dir_server+"humankk")
+  set index to (dir_server()+"humankk")
   select TMP
   go top
   do while !eof()
@@ -266,7 +266,7 @@ if (arr_m := year_month()) != NIL
   enddo
   oms->(dbCloseArea())
   if is_task(X_PPOKOJ)
-    R_Use(dir_server+"mo_pp",dir_server+"mo_pp_r","PP")
+    R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_r","PP")
     select TMP
     go top
     do while !eof()
@@ -288,7 +288,7 @@ if (arr_m := year_month()) != NIL
     pp->(dbCloseArea())
   endif
   if is_task(X_PLATN)
-    R_Use(dir_server+"hum_p",dir_server+"hum_pkk","PLAT")
+    R_Use(dir_server()+"hum_p",dir_server()+"hum_pkk","PLAT")
     select TMP
     go top
     do while !eof()
@@ -309,7 +309,7 @@ if (arr_m := year_month()) != NIL
     enddo
     plat->(dbCloseArea())
     if is_task(X_KASSA)
-      R_Use(dir_server+"kas_pl",dir_server+"kas_pl1","KP")
+      R_Use(dir_server()+"kas_pl",dir_server()+"kas_pl1","KP")
       select TMP
       go top
       do while !eof()
@@ -332,7 +332,7 @@ if (arr_m := year_month()) != NIL
     endif
   endif
   if is_task(X_ORTO)
-    R_Use(dir_server+"hum_ort",dir_server+"hum_ortk","ORT")
+    R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortk","ORT")
     select TMP
     go top
     do while !eof()
@@ -353,7 +353,7 @@ if (arr_m := year_month()) != NIL
     enddo
     ort->(dbCloseArea())
     if is_task(X_KASSA)
-      R_Use(dir_server+"kas_ort",dir_server+"kas_ort1","KP")
+      R_Use(dir_server()+"kas_ort",dir_server()+"kas_ort1","KP")
       select TMP
       go top
       do while !eof()
@@ -376,7 +376,7 @@ if (arr_m := year_month()) != NIL
     endif
   endif
   WaitStatus("Новые пациенты")
-  R_Use(dir_server+"kartote2",,"KART2")
+  R_Use(dir_server()+"kartote2",,"KART2")
   index on pc1 to (cur_dir()+"tmpkart2") for !empty(pc1) .and. between(substr(pc1,2,4),arr_m[7],arr_m[8])
   go top
   do while !eof()
@@ -415,9 +415,9 @@ if (arr_m := year_month()) != NIL
                     {"adres","C",250,0},;
                     {"oper","C",100,0}})
   use (fr_data) new alias FRD
-  R_Use(dir_server+"base1",,"BASE1")
-  R_Use(dir_server+"kartote_",,"KART_")
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server()+"base1",,"BASE1")
+  R_Use(dir_server()+"kartote_",,"KART_")
+  R_Use(dir_server()+"kartotek",,"KART")
   use (cur_dir()+"tmp") new
   set relation to kod_k into KART, to kod_k into KART_
   index on upper(kart->fio) to (cur_dir()+"tmp") for is > 0
@@ -429,22 +429,22 @@ if (arr_m := year_month()) != NIL
       select BASE1
       goto (asc(tmp->kod_p))
       if !eof() .and. !empty(base1->p1)
-        s += alltrim(crypt(base1->p1,gpasskod))+eos
+        s += alltrim(crypt(base1->p1,gpasskod))+hb_eol()
       endif
     endif
     if tmp->task == X_REGIST
       if !empty(tmp->otd)
         if tmp->uch == 1
-          s += inieditspr(A__POPUPMENU,dir_server+"mo_otd",tmp->otd)
+          s += inieditspr(A__POPUPMENU,dir_server()+"mo_otd",tmp->otd)
         else
-          s += inieditspr(A__POPUPMENU,dir_server+"p_priem",tmp->otd)
+          s += inieditspr(A__POPUPMENU,dir_server()+"p_priem",tmp->otd)
         endif
       endif
     else
       if !empty(tmp->otd)
-        s += inieditspr(A__POPUPMENU,dir_server+"mo_otd",tmp->otd)
+        s += inieditspr(A__POPUPMENU,dir_server()+"mo_otd",tmp->otd)
         if tmp->task != X_OMS
-          s += eos
+          s += hb_eol()
         endif
       endif
       do case
@@ -489,13 +489,13 @@ dbcreate(cur_dir()+"tmp",{;
 use (cur_dir()+"tmp") new
 index on str(god,4)+str(kod_k,7) to tmp memory
 use_base("lusl")
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"human_u_",,"HU_")
-R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"human_u_",,"HU_")
+R_Use(dir_server()+"human_u",dir_server()+"human_u","HU")
 set relation to recno() into HU_, to u_kod into USL
-R_Use(dir_server+"human_2",,"HUMAN_2")
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",,"HUMAN")
+R_Use(dir_server()+"human_2",,"HUMAN_2")
+R_Use(dir_server()+"human_",,"HUMAN_")
+R_Use(dir_server()+"human",,"HUMAN")
 set relation to kod into HUMAN_, to kod into HUMAN_2
 go top
 do while !eof()
@@ -632,25 +632,25 @@ dbcreate(cur_dir()+"tmp",{{"nstr","N",1,0},;
                         {"kslp","N",15,2}})
 use (cur_dir()+"tmp") new alias TMP
 index on str(oms,1)+str(nstr,1)+str(mm,2) to (cur_dir()+"tmp")
-R_Use(dir_server+"mo_rak",,"RAK")
-R_Use(dir_server+"mo_raks",,"RAKS")
+R_Use(dir_server()+"mo_rak",,"RAK")
+R_Use(dir_server()+"mo_raks",,"RAKS")
 set relation to akt into RAK
-R_Use(dir_server+"mo_raksh",,"RAKSH")
+R_Use(dir_server()+"mo_raksh",,"RAKSH")
 set relation to kod_raks into RAKS
 index on str(kod_h,7) to (cur_dir()+"tmp_raksh")
 //
-R_Use(dir_server+"schet_",,"SCHET_")
-R_Use(dir_server+"schet",,"SCHET")
+R_Use(dir_server()+"schet_",,"SCHET_")
+R_Use(dir_server()+"schet",,"SCHET")
 set relation to recno() into SCHET_
 //
-R_Use(dir_server+"uslugi",,"USL")
-G_Use(dir_server+"human_u_",,"HU_")
-R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+R_Use(dir_server()+"uslugi",,"USL")
+G_Use(dir_server()+"human_u_",,"HU_")
+R_Use(dir_server()+"human_u",dir_server()+"human_u","HU")
 set relation to recno() into HU_, to u_kod into USL
 //
-R_Use(dir_server+"human_2",,"HUMAN_2")
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+R_Use(dir_server()+"human_2",,"HUMAN_2")
+R_Use(dir_server()+"human_",,"HUMAN_")
+R_Use(dir_server()+"human",dir_server()+"humand","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2
 dbseek(dtos(arr_m[5]),.t.)
 do while human->k_data <= arr_m[6] .and. !eof()
@@ -854,9 +854,9 @@ if (mkomp := popup_prompt(T_ROW,T_COL-5,sk,{"Страховые компании","Прочие компани
 endif
 if (sk := mkomp) > 1
   n_file := {"","str_komp","komitet"}[sk]
-  if hb_fileExists(dir_server+n_file+sdbf)
+  if hb_fileExists(dir_server()+n_file+sdbf)
     arr := {}
-    R_Use(dir_server+n_file,,"_B")
+    R_Use(dir_server()+n_file,,"_B")
     go top
     do while !eof()
       if iif(sk == 1, !between(_b->tfoms,44,47), .t.)
@@ -880,7 +880,7 @@ if (sk := mkomp) > 1
       return func_error(4,"Ошибка")
     endif
   else
-    return func_error(4,"Не обнаружен файл "+dir_server+n_file+sdbf)
+    return func_error(4,"Не обнаружен файл "+dir_server()+n_file+sdbf)
   endif
 endif
 WaitStatus(arr_m[4])
@@ -903,18 +903,18 @@ dbcreate(cur_dir()+"tmp",{;
   {"SEBESTO", "C",12,0},;
   {"USLUGI",  "C",99,0}})
 use (cur_dir()+"tmp") new
-R_Use(dir_server+"mo_otd",,"OTD")
-R_Use(dir_server+"mo_su",,"MOSU")
-G_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
+R_Use(dir_server()+"mo_otd",,"OTD")
+R_Use(dir_server()+"mo_su",,"MOSU")
+G_Use(dir_server()+"mo_hu",dir_server()+"mo_hu","MOHU")
 set relation to u_kod into MOSU
 use_base("lusl")
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"human_u_",,"HU_")
-R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"human_u_",,"HU_")
+R_Use(dir_server()+"human_u",dir_server()+"human_u","HU")
 set relation to recno() into HU_, to u_kod into USL
-R_Use(dir_server+"human_2",,"HUMAN_2")
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+R_Use(dir_server()+"human_2",,"HUMAN_2")
+R_Use(dir_server()+"human_",,"HUMAN_")
+R_Use(dir_server()+"human",dir_server()+"humand","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2
 dbseek(dtos(arr_m[5]),.t.)
 do while human->k_data <= arr_m[6] .and. !eof()
@@ -1046,8 +1046,8 @@ Local fl_exit := .f., arr_f := {"str_komp",,"komitet"}, i, j, k, v, koef, msum, 
 Private arr_m := {2016, 1, 12, "за 2016 год", begin_date, end_date, dtoc4(begin_date), dtoc4(end_date)}
 WaitStatus(arr_m[4])
 for i := 1 to 3
-  if i != 2 .and. hb_fileExists(dir_server+arr_f[i]+sdbf)
-    R_Use(dir_server+arr_f[i],,"_B")
+  if i != 2 .and. hb_fileExists(dir_server()+arr_f[i]+sdbf)
+    R_Use(dir_server()+arr_f[i],,"_B")
     go top
     do while !eof()
       if iif(i == 1, !between(_b->tfoms,44,47), .t.) .and. _b->ist_fin == I_FIN_BUD
@@ -1073,20 +1073,20 @@ dbcreate(cur_dir()+"tmp",{{"nstr","N",1,0},;
                         {"sum","N",15,2}})
 use (cur_dir()+"tmp") new alias TMP
 index on str(oms,1)+str(nstr,1)+str(profil,3) to (cur_dir()+"tmp")
-R_Use(dir_server+"mo_rak",,"RAK")
-R_Use(dir_server+"mo_raks",,"RAKS")
+R_Use(dir_server()+"mo_rak",,"RAK")
+R_Use(dir_server()+"mo_raks",,"RAKS")
 set relation to akt into RAK
-R_Use(dir_server+"mo_raksh",,"RAKSH")
+R_Use(dir_server()+"mo_raksh",,"RAKSH")
 set relation to kod_raks into RAKS
 index on str(kod_h,7) to (cur_dir()+"tmp_raksh")
 //
-R_Use(dir_server+"schet_",,"SCHET_")
-R_Use(dir_server+"schet",,"SCHET")
+R_Use(dir_server()+"schet_",,"SCHET_")
+R_Use(dir_server()+"schet",,"SCHET")
 set relation to recno() into SCHET_
 //
-R_Use(dir_server+"human_2",,"HUMAN_2")
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+R_Use(dir_server()+"human_2",,"HUMAN_2")
+R_Use(dir_server()+"human_",,"HUMAN_")
+R_Use(dir_server()+"human",dir_server()+"humand","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2
 dbseek(dtos(arr_m[5]),.t.)
 do while human->k_data <= arr_m[6] .and. !eof()
@@ -1360,27 +1360,27 @@ if f_edit_spr(A__APPEND,mm_tmp,"","e_use(cur_dir()+'tmp_mon')",0,1,,,,{r1,0,r2,7
     {"  в т.ч. ВМП","15","случай госпитализации",0,0},;               // 8
     {"дневной стационар","16","пациенто-день",0,0} ;                // 9
    }
-  R_Use(dir_server+"uslugi",,"USL")
-  R_Use(dir_server+"human_u_",,"HU_")
-  R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+  R_Use(dir_server()+"uslugi",,"USL")
+  R_Use(dir_server()+"human_u_",,"HU_")
+  R_Use(dir_server()+"human_u",dir_server()+"human_u","HU")
   set relation to recno() into HU_, to u_kod into USL
   if mn->rak == 0
-    R_Use(dir_server+"mo_xml",,"MO_XML")
-    R_Use(dir_server+"mo_rak",,"RAK")
+    R_Use(dir_server()+"mo_xml",,"MO_XML")
+    R_Use(dir_server()+"mo_rak",,"RAK")
     set relation to kod_xml into MO_XML
-    R_Use(dir_server+"mo_raks",,"RAKS")
+    R_Use(dir_server()+"mo_raks",,"RAKS")
     set relation to akt into RAK
-    R_Use(dir_server+"mo_raksh",,"RAKSH")
+    R_Use(dir_server()+"mo_raksh",,"RAKSH")
     set relation to kod_raks into RAKS
     index on str(kod_h,7) to (cur_dir()+"tmp_raksh") for rak->DAKT <= mn->date_rak
   endif
-  R_Use(dir_server+"schet_",,"SCHET_")
-  R_Use(dir_server+"schet",,"SCHET")
+  R_Use(dir_server()+"schet_",,"SCHET_")
+  R_Use(dir_server()+"schet",,"SCHET")
   set relation to recno() into SCHET_
   //
-  R_Use(dir_server+"human_2",,"HUMAN_2")
-  R_Use(dir_server+"human_",,"HUMAN_")
-  R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+  R_Use(dir_server()+"human_2",,"HUMAN_2")
+  R_Use(dir_server()+"human_",,"HUMAN_")
+  R_Use(dir_server()+"human",dir_server()+"humand","HUMAN")
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
   dbseek(dtos(pdate_lech[5]),.t.)
   old := pdate_lech[5]-1

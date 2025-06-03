@@ -75,16 +75,16 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
     MOSL2       := Space( 6 ), ; // шифр 2-ого диагноза осложнения заболевания
     MOSL3       := Space( 6 )    // шифр 3-ого диагноза осложнения заболевания
 
-  r_use( dir_server + 'human_2', , 'HUMAN_2' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', , 'HUMAN' )
+  r_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   If mkod_k > 0
-    r_use( dir_server + 'kartote2', , 'KART2' )
+    r_use( dir_server() + 'kartote2', , 'KART2' )
     Goto ( mkod_k )
-    r_use( dir_server + 'kartote_', , 'KART_' )
+    r_use( dir_server() + 'kartote_', , 'KART_' )
     Goto ( mkod_k )
-    r_use( dir_server + 'kartotek', , 'KART' )
+    r_use( dir_server() + 'kartotek', , 'KART' )
     Goto ( mkod_k )
     M1FIO       := 1
     mfio        := kart->fio
@@ -115,7 +115,7 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
 
     // проверка исхода = СМЕРТЬ
     Select HUMAN
-    Set Index to ( dir_server + 'humankk' )
+    Set Index to ( dir_server() + 'humankk' )
     // find (str(mkod_k, 7))
     // do while human->kod_k == mkod_k .and. !eof()
     // if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
@@ -190,15 +190,15 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
   Endif
 
   If Loc_kod == 0
-    r_use( dir_server + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
     Goto ( m1otd )
   Endif
-  r_use( dir_server + 'mo_uch', , 'UCH' )
+  r_use( dir_server() + 'mo_uch', , 'UCH' )
   Goto ( m1lpu )
   mlpu := RTrim( uch->name )
 
   If m1vrach > 0
-    r_use( dir_server + 'mo_pers', , 'P2' )
+    r_use( dir_server() + 'mo_pers', , 'P2' )
     Goto ( m1vrach )
     MTAB_NOM := p2->tab_nom
     m1prvs := -ret_new_spec( p2->prvs, p2->prvs_new )
@@ -234,7 +234,7 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
   mishod    := inieditspr( A__MENUVERT, list_ishod, m1ishod )
 
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
-  motd      := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', m1otd )
+  motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf, m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
@@ -534,7 +534,7 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
         Endif
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
-        g_use( dir_server + 'mo_hismo', , 'SN' )
+        g_use( dir_server() + 'mo_hismo', , 'SN' )
         Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()

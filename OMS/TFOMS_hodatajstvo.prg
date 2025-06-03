@@ -27,7 +27,7 @@ Function TFOMS_hodatajstvo(arr_m,iRefr,par)
                             {"k_data","D",8,0},;
                             {"is","N",1,0}})
   use (cur_dir()+"tmp_k") new
-  R_Use(dir_server+"human",,"HUMAN")
+  R_Use(dir_server()+"human",,"HUMAN")
   use (cur_dir()+"tmp_h") new
   go top
   do while !eof()
@@ -48,8 +48,8 @@ Function TFOMS_hodatajstvo(arr_m,iRefr,par)
     return create_file_hodatajstvo(arr_m)
   endif
   //
-  R_Use(dir_server+"kartote_",,"KART_")
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server()+"kartote_",,"KART_")
+  R_Use(dir_server()+"kartotek",,"KART")
   use (cur_dir()+"tmp_k") new alias TMP
   set relation to kod into KART, to kod into KART_
   index on upper(kart->fio) to (cur_dir()+"tmp_k")
@@ -284,7 +284,7 @@ Function create_file_hodatajstvo(arr_m)
   Local i, k := 0, as, fl := .f., mnn, mb, me, mfilial,;
         buf := save_maxrow()
 
-  R_Use(dir_server+"organiz",,"ORG")
+  R_Use(dir_server()+"organiz",,"ORG")
   if empty(mfilial := org->filial_h)
     close databases
     return func_error(4,'Не выбран филиал ТФОМС для отправки файла с ходатайствами ("Ваша организация")')
@@ -322,7 +322,7 @@ Function create_file_hodatajstvo(arr_m)
 
   f_mb_me_nsh(2013,@mb,@me)
 
-  R_Use(dir_server+"mo_hod",,"HOD")
+  R_Use(dir_server()+"mo_hod",,"HOD")
   index on str(nn,3) to (cur_dir()+"tmp_rees") for year(dfile)==year(sys_date)
 
   for mnn := mb to me
@@ -340,7 +340,7 @@ Function create_file_hodatajstvo(arr_m)
   endif
   set index to
 
-  R_Use(dir_server+"mo_hod_k",,"HODK")
+  R_Use(dir_server()+"mo_hod_k",,"HODK")
   set relation to kod into HOD
   index on str(kod_k,7) to (cur_dir()+"tmp_hodk") ;
         for hod->nyear==arr_m[1] .and. hod->nmonth==arr_m[2]
@@ -360,7 +360,7 @@ Function create_file_hodatajstvo(arr_m)
   pack
   as := {{0,'34001',''},{0,'34002',''},{0,'34006',''},{0,'34007',''},{0,'прочие',''}}
 
-  R_Use(dir_server+"human_",,"HUMAN_")
+  R_Use(dir_server()+"human_",,"HUMAN_")
   select TMP_K1
   set index to
   go top
@@ -436,11 +436,11 @@ Function create_file_hodatajstvo(arr_m)
         dbcreate(fr_data,adbf)
         use (fr_data) new alias FRD
         R_Use(dir_exe()+"_mo_smo",cur_dir()+"_mo_smo2","SMO")
-        R_Use(dir_server+"kartote_",,"KART_")
-        R_Use(dir_server+"kartotek",,"KART")
+        R_Use(dir_server()+"kartote_",,"KART_")
+        R_Use(dir_server()+"kartotek",,"KART")
         set relation to recno() into KART_
-        R_Use(dir_server+"human_",,"HUMAN_")
-        R_Use(dir_server+"human",,"HUMAN")
+        R_Use(dir_server()+"human_",,"HUMAN_")
+        R_Use(dir_server()+"human",,"HUMAN")
         set relation to recno() into HUMAN_, kod_k into KART
         use (cur_dir()+"tmp_k1") new
         set relation to kod_lu into HUMAN
@@ -500,7 +500,7 @@ Function create_file_hodatajstvo(arr_m)
       endif
     next
     
-    G_Use(dir_server+"mo_hod",,"HOD")
+    G_Use(dir_server()+"mo_hod",,"HOD")
     AddRecN()
     hod->KOD := recno()
     hod->NYEAR := arr_m[1]
@@ -514,7 +514,7 @@ Function create_file_hodatajstvo(arr_m)
     hod->TFILE := hour_min(seconds())
     hod->DATE_OUT := ctod("")
     hod->NUMB_OUT := 0
-    G_Use(dir_server+"mo_hod_k",,"HODK")
+    G_Use(dir_server()+"mo_hod_k",,"HODK")
     index on str(kod,6) to (cur_dir()+"tmp_hodk")
     use (cur_dir()+"tmp_k1") new
     arr_zip := {}
@@ -551,8 +551,8 @@ Function view_list_hodatajstvo()
   if !G_SLock(Shodata_sem)
     return func_error(4,Shodata_err)
   endif
-  Private goal_dir := dir_server+dir_XML_MO()+hb_ps()
-  G_Use(dir_server+"mo_hod",,"HOD")
+  Private goal_dir := dir_server()+dir_XML_MO()+hb_ps()
+  G_Use(dir_server()+"mo_hod",,"HOD")
   index on str(year(dfile),4)+str(nn,4) to (cur_dir()+"tmp_hod") DESCENDING
   go top
   if eof()
@@ -671,7 +671,7 @@ Function f2_view_list_hodatajstvo(nKey,oBrow)
         stat_msg("Подтвердите удаление ещё раз.") ; mybell(2)
         if f_Esc_Enter("удаления файла за "+date_8(hod->dfile),.t.)
           mywait("Ждите. Производится удаление файла ходатайства.")
-          G_Use(dir_server+"mo_hod_k",,"HODK")
+          G_Use(dir_server()+"mo_hod_k",,"HODK")
           index on str(kod,6) to (cur_dir()+"tmp_hodk")
           do while .t.
             find (str(hod->kod,6))

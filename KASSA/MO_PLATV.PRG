@@ -52,11 +52,11 @@ if len(k) < 3
   if len(k) == 1 .and. valtype(a_dms) == "A"
     if k[1] == PU_D_SMO  // добр.страхование
       if len(a_dms) == 1
-        add_string(center("ДСМО: "+alltrim(inieditspr(A__POPUPMENU,dir_server+"p_d_smo",a_dms[1])),sh))
+        add_string(center("ДСМО: "+alltrim(inieditspr(A__POPUPMENU,dir_server()+"p_d_smo",a_dms[1])),sh))
       endif
     elseif k[1] == PU_PR_VZ  // взаимозачет
       if len(a_dms) == 1
-        add_string(center("Предприятие: "+alltrim(inieditspr(A__POPUPMENU,dir_server+"p_pr_vz",a_dms[1])),sh))
+        add_string(center("Предприятие: "+alltrim(inieditspr(A__POPUPMENU,dir_server()+"p_pr_vz",a_dms[1])),sh))
       endif
     endif
   endif
@@ -70,7 +70,7 @@ Function ret_arr_dms(r1,c1)
 Static sa
 Local r2, c2, nr := 0, arr := {}, t_mas := {}, buf, buf1, i, ret
 DEFAULT r1 TO T_ROW, c1 TO T_COL+5
-G_Use(dir_server+"p_d_smo",,"MM")
+G_Use(dir_server()+"p_d_smo",,"MM")
 dbeval({|| ++nr, aadd(arr, {mm->(recno()), mm->name} ) } )
 Use
 if nr == 0
@@ -117,7 +117,7 @@ Function ret_arr_vz(r1,c1)
 Static sa
 Local r2, c2, nr := 0, arr := {}, t_mas := {}, buf, buf1, i, ret
 DEFAULT r1 TO T_ROW, c1 TO T_COL+5
-G_Use(dir_server+"p_pr_vz",,"MM")
+G_Use(dir_server()+"p_pr_vz",,"MM")
 dbeval({|| ++nr, aadd(arr, {mm->(recno()), mm->name} ) } )
 Use
 if nr == 0
@@ -180,7 +180,7 @@ if polikl1_kart() > 0
   Private fl_found, str_find, muslovie
   str_find := str(glob_kartotek,7)
   muslovie := "human->kod_k == glob_kartotek"
-  R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+  R_Use(dir_server()+"mo_pers",dir_server()+"mo_pers","PERSO")
   use_base("hum_p","HUMAN")
   find (str_find)
   fl_found := found()
@@ -329,7 +329,7 @@ do case
     enddo
     goto (t_hum_rec)
     // поиск телефона
-    R_Use(dir_server+"kartote_",,"KR_")
+    R_Use(dir_server()+"kartote_",,"KR_")
     goto(human->kod_k)
     mphone_m := kr_->phone_m
     kr_->(dbCloseArea())
@@ -341,8 +341,8 @@ do case
       maddress := mphone_m
     endif
     //
-    R_Use(dir_server+"uslugi",,"USL")
-    R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HU")
+    R_Use(dir_server()+"uslugi",,"USL")
+    R_Use(dir_server()+"hum_p_u",dir_server()+"hum_p_u","HU")
     set relation to u_kod into USL
     find (str(human->(recno()),7))
     // сразу сортируем по шифру услуг
@@ -471,7 +471,7 @@ do case
     enddo
     goto (t_hum_rec)
     pac_kvit := human->kv_cia
-    R_Use(dir_server+"kartotek",,"KR")
+    R_Use(dir_server()+"kartotek",,"KR")
     goto (human->kod_k)
     lnomer := l1nomer := lstr(kr->kod)
     muchastok := put_val(kr->uchast,2)
@@ -498,7 +498,7 @@ do case
         luchast += "] "
       endif
       if is_uchastok == 3
-        R_Use(dir_server+"kartote2",,"KART2")
+        R_Use(dir_server()+"kartote2",,"KART2")
         if human->kod_k <= lastrec()
           goto (human->kod_k)
           luchast += alltrim(kart2->kod_AK)
@@ -513,7 +513,7 @@ do case
     pac_data  := full_date(kr->date_r)
     pac_kod   := lstr(kr->kod)
     kr->(dbCloseArea())
-    R_Use(dir_server+"kartote_",,"KR_")
+    R_Use(dir_server()+"kartote_",,"KR_")
     goto (human->kod_k)
     okato_adresg := ret_okato_ulica("",kr_->okatog,1,2)
     okato_adresr := ret_okato_ulica("",kr_->okatop,1,2)
@@ -529,20 +529,20 @@ do case
     mvid_ud := get_Name_Vid_Ud(m1vid_ud)
     //
     if mkod_kem_vid > 0
-      R_Use(dir_server+"s_kemvyd",,"VYD")
+      R_Use(dir_server()+"s_kemvyd",,"VYD")
       goto (mkod_kem_vid)
       mvidan_ud := vyd->name
       vyd->(dbCloseArea())
     endif  
     dog_data := human->n_data
-    R_Use(dir_server+"hum_plat",dir_server+"hum_plat","KPLAT")
+    R_Use(dir_server()+"hum_plat",dir_server()+"hum_plat","KPLAT")
     find (str(human->(recno()),7))
     if found()
       mplat_adres   := KPLAT->ADRES
       mplat_pasport := KPLAT->PASPORT
       mplat_data_ud := KPLAT->kogdavyd
       if KPLAT->kemvyd > 0
-        R_Use(dir_server+"s_kemvyd",,"VYD")
+        R_Use(dir_server()+"s_kemvyd",,"VYD")
         goto (KPLAT->kemvyd)
         mplat_vidan_ud := vyd->name
         vyd->(dbCloseArea())
@@ -551,8 +551,8 @@ do case
     KPLAT->(dbCloseArea())
     //
     Use_base("humanst",,,.T.) // только для чтения
-    R_Use(dir_server+"uslugi",,"USL")
-    R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HU")
+    R_Use(dir_server()+"uslugi",,"USL")
+    R_Use(dir_server()+"hum_p_u",dir_server()+"hum_p_u","HU")
     set relation to u_kod into USL
     find (str(human->(recno()),7))
     // сразу сортируем по шифру услуг
@@ -630,7 +630,7 @@ do case
     endif
     close databases
     //
-    R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+    R_Use(dir_server()+"mo_pers",dir_server()+"mo_pers","PERSO")
     use_base("hum_p","HUMAN")
     goto (rec)
     setcolor(tmp_color)
@@ -654,11 +654,11 @@ do case
       func_error(4,err_close)
     elseif f_Esc_Enter(2,.t.)
       mywait()
-      G_Use(dir_server+"hum_p_u",{dir_server+"hum_p_u",;
-                                  dir_server+"hum_p_uk",;
-                                  dir_server+"hum_p_ud",;
-                                  dir_server+"hum_p_uv",;
-                                  dir_server+"hum_p_ua"},"HU")
+      G_Use(dir_server()+"hum_p_u",{dir_server()+"hum_p_u",;
+                                  dir_server()+"hum_p_uk",;
+                                  dir_server()+"hum_p_ud",;
+                                  dir_server()+"hum_p_uv",;
+                                  dir_server()+"hum_p_ua"},"HU")
       j := 0
       do while .t.
         select HU
@@ -742,7 +742,7 @@ do case
     rec := human->(recno()) ; c1 := human->lpu
     close databases
     usl_p_kart(rec,c1)
-    R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+    R_Use(dir_server()+"mo_pers",dir_server()+"mo_pers","PERSO")
     use_base("hum_p","HUMAN")
     goto (rec)
     setcolor(tmp_color)
@@ -807,9 +807,9 @@ fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
 add_string("")
 add_string(center(iif(nKey==K_F3,"Оплаченные услуги","Список чеков"),sh))
 add_string(center(glob_k_fio,sh))
-R_Use(dir_server+"uslugi",,"USL")
+R_Use(dir_server()+"uslugi",,"USL")
 if nKey == K_F3
-  R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HU")
+  R_Use(dir_server()+"hum_p_u",dir_server()+"hum_p_u","HU")
   set relation to u_kod into USL
   select HUMAN
   find (str_find)
@@ -838,9 +838,9 @@ if nKey == K_F3
   select HUMAN
   goto (rec)
 else
-  R_Use(dir_server+"kas_pl_u",dir_server+"kas_pl1u","KPLU")
+  R_Use(dir_server()+"kas_pl_u",dir_server()+"kas_pl1u","KPLU")
   set relation to u_kod into USL
-  R_Use(dir_server+"kas_pl",dir_server+"kas_pl1","KPL")
+  R_Use(dir_server()+"kas_pl",dir_server()+"kas_pl1","KPL")
   find (str(glob_kartotek,7))
   do while kpl->kod_k == glob_kartotek
     ++j
@@ -962,7 +962,7 @@ if nKey == K_ENTER
     mtabn_vr := perso->tab_nom
   endif
 endif
-R_Use(dir_server+"hum_plat",dir_server+"hum_plat","KPLAT")
+R_Use(dir_server()+"hum_plat",dir_server()+"hum_plat","KPLAT")
 find (str(human->(recno()),7))
 if found()
   mplat_adres   := KPLAT->ADRES
@@ -973,13 +973,13 @@ endif
 KPLAT->(dbCloseArea())
 //
 mtip_usl := inieditspr(A__MENUVERT, menu_kb, m1tip_usl)
-mlpu := inieditspr(A__POPUPMENU, dir_server+"mo_uch", m1lpu)
-motd := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
-MKEMVYD := inieditspr(A__POPUPMENU, dir_server + 's_kemvyd', M1KEMVYD)
+mlpu := inieditspr(A__POPUPMENU, dir_server()+"mo_uch", m1lpu)
+motd := inieditspr(A__POPUPMENU, dir_server()+"mo_otd", m1otd)
+MKEMVYD := inieditspr(A__POPUPMENU, dir_server() + 's_kemvyd', M1KEMVYD)
 if m1tip_usl == PU_D_SMO
-  mpr_smo := inieditspr(A__POPUPMENU, dir_server+"p_d_smo", m1pr_smo)
+  mpr_smo := inieditspr(A__POPUPMENU, dir_server()+"p_d_smo", m1pr_smo)
 elseif m1tip_usl == PU_PR_VZ
-  mpr_smo := inieditspr(A__POPUPMENU, dir_server+"p_pr_vz", m1pr_smo)
+  mpr_smo := inieditspr(A__POPUPMENU, dir_server()+"p_pr_vz", m1pr_smo)
 endif
 str_1 := " карточки лечения больного"
 if nKey == K_INS
@@ -1075,7 +1075,7 @@ do while .t.
       endif
       UnLock
       human->(dbCommit())
-      G_Use(dir_server+"hum_plat",dir_server+"hum_plat","KPLAT")
+      G_Use(dir_server()+"hum_plat",dir_server()+"hum_plat","KPLAT")
       if len(alltrim(mplat_adres)) > 2 .or. len(alltrim(mplat_pasport)) > 2
         find (str(human->(recno()),7))
         if !found()
@@ -1138,7 +1138,7 @@ asize(GetList,3)   // берем первые 3 элемента
 if m1tip_usl == PU_D_SMO
   @ j,37 say "СМО" get mpr_smo reader ;
             {|x| menu_reader(x,;
-                 {dir_server+"p_d_smo",,,,,color0,"Добровольные СМО","B/BG"},;
+                 {dir_server()+"p_d_smo",,,,,color0,"Добровольные СМО","B/BG"},;
                  A__POPUPBASE1,,,.f.);
             }
   ++j
@@ -1151,7 +1151,7 @@ if m1tip_usl == PU_D_SMO
 elseif m1tip_usl == PU_PR_VZ
   @ j,37 say "Предприятие" get mpr_smo reader ;
             {|x| menu_reader(x,;
-                 {dir_server+"p_pr_vz",,,,,color0,"Предприятия по взаимозачету","B/BG"},;
+                 {dir_server()+"p_pr_vz",,,,,color0,"Предприятия по взаимозачету","B/BG"},;
                  A__POPUPBASE1,,,.f.);
             }
   ++j
@@ -1539,10 +1539,10 @@ if lastkey() != K_ESC .and. ver_pub_date(mdate,.t.) .and. f_Esc_Enter("ввода")
   mywait()
   dbcreate(cur_dir()+"tmp",adbf)
   use (cur_dir()+"tmp") new
-  G_Use(dir_server+"plat_ms",dir_server+"plat_ms","MS")
-  G_Use(dir_server+"kartotek",,"KART")
-  G_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HU")
-  G_Use(dir_server+"hum_p",dir_server+"hum_pd","HUMAN")
+  G_Use(dir_server()+"plat_ms",dir_server()+"plat_ms","MS")
+  G_Use(dir_server()+"kartotek",,"KART")
+  G_Use(dir_server()+"hum_p_u",dir_server()+"hum_p_u","HU")
+  G_Use(dir_server()+"hum_p",dir_server()+"hum_pd","HUMAN")
   find (dtos(mdate))
   do while human->k_data == mdate .and. !eof()
     fl := .t.
@@ -1655,7 +1655,7 @@ if lastkey() != K_ESC .and. ver_pub_date(mdate,.t.) .and. f_Esc_Enter("ввода")
 endif
 restscreen(buf) ; setcolor(tmp_color)
 if j > 0
-  R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+  R_Use(dir_server()+"mo_pers",dir_server()+"mo_pers","PERSO")
   use_base("hum_p","HUMAN")
   set order to 0
   use (cur_dir()+"tmp1") new alias TMP
@@ -1751,11 +1751,11 @@ if nKey == K_ENTER .or. nKey == K_CTRL_RET
   endif
   if nKey == K_ENTER
     Private pr_arr := {}
-    R_Use(dir_server+"mo_otd",,"OTD")
+    R_Use(dir_server()+"mo_otd",,"OTD")
     dbeval({|| aadd(pr_arr,{otd->(recno()),otd->name}) },;
            {|| otd->kod_lpu == human->lpu .and. between_date(otd->DBEGINP,otd->DENDP,tmp->data)} )
     asort(pr_arr,,,{|x,y| x[2] < y[2] } )
-    R_Use(dir_server+"plat_ms",dir_server+"plat_ms","MS")
+    R_Use(dir_server()+"plat_ms",dir_server()+"plat_ms","MS")
     r := T_ROW+3+oBrow:rowPos
     Private mn_kvit := tmp->n_kvit,;
             mkv_cia := tmp->kv_cia,;
@@ -1867,11 +1867,11 @@ if nKey == K_ENTER .or. nKey == K_CTRL_RET
           is_ed_date := .t.
         endif
         UnLock
-        G_Use(dir_server+"hum_p_u",{dir_server+"hum_p_u",;
-                                    dir_server+"hum_p_uk",;
-                                    dir_server+"hum_p_ud",;
-                                    dir_server+"hum_p_uv",;
-                                    dir_server+"hum_p_ua"},"HU")
+        G_Use(dir_server()+"hum_p_u",{dir_server()+"hum_p_u",;
+                                    dir_server()+"hum_p_uk",;
+                                    dir_server()+"hum_p_ud",;
+                                    dir_server()+"hum_p_uv",;
+                                    dir_server()+"hum_p_ua"},"HU")
         find (str(rec,7))
         do while hu->kod == rec
           G_RLock(forever)
@@ -1917,7 +1917,7 @@ if nKey == K_ENTER .or. nKey == K_CTRL_RET
     close databases
     usl_p_kart(rec,llpu)
   endif
-  R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+  R_Use(dir_server()+"mo_pers",dir_server()+"mo_pers","PERSO")
   use_base("hum_p","HUMAN")
   set order to 0
   goto (rec)
@@ -2041,8 +2041,8 @@ mywait()
 dbcreate(cur_dir()+"tmp",{{"rec","N",7,0},;
                         {"is","N",1,0}})
 use (cur_dir()+"tmp") new
-G_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HUP")
-G_Use(dir_server+"hum_p",dir_server+"hum_pc","HU")
+G_Use(dir_server()+"hum_p_u",dir_server()+"hum_p_u","HUP")
+G_Use(dir_server()+"hum_p",dir_server()+"hum_pc","HU")
 find (str_find)
 do while &muslovie
   fl := .t.
@@ -2097,8 +2097,8 @@ else
   elseif p_regim == 3
     mtitle += ' ['+arr_m[4]+']'
   endif
-  G_Use(dir_server+"kartotek",,"KART")
-  G_Use(dir_server+"hum_p",,"HU")
+  G_Use(dir_server()+"kartotek",,"KART")
+  G_Use(dir_server()+"hum_p",,"HU")
   set relation to kod_k into KART
   use (cur_dir()+"tmp") new
   set relation to rec into HU
@@ -2125,7 +2125,7 @@ else
                  " чел. на сумму "+lput_kop(psumma,.t.)+" руб.",,0)
     endif
     select HU
-    set index to (dir_server+"hum_pc")
+    set index to (dir_server()+"hum_pc")
     set order to 0
     do case
       case p_regim == 1
@@ -2255,9 +2255,9 @@ do case
     add_string("ФИО: "+kart->fio)
     add_string("Срок лечения: "+full_date(hu->n_data)+"-"+full_date(hu->k_data))
     aeval(arr_title, {|x| add_string(x) } )
-    R_Use(dir_server+"mo_pers",,"PERSO")
-    R_Use(dir_server+"uslugi",,"USL")
-    R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HUP")
+    R_Use(dir_server()+"mo_pers",,"PERSO")
+    R_Use(dir_server()+"uslugi",,"USL")
+    R_Use(dir_server()+"hum_p_u",dir_server()+"hum_p_u","HUP")
     set relation to u_kod into USL
     find (str(hu->(recno()),7))
     index on hup->date_u+fsort_usl(usl->shifr) to (cur_dir()+"tmp_hup") ;
@@ -2371,9 +2371,9 @@ do case
       elseif atip_usl[2] == PU_PR_VZ .or. atip_usl[2] == PU_D_SMO
         mywait()
         if atip_usl[2] == PU_D_SMO
-          G_Use(dir_server+"p_d_smo",,"DMS")
+          G_Use(dir_server()+"p_d_smo",,"DMS")
         else
-          G_Use(dir_server+"p_pr_vz",,"DMS")
+          G_Use(dir_server()+"p_pr_vz",,"DMS")
         endif
         select HU
         set relation to kod_k into KART, to pr_smo into DMS
@@ -2418,8 +2418,8 @@ do case
       endif
     endif
     close databases
-    G_Use(dir_server+"kartotek",,"KART")
-    G_Use(dir_server+"hum_p",,"HU")
+    G_Use(dir_server()+"kartotek",,"KART")
+    G_Use(dir_server()+"hum_p",,"HU")
     set relation to kod_k into KART
     use (cur_dir()+"tmp") new
     set relation to rec into HU
@@ -2451,7 +2451,7 @@ dbcreate(cur_dir()+"tmph",{{"kod","N",7,0},;
                          {"summa","N",11,2},;
                          {"sum_opl","N",11,2}})
 use (cur_dir()+"tmph") new
-G_Use(dir_server+"hum_p",dir_server+"hum_pc","HU")
+G_Use(dir_server()+"hum_p",dir_server()+"hum_pc","HU")
 find (str(atip_usl[2],1))
 do while hu->tip_usl==atip_usl[2] .and. !eof()
   select TMPH
@@ -2480,7 +2480,7 @@ index on str(pr_smo,6)+str(kod_k,7)+dtos(k_data) to (cur_dir()+"tmph")
 select HU
 set order to 0
 //
-G_Use(dir_server+"plat_vz",dir_server+"plat_vz","PLZ")
+G_Use(dir_server()+"plat_vz",dir_server()+"plat_vz","PLZ")
 select TMPK
 set index to
 go top
@@ -2583,7 +2583,7 @@ Function f1_usl_date(nKey,oBrow,cregim)
 Local ret := -1, r := row(), c := col(), buf, fl := .f., rec := 0, k := 19
 do case
   case cregim == "open"
-    G_Use(dir_server+"pu_date",dir_server+"pu_date","PUD")
+    G_Use(dir_server()+"pu_date",dir_server()+"pu_date","PUD")
     go top
     ret := !eof()
   case cregim == "edit"
@@ -2623,8 +2623,8 @@ do case
         setcolor(tmp_color)
         restore screen from buf
       case nKey == K_DEL .and. f_Esc_Enter(2,.t.)
-        G_Use(dir_server+"pu_cena",{dir_server+"pu_cena",;
-                                    dir_server+"pu_cenau"},"PUC")
+        G_Use(dir_server()+"pu_cena",{dir_server()+"pu_cena",;
+                                    dir_server()+"pu_cenau"},"PUC")
         do while .t.
           find (str(pud->(recno()),4))
           if !found() ; exit ; endif
@@ -2657,8 +2657,8 @@ fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 add_string("")
 add_string(center("Список платных услуг, у которых изменилась цена "+full_date(pud->data)+"г.",sh))
 add_string("")
-G_Use(dir_server+"uslugi",,"USL")
-G_Use(dir_server+"pu_cena",dir_server+"pu_cena","PUC")
+G_Use(dir_server()+"uslugi",,"USL")
+G_Use(dir_server()+"pu_cena",dir_server()+"pu_cena","PUC")
 set relation to kod_usl into USL
 find (str(rec,4))
 index on fsort_usl(usl->shifr) to (cur_dir()+"tmp_usl") while puc->kod_date == rec
@@ -2689,9 +2689,9 @@ Function f3_usl_date(rec)
 Local buf := savescreen(), adbf
 Private fl_found, prec := rec
 mywait()
-G_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
-G_Use(dir_server+"pu_cena",{dir_server+"pu_cena",;
-                            dir_server+"pu_cenau"},"PUC")
+G_Use(dir_server()+"uslugi",dir_server()+"uslugish","USL")
+G_Use(dir_server()+"pu_cena",{dir_server()+"pu_cena",;
+                            dir_server()+"pu_cenau"},"PUC")
 adbf := dbstruct()
 aadd(adbf, {"rec_puc","N",6,0} )
 aadd(adbf, {"shifr","C",10,0} )
@@ -2898,8 +2898,8 @@ summa_oplat_bn := human->sbank
 tip_banka := human->fr_tipkart
 //human->(dbCloseArea())
 //
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HU")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"hum_p_u",dir_server()+"hum_p_u","HU")
 adbf := dbstruct()
 aadd(adbf, {"date_u1","D",  8,0} )
 aadd(adbf, {"shifr_u","C", 10,0} )
@@ -3001,11 +3001,11 @@ endif
   // сам чек
   if fl
     // заносим возврат
-    G_Use(dir_server+"hum_p_u",{dir_server+"hum_p_u",;
-                                dir_server+"hum_p_uk",;
-                                dir_server+"hum_p_ud",;
-                                dir_server+"hum_p_uv",;
-                                dir_server+"hum_p_ua"},"HU")
+    G_Use(dir_server()+"hum_p_u",{dir_server()+"hum_p_u",;
+                                dir_server()+"hum_p_uk",;
+                                dir_server()+"hum_p_ud",;
+                                dir_server()+"hum_p_uv",;
+                                dir_server()+"hum_p_ua"},"HU")
     select TMP
     go top
     do while !eof()

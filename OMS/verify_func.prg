@@ -87,7 +87,7 @@ function checkSectionPrescription( arr )
   local lAdd := .f.
   local flDopObsledovanie := .f.
 
-  R_Use(dir_server + 'mo_pers',dir_server + 'mo_pers', 'TPERS')
+  R_Use(dir_server() + 'mo_pers',dir_server() + 'mo_pers', 'TPERS')
 
   if (m1dopo_na > 0)
     if (mtab_v_dopo_na == 0)

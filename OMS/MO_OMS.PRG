@@ -80,12 +80,12 @@ Function f_valid_komu( get, old )
     If m1komu == 0 // ŽŒ‘
       mm_company := AClone( glob_arr_smo )
     Elseif m1komu == 1 // à®ç¨¥ ª®¬¯ ­¨¨
-      r_use( dir_server + 'str_komp' )
+      r_use( dir_server() + 'str_komp' )
       Index On Upper( name ) to ( cur_dir() + 'tmp_comp' ) For !Between( tfoms, 44, 47 )
       dbEval( {|| AAdd( mm_company, { AllTrim( name ), kod } ) } )
       Use
     Elseif m1komu == 3 // Š®¬¨â¥âë/ŒŽ
-      r_use( dir_server + 'komitet' )
+      r_use( dir_server() + 'komitet' )
       Index On Upper( name ) to ( cur_dir() + 'tmp_comp' )
       dbEval( {|| AAdd( mm_company, { AllTrim( name ), kod } ) } )
       Use
@@ -504,8 +504,8 @@ Function f1oms_edit()
     mywait()
     dbCreate( cur_dir() + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
     Use ( cur_dir() + 'tmp_h' ) new
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humann', 'HUMAN' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humann', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     find ( str_find )
     If yes_h_otd == 1
@@ -549,9 +549,9 @@ Function f1oms_edit()
     Else
       Private mr1 := T_ROW, regim_vyb := 2
       Do While .t.
-        r_use( dir_server + 'mo_otd', , 'OTD' )
-        r_use( dir_server + 'human_', , 'HUMAN_' )
-        r_use( dir_server + 'human', , 'HUMAN' )
+        r_use( dir_server() + 'mo_otd', , 'OTD' )
+        r_use( dir_server() + 'human_', , 'HUMAN_' )
+        r_use( dir_server() + 'human', , 'HUMAN' )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
         Use ( cur_dir() + 'tmp_h' ) new
         Set Relation To kod into HUMAN
@@ -571,7 +571,7 @@ Function f1oms_edit()
             glob_kartotek := human->kod_k
             glob_k_fio := fio_plus_novor()
             glob_otd[ 1 ] := human->otd
-            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', human->otd )
+            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', human->otd )
             If Len( glob_otd ) == 2
               AAdd( glob_otd, human_->usl_ok )
             Else
@@ -584,7 +584,7 @@ Function f1oms_edit()
               glob_otd[ 4 ] := k
             Endif
             glob_uch[ 1 ] := human->LPU
-            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', human->LPU )
+            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', human->LPU )
             fl_schet := ( human->schet > 0 )
           Endif
         Else
@@ -658,8 +658,8 @@ Function f2oms_edit()
     mywait()
     dbCreate( cur_dir() + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
     Use ( cur_dir() + 'tmp_h' ) new
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Index On Upper( fio ) to ( cur_dir() + 'tmp_h2' ) ;
@@ -685,9 +685,9 @@ Function f2oms_edit()
     Else
       Private mr1 := T_ROW, regim_vyb := 2
       Do While .t.
-        r_use( dir_server + 'mo_otd', , 'OTD' )
-        r_use( dir_server + 'human_', , 'HUMAN_' )
-        r_use( dir_server + 'human', , 'HUMAN' )
+        r_use( dir_server() + 'mo_otd', , 'OTD' )
+        r_use( dir_server() + 'human_', , 'HUMAN_' )
+        r_use( dir_server() + 'human', , 'HUMAN' )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
         Use ( cur_dir() + 'tmp_h' ) new
         Set Relation To kod into HUMAN
@@ -709,7 +709,7 @@ Function f2oms_edit()
             glob_kartotek := human->kod_k
             glob_k_fio := fio_plus_novor()
             glob_otd[ 1 ] := human->otd
-            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', human->otd )
+            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', human->otd )
             If Len( glob_otd ) == 2
               AAdd( glob_otd, human_->usl_ok )
             Else
@@ -722,7 +722,7 @@ Function f2oms_edit()
               glob_otd[ 4 ] := k
             Endif
             glob_uch[ 1 ] := human->LPU
-            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', human->LPU )
+            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', human->LPU )
             fl_schet := ( human->schet > 0 )
           Endif
         Else
@@ -799,8 +799,8 @@ Function f4oms_edit()
     mywait()
     dbCreate( cur_dir() + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
     Use ( cur_dir() + 'tmp_h' ) new
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Index On Upper( fio ) to ( cur_dir() + 'tmp_h2' ) ;
@@ -823,9 +823,9 @@ Function f4oms_edit()
       Private mr1 := T_ROW, regim_vyb := 2
       srec := 1
       Do While .t.
-        r_use( dir_server + 'mo_otd', , 'OTD' )
-        r_use( dir_server + 'human_', , 'HUMAN_' )
-        r_use( dir_server + 'human', , 'HUMAN' )
+        r_use( dir_server() + 'mo_otd', , 'OTD' )
+        r_use( dir_server() + 'human_', , 'HUMAN_' )
+        r_use( dir_server() + 'human', , 'HUMAN' )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
         Use ( cur_dir() + 'tmp_h' ) new
         Set Relation To kod into HUMAN
@@ -847,7 +847,7 @@ Function f4oms_edit()
             glob_kartotek := human->kod_k
             glob_k_fio := fio_plus_novor()
             glob_otd[ 1 ] := human->otd
-            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', human->otd )
+            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', human->otd )
             If Len( glob_otd ) == 2
               AAdd( glob_otd, human_->usl_ok )
             Else
@@ -860,7 +860,7 @@ Function f4oms_edit()
               glob_otd[ 4 ] := k
             Endif
             glob_uch[ 1 ] := human->LPU
-            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', human->LPU )
+            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', human->LPU )
             fl_schet := ( human->schet > 0 )
           Endif
         Else
@@ -1058,7 +1058,7 @@ Function oms_del()
     If k > 0 .and. ret_oms_human( yes_vypisan + k -1, arr_m ) .and. f_esc_enter( 2, .t. )
       str_sem := '¥¤ ªâ¨à®¢ ­¨¥ ç¥«®¢¥ª  ' + lstr( glob_perso )
       If g_slock( str_sem )
-        g_use( dir_server + 'mo_pp', dir_server + 'mo_pp_h', 'PP' )
+        g_use( dir_server() + 'mo_pp', dir_server() + 'mo_pp_h', 'PP' )
         use_base( 'mo_hdisp' )
         use_base( 'mo_hu' )
         use_base( 'human_u' )
@@ -1135,7 +1135,7 @@ Function oms_del()
           g_rlock( forever )
           Replace human->schet With -1  // (¢¬¥áâ® ­ã«ï)
           // ã¤ «ï¥¬ ®­ª®«®£¨î
-          g_use( dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'NAPR' ) // ®­ª®­ ¯à ¢«¥­¨ï
+          g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna', 'NAPR' ) // ®­ª®­ ¯à ¢«¥­¨ï
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1143,7 +1143,7 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-          g_use( dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'SL' )
+          g_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'SL' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1151,7 +1151,7 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-          g_use( dir_server + 'mo_onkdi', dir_server + 'mo_onkdi', 'DI' )
+          g_use( dir_server() + 'mo_onkdi', dir_server() + 'mo_onkdi', 'DI' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1159,7 +1159,7 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-          g_use( dir_server + 'mo_onkpr', dir_server + 'mo_onkpr', 'PR' )
+          g_use( dir_server() + 'mo_onkpr', dir_server() + 'mo_onkpr', 'PR' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1167,7 +1167,7 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-          g_use( dir_server + 'mo_onkus', dir_server + 'mo_onkus', 'US' )
+          g_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus', 'US' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1175,7 +1175,7 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-          g_use( dir_server + 'mo_onkco', dir_server + 'mo_onkco', 'CO' )
+          g_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco', 'CO' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1183,7 +1183,7 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-          g_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle', 'LE' )
+          g_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle', 'LE' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1196,7 +1196,7 @@ Function oms_del()
           delete_implantants( glob_perso )
 
           // ã¤ «¥­¨¥ «¥ª àáâ¢¥­­ëå ¯à¥¯ à â®¢
-          g_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK' )
+          g_use( dir_server() + 'human_lek_pr', dir_server() + 'human_lek_pr', 'LEK' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1318,7 +1318,7 @@ Function f1oms_zav_lech( k )
       dbCreate( cur_dir() + 'tmp', dbf_tmp )
       k1 := k2 := 0
       Use ( cur_dir() + 'tmp' ) Alias TMP
-      r_use( dir_server + 'human', dir_server + 'humann', 'HUMAN' )
+      r_use( dir_server() + 'human', dir_server() + 'humann', 'HUMAN' )
       find ( Str( B_END, 1 ) )
       Do While human->tip_h == B_END .and. !Eof()
         If iif( yes_h_otd == 1, human->otd == glob_otd[ 1 ], .t. )
@@ -1502,10 +1502,10 @@ Function f3oms_zav_lech( nKey, oBrow )
       buf := save_maxrow()
       mywait()
       rec := RecNo()
-      r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
-      r_use( dir_server + 'human_', , 'HUMAN_' )
-      r_use( dir_server + 'uslugi', , 'USL' )
-      r_use( dir_server + 'mo_pers', , 'PERSO' )
+      r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
+      r_use( dir_server() + 'human_', , 'HUMAN_' )
+      r_use( dir_server() + 'uslugi', , 'USL' )
+      r_use( dir_server() + 'mo_pers', , 'PERSO' )
       arr_title := { ;
         'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ', ;
         '               ”.ˆ.Ž.                           ³ ‘à®ª¨ «¥ç¥­¨ï  ³    ‘ã¬¬      ', ;
@@ -1627,9 +1627,9 @@ Function ret_oms_human( dostup, arr_m )
   If dostup == NIL
     str_find := DToS( arr_m[ 5 ] )
     mtitul := '® ¤ â¥ ®ª®­ç ­¨ï «¥ç¥­¨ï "' + arr_m[ 4 ] + '"'
-    r_use( dir_server + 'mo_otd', , 'OTD' )
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To otd into OTD
     dbSeek( str_find, .t. )
     Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
@@ -1654,9 +1654,9 @@ Function ret_oms_human( dostup, arr_m )
       str_error += ' ' + arr_m[ 4 ]
       mtitul += ' ' + arr_m[ 4 ]
     Endif
-    r_use( dir_server + 'mo_otd', , 'OTD' )
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humann', 'HUMAN' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humann', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To otd into OTD
     find ( str_find )
     If yes_h_otd == 1
@@ -1706,7 +1706,7 @@ Function ret_oms_human( dostup, arr_m )
       glob_kartotek := human->kod_k
       glob_k_fio := fio_plus_novor()
       glob_otd[ 1 ] := human->otd
-      glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', human->otd )
+      glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', human->otd )
       If Len( glob_otd ) == 2
         AAdd( glob_otd, human_->usl_ok )
       Else
@@ -1719,7 +1719,7 @@ Function ret_oms_human( dostup, arr_m )
         glob_otd[ 4 ] := k
       Endif
       glob_uch[ 1 ] := human->LPU
-      glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', human->LPU )
+      glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', human->LPU )
       fl_schet := ( human->schet > 0 )
     Endif
     Close databases
@@ -1787,7 +1787,7 @@ Function f2ret_oms_human( nkey )
     If nkey == K_F9
       mywait()
       tmp_2 := Select()
-      r_use( dir_server + 'mo_otd', , 'mo_otd' )
+      r_use( dir_server() + 'mo_otd', , 'mo_otd' )
       fp := FCreate( n_file )
       tek_stroke := 0
       n_list := 1
@@ -1976,10 +1976,10 @@ Function f2ret_oms_human( nkey )
       add_string( Center( p_del_error[ 1 ], sh ) )
       add_string( Center( arr_m[ 4 ], sh ) )
       tmp_1 := Select()
-      r_use( dir_server + 'uslugi', , 'USL' )
-      // R_Use(dir_server + 'human', ,'HUMAN')
-      r_use( dir_server + 'human_u_', , 'HU_' )
-      r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+      r_use( dir_server() + 'uslugi', , 'USL' )
+      // R_Use(dir_server() + 'human', ,'HUMAN')
+      r_use( dir_server() + 'human_u_', , 'HU_' )
+      r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
       Set Relation To RecNo() into HU_, To u_kod into USL
       Select ( tmp_1 )
       //
@@ -2609,7 +2609,7 @@ Function f2ret_oms_human( nkey )
       // elseif eq_any(nkey,K_F10,K_CTRL_F10) .and. tip_polzovat == TIP_ADM .and. f_Esc_Enter('á¬¥­  ãá«ã£¨', .t.)
     Elseif eq_any( nkey, K_F10, K_CTRL_F10 ) .and. hb_user_curUser:isadmin() .and. f_esc_enter( 'á¬¥­  ãá«ã£¨', .t. )
       tmp_1 := Select()
-      g_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+      g_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
       Select ( tmp_1 )
       Go Top
       Do While !Eof()

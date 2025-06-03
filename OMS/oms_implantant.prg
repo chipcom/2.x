@@ -193,7 +193,7 @@ function exist_implantant_in_DB(mkod_human, rec_hu)
   HB_Default(@rec_hu, 0)
   impAlias := select(cAlias)
   if impAlias == 0
-    R_Use(dir_server + 'human_im', dir_server + 'human_im', cAlias)
+    R_Use(dir_server() + 'human_im', dir_server() + 'human_im', cAlias)
   endif
   dbSelectArea(cAlias)
   if rec_hu == 0
@@ -220,7 +220,7 @@ function collect_implantant(mkod_human, rec_hu)
   HB_Default(@rec_hu, 0)
   impAlias := select(cAlias)
   if impAlias == 0
-    R_Use(dir_server + 'human_im', dir_server + 'human_im', cAlias)
+    R_Use(dir_server() + 'human_im', dir_server() + 'human_im', cAlias)
   endif
   dbSelectArea(cAlias)
   if rec_hu == 0

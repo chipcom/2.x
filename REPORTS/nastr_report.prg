@@ -164,10 +164,10 @@ Function s_mnog_poisk()
     is_kategor2 := !Empty( stm_kategor2 )
   Endif
   //
-  r_use( dir_server + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
   dbEval( {|| AAdd( pr_arr, { otd->( RecNo() ), otd->name, otd->kod_lpu, '' } ) }, ;
     {|| f_is_uch( st_a_uch, otd->kod_lpu ) .and. between_date( otd->dbegin, otd->dend, sys_date ) } )
-  r_use( dir_server + 'mo_uch', , 'UCH' )
+  r_use( dir_server() + 'mo_uch', , 'UCH' )
   AEval( pr_arr, {| x, i| dbGoto( x[ 3 ] ), pr_arr[ i, 4 ] := uch->name } )
   //
   ASort( pr_arr, , , {| x, y| iif( x[ 3 ] == y[ 3 ], Upper( x[ 2 ] ) < Upper( y[ 2 ] ), Upper( x[ 4 ] ) < Upper( y[ 4 ] ) ) } )
@@ -616,7 +616,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
   Delete File ( tmp_file )
   init_base( tmp_file, , mm_tmp, 0 )
   //
-  r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'PERSO' )
+  r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'PERSO' )
   k := f_edit_spr( A__APPEND, mm_tmp, 'множественному запросу', ;
     'e_use(cur_dir() + "tmp_mn_p")', 0, 1, , , , , 'write_mn_p' )
   If k > 0
@@ -636,7 +636,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
       mn->zav_lech := yes_vypisan + mn->zav_lech - 1
     Endif
     // заменить таб.номер на код
-    r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'PERSO' )
+    r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'PERSO' )
     If mn->vrach1 > 0
       find ( Str( mn->vrach1, 5 ) )
       If Found()
@@ -776,7 +776,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
     If p_regim == 3  // по дате оказания усуги
       dbCreate( cur_dir() + 'tmp_hum', { { 'kod', 'N', 7, 0 } } )
       Use ( cur_dir() + 'tmp_hum' ) new
-      r_use( dir_server + 'human_u', dir_server + 'human_ud', 'HU' )
+      r_use( dir_server() + 'human_u', dir_server() + 'human_ud', 'HU' )
       find ( pdate_usl[ 7 ] )
       Index On kod to ( cur_dir() + 'tmp_hu' ) While date_u <= pdate_usl[ 8 ] UNIQUE
       Go Top
@@ -795,39 +795,39 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
     Endif
     status_key( '^<Esc>^ - прервать поиск' )
     If IsBit( mn->vid_doc, VIEW_SCHET ) .or. mn->rak > 0
-      r_use( dir_server + 'mo_raksh', , 'RAKSH' )
+      r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
       Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' )
     Endif
     use_base( 'lusl' )
     use_base( 'luslc' )
     use_base( 'luslf' )
-    r_use( dir_server + 'mo_su', , 'MOSU' )
-    r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
-    r_use( dir_server + 'uslugi', , 'USL' )
-    r_use( dir_server + 'human_u_', , 'HU_' )
-    r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+    r_use( dir_server() + 'mo_su', , 'MOSU' )
+    r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
+    r_use( dir_server() + 'uslugi', , 'USL' )
+    r_use( dir_server() + 'human_u_', , 'HU_' )
+    r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
     Set Relation To RecNo() into HU_, To u_kod into USL
     //
-    r_use( dir_server + 'schet_', , 'SCHET_' )
-    r_use( dir_server + 'schet', , 'SCHET' )
+    r_use( dir_server() + 'schet_', , 'SCHET_' )
+    r_use( dir_server() + 'schet', , 'SCHET' )
     Set Relation To RecNo() into SCHET_
     //
-    r_use( dir_server + 'kartote2', , 'KART2' )
-    r_use( dir_server + 'kartote_', , 'KART_' )
-    r_use( dir_server + 'kartotek', , 'KART' )
+    r_use( dir_server() + 'kartote2', , 'KART2' )
+    r_use( dir_server() + 'kartote_', , 'KART_' )
+    r_use( dir_server() + 'kartotek', , 'KART' )
     Set Relation To RecNo() into KART_, RecNo() into KART2
     //
-    r_use( dir_server + 'human_3', { dir_server + 'human_3', dir_server + 'human_32' }, 'HUMAN_3' )
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human_2', , 'HUMAN_2' )
-    r_use( dir_server + 'human', , 'HUMAN' )
+    r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human_2', , 'HUMAN_2' )
+    r_use( dir_server() + 'human', , 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
     //
     Private c_view := 0, c_found := 0
     Do Case
     Case p_regim == 1  // по дате окончания лечения
       Select HUMAN
-      Set Index to ( dir_server + 'humand' )
+      Set Index to ( dir_server() + 'humand' )
       dbSeek( DToS( pdate_lech[ 5 ] ), .t. )
       Do While human->k_data <= pdate_lech[ 6 ] .and. !Eof()
         If Inkey() == K_ESC
@@ -843,9 +843,9 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
       Enddo
     Case p_regim == 2  // по дате выписки счета
       Select HUMAN
-      Set Index to ( dir_server + 'humans' )
+      Set Index to ( dir_server() + 'humans' )
       Select SCHET
-      Set Index to ( dir_server + 'schetd' )
+      Set Index to ( dir_server() + 'schetd' )
       Set Filter To Empty( schet_->IS_DOPLATA )
       dbSeek( pdate_schet[ 7 ], .t. )
       Do While schet->pdate <= pdate_schet[ 8 ] .and. !Eof()
@@ -1055,7 +1055,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         Endif
       Endif
       If IsBit( mn->vid_doc, VIEW_RAK )
-        r_use( dir_server + 'mo_raksh', cur_dir() + 'tmp_raksh', 'RAKSH' )
+        r_use( dir_server() + 'mo_raksh', cur_dir() + 'tmp_raksh', 'RAKSH' )
         If lExcel
           worksheet_set_column( worksheet, column, column, 13.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'РАК' ), header_wrap )
@@ -1118,28 +1118,28 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
       If sh < 65
         sh := 65
       Endif
-      r_use( dir_server + 'human_u_', , 'HU_' )
-      r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+      r_use( dir_server() + 'human_u_', , 'HU_' )
+      r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
       Set Relation To RecNo() into HU_
-      r_use( dir_server + 'uslugi', , 'USL' )
-      r_use( dir_server + 'mo_su', , 'MOSU' )
-      r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
-      r_use( dir_server + 'schet_', , 'SCHET_' )
-      r_use( dir_server + 'schet', , 'SCHET' )
+      r_use( dir_server() + 'uslugi', , 'USL' )
+      r_use( dir_server() + 'mo_su', , 'MOSU' )
+      r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
+      r_use( dir_server() + 'schet_', , 'SCHET_' )
+      r_use( dir_server() + 'schet', , 'SCHET' )
       Set Relation To RecNo() into SCHET_
       If yes_parol
-        r_use( dir_server + 'base1', , 'BASE1' )
+        r_use( dir_server() + 'base1', , 'BASE1' )
       Endif
-      r_use( dir_server + 'mo_pers', , 'PERSO' )
-      r_use( dir_server + 'kartote2', , 'KART2' )
-      r_use( dir_server + 'kartote_', , 'KART_' )
-      r_use( dir_server + 'kartotek', , 'KART' )
+      r_use( dir_server() + 'mo_pers', , 'PERSO' )
+      r_use( dir_server() + 'kartote2', , 'KART2' )
+      r_use( dir_server() + 'kartote_', , 'KART_' )
+      r_use( dir_server() + 'kartotek', , 'KART' )
       Set Relation To RecNo() into KART_, To RecNo() into KART2
-      r_use( dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'ONKSL' ) // Сведения о случае лечения онкологического заболевания
-      r_use( dir_server + 'human_3', { dir_server + 'human_3', dir_server + 'human_32' }, 'HUMAN_3' )
-      r_use( dir_server + 'human_2', , 'HUMAN_2' )
-      r_use( dir_server + 'human_', , 'HUMAN_' )
-      r_use( dir_server + 'human', dir_server + 'humank', 'HUMAN' )
+      r_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'ONKSL' ) // Сведения о случае лечения онкологического заболевания
+      r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+      r_use( dir_server() + 'human_2', , 'HUMAN_2' )
+      r_use( dir_server() + 'human_', , 'HUMAN_' )
+      r_use( dir_server() + 'human', dir_server() + 'humank', 'HUMAN' )
       Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
 
       sOutput := 'РЕЗУЛЬТАТ МНОГОВАРИАНТНОГО ПОИСКА'
@@ -1434,7 +1434,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         f_put_tal_diag()
       Endif
       If yes_h_otd == 1 .and. mn->otd > 0
-        sOutput := 'Отделение, в котором выписан счет: ' + inieditspr( A__POPUPMENU, dir_server + 'mo_otd', mn->otd )
+        sOutput := 'Отделение, в котором выписан счет: ' + inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', mn->otd )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
       Endif
       If mn->ist_fin >= 0
@@ -1478,7 +1478,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
       Endif
       If mn->otd_usl > 0
-        sOutput := 'Отделение, в котором оказана услуга: ' + inieditspr( A__POPUPMENU, dir_server + 'mo_otd', mn->otd_usl )
+        sOutput := 'Отделение, в котором оказана услуга: ' + inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', mn->otd_usl )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
       Endif
       If mn->vr1 > 0

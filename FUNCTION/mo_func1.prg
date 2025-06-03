@@ -151,7 +151,7 @@ Function ret_is_talon()
 
   Local is_talon := .f., tmp_select := Select()
 
-  r_use( dir_server + 'mo_uch', , '_UCH' )
+  r_use( dir_server() + 'mo_uch', , '_UCH' )
   Go Top
   Do While !Eof()
     If between_date( _uch->dbegin, _uch->dend, sys_date ) .and. _uch->IS_TALON == 1
@@ -373,8 +373,8 @@ Function get_k_usluga( lshifr, lvzros_reb, lvr_as )
   lvr_as := .f.
   pr_k_usl := {}
   If !is_open_u1
-    g_use( dir_server + 'uslugi1k', dir_server + 'uslugi1k', 'U1K' )
-    g_use( dir_server + 'uslugi_k', dir_server + 'uslugi_k', 'UK' )
+    g_use( dir_server() + 'uslugi1k', dir_server() + 'uslugi1k', 'U1K' )
+    g_use( dir_server() + 'uslugi_k', dir_server() + 'uslugi_k', 'UK' )
     is_open_u1 := .t.
   Endif
   Select UK
@@ -613,7 +613,7 @@ Function v_kart_vrach( get, is_prvs )
     elseif &tmp != 0
       Default is_prvs To .f.
       tmp_select := Select()
-      r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2' )
+      r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2' )
       find ( Str( &tmp, 5 ) )
       If Found()
         m1vrach := p2->kod
@@ -644,7 +644,7 @@ Function reread_glob_mo()
 
   Local i, cCode, tmp_select := Select()
 
-  r_use( dir_server + 'organiz', , 'ORG' )
+  r_use( dir_server() + 'organiz', , 'ORG' )
   cCode := Left( org->kod_tfoms, 6 )
   ORG->( dbCloseArea() )
   If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == cCode } ) ) > 0
@@ -1071,8 +1071,8 @@ Function opr_shifr_tfoms( lshifr, lkod, ldate )
 
   Default ldate To sys_date
   If Select( 'USL1' ) == 0
-    r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
-      dir_server + 'uslugi1s' }, 'USL1' )
+    r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+      dir_server() + 'uslugi1s' }, 'USL1' )
   Endif
   Select USL1
   Set Order To 1
@@ -1275,7 +1275,7 @@ Function ret_nuch_notd( k, r, c )
         pr_a_otd := AClone( st_a_otd )
       Endif
     Else
-      r_use( dir_server + 'mo_otd', , 'OTD' )
+      r_use( dir_server() + 'mo_otd', , 'OTD' )
       Go Top
       Do While !Eof()
         If f_is_uch( st_a_uch, otd->kod_lpu )

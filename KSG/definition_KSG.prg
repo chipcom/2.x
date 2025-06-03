@@ -120,7 +120,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
 
     If uslOkaz < 3 .and. lVMP == 0 .and. f_is_oncology( 1 ) == 2 .and. Empty( lad_cr )
       If Select( 'ONKSL' ) == 0
-        g_use( dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'ONKSL' ) // Сведения о случае лечения онкологического заболевания
+        g_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'ONKSL' ) // Сведения о случае лечения онкологического заболевания
       Endif
       Select ONKSL
       find ( Str( human->kod, 7 ) )
@@ -269,7 +269,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       Skip
     Enddo
     If Select( 'MOSU' ) == 0
-      r_use( dir_server + 'mo_su', , 'MOSU' )
+      r_use( dir_server() + 'mo_su', , 'MOSU' )
     Endif
     Select MOHU
     find ( Str( human->kod, 7 ) )

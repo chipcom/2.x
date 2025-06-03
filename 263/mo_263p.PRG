@@ -25,11 +25,11 @@ Function _263_p_napr()
     Return Nil
   Endif
   mywait()
-  r_use( dir_server + 'kartote_', , '_KART_' )
-  r_use( dir_server + 'kartotek', , '_KART' )
+  r_use( dir_server() + 'kartote_', , '_KART_' )
+  r_use( dir_server() + 'kartotek', , '_KART' )
   Set Relation To kod into _KART_
-  r_use( dir_server + 'mo_nfile', , 'NF' )
-  g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+  r_use( dir_server() + 'mo_nfile', , 'NF' )
+  g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
   Set Relation To kod_k into _KART, To KOD_F_1out into NF
   If arr_m[ 5 ] == arr_m[ 6 ]
     Index On Str( n_napr, 6 ) to ( cur_dir() + 'tmp_napr' ) ;
@@ -83,7 +83,7 @@ Function _263_put_otd( lotd )
 
   If lotd > 0
     tmp_select := Select()
-    r_use( dir_server + 'mo_otd', , '_OTD' )
+    r_use( dir_server() + 'mo_otd', , '_OTD' )
     Goto ( lotd )
     If Empty( s := _otd->short_name )
       s := 'не вв'
@@ -154,8 +154,8 @@ Function f2_263_p_napr( nKey, oBrow, regim )
         k := polikl1_kart()
         Close databases // если вдруг вышли по <Esc>
         //
-        r_use( dir_server + 'kartote_', , '_KART_' )
-        r_use( dir_server + 'kartotek', , '_KART' )
+        r_use( dir_server() + 'kartote_', , '_KART_' )
+        r_use( dir_server() + 'kartotek', , '_KART' )
         Set Relation To kod into _KART_
         If k > 0
           Goto ( glob_kartotek )
@@ -164,8 +164,8 @@ Function f2_263_p_napr( nKey, oBrow, regim )
           mpol    := _kart->pol
           mphone  := emptyall( _kart_->PHONE_M, _kart_->PHONE_H, _kart_->PHONE_W )
         Endif
-        r_use( dir_server + 'mo_nfile', , 'NF' )
-        g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+        r_use( dir_server() + 'mo_nfile', , 'NF' )
+        g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
         Set Relation To kod_k into _KART, To KOD_F_1out into NF
         Set Index to ( cur_dir() + 'tmp_napr' )
         If k <= 0
@@ -187,7 +187,7 @@ Function f2_263_p_napr( nKey, oBrow, regim )
           Return iif( fl_found, -1, 1 )
         Endif
       Elseif napr->t_ans_1 == 2
-        r_use( dir_server + 'mo_nfina', , 'NFN' )
+        r_use( dir_server() + 'mo_nfina', , 'NFN' )
         Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == napr->KOD_F_1out
         find ( Str( napr->kod, 6 ) )
         If Found()
@@ -238,7 +238,7 @@ Function f2_263_p_napr( nKey, oBrow, regim )
         mstac_mo := ret_mo( m1stac_mo )[ _MO_SHORT_NAME ]
       Endif
       If m1vrach > 0
-        r_use( dir_server + 'mo_pers', , 'P2' )
+        r_use( dir_server() + 'mo_pers', , 'P2' )
         Goto ( m1vrach )
         MTAB_NOM := p2->tab_nom
         m1prvs := ret_new_spec( p2->prvs, p2->prvs_new )
@@ -483,11 +483,11 @@ Function _263_p_annul()
     Return Nil
   Endif
   mywait()
-  r_use( dir_server + 'kartote_', , '_KART_' )
-  r_use( dir_server + 'kartotek', , '_KART' )
+  r_use( dir_server() + 'kartote_', , '_KART_' )
+  r_use( dir_server() + 'kartotek', , '_KART' )
   Set Relation To kod into _KART_
-  r_use( dir_server + 'mo_nfile', , 'NF' )
-  g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+  r_use( dir_server() + 'mo_nfile', , 'NF' )
+  g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
   Set Relation To kod_k into _KART, To KOD_F_3out into NF
   If arr_m[ 5 ] == arr_m[ 6 ]
     Index On Str( n_napr, 6 ) to ( cur_dir() + 'tmp_napr' ) For for_263_p_annul() descending
@@ -609,7 +609,7 @@ Function f2_263_p_annul( nKey, oBrow, regim )
       mstac_mo := ret_mo( m1stac_mo )[ _MO_SHORT_NAME ]
       mrea_annul := inieditspr( A__MENUVERT, get_reason_annul(), m1rea_annul )
       If m1vrach > 0
-        r_use( dir_server + 'mo_pers', , 'P2' )
+        r_use( dir_server() + 'mo_pers', , 'P2' )
         Goto ( m1vrach )
         MTAB_NOM := p2->tab_nom
         m1prvs := ret_new_spec( p2->prvs, p2->prvs_new )
@@ -758,10 +758,10 @@ Function _263_p_svob_kojki()
     Return Nil
   Endif
   If ( si := i ) == 1
-    r_use( dir_server + 'mo_n7in', , 'N7' )
+    r_use( dir_server() + 'mo_n7in', , 'N7' )
     Index On codem + Upper( PadR( inieditspr( A__MENUVERT, arr_t007(), PROFIL_K ), 60 ) ) + ;
       Str( profil_k, 3 ) + Str( usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' )
-    r_use( dir_server + 'mo_nfile', , 'NF' )
+    r_use( dir_server() + 'mo_nfile', , 'NF' )
     Index On Upper( PadR( ret_mo( SubStr( nf->name_f, 12, 6 ) )[ _MO_SHORT_NAME ], 30 ) ) to ( cur_dir() + 'tmp_nf' ) ;
       For TIP_F == 7 .and. IN_OUT == 2 .and. ;
       AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == SubStr( nf->name_f, 12, 6 ) } ) > 0
@@ -788,7 +788,7 @@ Function _263_p_svob_kojki()
       f1_263_p_svob_kojki( 2 )
     Endif
   Elseif i == 2
-    r_use( dir_server + 'mo_n7in', , 'N7' )
+    r_use( dir_server() + 'mo_n7in', , 'N7' )
     Index On Str( profil_k, 3 ) to ( cur_dir() + 'tmp_n7' ) UNIQUE
     Go Top
     If Eof()
@@ -805,7 +805,7 @@ Function _263_p_svob_kojki()
       popup_2array( arr, T_ROW, T_COL + 5, sprofil_k, 1, @ret_arr, 'Выбор профиля койки', 'B/BG' )
       If ValType( ret_arr ) == 'A'
         sprofil_k := ret_arr[ 2 ]
-        r_use( dir_server + 'mo_nfile', , 'NF' )
+        r_use( dir_server() + 'mo_nfile', , 'NF' )
         Select N7
         Set Relation To kod_f into NF
         Index On Upper( PadR( ret_mo( codem )[ _MO_SHORT_NAME ], 30 ) ) + codem + Str( usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' ) ;
@@ -834,7 +834,7 @@ Function _263_p_svob_kojki()
       Endif
     Endif
   Elseif i == 3
-    r_use( dir_server + 'mo_n7in', , 'N7' )
+    r_use( dir_server() + 'mo_n7in', , 'N7' )
     Index On Str( profil, 3 ) + Str( usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' ) UNIQUE
     Go Top
     If Eof()
@@ -851,7 +851,7 @@ Function _263_p_svob_kojki()
       popup_2array( arr, T_ROW, T_COL + 5, sprofil, 1, @ret_arr, 'Выбор профиля мед.помощи', 'B/BG' )
       If ValType( ret_arr ) == 'A'
         sprofil := ret_arr[ 2 ]
-        r_use( dir_server + 'mo_nfile', , 'NF' )
+        r_use( dir_server() + 'mo_nfile', , 'NF' )
         Select N7
         Set Relation To kod_f into NF
         Index On Upper( PadR( ret_mo( codem )[ _MO_SHORT_NAME ], 30 ) ) + codem + Str( usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' ) ;

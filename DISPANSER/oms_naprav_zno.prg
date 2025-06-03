@@ -293,7 +293,7 @@ Function save_mo_onkna( mkod )
   arr := {}
   use_base( 'mo_su' )
   Use ( cur_dir() + 'tmp_onkna' ) New Alias TNAPR
-  g_use( dir_server + 'mo_onkna', dir_server + 'mo_onkna',  'NAPR' ) // онконаправления
+  g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna',  'NAPR' ) // онконаправления
   find ( Str( mkod, 7 ) )
   Do While napr->kod == mkod .and. !Eof()
     AAdd( arr, RecNo() )
@@ -606,13 +606,13 @@ Function collect_napr_zno( Loc_kod )
   Use ( cur_dir() + 'tmp_onkna' ) New Alias TNAPR
   lAlias := 'MOSU'
   If !( lAlias )->( Used() )
-    r_use( dir_server + 'mo_su', , 'MOSU' )
+    r_use( dir_server() + 'mo_su', , 'MOSU' )
   Endif
   lAlias := 'NAPR'
   If ( lAlias )->( Used() )
     ( lAlias )->( dbSelectArea() )
   Else
-    r_use( dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'NAPR' ) // онконаправления
+    r_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna', 'NAPR' ) // онконаправления
   Endif
   Set Relation To u_kod into MOSU
   find ( Str( Loc_kod, 7 ) )

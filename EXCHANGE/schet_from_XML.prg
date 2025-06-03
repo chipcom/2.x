@@ -43,20 +43,20 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
   Use ( cur_dir() + 'tmp_r_t11' ) New index ( cur_dir() + 'tmpt11' ) Alias T11
   Use ( cur_dir() + 'tmp_r_t12' ) New index ( cur_dir() + 'tmpt12' ) Alias T12
   Use ( cur_dir() + 'tmp_r_t1_1' ) New index ( cur_dir() + 'tmpt1_1' ) Alias T1_1
-  r_use( dir_server + 'mo_pers', , 'PERS' )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'mo_pers', , 'PERS' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
-  g_use( dir_server + 'human_u_', , 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  g_use( dir_server() + 'human_u_', , 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'mo_su', , 'MOSU' )
-  g_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  r_use( dir_server() + 'mo_su', , 'MOSU' )
+  g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
-  g_use( dir_server + 'mo_xml', , 'MO_XML' )
-  g_use( dir_server + 'human_3', { dir_server + 'human_3', dir_server + 'human_32' }, 'HUMAN_3' )
+  g_use( dir_server() + 'mo_xml', , 'MO_XML' )
+  g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
   use_base( 'human' )
   Set Order To 0
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
@@ -229,7 +229,7 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
       Endif
     Next
   Endif
-  r_use( dir_server + 'schet_',, 'SCH' )
+  r_use( dir_server() + 'schet_',, 'SCH' )
   Index On smo + Str( nn, nsh ) to ( cur_dir() + 'tmp_sch' ) For nyear == tmp1->_YEAR .and. nmonth == tmp1->_MONTH
   fl := .f.
   For i := 1 To Len( arr_schet )

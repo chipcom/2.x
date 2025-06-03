@@ -39,8 +39,8 @@ Function init_mo()
   create_mo_add()
   glob_arr_mo := getmo_mo('_mo_mo')
 
-  if hb_FileExists(dir_server + 'organiz' +sdbf)
-    R_Use(dir_server + 'organiz',,'ORG')
+  if hb_FileExists(dir_server() + 'organiz' +sdbf)
+    R_Use(dir_server() + 'organiz',,'ORG')
     if lastrec() > 0
       cCode := left(org->kod_tfoms,6)
     endif
@@ -64,8 +64,8 @@ Function init_mo()
                               space(6), '999999')) != NIL .and. !empty(cCode)
       if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == cCode})) > 0
         glob_mo := glob_arr_mo[i]
-        if hb_FileExists(dir_server + 'organiz' + sdbf)
-          G_Use(dir_server + 'organiz', , 'ORG')
+        if hb_FileExists(dir_server() + 'organiz' + sdbf)
+          G_Use(dir_server() + 'organiz', , 'ORG')
           if lastrec() == 0
             AddRecN()
           else

@@ -14,7 +14,7 @@ Function read_arr_dvn( lkod, is_all )
 
   If ! aliasIsUse
     oldSelect := Select()
-    r_use( dir_server + 'mo_pers',, 'TPERS' )
+    r_use( dir_server() + 'mo_pers',, 'TPERS' )
   Endif
 
   arr := read_arr_dispans( lkod )
@@ -205,7 +205,7 @@ Function save_arr_dvn( lkod )
 
   If ! aliasIsUse
     oldSelect := Select()
-    r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'TPERS' )
+    r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'TPERS' )
   Endif
 
   If Type( 'mfio' ) == 'C'

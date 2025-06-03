@@ -77,7 +77,7 @@ Function save_arr_DDS(lkod)
 
   if ! aliasIsUse
     oldSelect := Select()
-    R_Use(dir_server+"mo_pers",dir_server+"mo_pers","TPERS") 
+    R_Use(dir_server()+"mo_pers",dir_server()+"mo_pers","TPERS") 
   endif
 
   Private mvar
@@ -328,7 +328,7 @@ Function read_arr_DDS(lkod)
 
   if ! aliasIsUse
     oldSelect := Select()
-    R_Use(dir_server+"mo_pers",,"TPERS") 
+    R_Use(dir_server()+"mo_pers",,"TPERS") 
   endif
 
   arr := read_arr_DISPANS(lkod)

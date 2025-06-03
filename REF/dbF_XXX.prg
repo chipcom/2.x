@@ -107,7 +107,7 @@ Function viewf003()
       // нашли в файле
       Alert( 'Медицинское учреждение уже добавлено в справочник!' )
     Else
-      If g_use( dir_server + sbase, dir_server + sbase, sbase, , .t., )
+      If g_use( dir_server() + sbase, dir_server() + sbase, sbase, , .t., )
         ( sbase )->( dbGoTop() )
         Do While ! ( sbase )->( Eof() )
           prev_codem := ( sbase )->CODEM

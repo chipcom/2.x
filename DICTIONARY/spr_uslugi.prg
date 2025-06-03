@@ -80,11 +80,11 @@ Function f1_uslugi()
     Return func_error( 4, err_slock )
   Endif
   If !use_base( 'lusl' ) .or. !use_base( 'luslc' ) .or. ;
-      !g_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
-      dir_server + 'uslugi1s' }, 'USL1' ) .or. ;
-      !g_use( dir_server + 'uslugi', , 'USL' ) .or. ;
-      !g_use( dir_server + 'usl_otd', dir_server + 'usl_otd', 'UO' ) .or. ;
-      !r_use( dir_server + 'slugba', dir_server + 'slugba', 'SL' )
+      !g_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+      dir_server() + 'uslugi1s' }, 'USL1' ) .or. ;
+      !g_use( dir_server() + 'uslugi', , 'USL' ) .or. ;
+      !g_use( dir_server() + 'usl_otd', dir_server() + 'usl_otd', 'UO' ) .or. ;
+      !r_use( dir_server() + 'slugba', dir_server() + 'slugba', 'SL' )
     Close databases
     Return Nil
   Endif
@@ -114,10 +114,10 @@ Function f1_uslugi()
   Select USL
   Index On iif( kod > 0, '1', '0' ) + fsort_usl( shifr ) to ( cur_dir() + 'tmp_usl' )
   Set Index to ( cur_dir() + 'tmp_usl' ), ;
-    ( dir_server + 'uslugi' ), ;
-    ( dir_server + 'uslugish' ), ;
-    ( dir_server + 'uslugis1' ), ;
-    ( dir_server + 'uslugisl' )
+    ( dir_server() + 'uslugi' ), ;
+    ( dir_server() + 'uslugish' ), ;
+    ( dir_server() + 'uslugis1' ), ;
+    ( dir_server() + 'uslugisl' )
   Private str_find := '1', muslovie := 'usl->kod > 0'
   arr_block := { {|| findfirst( str_find ) }, ;
     {|| findlast( str_find ) }, ;
@@ -204,29 +204,29 @@ Function f2_es_uslugi( nKey, oBrow )
   Case nKey == K_DEL .and. usl->kod > 0
     stat_msg( 'Ждите! Производится проверка на наличие удаляемой услуги в других базах данных.' )
     mybell( 0.1, OK )
-    r_use( dir_server + 'human_u', dir_server + 'human_uk', 'HU' )
+    r_use( dir_server() + 'human_u', dir_server() + 'human_uk', 'HU' )
     find ( Str( usl->kod, 4 ) )
     fl := Found()
     hu->( dbCloseArea() )
     If !fl
-      r_use( dir_server + 'hum_p_u', dir_server + 'hum_p_uk', 'HU' )
+      r_use( dir_server() + 'hum_p_u', dir_server() + 'hum_p_uk', 'HU' )
       find ( Str( usl->kod, 4 ) )
       fl := Found()
       hu->( dbCloseArea() )
     Endif
     If !fl
-      r_use( dir_server + 'hum_oru', dir_server + 'hum_oruk', 'HU' )
+      r_use( dir_server() + 'hum_oru', dir_server() + 'hum_oruk', 'HU' )
       find ( Str( usl->kod, 4 ) )
       fl := Found()
       hu->( dbCloseArea() )
     Endif
     If !fl
-      r_use( dir_server + 'kas_pl_u', dir_server + 'kas_pl2u', 'HU' )
+      r_use( dir_server() + 'kas_pl_u', dir_server() + 'kas_pl2u', 'HU' )
       find ( Str( usl->kod, 4 ) )
       fl := Found()
       hu->( dbCloseArea() )
       If !fl
-        r_use( dir_server + 'kas_ortu', dir_server + 'kas_or2u', 'HU' )
+        r_use( dir_server() + 'kas_ortu', dir_server() + 'kas_or2u', 'HU' )
         find ( Str( usl->kod, 4 ) )
         fl := Found()
         hu->( dbCloseArea() )
@@ -536,7 +536,7 @@ Function f4_es_uslugi( k, fl_poisk, nKey )
       If v1 > 0
         Return func_error( 4, 'Данный шифр услуги уже встречается в справочнике услуг!' )
       Endif
-      r_use( dir_server + 'mo_su', dir_server + 'mo_sush', 'MOSU' )
+      r_use( dir_server() + 'mo_su', dir_server() + 'mo_sush', 'MOSU' )
       find ( mshifr )
       If Found()
         v1 := 1
@@ -795,7 +795,7 @@ Function spr_uslugi_ffoms()
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  If !use_base( 'luslf' ) .or. !g_use( dir_server + 'mo_su', , 'MOSU' )
+  If !use_base( 'luslf' ) .or. !g_use( dir_server() + 'mo_su', , 'MOSU' )
     Close databases
     Return Nil
   Endif
@@ -804,9 +804,9 @@ Function spr_uslugi_ffoms()
   Select MOSU
   Index On iif( kod > 0, '1', '0' ) + shifr1 to ( cur_dir() + 'tmp_usl' )
   Set Index to ( cur_dir() + 'tmp_usl' ), ;
-    ( dir_server + 'mo_su' ), ;
-    ( dir_server + 'mo_sush' ), ;
-    ( dir_server + 'mo_sush1' )
+    ( dir_server() + 'mo_su' ), ;
+    ( dir_server() + 'mo_sush' ), ;
+    ( dir_server() + 'mo_sush1' )
   Private str_find := '1', muslovie := 'mosu->kod > 0'
   arr_block := { {|| findfirst( str_find ) }, ;
     {|| findlast( str_find ) }, ;
@@ -889,12 +889,12 @@ Function f2_ff_uslugi( nKey, oBrow )
   Case nKey == K_DEL .and. mosu->kod > 0
     stat_msg( 'Ждите! Производится проверка на наличие удаляемой услуги в других базах данных.' )
     mybell( 0.1, OK )
-    r_use( dir_server + 'mo_hu', dir_server + 'mo_huk', 'HU' )
+    r_use( dir_server() + 'mo_hu', dir_server() + 'mo_huk', 'HU' )
     find ( Str( mosu->kod, 6 ) )
     fl := Found()
     hu->( dbCloseArea() )
     If !fl
-      r_use( dir_server + 'mo_onkna', , 'NAPR' ) // онконаправления
+      r_use( dir_server() + 'mo_onkna', , 'NAPR' ) // онконаправления
       Locate For U_KOD == mosu->kod
       fl := Found()
       napr->( dbCloseArea() )
@@ -1076,7 +1076,7 @@ Function f4_ff_uslugi( k, nKey )
         mshifr := Space( 10 )
       Endif
       If fl
-        r_use( dir_server + 'uslugi', dir_server + 'uslugish', 'USL' )
+        r_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
         find ( mshifr )
         If Found()
           fl := func_error( 4, 'Данный шифр услуги уже встречается в основном справочнике услуг!' )
@@ -1101,8 +1101,8 @@ Function f_k_uslugi( r1 )
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'PERSO' )
-  g_use( dir_server + 'uslugi_k', dir_server + 'uslugi_k', 'UK' )
+  r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'PERSO' )
+  g_use( dir_server() + 'uslugi_k', dir_server() + 'uslugi_k', 'UK' )
   Go Top
   If Eof()
     fl_found := .f.
@@ -1210,7 +1210,7 @@ Function f2_k_uslugi( nKey, oBrow )
         Unlock
         Commit
         If nKey == K_ENTER .and. !( old_shifr == mshifr )
-          g_use( dir_server + 'uslugi1k', { dir_server + 'uslugi1k' }, 'U1K' )
+          g_use( dir_server() + 'uslugi1k', { dir_server() + 'uslugi1k' }, 'U1K' )
           Do While .t.
             find ( old_shifr )
             If !Found()
@@ -1237,7 +1237,7 @@ Function f2_k_uslugi( nKey, oBrow )
       .and. f_esc_enter( 2, .t. )
     buf := save_maxrow()
     mywait()
-    g_use( dir_server + 'uslugi1k', { dir_server + 'uslugi1k' }, 'U1K' )
+    g_use( dir_server() + 'uslugi1k', { dir_server() + 'uslugi1k' }, 'U1K' )
     Do While .t.
       find ( uk->shifr )
       If !Found()
@@ -1270,8 +1270,8 @@ Function f3_k_uslugi()
   Private fl_found
 
   mywait()
-  g_use( dir_server + 'uslugi', dir_server + 'uslugish', 'USL' )
-  g_use( dir_server + 'uslugi1k', { dir_server + 'uslugi1k' }, 'U1K' )
+  g_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
+  g_use( dir_server() + 'uslugi1k', { dir_server() + 'uslugi1k' }, 'U1K' )
   adbf := dbStruct()
   AAdd( adbf, { 'rec_u1k', 'N', 6, 0 } )
   AAdd( adbf, { 'name', 'C', 64, 0 } )
@@ -1438,7 +1438,7 @@ Function f_trkoef()
   dbCreate( cur_dir() + 'tmp', uslugi )
   Use ( cur_dir() + 'tmp' ) Alias tmp
   Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp' )
-  If useuch_usl() .and. r_use( dir_server + 'uslugi', , 'USL' )
+  If useuch_usl() .and. r_use( dir_server() + 'uslugi', , 'USL' )
     k1 := usl->( LastRec() )
     k2 := uu->( LastRec() )
     Select UU
@@ -1770,8 +1770,8 @@ Function f_trpers()
     Return func_error( 4, err_slock )
   Endif
   mywait()
-  If g_use( dir_server + 'uch_pers', dir_server + 'uch_pers', 'UCHP' ) .and. ;
-      r_use( dir_server + 'mo_pers', , 'PERSO' )
+  If g_use( dir_server() + 'uch_pers', dir_server() + 'uch_pers', 'UCHP' ) .and. ;
+      r_use( dir_server() + 'mo_pers', , 'PERSO' )
     Index On Str( kod, 4 ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
     Select UCHP
     Set Order To 0
@@ -1811,7 +1811,7 @@ Function f_trpers()
     Select UCHP
     Set Relation To Str( kod, 4 ) into PERSO
     Index On Upper( perso->fio ) to ( cur_dir() + 'tmp_uch' ) For god == lgod .and. mes == lmes
-    Set Index to ( cur_dir() + 'tmp_uch' ), ( dir_server + 'uch_pers' )
+    Set Index to ( cur_dir() + 'tmp_uch' ), ( dir_server() + 'uch_pers' )
     Go Top
     alpha_browse( 2, 2, MaxRow() -2, 77, 'f1_trpers', color0, mtitle, 'BG+/GR', ;
       .f., , , , 'f2_trpers', , {, , , 'N/BG,W+/N,B/BG,BG+/B', .t., 180 } )
@@ -1882,7 +1882,7 @@ Function f_ns_uslugi()
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  g_use( dir_server + 'ns_usl', , 'UK' )
+  g_use( dir_server() + 'ns_usl', , 'UK' )
   Index On Upper( name ) to ( cur_dir() + 'tmp_usl' )
   Go Top
   If Eof()
@@ -1909,8 +1909,8 @@ Function f2_ns_uslugi( nKey, oBrow )
     fp := FCreate( nameFile ) ; n_list := 1 ; tek_stroke := 0
     add_string( '' )
     add_string( Center( 'Услуги, не совместимые по дате', sh ) )
-    r_use( dir_server + 'uslugi', dir_server + 'uslugish', 'USL' )
-    r_use( dir_server + 'ns_usl_k', dir_server + 'ns_usl_k', 'U1K' )
+    r_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
+    r_use( dir_server() + 'ns_usl_k', dir_server() + 'ns_usl_k', 'U1K' )
     Set Relation To shifr into USL
     Select UK
     Go Top
@@ -1976,7 +1976,7 @@ Function f2_ns_uslugi( nKey, oBrow )
   Case nKey == K_DEL .and. !Empty( uk->name ) .and. f_esc_enter( 2, .t. )
     buf := save_maxrow()
     mywait()
-    g_use( dir_server + 'ns_usl_k', dir_server + 'ns_usl_k', 'U1K' )
+    g_use( dir_server() + 'ns_usl_k', dir_server() + 'ns_usl_k', 'U1K' )
     Do While .t.
       find ( Str( uk->( RecNo() ), 6 ) )
       If !Found() ; exit ; Endif
@@ -2005,8 +2005,8 @@ Function f3_ns_uslugi()
   Private fl_found
 
   mywait()
-  r_use( dir_server + 'uslugi', dir_server + 'uslugish', 'USL' )
-  g_use( dir_server + 'ns_usl_k', dir_server + 'ns_usl_k', 'U1K' )
+  r_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
+  g_use( dir_server() + 'ns_usl_k', dir_server() + 'ns_usl_k', 'U1K' )
   adbf := dbStruct()
   AAdd( adbf, { 'rec_u1k', 'N', 6, 0 } )
   AAdd( adbf, { 'name', 'C', 64, 0 } )
@@ -2174,7 +2174,7 @@ Function f1_usl_uva( nKey, oBrow, regim, lrec )
 
   Do Case
   Case regim == 'open'
-    g_use( dir_server + 'usl_uva', dir_server + 'usl_uva', 'DBF1' )
+    g_use( dir_server() + 'usl_uva', dir_server() + 'usl_uva', 'DBF1' )
     Go Top
     If ( ret := !Eof() ) .and. lrec != Nil .and. lrec > 0
       Goto ( lrec )
@@ -2259,7 +2259,7 @@ Function f2_usl_diag( get, nKey )
 // Ввод/редактирование услуг, которые могут быть оказаны человеку только раз в году
 Function f_usl_raz()
 
-  Local buf := SaveScreen(), adbf, i, n_file := dir_server + 'usl1year' + smem()
+  Local buf := SaveScreen(), adbf, i, n_file := dir_server() + 'usl1year' + smem()
 
   Private fl_found := .f., arr_usl1year := {}
 
@@ -2267,7 +2267,7 @@ Function f_usl_raz()
     arr_usl1year := rest_arr( n_file )
   Endif
   mywait()
-  r_use( dir_server + 'uslugi', dir_server + 'uslugish', 'USL' )
+  r_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
   adbf := { { 'kod', 'N', 4, 0 }, ;
     { 'shifr', 'C', 10, 0 }, ;
     { 'name', 'C', 64, 0 } }
@@ -2388,7 +2388,7 @@ Function f5_uslugi( r1, c1 )
   Endif
   pc1 := c1
   pc2 := c2
-  g_use( dir_server + 'slugba', dir_server + 'slugba', 'SL' )
+  g_use( dir_server() + 'slugba', dir_server() + 'slugba', 'SL' )
   Go Top
   If LastRec() == 0
     addrec( 3 )
@@ -2480,7 +2480,7 @@ Function f52_uslugi( nKey, oBrow )
         Unlock
         Commit
         If nKey == K_ENTER .and. old_shifr != mshifr
-          g_use( dir_server + 'uslugi', { dir_server + 'uslugisl' }, 'USL' )
+          g_use( dir_server() + 'uslugi', { dir_server() + 'uslugisl' }, 'USL' )
           Do While .t.
             find ( Str( old_shifr, 3 ) )
             If !Found()
@@ -2507,7 +2507,7 @@ Function f52_uslugi( nKey, oBrow )
     Restore Screen From buf
     Return k
   Case nKey == K_DEL .and. !Empty( sl->name ) .and. f_esc_enter( 2 )
-    r_use( dir_server + 'uslugi', { dir_server + 'uslugisl' }, 'USL' )
+    r_use( dir_server() + 'uslugi', { dir_server() + 'uslugisl' }, 'USL' )
     find ( Str( sl->shifr, 3 ) )
     fl := Found()
     dbCloseArea()

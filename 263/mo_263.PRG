@@ -129,11 +129,11 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
   mywait( 'Проверка перед составлением...' )
   r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
   r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
-  r_use( dir_server + 'mo_pers', , 'P2' )
-  r_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'mo_pers', , 'P2' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
-  g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+  g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
   Set Relation To kod_k into KART
   Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_naprkodk' )
   // I01
@@ -727,7 +727,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
   // I07
   If is_napr_stac
     ta1 := {}
-    r_use( dir_server + 'mo_n7d', , 'D7' )
+    r_use( dir_server() + 'mo_n7d', , 'D7' )
     If LastRec() > 0 .and. !Empty( d7->DATE_R_EDI )
       If !emptyany( d7->DATE_R_EDI, d7->DATE_R_OUT, d7->DATE_OUT ) .and. ;
           d7->DATE_R_EDI == d7->DATE_R_OUT .and. d7->DATE_OUT == sys_date
@@ -747,7 +747,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
           AAdd( ta1, 'отчётная дата НЕКОРРЕКТНА ' + full_date( d7->DATE_R_EDI ) )
         Elseif _263_verify_year( d7->DATE_R_EDI, ta1 )
         Endif
-        g_use( dir_server + 'mo_n7out', , 'N7' )
+        g_use( dir_server() + 'mo_n7out', , 'N7' )
         Index On PadR( inieditspr( A__MENUVERT, arr_t007(), n7->PROFIL_K ), 60 ) + Str( n7->PROFIL_K, 3 ) + ;
           PadR( inieditspr( A__MENUVERT, getv002(), n7->PROFIL ), 20 ) + Str( n7->PROFIL, 3 ) to ( cur_dir() + 'tmp_n7' )
         Go Top
@@ -890,15 +890,15 @@ Function _263_to_sostavlenie()
   Private cFileProtokol := cur_dir() + 'tmp.txt', cTimeBegin := hour_min( Seconds() )
   name_txt := DToS( sys_date ) + '_' + CharRem( ':', PadR( SecToTime( Seconds() ), 8 ) ) + stxt()
   //
-  r_use( dir_server + 'mo_pers', , 'P2' )
-  r_use( dir_server + 'kartote2', , 'KART2' )
-  r_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'mo_pers', , 'P2' )
+  r_use( dir_server() + 'kartote2', , 'KART2' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_, To RecNo() into KART2
-  g_use( dir_server + 'mo_nfina', , 'NFN' )
-  g_use( dir_server + 'mo_nfile', , 'NF' )
+  g_use( dir_server() + 'mo_nfina', , 'NFN' )
+  g_use( dir_server() + 'mo_nfile', , 'NF' )
   Index On Str( tip_f, 1 ) + DToS( date_r ) + Str( in_out, 1 ) + Str( nn, 4 ) to ( cur_dir() + 'tmp_nf' )
-  g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+  g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
   Set Relation To kod_k into KART
 
   // I01
@@ -1519,7 +1519,7 @@ Function _263_to_sostavlenie()
     kart_->( dbCloseArea() )
     kart->( dbCloseArea() )
     napr->( dbCloseArea() )
-    g_use( dir_server + 'mo_n7d', , 'D7' )
+    g_use( dir_server() + 'mo_n7d', , 'D7' )
     nfile := 'I07T34M' + glob_mo[ _MO_KOD_TFOMS ]
     Select NF
     Index On Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) For in_out == 1
@@ -1527,7 +1527,7 @@ Function _263_to_sostavlenie()
     If Found()
       g_rlock( forever ) // бесконечная попытка блокировать запись
       // удалим предыдущий XML-файл
-      Delete File ( dir_server + dir_NAPR_MO() + hb_ps() + AllTrim( nf->NAME_F ) + szip() )
+      Delete File ( dir_server() + dir_NAPR_MO() + hb_ps() + AllTrim( nf->NAME_F ) + szip() )
     Else
       g_rlock( .t., forever ) // бесконечная попытка добавить запись
       nf->KOD := RecNo()            // код файла
@@ -1560,7 +1560,7 @@ Function _263_to_sostavlenie()
     mo_add_xml_stroke( oMo_d, 'MO', glob_mo[ _MO_KOD_FFOMS ] )
     mo_add_xml_stroke( oMo_d, 'LPU', glob_mo[ _MO_KOD_TFOMS ] )
     //
-    g_use( dir_server + 'mo_n7out', , 'N7' )
+    g_use( dir_server() + 'mo_n7out', , 'N7' )
     Index On PadR( inieditspr( A__MENUVERT, arr_t007(), n7->PROFIL_K ), 60 ) + Str( n7->PROFIL_K, 3 ) + ;
       PadR( inieditspr( A__MENUVERT, getv002(), n7->PROFIL ), 20 ) + Str( n7->PROFIL, 3 ) to ( cur_dir() + 'tmp_n7' )
     _263_put_10_days( nf->DATE_R )
@@ -1641,7 +1641,7 @@ Function _263_to_sostavlenie()
     If Len( arr_f ) > 0
       ASort( arr_f, , , {| x, y| x[ 1 ] < y[ 1 ] } )
       For i := 1 To Len( arr_f )
-        chip_copy_zipxml( dir_server + dir_NAPR_MO() + hb_ps() + arr_f[ i, 1 ] + szip(), Left( dir_263_to, Len( dir_263_to ) -1 ) )
+        chip_copy_zipxml( dir_server() + dir_NAPR_MO() + hb_ps() + arr_f[ i, 1 ] + szip(), Left( dir_263_to, Len( dir_263_to ) -1 ) )
         StrFile( hb_eol() + ;
           'Создан файл пакета ' + arr_f[ i, 1 ] + iif( arr_f[ i, 2 ] == 0, '', ' - ' + lstr( arr_f[ i, 2 ] ) + ' чел.' ) + ;
           hb_eol(), cFileProtokol, .t. )
@@ -1660,7 +1660,7 @@ Function _263_to_sostavlenie()
         hb_eol(), cFileProtokol, .t. )
       Copy File ( cFileProtokol ) to ( name_txt )
       // запишем файл протокола записи
-      chip_copy_zipxml( name_txt, dir_server + dir_NAPR_MO(), .t. )
+      chip_copy_zipxml( name_txt, dir_server() + dir_NAPR_MO(), .t. )
     Endif
     viewtext( devide_into_pages( cFileProtokol, 60, 80 ), , , , .t., , , 2 )
   Else
@@ -1687,7 +1687,7 @@ Function _263_to_protokol()
     tmp->named := SToD( Left( s, 8 ) ), ;
     tmp->namet := Left( Right( s, 6 ), 2 ) + ':' + Left( Right( s, 4 ), 2 ) + ':' + Right( s, 2 ), ;
     tmp->txt_f := s }
-  scandirfiles( dir_server + dir_NAPR_MO() + hb_ps(), '*' + stxt(), blk )
+  scandirfiles( dir_server() + dir_NAPR_MO() + hb_ps(), '*' + stxt(), blk )
   If LastRec() == 0
     Close databases
     rest_box( buf )
@@ -1719,7 +1719,7 @@ Function f2_263_to_protokol( nKey, oBrow, regim )
   Do Case
   Case regim == 'edit'
     If nKey == K_ENTER
-      viewtext( devide_into_pages( dir_server + dir_NAPR_MO() + hb_ps() + tmp->txt_f + stxt(), 60, 80 ), , , , .t., , , 2 )
+      viewtext( devide_into_pages( dir_server() + dir_NAPR_MO() + hb_ps() + tmp->txt_f + stxt(), 60, 80 ), , , , .t., , , 2 )
     Else
       Keyboard ''
     Endif
@@ -1735,8 +1735,8 @@ Function _263_to_i01()
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  Private goal_dir := dir_server + dir_NAPR_MO() + hb_ps()
-  g_use( dir_server + 'mo_nfile', , 'NF' )
+  Private goal_dir := dir_server() + dir_NAPR_MO() + hb_ps()
+  g_use( dir_server() + 'mo_nfile', , 'NF' )
   Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
     For in_out == 1 .and. tip_f == 1 DESCENDING
   Go Top
@@ -1826,7 +1826,7 @@ Function f2_263_to_i01( nKey, oBrow, regim )
         mybell( 2 )
         If f_esc_enter( 'аннулирования', .t. )
           mywait()
-          g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+          g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
           Index On kod to ( cur_dir() + 'tmp_napr' ) For KOD_F_1out == nf->kod
           arr := {}
           dbEval( {|| AAdd( arr, napr->( RecNo() ) ) } )
@@ -1866,12 +1866,12 @@ Function f2_263_to_i01( nKey, oBrow, regim )
       add_string( 'количество пациентов ' + lstr( nf->kol ) + ' чел.' )
       add_string( '' )
       add_string( 'Это информационный пакет со сведениями о выписанных в поликлинике направлениях' )
-      r_use( dir_server + 'kartote_', , '_KART_' )
-      r_use( dir_server + 'kartotek', , '_KART' )
+      r_use( dir_server() + 'kartote_', , '_KART_' )
+      r_use( dir_server() + 'kartotek', , '_KART' )
       Set Relation To kod into _KART_
-      r_use( dir_server + 'mo_nfina', , 'NFN' )
+      r_use( dir_server() + 'mo_nfina', , 'NFN' )
       Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == nf->kod
-      r_use( dir_server + 'mo_nnapr', , 'NAPR' )
+      r_use( dir_server() + 'mo_nnapr', , 'NAPR' )
       Set Relation To kod_k into _KART
       Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For KOD_F_1out == nf->kod
       i := 0
@@ -1925,8 +1925,8 @@ Function _263_to_i03()
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  Private goal_dir := dir_server + dir_NAPR_MO() + hb_ps()
-  g_use( dir_server + 'mo_nfile', , 'NF' )
+  Private goal_dir := dir_server() + dir_NAPR_MO() + hb_ps()
+  g_use( dir_server() + 'mo_nfile', , 'NF' )
   Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
     For in_out == 1 .and. tip_f == 3 DESCENDING
   Go Top
@@ -1983,7 +1983,7 @@ Function f2_263_to_i03( nKey, oBrow, regim )
         mybell( 2 )
         If f_esc_enter( 'аннулирования', .t. )
           mywait()
-          g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+          g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
           Index On kod to ( cur_dir() + 'tmp_napr' ) For KOD_F_3out == nf->kod
           arr := {}
           dbEval( {|| AAdd( arr, napr->( RecNo() ) ) } )
@@ -2023,12 +2023,12 @@ Function f2_263_to_i03( nKey, oBrow, regim )
       add_string( 'количество пациентов ' + lstr( nf->kol ) + ' чел.' )
       add_string( '' )
       add_string( 'Это информационный пакет с аннулированными направлениями' )
-      r_use( dir_server + 'kartote_', , '_KART_' )
-      r_use( dir_server + 'kartotek', , '_KART' )
+      r_use( dir_server() + 'kartote_', , '_KART_' )
+      r_use( dir_server() + 'kartotek', , '_KART' )
       Set Relation To kod into _KART_
-      r_use( dir_server + 'mo_nfina', , 'NFN' )
+      r_use( dir_server() + 'mo_nfina', , 'NFN' )
       Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == nf->kod
-      r_use( dir_server + 'mo_nnapr', , 'NAPR' )
+      r_use( dir_server() + 'mo_nnapr', , 'NAPR' )
       Set Relation To kod_k into _KART
       Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For KOD_F_3out == nf->kod
       i := 0
@@ -2096,8 +2096,8 @@ Function _263_to_i04( k )
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  Private goal_dir := dir_server + dir_NAPR_MO() + hb_ps()
-  g_use( dir_server + 'mo_nfile', , 'NF' )
+  Private goal_dir := dir_server() + dir_NAPR_MO() + hb_ps()
+  g_use( dir_server() + 'mo_nfile', , 'NF' )
   Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
     For in_out == 1 .and. tip_f == ppaket DESCENDING
   Go Top
@@ -2154,7 +2154,7 @@ Function f2_263_to_i04( nKey, oBrow, regim )
         mybell( 2 )
         If f_esc_enter( 'аннулирования', .t. )
           mywait()
-          g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+          g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
           Index On kod to ( cur_dir() + 'tmp_napr' ) For KOD_F_4out == nf->kod
           arr := {}
           dbEval( {|| AAdd( arr, napr->( RecNo() ) ) } )
@@ -2198,12 +2198,12 @@ Function f2_263_to_i04( nKey, oBrow, regim )
       Else
         add_string( 'Это информационный пакет с госпитализациями без направлений (экстренно/неотложно)' )
       Endif
-      r_use( dir_server + 'kartote_', , '_KART_' )
-      r_use( dir_server + 'kartotek', , '_KART' )
+      r_use( dir_server() + 'kartote_', , '_KART_' )
+      r_use( dir_server() + 'kartotek', , '_KART' )
       Set Relation To kod into _KART_
-      r_use( dir_server + 'mo_nfina', , 'NFN' )
+      r_use( dir_server() + 'mo_nfina', , 'NFN' )
       Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == nf->kod
-      r_use( dir_server + 'mo_nnapr', , 'NAPR' )
+      r_use( dir_server() + 'mo_nnapr', , 'NAPR' )
       Set Relation To kod_k into _KART
       Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For KOD_F_4out == nf->kod
       i := 0
@@ -2270,10 +2270,10 @@ Function _263_to_i06()
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  Private goal_dir := dir_server + dir_NAPR_MO() + hb_ps(), ;
+  Private goal_dir := dir_server() + dir_NAPR_MO() + hb_ps(), ;
     mm_tip_vyb := { { 'выписан', 1 }, { 'умер', 2 }, { 'перевод в другое отделение', 3 } }
 
-  g_use( dir_server + 'mo_nfile', , 'NF' )
+  g_use( dir_server() + 'mo_nfile', , 'NF' )
   Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
     For in_out == 1 .and. tip_f == 6 DESCENDING
   Go Top
@@ -2330,7 +2330,7 @@ Function f2_263_to_i06( nKey, oBrow, regim )
         mybell( 2 )
         If f_esc_enter( 'аннулирования', .t. )
           mywait()
-          g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+          g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
           Index On kod to ( cur_dir() + 'tmp_napr' ) For KOD_F_6out == nf->kod
           arr := {}
           dbEval( {|| AAdd( arr, napr->( RecNo() ) ) } )
@@ -2370,12 +2370,12 @@ Function f2_263_to_i06( nKey, oBrow, regim )
       add_string( 'количество пациентов ' + lstr( nf->kol ) + ' чел.' )
       add_string( '' )
       add_string( 'Это информационный пакет с выписанными пациентами' )
-      r_use( dir_server + 'kartote_', , '_KART_' )
-      r_use( dir_server + 'kartotek', , '_KART' )
+      r_use( dir_server() + 'kartote_', , '_KART_' )
+      r_use( dir_server() + 'kartotek', , '_KART' )
       Set Relation To kod into _KART_
-      r_use( dir_server + 'mo_nfina', , 'NFN' )
+      r_use( dir_server() + 'mo_nfina', , 'NFN' )
       Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == nf->kod
-      r_use( dir_server + 'mo_nnapr', , 'NAPR' )
+      r_use( dir_server() + 'mo_nnapr', , 'NAPR' )
       Set Relation To kod_k into _KART
       Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For KOD_F_6out == nf->kod
       i := 0
@@ -2576,17 +2576,17 @@ Function _263_from_read()
   StrFile( Space( 10 ) + full_date( sys_date ) + 'г. ' + cTimeBegin + hb_eol(), cFileProtokol, .t. )
   name_txt := DToS( sys_date ) + '_' + CharRem( ':', PadR( SecToTime( Seconds() ), 8 ) ) + stxt()
   //
-  g_use( dir_server + 'mo_kfio', , 'KFIO' )
+  g_use( dir_server() + 'mo_kfio', , 'KFIO' )
   Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
-  g_use( dir_server + 'mo_kismo', , 'KSN' )
+  g_use( dir_server() + 'mo_kismo', , 'KSN' )
   Index On Str( kod, 7 ) to ( cur_dir() + 'tmpkismo' )
   use_base( 'kartotek' )
-  g_use( dir_server + 'mo_n7in', , 'N7' )
+  g_use( dir_server() + 'mo_n7in', , 'N7' )
   Index On Str( kod_f, 6 ) to ( cur_dir() + 'tmp7in' )
-  g_use( dir_server + 'mo_nfina', , 'NFN' )
-  g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+  g_use( dir_server() + 'mo_nfina', , 'NFN' )
+  g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
   Index On Upper( id_1 ) to ( cur_dir() + 'tmp_napr' )
-  g_use( dir_server + 'mo_nfile', , 'NF' )
+  g_use( dir_server() + 'mo_nfile', , 'NF' )
   For ii := 1 To Len( arr_f )
     name_zip := strippath( arr_f[ ii ] )  // имя файла без пути
     cName := name_without_ext( name_zip )
@@ -3042,7 +3042,7 @@ Function _263_from_read()
                     Skip
                   Enddo
                   nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
-                  chip_copy_zipxml( arr_f[ ii ], dir_server + dir_NAPR_TF() )
+                  chip_copy_zipxml( arr_f[ ii ], dir_server() + dir_NAPR_TF() )
                 Endif
               Case type_paket == 3
                 If _263_i03_tmpfile( af[ 1 ], aerr )
@@ -3122,7 +3122,7 @@ Function _263_from_read()
                     Skip
                   Enddo
                   nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
-                  chip_copy_zipxml( arr_f[ ii ], dir_server + dir_NAPR_TF() )
+                  chip_copy_zipxml( arr_f[ ii ], dir_server() + dir_NAPR_TF() )
                 Endif
               Case type_paket == 4 .or. type_paket == 5
                 If _263_i04_tmpfile( af[ 1 ], aerr )
@@ -3267,7 +3267,7 @@ Function _263_from_read()
                     Skip
                   Enddo
                   nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
-                  chip_copy_zipxml( arr_f[ ii ], dir_server + dir_NAPR_TF() )
+                  chip_copy_zipxml( arr_f[ ii ], dir_server() + dir_NAPR_TF() )
                 Endif
               Case type_paket == 6
                 If _263_i06_tmpfile( af[ 1 ], aerr )
@@ -3396,7 +3396,7 @@ Function _263_from_read()
                     Skip
                   Enddo
                   nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
-                  chip_copy_zipxml( arr_f[ ii ], dir_server + dir_NAPR_TF() )
+                  chip_copy_zipxml( arr_f[ ii ], dir_server() + dir_NAPR_TF() )
                 Endif
               Case type_paket == 7
                 fl := .t.
@@ -3519,7 +3519,7 @@ Function _263_from_read()
                     Skip
                   Enddo
                   nf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
-                  // chip_copy_zipXML(arr_f[ii], dir_server + dir_NAPR_TF())
+                  // chip_copy_zipXML(arr_f[ii], dir_server() + dir_NAPR_TF())
                 Endif
               Endcase
               dbUnlockAll()
@@ -3548,7 +3548,7 @@ Function _263_from_read()
     If is_read
       Copy File ( cFileProtokol ) to ( name_txt )
       // запишем файл протокола обработки
-      chip_copy_zipxml( name_txt, dir_server + dir_NAPR_TF(), .t. )
+      chip_copy_zipxml( name_txt, dir_server() + dir_NAPR_TF(), .t. )
     Endif
     If !Empty( dir_263_copy )
       StrFile( hb_eol() + 'Перезапись прочитанных файлов в каталог ' + dir_263_copy + hb_eol() + ;
@@ -3585,7 +3585,7 @@ Function _263_from_protokol()
     tmp->named := SToD( Left( s, 8 ) ), ;
     tmp->namet := Left( Right( s, 6 ), 2 ) + ':' + Left( Right( s, 4 ), 2 ) + ':' + Right( s, 2 ), ;
     tmp->txt_f := s }
-  scandirfiles( dir_server + dir_NAPR_TF() + hb_ps(), '*' + stxt(), blk )
+  scandirfiles( dir_server() + dir_NAPR_TF() + hb_ps(), '*' + stxt(), blk )
   If LastRec() == 0
     Close databases
     rest_box( buf )
@@ -3617,7 +3617,7 @@ Function f2_263_from_protokol( nKey, oBrow, regim )
   Do Case
   Case regim == 'edit'
     If nKey == K_ENTER
-      viewtext( devide_into_pages( dir_server + dir_NAPR_TF() + hb_ps() + tmp->txt_f + stxt(), 60, 80 ), , , , .t., , , 2 )
+      viewtext( devide_into_pages( dir_server() + dir_NAPR_TF() + hb_ps() + tmp->txt_f + stxt(), 60, 80 ), , , , .t., , , 2 )
     Else
       Keyboard ''
     Endif
@@ -3633,7 +3633,7 @@ Function _263_from_i01()
   If !g_slock( str_sem )
     Return func_error( 4, err_slock )
   Endif
-  g_use( dir_server + 'mo_nfile', , 'NF' )
+  g_use( dir_server() + 'mo_nfile', , 'NF' )
   Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
     For in_out == 2 .and. tip_f == 1 DESCENDING
   Go Top
@@ -3710,7 +3710,7 @@ Function f2_263_from_i01( nKey, oBrow, regim )
         stat_msg( s ) ; mybell( 1 )
         If f_esc_enter( 'аннулирования', .t. )
           mywait()
-          g_use( dir_server + 'mo_nnapr', , 'NAPR' )
+          g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
           Index On kod to ( cur_dir() + 'tmp_napr' ) For KOD_F_1in == nf->kod
           arr := {}
           dbEval( {|| AAdd( arr, napr->( RecNo() ) ) } )
@@ -3747,10 +3747,10 @@ Function f2_263_from_i01( nKey, oBrow, regim )
       add_string( '' )
       add_string( 'Это информационный пакет со сведениями о выписанных в поликлинике направлениях' )
       add_string( 'от МО ' + CharOne( '"', ret_mo( SubStr( nf->name_f, 12, 6 ) )[ _MO_SHORT_NAME ] ) )
-      r_use( dir_server + 'kartote_', , '_KART_' )
-      r_use( dir_server + 'kartotek', , '_KART' )
+      r_use( dir_server() + 'kartote_', , '_KART_' )
+      r_use( dir_server() + 'kartotek', , '_KART' )
       Set Relation To kod into _KART_
-      r_use( dir_server + 'mo_nnapr', , 'NAPR' )
+      r_use( dir_server() + 'mo_nnapr', , 'NAPR' )
       Set Relation To kod_k into _KART
       Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) ;
         For KOD_F_1in == nf->kod

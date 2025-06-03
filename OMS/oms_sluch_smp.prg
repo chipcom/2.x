@@ -58,8 +58,8 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       rec_inogSMO := 0, ;
       mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 )
     If kod_kartotek > 0
-      r_use( dir_server + 'kartote_', , 'KART_' )
-      r_use( dir_server + 'kartotek', , 'KART' )
+      r_use( dir_server() + 'kartote_', , 'KART_' )
+      r_use( dir_server() + 'kartotek', , 'KART' )
       Select KART
       Goto ( kod_kartotek )
       Select KART_
@@ -262,15 +262,15 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     m1ishod := ishod_umolch
   Endif
   //
-  r_use( dir_server + 'human_2', , 'HUMAN_2' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', , 'HUMAN' )
+  r_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, RecNo() into HUMAN_2
   If mkod_k > 0
     If mem_smp_input == 0
-      r_use( dir_server + 'kartote_', , 'KART_' )
+      r_use( dir_server() + 'kartote_', , 'KART_' )
       Goto ( mkod_k )
-      r_use( dir_server + 'kartotek', , 'KART' )
+      r_use( dir_server() + 'kartotek', , 'KART' )
       Goto ( mkod_k )
       M1FIO       := 1
       mfio        := kart->fio
@@ -296,7 +296,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     Endif
     // проверка исхода = СМЕРТЬ
     Select HUMAN
-    Set Index to ( dir_server + 'humankk' )
+    Set Index to ( dir_server() + 'humankk' )
     // find (str(mkod_k, 7))
     // do while human->kod_k == mkod_k .and. !eof()
     // if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
@@ -360,7 +360,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       m1prer_b := human_2->PN2
     Endif
     //
-    r_use( dir_server + 'uslugi', , 'USL' )
+    r_use( dir_server() + 'uslugi', , 'USL' )
     use_base( 'human_u' )
     find ( Str( Loc_kod, 7 ) )
     Do While hu->kod == Loc_kod .and. !Eof()
@@ -392,8 +392,8 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       deleterec( .t., .f. )  // очистка записи без пометки на удаление
     Next
     If mem_smp_tel == 1
-      r_use( dir_server + 'mo_su', , 'MOSU' )
-      g_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+      r_use( dir_server() + 'mo_su', , 'MOSU' )
+      g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
       find ( Str( Loc_kod, 7 ) )
       Do While mohu->kod == Loc_kod .and. !Eof()
         mosu->( dbGoto( mohu->u_kod ) )
@@ -418,7 +418,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     m1ismo := msmo ; msmo := '34'
   Endif
   If m1vrach > 0
-    r_use( dir_server + 'mo_pers', , 'P2' )
+    r_use( dir_server() + 'mo_pers', , 'P2' )
     Goto ( m1vrach )
     MTAB_NOM := p2->tab_nom
     m1prvs := -ret_new_spec( p2->prvs, p2->prvs_new )
@@ -433,9 +433,9 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
   MF14_EKST := inieditspr( A__MENUVERT, mm_ekst_smp, M1F14_EKST )
   mrslt     := inieditspr( A__MENUVERT, getv009(), m1rslt )
   mishod    := inieditspr( A__MENUVERT, getv012(), m1ishod )
-  mlpu      := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', m1lpu )
-  motd      := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', m1otd )
-  MKEMVYD   := inieditspr( A__POPUPMENU, dir_server + 's_kemvyd', M1KEMVYD )
+  mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
+  motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
+  MKEMVYD   := inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', M1KEMVYD )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf, m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
@@ -767,8 +767,8 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       use_base( 'lusl' )
       use_base( 'luslc' )
       use_base( 'uslugi' )
-      r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
-        dir_server + 'uslugi1s' }, 'USL1' )
+      r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+        dir_server() + 'uslugi1s' }, 'USL1' )
       Private mu_kod, mu_cena
       glob_podr := '' ; glob_otd_dep := 0
       mu_kod := foundourusluga( lshifr, mk_data, m1PROFIL, M1VZROS_REB, @mu_cena )
@@ -841,7 +841,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
           Endif
         Endif
         If m1MEST_INOG == 9 .or. newMEST_INOG == 9
-          g_use( dir_server + 'mo_kfio', , 'KFIO' )
+          g_use( dir_server() + 'mo_kfio', , 'KFIO' )
           Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
           find ( Str( mkod_k, 7 ) )
           If Found()
@@ -864,7 +864,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
           Endif
         Endif
         If fl_nameismo .or. rec_inogSMO > 0
-          g_use( dir_server + 'mo_kismo', , 'SN' )
+          g_use( dir_server() + 'mo_kismo', , 'SN' )
           Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
           find ( Str( mkod_k, 7 ) )
           If Found()
@@ -1003,7 +1003,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         Endif
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
-        g_use( dir_server + 'mo_hismo', , 'SN' )
+        g_use( dir_server() + 'mo_hismo', , 'SN' )
         Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()

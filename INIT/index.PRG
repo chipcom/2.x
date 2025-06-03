@@ -43,7 +43,7 @@ Function pereindex()
     index_base( array_files_DB[ i ] )
   Next
   //
-  Use ( dir_server + "mo_ppadd" ) new
+  Use ( dir_server() + "mo_ppadd" ) new
   Pack
   Use
   //
@@ -71,17 +71,17 @@ Function pereindex()
     Endif
     Skip
   Enddo
-  Index On if( kod > 0, "1", "0" ) + kod_mis to ( dir_server + "kartotee" ) progress
+  Index On if( kod > 0, "1", "0" ) + kod_mis to ( dir_server() + "kartotee" ) progress
   Close databases
   //
   mywait()
-  Use ( dir_server + "mo_raksh" ) New Alias RAKSH
+  Use ( dir_server() + "mo_raksh" ) New Alias RAKSH
   Index On Str( kod_raks, 6 ) to ( cur_dir() + "tmpraksh" )
-  Use ( dir_server + "mo_raks" ) New Alias RAKS
+  Use ( dir_server() + "mo_raks" ) New Alias RAKS
   Index On Str( akt, 6 ) to ( cur_dir() + "tmpraks" )
-  Use ( dir_server + "mo_rak" ) New Alias RAK
+  Use ( dir_server() + "mo_rak" ) New Alias RAK
   Index On Str( akt, 6 ) to ( cur_dir() + "tmprak" )
-  Use ( dir_server + "mo_xml" ) New Alias MO_XML
+  Use ( dir_server() + "mo_xml" ) New Alias MO_XML
   Locate For kod == 0 .and. !Deleted()
   If Found()
     Delete // если прервали процесс
@@ -146,11 +146,11 @@ Function pereindex()
   Select RAKSH
   Pack // упаковка файла нижнего уровня
   Close databases
-  Use ( dir_server + "mo_rpdsh" ) new
+  Use ( dir_server() + "mo_rpdsh" ) new
   Pack // упаковка файла нижнего уровня
   Close databases
   //
-  /*Use (dir_server+"mo_rak") new alias RAK
+  /*Use (dir_server()+"mo_rak") new alias RAK
   index on str(akt,6) to (cur_dir()+"tmprak") for empty(kod_xml)
   arr_rak := {}
   dbeval({|| aadd(arr_rak, {akt,codea,nakt,dakt}) })
@@ -164,7 +164,7 @@ Function pereindex()
     max_date += 10
     select RAK
     set index to
-    Use (dir_server+"mo_xml") new alias MO_XML
+    Use (dir_server()+"mo_xml") new alias MO_XML
     index on str(kod,6) to (cur_dir()+"tmpxml") ;
         for TIP_IN == _XML_FILE_RAK .and. between(DFILE,min_date,max_date)
     arr_xml := {}
@@ -175,10 +175,10 @@ Function pereindex()
     for j := 1 to len(arr_xml)
       close databases
       cFile := alltrim(arr_xml[j,2])
-      if Extract_Zip_XML(dir_server+dir_XML_TF(),cFile+szip()) != NIL
+      if Extract_Zip_XML(dir_server()+dir_XML_TF(),cFile+szip()) != NIL
         oXmlDoc := HXMLDoc():Read(_tmp_dir1()+cFile+sxml())
         reestr_rak_tmpfile(oXmlDoc,{},_tmp_dir1()+cFile+szip())
-        Use (dir_server+"mo_rak") new alias RAK
+        Use (dir_server()+"mo_rak") new alias RAK
         select TMP2
         go top
         do while !eof()
@@ -197,7 +197,7 @@ Function pereindex()
   endif
   close databases*/
 
-  Use ( dir_server + "mo_nnapr" ) New Alias NAPR
+  Use ( dir_server() + "mo_nnapr" ) New Alias NAPR
   Go Top
   Do While !Eof()
     If !Empty( napr->num_d ) .and. !Between( napr->USL_OK_1, 1, 2 )
@@ -208,7 +208,7 @@ Function pereindex()
     Endif
     Skip
   Enddo
-  Use ( dir_server + "mo_n7in" ) New Alias N7i
+  Use ( dir_server() + "mo_n7in" ) New Alias N7i
   Go Top
   Do While !Eof()
     If !Between( n7i->USL_OK, 1, 2 )
@@ -216,7 +216,7 @@ Function pereindex()
     Endif
     Skip
   Enddo
-  Use ( dir_server + "mo_n7out" ) New Alias N7
+  Use ( dir_server() + "mo_n7out" ) New Alias N7
   Go Top
   Do While !Eof()
     If !Between( n7->USL_OK, 1, 2 )
@@ -225,7 +225,7 @@ Function pereindex()
     Skip
   Enddo
   Close databases
-  // Use ( dir_server + "mo_kekh" ) New Alias HU
+  // Use ( dir_server() + "mo_kekh" ) New Alias HU
   // Go Top
   // Do While !Eof()
   //   If !Between( hu->USL_OK, 1, 3 )
@@ -248,10 +248,10 @@ Function pereindex_263()
   Local n, pole, buf := save_maxrow()
 
   stat_msg( "Поиск/попытка исправления избыточных ошибок в направлениях на госпитализацию" )
-  g_use( dir_server + "mo_nnapr",, "NAPR" )
-  g_use( dir_server + "mo_nfina",, "NFN" )
+  g_use( dir_server() + "mo_nnapr",, "NAPR" )
+  g_use( dir_server() + "mo_nfina",, "NFN" )
   Index On Str( KOD_F, 6 ) + Str( KOD_N, 6 ) to ( cur_dir() + "tmp_nfn" )
-  g_use( dir_server + "mo_nfile",, "NF" )
+  g_use( dir_server() + "mo_nfile",, "NF" )
   Index On kod to ( cur_dir() + "tmp_nf" ) For in_out == 1 .and. tip_f < 7 .and. Year( date_r ) > 2016
   Go Top
   Do While !Eof()
@@ -326,75 +326,75 @@ Function ___uslugi()
     Return Nil
   Endif
   //
-  e_use( dir_server + "uslugi",, "USL" )
+  e_use( dir_server() + "uslugi",, "USL" )
 /*if lastrec() < 8000
   close databases
   return NIL
 endif*/
   mywait()
   //
-  e_use( dir_server + "human_u", { dir_server + "human_u", ;
-    dir_server + "human_uk", ;
-    dir_server + "human_ud", ;
-    dir_server + "human_uv", ;
-    dir_server + "human_ua" }, "HU" )
-  // index on str(u_kod,4) to (dir_server+"human_uk") progress
+  e_use( dir_server() + "human_u", { dir_server() + "human_u", ;
+    dir_server() + "human_uk", ;
+    dir_server() + "human_ud", ;
+    dir_server() + "human_uv", ;
+    dir_server() + "human_ua" }, "HU" )
+  // index on str(u_kod,4) to (dir_server()+"human_uk") progress
   Set Order To 2
   //
-  e_use( dir_server + "hum_p_u", { dir_server + "hum_p_u", ;
-    dir_server + "hum_p_uk", ;
-    dir_server + "hum_p_ud", ;
-    dir_server + "hum_p_uv", ;
-    dir_server + "hum_p_ua" }, "HPU" )
-  // index on str(u_kod,4) to (dir_server+"hum_p_uk") progress
+  e_use( dir_server() + "hum_p_u", { dir_server() + "hum_p_u", ;
+    dir_server() + "hum_p_uk", ;
+    dir_server() + "hum_p_ud", ;
+    dir_server() + "hum_p_uv", ;
+    dir_server() + "hum_p_ua" }, "HPU" )
+  // index on str(u_kod,4) to (dir_server()+"hum_p_uk") progress
   Set Order To 2
   //
-  e_use( dir_server + "pu_cena", { dir_server + "pu_cena", ;
-    dir_server + "pu_cenau" }, "PUC" )
-  // index on str(kod_usl,4)+str(kod_date,4) to (dir_server+"pu_cenau") progress
+  e_use( dir_server() + "pu_cena", { dir_server() + "pu_cena", ;
+    dir_server() + "pu_cenau" }, "PUC" )
+  // index on str(kod_usl,4)+str(kod_date,4) to (dir_server()+"pu_cenau") progress
   Set Order To 2
   //
-  e_use( dir_server + "hum_oru", { dir_server + "hum_oru", ;
-    dir_server + "hum_oruk", ;
-    dir_server + "hum_orud", ;
-    dir_server + "hum_oruv", ;
-    dir_server + "hum_orua" }, "HOU" )
-  // index on str(u_kod,4) to (dir_server+"hum_oruk") progress
+  e_use( dir_server() + "hum_oru", { dir_server() + "hum_oru", ;
+    dir_server() + "hum_oruk", ;
+    dir_server() + "hum_orud", ;
+    dir_server() + "hum_oruv", ;
+    dir_server() + "hum_orua" }, "HOU" )
+  // index on str(u_kod,4) to (dir_server()+"hum_oruk") progress
   Set Order To 2
   //
-  e_use( dir_server + "kas_pl_u", { dir_server + "kas_pl1u", ;
-    dir_server + "kas_pl2u" }, "KPU" )
-  // index on str(u_kod,4) to (dir_server+"kas_pl2u") progress
+  e_use( dir_server() + "kas_pl_u", { dir_server() + "kas_pl1u", ;
+    dir_server() + "kas_pl2u" }, "KPU" )
+  // index on str(u_kod,4) to (dir_server()+"kas_pl2u") progress
   Set Order To 2
   //
-  e_use( dir_server + "kas_ortu", { dir_server + "kas_or1u", ;
-    dir_server + "kas_or2u" }, "KOU" )
-  // index on str(u_kod,4) to (dir_server+"kas_or2u") progress
+  e_use( dir_server() + "kas_ortu", { dir_server() + "kas_or1u", ;
+    dir_server() + "kas_or2u" }, "KOU" )
+  // index on str(u_kod,4) to (dir_server()+"kas_or2u") progress
   Set Order To 2
   //
-  e_use( dir_server + "kas_usl",, "KUU" )
+  e_use( dir_server() + "kas_usl",, "KUU" )
   Index On Str( u_kod, 4 ) to ( cur_dir() + "tmp_kuu" )
   //
-  e_use( dir_server + "kas_usld",, "KUUD" )
+  e_use( dir_server() + "kas_usld",, "KUUD" )
   Index On Str( u_kod, 4 ) to ( cur_dir() + "tmp_kuud" )
   //
-  e_use( dir_server + "uslugi1", { dir_server + "uslugi1", ;
-    dir_server + "uslugi1s" }, "USL1" )
-  // index on str(kod,4)+dtos(date_b) to (dir_server+"uslugi1") progress
+  e_use( dir_server() + "uslugi1", { dir_server() + "uslugi1", ;
+    dir_server() + "uslugi1s" }, "USL1" )
+  // index on str(kod,4)+dtos(date_b) to (dir_server()+"uslugi1") progress
   //
-  e_use( dir_server + "uch_usl", dir_server + "uch_usl", "UCH_USL" )
-  // index on str(kod,4) to (dir_server+"uch_usl") progress
+  e_use( dir_server() + "uch_usl", dir_server() + "uch_usl", "UCH_USL" )
+  // index on str(kod,4) to (dir_server()+"uch_usl") progress
   //
-  e_use( dir_server + "uch_usl1", dir_server + "uch_usl1", "UCH_USL1" )
-  // index on str(kod,4)+dtos(date_b) to (dir_server+"uch_usl1") progress
+  e_use( dir_server() + "uch_usl1", dir_server() + "uch_usl1", "UCH_USL1" )
+  // index on str(kod,4)+dtos(date_b) to (dir_server()+"uch_usl1") progress
   //
-  If ( flag_udel := hb_FileExists( dir_server + "usl_del" + sdbf ) )
-    e_use( dir_server + "usl_del",, "UDEL" )
+  If ( flag_udel := hb_FileExists( dir_server() + "usl_del" + sdbf ) )
+    e_use( dir_server() + "usl_del",, "UDEL" )
     Index On Str( kod, 4 ) to ( cur_dir() + "tmp_udel" )
   Endif
   //
-  e_use( dir_server + "usl_otd", dir_server + "usl_otd", "UOTD" )
-  // index on str(kod,4) to (dir_server+"usl_otd") progress
+  e_use( dir_server() + "usl_otd", dir_server() + "usl_otd", "UOTD" )
+  // index on str(kod,4) to (dir_server()+"usl_otd") progress
   //
   adbf := { ;
     { "kod",     "N", 4, 0 }, ;
@@ -553,7 +553,7 @@ endif*/
         Skip
       Enddo
       Close databases
-      Use ( dir_server + "uslugi" ) New Alias USL
+      Use ( dir_server() + "uslugi" ) New Alias USL
       Go Bottom
       Do While !Bof()
         If RecNo() > 9999 .or. usl->kod == -1
@@ -590,11 +590,11 @@ Function dubl_zap_kod_tf()
   dbCreate( cur_dir() + "t1dubl", adbf )
   Use ( cur_dir() + "t_dubl" ) New Alias t
   Use ( cur_dir() + "t1dubl" ) New Alias t1
-  Use ( dir_server + "human" ) New Alias HUMAN
+  Use ( dir_server() + "human" ) New Alias HUMAN
   Index On Str( kod_k, 7 ) + Str( Descend( k_data ), 10 ) to ( cur_dir() + "tmp_human" ) For !Empty( k_data )
-  Use ( dir_server + "kartote_" ) New Alias KART_
-  Use ( dir_server + "kartotek" ) New Alias KART
-  Use ( dir_server + "kartote2" ) New Alias KART2
+  Use ( dir_server() + "kartote_" ) New Alias KART_
+  Use ( dir_server() + "kartotek" ) New Alias KART
+  Use ( dir_server() + "kartote2" ) New Alias KART2
   Set Relation To RecNo() into KART_, To RecNo() into KART
   Index On Str( kart2->kod_tf, 10 ) to ( cur_dir() + "tmp_kart2" ) ;
     For kart2->kod_tf > 0 .and. !kart->( Eof() ) .and. kart->kod > 0
@@ -695,7 +695,7 @@ Function dubl_zap_kod_tf()
     add_string( print_array( ak ) )
     add_string( Replicate( "-", 102 ) )
     f_open_files_dubl_zap( .t. ) // монопольное открытие всех файлов
-    e_use( dir_server + "human", dir_server + "humankk", "HUMAN" ) // монопольно
+    e_use( dir_server() + "human", dir_server() + "humankk", "HUMAN" ) // монопольно
     use_base( "kartotek",, .t. ) // монопольно
     Set Order To 0
     Use ( cur_dir() + "t1dubl" ) New Alias t1
@@ -992,58 +992,58 @@ Function dubl_zap_kod_tf()
 // 11.01.19 открыть все файлы для удаления дубликатов записей в картотеке
 Function f_open_files_dubl_zap( lExcluUse )
 
-  g_use( dir_server + "mo_d01k",, "D01K",, lExcluUse )
+  g_use( dir_server() + "mo_d01k",, "D01K",, lExcluUse )
   Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_d01k" )
   // список пациентов в реестрах будущих диспансеризаций
-  g_use( dir_server + "mo_dr01k",, "R01K",, lExcluUse )
+  g_use( dir_server() + "mo_dr01k",, "R01K",, lExcluUse )
   Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_r01k" )
   // направления на госпитализацию
-  g_use( dir_server + "mo_nnapr",, "NAPR",, lExcluUse )
+  g_use( dir_server() + "mo_nnapr",, "NAPR",, lExcluUse )
   Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_napr" )
   //
-  g_use( dir_server + "mo_kinos", dir_server + "mo_kinos", "KIS",, lExcluUse )
+  g_use( dir_server() + "mo_kinos", dir_server() + "mo_kinos", "KIS",, lExcluUse )
   //
-  g_use( dir_server + "mo_kismo",, "SN",, lExcluUse )
+  g_use( dir_server() + "mo_kismo",, "SN",, lExcluUse )
   Index On Str( kod, 7 ) to ( cur_dir() + "tmp_ismo" )
   // платные услуги
-  g_use( dir_server + "hum_p", dir_server + "hum_pkk", "HUM_P",, lExcluUse )
+  g_use( dir_server() + "hum_p", dir_server() + "hum_pkk", "HUM_P",, lExcluUse )
   // ортопедия
-  g_use( dir_server + "hum_ort", dir_server + "hum_ortk", "HUM_O",, lExcluUse )
+  g_use( dir_server() + "hum_ort", dir_server() + "hum_ortk", "HUM_O",, lExcluUse )
   // приемный покой
-  g_use( dir_server + "mo_pp", dir_server + "mo_pp_r", "PP",, lExcluUse )
+  g_use( dir_server() + "mo_pp", dir_server() + "mo_pp_r", "PP",, lExcluUse )
   // касса платные
-  g_use( dir_server + "kas_pl", dir_server + "kas_pl1", "KASP",, lExcluUse )
+  g_use( dir_server() + "kas_pl", dir_server() + "kas_pl1", "KASP",, lExcluUse )
   // касса ортопедия
-  g_use( dir_server + "kas_ort", dir_server + "kas_ort1", "KASO",, lExcluUse )
+  g_use( dir_server() + "kas_ort", dir_server() + "kas_ort1", "KASO",, lExcluUse )
   // подобие регистра застрахованных
-  g_use( dir_server + "kart_etk",, "kart_etk",, lExcluUse )
+  g_use( dir_server() + "kart_etk",, "kart_etk",, lExcluUse )
   Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_kart_etk" )
   // примечания к картотеке
-  g_use( dir_server + "k_prim1", dir_server + "k_prim1", "K_PRIM1",, lExcluUse )
+  g_use( dir_server() + "k_prim1", dir_server() + "k_prim1", "K_PRIM1",, lExcluUse )
   // оплата по ДМС и взаимозачету
-  g_use( dir_server + "plat_vz",, "PVZ",, lExcluUse )
+  g_use( dir_server() + "plat_vz",, "PVZ",, lExcluUse )
   Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_pvz" )
-  Set Index to ( cur_dir() + "tmp_pvz" ), ( dir_server + "plat_vz" )
+  Set Index to ( cur_dir() + "tmp_pvz" ), ( dir_server() + "plat_vz" )
   // регистрация печати л/у
-  g_use( dir_server + "mo_regi", { dir_server + "mo_regi1", ;
-    dir_server + "mo_regi2", ;
-    dir_server + "mo_regi3" }, "RU",, lExcluUse )
+  g_use( dir_server() + "mo_regi", { dir_server() + "mo_regi1", ;
+    dir_server() + "mo_regi2", ;
+    dir_server() + "mo_regi3" }, "RU",, lExcluUse )
   Set Order To 3
   // МСЭК
-  g_use( dir_server + "msek", dir_server + "msek", "MSEK",, lExcluUse )
+  g_use( dir_server() + "msek", dir_server() + "msek", "MSEK",, lExcluUse )
   // cписок карточек пациентов в отосланных ходатайствах
-  g_use( dir_server + "mo_hod_k",, "HK",, lExcluUse )
+  g_use( dir_server() + "mo_hod_k",, "HK",, lExcluUse )
   Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_hk" )
   // список прикреплений по пациенту во времени
-  g_use( dir_server + "mo_kartp", dir_server + "mo_kartp", "KARTP",, lExcluUse )
+  g_use( dir_server() + "mo_kartp", dir_server() + "mo_kartp", "KARTP",, lExcluUse )
   // список карточек в реестрах на прикрепление
-  g_use( dir_server + "mo_krtp",, "KRTP",, lExcluUse )
+  g_use( dir_server() + "mo_krtp",, "KRTP",, lExcluUse )
   Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_krtp" )
   // список ошибок в реестрах на прикрепление
-  g_use( dir_server + "mo_krte",, "KRTE",, lExcluUse )
+  g_use( dir_server() + "mo_krte",, "KRTE",, lExcluUse )
   Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_krte" )
   // список карточек в файлах на открепление
-  g_use( dir_server + "mo_krto",, "KRTO",, lExcluUse )
+  g_use( dir_server() + "mo_krto",, "KRTO",, lExcluUse )
   Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_krto" )
 
   Return Nil
@@ -1085,7 +1085,7 @@ Function f_delete_dubl_zap( dubl1_kart, dubl2_kart, is_lock )
     napr->kod_k := dubl1_kart
   Enddo
   Select HUMAN
-  // должен уже стоять на индексе (dir_server+"humankk")
+  // должен уже стоять на индексе (dir_server()+"humankk")
   Do While .t.
     find ( Str( dubl2_kart, 7 ) )
     If !Found() ; exit ; Endif
@@ -1265,8 +1265,8 @@ Function correct_polis_from_sptk()
   Local ii := 0, jj := 0, fl, buf := save_maxrow()
 
   stat_msg( "Поиск/попытка исправления полисов в картотеке" )
-  Use ( dir_server + "human_" ) new
-  Use ( dir_server + "human" ) new
+  Use ( dir_server() + "human_" ) new
+  Use ( dir_server() + "human" ) new
   Set Relation To RecNo() into HUMAN_
   Private mdate := SToD( "20190630" )
   Index On Str( kod_k, 7 ) + Str( Descend( k_data ), 10 ) to ( cur_dir() + "tmp_human" ) For k_data > mdate

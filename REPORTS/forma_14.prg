@@ -110,7 +110,7 @@ Function forma_14_( is_diag, is_otd, is_pereved )
       s2 := AllTrim( Token( s, " ", 2 ) )
   /*for i := 1 to len(s2) // проверка на русские буквы в диагнозах
     if ISRALPHA(substr(s2,i,1))
-      strfile(s2+eos,"ttt.ttt",.t.)
+      strfile(s2+hb_eol(),"ttt.ttt",.t.)
       exit
     endif
   next*/
@@ -331,16 +331,16 @@ Function forma_14_( is_diag, is_otd, is_pereved )
     Index On diagnoz to ( cur_dir() + "tmp_d5" )
   Endif
   //
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
   Set Relation To u_kod into USL
-  r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server() + "kartotek",, "KART" )
   If pi1 == 1 // по дате окончания лечения
     begin_date := arr_m[ 5 ]
     end_date := arr_m[ 6 ]
-    r_use( dir_server + "human_2",, "HUMAN_2" )
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+    r_use( dir_server() + "human_2",, "HUMAN_2" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
     Set Relation To kod_k into KART, To RecNo() into HUMAN_, To RecNo() into HUMAN_2
     dbSeek( DToS( begin_date ), .t. )
     Do While human->k_data <= end_date .and. !Eof()
@@ -364,12 +364,12 @@ Function forma_14_( is_diag, is_otd, is_pereved )
   Else
     begin_date := arr_m[ 7 ]
     end_date := arr_m[ 8 ]
-    r_use( dir_server + "human_2",, "HUMAN_2" )
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+    r_use( dir_server() + "human_2",, "HUMAN_2" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
     Set Relation To kod_k into KART, To RecNo() into HUMAN_, To RecNo() into HUMAN_2
-    r_use( dir_server + "schet_",, "SCHET_" )
-    r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+    r_use( dir_server() + "schet_",, "SCHET_" )
+    r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
     Set Relation To RecNo() into SCHET_
     Set Filter To Empty( schet_->IS_DOPLATA )
     dbSeek( begin_date, .t. )
@@ -413,7 +413,7 @@ Function forma_14_( is_diag, is_otd, is_pereved )
   arr_title := f14_title()
   sh := Len( arr_title[ 1 ] )
   fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( Replicate( "-", sh ) )
   x := 1
   arr_title := f14_title()
@@ -1432,8 +1432,8 @@ Function f1_f14( jh, jh1, is_diag )
   Enddo
   If ( nkd := lkd ) > 0
     If Select( "MOHU" ) == 0
-      r_use( dir_server + "mo_su",, "MOSU" )
-      r_use( dir_server + "mo_hu", dir_server + "mo_hu", "MOHU" )
+      r_use( dir_server() + "mo_su",, "MOSU" )
+      r_use( dir_server() + "mo_hu", dir_server() + "mo_hu", "MOHU" )
       Set Relation To u_kod into MOSU
     Endif
     Select MOHU
@@ -2050,7 +2050,7 @@ Function f1_frm14ds( is_diag, is_otd )
       s2 := arr_frm14[ s1, 1 ]
   /*for i := 1 to len(s2) // проверка на русские буквы в диагнозах
     if ISRALPHA(substr(s2,i,1))
-      strfile(s2+eos,"ttt.ttt",.t.)
+      strfile(s2+hb_eol(),"ttt.ttt",.t.)
       exit
     endif
   next*/
@@ -2080,15 +2080,15 @@ Function f1_frm14ds( is_diag, is_otd )
     Index On Str( tip, 1 ) + diagnoz to ( cur_dir() + "tmp_dia" )
   Endif
   // по дате окончания лечения
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
   Set Relation To u_kod into USL
-  r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server() + "kartotek",, "KART" )
   If pi1 == 1 // по дате окончания лечения
     begin_date := arr_m[ 5 ]
     end_date := arr_m[ 6 ]
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
     Set Relation To kod_k into KART, To RecNo() into HUMAN_
     dbSeek( DToS( begin_date ), .t. )
     Do While human->k_data <= end_date .and. !Eof()
@@ -2111,11 +2111,11 @@ Function f1_frm14ds( is_diag, is_otd )
   Else
     begin_date := arr_m[ 7 ]
     end_date := arr_m[ 8 ]
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
     Set Relation To kod_k into KART, To RecNo() into HUMAN_
-    r_use( dir_server + "schet_",, "SCHET_" )
-    r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+    r_use( dir_server() + "schet_",, "SCHET_" )
+    r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
     Set Relation To RecNo() into SCHET_
     Set Filter To Empty( schet_->IS_DOPLATA )
     dbSeek( begin_date, .t. )
@@ -2156,7 +2156,7 @@ Function f1_frm14ds( is_diag, is_otd )
   arr_title := f14dstitle()
   sh := Len( arr_title[ 1 ] )
   fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( PadR( org->name, 60 ) + PadL( "Форма № 14дс", sh - 60 ) )
   add_string( PadL( "Утверждена Приказом", sh ) )
   add_string( PadL( "Минздрава России", sh ) )

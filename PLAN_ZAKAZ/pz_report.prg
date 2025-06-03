@@ -102,8 +102,8 @@ Function pz1statist( par, par2 )
       RestScreen( buf )
       Return Nil
     Endif
-    r_use( dir_server + 'schet_', , 'SCHET_' )
-    r_use( dir_server + 'schet', dir_server + 'schetk', 'SCHET' )
+    r_use( dir_server() + 'schet_', , 'SCHET_' )
+    r_use( dir_server() + 'schet', dir_server() + 'schetk', 'SCHET' )
     Set Relation To RecNo() into SCHET_
     find ( Str( glob_schet, 6 ) )
     begin_date := end_date := Chr( Int( Val( Left( Str( schet_->nyear, 4 ), 2 ) ) ) ) + Chr( Int( Val( SubStr( Str( schet_->nyear, 4 ), 3 ) ) ) )
@@ -182,7 +182,7 @@ Function pz1statist( par, par2 )
     Endif
     AEval( st_a_otd, {| x| AAdd( a_otd, x[ 1 ] ) } )
   Else
-    r_use( dir_server + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
     Go Top
     Do While !Eof()
       If f_is_uch( st_a_uch, otd->kod_lpu ) .and. ;
@@ -247,25 +247,25 @@ Function pz1statist( par, par2 )
   dbCreate( cur_dir() + 'tmpos', { { 'otd', 'N', 3, 0 }, { 'kod', 'N', 7, 0 } } )
   Use ( cur_dir() + 'tmpos' ) new
   Index On Str( otd, 3 ) + Str( kod, 7 ) to ( cur_dir() + 'tmpos' )
-  r_use( dir_server + 'mo_su', , 'MOSU' )
-  r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  r_use( dir_server() + 'mo_su', , 'MOSU' )
+  r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'human_u_', , 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'human_u_', , 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To u_kod into USL, To RecNo() into HU_
   afillall( as, 0 )
   s_stac := sdstac := s_amb := skt := ssmp := suet := sstoim := 0
   waitstatus( '<Esc> - прервать поиск' ) ; mark_keys( { '<Esc>' } )
   If par == 1
-    r_use( dir_server + 'schet_', , 'SCHET_' )
-    r_use( dir_server + 'schet', dir_server + 'schetk', 'SCHET' )
+    r_use( dir_server() + 'schet_', , 'SCHET_' )
+    r_use( dir_server() + 'schet', dir_server() + 'schetk', 'SCHET' )
     Set Relation To RecNo() into SCHET_
     find ( Str( glob_schet, 6 ) )
     p_number := AllTrim( schet_->NSCHET )
     p_date := schet_->DSCHET
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     find ( Str( glob_schet, 6 ) )
     Do While human->schet == glob_schet .and. !Eof()
@@ -281,12 +281,12 @@ Function pz1statist( par, par2 )
       Skip
     Enddo
   Elseif par == 2
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     Use ( cur_dir() + 'tmp_smo' ) index ( cur_dir() + 'tmp_smo1' ) new
-    r_use( dir_server + 'schet_', , 'SCHET_' )
-    r_use( dir_server + 'schet', dir_server + 'schetd', 'SCHET' )
+    r_use( dir_server() + 'schet_', , 'SCHET_' )
+    r_use( dir_server() + 'schet', dir_server() + 'schetd', 'SCHET' )
     Set Relation To RecNo() into SCHET_
     Set Filter To Empty( schet_->IS_DOPLATA )
     Go Top
@@ -364,8 +364,8 @@ Function pz1statist( par, par2 )
       Skip
     Enddo
   Else
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humann', 'HUMAN' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humann', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     dbSeek( '1', .t. )
     Do While human->tip_h < B_SCHET .and. !Eof()
@@ -752,8 +752,8 @@ Function pz1statist( par, par2 )
       AEval( arr_title, {| x| add_string( x ) } )
     endif
     n1 := 30
-    r_use( dir_server + 'mo_uch', , 'UCH' )
-    r_use( dir_server + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'mo_uch', , 'UCH' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
     Set Relation To kod_lpu into UCH
     Select TMPO
     Set Index To
@@ -990,7 +990,7 @@ Function pz1statist( par, par2 )
     Else
       Select TMP
       Set Relation To kod into USL
-      r_use( dir_server + 'slugba', dir_server + 'slugba', 'SL' )
+      r_use( dir_server() + 'slugba', dir_server() + 'slugba', 'SL' )
       Select USL
       Set Relation To Str( slugba, 3 ) into SL
       Select TMP
@@ -1195,12 +1195,12 @@ Function pz1statist( par, par2 )
     Select HU
     Set Relation To
     If fl_plan
-      r_use( dir_server + 'uch_pers', dir_server + 'uch_pers', 'UCHP' )
+      r_use( dir_server() + 'uch_pers', dir_server() + 'uch_pers', 'UCHP' )
     Endif
     Select TMP1
     Set Relation To kod1 into USL
     Index On Str( kod, 4 ) + fsort_usl( usl->shifr ) to ( cur_dir() + 'tmp1' )
-    g_use( dir_server + 'mo_pers', , 'PERSO' )
+    g_use( dir_server() + 'mo_pers', , 'PERSO' )
     Select TMP
     Set Relation To kod into PERSO
     Index On Upper( perso->fio ) to ( cur_dir() + 'tmp' )
@@ -1695,12 +1695,12 @@ Function pz2statist( arr_m, par2, lAdult )
   Index On nkomu to ( cur_dir() + 'tmp_smo2' )
   Set Index to ( cur_dir() + 'tmp_smo1' ), ( cur_dir() + 'tmp_smo2' )
   If par2 == 2
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
   Endif
-  r_use( dir_server + 'schet_', , 'SCHET_' )
-  r_use( dir_server + 'schet', dir_server + 'schetd', 'SCHET' )
+  r_use( dir_server() + 'schet_', , 'SCHET_' )
+  r_use( dir_server() + 'schet', dir_server() + 'schetd', 'SCHET' )
   Set Relation To RecNo() into SCHET_
   Set Filter To Empty( schet_->IS_DOPLATA )
   Go Top
@@ -1907,15 +1907,15 @@ Function pz_raschet_potr()
     } )
   Use ( cur_dir() + 'tmp' ) new
   Index On shifr + Str( vr, 1 ) + Str( tarif, 10, 2 ) to ( cur_dir() + 'tmp' )
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'human_u_', , 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'human_u_', , 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To u_kod into USL, To RecNo() into HU_
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
-  r_use( dir_server + 'schet_', , 'SCHET_' )
-  r_use( dir_server + 'schet', , 'SCHET' )
+  r_use( dir_server() + 'schet_', , 'SCHET_' )
+  r_use( dir_server() + 'schet', , 'SCHET' )
   Set Relation To RecNo() into SCHET_
   Index On pdate + nomer_s to ( cur_dir() + 'tmp_sch' ) ;
     For emptyall( schet_->NREGISTR, schet_->IS_DOPLATA ) .and. ;

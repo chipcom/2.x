@@ -30,8 +30,8 @@ Function is_our_xml( cName, ret_arr )
   s := cName
   If eq_any( Left( s, 3 ), 'VHR', 'VFR', 'PHR', 'PFR' ) // файл протокола ФЛК
     nTypeFile := _XML_FILE_FLK
-    r_use( dir_server + 'mo_rees', , 'REES' )
-    r_use( dir_server + 'mo_xml', , 'MO_XML' )
+    r_use( dir_server() + 'mo_rees', , 'REES' )
+    r_use( dir_server() + 'mo_xml', , 'MO_XML' )
     Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
     find ( PadR( SubStr( s, 2 ), 26 ) ) // имя то же самое, начиная со второго знака
     If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
@@ -72,8 +72,8 @@ Function is_our_xml( cName, ret_arr )
     If Len( arr_err ) == 0
       If Left( cName, 3 ) == 'D02'
         nTypeFile := _XML_FILE_D02
-        r_use( dir_server + 'mo_d01', , 'REES' )
-        r_use( dir_server + 'mo_xml', , 'MO_XML' )
+        r_use( dir_server() + 'mo_d01', , 'REES' )
+        r_use( dir_server() + 'mo_xml', , 'MO_XML' )
         Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( 'D01T34M' + glob_MO[ _MO_KOD_TFOMS ] + '_' + s, 26 ) ) // сконструировали имя файла D01
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
@@ -91,8 +91,8 @@ Function is_our_xml( cName, ret_arr )
         mo_xml->( dbCloseArea() )
       Elseif Left( cName, 3 ) == 'R02'
         nTypeFile := _XML_FILE_R02
-        r_use( dir_server + 'mo_dr01', , 'REES' )
-        r_use( dir_server + 'MO_XML', , 'MO_XML' )
+        r_use( dir_server() + 'mo_dr01', , 'REES' )
+        r_use( dir_server() + 'MO_XML', , 'MO_XML' )
         Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( 'R01T34M' + glob_MO[ _MO_KOD_TFOMS ] + '_' + s, 26 ) ) // сконструировали имя файла R01
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
@@ -110,8 +110,8 @@ Function is_our_xml( cName, ret_arr )
         mo_xml->( dbCloseArea() )
       Elseif Left( cName, 3 ) == 'R12'
         nTypeFile := _XML_FILE_R12
-        r_use( dir_server + 'mo_dr01', , 'REES' )
-        r_use( dir_server + 'MO_XML', , 'MO_XML' )
+        r_use( dir_server() + 'mo_dr01', , 'REES' )
+        r_use( dir_server() + 'MO_XML', , 'MO_XML' )
         Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( 'R11T34M' + glob_MO[ _MO_KOD_TFOMS ] + '_' + s, 26 ) ) // сконструировали имя файла R11
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
@@ -129,8 +129,8 @@ Function is_our_xml( cName, ret_arr )
         mo_xml->( dbCloseArea() )
       Else // "R06"
         nTypeFile := _XML_FILE_R06
-        r_use( dir_server + 'mo_dr05', , 'REES' )
-        r_use( dir_server + 'MO_XML', , 'MO_XML' )
+        r_use( dir_server() + 'mo_dr05', , 'REES' )
+        r_use( dir_server() + 'MO_XML', , 'MO_XML' )
         Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( 'R05T34M' + glob_MO[ _MO_KOD_TFOMS ] + '_' + s, 26 ) ) // сконструировали имя файла R05
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
@@ -171,8 +171,8 @@ Function is_our_xml( cName, ret_arr )
     If Len( arr_err ) == 0
       If Left( cName, 4 ) == 'PR01'
         nTypeFile := _XML_FILE_R02
-        r_use( dir_server + 'mo_dr01', , 'REES' )
-        r_use( dir_server + 'MO_XML', , 'MO_XML' )
+        r_use( dir_server() + 'mo_dr01', , 'REES' )
+        r_use( dir_server() + 'MO_XML', , 'MO_XML' )
         Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( SubStr( cName, 2 ), 26 ) ) // сконструировали имя файла R01
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
@@ -190,8 +190,8 @@ Function is_our_xml( cName, ret_arr )
         mo_xml->( dbCloseArea() )
       Elseif Left( cName, 4 ) == 'PR11'
         nTypeFile := _XML_FILE_R12
-        r_use( dir_server + 'mo_dr01', , 'REES' )
-        r_use( dir_server + 'MO_XML', , 'MO_XML' )
+        r_use( dir_server() + 'mo_dr01', , 'REES' )
+        r_use( dir_server() + 'MO_XML', , 'MO_XML' )
         Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( SubStr( cName, 2 ), 26 ) ) // сконструировали имя файла R01
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
@@ -209,8 +209,8 @@ Function is_our_xml( cName, ret_arr )
         mo_xml->( dbCloseArea() )
       Else // "R06"
         nTypeFile := _XML_FILE_R06
-        r_use( dir_server + 'mo_dr05', , 'REES' )
-        r_use( dir_server + 'MO_XML', , 'MO_XML' )
+        r_use( dir_server() + 'mo_dr05', , 'REES' )
+        r_use( dir_server() + 'MO_XML', , 'MO_XML' )
         Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( SubStr( cName, 2 ), 26 ) ) // сконструировали имя файла R05
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
@@ -251,8 +251,8 @@ Function is_our_xml( cName, ret_arr )
     If Len( arr_err ) == 0
       If eq_any( Left( cName, 4 ), 'PR01', 'PR11' )
         nTypeFile := _XML_FILE_R02
-        r_use( dir_server + 'mo_dr01', , 'REES' )
-        r_use( dir_server + 'MO_XML', , 'MO_XML' )
+        r_use( dir_server() + 'mo_dr01', , 'REES' )
+        r_use( dir_server() + 'MO_XML', , 'MO_XML' )
         Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( SubStr( cName, 2 ), 26 ) ) // сконструировали имя файла R01
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
@@ -270,8 +270,8 @@ Function is_our_xml( cName, ret_arr )
         mo_xml->( dbCloseArea() )
       Else // "R06"
         nTypeFile := _XML_FILE_R06
-        r_use( dir_server + 'mo_dr05', , 'REES' )
-        r_use( dir_server + 'MO_XML', , 'MO_XML' )
+        r_use( dir_server() + 'mo_dr05', , 'REES' )
+        r_use( dir_server() + 'MO_XML', , 'MO_XML' )
         Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( SubStr( cName, 2 ), 26 ) ) // сконструировали имя файла R05
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
@@ -392,17 +392,17 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
     tip_csv_file := iif( Left( s, 1 ) == 'E', _CSV_FILE_PRIKANS, _CSV_FILE_PRIKFLK )
     kod_csv_reestr := 0
     If ( s1 := SubStr( s, 4, 6 ) ) == glob_MO[ _MO_KOD_TFOMS ]
-      r_use( dir_server + 'mo_krtf', , 'KRTF' )
+      r_use( dir_server() + 'mo_krtf', , 'KRTF' )
       Index On Upper( fname ) to ( cur_dir() + 'tmp_krtf' )
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
         fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
-        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
+        viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
       Else
         find ( PadR( 'M' + SubStr( s, 2 ), 26 ) ) // имя то же самое, начиная со второго знака
         If Found()
           kod_csv_reestr := krtf->REESTR
-          r_use( dir_server + 'mo_krtr', , 'KRTR' )
+          r_use( dir_server() + 'mo_krtr', , 'KRTR' )
           Goto ( kod_csv_reestr )
           If krtr->ANSWER == 0 .and. tip_csv_file == _CSV_FILE_PRIKANS
             fl := func_error( 4, 'Сначала необходимо прочитать файл L' + SubStr( s, 2 ) + scsv() )
@@ -526,12 +526,12 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
     tip_csv_file := iif( Left( s, 1 ) == 'E', _CSV_FILE_ANSWER, _CSV_FILE_OTKREP )
     kod_csv_reestr := 0
     If ( s1 := SubStr( s, 3, 6 ) ) == glob_MO[ _MO_KOD_TFOMS ]
-      r_use( dir_server + 'mo_krtf', , 'KRTF' )
+      r_use( dir_server() + 'mo_krtf', , 'KRTF' )
       Index On Upper( fname ) to ( cur_dir() + 'tmp_krtf' )
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
         fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
-        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
+        viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
       Elseif tip_csv_file == _CSV_FILE_ANSWER
         find ( PadR( 'MO' + SubStr( s, 2 ), 26 ) ) // имя то же самое, начиная с третьего знака
         If Found()
@@ -552,12 +552,12 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
     tip_csv_file := _CSV_FILE_SVERKAO
     kod_csv_reestr := 0
     If ( s1 := SubStr( s, 4, 6 ) ) == glob_MO[ _MO_KOD_TFOMS ]
-      r_use( dir_server + 'mo_krtf', , 'KRTF' )
+      r_use( dir_server() + 'mo_krtf', , 'KRTF' )
       Index On Upper( fname ) to ( cur_dir() + 'tmp_krtf' )
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
         fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
-        viewtext( devide_into_pages( dir_server + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
+        viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
       Else
         find ( PadR( 'SZ' + SubStr( s, 3 ), 26 ) ) // имя то же самое, начиная с третьего знака
         If Found()
@@ -585,7 +585,7 @@ Function verify_is_already_xml( cName, /*@*/_date, /*@*/_time)
 
   Local l, fl, tmp_select := Select()
 
-  r_use( dir_server + 'MO_XML', , 'MX' )
+  r_use( dir_server() + 'MO_XML', , 'MX' )
   Index On Upper( FNAME ) to ( cur_dir() + 'tmp_mxml' )
   l := FieldLen( FieldNum( 'FNAME' ) )
   find ( PadR( cName, l ) )

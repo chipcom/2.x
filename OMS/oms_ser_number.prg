@@ -18,7 +18,7 @@ local ret_ser_num, fl
 
 type := Upper(type)
 
-if fl := R_Use(dir_server + 'human_ser_num', dir_server + 'human_ser_num', 'NUM_SER')
+if fl := R_Use(dir_server() + 'human_ser_num', dir_server() + 'human_ser_num', 'NUM_SER')
   find (type + str(rec_n, 7))
   if NUM_SER->(found())
     ret_ser_num := NUM_SER->SER_NUM
@@ -47,7 +47,7 @@ local tmpSelect := select(), fl
 
 type := Upper(type)
 
-if fl := G_Use(dir_server + 'human_ser_num', dir_server + 'human_ser_num', 'NUM_SER', , .f., .f.)
+if fl := G_Use(dir_server() + 'human_ser_num', dir_server() + 'human_ser_num', 'NUM_SER', , .f., .f.)
   find (type + str(rec_n, 7))
   if NUM_SER->(found())
     G_RLock(forever)
@@ -84,7 +84,7 @@ local tmpSelect := select()
 
 type := Upper(type)
 
-if fl := G_Use(dir_server + 'human_ser_num', dir_server + 'human_ser_num', 'NUM_SER', , .f., .f.)
+if fl := G_Use(dir_server() + 'human_ser_num', dir_server() + 'human_ser_num', 'NUM_SER', , .f., .f.)
   find (type + str(rec_n, 7))
   if NUM_SER->(found())
     DeleteRec(.t.)  // очистка записи с пометкой на удаление

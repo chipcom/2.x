@@ -16,10 +16,10 @@ Function edit_bolnich( par )
   Private mr1 := 2
   mtitul := "Окончившие лечение " + arr_m[ 4 ]
   mywait()
-  r_use( dir_server + "mo_otd",, "OTD" )
-  r_use( dir_server + "mo_uch",, "UCH" )
-  g_use( dir_server + "human_",, "HUMAN_" )
-  g_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
+  r_use( dir_server() + "mo_uch",, "UCH" )
+  g_use( dir_server() + "human_",, "HUMAN_" )
+  g_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
   Set Relation To RecNo() into HUMAN_, To lpu into UCH, To otd into OTD
   dbSeek( DToS( begin_date ), .t. )
   Index On Upper( fio ) + DToS( k_data ) to ( cur_dir() + "tmp_h" ) ;

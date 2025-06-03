@@ -68,11 +68,11 @@ Function init_first()
     'июле', 'августе', 'сентябре', 'октябре', 'ноябре', 'декабре' }
   //
   Public tmp_ini := 'TMP' + sini()
-  Public tools_ini := dir_server + 'TOOLS' + sini()
+  Public tools_ini := dir_server() + 'TOOLS' + sini()
   Public local_tools_ini := 'LOCTOOLS' + sini()
   Public f_stat_com := dir_exe() + 'stat_com' + sfrm()
-  Public f_stat_lpu := dir_server + 'stat_lpu' + sini()
-  Public file_uchast := dir_server + 'prik_uch' + smem()
+  Public f_stat_lpu := dir_server() + 'stat_lpu' + sini()
+  Public file_uchast := dir_server() + 'prik_uch' + smem()
   Public mm_danet := { { 'нет', 0 }, { 'да ', 1 } }
   Public mm_vid_polis := { { 'старый', 1 }, { 'врем. ', 2 }, { 'новый ', 3 } }
   Public mm_gorod_selo := { { 'город', 1 }, { 'село', 2 }, { 'р/поселок', 3 } }
@@ -175,11 +175,11 @@ Function init_first()
     { 'Хопёрский', 5 }, ;
     { 'Южный', 6 } }
 
-  r_use( dir_server + 'organiz', , 'ORG' )
+  r_use( dir_server() + 'organiz', , 'ORG' )
   fl := ( FieldNum( 'name_xml' ) == 0 )
   Use
   If fl
-    init_base( dir_server + 'organiz', , get_struct_organiz(), 0, , .t. )
+    init_base( dir_server() + 'organiz', , get_struct_organiz(), 0, , .t. )
   Endif
   //
   Public mm_ortispol := { ;

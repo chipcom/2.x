@@ -60,8 +60,8 @@ Function get_version_db()
   Local nfile := 'ver_base'
   Local ver__base := 0
 
-  If hb_FileExists( dir_server + nfile + sdbf )
-    r_use( dir_server + nfile, , 'ver' )
+  If hb_FileExists( dir_server() + nfile + sdbf )
+    r_use( dir_server() + nfile, , 'ver' )
     ver__base := ver->version
     ver->( dbCloseArea() )
   Endif
@@ -73,8 +73,8 @@ Function save_version_db( nVersion )
 
   Local nfile := 'ver_base'
 
-  reconstruct( dir_server + nfile, { { 'version', 'N', 10, 0 } }, , , .t. )
-  g_use( dir_server + nfile, , 'ver' )
+  reconstruct( dir_server() + nfile, { { 'version', 'N', 10, 0 } }, , , .t. )
+  g_use( dir_server() + nfile, , 'ver' )
   If LastRec() == 0
     addrecn()
   Else

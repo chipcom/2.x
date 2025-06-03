@@ -55,7 +55,7 @@ Function reconstruct_security( is_local_version )
 
   If controlbases( 1, _version() ) // если необходимо
     If g_slock1task( sem_task, sem_vagno )  // запрет доступа всем
-      path_DB := dir_server
+      path_DB := dir_server()
       // реконструкция файлов доступа к системе и обновлений БД
       If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf )
         reconstruct( path_DB + 'base1', base1, , , .t. )
@@ -1657,7 +1657,7 @@ Function reconstruct_db( is_local_version, is_create )
   // }
   //
 
-  path_DB := dir_server
+  path_DB := dir_server()
 
   f_init_r01() // инициализация всех файлов инф.сопровождения по диспансеризации
   If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf )
@@ -1872,7 +1872,7 @@ Function vounc_reconstruct_db()
   //
   local path_DB // путь к БД приложения
 
-  path_DB := dir_server
+  path_DB := dir_server()
 
   reconstruct( path_DB + 'vouncmnn', vouncmnn, , , .t. )
   reconstruct( path_DB + 'vounctrn', vounctrn, , , .t. )
@@ -1920,7 +1920,7 @@ Function reconstruct_double_sl()
   //
   local path_DB // путь к БД приложения
 
-  path_DB := dir_server
+  path_DB := dir_server()
   reconstruct( path_DB + 'human_3', human_3, 'index_base("human_3")', 'пролеченным больным3', .t. )
   Return Nil
 
@@ -2088,7 +2088,7 @@ Function reconstruct_263()
   }
   local path_DB
 
-  path_DB := dir_server
+  path_DB := dir_server()
 
   reconstruct( path_DB + 'mo_nfile', mo_nfile, , , .t. )
   reconstruct( path_DB + 'mo_nfina', mo_nfina, , , .t. )
@@ -2154,7 +2154,7 @@ Function reconstruct_d01()
   }
   local path_DB
 
-  path_DB := dir_server
+  path_DB := dir_server()
   reconstruct( path_DB + 'mo_d01', mo_d01, , , .t. )
   reconstruct( path_DB + 'mo_d01k', mo_d01k, , , .t. )
   reconstruct( path_DB + 'mo_d01d', mo_d01d, , , .t. )
@@ -2327,7 +2327,7 @@ Function reconstruct_dr()
   }
   Local path_DB
 
-  path_DB := dir_server
+  path_DB := dir_server()
   reconstruct( path_DB + 'mo_dr01', mo_dr01,,, .t. )
   reconstruct( path_DB + 'mo_dr01m', mo_dr01m,,, .t. )
   reconstruct( path_DB + 'mo_dr01k', mo_dr01k,,, .t. )

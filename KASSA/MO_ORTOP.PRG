@@ -64,7 +64,7 @@ Function sin_ysl()
 Local buf := save_row(maxrow()), fl := .f.
 Private rr := T_ROW, fl_found := .f., reg_klient := 1
 mywait()
-if R_Use(dir_server+"tip_orto",,"TO")
+if R_Use(dir_server()+"tip_orto",,"TO")
   go top
   Alpha_Browse(rr,27,maxrow()-2,70,"f1edit_ort",color0,,,,,,,"f2edit_ort",,{,,,"N/BG,W+/N",.t.,200})
   to->(dbclosearea())
@@ -116,14 +116,14 @@ arr_blk := {{|| FindFirst(str_find)},;
             str_find, muslovie;
            }
 if glob_mo[_MO_KOD_TFOMS] == '395301' // Камышин СТОМ
-  R_Use(dir_server+"mo_su",{dir_server+"mo_su",;
-                                   dir_server+"mo_sush"},"USL")
-  G_Use(dir_server+"ortoped2",dir_server+"ortoped2","ORTO2") //19.04
+  R_Use(dir_server()+"mo_su",{dir_server()+"mo_su",;
+                                   dir_server()+"mo_sush"},"USL")
+  G_Use(dir_server()+"ortoped2",dir_server()+"ortoped2","ORTO2") //19.04
   set relation to str(kod_usl,6) into USL
 else
-  R_Use(dir_server+"uslugi",{dir_server+"uslugi",;
-                                   dir_server+"uslugish"},"USL")
-  G_Use(dir_server+"ortoped2",dir_server+"ortoped2","ORTO2") //19.04
+  R_Use(dir_server()+"uslugi",{dir_server()+"uslugi",;
+                                   dir_server()+"uslugish"},"USL")
+  G_Use(dir_server()+"ortoped2",dir_server()+"ortoped2","ORTO2") //19.04
   set relation to str(kod_usl,4) into USL
 endif
 find (str_find)
@@ -245,11 +245,11 @@ Local fl := .t.
 k := lower(k)
 do case
   case k == "ortoped"
-    fl := G_use(dir_server+"ortoped")
+    fl := G_use(dir_server()+"ortoped")
   case k == "ortoped1"
-    fl := G_use(dir_server+"ortoped1")
+    fl := G_use(dir_server()+"ortoped1")
   case k == "tip_orto"
-    fl := G_Use(dir_server+"tip_orto")
+    fl := G_Use(dir_server()+"tip_orto")
 endcase
 return fl
 
@@ -261,11 +261,11 @@ Local fl := .t.
 k := lower(k)
 do case
   case k == "ortoped"
-    fl := R_use(dir_server+"ortoped")
+    fl := R_use(dir_server()+"ortoped")
   case k == "ortoped1"
-    fl := R_use(dir_server+"ortoped1")
+    fl := R_use(dir_server()+"ortoped1")
   case k == "tip_orto"
-    fl := R_Use(dir_server+"tip_orto")
+    fl := R_Use(dir_server()+"tip_orto")
 endcase
 return fl
 
@@ -290,7 +290,7 @@ if eq_any(par1,"vr","tehn")
   if (mperso := input_kperso()) == NIL  // ==> весь персонал
     mywait()
     mperso := {}
-    R_Use(dir_server+"mo_pers",,"perso")
+    R_Use(dir_server()+"mo_pers",,"perso")
     go top
     do while !eof()
       if perso->kod > 0
@@ -329,12 +329,12 @@ dbcreate(cur_dir()+"tmp", {;
    {"KOL_POS",    "N",      2,      0};   // количество посещений
   })
 use (cur_dir()+"tmp") new
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"mo_pers",,"PERSO")
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"mo_pers",,"PERSO")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
 set relation to u_kod into USL
-R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
 set relation to kod_k into KART
 dbseek(dtos(begin_date),.t.)
 do while human->k_data <= end_date .and. !eof()
@@ -453,8 +453,8 @@ add_string(center(arr[4],sh))
 add_string(center(pr_titul,sh))
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
 set relation to u_kod into USL
 if eq_any(par1,"vr","tehn")
   use (cur_dir()+"tmp") new
@@ -616,13 +616,13 @@ dbcreate(cur_dir()+"tmp", {;
    {"D_OPLATA_N", "N",     12,      2};   // оплаченая сумма напыление
   })
 use (cur_dir()+"tmp") new
-R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"mo_pers",,"PERSO")
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
+R_Use(dir_server()+"hum_oro",dir_server()+"hum_oro","HO")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"mo_pers",,"PERSO")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
 set relation to u_kod into USL
-R_Use(dir_server+"hum_ort",,"HUMAN")
+R_Use(dir_server()+"hum_ort",,"HUMAN")
 set relation to kod_k into KART
 go top
 do while !eof()
@@ -848,7 +848,7 @@ endif
 begin_date := arr[5]
 end_date := arr[6]
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
-R_Use(dir_server+"diag_ort",dir_server+"diag_ort","DIAG")
+R_Use(dir_server()+"diag_ort",dir_server()+"diag_ort","DIAG")
 dbeval({|| aadd(arr_diag, {recno(),0,shifr,name}) } )
 adbf := {;
    {"KOD",        "N",      4,      0},;  // код персонала
@@ -861,8 +861,8 @@ aadd(adbf, {"diag999999","N",5,0} )
 dbcreate(cur_dir()+"tmp", adbf)
 use (cur_dir()+"tmp") new
 index on str(kod,4) to (cur_dir()+"tmp")
-R_Use(dir_server+"mo_pers",,"PERSO")
-R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+R_Use(dir_server()+"mo_pers",,"PERSO")
+R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
 dbseek(dtos(begin_date),.t.)
 do while human->k_data <= end_date .and. !eof()
   UpdateStatus()
@@ -1035,8 +1035,8 @@ dbcreate(cur_dir()+"tmp2", {{"rec_tmp","N", 6,0},;
                           {"rec_hp" ,"N", 7,0},;
                           {"D_POLIS","C",25,0}}) // полис
 use (cur_dir()+"tmp2") new
-R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
-R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+R_Use(dir_server()+"hum_oro",dir_server()+"hum_oro","HO")
+R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
 dbseek(dtos(arr_m[5]),.t.)
 do while human->k_data <= arr_m[6] .and. !eof()
   UpdateStatus()
@@ -1096,8 +1096,8 @@ if !fl_exit .and. j > 0
                             {"pr_smo" ,"N", 6,0},; // код предприятия / СМО
                             {"KOL"    ,"N", 6,0},; // количество больных
                             {"STOIM"  ,"N",11,2}}) // итоговая стоимость лечения
-  R_Use(dir_server+"p_pr_vz",,"PRED")
-  R_Use(dir_server+"p_d_smo",,"SMO")
+  R_Use(dir_server()+"p_pr_vz",,"PRED")
+  R_Use(dir_server()+"p_d_smo",,"SMO")
   use (cur_dir()+"tmp1") new
   index on str(tip_usl,1)+str(pr_smo,6) to (cur_dir()+"tmp1")
   select TMP
@@ -1206,7 +1206,7 @@ if regim == "edit" .and. nKey == K_ENTER
     status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор для печати;  ^<F9>^ - печать реестра") }
   mywait()
   use (cur_dir()+"tmp2") index (cur_dir()+"tmp2") new
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server()+"kartotek",,"KART")
   use (cur_dir()+"tmp") new alias TMP
   set relation to kod_k into KART
   index on upper(kart->fio) to (cur_dir()+"tmp") ;
@@ -1260,7 +1260,7 @@ arr2title := {;
 "───┴───────────────────┴─────────────────┴────────┴──────────┴─────────────────────────────────────────────────────────────────┴─────┴───────┴────┴──────────┴───────────"}
 sh := len(arr_title[1])
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server()+"organiz",,"ORG")
 add_string(alltrim(org->name))
 org->(dbCloseArea())
 if tmp1->tip_usl == OU_D_SMO
@@ -1271,11 +1271,11 @@ else
   add_string(center("по предприятию: "+upper(alltrim(tmp1->name)),sh))
 endif
 add_string(center(arr_m[4],sh))
-R_Use(dir_server+"mo_otd",,"OTD")
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HPU")
-R_Use(dir_server+"hum_ort",,"HP")
+R_Use(dir_server()+"mo_otd",,"OTD")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"hum_oro",dir_server()+"hum_oro","HO")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HPU")
+R_Use(dir_server()+"hum_ort",,"HP")
 aeval(arr_title, {|x| add_string(x) } )
 j := sk := ss := so := 0
 select TMP
@@ -1447,10 +1447,10 @@ add_string("")
 add_string(center("Сравнение сумм оплаты и сумм услуг по типу оплаты",sh))
 add_string(center(arr[4],sh))
 //
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
-R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"hum_oro",dir_server()+"hum_oro","HO")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
+R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
 set relation to kod_k into KART
 dbseek(dtos(begin_date),.t.)
 do while human->k_data <= end_date .and. !eof()
@@ -1545,7 +1545,7 @@ WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
 //
 Private flag_1 := .t., arr_uva := {}, vr_uva := .T., as_uva := .T., ms_uva := .T.,;
 mshifr := space(10)
-R_Use(dir_server+"orto_uva",,"OU")
+R_Use(dir_server()+"orto_uva",,"OU")
 dbeval({|| aadd(arr_uva, {alltrim(ou->shifr),ou->kod_vr,ou->kod_as,ou->kod_ms} ) } )
 ou->(dbCloseArea())
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
@@ -1553,12 +1553,12 @@ add_string("")
 add_string(center("Сравнение врачей и техников в наряде и услугах",sh))
 add_string(center(arr[4],sh))
 //
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"mo_pers",,"PERS")
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
-R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"mo_pers",,"PERS")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"hum_oro",dir_server()+"hum_oro","HO")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
+R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
 set relation to kod_k into KART
 dbseek(dtos(begin_date),.t.)
 do while human->k_data <= end_date .and. !eof()
@@ -1687,8 +1687,8 @@ do case
 endcase
 do case
   case par == 1
-    R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
-    R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+    R_Use(dir_server()+"hum_oro",dir_server()+"hum_oro","HO")
+    R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
     dbseek(dtos(begin_date),.t.)
     do while human->k_data <= end_date .and. !eof()
       UpdateStatus()
@@ -1739,8 +1739,8 @@ do case
       skip
     enddo
   case par == 2
-    R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
-    R_Use(dir_server+"hum_ort",dir_server+"hum_orto","HUMAN")
+    R_Use(dir_server()+"hum_oro",dir_server()+"hum_oro","HO")
+    R_Use(dir_server()+"hum_ort",dir_server()+"hum_orto","HUMAN")
     dbseek(dtos(begin_date),.t.)
     do while human->data <= end_date .and. !eof()
       UpdateStatus()
@@ -1797,8 +1797,8 @@ do case
   case par == 3
     select TMP
     index on str(kod_h,7) to (cur_dir()+"tmp")
-    R_Use(dir_server+"hum_ort",,"HUMAN")
-    R_Use(dir_server+"hum_oro",dir_server+"hum_orod","HO")
+    R_Use(dir_server()+"hum_ort",,"HUMAN")
+    R_Use(dir_server()+"hum_oro",dir_server()+"hum_orod","HO")
     set relation to kod into HUMAN
     dbseek(arr[7],.t.)
     do while ho->pdate <= arr[8] .and. !eof()
@@ -1911,10 +1911,10 @@ if pr_pl_bes != 3
   add_string("")
 endif
 aeval(arr_title, {|x| add_string(x) } )
-R_Use(dir_server+"mo_pers",,"PERSO")
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
-R_Use(dir_server+"hum_ort",,"HUMAN")
+R_Use(dir_server()+"mo_pers",,"PERSO")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"hum_oro",dir_server()+"hum_oro","HO")
+R_Use(dir_server()+"hum_ort",,"HUMAN")
 set relation to kod_k into KART, to kod_vr into PERSO
 use (cur_dir()+"tmp") new
 if par == 2
@@ -2396,7 +2396,7 @@ do case
     if (mperso := input_kperso()) == NIL  // ==> весь персонал
       mywait()
       mperso := {}
-      R_Use(dir_server+"mo_pers",,"PERSO")
+      R_Use(dir_server()+"mo_pers",,"PERSO")
       go top
       do while !eof()
         if perso->kod > 0
@@ -2469,18 +2469,18 @@ index on str(kod,4) to (cur_dir()+"tmp")
 if mem_trudoem == 2
   useUch_Usl()
 endif
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"mo_pers",,"PERSO")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"mo_pers",,"PERSO")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
 if reg == 2 .or. par3 == "summa"
   set relation to u_kod into USL
 endif
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server()+"kartotek",,"KART")
 if parametr4 == 1
-  R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+  R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
   dbseek(dtos(begin_date),.t.)
 else
-  R_Use(dir_server+"hum_ort",dir_server+"hum_orto","HUMAN")
+  R_Use(dir_server()+"hum_ort",dir_server()+"hum_orto","HUMAN")
   dbseek(dtos(begin_date),.t.)
 endif   
 do while iif(parametr4 == 1,human->k_data,human->data) <= end_date .and. !eof()
@@ -2654,7 +2654,7 @@ add_string(center(arr[4],sh))
 if !(par3 == "summa")
   add_string(center(pr_titul,sh))
 endif
-R_Use(dir_server+"mo_pers",,"PERSO")
+R_Use(dir_server()+"mo_pers",,"PERSO")
 use (cur_dir()+"tmp") new
 if reg == 1
   index on upper(fio) to (cur_dir()+"tmp")
@@ -2662,13 +2662,13 @@ if reg == 1
                      "[ По зубным техникам ]",;
                      "[ По медсестрам ]"}[reg1],sh))
   if par3 == "boln"
-    R_Use(dir_server+"kartotek",,"KART")
+    R_Use(dir_server()+"kartotek",,"KART")
     use (cur_dir()+"tmp1") new
     set relation to kod_h into KART
     index on str(kod,4)+upper(left(kart->fio,20)) to (cur_dir()+"tmp1")
     select TMP
   elseif par3 == "usl"
-    R_Use(dir_server+"uslugi",,"USL")
+    R_Use(dir_server()+"uslugi",,"USL")
     use (cur_dir()+"tmp1") new
     set relation to kod_h into USL
     index on str(kod,4)+fsort_usl(usl->shifr) to (cur_dir()+"tmp1")
@@ -2676,7 +2676,7 @@ if reg == 1
   endif
 else
   index on fsort_usl(left(fio,10)) to (cur_dir()+"tmp")
-  R_Use(dir_server+"uslugi",,"USL")
+  R_Use(dir_server()+"uslugi",,"USL")
   select TMP
   set relation to kod into USL
   if !(musluga == "*")
@@ -2813,7 +2813,7 @@ reg1 := if(par1 == "vr", 1, if(par1 == "tehn", 2, 3))
 if (mperso := input_kperso()) == NIL  // ==> весь персонал
   mywait()
   mperso := {}
-  R_Use(dir_server+"mo_pers",,"PERSO")
+  R_Use(dir_server()+"mo_pers",,"PERSO")
   go top
   do while !eof()
     if perso->kod > 0
@@ -2852,12 +2852,12 @@ musluga := alltrim(mem_ort_na)
 if empty(musluga) .or. musluga == "*"
   musluga := "9999999999"
 endif
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"mo_pers",,"PERSO")
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"mo_pers",,"PERSO")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
 set relation to u_kod into USL
-R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
 set relation to kod_k into KART
 dbseek(dtos(begin_date),.t.)
 do while human->k_data <= end_date .and. !eof()
@@ -2962,8 +2962,8 @@ add_string(center({"[ По врачам ]",;
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
 //
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"mo_pers",,"PERSO")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"mo_pers",,"PERSO")
 use (cur_dir()+"tmp1") new
 index on str(kod,4)+upper(fio) to (cur_dir()+"tmp1")
 use (cur_dir()+"tmp") new
@@ -3044,7 +3044,7 @@ reg := 2 //техники
 if (mperso := input_kperso()) == NIL  // ==> весь персонал
   mywait()
   mperso := {}
-  R_Use(dir_server+"mo_pers",,"PERSO")
+  R_Use(dir_server()+"mo_pers",,"PERSO")
   go top
   do while !eof()
     if perso->kod > 0
@@ -3106,17 +3106,17 @@ use (cur_dir()+"tmp_it") new
 index on str(kod,4) to (cur_dir()+"tmp_it")
 use (cur_dir()+"tmp") new
 index on str(kod,4) to (cur_dir()+"tmp")
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"tip_orto",,"ORT")
-R_Use(dir_server+"ortoped",,"OR")
-R_Use(dir_server+"ortoped1",,"OR1")
-R_Use(dir_server+"ortoped2",,"OR2")
-R_Use(dir_server+"mo_pers",,"PERSO")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"tip_orto",,"ORT")
+R_Use(dir_server()+"ortoped",,"OR")
+R_Use(dir_server()+"ortoped1",,"OR1")
+R_Use(dir_server()+"ortoped2",,"OR2")
+R_Use(dir_server()+"mo_pers",,"PERSO")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
 if Tip_data == 1
-  R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+  R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
 else
-  R_Use(dir_server+"hum_ort",dir_server+"hum_orto","HUMAN")
+  R_Use(dir_server()+"hum_ort",dir_server()+"hum_orto","HUMAN")
 endif
 for prr := 1 to len(mm_orto_mat)
   if f_is_ist_pr(glob_mas_pr,prr)
@@ -3602,7 +3602,7 @@ reg := 2 //техники
 if (mperso := input_kperso()) == NIL  // ==> весь персонал
   mywait()
   mperso := {}
-  R_Use(dir_server+"mo_pers",,"PERSO")
+  R_Use(dir_server()+"mo_pers",,"PERSO")
   go top
   do while !eof()
     if perso->kod > 0
@@ -3637,14 +3637,14 @@ use (cur_dir()+"tmp_it") new
 index on str(kod,4) to (cur_dir()+"tmp_it")
 use (cur_dir()+"tmp") new
 index on str(kod,4) to (cur_dir()+"tmp")
-R_Use(dir_server+"tip_orto",,"ORT")
-R_Use(dir_server+"ortoped",,"OR")
-R_Use(dir_server+"ortoped1",,"OR1")
-R_Use(dir_server+"ortoped2",,"OR2")
-R_Use(dir_server+"mo_pers",,"PERSO")
-R_Use(dir_server+"mo_hu",dir_server+"mo_hu","HU")
+R_Use(dir_server()+"tip_orto",,"ORT")
+R_Use(dir_server()+"ortoped",,"OR")
+R_Use(dir_server()+"ortoped1",,"OR1")
+R_Use(dir_server()+"ortoped2",,"OR2")
+R_Use(dir_server()+"mo_pers",,"PERSO")
+R_Use(dir_server()+"mo_hu",dir_server()+"mo_hu","HU")
 //
-R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+R_Use(dir_server()+"human",dir_server()+"humand","HUMAN")
 //
 for prr := 1 to len(mm_orto_mat)
 //  prr := 2
@@ -4083,13 +4083,13 @@ dbcreate(cur_dir()+"tmp", {;
    {"STOIM",      "N",     12,      2};   // сумма оплаты
   })
 use (cur_dir()+"tmp") new
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
-R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
+R_Use(dir_server()+"hum_oro",dir_server()+"hum_oro","HO")
 if tip == 1
-  R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+  R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
   uslovie := "human->k_data <= end_date"
 else
-  R_Use(dir_server+"hum_ort",dir_server+"hum_orto","HUMAN")
+  R_Use(dir_server()+"hum_ort",dir_server()+"hum_orto","HUMAN")
   uslovie := "human->n_data <= end_date"
 endif
 dbseek(dtos(begin_date),.t.)
@@ -4162,9 +4162,9 @@ else
 endif
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
-R_Use(dir_server+"hum_ort",,"HUMAN")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"hum_oro",dir_server()+"hum_oro","HO")
+R_Use(dir_server()+"hum_ort",,"HUMAN")
 set relation to kod_k into KART
 use (cur_dir()+"tmp") new
 index on str(n_nar,5) to (cur_dir()+"tmp")
@@ -4247,11 +4247,11 @@ dbcreate(cur_dir()+"tmpvr", {;
   })
 use (cur_dir()+"tmpvr") new
 index on str(kod_vr,4) to (cur_dir()+"tmpvr")
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_ort",,"HUMAN")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"hum_ort",,"HUMAN")
 set relation to kod_k into KART
 if par1 == 1
-  set index to (dir_server+"hum_orto")
+  set index to (dir_server()+"hum_orto")
   dbseek(dtos(begin_date),.t.)
   if is_open
     index on dtos(data) to (cur_dir()+"tmp_hum") while data <= end_date for empty(k_data)
@@ -4356,7 +4356,7 @@ add_string(center(pr_titul,sh))
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
 s1 := s2 := 0
-R_Use(dir_server+"mo_pers",,"PERSO")
+R_Use(dir_server()+"mo_pers",,"PERSO")
 use (cur_dir()+"tmpvr") index (cur_dir()+"tmpvr") new
 use (cur_dir()+"tmp") new
 if par2 == 1
@@ -4458,10 +4458,10 @@ endif
 Private pr_arr := {}, pr_arr_otd := {}, is_talon := ret_is_talon(),;
         pdata, pk_data
 //
-R_Use(dir_server+"mo_otd",,"OTD")
+R_Use(dir_server()+"mo_otd",,"OTD")
 dbeval({|| aadd(pr_arr,{otd->(recno()),otd->name,otd->kod_lpu,""}) },;
        {|| otd->kod_lpu == glob_uch[1] .and. between_date(otd->dbegino,otd->dendo,sys_date)} )
-R_Use(dir_server+"mo_uch",,"UCH")
+R_Use(dir_server()+"mo_uch",,"UCH")
 aeval(pr_arr, {|x,i| dbGoto(x[3]), pr_arr[i,4] := uch->name } )
 //
 asort(pr_arr,,,{|x,y| iif(x[3] == y[3], upper(x[2]) < upper(y[2]), ;
@@ -4571,7 +4571,7 @@ aadd(mm_tmp, {"rab_nerab","N",2,0,NIL,;
               "МЕСТО ЖИТЕЛЬСТВА: г/о/и",;
               {|g,o|valid_mest_inog(g,o,2)} })
 aadd(mm_tmp, {"rajon_git","N",2,0,NIL,;
-              {|x|menu_reader(x,{dir_server+"rajon",,;
+              {|x|menu_reader(x,{dir_server()+"rajon",,;
                       {||FIELD->tip==m1mi_git}},A__POPUPMENU)},;
               0,{|| space(10) },;
               "   район",,;
@@ -4582,7 +4582,7 @@ aadd(mm_tmp, {"mest_inog","N",2,0,NIL,;
               "Финансирование: г/о/и",;
               {|g,o|valid_mest_inog(g,o)} })
 aadd(mm_tmp, {"rajon","N",2,0,NIL,;
-              {|x|menu_reader(x,{dir_server+"rajon",,;
+              {|x|menu_reader(x,{dir_server()+"rajon",,;
                       {||FIELD->tip==m1mest_inog}},A__POPUPMENU)},;
               0,{|| space(10) },;
               "   район",,;
@@ -4705,7 +4705,7 @@ aadd(mm_tmp, {"ukod_ms","C",50,0,NIL,;
               "                         ",,;
               {|| .f. } })
 aadd(mm_tmp, {"PRICH_POL","N",3,0,NIL,;
-              {|x|menu_reader(x,{dir_server+"ort_brk"},A__POPUPEDIT)},;
+              {|x|menu_reader(x,{dir_server()+"ort_brk"},A__POPUPEDIT)},;
               0,{|| space(10) },;
               "Причина поломки протеза"})
 aadd(mm_tmp, {"summa_min","N",10,2,,;
@@ -4723,7 +4723,7 @@ aadd(mm_tmp, {"vid_doc","N",17,0,NIL,;
 delete file (tmp_file)
 init_base(tmp_file,,mm_tmp,0)
 //
-R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+R_Use(dir_server()+"mo_pers",dir_server()+"mo_pers","PERSO")
 pict_vr := "99999"
 k := f_edit_spr(A__APPEND,mm_tmp,"множественному запросу",;
                 "g_use(cur_dir()+'tmp_mn_p',,,.t.,.t.)",0,1,,,,,"writeOmn_p")
@@ -4733,7 +4733,7 @@ if k > 0
     is_talon := .f.
   endif
   // заменить таб.номер на код
-  R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERS")
+  R_Use(dir_server()+"mo_pers",dir_server()+"mo_pers","PERS")
   if mn->kod_vr1 > 0
     find (str(mn->kod_vr1,5))
     if found()
@@ -4848,15 +4848,15 @@ if k > 0
   if is_talon
     AB_open()
   endif
-  R_Use(dir_server+"kartote2",,"KART2")
-  R_Use(dir_server+"kartote_",,"KART_")
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server()+"kartote2",,"KART2")
+  R_Use(dir_server()+"kartote_",,"KART_")
+  R_Use(dir_server()+"kartotek",,"KART")
   set relation to recno() into KART_, recno() into KART2
-  R_Use(dir_server+"uslugi",,"USL")
-  R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
+  R_Use(dir_server()+"uslugi",,"USL")
+  R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
   set relation to u_kod into USL
   if pk_data != NIL
-    R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+    R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
     set relation to kod_k into KART
     dbseek(dtos(pk_data[5]),.t.)
     do while human->k_data <= pk_data[6] .and. !eof()
@@ -4870,7 +4870,7 @@ if k > 0
       skip
     enddo
   else
-    R_Use(dir_server+"hum_ort",dir_server+"hum_orto","HUMAN")
+    R_Use(dir_server()+"hum_ort",dir_server()+"hum_orto","HUMAN")
     set relation to kod_k into KART
     dbseek(dtos(pdata[5]),.t.)
     do while human->data <= pdata[6] .and. !eof()
@@ -4967,13 +4967,13 @@ if k > 0
     else
       reg_print := 6
     endif
-    R_Use(dir_server+"mo_pers",,"PERSO")
-    R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
-    R_Use(dir_server+"kartote2",,"KART2")
-    R_Use(dir_server+"kartote_",,"KART_")
-    R_Use(dir_server+"kartotek",,"KART")
+    R_Use(dir_server()+"mo_pers",,"PERSO")
+    R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
+    R_Use(dir_server()+"kartote2",,"KART2")
+    R_Use(dir_server()+"kartote_",,"KART_")
+    R_Use(dir_server()+"kartotek",,"KART")
     set relation to recno() into KART_, recno() into KART2
-    R_Use(dir_server+"hum_ort",,"HUMAN")
+    R_Use(dir_server()+"hum_ort",,"HUMAN")
     set relation to kod_k into KART
     use (cur_dir()+"tmp1") new
     index on str(kod,7)+fsort_usl(shifr) to (cur_dir()+"tmp1")
@@ -5058,14 +5058,14 @@ if k > 0
                  inieditspr(A__MENUVERT, menu_mest, mn->mi_git))
     endif
     if mn->rajon_git > 0
-      add_string("  Район: "+inieditspr(A__POPUPMENU, dir_server+"rajon", mn->rajon_git))
+      add_string("  Район: "+inieditspr(A__POPUPMENU, dir_server()+"rajon", mn->rajon_git))
     endif
     if mn->mest_inog >= 0
       add_string("Финансирование: "+;
                  inieditspr(A__MENUVERT, menu_mest, mn->mest_inog))
     endif
     if mn->rajon > 0
-      add_string("  Район: "+inieditspr(A__POPUPMENU, dir_server+"rajon", mn->rajon))
+      add_string("  Район: "+inieditspr(A__POPUPMENU, dir_server()+"rajon", mn->rajon))
     endif   */
     if mn->kod_vr1 > 0
       add_string("Лечащий врач: "+mn->kod_vr)
@@ -5081,11 +5081,11 @@ if k > 0
     endif
     if yes_h_otd == 1 .and. mn->otd > 0
       add_string("Отделение: "+;
-                 inieditspr(A__POPUPMENU, dir_server+"mo_otd", mn->otd))
+                 inieditspr(A__POPUPMENU, dir_server()+"mo_otd", mn->otd))
     endif
     if mn->PRICH_POL > 0
       add_string("Причина поломки протеза: "+;
-                 inieditspr(A__POPUPMENU, dir_server+"ort_brk", mn->PRICH_POL))
+                 inieditspr(A__POPUPMENU, dir_server()+"ort_brk", mn->PRICH_POL))
     endif
     if mn->summa_min > 0 .or. mn->summa_max > 0
       if empty(mn->summa_min)
@@ -5099,7 +5099,7 @@ if k > 0
     endif
     if mn->otd_usl > 0
       add_string("Отделение, в котором оказана услуга: "+;
-                 inieditspr(A__POPUPMENU, dir_server+"mo_otd", mn->otd_usl))
+                 inieditspr(A__POPUPMENU, dir_server()+"mo_otd", mn->otd_usl))
     endif
     if mn->ukod_vr1 > 0
       add_string("Врач, оказавший услугу(и): "+alltrim(mn->ukod_vr))
@@ -5488,7 +5488,7 @@ Local par, mperso, mkod, buf := save_row(maxrow()), ;
 DEFAULT s1d1 TO ctod(""), s1d2 TO ctod(""),;
         s2d1 TO ctod(""), s2d2 TO ctod(""),;
         s3d1 TO ctod(""), s3d2 TO ctod("")
-R_Use(dir_server+"diag_ort",dir_server+"diag_ort")
+R_Use(dir_server()+"diag_ort",dir_server()+"diag_ort")
 dbeval({|| aadd(arr_diag, {shifr+" "+name,shifr}) } )
 diag_ort->(dbCloseArea())
 if (a_diag := bit_popup(T_ROW,T_COL-5,arr_diag)) == NIL
@@ -5550,7 +5550,7 @@ par := if(ptip_pers == "vr", 1, 2)
 if (mperso := input_kperso()) == NIL  // ==> весь персонал
   mywait()
   mperso := {}
-  R_Use(dir_server+"mo_pers",,"PERSO")
+  R_Use(dir_server()+"mo_pers",,"PERSO")
   go top
   do while !eof()
     if perso->kod > 0
@@ -5577,10 +5577,10 @@ musluga := alltrim(mem_ort_na)
 if empty(musluga) .or. musluga == "*"
   musluga := "9999999999"
 endif
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
 set relation to u_kod into USL
-R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
 dbseek(dtos(begin_date),.t.)
 do while human->k_data <= end_date .and. !eof()
   UpdateStatus()
@@ -5717,7 +5717,7 @@ endif
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
 //
-R_Use(dir_server+"mo_pers",,"PERSO")
+R_Use(dir_server()+"mo_pers",,"PERSO")
 use (cur_dir()+"tmp") index (cur_dir()+"tmp") new
 asort(mperso,,,{|x,y| upper(x[2]) < upper(y[2]) } )
 for p := 1 to len(mperso)
@@ -5833,9 +5833,9 @@ adbf := {{"KOD",   "N", 4,0},;  // код персонала
 dbcreate(cur_dir()+"tmp", adbf)
 use (cur_dir()+"tmp") new
 index on str(kod,4) to (cur_dir()+"tmp")
-R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HO")
+R_Use(dir_server()+"hum_oro",dir_server()+"hum_oro","HO")
 // наряды, ещё не закрытые на начало (конец) периода
-R_Use(dir_server+"hum_ort",dir_server+"hum_orto","HUMAN")
+R_Use(dir_server()+"hum_ort",dir_server()+"hum_orto","HUMAN")
 go top
 do while !eof()
   UpdateStatus()
@@ -5927,7 +5927,7 @@ do while !eof()
 enddo
 if !fl_exit // наряды, закрытые за период
   select HUMAN
-  set index to (dir_server+"hum_ortd")
+  set index to (dir_server()+"hum_ortd")
   dbseek(dtos(arr_m[5]),.t.)
   do while human->k_data <= arr_m[6] .and. !eof()
     UpdateStatus()
@@ -5990,8 +5990,8 @@ arr_title := {;
   "─────────────────────────────────────────┴────┴───────┴─────────┴────┴───────────┴────┴───────┴─────────"}
 sh := len(arr_title[1])
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"organiz",,"ORG")
-R_Use(dir_server+"mo_pers",,"PERSO")
+R_Use(dir_server()+"organiz",,"ORG")
+R_Use(dir_server()+"mo_pers",,"PERSO")
 add_string(org->name)
 add_string("")
 add_string(center("Количество нарядов-заказов",sh))
@@ -6125,16 +6125,16 @@ endif
 mywait()
 sh := len(arr_title[1])
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"mo_pers",,"perso")
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server()+"mo_pers",,"perso")
+R_Use(dir_server()+"organiz",,"ORG")
 add_string(center("Ж У Р Н А Л",sh))
 add_string(center("учета заказов граждан на предоставление им платных медицинских услуг(помощи)",sh))
 add_string(center("по "+iif(is_open,"открытым ","закрытым ")+"нарядам-заказам",sh))
 add_string(center(arr_m[4],sh))
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HPU")
-R_Use(dir_server+"hum_ort",,"HU")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HPU")
+R_Use(dir_server()+"hum_ort",,"HU")
 aeval(arr_title, {|x| add_string(x) } )
 j := sk := ss := 0
 select HU
@@ -6342,8 +6342,8 @@ next
 //
 sh := len(arr_title[1])
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"mo_pers",,"PERSO")
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server()+"mo_pers",,"PERSO")
+R_Use(dir_server()+"organiz",,"ORG")
 add_string(center("Ж У Р Н А Л",sh))
 if tip_jurn==1
   add_string(center("учета заказов граждан на оказание им платных медицинских услуг(помощи)",sh))
@@ -6351,11 +6351,11 @@ else
   add_string(center("оказания ортопедических услуг по закрытым нарядам",sh))
 endif
 add_string(center(arr_m[4],sh))
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HPU")
-R_Use(dir_server+"hum_oro",dir_server+"hum_oro","HPO")
-R_Use(dir_server+"hum_ort",,"HU")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HPU")
+R_Use(dir_server()+"hum_oro",dir_server()+"hum_oro","HPO")
+R_Use(dir_server()+"hum_ort",,"HU")
 if tip_jurn==1
   index on N_data to (cur_dir()+"tmp_hum") for between(N_data,arr_m[5],arr_m[6])
 ELSE
@@ -6503,14 +6503,14 @@ add_string("")
 add_string(center("Настройка расхода материалов",sh))
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
-R_Use(dir_server+"tip_orto",,"OR0")
+R_Use(dir_server()+"tip_orto",,"OR0")
 index on str(tip,1)+name to (cur_dir()+"tmp1")
-R_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
-R_Use(dir_server+"ortoped",,"OR")
-R_Use(dir_server+"ortoped1",,"OR1")
+R_Use(dir_server()+"uslugi",dir_server()+"uslugi","USL")
+R_Use(dir_server()+"ortoped",,"OR")
+R_Use(dir_server()+"ortoped1",,"OR1")
 index on str(kod_menu,4) to (cur_dir()+"tmp2")
 set relation to kod_ort into OR
-R_Use(dir_server+"ortoped2",,"OR2")
+R_Use(dir_server()+"ortoped2",,"OR2")
 set relation to str(kod_usl,4) into USL
 //
 select OR0
@@ -6575,14 +6575,14 @@ add_string("")
 add_string(center("Настройка расхода материалов",sh))
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
-R_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
-R_Use(dir_server+"ortoped",,"OR")
+R_Use(dir_server()+"uslugi",dir_server()+"uslugi","USL")
+R_Use(dir_server()+"ortoped",,"OR")
 //
-R_Use(dir_server+"ortoped1",,"OR1")
+R_Use(dir_server()+"ortoped1",,"OR1")
 index on str(kod_menu,4) to (cur_dir()+"tmp2")
 set relation to kod_ort into OR
 //
-R_Use(dir_server+"ortoped2",,"OR2")
+R_Use(dir_server()+"ortoped2",,"OR2")
 set relation to str(kod_usl,4) into USL
 index on usl->shifr to (cur_dir()+"tmp1")
 //
@@ -6661,10 +6661,10 @@ cre_tmp_30({{"p_kod","C",4,0},;
            })
 use (fr_data) new alias TMP
 index on str(tip,1)+p_kod to (cur_dir()+"tmp")
-R_Use(dir_server+"mo_otd",,"OTD")
-R_Use(dir_server+"diag_ort",dir_server+"diag_ort","DBF1")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
-R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+R_Use(dir_server()+"mo_otd",,"OTD")
+R_Use(dir_server()+"diag_ort",dir_server()+"diag_ort","DBF1")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
+R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
 dbseek(arr_m[5],.t.)
 do while human->k_data <= arr_m[6] .and. !eof()
   if iif(tip_f30== 1,glob_human[1] == human->kod_vr,.T.)
@@ -6758,7 +6758,7 @@ dbcreate(fr_titl, {{"god","N",4,0},;
                    {"tit1name","C",130,0},;
                    {"tit2name","C",130,0},;
                    {"tit3name","C",130,0}})
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server()+"organiz",,"ORG")
 add_string(alltrim(org->name))
 use (fr_titl) new
 append blank
@@ -6936,7 +6936,7 @@ return NIL
 
 *****
 Function f1_forma_30_na(par,title)
-Local nfile := dir_server+f30_nastr, name_sect
+Local nfile := dir_server()+f30_nastr, name_sect
 Local adbf, arr_usl, i
 //
 name_sect := f30_sect+lstr(iif(par>11,par+7,par))
@@ -6947,7 +6947,7 @@ adbf := {;
      {"U_NAME",     "C",     65,      0};   // наименование услуги
     }
 dbcreate(cur_dir()+"tmp", adbf)
-R_Use(dir_server+"uslugi",,"USL")
+R_Use(dir_server()+"uslugi",,"USL")
 use (cur_dir()+"tmp") new
 for i := 1 to len(arr_usl)
   select USL
@@ -6982,7 +6982,7 @@ return NIL
 
 *****
 Function get_nastr_orto_f30()
-Local nf := dir_server+f30_nastr, fl, i
+Local nf := dir_server()+f30_nastr, fl, i
 if (fl := file(nf))
   for j := 1 to 48
     t := "au"+lstr(j)
@@ -7018,7 +7018,7 @@ return NIL
 
 *****
 Function f1_forma_30_prn_na(par,title)
-Local nfile := dir_server+f30_nastr, name_sect
+Local nfile := dir_server()+f30_nastr, name_sect
 Local adbf, arr_usl, i
 //
 name_sect := f30_sect+lstr(iif(par>11,par+7,par))
@@ -7029,7 +7029,7 @@ adbf := {;
      {"U_NAME",     "C",     65,      0};   // наименование услуги
     }
 dbcreate(cur_dir()+"tmp", adbf)
-R_Use(dir_server+"uslugi",,"USL")
+R_Use(dir_server()+"uslugi",,"USL")
 use (cur_dir()+"tmp") new
 for i := 1 to len(arr_usl)
   select USL
@@ -7075,10 +7075,10 @@ add_string(center(arr_m[4],sh))
 add_string("")
 aeval(arr_title, {|x| add_string(x) })
 //
-R_Use(dir_server+"mo_pers",,"P2")
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_ort",,"HUM_T")
-R_Use(dir_server+"hum_oro",,"HUM_O")
+R_Use(dir_server()+"mo_pers",,"P2")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"hum_ort",,"HUM_T")
+R_Use(dir_server()+"hum_oro",,"HUM_O")
 go top
 do while !eof()
   if between(hum_o->date_voz,arr_m[7],arr_m[8]) .and.;
@@ -7153,11 +7153,11 @@ dbcreate(cur_dir()+"tmp", {{"kod",     "N",  4,  0},;
                  {"summa",   "N", 12,  2}})
 use (cur_dir()+"tmp") new
 if yes_parol
-  R_Use(dir_server+"base1",,"BASE1")
+  R_Use(dir_server()+"base1",,"BASE1")
 endif
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_ort",,"HUMAN")
-R_Use(dir_server+"mo_pers",,"PERS")
+R_Use(dir_server()+"kartotek",,"KART")
+R_Use(dir_server()+"hum_ort",,"HUMAN")
+R_Use(dir_server()+"mo_pers",,"PERS")
 R_Use_base("hum_oro")
 go top
 do while !eof()
@@ -7220,7 +7220,7 @@ if bkol_oper > 0
   fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
   add_string(center("Р Е Е С Т Р",sh))
   add_string(center("регистрации чеков на оплату оказанных медицинских платных услуг населению",sh))
-  R_Use(dir_server+"organiz",,"ORG")
+  R_Use(dir_server()+"organiz",,"ORG")
   for i := 1 to perenos(arr,alltrim(org->name),sh)
     add_string(center(alltrim(arr[i]),sh))
   next

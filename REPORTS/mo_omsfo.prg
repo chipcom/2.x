@@ -66,7 +66,7 @@ Function obF2_statist(k, serv_arr)
     if (st_a_uch := inputN_uch(T_ROW, T_COL - 5, , , @lcount_uch)) == NIL
       return NIL
     endif
-    R_Use(dir_server + 'mo_otd', , 'OTD')
+    R_Use(dir_server() + 'mo_otd', , 'OTD')
     dbeval({|| aadd(arr_otd, {otd->(recno()), otd->name, otd->kod_lpu}) }, ;
          {|| f_is_uch(st_a_uch, otd->kod_lpu)} )
     otd->(dbCloseArea())
@@ -100,9 +100,9 @@ Function obF2_statist(k, serv_arr)
     elseif serv_arr[1] == 2  // весь персонал
       mywait()
       mperso := {}
-      R_Use(dir_server + 'mo_hu', {dir_server + 'mo_huv', ;
-                              dir_server + 'mo_hua'}, 'HU')
-      R_Use(dir_server + 'mo_pers', , 'P2')
+      R_Use(dir_server() + 'mo_hu', {dir_server() + 'mo_huv', ;
+                              dir_server() + 'mo_hua'}, 'HU')
+      R_Use(dir_server() + 'mo_pers', , 'P2')
       go top
       do while !eof()
         if p2->kod > 0
@@ -227,19 +227,19 @@ Function obF2_statist(k, serv_arr)
       obF2_v_usl()
   endcase
   use (cur_dir() + 'tmp') index (cur_dir() + 'tmpk'), (cur_dir() + 'tmpn') alias TMP
-  R_Use(dir_server + 'mo_su', , 'USL')
+  R_Use(dir_server() + 'mo_su', , 'USL')
   Private is_1_usluga := (len(arr_usl) == 1)
   use_base('luslf')
-  R_Use(dir_server + 'mo_pers', , 'PERSO')
+  R_Use(dir_server() + 'mo_pers', , 'PERSO')
   if eq_any(k, 5, 9, 13)  // Статистика по работе конкретного человека
     if serv_arr == NIL
       mperso := {glob_human}
     endif
     if pi1 == 4  // по невыписанным счетам
       pole_kol := 'hu->kol_1'
-      R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'HU')
-      R_Use(dir_server + 'human_', , 'HUMAN_')
-      R_Use(dir_server + 'human', dir_server + 'humann', 'HUMAN')
+      R_Use(dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'HU')
+      R_Use(dir_server() + 'human_', , 'HUMAN_')
+      R_Use(dir_server() + 'human', dir_server() + 'humann', 'HUMAN')
       set relation to recno() into HUMAN_
       dbseek('1', .t.)
       do while human->tip_h < B_SCHET .and. !eof()
@@ -273,13 +273,13 @@ Function obF2_statist(k, serv_arr)
         skip
       enddo
     else   // between(pi1, 1, 3)
-      R_Use(dir_server + 'schet', , 'SCHET')
-      R_Use(dir_server + 'human_', , 'HUMAN_')
-      R_Use(dir_server + 'human', dir_server + 'humank', 'HUMAN')
+      R_Use(dir_server() + 'schet', , 'SCHET')
+      R_Use(dir_server() + 'human_', , 'HUMAN_')
+      R_Use(dir_server() + 'human', dir_server() + 'humank', 'HUMAN')
       set relation to recno() into HUMAN_
-      R_Use(dir_server + 'mo_hu', {dir_server + 'mo_huv', ;
-                              dir_server + 'mo_hua', ;
-                              dir_server + 'mo_hu'}, 'HU')
+      R_Use(dir_server() + 'mo_hu', {dir_server() + 'mo_huv', ;
+                              dir_server() + 'mo_hua', ;
+                              dir_server() + 'mo_hu'}, 'HU')
       for yy := 1 to len(mperso)
         mkod_perso := mperso[yy, 1]
         for xx := 1 to 2
@@ -373,9 +373,9 @@ Function obF2_statist(k, serv_arr)
     is_1_usluga := (len(arr_usl) == 1)
     if pi1 == 4  // по невыписанным счетам
       pole_kol := 'hu->kol_1'
-      R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'HU')
-      R_Use(dir_server + 'human_', , 'HUMAN_')
-      R_Use(dir_server + 'human', dir_server + 'humann', 'HUMAN')
+      R_Use(dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'HU')
+      R_Use(dir_server() + 'human_', , 'HUMAN_')
+      R_Use(dir_server() + 'human', dir_server() + 'humann', 'HUMAN')
       set relation to recno() into HUMAN_
       dbseek('1', .t.)
       do while human->tip_h < B_SCHET .and. !eof()
@@ -405,12 +405,12 @@ Function obF2_statist(k, serv_arr)
     else   // between(pi1, 1, 3)
       t_date1 := dtoc4(arr[5] - 180)
       t_date2 := dtoc4(arr[5] - 1)
-      R_Use(dir_server + 'schet', , 'SCHET')
-      R_Use(dir_server + 'human_', , 'HUMAN_')
-      R_Use(dir_server + 'human', dir_server + 'humank', 'HUMAN')
+      R_Use(dir_server() + 'schet', , 'SCHET')
+      R_Use(dir_server() + 'human_', , 'HUMAN_')
+      R_Use(dir_server() + 'human', dir_server() + 'humank', 'HUMAN')
       set relation to recno() into HUMAN_
-      R_Use(dir_server + 'mo_hu', {dir_server + 'mo_huk', ;
-                              dir_server + 'mo_hu'}, 'HU')
+      R_Use(dir_server() + 'mo_hu', {dir_server() + 'mo_huk', ;
+                              dir_server() + 'mo_hu'}, 'HU')
       for xx := 1 to len(arr_usl)
         if k == 6
           tmp->(dbGoto(arr_usl[xx, 2]))
@@ -484,10 +484,10 @@ Function obF2_statist(k, serv_arr)
     do case
       case pi1 == 1  // по дате оказания услуги
         pole_kol := 'hu->kol_1'
-        R_Use(dir_server + 'human_', , 'HUMAN_')
-        R_Use(dir_server + 'human', , 'HUMAN')
+        R_Use(dir_server() + 'human_', , 'HUMAN_')
+        R_Use(dir_server() + 'human', , 'HUMAN')
         set relation to recno() into HUMAN_
-        R_Use(dir_server + 'mo_hu', dir_server + 'mo_hud', 'HU')
+        R_Use(dir_server() + 'mo_hu', dir_server() + 'mo_hud', 'HU')
         set relation to kod into HUMAN
         select HU
         dbseek(begin_date, .t.)
@@ -507,11 +507,11 @@ Function obF2_statist(k, serv_arr)
         set relation to
       case pi1 == 2  // по дате выписки счета
         pole_kol := 'hu->kol_1'
-        R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'HU')
-        R_Use(dir_server + 'human_', , 'HUMAN_')
-        R_Use(dir_server + 'human', dir_server + 'humans', 'HUMAN')
+        R_Use(dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'HU')
+        R_Use(dir_server() + 'human_', , 'HUMAN_')
+        R_Use(dir_server() + 'human', dir_server() + 'humans', 'HUMAN')
         set relation to recno() into HUMAN_
-        R_Use(dir_server + 'schet', dir_server + 'schetd', 'SCHET')
+        R_Use(dir_server() + 'schet', dir_server() + 'schetd', 'SCHET')
         set filter to !eq_any(mest_inog, 6, 7)
         dbseek(begin_date, .t.)
         do while schet->pdate <= end_date .and. !eof()
@@ -545,9 +545,9 @@ Function obF2_statist(k, serv_arr)
         enddo
       case pi1 == 3  // по дате окончания лечения
         pole_kol := 'hu->kol_1'
-        R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'HU')
-        R_Use(dir_server + 'human_', , 'HUMAN_')
-        R_Use(dir_server + 'human', dir_server + 'humand', 'HUMAN')
+        R_Use(dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'HU')
+        R_Use(dir_server() + 'human_', , 'HUMAN_')
+        R_Use(dir_server() + 'human', dir_server() + 'humand', 'HUMAN')
         set relation to recno() into HUMAN_
         dbseek(dtos(arr_m[5]), .t.)
         do while human->k_data <= arr_m[6] .and. !eof()
@@ -572,9 +572,9 @@ Function obF2_statist(k, serv_arr)
         enddo
       case pi1 == 4  // по невыписанным счетам
         pole_kol := 'hu->kol_1'
-        R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'HU')
-        R_Use(dir_server + 'human_', , 'HUMAN_')
-        R_Use(dir_server + 'human', dir_server + 'humann', 'HUMAN')
+        R_Use(dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'HU')
+        R_Use(dir_server() + 'human_', , 'HUMAN_')
+        R_Use(dir_server() + 'human', dir_server() + 'humann', 'HUMAN')
         set relation to recno() into HUMAN_
         dbseek('1', .t.)
         do while human->tip_h < B_SCHET .and. !eof()
@@ -613,11 +613,11 @@ Function obF2_statist(k, serv_arr)
         '                         │ Кол.│  Дата  ║               │  Дата  ║          ', ;
         '         Ф.И.О.          │услуг│окон.леч║  Номер счета  │  счета ║Примечание', ;
         '─────────────────────────┴─────┴────────╨───────────────┴────────╨──────────'}
-      R_Use(dir_server + 'human_', , 'HUMAN_')
-      R_Use(dir_server + 'human', dir_server + 'humank', 'HUMAN')
+      R_Use(dir_server() + 'human_', , 'HUMAN_')
+      R_Use(dir_server() + 'human', dir_server() + 'humank', 'HUMAN')
       set relation to recno() into HUMAN_
-      R_Use(dir_server + 'schet_', , 'SCHET_')
-      R_Use(dir_server + 'schet', , 'SCHET')
+      R_Use(dir_server() + 'schet_', , 'SCHET_')
+      R_Use(dir_server() + 'schet', , 'SCHET')
       set relation to recno() into SCHET_
     else
       len_n := sh - 8
@@ -655,10 +655,10 @@ Function obF2_statist(k, serv_arr)
     sh := len(arr_title[1])
     SET(_SET_DELETED, .F.)
     use_base('luslf')
-    R_Use(dir_server + 'mo_su', , 'USL')
+    R_Use(dir_server() + 'mo_su', , 'USL')
     use (cur_dir() + 'tmp') index (cur_dir() + 'tmpk'), (cur_dir() + 'tmpn') NEW alias TMP
     if !eq_any(k, 1, 8, 9)
-      R_Use(dir_server + 'mo_pers', , 'PERSO')
+      R_Use(dir_server() + 'mo_pers', , 'PERSO')
       select TMP
       set order to 0
       go top
@@ -1336,8 +1336,8 @@ Function obF2_v_usl(is_get, r1, mtitul, name_tmp)
   if r1 > 14
     r1 := 14
   endif
-  R_Use(dir_server + 'mo_su', {dir_server + 'mo_sush', ;
-                          dir_server + 'mo_sush1'}, 'USL')
+  R_Use(dir_server() + 'mo_su', {dir_server() + 'mo_sush', ;
+                          dir_server() + 'mo_sush1'}, 'USL')
   use (cur_dir() + name_tmp) index (cur_dir() + name_tmp + 'k'),(cur_dir() + name_tmp + 'n') new alias TMP
   set order to 2
   t_arr[BR_TOP] := r1
@@ -1512,8 +1512,8 @@ Function input_Fusluga()
     mywait()
     musl := transform_shifr(musl)
     SetIniSect(tmp_ini, 'Fuslugi', {{'shifr', musl}})
-    R_Use(dir_server + 'mo_su', {dir_server + 'mo_sush', ;
-                            dir_server + 'mo_sush1'}, 'USL')
+    R_Use(dir_server() + 'mo_su', {dir_server() + 'mo_sush', ;
+                            dir_server() + 'mo_sush1'}, 'USL')
     fl := .f.
     select USL
     if len(alltrim(musl)) <= 10

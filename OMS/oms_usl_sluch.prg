@@ -29,7 +29,7 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   Private tmp_V002 := create_classif_FFOMS(0,'V002') // PROFIL
   //
   mywait()
-  R_Use(dir_server + 'usl_uva',,'OU')
+  R_Use(dir_server() + 'usl_uva',,'OU')
   dbeval({|| aadd(arr_uva, {alltrim(ou->shifr),ou->kod_vr,ou->kod_as} ) } )
   ou->(dbCloseArea())
   use_base('lusl')
@@ -37,16 +37,16 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   use_base('luslf')
   Use_base('mo_su')
   set order to 0
-  G_Use(dir_server + 'uslugi',{dir_server + 'uslugish',;
-                             dir_server + 'uslugi'},'USL')
+  G_Use(dir_server() + 'uslugi',{dir_server() + 'uslugish',;
+                             dir_server() + 'uslugi'},'USL')
   set order to 0
   Use_base('mo_hu')
   Use_base('human_u')
-  G_Use(dir_server + 'human_2',,'HUMAN_2')
-  G_Use(dir_server + 'human_',,'HUMAN_')
-  G_Use(dir_server + 'human',{dir_server + 'humank',;
-                            dir_server + 'humankk',;
-                            dir_server + 'humano'},'HUMAN')
+  G_Use(dir_server() + 'human_2',,'HUMAN_2')
+  G_Use(dir_server() + 'human_',,'HUMAN_')
+  G_Use(dir_server() + 'human',{dir_server() + 'humank',;
+                            dir_server() + 'humankk',;
+                            dir_server() + 'humano'},'HUMAN')
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
   find (str(mkod_human,7))
   arr_usl1year := f_arr_usl1()
@@ -272,8 +272,8 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   if is_zf_stomat == 1
     Use_base('kartdelz')
   endif
-  R_Use(dir_server + 'usl_otd',dir_server + 'usl_otd','UO')
-  R_Use(dir_server + 'mo_pers',dir_server + 'mo_pers','PERSO')
+  R_Use(dir_server() + 'usl_otd',dir_server() + 'usl_otd','UO')
+  R_Use(dir_server() + 'mo_pers',dir_server() + 'mo_pers','PERSO')
   select TMP
   set relation to otd into OTD
   go top
@@ -324,9 +324,9 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   kol_rec := lastrec()
   Private mcena_1 := human->cena_1, msmo := human_->smo
   if yes_parol .and. (mvu[1,1] > 0 .or. mvu[2,1] > 0 .or. mvu[3,1] > 0) ;
-               .and. hb_FileExists(dir_server + 'mo_opern'+sdbf)
+               .and. hb_FileExists(dir_server() + 'mo_opern'+sdbf)
     close databases
-    if G_Use(dir_server + 'mo_opern',dir_server + 'mo_opern','OP')
+    if G_Use(dir_server() + 'mo_opern',dir_server() + 'mo_opern','OP')
       for i := 1 to 3
         if mvu[i,1] > 0
           write_work_oper(glob_task,OPER_USL,i,mvu[i,1],mvu[i,2],.f.)

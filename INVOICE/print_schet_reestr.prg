@@ -65,19 +65,19 @@ function schet_reestr( arr, destination, one, reg )
     { 'stoim', 'N', 12, 2 }, ;
     { 'rezultat', 'C', 10, 0 } }
 
-  r_use( dir_server + 'organiz', , 'ORG' )
+  r_use( dir_server() + 'organiz', , 'ORG' )
   use_base( 'lusl' )
-  r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
-    dir_server + 'uslugi1s' }, 'USL1' )
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+    dir_server() + 'uslugi1s' }, 'USL1' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To u_kod into USL
 
   r_use_base( 'kartotek', , .f. ) // индексы не нужны
 
-  g_use( dir_server + 'human_3', { dir_server + 'human_3', dir_server + 'human_32' }, 'HUMAN_3' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
+  g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To kod_k into KART
 
   For iSchet := 1 To Len( arr )
@@ -130,9 +130,9 @@ function schet_reestr( arr, destination, one, reg )
       s := get_rekv_smo()[ j, 2 ]
     Elseif schet->str_crb > 0
       If schet->komu == 3
-        s := inieditspr( A__POPUPMENU, dir_server + 'komitet', schet->str_crb )
+        s := inieditspr( A__POPUPMENU, dir_server() + 'komitet', schet->str_crb )
       Else
-        s := inieditspr( A__POPUPMENU, dir_server + 'str_komp', schet->str_crb )
+        s := inieditspr( A__POPUPMENU, dir_server() + 'str_komp', schet->str_crb )
       Endif
     Endif
     frt->plat := s

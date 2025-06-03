@@ -69,7 +69,7 @@ Local ret := -1
 Local buf, fl := .f., rec, rec1, k := 17, tmp_color
 do case
   case regim == "open"
-    G_Use(dir_server+"plat_ms",dir_server+"plat_ms","DBF1")
+    G_Use(dir_server()+"plat_ms",dir_server()+"plat_ms","DBF1")
     find (str_find)
     ret := found()
   case regim == "choice" .and. nKey == K_SPACE
@@ -118,7 +118,7 @@ do case
         buf := save_row(maxrow())
         stat_msg("†¤¨â¥! à®¨§¢®¤¨âáï ¯à®¢¥àª  ­  ¤®¯ãáâ¨¬®áâì ã¤ «¥­¨ï")
         rec := dbf1->(recno())
-        G_Use(dir_server+"hum_p_u",,"HU")
+        G_Use(dir_server()+"hum_p_u",,"HU")
         if lregim == 1
           Locate for equalany(rec,hu->med1,hu->med2,hu->med3) progress
         else
@@ -224,7 +224,7 @@ Local ret := -1
 Local buf, fl := .f., rec, rec1, k := 14, tmp_color, arr, mdate, nfile, sh := 60
 do case
   case regim == "open"
-    G_Use(dir_server+"plat_vz",dir_server+"plat_vz","OPL")
+    G_Use(dir_server()+"plat_vz",dir_server()+"plat_vz","OPL")
     find (str_find)
     ret := found()
   case regim == "edit"
@@ -255,20 +255,20 @@ do case
         else
           asort(arr,,,{|x,y| x[1] < y[1]})
           nfile := "_dms_ort.txt"
-          strfile(center("Ž¯« â  ¯® „Œ‘ ®àâ®¯¥¤¨ç¥áª¨å ãá«ã£ §  ¯®á«¥¤­¨© £®¤",sh)+eos,nfile)
-          strfile(center(glob_k_fio,sh)+eos+eos,nfile,.t.)
-          strfile("ÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"+eos,nfile,.t.)
-          strfile(" „ â  ®¯« âë ³ ‘ã¬¬  ®¯« âë ¯® „Œ‘ ³      à¨¬¥ç ­¨¥        "+eos,nfile,.t.)
-          strfile("ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"+eos,nfile,.t.)
+          strfile(center("Ž¯« â  ¯® „Œ‘ ®àâ®¯¥¤¨ç¥áª¨å ãá«ã£ §  ¯®á«¥¤­¨© £®¤",sh)+hb_eol(),nfile)
+          strfile(center(glob_k_fio,sh)+hb_eol()+hb_eol(),nfile,.t.)
+          strfile("ÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"+hb_eol(),nfile,.t.)
+          strfile(" „ â  ®¯« âë ³ ‘ã¬¬  ®¯« âë ¯® „Œ‘ ³      à¨¬¥ç ­¨¥        "+hb_eol(),nfile,.t.)
+          strfile("ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"+hb_eol(),nfile,.t.)
           ss := 0
           for k := 1 to len(arr)
             strfile(padc(full_date(arr[k,1]),13)+"³"+;
                     str(arr[k,2],14,2)+"       ³  "+;
-                    arr[k,3]+eos,nfile,.t.)
+                    arr[k,3]+hb_eol(),nfile,.t.)
             ss += arr[k,2]
           next
-          strfile("ÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"+eos,nfile,.t.)
-          strfile(padc("ˆâ®£®:",13)+str(ss,15,2)+eos,nfile,.t.)
+          strfile("ÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"+hb_eol(),nfile,.t.)
+          strfile(padc("ˆâ®£®:",13)+str(ss,15,2)+hb_eol(),nfile,.t.)
           viewtext(nfile)
         endif
       case nKey == K_INS .or. (nKey == K_ENTER .and. opl->tip > 0)
@@ -357,12 +357,12 @@ Function edit_pr_vz()
   do while i > 0
     if (i := popup_prompt(T_ROW, T_COL - 5, i, mas_edit, , , , .f.)) == A__APPEND
       if (k := f_edit_spr(A__APPEND, get_DMS(), '¯à¥¤¯à¨ïâ¨î ¯® ¢§ ¨¬®§ ç¥âã', ;
-                          "G_Use(dir_server + 'p_pr_vz')", 0, , , , , , 'f_emp_strah')) > 0
+                          "G_Use(dir_server() + 'p_pr_vz')", 0, , , , , , 'f_emp_strah')) > 0
         glob_pr_vz[1] := k
       endif
     elseif i != 0 .and. input_pr_vz(T_ROW + i + 1, T_COL - 10)
       f_edit_spr(i, get_DMS(), '¯à¥¤¯à¨ïâ¨î ¯® ¢§ ¨¬®§ ç¥âã', ;
-        "G_Use(dir_server + 'p_pr_vz')", 0, glob_pr_vz[1], , 'fdel_pr_vz', , , 'f_emp_strah')
+        "G_Use(dir_server() + 'p_pr_vz')", 0, glob_pr_vz[1], , 'fdel_pr_vz', , , 'f_emp_strah')
     endif
   enddo
   G_SUnLock(str_sem)
@@ -372,7 +372,7 @@ Function edit_pr_vz()
 *****
 Function input_pr_vz(r,c)
 Local fl := .f., k
-if (k := popup_edit(dir_server+"p_pr_vz",r,c,r+10,glob_pr_vz[1],4)) != NIL
+if (k := popup_edit(dir_server()+"p_pr_vz",r,c,r+10,glob_pr_vz[1],4)) != NIL
   glob_pr_vz := {k[1],alltrim(k[2])} ; fl := .t.
 endif
 return fl
@@ -381,12 +381,12 @@ return fl
 Function fdel_pr_vz(mkod)
 Local fl := .t., buf := save_row(maxrow())
 stat_msg("†¤¨â¥! à®¨§¢®¤¨âáï ¯à®¢¥àª  ­  ¤®¯ãáâ¨¬®áâì ã¤ «¥­¨ï ¤ ­­®£® ¯à¥¤¯à¨ïâ¨ï")
-R_Use(dir_server+"hum_p",,"HP")
+R_Use(dir_server()+"hum_p",,"HP")
 Locate for tip_usl == PU_PR_VZ .and. pr_smo == mkod progress
 fl := !found()
 hp->(dbCloseArea())
 //
-R_Use(dir_server+"hum_oro",,"HP")
+R_Use(dir_server()+"hum_oro",,"HP")
 Locate for tip_usl == 2 .and. pr_smo == mkod progress
 fl := !found()
 hp->(dbCloseArea())
@@ -410,12 +410,12 @@ Function edit_d_smo()
   do while i > 0
     if (i := popup_prompt(T_ROW, T_COL - 5, i, mas_edit, , , , .f.)) == A__APPEND
       if (k := f_edit_spr(A__APPEND, get_DMS(), '¤®¡à®¢®«ì­®¬ã ‘ŒŽ', ;
-                          "G_Use(dir_server + 'p_d_smo')", 0, , , , , ,'f_emp_strah')) > 0
+                          "G_Use(dir_server() + 'p_d_smo')", 0, , , , , ,'f_emp_strah')) > 0
         glob_d_smo[1] := k
       endif
     elseif i != 0 .and. input_d_smo(T_ROW + i + 1, T_COL - 10)
       f_edit_spr(i, get_DMS(), '¤®¡à®¢®«ì­®¬ã ‘ŒŽ', ;
-        "G_Use(dir_server + 'p_d_smo')", 0, glob_d_smo[1], , 'fdel_d_smo', , , 'f_emp_strah')
+        "G_Use(dir_server() + 'p_d_smo')", 0, glob_d_smo[1], , 'fdel_d_smo', , , 'f_emp_strah')
     endif
   enddo
   G_SUnLock(str_sem)
@@ -425,7 +425,7 @@ Function edit_d_smo()
 *****
 Function input_d_smo(r,c)
 Local fl := .f., k
-if (k := popup_edit(dir_server+"p_d_smo",r,c,r+10,glob_d_smo[1],4)) != NIL
+if (k := popup_edit(dir_server()+"p_d_smo",r,c,r+10,glob_d_smo[1],4)) != NIL
   glob_d_smo := {k[1],alltrim(k[2])} ; fl := .t.
 endif
 return fl
@@ -434,12 +434,12 @@ return fl
 Function fdel_d_smo(mkod)
 Local fl := .t., buf := save_row(maxrow())
 stat_msg("†¤¨â¥! à®¨§¢®¤¨âáï ¯à®¢¥àª  ­  ¤®¯ãáâ¨¬®áâì ã¤ «¥­¨ï ¤ ­­®© ª®¬¯ ­¨¨")
-R_Use(dir_server+"hum_p",,"HP")
+R_Use(dir_server()+"hum_p",,"HP")
 Locate for tip_usl == PU_D_SMO .and. pr_smo == mkod progress
 fl := !found()
 hp->(dbCloseArea())
 //
-R_Use(dir_server+"hum_oro",,"HP")
+R_Use(dir_server()+"hum_oro",,"HP")
 Locate for tip_usl == 3 .and. pr_smo == mkod progress
 fl := !found()
 hp->(dbCloseArea())

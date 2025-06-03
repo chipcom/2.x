@@ -78,12 +78,12 @@ Function inf_drz()
 
     Private arr_otklon
 
-    r_use( dir_server + 'kartote_', , 'KART_' )
-    r_use( dir_server + 'kartotek', , 'KART' )
+    r_use( dir_server() + 'kartote_', , 'KART_' )
+    r_use( dir_server() + 'kartotek', , 'KART' )
     Set Relation To RecNo() into KART_
 
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( beginPeriod ), .t. )
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -515,8 +515,8 @@ Function ret_etap_drz( lkod_h, lkod_k )
 
   Local ae := { {}, {} }, fl, i, k, d1 := Year( mn_data )
 
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humankk', 'HUMAN' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
   find ( Str( lkod_k, 7 ) )
   Do While human->kod_k == lkod_k .and. !Eof()
@@ -1505,7 +1505,7 @@ Function save_arr_drz( lkod, mk_data )
 
   If ! aliasIsUse
     oldSelect := Select()
-    r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'TPERS' )
+    r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'TPERS' )
   Endif
 
   If Type( 'mfio' ) == 'C'
@@ -1680,7 +1680,7 @@ Function read_arr_drz( lkod, is_all )
 
   If ! aliasIsUse
     oldSelect := Select()
-    r_use( dir_server + 'mo_pers', , 'TPERS' )
+    r_use( dir_server() + 'mo_pers', , 'TPERS' )
   Endif
 
   Private mvar

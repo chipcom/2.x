@@ -29,14 +29,14 @@ if pds==2 .and. !(arr_g[5]==bom(arr_g[5]) .and. arr_g[6]==eom(arr_g[6]))
   return func_error(4,"Запрашиваемый период должен быть кратен месяцу")
 endif
 mywait()
-if R_Use(dir_server + "human_",,"HUMAN_") .and. ;
-    R_Use(dir_server + "human",dir_server + "humans","HUMAN") .and. ;
-     R_Use(dir_server + "human_u",dir_server + "human_u","HU") .and. ;
-       R_Use(dir_server + "mo_otd",,"OTD") .and. ;
-        R_Use(dir_server + "slugba",dir_server + "slugba","SL") .and. ;
-         R_Use(dir_server + "uslugi",dir_server + "uslugi","USL") .and. ;
-          R_Use(dir_server + "schet_",,"SCHET_") .and. ;
-            R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
+if R_Use(dir_server() + "human_",,"HUMAN_") .and. ;
+    R_Use(dir_server() + "human",dir_server() + "humans","HUMAN") .and. ;
+     R_Use(dir_server() + "human_u",dir_server() + "human_u","HU") .and. ;
+       R_Use(dir_server() + "mo_otd",,"OTD") .and. ;
+        R_Use(dir_server() + "slugba",dir_server() + "slugba","SL") .and. ;
+         R_Use(dir_server() + "uslugi",dir_server() + "uslugi","USL") .and. ;
+          R_Use(dir_server() + "schet_",,"SCHET_") .and. ;
+            R_Use(dir_server() + "schet",dir_server() + "schetd","SCHET")
   Private atmp_os[8], arr_uch[8]
   afill(atmp_os,0) ; afill(arr_uch,0)
   if k3 > 2
@@ -433,19 +433,19 @@ Local buf := savescreen(), buf24 := save_maxrow(), arr_blk,;
 Private atmp_os[8], arr_uch[8]
 if input_schet(0)
   WaitStatus()
-  if R_Use(dir_server + "human_",,"HUMAN_") .and. ;
-      R_Use(dir_server + "human",dir_server + "humans","HUMAN") .and. ;
-       R_Use(dir_server + "human_u",dir_server + "human_u","HU") .and. ;
-        R_Use(dir_server + "mo_otd",,"OTD") .and. ;
-         R_Use(dir_server + "slugba",dir_server + "slugba","SL") .and. ;
-          R_Use(dir_server + "uslugi",dir_server + "uslugi","USL") .and. ;
-           R_Use(dir_server + "schet_",,"SCHET_") .and. ;
-            R_Use(dir_server + "schet",,"SCHET")
+  if R_Use(dir_server() + "human_",,"HUMAN_") .and. ;
+      R_Use(dir_server() + "human",dir_server() + "humans","HUMAN") .and. ;
+       R_Use(dir_server() + "human_u",dir_server() + "human_u","HU") .and. ;
+        R_Use(dir_server() + "mo_otd",,"OTD") .and. ;
+         R_Use(dir_server() + "slugba",dir_server() + "slugba","SL") .and. ;
+          R_Use(dir_server() + "uslugi",dir_server() + "uslugi","USL") .and. ;
+           R_Use(dir_server() + "schet_",,"SCHET_") .and. ;
+            R_Use(dir_server() + "schet",,"SCHET")
     set relation to recno() into SCHET_
     goto (glob_schet)
     if schet->lpu > 0
       glob_uch[1] := schet->lpu
-      glob_uch[2] := inieditspr(A__POPUPMENU,dir_server + "mo_uch",schet->lpu)
+      glob_uch[2] := inieditspr(A__POPUPMENU,dir_server() + "mo_uch",schet->lpu)
     endif
     Private p_number := alltrim(schet_->nschet),;
             p_date := schet_->dschet,;
@@ -570,8 +570,8 @@ use (cur_dir() + "tmp_smo") new alias TMP
 index on smo to (cur_dir() + "tmp_smo1")
 index on nkomu to (cur_dir() + "tmp_smo2")
 set index to (cur_dir() + "tmp_smo1"),(cur_dir() + "tmp_smo2")
-R_Use(dir_server + "schet_",,"SCHET_")
-R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
+R_Use(dir_server() + "schet_",,"SCHET_")
+R_Use(dir_server() + "schet",dir_server() + "schetd","SCHET")
 set relation to recno() into SCHET_
 set filter to empty(schet_->IS_DOPLATA)
 if pds == 1
@@ -687,14 +687,14 @@ dbcreate(cur_dir() + "tmp",adbf)
 use (cur_dir() + "tmp") new alias TMP
 index on str(tip,2)+shifr to (cur_dir() + "tmp")
 use (cur_dir() + "tmp_smo") index (cur_dir() + "tmp_smo1") new alias TMP_SMO
-R_Use(dir_server + "uslugi",,"USL")
-R_Use(dir_server + "human_u",dir_server + "human_u","HU")
+R_Use(dir_server() + "uslugi",,"USL")
+R_Use(dir_server() + "human_u",dir_server() + "human_u","HU")
 set relation to u_kod into USL
-R_Use(dir_server + "human_",,"HUMAN_")
-R_Use(dir_server + "human",dir_server + "humans","HUMAN")
+R_Use(dir_server() + "human_",,"HUMAN_")
+R_Use(dir_server() + "human",dir_server() + "humans","HUMAN")
 set relation to recno() into HUMAN_
-R_Use(dir_server + "schet_",,"SCHET_")
-R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
+R_Use(dir_server() + "schet_",,"SCHET_")
+R_Use(dir_server() + "schet",dir_server() + "schetd","SCHET")
 set relation to recno() into SCHET_
 set filter to empty(schet_->IS_DOPLATA) .and. !empty(val(schet_->smo))
 if pds == 1
@@ -1115,12 +1115,12 @@ Local fl_exit := .f., sh, HH := 60, reg_print, n_file := "_uz_spec.txt",;
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
 if m1usl == 1
   abitusl := {}
-  R_Use(dir_server + "uslugi",,"USL")
-  R_Use(dir_server + "human_u",dir_server + "human_u","HU")
+  R_Use(dir_server() + "uslugi",,"USL")
+  R_Use(dir_server() + "human_u",dir_server() + "human_u","HU")
   set relation to u_kod into USL
-  R_Use(dir_server + "human",dir_server + "humans","HUMAN")
-  R_Use(dir_server + "schet_",,"SCHET_")
-  R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
+  R_Use(dir_server() + "human",dir_server() + "humans","HUMAN")
+  R_Use(dir_server() + "schet_",,"SCHET_")
+  R_Use(dir_server() + "schet",dir_server() + "schetd","SCHET")
   set relation to recno() into SCHET_
   set filter to empty(schet_->IS_DOPLATA)
   dbseek(begin_date,.t.)
@@ -1180,12 +1180,12 @@ if m1perso < 3
 else
   index on usl_shifr+str(kod_perso,4) to (cur_dir() + "tmp")
 endif
-R_Use(dir_server + "uslugi",,"USL")
-R_Use(dir_server + "human_u",dir_server + "human_u","HU")
+R_Use(dir_server() + "uslugi",,"USL")
+R_Use(dir_server() + "human_u",dir_server() + "human_u","HU")
 set relation to u_kod into USL
-R_Use(dir_server + "human",dir_server + "humans","HUMAN")
-R_Use(dir_server + "schet_",,"SCHET_")
-R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
+R_Use(dir_server() + "human",dir_server() + "humans","HUMAN")
+R_Use(dir_server() + "schet_",,"SCHET_")
+R_Use(dir_server() + "schet",dir_server() + "schetd","SCHET")
 set relation to recno() into SCHET_
 set filter to empty(schet_->IS_DOPLATA)
 dbseek(begin_date,.t.)
@@ -1283,7 +1283,7 @@ if !fl_exit
       "─────┬"+replicate("─",sh_perso),;
       "Таб.№│"+padr(" ФИО сотрудника",sh_perso),;
       "─────┴"+replicate("─",sh_perso)}
-    R_Use(dir_server + "mo_pers",,"P2")
+    R_Use(dir_server() + "mo_pers",,"P2")
     tmp->(dbeval({|| p2->(dbgoto(tmp->kod_perso)), ;
                      tmp->tab_nomer:=p2->tab_nom, ;
                      tmp->fio_perso:=p2->fio }))
@@ -1397,7 +1397,7 @@ add_string(center("на оплату медицинской помощи за счет средств Программы",sh))
 add_string(center("модернизации здравоохранения Волгоградской области на 2011-2012 годы",sh))
 add_string(center("в части повышения доступности амбулаторной медицинской помощи",sh))
 add_string("")
-R_Use(dir_server + "organiz",,"ORG")
+R_Use(dir_server() + "organiz",,"ORG")
 add_string("Поставщик:       "+alltrim(org->name))
 add_string("Адрес:           "+org->adres)
 add_string("Расчетный счет:  "+alltrim(org->r_schet)+" "+alltrim(org->bank))
@@ -1698,19 +1698,19 @@ if m1usl == 1
   index on str(nn,1)+str(ist_fin,1)+str(tip,1)+str(spec,9)+str(u_kod,5) to (cur_dir() + "tmpu")
 endif
 //
-R_Use(dir_server + "mo_su",,"MOSU")
-R_Use(dir_server + "mo_hu",dir_server + "mo_hu","MOHU")
+R_Use(dir_server() + "mo_su",,"MOSU")
+R_Use(dir_server() + "mo_hu",dir_server() + "mo_hu","MOHU")
 set relation to u_kod into MOSU
-R_Use(dir_server + "uslugi",,"USL")
-R_Use(dir_server + "human_u_",,"HU_")
-R_Use(dir_server + "kartote_",,"KART_")
-R_Use(dir_server + "kartotek",,"KART")
+R_Use(dir_server() + "uslugi",,"USL")
+R_Use(dir_server() + "human_u_",,"HU_")
+R_Use(dir_server() + "kartote_",,"KART_")
+R_Use(dir_server() + "kartotek",,"KART")
 set relation to recno() into KART_
-R_Use(dir_server + "human_u",{dir_server + "human_u",;
-                            dir_server + "human_ud"},"HU")
+R_Use(dir_server() + "human_u",{dir_server() + "human_u",;
+                            dir_server() + "human_ud"},"HU")
 set relation to recno() into HU_, to u_kod into USL
-R_Use(dir_server + "human_",,"HUMAN_")
-R_Use(dir_server + "human",dir_server + "humand","HUMAN")
+R_Use(dir_server() + "human_",,"HUMAN_")
+R_Use(dir_server() + "human",dir_server() + "humand","HUMAN")
 set relation to recno() into HUMAN_, to kod_k into KART
 stat_msg("По дате окончания лечения")
 old := mdate11-1
@@ -1743,8 +1743,8 @@ name_file := cur_dir() + 'prik_848.txt' ; HH := 42
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
 use (cur_dir() + "tmp") index (cur_dir() + "tmp") new
 if m1usl == 1
-  R_Use(dir_server + "mo_su",,"MOSU")
-  R_Use(dir_server + "uslugi",,"USL")
+  R_Use(dir_server() + "mo_su",,"MOSU")
+  R_Use(dir_server() + "uslugi",,"USL")
   use (cur_dir() + "tmpu") index (cur_dir() + "tmpu") new
 endif
 for _tip := 1 to 5

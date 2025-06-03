@@ -90,7 +90,7 @@ if k == 0 // инициализация файла и переменных
    {"FILE_12"  ,   "C",    12,     0},; // шаблон титул истоии болезни
    {"FILE_XX"  ,   "C",     3,     0};  // маска личных шаблонов приёмного покоя
   }
-  reconstruct(dir_server+file_mem,mm_tmp,,,.t.)
+  reconstruct(dir_server()+file_mem,mm_tmp,,,.t.)
   if type("pp_IST_BOL") == "N"
     // второй раз зашли
   else
@@ -103,7 +103,7 @@ if k == 0 // инициализация файла и переменных
            pp_FILE_12    := "MO_025uA5_2",;
            pp_FILE_XX    := "SMO"
   endif
-  G_Use(dir_server+file_mem,,"MV")
+  G_Use(dir_server()+file_mem,,"MV")
   if lastrec() == 0
     AddRecN()
     mv->IST_BOL := pp_IST_BOL // да
@@ -127,7 +127,7 @@ if k == 0 // инициализация файла и переменных
   endif
   Use
 elseif k == 1
-  R_Use(dir_server+file_mem,,"MV")
+  R_Use(dir_server()+file_mem,,"MV")
   pp_IST_BOL    := mv->IST_BOL
   pp_N_IST_BOL  := mv->N_IST_BOL
   pp_FILE_6     := alltrim(mv->FILE_6)
@@ -242,7 +242,7 @@ init_base(cur_dir()+"tmp",,mm_tmp,0)
 use (cur_dir()+"tmp") new
 append blank
 if pp_IST_BOL == 1 // да
-  R_Use(dir_server+"pp_nastr",,"MV")
+  R_Use(dir_server()+"pp_nastr",,"MV")
   old_ib := tmp->N_IST_BOL := mv->N_IST_BOL
 endif
 tmp->PRN_SVOD   := int(val(a2default(ar,"PRN_SVOD",  "3")))
@@ -251,7 +251,7 @@ close databases
 if f_edit_spr(A__EDIT,mm_tmp,smsg,"g_use(cur_dir()+'tmp',,,.t.,.t.)",0,1) > 0
   use (cur_dir()+"tmp") new
   if pp_IST_BOL == 1 .and. old_ib != tmp->N_IST_BOL
-    G_Use(dir_server+"pp_nastr",,"MV")
+    G_Use(dir_server()+"pp_nastr",,"MV")
     G_RLock(forever)
     pp_N_IST_BOL := mv->N_IST_BOL := tmp->N_IST_BOL
   endif
@@ -274,7 +274,7 @@ arr[US_TOP      ] := T_ROW
 arr[US_BOTTOM   ] := 22
 arr[US_LEFT     ] := T_COL-5
 arr[US_RIGHT    ] := T_COL-5+23
-arr[US_BASE     ] := dir_server+"mo_ppst"
+arr[US_BASE     ] := dir_server()+"mo_ppst"
 arr[US_ARR_BROWSE]:= {"═","░","═","N/BG,W+/N,B/BG,W+/B",.t.}
 arr[US_COLUMN   ] := {{" Стол",{|| name},blk},;
                       {" Тип",{|| inieditspr(A__MENUVERT,menu_stdnst,tip) },blk}}
@@ -294,7 +294,7 @@ return NIL
 Function fdel_pp_stol(mkod)
 Local fl := .t., buf := save_maxrow()
 stat_msg("Ждите! Производится проверка на допустимость удаления данного стола")
-R_Use(dir_server+"mo_pp",,"HU")
+R_Use(dir_server()+"mo_pp",,"HU")
 Locate for hu->stol == mkod progress
 fl := !found()
 Use
@@ -335,13 +335,13 @@ return NIL
 Function f1pp_perevod()
 Local buf := savescreen(), blk, t_arr[BR_LEN]
 Private last_rec, last_lpu, last_n_data, last_n_time, last_otd, last_stol
-R_Use(dir_server+"mo_pp",,"HU")
+R_Use(dir_server()+"mo_pp",,"HU")
 goto (glob_perso_pp)
 box_shadow(1,10,4,69,color1,glob_k_fio)
 @ 2,11 say padc("поступил "+full_date(hu->n_data)+" в "+hu->n_time,58) color "G+/B"
 @ 3,11 say padc('в "'+;
- alltrim(inieditspr(A__POPUPMENU, dir_server+"mo_otd", hu->otd))+'" ('+;
- alltrim(inieditspr(A__POPUPMENU, dir_server+"mo_uch", hu->lpu))+')',58) color color8
+ alltrim(inieditspr(A__POPUPMENU, dir_server()+"mo_otd", hu->otd))+'" ('+;
+ alltrim(inieditspr(A__POPUPMENU, dir_server()+"mo_uch", hu->lpu))+')',58) color color8
 //
 dbcreate(cur_dir()+"tmp",{;
                 {"rec_per"  ,   "N",     7,     0},;
@@ -367,9 +367,9 @@ tmp->KOD_P     := hu->KOD_P
 hu->(dbCloseArea())
 //
 if yes_parol
-  R_Use(dir_server+"base1",,"BASE1")
+  R_Use(dir_server()+"base1",,"BASE1")
 endif
-G_Use(dir_server+"mo_ppper",dir_server+"mo_ppper","PER")
+G_Use(dir_server()+"mo_ppper",dir_server()+"mo_ppper","PER")
 find (str(glob_perso_pp,7))
 do while per->kod == glob_perso_pp .and. !eof()
   select TMP
@@ -401,8 +401,8 @@ blk := {|| if(empty(tmp->rec_per), {3,4}, {1,2}) }
 t_arr[BR_COLUMN] := {}
 aadd(t_arr[BR_COLUMN], { "  Дата и время",{|| full_date(tmp->n_data)+" "+tmp->n_time }, blk })
 aadd(t_arr[BR_COLUMN], { " ",{|| iif(tmp->rec_per==0,"поступление",padc("перевод",11)) }, blk })
-aadd(t_arr[BR_COLUMN], { center("в отделение",30),{|| padr(inieditspr(A__POPUPMENU, dir_server+"mo_otd", tmp->otd),30) }, blk })
-aadd(t_arr[BR_COLUMN], { center("Стол",10),{|| padr(inieditspr(A__POPUPMENU, dir_server+"mo_ppst", tmp->stol),10) }, blk })
+aadd(t_arr[BR_COLUMN], { center("в отделение",30),{|| padr(inieditspr(A__POPUPMENU, dir_server()+"mo_otd", tmp->otd),30) }, blk })
+aadd(t_arr[BR_COLUMN], { center("Стол",10),{|| padr(inieditspr(A__POPUPMENU, dir_server()+"mo_ppst", tmp->stol),10) }, blk })
 t_arr[BR_STAT_MSG] := {|| ;
   status_key("^<Esc>^ выход; ^<Enter>^ редактирование; ^<Ins>^ добавление; ^<Del>^ удаление") }
 t_arr[BR_EDIT] := {|nk,ob| f2pp_perevod(nk,ob,"edit") }
@@ -442,9 +442,9 @@ do case
                 mn_time := if(nkey==K_INS, hour_min(seconds()), tmp->n_time),;
                 mstol, m1stol := if(nkey==K_INS, last_stol, tmp->stol),;
                 gl_area := {1,0,23,79,0}
-        much := inieditspr(A__POPUPMENU, dir_server+"mo_uch", m1uch)
-        motd := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
-        mstol := inieditspr(A__POPUPMENU, dir_server+"mo_ppst", m1stol)
+        much := inieditspr(A__POPUPMENU, dir_server()+"mo_uch", m1uch)
+        motd := inieditspr(A__POPUPMENU, dir_server()+"mo_otd", m1otd)
+        mstol := inieditspr(A__POPUPMENU, dir_server()+"mo_ppst", m1stol)
         tmp_color := setcolor(cDataCScr)
         box_shadow(k,pc1+1,maxrow()-3,pc2-1,,;
                        iif(nKey == K_INS,"Добавление","Редактирование"),;
@@ -457,7 +457,7 @@ do case
              reader {|x|menu_reader(x,{{|k,r,c| ret_uch_otd(k,r,c)}},A__FUNCTION,,,.f.)}
           @ k+3,pc1+4 say " в отделение" get motd when .f.
           @ k+4,pc1+4 say "Стол" get mstol ;
-             reader {|x|menu_reader(x,{dir_server+"mo_ppst"},A__POPUPEDIT,,,.f.)}
+             reader {|x|menu_reader(x,{dir_server()+"mo_ppst"},A__POPUPEDIT,,,.f.)}
           status_key("^<Esc>^ - выход без записи;  ^<Enter>^ - подтверждение ввода")
           myread()
           if lastkey() != K_ESC
@@ -589,7 +589,7 @@ mywait()
 change_sys_date() // перечитать системную дату (для ПП, работающих ночами)
 if pp_ne_zak == 1 .and. Loc_kod == 0 .and. kod_kartotek > 0
   fl := 0
-  R_Use(dir_server+"mo_pp",dir_server+"mo_pp_r","HU")
+  R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_r","HU")
   find (str(kod_kartotek,7))
   do while hu->kod_k == kod_kartotek .and. !eof()
     if empty(hu->k_data) .and. hu->is_gospit == 0
@@ -664,7 +664,7 @@ if pp_ist_bol == 1
   MUCH_DOC := padr(lstr(pp_n_ist_bol+1),10) // номер медицинской карты
 endif
 if Loc_kod > 0   // режим редактирования
-  R_Use(dir_server+"mo_pp",dir_server+"mo_pp_k","HU")
+  R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_k","HU")
   find (str(Loc_kod,7))
   MKOD_K      := hu->KOD_K       // код по картотеке
   MKOD_H      := hu->kod_h       // код по БД human
@@ -712,7 +712,7 @@ if Loc_kod > 0   // режим редактирования
       mrodit_pol := hu->POL_RODIT   // пол родителя
     endif
   endif
-  R_Use(dir_server+"mo_ppdia",dir_server+"mo_ppdia","HUS")
+  R_Use(dir_server()+"mo_ppdia",dir_server()+"mo_ppdia","HUS")
   find (str(Loc_kod,7))
   do while hus->kod == Loc_kod .and. !eof()
     fl_ppdia := .t.
@@ -726,7 +726,7 @@ if Loc_kod > 0   // режим редактирования
     endcase
     skip
   enddo
-  R_Use(dir_server+"mo_ppper",dir_server+"mo_ppper","HUP")
+  R_Use(dir_server()+"mo_ppper",dir_server()+"mo_ppper","HUP")
   find (str(Loc_kod,7))
   do while Loc_kod == hup->kod .and. !eof()
     aadd(arr_perevod, {"",hup->otd,hup->n_data,n_time,dtos(hup->n_data)+n_time})
@@ -734,13 +734,13 @@ if Loc_kod > 0   // режим редактирования
   enddo
   asort(arr_perevod,,,{|x,y| x[5] < y[5] } )
   for i := 1 to len(arr_perevod)
-    arr_perevod[i,1] := inieditspr(A__POPUPMENU, dir_server+"mo_otd", arr_perevod[i,2])
+    arr_perevod[i,1] := inieditspr(A__POPUPMENU, dir_server()+"mo_otd", arr_perevod[i,2])
   next
 endif
 if kod_kartotek > 0   // ФИО из картотеки
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server()+"kartotek",,"KART")
   goto (kod_kartotek)
-  R_Use(dir_server+"kartote_",,"KART_")
+  R_Use(dir_server()+"kartote_",,"KART_")
   goto (kod_kartotek)
   mfio := kart->FIO
   mpol := kart->pol
@@ -769,7 +769,7 @@ if kod_kartotek > 0   // ФИО из картотеки
       case m1komu == 0
         M1VID_OPL := setbit(M1VID_OPL,1) // ОМС
       case eq_any(m1komu,1,3) .and. m1str_crb > 0
-        R_Use(dir_server+iif(m1komu==1,"str_komp","komitet"),,"_SK")
+        R_Use(dir_server()+iif(m1komu==1,"str_komp","komitet"),,"_SK")
         goto (m1str_crb)
         if eq_any(_sk->ist_fin,I_FIN_LPU,I_FIN_PLAT,I_FIN_DMS)
           M1VID_OPL := setbit(M1VID_OPL,3) // платные услуги
@@ -786,7 +786,7 @@ if !(left(msmo,2) == '34') // не Волгоградская область
   m1ismo := msmo ; msmo := '34'
 endif
 if m1vrach > 0
-  R_Use(dir_server+"mo_pers",,"P2")
+  R_Use(dir_server()+"mo_pers",,"P2")
   goto (m1vrach)
   mvrach := fam_i_o(p2->fio)
   MTAB_NOM := p2->tab_nom
@@ -796,8 +796,8 @@ Private gl_arr := {;  // для битовых полей
   {"vid_opl","N",3,0,,,,{|x|inieditspr(A__MENUBIT,menu_vid_opl,x)} },;
   {"pprab_nerab","N",10,0,,,,{|x|inieditspr(A__MENUBIT,mmpp_rab,x)} };
  }
-much := inieditspr(A__POPUPMENU, dir_server+"mo_uch", m1uch)
-motd := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
+much := inieditspr(A__POPUPMENU, dir_server()+"mo_uch", m1uch)
+motd := inieditspr(A__POPUPMENU, dir_server()+"mo_otd", m1otd)
 MNOVOR := inieditspr(A__MENUVERT, mm_danet, M1NOVOR)
 if !empty(M1KEM_NAPR)
   mKEM_NAPR := ret_mo(M1KEM_NAPR)[_MO_SHORT_NAME]
@@ -825,7 +825,7 @@ mishod1    := inieditspr(A__MENUVERT, mmpp1ishod, m1ishod1)
 mishod2    := inieditspr(A__MENUVERT, mmpp2ishod, m1ishod2)
 mtravma    := inieditspr(A__MENUVERT, mmpp_travma, m1travma)
 mbolnich   := inieditspr(A__MENUVERT, menu_bolnich, m1bolnich)
-mstol      := inieditspr(A__POPUPMENU, dir_server+"mo_ppst", m1stol)
+mstol      := inieditspr(A__POPUPMENU, dir_server()+"mo_ppst", m1stol)
 if !eq_any(m1komu,0,1,3,5) ; m1komu := 0 ; endif
 mkomu      := inieditspr(A__MENUVERT, mm_komu, m1komu)
 mismo      := init_ismo(m1ismo)
@@ -955,7 +955,7 @@ do while .t.
       @ j,col() SAY ", время" GET mg_time pict pict_time ;
              when m1is_gospit == 0
       @ j,50 SAY "Стол" GET mstol ;
-             reader {|x|menu_reader(x,{dir_server+"mo_ppst"},A__POPUPEDIT,,,.f.)} ;
+             reader {|x|menu_reader(x,{dir_server()+"mo_ppst"},A__POPUPEDIT,,,.f.)} ;
              when m1is_gospit == 0
   if Loc_kod > 0 .and. m1is_gospit == 0  // режим редактирования
     ++j ; @ j,1 SAY "Дата выписки (смерти)" color color8 GET mk_data ;
@@ -998,7 +998,7 @@ do while .t.
     endif
     if Loc_kod == 0 .and. kod_kartotek > 0
       fl := .f.
-      R_Use(dir_server+"mo_pp",dir_server+"mo_pp_r","HU")
+      R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_r","HU")
       find (str(kod_kartotek,7))
       do while hu->kod_k == kod_kartotek .and. !eof()
         if mn_data == hu->n_data .and. hu->is_gospit == 0
@@ -1028,7 +1028,7 @@ do while .t.
       i := 0 ; fl := .t.
       do while ++i < 20 // столько попыток
         if G_SLock(str_sem)
-          G_Use(dir_server+"pp_nastr",,"MV")
+          G_Use(dir_server()+"pp_nastr",,"MV")
           k := mv->n_ist_bol+1
           select HU
           set order to 4
@@ -1113,7 +1113,7 @@ do while .t.
     Private flag_OMS := (hu->KOD_H > 0)
     hu->(dbUnLock())
     if fl_ppdia .or. !emptyall(MDIAG_NAPR,MDIAG_PR_P,MPOB_D_LEK)
-      G_Use(dir_server+"mo_ppdia",dir_server+"mo_ppdia","HUS")
+      G_Use(dir_server()+"mo_ppdia",dir_server()+"mo_ppdia","HUS")
       do while .t.
         find (str(mkod,7))
         if !found() ; exit ; endif
@@ -1136,15 +1136,15 @@ do while .t.
       G_SPlus(f_name_task(X_OMS)) // плюс 1 пользователь зашёл в задачу ОМС
       // если в задаче ОМС не выполняется ОТВЕТСТВЕННАЯ операция
       if !G_SIsLock(sem_vagno_task[X_OMS])
-        R_Use(dir_server+"kartote_",,"KART_")
-        R_Use(dir_server+"kartotek",,"KART")
+        R_Use(dir_server()+"kartote_",,"KART_")
+        R_Use(dir_server()+"kartotek",,"KART")
         set relation to recno() into KART_
-        R_Use(dir_server+"mo_kismo",,"KSN")
-        G_Use(dir_server+"mo_hismo",,"HSN")
+        R_Use(dir_server()+"mo_kismo",,"KSN")
+        G_Use(dir_server()+"mo_hismo",,"HSN")
         Use_base("human")
         f_write_pp_OMS(mkod)
       else // иначе запишем код истории болезни в промежуточный файл
-        G_Use(dir_server+"mo_ppadd",,"PPA")
+        G_Use(dir_server()+"mo_ppadd",,"PPA")
         index on str(kod,7) to (cur_dir()+"tmp_ppad")
         find (str(mkod,7))
         if !found()
@@ -1155,9 +1155,9 @@ do while .t.
       G_SMinus(f_name_task(X_OMS))  // минус 1 пользователь (вышел из задачи ОМС)
     endif
     if Loc_kod == 0 // для контроля в регистратуре
-      G_Use(dir_server+"mo_regi",{dir_server+"mo_regi1",;
-                                  dir_server+"mo_regi2",;
-                                  dir_server+"mo_regi3"},"RU")
+      G_Use(dir_server()+"mo_regi",{dir_server()+"mo_regi1",;
+                                  dir_server()+"mo_regi2",;
+                                  dir_server()+"mo_regi3"},"RU")
       AddRec(1)
       ru->kod_k := MKOD_K // код по картотеке
       ru->tip := 1 // т.е. заносим код отделения
@@ -1212,7 +1212,7 @@ Static nday := 7 // поиск на 7 дней назад
 Local i, k, arr := {}, buf := save_maxrow()
 WaitStatus("Поиск историй болезни, по которым в подзадаче ОМС не созданы листы учёта")
 R_use_base("mo_pp")
-set order to 2 // index on dtos(n_data)+n_time to (dir_server+"mo_pp_d") progress
+set order to 2 // index on dtos(n_data)+n_time to (dir_server()+"mo_pp_d") progress
 dbseek(dtos(sys_date-nday),.t.)
 do while !eof()
   UpdateStatus()
@@ -1226,7 +1226,7 @@ do while !eof()
   skip
 enddo  
 if len(arr) > 0 // запишем коды истории болезни в промежуточный файл
-  G_Use(dir_server+"mo_ppadd",,"PPA")
+  G_Use(dir_server()+"mo_ppadd",,"PPA")
   index on str(kod,7) to (cur_dir()+"tmp_ppad")
   for i := 1 to len(arr)
     find (str(arr[i],7))
@@ -1423,17 +1423,17 @@ FUNCTION write_rest_pp()
 Local i, k, arr := {}, bSaveHandler, buf := save_maxrow()
 bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
 BEGIN SEQUENCE
-  if G_Use(dir_server+"mo_ppadd",,"PPA")
+  if G_Use(dir_server()+"mo_ppadd",,"PPA")
     dbeval({|| aadd(arr,{ppa->kod,ppa->(recno())}) },{|| empty(ppa->kod_h) })
     if !empty(arr)
       G_SPlus(f_name_task(X_OMS)) // плюс 1 пользователь зашёл в задачу ОМС
       // если в задаче ОМС не выполняется ОТВЕТСТВЕННАЯ операция
       if !G_SIsLock(sem_vagno_task[X_OMS])
-        R_Use(dir_server+"kartote_",,"KART_")
-        R_Use(dir_server+"kartotek",,"KART")
+        R_Use(dir_server()+"kartote_",,"KART_")
+        R_Use(dir_server()+"kartotek",,"KART")
         set relation to recno() into KART_
-        R_Use(dir_server+"mo_kismo",,"KSN")
-        G_Use(dir_server+"mo_hismo",,"HSN")
+        R_Use(dir_server()+"mo_kismo",,"KSN")
+        G_Use(dir_server()+"mo_hismo",,"HSN")
         Use_base("human")
         use_base("mo_pp")
         WaitStatus("Запись незаписанных историй болезни из ПРИЁМНОГО ПОКОЯ в ОМС")
@@ -1493,7 +1493,7 @@ elseif m1is_gospit == 0
   if M1STOL == 0
     s_msg := 'не заполнено поле "Стол"'
   else
-    R_Use(dir_server+"mo_ppst",,"STOL")
+    R_Use(dir_server()+"mo_ppst",,"STOL")
     goto (m1stol)
     if M1REG_LECH == 1
       if stol->tip == 1
@@ -1827,14 +1827,14 @@ DEFAULT lkod TO glob_perso_pp
 Private mr1 := T_ROW, pp_regim := regim, blk_open
 pr_kod_pp := NIL
 blk_open := {|| dbCloseAll(),;
-                iif(yes_parol, R_Use(dir_server+"base1",,"BASE1"), nil),;
-                R_Use(dir_server+"mo_otd",,"OTD"),;
-                R_Use(dir_server+"kartote2",,"KART2"),;
-                R_Use(dir_server+"kartote_",,"KART_"),;
-                R_Use(dir_server+"kartotek",,"KART"),;
+                iif(yes_parol, R_Use(dir_server()+"base1",,"BASE1"), nil),;
+                R_Use(dir_server()+"mo_otd",,"OTD"),;
+                R_Use(dir_server()+"kartote2",,"KART2"),;
+                R_Use(dir_server()+"kartote_",,"KART_"),;
+                R_Use(dir_server()+"kartotek",,"KART"),;
                 dbSetRelation( "KART_", {|| recno()}, "recno()" ),;
-                R_Use(dir_server+"mo_ppper",dir_server+"mo_ppper","HUP"),;
-                R_Use(dir_server+"mo_pp",dir_server+"mo_pp_d","HU"),;
+                R_Use(dir_server()+"mo_ppper",dir_server()+"mo_ppper","HUP"),;
+                R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_d","HU"),;
                 dbSetRelation( "KART", {|| kod_k}, "kod_k" ),;
                 dbGoTop();
             }
@@ -1903,7 +1903,7 @@ else
         endif
         if fl .and. regim == 2  // удаление
           if (fl_human := (hu->kod_h > 0))
-            R_Use(dir_server+"human",dir_server+"humank","HUMAN")
+            R_Use(dir_server()+"human",dir_server()+"humank","HUMAN")
             find (str(hu->kod_h,7))
             if found() .and. human->cena > 0
               fl := func_error(4,"С данным пациентом уже работали в программе ОМС. Удаление запрещено!")
@@ -1924,20 +1924,20 @@ else
             use_base("mo_pp")
             set order to 0
             goto (mkod)
-            G_Use(dir_server+"mo_ppadd",,"PPA")
+            G_Use(dir_server()+"mo_ppadd",,"PPA")
             index on str(kod,7) to (cur_dir()+"tmp_ppad")
             find (str(hu->kod,7))
             if found()
               DeleteRec(.t.)
             endif
-            G_Use(dir_server+"mo_ppdia",dir_server+"mo_ppdia","HUD")
+            G_Use(dir_server()+"mo_ppdia",dir_server()+"mo_ppdia","HUD")
             do while .t.
               find (str(hu->kod,7))
               if !found() ; exit ; endif
               DeleteRec(.t.)
             enddo
             if fl_perevod
-              G_Use(dir_server+"mo_ppper",dir_server+"mo_ppper","HUP")
+              G_Use(dir_server()+"mo_ppper",dir_server()+"mo_ppper","HUP")
               do while .t.
                 find (str(hu->kod,7))
                 if !found() ; exit ; endif
@@ -2353,12 +2353,12 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   if m1komu == 0 // ОМС
     mm_company := aclone(glob_arr_smo)
   elseif m1komu == 1 // Прочие компании
-    R_Use(dir_server+"str_komp")
+    R_Use(dir_server()+"str_komp")
     index on upper(name) to tmp_comp for !between(tfoms,44,47)
     dbeval({|| aadd(mm_company,{alltrim(name),kod}) } )
     str_komp->(dbCloseArea())
   elseif m1komu == 3 // Комитеты/МО
-    R_Use(dir_server+"komitet")
+    R_Use(dir_server()+"komitet")
     index on upper(name) to tmp_comp
     dbeval({|| aadd(mm_company,{alltrim(name),kod}) } )
     komitet->(dbCloseArea())
@@ -2498,7 +2498,7 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   frd->ser := alltrim(kart_->ser_ud)
   frd->nom := alltrim(kart_->nom_ud)
   frd->kogdavyd := kart_->kogdavyd
-  R_Use(dir_server+"s_kemvyd",,"KVYD")
+  R_Use(dir_server()+"s_kemvyd",,"KVYD")
   dbGoto(kart_->kemvyd)
   frd->kemvyd  :=  alltrim(kvyd->name)
   kvyd->(dbCloseArea())
@@ -2567,8 +2567,8 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   endif
   //
   frd->gospit2   := inieditspr(A__MENUVERT, menu2gospit, hu->gospit2)
-  frd->name_uch := inieditspr(6,dir_server+"mo_uch",hu->LPU)
-  frd->name_otd := inieditspr(6,dir_server+"mo_otd",hu->OTD)
+  frd->name_uch := inieditspr(6,dir_server()+"mo_uch",hu->LPU)
+  frd->name_otd := inieditspr(6,dir_server()+"mo_otd",hu->OTD)
   //02.05.18
   //frd->dost_skor := iif(hu->GOSPIT1==1 .and. hu->KEM_DOST==1, "ДА", "НЕТ")
   if glob_mo[_MO_KOD_TFOMS] == '711001' // РЖД
@@ -2581,16 +2581,16 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
     frd->kem_napr := alltrim(arr[_MO_SHORT_NAME])+" ("+arr[_MO_KOD_TFOMS]+" / "+arr[_MO_KOD_FFOMS]+")"
   endif
   if hu->kod_vr > 0
-    R_Use(dir_server+"mo_pers",,"PERSO")
+    R_Use(dir_server()+"mo_pers",,"PERSO")
     dbGoto(hu->kod_vr)
     frd->vrach := flstr(perso->tab_nom)+" ("+fam_i_o(perso->fio)+")"
   endif
-  R_Use(dir_server+"organiz",,"ORG")
+  R_Use(dir_server()+"organiz",,"ORG")
   frd->org_name  := org->name
   frd->adres_org := org->adres
   frd->ogrn      := org->ogrn
   frd->okpo      := org->okpo
-  R_Use(dir_server+"mo_ppdia",dir_server+"mo_ppdia","HUS")
+  R_Use(dir_server()+"mo_ppdia",dir_server()+"mo_ppdia","HUS")
   find (str(hu->kod,7))
   do while hus->kod == hu->kod .and. !eof()
     do case
@@ -2603,7 +2603,7 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
     endcase
     skip
   enddo
-  R_Use(dir_server+"mo_kpred",dir_server+"mo_kpred","KPR")
+  R_Use(dir_server()+"mo_kpred",dir_server()+"mo_kpred","KPR")
   find (str(hu->kod_k,7))
   do while hu->kod_k == kpr->kod .and. !eof()
     if kpr->nn == 1
@@ -2830,7 +2830,7 @@ do while .t.
       skip
     enddo
   elseif is_nomer  // поиск по номеру истории болезни
-    set index to ((dir_server+"mo_pp_i"))
+    set index to ((dir_server()+"mo_pp_i"))
     k := year(sys_date)
     for j := k-10 to k  // просмотр на 10 лет назад
       find (str(j,4)+tmp2)
@@ -2839,7 +2839,7 @@ do while .t.
         skip
       enddo
     next
-    set index to ((dir_server+"mo_pp_d"))
+    set index to ((dir_server()+"mo_pp_d"))
   endif
   if (t_len := len(tmp_kod)) = 0
     stat_msg("Не найдено ни одной записи, удовлетворяющей данному шаблону!")

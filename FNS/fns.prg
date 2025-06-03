@@ -392,7 +392,7 @@ function exist_spravka( get, kod_kart, onePerson )
   tmp_select := select()
 
   // ПЛАТНЫЕ УСЛУГИ
-  if hb_vfExists( dir_server + 'hum_p.dbf' )
+  if hb_vfExists( dir_server() + 'hum_p.dbf' )
     use_base( 'hum_p', 'hum_p' )
     find ( str( glob_kartotek, 7 ) )
     do while hum_p->kod_k == glob_kartotek
@@ -409,7 +409,7 @@ function exist_spravka( get, kod_kart, onePerson )
   endif
 
   // ОРТОПЕДИЯ
-  if hb_vfExists( dir_server + 'hum_ort.dbf' ) .and. hb_vfExists( dir_server + 'hum_oro.dbf' )
+  if hb_vfExists( dir_server() + 'hum_ort.dbf' ) .and. hb_vfExists( dir_server() + 'hum_oro.dbf' )
     use_base( 'hum_ort' )
     find ( str( glob_kartotek, 7 ) )
     do while HUMAN->kod_k == glob_kartotek
@@ -438,7 +438,7 @@ function exist_spravka( get, kod_kart, onePerson )
   endif
 
   // Касса МО
-  if hb_vfExists( dir_server + 'kas_pl.dbf' )
+  if hb_vfExists( dir_server() + 'kas_pl.dbf' )
     use_base( 'kas_pl', 'KASSA' )
     find ( str( glob_kartotek, 7 ) )
     do while KASSA->kod_k == glob_kartotek
@@ -507,9 +507,9 @@ function input_spravka_fns()
   endif
 
   If polikl1_kart() > 0
-    R_Use( dir_server + 'kartote_', , 'KART_' )
+    R_Use( dir_server() + 'kartote_', , 'KART_' )
     goto ( glob_kartotek )
-    R_Use( dir_server + 'kartotek', , 'KART' )
+    R_Use( dir_server() + 'kartotek', , 'KART' )
     goto ( glob_kartotek )
 
     if ! kart->( eof() )
@@ -661,7 +661,7 @@ function input_spravka_fns()
             link_fns->SUM_VOZ := aCheck[ i, 4 ]
             g_rlock( forever )
           next
-          G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+          G_Use( dir_server() + 'reg_fns_nastr', , 'NASTR_FNS' )
           G_RLock( forever )
           NASTR_FNS->N_SPR_FNS := fns_N_SPR_FNS
 //          Unlock
@@ -760,8 +760,8 @@ function _fns_nastr( k )
       { 'ID_END',     'C',   4,  0 }, ; // идентификатор конечного получателя, для которого предназначен файл выгрузок
       { 'EDIT_SUM',   'N',   1,  0 } ;  // разрешение редактирования оплаченной суммы ( 0 - нет, 1 - да )
    }
-    reconstruct( dir_server + file_mem, mm_tmp, , , .t. )
-    G_Use( dir_server + file_mem, , 'NASTR_FNS' )
+    reconstruct( dir_server() + file_mem, mm_tmp, , , .t. )
+    G_Use( dir_server() + file_mem, , 'NASTR_FNS' )
     if lastrec() == 0
       AddRecN()
       nastr_fns->N_SPR_FNS := fns_N_SPR_FNS
@@ -777,7 +777,7 @@ function _fns_nastr( k )
     endif
     NASTR_FNS->( dbCloseAre() ) //Use
   elseif k == 1
-    R_Use( dir_server + file_mem, , 'NASTR_FNS')
+    R_Use( dir_server() + file_mem, , 'NASTR_FNS')
     fns_N_SPR_FNS  := nastr_fns->N_SPR_FNS
     fns_N_SPR_FILE  := nastr_fns->N_FILE_UP
     fns_PODPISANT  := nastr_fns->PODPIS

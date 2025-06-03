@@ -167,8 +167,8 @@ Function make_arr_uch_otd( mdate, mlpu )
   If Empty( mdate )
     mdate := sys_date
   Endif
-  r_use( dir_server + 'mo_uch', , 'UCH' )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_uch', , 'UCH' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
   If yes_many_uch .or. not_lpu
     Select UCH
     dbEval( {|| iif( between_date( uch->dbegin, uch->dend, mdate ), AAdd( a_uch, uch->( RecNo() ) ), nil ) } )
@@ -334,8 +334,8 @@ Function ret_zak_sl( /*@*/susl, /*@*/doplataF, /*@*/doplataR, /*@*/lotd, /*@*/lv
 
   susl := '' ; doplataF := doplataR := lotd := lvrach := 0
   If Select( 'HU' ) == 0
-    r_use( dir_server + 'uslugi', , 'USL' )
-    r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+    r_use( dir_server() + 'uslugi', , 'USL' )
+    r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
     Set Relation To u_kod into USL
   Endif
   Select HU
@@ -606,8 +606,8 @@ Function f_arr_usl1()
 
   Local i, s, arr := {}, arr1 := { '2.76.5', '2.76.7' }
 
-  If hb_FileExists( dir_server + 'usl1year' + smem() )
-    arr := rest_arr( dir_server + 'usl1year' + smem() )
+  If hb_FileExists( dir_server() + 'usl1year' + smem() )
+    arr := rest_arr( dir_server() + 'usl1year' + smem() )
     For i := 1 To Len( arr )
       Select USL
       Goto ( arr[ i ] )
@@ -711,7 +711,7 @@ Function f_paraklinika( lshifr, lshifr1, ldate_usl )
   If !fl .and. Empty( Val( human_->smo ) ) // если не ОМС
     If eq_any( human->komu, 1, 3 ) .and. human->str_crb > 0 // прочие компании/комитеты (МО)
       tmp_select := Select()
-      r_use( dir_server + iif( human->komu == 1, 'str_komp', 'komitet' ), , '_SK' )
+      r_use( dir_server() + iif( human->komu == 1, 'str_komp', 'komitet' ), , '_SK' )
       Goto ( human->str_crb )
       fl := ( _sk->parakl == 1 )
       _sk->( dbCloseArea() )
@@ -1134,7 +1134,7 @@ Function f_usl1year( lshifr, _mshifr, _mname )
   If AScan( arr_usl1year, lshifr ) > 0
     mywait()
     Select HUMAN
-    Set Index to ( dir_server + 'humankk' )
+    Set Index to ( dir_server() + 'humankk' )
     find ( Str( glob_kartotek, 7 ) )
     Do While human->kod_k == glob_kartotek .and. !Eof()
       If lyear == Year( human->n_data ) .or. lyear == Year( human->k_data )
@@ -1864,9 +1864,9 @@ Function verify_lechenie( kod_kart, /*@*/p1)
 
   p1 := 0
   mywait()
-  r_use( dir_server + 'mo_pp', dir_server + 'mo_pp_h', 'PP' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humankk', 'HUMAN' )
+  r_use( dir_server() + 'mo_pp', dir_server() + 'mo_pp_h', 'PP' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
   For k := 1 To B_STANDART
     // k = 1 - проверим листы, добавленные в Приёмном покое - уже так не делаем
     // k = 2(B_END) - проверим листы с незавершённым лечением
@@ -1903,11 +1903,11 @@ Function verify_lechenie( kod_kart, /*@*/p1)
   human_->( dbCloseArea() )
   human->( dbCloseArea() )
   If ( k := Len( arr ) ) > 0
-    r_use( dir_server + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
     AEval( arr, {| x, i| otd->( dbGoto( x[ 6 ] ) ), arr[ i, 1 ] := Left( otd->name, 30 ) } )
     Use
     If k == 1
-      r_use( dir_server + 'mo_uch', , 'UCH' )
+      r_use( dir_server() + 'mo_uch', , 'UCH' )
       AEval( arr, {| x, i| uch->( dbGoto( x[ 9 ] ) ), arr[ i, 10 ] := ' [' + AllTrim( uch->name ) + ']' } )
       Use
       clrline( MaxRow(), color0 )
@@ -1921,13 +1921,13 @@ Function verify_lechenie( kod_kart, /*@*/p1)
           'N+/BG', ;
           'R/BG', 15, , col1menu ) == 2
         glob_perso := p1 := arr[ 1, 5 ]
-        r_use( dir_server + 'mo_otd', , 'OTD' )
+        r_use( dir_server() + 'mo_otd', , 'OTD' )
         Goto ( arr[ 1, 6 ] )
         glob_otd := { otd->kod, AllTrim( otd->name ), otd->idump, otd->tiplu }
         Use
       Endif
     Else
-      r_use( dir_server + 'mo_uch', , 'UCH' )
+      r_use( dir_server() + 'mo_uch', , 'UCH' )
       AEval( arr, {| x, i| uch->( dbGoto( x[ 9 ] ) ), arr[ i, 10 ] := uch->short_name } )
       Use
       ASort( arr, , , {| x, y| x[ 11 ] < y[ 11 ] } )
@@ -1946,7 +1946,7 @@ Function verify_lechenie( kod_kart, /*@*/p1)
           'Листы учета по больному, не включенные в реестры', 'B/BG', , , mpic, , , ;
           { '═', '░', '═' } ) ) > 0
         glob_perso := p1 := arr[ k, 5 ]
-        r_use( dir_server + 'mo_otd', , 'OTD' )
+        r_use( dir_server() + 'mo_otd', , 'OTD' )
         Goto ( arr[ k, 6 ] )
         glob_otd := { otd->kod, AllTrim( otd->name ), otd->idump, otd->tiplu }
         Use
@@ -1992,7 +1992,7 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
   If lregim == 1
     If fl_number
       If is_uchastok == 1
-        r_use( dir_server + 'kartotek', dir_server + 'kartoteu', 'KART' )
+        r_use( dir_server() + 'kartotek', dir_server() + 'kartoteu', 'KART' )
         find ( input_sh )
         If Found()
           mywait()
@@ -2020,7 +2020,7 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
           func_error( 4, 'Неудачный поиск по коду ' + input_sh + ' в картотеке!' )
         Endif
       Elseif is_uchastok != 3
-        r_use( dir_server + 'kartotek', , 'KART' )
+        r_use( dir_server() + 'kartotek', , 'KART' )
         Goto ( Int( Val( input_sh ) ) )
         If !Eof() .and. kart->kod > 0 .and. !Deleted()
           fl := .t.
@@ -2042,8 +2042,8 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
     Elseif ( pos1 > 0 .or. pos2 > 0 )
       waitstatus( 'Ждите! Производится поиск в картотеке.  (<Esc> - прервать поиск)' )
       @ 2, 0 Say ''
-      r_use( dir_server + 'kartote2', , 'KART2' )
-      r_use( dir_server + 'kartotek', dir_server + 'kartoten', 'KART' )
+      r_use( dir_server() + 'kartote2', , 'KART2' )
+      r_use( dir_server() + 'kartotek', dir_server() + 'kartoten', 'KART' )
       Set Relation To RecNo() into KART2
       tmp2 := Upper( AllTrim( mfio ) )
       ch := Left( LTrim( mfio ), 1 )
@@ -2122,8 +2122,8 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
   Elseif lregim == 2
     waitstatus( 'Ждите! Производится поиск в картотеке.  (<Esc> - прервать поиск)' )
     @ 2, 0 Say ''
-    r_use( dir_server + 'kartote2', , 'KART2' )
-    r_use( dir_server + 'kartotek', dir_server + 'kartotep', 'KART' )
+    r_use( dir_server() + 'kartote2', , 'KART2' )
+    r_use( dir_server() + 'kartotek', dir_server() + 'kartotep', 'KART' )
     Set Relation To RecNo() into KART2
     find ( '1' + mpolis )
     Do While kart->polis == mpolis .and. kart->kod > 0 .and. !Eof()
@@ -2154,8 +2154,8 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
   Elseif lregim == 3
     waitstatus( 'Ждите! Производится поиск в картотеке.  (<Esc> - прервать поиск)' )
     @ 2, 0 Say ''
-    r_use( dir_server + 'kartote2', , 'KART2' )
-    r_use( dir_server + 'kartotek', dir_server + 'kartotes', 'KART' )
+    r_use( dir_server() + 'kartote2', , 'KART2' )
+    r_use( dir_server() + 'kartotek', dir_server() + 'kartotes', 'KART' )
     Set Relation To RecNo() into KART2
     find ( '1' + msnils )
     Do While kart->snils == msnils .and. kart->kod > 0 .and. !Eof()
@@ -2191,9 +2191,9 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
       Public is_r_mu := .f.
     Endif
     Save gets To tmp_list
-    r_use( dir_server + 'kartote2', , 'KART2' )
-    r_use( dir_server + 'kartote_', , 'KART_' )
-    r_use( dir_server + 'kartotek', , 'KART' )
+    r_use( dir_server() + 'kartote2', , 'KART2' )
+    r_use( dir_server() + 'kartote_', , 'KART_' )
+    r_use( dir_server() + 'kartotek', , 'KART' )
     Use ( cur_dir() + 'tmp_kart' ) index ( cur_dir() + 'tmp_kart' ) New Alias TMP
     Set Relation To kod into KART, To kod into KART_, To kod into KART2
     If rec_tmp > 0
@@ -2332,8 +2332,8 @@ Function input_schet( rr, r, c )
       If LastKey() != K_ESC .and. !Empty( mnomer )
         dbCreate( cur_dir() + 'tmp', adbf_tmp )
         Use ( cur_dir() + 'tmp' ) New Alias TMP
-        r_use( dir_server + 'schet_', , 'SCHET_' )
-        r_use( dir_server + 'schet', dir_server + 'schetn', 'SCHET' )
+        r_use( dir_server() + 'schet_', , 'SCHET_' )
+        r_use( dir_server() + 'schet', dir_server() + 'schetn', 'SCHET' )
         Set Relation To RecNo() into SCHET_
         find ( PadR( mnomer, 10 ) )
         If Found()
@@ -2389,7 +2389,7 @@ Function input_schet( rr, r, c )
           dbcreate(cur_dir() + 'tmp',adbf_tmp)
           Use (cur_dir() + 'tmp') new alias TMP
           index on descend(date_s) to (cur_dir() + 'tmp')
-          G_Use(dir_server + 'schet', dir_server + 'schetp','SCHET')
+          G_Use(dir_server() + 'schet', dir_server() + 'schetp','SCHET')
           find (str(glob_komu, 1)+str(glob_all[1], 2))
           do while schet->komu == glob_komu .and. schet->str_crb == glob_all[1] .and. !eof()
             recc++
@@ -2414,7 +2414,7 @@ Function input_schet( rr, r, c )
             func_error(4, 'Нет счетов по выбранной организации')
           else
             select TMP
-            dbeval({|| tmp->name := inieditspr(A__POPUPMENU, dir_server + 'l_ucher',tmp->lpu)})
+            dbeval({|| tmp->name := inieditspr(A__POPUPMENU, dir_server() + 'l_ucher',tmp->lpu)})
             go top
             rest_box(buf24)
             if Alpha_Browse(r, 2,maxrow()-2, 77,'f1inp_schet',color0, ;
@@ -2431,8 +2431,8 @@ Function input_schet( rr, r, c )
   Close databases
   setinisect( tmp_ini, 'schet', { { 'number', mnomer }, { 'i', lstr( p_i ) } } )
   If fl
-    r_use( dir_server + 'schet_', , 'SCHET_' )
-    r_use( dir_server + 'schet', dir_server + 'schetk', 'SCHET' )
+    r_use( dir_server() + 'schet_', , 'SCHET_' )
+    r_use( dir_server() + 'schet', dir_server() + 'schetk', 'SCHET' )
     Set Relation To RecNo() into SCHET_
     find ( Str( glob_schet, 6 ) )
     box_shadow( rr, 0, rr + 7, 33, color1, 'Информация о счете', color8, 0 )

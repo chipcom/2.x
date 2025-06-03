@@ -71,7 +71,7 @@ Local ret := -1
 Local buf, fl := .f., rec, rec1, k := 17, tmp_color
 do case
   case regim == "open"
-    G_Use(dir_server+"diag_ort",dir_server+"diag_ort","DBF1")
+    G_Use(dir_server()+"diag_ort",dir_server()+"diag_ort","DBF1")
     go top
     if (ret := !eof()) .and. lrec != NIL .and. lrec > 0
       goto (lrec)
@@ -153,7 +153,7 @@ return fl
 
 *****
 Function f_prich_pol()
-popup_edit(dir_server+"ort_brk",T_ROW,T_COL-10,T_ROW+11,,1,,;
+popup_edit(dir_server()+"ort_brk",T_ROW,T_COL-10,T_ROW+11,,1,,;
            "fdel_prich",,,,,,"Причины поломок протезов",col_tit_popup)
 return NIL
 
@@ -161,7 +161,7 @@ return NIL
 Function fdel_prich(mkod)
 Local fl := .t., buf := save_row(maxrow())
 stat_msg("Ждите! Производится проверка на допустимость удаления данной причины")
-R_Use(dir_server+"hum_ort",,"HU")
+R_Use(dir_server()+"hum_ort",,"HU")
 Locate for hu->PRICH_POL == mkod progress
 fl := !found()
 HU->(dbCloseArea())
@@ -365,12 +365,12 @@ if top_bot
 else
   r2 := r-1 ; r1 := r2-8
 endif
-if (k := popup_edit(dir_server+"tip_orto",r1,c,r2,;
+if (k := popup_edit(dir_server()+"tip_orto",r1,c,r2,;
                     mkod,4,,,,,,,top_bot,"Услуги","B/BG")) != NIL
   st := k[1]
   if !top_bot .and. st != mkod
     tmp_select := select()
-    //G_Use(dir_server+"tip_orto",,"ORT")
+    //G_Use(dir_server()+"tip_orto",,"ORT")
     //goto (st)
     //ort->(dbCloseArea())
     if tmp_select > 0
@@ -422,7 +422,7 @@ Local ret := -1
 Local buf, fl := .f., rec, rec1, k := 16, tmp_color
 do case
   case regim == "open"
-    G_Use(dir_server+"ortoped",,"DBF1")
+    G_Use(dir_server()+"ortoped",,"DBF1")
     index on upper(name) to tmp
     go top
     if (ret := !eof()) .and. lrec != NIL .and. lrec > 0
@@ -511,7 +511,7 @@ Local ret := -1, mm_da_net := {{"да ",0},{"НЕТ",1}}
 Local buf, fl := .f., rec, rec1, k := 16, tmp_color
 do case
   case regim == "open"
-    G_Use(dir_server+"orto_uva",dir_server+"orto_uva","DBF1")
+    G_Use(dir_server()+"orto_uva",dir_server()+"orto_uva","DBF1")
     go top
     if (ret := !eof()) .and. lrec != NIL .and. lrec > 0
       goto (lrec)
@@ -603,7 +603,7 @@ dbcreate(cur_dir()+"tmp", {;
   })
 use (cur_dir()+"tmp") new
 index on str(kod,3) to (cur_dir()+"tmp")
-R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
 select HUMAN
 dbseek(dtos(begin_date),.t.)
 do while human->k_data <= end_date .and. !eof()
@@ -630,7 +630,7 @@ else
   add_string(center("[ по дате окончания лечения ]",sh))
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
-  R_Use(dir_server+"ort_brk",,"PP")
+  R_Use(dir_server()+"ort_brk",,"PP")
   select TMP
   set relation to kod into PP
   index on upper(pp->name) to (cur_dir()+"tmp")
@@ -668,7 +668,7 @@ arr_title := {;
 "      Ф.И.О. больного                             ├─────┬────────┤врача",;
 "                                                  │  №  │  дата  │     ",;
 "──────────────────────────────────────────────────┴─────┴────────┴─────"}
-if (k := popup_edit(dir_server+"ort_brk",;
+if (k := popup_edit(dir_server()+"ort_brk",;
                    T_ROW,T_COL-5,maxrow()-2,sk,PE_RETURN,,,,,,,,;
                    "Причины поломок протезов",col_tit_popup)) == NIL
   return NIL
@@ -684,7 +684,7 @@ dbcreate(cur_dir()+"tmp", {;
    {"KOD",        "N",      7,      0};  // код наряда
   })
 use (cur_dir()+"tmp") new
-R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortd","HUMAN")
 select HUMAN
 dbseek(dtos(begin_date),.t.)
 do while human->k_data <= end_date .and. !eof()
@@ -708,8 +708,8 @@ else
   add_string(center("[ по дате окончания лечения ]",sh))
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
-  R_Use(dir_server+"mo_pers",,"PERSO")
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server()+"mo_pers",,"PERSO")
+  R_Use(dir_server()+"kartotek",,"KART")
   select HUMAN
   set order to 0
   set relation to kod_k into KART
@@ -759,7 +759,7 @@ arr_blk := {{| | FindFirst(str_find)},;
             {|n| SkipPointer(n, muslovie)},;
             str_find,muslovie;
            }
-R_Use(dir_server+"mo_pers",,"PERSO")
+R_Use(dir_server()+"mo_pers",,"PERSO")
 setcolor("BG/B")
 l_color := "W+/B,W+/W,BG+/B,W+/BG,G+/B,W+/G,GR+/B,W+/GR"
 use_base("hum_oro")
@@ -781,10 +781,10 @@ Alpha_Browse(2,0,maxrow()-2,79,"fe_o_kopl",color1,mtitle,col_tit_popup,;
              {'═','░','═',l_color,.t.,180} )
 // были добавлены строки оплаты
 if yes_parol .and. (mvu[1,1] > 0 .or. mvu[2,1] > 0 .or. mvu[3,1] > 0)
-//;              .and. hb_FileExists(dir_server+"mo_opern"+sdbf)
+//;              .and. hb_FileExists(dir_server()+"mo_opern"+sdbf)
   k := glob_task+iif(human->tip_usl==OU_B_PLAT,100,0)
   close databases
-  if G_Use(dir_server+"mo_opern",dir_server+"mo_opern","OP")
+  if G_Use(dir_server()+"mo_opern",dir_server()+"mo_opern","OP")
     for i := 1 to 3
       if mvu[i,1] > 0
         write_work_oper(k,OPER_USL,i,mvu[i,1],mvu[i,2],.f.)
@@ -865,7 +865,7 @@ Local ret := "", t_order
 
 if reg > 0
   t_order := select()
-  R_Use(dir_server+"base1",,"BASE1")
+  R_Use(dir_server()+"base1",,"BASE1")
   goto (reg)
   if !eof() .and. !empty(base1->p1)
     ret := alltrim(crypt(base1->p1,gpasskod))
@@ -931,7 +931,7 @@ do while ho->kod == hum_o_kod  .and. !eof()
 enddo
 goto (t_hum_rec)
 // поиск телефона
-R_Use(dir_server+"kartote_",,"KR_") //00.02.17
+R_Use(dir_server()+"kartote_",,"KR_") //00.02.17
 goto(human->kod_k)
 mphone_m := kr_->phone_m
 kr_->(dbCloseArea())
@@ -974,9 +974,9 @@ do case
     mtip_opl := inieditspr(A__MENUVERT, menu_opl, m1tip_opl)
     mtip_usl := inieditspr(A__MENUVERT, menu_okb, m1tip_usl)
     if m1tip_usl == OU_D_SMO
-      mpr_smo := inieditspr(A__POPUPMENU, dir_server+"p_d_smo", m1pr_smo)
+      mpr_smo := inieditspr(A__POPUPMENU, dir_server()+"p_d_smo", m1pr_smo)
     elseif m1tip_usl == OU_PR_VZ
-      mpr_smo := inieditspr(A__POPUPMENU, dir_server+"p_pr_vz", m1pr_smo)
+      mpr_smo := inieditspr(A__POPUPMENU, dir_server()+"p_pr_vz", m1pr_smo)
     endif
     if mkod_vr > 0
       select PERSO
@@ -1350,8 +1350,8 @@ elseif i == 2
     use (cur_dir()+"tmp_kart") alias TMP
     index on dtos(data) to (cur_dir()+"tmp_kart") descending
     //
-    R_Use(dir_server+"kartotek",,"KART")
-    R_Use(dir_server+"hum_ort",dir_server+"hum_ortn","HUMAN")
+    R_Use(dir_server()+"kartotek",,"KART")
+    R_Use(dir_server()+"hum_ort",dir_server()+"hum_ortn","HUMAN")
     set relation to kod_k into KART
     find (str(ln,5))
     do while human->nar_z == ln
@@ -1373,9 +1373,9 @@ elseif i == 2
       func_error(4,"Наряд N "+lstr(ln)+" не найден!")
     else
       buf := savescreen()
-      R_Use(dir_server+"kartote2",,"KART2")
-      R_Use(dir_server+"kartote_",,"KART_")
-      R_Use(dir_server+"kartotek",,"KART")
+      R_Use(dir_server()+"kartote2",,"KART2")
+      R_Use(dir_server()+"kartote_",,"KART_")
+      R_Use(dir_server()+"kartotek",,"KART")
       use (cur_dir()+"tmp_kart") index (cur_dir()+"tmp_kart") new alias TMP
       set relation to kod into KART, to kod into KART_, to kod into KART2
       change_attr()
@@ -1701,7 +1701,7 @@ Private ;
     mplat_adres  := space(50),; // адрес плательщика
     mplat_pasport :=  space(15)  // документ плательщика
 if nKey == K_INS
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server()+"kartotek",,"KART")
   goto (glob_kartotek)
   if is_uchastok == 1
     mbukva := kart->bukva
@@ -1764,7 +1764,7 @@ elseif nKey == K_ENTER
   mprim       := human->prim
 endif
 //
-R_Use(dir_server+"hum_orpl",dir_server+"hum_orpl","KPLAT")
+R_Use(dir_server()+"hum_orpl",dir_server()+"hum_orpl","KPLAT")
 find (str(human->(recno()),7))
 if found()
   mplat_adres   := KPLAT->ADRES
@@ -1772,15 +1772,15 @@ if found()
 endif
 KPLAT->(dbCloseArea())
 mtip_usl := inieditspr(A__MENUVERT, menu_okb, m1tip_usl)
-mlpu := inieditspr(A__POPUPMENU, dir_server+"mo_uch", m1lpu)
-motd := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
-mprich := inieditspr(A__POPUPMENU, dir_server+"ort_brk", m1prich)
+mlpu := inieditspr(A__POPUPMENU, dir_server()+"mo_uch", m1lpu)
+motd := inieditspr(A__POPUPMENU, dir_server()+"mo_otd", m1otd)
+mprich := inieditspr(A__POPUPMENU, dir_server()+"ort_brk", m1prich)
 if m1tip_usl == OU_D_SMO
-  mpr_smo := inieditspr(A__POPUPMENU, dir_server+"p_d_smo", m1pr_smo)
+  mpr_smo := inieditspr(A__POPUPMENU, dir_server()+"p_d_smo", m1pr_smo)
 elseif m1tip_usl == OU_PR_VZ
-  mpr_smo := inieditspr(A__POPUPMENU, dir_server+"p_pr_vz", m1pr_smo)
+  mpr_smo := inieditspr(A__POPUPMENU, dir_server()+"p_pr_vz", m1pr_smo)
 endif
-R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+R_Use(dir_server()+"mo_pers",dir_server()+"mo_pers","PERSO")
 str_1 := " карточки лечения ортопедического больного"
 if nKey == K_INS
   str_1 := "Добавление"+str_1
@@ -1838,7 +1838,7 @@ do while .t.
   @ row(),col()+10 say "Примечание" get mprim
   @ r1+10,2 say "Причины поломок протезов" get mprich reader ;
           {|x| menu_reader(x,;
-               {dir_server+"ort_brk",,,,,color5,"Причины поломок","B/W"},;
+               {dir_server()+"ort_brk",,,,,color5,"Причины поломок","B/W"},;
                A__POPUPBASE1,,,.f.);
           }
   IF mem_ort_f39 == 0
@@ -1912,7 +1912,7 @@ do while .t.
           endif
         endif
       endif
-      G_Use(dir_server+"kartotek",dir_server+"kartoteu","KART")
+      G_Use(dir_server()+"kartotek",dir_server()+"kartoteu","KART")
       goto (glob_kartotek)
       G_RLock(forever)
       kart->bukva := mbukva
@@ -1974,7 +1974,7 @@ do while .t.
     endif
     human->(dbUNLOCK()) //19.04
     dbCommitall()
-    G_Use(dir_server+"hum_orpl",dir_server+"hum_orpl","KPLAT") //только один индекс
+    G_Use(dir_server()+"hum_orpl",dir_server()+"hum_orpl","KPLAT") //только один индекс
     if len(alltrim(mplat_adres)) > 2 //.or. len(alltrim(mplat_pasport)) > 2
       find (str(human->(recno()),7))
       if !found()
@@ -2020,7 +2020,7 @@ Private mvar := readvar()
 mshifr := alltrim(&mvar)
 mshifr := padr(mshifr,6)
 if !empty(mshifr)
-  R_Use(dir_server+"diag_ort",dir_server+"diag_ort","DBF1")
+  R_Use(dir_server()+"diag_ort",dir_server()+"diag_ort","DBF1")
   find (mshifr)
   if !found()
     &mvar := space(n)
@@ -2052,7 +2052,7 @@ if m1tip_usl == OU_D_SMO
   s := "СМО"
   if get != NIL
     get:reader := {|x| menu_reader(x,;
-                   {dir_server+"p_d_smo",,,,,color0,"Добровольные СМО","B/BG"},;
+                   {dir_server()+"p_d_smo",,,,,color0,"Добровольные СМО","B/BG"},;
                    A__POPUPBASE1,,,.f.);
                   }
     get:PreBlock := {|| .t. }
@@ -2061,7 +2061,7 @@ elseif m1tip_usl == OU_PR_VZ
   s := "Предприятие"
   if get != NIL
     get:reader := {|x| menu_reader(x,;
-                   {dir_server+"p_pr_vz",,,,,color0,"Предприятия по взаимозачету","B/BG"},;
+                   {dir_server()+"p_pr_vz",,,,,color0,"Предприятия по взаимозачету","B/BG"},;
                    A__POPUPBASE1,,,.f.);
                   }
     get:PreBlock := {|| .t. }
@@ -2087,16 +2087,16 @@ Private fl_found, mcena := 0, ;
 Private Glob_kod_ms := 0
 afillall(mvu,0) ; afillall(mvp,0)
 mywait()
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server()+"kartotek",,"KART")
 goto (glob_kartotek)
 smvzros_reb := kart->vzros_reb
 kart->(dbCloseArea())
 //
-R_Use(dir_server+"mo_otd",,"OTD")
+R_Use(dir_server()+"mo_otd",,"OTD")
 dbeval({|| aadd(pr_arr,{otd->(recno()),otd->name,otd->kod_lpu,""}) },;
        {|| otd->kod_lpu == mkod_lpu .and. between_date(otd->dbegino,otd->dendo,sys_date)} )
 if yes_many_uch
-  R_Use(dir_server+"mo_uch",,"UCH")
+  R_Use(dir_server()+"mo_uch",,"UCH")
   aeval(pr_arr, {|x,i| dbGoto(x[3]), pr_arr[i,4] := uch->name } )
 //  aeval(pr1arr_otd, {|x,i| dbGoto(x[3]), pr1arr_otd[i,4] := uch->name } )
   uch->(dbCloseArea())
@@ -2109,8 +2109,8 @@ else
   aeval(pr_arr, {|x| aadd(pr_arr_otd,x[2]) } )
 endif
 //
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU") //19.04
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU") //19.04
 //r_use_base("hum_oru") //19.04
 adbf := dbstruct()
 aadd(adbf, {"date_u1","D", 8,0} )
@@ -2151,15 +2151,15 @@ tmp->(dbeval({|| tmp->number := ++j } ) )
 close databases
 //
 Private flag_1 := .t., arr_uva := {}
-R_Use(dir_server+"orto_uva",,"OU")
+R_Use(dir_server()+"orto_uva",,"OU")
 dbeval({|| aadd(arr_uva, {alltrim(ou->shifr),ou->kod_vr,ou->kod_as,ou->kod_ms} ) } )
 ou->(dbCloseArea())
 if use_base("hum_ort").and. ;
    use_base("hum_oru") .and. ;
-   R_Use(dir_server+"uslugi",dir_server+"uslugish","USL") .and. ;
-   R_Use(dir_server+"mo_otd",,"OTD") .and. ;
-   R_Use(dir_server+"usl_otd",dir_server+"usl_otd","UO") .and. ;
-   R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+   R_Use(dir_server()+"uslugi",dir_server()+"uslugish","USL") .and. ;
+   R_Use(dir_server()+"mo_otd",,"OTD") .and. ;
+   R_Use(dir_server()+"usl_otd",dir_server()+"usl_otd","UO") .and. ;
+   R_Use(dir_server()+"mo_pers",dir_server()+"mo_pers","PERSO")
   select HUMAN
   set order to 0
   goto (mkod_human)
@@ -2194,9 +2194,9 @@ if use_base("hum_ort").and. ;
                {"═","░","═",l_color,.t.,180} )
   if yes_parol .and. (mvu[1,1] > 0 .or. mvu[2,1] > 0 .or. mvu[3,1] > 0 .or. ;
                       mvp[1,1] > 0 .or. mvp[2,1] > 0 .or. mvp[3,1] > 0)
-//                       ;   .and. hb_FileExists(dir_server+"mo_opern"+sdbf)
+//                       ;   .and. hb_FileExists(dir_server()+"mo_opern"+sdbf)
     close databases
-    if G_Use(dir_server+"mo_opern",dir_server+"mo_opern","OP")
+    if G_Use(dir_server()+"mo_opern",dir_server()+"mo_opern","OP")
       for i := 1 to 3
         if mvu[i,1] > 0
           write_work_oper(glob_task,OPER_USL,i,mvu[i,1],mvu[i,2],.f.)
@@ -2373,7 +2373,7 @@ do case
     if nKey == K_INS .and. mem_ortot1 == 2 .and. mem_kodotd == 1
       m1otd := mem_ortotd
     endif
-    motd := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
+    motd := inieditspr(A__POPUPMENU, dir_server()+"mo_otd", m1otd)
     if !empty(mshifr)
       verify_o_uva()
     endif
@@ -2866,7 +2866,7 @@ Private ;
   mplat_fio   := human->plat_fio
   mplat_inn   := human->plat_inn
 //
-R_Use(dir_server+"hum_orpl",dir_server+"hum_orpl","KPLAT")
+R_Use(dir_server()+"hum_orpl",dir_server()+"hum_orpl","KPLAT")
 find (str(human->(recno()),7))
 if found()
   mplat_adres   := KPLAT->ADRES
@@ -2874,7 +2874,7 @@ if found()
 endif
 KPLAT->(dbCloseArea())
 //
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server()+"kartotek",,"KART")
 goto (mkod_kart)
 muchast     := kart->uchast
 mfio        := kart->fio           // фио
@@ -2914,7 +2914,7 @@ elseif eq_any(is_uchastok, 2, 3)
 endif
 mlnomer := lnomer + luchast
 kart->(dbclosearea())
-R_Use(dir_server+"kartote_",,"KART_")
+R_Use(dir_server()+"kartote_",,"KART_")
 goto (mkod_kart)
 m1vid_ud := kart_->vid_ud
 mnom     := kart_->nom_ud
@@ -2925,7 +2925,7 @@ okato_adresr := ret_okato_ulica("",kart_->okatop,1,2)
 kart_->(dbCloseArea())
 mphone_m := TransformPhone( mphone_m )
 //
-R_Use(dir_server+"mo_pers",,"PERSO")
+R_Use(dir_server()+"mo_pers",,"PERSO")
 goto (mkod_vr)
 mvrach := padr(perso->fio,35)
 mtabn_vr := perso->tab_nom
@@ -2935,16 +2935,16 @@ mtabn_as := perso->tab_nom
 perso->(dbclosearea())
 //
 mtip_usl := inieditspr(A__MENUVERT, menu_okb, m1tip_usl)
-mlpu := inieditspr(A__POPUPMENU, dir_server+"mo_uch", m1lpu)
-motd := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
-mprich := inieditspr(A__POPUPMENU, dir_server+"ort_brk", m1prich)
+mlpu := inieditspr(A__POPUPMENU, dir_server()+"mo_uch", m1lpu)
+motd := inieditspr(A__POPUPMENU, dir_server()+"mo_otd", m1otd)
+mprich := inieditspr(A__POPUPMENU, dir_server()+"ort_brk", m1prich)
 mvid_ud := get_Name_Vid_Ud(m1vid_ud)
 if empty(mser) ; mser := space(10) ; endif
 if empty(mnom) ; mnom := space(10) ; endif
 //mkod_kart := lstr(mkod_kart)
 //mNAR_Z    := lstr(mNAR_Z)
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
+R_Use(dir_server()+"uslugi",,"USL")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
 adbf := dbstruct()
 aadd(adbf, {"date_u1","D", 8,0} )
 aadd(adbf, {"shifr_u","C",10,0} )
@@ -3000,10 +3000,10 @@ dbcreate(cur_dir()+"tmp12", {;
 use (cur_dir()+"tmp12") new
 use (cur_dir()+"tmp11") new
 index on str(kod,4) to (cur_dir()+"tmp11")
-R_Use(dir_server+"tip_orto",,"ORT")
-R_Use(dir_server+"ortoped",,"OR")
-R_Use(dir_server+"ortoped1",,"OR1")
-R_Use(dir_server+"ortoped2",,"OR2")
+R_Use(dir_server()+"tip_orto",,"ORT")
+R_Use(dir_server()+"ortoped",,"OR")
+R_Use(dir_server()+"ortoped1",,"OR1")
+R_Use(dir_server()+"ortoped2",,"OR2")
 //
 select HU
 find (str(mkod_human,7))
@@ -3384,11 +3384,11 @@ dbcreate(cur_dir()+"tmp", {;
   })
 use (cur_dir()+"tmp") new
 index on str(kod,4) to (cur_dir()+"tmp")
-R_Use(dir_server+"tip_orto",,"ORT")
-R_Use(dir_server+"ortoped",,"OR")
-R_Use(dir_server+"ortoped1",,"OR1")
-R_Use(dir_server+"ortoped2",,"OR2")
-R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
+R_Use(dir_server()+"tip_orto",,"ORT")
+R_Use(dir_server()+"ortoped",,"OR")
+R_Use(dir_server()+"ortoped1",,"OR1")
+R_Use(dir_server()+"ortoped2",,"OR2")
+R_Use(dir_server()+"hum_oru",dir_server()+"hum_oru","HU")
 //
 select HU
 find (str(human->(recno()),7))

@@ -73,19 +73,19 @@ endif
 k := 0
 //
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server()+"organiz",,"ORG")
 add_string(padr(org->name,sh-15)+padl("форма №001/у",15))
 add_string("")
 add_string(center("Журнал учета приема больных и отказов в госпитализации ",sh))
 add_string(center(arr_m[4],sh))
 aeval(arr_title, {|x| add_string(x) })
-R_Use(dir_server+"mo_kpred",dir_server+"mo_kpred","KPR")
-R_Use(dir_server+"mo_kinos",dir_server+"mo_kinos","KIS")
-R_Use(dir_server+"kartote_",,"KART_")
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server()+"mo_kpred",dir_server()+"mo_kpred","KPR")
+R_Use(dir_server()+"mo_kinos",dir_server()+"mo_kinos","KIS")
+R_Use(dir_server()+"kartote_",,"KART_")
+R_Use(dir_server()+"kartotek",,"KART")
 set relation to recno() into KART_
-R_Use(dir_server+"mo_ppdia",dir_server+"mo_ppdia","HUS")
-R_Use(dir_server+"mo_pp",dir_server+"mo_pp_d","HU")
+R_Use(dir_server()+"mo_ppdia",dir_server()+"mo_ppdia","HUS")
+R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_d","HU")
 set relation to kod_k into KART
 dbseek(dtos(arr_m[5]),.t.)
 do case
@@ -156,7 +156,7 @@ do while !eof()
       k07 := perenos(a07,s,sh07)
       // 8 - отделение, в которое помещен больной
       s := "№ "+alltrim(hu->UCH_DOC)+"; "
-      s += inieditspr(6,dir_server+"mo_otd",hu->otd)
+      s += inieditspr(6,dir_server()+"mo_otd",hu->otd)
       k08 := perenos(a08,s,sh08)
       // 9 - диагноз направившего учреждения
       MDIAG_NAPR := MDIAG_PR_P := MPOB_D_LEK := ""
@@ -215,7 +215,7 @@ do while !eof()
             s += space(12)+" "   //причина/меры
             s += space(10)+" "   //отказ в пр
           endif
-          s += substr(inieditspr(6,dir_server+"mo_ppst",hu->stol),1,5) //Примечание
+          s += substr(inieditspr(6,dir_server()+"mo_ppst",hu->stol),1,5) //Примечание
         elseif j == 2  // во второй строке
           if !empty(hu->k_data)
             s += padc(hu->N_TIME,11)
@@ -231,7 +231,7 @@ do while !eof()
           if hu->ishod2 == 6  // умер
             s += "УМЕР"
           else
-            s += substr(inieditspr(6,dir_server+"mo_ppst",hu->stol),6,5) //Примечание
+            s += substr(inieditspr(6,dir_server()+"mo_ppst",hu->stol),6,5) //Примечание
           endif
         endif
         add_string(s)
@@ -252,7 +252,7 @@ do while !eof()
       k04 := perenos(a04,kart->fio,sh04)
       s += padr(a04[1],sh04+1)
       // 5 - отделение, в которое помещен больной
-      k05 := perenos(a05,inieditspr(6,dir_server+"mo_otd",hu->otd),sh05)
+      k05 := perenos(a05,inieditspr(6,dir_server()+"mo_otd",hu->otd),sh05)
       s += padr(a05[1],sh05+1)
       s += full_date(hu->K_DATA)
       kk := min(max(k04,k05),10)
@@ -362,17 +362,17 @@ endif
 mywait()
 //
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server()+"organiz",,"ORG")
 add_string(rtrim(org->name))
 add_string("")
 add_string(center("Количество зарегистрированных стационарных больных",sh))
 add_string(center("[ "+mas_pmt[par]+" ]",sh))
 add_string(center(arr_m[4],sh))
-R_Use(dir_server+"mo_kpred",dir_server+"mo_kpred","KPR")
-R_Use(dir_server+"kartote_",,"KART_")
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server()+"mo_kpred",dir_server()+"mo_kpred","KPR")
+R_Use(dir_server()+"kartote_",,"KART_")
+R_Use(dir_server()+"kartotek",,"KART")
 set relation to recno() into KART_
-R_Use(dir_server+"mo_pp",dir_server+"mo_pp_d","HU")
+R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_d","HU")
 set relation to kod_k into KART
 dbseek(dtos(arr_m[5]),.t.)
 kv := k1 := kds := k1ds := 0
@@ -424,13 +424,13 @@ do while n_data <= arr_m[6] .and. !eof()
       endif
       arr_raj[i,3] ++
       if (j := ascan(arr_raj[i,6], {|x| x[1] == hu->otd } )) == 0
-        aadd(arr_raj[i,6], {hu->otd,inieditspr(6,dir_server+"mo_otd",hu->otd),0} )
+        aadd(arr_raj[i,6], {hu->otd,inieditspr(6,dir_server()+"mo_otd",hu->otd),0} )
         j := len(arr_raj[i,6])
       endif
       ++ arr_raj[i,6,j,3]
       //
       if (i := ascan(arr_otd, {|x| x[1] == hu->otd } )) == 0
-        aadd(arr_otd, {hu->otd,inieditspr(6,dir_server+"mo_otd",hu->otd),0,0,0,0,0} )
+        aadd(arr_otd, {hu->otd,inieditspr(6,dir_server()+"mo_otd",hu->otd),0,0,0,0,0} )
         i := len(arr_otd)
       endif
       ++ arr_otd[i,3]
@@ -452,7 +452,7 @@ do while n_data <= arr_m[6] .and. !eof()
       //
       if hu->stol > 0
         if (i := ascan(arr_stol, {|x| x[1] == hu->stol } )) == 0
-          aadd(arr_stol, {hu->stol,inieditspr(6,dir_server+"mo_ppst",hu->stol),0} )
+          aadd(arr_stol, {hu->stol,inieditspr(6,dir_server()+"mo_ppst",hu->stol),0} )
           i := len(arr_stol)
         endif
         ++ arr_stol[i,3]
@@ -469,7 +469,7 @@ do while n_data <= arr_m[6] .and. !eof()
       endif
     else // не госпитализированные
       if (i := ascan(arr_otd, {|x| x[1] == hu->otd } )) == 0
-        aadd(arr_otd, {hu->otd,inieditspr(6,dir_server+"mo_otd",hu->otd),0,0,0,0,0} )
+        aadd(arr_otd, {hu->otd,inieditspr(6,dir_server()+"mo_otd",hu->otd),0,0,0,0,0} )
         i := len(arr_otd)
       endif
       ++ arr_otd[i,5]
@@ -648,15 +648,15 @@ if (arr_m := year_month(T_ROW,T_COL-5,,,2,@atime)) == NIL
 endif
 //
 mywait()
-R_Use(dir_server+"mo_kpred",dir_server+"mo_kpred","KPR")
-R_Use(dir_server+"mo_pp",dir_server+"mo_pp_d","HU")
+R_Use(dir_server()+"mo_kpred",dir_server()+"mo_kpred","KPR")
+R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_d","HU")
 dbseek(dtos(arr_m[5]),.t.)
 k := k1 := 0
 do while n_data <= arr_m[6] .and. !eof()
   if between_time(hu->n_data,hu->n_time,arr_m[5],atime[1],arr_m[6],atime[2])
     if hu->is_gospit == 0  // только те, кто госпитализированы
       if (i := ascan(arr_otd, {|x| x[1] == hu->otd } )) == 0
-        aadd(arr_otd, {hu->otd,inieditspr(6,dir_server+"mo_otd",hu->otd),0,0,{},0} )
+        aadd(arr_otd, {hu->otd,inieditspr(6,dir_server()+"mo_otd",hu->otd),0,0,{},0} )
         i := len(arr_otd)
       endif
       if (j := ascan(arr_otd[i,5], {|x| x[1] == hu->kem_napr } )) == 0
@@ -680,7 +680,7 @@ do while n_data <= arr_m[6] .and. !eof()
       endif
     else  // не госпитализированные
       if (i := ascan(arr_otd, {|x| x[1] == hu->otd } )) == 0
-        aadd(arr_otd, {hu->otd,inieditspr(6,dir_server+"mo_otd",hu->otd),0,0,{},0} )
+        aadd(arr_otd, {hu->otd,inieditspr(6,dir_server()+"mo_otd",hu->otd),0,0,{},0} )
         i := len(arr_otd)
       endif
       if (j := ascan(arr_otd[i,5], {|x| x[1] == hu->kem_napr } )) == 0
@@ -737,7 +737,7 @@ arr_title[8] += "╨────────┴───"
 reg_print := f_reg_print(arr_title,@sh)
 //
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server()+"organiz",,"ORG")
 add_string(alltrim(org->name))
 org->(dbCloseArea())
 add_string("")
@@ -831,16 +831,16 @@ if (is_perevod := ;
 endif
 //
 mywait()
-R_Use(dir_server+"mo_ppst",,"ST")
-R_Use(dir_server+"mo_kpred",dir_server+"mo_kpred","KPR")
-R_Use(dir_server+"mo_pp",dir_server+"mo_pp_d","HU")
+R_Use(dir_server()+"mo_ppst",,"ST")
+R_Use(dir_server()+"mo_kpred",dir_server()+"mo_kpred","KPR")
+R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_d","HU")
 dbseek(dtos(arr_m[5]),.t.)
 k := k1 := 0
 do while n_data <= arr_m[6] .and. !eof()
   if between_time(hu->n_data,hu->n_time,arr_m[5],atime[1],arr_m[6],atime[2]) ;
     .and. hu->is_gospit == 0  // только те, кто госпитализированы
     if (i := ascan(arr_otd, {|x| x[1] == hu->otd } )) == 0
-      aadd(arr_otd, {hu->otd,inieditspr(6,dir_server+"mo_otd",hu->otd),0,0,{},0,0,0,0} )
+      aadd(arr_otd, {hu->otd,inieditspr(6,dir_server()+"mo_otd",hu->otd),0,0,{},0,0,0,0} )
       i := len(arr_otd)
     endif
     if (j := ascan(arr_otd[i,5], {|x| x[1] == hu->stol } )) == 0
@@ -883,7 +883,7 @@ if is_perevod == 2
                           {"stol2","N",3,0},;
                           {"rec",  "N",7,0}})
   use (cur_dir()+"tmp") new
-  R_Use(dir_server+"mo_ppper",,"PER")
+  R_Use(dir_server()+"mo_ppper",,"PER")
   index on str(kod,7) to (cur_dir()+"tmp_per") for between(n_data,arr_m[5],arr_m[6])
   go top
   do while !eof()
@@ -901,7 +901,7 @@ if is_perevod == 2
   enddo
   if tmp->(lastrec()) > 0
     select PER
-    set index to (dir_server+"mo_ppper")
+    set index to (dir_server()+"mo_ppper")
     select TMP
     go top
     do while !eof()
@@ -931,7 +931,7 @@ if is_perevod == 2
       hu->(dbGoto(tmp->kod))
       // вычесть стол 1
       if (i := ascan(arr_otd, {|x| x[1] == tmp->otd1 } )) == 0
-        aadd(arr_otd, {tmp->otd1,inieditspr(6,dir_server+"mo_otd",tmp->otd1),0,0,{},0,0,0,0} )
+        aadd(arr_otd, {tmp->otd1,inieditspr(6,dir_server()+"mo_otd",tmp->otd1),0,0,{},0,0,0,0} )
         i := len(arr_otd)
       endif
       if (j := ascan(arr_otd[i,5], {|x| x[1] == tmp->stol1 } )) == 0
@@ -963,7 +963,7 @@ if is_perevod == 2
       endif
       // добавить стол 2
       if (i := ascan(arr_otd, {|x| x[1] == tmp->otd2 } )) == 0
-        aadd(arr_otd, {tmp->otd2,inieditspr(6,dir_server+"mo_otd",tmp->otd2),0,0,{},0,0,0,0} )
+        aadd(arr_otd, {tmp->otd2,inieditspr(6,dir_server()+"mo_otd",tmp->otd2),0,0,{},0,0,0,0} )
         i := len(arr_otd)
       endif
       if (j := ascan(arr_otd[i,5], {|x| x[1] == tmp->stol2 } )) == 0
@@ -1039,7 +1039,7 @@ next
 reg_print := f_reg_print(arr_title,@sh)
 //
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server()+"organiz",,"ORG")
 add_string(alltrim(org->name))
 org->(dbCloseArea())
 add_string("")
@@ -1206,8 +1206,8 @@ if (arr_m := year_month(T_ROW,T_COL-5,,,2,@atime)) == NIL
 endif
 //
 mywait()
-R_Use(dir_server+"mo_kpred",dir_server+"mo_kpred","KPR")
-R_Use(dir_server+"mo_pp",dir_server+"mo_pp_d","HU")
+R_Use(dir_server()+"mo_kpred",dir_server()+"mo_kpred","KPR")
+R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_d","HU")
 dbseek(dtos(arr_m[5]),.t.)
 afill(ak,0)
 do while n_data <= arr_m[6] .and. !eof()
@@ -1215,7 +1215,7 @@ do while n_data <= arr_m[6] .and. !eof()
     .and. hu->is_gospit == 0   // только те, кто госпитализированы
     if (i := ascan(arr_otd, {|x| x[1] == hu->otd } )) == 0
       aadd(arr_otd, {hu->otd,;
-                     inieditspr(6,dir_server+"mo_otd",hu->otd),;
+                     inieditspr(6,dir_server()+"mo_otd",hu->otd),;
                      0,0,;
                      0,0,;
                      0,0,;
@@ -1274,7 +1274,7 @@ arr_title := {;
 reg_print := f_reg_print(arr_title,@sh)
 //
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server()+"organiz",,"ORG")
 add_string(alltrim(org->name))
 org->(dbCloseArea())
 add_string("")
@@ -1340,12 +1340,12 @@ if (arr_m := year_month(T_ROW,T_COL-5,,,2,@atime)) == NIL
 endif
 //
 mywait()
-R_Use(dir_server+"mo_kpred",dir_server+"mo_kpred","KPR")
-R_Use(dir_server+"mo_kinos",dir_server+"mo_kinos","KIS")
-R_Use(dir_server+"kartote_",,"KART_")
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server()+"mo_kpred",dir_server()+"mo_kpred","KPR")
+R_Use(dir_server()+"mo_kinos",dir_server()+"mo_kinos","KIS")
+R_Use(dir_server()+"kartote_",,"KART_")
+R_Use(dir_server()+"kartotek",,"KART")
 set relation to recno() into KART_
-R_Use(dir_server+"mo_pp",dir_server+"mo_pp_d","HU")
+R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_d","HU")
 set relation to kod_k into KART
 dbseek(dtos(arr_m[5]),.t.)
 do while n_data <= arr_m[6] .and. !eof()
@@ -1359,7 +1359,7 @@ do while n_data <= arr_m[6] .and. !eof()
     .and. hu->is_gospit == 0   // только те, кто госпитализированы
     if (i := ascan(arr_otd, {|x| x[1] == hu->otd } )) == 0
       aadd(arr_otd, {hu->otd,;    // 1
-                     inieditspr(6,dir_server+"mo_otd",hu->otd),;  // 2
+                     inieditspr(6,dir_server()+"mo_otd",hu->otd),;  // 2
                      0,;  //  3    до 1 года
                      0,;  //  4    до 3 лет
                      0,;  //  5    > 3 лет
@@ -1448,7 +1448,7 @@ arr_title := {;
 reg_print := f_reg_print(arr_title,@sh)
 //
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server()+"organiz",,"ORG")
 add_string(alltrim(org->name))
 org->(dbCloseArea())
 add_string("")
@@ -1517,10 +1517,10 @@ if (arr_m := year_month(T_ROW,T_COL-5,,,2,@atime)) == NIL
 endif
 //
 mywait()
-R_Use(dir_server+"kartote_",,"KART_")
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server()+"kartote_",,"KART_")
+R_Use(dir_server()+"kartotek",,"KART")
 set relation to recno() into KART_
-R_Use(dir_server+"mo_pp",dir_server+"mo_pp_d","HU")
+R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_d","HU")
 set relation to kod_k into KART
 dbseek(dtos(arr_m[5]),.t.)
 do while n_data <= arr_m[6] .and. !eof()
@@ -1540,7 +1540,7 @@ do while n_data <= arr_m[6] .and. !eof()
     .and. hu->is_gospit == 0   // только те, кто госпитализированы
     if (i := ascan(arr_otd, {|x| x[1] == hu->otd } )) == 0
       aadd(arr_otd, {hu->otd,;    // 1
-                     inieditspr(6,dir_server+"mo_otd",hu->otd),;  // 2
+                     inieditspr(6,dir_server()+"mo_otd",hu->otd),;  // 2
                      0,;  //  3    в т.ч. до 6 месяцев
                      0,;  //  4    до 1 года
                      0,;  //  5    1-3 года
@@ -1596,7 +1596,7 @@ arr_title := {;
 reg_print := f_reg_print(arr_title,@sh)
 //
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server()+"organiz",,"ORG")
 add_string(alltrim(org->name))
 org->(dbCloseArea())
 add_string("")
@@ -1703,11 +1703,11 @@ use (cur_dir()+"tmp") new
 index on str(otd,3)+dtos(n_data)+n_time to (cur_dir()+"tmp")
 use (cur_dir()+"tmp1") new
 index on dtos(n_data)+n_time to (cur_dir()+"tmp1")
-R_Use(dir_server+"mo_ppper",dir_server+"mo_ppper","HUP")
-R_Use(dir_server+"kartote_",,"KART_")
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server()+"mo_ppper",dir_server()+"mo_ppper","HUP")
+R_Use(dir_server()+"kartote_",,"KART_")
+R_Use(dir_server()+"kartotek",,"KART")
 set relation to recno() into KART_
-R_Use(dir_server+"mo_pp",,"HU")
+R_Use(dir_server()+"mo_pp",,"HU")
 set relation to kod_k into KART
 go top
 do while !eof()
@@ -1761,7 +1761,7 @@ do while !eof()
       endif
       if (i := ascan(arr_otd, {|x| x[1] == motd } )) == 0
         aadd(arr_otd, {motd,;    // 1
-                       inieditspr(6,dir_server+"mo_otd",motd),;  // 2
+                       inieditspr(6,dir_server()+"mo_otd",motd),;  // 2
                        0,0} ) // 3    всего
         i := len(arr_otd)
       endif
@@ -1816,7 +1816,7 @@ do while (i := popup(r1,c1,r2,c2,mas_pmt,i,color0,.t.)) > 0
   endif
   reg_print := f_reg_print(arr_title,@sh)
   fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-  R_Use(dir_server+"organiz",,"ORG")
+  R_Use(dir_server()+"organiz",,"ORG")
   add_string(alltrim(org->name))
   org->(dbCloseArea())
   add_string("")
@@ -1883,10 +1883,10 @@ Local buf := savescreen(), tmp_color := setcolor(cDataCGet), fl_exit := .f.,;
 //
 Private arr_m, arr_mv, mm_company := {}, atime, atimev
 Private pr_arr := {}, pr_arr_otd := {}
-R_Use(dir_server+"mo_otd",,"OTD")
+R_Use(dir_server()+"mo_otd",,"OTD")
 dbeval({|| aadd(pr_arr,{otd->(recno()),otd->name,otd->kod_lpu,""}) },;
        {|| /*f_is_uch(st_a_uch,otd->kod_lpu) .and.*/ between_date(otd->dbegin,otd->dend,sys_date)} )
-R_Use(dir_server+"mo_uch",,"UCH")
+R_Use(dir_server()+"mo_uch",,"UCH")
 aeval(pr_arr, {|x,i| dbGoto(x[3]), pr_arr[i,4] := uch->name } )
 //
 asort(pr_arr,,,{|x,y| iif(x[3] == y[3], upper(x[2]) < upper(y[2]), upper(x[4]) < upper(y[4])) } )
@@ -2047,7 +2047,7 @@ if k > 0
     kol := 9
   endif
   fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-  R_Use(dir_server+"organiz",,"ORG")
+  R_Use(dir_server()+"organiz",,"ORG")
   add_string(padr(org->name,sh-15)+padl("форма №001/у",15))
   add_string("")
   add_string(center("Журнал учета приема больных и отказов в госпитализации",sh))
@@ -2055,7 +2055,7 @@ if k > 0
     add_string(center("Дата поступления: "+arr_m[4],sh))
   endif
   if mn->otd > 0
-    add_string("Отделение, в которое госпитализировали пациента: "+inieditspr(A__POPUPMENU, dir_server+"mo_otd", mn->otd))
+    add_string("Отделение, в которое госпитализировали пациента: "+inieditspr(A__POPUPMENU, dir_server()+"mo_otd", mn->otd))
   endif
   if !empty(mn->date_vyb)
     add_string(center("Дата выбытия: "+arr_mv[4],sh))
@@ -2145,13 +2145,13 @@ if k > 0
   endif
   aeval(arr_title, {|x| add_string(x) })
   Private c_view := 0, c_found := 0
-  R_Use(dir_server+"mo_kpred",dir_server+"mo_kpred","KPR")
-  R_Use(dir_server+"mo_kinos",dir_server+"mo_kinos","KIS")
-  R_Use(dir_server+"kartote_",,"KART_")
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server()+"mo_kpred",dir_server()+"mo_kpred","KPR")
+  R_Use(dir_server()+"mo_kinos",dir_server()+"mo_kinos","KIS")
+  R_Use(dir_server()+"kartote_",,"KART_")
+  R_Use(dir_server()+"kartotek",,"KART")
   set relation to recno() into KART_
-  R_Use(dir_server+"mo_ppdia",dir_server+"mo_ppdia","HUS")
-  R_Use(dir_server+"mo_pp",,"HU")
+  R_Use(dir_server()+"mo_ppdia",dir_server()+"mo_ppdia","HUS")
+  R_Use(dir_server()+"mo_pp",,"HU")
   set relation to kod_k into KART
   if empty(mn->date_lech)
     select HU
@@ -2170,7 +2170,7 @@ if k > 0
     endcase
   else
     select HU
-    set index to (dir_server+"mo_pp_d")
+    set index to (dir_server()+"mo_pp_d")
     dbseek(dtos(arr_m[5]),.t.)
     do case
       case spar == 1
@@ -2251,7 +2251,7 @@ if k > 0
         k07 := perenos(a07,s,sh07)
         // 8 - отделение, в которое помещен больной
         s := "№ "+alltrim(hu->UCH_DOC)+"; "
-        s += inieditspr(6,dir_server+"mo_otd",hu->otd)
+        s += inieditspr(6,dir_server()+"mo_otd",hu->otd)
         k08 := perenos(a08,s,sh08)
         // 9 - диагноз направившего учреждения
         MDIAG_NAPR := MDIAG_PR_P := MPOB_D_LEK := ""
@@ -2310,7 +2310,7 @@ if k > 0
               s += space(12)+" "   //причина/меры
               s += space(10)+" "   //отказ в пр
             endif
-            s += substr(inieditspr(6,dir_server+"mo_ppst",hu->stol),1,5) //Примечание
+            s += substr(inieditspr(6,dir_server()+"mo_ppst",hu->stol),1,5) //Примечание
           elseif j == 2  // во второй строке
             if !empty(hu->k_data)
               s += padc(hu->N_TIME,11)
@@ -2326,7 +2326,7 @@ if k > 0
             if hu->ishod2 == 6  // умер
               s += "УМЕР"
             else
-              s += substr(inieditspr(6,dir_server+"mo_ppst",hu->stol),6,5) //Примечание
+              s += substr(inieditspr(6,dir_server()+"mo_ppst",hu->stol),6,5) //Примечание
             endif
           endif
           add_string(s)
@@ -2347,7 +2347,7 @@ if k > 0
         k04 := perenos(a04,kart->fio,sh04)
         s += padr(a04[1],sh04+1)
         // 5 - отделение, в которое помещен больной
-        k05 := perenos(a05,inieditspr(6,dir_server+"mo_otd",hu->otd),sh05)
+        k05 := perenos(a05,inieditspr(6,dir_server()+"mo_otd",hu->otd),sh05)
         s += padr(a05[1],sh05+1)
         s += full_date(hu->K_DATA)
         kk := min(max(k04,k05),10)
@@ -2526,8 +2526,8 @@ dbcreate(cur_dir()+"tmp",{{"kod", "N",7,0},;
                 {"stol2","N",3,0},;
                 {"rec", "N",7,0}})
 use (cur_dir()+"tmp") new
-R_Use(dir_server+"mo_pp",,"HU")
-R_Use(dir_server+"mo_ppper",,"PER")
+R_Use(dir_server()+"mo_pp",,"HU")
+R_Use(dir_server()+"mo_ppper",,"PER")
 index on str(kod,7) to (cur_dir()+"tmp_per") for between(n_data,arr_m[5],arr_m[6])
 go top
 do while !eof()
@@ -2546,7 +2546,7 @@ do while !eof()
 enddo
 if (k := tmp->(lastrec())) > 0
   select PER
-  set index to (dir_server+"mo_ppper")
+  set index to (dir_server()+"mo_ppper")
   select TMP
   go top
   do while !eof()
@@ -2577,16 +2577,16 @@ if k == 0
 endif
 //
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server()+"organiz",,"ORG")
 add_string(alltrim(org->name))
 org->(dbCloseArea())
 add_string("")
 add_string(center("Список больных, переведенных в другие отделения",sh))
 add_string(center(arr_m[4],sh))
-R_Use(dir_server+"kartote_",,"KART_")
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server()+"kartote_",,"KART_")
+R_Use(dir_server()+"kartotek",,"KART")
 set relation to recno() into KART_
-R_Use(dir_server+"mo_pp",,"HU")
+R_Use(dir_server()+"mo_pp",,"HU")
 set relation to kod_k into KART
 use (cur_dir()+"tmp") new
 set relation to kod into HU
@@ -2599,15 +2599,15 @@ do while !eof()
   add_string(lstr(++j)+". "+alltrim(kart->fio)+" (№"+alltrim(hu->uch_doc)+" "+;
              dtoc(hu->n_data)+" "+hu->n_time+")")
   s := space(len(lstr(j))+2)+;
-       'из "'+padr(inieditspr(6,dir_server+"mo_otd",tmp->otd1),31)
+       'из "'+padr(inieditspr(6,dir_server()+"mo_otd",tmp->otd1),31)
   if tmp->stol1 > 0
-    s += '" (стол '+alltrim(inieditspr(A__POPUPMENU,dir_server+"mo_ppst",tmp->stol1))+")"
+    s += '" (стол '+alltrim(inieditspr(A__POPUPMENU,dir_server()+"mo_ppst",tmp->stol1))+")"
   endif
   add_string(s)
   s := space(len(lstr(j))+2)+;
-       ' в "'+padr(inieditspr(6,dir_server+"mo_otd",tmp->otd2),31)
+       ' в "'+padr(inieditspr(6,dir_server()+"mo_otd",tmp->otd2),31)
   if tmp->stol2 > 0
-    s += '" (стол '+alltrim(inieditspr(A__POPUPMENU,dir_server+"mo_ppst",tmp->stol2))+")"
+    s += '" (стол '+alltrim(inieditspr(A__POPUPMENU,dir_server()+"mo_ppst",tmp->stol2))+")"
   endif
   s += " "+dtoc(tmp->n_data)+" "+tmp->n_time
   add_string(s)
@@ -2659,8 +2659,8 @@ add_string(center("по состоянию на "+full_date(sys_date),sh))
 add_string("")
 use (cur_dir()+"tmp") new
 index on dtos(n_data) to (cur_dir()+"tmp")
-R_Use(dir_server+"mo_pp",dir_server+"mo_pp_r","HU")
-R_Use(dir_server+"kartotek",dir_server+"kartoten","KART")
+R_Use(dir_server()+"mo_pp",dir_server()+"mo_pp_r","HU")
+R_Use(dir_server()+"kartotek",dir_server()+"kartoten","KART")
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
 hGauge := GaugeNew(,,,"",.t.)
 GaugeDisplay( hGauge )
@@ -2713,7 +2713,7 @@ do while !eof()
             add_string(space(10)+"№ "+hu->UCH_DOC+" "+;
                                  full_date(hu->n_data)+" "+;
                                  hu->n_time+" "+;
-                                 inieditspr(A__POPUPMENU,dir_server+"mo_otd",hu->otd))
+                                 inieditspr(A__POPUPMENU,dir_server()+"mo_otd",hu->otd))
             skip
           enddo
         endif

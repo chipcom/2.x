@@ -56,7 +56,7 @@ Function f1dubl_zap_1()
     {'MO_PR','C', 6, 0} ;
   })
   use (cur_dir() + 'tmpitg') new
-  R_Use(dir_server + 'kartote2', , 'KART2')
+  R_Use(dir_server() + 'kartote2', , 'KART2')
   //
   status_key('^<Esc>^ - прервать поиск')
   hGauge := GaugeNew(, , , 'Поиск дублирующихся записей', .t.)
@@ -77,7 +77,7 @@ Function f1dubl_zap_1()
     dbcreate(cur_dir() + 'tmp', {{'fio','C', 50, 0}, {'DATE_R','D', 8, 0}})
     use (cur_dir() + 'tmp') new
     index on upper(fio) + dtos(date_r) to (cur_dir() + 'tmp')
-    R_Use(dir_server + 'kartotek', dir_server + 'kartoten', 'KART')
+    R_Use(dir_server() + 'kartotek', dir_server() + 'kartoten', 'KART')
     set relation to recno() into KART2
     index on upper(fio)+dtos(date_r) to (cur_dir() + 'tmp_kart') for kod > 0
     go top
@@ -160,7 +160,7 @@ Function f1dubl_zap_1()
     dbcreate(cur_dir() + 'tmp', {{'POLIS','C', 17, 0}})
     use (cur_dir() + 'tmp') new
     index on polis to (cur_dir() + 'tmp')
-    R_Use(dir_server + 'kartotek', dir_server + 'kartotep', 'KART')
+    R_Use(dir_server() + 'kartotek', dir_server() + 'kartotep', 'KART')
     set relation to recno() into KART2
     find ('1')
     do while !eof()
@@ -253,7 +253,7 @@ Function f1dubl_zap_1()
     dbcreate(cur_dir() + 'tmp', {{'SNILS', 'C', 11, 0}})
     use (cur_dir() + 'tmp') new
     index on snils to (cur_dir() + 'tmp')
-    R_Use(dir_server + 'kartotek', dir_server + 'kartotes', 'KART')
+    R_Use(dir_server() + 'kartotek', dir_server() + 'kartotes', 'KART')
     set relation to recno() into KART2
     find ('1')
     do while !eof()
@@ -346,8 +346,8 @@ Function f1dubl_zap_1()
     dbcreate(cur_dir() + 'tmp', {{'kod_mis', 'C', 20, 0}})
     use (cur_dir() + 'tmp') new
     index on kod_mis to (cur_dir() + 'tmp')
-    R_Use(dir_server + 'kartote_', , 'KART_')
-    R_Use(dir_server + 'kartotek', , 'KART')
+    R_Use(dir_server() + 'kartote_', , 'KART_')
+    R_Use(dir_server() + 'kartotek', , 'KART')
     select KART2
     set relation to recno() into KART, to recno() into KART_
     index on kod_mis to (cur_dir() + 'tmp_kodmis') for !empty(kod_mis) .and. !empty(kart->kod)
@@ -473,7 +473,7 @@ Function f2dubl_zap_1()
       if f_Esc_Enter(2, .t.)
         mywait()
         // список пациентов в реестрах будущих диспансеризаций
-        /*G_Use(dir_server + 'mo_r01k', ,'R01K')
+        /*G_Use(dir_server() + 'mo_r01k', ,'R01K')
         index on str(kod_k, 7) to (cur_dir() + 'tmp_r01k')
         do while .t.
           find (str(dubl2_kart, 7))
@@ -485,7 +485,7 @@ Function f2dubl_zap_1()
         enddo
         close databases*/
         // направления на госпитализацию
-        G_Use(dir_server + 'mo_nnapr', , 'NAPR')
+        G_Use(dir_server() + 'mo_nnapr', , 'NAPR')
         delete_dubl_rec_in_file('NAPR', kod_k, dubl1_kart, dubl2_kart, .t.)
         // index on str(kod_k, 7) to (cur_dir() + 'tmp_napr')
         // do while .t.
@@ -498,7 +498,7 @@ Function f2dubl_zap_1()
         // enddo
         // close databases // на всякий случай
         //
-        if hb_fileExists(dir_server + 'mo_dnab' + sntx())
+        if hb_fileExists(dir_server() + 'mo_dnab' + sntx())
           Use_base('mo_dnab') // алиас 'DN'
           delete_dubl_rec_in_file('DN', kod_k, dubl1_kart, dubl2_kart, .f.)
           // do while .t.
@@ -512,7 +512,7 @@ Function f2dubl_zap_1()
           // close databases // на всякий случай
         endif
         //
-        G_Use(dir_server + 'human', dir_server + 'humankk', 'HUMAN')
+        G_Use(dir_server() + 'human', dir_server() + 'humankk', 'HUMAN')
         delete_dubl_rec_in_file('HUMAN', kod_k, dubl1_kart, dubl2_kart, .f.)
         // do while .t.
         //   find (str(dubl2_kart, 7))
@@ -524,7 +524,7 @@ Function f2dubl_zap_1()
         // enddo
         // close databases // на всякий случай (вдруг работает задача ОМС)
         //
-        G_Use(dir_server + 'mo_kinos', dir_server + 'mo_kinos', 'KIS')
+        G_Use(dir_server() + 'mo_kinos', dir_server() + 'mo_kinos', 'KIS')
         delete_dubl_rec('KIS', dubl2_kart, .f.)
         // do while .t.
         //   find (str(dubl2_kart, 7))
@@ -534,7 +534,7 @@ Function f2dubl_zap_1()
         //   DeleteRec(.t.)
         // enddo
         //
-        G_Use(dir_server + 'mo_kismo', , 'SN')
+        G_Use(dir_server() + 'mo_kismo', , 'SN')
         delete_dubl_rec('SN', dubl2_kart, .t.)
         // index on str(kod, 7) to (cur_dir() + 'tmp_ismo')
         // do while .t.
@@ -545,7 +545,7 @@ Function f2dubl_zap_1()
         //   DeleteRec(.t.)
         // enddo
         // платные услуги
-        G_Use(dir_server + 'hum_p', dir_server + 'hum_pkk', 'HUM_P')
+        G_Use(dir_server() + 'hum_p', dir_server() + 'hum_pkk', 'HUM_P')
         delete_dubl_rec_in_file('HUM_P', kod_k, dubl1_kart, dubl2_kart, .f.)
         // do while .t.
         //   find (str(dubl2_kart, 7))
@@ -557,7 +557,7 @@ Function f2dubl_zap_1()
         //   UnLock
         // enddo
         // ортопедия
-        G_Use(dir_server + 'hum_ort', dir_server + 'hum_ortk', 'HUM_O')
+        G_Use(dir_server() + 'hum_ort', dir_server() + 'hum_ortk', 'HUM_O')
         delete_dubl_rec_in_file('HUM_O', kod_k, dubl1_kart, dubl2_kart, .f.)
         // do while .t.
         //   find (str(dubl2_kart, 7))
@@ -569,7 +569,7 @@ Function f2dubl_zap_1()
         //   UnLock
         // enddo
         // приемный покой
-        G_Use(dir_server + 'mo_pp', dir_server + 'mo_pp_r', 'PP')
+        G_Use(dir_server() + 'mo_pp', dir_server() + 'mo_pp_r', 'PP')
         delete_dubl_rec_in_file('HU', kod_k, dubl1_kart, dubl2_kart, .f.)
         // do while .t.
         //   find (str(dubl2_kart, 7))
@@ -581,7 +581,7 @@ Function f2dubl_zap_1()
         //   UnLock
         // enddo
         // касса платные
-        G_Use(dir_server + 'kas_pl', dir_server + 'kas_pl1', 'KASP')
+        G_Use(dir_server() + 'kas_pl', dir_server() + 'kas_pl1', 'KASP')
         delete_dubl_rec_in_file('KASP', kod_k, dubl1_kart, dubl2_kart, .f.)
         // do while .t.
         //   find (str(dubl2_kart, 7))
@@ -593,7 +593,7 @@ Function f2dubl_zap_1()
         //   UnLock
         // enddo
         // касса ортопедия
-        G_Use(dir_server + 'kas_ort', dir_server + 'kas_ort1', 'KASO')
+        G_Use(dir_server() + 'kas_ort', dir_server() + 'kas_ort1', 'KASO')
         delete_dubl_rec_in_file('KASO', kod_k, dubl1_kart, dubl2_kart, .f.)
         // do while .t.
         //   find (str(dubl2_kart, 7))
@@ -605,7 +605,7 @@ Function f2dubl_zap_1()
         //   UnLock
         // enddo
         // подобие регистра застрахованных
-        G_Use(dir_server + 'kart_etk')
+        G_Use(dir_server() + 'kart_etk')
         delete_dubl_rec('KPRIM1', dubl2_kart, .t.)
         // index on str(kod_k, 7) to (cur_dir() + 'tmp_kart_etk')
         // do while .t.
@@ -616,7 +616,7 @@ Function f2dubl_zap_1()
         //   DeleteRec(.t.)
         // enddo
         // примечания к картотеке
-        G_Use(dir_server + 'k_prim1', dir_server + 'k_prim1', 'K_PRIM1')
+        G_Use(dir_server() + 'k_prim1', dir_server() + 'k_prim1', 'K_PRIM1')
         delete_dubl_rec('KPRIM1', dubl2_kart, .f.)
         // do while .t.
         //   find (str(dubl2_kart, 7))
@@ -626,9 +626,9 @@ Function f2dubl_zap_1()
         //   DeleteRec(.t.)
         // enddo
         // оплата по ДМС и взаимозачету
-        G_Use(dir_server + 'plat_vz', , 'PVZ')
+        G_Use(dir_server() + 'plat_vz', , 'PVZ')
         index on str(kod_k, 7) to (cur_dir() + 'tmp_pvz')
-        set index to (cur_dir() + 'tmp_pvz'), (dir_server + 'plat_vz')
+        set index to (cur_dir() + 'tmp_pvz'), (dir_server() + 'plat_vz')
         delete_dubl_rec_in_file('PVZ', kod_k, dubl1_kart, dubl2_kart, .f.)
         // do while .t.
         //   find (str(dubl2_kart, 7))
@@ -640,9 +640,9 @@ Function f2dubl_zap_1()
         //   UnLock
         // enddo
         // регистрация печати л/у
-        G_Use(dir_server + 'mo_regi', {dir_server + 'mo_regi1', ;
-                                  dir_server + 'mo_regi2', ;
-                                  dir_server + 'mo_regi3'}, 'RU')
+        G_Use(dir_server() + 'mo_regi', {dir_server() + 'mo_regi1', ;
+                                  dir_server() + 'mo_regi2', ;
+                                  dir_server() + 'mo_regi3'}, 'RU')
         set order to 3
         delete_dubl_rec_in_file('RU', kod_k, dubl1_kart, dubl2_kart, .f.)
         // do while .t.
@@ -655,7 +655,7 @@ Function f2dubl_zap_1()
         //   UnLock
         // enddo
         // МСЭК
-        G_Use(dir_server + 'msek', dir_server + 'msek', 'MSEK')
+        G_Use(dir_server() + 'msek', dir_server() + 'msek', 'MSEK')
         delete_dubl_rec_in_file('MSEK', kod_k, dubl1_kart, dubl2_kart, .f.)
         // do while .t.
         //   find (str(dubl2_kart, 7))
@@ -667,7 +667,7 @@ Function f2dubl_zap_1()
         //   UnLock
         // enddo
         // cписок карточек пациентов в отосланных ходатайствах
-        G_Use(dir_server + 'mo_hod_k', , 'HK')
+        G_Use(dir_server() + 'mo_hod_k', , 'HK')
         delete_dubl_rec_in_file('HK', kod_k, dubl1_kart, dubl2_kart, .t.)
         // index on str(kod_k, 7) to (cur_dir() + 'tmp_hk')
         // do while .t.
@@ -680,7 +680,7 @@ Function f2dubl_zap_1()
         //   UnLock
         // enddo
         // список прикреплений по пациенту во времени
-        G_Use(dir_server + 'mo_kartp', dir_server + 'mo_kartp', 'KARTP')
+        G_Use(dir_server() + 'mo_kartp', dir_server() + 'mo_kartp', 'KARTP')
         delete_dubl_rec_in_file('KARTP', kod_k, dubl1_kart, dubl2_kart, .f.)
         // do while .t.
         //   find (str(dubl2_kart, 7))
@@ -692,7 +692,7 @@ Function f2dubl_zap_1()
         //   UnLock
         // enddo
         // список карточек в реестрах на прикрепление
-        G_Use(dir_server + 'mo_krtp', , 'KRTP')
+        G_Use(dir_server() + 'mo_krtp', , 'KRTP')
         delete_dubl_rec_in_file('KRTP', kod_k, dubl1_kart, dubl2_kart, .t.)
         // index on str(kod_k, 7) to (cur_dir() + 'tmp_krtp')
         // do while .t.
@@ -705,7 +705,7 @@ Function f2dubl_zap_1()
         //   UnLock
         // enddo
         // список ошибок в реестрах на прикрепление
-        G_Use(dir_server + 'mo_krte', , 'KRTE')
+        G_Use(dir_server() + 'mo_krte', , 'KRTE')
         delete_dubl_rec_in_file('KRTE', kod_k, dubl1_kart, dubl2_kart, .t.)
         // index on str(kod_k, 7) to (cur_dir() + 'tmp_krte')
         // do while .t.
@@ -718,7 +718,7 @@ Function f2dubl_zap_1()
         //   UnLock
         // enddo
         // список карточек в файлах на открепление
-        G_Use(dir_server + 'mo_krto', , 'KRTO')
+        G_Use(dir_server() + 'mo_krto', , 'KRTO')
         delete_dubl_rec_in_file('KRTO', kod_k, dubl1_kart, dubl2_kart, .t.)
         // index on str(kod_k, 7) to (cur_dir() + 'tmp_krto')
         // do while .t.

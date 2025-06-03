@@ -61,27 +61,27 @@ Function monitoring_vid_pom()
       { '  в т.ч. ВМП', '15', 'случай госпитализации', 0, 0 }, ;               // 8
       { 'дневной стационар', '16', 'пациенто-день', 0, 0 } ;                // 9
       }
-    r_use( dir_server + 'uslugi',, 'USL' )
-    r_use( dir_server + 'human_u_',, 'HU_' )
-    r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+    r_use( dir_server() + 'uslugi',, 'USL' )
+    r_use( dir_server() + 'human_u_',, 'HU_' )
+    r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
     Set Relation To RecNo() into HU_, To u_kod into USL
     If mn->rak == 0
-      r_use( dir_server + 'mo_xml',, 'MO_XML' )
-      r_use( dir_server + 'mo_rak',, 'RAK' )
+      r_use( dir_server() + 'mo_xml',, 'MO_XML' )
+      r_use( dir_server() + 'mo_rak',, 'RAK' )
       Set Relation To kod_xml into MO_XML
-      r_use( dir_server + 'mo_raks',, 'RAKS' )
+      r_use( dir_server() + 'mo_raks',, 'RAKS' )
       Set Relation To akt into RAK
-      r_use( dir_server + 'mo_raksh',, 'RAKSH' )
+      r_use( dir_server() + 'mo_raksh',, 'RAKSH' )
       Set Relation To kod_raks into RAKS
       Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For rak->DAKT <= mn->date_rak
     Endif
-    r_use( dir_server + 'schet_',, 'SCHET_' )
-    r_use( dir_server + 'schet',, 'SCHET' )
+    r_use( dir_server() + 'schet_',, 'SCHET_' )
+    r_use( dir_server() + 'schet',, 'SCHET' )
     Set Relation To RecNo() into SCHET_
     //
-    r_use( dir_server + 'human_2',, 'HUMAN_2' )
-    r_use( dir_server + 'human_',, 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+    r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+    r_use( dir_server() + 'human_',, 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
     dbSeek( DToS( pdate_lech[ 5 ] ), .t. )
     old := pdate_lech[ 5 ] -1

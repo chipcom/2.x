@@ -274,20 +274,20 @@ Function forma_12_( is_diag, is_100000 )
 
   //
   //
-  r_use( dir_server + "kartote_",, "KART_" )
-  r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server() + "kartote_",, "KART_" )
+  r_use( dir_server() + "kartotek",, "KART" )
   Set Relation To RecNo() into KART_
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-  r_use( dir_server + "human_2",, "HUMAN_2" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+  r_use( dir_server() + "human_2",, "HUMAN_2" )
   kh := 0
   adbf := NIL
   If yes_rule  // "исправляем" в соответствии с правилами статистики
     bbuf := save_maxrow()
     mywait( "Ждите. Создаётся условный индексный файл..." )
     If pi1 == 1 // по дате окончания лечения
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
       Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
       dbSeek( DToS( arr_m[ 5 ] ), .t. )
       Index On Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir() + "tmp_h" ) ;
@@ -295,9 +295,9 @@ Function forma_12_( is_diag, is_100000 )
         For kod > 0 .and. human_->usl_ok == 3 .and. human_->oplata < 9 ;
         .and. human_->NOVOR == 0 .and. func_pi_schet()
     Else
-      r_use( dir_server + "schet",, "SCHET" )
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human",, "HUMAN" )
+      r_use( dir_server() + "schet",, "SCHET" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human",, "HUMAN" )
       Set Relation To schet into SCHET, To RecNo() into HUMAN_, To RecNo() into HUMAN_2
       Index On Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir() + "tmp_h" ) ;
         For kod > 0 .and. schet > 0 .and. human_->usl_ok == 3 .and. human_->oplata < 9 ;
@@ -343,9 +343,9 @@ Function forma_12_( is_diag, is_100000 )
     If pi1 == 1 // по дате окончания лечения
       begin_date := arr_m[ 5 ]
       end_date := arr_m[ 6 ]
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", { dir_server + "humand", ;
-        dir_server + "humank" }, "HUMAN" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", { dir_server() + "humand", ;
+        dir_server() + "humank" }, "HUMAN" )
       Set Relation To kod_k into KART, To RecNo() into HUMAN_, To RecNo() into HUMAN_2
       dbSeek( DToS( begin_date ), .t. )
       Do While human->k_data <= end_date .and. !Eof()
@@ -371,12 +371,12 @@ Function forma_12_( is_diag, is_100000 )
     Else
       begin_date := arr_m[ 7 ]
       end_date := arr_m[ 8 ]
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", { dir_server + "humans", ;
-        dir_server + "humank" }, "HUMAN" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", { dir_server() + "humans", ;
+        dir_server() + "humank" }, "HUMAN" )
       Set Relation To kod_k into KART, To RecNo() into HUMAN_, To RecNo() into HUMAN_2
-      r_use( dir_server + "schet_",, "SCHET_" )
-      r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+      r_use( dir_server() + "schet_",, "SCHET_" )
+      r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
       Set Relation To RecNo() into SCHET_
       Set Filter To Empty( schet_->IS_DOPLATA )
       dbSeek( begin_date, .t. )
@@ -421,7 +421,7 @@ Function forma_12_( is_diag, is_100000 )
   Endif
   sh := Len( arr_title[ 1 ] )
   fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( AllTrim( org->name ) )
   add_string( AllTrim( org->adres ) )
   add_string( PadL( "Форма № 12", sh ) )
@@ -533,7 +533,7 @@ Function forma_12_( is_diag, is_100000 )
         find ( s1 + Str( p_tip, 1 ) + Str( x, 1 ) )
         If Found() .and. iif( is_diag, ( tmp->sluch + tmp->dispans > 0 ), .t. )
           t_arr1 := {} ; t_arr2 := Array( 12 )
-          j1 := perenos( t_arr1, CharRepl( eos, s3, "  " ), len_name[ x ] )
+          j1 := perenos( t_arr1, CharRepl( hb_eol(), s3, "  " ), len_name[ x ] )
           j2 := perenos( t_arr2, s2, 12, ", ;" )
           For i := j1 + 1 To j2
             ++j1 ; AAdd( t_arr1, "" )
@@ -1656,7 +1656,7 @@ Function forma_12_o()
   //
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   //
-  nf := dir_server + "f39_nast" + smem()
+  nf := dir_server() + "f39_nast" + smem()
   If File( nf )
     arv := rest_arr( nf )
     au1 := arv[ 1 ]
@@ -1690,15 +1690,15 @@ Function forma_12_o()
   adbf := NIL
   //
   kh := 0
-  r_use( dir_server + "mo_pers",, "PERSO" )
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+  r_use( dir_server() + "mo_pers",, "PERSO" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
   Set Relation To u_kod into USL
   If pi1 == 1  // по дате окончания лечения
     begin_date := arr_m[ 5 ]
     end_date := arr_m[ 6 ]
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", { dir_server + "humand", dir_server + "humank" }, "HUMAN" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", { dir_server() + "humand", dir_server() + "humank" }, "HUMAN" )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( begin_date ), .t. )
     Do While human->k_data <= end_date .and. !Eof()
@@ -1722,11 +1722,11 @@ Function forma_12_o()
   Else
     begin_date := arr_m[ 7 ]
     end_date := arr_m[ 8 ]
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", { dir_server + "humans", dir_server + "humank" }, "HUMAN" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", { dir_server() + "humans", dir_server() + "humank" }, "HUMAN" )
     Set Relation To RecNo() into HUMAN_
-    r_use( dir_server + "schet_",, "SCHET_" )
-    r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+    r_use( dir_server() + "schet_",, "SCHET_" )
+    r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
     Set Relation To RecNo() into SCHET_
     Set Filter To Empty( schet_->IS_DOPLATA )
     dbSeek( begin_date, .t. )
@@ -1784,7 +1784,7 @@ Function forma_12_o()
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
   //
-  r_use( dir_server + "mo_otd",, "OTD" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
   Use ( cur_dir() + "tmp_tab" ) New Alias TMP
   Set Relation To otd into OTD
   Index On Upper( otd->name ) to ( cur_dir() + "tmp_tab" )
@@ -1812,8 +1812,8 @@ Function forma_12_o()
     add_string( Center( "Список больных с первичными (повторными) заболеваниями", sh ) )
     add_string( "" )
     //
-    r_use( dir_server + "mo_otd",, "OTD" )
-    r_use( dir_server + "human",, "HUMAN" )
+    r_use( dir_server() + "mo_otd",, "OTD" )
+    r_use( dir_server() + "human",, "HUMAN" )
     Use ( cur_dir() + "tmp_fio" ) New Alias TMP
     Set Relation To otd into OTD, To kod into HUMAN
     Index On Upper( otd->name ) + Left( Upper( human->fio ), 12 ) to ( cur_dir() + "tmp_fio" )
