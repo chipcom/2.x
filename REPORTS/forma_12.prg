@@ -73,9 +73,9 @@ Function forma_12_( is_diag, is_100000 )
     GOD_PENSIONEROV
   AFill( p_is_voz, .f. )
 
-  file_form := dir_exe() + "_mo_form" + sdbf
+  file_form := dir_exe() + "_mo_form" + sdbf()
   If !hb_FileExists( file_form )
-    Return func_error( 4, "Не обнаружен файл настройки статистических форм _MO_FORM" + sdbf )
+    Return func_error( 4, "Не обнаружен файл настройки статистических форм _MO_FORM" + sdbf() )
   Endif
   If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5,,, @lcount_uch ) ) == NIL
     Return Nil

@@ -13,7 +13,7 @@ Function forma_792_miac()
 
   waitstatus( arr_m[ 4 ] )
   For i := 1 To 3
-    If i != 2 .and. hb_FileExists( dir_server() + arr_f[ i ] + sdbf )
+    If i != 2 .and. hb_FileExists( dir_server() + arr_f[ i ] + sdbf() )
       r_use( dir_server() + arr_f[ i ],, '_B' )
       Go Top
       Do While !Eof()

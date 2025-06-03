@@ -444,7 +444,7 @@ Function fget_spec_dvn( k, r, c, a_spec, lFull )
 
   default lFull to .f.
 
-  If !hb_FileExists( n_file + sdbf )
+  If !hb_FileExists( n_file + sdbf() )
     dbCreate( n_file, { ;
       { 'name', 'C', 30, 0 }, ;
       { 'kod', 'C', 4, 0 }, ;

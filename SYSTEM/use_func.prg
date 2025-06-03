@@ -77,11 +77,11 @@ Function existsnsifile( sbase, vYear )
   Local fl := .f., fName, findex, fIndex_add
 
   fName := prefixfilerefname( vYear ) + SubStr( sbase, 2 )
-  If ( fl := hb_vfExists( dir_exe() + fName + sdbf ) )
+  If ( fl := hb_vfExists( dir_exe() + fName + sdbf() ) )
     Do Case
     Case sBase == 'lusl'
       fIndex := cur_dir() + fName + sntx()
-      If ( fl := hb_vfExists( dir_exe() + fName + sdbf ) )
+      If ( fl := hb_vfExists( dir_exe() + fName + sdbf() ) )
         If ! hb_vfExists( fIndex )
           r_use( dir_exe() + fName, , sBase )
           Index On shifr to ( fIndex )
@@ -91,7 +91,7 @@ Function existsnsifile( sbase, vYear )
     Case sBase == 'luslc'
       fIndex := cur_dir() + fName + sntx()
       fIndex_add :=  prefixfilerefname( vYear ) + 'uslu'  //
-      If ( fl := hb_vfExists( dir_exe() + fName + sdbf ) )
+      If ( fl := hb_vfExists( dir_exe() + fName + sdbf() ) )
         If ( ! hb_vfExists( fIndex ) ) .or. ( ! hb_vfExists( cur_dir() + fIndex_add + sntx() ) )
           r_use( dir_exe() + fName, , sBase )
           Index On shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( findex ) ;
@@ -104,7 +104,7 @@ Function existsnsifile( sbase, vYear )
     Case sBase == 'luslf'
       fName := prefixfilerefname( vYear ) + 'uslf'
       fIndex := cur_dir() + fName + sntx()
-      If ( fl := hb_vfExists( dir_exe() + fName + sdbf ) )
+      If ( fl := hb_vfExists( dir_exe() + fName + sdbf() ) )
         If ! hb_vfExists( fIndex )
           r_use( dir_exe() + fName, , sBase )
           Index On shifr to ( cur_dir() + fName )

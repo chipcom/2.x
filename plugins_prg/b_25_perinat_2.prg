@@ -20,7 +20,7 @@ Function b_25_perinat_2()
   Endif
   If ( sk := mkomp ) > 1
     n_file := { '', 'str_komp', 'komitet' }[ sk ]
-    If hb_FileExists( dir_server() + n_file + sdbf )
+    If hb_FileExists( dir_server() + n_file + sdbf() )
       arr := {}
       r_use( dir_server() + n_file,, '_B' )
       Go Top
@@ -46,7 +46,7 @@ Function b_25_perinat_2()
         Return func_error( 4, 'Ошибка' )
       Endif
     Else
-      Return func_error( 4, 'Не обнаружен файл ' + dir_server() + n_file + sdbf )
+      Return func_error( 4, 'Не обнаружен файл ' + dir_server() + n_file + sdbf() )
     Endif
   Endif
   waitstatus( arr_m[ 4 ] )
@@ -196,9 +196,9 @@ Function b_25_perinat_2()
   RestScreen( buf )
   If !fl_exit
     n_file := 'SVED'
-    Copy File ( cur_dir() + 'tmp' + sdbf ) to ( cur_dir() + n_file + sdbf )
+    Copy File ( cur_dir() + 'tmp' + sdbf() ) to ( cur_dir() + n_file + sdbf() )
     n_message( { 'В каталоге ' + Upper( cur_dir() ), ;
-      'создан файл ' + Upper( n_file + sdbf ), ;
+      'создан файл ' + Upper( n_file + sdbf() ), ;
       'со сведениями о случаях лечения пациентов.' },, ;
       cColorStMsg, cColorStMsg,,, cColorSt2Msg )
   Endif

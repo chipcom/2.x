@@ -47,7 +47,7 @@ Function write_work_oper( _pt, _tp, _ae, _kk, _kp, _open )
   Static llen := 6
 
   Default _kk To 1, _kp To 0, _open To .t.
-  If yes_parol .and. hb_FileExists( dir_server() + 'mo_opern' + sdbf ) .and. ;
+  If yes_parol .and. hb_FileExists( dir_server() + 'mo_opern' + sdbf() ) .and. ;
       iif( _open, g_use( dir_server() + 'mo_opern', dir_server() + 'mo_opern', 'OP' ), .t. )
     _pt := Chr( _pt )
     _tp := Chr( _tp )
@@ -301,7 +301,7 @@ Function init_tmp_glob_array( name_base, _glob_array, _date, is_all )
   Local i, len1, len2, f2type, fl_is, tmp_select
 
   Default name_base To 'tmp_ga', is_all To .f.
-  If !myfiledeleted( cur_dir() + name_base + sdbf )
+  If !myfiledeleted( cur_dir() + name_base + sdbf() )
     Return .f.
   Endif
   tmp_select := Select()
@@ -603,7 +603,7 @@ Function input_uch( r, c, date1, date2 )
 
   Local ret, k, fl_is, tmp_select := Select()
 
-  If !myfiledeleted( cur_dir() + 'tmp_ga' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_ga' + sdbf() )
     Return ret
   Endif
   If Empty( glob_uch[ 1 ] )
@@ -662,7 +662,7 @@ Function input_otd( r, c, date1, date2, nTask )
   Local ret, k, fl_is, tmp_select := Select()
 
   Default nTask To X_OMS
-  If !myfiledeleted( cur_dir() + 'tmp_ga' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_ga' + sdbf() )
     Return ret
   Endif
   dbCreate( cur_dir() + 'tmp_ga', { { 'name', 'C', 30, 0 }, ;

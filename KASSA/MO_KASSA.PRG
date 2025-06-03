@@ -83,7 +83,7 @@ return .t.
 Function fk_usl_cena()
 Local buf := savescreen(), adbf, i
 Private fl_found := .f.
-if !myFileDeleted(cur_dir()+"tmp"+sdbf)
+if !myFileDeleted(cur_dir()+"tmp"+sdbf())
   return NIL
 endif
 mywait()
@@ -229,7 +229,7 @@ return fl
 Function fk_usl_dogov()
 Local buf := savescreen(), adbf, i
 Private fl_found := .f.
-if !myFileDeleted(cur_dir()+"tmp"+sdbf)
+if !myFileDeleted(cur_dir()+"tmp"+sdbf())
   return NIL
 endif
 mywait()
@@ -660,7 +660,7 @@ LOCAL j := 0, flag := -1, buf := save_row(maxrow()), buf1, fl := .f., rec, mkod,
 Private ldate_voz, lsum_voz, nom_prihod := 0
 do case
   case nKey == K_F9 .and. !empty(human->cena)
-    if !myFileDeleted(cur_dir()+"tmp"+sdbf)
+    if !myFileDeleted(cur_dir()+"tmp"+sdbf())
       return flag
     endif
     rec := human->(recno())
@@ -1542,7 +1542,7 @@ Local i, j, k, arr[2], s, buf := save_row(maxrow()), buf1, reg1,;
 if (arr_m := year_month()) == NIL
   return NIL
 endif
-if !myFileDeleted(cur_dir()+"tmp"+sdbf)
+if !myFileDeleted(cur_dir()+"tmp"+sdbf())
   return NIL
 endif
 speriod := arr_m[4]
@@ -1716,7 +1716,7 @@ sh := len(arr_title[1])
 if (arr_m := year_month()) == NIL
   return NIL
 endif
-if !myFileDeleted(cur_dir()+"tmp"+sdbf)
+if !myFileDeleted(cur_dir()+"tmp"+sdbf())
   return NIL
 endif
 //

@@ -53,10 +53,10 @@ Procedure Main( ... )
   //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
 
-  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT', ;
-    sxml := '.XML', szip := '.ZIP', srar := '.RAR', smem := '.MEM', ;
-    sini := '.INI', sfr3 := '.FR3', sfrm := '.FRM', spdf := '.PDF', ;
-    scsv := '.CSV', sxls := '.xls', schip := '.CHIP', sdbt := '.dbt'
+//  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT', ;
+//    sxml := '.XML', szip := '.ZIP', srar := '.RAR', smem := '.MEM', ;
+//    sini := '.INI', sfr3 := '.FR3', sfrm := '.FRM', spdf := '.PDF', ;
+//    scsv := '.CSV', sxls := '.xls', schip := '.CHIP', sdbt := '.dbt'
 
   Public public_mouse := .f., pravo_write := .t., pravo_read := .t., ;
     MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;

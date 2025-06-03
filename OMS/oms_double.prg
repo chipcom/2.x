@@ -48,7 +48,7 @@ Function create_double_sl()
 //  local cena_temp
   fl_reserve_1 := fl_reserve_2 := .f.
 
-  if !myFileDeleted(cur_dir() + 'tmp_h' + sdbf)
+  if !myFileDeleted(cur_dir() + 'tmp_h' + sdbf())
     return NIL
   endif
   buf := box_shadow(0, 41, 4, 77, color13)

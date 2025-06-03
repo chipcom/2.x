@@ -1964,7 +1964,7 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
     tmp2 := '', c1, fl_bukva, s_msg, rec_tmp := 0
 
   Default lregim To 1, mbukva To ''
-  If !myfiledeleted( cur_dir() + 'tmp_kart' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_kart' + sdbf() )
     Return fl
   Endif
   Private top_frm
@@ -2313,7 +2313,7 @@ Function input_schet( rr, r, c )
     }
 
   Default r To T_ROW, c To T_COL -5
-  If !myfiledeleted( cur_dir() + 'tmp' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp' + sdbf() )
     Return fl
   Endif
   ar := getinisect( tmp_ini, 'schet' )

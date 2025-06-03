@@ -324,7 +324,7 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   kol_rec := lastrec()
   Private mcena_1 := human->cena_1, msmo := human_->smo
   if yes_parol .and. (mvu[1,1] > 0 .or. mvu[2,1] > 0 .or. mvu[3,1] > 0) ;
-               .and. hb_FileExists(dir_server() + 'mo_opern'+sdbf)
+               .and. hb_FileExists(dir_server() + 'mo_opern'+sdbf())
     close databases
     if G_Use(dir_server() + 'mo_opern',dir_server() + 'mo_opern','OP')
       for i := 1 to 3

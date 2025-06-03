@@ -34,7 +34,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
   R_Use(dir_server() + 'organiz', , 'ORG')
   name_org := alltrim(org->name)
   dbCloseAll()
-  if !myFileDeleted(cur_dir() + 'tmp1' + sdbf)
+  if !myFileDeleted(cur_dir() + 'tmp1' + sdbf())
     return NIL
   endif
   dbcreate(cur_dir() + 'tmp1', {{'kod', 'N', 4, 0}, ;
@@ -1159,7 +1159,7 @@ Function print_al_uch(arr_h, arr_m)
   R_Use(dir_server() + 'organiz')
   name_org := center(alltrim(name), sh)
   dbCloseAll()
-  if !myFileDeleted(cur_dir() + 'tmp1' + sdbf)
+  if !myFileDeleted(cur_dir() + 'tmp1' + sdbf())
     return NIL
   endif
   dbcreate(cur_dir() + 'tmp1', {{'kod', 'N', 4, 0}, ;

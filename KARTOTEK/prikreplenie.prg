@@ -9,7 +9,7 @@ Function wq_ret_last_name()
   Local s := '', arr_f := {}
 
   scandirfiles(dir_server(), ;
-               'mo_wq*' + sdbf, ;
+               'mo_wq*' + sdbf(), ;
               {|x| aadd(arr_f, Name_Without_Ext(StripPath(x)))})
   if !empty(arr_f)
     asort(arr_f, , ,{|x, y| iif(substr(x, 6, 6) == substr(y, 6, 6), ;
@@ -48,7 +48,7 @@ Function wq_import()
     name_zip := StripPath(full_zip)  // имя файла без пути
     cName := Name_Without_Ext(name_zip)
     fbase := 'mo_wq' + substr(cName, 10)
-    if hb_fileExists(dir_server() + fbase + sdbf)
+    if hb_fileExists(dir_server() + fbase + sdbf())
       return func_error(4, 'Данный файл уже был импортирован!')
     endif
     R_Use(dir_server() + 'mo_krtr', , 'KRTR')
@@ -64,17 +64,17 @@ Function wq_import()
       if (n := ascan(arr_f, {|x| upper(Name_Without_Ext(x)) == upper(cName)})) > 0
         fl := .t.
       else
-        fl := func_error(4, 'В архиве ' + name_zip + ' нет файла ' + cName + sdbf)
+        fl := func_error(4, 'В архиве ' + name_zip + ' нет файла ' + cName + sdbf())
       endif
     endif
     /*if (fl := Extract_RAR(KeepPath(full_zip),name_zip)) .and. ;
-                                       !hb_fileExists(_tmp_dir1()+cName+sdbf)
+                                       !hb_fileExists(_tmp_dir1()+cName+sdbf())
       fl := func_error(4, 'Возникла ошибка при разархивировании '+_tmp_dir1()+cName+szip())
     endif*/
     last_file := ' '
     if fl .and. wq_if_last_file(cName, @last_file)
       s := cName
-      name_dbf := cName + sdbf
+      name_dbf := cName + sdbf()
       if upper(left(s, 3)) == 'WQ2'
         s := substr(s, 4)
         cMO := substr(s, 1, 6)
@@ -95,7 +95,7 @@ Function wq_import()
           enddo
           Use
           if fl .and. !empty(last_file) .and. empty(k)
-            fl := func_error(4, 'По предыдущему файлу mo_wq' + rtrim(last_file) + sdbf + ' не был составлен файл прикрепления')
+            fl := func_error(4, 'По предыдущему файлу mo_wq' + rtrim(last_file) + sdbf() + ' не был составлен файл прикрепления')
           endif
           if fl
             R_Use(_tmp_dir1() + cName, , 'T1')
@@ -443,7 +443,7 @@ Function wq_edit_uchast()
   fl := found()
   Use
   if fl
-    return func_error(4, 'Файл прикрепления MO2...CSV по файлу ' + fname + sdbf + ' уже отправлен в ТФОМС!')
+    return func_error(4, 'Файл прикрепления MO2...CSV по файлу ' + fname + sdbf() + ' уже отправлен в ТФОМС!')
   endif
   mywait()
   Use_base('kartotek')
@@ -562,7 +562,7 @@ Function wq_prikreplenie()
   else
     find (padr(substr(filename, 10), 11))
     if (fl := found())
-      func_error(4, 'Файл прикрепления ' + rtrim(krtr->fname) + scsv() + ' по файлу ' + filename + sdbf + ' уже отправлен в ТФОМС!')
+      func_error(4, 'Файл прикрепления ' + rtrim(krtr->fname) + scsv() + ' по файлу ' + filename + sdbf() + ' уже отправлен в ТФОМС!')
     else
       go bottom
       if krtr->ANSWER == 1
@@ -590,7 +590,7 @@ Function wq_prikreplenie()
   endif
   mywait()
   close databases
-  if hb_FileExists(dir_server() + filename + sdbf)
+  if hb_FileExists(dir_server() + filename + sdbf())
     mywait()
     //
     R_Use(dir_server() + filename, , 'WQ')
@@ -609,13 +609,13 @@ Function wq_prikreplenie()
       fl_err := .t.
     endif
   else
-    fl_err := !func_error(4, 'Не найден импортированный файл ' + filename + sdbf)
+    fl_err := !func_error(4, 'Не найден импортированный файл ' + filename + sdbf())
   endif
   if fl_err
     if !empty(arr_uch)
       mywait()
       cFileProtokol := cur_dir() + 'prot.txt'
-      strfile(space(5) + 'Список пациентов из файла ' + filename + sdbf + ' без участка' + hb_eol() + hb_eol(), cFileProtokol)
+      strfile(space(5) + 'Список пациентов из файла ' + filename + sdbf() + ' без участка' + hb_eol() + hb_eol(), cFileProtokol)
       for i := 1 to len(arr_uch)
         strfile(lstr(i) + '. ' + arr_uch[i] + hb_eol(), cFileProtokol, .t.)
       next

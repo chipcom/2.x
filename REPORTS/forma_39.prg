@@ -1769,7 +1769,7 @@ Static Function yes_f_39( par1, par2 )
   If i == 0
     j := 17   // ОМС
   Elseif eq_any( i, 1, 3 )  // прочие компании или комитеты (МО)
-    If hb_FileExists( dir_server() + arr_f[ i ] + sdbf )
+    If hb_FileExists( dir_server() + arr_f[ i ] + sdbf() )
       r_use( dir_server() + arr_f[ i ],, "_B" )
       Goto ( human->str_crb )
       If eq_any( _b->ist_fin, I_FIN_PLAT, I_FIN_LPU ) // платные, взаиморасчёты с ЛПУ

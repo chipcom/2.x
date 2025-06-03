@@ -59,7 +59,7 @@ Function forma_57_( is_diag )
     fl_exit := .f., jh := 0, jt := 0, mshifr, mvozrast, d1, d2, ;
     arr_stroke := { {}, {}, {} }, fl, s, arr, bbuf, blk_usl, ab := {}
 
-  file_form := dir_exe() + "_mo_form" + sdbf
+  file_form := dir_exe() + "_mo_form" + sdbf()
   If !hb_FileExists( file_form )
     Return func_error( 4, "Не обнаружен файл настройки статистических форм " + Upper( file_form ) )
   Endif

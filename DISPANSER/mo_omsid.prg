@@ -183,7 +183,7 @@ Function f0_inf_dds( arr_m, is_schet, is_reg, is_snils )
   Local fl := .t.
 
   Default is_schet To .t., is_reg To .f., is_snils To .f.
-  If !del_dbf_file( cur_dir() + "tmp" + sdbf )
+  If !del_dbf_file( cur_dir() + "tmp" + sdbf() )
     Return .f.
   Endif
   dbCreate( cur_dir() + "tmp", { { "kod", "N", 7, 0 }, ;
@@ -1133,7 +1133,7 @@ Function inf_dds_svod( par, par2, is_schet )
         frt->kol3 := "Плановые показатели"
         frt->kol4 := "Фактические показатели выполнения: осмотрено/обработано карт"
       Endif
-      Copy File ( cur_dir() + "tmpfio" + sdbf ) to ( fr_data + sdbf )
+      Copy File ( cur_dir() + "tmpfio" + sdbf() ) to ( fr_data + sdbf() )
       Do Case
       Case par == 1
         Use ( fr_data ) New Alias FRD
@@ -2921,7 +2921,7 @@ Function f0_inf_dvn( arr_m, is_schet, is_reg, is_1_2 )
   Local fl := .t., j := 0, n, buf := save_maxrow()
 
   Default is_schet To .t., is_reg To .f., is_1_2 To .f.
-  If !del_dbf_file( cur_dir() + "tmp" + sdbf )
+  If !del_dbf_file( cur_dir() + "tmp" + sdbf() )
     Return .f.
   Endif
   mywait()
@@ -6045,7 +6045,7 @@ Function inf_dnl_karta()
   If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
     If f0_inf_dnl( arr_m, .f. )
-      Copy File ( cur_dir() + "tmp" + sdbf ) to ( cur_dir() + "tmpDNL" + sdbf ) // т.к. внутри тоже есть TMP-файл
+      Copy File ( cur_dir() + "tmp" + sdbf() ) to ( cur_dir() + "tmpDNL" + sdbf() ) // т.к. внутри тоже есть TMP-файл
       r_use( dir_server() + "human",, "HUMAN" )
       Use ( cur_dir() + "tmpDNL" ) new
       Set Relation To kod into HUMAN
@@ -6089,7 +6089,7 @@ Function f0_inf_dnl( arr_m, is_schet, is_reg, arr_ishod, is_snils )
   Local fl := .t.
 
   Default is_schet To .t., is_reg To .f., is_snils To .f., arr_ishod TO { 301, 302 } // профилактика 1 и 2 этап
-  If !del_dbf_file( cur_dir() + "tmp" + sdbf )
+  If !del_dbf_file( cur_dir() + "tmp" + sdbf() )
     Return .f.
   Endif
   dbCreate( cur_dir() + "tmp", { { "kod", "N", 7, 0 }, ;
@@ -7486,7 +7486,7 @@ Function inf_dnl_030poo( is_schet )
       Use ( cur_dir() + "tmp10" ) New Alias TMP10
       Index On Str( voz, 1 ) + Str( tbl, 1 ) + Str( tip, 2 ) to ( cur_dir() + "tmp10" )
       Use
-      Copy File ( cur_dir() + "tmp10" + sdbf ) to ( cur_dir() + "tmp11" + sdbf )
+      Copy File ( cur_dir() + "tmp10" + sdbf() ) to ( cur_dir() + "tmp11" + sdbf() )
       Use ( cur_dir() + "tmp11" ) New Alias TMP11
       Index On Str( voz, 1 ) + Str( tbl, 2 ) + Str( tip, 2 ) to ( cur_dir() + "tmp11" )
       Use
@@ -8357,7 +8357,7 @@ Function inf_dnl_xmlfile( is_schet, stitle )
       arr := { 305 } // период.осмотры
     Endcase
     If f0_inf_dnl( arr_m, is_schet > 1, is_schet == 3, arr, .t. )
-      Copy File ( cur_dir() + "tmp" + sdbf ) to ( cur_dir() + "tmpDNL" + sdbf ) // т.к. внутри тоже есть TMP-файл
+      Copy File ( cur_dir() + "tmp" + sdbf() ) to ( cur_dir() + "tmpDNL" + sdbf() ) // т.к. внутри тоже есть TMP-файл
       r_use( dir_server() + "human",, "HUMAN" )
       Use ( cur_dir() + "tmpDNL" ) new
       Set Relation To kod into HUMAN
@@ -8630,7 +8630,7 @@ Function mnog_poisk_dnl()
     { "прикреплён к нашей МО", 1 }, ;
     { "прикреплён к другим МО", 2 }, ;
     { "прикрепление неизвестно", 3 } }, ;
-    tmp_file := cur_dir() + "tmp_mn_p" + sdbf, ;
+    tmp_file := cur_dir() + "tmp_mn_p" + sdbf(), ;
     k_fio, k_adr, tt_fio[ 10 ], tt_adr[ 10 ], fl_exit := .f.
   Local adbf := { ;
     { "UCHAST",   "N",  2, 0 }, ; // номер участка

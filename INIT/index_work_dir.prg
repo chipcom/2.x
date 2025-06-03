@@ -227,7 +227,7 @@ Function dep_index_and_fill( val_year, dir_spavoch, working_dir, flag )
 
   Default flag To .f.
   sbase := prefixfilerefname( val_year ) + 'dep'  // справочник отделений на конкретный год
-  If hb_vfExists( dir_spavoch + sbase + sdbf )
+  If hb_vfExists( dir_spavoch + sbase + sdbf() )
     r_use( dir_spavoch + sbase, , 'DEP' )
     Index On Str( code, 3 ) to ( working_dir + sbase ) For codem == glob_mo[ _MO_KOD_TFOMS ]
 
@@ -240,7 +240,7 @@ Function dep_index_and_fill( val_year, dir_spavoch, working_dir, flag )
     Use
     If is_otd_dep
       sbase := prefixfilerefname( val_year ) + 'deppr' // справочник отделения + профили  на конкретный год
-      If hb_vfExists( dir_spavoch + sbase + sdbf )
+      If hb_vfExists( dir_spavoch + sbase + sdbf() )
         r_use( dir_spavoch + sbase, , 'DEP' )
         Index On Str( code, 3 ) + Str( pr_mp, 3 ) to ( working_dir + sbase ) For codem == glob_mo[ _MO_KOD_TFOMS ]
         Use
@@ -257,7 +257,7 @@ Function usl_index( val_year, dir_spavoch, working_dir, flag )
 
   Default flag To .f.
   sbase := prefixfilerefname( val_year ) + 'usl'  // справочник услуг ТФОМС на конкретный год
-  If hb_vfExists( dir_spavoch + sbase + sdbf )
+  If hb_vfExists( dir_spavoch + sbase + sdbf() )
     r_use( dir_spavoch + sbase, , 'LUSL' )
     Index On shifr to ( working_dir + sbase )
     If val_year == WORK_YEAR
@@ -287,7 +287,7 @@ Function uslc_index( val_year, dir_spavoch, working_dir, flag )
   Default flag To .f.
   prefix := prefixfilerefname( val_year )
   sbase :=  prefix + 'uslc'  // цены на услуги на конкретный год
-  If hb_vfExists( dir_spavoch + sbase + sdbf )
+  If hb_vfExists( dir_spavoch + sbase + sdbf() )
     index_usl_name :=  prefix + 'uslu'  //
 
     r_use( dir_spavoch + sbase, , 'LUSLC' )
@@ -307,7 +307,7 @@ Function uslf_index( val_year, dir_spavoch, working_dir, flag )
 
   Default flag To .f.
   sbase := prefixfilerefname( val_year ) + 'uslf'  // справочник услуг ФФОМС на конкретный год
-  If hb_vfExists( dir_spavoch + sbase + sdbf )
+  If hb_vfExists( dir_spavoch + sbase + sdbf() )
     r_use( dir_spavoch + sbase, , 'LUSLF' )
     Index On shifr to ( working_dir + sbase )
     Use
@@ -321,7 +321,7 @@ Function unit_index( val_year, dir_spavoch, working_dir, flag )
 
   Default flag To .f.
   sbase := prefixfilerefname( val_year ) + 'unit'  // план-заказ на конкретный год
-  If hb_vfExists( dir_spavoch + sbase + sdbf )
+  If hb_vfExists( dir_spavoch + sbase + sdbf() )
     r_use( dir_spavoch + sbase )
     Index On Str( code, 3 ) to ( working_dir + sbase )
     Use
@@ -336,7 +336,7 @@ Function k006_index( val_year, dir_spavoch, working_dir, flag )
   Default flag To .f.
 
   sbase := prefixfilerefname( val_year ) + 'k006'  //
-  If hb_vfExists( dir_spavoch + sbase + sdbf ) .and. hb_vfExists( dir_spavoch + sbase + sdbt() )
+  If hb_vfExists( dir_spavoch + sbase + sdbf() ) .and. hb_vfExists( dir_spavoch + sbase + sdbt() )
     r_use( dir_spavoch + sbase )
     Index On SubStr( shifr, 1, 2 ) + ds + sy + age + sex + los to ( working_dir + sbase ) // по диагнозу/операции
     Index On SubStr( shifr, 1, 2 ) + sy + ds + age + sex + los to ( working_dir + sbase + '_' ) // по операции/диагнозу

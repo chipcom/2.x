@@ -1373,7 +1373,7 @@ if !fl_exit
   viewtext(n_file,,,,(sh>80),,,reg_print)
   if mkol > 0
     ClrLine(24,color0)
-    d_file := cur_dir() + "UZ_SPEC"+sdbf
+    d_file := cur_dir() + "UZ_SPEC"+sdbf()
     if !del_dbf_file(d_file)
       return NIL
     endif

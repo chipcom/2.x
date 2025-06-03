@@ -32,10 +32,10 @@ Function f1dubl_zap_1()
     return NIL
   endif
   si := i
-  if !myFileDeleted(cur_dir() + 'tmp' + sdbf)
+  if !myFileDeleted(cur_dir() + 'tmp' + sdbf())
     return NIL
   endif
-  if !myFileDeleted(cur_dir() + 'tmpitg' + sdbf)
+  if !myFileDeleted(cur_dir() + 'tmpitg' + sdbf())
     return NIL
   endif
   dbcreate(cur_dir() + 'tmpitg', { ;

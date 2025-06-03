@@ -2025,7 +2025,7 @@ Function create_dbf_for_lis( par )
   n_file := 'L' + glob_mo[ _MO_KOD_TFOMS ]
   dbCreate( n_file, adbf )
   Use ( n_file ) New Alias TMP
-  hGauge := gaugenew(, , , 'Создание файла ' + Upper( n_file + sdbf ), .t. )
+  hGauge := gaugenew(, , , 'Создание файла ' + Upper( n_file + sdbf() ), .t. )
   gaugedisplay( hGauge )
   r_use( dir_server() + 'mo_kfio', , 'KFIO' )
   Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
@@ -2075,7 +2075,7 @@ Function create_dbf_for_lis( par )
   Elseif i  == 0
     func_error( 4, 'Некого включать в файл!' )
   Else
-    n_message( { 'В каталоге ' + cur_dir() + ' создан файл ' + Upper( n_file + sdbf ), ;
+    n_message( { 'В каталоге ' + cur_dir() + ' создан файл ' + Upper( n_file + sdbf() ), ;
       lstr( i ) + ' пациентов.' }, , ;
       cColorSt2Msg, cColorStMsg, , , 'G+/R' )
   Endif
@@ -2133,7 +2133,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
     n_file := cur_dir() + 'uchast' + StrZero( nuch, 2 )
     dbCreate( n_file, adbf )
     Use ( n_file ) New Alias TMP
-    hGauge := gaugenew(, , , 'Создание файла ' + Upper( n_file + sdbf ), .t. )
+    hGauge := gaugenew(, , , 'Создание файла ' + Upper( n_file + sdbf() ), .t. )
     gaugedisplay( hGauge )
     //
     r_use( dir_server() + 's_kemvyd', , 'SKEM' )
@@ -2224,7 +2224,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
     n_file := cur_dir() + 'smo' + nsmo
     dbCreate( n_file, adbf )
     Use ( n_file ) New Alias TMP
-    hGauge := gaugenew(, , , 'Создание файла ' + Upper( n_file + sdbf ), .t. )
+    hGauge := gaugenew(, , , 'Создание файла ' + Upper( n_file + sdbf() ), .t. )
     gaugedisplay( hGauge )
     //
     r_use( dir_server() + 's_kemvyd', , 'SKEM' )
@@ -2302,7 +2302,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
   If fl_exit
     func_error( 4, 'Операция прервана!' )
   Endif
-  n_message( { 'Создан файл ' + Upper( n_file + sdbf ), ;
+  n_message( { 'Создан файл ' + Upper( n_file + sdbf() ), ;
     lstr( i ) + ' человек.' } )
 
   Return Nil

@@ -4442,7 +4442,7 @@ Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
                   {"бесплатный ",1},;
                   {"взаимозачет",2},;
                   {"ДМС        ",3}},;
-      tmp_file := "tmp_mn_p"+sdbf
+      tmp_file := "tmp_mn_p"+sdbf()
 Private arr_doc := {"Дата рожд.",;
                     "Адрес",;
                     "Вид,N уч/док",;
@@ -7130,7 +7130,7 @@ sh := len(arr_title[1])
 if (arr_m := year_month()) == NIL
   return NIL
 endif
-if !myFileDeleted(cur_dir()+"tmp"+sdbf)
+if !myFileDeleted(cur_dir()+"tmp"+sdbf())
   return NIL
 endif
 //

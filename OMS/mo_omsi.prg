@@ -2469,8 +2469,8 @@ Function pril_5_6_62()
     arr_usl, au, ii, lal, lalf
   Local sbase
 
-  If !hb_FileExists( dir_exe() + '_mo_pr62' + sdbf )
-    Return func_error( 4, '¥ ®¡­ àã¦¥­ ä ©« _mo_pr62' + sdbf )
+  If !hb_FileExists( dir_exe() + '_mo_pr62' + sdbf() )
+    Return func_error( 4, '¥ ®¡­ àã¦¥­ ä ©« _mo_pr62' + sdbf() )
   Endif
   Private arr_m := { 2022, 1, 12, '§  ï­¢ àì - ¤¥ª ¡àì 2022 £®¤ ', 0d20220101, 0d20221231 }, ;
     mm_uslov := { { '¯® áç¥â ¬ ®âç.¯¥à¨®¤  (¡¥§ ãçñâ  €Š)', 0 }, ;
@@ -2819,7 +2819,7 @@ Function monitoring_zog()
   Local fl, par, arr_m, i, j, n, ad, arr, adiag_talon[ 16 ], lcount_uch := 1, buf := save_maxrow()
   Private mdate_r, M1VZROS_REB, is_disp_19, m1tip_mas := 0, m1glukozadn := 0, mglukoza := 0
 
-  If !del_dbf_file( 'tmp' + sdbf )
+  If !del_dbf_file( 'tmp' + sdbf() )
     Return .f.
   Endif
   If ( par := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0 .and. ;

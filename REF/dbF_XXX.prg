@@ -381,8 +381,8 @@ Function getf010()
     Endif
     db := nil
     AAdd( _arr, { 'Федерального подчинения', '99', 0 } )
-    If hb_FileExists( dir_exe() + 'f010' + sdbf )
-      FErase( dir_exe() + 'f010' + sdbf )
+    If hb_FileExists( dir_exe() + 'f010' + sdbf() )
+      FErase( dir_exe() + 'f010' + sdbf() )
     Endif
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
   Endif

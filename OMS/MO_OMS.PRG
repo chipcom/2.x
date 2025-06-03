@@ -650,7 +650,7 @@ Function f2oms_edit()
   Local buf, str_sem, i, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
   Local lek_pr := .f.
 
-  If !myfiledeleted( cur_dir() + 'tmp_h' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_h' + sdbf() )
     Return Nil
   Endif
   If ( arr_m := year_month( T_ROW, T_COL + 5, , 3 ) ) != NIL
@@ -791,7 +791,7 @@ Function f4oms_edit()
     iRefr, srec, buf24, buf_scr, mas_pmt
   Local lek_pr := .f.
 
-  If !myfiledeleted( cur_dir() + 'tmp_h' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_h' + sdbf() )
     Return Nil
   Endif
   If ( arr_m := year_month( T_ROW, T_COL + 5 ) ) != NIL
@@ -1848,7 +1848,7 @@ Function f2ret_oms_human( nkey )
     Elseif nkey == K_CTRL_F5
       If glob_mo[ _MO_KOD_TFOMS ] == '805965' // „‹
         tmpSelect := Select()
-        If hb_vfExists( cur_dir() + fr_data + '2' + sdbf )
+        If hb_vfExists( cur_dir() + fr_data + '2' + sdbf() )
           Use ( cur_dir() + fr_data + '2' ) New Alias FRD2
           If frd2->( LastRec() ) > 1
             flag_RDL := .t.

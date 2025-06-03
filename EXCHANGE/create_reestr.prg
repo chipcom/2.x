@@ -29,10 +29,10 @@ Function create_reestr()
   If DONT_CREATE_REESTR_YEAR == arr_m[ 1 ]
     Return func_error( 4, 'Реестры за ' + Str( DONT_CREATE_REESTR_YEAR, 4 ) + ' год недоступны' )
   Endif
-  If !myfiledeleted( cur_dir() + 'tmpb' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmpb' + sdbf() )
     Return Nil
   Endif
-  If !myfiledeleted( cur_dir() + 'tmp' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp' + sdbf() )
     Return Nil
   Endif
 

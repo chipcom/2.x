@@ -733,12 +733,12 @@ Function delfrfiles()
 
   Local j, nfile
 
-  Delete File ( fr_titl + sdbf )
-  Delete File ( fr_data + sdbf )
+  Delete File ( fr_titl + sdbf() )
+  Delete File ( fr_data + sdbf() )
   Delete File ( fr_data + sntx() )
   For j := 1 To max_FR_date_dbf
     nfile := fr_data + LTrim( Str( j ) )
-    Delete File ( nfile + sdbf )
+    Delete File ( nfile + sdbf() )
     Delete File ( nfile + sntx() )
   Next
 
@@ -757,7 +757,7 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
   Private FrPrn := frreportmanager():new(, .t. ), ; // .t. ошибки выводятся в OEM кодировке
     lShowCustName := .t.
   FrPrn:seticon( 'MAIN_ICON' )
-  If File( fr_data + sdbf )
+  If File( fr_data + sdbf() )
     Use ( fr_data ) NEW
     If File( fr_data + sntx() )
       Set Index to ( fr_data )
@@ -765,14 +765,14 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
     Go Top
     FrPrn:setworkarea( fr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
   Endif
-  If File( fr_titl + sdbf )
+  If File( fr_titl + sdbf() )
     Use ( fr_titl ) NEW
     Go Top
     FrPrn:setworkarea( fr_titl, Select(), .t. ) // .t. dbf-файл в OEM кодировке
   Endif
   For j := 1 To max_FR_date_dbf
     nfile := fr_data + LTrim( Str( j ) )
-    If File( nfile + sdbf )
+    If File( nfile + sdbf() )
       Use ( nfile ) NEW
       If File( nfile + sntx() )
         Set Index to ( nfile )
@@ -851,15 +851,15 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
   // Unload FastReport
   FrPrn:destroyfr()
   //
-  If File( fr_data + sdbf )
+  If File( fr_data + sdbf() )
     &fr_data.->( dbCloseArea() )
   Endif
-  If File( fr_titl + sdbf )
+  If File( fr_titl + sdbf() )
     &fr_titl.->( dbCloseArea() )
   Endif
   For j := 1 To max_FR_date_dbf
     nfile := fr_data + LTrim( Str( j ) )
-    If File( nfile + sdbf )
+    If File( nfile + sdbf() )
       &nfile.->( dbCloseArea() )
     Endif
   Next

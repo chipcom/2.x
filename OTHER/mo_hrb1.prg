@@ -854,7 +854,7 @@ if (mkomp := popup_prompt(T_ROW,T_COL-5,sk,{"Страховые компании","Прочие компани
 endif
 if (sk := mkomp) > 1
   n_file := {"","str_komp","komitet"}[sk]
-  if hb_fileExists(dir_server()+n_file+sdbf)
+  if hb_fileExists(dir_server()+n_file+sdbf())
     arr := {}
     R_Use(dir_server()+n_file,,"_B")
     go top
@@ -880,7 +880,7 @@ if (sk := mkomp) > 1
       return func_error(4,"Ошибка")
     endif
   else
-    return func_error(4,"Не обнаружен файл "+dir_server()+n_file+sdbf)
+    return func_error(4,"Не обнаружен файл "+dir_server()+n_file+sdbf())
   endif
 endif
 WaitStatus(arr_m[4])
@@ -1030,9 +1030,9 @@ close databases
 restscreen(buf)
 if !fl_exit
   n_file := "SVED"
-  copy file (cur_dir()+"tmp"+sdbf) to (cur_dir()+n_file+sdbf)
+  copy file (cur_dir()+"tmp"+sdbf()) to (cur_dir()+n_file+sdbf())
   n_message({"В каталоге "+upper(cur_dir()),;
-             "создан файл "+upper(n_file+sdbf),;
+             "создан файл "+upper(n_file+sdbf()),;
              "со сведениями о случаях лечения пациентов."},,;
              cColorStMsg,cColorStMsg,,,cColorSt2Msg)
 endif
@@ -1046,7 +1046,7 @@ Local fl_exit := .f., arr_f := {"str_komp",,"komitet"}, i, j, k, v, koef, msum, 
 Private arr_m := {2016, 1, 12, "за 2016 год", begin_date, end_date, dtoc4(begin_date), dtoc4(end_date)}
 WaitStatus(arr_m[4])
 for i := 1 to 3
-  if i != 2 .and. hb_fileExists(dir_server()+arr_f[i]+sdbf)
+  if i != 2 .and. hb_fileExists(dir_server()+arr_f[i]+sdbf())
     R_Use(dir_server()+arr_f[i],,"_B")
     go top
     do while !eof()

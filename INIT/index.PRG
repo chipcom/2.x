@@ -388,7 +388,7 @@ endif*/
   e_use( dir_server() + "uch_usl1", dir_server() + "uch_usl1", "UCH_USL1" )
   // index on str(kod,4)+dtos(date_b) to (dir_server()+"uch_usl1") progress
   //
-  If ( flag_udel := hb_FileExists( dir_server() + "usl_del" + sdbf ) )
+  If ( flag_udel := hb_FileExists( dir_server() + "usl_del" + sdbf() ) )
     e_use( dir_server() + "usl_del",, "UDEL" )
     Index On Str( kod, 4 ) to ( cur_dir() + "tmp_udel" )
   Endif
@@ -983,8 +983,8 @@ Function dubl_zap_kod_tf()
     Delete File ( "t1dubl" + sntx() )
     FClose( fp )
   Endif
-  Delete File ( "t_dubl" + sdbf )
-  Delete File ( "t1dubl" + sdbf )
+  Delete File ( "t_dubl" + sdbf() )
+  Delete File ( "t1dubl" + sdbf() )
   RestScreen( buf )
 
   Return { j1, j2 }

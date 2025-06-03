@@ -1840,7 +1840,7 @@ Function view_kart( regim, r1, r2 )
                 Locate For kod_k == glob_kartotek
                 fl := Found()
               Endif
-              If !fl .and. File( dir_server() + 'vouncnaz' + sdbf ) // Çéìçñ
+              If !fl .and. File( dir_server() + 'vouncnaz' + sdbf() ) // Çéìçñ
                 r_use( dir_server() + 'vouncnaz', , 'NAZ' )
                 Locate For kod_k == glob_kartotek
                 fl := Found()
@@ -2459,10 +2459,10 @@ Function f1dubl_zap()
     Return Nil
   Endif
   si := i
-  If !myfiledeleted( cur_dir() + 'tmp' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp' + sdbf() )
     Return Nil
   Endif
-  If !myfiledeleted( cur_dir() + 'tmpitg' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmpitg' + sdbf() )
     Return Nil
   Endif
   dbCreate( cur_dir() + 'tmpitg', { ;

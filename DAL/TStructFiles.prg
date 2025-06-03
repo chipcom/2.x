@@ -35,7 +35,7 @@ METHOD New() CLASS TStructFiles
 
 // версия БД
 	cClassName := Upper( 'TVersionDB' )
-	cName := dir_server() + 'VER_BASE' + sdbf
+	cName := dir_server() + 'VER_BASE' + sdbf()
 	aEtalonDB :=	{ ;
 					{ 'VERSION',      'N',  10,   0 } ; 
 					}             
@@ -46,7 +46,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник пользователей
 	cClassName := Upper( 'TUserDB' )
-	cName := dir_server() + 'base1' + sdbf
+	cName := dir_server() + 'base1' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'P1',      'C',  20,   0 }, ; // Ф.И.О.
 					{ 'P2',      'N',   1,   0 }, ; // тип доступа
@@ -67,7 +67,7 @@ METHOD New() CLASS TStructFiles
 
 // фуйл учета работы операторов
 	cClassName := Upper( 'TAudit_mainDB' )
-	cName := dir_server() + 'mo_oper' + sdbf
+	cName := dir_server() + 'mo_oper' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'PO',			'C',   1,   0 }, ; // код оператора asc(po)
 					{ 'PD',			'C',   4,   0 }, ; // дата ввода c4tod(pd)
@@ -86,7 +86,7 @@ METHOD New() CLASS TStructFiles
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'Учет работы операторов главный' ) )
 
 	cClassName := Upper( 'TAuditDB' )
-	cName := dir_server() + 'mo_opern' + sdbf
+	cName := dir_server() + 'mo_opern' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'PD',		'C',   4,   0}, ; // дата ввода c4tod(pd)
 					{ 'PO',		'C',   1,   0}, ; // код оператора asc(po)
@@ -103,7 +103,7 @@ METHOD New() CLASS TStructFiles
 	hb_hSet( ::hbFiles, cClassName, TDBFile( ):New( cName, aIndex, cAlias, aEtalonDB, 'Учет работы операторов' ) )
 	
 	cClassName := Upper( 'TRoleUserDB' )
-	cName := dir_server() + 'Roles' + sdbf
+	cName := dir_server() + 'Roles' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'NAME',    'C',  30,   0 }, ; // название роли
 					{ 'ACL_TASK','C',  255,   0 }, ; // доступ к задачам
@@ -116,7 +116,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник пациентов 1
 	cClassName := Upper( 'TPatientDB' )
-	cName := dir_server() + 'kartotek' + sdbf
+	cName := dir_server() + 'kartotek' + sdbf()
 	aEtalonDB :=	{ ;
 					{ 'KOD',		'N',     7,     0 }, ;
 					{ 'FIO',		'C',    50,     0 }, ; // Ф.И.О. больного
@@ -168,7 +168,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник пациентов 2
 	cClassName := Upper( 'TPatientExtDB' )
-	cName := dir_server() + 'kartote_' + sdbf
+	cName := dir_server() + 'kartote_' + sdbf()
 	aEtalonDB :=	{ ;
 				{ 'VPOLIS',		'N',  1, 0 }, ; // вид полиса (от 1 до 3);1-старый,2-врем.,3-новый;по умолчанию 1 - старый
 				{ 'SPOLIS',		'C', 10, 0 }, ; // серия полиса;;для наших - разделить по пробелу
@@ -218,7 +218,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник пациентов 3
 	cClassName := Upper( 'TPatientAddDB' )
-	cName := dir_server() + 'kartote2' + sdbf
+	cName := dir_server() + 'kartote2' + sdbf()
 	aEtalonDB := { ;
 				{ 'KOD_TF',    'N', 10,0 }, ; // код по кодировке ТФОМС
 				{ 'KOD_MIS',   'C', 20,0 }, ; // ЕНП - единый номер полиса ОМС
@@ -244,7 +244,7 @@ METHOD New() CLASS TStructFiles
 
 // информация об организации
 	cClassName := Upper( 'TOrganizationDB' )
-	cName := dir_server() + 'organiz' + sdbf
+	cName := dir_server() + 'organiz' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'KOD_TFOMS',	'C',	8,	0 }, ;
 					{ 'NAME_TFOMS',	'C',	60,	0 }, ;
@@ -282,7 +282,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник учреждений
 	cClassName := Upper( 'TDepartmentDB' )
-	cName := dir_server() + 'mo_uch' + sdbf
+	cName := dir_server() + 'mo_uch' + sdbf()
 	aEtalonDB :=	{ ;
 					{ 'KOD',       'N', 3, 0 }, ; // код;;из 'l_ucher'
 					{ 'NAME',      'C',30, 0 }, ; // наименование;сократили с 70 до 30;'из ''l_ucher'''
@@ -301,7 +301,7 @@ METHOD New() CLASS TStructFiles
 //---------
 
 	cClassName := Upper( 'TSubdivisionDB' )
-	cName := dir_server() + 'mo_otd' + sdbf
+	cName := dir_server() + 'mo_otd' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'KOD',       'N', 3, 0 }, ; // код
 					{ 'NAME',      'C',30, 0 }, ; // наименование
@@ -337,7 +337,7 @@ METHOD New() CLASS TStructFiles
 
 // список сотрудников
 	cClassName := Upper( 'TEmployeeDB' )
-	cName := dir_server() + 'mo_pers' + sdbf
+	cName := dir_server() + 'mo_pers' + sdbf()
 	aEtalonDB :=	{ ;
 				{ 'KOD',       'N',	4,	0 }, ; // код
 				{ 'UCH',       'N', 3,	0 }, ; // код учреждения
@@ -374,7 +374,7 @@ METHOD New() CLASS TStructFiles
 
 // плановая месячная трудоемкость персонала
 	cClassName := Upper( 'TPlannedMonthlyStaffDB' )
-	cName := dir_server() + 'uch_pers' + sdbf
+	cName := dir_server() + 'uch_pers' + sdbf()
 	aEtalonDB :=	{ ;
 				{ 'KOD',       'N',	4,	0 }, ; // код
 				{ 'GOD',       'N', 4,	0 }, ; // 
@@ -391,7 +391,7 @@ METHOD New() CLASS TStructFiles
 
 //справочник диагнозов
 	cClassName := Upper( 'TICD10DB' )
-	cName := dir_exe() + '_mo_mkb' + sdbf
+	cName := dir_exe() + '_mo_mkb' + sdbf()
 	aEtalonDB :=	{ ;
 				{ 'SHIFR',  'C',  6,   0 }, ;
 				{ 'NAME',   'C', 65,  0 }, ;
@@ -409,7 +409,7 @@ METHOD New() CLASS TStructFiles
 
 //справочник групп (классов) диагнозов
 	cClassName := Upper( 'TICD10ClassDB' )
-	cName := dir_exe() + '_mo_mkbk' + sdbf
+	cName := dir_exe() + '_mo_mkbk' + sdbf()
 	aEtalonDB :=	{ ;
 				{ 'KLASS',  'C',  5,   0 }, ;
 				{ 'SH_B',   'C',  3,   0 }, ; 
@@ -425,7 +425,7 @@ METHOD New() CLASS TStructFiles
 
 //справочник подгрупп диагнозов
 	cClassName := Upper( 'TICD10GroupDB' )
-	cName := dir_exe() + '_mo_mkbg' + sdbf
+	cName := dir_exe() + '_mo_mkbg' + sdbf()
 	aEtalonDB :=	{ ;
 				{ 'SH_B',   'C',  3,   0 }, ; 
 				{ 'SH_E',   'C',  3,   0 }, ; 
@@ -440,7 +440,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник служб организации
 	cClassName := Upper( 'TSlugbaDB' )
-	cName := dir_server() + 'slugba' + sdbf
+	cName := dir_server() + 'slugba' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'SHIFR',      'N',      3,      0 }, ;
 					{ 'NAME',       'C',     40,      0 } ;
@@ -454,7 +454,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник стационаров детей-сирот
 	cClassName := Upper( 'TStddsDB' )
-	cName := dir_server() + 'mo_stdds' + sdbf
+	cName := dir_server() + 'mo_stdds' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'NAME',       'C',    250,      0 }, ;
 					{ 'ADRES',      'C',    250,      0 }, ;
@@ -469,7 +469,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник образовательных учреждений
 	cClassName := Upper( 'TSchoolDB' )
-	cName := dir_server() + 'mo_schoo' + sdbf
+	cName := dir_server() + 'mo_schoo' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'NAME',       'C',     30,      0 }, ;
 					{ 'FNAME',      'C',    250,      0 }, ;
@@ -485,7 +485,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник адресных строк
 	cClassName := Upper( 'TAddressStringDB' )
-	cName := dir_server() + 's_adres' + sdbf
+	cName := dir_server() + 's_adres' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'NAME',       'C',     40,      0 } ;
 					}
@@ -498,7 +498,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник органов МВД выдавших документы
 	cClassName := Upper( 'TPublisherDB' )
-	cName := dir_server() + 's_kemvyd' + sdbf
+	cName := dir_server() + 's_kemvyd' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'NAME',       'C',     150,      0 } ;
 					}
@@ -511,7 +511,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник мест работы
 	cClassName := Upper( 'TPlaceOfWorkDB' )
-	cName := dir_server() + 's_mr' + sdbf
+	cName := dir_server() + 's_mr' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'NAME',       'C',     50,      0 } ;
 					}
@@ -523,7 +523,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник прочих компаний
 	cClassName := Upper( 'TInsuranceCompanyDB' )
-	cName := dir_server() + 'str_komp' + sdbf
+	cName := dir_server() + 'str_komp' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'KOD',        'N',      2,      0 }, ;
 					{ 'NAME',       'C',     30,      0 }, ;
@@ -549,7 +549,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник страховых компаний ДМС
 	cClassName := Upper( 'TCompanyDMSDB' )
-	cName := dir_server() + 'p_d_smo' + sdbf
+	cName := dir_server() + 'p_d_smo' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'NAME',       'C',     30,      0 }, ;
 					{ 'FNAME',      'C',     70,      0 }, ;
@@ -571,7 +571,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник компаний для взаимозачета
 	cClassName := Upper( 'TCompanyVzaimDB' )
-	cName := dir_server() + 'p_pr_vz' + sdbf
+	cName := dir_server() + 'p_pr_vz' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'NAME',       'C',     30,      0 }, ;
 					{ 'FNAME',      'C',     70,      0 }, ;
@@ -593,7 +593,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник комитетов
 	cClassName := Upper( 'TCommitteeDB' )
-	cName := dir_server() + 'komitet' + sdbf
+	cName := dir_server() + 'komitet' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'KOD',        'N',      2,      0 }, ;
 					{ 'NAME',       'C',     30,      0 }, ;
@@ -618,7 +618,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник группы услуг для способа оплаты = 5
 	cClassName := Upper( 'TUSL_U5DB' )
-	cName := dir_server() + 'u_usl_5' + sdbf
+	cName := dir_server() + 'u_usl_5' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'TIP',		'N',  2, 0 }, ;
 					{ 'USL_1',		'C', 10, 0 }, ;
@@ -637,7 +637,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник привязка участковых врачей к участкам
 	cClassName := Upper( 'TDistrictDoctorDB' )
-	cName := dir_server() + 'mo_uchvr' + sdbf
+	cName := dir_server() + 'mo_uchvr' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'UCH',	'N',	2,	0 }, ;
 					{ 'IS',		'N',	2,	0 }, ;
@@ -652,7 +652,7 @@ METHOD New() CLASS TStructFiles
 //---------
 
 	cClassName := Upper( 'TServiceDB' )
-	cName := dir_server() + 'uslugi' + sdbf
+	cName := dir_server() + 'uslugi' + sdbf()
 	aEtalonDB :=	{ ;
 				{ 'KOD',     'N',  4,	0 }, ;
 				{ 'KOD_UP',  'N',  4,	0 }, ;
@@ -685,7 +685,7 @@ METHOD New() CLASS TStructFiles
 //---------
 
 	cClassName := Upper( 'TIntegratedServiceDB' )
-	cName := dir_server() + 'uslugi_k' + sdbf
+	cName := dir_server() + 'uslugi_k' + sdbf()
 	aEtalonDB :=	{ ;
 				{ 'SHIFR',		'C',	10,	0 }, ;	// шифр услуги
 				{ 'NAME',		'C',	60,	0 }, ;	// наименование услуги
@@ -700,7 +700,7 @@ METHOD New() CLASS TStructFiles
 //---------
 
 	cClassName := Upper( 'TComponentsIntegratedServiceDB' )
-	cName := dir_server() + 'uslugi1k' + sdbf
+	cName := dir_server() + 'uslugi1k' + sdbf()
 	aEtalonDB :=	{ ;
 				{ 'SHIFR',		'C',	10,	0 }, ;	// шифр комплексной услуги
 				{ 'SHIFR1',		'C',	10,	0 } ;	// шифр входящей услуги
@@ -714,7 +714,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник услуг без врачей и ассистентов
 	cClassName := Upper( 'TServiceWoDoctorDB' )
-	cName := dir_server() + 'usl_uva' + sdbf
+	cName := dir_server() + 'usl_uva' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'SHIFR',	'C',	10,	0 }, ; // шифр услуги (шаблон)
 					{ 'KOD_VR',	'N',	1,	0 }, ; // не вводить код врача ?
@@ -731,7 +731,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник несоместимых услуг
 	cClassName := Upper( 'TCompostionIncompServiceDB' )
-	cName := dir_server() + 'ns_usl' + sdbf
+	cName := dir_server() + 'ns_usl' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'NAME',	'C',	30,	0 }, ; // 
 					{ 'KOL',	'N',	6,	0 } ; // 
@@ -744,7 +744,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник комплексных услуг
 	cClassName := Upper( 'TIncompatibleServiceDB' )
-	cName := dir_server() + 'ns_usl_k' + sdbf
+	cName := dir_server() + 'ns_usl_k' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'KOD',	'N',	6,	0 }, ; // 
 					{ 'SHIFR',	'C',	10,	0 } ; // 
@@ -758,7 +758,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник услуги Минздрава РФ (ФФОМС) // группа файлов
 	cClassName := Upper( 'TServiceFFOMSDB' )
-	cName := dir_exe() + '_mo_uslf' + sdbf
+	cName := dir_exe() + '_mo_uslf' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'SHIFR',		'C',	20,	0 }, ; // 
 					{ 'NAME',		'C',  255,	0 }, ; // 
@@ -774,7 +774,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник услуги Минздрава РФ (ФФОМС) 2017 // группа файлов
 	cClassName := Upper( 'TServiceFFOMS7DB' )
-	cName := dir_exe() + '_mo7uslf' + sdbf
+	cName := dir_exe() + '_mo7uslf' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'SHIFR',		'C',	20,	0 }, ; // 
 					{ 'NAME',		'C',  255,	0 }, ; // 
@@ -794,7 +794,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник совмещения наших услуг с услугами Минздрава РФ (ФФОМС)
 	cClassName := Upper( 'TMo_suDB' )
-	cName := dir_server() + 'mo_su' + sdbf
+	cName := dir_server() + 'mo_su' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'KOD',		'N',	6,	0 }, ;	// 
 					{ 'NAME',		'C',	65,	0 }, ;	// 
@@ -816,7 +816,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник услуг по подразделениям
 	cClassName := Upper( 'TServiceBySubdivisionDB' )
-	cName := dir_server() + 'usl_otd' + sdbf
+	cName := dir_server() + 'usl_otd' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'KOD',		'N',	4,	0 }, ;	// 
 					{ 'OTDEL',		'C',	255,0 } ;	// 
@@ -830,7 +830,7 @@ METHOD New() CLASS TStructFiles
 
 // файл содержащий платные договора
 	cClassName := Upper( 'TContractDB' )
-	cName := dir_server() + 'hum_p' + sdbf
+	cName := dir_server() + 'hum_p' + sdbf()
 	aEtalonDB := { ;
 					{ 'KOD_K'     ,   'N',     7,     0 }, ; // код по картотеке
 					{ 'N_KVIT'    ,   'N',     5,     0 }, ; // номер квитанционной книжки
@@ -893,7 +893,7 @@ METHOD New() CLASS TStructFiles
 //---------
 
 	cClassName := Upper( 'TContractPayerDB' )
-	cName := dir_server() + 'hum_plat' + sdbf
+	cName := dir_server() + 'hum_plat' + sdbf()
 	aEtalonDB :=	{ ;
 					{ 'KOD',		'N',	7,		0 }, ;	// код листа учета (по БД hum_p)
 					{ 'ADRES',		'C',	50,		0 }, ;	// Адрес плательщика
@@ -912,7 +912,7 @@ METHOD New() CLASS TStructFiles
 
 // файл содержащий услуги составляющие платный договор
 	cClassName := Upper( 'TContractServiceDB' )
-	cName := dir_server() + 'hum_p_u' + sdbf
+	cName := dir_server() + 'hum_p_u' + sdbf()
 	aEtalonDB := { ;
 				{ 'KOD',	'N',	7,	0 }, ; // код листа учета (по БД hum_p)
 				{ 'DATE_U',	'C',	4,	0 }, ; // дата оказания услуги
@@ -947,7 +947,7 @@ METHOD New() CLASS TStructFiles
 //
 // файл содержащий ссылки на файлы обмена
 	cClassName := Upper( 'TExchangFile263' )
-	cName := dir_server() + 'mo_nfile' + sdbf
+	cName := dir_server() + 'mo_nfile' + sdbf()
 	aEtalonDB := { ;
 				{ 'KOD',		'N', 6,0 }, ; // код файла
 				{ 'DATE_F',		'D', 8,0 }, ; // дата файла
@@ -973,7 +973,7 @@ METHOD New() CLASS TStructFiles
 
 // файл содержащий список направлений
 	cClassName := Upper( 'TNapravlenie263' )
-	cName := dir_server() + 'mo_nnapr' + sdbf
+	cName := dir_server() + 'mo_nnapr' + sdbf()
 	aEtalonDB := { ;
 				{ 'KOD',         'N', 6,0 }, ; // код направления - номер записи
 				{ 'KOD_K',       'N', 7,0 }, ; // код по картотеке
@@ -1047,7 +1047,7 @@ METHOD New() CLASS TStructFiles
 
 // файл содержащий ссылки на файлы обмена+направления
 	cClassName := Upper( 'TExchangFileNapravlenie263' )
-	cName := dir_server() + 'mo_nfina' + sdbf
+	cName := dir_server() + 'mo_nfina' + sdbf()
 	aEtalonDB := { ;
 				{ 'KOD_F',	'N', 6,0 }, ; // код файла - по файлу mo_nfile
 				{ 'KOD_N',	'N', 6,0 }, ; // код направления - по файлу mo_nnapr
@@ -1062,7 +1062,7 @@ METHOD New() CLASS TStructFiles
 
 // файл содержащий ссылки на файлы обмена+направления
 	cClassName := Upper( 'TNapr263' )
-	cName := dir_server() + 'mo_n7in' + sdbf
+	cName := dir_server() + 'mo_n7in' + sdbf()
 	aEtalonDB := { ;
 				{ 'KOD_F',       'N', 6,0 }, ; // код файла - по файлу mo_nfile
 				{ 'CODEM',       'C', 6,0 }, ; // код стационара
@@ -1132,7 +1132,7 @@ METHOD New() CLASS TStructFiles
 	
 	// у следующего файла структура идентична
 	cClassName := Upper( 'TNaprOut263' )
-	cName := dir_server() + 'mo_n7out' + sdbf
+	cName := dir_server() + 'mo_n7out' + sdbf()
 	cAlias := 'TNaprOut263'
 	aIndex := { ;
 				}
@@ -1142,7 +1142,7 @@ METHOD New() CLASS TStructFiles
 
 // одна запись
 	cClassName := Upper( 'TExchangOneRecord263' )
-	cName := dir_server() + 'mo_n7d' + sdbf
+	cName := dir_server() + 'mo_n7d' + sdbf()
 	aEtalonDB := { ;
 				{ 'DATE_R_EDI',	'D', 8,0 }, ; // отчётная дата (за какое утро вводим)
 				{ 'DATE_R_OUT',	'D', 8,0 }, ; // отчётная дата (за какое утро уже отправили)
@@ -1161,7 +1161,7 @@ METHOD New() CLASS TStructFiles
 /////////////////
 
 	// cClassName := Upper( 'TServiceUSL' )
-	// cName := dir_server() + 'uch_usl' + sdbf
+	// cName := dir_server() + 'uch_usl' + sdbf()
 	// aEtalonDB :=	{ ;
 				// { 'KOD',		'N',	4,	0 }, ;	// код услуги
 				// { 'VKOEF_V',	'N',	7,	4 }, ;	// врач - УЕТ для взрослого
@@ -1179,7 +1179,7 @@ METHOD New() CLASS TStructFiles
 //---------
 
 	// cClassName := Upper( 'TServiceUSL1' )
-	// cName := dir_server() + 'uch_usl' + sdbf
+	// cName := dir_server() + 'uch_usl' + sdbf()
 	// aEtalonDB :=	{ ;
 				// { 'KOD',		'N',	4,	0 }, ;	// код услуги
 				// { 'VKOEF_V',	'N',	7,	4 }, ;	// врач - УЕТ для взрослого
@@ -1199,7 +1199,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник группы услуг для способа оплаты = 7
 	// cClassName := Upper( 'TUSL_U7' )
-	// cName := dir_server() + 'u_usl_7' + sdbf
+	// cName := dir_server() + 'u_usl_7' + sdbf()
 	// aEtalonDB := 	{ ;
 					// { 'NAME',      'C',  20, 0 }, ;
 					// { 'VARIANT',   'N',   1, 0 }, ;
@@ -1223,7 +1223,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник _mo_form
 	cClassName := Upper( 'T_MO_FORM' )
-	cName := dir_exe() + '_mo_form' + sdbf
+	cName := dir_exe() + '_mo_form' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'FORMA',		'N',	2, 0 }, ;
 					{ 'TABLE',		'N',	4, 0 }, ;
@@ -1241,7 +1241,7 @@ METHOD New() CLASS TStructFiles
 
 // // справочник _mo_kek
 // 	cClassName := Upper( 'T_MO_KEK' )
-// 	cName := dir_exe() + '_mo_kek' + sdbf
+// 	cName := dir_exe() + '_mo_kek' + sdbf()
 // 	aEtalonDB := 	{ ;
 // 					{ 'SHIFR',		'C',	8, 0 }, ;
 // 					{ 'NN',			'N',	3, 0 }, ;
@@ -1256,7 +1256,7 @@ METHOD New() CLASS TStructFiles
 
 // // справочник _mo_kekd
 // 	cClassName := Upper( 'T_MO_KEKD' )
-// 	cName := dir_exe() + '_mo_kekd' + sdbf
+// 	cName := dir_exe() + '_mo_kekd' + sdbf()
 // 	aEtalonDB := 	{ ;
 // 					{ 'SHIFR',		'C',	8, 0 }, ;
 // 					{ 'VZR',		'N',	1, 0 }, ;
@@ -1272,7 +1272,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник подразделений из паспорта ЛПУ
 	cClassName := Upper( 'T_Mo_PodrDB' )
-	cName := dir_exe() + '_mo_podr' + sdbf
+	cName := dir_exe() + '_mo_podr' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'CODEMO',		'C',	6, 0 }, ;
 					{ 'OGRN',		'C',   13, 0 }, ;
@@ -1289,7 +1289,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник _mo_smo
 	cClassName := Upper( 'T_MO_SMODB' )
-	cName := dir_exe() + '_mo_smo' + sdbf
+	cName := dir_exe() + '_mo_smo' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'OKATO',		'C',	5, 0 }, ;
 					{ 'SMO',		'C',	5, 0 }, ;
@@ -1309,7 +1309,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник _okatoo
 	cClassName := Upper( 'T_OKATOODB' )
-	cName := dir_exe() + '_okatoo' + sdbf
+	cName := dir_exe() + '_okatoo' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'OKATO',		'C',	5,	0 }, ;
 					{ 'NAME',		'C',   72,	0 }, ;
@@ -1328,7 +1328,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник _okatoo8
 	cClassName := Upper( 'T_OKATOO8DB' )
-	cName := dir_exe() + '_okatoo8' + sdbf
+	cName := dir_exe() + '_okatoo8' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'OKATO',		'C',	5,	0 }, ;
 					{ 'NAME',		'C',   72,	0 }, ;
@@ -1347,7 +1347,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник _okator
 	cClassName := Upper( 'T_OKATORDB' )
-	cName := dir_exe() + '_okator' + sdbf
+	cName := dir_exe() + '_okator' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'OKATO',		'C',	2,	0 }, ;
 					{ 'NAME',		'C',   72,	0 } ;
@@ -1362,7 +1362,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник _okatos
 	cClassName := Upper( 'T_OKATOSDB' )
-	cName := dir_exe() + '_okatos' + sdbf
+	cName := dir_exe() + '_okatos' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'OKATO',		'C',   11,	0 }, ;
 					{ 'NAME',		'C',   72,	0 }, ;
@@ -1381,7 +1381,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник _okatos8
 	cClassName := Upper( 'T_OKATOS8DB' )
-	cName := dir_exe() + '_okatos8' + sdbf
+	cName := dir_exe() + '_okatos8' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'OKATO',		'C',   11,	0 }, ;
 					{ 'NAME',		'C',   72,	0 }, ;
@@ -1400,7 +1400,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник двойных фамилий
 	cClassName := Upper( 'TDubleFIODB' )
-	cName := dir_server() + 'mo_kfio' + sdbf
+	cName := dir_server() + 'mo_kfio' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'KOD',	'N',	7,	0 }, ; // код человека по kartotek.dbf
 					{ 'FAM',	'C',	40,	0 }, ;
@@ -1415,7 +1415,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник human
 	cClassName := Upper( 'THumanDB' )
-	cName := dir_server() + 'human' + sdbf
+	cName := dir_server() + 'human' + sdbf()
 	aEtalonDB := 	{ ;
 					{ 'KOD'      ,   'N',     7,     0 }, ; // код (номер записи)
 					{ 'KOD_K'    ,   'N',     7,     0 }, ; // код по картотеке
@@ -1475,7 +1475,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник human_
 	cClassName := Upper( 'THumanExtDB' )
-	cName := dir_server() + 'human_' + sdbf
+	cName := dir_server() + 'human_' + sdbf()
 	aEtalonDB := 	{ ;
 				{ 'DISPANS',	'C',	16,	0 }, ; // то, что вводится по <F10>
 				{ 'STATUS_ST',	'C',	10,	0 }, ; // статус стоматологического пациента;проверка по собственному справочнику МО для стоматологии
@@ -1528,7 +1528,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник human_2
 	cClassName := Upper( 'THumanAddDB' )
-	cName := dir_server() + 'human_2' + sdbf
+	cName := dir_server() + 'human_2' + sdbf()
 	aEtalonDB := 	{ ;
 				{ 'OSL1',		'C',	 6,	0 }, ; // шифр 1-ого диагноза осложнения заболевания
 				{ 'OSL2',		'C',	 6,	0 }, ; // шифр 2-ого диагноза осложнения заболевания
@@ -1566,7 +1566,7 @@ METHOD New() CLASS TStructFiles
 
 // информация по инвалидам
 	cClassName := Upper( 'TDisabilityDB' )
-	cName := dir_server() + 'kart_inv' + sdbf
+	cName := dir_server() + 'kart_inv' + sdbf()
 	aEtalonDB := { ;
 				{ 'KOD',		'N',	7,	0}, ; // код (номер записи по БД kartotek)
 				{ 'DATE_INV',	'D',	8,	0}, ; // дата первичного установления инвалидности
@@ -1581,7 +1581,7 @@ METHOD New() CLASS TStructFiles
 
 // 
 	cClassName := Upper( 'Tk_prim1DB' )
-	cName := dir_server() + 'k_prim1' + sdbf
+	cName := dir_server() + 'k_prim1' + sdbf()
 	aEtalonDB := { ;
 				{ 'KOD',	'N',	7,	0 }, ;
 				{ 'STROKE',	'N',	1,	0 }, ;
@@ -1596,7 +1596,7 @@ METHOD New() CLASS TStructFiles
 
 // иногородние страховые компании
 	cClassName := Upper( 'TMo_kismoDB' )
-	cName := dir_server() + 'mo_kismo' + sdbf
+	cName := dir_server() + 'mo_kismo' + sdbf()
 	aEtalonDB := { ;
 				{ 'KOD',	'N',	7,	0 }, ;	// ID пациента
 				{ 'SMO_NAME','C',  100,	0 } ;	// наименование иногородней СМО
@@ -1609,7 +1609,7 @@ METHOD New() CLASS TStructFiles
 
 // иногородние страховые компании
 	cClassName := Upper( 'TMo_hismoDB' )
-	cName := dir_server() + 'mo_hismo' + sdbf
+	cName := dir_server() + 'mo_hismo' + sdbf()
 	aEtalonDB := { ;
 				{ 'KOD',	'N',	7,	0 }, ;	// ID пациента
 				{ 'SMO_NAME','C',  100,	0 } ;	// наименование иногородней СМО
@@ -1622,7 +1622,7 @@ METHOD New() CLASS TStructFiles
 
 // сведения об иностранных гражданах
 	cClassName := Upper( 'TForeignCitizenDB' )
-	cName := dir_server() + 'mo_kinos' + sdbf
+	cName := dir_server() + 'mo_kinos' + sdbf()
 	aEtalonDB := { ;
 				{ 'KOD',		'N',	7,	0 }, ; // ID пациента
 				{ 'OSN_PREB',	'N',	2,	0 }, ; // основание пребывания в РФ
@@ -1640,7 +1640,7 @@ METHOD New() CLASS TStructFiles
 
 // справочник представителей
 	cClassName := Upper( 'TRepresentativeDB' )
-	cName := dir_server() + 'mo_kpred' + sdbf
+	cName := dir_server() + 'mo_kpred' + sdbf()
 	aEtalonDB := { ;
 				{ 'KOD',		'N',	7,	0 }, ;	// ID пациента
 				{ 'NN',			'N',	1,	0 }, ;	// номер представителя

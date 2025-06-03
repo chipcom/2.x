@@ -57,8 +57,8 @@ Function okato_index( flag )
   Default flag To .f.
 
   For i := 1 To Len( arr_f )
-    If files_time( dir_exe() + arr_f[ i ] + sdbf, cur_dir() + arr_i1[ i ] + sntx() ) .or. ;
-        files_time( dir_exe() + arr_f[ i ] + sdbf, cur_dir() + arr_i2[ i ] + sntx() )
+    If files_time( dir_exe() + arr_f[ i ] + sdbf(), cur_dir() + arr_i1[ i ] + sntx() ) .or. ;
+        files_time( dir_exe() + arr_f[ i ] + sdbf(), cur_dir() + arr_i2[ i ] + sntx() )
       fl_index := .t.
       Exit
     Endif

@@ -242,7 +242,7 @@ Function ob2_statist( k, serv_arr )
   If mem_trudoem == 2
     useuch_usl()
   Endif
-  If hb_FileExists( dir_server() + "usl_del" + sdbf )
+  If hb_FileExists( dir_server() + "usl_del" + sdbf() )
     r_use( dir_server() + "usl_del",, "UD" )
     Index On Str( kod, 4 ) to ( cur_dir() + "tmp_ud" )
   Endif
@@ -1681,7 +1681,7 @@ Function _init_if()
   Local i, arr_f := { "str_komp",, "komitet" }, arr := { I_FIN_OMS }, arr2 := {}
 
   For i := 1 To 3
-    If i != 2 .and. hb_FileExists( dir_server() + arr_f[ i ] + sdbf )
+    If i != 2 .and. hb_FileExists( dir_server() + arr_f[ i ] + sdbf() )
       r_use( dir_server() + arr_f[ i ],, "_B" )
       Go Top
       Do While !Eof()

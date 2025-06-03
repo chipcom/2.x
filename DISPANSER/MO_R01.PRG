@@ -2478,9 +2478,9 @@ Function f31_view_r01( reg, s )
   rest_box( buf )
   viewtext( n_file,,,, .t.,,, 6 )
   n_file := "_dispr01"
-  Copy File ( cur_dir() + "_r01" + sdbf ) to ( cur_dir() + n_file + sdbf )
+  Copy File ( cur_dir() + "_r01" + sdbf() ) to ( cur_dir() + n_file + sdbf() )
   n_message( { "В каталоге " + Upper( cur_dir() ), ;
-    "создан файл " + Upper( n_file + sdbf ), ;
+    "создан файл " + Upper( n_file + sdbf() ), ;
     "со сведениями о планах диспансеризации пациентов." },, ;
     cColorStMsg, cColorStMsg,,, cColorSt2Msg )
 

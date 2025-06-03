@@ -4313,7 +4313,7 @@ Function rees2_vzaim( name_file )
   Local buf := save_row( MaxRow() ), sh, HH := 52, arr_title, s, i, j, k, sk, ss, ;
     arr2title, reg_print := 6, afio[ 10 ], lfio := 19, kfio, lsk, lss, adbf, ;
     aadres[ 2 ], kadres, apolis[ 10 ], kpolis
-  Private d_file := "P_REESTR" + sdbf
+  Private d_file := "P_REESTR" + sdbf()
 
   If !del_dbf_file( d_file )
     Return Nil
@@ -9393,7 +9393,7 @@ Function souslpkart( mkod_human, mkod_lpu )
       .f., .t.,, "F1e_p_kusl", "F2e_p_kusl",, ;
       { "Í", "°", "Í", l_color, .t., 180 } )
     If yes_parol .and. ( mvu[ 1, 1 ] > 0 .or. mvu[ 2, 1 ] > 0 .or. mvu[ 3, 1 ] > 0 ) ;
-        .and. hb_FileExists( dir_server() + "mo_opern" + sdbf )
+        .and. hb_FileExists( dir_server() + "mo_opern" + sdbf() )
       Close databases
       If g_use( dir_server() + "mo_opern", dir_server() + "mo_opern", "OP" )
         For i := 1 To 3
@@ -10132,7 +10132,7 @@ Function stuslpkart( mkod_human, mkod_lpu )
       .f., .t.,, "ST1e_p_kusl", "ST2e_p_kusl",, ;
       { "Í", "°", "Í", l_color, .t., 180 } )
     If yes_parol .and. ( mvu[ 1, 1 ] > 0 .or. mvu[ 2, 1 ] > 0 .or. mvu[ 3, 1 ] > 0 ) ;
-        .and. hb_FileExists( dir_server() + "mo_opern" + sdbf )
+        .and. hb_FileExists( dir_server() + "mo_opern" + sdbf() )
       Close databases
       If g_use( dir_server() + "mo_opern", dir_server() + "mo_opern", "OP" )
         For i := 1 To 3
@@ -11663,7 +11663,7 @@ Function pl_priemshk()
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  If !myfiledeleted( cur_dir() + "tmp" + sdbf )
+  If !myfiledeleted( cur_dir() + "tmp" + sdbf() )
     Return Nil
   Endif
   //

@@ -12,7 +12,7 @@ Function f3oms_edit()
   local s1, aTokens, adbf
   Local lek_pr := .f.
 
-  If !myfiledeleted( cur_dir() + "tmp_h" + sdbf )
+  If !myfiledeleted( cur_dir() + "tmp_h" + sdbf() )
     Return Nil
   Endif
 

@@ -61,7 +61,7 @@ Function inp_password(is_local_version,is_create)
   Public grup_polzovat := 1, dolj_polzovat := '', ;
          kod_polzovat := chr(0), tip_polzovat := TIP_ADM, fio_polzovat := '', ;
          yes_parol := .t.
-  if (is_local_version .and. !hb_FileExists(dir_server()+'base1'+sdbf)) .or. is_create
+  if (is_local_version .and. !hb_FileExists(dir_server()+'base1'+sdbf())) .or. is_create
     yes_parol := .f.
     return ta
   endif
@@ -73,7 +73,7 @@ Function inp_password(is_local_version,is_create)
       ++i_p
       if ascan(tmp_pss, crypt(pss,gpasskod)) == 0
         pss := padr(crypt(pss,gpasskod), 10)
-        if !hb_FileExists(dir_server()+'base1'+sdbf)
+        if !hb_FileExists(dir_server()+'base1'+sdbf())
           func_error('Не обнаружено базы данных паролей (BASE1.DBF)!')
           f_end()
         elseif R_Use(dir_server()+'base1',,'base1')
@@ -121,7 +121,7 @@ Function inp_password(is_local_version,is_create)
           func_error('В данный момент нет доступа к системе!')
           f_end()
         endif
-      elseif !hb_FileExists(dir_server()+'base1'+sdbf)
+      elseif !hb_FileExists(dir_server()+'base1'+sdbf())
         yes_parol := .f.
       endif
     endif

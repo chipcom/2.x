@@ -17,7 +17,7 @@ Function TFOMS_hodatajstvo(arr_m,iRefr,par)
   //      2 - Оформление (печать) ХОДАТАЙСТВА (по старому)
   Local buf24 := save_maxrow(), t_arr[BR_LEN], blk
 
-  if !myFileDeleted(cur_dir()+"tmp_k"+sdbf)
+  if !myFileDeleted(cur_dir()+"tmp_k"+sdbf())
     return NIL
   endif
 

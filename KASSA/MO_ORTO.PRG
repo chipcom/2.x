@@ -781,7 +781,7 @@ Alpha_Browse(2,0,maxrow()-2,79,"fe_o_kopl",color1,mtitle,col_tit_popup,;
              {'═','░','═',l_color,.t.,180} )
 // были добавлены строки оплаты
 if yes_parol .and. (mvu[1,1] > 0 .or. mvu[2,1] > 0 .or. mvu[3,1] > 0)
-//;              .and. hb_FileExists(dir_server()+"mo_opern"+sdbf)
+//;              .and. hb_FileExists(dir_server()+"mo_opern"+sdbf())
   k := glob_task+iif(human->tip_usl==OU_B_PLAT,100,0)
   close databases
   if G_Use(dir_server()+"mo_opern",dir_server()+"mo_opern","OP")
@@ -2194,7 +2194,7 @@ if use_base("hum_ort").and. ;
                {"═","░","═",l_color,.t.,180} )
   if yes_parol .and. (mvu[1,1] > 0 .or. mvu[2,1] > 0 .or. mvu[3,1] > 0 .or. ;
                       mvp[1,1] > 0 .or. mvp[2,1] > 0 .or. mvp[3,1] > 0)
-//                       ;   .and. hb_FileExists(dir_server()+"mo_opern"+sdbf)
+//                       ;   .and. hb_FileExists(dir_server()+"mo_opern"+sdbf())
     close databases
     if G_Use(dir_server()+"mo_opern",dir_server()+"mo_opern","OP")
       for i := 1 to 3

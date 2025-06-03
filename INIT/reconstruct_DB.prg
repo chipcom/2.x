@@ -57,7 +57,7 @@ Function reconstruct_security( is_local_version )
     If g_slock1task( sem_task, sem_vagno )  // запрет доступа всем
       path_DB := dir_server()
       // реконструкция файлов доступа к системе и обновлений БД
-      If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf )
+      If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf() )
         reconstruct( path_DB + 'base1', base1, , , .t. )
         reconstruct( path_DB + 'mo_oper', mo_oper, 'index_base("mo_oper")', , .t. )
         reconstruct( path_DB + 'mo_opern', mo_opern, 'index_base("mo_opern")', , .t. )
@@ -1660,7 +1660,7 @@ Function reconstruct_db( is_local_version, is_create )
   path_DB := dir_server()
 
   f_init_r01() // инициализация всех файлов инф.сопровождения по диспансеризации
-  If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf )
+  If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf() )
     reconstruct( path_DB + 'base1', base1, , , .t. )
     reconstruct( path_DB + 'mo_oper', mo_oper, 'index_base("mo_oper")', , .t. )
     reconstruct( path_DB + 'mo_opern', mo_opern, 'index_base("mo_opern")', , .t. )

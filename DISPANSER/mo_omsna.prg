@@ -931,7 +931,7 @@ Function f_inf_disp_nabl( par )
   // 2 -  '~Были л/у с диспансерным наблюдением'
 
   Local arr, arr_full_name, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir() + 'disp_nabl.txt', ;
-    ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := '___DN' + sdbf, arr_fl, fl_prikrep := Space( 6 ), kol_kartotek := 0, ;
+    ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := '___DN' + sdbf(), arr_fl, fl_prikrep := Space( 6 ), kol_kartotek := 0, ;
     t_kartotek := 0, s1
   Local arr_tip_DN := { 'Прочие ДН - ', 'Онкологическое ДН - ', 'Сахарный диабет ДН - ', 'Сердечно-сосудистое ДН - ' }
   Local arr_tip_DN1 := { '2.78.109', '2.78.110', '2.78.111', '2.78.112' }

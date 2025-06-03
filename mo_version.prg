@@ -60,7 +60,7 @@ Function get_version_db()
   Local nfile := 'ver_base'
   Local ver__base := 0
 
-  If hb_FileExists( dir_server() + nfile + sdbf )
+  If hb_FileExists( dir_server() + nfile + sdbf() )
     r_use( dir_server() + nfile, , 'ver' )
     ver__base := ver->version
     ver->( dbCloseArea() )

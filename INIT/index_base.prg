@@ -8,13 +8,13 @@ Function index_base( sBase )
 
   Millisec( 100 )  // задержка на 0.1 с
   If Type( "fl_open" ) == "L" .and. fl_open
-    If !hb_FileExists( dir_server() + sBase + sdbf ) // если нет файла
+    If !hb_FileExists( dir_server() + sBase + sdbf() ) // если нет файла
       Return Nil                             // выйти из функции
     Endif
     Use ( dir_server() + sBase ) New Alias __TMP__ READONLY
     If Select( "__TMP__" ) == 0
       n_message( { "Неудачная попытка открытия файла базы данных", ;
-        Upper( dir_server() + sBase + sdbf ), ;
+        Upper( dir_server() + sBase + sdbf() ), ;
         "Скорее всего, данный файл занят либо другим пользователем,", ;
         "либо каким-нибудь системным процессом.", ;
         "Попытайтесь войти в данный режим позже или", ;

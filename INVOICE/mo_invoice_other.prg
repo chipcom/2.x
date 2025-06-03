@@ -136,7 +136,7 @@ Function other_schet_nevyp()
 
   Local buf := save_maxrow(), k := 0, s1, s2, mstr_crb, gnevyp_schet := .f.
 
-  If !myfiledeleted( cur_dir() + "tmp" + sdbf )
+  If !myfiledeleted( cur_dir() + "tmp" + sdbf() )
     Return Nil
   Endif
   Private pkol := 0, psumma := 0

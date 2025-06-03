@@ -34,7 +34,7 @@ Function mnog_poisk_dvn1()
   Local mm_tmp := {}, mm_sort, t_arr[ 2 ]
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
     tmp_help := help_code, hGauge, name_file := "_kartDVN.txt", ;
-    sh := 80, HH := 77, i, j, a_diagnoz[ 10 ], ta, name_dbf := cur_dir() + "_kartDVN" + sdbf, ;
+    sh := 80, HH := 77, i, j, a_diagnoz[ 10 ], ta, name_dbf := cur_dir() + "_kartDVN" + sdbf(), ;
     mm_da_net := { { "нет", 1 }, { "да ", 2 } }, ;
     mm_tip := { { "диспансеризация", 1 }, { "профилактический осмотр", 2 } }, ;
     mm_mest := { { "Волгоград или область", 1 }, { "иногородние", 2 } }, ;
@@ -44,7 +44,7 @@ Function mnog_poisk_dvn1()
     { "прикреплён к нашей МО", 1 }, ;
     { "прикреплён к другим МО", 2 }, ;
     { "прикрепление неизвестно", 3 } }, ;
-    tmp_file := cur_dir() + "tmp_mn_p" + sdbf, ;
+    tmp_file := cur_dir() + "tmp_mn_p" + sdbf(), ;
     k_fio, k_adr, tt_fio[ 10 ], tt_adr[ 10 ], fl_exit := .f.
   Local adbf := { ;
     { "BUKVA",   "C",  1, 0 }, ; // буква в участке
@@ -792,7 +792,7 @@ Function mnog_poisk_dvn2()
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
     tmp_help := help_code, hGauge, name_file := "mn_z2dvn.txt", ;
     sh := 80, HH := 77, i, a_diagnoz[ 10 ], lvid_doc := 0, ;
-    tmp_file := "tmp_mn_p" + sdbf, ;
+    tmp_file := "tmp_mn_p" + sdbf(), ;
     k_diagnoz, k_usl, tt_diagnoz[ 10 ], tt_usl[ 10 ]
   Private ssumma := 0, suet := 0, mm_company := {}, ;
     is_kategor2 := .f., is_talon := ret_is_talon()
