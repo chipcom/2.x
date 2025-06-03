@@ -299,3 +299,13 @@ function _tmp2dir()
 function _tmp2dir1()
   
   return 'TMP2___' + hb_ps()
+
+// 03.06.25 формирование строки версии программы
+function Err_version()
+  
+  static strVersion
+
+  if HB_ISNIL( strVersion )
+    strVersion := fs_version( _version() ) + ' от ' + _date_version()
+  endif
+  return strVersion

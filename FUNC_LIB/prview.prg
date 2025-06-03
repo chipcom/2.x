@@ -786,11 +786,11 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
     If !( sExt $ Lower( cFile_Otchet ) )
       cFile_Otchet += sExt
     Endif
-    If hb_FileExists( dir_exe + cFile_Otchet )
-      FrPrn:loadfromfile( hb_OEMToANSI( dir_exe + cFile_Otchet ) )   // 14.09.17
+    If hb_FileExists( dir_exe() + cFile_Otchet )
+      FrPrn:loadfromfile( hb_OEMToANSI( dir_exe() + cFile_Otchet ) )   // 14.09.17
       FrPrn:settitle( Lower( cFile_Otchet ) )
     Else
-      is_ot := func_error( 4, 'Не обнаружен файл отчёта ' + dir_exe + cFile_Otchet )
+      is_ot := func_error( 4, 'Не обнаружен файл отчёта ' + dir_exe() + cFile_Otchet )
     Endif
   Else
     fl := .t.
@@ -798,13 +798,13 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
       If !( sExt $ Lower( cFile_Otchet[ i ] ) )
         cFile_Otchet[ i ] += sExt
       Endif
-      If hb_FileExists( dir_exe + cFile_Otchet[ i ] )
-        FrPrn:loadfromfile( hb_OEMToANSI( dir_exe + cFile_Otchet[ i ] ) )
+      If hb_FileExists( dir_exe() + cFile_Otchet[ i ] )
+        FrPrn:loadfromfile( hb_OEMToANSI( dir_exe() + cFile_Otchet[ i ] ) )
         FrPrn:loadfromfile( cFile_Otchet[ i ] )
         FrPrn:preparereport( iif( fl, nil, FR_NOTCLEARLASTREPORT ) )
         fl := .f.
       Else
-        func_error( 4, 'Не обнаружен файл отчёта ' + dir_exe + cFile_Otchet[ i ] )
+        func_error( 4, 'Не обнаружен файл отчёта ' + dir_exe() + cFile_Otchet[ i ] )
       Endif
     Next
     If fl

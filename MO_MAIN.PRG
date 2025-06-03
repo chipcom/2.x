@@ -48,8 +48,7 @@ Procedure Main( ... )
   Endif
 
   //
-  Public Err_version := fs_version( _version() ) + ' от ' + _date_version()
-//  Public kod_VOUNC := '101004'
+//  Public Err_version := fs_version( _version() ) + ' от ' + _date_version()
   Public kod_LIS   := { '125901', '805965' }
   //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
@@ -58,8 +57,6 @@ Procedure Main( ... )
     sxml := '.XML', szip := '.ZIP', srar := '.RAR', smem := '.MEM', ;
     sini := '.INI', sfr3 := '.FR3', sfrm := '.FRM', spdf := '.PDF', ;
     scsv := '.CSV', sxls := '.xls', schip := '.CHIP', sdbt := '.dbt'
-
-  //  Public cslash := hb_ps()    // '\'
 
   Public public_mouse := .f., pravo_write := .t., pravo_read := .t., ;
     MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;
@@ -122,15 +119,11 @@ Procedure Main( ... )
 
   // конец переноса из index_work_dir
 
-  // Set( _SET_DELETED, .t. )
   SetClearB( ' ' )
   is_local_version := f_first( is_create )
   put_icon( full_name_version(), 'MAIN_ICON' )
-  // Set Key K_F1 To f_help()
   hard_err( 'create' )
   fillscreen( p_char_screen, p_color_screen ) // FillScreen('█','N+/N')
-  // cur_year := Str( Year( sys_date ), 4 )
-  // new_dir = ''
   SetColor( color1 )
 
   // инициализация массива МО, запрос кода МО (при необходимости)
@@ -151,7 +144,7 @@ Procedure Main( ... )
     Next
     Keyboard chPass
   Endif
-  // a_parol := inp_password(is_local_version,is_create)
+
   a_parol := inp_password_bay( is_local_version, is_create )
 
   index_work_dir( dir_exe(), cur_dir(), .f. )    // checkFilesTFOMS() переименовал
@@ -178,7 +171,6 @@ Procedure Main( ... )
     Endif
   Endif
   //
-
   checkversioninternet( r + 3, _version() )
 
   illegal_stad_kod()  // проверка стадии онкозаболеваний
@@ -194,7 +186,6 @@ Procedure Main( ... )
       // провести реконструкцию БД
       reconstruct_db( is_local_version, is_create )
       // провести реконструкцию БД учёта направлений на госпитализацию
-//      _263_init()
       reconstruct_263()
       // для начала работы _first_run() (убрал в NOT_USED)
       pereindex() // обязательно
@@ -218,64 +209,39 @@ Procedure Main( ... )
       f_end( .f. )
     Endif
   Endif
-
   f_main( r, is_local_version, a_parol )
-
   f_end()
-
   Return
 
 // 23.10.24 инициализация окружения приложения
 Function app_ini()
 
-Request HB_CODEPAGE_RU866
-hb_cdpSelect( 'RU866' )
-Request HB_LANG_RU866
-hb_langSelect( 'RU866' )
-
-Request DBFNTX
-rddSetDefault( 'DBFNTX' )
-
-Set( _SET_DELETED, .t. )
-Set Key K_F1 To f_help()
-// SET(_SET_EVENTMASK,INKEY_KEYBOARD)
-Set Scoreboard Off
-Set Exact On
-Set Date GERMAN
-Set Wrap On
-Set Century On
-Set Exclusive On
-Set Deleted On
-SetBlink( .f. )
-
-Set Key K_ALT_F3 To calendar
-Set Key K_ALT_F2 To calc
-Set Key K_ALT_X  To f_end
-
-ReadInsert( .t. ) // режим редактирования по умолчанию Insert
-Keyboard ''
-KSetNum( .t. )    // включить NumLock
-SetCursor( 0 )
-Set Color To
-
+  Request HB_CODEPAGE_RU866
+  hb_cdpSelect( 'RU866' )
+  Request HB_LANG_RU866
+  hb_langSelect( 'RU866' )
+  Request DBFNTX
+  rddSetDefault( 'DBFNTX' )
+  Set( _SET_DELETED, .t. )
+  Set Key K_F1 To f_help()
+  // SET(_SET_EVENTMASK,INKEY_KEYBOARD)
+  Set Scoreboard Off
+  Set Exact On
+  Set Date GERMAN
+  Set Wrap On
+  Set Century On
+  Set Exclusive On
+  Set Deleted On
+  SetBlink( .f. )
+  Set Key K_ALT_F3 To calendar
+  Set Key K_ALT_F2 To calc
+  Set Key K_ALT_X  To f_end
+  ReadInsert( .t. ) // режим редактирования по умолчанию Insert
+  Keyboard ''
+  KSetNum( .t. )    // включить NumLock
+  SetCursor( 0 )
+  Set Color To
   Return Nil
-
-// 02.06.25
-Function read_server_mem( /*@*/is_local_version )
-
-  Local nameFile := cur_dir() + 'server.mem'
-//  Local is_local_version := .t.
-
-  If hb_FileExists( nameFile )
-    ft_use( nameFile )
-    dir_server( AllTrim( ft_readln() ) )
-    ft_use()
-    is_local_version := .f.
-  Else // иначе = текущий каталог
-    dir_server( cur_dir() )
-  Endif
-//  Return is_local_version
-  Return dir_server()
 
 // 21.05.25
 Function f_main( r0, is_local_version, a_parol )
@@ -388,7 +354,6 @@ Function f_main( r0, is_local_version, a_parol )
     Enddo
     setinisect( tmp_ini, 'task', { { 'current_task', lstr( k ) } } )
   Endif
-
   Return Nil
 
 // вывести верхние строки главного экрана
@@ -416,7 +381,6 @@ Function main_up_screen()
   @ k + 1, 0 Say Space( MaxCol() + 1 ) Color 'G+/N'
   @ k + 1, 0 Say full_date( sys_date ) Color 'W+/N'
   @ k + 1, MaxCol() -4 Say hour_min( Seconds() ) Color 'W+/N'
-
   Return k + 1
 
 // вывести центральные строки главного экрана
@@ -443,7 +407,7 @@ Function main_center_screen( r0, a_parol )
       AAdd( g_arr_stand, AClone( t_arr ) )
     Next
   Endif
-  If .t. // empty(mst)
+  If .t.
     If ValType( a_parol ) == 'A' .and. ( k := Len( a_parol ) ) > 0
       r1 := r0 + Int( ( MaxRow() - r0 - k ) / 2 ) -1
       n_message( a_parol, , 'W+/W*', 'R/W*', r1, , 'N+/W*' )
@@ -476,7 +440,6 @@ Function main_center_screen( r0, a_parol )
       rest_box( buf )
     Endif
   Endif
-
   Return Nil
 
 //
@@ -485,13 +448,12 @@ Function m_help()
   Local tmp_help, pt
 
   tmp_help := chm_help_code
-  chm_help_code := 100  // ?????
+  chm_help_code := 100
   f_help()
   chm_help_code := tmp_help
-
   Return Nil
 
-// 02.06.25
+// 03.06.25
 Function f_first( is_create )
 
   Local is_local_version := .t.
@@ -508,10 +470,8 @@ Function f_first( is_create )
   Public p_color_screen := 'W/N*', p_char_screen := ' ' // заполнение экрана
   Public c__cw := 'N+/N' // цвет теней
   //
-//  Public cur_drv := DiskName()
   Public cur_dir := chip_currpath()
   Public dir_server := '', p_name_comp := ''
-  // Public dir_exe := hb_DirBase()
 
   color0 := 'N/BG, W+/N'
   color1 := 'W+/B, W+/R'
@@ -543,46 +503,26 @@ Function f_first( is_create )
   color13    := 'W/B, W+/R, , , BG+/B'             // некотоpое выделение
   color14    := 'G+/B, W+/R'
   //
-  //
-
-//  If hb_FileExists( 'server.mem' )
-//    ft_use( 'server.mem' )
-//    dir_server := AllTrim( ft_readln() )
-//    If !ft_eof()
-//      ft_skip()
-//      p_name_comp := AllTrim( ft_readln() )
-//      If hb_ps() $ p_name_comp
-//        p_name_comp := ''
-//      Endif
-//    Endif
-//    If Len( p_name_comp ) < 2
-//      p_name_comp := AllTrim( NetName() ) + hb_ps() + hb_UserName()
-//    Endif
-//    ft_use()
-//    is_local_version := .f.
-//  Else // иначе = текущий каталог
-//    dir_server := cur_dir()
-//  Endif
 
   dir_server := read_server_mem( @is_local_version )
   p_name_comp := iif( is_local_version, '', AllTrim( NetName() ) + hb_ps() + hb_UserName() )
 
-//  If Right( dir_server, 1 ) != hb_ps()
-//    dir_server += hb_ps()
-//  Endif
+  if ! checking_access_to_server( dir_server() )
+    app_finish()
+  endif
 
-  is_server( dir_server, cur_dir() )
-  If !is_create .and. !hb_FileExists( dir_server + 'human' + sdbf )
+  If !is_create .and. !hb_FileExists( dir_server() + 'human' + sdbf() )
     func_error( 'Не обнаружены файлы базы данных! Обратитесь к системному администратору.' )
     app_finish()
   Endif
   //
-  If hb_FileExists( dir_server + 'plat.dbf' )
+  If hb_FileExists( dir_server() + 'plat.dbf' )
     func_error( 'Вероятнее всего, Вы запускаете программу в каталоге СЧЕТА. Это недопустимо!' )
     app_finish()
   Endif
 //  Public flag_chip := .f.
-  Delete file ttt.ttt
+//  Delete file ttt.ttt
+  hb_vfErase( cur_dir() + 'ttt.ttt' )
   Return is_local_version
 
 // 17.11.23
@@ -627,7 +567,6 @@ Function hard_err( p )
   Case k == 2
     Delete file hard_err.meh
   Endcase
-
   Return Nil
 
 // 03.12.13
@@ -649,7 +588,6 @@ Function mo_lock_task( n_Task )
   If !g_svaluenlock( f_name_task( n_Task ), n, sem_vagno_task[ n_Task ] )
     fl := func_error( 'В задаче "' + array_tasks[ i, 5 ] + '" работают пользователи. Операция временно запрещена!' )
   Endif
-
   Return fl
 
 // 03.12.13
@@ -667,7 +605,6 @@ Function f_name_task( n_Task )
   If ( it := AScan( array_tasks, {| x| x[ 2 ] == n_Task } ) ) > 0
     s := array_tasks[ it, 1 ]
   Endif
-
   Return s
 
 // проверить, доступна ли данному МО конкретная задача
@@ -682,7 +619,6 @@ Function is_task( n_Task )
   If ( it := AScan( array_tasks, {| x| x[ 2 ] == n_Task } ) ) == 0
     Return .f.
   Endif
-
   Return array_tasks[ it, 4 ]
 
 // вернуть индекс массива конкретной задачи
@@ -694,10 +630,9 @@ Function ind_task( n_Task )
   If ( it := AScan( array_tasks, {| x| x[ 2 ] == n_Task } ) ) == 0
     it := 3 // ОМС
   Endif
-
   Return it
 
-// 08.08.24
+// 03.06.25
 Function find_unfinished_reestr_sp_tk( is_oper, is_count )
 
   Static max_rec := 9990000 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -710,12 +645,12 @@ Function find_unfinished_reestr_sp_tk( is_oper, is_count )
   bSaveHandler := ErrorBlock( {| x| Break( x ) } )
   Begin Sequence
     If is_count
-      r_use( dir_server + 'human', , 'HUMAN' )
+      r_use( dir_server() + 'human', , 'HUMAN' )
       rech := LastRec()
       Use
     Endif
-    r_use( dir_server + 'mo_rees', , 'REES' )
-    r_use( dir_server + 'mo_xml', , 'MO_XML' )
+    r_use( dir_server() + 'mo_rees', , 'REES' )
+    r_use( dir_server() + 'mo_xml', , 'MO_XML' )
     Set Relation To REESTR into REES
     Index On FNAME to ( cur_dir() + 'tmp_xml' ) For TIP_IN == _XML_FILE_SP .and. Empty( TWORK2 )
     Go Top
@@ -750,10 +685,9 @@ Function find_unfinished_reestr_sp_tk( is_oper, is_count )
     rest_box( buf )
   End
   ErrorBlock( bSaveHandler )
-
   Return fl
 
-// 10.06.21 проверить, есть ли неотосланные просроченные листы учёта
+// 03.06.25 проверить, есть ли неотосланные просроченные листы учёта
 Function find_time_limit_human_reestr_sp_tk()
 
   Local buf := SaveScreen(), arr[ 10, 2 ], i, mas_pmt, r, c, n, d := sys_date - 23
@@ -765,14 +699,14 @@ Function find_time_limit_human_reestr_sp_tk()
       { 'kod_xml', 'N', 6, 0 }, ;
       { 'dni', 'N', 2, 0 } } )
     Use ( cur_dir() + 'tmp_tl' ) new
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', , 'HUMAN' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', , 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
-    r_use( dir_server + 'mo_refr', dir_server + 'mo_refr', 'REFR' )
-    r_use( dir_server + 'mo_xml', , 'MO_XML' )
-    r_use( dir_server + 'mo_rees', , 'REES' )
+    r_use( dir_server() + 'mo_refr', dir_server() + 'mo_refr', 'REFR' )
+    r_use( dir_server() + 'mo_xml', , 'MO_XML' )
+    r_use( dir_server() + 'mo_rees', , 'REES' )
     Set Relation To KOD_XML into MO_XML
-    r_use( dir_server + 'mo_rhum', , 'RHUM' )
+    r_use( dir_server() + 'mo_rhum', , 'RHUM' )
     Set Relation To reestr into REES
     Index On Str( reestr, 6 ) to ( cur_dir() + 'tmp_rhum' ) For OPLATA == 2 .and. d < rees->DSCHET
     Go Top
@@ -865,10 +799,9 @@ Function find_time_limit_human_reestr_sp_tk()
   Endif
   Close databases
   RestScreen( buf )
-
   Return Nil
 
-//
+// 03.06.25
 Function f1find_time_limit_human_reestr_sp_tk( i, arr )
 
   Local n_file := cur_dir() + 'time_lim.txt', sh := 80, HH := 60
@@ -885,9 +818,9 @@ Function f1find_time_limit_human_reestr_sp_tk( i, arr )
   Endif
   add_string( Center( 'по состоянию на ' + full_date( sys_date ) + ' ' + hour_min( Seconds() ), sh ) )
   add_string( '' )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', , 'HUMAN' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To otd into OTD
   Use ( cur_dir() + 'tmp_tl' ) new
   Set Relation To kod_h into HUMAN
@@ -921,7 +854,6 @@ Function app_finish()
   Set Cursor On
   CLS
   Quit
-
   Return Nil
 
 // 15.10.24
@@ -972,5 +904,4 @@ Function f_end( yes_copy )
   // удалим файлы отчетов в формате '*.HTML' из временной директории
   FileDelete( hb_DirTemp() + '*.html' )
   app_finish()
-
   Return Nil

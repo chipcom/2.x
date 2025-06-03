@@ -182,7 +182,8 @@ function __errMessage( arr_error )
 	s := exename()
 	cMessage += 'Дата: ' + dtoc( date() ) + ', время: ' + sectotime( seconds() ) + ' ' + StripPath( s )
 	cMessage += '(' + dtoc( directory( s )[ 1, F_DATE ] ) + ', ' + lstr( memory( 1 ) ) + 'Кб)' + eos
-	cMessage += 'Версия: ' + Err_version + eos
+//	cMessage += 'Версия: ' + Err_version + eos
+	cMessage += 'Версия: ' + Err_version() + eos
 	if type( 'fio_polzovat' ) == 'C' .and. !empty( fio_polzovat )
 		cMessage += 'Пользователь: ' + alltrim( fio_polzovat )
 	endif
