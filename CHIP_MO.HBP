@@ -296,5 +296,5 @@ mo_version.prg
 .\INSURANCE\insurance_companies.prg
 .\INSURANCE\func_smo.prg
 
-#.\FUNC_LIB\prview.prg
+.\FUNC_LIB\prview.prg
 #.\FUNC_LIB\fastreph.prg
