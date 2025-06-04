@@ -397,7 +397,7 @@ Function f2_view_list_schet( nKey, oBrow )
   RestScreen( buf )
   Return ret
 
-// 25.04.25
+// 04.06.25
 Function f3_view_list_schet()
 
 //  Local s := ''
@@ -415,6 +415,7 @@ Function f3_view_list_schet()
   //   Endif
   // Endif
 //  If Empty( s ) .and. schet_->IFIN > 0
+  s := ''
   If schet_->IFIN > 0
     s := 'ŽŒ‘ '
     If schet_->bukva     == 'A'
