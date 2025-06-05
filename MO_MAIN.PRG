@@ -16,7 +16,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 10.03.25
+// 05.06.25
 Procedure Main( ... )
 
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
@@ -71,6 +71,8 @@ Procedure Main( ... )
   Public fr_data := '_data', fr_titl := '_titl'
 
   Public dir_exe := dir_exe()
+  Public cur_dir := chip_currpath()
+  Public dir_server := '', p_name_comp := ''
 //  Public dir_XML_MO := 'XML_MO', dir_XML_TF := 'XML_TF'
 //  Public dir_NAPR_MO := 'NAPR_MO', dir_NAPR_TF := 'NAPR_TF'
 //  Public _tmp_dir  := 'TMP___'
@@ -453,7 +455,7 @@ Function m_help()
   chm_help_code := tmp_help
   Return Nil
 
-// 03.06.25
+// 05.06.25
 Function f_first( is_create )
 
   Local is_local_version := .t.
@@ -470,8 +472,6 @@ Function f_first( is_create )
   Public p_color_screen := 'W/N*', p_char_screen := ' ' // заполнение экрана
   Public c__cw := 'N+/N' // цвет теней
   //
-  Public cur_dir := chip_currpath()
-  Public dir_server := '', p_name_comp := ''
 
   color0 := 'N/BG, W+/N'
   color1 := 'W+/B, W+/R'
@@ -644,7 +644,7 @@ Function app_finish()
   Quit
   Return Nil
 
-// 15.10.24
+// 05.06.25
 Function f_end( yes_copy )
 
   Static group_ini := 'RAB_MESTO'
@@ -677,7 +677,7 @@ Function f_end( yes_copy )
   ErrorBlock( bSaveHandler )
   //
   hard_err( 'delete' )
-  If __mvExist( 'cur_dir()' )
+//  If __mvExist( 'cur_dir()' )
     FileDelete( cur_dir() + 'tmp*.dbf' )
     FileDelete( cur_dir() + 'tmp*.ntx' )
     FileDelete( _tmp_dir1() + '*.*' )
@@ -688,8 +688,9 @@ Function f_end( yes_copy )
     If hb_DirExists( cur_dir() + _tmp2dir() ) .and. hb_DirDelete( cur_dir() + _tmp2dir() ) != 0
       // func_error(4, 'Не могу удалить каталог ' + cur_dir() + _tmp2dir())
     Endif
-  Endif
+//  Endif
   // удалим файлы отчетов в формате '*.HTML' из временной директории
   FileDelete( hb_DirTemp() + '*.html' )
+  delfrfiles()
   app_finish()
   Return Nil

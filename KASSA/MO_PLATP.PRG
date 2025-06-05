@@ -25,7 +25,7 @@ Function po_statist( k )
       "~Журнал Регистрации", ;
       "Настраиваемый журнал ~Регистрации", ; // 21.05.08
       "По дате приема ~денег";
-    }
+      }
     mas_msg := { "Статистика по объему работ персонала (по дате окончания лечения)", ;
       "Статистика по объему работ (по номеру квитанционной книжки)", ;
       "Статистика по направившим врачам", ;
@@ -34,7 +34,7 @@ Function po_statist( k )
       "Журнал регистрации договоров", ;
       "Настраиваемый журнал Регистрации", ; // 21.05.08
       "По дате приема денег";
-    }
+      }
     mas_fun := { "Po_statist(11)", ;
       "Po_statist(12)", ;
       "Po_statist(13)", ;
@@ -43,9 +43,9 @@ Function po_statist( k )
       "Po_statist(18)", ;
       "Po_statist(19)", ;
       "Po_statist(17)";
-    }
+      }
     Private p_net_otd := .t.
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
     restuchotd( uch_otd )
   Case k == 11
     pob_statist()
@@ -58,7 +58,7 @@ Function po_statist( k )
       "Статистика по направившим врачам с расшифровкой по услугам" }
     mas_fun := { "Po_statist(31)", ;
       "Po_statist(32)" }
-    popup_prompt( T_ROW, T_COL - 5, si3, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si3, mas_pmt, mas_msg, mas_fun )
   Case k == 14
     mas_pmt := { "~Больные по ДМС и взаимозачету", ;
       "~Оплата по ДМС и взаимозачету", ;
@@ -80,7 +80,7 @@ Function po_statist( k )
       AAdd( mas_fun, "Po_statist(25)" )
       AAdd( mas_fun, "Po_statist(26)" )
     Endif
-    popup_prompt( T_ROW, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 15
     pl_mnog_poisk()
   Case k == 16
@@ -97,7 +97,7 @@ Function po_statist( k )
       "Po_statist(72)", ;
       "Po_statist(73)";
       }
-    popup_prompt( T_ROW, T_COL - 5, si3, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si3, mas_pmt, mas_msg, mas_fun )
   Case k == 18
     pl_pl_dogovor()
   Case k == 19
@@ -107,13 +107,13 @@ Function po_statist( k )
     Default si4 To glob_close + 1
     mas_pmt := { "По дате ~окончания лечения", ;
       "По дате ~закрытия л/учета" }
-    If ( j := popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt ) ) > 0
+    If ( j := popup_prompt( T_ROW, T_COL -5, si4, mas_pmt ) ) > 0
       si4 := j
       Private pi1 := si4 + 1
       If k == 21
         pl_vzaimozach()
       Else
-        vr_vzaimozach( k - 23 )
+        vr_vzaimozach( k -23 )
       Endif
     Endif
   Case k == 22
@@ -162,7 +162,7 @@ Function pob_statist()
   Private pi1 := si, psz
 
   Default si To glob_close + 2
-  popup_prompt( T_ROW, T_COL - 5, si, mas_pmt, mas_msg, mas_fun )
+  popup_prompt( T_ROW, T_COL -5, si, mas_pmt, mas_msg, mas_fun )
   If pi1 != NIL ; si := pi1 ; Endif
 
   Return Nil
@@ -182,7 +182,7 @@ Function pob1_statist( k, k1 )
       "Статистика по объему работ с подсчетом заработной платы" }
     mas_fun := { "Pob1_statist(1,1)", ;
       "Pob1_statist(1,2)" } //
-    popup_prompt( T_ROW, T_COL - 5, si0, mas_pmt, mas_msg, mas_fun, color0 + ",R/BG,GR+/N" )
+    popup_prompt( T_ROW, T_COL -5, si0, mas_pmt, mas_msg, mas_fun, color0 + ",R/BG,GR+/N" )
   Case k == 1
     psz := si0 := k1
     mas_pmt := { "~Отделения", ;
@@ -197,7 +197,7 @@ Function pob1_statist( k, k1 )
       "Pob1_statist(12)", ;
       "Pob1_statist(13)", ;
       "Pob1_statist(14)" }
-    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11  // отделения
     mas_pmt := { "~Список отделений", ;
       "Отделение + ~персонал", ;
@@ -223,7 +223,7 @@ Function pob1_statist( k, k1 )
       "Pob1_statist(26)", ;
       "Pob1_statist(27)", ;
       "Pob1_statist(28)" }
-    popup_prompt( T_ROW, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 12  // службы
     mas_pmt := { "Службы + ~отделения", ;
       "Службы + ~услуги", ;
@@ -234,7 +234,7 @@ Function pob1_statist( k, k1 )
     mas_fun := { "Pob1_statist(31)", ;
       "Pob1_statist(32)", ;
       "Pob1_statist(33)" }
-    popup_prompt( T_ROW, T_COL - 5, si3, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si3, mas_pmt, mas_msg, mas_fun )
   Case k == 13  // персонал
     mas_pmt := { "1 человек + ~услуги", ;
       "~1 человек + услуги + больные", ;
@@ -259,7 +259,7 @@ Function pob1_statist( k, k1 )
       AAdd( mas_fun, "Pob1_statist(46)" )
       AAdd( mas_fun, "Pob1_statist(47)" )
     Endif
-    popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
   Case k == 14  // услуги
     mas_pmt := { "~Список услуг", ;
       "Все ~услуги", ;
@@ -270,7 +270,7 @@ Function pob1_statist( k, k1 )
     mas_fun := { "Pob1_statist(51)", ;
       "Pob1_statist(52)", ;
       "Pob1_statist(53)" }
-    popup_prompt( T_ROW, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si5, mas_pmt, mas_msg, mas_fun )
     // ** отделения
   Case k == 21    // список отделений
     pob2_statist( 1 )
@@ -301,7 +301,7 @@ Function pob1_statist( k, k1 )
     Else
       find ( Str( si_slugba, 3 ) )
     Endif
-    If alpha_browse( T_ROW, T_COL - 5, MaxRow() -2, T_COL + 45, "f2spr_other", color0 )
+    If alpha_browse( T_ROW, T_COL -5, MaxRow() -2, T_COL + 45, "f2spr_other", color0 )
       fl := .t. ; si_slugba := sl->shifr
       j := { sl->shifr, lstr( sl->shifr ) + ". " + AllTrim( sl->name ) }
     Endif
@@ -313,7 +313,7 @@ Function pob1_statist( k, k1 )
   Case k == 41    // конкретный работающий + услуги
     pob2_statist( 5 )
   Case k == 42    // конкретный работающий + услуги + больные
-    If ( j := popup_prompt( T_ROW, T_COL - 5, si5, ;
+    If ( j := popup_prompt( T_ROW, T_COL -5, si5, ;
         { "Все ~услуги", "~Список услуг" } ) ) > 0
       pob2_statist( 13,, ( j == 1 ) )
     Endif
@@ -367,18 +367,18 @@ Function pob2_statist( k, serv_arr, is_all )
   Default is_all To .t.
   Private skol := { 0, 0 }, strud := { 0, 0 }, sstoim := { 0, 0 }, krvz, arr_dms
   If equalany( k, 2, 3, 4, 8, 9 )  // по отделению
-    If ( st_a_otd := inputn_otd( T_ROW, T_COL - 5, .f., .f. ) ) == NIL
+    If ( st_a_otd := inputn_otd( T_ROW, T_COL -5, .f., .f. ) ) == NIL
       Return Nil
     Endif
     AEval( st_a_otd, {| x| AAdd( arr_otd, x ) } )
     If k == 8 .and. ( musluga := input_usluga() ) == NIL
       Return Nil
     Endif
-    If k == 9 .and. !input_perso( T_ROW, T_COL - 5, .f. )
+    If k == 9 .and. !input_perso( T_ROW, T_COL -5, .f. )
       Return Nil
     Endif
   Else  // по учреждению(ям)
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
       Return Nil
     Endif
     r_use( dir_server() + "mo_otd",, "OTD" )
@@ -393,7 +393,7 @@ Function pob2_statist( k, serv_arr, is_all )
       Next
       uch->( dbCloseArea() )
     Endif
-    If ( ( k == 5 .and. serv_arr == NIL ) .or. k == 13 ) .and. !input_perso( T_ROW, T_COL - 5, .f. )
+    If ( ( k == 5 .and. serv_arr == NIL ) .or. k == 13 ) .and. !input_perso( T_ROW, T_COL -5, .f. )
       Return Nil
     Endif
   Endif
@@ -415,7 +415,7 @@ Function pob2_statist( k, serv_arr, is_all )
     Enddo
     perso->( dbCloseArea() )
   Endif
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If pi1 == 1  // по дате лечения
@@ -439,7 +439,7 @@ Function pob2_statist( k, serv_arr, is_all )
     { "K_DATA",     "D",      8,      0 }, ;  // дата окончания лечения
     { "KOL",    "N",      5,      0 }, ;  // количество услуг
     { "STOIM",      "N",     20,      4 };   // стоимость услуг
-  }
+    }
   adbf2 := { ;
     { "otd",        "N",      3,      0 }, ;  // отделение, где оказана услуга
     { "U_KOD",    "N",      4,      0 }, ;  // код услуги
@@ -453,7 +453,7 @@ Function pob2_statist( k, serv_arr, is_all )
     { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
     { "KOL",    "N",      6,      0 }, ;  // количество услуг
     { "STOIM",    "N",     16,      4 };   // итоговая стоимость услуги
-  }
+    }
   If k == 13 .and. !is_all
     dbCreate( cur_dir() + "tmp", adbf2 )
     Use ( cur_dir() + "tmp" )
@@ -612,7 +612,7 @@ Function pob2_statist( k, serv_arr, is_all )
                 Endif
                 If AScan( arr_kd, hu->u_kod ) > 0 .and. hu->kol > 0 .and. ;
                     ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0 .and. ;
-                    ( md := c4tod( hu->date_u ) + hu->kol -1 ) >= arr[ 5 ]
+                    ( md := c4tod( hu->date_u ) + hu->kol - 1 ) >= arr[ 5 ]
                   human->( dbGoto( hu->kod ) )
                   If k == 5
                     // если дата окончания койко-дней >= begin_date
@@ -640,7 +640,7 @@ Function pob2_statist( k, serv_arr, is_all )
                 human->( dbGoto( hu->kod ) )
                 If len_kd > 0 .and. AScan( arr_kd, hu->u_kod ) > 0  // койко-день
                   If hu->kol > 0 .and. ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0
-                    If ( md := c4tod( hu->date_u ) ) + hu->kol -1 > arr[ 6 ]
+                    If ( md := c4tod( hu->date_u ) ) + hu->kol - 1 > arr[ 6 ]
                       // если кол-во койко-дней выходит за конечную дату
                       mkol := arr[ 6 ] - md + 1
                       mstoim := round_5( hu->stoim / hu->kol * mkol, 2 )
@@ -730,7 +730,7 @@ Function pob2_statist( k, serv_arr, is_all )
           If len_kd > 0 .and. Between( hu->date_u, t_date1, t_date2 ) .and. ;
               AScan( arr_kd, hu->u_kod ) > 0 .and. hu->kol > 0 .and. ;
               ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0 .and. ;
-              ( md := c4tod( hu->date_u ) + hu->kol -1 ) >= arr[ 5 ]
+              ( md := c4tod( hu->date_u ) + hu->kol - 1 ) >= arr[ 5 ]
             If k == 6
               // если дата окончания койко-дней >= begin_date
               md := Min( md, arr[ 6 ] )
@@ -744,7 +744,7 @@ Function pob2_statist( k, serv_arr, is_all )
             // если койко-день
             If len_kd > 0 .and. AScan( arr_kd, hu->u_kod ) > 0
               If hu->kol > 0 .and. ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0
-                If ( md := c4tod( hu->date_u ) ) + hu->kol -1 > arr[ 6 ]
+                If ( md := c4tod( hu->date_u ) ) + hu->kol - 1 > arr[ 6 ]
                   // если кол-во койко-дней выходит за конечную дату
                   mkol := arr[ 6 ] - md + 1
                   mstoim := round_5( hu->stoim / hu->kol * mkol, 2 )
@@ -828,7 +828,7 @@ Function pob2_statist( k, serv_arr, is_all )
           Endif
           If AScan( arr_kd, hu->u_kod ) > 0 .and. hu->kol > 0 .and. ;
               ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0 .and. ;
-              ( md := c4tod( hu->date_u ) + hu->kol -1 ) >= arr[ 5 ]
+              ( md := c4tod( hu->date_u ) + hu->kol - 1 ) >= arr[ 5 ]
             // если дата окончания койко-дней >= begin_date
             md := Min( md, arr[ 6 ] )
             mkol := md - arr[ 5 ] + 1
@@ -849,7 +849,7 @@ Function pob2_statist( k, serv_arr, is_all )
           Endif
           If len_kd > 0 .and. AScan( arr_kd, hu->u_kod ) > 0  // койко-день
             If hu->kol > 0 .and. ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0
-              If ( md := c4tod( hu->date_u ) ) + hu->kol -1 > arr[ 6 ]
+              If ( md := c4tod( hu->date_u ) ) + hu->kol - 1 > arr[ 6 ]
                 // если кол-во койко-дней выходит за конечную дату
                 mkol := arr[ 6 ] - md + 1
                 mstoim := round_5( hu->stoim / hu->kol * mkol, 2 )
@@ -1040,7 +1040,7 @@ Function pob2_statist( k, serv_arr, is_all )
       Endif
     Endif
     Set( _SET_DELETED, .t. )
-    fp := FCreate( "ob_stat.txt" ) ; tek_stroke := 0 ; n_list := 1
+    fp := FCreate( cur_dir() + "ob_stat.txt" ) ; tek_stroke := 0 ; n_list := 1
     add_string( "ПЛАТНЫЕ УСЛУГИ" )
     If k == 0
       add_string( Center( "Статистика по службам (с разбивкой по отделениям)", sh ) )
@@ -1153,7 +1153,7 @@ Function pob2_statist( k, serv_arr, is_all )
       Select TMP
       Do While !Eof()
         If equalany( k, 0, 10 ) .and. old_shifr != tmp->kod_vr
-          add_string( Space( 4 ) + Replicate( ".", sh - 4 ) )
+          add_string( Space( 4 ) + Replicate( ".", sh -4 ) )
           add_string( PadR( Space( 4 ) + old_slugba, len_n ) + ;
             Str( pkol, 7, 0 ) + ;
             if( mem_trudoem == 2, put_val_0( ptrud, 9, 1 ), "" ) + ;
@@ -1162,8 +1162,8 @@ Function pob2_statist( k, serv_arr, is_all )
           pkol := ptrud := pstoim := 0
         Endif
         If k == 4 .and. !( old_perso == tmp->kod_vr .and. old_vr_as == tmp->vr_as )
-          add_string( Space( 4 ) + Replicate( ".", sh - 4 ) )
-          add_string( PadR( Space( 4 ) + old_fio, len_n - 4 ) + ;
+          add_string( Space( 4 ) + Replicate( ".", sh -4 ) )
+          add_string( PadR( Space( 4 ) + old_fio, len_n -4 ) + ;
             if( psz == 1, if( old_vr_as == 1, "врач", "асс." ), Space( 4 ) ) + ;
             Str( pkol, 7, 0 ) + ;
             if( mem_trudoem == 2, put_val_0( ptrud, 9, 1 ), "" ) + ;
@@ -1225,7 +1225,7 @@ Function pob2_statist( k, serv_arr, is_all )
               Endif
               s += tmp->fio
             Endif
-            s := PadR( s, len_n - 5 ) + " " + ;
+            s := PadR( s, len_n -5 ) + " " + ;
               if( psz == 1, if( tmp->vr_as == 1, "врач", "асс." ), Space( 4 ) )
             skol[ tmp->vr_as ] += tmp->kol
             strud[ tmp->vr_as ] += tmp->trudoem
@@ -1250,7 +1250,7 @@ Function pob2_statist( k, serv_arr, is_all )
                 fl := .f.
                 If !emptyall( skol[ 1 ], strud[ 1 ], sstoim[ 1 ] )
                   fl := .t.
-                  s := PadL( "И Т О Г О :  ", len_n - 4 )
+                  s := PadL( "И Т О Г О :  ", len_n -4 )
                   If psz == 1 ; s += "врач"
                   else        ; s += Space( 4 )
                   Endif
@@ -1266,7 +1266,7 @@ Function pob2_statist( k, serv_arr, is_all )
                 Endif
                 If !emptyall( skol[ 2 ], strud[ 2 ], sstoim[ 2 ] )
                   s := if( fl, "", "И Т О Г О :  " )
-                  add_string( PadL( s, len_n - 4 ) + "асс." + ;
+                  add_string( PadL( s, len_n -4 ) + "асс." + ;
                     Str( skol[ 2 ], 7, 0 ) + ;
                     if( mem_trudoem == 2, put_val_0( strud[ 2 ], 9, 1 ), "" ) + ;
                     put_kope( sstoim[ 2 ], 15 ) )
@@ -1287,8 +1287,8 @@ Function pob2_statist( k, serv_arr, is_all )
               // ". "+upper(rtrim(tmp->fio)))
               // endif
             Endif
-            j := perenos( arr, tmp->u_shifr + " " + tmp->u_name, len_n - 6 )
-            s := PadR( arr[ 1 ], len_n - 4 ) + ;
+            j := perenos( arr, tmp->u_shifr + " " + tmp->u_name, len_n -6 )
+            s := PadR( arr[ 1 ], len_n -4 ) + ;
               if( psz == 1, if( tmp->vr_as == 1, "врач", "асс." ), Space( 4 ) )
             skol[ tmp->vr_as ] += tmp->kol
             strud[ tmp->vr_as ] += tmp->trudoem
@@ -1309,7 +1309,7 @@ Function pob2_statist( k, serv_arr, is_all )
         Skip
       Enddo
       If equalany( k, 0, 10 )
-        add_string( Space( 4 ) + Replicate( ".", sh - 4 ) )
+        add_string( Space( 4 ) + Replicate( ".", sh -4 ) )
         add_string( PadR( Space( 4 ) + old_slugba, len_n ) + ;
           Str( pkol, 7, 0 ) + ;
           if( mem_trudoem == 2, put_val_0( ptrud, 9, 1 ), "" ) + ;
@@ -1317,8 +1317,8 @@ Function pob2_statist( k, serv_arr, is_all )
         add_string( "" )
       Endif
       If k == 4
-        add_string( Space( 4 ) + Replicate( ".", sh - 4 ) )
-        add_string( PadR( Space( 4 ) + old_fio, len_n - 4 ) + ;
+        add_string( Space( 4 ) + Replicate( ".", sh -4 ) )
+        add_string( PadR( Space( 4 ) + old_fio, len_n -4 ) + ;
           if( psz == 1, if( old_vr_as == 1, "врач", "асс." ), Space( 4 ) ) + ;
           Str( pkol, 7, 0 ) + ;
           if( mem_trudoem == 2, put_val_0( ptrud, 9, 1 ), "" ) + ;
@@ -1329,7 +1329,7 @@ Function pob2_statist( k, serv_arr, is_all )
       fl := .f.
       If !emptyall( skol[ 1 ], strud[ 1 ], sstoim[ 1 ] )
         fl := .t.
-        s := PadL( "И Т О Г О :  ", len_n - 4 )
+        s := PadL( "И Т О Г О :  ", len_n -4 )
         If equalany( k, 2, 4, 5, 7 ) .and. psz == 1
           s += "врач"
         Else
@@ -1342,7 +1342,7 @@ Function pob2_statist( k, serv_arr, is_all )
       Endif
       If ( equalany( k, 2, 4, 5, 7 ) ) .and. !emptyall( skol[ 2 ], strud[ 2 ], sstoim[ 2 ] )
         s := if( fl, "", "И Т О Г О :  " )
-        s := PadL( s, len_n - 4 ) + "асс."
+        s := PadL( s, len_n -4 ) + "асс."
         add_string( s + ;
           Str( skol[ 2 ], 7, 0 ) + ;
           if( mem_trudoem == 2, put_val_0( strud[ 2 ], 9, 1 ), "" ) + ;
@@ -1352,7 +1352,7 @@ Function pob2_statist( k, serv_arr, is_all )
         If !emptyall( ssumv_ysl, ssumv_uet, ssumv_sum )
           add_string( Replicate( "─", sh ) )
           fl := .t.
-          s := PadL( "В С Е Г О :  ", len_n - 4 )
+          s := PadL( "В С Е Г О :  ", len_n -4 )
           If psz == 1 ; s += "врач"
           else        ; s += Space( 4 )
           Endif
@@ -1363,7 +1363,7 @@ Function pob2_statist( k, serv_arr, is_all )
         Endif
         If !emptyall( ssuma_ysl, ssuma_uet, ssuma_sum )
           s := if( fl, "", "В С Е Г О :  " )
-          add_string( PadL( s, len_n - 4 ) + "асс." + ;
+          add_string( PadL( s, len_n -4 ) + "асс." + ;
             Str( ssuma_ysl, 7, 0 ) + ;
             if( mem_trudoem == 2, put_val_0( ssuma_uet, 9, 1 ), "" ) + ;
             put_kope( ssuma_sum, 15 ) )
@@ -1375,7 +1375,7 @@ Function pob2_statist( k, serv_arr, is_all )
     Endif
     FClose( fp )
     Close databases
-    viewtext( "ob_stat.txt",,,, ( sh > 80 ),,, regim )
+    viewtext( cur_dir() + "ob_stat.txt",,,, ( sh > 80 ),,, regim )
   Endif
 
   Return Nil
@@ -1782,12 +1782,12 @@ Function st_plat_fio( reg )
   Static svr_as := 1, mas_pmt := { "~Врачи", "~Ассистенты", "~Медсестры", "~Санитарки" }
   Local vr_as, adbf, i, j, arr[ 2 ], begin_date, end_date, ;
     fl_exit := .f., sh, HH := 57, reg_print, s, xx, n, nvr, ;
-    arr_otd := {}, n_file := "plat_fio.txt", buf := save_row( MaxRow() )
+    arr_otd := {}, n_file := cur_dir() + "plat_fio.txt", buf := save_row( MaxRow() )
   Private krvz, arr_dms, d_file := "PLAT_FIO" + sdbf()
   If !del_dbf_file( d_file )
     Return Nil
   Endif
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   If ( arr := year_month() ) == NIL
@@ -1795,11 +1795,11 @@ Function st_plat_fio( reg )
   Endif
   begin_date := arr[ 7 ]
   end_date := arr[ 8 ]
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If reg == 2
-    If ( vr_as := popup_prompt( T_ROW, T_COL - 5, svr_as, mas_pmt ) ) == 0
+    If ( vr_as := popup_prompt( T_ROW, T_COL -5, svr_as, mas_pmt ) ) == 0
       Return Nil
     Endif
     svr_as := vr_as
@@ -1821,7 +1821,7 @@ Function st_plat_fio( reg )
     { "kod_p", "N", 4, 0 }, ;  // код персонала
     { "otd",  "N", 3, 0 }, ;  // код отделения
     { "summa", "N", 12, 2 } ;
-  }   // общая сумма лечения по данному отделению
+    }   // общая сумма лечения по данному отделению
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) new
   Index On Str( kod_k, 7 ) + Str( kod, 7 ) + Str( otd, 3 ) + Str( kod_p, 4 ) to ( cur_dir() + "tmp" )
@@ -2114,7 +2114,7 @@ Function f1_plat_fio( reg, vr_as )
 //
 Function st_plat_ms( reg )
 
-  Local i, j, arr[ 2 ], begin_date, end_date, n_file := "plat_ms.txt", ;
+  Local i, j, arr[ 2 ], begin_date, end_date, n_file := cur_dir() + "plat_ms.txt", ;
     fl_exit := .f., sh, HH := 57, reg_print := 1, s, arr_dms, ;
     ss, ss1, ss2, ss3, arr_title, adbf, krvz, xx
 
@@ -2123,7 +2123,7 @@ Function st_plat_ms( reg )
   Endif
   begin_date := arr[ 7 ]
   end_date := arr[ 8 ]
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If psz == 1
@@ -2132,14 +2132,14 @@ Function st_plat_ms( reg )
   Endif
   adbf := { ;
     { "KOD",        "N",      4,      0 }, ;  // код персонала
-  { "KOL1",    "N",      6,      0 }, ;  // платные
+    { "KOL1",    "N",      6,      0 }, ;  // платные
     { "SUM1",    "N",     14,      2 }, ;  // платные
-  { "KOL2",    "N",      6,      0 }, ;  // доплаты за услуги
+    { "KOL2",    "N",      6,      0 }, ;  // доплаты за услуги
     { "SUM2",    "N",     14,      2 }, ;  // доплаты за услуги
-  { "KOL3",    "N",      6,      0 }, ;  // материалы
+    { "KOL3",    "N",      6,      0 }, ;  // материалы
     { "SUM3",    "N",     14,      2 }, ;  // материалы
-  { "SUMMA",      "N",     18,      2 };   // ст-ть услуг (зарплата)
-  }
+    { "SUMMA",      "N",     18,      2 };   // ст-ть услуг (зарплата)
+    }
   dbCreate( cur_dir() + "tmp", adbf )
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   Use ( cur_dir() + "tmp" )
@@ -2262,7 +2262,7 @@ Function st_plat_ms( reg )
     Enddo
     add_string( Replicate( "─", sh ) )
     If psz == 1
-      add_string( put_kope( ss1, sh - 36 ) + put_kope( ss2, 18 ) + put_kope( ss3, 18 ) )
+      add_string( put_kope( ss1, sh -36 ) + put_kope( ss2, 18 ) + put_kope( ss3, 18 ) )
     Else
       add_string( put_kope( ss, sh ) )
     Endif
@@ -2403,7 +2403,7 @@ Function pl_mnog_poisk()
   Local mm_tmp := {}, k
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
     mm_mest := { { "Волгоград или область", 1 }, { "иногородние", 2 } }, ;
-    tmp_help := 0, hGauge, name_file := "pl_mnog.txt", ;
+    tmp_help := 0, hGauge, name_file := cur_dir() + "pl_mnog.txt", ;
     sh := 80, HH := 77, r1 := 2, a_diagnoz[ 3 ], a_uslugi[ 20 ], ;
     k_usl, fl_stom := .f., ;
     mm_da_net := { { "нет", 1 }, { "да ", 2 } }, lvid_doc := 0, ;
@@ -2422,7 +2422,7 @@ Function pl_mnog_poisk()
     "Диагноз", ;
     "Услуги", ;
     "Услуги+врачи" }
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   Private pr_arr := {}, pr_arr_otd := {}, is_talon := ret_is_talon()
@@ -2446,7 +2446,7 @@ Function pl_mnog_poisk()
   dbCreate( cur_dir() + "tmp", { ;
     { "U_KOD",    "N",      4,      0 }, ;  // код услуги
   { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-  { "U_NAME",     "C",     65,      0 } ;  // наименование услуги
+    { "U_NAME",     "C",     65,      0 } ;  // наименование услуги
   } )
   Use ( cur_dir() + "tmp" )
   Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
@@ -2478,7 +2478,7 @@ Function pl_mnog_poisk()
       "Буква (перед участком)" } )
     AAdd( mm_tmp, { "uchast", "N", 1, 0,, ;
       {| x| menu_reader( x, ;
-      { {|k, r, c| get_uchast( r + 1, c ) } }, A__FUNCTION ) }, ;
+      { {| k, r, c| get_uchast( r + 1, c ) } }, A__FUNCTION ) }, ;
       0, {|| init_uchast( arr_uchast ) }, ;
       "Участок (участки)" } )
   Endif
@@ -2500,7 +2500,7 @@ Function pl_mnog_poisk()
     "Место жительства:" } )
   AAdd( mm_tmp, { "_okato", "C", 11, 0, NIL, ;
     {| x| menu_reader( x, ;
-    { {|k, r, c| get_okato_ulica( k, r, c, { k, m_okato, } ) } }, A__FUNCTION ) }, ;
+    { {| k, r, c| get_okato_ulica( k, r, c, { k, m_okato, } ) } }, A__FUNCTION ) }, ;
     Space( 11 ), {| x| Space( 11 ) }, ;
     'Адрес регистрации (ОКАТО)' } )
   // 12.11.16
@@ -2569,7 +2569,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
   If yes_h_otd == 1
     AAdd( mm_tmp, { "otd", "N", 3, 0, NIL, ;
       {| x| menu_reader( x, ;
-      { {|k, r, c| get_otd( k, r + 1, c ) } }, A__FUNCTION ) }, ;
+      { {| k, r, c| get_otd( k, r + 1, c ) } }, A__FUNCTION ) }, ;
       0, {|| Space( 10 ) }, ;
       "Отделение, в котором выписан счет" } )
   Endif
@@ -2579,17 +2579,17 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
     "Категория оплаты" } )
   AAdd( mm_tmp, { "uslugi", "N", 4, 0, NIL, ;
     {| x| menu_reader( x, ;
-    { {|k, r, c| ob2_v_usl( .t., r + 1 ) } }, A__FUNCTION ) }, ;
+    { {| k, r, c| ob2_v_usl( .t., r + 1 ) } }, A__FUNCTION ) }, ;
     0, {|| Space( 10 ) }, ;
     "Оказанные услуги" } )
   AAdd( mm_tmp, { "otd_usl", "N", 3, 0, NIL, ;
     {| x| menu_reader( x, ;
-    { {|k, r, c| get_otd( k, r + 1, c ) } }, A__FUNCTION ) }, ;
+    { {| k, r, c| get_otd( k, r + 1, c ) } }, A__FUNCTION ) }, ;
     0, {|| Space( 10 ) }, ;
     "Отделение, в котором оказана услуга" } )
   AAdd( mm_tmp, { "slug_usl", "N", 3, 0, NIL, ;
     {| x| menu_reader( x, ;
-    { {|k, r, c| get_slugba( k, r, c ) } }, A__FUNCTION ) }, ;
+    { {| k, r, c| get_slugba( k, r, c ) } }, A__FUNCTION ) }, ;
     0, {|| Space( 10 ) }, ;
     "Служба, в которой оказана услуга" } )
   AAdd( mm_tmp, { "vr1", "N", 5, 0, NIL, ;
@@ -2842,8 +2842,8 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
       s2 := if( fl_summa, " лечения ", "  услуг  " )
       arr_title := { ;
         "────────────────────────────────────────┬─────────", ;
-        "             Ф.И.О. больного            │" + s1,;
-        "                                        │" + s2,;
+        "             Ф.И.О. больного            │" + s1, ;
+        "                                        │" + s2, ;
         "────────────────────────────────────────┴─────────" }
       If IsBit( mn->vid_doc, 1 )
         arr_title[ 1 ] += "┬────────"
@@ -3464,9 +3464,9 @@ Function pl_napr_vrach()
 
   Local i, j, arr, begin_date, end_date, s, buf := save_row( MaxRow() ), ;
     fl_exit := .f., sh, HH := 60, reg_print, speriod, ;
-    arr_title, name_file := "napr_vr.txt", arr_m, adbf
+    arr_title, name_file := cur_dir() + "napr_vr.txt", arr_m, adbf
 
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
@@ -3541,7 +3541,7 @@ Function pl_napr_vrach()
       Endif
       If old_otd != perso->otd
         If old_otd != 0
-          add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
+          add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
           add_string( PadL( "Итого: " + put_val( kol_otd, 6 ) + put_kope( sum_otd, 12 ), sh ) )
           kol_otd := sum_otd := 0
         Endif
@@ -3562,7 +3562,7 @@ Function pl_napr_vrach()
       Skip
     Enddo
     If old_otd != 0
-      add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
+      add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
       add_string( PadL( "Итого: " + put_val( kol_otd, 6 ) + put_kope( sum_otd, 12 ), sh ) )
     Endif
     Close databases
@@ -3578,9 +3578,9 @@ Function pl_napr2vrach()
 
   Local i, j, arr[ 2 ], begin_date, end_date, s, buf := save_row( MaxRow() ), ;
     fl_exit := .f., sh, HH := 60, reg_print, speriod, ;
-    arr_title, name_file := "napr_vr2.txt", arr_m, adbf, mperso
+    arr_title, name_file := cur_dir() + "napr_vr2.txt", arr_m, adbf, mperso
 
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
@@ -3605,14 +3605,14 @@ Function pl_napr2vrach()
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   adbf := { ;
     { "U_KOD",    "N",      4,      0 }, ;  // код услуги
-    { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
+  { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
     { "U_NAME",     "C",     65,      0 }, ;  // наименование услуги
-    { "TAB_NOM",    "N",      5,      0 }, ;  // таб.номер врача
+  { "TAB_NOM",    "N",      5,      0 }, ;  // таб.номер врача
     { "KOD_VR",     "N",      4,      0 }, ;  // код врача
-    { "FIO",        "C",     50,      0 }, ;  // Ф.И.О. врача
+  { "FIO",        "C",     50,      0 }, ;  // Ф.И.О. врача
     { "KOL",    "N",      6,      0 }, ;  // количество услуг
-    { "STOIM",    "N",     14,      2 };   // итоговая стоимость услуги
-  }
+  { "STOIM",    "N",     14,      2 };   // итоговая стоимость услуги
+    }
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) new
   Index On Str( kod_vr, 4 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
@@ -3760,19 +3760,19 @@ Function ob_ved_vz()
   a_t[ 3 ] := "                              │  " + p_sb + "г.│    Дебет   │    Кредит  │  " + p_se + "г."
   a_t[ 4 ] := "──────────────────────────────┴────────────┴────────────┴────────────┴────────────"
   //
-  dbCreate( cur_dir() + "tmp", { { "kod_k","N", 7, 0 }, ; // код больного по картотеке
-    { "pr_smo","N", 6, 0 }, ; // код предприятия / СМО
-    { "SALDO1","N", 13, 2 }, ;
-    { "DEBET","N", 13, 2 }, ;
-    { "KREDIT","N", 13, 2 }, ;
-    { "SALDO2","N", 13, 2 } } ) //
-  dbCreate( cur_dir() + "tmp1", { { "name","C", 30, 0 }, ; // наименование предприятия
-    { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
-    { "pr_smo","N", 6, 0 }, ; // код предприятия / СМО
-    { "SALDO1","N", 13, 2 }, ;
-    { "DEBET","N", 13, 2 }, ;
-    { "KREDIT","N", 13, 2 }, ;
-    { "SALDO2","N", 13, 2 } } ) //
+  dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
+  { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
+  { "SALDO1", "N", 13, 2 }, ;
+    { "DEBET", "N", 13, 2 }, ;
+    { "KREDIT", "N", 13, 2 }, ;
+    { "SALDO2", "N", 13, 2 } } ) //
+  dbCreate( cur_dir() + "tmp1", { { "name", "C", 30, 0 }, ; // наименование предприятия
+  { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
+  { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
+  { "SALDO1", "N", 13, 2 }, ;
+    { "DEBET", "N", 13, 2 }, ;
+    { "KREDIT", "N", 13, 2 }, ;
+    { "SALDO2", "N", 13, 2 } } ) //
   r_use( dir_server() + "p_pr_vz",, "PRED" )
   r_use( dir_server() + "p_d_smo",, "SMO" )
   Use ( cur_dir() + "tmp" ) new
@@ -3933,7 +3933,7 @@ Function ob_ved_vz()
 Function f1ob_ved_vz( nKey, oBrow, regim )
 
   Local ret := -1, buf, fl := .f., rec, tmp_color, i, j, ;
-    s, sh, HH := 58, reg_print := 2, arr_title, name_file := "ob_ved.txt"
+    s, sh, HH := 58, reg_print := 2, arr_title, name_file := cur_dir() + "ob_ved.txt"
 
   Do Case
   Case regim == "edit"
@@ -4031,7 +4031,7 @@ Function f2ob_ved_vz()
 Function f3ob_ved_vz( nKey, oBrow, regim )
 
   Local ret := -1, buf, fl := .f., rec, tmp_color, i, j, k, t_arr[ 2 ], ;
-    s, sh, HH := 58, reg_print := 2, arr_title, name_file := "ob_ved.txt"
+    s, sh, HH := 58, reg_print := 2, arr_title, name_file := cur_dir() + "ob_ved.txt"
 
   Do Case
   Case regim == "edit"
@@ -4115,7 +4115,7 @@ Function f3ob_ved_vz( nKey, oBrow, regim )
 //
 Function f4ob_ved_vz( par )
 
-  Local s, sh, HH := 58, reg_print, arr_title, n_file := "ob_ved.txt", ;
+  Local s, sh, HH := 58, reg_print, arr_title, n_file := cur_dir() + "ob_ved.txt", ;
     buf := save_row( MaxRow() ), adbf, msaldo1, msaldo2, sum1, sum2
 
   mywait()
@@ -4199,7 +4199,7 @@ Function f4ob_ved_vz( par )
   If msaldo1 >= 0
     add_string( s )
   Else
-    add_string( PadL( s, sh - 2 ) )
+    add_string( PadL( s, sh -2 ) )
   Endif
   AEval( arr_title, {| x| add_string( x ) } )
   Select TMP1_
@@ -4240,7 +4240,7 @@ Function f4ob_ved_vz( par )
   If msaldo2 >= 0
     add_string( s )
   Else
-    add_string( PadL( s, sh - 2 ) )
+    add_string( PadL( s, sh -2 ) )
   Endif
   FClose( fp )
   rest_box( buf )
@@ -4293,11 +4293,11 @@ Function rees1_vzaim( name_file )
     add_string( s )
     Skip
   Enddo
-  If verify_ff( HH - 5, .t., sh )
+  If verify_ff( HH -5, .t., sh )
     AEval( arr_title, {| x| add_string( x ) } )
   Endif
   add_string( Replicate( "─", sh ) )
-  add_string( PadL( "Итого : " + lstr( sk ), sh - 30 ) + put_kop( ss, 30 ) )
+  add_string( PadL( "Итого : " + lstr( sk ), sh -30 ) + put_kop( ss, 30 ) )
   add_string( "" )
   add_string( "" )
   add_string( Center( "Главный бухгалтер _________________", sh ) )
@@ -4492,7 +4492,7 @@ Function rees2_vzaim( name_file )
         add_string( s )
       Next
       add_string( PadL( Replicate( "-", 41 ), sh ) )
-      add_string( PadL( lstr( lsk ) + Str( lss, 11, 2 ), sh - 12 ) )
+      add_string( PadL( lstr( lsk ) + Str( lss, 11, 2 ), sh -12 ) )
       add_string( "" )
     Next
     Select TMP
@@ -4504,11 +4504,11 @@ Function rees2_vzaim( name_file )
   hpu->( dbCloseArea() )
   usl->( dbCloseArea() )
   otd->( dbCloseArea() )
-  If verify_ff( HH - 5, .t., sh )
+  If verify_ff( HH -5, .t., sh )
     AEval( arr2title, {| x| add_string( x ) } )
   Endif
   add_string( Replicate( "─", sh ) )
-  add_string( PadL( "Итого : " + lstr( sk ) + Str( ss, 11, 2 ), sh - 12 ) )
+  add_string( PadL( "Итого : " + lstr( sk ) + Str( ss, 11, 2 ), sh -12 ) )
   add_string( "" )
   add_string( "" )
   add_string( Center( "Главный врач _________________                         Главный бухгалтер _________________", sh ) )
@@ -4554,7 +4554,7 @@ Function pl_pl_dogovor()
 
   Local buf := save_row( MaxRow() ), sh, HH := 49, arr_title, s, i, j, k, sk, ss, ;
     arr2title, reg_print := 6, afio[ 10 ], lfio := 19, kfio, lsk, lss, adbf, ;
-    aadres[ 2 ], kadres, apolis[ 10 ], kpolis, name_file := "jurnal.txt", arr_dms, ;
+    aadres[ 2 ], kadres, apolis[ 10 ], kpolis, name_file := cur_dir() + "jurnal.txt", arr_dms, ;
     kol_vo := 0, usl_nds18 := 0, usl_nds18_1 := 0, ;
     usl_nds10 := 0, usl_nds10_1 := 0, ;
     usl_nds20 := 0, usl_nds20_1 := 0
@@ -4567,13 +4567,13 @@ Function pl_pl_dogovor()
     "                             │       │                                                                 │ (руб.)│луг │  (руб.)  │  услуги  │  услуги  ", ;
     "─────────────────────────────┴───────┴─────────────────────────────────────────────────────────────────┴───────┴────┴──────────┴──────────┴──────────" }
   Private krvz
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   mywait()
@@ -4684,25 +4684,25 @@ Function pl_pl_dogovor()
   Enddo
   Close databases
   add_string( Replicate( "─", sh ) )
-  add_string( PadL( "Итого : " + Str( ss, 11, 2 ), sh - 12 ) )
-  add_string( PadL( "Итого договоров: " + Str( kol_vo, 11 ), sh - 12 ) )
+  add_string( PadL( "Итого : " + Str( ss, 11, 2 ), sh -12 ) )
+  add_string( PadL( "Итого договоров: " + Str( kol_vo, 11 ), sh -12 ) )
   If usl_nds18 > 0
-    add_string( PadL( "Количество услуг с НДС 18% : " + Str( usl_nds18, 11 ), sh - 12 ) )
+    add_string( PadL( "Количество услуг с НДС 18% : " + Str( usl_nds18, 11 ), sh -12 ) )
   Endif
   If usl_nds18_1 > 0
-    add_string( PadL( "Сумма услуг с НДС 18% : " + Str( usl_nds18_1, 11, 2 ), sh - 12 ) )
+    add_string( PadL( "Сумма услуг с НДС 18% : " + Str( usl_nds18_1, 11, 2 ), sh -12 ) )
   Endif
   If usl_nds10 > 0
-    add_string( PadL( "Количество услуг с НДС 10% : " + Str( usl_nds10, 11 ), sh - 12 ) )
+    add_string( PadL( "Количество услуг с НДС 10% : " + Str( usl_nds10, 11 ), sh -12 ) )
   Endif
   If usl_nds10_1 > 0
-    add_string( PadL( "Сумма услуг с НДС 10% : " + Str( usl_nds10_1, 11, 2 ), sh - 12 ) )
+    add_string( PadL( "Сумма услуг с НДС 10% : " + Str( usl_nds10_1, 11, 2 ), sh -12 ) )
   Endif
   If usl_nds20 > 0
-    add_string( PadL( "Количество услуг с НДС 20% : " + Str( usl_nds20, 11 ), sh - 12 ) )
+    add_string( PadL( "Количество услуг с НДС 20% : " + Str( usl_nds20, 11 ), sh -12 ) )
   Endif
   If usl_nds20_1 > 0
-    add_string( PadL( "Сумма услуг с НДС 20% : " + Str( usl_nds20_1, 11, 2 ), sh - 12 ) )
+    add_string( PadL( "Сумма услуг с НДС 20% : " + Str( usl_nds20_1, 11, 2 ), sh -12 ) )
   Endif
   add_string( "" )
   add_string( Center( "Главный врач _________________                         Главный бухгалтер _________________", sh ) )
@@ -4722,7 +4722,7 @@ Function pl_pl_2dogovor()
 
   Local buf := save_row( MaxRow() ), sh, HH := 49, arr_title, s, i, k, sk, ss, ;
     arr2title, reg_print := 6, afio[ 10 ], lfio := 19, kfio, lsk, lss, adbf, ;
-    aadres[ 2 ], kadres, apolis[ 10 ], kpolis, name_file := "jurnal1.txt", ;
+    aadres[ 2 ], kadres, apolis[ 10 ], kpolis, name_file := cur_dir() + "jurnal1.txt", ;
     usl_nds18 := 0, usl_nds18_1 := 0, ;
     usl_nds10 := 0, usl_nds10_1 := 0, ;
     usl_nds20 := 0, usl_nds20_1 := 0, ;
@@ -4874,7 +4874,7 @@ Function pl_pl_2dogovor()
     "┴──────────" }
 
   Private krvz
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   Private glob_pozic
@@ -4884,7 +4884,7 @@ Function pl_pl_2dogovor()
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   mywait()
@@ -5096,25 +5096,25 @@ Function pl_pl_2dogovor()
   Enddo
   Close databases
   add_string( Replicate( "─", sh ) )
-  add_string( PadL( "Итого : " + lstr( ss, 15, 2 ), sh - 11 ) )
-  add_string( PadL( "Итого договоров : " + lstr( kol_vo ), sh - 11 ) )
+  add_string( PadL( "Итого : " + lstr( ss, 15, 2 ), sh -11 ) )
+  add_string( PadL( "Итого договоров : " + lstr( kol_vo ), sh -11 ) )
   If usl_nds18 > 0
-    add_string( PadL( "Количество услуг с НДС 18% : " + Str( usl_nds18, 11 ), sh - 11 ) )
+    add_string( PadL( "Количество услуг с НДС 18% : " + Str( usl_nds18, 11 ), sh -11 ) )
   Endif
   If usl_nds18_1 > 0
-    add_string( PadL( "Сумма услуг с НДС 18% : " + Str( usl_nds18_1, 11, 2 ), sh - 11 ) )
+    add_string( PadL( "Сумма услуг с НДС 18% : " + Str( usl_nds18_1, 11, 2 ), sh -11 ) )
   Endif
   If usl_nds10 > 0
-    add_string( PadL( "Количество услуг с НДС 10% : " + Str( usl_nds10, 11 ), sh - 11 ) )
+    add_string( PadL( "Количество услуг с НДС 10% : " + Str( usl_nds10, 11 ), sh -11 ) )
   Endif
   If usl_nds10_1 > 0
-    add_string( PadL( "Сумма услуг с НДС 10% : " + Str( usl_nds10_1, 11, 2 ), sh - 11 ) )
+    add_string( PadL( "Сумма услуг с НДС 10% : " + Str( usl_nds10_1, 11, 2 ), sh -11 ) )
   Endif
   If usl_nds20 > 0
-    add_string( PadL( "Количество услуг с НДС 20% : " + Str( usl_nds20, 11 ), sh - 12 ) )
+    add_string( PadL( "Количество услуг с НДС 20% : " + Str( usl_nds20, 11 ), sh -12 ) )
   Endif
   If usl_nds20_1 > 0
-    add_string( PadL( "Сумма услуг с НДС 20% : " + Str( usl_nds20_1, 11, 2 ), sh - 12 ) )
+    add_string( PadL( "Сумма услуг с НДС 20% : " + Str( usl_nds20_1, 11, 2 ), sh -12 ) )
   Endif
   add_string( "" )
   add_string( "" )
@@ -5192,7 +5192,7 @@ Function pl1_priemden( tip )
   // 2 - по кассовым аппаратам
   // 3 - по кассирам
   Local fl := .t., buf := save_row( MaxRow() ), sm := 0, HH := 52, ;
-    n_file := "platn.txt", arr_m, sum3 := 0, sh, sm_sn := 0, arr_dms, ;
+    n_file := cur_dir() + "platn.txt", arr_m, sum3 := 0, sh, sm_sn := 0, arr_dms, ;
     sm_1 := 0, sm_2 := 0, vrem_kas, sm1, sm2, t_name_ysl, mas_name := {}
   Local arr_title := { ;
     "──────────────────────────────────────────────────────────┬────────┬───────────", ;
@@ -5201,7 +5201,7 @@ Function pl1_priemden( tip )
     }
   sh := Len( arr_title[ 1 ] )
   Private krvz
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
@@ -5404,7 +5404,7 @@ Function pl2_priemden( tip )
   // 2 - по кассовым аппаратам
   // 3 - по кассирам
   Local fl := .t., buf := save_row( MaxRow() ), sm := 0, HH := 51, ;
-    n_file := "platn.txt", arr_m, sum3 := 0, sh, sm_sn := 0, arr_dms, ;
+    n_file := cur_dir() + "platn.txt", arr_m, sum3 := 0, sh, sm_sn := 0, arr_dms, ;
     sm_1 := 0, sm_2 := 0, vrem_kas, sm1, sm2, t_name_ysl, mas_name := {}, ;
     t, t1
 
@@ -5424,7 +5424,7 @@ Function pl2_priemden( tip )
     }
   Private krvz, lpole, spole
   Private arr_kkm := {}
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
@@ -5637,7 +5637,7 @@ Function inputnplpozic( r, c, fl_max )
       l_a_pozic := {} ; st_pozic := {}
       For i := 1 To 15
         If "*" == SubStr( t_mas[ i ], 2, 1 )
-          AAdd( l_a_pozic, { ( i - 1 ), AllTrim( mas_s[ i ] ), } )
+          AAdd( l_a_pozic, { ( i -1 ), AllTrim( mas_s[ i ] ), } )
           AAdd( st_pozic, mas[ i ] )
         Endif
       Next
@@ -5698,9 +5698,9 @@ Function k_statist( k )
       AAdd( mas_msg, "Оформление реестра платных услуг при сдаче выручки" )
       AAdd( mas_fun, "k_statist(17)" )
     Endif
-    popup_prompt( T_ROW, T_COL - 5, si, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si, mas_pmt, mas_msg, mas_fun )
   Otherwise
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       Do Case
       Case k == 11
         f1r_s_plat( 1 )
@@ -5753,7 +5753,7 @@ return NIL
 Function Pd2_statist(k)
 Local i, j, arr, begin_date, end_date, s, buf := save_row(maxrow()),;
       fl_exit := .f., sh, HH := 40, reg_print, speriod,;
-      arr_title, name_file := "r_dohod.txt", arr_m
+      arr_title, name_file := cur_dir() + "r_dohod.txt", arr_m
 if (arr_m := year_month()) == NIL
   return NIL
 endif
@@ -5957,7 +5957,7 @@ Function f1r_s_plat()
 
   Local i, j, arr, begin_date, end_date, s, buf := save_row( MaxRow() ), ;
     fl_exit := .f., sh, HH := 57, reg_print, lyear, slyear, speriod, ;
-    arr_title, name_file := "r_dopl.txt", old_vr := 0, ;
+    arr_title, name_file := cur_dir() + "r_dopl.txt", old_vr := 0, ;
     vstoim := 0, sstoim := 0, blk
   Private arr_m, kv[ 2 ]
 
@@ -5971,22 +5971,22 @@ Function f1r_s_plat()
   //
   dbCreate( cur_dir() + "tmp", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
   { "kv_cia", "N", 6, 0 }, ; // номер квитанции
-  { "U_KOD","N", 4, 0 }, ; // код услуги
-  { "SHIFR","C", 10, 0 }, ; // шифр услуги
+  { "U_KOD", "N", 4, 0 }, ; // код услуги
+  { "SHIFR", "C", 10, 0 }, ; // шифр услуги
   { "KOD_VR", "N", 4, 0 }, ; // код врача
-  { "KOL","N", 5, 0 }, ; // количество услуг
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуги
+  { "KOL", "N", 5, 0 }, ; // количество услуг
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
   Use ( cur_dir() + "tmp" )
   Index On Str( kod_vr, 4 ) + Str( n_kvit, 5 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
   Index On Str( kod_vr, 4 ) + Str( n_kvit, 5 ) + fsort_usl( shifr ) to ( cur_dir() + "tmpn" )
   dbCreate( cur_dir() + "tmpt", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуги
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
   Use ( cur_dir() + "tmpt" )
   Index On Str( n_kvit, 5 ) to ( cur_dir() + "tmpt" )
-  dbCreate( cur_dir() + "tmpu", { { "U_KOD","N", 4, 0 }, ; // код услуги
-  { "SHIFR","C", 10, 0 }, ; // шифр услуги
-  { "KOL","N", 5, 0 }, ; // количество услуг
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуги
+  dbCreate( cur_dir() + "tmpu", { { "U_KOD", "N", 4, 0 }, ; // код услуги
+  { "SHIFR", "C", 10, 0 }, ; // шифр услуги
+  { "KOL", "N", 5, 0 }, ; // количество услуг
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
   Use ( cur_dir() + "tmpu" )
   Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpuk" )
   Index On fsort_usl( shifr ) to ( cur_dir() + "tmpun" )
@@ -6069,8 +6069,8 @@ Function f1r_s_plat()
       Endif
       If old_vr != tmp->kod_vr
         If old_vr != 0
-          add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
-          add_string( Space( sh - 20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
+          add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
+          add_string( Space( sh -20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
           vstoim := 0
         Endif
         add_string( "[" + lstr( ret_tabn( tmp->kod_vr ) ) + "] " + AllTrim( perso->fio ) )
@@ -6083,13 +6083,13 @@ Function f1r_s_plat()
       Select TMP
       Skip
     Enddo
-    add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
-    add_string( Space( sh - 20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
+    add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
+    add_string( Space( sh -20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
     add_string( Replicate( "─", sh ) )
-    add_string( Space( sh - 20 ) + "ВСЕГО:" + PadL( expand_value( sstoim, 2 ), 14 ) )
+    add_string( Space( sh -20 ) + "ВСЕГО:" + PadL( expand_value( sstoim, 2 ), 14 ) )
     add_string( Replicate( "─", sh ) )
     //
-    If verify_ff( HH - 2, .t., sh )
+    If verify_ff( HH -2, .t., sh )
       AEval( arr_title, {| x| add_string( x ) } )
     Endif
     add_string( Space( 15 ) + "в том числе:" )
@@ -6104,7 +6104,7 @@ Function f1r_s_plat()
       Skip
     Enddo
     //
-    If verify_ff( HH - 2, .t., sh )
+    If verify_ff( HH -2, .t., sh )
       AEval( arr_title, {| x| add_string( x ) } )
     Endif
     add_string( Space( 15 ) + "в том числе:" )
@@ -6134,7 +6134,7 @@ Function f2r_spl_plat( reg )
   Static snomer := 1, sreg1 := 1
   Local i, j, k, arr[ 2 ], s, buf := save_row( MaxRow() ), buf1, reg1, ;
     fl_exit := .f., sh, HH := 57, reg_print, ;
-    arr_title, name_file := "n_kvit.txt", ;
+    arr_title, name_file := cur_dir() + "n_kvit.txt", ;
     vstoim := 0, sstoim := 0, old := 0, up_usl, ;
     speriod, begin_date, end_date, cp := " "
 
@@ -6145,7 +6145,7 @@ Function f2r_spl_plat( reg )
   Endif
   snomer := mnomer
   buf1 := box_shadow( 0, 0, 0, 30, color8, "Квитанционная книжка N " + lstr( mnomer ),, 0 )
-  If ( reg1 := popup_prompt( T_ROW, T_COL - 5, sreg1, ;
+  If ( reg1 := popup_prompt( T_ROW, T_COL -5, sreg1, ;
       { "В ~целом по квитанционной книжке", ;
       "За ~период времени" } ) ) == 0
     rest_box( buf1 )
@@ -6157,10 +6157,10 @@ Function f2r_spl_plat( reg )
   sreg1 := reg1
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   //
-  dbCreate( cur_dir() + "tmp", { { "U_KOD","N", 4, 0 }, ; // код услуги
+  dbCreate( cur_dir() + "tmp", { { "U_KOD", "N", 4, 0 }, ; // код услуги
   { "KOD_VR", "N", 4, 0 }, ; // код врача
-  { "KOL","N", 5, 0 }, ; // количество услуг
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуги
+  { "KOL", "N", 5, 0 }, ; // количество услуг
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
   Use ( cur_dir() + "tmp" )
   Index On Str( kod_vr, 4 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmp" )
   r_use( dir_server() + "uslugi", dir_server() + "uslugi", "USL" )
@@ -6237,8 +6237,8 @@ Function f2r_spl_plat( reg )
       If reg == 1
         If old != tmp->kod_vr
           If old != 0
-            add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
-            add_string( Space( sh - 20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
+            add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
+            add_string( Space( sh -20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
             vstoim := 0
           Endif
           add_string( "" )
@@ -6249,8 +6249,8 @@ Function f2r_spl_plat( reg )
       Else
         If old != tmp->u_kod
           If old != 0
-            add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
-            add_string( Space( sh - 20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
+            add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
+            add_string( Space( sh -20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
             vstoim := 0
           Endif
           add_string( "" )
@@ -6269,10 +6269,10 @@ Function f2r_spl_plat( reg )
       Select TMP
       Skip
     Enddo
-    add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
-    add_string( Space( sh - 20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
+    add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
+    add_string( Space( sh -20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
     add_string( Replicate( "═", sh ) )
-    add_string( Space( sh - 20 ) + "ИТОГО:" + PadL( expand_value( sstoim, 2 ), 14 ) )
+    add_string( Space( sh -20 ) + "ИТОГО:" + PadL( expand_value( sstoim, 2 ), 14 ) )
     Close databases
     FClose( fp )
     rest_box( buf )
@@ -6292,7 +6292,7 @@ Function f3r_s_plat()
   Static snomer := 1, sreg1 := 1
   Local i, j, k, arr[ 2 ], s, buf := save_row( MaxRow() ), buf1, reg1, ;
     fl_exit := .f., sh, HH := 57, reg_print, ;
-    arr_title, name_file := "n_kvitan.txt", ;
+    arr_title, name_file := cur_dir() + "n_kvitan.txt", ;
     vstoim := 0, sstoim := 0, old := 0, ;
     speriod, begin_date, end_date, cp := " ", ss := 0
 
@@ -6303,7 +6303,7 @@ Function f3r_s_plat()
   Endif
   snomer := mnomer
   buf1 := box_shadow( 0, 0, 0, 30, color8, "Квитанционная книжка N " + lstr( mnomer ),, 0 )
-  If ( reg1 := popup_prompt( T_ROW, T_COL - 5, sreg1, ;
+  If ( reg1 := popup_prompt( T_ROW, T_COL -5, sreg1, ;
       { "В ~целом по квитанционной книжке", ;
       "За ~период времени" } ) ) == 0
     rest_box( buf1 )
@@ -6318,8 +6318,8 @@ Function f3r_s_plat()
   dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
   { "kv_cia", "N", 6, 0 }, ; // номер квитанции
   { "pdate", "C", 4, 0 }, ;
-    { "KOL","N", 5, 0 }, ; // количество услуг
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуги
+    { "KOL", "N", 5, 0 }, ; // количество услуг
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
   Use ( cur_dir() + "tmp" )
   r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
   r_use( dir_server() + "hum_p", dir_server() + "hum_pv", "HP" )
@@ -6391,7 +6391,7 @@ Function f3r_s_plat()
       Skip
     Enddo
     add_string( Replicate( "─", sh ) )
-    add_string( PadR( lstr( tmp->( LastRec() ) ) + " чел.", 20 ) + PadL( "Итого : " + lput_kop( ss ), sh - 20 ) )
+    add_string( PadR( lstr( tmp->( LastRec() ) ) + " чел.", 20 ) + PadL( "Итого : " + lput_kop( ss ), sh -20 ) )
     Close databases
     FClose( fp )
     rest_box( buf )
@@ -6413,7 +6413,7 @@ Function f4r_s_plat()
     blk := {| b, ar, nDim, nElem, nKey| f1_s_vyruchka( b, ar, nDim, nElem, nKey ) }, ;
     i, j, k, arr[ 2 ], s, buf1, reg1, min_date, max_date, ;
     fl_exit := .f., sh, HH := 78, reg_print, ;
-    arr_title, name_file := "boln_usl.txt", ;
+    arr_title, name_file := cur_dir() + "boln_usl.txt", ;
     vstoim := 0, sstoim := 0, old := 0, arr_otd, ;
     speriod, begin_date, end_date, cp := " ", ss := 0
 
@@ -6424,7 +6424,7 @@ Function f4r_s_plat()
   Endif
   slyear := Chr( Val( SubStr( StrZero( lyear, 4 ), 1, 2 ) ) ) + ;
     Chr( Val( SubStr( StrZero( lyear, 4 ), 3, 2 ) ) )
-  arrn_browse( T_ROW, T_COL - 5, MaxRow() -2, T_COL + 15, arr_kv, mas12, 1,, color0, ;
+  arrn_browse( T_ROW, T_COL -5, MaxRow() -2, T_COL + 15, arr_kv, mas12, 1,, color0, ;
     "Квитанции", col_tit_popup,,, mpic, blk, { .t., .t., .t. } )
   If !f_esc_enter( "поиска" )
     Return Nil
@@ -6442,8 +6442,8 @@ Function f4r_s_plat()
   dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
   { "rec_hp", "N", 7, 0 }, ; // номер записи по базе "hum_p"
   { "kv_cia", "N", 6, 0 }, ; // номер квитанции
-  { "KOL","N", 5, 0 }, ; // количество услуг
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуги
+  { "KOL", "N", 5, 0 }, ; // количество услуг
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
   Use ( cur_dir() + "tmp" )
   g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
   g_use( dir_server() + "hum_p",, "HP" )
@@ -6528,7 +6528,7 @@ Function f4r_s_plat()
     AEval( arr_title, {| x| add_string( x ) } )
     Go Top
     Do While !Eof()
-      If verify_ff( HH - 1, .t., sh )
+      If verify_ff( HH -1, .t., sh )
         AEval( arr_title, {| x| add_string( x ) } )
       Endif
       If ( i := AScan( arr_otd, {| x| x[ 1 ] == hp->otd } ) ) == 0
@@ -6616,7 +6616,7 @@ Function f4r_s_plat()
     If verify_ff( HH - Len( arr_otd ) -1, .t., sh )
       AEval( arr_title, {| x| add_string( x ) } )
     Endif
-    add_string( PadR( lstr( tmp->( LastRec() ) ) + " чел.", 20 ) + PadL( "Итого : " + lput_kop( ss ), sh - 20 ) )
+    add_string( PadR( lstr( tmp->( LastRec() ) ) + " чел.", 20 ) + PadL( "Итого : " + lput_kop( ss ), sh -20 ) )
     Close databases
     ASort( arr_otd, {| x, y| Upper( x[ 2 ] ) < Upper( y[ 2 ] ) } )
     For i := 1 To Len( arr_otd )
@@ -6640,7 +6640,7 @@ Function f4r_s_plat()
 //
 Function f5r_s_plat()
 
-  Local buf, i, k, mas12, arr_m, n_file := "spis_kvi.txt", sh := 64, ssum := 0
+  Local buf, i, k, mas12, arr_m, n_file := cur_dir() + "spis_kvi.txt", sh := 64, ssum := 0
 
   If ( arr_m := year_month() ) == NIL
     Return Nil
@@ -6709,10 +6709,10 @@ Function f5r_s_plat()
     Endif
     If mas12[ i, 2 ] == mas12[ i, 3 ]
       add_string( PadR( "Квитанция N " + lstr( mas12[ i, 2 ] ), 32 ) + ;
-        PadL( expand_value( mas12[ i, 4 ], 2 ), sh - 32 ) )
+        PadL( expand_value( mas12[ i, 4 ], 2 ), sh -32 ) )
     Else
       add_string( PadR( "Квитанции с N " + lstr( mas12[ i, 2 ] ) + " по N " + lstr( mas12[ i, 3 ] ), 32 ) + ;
-        PadL( expand_value( mas12[ i, 4 ], 2 ), sh - 32 ) )
+        PadL( expand_value( mas12[ i, 4 ], 2 ), sh -32 ) )
     Endif
   Next
   add_string( "" )
@@ -6734,7 +6734,7 @@ Function pl_vyruchka()
   Local lyear, slyear, s_date, arr_kv := { { 1, 999999 } }, buf, i, k, ;
     mas12 := { { 1, " с ..." }, { 2, "по ..." } }, mpic := { { 6, 0 }, { 6, 0 } }, ;
     blk := {| b, ar, nDim, nElem, nKey| f1_s_vyruchka( b, ar, nDim, nElem, nKey ) }, ;
-    n_file := "s_vyruch.txt", sh := 64, ssum := 0, hGauge
+    n_file := cur_dir() + "s_vyruch.txt", sh := 64, ssum := 0, hGauge
 
   If ( lyear := input_value( 20, 15, 22, 64, color1, ;
       "За какой год желаете получить информацию", ;
@@ -6749,7 +6749,7 @@ Function pl_vyruchka()
   If s_date == NIL
     Return Nil
   Endif
-  arrn_browse( T_ROW, T_COL - 5, MaxRow() -2, T_COL + 15, arr_kv, mas12, 1,, color0, ;
+  arrn_browse( T_ROW, T_COL -5, MaxRow() -2, T_COL + 15, arr_kv, mas12, 1,, color0, ;
     "Квитанции", col_tit_popup,,, mpic, blk, { .t., .t., .t. } )
   If f_esc_enter( "поиска" )
     buf := save_row( MaxRow() )
@@ -6823,10 +6823,10 @@ Function pl_vyruchka()
       Endif
       If mas12[ i, 2 ] == mas12[ i, 3 ]
         add_string( PadR( "Квитанция N " + lstr( mas12[ i, 2 ] ), 32 ) + ;
-          PadL( expand_value( mas12[ i, 4 ], 2 ), sh - 32 ) )
+          PadL( expand_value( mas12[ i, 4 ], 2 ), sh -32 ) )
       Else
         add_string( PadR( "Квитанции с N " + lstr( mas12[ i, 2 ] ) + " по N " + lstr( mas12[ i, 3 ] ), 32 ) + ;
-          PadL( expand_value( mas12[ i, 4 ], 2 ), sh - 32 ) )
+          PadL( expand_value( mas12[ i, 4 ], 2 ), sh -32 ) )
       Endif
     Next
     add_string( "" )
@@ -6919,36 +6919,36 @@ Function po_proverka( k )
     AAdd( mas_pmt, "~Направитель==асистент" )
     AAdd( mas_msg, "Проверка на совпадение асистента и направителя" )
     AAdd( mas_fun, "Po_proverka(18)" )
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
     restuchotd( uch_otd )
   Case k == 11
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_pr_vr_as( 1 )
     Endif
   Case k == 12
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_pr_vr_as( 2 )
     Endif
   Case k == 13
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_pr_vr_as( 3 )
     Endif
   Case k == 14
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_pr_ot_pe()
     Endif
   Case k == 15
     po_pr_oms()
   Case k == 16
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_pr_vr_as( 4 )
     Endif
   Case k == 17
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_isp_nap( 1 )
     Endif
   Case k == 18
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_isp_nap( 2 )
     Endif
   Endcase
@@ -6971,7 +6971,7 @@ Function po_proverka( k )
 Function po_isp_nap( reg )
 
   Local i, j, k, arr, fl, fl_exit := .f., buf := save_row( MaxRow() ), ;
-    s, sh, HH := 57, arr_title, name_file := "proverka.txt", ;
+    s, sh, HH := 57, arr_title, name_file := cur_dir() + "proverka.txt", ;
     arr_usl := {}
 
   If ( arr := year_month() ) == NIL
@@ -7117,7 +7117,7 @@ Function po_isp_nap( reg )
 Function po_pr_vr_as( reg )
 
   Local i, j, k, arr, fl, fl_exit := .f., buf := save_row( MaxRow() ), ;
-    s, sh, HH := 57, arr_title, name_file := "proverka.txt", ;
+    s, sh, HH := 57, arr_title, name_file := cur_dir() + "proverka.txt", ;
     arr_usl := {}
 
   If ( arr := year_month() ) == NIL
@@ -7247,7 +7247,7 @@ Function po_pr_vr_as( reg )
 Function po_pr_oms( reg )
 
   Local i, j, k, arr, fl, fl_exit := .f., buf := save_row( MaxRow() ), s, sh := 81, ;
-    HH := 57, name_file := "proverka.txt", arr_usl := {}, numer := 1
+    HH := 57, name_file := cur_dir() + "proverka.txt", arr_usl := {}, numer := 1
 
   If ( arr := year_month() ) == NIL
     Return Nil
@@ -7334,7 +7334,7 @@ Function po_pr_oms( reg )
 Function po_pr_ot_pe()
 
   Local i := 0, j, k, arr, fl, fl_exit := .f., buf := save_row( MaxRow() ), ;
-    s, sh, HH := 57, arr_title, name_file := "prov_otd.txt", ;
+    s, sh, HH := 57, arr_title, name_file := cur_dir() + "prov_otd.txt", ;
     arr_usl := {}
 
   If ( arr := year_month() ) == NIL
@@ -7465,18 +7465,18 @@ Function pl_vzaimozach()
   Endif
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   //
-  dbCreate( cur_dir() + "tmp", { { "kod_k","N", 7, 0 }, ; // код больного по картотеке
+  dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
   { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
-  { "pr_smo","N", 6, 0 }, ; // код предприятия / СМО
-  { "KOL","N", 5, 0 }, ; // количество листов учета
+  { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
+  { "KOL", "N", 5, 0 }, ; // количество листов учета
   { "D_POLIS", "C", 25, 0 }, ; // полис
-  { "N_DATA","D", 8, 0 }, ; // дата начала лечения
-  { "K_DATA","D", 8, 0 }, ; // дата окончания лечения
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуг
+  { "N_DATA", "D", 8, 0 }, ; // дата начала лечения
+  { "K_DATA", "D", 8, 0 }, ; // дата окончания лечения
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуг
   Use ( cur_dir() + "tmp" ) new
   Index On Str( tip_usl, 1 ) + Str( pr_smo, 6 ) + Str( kod_k, 7 ) to ( cur_dir() + "tmp" )
   dbCreate( cur_dir() + "tmp2", { { "rec_tmp", "N", 6, 0 }, ;
-    { "rec_hp","N", 7, 0 }, ;
+    { "rec_hp", "N", 7, 0 }, ;
     { "D_POLIS", "C", 25, 0 } } ) // полис
   Use ( cur_dir() + "tmp2" ) new
   If pi1 == 2  // по дате окончания лечения
@@ -7512,11 +7512,11 @@ Function pl_vzaimozach()
   Endif
   j := tmp->( LastRec() )
   If !fl_exit .and. j > 0
-    dbCreate( cur_dir() + "tmp1", { { "name","C", 30, 0 }, ; // наименование предприятия
+    dbCreate( cur_dir() + "tmp1", { { "name", "C", 30, 0 }, ; // наименование предприятия
     { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
-    { "pr_smo","N", 6, 0 }, ; // код предприятия / СМО
-    { "KOL","N", 6, 0 }, ; // количество больных
-    { "STOIM","N", 11, 2 } } ) // итоговая стоимость лечения
+    { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
+    { "KOL", "N", 6, 0 }, ; // количество больных
+    { "STOIM", "N", 11, 2 } } ) // итоговая стоимость лечения
     g_use( dir_server() + "p_pr_vz",, "PRED" )
     g_use( dir_server() + "p_d_smo",, "SMO" )
     Use ( cur_dir() + "tmp1" ) new
@@ -7598,7 +7598,7 @@ Function pl_vzaimozach()
 Function f1_pl_vzaim( nKey, oBrow, regim )
 
   Local ret := -1, buf, fl := .f., t_arr[ BR_LEN ]
-  Local sm := 0, HH := 52, n_file := "platn.txt", sum3 := 0, sh
+  Local sm := 0, HH := 52, n_file := cur_dir() + "platn.txt", sum3 := 0, sh
   Local arr_title := { ;
     "───────────────────────────────────────────────────┬────────┬───────────", ;
     "                  Услуги                           │ Кол-во │   Сумма   ", ;
@@ -7748,7 +7748,7 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
 
   Static sf_nomer, sf_date, sa_nomer, sa_date
   Local ret := -1, buf, fl := .f., rec, tmp_color, ah, ahu, i, j, k, fl_one, ;
-    s, sh, HH := 76, reg_print, arr_title, name_file := "vzaimoza.txt", ;
+    s, sh, HH := 76, reg_print, arr_title, name_file := cur_dir() + "vzaimoza.txt", ;
     d, sd, kol_usl, sk, ss, is_fio, is_sokr, old, mas_pmt
 
   Do Case
@@ -7771,7 +7771,7 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
       Go Top
       dbEval( {|| sk++, ss += tmp->stoim } )
       Go Top
-      Do While ( i := popup_prompt( T_ROW, T_COL - 5, i, mas_pmt,,, ;
+      Do While ( i := popup_prompt( T_ROW, T_COL -5, i, mas_pmt,,, ;
           "BG+/RB,W+/R,W+/RB,GR+/R" ) ) > 0
         If eq_any( i, 1, 3 )
           If ( k := input_diapazon( MaxRow() -4, 9, MaxRow() -2, 68, color8, ;
@@ -7824,11 +7824,11 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
       Do While tmp2->rec_tmp == tmp->( RecNo() ) .and. !Eof()
         Select HP
         Goto ( tmp2->rec_hp )
-        arr := { hp->KOD_DIAG,;
-          hp->SOPUT_B1,;
-          hp->SOPUT_B2,;
-          hp->SOPUT_B3,;
-          hp->SOPUT_B4,;
+        arr := { hp->KOD_DIAG, ;
+          hp->SOPUT_B1, ;
+          hp->SOPUT_B2, ;
+          hp->SOPUT_B3, ;
+          hp->SOPUT_B4, ;
           hp->SOPUT_B5 }
         For i := 1 To Len( arr )
           If !Empty( arr[ i ] ) .and. AScan( ah, arr[ i ] ) == 0
@@ -7960,7 +7960,7 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
             add_string( Replicate( " - ", sh / 3 ) )
           Endif
         Else
-          add_string( PadL( "Итого за " + date_8( d ) + ": " + lput_kop( sd ), sh - 21, "-" ) )
+          add_string( PadL( "Итого за " + date_8( d ) + ": " + lput_kop( sd ), sh -21, "-" ) )
           sd := 0
         Endif
         d := ahu[ i, 1 ]
@@ -7973,10 +7973,10 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
         sd += ahu[ i, 5 ]
       Next
       If !fl_one
-        add_string( PadL( "Итого за " + date_8( d ) + ": " + lput_kop( sd ), sh - 21, "-" ) )
+        add_string( PadL( "Итого за " + date_8( d ) + ": " + lput_kop( sd ), sh -21, "-" ) )
       Endif
       add_string( Replicate( "─", sh ) )
-      add_string( PadL( "Итого : " + put_val( kol_usl, 4 ) + put_kope( tmp->stoim, 12 ), sh - 21 ) )
+      add_string( PadL( "Итого : " + put_val( kol_usl, 4 ) + put_kope( tmp->stoim, 12 ), sh -21 ) )
       add_string( "" )
       add_string( "" )
       add_string( "         Зав.отделением _________________                 Дата ______________" )
@@ -8034,7 +8034,7 @@ Function f3_pl_vzaim()
 Function vr_vzaimozach( regim )
 
   Local i, j, k, fl, fl_exit := .f., buf := save_row( MaxRow() ), ;
-    sh, HH := 60, reg_print := 2, arr_title, n_file := "vr_vzaim.txt"
+    sh, HH := 60, reg_print := 2, arr_title, n_file := cur_dir() + "vr_vzaim.txt"
   Private arr_m
 
   If ( arr_m := year_month() ) == NIL
@@ -8044,11 +8044,11 @@ Function vr_vzaimozach( regim )
   //
   dbCreate( cur_dir() + "tmp", { { "kod",        "N",      4,      0 }, ; // код персонала
   { "FIO",        "C",     50,      0 }, ;  // Ф.И.О. врача
-  { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
+    { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
   { "KOL",    "N",      6,      0 }, ;  // количество услуг
     { "STOIM_OB",   "N",     12,      2 }, ;  // итоговая стоимость услуг
   { "STOIM",    "N",     12,      2 }, ;  // итоговая стоимость услуг
-  { "ZARPLATA",   "N",     12,      2 } } )  // на зарплату
+    { "ZARPLATA",   "N",     12,      2 } } )  // на зарплату
   Use ( cur_dir() + "tmp" )
   Index On Str( kod, 4 ) to ( cur_dir() + "tmp" )
   useuch_usl()
@@ -8268,7 +8268,7 @@ Function pr_opl_vz()
 
   Local i, j, arr, begin_date, end_date, s, buf := save_row( MaxRow() ), ;
     fl_exit := .f., sh, HH := 58, reg_print, ssumma := 0, ;
-    arr_title, name_file := "vzoplata.txt", arr_m, adbf, ;
+    arr_title, name_file := cur_dir() + "vzoplata.txt", arr_m, adbf, ;
     menu_opl := { { "безналичн.", 0 }, ;
     { "наличными ", 1 }, ;
     { "в/зачет   ", 2 } }
@@ -8426,7 +8426,7 @@ Function get_slugba( k, r, c )
   Local ret, r1, r2
 
   If ( r1 := r + 1 ) > MaxRow() / 2
-    r2 := r - 1 ; r1 := 2
+    r2 := r -1 ; r1 := 2
   Else
     r2 := MaxRow() -2
   Endif
@@ -8579,7 +8579,7 @@ Function ob21v_usl( nKey, oBrow, regim, mtitul )
       mywait()
       rec := RecNo()
       Private reg_print := 2
-      n_file := "ob2_v_us.txt"
+      n_file := cur_dir() + "ob2_v_us.txt"
       fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
       add_string( "" )
       add_string( Center( mtitul, sh ) )
@@ -8605,7 +8605,7 @@ Function ob21v_usl( nKey, oBrow, regim, mtitul )
       Save Screen To buf
       Private mshifr := Space( 10 )
       tmp_color := SetColor( cDataCScr )
-      box_shadow( k, pc1 + 1, 21, pc2 - 1,, "Добавление услуги", cDataPgDn )
+      box_shadow( k, pc1 + 1, 21, pc2 -1,, "Добавление услуги", cDataPgDn )
       SetColor( cDataCGet )
       @ k + 1, pc1 + 27 Say "Шифр услуги" Get mshifr Picture "@!" ;
         Valid valid_shifr()
@@ -8734,7 +8734,7 @@ Function inputn_otd( r, c, fl_all_uch, fl_all_otd, a_inp_uch, /*@*/c_otd)
     Endif
     If r < 0 // т.е. GET находится внизу экрана
       k := Abs( r ) -2
-      If ( r := k - count_otd -1 ) < 2
+      If ( r := k - count_otd - 1 ) < 2
         r := 2
       Endif
     Else
@@ -8861,7 +8861,7 @@ Function inputn_uch( r, c, date1, date2, /*@*/c_uch)
   Else
     If r < 0 // т.е. GET находится внизу экрана
       k := Abs( r ) -2
-      If ( r := k - count_uch -1 ) < 2
+      If ( r := k - count_uch - 1 ) < 2
         r := 2
       Endif
     Else
@@ -8946,7 +8946,7 @@ Function fp_ret_lpu( k, r, c )
   If r < 13
     r1 := r + 1
   Else
-    r2 := r - 1
+    r2 := r -1
   Endif
   If inpute_otd( r1, c, r2 )
     mas := { glob_uch[ 1 ], PadR( glob_uch[ 2 ], 30 ) }
@@ -8961,10 +8961,10 @@ Function fp_ret_lpu( k, r, c )
 Function sv_ved_plat()
 
   Local arr, arr_m, buf, arr_title, sh, HH := 40, reg_print := 3, ;
-    n_file := "svod_ved.txt", arr_otd := {}, old_kateg, lfio
+    n_file := cur_dir() + "svod_ved.txt", arr_otd := {}, old_kateg, lfio
 
   pi := 3
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   Private ym_kol_mes := 1
@@ -9087,7 +9087,7 @@ Function sv1_ved_plat( arr, arr_otd )
   adbf2 := { ;
     { "KOD_VR",     "N",      4,      0 }, ;  // код врача
   { "FIO",        "C",     50,      0 }, ;  // Ф.И.О. врача (ассистента)
-  { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
+    { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
   { "KOL",    "N",      6,      0 }, ;  // количество услуг
     { "STOIM",    "N",     14,      2 }, ;  // итоговая стоимость услуги
   { "KOL1",    "N",      6,      0 }, ;  // платные
@@ -9722,7 +9722,7 @@ Function f2e_p_kusl( nKey, oBrow )
         msan3 := ms->tab_nom
       Endif
     Endif
-    box_shadow( r1 - 1, 0, 23, 79, color8, ;
+    box_shadow( r1 -1, 0, 23, 79, color8, ;
       if( nKey == K_INS, "Добавление новой", ;
       "Редактирование" ) + " платной услуги", "RB+/B" )
     Do While .t.
@@ -9730,7 +9730,7 @@ Function f2e_p_kusl( nKey, oBrow )
       If mem_kodotd == 1
         @ r1 + 1, 2 Say "Отделение, в котором оказана услуга" Get motd ;
           reader {| x| menu_reader( x, ;
-          { {|k, r, c| get_otd( k, r + 1, c, .t. ) } }, A__FUNCTION,,, .f. ) }
+          { {| k, r, c| get_otd( k, r + 1, c, .t. ) } }, A__FUNCTION,,, .f. ) }
       Else
         @ r1 + 1, 2 Say "Отделение, в котором оказана услуга" Get m1otd Pict "99" ;
           when {| g| f5e_p_kusl( g, 1, 10 ) } ;
@@ -10034,8 +10034,8 @@ Function stuslpkart( mkod_human, mkod_lpu )
   r_use( dir_server() + "uslugi",, "USL" )
   g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
   adbf := dbStruct()
-  AAdd( adbf, { "KOD_DIAG","C", 5, 0 } )  // шифр 1-ой осн.болезни
-  AAdd( adbf, { "ZF","C", 30, 0 } )  // зубная формула
+  AAdd( adbf, { "KOD_DIAG", "C", 5, 0 } )  // шифр 1-ой осн.болезни
+  AAdd( adbf, { "ZF", "C", 30, 0 } )  // зубная формула
   AAdd( adbf, { "date_u1",  "D", 8, 0 } )
   AAdd( adbf, { "shifr_u",  "C", 10, 0 } )
   AAdd( adbf, { "name_u",   "C", 65, 0 } )
@@ -10326,7 +10326,7 @@ Function st2e_p_kusl( nKey, oBrow )
         msan3 := ms->tab_nom
       Endif
     Endif
-    box_shadow( r1 - 1, 0, 23, 79, color8, iif( nKey == K_INS, "Добавление новой", ;
+    box_shadow( r1 -1, 0, 23, 79, color8, iif( nKey == K_INS, "Добавление новой", ;
       "Редактирование" ) + " платной услуги", "RB+/B" )
     Do While .t.
       SetColor( cDataCGet )
@@ -10698,19 +10698,19 @@ Static Function summa_usl( s )
 
 //
 
-//  14.02.13
+// 14.02.13
 Function st1_plat_fio()
 
   Local reg := 1
   Local vr_as, adbf, i, j, arr[ 2 ], begin_date, end_date, ;
     fl_exit := .f., sh, HH := 57, reg_print, s, xx, n, nvr, ;
-    arr_otd := {}, n_file := "plat_fio.txt", buf := save_maxrow()
+    arr_otd := {}, n_file := cur_dir() + "plat_fio.txt", buf := save_maxrow()
   Private krvz, arr_dms, d_file := "PLAT_FIO" + sdbf(), otdeleni := {}
 
   If !del_dbf_file( d_file )
     Return Nil
   Endif
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   If ( arr := year_month() ) == NIL
@@ -10718,7 +10718,7 @@ Function st1_plat_fio()
   Endif
   begin_date := arr[ 7 ]
   end_date := arr[ 8 ]
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   mywait()
@@ -10734,11 +10734,11 @@ Function st1_plat_fio()
   Enddo
   Close databases
   adbf := { { "kod",  "N", 7, 0 }, ;  // код л/у
-  { "kod_k", "N", 7, 0 }, ;  // код по картотеке
+    { "kod_k", "N", 7, 0 }, ;  // код по картотеке
   { "kod_p", "N", 4, 0 }, ;  // код персонала
-  { "otd",  "N", 3, 0 }, ;  // код отделения
+    { "otd",  "N", 3, 0 }, ;  // код отделения
   { "summa", "N", 12, 2 }, ;  // общая сумма лечения по данному отделению
-  { "sm_vozvr", "N", 12, 2 }; // общая сумма лечения по данному отделению
+    { "sm_vozvr", "N", 12, 2 }; // общая сумма лечения по данному отделению
   }
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) new
@@ -11226,11 +11226,11 @@ Function rees_new_vzaim( nd_faktura )
     { "data",    "C", 10, 0 }, ;
     { "kod",     "C", 15, 0 }, ;
     { "name",    "C", 70, 0 }, ;
-    { "ZF","C", 30, 0 }, ;
+    { "ZF", "C", 30, 0 }, ;
     { "vrach",   "C", 50, 0 }, ;
     { "diagnoz", "C", 6, 0 }, ;
     { "GP_NOMER", "C", 16, 0 }, ; // № гарантийного письма по ДМС
-  { "GP_DATE","C", 10, 0 }, ; // дата гарантийного письма по ДМС
+  { "GP_DATE", "C", 10, 0 }, ; // дата гарантийного письма по ДМС
   { "cena",    "N", 10, 2 }, ;
     { "kol",     "N", 4, 0 }, ;
     { "summa",   "N", 12, 2 } }
@@ -11390,9 +11390,9 @@ Function message_fr_excel()
     { "", "Нажмите любую клавишу для вывода документа в FastReport" }, ;
     color1, ;  // строка цвета для рамки
   cDataCSay, ;  // строка цвета для текста
-  , ;  // верхний ряд рамки (99 - центировать)
+    , ;  // верхний ряд рамки (99 - центировать)
   , ;  // левая колонка рамки (99 - центрировать)
-  color8 )   // строка цвета для бегущей строки
+    color8 )   // строка цвета для бегущей строки
 
   Return Nil
 
@@ -11551,7 +11551,7 @@ Function rees_new_vzaim_pol3( nd_faktura )
 Function pl_vozvrat()
 
   Local fl := .t., buf := save_row( MaxRow() ), sm := 0, HH := 52, ;
-    n_file := "platn.txt", arr_m, sh, sm_sn := 0, krvz, arr_dms, ;
+    n_file := cur_dir() + "platn.txt", arr_m, sh, sm_sn := 0, krvz, arr_dms, ;
     sm_usl := 0
   Local arr_title := { ;
     "───────────────────────────────────────────────────┬────────┬───────────", ;
@@ -11560,7 +11560,7 @@ Function pl_vozvrat()
     }
 
   sh := Len( arr_title[ 1 ] )
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
@@ -11624,7 +11624,7 @@ Function pl_vozvrat()
     Skip
   Enddo
   add_string( Replicate( "─", sh ) )
-  add_string( PadR( "ИТОГО возврат: ",59 ) + put_kope( sm_sn,12 ) )
+  add_string( PadR( "ИТОГО возврат: ", 59 ) + put_kope( sm_sn, 12 ) )
   add_string( PadR( "ИТОГО сумма услуг: ", 59 ) + put_kope( sm_usl, 12 ) )
   Close databases
   FClose( fp )
@@ -11640,7 +11640,7 @@ Function pl_vozvrat()
 Function pl_priemshk()
 
   Local fl := .t., buf := save_row( MaxRow() ), sm2 := 0, HH := 52, ;
-    n_file := "platn.txt", arr_m, sh, krvz, arr_dms, ;
+    n_file := cur_dir() + "platn.txt", arr_m, sh, krvz, arr_dms, ;
     mas_op1 := {}, mas_op2 := {}, mas_op3 := {}, i, arr[ 2 ], sm_bn := 0, ;
     t_hum_rec, kart_kod, t_k_data, nom_prihod := 0, sm_n := 0
 
@@ -11657,7 +11657,7 @@ Function pl_priemshk()
   Endif
 
   sh := Len( arr_title[ 1 ] )
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
@@ -11676,7 +11676,7 @@ Function pl_priemshk()
     { "operat",  "N", 10,  0 }, ;
     { "operatf", "C", 40,  0 }, ;
     { "operatd", "C", 40,  0 }, ;
-    { "FR_DATA", "D",  8,  0 }, ;
+    { "fr_data", "D",  8,  0 }, ;
     { "fr_time", "N",  5,  0 }, ;
     { "t_flag",  "N",  1,  0 }, ;
     { "summa",   "N", 12,  2 }, ;
@@ -11692,7 +11692,7 @@ Function pl_priemshk()
   r_use( dir_server() + "mo_pers",, "PERS" )
   r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HUM_U" )
   r_use( dir_server() + "hum_p", dir_server() + "hum_pkk", "HUM" )
-  Index On fr_data  to ( cur_dir() + "tmp_uu" ) For !Empty( fr_data )
+  Index On fr_data to ( cur_dir() + "tmp_uu" ) For !Empty( fr_data )
   // index on str(kod_k,7)+dtos(k_data)+str(KV_CIA,6) to (dir_server()+"hum_pkk") descending progress
   // go top
   dbSeek( arr_m[ 7 ], .t. )
@@ -11888,7 +11888,7 @@ Function pl_priemshk()
 //
 Function f2_inf_fr()
 
-  Local j := 0, s, buf := save_row( MaxRow() ), n_file := "_kassa1.txt", sh := 65, ;
+  Local j := 0, s, buf := save_row( MaxRow() ), n_file := cur_dir() + "_kassa1.txt", sh := 65, ;
     HH := 60
   Local arr_title := { ;
     "─" }
@@ -11944,7 +11944,7 @@ Function inf_fr( k )
       "inf_fr(12)", ;
       "inf_fr(13)", ;
       "inf_fr(14)" }
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
     f1_inf_fr( 1 )
   Case k == 12
