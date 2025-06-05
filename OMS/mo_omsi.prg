@@ -18,7 +18,6 @@ Function cut_code_smo( _smo )
       s := '34   '
     Endif
   Endif
-
   Return s
 
 // 19.12.13
@@ -37,7 +36,6 @@ Function menu_schet_akt( r, c )
     glob_schet_akt := j
   Endif
   rest_box( buf )
-
   Return j
 
 // 19.12.13
@@ -50,7 +48,6 @@ Function f_usl_schet_akt( loplata )
   Elseif glob_schet_akt == 3
     fl := ( loplata != 9 )
   Endif
-
   Return fl
 
 // 18.12.24 статистика
@@ -555,11 +552,9 @@ Function e_statist( k )
       si19 := j
     Endif
   Endif
-
   Return Nil
 
-
-// 01.11.24 восстановление объёмов
+// 05.06.25 восстановление объёмов
 Function vosst_ob_em_rak()
 
   Static arr_smo, mm_pz
@@ -581,7 +576,7 @@ Function vosst_ob_em_rak()
     Endif
     mm_pz := { { 'все', 0 } }
 
-    nameArr := get_array_pz( 2024 )
+    nameArr := get_array_pz( 2025 )
     For i := 1 To Len( nameArr )
       AAdd( mm_pz, { nameArr[ i, 3 ], nameArr[ i, 1 ] } )
     Next
@@ -598,7 +593,7 @@ Function vosst_ob_em_rak()
     meks, m1eks := s1eks, ;
     mpz, m1pz := s1pz, ;
     mpoisk, m1poisk := s1poisk, ;
-    myear := 2024, mkvartal := 0
+    myear := 2025, mkvartal := 0
   Private pdate, gl_arr := { ;  // для битовых полей
     { 'smo', 'N', 10, 0, , , , {| x| inieditspr( A__MENUBIT, arr_smo, x ) } };
     }
@@ -626,7 +621,7 @@ Function vosst_ob_em_rak()
       reader {| x| menu_reader( x, mm_eks, A__MENUVERT, , , .f. ) }
     @ r + 6, 2 Say 'Вид план-заказа' Get mpz ;
       reader {| x| menu_reader( x, mm_pz, A__MENUVERT_SPACE, , , .f. ) }
-    @ r + 7, 2 Say 'Отчётный год 2024, отчётный квартал' Get mkvartal Pict '9' Range 0, 4
+    @ r + 7, 2 Say 'Отчётный год 2025, отчётный квартал' Get mkvartal Pict '9' Range 0, 4
     myread()
     If LastKey() == K_ESC
       Exit
@@ -637,8 +632,8 @@ Function vosst_ob_em_rak()
     s1poisk := m1poisk
     If Empty( pdate )
       func_error( 4, 'Не введён период времени' )
-    Elseif pdate[ 1 ] < 2024
-      func_error( 4, 'Данный режим написан для 2024 года' )
+    Elseif pdate[ 1 ] < 2025
+      func_error( 4, 'Данный режим написан для 2025 года' )
     Elseif Empty( m1smo )
       func_error( 4, 'Не введена страховая компания' )
     Else
@@ -654,13 +649,12 @@ Function vosst_ob_em_rak()
     Endif
   Enddo
   RestScreen( buf )
-
   Return Nil
 
 // 02.10.19 функция для списка для восстановления объёмов
 Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
 
-  Local adbf, i, nkvartal, n_file := 'v_ob_em.txt', HH := 60, sh := 80, buf := save_maxrow(), t_arr[ 2 ]
+  Local adbf, i, nkvartal, n_file := cur_dir() + 'v_ob_em.txt', HH := 60, sh := 80, buf := save_maxrow(), t_arr[ 2 ]
 
   mywait()
   adbf := { { 'kvartal', 'N', 1, 0 }, ;
@@ -845,7 +839,6 @@ Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
   Endif
   Close databases
   rest_box( buf )
-
   Return Nil
 
 // объем работ персонала (по оказанным услуга)
@@ -1033,7 +1026,6 @@ Function ob1_statist( k, k1 )
       si5 := k -50
     Endif
   Endif
-
   Return Nil
 
 // 12.03.14 объем работ персонала (по номенклатуре ФФОМС)
@@ -1173,9 +1165,7 @@ Function obf_statist( k, k1 )
       si5 := k -50
     Endif
   Endif
-
   Return Nil
-
 
 //
 Function ret_g_o_i( r, c )
@@ -1194,7 +1184,6 @@ Function ret_g_o_i( r, c )
       Endif
     Next
   Endif
-
   Return ret
 
 //
@@ -1214,7 +1203,6 @@ Function ret_z_n( r, c )
       Endif
     Next
   Endif
-
   Return ret
 
 //
@@ -1234,15 +1222,13 @@ Function ret_reestr_no( r, c )
       Endif
     Next
   Endif
-
   Return ret
-
 
 // 28.12.21 статистика по работе операторов
 Function st_operator()
 
   Local i, j, k, mdate, buf24, sh := 0, arr_oper := {}, arr_g, ;
-    s0, s1, s2, s3, s4, buf, name_file := 'operator.txt', ;
+    s0, s1, s2, s3, s4, buf, name_file := cur_dir() + 'operator.txt', ;
     arr_title, reg_print := 2, ls, fl_orto := .f., r1 := 9, ;
     arrNtitle, llen, ldec, fl_old, fl_new
   Private koef0, koef1 := 20, koef2 := 9, koef21 := 3, koef3 := 1, ;
@@ -1597,7 +1583,6 @@ Function st_operator()
   Close databases
   rest_box( buf24 )
   viewtext( devide_into_pages( name_file, 60, 80 ), , , , .t., , , 2 )
-
   Return Nil
 
 //
@@ -1617,9 +1602,7 @@ Function fst_operator( get )
     &mvar := get:original
     Return func_error( 4, s + '2 - ' + lstr( KOEF2 -1 ) + '.' )
   Endif
-
   Return .t.
-
 
 //
 Function put_dec_oper( v, l, fl_plus )
@@ -1627,7 +1610,6 @@ Function put_dec_oper( v, l, fl_plus )
   Local s := put_val_0( v, l, 2 )
 
   Default fl_plus To .t.
-
   Return PadL( if( Empty( s ) .or. ! fl_plus, '', ' + ' ) + AllTrim( s ), l )
 
 
@@ -1830,9 +1812,7 @@ Function prn_blank( k )
       si7 := j
     Endif
   Endif
-
   Return Nil
-
 
 // 19.09.23
 Function pr_sprav_onk_vmp()
@@ -1868,7 +1848,6 @@ Function pr_sprav_onk_vmp()
   FClose( fp )
   viewtext( name_file, , , , .t., , , 2 )
   Close databases
-
   Return Nil
 
 // 29.12.24
@@ -2013,9 +1992,7 @@ Function f_blank_usl_pn()
     call_fr( 'mo_b_pn1' )
   Enddo
   RestScreen( buf )
-
   Return Nil
-
 
 //
 Function ne_real()
@@ -2024,7 +2001,6 @@ Function ne_real()
 
   n_message( { 'Приносим извинения.', ;
     'В данный момент функция не реализована.' }, , c, c, , , c1 )
-
   Return Nil
 
 // 24.01.19 отчёт Ф-МПП
@@ -2239,7 +2215,7 @@ Function report_f_mpp()
   Elseif tmp1->( LastRec() ) == 0
     func_error( 4, 'Нет информации!' )
   Else
-    name_file := '_fmpp.txt'
+    name_file := cur_dir() + '_fmpp.txt'
     HH := 55
     arr_title := { ;
       '────────────────────────────────────────┬────────────────────────────────┬────────────────────────────────┬────────────────────────────────', ;
@@ -2455,14 +2431,13 @@ Function report_f_mpp()
   Endif
   Close databases
   RestScreen( buf )
-
   Return Nil
 
 // 02.01.23
 Function pril_5_6_62()
 
   Local begin_date, end_date, buf := SaveScreen(), i, j, k, k1, k2, ;
-    t_arr[ 10 ], t_arr1[ 10 ], name_file := 'f14med.txt', tfoms_pz[ 5, 11 ], ;
+    t_arr[ 10 ], t_arr1[ 10 ], name_file := cur_dir() + 'f14med.txt', tfoms_pz[ 5, 11 ], ;
     sh, HH := 80, reg_print := 5, is_trudosp, is_rebenok, is_inogoro, ;
     is_reabili, is_ekstra, lshifr1, koef, vid_vp, r1 := 9, fl_exit := .f., ;
     is_vmp, d2_year, ar, arr_excel := {}, fl_error := .f., is_z_sl, ;
@@ -2803,7 +2778,6 @@ Function pril_5_6_62()
     cur_dir() + '__pr6_62' + sxls(), ;
     ar_pr6, ;
     'присланный из ТФОМС' )
-
   Return Nil
 
 // 07.07.20 Мониторинг состояния здоровья населения в части заболеваний, состояний, факторов риска,
@@ -2815,7 +2789,7 @@ Function monitoring_zog()
   Static mas1pmt := { '~все оказанные случаи', ;
     'случаи в выставленных ~счетах', ;
     'случаи в за~регистрированных счетах' }
-  Local sh := 80, HH := 80, n_file := 'monitoring_zog.txt'
+  Local sh := 80, HH := 80, n_file := cur_dir() + 'monitoring_zog.txt'
   Local fl, par, arr_m, i, j, n, ad, arr, adiag_talon[ 16 ], lcount_uch := 1, buf := save_maxrow()
   Private mdate_r, M1VZROS_REB, is_disp_19, m1tip_mas := 0, m1glukozadn := 0, mglukoza := 0
 
@@ -2984,7 +2958,6 @@ Function monitoring_zog()
       viewtext( n_file, , , , .t., , , 2 )
     Endif
   Endif
-
   Return Nil
 
 // 07.07.20
@@ -2997,5 +2970,4 @@ Function f1monitoring_zog( ldiag )
   Else
     fl := ( tmp->diag == ldiag )
   Endif
-
   Return fl
