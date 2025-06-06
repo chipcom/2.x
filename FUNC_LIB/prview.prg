@@ -754,13 +754,16 @@ Function delfrfiles()
   Next
   Return Nil
 
-// 05.06.25 запустить генератор отчетов
+// 06.06.25 запустить генератор отчетов
 Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
 
   Static sExt := '.fr3'
   Local i, j, nfile, buf := SaveScreen(), tmp_select := Select(), fl, is_ot := .t.
+  local aliasFr_data, aliasFr_titl
 
   Default ltip To 1, cFile_Export To "", bMasterDetail TO {|| .t. }, is_open To .t.
+  aliasFr_data := '_data'
+  aliasFr_titl := '_titl'
   //
   stat_msg( 'Ждите! Запуск генератора отчетов FastReport.' )
   // Now load and init FastReport
@@ -774,24 +777,28 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
     Endif
     Go Top
 //    FrPrn:setworkarea( cur_dir() + fr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
-    FrPrn:setworkarea( fr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
+//    FrPrn:setworkarea( fr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
+    FrPrn:setworkarea( aliasFr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
   Endif
   If File( cur_dir() + fr_titl + sdbf() )
     Use ( cur_dir() + fr_titl ) NEW
     Go Top
 //    FrPrn:setworkarea( cur_dir() + fr_titl, Select(), .t. ) // .t. dbf-файл в OEM кодировке
-    FrPrn:setworkarea( fr_titl, Select(), .t. ) // .t. dbf-файл в OEM кодировке
+//    FrPrn:setworkarea( fr_titl, Select(), .t. ) // .t. dbf-файл в OEM кодировке
+    FrPrn:setworkarea( aliasFr_titl, Select(), .t. ) // .t. dbf-файл в OEM кодировке
   Endif
   For j := 1 To max_FR_date_dbf
     nfile := cur_dir() + fr_data + LTrim( Str( j ) )
     If File( nfile + sdbf() )
+      aliasFr_data := '_data' + LTrim( Str( j ) )
       Use ( nfile ) NEW
       If File( nfile + sntx() )
         Set Index to ( nfile )
       Endif
       Go Top
 //      FrPrn:setworkarea( nfile, Select(), .t. ) // .t. dbf-файл в OEM кодировке
-      FrPrn:setworkarea( fr_data + LTrim( Str( j ) ), Select(), .t. ) // .t. dbf-файл в OEM кодировке
+//      FrPrn:setworkarea( fr_data + LTrim( Str( j ) ), Select(), .t. ) // .t. dbf-файл в OEM кодировке
+      FrPrn:setworkarea( aliasFr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
     Endif
   Next
   Eval( bMasterDetail )
@@ -865,15 +872,19 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
   FrPrn:destroyfr()
   //
   If File( cur_dir() + fr_data + sdbf() )
-    &fr_data.->( dbCloseArea() )
+//    &fr_data.->( dbCloseArea() )
+    ( aliasFr_data )->( dbCloseArea() )
   Endif
   If File( fr_titl + sdbf() )
-    &fr_titl.->( dbCloseArea() )
+//    &fr_titl.->( dbCloseArea() )
+    ( aliasFr_titl )->( dbCloseArea() )
   Endif
   For j := 1 To max_FR_date_dbf
     nfile := cur_dir() + fr_data + LTrim( Str( j ) )
+    aliasFr_data := '_data' + LTrim( Str( j ) )
     If File( nfile + sdbf() )
-      &nfile.->( dbCloseArea() )
+//      &nfile.->( dbCloseArea() )
+      ( aliasFr_data )->( dbCloseArea() )
     Endif
   Next
   Select ( tmp_select )
