@@ -175,7 +175,7 @@ Procedure Main( ... )
   //
   checkversioninternet( r + 3, _version() )
 
-  illegal_stad_kod()  // проверка стадии онкозаболеваний
+//  illegal_stad_kod()  // проверка стадии онкозаболеваний
 
   init_first() // начальная инициализация программы (переменных, массивов,...)
 
