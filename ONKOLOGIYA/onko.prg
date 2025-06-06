@@ -225,7 +225,7 @@ Function f_valid_tnm( g )
 
   Return .t.
 
-// 25.09.23
+// 06.06.25
 Function ret_arr_shema( k, dk )
 
   // возвращает схемы лекарственных терапий для онкологии на дату
@@ -243,10 +243,10 @@ Function ret_arr_shema( k, dk )
   If ISNIL( stYear ) .or. Empty( ashema[ 1 ] ) .or. year_dk != stYear
     ashema := { {}, {}, {} }
     arr := getv024( dk )
-    AAdd( ashema[ 1 ], { '-----     без схемы лекарственной терапии', PadR( 'нет', 10 ) } )
-    AEval( arr, {| x, j| iif( Left( x[ 1 ], 2 ) == 'sh', AAdd( ashema[ 1 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 10 ) } ), '' ) } )
-    AEval( arr, {| x, j| iif( Left( x[ 1 ], 2 ) == 'mt', AAdd( ashema[ 2 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 10 ) } ), '' ) } )
-    AEval( arr, {| x, j| iif( Left( x[ 1 ], 2 ) == 'fr', AAdd( ashema[ 3 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 10 ), 0, 0 } ), '' ) } )
+    AAdd( ashema[ 1 ], { '-----     без схемы лекарственной терапии', PadR( 'нет', 20 ) } )
+    AEval( arr, {| x, j| iif( Left( x[ 1 ], 2 ) == 'sh', AAdd( ashema[ 1 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 20 ) } ), '' ) } )
+    AEval( arr, {| x, j| iif( Left( x[ 1 ], 2 ) == 'mt', AAdd( ashema[ 2 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 20 ) } ), '' ) } )
+    AEval( arr, {| x, j| iif( Left( x[ 1 ], 2 ) == 'fr', AAdd( ashema[ 3 ], { PadR( x[ 1 ], 10 ) + Left( x[ 2 ], 68 ), PadR( x[ 1 ], 20 ), 0, 0 } ), '' ) } )
     For i := 1 To Len( ashema[ 3 ] )
       ashema[ 3, i, 3 ] := Int( Val( SubStr( ashema[ 3, i, 1 ], 3, 2 ) ) )
       ashema[ 3, i, 4 ] := Int( Val( SubStr( ashema[ 3, i, 1 ], 6, 2 ) ) )
