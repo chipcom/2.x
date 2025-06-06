@@ -57,12 +57,13 @@ Function find_unfinished_reestr_sp_tk( is_oper, is_count )
     rest_box( buf )
   End
   ErrorBlock( bSaveHandler )
+
   Return fl
 
 // 03.06.25 проверить, есть ли неотосланные просроченные листы учёта
 Function find_time_limit_human_reestr_sp_tk()
 
-  Local buf := SaveScreen(), arr[ 10, 2 ], i, mas_pmt, r, c, n, d := sys_date - 23
+  Local buf := SaveScreen(), arr[ 10, 2 ], i, mas_pmt, r, c, n, d := sys_date -23
   Local fl := .f., bSaveHandler := ErrorBlock( {| x| Break( x ) } )
 
   mywait( 'Подождите, проверяем просроченные случаи (неотправленные в ТФОМС)...' )
@@ -160,9 +161,9 @@ Function find_time_limit_human_reestr_sp_tk()
       If Len( mas_pmt ) > 0
         i := 1
         r := MaxRow() - Len( mas_pmt ) -4
-        c := Int( ( 80 - n - 3 ) / 2 )
+        c := Int( ( 80 - n -3 ) / 2 )
         status_key( '^<Esc>^ выход из режима и вход в задачу  ^<Enter>^ просмотр просроченных случаев' )
-        str_center( r - 1, 'Обнаружены просроченные случаи:', 'W+/N*' )
+        str_center( r -1, 'Обнаружены просроченные случаи:', 'W+/N*' )
         Do While ( i := popup_prompt( r, c, i, mas_pmt ) ) > 0
           f1find_time_limit_human_reestr_sp_tk( i, arr )
         Enddo
@@ -171,6 +172,7 @@ Function find_time_limit_human_reestr_sp_tk()
   Endif
   Close databases
   RestScreen( buf )
+
   Return Nil
 
 // 03.06.25
@@ -214,4 +216,5 @@ Function f1find_time_limit_human_reestr_sp_tk( i, arr )
   Close databases
   FClose( fp )
   viewtext( n_file, , , , .f., , , 2 )
+
   Return Nil

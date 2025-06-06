@@ -576,7 +576,7 @@ endif*/
 // 02.09.15 поиск и удаление дубликатов в картотеке по ключу "код ТФ(PID)+ФИО+дата рождения"
 Function dubl_zap_kod_tf()
 
-  Local j := 0, old_tf := 0, ii := 0, k, ar[ 10 ], name_file := "kod_tf.txt", ;
+  Local j := 0, old_tf := 0, ii := 0, k, ar[ 10 ], name_file := cur_dir() + "kod_tf.txt", ;
     rec, i, j1, j2, ak := {}, buf := SaveScreen()
 
   f_message( { "Ждите! Пpоизводится поиск и удаление дубликатов в картотеке.", ;

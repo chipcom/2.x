@@ -4,223 +4,236 @@
 #include 'chip_mo.ch'
 
 // 03.05.23
-function kol_dney_lecheniya(dBegin, dEnd, usl_ok)
+Function kol_dney_lecheniya( dBegin, dEnd, usl_ok )
 
-  return dEnd - dBegin + iif(usl_ok == USL_OK_HOSPITAL, 0, 1)
+  Return dEnd - dBegin + iif( usl_ok == USL_OK_HOSPITAL, 0, 1 )
 
 // 25.02.21
 // Проверка соответствия результата случая исходу обращения
-function checkRSLT_ISHOD(result, ishod, arr)
+Function checkrslt_ishod( result, ishod, arr )
+
   // result - код результата обращения
   // ishod - код исхода заболевания
   // arr - массив для сбора ошибок соответствий
-  local str1 := 'для указанного результата обращения'
-  local str2 := 'исход заболевания не может быть'
-  local str3 := 'исход заболевания должен быть'
-  local str4 := 'для указанного исхода заболевания'
-  local str5 := 'результат обращения должен быть'
-  local str := ''
-  local strResult := ''
-  local i, j
+  Local str1 := 'для указанного результата обращения'
+  Local str2 := 'исход заболевания не может быть'
+  Local str3 := 'исход заболевания должен быть'
+  Local str4 := 'для указанного исхода заболевания'
+  Local str5 := 'результат обращения должен быть'
+  Local str := ''
+  Local strResult := ''
+  Local i, j
 
-  strResult := getRSLT_V009(result)
-  if strResult == NIL
-    aadd(arr,'неизвестное значение результата обращения для кода ' + str(result))
-    return
-  endif
+  strResult := getrslt_v009( result )
+  If strResult == NIL
+    AAdd( arr, 'неизвестное значение результата обращения для кода ' + Str( result ) )
+    Return
+  Endif
 
-  if eq_any(result, 102, 103, 104, 105, 106, 107, 108, 110) .and. ishod == 101
-    str += str1 + ' (' + strResult + ') ' + str2 + ' (' + getISHOD_V012(101) + ')'
-    aadd(arr, str)
-  endif
-  if eq_any(result, 105, 106) .and. ishod != 104
-    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getISHOD_V012(104) + ')'
-    aadd(arr, str)
-  endif
+  If eq_any( result, 102, 103, 104, 105, 106, 107, 108, 110 ) .and. ishod == 101
+    str += str1 + ' (' + strResult + ') ' + str2 + ' (' + getishod_v012( 101 ) + ')'
+    AAdd( arr, str )
+  Endif
+  If eq_any( result, 105, 106 ) .and. ishod != 104
+    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getishod_v012( 104 ) + ')'
+    AAdd( arr, str )
+  Endif
 
-  if eq_any(result, 202, 203, 204, 205, 206, 207, 208) .and. ishod == 201
-    str += str1 + ' (' + strResult + ') ' + str2 + ' (' + getISHOD_V012(201) + ')'
-    aadd(arr, str)
-  endif
-  if eq_any(result, 205, 206) .and. ishod != 204
-    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getISHOD_V012(204) + ')'
-    aadd(arr, str)
-  endif
+  If eq_any( result, 202, 203, 204, 205, 206, 207, 208 ) .and. ishod == 201
+    str += str1 + ' (' + strResult + ') ' + str2 + ' (' + getishod_v012( 201 ) + ')'
+    AAdd( arr, str )
+  Endif
+  If eq_any( result, 205, 206 ) .and. ishod != 204
+    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getishod_v012( 204 ) + ')'
+    AAdd( arr, str )
+  Endif
 
-  if (result == 313) .and. (ishod != 305)
-    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getISHOD_V012(305) + ')'
-    aadd(arr, str)
-  endif
+  If ( result == 313 ) .and. ( ishod != 305 )
+    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getishod_v012( 305 ) + ')'
+    AAdd( arr, str )
+  Endif
 
-  if eq_any(result, 407, 408, 409, 410, 411, 412, 413, 414) .and. ishod != 402
-    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getISHOD_V012(402) + ')'
-    aadd(arr, str)
-  endif
-  if eq_any(result, 405, 406) .and. ishod != 403
-    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getISHOD_V012(403) + ')'
-    aadd(arr, str)
-  endif
-  return
+  If eq_any( result, 407, 408, 409, 410, 411, 412, 413, 414 ) .and. ishod != 402
+    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getishod_v012( 402 ) + ')'
+    AAdd( arr, str )
+  Endif
+  If eq_any( result, 405, 406 ) .and. ishod != 403
+    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getishod_v012( 403 ) + ')'
+    AAdd( arr, str )
+  Endif
+
+  Return
 
 // 25.03.23
-function dublicate_diagnoze(arrDiagnoze)
-  local aRet := {}
-  local i, cDiagnose
-  local aHash := hb_Hash()
+Function dublicate_diagnoze( arrDiagnoze )
 
-  for i := 1 to len(arrDiagnoze)
-    cDiagnose := alltrim(arrDiagnoze[i])
-    if empty(cDiagnose)
-      loop
-    endif
-    if ! hb_hHaskey( aHash, cDiagnose )
-      hb_hSet( aHash, cDiagnose, .t. )
-    else
-      aadd(aRet, {cDiagnose, iif(i < 9, 'в группе "Сопутствующие диагнозы": ', 'в группе "Диагнозы осложнения": ')})
-    endif
-  next
-  return aRet
+  Local aRet := {}
+  Local i, cDiagnose
+  Local aHash := hb_Hash()
+
+  For i := 1 To Len( arrDiagnoze )
+    cDiagnose := AllTrim( arrDiagnoze[ i ] )
+    If Empty( cDiagnose )
+      Loop
+    Endif
+    If ! hb_HHasKey( aHash, cDiagnose )
+      hb_HSet( aHash, cDiagnose, .t. )
+    Else
+      AAdd( aRet, { cDiagnose, iif( i < 9, 'в группе "Сопутствующие диагнозы": ', 'в группе "Диагнозы осложнения": ' ) } )
+    Endif
+  Next
+
+  Return aRet
 
 // 17.09.21 проверка секции направлений пациента
-function checkSectionPrescription( arr )
-  local i := 0
-  local lAdd := .f.
-  local flDopObsledovanie := .f.
+Function checksectionprescription( arr )
 
-  R_Use(dir_server() + 'mo_pers',dir_server() + 'mo_pers', 'TPERS')
+  Local i := 0
+  Local lAdd := .f.
+  Local flDopObsledovanie := .f.
 
-  if (m1dopo_na > 0)
-    if (mtab_v_dopo_na == 0)
-      lAdd := errorFillPrescription(lAdd, arr, 'не заполнен табельный номер врача направившего на дополнительное обследование')
-    else
-      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_dopo_na, 1)
-      for i := 1 to 4
-        if isbit(m1dopo_na,i)
+  r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'TPERS' )
+
+  If ( m1dopo_na > 0 )
+    If ( mtab_v_dopo_na == 0 )
+      lAdd := errorfillprescription( lAdd, arr, 'не заполнен табельный номер врача направившего на дополнительное обследование' )
+    Else
+      lAdd := controlsnils_napr( lAdd, arr, 'TPERS', mtab_v_dopo_na, 1 )
+      For i := 1 To 4
+        If IsBit( m1dopo_na, i )
           flDopObsledovanie := .t.
-          exit
-        endif
-      next
-      if !flDopObsledovanie // не выбраны дополнительные исследования
-        lAdd := errorFillPrescription(lAdd, arr, 'в направлении не выбрано ни одного дополнительного обследования')
-      endif
-    endif
-  endif
+          Exit
+        Endif
+      Next
+      If !flDopObsledovanie // не выбраны дополнительные исследования
+        lAdd := errorfillprescription( lAdd, arr, 'в направлении не выбрано ни одного дополнительного обследования' )
+      Endif
+    Endif
+  Endif
 
-  if (m1napr_v_mo > 0)
-    if (mtab_v_mo == 0)
-      lAdd := errorFillPrescription(lAdd, arr, 'не заполнен табельный номер врача направившего к специалистам')
-    else
-      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_mo, 2)
-      if empty(arr_mo_spec)
-        lAdd := errorFillPrescription(lAdd, arr, 'в направлении к специалистам не выбраны специальности')
-      endif
-    endif
-  endif
+  If ( m1napr_v_mo > 0 )
+    If ( mtab_v_mo == 0 )
+      lAdd := errorfillprescription( lAdd, arr, 'не заполнен табельный номер врача направившего к специалистам' )
+    Else
+      lAdd := controlsnils_napr( lAdd, arr, 'TPERS', mtab_v_mo, 2 )
+      If Empty( arr_mo_spec )
+        lAdd := errorfillprescription( lAdd, arr, 'в направлении к специалистам не выбраны специальности' )
+      Endif
+    Endif
+  Endif
 
-  if (m1napr_stac > 0)
-    if (mtab_v_stac == 0)
-      lAdd := errorFillPrescription(lAdd, arr, 'не заполнен табельный номер врача направившего на лечение')
-    else
-      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_stac, 3)
-      if !(m1profil_stac > 0)
-        lAdd := errorFillPrescription(lAdd, arr, 'в направлении на лечение не выбран профиль')
-      endif
-    endif
-  endif
+  If ( m1napr_stac > 0 )
+    If ( mtab_v_stac == 0 )
+      lAdd := errorfillprescription( lAdd, arr, 'не заполнен табельный номер врача направившего на лечение' )
+    Else
+      lAdd := controlsnils_napr( lAdd, arr, 'TPERS', mtab_v_stac, 3 )
+      If !( m1profil_stac > 0 )
+        lAdd := errorfillprescription( lAdd, arr, 'в направлении на лечение не выбран профиль' )
+      Endif
+    Endif
+  Endif
 
-  if (m1napr_reab > 0)
-    if (mtab_v_reab == 0)
-      lAdd := errorFillPrescription(lAdd, arr, 'не заполнен табельный номер врача направившего на реабилитацию')
-    else
-      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_reab, 4)
-      if !(m1profil_kojki > 0)
-        lAdd := errorFillPrescription(lAdd, arr, 'в направлении на реабилитацию не выбран профиль')
-      endif
-    endif
-  endif
+  If ( m1napr_reab > 0 )
+    If ( mtab_v_reab == 0 )
+      lAdd := errorfillprescription( lAdd, arr, 'не заполнен табельный номер врача направившего на реабилитацию' )
+    Else
+      lAdd := controlsnils_napr( lAdd, arr, 'TPERS', mtab_v_reab, 4 )
+      If !( m1profil_kojki > 0 )
+        lAdd := errorfillprescription( lAdd, arr, 'в направлении на реабилитацию не выбран профиль' )
+      Endif
+    Endif
+  Endif
 
-  if (human->VZROS_REB == 0) .and. (m1sank_na > 0)
-    if (mtab_v_sanat == 0)
-      lAdd := errorFillPrescription(lAdd, arr, 'не заполнен табельный номер врача направившего на санаторно-курортное лечение')
-    else
-      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_sanat, 5)
-    endif
-  endif
-  TPERS->(dbCloseArea())
-  return nil
+  If ( human->VZROS_REB == 0 ) .and. ( m1sank_na > 0 )
+    If ( mtab_v_sanat == 0 )
+      lAdd := errorfillprescription( lAdd, arr, 'не заполнен табельный номер врача направившего на санаторно-курортное лечение' )
+    Else
+      lAdd := controlsnils_napr( lAdd, arr, 'TPERS', mtab_v_sanat, 5 )
+    Endif
+  Endif
+  TPERS->( dbCloseArea() )
+
+  Return Nil
 
 // 03.09.21
-function errorFillPrescription(lAdd, arr, strError)
-  local strNapr := 'ПОДРАЗДЕЛ НАПРАВЛЕНИЙ:'
-  local fl := lAdd
+Function errorfillprescription( lAdd, arr, strError )
 
-  default strError to 'ОШИБКА В ЗАПОЛНЕНИИ'
-  if !fl
-    aadd(arr,strNapr)
+  Local strNapr := 'ПОДРАЗДЕЛ НАПРАВЛЕНИЙ:'
+  Local fl := lAdd
+
+  Default strError To 'ОШИБКА В ЗАПОЛНЕНИИ'
+  If !fl
+    AAdd( arr, strNapr )
     fl := .t.
-  endif
-  aadd(arr,strError)
-  return fl
+  Endif
+  AAdd( arr, strError )
+
+  Return fl
 
 // 17.09.21
-function controlSNILS_Napr(lAdd, arr, cAlias, nTabNumber, type)
-  local fl := lAdd
-  local strError := ''
-  local endError := ''
+Function controlsnils_napr( lAdd, arr, cAlias, nTabNumber, type )
 
-  default type to 0
-  if (cAlias)->(dbSeek(str(nTabNumber, 5)))
-    endError := fam_i_o((cAlias)->FIO) + ' [' + lstr((cAlias)->tab_nom) + ']' + ' не введен СНИЛС'
+  Local fl := lAdd
+  Local strError := ''
+  Local endError := ''
 
-    if type == 1
+  Default Type To 0
+  If ( cAlias )->( dbSeek( Str( nTabNumber, 5 ) ) )
+    endError := fam_i_o( ( cAlias )->FIO ) + ' [' + lstr( ( cAlias )->tab_nom ) + ']' + ' не введен СНИЛС'
+
+    If type == 1
       strError := 'у направившего на дополнительное обследование врача ' + endError
-    elseif type == 2
+    Elseif type == 2
       strError := 'у направившего к специалистам врача ' + endError
-    elseif type == 3
+    Elseif type == 3
       strError := 'у направившего на лечение врача ' + endError
-    elseif type == 4
+    Elseif type == 4
       strError := 'у направившего на реабилитацию врача ' + endError
-    elseif type == 5
+    Elseif type == 5
       strError := 'у направившего на санаторно-куротное лечение врача ' + endError
-    endif
+    Endif
 
-    if empty((cAlias)->SNILS)
-      fl := errorFillPrescription(fl, arr, strError)
-    endif
-  else
-    fl := errorFillPrescription(fl, arr, 'не найден врач с табельным номером: ' + lstr(nTabNumber))
-  endif
-  return fl
+    If Empty( ( cAlias )->SNILS )
+      fl := errorfillprescription( fl, arr, strError )
+    Endif
+  Else
+    fl := errorfillprescription( fl, arr, 'не найден врач с табельным номером: ' + lstr( nTabNumber ) )
+  Endif
+
+  Return fl
 
 // 17.09.21
 // добавляет код врача (номер записи в БД) в массив с проверкой, что еще отсутствует
-function addKodDoctorToArray(arr, nCode)
+Function addkoddoctortoarray( arr, nCode )
 
-  if ascan(arr,nCode) == 0
-    aadd(arr,nCode)
-  endif
-  return arr
+  If AScan( arr, nCode ) == 0
+    AAdd( arr, nCode )
+  Endif
+
+  Return arr
 
 //
-function valid_number_talon(g, dEnd, lMessage)
-  local strCheck, ret := .f.
+Function valid_number_talon( g, dEnd, lMessage )
 
-  if dEnd < 0d20220101
-    return .t.
-  endif
+  Local strCheck, ret := .f.
 
-  if valtype(g) == 'O'
-    strCheck := alltrim(g:buffer)
-  elseif valtype(g) == 'C'
-    strCheck := alltrim(g)
-  else
-    return ret
-  endif
+  If dEnd < 0d20220101
+    Return .t.
+  Endif
+
+  If ValType( g ) == 'O'
+    strCheck := AllTrim( g:buffer )
+  Elseif ValType( g ) == 'C'
+    strCheck := AllTrim( g )
+  Else
+    Return ret
+  Endif
   // В соответствии с приказом Минздрава России от 30.01.2015 № 29н
-  if !(ret := hb_Regexlike( '([0-9]{2,}[.][0-9]{4,}[.][0-9]{5,}[.][0-9]{3,})', strCheck, .f.))
-    if lMessage
-      func_error(4, 'Неверный номер талона (шаблон 99.9999.99999.999)')
+  If !( ret := hb_regexLike( '([0-9]{2,}[.][0-9]{4,}[.][0-9]{5,}[.][0-9]{3,})', strCheck, .f. ) )
+    If lMessage
+      func_error( 4, 'Неверный номер талона (шаблон 99.9999.99999.999)' )
       // g:buffer := g:original
-    endif
-  endif
-  return ret
+    Endif
+  Endif
+
+  Return ret

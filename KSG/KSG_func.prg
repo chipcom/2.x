@@ -175,7 +175,7 @@ Function f_put_arr_ksg( cLine )
 // R_Use(dir_server() + "human_",,"HUMAN_")
 // G_Use(dir_server() + "human",,"HUMAN") // перезаписать сумму
 // set relation to recno() into HUMAN_, to recno() into HUMAN_2
-// n_file := "test_ksg.txt"
+// n_file := cur_dir() + "test_ksg.txt"
 // fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
 // go top
 // do while !eof()

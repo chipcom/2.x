@@ -1430,7 +1430,7 @@ Function f3_view_r05( oBrow )
 // 12.12.19
 Function f31_view_r05( reg, s )
 
-  Local fl, buf := save_maxrow(), i, j, v, sh := 80, HH := 60, n_file := "r05_spis.txt"
+  Local fl, buf := save_maxrow(), i, j, v, sh := 80, HH := 60, n_file := cur_dir() + "r05_spis.txt"
 
   mywait()
   fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
@@ -2240,7 +2240,7 @@ Function f2_view_r01( nKey, oBrow )
             If Upper( s ) == Upper( goal_dir )
               func_error( 4, "Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо." )
             Else
-              cFileProtokol := "prot_sch.txt"
+              cFileProtokol := cur_dir() + "prot_sch.txt"
               StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
               smsg := "Файлы R01 записаны на: " + s + " (" + full_date( sys_date ) + "г. " + hour_min( Seconds() ) + ")"
               StrFile( Center( smsg, 80 ) + hb_eol(), cFileProtokol, .t. )
@@ -2489,7 +2489,7 @@ Function f31_view_r01( reg, s )
 // 18.12.19
 Function f32_view_r01()
 
-  Local fl := .t., buf := save_maxrow(), k := 0, skol[ 5, 3 ], ames[ 12, 5, 3 ], mrec := 2, n_file := "r01_itog.txt"
+  Local fl := .t., buf := save_maxrow(), k := 0, skol[ 5, 3 ], ames[ 12, 5, 3 ], mrec := 2, n_file := cur_dir() + "r01_itog.txt"
   Private par := .f.
 
   afillall( skol, 0 )
@@ -2944,7 +2944,7 @@ Function delete_reestr_r02( mkod_reestr, mname_reestr )
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
     mm_menu := {}, mm_func := {}, mm_flag := {}, mreestr_sp_tk, ;
     arr_f, cFile, oXmlDoc, aerr := {}, is_allow_delete, ;
-    cFileProtokol := "tmp.txt"
+    cFileProtokol := cur_dir() + "tmp.txt"
 
   mywait()
   Select MO_XML

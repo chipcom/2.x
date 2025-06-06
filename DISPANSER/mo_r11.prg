@@ -837,7 +837,7 @@ return NIL
 // 25.02.21
 Function f32_view_r11( lm )
 
-  Local fl := .t., buf := save_maxrow(), k := 0, skol[ 5, 3 ], ames[ 12, 5, 3 ], mrec := 2, n_file := "r11_itog.txt", ;
+  Local fl := .t., buf := save_maxrow(), k := 0, skol[ 5, 3 ], ames[ 12, 5, 3 ], mrec := 2, n_file := cur_dir() + "r11_itog.txt", ;
     arr_rees := {}, mkod_reestr := 0
   Private par := .f.
 

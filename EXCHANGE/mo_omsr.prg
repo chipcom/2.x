@@ -545,7 +545,7 @@ Function f2_view_list_reestr( nKey, oBrow )
             If Upper( s ) == Upper( goal_dir )
               func_error( 4, "Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо." )
             Else
-              cFileProtokol := "protrees.txt"
+              cFileProtokol := cur_dir() + "protrees.txt"
               StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
               smsg := "Реестры записаны на: " + s + ;
                 " (" + full_date( sys_date ) + "г. " + hour_min( Seconds() ) + ")"
@@ -612,7 +612,7 @@ Function f2_view_list_reestr( nKey, oBrow )
   Case nKey == K_F9
     mywait()
     r_use( dir_server() + "mo_rhum",, "RHUM" )
-    nfile := "reesstat.txt" ; sh := 80 ; HH := 60
+    nfile := cur_dir() + "reesstat.txt" ; sh := 80 ; HH := 60
     fp := FCreate( nfile ) ; n_list := 1 ; tek_stroke := 0
     add_string( "" )
     add_string( Center( "Статистика по реестрам", sh ) )
@@ -725,7 +725,7 @@ Function f3_view_list_reestr( oBrow )
 //  15.02.19
 Function f31_view_list_reestr( reg, s )
 
-  Local fl := .t., buf := save_maxrow(), s1, lal, n_file := "reesspis.txt"
+  Local fl := .t., buf := save_maxrow(), s1, lal, n_file := cur_dir() + "reesspis.txt"
 
   mywait()
   fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
@@ -1040,7 +1040,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
     mm_menu := {}, mm_func := {}, mm_flag := {}, mreestr_sp_tk, ;
     arr_f, cFile, oXmlDoc, aerr := {}, is_allow_delete, ;
-    cFileProtokol := "tmp.txt", is_other_reestr, bSaveHandler, ;
+    cFileProtokol := cur_dir() + "tmp.txt", is_other_reestr, bSaveHandler, ;
     arr_schet, rees_nschet := rees->nschet, mtip_in
 
   mywait()

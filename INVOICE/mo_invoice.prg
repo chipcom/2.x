@@ -274,7 +274,7 @@ Function f2_view_list_schet( nKey, oBrow )
             If Upper( s ) == Upper( goal_dir )
               func_error( 4, 'Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо.' )
             Else
-              cFileProtokol := 'prot_sch.txt'
+              cFileProtokol := cur_dir() + 'prot_sch.txt'
               StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
               smsg := 'Счета записаны на: ' + s + ;
                 ' (' + full_date( sys_date ) + 'г. ' + hour_min( Seconds() ) + ')'

@@ -1704,7 +1704,7 @@ Function pr1_oborot_schet()
 // 30.03.23
 Function f1pr1_oborot_schet( asmo, ssmo )
 
-  Local adbf, i, n, arr_title, n_file := "oborot1.txt", sh, HH := 60, buf := save_maxrow()
+  Local adbf, i, n, arr_title, n_file := cur_dir() + "oborot1.txt", sh, HH := 60, buf := save_maxrow()
 
   mywait()
   adbf := { { "nschet", "C", 15, 0 }, ;

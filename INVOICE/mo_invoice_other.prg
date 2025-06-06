@@ -263,7 +263,7 @@ Function f1nevyp_schet( oBrow )
 Function f2nevyp_schet( nKey, oBrow )
 
   Local iprov := 0, inprov := 0
-  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := "err_sl.txt", j := 0
+  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := cur_dir() + "err_sl.txt", j := 0
 
   Do Case
   Case nkey == K_F10
@@ -1168,7 +1168,7 @@ Function f9pr_vklad( nKey, oBrow )
       If n > 0
         mywait()
         i := 0
-        n_file := "list_uch.txt"
+        n_file := cur_dir() + "list_uch.txt"
         fp := FCreate( n_file )
         tek_stroke := 0
         n_list := 1
@@ -3133,7 +3133,7 @@ Function print_akt( regim )
 Function spisok_s_not_registred()
 
   Local i, k, mdate := SToD( "20110101" ), ;
-    sh, HH := 60, reg_print, n_file := "ne_zag_s.txt"
+    sh, HH := 60, reg_print, n_file := cur_dir() + "ne_zag_s.txt"
 
   mywait()
   r_use( dir_server() + "schet_", , "SCHET_" )
