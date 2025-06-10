@@ -450,7 +450,7 @@ Function f3_k_plat( nKey, oBrow )
   Case nKey == K_F9 // .and. human->cena > 0
     // печать договора
     Private pac_FIO, pac_adres, pac_data, dog_data, pac_kod, pac_1FIO, pac_kvit, phone_m
-    Private m1vid_ud, mnom, MSER, MVID_UD, mregistrator := AllTrim( fio_polzovat )
+    Private m1vid_ud, mvidan_ud, mnom, MSER, MVID_UD, mregistrator := AllTrim( fio_polzovat )
     Private mplat_fio := human->plat_fio, mplat_inn := human->plat_inn, nom_prihod := 0
     Private mplat_adres  := Space( 50 ), ; // адрес плательщика
     mplat_pasport := Space( 15 ), ;  // документ плательщика
