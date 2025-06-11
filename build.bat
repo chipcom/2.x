@@ -1,17 +1,17 @@
 echo #DEFINE _DATA_VER + "%DATE%" > ver_date.ch
 c:\Harbour\bin\hbmk2 chip_mo.hbp -comp=mingw
 copy chip_mo.exe d:\_mo\_arc
-copy *.shb  d:\_mo\_arc
-copy *.frm  d:\_mo\_arc
-copy *.fr3  d:\_mo\_arc
-copy *.xls  d:\_mo\_arc
-copy *.xlsx  d:\_mo\_arc
+copy D:\_MO\2.x\_TEMPLATE\*.shb  d:\_mo\_arc
+copy D:\_MO\2.x\_TEMPLATE\*.frm  d:\_mo\_arc
+copy D:\_MO\2.x\_TEMPLATE\*.fr3  d:\_mo\_arc
+copy D:\_MO\2.x\_TEMPLATE\*.xls  d:\_mo\_arc
+copy D:\_MO\2.x\_TEMPLATE\*.xlsx  d:\_mo\_arc
 copy chip_mo.exe d:\_mo\chip\exe
-copy *.shb  d:\_mo\chip\exe
-copy *.frm  d:\_mo\chip\exe
-copy *.fr3  d:\_mo\chip\exe
-copy *.xls  d:\_mo\chip\exe
-copy *.xlsx  d:\_mo\chip\exe
+copy D:\_MO\2.x\_TEMPLATE\*.shb  d:\_mo\chip\exe
+copy D:\_MO\2.x\_TEMPLATE\*.frm  d:\_mo\chip\exe
+copy D:\_MO\2.x\_TEMPLATE\*.fr3  d:\_mo\chip\exe
+copy D:\_MO\2.x\_TEMPLATE\*.xls  d:\_mo\chip\exe
+copy D:\_MO\2.x\_TEMPLATE\*.xlsx  d:\_mo\chip\exe
 copy d:\_mo\_arc\*.dbf  d:\_mo\chip\exe
 copy d:\_mo\_arc\*.dbt  d:\_mo\chip\exe
 
