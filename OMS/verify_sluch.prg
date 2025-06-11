@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 21.03.25
+// 11.06.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -40,7 +40,9 @@ Function verify_sluch( fl_view )
   Local header_error := ''
   Local vozrast, lu_type
   Local kol_dney  // количество дней лечения
-  Local is_2_92_ := .f., kol_2_93_1 := 0  // школа диабета, письмо 12-20-154 от 28.04.23
+  Local is_2_92_ := .f. // наличие услуг школ сахарного диабета или ХНИЗ
+  Local kol_2_93_1 := 0  // кол-во услуг школы диабета, письмо 12-20-154 от 28.04.23
+  Local kol_2_93_2 := 0 // кол-во услуг школы больных ХНИЗ, письмо 12-20-313 от 09.06.25
   Local l_mdiagnoz_fill := .f.  // в массиве диагнозов есть элементы
   Local i_n009, aN009 := getn009()
   Local i_n012, aN012_DS := getds_n012(), ar_N012 := {}, it
@@ -1000,7 +1002,8 @@ Function verify_sluch( fl_view )
           kol_2_60++
         Elseif eq_any( alltrim_lshifr, '2.4.1', '2.4.2' )
           kol_2_4++
-        Elseif eq_any( alltrim_lshifr, '2.92.1', '2.92.2', '2.92.3' )
+        Elseif eq_any( alltrim_lshifr, '2.92.1', '2.92.2', '2.92.3' ) .or. ;
+          eq_any( alltrim_lshifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12' )
           is_2_92_ := .t.
           mpovod := 10 // 3.0
           If vozrast >= 18 .and. alltrim_lshifr == '2.92.3'
@@ -1010,6 +1013,8 @@ Function verify_sluch( fl_view )
           Endif
         Elseif alltrim_lshifr == '2.93.1'
           kol_2_93_1++
+        Elseif alltrim_lshifr == '2.93.2'
+          kol_2_93_2++
         Elseif left_lshifr_5 == '2.76.'
           mpovod := 7 // 2.3
           mIDSP := 12 // Комплексная услуга центра здоровья
@@ -2920,6 +2925,9 @@ Function verify_sluch( fl_view )
     If kol_2_93_1 > 0 .and. ! is_2_92_
       AAdd( ta, 'в случае небходима ' + iif( vozrast < 18, 'услуга 2.92.3', 'одна из услуг 2.92.1 или 2.92.2' ) )
     Endif
+    If kol_2_93_2 > 0 .and. ! is_2_92_
+      AAdd( ta, 'в случае небходима + одна из услуг 2.92.4, 2.92.5, 2.92.6, 2.92.7, 2.92.8, 2.92.9, 2.92.10, 2.92.11 или 2.92.12' )
+    Endif
 
     If is_2_92_
       If !eq_any( human_->RSLT_NEW, 314 )
@@ -2940,7 +2948,18 @@ Function verify_sluch( fl_view )
       Elseif vozrast >= 18 .and. kol_dney < 5
         AAdd( ta, s + ' 5 дней' )
       Endif
-      // конец проверки школы диабета
+      // s := 'услуга 2.93.2 оказывается не менее '
+      // If vozrast < 18 .and. kol_2_93_2 < 10
+      //   AAdd( ta, s + ' 10 раз' )
+      // Elseif vozrast >= 18 .and. kol_2_93_2 < 5
+      //   AAdd( ta, s + ' 5 раз' )
+      // Endif
+      // If vozrast < 18 .and. kol_dney < 10
+      //   AAdd( ta, s + ' 10 дней' )
+      // Elseif vozrast >= 18 .and. kol_dney < 5
+      //   AAdd( ta, s + ' 5 дней' )
+      // Endif
+      // конец проверки школ диабета и НХИЗ
     Endif
   Endif
   s := '2.60.*'
