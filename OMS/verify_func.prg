@@ -3,6 +3,71 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 17.05.25
+function diabetes_school_xniz( shifr, nAge, dni, kol_93_1, kol_93_2, rslt, ishod, ta )
+
+  local s
+
+  If ! eq_any( rslt, 314 )
+    AAdd( ta, 'в поле "Результат обращения" должно быть "314 Динамическое наблюдение"' )
+  Endif
+  If ! eq_any( ishod, 304 )
+    AAdd( ta, 'в поле "Исход заболевания" должно быть "304 Без перемен"' )
+  Endif
+
+  if eq_any( shifr, '2.92.1', '2.92.2', '2.92.3' )
+    s := 'услуга 2.93.1 оказывается не менее '
+    If nAge < 18 .and. kol_93_1 < 10
+      AAdd( ta, s + ' 10 раз' )
+    Elseif nAge >= 18 .and. kol_93_1 < 5
+      AAdd( ta, s + ' 5 раз' )
+    Endif
+    If nAge < 18 .and. dni < 10
+      AAdd( ta, s + ' 10 дней' )
+    Elseif nAge >= 18 .and. dni < 5
+      AAdd( ta, s + ' 5 дней' )
+    Endif
+  else
+    s := 'услуга 2.93.2 оказывается не менее '
+    if eq_any( shifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.10', '2.92.11' )
+      // для '2.92.11' в приказе не понятно
+      If nAge < 18 .and. dni < 10
+        AAdd( ta, s + ' 10 дней' )
+      Elseif nAge >= 18 .and. dni < 5
+        AAdd( ta, s + ' 5 дней' )
+      Endif
+      If nAge < 18 .and. kol_93_2 < 10
+        AAdd( ta, s + ' 10 раз' )
+      Elseif nAge >= 18 .and. kol_93_2 < 5
+        AAdd( ta, s + ' 5 раз' )
+      Endif
+    elseif  shifr == '2.92.8' .or. shifr == '2.92.9'
+      If nAge < 18 .and. dni < 10
+//        AAdd( ta, s + ' 10 дней' )
+      Elseif nAge >= 18 .and. dni < 5
+        AAdd( ta, s + ' 5 дней' )
+      Endif
+      If nAge < 18 .and. kol_93_2 < 10
+//        AAdd( ta, s + ' 10 раз' )
+      Elseif nAge >= 18 .and. kol_93_2 < 5
+        AAdd( ta, s + ' 5 раз' )
+      Endif
+    elseif  shifr == '2.92.12'
+      // не понятно из приказа
+      If nAge < 18 .and. dni < 10
+        AAdd( ta, s + ' 10 дней' )
+//      Elseif nAge >= 18 .and. dni < 5
+//        AAdd( ta, s + ' 5 дней' )
+      Endif
+      If nAge < 18 .and. kol_93_2 < 10
+        AAdd( ta, s + ' 10 раз' )
+//      Elseif nAge >= 18 .and. kol_93_2 < 5
+//        AAdd( ta, s + ' 5 раз' )
+      Endif
+    endif
+  endif
+  return nil
+
 // 03.05.23
 Function kol_dney_lecheniya( dBegin, dEnd, usl_ok )
 
