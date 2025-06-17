@@ -754,7 +754,7 @@ Function delfrfiles()
   Next
   Return Nil
 
-// 06.06.25 запустить генератор отчетов
+// 17.06.25 запустить генератор отчетов
 Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
 
   Static sExt := '.fr3'
@@ -873,6 +873,7 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
   //
   If File( cur_dir() + fr_data + sdbf() )
 //    &fr_data.->( dbCloseArea() )
+    aliasFr_data := '_data'
     ( aliasFr_data )->( dbCloseArea() )
   Endif
   If File( fr_titl + sdbf() )

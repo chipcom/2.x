@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-#define MONTH_UPLOAD 06 // МЕСЯЦ для выгрузки R11
+#define MONTH_UPLOAD 07 // МЕСЯЦ для выгрузки R11
 
 // 22.01.25 Создание файла обмена R11...
 Function f_create_r11()
