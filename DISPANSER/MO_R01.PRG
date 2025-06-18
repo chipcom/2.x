@@ -3383,3 +3383,141 @@ Static Function f0_create_new_r01( sgod, cv, cf )
   @ Row(), Col() Say lstr( cf ) Color cColorStMsg
 
   Return Nil
+
+  // 17.06.25
+Function find_new_r000()
+
+  Local mo_dr000 := {"65 лет", "66 лет и старше", "пенсионер","работающ"}
+  Local mo_dr00 := { ; // пул пациентов, подлежащих диспансеризации/профосмотрам взрослого населения
+    { "kod",        "N", 7, 0 }, ; // код по картотеке
+    { "tip",        "N", 1, 0 }, ; // 1-диспансеризация, 2-профосмотр
+    { "tip1",       "N", 1, 0 }, ; // 1-пенсионер,2-65 лет,3-66 лет и старше
+    { "voz",        "N", 1, 0 }, ; // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-остальные
+    { "n_m",        "N", 2, 0 }, ; // месяц для диспансеризации (1-12)
+    { "n_q",        "N", 1, 0 }, ;
+    { "enp",        "C", 16, 0 }, ; // ЕНП
+    { "smo",        "N", 1, 0 }, ; // оповещён ли СМО
+    { "REESTR",     "N", 6, 0 };  // код реестра по файлу "mo_dr01"
+  }
+  local n_file := cur_dir() + "r01_itog.txt", sh := 120
+  Private c_view := 0, c_found := 0, sgod := YEAR_UPLOAD_DISPANSER, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ]
+  Private _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 ), mkol := { 0, 0, 0, 0, 0 }
+
+  status_key( "^<Esc>^ - прервать поиск" )
+  hGauge := gaugenew(,,, "Поиск пациентов, подлежащих дисп-ии/профосмотрам", .t. )
+  gaugedisplay( hGauge )
+  //
+  //g_use ( dir_server() + "mo_dr00",, "TMP" )
+  dbCreate( cur_dir() + 'tmp', mo_dr00, , .t., 'TMP' )
+  Index On Str( kod, 7 ) To tmp2
+  r_use( dir_server() + "kartote2",, "KART2" )
+  r_use( dir_server() + "kartote_",, "KART_" )
+  r_use( dir_server() + "kartotek",, "KART" )
+  Set Relation To RecNo() into KART_, RecNo() into KART2
+  Go Top
+  Do While !Eof()
+    gaugeupdate( hGauge, RecNo() / LastRec() )
+    If Inkey() == K_ESC
+      fl_exit := .t. ; Exit
+    Endif
+    If kart->kod > 0
+      Select tmp
+      find( Str( kart->kod, 7 ) )
+      If !Found()
+        f0_create_new_r01_0( sgod, @c_view, @c_found )
+      Endif
+    Endif
+    Select KART
+    Skip
+  Enddo
+  Close databases
+  closegauge( hGauge )
+ // func_error( 4, "Поиск закончен!" )
+  arr_title := { "───┬───────────────────────────────────────────┬──────────┬─────────────────────────────────────────┬──────────────────", ;
+                 "У/к│               Ф.И.О.                      │  Дата р. │                   Адрес                 │                  ", ;
+                 "───┴───────────────────────────────────────────┴──────────┴─────────────────────────────────────────┴──────────────────" }
+  r_use( dir_server() + "kartotek",, "KART" )
+  use (cur_dir()+ 'tmp') new
+  sh := Len( arr_title[ 1 ] )
+  fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
+  add_string( "" )
+  add_string( Center( "Список НЕ НАШИХ пациентов ", 120 ) )
+  add_string( "" )
+  AEval( arr_title, {| x| add_string( x ) } )
+  select tmp
+  Set Relation To kod into KART
+  Index On Str( tip, 1 )+Str( voz, 1 )+ kart->fio To tmp2
+  go Top
+  do while !eof()
+    s:= ""
+    s += PadR(iif(kart->uchast == 0,"  ", lstr( kart->uchast )), 2 ) + "  " + PadR( Upper( kart->fio ), 43 ) + " " + full_date( kart->date_r ) + " "
+    s += PadR( kart->adres, 41 ) + " (" + iif( tmp->tip == 1, "ДИСП", "проф." ) + ") " + iif ( tmp->tip == 1,mo_dr000[tmp->voz] ," ")
+    If verify_ff( 80, .t., 120 )
+      AEval( arr_title, {| x| add_string( x ) } )
+    Endif
+    add_string( s )
+    skip
+  enddo  
+  Close databases
+  FClose( fp )
+//  rest_box( buf )
+  viewtext( n_file,,,, .t.,,, 6 )
+  Return Nil
+
+// 17.06.25
+Static Function f0_create_new_r01_0( sgod, cv, cf )
+
+  Local fl, v, ltip, ltip1, lvoz, ag, lgod_r, s
+
+  ++cv
+  If ( fl := ( kart2->MO_PR != CODE_LPU ) ) // прикреплён к нашей МО
+    lgod_r := Year( kart->date_r )
+    v := sgod - lgod_r
+    If ( fl := ( v > 17 ) ) // только взрослое население
+      If fl
+        lvoz := 4
+        ltip1 := 0
+        If AScan( _arr_vozrast_DVN, v ) > 0
+          ltip := 1 // диспансеризация
+          // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-прочие
+          If v >= iif( kart->POL == "М", 60, 55 )
+            lvoz := 3
+            ltip1 := 1
+            If v == 65
+              lvoz := 1
+              ltip1 := 2
+            Elseif v > 65
+              lvoz := 2
+              ltip1 := 3
+            Endif
+          Endif
+        Else
+          ltip := 2 // профосмотры
+        Endif
+      Endif
+    Endif
+  Endif
+  If fl // За исключением умерших (по сведению ТФОМС) и моложе 100 лет
+    fl := !( Left( kart2->PC2, 1 ) == "1" ) .or. v < 100
+  Endif
+  If fl
+    Select TMP
+    Append Blank
+    tmp->kod := kart->kod
+    tmp->tip := ltip
+    tmp->tip1 := ltip1
+    tmp->voz := lvoz
+    If Between( ltip1, 1, 3 )
+      // ++mkol[ltip1+2]
+    Else
+      // ++mkol[ltip]
+    Endif
+    If++cf % 500 == 0
+      tmp->( dbCommit() )
+    Endif
+  Endif
+  @ MaxRow(), 1 Say lstr( cv ) Color cColorSt2Msg
+  @ Row(), Col() Say "/" Color "W/R"
+  @ Row(), Col() Say lstr( cf ) Color cColorStMsg
+
+  Return Nil

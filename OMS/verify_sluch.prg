@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 11.06.25
+// 18.06.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -2932,30 +2932,19 @@ Function verify_sluch( fl_view )
     Endif
 
     If is_2_92_
-//      diabetes_school_xniz( shifr_2_92, vozrast, kol_dney, kol_2_93_1, kol_2_93_2, human_->RSLT_NEW, human_->ISHOD_NEW, ta )
+      diabetes_school_xniz( shifr_2_92, vozrast, kol_dney, kol_2_93_1, kol_2_93_2, human_->RSLT_NEW, human_->ISHOD_NEW, ta )
 
-      If !eq_any( human_->RSLT_NEW, 314 )
-        AAdd( ta, 'в поле "Результат обращения" должно быть "314 Динамическое наблюдение"' )
-      Endif
-      If !eq_any( human_->ISHOD_NEW, 304 )
-        AAdd( ta, 'в поле "Исход заболевания" должно быть "304 Без перемен"' )
-      Endif
+      // If !eq_any( human_->RSLT_NEW, 314 )
+      //   AAdd( ta, 'в поле "Результат обращения" должно быть "314 Динамическое наблюдение"' )
+      // Endif
+      // If !eq_any( human_->ISHOD_NEW, 304 )
+      //   AAdd( ta, 'в поле "Исход заболевания" должно быть "304 Без перемен"' )
+      // Endif
 
-      s := 'услуга 2.93.1 оказывается не менее '
-      If vozrast < 18 .and. kol_2_93_1 < 10
-        AAdd( ta, s + ' 10 раз' )
-      Elseif vozrast >= 18 .and. kol_2_93_1 < 5
-        AAdd( ta, s + ' 5 раз' )
-      Endif
-      If vozrast < 18 .and. kol_dney < 10
-        AAdd( ta, s + ' 10 дней' )
-      Elseif vozrast >= 18 .and. kol_dney < 5
-        AAdd( ta, s + ' 5 дней' )
-      Endif
-      // s := 'услуга 2.93.2 оказывается не менее '
-      // If vozrast < 18 .and. kol_2_93_2 < 10
+      // s := 'услуга 2.93.1 оказывается не менее '
+      // If vozrast < 18 .and. kol_2_93_1 < 10
       //   AAdd( ta, s + ' 10 раз' )
-      // Elseif vozrast >= 18 .and. kol_2_93_2 < 5
+      // Elseif vozrast >= 18 .and. kol_2_93_1 < 5
       //   AAdd( ta, s + ' 5 раз' )
       // Endif
       // If vozrast < 18 .and. kol_dney < 10

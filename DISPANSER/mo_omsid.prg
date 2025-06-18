@@ -2883,7 +2883,9 @@ Function inf_dvn( k )
       AAdd( mas_pmt, "~Повторный подбор пациентов" )
       AAdd( mas_msg, "Повторный подбор пациентов" )
       AAdd( mas_fun, "find_new_R00()" )
-
+      AAdd( mas_pmt, "П~одбор НЕ НАШИХ пациентов" )
+      AAdd( mas_msg, "Подбор пациентов, прикрепленных к другим МО или БЕЗ прикрепления" )
+      AAdd( mas_fun, "find_new_R000()" )
 
       // set key K_CTRL_F10 to delete_month_R11()
       popup_prompt( T_ROW, T_COL - 5, si7, mas_pmt, mas_msg, mas_fun )
