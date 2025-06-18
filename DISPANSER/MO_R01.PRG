@@ -3441,7 +3441,7 @@ Function find_new_r000()
   sh := Len( arr_title[ 1 ] )
   fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
   add_string( "" )
-  add_string( Center( "Список НЕ НАШИХ пациентов ", 120 ) )
+  add_string( Center( "Список 'НЕ НАШИХ' пациентов ", 120 ) )
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
   select tmp
