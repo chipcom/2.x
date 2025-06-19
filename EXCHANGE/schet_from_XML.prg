@@ -4,11 +4,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 05.02.25 создать счета по результатам прочитанного реестра СП
+// 19.06.25 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
 
-  Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva, ;
-    doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1, ;
+  Local arr_schet := {}, c, i, j, lbukva, ;
+    mnn, fl, name_zip, arr_zip := {}, lshifr1, ;
     CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], code_schet, mb, me, nsh, ;
     CODE_MO  := glob_mo[ _MO_KOD_FFOMS ], s1
   Local controlVer
@@ -20,7 +20,7 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
   local oZAP, oPAC, oDISAB, oSLUCH, oPRESCRIPTION, oPRESCRIPTIONS, oD
   local oSl, oOnk, oProt, oDiag, oNAPR, oKSG, oSLk, oOnk_sl, oCONS, oLek, oINJ
   local dEndZsl // дата окончания случая
-
+  local oXmlDoc, oXmlNode
 
   Default fl_msg To .t., arr_s TO {}
   Private pole
@@ -350,6 +350,9 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
       Endif
       If ( controlVer >= 202501 ) // с января 2025 года
         sVersion := '5.0'
+      Endif
+      If ( controlVer >= 202507 ) // с июля 2025 года
+        sVersion := '5.1'
       Endif
     elseif p_tip_reestr == 2
       // файла реестра случаев второго типа при формировании счета ОМС
