@@ -8,6 +8,7 @@ function test_init()
 //  local aaa
   
 //  aaa := glob_array_srf( 'D:\_MO\chip\exe\', 'D:\_MO\chip\work\')
+//  testSOAP()
 //  altd()
 return nil
   

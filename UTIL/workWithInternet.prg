@@ -7,6 +7,50 @@
 #include 'versionFTP.ch'
 #include 'tbox.ch'
 
+// 19.06.25
+function testSOAP()
+
+//  local hArr, aRet
+  local cUrl, HTTPQuery, result, status //, bodyJSON, nLengthDecoded
+  local timeout := 5
+  local cxml, ccityZIP
+
+  cUrl := 'http://wsf.cdyne.com/WeatherWS/Weather.asmx'
+
+  ccityZIP := "12345"
+
+  cxml := '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:weat="http://ws.cdyne.com/WeatherWS/">'+chr(13)+chr(10)
+  cxml += "<soap:Header/>"+chr(13)+chr(10)
+  cxml += "<soap:Body>"+chr(13)+chr(10)
+  cxml += "<weat:GetCityForecastByZIP>"+chr(13)+chr(10)
+  cxml += "<weat:ZIP>"+ccityZIP+"</weat:ZIP>"+chr(13)+chr(10)
+  cxml += "</weat:GetCityForecastByZIP>"+chr(13)+chr(10)
+  cxml += "</soap:Body>"+chr(13)+chr(10)
+  cxml += "</soap:Envelope>"+chr(13)+chr(10)
+
+
+  HTTPQuery := CreateObject( 'WinHttp.WinHttpRequest.5.1' )
+  HTTPQuery:Option( 2, 'utf-8' )
+
+  HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
+  HTTPQuery:Open( 'GET', cURL, 0 )
+  HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
+  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/soap+xml; charset=utf-8' )
+  HTTPQuery:Send( cxml )
+  result := HTTPQuery:WaitForResponse( timeout )
+
+altd()
+  if result
+    status := HTTPQuery:status()
+    // if status == 200
+    //   bodyJSON := AllTrim( HTTPQuery:ResponseText() )
+    //   nLengthDecoded := hb_jsonDecode( bodyJSON, @hArr )
+    //   aRet := hArr[ 'list' ]
+    // endif
+  endif
+  HTTPQuery := nil
+  return nil
+
 //
 function checkVersionInternet( row, oldVersion )
 
