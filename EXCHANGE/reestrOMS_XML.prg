@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 14.04.25 создание XML-файлов реестра
+// 19.06.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -254,6 +254,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
     Endif
     If ( controlVer >= 202501 ) // с января 2025 года
       sVersion := '5.0'
+    Endif
+    If ( controlVer >= 202507 ) // с июля 2025 года
+      sVersion := '5.1'
     Endif
   elseif p_tip_reestr == 2
     // Реестр случаев оказания медицинской помощи по диспансеризации, профилактическим медицинским
