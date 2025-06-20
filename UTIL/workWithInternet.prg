@@ -7,15 +7,66 @@
 #include 'versionFTP.ch'
 #include 'tbox.ch'
 
-// 19.06.25
+// 20.06.25
 function testSOAP()
+
+  // https://infostart.ru/1c/articles/249741/
+
+  local query, xmlHttp, answer, cUrl, xmlParser, oSoapClient
+  local cxml, ccityZIP
+
+  cUrl := 'https://apps.learnwebservices.com/services/hello?WSDL'
+  query := win_oleCreateObject( 'MSXML2.DOMDocument' )
+//  ccityZIP := "12345"
+
+  // cxml := '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:weat="http://ws.cdyne.com/WeatherWS/">'+chr(13)+chr(10)
+  // cxml += "<soap:Header/>"+chr(13)+chr(10)
+  // cxml += "<soap:Body>"+chr(13)+chr(10)
+  // cxml += "<weat:GetCityForecastByZIP>"+chr(13)+chr(10)
+  // cxml += "<weat:ZIP>"+ccityZIP+"</weat:ZIP>"+chr(13)+chr(10)
+  // cxml += "</weat:GetCityForecastByZIP>"+chr(13)+chr(10)
+  // cxml += "</soap:Body>"+chr(13)+chr(10)
+  // cxml += "</soap:Envelope>"+chr(13)+chr(10)
+
+  cxml := '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">' + chr( 13 ) + chr( 10 )
+  cxml := '<soapenv:Header/>' + chr( 13 ) + chr( 10 )
+  cxml := '<soapenv:Body>' + chr( 13 ) + chr( 10 )
+  cxml := '<HelloRequest xmlns="http://learnwebservices.com/services/hello">' + chr( 13 ) + chr( 10 )
+  cxml := '<Name>John Doe</Name>' + chr( 13 ) + chr( 10 )
+  cxml := '</HelloRequest>' + chr( 13 ) + chr( 10 )
+  cxml := '</soapenv:Body>' + chr( 13 ) + chr( 10 )
+  cxml := '</soapenv:Envelope>' + chr( 13 ) + chr( 10 )
+
+
+//  oSoapClient := win_oleCreateObject( 'MSSOAP.SoapClient30' )
+  query:loadXML( cxml )
+
+	xmlHttp := win_oleCreateObject( 'MSXML2.xmlHttp' )
+altd()
+	xmlHttp:OPEN ( 'POST', cUrl, 0 )
+//	    xmlHttp:setRequestHeader ( "Host", "--SKIPPED--" )
+	xmlHttp:setRequestHeader( 'Content-type', 'text/xml' )
+	xmlHttp:SEND ( query )
+//	answer := xmlHttp:responseXML()
+	answer := xmlHttp:responseText()
+
+//  xmlParser := win_oleCreateObject( 'msxml2.domdocument.6.0' ) // Поднимем КОМ
+//  xmlParser:loadXML( answer )
+
+altd()
+
+  return nil
+
+// 20.06.25
+function testSOAP_1()
 
 //  local hArr, aRet
   local cUrl, HTTPQuery, result, status //, bodyJSON, nLengthDecoded
   local timeout := 5
   local cxml, ccityZIP
 
-  cUrl := 'http://wsf.cdyne.com/WeatherWS/Weather.asmx'
+//  cUrl := 'http://wsf.cdyne.com/WeatherWS/Weather.asmx'
+  cUrl := 'https://www.dataaccess.com/webservicesserver/textcasing.wso?WSDL'
 
   ccityZIP := "12345"
 
@@ -33,9 +84,9 @@ function testSOAP()
   HTTPQuery:Option( 2, 'utf-8' )
 
   HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
-  HTTPQuery:Open( 'GET', cURL, 0 )
+  HTTPQuery:Open( 'POST', cURL, 0 )
   HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
-  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/soap+xml; charset=utf-8' )
+  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/xml; charset=utf-8' )
   HTTPQuery:Send( cxml )
   result := HTTPQuery:WaitForResponse( timeout )
 
