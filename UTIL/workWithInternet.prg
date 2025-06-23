@@ -11,48 +11,41 @@
 function testSOAP()
 
   // https://infostart.ru/1c/articles/249741/
+  // https://www.dataaccess.com/products/dataflex/features/web-services/web-services-examples-1105
+  local query, xmlHttp, answer, cUrl, xmlParser
+  local cxml, status, statusText, responseCode
 
-  local query, xmlHttp, answer, cUrl, xmlParser, oSoapClient
-  local cxml, ccityZIP
-
-  cUrl := 'https://apps.learnwebservices.com/services/hello?WSDL'
+  cUrl := 'https://webservices.daehosting.com//services/TemperatureConversions.wso'
   query := win_oleCreateObject( 'MSXML2.DOMDocument' )
-//  ccityZIP := "12345"
 
-  // cxml := '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:weat="http://ws.cdyne.com/WeatherWS/">'+chr(13)+chr(10)
-  // cxml += "<soap:Header/>"+chr(13)+chr(10)
-  // cxml += "<soap:Body>"+chr(13)+chr(10)
-  // cxml += "<weat:GetCityForecastByZIP>"+chr(13)+chr(10)
-  // cxml += "<weat:ZIP>"+ccityZIP+"</weat:ZIP>"+chr(13)+chr(10)
-  // cxml += "</weat:GetCityForecastByZIP>"+chr(13)+chr(10)
-  // cxml += "</soap:Body>"+chr(13)+chr(10)
-  // cxml += "</soap:Envelope>"+chr(13)+chr(10)
-
-  cxml := '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">' + chr( 13 ) + chr( 10 )
-  cxml := '<soapenv:Header/>' + chr( 13 ) + chr( 10 )
-  cxml := '<soapenv:Body>' + chr( 13 ) + chr( 10 )
-  cxml := '<HelloRequest xmlns="http://learnwebservices.com/services/hello">' + chr( 13 ) + chr( 10 )
-  cxml := '<Name>John Doe</Name>' + chr( 13 ) + chr( 10 )
-  cxml := '</HelloRequest>' + chr( 13 ) + chr( 10 )
-  cxml := '</soapenv:Body>' + chr( 13 ) + chr( 10 )
-  cxml := '</soapenv:Envelope>' + chr( 13 ) + chr( 10 )
-
+  cxml := '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">' + chr( 13 ) + chr( 10 )
+  cxml += '<soap:Body>' + chr( 13 ) + chr( 10 )
+  cxml += '<CelsiusToFahrenheit xmlns="http://webservices.daehosting.com/temperature">' + chr( 13 ) + chr( 10 )
+  cxml += '<nCelsius>20</nCelsius>' + chr( 13 ) + chr( 10 )
+  cxml += '</CelsiusToFahrenheit>' + chr( 13 ) + chr( 10 )
+  cxml += '</soap:Body>' + chr( 13 ) + chr( 10 )
+  cxml += '</soap:Envelope>' + chr( 13 ) + chr( 10 )
 
 //  oSoapClient := win_oleCreateObject( 'MSSOAP.SoapClient30' )
   query:loadXML( cxml )
 
 	xmlHttp := win_oleCreateObject( 'MSXML2.xmlHttp' )
-altd()
 	xmlHttp:OPEN ( 'POST', cUrl, 0 )
-//	    xmlHttp:setRequestHeader ( "Host", "--SKIPPED--" )
-	xmlHttp:setRequestHeader( 'Content-type', 'text/xml' )
+  xmlHttp:SetRequestHeader( 'Accept-Charset', 'utf-8' )
+  xmlHttp:SetRequestHeader( 'Content-Type', 'application/soap+xml; charset=utf-8' )
+  
 	xmlHttp:SEND ( query )
 //	answer := xmlHttp:responseXML()
 	answer := xmlHttp:responseText()
+  status := xmlHttp:Status()
+  statusText := xmlHttp:StatusText()
 
-//  xmlParser := win_oleCreateObject( 'msxml2.domdocument.6.0' ) // Поднимем КОМ
-//  xmlParser:loadXML( answer )
+  xmlParser := win_oleCreateObject( 'Microsoft.XMLDOM' ) // Поднимем КОМ
+  xmlParser:loadXML( answer )
 
+//  responseCode = xmlParser:selectSingleNode('//CelsiusToFahrenheitResponse/CelsiusToFahrenheitResult') //Нашли представление узла по абсолютному пути
+  responseCode = xmlParser:selectSingleNode('//soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"/soap:Body/CelsiusToFahrenheitResponse/CelsiusToFahrenheitResult')
+//  responseCode := xmlParser:getElementsByTagName( 'CelsiusToFahrenheitResult' )
 altd()
 
   return nil
@@ -66,20 +59,29 @@ function testSOAP_1()
   local cxml, ccityZIP
 
 //  cUrl := 'http://wsf.cdyne.com/WeatherWS/Weather.asmx'
-  cUrl := 'https://www.dataaccess.com/webservicesserver/textcasing.wso?WSDL'
+//  cUrl := 'https://www.dataaccess.com/webservicesserver/textcasing.wso?WSDL'
+  cUrl := 'https://webservices.daehosting.com//services/TemperatureConversions.wso'
 
-  ccityZIP := "12345"
+//  ccityZIP := "12345"
 
-  cxml := '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:weat="http://ws.cdyne.com/WeatherWS/">'+chr(13)+chr(10)
-  cxml += "<soap:Header/>"+chr(13)+chr(10)
-  cxml += "<soap:Body>"+chr(13)+chr(10)
-  cxml += "<weat:GetCityForecastByZIP>"+chr(13)+chr(10)
-  cxml += "<weat:ZIP>"+ccityZIP+"</weat:ZIP>"+chr(13)+chr(10)
-  cxml += "</weat:GetCityForecastByZIP>"+chr(13)+chr(10)
-  cxml += "</soap:Body>"+chr(13)+chr(10)
-  cxml += "</soap:Envelope>"+chr(13)+chr(10)
+//  cxml := '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:weat="http://ws.cdyne.com/WeatherWS/">'+chr(13)+chr(10)
+//  cxml += "<soap:Header/>"+chr(13)+chr(10)
+//  cxml += "<soap:Body>"+chr(13)+chr(10)
+//  cxml += "<weat:GetCityForecastByZIP>"+chr(13)+chr(10)
+//  cxml += "<weat:ZIP>"+ccityZIP+"</weat:ZIP>"+chr(13)+chr(10)
+//  cxml += "</weat:GetCityForecastByZIP>"+chr(13)+chr(10)
+//  cxml += "</soap:Body>"+chr(13)+chr(10)
+//  cxml += "</soap:Envelope>"+chr(13)+chr(10)
 
+  cxml := '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">' + chr( 13 ) + chr( 10 )
+  cxml += '<soap:Body>' + chr( 13 ) + chr( 10 )
+  cxml += '<CelsiusToFahrenheit xmlns="http://webservices.daehosting.com/temperature">' + chr( 13 ) + chr( 10 )
+  cxml += '<nCelsius>decimal</nCelsius>' + chr( 13 ) + chr( 10 )
+  cxml += '</CelsiusToFahrenheit>' + chr( 13 ) + chr( 10 )
+  cxml += '</soap:Body>' + chr( 13 ) + chr( 10 )
+  cxml += '</soap:Envelope>' + chr( 13 ) + chr( 10 )
 
+altd()
   HTTPQuery := CreateObject( 'WinHttp.WinHttpRequest.5.1' )
   HTTPQuery:Option( 2, 'utf-8' )
 
