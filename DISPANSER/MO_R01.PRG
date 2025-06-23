@@ -3397,6 +3397,7 @@ Function find_new_r000()
     { "n_q",        "N", 1, 0 }, ;
     { "enp",        "C", 16, 0 }, ; // …
     { "smo",        "N", 1, 0 }, ; // ®¯®¢¥éñ­ «¨ ‘ŒŽ
+    { "MO_PR",      "C", 6, 0 }, ; // ¯à¨ªà¥¯«¥­¨¥
     { "REESTR",     "N", 6, 0 };  // ª®¤ à¥¥áâà  ¯® ä ©«ã "mo_dr01"
   }
   local n_file := cur_dir() + "r01_itog.txt", sh := 120
@@ -3433,9 +3434,9 @@ Function find_new_r000()
   Close databases
   closegauge( hGauge )
  // func_error( 4, "®¨áª § ª®­ç¥­!" )
-  arr_title := { "ÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", ;
-                 "“/ª³               ”.ˆ.Ž.                      ³  „ â  à. ³                   €¤à¥á                 ³                  ", ;
-                 "ÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ" }
+  arr_title := { "ÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", ;
+                 "“/ª³               ”.ˆ.Ž.                      ³  „ â  à. ³                   €¤à¥á                 ³  ŒŽ  ³                  ", ;
+                 "ÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ" }
   r_use( dir_server() + "kartotek",, "KART" )
   use (cur_dir()+ 'tmp') new
   sh := Len( arr_title[ 1 ] )
@@ -3451,7 +3452,7 @@ Function find_new_r000()
   do while !eof()
     s:= ""
     s += PadR(iif(kart->uchast == 0,"  ", lstr( kart->uchast )), 2 ) + "  " + PadR( Upper( kart->fio ), 43 ) + " " + full_date( kart->date_r ) + " "
-    s += PadR( kart->adres, 41 ) + " (" + iif( tmp->tip == 1, "„ˆ‘", "¯à®ä." ) + ") " + iif ( tmp->tip == 1,mo_dr000[tmp->voz] ," ")
+    s += PadR( kart->adres, 42 ) +tmp->mo_pr +  " (" + iif( tmp->tip == 1, "„ˆ‘", "¯à®ä." ) + ") " + iif ( tmp->tip == 1,mo_dr000[tmp->voz] ," ")
     If verify_ff( 80, .t., 120 )
       AEval( arr_title, {| x| add_string( x ) } )
     Endif
@@ -3507,6 +3508,7 @@ Static Function f0_create_new_r01_0( sgod, cv, cf )
     tmp->tip := ltip
     tmp->tip1 := ltip1
     tmp->voz := lvoz
+    tmp->MO_PR := kart2->mo_pr
     If Between( ltip1, 1, 3 )
       // ++mkol[ltip1+2]
     Else

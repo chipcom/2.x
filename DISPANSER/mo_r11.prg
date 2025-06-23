@@ -152,7 +152,8 @@ Function f_create_r11()
         For j := 1 To 5
           If mkol[ j ] < skol[ j ]
             s := { "диспансеризаций", "профосмотров", "дисп.пенсионеров", "дисп.65 лет", "дисп.66 лет и старше" }[ j ]
-            fl := func_error( 4, "Не хватает " + lstr( skol[ j ] -mkol[ j ] ) + " чел. в картотеке для профосмотров" )
+            fl := func_error( 4, "Не хватает " + lstr( skol[ j ] -mkol[ j ] ) + " чел. для " + s ) 
+            // fl := func_error( 4, "Не хватает " + lstr( skol[ j ] -mkol[ j ] ) + " чел. в картотеке для профосмотров" )
           Endif
         Next
       Endif
