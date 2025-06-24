@@ -8,6 +8,35 @@
 #include 'tbox.ch'
 
 // 24.06.25
+function parseAnswer()
+
+  local xmlDOC
+  local rootNode, childElement, currentNode
+  local res, i, j, txt, name, xml, child1, txt1, name1, xml1
+
+
+  xmlDOC := win_oleCreateObject( 'Microsoft.XMLDOM' ) // Поднимем КОМ
+  xmlDOC:loadXML( ans_GetMedInsState() )
+  rootNode := xmlDOC:DocumentElement()
+  childElement := rootNode:childNodes:length()
+
+  for i := 1 to childElement
+    currentNode := rootNode:childNodes:item( i - 1 )
+    name := currentNode:childNodes:item( 0 ):nodename
+    xml := currentNode:childNodes:item( 0 ):xml
+    txt := currentNode:childNodes:item( 0 ):text
+    res := currentNode:hasChildNodes()
+    for j := 1 to currentNode:childNodes:length()
+      child1 := currentNode:childNodes:item( j - 1 )
+      name1 := child1:childNodes:item( 0 ):nodename
+      xml1 := child1:childNodes:item( 0 ):xml
+      txt1 := child1:childNodes:item( 0 ):text
+altd()
+    next
+  next
+  return nil
+
+// 24.06.25
 function GetMedInsState()
 
   local cxml

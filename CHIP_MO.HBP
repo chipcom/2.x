@@ -79,6 +79,7 @@ mo_version.prg
 .\FUNCTION\retpopupedit_bay.prg
 .\FUNCTION\pdf_func.prg
 .\FUNCTION\test_func.prg
+.\FUNCTION\test_data.prg
 
 .\KARTOTEK\mo_kart.prg
 .\KARTOTEK\mo_regi.prg

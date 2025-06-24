@@ -34,7 +34,7 @@ function ans_GetMedInsState()
 	answer += '</s:Body>'
   answer += '</s:Envelope>'
 
-  return nil
+  return answer
 
 function ans_GetMedInsState2()
 
@@ -70,7 +70,7 @@ function ans_GetMedInsState2()
 	answer += '</s:Body>'
   answer += '</s:Envelope>'
 
-  return nil
+  return answer
 
 function ans_GetMedInsState3()
 
@@ -106,7 +106,7 @@ function ans_GetMedInsState3()
 	answer += '</s:Body>'
   answer += '</s:Envelope>'
 
-  return nil
+  return answer
 
 function ans_Error()
 
@@ -129,4 +129,4 @@ function ans_Error()
 	answer += '</s:Body>'
   answer += '</s:Envelope>'
 
-  return nil
+  return answer
