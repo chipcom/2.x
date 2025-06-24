@@ -7,13 +7,115 @@
 #include 'versionFTP.ch'
 #include 'tbox.ch'
 
-// 20.06.25
+// 24.06.25
+function GetMedInsState()
+
+  local cxml
+  local fam, im, ot, doctype, docident, dob, birthPlace
+
+  fam := 'Иванов'
+  im := 'Иван'
+  ot := 'Иванович'
+  doctype := '14'
+  docident := '18 04 574020'
+  dob := '1999-11-28T00:00:00'
+  birthPlace := 'гор. Волгоград'
+
+  cxml := '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">'
+	cxml += '<s:Body>'
+	cxml += '<GetMedInsState xmlns="http://tempuri.org/">'
+	cxml += '<p xmlns:a="http://schemas.datacontract.org/2004/07/InsuranceAffilation" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">'
+	cxml += '<a:FullName>'
+	cxml += '<a:FamilyName>' + fam + '</a:FamilyName>'
+	cxml += '<a:FirstName>' + im + '</a:FirstName>'
+	cxml += '<a:MiddleName>' + ot + '</a:MiddleName>'
+	cxml += '</a:FullName>'
+	cxml += '<a:Document>'
+	cxml += '<a:DocType>' + doctype + '</a:DocType>'
+	cxml += '<a:DocIdent>' + docident + '</a:DocIdent>'
+	cxml += '</a:Document>'
+	cxml += '<a:Birth>'
+	cxml += '<a:BirthDate>' + dob + '</a:BirthDate>'
+  cxml += '<a:BirthPlace>' + birthPlace + '</a:BirthPlace>'
+	cxml += '</a:Birth>'
+	cxml += '</p>'
+	cxml += '</GetMedInsState>'
+	cxml += '</s:Body>'
+  cxml += '</s:Envelope>'
+
+  return nil
+
+// 24.06.25
+function GetMedInsState2()
+
+  local cxml
+  local fam, im, ot, policytype, policynumber, insRegion, dob, birthPlace, insDate
+
+  fam := 'Петров'
+  im := 'Пётр'
+  ot := 'Петрович'
+  policytype := '3'
+  policynumber := '0201005123'
+  insRegion := '18000'
+  dob := '1999-11-28T00:00:00'
+  birthPlace := 'гор. Волгоград'
+  insDate := '2025-05-16T00:00:00'
+
+  cxml := '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">'
+	cxml += '<s:Body>'
+	cxml += '<GetMedInsState2 xmlns="http://tempuri.org/">'
+	cxml += '<p xmlns:a="http://schemas.datacontract.org/2004/07/InsuranceAffilation" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">'
+	cxml += '<a:FullName>'
+	cxml += '<a:FamilyName>' + fam + '</a:FamilyName>'
+	cxml += '<a:FirstName>' + im + '</a:FirstName>'
+	cxml += '<a:MiddleName>' + ot + '</a:MiddleName>'
+	cxml += '<a:PolicyType>' + policytype + '</a:PolicyType>'
+	cxml += '<a:PolicyNumber>' + policynumber + '</a:PolicyNumber>'
+	cxml += '<a:InsRegion>' + insRegion + '</a:InsRegion>'
+	cxml += '</a:FullName>'
+	cxml += '<a:Birth>'
+	cxml += '<a:BirthDate>' + dob + '</a:BirthDate>'
+	cxml += '<a:BirthPlace>' + birthPlace + '</a:BirthPlace>'
+	cxml += '<a:InsDate>' + insDate + '</a:InsDate>'
+	cxml += '</a:Birth>'
+	cxml += '</p>'
+	cxml += '</GetMedInsState2>'
+	cxml += '</s:Body>'
+  cxml += '</s:Envelope>'
+
+  return nil
+
+// 24.06.25
+function GetMedInsState3()
+
+  local cxml
+  local insDate
+  local numberENP
+
+  numberENP := '3448040821000123'
+  insDate := '2025-05-16T00:00:00'
+
+  cxml := '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">'
+	cxml += '<s:Body>'
+	cxml += '<GetMedInsState3 xmlns="http://tempuri.org/">'
+	cxml += '<p xmlns:a="http://schemas.datacontract.org/2004/07/InsuranceAffilation" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">'
+	cxml += '<a:NumberENP>' + numberENP + '</a:NumberENP>'
+	cxml += '<a:InsDate>' + insDate + '</a:InsDate>'
+	cxml += '</p>'
+	cxml += '</GetMedInsState3>'
+	cxml += '</s:Body>'
+  cxml += '</s:Envelope>'
+
+  return nil
+
+// 24.06.25
 function testSOAP()
 
   // https://infostart.ru/1c/articles/249741/
   // https://www.dataaccess.com/products/dataflex/features/web-services/web-services-examples-1105
-  local query, xmlHttp, answer, cUrl, xmlParser
+  local query, xmlHttp, answer, cUrl, xmlDOC
   local cxml, status, statusText, responseCode
+  local rootNode, childElement, currentNode, i, txt, name, xml
 
   cUrl := 'https://webservices.daehosting.com//services/TemperatureConversions.wso'
   query := win_oleCreateObject( 'MSXML2.DOMDocument' )
@@ -21,7 +123,7 @@ function testSOAP()
   cxml := '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">' + chr( 13 ) + chr( 10 )
   cxml += '<soap:Body>' + chr( 13 ) + chr( 10 )
   cxml += '<CelsiusToFahrenheit xmlns="http://webservices.daehosting.com/temperature">' + chr( 13 ) + chr( 10 )
-  cxml += '<nCelsius>20</nCelsius>' + chr( 13 ) + chr( 10 )
+  cxml += '<nCelsius>30</nCelsius>' + chr( 13 ) + chr( 10 )
   cxml += '</CelsiusToFahrenheit>' + chr( 13 ) + chr( 10 )
   cxml += '</soap:Body>' + chr( 13 ) + chr( 10 )
   cxml += '</soap:Envelope>' + chr( 13 ) + chr( 10 )
@@ -40,68 +142,24 @@ function testSOAP()
   status := xmlHttp:Status()
   statusText := xmlHttp:StatusText()
 
-  xmlParser := win_oleCreateObject( 'Microsoft.XMLDOM' ) // Поднимем КОМ
-  xmlParser:loadXML( answer )
+  xmlDOC := win_oleCreateObject( 'Microsoft.XMLDOM' ) // Поднимем КОМ
+  xmlDOC:loadXML( answer )
+  rootNode := xmlDOC:DocumentElement()
+  childElement := rootNode:childNodes:length()
 
-//  responseCode = xmlParser:selectSingleNode('//CelsiusToFahrenheitResponse/CelsiusToFahrenheitResult') //Нашли представление узла по абсолютному пути
-  responseCode = xmlParser:selectSingleNode('//soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"/soap:Body/CelsiusToFahrenheitResponse/CelsiusToFahrenheitResult')
-//  responseCode := xmlParser:getElementsByTagName( 'CelsiusToFahrenheitResult' )
-altd()
-
-  return nil
-
-// 20.06.25
-function testSOAP_1()
-
-//  local hArr, aRet
-  local cUrl, HTTPQuery, result, status //, bodyJSON, nLengthDecoded
-  local timeout := 5
-  local cxml, ccityZIP
-
-//  cUrl := 'http://wsf.cdyne.com/WeatherWS/Weather.asmx'
-//  cUrl := 'https://www.dataaccess.com/webservicesserver/textcasing.wso?WSDL'
-  cUrl := 'https://webservices.daehosting.com//services/TemperatureConversions.wso'
-
-//  ccityZIP := "12345"
-
-//  cxml := '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:weat="http://ws.cdyne.com/WeatherWS/">'+chr(13)+chr(10)
-//  cxml += "<soap:Header/>"+chr(13)+chr(10)
-//  cxml += "<soap:Body>"+chr(13)+chr(10)
-//  cxml += "<weat:GetCityForecastByZIP>"+chr(13)+chr(10)
-//  cxml += "<weat:ZIP>"+ccityZIP+"</weat:ZIP>"+chr(13)+chr(10)
-//  cxml += "</weat:GetCityForecastByZIP>"+chr(13)+chr(10)
-//  cxml += "</soap:Body>"+chr(13)+chr(10)
-//  cxml += "</soap:Envelope>"+chr(13)+chr(10)
-
-  cxml := '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">' + chr( 13 ) + chr( 10 )
-  cxml += '<soap:Body>' + chr( 13 ) + chr( 10 )
-  cxml += '<CelsiusToFahrenheit xmlns="http://webservices.daehosting.com/temperature">' + chr( 13 ) + chr( 10 )
-  cxml += '<nCelsius>decimal</nCelsius>' + chr( 13 ) + chr( 10 )
-  cxml += '</CelsiusToFahrenheit>' + chr( 13 ) + chr( 10 )
-  cxml += '</soap:Body>' + chr( 13 ) + chr( 10 )
-  cxml += '</soap:Envelope>' + chr( 13 ) + chr( 10 )
+  for i := 1 to childElement
+    currentNode := rootNode:childNodes:item( i - 1 )
+    name := currentNode:childNodes:item( 0 ):nodename
+    xml := currentNode:childNodes:item( 0 ):xml
+    txt := currentNode:childNodes:item( 0 ):text
 
 altd()
-  HTTPQuery := CreateObject( 'WinHttp.WinHttpRequest.5.1' )
-  HTTPQuery:Option( 2, 'utf-8' )
+  next
+//  responseCode = xmlDOC:selectSingleNode('//CelsiusToFahrenheitResponse/CelsiusToFahrenheitResult') //Нашли представление узла по абсолютному пути
+//  responseCode = xmlDOC:selectSingleNode('//soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"/soap:Body/CelsiusToFahrenheitResponse/CelsiusToFahrenheitResult')
+//  responseCode := xmlDOC:getElementsByTagName( 'CelsiusToFahrenheitResult' )
+//altd()
 
-  HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
-  HTTPQuery:Open( 'POST', cURL, 0 )
-  HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
-  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/xml; charset=utf-8' )
-  HTTPQuery:Send( cxml )
-  result := HTTPQuery:WaitForResponse( timeout )
-
-altd()
-  if result
-    status := HTTPQuery:status()
-    // if status == 200
-    //   bodyJSON := AllTrim( HTTPQuery:ResponseText() )
-    //   nLengthDecoded := hb_jsonDecode( bodyJSON, @hArr )
-    //   aRet := hArr[ 'list' ]
-    // endif
-  endif
-  HTTPQuery := nil
   return nil
 
 //
