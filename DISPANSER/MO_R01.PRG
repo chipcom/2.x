@@ -3499,7 +3499,7 @@ Static Function f0_create_new_r01_0( sgod, cv, cf )
     Endif
   Endif
   If fl // За исключением умерших (по сведению ТФОМС) и моложе 100 лет
-    fl := !( Left( kart2->PC2, 1 ) == "1" ) .or. v < 100
+    fl := !( Left( kart2->PC2, 1 ) == "1" ) .and. v < 100 
   Endif
   If fl
     Select TMP
