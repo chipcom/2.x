@@ -487,14 +487,15 @@ Function ret_profil_dispans_drz( lprofil, lprvs )
 
   Return lprofil
 
-// 10.05.24
+// 26.06.25
 Function ret_ndisp_drz( lkod_h, lkod_k )
 
   Local fl := .t., msg
+  Local ar
 
   msg := ' '
-
   ar := ret_etap_drz( lkod_h, lkod_k )
+
   If ( Len( ar[ 1 ] ) == 0 ) .and. ( lkod_h == 0 )
     metap := 1
   Elseif  ( Len( ar[ 1 ] ) == 1 ) .and. ( lkod_h == 0 )
@@ -504,6 +505,13 @@ Function ret_ndisp_drz( lkod_h, lkod_k )
       fl := .f.
     Endif
     metap := 2
+  Elseif  ( Len( ar[ 1 ] ) == 2 ) .and. ( lkod_h == 0 )
+    If eq_any( ar[ 1, 1, 3 ], 378, 379 )
+      msg := 'В ' + lstr( Year( mn_data ) ) + ' году проведены I и II этапы диспансеризации репродуктивного здоровья!'
+      hb_Alert( msg )
+      fl := .f.
+    Endif
+    metap := 1
   Endif
 
   mndisp := inieditspr( A__MENUVERT, mm_ndisp, metap )
