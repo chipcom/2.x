@@ -465,7 +465,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
           If eq_any( human->ishod, 301, 302, 203 )
             s := '2.1' // Медицинский осмотр
           Else
-            s := '2.2' // Диспансеризация
+            s := '2.2' // Диспансеризация 
           Endif
           mo_add_xml_stroke( oSLUCH, 'P_CEL', s )
           mo_add_xml_stroke( oSLUCH, 'P_OTK', iif( m1p_otk == 0, '0', '1' ) ) // Признак отказа
@@ -1495,7 +1495,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Return Nil
 
-// 26.12.24 работаем по текущей записи
+// 26.06.26 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1756,6 +1756,8 @@ Function f1_create2reestr19( _nyear, _nmonth )
       Endif
       // фельдшер
       // lvidpoms := '11'
+    Elseif eq_ascan( atmpusl, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12' )
+        lvidpom := ret_vid_pom( 1, atmpusl, human->k_data )  // 13
     Endif
   Endif
   Select MOHU
