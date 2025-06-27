@@ -487,8 +487,8 @@ Function ret_profil_dispans_drz( lprofil, lprvs )
 
   Return lprofil
 
-// 26.06.25
-Function ret_ndisp_drz( lkod_h, lkod_k )
+// 27.06.25
+Function ret_ndisp_drz( lkod_h, lkod_k ) 
 
   Local fl := .t., msg
   Local ar
@@ -501,6 +501,13 @@ Function ret_ndisp_drz( lkod_h, lkod_k )
   Elseif  ( Len( ar[ 1 ] ) == 1 ) .and. ( lkod_h == 0 )
     If ! eq_any( ar[ 1, 1, 3 ], 378, 379 )
       msg := 'В ' + lstr( Year( mn_data ) ) + ' году проведен I этап диспансеризации репродуктивного здоровья без направления на II этап!'
+      hb_Alert( msg )
+      fl := .f.
+    Endif
+    metap := 2
+  Elseif  ( Len( ar[ 1 ] ) == 1 ) .and. ( lkod_h == 0 )
+    If eq_any( ar[ 1, 1, 3 ], 375 )
+      msg := 'В ' + lstr( Year( mn_data ) ) + ' году проведен I этап диспансеризации репродуктивного здоровья присвоена I группа здоровья!'
       hb_Alert( msg )
       fl := .f.
     Endif
