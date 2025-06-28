@@ -89,13 +89,13 @@ Function f_is_neotl_pom( lshifr )
 Function f_is_zak_sl_vr( lshifr )
   Return eq_any( Left( lshifr, 5 ), ;
     "2.78.", ; // Законченный случай обращения с лечебной целью к врачу ...
-"2.89.", ; // Законченный случай обращения с целью медицинской реабилитации
+    "2.89.", ; // Законченный случай обращения с целью медицинской реабилитации
     "70.3.", ; // Законченный случай диспансеризации взрослого населения
-"70.5.", ; // Законченный случай диспансеризации детей-сирот в стационаре
+    "70.5.", ; // Законченный случай диспансеризации детей-сирот в стационаре
     "70.6.", ; // Законченный случай диспансеризации детей-сирот под опекой
-"72.1.", ; // Законченный случай профосмотра взрослого населения
+    "72.1.", ; // Законченный случай профосмотра взрослого населения
     "72.2.", ; // Законченный случай профосмотра несовершеннолетних
-"72.3.", ; // Законченный случай предварительного осмотра несовершеннолетних
+    "72.3.", ; // Законченный случай предварительного осмотра несовершеннолетних
     "72.4." )  // Законченный случай периодического осмотра несовершеннолетних
 
 //  13.02.14 является ли услуга первичным стоматологическим приёмом
@@ -118,7 +118,7 @@ Function f_is_1_stom( lshifr, ret_arr )
   Return AScan( a_1_stom, lshifr ) > 0
 
 //  16.10.16 является ли услуга стоматологической с нулевой ценой
-Function is_2_stomat( lshifr, /*@*/is_2_88,is_new)
+Function is_2_stomat( lshifr, /*@*/is_2_88, is_new )
 
   Local a_stom16_2 := { ;
     { 1, "2.78.47", "2.78.53" }, ; // с лечебной целью
@@ -149,7 +149,7 @@ Function is_2_stomat( lshifr, /*@*/is_2_88,is_new)
   Return ret
 
 //  12.03.18 пересечение в стоматологическом случае разных видов посещений
-Function f_vid_p_stom( arr_usl, ta, ret_arr, ret_tip_a, lk_data, /*@*/ret_tip,/*@*/ret_kol,/*@*/is_2_88,arrFusl)
+Function f_vid_p_stom( arr_usl, ta, ret_arr, ret_tip_a, lk_data, /*@*/ret_tip, /*@*/ret_kol, /*@*/is_2_88, arrFusl )
 /*
  arr_usl   - двумерный массив, шифр услуги в первом элементе
  ta        - массив с текстами ошибок
@@ -390,7 +390,7 @@ Function f_napr_mo_lis()
 //  Просмотр списка реестров, запись для ТФОМС
 Function view_list_reestr()
 
-  Local i, k, buf := SaveScreen(), tmp_help := chm_help_code
+  Local buf := SaveScreen(), tmp_help := chm_help_code
 
   If !g_slock( Sreestr_sem )
     Return func_error( 4, Sreestr_err )
@@ -412,7 +412,6 @@ Function view_list_reestr()
   g_sunlock( Sreestr_sem )
   chm_help_code := tmp_help
   RestScreen( buf )
-
   Return Nil
 
 
@@ -455,7 +454,6 @@ Function f1_view_list_reestr( oBrow )
   Endif
 
   Return Nil
-
 
 // 
 Static Function f11_view_list_reestr()

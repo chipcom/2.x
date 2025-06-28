@@ -1495,7 +1495,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Return Nil
 
-// 26.06.26 работаем по текущей записи
+// 27.06.26 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1504,7 +1504,10 @@ Function f1_create2reestr19( _nyear, _nmonth )
   lshifr_zak_sl := lvidpoms := ''
   a_usl := {} ; a_fusl := {} ; lvidpom := 1 ; lfor_pom := 3
   a_usl_name := {}
-  atmpusl := {} ; akslp := {} ; akiro := {} ; tarif_zak_sl := human->cena_1
+  atmpusl := {}
+  akslp := {}
+  akiro := {}
+  tarif_zak_sl := human->cena_1
   kol_kd := 0
   is_KSG := is_mgi := .f.
   v_reabil_slux := 0
@@ -1629,6 +1632,10 @@ Function f1_create2reestr19( _nyear, _nmonth )
       Endif
       If ( hu->stoim_1 > 0 .or. Left( lshifr, 3 ) == '71.' ) .and. ( i := ret_vid_pom( 1, lshifr, human->k_data ) ) > 0
         lvidpom := i
+        // для школ здоровья ХНИЗ
+        if eq_any( lshifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12' )
+          lvidpom := 13
+        endif
       Endif
       If human_->USL_OK == 3
         If f_is_neotl_pom( lshifr )
@@ -1756,8 +1763,6 @@ Function f1_create2reestr19( _nyear, _nmonth )
       Endif
       // фельдшер
       // lvidpoms := '11'
-    Elseif eq_ascan( atmpusl, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12' )
-        lvidpom := ret_vid_pom( 1, atmpusl, human->k_data )  // 13
     Endif
   Endif
   Select MOHU
