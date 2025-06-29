@@ -3,7 +3,7 @@
 #include 'function.ch'
 #include 'hbxlsxwriter.ch'
 
-// 06.10.23
+// 20.06.25
 Function create_xls_rdl( name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd )
 
   Local workbook, worksheet
@@ -15,6 +15,7 @@ Function create_xls_rdl( name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd
   Local name_file := name + '.xlsx'
   Local iRow := 1
   Local tmpAlias
+  Local flag
 
   tmpAlias := Select()
 
@@ -131,8 +132,59 @@ Function create_xls_rdl( name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd
       ++iRow
       FRD->( dbSkip() )
     End
-    frd->( dbCloseArea() )
-    hb_vfErase( cur_dir() + '_data3' + sdbf() )
+	// новый лист
+	  /* Добавим лист "Свод. */
+    worksheetError = workbook_add_worksheet( workbook, 'Свод' )
+	 // шапка таблицы
+    worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, 'Список снятий по актам контроля', format_header_main )
+    worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, hb_StrToUTF8( AllTrim( arr_m[ 4 ] ) ), format_header_main )  // вывод временного периода
+    worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, '( по дате отчётного периода / все случаи снятия )', format_header_main )
+    worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, '(ТФОМС (иногородние)', format_header_main )
+    worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, hb_StrToUTF8( string_selected_uch( st_a_uch, lcount_uch ) ), format_header_main )
+    If Len( st_a_uch ) == 1
+      worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, hb_StrToUTF8( string_selected_otd( st_a_otd, lcount_otd ) ), format_header_main )
+    Endif
+    iRow := 0
+	  FRD->( dbGoTop() )
+	  // 
+    worksheet_write_string( worksheetError, iRow, 0, '№ п/п', format_header )
+    worksheet_write_string( worksheetError, iRow, 1, 'Шифр', format_header )
+	  worksheet_write_string( worksheetError, iRow, 2, 'КОД', format_header )
+    worksheet_write_string( worksheetError, iRow, 3, 'Наименование услуги', format_header )
+    worksheet_write_string( worksheetError, iRow, 4, 'Кол-во услуг', format_header )
+    worksheet_write_string( worksheetError, iRow, 5, 'Стоимость услуг', format_header )
+//	worksheet_write_string( worksheetError, iRow, 6, 'Отделение', format_header )
+   
+    /* Установить ширину колонок */
+	  worksheet_set_column( worksheetError, 0, 0, 8.0 )
+    worksheet_set_column( worksheetError, 1, 1, 10.0 )
+    worksheet_set_column( worksheetError, 2, 2, 8.0 )
+    worksheet_set_column( worksheetError, 3, 3, 50.0 )
+    worksheet_set_column( worksheetError, 4, 4, 12.0 )
+    worksheet_set_column( worksheetError, 5, 5, 12.0 )
+    //worksheet_set_column( worksheetError, 6, 6, 7.14 )
+  
+    iRow++
+	  flag := .T.
+    Do While ! FRD->( Eof() )
+	  If FRD->NUMORDER != 0 .and. flag
+	   flag := .F.
+       worksheet_write_string( worksheetError, iRow, 0, hb_StrToUTF8( AllTrim( FRD->NUM_USL ) ), format_text )
+       worksheet_write_string( worksheetError, iRow, 1, hb_StrToUTF8( AllTrim( FRD->REFREASON ) ), format_text )
+       worksheet_write_string( worksheetError, iRow, 2, hb_StrToUTF8( AllTrim( FRD->SHIFR_USL ) ), format_text )
+       worksheet_write_string( worksheetError, iRow, 3, hb_StrToUTF8( AllTrim( FRD->NAME_USL ) ), format_text )
+      endif 
+      If FRD->NUMORDER == 0
+	    flag := .T.
+        worksheet_write_number( worksheetError, iRow, 4, FRD->KOL_USL, format_text3 )
+        worksheet_write_number( worksheetError, iRow, 5, FRD->SUM_SN, format_text3 )
+      //  worksheet_write_string( worksheetError, iRow, 6, hb_StrToUTF8( AllTrim( FRD->OTD ) ), format_text )
+        ++iRow
+	  endif 
+      FRD->( dbSkip() )
+    End
+	  frd->( dbCloseArea() )
+	  hb_vfErase( cur_dir() + '_data3' + sdbf() )
   Endif
 
   If hb_FileExists( cur_dir() + 'tmp_err' + sdbf() )
@@ -194,5 +246,4 @@ Function create_xls_rdl( name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd
       'Ошибка %d = %s\n', error, hb_ntos( error ) ), 'RU866' ), 'error' )
   Endif
   Select( tmpAlias )
-
   Return Nil
