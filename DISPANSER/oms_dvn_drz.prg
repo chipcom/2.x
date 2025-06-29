@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 30.01.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 27.06.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -636,7 +636,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       @ j, Col() + 5 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
 
-      ret_ndisp_drz( Loc_kod, kod_kartotek )
+      if ! ret_ndisp_drz( Loc_kod, kod_kartotek )
+        dbCloseAll()
+        return nil  // выходим из карты ввода
+      endif
 
       @ ++j, 8 Get mndisp When .f. Color color14  // заголовок
 
@@ -699,7 +702,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         m1GRUPPA := mm_gruppa[ i, 2 ]
       Endif
 
-      ret_ndisp_drz( Loc_kod, kod_kartotek )
+//      ret_ndisp_drz( Loc_kod, kod_kartotek )
 
       dispans_vyav_diag( @j, mndisp ) // вызов заполнения блока выявленных заболеваний
       // подвал второго листа

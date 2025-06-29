@@ -334,15 +334,10 @@ Function ret_vid_pom( k, mshifr, lk_data )
   If ValType( lk_data ) == 'D'
     y := Year( lk_data )
   Endif
-
   If Select( 'LUSL' ) == 0
     use_base( 'lusl' )
   Endif
   lal := create_name_alias( lal, y )
-  // if select(lal) == 0
-  // lal := 'lusl'
-  // endif
-
   dbSelectArea( lal )
   find ( PadR( mshifr, 10 ) )
   If Found()
@@ -360,7 +355,6 @@ Function ret_vid_pom( k, mshifr, lk_data )
       Endif
     Endif
   Endif
-
   Return vp
 
 //
