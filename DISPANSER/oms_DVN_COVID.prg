@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 17.01.25 ДВН - добавление или редактирование случая (листа учета)
+// 28.06.25 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -27,6 +27,9 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
+
+  // Признак подозрения на злокачественное новообразование для совместимости с функцией dispans_napr()
+  Private mDS_ONK, m1DS_ONK := 0
   //
   Private oms_sluch_DVN := .t., ps1dispans := s1dispans, is_prazdnik
 
