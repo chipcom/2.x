@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 18.06.25
+// 01.07.25
 Function verify_sluch( fl_view )
 
   local dBegin  // дата начала случая
@@ -1703,7 +1703,7 @@ Function verify_sluch( fl_view )
       If Empty( onksl->STAD )
         AAdd( ta, 'онкология: не введена стадия заболевания' )
       Else
-        f_verify_tnm( 2, onksl->STAD, mdiagnoz[ 1 ], ta )
+        f_verify_tnm( 2, onksl->STAD, mdiagnoz[ 1 ], human->k_data, ta )
       Endif
     Endif
     If kkt > 0 .and. onksl->ds1_t != 5
@@ -1723,13 +1723,13 @@ Function verify_sluch( fl_view )
         fl := .f. ; AAdd( ta, 'онкология: не введена стадия заболевания M' )
       Endif
       If fl
-        fl := f_verify_tnm( 3, onksl->ONK_T, mdiagnoz[ 1 ], ta )
+        fl := f_verify_tnm( 3, onksl->ONK_T, mdiagnoz[ 1 ], human->k_data, ta )
       Endif
       If fl
-        fl := f_verify_tnm( 4, onksl->ONK_N, mdiagnoz[ 1 ], ta )
+        fl := f_verify_tnm( 4, onksl->ONK_N, mdiagnoz[ 1 ], human->k_data, ta )
       Endif
       If fl
-        fl := f_verify_tnm( 5, onksl->ONK_M, mdiagnoz[ 1 ], ta )
+        fl := f_verify_tnm( 5, onksl->ONK_M, mdiagnoz[ 1 ], human->k_data, ta )
       Endif
     Endif
     // гистология
@@ -2685,7 +2685,7 @@ Function verify_sluch( fl_view )
     .and. Len( a_period_amb ) > 0
     For i := 1 To Len( a_period_amb )
 //      If a_period_amb[ i, 3 ] == human_->profil .and. !( human_->profil != 122 .or. human_->profil != 21 ) // кроме эндокринологии
-      If a_period_amb[ i, 3 ] == human_->profil .and. ! ( human_->profil == 122 .or. human_->profil == 21 ) // кроме эндокринологии
+      If a_period_amb[ i, 3 ] == human_->profil .and. ! ( human_->profil == 122 .or. human_->profil == 21 ) // кроме эндокринологии 
         AAdd( ta, 'данный случай пересекается со случаем амбулаторного лечения' )
         otd->( dbGoto( a_period_amb[ i, 4 ] ) )
         AAdd( ta, '└>с тем же профилем ' + ;
