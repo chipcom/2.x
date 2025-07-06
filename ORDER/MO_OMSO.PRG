@@ -1907,7 +1907,7 @@ Function ret_menu_rak_schet( r, c )
 
   Return ret
 
-// 30.04.25 α―¨α®ª α­οβ¨© ―®  ªβ ¬
+//06.07.25 α―¨α®ª α­οβ¨© ―®  ªβ ¬
 Function akt_list_of_refusal_pacient()
 
   Static si := 3
@@ -1997,7 +1997,8 @@ Function akt_list_of_refusal_pacient()
     { "REFREASON", "C", 15, 0 }, ;
     { "DATE_REP", "C", 10, 0 }, ;
     { "NUMORDER", "N", 10, 0 }, ;
-    { "kod_h", "N", 7, 0 } }  // 10.08.2022 ¤«ο „‹
+    { "kod_h", "N", 7, 0 }, ; // 10.08.2022 ¤«ο „‹
+    { 'napr_uch', 'C', 6, 0 }  }  // 06.07.2025 ¤«ο „‹
   dbCreate( fr_data, adbf )
   Use ( fr_data ) New Alias FRD
   adbf := { { "REFREASON", "N", 3, 0 }, ;
@@ -2017,7 +2018,8 @@ Function akt_list_of_refusal_pacient()
     { "cena_1", "N", 11, 2 }, ;
     { "sum_sn", "N", 11, 2 }, ;
     { "DATE_REP", "C", 10, 0 }, ;
-    { "otd", "C", 42, 0 } }
+    { "otd", "C", 42, 0 }, ;
+    { 'napr_uch', 'C', 6, 0 }  }  // 06.07.2025 ¤«ο „‹
   dbCreate( fr_data + "2", adbf )
   dbCreate( fr_data + "3", adbf )
   Use ( fr_data + "2" ) New Alias FRD2
@@ -2180,6 +2182,7 @@ Function akt_list_of_refusal_pacient()
                   frd->REFREASON := lstr( raksh->REFREASON ) + s1
                   frd->NUMORDER  :=  HUMAN_2->pn3
                   frd->kod_h     := human->kod
+                  frd->napr_uch  := human_->NPR_MO
                   Select FRD1
                   find ( Str( raksh->REFREASON, 3 ) )
                   If !Found()
@@ -2260,6 +2263,7 @@ Function akt_list_of_refusal_pacient()
         frd2->fio       := frd->fio
         frd2->date_r    := frd->date_r
         frd2->otd       := frd->otd
+        frd2->napr_uch  := frd->napr_uch
         Select human_u
         Skip
       Enddo
@@ -2307,6 +2311,7 @@ Function akt_list_of_refusal_pacient()
       frd3->fio        := frd2->fio
       frd3->date_r     := frd2->date_r
       frd3->otd        := frd2->otd
+      frd3->napr_uch   := frd2->napr_uch
       Select frd2
       Skip
     Enddo
