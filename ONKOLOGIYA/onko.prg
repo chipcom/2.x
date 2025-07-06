@@ -21,7 +21,6 @@ function check_diag_onko_lek_prep( kod_diag )
   kod := Upper( AllTrim( kod_diag ) )
   i := ascan( arrDiagFull, { | x | x == kod } )
   j := ascan( arrDiag, { | x | x == substr( kod, 1, 3 ) } )
-
   if ( i > 0 ) .or. ( j > 0 )
     lRet := .t.
   Endif
@@ -37,11 +36,10 @@ Function only_control_onko( napr, date, rslt, ishod )
   // Волгамедлаб исключаем
   // lRet := (!empty(napr) .and. !empty(date) .and. rslt == 314 .and. ishod == 304 .and. hb_main_curOrg:Kod_Tfoms != '805903')
   lRet := ( !Empty( napr ) .and. !Empty( date ) .and. rslt == 314 .and. ishod == 304 ) // .and. ! is_VOLGAMEDLAB())
-
   Return lRet
 
-// 11.09.23 проверка правильности соответствующей стадии по соответствующему справочнику
-Function f_verify_tnm( n, lkod, ldiag, ar )
+// 01.07.25 проверка правильности соответствующей стадии по соответствующему справочнику
+Function f_verify_tnm( n, lkod, ldiag, mdate, ar )
 
   Local sn := lstr( n )
   Local sd
@@ -51,8 +49,11 @@ Function f_verify_tnm( n, lkod, ldiag, ar )
   Local smsg := 'онкология: в справочнике N00' + sn + ' не найдена стадия заболевания ' + s + '=' + lstr( lkod ) + ' для диагноза ' + ldiag
   Local aTmp, it, aTmpDS
   Local nameFunc := 'getN00' + lstr( n ) + '()'
-  Local nameFuncDS := 'getDS_N00' + lstr( n ) + '()'
+  Local nameFuncDS
 
+  default mdate to sys_date
+//  nameFuncDS := 'getDS_N00' + lstr( n ) + '()'
+  nameFuncDS := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdate ) + '")'  
   aTmp := &nameFunc
   If ( it := AScan( aTmp, {| x| x[ 2 ] == lkod } ) ) > 0
     If Empty( aTmp[ it, 3 ] )
@@ -67,7 +68,6 @@ Function f_verify_tnm( n, lkod, ldiag, ar )
           fl := .f.
           AAdd( ar, smsg )
         Endif
-
       Endif
     Elseif Len( AllTrim( aTmp[ it, 3 ] ) ) == 5
       If !( Left( ldiag, 5 ) == aTmp[ it, 3 ] )
@@ -80,7 +80,6 @@ Function f_verify_tnm( n, lkod, ldiag, ar )
         AAdd( ar, smsg )
       Endif
     Endif
-
   Elseif  ( it := AScan( aTmp, {| x| Empty( x[ 2 ] ) } ) ) > 0
     If Empty( aTmp[ it, 3 ] )
       aTmpDS := &nameFuncDS
@@ -107,12 +106,10 @@ Function f_verify_tnm( n, lkod, ldiag, ar )
         AAdd( ar, smsg )
       Endif
     Endif
-
   Else
     fl := .f.
     AAdd( ar, smsg )
   Endif
-
   Return fl
 
 // 27.05.25 функция определения массива в ф-ии редактирования листа учёта
@@ -143,55 +140,7 @@ Function f_define_tnm( n, ldiag, mdata )
       aRet := AClone( aTmp[ it, 2 ] )
     Endif
   Endif
-
   Return aRet
-
-// // 22.10.19 проверка правильности соответствующей стадии по соответствующему справочнику
-// Function f_verify_tnm_old(n, lkod, ldiag, ar)
-// Local sn := lstr(n), sd
-// Local fl := .t., lal := 'n' + sn, polek, poled, s := {'', 'ST', 'T', 'N', 'M'}[n]
-// Local smsg := 'онкология: в справочнике N00' + sn + ' не найдена стадия заболевания ' + s + '=' + lstr(lkod) + ' для диагноза ' + ldiag
-
-// polek := lal + '->kod_' + s
-// poled := lal + '->ds_' + s
-// if select(lal) == 0
-// R_Use(dir_exe() + '_mo_N00' + sn, {cur_dir() + '_mo_N00' + sn, cur_dir() + '_mo_N00' + sn + 'd'}, lal)
-// endif
-// dbSelectArea(lal) // встать на справочник N0...
-// set order to 1    // переключиться на индекс по коду
-// find (str(lkod, 6))
-// if found()
-// if empty(&poled) // если не заполнено поле диагноза
-// sd := padr(ldiag, 5)
-// set order to 2 // переключиться на индекс по диагнозу
-// find (sd)      // поиск пятизначного диагноза
-// if found()     // если нашли - ошибка
-// fl := .f.
-// aadd(ar, smsg)
-// else
-// sd := padr(ldiag, 3)
-// find (sd)    // поиск трёхзначного диагноза
-// if found() .and. sd == alltrim(&poled)  // если нашли - ошибка
-// fl := .f.
-// aadd(ar,smsg)
-// endif
-// endif
-// elseif len(alltrim(&poled)) == 5
-// if !(left(ldiag, 5) == &poled)
-// fl := .f.
-// aadd(ar,smsg)
-// endif
-// else
-// if !(left(ldiag, 3) == alltrim(&poled))
-// fl := .f.
-// aadd(ar,smsg)
-// endif
-// endif
-// else
-// fl := .f.
-// aadd(ar, smsg)
-// endif
-// return fl
 
 // 14.01.19 проверка правильности введённых стадий по справочнику N006 в get'e
 Function f_valid_tnm( g )
@@ -222,7 +171,6 @@ Function f_valid_tnm( g )
       endif
     endif
   endif*/
-
   Return .t.
 
 // 06.06.25
@@ -239,7 +187,6 @@ Function ret_arr_shema( k, dk )
   Elseif ValType( dk ) == 'D'
     year_dk := Year( dk )
   Endif
-
   If ISNIL( stYear ) .or. Empty( ashema[ 1 ] ) .or. year_dk != stYear
     ashema := { {}, {}, {} }
     arr := getv024( dk )
@@ -253,7 +200,6 @@ Function ret_arr_shema( k, dk )
     Next
     stYear := year_dk
   Endif
-
   Return ashema[ k ]
 
 // 04.02.22
@@ -282,7 +228,6 @@ Function ret_arr_shema_old( k, k_data )
       ashema[ 3, i, 4 ] := Int( Val( SubStr( ashema[ 3, i, 1 ], 6, 2 ) ) )
     Next
   Endif
-
   Return ashema[ k ]
 
 // 15.02.20
@@ -339,7 +284,6 @@ Function f_is_oncology( r, /*@*/_onk_smp)
     _onk_smp := k
     k := 0
   Endif
-
   Return k
 
 // 19.08.18
@@ -348,7 +292,6 @@ Function when_ds_onk()
   Private yes_oncology := .f.
 
   f_is_oncology( 2 )
-
   Return !yes_oncology
 
 // 29.01.19
@@ -386,5 +329,4 @@ Function ret_str_onc( k, par )
   Local s := arr[ k ]
 
   Default par To 1
-
   Return iif( par == 1, s, Space( Len( s ) ) )

@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 19.06.25 создание XML-файлов реестра
+// 03.07.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -545,6 +545,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             if human->K_DATA >= 0d20250401 .and. ( ascan( a_usl_name, '2.80.67' ) > 0 ) // письмо Мызгин А.В. от 14.04.25
               s := '1.1'
             endif
+          endif
+          if ( ascan( a_usl_name, '2.76.100' ) > 0 ) .or. ( ascan( a_usl_name, '2.76.101' ) > 0 ) .or. ( ascan( a_usl_name, '2.76.102' ) > 0 )
+            s := '2.7'
           endif
           mo_add_xml_stroke( oSL, 'P_CEL', s )
         Endif
@@ -1495,10 +1498,11 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Return Nil
 
-// 27.06.26 работаем по текущей записи
+// 03.07.25 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
+  Local locPRVS
 
   fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
   lshifr_zak_sl := lvidpoms := ''
@@ -1630,11 +1634,24 @@ Function f1_create2reestr19( _nyear, _nmonth )
         // фельдшер
         // lvidpoms := '11'
       Endif
+      locPRVS := put_prvs_to_reestr( human_->PRVS, _NYEAR )
       If ( hu->stoim_1 > 0 .or. Left( lshifr, 3 ) == '71.' ) .and. ( i := ret_vid_pom( 1, lshifr, human->k_data ) ) > 0
         lvidpom := i
         // для школ здоровья ХНИЗ
         if eq_any( lshifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12' )
-          lvidpom := 13
+          if eq_any( locPRVS, '76', '49' )  // тераипия, педиатрия
+            lvidpom := 12
+          else  // узкие специалисты
+            lvidpom := 13
+          endif
+        endif
+        // для комплексного посещения центров здоровья
+        if eq_any( lshifr, '2.76.100', '2.76.101', '2.76.102' )
+          if eq_any( locPRVS, '76', '39' )  // тераипия, общая врачебная практика (семейная медицина)
+            lvidpom := 12
+          else  // 206 - лечебное дело (средний мед. персонал)
+            lvidpom := 11
+          endif
         endif
       Endif
       If human_->USL_OK == 3
