@@ -5,6 +5,59 @@
 
 #require 'hbsqlit3'
 
+// 07.07.25
+function get_sootv_mkb_mkbo()
+  // возвращает массив N001 противопоказаний и отказов (OnkPrOt)
+  Static _arr
+  Static time_load
+  Local db
+  Local aTable
+  Local nI
+
+  // Соответствие кодов МКБ-10 и кодов МКБ-О Топография для классификации TNM
+  // icd10 TEXT(10)
+  // icd10top TEXT(10)
+  // tnm_7 INTEGER
+  // tnm_8 INTEGER
+
+  If timeout_load( @time_load )
+    _arr := {}
+    db := opensql_db()
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
+      'icd10, ' + ;
+      'icd10top, ' + ;
+      'tnm_7, ' + ;
+      'tnm_8 ' + ;
+      'FROM mkb_mkbo' )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        AAdd( _arr, { AllTrim( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 2 ] ), iif( Val( aTable[ nI, 3 ] ) == 1, .t., .f. ), iif( Val( aTable[ nI, 4 ] ) == 1, .t., .f. ) } )
+      Next
+    Endif
+    db := nil
+  endif
+  Return _arr
+
+// 07.07.25
+function getds_sootv_onko( codeMKB )
+
+  local ret := '', fl := .f.
+  local aSootv, i
+
+  codeMKB := AllTrim( codeMKB )
+  aSootv := get_sootv_mkb_mkbo()
+
+  for i := 1 to len( aSootv )
+    if aSootv[ i, 1 ] == codeMKB
+      ret := aSootv[ i, 2 ]
+      fl := .t.
+    endif
+  next
+  if ! fl
+    ret := codeMKB
+  endif
+  return ret
+
 // =========== N001 ===================
 //
 // 05.09.23 вернуть массив ФФОМС N001.xml
