@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 27.06.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 08.07.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -151,7 +151,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   endif
 
   for i := 1 to 5 // создадим приватные переменные для выявленных диагнозов
-    sk := lstr( i )
+    sk := lstr( i ) 
     pole_diag := 'mdiag' + sk
     pole_d_diag := 'mddiag' + sk
     pole_pervich := 'mpervich' + sk
@@ -584,6 +584,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
   Private num_screen := 1
 
+  if ! ret_ndisp_drz( Loc_kod, kod_kartotek )
+    dbCloseAll()
+    return nil  // выходим из карты ввода
+  endif
+
   Do While .t.
     Close databases
     DispBegin()
@@ -626,20 +631,20 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       //
       @ ++j, 1 Say 'Сроки' Get mn_data ;
         valid {| g | f_k_data( g, 1 ), f_valid_begdata_drz( g, Loc_kod ), ;
-        iif( ( mvozrast < 18 .or. mvozrast > 49 ), func_error( 4, 'Пациент не подлежит данному виду диспансеризации!' ), nil ), ;
-        ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
-        }
+        iif( ( mvozrast < 18 .or. mvozrast > 49 ), func_error( 4, 'Пациент не подлежит данному виду диспансеризации!' ), nil ) }  //, ;
+        // ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
+        // }
       @ Row(), Col() + 1 Say '-' Get mk_data ;
-        valid {| g | f_k_data( g, 2 ), ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
-        }
+        valid {| g | f_k_data( g, 2 ) } //, ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
+        // }
 
       @ j, Col() + 5 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
 
-      if ! ret_ndisp_drz( Loc_kod, kod_kartotek )
-        dbCloseAll()
-        return nil  // выходим из карты ввода
-      endif
+      // if ! ret_ndisp_drz( Loc_kod, kod_kartotek )
+      //   dbCloseAll()
+      //   return nil  // выходим из карты ввода
+      // endif
 
       @ ++j, 8 Get mndisp When .f. Color color14  // заголовок
 
@@ -701,8 +706,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       If ( i := AScan( mm_gruppa, {| x | x[ 3 ] == m1rslt } ) ) > 0
         m1GRUPPA := mm_gruppa[ i, 2 ]
       Endif
-
-//      ret_ndisp_drz( Loc_kod, kod_kartotek )
 
       dispans_vyav_diag( @j, mndisp ) // вызов заполнения блока выявленных заболеваний
       // подвал второго листа
