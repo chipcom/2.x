@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.05.25 добавление или редактирование случая (листа учета)
+// 09.07.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -26,6 +26,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Local i_n007, aN007 := getn007(), i_n008, aN008 := loadn008(), i_n009, aN009 := getn009()
   Local i_n012, aN012_DS := getds_n012(), ar_N012 := {}
   Local i_n010, aN010 := loadn010(), i_n011, aN011 := loadn011()
+  local diag_onko_replace
 
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
@@ -1013,10 +1014,17 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         If AScan( lmm_DS1_T, {| x| x[ 2 ] == m1DS1_T } ) == 0
           m1DS1_T := lmm_DS1_T[ 1, 2 ]
         Endif
-        mm_N002 := f_define_tnm( 2, mkod_diag, mk_data )
-        mm_N003 := f_define_tnm( 3, mkod_diag, mk_data )
-        mm_N004 := f_define_tnm( 4, mkod_diag, mk_data )
-        mm_N005 := f_define_tnm( 5, mkod_diag, mk_data )
+        
+//        mm_N002 := f_define_tnm( 2, mkod_diag, mk_data )
+//        mm_N003 := f_define_tnm( 3, mkod_diag, mk_data )
+//        mm_N004 := f_define_tnm( 4, mkod_diag, mk_data )
+//        mm_N005 := f_define_tnm( 5, mkod_diag, mk_data )
+        diag_onko_replace := iif( mk_data >= 0d20250701, getds_sootv_onko( mkod_diag ), mkod_diag )
+        mm_N002 := f_define_tnm( 2, diag_onko_replace, mk_data )
+        mm_N003 := f_define_tnm( 3, diag_onko_replace, mk_data )
+        mm_N004 := f_define_tnm( 4, diag_onko_replace, mk_data )
+        mm_N005 := f_define_tnm( 5, diag_onko_replace, mk_data )
+
         mDS1_T := inieditspr( A__MENUVERT, mm_DS1_T, m1DS1_T )
         mMTSTZ := inieditspr( A__MENUVERT, mm_danet, m1MTSTZ )
         If Len( mm_N002 ) == 1
