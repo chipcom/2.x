@@ -1770,7 +1770,7 @@ Function f1ret_oms_human( oBrow )
 
   Return Nil
 
-// 11.06.25 
+// 11.07.25 
 Function f2ret_oms_human( nkey )
 
   Static tmp := ' '
@@ -1778,6 +1778,7 @@ Function f2ret_oms_human( nkey )
     j, n_file := cur_dir() + 'omserror.txt', sh := 80, HH := 60, ii
   Local mas_otchet := {}, tmp_2
   Local tmpSelect, flag_RDL := .f.
+  Local kod_PZ := 0, D_flag := .T., DD_flag := .T., arr_sv := {}
 
   For ii := 1 To 48
     AAdd( mas_otchet, { 0, 0, 0, 0 } )
@@ -1962,6 +1963,9 @@ Function f2ret_oms_human( nkey )
       Endif
     Elseif nkey == K_CTRL_F9
       mywait()
+      D_flag := .T.
+      DD_flag := .T.
+      arr_sv := {}
       sh := 110
       fl_povtor := .t.
       fl_povtor1 := .t.
@@ -1972,7 +1976,7 @@ Function f2ret_oms_human( nkey )
       tek_stroke := 0
       n_list := 1
       add_string( '' )
-      add_string( Center( 'Сведения об отклоненных от оплаты случаях и стоимости медицинской помощи', sh ) )
+      add_string( Center( 'Сведения об отклоненных от оплаты случаях и стоимости медицинской помощи', sh ) ) 
       add_string( Center( p_del_error[ 1 ], sh ) )
       add_string( Center( arr_m[ 4 ], sh ) )
       tmp_1 := Select()
@@ -1992,6 +1996,15 @@ Function f2ret_oms_human( nkey )
 
       Go Top
       Do While !Eof()
+        DD_dlag := .T.
+        if d_flag
+          arrPZ := get_array_PZ( year(human->k_data) )  
+          for i := 1 to len(arrPZ)  
+            aadd(arr_sv,{0,0,0,0})
+          next  
+          d_flag := .F.
+        endif  
+
         fl_povtor := .t.
         fl_povtor1 := .t.
         fl_povtor2 := .t.
@@ -2088,9 +2101,25 @@ Function f2ret_oms_human( nkey )
           If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, , , , , @svp )
             lshifr := iif( Empty( lshifr1 ), usl->shifr, lshifr1 )
           Endif
-          //
+            //
           If HUMAN_->Usl_ok == 1 // стационар
-            If PadR( lshifr, 2 ) == 'st' // KSG
+              If PadR( lshifr, 2 ) == 'st' // KSG
+                kod_PZ := f_arr_plan_zakaz( lshifr, year(human->k_data))
+                if kod_PZ > 0
+                  If human->vzros_reb == 0 // взрослый
+                    arr_sv[kod_PZ,1] += human->cena_1
+                    if DD_dlag 
+                      arr_sv[kod_PZ,3] += 1
+                      DD_dlag := .F.
+                    endif  
+                  else  
+                    arr_sv[kod_PZ,2] += human->cena_1
+                    if DD_dlag 
+                      arr_sv[kod_PZ,4] += 1
+                      DD_dlag := .F.
+                    endif  
+                  endif  
+                endif  
               mas_otch[ 1, 1 ] += 1
               mas_otch[ 2, 1 ] += human->cena_1 // hu->stoim
               If eq_any( PadR( AllTrim( lshifr ), 8 ), 'st12.015', 'st12.016', ;
@@ -2154,7 +2183,23 @@ Function f2ret_oms_human( nkey )
           Endif
           //
           If HUMAN_->Usl_ok == 2 // дневной стационар
-            If PadR( lshifr, 2 ) == 'ds' // KSG -дневной стационар
+           If PadR( lshifr, 2 ) == 'ds' // KSG -дневной стационар
+              kod_PZ := f_arr_plan_zakaz( lshifr, year(human->k_data))
+              if kod_PZ > 0
+                 If human->vzros_reb == 0 // взрослый
+                   arr_sv[kod_PZ,1] += human->cena_1
+                   if DD_dlag 
+                     arr_sv[kod_PZ,3] += 1
+                     DD_dlag := .F.
+                   endif   
+                 else  
+                   arr_sv[kod_PZ,2] += human->cena_1
+                   if DD_dlag 
+                     arr_sv[kod_PZ,4] += 1
+                     DD_dlag := .F.
+                   endif
+                 endif    
+              endif  
               mas_otch[ 3, 1 ] += 1
               mas_otch[ 4, 1 ] += human->cena_1
               If flag_covid
@@ -2215,6 +2260,22 @@ Function f2ret_oms_human( nkey )
           Endif
           //
           If HUMAN_->Usl_ok == 3 // амбулаторная
+            kod_PZ := f_arr_plan_zakaz( lshifr, year(human->k_data))
+            if kod_PZ > 0
+              If human->vzros_reb == 0 // взрослый
+                arr_sv[kod_PZ,1] += hu->stoim
+                if DD_dlag 
+                  arr_sv[kod_PZ,3] += 1
+                  DD_dlag := .F.
+                endif  
+              else  
+                arr_sv[kod_PZ,2] += hu->stoim
+                if DD_dlag 
+                  arr_sv[kod_PZ,4] += 1
+                  DD_dlag := .F.
+                endif  
+              endif  
+            endif 
             // Диспансеризация
             // If eq_any( human->ishod, 401, 402 ) // УД
             If is_sluch_dispanser_covid( human->ishod ) // УД
@@ -2551,6 +2612,29 @@ Function f2ret_oms_human( nkey )
       mas_otchet[ 14, 4 ] += mas_otchet[ 17, 4 ] + mas_otchet[ 18, 4 ] + mas_otchet[ 19, 4 ] + mas_otchet[ 20, 4 ] + mas_otchet[ 21, 4 ] + ;
         mas_otchet[ 22, 4 ] + mas_otchet[ 23, 4 ]
       //
+      add_string("" )
+      add_string(padc("Отказы по план-заказу",100))
+      add_string( '                                                          Взрослые   Дети     Итого         Взрослые     Дети    Итого' )
+      smm1 := smm2 := smm3 := smm4 := 0
+      ii :=0
+      for i := 1 to len(arrPZ)
+        if arr_sv[i,1] > 0 .or.  arr_sv[i,2] > 0
+           ++ii
+           add_string(padl(lstr(ii),3) +" "+ padr(arrPZ[i,3],49)+ ;
+                      PadL( lstr(arr_sv[i,3]),10)+PadL( lstr(arr_sv[i,4]),9)+PadL( lstr(arr_sv[i,3]+arr_sv[i,4]),9)+ "  сумма "+;
+            put_kop(arr_sv[i,1],10)+put_kop(arr_sv[i,2],11)+put_kop(arr_sv[i,1]+arr_sv[i,2],11))
+           smm1 += arr_sv[i,3]
+           smm2 += arr_sv[i,4]
+           smm3 += arr_sv[i,1]
+           smm4 += arr_sv[i,2]
+        endif  
+      next
+      add_string("-------------------------------------------------------------------------------------------------------------------------" )
+      add_string(padl(" ИТОГО:   ",53)+ ;
+        PadL( lstr(smm1),10)+PadL( lstr(smm2),9)+PadL( lstr(smm1+smm2),9)+ "  сумма "+; 
+        put_kop(smm3,10)+put_kop(smm4,11)+put_kop(smm3+smm4,11))
+
+      add_string("" )
       //
       add_string( '                                                          Взрослые   Дети     Итого         Взрослые     Дети    Итого' )
       add_string( ' 1 = 3+5+31+37 Всего, в том числе                      ' + prn_novor( mas_otchet, 1 ) )
