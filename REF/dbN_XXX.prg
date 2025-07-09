@@ -38,19 +38,21 @@ function get_sootv_mkb_mkbo()
   endif
   Return _arr
 
-// 07.07.25
+// 09.07.25
 function getds_sootv_onko( codeMKB )
 
   local ret := '', fl := .f.
-  local aSootv, i
+  local aSootv, i, shortCodeMKB
 
-  codeMKB := AllTrim( codeMKB )
+  codeMKB := Upper( AllTrim( codeMKB ) )
+  shortCodeMKB := SubStr( codeMKB, 1, 3 )
   aSootv := get_sootv_mkb_mkbo()
 
   for i := 1 to len( aSootv )
-    if aSootv[ i, 1 ] == codeMKB
+    if aSootv[ i, 1 ] == codeMKB .or. aSootv[ i, 1 ] == shortCodeMKB
       ret := aSootv[ i, 2 ]
       fl := .t.
+      exit
     endif
   next
   if ! fl

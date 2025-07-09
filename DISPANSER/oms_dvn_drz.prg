@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 08.07.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 09.07.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -631,12 +631,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       //
       @ ++j, 1 Say 'Сроки' Get mn_data ;
         valid {| g | f_k_data( g, 1 ), f_valid_begdata_drz( g, Loc_kod ), ;
-        iif( ( mvozrast < 18 .or. mvozrast > 49 ), func_error( 4, 'Пациент не подлежит данному виду диспансеризации!' ), nil ) }  //, ;
-        // ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
-        // }
+        iif( ( mvozrast < 18 .or. mvozrast > 49 ), func_error( 4, 'Пациент не подлежит данному виду диспансеризации!' ), nil ), ;
+        ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
+        }
       @ Row(), Col() + 1 Say '-' Get mk_data ;
-        valid {| g | f_k_data( g, 2 ) } //, ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
-        // }
+        valid {| g | f_k_data( g, 2 ), ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
+        }
 
       @ j, Col() + 5 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2

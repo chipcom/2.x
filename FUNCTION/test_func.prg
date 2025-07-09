@@ -7,7 +7,7 @@ function test_init()
 
 //  local aaa
   
-//  aaa := glob_array_srf( 'D:\_MO\chip\exe\', 'D:\_MO\chip\work\')
+//  aaa := getds_sootv_onko( 'C46.1' )
 //  altd()
 return nil
   
