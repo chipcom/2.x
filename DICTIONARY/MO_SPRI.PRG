@@ -2419,10 +2419,11 @@ Function spr_info_diagn( k )
   Endif
   Return Nil
 
-// 26.07.23
+// 10.07.25
 Function f_10diag( k )
 
   Local buf := SaveScreen(), i := 1, c1 := 1, c2 := 77, msh_b, msh_e, arr_t, s, s1
+  Local name_file
 
   Private pregim := k, uregim := 1
 
@@ -2478,7 +2479,8 @@ Function f_10diag( k )
           AAdd( arr_t, '( ' + AllTrim( msh_b ) + ' - ' + AllTrim( msh_e ) + ' )' )
         Endif
         Private sh := 76, HH := 77
-        fp := FCreate( cur_dir() + 'diagtmp.txt' )
+        name_file := cur_dir() + 'diagtmp.txt'
+        fp := FCreate( name_file )
         n_list := 1
         tek_stroke := 0
         add_string( '' )
@@ -2499,7 +2501,7 @@ Function f_10diag( k )
           Endif
           s1 := iif( ks == 0 .and. !Empty( diag->pol ), iif( diag->pol == 'М', '<муж.>', '<жен.>' ), Space( 6 ) )
           s := iif( '.' $ shifr, s1, '' )
-          s += iif( ks == 0 .and. !between_date_new( diag->dbegin, diag->dend ), '-', ' ' )
+          s += iif( ks == 0 .and. !between_date_new( diag->dbegin, diag->dend ), '-', ' ' ) 
           s += PadR( if( ks == 0, shifr, '' ), 6 )
           s += ' ' + RTrim( name )
           add_string( s )
@@ -2507,7 +2509,7 @@ Function f_10diag( k )
         Enddo
         Close databases
         FClose( fp )
-        viewtext( 'diagtmp.txt', , , , , , , 5 )
+        viewtext( name_file, , , , , , , 5 )
       Else
         Exit
       Endif
@@ -2673,11 +2675,15 @@ Function f2_10diag( nKey, oBrow )
 Function f3_10diag( nKey, nInd )
 
   Local rec, i
+  local name_file
 
   If nKey == K_F9
+    name_file := cur_dir() + 'diagtmp.txt'
     rec := RecNo()
     Private sh := 76, HH := 77
-    fp := FCreate( cur_dir() + "diagtmp.txt" ) ; n_list := 1 ; tek_stroke := 0
+    fp := FCreate( name_file )
+    n_list := 1
+    tek_stroke := 0
     add_string( "" )
     add_string( Center( "Результат поиска по подстроке: " + mname, sh ) )
     add_string( "" )
@@ -2694,7 +2700,7 @@ Function f3_10diag( nKey, nInd )
       Enddo
     Next
     FClose( fp )
-    viewtext( "diagtmp.txt",,,,,,, 5 )
+    viewtext( name_file,,,,,,, 5 )
     Goto ( rec )
   Endif
   Return -1

@@ -5,19 +5,19 @@ Function correct_date_dictionary( dt, date_begin, date_end )
 
   Return ( ( date_begin <= dt ) .and. ( Empty( date_end ) .or. date_end >= dt ) )
 
-// 28.05.25
+// 10.07.25
 Function between_date_new( begin_date, end_date, checking_date )
 
   Local fl := .f.
 
-  Default date1 To Date() //sys_date  // по умолчанию проверяем на сегодняшний момент
+  Default checking_date To Date() //sys_date  // по умолчанию проверяем на сегодняшний момент
   If Empty( begin_date ) .and. Empty( end_date )
     Return fl
   Endif
   If ! Empty( begin_date ) .and. Empty( end_date ) .and. ( begin_date < checking_date )
     fl := .t.
   Endif
-  If ( ! Empty( begin_date ) ) .and. ( ! Empty( end_date ) ) .and. ( begin_date <= checking_date ) .and. ( _end_date >= checking_date )
+  If ( ! Empty( begin_date ) ) .and. ( ! Empty( end_date ) ) .and. ( begin_date <= checking_date ) .and. ( checking_date <= end_date )
     fl := .t.
   Endif
   Return fl
