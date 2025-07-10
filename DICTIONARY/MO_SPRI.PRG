@@ -4,6 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
+#include 'tfile.ch'
 
 // 12.05.25 просмотр/печать общих справочников
 Function o_sprav( k )
@@ -2423,7 +2424,7 @@ Function spr_info_diagn( k )
 Function f_10diag( k )
 
   Local buf := SaveScreen(), i := 1, c1 := 1, c2 := 77, msh_b, msh_e, arr_t, s, s1
-  Local name_file
+  Local name_file, ft
 
   Private pregim := k, uregim := 1
 
@@ -2478,37 +2479,51 @@ Function f_10diag( k )
         Else
           AAdd( arr_t, '( ' + AllTrim( msh_b ) + ' - ' + AllTrim( msh_e ) + ' )' )
         Endif
-        Private sh := 76, HH := 77
-        name_file := cur_dir() + 'diagtmp.txt'
-        fp := FCreate( name_file )
-        n_list := 1
-        tek_stroke := 0
-        add_string( '' )
-        r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'DIAG' )
+        name_file := cur_dir() + 'diagtmp.txt' 
+        ft := tfiletext():new( name_file, , .t., , .t. )
+        ft:add_string( '' )
+        ft:add_string( 'Список работающего персонала с табельными номерами', FILE_CENTER, ' ' )
+        ft:add_string( '' )
         For k := 1 To Len( arr_t )
-          add_string( Center( arr_t[ k ], sh ) )
+          ft:add_string( Center( arr_t[ k ] ) )
         Next
-        add_string( '' )
-        add_string( Center( '[ знаком "-" перед шифром отмечены диагнозы, не входящие в ОМС ]', sh ) )
-        add_string( '' )
+        ft:add_string( '' )
+        ft:add_string( Center( '[ знаком "-" перед шифром отмечены диагнозы, не входящие в ОМС ]' ) )
+        ft:add_string( '' )
+
+//        Private sh := 76, HH := 77
+//        fp := FCreate( name_file )
+//        n_list := 1
+//        tek_stroke := 0
+//        add_string( '' )
+        r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'DIAG' )
+//        For k := 1 To Len( arr_t )
+//          add_string( Center( arr_t[ k ], sh ) )
+//        Next
+//        add_string( '' )
+//        add_string( Center( '[ знаком "-" перед шифром отмечены диагнозы, не входящие в ОМС ]', sh ) )
+//        add_string( '' )
         dbSeek( PadR( msh_b, 5 ), .t. )
-        Do While Left( shifr, 3 ) <= msh_e .and. !Eof()
-          If ks == 0
-            verify_ff( HH, .t., sh )
+        Do While Left( diag->shifr, 3 ) <= msh_e .and. !Eof()
+//          If ks == 0
+//            verify_ff( HH, .t., sh )
+//          Endif
+          If !( '.' $ diag->shifr ) .and. diag->ks == 0
+//            add_string( '' )
+            ft:add_string( '' )
           Endif
-          If !( '.' $ shifr ) .and. ks == 0
-            add_string( '' )
-          Endif
-          s1 := iif( ks == 0 .and. !Empty( diag->pol ), iif( diag->pol == 'М', '<муж.>', '<жен.>' ), Space( 6 ) )
-          s := iif( '.' $ shifr, s1, '' )
-          s += iif( ks == 0 .and. !between_date_new( diag->dbegin, diag->dend ), '-', ' ' ) 
-          s += PadR( if( ks == 0, shifr, '' ), 6 )
-          s += ' ' + RTrim( name )
-          add_string( s )
+          s1 := iif( diag->ks == 0 .and. !Empty( diag->pol ), iif( diag->pol == 'М', '<муж.>', '<жен.>' ), Space( 6 ) )
+          s := iif( '.' $ diag->shifr, s1, '' )
+          s += iif( diag->ks == 0 .and. !between_date_new( diag->dbegin, diag->dend ), '-', ' ' ) 
+          s += PadR( if( diag->ks == 0, diag->shifr, '' ), 6 )
+          s += ' ' + RTrim( diag->name )
+//          add_string( s )
+          ft:add_string( s )
           Skip
         Enddo
         Close databases
-        FClose( fp )
+//        FClose( fp )
+        ft := nil
         viewtext( name_file, , , , , , , 5 )
       Else
         Exit
@@ -2671,35 +2686,44 @@ Function f2_10diag( nKey, oBrow )
   Endcase
   Return k
 
-//
+// 10.07.25
 Function f3_10diag( nKey, nInd )
 
   Local rec, i
-  local name_file
+  local name_file, s
+  local ft
 
   If nKey == K_F9
-    name_file := cur_dir() + 'diagtmp.txt'
     rec := RecNo()
-    Private sh := 76, HH := 77
-    fp := FCreate( name_file )
-    n_list := 1
-    tek_stroke := 0
-    add_string( "" )
-    add_string( Center( "Результат поиска по подстроке: " + mname, sh ) )
-    add_string( "" )
+    name_file := cur_dir() + 'diagtmp.txt'
+
+    ft := tfiletext():new( name_file, , .t., , .t. )
+    ft:add_string( '' )
+    ft:add_string( 'Результат поиска по подстроке: ' + mname, FILE_CENTER, ' ' )
+    ft:add_string( '' )
+
+//    Private sh := 76, HH := 77
+//    fp := FCreate( name_file )
+//    n_list := 1
+//    tek_stroke := 0
+//    add_string( "" )
+//    add_string( Center( "Результат поиска по подстроке: " + mname, sh ) )
+//    add_string( "" )
     For i := 1 To Len( parr )
       find ( Left( parr[ i ], 6 ) )
-      Do While shifr == Left( parr[ i ], 6 ) .and. !Eof()
-        If ks == 0
-          verify_ff( HH, .t., sh )
-        Endif
-        s := PadR( if( ks == 0, shifr, "" ), 7 )
-        s += " " + RTrim( name )
-        add_string( s )
+      Do While diag->shifr == Left( parr[ i ], 6 ) .and. !Eof()
+//        If ks == 0
+//          verify_ff( HH, .t., sh )
+//        Endif
+        s := PadR( if( diag->ks == 0, diag->shifr, '' ), 7 )
+        s += ' ' + RTrim( diag->name )
+//        add_string( s )
+        ft:add_string( s )
         Skip
       Enddo
     Next
-    FClose( fp )
+//    FClose( fp )
+    ft := nil
     viewtext( name_file,,,,,,, 5 )
     Goto ( rec )
   Endif
