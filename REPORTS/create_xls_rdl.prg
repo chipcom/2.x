@@ -78,6 +78,8 @@ Function create_xls_rdl( name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd
   Endif
 
   If hb_FileExists( cur_dir() + '_data3' + sdbf() )
+    Use ( cur_dir() + '_data4' ) New  Alias frd1
+    FRD1->( dbGoTop() ) 
     Use ( cur_dir() + '_data3' ) New  Alias FRD
     FRD->( dbGoTop() )
     /* Добавим лист "Снятия" в книгу. */
@@ -185,8 +187,57 @@ Function create_xls_rdl( name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd
 	  endif 
       FRD->( dbSkip() )
     End
-	frd->( dbCloseArea() )
-	hb_vfErase( cur_dir() + '_data3' + sdbf() )
+/* Добавим лист "Снятия 2" в книгу. */
+worksheetError = workbook_add_worksheet( workbook, 'Снятия 2' )
+iRow := 0
+// шапка таблицы
+worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, 'Список снятий по актам контроля', format_header_main )
+worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, hb_StrToUTF8( AllTrim( arr_m[ 4 ] ) ), format_header_main )  // вывод временного периода
+worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, '( по дате отчётного периода / все случаи снятия )', format_header_main )
+worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, '(ТФОМС (иногородние)', format_header_main )
+worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, hb_StrToUTF8( string_selected_uch( st_a_uch, lcount_uch ) ), format_header_main )
+If Len( st_a_uch ) == 1
+  worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, hb_StrToUTF8( string_selected_otd( st_a_otd, lcount_otd ) ), format_header_main )
+Endif
+worksheet_write_string( worksheetError, iRow, 0, '№ п/п', format_header )
+worksheet_write_string( worksheetError, iRow, 1, 'МО напр.', format_header )
+worksheet_write_string( worksheetError, iRow, 2, 'ФИО пациента', format_header )
+worksheet_write_string( worksheetError, iRow, 3, 'Дата рождения', format_header )
+worksheet_write_string( worksheetError, iRow, 4, 'Отделение', format_header )
+worksheet_write_string( worksheetError, iRow, 5, 'Дата лечение', format_header )
+worksheet_write_string( worksheetError, iRow, 6, 'Код дефекта', format_header )
+worksheet_write_string( worksheetError, iRow, 7, 'Санкции', format_header )
+worksheet_write_string( worksheetError, iRow, 8, 'Наименование МО напр.', format_header )
+
+/* Установить ширину колонок */
+worksheet_set_column( worksheetError, 0, 0, 8.0 )
+worksheet_set_column( worksheetError, 1, 1, 10.0 )
+worksheet_set_column( worksheetError, 2, 2, 50.0 )
+worksheet_set_column( worksheetError, 3, 3, 10.0 )
+worksheet_set_column( worksheetError, 4, 4, 8.0 )
+worksheet_set_column( worksheetError, 5, 5, 15.0 )
+worksheet_set_column( worksheetError, 6, 6, 12.0 )
+worksheet_set_column( worksheetError, 7, 7, 7.14 )
+worksheet_set_column( worksheetError, 8, 8, 50.0 )
+
+FRD1->( dbGoTop() )
+iRow++
+Do While ! FRD1->( Eof() )
+  worksheet_write_string( worksheetError, iRow, 0, hb_StrToUTF8( AllTrim( FRD1->NUM_USL ) ), format_text )
+  worksheet_write_string( worksheetError, iRow, 1, hb_StrToUTF8( AllTrim( FRD1->NAPR_UCH ) ), format_text )
+  worksheet_write_string( worksheetError, iRow, 2, hb_StrToUTF8( AllTrim( FRD1->FIO ) ), format_text )
+  worksheet_write_string( worksheetError, iRow, 3, hb_StrToUTF8( AllTrim( FRD1->DATE_R ) ), format_text )
+  worksheet_write_string( worksheetError, iRow, 4, hb_StrToUTF8( AllTrim( FRD1->OTD ) ), format_text )
+  worksheet_write_string( worksheetError, iRow, 5, hb_StrToUTF8( AllTrim( FRD1->n_data )+" "+ AllTrim( FRD1->k_data ) ), format_text )
+  worksheet_write_string( worksheetError, iRow, 6, hb_StrToUTF8( AllTrim( FRD1->REFREASON ) ), format_text )
+  worksheet_write_number( worksheetError, iRow, 7, FRD1->SUM_SN, format_text3 )
+  worksheet_write_string( worksheetError, iRow, 8, hb_StrToUTF8( AllTrim( FRD1->NAPR_UCH1 ) ), format_text )
+  ++iRow
+  FRD1->( dbSkip() )
+End
+frd1->( dbCloseArea() )
+frd->( dbCloseArea() )
+hb_vfErase( cur_dir() + '_data3' + sdbf() )
 	
   Endif
 
