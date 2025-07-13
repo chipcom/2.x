@@ -6,9 +6,10 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 01.07.25
+// 12.07.25
 Function verify_sluch( fl_view )
 
+  local arrUslugiOver // для проверки услуг пересекающихся случаев поликлиники
   local dBegin  // дата начала случая
   local dEnd    // дата окончания случая
   local cd1, cd2, ym2
@@ -2692,6 +2693,15 @@ Function verify_sluch( fl_view )
           date_8( a_period_amb[ i, 1 ] ) + '-' + date_8( a_period_amb[ i, 2 ] ) + ;
           iif( Empty( otd->short_name ), '', ' [' + AllTrim( otd->short_name ) + ']' ) )
         // aadd(ta, '└>данный л/у - запись № ' + lstr(human->(recno())) + ', прошлый л/у - запись № ' + lstr(a_period_amb[i, 5]))
+      else
+        
+        if AScan( collect_uslugi( a_period_amb[ i, 5 ] ), shifr_2_92 ) > 0
+          AAdd( ta, 'данный случай школы ХНИЗ пересекается с анологичным случаем школы ХНИЗ' )
+        AAdd( ta, '└> ' + ;
+          date_8( a_period_amb[ i, 1 ] ) + '-' + date_8( a_period_amb[ i, 2 ] ) + ;
+          ' в отделении: ' + ;
+          iif( Empty( otd->name ), '', ' [' + AllTrim( otd->name ) + ']' ) )
+        endif
       Endif
     Next
   Endif
