@@ -6,9 +6,11 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 12.07.25
+// 14.07.25
 Function verify_sluch( fl_view )
 
+  local mIDPC // код цели посещения по справочнику V025
+  local arr_IDPC := {}  // массив для кодов целей посещения
   local arrUslugiOver // для проверки услуг пересекающихся случаев поликлиники
   local dBegin  // дата начала случая
   local dEnd    // дата окончания случая
@@ -68,6 +70,7 @@ Function verify_sluch( fl_view )
     arr_usl_otkaz := {}, m1novor := 0, mpol := human->pol, mDATE_R2 := CToD( '' ), ;
     is_oncology := 0, is_oncology_smp := 0
 
+  mIDPC := ''
   rec_human := human->( RecNo() )
 
   If human_->NOVOR > 0
@@ -913,13 +916,16 @@ Function verify_sluch( fl_view )
         is_exist_Prescription := .t.
       elseif eq_any( alltrim_lshifr, '7.2.706', '7.57.704', '7.61.704' ) // услуги с применением ИИ
         mpovod := 7 // 2.3-Комплексное обследование
+        mIDPC := '2.3'
         mIDSP := 28 // за медицинскую услугу
       Elseif eq_any( left_lshifr_5, '60.4.', '60.5.', '60.6.', '60.7.', '60.8.', '60.9.' ) .or. ;
           eq_any( alltrim_lshifr, '4.20.702', '4.15.746' ) // ЛДП
         If alltrim_lshifr == '4.15.746' // пренатальный скрининг
           mpovod := 1 // 1.0-Посещение по заболеванию
+          mIDPC := '1.0'
         Else
           mpovod := 7 // 2.3-Комплексное обследование
+          mIDPC := '2.3'
         Endif
         mIDSP := 4 // лечебно-диагностическая процедура 
         kkt += hu->kol_1
@@ -952,6 +958,7 @@ Function verify_sluch( fl_view )
         mdate_u2 := dtoc4( human->k_data )
         If eq_any( alltrim_lshifr, '60.3.1', '60.3.12', '60.3.13' )  // 04.12.22
           mpovod := 10 // 3.0
+          mIDPC := '3.0'
           musl_ok := USL_OK_POLYCLINIC  // 3 - п-ка
           is_perito := .t.
         Elseif eq_any( alltrim_lshifr, '60.3.9', '60.3.10', '60.3.11' ) // 01.12.21
@@ -959,6 +966,7 @@ Function verify_sluch( fl_view )
           is_dializ := .t.
         ElseIf eq_any( alltrim_lshifr, '60.3.19', '60.3.20', '60.3.21' )  // 16.02.24
           mpovod := 10 // 3.0
+          mIDPC := '3.0'
           musl_ok := USL_OK_POLYCLINIC  // 3 - п-ка
           is_dializ := .t.
         Else
@@ -1009,6 +1017,7 @@ Function verify_sluch( fl_view )
           shifr_2_92 := alltrim_lshifr
           is_2_92_ := .t.
           mpovod := 10 // 3.0
+          mIDPC := '3.0'
           If vozrast >= 18 .and. alltrim_lshifr == '2.92.3'
             AAdd( ta, 'услуга 2.92.3 оказывается только детям или подросткам' )
           Elseif vozrast < 18 .and. eq_any( alltrim_lshifr, '2.92.1', '2.92.2' )
@@ -1020,9 +1029,11 @@ Function verify_sluch( fl_view )
           kol_2_93_2++
         Elseif left_lshifr_5 == '2.76.'
           mpovod := 7 // 2.3
+          mIDPC := '2.3'
           mIDSP := 12 // Комплексная услуга центра здоровья
         Elseif left_lshifr_5 == '2.78.'
           mpovod := 10 // 3.0 обращение по заболеванию
+          mIDPC := '3.0'
           d_sroks := AfterAtNum( '.', alltrim_lshifr )
           If between_shifr( alltrim_lshifr, '2.78.54', '2.78.60' )
             fl_stom := .t.
@@ -1033,12 +1044,14 @@ Function verify_sluch( fl_view )
             mIDSP := 17 // Законченный случай в поликлинике
             If eq_any( alltrim_lshifr, '2.78.90', '2.78.91' ) .and. Len( mdiagnoz ) > 0 .and. Left( mdiagnoz[ 1 ], 1 ) == 'Z'
               mpovod := 11 // 3.1 обращение с проф.целью
+              mIDPC := '3.1'
             Elseif l_mdiagnoz_fill .and. ;
               ( ( alltrim_lshifr == '2.78.107' .and. ( human->k_data >= 0d20230101 ) ) .or. ;
               ( eq_any(alltrim_lshifr, '2.78.109', '2.78.110', '2.78.111', '2.78.112' ) .and. ( human->k_data >= 0d20240101 ) ) )
               // добавлена комплексная услуга 2.78.107 02.2023
               // добавлена услуги 2.78.109, 2.78.110, 2.78.111, 2.78.112 01.2024
               mpovod := 4 // 1.3
+              mIDPC := '1.3'
               If ! check_diag_usl_disp_nabl( mdiagnoz[ 1 ], alltrim_lshifr, human->k_data ) //, .f. )
                 AAdd( ta, 'в услуге ' + alltrim_lshifr + ' должен стоять допустимый диагноз для диспансерного наблюдения' )
               Endif
@@ -1054,8 +1067,10 @@ Function verify_sluch( fl_view )
           d_sroks := AfterAtNum( '.', alltrim_lshifr )
           If between_shifr( alltrim_lshifr, '2.79.44', '2.79.50' ) .or. eq_any( alltrim_lshifr, '2.79.79', '2.79.80' )
             mpovod := 8 // 2.5 - патронаж
+            mIDPC := '2.5'
           Else
             mpovod := 9 // 2.6
+            mIDPC := '2.6'
           Endif
           If between_shifr( alltrim_lshifr, '2.79.59', '2.79.64' )
             fl_stom := .t.
@@ -1071,6 +1086,7 @@ Function verify_sluch( fl_view )
         Elseif left_lshifr_5 == '2.80.'
           d_sroks := AfterAtNum( '.', alltrim_lshifr )
           mpovod := 2 // 1.1
+          mIDPC := '1.1'
           If between_shifr( alltrim_lshifr, '2.80.34', '2.80.38' )
             fl_stom := .t.
             mpztip := 4
@@ -1079,12 +1095,14 @@ Function verify_sluch( fl_view )
           Endif
         Elseif left_lshifr_5 == '2.81.'
           mpovod := 1 // 1.0
+          mIDPC := '1.0'
           is_2_81 := .t.
         Elseif left_lshifr_5 == '2.82.'
           If alltrim_lshifr == '2.82.10' .and. hu_->profil == 90
             AAdd( ta, 'для услуги 2.82.10 рекомедуется проставлять профиль "челюстно-лицевой хирургии"' )
           Endif
           mpovod := 2 // 1.1
+          mIDPC := '1.1'
           is_2_82 := .t.
           mIDSP := 22 // Посещение в приёмном покое
         Elseif left_lshifr_5 == '2.83.'
@@ -1115,6 +1133,7 @@ Function verify_sluch( fl_view )
         Elseif left_lshifr_5 == '2.88.'
           d_sroks := AfterAtNum( '.', alltrim_lshifr )
           mpovod := 1 // 1.0
+          mIDPC := '1.0'
           If between_shifr( alltrim_lshifr, '2.88.46', '2.88.51' )
             fl_stom := .t.
             mpztip := 4
@@ -1130,6 +1149,7 @@ Function verify_sluch( fl_view )
           Endif
         Elseif left_lshifr_5 == '2.89.'
           mpovod := 10 // 3.0
+          mIDPC := '3.0'
           ++kvp_2_89
           is_2_89 := .t.
           i := 3
@@ -1217,6 +1237,7 @@ Function verify_sluch( fl_view )
         Endif
         If is_usluga_disp_nabl( alltrim_lshifr )
           mpovod := 4 // 1.3-Диспансерное наблюдение
+          mIDPC := '1.3'
           ldate_next := c4tod( human->DATE_OPL )
           info_disp_nabl := val( substr( human_->DISPANS, 2, 1 ) )  // получим сведения по диспансерному наблюдению по основному заболеванию
           if ! ( eq_any( info_disp_nabl, 4, 6 ) ) // согласно письму ТФОМС 09-20-615 от 21.11.24
@@ -1236,6 +1257,7 @@ Function verify_sluch( fl_view )
           //
         Elseif mpovod > 0 .and. AScan( arr_povod, {| x| x[ 1 ] == mpovod } ) == 0
           AAdd( arr_povod, { mpovod, alltrim_lshifr } )
+          AAdd( arr_IDPC, { mIDPC, alltrim_lshifr } )
         Endif
       Elseif !( hu->date_u == mdate_u1 ) .and. Len( au_lu ) == 1
         AAdd( ta, 'дата услуги ' + alltrim_lshifr + ' должна равняться дате начала лечения' )
