@@ -56,7 +56,7 @@ Function integration_sds( k )
 
   Return Nil
 
-// 01.07.25
+// 17.07.25
 Function read_file_xml_sds( n_file )
 
   Static cDelimiter := " , "
@@ -1265,22 +1265,22 @@ Function read_file_xml_sds( n_file )
       Endif
     Endif
     If ihuman->STAD > 0
-      f_verify_tnm( 2, ihuman->STAD, ihuman->ds1, ihuman->DATE_2, ae )
+      f_verify_tnm( 2, ihuman->STAD, ihuman->ds1, ihuman->DATE_2, mem_ver_TNM, ae )
       If ihuman->ds1_t == 0 .and. m1vzros_reb == 0
         If Empty( ihuman->ONK_T )
           AAdd( ae, "не заполнена стадия заболевания T" )
         Else
-          f_verify_tnm( 3, ihuman->ONK_T, ihuman->ds1, ihuman->DATE_2, ae )
+          f_verify_tnm( 3, ihuman->ONK_T, ihuman->ds1, ihuman->DATE_2, mem_ver_TNM, ae )
         Endif
         If Empty( ihuman->ONK_N )
           AAdd( ae, "не заполнена стадия заболевания N" )
         Else
-          f_verify_tnm( 4, ihuman->ONK_N, ihuman->ds1, ihuman->DATE_2, ae )
+          f_verify_tnm( 4, ihuman->ONK_N, ihuman->ds1, ihuman->DATE_2, mem_ver_TNM, ae )
         Endif
         If Empty( ihuman->ONK_M )
           AAdd( ae, "не заполнена стадия заболевания M" )
         Else
-          f_verify_tnm( 5, ihuman->ONK_M, ihuman->ds1, ihuman->DATE_2, ae )
+          f_verify_tnm( 5, ihuman->ONK_M, ihuman->ds1, ihuman->DATE_2, mem_ver_TNM, ae )
         Endif
       Endif
       Select DI

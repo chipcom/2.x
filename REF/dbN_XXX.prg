@@ -5,9 +5,68 @@
 
 #require 'hbsqlit3'
 
+// 17.07.25
+function get_onko_stad( diag, stage, versionTNM, TNM )
+
+  local arr
+  Local db
+  Local aTable
+  Local cmdText
+  Local where
+  Local group := ''
+  Local nI
+
+  diag := AllTrim( Upper( diag ) )
+  stage := AllTrim( stage )
+
+//  cmdText := 'SELECT id_t, ds_t, kod_t, t_name ' + ;
+//    'FROM n003 ' + ;
+//    'JOIN onko_stad ON n003.id_t=onko_stad.id_tumor '
+//  where := ' WHERE stage="' + stage + '" and versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and icdtop=="' + diag  + '"'
+//  group := ' GROUP BY id_tumor'
+
+  cmdText := 'SELECT ' + ;
+      'id, ' + ;
+      'icdtop, ' + ;
+      'stage, ' + ;
+      'id_tumor, ' + ;
+      'id_nodus, ' + ;
+      'id_metastas, ' + ;
+      'id_addition, ' + ;
+      'classification, ' + ;
+      'versionTNM ' + ;
+      'FROM onko_stad'
+  where := ' WHERE stage="' + stage + '" and versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and icdtop=="' + diag  + '"'
+  if lower( tnm ) == 'tumor'
+    group := ' GROUP BY id_tumor'
+  elseif lower( tnm ) == 'nodus'
+    group := ' GROUP BY id_nodus'
+  elseif lower( tnm ) == 'metastasis'
+    group := ' GROUP BY id_metastas'
+  endif
+  cmdText += where + group
+
+  arr := {}
+  db := opensql_db()
+  aTable := sqlite3_get_table( db, cmdText )
+//  If Len( aTable ) > 1
+//    For nI := 2 To Len( aTable )
+//      if lower( tnm ) == 'tumor'
+//        AAdd( arr, { val( aTable[ nI, 1 ] ), Val( aTable[ nI, 4 ] ) } )
+//      elseif lower( tnm ) == 'nodus'
+//        AAdd( arr, { val( aTable[ nI, 1 ] ), Val( aTable[ nI, 5 ] ) } )
+//      elseif lower( tnm ) == 'metastasis'
+//        AAdd( arr, { val( aTable[ nI, 1 ] ), Val( aTable[ nI, 6 ] ) } )
+//      endif
+//    Next
+//  Endif
+altd()
+  db := nil
+  return arr
+
 // 07.07.25
 function get_sootv_mkb_mkbo()
-  // возвращает массив N001 противопоказаний и отказов (OnkPrOt)
+  // возвращает массив Соответствие кодов МКБ-10 и кодов МКБ-О Топография для классификации TNM
   Static _arr
   Static time_load
   Local db
@@ -38,8 +97,8 @@ function get_sootv_mkb_mkbo()
   endif
   Return _arr
 
-// 09.07.25
-function getds_sootv_onko( codeMKB )
+// 17.07.25
+function getds_sootv_onko( codeMKB, versionTNM )
 
   local ret := '', fl := .f.
   local aSootv, i, shortCodeMKB
@@ -50,9 +109,15 @@ function getds_sootv_onko( codeMKB )
 
   for i := 1 to len( aSootv )
     if aSootv[ i, 1 ] == codeMKB .or. aSootv[ i, 1 ] == shortCodeMKB
-      ret := aSootv[ i, 2 ]
-      fl := .t.
-      exit
+      if versionTNM == 7 .and. aSootv[ i, 3 ]
+        ret := aSootv[ i, 2 ]
+        fl := .t.
+        exit
+      elseif versionTNM == 8 .and. aSootv[ i, 4 ]
+        ret := aSootv[ i, 2 ]
+        fl := .t.
+        exit
+      endif
     endif
   next
   if ! fl

@@ -7,7 +7,7 @@
 // согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
 #define CHILD_EXIST .f. // учитывать несовершеннолетних или нет
 
-// 25.06.24 добавление или редактирование случая (листа учета)
+// 17.07.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -15,7 +15,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
   Static SKOD_DIAG := '     ', st_N_DATA, st_K_DATA, ;
     st_vrach := 0, st_profil := 0, st_profil_k := 0, ;
     st_rslt := 314, ; // динамическое наблюдение
-  st_ishod := 304 // без перемен
+    st_ishod := 304 // без перемен
 
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, ;
     buf, tmp_color := SetColor(), a_smert := {}, ;
@@ -30,6 +30,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
   Local mtip_h
   Local vozrast
   Local lshifr := PadR( '2.5.2', 10 )
+  Local diag_onko_replace
 
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
@@ -207,7 +208,8 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     If Found()
       m1STAD := sl->STAD
     Endif
-    mm_N002 := f_define_tnm( 2, mkod_diag )
+    diag_onko_replace := iif( mk_data >= 0d20250701, getds_sootv_onko( mkod_diag, mem_ver_TNM ), mkod_diag )
+    mm_N002 := f_define_tnm( 2, diag_onko_replace, MK_DATA )
     mSTAD  := PadR( inieditspr( A__MENUVERT, mm_N002, m1STAD ), 5 )
 
     // выберем услуги
@@ -634,7 +636,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
 
   Return Nil
 
-// * 23.11.22
+// 17.07.25
 Function f_valid_onko_diag( diag, dob, date_post, children_acceptable )
 
   // diag - онкологический диагноз
@@ -666,8 +668,7 @@ Function f_valid_onko_diag( diag, dob, date_post, children_acceptable )
     func_error( 4, 'Недопустимый диагноз, допустимый диапазон с ' + diagBeg + ' по ' + iif( vozrast < 18, diagChild, diagAdult ) + '!' )
     Return fl
   Endif
-  mm_N002 := f_define_tnm( 2, diag )
-
+  mm_N002 := f_define_tnm( 2, diag, MK_DATA )
   Return fl
 
 // * 09.09.22

@@ -794,17 +794,13 @@ Function print_l_uch_disp(sh)
   endif
   return NIL
 
-// 27.05.25 добавка по онкологии к листу учёта
+// 17.07.25 добавка по онкологии к листу учёта
 Function print_luch_onk( dk,  diag, sh )
 
   local mm_DS1_T := getN018()  // N018
   local mm_usl_tip := getN013()
   local fname := prefixFileRefName( dk ) + 'shema'
 
-  local mm_N002 := f_define_tnm( 2, diag, dk )
-  local mm_N003 := f_define_tnm( 3, diag, dk )
-  local mm_N004 := f_define_tnm( 4, diag, dk )
-  local mm_N005 := f_define_tnm( 5, diag, dk )
   local mm_N014 := getn014()
   local mm_N015 := getn015()
   local mm_N016 := getn016()
@@ -821,6 +817,17 @@ Function print_luch_onk( dk,  diag, sh )
   local m1usl_tip1, mm_usl_tip1, m1usl_tip2, mm_usl_tip2
   local m1crit
   local cREGNUM, cUNITCODE
+
+  local mm_N002 // := f_define_tnm( 2, diag, dk )
+  local mm_N003 // := f_define_tnm( 3, diag, dk )
+  local mm_N004 // := f_define_tnm( 4, diag, dk )
+  local mm_N005 // := f_define_tnm( 5, diag, dk )
+
+  diag := iif( dk >= 0d20250701, getds_sootv_onko( diag, mem_ver_TNM ), diag )
+  mm_N002 := f_define_tnm( 2, diag, dk )
+  mm_N003 := f_define_tnm( 3, diag, dk )
+  mm_N004 := f_define_tnm( 4, diag, dk )
+  mm_N005 := f_define_tnm( 5, diag, dk )
 
   if f_is_oncology(1) == 2 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
 

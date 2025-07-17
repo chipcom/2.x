@@ -5,10 +5,13 @@
 
 function test_init()
 
-//  local aaa
+  local aaa
   
 //  aaa := getds_sootv_onko( 'C46.1' )
-//  altd()
+//    aaa := get_onko_stad( 'C50.4', 'IV', 8, 'metastasis' )
+//    aaa := get_onko_stad( 'C50.4', 'IV', 8, 'NODUS' )
+    aaa := get_onko_stad( 'C50.4', 'IV', 8, 'TUMOR' )
+  altd()
 return nil
   
 function GetVersions( code )

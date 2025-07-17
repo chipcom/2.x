@@ -38,8 +38,8 @@ Function only_control_onko( napr, date, rslt, ishod )
   lRet := ( !Empty( napr ) .and. !Empty( date ) .and. rslt == 314 .and. ishod == 304 ) // .and. ! is_VOLGAMEDLAB())
   Return lRet
 
-// 09.07.25 проверка правильности соответствующей стадии по соответствующему справочнику
-Function f_verify_tnm( n, lkod, ldiag, mdate, ar )
+// 17.07.25 проверка правильности соответствующей стадии по соответствующему справочнику
+Function f_verify_tnm( n, lkod, ldiag, mdate, versionTNM, ar )
 
   Local sn := lstr( n )
   Local sd
@@ -52,7 +52,7 @@ Function f_verify_tnm( n, lkod, ldiag, mdate, ar )
   Local nameFuncDS
 
   default mdate to sys_date
-  ldiag := iif( mdate >= 0d20250701, getds_sootv_onko( ldiag ), ldiag )
+  ldiag := iif( mdate >= 0d20250701, getds_sootv_onko( ldiag, versionTNM ), ldiag )
 //  nameFuncDS := 'getDS_N00' + lstr( n ) + '()'
   nameFuncDS := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdate ) + '")'  
   aTmp := &nameFunc
