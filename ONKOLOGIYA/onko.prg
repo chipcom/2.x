@@ -113,34 +113,40 @@ Function f_verify_tnm( n, lkod, ldiag, mdate, versionTNM, ar )
   Endif
   Return fl
 
-// 27.05.25 функция определения массива в ф-ии редактирования листа учёта
+// 18.07.25 функция определения массива в ф-ии редактирования листа учёта
 Function f_define_tnm( n, ldiag, mdata )
 
   Local aRet := {}, sd, fl := .f.
   Local aTmp, it
   Local nameFunc
+  Local diag_onko_replace
 
-//  nameFunc := 'getDS_N00' + lstr( n ) + '( mdata )'
-  nameFunc := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdata ) + '")'  
-  aTmp := &nameFunc
-  sd := PadR( ldiag, 5 )
-  If ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
-    aRet := AClone( aTmp[ it, 2 ] )
-    fl := .t.
-  Endif
-  If ! fl
-    sd := PadR( ldiag, 3 )
-    If ( ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 3 ) == sd } ) ) > 0 ) .and. Len( aTmp[ it, 1 ] ) == 3
+//  if mdata >= 0d20250701
+//    diag_onko_replace := getds_sootv_onko( ldiag, mem_ver_TNM )
+//    aRet := get_onko_stad( ldiag, stage, mem_ver_TNM, 'tumor', mdata )
+//  else
+    //  nameFunc := 'getDS_N00' + lstr( n ) + '( mdata )'
+    nameFunc := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdata ) + '")'  
+    aTmp := &nameFunc
+    sd := PadR( ldiag, 5 )
+    If ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
       aRet := AClone( aTmp[ it, 2 ] )
       fl := .t.
     Endif
-  Endif
-  If ! fl
-    sd := Space( 5 )
-    If ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
-      aRet := AClone( aTmp[ it, 2 ] )
+    If ! fl
+      sd := PadR( ldiag, 3 )
+      If ( ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 3 ) == sd } ) ) > 0 ) .and. Len( aTmp[ it, 1 ] ) == 3
+        aRet := AClone( aTmp[ it, 2 ] )
+        fl := .t.
+      Endif
     Endif
-  Endif
+    If ! fl
+      sd := Space( 5 )
+      If ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
+        aRet := AClone( aTmp[ it, 2 ] )
+      Endif
+    Endif
+//  endif
   Return aRet
 
 // 14.01.19 проверка правильности введённых стадий по справочнику N006 в get'e

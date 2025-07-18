@@ -16,28 +16,39 @@ function get_onko_stad( diag, stage, versionTNM, TNM, dk )
   Local group := ''
   Local nI
 
-  default TNM to 'tumor'
+  default TNM to 'stage'
 
+  tnm := lower( tnm )
   diag := AllTrim( Upper( diag ) )
   stage := AllTrim( stage )
 
-  if lower( tnm ) == 'tumor'
+  if tnm == 'stage'
+    cmdText := 'SELECT id_st, ds_st, kod_st, datebeg, dateend ' + ;
+      'FROM n002 ' + ;
+      'JOIN onko_stad ON n002.kod_st=onko_stad.stage '
+    group := ' GROUP BY stage'
+  elseif tnm == 'tumor'
     cmdText := 'SELECT id_t, ds_t, kod_t, t_name, datebeg, dateend ' + ;
       'FROM n003 ' + ;
       'JOIN onko_stad ON n003.id_t=onko_stad.id_tumor '
     group := ' GROUP BY id_tumor'
-  elseif lower( tnm ) == 'nodus'
+  elseif tnm == 'nodus'
     cmdText := 'SELECT id_n, ds_n, kod_n, n_name, datebeg, dateend ' + ;
       'FROM n004 ' + ;
       'JOIN onko_stad ON n004.id_n=onko_stad.id_nodus '
     group := ' GROUP BY id_nodus'
-  elseif lower( tnm ) == 'metastasis'
+  elseif tnm == 'metastasis'
     cmdText := 'SELECT id_m, ds_m, kod_m, m_name, datebeg, dateend ' + ;
       'FROM n005 ' + ;
       'JOIN onko_stad ON n005.id_m=onko_stad.id_metastas '
     group := ' GROUP BY id_metastas'
   endif
-  where := ' WHERE stage="' + stage + '" and versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and icdtop=="' + diag  + '"'
+
+  if tnm == 'stage'
+    where := ' WHERE versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and icdtop=="' + diag  + '"'
+  else
+    where := ' WHERE stage="' + stage + '" and versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and icdtop=="' + diag  + '"'
+  endif
 
   cmdText += where + group
 
@@ -46,9 +57,15 @@ function get_onko_stad( diag, stage, versionTNM, TNM, dk )
   aTable := sqlite3_get_table( db, cmdText )
   If Len( aTable ) > 1
     For nI := 2 To Len( aTable )
-       
-      if between_date_new( CToD( aTable[ nI, 5 ] ), CToD( aTable[ nI, 6 ] ), dk )
-        AAdd( arr, { val( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 2 ] ), val( aTable[ nI, 3 ] ), AllTrim( aTable[ nI, 4 ] ), CToD( aTable[ nI, 5 ] ), CToD( aTable[ nI, 6 ] ) } )
+//        AAdd( arr, { val( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 2 ] ), val( aTable[ nI, 3 ] ), AllTrim( aTable[ nI, 4 ] ), CToD( aTable[ nI, 5 ] ), CToD( aTable[ nI, 6 ] ) } )
+      if tnm == 'stage'
+        if between_date_new( CToD( aTable[ nI, 4 ] ), CToD( aTable[ nI, 5 ] ), dk )
+          AAdd( arr, { AllTrim( aTable[ nI, 3 ] ), val( aTable[ nI, 1 ] ) } )
+        endif
+      else
+        if between_date_new( CToD( aTable[ nI, 5 ] ), CToD( aTable[ nI, 6 ] ), dk )
+          AAdd( arr, { AllTrim( aTable[ nI, 3 ] ), val( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 4 ] ) } )
+        endif
       endif
     Next
   Endif
