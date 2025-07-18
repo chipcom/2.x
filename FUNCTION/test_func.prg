@@ -8,10 +8,10 @@ function test_init()
   local aaa
   
 //  aaa := getds_sootv_onko( 'C46.1' )
-//    aaa := get_onko_stad( 'C50.4', 'IV', 8, 'metastasis' )
-//    aaa := get_onko_stad( 'C50.4', 'IV', 8, 'NODUS' )
-    aaa := get_onko_stad( 'C50.4', 'IV', 8, 'TUMOR' )
-  altd()
+//    aaa := get_onko_stad( getds_sootv_onko( 'C43.1', 7 ), 'IV', 7, 'metastasis', date() )
+//  altd()
+//    aaa := get_onko_stad( getds_sootv_onko( 'C43.1', 7 ), 'IV', 7, 'NODUS', date() )
+//    aaa := get_onko_stad( getds_sootv_onko( 'C43.1', 7 ), 'IV', 7, 'TUMOR', date() )
 return nil
   
 function GetVersions( code )

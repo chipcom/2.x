@@ -178,6 +178,7 @@ mo_version.prg
 .\PERSONAL\personal_func.prg
 
 .\ONKOLOGIYA\onko.prg
+.\ONKOLOGIYA\onko_spr.prg
 
 .\REPORTS\reports.prg
 .\REPORTS\reports_func.prg
