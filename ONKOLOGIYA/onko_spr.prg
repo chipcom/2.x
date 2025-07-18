@@ -14,19 +14,19 @@ function get_onko_stad( diag, stage, versionTNM, TNM, dk )
   Local cmdText
   Local where
   Local group := ''
-  Local nI
+  Local i
 
   default TNM to 'stage'
 
   tnm := lower( tnm )
-  diag := AllTrim( Upper( diag ) )
+  diag := getds_sootv_onko( AllTrim( Upper( diag ) ), versionTNM )
   stage := AllTrim( stage )
 
   if tnm == 'stage'
     cmdText := 'SELECT id_st, ds_st, kod_st, datebeg, dateend ' + ;
       'FROM n002 ' + ;
-      'JOIN onko_stad ON n002.kod_st=onko_stad.stage '
-    group := ' GROUP BY stage'
+      'JOIN onko_stad ON n002.ds_st=onko_stad.icdtop '
+    group := ' GROUP BY kod_st'
   elseif tnm == 'tumor'
     cmdText := 'SELECT id_t, ds_t, kod_t, t_name, datebeg, dateend ' + ;
       'FROM n003 ' + ;
@@ -56,15 +56,15 @@ function get_onko_stad( diag, stage, versionTNM, TNM, dk )
   db := opensql_db()
   aTable := sqlite3_get_table( db, cmdText )
   If Len( aTable ) > 1
-    For nI := 2 To Len( aTable )
-//        AAdd( arr, { val( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 2 ] ), val( aTable[ nI, 3 ] ), AllTrim( aTable[ nI, 4 ] ), CToD( aTable[ nI, 5 ] ), CToD( aTable[ nI, 6 ] ) } )
+    For i := 2 To Len( aTable )
+//        AAdd( arr, { val( aTable[ i, 1 ] ), AllTrim( aTable[ i, 2 ] ), val( aTable[ i, 3 ] ), AllTrim( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ) } )
       if tnm == 'stage'
-        if between_date_new( CToD( aTable[ nI, 4 ] ), CToD( aTable[ nI, 5 ] ), dk )
-          AAdd( arr, { AllTrim( aTable[ nI, 3 ] ), val( aTable[ nI, 1 ] ) } )
+        if between_date_new( CToD( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ), dk )
+          AAdd( arr, { AllTrim( aTable[ i, 3 ] ), val( aTable[ i, 1 ] ) } )
         endif
       else
-        if between_date_new( CToD( aTable[ nI, 5 ] ), CToD( aTable[ nI, 6 ] ), dk )
-          AAdd( arr, { AllTrim( aTable[ nI, 3 ] ), val( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 4 ] ) } )
+        if between_date_new( CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ), dk )
+          AAdd( arr, { AllTrim( aTable[ i, 3 ] ), val( aTable[ i, 1 ] ), AllTrim( aTable[ i, 4 ] ) } )
         endif
       endif
     Next

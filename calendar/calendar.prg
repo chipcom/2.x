@@ -5,7 +5,7 @@ Function correct_date_dictionary( dt, date_begin, date_end )
 
   Return ( ( date_begin <= dt ) .and. ( Empty( date_end ) .or. date_end >= dt ) )
 
-// 10.07.25
+// 18.07.25
 Function between_date_new( begin_date, end_date, checking_date )
 
   Local fl := .f.
@@ -14,7 +14,7 @@ Function between_date_new( begin_date, end_date, checking_date )
   If Empty( begin_date ) .and. Empty( end_date )
     Return fl
   Endif
-  If ! Empty( begin_date ) .and. Empty( end_date ) .and. ( begin_date < checking_date )
+  If ! Empty( begin_date ) .and. Empty( end_date ) .and. ( begin_date <= checking_date )
     fl := .t.
   Endif
   If ( ! Empty( begin_date ) ) .and. ( ! Empty( end_date ) ) .and. ( begin_date <= checking_date ) .and. ( checking_date <= end_date )

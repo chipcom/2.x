@@ -114,17 +114,26 @@ Function f_verify_tnm( n, lkod, ldiag, mdate, versionTNM, ar )
   Return fl
 
 // 18.07.25 функция определения массива в ф-ии редактирования листа учёта
-Function f_define_tnm( n, ldiag, mdata )
+Function f_define_tnm( n, ldiag, mdata, stage )
 
   Local aRet := {}, sd, fl := .f.
   Local aTmp, it
   Local nameFunc
-  Local diag_onko_replace
+//  Local diag_onko_replace
 
-//  if mdata >= 0d20250701
-//    diag_onko_replace := getds_sootv_onko( ldiag, mem_ver_TNM )
-//    aRet := get_onko_stad( ldiag, stage, mem_ver_TNM, 'tumor', mdata )
-//  else
+  default stage to ''
+  if mdata >= 0d20250701  // используются новые правила ФФОМС классификаторов TNM 00-10-92-5-06/9311 от 23.06.25
+                          // и 00-10-92-5-06/11061 от 17.07.25
+    if n == 2
+      aRet := get_onko_stad( ldiag, '', mem_ver_TNM, 'stage', mdata )
+    elseif n == 3
+      aRet := get_onko_stad( ldiag, stage, mem_ver_TNM, 'tumor', mdata )
+    elseif n == 4
+      aRet := get_onko_stad( ldiag, stage, mem_ver_TNM, 'nodus', mdata )
+    elseif n == 5
+      aRet := get_onko_stad( ldiag, stage, mem_ver_TNM, 'metastasis', mdata )
+    endif
+  else
     //  nameFunc := 'getDS_N00' + lstr( n ) + '( mdata )'
     nameFunc := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdata ) + '")'  
     aTmp := &nameFunc
@@ -146,7 +155,7 @@ Function f_define_tnm( n, ldiag, mdata )
         aRet := AClone( aTmp[ it, 2 ] )
       Endif
     Endif
-//  endif
+  endif
   Return aRet
 
 // 14.01.19 проверка правильности введённых стадий по справочнику N006 в get'e
