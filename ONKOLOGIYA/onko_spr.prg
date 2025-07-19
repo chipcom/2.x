@@ -5,8 +5,8 @@
 
 #require 'hbsqlit3'
 
-// 18.07.25
-function get_onko_stad( diag, stage, versionTNM, TNM, dk )
+// 19.07.25
+function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
 
   local arr
   Local db
@@ -23,31 +23,55 @@ function get_onko_stad( diag, stage, versionTNM, TNM, dk )
   stage := AllTrim( stage )
 
   if tnm == 'stage'
-    cmdText := 'SELECT id_st, ds_st, kod_st, datebeg, dateend ' + ;
-      'FROM n002 ' + ;
-      'JOIN onko_stad ON n002.ds_st=onko_stad.icdtop '
+//    cmdText := 'SELECT id_st, ds_st, kod_st, datebeg, dateend ' + ;
+//      'FROM n002 ' + ;
+//      'JOIN onko_stad ON n002.ds_st=onko_stad.icdtop'
+//    group := ' GROUP BY kod_st'
+    cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend, o.versionTNM ' + ;
+      'FROM n002 AS n ' + ;
+      'JOIN onko_stad AS o ' + ;
+      'ON n.ds_st=o.icdtop'
     group := ' GROUP BY kod_st'
   elseif tnm == 'tumor'
-    cmdText := 'SELECT id_t, ds_t, kod_t, t_name, datebeg, dateend ' + ;
-      'FROM n003 ' + ;
-      'JOIN onko_stad ON n003.id_t=onko_stad.id_tumor '
-    group := ' GROUP BY id_tumor'
+//    cmdText := 'SELECT id_t, ds_t, kod_t, t_name, datebeg, dateend ' + ;
+//      'FROM n003 ' + ;
+//      'JOIN onko_stad ON n003.id_t=onko_stad.id_tumor'
+//    group := ' GROUP BY id_tumor'
+    cmdText := 'SELECT n.id_t, n.ds_t, n.kod_t, n.t_name, n.datebeg, n.dateend, o.versionTNM ' + ;
+      'FROM n003 AS n ' + ;
+      'JOIN onko_stad AS o ' + ;
+      'ON n.id_t=o.id_tumor'
+    group := ' GROUP BY n.id_t'
   elseif tnm == 'nodus'
-    cmdText := 'SELECT id_n, ds_n, kod_n, n_name, datebeg, dateend ' + ;
-      'FROM n004 ' + ;
-      'JOIN onko_stad ON n004.id_n=onko_stad.id_nodus '
-    group := ' GROUP BY id_nodus'
+//    cmdText := 'SELECT id_n, ds_n, kod_n, n_name, datebeg, dateend ' + ;
+//      'FROM n004 ' + ;
+//      'JOIN onko_stad ON n004.id_n=onko_stad.id_nodus'
+//    group := ' GROUP BY id_nodus'
+    cmdText := 'SELECT n.id_n, n.ds_n, n.kod_n, n.n_name, n.datebeg, n.dateend, o.versionTNM ' + ;
+      'FROM n004 AS n ' + ;
+      'JOIN onko_stad AS o ' + ;
+      'ON n.id_n=o.id_nodus'
+    group := ' GROUP BY n.id_n'
   elseif tnm == 'metastasis'
-    cmdText := 'SELECT id_m, ds_m, kod_m, m_name, datebeg, dateend ' + ;
-      'FROM n005 ' + ;
-      'JOIN onko_stad ON n005.id_m=onko_stad.id_metastas '
-    group := ' GROUP BY id_metastas'
+//    cmdText := 'SELECT id_m, ds_m, kod_m, m_name, datebeg, dateend ' + ;
+//      'FROM n005 ' + ;
+//      'JOIN onko_stad ON n005.id_m=onko_stad.id_metastas'
+//    group := ' GROUP BY id_metastas'
+    cmdText := 'SELECT n.id_m, n.ds_m, n.kod_m, n.m_name, n.datebeg, n.dateend, o.versionTNM ' + ;
+      'FROM n005 AS n ' + ;
+      'JOIN onko_stad AS o ' + ;
+      'ON n.id_m=o.id_metastas'
+    group := ' GROUP BY n.id_m'
   endif
 
   if tnm == 'stage'
-    where := ' WHERE versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and icdtop=="' + diag  + '"'
-  else
-    where := ' WHERE stage="' + stage + '" and versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and icdtop=="' + diag  + '"'
+    where := ' WHERE o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_st=="' + diag  + '"'
+  elseif tnm == 'tumor'
+    where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_t=="' + diag  + '"'
+  elseif tnm == 'nodus'
+    where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_n=="' + diag  + '"'
+  elseif tnm == 'metastasis'
+    where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_m="' + diag  + '"'
   endif
 
   cmdText += where + group

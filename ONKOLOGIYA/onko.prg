@@ -124,13 +124,13 @@ Function f_define_tnm( n, ldiag, mdata, stage )
   if mdata >= 0d20250701  // используются новые правила ФФОМС классификаторов TNM 00-10-92-5-06/9311 от 23.06.25
                           // и 00-10-92-5-06/11061 от 17.07.25
     if n == 2
-      aRet := get_onko_stad( ldiag, '', mem_ver_TNM, 'stage', mdata )
+      aRet := getN00X_new_rules( ldiag, '', mem_ver_TNM, 'stage', mdata )
     elseif n == 3
-      aRet := get_onko_stad( ldiag, stage, mem_ver_TNM, 'tumor', mdata )
+      aRet := getN00X_new_rules( ldiag, stage, mem_ver_TNM, 'tumor', mdata )
     elseif n == 4
-      aRet := get_onko_stad( ldiag, stage, mem_ver_TNM, 'nodus', mdata )
+      aRet := getN00X_new_rules( ldiag, stage, mem_ver_TNM, 'nodus', mdata )
     elseif n == 5
-      aRet := get_onko_stad( ldiag, stage, mem_ver_TNM, 'metastasis', mdata )
+      aRet := getN00X_new_rules( ldiag, stage, mem_ver_TNM, 'metastasis', mdata )
     endif
   else
     //  nameFunc := 'getDS_N00' + lstr( n ) + '( mdata )'
@@ -157,35 +157,12 @@ Function f_define_tnm( n, ldiag, mdata, stage )
   endif
   Return aRet
 
-// 14.01.19 проверка правильности введённых стадий по справочнику N006 в get'e
+// 19.07.25 проверка правильности введённых стадий по справочнику N006 в get'e
 Function f_valid_tnm( g )
 
-  Local buf, fl_found, s := PadR( mkod_diag, 5 )
+  Local s
 
-  /*if !emptyany(m1ONK_T,m1ONK_N,m1ONK_M)
-    select N6
-    find (s)
-    if !(fl_found := found())
-      s := padr(mkod_diag, 3)
-      find (s)
-      fl_found := (found() .and. s == alltrim(n6->ds_gr))
-    endif
-    if fl_found
-      find (padr(s, 5)+str(m1ONK_T, 6)+str(m1ONK_N, 6)+str(m1ONK_M, 6))
-      if found()
-        if m1stad != n6->id_st
-          m1stad := n6->id_st
-          mSTAD  := padr(inieditspr(A__MENUVERT, mm_N002, m1STAD), 5)
-          buf := save_maxrow()
-          stat_msg('Справочник N006: по сочетанию стадий TNM исправлено поле 'Стадия'') ; mybell(1,OK)
-          rest_box(buf)
-          update_get('mstad')
-        endif
-      else
-        func_error(2,'Справочник N006: некорректное сочетание стадий TNM')
-      endif
-    endif
-  endif*/
+  s := PadR( mkod_diag, 5 )  
   Return .t.
 
 // 06.06.25
@@ -194,8 +171,8 @@ Function ret_arr_shema( k, dk )
   // возвращает схемы лекарственных терапий для онкологии на дату
   Static ashema := { {}, {}, {} }
   Static stYear
-  Local i, db, aTable, row, arr := {}
-  Local year_dk, dBeg, dEnd
+  Local i, arr := {}
+  Local year_dk
 
   If ValType( dk ) == 'N'
     year_dk := dk
