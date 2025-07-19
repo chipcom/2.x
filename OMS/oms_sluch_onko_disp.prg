@@ -7,7 +7,7 @@
 // согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
 #define CHILD_EXIST .f. // учитывать несовершеннолетних или нет
 
-// 17.07.25 добавление или редактирование случая (листа учета)
+// 19.07.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -30,10 +30,10 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
   Local mtip_h
   Local vozrast
   Local lshifr := PadR( '2.5.2', 10 )
-  Local diag_onko_replace
 
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
+
   If kod_kartotek == 0 // добавление в картотеку
     If ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
       Return Nil
@@ -51,9 +51,9 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     M1FIO_KART := 1, MFIO_KART, ;
     M1VZROS_REB, MVZROS_REB, mpolis, M1RAB_NERAB, ;
     MUCH_DOC    := Space( 10 ), ; // вид и номер учетного документа
-  m1company := 0, mcompany, mm_company, ;
+    m1company := 0, mcompany, mm_company, ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
-  msmo := '34007',  rec_inogSMO := 0, ;
+    msmo := '34007',  rec_inogSMO := 0, ;
     mokato, m1okato := '',  mismo, m1ismo := '',  mnameismo := Space( 100 ), ;
     mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ),  mnpolis := Space( 20 )
 
@@ -61,8 +61,6 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
   Private tmp_V006 := create_classif_ffoms( 2, 'V006' ) // USL_OK
   Private tmp_V002 := create_classif_ffoms( 2, 'V002' ) // PROFIL
   Private tmp_V020 := create_classif_ffoms( 2, 'V020' ) // PROFIL_K
-  // Private tmp_V009 := cut_glob_array(getV009(), sys_date) // rslt
-  // Private tmp_V012 := cut_glob_array(getV012(),sys_date) // ishod
   Private tmp_V009 := getv009( sys_date ) // rslt
   Private tmp_V012 := getv012( sys_date ) // ishod
   Private mm_N002
@@ -72,31 +70,31 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     M1LPU := glob_uch[ 1 ], MLPU, ;
     M1OTD := glob_otd[ 1 ], MOTD, ;
     MKOD_DIAG   := SKOD_DIAG, ; // шифр 1-ой осн.болезни
-  MKOD_DIAG0  := Space( 6 ), ; // шифр первичного диагноза
-  MKOD_DIAG2  := Space( 5 ), ; // шифр 2-ой осн.болезни
-  MKOD_DIAG3  := Space( 5 ), ; // шифр 3-ой осн.болезни
-  MKOD_DIAG4  := Space( 5 ), ; // шифр 4-ой осн.болезни
-  MSOPUT_B1   := Space( 5 ), ; // шифр 1-ой сопутствующей болезни
-  MSOPUT_B2   := Space( 5 ), ; // шифр 2-ой сопутствующей болезни
-  MSOPUT_B3   := Space( 5 ), ; // шифр 3-ой сопутствующей болезни
-  MSOPUT_B4   := Space( 5 ), ; // шифр 4-ой сопутствующей болезни
-  MDIAG_PLUS  := Space( 8 ), ; // дополнения к диагнозам
-  MOSL1 := Space( 6 ), ; // шифр 1-ого диагноза осложнения заболевания
-  MOSL2 := Space( 6 ), ; // шифр 2-ого диагноза осложнения заболевания
-  MOSL3 := Space( 6 ), ; // шифр 3-ого диагноза осложнения заболевания
-  mrslt, m1rslt := st_rslt, ; // результат
-  mishod, m1ishod := st_ishod, ; // исход
-  MN_DATA     := st_N_DATA, ; // дата начала лечения
-  MK_DATA     := st_K_DATA, ; // дата окончания лечения
-  MCENA_1     := 0, ; // стоимость лечения
-  MVRACH      := Space( 10 ), ; // фамилия и инициалы лечащего врача
-  M1VRACH := st_vrach, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
-  m1USL_OK := USL_OK_POLYCLINIC, mUSL_OK, ;             // амбулаторно
+    MKOD_DIAG0  := Space( 6 ), ; // шифр первичного диагноза
+    MKOD_DIAG2  := Space( 5 ), ; // шифр 2-ой осн.болезни
+    MKOD_DIAG3  := Space( 5 ), ; // шифр 3-ой осн.болезни
+    MKOD_DIAG4  := Space( 5 ), ; // шифр 4-ой осн.болезни
+    MSOPUT_B1   := Space( 5 ), ; // шифр 1-ой сопутствующей болезни
+    MSOPUT_B2   := Space( 5 ), ; // шифр 2-ой сопутствующей болезни
+    MSOPUT_B3   := Space( 5 ), ; // шифр 3-ой сопутствующей болезни
+    MSOPUT_B4   := Space( 5 ), ; // шифр 4-ой сопутствующей болезни
+    MDIAG_PLUS  := Space( 8 ), ; // дополнения к диагнозам
+    MOSL1 := Space( 6 ), ; // шифр 1-ого диагноза осложнения заболевания
+    MOSL2 := Space( 6 ), ; // шифр 2-ого диагноза осложнения заболевания
+    MOSL3 := Space( 6 ), ; // шифр 3-ого диагноза осложнения заболевания
+    mrslt, m1rslt := st_rslt, ; // результат
+    mishod, m1ishod := st_ishod, ; // исход
+    MN_DATA     := st_N_DATA, ; // дата начала лечения
+    MK_DATA     := st_K_DATA, ; // дата окончания лечения
+    MCENA_1     := 0, ; // стоимость лечения
+    MVRACH      := Space( 10 ), ; // фамилия и инициалы лечащего врача
+    M1VRACH := st_vrach, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
+    m1USL_OK := USL_OK_POLYCLINIC, mUSL_OK, ;             // амбулаторно
     m1PROFIL := st_profil, mPROFIL, ;
     m1PROFIL_K := st_profil_k, mPROFIL_K, ;
-    m1IDSP   := 29, ;                     // за посещение
-    mdate_next := sys_date, ;  // ctod('')                // дата следующего посещения
-  mSTAD, m1STAD := 0 // Стадия заболевания      Заполняется в соответствии со справочником N002
+    m1IDSP   := 29, ;          // за посещение
+    mdate_next := sys_date, ;  // дата следующего посещения
+    mSTAD, m1STAD := 0 // Стадия заболевания в соответствии со справочником N002
 
   Private mm_profil := { { 'педиатрия', 68 }, ;
     { 'гематология', 12 }, ;
@@ -208,8 +206,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     If Found()
       m1STAD := sl->STAD
     Endif
-    diag_onko_replace := iif( mk_data >= 0d20250701, getds_sootv_onko( mkod_diag, mem_ver_TNM ), mkod_diag )
-    mm_N002 := f_define_tnm( 2, diag_onko_replace, MK_DATA )
+    mm_N002 := f_define_tnm( 2, mkod_diag, MK_DATA )
     mSTAD  := PadR( inieditspr( A__MENUVERT, mm_N002, m1STAD ), 5 )
 
     // выберем услуги

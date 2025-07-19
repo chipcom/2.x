@@ -794,22 +794,24 @@ Function print_l_uch_disp(sh)
   endif
   return NIL
 
-// 17.07.25 добавка по онкологии к листу учёта
+// 19.07.25 добавка по онкологии к листу учёта
 Function print_luch_onk( dk,  diag, sh )
 
-  local mm_DS1_T := getN018()  // N018
-  local mm_usl_tip := getN013()
-  local fname := prefixFileRefName( dk ) + 'shema'
+  local mm_DS1_T //:= getN018()  // N018
+  local mm_usl_tip //:= getN013()
+  local fname //:= prefixFileRefName( dk ) + 'shema'
 
-  local mm_N014 := getn014()
-  local mm_N015 := getn015()
-  local mm_N016 := getn016()
-  local mm_N017 := getn017()
+  local mm_N014 //:= getn014()
+  local mm_N015 //:= getn015()
+  local mm_N016 //:= getn016()
+  local mm_N017 //:= getn017()
 
   local mm_str1 := { '',  'Тип лечения',  'Цикл терапии',  'Тип терапии',  'Тип терапии',  '' }
   local mm_shema_err := { { 'соблюдён', 0 }, { 'не соблюдён', 1 } }
   local tstr
-  local _arr_sh := ret_arr_shema( 1, dk ), _arr_mt := ret_arr_shema( 2, dk ), _arr_fr := ret_arr_shema( 3, dk )
+  local _arr_sh //:= ret_arr_shema( 1, dk )
+  local _arr_mt //:= ret_arr_shema( 2, dk )
+  local _arr_fr //:= ret_arr_shema( 3, dk )
   local mm_shema_usl
   local m1PR_CONS := 0, mDT_CONS
   local arrLekPreparat, row, w1
@@ -818,18 +820,25 @@ Function print_luch_onk( dk,  diag, sh )
   local m1crit
   local cREGNUM, cUNITCODE
 
-  local mm_N002 // := f_define_tnm( 2, diag, dk )
-  local mm_N003 // := f_define_tnm( 3, diag, dk )
-  local mm_N004 // := f_define_tnm( 4, diag, dk )
-  local mm_N005 // := f_define_tnm( 5, diag, dk )
-
-  diag := iif( dk >= 0d20250701, getds_sootv_onko( diag, mem_ver_TNM ), diag )
-  mm_N002 := f_define_tnm( 2, diag, dk )
-  mm_N003 := f_define_tnm( 3, diag, dk )
-  mm_N004 := f_define_tnm( 4, diag, dk )
-  mm_N005 := f_define_tnm( 5, diag, dk )
+  local mm_N002
+  local mm_N003
+  local mm_N004
+  local mm_N005
+  local stage
 
   if f_is_oncology(1) == 2 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
+
+    mm_DS1_T := getN018()  // N018
+    mm_usl_tip := getN013()
+    fname := prefixFileRefName( dk ) + 'shema'
+
+    mm_N014 := getn014()
+    mm_N015 := getn015()
+    mm_N016 := getn016()
+    mm_N017 := getn017()
+    _arr_sh := ret_arr_shema( 1, dk )
+    _arr_mt := ret_arr_shema( 2, dk )
+    _arr_fr := ret_arr_shema( 3, dk )
 
     dbCreate( cur_dir() + 'tmp_onkle',  { ; // Сведения о применённых лекарственных препаратах
       { 'KOD',      'N',   7,  0 }, ; // код больного
@@ -859,10 +868,16 @@ Function print_luch_onk( dk,  diag, sh )
     le->( dbCloseArea() )
     co->( dbCloseArea() )
 
-
     add_string('  Онкология:')
     R_Use(dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'ONKSL') // Сведения о случае лечения онкологического заболевания
     find (str(human->kod, 7))
+
+    mm_N002 := f_define_tnm( 2, diag, dk )
+    stage := inieditspr( A__MENUVERT, mm_N002, onksl->STAD )
+    mm_N003 := f_define_tnm( 3, diag, dk, stage )
+    mm_N004 := f_define_tnm( 4, diag, dk, stage )
+    mm_N005 := f_define_tnm( 5, diag, dk, stage )
+
     add_string('   Повод обращения: ' + inieditspr(A__MENUVERT, mm_DS1_T, onksl->DS1_T))
     add_string('   Стадия заболевания: ' + alltrim( inieditspr( A__MENUVERT, mm_N002, onksl->STAD ) ) ;
       + ', Tumor: ' + alltrim( inieditspr( A__MENUVERT, mm_N003, onksl->ONK_T ) ) ;
