@@ -52,7 +52,6 @@ Function f_verify_tnm( n, lkod, ldiag, mdate, ar )
 
   default mdate to sys_date
 
-//  ldiag := iif( mdate >= 0d20250701, getds_sootv_onko( ldiag, versionTNM ), ldiag )
   if mdate < 0d20250701
   //  nameFuncDS := 'getDS_N00' + lstr( n ) + '()'
     nameFuncDS := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdate ) + '")'  
