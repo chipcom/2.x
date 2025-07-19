@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 17.07.25
+// 19.07.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -1726,7 +1726,7 @@ Function verify_sluch( fl_view )
       If Empty( onksl->STAD )
         AAdd( ta, 'онкология: не введена стадия заболевания' )
       Else
-        f_verify_tnm( 2, onksl->STAD, mdiagnoz[ 1 ], human->k_data, mem_ver_TNM, ta )
+        f_verify_tnm( 2, onksl->STAD, mdiagnoz[ 1 ], human->k_data, ta )
       Endif
     Endif
     If kkt > 0 .and. onksl->ds1_t != 5
@@ -1746,13 +1746,13 @@ Function verify_sluch( fl_view )
         fl := .f. ; AAdd( ta, 'онкология: не введена стадия заболевания M' )
       Endif
       If fl
-        fl := f_verify_tnm( 3, onksl->ONK_T, mdiagnoz[ 1 ], human->k_data, mem_ver_TNM, ta )
+        fl := f_verify_tnm( 3, onksl->ONK_T, mdiagnoz[ 1 ], human->k_data, ta )
       Endif
       If fl
-        fl := f_verify_tnm( 4, onksl->ONK_N, mdiagnoz[ 1 ], human->k_data, mem_ver_TNM, ta )
+        fl := f_verify_tnm( 4, onksl->ONK_N, mdiagnoz[ 1 ], human->k_data, ta )
       Endif
       If fl
-        fl := f_verify_tnm( 5, onksl->ONK_M, mdiagnoz[ 1 ], human->k_data, mem_ver_TNM, ta )
+        fl := f_verify_tnm( 5, onksl->ONK_M, mdiagnoz[ 1 ], human->k_data, ta )
       Endif
     Endif
     // гистология

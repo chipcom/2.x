@@ -34,12 +34,11 @@ Function only_control_onko( napr, date, rslt, ishod )
   Local lRet
 
   // Волгамедлаб исключаем
-  // lRet := (!empty(napr) .and. !empty(date) .and. rslt == 314 .and. ishod == 304 .and. hb_main_curOrg:Kod_Tfoms != '805903')
   lRet := ( !Empty( napr ) .and. !Empty( date ) .and. rslt == 314 .and. ishod == 304 ) // .and. ! is_VOLGAMEDLAB())
   Return lRet
 
-// 17.07.25 проверка правильности соответствующей стадии по соответствующему справочнику
-Function f_verify_tnm( n, lkod, ldiag, mdate, versionTNM, ar )
+// 19.07.25 проверка правильности соответствующей стадии по соответствующему справочнику
+Function f_verify_tnm( n, lkod, ldiag, mdate, ar )
 
   Local sn := lstr( n )
   Local sd
@@ -52,64 +51,66 @@ Function f_verify_tnm( n, lkod, ldiag, mdate, versionTNM, ar )
   Local nameFuncDS
 
   default mdate to sys_date
-  ldiag := iif( mdate >= 0d20250701, getds_sootv_onko( ldiag, versionTNM ), ldiag )
-//  nameFuncDS := 'getDS_N00' + lstr( n ) + '()'
-  nameFuncDS := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdate ) + '")'  
-  aTmp := &nameFunc
-  If ( it := AScan( aTmp, {| x| x[ 2 ] == lkod } ) ) > 0
-    If Empty( aTmp[ it, 3 ] )
-      aTmpDS := &nameFuncDS
-      sd := PadR( ldiag, 5 )
-      If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
-        fl := .f.
-        AAdd( ar, smsg )
-      Else
-        sd := PadR( ldiag, 3 )
-        If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
-          fl := .f.
-          AAdd( ar, smsg )
-        Endif
-      Endif
-    Elseif Len( AllTrim( aTmp[ it, 3 ] ) ) == 5
-      If !( Left( ldiag, 5 ) == aTmp[ it, 3 ] )
-        fl := .f.
-        AAdd( ar, smsg )
-      Endif
-    Else
-      If !( Left( ldiag, 3 ) == AllTrim( aTmp[ it, 3 ] ) )
-        fl := .f.
-        AAdd( ar, smsg )
-      Endif
-    Endif
-  Elseif  ( it := AScan( aTmp, {| x| Empty( x[ 2 ] ) } ) ) > 0
-    If Empty( aTmp[ it, 3 ] )
-      aTmpDS := &nameFuncDS
-      sd := PadR( ldiag, 5 )
-      If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
-        fl := .f.
-        AAdd( ar, smsg )
-      Else
-        sd := PadR( ldiag, 3 )
-        If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
-          fl := .f.
-          AAdd( ar, smsg )
-        Endif
 
+//  ldiag := iif( mdate >= 0d20250701, getds_sootv_onko( ldiag, versionTNM ), ldiag )
+  if mdate < 0d20250701
+  //  nameFuncDS := 'getDS_N00' + lstr( n ) + '()'
+    nameFuncDS := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdate ) + '")'  
+    aTmp := &nameFunc
+    If ( it := AScan( aTmp, {| x| x[ 2 ] == lkod } ) ) > 0
+      If Empty( aTmp[ it, 3 ] )
+        aTmpDS := &nameFuncDS
+        sd := PadR( ldiag, 5 )
+        If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
+          fl := .f.
+          AAdd( ar, smsg )
+        Else
+          sd := PadR( ldiag, 3 )
+          If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
+            fl := .f.
+            AAdd( ar, smsg )
+          Endif
+        Endif
+      Elseif Len( AllTrim( aTmp[ it, 3 ] ) ) == 5
+        If !( Left( ldiag, 5 ) == aTmp[ it, 3 ] )
+          fl := .f.
+          AAdd( ar, smsg )
+        Endif
+      Else
+        If !( Left( ldiag, 3 ) == AllTrim( aTmp[ it, 3 ] ) )
+          fl := .f.
+          AAdd( ar, smsg )
+        Endif
       Endif
-    Elseif Len( AllTrim( aTmp[ it, 3 ] ) ) == 5
-      If !( Left( ldiag, 5 ) == aTmp[ it, 3 ] )
-        fl := .f.
-        AAdd( ar, smsg )
+    Elseif  ( it := AScan( aTmp, {| x| Empty( x[ 2 ] ) } ) ) > 0
+      If Empty( aTmp[ it, 3 ] )
+        aTmpDS := &nameFuncDS
+        sd := PadR( ldiag, 5 )
+        If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
+          fl := .f.
+          AAdd( ar, smsg )
+        Else
+          sd := PadR( ldiag, 3 )
+          If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
+            fl := .f.
+            AAdd( ar, smsg )
+          Endif
+        Endif
+      Elseif Len( AllTrim( aTmp[ it, 3 ] ) ) == 5
+        If !( Left( ldiag, 5 ) == aTmp[ it, 3 ] )
+          fl := .f.
+          AAdd( ar, smsg )
+        Endif
+      Else
+        If !( Left( ldiag, 3 ) == AllTrim( aTmp[ it, 3 ] ) )
+          fl := .f.
+          AAdd( ar, smsg )
+        Endif
       Endif
     Else
-      If !( Left( ldiag, 3 ) == AllTrim( aTmp[ it, 3 ] ) )
-        fl := .f.
-        AAdd( ar, smsg )
-      Endif
+      fl := .f.
+      AAdd( ar, smsg )
     Endif
-  Else
-    fl := .f.
-    AAdd( ar, smsg )
   Endif
   Return fl
 
@@ -119,7 +120,6 @@ Function f_define_tnm( n, ldiag, mdata, stage )
   Local aRet := {}, sd, fl := .f.
   Local aTmp, it
   Local nameFunc
-//  Local diag_onko_replace
 
   default stage to ''
   if mdata >= 0d20250701  // используются новые правила ФФОМС классификаторов TNM 00-10-92-5-06/9311 от 23.06.25
