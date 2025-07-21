@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 11.07.25 форма 14-МЕД (ОМС)
+// 21.07.25 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 
   Static group_ini := 'f14_med_oms'
@@ -17,12 +17,12 @@ Function forma14_med_oms()
     filetmp14 := cur_dir() + 'tmp14.txt', sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0, sum_d := 0
   Local arr_skor[ 81, 2 ], arr_eko[ 2, 2 ], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[ 4 ], fl_pol1[ 15 ], ;
     arr_pol[ 32 ], arr_pol1[ 15, 5 ], arr_pril5[ 32, 3 ], ifff := 0, kol_stom_pos := 0, ;
-    arr_pol3000[ 29, 6 ], vr_rec := 0, arr_full_usl, ;
+    arr_pol3000[ 29, 6 ], vr_rec := 0, arr_full_usl, kol_HNIZ, ;
     fl_pol3000_PROF, fl_pol3000_DVN2 := .t.
 
   Local sbase
   Local lal, lalf
-  Local nameArr // , funcGetPZ
+  Local nameArr, j1
 
   old5 := old2 := 0
   afillall( arr_skor, 0 )
@@ -532,7 +532,7 @@ Function forma14_med_oms()
           is_kt := .f.
           is_school := .f.
           is_prvs_206 := ( ret_new_prvs( human_->prvs ) == 206 ) // лечебное дело
-          kol_2_3 := kol_2_6 := kol_2_60 := kol_sr := kol_2_sr := 0
+          kol_2_3 := kol_2_6 := kol_2_60 := kol_sr := kol_2_sr := kol_HNIZ := 0
           isp := 1
           is_sred_stom := .f.
           ds_spec := ds1_spec := kol_stom := kol_dializ := 0
@@ -603,8 +603,8 @@ Function forma14_med_oms()
                     Elseif eq_any( j1, 205, 388, 259 )
                       is_dializ := .t.
                       // elseif   57 - реабилитация
-                    Elseif j1 == 583 // 583 - школа сах диабета - посещение профилактическое
-                      vid_vp := 0 // Посещение профилактическое
+                    Elseif j1 == 583 // 583 - школа сах диабета - посещение профилактическое / Теперь Обращение
+                         //   vid_vp := 0 // Посещение профилактическое
                       is_school := .t.
                     Endif
                   Endif
@@ -628,7 +628,7 @@ Function forma14_med_oms()
                 If ( i := ret_vid_pom( 1, lshifr, human->k_data ) ) > 0
                   lvidpom := i
                 Endif
-              Elseif eq_any( Left( lshifr, 5 ), '2.78.', '2.89.' ) // обращения с лечебной целью
+              Elseif eq_any( Left( lshifr, 5 ), '2.78.', '2.89.', '2.92.' ) // обращения с лечебной целью + школы ХНИЗ + школа Сахарного диабета
                 If  eq_any( Left( lshifr, 8 ), '2.78.107', '2.78.109', '2.78.110', '2.78.111', '2.78.112' )// диспансерное наблюдение
                   // диспансерное наблюдение
                   is_disp_nabluden := .t.
@@ -651,6 +651,11 @@ Function forma14_med_oms()
                 // endif
               Endif
               If f_is_zak_sl_vr( lshifr )
+                is_z_sl := .t.
+              elseif eq_any( lshifr, '2.92.1', '2.92.2', '2.92.3',;  // школа сахарного диабета
+                                     '2.92.4', '2.92.5', '2.92.6',;
+                                     '2.92.7', '2.92.8', '2.92.9',;
+                                     '2.92.10', '2.92.11', '2.92.12') // школы ХНИЗ как обращения
                 is_z_sl := .t.
               Endif
               //
@@ -707,6 +712,8 @@ Function forma14_med_oms()
                         If eq_any( lshifr, '2.60.3', '2.60.4' )
                           kol_2_sr += hu->kol_1
                         Endif
+                      Elseif eq_any( lshifr, '2.93.1', '2.93.2' ) // Школы ХНИЗ и Школа сахарного диабета
+                        kol_2_60 += hu->kol_1  
                       Elseif Left( lshifr, 5 ) == '2.76.' // центр здоровья
                         vid_vp := 0 // Посещение профилактическое
                         // !!!
@@ -716,15 +723,16 @@ Function forma14_med_oms()
                           arr_pol3000[ 11, 5 ] := Round( human->cena_1 * koef, 2 )
                           arr_pol3000[ 11, 3 ] := 1
                         Endif
-                      Elseif Left( lshifr, 5 ) == '2.92.' // школа сахарного диабета
-                        vid_vp := 0 // Посещение профилактическое
+                     // Elseif eq_any( lshifr, '2.92.1', '2.92.2', '2.92.3')//  школа сахарного диабета - перевели в обращение
+                        //Left( lshifr, 5 ) == '2.92.' // школа сахарного диабета 
+                      //  vid_vp := 0 // Посещение профилактическое
                         // !!!
-                        arr_pol3000[ 11, 4 ] := Round( human->cena_1 * koef, 2 )
-                        arr_pol3000[ 11, 2 ] := 1
-                        If is_inogoro
-                          arr_pol3000[ 11, 5 ] := Round( human->cena_1 * koef, 2 )
-                          arr_pol3000[ 11, 3 ] := 1
-                        Endif
+                      //  arr_pol3000[ 11, 4 ] := Round( human->cena_1 * koef, 2 )
+                      //  arr_pol3000[ 11, 2 ] := 1
+                      //  If is_inogoro
+                      //    arr_pol3000[ 11, 5 ] := Round( human->cena_1 * koef, 2 )
+                      //    arr_pol3000[ 11, 3 ] := 1
+                      //  Endif
                       Elseif Left( lshifr, 5 ) == '2.79.' // посещение с профилактической целью
                         vid_vp := 0 // Посещение профилактическое
                         If !eq_any( human_->PROFIL, 97, 57, 68, 3, 42, 85, 87 )
@@ -917,6 +925,9 @@ Function forma14_med_oms()
               arr_pril5[ 8, igs ] += kol_2_60 // 'Всего посещений'
               // //////////////////////////////////////////////
             Endif
+            If kol_2_60 > 0 .and. AScan( arr_usl, '2.92.' ) > 0
+              arr_pril5[ 8, igs ] += kol_2_60 // 'Всего посещений'
+            Endif
             // онкология в т.3000
             If kol_2_60 > 0 // .and. ;
               If eq_ascan( arr_full_usl, '2.78.19', '2.78.45', '2.78.87', '2.78.90', '2.78.91' )
@@ -957,6 +968,7 @@ Function forma14_med_oms()
                 sum_ki += tfoms_pz[ 2, 3 ]
               Endif
             Endif
+
             If vid_vp == 1 // в неотложной форме
               fl_pol1[ 11 ] += tfoms_pz[ 2, 2 ]
               arr_pril5[ 8, igs ] += tfoms_pz[ 2, 2 ] // 'Всего посещений'
@@ -987,6 +999,7 @@ Function forma14_med_oms()
                 Endif
               Endif
             Elseif vid_vp == 2 // по поводу заболевания
+
               fl_pol1[ 13 ] := -1
               If is_disp_nabluden
                 arr_pril5[ 32, igs ] += tfoms_pz[ 2, 1 ] // 'Число обращений по поводу заболевания'
