@@ -1907,7 +1907,7 @@ Function ret_menu_rak_schet( r, c )
 
   Return ret
 
-//06.07.25 список снятий по актам
+// 20.07.25 список снятий по актам
 Function akt_list_of_refusal_pacient()
 
   Static si := 3
@@ -2418,7 +2418,7 @@ Function akt_list_of_refusal_pacient()
   Endif
 
   If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
-    create_xls_rdl( 'rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd )
+    create_xls_rdl( 'rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd, lsmo[ 2 ] )
     saveto( cur_dir() + 'rdl_report.xlsx' )
   Endif
 

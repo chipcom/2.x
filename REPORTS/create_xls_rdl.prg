@@ -3,8 +3,8 @@
 #include 'function.ch'
 #include 'hbxlsxwriter.ch'
 
-// 06.10.23
-Function create_xls_rdl( name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd )
+// 20.07.25
+Function create_xls_rdl( name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd,lsmo_1)
 
   Local workbook, worksheet
   Local worksheetError
@@ -89,7 +89,7 @@ Function create_xls_rdl( name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd
     worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, 'Список снятий по актам контроля', format_header_main )
     worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, hb_StrToUTF8( AllTrim( arr_m[ 4 ] ) ), format_header_main )  // вывод временного периода
     worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, '( по дате отчётного периода / все случаи снятия )', format_header_main )
-    worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, '(ТФОМС (иногородние)', format_header_main )
+    worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, hb_StrToUTF8(alltrim(lsmo_1) ), format_header_main ) 
     worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, hb_StrToUTF8( string_selected_uch( st_a_uch, lcount_uch ) ), format_header_main )
     If Len( st_a_uch ) == 1
       worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, hb_StrToUTF8( string_selected_otd( st_a_otd, lcount_otd ) ), format_header_main )
@@ -139,11 +139,12 @@ Function create_xls_rdl( name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd
 	// новый лист
 	  /* Добавим лист "Свод. */
     worksheetError = workbook_add_worksheet( workbook, 'Свод' )
+    iRow := 0
 	 // шапка таблицы
     worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, 'Список снятий по актам контроля', format_header_main )
     worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, hb_StrToUTF8( AllTrim( arr_m[ 4 ] ) ), format_header_main )  // вывод временного периода
     worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, '( по дате отчётного периода / все случаи снятия )', format_header_main )
-    worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, '(ТФОМС (иногородние)', format_header_main )
+    worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, hb_StrToUTF8(alltrim(lsmo_1) ), format_header_main ) 
     worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, hb_StrToUTF8( string_selected_uch( st_a_uch, lcount_uch ) ), format_header_main )
     If Len( st_a_uch ) == 1
       worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, hb_StrToUTF8( string_selected_otd( st_a_otd, lcount_otd ) ), format_header_main )
@@ -194,7 +195,7 @@ iRow := 0
 worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, 'Список снятий по актам контроля', format_header_main )
 worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, hb_StrToUTF8( AllTrim( arr_m[ 4 ] ) ), format_header_main )  // вывод временного периода
 worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, '( по дате отчётного периода / все случаи снятия )', format_header_main )
-worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, '(ТФОМС (иногородние)', format_header_main )
+worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, hb_StrToUTF8(alltrim(lsmo_1) ), format_header_main ) 
 worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, hb_StrToUTF8( string_selected_uch( st_a_uch, lcount_uch ) ), format_header_main )
 If Len( st_a_uch ) == 1
   worksheet_merge_range( worksheetError, iRow, 0, iRow++, 10, hb_StrToUTF8( string_selected_otd( st_a_otd, lcount_otd ) ), format_header_main )
