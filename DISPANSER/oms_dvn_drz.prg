@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 09.07.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 27.07.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -48,6 +48,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     { 'Направлен на II этап, предварительно присвоена III группа репродуктивного здоровья', 12, 379 } ;
   }
   local mm_gruppaD2 := asize( aclone( mm_gruppaD1 ), 3 )  // для II этапа уменьшим число эл-тов списка
+  local year_begin_drz
 
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
@@ -219,6 +220,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
     nAge := Year( mn_data ) - Year( mdate_r ) // число лет на время проведения ДРЗ
     nGender := mpol
+    year_begin_drz := Year( mn_data )
   
     if kart->MI_GIT == 9
       m1komu    := kart->KOMU
@@ -291,6 +293,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
     nAge := Year( mn_data ) - Year( mdate_r ) // число лет на время проведения ДРЗ
     nGender := mpol
+    year_begin_drz := Year( mn_data )
   
     if empty( val( msmo := human_->SMO ) )
       m1komu := human->KOMU
@@ -305,6 +308,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     m1rslt     := human_->RSLT_NEW
     //
     is_prazdnik := ! is_work_day( mn_data )
+    year_begin_drz := Year( mn_data )
 
     metap := human->ishod - BASE_ISHOD_RZD   // получим сохраненный этап диспансеризации
 
@@ -584,7 +588,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
   Private num_screen := 1
 
-  if ! ret_ndisp_drz( Loc_kod, kod_kartotek )
+  if ! ret_ndisp_drz( Loc_kod, kod_kartotek, year_begin_drz )
     dbCloseAll()
     return nil  // выходим из карты ввода
   endif
@@ -632,16 +636,16 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'Сроки' Get mn_data ;
         valid {| g | f_k_data( g, 1 ), f_valid_begdata_drz( g, Loc_kod ), ;
         iif( ( mvozrast < 18 .or. mvozrast > 49 ), func_error( 4, 'Пациент не подлежит данному виду диспансеризации!' ), nil ), ;
-        ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
+        ret_ndisp_drz( Loc_kod, kod_kartotek, year( mn_data ) ) ;
         }
       @ Row(), Col() + 1 Say '-' Get mk_data ;
-        valid {| g | f_k_data( g, 2 ), ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
+        valid {| g | f_k_data( g, 2 ), ret_ndisp_drz( Loc_kod, kod_kartotek, year( mn_data ) ) ;
         }
 
       @ j, Col() + 5 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
 
-      // if ! ret_ndisp_drz( Loc_kod, kod_kartotek )
+      // if ! ret_ndisp_drz( Loc_kod, kod_kartotek, year( mn_data ) )
       //   dbCloseAll()
       //   return nil  // выходим из карты ввода
       // endif
