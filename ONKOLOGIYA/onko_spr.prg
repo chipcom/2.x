@@ -5,7 +5,7 @@
 
 #require 'hbsqlit3'
 
-// 19.07.25
+// 23.07.25
 function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
 
   local arr
@@ -23,15 +23,14 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
   stage := AllTrim( stage )
 
   if tnm == 'stage'
-//    cmdText := 'SELECT id_st, ds_st, kod_st, datebeg, dateend ' + ;
-//      'FROM n002 ' + ;
-//      'JOIN onko_stad ON n002.ds_st=onko_stad.icdtop'
-//    group := ' GROUP BY kod_st'
-    cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend, o.versionTNM ' + ;
-      'FROM n002 AS n ' + ;
-      'JOIN onko_stad AS o ' + ;
-      'ON n.ds_st=o.icdtop'
-    group := ' GROUP BY kod_st'
+//    cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend, o.versionTNM ' + ;
+//      'FROM n002 AS n ' + ;
+//      'JOIN onko_stad AS o ' + ;
+//      'ON n.ds_st=o.icdtop'
+//    group := ' GROUP BY n.kod_st'
+    cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend ' + ;
+      'FROM n002 AS n'
+    group := ''
   elseif tnm == 'tumor'
 //    cmdText := 'SELECT id_t, ds_t, kod_t, t_name, datebeg, dateend ' + ;
 //      'FROM n003 ' + ;
@@ -65,7 +64,8 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
   endif
 
   if tnm == 'stage'
-    where := ' WHERE o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_st=="' + diag  + '"'
+//    where := ' WHERE o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_st=="' + diag  + '"'
+    where := ' WHERE n.ds_st=="' + diag  + '"'
   elseif tnm == 'tumor'
     where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_t=="' + diag  + '"'
   elseif tnm == 'nodus'
