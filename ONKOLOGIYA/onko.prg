@@ -34,11 +34,10 @@ Function only_control_onko( napr, date, rslt, ishod )
   Local lRet
 
   // Волгамедлаб исключаем
-  // lRet := (!empty(napr) .and. !empty(date) .and. rslt == 314 .and. ishod == 304 .and. hb_main_curOrg:Kod_Tfoms != '805903')
   lRet := ( !Empty( napr ) .and. !Empty( date ) .and. rslt == 314 .and. ishod == 304 ) // .and. ! is_VOLGAMEDLAB())
   Return lRet
 
-// 01.07.25 проверка правильности соответствующей стадии по соответствующему справочнику
+// 19.07.25 проверка правильности соответствующей стадии по соответствующему справочнику
 Function f_verify_tnm( n, lkod, ldiag, mdate, ar )
 
   Local sn := lstr( n )
@@ -52,125 +51,118 @@ Function f_verify_tnm( n, lkod, ldiag, mdate, ar )
   Local nameFuncDS
 
   default mdate to sys_date
-//  nameFuncDS := 'getDS_N00' + lstr( n ) + '()'
-  nameFuncDS := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdate ) + '")'  
-  aTmp := &nameFunc
-  If ( it := AScan( aTmp, {| x| x[ 2 ] == lkod } ) ) > 0
-    If Empty( aTmp[ it, 3 ] )
-      aTmpDS := &nameFuncDS
-      sd := PadR( ldiag, 5 )
-      If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
-        fl := .f.
-        AAdd( ar, smsg )
-      Else
-        sd := PadR( ldiag, 3 )
-        If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
-          fl := .f.
-          AAdd( ar, smsg )
-        Endif
-      Endif
-    Elseif Len( AllTrim( aTmp[ it, 3 ] ) ) == 5
-      If !( Left( ldiag, 5 ) == aTmp[ it, 3 ] )
-        fl := .f.
-        AAdd( ar, smsg )
-      Endif
-    Else
-      If !( Left( ldiag, 3 ) == AllTrim( aTmp[ it, 3 ] ) )
-        fl := .f.
-        AAdd( ar, smsg )
-      Endif
-    Endif
-  Elseif  ( it := AScan( aTmp, {| x| Empty( x[ 2 ] ) } ) ) > 0
-    If Empty( aTmp[ it, 3 ] )
-      aTmpDS := &nameFuncDS
-      sd := PadR( ldiag, 5 )
-      If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
-        fl := .f.
-        AAdd( ar, smsg )
-      Else
-        sd := PadR( ldiag, 3 )
-        If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
-          fl := .f.
-          AAdd( ar, smsg )
-        Endif
 
+  if mdate < 0d20250701
+  //  nameFuncDS := 'getDS_N00' + lstr( n ) + '()'
+    nameFuncDS := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdate ) + '")'  
+    aTmp := &nameFunc
+    If ( it := AScan( aTmp, {| x| x[ 2 ] == lkod } ) ) > 0
+      If Empty( aTmp[ it, 3 ] )
+        aTmpDS := &nameFuncDS
+        sd := PadR( ldiag, 5 )
+        If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
+          fl := .f.
+          AAdd( ar, smsg )
+        Else
+          sd := PadR( ldiag, 3 )
+          If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
+            fl := .f.
+            AAdd( ar, smsg )
+          Endif
+        Endif
+      Elseif Len( AllTrim( aTmp[ it, 3 ] ) ) == 5
+        If !( Left( ldiag, 5 ) == aTmp[ it, 3 ] )
+          fl := .f.
+          AAdd( ar, smsg )
+        Endif
+      Else
+        If !( Left( ldiag, 3 ) == AllTrim( aTmp[ it, 3 ] ) )
+          fl := .f.
+          AAdd( ar, smsg )
+        Endif
       Endif
-    Elseif Len( AllTrim( aTmp[ it, 3 ] ) ) == 5
-      If !( Left( ldiag, 5 ) == aTmp[ it, 3 ] )
-        fl := .f.
-        AAdd( ar, smsg )
+    Elseif  ( it := AScan( aTmp, {| x| Empty( x[ 2 ] ) } ) ) > 0
+      If Empty( aTmp[ it, 3 ] )
+        aTmpDS := &nameFuncDS
+        sd := PadR( ldiag, 5 )
+        If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
+          fl := .f.
+          AAdd( ar, smsg )
+        Else
+          sd := PadR( ldiag, 3 )
+          If ( it := AScan( aTmpDS, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
+            fl := .f.
+            AAdd( ar, smsg )
+          Endif
+        Endif
+      Elseif Len( AllTrim( aTmp[ it, 3 ] ) ) == 5
+        If !( Left( ldiag, 5 ) == aTmp[ it, 3 ] )
+          fl := .f.
+          AAdd( ar, smsg )
+        Endif
+      Else
+        If !( Left( ldiag, 3 ) == AllTrim( aTmp[ it, 3 ] ) )
+          fl := .f.
+          AAdd( ar, smsg )
+        Endif
       Endif
     Else
-      If !( Left( ldiag, 3 ) == AllTrim( aTmp[ it, 3 ] ) )
-        fl := .f.
-        AAdd( ar, smsg )
-      Endif
+      fl := .f.
+      AAdd( ar, smsg )
     Endif
-  Else
-    fl := .f.
-    AAdd( ar, smsg )
   Endif
   Return fl
 
-// 27.05.25 функция определения массива в ф-ии редактирования листа учёта
-Function f_define_tnm( n, ldiag, mdata )
+// 18.07.25 функция определения массива в ф-ии редактирования листа учёта
+Function f_define_tnm( n, ldiag, mdata, stage )
 
   Local aRet := {}, sd, fl := .f.
   Local aTmp, it
   Local nameFunc
 
-//  nameFunc := 'getDS_N00' + lstr( n ) + '( mdata )'
-  nameFunc := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdata ) + '")'  
-  aTmp := &nameFunc
-  sd := PadR( ldiag, 5 )
-  If ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
-    aRet := AClone( aTmp[ it, 2 ] )
-    fl := .t.
-  Endif
-  If ! fl
-    sd := PadR( ldiag, 3 )
-    If ( ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 3 ) == sd } ) ) > 0 ) .and. Len( aTmp[ it, 1 ] ) == 3
+  default stage to ''
+  if mdata >= 0d20250701  // используются новые правила ФФОМС классификаторов TNM 00-10-92-5-06/9311 от 23.06.25
+                          // и 00-10-92-5-06/11061 от 17.07.25
+    if n == 2
+      aRet := getN00X_new_rules( ldiag, '', mem_ver_TNM, 'stage', mdata )
+    elseif n == 3
+      aRet := getN00X_new_rules( ldiag, stage, mem_ver_TNM, 'tumor', mdata )
+    elseif n == 4
+      aRet := getN00X_new_rules( ldiag, stage, mem_ver_TNM, 'nodus', mdata )
+    elseif n == 5
+      aRet := getN00X_new_rules( ldiag, stage, mem_ver_TNM, 'metastasis', mdata )
+    endif
+  else
+    //  nameFunc := 'getDS_N00' + lstr( n ) + '( mdata )'
+    nameFunc := 'getDS_N00' + lstr( n ) + '("' + dtoc( mdata ) + '")'  
+    aTmp := &nameFunc
+    sd := PadR( ldiag, 5 )
+    If ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
       aRet := AClone( aTmp[ it, 2 ] )
       fl := .t.
     Endif
-  Endif
-  If ! fl
-    sd := Space( 5 )
-    If ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
-      aRet := AClone( aTmp[ it, 2 ] )
+    If ! fl
+      sd := PadR( ldiag, 3 )
+      If ( ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 3 ) == sd } ) ) > 0 ) .and. Len( aTmp[ it, 1 ] ) == 3
+        aRet := AClone( aTmp[ it, 2 ] )
+        fl := .t.
+      Endif
     Endif
-  Endif
+    If ! fl
+      sd := Space( 5 )
+      If ( it := AScan( aTmp, {| x| PadR( x[ 1 ], 5 ) == sd } ) ) > 0
+        aRet := AClone( aTmp[ it, 2 ] )
+      Endif
+    Endif
+  endif
   Return aRet
 
-// 14.01.19 проверка правильности введённых стадий по справочнику N006 в get'e
+// 19.07.25 проверка правильности введённых стадий по справочнику N006 в get'e
 Function f_valid_tnm( g )
 
-  Local buf, fl_found, s := PadR( mkod_diag, 5 )
+  Local s
 
-  /*if !emptyany(m1ONK_T,m1ONK_N,m1ONK_M)
-    select N6
-    find (s)
-    if !(fl_found := found())
-      s := padr(mkod_diag, 3)
-      find (s)
-      fl_found := (found() .and. s == alltrim(n6->ds_gr))
-    endif
-    if fl_found
-      find (padr(s, 5)+str(m1ONK_T, 6)+str(m1ONK_N, 6)+str(m1ONK_M, 6))
-      if found()
-        if m1stad != n6->id_st
-          m1stad := n6->id_st
-          mSTAD  := padr(inieditspr(A__MENUVERT, mm_N002, m1STAD), 5)
-          buf := save_maxrow()
-          stat_msg('Справочник N006: по сочетанию стадий TNM исправлено поле 'Стадия'') ; mybell(1,OK)
-          rest_box(buf)
-          update_get('mstad')
-        endif
-      else
-        func_error(2,'Справочник N006: некорректное сочетание стадий TNM')
-      endif
-    endif
-  endif*/
+  s := PadR( mkod_diag, 5 )  
   Return .t.
 
 // 06.06.25
@@ -179,8 +171,8 @@ Function ret_arr_shema( k, dk )
   // возвращает схемы лекарственных терапий для онкологии на дату
   Static ashema := { {}, {}, {} }
   Static stYear
-  Local i, db, aTable, row, arr := {}
-  Local year_dk, dBeg, dEnd
+  Local i, arr := {}
+  Local year_dk
 
   If ValType( dk ) == 'N'
     year_dk := dk

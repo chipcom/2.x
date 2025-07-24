@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.05.25 добавление или редактирование случая (листа учета)
+// 17.07.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -26,6 +26,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Local i_n007, aN007 := getn007(), i_n008, aN008 := loadn008(), i_n009, aN009 := getn009()
   Local i_n012, aN012_DS := getds_n012(), ar_N012 := {}
   Local i_n010, aN010 := loadn010(), i_n011, aN011 := loadn011()
+  local diag_onko_replace
 
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
@@ -1013,32 +1014,34 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         If AScan( lmm_DS1_T, {| x| x[ 2 ] == m1DS1_T } ) == 0
           m1DS1_T := lmm_DS1_T[ 1, 2 ]
         Endif
+        
         mm_N002 := f_define_tnm( 2, mkod_diag, mk_data )
-        mm_N003 := f_define_tnm( 3, mkod_diag, mk_data )
-        mm_N004 := f_define_tnm( 4, mkod_diag, mk_data )
-        mm_N005 := f_define_tnm( 5, mkod_diag, mk_data )
+//        mm_N003 := f_define_tnm( 3, mkod_diag, mk_data )
+//        mm_N004 := f_define_tnm( 4, mkod_diag, mk_data )
+//        mm_N005 := f_define_tnm( 5, mkod_diag, mk_data )
+
         mDS1_T := inieditspr( A__MENUVERT, mm_DS1_T, m1DS1_T )
         mMTSTZ := inieditspr( A__MENUVERT, mm_danet, m1MTSTZ )
         If Len( mm_N002 ) == 1
           m1STAD := mm_N002[ 1, 2 ]
         Endif
-        If Len( mm_N003 ) == 1
-          m1ONK_T := mm_N003[ 1, 2 ]
-        Endif
-        If Len( mm_N004 ) == 1
-          m1ONK_N := mm_N004[ 1, 2 ]
-        Endif
-        If Len( mm_N005 ) == 1
-          m1ONK_M := mm_N005[ 1, 2 ]
-        Endif
-        mSTAD  := PadR( inieditspr( A__MENUVERT, mm_N002, m1STAD ), 5 )
-        mONK_T := PadR( inieditspr( A__MENUVERT, mm_N003, m1ONK_T ), 5 )
-        mONK_N := PadR( inieditspr( A__MENUVERT, mm_N004, m1ONK_N ), 5 )
-        mONK_M := PadR( inieditspr( A__MENUVERT, mm_N005, m1ONK_M ), 5 )
-        If m1usl_ok == USL_OK_POLYCLINIC
-          mONK_T := mONK_N := mONK_M := Space( 5 )
-          m1ONK_T := m1ONK_N := m1ONK_M := 0
-        Endif
+//        If Len( mm_N003 ) == 1
+//          m1ONK_T := mm_N003[ 1, 2 ]
+//        Endif
+//        If Len( mm_N004 ) == 1
+//          m1ONK_N := mm_N004[ 1, 2 ]
+//        Endif
+//        If Len( mm_N005 ) == 1
+//          m1ONK_M := mm_N005[ 1, 2 ]
+//        Endif
+//        mSTAD  := PadR( inieditspr( A__MENUVERT, mm_N002, m1STAD ), 5 )
+//        mONK_T := PadR( inieditspr( A__MENUVERT, mm_N003, m1ONK_T ), 5 )
+//        mONK_N := PadR( inieditspr( A__MENUVERT, mm_N004, m1ONK_N ), 5 )
+//        mONK_M := PadR( inieditspr( A__MENUVERT, mm_N005, m1ONK_M ), 5 )
+//        If m1usl_ok == USL_OK_POLYCLINIC
+//          mONK_T := mONK_N := mONK_M := Space( 5 )
+//          m1ONK_T := m1ONK_N := m1ONK_M := 0
+//        Endif
         //
         // гистология
         mm_N009 := {}
@@ -1398,6 +1401,26 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       Endif
 
       If is_oncology == 2 .or. is_VOLGAMEDLAB()
+        mSTAD  := PadR( inieditspr( A__MENUVERT, mm_N002, m1STAD ), 5 )
+        mm_N003 := f_define_tnm( 3, mkod_diag, mk_data, mSTAD )
+        mm_N004 := f_define_tnm( 4, mkod_diag, mk_data, mSTAD )
+        mm_N005 := f_define_tnm( 5, mkod_diag, mk_data, mSTAD )
+        If Len( mm_N003 ) == 1
+          m1ONK_T := mm_N003[ 1, 2 ]
+        Endif
+        If Len( mm_N004 ) == 1
+          m1ONK_N := mm_N004[ 1, 2 ]
+        Endif
+        If Len( mm_N005 ) == 1
+          m1ONK_M := mm_N005[ 1, 2 ]
+        Endif
+        mONK_T := PadR( inieditspr( A__MENUVERT, mm_N003, m1ONK_T ), 5 )
+        mONK_N := PadR( inieditspr( A__MENUVERT, mm_N004, m1ONK_N ), 5 )
+        mONK_M := PadR( inieditspr( A__MENUVERT, mm_N005, m1ONK_M ), 5 )
+        If m1usl_ok == USL_OK_POLYCLINIC
+          mONK_T := mONK_N := mONK_M := Space( 5 )
+          m1ONK_T := m1ONK_N := m1ONK_M := 0
+        Endif
         // описание состояния при онкологии
         @ ++j, 1 Say iif( is_VOLGAMEDLAB(), 'СВЕДЕНИЯ О ПРОВЕДЕНИИ ГИСТОЛОГИИ', 'СВЕДЕНИЯ О СЛУЧАЕ ЛЕЧЕНИЯ ОНКОЛОГИЧЕСКОГО ЗАБОЛЕВАНИЯ')
         @ ++j, 3 Say 'Повод обращения' Get mDS1_T ;
@@ -1411,20 +1434,23 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             When Between( m1ds1_t, 0, 4 ) ;
             Color colget_menu
           @ j, Col() Say ' Tumor' Get mONK_T ;
-            reader {| x| menu_reader( x, mm_N003, A__MENUVERT, , , .f. ) } ;
+            reader {| x| menu_reader( x, f_define_tnm( 3, mkod_diag, mk_data, mSTAD ), A__MENUVERT, , , .f. ) } ;
             valid {| g| f_valid_tnm( g ),  mONK_T := PadR( mONK_T, 5 ), .t. } ;
             When m1ds1_t == 0 .and. m1vzros_reb == 0 ;
             Color colget_menu
+//            reader {| x| menu_reader( x, mm_N003, A__MENUVERT, , , .f. ) } ;
           @ j, Col() Say ' Nodus' Get mONK_N ;
-            reader {| x| menu_reader( x, mm_N004, A__MENUVERT, , , .f. ) } ;
+            reader {| x| menu_reader( x, f_define_tnm( 4, mkod_diag, mk_data, mSTAD ), A__MENUVERT, , , .f. ) } ;
             valid {| g| f_valid_tnm( g ),  mONK_N := PadR( mONK_N, 5 ), .t. } ;
             When m1ds1_t == 0 .and. m1vzros_reb == 0 ;
             Color colget_menu
+//            reader {| x| menu_reader( x, mm_N004, A__MENUVERT, , , .f. ) } ;
           @ j, Col() Say ' Metastasis' Get mONK_M ;
-            reader {| x| menu_reader( x, mm_N005, A__MENUVERT, , , .f. ) } ;
+            reader {| x| menu_reader( x, f_define_tnm( 5, mkod_diag, mk_data, mSTAD ), A__MENUVERT, , , .f. ) } ;
             valid {| g| f_valid_tnm( g ),  mONK_M := PadR( mONK_M, 5 ), .t. } ;
             When m1ds1_t == 0 .and. m1vzros_reb == 0 ;
             Color colget_menu
+//            reader {| x| menu_reader( x, mm_N005, A__MENUVERT, , , .f. ) } ;
           @ ++j, 5 Say 'Наличие отдаленных метастазов (при рецидиве или прогрессировании)' Get mMTSTZ ;
             reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
             When eq_any( m1DS1_T, 1, 2 ) ;

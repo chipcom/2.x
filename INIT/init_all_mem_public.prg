@@ -2,7 +2,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 09.12.18 инициализировать все mem (public) - переменные
+// 17.05.25 инициализировать все mem (public) - переменные
 Function init_all_mem_public()
 
   // настраиваемые из всех задач
@@ -99,6 +99,8 @@ Function init_all_mem_public()
   Public mem_ortfflu := 1              // ортопедия
   Public mem_ort_dog := Space( 3 )   // расширение догов. ортопедии
   Public mem_ort_f39 := 0  // работать с формой 39
+
+  Public mem_ver_TNM := 8   // используемая версия TNM для онкологии
 
   Public MUSIC_ON_OFF := ( mem_sound == 2 )
 

@@ -1907,7 +1907,7 @@ Function ret_menu_rak_schet( r, c )
 
   Return ret
 
-//06.07.25 список снятий по актам
+// 20.07.25 список снятий по актам
 Function akt_list_of_refusal_pacient()
 
   Static si := 3
@@ -1959,6 +1959,10 @@ Function akt_list_of_refusal_pacient()
   Endif
   mywait()
   delfrfiles()
+  If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
+    R_use(dir_exe() + '_mo_mo', ,'_mo_mo')
+    Index On padl(codem,6) to ( cur_dir() + "tmp_mo" ) 
+  endif
   adbf := { { "name", "C", 130, 0 }, ;
     { "name1", "C", 130, 0 }, ;
     { "name2", "C", 130, 0 }, ;
@@ -1998,7 +2002,8 @@ Function akt_list_of_refusal_pacient()
     { "DATE_REP", "C", 10, 0 }, ;
     { "NUMORDER", "N", 10, 0 }, ;
     { "kod_h", "N", 7, 0 }, ; // 10.08.2022 для РДЛ
-    { 'napr_uch', 'C', 6, 0 }  }  // 06.07.2025 для РДЛ
+    { 'napr_uch', 'C', 6, 0 }, ;   // 06.07.2025 для РДЛ
+    { 'napr_uch1', 'C', 50, 0 }}  // 10.07.2025 для РДЛ
   dbCreate( fr_data, adbf )
   Use ( fr_data ) New Alias FRD
   adbf := { { "REFREASON", "N", 3, 0 }, ;
@@ -2018,12 +2023,17 @@ Function akt_list_of_refusal_pacient()
     { "cena_1", "N", 11, 2 }, ;
     { "sum_sn", "N", 11, 2 }, ;
     { "DATE_REP", "C", 10, 0 }, ;
+    { "K_data", "C", 10, 0 }, ;
+    { "n_data", "C", 10, 0 }, ;
     { "otd", "C", 42, 0 }, ;
-    { 'napr_uch', 'C', 6, 0 }  }  // 06.07.2025 для РДЛ
+    { 'napr_uch', 'C', 6, 0 },; // 06.07.2025 для РДЛ
+    { 'napr_uch1', 'C', 50, 0 }   }  // 10.07.2025 для РДЛ
   dbCreate( fr_data + "2", adbf )
   dbCreate( fr_data + "3", adbf )
+  dbCreate( fr_data + "4", adbf )
   Use ( fr_data + "2" ) New Alias FRD2
   Use ( fr_data + "3" ) New Alias FRD3
+  Use ( fr_data + "4" ) New Alias FRD4
   //
   fp := FCreate( n_file )
   n_list := 1
@@ -2264,6 +2274,8 @@ Function akt_list_of_refusal_pacient()
         frd2->date_r    := frd->date_r
         frd2->otd       := frd->otd
         frd2->napr_uch  := frd->napr_uch
+        frd2->k_data    := frd->k_data 
+        frd2->n_data    := frd->n_data
         Select human_u
         Skip
       Enddo
@@ -2321,6 +2333,79 @@ Function akt_list_of_refusal_pacient()
     frd3->kol_usl    := temp_3
     frd3->cena_1     := temp_4
     frd3->sum_sn     := temp_4
+// для второй закладки
+  // упорядычеваем по МО направившему и коду дефекта
+  Select frd2
+  Index On napr_uch + refreason To tmp_frd10
+  Go Top
+  temp_1 := " "
+  temp_2 := 1
+  temp_3 := 0 // сумма ошибки
+  temp_4 := 0 // сумма МО
+  temp_5 := " "
+  Do While !Eof()
+    Select FRD4
+    Append Blank
+    If frd2->napr_uch != temp_1
+      If temp_4 != 0
+        // вначале код ошибки
+        frd4->fio        := " ИТОГО "+ alltrim(temp_5)+ " :"
+        frd4->sum_sn     := temp_3
+        Append Blank
+        frd4->fio        := " ВСЕГО "+ temp_1+ " :"
+        frd4->sum_sn     := temp_4
+        Append Blank
+      Endif
+      frd4->num_usl    := Str( temp_2 )
+      //frd4->REFREASON  := frd2->REFREASON
+      temp_1 := frd2->napr_uch
+      temp_2++
+      temp_4 := frd2->sum_sn
+      // так-же обнуляем код ошибки
+      temp_3 := frd2->sum_sn
+      temp_5 := frd2->REFREASON
+    Else // МО не меняется - смотрим код ошибки
+      if frd2->REFREASON != temp_5
+        If temp_3 != 0
+          frd4->fio        := " ИТОГО "+ alltrim(temp_5)+ " :"
+          frd4->sum_sn     := temp_3
+          Append Blank
+        endif
+        temp_3 := frd2->sum_sn
+        temp_5 := frd2->REFREASON
+      else  
+        frd4->shifr_usl  := " "
+        frd4->name_usl   := " "
+        temp_4 += frd2->sum_sn
+        temp_3 += frd2->sum_sn
+      endif  
+    Endif
+    frd4->REFREASON  := frd2->REFREASON
+    frd4->sum_sn     := frd2->sum_sn
+    frd4->DATE_REP   := frd2->DATE_REP
+    frd4->fio        := frd2->fio
+    frd4->date_r     := frd2->date_r
+    frd4->otd        := frd2->otd
+    frd4->napr_uch   := frd2->napr_uch
+    frd4->k_data     := frd2->k_data 
+    frd4->n_data     := frd2->n_data
+    select _mo_mo
+    find(padl(frd2->napr_uch,6))
+    if found()
+      frd4->napr_uch1  := _mo_mo->names
+    else
+      frd4->napr_uch1  := frd2->napr_uch
+    endif    
+    Select frd2
+    Skip
+  Enddo
+  Select FRD4
+  Append Blank
+  frd4->fio        := " ИТОГО "+ alltrim(temp_5)+ " :"
+  frd4->sum_sn     := temp_3
+  Append Blank
+  frd4->fio        := " ВСЕГО "+ temp_1+ " :"
+  frd4->sum_sn     := temp_4
   Endif
   Close databases
 
@@ -2333,7 +2418,7 @@ Function akt_list_of_refusal_pacient()
   Endif
 
   If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
-    create_xls_rdl( 'rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd )
+    create_xls_rdl( 'rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd, lsmo[ 2 ] )
     saveto( cur_dir() + 'rdl_report.xlsx' )
   Endif
 

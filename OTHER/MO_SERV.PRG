@@ -3311,7 +3311,7 @@ Function nastr_all( k, nTask )
 
   Return Nil
 
-// 28.01.25 Общие настройки каждой задачи
+// 17.07.25 Общие настройки каждой задачи
 Function f1nastr_all( nameTask, nTask )
 
   Local mm_tmp := {}, ctitle
@@ -3354,6 +3354,7 @@ Function f1nastr_all( nameTask, nTask )
     Private mm_dms := { { "внутренние", 0 }, ;
       { "ФФОМС", 1 } }
     private mm_danet := { { 'да', 1 }, { 'нет', 0 } }
+    private mm_versionTNM := { { 'версия 7', 7 }, { 'версия 8', 8 } }
 
     Delete file tmp.dbf
     Do Case
@@ -3548,6 +3549,13 @@ Function f1nastr_all( nameTask, nTask )
         {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
         0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
         'Включать ПАРАКЛИНИКУ в сумму ЛИЧНОГО СЧЁТА:' } )
+
+      AAdd( mm_tmp, { 'ver_tnm', 'N', 2, 0, NIL, ;
+        {| x| menu_reader( x, mm_versionTNM, A__MENUVERT ) }, ;
+        0, {| x| inieditspr( A__MENUVERT, mm_versionTNM, x ) }, ;
+        'Используемая версия TNM:' } )
+
+
       AAdd( mm_tmp, { "path_rab", "C", 70, 0, NIL, ;
         NIL, ;
         "", NIL, ;
@@ -3655,6 +3663,8 @@ Function f1nastr_all( nameTask, nTask )
       tmp->date_edit := public_date        //
       tmp->ls_v034   := mem_n_V034
       tmp->ls_method := mem_methodinj
+      tmp->ver_tnm := mem_ver_TNM
+
       Close databases
     Case nTask == X_FNS //  Обмен данными с ФНС
       ctitle := 'настройке обмена данными с ФНС'
@@ -3955,6 +3965,7 @@ Function f1nastr_all( nameTask, nTask )
         public_date := tmp->date_edit
         mem_n_V034  := tmp->ls_v034
         mem_methodinj := tmp->ls_method
+        mem_ver_TNM := tmp->ver_tnm
         tools_ini_oms( 2, 0, 0 )
       Case nTask == X_FNS //  Обмен с ФНС
         g_use( dir_server() + 'reg_fns_nastr', , 'NASTR_FNS' )
@@ -4086,7 +4097,7 @@ Function semaphor_tools_ini( k )
 
   Return fl
 
-// 09.12.18
+// 17.07.25
 Function tools_ini_oms( reg, k1, k2, fll )
 
   Static arr := { { "okato_umolch",  "C" }, ;
@@ -4139,7 +4150,8 @@ Function tools_ini_oms( reg, k1, k2, fll )
     { "mem_enn13rees", "N" }, ;
     { "public_date",   "D" }, ;
     { "mem_n_V034",    "N" }, ;
-    { "mem_methodinj",  "N" } }
+    { "mem_methodinj", "N" }, ;
+    { "mem_ver_TNM",   "N" } }
   Local name_section := "OMS"
   Local i, j, ta := {}, v, fl
 

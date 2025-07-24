@@ -56,7 +56,7 @@ Function integration_sds( k )
 
   Return Nil
 
-// 01.07.25
+// 19.07.25
 Function read_file_xml_sds( n_file )
 
   Static cDelimiter := " , "
