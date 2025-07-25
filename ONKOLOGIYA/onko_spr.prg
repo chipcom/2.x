@@ -5,7 +5,7 @@
 
 #require 'hbsqlit3'
 
-// 23.07.25
+// 25.07.25
 function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
 
   local arr
@@ -81,13 +81,14 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
   aTable := sqlite3_get_table( db, cmdText )
   If Len( aTable ) > 1
     For i := 2 To Len( aTable )
-//        AAdd( arr, { val( aTable[ i, 1 ] ), AllTrim( aTable[ i, 2 ] ), val( aTable[ i, 3 ] ), AllTrim( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ) } )
       if tnm == 'stage'
-        if between_date_new( CToD( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ), dk )
+//        if between_date_new( CToD( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ), dk )
+        if correct_date_dictionary( dk, CToD( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ) )
           AAdd( arr, { AllTrim( aTable[ i, 3 ] ), val( aTable[ i, 1 ] ) } )
         endif
       else
-        if between_date_new( CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ), dk )
+//        if between_date_new( CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ), dk )
+        if correct_date_dictionary( dk, CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ) )
           AAdd( arr, { AllTrim( aTable[ i, 3 ] ), val( aTable[ i, 1 ] ), AllTrim( aTable[ i, 4 ] ) } )
         endif
       endif
