@@ -1907,7 +1907,7 @@ Function ret_menu_rak_schet( r, c )
 
   Return ret
 
-// 20.07.25 список снятий по актам
+// 28.07.25 список снятий по актам
 Function akt_list_of_refusal_pacient()
 
   Static si := 3
@@ -2002,8 +2002,18 @@ Function akt_list_of_refusal_pacient()
     { "DATE_REP", "C", 10, 0 }, ;
     { "NUMORDER", "N", 10, 0 }, ;
     { "kod_h", "N", 7, 0 }, ; // 10.08.2022 для РДЛ
-    { 'napr_uch', 'C', 6, 0 }, ;   // 06.07.2025 для РДЛ
-    { 'napr_uch1', 'C', 50, 0 }}  // 10.07.2025 для РДЛ
+    { 'napr_uch',  'C', 6, 0 }, ;   // 06.07.2025 для РДЛ
+    { 'napr_uch1', 'C', 50, 0 }, ; // 10.07.2025 для РДЛ
+    { 'NS_SLUCH',  "N", 10, 0 }, ;    // 22.07.25 Скор
+    { 'KOD_DIAG',  "C", 5, 0 }, ;    
+    { 'KOD_DIAG2', "C", 5, 0 }, ;    
+    { 'onko',      "N", 10, 0 }, ;       
+    { 'vr_kod',    "N", 4, 0 }, ;      
+    { 'vr_kod1',   "C", 10, 0 }, ;   
+    { 'vr_fio',    "C", 50, 0 }, ;     
+    { 'vr_snils',  "C", 11, 0 }, ;    
+    { "npschet",   "N", 10, 0 }, ;
+    { "penalty",   "N", 10, 0 } }  
   dbCreate( fr_data, adbf )
   Use ( fr_data ) New Alias FRD
   adbf := { { "REFREASON", "N", 3, 0 }, ;
@@ -2026,8 +2036,23 @@ Function akt_list_of_refusal_pacient()
     { "K_data", "C", 10, 0 }, ;
     { "n_data", "C", 10, 0 }, ;
     { "otd", "C", 42, 0 }, ;
-    { 'napr_uch', 'C', 6, 0 },; // 06.07.2025 для РДЛ
-    { 'napr_uch1', 'C', 50, 0 }   }  // 10.07.2025 для РДЛ
+    { 'napr_uch', 'C', 6, 0 }, ;    // 06.07.2025 для РДЛ
+    { 'napr_uch1', 'C', 50, 0 }, ;  // 10.07.2025 для РДЛ
+    { 'NS_SLUCH',  "N", 10, 0 },  ;    // 22.07.25 Скор
+    { 'KOD_DIAG',  "C", 5, 0 }, ;    
+    { 'KOD_DIAG2', "C", 5, 0 }, ;    
+    { 'onko',      "N", 10, 0 }, ;       
+    { 'vr_kod',    "N", 4, 0 }, ;    
+    { 'vr_kod1',   "C", 10, 0 }, ;   
+    { 'vr_fio',    "C", 50, 0 }, ;      
+    { 'vr_snils',  "C", 11, 0 }, ;    
+    { "nschet", "C", 50, 0 }, ;
+    { "dschet", "C", 10, 0 }, ;
+    { "nrak", "C", 50, 0 }, ;
+    { "drak", "C", 10, 0 }, ;
+    { "nakt", "C", 50, 0 }, ;
+    { "dakt", "C", 10, 0 }, ;
+    { "penalty",   "N", 10, 0 } }  
   dbCreate( fr_data + "2", adbf )
   dbCreate( fr_data + "3", adbf )
   dbCreate( fr_data + "4", adbf )
@@ -2052,6 +2077,7 @@ Function akt_list_of_refusal_pacient()
   add_string( Center( "[ " + lmenu[ 2 ] + " ]", sh ) )
   add_string( Center( lsmo[ 2 ], sh ) )
   add_string( "" )
+  r_use( dir_server() + "mo_pers", , "MO_PERS" )
   r_use( dir_server() + "schet_", , "SCHET_" )
   r_use( dir_server() + "mo_pers", , "PERS" )
   r_use( dir_server() + "mo_otd", , "OTD" )
@@ -2193,6 +2219,18 @@ Function akt_list_of_refusal_pacient()
                   frd->NUMORDER  :=  HUMAN_2->pn3
                   frd->kod_h     := human->kod
                   frd->napr_uch  := human_->NPR_MO
+                  frd->onko      := human_2->PN2 
+                  frd->NS_SLUCH  := human_->schet_zap                        
+                  frd->KOD_DIAG  := human->kod_diag     
+                  frd->KOD_DIAG2 := human->kod_diag2   
+                  frd->vr_kod    := human_->vrach
+                  frd->npschet   := human_->schet_zap 
+                  frd->penalty   := raksh->penalty   
+                  select MO_PERS
+                  goto frd->vr_kod
+                  frd->vr_kod1   :=  lstr(mo_pers->tab_nom)
+                  frd->vr_fio    :=  mo_pers->fio      
+                  frd->vr_snils  :=  mo_pers->snils    
                   Select FRD1
                   find ( Str( raksh->REFREASON, 3 ) )
                   If !Found()
@@ -2239,6 +2277,55 @@ Function akt_list_of_refusal_pacient()
   If frt->nitog3 > 0
     frt->name3 := "Итого штрафов: " + lstr( frt->nitog3 ) + " на сумму " + lstr( frt->summa3, 15, 2 ) + "р."
   Endif
+  //
+  If glob_mo[ _MO_KOD_TFOMS ] == '126501' // Скорая
+    j := 0
+    Select frd2
+    Go Top
+    Select frd
+    Index On otd + Str( NUMORDER, 10 )+K_data To tmp_frd11
+    Go Top
+    Do While !Eof()
+      ++j
+      select frd2
+      append blank
+      frd2->num_usl      := lstr(j)    // номер услуги по порядку
+      frd2->REFREASON    := frd->REFREASON
+   //   frd2->shifr_usl", "C", 10, 0 }, ;  // шифр услуги
+   //  frd2->name_usl", "C", 250, 0 }, ; // наименование услуги
+  //    frd2->NUMORDER", "N", 10, 0 }, ;   // Номер заявки(ORDER Number)
+      frd2->fio          := frd->fio
+      frd2->date_r       := frd->date_r  
+   //   frd2->kol_usl", "N", 10, 0 }, ;    // кол-во услуг
+      frd2->cena_1       := frd->cena_1
+      frd2->sum_sn       := frd->sum_snn
+   //   frd2->DATE_REP", "C", 10, 0 }, ;
+      frd2->K_data        := frd->k_data
+      frd2->n_data        := frd->n_data 
+      frd2->otd           := frd->otd
+   //   frd2->napr_uch', 'C', 6, 0 }, ;    // 06.07.2025 для РДЛ
+   //   frd2->napr_uch1', 'C', 50, 0 }, ;  // 10.07.2025 для РДЛ
+      frd2->NS_SLUCH     := frd->NS_SLUCH  
+      frd2->KOD_DIAG     := frd->KOD_DIAG    
+      frd2->KOD_DIAG2    := frd->KOD_DIAG2    
+      frd2->onko         := frd->onko       
+      frd2->vr_kod       := frd->vr_kod    
+      frd2->vr_kod1      := frd->vr_kod1        
+      frd2->vr_fio       := frd->vr_fio    
+      frd2->vr_snils     := frd->vr_snils   
+      frd2->nschet       := frd->nschet
+      frd2->dschet       := frd->dschet
+      frd2->nrak         := frd->nrak
+      frd2->drak         := frd->drak
+      frd2->nakt         := frd->nakt
+      frd2->dakt         := frd->dakt
+      frd2->penalty      := frd->penalty  
+      Select frd
+      Skip
+    Enddo
+
+  endif
+
   If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
     r_use( dir_server() + "uslugi", , "USLUGI" )
     r_use( dir_server() + "human_u", dir_server() + "human_u", "human_u" )
@@ -2421,6 +2508,10 @@ Function akt_list_of_refusal_pacient()
     create_xls_rdl( 'rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd, lsmo[ 2 ] )
     saveto( cur_dir() + 'rdl_report.xlsx' )
   Endif
+  If glob_mo[ _MO_KOD_TFOMS ] == '126501' // Скорая
+    create_xls_rdl( 'smp_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd, lsmo[ 2 ] )
+    saveto( cur_dir() + 'smp_report.xlsx' )
+  Endif  
 
   Return Nil
 
