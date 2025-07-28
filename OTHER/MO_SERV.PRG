@@ -49,7 +49,6 @@ Function import_from_lis()
   Local full_o79
   Private p_var_manager := "Read_from_LIS", cFileProtokol := "protokol.txt"
 
-  // full_o79 := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,1,,,,"export*.o79")
   full_o79 := manager( T_ROW, T_COL + 5, MaxRow() -2,, .t., 1,,,, "*.?79" )
   If !Empty( full_o79 ) .and. hb_FileExists( full_o79 )
     Delete File ( cur_dir() + cFileProtokol )
