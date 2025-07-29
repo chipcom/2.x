@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 03.07.25 создание XML-файлов реестра
+// 29.07.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -836,18 +836,28 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
       If human_->USL_OK == 3 .and. lTypeLUOnkoDisp  // постановка на учет онкобольного
         oONK_SL := oSL:add( hxmlnode():new( 'ONK_SL' ) )
         mo_add_xml_stroke( oONK_SL, 'DS1_T', lstr( onksl->DS1_T ) )
-        mo_add_xml_stroke( oONK_SL, 'STAD', lstr( onksl->STAD ) )
+        if ! empty( onksl->STAD )
+          mo_add_xml_stroke( oONK_SL, 'STAD', lstr( onksl->STAD ) )
+        endif
       Endif
       If human_->USL_OK < 4 .and. is_oncology == 2 .and. ! lTypeLUOnkoDisp
         // заполним сведения об онкологии для XML-документа
         oONK_SL := oSL:add( hxmlnode():new( 'ONK_SL' ) )
         mo_add_xml_stroke( oONK_SL, 'DS1_T', lstr( onksl->DS1_T ) )
         If Between( onksl->DS1_T, 0, 4 )
-          mo_add_xml_stroke( oONK_SL, 'STAD', lstr( onksl->STAD ) )
+          if ! empty( onksl->STAD )
+            mo_add_xml_stroke( oONK_SL, 'STAD', lstr( onksl->STAD ) )
+          endif
           If onksl->DS1_T == 0 .and. human->vzros_reb == 0
-            mo_add_xml_stroke( oONK_SL, 'ONK_T', lstr( onksl->ONK_T ) )
-            mo_add_xml_stroke( oONK_SL, 'ONK_N', lstr( onksl->ONK_N ) )
-            mo_add_xml_stroke( oONK_SL, 'ONK_M', lstr( onksl->ONK_M ) )
+            if ! empty( onksl->ONK_T )
+              mo_add_xml_stroke( oONK_SL, 'ONK_T', lstr( onksl->ONK_T ) )
+            endif
+            if ! empty( onksl->ONK_N )
+              mo_add_xml_stroke( oONK_SL, 'ONK_N', lstr( onksl->ONK_N ) )
+            endif
+            if ! empty( onksl->ONK_M )
+              mo_add_xml_stroke( oONK_SL, 'ONK_M', lstr( onksl->ONK_M ) )
+            endif
           Endif
           If Between( onksl->DS1_T, 1, 2 ) .and. onksl->MTSTZ == 1
             mo_add_xml_stroke( oONK_SL, 'MTSTZ', lstr( onksl->MTSTZ ) )
