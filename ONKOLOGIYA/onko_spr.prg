@@ -5,8 +5,8 @@
 
 #require 'hbsqlit3'
 
-// 25.07.25
-function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
+// 29.07.25
+function getN00X_new_rules( diag, stage, versionTNM, type_TNM, dk )
 
   local arr
   Local db
@@ -16,13 +16,13 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
   Local group := ''
   Local i
 
-  default TNM to 'stage'
+  default type_TNM to 'stage'
 
-  tnm := lower( tnm )
+  type_TNM := lower( type_TNM )
   diag := getds_sootv_onko( AllTrim( Upper( diag ) ), versionTNM )
   stage := AllTrim( stage )
 
-  if tnm == 'stage'
+  if type_TNM == 'stage'
 //    cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend, o.versionTNM ' + ;
 //      'FROM n002 AS n ' + ;
 //      'JOIN onko_stad AS o ' + ;
@@ -30,8 +30,10 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
 //    group := ' GROUP BY n.kod_st'
     cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend ' + ;
       'FROM n002 AS n'
-    group := ''
-  elseif tnm == 'tumor'
+//    where := ' WHERE o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_st=="' + diag  + '"'
+    cmdText += ' WHERE n.ds_st=="' + diag  + '"'
+    cmdText += ''
+  elseif type_TNM == 'tumor'
 //    cmdText := 'SELECT id_t, ds_t, kod_t, t_name, datebeg, dateend ' + ;
 //      'FROM n003 ' + ;
 //      'JOIN onko_stad ON n003.id_t=onko_stad.id_tumor'
@@ -40,8 +42,9 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
       'FROM n003 AS n ' + ;
       'JOIN onko_stad AS o ' + ;
       'ON n.id_t=o.id_tumor'
-    group := ' GROUP BY n.id_t'
-  elseif tnm == 'nodus'
+    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_t=="' + diag  + '"'
+    cmdText += ' GROUP BY n.id_t'
+  elseif type_TNM == 'nodus'
 //    cmdText := 'SELECT id_n, ds_n, kod_n, n_name, datebeg, dateend ' + ;
 //      'FROM n004 ' + ;
 //      'JOIN onko_stad ON n004.id_n=onko_stad.id_nodus'
@@ -50,8 +53,9 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
       'FROM n004 AS n ' + ;
       'JOIN onko_stad AS o ' + ;
       'ON n.id_n=o.id_nodus'
-    group := ' GROUP BY n.id_n'
-  elseif tnm == 'metastasis'
+    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_n=="' + diag  + '"'
+    cmdText += ' GROUP BY n.id_n'
+  elseif type_TNM == 'metastasis'
 //    cmdText := 'SELECT id_m, ds_m, kod_m, m_name, datebeg, dateend ' + ;
 //      'FROM n005 ' + ;
 //      'JOIN onko_stad ON n005.id_m=onko_stad.id_metastas'
@@ -60,34 +64,32 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
       'FROM n005 AS n ' + ;
       'JOIN onko_stad AS o ' + ;
       'ON n.id_m=o.id_metastas'
-    group := ' GROUP BY n.id_m'
+    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_m="' + diag  + '"'
+    cmdText += ' GROUP BY n.id_m'
   endif
 
-  if tnm == 'stage'
-//    where := ' WHERE o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_st=="' + diag  + '"'
-    where := ' WHERE n.ds_st=="' + diag  + '"'
-  elseif tnm == 'tumor'
-    where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_t=="' + diag  + '"'
-  elseif tnm == 'nodus'
-    where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_n=="' + diag  + '"'
-  elseif tnm == 'metastasis'
-    where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_m="' + diag  + '"'
-  endif
-
-  cmdText += where + group
+//  if type_TNM == 'stage'
+////    where := ' WHERE o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_st=="' + diag  + '"'
+//    where := ' WHERE n.ds_st=="' + diag  + '"'
+//  elseif type_TNM == 'tumor'
+//    where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_t=="' + diag  + '"'
+//  elseif type_TNM == 'nodus'
+//    where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_n=="' + diag  + '"'
+//  elseif type_TNM == 'metastasis'
+//    where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_m="' + diag  + '"'
+//  endif
+//  cmdText += where + group
 
   arr := {}
   db := opensql_db()
   aTable := sqlite3_get_table( db, cmdText )
   If Len( aTable ) > 1
     For i := 2 To Len( aTable )
-      if tnm == 'stage'
-//        if between_date_new( CToD( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ), dk )
+      if type_TNM == 'stage'
         if correct_date_dictionary( dk, CToD( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ) )
           AAdd( arr, { AllTrim( aTable[ i, 3 ] ), val( aTable[ i, 1 ] ) } )
         endif
       else
-//        if between_date_new( CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ), dk )
         if correct_date_dictionary( dk, CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ) )
           AAdd( arr, { AllTrim( aTable[ i, 3 ] ), val( aTable[ i, 1 ] ), AllTrim( aTable[ i, 4 ] ) } )
         endif
