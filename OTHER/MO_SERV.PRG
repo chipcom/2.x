@@ -1,9 +1,49 @@
 // mo_serv.prg - сервисы и настройки
-#include "set.ch"
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+#include 'set.ch'
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
+
+  
+// 30.07.25 ОКАТО ПРАВКА Волжский
+Function OKATO_V()
+
+  Local buf := save_maxrow(), i_kart := 0
+  
+  n_message( { 'Данный режим предназначен для изменения ОКАТО', ;
+    'г. Волжский' },, ;
+    'GR+/R', 'W+/R',,, 'G+/R' )
+  If f_esc_enter( 'изменения ОКАТО', .t. ) 
+    //
+    g_use( dir_server() + 'kartote_' )
+    go top
+    do while !eof()
+      ++i_kart
+      If kartote_->(recno()) % 5000 == 0
+        @ MaxRow(), 1  Say lstr( i_kart ) Color 'G+/R'
+        @ Row(), Col() Say '/' Color 'R+/R'
+        @ Row(), Col() Say lstr( kartote_->( LastRec() ) ) Color 'GR+/R'
+      endif  
+      //
+      if kartote_->okatog == '18410560000'
+        // меняем   
+        kartote_->( g_rlock( forever ) )
+        kartote_->okatog := '18410000000'
+        Unlock All
+      endif
+      if kartote_->okatop == '18410560000'
+        // меняем   
+        kartote_->( g_rlock( forever ) ) 
+        kartote_->okatop := '18410000000'
+        Unlock All
+      endif
+      skip
+    enddo  
+    n_message( { 'Изменение ОКАТО произведено ' },, 'W/RB', 'BG+/RB',,, 'G+/RB' )
+  Endif
+  Close databases
+  Return Nil
 
 // 08.01.17
 Function f_import( k )
