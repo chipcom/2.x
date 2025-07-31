@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.07.25 добавление или редактирование случая (листа учета)
+// 31.07.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1653,6 +1653,22 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     Endif
     //
     count_edit += myread(, @pos_read )
+
+    // временно =====================================================
+    if empty( mSTAD )
+      m1STAD := 0
+    endif
+    if empty( mONK_T )
+      m1ONK_T := 0
+    endif
+    if empty( mONK_N )
+      m1ONK_N := 0
+    endif
+    if empty( mONK_M )
+      m1ONK_M := 0
+    endif
+    //  =====================================================
+
     Close databases
     If num_screen == 2
       Set Key K_F5 To
