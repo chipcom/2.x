@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 19.07.25
+// 29.07.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -1723,7 +1723,7 @@ Function verify_sluch( fl_view )
     Endif
     fl := .t.
     If l_mdiagnoz_fill .and. Between( onksl->ds1_t, 0, 4 )
-      If Empty( onksl->STAD )
+      If Empty( onksl->STAD ) .and. ( human->k_data < 0d20250701 )
         AAdd( ta, 'онкология: не введена стадия заболевания' )
       Else
         f_verify_tnm( 2, onksl->STAD, mdiagnoz[ 1 ], human->k_data, ta )
@@ -1736,13 +1736,13 @@ Function verify_sluch( fl_view )
       AAdd( ta, 'онкология: в случае диспансерного наблюдения в поле "Повод обращения" должно быть проставлено "диспансерное наблюдение"' )
     Endif
     If l_mdiagnoz_fill .and. onksl->ds1_t == 0 .and. human->vzros_reb == 0
-      If Empty( onksl->ONK_T )
+      If Empty( onksl->ONK_T ) .and. ( human->k_data < 0d20250701 )
         fl := .f. ; AAdd( ta, 'онкология: не введена стадия заболевания T' )
       Endif
-      If Empty( onksl->ONK_N )
+      If Empty( onksl->ONK_N ) .and. ( human->k_data < 0d20250701 )
         fl := .f. ; AAdd( ta, 'онкология: не введена стадия заболевания N' )
       Endif
-      If Empty( onksl->ONK_M )
+      If Empty( onksl->ONK_M ) .and. ( human->k_data < 0d20250701 )
         fl := .f. ; AAdd( ta, 'онкология: не введена стадия заболевания M' )
       Endif
       If fl

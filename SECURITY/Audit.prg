@@ -1,7 +1,7 @@
-* Audit.prg - работа с данными работы пользователями системы
-*******************************************************************************
-* 13.11.18 AuditWrite( task, type, work, quantity, field ) - запись информации в файл аудита
-*******************************************************************************
+// Audit.prg - работа с данными работы пользователями системы
+// ****************************************************************************
+// 13.11.18 AuditWrite( task, type, work, quantity, field ) - запись информации в файл аудита
+// ****************************************************************************
 
 #include 'hbthread.ch'
 #include 'common.ch'
@@ -12,15 +12,18 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-* 13.11.18 - запись информации в файл аудита
+// 28.07.25 - запись информации в файл аудита
 function AuditWrite( task, type, work, quantity, field )
-	local oAudit
 
-	oAudit := TAuditDB():getByParam( sys_date, hb_user_curUser:ID, task, type, work )
+	local oAudit, id_user
+
+	id_user := hb_user_curUser:ID
+
+	oAudit := TAuditDB():getByParam( Date(), id_user, task, type, work )
 	if isnil( oAudit )
 		oAudit := TAudit():New()
-		oAudit:Date := sys_date
-		oAudit:Operator := hb_user_curUser:ID
+		oAudit:Date := Date()
+		oAudit:Operator := id_user
 		oAudit:Task := task
 		oAudit:Type := type
 		oAudit:Work := work

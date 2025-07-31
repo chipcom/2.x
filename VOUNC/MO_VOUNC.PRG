@@ -4,20 +4,6 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// Static sadiag1 := {}
-
-// 21.05.25
-/*
-Function begin_task_vounc()
-
-  Local fl := .t.
-
-  If glob_mo[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
-    fl := vounc_begin_task()
-  Endif
-  Return fl
-*/
-// 
 Function vounc_begin_task()
 
   Static n_zapusk := 0
@@ -44,56 +30,6 @@ Function vounc_begin_task()
   Endif
   Return fl
 
-//
-/*
-Function vounc_f1main()
-
-  AAdd( cmain_menu, 1 )
-  AAdd( main_menu, ' ~Ввод данных ' )
-  AAdd( main_message, 'Ввод данных' )
-  AAdd( first_menu, { '~Назначения', ;
-    '~Рецепты', 0, ;
-    '~Картотека' } )
-  AAdd( first_message,  { ;
-    'Редактирование назначений лекарственных препаратов', ;
-    'Ввод/редактирование рецептов', ;
-    'Ввод/редактирование картотеки (регистратура)' } )
-  AAdd( func_menu, { 'vounc_input_nazn()', ;
-    'vounc_input_recept()', ;
-    'oms_kartoteka()' } )
-  //
-  AAdd( cmain_menu, 34 )
-  AAdd( main_menu, ' ~Информация ' )
-  AAdd( main_message, 'Просмотр / печать' )
-  AAdd( first_menu, { '~Назначения', ;
-    '~Рецепты', ;
-    '~Справочники' } )
-  AAdd( first_message,  { ;   // информация
-    'Просмотр / печать назначений', ;
-    'Просмотр / печать отчетов по выписке рецептов', ;
-    'Просмотр/печать справочников' ;
-    } )
-  AAdd( func_menu, { ;    // информация
-    'vounc_info_nazn()', ;
-    'vounc_info_recept()', ;
-    'vounc_info_sprav()' ;
-    } )
-  //
-  AAdd( cmain_menu, 51 )
-  AAdd( main_menu, ' ~Справочники ' )
-  AAdd( main_message, 'Редактирование справочников' )
-  AAdd( first_menu, { '~Торговые наименования', ;
-    '~МНН', 0, ;
-    '~Настройка программы' } )
-  AAdd( first_message, { ;
-    'Редактирование торговых наименований препаратов', ;
-    'Редактирование международных непатентованных наименований препаратов', ;
-    'Настройка программы (некоторых значений по умолчанию)' } )
-  AAdd( func_menu, { 'vounc_sprav_trn()', ;
-    'vounc_sprav_mnn()', ;
-    'vounc_sprav_nastr(2)' } )
-  Return Nil
-*/
 //
 Function vounc_input_nazn()
 
@@ -323,7 +259,6 @@ Function f1_vounc_input_recept( oBrow )
 
   Local oColumn, blk := {|| iif( rcp->annul == 1, { 5, 6 }, iif( mnn->tip_mnn == 1, { 3, 4 }, { 1, 2 } ) ) }
 
-  //
   oColumn := TBColumnNew( '   Дата;  рецепта', {|| full_date( rcp->date_r ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
@@ -775,7 +710,7 @@ Function vounc_info_nazn()
 Function vounc_info_recept( k )
 
   Static sk := 1
-  Local str_sem, mas_pmt, mas_msg, mas_fun, j
+  Local mas_pmt, mas_msg, mas_fun
 
   Default k To 0
   Do Case
@@ -819,83 +754,6 @@ Function f1vounc_info_recept()
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  /*
-  if (in := input_value(18, 10, 20, 69, color1, ;
-           space(10)+'Выберите начальный день недели',sn,mm_menu)) == NIL
-    return NIL
-  endif
-  sn := in
-  if in > 2
-    in2 := in - 1
-  elseif in == 2
-    in2 := 1
-  elseif in == 1
-    in2 := 7
-  endif
-  mywait()
-  adbf := {{'date1','D', 8, 0}, ;
-           {'date2','D', 8, 0}, ;
-           {'name', 'C', 50, 0}, ;
-           {'kol'  ,'N', 6, 0}}
-  dbcreate(cur_dir() + 'tmp',adbf)
-  use (cur_dir() + 'tmp')
-  do while dow(arr_m[5]) != in
-    -- arr_m[5]
-  enddo
-  do while dow(arr_m[6]) != in2
-    ++ arr_m[6]
-  enddo
-  for d := arr_m[5] to arr_m[6] step 7
-    append blank
-    tmp->date1 := d
-    tmp->date2 := d+6
-    tmp->name := beforatnum(' ',date_month(tmp->date1), 2)+' - ' + ;
-                 beforatnum(' ',date_month(tmp->date2), 2) + ;
-                 str(year(tmp->date2), 5)+' года'
-  next
-  index on dtos(date1) to (cur_dir() + 'tmp')
-  R_Use(dir_server() + 'vouncrec', , 'RCP')
-  go top
-  do while !eof()
-    if between(rcp->date_r,arr_m[5],arr_m[6]) .and. rcp->annul == 0
-      d := rcp->date_r
-      do while dow(d) != in
-        -- d
-      enddo
-      select TMP
-      find (dtos(d))
-      if found()
-        tmp->kol ++
-        skol ++
-      endif
-    endif
-    select RCP
-    skip
-  enddo
-  rest_box(buf)
-  if skol == 0
-    func_error(4, 'Не было выписано рецептов ' + arr_m[4])
-  else
-    sh := 60
-    fp   := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-    add_string('')
-    add_string(center('Количество рецептов', sh))
-    add_string(center('с ' + date_8(arr_m[5])+'г. по ' + date_8(arr_m[6]) + 'г.', sh))
-    add_string('')
-    select TMP
-    go top
-    do while !eof()
-      verify_FF(HH, .t., sh)
-      add_string(tmp->name+ str(tmp->kol, 10))
-      skip
-    enddo
-    close databases
-    add_string(replicate('─', sh))
-    add_string(padl('Итого рецептов', 50) + str(skol, 10))
-    fclose(fp)
-    viewtext(n_file)
-  endif
-  */
   sh := 80
   fp := FCreate( n_file )
   n_list := 1
@@ -949,18 +807,18 @@ Function f1vounc_info_recept()
   viewtext( n_file, , , , .t., , , 2, , , .f. )
   Return Nil
 
-//
+// 28.07.25
 Function f2vounc_info_recept()
 
   Local sh, HH := 57, buf := save_maxrow(), n_file := cur_dir() + 'trn_year.txt', ;
-    arr_m, adbf
+    arr_m, adbf, i, arr_title, s
 
   If ( arr_m := year_month(, , , 4 ) ) == NIL
     Return Nil
   Endif
   mywait()
   adbf := { { 'TOVAR', 'N', 5, 0 }, ;
-    { 'kol', 'N', 6, 0 } }
+            { 'kol', 'N', 6, 0 } }
   For i := 1 To 12
     AAdd( adbf, { 'kol' + lstr( i ), 'N', 6, 0 } )
   Next
@@ -1032,19 +890,19 @@ Function f2vounc_info_recept()
   Close databases
   Return Nil
 
-//
+// 28.05.25
 Function f3vounc_info_recept()
 
   Local sh, HH := 54, buf := save_maxrow(), n_file := cur_dir() + 'pac_trn.txt', ;
-    arr_m, adbf
+    arr_m, adbf, i, arr_title, s, ii
 
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
   mywait()
   adbf := { { 'kod_k', 'N', 7, 0 }, ;
-    { 'TOVAR', 'N', 5, 0 }, ;
-    { 'kol', 'N', 6, 0 } }
+            { 'TOVAR', 'N', 5, 0 }, ;
+            { 'kol', 'N', 6, 0 } }
   dbCreate( cur_dir() + 'tmp', adbf )
   Use ( cur_dir() + 'tmp' )
   Index On Str( kod_k, 7 ) + Str( tovar, 5 ) to ( cur_dir() + 'tmp' )
@@ -1453,7 +1311,7 @@ Static Function vounc_ret1_name_trn( k, fl_upak )
 Function vounc_get_tovar( k, r, c, _tip_mnn )
 
   Local arr_name := {}, arr_kod := {}
-  Local buf := SaveScreen(), ret, i, r1, r2, c1, c2, l := 0
+  Local buf := SaveScreen(), ret, i, r1, r2, c1, c2, l := 0, s
 
   Default _tip_mnn To 2
   r_use( dir_server() + 'vouncmnn', , 'MNN' )

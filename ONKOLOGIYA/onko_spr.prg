@@ -5,8 +5,8 @@
 
 #require 'hbsqlit3'
 
-// 23.07.25
-function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
+// 30.07.25
+function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate )
 
   local arr
   Local db
@@ -16,13 +16,16 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
   Local group := ''
   Local i
 
-  default TNM to 'stage'
+  default type_TNM to 'stage'
 
-  tnm := lower( tnm )
-  diag := getds_sootv_onko( AllTrim( Upper( diag ) ), versionTNM )
+  type_TNM := lower( type_TNM )
+  diag := AllTrim( diag )
+  if mdate >= 0d20250701  // ???? ???????? ?? ????? ?????? ?????? TNM ?? ???-?
+    diag := getds_sootv_onko( AllTrim( Upper( diag ) ), versionTNM )
+  endif
   stage := AllTrim( stage )
 
-  if tnm == 'stage'
+  if type_TNM == 'stage'
 //    cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend, o.versionTNM ' + ;
 //      'FROM n002 AS n ' + ;
 //      'JOIN onko_stad AS o ' + ;
@@ -30,8 +33,10 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
 //    group := ' GROUP BY n.kod_st'
     cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend ' + ;
       'FROM n002 AS n'
-    group := ''
-  elseif tnm == 'tumor'
+//    where := ' WHERE o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_st=="' + diag  + '"'
+    cmdText += ' WHERE n.ds_st=="' + diag  + '"'  // ??????? WHERE
+    cmdText += ''   // ??????? GROUP BY
+  elseif type_TNM == 'tumor'
 //    cmdText := 'SELECT id_t, ds_t, kod_t, t_name, datebeg, dateend ' + ;
 //      'FROM n003 ' + ;
 //      'JOIN onko_stad ON n003.id_t=onko_stad.id_tumor'
@@ -40,8 +45,9 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
       'FROM n003 AS n ' + ;
       'JOIN onko_stad AS o ' + ;
       'ON n.id_t=o.id_tumor'
-    group := ' GROUP BY n.id_t'
-  elseif tnm == 'nodus'
+    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_t=="' + diag  + '"'
+    cmdText += ' GROUP BY n.id_t'
+  elseif type_TNM == 'nodus'
 //    cmdText := 'SELECT id_n, ds_n, kod_n, n_name, datebeg, dateend ' + ;
 //      'FROM n004 ' + ;
 //      'JOIN onko_stad ON n004.id_n=onko_stad.id_nodus'
@@ -50,8 +56,9 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
       'FROM n004 AS n ' + ;
       'JOIN onko_stad AS o ' + ;
       'ON n.id_n=o.id_nodus'
-    group := ' GROUP BY n.id_n'
-  elseif tnm == 'metastasis'
+    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_n=="' + diag  + '"'
+    cmdText += ' GROUP BY n.id_n'
+  elseif type_TNM == 'metastasis'
 //    cmdText := 'SELECT id_m, ds_m, kod_m, m_name, datebeg, dateend ' + ;
 //      'FROM n005 ' + ;
 //      'JOIN onko_stad ON n005.id_m=onko_stad.id_metastas'
@@ -60,34 +67,21 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
       'FROM n005 AS n ' + ;
       'JOIN onko_stad AS o ' + ;
       'ON n.id_m=o.id_metastas'
-    group := ' GROUP BY n.id_m'
+    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_m="' + diag  + '"'
+    cmdText += ' GROUP BY n.id_m'
   endif
-
-  if tnm == 'stage'
-//    where := ' WHERE o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_st=="' + diag  + '"'
-    where := ' WHERE n.ds_st=="' + diag  + '"'
-  elseif tnm == 'tumor'
-    where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_t=="' + diag  + '"'
-  elseif tnm == 'nodus'
-    where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_n=="' + diag  + '"'
-  elseif tnm == 'metastasis'
-    where := ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_m="' + diag  + '"'
-  endif
-
-  cmdText += where + group
 
   arr := {}
   db := opensql_db()
   aTable := sqlite3_get_table( db, cmdText )
   If Len( aTable ) > 1
     For i := 2 To Len( aTable )
-//        AAdd( arr, { val( aTable[ i, 1 ] ), AllTrim( aTable[ i, 2 ] ), val( aTable[ i, 3 ] ), AllTrim( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ) } )
-      if tnm == 'stage'
-        if between_date_new( CToD( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ), dk )
+      if type_TNM == 'stage'
+        if correct_date_dictionary( mdate, CToD( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ) )
           AAdd( arr, { AllTrim( aTable[ i, 3 ] ), val( aTable[ i, 1 ] ) } )
         endif
       else
-        if between_date_new( CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ), dk )
+        if correct_date_dictionary( mdate, CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ) )
           AAdd( arr, { AllTrim( aTable[ i, 3 ] ), val( aTable[ i, 1 ] ), AllTrim( aTable[ i, 4 ] ) } )
         endif
       endif
@@ -98,14 +92,14 @@ function getN00X_new_rules( diag, stage, versionTNM, TNM, dk )
 
 // 07.07.25
 function get_sootv_mkb_mkbo()
-  // возвращает массив Соответствие кодов МКБ-10 и кодов МКБ-О Топография для классификации TNM
+  // возвращает массив Соответствие кодов МКЭ-10 и кодов МКЭ-О Топография для классификации TNM
   Static _arr
   Static time_load
   Local db
   Local aTable
   Local nI
 
-  // Соответствие кодов МКБ-10 и кодов МКБ-О Топография для классификации TNM
+  // Соответствие кодов МКЭ-10 и кодов МКЭ-О Топография для классификации TNM
   // icd10 TEXT(10)
   // icd10top TEXT(10)
   // tnm_7 INTEGER
@@ -171,7 +165,7 @@ Function getn002()
 
   // N002 - Классификатор стадий (OnkStad)
   // ID_St,      'N',  4 // Идентификатор стадии
-  // DS_St,      'C',  5 // Диагноз по МКБ
+  // DS_St,      'C',  5 // Диагноз по МКЭ
   // KOD_St,     'C',  5 // Стадия
   // DATEBEG,    'C',  10 // Дата начала действия записи
   // DATEEND,    'C',  10 // Дата окончания действия записи
@@ -241,9 +235,9 @@ Function getn003()
 
   // N003 - Классификатор Tumor (OnkT)
   // ID_T,       'N',  4  // Идентификатор T
-  // DS_T,       'C',  5  // Диагноз по МКБ
+  // DS_T,       'C',  5  // Диагноз по МКЭ
   // KOD_T,      'C',  5  // Обозначение T для диагноза
-  // T_NAME,     'C', 250 // Расшифровка T для диагноза
+  // T_NAME,     'C', 250 // Эасшифровка T для диагноза
   // DATEBEG,    'C',  10 // Дата начала действия записи
   // DATEEND,    'C',  10 // Дата окончания действия записи
   If timeout_load( @time_load )
@@ -314,9 +308,9 @@ Function getn004()
 
   // N004 - Классификатор Nodus (OnkN)
   // ID_N,       'N',  4 // Идентификатор N
-  // DS_N,       'C',  5 // Диагноз по МКБ
+  // DS_N,       'C',  5 // Диагноз по МКЭ
   // KOD_N,      'C',  5 // Обозначение N для диагноза
-  // N_NAME,     'C',500 // Расшифровка N для диагноза
+  // N_NAME,     'C',500 // Эасшифровка N для диагноза
   // DATEBEG,    'C',  10 // Дата начала действия записи
   // DATEEND,    'C',  10 // Дата окончания действия записи
   If timeout_load( @time_load )
@@ -386,9 +380,9 @@ Function getn005()
 
   // N005 - Классификатор Metastasis (OnkM)
   // ID_M,       'N',  4 // Идентификатор M
-  // DS_M,       'C',  5 // Диагноз по МКБ
+  // DS_M,       'C',  5 // Диагноз по МКЭ
   // KOD_M,      'C',  5 // Обозначение M для диагноза
-  // M_NAME,     'C',250 // Расшифровка M для диагноза
+  // M_NAME,     'C',250 // Эасшифровка M для диагноза
   // DATEBEG,    'C',  10 // Дата начала действия записи
   // DATEEND,    'C',  10 // Дата окончания действия записи
   If timeout_load( @time_load )
