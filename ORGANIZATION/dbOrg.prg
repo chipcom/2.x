@@ -2,12 +2,12 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 21.05.25
+// 31.07.25
 // это МО "Волгомедлаб" или МСЧ-40 (ФМБА)
 function is_VOLGAMEDLAB()
 
-  return hb_main_curOrg:Kod_Tfoms == TF_KOD_MO_VOLGAMEDLAB ;
-    .or. hb_main_curOrg:Kod_Tfoms == TF_KOD_MO_MSCH40FMBA
+  return hb_main_curOrg:Kod_Tfoms == TF_KOD_MO_VOLGAMEDLAB // ;
+//    .or. hb_main_curOrg:Kod_Tfoms == TF_KOD_MO_MSCH40FMBA
 
 // 23.10.23
 function getUCH()
