@@ -20,6 +20,7 @@ Function OKATO_V()
     g_use( dir_server() + 'kartote_' )
     go top
     oPb := TProgressBar():New( MaxRow(), 0, 20, 0, kartote_->( LastRec() ) )
+    oPb:Symbol := Chr( 219 )
     oPb:Display()
     do while !eof()
       ++i_kart

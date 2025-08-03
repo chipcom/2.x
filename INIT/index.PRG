@@ -27,10 +27,10 @@ Function m_index_db()
 
   Return Nil
 
-// 31.07.24 внутренняя функция переиндексирования
+// 03.08.25 внутренняя функция переиндексирования
 Function pereindex()
 
-  Local buf := SaveScreen(), t1, t2, i, hGauge, ae[ 3 ], k, ab
+  Local buf := SaveScreen(), t1, t2, i, ae[ 3 ]
 
   f_message( { "Внимание! Пpоизводится пеpеиндексирование базы данных.", ;
     "", ;
@@ -48,31 +48,8 @@ Function pereindex()
   Use
   //
   pereindex_263()
-//  If is_task( X_KEK )
-//    pereindex_kek()
-//  Endif
   //
-  stat_msg( 'Поиск и копирование ЕНП' )
-  use_base( "kartotek",, .t. ) // открыть в монопольном режиме
-  Set Index To
-  Go Top
-  Do While !Eof()
-    If kart->kod > 0
-      @ MaxRow(), 1 Say Str( RecNo() / LastRec() * 100, 6, 2 ) + "%" Color cColorStMsg
-      Select KART2
-      Goto ( kart->( RecNo() ) )
-      If !Empty( kart2->kod_mis ) .and. !( kart->kod_mis == kart2->kod_mis )
-        kart->kod_mis := kart2->kod_mis
-      Endif
-    Endif
-    Select KART
-    If RecNo() % 5000 == 0
-      Commit
-    Endif
-    Skip
-  Enddo
-  Index On if( kod > 0, "1", "0" ) + kod_mis to ( dir_server() + "kartotee" ) progress
-  Close databases
+  move_ENP()
   //
   mywait()
   Use ( dir_server() + "mo_raksh" ) New Alias RAKSH
@@ -150,53 +127,6 @@ Function pereindex()
   Pack // упаковка файла нижнего уровня
   Close databases
   //
-  /*Use (dir_server()+"mo_rak") new alias RAK
-  index on str(akt,6) to (cur_dir()+"tmprak") for empty(kod_xml)
-  arr_rak := {}
-  dbeval({|| aadd(arr_rak, {akt,codea,nakt,dakt}) })
-  if !empty(arr_rak) // не заполнен kod_xml из-за моей ошибки
-    min_date := max_date := arr_rak[1,4]
-    for i := 1 to len(arr_rak)
-      min_date := min(min_date,arr_rak[i,4])
-      max_date := max(max_date,arr_rak[i,4])
-    next
-    min_date -= 10
-    max_date += 10
-    select RAK
-    set index to
-    Use (dir_server()+"mo_xml") new alias MO_XML
-    index on str(kod,6) to (cur_dir()+"tmpxml") ;
-        for TIP_IN == _XML_FILE_RAK .and. between(DFILE,min_date,max_date)
-    arr_xml := {}
-    dbeval({|| aadd(arr_xml, {kod,fname,dfile}) })
-    if !empty(arr_xml)
-      mywait("Ждите! Производится исправление ошибки чтения РАК...")
-    endif
-    for j := 1 to len(arr_xml)
-      close databases
-      cFile := alltrim(arr_xml[j,2])
-      if Extract_Zip_XML(dir_server()+dir_XML_TF(),cFile+szip()) != NIL
-        oXmlDoc := HXMLDoc():Read(_tmp_dir1()+cFile+sxml())
-        reestr_rak_tmpfile(oXmlDoc,{},_tmp_dir1()+cFile+szip())
-        Use (dir_server()+"mo_rak") new alias RAK
-        select TMP2
-        go top
-        do while !eof()
-          if (i := ascan(arr_rak, {|x| x[2]==tmp2->_CODEA .and. x[3]==tmp2->_NAKT .and. x[4]==tmp2->_DAKT })) > 0
-            select RAK
-            goto (arr_rak[i,1])
-            if empty(rak->KOD_XML)
-              rak->KOD_XML := arr_xml[j,1]
-            endif
-          endif
-          select TMP2
-          skip
-        enddo
-      endif
-    next
-  endif
-  close databases*/
-
   Use ( dir_server() + "mo_nnapr" ) New Alias NAPR
   Go Top
   Do While !Eof()
@@ -225,22 +155,11 @@ Function pereindex()
     Skip
   Enddo
   Close databases
-  // Use ( dir_server() + "mo_kekh" ) New Alias HU
-  // Go Top
-  // Do While !Eof()
-  //   If !Between( hu->USL_OK, 1, 3 )
-  //     hu->USL_OK := 1
-  //   Endif
-  //   Skip
-  // Enddo
-  // Close databases
   //
   stat_msg( "Пеpеиндексирование завеpшено!" )
   t2 := Seconds() - t1
   RestScreen( buf )
-
   Return t2
-
 
 // 23.08.17
 Function pereindex_263()
@@ -281,10 +200,9 @@ Function pereindex_263()
   Enddo
   Close databases
   rest_box( buf )
-
   Return Nil
 
-// 11.07.24 функция переиндексирования для одной задачи
+// 03.08.25 функция переиндексирования для одной задачи
 Function pereindex_task( n_task )
 
   Local buf := SaveScreen()
@@ -303,8 +221,6 @@ Function pereindex_task( n_task )
     Endif
     If n_Task == X_263
       pereindex_263()
-//    Elseif n_Task == X_KEK
-//      pereindex_kek()
     Endif
     // разрешение доступа всем к данной задаче
     mo_unlock_task( n_Task )
@@ -313,9 +229,7 @@ Function pereindex_task( n_task )
     stat_msg( "Переиндексирование части базы данных завершено!" ) ; mybell( 2, OK )
   Endif
   RestScreen( buf )
-
   Return Nil
-
 
 // 03.12.16 специально для ЦРБ Городищенского р-на
 Function ___uslugi()
@@ -327,10 +241,6 @@ Function ___uslugi()
   Endif
   //
   e_use( dir_server() + "uslugi",, "USL" )
-/*if lastrec() < 8000
-  close databases
-  return NIL
-endif*/
   mywait()
   //
   e_use( dir_server() + "human_u", { dir_server() + "human_u", ;
@@ -570,14 +480,13 @@ endif*/
   Close databases
   Set Deleted On
   rest_box( buf )
-
   Return Nil
 
 // 02.09.15 поиск и удаление дубликатов в картотеке по ключу "код ТФ(PID)+ФИО+дата рождения"
 Function dubl_zap_kod_tf()
 
-  Local j := 0, old_tf := 0, ii := 0, k, ar[ 10 ], name_file := cur_dir() + "kod_tf.txt", ;
-    rec, i, j1, j2, ak := {}, buf := SaveScreen()
+  Local j := 0, old_tf := 0, ii := 0, k, ar[ 10 ], name_file := cur_dir() + 'kod_tf.txt', ;
+    adbf, rec, i, j1, j2, ak := {}, buf := SaveScreen()
 
   f_message( { "Ждите! Пpоизводится поиск и удаление дубликатов в картотеке.", ;
     "", ;
@@ -986,7 +895,6 @@ Function dubl_zap_kod_tf()
   Delete File ( "t_dubl" + sdbf() )
   Delete File ( "t1dubl" + sdbf() )
   RestScreen( buf )
-
   Return { j1, j2 }
 
 // 11.01.19 открыть все файлы для удаления дубликатов записей в картотеке
@@ -1045,7 +953,6 @@ Function f_open_files_dubl_zap( lExcluUse )
   // список карточек в файлах на открепление
   g_use( dir_server() + "mo_krto",, "KRTO",, lExcluUse )
   Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_krto" )
-
   Return Nil
 
 // 11.01.19 удалить дубликаты записей в картотеке
@@ -1256,7 +1163,6 @@ Function f_delete_dubl_zap( dubl1_kart, dubl2_kart, is_lock )
   If is_lock
     dbUnlockAll()
   Endif
-
   Return Nil
 
 // 14.09.16 поправить номер полиса из реестров СПТК
@@ -1308,5 +1214,40 @@ Function correct_polis_from_sptk()
   Enddo
   Close databases
   rest_box( buf )
-
   Return Nil
+
+// 03.08.25
+function move_ENP()
+
+  Local oPb
+  Local buf := save_maxrow()
+
+  stat_msg( 'Поиск и копирование ЕНП' )
+  use_base( "kartotek",, .t. ) // открыть в монопольном режиме
+  Set Index To
+  Go Top
+  oPb := TProgressBar():New( MaxRow(), 0, 20, 0, kart->( LastRec() ))
+  oPb:Color := cColorStMsg
+  oPb:Symbol := Chr( 219 )
+  oPb:Display()
+  Do While !Eof()
+    If kart->kod > 0
+//      @ MaxRow(), 1 Say Str( RecNo() / LastRec() * 100, 6, 2 ) + "%" Color cColorStMsg
+      oPb:Update( kart->( RecNo() ) )
+      Select KART2
+      Goto ( kart->( RecNo() ) )
+      If !Empty( kart2->kod_mis ) .and. !( kart->kod_mis == kart2->kod_mis )
+        kart->kod_mis := kart2->kod_mis
+      Endif
+    Endif
+    Select KART
+    If RecNo() % 5000 == 0
+      Commit
+    Endif
+    Skip
+  Enddo
+  Index On if( kod > 0, '1', '0' ) + kod_mis to ( dir_server() + 'kartotee' ) progress
+  Close databases
+  oPb := nil
+  rest_box( buf )
+  return nil
