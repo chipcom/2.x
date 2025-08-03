@@ -6,10 +6,11 @@
 #include 'chip_mo.ch'
 
   
-// 30.07.25 ОКАТО ПРАВКА Волжский
+// 03.08.25 ОКАТО ПРАВКА Волжский
 Function OKATO_V()
 
   Local buf := save_maxrow(), i_kart := 0
+  Local oPb
   
   n_message( { 'Данный режим предназначен для изменения ОКАТО', ;
     'г. Волжский' },, ;
@@ -18,14 +19,11 @@ Function OKATO_V()
     //
     g_use( dir_server() + 'kartote_' )
     go top
+    oPb := TProgressBar():New( MaxRow(), 0, 20, 0, kartote_->( LastRec() ) )
+    oPb:Display()
     do while !eof()
       ++i_kart
-      If kartote_->(recno()) % 5000 == 0
-        @ MaxRow(), 1  Say lstr( i_kart ) Color 'G+/R'
-        @ Row(), Col() Say '/' Color 'R+/R'
-        @ Row(), Col() Say lstr( kartote_->( LastRec() ) ) Color 'GR+/R'
-      endif  
-      //
+      oPb:Update( i_kart )
       if kartote_->okatog == '18410560000'
         // меняем   
         kartote_->( g_rlock( forever ) )
@@ -39,7 +37,8 @@ Function OKATO_V()
         Unlock All
       endif
       skip
-    enddo  
+    enddo
+    oPb := nil
     n_message( { 'Изменение ОКАТО произведено ' },, 'W/RB', 'BG+/RB',,, 'G+/RB' )
   Endif
   Close databases
