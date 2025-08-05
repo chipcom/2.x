@@ -5,7 +5,7 @@
 
 #require 'hbsqlit3'
 
-// 30.07.25
+// 05.08.25
 function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate )
 
   local arr
@@ -41,34 +41,51 @@ function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate )
 //      'FROM n003 ' + ;
 //      'JOIN onko_stad ON n003.id_t=onko_stad.id_tumor'
 //    group := ' GROUP BY id_tumor'
-    cmdText := 'SELECT n.id_t, n.ds_t, n.kod_t, n.t_name, n.datebeg, n.dateend, o.versionTNM ' + ;
-      'FROM n003 AS n ' + ;
-      'JOIN onko_stad AS o ' + ;
-      'ON n.id_t=o.id_tumor'
-    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_t=="' + diag  + '"'
-    cmdText += ' GROUP BY n.id_t'
+
+//    cmdText := 'SELECT n.id_t, n.ds_t, n.kod_t, n.t_name, n.datebeg, n.dateend, o.versionTNM ' + ;
+//      'FROM n003 AS n ' + ;
+//      'JOIN onko_stad AS o ' + ;
+//      'ON n.id_t=o.id_tumor'
+//    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_t=="' + diag  + '"'
+//    cmdText += ' GROUP BY n.id_t'
+
+    cmdText := 'SELECT n.id_t, n.ds_t, n.kod_t, n.t_name, n.datebeg, n.dateend ' + ;
+      'FROM n003 AS n '
+    cmdText += ' WHERE n.ds_t=="' + diag  + '"'
+    
   elseif type_TNM == 'nodus'
 //    cmdText := 'SELECT id_n, ds_n, kod_n, n_name, datebeg, dateend ' + ;
 //      'FROM n004 ' + ;
 //      'JOIN onko_stad ON n004.id_n=onko_stad.id_nodus'
 //    group := ' GROUP BY id_nodus'
-    cmdText := 'SELECT n.id_n, n.ds_n, n.kod_n, n.n_name, n.datebeg, n.dateend, o.versionTNM ' + ;
-      'FROM n004 AS n ' + ;
-      'JOIN onko_stad AS o ' + ;
-      'ON n.id_n=o.id_nodus'
-    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_n=="' + diag  + '"'
-    cmdText += ' GROUP BY n.id_n'
+
+//    cmdText := 'SELECT n.id_n, n.ds_n, n.kod_n, n.n_name, n.datebeg, n.dateend, o.versionTNM ' + ;
+//      'FROM n004 AS n ' + ;
+//      'JOIN onko_stad AS o ' + ;
+//      'ON n.id_n=o.id_nodus'
+//    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_n=="' + diag  + '"'
+//    cmdText += ' GROUP BY n.id_n'
+
+    cmdText := 'SELECT n.id_n, n.ds_n, n.kod_n, n.n_name, n.datebeg, n.dateend ' + ;
+      'FROM n004 AS n '
+    cmdText += ' WHERE n.ds_n=="' + diag  + '"'
+    
   elseif type_TNM == 'metastasis'
 //    cmdText := 'SELECT id_m, ds_m, kod_m, m_name, datebeg, dateend ' + ;
 //      'FROM n005 ' + ;
 //      'JOIN onko_stad ON n005.id_m=onko_stad.id_metastas'
 //    group := ' GROUP BY id_metastas'
-    cmdText := 'SELECT n.id_m, n.ds_m, n.kod_m, n.m_name, n.datebeg, n.dateend, o.versionTNM ' + ;
-      'FROM n005 AS n ' + ;
-      'JOIN onko_stad AS o ' + ;
-      'ON n.id_m=o.id_metastas'
-    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_m="' + diag  + '"'
-    cmdText += ' GROUP BY n.id_m'
+
+//    cmdText := 'SELECT n.id_m, n.ds_m, n.kod_m, n.m_name, n.datebeg, n.dateend, o.versionTNM ' + ;
+//      'FROM n005 AS n ' + ;
+//      'JOIN onko_stad AS o ' + ;
+//      'ON n.id_m=o.id_metastas'
+//    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_m="' + diag  + '"'
+//    cmdText += ' GROUP BY n.id_m'
+
+    cmdText := 'SELECT n.id_m, n.ds_m, n.kod_m, n.m_name, n.datebeg, n.dateend ' + ;
+      'FROM n005 AS n '
+    cmdText += 'WHERE n.ds_m="' + diag  + '"'
   endif
 
   arr := {}
