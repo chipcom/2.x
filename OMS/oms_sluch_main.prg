@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 04.08.25 добавление или редактирование случая (листа учета)
+// 07.08.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1440,13 +1440,13 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             Color colget_menu
 //            reader {| x| menu_reader( x, mm_N003, A__MENUVERT, , , .f. ) } ;
           @ j, Col() Say ' Nodus' Get mONK_N ;
-            reader {| x| menu_reader( x, f_define_tnm( 4, mkod_diag, mk_data, mSTAD ), A__MENUVERT, , , .f. ) } ;
+            reader {| x| menu_reader( x, f_define_tnm( 4, mkod_diag, mk_data, mSTAD, m1ONK_T ), A__MENUVERT, , , .f. ) } ;
             valid {| g| f_valid_tnm( g ),  mONK_N := PadR( mONK_N, 5 ), .t. } ;
             When m1ds1_t == 0 .and. m1vzros_reb == 0 ;
             Color colget_menu
 //            reader {| x| menu_reader( x, mm_N004, A__MENUVERT, , , .f. ) } ;
           @ j, Col() Say ' Metastasis' Get mONK_M ;
-            reader {| x| menu_reader( x, f_define_tnm( 5, mkod_diag, mk_data, mSTAD ), A__MENUVERT, , , .f. ) } ;
+            reader {| x| menu_reader( x, f_define_tnm( 5, mkod_diag, mk_data, mSTAD, m1ONK_T, m1ONK_N ), A__MENUVERT, , , .f. ) } ;
             valid {| g| f_valid_tnm( g ),  mONK_M := PadR( mONK_M, 5 ), .t. } ;
             When m1ds1_t == 0 .and. m1vzros_reb == 0 ;
             Color colget_menu
