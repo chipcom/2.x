@@ -13,8 +13,7 @@ function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate, tumor, nod
   Local aTable
   Local cmdText
   Local group := ''
-  Local i, strVersionTNM, strTumor, strNodus
-//  Local where
+  Local i, strVersionTNM, strTumor, strNodus, iVer
 
   default type_TNM to 'stage'
   default tumor to 0
@@ -26,126 +25,80 @@ function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate, tumor, nod
     diag := getds_sootv_onko( AllTrim( Upper( diag ) ), versionTNM )
   endif
   stage := AllTrim( stage )
-  strVersionTNM := AllTrim( Str( versionTNM ) )
   strTumor := AllTrim( Str( tumor ) )
   strNodus := AllTrim( Str( nodus ) )
 
-  if type_TNM == 'stage'
-//    cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend, o.versionTNM ' + ;
-//      'FROM n002 AS n ' + ;
-//      'JOIN onko_stad AS o ' + ;
-//      'ON n.ds_st=o.icdtop'
-//    group := ' GROUP BY n.kod_st'
-    cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend ' + ;
-      'FROM n002 AS n'
-//    where := ' WHERE o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_st=="' + diag  + '"'
-    cmdText += ' WHERE n.ds_st=="' + diag  + '"'  // ??????? WHERE
-    cmdText += ''   // ??????? GROUP BY
-  elseif type_TNM == 'tumor'
-//    cmdText := 'SELECT id_t, ds_t, kod_t, t_name, datebeg, dateend ' + ;
-//      'FROM n003 ' + ;
-//      'JOIN onko_stad ON n003.id_t=onko_stad.id_tumor'
-//    group := ' GROUP BY id_tumor'
+  for iVer := 8 to 7 step -1  // цикл по версиям TNM
+    versionTNM := iVer
+    strVersionTNM := AllTrim( Str( versionTNM ) )
 
-//    cmdText := 'SELECT n.id_t, n.ds_t, n.kod_t, n.t_name, n.datebeg, n.dateend, o.versionTNM ' + ;
-//      'FROM n003 AS n ' + ;
-//      'JOIN onko_stad AS o ' + ;
-//      'ON n.id_t=o.id_tumor'
-//    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_t=="' + diag  + '"'
-//    cmdText += ' GROUP BY n.id_t'
+    if type_TNM == 'stage'
+      cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend ' + ;
+        'FROM n002 AS n'
+      cmdText += ' WHERE n.ds_st=="' + diag  + '"'
+      cmdText += ''
 
-//    cmdText := 'SELECT n.id_t, n.ds_t, n.kod_t, n.t_name, n.datebeg, n.dateend ' + ;
-//      'FROM n003 AS n '
-//    cmdText += ' WHERE n.ds_t=="' + diag  + '"'
+    elseif type_TNM == 'tumor'
+      cmdText := 'SELECT n.id_t, n.ds_t, n.kod_t, n.t_name, n.datebeg, n.dateend, o.id_tumor, o.versionTNM ' + ;
+        'FROM onko_stad AS o ' + ;
+        'JOIN n003 AS n ' + ;
+        'ON n.id_t=o.id_tumor'
+      cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
+      cmdText += ' GROUP BY n.id_t'
 
-//    cmdText := 'SELECT o.id_tumor, o.id_nodus, o.id_metastas ' + ;
-    cmdText := 'SELECT n.id_t, n.ds_t, n.kod_t, n.t_name, n.datebeg, n.dateend, o.id_tumor, o.versionTNM ' + ;
-      'FROM onko_stad AS o ' + ;
-      'JOIN n003 AS n ' + ;
-      'ON n.id_t=o.id_tumor'
-    cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
-    cmdText += ' GROUP BY n.id_t'
-
-  elseif type_TNM == 'nodus'
-//    cmdText := 'SELECT id_n, ds_n, kod_n, n_name, datebeg, dateend ' + ;
-//      'FROM n004 ' + ;
-//      'JOIN onko_stad ON n004.id_n=onko_stad.id_nodus'
-//    group := ' GROUP BY id_nodus'
-
-//    cmdText := 'SELECT n.id_n, n.ds_n, n.kod_n, n.n_name, n.datebeg, n.dateend, o.versionTNM ' + ;
-//      'FROM n004 AS n ' + ;
-//      'JOIN onko_stad AS o ' + ;
-//      'ON n.id_n=o.id_nodus'
-//    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_n=="' + diag  + '"'
-//    cmdText += ' GROUP BY n.id_n'
-
-//    cmdText := 'SELECT n.id_n, n.ds_n, n.kod_n, n.n_name, n.datebeg, n.dateend ' + ;
-//      'FROM n004 AS n '
-//    cmdText += ' WHERE n.ds_n=="' + diag  + '"'
-
-//    cmdText := 'SELECT o.id_tumor, o.id_nodus, o.id_metastas ' + ;
-    cmdText := 'SELECT n.id_n, n.ds_n, n.kod_n, n.n_name, n.datebeg, n.dateend, o.id_tumor, o.versionTNM ' + ;
-      'FROM onko_stad AS o ' + ;
-      'JOIN n004 AS n ' + ;
-      'ON n.id_n=o.id_nodus'
-    cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
-    if tumor != 0
-      cmdText += ' and o.id_tumor=' + strTumor
-    endif
-    cmdText += ' GROUP BY n.id_n'
-
-  elseif type_TNM == 'metastasis'
-//    cmdText := 'SELECT id_m, ds_m, kod_m, m_name, datebeg, dateend ' + ;
-//      'FROM n005 ' + ;
-//      'JOIN onko_stad ON n005.id_m=onko_stad.id_metastas'
-//    group := ' GROUP BY id_metastas'
-
-//    cmdText := 'SELECT n.id_m, n.ds_m, n.kod_m, n.m_name, n.datebeg, n.dateend, o.versionTNM ' + ;
-//      'FROM n005 AS n ' + ;
-//      'JOIN onko_stad AS o ' + ;
-//      'ON n.id_m=o.id_metastas'
-//    cmdText += ' WHERE o.stage="' + stage + '" and o.versionTNM=' + AllTrim( Str( versionTNM ) ) + ' and n.ds_m="' + diag  + '"'
-//    cmdText += ' GROUP BY n.id_m'
-
-//    cmdText := 'SELECT n.id_m, n.ds_m, n.kod_m, n.m_name, n.datebeg, n.dateend ' + ;
-//      'FROM n005 AS n '
-//    cmdText += 'WHERE n.ds_m="' + diag  + '"'
-
-//    cmdText := 'SELECT o.id_tumor, o.id_nodus, o.id_metastas ' + ;
-    cmdText := 'SELECT n.id_m, n.ds_m, n.kod_m, n.m_name, n.datebeg, n.dateend, o.id_tumor, o.id_nodus, o.versionTNM ' + ;
-      'FROM onko_stad AS o ' + ;
-      'JOIN n005 AS n ' + ;
-      'ON n.id_m=o.id_metastas'
-    cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
-    if tumor != 0
-      cmdText += ' and o.id_tumor=' + strTumor
-    endif
-    if nodus != 0
-      cmdText += ' and o.id_nodus=' + strNodus
-    endif
-    cmdText += ' GROUP BY n.id_m'
-
-  endif
-
-  arr := {}
-  db := opensql_db()
-  aTable := sqlite3_get_table( db, cmdText )
-
-  If Len( aTable ) > 1
-    For i := 2 To Len( aTable )
-      if type_TNM == 'stage'
-        if correct_date_dictionary( mdate, CToD( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ) )
-          AAdd( arr, { AllTrim( aTable[ i, 3 ] ), val( aTable[ i, 1 ] ) } )
-        endif
-      else
-        if correct_date_dictionary( mdate, CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ) )
-          AAdd( arr, { PadR( AllTrim( aTable[ i, 3 ] ), 5 ) + AllTrim( aTable[ i, 4 ] ), val( aTable[ i, 1 ] ), AllTrim( aTable[ i, 4 ] ) } )
-        endif
+    elseif type_TNM == 'nodus'
+      cmdText := 'SELECT n.id_n, n.ds_n, n.kod_n, n.n_name, n.datebeg, n.dateend, o.id_tumor, o.versionTNM ' + ;
+        'FROM onko_stad AS o ' + ;
+        'JOIN n004 AS n ' + ;
+        'ON n.id_n=o.id_nodus'
+      cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
+      if tumor != 0
+        cmdText += ' and o.id_tumor=' + strTumor
       endif
-    Next
-  else
+      cmdText += ' GROUP BY n.id_n'
+
+    elseif type_TNM == 'metastasis'
+      cmdText := 'SELECT n.id_m, n.ds_m, n.kod_m, n.m_name, n.datebeg, n.dateend, o.id_tumor, o.id_nodus, o.versionTNM ' + ;
+        'FROM onko_stad AS o ' + ;
+        'JOIN n005 AS n ' + ;
+        'ON n.id_m=o.id_metastas'
+      cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
+      if tumor != 0
+        cmdText += ' and o.id_tumor=' + strTumor
+      endif
+      if nodus != 0
+        cmdText += ' and o.id_nodus=' + strNodus
+      endif
+      cmdText += ' GROUP BY n.id_m'
+
+    endif
+
+    arr := {}
+    db := opensql_db()
+    aTable := sqlite3_get_table( db, cmdText )
+
+    If Len( aTable ) > 1
+      For i := 2 To Len( aTable )
+        if type_TNM == 'stage'
+          if correct_date_dictionary( mdate, CToD( aTable[ i, 4 ] ), CToD( aTable[ i, 5 ] ) )
+            AAdd( arr, { AllTrim( aTable[ i, 3 ] ), val( aTable[ i, 1 ] ) } )
+          endif
+        else
+          if correct_date_dictionary( mdate, CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ) )
+            AAdd( arr, { PadR( AllTrim( aTable[ i, 3 ] ), 5 ) + AllTrim( aTable[ i, 4 ] ), val( aTable[ i, 1 ] ), AllTrim( aTable[ i, 4 ] ) } )
+          endif
+        endif
+      Next
+//  else
+//    AAdd( arr, { '', 0, '' } )
+    Endif
+    if len( arr ) > 0
+      exit
+    endif
+  next
+  if len( arr ) == 0
     AAdd( arr, { '', 0, '' } )
-  Endif
+  endif
   db := nil
   return arr
 
