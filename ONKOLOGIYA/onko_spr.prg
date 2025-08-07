@@ -5,16 +5,16 @@
 
 #require 'hbsqlit3'
 
-// 06.08.25
+// 07.08.25
 function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate, tumor, nodus )
 
   local arr
   Local db
   Local aTable
   Local cmdText
-  Local where
   Local group := ''
-  Local i
+  Local i, strVersionTNM, strTumor, strNodus
+//  Local where
 
   default type_TNM to 'stage'
   default tumor to 0
@@ -22,10 +22,13 @@ function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate, tumor, nod
 
   type_TNM := lower( type_TNM )
   diag := AllTrim( diag )
-  if mdate >= 0d20250701  // ???? ???????? ?? ????? ?????? ?????? TNM ?? ???-?
+  if mdate >= 0d20250701  // переход на новую систему TNM
     diag := getds_sootv_onko( AllTrim( Upper( diag ) ), versionTNM )
   endif
   stage := AllTrim( stage )
+  strVersionTNM := AllTrim( Str( versionTNM ) )
+  strTumor := AllTrim( Str( tumor ) )
+  strNodus := AllTrim( Str( nodus ) )
 
   if type_TNM == 'stage'
 //    cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend, o.versionTNM ' + ;
@@ -60,7 +63,7 @@ function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate, tumor, nod
       'FROM onko_stad AS o ' + ;
       'JOIN n003 AS n ' + ;
       'ON n.id_t=o.id_tumor'
-    cmdText += ' WHERE o.stage="' + stage + '" and o.icdtop=="' + diag  + '"' + ' and o.versionTNM=' + AllTrim( Str( versionTNM ) )
+    cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
     cmdText += ' GROUP BY n.id_t'
 
   elseif type_TNM == 'nodus'
@@ -85,9 +88,9 @@ function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate, tumor, nod
       'FROM onko_stad AS o ' + ;
       'JOIN n004 AS n ' + ;
       'ON n.id_n=o.id_nodus'
-    cmdText += ' WHERE o.stage="' + stage + '" and o.icdtop=="' + diag  + '"' + ' and o.versionTNM=' + AllTrim( Str( versionTNM ) )
+    cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
     if tumor != 0
-      cmdText += ' and o.id_tumor=' + AllTrim( Str( tumor ) )
+      cmdText += ' and o.id_tumor=' + strTumor
     endif
     cmdText += ' GROUP BY n.id_n'
 
@@ -113,12 +116,12 @@ function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate, tumor, nod
       'FROM onko_stad AS o ' + ;
       'JOIN n005 AS n ' + ;
       'ON n.id_m=o.id_metastas'
-    cmdText += ' WHERE o.stage="' + stage + '" and o.icdtop=="' + diag  + '"' + ' and o.versionTNM=' + AllTrim( Str( versionTNM ) )
+    cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
     if tumor != 0
-      cmdText += ' and o.id_tumor=' + AllTrim( Str( tumor ) )
+      cmdText += ' and o.id_tumor=' + strTumor
     endif
     if nodus != 0
-      cmdText += ' and o.id_nodus=' + AllTrim( Str( nodus ) )
+      cmdText += ' and o.id_nodus=' + strNodus
     endif
     cmdText += ' GROUP BY n.id_m'
 
@@ -136,7 +139,7 @@ function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate, tumor, nod
         endif
       else
         if correct_date_dictionary( mdate, CToD( aTable[ i, 5 ] ), CToD( aTable[ i, 6 ] ) )
-          AAdd( arr, { AllTrim( aTable[ i, 3 ] ) + ' ' + AllTrim( aTable[ i, 4 ] ), val( aTable[ i, 1 ] ), AllTrim( aTable[ i, 4 ] ) } )
+          AAdd( arr, { PadR( AllTrim( aTable[ i, 3 ] ), 5 ) + AllTrim( aTable[ i, 4 ] ), val( aTable[ i, 1 ] ), AllTrim( aTable[ i, 4 ] ) } )
         endif
       endif
     Next
@@ -148,7 +151,7 @@ function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate, tumor, nod
 
 // 07.07.25
 function get_sootv_mkb_mkbo()
-  // возвращает массив Соответствие кодов МКЭ-10 и кодов МКЭ-О Топография для классификации TNM
+  // возвращает массив Соответствие кодов МКБ-10 и кодов МКБ-О Топография для классификации TNM
   Static _arr
   Static time_load
   Local db
@@ -256,11 +259,6 @@ Function getds_n002( mdate )
   endif
   aStadii := {}
   For Each row in getn002() 
-    // if ! Empty( row[ 5 ] )
-    //   if ( row[ 4 ] <= mdate .and. row[ 5 ] >= mdate )
-    //     loop
-    //   endif
-    // endif
     if ! correct_date_dictionary( mdate, row[ 4 ], row[ 5 ] )
       loop
     endif
@@ -328,11 +326,6 @@ Function getds_n003( mdate )
   endif
   aTumor := {}
   For Each row in getn003()
-    // if ! Empty( row[ 6 ] )
-    //   if ( row[ 5 ] <= mdate .and. row[ 6 ] >= mdate )
-    //     loop
-    //   endif
-    // endif
     if ! correct_date_dictionary( mdate, row[ 5 ], row[ 6 ] )
       loop
     endif
@@ -401,11 +394,6 @@ Function getds_n004( mdate )
   endif
   aNodus := {}
   For Each row in getn004()
-    // if ! Empty( row[ 6 ] )
-    //   if ( row[ 5 ] <= mdate .and. row[ 6 ] >= mdate )
-    //     loop
-    //   endif
-    // endif
     if ! correct_date_dictionary( mdate, row[ 5 ], row[ 6 ] )
       loop
     endif
@@ -473,11 +461,6 @@ Function getds_n005( mdate )
   endif
   aMetastasis := {}
   For Each row in getn005()
-    // if ! Empty( row[ 6 ] )
-    //   if ( row[ 5 ] <= mdate .and. row[ 6 ] >= mdate )
-    //     loop
-    //   endif
-    // endif
     if ! correct_date_dictionary( mdate, row[ 5 ], row[ 6 ] )
       loop
     endif
