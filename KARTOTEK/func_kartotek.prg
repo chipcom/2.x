@@ -400,3 +400,55 @@ Function check_INN_person(cInn, is_msg)
     return .f.
   endif
   return .t.
+
+// 14.09.16 поправить номер полиса из реестров СПТК
+Function correct_polis_from_sptk()
+
+  Local ii := 0, jj := 0, fl, buf := save_maxrow()
+
+  stat_msg( "Поиск/попытка исправления полисов в картотеке" )
+  Use ( dir_server() + "human_" ) new
+  Use ( dir_server() + "human" ) new
+  Set Relation To RecNo() into HUMAN_
+  Private mdate := SToD( "20190630" )
+  Index On Str( kod_k, 7 ) + Str( Descend( k_data ), 10 ) to ( cur_dir() + "tmp_human" ) For k_data > mdate
+  use_base( "kartotek",, .t. ) // открываем в монопольном режиме
+  Set Order To 2
+  find ( "1" )
+  Do While kart->kod > 0 .and. !Eof()
+    If++ii % 500 == 0
+      @ MaxRow(), 0 Say Str( ii / LastRec() * 100, 6, 2 ) + "%" Color cColorStMsg
+    Endif
+    Select HUMAN
+    find ( Str( kart->kod, 7 ) )
+    Do While human->kod_k == kart->kod .and. !Eof()
+      If !Empty( k_data ) .and. kod > 0 .and. ;
+          Between( human_->VPOLIS, 1, 3 ) .and. schet > 0 .and. ; // в счете
+        human_->REESTR > 0 .and. Between( human_->smo, '34001', '34007' )
+        fl := .f.
+        If human_->VPOLIS == kart_->VPOLIS
+          fl := !( kart_->NPOLIS == human_->NPOLIS )
+        Elseif human_->VPOLIS > kart_->VPOLIS
+          fl := .t.
+        Endif
+        If fl
+          kart->POLIS   := make_polis( human_->spolis, human_->npolis )
+          kart_->VPOLIS := human_->VPOLIS
+          kart_->SPOLIS := human_->SPOLIS
+          kart_->NPOLIS := human_->NPOLIS
+          If++jj % 2000 == 0
+            Commit
+          Endif
+        Endif
+        Exit
+      Endif
+      Select HUMAN
+      Skip
+    Enddo
+    Select KART
+    Skip
+  Enddo
+  Close databases
+  rest_box( buf )
+  Return Nil
+
