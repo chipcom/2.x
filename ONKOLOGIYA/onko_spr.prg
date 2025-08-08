@@ -5,32 +5,33 @@
 
 #require 'hbsqlit3'
 
-// 07.08.25
-function getN00X_new_rules( diag, stage, versionTNM, type_TNM, mdate, tumor, nodus )
+// 08.08.25
+function getN00X_new_rules( cDiag, stage, type_TNM, mdate, tumor, nodus )
 
   local arr
   Local db
   Local aTable
   Local cmdText
   Local group := ''
-  Local i, strVersionTNM, strTumor, strNodus, iVer
+  Local i, strVersionTNM, strTumor, strNodus, iVersion
+  Local diag
 
   default type_TNM to 'stage'
   default tumor to 0
   default nodus to 0
 
   type_TNM := lower( type_TNM )
-  diag := AllTrim( diag )
-  if mdate >= 0d20250701  // переход на новую систему TNM
-    diag := getds_sootv_onko( AllTrim( Upper( diag ) ), versionTNM )
-  endif
+  cDiag := AllTrim( cDiag )
   stage := AllTrim( stage )
   strTumor := AllTrim( Str( tumor ) )
   strNodus := AllTrim( Str( nodus ) )
 
-  for iVer := 8 to 7 step -1  // цикл по версиям TNM
-    versionTNM := iVer
-    strVersionTNM := AllTrim( Str( versionTNM ) )
+  for iVersion := 8 to 7 step -1  // цикл по версиям TNM
+    strVersionTNM := AllTrim( Str( iVersion ) )
+
+    if mdate >= 0d20250701  // переход на новую систему TNM
+      diag := getds_sootv_onko( AllTrim( Upper( cDiag ) ), iVersion )
+    endif
 
     if type_TNM == 'stage'
       cmdText := 'SELECT n.id_st, n.ds_st, n.kod_st, n.datebeg, n.dateend ' + ;

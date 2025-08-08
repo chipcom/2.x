@@ -113,7 +113,7 @@ Function f_verify_tnm( n, lkod, ldiag, mdate, ar )
   Endif
   Return fl
 
-// 07.08.25 функция определения массива в ф-ии редактирования листа учёта
+// 08.08.25 функция определения массива в ф-ии редактирования листа учёта
 Function f_define_tnm( n, ldiag, mdata, stage, tumor, nodus )
 
   Local aRet := {}, sd, fl := .f.
@@ -126,13 +126,13 @@ Function f_define_tnm( n, ldiag, mdata, stage, tumor, nodus )
   if mdata >= 0d20250701  // используются новые правила ФФОМС классификаторов TNM 00-10-92-5-06/9311 от 23.06.25
                           // и 00-10-92-5-06/11061 от 17.07.25
     if n == 2
-      aRet := getN00X_new_rules( ldiag, '', mem_ver_TNM, 'stage', mdata )
+      aRet := getN00X_new_rules( ldiag, '', 'stage', mdata )
     elseif n == 3
-      aRet := getN00X_new_rules( ldiag, stage, mem_ver_TNM, 'tumor', mdata )
+      aRet := getN00X_new_rules( ldiag, stage, 'tumor', mdata )
     elseif n == 4
-      aRet := getN00X_new_rules( ldiag, stage, mem_ver_TNM, 'nodus', mdata, tumor )
+      aRet := getN00X_new_rules( ldiag, stage, 'nodus', mdata, tumor )
     elseif n == 5
-      aRet := getN00X_new_rules( ldiag, stage, mem_ver_TNM, 'metastasis', mdata, tumor, nodus )
+      aRet := getN00X_new_rules( ldiag, stage, 'metastasis', mdata, tumor, nodus )
     endif
   else
     //  nameFunc := 'getDS_N00' + lstr( n ) + '( mdata )'
