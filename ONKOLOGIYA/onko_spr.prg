@@ -98,7 +98,7 @@ function getN00X_new_rules( cDiag, stage, type_TNM, mdate, tumor, nodus )
     endif
   next
   if len( arr ) == 0
-    AAdd( arr, { '', 0, '' } )
+//    AAdd( arr, { '', 0, '' } )
   endif
   db := nil
   return arr
