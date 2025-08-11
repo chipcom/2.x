@@ -63,7 +63,6 @@ mo_version.prg
 
 .\CALENDAR\calendar.prg
 .\CALENDAR\calendar_func.prg
-#.\CALENDAR\TSys_date.prg
 
 .\DICTIONARY\mo_spr.prg
 .\DICTIONARY\mo_spri.prg
