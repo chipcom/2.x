@@ -72,7 +72,7 @@ Function create_reestr()
     { 'KOD',         'N',     6,     0 } }
 
   mnyear := arr_m[ 1 ]
-  mnmonth := arr_m[ 3 ]
+  mnmonth := arr_m[ 3 ] 
   
   private p_array_PZ
 
@@ -136,7 +136,7 @@ Function create_reestr()
         'Невыписанные реестры случаев', 'R/BG', , , , , 'f2create_reestr', , ;
         { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B,R/BG', .f., 180 } )
       rest_box( buf )
-      // if .f.
+
       If sys_date < SToD( StrZero( tmp->nyear, 4 ) + StrZero( tmp->nmonth, 2 ) + "11" )
         func_error( 10, "Сегодня " + date_8( sys_date ) + ", а реестры разрешается отсылать с 11 числа" )
       Elseif mo_lock_task( X_OMS )
