@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 07.08.25 добавление или редактирование случая (листа учета)
+// 08.08.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1655,18 +1655,18 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     count_edit += myread(, @pos_read )
 
     // временно =====================================================
-    if empty( mSTAD )
-      m1STAD := 0
-    endif
-    if empty( mONK_T )
-      m1ONK_T := 0
-    endif
-    if empty( mONK_N )
-      m1ONK_N := 0
-    endif
-    if empty( mONK_M )
-      m1ONK_M := 0
-    endif
+//    if empty( mSTAD )
+//      m1STAD := 0
+//    endif
+//    if empty( mONK_T )
+//      m1ONK_T := 0
+//    endif
+//    if empty( mONK_N )
+//      m1ONK_N := 0
+//    endif
+//    if empty( mONK_M )
+//      m1ONK_M := 0
+//    endif
     //  =====================================================
 
     Close databases
@@ -2153,10 +2153,12 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             sl->kod := mkod
           Endif
           sl->DS1_T := m1DS1_T
-          sl->STAD := m1STAD
-          sl->ONK_T := m1ONK_T
-          sl->ONK_N := m1ONK_N
-          sl->ONK_M := m1ONK_M
+
+          sl->STAD := iif( empty( mSTAD ), 0, m1STAD )
+          sl->ONK_T := iif( empty( mONK_T ), 0, m1ONK_T )
+          sl->ONK_N := iif( empty( mONK_N ), 0, m1ONK_N )
+          sl->ONK_M := iif( empty( mONK_M ), 0, m1ONK_M )
+
           sl->MTSTZ := m1MTSTZ
           sl->b_diag := m1b_diag
           sl->sod := 0
