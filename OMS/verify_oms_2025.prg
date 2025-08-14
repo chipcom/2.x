@@ -18,6 +18,7 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
     mas_pmt := { 'Список обнаруженных ошибок в результате проверки' }
   local name_file, name_file2, name_file3, mas_file := {}, ft
   local  arrKolSl := { 0, 0 }, adbf
+  local s
 
   // local kol_1r := 0, ; // количество обычных случаев
   //   kol_2r := 0, ;     // количество случаев диспансеризации
@@ -26,8 +27,8 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
 
   AAdd( mas_file, name_file )
 
-  Default arr_m To year_month( T_ROW, T_COL + 5, , 3 ), fl_view To .t.
-
+//  Default arr_m To year_month( T_ROW, T_COL + 5, , 3 )
+  Default fl_view To .t.
   If arr_m == NIL
     Return arrKolSl
   Endif
@@ -104,57 +105,63 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
   g_use( dir_server() + 'human_', , 'HUMAN_' )
   g_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
 
-//  dbSeek( DToS( arr_m[ 5 ] ), .t. )
-//  If AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. fl_view
-//    Private old_npr_mo := '000000'
-//    Index On f_napr_mo_lis() + Upper( fio ) + Str( kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) ;
-//      While human->k_data <= arr_m[ 6 ] .and. !Eof() ;
-//      For tip_h == B_STANDART .and. Empty( schet ) .and. !Empty( k_data )
-//  Else
-//    Index On Upper( fio ) + Str( kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) ;
-//      While human->k_data <= arr_m[ 6 ] .and. !Eof() ;
-//      For tip_h == B_STANDART .and. Empty( schet ) .and. !Empty( k_data )
-//  Endif
-//  Set Index to ( dir_server() + 'humans' ), ( dir_server() + 'humankk' ), ( dir_server() + 'humand' ), ( cur_dir() + 'tmp_hfio' )
-//  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
-//  Set Order To 4
-  tmpb->( dbGoTop() )
-//  Go Top
-  Do While ! tmpb->( Eof() )
-//    If emptyall( iprov, inprov )
+  dbSeek( DToS( arr_m[ 5 ] ), .t. )
+  If AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. fl_view
+    Private old_npr_mo := '000000'
+    Index On f_napr_mo_lis() + Upper( FIELD->fio ) + Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) ;
+      While human->k_data <= arr_m[ 6 ] .and. !Eof() ;
+      For FIELD->tip_h == B_STANDART .and. Empty( FIELD->schet ) .and. !Empty( FIELD->k_data )
+  Else
+    Index On Upper( FIELD->fio ) + Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) ;
+      While human->k_data <= arr_m[ 6 ] .and. !Eof() ;
+      For FIELD->tip_h == B_STANDART .and. Empty( FIELD->schet ) .and. !Empty( FIELD->k_data )
+  Endif
+  Set Index to ( dir_server() + 'humans' ), ( dir_server() + 'humankk' ), ( dir_server() + 'humand' ), ( cur_dir() + 'tmp_hfio' )
+  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To FIELD->kod_k into KART
+  Set Order To 4
+
+  tmpb->( dbSeek( kod_smo, .t. ) )
+//  tmpb->( dbGoTop() )
+  Do While ! ( tmpb->( Eof() ) ) .and. ( tmpb->kod_smo == kod_smo )
+    if tmpb->kod_smo != kod_smo
+      tmpb->( dbSkip() )
+      loop
+    endif
+    If emptyall( iprov, inprov )
       updatestatus()
-//    Endif
-//    If Empty( human_->reestr )
-//      ++ii
-//      If ( fl := ( human->cena_1 == 0 ) ) // если цена нулевая
-//        otd->( dbGoto( human->OTD ) )
-//        If is_smp( human_->USL_OK, human_->PROFIL )  // скорая помощь
-//          fl = .f.
-//        Elseif eq_any( human->ishod, 201, 202, 204 ) // диспансеризация взрослого населения
-//          fl = .f.
-//        Elseif otd->tiplu == TIP_LU_ONKO_DISP
-//          fl := .f.
-//        Endif
-//      Endif
-//      If Empty( Int( Val( human_->smo ) ) ) // нет СМО
-//        fl := .t.
-//      Endif
-//      If fl // прочие счета
+    Endif
+    human->( dbGoto( tmpb->kod_human ) )
+    If Empty( human_->reestr )
+      ++ii
+      If ( fl := ( human->cena_1 == 0 ) ) // если цена нулевая
+        otd->( dbGoto( human->OTD ) )
+        If is_smp( human_->USL_OK, human_->PROFIL )  // скорая помощь
+          fl = .f.
+        Elseif eq_any( human->ishod, 201, 202, 204 ) // диспансеризация взрослого населения
+          fl = .f.
+        Elseif otd->tiplu == TIP_LU_ONKO_DISP
+          fl := .f.
+        Endif
+      Endif
+      If Empty( Int( Val( human_->smo ) ) ) // нет СМО
+        fl := .t.
+      Endif
+      If fl // прочие счета
 //        Select TMP_NO
 //        Append Blank
 //        tmp_no->kod  := human->kod
 //        tmp_no->tip  := iif( human->cena_1 == 0, 1, 2 )
 //        tmp_no->komu := human->komu
 //        tmp_no->str_crb := human->str_crb
-//      Elseif ko == 2 .and. human_->oplata == 2 .and. human_->ST_VERIFY < 5
+      Elseif ko == 2 .and. human_->oplata == 2 .and. human_->ST_VERIFY < 5
 //        // не проверять вернувшихся из ТФОМС с ошибкой
-//      Else
-//        If arr_m[ 1 ] > 2018
-//          fl := verify_sluch( fl_view )
-//        Endif
-//        If fl
-//          ++iprov
-//          If !fl_view .and. human->ishod != 88 .and. ! exist_reserve_ksg( human->kod, 'HUMAN', ( HUMAN->ishod == 89 .or. HUMAN->ishod == 88 ) ) // это не 1-ый л/у в двойном случае
+      Else
+        If arr_m[ 1 ] >= 2025
+          fl := verify_sluch( fl_view )
+        Endif
+        If fl
+          ++iprov
+          If !fl_view .and. human->ishod != 88 .and. ! exist_reserve_ksg( human->kod, 'HUMAN', ( HUMAN->ishod == 89 .or. HUMAN->ishod == 88 ) ) // это не 1-ый л/у в двойном случае
 //            Select TMPB
 //            find ( Str( human->kod, 7 ) )
 //            If !Found()
@@ -170,24 +177,25 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
 //              tmpb->plus := .t.
 //              If arr_m[ 1 ] > 2016
 //                If is_dispanserizaciya( human->ishod )
+                if tmpb->tip == 2
 //                  tmpb->tip := 2
-//                  arrKolSl[ 2 ]++
-//                Else
+                  arrKolSl[ 2 ]++
+                Else
 //                  tmpb->tip := 1
-//                  arrKolSl[ 1 ]++
-//                Endif
+                  arrKolSl[ 1 ]++
+                Endif
 //              Endif
 //            Endif
-//            If iprov >= MAX_REC_REESTR // если число проверенных без ошибок достигло максимума,
-//              Exit                     // остальных не проверяем, начинаем составление реестра
-//            Endif
-//          Endif
-//        Else
-//          ++inprov
-//        Endif
-//      Endif
-//      @ MaxRow(), 50 Say PadL( 'всего: ' + lstr( iprov + inprov ) + ', ошибок: ' + lstr( inprov ), 30 ) Color cColorSt2Msg
-//    Endif
+            If iprov >= MAX_REC_REESTR // если число проверенных без ошибок достигло максимума,
+              Exit                     // остальных не проверяем, начинаем составление реестра
+            Endif
+          Endif
+        Else
+          ++inprov
+        Endif
+      Endif
+      @ MaxRow(), 50 Say PadL( 'всего: ' + lstr( iprov + inprov ) + ', ошибок: ' + lstr( inprov ), 30 ) Color cColorSt2Msg
+    Endif
 //    If ii % kr_unlock == 0
 //      dbUnlockAll()
 //      dbCommitAll()
@@ -198,17 +206,18 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
   Enddo
 //  dbUnlockAll()
 //  dbCommitAll()
-//  If inprov == 0
-//    If iprov > 0
-////      add_string( 'Проверено случаев - ' + lstr( iprov ) + '. Ошибок не обнаружено.' )
-//      ft:add_string( 'Проверено случаев - ' + lstr( iprov ) + '. Ошибок не обнаружено.' )
-//    Else
-////      add_string( 'Нечего проверять!' )
-//      ft:add_string( 'Нечего проверять!' )
-//    Endif
-//  Endif
-////  FClose( fp )
+  If inprov == 0
+    If iprov > 0
+//      add_string( 'Проверено случаев - ' + lstr( iprov ) + '. Ошибок не обнаружено.' )
+      ft:add_string( 'Проверено случаев - ' + lstr( iprov ) + '. Ошибок не обнаружено.' )
+    Else
+//      add_string( 'Нечего проверять!' )
+      ft:add_string( 'Нечего проверять!' )
+    Endif
+  Endif
+//  FClose( fp )
   ft := nil
+
 //  If !fl_view
 //    Select HUMAN
 //    Set Index To  // отвязываем условный индекс
@@ -413,9 +422,8 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
   OTD->( dbCloseArea() )
 
   close_use_base( 'lusl' )
-
-  luslc->( dbCloseArea() )
-  luslf->( dbCloseArea() )
+  close_use_base( 'luslc' )
+  close_use_base( 'luslf' )
   
   USL->( dbCloseArea() )
   HU_->( dbCloseArea() )
@@ -434,7 +442,7 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
   HUMAN_2->( dbCloseArea() )
   HUMAN_->( dbCloseArea() )
   HUMAN->( dbCloseArea() )
-altd()
+
 //  If fl_view
 //    clrline( MaxRow(), color0 )
 //    If Len( mas_pmt ) == 1

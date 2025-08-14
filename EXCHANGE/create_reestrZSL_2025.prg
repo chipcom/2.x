@@ -8,7 +8,7 @@ Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 static err_admin := 'Доступ в данный режим разрешен только администратору системы!'
 
-// 13.08.25
+// 14.08.25
 Function create_reestrZSL_2025()
 
   Local mnyear, mnmonth, k := 0, k1 := 0, fl, bSaveHandler
@@ -76,8 +76,9 @@ Function create_reestrZSL_2025()
   dbCreate( cur_dir() + 'tmpb', adbf )
 
   Use ( cur_dir() + 'tmpb' ) new
-  Index On Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' )
-  Index On FIELD->fio to ( cur_dir() + 'tmpb_fio' )
+  Index On FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' )
+//  Index On Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' )
+//  Index On FIELD->fio to ( cur_dir() + 'tmpb_fio' )
 
   adbf := { ;
     { 'MIN_DATE',    'D',     8,     0 }, ;
@@ -126,6 +127,11 @@ Function create_reestrZSL_2025()
         .and. ( human->cena_1 > 0 .or. human_->USL_OK == 4 .or. tip_lu == TIP_LU_ONKO_DISP ) ;
         .and. Val( human_->smo ) > 0 .and. human_->ST_VERIFY >= 5       // и проверили
 
+      if empty( human_->smo )
+        human->( dbSkip() )
+        loop
+      endif
+
       t_smo := iif( SubStr( AllTrim( human_->smo ), 1, 2 ) == '34', human_->smo, '34   ' )
       if ! tmp->( dbSeek( t_smo ) )
         tmp->( dbAppend() )
@@ -136,7 +142,7 @@ Function create_reestrZSL_2025()
       endif
 
       tmpb->( dbAppend() )
-//      tmpb->kod_tmp := 1
+      tmpb->kod_tmp := 1
       tmpb->kod_human := human->kod
       tmpb->fio := human->fio
       tmpb->n_data := human->n_data
@@ -230,9 +236,10 @@ Function f1create_reestr_2025( oBrow )
 // 13.08.25
 Function f2create_reestr_2025( nKey, oBrow )
 
-  Local rec, ret := -1
+  Local rec, ret := -1, tmpSelect
 
   rec := tmp->( RecNo() )
+  tmpSelect := Select()
   Do Case
   Case nkey == K_ENTER
       If Date() < SToD( StrZero( tmp->nyear, 4 ) + StrZero( tmp->nmonth, 2 ) + '11' )
@@ -246,6 +253,7 @@ Function f2create_reestr_2025( nKey, oBrow )
   Case nkey == K_F9
     print_list_pacients( tmp->kod_smo, tmp->nyear, tmp->nmonth )
   Endcase
+  Select( tmpSelect )
   Return ret
 
 // 14.08.25
@@ -282,11 +290,12 @@ function control_and_create_schet_2025( kod_smo )
   // при работе использует созданные алиасы TMP и TMPB
 
   Local mnyear, mnmonth, k := 0, k1 := 0, fl, bSaveHandler
-  Local buf := save_maxrow(), arr_m, arr, adbf,  i
+  Local buf := save_maxrow(), arr, adbf,  i
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
   Local tip_lu
   Local t_smo   //, arr_smo := {}
   local arrKolSl
+//  Local arr_m
 //  Local j, pole
 //  Local nameArr
 
