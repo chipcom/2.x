@@ -168,6 +168,7 @@ mo_version.prg
 .\OMS\oms_sluch_PerN.prg
 .\OMS\verify_func.prg
 .\OMS\verify_oms.prg
+.\OMS\verify_oms_2025.prg
 .\OMS\verify_sluch.prg
 .\OMS\mo_oms.prg
 .\OMS\mo_oms1.prg
