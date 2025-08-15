@@ -8,17 +8,14 @@ Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 static err_admin := 'Доступ в данный режим разрешен только администратору системы!'
 
-// 14.08.25
+// 15.08.25
 Function create_reestrZSL_2025()
 
-  Local mnyear, mnmonth, k := 0, k1 := 0, fl, bSaveHandler
+  Local mnyear, mnmonth, k := 0, k1 := 0
   Local buf := save_maxrow(), arr, adbf,  i           // , arr_m
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
   Local tip_lu
   Local t_smo   //, arr_smo := {}
-  local arrKolSl
-//  Local j, pole
-//  Local nameArr
 
   private arr_m // пока не знаю как передать
 
@@ -142,7 +139,7 @@ Function create_reestrZSL_2025()
       endif
 
       tmpb->( dbAppend() )
-      tmpb->kod_tmp := 1
+//      tmpb->kod_tmp := 1
       tmpb->kod_human := human->kod
       tmpb->fio := human->fio
       tmpb->n_data := human->n_data
@@ -289,15 +286,17 @@ function control_and_create_schet_2025( kod_smo )
 
   // при работе использует созданные алиасы TMP и TMPB
 
-  Local mnyear, mnmonth, k := 0, k1 := 0, fl, bSaveHandler
-  Local buf := save_maxrow(), arr, adbf,  i
+  Local k := 0, k1 := 0, fl, i, _k
+  Local buf := save_maxrow()
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
+  local arrKolSl
+  Local j, pole
+  Local nameArr
+  Local p_tip_reestr  // тип формируемого Реестра случаев
   Local tip_lu
   Local t_smo   //, arr_smo := {}
-  local arrKolSl
+  Local mnyear, mnmonth, bSaveHandler, arr, adbf
 //  Local arr_m
-//  Local j, pole
-//  Local nameArr
 
 //        dbCloseAll()
   fl := .t.
@@ -350,85 +349,97 @@ function control_and_create_schet_2025( kod_smo )
   If fl
 //          private p_tip_reestr := 1
     arrKolSl := verify_oms_2025( kod_smo, arr_m, .f. )
-//          clrline( MaxRow(), color0 )
-//          If arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] == 0
-//            // случаев нет
-//          Elseif arrKolSl[ 1 ] > 0 .and. arrKolSl[ 2 ] == 0
-//            p_tip_reestr := 1
-//          Elseif arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] > 0
-//            p_tip_reestr := 2
-//          Elseif f_alert( { '', ;
-//              PadC( 'Выберите тип реестра случаев для отправки в ТФОМС', 70, '.' ), ;
-//              '' }, ;
-//              { ' Реестр ~обычный(' + lstr( arrKolSl[ 1 ] ) + ')', ' Реестр по ~диспансеризации(' + lstr( arrKolSl[ 2 ] ) + ')' }, ;
-//              1, 'W/RB', 'G+/RB', MaxRow() -6,, 'BG+/RB,W+/R,W+/RB,GR+/R' ) == 2
-//            p_tip_reestr := 2
-//          Endif
-//          mywait()
+    clrline( MaxRow(), color0 )
+    If arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] == 0
+      // случаев нет
+//    Elseif arrKolSl[ 1 ] > 0 .and. arrKolSl[ 2 ] == 0
+//      p_tip_reestr := 1
+//    Elseif arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] > 0
+//      p_tip_reestr := 2
+//    Elseif f_alert( { '', ;
+    Else 
+      p_tip_reestr := f_alert( { '', ;
+        PadC( 'Выберите тип реестра случаев для отправки в ТФОМС', 70, '.' ), ;
+        '' }, ;
+        { ' Реестр ~обычный(' + lstr( arrKolSl[ 1 ] ) + ')', ' Реестр по ~диспансеризации(' + lstr( arrKolSl[ 2 ] ) + ')' }, ;
+        1, 'W/RB', 'G+/RB', MaxRow() -6,, 'BG+/RB,W+/R,W+/RB,GR+/R' ) //== 2
+//      p_tip_reestr := 2
+    Endif
+    mywait()
 //          Use ( cur_dir() + 'tmp' ) new
-//          _k := tmp->kol
-//          tmp->kol := 0
-//          tmp->summa := 0
-//          tmp->min_date := SToD( StrZero( tmp->nyear, 4 ) + StrZero( tmp->nmonth, 2 ) + '01' )
-//          For i := 0 To lenPZ
-//            pole := 'tmp->PZ' + lstr( i )
-//            &pole := 0
-//          Next
-//          r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
-//          Set Order To 2
-//          r_use( dir_server() + 'human_',, 'HUMAN_' )
-//          r_use( dir_server() + 'human',, 'HUMAN' )
-//          Use ( cur_dir() + 'tmpb' ) new
-//          Set Relation To kod_human into HUMAN, To kod_human into HUMAN_
+    _k := tmp->kol
+    tmp->kol := 0
+    tmp->summa := 0
+    tmp->min_date := SToD( StrZero( tmp->nyear, 4 ) + StrZero( tmp->nmonth, 2 ) + '01' )
+    For i := 0 To lenPZ
+      pole := 'tmp->PZ' + lstr( i )
+      &pole := 0
+    Next
+    r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+    Set Order To 2
+    r_use( dir_server() + 'human_',, 'HUMAN_' )
+    r_use( dir_server() + 'human',, 'HUMAN' )
+//    Use ( cur_dir() + 'tmpb' ) new
+    SELECT tmpb
+    Set Relation To FIELD->kod_human into HUMAN, To FIELD->kod_human into HUMAN_
 //          Go Top
+    tmpb->( dbSeek( kod_smo, .t. ) )
+    Do While ! ( tmpb->( Eof() ) ) .and. ( tmpb->kod_smo == kod_smo )
 //          Do While !Eof()
-//            If human_->ST_VERIFY >= 5 .and. tmpb->tip == p_tip_reestr
-//              tmp->kol++
-//              If tmpb->ishod == 89
-//                Select HUMAN_3
-//                find ( Str( human->kod, 7 ) )
-//                tmp->summa += human_3->cena_1
-//                tmp->min_date := Min( tmp->min_date, human_3->k_data )
-//                k := human_3->PZKOL
-//                Select TMPB
-//              Else
-//                tmp->summa += human->cena_1
-//                tmp->min_date := Min( tmp->min_date, human->k_data )
-//                k := human_->PZKOL
-//              Endif
-//              j := human_->PZTIP
-//              tmpb->fio := human->fio
-//              tmpb->PZ := j
-//              pole := 'tmp->PZ' + lstr( j )
-//              nameArr := get_array_PZ( tmp->nyear )
-//              If ( i := AScan( nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( nameArr[ i, 5 ] )
-//                &pole := &pole + 1 // учёт по случаям
-//              Else
-//                if tmp->nyear > 2018
-//                  &pole := &pole + k // учёт по единицам план-заказа
-//                else
-//                  &pole := &pole + human_->PZKOL
-//                endif
-//              Endif
-//            Else
-//              tmpb->yes_del := .t. // удалить после дополнительной проверки
-//            Endif
+      If human_->ST_VERIFY >= 5 .and. tmpb->tip == p_tip_reestr
+        tmp->kol++
+        If tmpb->ishod == 89
+          Select HUMAN_3
+          find ( Str( human->kod, 7 ) )
+          tmp->summa += human_3->cena_1
+          tmp->min_date := Min( tmp->min_date, human_3->k_data )
+          k := human_3->PZKOL
+          Select TMPB
+        Else
+          tmp->summa += human->cena_1
+          tmp->min_date := Min( tmp->min_date, human->k_data )
+          k := human_->PZKOL
+        Endif
+        j := human_->PZTIP
+        tmpb->fio := human->fio
+        tmpb->PZ := j
+        pole := 'tmp->PZ' + lstr( j )
+        nameArr := get_array_PZ( tmp->nyear )
+        If ( i := AScan( nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( nameArr[ i, 5 ] )
+          &pole := &pole + 1 // учёт по случаям
+        Else
+          if tmp->nyear > 2018
+            &pole := &pole + k // учёт по единицам план-заказа
+          else
+            &pole := &pole + human_->PZKOL
+          endif
+        Endif
+      Else
+        tmpb->yes_del := .t. // удалить после дополнительной проверки
+      Endif
 //            Skip
-//          Enddo
-//          If tmp->kol == 0
-//            func_error( 4, 'После дополнительной проверки некого включать в реестр' )
-//          Else
-//            If _k != tmp->kol
-//              Select TMPB
-//              Delete For yes_del
-//              Pack
-//            Endif
-//            If tmp->nyear > 2025
-//              create1reestr19( tmp->( RecNo() ), tmp->nyear, tmp->nmonth )
-//            Else
-//              func_error( 10, 'Реестр ранее августа 2025 года не формируется!' )
-//            Endif
-//          Endif
+      tmpb->( dbSkip() )
+    Enddo
+
+    close_list_alias( { 'K006', 'PRPRK', 'HUMAN_3', 'HUMAN_', 'HUMAN' } )
+
+    If tmp->kol == 0
+      func_error( 4, 'После дополнительной проверки некого включать в реестр' )
+    Else
+      If _k != tmp->kol
+//        Select TMPB
+//        Delete For yes_del
+//        Pack
+altd()
+        tmpb->( dbEval( {|| dbDelete() }, FIELD->yes_del ) )
+        tmpb->( __dbPack() )
+      Endif
+//      If tmp->nyear > 2025
+//        create1reestr19( tmp->( RecNo() ), tmp->nyear, tmp->nmonth )
+//      Else
+//        func_error( 10, 'Реестр ранее августа 2025 года не формируется!' )
+//      Endif
+    Endif
   Endif
 
   rest_box( buf )

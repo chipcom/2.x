@@ -7,7 +7,7 @@
 #define MAX_REC_REESTR 9999
 #define BASE_ISHOD_RZD 500
 
-// 14.08.25
+// 15.08.25
 Function verify_oms_2025( kod_smo, arr_m, fl_view )
 
     // Возврат: arrKolSl (массив)
@@ -16,9 +16,10 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
 
   Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, kr_unlock, i, ;
     mas_pmt := { 'Список обнаруженных ошибок в результате проверки' }
-  local name_file, name_file2, name_file3, mas_file := {}, ft
   local  arrKolSl := { 0, 0 }, adbf
-  local s
+  Local tmpSelect
+  Local ln_data, lk_data, ldiag, lcena, pz
+  local name_file, name_file2, name_file3, mas_file := {}, ft
 
   // local kol_1r := 0, ; // количество обычных случаев
   //   kol_2r := 0, ;     // количество случаев диспансеризации
@@ -46,13 +47,6 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
 
   kr_unlock := iif( fl_view, 50, 1000 )
   waitstatus( 'Начало проверки...' )
-//  fp := FCreate( name_file )
-//  n_list := 1
-//  tek_stroke := 0
-//  add_string( '' )
-//  add_string( Center( 'Список обнаруженных ошибок', 80 ) )
-//  add_string( Center( 'по дате окончания лечения ' + arr_m[ 4 ], 80 ) )
-//  add_string( '' )
   
   ft := tfiletext():new( name_file, , .t., , .t. )
   ft:add_string( 'ССписок обнаруженных ошибок', FILE_CENTER, ' ' )
@@ -69,7 +63,6 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
             { 'komu', 'N', 1, 0 }, ;
             { 'str_crb', 'N', 2, 0 } } 
   dbCreate( cur_dir() + 'tmp_no', adbf, , .t., 'tmp_no' )
-//  Use ( cur_dir() + 'tmp_no' ) new
 
   f_create_diag_srok( 'tmp_d_srok' )
   Use ( cur_dir() + 'tmp_d_srok' ) New Alias D_SROK
@@ -147,12 +140,13 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
         fl := .t.
       Endif
       If fl // прочие счета
+        TMP_NO->( dbAppend() )
 //        Select TMP_NO
 //        Append Blank
-//        tmp_no->kod  := human->kod
-//        tmp_no->tip  := iif( human->cena_1 == 0, 1, 2 )
-//        tmp_no->komu := human->komu
-//        tmp_no->str_crb := human->str_crb
+        tmp_no->kod  := human->kod
+        tmp_no->tip  := iif( human->cena_1 == 0, 1, 2 )
+        tmp_no->komu := human->komu
+        tmp_no->str_crb := human->str_crb
       Elseif ko == 2 .and. human_->oplata == 2 .and. human_->ST_VERIFY < 5
 //        // не проверять вернувшихся из ТФОМС с ошибкой
       Else
@@ -173,7 +167,7 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
 //              tmpb->PZKOL := human_->pzkol
 //              tmpb->ishod := human->ishod
 //              tmpb->plus := .t.
-//              tmpb->kod_tmp := 1
+              tmpb->kod_tmp := 1
 //              tmpb->plus := .t.
 //              If arr_m[ 1 ] > 2016
 //                If is_dispanserizaciya( human->ishod )
@@ -196,88 +190,98 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
       Endif
       @ MaxRow(), 50 Say PadL( 'всего: ' + lstr( iprov + inprov ) + ', ошибок: ' + lstr( inprov ), 30 ) Color cColorSt2Msg
     Endif
-//    If ii % kr_unlock == 0
-//      dbUnlockAll()
-//      dbCommitAll()
-//    Endif
+    If ii % kr_unlock == 0
+      dbUnlockAll()
+      dbCommitAll()
+    Endif
 //    Select HUMAN
 //    Set Order To 4  //
     tmpb->( dbSkip() )
   Enddo
-//  dbUnlockAll()
-//  dbCommitAll()
+  dbUnlockAll()
+  dbCommitAll()
   If inprov == 0
     If iprov > 0
-//      add_string( 'Проверено случаев - ' + lstr( iprov ) + '. Ошибок не обнаружено.' )
       ft:add_string( 'Проверено случаев - ' + lstr( iprov ) + '. Ошибок не обнаружено.' )
     Else
-//      add_string( 'Нечего проверять!' )
       ft:add_string( 'Нечего проверять!' )
     Endif
   Endif
-//  FClose( fp )
   ft := nil
 
-//  If !fl_view
+  If ! fl_view
 //    Select HUMAN
 //    Set Index To  // отвязываем условный индекс
-//    g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
-//    // проверяем случаи, где 2-ой случай закончился в текущем отчётном месяце, а 1-ый - неважно
+    human->( ordListClear() )
+    g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+    // проверяем случаи, где 2-ой случай закончился в текущем отчётном месяце, а 1-ый - неважно
 //    Select HUMAN_3
 //    Set Order To 2 // встать на индекс по 2-му случаю
-//    Select TMPB
+    HUMAN_3->( ordSetFocus( 2 ) ) // встать на индекс по 2-му случаю для ALIAS-а HUMAN_3
+    Select TMPB
 //    Index On Str( kod_human, 7 ) to ( cur_dir() + 'tmpb' ) For ishod == 89  // 2-ой лист учёта в двойном случае
+    Index On FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' ) For ishod == 89  // 2-ой лист учёта в двойном случае
 //    Go Top
+    tmpb->( dbSeek( kod_smo, .t. ) )
 //    Do While !Eof()
+      Do While ! ( tmpb->( Eof() ) ) .and. ( tmpb->kod_smo == kod_smo )
 //      Select HUMAN_3
 //      find ( Str( tmpb->kod_human, 7 ) )
-//      If Found()
+        human_3->( dbSeek( Str( tmpb->kod_human, 7 ), .t. ) )
+      If Found()
 //        Select HUMAN
 //        Goto ( tmpb->kod_human )  // 2-ой лист учёта в двойном случае
-//        ln_data := human->n_data
-//        lk_data := human->k_data
-//        ldiag := human->kod_diag
-//        lcena := human->cena_1
-//        pz := human_->PZKOL
+        human->( dbGoto( tmpb->kod_human ) )  // 2-ой лист учёта в двойном случае
+        ln_data := human->n_data
+        lk_data := human->k_data
+        ldiag := human->kod_diag
+        lcena := human->cena_1
+        pz := human_->PZKOL
 //        Select HUMAN
 //        Goto ( human_3->kod )
-//        If human_->ST_VERIFY >= 5 // если 1-ый л/у также прошёл проверку
-//          If !exist_reserve_ksg( HUMAN->kod, 'HUMAN', ( HUMAN->ishod == 89 .or. HUMAN->ishod == 88 ) )
-//            ln_data := human->n_data
-//          Endif
-//          lcena += human->cena_1
-//          pz += human_->PZKOL
+        human->( dbGoto( human_3->kod ) )
+        If human_->ST_VERIFY >= 5 // если 1-ый л/у также прошёл проверку
+          If ! exist_reserve_ksg( HUMAN->kod, 'HUMAN', ( HUMAN->ishod == 89 .or. HUMAN->ishod == 88 ) )
+            ln_data := human->n_data
+          Endif
+          lcena += human->cena_1
+          pz += human_->PZKOL
 //          Select HUMAN_3
 //          g_rlock( forever )
+          human_3->( dbRLock() )
 ////          human_3->N_DATA    := ln_data
-//          human_3->K_DATA    := lk_data
-//          human_3->CENA_1    := lcena
+          human_3->K_DATA    := lk_data
+          human_3->CENA_1    := lcena
 //          Select HUMAN
 //          Goto ( human_3->kod2 )  // снова встать на 2-ой случай, чтобы взять исход, результат, ...
-//          human_3->RSLT_NEW  := human_->RSLT_NEW
-//          human_3->ISHOD_NEW := human_->ISHOD_NEW
-//          human_3->VNR1      := human_2->VNR1
-//          human_3->VNR2      := human_2->VNR2
-//          human_3->VNR3      := human_2->VNR3
-//          human_3->PZKOL     := pz
-//          human_3->ST_VERIFY := 5
-//          tmpb->n_data := ln_data
-//          tmpb->k_data := lk_data
-//          tmpb->cena_1 := lcena
-//          tmpb->PZKOL := pz
-//        Else
-//          tmpb->tip := 0 // p_tip_reestr
-//          arrKolSl[ 1 ]--
-//        Endif
-//      Else
-//        tmpb->tip := 0 // p_tip_reestr
-//        arrKolSl[ 1 ]--
-//      Endif
+          human->( dbGoto( human_3->kod2 ) )
+          human_3->RSLT_NEW  := human_->RSLT_NEW
+          human_3->ISHOD_NEW := human_->ISHOD_NEW
+          human_3->VNR1      := human_2->VNR1
+          human_3->VNR2      := human_2->VNR2
+          human_3->VNR3      := human_2->VNR3
+          human_3->PZKOL     := pz
+          human_3->ST_VERIFY := 5
+          human_3->( dbUnlock() )
+          tmpb->n_data := ln_data
+          tmpb->k_data := lk_data
+          tmpb->cena_1 := lcena
+          tmpb->PZKOL := pz
+        Else
+          tmpb->tip := 0 // p_tip_reestr
+          arrKolSl[ 1 ]--
+        Endif
+      Else
+        tmpb->tip := 0 // p_tip_reestr
+        arrKolSl[ 1 ]--
+      endif
+
 //      Select TMPB
 //      Skip
-//    Enddo
-//  Endif
-//  If fl_view .and. d_srok->( LastRec() ) > 0
+      tmpb->( dbSkip() )
+    Enddo
+  Endif
+  If fl_view .and. d_srok->( LastRec() ) > 0
 //    name_file2 := cur_dir() + 'err_sl2.txt'
 //    Delete File ( name_file2 )
 //    AAdd( mas_pmt, 'Случаи повторных обращений по поводу одного заболевания' )
@@ -357,8 +361,8 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
 //      Select D_SROK
 //      Skip
 //    Enddo
-//  Endif
-//  If fl_view .and. tmp_no->( LastRec() ) > 0
+  Endif
+  If fl_view .and. tmp_no->( LastRec() ) > 0
 //    name_file3 := cur_dir() + 'err_sl3.txt'
 //    AAdd( mas_pmt, 'Список листов учёта, которые не проверялись' )
 //    AAdd( mas_file, name_file3 )
@@ -413,54 +417,40 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
 //      Skip
 //    Enddo
 //    FClose( fp )
-//  Endif
-//  Close databases
-  tmp_no->( dbCloseArea() )
-  D_SROK->( dbCloseArea() )
-  PERS->( dbCloseArea() )
-  UCH->( dbCloseArea() )
-  OTD->( dbCloseArea() )
+  Endif
 
   close_use_base( 'lusl' )
   close_use_base( 'luslc' )
   close_use_base( 'luslf' )
   
-  USL->( dbCloseArea() )
-  HU_->( dbCloseArea() )
-  hu->( dbCloseArea() )
-  MOSU->( dbCloseArea() )
-  MOHU->( dbCloseArea() )
-  KART_->( dbCloseArea() )
-  KART->( dbCloseArea() )
-  ONKNA->( dbCloseArea() )
-  ONKSL->( dbCloseArea() )
-  ONKDI->( dbCloseArea() )
-  ONKPR->( dbCloseArea() )
-  ONKUS->( dbCloseArea() )
-  ONKCO->( dbCloseArea() )
-  ONKLE->( dbCloseArea() )
-  HUMAN_2->( dbCloseArea() )
-  HUMAN_->( dbCloseArea() )
-  HUMAN->( dbCloseArea() )
+  close_list_alias( { 'HU_', 'HU', 'MOSU', 'MOHU', 'TMP_NO', 'D_SROK', 'PERS', 'UCH', 'OTD' } )
+  close_list_alias( { 'ONKLE', 'ONKCO', 'ONKUS', 'ONKPR', 'ONKDI', 'ONKSL', 'ONKNA', 'KART_', 'KART' } )
+  close_list_alias( { 'USL', 'USL1', 'K006', 'PRPRK' } )
+  close_list_alias( { 'MKB_10', 'SMO', 'MOSPEC', 'MOPROF', 'HUMAN_3', 'HUMAN_2', 'HUMAN_', 'HUMAN' } )
 
-//  If fl_view
-//    clrline( MaxRow(), color0 )
-//    If Len( mas_pmt ) == 1
-//      viewtext( name_file, , , , .t., , , 5 )
-//    Else
-//      i := 1
-//      Keyboard Chr( K_ENTER )
-//      Do While i > 0
-//        If ( i := popup_prompt( T_ROW, T_COL + 5, i, mas_pmt, mas_pmt ) ) == 0
-//          If !f_esc_enter( 'выхода из просмотра' )
-//            i := 1
-//          Endif
-//        Elseif hb_FileExists( mas_file[ i ] )
-//          viewtext( mas_file[ i ], , , , .t., , , 5 )
-//        Else
-//          call_fr( 'mo_d_srok' )
-//        Endif
-//      Enddo
-//    Endif
-//  Endif
+  // востановим индекс
+  tmpSelect := Select()
+  Index On FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' )
+  Select( tmpSelect )
+
+  If fl_view
+    clrline( MaxRow(), color0 )
+    If Len( mas_pmt ) == 1
+      viewtext( name_file, , , , .t., , , 5 )
+    Else
+      i := 1
+      Keyboard Chr( K_ENTER )
+      Do While i > 0
+        If ( i := popup_prompt( T_ROW, T_COL + 5, i, mas_pmt, mas_pmt ) ) == 0
+          If !f_esc_enter( 'выхода из просмотра' )
+            i := 1
+          Endif
+        Elseif hb_FileExists( mas_file[ i ] )
+          viewtext( mas_file[ i ], , , , .t., , , 5 )
+        Else
+          call_fr( 'mo_d_srok' )
+        Endif
+      Enddo
+    Endif
+  Endif
   Return arrKolSl
