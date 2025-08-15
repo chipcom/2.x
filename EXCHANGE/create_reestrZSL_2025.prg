@@ -427,11 +427,11 @@ function control_and_create_schet_2025( kod_smo )
       func_error( 4, 'После дополнительной проверки некого включать в реестр' )
     Else
       If _k != tmp->kol
-//        Select TMPB
-//        Delete For yes_del
-//        Pack
 altd()
-        tmpb->( dbEval( {|| dbDelete() }, FIELD->yes_del ) )
+        Select TMPB
+        Delete For yes_del
+//        Pack
+//        tmpb->( dbEval( {|| dbDelete() }, yes_del ) )
         tmpb->( __dbPack() )
       Endif
 //      If tmp->nyear > 2025
