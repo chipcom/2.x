@@ -8,6 +8,19 @@
 
 Static exists_year_tfoms
 
+// 15.08.25
+function close_list_alias( arrAlias )
+
+  Local i, cAlias
+
+  for i := 1 to len( arrAlias )
+    cAlias := arrAlias[ i ]
+    if aliasIsAlreadyUse( cAlias )
+      ( cAlias )->( dbCloseArea() )
+    endif
+  next
+  return nil
+
 // 21.11.23 - функция проверяющая наличие справочников ТФОМС на конкретный год.
 Function check_files_tfoms( nYear )
 
