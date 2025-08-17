@@ -10,21 +10,22 @@
 // 15.08.25
 Function verify_oms_2025( kod_smo, arr_m, fl_view )
 
-    // Возврат: arrKolSl (массив)
+  // Возврат: arrKolSl (массив)
   // 1 эл. - кол-во обычных случаев, 
   // 2 эл. - кол-во случаев диспансеризации
 
-  Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, kr_unlock, i, ;
-    mas_pmt := { 'Список обнаруженных ошибок в результате проверки' }
+  Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, kr_unlock, i, mas_pmt
   local  arrKolSl := { 0, 0 }, adbf
   Local tmpSelect
   Local ln_data, lk_data, ldiag, lcena, pz
-  local name_file, name_file2, name_file3, mas_file := {}, ft
+  local name_file, name_file2, name_file3, mas_file, ft
+  Local old_komu, old_str_crb, old_tip, am
 
-  // local kol_1r := 0, ; // количество обычных случаев
-  //   kol_2r := 0, ;     // количество случаев диспансеризации
-
+  mas_file := {}
+  mas_pmt := { 'Список обнаруженных ошибок в результате проверки' }
   name_file := cur_dir() + 'err_sl.txt'
+  name_file2 := cur_dir() + 'err_sl2.txt'
+  name_file3 := cur_dir() + 'err_sl3.txt'
 
   AAdd( mas_file, name_file )
 
@@ -54,15 +55,17 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
   ft:add_string( '' )
 
 //  If ! fl_view
-//    Use ( cur_dir() + 'tmp' ) new
+//    Use ( cur_dir() + 'A_SMO' ) new
 //    Use ( cur_dir() + 'tmpb' ) index ( cur_dir() + 'tmpb' ) new
 //  Endif
 
-  adbf := { { 'kod', 'N', 7, 0 }, ;
+  adbf := { ;
+            { 'kod', 'N', 7, 0 }, ;
             { 'tip', 'N', 1, 0 }, ;
             { 'komu', 'N', 1, 0 }, ;
-            { 'str_crb', 'N', 2, 0 } } 
-  dbCreate( cur_dir() + 'tmp_no', adbf, , .t., 'tmp_no' )
+            { 'str_crb', 'N', 2, 0 } ;
+          } 
+  dbCreate( 'mem:tmp_no', adbf, , .t., 'tmp_no' )
 
   f_create_diag_srok( 'tmp_d_srok' )
   Use ( cur_dir() + 'tmp_d_srok' ) New Alias D_SROK
@@ -80,10 +83,10 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
     dir_server() + 'human_ud', ;
     dir_server() + 'human_uv', ;
     dir_server() + 'human_ua' }, 'HU' )
-  Set Relation To RecNo() into HU_, To u_kod into USL
+  Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
   r_use( dir_server() + 'mo_su', , 'MOSU' )
   g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
-  Set Relation To u_kod into MOSU
+  Set Relation To FIELD->u_kod into MOSU
   g_use( dir_server() + 'kartote_', , 'KART_' )
   r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
@@ -114,7 +117,6 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
   Set Order To 4
 
   tmpb->( dbSeek( kod_smo, .t. ) )
-//  tmpb->( dbGoTop() )
   Do While ! ( tmpb->( Eof() ) ) .and. ( tmpb->kod_smo == kod_smo )
     if tmpb->kod_smo != kod_smo
       tmpb->( dbSkip() )
@@ -141,15 +143,14 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
       Endif
       If fl // прочие счета
         TMP_NO->( dbAppend() )
-//        Select TMP_NO
-//        Append Blank
         tmp_no->kod  := human->kod
         tmp_no->tip  := iif( human->cena_1 == 0, 1, 2 )
         tmp_no->komu := human->komu
         tmp_no->str_crb := human->str_crb
       Elseif ko == 2 .and. human_->oplata == 2 .and. human_->ST_VERIFY < 5
-//        // не проверять вернувшихся из ТФОМС с ошибкой
+        // не проверять вернувшихся из ТФОМС с ошибкой
       Else
+
         If arr_m[ 1 ] >= 2025
           fl := verify_sluch( fl_view )
         Endif
@@ -210,8 +211,6 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
   ft := nil
 
   If ! fl_view
-//    Select HUMAN
-//    Set Index To  // отвязываем условный индекс
     human->( ordListClear() )
     g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
     // проверяем случаи, где 2-ой случай закончился в текущем отчётном месяце, а 1-ый - неважно
@@ -219,26 +218,18 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
 //    Set Order To 2 // встать на индекс по 2-му случаю
     HUMAN_3->( ordSetFocus( 2 ) ) // встать на индекс по 2-му случаю для ALIAS-а HUMAN_3
     Select TMPB
-//    Index On Str( kod_human, 7 ) to ( cur_dir() + 'tmpb' ) For ishod == 89  // 2-ой лист учёта в двойном случае
-    Index On FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' ) For ishod == 89  // 2-ой лист учёта в двойном случае
-//    Go Top
+    Index On FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) to ( 'mem:tmpb' ) For ishod == 89  // 2-ой лист учёта в двойном случае
+
     tmpb->( dbSeek( kod_smo, .t. ) )
-//    Do While !Eof()
-      Do While ! ( tmpb->( Eof() ) ) .and. ( tmpb->kod_smo == kod_smo )
-//      Select HUMAN_3
-//      find ( Str( tmpb->kod_human, 7 ) )
-        human_3->( dbSeek( Str( tmpb->kod_human, 7 ), .t. ) )
+    Do While ! ( tmpb->( Eof() ) ) .and. ( tmpb->kod_smo == kod_smo )
+      human_3->( dbSeek( Str( tmpb->kod_human, 7 ), .t. ) )
       If Found()
-//        Select HUMAN
-//        Goto ( tmpb->kod_human )  // 2-ой лист учёта в двойном случае
         human->( dbGoto( tmpb->kod_human ) )  // 2-ой лист учёта в двойном случае
         ln_data := human->n_data
         lk_data := human->k_data
         ldiag := human->kod_diag
         lcena := human->cena_1
         pz := human_->PZKOL
-//        Select HUMAN
-//        Goto ( human_3->kod )
         human->( dbGoto( human_3->kod ) )
         If human_->ST_VERIFY >= 5 // если 1-ый л/у также прошёл проверку
           If ! exist_reserve_ksg( HUMAN->kod, 'HUMAN', ( HUMAN->ishod == 89 .or. HUMAN->ishod == 88 ) )
@@ -252,9 +243,7 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
 ////          human_3->N_DATA    := ln_data
           human_3->K_DATA    := lk_data
           human_3->CENA_1    := lcena
-//          Select HUMAN
-//          Goto ( human_3->kod2 )  // снова встать на 2-ой случай, чтобы взять исход, результат, ...
-          human->( dbGoto( human_3->kod2 ) )
+          human->( dbGoto( human_3->kod2 ) ) // снова встать на 2-ой случай, чтобы взять исход, результат, ...
           human_3->RSLT_NEW  := human_->RSLT_NEW
           human_3->ISHOD_NEW := human_->ISHOD_NEW
           human_3->VNR1      := human_2->VNR1
@@ -275,162 +264,165 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
         tmpb->tip := 0 // p_tip_reestr
         arrKolSl[ 1 ]--
       endif
-
-//      Select TMPB
-//      Skip
       tmpb->( dbSkip() )
     Enddo
   Endif
   If fl_view .and. d_srok->( LastRec() ) > 0
-//    name_file2 := cur_dir() + 'err_sl2.txt'
-//    Delete File ( name_file2 )
-//    AAdd( mas_pmt, 'Случаи повторных обращений по поводу одного заболевания' )
-//    AAdd( mas_file, name_file2 )
-//    mywait()
-//    delfrfiles()
-//    adbf := { { 'name', 'C', 130, 0 }, ;
-//      { 'name1', 'C', 150, 0 }, ;
-//      { 'period', 'C', 150, 0 } }
-//    dbCreate( fr_titl, adbf )
-//    Use ( fr_titl ) New Alias FRT
-//    Append Blank
-//    frt->name := glob_mo[ _MO_SHORT_NAME ]
-//    frt->name1 := 'Список случаев повторных обращений по поводу одного и того же заболевания'
-//    frt->period := arr_m[ 4 ]
-//    adbf := { { 'fio', 'C', 100, 0 }, ;
-//      { 'diag', 'C', 5, 0 }, ;
-//      { 'diag1', 'C', 5, 0 }, ;
-//      { 'srok', 'C', 30, 0 }, ;
-//      { 'srok1', 'C', 30, 0 }, ;
-//      { 'tip', 'C', 12, 0 }, ;
-//      { 'tip1', 'C', 12, 0 }, ;
-//      { 'otd', 'C', 200, 0 }, ;
-//      { 'otd1', 'C', 200, 0 }, ;
-//      { 'vrach', 'C', 100, 0 }, ;
-//      { 'vrach1', 'C', 100, 0 } }
-//    dbCreate( fr_data, adbf )
-//    Use ( fr_data ) New Alias FRD
-//    am := { '78', '80', '88', '89' }
-//    Select HUMAN
-//    Set Index To
-//    Select D_SROK
-//    Go Top
-//    Do While !Eof()
-//      Select HUMAN
-//      Goto ( d_srok->kod )
-//      Select FRD
-//      Append Blank
-//      frd->fio := AllTrim( human->fio ) + ' д.р.' + full_date( human->date_r ) + ' (повтор через ' + lstr( d_srok->dni ) + ' дн.)'
-//      frd->diag := human->kod_diag
-//      frd->srok := full_date( human->n_data ) + ' - ' + full_date( human->k_data )
-//      If d_srok->tip > 0
-//        frd->tip := '( 2.' + am[ d_srok->tip ] + '.' + d_srok->tips + ' )'
-//      Elseif human_->usl_ok == USL_OK_HOSPITAL  // 1
-//        frd->tip := '( стац. )'
-//      Elseif human_->usl_ok == USL_OK_DAY_HOSPITAL  // 2
-//        frd->tip := '( дн.ст. )'
-//      Elseif human_->usl_ok == USL_OK_AMBULANCE // 4
-//        frd->tip := '( скорая )'
-//      Endif
-//      uch->( dbGoto( human->LPU ) )
-//      otd->( dbGoto( human->OTD ) )
-//      frd->otd := AllTrim( uch->name ) + '/ ' + AllTrim( otd->name ) + '/ профиль по "' + ;
-//        inieditspr( A__MENUVERT, getv002(), human_->profil ) + '"'
-//      pers->( dbGoto( human_->VRACH ) )
-//      frd->vrach := '[ ' + lstr( pers->tab_nom ) + ' ] ' + pers->fio
-//      //
-//      Select HUMAN
-//      Goto ( d_srok->kod1 )
-//      frd->diag1 := human->kod_diag
-//      frd->srok1 := full_date( human->n_data ) + ' - ' + full_date( human->k_data )
-//      If d_srok->tip1 > 0
-//        frd->tip1 := '( 2.' + am[ d_srok->tip1 ] + '.' + d_srok->tip1s + ' )'
-//      Elseif human_->usl_ok == USL_OK_HOSPITAL  // 1
-//        frd->tip1 := '( стац. )'
-//      Elseif human_->usl_ok == USL_OK_DAY_HOSPITAL  // 2
-//        frd->tip1 := '( дн.ст. )'
-//      Elseif human_->usl_ok == USL_OK_AMBULANCE // 4
-//        frd->tip1 := '( скорая )'
-//      Endif
-//      uch->( dbGoto( human->LPU ) )
-//      otd->( dbGoto( human->OTD ) )
-//      frd->otd1 := AllTrim( uch->name ) + '/ ' + AllTrim( otd->name ) + '/ профиль по "' + ;
-//        inieditspr( A__MENUVERT, getv002(), human_->profil ) + '"'
-//      pers->( dbGoto( human_->VRACH ) )
-//      frd->vrach1 := '[ ' + lstr( pers->tab_nom ) + ' ] ' + pers->fio
-//      Select D_SROK
-//      Skip
-//    Enddo
+    HB_VFERASE( name_file2 )
+    AAdd( mas_pmt, 'Случаи повторных обращений по поводу одного заболевания' )
+    AAdd( mas_file, name_file2 )
+    mywait()
+    delfrfiles()
+    adbf := { ;
+      { 'name',   'C', 130, 0 }, ;
+      { 'name1',  'C', 150, 0 }, ;
+      { 'period', 'C', 150, 0 } ;
+    }
+    dbCreate( fr_titl, adbf )
+    Use ( fr_titl ) New Alias FRT
+    Append Blank
+    frt->name := glob_mo[ _MO_SHORT_NAME ]
+    frt->name1 := 'Список случаев повторных обращений по поводу одного и того же заболевания'
+    frt->period := arr_m[ 4 ]
+    adbf := { ;
+      { 'fio', 'C', 100, 0 }, ;
+      { 'diag', 'C', 5, 0 }, ;
+      { 'diag1', 'C', 5, 0 }, ;
+      { 'srok', 'C', 30, 0 }, ;
+      { 'srok1', 'C', 30, 0 }, ;
+      { 'tip', 'C', 12, 0 }, ;
+      { 'tip1', 'C', 12, 0 }, ;
+      { 'otd', 'C', 200, 0 }, ;
+      { 'otd1', 'C', 200, 0 }, ;
+      { 'vrach', 'C', 100, 0 }, ;
+      { 'vrach1', 'C', 100, 0 } ;
+    }
+    dbCreate( fr_data, adbf )
+    Use ( fr_data ) New Alias FRD
+    am := { '78', '80', '88', '89' }
+    Select HUMAN
+    Set Index To
+    Select D_SROK
+    d_srok->( dbGoTop() )
+    Do While ! d_srok->( Eof() )
+      Select HUMAN
+      Goto ( d_srok->kod )
+      Select FRD
+      Append Blank
+      frd->fio := AllTrim( human->fio ) + ' д.р.' + full_date( human->date_r ) + ' (повтор через ' + lstr( d_srok->dni ) + ' дн.)'
+      frd->diag := human->kod_diag
+      frd->srok := full_date( human->n_data ) + ' - ' + full_date( human->k_data )
+      If d_srok->tip > 0
+        frd->tip := '( 2.' + am[ d_srok->tip ] + '.' + d_srok->tips + ' )'
+      Elseif human_->usl_ok == USL_OK_HOSPITAL  // 1
+        frd->tip := '( стац. )'
+      Elseif human_->usl_ok == USL_OK_DAY_HOSPITAL  // 2
+        frd->tip := '( дн.ст. )'
+      Elseif human_->usl_ok == USL_OK_AMBULANCE // 4
+        frd->tip := '( скорая )'
+      Endif
+      uch->( dbGoto( human->LPU ) )
+      otd->( dbGoto( human->OTD ) )
+      frd->otd := AllTrim( uch->name ) + '/ ' + AllTrim( otd->name ) + '/ профиль по "' + ;
+        inieditspr( A__MENUVERT, getv002(), human_->profil ) + '"'
+      pers->( dbGoto( human_->VRACH ) )
+      frd->vrach := '[ ' + lstr( pers->tab_nom ) + ' ] ' + pers->fio
+      //
+      Select HUMAN
+      human->( dbGoto( d_srok->kod1 ) )
+      frd->diag1 := human->kod_diag
+      frd->srok1 := full_date( human->n_data ) + ' - ' + full_date( human->k_data )
+      If d_srok->tip1 > 0
+        frd->tip1 := '( 2.' + am[ d_srok->tip1 ] + '.' + d_srok->tip1s + ' )'
+      Elseif human_->usl_ok == USL_OK_HOSPITAL  // 1
+        frd->tip1 := '( стац. )'
+      Elseif human_->usl_ok == USL_OK_DAY_HOSPITAL  // 2
+        frd->tip1 := '( дн.ст. )'
+      Elseif human_->usl_ok == USL_OK_AMBULANCE // 4
+        frd->tip1 := '( скорая )'
+      Endif
+      uch->( dbGoto( human->LPU ) )
+      otd->( dbGoto( human->OTD ) )
+      frd->otd1 := AllTrim( uch->name ) + '/ ' + AllTrim( otd->name ) + '/ профиль по "' + ;
+        inieditspr( A__MENUVERT, getv002(), human_->profil ) + '"'
+      pers->( dbGoto( human_->VRACH ) )
+      frd->vrach1 := '[ ' + lstr( pers->tab_nom ) + ' ] ' + pers->fio
+      Select D_SROK
+      d_srok->( dbSkip() )  //Skip
+    Enddo
   Endif
   If fl_view .and. tmp_no->( LastRec() ) > 0
-//    name_file3 := cur_dir() + 'err_sl3.txt'
-//    AAdd( mas_pmt, 'Список листов учёта, которые не проверялись' )
-//    AAdd( mas_file, name_file3 )
-//    fp := FCreate( name_file3 )
-//    n_list := 1
-//    tek_stroke := 0
-//    Select HUMAN
-//    Set Index To
-//    add_string( '' )
-//    add_string( Center( 'Список листов учёта, которые не проверялись', 80 ) )
-//    r_use( dir_server() + 'str_komp', , 'STR' )
-//    r_use( dir_server() + 'komitet', , 'KOM' )
-//    Select TMP_NO
-//    Set Relation To kod into HUMAN
-//    Index On Str( tip, 1 ) + Str( komu, 1 ) + Str( str_crb, 2 ) + Upper( human->fio ) to ( cur_dir() + 'tmp_no' )
-//    old_tip := old_komu := old_str_crb := -1
-//    Go Top
-//    Do While !Eof()
-//      verify_ff( 77, .t., 80 )
-//      add_string( '' )
-//      If old_tip != tmp_no->tip
-//        old_tip := tmp_no->tip
-//        If tmp_no->tip == 1
-//          add_string( PadC( 'Нулевая цена', 80, '-' ) )
-//        Endif
-//      Endif
-//      If old_komu != tmp_no->komu
-//        old_komu := tmp_no->komu
-//        If tmp_no->tip == 2 .and. tmp_no->komu == 0
-//          add_string( PadC( 'Пустая СМО', 80, '-' ) )
-//        Endif
-//      Endif
-//      If !( old_komu == tmp_no->komu .and. old_str_crb == tmp_no->str_crb )
-//        old_komu := tmp_no->komu
-//        old_str_crb := tmp_no->str_crb
-//        Do Case
-//        Case tmp_no->komu == 1
-//          str->( dbGoto( tmp_no->str_crb ) )
-//          add_string( PadC( 'Прочая компания: ' + AllTrim( str->name ), 80, '-' ) )
-//        Case tmp_no->komu == 3
-//          kom->( dbGoto( tmp_no->str_crb ) )
-//          add_string( PadC( 'Комитет/МО: ' + AllTrim( kom->name ), 80, '-' ) )
-//        Case tmp_no->komu == 5
-//          add_string( PadC( 'Личный счёт', 80, '-' ) )
-//        Endcase
-//      Endif
-//      uch->( dbGoto( human->LPU ) )
-//      otd->( dbGoto( human->OTD ) )
-//      add_string( AllTrim( human->fio ) + ' ' + date_8( human->n_data ) + '-' + date_8( human->k_data ) )
-//      add_string( ' ' + AllTrim( uch->name ) + '/' + AllTrim( otd->name ) )
-//      Select TMP_NO
-//      Skip
-//    Enddo
-//    FClose( fp )
+    AAdd( mas_pmt, 'Список листов учёта, которые не проверялись' )
+    AAdd( mas_file, name_file3 )
+
+    ft := tfiletext():new( name_file3, , .t., , .t. )
+
+    Select HUMAN
+    Set Index To
+    ft:add_string( '' )
+    ft:add_string( 'Список листов учёта, которые не проверялись', FILE_CENTER, ' ' )
+
+    r_use( dir_server() + 'str_komp', , 'STR' )
+    r_use( dir_server() + 'komitet', , 'KOM' )
+    Select TMP_NO
+    Set Relation To FIELD->kod into HUMAN
+    Index On Str( FIELD->tip, 1 ) + Str( FIELD->komu, 1 ) + Str( FIELD->str_crb, 2 ) + Upper( human->fio ) to ( cur_dir() + 'tmp_no' )
+    old_tip := old_komu := old_str_crb := -1
+    tmp_no->( dbGoTop() )
+    Do While ! tmp_no->( Eof() )
+      ft:add_string( '' )
+      If old_tip != tmp_no->tip
+        old_tip := tmp_no->tip
+        If tmp_no->tip == 1
+          ft:add_string( PadC( 'Нулевая цена', 80, '-' ) )
+        Endif
+      Endif
+      If old_komu != tmp_no->komu
+        old_komu := tmp_no->komu
+        If tmp_no->tip == 2 .and. tmp_no->komu == 0
+          ft:add_string( PadC( 'Пустая СМО', 80, '-' ) )
+        Endif
+      Endif
+      If !( old_komu == tmp_no->komu .and. old_str_crb == tmp_no->str_crb )
+        old_komu := tmp_no->komu
+        old_str_crb := tmp_no->str_crb
+        Do Case
+        Case tmp_no->komu == 1
+          str->( dbGoto( tmp_no->str_crb ) )
+          ft:add_string( PadC( 'Прочая компания: ' + AllTrim( str->name ), 80, '-' ) )
+        Case tmp_no->komu == 3
+          kom->( dbGoto( tmp_no->str_crb ) )
+          ft:add_string( PadC( 'Комитет/МО: ' + AllTrim( kom->name ), 80, '-' ) )
+        Case tmp_no->komu == 5
+          ft:add_string( PadC( 'Личный счёт', 80, '-' ) )
+        Endcase
+      Endif
+      uch->( dbGoto( human->LPU ) )
+      otd->( dbGoto( human->OTD ) )
+      ft:add_string( AllTrim( human->fio ) + ' ' + date_8( human->n_data ) + '-' + date_8( human->k_data ) )
+      ft:add_string( ' ' + AllTrim( uch->name ) + '/' + AllTrim( otd->name ) )
+      Select TMP_NO
+      tmp_no->( dbSkip() )    // Skip
+    Enddo
+    ft := nil
   Endif
 
   close_use_base( 'lusl' )
   close_use_base( 'luslc' )
   close_use_base( 'luslf' )
   
-  close_list_alias( { 'HU_', 'HU', 'MOSU', 'MOHU', 'TMP_NO', 'D_SROK', 'PERS', 'UCH', 'OTD' } )
+  close_list_alias( { 'HU_', 'HU', 'MOSU', 'MOHU', 'TMP_NO', 'D_SROK' } )
+  close_list_alias( { 'PERS', 'UCH', 'OTD', 'STR', 'KOM' } )
   close_list_alias( { 'ONKLE', 'ONKCO', 'ONKUS', 'ONKPR', 'ONKDI', 'ONKSL', 'ONKNA', 'KART_', 'KART' } )
   close_list_alias( { 'USL', 'USL1', 'K006', 'PRPRK' } )
   close_list_alias( { 'MKB_10', 'SMO', 'MOSPEC', 'MOPROF', 'HUMAN_3', 'HUMAN_2', 'HUMAN_', 'HUMAN' } )
 
+  close_list_alias( { 'TMP_NO' } )
+  dbDrop( 'mem:tmp_no' )  /* освободим память */
+
   // востановим индекс
   tmpSelect := Select()
-  Index On FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' )
+  Index On FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) to ( 'mem:tmpb' )
   Select( tmpSelect )
 
   If fl_view

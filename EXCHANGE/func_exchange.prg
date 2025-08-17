@@ -22,6 +22,24 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh )
     'L' + sName }
   return aFiles
 
+// 16.08.25 сформировать массив имен файлов реестра сведений и пациентов с 2025
+function name_reestr_XML_2025( type, nyear, nmonth, mnn, nsh, kod_smo )
+  // type - тип реестра (обычный, для диспансеризации)
+  // nyear - номер года
+  // nmonth - номер месяца
+  // mnn - 
+  // nsh - 
+  // Возврат - массив { имя файла реестра сведений, имя файла реестра пациентов }
+
+  local sName := ''
+  local aFiles
+
+  sName := 'M' + CODE_LPU + iif( kod_smo == '34   ', 'T34', 'S' + kod_smo ) + '_' ;
+    + Right( StrZero( NYEAR, 4 ), 2 ) + StrZero( NMONTH, 2 ) + StrZero( mnn, nsh )
+  aFiles := { { 'H', 'X' }[ type ] + sName, ;
+    'L' + sName }
+  return aFiles
+
 // 17.12.19 проверить, нам ли предназначен данный XML-файл
 Function is_our_xml( cName, ret_arr )
 

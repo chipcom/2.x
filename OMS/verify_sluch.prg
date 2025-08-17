@@ -319,10 +319,6 @@ Function verify_sluch( fl_view )
   Endif
   val_fio( retfamimot( 2, .f. ), ta )
 
-//  Select HUMAN
-//  Set Order To 1
-//  dbGoto( rec_human )
-//  g_rlock( forever )
   human_->( g_rlock( forever ) )
   human_2->( g_rlock( forever ) )
 

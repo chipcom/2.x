@@ -253,6 +253,7 @@ mo_version.prg
 .\EXCHANGE\mo_omsr.prg
 .\EXCHANGE\func_exchange.prg
 .\EXCHANGE\create_reestrZSL_2025.prg
+.\EXCHANGE\reestrZSL_XML_2025.prg
 
 .\263\mo_263.prg
 .\263\mo_263p.prg

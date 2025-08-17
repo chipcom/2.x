@@ -1,0 +1,518 @@
+// реестры/счета с 2019 года
+#include 'common.ch'
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
+
+// 16.08.25
+Function create1reestr_2025( _recno, _nyear, _nmonth, kod_smo, p_tip_reestr, aBukva )
+
+  Local buf := SaveScreen(), i, j, pole
+  local lenPZ := 0  // кол-во строк план заказа на год составления реестра
+  Local reg_sort
+
+  Private mpz, oldpz, atip, p_array_PZ
+
+  p_array_PZ := get_array_pz( _nyear )  // получим массив план-заказа на год составления реестра
+  lenPZ := len( p_array_PZ )
+
+  mpz := Array( lenPZ + 1 )
+  oldpz := Array( lenPZ + 1 )
+  atip := Array( lenPZ + 1 )
+
+  For j := 0 To lenPZ    // для таблицы _moXunit 03.02.23
+    pole := 'A_SMO->PZ' + lstr( j )
+    mpz[ j + 1 ] := oldpz[ j + 1 ] := &pole
+    atip[ j + 1 ] := '-'
+    If ( i := AScan( p_array_PZ, {| x| x[ 1 ] == j } ) ) > 0
+      atip[ j + 1 ] := p_array_PZ[ i, 4 ]
+    Endif
+  Next
+
+  Private pkol := A_SMO->kol, psumma := A_SMO->summa, pnyear := _nyear
+  Private old_kol := pkol, old_summa := psumma, p_blk := { | mkol, msum| f_blk_create1reestr19( _nyear ) }
+
+  g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+  Set Order To 2
+  g_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', , 'HUMAN' )
+  Set Relation To RecNo() into HUMAN_
+
+  dbSelectArea( 'TMP' )
+  Set Relation To FIELD->kod_human into HUMAN
+//  Index On Upper( human->fio ) + DToS( tmp->k_data ) to ( cur_dir() + 'tmpb' )  // For kod_tmp == _recno
+//  Go Top
+  tmp->( dbGoTop() )
+  Eval( p_blk )
+  If alpha_browse( 3, 0, MaxRow() -4, 79, 'f1create1reestr19', color0, ;
+      'Составление реестра случаев за ' + mm_month[ _nmonth ] + Str( _nyear, 5 ) + ' года', 'BG+/GR', ;
+      .t., .t., , , 'f2create1reestr19', , ;
+      { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B', , 300 } )
+    If pkol > 0 .and. ( reg_sort := f_alert( { '', ;
+        'Каким образом сортировать реестр, отправляемый в ТФОМС', ;
+        '' }, ;
+        { ' по ~ФИО пациента ', ' по ~убыванию стоимости ' }, ;
+        1, 'W/RB', 'G+/RB', MaxRow() -6, , 'BG+/RB, W+/R, W+/RB, GR+/R' ) ) > 0
+      f_message( { 'Системная дата: ' + date_month( Date(), .t. ), ;
+        'Обращаем Ваше внимание, что', ;
+        'реестр будет создан с этой датой.', ;
+        '', ;
+        'Изменить её будет НЕВОЗМОЖНО!', ;
+        '', ;
+        'Сортировка реестра: ' + { 'по ФИО пациента', 'по убыванию стоимости лечения' }[ reg_sort ] }, , ;
+        'GR+/R', 'W+/R' )
+      If f_esc_enter( 'составления реестра' )
+        RestScreen( buf )
+        if reg_sort == 1
+          Index On FIELD->BUKVA + Upper( human->fio ) + DToS( tmp->k_data ) to ( 'mem:tmp' )  // For kod_tmp == _recno
+        else
+          Index On FIELD->BUKVA + Str( FIELD->pz, 2 ) + Str( 10000000 - FIELD->cena_1, 11, 2 ) to ( 'mem:tmp' )  // For kod_tmp == _recno .and. plus
+        endif
+        create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_reestr, aBukva )
+      Endif
+    Endif
+  Endif
+  close_list_alias( { 'HUMAN_3', 'HUMAN_', 'HUMAN' } )
+  RestScreen( buf )
+  Return Nil
+
+// 16.08.25 создание XML-файлов реестра
+Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_reestr, aBukva )
+
+  Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
+  Local i
+  Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
+  Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
+  Local arrLP, row
+  Local ser_num
+  Local controlVer
+  Local endDateZK
+  Local diagnoz_replace := ''
+  Local aImpl
+  Local flLekPreparat
+  Local lReplaceDiagnose := .f.
+  Local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
+  local dPUMPver40 := 0d20240301
+  local aFilesName
+  local sVersion, fl_ver
+  local oXmlDoc, oXmlNode, oZAP
+  local oSL, oSLUCH
+  local oPRESCRIPTION, oPRESCRIPTIONS, oKSG, oSLk, oNAPR, oCONS
+  local oONK_SL, oDIAG, oPROT, oONK
+  local oLEK, oDOSE
+  local oUSL, oMR_USL_N, oMED_DEV
+  local oPAC, oDISAB, oINJ
+  local old_lek, old_sh
+  local aRegnum, iLekPr
+  local mnovor
+  Local cBukva := '', cNschet := '', countBukva
+  Local arr_fio, smr
+
+  //
+  For i := 1 To 5
+    sk := lstr( i )
+    pole_diag := 'mdiag' + sk
+    pole_1dispans := 'm1dispans' + sk
+    pole_dn_dispans := 'mdndispans' + sk
+    Private &pole_diag := Space( 6 )
+    Private &pole_1dispans := 0
+    Private &pole_dn_dispans := CToD( '' )
+  Next
+  stat_msg( 'Составление реестра случаев' )
+  nsh := f_mb_me_nsh( _nyear, @mb, @me )
+
+  use_base( 'lusl' )
+  use_base( 'luslc' )
+  use_base( 'luslf' )
+  r_use( dir_server() + 'human_im', dir_server() + 'human_im', 'IMPL' )
+  r_use( dir_server() + 'human_lek_pr', dir_server() + 'human_lek_pr', 'LEK_PR' )
+
+  laluslf := create_name_alias( 'luslf', _nyear )
+  r_use( dir_server() + 'mo_uch', , 'UCH' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_pers', , 'P2' )
+  r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2TABN' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  g_use( dir_server() + 'mo_rhum', , 'RHUM' )
+  Index On Str( FIELD->REESTR, 6 ) to ( cur_dir() + 'tmp_rhum' )
+  g_use( dir_server() + 'human_u_', , 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
+  Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
+  r_use( dir_server() + 'mo_su', , 'MOSU' )
+  g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
+  Set Relation To FIELD->u_kod into MOSU
+
+  If p_tip_reestr == 1
+    r_use( dir_server() + 'kart_inv', , 'INV' )
+    Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_inv' )
+  Endif
+  r_use( dir_server() + 'kartote2', , 'KART2' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
+  Set Relation To RecNo() into KART_, To RecNo() into KART2
+  r_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna', 'ONKNA' ) // онконаправления
+  r_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco', 'ONKCO' )
+  r_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'ONKSL' ) // Сведения о случае лечения онкологического заболевания
+  r_use( dir_server() + 'mo_onkdi', dir_server() + 'mo_onkdi', 'ONKDI' ) // Диагностический блок
+  r_use( dir_server() + 'mo_onkpr', dir_server() + 'mo_onkpr', 'ONKPR' ) // Сведения об имеющихся противопоказаниях
+  g_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus', 'ONKUS' )
+  g_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle', 'ONKLE' )
+//  g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+//  Set Order To 2 // индекс по 2-му случаю
+  g_use( dir_server() + 'human_2', , 'HUMAN_2' )
+//  g_use( dir_server() + 'human_', , 'HUMAN_' )
+//  r_use( dir_server() + 'human', , 'HUMAN' )
+  dbSelectArea( 'HUMAN' )
+  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To FIELD->kod_k into KART
+  r_use( dir_exe() + '_mo_t2_v1', , 'T21' )
+  Index On FIELD->shifr to ( cur_dir() + 'tmp_t21' )
+
+  r_use( dir_exe() + '_mo_mkb', , 'MKB_10' )
+  Index On FIELD->shifr + Str( FIELD->ks, 1 ) to ( cur_dir() + '_mo_mkb' )
+  g_use( dir_server() + 'mo_xml', , 'MO_XML' )
+  g_use( dir_server() + 'mo_rees', , 'REES' )
+
+  for countBukva := 1 to len( aBukva )
+//    dbSelectArea( 'TMP' )
+//    tmp->( dbGoTop() )
+//    do while ! tmp->( Eof() )
+//      if cBukva != tmp->bukva
+    cBukva := aBukva[ countBukva ]
+    dbSelectArea( 'REES' )
+    Index On Str( FIELD->nn, nsh ) to ( cur_dir() + 'tmp_rees' ) For FIELD->nyear == _nyear .and. FIELD->nmonth == _nmonth
+    fl := .f.
+    For mnn := mb To me
+      find ( Str( mnn, nsh ) )
+      If ! Found() // нашли свободный номер
+        fl := .t.
+        Exit
+      Endif
+    Next
+    If ! fl
+      close_file_reestr_2025()
+      Return func_error( 10, 'Не удалось найти свободный номер пакета в ТФОМС. Проверьте настройки!' )
+    Endif
+    Index On Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees' ) For FIELD->nyear == _nyear
+    If ! Eof()
+      rees->( dbGoBottom() )
+      mnschet := rees->nschet + 1
+    Endif
+    If ! Between( mnschet, mem_beg_rees, mem_end_rees )
+      fl := .f.
+      For mnschet := mem_beg_rees To mem_end_rees
+        find ( Str( mnschet, 6 ) )
+        If ! Found() // нашли свободный номер
+          fl := .t.
+          Exit
+        Endif
+      Next
+      If ! fl
+        close_file_reestr_2025()
+        Return func_error( 10, 'Не удалось найти свободный номер реестра. Проверьте настройки!' )
+      Endif
+    Endif
+    Set Index To
+
+    addrecn()
+    rees->KOD    := RecNo()
+    rees->NSCHET := mnschet
+    rees->DSCHET := Date()
+    rees->NYEAR  := _NYEAR
+    rees->NMONTH := _NMONTH
+    rees->NN     := mnn
+    aFilesName := name_reestr_XML_2025( p_tip_reestr, _NYEAR, _NMONTH, mnschet, 5, kod_smo )
+    rees->NAME_XML := aFilesName[ 1 ]
+    mkod_reestr := rees->KOD
+    rees->CODE  := ret_unique_code( mkod_reestr )
+    code_reestr := rees->CODE
+
+    dbSelectArea( 'MO_XML' )
+    addrecn()
+    mo_xml->KOD    := RecNo()
+    mo_xml->FNAME  := rees->NAME_XML
+//    mo_xml->FNAME2 := 'L' + s
+    mo_xml->FNAME2 := aFilesName[ 2 ]
+    mo_xml->DFILE  := rees->DSCHET
+    mo_xml->TFILE  := hour_min( Seconds() )
+    mo_xml->TIP_OUT := _XML_FILE_REESTR // тип высылаемого файла; 1-реестр сведений
+    mo_xml->REESTR := mkod_reestr
+//
+    rees->KOD_XML := mo_xml->KOD
+    mo_xml->( dbUnlock() )
+    mo_xml->( dbCommit() )
+    rees->( dbUnlock() )
+    rees->( dbCommit() )
+
+    // изменить
+    cNschet := kod_smo + '-' + '782' + '-1' + cBukva
+    //
+
+    pkol := psumma := iusl := 0
+    dbSelectArea( 'TMP' )
+    tmp->( dbGoTop() )
+    tmp->( dbSeek( cBukva, .t. ) )
+    do while tmp->BUKVA == cBukva .and. ! tmp->( Eof() )
+      arrLP := {}
+      @ MaxRow(), 1 Say lstr( pkol ) Color cColorSt2Msg
+//      Select HUMAN
+      HUMAN->( dbGoto( tmp->kod_human ) )
+
+      otd->( dbGoto( human->OTD ) )
+      lTypeLUOnkoDisp := ( otd->tiplu == TIP_LU_ONKO_DISP )
+      
+      pkol++
+      psumma += human->cena_1
+      dbSelectArea( 'RHUM' )
+      addrec( 6 )
+      rhum->REESTR := mkod_reestr
+      rhum->KOD_HUM := human->kod
+      rhum->REES_ZAP := pkol
+//      human_->( g_rlock( forever ) )
+      human_->( dbRLock() )
+      If human_->REES_NUM < 99
+        human_->REES_NUM := human_->REES_NUM + 1
+      Endif
+      human_->REESTR := mkod_reestr
+      human_->REES_ZAP := pkol
+      If tmpb->ishod == 89  // 2-й случай
+        dbSelectArea( 'HUMAN_3' )
+        human_3->( dbSeek( Str( tmpb->kod_human, 7 ) ) )
+        If human_3->( Found() )
+          g_rlock( forever )
+          If human_3->REES_NUM < 99
+            human_3->REES_NUM := human_3->REES_NUM + 1
+          Endif
+          human_3->REESTR := mkod_reestr
+          human_3->REES_ZAP := pkol
+          //
+          dbSelectArea( 'HUMAN' )
+          human->( dbGoto( human_3->kod ) ) // встать на 1-й случай
+//          human_->( g_rlock( forever ) )
+          human_->( dbRLock() )
+          psumma += human->cena_1
+          If human_->REES_NUM < 99
+            human_->REES_NUM := human_->REES_NUM + 1
+          Endif
+          human_->REESTR := mkod_reestr
+          human_->REES_ZAP := pkol
+        Endif
+        If pkol % 2000 == 0
+          dbUnlockAll()
+          dbCommitAll()
+        Endif
+      Endif
+//        dbSelectArea( 'TMP' )
+//        cBukva := tmp->bukva
+//      endif
+      tmp->(dbSkip() )
+    enddo
+    dbSelectArea( 'REES' )
+    g_rlock( forever )
+    rees->KOL := pkol
+    rees->SUMMA := psumma
+    dbUnlockAll()
+    dbCommitAll()
+    //
+    //
+    Private arr_usl_otkaz, adiag_talon[ 16 ]
+    //
+    // создадим новый XML-документ
+    oXmlDoc := hxmldoc():new()
+    // заполним корневой элемент XML-документа
+    oXmlDoc:add( hxmlnode():new( 'ZL_LIST' ) )
+    oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
+    // заполним заголовок XML-документа
+    sVersion := '3.11'
+    controlVer := _nyear * 100 + _nmonth
+    if p_tip_reestr == 1
+      // Реестр случаев оказания медицинской помощи, за исключением медицинской помощи по диспансеризации,
+      // медицинским осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
+      If ( controlVer >= 202201 ) // с января 2022 года
+        sVersion := '3.2'
+      Endif
+      If ( controlVer >= 202403 ) // с марта 2024 года
+        sVersion := '4.0'
+      Endif
+      If ( controlVer >= 202501 ) // с января 2025 года
+        sVersion := '5.0'
+      Endif
+      If ( controlVer >= 202507 ) // с июля 2025 года
+        sVersion := '5.1'
+      Endif
+    elseif p_tip_reestr == 2
+      // Реестр случаев оказания медицинской помощи по диспансеризации, профилактическим медицинским
+      // осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
+      If ( controlVer >= 202501 ) // с января 2025 года
+        sVersion := '5.0'
+      Endif
+    endif
+    mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
+    mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( rees->DSCHET ) )
+    mo_add_xml_stroke( oXmlNode, 'FILENAME', mo_xml->FNAME )
+    mo_add_xml_stroke( oXmlNode, 'SD_Z', lstr( pkol ) )
+
+    // заполним реестр случаев для XML-документа
+    oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'SCHET' ) )
+    mo_add_xml_stroke( oXmlNode, 'CODE', lstr( code_reestr ) )
+    mo_add_xml_stroke( oXmlNode, 'CODE_MO', CODE_MO )
+    mo_add_xml_stroke( oXmlNode, 'YEAR', lstr( _NYEAR ) )
+    mo_add_xml_stroke( oXmlNode, 'MONTH', lstr( _NMONTH ) )
+//    mo_add_xml_stroke( oXmlNode, 'NSCHET', lstr( rees->NSCHET ) )
+    mo_add_xml_stroke( oXmlNode, 'NSCHET', cNschet )
+    mo_add_xml_stroke( oXmlNode, 'DSCHET', date2xml( rees->DSCHET ) )
+    mo_add_xml_stroke( oXmlNode, 'SUMMAV', Str( psumma, 15, 2 ) )
+
+    dbSelectArea( 'RHUM' )
+    Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->REESTR == mkod_reestr
+//    rhum->( dbGoTop() )
+//    Do While ! rhum->( Eof() )
+//      @ MaxRow(), 0 Say Str( rhum->REES_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
+
+//      rhum->( dbSkip() )
+//    enddo
+
+    stat_msg( 'Запись XML-документа в файл реестра случаев' )
+
+    oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml() )
+    name_zip := AllTrim( mo_xml->FNAME ) + szip()
+    AAdd( arr_zip, AllTrim( mo_xml->FNAME ) + sxml() )
+    //
+    //
+    fl_ver := 311
+    stat_msg( 'Составление реестра пациентов' )
+    oXmlDoc := hxmldoc():new()
+    // заполним корневой элемент реестра пациентов для XML-документа
+    oXmlDoc:add( hxmlnode():new( 'PERS_LIST' ) )
+    // заполним заголовок файла реестра пациентов для XML-документа
+    oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
+    sVersion := '3.11'
+    If StrZero( _nyear, 4 ) + StrZero( _nmonth, 2 ) > '201910' // с ноября 2019 года
+      fl_ver := 32
+      sVersion := '3.2'
+    Endif
+    mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
+    mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( rees->DSCHET ) )
+    mo_add_xml_stroke( oXmlNode, 'FILENAME', mo_xml->FNAME2 )
+    mo_add_xml_stroke( oXmlNode, 'FILENAME1', mo_xml->FNAME )
+
+    dbSelectArea( 'RHUM' )
+    rhum->( dbGoTop() )
+    Do While ! rhum->( Eof() )
+
+      @ MaxRow(), 0 Say Str( rhum->REES_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
+      dbSelectArea( 'HUMAN' )
+      human->( dbGoto( rhum->kod_hum ) )  // встали на 1-ый лист учёта
+      If human->ishod == 89  // а это не 1-ый, а 2-ой л/у
+        dbSelectArea( 'HUMAN_3' )
+        Set Order To 2
+        human_3->( dbSeek( Str( rhum->kod_hum, 7 ) ) )
+        dbSelectArea( 'HUMAN' )
+        human->( dbGoto( human_3->kod ) )  // встали на 1-й лист учёта
+      Endif
+      arr_fio := retfamimot( 2, .f. )
+      // заполним сведения о пациенте для XML-документа
+      oPAC := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'PERS' ) )
+      mo_add_xml_stroke( oPAC, 'ID_PAC', human_->ID_PAC )
+      If human_->NOVOR == 0
+        mo_add_xml_stroke( oPAC, 'FAM', arr_fio[ 1 ] )
+        If !Empty( arr_fio[ 2 ] )
+          mo_add_xml_stroke( oPAC, 'IM', arr_fio[ 2 ] )
+        Endif
+        If !Empty( arr_fio[ 3 ] )
+          mo_add_xml_stroke( oPAC, 'OT', arr_fio[ 3 ] )
+        Endif
+        mo_add_xml_stroke( oPAC, 'W', iif( human->pol == 'М', '1', '2' ) )
+        mo_add_xml_stroke( oPAC, 'DR', date2xml( human->date_r ) )
+        If Empty( arr_fio[ 3 ] )
+          mo_add_xml_stroke( oPAC, 'DOST', '1' ) // отсутствует отчество
+        Endif
+        If Empty( arr_fio[ 2 ] )
+          mo_add_xml_stroke( oPAC, 'DOST', '3' ) // отсутствует имя
+        Endif
+        If p_tip_reestr == 2 // Указывается только для диспансеризации при предоставлении сведений
+          If Len( AllTrim( kart_->PHONE_H ) ) == 11
+            mo_add_xml_stroke( oPAC, 'TEL', SubStr( kart_->PHONE_H, 2 ) )
+          Elseif Len( AllTrim( kart_->PHONE_M ) ) == 11
+            mo_add_xml_stroke( oPAC, 'TEL', SubStr( kart_->PHONE_M, 2 ) )
+          Elseif Len( AllTrim( kart_->PHONE_W ) ) == 11
+            mo_add_xml_stroke( oPAC, 'TEL', SubStr( kart_->PHONE_W, 2 ) )
+          Endif
+        Endif
+      Else
+        mo_add_xml_stroke( oPAC, 'W', iif( human_->pol2 == 'М', '1', '2' ) )
+        mo_add_xml_stroke( oPAC, 'DR', date2xml( human_->date_r2 ) )
+        mo_add_xml_stroke( oPAC, 'FAM_P', arr_fio[ 1 ] )
+        If !Empty( arr_fio[ 2 ] )
+          mo_add_xml_stroke( oPAC, 'IM_P', arr_fio[ 2 ] )
+        Endif
+        If !Empty( arr_fio[ 3 ] )
+          mo_add_xml_stroke( oPAC, 'OT_P', arr_fio[ 3 ] )
+        Endif
+        mo_add_xml_stroke( oPAC, 'W_P', iif( human->pol == 'М', '1', '2' ) )
+        mo_add_xml_stroke( oPAC, 'DR_P', date2xml( human->date_r ) )
+        If Empty( arr_fio[ 3 ] )
+          mo_add_xml_stroke( oPAC, 'DOST_P', '1' ) // отсутствует отчество
+        Endif
+        If Empty( arr_fio[ 2 ] )
+          mo_add_xml_stroke( oPAC, 'DOST_P', '3' ) // отсутствует имя
+        Endif
+      Endif
+      If !Empty( smr := del_spec_symbol( kart_->mesto_r ) )
+        mo_add_xml_stroke( oPAC, 'MR', smr )
+      Endif
+      If human_->vpolis == 3 .and. emptyany( kart_->nom_ud, kart_->nom_ud )
+        // для нового полиса паспорт необязателен
+      Else
+        mo_add_xml_stroke( oPAC, 'DOCTYPE', lstr( kart_->vid_ud ) )
+        If !Empty( kart_->ser_ud )
+          mo_add_xml_stroke( oPAC, 'DOCSER', kart_->ser_ud )
+        Endif
+        mo_add_xml_stroke( oPAC, 'DOCNUM', kart_->nom_ud )
+      Endif
+      If fl_ver == 32 .and. human_->vpolis < 3 .and. !eq_any( Left( human_->OKATO, 2 ), '  ', '18' ) // иногородние
+        If !Empty( kart_->kogdavyd )
+          mo_add_xml_stroke( oPAC, 'DOCDATE', date2xml( kart_->kogdavyd ) )
+        Endif
+        If !Empty( kart_->kemvyd ) .and. ;
+            !Empty( smr := del_spec_symbol( inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', kart_->kemvyd ) ) )
+          mo_add_xml_stroke( oPAC, 'DOCORG', smr )
+        Endif
+      Endif
+      If !Empty( kart->snils )
+        mo_add_xml_stroke( oPAC, 'SNILS', Transform( kart->SNILS, picture_pf ) )
+      Endif
+      If human_->vpolis == 3 .and. Empty( kart_->okatog )
+        // для нового полиса место регистрации необязательно
+      Else
+        mo_add_xml_stroke( oPAC, 'OKATOG', kart_->okatog )
+      Endif
+      If Len( AllTrim( kart_->okatop ) ) == 11
+        mo_add_xml_stroke( oPAC, 'OKATOP', kart_->okatop )
+      Endif
+      dbSelectArea( 'RHUM' )
+      rhum->( dbSkip() )
+    enddo
+    stat_msg( 'Запись XML-документа в файл реестр пациентов' )
+    oXmlDoc:save( AllTrim( mo_xml->FNAME2 ) + sxml() )
+    AAdd( arr_zip, AllTrim( mo_xml->FNAME2 ) + sxml() )
+    //
+    If chip_create_zipxml( name_zip, arr_zip, .t. )
+//      Keyboard Chr( K_TAB ) + Chr( K_ENTER )
+    Endif
+  next
+
+  close_file_reestr_2025()
+  Return Nil
+
+// 17.05.25
+function close_file_reestr_2025()
+
+  close_use_base( 'lusl' )
+  close_use_base( 'luslc' )
+  close_use_base( 'luslf' )
+  close_list_alias( { 'MKB_10', 'REES', 'MO_XML', 'IMPL', 'LEK_PR', 'UCH', 'OTD', 'P2', 'P2TABN' } )
+  close_list_alias( { 'USL', 'RHUM', 'HU_', 'HU', 'MOSU', 'MOHU' } )
+  close_list_alias( { 'INV', 'KART2', 'KART_', 'KART', 'HUMAN_2', 'T21' } )
+  close_list_alias( { 'ONKNA', 'ONKCO', 'ONKSL', 'ONKDI', 'ONKPR', 'ONKUS', 'ONKLE' } )
+  return nil
