@@ -65,9 +65,9 @@ Function create1reestr_2025( _recno, _nyear, _nmonth, kod_smo, p_tip_reestr, aBu
       If f_esc_enter( 'составления реестра' )
         RestScreen( buf )
         if reg_sort == 1
-          Index On FIELD->BUKVA + Upper( human->fio ) + DToS( tmp->k_data ) to ( 'mem:tmp' )  // For kod_tmp == _recno
+          Index On FIELD->BUKVA + Upper( human->fio ) + DToS( tmp->k_data ) to ( 'mem:tmp' ) For plus  // For kod_tmp == _recno
         else
-          Index On FIELD->BUKVA + Str( FIELD->pz, 2 ) + Str( 10000000 - FIELD->cena_1, 11, 2 ) to ( 'mem:tmp' )  // For kod_tmp == _recno .and. plus
+          Index On FIELD->BUKVA + Str( FIELD->pz, 2 ) + Str( 10000000 - FIELD->cena_1, 11, 2 ) to ( 'mem:tmp' ) For plus   // .and. kod_tmp == _recno 
         endif
         create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_reestr, aBukva )
       Endif
@@ -77,7 +77,7 @@ Function create1reestr_2025( _recno, _nyear, _nmonth, kod_smo, p_tip_reestr, aBu
   RestScreen( buf )
   Return Nil
 
-// 16.08.25 создание XML-файлов реестра
+// 18.08.25 создание XML-файлов реестра
 Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_reestr, aBukva )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -105,9 +105,10 @@ Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_r
   local oPAC, oDISAB, oINJ
   local old_lek, old_sh
   local aRegnum, iLekPr
-  local mnovor
+//  local mnovor
   Local cBukva := '', cNschet := '', countBukva
-  Local arr_fio, smr
+//  Local arr_fio, smr
+  Local oXmlDocPacient, oXmlNodePacient, sVersionPacient
 
   //
   For i := 1 To 5
@@ -317,32 +318,24 @@ Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_r
     //
     Private arr_usl_otkaz, adiag_talon[ 16 ]
     //
-    // создадим новый XML-документ
+    // создадим новый XML-документ для реестра случаев
     oXmlDoc := hxmldoc():new()
     // заполним корневой элемент XML-документа
     oXmlDoc:add( hxmlnode():new( 'ZL_LIST' ) )
     oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
     // заполним заголовок XML-документа
-    sVersion := '3.11'
     controlVer := _nyear * 100 + _nmonth
     if p_tip_reestr == 1
       // Реестр случаев оказания медицинской помощи, за исключением медицинской помощи по диспансеризации,
       // медицинским осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
-      If ( controlVer >= 202201 ) // с января 2022 года
-        sVersion := '3.2'
-      Endif
-      If ( controlVer >= 202403 ) // с марта 2024 года
-        sVersion := '4.0'
-      Endif
-      If ( controlVer >= 202501 ) // с января 2025 года
-        sVersion := '5.0'
-      Endif
+      sVersion := '5.1'
       If ( controlVer >= 202507 ) // с июля 2025 года
         sVersion := '5.1'
       Endif
     elseif p_tip_reestr == 2
       // Реестр случаев оказания медицинской помощи по диспансеризации, профилактическим медицинским
       // осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
+      sVersion := '5.0'
       If ( controlVer >= 202501 ) // с января 2025 года
         sVersion := '5.0'
       Endif
@@ -363,138 +356,42 @@ Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_r
     mo_add_xml_stroke( oXmlNode, 'DSCHET', date2xml( rees->DSCHET ) )
     mo_add_xml_stroke( oXmlNode, 'SUMMAV', Str( psumma, 15, 2 ) )
 
+    // создадим новый XML-документ для реестра пациентов
+    fl_ver := 311
+    oXmlDocPacient := hxmldoc():new()
+    // заполним корневой элемент реестра пациентов для XML-документа
+    oXmlDocPacient:add( hxmlnode():new( 'PERS_LIST' ) )
+    // заполним заголовок файла реестра пациентов для XML-документа
+    oXmlNodePacient := oXmlDocPacient:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
+    sVersionPacient := '3.11'
+    If StrZero( _nyear, 4 ) + StrZero( _nmonth, 2 ) > '201910' // с ноября 2019 года
+      fl_ver := 32
+      sVersionPacient := '3.2'
+    Endif
+    mo_add_xml_stroke( oXmlNodePacient, 'VERSION', sVersionPacient )
+    mo_add_xml_stroke( oXmlNodePacient, 'DATA', date2xml( rees->DSCHET ) )
+    mo_add_xml_stroke( oXmlNodePacient, 'FILENAME', mo_xml->FNAME2 )
+    mo_add_xml_stroke( oXmlNodePacient, 'FILENAME1', mo_xml->FNAME )
+
+// заполняем реестры случаев и пациентов    
     dbSelectArea( 'RHUM' )
     Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->REESTR == mkod_reestr
-//    rhum->( dbGoTop() )
-//    Do While ! rhum->( Eof() )
-//      @ MaxRow(), 0 Say Str( rhum->REES_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
+    rhum->( dbGoTop() )
+    Do While ! rhum->( Eof() )
+      @ MaxRow(), 0 Say Str( rhum->REES_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
 
-//      rhum->( dbSkip() )
-//    enddo
+      // записываем элемент для пациента
+      elem_reestr_pacient_2025( oXmlDocPacient, fl_ver, p_tip_reestr )      
+      rhum->( dbSkip() )
+    enddo
 
-    stat_msg( 'Запись XML-документа в файл реестра случаев' )
+//    stat_msg( 'Запись XML-документа в файл реестра случаев' )
 
     oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml() )
     name_zip := AllTrim( mo_xml->FNAME ) + szip()
     AAdd( arr_zip, AllTrim( mo_xml->FNAME ) + sxml() )
     //
-    //
-    fl_ver := 311
-    stat_msg( 'Составление реестра пациентов' )
-    oXmlDoc := hxmldoc():new()
-    // заполним корневой элемент реестра пациентов для XML-документа
-    oXmlDoc:add( hxmlnode():new( 'PERS_LIST' ) )
-    // заполним заголовок файла реестра пациентов для XML-документа
-    oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
-    sVersion := '3.11'
-    If StrZero( _nyear, 4 ) + StrZero( _nmonth, 2 ) > '201910' // с ноября 2019 года
-      fl_ver := 32
-      sVersion := '3.2'
-    Endif
-    mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
-    mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( rees->DSCHET ) )
-    mo_add_xml_stroke( oXmlNode, 'FILENAME', mo_xml->FNAME2 )
-    mo_add_xml_stroke( oXmlNode, 'FILENAME1', mo_xml->FNAME )
-
-    dbSelectArea( 'RHUM' )
-    rhum->( dbGoTop() )
-    Do While ! rhum->( Eof() )
-
-      @ MaxRow(), 0 Say Str( rhum->REES_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
-      dbSelectArea( 'HUMAN' )
-      human->( dbGoto( rhum->kod_hum ) )  // встали на 1-ый лист учёта
-      If human->ishod == 89  // а это не 1-ый, а 2-ой л/у
-        dbSelectArea( 'HUMAN_3' )
-        Set Order To 2
-        human_3->( dbSeek( Str( rhum->kod_hum, 7 ) ) )
-        dbSelectArea( 'HUMAN' )
-        human->( dbGoto( human_3->kod ) )  // встали на 1-й лист учёта
-      Endif
-      arr_fio := retfamimot( 2, .f. )
-      // заполним сведения о пациенте для XML-документа
-      oPAC := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'PERS' ) )
-      mo_add_xml_stroke( oPAC, 'ID_PAC', human_->ID_PAC )
-      If human_->NOVOR == 0
-        mo_add_xml_stroke( oPAC, 'FAM', arr_fio[ 1 ] )
-        If !Empty( arr_fio[ 2 ] )
-          mo_add_xml_stroke( oPAC, 'IM', arr_fio[ 2 ] )
-        Endif
-        If !Empty( arr_fio[ 3 ] )
-          mo_add_xml_stroke( oPAC, 'OT', arr_fio[ 3 ] )
-        Endif
-        mo_add_xml_stroke( oPAC, 'W', iif( human->pol == 'М', '1', '2' ) )
-        mo_add_xml_stroke( oPAC, 'DR', date2xml( human->date_r ) )
-        If Empty( arr_fio[ 3 ] )
-          mo_add_xml_stroke( oPAC, 'DOST', '1' ) // отсутствует отчество
-        Endif
-        If Empty( arr_fio[ 2 ] )
-          mo_add_xml_stroke( oPAC, 'DOST', '3' ) // отсутствует имя
-        Endif
-        If p_tip_reestr == 2 // Указывается только для диспансеризации при предоставлении сведений
-          If Len( AllTrim( kart_->PHONE_H ) ) == 11
-            mo_add_xml_stroke( oPAC, 'TEL', SubStr( kart_->PHONE_H, 2 ) )
-          Elseif Len( AllTrim( kart_->PHONE_M ) ) == 11
-            mo_add_xml_stroke( oPAC, 'TEL', SubStr( kart_->PHONE_M, 2 ) )
-          Elseif Len( AllTrim( kart_->PHONE_W ) ) == 11
-            mo_add_xml_stroke( oPAC, 'TEL', SubStr( kart_->PHONE_W, 2 ) )
-          Endif
-        Endif
-      Else
-        mo_add_xml_stroke( oPAC, 'W', iif( human_->pol2 == 'М', '1', '2' ) )
-        mo_add_xml_stroke( oPAC, 'DR', date2xml( human_->date_r2 ) )
-        mo_add_xml_stroke( oPAC, 'FAM_P', arr_fio[ 1 ] )
-        If !Empty( arr_fio[ 2 ] )
-          mo_add_xml_stroke( oPAC, 'IM_P', arr_fio[ 2 ] )
-        Endif
-        If !Empty( arr_fio[ 3 ] )
-          mo_add_xml_stroke( oPAC, 'OT_P', arr_fio[ 3 ] )
-        Endif
-        mo_add_xml_stroke( oPAC, 'W_P', iif( human->pol == 'М', '1', '2' ) )
-        mo_add_xml_stroke( oPAC, 'DR_P', date2xml( human->date_r ) )
-        If Empty( arr_fio[ 3 ] )
-          mo_add_xml_stroke( oPAC, 'DOST_P', '1' ) // отсутствует отчество
-        Endif
-        If Empty( arr_fio[ 2 ] )
-          mo_add_xml_stroke( oPAC, 'DOST_P', '3' ) // отсутствует имя
-        Endif
-      Endif
-      If !Empty( smr := del_spec_symbol( kart_->mesto_r ) )
-        mo_add_xml_stroke( oPAC, 'MR', smr )
-      Endif
-      If human_->vpolis == 3 .and. emptyany( kart_->nom_ud, kart_->nom_ud )
-        // для нового полиса паспорт необязателен
-      Else
-        mo_add_xml_stroke( oPAC, 'DOCTYPE', lstr( kart_->vid_ud ) )
-        If !Empty( kart_->ser_ud )
-          mo_add_xml_stroke( oPAC, 'DOCSER', kart_->ser_ud )
-        Endif
-        mo_add_xml_stroke( oPAC, 'DOCNUM', kart_->nom_ud )
-      Endif
-      If fl_ver == 32 .and. human_->vpolis < 3 .and. !eq_any( Left( human_->OKATO, 2 ), '  ', '18' ) // иногородние
-        If !Empty( kart_->kogdavyd )
-          mo_add_xml_stroke( oPAC, 'DOCDATE', date2xml( kart_->kogdavyd ) )
-        Endif
-        If !Empty( kart_->kemvyd ) .and. ;
-            !Empty( smr := del_spec_symbol( inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', kart_->kemvyd ) ) )
-          mo_add_xml_stroke( oPAC, 'DOCORG', smr )
-        Endif
-      Endif
-      If !Empty( kart->snils )
-        mo_add_xml_stroke( oPAC, 'SNILS', Transform( kart->SNILS, picture_pf ) )
-      Endif
-      If human_->vpolis == 3 .and. Empty( kart_->okatog )
-        // для нового полиса место регистрации необязательно
-      Else
-        mo_add_xml_stroke( oPAC, 'OKATOG', kart_->okatog )
-      Endif
-      If Len( AllTrim( kart_->okatop ) ) == 11
-        mo_add_xml_stroke( oPAC, 'OKATOP', kart_->okatop )
-      Endif
-      dbSelectArea( 'RHUM' )
-      rhum->( dbSkip() )
-    enddo
-    stat_msg( 'Запись XML-документа в файл реестр пациентов' )
-    oXmlDoc:save( AllTrim( mo_xml->FNAME2 ) + sxml() )
+    oXmlDocPacient:save( AllTrim( mo_xml->FNAME2 ) + sxml() )
     AAdd( arr_zip, AllTrim( mo_xml->FNAME2 ) + sxml() )
     //
     If chip_create_zipxml( name_zip, arr_zip, .t. )

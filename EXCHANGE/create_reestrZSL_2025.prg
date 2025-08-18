@@ -317,7 +317,7 @@ function print_list_pacients( kod_smo, nyear, nmonth )
     viewtext( nfile, , , , .t., , , 2 )
     return nil
 
-// 16.08.25
+// 18.08.25
 function control_and_create_schet_2025( kod_smo )
 
   // при работе использует созданные алиасы A_SMO и TMPB
@@ -473,7 +473,7 @@ function control_and_create_schet_2025( kod_smo )
         cFor := 'FIELD->tip == ' + AllTrim( str( p_tip_reestr, 1 ) ) + '.and. FIELD->kod_smo == "' + kod_smo + '"'
         bFor := &( '{||' + cFor + '}' )
         tmpb->( __dbCopy( 'mem:tmp', , bFor ) )
-        dbUseArea( .t., , 'mem:tmp', 'TMP', .t. )
+        dbUseArea( .t., , 'mem:tmp', 'TMP', .f., .f. )
 // соберем БУКВЫ СЧЕТОВ
         aBukva := {}
         INDEX ON ( FIELD->BUKVA ) TO ( 'mem:bukva' ) unique
