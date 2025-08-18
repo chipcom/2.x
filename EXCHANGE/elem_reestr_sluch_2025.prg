@@ -8,24 +8,19 @@
 // 18.08.25
 function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth )
 
-  local oZAP, oXmlNode
-  local oPAC
+
+  local oXmlNode, oZAP
   local oSL, oSLUCH
   local oPRESCRIPTION, oPRESCRIPTIONS, oKSG, oSLk, oNAPR, oCONS
   local oONK_SL, oDIAG, oPROT, oONK
   local oLEK, oDOSE
   local oUSL, oMR_USL_N, oMED_DEV
-  local oDISAB, oINJ
-
-  local arr_fio, smr
-  local tmpSelect
-  local kol_sl, ksl_date, isl
-  Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
-  Local cSMOname
+  local oPAC, oDISAB, oINJ
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
-  Local i, s
+  Local i
   Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
+  Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
   Local arrLP, row
   Local ser_num
   Local controlVer
@@ -42,8 +37,8 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
   local aRegnum, iLekPr
   local mnovor
 
-    is_zak_sl := is_zak_sl_vr := .f.
-    lshifr_zak_sl := lvidpoms := ''
+    fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
+    lshifr_zak_sl := lvidpoms := cSMOname := ''
     a_usl := {}
     a_usl_name := {}
     a_fusl := {}
@@ -75,31 +70,30 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
 
     mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
 
+    Private arr_usl_otkaz, adiag_talon[ 16 ]
+  
     flLekPreparat := .f.
 
-  //
-  tmpSelect := Select()
-  dbSelectArea( 'HUMAN' )
-  human->( dbGoto( rhum->kod_hum ) ) // встали на 2-ой лист учёта
-  kol_sl := iif( human->ishod == 89, 2, 1 )
-  ksl_date := nil
-  For isl := 1 To kol_sl
-    If isl == 1 .and. kol_sl == 2
-      dbSelectArea( 'HUMAN_3' )
-      ksl_date := human_3->K_DATA
-      human_3->( dbSeek( Str( rhum->kod_hum, 7 ) ) )
-      reserveKSG_ID_C := human_3->ID_C
-      dbSelectArea( 'HUMAN' )
-      human->( dbGoto ( human_3->kod ) )  // встали на 1-й лист учёта
-    Endif
-    If isl == 2
-      dbSelectArea( 'HUMAN' )
-      ksl_date := human_3->K_DATA
-      human->( dbGoto( human_3->kod2 ) ) // встали на 2-ой лист учёта
-    Endif
-
-      f1_create2reestr19( _nyear, _nmonth )
-
+    //
+    Select HUMAN
+    Goto ( rhum->kod_hum )  // встали на 2-ой лист учёта
+    kol_sl := iif( human->ishod == 89, 2, 1 )
+    ksl_date := nil
+    For isl := 1 To kol_sl
+      If isl == 1 .and. kol_sl == 2
+        Select HUMAN_3
+        ksl_date := human_3->K_DATA
+        find ( Str( rhum->kod_hum, 7 ) )
+        reserveKSG_ID_C := human_3->ID_C
+        Select HUMAN
+        Goto ( human_3->kod )  // встали на 1-й лист учёта
+      Endif
+      If isl == 2
+        Select HUMAN
+        ksl_date := human_3->K_DATA
+        Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
+      Endif
+      f1_create2reestr19_2025( _nyear, _nmonth, p_tip_reestr ) 
       // заполним реестр записями для XML-документа
       If isl == 1
         oZAP := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZAP' ) )
@@ -118,13 +112,11 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
           mo_add_xml_stroke( oPAC, 'ENP', kart2->kod_mis ) // Единый номер полиса единого образца
         Endif
         // mo_add_xml_stroke(oPAC, 'ST_OKATO' ,...) // Регион страхования
-
-        cSMOname := cSMOname()
         If Empty( cSMOname )
           mo_add_xml_stroke( oPAC, 'SMO', human_->smo )
         Endif
         mo_add_xml_stroke( oPAC, 'SMO_OK', iif( Empty( human_->OKATO ), '18000', human_->OKATO ) )
-        If ! Empty( cSMOname )
+        If !Empty( cSMOname )
           mo_add_xml_stroke( oPAC, 'SMO_NAM', cSMOname )
         Endif
         If human_->NOVOR == 0
@@ -148,7 +140,7 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
           endif
         endif
         // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
-        If is_DISABILITY( p_tip_reestr ) // Сведения о первичном признании застрахованного лица инвалидом
+        If fl_DISABILITY // Сведения о первичном признании застрахованного лица инвалидом
           // заполним сведения об инвалидности пациента для XML-документа
           oDISAB := oPAC:add( hxmlnode():new( 'DISABILITY' ) )
           // группа инвалидности при первичном признании застрахованного лица инвалидом
@@ -1126,8 +1118,11 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
         mo_add_xml_stroke( oSL, 'COMENTSL', sCOMENTSL )
       Endif
     Next isl
-
-  Select( tmpSelect )
+    Select RHUM
+    If rhum->REES_ZAP % 2000 == 0
+      dbUnlockAll()
+      dbCommitAll()
+    Endif
   return nil
 
 // 18.08.25

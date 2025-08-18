@@ -256,6 +256,7 @@ mo_version.prg
 .\EXCHANGE\reestrZSL_XML_2025.prg
 .\EXCHANGE\elem_reestr_sluch_2025.prg
 .\EXCHANGE\elem_reestr_pacient_2025.prg
+.\EXCHANGE\f1_create2reestr19_2025.prg
 
 .\263\mo_263.prg
 .\263\mo_263p.prg

@@ -380,6 +380,9 @@ Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_r
     Do While ! rhum->( Eof() )
       @ MaxRow(), 0 Say Str( rhum->REES_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
 
+      // записываем элемент для случая
+      elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth )
+
       // записываем элемент для пациента
       elem_reestr_pacient_2025( oXmlDocPacient, fl_ver, p_tip_reestr )      
       rhum->( dbSkip() )
