@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 29.07.25 создание XML-файлов реестра
+// 19.08.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -619,7 +619,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             mo_add_xml_stroke( oSL, 'DS3', RTrim( mdiagnoz3[ i ] ) )
           Endif
         Next
-        If need_reestr_c_zab( human_->USL_OK, mdiagnoz[ 1 ] ) .or. is_oncology_smp > 0
+        If need_reestr_c_zab( is_oncology, human_->USL_OK, mdiagnoz[ 1 ] ) .or. is_oncology_smp > 0
           If lTypeLUOnkoDisp
 //            mo_add_xml_stroke( oSL, 'C_ZAB', '2' ) //
             mo_add_xml_stroke( oSL, 'C_ZAB', '3' ) // согласно разговора с Антоновой 23.10.24

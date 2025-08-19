@@ -22,21 +22,20 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
   Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
   Local arrLP, row
+  Local ser_num
+  Local controlVer
   Local endDateZK
   Local diagnoz_replace := ''
   Local aImpl
-  Local ser_num
   Local flLekPreparat
   Local lReplaceDiagnose := .f.
   Local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
   local dPUMPver40 := 0d20240301
+  local aFilesName
+  local sVersion
   local old_lek, old_sh
   local aRegnum, iLekPr
   local mnovor
-  local kol_sl, isl
-  local is_oncology_smp, is_oncology, arr_onkna, arr_onkco, arr_onksl, arr_onkdi, arr_onkpr, arr_onk_usl
-  local ar_dn
-  local mdiagnoz, mdiagnoz3
 
     fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
     lshifr_zak_sl := lvidpoms := cSMOname := ''
@@ -48,6 +47,8 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
     atmpusl := {}
     akslp := {}
     akiro := {}
+    mdiagnoz := {}
+    mdiagnoz3 := {}
     is_KSG := is_mgi := .f.
     kol_kd := v_reabil_slux := m1veteran := m1mobilbr := 0  // мобильная бригада
     tarif_zak_sl := m1mesto_prov := m1p_otk := 0    // признак отказа
@@ -57,9 +58,15 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
     m1profil_stac := m1napr_reab := m1profil_kojki := 0
     pr_amb_reab := fl_disp_nabl := is_disp_DVN := is_disp_DVN_COVID := is_disp_DRZ := .f.
     ldate_next := CToD( '' )
+    ar_dn := {}
+    is_oncology_smp := is_oncology := 0
+    arr_onkna := {}
+    arr_onkdi := {}
+    arr_onkpr := {}
+    arr_onk_usl := {}
     a_otkaz := {}
     arr_nazn := {}
-    arr_ne_vozm := {} 
+    arr_ne_vozm := {}
 
     mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
 
@@ -86,34 +93,7 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
         ksl_date := human_3->K_DATA
         Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
       Endif
-      is_oncology := schet_is_oncology( p_tip_reestr, @is_oncology_smp )
-      arr_onkna := collect_schet_onkna()
-      arr_onkco := collect_schet_onkco()
-      arr_onksl := collect_schet_onksl()
-      arr_onkdi := collect_schet_onkdi()
-      arr_onkpr := collect_schet_onkpr()
-      arr_onk_usl := collect_schet_onkusl()
-      ar_dn := {}
-
-      mdiagnoz := diag_for_xml( , .t., , , .t. )
-      If p_tip_reestr == 2
-        If human->OBRASHEN == '1' .and. AScan( mdiagnoz, {| x| PadR( x, 5 ) == 'Z03.1' } ) == 0
-          AAdd( mdiagnoz, 'Z03.1' )
-        Endif
-      endif
-
-      mdiagnoz3 := {}
-      If !Empty( human_2->OSL1 )
-        AAdd( mdiagnoz3, human_2->OSL1 )
-      Endif
-      If !Empty( human_2->OSL2 )
-        AAdd( mdiagnoz3, human_2->OSL2 )
-      Endif
-      If !Empty( human_2->OSL3 )
-        AAdd( mdiagnoz3, human_2->OSL3 )
-      Endif
-
-      f1_create2reestr19_2025( _nyear, p_tip_reestr ) 
+      f1_create2reestr19_2025( _nyear, _nmonth, p_tip_reestr ) 
       // заполним реестр записями для XML-документа
       If isl == 1
         oZAP := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZAP' ) )
@@ -1156,125 +1136,6 @@ function cSMOname()
   Endif
   return cRet
 
-// 19.08.25
-function schet_is_oncology( p_tip_reestr, /*@*/is_oncology_smp )
-
-  is_oncology_smp := 0
-  return iif( p_tip_reestr == 2, 0, f_is_oncology( 1, @is_oncology_smp ))
-
-// 19.08.25
-function collect_schet_onkna()
-
-  local arr_onkna, tmpSelect
-
-  tmpSelect := Select()
-  arr_onkna := {}
-  dbSelectArea( 'ONKNA' )
-  onkna->( dbSeek( Str( human->kod, 7 ) ) )
-  Do While onkna->kod == human->kod .and. !onkna->( Eof() )
-    P2TABN->( dbGoto( onkna->KOD_VR ) )
-    If !( P2TABN->( Eof() ) ) .and. !( P2TABN->( Bof() ) )
-      mosu->( dbGoto( onkna->U_KOD ) )
-      AAdd( arr_onkna, { onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL, mosu->shifr1, onkna->NAPR_MO, P2TABN->snils, lstr( ret_prvs_v015tov021( P2TABN->PRVS_NEW ) ) } )
-    Else
-      mosu->( dbGoto( onkna->U_KOD ) )
-      AAdd( arr_onkna, { onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL, mosu->shifr1, onkna->NAPR_MO, '', '' } )
-    Endif
-    onkna->( dbSkip() )
-  Enddo
-  Select( tmpSelect )
-  return arr_onkna
-
-// 19.08.25
-function collect_schet_onkco()
-
-  local arr_onkco, tmpSelect
-
-  tmpSelect := Select()
-  arr_onkco := {}
-  dbSelectArea( 'ONKCO' )
-  onkco->( dbSeek( Str( human->kod, 7 ) ) )
-  Select( tmpSelect )
-  return arr_onkco
-
-// 19.08.25
-function collect_schet_onksl()
-
-  local arr_onksl, tmpSelect
-
-  tmpSelect := Select()
-  arr_onksl := {}
-  dbSelectArea( 'ONKSL' )
-  onksl->( dbSeek( Str( human->kod, 7 ) ) )
-  Select( tmpSelect )
-  return arr_onksl
-
-// 19.08.25
-function collect_schet_onkdi()
-
-  local arr_onkdi, tmpSelect
-
-  tmpSelect := Select()
-  arr_onkdi := {}
-  dbSelectArea( 'ONKSL' )
-  onksl->( dbSeek( Str( human->kod, 7 ) ) )
-
-  If eq_any( onksl->b_diag, 98, 99 ) 
-    dbSelectArea( 'ONKDI' )
-    onkdi->( dbSeek( Str( human->kod, 7 ) ) )
-    Do While onkdi->kod == human->kod .and. !Eof()
-      AAdd( arr_onkdi, { onkdi->DIAG_DATE, onkdi->DIAG_TIP, onkdi->DIAG_CODE, onkdi->DIAG_RSLT } )
-      onkdi->( dbSkip() )
-    Enddo
-  Endif
-  Select( tmpSelect )
-  return arr_onkdi
-
-// 19.08.25
-function collect_schet_onkpr()
-
-  local arr_onkpr, tmpSelect
-
-  tmpSelect := Select()
-  arr_onkpr := {}
-  dbSelectArea( 'ONKSL' )
-  onksl->( dbSeek( Str( human->kod, 7 ) ) )
-
-  If human_->USL_OK < 3 // противопоказания по лечению только в стационаре и дневном стационаре
-    dbSelectArea( 'ONKPR' )
-    onkpr->( dbSeek( Str( human->kod, 7 ) ) )
-    Do While onkpr->kod == human->kod .and. ! onkpr->( Eof() )
-      AAdd( arr_onkpr, { onkpr->PROT, onkpr->D_PROT } )
-      onkpr->( dbSkip() )
-    Enddo
-  Endif
-  If eq_any( onksl->b_diag, 0, 7, 8 ) .and. AScan( arr_onkpr, {| x| x[ 1 ] == onksl->b_diag } ) == 0
-    // добавим отказ,не показано,противопоказано по гистологии
-    AAdd( arr_onkpr, { onksl->b_diag, human->n_data } )
-  Endif
-  Select( tmpSelect )
-  return arr_onkpr
-
-// 19.08.25
-function collect_schet_onkusl()
-
-  local arr_onkusl, tmpSelect
-
-  tmpSelect := Select()
-  arr_onkusl := {}
-  If iif( human_2->VMP == 1, .t., Between( onksl->DS1_T, 0, 2 ) )
-    dbSelectArea( 'ONKUS' )
-    onkus->(dbSeek( Str( human->kod, 7 ) ) )
-    Do While onkus->kod == human->kod .and. !onkus->( Eof() )
-      If Between( onkus->USL_TIP, 1, 5 )
-        AAdd( arr_onkusl, onkus->USL_TIP )
-      Endif
-      onkus->( dbSkip() )
-    Enddo
-  Endif
-  Select( tmpSelect )
-  return arr_onkusl
-
 // 18.08.25
 function is_DISABILITY( p_tip_reestr )
 
@@ -1298,3 +1159,9 @@ function is_DISABILITY( p_tip_reestr )
   endif
   return fl_DISABILITY
 
+// 18.08.25
+function ret_lvidpom()
+
+  local lvidpom := 1
+
+  return lvidpom

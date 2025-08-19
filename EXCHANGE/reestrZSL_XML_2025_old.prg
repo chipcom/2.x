@@ -82,15 +82,32 @@ Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_r
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   Local i
+  Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
-  Local arrLP
+  Local arrLP, row
+  Local ser_num
   Local controlVer
+  Local endDateZK
+  Local diagnoz_replace := ''
+  Local aImpl
+  Local flLekPreparat
+  Local lReplaceDiagnose := .f.
   Local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
   local dPUMPver40 := 0d20240301
   local aFilesName
   local sVersion, fl_ver
-  local oXmlDoc, oXmlNode
+  local oXmlDoc, oXmlNode, oZAP
+  local oSL, oSLUCH
+  local oPRESCRIPTION, oPRESCRIPTIONS, oKSG, oSLk, oNAPR, oCONS
+  local oONK_SL, oDIAG, oPROT, oONK
+  local oLEK, oDOSE
+  local oUSL, oMR_USL_N, oMED_DEV
+  local oPAC, oDISAB, oINJ
+  local old_lek, old_sh
+  local aRegnum, iLekPr
+//  local mnovor
   Local cBukva := '', cNschet := '', countBukva
+//  Local arr_fio, smr
   Local oXmlDocPacient, oXmlNodePacient, sVersionPacient
 
   //

@@ -7,8 +7,8 @@
 
 #define BASE_ISHOD_RZD 500
 
-// 19.08.25 работаем по текущей записи
-Function f1_create2reestr19_2025( _nyear, p_tip_reestr )
+// 03.07.25 работаем по текущей записи
+Function f1_create2reestr19_2025( _nyear, _nmonth, p_tip_reestr )
 
   Local i, j, lst, s
   Local locPRVS
@@ -43,67 +43,71 @@ Function f1_create2reestr19_2025( _nyear, p_tip_reestr )
   ldate_next := CToD( '' )
   ar_dn := {}
   //
-//  is_oncology_smp := 0
-//  is_oncology := f_is_oncology( 1, @is_oncology_smp )
-//  If p_tip_reestr == 2
-//    is_oncology := 0
-//  Endif
+  is_oncology_smp := 0
+  is_oncology := f_is_oncology( 1, @is_oncology_smp )
+  If p_tip_reestr == 2
+    is_oncology := 0
+  Endif
+  arr_onkna := {}
+  Select ONKNA
+  find ( Str( human->kod, 7 ) )
+  Do While onkna->kod == human->kod .and. !Eof()
+    P2TABN->( dbGoto( onkna->KOD_VR ) )
+    If !( P2TABN->( Eof() ) ) .and. !( P2TABN->( Bof() ) )
+      // aadd(arr_nazn, {3, i, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+      mosu->( dbGoto( onkna->U_KOD ) )
+      AAdd( arr_onkna, { onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL, mosu->shifr1, onkna->NAPR_MO, P2TABN->snils, lstr( ret_prvs_v015tov021( P2TABN->PRVS_NEW ) ) } )
+    Else
+      // aadd(arr_nazn, {3, i, '', ''}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+      mosu->( dbGoto( onkna->U_KOD ) )
+      AAdd( arr_onkna, { onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL, mosu->shifr1, onkna->NAPR_MO, '', '' } )
+    Endif
 
-//  arr_onkna := {}
-//  Select ONKNA
-//  find ( Str( human->kod, 7 ) )
-//  Do While onkna->kod == human->kod .and. !Eof()
-//    P2TABN->( dbGoto( onkna->KOD_VR ) )
-//    If !( P2TABN->( Eof() ) ) .and. !( P2TABN->( Bof() ) )
-//      mosu->( dbGoto( onkna->U_KOD ) )
-//      AAdd( arr_onkna, { onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL, mosu->shifr1, onkna->NAPR_MO, P2TABN->snils, lstr( ret_prvs_v015tov021( P2TABN->PRVS_NEW ) ) } )
-//    Else
-//      mosu->( dbGoto( onkna->U_KOD ) )
-//      AAdd( arr_onkna, { onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL, mosu->shifr1, onkna->NAPR_MO, '', '' } )
-//    Endif
-//    Skip
-//  Enddo
-//  Select ONKCO
-//  find ( Str( human->kod, 7 ) )
+    // mosu->(dbGoto(onkna->U_KOD))
+    // aadd(arr_onkna, {onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL,mosu->shifr1, onkna->NAPR_MO})
+    Skip
+  Enddo
+  Select ONKCO
+  find ( Str( human->kod, 7 ) )
   //
-//  Select ONKSL
-//  find ( Str( human->kod, 7 ) )
+  Select ONKSL
+  find ( Str( human->kod, 7 ) )
   //
-//  arr_onkdi := {}
-//  If eq_any( onksl->b_diag, 98, 99 ) 
-//    Select ONKDI
-//    find ( Str( human->kod, 7 ) )
-//    Do While onkdi->kod == human->kod .and. !Eof()
-//      AAdd( arr_onkdi, { onkdi->DIAG_DATE, onkdi->DIAG_TIP, onkdi->DIAG_CODE, onkdi->DIAG_RSLT } )
-//      Skip
-//    Enddo
-//  Endif
+  arr_onkdi := {}
+  If eq_any( onksl->b_diag, 98, 99 ) 
+    Select ONKDI
+    find ( Str( human->kod, 7 ) )
+    Do While onkdi->kod == human->kod .and. !Eof()
+      AAdd( arr_onkdi, { onkdi->DIAG_DATE, onkdi->DIAG_TIP, onkdi->DIAG_CODE, onkdi->DIAG_RSLT } )
+      Skip
+    Enddo
+  Endif
   //
-//  arr_onkpr := {}
-//  If human_->USL_OK < 3 // противопоказания по лечению только в стационаре и дневном стационаре
-//    Select ONKPR
-//    find ( Str( human->kod, 7 ) )
-//    Do While onkpr->kod == human->kod .and. !Eof()
-//      AAdd( arr_onkpr, { onkpr->PROT, onkpr->D_PROT } )
-//      Skip
-//    Enddo
-//  Endif
-//  If eq_any( onksl->b_diag, 0, 7, 8 ) .and. AScan( arr_onkpr, {| x| x[ 1 ] == onksl->b_diag } ) == 0
+  arr_onkpr := {}
+  If human_->USL_OK < 3 // противопоказания по лечению только в стационаре и дневном стационаре
+    Select ONKPR
+    find ( Str( human->kod, 7 ) )
+    Do While onkpr->kod == human->kod .and. !Eof()
+      AAdd( arr_onkpr, { onkpr->PROT, onkpr->D_PROT } )
+      Skip
+    Enddo
+  Endif
+  If eq_any( onksl->b_diag, 0, 7, 8 ) .and. AScan( arr_onkpr, {| x| x[ 1 ] == onksl->b_diag } ) == 0
     // добавим отказ,не показано,противопоказано по гистологии
-//    AAdd( arr_onkpr, { onksl->b_diag, human->n_data } )
-//  Endif
+    AAdd( arr_onkpr, { onksl->b_diag, human->n_data } )
+  Endif
   //
-//  arr_onk_usl := {}
-//  If iif( human_2->VMP == 1, .t., Between( onksl->DS1_T, 0, 2 ) )
-//    Select ONKUS
-//    find ( Str( human->kod, 7 ) )
-//    Do While onkus->kod == human->kod .and. !Eof()
-//      If Between( onkus->USL_TIP, 1, 5 )
-//        AAdd( arr_onk_usl, onkus->USL_TIP )
-//      Endif
-//      Skip
-//    Enddo
-//  Endif
+  arr_onk_usl := {}
+  If iif( human_2->VMP == 1, .t., Between( onksl->DS1_T, 0, 2 ) )
+    Select ONKUS
+    find ( Str( human->kod, 7 ) )
+    Do While onkus->kod == human->kod .and. !Eof()
+      If Between( onkus->USL_TIP, 1, 5 )
+        AAdd( arr_onk_usl, onkus->USL_TIP )
+      Endif
+      Skip
+    Enddo
+  Endif
   //
   Select HU
   find ( Str( human->kod, 7 ) )
@@ -517,7 +521,7 @@ Function f1_create2reestr19_2025( _nyear, p_tip_reestr )
   If AllTrim( human_->smo ) == '34'
     cSMOname := ret_inogsmo_name( 2 )
   Endif
-//  mdiagnoz := diag_for_xml( , .t., , , .t. )
+  mdiagnoz := diag_for_xml( , .t., , , .t. )
 
 /// 26.12.24
   AFill( adiag_talon, 0 )
@@ -538,22 +542,22 @@ Function f1_create2reestr19_2025( _nyear, p_tip_reestr )
       Endif
     Endif
   Else
-//    If human->OBRASHEN == '1' .and. AScan( mdiagnoz, {| x| PadR( x, 5 ) == 'Z03.1' } ) == 0
-//      AAdd( mdiagnoz, 'Z03.1' )
-//    Endif
-//    // AFill( adiag_talon, 0 )
-//    // For i := 1 To 16
-//    //   adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
-//    // Next
+    If human->OBRASHEN == '1' .and. AScan( mdiagnoz, {| x| PadR( x, 5 ) == 'Z03.1' } ) == 0
+      AAdd( mdiagnoz, 'Z03.1' )
+    Endif
+    // AFill( adiag_talon, 0 )
+    // For i := 1 To 16
+    //   adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
+    // Next
   Endif
-//  mdiagnoz3 := {}
-//  If !Empty( human_2->OSL1 )
-//    AAdd( mdiagnoz3, human_2->OSL1 )
-//  Endif
-//  If !Empty( human_2->OSL2 )
-//    AAdd( mdiagnoz3, human_2->OSL2 )
-//  Endif
-//  If !Empty( human_2->OSL3 )
-//    AAdd( mdiagnoz3, human_2->OSL3 )
-//  Endif
+  mdiagnoz3 := {}
+  If !Empty( human_2->OSL1 )
+    AAdd( mdiagnoz3, human_2->OSL1 )
+  Endif
+  If !Empty( human_2->OSL2 )
+    AAdd( mdiagnoz3, human_2->OSL2 )
+  Endif
+  If !Empty( human_2->OSL3 )
+    AAdd( mdiagnoz3, human_2->OSL3 )
+  Endif
   Return Nil

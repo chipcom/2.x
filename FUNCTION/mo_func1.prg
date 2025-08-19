@@ -131,8 +131,8 @@ Function okato_rajon( tokato, /*@*/ret_arr)
 
   Return vozvr
 
-// 16.01.19 необходимо ли вывести характер заболевания в реестр
-Function need_reestr_c_zab( lUSL_OK, osn_diag )
+// 19.08.25 необходимо ли вывести характер заболевания в реестр
+Function need_reestr_c_zab( is_oncology, lUSL_OK, osn_diag )
 
   Local fl := .f.
 
