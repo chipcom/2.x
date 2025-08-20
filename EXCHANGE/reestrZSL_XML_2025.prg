@@ -77,11 +77,11 @@ Function create1reestr_2025( _recno, _nyear, _nmonth, kod_smo, p_tip_reestr, aBu
   RestScreen( buf )
   Return Nil
 
-// 19.08.25 создание XML-файлов реестра
+// 20.08.25 создание XML-файлов реестра
 Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_reestr, aBukva )
 
-  Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
-  Local i
+  Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
+  Local i, j
   Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
   Local arrLP
   Local controlVer
@@ -92,6 +92,7 @@ Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_r
   local oXmlDoc, oXmlNode
   Local cBukva := '', cNschet := '', countBukva
   Local oXmlDocPacient, oXmlNodePacient, sVersionPacient
+  local oPb
 
   //
   For i := 1 To 5
@@ -112,7 +113,7 @@ Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_r
   r_use( dir_server() + 'human_im', dir_server() + 'human_im', 'IMPL' )
   r_use( dir_server() + 'human_lek_pr', dir_server() + 'human_lek_pr', 'LEK_PR' )
 
-  laluslf := create_name_alias( 'luslf', _nyear )
+//  laluslf := create_name_alias( 'luslf', _nyear )
   r_use( dir_server() + 'mo_uch', , 'UCH' )
   r_use( dir_server() + 'mo_otd', , 'OTD' )
   r_use( dir_server() + 'mo_pers', , 'P2' )
@@ -239,8 +240,7 @@ Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_r
     tmp->( dbSeek( cBukva, .t. ) )
     do while tmp->BUKVA == cBukva .and. ! tmp->( Eof() )
       arrLP := {}
-      @ MaxRow(), 1 Say lstr( pkol ) Color cColorSt2Msg
-//      Select HUMAN
+//      @ MaxRow(), 1 Say lstr( pkol ) Color cColorSt2Msg
       HUMAN->( dbGoto( tmp->kod_human ) )
 
       otd->( dbGoto( human->OTD ) )
@@ -361,16 +361,26 @@ Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_r
     dbSelectArea( 'RHUM' )
     Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->REESTR == mkod_reestr
     rhum->( dbGoTop() )
+  
+    oPb := TProgressBar():New( MaxRow(), 0, 20, 0, pkol )
+    oPb:Color := cColorStMsg
+    oPb:Symbol := Chr( 219 )
+    oPb:Display()
+
+    j := 0
     Do While ! rhum->( Eof() )
-      @ MaxRow(), 0 Say Str( rhum->REES_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
+//      @ MaxRow(), 0 Say Str( rhum->REES_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
+      oPb:Update( j )
 
       // записываем элемент для случая
-      elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth )
+      elem_reestr_sluch_2025( oXmlDoc, p_tip_reestr, _nyear )
 
       // записываем элемент для пациента
       elem_reestr_pacient_2025( oXmlDocPacient, fl_ver, p_tip_reestr )      
       rhum->( dbSkip() )
+      j++
     enddo
+    oPb := nil
 
 //    stat_msg( 'Запись XML-документа в файл реестра случаев' )
 

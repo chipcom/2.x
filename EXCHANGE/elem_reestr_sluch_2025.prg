@@ -5,11 +5,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.08.25
-function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth )
+// 20.08.25
+function elem_reestr_sluch_2025( oXmlDoc, p_tip_reestr, _nyear  )
 
 
-  local oXmlNode, oZAP
+  local oZAP
   local oSL, oSLUCH
   local oPRESCRIPTION, oPRESCRIPTIONS, oKSG, oSLk, oNAPR, oCONS
   local oONK_SL, oDIAG, oPROT, oONK
@@ -18,14 +18,12 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
   local oPAC, oDISAB, oINJ
 
   Local fl, lshifr1
-  Local i
+  Local i, j
   Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
   Local arrLP, row
   Local endDateZK
   Local diagnoz_replace := ''
-  Local aImpl
-  Local ser_num
   Local flLekPreparat
   Local lReplaceDiagnose := .f.
   Local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
@@ -35,37 +33,41 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
   local mnovor
   local kol_sl, isl
   local is_oncology_smp, is_oncology, arr_onkna, arr_onkco, arr_onksl, arr_onkdi, arr_onkpr, arr_onk_usl
-  local ar_dn
   local mdiagnoz, mdiagnoz3
+  local cSMOname, fl_DISABILITY := .f.
+  local adiag_talon[ 16 ], tmpSelect
+  local a_fusl := {}
+  local laluslf
 
-    fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
-    lshifr_zak_sl := lvidpoms := cSMOname := ''
-    a_usl := {}
-    a_usl_name := {}
-    a_fusl := {}
-    lvidpom := 1
-    lfor_pom := 3
-    atmpusl := {}
-    akslp := {}
-    akiro := {}
-    is_KSG := is_mgi := .f.
-    kol_kd := v_reabil_slux := m1veteran := m1mobilbr := 0  // мобильная бригада
-    tarif_zak_sl := m1mesto_prov := m1p_otk := 0    // признак отказа
-    m1dopo_na := m1napr_v_mo := 0
-    arr_mo_spec := {}
-    m1napr_stac := 0
-    m1profil_stac := m1napr_reab := m1profil_kojki := 0
-    pr_amb_reab := fl_disp_nabl := is_disp_DVN := is_disp_DVN_COVID := is_disp_DRZ := .f.
-    ldate_next := CToD( '' )
-    a_otkaz := {}
-    arr_nazn := {}
-    arr_ne_vozm := {} 
+  private is_zak_sl := is_zak_sl_vr := .f.
+  private lshifr_zak_sl := lvidpoms := ''
+  private a_usl := {}
+  private a_usl_name := {}
+  private lvidpom := 1
+  private lfor_pom := 3
+  private atmpusl := {}
+  private akslp := {}
+  private akiro := {}
+  private is_KSG := is_mgi := .f.
+  private kol_kd := v_reabil_slux := m1veteran := m1mobilbr := 0  // мобильная бригада
+  private tarif_zak_sl := m1mesto_prov := m1p_otk := 0    // признак отказа
+  private m1dopo_na := m1napr_v_mo := 0
+  private arr_mo_spec := {}
+  private m1napr_stac := 0
+  private m1profil_stac := m1napr_reab := m1profil_kojki := 0
+  private pr_amb_reab := fl_disp_nabl := is_disp_DVN := is_disp_DVN_COVID := is_disp_DRZ := .f.
+  private ldate_next := CToD( '' )
+  private a_otkaz := {}
+  private arr_nazn := {}
+  private arr_ne_vozm := {} 
+  private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+  private ar_dn := {}
 
-    mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
-
-    Private arr_usl_otkaz, adiag_talon[ 16 ]
+  Private arr_usl_otkaz
   
-    flLekPreparat := .f.
+  flLekPreparat := .f.
+
+  laluslf := create_name_alias( 'luslf', _nyear )
 
     //
     Select HUMAN
@@ -87,13 +89,21 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
         Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
       Endif
       is_oncology := schet_is_oncology( p_tip_reestr, @is_oncology_smp )
-      arr_onkna := collect_schet_onkna()
-      arr_onkco := collect_schet_onkco()
-      arr_onksl := collect_schet_onksl()
-      arr_onkdi := collect_schet_onkdi()
-      arr_onkpr := collect_schet_onkpr()
-      arr_onk_usl := collect_schet_onkusl()
-      ar_dn := {}
+      if is_oncology > 0
+        arr_onkna := collect_schet_onkna()
+        arr_onkco := collect_schet_onkco()
+        arr_onksl := collect_schet_onksl()
+        arr_onkdi := collect_schet_onkdi()
+        arr_onkpr := collect_schet_onkpr()
+        arr_onk_usl := collect_schet_onkusl()
+      else
+        arr_onkna := {}
+        arr_onkco := {}
+        arr_onksl := {}
+        arr_onkdi := {}
+        arr_onkpr := {}
+        arr_onk_usl := {}
+      endif
 
       mdiagnoz := diag_for_xml( , .t., , , .t. )
       If p_tip_reestr == 2
@@ -112,6 +122,24 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
       If !Empty( human_2->OSL3 )
         AAdd( mdiagnoz3, human_2->OSL3 )
       Endif
+      cSMOname := schet_SMOname()
+
+      AFill( adiag_talon, 0 )
+      For i := 1 To 16
+        adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
+      Next
+
+      fl_DISABILITY := is_DISABILITY( p_tip_reestr )
+
+      tmpSelect := Select()
+      dbSelectArea( 'MOHU' )
+      mohu->( dbSeek( Str( human->kod, 7 ) ) )
+      Do While mohu->kod == human->kod .and. ! mohu->( Eof() )
+        AAdd( a_fusl, mohu->( RecNo() ) )
+        mohu->( dbSkip() )
+      Enddo
+      Select( tmpSelect )
+
 
       f1_create2reestr19_2025( _nyear, p_tip_reestr ) 
       // заполним реестр записями для XML-документа
@@ -976,18 +1004,14 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
 
           If human->k_data >= 0d20210801 .and. p_tip_reestr == 2 ; // новые правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
             .or. ( endDateZK >= 0d20220101 .and. p_tip_reestr == 1 )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
-            // Закомментировал после разъяснения Л.А.Антоновой 18.08.21
-            // oMR_USL_N := oUSL:Add( HXMLNode():New( 'MR_USL_N' ) )
-            // mo_add_xml_stroke(oMR_USL_N, 'MR_N', lstr(1))   // уточнить
-            // mo_add_xml_stroke(oMR_USL_N, 'PRVS', put_prvs_to_reestr(a_otkaz[j, 5], _NYEAR))
-            // mo_add_xml_stroke(oMR_USL_N, 'CODE_MD','0') // не заполняется код врача
-          Else  // if human->k_data < 0d20210801 .and. p_tip_reestr == 2
+          Else
             mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( a_otkaz[ j, 5 ], _NYEAR ) )
             mo_add_xml_stroke( oUSL, 'CODE_MD','0' ) // отказ => 0
           Endif
 
         Next
       Endif
+
       // if p_tip_reestr == 1 .and. len(a_fusl) > 0 // добавляем операции
       If Len( a_fusl ) > 0 // добавляем операции // исправил чтобы брала углубленную диспансеризацию COVID
         For j := 1 To Len( a_fusl )
@@ -996,7 +1020,8 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
           If mohu->kod_vr == 0
             Loop
           Endif
-          mohu->( g_rlock( forever ) )
+//          mohu->( g_rlock( forever ) )
+          mohu->( dbRLock() )
           mohu->REES_ZAP := ++iusl
           lshifr := AllTrim( mosu->shifr1 )
           // заполним сведения об услугах для XML-документа
@@ -1004,7 +1029,6 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
           mo_add_xml_stroke( oUSL, 'IDSERV', lstr( mohu->REES_ZAP ) )
           mo_add_xml_stroke( oUSL, 'ID_U', mohu->ID_U )
           mo_add_xml_stroke( oUSL, 'LPU', CODE_LPU )
-          // if human->K_DATA < 0d20230601 .and. human_->USL_OK == 1 .and. is_otd_dep
           If human_->USL_OK == 1 .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
             otd->( dbGoto( mohu->OTD ) )
             f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
@@ -1048,7 +1072,6 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
             mo_add_xml_stroke( oUSL, 'TARIF', '0' )// lstr(mohu->U_CENA, 10, 2))
             mo_add_xml_stroke( oUSL, 'SUMV_USL', '0' )// lstr(mohu->STOIM_1, 10, 2))
           Endif
-          // mo_add_xml_stroke(oUSL, 'PRVS', put_prvs_to_reestr(mohu->PRVS, _NYEAR))  // закоментировал 04.08.21
           fl := .f.
           If is_telemedicina( lshifr, @fl ) // не заполняется код врача
             mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )  // добавил 04.08.21
@@ -1056,21 +1079,6 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
           Else
             If ( human->k_data >= 0d20210801 .and. p_tip_reestr == 2 ) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
               .or. ( human->k_data >= 0d20220101 .and. p_tip_reestr == 1 )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
-              // if (p_tip_reestr == 1) .and. ((aImpl := ret_impl_V036(lshifr, c4tod(hu_->DATE_U2))) != NIL)
-              // // проверим наличие имплантантов
-              // IMPL->(dbSeek(str(human->kod, 7), .t.))
-              // if IMPL->(found())
-              // oMED_DEV := oUSL:Add( HXMLNode():New( 'MED_DEV' ) )
-              // mo_add_xml_stroke(oMED_DEV, 'DATE_MED', date2xml(IMPL->DATE_UST))   // пока ставим 1 исполнитель
-              // mo_add_xml_stroke(oMED_DEV, 'CODE_MEDDEV', lstr(IMPL->RZN))
-
-              // if (ser_num := chek_implantant_ser_number(IMPL->(recno()))) != nil
-              // mo_add_xml_stroke(oMED_DEV, 'NUMBER_SER', alltrim(ser_num))
-              // endif
-              // endif
-              // aImpl := nil
-              // ser_num := nil
-              // endif
               If ( p_tip_reestr == 1 ) .and. ( Year( human->k_data ) > 2021 ) .and. service_requires_implants( lshifr, c4tod( hu_->DATE_U2 ) )
                 For Each row in collect_implantant( human->kod, mohu->( RecNo() ) )
                   oMED_DEV := oUSL:add( hxmlnode():new( 'MED_DEV' ) )
@@ -1138,15 +1146,15 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
         mo_add_xml_stroke( oSL, 'COMENTSL', sCOMENTSL )
       Endif
     Next isl
-    Select RHUM
-    If rhum->REES_ZAP % 2000 == 0
-      dbUnlockAll()
-      dbCommitAll()
-    Endif
+  Select RHUM
+  If rhum->REES_ZAP % 2000 == 0
+    dbUnlockAll()
+    dbCommitAll()
+  Endif
   return nil
 
-// 18.08.25
-function cSMOname()
+// 20.08.25
+function schet_SMOname()
 
   local cRet
 
@@ -1287,7 +1295,7 @@ function is_DISABILITY( p_tip_reestr )
         kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ] .and. ; // прикреплён к нашему МО
       Between( kart_->INVALID, 1, 4 )                    // инвалид
       tmpSelect := Select()
-      dbUseArea( 'INV' )
+      dbSelectArea( 'INV' )
       inv->( dbSeek( Str( human->kod_k, 7 ) ) )
       If inv->( Found() ) .and. ! emptyany( inv->DATE_INV, inv->PRICH_INV )
         // дата начала лечения отстоит от даты первичного установления инвалидности не более чем на год
