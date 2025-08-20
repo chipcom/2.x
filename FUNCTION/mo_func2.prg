@@ -109,15 +109,14 @@ Function f_starshe_trudosp( _pol, _date_r, _data, par )
 
   Default par To 1
   If par == 1
-    v := iif( _pol == "Œ", 60, 55 ) // ¤«ï Œˆ€–
+    v := iif( _pol == 'Œ', 60, 55 ) // ¤«ï Œˆ€–
   Elseif par == 3
-    v := iif( _pol == "Œ", 62, 57 ) // ¯® ‡€ŠŽ“ §  2022 £®¤
+    v := iif( _pol == 'Œ', 62, 57 ) // ¯® ‡€ŠŽ“ §  2022 £®¤
   Elseif par == 4
-    v := iif( _pol == "Œ", 63, 58 ) // ¯® ‡€ŠŽ“ §  2023-2024 £®¤
+    v := iif( _pol == 'Œ', 63, 58 ) // ¯® ‡€ŠŽ“ §  2023-2024 £®¤
   Else
-    v := iif( _pol == "Œ", 65, 60 ) // ¤«ï ’”ŽŒ‘
+    v := iif( _pol == 'Œ', 65, 60 ) // ¤«ï ’”ŽŒ‘
   Endif
-
   Return count_years( _date_r, _data ) >= v
 
 // 26.02.13
