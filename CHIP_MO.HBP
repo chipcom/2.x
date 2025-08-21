@@ -252,11 +252,12 @@ mo_version.prg
 .\EXCHANGE\mo_omss.prg
 .\EXCHANGE\mo_omsr.prg
 .\EXCHANGE\func_exchange.prg
-.\EXCHANGE\create_reestrZSL_2025.prg
-.\EXCHANGE\reestrZSL_XML_2025.prg
-.\EXCHANGE\elem_reestr_sluch_2025.prg
-.\EXCHANGE\elem_reestr_pacient_2025.prg
-.\EXCHANGE\f1_create2reestr19_2025.prg
+.\EXCHANGE\2025\create_reestrZSL_2025.prg
+.\EXCHANGE\2025\reestrZSL_XML_2025.prg
+.\EXCHANGE\2025\elem_reestr_sluch_2025.prg
+.\EXCHANGE\2025\elem_reestr_pacient_2025.prg
+.\EXCHANGE\2025\f1_create2reestr19_2025.prg
+.\EXCHANGE\2025\read_flk_2025.prg
 
 .\263\mo_263.prg
 .\263\mo_263p.prg
