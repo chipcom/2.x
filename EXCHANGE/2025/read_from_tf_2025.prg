@@ -3,6 +3,109 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 21.08.25 читать файлы из ТФОМС (или СМО)
+Function read_from_tf_2025()
+
+  Local name_zip, cName
+  local _date, _time, s, arr_f := {}, buf, blk_sp_tk, fl := .f., n, ;
+    arr_XML_info[ 7 ], tip_csv_file := 0, kod_csv_reestr := 0
+
+  private full_zip  // используется в is_our_zip()
+  Private p_var_manager := 'Read_From_TFOMS', p_ctrl_enter_sp_tk := .f.
+  If ! hb_user_curUser:isadmin()
+    Return func_error( 4, err_admin )
+  Endif
+  If find_unfinished_reestr_sp_tk()
+    Return func_error( 4, 'Попытайтесь снова' )
+  Endif
+  blk_sp_tk := {|| p_ctrl_enter_sp_tk := .t., __Keyboard( Chr( K_ENTER ) ) }
+
+  SetKey( K_CTRL_ENTER, blk_sp_tk )
+  full_zip := manager( T_ROW, T_COL + 5, MaxRow() -2, , .t., 1, , , , '*.zip' )
+  SetKey( K_CTRL_ENTER, nil )
+
+  If !Empty( full_zip )
+    full_zip := Upper( full_zip )
+    name_zip := strippath( full_zip )
+    cName := name_without_ext( name_zip )
+    // если это укрупнённый архив, распаковать и прочитать
+    If ! is_our_zip( cName, @tip_csv_file, @kod_csv_reestr )
+      Return fl
+    Endif
+    If tip_csv_file > 0 // если это CSV-файлы прикрепления/открепления
+      If ( arr_f := extract_zip_xml( keeppath( full_zip ), name_zip ) ) != NIL
+        If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( cName ) } ) ) > 0
+          fl := read_csv_from_tf( arr_f[ n ], tip_csv_file, kod_csv_reestr )
+        Else
+          fl := func_error( 4, 'В архиве ' + name_zip + ' нет файла ' + cName + scsv() )
+        Endif
+      Endif
+      Return Nil
+    Endif
+    // ещё раз, т.к. может быть переопределена переменная full_zip
+    name_zip := strippath( full_zip )
+    cName := name_without_ext( name_zip )
+    // проверим, а нам ли предназначен данный файл
+    If !is_our_xml( cName, arr_XML_info )
+      Return fl
+    Endif
+    // проверим, читали ли уже данный файл
+    If verify_is_already_xml( cName, @_date, @_time )
+      // спросить надо ли ещё раз читать, т.к. уже читали
+      func_error( 4, 'Данный файл уже был прочитан и обработан в ' + _time + ' ' + date_8( _date ) + 'г.' )
+      viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
+      Return fl
+    Else
+      s := 'чтения '
+      Do Case
+      Case arr_XML_info[ 1 ] == _XML_FILE_FLK
+        s += 'протокола ФЛК'
+      Case arr_XML_info[ 1 ] == _XML_FILE_SP
+        s += 'реестра СП и ТК'
+      Case arr_XML_info[ 1 ] == _XML_FILE_RAK
+        s += 'р-ра актов контроля'
+      Case arr_XML_info[ 1 ] == _XML_FILE_RPD
+        s += 'реестра плат.док-тов'
+      Case arr_XML_info[ 1 ] == _XML_FILE_R02
+        s += 'файла ответа на R01'
+      Case arr_XML_info[ 1 ] == _XML_FILE_R12
+        s += 'файла ответа на R11'
+      Case arr_XML_info[ 1 ] == _XML_FILE_R06
+        s += 'файла ответа на R05'
+      Case arr_XML_info[ 1 ] == _XML_FILE_D02
+        s += 'файла ответа на D01'
+      Endcase
+      buf := SaveScreen()
+      f_message( { 'Системная дата: ' + date_month( Date(), .t. ), ;
+        'Обращаем Ваше внимание, что после', ;
+        s, ;
+        'все документы будут созданы с этой датой.', ;
+        '', ;
+        'Изменить их будет НЕВОЗМОЖНО!' }, , 'R/R*', 'N/R*' )
+      fl := .t.
+      If arr_XML_info[ 1 ] == _XML_FILE_SP .and. p_ctrl_enter_sp_tk
+        fl := involved_password( 2, 'HT34M111111_' + Right( cName, 7 ), 'чтения С ОШИБКАМИ реестра СП и ТК' )
+      Endif
+      If Year( Date() ) < 2016
+        fl := func_error( 4, 'Данная операция возможна начиная с 2016 года!' )
+      Elseif fl
+        fl := f_esc_enter( s, .t. )
+      Endif
+      RestScreen( buf )
+      If !fl
+        Return fl
+      Endif
+    Endif
+    If ( arr_f := extract_zip_xml( keeppath( full_zip ), name_zip ) ) != NIL
+      If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( cName ) } ) ) > 0
+        fl := read_xml_from_tf( arr_f[ n ], arr_XML_info, arr_f )
+      Else
+        fl := func_error( 4, 'В архиве ' + name_zip + ' нет файла ' + cName + sxml() )
+      Endif
+    Endif
+  Endif
+  Return fl
+
 // 21.08.25 зачитать новый Протокол ФЛК.
 Function reestr_sp_tk_tmpfile_2025( oXmlDoc, aerr, mname_xml )
 

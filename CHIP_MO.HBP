@@ -257,7 +257,7 @@ mo_version.prg
 .\EXCHANGE\2025\elem_reestr_sluch_2025.prg
 .\EXCHANGE\2025\elem_reestr_pacient_2025.prg
 .\EXCHANGE\2025\f1_create2reestr19_2025.prg
-.\EXCHANGE\2025\read_flk_2025.prg
+.\EXCHANGE\2025\read_from_tf_2025.prg
 
 .\263\mo_263.prg
 .\263\mo_263p.prg
