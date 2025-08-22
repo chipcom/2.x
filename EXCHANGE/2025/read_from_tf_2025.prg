@@ -74,6 +74,8 @@ Function read_from_tf_2025()
         s += 'файла ответа на R05'
       Case arr_XML_info[ 1 ] == _XML_FILE_D02
         s += 'файла ответа на D01'
+      Case arr_XML_info[ 1 ] == _XML_FILE_FLK_25
+        s += 'протокола ФЛК для нового обмена'
       Endcase
       buf := SaveScreen()
       f_message( { 'Системная дата: ' + date_month( Date(), .t. ), ;
@@ -98,13 +100,165 @@ Function read_from_tf_2025()
     Endif
     If ( arr_f := extract_zip_xml( keeppath( full_zip ), name_zip ) ) != NIL
       If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( cName ) } ) ) > 0
-        fl := read_xml_from_tf( arr_f[ n ], arr_XML_info, arr_f )
+        fl := read_xml_from_tf_2025( arr_f[ n ], arr_XML_info, arr_f )
       Else
         fl := func_error( 4, 'В архиве ' + name_zip + ' нет файла ' + cName + sxml() )
       Endif
     Endif
   Endif
   Return fl
+
+// 22.08.25 чтение в память и анализ XML-файла
+Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
+
+  Local nTypeFile := 0, aerr := {}, j, oXmlDoc, ;
+    nCountWithErr := 0, go_to_schet := .f., go_to_akt := .f., ;
+    go_to_rpd := .f., nerror, buf := save_maxrow()
+
+  nTypeFile := arr_XML_info[ 1 ]
+  For j := 1 To 4
+    If !myfiledeleted( cur_dir() + 'tmp' + lstr( j ) + 'file' + sdbf() )
+      Return Nil
+    Endif
+  Next
+  For j := 1 To 8
+    If !myfiledeleted( cur_dir() + 'tmp_r_t' + lstr( j ) + sdbf() )
+      Return Nil
+    Endif
+  Next
+  If eq_any( nTypeFile, _XML_FILE_FLK, _XML_FILE_R02, _XML_FILE_R12, _XML_FILE_R06, _XML_FILE_D02 )
+    //
+  Elseif !mo_lock_task( X_OMS )
+    Return .f.
+  Endif
+  mywait( 'Производится анализ файла ' + cFile )
+  Private cReadFile := name_without_ext( cFile ), ;
+    cTimeBegin := hour_min( Seconds() ), ;
+    mkod_reestr := 0, mXML_REESTR := 0, mdate_schet, is_err_FLK := .f.
+  Private cFileProtokol := cReadFile + stxt()
+  StrFile( Space( 10 ) + 'Протокол обработки файла: ' + cFile + hb_eol(), cFileProtokol )
+  StrFile( Space( 10 ) + full_date( sys_date ) + 'г. ' + cTimeBegin + hb_eol(), cFileProtokol, .t. )
+  // читаем файл в память
+  oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile, , @nerror )
+  If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
+    AAdd( aerr, 'Ошибка в чтении файла ' + cFile )
+  Elseif oXmlDoc:getattribute( 'encoding' ) == 'UTF-8'
+    AAdd( aerr, '' )
+    AAdd( aerr, 'В файле ' + cFile + ' кодировка UTF-8, а должна быть Windows-1251' )
+  Elseif nTypeFile == _XML_FILE_FLK
+    is_err_FLK := protokol_flk_tmpfile( arr_f, aerr )
+  Elseif nTypeFile == _XML_FILE_SP
+    reestr_sp_tk_tmpfile( oXmlDoc, aerr, cReadFile )
+  Elseif nTypeFile == _XML_FILE_RAK
+    reestr_rak_tmpfile( oXmlDoc, aerr, cReadFile )
+  Elseif nTypeFile == _XML_FILE_RPD
+    reestr_rpd_tmpfile( oXmlDoc, aerr, cReadFile )
+  Elseif eq_any( nTypeFile, _XML_FILE_R02, _XML_FILE_R12 )
+    reestr_r02_tmpfile( oXmlDoc, aerr, cReadFile )
+  Elseif nTypeFile == _XML_FILE_R06
+    reestr_r06_tmpfile( oXmlDoc, aerr, cReadFile )
+  Elseif nTypeFile == _XML_FILE_D02
+    reestr_d02_tmpfile( oXmlDoc, aerr, cReadFile )
+  Endif
+  Close databases
+  If Empty( aerr )
+    Do Case
+    Case nTypeFile == _XML_FILE_FLK
+      StrFile( hb_eol() + 'Тип файла: протокол ФЛК (форматно-логического контроля)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
+      If read_xml_file_flk( arr_XML_info, aerr )
+        // запишем принимаемый файл (протокол ФЛК)
+        // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server()+dir_XML_TF())
+        chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
+        Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
+        g_use( dir_server() + 'mo_xml', , 'MO_XML' )
+        addrecn()
+        mo_xml->KOD := RecNo()
+        mo_xml->FNAME := cReadFile
+        mo_xml->DREAD := sys_date
+        mo_xml->TREAD := hour_min( Seconds() )
+        mo_xml->TIP_IN := _XML_FILE_FLK // тип принимаемого файла;3-ФЛК
+        mo_xml->DWORK  := sys_date
+        mo_xml->TWORK1 := cTimeBegin
+        mo_xml->TWORK2 := hour_min( Seconds() )
+        mo_xml->REESTR := mkod_reestr
+        mo_xml->KOL2   := tmp1->KOL2
+      Endif
+    Case nTypeFile == _XML_FILE_SP
+      StrFile( hb_eol() + 'Тип файла: реестр СП и ТК (страховой принадлежности и технологического контроля)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
+      nCountWithErr := 0
+      If read_xml_file_sp( arr_XML_info, aerr, @nCountWithErr ) > 0
+        go_to_schet := create_schet_from_xml( arr_XML_info, aerr, , , cReadFile )
+      Elseif nCountWithErr > 0 // все пришли с ошибкой
+        g_use( dir_server() + 'mo_xml', , 'MO_XML' )
+        Goto ( mXML_REESTR )
+        g_rlock( forever )
+        mo_xml->TWORK2 := hour_min( Seconds() )
+      Endif
+    Case nTypeFile == _XML_FILE_RAK
+      StrFile( hb_eol() + 'Тип файла: РАК (реестр актов контроля)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
+      read_xml_file_rak( arr_XML_info, aerr )
+      go_to_akt := Empty( aerr )
+    Case nTypeFile == _XML_FILE_RPD
+      StrFile( hb_eol() + 'Тип файла: РПД (реестр платёжных документов)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
+      read_xml_file_rpd( arr_XML_info, aerr )
+      go_to_rpd := Empty( aerr )
+    Case nTypeFile == _XML_FILE_R02
+      StrFile( hb_eol() + 'Тип файла: PR01 (ответ на файл R01)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
+      nCountWithErr := 0
+      read_xml_file_r02( arr_XML_info, aerr, @nCountWithErr, _XML_FILE_R02 )
+      g_use( dir_server() + 'mo_xml', , 'MO_XML' )
+      Goto ( mXML_REESTR )
+      g_rlock( forever )
+      mo_xml->TWORK2 := hour_min( Seconds() )
+    Case nTypeFile == _XML_FILE_R12
+      StrFile( hb_eol() + 'Тип файла: PR11 (ответ на файл R11)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
+      nCountWithErr := 0
+      read_xml_file_r02( arr_XML_info, aerr, @nCountWithErr, _XML_FILE_R12 )
+      g_use( dir_server() + 'mo_xml', , 'MO_XML' )
+      Goto ( mXML_REESTR )
+      g_rlock( forever )
+      mo_xml->TWORK2 := hour_min( Seconds() )
+    Case nTypeFile == _XML_FILE_R06
+      StrFile( hb_eol() + 'Тип файла: PR05 (ответ на файл R05)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
+      nCountWithErr := 0
+      read_xml_file_r06( arr_XML_info, aerr, @nCountWithErr )
+      g_use( dir_server() + 'mo_xml', , 'MO_XML' )
+      Goto ( mXML_REESTR )
+      g_rlock( forever )
+      mo_xml->TWORK2 := hour_min( Seconds() )
+    Case nTypeFile == _XML_FILE_D02
+      StrFile( hb_eol() + 'Тип файла: D02 (ответ на файл D01)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
+      nCountWithErr := 0
+      read_xml_file_d02( arr_XML_info, aerr, @nCountWithErr )
+      g_use( dir_server() + 'mo_xml', , 'MO_XML' )
+      Goto ( mXML_REESTR )
+      g_rlock( forever )
+      mo_xml->TWORK2 := hour_min( Seconds() )
+    Endcase
+  Endif
+  Close databases
+  rest_box( buf )
+  If eq_any( nTypeFile, _XML_FILE_FLK, _XML_FILE_R02, _XML_FILE_R06, _XML_FILE_D02 )
+    //
+  Else
+    mo_unlock_task( X_OMS )
+  Endif
+  If Empty( aerr ) .or. nCountWithErr > 0 // запишем файл протокола обработки
+    chip_copy_zipxml( cFileProtokol, dir_server() + dir_XML_TF() )
+  Endif
+  If !Empty( aerr )
+    AEval( aerr, {| x| put_long_str( x, cFileProtokol ) } )
+  Endif
+  viewtext( devide_into_pages( cFileProtokol, 60, 80 ), , , , .t., , , 2 )
+  Delete File ( cFileProtokol )
+  If go_to_schet // если выписаны счета
+    Keyboard Chr( K_TAB ) + Chr( K_ENTER )
+  Elseif go_to_akt // если приняты акты
+    Keyboard Replicate( Chr( K_TAB ), 3 ) + Replicate( Chr( K_ENTER ), 2 )
+  Elseif go_to_rpd // если приняты платёжки
+    Keyboard Replicate( Chr( K_TAB ), 4 ) + Chr( K_ENTER )
+  Endif
+  Return Nil
 
 // 21.08.25 зачитать новый Протокол ФЛК.
 Function reestr_sp_tk_tmpfile_2025( oXmlDoc, aerr, mname_xml )

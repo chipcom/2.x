@@ -2,7 +2,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 20.08.25
+// 22.08.25
 function menu_X_oms()
 
   local fl
@@ -56,18 +56,21 @@ function menu_X_oms()
   AAdd( main_menu, ' ~2025 ' )
   AAdd( main_message, 'Ввод, печать и учет счетов в новой системе обмена' )
   AAdd( first_menu, { ;
+    '~Чтение из ТФОМС 2025', ;
     'Про~верка', ;
     '~Составление 2025 год', ;
     '~Просмотр', 0, ;
     'Во~зврат' ;
   } )
   AAdd( first_message, { ;
+    'Чтение информации из ТФОМС (из СМО) 2025', ;
     'Проверка перед составлением реестра счетов', ;
     'Составление реестра счетов за 2025 год', ;
     'Просмотр реестра счетов, отправка в ТФОМС', ;
     'Возврат реестра счетов' ;
   } )
   AAdd( func_menu, { ;
+    'read_from_tf_2025()', ;
     'verify_OMS()', ;
     'create_reestrZSL_2025()', ;
     'view_list_reestr( 2025 )', ;
@@ -111,7 +114,8 @@ function menu_X_oms()
   AAdd( cmain_menu, cmain_next_pos( 1 ) )
   AAdd( main_menu, ' ~Счета ' )
   AAdd( main_message, 'Просмотр, печать и учет счетов по ОМС' )
-  AAdd( first_menu, { '~Чтение из ТФОМС', ;
+  AAdd( first_menu, { ;
+    '~Чтение из ТФОМС', ;
     'Список ~счетов', ;
     '~Регистрация', ;
     '~Акты контроля', ;

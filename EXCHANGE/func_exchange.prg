@@ -40,10 +40,10 @@ function name_reestr_XML_2025( type, nyear, nmonth, mnn, nsh, kod_smo )
     'L' + sName }
   return aFiles
 
-// 17.12.19 проверить, нам ли предназначен данный XML-файл
+// 22.08.25 проверить, нам ли предназначен данный XML-файл
 Function is_our_xml( cName, ret_arr )
 
-  Local c, arr_err := {}, i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
+  Local arr_err := {}, i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
 
   s := cName
   If eq_any( Left( s, 3 ), 'VHR', 'VFR', 'PHR', 'PFR' ) // файл протокола ФЛК
@@ -307,6 +307,26 @@ Function is_our_xml( cName, ret_arr )
         mo_xml->( dbCloseArea() )
       Endif
     Endif
+  elseif eq_any( Left( s, 3 ), 'VHM', 'VFM' ) // файл протокола ФЛК для 2025 года
+    nTypeFile := _XML_FILE_FLK_25
+    r_use( dir_server() + 'mo_rees', , 'REES' )
+    r_use( dir_server() + 'mo_xml', , 'MO_XML' )
+    Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
+//    find ( PadR( SubStr( s, 2 ), 26 ) ) // имя то же самое, начиная со второго знака
+    mo_xml->( dbSeek( PadR( SubStr( s, 2 ), 26 ) ) ) // имя то же самое, начиная со второго знака
+    If mo_xml->( Found() ) .and. ( nReestr := mo_xml->REESTR ) > 0
+      Select REES
+      Goto ( nReestr )
+      cFrom   := glob_MO[ _MO_KOD_TFOMS ]
+      cTo     := '34'
+      _nYear  := rees->NYEAR
+      _nMonth := rees->NMONTH
+      nNN     := rees->NN
+    Else
+      AAdd( arr_err, 'Это файл ФЛК, но мы не отправляли соответствующий реестр случаев в ТФОМС!' )
+    Endif
+    rees->( dbCloseArea() )
+    mo_xml->( dbCloseArea() )
   Else
     If eq_any( Left( s, 2 ), 'HR', 'FR' ) // файл реестра СП
       s := SubStr( s, 3 )
@@ -397,7 +417,6 @@ Function is_our_xml( cName, ret_arr )
     ins_array( arr_err, 1, 'Принимаемый файл: ' + cName )
     n_message( arr_err, , 'GR+/R', 'W+/R', , , 'G+/R' )
   Endif
-
   Return ( Len( arr_err ) == 0 )
 
 // 17.06.15 если это файл с расширениием CSV - прочитать
@@ -440,10 +459,9 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
   Else
     fl := func_error( 4, 'Неизвестный файл' )
   Endif
-
   Return fl
 
-// 15.10.24 если это укрупнённый архив, распаковать и прочитать
+// 22.08.25 если это укрупнённый архив, распаковать и прочитать
 Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr) 
 
   Static cStFile, si
@@ -592,22 +610,56 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
         func_error( 4, 'Это файл для: ' + glob_arr_mo[ i, _MO_SHORT_NAME ] )
       Endif
     Endif
+  Elseif eq_any( Left( s, 3 ), 'VHM', 'VFM' ) .and. SubStr( s, 4, 6 ) == glob_MO[ _MO_KOD_TFOMS ]
+    c := SubStr( s, 2, 1 )
+    kod_csv_reestr := 0
+    tip_csv_file := 0
+    If ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2 ) ) != NIL
+      For i := 1 To Len( arr_f )
+        s := Upper( arr_f[ i ] )
+        name_ext := name_extention( s )
+        Do Case
+        Case eq_any( Left( s, 3 ), 'VHM', 'VFM' ) .and. name_ext == sxml()
+          s1 := 'протокол ФЛК ' + s
+          // проверим, читали ли уже данный файл
+          If verify_is_already_xml( name_without_ext( s ), @_date, @_time )
+            s1 += ' [прочитан в ' + _time + ' ' + date_8( _date ) + 'г.]'
+          Endif
+          AAdd( arr, { 2, s1, s, name_ext } )
+        Endcase
+      Next
+      ASort( arr, , , {| x, y| x[ 1 ] < y[ 1 ] } )
+      arr_f := {}
+      AEval( arr, {| x| AAdd( arr_f, x[ 2 ] ) } )
+//      i := iif( cStFile == cName, si, 1 )
+//      If ( i := popup_prompt( T_ROW, T_COL -5, i, arr_f ) ) > 0
+//        cStFile := cName
+//        si := i
+//        If arr[ i, 4 ] == spdf()
+//          view_file_in_viewer( _tmp2dir1() + arr[ i, 3 ] )
+//        Elseif arr[ i, 4 ] == szip()
+//          fl := .t.
+//          full_zip := _tmp2dir1() + arr[ i, 3 ] // переопределяем Private-переменную
+//        Endif
+//      Endif
+    Endif
+    fl := .t.
   Else
     fl := .t.
   Endif
-
   Return fl
 
-// проверить, занесен ли данный файл в 'MO_XML'
+// 22.08.25 проверить, занесен ли данный файл в 'MO_XML'
 Function verify_is_already_xml( cName, /*@*/_date, /*@*/_time)
 
   Local l, fl, tmp_select := Select()
 
   r_use( dir_server() + 'MO_XML', , 'MX' )
-  Index On Upper( FNAME ) to ( cur_dir() + 'tmp_mxml' )
+  Index On Upper( FIELD->FNAME ) to ( cur_dir() + 'tmp_mxml' )
   l := FieldLen( FieldNum( 'FNAME' ) )
-  find ( PadR( cName, l ) )
-  If ( fl := Found() )
+//  find ( PadR( cName, l ) )
+  mx->( dbSeek( PadR( cName, l ) ) )
+  If ( fl := mx->( Found() ) )
     If mx->tip_in > 0  // если принимаемый файл
       _date := mx->DREAD  // то вернём дату последнего чтения (обработки)
       _time := mx->TREAD
@@ -618,7 +670,6 @@ Function verify_is_already_xml( cName, /*@*/_date, /*@*/_time)
   Endif
   mx->( dbCloseArea() )
   Select ( tmp_select )
-
   Return fl
 
 // 20.10.14 зачитать CSV-файл в двумерный массив
@@ -641,17 +692,18 @@ Function read_csv_to_array( cFile_csv )
     Endif
   Enddo
   FClose( lfp )
-
   Return arr
 
 // строка даты для XML-файла
 Function date2xml( mdate )
+
   Return StrZero( Year( mdate ), 4 ) + '-' + ;
     StrZero( Month( mdate ), 2 ) + '-' + ;
     StrZero( Day( mdate ), 2 )
 
 // пребразовать дату из "2002-02-01" в тип "DATE"
 Function xml2date( s )
+
   Return SToD( CharRem( '-', s ) )
 
 // 06.03.23 проверить наличие тэга(ов) и вернуть его(их) значение(я) в массиве
@@ -672,7 +724,6 @@ Function mo_read_xml_array( _node, _title )
 
     Endif
   Next
-
   Return arr
 
 // проверить наличие в узле _node XML-файла тэга _title и вернуть его значение
@@ -694,7 +745,6 @@ Function mo_read_xml_stroke( _node, _title, _aerr, _binding )
   If oNode != NIL
     ret := mo_read_xml_tag( oNode, _aerr, _binding )
   Endif
-
   Return ret
 
 // 11.12.17 вернуть значение тэга
@@ -720,7 +770,6 @@ Function mo_read_xml_tag( oNode, _aerr, _binding )
   Elseif yes_err
     AAdd( _aerr, 'Неверный тип данных у тэга "' + oNode:title + '": "' + c + '"' )
   Endif
-
   Return ret
 
 // 22.11.13 записать в XML-файл строку (открыть тэг, записать значение, закрыть тэг)
@@ -735,5 +784,4 @@ Function mo_add_xml_stroke( oNode, sTag, sValue )
     sValue := hb_OEMToANSI( sValue )
   Endif
   oXmlNode:add( sValue )
-
   Return Nil
