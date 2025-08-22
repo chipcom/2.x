@@ -22,7 +22,7 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh )
     'L' + sName }
   return aFiles
 
-// 16.08.25 сформировать массив имен файлов реестра сведений и пациентов с 2025
+// 22.08.25 сформировать массив имен файлов реестра сведений и пациентов с 2025
 function name_reestr_XML_2025( type, nyear, nmonth, mnn, nsh, kod_smo )
   // type - тип реестра (обычный, для диспансеризации)
   // nyear - номер года
@@ -36,7 +36,7 @@ function name_reestr_XML_2025( type, nyear, nmonth, mnn, nsh, kod_smo )
 
   sName := 'M' + CODE_LPU + iif( kod_smo == '34   ', 'T34', 'S' + kod_smo ) + '_' ;
     + Right( StrZero( NYEAR, 4 ), 2 ) + StrZero( NMONTH, 2 ) + StrZero( mnn, nsh )
-  aFiles := { { 'H', 'X' }[ type ] + sName, ;
+  aFiles := { { 'H', 'F' }[ type ] + sName, ;
     'L' + sName }
   return aFiles
 
@@ -444,7 +444,7 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
   Return fl
 
 // 15.10.24 если это укрупнённый архив, распаковать и прочитать
-Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
+Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr) 
 
   Static cStFile, si
   Local fl := .f., arr := {}, arr_f, i, s := cName, s1, name_ext, _date, _time, c

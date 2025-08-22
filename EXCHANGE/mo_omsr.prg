@@ -381,7 +381,7 @@ Function f_napr_mo_lis()
   Return human_->NPR_MO
 
 
-// 20.08.25 Просмотр списка реестров, запись для ТФОМС
+// 22.08.25 Просмотр списка реестров, запись для ТФОМС
 Function view_list_reestr( ver )
 
   Local buf := SaveScreen(), tmp_help := chm_help_code
@@ -395,7 +395,7 @@ Function view_list_reestr( ver )
   if ver == 2024
     Index On DToS( FIELD->dschet ) + Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees' ) for ( substr( field->name_xml, 1, 3 ) == 'HRM' ) .or. ( substr( field->name_xml, 1, 3 ) == 'FRM' ) DESCENDING
   elseif ver == 2025
-    Index On DToS( FIELD->dschet ) + Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees' )  for ( substr( field->name_xml, 1, 2 ) == 'HM' ) .or. ( substr( field->name_xml, 1, 2 ) == 'XM' ) DESCENDING
+    Index On DToS( FIELD->dschet ) + Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees' )  for ( substr( field->name_xml, 1, 2 ) == 'HM' ) .or. ( substr( field->name_xml, 1, 2 ) == 'FM' ) DESCENDING
   endif
   Go Top
   If Eof()
@@ -784,7 +784,7 @@ Function f31_view_list_reestr( reg, s )
   viewtext( n_file,,,, .t.,,, 2 )
   Return Nil
 
-// 20.08.25 вернуть ещё не записанный на дискету реестр
+// 22.08.25 вернуть ещё не записанный на дискету реестр
 Function vozvrat_reestr( ver )
 
   Local k, buf := SaveScreen(), tmp_help := chm_help_code, mkod_reestr
@@ -800,7 +800,7 @@ Function vozvrat_reestr( ver )
   if ver == 2024
     Index On DToS( FIELD->dschet ) + Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees' ) for ( substr( field->name_xml, 1, 3 ) == 'HRM' ) .or. ( substr( field->name_xml, 1, 3 ) == 'FRM' ) DESCENDING
   elseif ver == 2025
-    Index On DToS( FIELD->dschet ) + Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees' )  for ( substr( field->name_xml, 1, 2 ) == 'HM' ) .or. ( substr( field->name_xml, 1, 2 ) == 'XM' ) DESCENDING
+    Index On DToS( FIELD->dschet ) + Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees' )  for ( substr( field->name_xml, 1, 2 ) == 'HM' ) .or. ( substr( field->name_xml, 1, 2 ) == 'FM' ) DESCENDING
   endif
   Go Top
   If Eof()
