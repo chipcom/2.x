@@ -112,8 +112,8 @@ Function read_from_tf_2025()
 Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
 
   Local nTypeFile := 0, aerr := {}, j, oXmlDoc, ;
-    nCountWithErr := 0, go_to_schet := .f., go_to_akt := .f., ;
-    go_to_rpd := .f., nerror, buf := save_maxrow()
+    nCountWithErr := 0, go_to_schet := .f., go_to_akt := .f., go_to_rpd := .f., ;
+    nerror, buf := save_maxrow()
 
   nTypeFile := arr_XML_info[ 1 ]
   For j := 1 To 4
@@ -126,7 +126,7 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
       Return Nil
     Endif
   Next
-  If eq_any( nTypeFile, _XML_FILE_FLK, _XML_FILE_R02, _XML_FILE_R12, _XML_FILE_R06, _XML_FILE_D02 )
+  If eq_any( nTypeFile, _XML_FILE_FLK, _XML_FILE_FLK_25, _XML_FILE_R02, _XML_FILE_R12, _XML_FILE_R06, _XML_FILE_D02 )
     //
   Elseif !mo_lock_task( X_OMS )
     Return .f.
@@ -137,7 +137,7 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
     mkod_reestr := 0, mXML_REESTR := 0, mdate_schet, is_err_FLK := .f.
   Private cFileProtokol := cReadFile + stxt()
   StrFile( Space( 10 ) + 'Протокол обработки файла: ' + cFile + hb_eol(), cFileProtokol )
-  StrFile( Space( 10 ) + full_date( sys_date ) + 'г. ' + cTimeBegin + hb_eol(), cFileProtokol, .t. )
+  StrFile( Space( 10 ) + full_date( Date() ) + 'г. ' + cTimeBegin + hb_eol(), cFileProtokol, .t. )
   // читаем файл в память
   oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile, , @nerror )
   If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
@@ -147,6 +147,10 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
     AAdd( aerr, 'В файле ' + cFile + ' кодировка UTF-8, а должна быть Windows-1251' )
   Elseif nTypeFile == _XML_FILE_FLK
     is_err_FLK := protokol_flk_tmpfile( arr_f, aerr )
+  Elseif nTypeFile == _XML_FILE_FLK_25
+    altd()
+    is_err_FLK := protokol_flk_tmpfile_2025( arr_f, aerr )
+
   Elseif nTypeFile == _XML_FILE_SP
     reestr_sp_tk_tmpfile( oXmlDoc, aerr, cReadFile )
   Elseif nTypeFile == _XML_FILE_RAK
@@ -167,22 +171,23 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
       StrFile( hb_eol() + 'Тип файла: протокол ФЛК (форматно-логического контроля)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
       If read_xml_file_flk( arr_XML_info, aerr )
         // запишем принимаемый файл (протокол ФЛК)
-        // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server()+dir_XML_TF())
         chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
         Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
         g_use( dir_server() + 'mo_xml', , 'MO_XML' )
         addrecn()
         mo_xml->KOD := RecNo()
         mo_xml->FNAME := cReadFile
-        mo_xml->DREAD := sys_date
+        mo_xml->DREAD := Date()
         mo_xml->TREAD := hour_min( Seconds() )
         mo_xml->TIP_IN := _XML_FILE_FLK // тип принимаемого файла;3-ФЛК
-        mo_xml->DWORK  := sys_date
+        mo_xml->DWORK  := Date()
         mo_xml->TWORK1 := cTimeBegin
         mo_xml->TWORK2 := hour_min( Seconds() )
         mo_xml->REESTR := mkod_reestr
         mo_xml->KOL2   := tmp1->KOL2
       Endif
+    Case nTypeFile == _XML_FILE_FLK_25
+
     Case nTypeFile == _XML_FILE_SP
       StrFile( hb_eol() + 'Тип файла: реестр СП и ТК (страховой принадлежности и технологического контроля)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
       nCountWithErr := 0
@@ -238,7 +243,7 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
   Endif
   Close databases
   rest_box( buf )
-  If eq_any( nTypeFile, _XML_FILE_FLK, _XML_FILE_R02, _XML_FILE_R06, _XML_FILE_D02 )
+  If eq_any( nTypeFile, _XML_FILE_FLK, _XML_FILE_FLK_25, _XML_FILE_R02, _XML_FILE_R06, _XML_FILE_D02 )
     //
   Else
     mo_unlock_task( X_OMS )
@@ -451,11 +456,7 @@ Function protokol_flk_tmpfile_2025( arr_f, aerr )
           Else
             tmp1->FNAME2 := mo_read_xml_tag( oXmlNode, aerr, .t. )
           Endif
-//        Case 'DATE_F' == oXmlNode:title
-//          tmp1->DATE_F := xml2date( mo_read_xml_stroke( oXmlNode, 'DATE_F', aerr, .f. ) )
         Case 'PR' == oXmlNode:title
-//          Select TMP2
-//          Append Blank
           dbSelectArea( 'TMP2' )
           tmp2->( dbAppend() )
           tmp2->tip := ii
