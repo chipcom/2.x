@@ -220,7 +220,7 @@ Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_r
     mo_xml->FNAME2 := aFilesName[ 2 ]
     mo_xml->DFILE  := rees->DSCHET
     mo_xml->TFILE  := hour_min( Seconds() )
-    mo_xml->TIP_OUT := _XML_FILE_REESTR // тип высылаемого файла; 1-реестр сведений
+    mo_xml->TIP_OUT := _XML_FILE_SCHET_25 // тип высылаемого файла; 7-реестр счетов новой системы обмена
     mo_xml->REESTR := mkod_reestr
 //
     rees->KOD_XML := mo_xml->KOD

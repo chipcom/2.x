@@ -40,12 +40,12 @@ function name_reestr_XML_2025( type, nyear, nmonth, mnn, nsh, kod_smo )
     'L' + sName }
   return aFiles
 
-// 22.08.25 проверить, нам ли предназначен данный XML-файл
+// 25.08.25 проверить, нам ли предназначен данный XML-файл
 Function is_our_xml( cName, ret_arr )
 
   Local arr_err := {}, i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
 
-  s := cName
+  s := Upper( cName )
   If eq_any( Left( s, 3 ), 'VHR', 'VFR', 'PHR', 'PFR' ) // файл протокола ФЛК
     nTypeFile := _XML_FILE_FLK
     r_use( dir_server() + 'mo_rees', , 'REES' )
@@ -323,7 +323,7 @@ Function is_our_xml( cName, ret_arr )
       _nMonth := rees->NMONTH
       nNN     := rees->NN
     Else
-      AAdd( arr_err, 'Это файл ФЛК, но мы не отправляли соответствующий реестр случаев в ТФОМС!' )
+      AAdd( arr_err, 'Это файл ФЛК, но мы не отправляли соответствующий реестр счетов в ТФОМС!' )
     Endif
     rees->( dbCloseArea() )
     mo_xml->( dbCloseArea() )
