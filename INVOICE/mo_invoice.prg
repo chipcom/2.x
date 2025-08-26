@@ -5,35 +5,36 @@
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
 
-// 02.04.13 Просмотр списка счетов, запись для ТФОМС, печать счетов
-Function view_list_schet()
+// 26.08.25 Просмотр списка счетов, запись для ТФОМС, печать счетов
+Function view_list_schet( ver )
 
-  Local i, k, buf := SaveScreen(), tmp_help := chm_help_code, mdate := SToD( '20130101' )
+  Local buf := SaveScreen(), mdate := SToD( '20130101' )
+//  local tmp_help := chm_help_code
 
   mywait()
-  Close databases
+  dbCloseAll()    // Close databases
   r_use( dir_server() + 'mo_rees', , 'REES' )
   g_use( dir_server() + 'mo_xml', , 'MO_XML' )
   g_use( dir_server() + 'schet_', , 'SCHET_' )
   g_use( dir_server() + 'schet', dir_server() + 'schetd', 'SCHET' )
   Set Relation To RecNo() into SCHET_
-  dbSeek( dtoc4( mdate ), .t. )
-  Index On DToS( schet_->dschet ) + fsort_schet( schet_->nschet, nomer_s ) to ( cur_dir() + 'tmp_sch' ) ;
-    For schet_->dschet >= mdate .and. !Empty( pdate ) .and. ;
+  schet->( dbSeek( dtoc4( mdate ), .t. ) )
+  Index On DToS( schet_->dschet ) + fsort_schet( schet_->nschet, FIELD->nomer_s ) to ( cur_dir() + 'tmp_sch' ) ;
+    For schet_->dschet >= mdate .and. !Empty( FIELD->pdate ) .and. ;
     ( schet_->IS_DOPLATA == 1 .or. !Empty( Val( schet_->smo ) ) ) ;
     DESCENDING
-  Go Top
-  If Eof()
+  schet->( dbGoTop() )    //Go Top
+  If schet->( Eof() )
     RestScreen( buf )
-    Close databases
+    dbCloseAll()    //  Close databases
     Return func_error( 4, 'Нет выписанных счетов c ' + date_month( mdate ) )
   Endif
-  chm_help_code := 122
+//  chm_help_code := 122
   box_shadow( MaxRow() -3, 0, MaxRow() -1, 79, color0 )
   alpha_browse( T_ROW, 0, MaxRow() -4, 79, 'f1_view_list_schet', color0, , , , , , 'f21_view_list_schet', ;
     'f2_view_list_schet', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, RB/BG, GR/BG', .t., 60 } )
-  Close databases
-  chm_help_code := tmp_help
+  dbCloseAll()    // Close databases
+//  chm_help_code := tmp_help
   RestScreen( buf )
   Return Nil
 
@@ -495,16 +496,16 @@ Function recreate_some_schet_from_file_sp( arr )
     Select SCHET
     Goto ( arr[ i ] )
     If emptyany( schet_->name_xml, schet_->kod_xml ) .or. schet_->IS_MODERN == 1
-      Return func_error( 4, "Некорректно заполнены поля счёта " + RTrim( schet_->nschet ) + ". Операция запрещена." )
+      Return func_error( 4, 'Некорректно заполнены поля счёта ' + RTrim( schet_->nschet ) + '. Операция запрещена.' )
     Endif
     If i == 1
       mXML_REESTR := schet_->XML_REESTR // ссылка на реестр СП и ТК
     Elseif mXML_REESTR != schet_->XML_REESTR
-      Return func_error( 4, "Счёт " + RTrim( schet_->nschet ) + " из другого реестра СП и ТК. Операция запрещена." )
+      Return func_error( 4, 'Счёт ' + RTrim( schet_->nschet ) + ' из другого реестра СП и ТК. Операция запрещена.' )
     Endif
     AAdd( arr_schet, { ;
       arr[ i ], ;                  // 1 - schet->(recno())
-      schet_->kod_xml, ;         // 2 - ссылка на файл "mo_xml"
+      schet_->kod_xml, ;         // 2 - ссылка на файл 'mo_xml'
       schet_->name_xml, ;        // 3 - имя XML-файла без расширения (и ZIP-архива)
       AllTrim( schet_->nschet ), ; // 4 - номер счета
     schet_->dschet ;          // 5 - дата формирования счета
@@ -513,7 +514,7 @@ Function recreate_some_schet_from_file_sp( arr )
   //
   mo_xml->( dbGoto( mXML_REESTR ) )
   If Empty( mo_xml->REESTR )
-    Return func_error( 4, "Отсутствует ссылка на первичный реестр! Операция запрещена." )
+    Return func_error( 4, 'Отсутствует ссылка на первичный реестр! Операция запрещена.' )
   Endif
   Private cReadFile := AllTrim( mo_xml->FNAME ) // имя файла реестра СП и ТК
   Private cFileProtokol := cReadFile + stxt()     // имя файла протокола чтения реестра СП и ТК
@@ -526,64 +527,64 @@ Function recreate_some_schet_from_file_sp( arr )
   Private name_reestr := AllTrim( rees->name_xml ) + szip() // имя архива файла первичного реестра
   // распаковываем первичный реестр
   If ( arr_f := extract_zip_xml( dir_server() + dir_XML_MO() + hb_ps(), name_reestr ) ) == NIL
-    Return func_error( 4, "Ошибка в распаковке архива реестра " + name_reestr )
+    Return func_error( 4, 'Ошибка в распаковке архива реестра ' + name_reestr )
   Endif
   // распаковываем реестр СП и ТК
   If ( arr_f := extract_zip_xml( dir_server() + dir_XML_TF() + hb_ps(), name_zip ) ) == NIL
-    Return func_error( 4, "Ошибка в распаковке архива реестра СП и ТК " + name_zip )
+    Return func_error( 4, 'Ошибка в распаковке архива реестра СП и ТК ' + name_zip )
   Endif
   If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( cReadFile ) } ) ) == 0
-    Return func_error( 4, "В архиве " + name_zip + " нет файла " + cReadFile + sxml() )
+    Return func_error( 4, 'В архиве ' + name_zip + ' нет файла ' + cReadFile + sxml() )
   Endif
   Close databases
 
   If mo_lock_task( X_OMS ) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
     k := Len( arr_schet )
-    s := iif( k == 1, "счёта ", lstr( k ) + " счетов " )
-    If iif( arr_schet[ 1, 5 ] > SToD( "20220224" ) .and. arr_schet[ 1, 5 ] < SToD( "20220228" ), .t., involved_password( 3, arr_schet[ 1, 4 ], "пересоздания " + s + arr_schet[ 1, 4 ] ) ) ;
-        .and. f_esc_enter( "пересоздания " + s ) // .and. m_copy_DB_from_end(.t.) // резервное копирование
+    s := iif( k == 1, 'счёта ', lstr( k ) + ' счетов ' )
+    If iif( arr_schet[ 1, 5 ] > SToD( '20220224' ) .and. arr_schet[ 1, 5 ] < SToD( '20220228' ), .t., involved_password( 3, arr_schet[ 1, 4 ], 'пересоздания ' + s + arr_schet[ 1, 4 ] ) ) ;
+        .and. f_esc_enter( 'пересоздания ' + s ) // .and. m_copy_DB_from_end(.t.) // резервное копирование
       Private fl_open := .t.
-      index_base( "schet" ) // для составления счетов
-      index_base( "human" ) // для разноски счетов
-      index_base( "human_3" ) // двойные случаи
-      Use ( dir_server() + "human_u" ) New READONLY
-      Index On Str( kod, 7 ) + date_u to ( dir_server() + "human_u" ) progress
+      index_base( 'schet' ) // для составления счетов
+      index_base( 'human' ) // для разноски счетов
+      index_base( 'human_3' ) // двойные случаи
+      Use ( dir_server() + 'human_u' ) New READONLY
+      Index On Str( kod, 7 ) + date_u to ( dir_server() + 'human_u' ) progress
       Use
-      Use ( dir_server() + "mo_hu" ) New READONLY
-      Index On Str( kod, 7 ) + date_u to ( dir_server() + "mo_hu" ) progress
+      Use ( dir_server() + 'mo_hu' ) New READONLY
+      Index On Str( kod, 7 ) + date_u to ( dir_server() + 'mo_hu' ) progress
       Use
-      index_base( "mo_refr" )  // для записи причин отказов
+      index_base( 'mo_refr' )  // для записи причин отказов
       //
       mywait()
       StrFile( hb_eol() + ;
-        Space( 10 ) + "Повторная обработка файла: " + cFile + ;
+        Space( 10 ) + 'Повторная обработка файла: ' + cFile + ;
         hb_eol(), cFileProtokol )
-      StrFile( Space( 10 ) + full_date( sys_date ) + "г. " + cTimeBegin + ;
+      StrFile( Space( 10 ) + full_date( sys_date ) + 'г. ' + cTimeBegin + ;
         hb_eol(), cFileProtokol, .t. )
-      mywait( "Производится анализ файла " + cFile )
+      mywait( 'Производится анализ файла ' + cFile )
       // читаем файл в память
       oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
       If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
-        AAdd( aerr, "Ошибка в чтении файла " + cFile )
+        AAdd( aerr, 'Ошибка в чтении файла ' + cFile )
       Else
         reestr_sp_tk_tmpfile( oXmlDoc, aerr, cReadFile )
       Endif
       If Empty( aerr )
-        r_use( dir_server() + "mo_rees",, "REES" )
+        r_use( dir_server() + 'mo_rees',, 'REES' )
         Goto ( mkod_reestr )
         If !extract_reestr( rees->( RecNo() ), rees->name_xml )
-          AAdd( aerr, Center( "Не найден ZIP-архив с РЕЕСТРом № " + lstr( mnschet ) + " от " + date_8( tmp1->_DSCHET ), 80 ) )
-          AAdd( aerr, "" )
+          AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом № ' + lstr( mnschet ) + ' от ' + date_8( tmp1->_DSCHET ), 80 ) )
+          AAdd( aerr, '' )
           AAdd( aerr, Center( dir_server() + dir_XML_MO() + hb_ps() + AllTrim( rees->name_xml ) + szip(), 80 ) )
-          AAdd( aerr, "" )
-          AAdd( aerr, Center( "Без данного архива дальнейшая работа НЕВОЗМОЖНА!", 80 ) )
+          AAdd( aerr, '' )
+          AAdd( aerr, Center( 'Без данного архива дальнейшая работа НЕВОЗМОЖНА!', 80 ) )
         Endif
       Endif
       Close databases
       If Empty( aerr )
-        dbCreate( cur_dir() + "tmpsh", { { "kod_h", "N", 7, 0 } } )
-        Use ( cur_dir() + "tmpsh" ) new
-        r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
+        dbCreate( cur_dir() + 'tmpsh', { { 'kod_h', 'N', 7, 0 } } )
+        Use ( cur_dir() + 'tmpsh' ) new
+        r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
         For i := 1 To Len( arr_schet )
           find ( Str( arr_schet[ i, 1 ], 6 ) )
           Do While human->schet == arr_schet[ i, 1 ] .and. !Eof()
@@ -595,37 +596,37 @@ Function recreate_some_schet_from_file_sp( arr )
           Enddo
         Next
         Select tmpsh
-        Index On Str( kod_h, 7 ) to ( cur_dir() + "tmpsh" )
-        r_use( dir_server() + "mo_rhum",, "RHUM" )
-        Index On Str( REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For reestr == mkod_reestr
+        Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmpsh' )
+        r_use( dir_server() + 'mo_rhum',, 'RHUM' )
+        Index On Str( REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == mkod_reestr
         // открыть распакованный реестр
-        Use ( cur_dir() + "tmp_r_t1" ) New Alias T1
-        Index On Str( Val( n_zap ), 6 ) to ( cur_dir() + "tmpt1" )
-        Use ( cur_dir() + "tmp_r_t2" ) New Alias T2
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt2" )
-        Use ( cur_dir() + "tmp_r_t3" ) New Alias T3
-        Index On Upper( ID_PAC ) to ( cur_dir() + "tmpt3" )
-        Use ( cur_dir() + "tmp_r_t4" ) New Alias T4
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt4" )
-        Use ( cur_dir() + "tmp_r_t5" ) New Alias T5
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt5" )
-        Use ( cur_dir() + "tmp_r_t6" ) New Alias T6
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt6" )
-        Use ( cur_dir() + "tmp_r_t7" ) New Alias T7
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt7" )
-        Use ( cur_dir() + "tmp_r_t8" ) New Alias T8
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt8" )
-        Use ( cur_dir() + "tmp_r_t9" ) New Alias T
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt9" )
-        Use ( cur_dir() + "tmp_r_t10" ) New Alias T10
-        Index On IDCASE + Str( sluch, 6 ) + regnum + code_sh + date_inj to ( cur_dir() + "tmpt10" )
-        Use ( cur_dir() + "tmp_r_t11" ) New Alias T11
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt11" )
-        Use ( cur_dir() + "tmp_r_t12" ) New Alias T12
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt12" )
-        Use ( cur_dir() + "tmp_r_t1_1" ) New Alias T1_1
-        Index On IDCASE to ( cur_dir() + "tmpt1_1" )
-        Use ( cur_dir() + "tmp2file" ) New Alias TMP2
+        Use ( cur_dir() + 'tmp_r_t1' ) New Alias T1
+        Index On Str( Val( n_zap ), 6 ) to ( cur_dir() + 'tmpt1' )
+        Use ( cur_dir() + 'tmp_r_t2' ) New Alias T2
+        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt2' )
+        Use ( cur_dir() + 'tmp_r_t3' ) New Alias T3
+        Index On Upper( ID_PAC ) to ( cur_dir() + 'tmpt3' )
+        Use ( cur_dir() + 'tmp_r_t4' ) New Alias T4
+        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt4' )
+        Use ( cur_dir() + 'tmp_r_t5' ) New Alias T5
+        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt5' )
+        Use ( cur_dir() + 'tmp_r_t6' ) New Alias T6
+        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt6' )
+        Use ( cur_dir() + 'tmp_r_t7' ) New Alias T7
+        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt7' )
+        Use ( cur_dir() + 'tmp_r_t8' ) New Alias T8
+        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt8' )
+        Use ( cur_dir() + 'tmp_r_t9' ) New Alias T
+        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt9' )
+        Use ( cur_dir() + 'tmp_r_t10' ) New Alias T10
+        Index On IDCASE + Str( sluch, 6 ) + regnum + code_sh + date_inj to ( cur_dir() + 'tmpt10' )
+        Use ( cur_dir() + 'tmp_r_t11' ) New Alias T11
+        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt11' )
+        Use ( cur_dir() + 'tmp_r_t12' ) New Alias T12
+        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt12' )
+        Use ( cur_dir() + 'tmp_r_t1_1' ) New Alias T1_1
+        Index On IDCASE to ( cur_dir() + 'tmpt1_1' )
+        Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
         is_new_err := .f.  // ушли ли какие-либо случаи в ошибки (т.е. новые ошибки)
         Go Top
         Do While !Eof()
@@ -654,8 +655,8 @@ Function recreate_some_schet_from_file_sp( arr )
               Endif
             Endif
           Else
-            AAdd( aerr, "" )
-            AAdd( aerr, " - не найден пациент с номером записи " + lstr( tmp2->_N_ZAP ) )
+            AAdd( aerr, '' )
+            AAdd( aerr, ' - не найден пациент с номером записи ' + lstr( tmp2->_N_ZAP ) )
           Endif
           Select TMP2
           Skip
@@ -667,17 +668,17 @@ Function recreate_some_schet_from_file_sp( arr )
       Close databases
       If Empty( aerr ) .and. is_new_err
         r_use( dir_server() + 'mo_otd',, 'OTD' )
-        g_use( dir_server() + "human_",, "HUMAN_" )
-        g_use( dir_server() + "human", { dir_server() + "humann", dir_server() + "humans" }, "HUMAN" )
+        g_use( dir_server() + 'human_',, 'HUMAN_' )
+        g_use( dir_server() + 'human', { dir_server() + 'humann', dir_server() + 'humans' }, 'HUMAN' )
         Set Order To 0 // индексы открыты для реконструкции при перезаписи ФИО
         Set Relation To RecNo() into HUMAN_, To otd into OTD
-        g_use( dir_server() + "human_3", { dir_server() + "human_3", dir_server() + "human_32" }, "HUMAN_3" )
-        g_use( dir_server() + "mo_rhum",, "RHUM" )
-        Index On Str( REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For reestr == mkod_reestr
-        g_use( dir_server() + "mo_refr", dir_server() + "mo_refr", "REFR" )
-        Use ( cur_dir() + "tmp3file" ) New Alias TMP3
-        Index On Str( _n_zap, 8 ) to ( cur_dir() + "tmp3" )
-        Use ( cur_dir() + "tmp2file" ) New Alias TMP2
+        g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+        g_use( dir_server() + 'mo_rhum',, 'RHUM' )
+        Index On Str( REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == mkod_reestr
+        g_use( dir_server() + 'mo_refr', dir_server() + 'mo_refr', 'REFR' )
+        Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
+        Index On Str( _n_zap, 8 ) to ( cur_dir() + 'tmp3' )
+        Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
         Go Top
         Do While !Eof()
           If tmp2->_OPLATA > 1 // удаляем из счёта, удаляем из реестра, оформляем ошибку
@@ -754,14 +755,14 @@ Function recreate_some_schet_from_file_sp( arr )
             Endif
             human_->schet_zap := 0
             //
-            lal := "human"
+            lal := 'human'
             If is_2 > 0
-              lal += "_3"
+              lal += '_3'
             Endif
-            StrFile( "!!! " + AllTrim( human->fio ) + ", " + full_date( human->date_r ) + ;
-              iif( Empty( otd->SHORT_NAME ), "", " [" + AllTrim( otd->SHORT_NAME ) + "]" ) + ;
-              " " + AllTrim( human->KOD_DIAG ) + ;
-              " " + date_8( &lal.->n_data ) + "-" + date_8( &lal.->k_data ) + ;
+            StrFile( '!!! ' + AllTrim( human->fio ) + ', ' + full_date( human->date_r ) + ;
+              iif( Empty( otd->SHORT_NAME ), '', ' [' + AllTrim( otd->SHORT_NAME ) + ']' ) + ;
+              ' ' + AllTrim( human->KOD_DIAG ) + ;
+              ' ' + date_8( &lal.->n_data ) + '-' + date_8( &lal.->k_data ) + ;
               hb_eol(), cFileProtokol, .t. )
             Select REFR
             Do While .t.
@@ -788,7 +789,7 @@ Function recreate_some_schet_from_file_sp( arr )
               Else
                 s := 'код ошибки = ' + tmp3->SREFREASON + ' '
                 s += '"' + getcategorycheckerrorbyid_q017( Left( tmp3->SREFREASON, 4 ) )[ 2 ] + '" '
-                // s += alltrim(inieditspr(A__POPUPMENU, dir_exe() + "_mo_Q015", tmp3->SREFREASON))
+                // s += alltrim(inieditspr(A__POPUPMENU, dir_exe() + '_mo_Q015', tmp3->SREFREASON))
                 s += AllTrim( inieditspr( A__MENUVERT, loadq015(), tmp3->SREFREASON ) )
               Endif
               k := perenos( t_arr, s, 75 )
@@ -819,13 +820,13 @@ Function recreate_some_schet_from_file_sp( arr )
         go_to_schet := create_schet_from_xml( arr_XML_info, aerr,, arr_f, cReadFile )
         Close databases
         If Empty( aerr ) // если нет ошибок
-          use_base( "schet" )
+          use_base( 'schet' )
           Set Relation To
-          g_use( dir_server() + "mo_xml",, "MO_XML" )
+          g_use( dir_server() + 'mo_xml',, 'MO_XML' )
           // удалим старые счета
           For i := 1 To Len( arr_schet )
             StrFile( hb_eol() + ;
-              "удалён старый счёт № " + arr_schet[ i, 4 ] + " от " + full_date( arr_schet[ i, 5 ] ) + ;
+              'удалён старый счёт № ' + arr_schet[ i, 4 ] + ' от ' + full_date( arr_schet[ i, 5 ] ) + ;
               hb_eol(), cFileProtokol, .t. )
             Select SCHET_
             Goto ( arr_schet[ i, 1 ] )
@@ -856,12 +857,12 @@ Function recreate_some_schet_from_file_sp( arr )
     // разрешение доступа всем
     // G_SUnLock(sem_vagno)
     mo_unlock_task( X_OMS )
-    Keyboard ""
+    Keyboard ''
     If go_to_schet // если выписаны счета
       Keyboard Chr( K_ENTER )
     Endif
   Else
-    func_error( 4, "В данный момент работают другие задачи. Операция запрещена!" )
+    func_error( 4, 'В данный момент работают другие задачи. Операция запрещена!' )
   Endif
   Return Nil
 

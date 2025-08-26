@@ -113,7 +113,7 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
 
   Local nTypeFile := 0, aerr := {}, j, oXmlDoc, ;
     nCountWithErr := 0, go_to_schet := .f., go_to_akt := .f., go_to_rpd := .f., ;
-    nerror, buf := save_maxrow()
+    nerror, buf := save_maxrow(), mkod
   Local is_err_FLK_25 := .f.
 
   nTypeFile := arr_XML_info[ 1 ]
@@ -210,6 +210,47 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
         mo_xml->KOL2   := tmp1->KOL2
       Endif
 
+      if ! is_err_FLK_25  // ошибок ФЛК нет
+        hb_Alert( 'All is ok' )
+        r_use( dir_server() + 'mo_rees', , 'REES' )
+        rees->( dbGoto( arr_XML_info[ 7 ] ) )
+
+        use_base( 'schet' )
+        Set Relation To
+
+        addrec( 6 )
+        mkod := schet->( RecNo() )
+        schet->KOD := mkod
+//        schet->NOMER_S := mn_schet
+        schet->PDATE := dtoc4( rees->DSCHET )
+        schet->KOL   := rees->KOL
+        schet->SUMMA := rees->SUMMA
+//        schet->KOL_OST   := arr_schet[ ii, 3 ]
+//        schet->SUMMA_OST := arr_schet[ ii, 4 ]
+        //
+        Select SCHET_
+        Do While schet_->( LastRec() ) < mkod
+          schet_->( dbAppend() )    // Append Blank
+        Enddo
+        schet_->( dbGoto( mkod ) )
+        g_rlock( forever )
+        schet_->IFIN       := 1 // источник финансирования;1-ТФОМС(СМО)
+        schet_->IS_MODERN  := 0 // является модернизацией, 0-нет
+        schet_->IS_DOPLATA := 0 // является доплатой;0-нет
+//        schet_->BUKVA      := arr_schet[ ii, 2 ]
+//        schet_->NSCHET     := mn_schet
+        schet_->DSCHET     := rees->DSCHET
+//        schet_->SMO        := sKodSMO
+        schet_->NYEAR      := rees->NYEAR
+        schet_->NMONTH     := rees->NMONTH
+//        schet_->NN         := mnn
+        schet_->NAME_XML   := rees->NAME_XML
+        schet_->XML_REESTR := mo_xml->KOD
+//        schet_->NREGISTR   := 1 // ещё не зарегистрирован
+        schet_->CODE := ret_unique_code( mkod, 12 )
+
+altd()
+      endif
     Case nTypeFile == _XML_FILE_SP
       StrFile( hb_eol() + 'Тип файла: реестр СП и ТК (страховой принадлежности и технологического контроля)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
       nCountWithErr := 0
