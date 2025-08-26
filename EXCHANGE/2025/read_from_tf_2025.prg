@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.08.25 читать файлы из ТФОМС (или СМО)
+// 26.08.25 читать файлы из ТФОМС (или СМО)
 Function read_from_tf_2025()
 
   Local name_zip, cName
@@ -75,7 +75,7 @@ Function read_from_tf_2025()
       Case arr_XML_info[ 1 ] == _XML_FILE_D02
         s += 'файла ответа на D01'
       Case arr_XML_info[ 1 ] == _XML_FILE_FLK_25
-        s += 'протокола ФЛК для нового обмена'
+        s += 'протокола ФЛК 2025'
       Endcase
       buf := SaveScreen()
       f_message( { 'Системная дата: ' + date_month( Date(), .t. ), ;
@@ -114,6 +114,7 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
   Local nTypeFile := 0, aerr := {}, j, oXmlDoc, ;
     nCountWithErr := 0, go_to_schet := .f., go_to_akt := .f., go_to_rpd := .f., ;
     nerror, buf := save_maxrow()
+  Local is_err_FLK_25 := .f.
 
   nTypeFile := arr_XML_info[ 1 ]
   For j := 1 To 4
@@ -136,6 +137,7 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
     cTimeBegin := hour_min( Seconds() ), ;
     mkod_reestr := 0, mXML_REESTR := 0, mdate_schet, is_err_FLK := .f.
   Private cFileProtokol := cReadFile + stxt()
+
   StrFile( Space( 10 ) + 'Протокол обработки файла: ' + cFile + hb_eol(), cFileProtokol )
   StrFile( Space( 10 ) + full_date( Date() ) + 'г. ' + cTimeBegin + hb_eol(), cFileProtokol, .t. )
   // читаем файл в память
@@ -149,7 +151,7 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
     is_err_FLK := protokol_flk_tmpfile( arr_f, aerr )
   Elseif nTypeFile == _XML_FILE_FLK_25
 
-    is_err_FLK := protokol_flk_tmpfile_25( arr_f, aerr )
+    is_err_FLK_25 := protokol_flk_tmpfile_25( arr_f, aerr )
 
   Elseif nTypeFile == _XML_FILE_SP
     reestr_sp_tk_tmpfile( oXmlDoc, aerr, cReadFile )
@@ -190,7 +192,7 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
     Case nTypeFile == _XML_FILE_FLK_25
 
       StrFile( hb_eol() + 'Тип файла: протокол ФЛК (форматно-логического контроля) нового образца' + hb_eol() + hb_eol(), cFileProtokol, .t. )
-      If read_xml_file_flk_25( arr_XML_info, aerr )
+      If read_xml_file_flk_25( arr_XML_info, aerr, is_err_FLK_25 )
         // запишем принимаемый файл (протокол ФЛК)
         chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
         Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
@@ -435,29 +437,26 @@ Function protokol_flk_tmpfile_25( arr_f, aerr )
   }
 //  { 'DATE_F', 'D',  8, 0 }, ;
   dbCreate( cur_dir() + 'tmp1file', adbf, , .t., 'TMP1' )
-//  Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
-//  Append Blank
   tmp1->( dbAppend() )
 
   adbf := { ; // элементы PR
-  { 'TIP',        'N',   1, 0 }, ;  // тип(номер) обрабатываемого файла
-  { 'OSHIB',      'N',   3, 0 }, ;  // код ошибки T005
-  { 'SOSHIB',     'C',  12, 0 }, ;  // код ошибки Q015, Q022
-  { 'IM_POL',     'C',  20, 0 }, ;  // имя поля, в котором ошибка
-  { 'ZN_POL',     'C', 100, 0 }, ;  // Значение поля, вызвавшее ошибку. Не заполняется, если ошибка относится к файлу в целом
-  { 'NSCHET',     'C',  15, 0 }, ;  // Номер счета, в котором обнаружена ошибка
-  { 'BAS_EL',     'C',  20, 0 }, ;  // имя базового элемента
-  { 'N_ZAP',      'C',  36, 0 }, ;  // Номер записи, в одном из полей которой обнаружена ошибка
-  { 'ID_PAC',     'C',  36, 0 }, ;  // Код записи о пациенте, в которой обнаружена ошибка. Не заполняется только в том случае, если ошибка относится к файлу в целом.
-  { 'IDCASE',     'N',  11, 0 }, ;  // Номер законченного случая, в котором обнаружена ошибка(указывается, если ошибка обнаружена внутри тега ?Z_SL?, в том числе во входящих в него элементах ?SL? и услугах)
-  { 'SL_ID',      'C',  36, 0 }, ;  // Идентификатор случая, в котором обнаружена ошибка (указывается, если ошибка обнаружена внутри тега ?SL?, в том числе во входящих в него услугах)
-  { 'IDSERV',     'C',  36, 0 }, ;  // Номер услуги, в которой обнаружена ошибка (указывается, если ошибка обнаруживается внутри тега ?USL?)
-  { 'COMMENT',    'C', 250, 0 }, ;  // описание ошибки
-  { 'N_ZAP',      'N',   6, 0 }, ;  // поле из первичного реестра
-  { 'KOD_HUMAN',  'N',   7, 0 };   // код по БД листов учёта
+    { 'TIP',        'N',   1, 0 }, ;  // тип(номер) обрабатываемого файла
+    { 'OSHIB',      'N',   3, 0 }, ;  // код ошибки T005
+    { 'SOSHIB',     'C',  12, 0 }, ;  // код ошибки Q015, Q022
+    { 'IM_POL',     'C',  20, 0 }, ;  // имя поля, в котором ошибка
+    { 'ZN_POL',     'C', 100, 0 }, ;  // Значение поля, вызвавшее ошибку. Не заполняется, если ошибка относится к файлу в целом
+    { 'NSCHET',     'C',  15, 0 }, ;  // Номер счета, в котором обнаружена ошибка
+    { 'BAS_EL',     'C',  20, 0 }, ;  // имя базового элемента
+    { 'N_ZAP',      'C',  36, 0 }, ;  // Номер записи, в одном из полей которой обнаружена ошибка
+    { 'ID_PAC',     'C',  36, 0 }, ;  // Код записи о пациенте, в которой обнаружена ошибка. Не заполняется только в том случае, если ошибка относится к файлу в целом.
+    { 'IDCASE',     'N',  11, 0 }, ;  // Номер законченного случая, в котором обнаружена ошибка(указывается, если ошибка обнаружена внутри тега ?Z_SL?, в том числе во входящих в него элементах ?SL? и услугах)
+    { 'SL_ID',      'C',  36, 0 }, ;  // Идентификатор случая, в котором обнаружена ошибка (указывается, если ошибка обнаружена внутри тега ?SL?, в том числе во входящих в него услугах)
+    { 'IDSERV',     'C',  36, 0 }, ;  // Номер услуги, в которой обнаружена ошибка (указывается, если ошибка обнаруживается внутри тега ?USL?)
+    { 'COMMENT',    'C', 250, 0 }, ;  // описание ошибки
+    { 'N_ZAP',      'N',   6, 0 }, ;  // поле из первичного реестра
+    { 'KOD_HUMAN',  'N',   7, 0 };   // код по БД листов учёта
   }
   dbCreate( cur_dir() + 'tmp2file', adbf, , .t., 'TMP2' ) // элементы PR
-//  Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
 
   dbCreate( cur_dir() + 'tmp22fil', adbf ) // доп.файл, если по одному пациенту > 1 листа учёта
 
@@ -506,8 +505,8 @@ Function protokol_flk_tmpfile_25( arr_f, aerr )
   dbCommitAll()
   Return is_err_FLK
 
-// 25.08.25 прочитать реестр ФЛК
-Function read_xml_file_flk_25( arr_XML_info, aerr )
+// 26.08.25 прочитать реестр ФЛК
+Function read_xml_file_flk_25( arr_XML_info, aerr, is_err_FLK_25 )
 
   Local ii, pole, i, k, t_arr[ 2 ]
   Local mkod_reestr, s
@@ -516,7 +515,7 @@ Function read_xml_file_flk_25( arr_XML_info, aerr )
   Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
   r_use( dir_server() + 'mo_rees', , 'REES' )
   rees->( dbGoto( arr_XML_info[ 7 ] ) )
-  StrFile( 'Обрабатывается ответ ТФОМС на реестр счетов № ' + ;
+  StrFile( 'Обрабатывается ответ ТФОМС на реестр счета № ' + ;
     lstr( rees->NSCHET ) + ' от ' + full_date( rees->DSCHET ) + 'г. (' + lstr( rees->KOL ) + ' чел.)' + ;
     hb_eol(), cFileProtokol, .t. )
   If ! emptyany( rees->nyear, rees->nmonth )
@@ -525,7 +524,7 @@ Function read_xml_file_flk_25( arr_XML_info, aerr )
   Endif
   Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
   Index On Str( FIELD->tip, 1 ) + Str( FIELD->oshib, 3 ) + FIELD->soshib to ( cur_dir() + 'tmp2' )
-  If is_err_FLK
+  If is_err_FLK_25
     If !extract_reestr( rees->( RecNo() ), rees->name_xml )
       AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом СЧЕТОВ № ' + lstr( rees->nschet ) + ' от ' + date_8( rees->DSCHET ), 80 ) )
       AAdd( aerr, '' )
@@ -548,9 +547,10 @@ Function read_xml_file_flk_25( arr_XML_info, aerr )
     // заполнить поле 'N_ZAP' в файле 'tmp2'
     fill_tmp2_file_flk_25()
     r_use( dir_server() + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
     g_use( dir_server() + 'human_', , 'HUMAN_' )
     g_use( dir_server() + 'human', , 'HUMAN' )
-    Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
+    Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_3, To FIELD->otd into OTD
     g_use( dir_server() + 'mo_rhum', , 'RHUM' )
     Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
     dbSelectArea( 'TMP2' ) // сначала проверка
@@ -580,7 +580,6 @@ Function read_xml_file_flk_25( arr_XML_info, aerr )
       Return .f.
     Endif
   Endif
-altd()
 
   For ii := 1 To 2
     pole := 'tmp1->fname' + lstr( ii )
@@ -618,25 +617,40 @@ altd()
           Else
             dbSelectArea( 'RHUM' )
             rhum->( dbSeek( Str( tmp2->N_ZAP, 6 ) ) )
-            g_rlock( forever )
-            rhum->OPLATA := 2
-            tmp2->kod_human := rhum->KOD_HUM
-            dbSelectArea( 'HUMAN' )
-            human->( dbGoto( rhum->KOD_HUM ) )
-            If human_->REESTR == mkod_reestr
+            If rhum->( Found() )
               g_rlock( forever )
-              human_->( g_rlock( forever ) )
-              human_->OPLATA := 2
-              human_->REESTR := 0 // направляется на дальнейшее редактирование
-              human_->ST_VERIFY := 0 // снова ещё не проверен
-              If human_->REES_NUM > 0
-                human_->REES_NUM := human_->REES_NUM - 1
+              rhum->OPLATA := 2
+              tmp2->kod_human := rhum->KOD_HUM
+              dbSelectArea( 'HUMAN' )
+              human->( dbGoto( rhum->KOD_HUM ) )
+//              If human->ishod == 89 // это 2-ой случай в двойном случае
+//                dbSelectArea( 'HUMAN_3' )
+////                Set Order To 2
+//                  human_3->( ordSetFocus( 2 ) )
+//                human_3->( dbSeek( Str( rhum->KOD_HUM, 7 ) ) )
+//                If human_3->( Found() )
+//                  human->( dbGoto( human_3->kod ) )    // т.к. GUID'ы в реестре из 1-го случая
+//                  human_->( dbGoto( human_3->kod ) )   // встать на 1-ый случай
+//                Endif
+//              Endif
+
+              If human_->REESTR == mkod_reestr
+                g_rlock( forever )
+                human_->( g_rlock( forever ) )
+                human_->OPLATA := 2
+                human_->REESTR := 0 // направляется на дальнейшее редактирование
+                human_->ST_VERIFY := 0 // снова ещё не проверен
+                If human_->REES_NUM > 0
+                  human_->REES_NUM := human_->REES_NUM - 1
+                Endif
+                human->( dbUnlock() )
+                s += ', ' + AllTrim( human->fio ) + ', ' + full_date( human->date_r ) + ;
+                  iif( Empty( otd->SHORT_NAME ), '', ' [' + AllTrim( otd->SHORT_NAME ) + ']' ) + ;
+                  ' ' + date_8( human->n_data ) + '-' + date_8( human->k_data )
               Endif
-              human->( dbUnlock() )
-              s += ', ' + AllTrim( human->fio ) + ', ' + full_date( human->date_r ) + ;
-                iif( Empty( otd->SHORT_NAME ), '', ' [' + AllTrim( otd->SHORT_NAME ) + ']' ) + ;
-                ' ' + date_8( human->n_data ) + '-' + date_8( human->k_data )
-            Endif
+            else
+              s := 'Не найден случай с N_ZAP=' + lstr( tmp2->_N_ZAP ) + ', _ID_PAC=' + tmp2->_ID_PAC
+            endif
           Endif
         Endif
         k := perenos( t_arr, s, 75 )
