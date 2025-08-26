@@ -84,7 +84,7 @@ Function fr_nastrojka( k )
   Endif
   Return Nil
 
-// 28.12.21
+// 24.08.25
 Function f5_sist_fr( k )
 
   Static mm_da_net := { { "да ", 1 }, { "нет", 2 } }
@@ -102,12 +102,13 @@ Function f5_sist_fr( k )
       MEK_KASSIR := Space( 20 ), ;
       mek_chek   := 1, ;
       mek_bnbank := 2, ;
-      mek_kod_usl := 1
+      mek_kod_usl := 1 , ;
+      mek_sbp := 2  
 
     If File( "_kassa_.mem" )
       Restore From _kassa_ Additive
     Else
-      Save All Like meK_ * To _kassa_
+      Save All Like mek_* To _kassa_
     Endif
     // ////
     // контроль
@@ -138,7 +139,8 @@ Function f5_sist_fr( k )
       mkassir := mek_kassir, ;
       mmek_chek := m1mek_chek := mek_chek, ;
       mmeK_bnbank, m1meK_bnbank := meK_bnbank, ;
-      mmek_kod_usl, m1mek_kod_usl := mek_kod_usl
+      mmek_kod_usl, m1mek_kod_usl := mek_kod_usl, ;
+      mmek_sbp,  m1mek_sbp := mek_sbp  
 
     mmeK_bank   := inieditspr( A__MENUVERT, mm_da_net, m1meK_bank )
     mmeK_bnbank   := inieditspr( A__MENUVERT, mm_da_net, m1meK_bnbank )
@@ -146,6 +148,7 @@ Function f5_sist_fr( k )
     mmek_pr_fio := inieditspr( A__MENUVERT, mm_da_net, m1mek_pr_fio )
     mmek_chek   := inieditspr( A__MENUVERT, mm_chek, m1mek_chek )
     mmek_kod_usl := inieditspr( A__MENUVERT, mm_da_net, m1mek_kod_usl )
+    mmek_sbp := inieditspr( A__MENUVERT, mm_da_net, m1mek_sbp )
 
     SetColor( cDataCGet )
     ix := 3
@@ -153,6 +156,8 @@ Function f5_sist_fr( k )
     If hb_user_curUser:isadmin()
       @ ++ix, 3 Say "Номером документа считать " Get mmek_chek ;
         reader {| x| menu_reader( x, mm_chek, A__MENUVERT,,, .f. ) }
+      @ ++ix, 3 Say "Выделять отдельно Переводы СБП " Get mmek_sbp ;
+        reader {| x| menu_reader( x, mm_da_net, A__MENUVERT,,, .f. ) }
       @ ++ix, 3 Say "Вызов драйвера ..." Get mnkassa ;
         reader {| x| menu_reader( x, { {|| fr_draiver() } }, A__FUNCTION,,, .f. ) }
     Endif
@@ -178,7 +183,7 @@ Function f5_sist_fr( k )
       Return Nil
     Endif
     If f_esc_enter( 1 )
-      meK_ostato := mostatok
+      mek_ostato := mostatok
       mek_kassir := mkassir
       If hb_user_curUser:isadmin()
         mek_bank    := m1mek_bank
@@ -187,8 +192,9 @@ Function f5_sist_fr( k )
         mek_pr_fio  := m1mek_pr_fio
         mek_chek    := m1mek_chek
         mek_kod_usl := m1mek_kod_usl
+        mek_sbp     := m1mek_sbp
       Endif
-      Save All Like meK_ * To _kassa_
+      Save All Like mek_* To _kassa_
     Endif
     rest_box( buf )
   Endif
@@ -623,7 +629,7 @@ Static Function f_err_annul( s1 )
   n_message( ar2,, "GR+/R", "GR+/R",,, "BG+/R" )
   Return Nil
 
-// 03.06.19
+// 24.08.25
 Function yes_chek( /*@*/vsum, /*@*/vsd, /*@*/vbank, rm, /*@*/address, /*@*/tip_kart )
 
   Static spict := "9999999.99"
@@ -633,6 +639,9 @@ Function yes_chek( /*@*/vsum, /*@*/vsd, /*@*/vbank, rm, /*@*/address, /*@*/tip_k
     { "БАНКОВСКИЙ ПЕРЕВОД", 4 } }
   Local j, fl := .f., tmp_color, buf, buf24, a[ 3 ], r := 16
 
+  if mek_sbp == 1
+    aadd(tip_bank_kart,  { "СБП", 5 })
+  endif  
   //
   If  mek_bnbank == 2
     ASize( tip_bank_kart, 3 )
@@ -966,7 +975,7 @@ Function vozvrat_fr( value, bn_value, /*@*/cur_chek, sekcia, tip_banka )
   Local fl := .t.,  buf := save_maxrow(), tmp_color := SetColor( color1 ), ;
     s_err := "", s, last_chek, fl_err_annul := .f., summa_kassa := 0, ;
     sm_b1 := sm_b2 := smb3 := 0, r1 := 12, r2 := 20, ;
-    mas_oplat := { "МИР", "VISA", "MasterCard", "Перевод" }
+    mas_oplat := { "МИР", "VISA", "MasterCard", "Перевод", "СБП" }
 
   // запрашиваем наличие наличности в кассе
   If ValType( summa_kassa := ( frch_d_registr( 193 ) ) ) != "N"
@@ -1411,7 +1420,7 @@ Function frchf_registr( cena, kol_vo, sekcia, name, t_nds, Tip_operation, tip_to
   Endif
   Return Nil
 
-// 10.09.18  Закрытие чека
+// 24.08.25  Закрытие чека
 Function frch_close( summa, summa1, name, t_nds, tip_kart )
 /*  summa  - сумма наличных
     summa1 - по кредитной карте
@@ -1454,7 +1463,7 @@ Function frch_close( summa, summa1, name, t_nds, tip_kart )
   drvFR:Summ1 := summa
   If tip_kart == 0 // старые кассы
     drvFR:Summ4 := summa1
-  Elseif tip_kart == 1 // МИР
+  Elseif tip_kart == 1 .or. tip_kart == 5 // МИР или оплата СБП
     drvFR:Summ2 := summa1
   Elseif tip_kart == 2 // VISA
     drvFR:Summ3 := summa1
