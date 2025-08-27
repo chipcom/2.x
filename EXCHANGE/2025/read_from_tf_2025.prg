@@ -206,17 +206,16 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
         mo_xml->DWORK  := Date()
         mo_xml->TWORK1 := cTimeBegin
         mo_xml->TWORK2 := hour_min( Seconds() )
-        mo_xml->REESTR := mkod_reestr
+        mo_xml->REESTR := arr_XML_info[ 7 ]   // mkod_reestr
         mo_xml->KOL2   := tmp1->KOL2
       Endif
 
-      if ! is_err_FLK_25  // ошибок ФЛК нет
+      if is_err_FLK_25  // ошибки ФЛК 25 есть
+      else  // ошибок ФЛК нет
         r_use( dir_server() + 'mo_rees', , 'REES' )
         rees->( dbGoto( arr_XML_info[ 7 ] ) )
-
         use_base( 'schet' )
         Set Relation To
-
         addrec( 6 )
         mkod := schet->( RecNo() )
         schet->KOD := mkod
@@ -236,11 +235,10 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
         schet_->IFIN       := 1 // источник финансирования;1-ТФОМС(СМО)
         schet_->IS_MODERN  := 0 // является модернизацией, 0-нет
         schet_->IS_DOPLATA := 0 // является доплатой;0-нет
-//        schet_->BUKVA      := SubStr( rees->NOMER_S, Len( rees->NOMER_S ) - 1, 1 )  //arr_schet[ ii, 2 ]
         schet_->BUKVA      := rees->BUKVA
         schet_->NSCHET     := rees->NOMER_S
         schet_->DSCHET     := rees->DSCHET
-//        schet_->SMO        := sKodSMO
+        schet_->SMO        := hb_ATokens( rees->NOMER_S, '-' )[ 1 ]   // код СМО из имени счета
         schet_->NYEAR      := rees->NYEAR
         schet_->NMONTH     := rees->NMONTH
 //        schet_->NN         := mnn
@@ -248,8 +246,7 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
         schet_->XML_REESTR := mo_xml->KOD
         schet_->NREGISTR   := 0 // зарегистрирован
         schet_->CODE := ret_unique_code( mkod, 12 )
-
-altd()
+        schet_->KOD_XML := mo_xml->KOD
       endif
     Case nTypeFile == _XML_FILE_SP
       StrFile( hb_eol() + 'Тип файла: реестр СП и ТК (страховой принадлежности и технологического контроля)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
