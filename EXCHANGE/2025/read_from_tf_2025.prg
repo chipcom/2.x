@@ -211,7 +211,6 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
       Endif
 
       if ! is_err_FLK_25  // ошибок ФЛК нет
-        hb_Alert( 'All is ok' )
         r_use( dir_server() + 'mo_rees', , 'REES' )
         rees->( dbGoto( arr_XML_info[ 7 ] ) )
 
@@ -221,7 +220,7 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
         addrec( 6 )
         mkod := schet->( RecNo() )
         schet->KOD := mkod
-//        schet->NOMER_S := mn_schet
+        schet->NOMER_S := rees->NOMER_S
         schet->PDATE := dtoc4( rees->DSCHET )
         schet->KOL   := rees->KOL
         schet->SUMMA := rees->SUMMA
@@ -237,8 +236,9 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
         schet_->IFIN       := 1 // источник финансирования;1-ТФОМС(СМО)
         schet_->IS_MODERN  := 0 // является модернизацией, 0-нет
         schet_->IS_DOPLATA := 0 // является доплатой;0-нет
-//        schet_->BUKVA      := arr_schet[ ii, 2 ]
-//        schet_->NSCHET     := mn_schet
+//        schet_->BUKVA      := SubStr( rees->NOMER_S, Len( rees->NOMER_S ) - 1, 1 )  //arr_schet[ ii, 2 ]
+        schet_->BUKVA      := rees->BUKVA
+        schet_->NSCHET     := rees->NOMER_S
         schet_->DSCHET     := rees->DSCHET
 //        schet_->SMO        := sKodSMO
         schet_->NYEAR      := rees->NYEAR
@@ -246,7 +246,7 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
 //        schet_->NN         := mnn
         schet_->NAME_XML   := rees->NAME_XML
         schet_->XML_REESTR := mo_xml->KOD
-//        schet_->NREGISTR   := 1 // ещё не зарегистрирован
+        schet_->NREGISTR   := 0 // зарегистрирован
         schet_->CODE := ret_unique_code( mkod, 12 )
 
 altd()

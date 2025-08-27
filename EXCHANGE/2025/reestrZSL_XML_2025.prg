@@ -224,15 +224,16 @@ Function create2reestr_2025( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_r
     mo_xml->REESTR := mkod_reestr
 //
     rees->KOD_XML := mo_xml->KOD
+    // изменить
+//    cNschet := kod_smo + '-' + '782' + '-1' + cBukva
+    cNschet := kod_smo + '-' + AllTrim( Str( mnschet ) ) + '-1' + cBukva
+    rees->NOMER_S := cNschet
+    rees->BUKVA := cBukva
+    //
     mo_xml->( dbUnlock() )
     mo_xml->( dbCommit() )
     rees->( dbUnlock() )
     rees->( dbCommit() )
-
-    // изменить
-//    cNschet := kod_smo + '-' + '782' + '-1' + cBukva
-    cNschet := kod_smo + '-' + AllTrim( Str( mnschet ) ) + '-1' + cBukva
-    //
 
     pkol := psumma := iusl := 0
     dbSelectArea( 'TMP' )

@@ -69,7 +69,7 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 28.05.25 реконстукция баз данных
+// 27.08.25 реконстукция баз данных
 Function reconstruct_db( is_local_version, is_create )
 
   Local base1 := { ;
@@ -836,7 +836,9 @@ Function reconstruct_db( is_local_version, is_create )
     { 'DATE_OUT',   'D', 8, 0 }, ; // дата отправки в ТФОМС
     { 'NUMB_OUT',   'N', 2, 0 }, ; // номер отправки в ТФОМС, сколько раз всего записывали файл на носитель
     { 'KOL',        'N', 6, 0 }, ; // количество пациентов в реестре
-    { 'SUMMA',      'N',15, 2 } ;  // сумма случаев в реестре
+    { 'SUMMA',      'N',15, 2 }, ; // сумма случаев в реестре
+    { 'NOMER_S',    'C',15, 0 }, ; // если реестр счета, то номер счета
+    { 'BUKVA',      'C', 1, 0 } ;  // буква на конце счета
   }
   //
   Local mo_xml := { ; // Список отосланных и принятых XML-файлов 'mo_xml'
