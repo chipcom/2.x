@@ -118,10 +118,11 @@ Function read_xml_from_tf_2025( full_zip, cFile, arr_XML_info, arr_f )
     nerror, buf := save_maxrow(), mkod
   Local is_err_FLK_25 := .f.
   Local is_err_FLK := .f.
+  Local cReadFile := name_without_ext( cFile )
 
 //  private is_err_FLK := .f.
-  Private cReadFile := name_without_ext( cFile ), ;
-    cTimeBegin := hour_min( Seconds() ), ;
+//  Private cReadFile := name_without_ext( cFile )
+  Private cTimeBegin := hour_min( Seconds() ), ;
     mkod_reestr := 0, mXML_REESTR := 0, mdate_schet
   Private cFileProtokol := cReadFile + stxt()
 
@@ -145,6 +146,7 @@ Function read_xml_from_tf_2025( full_zip, cFile, arr_XML_info, arr_f )
 
   StrFile( Space( 10 ) + 'Протокол обработки файла: ' + cFile + hb_eol(), cFileProtokol )
   StrFile( Space( 10 ) + full_date( Date() ) + 'г. ' + cTimeBegin + hb_eol(), cFileProtokol, .t. )
+
   // читаем файл в память
   oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile, , @nerror )
   If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
@@ -334,7 +336,7 @@ Function read_xml_from_tf_2025( full_zip, cFile, arr_XML_info, arr_f )
   Endif
   Return Nil
 
-// 21.08.25 зачитать новый Протокол ФЛК.
+// 28.08.25 зачитать новый Протокол ФЛК.
 Function reestr_sp_tk_tmpfile_2025( oXmlDoc, aerr, mname_xml )
 
   Local j, j1, _ar, oXmlNode, oNode1, oNode2, buf := save_maxrow()
@@ -386,7 +388,7 @@ Function reestr_sp_tk_tmpfile_2025( oXmlDoc, aerr, mname_xml )
     { 'SREFREASON', 'C', 12, 0 };
     } )
   Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
-  Append Blank
+  tmp1->( dbAppend() )
   Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
   Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
   For j := 1 To Len( oXmlDoc:aItems[ 1 ]:aItems )
@@ -718,7 +720,7 @@ Function fill_tmp2_file_flk_25()
 
   Use ( cur_dir() + 'tmp22fil' ) New Alias TMP22
   dbSelectArea( 'TMP2' )
-  adbf := Array( FCount() )
+  adbf := Array( tmp2->( FCount() ) )
   tmp2->( dbGoTop() )
   Do While ! tmp2->( Eof() )
     If !Empty( tmp2->BAS_EL ) // .and. !Empty( tmp2->ID_BAS )
