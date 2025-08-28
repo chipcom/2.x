@@ -32,7 +32,7 @@ Function read_from_tf()
       return fl
     endif*/
     // если это укрупнённый архив, распаковать и прочитать
-    If !is_our_zip( cName, @tip_csv_file, @kod_csv_reestr )
+    If !is_our_zip( full_zip, cName, @tip_csv_file, @kod_csv_reestr )
       Return fl
     Endif
     If tip_csv_file > 0 // если это CSV-файлы прикрепления/открепления

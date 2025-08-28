@@ -462,7 +462,7 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
   Return fl
 
 // 22.08.25 если это укрупнённый архив, распаковать и прочитать
-Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr) 
+Function is_our_zip( full_zip, cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr) 
 
   Static cStFile, si
   Local fl := .f., arr := {}, arr_f, i, s := cName, s1, name_ext, _date, _time, c

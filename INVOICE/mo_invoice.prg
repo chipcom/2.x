@@ -97,7 +97,7 @@ Function f21_view_list_schet()
 //
 Function f22_view_list_schet()
 
-  Local s := '  '
+  Local s := Space( 2 ) //  '  '
 
   If schet_->NREGISTR == 1 // ещё не зарегистрирован
     s := ''
@@ -278,7 +278,7 @@ Function f2_view_list_schet( nKey, oBrow )
               cFileProtokol := cur_dir() + 'prot_sch.txt'
               StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
               smsg := 'Счета записаны на: ' + s + ;
-                ' (' + full_date( sys_date ) + 'г. ' + hour_min( Seconds() ) + ')'
+                ' (' + full_date( Date() ) + 'г. ' + hour_min( Seconds() ) + ')'
               StrFile( Center( smsg, 80 ) + hb_eol(), cFileProtokol, .t. )
               k := 0
               For i := 1 To Len( arr )
@@ -300,14 +300,14 @@ Function f2_view_list_schet( nKey, oBrow )
                       ', сумма счёта - ' + expand_value( schet->summa, 2 )
                     StrFile( smsg + hb_eol(), cFileProtokol, .t. )
                     schet_->( g_rlock( forever ) )
-                    schet_->DATE_OUT := sys_date
+                    schet_->DATE_OUT := Date()
                     If schet_->NUMB_OUT < 99
                       schet_->NUMB_OUT++
                     Endif
                     //
                     mo_xml->( dbGoto( arr[ i, 3 ] ) )
                     mo_xml->( g_rlock( forever ) )
-                    mo_xml->DREAD := sys_date
+                    mo_xml->DREAD := Date()
                     mo_xml->TREAD := hour_min( Seconds() )
                   Else
                     smsg := '! Ошибка записи файла ' + s + zip_file
@@ -488,7 +488,7 @@ Function f4_view_list_schet( lkomu, lsmo, lstr_crb )
 Function recreate_some_schet_from_file_sp( arr )
 
   Local arr_XML_info[ 8 ], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[ 2 ], ;
-    i, s, rec_schet, rec_schet_xml, go_to_schet := .f., arr_schet := {}
+    i, s, go_to_schet := .f., arr_schet := {}
 
   Private name_schet, _date_schet, mXML_REESTR
 
@@ -559,7 +559,7 @@ Function recreate_some_schet_from_file_sp( arr )
       StrFile( hb_eol() + ;
         Space( 10 ) + 'Повторная обработка файла: ' + cFile + ;
         hb_eol(), cFileProtokol )
-      StrFile( Space( 10 ) + full_date( sys_date ) + 'г. ' + cTimeBegin + ;
+      StrFile( Space( 10 ) + full_date( Date() ) + 'г. ' + cTimeBegin + ;
         hb_eol(), cFileProtokol, .t. )
       mywait( 'Производится анализ файла ' + cFile )
       // читаем файл в память

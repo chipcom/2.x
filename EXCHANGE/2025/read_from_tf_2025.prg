@@ -9,8 +9,10 @@ Function read_from_tf_2025()
   Local name_zip, cName
   local _date, _time, s, arr_f := {}, buf, blk_sp_tk, fl := .f., n, ;
     arr_XML_info[ 7 ], tip_csv_file := 0, kod_csv_reestr := 0
+  Local full_zip
+  
+//  private full_zip  // используется в is_our_zip()
 
-  private full_zip  // используется в is_our_zip()
   Private p_var_manager := 'Read_From_TFOMS', p_ctrl_enter_sp_tk := .f.
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, err_admin )
@@ -29,7 +31,7 @@ Function read_from_tf_2025()
     name_zip := strippath( full_zip )
     cName := name_without_ext( name_zip )
     // если это укрупнённый архив, распаковать и прочитать
-    If ! is_our_zip( cName, @tip_csv_file, @kod_csv_reestr )
+    If ! is_our_zip( full_zip, cName, @tip_csv_file, @kod_csv_reestr )
       Return fl
     Endif
     If tip_csv_file > 0 // если это CSV-файлы прикрепления/открепления
@@ -100,7 +102,7 @@ Function read_from_tf_2025()
     Endif
     If ( arr_f := extract_zip_xml( keeppath( full_zip ), name_zip ) ) != NIL
       If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( cName ) } ) ) > 0
-        fl := read_xml_from_tf_2025( arr_f[ n ], arr_XML_info, arr_f )
+        fl := read_xml_from_tf_2025( full_zip, arr_f[ n ], arr_XML_info, arr_f )
       Else
         fl := func_error( 4, 'В архиве ' + name_zip + ' нет файла ' + cName + sxml() )
       Endif
@@ -109,7 +111,7 @@ Function read_from_tf_2025()
   Return fl
 
 // 25.08.25 чтение в память и анализ XML-файла
-Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
+Function read_xml_from_tf_2025( full_zip, cFile, arr_XML_info, arr_f )
 
   Local nTypeFile := 0, aerr := {}, j, oXmlDoc, ;
     nCountWithErr := 0, go_to_schet := .f., go_to_akt := .f., go_to_rpd := .f., ;
@@ -192,7 +194,7 @@ Function read_xml_from_tf_2025( cFile, arr_XML_info, arr_f )
     Case nTypeFile == _XML_FILE_FLK_25
 
       StrFile( hb_eol() + 'Тип файла: протокол ФЛК (форматно-логического контроля) нового образца' + hb_eol() + hb_eol(), cFileProtokol, .t. )
-      If read_xml_file_flk_25( arr_XML_info, aerr, is_err_FLK_25 )
+      If read_xml_file_flk_25( arr_XML_info, aerr, is_err_FLK_25, cFileProtokol )
         // запишем принимаемый файл (протокол ФЛК)
         chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
         Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
@@ -544,7 +546,7 @@ Function protokol_flk_tmpfile_25( arr_f, aerr )
   Return is_err_FLK
 
 // 26.08.25 прочитать реестр ФЛК
-Function read_xml_file_flk_25( arr_XML_info, aerr, is_err_FLK_25 )
+Function read_xml_file_flk_25( arr_XML_info, aerr, is_err_FLK_25, cFileProtokol )
 
   Local ii, pole, i, k, t_arr[ 2 ]
   Local mkod_reestr, s
