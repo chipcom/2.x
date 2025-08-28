@@ -1508,7 +1508,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Return Nil
 
-// 03.07.25 работаем по текущей записи
+// 28.08.25 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1650,6 +1650,8 @@ Function f1_create2reestr19( _nyear, _nmonth )
         // для школ здоровья ХНИЗ
         if eq_any( lshifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12' )
           if eq_any( locPRVS, '76', '49' )  // тераипия, педиатрия
+            lvidpom := 12
+          elseif eq_any( lshifr, '2.92.4', '2.92.5', '2.92.9', '2.92.10', '2.92.11' ) .and. locPRVS == '39'   // общая врачебная практика (семейная медицина)
             lvidpom := 12
           else  // узкие специалисты
             lvidpom := 13
