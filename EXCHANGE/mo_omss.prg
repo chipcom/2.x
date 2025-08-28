@@ -109,12 +109,19 @@ Function read_from_tf()
   Endif
   Return fl
 
-// 15.10.24 чтение в память и анализ XML-файла
+// 28.08.25 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local nTypeFile := 0, aerr := {}, j, oXmlDoc, oXmlNode, oNode1, oNode2, ;
     nCountWithErr := 0, adbf, go_to_schet := .f., go_to_akt := .f., ;
     go_to_rpd := .f., nerror, buf := save_maxrow()
+  Local is_err_FLK := .f.
+
+//  private is_err_FLK := .f.
+  Private cReadFile := name_without_ext( cFile ), ;
+    cTimeBegin := hour_min( Seconds() ), ;
+    mkod_reestr := 0, mXML_REESTR := 0, mdate_schet
+  Private cFileProtokol := cReadFile + stxt()
 
   nTypeFile := arr_XML_info[ 1 ]
   For j := 1 To 4
@@ -133,10 +140,6 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
     Return .f.
   Endif
   mywait( 'Производится анализ файла ' + cFile )
-  Private cReadFile := name_without_ext( cFile ), ;
-    cTimeBegin := hour_min( Seconds() ), ;
-    mkod_reestr := 0, mXML_REESTR := 0, mdate_schet, is_err_FLK := .f.
-  Private cFileProtokol := cReadFile + stxt()
   StrFile( Space( 10 ) + 'Протокол обработки файла: ' + cFile + hb_eol(), cFileProtokol )
   StrFile( Space( 10 ) + full_date( sys_date ) + 'г. ' + cTimeBegin + hb_eol(), cFileProtokol, .t. )
   // читаем файл в память

@@ -4958,16 +4958,19 @@ Function create_main_base_from_reestrs()
 
   Return Nil
 
-// 22.11.19
+// 28.08.25
 Function f1_create_main_base_from_reestrs( a_reestr )
 
   Local aerr, oXmlDoc, oXmlNode, oNode1, oNode2, cFile, old_sys_date, ;
     i, j, n, s, arr_XML_info[ 7 ], fl := .t., arr_f, nCountWithErr
+  Local is_err_FLK := .f.
+
+  Private cReadFile, cTimeBegin, mkod_reestr, mdate_schet, cFileProtokol, full_zip, mXML_REESTR
+//  Private is_err_FLK
 
   arr_XML_info[ 1 ] := _XML_FILE_SP
   arr_XML_info[ 2 ] := '34'
   arr_XML_info[ 3 ] := glob_MO[ _MO_KOD_TFOMS ]
-  Private cReadFile, cTimeBegin, mkod_reestr, mdate_schet, is_err_FLK, cFileProtokol, full_zip, mXML_REESTR
   glob_podr := "" ; glob_otd_dep := 0 // пока без кода подразделения
   For i := 1 To Len( a_reestr )
     If chip_copy_zipxml( a_reestr[ i, 1 ], dir_server() + dir_XML_MO() )

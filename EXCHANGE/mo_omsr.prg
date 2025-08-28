@@ -1028,7 +1028,7 @@ Static Function f1vozvrat_reestr( mkod_reestr )
   Return Nil
 
 
-//  15.10.24 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
+// 28.08.25 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
 Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
 
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
@@ -1036,6 +1036,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
     arr_f, cFile, oXmlDoc, aerr := {}, is_allow_delete, ;
     cFileProtokol := cur_dir() + 'tmp.txt', is_other_reestr, bSaveHandler, ;
     arr_schet, rees_nschet := rees->nschet, mtip_in
+  Local is_err_FLK := .f.
 
   mywait()
   Select MO_XML
