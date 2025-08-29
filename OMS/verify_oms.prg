@@ -4,9 +4,10 @@
 #include 'chip_mo.ch'
 
 #define MAX_REC_REESTR 9999
+#define MAX_REC_REESTR_RDL 8000
 #define BASE_ISHOD_RZD 500
 
-// 03.07.24
+// 29.08.25
 Function verify_oms( arr_m, fl_view )
   // Возврат: arrKolSl (массив)
   // 1 эл. - кол-во обычных случаев, 
@@ -19,6 +20,9 @@ Function verify_oms( arr_m, fl_view )
   //   kol_2r := 0, ;     // количество случаев диспансеризации
   local  arrKolSl := { 0, 0 }
 
+  local max_records_send
+
+  max_records_send := iif( glob_mo[ _MO_KOD_TFOMS ] == '805965', MAX_REC_REESTR_RDL, MAX_REC_REESTR ) // число записываемых случаев в реестры
 
   AAdd( mas_file, name_file )
 
@@ -169,7 +173,7 @@ Function verify_oms( arr_m, fl_view )
                 Endif
               Endif
             Endif
-            If iprov >= MAX_REC_REESTR // если число проверенных без ошибок достигло максимума,
+            If iprov >= max_records_send // если число проверенных без ошибок достигло максимума, 
               Exit                     // остальных не проверяем, начинаем составление реестра
             Endif
           Endif
