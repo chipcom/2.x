@@ -261,7 +261,7 @@ Function read_xml_from_tf_2025( full_zip, cFile, arr_XML_info, arr_f )
     Case nTypeFile == _XML_FILE_SP
       StrFile( hb_eol() + 'Тип файла: реестр СП и ТК (страховой принадлежности и технологического контроля)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
       nCountWithErr := 0
-      If read_xml_file_sp( arr_XML_info, aerr, @nCountWithErr ) > 0
+      If read_xml_file_sp_2025( arr_XML_info, aerr, @nCountWithErr, full_zip, cFileProtokol ) > 0
         go_to_schet := create_schet_from_xml( arr_XML_info, aerr, , , cReadFile )
       Elseif nCountWithErr > 0 // все пришли с ошибкой
         g_use( dir_server() + 'mo_xml', , 'MO_XML' )
