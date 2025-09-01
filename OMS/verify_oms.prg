@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 
 #define MAX_REC_REESTR 9999
-#define MAX_REC_REESTR_RDL 8000
+#define MAX_REC_REESTR_RDL 5000
 #define BASE_ISHOD_RZD 500
 
 // 29.08.25
