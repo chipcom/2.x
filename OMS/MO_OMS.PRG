@@ -450,7 +450,7 @@ Function oms_edit( k )
     f2oms_edit()
   Case k == 3
     If !find_unfinished_reestr_sp_tk()
-      f3oms_edit()
+      oms_edit_error_TFOMS()
     Endif
   Case k == 4
     f4oms_edit()
@@ -458,7 +458,6 @@ Function oms_edit( k )
   If k > 0
     sk := k
   Endif
-
   Return Nil
 
 // 20.05.22 Редактирование случая с выбором по учреждению/отделению
