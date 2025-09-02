@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 08.08.25 добавление или редактирование случая (листа учета)
+// 02.09.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -249,6 +249,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   dbCreate( cur_dir() + 'tmp_onkle',  { ; // Сведения о применённых лекарственных препаратах
     { 'KOD',      'N',   7,  0 }, ; // код больного
     { 'REGNUM',   'C',   6,  0 }, ; // IDD лек.препарата N020
+    { 'ID_ZAP',   'N',   6,  0 }, ; // IDD лек.препарата N021
     { 'CODE_SH',  'C',  20,  0 }, ; // код схемы лек.терапии V024
     { 'DATE_INJ', 'D',   8,  0 };  // дата введения лек.препарата
   } )
