@@ -69,7 +69,7 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 27.08.25 реконстукция баз данных
+// 03.09.25 реконстукция баз данных
 Function reconstruct_db( is_local_version, is_create )
 
   Local base1 := { ;
@@ -576,7 +576,8 @@ Function reconstruct_db( is_local_version, is_create )
     { 'KOD',        'N',   7, 0 }, ; // код больного
     { 'REGNUM',     'C',   6, 0 }, ; // IDD лек.препарата N020
     { 'CODE_SH',    'C',  20, 0 }, ; // код схемы лек.терапии V024
-    { 'DATE_INJ',   'D',   8, 0 } ;  // дата введения лек.препарата
+    { 'DATE_INJ',   'D',   8, 0 }, ;  // дата введения лек.препарата
+    { 'ID_ZAP',     'N',   6, 0 } ; // IDD лек.препарата N021
   }
 
   //
