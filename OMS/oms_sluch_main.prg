@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 02.09.25 добавление или редактирование случая (листа учета)
+// 03.09.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -27,8 +27,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Local i_n012, aN012_DS := getds_n012(), ar_N012 := {}
   Local i_n010, aN010 := loadn010(), i_n011, aN011 := loadn011()
   local diag_onko_replace
+  local s
 
-  Default st_N_DATA To sys_date, st_K_DATA To sys_date
+  Default st_N_DATA To Date(), st_K_DATA To Date()
   Default Loc_kod To 0, kod_kartotek To 0
   If kod_kartotek == 0 // добавление в картотеку
     If ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
@@ -1848,9 +1849,12 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Loop
       Endif
       If m1komu < 5 .and. Empty( m1company )
-        If m1komu == 0     ; s := 'СМО'
-        Elseif m1komu == 1 ; s := 'компании'
-        else               ; s := 'комитета/МО'
+        If m1komu == 0
+          s := 'СМО'
+        Elseif m1komu == 1
+          s := 'компании'
+        else
+          s := 'комитета/МО'
         Endif
         func_error( 4, 'Не заполнено наименование ' + s )
         Loop
@@ -1989,7 +1993,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human->date_b_2   := iif( m1bolnich == 0, '',  dtoc4( mdate_b_2 ) )
       human_->RODIT_DR  := iif( m1bolnich < 2, CToD( '' ),  mrodit_dr )
       human_->RODIT_POL := iif( m1bolnich < 2, '',  mrodit_pol )
-      s := '' ; AEval( adiag_talon, {| x| s += Str( x, 1 ) } )
+      s := ''
+      AEval( adiag_talon, {| x| s += Str( x, 1 ) } )
       human_->DISPANS   := s
       human_->STATUS_ST := LTrim( MSTATUS_ST )
       // human_->POVOD     := m1povod
