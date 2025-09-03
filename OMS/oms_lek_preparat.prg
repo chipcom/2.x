@@ -28,22 +28,21 @@ function split_regnum_dop( regnum_dop, type )
   endif
   return aTokens
 
-// 15.01.23 
+// 02.09.25 
 Function init_lek_pr()
 
   Local s, n
 
   Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE
-  Index On REGNUM to ( cur_dir() + 'tmp_onkle' ) UNIQUE
+  Index On FIELD->REGNUM to ( cur_dir() + 'tmp_onkle' ) UNIQUE
   n := 0
   dbEval( {|| ++n } )
   s := 'препаратов - ' + lstr( n )
-  Index On DToS( DATE_INJ ) to ( cur_dir() + 'tmp_onkle' ) UNIQUE
+  Index On DToS( FIELD->DATE_INJ ) to ( cur_dir() + 'tmp_onkle' ) UNIQUE
   n := 0
   dbEval( {|| ++n } )
   s += ', дней приёма - ' + lstr( n )
   tmple->( dbCloseArea() )
-
   Return s
 
 
@@ -956,16 +955,18 @@ Function check_edit_field( get, when_valid, k )
   Endif
   Return fl
 
-// 06.01.25
+// 02.09.25
 Function get_lek_pr( k, r, c, _crit )
 
   Local i, j, nrec, t_arr := Array( BR_LEN ), ret := { Space( 10 ), Space( 10 ) }
 
   Local aN021 := getn021( mk_data ), it, row
   local aN020 := getn020()
-  local adbf
+  local adbf, ndn
 
   Private arr_lek_pr := {}, yes_crit
+
+  _crit := AllTrim( _crit )
 
   adbf := { ;
     { 'ID_LEKP',    'C',  6, 0 }, ; //
@@ -973,8 +974,6 @@ Function get_lek_pr( k, r, c, _crit )
     { 'DATEBEG',    'D',  8, 0 }, ; // Дата начала действия записи
     { 'DATEEND',    'D',  8, 0 };  // Дата окончания действия записи
   }
-  _crit := AllTrim( _crit )
- 
   dbCreate( 'mem:n020', adbf, , .t., 'N20' )
   for each row in aN020
     N20->( dbAppend() )
@@ -983,15 +982,19 @@ Function get_lek_pr( k, r, c, _crit )
     N20->DATEBEG := row[ 3 ]
     N20->DATEEND := row[ 4 ]
   next
-  Index On Upper( mnn ) Tag n020n
-  Index On ID_LEKP Tag n020
-  Set Filter To between_date( datebeg, dateend, mk_data )
+  Index On Upper( FIELD->mnn ) Tag n020n
+  Index On FIELD->ID_LEKP Tag n020
+  Set Filter To between_date( FIELD->datebeg, FIELD->dateend, mk_data )
 
-  dbCreate( cur_dir() + 'tmp', { { 'id_lekp', 'C', 6, 0 }, ;
-    { 'mnn', 'C', 70, 0 }, ;
-    { 'kol', 'N', 3, 0 } } )
-  Use ( cur_dir() + 'tmp' ) new
-  Index On id_lekp to ( cur_dir() + 'tmp' )
+  dbCreate( cur_dir() + 'tmp', ;
+    { { 'id_lekp', 'C', 6, 0 }, ;
+      { 'ID_ZAP',  'N',   6,  0 }, ; // IDD лек.препарата N021
+      { 'mnn',     'C',70, 0 }, ;
+      { 'full_mnn','C',70, 0 }, ;
+      { 'kol',     'N', 3, 0 } ;
+    }, , .t., 'TMP' )
+//  Use ( cur_dir() + 'tmp' ) new
+  Index On FIELD->id_lekp to ( cur_dir() + 'tmp' )
 //  r_use( dir_exe() + '_mo_N020', { cur_dir() + '_mo_N020', cur_dir() + '_mo_N020n' }, 'N20' )
 //  Set Filter To between_date( datebeg, dateend, mk_data )
 
@@ -999,46 +1002,57 @@ Function get_lek_pr( k, r, c, _crit )
     yes_crit := .t.
   Endif
 
-  Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE
-  Index On REGNUM + DToS( DATE_INJ ) to ( cur_dir() + 'tmp_onkle' ) UNIQUE
+//  Use ( cur_dir() + 'tmp_onkle' ) New Alias TMPLE
+  dbUseArea( .t., 'DBFNTX', cur_dir() + 'tmp_onkle', 'TMPLE', .f., .f. )
+  Index On FIELD->REGNUM + DToS( FIELD->DATE_INJ ) to ( cur_dir() + 'tmp_onkle' ) UNIQUE
 
   If yes_crit // по данному критерию есть препараты в схеме
     For Each row in aN021
-//      If AllTrim( row[ 2 ] ) == AllTrim( _crit )
       If row[ 2 ] == _crit
-        Select TMP
-        Append Blank
+//        Select TMP
+//        Append Blank
+        tmp->( dbAppend() )
+        tmp->id_zap := row[ 1 ]
         tmp->id_lekp := row[ 3 ]
-        AAdd( arr_lek_pr, { tmp->id_lekp, tmp->( RecNo() ), {} } )
+        AAdd( arr_lek_pr, { tmp->id_lekp, tmp->( RecNo() ), {}, tmp->id_zap } )
         i := Len( arr_lek_pr )
-        Select N20
-        find ( row[ 3 ] )
-        If Found()
+//        Select N20
+//        find ( row[ 3 ] )
+        n20->( dbSeek( row[ 3 ] ) )
+        If n20->( Found() )
           tmp->mnn := n20->mnn
+          tmp->full_mnn := iif( empty( row[ 6 ] ), n20->mnn, row[ 6 ] )
         Else
           tmp->mnn := 'Препарат ' + row[ 3 ] + ' не найден в справочнике N020'
         Endif
-        Select TMPLE
-        find ( tmp->id_lekp )
-        Do While tmp->id_lekp == tmple->REGNUM .and. !Eof()
+//        Select TMPLE
+//        find ( tmp->id_lekp )
+        tmple->( dbSeek( tmp->id_lekp ) )
+        Do While tmp->id_lekp == tmple->REGNUM .and. ! tmple->( Eof() )
           AAdd( arr_lek_pr[ i, 3 ], tmple->DATE_INJ )
-          Skip
+//          Skip
+          tmple->( dbSkip() )
         Enddo
         tmp->kol := Len( arr_lek_pr[ i, 3 ] )
       Endif
     Next
   Else // по данному критерию нет препаратов в схеме
-    Select TMPLE
-    Go Top
-    Do While !Eof()
-      Select N20
-      find ( tmple->REGNUM )
-      If Found() // найден препарат в справочнике
-        Select TMP
-        find ( tmple->REGNUM )
-        If !Found()
-          Append Blank
+//    Select TMPLE
+//    Go Top
+    tmple->( dbGoTop() )
+    Do While ! tmple->( Eof() )
+//      Select N20
+//      find ( tmple->REGNUM )
+      n20->( dbSeek( tmple->REGNUM ) )
+      If tmple->( Found() ) // найден препарат в справочнике
+//        Select TMP
+//        find ( tmple->REGNUM )
+        tmp->( dbSeek( tmple->REGNUM ) )
+        If ! tmp->( Found() )
+//          Append Blank
+          tmp->( dbAppend() )
           tmp->id_lekp := tmple->REGNUM
+          tmp->id_zap := tmple->id_zap
           tmp->mnn := n20->mnn
         Endif
         tmp->kol++
@@ -1048,12 +1062,14 @@ Function get_lek_pr( k, r, c, _crit )
         Endif
         AAdd( arr_lek_pr[ i, 3 ], tmple->DATE_INJ )
       Endif
-      Select TMPLE
-      Skip
+//      Select TMPLE
+//      Skip
+      tmple->( dbSkip() )
     Enddo
   Endif
-  Select TMPLE
-  Set Index To
+//  Select TMPLE
+//  Set Index To
+  tmple->( ordListClear() )
   nrec := tmp->( LastRec() )
   If yes_crit
     t_arr[ BR_TOP ] := r - nrec -4
@@ -1079,28 +1095,33 @@ Function get_lek_pr( k, r, c, _crit )
   Endif
   t_arr[ BR_STAT_MSG ] := {|| status_key( s ) }
   Select TMP
-  Index On Upper( mnn ) to ( cur_dir() + 'tmp' )
-  Go Top
-  If Eof() .and. !yes_crit
+  Index On Upper( FIELD->mnn ) to ( cur_dir() + 'tmp' )
+//  Go Top
+  tmp->( dbGoTop() )
+  If tmp->( Eof() ) .and. !yes_crit
     Keyboard Chr( K_INS )
   Endif
   edit_browse( t_arr )
   //
   nrec := tmp->( LastRec() )
-  Select TMPLE
-  Zap
+//  Select TMPLE
+//  Zap
+  tmple->( __dbZap() )
   For i := 1 To nrec
     If Len( arr_lek_pr ) >= i
       For j := 1 To Len( arr_lek_pr[ i, 3 ] )
-        Select TMPLE
-        Append Blank
+//        Select TMPLE
+//        Append Blank
+        tmple->( dbAppend() )
         tmple->REGNUM   := arr_lek_pr[ i, 1 ]
+//        tmple->id_zap :=
         tmple->CODE_SH  := _crit
         tmple->DATE_INJ := arr_lek_pr[ i, 3, j ]
       Next
     Endif
   Next
-  Index On DToS( DATE_INJ ) to ( cur_dir() + 'tmp_onkle' ) UNIQUE
+  Select TMPLE
+  Index On DToS( FIELD->DATE_INJ ) to ( cur_dir() + 'tmp_onkle' ) UNIQUE
   ndn := 0
   dbEval( {|| ++ndn } )
   ret[ 1 ] := ret[ 2 ] := PadR( 'препаратов - ' + lstr( nrec ) + ', дней приёма - ' + lstr( ndn ), 53 )
@@ -1111,14 +1132,13 @@ Function get_lek_pr( k, r, c, _crit )
   dbDrop( 'mem:n020' )  /* освободим память */
   hb_vfErase( 'mem:n020n.ntx' )  /* освободим память от индексного файла */
   hb_vfErase( 'mem:n020.ntx' )  /* освободим память от индексного файла */
-
   Return ret
 
 // 31.01.19 выбор нескольких дат
 Function f1_get_lek_pr( nKey, oBrow, regim, get_row )
 
   Local mlen, t_mas := {}, buf := SaveScreen(), i, j, d, tmp_color := SetColor(), ;
-    k, n, r1, r2, top_bottom, r := Row(), ret := -1
+    k, r1, r2, top_bottom, r := Row(), ret := -1
 
   If regim == 'edit'
     If nKey == K_ENTER .and. tmp->( LastRec() ) > 0
@@ -1228,7 +1248,7 @@ Function f3_get_lek_pr( nk, ob )
 Function f4_get_lek_pr( ret_rec, obrow )
 
   Static stmp1 := ''
-  Local rec1 := RecNo(), buf := SaveScreen(), tmp_color, ret := -1, j, r1 := pr2 -6, r2 := pr2 -1
+  Local rec1 := RecNo(), buf := SaveScreen(), tmp_color, ret := -1, r1 := pr2 -6, r2 := pr2 -1
 
   box_shadow( r1, pc1 + 1, r2, pc2 -1, cDataPgDn, 'Поиск по ключу', cDataCSay )
   tmp_color := SetColor( cDataCGet )
