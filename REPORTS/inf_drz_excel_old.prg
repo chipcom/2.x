@@ -6,17 +6,17 @@
 
 Static lcount_uch  := 1
 
-// 03.09.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 28.02.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
 
-  Local workbook, worksheet, ws2511, ws2517, wsFemale, wsMan   // , analiz
+  Local workbook, worksheet, ws2511, ws2517   // , analiz
   Local merge_format, form_text_header, form_text_header_1, form_text_X, cell_format_plan
   Local cell_format, cell_format_itog, cell_format_man, cell_format_woman, cell_format_full
   Local merge_format_head, form_text_date_text, form_text_footer, form_text_footer_1
   Local form_text_date, form_plan_gorod, form_plan_selo, form_text_header_yellow
   Local merge_format2511, form_text2511, cell_format2511, cell_format2517, cell_format_bold2517
   Local cell_formula_2517
-  Local tmpFormat, form_text_add, form_text_add1
+  Local tmpFormat
 
   // local strMO := hb_StrToUtf8( glob_mo[ _MO_SHORT_NAME ] )
   Local strMO := hb_StrToUTF8( hb_main_curOrg:name_tfoms() )
@@ -687,190 +687,6 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     //worksheet_write_number( ws2517, 14, 1, arr[ 3, 21 ] + arr[ 4, 21 ], cell_format )
     worksheet_write_number( ws2517, 14, 1, arr[ 3, 21 ], cell_format )
     worksheet_write_number( ws2517, 14, 2, arr[ 4, 21 ], cell_format )
-
-    form_text_add := fmt_excel_hL_vC_wrap( workbook )
-    format_set_font_size( form_text_add, 9 )
-    format_set_bg_color( form_text_add, 0xcdcdcd )
-    format_set_border( form_text_add, LXW_BORDER_NONE )
-
-    form_text_add1 := fmt_excel_hR_vC_wrap( workbook )
-    format_set_font_size( form_text_add1, 9 )
-    format_set_border( form_text_add1, LXW_BORDER_NONE )
-
-    wsFemale := workbook_add_worksheet( workbook,  'Женщины' )
-    worksheet_set_column( wsFemale, 0, 0, 61.2 )
-    worksheet_set_column( wsFemale, 1, 1, 61.2 )
-    worksheet_set_column( wsFemale, 2, 2, 11 )
-
-    worksheet_merge_range( wsFemale, 0, 0, 0, 1, 'Календарный год:', form_text_add1 )
-    worksheet_merge_range( wsFemale, 1, 0, 1, 1, 'Период:', form_text_add1 )
-    worksheet_merge_range( wsFemale, 2, 0, 2, 1, 'Субъект РФ:', form_text_add1 )
-
-    worksheet_write_string( wsFemale, 7, 0, 'Число женщин, которые были обследованы в рамках 1-го этапа диспансеризации', form_text_add )
-    worksheet_write_formula( wsFemale, 7, 2, '=табл_1!M4', cell_format2511 )
-
-    worksheet_write_string( wsFemale, 8, 0, 'Число женщин, которые были направлены на 2-й этапа диспансеризации', form_text_add )
-    worksheet_write_formula( wsFemale, 8, 2, '=табл_1!M12', cell_format2511 )
-    worksheet_write_string( wsFemale, 9, 0, 'Число женщин, которые были обследованы в рамках 2-го этапа диспансеризации', form_text_add )
-    worksheet_write_formula( wsFemale, 9, 2, '=табл_1!M18', cell_format2511 )
-    for i := 7 to 9
-      worksheet_write_string( wsFemale, i, 1, '', form_text_add )
-    next
-
-    worksheet_write_string( wsFemale, 10, 0, 'Число женщин 18-29 лет с выявленными заболеваниями репродуктивной системы по кодам МКБ-10 по результатам 1-го и 2-го этапа диспансеризациия', form_text_add )
-    for i := 11 to 30
-      worksheet_write_string( wsFemale, i, 0, '', form_text_add )
-    next
-    worksheet_write_string( wsFemale, 10, 1, 'D25 лейомиома матки', form_text_add )
-    worksheet_write_string( wsFemale, 11, 1, 'Е28 дисфункция яичников', form_text_add )
-    worksheet_write_string( wsFemale, 12, 1, 'N70-N73 воспалительные болезни женских тазовых органов', form_text_add )
-    worksheet_write_string( wsFemale, 13, 1, 'N76 воспалительные болезни влагалища и вульвы', form_text_add )
-    worksheet_write_string( wsFemale, 14, 1, 'N80 эндометриоз', form_text_add )
-    worksheet_write_string( wsFemale, 15, 1, 'N81 выпадение женских половых органов', form_text_add )
-    worksheet_write_string( wsFemale, 16, 1, 'N84.0 полип эндометрия', form_text_add )
-    worksheet_write_string( wsFemale, 17, 1, 'N85.0-N85.1 гиперплазия эндометрия', form_text_add )
-    worksheet_write_string( wsFemale, 18, 1, 'N86 эрозия и эктропион шейки матки', form_text_add )
-    worksheet_write_string( wsFemale, 19, 1, 'N87 дисплазия шейки матки', form_text_add )
-    worksheet_write_string( wsFemale, 20, 1, 'С53 злокачественное новообразование шейки матки', form_text_add )
-    worksheet_write_string( wsFemale, 21, 1, 'N91-N94 расстройства менструаций', form_text_add )
-    worksheet_write_string( wsFemale, 22, 1, 'N96 привычный выкидыш', form_text_add )
-    worksheet_write_string( wsFemale, 23, 1, 'N97 женское бесплодие', form_text_add )
-    worksheet_write_string( wsFemale, 24, 1, 'Q50-Q52 врожденные аномалии женских половых органов', form_text_add )
-    worksheet_write_string( wsFemale, 25, 1, 'N60 доброкачественая дисплазия молочной железы', form_text_add )
-    worksheet_write_string( wsFemale, 26, 1, 'С50 злокачественное новообразование молочной железы', form_text_add )
-    worksheet_write_string( wsFemale, 27, 1, 'А55-А56 Другие хламидийные болезни, передающиеся половым путем', form_text_add )
-    worksheet_write_string( wsFemale, 28, 1, 'А54 Гонококковая нфекция', form_text_add )
-    worksheet_write_string( wsFemale, 29, 1, 'А63.8. Урогенитальные заболевания, вызванные Mycoplasma genitalium', form_text_add )
-    worksheet_write_string( wsFemale, 30, 1, 'А59 Трихомониаз', form_text_add )
-
-    worksheet_write_string( wsFemale, 31, 0, 'Число женщин 18-29 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го диспансеризациия и общей диспансеризации', form_text_add )
-    for i := 31 to 43
-      worksheet_write_string( wsFemale, i, 0, '', form_text_add )
-    next
-    worksheet_write_string( wsFemale, 31, 1, 'Е43-Е44 недостаточная масса тела (индекс массы тела <=18,5 кг/м2)', form_text_add )
-    worksheet_write_string( wsFemale, 32, 1, 'R63.5 избыточная масса тела (индекс массы тела 25 - 29,9 кг/м2)', form_text_add )
-    worksheet_write_string( wsFemale, 33, 1, 'Е66 ожирение (индекс массы тела >=30 кг/м2)', form_text_add )
-    worksheet_write_string( wsFemale, 34, 1, 'Z72.0 курение табака (ежедневное выкуривание одной сигареты и более)', form_text_add )
-    worksheet_write_string( wsFemale, 35, 1, 'Z57 воздействие производственных факторов риска', form_text_add )
-    worksheet_write_string( wsFemale, 36, 1, 'Z72.1 употребление алкоголя', form_text_add )
-    worksheet_write_string( wsFemale, 37, 1, 'Z72.2 использование наркотиков', form_text_add )
-    worksheet_write_string( wsFemale, 38, 1, 'Е00-Е07 болезни щитовидной железы', form_text_add )
-    worksheet_write_string( wsFemale, 39, 1, 'Е10-Е14 сахарный диабет', form_text_add )
-    worksheet_write_string( wsFemale, 40, 1, 'Е22.1 гиперппролактинемия', form_text_add )
-    worksheet_write_string( wsFemale, 41, 1, 'Е25 адреногенитальные расстройства', form_text_add )
-    worksheet_write_string( wsFemale, 42, 1, 'L68.0 гирсутизм', form_text_add )
-    worksheet_write_string( wsFemale, 43, 1, 'I10-I15 болезни, характеризующиеся повышенным кровяным давлением', form_text_add )
-
-    worksheet_write_string( wsFemale, 44, 0, 'Число женщин 30-49 лет с выявленными заболеваниями репродуктивной системы по кодам МКБ-10 по результатам 1-го и 2-го этапа диспансеризациия', form_text_add )
-    for i := 44 to 64
-      worksheet_write_string( wsFemale, i, 0, '', form_text_add )
-    next
-    worksheet_write_string( wsFemale, 44, 1, 'D25 лейомиома матки', form_text_add )
-    worksheet_write_string( wsFemale, 45, 1, 'Е28 дисфункция яичников', form_text_add )
-    worksheet_write_string( wsFemale, 46, 1, 'N70-N73 воспалительные болезни женских тазовых органов', form_text_add )
-    worksheet_write_string( wsFemale, 47, 1, 'N76 воспалительные болезни влагалища и вульвы', form_text_add )
-    worksheet_write_string( wsFemale, 48, 1, 'N80 эндометриоз', form_text_add )
-    worksheet_write_string( wsFemale, 49, 1, 'N81 выпадение женских половых органов', form_text_add )
-    worksheet_write_string( wsFemale, 50, 1, 'N84.0 полип эндометрия', form_text_add )
-    worksheet_write_string( wsFemale, 51, 1, 'N85.0-N85.1 гиперплазия эндометрия', form_text_add )
-    worksheet_write_string( wsFemale, 52, 1, 'N86 эрозия и эктропион шейки матки', form_text_add )
-    worksheet_write_string( wsFemale, 53, 1, 'N87 дисплазия шейки матки', form_text_add )
-    worksheet_write_string( wsFemale, 54, 1, 'С53 злокачественное новообразование шейки матки', form_text_add )
-    worksheet_write_string( wsFemale, 55, 1, 'N91-N94 расстройства менструаций', form_text_add )
-    worksheet_write_string( wsFemale, 56, 1, 'N96 привычный выкидыш', form_text_add )
-    worksheet_write_string( wsFemale, 57, 1, 'N97 женское бесплодие', form_text_add )
-    worksheet_write_string( wsFemale, 58, 1, 'Q50-Q52 врожденные аномалии женских половых органов', form_text_add )
-    worksheet_write_string( wsFemale, 59, 1, 'N60 доброкачественая дисплазия молочной железы', form_text_add )
-    worksheet_write_string( wsFemale, 60, 1, 'С50 злокачественное новообразование молочной железы', form_text_add )
-    worksheet_write_string( wsFemale, 61, 1, 'А55-А56 Другие хламидийные болезни, передающиеся половым путем', form_text_add )
-    worksheet_write_string( wsFemale, 62, 1, 'А54 Гонококковая нфекция', form_text_add )
-    worksheet_write_string( wsFemale, 63, 1, 'А63.8. Урогенитальные заболевания, вызванные Mycoplasma genitalium', form_text_add )
-    worksheet_write_string( wsFemale, 64, 1, 'А59 Трихомониаз', form_text_add )
-
-    worksheet_write_string( wsFemale, 65, 0, 'Число женщин 30-49 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го диспансеризациия и общей диспансеризации', form_text_add )
-    for i := 65 to 77
-      worksheet_write_string( wsFemale, i, 0, '', form_text_add )
-    next
-    worksheet_write_string( wsFemale, 65, 1, 'Е43-Е44 недостаточная масса тела (индекс массы тела <=18,5 кг/м2)', form_text_add )
-    worksheet_write_string( wsFemale, 66, 1, 'R63.5 избыточная масса тела (индекс массы тела 25 - 29,9 кг/м2)', form_text_add )
-    worksheet_write_string( wsFemale, 67, 1, 'Е66 ожирение (индекс массы тела >=30 кг/м2)', form_text_add )
-    worksheet_write_string( wsFemale, 68, 1, 'Z72.0 курение табака (ежедневное выкуривание одной сигареты и более)', form_text_add )
-    worksheet_write_string( wsFemale, 69, 1, 'Z57 воздействие производственных факторов риска', form_text_add )
-    worksheet_write_string( wsFemale, 70, 1, 'Z72.1 употребление алкоголя', form_text_add )
-    worksheet_write_string( wsFemale, 71, 1, 'Z72.2 использование наркотиков', form_text_add )
-    worksheet_write_string( wsFemale, 72, 1, 'Е00-Е07 болезни щитовидной железы', form_text_add )
-    worksheet_write_string( wsFemale, 73, 1, 'Е10-Е14 сахарный диабет', form_text_add )
-    worksheet_write_string( wsFemale, 74, 1, 'Е22.1 гиперппролактинемия', form_text_add )
-    worksheet_write_string( wsFemale, 75, 1, 'Е25 адреногенитальные расстройства', form_text_add )
-    worksheet_write_string( wsFemale, 76, 1, 'L68.0 гирсутизм', form_text_add )
-    worksheet_write_string( wsFemale, 77, 1, 'I10-I15 болезни, характеризующиеся повышенным кровяным давлением', form_text_add )
-
-    wsMan := workbook_add_worksheet( workbook,  'Мужчины' )
-    worksheet_set_column( wsMan, 0, 0, 61.2 )
-    worksheet_set_column( wsMan, 1, 1, 61.2 )
-    worksheet_set_column( wsMan, 2, 2, 11 )
-
-    worksheet_merge_range( wsMan, 0, 0, 0, 1, 'Календарный год:', form_text_add1 )
-    worksheet_merge_range( wsMan, 1, 0, 1, 1, 'Период:', form_text_add1 )
-    worksheet_merge_range( wsMan, 2, 0, 2, 1, 'Субъект РФ:', form_text_add1 )
-    worksheet_merge_range( wsMan, 3, 0, 3, 1, 'Отчет:', form_text_add1 )
-
-    worksheet_write_string( wsMan, 7, 0, 'Число мужчин, которые были обследованы в рамках 1-го этапа диспансеризации', form_text_add )
-//    worksheet_write_formula( wsMan, 7, 2, '=табл_1!M4', cell_format2511 )
-
-    worksheet_write_string( wsMan, 8, 0, 'Число мужчин, которые были направлены на 2-й этап диспансеризации', form_text_add )
-//    worksheet_write_formula( wsMan, 8, 2, '=табл_1!M12', cell_format2511 )
-    for i := 7 to 8
-      worksheet_write_string( wsMan, i, 1, '', form_text_add )
-    next
-
-    worksheet_write_string( wsMan, 9, 0, 'Число мужчин 18-29 лет с выявленными заболеваниями репродуктивной системы по кодам МКБ-10 по результатам 1-го и 2-го этапов диспансеризации, всего', form_text_add )
-    for i := 10 to 12
-      worksheet_write_string( wsMan, i, 0, '', form_text_add )
-    next
-    worksheet_write_string( wsMan, 9, 1, 'N46 Мужское бесплодие', form_text_add )
-    worksheet_write_string( wsMan, 10, 1, 'E29.1 Гипофункция яичек', form_text_add )
-    worksheet_write_string( wsMan, 11, 1, 'I86.1 Варикоцеле', form_text_add )
-    worksheet_write_string( wsMan, 12, 1, 'N44 Перекрут яичка', form_text_add )
-
-    worksheet_write_string( wsMan, 13, 0, 'Число мужячин 18-29 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го этапа диспансеризации и общей диспансеризации, всего', form_text_add )
-    for i := 14 to 22
-      worksheet_write_string( wsMan, i, 0, '', form_text_add )
-    next
-    worksheet_write_string( wsMan, 13, 1, 'Е66 Ожирение', form_text_add )
-    worksheet_write_string( wsMan, 14, 1, 'A56.1 Хламидиоз органов малого таза', form_text_add )
-    worksheet_write_string( wsMan, 15, 1, 'А59 Трихомониаз', form_text_add )
-    worksheet_write_string( wsMan, 16, 1, 'А54 Гонококковая инфекция', form_text_add )
-    worksheet_write_string( wsMan, 17, 1, 'A63.8 Уреаплазменная, микоплазменная инфекция (U. urealyticum, M. genitalium)', form_text_add )
-    worksheet_write_string( wsMan, 18, 1, 'A63.0 Папилломавирусная инфекция', form_text_add )
-    worksheet_write_string( wsMan, 19, 1, 'N41.1 Простатит', form_text_add )
-    worksheet_write_string( wsMan, 20, 1, 'N45 Эпидидимит, эпидидимоорхит', form_text_add )
-    worksheet_write_string( wsMan, 21, 1, 'B26 Эпидемический паротит', form_text_add )
-    worksheet_write_string( wsMan, 22, 1, 'E10 Сахарный диабет 1 типа', form_text_add )
-
-    worksheet_write_string( wsMan, 23, 0, 'Число мужячин 18-29 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го этапа диспансеризации и общей диспансеризации, всего', form_text_add )
-    for i := 24 to 26
-      worksheet_write_string( wsMan, i, 0, '', form_text_add )
-    next
-    worksheet_write_string( wsMan, 23, 1, 'N46 Мужское бесплодие', form_text_add )
-    worksheet_write_string( wsMan, 24, 1, 'E29.1 Гипофункция яичек', form_text_add )
-    worksheet_write_string( wsMan, 25, 1, 'I86.1 Варикоцеле', form_text_add )
-    worksheet_write_string( wsMan, 26, 1, 'N44 Перекрут яичка', form_text_add )
-
-    worksheet_write_string( wsMan, 27, 0, 'Число мужчин 30-49 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го этапа диспансеризации и общей диспансеризации, всего', form_text_add )
-    for i := 28 to 36
-      worksheet_write_string( wsMan, i, 0, '', form_text_add )
-    next
-    worksheet_write_string( wsMan, 27, 1, 'Е66 Ожирение', form_text_add )
-    worksheet_write_string( wsMan, 28, 1, 'A56.1 Хламидиоз органов малого таза', form_text_add )
-    worksheet_write_string( wsMan, 29, 1, 'А59 Трихомониаз', form_text_add )
-    worksheet_write_string( wsMan, 30, 1, 'А54 Гонококковая инфекция', form_text_add )
-    worksheet_write_string( wsMan, 31, 1, 'A63.8 Уреаплазменная, микоплазменная инфекция (U. urealyticum, M. genitalium)', form_text_add )
-    worksheet_write_string( wsMan, 32, 1, 'A63.0 Папилломавирусная инфекция', form_text_add )
-    worksheet_write_string( wsMan, 33, 1, 'N41.1 Простатит', form_text_add )
-    worksheet_write_string( wsMan, 34, 1, 'N45 Эпидидимит, эпидидимоорхит', form_text_add )
-    worksheet_write_string( wsMan, 35, 1, 'B26 Эпидемический паротит', form_text_add )
-    worksheet_write_string( wsMan, 36, 1, 'E10 Сахарный диабет 1 типа', form_text_add )
 
     workbook_close( workbook )
 
