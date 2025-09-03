@@ -5,7 +5,7 @@
 
 #require 'hbsqlit3'
 
-// 08.08.25
+// 03.09.25
 function getN00X_new_rules( cDiag, stage, type_TNM, mdate, tumor, nodus )
 
   local arr
@@ -43,7 +43,7 @@ function getN00X_new_rules( cDiag, stage, type_TNM, mdate, tumor, nodus )
       cmdText := 'SELECT n.id_t, n.ds_t, n.kod_t, n.t_name, n.datebeg, n.dateend, o.id_tumor, o.versionTNM ' + ;
         'FROM onko_stad AS o ' + ;
         'JOIN n003 AS n ' + ;
-        'ON n.id_t=o.id_tumor'
+        'ON n.id_t=o.id_tumor and n.ds_t=o.icdtop'
       cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
       cmdText += ' GROUP BY n.id_t'
 
@@ -51,7 +51,7 @@ function getN00X_new_rules( cDiag, stage, type_TNM, mdate, tumor, nodus )
       cmdText := 'SELECT n.id_n, n.ds_n, n.kod_n, n.n_name, n.datebeg, n.dateend, o.id_tumor, o.versionTNM ' + ;
         'FROM onko_stad AS o ' + ;
         'JOIN n004 AS n ' + ;
-        'ON n.id_n=o.id_nodus'
+        'ON n.id_n=o.id_nodus and n.ds_n=o.icdtop'
       cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
       if tumor != 0
         cmdText += ' and o.id_tumor=' + strTumor
@@ -62,7 +62,7 @@ function getN00X_new_rules( cDiag, stage, type_TNM, mdate, tumor, nodus )
       cmdText := 'SELECT n.id_m, n.ds_m, n.kod_m, n.m_name, n.datebeg, n.dateend, o.id_tumor, o.id_nodus, o.versionTNM ' + ;
         'FROM onko_stad AS o ' + ;
         'JOIN n005 AS n ' + ;
-        'ON n.id_m=o.id_metastas'
+        'ON n.id_m=o.id_metastas and n.ds_m=o.icdtop'
       cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
       if tumor != 0
         cmdText += ' and o.id_tumor=' + strTumor
