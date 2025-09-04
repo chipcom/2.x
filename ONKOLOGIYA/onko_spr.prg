@@ -5,13 +5,13 @@
 
 #require 'hbsqlit3'
 
-// 03.09.25
+// 04.09.25
 function getN00X_new_rules( cDiag, stage, type_TNM, mdate, tumor, nodus )
 
   local arr
   Local db
   Local aTable
-  Local cmdText
+  Local cmdText, cmdText1
   Local group := ''
   Local i, strVersionTNM, strTumor, strNodus, iVersion
   Local diag
@@ -47,6 +47,10 @@ function getN00X_new_rules( cDiag, stage, type_TNM, mdate, tumor, nodus )
       cmdText += ' WHERE o.icdtop="' + diag + '" and o.stage="' + stage  + '"' + ' and o.versionTNM=' + strVersionTNM
       cmdText += ' GROUP BY n.id_t'
 
+      cmdText1 := 'SELECT n.id_t, n.ds_t, n.kod_t, n.t_name, n.datebeg, n.dateend ' + ;
+        'FROM n003 AS n ' + ;
+        'WHERE n.ds_t="' + diag + '"'
+
     elseif type_TNM == 'nodus'
       cmdText := 'SELECT n.id_n, n.ds_n, n.kod_n, n.n_name, n.datebeg, n.dateend, o.id_tumor, o.versionTNM ' + ;
         'FROM onko_stad AS o ' + ;
@@ -57,6 +61,10 @@ function getN00X_new_rules( cDiag, stage, type_TNM, mdate, tumor, nodus )
         cmdText += ' and o.id_tumor=' + strTumor
       endif
       cmdText += ' GROUP BY n.id_n'
+
+      cmdText1 := 'SELECT n.id_n, n.ds_n, n.kod_n, n.n_name, n.datebeg, n.dateend ' + ;
+        'FROM n004 AS n ' + ;
+        'WHERE n.ds_n="' + diag + '"'
 
     elseif type_TNM == 'metastasis'
       cmdText := 'SELECT n.id_m, n.ds_m, n.kod_m, n.m_name, n.datebeg, n.dateend, o.id_tumor, o.id_nodus, o.versionTNM ' + ;
@@ -72,11 +80,22 @@ function getN00X_new_rules( cDiag, stage, type_TNM, mdate, tumor, nodus )
       endif
       cmdText += ' GROUP BY n.id_m'
 
+      cmdText1 := 'SELECT n.id_m, n.ds_m, n.kod_m, n.m_name, n.datebeg, n.dateend ' + ;
+        'FROM n005 AS n ' + ;
+        'WHERE n.ds_m="' + diag + '"'
+
     endif
 
     arr := {}
     db := opensql_db()
     aTable := sqlite3_get_table( db, cmdText )
+
+    if type_TNM != 'stage'
+      if Len( aTable ) < 2
+        db := opensql_db()
+        aTable := sqlite3_get_table( db, cmdText1 )
+      endif
+    endif
 
     If Len( aTable ) > 1
       For i := 2 To Len( aTable )
