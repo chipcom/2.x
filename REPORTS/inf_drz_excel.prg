@@ -6,7 +6,7 @@
 
 Static lcount_uch  := 1
 
-// 03.09.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 04.09.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
 
   Local workbook, worksheet, ws2511, ws2517, wsFemale, wsMan   // , analiz
@@ -16,12 +16,17 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
   Local form_text_date, form_plan_gorod, form_plan_selo, form_text_header_yellow
   Local merge_format2511, form_text2511, cell_format2511, cell_format2517, cell_format_bold2517
   Local cell_formula_2517
-  Local tmpFormat, form_text_add, form_text_add1
+  Local tmpFormat, form_text_add, form_text_add1, form_text_add2
+
+  Local currentOrg := hb_main_curOrg
 
   // local strMO := hb_StrToUtf8( glob_mo[ _MO_SHORT_NAME ] )
-  Local strMO := hb_StrToUTF8( hb_main_curOrg:name_tfoms() )
-  Local arr_plan := get_plan_drz( Year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
+  Local strMO   // := hb_StrToUTF8( hb_main_curOrg:name_tfoms() )
+  Local arr_plan // := get_plan_drz( Year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
   Local i
+
+  strMO := hb_StrToUTF8( currentOrg:name_tfoms() )
+  arr_plan := get_plan_drz( Year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
   //
   For i := 1 To 8
     arr_1[ 3, i ] := arr_1[ 2, i ] + arr_1[ 1, i ]
@@ -690,12 +695,17 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
 
     form_text_add := fmt_excel_hL_vC_wrap( workbook )
     format_set_font_size( form_text_add, 9 )
-    format_set_bg_color( form_text_add, 0xcdcdcd )
+    format_set_bg_color( form_text_add, 0xcd66cd )
     format_set_border( form_text_add, LXW_BORDER_NONE )
 
     form_text_add1 := fmt_excel_hR_vC_wrap( workbook )
     format_set_font_size( form_text_add1, 9 )
     format_set_border( form_text_add1, LXW_BORDER_NONE )
+
+    form_text_add2 := fmt_excel_hR_vC_wrap( workbook )
+    format_set_font_size( form_text_add2, 9 )
+    format_set_bg_color( form_text_add2, 0xcdcdcd )
+    format_set_border( form_text_add2, LXW_BORDER_NONE )
 
     wsFemale := workbook_add_worksheet( workbook,  'Женщины' )
     worksheet_set_column( wsFemale, 0, 0, 61.2 )
@@ -703,16 +713,17 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     worksheet_set_column( wsFemale, 2, 2, 11 )
 
     worksheet_merge_range( wsFemale, 0, 0, 0, 1, 'Календарный год:', form_text_add1 )
+    worksheet_write_string( wsFemale, 0, 2, Str( Year( arr_m[ 6 ] ), 4 ), form_text_add1 )
     worksheet_merge_range( wsFemale, 1, 0, 1, 1, 'Период:', form_text_add1 )
     worksheet_merge_range( wsFemale, 2, 0, 2, 1, 'Субъект РФ:', form_text_add1 )
 
     worksheet_write_string( wsFemale, 7, 0, 'Число женщин, которые были обследованы в рамках 1-го этапа диспансеризации', form_text_add )
-    worksheet_write_formula( wsFemale, 7, 2, '=табл_1!M4', cell_format2511 )
+    worksheet_write_formula( wsFemale, 7, 2, '=табл_1!D13', form_text_add2 )
 
     worksheet_write_string( wsFemale, 8, 0, 'Число женщин, которые были направлены на 2-й этапа диспансеризации', form_text_add )
-    worksheet_write_formula( wsFemale, 8, 2, '=табл_1!M12', cell_format2511 )
+    worksheet_write_formula( wsFemale, 8, 2, '=табл_1!L13', form_text_add2 )
     worksheet_write_string( wsFemale, 9, 0, 'Число женщин, которые были обследованы в рамках 2-го этапа диспансеризации', form_text_add )
-    worksheet_write_formula( wsFemale, 9, 2, '=табл_1!M18', cell_format2511 )
+    worksheet_write_formula( wsFemale, 9, 2, '=табл_1!R13', form_text_add2 )
     for i := 7 to 9
       worksheet_write_string( wsFemale, i, 1, '', form_text_add )
     next
@@ -743,6 +754,28 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     worksheet_write_string( wsFemale, 29, 1, 'А63.8. Урогенитальные заболевания, вызванные Mycoplasma genitalium', form_text_add )
     worksheet_write_string( wsFemale, 30, 1, 'А59 Трихомониаз', form_text_add )
 
+    worksheet_write_string( wsFemale, 10, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 11, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 12, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 13, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 14, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 15, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 16, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 17, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 18, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 19, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 20, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 21, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 22, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 23, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 24, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 25, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 26, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 27, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 28, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 29, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 30, 2, '', form_text_add2 )
+
     worksheet_write_string( wsFemale, 31, 0, 'Число женщин 18-29 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го диспансеризациия и общей диспансеризации', form_text_add )
     for i := 31 to 43
       worksheet_write_string( wsFemale, i, 0, '', form_text_add )
@@ -760,6 +793,20 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     worksheet_write_string( wsFemale, 41, 1, 'Е25 адреногенитальные расстройства', form_text_add )
     worksheet_write_string( wsFemale, 42, 1, 'L68.0 гирсутизм', form_text_add )
     worksheet_write_string( wsFemale, 43, 1, 'I10-I15 болезни, характеризующиеся повышенным кровяным давлением', form_text_add )
+
+    worksheet_write_string( wsFemale, 31, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 32, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 33, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 34, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 35, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 36, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 37, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 38, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 39, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 40, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 41, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 42, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 43, 2, '', form_text_add2 )
 
     worksheet_write_string( wsFemale, 44, 0, 'Число женщин 30-49 лет с выявленными заболеваниями репродуктивной системы по кодам МКБ-10 по результатам 1-го и 2-го этапа диспансеризациия', form_text_add )
     for i := 44 to 64
@@ -787,6 +834,29 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     worksheet_write_string( wsFemale, 63, 1, 'А63.8. Урогенитальные заболевания, вызванные Mycoplasma genitalium', form_text_add )
     worksheet_write_string( wsFemale, 64, 1, 'А59 Трихомониаз', form_text_add )
 
+    worksheet_write_string( wsFemale, 44, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 45, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 46, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 47, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 48, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 49, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 50, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 51, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 52, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 53, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 54, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 55, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 56, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 57, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 58, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 59, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 60, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 61, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 62, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 63, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 64, 2, '', form_text_add2 )
+
+
     worksheet_write_string( wsFemale, 65, 0, 'Число женщин 30-49 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го диспансеризациия и общей диспансеризации', form_text_add )
     for i := 65 to 77
       worksheet_write_string( wsFemale, i, 0, '', form_text_add )
@@ -805,21 +875,36 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     worksheet_write_string( wsFemale, 76, 1, 'L68.0 гирсутизм', form_text_add )
     worksheet_write_string( wsFemale, 77, 1, 'I10-I15 болезни, характеризующиеся повышенным кровяным давлением', form_text_add )
 
+    worksheet_write_string( wsFemale, 65, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 66, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 67, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 68, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 69, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 70, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 71, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 72, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 73, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 74, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 75, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 76, 2, '', form_text_add2 )
+    worksheet_write_string( wsFemale, 77, 2, '', form_text_add2 )
+
     wsMan := workbook_add_worksheet( workbook,  'Мужчины' )
     worksheet_set_column( wsMan, 0, 0, 61.2 )
     worksheet_set_column( wsMan, 1, 1, 61.2 )
     worksheet_set_column( wsMan, 2, 2, 11 )
 
     worksheet_merge_range( wsMan, 0, 0, 0, 1, 'Календарный год:', form_text_add1 )
+    worksheet_write_string( wsMan, 0, 2, Str( Year( arr_m[ 6 ] ), 4 ), form_text_add1 )
     worksheet_merge_range( wsMan, 1, 0, 1, 1, 'Период:', form_text_add1 )
     worksheet_merge_range( wsMan, 2, 0, 2, 1, 'Субъект РФ:', form_text_add1 )
     worksheet_merge_range( wsMan, 3, 0, 3, 1, 'Отчет:', form_text_add1 )
 
     worksheet_write_string( wsMan, 7, 0, 'Число мужчин, которые были обследованы в рамках 1-го этапа диспансеризации', form_text_add )
-//    worksheet_write_formula( wsMan, 7, 2, '=табл_1!M4', cell_format2511 )
+    worksheet_write_formula( wsMan, 7, 2, '=табл_1!D11', form_text_add2 )
 
     worksheet_write_string( wsMan, 8, 0, 'Число мужчин, которые были направлены на 2-й этап диспансеризации', form_text_add )
-//    worksheet_write_formula( wsMan, 8, 2, '=табл_1!M12', cell_format2511 )
+    worksheet_write_formula( wsMan, 8, 2, '=табл_1!L11', form_text_add2 )
     for i := 7 to 8
       worksheet_write_string( wsMan, i, 1, '', form_text_add )
     next
@@ -832,6 +917,11 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     worksheet_write_string( wsMan, 10, 1, 'E29.1 Гипофункция яичек', form_text_add )
     worksheet_write_string( wsMan, 11, 1, 'I86.1 Варикоцеле', form_text_add )
     worksheet_write_string( wsMan, 12, 1, 'N44 Перекрут яичка', form_text_add )
+
+    worksheet_write_string( wsMan, 9, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 10, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 11, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 12, 2, '', form_text_add2 )
 
     worksheet_write_string( wsMan, 13, 0, 'Число мужячин 18-29 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го этапа диспансеризации и общей диспансеризации, всего', form_text_add )
     for i := 14 to 22
@@ -848,6 +938,19 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     worksheet_write_string( wsMan, 21, 1, 'B26 Эпидемический паротит', form_text_add )
     worksheet_write_string( wsMan, 22, 1, 'E10 Сахарный диабет 1 типа', form_text_add )
 
+    worksheet_write_string( wsMan, 13, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 14, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 15, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 16, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 17, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 18, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 19, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 20, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 21, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 22, 2, '', form_text_add2 )
+
+
+
     worksheet_write_string( wsMan, 23, 0, 'Число мужячин 18-29 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го этапа диспансеризации и общей диспансеризации, всего', form_text_add )
     for i := 24 to 26
       worksheet_write_string( wsMan, i, 0, '', form_text_add )
@@ -856,6 +959,11 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     worksheet_write_string( wsMan, 24, 1, 'E29.1 Гипофункция яичек', form_text_add )
     worksheet_write_string( wsMan, 25, 1, 'I86.1 Варикоцеле', form_text_add )
     worksheet_write_string( wsMan, 26, 1, 'N44 Перекрут яичка', form_text_add )
+
+    worksheet_write_string( wsMan, 23, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 24, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 25, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 26, 2, '', form_text_add2 )
 
     worksheet_write_string( wsMan, 27, 0, 'Число мужчин 30-49 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го этапа диспансеризации и общей диспансеризации, всего', form_text_add )
     for i := 28 to 36
@@ -871,6 +979,17 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch  )
     worksheet_write_string( wsMan, 34, 1, 'N45 Эпидидимит, эпидидимоорхит', form_text_add )
     worksheet_write_string( wsMan, 35, 1, 'B26 Эпидемический паротит', form_text_add )
     worksheet_write_string( wsMan, 36, 1, 'E10 Сахарный диабет 1 типа', form_text_add )
+
+    worksheet_write_string( wsMan, 27, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 28, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 29, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 30, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 31, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 32, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 33, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 34, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 35, 2, '', form_text_add2 )
+    worksheet_write_string( wsMan, 36, 2, '', form_text_add2 )
 
     workbook_close( workbook )
 
