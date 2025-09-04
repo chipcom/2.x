@@ -220,13 +220,13 @@ Function getn002()
   Endif
   Return _arr
 
-// 29.05.25
+// 04.09.25
 Function getds_n002( mdate )
  
   local aStadii
   Local row, it, i := 0
 
-  default mdate to sys_date
+  default mdate to Date()
   if ValType( mdate ) == 'C'
     mdate := CToD( mdate )
   endif
@@ -287,13 +287,13 @@ Function getn003()
   Endif
   Return _arr
 
-// 29.05.25
+// 04.09.25
 Function getds_n003( mdate )
 
   local aTumor
   Local row, it, i := 0
 
-  default mdate to sys_date
+  default mdate to Date()
   if ValType( mdate ) == 'C'
     mdate := CToD( mdate )
   endif
@@ -355,13 +355,13 @@ Function getn004()
   Endif
   Return _arr
 
-// 29.05.25
+// 04.09.25
 Function getds_n004( mdate )
 
   Static aNodus
   Local row, it, i := 0
 
-  default mdate to sys_date
+  default mdate to Date()
   if ValType( mdate ) == 'C'
     mdate := CToD( mdate )
   endif
@@ -422,13 +422,13 @@ Function getn005()
   Endif
   Return _arr
 
-// 29.05.25
+// 04.09.25
 Function getds_n005( mdate )
 
   local aMetastasis
   Local row, it, i := 0
 
-  default mdate to sys_date
+  default mdate to Date()
   if ValType( mdate ) == 'C'
     mdate := CToD( mdate )
   endif
