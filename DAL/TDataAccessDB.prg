@@ -6,7 +6,7 @@
 #include 'common.ch'
 #include 'property.ch'
 
-static sforever := "FOREVER"
+static sforever := 'FOREVER'
 
 // Описываем класс TDataAccessDB
 CREATE CLASS TDataAccessDB
@@ -37,13 +37,14 @@ CREATE CLASS TDataAccessDB
 		METHOD AddRec( k, is_forever, is_only_0 )
 ENDCLASS
 // конец описания класса
-**************************************
 
 METHOD New()	CLASS TDataAccessDB
+
 	return self
 
-* 23.11.18 - процедура переиндексирования файла БД объекта
+// 23.11.18 - процедура переиндексирования файла БД объекта
 METHOD procedure Index( lNecessarily )	CLASS TDataAccessDB
+
 	local item
 	local key, cName
 
@@ -75,10 +76,11 @@ METHOD procedure Index( lNecessarily )	CLASS TDataAccessDB
 		next
 		( ::oDescr:AliasFile())->( dbCloseArea() )
 	endif
-	return nil
+	return
 	
-* возвращает id - записи (номер записи в файле БД), в случае ошибки возвращает -1
+// возвращает id - записи (номер записи в файле БД), в случае ошибки возвращает -1
 METHOD Save( hbArray )	 CLASS TDataAccessDB
+
 	local cOldArea, cAlias
 	local lExist := .f., xValue := nil, nId := 0, lNew := .f.
 	local retCode := -1
@@ -98,7 +100,7 @@ METHOD Save( hbArray )	 CLASS TDataAccessDB
 						.or. upper( ::oDescr:AliasFile() ) == upper( 'THumanAddDB' )
 					if (cAlias)->(lastrec()) >= nId
 						(cAlias)->(dbGoto(nID))
-						if !::G_RLock( FOREVER )
+						if !::G_RLock( sforever )
 							return retCode
 						endif
 					 else
@@ -116,7 +118,7 @@ METHOD Save( hbArray )	 CLASS TDataAccessDB
 //						if (cAlias)->(dbSeek( str( 0, 7 ) + dtos( ctod( '' ) ) + str( 0, 6 )))//, .t.))
 						if (cAlias)->(dbSeek( str( 0, 7 ) ) )
 							do while (cAlias)->kod_k == 0 .and. !(cAlias)->(eof())
-								if ::G_RLock( FOREVER )
+								if ::G_RLock( sforever )
 									fl := .f.
 									exit
 								endif
@@ -126,7 +128,7 @@ METHOD Save( hbArray )	 CLASS TDataAccessDB
 					else
 						if (cAlias)->(dbSeek( str( 0, 7 ), .t.))
 							do while (cAlias)->KOD == 0 .and. !(cAlias)->(eof())
-								if ::G_RLock( FOREVER )
+								if ::G_RLock( sforever )
 									fl := .f.
 									exit
 								endif
@@ -148,7 +150,7 @@ METHOD Save( hbArray )	 CLASS TDataAccessDB
 				nID := (cAlias)->( recno() )
 			else
 				(cAlias)->(dbGoto(nID))
-				if !::G_RLock( FOREVER )
+				if !::G_RLock( sforever )
 					return retCode
 				endif
 			endif
@@ -181,12 +183,13 @@ METHOD Save( hbArray )	 CLASS TDataAccessDB
 	endif
 	return retCode
 	
-***** Очистить запись и пометить для удаления
+// Очистить запись и пометить для удаления
 // object - удаляемый объект
 // is_cycle  - (.f.) .f. - делать COMMIT, .t. - не делать
 // is_delete - (.t.) .t. - помечать на удаление, .f. - не помечать
 // is_lock   - (.t.) .t. - блокировать запись, .f. - нет (уже заблокирована)
 METHOD Delete( object, is_cycle, is_delete, is_lock )	CLASS TDataAccessDB
+
 	local cOldArea, temp
 	local ret := .f.
 	local nNumberofFields, nCurField, mtype, fl := .t.
@@ -207,17 +210,17 @@ METHOD Delete( object, is_cycle, is_delete, is_lock )	CLASS TDataAccessDB
 				for nCurField := 1 to nNumberofFields
 					mtype := type( field( nCurField ) )
 					do case
-						case mtype == "C"
-							fieldput( nCurField, " " )
-						case mtype == "N"
+						case mtype == 'C'
+							fieldput( nCurField, ' ' )
+						case mtype == 'N'
 							fieldput( nCurField, 0 )
-						case mtype == "L"
+						case mtype == 'L'
 							fieldput( nCurField, .f. )
-						case mtype == "D"
-							fieldput( nCurField, CTOD( "" ) )
-						case mtype == "M"
+						case mtype == 'D'
+							fieldput( nCurField, CTOD( '' ) )
+						case mtype == 'M'
 							if !empty( FIELDGET( nCurField  ) )
-								fieldput( nCurField, " " )
+								fieldput( nCurField, ' ' )
 							endif
 					endcase
 				next
@@ -237,27 +240,31 @@ METHOD Delete( object, is_cycle, is_delete, is_lock )	CLASS TDataAccessDB
 	dbSelectArea( cOldArea )
 	return ret
 	
-***** открытие файла базы данных в сети
+// открытие файла базы данных в сети
 METHOD GUse( lRegim )	CLASS TDataAccessDB
 
 	HB_Default( @lRegim, .t. ) 
 	return ::G_UseDB( lRegim )
 
-***** открытие файла базы данных в сети ТОЛЬКО ДЛЯ ЧТЕНИЯ
+// открытие файла базы данных в сети ТОЛЬКО ДЛЯ ЧТЕНИЯ
 METHOD RUse()	CLASS TDataAccessDB
+
 	return ::G_UseDB()
 
-***** монопольное открытие файла базы данных
+// монопольное открытие файла базы данных
 METHOD EUse()	CLASS TDataAccessDB
+
 	return ::G_UseDB( , .t.)
 	
   
-***** открытие файла базы данных в сети
+// открытие файла базы данных в сети
 // lTryForever - логическая величина (.t. - пытаться бесконечно)
 // lExcluUse - логическая величина (.t. - монопольное открытие БД)
 // lREADONLY - логическая величина (.t. - открытие БД только для чтения)
 METHOD G_UseDB( lTryForever, lExcluUse, lREADONLY )	CLASS TDataAccessDB
-	local cMessage, lRetValue, UpcFile, c1Array := { "Попытаться снова" }, cArray
+
+	local cMessage, lRetValue, c1Array := { 'Попытаться снова' }, cArray
+	local cFile, curUser
 
 	::oDescr := TDescriptorDBF():New( Self:ClassName() )
 	
@@ -266,25 +273,28 @@ METHOD G_UseDB( lTryForever, lExcluUse, lREADONLY )	CLASS TDataAccessDB
 	HB_Default( @lREADONLY, .f. ) 
 
 	cFile		:= ::oDescr:FileName()
+	curUser := hb_user_curUser
 	
 	if !File( cFile )
 		dbCreate( cFile, ::oDescr:StructFile() )
 	endif
 	
 	// получим ID работающего пользователя
-	if hb_user_curUser != nil
-		::FIDUser := hb_user_curUser:ID()
+//	if hb_user_curUser != nil
+//		::FIDUser := hb_user_curUser:ID()
+//	endif
+	if curUser != nil
+		::FIDUser := curUser:ID()
 	endif
 	
-	if ".DBF" == Upper( right( cFile, 4 ) )
+	if '.DBF' == Upper( right( cFile, 4 ) )
 		cFile := substr( cFile, 1, len( cFile ) - 4 )
 	endif
 	// чтобы все файлы в данном модуле открывались только для чтения,
-	// определите PRIVATE-перемменную "PRIVATE use_readonly := .t."
-	&& if lREADONLY == nil .and. type( 'use_readonly' ) == 'L' .and. use_readonly
-	if lREADONLY == nil .and. islogical( 'use_readonly' ) .and. use_readonly
-		lREADONLY := .t.
-	endif
+	// определите PRIVATE-перемменную 'PRIVATE use_readonly := .t.'
+//	if lREADONLY == nil .and. islogical( 'use_readonly' ) .and. use_readonly
+//		lREADONLY := .t.
+//	endif
 	// Попытки открытия базы данных до успеха или отказа
 	do while lRetValue == nil
 		dbUseArea( .t.,;          // new
@@ -293,7 +303,7 @@ METHOD G_UseDB( lTryForever, lExcluUse, lREADONLY )	CLASS TDataAccessDB
 					::oDescr:AliasFile(), ;      // alias
 					!lExcluUse, ;  // if(<.sh.> .or. <.ex.>, !<.ex.>, nil)
 					lREADONLY, ;   // readonly
-					"RU866" ;
+					'RU866' ;
 				)
 		if !NETERR()
 			if empty( ::oDescr:IndexFile() )  // нет индексов при вызове ф-ии
@@ -308,7 +318,7 @@ METHOD G_UseDB( lTryForever, lExcluUse, lREADONLY )	CLASS TDataAccessDB
 				cMessage += ';Он занят другим пользователем'
 				cArray := aclone( c1Array )
 				aadd( cArray, 'Завершить' )
-				if ALERT( cMessage, cArray, color0 ) != 1
+				if ALERT( cMessage, cArray, 'N/BG, W+/N' ) != 1
 					lRetValue := .f.
 				endif
 			endif
@@ -316,7 +326,7 @@ METHOD G_UseDB( lTryForever, lExcluUse, lREADONLY )	CLASS TDataAccessDB
 	enddo
 	return ( lRetValue )
   
-***** Открытие списка индексных файлов для работы в сети
+// Открытие списка индексных файлов для работы в сети
 METHOD G_IndexDB( cIndex )	CLASS TDataAccessDB
 	local nIndexNum, cMessage, lRetValue
 	
@@ -335,7 +345,7 @@ METHOD G_IndexDB( cIndex )	CLASS TDataAccessDB
 			if !FILE( cIndex[ nIndexNum, 1 ] + if( '.' $ cIndex[ nIndexNum, 1 ], '', '.??x' ) )
 				cMessage := 'ОШИБКА: Индексный файл ' + StripPath( cIndex[ nIndexNum, 1 ] ) + ;
 							' не существует'
-				ALERT( cMessage, { 'Завершить' }, color0 )
+				ALERT( cMessage, { 'Завершить' }, 'N/BG, W+/N' )
 				lRetValue := .f.
 				EXIT
 			endif
@@ -352,7 +362,7 @@ METHOD G_IndexDB( cIndex )	CLASS TDataAccessDB
 	endif
 	return ( lRetValue )  
 
-*****************************
+// 
 METHOD GetByAttribute( cAttribute, cValue ) CLASS TDataAccessDB
 	local block
 	local aReturn := {}
@@ -399,8 +409,8 @@ METHOD Reconstruct() CLASS TDataAccessDB
 					 
 	static sdbf := '.dbf'
 	static err_2_task := 'Вероятность повторного запуска задачи!'
-	local adbf, fl := .f., lOldDeleted, lrec, i, is_time
-	local item
+	local adbf, fl := .f., lOldDeleted, lrec
+	local item, vrec
 	
 	::oDescr := TDescriptorDBF():New( Self:ClassName() )
 	if !file( ::oDescr:FileName() )
@@ -424,7 +434,7 @@ METHOD Reconstruct() CLASS TDataAccessDB
 							' байт для перестроения базы данных' )
 				f_end()
 			endif
-			(tmp)->( dbCloseArea() )
+			tmp->( dbCloseArea() )
 			//
 			lOldDeleted := SET( _SET_DELETED, .f. )
 			use tmp new
@@ -433,12 +443,12 @@ METHOD Reconstruct() CLASS TDataAccessDB
 			//
 			do while FErase( ::oDescr:FileName() ) != 0
 			enddo
-			if fl_NET
-				__CopyFile( 'tmp.dbf', ::oDescr:FileName() )
-				FErase( 'tmp.dbf' )
-			else
+//			if fl_NET
+//				__CopyFile( 'tmp.dbf', ::oDescr:FileName() )
+//				FErase( 'tmp.dbf' )
+//			else
 				FRename( 'tmp.dbf', ::oDescr:FileName() )
-			endif
+//			endif
 			SET( _SET_DELETED, lOldDeleted )
 			fl := .t.
 		endif
@@ -450,7 +460,7 @@ METHOD Reconstruct() CLASS TDataAccessDB
 	endif
 	return nil
 
-***** добавление с повторным использованием удаленных записей (нет индекса)
+// добавление с повторным использованием удаленных записей (нет индекса)
 METHOD AddRecN( is_forever ) CLASS TDataAccessDB
 	local lOldDeleted := SET( _SET_DELETED, .f. ), fl := .f.
 	
@@ -471,7 +481,7 @@ METHOD AddRecN( is_forever ) CLASS TDataAccessDB
 	SET( _SET_DELETED, lOldDeleted )  // Восстановление среды
 	return fl
 	
-***** добавление с повторным использованием удаленных записей (есть индекс)
+// добавление с повторным использованием удаленных записей (есть индекс)
 //	Parameters k, is_forever, is_only_0
 	// k    - длина цифрового ключа
 	//        или наименование поля для поиска кода (для locate)
@@ -483,9 +493,9 @@ METHOD AddRec( k, is_forever, is_only_0 ) CLASS TDataAccessDB
 	HB_Default( @is_forever, .f. )
 	HB_Default( @is_only_0, .f. )
 	
-	if valtype( k ) == "N"
+	if valtype( k ) == 'N'
 		FIND ( STR( 0, k ) )
-		if FOUND()  // если найдено значение "нуль" - проверить на DELETED()
+		if FOUND()  // если найдено значение 'нуль' - проверить на DELETED()
 			fl_f := .t.
 			if DELETED()
 				if ( fl := iif( is_forever, ::G_RLock( sforever ), ::G_RLock() ) )
@@ -514,16 +524,16 @@ METHOD AddRec( k, is_forever, is_only_0 ) CLASS TDataAccessDB
 	SET( _SET_DELETED, lOldDeleted )  // Восстановление среды
 	return fl
 
-***** Блокирование записи (или добавление с блокированием)
+// Блокирование записи (или добавление с блокированием)
 // G_RLock() - одноразовая попытка блокировать запись
-// G_RLock("forever") - бесконечная попытка блокировать запись
+// G_RLock('forever') - бесконечная попытка блокировать запись
 // G_RLock(.t.) - одноразовая попытка добавить запись
-// G_RLock("forever",.t.) - бесконечная попытка добавить запись
-// G_RLock(.t.,"forever") - бесконечная попытка добавить запись
-***** 09.01.17
+// G_RLock('forever',.t.) - бесконечная попытка добавить запись
+// G_RLock(.t.,'forever') - бесконечная попытка добавить запись
+// 09.01.17
 METHOD G_RLock( ... ) CLASS TDataAccessDB
+
 	local lAppend := .f., cMessage, cTitle, i, lRetValue, nSec, lTryForever := .f., cArray := hb_AParams()
-	local retMsg
 	
 	// Обработка переданных параметров
 	for i := 1 to len( cArray )
@@ -531,13 +541,12 @@ METHOD G_RLock( ... ) CLASS TDataAccessDB
 		if islogical( cArray[ i ] )
 			lAppend := cArray[ i ]
 		else
-			lTryForever := ( UPPER( cArray[ i ] ) == 'FOREVER' )
+			lTryForever := ( UPPER( cArray[ i ] ) == sforever )
 		endif
 	next // i
 	do while lRetValue == nil
 		nSec := SECONDS() + 3
 		// Зацикливание на не более 3 секунд
-		&& do while ( SECONDS() < nSec ) .and. ( lRetValue == nil )
 		do while ( SECONDS() < nSec ) .and. ( isnil( lRetValue ) )
 			if lAppend
 				// Выполнение APPEND BLANK если указано
@@ -562,15 +571,16 @@ METHOD G_RLock( ... ) CLASS TDataAccessDB
 			else
 				cArray := { 'Попытаться снова', 'Завершить' }
 			endif
-			if ( ALERT( cMessage, cArray, color0 ) != 1 ) .AND. !lTryForever
+			if ( ALERT( cMessage, cArray, 'N/BG, W+/N' ) != 1 ) .AND. !lTryForever
 				lRetValue := .f.
 			endif
 		endif
 	enddo
 	return ( lRetValue )
 	
-* получить хэш-массив для текущей записи (можно использовать в циклах)	
+// получить хэш-массив для текущей записи (можно использовать в циклах)	
 METHOD currentRecord() CLASS TDataAccessDB
+
 	local aRow := nil
 	local xValue
 	local cAlias
@@ -588,8 +598,9 @@ METHOD currentRecord() CLASS TDataAccessDB
 	endif
 	return aRow
 
-* перейти на следующую запись и получить хэш-массив для следующей записи (можно использовать в циклах)	
+// перейти на следующую запись и получить хэш-массив для следующей записи (можно использовать в циклах)	
 METHOD nextRecord() CLASS TDataAccessDB
+
 	local aRow := nil
 	local xValue
 	local cAlias
@@ -610,8 +621,9 @@ METHOD nextRecord() CLASS TDataAccessDB
 	endif
 	return aRow
 
-* перейти на предыдущую запись и получить хэш-массив для следующей записи (можно использовать в циклах)	
+// перейти на предыдущую запись и получить хэш-массив для следующей записи (можно использовать в циклах)	
 METHOD previousRecord() CLASS TDataAccessDB
+
 	local aRow := nil
 	local xValue
 	local cAlias
@@ -632,8 +644,9 @@ METHOD previousRecord() CLASS TDataAccessDB
 	endif
 	return aRow
 	
-*****************************
+//
 METHOD GetByID( nID ) CLASS TDataAccessDB
+
 	local aRow := nil
 	local xValue
 	local cAlias
@@ -662,8 +675,9 @@ METHOD GetByID( nID ) CLASS TDataAccessDB
 	endif
 	return aRow
 	
-*****************************
+//
 METHOD GetList( ) CLASS TDataAccessDB
+
 	local xValue, aRow, aReturn := {}
 	local cAlias
 	local cOldArea

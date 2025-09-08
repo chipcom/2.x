@@ -11,6 +11,7 @@ CREATE CLASS TBaseObjectDB	INHERIT	TDataAccessDB
 		PROPERTY IsDeleted AS LOGICAL READ getIsDeleted WRITE setIsDeleted
 		PROPERTY IsNew AS LOGICAL READ getIsNew WRITE setIsNew
 		
+		METHOD New()
 		METHOD Equal( obj )
 	
 	PROTECTED:
@@ -87,4 +88,3 @@ METHOD Equal( obj )		 CLASS TBaseObjectDB
 		ret := ( ::ID == obj:ID )
 	endif
 	return ret
-
