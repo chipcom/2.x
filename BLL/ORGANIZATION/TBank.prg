@@ -32,6 +32,7 @@ CREATE CLASS TBank
 ENDCLASS
 					
 METHOD function forJSON()							CLASS TBank
+	
 	local hItem
 
 	hItem := { => }
@@ -42,6 +43,7 @@ METHOD function forJSON()							CLASS TBank
 	return hItem
 					
 METHOD New( cName, cR_schet, cK_schet, cBIK )	CLASS TBank
+	
 	::FName := ::transformText( cName, 100 )
 	::FBIK := ::transformText( cBIK, 10 )
 	::FAccount := ::transformText( cR_schet, 20 )
@@ -52,6 +54,7 @@ METHOD Function GetName()							CLASS TBank
 	return ::FName
 
 METHOD PROCEDURE SetName( cText )				CLASS TBank
+	
 	::FName := ::transformText( cText, 100 )
 	return
 	
@@ -62,6 +65,7 @@ METHOD Function GetBIK()							CLASS TBank
 	return ::FBIK
 
 METHOD PROCEDURE SetBIK( cText )					CLASS TBank
+	
 	::FBIK := ::transformText( cText, 10 )
 	return
 
@@ -69,6 +73,7 @@ METHOD Function GetRSchet()						CLASS TBank
 	return ::FAccount
 
 METHOD PROCEDURE SetRSchet( cText )				CLASS TBank
+	
 	::FAccount := ::transformText( cText, 20 )
 	return
 
@@ -76,6 +81,7 @@ METHOD Function GetKSchet()						CLASS TBank
 	return ::FAccountCor
 
 METHOD PROCEDURE SetKSchet( cText )				CLASS TBank
+	
 	::FAccountCor := ::transformText( cText, 20 )
 	return
 	

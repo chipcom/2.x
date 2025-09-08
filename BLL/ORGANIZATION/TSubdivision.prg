@@ -2,7 +2,6 @@
 #include 'hbhash.ch'
 #include 'property.ch'
 #include 'common.ch'
-&& #include 'function.ch'
 #include 'chip_mo.ch'
 
 // класс для отделений учреждения файл mo_otd.dbf
@@ -65,9 +64,10 @@ CREATE CLASS TSubdivision	INHERIT	TBaseObjectBLL
 		PROPERTY Address READ getAddress WRITE setAddress					// адрес отделения
 		
 		METHOD New( nId, lNew, lDeleted )
-  
+		METHOD Clone()  
 		&& METHOD listForJSON()
 		METHOD forJSON()
+
 	HIDDEN:
 		CLASSDATA	aType		AS ARRAY INIT {;
 								{ 'стандартный'                          ,0            }, ;  // 1
@@ -184,6 +184,7 @@ CREATE CLASS TSubdivision	INHERIT	TBaseObjectBLL
 ENDCLASS
 
 METHOD function forJSON()    CLASS TSubdivision
+	
 	local oRow := nil, obj := nil
 	local hItems, hItem, h
 
@@ -224,6 +225,7 @@ METHOD function forJSON()    CLASS TSubdivision
 
 
 METHOD FUNCTION getProfilFormat() 		 CLASS TSubdivision
+
 	local ret := '', it
 
 	if ::FProfil != 0
@@ -469,7 +471,7 @@ METHOD New( nId, lNew, lDeleted ) CLASS TSubdivision
 	if ascan( glob_klin_diagn, 1 ) > 0
 		aadd( ::aTypeLU, { 'жидкостная цитология рака шейки матки', TIP_LU_G_CIT } )
 	elseif ascan( glob_klin_diagn, 2 ) > 0
-		aadd( aTypeLU, { 'пренатальный скрининг наруш.внутр.разв.', TIP_LU_G_CIT } )
+		aadd( ::aTypeLU, { 'пренатальный скрининг наруш.внутр.разв.', TIP_LU_G_CIT } )
 	endif
 	
 	hb_ADel( ::aType, 7 , .t. )
