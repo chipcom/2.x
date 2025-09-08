@@ -155,7 +155,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Private mm_prer_b := mm2prer_b
 
   Private mTab_Number := 0
-  Private mNMSE, m1NMSE := NO  // направление на МСЭ
+  Private mNMSE, m1NMSE := CHIP_NO  // направление на МСЭ
   Private mnapr_onk := Space( 10 ), m1napr_onk := 0
 
   If mem_zav_l == 1  // да
