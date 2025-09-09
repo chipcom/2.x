@@ -194,7 +194,7 @@ Procedure Main( ... )
       update_data_db( _version() )    // провести изменения в базе если необходимо
       // записать новый номер версии
       controlbases( 3 )
-      If glob_mo[ _MO_IS_UCH ]
+      If glob_mo()[ _MO_IS_UCH ]
         // correct_polis_from_sptk()  // корректировка полисов из реестров СПТК
         // dubl_zap_kod_tf()          // удалить дубликаты записей в картотеке
       Endif
@@ -245,7 +245,7 @@ Function app_ini()
   Set Color To
   Return Nil
 
-// 21.05.25
+// 09.09.25
 Function f_main( r0, is_local_version, a_parol )
 
   Static arr1 := { ;
@@ -277,7 +277,7 @@ Function f_main( r0, is_local_version, a_parol )
     sem_vagno_task[ arr1[ i, 2 ] ] := 'Важный режим в задаче "' + arr1[ i, 5 ] + '"'
   Next
 
-  If glob_mo[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
+  If glob_mo()[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
     AAdd( array_tasks, { 'ВОУНЦ - трансплантированные', X_MO, 'TABLET_ICON', .t. } )
   Endif
 
@@ -288,13 +288,13 @@ Function f_main( r0, is_local_version, a_parol )
   arr := {}
   For i := 1 To Len( array_tasks )
     If ( k := array_tasks[ i, 2 ] ) < 10  // код задачи
-      array_tasks[ i, 4 ] := ( SubStr( glob_mo[ _MO_PROD ], k, 1 ) == '1' )
+      array_tasks[ i, 4 ] := ( SubStr( glob_mo()[ _MO_PROD ], k, 1 ) == '1' )
       If array_tasks[ i, 4 ]
         fl_exit := .f.
       Endif
     Endif
     // Учёт направлений на госпитализацию
-    If k == X_263 .and. ( is_napr_pol .or. is_napr_stac ) // .and. ( substr( glob_mo[ _MO_PROD ], X_263, 1 ) == '1' )
+    If k == X_263 .and. ( is_napr_pol .or. is_napr_stac ) // .and. ( substr( glob_mo()[ _MO_PROD ], X_263, 1 ) == '1' )
       array_tasks[ i, 4 ] := .t.
       fl_exit := .f.
     Endif
@@ -323,7 +323,7 @@ Function f_main( r0, is_local_version, a_parol )
     If hb_user_curUser:isadmin()
       find_unfinished_reestr_sp_tk( .f., .t. )
       find_time_limit_human_reestr_sp_tk()
-//      If glob_mo[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
+//      If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
 //      find_unfinished_r01()
       find_unfinished_r11()
 //      Endif
@@ -337,13 +337,13 @@ Function f_main( r0, is_local_version, a_parol )
       If ( i := popup_2array( arr, r + r0, c, i, , , 'Выбор задачи', 'B+/W', 'N+/W, W+/N*' ) ) == 0
         Exit
       Endif
-      oldTfoms := glob_mo[ _MO_KOD_TFOMS ]
+      oldTfoms := glob_mo()[ _MO_KOD_TFOMS ]
       buf := SaveScreen()
       k := i
       f1main( i )
       RestScreen( buf )
       reread_glob_mo()
-      If !( oldTfoms == glob_mo[ _MO_KOD_TFOMS ] )
+      If !( oldTfoms == glob_mo()[ _MO_KOD_TFOMS ] )
         // вывести верхние строки главного экрана
         r0 := main_up_screen()
         // вывести центральные строки главного экрана
@@ -358,18 +358,18 @@ Function f_main( r0, is_local_version, a_parol )
   Endif
   Return Nil
 
-// вывести верхние строки главного экрана
+// 09.09.25 вывести верхние строки главного экрана
 Function main_up_screen()
 
   Local i, k, s, arr[ 2 ]
 
   fillscreen( p_char_screen, p_color_screen ) // FillScreen('█','N+/N')
-  s := 'Код ' + iif( glob_mo[ _MO_IS_MAIN ], 'МО', 'обособленного подразделения' ) + ;
-    ', присвоенный ТФОМС: ' + glob_mo[ _MO_KOD_TFOMS ] + ;
-    ' (реестровый № ' + glob_mo[ _MO_KOD_FFOMS ] + ')'
+  s := 'Код ' + iif( glob_mo()[ _MO_IS_MAIN ], 'МО', 'обособленного подразделения' ) + ;
+    ', присвоенный ТФОМС: ' + glob_mo()[ _MO_KOD_TFOMS ] + ;
+    ' (реестровый № ' + glob_mo()[ _MO_KOD_FFOMS ] + ')'
   @ 0, 0 Say PadC( s, MaxCol() + 1 ) Color 'W+/N'
-  s := iif( glob_mo[ _MO_IS_MAIN ], '', 'Обособленное подразделение: ' ) + ;
-    glob_mo[ _MO_FULL_NAME ]
+  s := iif( glob_mo()[ _MO_IS_MAIN ], '', 'Обособленное подразделение: ' ) + ;
+    glob_mo()[ _MO_FULL_NAME ]
   k := perenos( arr, s, MaxCol() + 1 )
   For i := 1 To k
     @ i, 0 Say PadC( AllTrim( arr[ i ] ), MaxCol() + 1 ) Color 'GR+/N'
@@ -385,7 +385,7 @@ Function main_up_screen()
   @ k + 1, MaxCol() -4 Say hour_min( Seconds() ) Color 'W+/N'
   Return k + 1
 
-// вывести центральные строки главного экрана
+// 09.09.25 вывести центральные строки главного экрана
 Function main_center_screen( r0, a_parol )
 
   Static nLen := 11
@@ -396,10 +396,10 @@ Function main_center_screen( r0, a_parol )
   Local s, i, c, k, t_arr, r1, buf, mst := ''
 
   g_arr_stand := {}
-  If ValType( glob_mo[ _MO_STANDART ] ) == 'A'
-    For k := 1 To Len( glob_mo[ _MO_STANDART ] )
-      t_arr := { glob_mo[ _MO_STANDART, k, 1 ], {} }
-      mst := PadR( glob_mo[ _MO_STANDART, k, 2 ], nLen )
+  If ValType( glob_mo()[ _MO_STANDART ] ) == 'A'
+    For k := 1 To Len( glob_mo()[ _MO_STANDART ] )
+      t_arr := { glob_mo()[ _MO_STANDART, k, 1 ], {} }
+      mst := PadR( glob_mo()[ _MO_STANDART, k, 2 ], nLen )
       For i := 1 To nLen
         c := SubStr( mst, i, 1 )
         If c == '1'
