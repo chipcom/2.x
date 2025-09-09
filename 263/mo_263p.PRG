@@ -745,7 +745,7 @@ Function _263_p_inform()
   ne_real()
   Return Nil
 
-// 04.06.23 Просмотр количества свободных коек по профилям в стационарах
+// 09.09.25 Просмотр количества свободных коек по профилям в стационарах
 Function _263_p_svob_kojki()
 
   Static si := 1, sprofil_k := 0, sprofil := 0
@@ -764,7 +764,7 @@ Function _263_p_svob_kojki()
     r_use( dir_server() + 'mo_nfile', , 'NF' )
     Index On Upper( PadR( ret_mo( SubStr( nf->name_f, 12, 6 ) )[ _MO_SHORT_NAME ], 30 ) ) to ( cur_dir() + 'tmp_nf' ) ;
       For TIP_F == 7 .and. IN_OUT == 2 .and. ;
-      AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == SubStr( nf->name_f, 12, 6 ) } ) > 0
+      AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == SubStr( nf->name_f, 12, 6 ) } ) > 0
     Go Top
     If Eof()
       func_error( 4, 'Ещё не было чтения пакетов I07' )
@@ -810,7 +810,7 @@ Function _263_p_svob_kojki()
         Set Relation To kod_f into NF
         Index On Upper( PadR( ret_mo( codem )[ _MO_SHORT_NAME ], 30 ) ) + codem + Str( usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' ) ;
           For profil_k == ret_arr[ 2 ] .and. ;
-          AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == codem } ) > 0
+          AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == codem } ) > 0
         Go Top
         t_arr[ BR_TOP ] := 2
         t_arr[ BR_BOTTOM ] := MaxRow() -5
@@ -856,7 +856,7 @@ Function _263_p_svob_kojki()
         Set Relation To kod_f into NF
         Index On Upper( PadR( ret_mo( codem )[ _MO_SHORT_NAME ], 30 ) ) + codem + Str( usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' ) ;
           For profil == ret_arr[ 2 ] .and. ;
-          AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == codem } ) > 0
+          AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == codem } ) > 0
         Go Top
         t_arr[ BR_TOP ] := 2
         t_arr[ BR_BOTTOM ] := MaxRow() -5

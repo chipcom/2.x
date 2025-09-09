@@ -208,10 +208,10 @@ function editSubdivision( oBrowse, aObjects, oSubdivision, nKey )
 			//oSubdivision:IDSP := m1mIDSP
 			//oSubdivision:IDVMP := m1mIDVMP
 			
-/*if is_adres_podr
-  if ( i := ascan( glob_adres_podr, { | x | x[ 1 ] == glob_mo[ _MO_KOD_TFOMS ] } ) ) > 0
-    for j := 1 to len( glob_adres_podr[ i, 2 ] )
-	 aadd( mm_adres_podr, { glob_adres_podr[ i, 2, j, 3 ], glob_adres_podr[ i, 2, j, 2 ] } )
+/*if is_adres_podr()
+  if ( i := ascan( glob_adres_podr(), { | x | x[ 1 ] == glob_mo[ _MO_KOD_TFOMS ] } ) ) > 0
+    for j := 1 to len( glob_adres_podr()[ i, 2 ] )
+	 aadd( mm_adres_podr, { glob_adres_podr()[ i, 2, j, 3 ], glob_adres_podr()[ i, 2, j, 2 ] } )
 	next
   endif
   Ins_Array(arr[US_EDIT_SPR],7,{"ADRES_PODR","N",2,0,,;
@@ -219,14 +219,14 @@ function editSubdivision( oBrowse, aObjects, oSubdivision, nKey )
                                 0,{|x|inieditspr(A__MENUVERT,mm_adres_podr,x)},;
                                 "Адрес удалённого подразделения для стационара"})
 endif                       
-if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
+if is_adres_podr() .and. (i := ascan(glob_adres_podr(), {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
  G_Use(dir_server()+"mo_otd",,"OTD")
  go top
  do while !eof()
-    if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr[i,2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;
-                          .and. !(otd->CODE_TFOMS == glob_adres_podr[i,2,j,1])
+    if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr()[i,2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;
+                          .and. !(otd->CODE_TFOMS == glob_adres_podr()[i,2,j,1])
      G_RLock(forever)
-     otd->CODE_TFOMS := glob_adres_podr[i,2,j,1]
+     otd->CODE_TFOMS := glob_adres_podr()[i,2,j,1]
      UnLock
    endif
    skip

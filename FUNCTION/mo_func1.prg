@@ -641,8 +641,8 @@ Function reread_glob_mo()
   r_use( dir_server() + 'organiz', , 'ORG' )
   cCode := Left( org->kod_tfoms, 6 )
   ORG->( dbCloseArea() )
-  If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == cCode } ) ) > 0
-    glob_mo := glob_arr_mo[ i ]
+  If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cCode } ) ) > 0
+    glob_mo := glob_arr_mo()[ i ]
   Endif
   Select ( tmp_select )
 

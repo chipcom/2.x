@@ -2535,7 +2535,7 @@ Function _263_to_nastr()
   Close databases
   Return Nil
 
-// 21.06.23 Получение из ТФОМС файлов обмена (информационных пакетов)
+// 09.09.25 Получение из ТФОМС файлов обмена (информационных пакетов)
 Function _263_from_read()
 
   Static nerrf := 999
@@ -2903,8 +2903,8 @@ Function _263_from_read()
             s := Right( BeforAtNum( '_', cName ), 6 )
             If s == glob_mo[ _MO_KOD_TFOMS ]
               // наше МО
-            Elseif ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == s } ) ) > 0
-              StrFile( Space( 5 ) + 'это пакет МО "' + glob_arr_mo[ i, _MO_SHORT_NAME ] + '"' + ;
+            Elseif ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == s } ) ) > 0
+              StrFile( Space( 5 ) + 'это пакет МО "' + glob_arr_mo()[ i, _MO_SHORT_NAME ] + '"' + ;
                 hb_eol(), cFileProtokol, .t. )
             Endif
           Endif
@@ -2924,8 +2924,8 @@ Function _263_from_read()
             s := BeforAtNum( '_', SubStr( cName, 11 ) )
             If ( c := Left( s, 1 ) ) == 'M'
               sFrom := SubStr( s, 2 )
-              If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == sFrom } ) ) > 0
-                s := 'от МО "' + glob_arr_mo[ i, _MO_SHORT_NAME ] + '"'
+              If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == sFrom } ) ) > 0
+                s := 'от МО "' + glob_arr_mo()[ i, _MO_SHORT_NAME ] + '"'
               Else
                 AAdd( aerr, 'Файл ' + cName + sxml() + ' неизвестно от кого (неизвестный код МО ' + sFrom + ')' )
               Endif
@@ -3531,8 +3531,8 @@ Function _263_from_read()
                 tmp1->( dbCloseArea() )
               Endif
             Endif
-          Elseif ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == s } ) ) > 0
-            StrFile( Space( 5 ) + 'это пакет не для нас, а для МО "' + glob_arr_mo[ i, _MO_SHORT_NAME ] + '"' + ;
+          Elseif ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == s } ) ) > 0
+            StrFile( Space( 5 ) + 'это пакет не для нас, а для МО "' + glob_arr_mo()[ i, _MO_SHORT_NAME ] + '"' + ;
               hb_eol(), cFileProtokol, .t. )
           Endif
         Endif

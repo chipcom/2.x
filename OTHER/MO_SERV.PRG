@@ -591,7 +591,7 @@ Function f2_import_from_lis( par )
       AAdd( aerr, "Не заполнена направляющая мед.организация у пациента" )
       AAdd( aerr, "PAT=" + arr_pac[ LIS_KOD_AK ] + ' "' + mfio + '" (ORDER=' + lstr( arr_order[ j, LISS_KOD ] ) + ')' )
       Return aerr
-    Elseif ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_FFOMS ] == arr_order[ j, LISS_MO ] } ) ) == 0
+    Elseif ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == arr_order[ j, LISS_MO ] } ) ) == 0
       AAdd( aerr, "В справочнике МО не найдена направляющая мед.организация " + arr_order[ j, LISS_MO ] + " у пациента" )
       AAdd( aerr, "PAT=" + arr_pac[ LIS_KOD_AK ] + ' "' + mfio + '" (ORDER=' + lstr( arr_order[ j, LISS_KOD ] ) + ')' )
       Return aerr
@@ -1266,7 +1266,7 @@ Function import_sluch_oms()
 
   Return Nil
 
-// 29.03.23
+// 09.09.25
 Function f1_import_sluch_oms()
 
   Local _lpu := { ;
@@ -1511,9 +1511,9 @@ Function f1_import_sluch_oms()
         Endif
       Endif
       If !Empty( ihuman->NPR_MO )
-        If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == ihuman->NPR_MO } ) ) > 0
+        If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == ihuman->NPR_MO } ) ) > 0
           //
-        Elseif ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_FFOMS ] == ihuman->NPR_MO } ) ) > 0
+        Elseif ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == ihuman->NPR_MO } ) ) > 0
           //
         Endif
         If i == 0

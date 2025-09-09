@@ -1164,7 +1164,7 @@ Function f1_p_f_pripisnoe_naselenie( aerr )
 
   Return Nil
 
-// 05.03.13
+// 09.09.25
 Function kartoteka_z_prikreplenie()
   Static srec := 0
   Local blk, t_arr[ BR_LEN ]
@@ -1188,7 +1188,7 @@ Function kartoteka_z_prikreplenie()
     iif( Empty( kart2->mo_pr ), { 3, 4 }, { 5, 6 } ) ) }
   t_arr[ BR_COLUMN ] := { { Center( "Ф.И.О.", 35 ), {|| Left( kart->fio, 32 ) }, blk }, ;
     { "Дата рожд.", {|| full_date( kart->date_r ) }, blk }, ;
-    { " Прикрепление", {|| PadR( inieditspr( A__MENUVERT, glob_arr_mo, kart2->mo_pr ), 34 ) }, blk } }
+    { " Прикрепление", {|| PadR( inieditspr( A__MENUVERT, glob_arr_mo(), kart2->mo_pr ), 34 ) }, blk } }
   t_arr[ BR_STAT_MSG ] := {|| status_key( "^<Esc>^ - выход; ^^ или нач.буква - поиск; ^<F9>^ - печать заявления на прикрепление" ) }
   t_arr[ BR_EDIT ] := {| nk, ob| f1_k_z_prikreplenie( nk, ob, "edit" ) }
   use_base( "kartotek" )
@@ -1857,7 +1857,7 @@ Function f3_vvod_uchast_spisok( tip )
 
   Return Nil
 
-// 09.09.15 Просмотр/печать прикреплённого населения
+// 09.09.25 Просмотр/печать прикреплённого населения
 Function spisok_pripisnoe_naselenie( par )
   Static sj, smo := "      "
   Local i, j, k, s, arr := {}, n_file := cur_dir() + "pr_nas" + lstr( par ) + stxt(), ll := 0, ;
@@ -1882,8 +1882,8 @@ Function spisok_pripisnoe_naselenie( par )
     Enddo
     Close databases
     For i := 1 To Len( arr_mo )
-      If ( j := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == arr_mo[ i, 2 ] } ) ) > 0
-        arr_mo[ i, 1 ] := Str( arr_mo[ i, 3 ], 6 ) + " чел. " + arr_mo[ i, 2 ] + " " + glob_arr_mo[ j, _MO_SHORT_NAME ]
+      If ( j := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == arr_mo[ i, 2 ] } ) ) > 0
+        arr_mo[ i, 1 ] := Str( arr_mo[ i, 3 ], 6 ) + " чел. " + arr_mo[ i, 2 ] + " " + glob_arr_mo()[ j, _MO_SHORT_NAME ]
         If arr_mo[ i, 2 ] == glob_MO[ _MO_KOD_TFOMS ]
           AAdd( arr, i )
         Endif

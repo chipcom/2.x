@@ -54,6 +54,7 @@ mo_version.prg
 .\INIT\initArrayFilesDB.prg
 .\INIT\init_all_mem_public.prg
 .\INIT\update_data_DB.prg
+.\INIT\init_func.prg
 
 .\INFORMATION\view_list_uch.prg
 

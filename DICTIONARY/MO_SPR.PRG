@@ -1531,13 +1531,13 @@ Function v_kart_vrach_spr( get, k )
   Endif
   Return .t.
 
-// 08.11.22 проверка правильности введенного кода ТФОМС
+// 09.09.25 проверка правильности введенного кода ТФОМС
 Function valid_kod_tfoms( get )
 
   Local fl := .t., i, cCode := Left( mkod_tfoms, 6 )
 
-  If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == cCode } ) ) > 0
-    glob_mo := glob_arr_mo[ i ]
+  If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cCode } ) ) > 0
+    glob_mo := glob_arr_mo()[ i ]
     mname_tfoms := PadR( glob_mo[ _MO_SHORT_NAME ], 60 )
     muroven := get_uroven()
   Else

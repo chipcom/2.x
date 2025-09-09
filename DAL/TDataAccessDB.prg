@@ -407,7 +407,7 @@ METHOD GetByAttribute( cAttribute, cValue ) CLASS TDataAccessDB
   
 METHOD Reconstruct() CLASS TDataAccessDB
 					 
-	static sdbf := '.dbf'
+//	static sdbf := '.dbf'
 	static err_2_task := 'Вероятность повторного запуска задачи!'
 	local adbf, fl := .f., lOldDeleted, lrec
 	local item, vrec
