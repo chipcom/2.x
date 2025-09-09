@@ -70,7 +70,6 @@ Function okato_index( flag )
       Use
     Next
   Endif
-
   Return Nil
 
 //
@@ -79,22 +78,21 @@ Static Function oktadindbase( k )
   k := Lower( k )
   Do Case
   Case k == '_okator'
-    Index On okato to ( cur_dir() + '_okatr' ) progress
-    Index On okato + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir() + '_okatrn' ) progress
+    Index On FIELD->okato to ( cur_dir() + '_okatr' ) progress
+    Index On FIELD->okato + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okatrn' ) progress
   Case k == '_okatoo'
-    Index On okato to ( cur_dir() + '_okato' ) progress
-    Index On SubStr( okato, 1, 5 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir() + '_okaton' ) progress
+    Index On FIELD->okato to ( cur_dir() + '_okato' ) progress
+    Index On SubStr( FIELD->okato, 1, 5 ) + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okaton' ) progress
   Case k == '_okatos'
-    Index On okato to ( cur_dir() + '_okats' ) progress
-    Index On SubStr( okato, 1, 8 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir() + '_okatsn' ) progress
+    Index On FIELD->okato to ( cur_dir() + '_okats' ) progress
+    Index On SubStr( FIELD->okato, 1, 8 ) + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okatsn' ) progress
   Case k == '_okatoo8'
-    Index On okato to ( cur_dir() + '_okato8' ) progress
-    Index On SubStr( okato, 1, 5 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir() + '_okaton8' ) progress
+    Index On FIELD->okato to ( cur_dir() + '_okato8' ) progress
+    Index On SubStr( FIELD->okato, 1, 5 ) + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okaton8' ) progress
   Case k == '_okatos8'
-    Index On okato to ( cur_dir() + '_okats8' ) progress
-    Index On SubStr( okato, 1, 8 ) + Upper( SubStr( name, 1, 30 ) ) to ( cur_dir() + '_okatsn8' ) progress
+    Index On FIELD->okato to ( cur_dir() + '_okats8' ) progress
+    Index On SubStr( FIELD->okato, 1, 8 ) + Upper( SubStr( FIELD->name, 1, 30 ) ) to ( cur_dir() + '_okatsn8' ) progress
   Endcase
-
   Return Nil
 
 //
@@ -116,7 +114,6 @@ Static Function oktadusebase( k, _region )
   Case k == '_okatos8'
     r_use( dir_exe() + '_okatos8', { cur_dir() + '_okats8', cur_dir() + '_okatsn8' }, 'SELO' )
   Endcase
-
   Return Nil
 
 // ввод адреса по ОКАТО в GET'е
@@ -143,7 +140,6 @@ Function get_okato_ulica( kod11, r, c, mas_adr )
   If ret != NIL
     AAdd( ret, mulicadom ) // добавляем в возврат третим элементом улицу и дом
   Endif
-
   Return ret
 
 // 07.02.13 ф-ия get-а адреса
@@ -228,7 +224,6 @@ Static Function oktadgetst( r, c )
     ret := { PadR( AllTrim( pr_adrs ), 11, '0' ), mstr_adrs }
   Endif
   SetColor( tmp_color )
-
   Return ret
 
 // 31.05.15
@@ -269,7 +264,6 @@ Static Function get_region( k, r, c )
   Endif
   edit_browse( t_arr )
   region->( dbCloseArea() )
-
   Return ret
 
 // 05.06.15
@@ -325,7 +319,6 @@ Static Function get_oblast( k, r, c )
   edit_browse( t_arr )
   ret := vozvr
   oblast->( dbCloseArea() )
-
   Return ret
 
 //
@@ -375,13 +368,12 @@ Static Function get_nas_punkt( k, r, c )
   Endif
   edit_browse( t_arr )
   selo->( dbCloseArea() )
-
   Return ret
 
 //
 Static Function f2_adrs( nk, ob, regim, lalias, regim1 )
 
-  Local ret := -1, tmp_color, i, j, lf, s, rec
+  Local ret := -1, rec
 
   If nk == K_F2
     If ( ret := f_poisk_adrs( @rec, ob, regim, lalias ) ) == 0
@@ -400,15 +392,15 @@ Static Function f2_adrs( nk, ob, regim, lalias, regim1 )
       ret := 1
     Endif
   Endif
-
   Return ret
 
 //
 Static Function f_poisk_adrs( ret_rec, obrow, regim, lalias )
 
   Static stmp1 := '', stmp2 := ''
-  Local rec1 := RecNo(), buf := SaveScreen(), tmp_color, ret := -1, j, ;
+  Local rec1 := RecNo(), buf := SaveScreen(), tmp_color, ret := -1, ;
     r1 := pr2 -6, r2 := pr2 -1
+  Local i
 
   box_shadow( r1, pc1 + 1, r2, pc2 -1, cDataPgDn, 'Поиск по ключу', cDataCSay )
   tmp_color := SetColor( cDataCGet )
@@ -434,8 +426,9 @@ Static Function f_poisk_adrs( ret_rec, obrow, regim, lalias )
       Else
         stmp2 := tmp
       Endif
-      Private tmp_mas := {}, tmp_kod := {}, i := 0, t_len, ;
+      Private tmp_mas := {}, tmp_kod := {}, t_len, ;  // , i := 0
         k1 := pr1 + 3, k2 := pr2 -1
+      i := 0
       oBrow:gotop()
       Do while &muslovie .and. !Eof()
         If tmp $ Upper( &lalias.->name )
@@ -469,7 +462,6 @@ Static Function f_poisk_adrs( ret_rec, obrow, regim, lalias )
   Goto ( rec1 )
   RestScreen( buf )
   SetColor( tmp_color )
-
   Return ret
 
 //
@@ -482,7 +474,6 @@ Static Function when_adgetst( regim )
   Elseif regim == 3 .and. len_okato < 5 // нас.пункт (улица)
     ret := func_error( 3, 'Не выбран РАЙОН области или ГОРОД!' )
   Endif
-
   Return ret
 
 //
@@ -518,7 +509,6 @@ Static Function val_adgetst( get, old, regim )
     Endif
   Endcase
   Eval( blk_s_adrs )
-
   Return update_gets()
 
 // 16.11.23 вернуть адрес в строке
@@ -570,7 +560,6 @@ Static Function oktadrets( kod11, is_region, open_base )
     lregion := '' // для Волгограда не выводим наименование области
   Endif
   Select ( tmp_select )
-
   Return AllTrim( RTrim( lregion ) + ' ' + RTrim( loblast ) + ' ' + lnas_punkt )
 
 // 11.03.15 вернуть адрес вместе с улицей
@@ -585,7 +574,6 @@ Function ret_okato_ulica( _adres, _okato, _region, _par )
   Else // в конце улица
     s := oktadrets( _okato, _region ) + iif( Empty( _adres ), '', ' ' + _adres )
   Endif
-
   Return iif( Empty( s ), Space( 10 ), s )
 
 // вернуть адрес в массиве
@@ -642,5 +630,4 @@ Function ret_okato_array( kod11, open_base )
       selo->( dbCloseArea() )
     Endif
   Endif
-  //
   Return arr_okato

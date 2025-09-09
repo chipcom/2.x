@@ -121,19 +121,19 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   // справочник диагнозов
   sbase := '_mo_mkb'
   r_use( dir_spavoch + sbase )
-  Index On shifr + Str( ks, 1 ) to ( working_dir + sbase )
+  Index On FIELD->shifr + Str( FIELD->ks, 1 ) to ( working_dir + sbase )
   Close databases
 
   // услуги <-> специальности
   sbase := '_mo_spec'
   r_use( dir_spavoch + sbase )
-  Index On shifr + Str( vzros_reb, 1 ) + Str( prvs_new, 6 ) to ( working_dir + sbase )
+  Index On FIELD->shifr + Str( FIELD->vzros_reb, 1 ) + Str( FIELD->prvs_new, 6 ) to ( working_dir + sbase )
   Use
 
   // услуги <-> профили
   sbase := '_mo_prof'
   r_use( dir_spavoch + sbase )
-  Index On shifr + Str( vzros_reb, 1 ) + Str( profil, 3 ) to ( working_dir + sbase )
+  Index On FIELD->shifr + Str( FIELD->vzros_reb, 1 ) + Str( FIELD->profil, 3 ) to ( working_dir + sbase )
   Use
 
   If flag
@@ -164,19 +164,19 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   // onkko_vmp
   sbase := '_mo_ovmp'
   r_use( dir_spavoch + sbase )
-  Index On Str( metod, 3 ) to ( working_dir + sbase )
+  Index On Str( FIELD->metod, 3 ) to ( working_dir + sbase )
   Use
 
   // справочник подразделений из паспорта ЛПУ
   sbase := '_mo_podr'
   r_use( dir_spavoch + sbase )
-  Index On codemo + PadR( Upper( kodotd ), 25 ) to ( working_dir + sbase )
+  Index On FIELD->codemo + PadR( Upper( FIELD->kodotd ), 25 ) to ( working_dir + sbase )
   Use
 
   // справочник соответствия профиля мед.помощи с профилем койки
   sbase := '_mo_prprk'
   r_use( dir_spavoch + sbase )
-  Index On Str( profil, 3 ) + Str( profil_k, 3 ) to ( working_dir + sbase )
+  Index On Str( FIELD->profil, 3 ) + Str( FIELD->profil_k, 3 ) to ( working_dir + sbase )
   Use
 
   // справочник ОКАТО
@@ -186,11 +186,11 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   sbase := '_mo_smo'
   glob_array_srf := {}
   r_use( dir_spavoch + sbase )
-  Index On okato to ( working_dir + sbase ) UNIQUE
+  Index On FIELD->okato to ( working_dir + sbase ) UNIQUE
   dbEval( {|| AAdd( glob_array_srf, { '', field->okato } ) } )
-  Index On okato + smo to ( working_dir + sbase )
-  Index On smo to ( working_dir + sbase + '2' )
-  Index On okato + ogrn to ( working_dir + sbase + '3' )
+  Index On FIELD->okato + FIELD->smo to ( working_dir + sbase )
+  Index On FIELD->smo to ( working_dir + sbase + '2' )
+  Index On FIELD->okato + FIELD->ogrn to ( working_dir + sbase + '3' )
   Use
 
   dbCreate( working_dir + 'tmp_srf', { { 'okato', 'C', 5, 0 }, { 'name', 'C', 80, 0 } } )
@@ -229,7 +229,7 @@ Function dep_index_and_fill( val_year, dir_spavoch, working_dir, flag )
   sbase := prefixfilerefname( val_year ) + 'dep'  // справочник отделений на конкретный год
   If hb_vfExists( dir_spavoch + sbase + sdbf() )
     r_use( dir_spavoch + sbase, , 'DEP' )
-    Index On Str( code, 3 ) to ( working_dir + sbase ) For codem == glob_mo[ _MO_KOD_TFOMS ]
+    Index On Str( FIELD->code, 3 ) to ( working_dir + sbase ) For FIELD->codem == glob_mo[ _MO_KOD_TFOMS ]
 
     If val_year == WORK_YEAR
       dbEval( {|| AAdd( mm_otd_dep, { AllTrim( dep->name_short ) + ' (' + AllTrim( dep->name ) + ')', dep->code, dep->place } ) } )
@@ -242,7 +242,7 @@ Function dep_index_and_fill( val_year, dir_spavoch, working_dir, flag )
       sbase := prefixfilerefname( val_year ) + 'deppr' // справочник отделения + профили  на конкретный год
       If hb_vfExists( dir_spavoch + sbase + sdbf() )
         r_use( dir_spavoch + sbase, , 'DEP' )
-        Index On Str( code, 3 ) + Str( pr_mp, 3 ) to ( working_dir + sbase ) For codem == glob_mo[ _MO_KOD_TFOMS ]
+        Index On Str( FIELD->code, 3 ) + Str( FIELD->pr_mp, 3 ) to ( working_dir + sbase ) For FIELD->codem == glob_mo[ _MO_KOD_TFOMS ]
         Use
       Endif
     Endif
@@ -259,7 +259,7 @@ Function usl_index( val_year, dir_spavoch, working_dir, flag )
   sbase := prefixfilerefname( val_year ) + 'usl'  // справочник услуг ТФОМС на конкретный год
   If hb_vfExists( dir_spavoch + sbase + sdbf() )
     r_use( dir_spavoch + sbase, , 'LUSL' )
-    Index On shifr to ( working_dir + sbase )
+    Index On FIELD->shifr to ( working_dir + sbase )
     If val_year == WORK_YEAR
       shifrVMP := code_services_vmp( WORK_YEAR )
       find ( shifrVMP )
@@ -291,10 +291,10 @@ Function uslc_index( val_year, dir_spavoch, working_dir, flag )
     index_usl_name :=  prefix + 'uslu'  //
 
     r_use( dir_spavoch + sbase, , 'LUSLC' )
-    Index On shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( working_dir + sbase ) ;
-      For codemo == glob_mo[ _MO_KOD_TFOMS ]
-    Index On codemo + shifr + Str( vzros_reb, 1 ) + Str( depart, 3 ) + DToS( datebeg ) to ( working_dir + index_usl_name ) ;
-      For codemo == glob_mo[ _MO_KOD_TFOMS ] // для совместимости со старой версией справочника
+    Index On FIELD->shifr + Str( FIELD->vzros_reb, 1 ) + Str( FIELD->depart, 3 ) + DToS( FIELD->datebeg ) to ( working_dir + sbase ) ;
+      For FIELD->codemo == glob_mo[ _MO_KOD_TFOMS ]
+    Index On FIELD->codemo + FIELD->shifr + Str( FIELD->vzros_reb, 1 ) + Str( FIELD->depart, 3 ) + DToS( FIELD->datebeg ) to ( working_dir + index_usl_name ) ;
+      For FIELD->codemo == glob_mo[ _MO_KOD_TFOMS ] // для совместимости со старой версией справочника
 
     Close databases
   Endif
@@ -309,7 +309,7 @@ Function uslf_index( val_year, dir_spavoch, working_dir, flag )
   sbase := prefixfilerefname( val_year ) + 'uslf'  // справочник услуг ФФОМС на конкретный год
   If hb_vfExists( dir_spavoch + sbase + sdbf() )
     r_use( dir_spavoch + sbase, , 'LUSLF' )
-    Index On shifr to ( working_dir + sbase )
+    Index On FIELD->shifr to ( working_dir + sbase )
     Use
   Endif
   Return Nil
@@ -323,7 +323,7 @@ Function unit_index( val_year, dir_spavoch, working_dir, flag )
   sbase := prefixfilerefname( val_year ) + 'unit'  // план-заказ на конкретный год
   If hb_vfExists( dir_spavoch + sbase + sdbf() )
     r_use( dir_spavoch + sbase )
-    Index On Str( code, 3 ) to ( working_dir + sbase )
+    Index On Str( FIELD->code, 3 ) to ( working_dir + sbase )
     Use
   Endif
   Return Nil
@@ -338,10 +338,10 @@ Function k006_index( val_year, dir_spavoch, working_dir, flag )
   sbase := prefixfilerefname( val_year ) + 'k006'  //
   If hb_vfExists( dir_spavoch + sbase + sdbf() ) .and. hb_vfExists( dir_spavoch + sbase + sdbt() )
     r_use( dir_spavoch + sbase )
-    Index On SubStr( shifr, 1, 2 ) + ds + sy + age + sex + los to ( working_dir + sbase ) // по диагнозу/операции
-    Index On SubStr( shifr, 1, 2 ) + sy + ds + age + sex + los to ( working_dir + sbase + '_' ) // по операции/диагнозу
-    Index On ad_cr to ( working_dir + sbase + 'AD' ) // по дополнительному критерию Байкин
-    // index on ad_cr1 to (working_dir + sbase + 'AD1') // по диапазону фракций, на будующее
+    Index On SubStr( FIELD->shifr, 1, 2 ) + FIELD->ds + FIELD->sy + FIELD->age + FIELD->sex + FIELD->los to ( working_dir + sbase ) // по диагнозу/операции
+    Index On SubStr( FIELD->shifr, 1, 2 ) + FIELD->sy + FIELD->ds + FIELD->age + FIELD->sex + FIELD->los to ( working_dir + sbase + '_' ) // по операции/диагнозу
+    Index On FIELD->ad_cr to ( working_dir + sbase + 'AD' ) // по дополнительному критерию Байкин
+    // index on FIELD->ad_cr1 to (working_dir + sbase + 'AD1') // по диапазону фракций, на будующее
     Use
   Endif
   Return Nil
