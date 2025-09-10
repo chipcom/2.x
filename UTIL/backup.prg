@@ -7,7 +7,7 @@
 #define COMPRESSION 3
 #define YEAR_COMPRESSION 2
 
-// 25.03.24 резервное копирование реестра на FTP
+// 10.09.25 резервное копирование реестра на FTP
 function XML_files_to_FTP( name_xml, kod )
 
   local zip_file, i
@@ -27,8 +27,8 @@ function XML_files_to_FTP( name_xml, kod )
   AAdd( ar, xml_file )
 
   Select MO_XML
-  Index On FNAME to ( cur_dir() + 'tmp_xml' ) ;
-    For reestr == kod .and. Between( TIP_IN, _XML_FILE_FLK, _XML_FILE_SP ) .and. Empty( TIP_OUT )
+  Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) ;
+    For FIELD->reestr == kod .and. Between( FIELD->TIP_IN, _XML_FILE_FLK, _XML_FILE_SP ) .and. Empty( FIELD->TIP_OUT )
   Go Top
   Do While !Eof()
     fileName := in_dir + RTrim( mo_xml->FNAME ) + szip()
@@ -44,8 +44,8 @@ function XML_files_to_FTP( name_xml, kod )
   if len( ar_hrt ) > 0
     g_use( dir_server() + 'schet_', , 'SCHET_' )
     for i := 1 to len( ar_hrt )
-      Index On XML_REESTR to ( cur_dir() + 'tmp_sch' ) ;
-        For xml_reestr == ar_hrt[ i ]
+      Index On FIELD->XML_REESTR to ( cur_dir() + 'tmp_sch' ) ;
+        For FIELD->xml_reestr == ar_hrt[ i ]
       Go Top
       Do While ! Eof()
         fileName := out_dir + RTrim( schet_->name_xml ) + szip()
@@ -62,13 +62,13 @@ function XML_files_to_FTP( name_xml, kod )
   create_zip_to_ftp( zip_file, ar, 'reestr' )
   return nil
 
-// 25.03.24 резервное копирование файла ошибок на FTP
+// 10.09.25 резервное копирование файла ошибок на FTP
 function errorFileToFTP()
 
   local zip_file
   local ar := {}
   
-  zip_file := 'mo' + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) + '_error'
+  zip_file := 'mo' + AllTrim( glob_mo()[ _MO_KOD_TFOMS ] ) + '_error'
   AAdd( ar, dir_server() + 'error.txt' )
   create_zip_to_ftp( zip_file, ar, 'Error' )
   return nil
@@ -131,7 +131,7 @@ Function m_copy_db( par )
   mybell( 2, OK )
   Return Nil
 
-// 22.03.24 запуск режима резервного копирования из f_end()
+// 10.09.25 запуск режима резервного копирования из f_end()
 Function m_copy_db_from_end( del_last, spath )
 
   Local hCurrent, hFile, nSize, fl := .t., ta, zip_file, ;
@@ -163,7 +163,7 @@ Function m_copy_db_from_end( del_last, spath )
     // запомним размер последнего архива
     nSize := arr_f[ k, 2 ] * 1.5 // для надёжности резервируем больше в 1.5 раза
     // проверяем дату и время последнего файла
-    If arr_f[ k, 3 ] == sys_date // если сегодня уже сохраняли
+    If arr_f[ k, 3 ] == Date() // если сегодня уже сохраняли
       hCurrent := Int( Val( SecToTime( Seconds() ) ) )
       hFile := Int( Val( arr_f[ k, 4 ] ) )
       fl := ( del_last .or. ( hCurrent - hFile ) > 1 ) // прошло заведомо более 1 часа
@@ -219,7 +219,7 @@ Function fillzip( arr_f, sFileName )
   Endif
   Return sFileName
 
-// 22.08.24
+// 10.09.25
 Function create_zip( par, dir_archiv )
 
   Static sast := '*', sfile_begin := '_begin.txt', sfile_end := '_end.txt'
@@ -248,7 +248,7 @@ Function create_zip( par, dir_archiv )
       'Во избежание разрушения данных', ;
       'не прерывайте процесс!' }, , 'GR+/R', 'W+/R', 13 )
     // формируем имена архивов
-    zip_file := 'mo' + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) + '_' + DToS( sys_date ) + ;
+    zip_file := 'mo' + AllTrim( glob_mo()[ _MO_KOD_TFOMS ] ) + '_' + DToS( Date() ) + ;
       Lower( iif( par != 3, szip(), schip() ) )
     zip_xml_mo := dir_XML_MO() + szip()
     zip_xml_tf := dir_XML_TF() + szip()
@@ -256,7 +256,7 @@ Function create_zip( par, dir_archiv )
     zip_napr_tf := dir_NAPR_TF() + szip()
     zip_xml_fns := 'XML_FNS' + szip()
     hb_vfErase( sfile_begin )
-    hb_MemoWrit( sfile_begin, full_date( sys_date ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
+    hb_MemoWrit( sfile_begin, full_date( Date() ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
     //
     arr_f := {}
     scandirfiles_for_backup( dir_server() + dir_XML_MO() + hb_ps(), sast + szip(), blk, afterDate )
@@ -305,15 +305,15 @@ Function create_zip( par, dir_archiv )
     If ! Empty( zip_xml_fns )
       AAdd( ar, cur_dir() + zip_xml_fns )
     Endif
-    For i := 1 To Len( array_files_DB )
-      cFile := Upper( array_files_DB[ i ] ) + sdbf()
+    For i := 1 To Len( array_files_DB() )
+      cFile := Upper( array_files_DB()[ i ] ) + sdbf()
       If hb_vfExists( dir_server() + cFile )
         AAdd( ar, dir_server() + cFile )
       Endif
     Next
     // а теперь файлы WQ...
     arr_f := {}
-    y := Year( sys_date )
+    y := Year( Date() )
     // только текущий год
     scandirfiles_for_backup( dir_server(), 'mo_wq' + SubStr( Str( y, 4 ), 3 ) + '*' + sdbf(), {| x | AAdd( arr_f, x ) }, afterDate )
     For i := 1 To Len( arr_f )
@@ -332,7 +332,7 @@ Function create_zip( par, dir_archiv )
       fl := func_error( 4, 'Возникла ошибка при архивировании базы данных.' )
     Endif
     hb_vfErase( sfile_end )
-    hb_MemoWrit( sfile_end, full_date( sys_date ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
+    hb_MemoWrit( sfile_end, full_date( Date() ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
     RestScreen( buf )
   Endif
   // удаляем ненужные архивы

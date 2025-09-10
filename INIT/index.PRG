@@ -26,7 +26,7 @@ Function m_index_db()
   Endif
   Return Nil
 
-// 03.08.25 внутренняя функция переиндексирования
+// 10.09.25 внутренняя функция переиндексирования
 Function pereindex()
 
   Local buf := SaveScreen(), t1, t2, i, ae[ 3 ]
@@ -38,8 +38,8 @@ Function pereindex()
 
   t1 := Seconds()
   Private fl_open := .t.
-  For i := 1 To Len( array_files_DB )
-    index_base( array_files_DB[ i ] )
+  For i := 1 To Len( array_files_DB() )
+    index_base( array_files_DB()[ i ] )
   Next
   //
   Use ( dir_server() + 'mo_ppadd' ) new
@@ -201,7 +201,7 @@ Function pereindex_263()
   rest_box( buf )
   Return Nil
 
-// 03.08.25 функция переиндексирования для одной задачи
+// 10.09.25 функция переиндексирования для одной задачи
 Function pereindex_task( n_task )
 
   Local buf := SaveScreen(), i
@@ -215,7 +215,7 @@ Function pereindex_task( n_task )
     Private fl_open := .t.
     If !emptyany( array_task_DB[ n_Task, 1 ], array_task_DB[ n_Task, 2 ] )
       For i := array_task_DB[ n_Task, 1 ] To array_task_DB[ n_Task, 2 ]
-        index_base( array_files_DB[ i ] )
+        index_base( array_files_DB()[ i ] )
       Next
     Endif
     If n_Task == X_263
