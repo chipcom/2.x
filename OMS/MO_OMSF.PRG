@@ -66,7 +66,7 @@ Function f_put_glob_podr( lusl, lkdate, _arr )
         Endif
       Endif
     Else // для второй половины 2017 года
-      If is_adres_podr
+      If is_adres_podr()
         glob_podr := otd->CODE_TFOMS // код адресного подразделения
         If Empty( glob_podr )
           // базы отделения и учреждения открыты и стоят на нужной записи

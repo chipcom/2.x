@@ -2109,7 +2109,7 @@ Function f4_v_human_pp()
   Select ( tmp_select )
   Return Nil
 
-// 29.03.23
+// 09.09.25
 Function f2_v_human_pp( nkey, oBrow )
 
   // наименования файлов шаблонов
@@ -2596,7 +2596,7 @@ Function f2_v_human_pp( nkey, oBrow )
       Endif
       mmo_pr += 'к нашей МО'
     Else
-      s := AllTrim( inieditspr( A__MENUVERT, glob_arr_mo, kart2->mo_pr ) )
+      s := AllTrim( inieditspr( A__MENUVERT, glob_arr_mo(), kart2->mo_pr ) )
       If Empty( s )
         mmo_pr := 'Прикрепление --- неизвестно ---'
       Else

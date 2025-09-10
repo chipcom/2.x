@@ -2307,7 +2307,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
 
   Return Nil
 
-// 09.09.15
+// 09.09.25
 Function pripisnoe_naselenie_view()
 
   Local i, j, s, arr_mo := {}, n_file := cur_dir() + 'pr_nas.txt', ;
@@ -2340,8 +2340,8 @@ Function pripisnoe_naselenie_view()
   add_string( 'ÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' )
   For i := 1 To Len( arr_mo )
     s := Str( arr_mo[ i, 2 ], 6 ) + put_val( arr_mo[ i, 3 ], 7 ) + ' ' + arr_mo[ i, 1 ] + ' '
-    If ( j := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == arr_mo[ i, 1 ] } ) ) > 0
-      s += glob_arr_mo[ j, _MO_SHORT_NAME ]
+    If ( j := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == arr_mo[ i, 1 ] } ) ) > 0
+      s += glob_arr_mo()[ j, _MO_SHORT_NAME ]
     Else
       s += '­¥ ¯à¨ªà¥¯«¥­® ª ¬¥¤¨æ¨­áª®© ®à£ ­¨§ æ¨¨'
     Endif

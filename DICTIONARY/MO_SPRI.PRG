@@ -969,16 +969,16 @@ Function ret_otd_dep()
   Endif
   Return ret_arr
 
-// 07.08.17
+// 09.09.25
 Function f_spr_usl_adres_podr()
 
   Static arr := {}
   Local i, j, ret_arr
 
-  If ( i := AScan( glob_adres_podr, {| x| x[ 1 ] == glob_mo[ _MO_KOD_TFOMS ] } ) ) > 0
+  If ( i := AScan( glob_adres_podr(), {| x| x[ 1 ] == glob_mo[ _MO_KOD_TFOMS ] } ) ) > 0
     If Empty( arr )
-      For j := 1 To Len( glob_adres_podr[ i, 2 ] )
-        AAdd( arr, { glob_adres_podr[ i, 2, j, 3 ], glob_adres_podr[ i, 2, j, 1 ] } )
+      For j := 1 To Len( glob_adres_podr()[ i, 2 ] )
+        AAdd( arr, { glob_adres_podr()[ i, 2, j, 3 ], glob_adres_podr()[ i, 2, j, 1 ] } )
       Next
     Endif
     popup_2array( arr, T_ROW, T_COL - 5, glob_podr, 1, @ret_arr, "Адрес удалённого подразделения", "B/BG" )

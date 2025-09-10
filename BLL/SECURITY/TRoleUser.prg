@@ -56,12 +56,14 @@ METHOD PROCEDURE SetACLTask( cText )	CLASS TRoleUser
 	return
 
 METHOD StrAcceptDepartment() CLASS TRoleUser
+
 	local k
 
 	k := atnum( chr( 0 ), ::FACLDep, 1 )
 	return '= ' + lstr( k - 1 ) + 'гза. ='
 
 METHOD StrAcceptTask() CLASS TRoleUser
+
 	local k, tempStr := ''
 
 	k := atnum( chr( 0 ), ::ACLTask, 1 )
@@ -73,8 +75,8 @@ METHOD StrAcceptTask() CLASS TRoleUser
 	endif
 	return '= ' + lstr( k - 1 ) + tempStr + ' ='
 	
-***********************************
-* Создать новый объект TRoleUser
+//
+// Создать новый объект TRoleUser
 METHOD New( nID, cName, cACL_DEP, cACL_TASK, lNew, lDeleted )	CLASS TRoleUser
 			
 	::FName			:= hb_DefaultValue( cName, space( 30 ) )

@@ -98,7 +98,7 @@ Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 25.02.25
+// 09.09.25
 Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Static mm_kart_error := { { 'нет замечаний', 0 }, { 'полис недействителен', -8 }, { 'ошибки в реквизитах', -9 } }
@@ -246,7 +246,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
           Endif
           mmo_pr += 'к нашей МО'
         Else
-          s := AllTrim( inieditspr( A__MENUVERT, glob_arr_mo, kart2->mo_pr ) )
+          s := AllTrim( inieditspr( A__MENUVERT, glob_arr_mo(), kart2->mo_pr ) )
           If Empty( s )
             mmo_pr := 'Прикрепление --- неизвестно ---'
           Else
@@ -3170,7 +3170,7 @@ Function f2dubl_zap()
 
   Return Nil
 
-// 10.01.25
+// 09.09.25
 Function kartotek_to_screen( r1, r2 )
 
   Local i, s, s1, mmo_pr, arr := {}, tmp_select := Select()
@@ -3200,7 +3200,7 @@ Function kartotek_to_screen( r1, r2 )
         Endif
         mmo_pr += 'к нашей МО'
       Else
-        s1 := AllTrim( inieditspr( A__MENUVERT, glob_arr_mo, kart2->mo_pr ) )
+        s1 := AllTrim( inieditspr( A__MENUVERT, glob_arr_mo(), kart2->mo_pr ) )
         If Empty( s1 )
           mmo_pr := 'Прикрепление --- неизвестно ---'
         Else

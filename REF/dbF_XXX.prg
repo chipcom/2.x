@@ -10,7 +10,7 @@
 
 // =========== F003 ===================
 //
-// 14.10.24 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
+// 09.09.25 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
 Function viewf003()
 
   Local nTop, nLeft, nBottom, nRight
@@ -26,6 +26,7 @@ Function viewf003()
   Local selectedRegion := '34'
   Local sbase := 'mo_add'
   Local prev_codem := 0, cur_codem := 0
+  Local i
 
   Private nRegion := 34
   Private tmpName := cur_dir() + 'tmp_F003', tmpAlias := 'tF003'
@@ -103,7 +104,7 @@ Function viewf003()
   ( tmpAlias )->( dbGoTop() )
   If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, 'ColumnF003', color0, , , , , , 'ViewRecordF003', 'controlF003', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
     // проверяем выбор
-    If ( ifi := hb_AScan( glob_arr_mo, {| x| x[ _MO_KOD_FFOMS ] == ( tmpAlias )->MCOD }, , , .t. ) ) > 0
+    If ( ifi := hb_AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == ( tmpAlias )->MCOD }, , , .t. ) ) > 0
       // нашли в файле
       Alert( 'Медицинское учреждение уже добавлено в справочник!' )
     Else
@@ -144,8 +145,7 @@ Function viewf003()
 // 15.10.21
 Function controlf003( nkey, oBrow )
 
-  Local ret := -1, cCode, rec
-
+  Local ret := -1
   Return ret
 
 // 15.10.21
@@ -180,7 +180,7 @@ Function viewrecordf003()
 
   Return Nil
 
-// 14.10.24
+// 09.09.25
 Function getf003mo( mCode )
 
   // mCode - код МО по F003
@@ -190,7 +190,7 @@ Function getf003mo( mCode )
 
   If SubStr( mCode, 1, 2 ) != '34'
 
-    arr := AClone( glob_arr_mo[ 1 ] )
+    arr := AClone( glob_arr_mo()[ 1 ] )
     If Empty( mCode ) .or. ( Len( mCode ) != 6 )
       For i := 1 To Len( arr )
         If ValType( arr[ i ] ) == 'C'
@@ -223,22 +223,21 @@ Function getf003mo( mCode )
     Endif
     ( dbName )->( dbCloseArea() )
   Else
-    arr := AClone( glob_arr_mo[ 1 ] )
+    arr := AClone( glob_arr_mo()[ 1 ] )
     For i := 1 To Len( arr )
       If ValType( arr[ i ] ) == 'C'
         arr[ i ] := Space( 6 ) // и очистим строковые элементы
       Endif
     Next
     If !Empty( mCode )
-      If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == mCode } ) ) > 0
-        arr := glob_arr_mo[ i ]
-      Elseif ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_FFOMS ] == mCode } ) ) > 0
-        arr := glob_arr_mo[ i ]
+      If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == mCode } ) ) > 0
+        arr := glob_arr_mo()[ i ]
+      Elseif ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == mCode } ) ) > 0
+        arr := glob_arr_mo()[ i ]
       Endif
     Endif
   Endif
   Select( tmp_select )
-
   Return arr
 
 // =========== F005 ===================

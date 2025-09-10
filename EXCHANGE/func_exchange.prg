@@ -22,25 +22,7 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh )
     'L' + sName }
   return aFiles
 
-// 22.08.25 сформировать массив имен файлов реестра сведений и пациентов с 2025
-function name_reestr_XML_2025( type, nyear, nmonth, mnn, nsh, kod_smo )
-  // type - тип реестра (обычный, для диспансеризации)
-  // nyear - номер года
-  // nmonth - номер месяца
-  // mnn - 
-  // nsh - 
-  // Возврат - массив { имя файла реестра сведений, имя файла реестра пациентов }
-
-  local sName := ''
-  local aFiles
-
-  sName := 'M' + CODE_LPU + iif( kod_smo == '34   ', 'T34', 'S' + kod_smo ) + '_' ;
-    + Right( StrZero( NYEAR, 4 ), 2 ) + StrZero( NMONTH, 2 ) + StrZero( mnn, nsh )
-  aFiles := { { 'H', 'F' }[ type ] + sName, ;
-    'L' + sName }
-  return aFiles
-
-// 25.08.25 проверить, нам ли предназначен данный XML-файл
+// 10.09.25 проверить, нам ли предназначен данный XML-файл
 Function is_our_xml( cName, ret_arr )
 
   Local arr_err := {}, i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
@@ -76,8 +58,8 @@ Function is_our_xml( cName, ret_arr )
       cTo := Left( s, 6 )
       If !( cTo == glob_MO[ _MO_KOD_TFOMS ] )
         AAdd( arr_err, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
-        If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
-          AAdd( arr_err, 'Это файл для: ' + glob_arr_mo[ i, _MO_SHORT_NAME ] )
+        If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
+          AAdd( arr_err, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
         Endif
       Endif
       s := SubStr( s, 7 )
@@ -177,8 +159,8 @@ Function is_our_xml( cName, ret_arr )
       cTo := Left( s, 6 )
       If !( cTo == glob_MO[ _MO_KOD_TFOMS ] )
         AAdd( arr_err, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
-        If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
-          AAdd( arr_err, 'Это файл для: ' + glob_arr_mo[ i, _MO_SHORT_NAME ] )
+        If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
+          AAdd( arr_err, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
         Endif
       Endif
       s := SubStr( cName, 5, 3 )
@@ -257,8 +239,8 @@ Function is_our_xml( cName, ret_arr )
       cTo := Left( s, 6 )
       If !( cTo == glob_MO[ _MO_KOD_TFOMS ] )
         AAdd( arr_err, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
-        If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
-          AAdd( arr_err, 'Это файл для: ' + glob_arr_mo[ i, _MO_SHORT_NAME ] )
+        If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
+          AAdd( arr_err, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
         Endif
       Endif
       s := SubStr( cName, 5, 3 )
@@ -366,8 +348,8 @@ Function is_our_xml( cName, ret_arr )
             cTo := Left( s, 6 )
             If !( cTo == glob_MO[ _MO_KOD_TFOMS ] )
               AAdd( arr_err, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
-              If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
-                AAdd( arr_err, 'Это файл для: ' + glob_arr_mo[ i, _MO_SHORT_NAME ] )
+              If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
+                AAdd( arr_err, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
               Endif
             Endif
           Endif
@@ -390,8 +372,8 @@ Function is_our_xml( cName, ret_arr )
           cTo := BeforAtNum( '_', s )
           If !( cTo == glob_MO[ _MO_KOD_TFOMS ] )
             AAdd( arr_err, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
-            If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
-              AAdd( arr_err, 'Это файл для: ' + glob_arr_mo[ i, _MO_SHORT_NAME ] )
+            If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
+              AAdd( arr_err, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
             Endif
           Endif
           If Len( arr_err ) == 0
@@ -419,7 +401,7 @@ Function is_our_xml( cName, ret_arr )
   Endif
   Return ( Len( arr_err ) == 0 )
 
-// 17.06.15 если это файл с расширениием CSV - прочитать
+// 10.09.25 если это файл с расширениием CSV - прочитать
 Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Local fl := .f., i, s := cName, s1
@@ -452,8 +434,8 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       krtf->( dbCloseArea() )
     Else
       fl := func_error( 4, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + s1 )
-      If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == s1 } ) ) > 0
-        func_error( 4, 'Это файл для: ' + glob_arr_mo[ i, _MO_SHORT_NAME ] )
+      If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == s1 } ) ) > 0
+        func_error( 4, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
       Endif
     Endif
   Else
@@ -461,8 +443,8 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
   Endif
   Return fl
 
-// 22.08.25 если это укрупнённый архив, распаковать и прочитать
-Function is_our_zip( full_zip, cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr) 
+// 10.09.25 если это укрупнённый архив, распаковать и прочитать
+Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Static cStFile, si
   Local fl := .f., arr := {}, arr_f, i, s := cName, s1, name_ext, _date, _time, c
@@ -579,8 +561,8 @@ Function is_our_zip( full_zip, cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       krtf->( dbCloseArea() )
     Else
       fl := func_error( 4, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + s1 )
-      If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == s1 } ) ) > 0
-        func_error( 4, 'Это файл для: ' + glob_arr_mo[ i, _MO_SHORT_NAME ] )
+      If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == s1 } ) ) > 0
+        func_error( 4, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
       Endif
     Endif
   Elseif Left( s, 3 ) == 'SO2' // ответ на запрос сверки
@@ -606,8 +588,8 @@ Function is_our_zip( full_zip, cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
     Else
       fl := func_error( 4, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ;
         ' не соответствует коду получателя: ' + s1 )
-      If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == s1 } ) ) > 0
-        func_error( 4, 'Это файл для: ' + glob_arr_mo[ i, _MO_SHORT_NAME ] )
+      If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == s1 } ) ) > 0
+        func_error( 4, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
       Endif
     Endif
   Elseif eq_any( Left( s, 3 ), 'VHM', 'VFM' ) .and. SubStr( s, 4, 6 ) == glob_MO[ _MO_KOD_TFOMS ]

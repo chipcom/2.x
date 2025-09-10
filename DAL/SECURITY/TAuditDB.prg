@@ -17,6 +17,7 @@ METHOD New() CLASS TAuditDB
 	return self
 
 METHOD getByParam( date, idUser, typeTask, typeCard, action ) CLASS TAuditDB
+
 	local cFind := '', hArray
 	local cOldArea, cAudit, obj := nil
 
@@ -37,8 +38,9 @@ METHOD getByParam( date, idUser, typeTask, typeCard, action ) CLASS TAuditDB
 	endif
 	return obj
 
-*
+//
 METHOD Save( oAudit ) CLASS TAuditDB
+	
 	local ret := .f.
 	local aHash := nil
 	local llen := 6
@@ -64,6 +66,7 @@ METHOD Save( oAudit ) CLASS TAuditDB
 	return ret
 	
 METHOD FillFromHash( hbArray )     CLASS TAuditDB
+	
 	local obj
 	local llen := 6
 	
@@ -80,7 +83,6 @@ METHOD FillFromHash( hbArray )     CLASS TAuditDB
 	obj:Field := ft_unsqzn( hbArray[ 'KP' ], llen )
 	return obj	
 
-******************************	
 // класс для 'mo_oper.dbf'
 CREATE CLASS TAudit_mainDB	INHERIT	TBaseObjectDB
 	VISIBLE:
@@ -95,6 +97,7 @@ METHOD New() CLASS TAudit_mainDB
 	return self
 
 METHOD Save() CLASS TAudit_mainDB
+
 	local ret := .f.
 	local aHash := nil
 	local llen := 6
@@ -115,6 +118,7 @@ METHOD Save() CLASS TAudit_mainDB
 	return ret
 
 METHOD FillFromHash( hbArray )     CLASS TAudit_mainDB
+
 	local obj
 	local llen := 6
 

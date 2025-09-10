@@ -25,7 +25,6 @@ METHOD ExistFileClass( className ) CLASS TStructFiles
 METHOD New() CLASS TStructFiles
 
 	Local cClassName := '', aEtalonDB := {}, aIndex := { }, cName := '', cAlias := ''
-	Local arr, xValue
                   
 	If ::oSelf != Nil
 		Return ::oSelf
@@ -1663,5 +1662,4 @@ METHOD New() CLASS TStructFiles
 //---------
 
 	::oSelf := Self
-
 	return self

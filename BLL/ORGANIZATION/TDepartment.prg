@@ -143,6 +143,7 @@ METHOD function getChief()			 	CLASS TDepartment
 	return ::FChief
 	
 METHOD procedure setChief( param )		CLASS TDepartment
+	
 	if valtype( param ) == 'N'
 		::FChief := TEmployeeDB():GetByID( param )
 	elseif valtype( param ) == 'O' .and. param:ClassName() == upper( 'TEmployee' )
@@ -153,6 +154,7 @@ METHOD procedure setChief( param )		CLASS TDepartment
 	return
 
 METHOD Clone()							CLASS TDepartment
+	
 	local oTarget := nil
 	
 	oTarget := ::super:Clone()
@@ -167,6 +169,7 @@ METHOD New( nId, lNew, lDeleted )		CLASS TDepartment
 	return self
 	
 METHOD function forJSON()					CLASS TDepartment
+	
 	local oRow := nil, obj := nil
 	local hItems, hItem, h
 
@@ -184,6 +187,7 @@ METHOD function forJSON()					CLASS TDepartment
 	return hItem
 
 METHOD function listForJSON()				CLASS TDepartment
+	
 	local oRow := nil, obj := nil
 	local hItems, hItem, h
 

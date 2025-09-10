@@ -20,6 +20,7 @@ METHOD New()		CLASS TOrganizationDB
 	return self
 
 METHOD geTOrganization()     CLASS TOrganizationDB
+	
 	local hArray := nil
 	local ret := nil
 	
@@ -31,6 +32,7 @@ METHOD geTOrganization()     CLASS TOrganizationDB
 	return ret
 
 METHOD Save( oOrganization ) CLASS TOrganizationDB
+	
 	local ret := .F.
 	local aHash := Nil
 	
@@ -84,45 +86,45 @@ METHOD Save( oOrganization ) CLASS TOrganizationDB
 	return ret
 	
 METHOD FillFromHash( hbArray )     CLASS TOrganizationDB
-	local obj, oBank1, oBank2
+	
+	local obj
 	local pos
 
 	
 	obj := TOrganization():New( hbArray[ 'ID' ], ;
-			hbArray[ 'REC_NEW' ], ;
-			hbArray[ 'DELETED' ], ;
-			)
-		obj:Kod_Tfoms := left(hbArray[ 'KOD_TFOMS' ], 6)
-		obj:Name_Tfoms := hbArray[ 'NAME_TFOMS' ]
-		obj:Uroven := hbArray[ 'UROVEN' ]
-		obj:Name := hbArray[ 'NAME' ]
-		obj:Name_schet := hbArray[ 'NAME_SCHET' ]
+		hbArray[ 'REC_NEW' ], ;
+		hbArray[ 'DELETED' ], ;
+	)
+	obj:Kod_Tfoms := left(hbArray[ 'KOD_TFOMS' ], 6)
+	obj:Name_Tfoms := hbArray[ 'NAME_TFOMS' ]
+	obj:Uroven := hbArray[ 'UROVEN' ]
+	obj:Name := hbArray[ 'NAME' ]
+	obj:Name_schet := hbArray[ 'NAME_SCHET' ]
 
-		pos := hb_At( '/', hbArray[ 'INN' ] )
-		if pos == 0
-			obj:INN := hbArray[ 'INN' ]
-			obj:KPP := ''
-		else
-			obj:INN := substr( hbArray[ 'INN' ], 1, pos - 1)
-			obj:KPP := substr( hbArray[ 'INN' ], pos + 1 )
-		endif
+	pos := hb_At( '/', hbArray[ 'INN' ] )
+	if pos == 0
+		obj:INN := hbArray[ 'INN' ]
+		obj:KPP := ''
+	else
+		obj:INN := substr( hbArray[ 'INN' ], 1, pos - 1)
+		obj:KPP := substr( hbArray[ 'INN' ], pos + 1 )
+	endif
 
-		obj:Address := hbArray[ 'ADRES' ]
-		obj:Phone := hbArray[ 'TELEFON' ]
+	obj:Address := hbArray[ 'ADRES' ]
+	obj:Phone := hbArray[ 'TELEFON' ]
 
-		obj:OKONH := hbArray[ 'OKONH' ]
-		obj:OKPO := hbArray[ 'OKPO' ]
-		obj:E_1 := hbArray[ 'E_1' ]
-		obj:Name2 := hbArray[ 'NAME2' ]
-		obj:OGRN := hbArray[ 'OGRN' ]
-		obj:Ruk_fio := hbArray[ 'RUK_FIO' ]
-		obj:Ruk := hbArray[ 'RUK' ]
-		obj:Ruk_r := hbArray[ 'RUK_R' ]
-		obj:Bux := hbArray[ 'BUX' ]
-		obj:Ispolnit := hbArray[ 'ISPOLNIT' ]
-		obj:Name_d := hbArray[ 'NAME_D' ]
-		obj:Filial_h := hbArray[ 'FILIAL_H' ]
-		obj:Bank := TBank():New( hbArray[ 'BANK' ], hbArray[ 'R_SCHET' ], hbArray[ 'K_SCHET' ], hbArray[ 'SMFO' ] )
-		obj:BankSecond := TBank():New( hbArray[ 'BANK2' ], hbArray[ 'R_SCHET2' ], hbArray[ 'K_SCHET2' ], hbArray[ 'SMFO2' ] )
-
+	obj:OKONH := hbArray[ 'OKONH' ]
+	obj:OKPO := hbArray[ 'OKPO' ]
+	obj:E_1 := hbArray[ 'E_1' ]
+	obj:Name2 := hbArray[ 'NAME2' ]
+	obj:OGRN := hbArray[ 'OGRN' ]
+	obj:Ruk_fio := hbArray[ 'RUK_FIO' ]
+	obj:Ruk := hbArray[ 'RUK' ]
+	obj:Ruk_r := hbArray[ 'RUK_R' ]
+	obj:Bux := hbArray[ 'BUX' ]
+	obj:Ispolnit := hbArray[ 'ISPOLNIT' ]
+	obj:Name_d := hbArray[ 'NAME_D' ]
+	obj:Filial_h := hbArray[ 'FILIAL_H' ]
+	obj:Bank := TBank():New( hbArray[ 'BANK' ], hbArray[ 'R_SCHET' ], hbArray[ 'K_SCHET' ], hbArray[ 'SMFO' ] )
+	obj:BankSecond := TBank():New( hbArray[ 'BANK2' ], hbArray[ 'R_SCHET2' ], hbArray[ 'K_SCHET2' ], hbArray[ 'SMFO2' ] )
 	return obj

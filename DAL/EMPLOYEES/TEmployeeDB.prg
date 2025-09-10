@@ -20,6 +20,7 @@ CREATE CLASS TEmployeeDB	INHERIT	TBaseObjectDB
 		METHOD GetListNurse( )
 		METHOD GetListAidman( )
 		METHOD GetListEmployees( )
+		METHOD getShortFIO( )
 	HIDDEN:
 		METHOD FillFromHash( hbArray )
 ENDCLASS
@@ -29,6 +30,7 @@ METHOD New() CLASS TEmployeeDB
   
 
 METHOD getByID ( nID )		 CLASS TEmployeeDB
+
 	local hArray := Nil
 	local ret := Nil
 	
@@ -41,6 +43,7 @@ METHOD getByCode ( nCode )		 CLASS TEmployeeDB
 	return ::GetByID( nCode )
   
 METHOD getByTabNom ( cCode )		 CLASS TEmployeeDB
+
 	local cOldArea, employee, cFind
 	local ret := nil
 	
@@ -90,6 +93,7 @@ METHOD getByTabNom ( cCode )		 CLASS TEmployeeDB
 	return ret
 
 METHOD getListByDepartment( nDepartment )   CLASS TEmployeeDB
+
 	local aReturn := {}
 	local oRow := Nil
 	
@@ -102,6 +106,7 @@ METHOD getListByDepartment( nDepartment )   CLASS TEmployeeDB
 	return aReturn
 	
 METHOD getListBySubdivision( nSubdivision )   CLASS TEmployeeDB
+
 	local aReturn := {}
 	local oRow := Nil
 	
@@ -114,6 +119,7 @@ METHOD getListBySubdivision( nSubdivision )   CLASS TEmployeeDB
 	return aReturn
 	
 METHOD getList( nType )   CLASS TEmployeeDB
+
 	local aReturn := {}
 	local oRow := Nil
 	
@@ -145,6 +151,7 @@ METHOD getList( nType )   CLASS TEmployeeDB
 	return aReturn
 
 METHOD getListOnDate( nType, dDate )   CLASS TEmployeeDB
+
 	local aReturn := {}
 	local oRow := nil
 	
@@ -194,7 +201,8 @@ METHOD getListEmployees( )   CLASS TEmployeeDB
 	return ::GetList( 4 )
   
 METHOD getShortFIO( )   CLASS TEmployeeDB
-	local cStr, ret := '', k := 0
+
+	local ret := '', k := 0
 	local cFIO := ::FName, i, s := '', s1 := '', ret_arr := { '', '', '' }
 
 	cFIO := alltrim( cFIO )
@@ -213,9 +221,9 @@ METHOD getShortFIO( )   CLASS TEmployeeDB
 	ret := ret_arr[1] + ' ' + Left( ret_arr[2], 1 ) + '.' + if( Empty( ret_arr[3] ), '', Left( ret_arr[3], 1 ) + '.' )
 	return ret
 
-* Сохранить объект TEmployeeDB
-*
+// Сохранить объект TEmployeeDB
 METHOD Save( oEmployee ) CLASS TEmployeeDB
+
 	local ret := .f.
 	local aHash := nil
 	
@@ -261,6 +269,7 @@ METHOD Save( oEmployee ) CLASS TEmployeeDB
 	return ret
 	
 METHOD FillFromHash( hbArray )     CLASS TEmployeeDB
+
 	local obj
 	
 	obj := TEmployee():New( hbArray[ 'ID' ], hbArray[ 'REC_NEW' ], hbArray[ 'DELETED' ] )

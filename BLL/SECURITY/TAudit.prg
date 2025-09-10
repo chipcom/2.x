@@ -163,6 +163,7 @@ METHOD function getOperator() CLASS TAudit_main
 	return ::FOperator
 	
 METHOD procedure setOperator( param ) CLASS TAudit_main
+	
 	if isnumber( param )
 		::FOperator := TUserDB():GetByID( param )
 	elseif isobject( param ) .and. param:ClassName() == upper( 'TUser' )
@@ -229,5 +230,6 @@ METHOD procedure setEdit( param ) CLASS TAudit_main
 	return
 
 METHOD New( nID, lNew, lDeleted ) CLASS TAudit_main
+	
 	::super:new( nID, lNew, lDeleted )
 	return self

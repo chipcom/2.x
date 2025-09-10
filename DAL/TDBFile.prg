@@ -1,15 +1,15 @@
-#include "hbclass.ch"
-#include "function.ch"
+#include 'hbclass.ch'
+#include 'function.ch'
 
 CREATE CLASS TDBFile
 
 	HIDDEN:
 
-		VAR _cFileName		AS STRING	INIT ""
+		VAR _cFileName		AS STRING	INIT ''
 		VAR _aStructFile		AS ARRAY	INIT {}
 		VAR _aIndexFile		AS ARRAY	INIT {}
-		VAR _cAlias			AS STRING	INIT ""
-		VAR _cDescription	AS STRING	INIT ""
+		VAR _cAlias			AS STRING	INIT ''
+		VAR _cDescription	AS STRING	INIT ''
 	
 		VAR _bBeforeReconstruct    INIT ''	// для дальнейшего
 		VAR _bAfterReconstruct     INIT ''	// для дальнейшего
@@ -29,9 +29,9 @@ ENDCLASS
 // Конструктор
 METHOD New( cFileName, aIndexFile, cAlias, aStructFile, cDescription )		CLASS TDBFile
 
-	HB_Default( @cFileName, "" ) 
-	HB_Default( @cAlias, "" ) 
-	HB_Default( @cDescription, "" ) 
+	HB_Default( @cFileName, '' ) 
+	HB_Default( @cAlias, '' ) 
+	HB_Default( @cDescription, '' ) 
 	HB_Default( @aStructFile, {} ) 
 	HB_Default( @aIndexFile, {} ) 
 

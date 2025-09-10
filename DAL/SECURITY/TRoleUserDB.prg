@@ -17,13 +17,13 @@ CREATE CLASS TRoleUserDB	INHERIT	TBaseObjectDB
 		METHOD FillFromHash( hbArray )
 END CLASS
 
-***********************************
-* ╤ючфрЄ№ эют√щ юс·хъЄ TRoleUserDB
+// ╤ючфрЄ№ эют√щ юс·хъЄ TRoleUserDB
 METHOD New() CLASS TRoleUserDB
 	return self
 
-***** получить роль по ID
+// получить роль по ID
 METHOD GetByID ( nID )		 CLASS TRoleUserDB
+	
 	local oRoleUser := nil, hArray := nil
 	
 	if !Empty( hArray := ::super:GetById( nID ) )
@@ -31,8 +31,9 @@ METHOD GetByID ( nID )		 CLASS TRoleUserDB
 	endif
 	return oRoleUser
 
-******
+//
 METHOD GetList()		 CLASS TRoleUserDB
+	
 	local aRoleUsers := {}
 	local xValue := nil
 	
@@ -44,6 +45,7 @@ METHOD GetList()		 CLASS TRoleUserDB
 	return aRoleUsers
 
 METHOD MenuRoles()		 CLASS TRoleUserDB
+	
 	local aRoleUsers := {}
 	local xValue := nil
 	local oRole := nil
@@ -57,6 +59,7 @@ METHOD MenuRoles()		 CLASS TRoleUserDB
 	return aRoleUsers
 
 METHOD Delete( oRoleUser ) CLASS TRoleUserDB
+	
 	local ret := .f.
 	local aHash := nil
 	
@@ -65,8 +68,9 @@ METHOD Delete( oRoleUser ) CLASS TRoleUserDB
 	endif
 	return ret
 
-* 
+//
 METHOD Save( oRoleUser ) CLASS TRoleUserDB
+	
 	local ret := .f.
 	local aHash := nil
 	
@@ -87,13 +91,14 @@ METHOD Save( oRoleUser ) CLASS TRoleUserDB
 	return ret
 
 METHOD FillFromHash( hbArray )     CLASS TRoleUserDB
+	
 	local obj
 	
 	obj := TRoleUser():New( hbArray[ 'ID' ], ;
-			hbArray[ 'NAME' ], ;
-			hbArray[ 'ACL_DEP' ], ;
-			hbArray[ 'ACL_TASK' ], ;
-			hbArray[ 'REC_NEW' ], ;
-			hbArray[ 'DELETED' ] ;
-			)
+		hbArray[ 'NAME' ], ;
+		hbArray[ 'ACL_DEP' ], ;
+		hbArray[ 'ACL_TASK' ], ;
+		hbArray[ 'REC_NEW' ], ;
+		hbArray[ 'DELETED' ] ;
+	)
 	return obj

@@ -56,7 +56,7 @@ Function integration_sds( k )
 
   Return Nil
 
-// 19.07.25
+// 09.09.25
 Function read_file_xml_sds( n_file )
 
   Static cDelimiter := " , "
@@ -687,9 +687,9 @@ Function read_file_xml_sds( n_file )
         ihuman->NPR_MO := glob_mo[ _MO_KOD_TFOMS ]
       Endif
     Else
-      If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == ihuman->NPR_MO } ) ) > 0
+      If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == ihuman->NPR_MO } ) ) > 0
         //
-      Elseif ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_FFOMS ] == ihuman->NPR_MO } ) ) > 0
+      Elseif ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == ihuman->NPR_MO } ) ) > 0
         //
       Endif
       If i == 0

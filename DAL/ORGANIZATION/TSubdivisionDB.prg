@@ -2,7 +2,6 @@
 #include 'hbhash.ch'
 #include 'property.ch'
 #include 'common.ch'
-&& #include 'function.ch'
 #include 'chip_mo.ch'
 
 // класс для отделений учреждения файл mo_otd.dbf
@@ -22,6 +21,7 @@ METHOD New() CLASS TSubdivisionDB
 	return self
 
 METHOD GetByID( nID )    CLASS TSubdivisionDB
+
 	local hArray := nil
 	local ret := nil
 	
@@ -35,7 +35,8 @@ METHOD GetByCode( nCode )    CLASS TSubdivisionDB
 	return ::GetByID( nCode )		//ret
 
 METHOD GetList( nDepartment, oUser, nTask, dBegin, dEnd )   CLASS TSubdivisionDB
- 	local lFlag := .t.
+
+	local lFlag := .t.
 	local aReturn := {}
 	local oRow := nil
 	
@@ -77,6 +78,7 @@ METHOD GetList( nDepartment, oUser, nTask, dBegin, dEnd )   CLASS TSubdivisionDB
 	return aReturn
 	
 METHOD MenuSubdivisions( department, oUser, nTask )		 CLASS TSubdivisionDB
+	
 	local aSubdivision := {}
 	local oRow := nil
 	local idDepartment := 0
@@ -88,12 +90,13 @@ METHOD MenuSubdivisions( department, oUser, nTask )		 CLASS TSubdivisionDB
 	endif
 	
 	for each oRow in ::GetList( idDepartment, hb_defaultValue( oUser, hb_user_curUser ), ;
-				hb_defaultValue( nTask, X_PLATN ), sys_date  )
+				hb_defaultValue( nTask, X_PLATN ), Date()  )
 		AADD( aSubdivision, { oRow:Name(), oRow:ID() } )
 	next
 	return aSubdivision
 	
 METHOD Save( oSubdivision ) CLASS TSubdivisionDB
+	
 	local ret := .f.
 	local aHash := nil
 	
@@ -141,6 +144,7 @@ METHOD Save( oSubdivision ) CLASS TSubdivisionDB
 	return ret
 
 METHOD FillFromHash( hbArray )     CLASS TSubdivisionDB
+	
 	local obj
 	
 	obj := TSubdivision():New( hbArray[ 'ID' ], ;

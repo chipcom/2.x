@@ -139,6 +139,7 @@ METHOD FUNCTION getTypeFormat()	CLASS TUser
 	return ::aType[ ::FAccess + 1 ]
 
 METHOD FUNCTION getDepShortName()	CLASS TUser
+	
 	local ret := ''
 	
 	if ! isnil( ::FDepartment )
@@ -160,41 +161,50 @@ METHOD FUNCTION getPosition1251()	CLASS TUser
 	return win_OEMToANSI( ::FPosition )
 
 METHOD PROCEDURE setIDRole( nID )	CLASS TUser
+	
 	::FIDRole := nID
 	return
 
 METHOD PROCEDURE setFIO( cText )	CLASS TUser
+	
 	::FFIO := left( cText, 20 )
 	return
 
 METHOD PROCEDURE setAccess( nAccess )	CLASS TUser
+	
 	::FAccess := nAccess
 	return
 
 METHOD PROCEDURE setPassword( cText )	CLASS TUser
+	
 	::FPassword := left( cText, 10 )
 	return
 
 METHOD PROCEDURE setKEK( nKEK )	CLASS TUser
+	
 	::FKEK := nKEK
 	return
 
 METHOD PROCEDURE setPasswordFR( nPassword )	CLASS TUser
+	
 	::FPasswordFR := nPassword
 	return
 
 METHOD PROCEDURE setPasswordFRSuper( nPassword )	CLASS TUser
+	
 	::FPasswordFRSuper := nPassword
 	return
 
 METHOD PROCEDURE setPosition( cText )	CLASS TUser
+	
 	::FPosition := left( cText, 20 )
 	return
 	
-***********************************
-* Создать новый объект TUser
+//
+// Создать новый объект TUser
 METHOD New( nID, cFIO, nAccess, cPassword, cDepartment, cPosition, nKEK, ;
 			cPasswordFR, cPasswordFRSuper, nIdRole, lNew, lDeleted ) CLASS TUser
+	
 	local cRegEx := '[-+]?[0-9]*[.,]?[0-9]+'			// допустимы только цифровые символы
 	local tmpPassFR, tmpPassFRSuper
 	
@@ -231,6 +241,7 @@ METHOD New( nID, cFIO, nAccess, cPassword, cDepartment, cPosition, nKEK, ;
 	return self                  
 
 METHOD IDDepartment( Param )		 CLASS TUser
+	
 	local ret := 0
 	
 	if pcount() > 0
@@ -241,15 +252,15 @@ METHOD IDDepartment( Param )		 CLASS TUser
 	endif
 	return ret
 
-***********************************
-* Проверка допустимости работы с отделением
-* Параметры:
-* 	nSub - код отделения ( Subdivision )
-* Возврат:
-*	.t. - работа допустима, .f. - работа не допустима
+//
+// Проверка допустимости работы с отделением
+// Параметры:
+// 	nSub - код отделения ( Subdivision )
+// Возврат:
+//	.t. - работа допустима, .f. - работа не допустима
 METHOD IsAllowedDepartment( nSub ) CLASS TUser
-	local ret := .f., k
-	local ch
+	
+	local ret := .f.
 
 	if !::IsAdmin()
 		if empty( ::FACLDep )
@@ -261,14 +272,15 @@ METHOD IsAllowedDepartment( nSub ) CLASS TUser
 	endif
 	return ret
 
-***********************************
-* Проверка допустимости работы с задачей
-* Параметры:
-* 	nTask - код задачи ( Subdivision )
-* Возврат:
-*	.t. - работа в задаче допустима, .f. - работа в задаче не допустима
+//
+// Проверка допустимости работы с задачей
+// Параметры:
+// 	nTask - код задачи ( Subdivision )
+// Возврат:
+//	.t. - работа в задаче допустима, .f. - работа в задаче не допустима
 METHOD IsAllowedTask( nTask ) CLASS TUser
-	local ret := .F., k
+	
+	local ret := .F.
 
 	if !::IsAdmin()
 		if empty( ::FACLTask )

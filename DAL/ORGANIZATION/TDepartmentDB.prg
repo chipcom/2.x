@@ -27,6 +27,7 @@ METHOD New()		CLASS TDepartmentDB
 	return self
 	
 METHOD GetByID( nID )					CLASS TDepartmentDB
+	
 	local hArray := nil
 	local ret := nil
 	
@@ -36,9 +37,11 @@ METHOD GetByID( nID )					CLASS TDepartmentDB
 	return ret
 	
 METHOD GetByCode( nCode )				CLASS TDepartmentDB
-  return ::GetByID( nCode )
+  
+	return ::GetByID( nCode )
   
 METHOD NumberOfDepartments( dBegin, dEnd )	CLASS TDepartmentDB
+	
 	local oRow := nil
 	local ret := 0
 	
@@ -52,6 +55,7 @@ METHOD NumberOfDepartments( dBegin, dEnd )	CLASS TDepartmentDB
 	return ret
 
 METHOD GetList( dBegin, dEnd, oUser )	CLASS TDepartmentDB
+	
 	local lFlag := .t.
 	local aReturn := {}
 	local oRow := nil
@@ -81,15 +85,17 @@ METHOD GetList( dBegin, dEnd, oUser )	CLASS TDepartmentDB
 	return aReturn
       
 METHOD MenuDepartments( oUser )			CLASS TDepartmentDB
+	
 	local aDepartment := {}
 	local oRow := nil
 	
-	for each oRow in ::GetList( sys_date, , , hb_defaultValue( oUser, hb_user_curUser ) )
+	for each oRow in ::GetList( Date(), , , hb_defaultValue( oUser, hb_user_curUser ) )
 		aadd( aDepartment, { oRow:Name(), oRow:ID() } )
 	next
 	return aDepartment
 	  
 METHOD Save( oDepartment )							CLASS TDepartmentDB
+	
 	local ret := .f.
 	local aHash := nil
 	
@@ -117,12 +123,13 @@ METHOD Save( oDepartment )							CLASS TDepartmentDB
 	return ret
 	  
 METHOD FillFromHash( hbArray )			CLASS TDepartmentDB
+	
 	local obj
 	
 	obj := TDepartment():New( hbArray[ 'ID' ], ;
-			hbArray[ 'REC_NEW' ], ;
-			hbArray[ 'DELETED' ] ;
-			)
+		hbArray[ 'REC_NEW' ], ;
+		hbArray[ 'DELETED' ] ;
+	)
 	obj:Code := hbArray[ 'KOD' ]
 	obj:Name := hbArray[ 'NAME' ]
 	obj:ShortName := hbArray[ 'SHORT_NAME' ]
