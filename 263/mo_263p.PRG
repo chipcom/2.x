@@ -93,7 +93,7 @@ Function _263_put_otd( lotd )
   Endif
   Return s
 
-// 04.06.23
+// 10.09.25
 Function f1_263_p_napr()
 
   Local s := 'ошибка'
@@ -105,10 +105,10 @@ Function f1_263_p_napr()
   Elseif napr->t_ans_1 == 1
     s := 'направлено в стационар'
     If napr->KOD_F_6in > 0 .or. ;
-        ( napr->KOD_F_6out > 0 .and. napr->t_ans_4 == 1 .and. napr->CODEM_1 == glob_mo[ _MO_KOD_TFOMS ] )
+        ( napr->KOD_F_6out > 0 .and. napr->t_ans_4 == 1 .and. napr->CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ] )
       s := ' выбытие ' + date_8( napr->date_6 )
     Elseif napr->KOD_F_4in > 0 .or. ;
-        ( napr->KOD_F_4out > 0 .and. napr->t_ans_4 == 1 .and. napr->CODEM_1 == glob_mo[ _MO_KOD_TFOMS ] )
+        ( napr->KOD_F_4out > 0 .and. napr->t_ans_4 == 1 .and. napr->CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ] )
       s := 'госпитализир. ' + date_8( napr->date_h_4 )
     Elseif napr->KOD_F_3in > 0 .or. napr->KOD_F_3out > 0
       s := 'аннулировано ' + date_8( napr->date_3 )
@@ -118,7 +118,7 @@ Function f1_263_p_napr()
   Endif
   Return s
 
-// 06.11.22
+// 10.09.25
 Function f2_263_p_napr( nKey, oBrow, regim )
 
   Static mm_forma, s1stac_mo := '      ', s1vrach := 0
@@ -127,7 +127,7 @@ Function f2_263_p_napr( nKey, oBrow, regim )
     tmp_V006 := { { 'Стационар', 1 }, { 'Дневной стационар', 2 } }
 
   If Empty( s1stac_mo ) .and. is_napr_stac // по умолчанию направляем в наш
-    s1stac_mo := glob_mo[ _MO_KOD_TFOMS ]  // стационар (если он у нас есть)
+    s1stac_mo := glob_mo()[ _MO_KOD_TFOMS ]  // стационар (если он у нас есть)
   Endif
   If mm_forma == NIL
     mm_forma := AClone( getv014() )
@@ -304,10 +304,10 @@ Function f2_263_p_napr( nKey, oBrow, regim )
             s := '(в файле ' + AllTrim( nf->NAME_F ) + ') '
           Endif
           If napr->KOD_F_6in > 0 .or. ;
-              ( napr->KOD_F_6out > 0 .and. napr->t_ans_4 == 1 .and. napr->CODEM_1 == glob_mo[ _MO_KOD_TFOMS ] )
+              ( napr->KOD_F_6out > 0 .and. napr->t_ans_4 == 1 .and. napr->CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ] )
             s := 'выбыл из стационара ' + date_8( napr->date_6 )
           Elseif napr->KOD_F_4in > 0 .or. ;
-              ( napr->KOD_F_4out > 0 .and. napr->t_ans_4 == 1 .and. napr->CODEM_1 == glob_mo[ _MO_KOD_TFOMS ] )
+              ( napr->KOD_F_4out > 0 .and. napr->t_ans_4 == 1 .and. napr->CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ] )
             s := 'госпитализирован в стационар ' + date_8( napr->date_h_4 )
           Elseif napr->KOD_F_3in > 0 .or. napr->KOD_F_3out > 0
             s := 'направление аннулировано ' + date_8( napr->date_3 ) + ' в '
@@ -387,10 +387,10 @@ Function f2_263_p_napr( nKey, oBrow, regim )
             Goto ( mkod )
             g_rlock( forever )
           Endif
-          napr->NUM_D := glob_mo[ _MO_KOD_TFOMS ] + '_' + StrZero( mn_napr, 6 ) // номер направления
+          napr->NUM_D := glob_mo()[ _MO_KOD_TFOMS ] + '_' + StrZero( mn_napr, 6 ) // номер направления
           napr->DATE_D := md_napr // дата направления
-          napr->MCOD_1 := glob_mo[ _MO_KOD_FFOMS ] // код поликлиники
-          napr->CODEM_1 := glob_mo[ _MO_KOD_TFOMS ] // код поликлиники
+          napr->MCOD_1 := glob_mo()[ _MO_KOD_FFOMS ] // код поликлиники
+          napr->CODEM_1 := glob_mo()[ _MO_KOD_TFOMS ] // код поликлиники
           napr->otd_1 := m1otd
           napr->USL_OK_1 := m1usl_ok
           napr->disp_1 := m1disp

@@ -117,7 +117,7 @@ Function f_get_profil( k, r, c, lprofil_k )
   Endif
   Return ret
 
-// 04.06.23 Проверка информации перед отправкой в ТФОМС
+// 10.09.25 Проверка информации перед отправкой в ТФОМС
 Function _263_to_proverka( yes_msg, /*@*/yes_I07)
 
   Local i, j, s, ikol := 0, lkod_k, ldate, buf := save_maxrow(), k1, k2, ;
@@ -285,7 +285,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
             Endif
           Else
             s := ret_mo( napr->CODEM_FROM )[ _MO_SHORT_NAME ]
-            fl := ( napr->CODEM_FROM == glob_mo[ _MO_KOD_TFOMS ] )
+            fl := ( napr->CODEM_FROM == glob_mo()[ _MO_KOD_TFOMS ] )
           Endif
           If Empty( napr->date_6 )
             If fl
@@ -328,7 +328,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
     Skip
   Enddo
   Index On kod to ( cur_dir() + 'tmp_napr' ) ;
-    for ( KOD_F_1in > 0 .or. ( T_ANS_1 == 1 .and. CODEM_1 == glob_mo[ _MO_KOD_TFOMS ] ) ) ;
+    for ( KOD_F_1in > 0 .or. ( T_ANS_1 == 1 .and. CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ] ) ) ;
     .and. TIP_ANNUL == 2 .and. Empty( KOD_F_3out )
   Go Top
   Do While !Eof()
@@ -491,12 +491,12 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
           fl := .f.
           If Empty( napr->CODEM_FROM )
             If napr->TYPE_H_4 == 4 .and. napr->KOD_F_4out == -99 // не наша госпитализация
-              fl := ( napr->S_CODEM == glob_mo[ _MO_KOD_TFOMS ] )
+              fl := ( napr->S_CODEM == glob_mo()[ _MO_KOD_TFOMS ] )
             Else
               fl := .t. // наша госпитализация
             Endif
           Else
-            fl := ( napr->CODEM_FROM == glob_mo[ _MO_KOD_TFOMS ] )
+            fl := ( napr->CODEM_FROM == glob_mo()[ _MO_KOD_TFOMS ] )
           Endif
           If !Empty( napr->DATE_6 ) // если уже выписан
             If ldate > napr->DATE_H_4 .and. ldate < napr->DATE_6
@@ -627,12 +627,12 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
           fl := .f.
           If Empty( napr->CODEM_FROM )
             If napr->TYPE_H_4 == 4 .and. napr->KOD_F_4out == -99 // не наша госпитализация
-              fl := ( napr->S_CODEM == glob_mo[ _MO_KOD_TFOMS ] )
+              fl := ( napr->S_CODEM == glob_mo()[ _MO_KOD_TFOMS ] )
             Else
               fl := .t. // наша госпитализация
             Endif
           Else
-            fl := ( napr->CODEM_FROM == glob_mo[ _MO_KOD_TFOMS ] )
+            fl := ( napr->CODEM_FROM == glob_mo()[ _MO_KOD_TFOMS ] )
           Endif
           If !Empty( napr->DATE_6 ) // если уже выписан
             If ldate > napr->DATE_H_4 .and. ldate < napr->DATE_6
@@ -869,7 +869,7 @@ Function _263_valid_phone( k, s, ta )
   Endif
   Return Nil
 
-// 04.06.23 Составление информационных пакетов для отправкой в ТФОМС
+// 10.09.25 Составление информационных пакетов для отправкой в ТФОМС
 Function _263_to_sostavlenie()
 
   Local i, j, k, mnn, nfile,  arr_f := {}, name_txt, file_error, buf := save_maxrow(), ;
@@ -922,7 +922,7 @@ Function _263_to_sostavlenie()
       Skip
     Enddo
     ++mnn // номер пакета
-    nfile := 'I01T34M' + glob_mo[ _MO_KOD_TFOMS ] + '_' + ;
+    nfile := 'I01T34M' + glob_mo()[ _MO_KOD_TFOMS ] + '_' + ;
       Right( Str( Year( arr_i01[ i, 1 ] ), 4 ), 2 ) + ;
       StrZero( Month( arr_i01[ i, 1 ] ), 2 ) + ;
       StrZero( Day( arr_i01[ i, 1 ] ), 2 ) + ;
@@ -952,8 +952,8 @@ Function _263_to_sostavlenie()
     mo_add_xml_stroke( oXmlNode, 'NAME_F', nf->NAME_F )
     mo_add_xml_stroke( oXmlNode, 'DATE_R', date2xml( nf->DATE_R ) )
     oMo_d := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'MO_D' ) )
-    mo_add_xml_stroke( oMo_d, 'MO', glob_mo[ _MO_KOD_FFOMS ] )
-    mo_add_xml_stroke( oMo_d, 'LPU', glob_mo[ _MO_KOD_TFOMS ] )
+    mo_add_xml_stroke( oMo_d, 'MO', glob_mo()[ _MO_KOD_FFOMS ] )
+    mo_add_xml_stroke( oMo_d, 'LPU', glob_mo()[ _MO_KOD_TFOMS ] )
     For j := 1 To Len( arr_i01[ i, 2 ] )
       Select NAPR
       Goto ( arr_i01[ i, 2, j ] )
@@ -1049,7 +1049,7 @@ Function _263_to_sostavlenie()
       Select NAPR
       If k == 2
         Index On kod to ( cur_dir() + 'tmp_napr' ) ;
-          for ( KOD_F_1in > 0 .or. ( T_ANS_1 == 1 .and. CODEM_1 == glob_mo[ _MO_KOD_TFOMS ] ) ) ;
+          for ( KOD_F_1in > 0 .or. ( T_ANS_1 == 1 .and. CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ] ) ) ;
           .and. TIP_ANNUL == 2 .and. Empty( KOD_F_3out )
       Else
         Index On kod to ( cur_dir() + 'tmp_napr' ) ;
@@ -1073,7 +1073,7 @@ Function _263_to_sostavlenie()
           Skip
         Enddo
         ++mnn // номер пакета
-        nfile := 'I03T34M' + glob_mo[ _MO_KOD_TFOMS ] + '_' + ;
+        nfile := 'I03T34M' + glob_mo()[ _MO_KOD_TFOMS ] + '_' + ;
           Right( Str( Year( arr_i03[ i, 1 ] ), 4 ), 2 ) + ;
           StrZero( Month( arr_i03[ i, 1 ] ), 2 ) + ;
           StrZero( Day( arr_i03[ i, 1 ] ), 2 ) + ;
@@ -1104,7 +1104,7 @@ Function _263_to_sostavlenie()
         mo_add_xml_stroke( oXmlNode, 'DATE_R', date2xml( nf->DATE_R ) )
         oMo_d := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'SOURCE' ) )
         mo_add_xml_stroke( oMo_d, 'TYPE_S', lstr( k ) )
-        mo_add_xml_stroke( oMo_d, 'CODE', glob_mo[ _MO_KOD_FFOMS ] )
+        mo_add_xml_stroke( oMo_d, 'CODE', glob_mo()[ _MO_KOD_FFOMS ] )
         For j := 1 To Len( arr_i03[ i, 2 ] )
           Select NAPR
           Goto ( arr_i03[ i, 2, j ] )
@@ -1162,7 +1162,7 @@ Function _263_to_sostavlenie()
         Skip
       Enddo
       ++mnn // номер пакета
-      nfile := 'I04T34M' + glob_mo[ _MO_KOD_TFOMS ] + '_' + ;
+      nfile := 'I04T34M' + glob_mo()[ _MO_KOD_TFOMS ] + '_' + ;
         Right( Str( Year( arr_i04[ i, 1 ] ), 4 ), 2 ) + ;
         StrZero( Month( arr_i04[ i, 1 ] ), 2 ) + ;
         StrZero( Day( arr_i04[ i, 1 ] ), 2 ) + ;
@@ -1192,8 +1192,8 @@ Function _263_to_sostavlenie()
       mo_add_xml_stroke( oXmlNode, 'NAME_F', nf->NAME_F )
       mo_add_xml_stroke( oXmlNode, 'DATE_R', date2xml( nf->DATE_R ) )
       oMo_d := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'MO_HOSP' ) )
-      mo_add_xml_stroke( oMo_d, 'MO', glob_mo[ _MO_KOD_FFOMS ] )
-      mo_add_xml_stroke( oMo_d, 'LPU', glob_mo[ _MO_KOD_TFOMS ] )
+      mo_add_xml_stroke( oMo_d, 'MO', glob_mo()[ _MO_KOD_FFOMS ] )
+      mo_add_xml_stroke( oMo_d, 'LPU', glob_mo()[ _MO_KOD_TFOMS ] )
       For j := 1 To Len( arr_i04[ i, 2 ] )
         Select NAPR
         Goto ( arr_i04[ i, 2, j ] )
@@ -1297,7 +1297,7 @@ Function _263_to_sostavlenie()
         Skip
       Enddo
       ++mnn // номер пакета
-      nfile := 'I05T34M' + glob_mo[ _MO_KOD_TFOMS ] + '_' + ;
+      nfile := 'I05T34M' + glob_mo()[ _MO_KOD_TFOMS ] + '_' + ;
         Right( Str( Year( arr_i05[ i, 1 ] ), 4 ), 2 ) + ;
         StrZero( Month( arr_i05[ i, 1 ] ), 2 ) + ;
         StrZero( Day( arr_i05[ i, 1 ] ), 2 ) + ;
@@ -1327,8 +1327,8 @@ Function _263_to_sostavlenie()
       mo_add_xml_stroke( oXmlNode, 'NAME_F', nf->NAME_F )
       mo_add_xml_stroke( oXmlNode, 'DATE_R', date2xml( nf->DATE_R ) )
       oMo_d := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'MO_EXTR' ) )
-      mo_add_xml_stroke( oMo_d, 'MO', glob_mo[ _MO_KOD_FFOMS ] )
-      mo_add_xml_stroke( oMo_d, 'LPU', glob_mo[ _MO_KOD_TFOMS ] )
+      mo_add_xml_stroke( oMo_d, 'MO', glob_mo()[ _MO_KOD_FFOMS ] )
+      mo_add_xml_stroke( oMo_d, 'LPU', glob_mo()[ _MO_KOD_TFOMS ] )
       For j := 1 To Len( arr_i05[ i, 2 ] )
         Select NAPR
         Goto ( arr_i05[ i, 2, j ] )
@@ -1431,7 +1431,7 @@ Function _263_to_sostavlenie()
         Skip
       Enddo
       ++mnn // номер пакета
-      nfile := 'I06T34M' + glob_mo[ _MO_KOD_TFOMS ] + '_' + ;
+      nfile := 'I06T34M' + glob_mo()[ _MO_KOD_TFOMS ] + '_' + ;
         Right( Str( Year( arr_i06[ i, 1 ] ), 4 ), 2 ) + ;
         StrZero( Month( arr_i06[ i, 1 ] ), 2 ) + ;
         StrZero( Day( arr_i06[ i, 1 ] ), 2 ) + ;
@@ -1461,8 +1461,8 @@ Function _263_to_sostavlenie()
       mo_add_xml_stroke( oXmlNode, 'NAME_F', nf->NAME_F )
       mo_add_xml_stroke( oXmlNode, 'DATE_R', date2xml( nf->DATE_R ) )
       oMo_d := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'MO_DC' ) )
-      mo_add_xml_stroke( oMo_d, 'MO', glob_mo[ _MO_KOD_FFOMS ] )
-      mo_add_xml_stroke( oMo_d, 'LPU', glob_mo[ _MO_KOD_TFOMS ] )
+      mo_add_xml_stroke( oMo_d, 'MO', glob_mo()[ _MO_KOD_FFOMS ] )
+      mo_add_xml_stroke( oMo_d, 'LPU', glob_mo()[ _MO_KOD_TFOMS ] )
       For j := 1 To Len( arr_i06[ i, 2 ] )
         Select NAPR
         Goto ( arr_i06[ i, 2, j ] )
@@ -1520,7 +1520,7 @@ Function _263_to_sostavlenie()
     kart->( dbCloseArea() )
     napr->( dbCloseArea() )
     g_use( dir_server() + 'mo_n7d', , 'D7' )
-    nfile := 'I07T34M' + glob_mo[ _MO_KOD_TFOMS ]
+    nfile := 'I07T34M' + glob_mo()[ _MO_KOD_TFOMS ]
     Select NF
     Index On Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) For in_out == 1
     find ( Upper( nfile ) ) // наверное уже отправляли I07 в ТФОМС
@@ -1557,8 +1557,8 @@ Function _263_to_sostavlenie()
     mo_add_xml_stroke( oXmlNode, 'NAME_F', nf->NAME_F )
     mo_add_xml_stroke( oXmlNode, 'DATE_R', date2xml( nf->DATE_R ) )
     oMo_d := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'MO_PLACE' ) )
-    mo_add_xml_stroke( oMo_d, 'MO', glob_mo[ _MO_KOD_FFOMS ] )
-    mo_add_xml_stroke( oMo_d, 'LPU', glob_mo[ _MO_KOD_TFOMS ] )
+    mo_add_xml_stroke( oMo_d, 'MO', glob_mo()[ _MO_KOD_FFOMS ] )
+    mo_add_xml_stroke( oMo_d, 'LPU', glob_mo()[ _MO_KOD_TFOMS ] )
     //
     g_use( dir_server() + 'mo_n7out', , 'N7' )
     Index On PadR( inieditspr( A__MENUVERT, arr_t007(), n7->PROFIL_K ), 60 ) + Str( n7->PROFIL_K, 3 ) + ;
@@ -1799,7 +1799,7 @@ Function f1_263_to_i01( k )
   Endif
   Return Nil
 
-// 04.06.23
+// 10.09.25
 Function f2_263_to_i01( nKey, oBrow, regim )
 
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
@@ -1880,7 +1880,7 @@ Function f2_263_to_i01( nKey, oBrow, regim )
         verify_ff( HH -5, .t., sh )
         add_string( '' )
         add_string( lstr( ++i ) + '. Направление № ' + AllTrim( napr->NUM_D ) + ' от ' + date_8( napr->DATE_D ) )
-        If napr->S_CODEM == glob_mo[ _MO_KOD_TFOMS ]
+        If napr->S_CODEM == glob_mo()[ _MO_KOD_TFOMS ]
           add_string( Space( 3 ) + 'в стационар нашего МО' )
         Else
           add_string( Space( 3 ) + 'в стационар МО ' + ret_mo( napr->S_CODEM )[ _MO_SHORT_NAME ] )
@@ -1956,7 +1956,7 @@ Function _263_to_i03()
   rest_box( buf )
   Return Nil
 
-// 04.06.23
+// 10.09.25
 Function f2_263_to_i03( nKey, oBrow, regim )
 
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
@@ -2038,14 +2038,14 @@ Function f2_263_to_i03( nKey, oBrow, regim )
         add_string( '' )
         add_string( lstr( ++i ) + '. Направление № ' + AllTrim( napr->NUM_D ) + ' от ' + date_8( napr->DATE_D ) )
         If napr->TIP_ANNUL == 3
-          If napr->S_CODEM == glob_mo[ _MO_KOD_TFOMS ]
+          If napr->S_CODEM == glob_mo()[ _MO_KOD_TFOMS ]
             add_string( Space( 3 ) + 'в стационар нашего МО' )
           Else
             add_string( Space( 3 ) + 'в стационар МО ' + ret_mo( napr->S_CODEM )[ _MO_SHORT_NAME ] )
           Endif
           add_string( Space( 3 ) + 'направление аннулировано в нашей ПОЛИКЛИНИКЕ' )
         Else
-          If napr->CODEM_1 == glob_mo[ _MO_KOD_TFOMS ]
+          If napr->CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ]
             add_string( Space( 3 ) + 'из поликлиники нашего МО' )
           Else
             add_string( Space( 3 ) + 'из поликлиники МО ' + ret_mo( napr->CODEM_1 )[ _MO_SHORT_NAME ] )
@@ -2127,7 +2127,7 @@ Function _263_to_i04( k )
   rest_box( buf )
   Return Nil
 
-// 04.06.23
+// 10.09.25
 Function f2_263_to_i04( nKey, oBrow, regim )
 
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, s1, s2, s3, s4, ;
@@ -2215,7 +2215,7 @@ Function f2_263_to_i04( nKey, oBrow, regim )
         Do Case
         Case napr->TYPE_H_4 == 1
           s := 'Направлен из '
-          If napr->CODEM_1 == glob_mo[ _MO_KOD_TFOMS ]
+          If napr->CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ]
             s += 'поликлиники нашего МО'
           Else
             s += ret_mo( napr->CODEM_1 )[ _MO_SHORT_NAME ]
@@ -2303,7 +2303,7 @@ Function _263_to_i06()
   rest_box( buf )
   Return Nil
 
-// 04.06.23
+// 10.09.25
 Function f2_263_to_i06( nKey, oBrow, regim )
 
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, s1, s2, s3, s4, ;
@@ -2387,7 +2387,7 @@ Function f2_263_to_i06( nKey, oBrow, regim )
         Do Case
         Case napr->TYPE_H_4 == 1
           s := 'Направлен из '
-          If napr->CODEM_1 == glob_mo[ _MO_KOD_TFOMS ]
+          If napr->CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ]
             s += 'поликлиники нашего МО'
           Else
             s += ret_mo( napr->CODEM_1 )[ _MO_SHORT_NAME ]
@@ -2535,7 +2535,7 @@ Function _263_to_nastr()
   Close databases
   Return Nil
 
-// 09.09.25 Получение из ТФОМС файлов обмена (информационных пакетов)
+// 10.09.25 Получение из ТФОМС файлов обмена (информационных пакетов)
 Function _263_from_read()
 
   Static nerrf := 999
@@ -2901,7 +2901,7 @@ Function _263_from_read()
             hb_eol(), cFileProtokol, .t. )
           If '_' $ cName
             s := Right( BeforAtNum( '_', cName ), 6 )
-            If s == glob_mo[ _MO_KOD_TFOMS ]
+            If s == glob_mo()[ _MO_KOD_TFOMS ]
               // наше МО
             Elseif ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == s } ) ) > 0
               StrFile( Space( 5 ) + 'это пакет МО "' + glob_arr_mo()[ i, _MO_SHORT_NAME ] + '"' + ;
@@ -2920,7 +2920,7 @@ Function _263_from_read()
             hb_eol(), cFileProtokol, .t. )
         Else
           s := SubStr( cName, 5, 6 )
-          If s == glob_mo[ _MO_KOD_TFOMS ] // наше МО
+          If s == glob_mo()[ _MO_KOD_TFOMS ] // наше МО
             s := BeforAtNum( '_', SubStr( cName, 11 ) )
             If ( c := Left( s, 1 ) ) == 'M'
               sFrom := SubStr( s, 2 )
@@ -3007,7 +3007,7 @@ Function _263_from_read()
                         m1kod_k := napr->KOD_K
                       Endif
                     Else
-                      If sFrom == glob_mo[ _MO_KOD_TFOMS ] // направление из нашей п-ки
+                      If sFrom == glob_mo()[ _MO_KOD_TFOMS ] // направление из нашей п-ки
                         StrFile( Space( 7 ) + 'это наше направление - почему-то не найдено в отправленных - добавляем' + ;
                           hb_eol(), cFileProtokol, .t. )
                       Endif
@@ -3129,7 +3129,7 @@ Function _263_from_read()
                   is_read := .t.
                   Select NAPR
                   Index On Upper( id_4 ) to ( cur_dir() + 'tmp_naprid4' )
-                  If !( sFrom == glob_mo[ _MO_KOD_TFOMS ] ) .and. is_napr_pol
+                  If !( sFrom == glob_mo()[ _MO_KOD_TFOMS ] ) .and. is_napr_pol
                     Index On Upper( id_1 ) to ( cur_dir() + 'tmp_naprid1' )
                     Set Index to ( cur_dir() + 'tmp_naprid4' ), ( cur_dir() + 'tmp_naprid1' )
                   Endif
@@ -3173,7 +3173,7 @@ Function _263_from_read()
                       Space( 7 ) + mfio + ' д.р.' + full_date( tmp2->BIRTHDAY ) + hb_eol() + ;
                       Space( 7 ) + 'условия оказания медицинской помощи: ' + ;
                       iif( tmp2->usl_ok == 2, 'дневной ', '' ) + 'стационар' + hb_eol(), cFileProtokol, .t. )
-                    If sFrom == glob_mo[ _MO_KOD_TFOMS ] // если пациент лёг в наш стационар
+                    If sFrom == glob_mo()[ _MO_KOD_TFOMS ] // если пациент лёг в наш стационар
                       Select NAPR
                       find ( Upper( tmp2->ID_H ) ) // ищем GUID госпитализации
                       If Found()
@@ -3199,7 +3199,7 @@ Function _263_from_read()
                               hb_eol(), cFileProtokol, .t. )
                           Endif
                           g_rlock( forever )
-                          napr->CODEM_FROM := iif( Empty( tmp2->LPU_D ), glob_mo[ _MO_KOD_TFOMS ], tmp2->LPU_D )
+                          napr->CODEM_FROM := iif( Empty( tmp2->LPU_D ), glob_mo()[ _MO_KOD_TFOMS ], tmp2->LPU_D )
                           napr->TYPE_H_4 := tmp2->TYPE_H
                           napr->ID_4 := tmp2->ID_H
                           napr->KOD_UP := 0
@@ -3274,7 +3274,7 @@ Function _263_from_read()
                   is_read := .t.
                   Select NAPR
                   Index On Upper( id_6 ) to ( cur_dir() + 'tmp_naprid6' )
-                  If !( sFrom == glob_mo[ _MO_KOD_TFOMS ] ) .and. is_napr_pol
+                  If !( sFrom == glob_mo()[ _MO_KOD_TFOMS ] ) .and. is_napr_pol
                     Index On Upper( id_1 ) to ( cur_dir() + 'tmp_naprid1' )
                     Index On DToS( DATE_H_4 ) to ( cur_dir() + 'tmp_naprd4' )
                     Set Index to ( cur_dir() + 'tmp_naprid6' ), ( cur_dir() + 'tmp_naprid1' ), ( cur_dir() + 'tmp_naprd4' )
@@ -3307,7 +3307,7 @@ Function _263_from_read()
                       iif( Empty( tmp2->ENP ), '', ' полис ' + tmp2->ENP ) + hb_eol() + ;
                       Space( 7 ) + 'условия оказания медицинской помощи: ' + ;
                       iif( tmp2->usl_ok == 2, 'дневной ', '' ) + 'стационар' + hb_eol(), cFileProtokol, .t. )
-                    If sFrom == glob_mo[ _MO_KOD_TFOMS ] // если пациент лежал в нашем стационар
+                    If sFrom == glob_mo()[ _MO_KOD_TFOMS ] // если пациент лежал в нашем стационар
                       Select NAPR
                       Set Order To 1
                       find ( Upper( tmp2->ID_DISCH ) ) // ищем GUID выбытия
@@ -3624,7 +3624,7 @@ Function f2_263_from_protokol( nKey, oBrow, regim )
   Endcase
   Return ret
 
-// 26.08.14 Список информационных пакетов с полученными направлениями от поликлиник
+// 10.09.25 Список информационных пакетов с полученными направлениями от поликлиник
 Function _263_from_i01()
 
   Static str_sem := '263_from_I01'
@@ -3651,7 +3651,7 @@ Function _263_from_i01()
   t_arr[ BR_COLOR ] := color0
   t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B, R/BG, W+/R', .t. }
   blk := {|| iif( Empty( nf->TWORK2 ), { 5, 6 }, ;
-    iif( SubStr( nf->name_f, 12, 6 ) == glob_mo[ _MO_KOD_TFOMS ], { 3, 4 }, { 1, 2 } ) ) }
+    iif( SubStr( nf->name_f, 12, 6 ) == glob_mo()[ _MO_KOD_TFOMS ], { 3, 4 }, { 1, 2 } ) ) }
   t_arr[ BR_COLUMN ] := { { ' Имя файла', {|| nf->name_f }, blk }, ;
     { ' Отч.дата', {|| full_date( nf->date_r ) }, blk }, ;
     { ' Кол.', {|| Str( nf->kol, 5 ) }, blk }, ;

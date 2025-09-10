@@ -95,7 +95,7 @@ Function _263_s_gospit()
   rest_box( buf )
   Return Nil
 
-// 06.11.22
+// 10.09.25
 Function f0_263_s_gospit()
 
   Local s := ''
@@ -103,7 +103,7 @@ Function f0_263_s_gospit()
   Do Case
   Case napr->TYPE_H_4 == 1 // госп-ия: 1-по направлению
     s := 'напр'
-    If napr->CODEM_FROM == glob_mo[ _MO_KOD_TFOMS ]
+    If napr->CODEM_FROM == glob_mo()[ _MO_KOD_TFOMS ]
       s += '-ие из нашей п-ки'
     Elseif Empty( napr->CODEM_FROM )
       s += napr->NUM_D
@@ -238,7 +238,7 @@ Function f2_263_s_gospit( nKey, oBrow, regim )
   Endcase
   Return ret
 
-// 04.06.23 работа с направлениями на госпитализацию в стационаре
+// 10.09.25 работа с направлениями на госпитализацию в стационаре
 Function _263_edit_s_gospit( nKey )
 
   Static sk := 1
@@ -301,7 +301,7 @@ Function _263_edit_s_gospit( nKey )
       k := f_get_mo(, T_ROW, T_COL + 5 )
       If k == Nil .or. Empty( k[ 1 ] )
         flag := .f.
-      Elseif k[ 1 ] == glob_mo[ _MO_KOD_TFOMS ]
+      Elseif k[ 1 ] == glob_mo()[ _MO_KOD_TFOMS ]
         flag := func_error( 4, 'Нельзя выбирать наше МО - необходимо выбрать другой стационар!' )
       Else
         m1CODEM_FROM := k[ 1 ]
@@ -335,7 +335,7 @@ Function _263_edit_s_gospit( nKey )
     If Empty( m1CODEM_FROM )
       mCODEM_FROM := Space( 10 )
     Else
-      If m1CODEM_FROM == glob_mo[ _MO_KOD_TFOMS ]
+      If m1CODEM_FROM == glob_mo()[ _MO_KOD_TFOMS ]
         mCODEM_FROM := 'Поликлиники нашего МО'
       Else
         mCODEM_FROM := ret_mo( m1CODEM_FROM )[ _MO_SHORT_NAME ]
@@ -448,7 +448,7 @@ Function _263_edit_s_gospit( nKey )
           s := '(в файле ' + AllTrim( nf->NAME_F ) + ') '
         Endif
         If napr->KOD_F_6in > 0 .or. ( napr->KOD_F_6out > 0 .and. napr->t_ans_6 == 1;
-            .and. napr->CODEM_1 == glob_mo[ _MO_KOD_TFOMS ] )
+            .and. napr->CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ] )
           s := 'выбыл из стационара ' + date_8( napr->date_6 )
         Endif
         @ ++i, 1 Say s Color color8
@@ -542,7 +542,7 @@ Function _263_edit_s_gospit( nKey )
   RestScreen( buf )
   Return flag
 
-// 14.09.16 подставить срок лечения по умолчанию для конкретного профиля
+// 10.09.25 подставить срок лечения по умолчанию для конкретного профиля
 Function f1_263_edit_s_gospit()
 
   Local tmp_select := Select()
@@ -559,7 +559,7 @@ Function f1_263_edit_s_gospit()
   Endif
   Return .t.
 
-// 08.03.17
+// 10.09.25
 Function for_263_input_napr()
 
   Local fl := !Empty( NUM_D )
@@ -567,14 +567,14 @@ Function for_263_input_napr()
   If fl
     If KOD_F_1in > 0
       //
-    Elseif T_ANS_1 == 1 .and. CODEM_1 == glob_mo[ _MO_KOD_TFOMS ]
+    Elseif T_ANS_1 == 1 .and. CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ]
       //
     Else
       fl := .f.
     Endif
   Endif
   If fl
-    fl := ( S_CODEM == glob_mo[ _MO_KOD_TFOMS ] .and. TYPE_H_4 == 0 )
+    fl := ( S_CODEM == glob_mo()[ _MO_KOD_TFOMS ] .and. TYPE_H_4 == 0 )
   Endif
   If fl
     fl := ( AScan( arr_year, Year( date_h_1 ) ) > 0 )
@@ -775,7 +775,7 @@ Function f1_263_s_vybytie()
   Endif
   Return s
 
-// 04.06.23
+// 10.09.25
 Function f2_263_s_vybytie( nKey, oBrow, regim )
 
   Local ret := -1, rec, i, k, r1, tmp_color, buf, fl, s_error := '', ;
@@ -843,7 +843,7 @@ Function f2_263_s_vybytie( nKey, oBrow, regim )
       If Empty( m1CODEM_FROM )
         mCODEM_FROM := Space( 10 )
       Else
-        If m1CODEM_FROM == glob_mo[ _MO_KOD_TFOMS ]
+        If m1CODEM_FROM == glob_mo()[ _MO_KOD_TFOMS ]
           mCODEM_FROM := 'Поликлиники нашего МО'
         Else
           mCODEM_FROM := ret_mo( m1CODEM_FROM )[ _MO_SHORT_NAME ]
@@ -997,20 +997,20 @@ Function f2_263_s_vybytie( nKey, oBrow, regim )
   Endcase
   Return ret
 
-// 08.03.17
+// 10.09.25
 Function for_263_s_napr()
 
   Local fl := .t.
 
   If KOD_F_1in > 0
     //
-  Elseif T_ANS_1 == 1 .and. CODEM_1 == glob_mo[ _MO_KOD_TFOMS ]
+  Elseif T_ANS_1 == 1 .and. CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ]
     //
   Else
     fl := .f.
   Endif
   If fl
-    fl := ( S_CODEM == glob_mo[ _MO_KOD_TFOMS ] .and. TYPE_H_4 == 0 )
+    fl := ( S_CODEM == glob_mo()[ _MO_KOD_TFOMS ] .and. TYPE_H_4 == 0 )
   Endif
   If fl
     fl := ( napr->KOD_F_4out == 0 .and. Between( date_d, arr_m[ 5 ], arr_m[ 6 ] ) )
@@ -1107,7 +1107,7 @@ Function f1_263_s_napr()
   Endif
   Return s
 
-// 04.06.23
+// 10.09.25
 Function f2_263_s_napr( nKey, oBrow, regim )
 
   Static s_arr
@@ -1237,7 +1237,7 @@ Function f2_263_s_napr( nKey, oBrow, regim )
       mprofil := inieditspr( A__MENUVERT, getv002(), M1PROFIL )
       mUSL_OK := inieditspr( A__MENUVERT, tmp_V006, m1USL_OK )
       If !Empty( m1pol_mo )
-        If m1pol_mo == glob_mo[ _MO_KOD_TFOMS ]
+        If m1pol_mo == glob_mo()[ _MO_KOD_TFOMS ]
           mpol_mo := 'Поликлиника нашего МО'
         Else
           mpol_mo := ret_mo( m1pol_mo )[ _MO_SHORT_NAME ]
@@ -1323,14 +1323,14 @@ Function f2_263_s_napr( nKey, oBrow, regim )
   Endcase
   Return ret
 
-// 08.03.17
+// 10.09.25
 Function for_263_s_annul()
 
-  Local fl := ( S_CODEM == glob_mo[ _MO_KOD_TFOMS ] )
+  Local fl := ( S_CODEM == glob_mo()[ _MO_KOD_TFOMS ] )
 
   If KOD_F_1in > 0
     //
-  Elseif T_ANS_1 == 1 .and. CODEM_1 == glob_mo[ _MO_KOD_TFOMS ]
+  Elseif T_ANS_1 == 1 .and. CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ]
     //
   Else
     fl := .f.
@@ -1489,7 +1489,7 @@ Function f2_263_s_annul( nKey, oBrow, regim )
       mprofil := inieditspr( A__MENUVERT, getv002(), M1PROFIL )
       mrea_annul := inieditspr( A__MENUVERT, get_reason_annul(), m1rea_annul )
       If !Empty( m1pol_mo )
-        If m1pol_mo == glob_mo[ _MO_KOD_TFOMS ]
+        If m1pol_mo == glob_mo()[ _MO_KOD_TFOMS ]
           mpol_mo := 'Поликлиника нашего МО'
         Else
           mpol_mo := ret_mo( m1pol_mo )[ _MO_SHORT_NAME ]
@@ -1782,7 +1782,7 @@ Function f1_263_s_svob_kojki( k )
   Endif
   Return Nil
 
-// 04.06.23
+// 10.09.25
 Function f2_263_s_svob_kojki( nKey, oBrow, regim )
 
   Local lkod, buf, r1, rec, i, ret := -1, lcodem, n1, n2, tmp_color, arr_p := {}, ;
@@ -1926,7 +1926,7 @@ Function f2_263_s_svob_kojki( nKey, oBrow, regim )
       n_list := 1
       add_string( '' )
       add_string( Center( 'Количество стационарных коек на утро ' + date_8( d7->DATE_R_EDI ) + 'г.', sh ) )
-      For i := 1 To perenos( t_arr, glob_mo[ _MO_FULL_NAME ], sh )
+      For i := 1 To perenos( t_arr, glob_mo()[ _MO_FULL_NAME ], sh )
         add_string( Center( AllTrim( t_arr[ i ] ), sh ) )
       Next
       AEval( arr_title, {| x| add_string( x ) } )
