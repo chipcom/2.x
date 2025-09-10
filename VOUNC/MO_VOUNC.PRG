@@ -55,7 +55,7 @@ Function vounc_input_nazn()
         g_use( dir_server() + 'vouncnaz', , 'NAZN' ), ;
         dbSetRelation( 'TRN', {|| tovar }, 'tovar' ) }
       Eval( blk_open )
-      Index On Str( kod_k, 7 ) + Str( Descend( DATE_NAZ ), 10 ) to ( cur_dir() + 'tmp_nazn' )
+      Index On Str( FIELD->kod_k, 7 ) + Str( Descend( FIELD->DATE_NAZ ), 10 ) to ( cur_dir() + 'tmp_nazn' )
       If ltip_mnn < 2
         Set Filter To mnn->tip_mnn == ltip_mnn
       Endif
@@ -231,7 +231,7 @@ Function vounc_input_recept()
       g_use( dir_server() + 'vouncrec', , 'RCP' ), ;
       dbSetRelation( 'TRN', {|| tovar }, 'tovar' ) }
     Eval( blk_open )
-    Index On Str( kod_k, 7 ) + Str( Descend( DATE_R ), 10 ) + Str( 999999 - NUMBER_R, 6 ) to ( cur_dir() + 'tmp_rcp' )
+    Index On Str( FIELD->kod_k, 7 ) + Str( Descend( FIELD->DATE_R ), 10 ) + Str( 999999 - FIELD->NUMBER_R, 6 ) to ( cur_dir() + 'tmp_rcp' )
     Private fl_found, str_find, muslovie
     str_find := Str( glob_kartotek, 7 )
     muslovie := 'rcp->kod_k == glob_kartotek'
@@ -335,7 +335,7 @@ Function f2_vounc_input_recept( nKey, oBrow )
     dbSetRelation( 'MNN', {|| mnn }, 'mnn' )
     g_use( dir_server() + 'vouncnaz', , 'NAZN' )
     dbSetRelation( 'TRN', {|| tovar }, 'tovar' )
-    Index On Str( Descend( DATE_NAZ ), 10 ) to ( cur_dir() + 'tmp_nazn' ) For kod_k == glob_kartotek
+    Index On Str( Descend( FIELD->DATE_NAZ ), 10 ) to ( cur_dir() + 'tmp_nazn' ) For FIELD->kod_k == glob_kartotek
     k := { 0, 0 }
     arr := {}
     Go Top
@@ -421,7 +421,7 @@ Function f2_vounc_input_recept( nKey, oBrow )
             Endif
             If fl
               r_use( dir_server() + 'vouncrec', , 'RCP' )
-              Index On Str( number_r, 6 ) to ( cur_dir() + 'tmp_rcp1' ) For Year( date_r ) == Year( mdate_r )
+              Index On Str( FIELD->number_r, 6 ) to ( cur_dir() + 'tmp_rcp1' ) For Year( FIELD->date_r ) == Year( mdate_r )
               find ( Str( mnumber_r, 6 ) )
               If Found()
                 fl := func_error( 4, 'В этом году уже был введен рецепт № ' + lstr( mnumber_r ) )
@@ -471,7 +471,7 @@ Function f2_vounc_input_recept( nKey, oBrow )
                   func_error( 4, 'Не удалось записать номер последнего рецепта. Проверьте и исправьте.' )
                 Endif
               Endif
-              Index On Str( kod_k, 7 ) + Str( Descend( DATE_R ), 10 ) + Str( 999999 -NUMBER_R, 6 ) to ( cur_dir() + 'tmp_rcp' )
+              Index On Str( FIELD->kod_k, 7 ) + Str( Descend( FIELD->DATE_R ), 10 ) + Str( 999999 - FIELD->NUMBER_R, 6 ) to ( cur_dir() + 'tmp_rcp' )
               Use
             Else
               Loop
@@ -749,7 +749,7 @@ Function f1vounc_info_recept()
     { 'Суббота', 7 }, ;
     { 'Воскресенье', 1 } }
   Local sh, HH := 58, buf := save_maxrow(), n_file := cur_dir() + 'kol_rcp.txt', ;
-    arr_m, last_d, skol := 0, am := {}
+    arr_m, last_d, skol := 0, am := {}, i, j, m
 
   If ( arr_m := year_month() ) == NIL
     Return Nil
@@ -766,8 +766,8 @@ Function f1vounc_info_recept()
   r_use( dir_server() + 'kartotek', , 'KART' )
   r_use( dir_server() + 'vouncrec', , 'RCP' )
   Set Relation To kod_k into KART
-  Index On DToS( DATE_R ) + Str( NUMBER_R, 6 ) to ( cur_dir() + 'tmp_rcp' ) ;
-    For Between( date_r, arr_m[ 5 ], arr_m[ 6 ] ) .and. annul == 0
+  Index On DToS( FIELD->DATE_R ) + Str( FIELD->NUMBER_R, 6 ) to ( cur_dir() + 'tmp_rcp' ) ;
+    For Between( FIELD->date_r, arr_m[ 5 ], arr_m[ 6 ] ) .and. FIELD->annul == 0
   Go Top
   Do While !Eof()
     verify_ff( HH, .t., sh )
@@ -824,7 +824,7 @@ Function f2vounc_info_recept()
   Next
   dbCreate( cur_dir() + 'tmp', adbf )
   Use ( cur_dir() + 'tmp' )
-  Index On Str( tovar, 5 ) to ( cur_dir() + 'tmp' )
+  Index On Str( FIELD->tovar, 5 ) to ( cur_dir() + 'tmp' )
   r_use( dir_server() + 'vouncrec', , 'RCP' )
   Go Top
   Do While !Eof()
@@ -905,7 +905,7 @@ Function f3vounc_info_recept()
             { 'kol', 'N', 6, 0 } }
   dbCreate( cur_dir() + 'tmp', adbf )
   Use ( cur_dir() + 'tmp' )
-  Index On Str( kod_k, 7 ) + Str( tovar, 5 ) to ( cur_dir() + 'tmp' )
+  Index On Str( FIELD->kod_k, 7 ) + Str( FIELD->tovar, 5 ) to ( cur_dir() + 'tmp' )
   r_use( dir_server() + 'vouncrec', , 'RCP' )
   Go Top
   Do While !Eof()
@@ -931,7 +931,7 @@ Function f3vounc_info_recept()
     Set Relation To mnn into MNN
     Select TMP
     Set Relation To tovar into TRN
-    Index On tovar to ( cur_dir() + 'tmp' ) unique
+    Index On FIELD->tovar to ( cur_dir() + 'tmp' ) unique
     arr := {}
     Go Top
     Do While !Eof()
@@ -978,7 +978,7 @@ Function f3vounc_info_recept()
     r_use( dir_server() + 'kartotek', , 'KART' )
     Select TMP
     Set Relation To kod_k into KART
-    Index On Upper( kart->fio ) + Str( kod_k, 7 ) to ( cur_dir() + 'tmp' )
+    Index On Upper( kart->fio ) + Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp' )
     old_kart := -1
     s := ''
     ii := 0
@@ -1026,9 +1026,9 @@ Function vounc_info_sprav()
   add_string( '' )
   add_string( Center( Expand( 'Список лекарственных препаратов' ), sh ) )
   r_use( dir_server() + 'vounctrn', , 'TRN' )
-  Index On Str( mnn, 5 ) + Upper( name ) + Str( c_lf, 1 ) + Str( doza, 6, 1 ) + Str( n_lf, 4 ) to ( cur_dir() + 'tmp_trn' )
+  Index On Str( FIELD->mnn, 5 ) + Upper( FIELD->name ) + Str( FIELD->c_lf, 1 ) + Str( FIELD->doza, 6, 1 ) + Str( n_lf, 4 ) to ( cur_dir() + 'tmp_trn' )
   r_use( dir_server() + 'vouncmnn', , 'MNN' )
-  Index On Str( TIP_MNN, 1 ) + Upper( name ) to ( cur_dir() + 'tmp_mnn' )
+  Index On Str( FIELD->TIP_MNN, 1 ) + Upper( FIELD->name ) to ( cur_dir() + 'tmp_mnn' )
   Go Top
   Do While !Eof()
     If old_tip_mnn != mnn->tip_mnn
@@ -1097,13 +1097,13 @@ Function vounc_del_trn( k )
 
   mywait()
   r_use( dir_server() + 'vouncnaz', , '__B' )
-  Index On Str( tovar, 5 ) to ( cur_dir() + 'tmp_nazn' )
+  Index On Str( FIELD->tovar, 5 ) to ( cur_dir() + 'tmp_nazn' )
   find ( Str( k, 5 ) )
   _fl := Found()
   dbCloseArea()
   If !_fl
     r_use( dir_server() + 'vouncrec', , '__B' )
-    Index On Str( tovar, 5 ) to ( cur_dir() + 'tmp_recp' )
+    Index On Str( FIELD->tovar, 5 ) to ( cur_dir() + 'tmp_recp' )
     find ( Str( k, 5 ) )
     _fl := Found()
     dbCloseArea()
@@ -1114,7 +1114,7 @@ Function vounc_del_trn( k )
 //
 Function vounc_sprav_mnn()
 
-  Local arr[ US_LEN ], blk
+  Local arr[ US_LEN ]
 
   arr[ US_TOP      ] := T_ROW
   arr[ US_BOTTOM   ] := 23
@@ -1316,7 +1316,7 @@ Function vounc_get_tovar( k, r, c, _tip_mnn )
   Default _tip_mnn To 2
   r_use( dir_server() + 'vouncmnn', , 'MNN' )
   r_use( dir_server() + 'vounctrn', , 'TRN' )
-  Index On Upper( name ) to ( cur_dir() + 'tmp_trn' )
+  Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_trn' )
   dbSetRelation( 'MNN', {|| mnn }, 'mnn' )
   Go Top
   Do While !Eof()
