@@ -83,7 +83,7 @@ Function f_import( k )
 
   Return Nil
 
-// 23.12.17
+// 10.09.25
 Function import_from_lis()
 
   Local full_o79
@@ -93,7 +93,7 @@ Function import_from_lis()
   If !Empty( full_o79 ) .and. hb_FileExists( full_o79 )
     Delete File ( cur_dir() + cFileProtokol )
     g_splus( f_name_task( X_OMS ) ) // плюс 1 пользователь зашёл в задачу ОМС
-    If g_sislock( sem_vagno_task[ X_OMS ] )
+    If g_sislock( sem_vagno_task()[ X_OMS ] )
       f_err_sem_vagno_task( X_OMS )
     Elseif Lower( Right( full_o79, 3 ) ) == "x79" // XML-файл
       f1_impxml_from_lis( full_o79 )
@@ -1250,7 +1250,7 @@ Function import_sluch_oms()
     Endif
     If fl
       g_splus( f_name_task( X_OMS ) ) // плюс 1 пользователь зашёл в задачу ОМС
-      If g_sislock( sem_vagno_task[ X_OMS ] )
+      If g_sislock( sem_vagno_task()[ X_OMS ] )
         fl := f_err_sem_vagno_task( X_OMS )
       Else
         fl := f1_import_sluch_oms()
@@ -3295,8 +3295,7 @@ Function pripisnoe_naselenie_create_oblsdrav()
 
   Return Nil
 
-// 07.08.24
-// Общие настройки каждой задачи
+// 10.09.25 Общие настройки каждой задачи
 Function nastr_all( k, nTask )
 
   Static sk := 1, mas_pmt
@@ -3314,20 +3313,20 @@ Function nastr_all( k, nTask )
     n := 1
     If is_task( X_PPOKOJ )
       ++n
-      AAdd( mas_pmt, array_tasks[ ind_task( X_PPOKOJ ), 1 ] )
-      AAdd( mas_msg, 'Общие настройки задачи "' + array_tasks[ ind_task( X_PPOKOJ ), 1 ] + '"' )
+      AAdd( mas_pmt, array_tasks()[ ind_task( X_PPOKOJ ), 1 ] )
+      AAdd( mas_msg, 'Общие настройки задачи "' + array_tasks()[ ind_task( X_PPOKOJ ), 1 ] + '"' )
       AAdd( mas_fun, 'nastr_all(' + lstr( n ) + ',' + lstr( X_PPOKOJ ) + ')' )
     Endif
     If is_task( X_PLATN ) .or. is_task( X_KASSA )
       ++n
-      AAdd( mas_pmt, array_tasks[ ind_task( X_PLATN ), 1 ] )
-      AAdd( mas_msg, 'Общие настройки задачи "' + array_tasks[ ind_task( X_PLATN ), 1 ] + '"' )
+      AAdd( mas_pmt, array_tasks()[ ind_task( X_PLATN ), 1 ] )
+      AAdd( mas_msg, 'Общие настройки задачи "' + array_tasks()[ ind_task( X_PLATN ), 1 ] + '"' )
       AAdd( mas_fun, 'nastr_all(' + lstr( n ) + ',' + lstr( X_PLATN ) + ')' )
     Endif
     If is_task( X_ORTO )
       ++n
-      AAdd( mas_pmt, array_tasks[ ind_task( X_ORTO ), 1 ] )
-      AAdd( mas_msg, 'Общие настройки задачи "' + array_tasks[ ind_task( X_ORTO ), 1 ] + '"' )
+      AAdd( mas_pmt, array_tasks()[ ind_task( X_ORTO ), 1 ] )
+      AAdd( mas_msg, 'Общие настройки задачи "' + array_tasks()[ ind_task( X_ORTO ), 1 ] + '"' )
       AAdd( mas_fun, 'nastr_all(' + lstr( n ) + ',' + lstr( X_ORTO ) + ')' )
     Endif
     If is_task( X_PLATN ) .or. is_task( X_KASSA ) .or. is_task( X_ORTO )

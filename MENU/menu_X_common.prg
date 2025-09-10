@@ -34,7 +34,7 @@ function menu_X_common()
   If eq_any( glob_task, X_PPOKOJ, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_263 )
     AAdd( ATail( first_menu ), 0 )
     AAdd( ATail( first_menu ), 'Пере~индексирование' )
-    AAdd( ATail( first_message ), 'Переиндексирование части базы данных для задачи "' + array_tasks[ ind_task(), 5 ] + '"' )
+    AAdd( ATail( first_message ), 'Переиндексирование части базы данных для задачи "' + array_tasks()[ ind_task(), 5 ] + '"' )
     If glob_mo[ _MO_KOD_TFOMS ] == '103001'
       If !hb_user_curUser:isadmin()
         AAdd( ATail( func_menu ),  'func_error( 4, "Вход только АДМИНИСТРАТОРУ !" )'  )

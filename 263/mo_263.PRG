@@ -4,11 +4,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.12.21
+// 10.09.25
 Function begin_task_263()
 
   Static n_zapusk := 0
-  Local i, ar, fl := .t., group_ini := 'OBMEN_263'
+  Local ar, fl := .t., group_ini := 'OBMEN_263'
   Local sbase
 
   If n_zapusk == 0
@@ -36,7 +36,7 @@ Function begin_task_263()
     dbEval( {|| AAdd( p_arr_stac_VO, uslc->codemo ) } )
     Use
   Endif
-  If g_sislock( sem_vagno_task[ X_263 ] )
+  If g_sislock( sem_vagno_task()[ X_263 ] )
     fl := f_err_sem_vagno_task( X_263 )
   Elseif copy_tools_ini()
     tools_ini_oms( 1, 0, 0 )

@@ -37,7 +37,7 @@ Function pereindex()
     'не прерывайте процесс!' },, 'GR+/R', 'W+/R', 13 )
 
   t1 := Seconds()
-  Private fl_open := .t.
+//  Private fl_open := .t.
   For i := 1 To Len( array_files_DB() )
     index_base( array_files_DB()[ i ] )
   Next
@@ -52,13 +52,13 @@ Function pereindex()
   //
   mywait()
   Use ( dir_server() + 'mo_raksh' ) New Alias RAKSH
-  Index On Str( kod_raks, 6 ) to ( cur_dir() + 'tmpraksh' )
+  Index On Str( FIELD->kod_raks, 6 ) to ( cur_dir() + 'tmpraksh' )
   Use ( dir_server() + 'mo_raks' ) New Alias RAKS
-  Index On Str( akt, 6 ) to ( cur_dir() + 'tmpraks' )
+  Index On Str( FIELD->akt, 6 ) to ( cur_dir() + 'tmpraks' )
   Use ( dir_server() + 'mo_rak' ) New Alias RAK
-  Index On Str( akt, 6 ) to ( cur_dir() + 'tmprak' )
+  Index On Str( FIELD->akt, 6 ) to ( cur_dir() + 'tmprak' )
   Use ( dir_server() + 'mo_xml' ) New Alias MO_XML
-  Locate For kod == 0 .and. !Deleted()
+  Locate For FIELD->kod == 0 .and. !Deleted()
   If Found()
     Delete // если прервали процесс
   Endif
@@ -168,9 +168,9 @@ Function pereindex_263()
   stat_msg( 'Поиск/попытка исправления избыточных ошибок в направлениях на госпитализацию' )
   g_use( dir_server() + 'mo_nnapr',, 'NAPR' )
   g_use( dir_server() + 'mo_nfina',, 'NFN' )
-  Index On Str( KOD_F, 6 ) + Str( KOD_N, 6 ) to ( cur_dir() + 'tmp_nfn' )
+  Index On Str( FIELD->KOD_F, 6 ) + Str( FIELD->KOD_N, 6 ) to ( cur_dir() + 'tmp_nfn' )
   g_use( dir_server() + 'mo_nfile',, 'NF' )
-  Index On kod to ( cur_dir() + 'tmp_nf' ) For in_out == 1 .and. tip_f < 7 .and. Year( date_r ) > 2016
+  Index On FIELD->kod to ( cur_dir() + 'tmp_nf' ) For FIELD->in_out == 1 .and. FIELD->tip_f < 7 .and. Year( FIELD->date_r ) > 2016
   Go Top
   Do While !Eof()
     If nf->T_ANS == 2 // в файле были ошибки
@@ -209,12 +209,12 @@ Function pereindex_task( n_task )
   Default n_Task To glob_task
   If mo_lock_task( n_Task ) .and. f_esc_enter( 'переиндексирования' )
     f_message( { 'Внимание! Пpоизводится пеpеиндексирование сегмента базы данных', ;
-      'для подзадачи "' + array_tasks[ ind_task( n_Task ), 1 ] + '"', ;
+      'для подзадачи "' + array_tasks()[ ind_task( n_Task ), 1 ] + '"', ;
       '', ;
       'Во избежание разрушения данных не прерывайте процесс!' },, 'GR+/R', 'W+/R', 13 )
-    Private fl_open := .t.
-    If !emptyany( array_task_DB[ n_Task, 1 ], array_task_DB[ n_Task, 2 ] )
-      For i := array_task_DB[ n_Task, 1 ] To array_task_DB[ n_Task, 2 ]
+//    Private fl_open := .t.
+    If !emptyany( array_task_DB( array_files_DB() )[ n_Task, 1 ], array_task_DB( array_files_DB() )[ n_Task, 2 ] )
+      For i := array_task_DB( array_files_DB() )[ n_Task, 1 ] To array_task_DB( array_files_DB() )[ n_Task, 2 ]
         index_base( array_files_DB()[ i ] )
       Next
     Endif
@@ -235,7 +235,8 @@ Function pereindex_task( n_task )
 Function ___uslugi()
 
   Local adbf, buf := save_maxrow()
-  Local hGauge
+  Local hGauge, i
+  local lkod_usl, flag_udel
 
   If .t. // !(glob_mo[_MO_KOD_TFOMS] == '321001')
     Return Nil
@@ -251,7 +252,7 @@ Function ___uslugi()
       dir_server() + 'human_uv', ;
       dir_server() + 'human_ua' }, ;
     'HU' )
-  // index on str(u_kod,4) to (dir_server()+"human_uk") progress
+  // index on str(FIELD->u_kod,4) to (dir_server()+"human_uk") progress
   Set Order To 2
   //
   e_use( dir_server() + 'hum_p_u', ;
@@ -261,14 +262,14 @@ Function ___uslugi()
       dir_server() + 'hum_p_uv', ;
       dir_server() + 'hum_p_ua' }, ;
     'HPU' )
-  // index on str(u_kod,4) to (dir_server()+"hum_p_uk") progress
+  // index on str(FIELD->u_kod,4) to (dir_server()+"hum_p_uk") progress
   Set Order To 2
   //
   e_use( dir_server() + 'pu_cena', ;
     { dir_server() + 'pu_cena', ;
       dir_server() + 'pu_cenau' }, ;
     'PUC' )
-  // index on str(kod_usl,4)+str(kod_date,4) to (dir_server()+"pu_cenau") progress
+  // index on str(FIELD->kod_usl,4)+str(kod_date,4) to (dir_server()+"pu_cenau") progress
   Set Order To 2
   //
   e_use( dir_server() + 'hum_oru', ;
@@ -278,48 +279,48 @@ Function ___uslugi()
       dir_server() + 'hum_oruv', ;
       dir_server() + 'hum_orua' }, ;
     'HOU' )
-  // index on str(u_kod,4) to (dir_server()+"hum_oruk") progress
+  // index on str(FIELD->u_kod,4) to (dir_server()+"hum_oruk") progress
   Set Order To 2
   //
   e_use( dir_server() + 'kas_pl_u', ;
     { dir_server() + 'kas_pl1u', ;
       dir_server() + 'kas_pl2u' }, ;
     'KPU' )
-  // index on str(u_kod,4) to (dir_server()+"kas_pl2u") progress
+  // index on str(FIELD->u_kod,4) to (dir_server()+"kas_pl2u") progress
   Set Order To 2
   //
   e_use( dir_server() + 'kas_ortu', ;
     { dir_server() + 'kas_or1u', ;
       dir_server() + 'kas_or2u' }, ;
     'KOU' )
-  // index on str(u_kod,4) to (dir_server()+"kas_or2u") progress
+  // index on str(FIELD->u_kod,4) to (dir_server()+"kas_or2u") progress
   Set Order To 2
   //
   e_use( dir_server() + 'kas_usl',, 'KUU' )
-  Index On Str( u_kod, 4 ) to ( cur_dir() + 'tmp_kuu' )
+  Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + 'tmp_kuu' )
   //
   e_use( dir_server() + 'kas_usld',, 'KUUD' )
-  Index On Str( u_kod, 4 ) to ( cur_dir() + 'tmp_kuud' )
+  Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + 'tmp_kuud' )
   //
   e_use( dir_server() + 'uslugi1', ;
     { dir_server() + 'uslugi1', ;
       dir_server() + 'uslugi1s' }, ;
     'USL1' )
-  // index on str(kod,4)+dtos(date_b) to (dir_server()+"uslugi1") progress
+  // index on str(FIELD->kod,4)+dtos(FIELD->date_b) to (dir_server()+"uslugi1") progress
   //
   e_use( dir_server() + 'uch_usl', dir_server() + 'uch_usl', 'UCH_USL' )
-  // index on str(kod,4) to (dir_server()+"uch_usl") progress
+  // index on str(FIELD->kod,4) to (dir_server()+"uch_usl") progress
   //
   e_use( dir_server() + 'uch_usl1', dir_server() + 'uch_usl1', 'UCH_USL1' )
-  // index on str(kod,4)+dtos(date_b) to (dir_server()+"uch_usl1") progress
+  // index on str(FIELD->kod,4)+dtos(date_b) to (dir_server()+"uch_usl1") progress
   //
   If ( flag_udel := hb_FileExists( dir_server() + 'usl_del' + sdbf() ) )
     e_use( dir_server() + 'usl_del',, 'UDEL' )
-    Index On Str( kod, 4 ) to ( cur_dir() + 'tmp_udel' )
+    Index On Str( FIELD->kod, 4 ) to ( cur_dir() + 'tmp_udel' )
   Endif
   //
   e_use( dir_server() + 'usl_otd', dir_server() + 'usl_otd', 'UOTD' )
-  // index on str(kod,4) to (dir_server()+"usl_otd") progress
+  // index on str(FIELD->kod,4) to (dir_server()+"usl_otd") progress
   //
   adbf := { ;
     { 'kod',     'N', 4, 0 }, ;
@@ -331,7 +332,7 @@ Function ___uslugi()
     }
   dbCreate( cur_dir() + 'tmp', adbf )
   Use ( cur_dir() + 'tmp' ) new
-  Index On shifr + Str( cena, 10, 2 ) + Str( cena_d, 10, 2 ) to ( cur_dir() + 'tmp' )
+  Index On FIELD->shifr + Str( FIELD->cena, 10, 2 ) + Str( FIELD->cena_d, 10, 2 ) to ( cur_dir() + 'tmp' )
   dbCreate( cur_dir() + 'tmp1', adbf )
   Use ( cur_dir() + 'tmp1' ) new
   hGauge := gaugenew(,,, 'Поиск дубликатов услуг', .t. )
@@ -373,12 +374,12 @@ Function ___uslugi()
   closegauge( hGauge )
   Select TMP
   If LastRec() > 0
-    Index On Str( kol, 6 ) to ( cur_dir() + 'tmp' )
+    Index On Str( FIELD->kol, 6 ) to ( cur_dir() + 'tmp' )
     Go Bottom
     If tmp->kol > 10
       i := 0
       Select TMP1
-      Index On Str( kod, 4 ) to ( cur_dir() + 'tmp1' ) For tmp1->kod_tmp == tmp->( RecNo() )
+      Index On Str( FIELD->kod, 4 ) to ( cur_dir() + 'tmp1' ) For tmp1->kod_tmp == tmp->( RecNo() )
       Go Top
       lkod_usl := tmp1->kod // первая запись
       Do While !Eof()
@@ -553,7 +554,7 @@ function move_ENP()
     Endif
     Skip
   Enddo
-  Index On if( kod > 0, '1', '0' ) + kod_mis to ( dir_server() + 'kartotee' ) progress
+  Index On if( FIELD->kod > 0, '1', '0' ) + FIELD->kod_mis to ( dir_server() + 'kartotee' ) progress
   Close databases
   oPb := nil
   rest_box( buf )

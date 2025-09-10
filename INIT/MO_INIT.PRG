@@ -6,14 +6,14 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 15.04.24 начальная инициализация программы (до входа в Reconstruct_BD)
+// 10.09.25 начальная инициализация программы (до входа в Reconstruct_BD)
 Function init_first()
 
   Local buf := save_maxrow()
 
   mywait()
   // инициализировать массив DBF-файлов базы данных
-  init_array_files_db()
+//  init_array_files_db()
   // инициализировать все mem (public) - переменные
   Public stm_kategor2 := {}
   init_all_mem_public()

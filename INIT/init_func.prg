@@ -2,6 +2,58 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+// 10.09.25
+function sem_vagno_task()
+
+  static arr_sem
+  local i, arr
+
+  if HB_ISNIL( arr_sem )
+    arr_sem := Array( 24 )
+    AFill( arr_sem, '' )
+    arr := array_tasks()
+    for i := 1 to 7
+      arr_sem[ arr[ i, 2 ] ] := 'Важный режим в задаче "' + arr[ i, 5 ] + '"'
+    next
+  endif
+  return arr_sem
+
+// 10.09.25
+function array_tasks()
+
+  static arr_tasks
+  local i, k
+
+  if HB_ISNIL( arr_tasks )
+    arr_tasks := {}
+    AAdd( arr_tasks, { 'Регистратура поликлиники', X_REGIST, , .t., 'РЕГИСТРАТУРА' } )
+    AAdd( arr_tasks, { 'Приёмный покой стационара', X_PPOKOJ, , .t., 'ПРИЁМНЫЙ ПОКОЙ' } )
+    AAdd( arr_tasks, { 'Обязательное медицинское страхование', X_OMS, , .t., 'ОМС' } )
+    AAdd( arr_tasks, { 'Учёт направлений на госпитализацию', X_263, , .f., 'ГОСПИТАЛИЗАЦИЯ' } )
+    AAdd( arr_tasks, { 'Платные услуги', X_PLATN, , .t., 'ПЛАТНЫЕ УСЛУГИ' } )
+    AAdd( arr_tasks, { 'Ортопедические услуги в стоматологии', X_ORTO, , .t., 'ОРТОПЕДИЯ' } )
+    AAdd( arr_tasks, { 'Касса медицинской организации', X_KASSA, , .t., 'КАССА' } )
+//    AAdd( arr_tasks, { 'КЭК медицинской организации', X_KEK, , .f., 'КЭК' } )
+    If glob_mo()[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
+      AAdd( arr_tasks, { 'ВОУНЦ - трансплантированные', X_MO, 'TABLET_ICON', .t. } )
+    Endif
+    AAdd( arr_tasks, { 'Редактирование справочников', X_SPRAV, , .t. } )
+    AAdd( arr_tasks, { 'Сервисы и настройки', X_SERVIS, , .t. } )
+    AAdd( arr_tasks, { 'Резервное копирование базы данных', X_COPY, , .t. } )
+    AAdd( arr_tasks, { 'Переиндексирование базы данных', X_INDEX, , .t. } )
+
+    for i := 1 to len( arr_tasks )
+      If ( k := arr_tasks[ i, 2 ] ) < 10  // код задачи
+        arr_tasks[ i, 4 ] := ( SubStr( glob_mo()[ _MO_PROD ], k, 1 ) == '1' )
+      Endif
+      // Учёт направлений на госпитализацию
+      If k == X_263 .and. ( is_napr_pol .or. is_napr_stac ) // .and. ( substr( glob_mo()[ _MO_PROD ], X_263, 1 ) == '1' )
+        arr_tasks[ i, 4 ] := .t.
+      Endif
+    next
+  endif
+  return arr_tasks
+
 // 09.09.25
 function glob_adres_podr()
 

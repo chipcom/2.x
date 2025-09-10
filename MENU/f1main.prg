@@ -5,14 +5,15 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 21.05.25
+// 10.09.25
 Function f1main( n_Task )
-  Local it, s, k, fl := .t., cNameIcon
+  
+  Local it, fl := .t., cNameIcon
 
-  If ( it := AScan( array_tasks, {| x| x[ 2 ] == n_Task } ) ) == 0
+  If ( it := AScan( array_tasks(), {| x| x[ 2 ] == n_Task } ) ) == 0
     Return func_error( "Ошибка в вызове задачи" )
   Endif
-  cNameIcon := iif( array_tasks[ it, 3 ] == NIL, "MAIN_ICON", array_tasks[ it, 3 ] )
+  cNameIcon := iif( array_tasks()[ it, 3 ] == NIL, "MAIN_ICON", array_tasks()[ it, 3 ] )
   glob_task := n_Task
   sys_date := Date()
   c4sys_date := dtoc4( sys_date )
@@ -24,7 +25,7 @@ Function f1main( n_Task )
   first_message := {}
   func_menu := {}
   cmain_menu := {}
-  put_icon( array_tasks[ it, 1 ] + ' ' + short_name_version(), cNameIcon )
+  put_icon( array_tasks()[ it, 1 ] + ' ' + short_name_version(), cNameIcon )
   SetColor( color1 )
   fillscreen( p_char_screen, p_color_screen )
   Do Case

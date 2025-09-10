@@ -17,7 +17,7 @@ Function begin_task_ppokoj()
     Public memPPsvod     := Int( Val( a2default( ar, 'PRN_SVOD',  '3' ) ) )
     Public memPPdos_fast := Int( Val( a2default( ar, 'dos_fast',  '0' ) ) )
   Endif
-  If g_sislock( sem_vagno_task[ X_PPOKOJ ] )
+  If g_sislock( sem_vagno_task()[ X_PPOKOJ ] )
     fl := f_err_sem_vagno_task( X_PPOKOJ )
   Elseif copy_tools_ini()
     tools_ini_oms( 1, 0, 0 )
@@ -597,7 +597,7 @@ Function del_ppokoj()
   view_human_pp( 2 )
   Return Nil
 
-// 02.02.17
+// 10.09.25
 Function f_kart_pp( Loc_kod, kod_kartotek )
 
   Static mm_gospit := { { 'да ', 0 }, { 'нет', 1 } }
@@ -1164,7 +1164,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
         .or. ( M1IS_GOSPIT == 1 .and. M1PR_GOSPIT == 99 ) ) // оказана амб.помощь в пр.покое
         g_splus( f_name_task( X_OMS ) ) // плюс 1 пользователь зашёл в задачу ОМС
         // если в задаче ОМС не выполняется ОТВЕТСТВЕННАЯ операция
-        If !g_sislock( sem_vagno_task[ X_OMS ] )
+        If !g_sislock( sem_vagno_task()[ X_OMS ] )
           r_use( dir_server() + 'kartote_',, 'KART_' )
           r_use( dir_server() + 'kartotek',, 'KART' )
           Set Relation To RecNo() into KART_
@@ -1451,7 +1451,7 @@ Function f_write_pp_oms( mkod )
   dbUnlockAll()
   Return ret_kod_h
 
-// 30.10.17 записать незаписанные истории болезней из приёмного покоя
+// 10.09.25 записать незаписанные истории болезней из приёмного покоя
 Function write_rest_pp()
 
   Local i, k, arr := {}, bSaveHandler, buf := save_maxrow()
@@ -1463,7 +1463,7 @@ Function write_rest_pp()
       If !Empty( arr )
         g_splus( f_name_task( X_OMS ) ) // плюс 1 пользователь зашёл в задачу ОМС
         // если в задаче ОМС не выполняется ОТВЕТСТВЕННАЯ операция
-        If !g_sislock( sem_vagno_task[ X_OMS ] )
+        If !g_sislock( sem_vagno_task()[ X_OMS ] )
           r_use( dir_server() + 'kartote_',, 'KART_' )
           r_use( dir_server() + 'kartotek',, 'KART' )
           Set Relation To RecNo() into KART_

@@ -14,7 +14,7 @@ Function begin_task_oms()
     ++n_zapusk
     Public arr_opl_7, len_arr_7, mem_oms_pole := 0
   Endif
-  If g_sislock( sem_vagno_task[ X_OMS ] )
+  If g_sislock( sem_vagno_task()[ X_OMS ] )
     fl := f_err_sem_vagno_task( X_OMS )
   Elseif copy_tools_ini()
     tools_ini_oms( 1, 0, 0 )
