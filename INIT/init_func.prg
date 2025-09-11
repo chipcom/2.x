@@ -1,4 +1,5 @@
 #include 'common.ch'
+#include 'hbhash.ch'
 #include 'function.ch'
 #include 'chip_mo.ch'
 
@@ -248,3 +249,44 @@ function glob_menu_mz_rf( index, param )
     glob_menu[ index ] := param
   endif
   return glob_menu
+
+// 11.09.25
+function hColor()
+
+  static hashColor
+
+  if HB_ISNIL( hashColor )
+    hashColor := { => }
+    hb_HCaseMatch( hashColor, .f. )
+    hashColor[ 'color0' ] := 'N/BG, W+/N'
+    hashColor[ 'color1' ] := 'W+/B, W+/R'
+    hashColor[ 'color_uch' ] := 'B/BG, W+/B'
+    hashColor[ 'col_tit_uch' ] := 'B+/BG'
+    hashColor[ 'col1menu' ] := 'N/BG, W+/N, B/BG, BG+/N'
+    hashColor[ 'col2menu' ] := 'N/BG, W+/N, B/BG, BG+/N'
+    hashColor[ 'col_tit_popup' ] := 'B/BG'
+    //
+    hashColor[ 'cColorStMsg' ] := 'W+/R, , , , B/W'                 // Stat_msg
+    hashColor[ 'cColorSt1Msg' ] := 'W+/R, , , , B/W'                // Stat_msg
+    hashColor[ 'cColorSt2Msg' ] := 'GR+/R, , , , B/W'               // Stat_msg
+    hashColor[ 'cColorWait' ] := 'W+/R*, , , , B/W'                 // Ждите
+    //
+    hashColor[ 'cCalcMain' ] := 'N/W, GR+/R'                     // Калькулятор
+    //
+    hashColor[ 'cColorText' ] := 'W+/N, BG+/N, , , B/W'
+    //
+    hashColor[ 'cHelpCMain' ] := 'W+/RB, W+/N, , , B/W'             // Помощь
+    hashColor[ 'cHelpCTitle' ] := 'G+/RB'
+    hashColor[ 'cHelpCStatus' ] := 'BG+/RB'
+    // Ввод данных
+    hashColor[ 'cDataCScr' ]  := 'W+/B, B/BG'
+    hashColor[ 'cDataCGet' ]  := 'W+/B, W+/R, , , BG+/B'
+    hashColor[ 'cDataCSay' ]  := 'BG+/B, W+/R, , , BG+/B'
+    hashColor[ 'cDataCMenu' ] := 'N/BG, W+/N, , , B/W'
+    hashColor[ 'cDataPgDn' ]  := 'BG/B'
+    hashColor[ 'color5' ]     := 'N/W, GR+/R, , , B/W'
+    hashColor[ 'color8' ]     := 'GR+/B, W+/R'
+    hashColor[ 'color13' ]    := 'W/B, W+/R, , , BG+/B'             // некотоpое выделение
+    hashColor[ 'color14' ]    := 'G+/B, W+/R'
+  endif
+  return hashColor
