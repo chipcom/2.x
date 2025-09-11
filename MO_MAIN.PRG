@@ -91,9 +91,9 @@ Procedure Main( ... )
   Public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
 
   Public arr_12_VMP := {}
-  Public is_napr_pol := .f., ; // работа с направлениями на госпитализацию в п-ке
-  is_napr_stac := .f., ; // работа с направлениями на госпитализацию в стационаре
-  glob_klin_diagn := {}  // работа со специальными лабораторными исследованиями
+//  Public is_napr_pol := .f. // работа с направлениями на госпитализацию в п-ке
+//  Public is_napr_stac := .f. // работа с направлениями на госпитализацию в стационаре
+  Public glob_klin_diagn := {}  // работа со специальными лабораторными исследованиями
 
   // создадим глобальные переменные для ВМП
   Public is_MO_VMP := .f.
@@ -245,7 +245,7 @@ Function app_ini()
   Set Color To
   Return Nil
 
-// 10.09.25
+// 11.09.25
 Function f_main( r0, is_local_version, a_parol )
 
 //  Static arr1 := { ;
@@ -295,7 +295,7 @@ Function f_main( r0, is_local_version, a_parol )
       Endif
     Endif
     // Учёт направлений на госпитализацию
-    If k == X_263 .and. ( is_napr_pol .or. is_napr_stac ) // .and. ( substr( glob_mo()[ _MO_PROD ], X_263, 1 ) == '1' )
+    If k == X_263 .and. ( is_napr_pol() .or. is_napr_stac() ) // .and. ( substr( glob_mo()[ _MO_PROD ], X_263, 1 ) == '1' )
 //      array_tasks[ i, 4 ] := .t.
       fl_exit := .f.
     Endif

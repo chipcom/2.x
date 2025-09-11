@@ -2,6 +2,32 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+// 11.09.25
+function is_napr_pol( param )
+
+  static lIs_napr_pol
+
+  if HB_ISNIL( lIs_napr_pol )
+    lIs_napr_pol := .f.
+  endif
+  if ! HB_ISNIL( param ) .and. ValType( param ) == 'L'
+    lIs_napr_pol := param
+  endif
+  return lIs_napr_pol
+  
+// 11.09.25
+function is_napr_stac( param )
+
+  static lIs_napr_stac
+
+  if HB_ISNIL( lIs_napr_stac )
+    lIs_napr_stac := .f.
+  endif
+  if ! HB_ISNIL( param ) .and. ValType( param ) == 'L'
+    lIs_napr_stac := param
+  endif
+  return lIs_napr_stac
+
 // 10.09.25
 function sem_vagno_task()
 
@@ -18,7 +44,7 @@ function sem_vagno_task()
   endif
   return arr_sem
 
-// 10.09.25
+// 11.09.25
 function array_tasks()
 
   static arr_tasks
@@ -47,12 +73,12 @@ function array_tasks()
         arr_tasks[ i, 4 ] := ( SubStr( glob_mo()[ _MO_PROD ], k, 1 ) == '1' )
       Endif
       // Учёт направлений на госпитализацию
-      If k == X_263 .and. ( is_napr_pol .or. is_napr_stac ) // .and. ( substr( glob_mo()[ _MO_PROD ], X_263, 1 ) == '1' )
+      If k == X_263 .and. ( is_napr_pol() .or. is_napr_stac() ) // .and. ( substr( glob_mo()[ _MO_PROD ], X_263, 1 ) == '1' )
         arr_tasks[ i, 4 ] := .t.
       Endif
     next
   endif
-  return arr_tasks
+  return arr_tasks 
 
 // 09.09.25
 function glob_adres_podr()

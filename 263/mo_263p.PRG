@@ -118,7 +118,7 @@ Function f1_263_p_napr()
   Endif
   Return s
 
-// 10.09.25
+// 11.09.25
 Function f2_263_p_napr( nKey, oBrow, regim )
 
   Static mm_forma, s1stac_mo := '      ', s1vrach := 0
@@ -126,7 +126,7 @@ Function f2_263_p_napr( nKey, oBrow, regim )
   Local ret := -1, rec, i, k, s, tmp_color, buf, s_error := '', ;
     tmp_V006 := { { 'Стационар', 1 }, { 'Дневной стационар', 2 } }
 
-  If Empty( s1stac_mo ) .and. is_napr_stac // по умолчанию направляем в наш
+  If Empty( s1stac_mo ) .and. is_napr_stac() // по умолчанию направляем в наш
     s1stac_mo := glob_mo()[ _MO_KOD_TFOMS ]  // стационар (если он у нас есть)
   Endif
   If mm_forma == NIL

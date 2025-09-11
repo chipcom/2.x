@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 10.09.25
+// 11.09.25
 Function inp_bit_task_bay( k, r, c )
 	Local mlen, t_mas := {}, buf := savescreen(), ret, ;
 		i, tmp_color := setcolor(), m1var := "", s := "",;
@@ -37,7 +37,7 @@ Function inp_bit_task_bay( k, r, c )
 			endif
 		endif
 		// Учёт направлений на госпитализацию
-		if kk == X_263 .and. ( is_napr_pol .or. is_napr_stac ) //	.and. ( substr( glob_mo()[ _MO_PROD ], X_263, 1 ) == '1' )
+		if kk == X_263 .and. ( is_napr_pol() .or. is_napr_stac() ) //	.and. ( substr( glob_mo()[ _MO_PROD ], X_263, 1 ) == '1' )
 			arr1[ i, 4 ] := .t.
 			fl_exit := .f.
 		endif

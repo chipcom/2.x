@@ -725,7 +725,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
     Next
   Next
   // I07
-  If is_napr_stac
+  If is_napr_stac()
     ta1 := {}
     r_use( dir_server() + 'mo_n7d', , 'D7' )
     If LastRec() > 0 .and. !Empty( d7->DATE_R_EDI )
@@ -2535,7 +2535,7 @@ Function _263_to_nastr()
   Close databases
   Return Nil
 
-// 10.09.25 Получение из ТФОМС файлов обмена (информационных пакетов)
+// 11.09.25 Получение из ТФОМС файлов обмена (информационных пакетов)
 Function _263_from_read()
 
   Static nerrf := 999
@@ -3129,7 +3129,7 @@ Function _263_from_read()
                   is_read := .t.
                   Select NAPR
                   Index On Upper( id_4 ) to ( cur_dir() + 'tmp_naprid4' )
-                  If !( sFrom == glob_mo()[ _MO_KOD_TFOMS ] ) .and. is_napr_pol
+                  If !( sFrom == glob_mo()[ _MO_KOD_TFOMS ] ) .and. is_napr_pol()
                     Index On Upper( id_1 ) to ( cur_dir() + 'tmp_naprid1' )
                     Set Index to ( cur_dir() + 'tmp_naprid4' ), ( cur_dir() + 'tmp_naprid1' )
                   Endif
@@ -3274,7 +3274,7 @@ Function _263_from_read()
                   is_read := .t.
                   Select NAPR
                   Index On Upper( id_6 ) to ( cur_dir() + 'tmp_naprid6' )
-                  If !( sFrom == glob_mo()[ _MO_KOD_TFOMS ] ) .and. is_napr_pol
+                  If !( sFrom == glob_mo()[ _MO_KOD_TFOMS ] ) .and. is_napr_pol()
                     Index On Upper( id_1 ) to ( cur_dir() + 'tmp_naprid1' )
                     Index On DToS( DATE_H_4 ) to ( cur_dir() + 'tmp_naprd4' )
                     Set Index to ( cur_dir() + 'tmp_naprid6' ), ( cur_dir() + 'tmp_naprid1' ), ( cur_dir() + 'tmp_naprd4' )
