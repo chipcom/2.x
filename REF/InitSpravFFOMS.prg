@@ -6,8 +6,9 @@ function load_exists_uslugi()
   
   local countYear, lAlias, cVar
   local cSearch, i
-  local tmp_stom
+  local tmp_stom, is_vr_pr_pp
 
+  is_vr_pr_pp := .f.
   use_base('luslc')
   for countYear := 2018 to WORK_YEAR
     lAlias := 'luslc' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
@@ -24,9 +25,10 @@ function load_exists_uslugi()
     if countYear == WORK_YEAR
       // Медицинская реабилитация детей с нарушениями слуха без замены речевого процессора системы кохлеарной имплантации
       find ( glob_mo()[_MO_KOD_TFOMS] + 'st37.015' )
-      if found()
-        is_reabil_slux := found()
-      endif
+//      if found()
+//        is_reabil_slux := found()
+//      endif
+      is_reabil_slux( found() )
   
       find (glob_mo()[_MO_KOD_TFOMS] + '2.') // врачебные приёмы
       do while FIELD->codemo == glob_mo()[_MO_KOD_TFOMS] .and. left( FIELD->shifr, 2 ) == '2.' .and. !eof()
@@ -45,45 +47,49 @@ function load_exists_uslugi()
       enddo
     
     //
-      find (glob_mo()[_MO_KOD_TFOMS] + '60.3.')
-      if found()
-        is_alldializ := .t.
-      endif
+      find ( glob_mo()[ _MO_KOD_TFOMS ] + '60.3.' )
+//      if found()
+//        is_alldializ := .t.
+//      endif
+      is_alldializ( found() )
     //
       find (glob_mo()[_MO_KOD_TFOMS] + '60.3.1')
-      if found()
-        is_per_dializ := .t.
-      endif
+//      if found()
+//        is_per_dializ := .t.
+//      endif
+      is_per_dializ( found() )
     //
       find (glob_mo()[_MO_KOD_TFOMS] + '60.3.9')
       if found()
-        is_hemodializ := .t.
+        is_hemodializ( .t. )
       else
         find (glob_mo()[_MO_KOD_TFOMS] + '60.3.10')
         if found()
-          is_hemodializ := .t.
+          is_hemodializ( .t. )
         endif
       endif
 
       find (glob_mo()[_MO_KOD_TFOMS] + '60.3.19')
       if found()
-        is_hemodializ := .t.
+        is_hemodializ( .t. )
       else
         find (glob_mo[_MO_KOD_TFOMS] + '60.3.20')
         if found()
-          is_hemodializ := .t.
+          is_hemodializ( .t. )
         endif
       endif
     //
-      find (glob_mo()[_MO_KOD_TFOMS] + '60.10.')
-      if found()
-        is_alldializ := .t.
-      endif
+      find ( glob_mo()[ _MO_KOD_TFOMS ] + '60.10.' )
+//      if found()
+//        is_alldializ := .t.
+//      endif
+      is_alldializ( found() )
 
       
       find (glob_mo()[_MO_KOD_TFOMS] + 'st') // койко-дни
       if (is_napr_stac ( found() ) )
-        glob_menu_mz_rf[1] := .t.
+//        glob_menu_mz_rf[1] := .t.
+        glob_menu_mz_rf( 1, .t. )
       endif
       //
       find (glob_mo()[_MO_KOD_TFOMS] + 'ds') // дневной стационар
@@ -91,7 +97,8 @@ function load_exists_uslugi()
         if ! is_napr_stac()
           is_napr_stac( .t. )
         endif
-        glob_menu_mz_rf[2] := found()
+//        glob_menu_mz_rf[2] := found()
+        glob_menu_mz_rf( 2, found() )
       endif
 
       // is_napr_stac( .t. )  // включал в начале года для госпитализации
@@ -101,11 +108,12 @@ function load_exists_uslugi()
       for i := 1 to len(tmp_stom)
         find (glob_mo()[_MO_KOD_TFOMS] + tmp_stom[i]) //
         if found()
-          glob_menu_mz_rf[3] := .t.
+//          glob_menu_mz_rf[3] := .t.
+          glob_menu_mz_rf( 3, .t. )
           exit
         endif
       next
-    
+    altd()
     //
       find (glob_mo()[_MO_KOD_TFOMS] + '4.20.702') // жидкостной цитологии
       if found()

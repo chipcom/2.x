@@ -173,3 +173,78 @@ function glob_KSG_dializ()
   // '2000912','2000916','2000917','2000918','2000919','2000920'}
 
   return arr
+
+// 11.09.25
+function is_alldializ( param )
+
+  static is_dial
+
+  if isnil( is_dial )
+    is_dial := .f.
+  endif
+  if PCount() != 0 .and. ValType( param ) == 'L'
+    is_dial := param
+  endif
+  return is_dial
+
+// 11.09.25
+function is_dop_ob_em()
+
+  static is_dop
+
+  if isnil( is_dop )
+    is_dop := .f.
+  endif
+  return is_dop
+
+// 11.09.25
+function is_reabil_slux( param )
+
+  static is_reab
+
+  if isnil( is_reab )
+    is_reab := .f.
+  endif
+  if PCount() != 0 .and. ValType( param ) == 'L'
+    is_reab := param
+  endif
+  return is_reab
+
+// 11.09.25
+function is_hemodializ( param )
+
+  static is_hemo
+
+  if isnil( is_hemo )
+    is_hemo := .f.
+  endif
+  if PCount() != 0 .and. ValType( param ) == 'L'
+    is_hemo := param
+  endif
+  return is_hemo
+
+// 11.09.25
+function is_per_dializ( param )
+
+  static is_per
+
+  if isnil( is_per )
+    is_per := .f.
+  endif
+  if PCount() != 0 .and. ValType( param ) == 'L'
+    is_per := param
+  endif
+  return is_per
+
+// 11.09.25
+function glob_menu_mz_rf( index, param )
+
+  static glob_menu
+
+  if isnil( glob_menu )
+    glob_menu := { .f., .f., .f. }
+  endif
+  if PCount() == 2 .and. ( ValType( index ) == 'N' ) .and. ( ValType( param ) == 'L' )
+    glob_menu[ index ] := param
+  endif
+  return glob_menu

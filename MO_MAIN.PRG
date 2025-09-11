@@ -60,14 +60,13 @@ Procedure Main( ... )
 
   Public public_mouse := .f., pravo_write := .t., pravo_read := .t., ;
     MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;
-    DemoMode := .f., picture_pf := '@R 999-999-999 99', ;
+    picture_pf := '@R 999-999-999 99', ;
     pict_cena := '9999999.99', forever := 'forever'
   Public gpasskod := ret_gpasskod()
   Public sem_task := 'Учёт работы МО'
   Public sem_vagno := 'Учёт работы МО - ответственный режим'
   Public err_slock := 'В данный момент с этим режимом работает другой пользователь. Доступ запрещён!'
   Public err_admin := 'Доступ в данный режим разрешен только администратору системы!'
-  Public err_sdemo := 'Это демонстрационная версия. Операция запрещена!'
   Public fr_data := '_data', fr_titl := '_titl'
 
   Public dir_exe := dir_exe()
@@ -111,11 +110,16 @@ Procedure Main( ... )
   // '1000901','1000902','1000903','1000905','1000906','1000907','1000913', ;
   // '2000912','2000916','2000917','2000918','2000919','2000920'}
 
-  Public is_vr_pr_pp := .f., is_hemodializ := .f., is_per_dializ := .f., ;
-    is_reabil_slux := .f., is_ksg_1300098 := .f., is_dop_ob_em := .f., glob_yes_kdp2[ 10 ], ;
-    glob_menu_mz_rf := { .f., .f., .f. }
+  Public glob_yes_kdp2[ 10 ]
 
-  Public is_alldializ := .f.
+//  Public glob_menu_mz_rf := { .f., .f., .f. }
+//  Public is_vr_pr_pp := .f.
+//  Public is_reabil_slux := .f., 
+//  Public is_ksg_1300098 := .f.
+//  Public is_dop_ob_em := .f.
+//  Public is_alldializ := .f.
+//  Public is_hemodializ := .f.
+//  Public is_per_dializ := .f.
 
   Public glob_array_srf // массив страховых компаний
 

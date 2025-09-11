@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 29.07.25
+// 11.09.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -455,7 +455,7 @@ Function verify_sluch( fl_view )
       fl2 := overlap_diapazon( human->n_data, human->k_data, dBegin, dEnd ) // перекрывается диапазон лечения
       fl3 := .t.
       k := 0
-      If is_alldializ .and. ( fl1 .or. fl2 ) .and. Year( human->k_data ) > 2018 // прошлый год не смотрим вообще
+      If is_alldializ() .and. ( fl1 .or. fl2 ) .and. Year( human->k_data ) > 2018 // прошлый год не смотрим вообще
         Select HU
         find ( Str( human->kod, 7 ) )
         Do While hu->kod == human->kod .and. !Eof()
@@ -481,7 +481,7 @@ Function verify_sluch( fl_view )
           AAdd( a_dializ, { human->n_data, human->k_data, human_->USL_OK, human->OTD, k } ) // диализы не в кругл.стационаре
         Endif
       Endif
-      If k < 2 .and. fl2 .and. fl3 .and. iif( is_alldializ, Year( human->k_data ) > 2018, .t. ) .and. ! ( reserveKSG_1 .or. reserveKSG_2 ) // с учетом возможных вложенных двойных случаев
+      If k < 2 .and. fl2 .and. fl3 .and. iif( is_alldializ(), Year( human->k_data ) > 2018, .t. ) .and. ! ( reserveKSG_1 .or. reserveKSG_2 ) // с учетом возможных вложенных двойных случаев
         AAdd( a_srok_lech, { human->n_data, human->k_data, human_->USL_OK, human->OTD, k } )
       Endif
     Endif
@@ -616,7 +616,7 @@ Function verify_sluch( fl_view )
   mpztip := mpzkol := kol_uet := 0
   kkd_1_11 := kkd_1_12 := kol_ksg := 0
   is_reabil := is_dializ := is_perito := is_s_dializ := is_eko := fl_stom := fl_dop_ob_em := .f.
-  If is_dop_ob_em
+  If is_dop_ob_em()
     fl_dop_ob_em := ( human->reg_lech == 9 )
   Endif
   au_lu := {} ; au_flu := {} ; au_lu_ne := {} ; arr_perso := {} ; arr_unit := {}
@@ -2885,7 +2885,7 @@ Function verify_sluch( fl_view )
         Endif
       Next
 
-      If is_reabil_slux
+      If is_reabil_slux()
         t_arr := { '1331.0', '1332.0', '1333.0', '1335.0', '2127.0', '2128.0', '2130.0' }
         For i := 1 To Len( t_arr )
           If t_arr[ i ] == shifr_ksg .and. !Between( human_2->PN1, 1, 3 )

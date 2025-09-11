@@ -7,20 +7,19 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-// 18.04.22 вернуть вид помощи (bit-овый вариант)
+// 11.09.25 вернуть вид помощи (bit-овый вариант)
 Function fbp_mz_rf( r, c )
 
   Static sast := {}
   Local fl := .t., i, j, a, arr := {}
 
-  If glob_menu_mz_rf[ 1 ]
+  If glob_menu_mz_rf()[ 1 ]
     AAdd( arr, { 'стационар', 1 } )
   Endif
-  If glob_menu_mz_rf[ 2 ]
+  If glob_menu_mz_rf()[ 2 ]
     AAdd( arr, { 'дневной стационар', 2 } )
   Endif
-  AAdd( arr, { 'поликлиника' + iif( glob_menu_mz_rf[ 3 ], '/стоматология', '' ), 3 } )
-
+  AAdd( arr, { 'поликлиника' + iif( glob_menu_mz_rf()[ 3 ], '/стоматология', '' ), 3 } )
   If ( j := Len( arr ) ) == 1
     Return arr
   Elseif j > 1
