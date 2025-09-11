@@ -1364,7 +1364,7 @@ Function pz1statist( par, par2 )
 
   Return Nil
 
-// 07.03.24
+// 11.09.25
 Function f1pz1statist( arr_otd, par )
 
   Local lreg_lech := { 0, 0, 0, 0, 0 }, s, lkod, lshifr, ta, i, j, k, mkol1, ;
@@ -1608,7 +1608,7 @@ Function f1pz1statist( arr_otd, par )
     find ( Str( human->kod, 7 ) )
     Do While mohu->kod == human->kod .and. !Eof()
       lshifr := AllTrim( mosu->shifr1 )
-      If mohu->kol_1 > 0 .and. AScan( glob_MU_dializ, lshifr ) > 0
+      If mohu->kol_1 > 0 .and. AScan( glob_MU_dializ(), lshifr ) > 0
         If ( i1 := AScan( arr_lp[ i, 2 ], {| x| x[ 1 ] == lshifr } ) ) == 0
           AAdd( arr_lp[ i, 2 ], { lshifr, 0, 0 } ) ; i1 := Len( arr_lp[ i, 2 ] )
         Endif

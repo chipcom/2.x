@@ -3,8 +3,9 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.10.16 Мониторинг по видам медицинской помощи для Комитета здравоохранения ВО
+// 11.09.25 Мониторинг по видам медицинской помощи для Комитета здравоохранения ВО
 Function monitoring_vid_pom()
+  
   Static mm_schet := { { 'все случаи', 1 }, { 'в выставленных счетах', 2 }, { 'в зарегистрированных счетах', 3 } }
   Local mm_tmp := {}, buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
     tmp_help := help_code, name_file := 'mon_kz.txt', ;
@@ -163,7 +164,7 @@ Function monitoring_vid_pom()
             Skip
           Enddo
           If human_->USL_OK == 1 // стационар
-            If AScan( glob_KSG_dializ, lshifr ) > 0 // КСГ с диализом
+            If AScan( glob_KSG_dializ(), lshifr ) > 0 // КСГ с диализом
               arr[ 6, 5 ] += lsum
             Else
               arr[ 6, 4 ] ++; arr[ 6, 5 ] += lsum
@@ -175,7 +176,7 @@ Function monitoring_vid_pom()
               Endif
             Endif
           Elseif human_->USL_OK == 2 // дневной стационар
-            If AScan( glob_KSG_dializ, lshifr ) == 0
+            If AScan( glob_KSG_dializ(), lshifr ) == 0
               arr[ 9, 4 ] += kp
             Endif
             arr[ 9, 5 ] += lsum
