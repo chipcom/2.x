@@ -299,4 +299,4 @@ mo_version.prg
 .\INSURANCE\func_smo.prg
 
 .\FUNC_LIB\prview.prg
-#.\FUNC_LIB\fastreph.prg
+.\FUNC_LIB\univ_spr.prg

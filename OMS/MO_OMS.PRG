@@ -1828,7 +1828,6 @@ Function f2ret_oms_human( nkey )
       RestScreen( buf )
       viewtext( n_file, , , , ( sh > 80 ), , , 2 )
       Return -1
-      // elseif eq_any(nkey,K_F12,K_CTRL_F12) .and. tip_polzovat == TIP_ADM .and. f_Esc_Enter('снятия флага об ошибке', .t.)
     Elseif eq_any( nkey, K_F12, K_CTRL_F12 ) .and. hb_user_curUser:isadmin() .and. f_esc_enter( 'снятия флага об ошибке', .t. )
        /*involved_password(1,p_del_error[2],'снятия со всех пациентов флага об ошибке') ;
            .and. f_alert({padc('Выберите действие', 60,'.')}, ;
@@ -2699,7 +2698,6 @@ Function f2ret_oms_human( nkey )
       viewtext( n_file, , , , ( sh > 80 ), , , 3 )
       Return -1
       // заплатка
-      // elseif eq_any(nkey,K_F10,K_CTRL_F10) .and. tip_polzovat == TIP_ADM .and. f_Esc_Enter('смена услуги', .t.)
     Elseif eq_any( nkey, K_F10, K_CTRL_F10 ) .and. hb_user_curUser:isadmin() .and. f_esc_enter( 'смена услуги', .t. )
       tmp_1 := Select()
       g_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )

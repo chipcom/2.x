@@ -161,7 +161,7 @@ Procedure Main( ... )
 
   hb_main_curOrg := torganizationdb():getorganization()
 
-  If ! hb_user_curUser:isadmin()  // tip_polzovat != TIP_ADM
+  If ! hb_user_curUser:isadmin()
     verify_fio_polzovat := .f.
   Endif
   If ! g_sopen( sem_task, sem_vagno, fio_polzovat, p_name_comp )
