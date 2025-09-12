@@ -59,11 +59,11 @@ Procedure Main( ... )
 //    scsv := '.CSV', szip := '.ZIP', srar := '.RAR', smem := '.MEM', ;
 //    sxml := '.XML', sini := '.INI', sfr3 := '.FR3', sfrm := '.FRM' ;
 //  Public public_mouse := .f.
-//  Public  picture_pf := '@R 999-999-999 99'
+//  Public pict_cena := '9999999.99', picture_pf := '@R 999-999-999 99'
 
   Public pravo_write := .t., pravo_read := .t., ;
     MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;
-    pict_cena := '9999999.99', forever := 'forever'
+    forever := 'forever'
   Public gpasskod := ret_gpasskod()
   Public sem_task := 'Учёт работы МО'
   Public sem_vagno := 'Учёт работы МО - ответственный режим'

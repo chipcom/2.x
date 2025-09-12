@@ -305,7 +305,7 @@ Function fi_opl_vz( nKey, oBrow, regim, lregim )
       @ k + 2, pc1 + 3 Say "Тип оплаты" Get mtip_opl ;
         reader {| x| menu_reader( x, menu_opl, A__MENUVERT,,, .f. ) }
       @ k + 3, pc1 + 3 Say "Дата оплаты" Get mdate_opl
-      @ k + 4, pc1 + 3 Say "Сумма оплаты" Get msumma_opl Pict pict_cena
+      @ k + 4, pc1 + 3 Say "Сумма оплаты" Get msumma_opl Pict pict_cena()
       @ k + 5, pc1 + 3 Say "Примечание" Get mprim
       status_key( "^<Esc>^ - выход без записи;  ^<Enter>^ - подтверждение ввода" )
       myread()

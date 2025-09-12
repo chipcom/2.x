@@ -706,7 +706,7 @@ Function f3_k_plat( nKey, oBrow )
       displbox( s, ;
         , ;                   // цвет окна (умолч. - cDataCGet)
         { "ldate_voz", "lsum_voz" }, ; // массив Private-переменных для редактирования
-      {, pict_cena }, ; // массив Picture для редактирования
+      {, pict_cena() }, ; // массив Picture для редактирования
       17 )
       If LastKey() == K_ESC
         //
@@ -2803,9 +2803,9 @@ Function f5_usl_date( nKey, oBrow )
       Valid f6_usl_date() when ( nKey == K_INS )
     @ r1 + 3, pc1 + 3 Say "Наименование услуги"
     @ r1 + 4, pc1 + 5 Get mname When .f.
-    @ r1 + 5, pc1 + 3 Say "Цена платной услуги" Get mpcena Pict pict_cena
-    @ r1 + 6, pc1 + 3 Say "Цена платной услуги для ребека" Get mpcena_d Pict pict_cena
-    @ r1 + 7, pc1 + 3 Say "Цена ДМС услуги" Get mdms_cena Pict pict_cena
+    @ r1 + 5, pc1 + 3 Say "Цена платной услуги" Get mpcena Pict pict_cena()
+    @ r1 + 6, pc1 + 3 Say "Цена платной услуги для ребека" Get mpcena_d Pict pict_cena()
+    @ r1 + 7, pc1 + 3 Say "Цена ДМС услуги" Get mdms_cena Pict pict_cena()
     status_key( "^<Esc>^ - выход без записи;  ^<Enter>^ - подтверждение ввода" )
     myread()
     If LastKey() != K_ESC .and. mkod > 0 .and. f_esc_enter( 1 )
