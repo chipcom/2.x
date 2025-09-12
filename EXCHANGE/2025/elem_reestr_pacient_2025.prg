@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.08.25
+// 12.09.25
 function elem_reestr_pacient_2025( oXmlDoc, fl_ver, p_tip_reestr )
 
   local arr_fio, smr
@@ -93,7 +93,8 @@ function elem_reestr_pacient_2025( oXmlDoc, fl_ver, p_tip_reestr )
     Endif
   Endif
   If !Empty( kart->snils )
-    mo_add_xml_stroke( oPAC, 'SNILS', Transform( kart->SNILS, picture_pf ) )
+//    mo_add_xml_stroke( oPAC, 'SNILS', Transform( kart->SNILS, picture_pf ) )
+    mo_add_xml_stroke( oPAC, 'SNILS', Transform_SNILS( kart->SNILS ) )
   Endif
   If human_->vpolis == 3 .and. Empty( kart_->okatog )
     // для нового полиса место регистрации необязательно
