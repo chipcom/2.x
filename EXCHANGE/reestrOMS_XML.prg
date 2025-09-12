@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 29.07.25 создание XML-файлов реестра
+// 12.09.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -1484,7 +1484,8 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
       Endif
     Endif
     If !Empty( kart->snils )
-      mo_add_xml_stroke( oPAC, 'SNILS', Transform( kart->SNILS, picture_pf ) )
+//      mo_add_xml_stroke( oPAC, 'SNILS', Transform( kart->SNILS, picture_pf ) )
+      mo_add_xml_stroke( oPAC, 'SNILS', Transform_SNILS( kart->SNILS ) )
     Endif
     If human_->vpolis == 3 .and. Empty( kart_->okatog )
       // для нового полиса место регистрации необязательно

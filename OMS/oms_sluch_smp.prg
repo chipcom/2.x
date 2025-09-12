@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 05.03.25 СМП - добавление или редактирование случая (листа учета)
+// 12.09.25 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -549,7 +549,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       @ j, 1 Say 'Дата рождения' Get mdate_r ;
         valid {|| fv_date_r( mn_data ), findkartoteka( 1, @mkod_k ) }
       @ Row(), 30 Say '==>' Get mvzros_reb When .f. Color cDataCSay
-      @ Row(), 50 Say 'СНИЛС' Get msnils Pict picture_pf ;
+      @ Row(), 50 Say 'СНИЛС' Get msnils Pict picture_pf() ;
         valid {|| val_snils( msnils, 1 ), findkartoteka( 3, @mkod_k ) }
 
       @ ++j, 1 Say 'Уд-ие личности:' Get mvid_ud ;

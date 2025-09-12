@@ -1307,7 +1307,7 @@ Function f10pr_vklad()
 
   Return Nil
 
-// 26.05.23 печать прочего счёта
+// 12.09.25 печать прочего счёта
 Function print_other_schet( is_vyp, is_usl, n_file )
 
   Local sh := 169, HH := 40, regim := 3, buf := save_maxrow(), ;
@@ -1512,7 +1512,8 @@ Function print_other_schet( is_vyp, is_usl, n_file )
 
       frd->pasport := s
       If !Empty( kart->snils )
-        frd->snils := Transform( kart->SNILS, picture_pf )
+//        frd->snils := Transform( kart->SNILS, picture_pf )
+        frd->snils := Transform_SNILS( kart->SNILS )
       Endif
       frd->mr_dol := human->mr_dol
       frd->stoim := human->cena_1

@@ -559,7 +559,7 @@ Function regi_nastr( k )
 
   Return Nil
 
-// 29.03.23
+// 12.09.25
 Function r_list_uch( par, name_func )
 
   // 0 - 'ind_karta' инд.карта или 'f_f025u' форма 025
@@ -637,7 +637,8 @@ Function r_list_uch( par, name_func )
   mfio := Upper( kart->fio )
   mpolis := kart->polis
   //
-  msnils := Expand( Transform( kart->SNILS, picture_pf ) )
+//  msnils := Expand( Transform( kart->SNILS, picture_pf ) )
+  msnils := Expand( Transform_SNILS( kart->SNILS ) )
   mpol := kart->pol
   mdate_r := full_date( kart->date_r )
   madres := iif( emptyall( kart_->okatog, kart->adres ), '', ;
@@ -746,7 +747,7 @@ Function r_list_uch( par, name_func )
 
   Return Nil
 
-// 29.03.23
+// 12.09.25
 Function new_list_uch( par, name_func )
 
   // 0 - 'f_f025u' форма 025/у
@@ -882,7 +883,8 @@ Function new_list_uch( par, name_func )
   frt->ser_polis := kart_->SPOLIS
   frt->nom_polis := kart_->NPOLIS
   frt->polis := LTrim( AllTrim( kart_->SPOLIS ) + ' ' + kart_->NPOLIS )
-  frt->snils := Transform( kart->SNILS, picture_pf )
+//  frt->snils := Transform( kart->SNILS, picture_pf )
+  frt->snils := Transform_SNILS( kart->SNILS )
   frt->pol := iif( kart->pol == 'М', sb1 + 'муж. - 1' + sb2 + ', жен. - 2', 'муж. - 1, ' + sb1 + 'жен. - 2' + sb2 )
   mdate_r := full_date( kart->date_r )
   frt->date_r := mdate_r
@@ -1152,7 +1154,8 @@ Function pr_sh_f5()
     endif
     */
     If Empty( msnils ) .and. !Empty( kart->SNILS )
-      msnils := Transform( kart->SNILS, picture_pf )
+//      msnils := Transform( kart->SNILS, picture_pf )
+      msnils := Transform_SNILS( kart->SNILS )
     Endif
     r_list_uch( 0, 'f1_pr_shab(file_sh)' )
   Endif
@@ -1318,7 +1321,8 @@ Function list_uch( is_lgotnik )
   tek_stroke := 0
   n_list := 1
   // ЮРА
-  Private msnils := Transform( kart->SNILS, picture_pf )
+//  Private msnils := Transform( kart->SNILS, picture_pf )
+  Private msnils := Transform_SNILS( kart->SNILS )
   If mem_lu_stt == 1
     add_string( PadR( name_lpu, sh / 2 ) + PadL( name_otd, sh / 2 ) )
     add_string( '' )
@@ -1996,7 +2000,7 @@ Static Function f1_pr_invalid()
   Return Nil
 
 
-// 08.05.17 Создание файла для ЛИС в ГБУЗ 'ВОМИАЦ' (письмо №1337 от 30.11.15г.)
+// 12.09.25 Создание файла для ЛИС в ГБУЗ 'ВОМИАЦ' (письмо №1337 от 30.11.15г.)
 Function create_dbf_for_lis( par )
 
   Local adbf := { ;
@@ -2053,7 +2057,8 @@ Function create_dbf_for_lis( par )
       tmp->vpolis := kart_->vpolis
       tmp->spolis := LTrim( kart_->SPOLIS )
       tmp->npolis := LTrim( kart_->NPOLIS )
-      tmp->SNILS  := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
+//      tmp->SNILS  := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
+      tmp->SNILS  := iif( Empty( kart->SNILS ), '', Transform_SNILS( kart->SNILS ) )
       tmp->vid_ud := kart_->vid_ud        // вид удостоверения личности по кодировке ФФОМС
       tmp->ser_ud := LTrim( kart_->ser_ud ) // серия удостоверения личности
       tmp->nom_ud := LTrim( kart_->nom_ud ) // номер удостоверения личности
@@ -2082,7 +2087,7 @@ Function create_dbf_for_lis( par )
 
   Return Nil
 
-// 29.03.23
+// 12.09.25
 Function f0_prn_kartotek( par, nuch, nsmo )
 
   Static si1 := 2
@@ -2192,7 +2197,8 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->SMO        := smo_to_screen( 1 )
         tmp->vpolis     := inieditspr( A__MENUVERT, mm_vid_polis, kart_->vpolis )
         tmp->polis      := LTrim( kart_->NPOLIS )
-        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
+//        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
+        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform_SNILS( kart->SNILS ) )
         tmp->vid_ud     := inieditspr( A__MENUVERT, getvidud(), kart_->vid_ud ) // вид удостоверения личности;по кодировке ФФОМС;'PKRT_VID из ''APP_BASE'''
         tmp->ser_ud     := LTrim( kart_->ser_ud ) // серия удостоверения личности;;'PKRT_SER из ''APP_BASE'''
         tmp->nom_ud     := LTrim( kart_->nom_ud ) // номер удостоверения личности;;'PKRT_NOM из ''APP_BASE'''
@@ -2270,7 +2276,8 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->SMO        := smo_to_screen( 1 )
         tmp->vpolis     := inieditspr( A__MENUVERT, mm_vid_polis, kart_->vpolis )
         tmp->polis      := LTrim( kart_->NPOLIS )
-        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
+//        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
+        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform_SNILS( kart->SNILS ) )
         tmp->vid_ud     := inieditspr( A__MENUVERT, getvidud(), kart_->vid_ud ) // вид удостоверения личности;по кодировке ФФОМС;'PKRT_VID из ''APP_BASE'''
         tmp->ser_ud     := LTrim( kart_->ser_ud ) // серия удостоверения личности;;'PKRT_SER из ''APP_BASE'''
         tmp->nom_ud     := LTrim( kart_->nom_ud ) // номер удостоверения личности;;'PKRT_NOM из ''APP_BASE'''

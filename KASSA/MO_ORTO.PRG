@@ -2816,7 +2816,7 @@ Function f5e_o_kusl( get, when_valid, k )
   Endif
   Return fl
 
-// 29.03.23
+// 12.09.25
 Function pr_zak_nar( tip_print ) // 21.05.08
 
   Static st_tip_usl := 0
@@ -2915,7 +2915,8 @@ Function pr_zak_nar( tip_print ) // 21.05.08
   mmr_dol     := kart->mr_dol        // место работы должность
   mdate_r     := kart->date_r        // дата рождения
   If !Empty( kart->SNILS )
-    msnils := Transform( kart->SNILS, picture_pf )
+//    msnils := Transform( kart->SNILS, picture_pf )
+    msnils := Transform_SNILS( kart->SNILS )
   Endif
   // Номер карты
   lnomer := l1nomer := lstr( kart->kod )

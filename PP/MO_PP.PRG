@@ -1651,7 +1651,7 @@ Function pp_valid_gospit( get, old )
   Endif
   Return .t.
 
-// 14.03.16 выбрать карточку пациента из картотеки
+// 12.09.25 выбрать карточку пациента из картотеки
 Function ppokoj_kart( k )
 
   // k = 1 - начало лечения -> ввод карточки
@@ -1711,7 +1711,7 @@ Function ppokoj_kart( k )
       tmp := PadR( s_snils, 11 )
       tmp_color := SetColor( color14 )
       buf := box_shadow( 18, 9, 20, 70 )
-      @ 19, 14 Say 'Введите СНИЛС для поиска в картотеке' Get tmp Pict '@K' + picture_pf Valid val_snils( tmp, 1 )
+      @ 19, 14 Say 'Введите СНИЛС для поиска в картотеке' Get tmp Pict '@K' + picture_pf() Valid val_snils( tmp, 1 )
       s := sesc + senter + sF10f
       If !Empty( name_reader )
         s += sF11
@@ -2109,7 +2109,7 @@ Function f4_v_human_pp()
   Select ( tmp_select )
   Return Nil
 
-// 09.09.25
+// 12.09.25
 Function f2_v_human_pp( nkey, oBrow )
 
   // наименования файлов шаблонов
@@ -2532,7 +2532,8 @@ Function f2_v_human_pp( nkey, oBrow )
     frd->beg_polis := full_date( c4tod( kart_->beg_polis ) )
     frd->srok_polis := full_date( c4tod( kart->srok_polis ) )
     If !Empty( kart->SNILS )
-      frd->snils := Transform( kart->SNILS, picture_pf )
+//      frd->snils := Transform( kart->SNILS, picture_pf )
+      frd->snils := Transform_SNILS( kart->SNILS )
     Endif
     frd->pol := kart->pol
     If frd->pol == 'Ж'

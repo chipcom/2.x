@@ -113,7 +113,6 @@ function load_exists_uslugi()
           exit
         endif
       next
-    altd()
     //
       find (glob_mo()[_MO_KOD_TFOMS] + '4.20.702') // жидкостной цитологии
       if found()

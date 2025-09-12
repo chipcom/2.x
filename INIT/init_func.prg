@@ -250,6 +250,20 @@ function glob_menu_mz_rf( index, param )
   endif
   return glob_menu
 
+// 12.09.25
+function pict_cena()
+  return '9999999.99'
+
+// 12.09.25
+function picture_pf()
+
+  return '@R 999-999-999 99'
+
+// 12.09.25
+function Transform_SNILS( param )
+
+  return Transform( param, picture_pf() )
+
 // 11.09.25
 function hColor()
 

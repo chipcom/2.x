@@ -16,7 +16,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 05.06.25
+// 12.09.25
 Procedure Main( ... )
 
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
@@ -53,14 +53,16 @@ Procedure Main( ... )
   //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
 
-  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT', ;
-    sxml := '.XML', szip := '.ZIP', srar := '.RAR', smem := '.MEM', ;
-    sini := '.INI', sfr3 := '.FR3', sfrm := '.FRM', spdf := '.PDF', ;
-    scsv := '.CSV', sxls := '.xls', schip := '.CHIP', sdbt := '.dbt'
+  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT'
+  
+//  Public schip := '.CHIP', spdf := '.PDF', sxls := '.xls', sdbt := '.dbt', ;
+//    scsv := '.CSV', szip := '.ZIP', srar := '.RAR', smem := '.MEM', ;
+//    sxml := '.XML', sini := '.INI', sfr3 := '.FR3', sfrm := '.FRM' ;
+//  Public public_mouse := .f.
+//  Public  picture_pf := '@R 999-999-999 99'
 
-  Public public_mouse := .f., pravo_write := .t., pravo_read := .t., ;
+  Public pravo_write := .t., pravo_read := .t., ;
     MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;
-    picture_pf := '@R 999-999-999 99', ;
     pict_cena := '9999999.99', forever := 'forever'
   Public gpasskod := ret_gpasskod()
   Public sem_task := 'Учёт работы МО'
@@ -130,8 +132,7 @@ Procedure Main( ... )
   put_icon( full_name_version(), 'MAIN_ICON' )
   hard_err( 'create' )
   fillscreen( p_char_screen, p_color_screen ) // FillScreen('█','N+/N')
-//  SetColor( hColor()[ 'color1' ] )
-  SetColor( hColor()[ 'color1' ] )
+  SetColor( color1 )
 
   // инициализация массива МО, запрос кода МО (при необходимости)
   r := init_mo()

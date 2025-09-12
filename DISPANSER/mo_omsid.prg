@@ -246,7 +246,7 @@ Function f1_inf_dds_karta( nKey, oBrow, regim )
 
   Return ret
 
-// 22.04.18
+// 12.09.25
 Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
 
   Static st := "     ", ub := "<u><b>", ue := "</b></u>", sh := 88
@@ -300,7 +300,8 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
     s := st + "Страховая медицинская организация: " + ub + AllTrim( mcompany ) + ue + "."
     frd->( Eval( blk, s ) )
     s := st + "3. Страховой номер индивидуального лицевого счета: "
-    s += iif( Empty( kart->snils ), Replicate( "_", 25 ), ub + Transform( kart->SNILS, picture_pf ) + ue ) + "."
+//    s += iif( Empty( kart->snils ), Replicate( "_", 25 ), ub + Transform( kart->SNILS, picture_pf ) + ue ) + "."
+    s += iif( Empty( kart->snils ), Replicate( "_", 25 ), ub + Transform_SNILS( kart->SNILS ) + ue ) + "."
     frd->( Eval( blk, s ) )
     s := st + "4. Адрес места жительства: "
     If emptyall( kart_->okatog, kart->adres )
@@ -405,7 +406,8 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
     s := st + "Страховая медицинская организация: " + ub + AllTrim( mcompany ) + ue + "."
     frd->( Eval( blk, s ) )
     s := st + "Страховой номер индивидуального лицевого счета: "
-    s += iif( Empty( kart->snils ), Replicate( "_", 25 ), ub + Transform( kart->SNILS, picture_pf ) + ue ) + "."
+//    s += iif( Empty( kart->snils ), Replicate( "_", 25 ), ub + Transform( kart->SNILS, picture_pf ) + ue ) + "."
+    s += iif( Empty( kart->snils ), Replicate( "_", 25 ), ub + Transform_SNILS( kart->SNILS ) + ue ) + "."
     frd->( Eval( blk, s ) )
     s := st + "4. Дата поступления в стационарное учреждение: "
     s += iif( p_tip_lu == TIP_LU_DDSOP .or. Empty( mdate_post ), Replicate( "_", 15 ), ub + full_date( mdate_post ) + ue ) + "."
@@ -6157,7 +6159,7 @@ Function f1_inf_dnl_karta( nKey, oBrow, regim )
 
   Return ret
 
-// 22.04.18
+// 12.09.25
 Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
 
   Static st := "     ", ub := "<u><b>", ue := "</b></u>", sh := 88
@@ -6210,7 +6212,8 @@ Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
   s := st + "Страховая медицинская организация: " + ub + AllTrim( mcompany ) + ue + "."
   frd->( Eval( blk, s ) )
   s := st + "3. Страховой номер индивидуального лицевого счета: "
-  s += iif( Empty( kart->snils ), Replicate( "_", 25 ), ub + Transform( kart->SNILS, picture_pf ) + ue ) + "."
+//  s += iif( Empty( kart->snils ), Replicate( "_", 25 ), ub + Transform( kart->SNILS, picture_pf ) + ue ) + "."
+  s += iif( Empty( kart->snils ), Replicate( "_", 25 ), ub + Transform_SNILS( kart->SNILS ) + ue ) + "."
   frd->( Eval( blk, s ) )
   s := st + "4. Адрес места жительства (пребывания): "
   If emptyall( kart_->okatog, kart->adres )
@@ -8617,7 +8620,7 @@ Function f4_inf_pern_karta( par )
 
   Return arr
 
-// 31.10.16 Запрос несовершеннолетних, подлежащих медосмотрам, методом многовариантного поиска
+// 12.09.25 Запрос несовершеннолетних, подлежащих медосмотрам, методом многовариантного поиска
 Function mnog_poisk_dnl()
 
   Local mm_tmp := {}, mm_sort
@@ -9004,7 +9007,8 @@ Function mnog_poisk_dnl()
         dvn->POLIS := LTrim( kart_->NPOLIS )
         dvn->KOD_SMO := kart_->smo
         dvn->SMO := smo_to_screen( 1 )
-        dvn->SNILS := iif( Empty( kart->SNILS ), "", Transform( kart->SNILS, picture_pf ) )
+//        dvn->SNILS := iif( Empty( kart->SNILS ), "", Transform( kart->SNILS, picture_pf ) )
+        dvn->SNILS := iif( Empty( kart->SNILS ), "", Transform_SNILS( kart->SNILS ) )
         If !Empty( dvn->mo_pr := kart2->mo_pr )
           dvn->MONAME_PR := ret_mo( kart2->mo_pr )[ _MO_SHORT_NAME ]
           If !Empty( kart2->pc4 )

@@ -1897,8 +1897,7 @@ Function f00_create_r01()
 
   Return Nil
 
-
-// 14.12.23
+// 12.09.25
 Function f1_create_r01()
 
   Local SMONTH, nsh := 3, smsg, arr_nn[ 12 ]
@@ -2038,7 +2037,8 @@ Function f1_create_r01()
       mo_add_xml_stroke( oXmlNode, "BIRTHDAY", date2xml( kart->date_r ) )
       mo_add_xml_stroke( oXmlNode, "SEX", iif( kart->pol == "М", '1', '2' ) )
       If !Empty( kart->snils )
-        mo_add_xml_stroke( oXmlNode, "SS", Transform( kart->SNILS, picture_pf ) )
+//        mo_add_xml_stroke( oXmlNode, "SS", Transform( kart->SNILS, picture_pf ) )
+        mo_add_xml_stroke( oXmlNode, "SS", Transform_SNILS( kart->SNILS ) )
       Endif
       // проверим наличие ЕНП - иначе старый вариант
       If Len( AllTrim( kart2->KOD_MIS ) ) > 14

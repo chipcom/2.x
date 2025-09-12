@@ -629,7 +629,8 @@ Function vounc_print_recept()
   frd->RC_DATE := iif( d <= 0, '  ', StrZero( d, 2 ) ) + SubStr( full_date( rcp->date_r ), 3 )
   frd->FIO := kart->fio
   frd->DATE_R := full_date( kart->DATE_R )
-  frd->SNILS := iif( Empty( kart->snils ), '', Transform( kart->SNILS, picture_pf ) )
+//  frd->SNILS := iif( Empty( kart->snils ), '', Transform( kart->SNILS, picture_pf ) )
+  frd->SNILS := iif( Empty( kart->snils ), '', Transform_SNILS( kart->SNILS ) )
   frd->POLIS := make_polis( kart_->spolis, kart_->npolis )
   frd->ADRES := lstr( kart->kod_vu )
   frd->FIO_VRACH := p2->fio

@@ -32,7 +32,7 @@ Function string_output( sText, lExcel, ws, row, column, fmt )
 
   Return Nil
 
-// 28.04.25 многовариантный поиск
+// 12.09.25 многовариантный поиск
 Function s_mnog_poisk()
 
   Static lcount_uch  := 1
@@ -1757,9 +1757,11 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         Endif
         s3 := iif( mem_kodkrt == 2, Space( 1 ), Space( 7 ) )
         If !Empty( kart->SNILS )
-          s3 += Transform( kart->SNILS, picture_pf ) + ' '
+//          s3 += Transform( kart->SNILS, picture_pf ) + ' '
+          s3 += Transform_SNILS( kart->SNILS ) + ' '
           If lExcel
-            worksheet_write_string( worksheet, row, column++, Transform( kart->SNILS, picture_pf ), fmtCellString )
+//            worksheet_write_string( worksheet, row, column++, Transform( kart->SNILS, picture_pf ), fmtCellString )
+            worksheet_write_string( worksheet, row, column++, Transform_SNILS( kart->SNILS ), fmtCellString )
           Endif
         Else
           column++

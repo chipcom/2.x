@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 08.04.25
+// 12.09.25
 Function print_l_uch( mkod, par, regim, lnomer )
   
   // mkod - код больного по БД human
@@ -220,7 +220,8 @@ Function print_l_uch( mkod, par, regim, lnomer )
   add_string('')
   add_string('  Ф.И.О.: ' + human->fio + '          Пол: ' + human->pol)
   add_string('  Дата рождения: ' + full_date(human->date_r) + '  (' + mvzros_reb + ')')
-  add_string('  СНИЛС: ' + transform(kart->SNILS, picture_pf))
+//  add_string('  СНИЛС: ' + transform(kart->SNILS, picture_pf))
+  add_string( '  СНИЛС: ' + transform_SNILS( kart->SNILS ) )
 
   if !empty(mud_lich)
     k := perenos(tmp, mud_lich, sh - 2)
@@ -1164,7 +1165,7 @@ Function f4o_list_uch(nKey, oBrow)
   endif
   return k
 
-// 22.12.23 печать нескольких листов учёта
+// 12.09.25 печать нескольких листов учёта
 Function print_al_uch(arr_h, arr_m)
 
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -1246,7 +1247,8 @@ Function print_al_uch(arr_h, arr_m)
   add_string('')
   add_string('  Ф.И.О.: ' + human->fio+ '          Пол: ' + human->pol)
   add_string('  Дата рождения: ' + full_date(human->date_r) + '  [ ' +mvzros_reb+ ' ]')
-  add_string('  СНИЛС: ' + transform(kart->SNILS, picture_pf))
+//  add_string('  СНИЛС: ' + transform(kart->SNILS, picture_pf))
+  add_string( '  СНИЛС: ' + transform_SNILS( kart->SNILS ) )
 
   if !empty(mud_lich)
     k := perenos(tmp, mud_lich, sh-2)

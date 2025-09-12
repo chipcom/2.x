@@ -869,7 +869,7 @@ Function _263_valid_phone( k, s, ta )
   Endif
   Return Nil
 
-// 10.09.25 Составление информационных пакетов для отправкой в ТФОМС
+// 12.09.25 Составление информационных пакетов для отправкой в ТФОМС
 Function _263_to_sostavlenie()
 
   Local i, j, k, mnn, nfile,  arr_f := {}, name_txt, file_error, buf := save_maxrow(), ;
@@ -999,7 +999,8 @@ Function _263_to_sostavlenie()
       mo_add_xml_stroke( oPAC, 'BIRTHDAY', date2xml( kart->date_r ) )
       mo_add_xml_stroke( oPAC, 'SEX', iif( kart->pol == 'М', '1', '2' ) )
       If !Empty( kart->snils )
-        mo_add_xml_stroke( oPAC, 'SS', Transform( kart->SNILS, picture_pf ) )
+//        mo_add_xml_stroke( oPAC, 'SS', Transform( kart->SNILS, picture_pf ) )
+        mo_add_xml_stroke( oPAC, 'SS', Transform_SNILS( kart->SNILS ) )
       Endif
       mo_add_xml_stroke( oPAC, 'TYPE_P', lstr( kart_->VPOLIS ) )
       If !Empty( kart_->SPOLIS )
@@ -1240,7 +1241,8 @@ Function _263_to_sostavlenie()
         mo_add_xml_stroke( oPAC, 'BIRTHDAY', date2xml( kart->date_r ) )
         mo_add_xml_stroke( oPAC, 'SEX', iif( kart->pol == 'М', '1', '2' ) )
         If !Empty( kart->snils )
-          mo_add_xml_stroke( oPAC, 'SS', Transform( kart->SNILS, picture_pf ) )
+//          mo_add_xml_stroke( oPAC, 'SS', Transform( kart->SNILS, picture_pf ) )
+          mo_add_xml_stroke( oPAC, 'SS', Transform_SNILS( kart->SNILS ) )
         Endif
         mo_add_xml_stroke( oPAC, 'TYPE_P', lstr( kart_->VPOLIS ) )
         If !Empty( kart_->SPOLIS )
@@ -1368,7 +1370,8 @@ Function _263_to_sostavlenie()
         mo_add_xml_stroke( oPAC, 'BIRTHDAY', date2xml( kart->date_r ) )
         mo_add_xml_stroke( oPAC, 'SEX', iif( kart->pol == 'М', '1', '2' ) )
         If !Empty( kart->snils )
-          mo_add_xml_stroke( oPAC, 'SS', Transform( kart->SNILS, picture_pf ) )
+//          mo_add_xml_stroke( oPAC, 'SS', Transform( kart->SNILS, picture_pf ) )
+          mo_add_xml_stroke( oPAC, 'SS', Transform_SNILS( kart->SNILS ) )
         Endif
         If !Empty( kart_->NPOLIS )
           mo_add_xml_stroke( oPAC, 'TYPE_P', lstr( kart_->VPOLIS ) )

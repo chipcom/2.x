@@ -7,7 +7,7 @@
 Static Shodata_sem := "Работа с ходатайствами"
 Static Shodata_err := "В данный момент с ходатайствами работает другой пользователь."
 
-// 13.05.22 оформление ходатайства
+// 12.09.25 оформление ходатайства
 Function tfoms_hodatajstvo( arr_m, iRefr, par )
 
   // Функция отрабатывает только par = 1 или 2 и ошибку iReft = 57 или 599
@@ -138,7 +138,8 @@ Function tfoms_hodatajstvo( arr_m, iRefr, par )
           frd->gragd := inieditspr( A__MENUVERT, geto001(), kart_->strana )
         Endif
         If !Empty( kart->SNILS )
-          frd->snils := Transform( kart->SNILS, picture_pf )
+//          frd->snils := Transform( kart->SNILS, picture_pf )
+          frd->snils := Transform_SNILS( kart->SNILS )
         Endif
         frd->iadres := ""
         arr := ret_okato_array( kart_->okatog )
@@ -286,7 +287,7 @@ Function f2tfoms_hodatajstvo( nKey, oBrow, regim )
 
   Return k
 
-// 29.03.23 создание файла ХОДАТАЙСТВА для отсылки в ТФОМС
+// 12.09.25 создание файла ХОДАТАЙСТВА для отсылки в ТФОМС
 Function create_file_hodatajstvo( arr_m )
 
   // arr_m - временной массив
@@ -475,7 +476,8 @@ Function create_file_hodatajstvo( arr_m )
               frd->mesto_r := CharOne( " ", smr )
             Endif
             If !Empty( kart->snils )
-              frd->snils := Transform( kart->SNILS, picture_pf )
+//              frd->snils := Transform( kart->SNILS, picture_pf )
+              frd->snils := Transform_SNILS( kart->SNILS )
             Endif
             frd->okatog := kart_->okatog
             frd->adresg := ret_okato_ulica( kart->adres, kart_->okatog, 1, 2 )

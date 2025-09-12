@@ -3152,7 +3152,7 @@ Function pripisnoe_naselenie_create_vomiac()
 
   Return Nil
 
-// 16.11.18 создать файл приписного населения в Облздрав
+// 12.09.25 создать файл приписного населения в Облздрав
 Function pripisnoe_naselenie_create_oblsdrav()
 
   Local buf := SaveScreen(),  arr_fio, pr_date, name_file, name_zip
@@ -3245,7 +3245,8 @@ Function pripisnoe_naselenie_create_oblsdrav()
       If Found()
         bars->SMO        := smo->name                 // У
       Endif
-      bars->SNILS        := Transform( kart->snils, picture_pf ) // У XXX-XXX-XXX XX
+//      bars->SNILS        := Transform( kart->snils, picture_pf ) // У XXX-XXX-XXX XX
+      bars->SNILS        := Transform_SNILS( kart->snils ) // У XXX-XXX-XXX XX
       bars->VID_UD       := lstr( kart_->vid_ud )       // У
       bars->SER_UD       := kart_->ser_ud             // У
       bars->NOM_UD       := kart_->nom_ud             // У
@@ -3262,7 +3263,8 @@ Function pripisnoe_naselenie_create_oblsdrav()
       Endif
       bars->DATE_PR      := pr_date            // Да
       If !Empty( kart2->snils_vr )
-        bars->SNILS_VR     := Transform( kart2->snils_vr, picture_pf ) // У XXX-XXX-XXX XX
+//        bars->SNILS_VR     := Transform( kart2->snils_vr, picture_pf ) // У XXX-XXX-XXX XX
+        bars->SNILS_VR     := Transform_SNILS( kart2->snils_vr ) // У XXX-XXX-XXX XX
       Endif
       If bars->( RecNo() ) % 100 == 0
         @ MaxRow(), 1 Say lstr( bars->( RecNo() ) ) Color color0
@@ -4645,7 +4647,7 @@ Function f_read_sc_polis()
 
   Return fl
 
-// 14.03.16
+// 12.09.25
 Function mo_read_el_polis( /*@*/k)
 
   Local fl := .f., rec := 0, mfio, mdate_r, arr, buf := SaveScreen()
@@ -4681,7 +4683,7 @@ Function mo_read_el_polis( /*@*/k)
     clrlines( 10, 19, color1 )
     @ 11, 2 Say "Ф.И.О.: " + PadR( mfio, 50 ) + Space( 7 ) + iif( arr_epolis[ _EP_W ] == "М", "мужчина", "женщина" ) Color color8
     @ 12, 2 Say "Дата рождения: " + full_date( arr_epolis[ _EP_DR ] ) Color color8
-    @ 13, 2 Say "СНИЛС: " + Transform( arr_epolis[ _EP_SNILS ], picture_pf ) Color color8
+    @ 13, 2 Say "СНИЛС: " + Transform( arr_epolis[ _EP_SNILS ], picture_pf() ) Color color8
     @ 14, 2 Say "Место рождения: " + AllTrim( arr_epolis[ _EP_MR ] ) Color color8
     @ 15, 2 Say "Полис ОМС: " + AllTrim( arr_epolis[ _EP_NPOLIS ] ) Color color8
     @ 16, 2 Say "           действителен с " + full_date( arr_epolis[ _EP_D_BEGIN ] ) + " по " + full_date( arr_epolis[ _EP_D_END ] ) Color color8

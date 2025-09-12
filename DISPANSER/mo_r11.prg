@@ -344,7 +344,7 @@ Static Function f0_create_r11( sgod )
 
   Return { ltip, ltip1, lvoz }
 
-// 22.10.21
+// 12.09.25
 Function f1_create_r11( lm, fl_dr00 )
 
   Local nsh := 3, smsg, lnn := 0,buf := save_maxrow()
@@ -489,7 +489,8 @@ Function f1_create_r11( lm, fl_dr00 )
     mo_add_xml_stroke( oXmlNode, "BIRTHDAY", date2xml( kart->date_r ) )
     mo_add_xml_stroke( oXmlNode, "SEX", iif( kart->pol == "М", '1', '2' ) )
     If !Empty( kart->snils )
-      mo_add_xml_stroke( oXmlNode, "SS", Transform( kart->SNILS, picture_pf ) )
+//      mo_add_xml_stroke( oXmlNode, "SS", Transform( kart->SNILS, picture_pf ) )
+      mo_add_xml_stroke( oXmlNode, "SS", Transform_SNILS( kart->SNILS ) )
     Endif
     // проверим наличие ЕНП - иначе старый вариант
     If Len( AllTrim( kart2->KOD_MIS ) ) > 14
