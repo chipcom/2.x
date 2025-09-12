@@ -17,7 +17,7 @@ Function dubl_zap_1(r, c)
   popup_prompt(r, c, 1, mas_pmt, mas_msg, mas_fun)
   return NIL
 
-// 09.07.18
+// 12.09.25
 Function f1dubl_zap_1()
   Static si := 1
   Local hGauge, sh, HH := 77, name_file := cur_dir() + 'dubl_zap.txt', j1, ;
@@ -125,7 +125,8 @@ Function f1dubl_zap_1()
           TMPITG->polis    := kart->polis
           TMPITG->uchast   := kart->uchast
           TMPITG->kod_vu   := kart->kod_vu
-          TMPITG->snils    := transform(kart->snils, picture_pf)
+//          TMPITG->snils    := transform(kart->snils, picture_pf)
+          TMPITG->snils    := transform_SNILS( kart->snils )
           TMPITG->DATE_PR  := kart2->date_pr
           TMPITG->MO_PR    := kart2->mo_pr
           TMPITG->kod_tf   := kart2->kod_tf
@@ -214,7 +215,8 @@ Function f1dubl_zap_1()
               TMPITG->polis    := kart->polis
               TMPITG->uchast   := kart->uchast
               TMPITG->kod_vu   := kart->kod_vu
-              TMPITG->snils    := transform(kart->snils, picture_pf)
+//              TMPITG->snils    := transform(kart->snils, picture_pf)
+              TMPITG->snils    := transform_SNILS( kart->snils )
               TMPITG->DATE_PR  := kart2->date_pr
               TMPITG->MO_PR    := kart2->mo_pr
               TMPITG->kod_tf   := kart2->kod_tf
@@ -294,7 +296,8 @@ Function f1dubl_zap_1()
               endif
               ++j1
               s := iif(j1 == 1, padr(lstr(k) + '.', 5), space(5))
-              add_string(s + transform(msnils, picture_pf) + ' ' + padr(amb_kartaN(.t.), 10) + ;
+//              add_string(s + transform(msnils, picture_pf) + ' ' + padr(amb_kartaN(.t.), 10) + ;
+              add_string( s + transform_SNILS( msnils ) + ' ' + padr(amb_kartaN(.t.), 10) + ;
                        padr(kart->fio, 50) + ' ' + date_8(kart->date_r))
               select TMPITG
               append blank
@@ -307,7 +310,8 @@ Function f1dubl_zap_1()
               TMPITG->polis    := kart->polis
               TMPITG->uchast   := kart->uchast
               TMPITG->kod_vu   := kart->kod_vu
-              TMPITG->snils    := transform(kart->snils, picture_pf)
+//              TMPITG->snils    := transform(kart->snils, picture_pf)
+              TMPITG->snils    := transform_SNILS( kart->snils )
               TMPITG->DATE_PR  := kart2->date_pr
               TMPITG->MO_PR    := kart2->mo_pr
               TMPITG->kod_tf   := kart2->kod_tf
@@ -403,7 +407,8 @@ Function f1dubl_zap_1()
             TMPITG->polis    := kart->polis
             TMPITG->uchast   := kart->uchast
             TMPITG->kod_vu   := kart->kod_vu
-            TMPITG->snils    := transform(kart->snils, picture_pf)
+//            TMPITG->snils    := transform(kart->snils, picture_pf)
+            TMPITG->snils    := transform_SNILS( kart->snils )
             TMPITG->DATE_PR  := kart2->date_pr
             TMPITG->MO_PR    := kart2->mo_pr
             TMPITG->kod_tf   := kart2->kod_tf
@@ -799,7 +804,7 @@ function delete_dubl_rec(cAlias, dubl2_kart, lIndex)
   enddo
   return nil
 
-// 02.09.15 поиск и удаление дубликатов в картотеке по ключу "код ТФ(PID)+ФИО+дата рождения"
+// 12.09.25 поиск и удаление дубликатов в картотеке по ключу "код ТФ(PID)+ФИО+дата рождения"
 Function dubl_zap_kod_tf()
 
   Local j := 0, old_tf := 0, ii := 0, k, ar[ 10 ], name_file := cur_dir() + 'kod_tf.txt', ;
@@ -1088,7 +1093,8 @@ Function dubl_zap_kod_tf()
       If !Empty( mmr_dol )
         add_string( "работ" + iif( imrab == 1, ":", "(" + lstr( imrab ) + "):" ) + RTrim( mmr_dol ) )
       Endif
-      add_string( "СНИЛС" + iif( isnils == 1, ":", "(" + lstr( isnils ) + "):" ) + Transform( mSNILS, picture_pf ) )
+//      add_string( "СНИЛС" + iif( isnils == 1, ":", "(" + lstr( isnils ) + "):" ) + Transform( mSNILS, picture_pf ) )
+      add_string( "СНИЛС" + iif( isnils == 1, ":", "(" + lstr( isnils ) + "):" ) + Transform_SNILS( mSNILS ) )
       s := ""
       If !Empty( mPHONE_H )
         s += "тел.Д" + iif( ith == 1, ":", "(" + lstr( ith ) + "):" ) + mPHONE_H

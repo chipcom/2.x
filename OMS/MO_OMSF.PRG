@@ -1400,7 +1400,7 @@ Function amb_kartan( fl_0 )
   Endif
   Return lnomer
 
-// 24.07.18 выбрать карточку пациента из картотеки
+// 12.09.25 выбрать карточку пациента из картотеки
 Function polikl_kart( k )
 
   // k = 1 - начало лечения -> ввод карточки
@@ -1466,7 +1466,7 @@ Function polikl_kart( k )
       tmp := PadR( s_snils, 11 )
       tmp_color := SetColor( color14 )
       buf := box_shadow( 18, 9, 20, 70 )
-      @ 19, 14 Say 'Введите СНИЛС для поиска в картотеке' Get tmp Pict '@K' + picture_pf Valid val_snils( tmp, 1 )
+      @ 19, 14 Say 'Введите СНИЛС для поиска в картотеке' Get tmp Pict '@K' + picture_pf() Valid val_snils( tmp, 1 )
       s := sesc + senter + sF10f
       If !Empty( name_reader )
         s += sF11
@@ -1846,7 +1846,7 @@ Function verify_lechenie( kod_kart, /*@*/p1)
   rest_box( buf )
   Return .t.
 
-// 14.03.16 поиск по шаблону в картотеке
+// 12.09.25 поиск по шаблону в картотеке
 Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
 
   Local fl := .f., pos1, pos2, tmp_list, buf, ;
@@ -2071,7 +2071,8 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
       Select KART
       Skip
     Enddo
-    s_msg := 'по СНИЛС ' + Transform( mSNILS, picture_pf )
+//    s_msg := 'по СНИЛС ' + Transform( mSNILS, picture_pf )
+    s_msg := 'по СНИЛС ' + Transform_SNILS( mSNILS )
   Endif
   fl := ( tmp->( LastRec() ) > 0 )
   Close databases

@@ -441,7 +441,7 @@ Function nastr_kassa( k )
   Endif
   Return Nil
 
-// 29.03.23
+// 12.09.25
 Function kassa_r_list_uch( par, name_func )
 
   // 1 - платные услуги
@@ -483,7 +483,8 @@ Function kassa_r_list_uch( par, name_func )
   Endif
   mfio := Upper( kart->fio )
   mpolis := kart->polis
-  msnils := Expand( Transform( kart->SNILS, picture_pf ) )
+//  msnils := Expand( Transform( kart->SNILS, picture_pf ) )
+  msnils := Expand( Transform_SNILS( kart->SNILS ) )
   mpol := kart->pol
   mdate_r := full_date( kart->date_r )
   madres := iif( emptyall( kart_->okatog, kart->adres ), "", ;

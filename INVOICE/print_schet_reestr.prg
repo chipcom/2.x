@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 06.05.25
+// 12.09.25
 function schet_reestr( arr, destination, one, reg )
   // arr - массив счетов
   // destination - целевой каталог
@@ -269,7 +269,8 @@ if ! one .or. ( one .and. reg == 2 )
           frd->adresp := ret_okato_ulica( kart_->adresp, kart_->okatop, 0, 2 )
         Endif
         If !Empty( kart->snils )
-          frd->snils := Transform( kart->SNILS, picture_pf )
+//          frd->snils := Transform( kart->SNILS, picture_pf )
+          frd->snils := Transform_SNILS( kart->SNILS )
         Endif
         frd->polis := AllTrim( AllTrim( human_->SPOLIS ) + ' ' + human_->NPOLIS )
         frd->vid_pom := lstr( lvidpom )

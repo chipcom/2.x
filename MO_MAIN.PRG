@@ -16,7 +16,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 05.06.25
+// 12.09.25
 Procedure Main( ... )
 
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
@@ -53,21 +53,22 @@ Procedure Main( ... )
   //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
 
-  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT', ;
-    sxml := '.XML', szip := '.ZIP', srar := '.RAR', smem := '.MEM', ;
-    sini := '.INI', sfr3 := '.FR3', sfrm := '.FRM', spdf := '.PDF', ;
-    scsv := '.CSV', sxls := '.xls', schip := '.CHIP', sdbt := '.dbt'
+  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT'
+  
+//  Public schip := '.CHIP', spdf := '.PDF', sxls := '.xls', sdbt := '.dbt', ;
+//    scsv := '.CSV', szip := '.ZIP', srar := '.RAR', smem := '.MEM', ;
+//    sxml := '.XML', sini := '.INI', sfr3 := '.FR3', sfrm := '.FRM' ;
+//  Public public_mouse := .f.
+//  Public  picture_pf := '@R 999-999-999 99'
 
-  Public public_mouse := .f., pravo_write := .t., pravo_read := .t., ;
+  Public pravo_write := .t., pravo_read := .t., ;
     MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;
-    DemoMode := .f., picture_pf := '@R 999-999-999 99', ;
     pict_cena := '9999999.99', forever := 'forever'
   Public gpasskod := ret_gpasskod()
   Public sem_task := 'Учёт работы МО'
   Public sem_vagno := 'Учёт работы МО - ответственный режим'
   Public err_slock := 'В данный момент с этим режимом работает другой пользователь. Доступ запрещён!'
   Public err_admin := 'Доступ в данный режим разрешен только администратору системы!'
-  Public err_sdemo := 'Это демонстрационная версия. Операция запрещена!'
   Public fr_data := '_data', fr_titl := '_titl'
 
   Public dir_exe := dir_exe()
@@ -91,9 +92,9 @@ Procedure Main( ... )
   Public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
 
   Public arr_12_VMP := {}
-  Public is_napr_pol := .f., ; // работа с направлениями на госпитализацию в п-ке
-  is_napr_stac := .f., ; // работа с направлениями на госпитализацию в стационаре
-  glob_klin_diagn := {}  // работа со специальными лабораторными исследованиями
+//  Public is_napr_pol := .f. // работа с направлениями на госпитализацию в п-ке
+//  Public is_napr_stac := .f. // работа с направлениями на госпитализацию в стационаре
+  Public glob_klin_diagn := {}  // работа со специальными лабораторными исследованиями
 
   // создадим глобальные переменные для ВМП
   Public is_MO_VMP := .f.
@@ -104,18 +105,23 @@ Procedure Main( ... )
   Next
 
   // справочник цен на услуги ТФОМС 2016-2017
-  Public glob_MU_dializ := {}// 'A18.05.002.001','A18.05.002.002','A18.05.002.003', ;
+//  Public glob_MU_dializ := {}// 'A18.05.002.001','A18.05.002.002','A18.05.002.003', ;
   // 'A18.05.003','A18.05.003.001','A18.05.011','A18.30.001','A18.30.001.001'}
-  Public glob_KSG_dializ := {}// '10000901','10000902','10000903','10000905','10000906','10000907','10000913', ;
+//  Public glob_KSG_dializ := {}// '10000901','10000902','10000903','10000905','10000906','10000907','10000913', ;
   // '20000912','20000916','20000917','20000918','20000919','20000920'}
   // '1000901','1000902','1000903','1000905','1000906','1000907','1000913', ;
   // '2000912','2000916','2000917','2000918','2000919','2000920'}
 
-  Public is_vr_pr_pp := .f., is_hemodializ := .f., is_per_dializ := .f., ;
-    is_reabil_slux := .f., is_ksg_1300098 := .f., is_dop_ob_em := .f., glob_yes_kdp2[ 10 ], ;
-    glob_menu_mz_rf := { .f., .f., .f. }
+  Public glob_yes_kdp2[ 10 ]
 
-  Public is_alldializ := .f.
+//  Public glob_menu_mz_rf := { .f., .f., .f. }
+//  Public is_vr_pr_pp := .f.
+//  Public is_reabil_slux := .f., 
+//  Public is_ksg_1300098 := .f.
+//  Public is_dop_ob_em := .f.
+//  Public is_alldializ := .f.
+//  Public is_hemodializ := .f.
+//  Public is_per_dializ := .f.
 
   Public glob_array_srf // массив страховых компаний
 
@@ -245,68 +251,69 @@ Function app_ini()
   Set Color To
   Return Nil
 
-// 09.09.25
+// 11.09.25
 Function f_main( r0, is_local_version, a_parol )
 
-  Static arr1 := { ;
-    { 'Регистратура поликлиники', X_REGIST, , .t., 'РЕГИСТРАТУРА' }, ;
-    { 'Приёмный покой стационара', X_PPOKOJ, , .t., 'ПРИЁМНЫЙ ПОКОЙ' }, ;
-    { 'Обязательное медицинское страхование', X_OMS, , .t., 'ОМС' }, ;
-    { 'Учёт направлений на госпитализацию', X_263, , .f., 'ГОСПИТАЛИЗАЦИЯ' }, ;
-    { 'Платные услуги', X_PLATN, , .t., 'ПЛАТНЫЕ УСЛУГИ' }, ;
-    { 'Ортопедические услуги в стоматологии', X_ORTO, , .t., 'ОРТОПЕДИЯ' }, ;
-    { 'Касса медицинской организации', X_KASSA, , .t., 'КАССА' } ;
-    }
+//  Static arr1 := { ;
+//    { 'Регистратура поликлиники', X_REGIST, , .t., 'РЕГИСТРАТУРА' }, ;
+//    { 'Приёмный покой стационара', X_PPOKOJ, , .t., 'ПРИЁМНЫЙ ПОКОЙ' }, ;
+//    { 'Обязательное медицинское страхование', X_OMS, , .t., 'ОМС' }, ;
+//    { 'Учёт направлений на госпитализацию', X_263, , .f., 'ГОСПИТАЛИЗАЦИЯ' }, ;
+//    { 'Платные услуги', X_PLATN, , .t., 'ПЛАТНЫЕ УСЛУГИ' }, ;
+//    { 'Ортопедические услуги в стоматологии', X_ORTO, , .t., 'ОРТОПЕДИЯ' }, ;
+//    { 'Касса медицинской организации', X_KASSA, , .t., 'КАССА' } ;
+//    }
 
-  // { 'КЭК медицинской организации', X_KEK, , .f., 'КЭК' } ;
+//  // { 'КЭК медицинской организации', X_KEK, , .f., 'КЭК' } ;
 
-  Static arr2 := { ;
-    { 'Редактирование справочников', X_SPRAV, , .t. }, ;
-    { 'Сервисы и настройки', X_SERVIS, , .t. }, ;
-    { 'Резервное копирование базы данных', X_COPY, , .t. }, ;
-    { 'Переиндексирование базы данных', X_INDEX, , .t. } ;
-    }
+//  Static arr2 := { ;
+//    { 'Редактирование справочников', X_SPRAV, , .t. }, ;
+//    { 'Сервисы и настройки', X_SERVIS, , .t. }, ;
+//    { 'Резервное копирование базы данных', X_COPY, , .t. }, ;
+//    { 'Переиндексирование базы данных', X_INDEX, , .t. } ;
+//    }
   Local i, lens := 0, r, c, oldTfoms, arr, ar, k, fl_exit := .t.
   Local buf
 
-  Public array_tasks := {}, sem_vagno_task[ 24 ]
+//  Public array_tasks := array_tasks()   // {}
+//  Public sem_vagno_task[ 24 ]
 
-  AFill( sem_vagno_task, '' )
-  For i := 1 To Len( arr1 )
-    AAdd( array_tasks, arr1[ i ] )
-    sem_vagno_task[ arr1[ i, 2 ] ] := 'Важный режим в задаче "' + arr1[ i, 5 ] + '"'
-  Next
+//  AFill( sem_vagno_task, '' )
+//  For i := 1 To Len( arr1 )
+//    AAdd( array_tasks, arr1[ i ] )
+//    sem_vagno_task[ arr1[ i, 2 ] ] := 'Важный режим в задаче "' + arr1[ i, 5 ] + '"'
+//  Next
 
-  If glob_mo()[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
-    AAdd( array_tasks, { 'ВОУНЦ - трансплантированные', X_MO, 'TABLET_ICON', .t. } )
-  Endif
+//  If glob_mo()[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
+//    AAdd( array_tasks, { 'ВОУНЦ - трансплантированные', X_MO, 'TABLET_ICON', .t. } )
+//  Endif
 
-  For i := 1 To Len( arr2 )
-    AAdd( array_tasks, arr2[ i ] )
-  Next
+//  For i := 1 To Len( arr2 )
+//    AAdd( array_tasks, arr2[ i ] )
+//  Next
   //
   arr := {}
-  For i := 1 To Len( array_tasks )
-    If ( k := array_tasks[ i, 2 ] ) < 10  // код задачи
-      array_tasks[ i, 4 ] := ( SubStr( glob_mo()[ _MO_PROD ], k, 1 ) == '1' )
-      If array_tasks[ i, 4 ]
+  For i := 1 To Len( array_tasks() )
+    If ( k := array_tasks()[ i, 2 ] ) < 10  // код задачи
+//      array_tasks[ i, 4 ] := ( SubStr( glob_mo()[ _MO_PROD ], k, 1 ) == '1' )
+      If array_tasks()[ i, 4 ]
         fl_exit := .f.
       Endif
     Endif
     // Учёт направлений на госпитализацию
-    If k == X_263 .and. ( is_napr_pol .or. is_napr_stac ) // .and. ( substr( glob_mo()[ _MO_PROD ], X_263, 1 ) == '1' )
-      array_tasks[ i, 4 ] := .t.
+    If k == X_263 .and. ( is_napr_pol() .or. is_napr_stac() ) // .and. ( substr( glob_mo()[ _MO_PROD ], X_263, 1 ) == '1' )
+//      array_tasks[ i, 4 ] := .t.
       fl_exit := .f.
     Endif
     If is_local_version
-      If array_tasks[ i, 4 ]
-        AAdd( arr, array_tasks[ i ] )
-        lens := Max( lens, Len( array_tasks[ i, 1 ] ) )
+      If array_tasks()[ i, 4 ]
+        AAdd( arr, array_tasks()[ i ] )
+        lens := Max( lens, Len( array_tasks()[ i, 1 ] ) )
       Endif
     Else
-      If array_tasks[ i, 4 ] .and. hb_user_curUser:isallowedtask( i )
-        AAdd( arr, array_tasks[ i ] )
-        lens := Max( lens, Len( array_tasks[ i, 1 ] ) )
+      If array_tasks()[ i, 4 ] .and. hb_user_curUser:isallowedtask( i )
+        AAdd( arr, array_tasks()[ i ] )
+        lens := Max( lens, Len( array_tasks()[ i, 1 ] ) )
       Endif
     Endif
   Next
@@ -569,13 +576,13 @@ Function hard_err( p )
   Endcase
   Return Nil
 
-// 03.12.13
+// 10.09.25
 Function f_err_sem_vagno_task( n_Task )
 
-  Return func_error( 4, 'В задаче "' + array_tasks[ ind_task( n_Task ), 5 ] + ;
+  Return func_error( 4, 'В задаче "' + array_tasks()[ ind_task( n_Task ), 5 ] + ;
     '" выполняется ОТВЕТСТВЕННАЯ операция. Доступ временно запрещён!' )
 
-// 03.12.13
+// 10.09.25
 Function mo_lock_task( n_Task )
 
   Local i, fl := .t., n := 0
@@ -585,15 +592,15 @@ Function mo_lock_task( n_Task )
     ++n                  // то максимум 1 пользователь
   Endif
   i := ind_task( n_Task )
-  If !g_svaluenlock( f_name_task( n_Task ), n, sem_vagno_task[ n_Task ] )
-    fl := func_error( 'В задаче "' + array_tasks[ i, 5 ] + '" работают пользователи. Операция временно запрещена!' )
+  If !g_svaluenlock( f_name_task( n_Task ), n, sem_vagno_task()[ n_Task ] )
+    fl := func_error( 'В задаче "' + array_tasks()[ i, 5 ] + '" работают пользователи. Операция временно запрещена!' )
   Endif
   Return fl
 
-// 03.12.13
+// 10.09.25
 Function mo_unlock_task( n_Task )
 
-  Return g_sunlock( sem_vagno_task[ n_Task ] )
+  Return g_sunlock( sem_vagno_task()[ n_Task ] )
 
 // вернуть имя задачи по цифровому коду
 Function f_name_task( n_Task )
@@ -602,8 +609,8 @@ Function f_name_task( n_Task )
 
   Default n_Task To glob_task
   s := lstr( n_Task )
-  If ( it := AScan( array_tasks, {| x| x[ 2 ] == n_Task } ) ) > 0
-    s := array_tasks[ it, 1 ]
+  If ( it := AScan( array_tasks(), {| x| x[ 2 ] == n_Task } ) ) > 0
+    s := array_tasks()[ it, 1 ]
   Endif
   Return s
 
@@ -612,14 +619,14 @@ Function is_task( n_Task )
 
   Local it
 
-  If !( Type( 'array_tasks' ) == 'A' ) // в начале задачи  ещё не определён массив
-    Return .f.
-  Endif
+//  If !( Type( 'array_tasks' ) == 'A' ) // в начале задачи  ещё не определён массив
+//    Return .f.
+//  Endif
   Default n_Task To glob_task
-  If ( it := AScan( array_tasks, {| x| x[ 2 ] == n_Task } ) ) == 0
+  If ( it := AScan( array_tasks(), {| x| x[ 2 ] == n_Task } ) ) == 0
     Return .f.
   Endif
-  Return array_tasks[ it, 4 ]
+  Return array_tasks()[ it, 4 ]
 
 // вернуть индекс массива конкретной задачи
 Function ind_task( n_Task )
@@ -627,7 +634,7 @@ Function ind_task( n_Task )
   Local it
 
   Default n_Task To glob_task
-  If ( it := AScan( array_tasks, {| x| x[ 2 ] == n_Task } ) ) == 0
+  If ( it := AScan( array_tasks(), {| x| x[ 2 ] == n_Task } ) ) == 0
     it := 3 // ОМС
   Endif
   Return it

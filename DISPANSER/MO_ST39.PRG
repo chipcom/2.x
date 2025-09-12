@@ -28,7 +28,7 @@ Function f_stom_39_terap()
 
   Return Nil
 
-// 06.08.19 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
+// 12.09.25 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
 Function mnog_poisk_dvn1()
 
   Local mm_tmp := {}, mm_sort, t_arr[ 2 ]
@@ -476,7 +476,8 @@ Function mnog_poisk_dvn1()
         dvn->POLIS := LTrim( kart_->NPOLIS )
         dvn->KOD_SMO := kart_->smo
         dvn->SMO := smo_to_screen( 1 )
-        dvn->SNILS := iif( Empty( kart->SNILS ), "", Transform( kart->SNILS, picture_pf ) )
+//        dvn->SNILS := iif( Empty( kart->SNILS ), "", Transform( kart->SNILS, picture_pf ) )
+        dvn->SNILS := iif( Empty( kart->SNILS ), "", Transform_SNILS( kart->SNILS ) )
         dvn->PENSIONER := iif( kart_->PENSIONER == 1, "пенсионер", "" )
         If !Empty( dvn->mo_pr := kart2->mo_pr )
           dvn->MONAME_PR := ret_mo( kart2->mo_pr )[ _MO_SHORT_NAME ]

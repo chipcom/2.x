@@ -88,11 +88,10 @@ function editEmployees( nType )
 	endif
 	return nil
 
-// 06.11.18 редактирование объекта сотрудник
+// 12.09.25 редактирование объекта сотрудник
 function editEmployee( oBrowse, aObjects, oEmployee, nKey )	
 	local fl := .F.
-	local nRow := ROW(), nCol := COL(), tmp_color, r1, r2, i, ;
-		buf := save_maxrow(), buf1
+	local nRow := ROW(), nCol := COL(), tmp_color, i, buf := save_maxrow(), buf1
 	local k, r
 	local tmp := ' ', tmp1, fl1
 	local item, counter
@@ -253,7 +252,7 @@ function editEmployee( oBrowse, aObjects, oEmployee, nKey )
 		@ ++r, 2 say 'Табельный номер' get mtab_nom picture '99999' valid { | g | CheckTabNom( oEmployee, g, nKey ) }
 		@ r, 36 say 'Сводный табельный номер' get msvod_nom picture '99999'
 		@ ++r, 2 say 'Ф.И.О.' get mfio
-		@ ++r, 2 say 'СНИЛС' get msnils picture picture_pf valid val_snils( msnils, 1 )
+		@ ++r, 2 say 'СНИЛС' get msnils picture picture_pf() valid val_snils( msnils, 1 )
 		@ ++r, 2 say 'Учр-е' get much ;
 					reader { | x | menu_reader( x, { { | k, r, c | SelectDepartmentAndSubdivision( k, r, c ) } }, A__FUNCTION, , , .f. ) }
 		@ r, 39 say 'Отделение' get motd when .f.

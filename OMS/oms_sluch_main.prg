@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 03.09.25 добавление или редактирование случая (листа учета)
+// 11.09.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -37,18 +37,18 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     Endif
   Endif
   If Loc_kod == 0 .and. Len( glob_otd ) > 3 // только при добавлении
-    If is_hemodializ .and. glob_otd[ 4 ] == TIP_LU_H_DIA  // гемодиализ
+    If is_hemodializ() .and. glob_otd[ 4 ] == TIP_LU_H_DIA  // гемодиализ
       Return oms_sluch_dializ( 1, Loc_kod, kod_kartotek )
-    Elseif is_per_dializ .and. glob_otd[ 4 ] == TIP_LU_P_DIA  // перит.диализ
+    Elseif is_per_dializ() .and. glob_otd[ 4 ] == TIP_LU_P_DIA  // перит.диализ
       Return oms_sluch_dializ( 2, Loc_kod, kod_kartotek )
     Endif
   Endif
   // Определить окно k*80 символов
   kscr1 := iif( is_MO_VMP, 30, 26 )
-  If is_dop_ob_em
+  If is_dop_ob_em()
     ++kscr1
   Endif
-  If is_reabil_slux
+  If is_reabil_slux()
     ++kscr1
   Endif
   buf := SaveScreen()
@@ -797,7 +797,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ j, 48 Get mp_per ;
         reader {| x| menu_reader( x, mm_p_per, A__MENUVERT, , , .f. ) } ;
         When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
-      If is_dop_ob_em
+      If is_dop_ob_em()
         @ ++j, 3 Say 'вид объёмов специализированной медицинской помощи' Get mreg_lech ;
           reader {| x| menu_reader( x, mm_reg_lech, A__MENUVERT, , , .f. ) } ;
           When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
@@ -808,7 +808,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ ++j, 3 Say 'профиль койки' Get MPROFIL_K ;
         reader {| x| menu_reader( x, tmp_V020, A__MENUVERT, , , .f. ) } ;
         When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
-      If is_reabil_slux
+      If is_reabil_slux()
         @ ++j, 3 Say 'вид мед.реабилитации' Get mvid_reab ;
           reader {| x| menu_reader( x, mm_vid_reab, A__MENUVERT, , , .f. ) } ;
           When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. m1profil == 158
@@ -1982,7 +1982,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human->UCH_DOC    := MUCH_DOC      // вид и номер учетного документа
       human->N_DATA     := MN_DATA       // дата начала лечения
       human->K_DATA     := MK_DATA       // дата окончания лечения
-      If is_dop_ob_em
+      If is_dop_ob_em()
         human->reg_lech := m1reg_lech    // 0-основные, 9-дополнительные объёмы
       Endif
       human->CENA       := MCENA_1       // стоимость лечения
@@ -2055,7 +2055,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
 
       human_2->PC4    := iif( mWeight != 0, Str( mWeight, 5, 1 ),  Space( 10 ) )
 
-      If is_reabil_slux .and. eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. m1profil == 158
+      If is_reabil_slux() .and. eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. m1profil == 158
         human_2->PN1 := m1vid_reab
       Endif
       human_2->PN2 := iif( f_oms_beremenn( mkod_diag, MK_DATA ) > 0, m1prer_b, 0 )

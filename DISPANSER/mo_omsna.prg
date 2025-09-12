@@ -924,15 +924,15 @@ Function  check_tip_disp_nabl( diag )
   Endif
   Return vozvr
 
-// 17.03.25 Список пациентов, по которым были л/у с диспансерным наблюдением
+// 12.09.25 Список пациентов, по которым были л/у с диспансерным наблюдением
 Function f_inf_disp_nabl( par )
 
   // 1 -  '~Не было л/у с диспансерным наблюдением',;
   // 2 -  '~Были л/у с диспансерным наблюдением'
 
-  Local arr, arr_full_name, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir() + 'disp_nabl.txt', ;
+  Local arr, arr_full_name, sh := 120, HH := 60, buf := save_maxrow(), name_file := cur_dir() + 'disp_nabl.txt', ;
     ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := '___DN' + sdbf(), arr_fl, fl_prikrep := Space( 6 ), kol_kartotek := 0, ;
-    t_kartotek := 0, s1
+    t_kartotek := 0
   Local arr_tip_DN := { 'Прочие ДН - ', 'Онкологическое ДН - ', 'Сахарный диабет ДН - ', 'Сердечно-сосудистое ДН - ' }
   Local arr_tip_DN1 := { '2.78.109', '2.78.110', '2.78.111', '2.78.112' }
   Local arr_tip_KOD_USL := { 109, 110, 111, 112 }
@@ -942,11 +942,11 @@ Function f_inf_disp_nabl( par )
   Local flag_BILO := .f., flag_NAL := .t.
   Local kol_umer := { 0, 0, 0, 0 }, kol_smena := { 0, 0, 0, 0 }, kol_itogo := { 0, 0, 0, 0 }, kol_old := { 0, 0, 0, 0 }
   Local kol_umer1 := { 0, 0, 0, 0 }, kol_smena1 := { 0, 0, 0, 0 }, kol_itogo1 := { 0, 0, 0, 0 }, kol_old1 := { 0, 0, 0, 0 }
-  Local lExcel := .f., iOutput
+  Local lExcel := .f.
   Local name_fileXLS := 'DispNab_' + suffixfiletimestamp()
   Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
   Local workbook, worksheet, row, column
-  Local fmt_cell_header, fmtCellNumberRub, fmt_header, fmt_text, fmtCellNumberNDS
+  Local fmt_cell_header, fmt_header, fmt_text
   Local VREM_N1 := '', VREM_N2 := ''
 
   If par == 1
@@ -1150,7 +1150,8 @@ Function f_inf_disp_nabl( par )
           worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
           worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1  ) ), fmt_text )
           worksheet_write_string( worksheet, row,   5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
-          worksheet_write_string( worksheet, row,   6, hb_StrToUTF8( Transform( kart->SNILS, picture_pf ) ), fmt_text )
+//          worksheet_write_string( worksheet, row,   6, hb_StrToUTF8( Transform( kart->SNILS, picture_pf ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   6, hb_StrToUTF8( Transform_SNILS( kart->SNILS ) ), fmt_text )
           worksheet_write_string( worksheet, row++, 7, hb_StrToUTF8( iif( kart_->VPOLIS == 3, kart_->NPOLIS, '' ) ), fmt_text )
           //
         Elseif  !fl_disp .and. par == 1
@@ -1171,7 +1172,8 @@ Function f_inf_disp_nabl( par )
           worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( arr_full_name[ 1 ] ) ), fmt_text )
           worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1  ) ), fmt_text )
           worksheet_write_string( worksheet, row,   5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
-          worksheet_write_string( worksheet, row,   6, hb_StrToUTF8( Transform( kart->SNILS, picture_pf ) ), fmt_text )
+//          worksheet_write_string( worksheet, row,   6, hb_StrToUTF8( Transform( kart->SNILS, picture_pf ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   6, hb_StrToUTF8( Transform_SNILS( kart->SNILS ) ), fmt_text )
           worksheet_write_string( worksheet, row++, 7, hb_StrToUTF8( iif( kart_->VPOLIS == 3, kart_->NPOLIS, '' ) ), fmt_text )
           //
         Endif
@@ -1294,7 +1296,8 @@ Function f_inf_disp_nabl( par )
           worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( diag_disp ) ), fmt_text )
           worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1 ) ), fmt_text )
           worksheet_write_string( worksheet, row,   5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
-          worksheet_write_string( worksheet, row,   6, hb_StrToUTF8( Transform( kart->SNILS, picture_pf ) ), fmt_text )
+//          worksheet_write_string( worksheet, row,   6, hb_StrToUTF8( Transform( kart->SNILS, picture_pf ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   6, hb_StrToUTF8( Transform_SNILS( kart->SNILS ) ), fmt_text )
           worksheet_write_string( worksheet, row++, 7, hb_StrToUTF8( iif( kart_->VPOLIS == 3, kart_->NPOLIS, '' ) ), fmt_text )
           //
         Elseif !fl_disp .and. par == 1
@@ -1315,7 +1318,8 @@ Function f_inf_disp_nabl( par )
           worksheet_write_string( worksheet, row,   3, hb_StrToUTF8( AllTrim( arr_full_name[ 1 ] ) ), fmt_text )
           worksheet_write_string( worksheet, row,   4, hb_StrToUTF8( AllTrim( VREM_N1  ) ), fmt_text )
           worksheet_write_string( worksheet, row,   5, hb_StrToUTF8( AllTrim( VREM_N2 ) ), fmt_text )
-          worksheet_write_string( worksheet, row,   6, hb_StrToUTF8( Transform( kart->SNILS, picture_pf ) ), fmt_text )
+//          worksheet_write_string( worksheet, row,   6, hb_StrToUTF8( Transform( kart->SNILS, picture_pf ) ), fmt_text )
+          worksheet_write_string( worksheet, row,   6, hb_StrToUTF8( Transform_SNILS( kart->SNILS ) ), fmt_text )
           worksheet_write_string( worksheet, row++, 7, hb_StrToUTF8( iif( kart_->VPOLIS == 3, kart_->NPOLIS, '' ) ), fmt_text )
           //
         Endif
@@ -1923,7 +1927,7 @@ Function f2_vvod_disp_nabl( ldiag )
 
 
 
-// 17.01.25 Информация по первичному вводу сведений о состоящих на диспансерном учёте
+// 12.09.25 Информация по первичному вводу сведений о состоящих на диспансерном учёте
 Function inf_disp_nabl()
 
   Static suchast := 0, svrach := 0, sdiag := '', ;
@@ -2171,7 +2175,8 @@ Function inf_disp_nabl()
           Endif
           worksheet_write_string( worksheet, row, 1, hb_StrToUTF8(  AllTrim( kart->fio ) ), fmt_text )
           worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( full_date( kart->date_r ) ), fmt_text )
-          worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( Transform( kart->SNILS, picture_pf ) ), fmt_text )
+//          worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( Transform( kart->SNILS, picture_pf ) ), fmt_text )
+          worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( Transform_SNILS( kart->SNILS ) ), fmt_text )
           worksheet_write_string( worksheet, row, 5, hb_StrToUTF8( iif( kart_->VPOLIS == 3, kart_->NPOLIS, '' ) ), fmt_text )
           worksheet_write_string( worksheet, row, 6, hb_StrToUTF8( old_PRIKREP ), fmt_text )
           worksheet_write_string( worksheet, row, 7, hb_StrToUTF8(  old_num_UCH ), fmt_text )
@@ -2190,11 +2195,13 @@ Function inf_disp_nabl()
           old_row_XLS := row
           worksheet_write_string( worksheet, row, 1, hb_StrToUTF8(  AllTrim( kart->fio ) ), fmt_text )
           worksheet_write_string( worksheet, row, 3, hb_StrToUTF8( full_date( kart->date_r ) ), fmt_text )
-          worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( Transform( kart->SNILS, picture_pf ) ), fmt_text )
+//          worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( Transform( kart->SNILS, picture_pf ) ), fmt_text )
+          worksheet_write_string( worksheet, row, 4, hb_StrToUTF8( Transform_SNILS( kart->SNILS ) ), fmt_text )
           worksheet_write_string( worksheet, row, 5, hb_StrToUTF8( iif( kart_->VPOLIS == 3, kart_->NPOLIS, '' ) ), fmt_text )
           old_fio := AllTrim( kart->fio )
           old_DR := full_date( kart->date_r )
-          old_SNILS := Transform( kart->SNILS, picture_pf )
+//          old_SNILS := Transform( kart->SNILS, picture_pf )
+          old_SNILS := Transform_SNILS( kart->SNILS )
           old_ENP := iif( kart_->VPOLIS == 3, kart_->NPOLIS, '' )
           // первая строка на человека
           fl_prinet := .f. // по умолчанию - не принят
@@ -2475,9 +2482,7 @@ Function spr_disp_nabl()
   rest_box( buf )
   Return Nil
 
-
-
-// 21.01.25 Обмен с ТФОМС информацией по диспансерному наблюдению
+// 12.09.25 Обмен с ТФОМС информацией по диспансерному наблюдению
 Function f_create_d01()
 
   Local fl := .t., arr, id01 := 0, lspec, lmesto, buf := save_maxrow()
@@ -2895,7 +2900,8 @@ Function f_create_d01()
       mo_add_xml_stroke( oXmlNode, 'BIRTHDAY', date2xml( kart->date_r ) )
       mo_add_xml_stroke( oXmlNode, 'SEX', iif( kart->pol == 'М', '1', '2' ) )
       If !Empty( kart->snils )
-        mo_add_xml_stroke( oXmlNode, 'SS', Transform( kart->SNILS, picture_pf ) )
+//        mo_add_xml_stroke( oXmlNode, 'SS', Transform( kart->SNILS, picture_pf ) )
+        mo_add_xml_stroke( oXmlNode, 'SS', Transform_SNILS( kart->SNILS ) )
       Endif
       // проверим наличие ЕНП - иначе старый вариант
       If Len( AllTrim( kart2->KOD_MIS ) ) > 14

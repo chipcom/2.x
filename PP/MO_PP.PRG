@@ -17,7 +17,7 @@ Function begin_task_ppokoj()
     Public memPPsvod     := Int( Val( a2default( ar, 'PRN_SVOD',  '3' ) ) )
     Public memPPdos_fast := Int( Val( a2default( ar, 'dos_fast',  '0' ) ) )
   Endif
-  If g_sislock( sem_vagno_task[ X_PPOKOJ ] )
+  If g_sislock( sem_vagno_task()[ X_PPOKOJ ] )
     fl := f_err_sem_vagno_task( X_PPOKOJ )
   Elseif copy_tools_ini()
     tools_ini_oms( 1, 0, 0 )
@@ -597,7 +597,7 @@ Function del_ppokoj()
   view_human_pp( 2 )
   Return Nil
 
-// 02.02.17
+// 10.09.25
 Function f_kart_pp( Loc_kod, kod_kartotek )
 
   Static mm_gospit := { { 'да ', 0 }, { 'нет', 1 } }
@@ -1164,7 +1164,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
         .or. ( M1IS_GOSPIT == 1 .and. M1PR_GOSPIT == 99 ) ) // оказана амб.помощь в пр.покое
         g_splus( f_name_task( X_OMS ) ) // плюс 1 пользователь зашёл в задачу ОМС
         // если в задаче ОМС не выполняется ОТВЕТСТВЕННАЯ операция
-        If !g_sislock( sem_vagno_task[ X_OMS ] )
+        If !g_sislock( sem_vagno_task()[ X_OMS ] )
           r_use( dir_server() + 'kartote_',, 'KART_' )
           r_use( dir_server() + 'kartotek',, 'KART' )
           Set Relation To RecNo() into KART_
@@ -1451,7 +1451,7 @@ Function f_write_pp_oms( mkod )
   dbUnlockAll()
   Return ret_kod_h
 
-// 30.10.17 записать незаписанные истории болезней из приёмного покоя
+// 10.09.25 записать незаписанные истории болезней из приёмного покоя
 Function write_rest_pp()
 
   Local i, k, arr := {}, bSaveHandler, buf := save_maxrow()
@@ -1463,7 +1463,7 @@ Function write_rest_pp()
       If !Empty( arr )
         g_splus( f_name_task( X_OMS ) ) // плюс 1 пользователь зашёл в задачу ОМС
         // если в задаче ОМС не выполняется ОТВЕТСТВЕННАЯ операция
-        If !g_sislock( sem_vagno_task[ X_OMS ] )
+        If !g_sislock( sem_vagno_task()[ X_OMS ] )
           r_use( dir_server() + 'kartote_',, 'KART_' )
           r_use( dir_server() + 'kartotek',, 'KART' )
           Set Relation To RecNo() into KART_
@@ -1651,7 +1651,7 @@ Function pp_valid_gospit( get, old )
   Endif
   Return .t.
 
-// 14.03.16 выбрать карточку пациента из картотеки
+// 12.09.25 выбрать карточку пациента из картотеки
 Function ppokoj_kart( k )
 
   // k = 1 - начало лечения -> ввод карточки
@@ -1711,7 +1711,7 @@ Function ppokoj_kart( k )
       tmp := PadR( s_snils, 11 )
       tmp_color := SetColor( color14 )
       buf := box_shadow( 18, 9, 20, 70 )
-      @ 19, 14 Say 'Введите СНИЛС для поиска в картотеке' Get tmp Pict '@K' + picture_pf Valid val_snils( tmp, 1 )
+      @ 19, 14 Say 'Введите СНИЛС для поиска в картотеке' Get tmp Pict '@K' + picture_pf() Valid val_snils( tmp, 1 )
       s := sesc + senter + sF10f
       If !Empty( name_reader )
         s += sF11
@@ -2109,7 +2109,7 @@ Function f4_v_human_pp()
   Select ( tmp_select )
   Return Nil
 
-// 09.09.25
+// 12.09.25
 Function f2_v_human_pp( nkey, oBrow )
 
   // наименования файлов шаблонов
@@ -2532,7 +2532,8 @@ Function f2_v_human_pp( nkey, oBrow )
     frd->beg_polis := full_date( c4tod( kart_->beg_polis ) )
     frd->srok_polis := full_date( c4tod( kart->srok_polis ) )
     If !Empty( kart->SNILS )
-      frd->snils := Transform( kart->SNILS, picture_pf )
+//      frd->snils := Transform( kart->SNILS, picture_pf )
+      frd->snils := Transform_SNILS( kart->SNILS )
     Endif
     frd->pol := kart->pol
     If frd->pol == 'Ж'

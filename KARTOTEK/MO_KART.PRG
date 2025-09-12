@@ -98,7 +98,7 @@ Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 09.09.25
+// 12.09.25
 Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Static mm_kart_error := { { 'нет замечаний', 0 }, { 'полис недействителен', -8 }, { 'ошибки в реквизитах', -9 } }
@@ -523,7 +523,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     @ ++ix, 1 Say 'Дата рождения' Get mdate_r ;
       valid {| g| iif( mdate_r == g:original, .t., fv_date_r() ), findkartoteka( 1, @mkod ) }
     @ Row(), 30 Say '==>' Get mvzros_reb When .f. Color cDataCSay
-    @ Row(), 50 Say 'СНИЛС' Get msnils Pict picture_pf ;
+    @ Row(), 50 Say 'СНИЛС' Get msnils Pict picture_pf() ;
       valid {|| val_snils( msnils, 1 ), findkartoteka( 3, @mkod ) }
     @ ++ix, 1 Say 'Уд-ие личности:' Get mvid_ud ;
       reader {| x| menu_reader( x, getvidud(), A__MENUVERT, , , .f. ) }
@@ -2062,7 +2062,7 @@ Function ret_last3_pos()
 
   Return mes_arr
 
-// 05.07.16
+// 12.09.25
 Function f2_v_kart( nkey, oBrow )
 
   Static s_regim := 1, s_shablon := '', s_polis := '', s_snils := ''
@@ -2181,7 +2181,7 @@ Function f2_v_kart( nkey, oBrow )
         tmp_color := SetColor( color14 )
         box_shadow( fr, 14, fr + 5, 67 )
         @ fr + 2, 15 Say Center( 'Введите СНИЛС для поиска в картотеке', 52 )
-        @ fr + 3, 33 Get tmp Picture '@K' + picture_pf Valid val_snils( tmp, 1 )
+        @ fr + 3, 33 Get tmp Picture '@K' + picture_pf() Valid val_snils( tmp, 1 )
         status_key( '^<Esc>^ отказ от ввода;  ^<Enter>^ подтверждение ввода;  ^<F10>^ поиск по Ф.И.О.' )
       Endif
       Set Key K_F10 To clear_gets
@@ -2398,7 +2398,8 @@ Function f2_v_kart( nkey, oBrow )
       Else
         box_shadow( mr1, 2, mr2, 77 )
         SetColor( col_tit_popup )
-        @ k1 -2, 15 Say 'СНИЛС: ' + Transform( tmp2, picture_pf )
+//        @ k1 -2, 15 Say 'СНИЛС: ' + Transform( tmp2, picture_pf )
+        @ k1 -2, 15 Say 'СНИЛС: ' + Transform_SNILS( tmp2 )
         SetColor( color0 )
         If k1 + t_len + 2 < mr2 -1
           k2 := k1 + t_len + 2
@@ -2443,7 +2444,7 @@ Function dubl_zap( r, c )
 
   Return Nil
 
-// 09.07.18
+// 12.09.25
 Function f1dubl_zap()
 
   Static si := 1
@@ -2552,7 +2553,8 @@ Function f1dubl_zap()
           TMPITG->polis    := kart->polis
           TMPITG->uchast   := kart->uchast
           TMPITG->kod_vu   := kart->kod_vu
-          TMPITG->snils    := Transform( kart->snils, picture_pf )
+//          TMPITG->snils    := Transform( kart->snils, picture_pf )
+          TMPITG->snils    := Transform_SNILS( kart->snils )
           TMPITG->DATE_PR  := kart2->date_pr
           TMPITG->MO_PR    := kart2->mo_pr
           TMPITG->kod_tf   := kart2->kod_tf
@@ -2641,7 +2643,8 @@ Function f1dubl_zap()
               TMPITG->polis    := kart->polis
               TMPITG->uchast   := kart->uchast
               TMPITG->kod_vu   := kart->kod_vu
-              TMPITG->snils    := Transform( kart->snils, picture_pf )
+//              TMPITG->snils    := Transform( kart->snils, picture_pf )
+              TMPITG->snils    := Transform_SNILS( kart->snils )
               TMPITG->DATE_PR  := kart2->date_pr
               TMPITG->MO_PR    := kart2->mo_pr
               TMPITG->kod_tf   := kart2->kod_tf
@@ -2721,7 +2724,8 @@ Function f1dubl_zap()
               Endif
               ++j1
               s := iif( j1 == 1, PadR( lstr( k ) + '.', 5 ), Space( 5 ) )
-              add_string( s + Transform( msnils, picture_pf ) + ' ' + PadR( amb_kartan( .t. ), 10 ) + ;
+//              add_string( s + Transform( msnils, picture_pf ) + ' ' + PadR( amb_kartan( .t. ), 10 ) + ;
+              add_string( s + Transform_SNILS( msnils ) + ' ' + PadR( amb_kartan( .t. ), 10 ) + ;
                 PadR( kart->fio, 50 ) + ' ' + date_8( kart->date_r ) )
               Select TMPITG
               Append Blank
@@ -2734,7 +2738,8 @@ Function f1dubl_zap()
               TMPITG->polis    := kart->polis
               TMPITG->uchast   := kart->uchast
               TMPITG->kod_vu   := kart->kod_vu
-              TMPITG->snils    := Transform( kart->snils, picture_pf )
+//              TMPITG->snils    := Transform( kart->snils, picture_pf )
+              TMPITG->snils    := Transform_SNILS( kart->snils )
               TMPITG->DATE_PR  := kart2->date_pr
               TMPITG->MO_PR    := kart2->mo_pr
               TMPITG->kod_tf   := kart2->kod_tf
@@ -2830,7 +2835,8 @@ Function f1dubl_zap()
             TMPITG->polis    := kart->polis
             TMPITG->uchast   := kart->uchast
             TMPITG->kod_vu   := kart->kod_vu
-            TMPITG->snils    := Transform( kart->snils, picture_pf )
+//            TMPITG->snils    := Transform( kart->snils, picture_pf )
+            TMPITG->snils    := Transform_SNILS( kart->snils )
             TMPITG->DATE_PR  := kart2->date_pr
             TMPITG->MO_PR    := kart2->mo_pr
             TMPITG->kod_tf   := kart2->kod_tf
@@ -3170,7 +3176,7 @@ Function f2dubl_zap()
 
   Return Nil
 
-// 09.09.25
+// 12.09.25
 Function kartotek_to_screen( r1, r2 )
 
   Local i, s, s1, mmo_pr, arr := {}, tmp_select := Select()
@@ -3222,7 +3228,8 @@ Function kartotek_to_screen( r1, r2 )
   s := 'Дата рождения: ' + full_date( kart->date_r ) + Space( 5 ) + ;
     '(' + AllTrim( inieditspr( A__MENUVERT, menu_vzros, kart->vzros_reb ) ) + ')'
   If !Empty( kart->snils )
-    s += Space( 5 ) + 'СНИЛС: ' + Transform( kart->SNILS, picture_pf )
+//    s += Space( 5 ) + 'СНИЛС: ' + Transform( kart->SNILS, picture_pf )
+    s += Space( 5 ) + 'СНИЛС: ' + Transform_SNILS( kart->SNILS )
   Endif
   AAdd( arr, s )
   s := inieditspr( A__MENUVERT, getvidud(), kart_->vid_ud ) + ;
@@ -3317,7 +3324,7 @@ Function kartotek_to_screen( r1, r2 )
 
   Return Nil
 
-// 20.11.15 Подсчёт количества пациентов, прикреплённых ко всем участковым врачам
+// 12.09.25 Подсчёт количества пациентов, прикреплённых ко всем участковым врачам
 Function prn_itogo_uch_vrach()
 
   Local sh, HH := 60, name_file := cur_dir() + 'uchvrach.txt', arr_title
@@ -3367,7 +3374,8 @@ Function prn_itogo_uch_vrach()
             arr[ i, 2 ] := p2->tab_nom
             arr[ i, 3 ] := RTrim( p2->fio )
           Else
-            arr[ i, 3 ] := 'Не наш врач СНИЛС ' + Transform( kart2->snils_vr, picture_pf )
+//            arr[ i, 3 ] := 'Не наш врач СНИЛС ' + Transform( kart2->snils_vr, picture_pf )
+            arr[ i, 3 ] := 'Не наш врач СНИЛС ' + Transform_SNILS( kart2->snils_vr )
           Endif
         Endif
         arr[ i, 8 ] ++
@@ -3400,7 +3408,8 @@ Function prn_itogo_uch_vrach()
             arr[ i, 2 ] := p2->tab_nom
             arr[ i, 3 ] := RTrim( p2->fio )
           Else
-            arr[ i, 3 ] := 'Не наш врач СНИЛС ' + Transform( kart_et->snils_vr, picture_pf )
+//            arr[ i, 3 ] := 'Не наш врач СНИЛС ' + Transform( kart_et->snils_vr, picture_pf )
+            arr[ i, 3 ] := 'Не наш врач СНИЛС ' + Transform_SNILS( kart_et->snils_vr )
           Endif
         Endif
         arr[ i, 9 ] ++

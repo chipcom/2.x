@@ -41,7 +41,7 @@ Function edit_pers()
   Endif
   Return Nil
 
-// 28.01.25
+// 12.09.25
 Function f1edit_pers( oBrow )
 
   Static ak := { '   ', '¢à.', 'áà.', '¬«.', '¯à.' }
@@ -56,7 +56,8 @@ Function f1edit_pers( oBrow )
   oColumn := TBColumnNew( '’ ¡.ü', {|| put_val( P2->tab_nom, 5 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( PadC( '‘ˆ‹‘', 14 ), {|| Transform( p2->SNILS, picture_pf ) } )
+//  oColumn := TBColumnNew( PadC( '‘ˆ‹‘', 14 ), {|| Transform( p2->SNILS, picture_pf ) } )
+  oColumn := TBColumnNew( PadC( '‘ˆ‹‘', 14 ), {|| Transform_SNILS( p2->SNILS ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
   oColumn := TBColumnNew( 'Š â', {|| ak[ P2->kateg + 1 ] } )
@@ -78,7 +79,7 @@ Function f1edit_pers( oBrow )
   mark_keys( { '<F2>', '<F3>' }, 'R/BG' )
   Return Nil
 
-// 28.01.25
+// 12.09.25
 Function f2edit_pers( nKey, oBrow )
 
   Static gmenu_kateg := { { '¢à ç                ', 1 }, ;
@@ -271,7 +272,7 @@ Function f2edit_pers( nKey, oBrow )
       valid {| g| val_tab_nom( g, nKey ) }
     @ r, 36 Say '‘¢®¤­ë© â ¡¥«ì­ë© ­®¬¥à' Get msvod_nom Picture '99999'
     @ ++r, 2 Say '”.ˆ.Ž.' Get mfio
-    @ ++r, 2 Say '‘ˆ‹‘' Get msnils Picture picture_pf Valid val_snils( msnils, 1 )
+    @ ++r, 2 Say '‘ˆ‹‘' Get msnils Picture picture_pf() Valid val_snils( msnils, 1 )
     @ ++r, 2 Say '“çà-¥' Get much ;
       reader {| x| menu_reader( x, { {| k, r, c| ret_uch_otd( k, r, c ) } }, A__FUNCTION, , , .f. ) }
     @ r, 39 Say 'Žâ¤¥«¥­¨¥' Get motd When .f.
@@ -571,7 +572,7 @@ Function f4edit_pers( nkey )
   RestScreen( buf )
   Return fl
 
-// 18.05.25
+// 12.09.25
 function spr_personal( type_report, type_sort )
 
   local ft, arr_title := {}
@@ -616,7 +617,8 @@ function spr_personal( type_report, type_sort )
         AAdd( aRow, put_val( p2->tab_nom, 5 ) )
         AAdd( aRow, iif( Empty( p2->svod_nom ), Space( 5 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 5 ) ) + ;
           ' ' + AllTrim( p2->fio ) )
-        AAdd( aRow, Transform( p2->SNILS, picture_pf ) )
+//        AAdd( aRow, Transform( p2->SNILS, picture_pf ) )
+        AAdd( aRow, Transform_SNILS( p2->SNILS ) )
         AAdd( aRow, ret_tmp_prvs( p2->prvs, p2->prvs_new ) )
       Endif
     elseif type_report == 2

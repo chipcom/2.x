@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// * 24.01.23
+// 11.09.25
 Function b_25_perinat_2()
   Static si := 1, sk := 1
   Local buf := SaveScreen(), arr_m, i, _arr_komit := {}, fl_exit := .f.
@@ -122,7 +122,7 @@ Function b_25_perinat_2()
               lshifr } )              // 8 - услуги Минздрава
             Endif
           Elseif !is_dializ
-            is_dializ := ( AScan( glob_KSG_dializ, lshifr ) > 0 ) // КСГ с диализом
+            is_dializ := ( AScan( glob_KSG_dializ(), lshifr ) > 0 ) // КСГ с диализом
           Endif
         Endif
         Select HU

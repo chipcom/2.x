@@ -85,7 +85,7 @@ function editRole( oBrowse, aObjects, oRole, nKey )
 		rowBeg++
 		@ ++rowBeg, colBeg + 3 say 'Название роли' get oRole:Name valid func_empty( oRole:Name )
 		if glob_mo[_MO_KOD_TFOMS] == '102604'	// Для ВОККВД
-			aadd(array_tasks, {'ВОУНЦ - трансплантированные',X_MO,'TABLET_ICON', .t.})
+//			aadd(array_tasks, {'ВОУНЦ - трансплантированные',X_MO,'TABLET_ICON', .t.})
 			@ ++rowBeg, colBeg + 3 say 'Разрешенные отделения для работы' ;
 					get motdel reader { | x | menu_reader( x, ;
 					{ { | k, r, c | inp_bit_dep_bay( k, r, c ) } }, A__FUNCTION, , , .f. ) }

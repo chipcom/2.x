@@ -56,7 +56,7 @@ Function integration_sds( k )
 
   Return Nil
 
-// 09.09.25
+// 12.09.25
 Function read_file_xml_sds( n_file )
 
   Static cDelimiter := " , "
@@ -679,7 +679,8 @@ Function read_file_xml_sds( n_file )
     If !Empty( ihuman->SNILS )
       s := Space( 80 )
       If !val_snils( ihuman->snils, 2, @s )
-        AAdd( ai, 'SNILS="' + Transform( ihuman->SNILS, picture_pf ) + '"-' + s )
+//        AAdd( ai, 'SNILS="' + Transform( ihuman->SNILS, picture_pf ) + '"-' + s )
+        AAdd( ai, 'SNILS="' + Transform_SNILS( ihuman->SNILS ) + '"-' + s )
       Endif
     Endif
     If Empty( ihuman->NPR_MO )
@@ -1347,7 +1348,7 @@ Function ret_shifr_2_60( lprofil, lvzros_reb )
 
   Return lshifr
 
-// * 23.01.23
+// 12.09.25
 Function f1_read_file_xml_sds( k, lal, aerr, ainf, lprofil )
 
   Static aprvs
@@ -1415,9 +1416,10 @@ Function f1_read_file_xml_sds( k, lal, aerr, ainf, lprofil )
         AAdd( pass, { k, 0 } )
         s := Space( 80 )
         If !val_snils( k, 2, @s )
-          AAdd( aerr, 'VRACH_SNILS="' + Transform( k, picture_pf ) + '"-' + s )
+//          AAdd( aerr, 'VRACH_SNILS="' + Transform( k, picture_pf ) + '"-' + s )
+          AAdd( aerr, 'VRACH_SNILS="' + Transform_SNILS( k ) + '"-' + s )
         Endif
-        AAdd( aerr, "В справочнике персонала не обнаружен сотрудник со СНИЛС " + Transform( k, picture_pf ) )
+        AAdd( aerr, "В справочнике персонала не обнаружен сотрудник со СНИЛС " + Transform_SNILS( k ) )
       Endif
       If Empty( ret )
         ret := 3
@@ -1449,9 +1451,11 @@ Function f1_read_file_xml_sds( k, lal, aerr, ainf, lprofil )
         AAdd( pass, { k, lprvs } )
         s := Space( 80 )
         If !val_snils( k, 2, @s )
-          AAdd( aerr, 'VRACH_SNILS="' + Transform( k, picture_pf ) + '"-' + s )
+//          AAdd( aerr, 'VRACH_SNILS="' + Transform( k, picture_pf ) + '"-' + s )
+          AAdd( aerr, 'VRACH_SNILS="' + Transform_SNILS( k ) + '"-' + s )
         Endif
-        AAdd( aerr, 'В справочнике персонала не обнаружен сотрудник со СНИЛС ' + Transform( k, picture_pf ) + ;
+//        AAdd( aerr, 'В справочнике персонала не обнаружен сотрудник со СНИЛС ' + Transform( k, picture_pf ) + ;
+        AAdd( aerr, 'В справочнике персонала не обнаружен сотрудник со СНИЛС ' + Transform_SNILS( k ) + ;
           ' и специальностью "' + inieditspr( A__MENUVERT, getv015(), lprvs ) + '"' )
       Endif
       If Empty( ret )

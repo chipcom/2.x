@@ -206,7 +206,7 @@ METHOD function forJSON()    CLASS TEmployee
 		&& hb_HSet( hItem, 'ID', ltrim( str( obj:ID ) ) )
 		&& hb_HSet( hItem, 'Name', alltrim( obj:Name ) )
 		&& hb_HSet( hItem, 'Position', alltrim( obj:Position ) )
-		&& hb_HSet( hItem, 'SNILS', alltrim( transform( obj:SNILS, picture_pf ) ) )
+		&& hb_HSet( hItem, 'SNILS', alltrim( transform_SNILS( obj:SNILS ) ) )
 		&& hb_HSet( hItem, 'TabNom', alltrim( ltrim( str( obj:TabNom ) ) ) )
 		&& hb_HSet( hItems, 'Сотрудник-' + ltrim( str( obj:ID ) ), hItem )
 	&& next

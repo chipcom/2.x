@@ -7,7 +7,7 @@ function menu_X_263()
   local fl, k
 
   fl := begin_task_263()
-  If is_napr_pol
+  If is_napr_pol()
     AAdd( cmain_menu, 1 )
     AAdd( main_menu, ' ~Поликлиника ' )
     AAdd( main_message, 'Ввод / редактирование направлений на госпитализацию по поликлинике' )
@@ -33,7 +33,7 @@ function menu_X_263()
       '_263_kartoteka(1)' ;
     } )
   Endif
-  If is_napr_stac
+  If is_napr_stac()
     AAdd( cmain_menu, 15 )
     AAdd( main_menu, ' ~Стационар ' )
     AAdd( main_message, 'Ввод даты госпитализации, учёт госпитализированных и выбывших по стационару' )
@@ -79,7 +79,7 @@ function menu_X_263()
     '_263_to_protokol()';
   } )
   k := Len( first_menu )
-  If is_napr_pol
+  If is_napr_pol()
     AAdd( first_menu[ k ], 'I0~1-выписанные направления' )
     AAdd( first_message[ k ], 'Список информационных пакетов с выписанными направлениями' )
     AAdd( func_menu[ k ], '_263_to_I01()' )
@@ -87,7 +87,7 @@ function menu_X_263()
   AAdd( first_menu[ k ], 'I0~3-аннулированные направления' )
   AAdd( first_message[ k ], 'Список информационных пакетов с аннулированными направлениями' )
   AAdd( func_menu[ k ], '_263_to_I03()' )
-  If is_napr_stac
+  If is_napr_stac()
     AAdd( first_menu[ k ], 'I0~4-госпитализации по направлениям' )
     AAdd( first_message[ k ], 'Список информационных пакетов с госпитализациями по направлениям' )
     AAdd( func_menu[ k ], '_263_to_I04(4)' )
@@ -119,7 +119,7 @@ function menu_X_263()
     '_263_from_protokol()';
   } )
   k := Len( first_menu )
-  If is_napr_stac
+  If is_napr_stac()
     AAdd( first_menu[ k ], 'I0~1-полученные направления' )
     AAdd( first_message[ k ], 'Список информационных пакетов с полученными направлениями от поликлиник' )
     AAdd( func_menu[ k ], '_263_from_I01()' )
@@ -127,7 +127,7 @@ function menu_X_263()
   AAdd( first_menu[ k ], 'I0~3-аннулированные направления' )
   AAdd( first_message[ k ], 'Список информационных пакетов с аннулированными направлениями' )
   AAdd( func_menu[ k ], '_263_from_I03()' )
-  If is_napr_pol
+  If is_napr_pol()
     AAdd( first_menu[ k ], 'I0~4-госпитализации по направлениям' )
     AAdd( first_message[ k ], 'Список информационных пакетов с госпитализациями по направлениям' )
     AAdd( func_menu[ k ], '_263_from_I04()' )

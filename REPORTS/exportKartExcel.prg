@@ -4,7 +4,7 @@
 #include 'hbxlsxwriter.ch'
 #include 'reports_XLS.ch'
 
-// 19.05.25 создать файл Excel
+// 12.09.25 создать файл Excel
 function exportKartExcel( fName, aCondition, aFilter )
   // возвращает .t. - если построение прервано иначе .f.
   local workbook
@@ -128,7 +128,8 @@ function exportKartExcel( fName, aCondition, aFilter )
           j++
         endif
         if i == KART_XLS_SNILS .and. aCondition[ i, 3 ] //  7
-          WORKSHEET_WRITE_STRING( worksheet, row, j, iif( empty( KART->SNILS ), '', transform( KART->SNILS, picture_pf ) ), fmtCellStringCenter )
+//          WORKSHEET_WRITE_STRING( worksheet, row, j, iif( empty( KART->SNILS ), '', transform( KART->SNILS, picture_pf ) ), fmtCellStringCenter )
+          WORKSHEET_WRITE_STRING( worksheet, row, j, iif( empty( KART->SNILS ), '', transform_SNILS( KART->SNILS ) ), fmtCellStringCenter )
           j++
         endif
         if i == KART_XLS_INSURANCE .and. aCondition[ i, 3 ] //  8

@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.05.20 создать XML-файл по несовершеннолетним
+// 12.09.25 создать XML-файл по несовершеннолетним
 Function mo_mzxml_n( _regim, n_file, stitle, lvozrast )
 
   Static oXmlDoc, _kol, sname_xml, ;
@@ -59,7 +59,8 @@ Function mo_mzxml_n( _regim, n_file, stitle, lvozrast )
     Endif
     mo_add_xml_stroke( oChild, 'documentNum', s )
     If !Empty( kart->snils ) .and. val_snils( kart->snils, 2 )
-      s := CharRepl( ' ', Transform( kart->SNILS, picture_pf ), '-' )
+//      s := CharRepl( ' ', Transform( kart->SNILS, picture_pf ), '-' )
+      s := CharRepl( ' ', Transform_SNILS( kart->SNILS ), '-' )
       mo_add_xml_stroke( oChild, 'snils', s )
     Else
       i := 2 // другое
