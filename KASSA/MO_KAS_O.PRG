@@ -676,13 +676,13 @@ Function f2e_ko_kusl( nKey, oBrow )
       @ r1 + 3, 2 Say "Шифр услуги" Get mshifr Pict "@!" ;
         when {| g| f5e_kp_kusl( g, 1, 1, 2 ) } ;
         valid {| g| f5e_kp_kusl( g, 2, 1, 2 ) }
-      @ r1 + 4, 2 Say "Цена услуги" Get mu_cena Pict pict_cena ;
+      @ r1 + 4, 2 Say "Цена услуги" Get mu_cena Pict pict_cena() ;
         when {| g| f5e_kp_kusl( g, 1, 2 ) } ;
         valid {| g| f5e_kp_kusl( g, 2, 2 ) }
       @ r1 + 5, 2 Say "Услуга" Get mname_u When .f. Color color14
       @ r1 + 6, 2 Say "Количество услуг" Get mkol Pict "999" ;
         valid {| g| f5e_kp_kusl( g, 2, 5 ) }
-      @ r1 + 7, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena ;
+      @ r1 + 7, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena() ;
         When .f.
       status_key( "^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение записи" )
       myread()

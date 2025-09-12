@@ -9742,7 +9742,7 @@ Function f2e_p_kusl( nKey, oBrow )
       @ r1 + 3, 2 Say "Шифр услуги" Get mshifr Pict "@!" ;
         when {| g| f5e_p_kusl( g, 1, 2 ) } ;
         valid {| g| f5e_p_kusl( g, 2, 2 ) }
-      @ Row(), 40 Say "Цена услуги" Get mu_cena Pict pict_cena ;
+      @ Row(), 40 Say "Цена услуги" Get mu_cena Pict pict_cena() ;
         When .f. Color color14
       @ r1 + 4, 2 Say "Услуга" Get mname_u When .f. Color color14
       ix := 4
@@ -9766,7 +9766,7 @@ Function f2e_p_kusl( nKey, oBrow )
             valid {| g| f5e_p_kusl( g, 2, 5 ) }
         Endif
       Next
-      @ r1 + 9, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena ;
+      @ r1 + 9, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena() ;
         when {| g| is_kassa .and. mem_edit_s == 2 .and. f5e_p_kusl( g, 1, 7 ) } ;
         valid {| g| f5e_p_kusl( g, 2, 7 ) }
       If mt_edit > 1
@@ -10348,7 +10348,7 @@ Function st2e_p_kusl( nKey, oBrow )
       @ r1 + 5, 2 Say "Шифр услуги" Get mshifr Pict "@!" ;
         when {| g| f5e_p_kusl( g, 1, 2 ) } ;
         valid {| g| f5e_p_kusl( g, 2, 2 ) }
-      @ Row(), 40 Say "Цена услуги" Get mu_cena Pict pict_cena ;
+      @ Row(), 40 Say "Цена услуги" Get mu_cena Pict pict_cena() ;
         When .f. Color color14
       @ r1 + 6, 2 Say "Услуга" Get mname_u When .f. Color color14
       ix := 6
@@ -10373,7 +10373,7 @@ Function st2e_p_kusl( nKey, oBrow )
         Endif
       Next
       ++ix
-      @ r1 + ix, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena ;
+      @ r1 + ix, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena() ;
         when {| g| is_kassa .and. mem_edit_s == 2 .and. f5e_p_kusl( g, 1, 7 ) } ;
         valid {| g| f5e_p_kusl( g, 2, 7 ) }
       If mt_edit > 1

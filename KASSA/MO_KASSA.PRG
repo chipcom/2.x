@@ -1208,7 +1208,7 @@ Function f2e_kp_kusl( nKey, oBrow )
       @ r1 + 2, 2 Say "Шифр услуги" Get mshifr Pict "@!" ;
         when {| g| f5e_kp_kusl( g, 1, 1, 1 ) } ;
         valid {| g| f5e_kp_kusl( g, 2, 1, 1 ) }
-      @ r1 + 3, 2 Say "Цена услуги" Get mu_cena Pict pict_cena ;
+      @ r1 + 3, 2 Say "Цена услуги" Get mu_cena Pict pict_cena() ;
         when {| g| Len( pr_k_usl ) == 0 .and. f5e_kp_kusl( g, 1, 2 ) } ;
         valid {| g| f5e_kp_kusl( g, 2, 2 ) }
       @ r1 + 4, 2 Say "Услуга" Get mname_u When .f. Color color14
@@ -1217,7 +1217,7 @@ Function f2e_kp_kusl( nKey, oBrow )
       @ Row(), Col() + 3 Get mvrach When .f. Color color14
       @ r1 + 6, 2 Say "Количество услуг" Get mkol Pict "999" ;
         valid {| g| f5e_kp_kusl( g, 2, 5 ) } When iif( flg_edit == 2, .f., .t. )
-      @ r1 + 7, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena ;
+      @ r1 + 7, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena() ;
         When .f.
       status_key( "^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение записи" )
       myread()

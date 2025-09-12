@@ -552,7 +552,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
         iif( Empty( human_2->PC5 ), nil, list2arr( human_2->PC5 )[ 1 ] ), ;
         iif( Empty( human_2->PC5 ), nil, list2arr( human_2->PC5 )[ 2 ] ), human->vzros_reb == 0 ) }
 
-      @ Row(), 35 Say 'Цена услуги' Get mu_cena Pict pict_cena ;
+      @ Row(), 35 Say 'Цена услуги' Get mu_cena Pict pict_cena() ;
         When .f. Color color14
       If human_->usl_ok < 3
         @ Row(), 58 Say 'КСЛП' Get mKSLP Pict '@!' When .f.
@@ -632,7 +632,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
         Endif
       Next
       ++ix
-      @ r1 + ix, 2 Say 'Стоимость услуги' Get mstoim_1 Pict pict_cena When .f.
+      @ r1 + ix, 2 Say 'Стоимость услуги' Get mstoim_1 Pict pict_cena() When .f.
       status_key( '^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение записи' )
       Set Key K_F11 To clear_gets
       Set Key K_CTRL_F10 To clear_gets

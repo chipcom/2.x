@@ -1029,7 +1029,7 @@ Function f2e_o_kopl( nKey, oBrow )
       @ r1 + 4, 2 Say "Вид платежа" Get mtip_opl ;
         reader {| x| menu_reader( x, menu_opl, A__MENUVERT,,, .f. ) }
       @ r1 + 5, 2 Say "Дата оплаты" Get mdate_o
-      @ r1 + 6, 2 Say "Сумма оплаты" Get mstoim Pict pict_cena
+      @ r1 + 6, 2 Say "Сумма оплаты" Get mstoim Pict pict_cena()
       ii := 7
       If glob_kassa == 1
         //
@@ -2454,7 +2454,7 @@ Function f2e_o_kusl( nKey, oBrow )
       @ r1 + 3, 2 Say "Шифр услуги" Get mshifr Pict "@!" ;
         when {| g| f5e_o_kusl( g, 1, 2 ) } ;
         valid {| g| f5e_o_kusl( g, 2, 2 ) }
-      @ Row(), 40 Say "Цена услуги" Get mu_cena Pict pict_cena ;
+      @ Row(), 40 Say "Цена услуги" Get mu_cena Pict pict_cena() ;
         When .f. Color color14
       @ r1 + 4, 2 Say "Услуга" Get mname_u When .f. Color color14
       ix := 4
@@ -2493,7 +2493,7 @@ Function f2e_o_kusl( nKey, oBrow )
           Endif
         Endif
       Next
-      @ r1 + 10, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena ;
+      @ r1 + 10, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena() ;
         when {| g| mem_edit_s == 2 .and. f5e_o_kusl( g, 1, 7 ) } ;
         valid {| g| f5e_o_kusl( g, 2, 7 ) }
       If mt_edit > 1

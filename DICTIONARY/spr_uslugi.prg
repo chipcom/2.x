@@ -387,19 +387,19 @@ Function f3_es_uslugi( nKey )
     If is_full
       @ ++r, 1 Say 'Наименование/платные' Get mfull_name Picture '@S58'
     Endif
-    @ ++r, 1 Say 'Цена услуги ОМС: для взрослого' Get mcena Picture pict_cena When !yes_tfoms Color color14
-    @ Row(), Col() Say ', для ребенка' Get mcena_d Picture pict_cena When !yes_tfoms Color color14
+    @ ++r, 1 Say 'Цена услуги ОМС: для взрослого' Get mcena Picture pict_cena() When !yes_tfoms Color color14
+    @ Row(), Col() Say ', для ребенка' Get mcena_d Picture pict_cena() When !yes_tfoms Color color14
     @ ++r, 1 Say 'Профиль' Get MPROFIL ;
       reader {| x| menu_reader( x, tmp_V002, A__MENUVERT_SPACE, , , .f. ) }
     If is_full
       @ ++r, 1 Say 'Разрешается ввод ПЛАТНОЙ услуги по НУЛЕВОЙ цене?' ;
         Get mis_nulp reader {| x| menu_reader( x, menu_nul, A__MENUVERT, , , .f. ) }
-      @ ++r, 1 Say 'Цена ПЛАТНОЙ услуги: для взрослого' Get mpcena Picture pict_cena
-      @ Row(), Col() Say ' (в т.ч. НДС' Get mpnds Picture pict_cena
+      @ ++r, 1 Say 'Цена ПЛАТНОЙ услуги: для взрослого' Get mpcena Picture pict_cena()
+      @ Row(), Col() Say ' (в т.ч. НДС' Get mpnds Picture pict_cena()
       @ Row(), Col() Say ')'
-      @ ++r, 1 Say '   для ребенка' Get mpcena_d Picture pict_cena
-      @ Row(), Col() Say ' (в т.ч. НДС' Get mpnds_d Picture pict_cena
-      @ Row(), Col() Say '); цена по ДМС' Get mdms_cena Picture pict_cena
+      @ ++r, 1 Say '   для ребенка' Get mpcena_d Picture pict_cena()
+      @ Row(), Col() Say ' (в т.ч. НДС' Get mpnds_d Picture pict_cena()
+      @ Row(), Col() Say '); цена по ДМС' Get mdms_cena Picture pict_cena()
     Endif
 
     @ ++r, 1 Say 'Служба' Get mslugba ;
