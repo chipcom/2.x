@@ -16,7 +16,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 12.09.25
+// 13.09.25
 Procedure Main( ... )
 
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
@@ -94,7 +94,7 @@ Procedure Main( ... )
   Public arr_12_VMP := {}
 //  Public is_napr_pol := .f. // работа с направлениями на госпитализацию в п-ке
 //  Public is_napr_stac := .f. // работа с направлениями на госпитализацию в стационаре
-  Public glob_klin_diagn := {}  // работа со специальными лабораторными исследованиями
+//  Public glob_klin_diagn := {}  // работа со специальными лабораторными исследованиями
 
   // создадим глобальные переменные для ВМП
   Public is_MO_VMP := .f.
@@ -112,7 +112,7 @@ Procedure Main( ... )
   // '1000901','1000902','1000903','1000905','1000906','1000907','1000913', ;
   // '2000912','2000916','2000917','2000918','2000919','2000920'}
 
-  Public glob_yes_kdp2[ 10 ]
+//  Public glob_yes_kdp2[ 10 ] 
 
 //  Public glob_menu_mz_rf := { .f., .f., .f. }
 //  Public is_vr_pr_pp := .f.

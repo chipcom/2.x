@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.02.24 ПерН - добавление или редактирование случая (листа учета)
+// 13.09.25 ПерН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -240,7 +240,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
           &mvar := c4tod( hu->date_u )
           If j == 1
             m1var := 'm1lis' + lstr( i )
-            If glob_yes_kdp2[ TIP_LU_PERN ] .and. AScan( glob_arr_usl_LIS, nper_arr_issled[ i, 1 ] ) > 0 ;
+            If glob_yes_kdp2()[ TIP_LU_PERN ] .and. AScan( glob_arr_usl_LIS, nper_arr_issled[ i, 1 ] ) > 0 ;
                 .and. hu->is_edit == 1
               &m1var := 1
             Endif
@@ -385,7 +385,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
       MDATEi2 := mn_data
     Endif
     @ j, 1 Say PadR( 'Клинический анализ крови', 38 )
-    If glob_yes_kdp2[ TIP_LU_PERN ] .and. AScan( glob_arr_usl_LIS, nper_arr_issled[ 2, 1 ] ) > 0
+    If glob_yes_kdp2()[ TIP_LU_PERN ] .and. AScan( glob_arr_usl_LIS, nper_arr_issled[ 2, 1 ] ) > 0
       @ j, 34 Get mlis2 reader {| x| menu_reader( x, mm_kdp2, A__MENUVERT, , , .f. ) }
     Endif
     @ j, 39 Get MTAB_NOMiv2 Pict '99999' valid {| g| v_kart_vrach( g ) }
@@ -532,7 +532,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
             arr_iss[ i, 6 ] := mdef_diagnoz
             arr_iss[ i, 9 ] := &mvard
             m1var := 'm1lis' + lstr( i )
-            If glob_yes_kdp2[ TIP_LU_PERN ] .and. &m1var == 1
+            If glob_yes_kdp2()[ TIP_LU_PERN ] .and. &m1var == 1
               arr_iss[ i, 10 ] := 1 // кровь проверяют в КДП2
             Endif
             max_date1 := Max( max_date1, arr_iss[ i, 9 ] )
@@ -565,7 +565,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
       Endif
       mywait( 'Ждите. Производится запись листа учёта...' )
       m1lis := 0
-      If glob_yes_kdp2[ TIP_LU_PN ]
+      If glob_yes_kdp2()[ TIP_LU_PN ]
         For i := 1 To count_Pern_arr_iss
           If ValType( arr_iss[ i, 9 ] ) == 'D' .and. arr_iss[ i, 9 ] >= mn_data .and. Len( arr_iss[ i ] ) > 9 ;
               .and. ValType( arr_iss[ i, 10 ] ) == 'N' .and. arr_iss[ i, 10 ] == 1

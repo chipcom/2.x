@@ -548,16 +548,16 @@ Function is_osmotr_DDS_1_etap(ausl, _vozrast, _etap, _pol, tip_lu)
   if tip_lu == TIP_LU_DDSOP .and. left(lshifr, 5) == '2.87.'
     lshifr := '2.83.' + substr(lshifr, 6)
   endif
-  for i := 1 to count_dds_arr_osm1
-    if iif(empty(dds_arr_osm1[i, 2]), .t., dds_arr_osm1[i, 2] == mpol) .and. ;
-                           between(_vozrast, dds_arr_osm1[i, 3], dds_arr_osm1[i, 4])
+  for i := 1 to Len( dds_arr_osm1() )
+    if iif(empty(dds_arr_osm1()[i, 2]), .t., dds_arr_osm1()[i, 2] == mpol) .and. ;
+                           between(_vozrast, dds_arr_osm1()[i, 3], dds_arr_osm1()[i, 4])
       if _etap == 1
-        if ascan(dds_arr_osm1[i, 5], ausl[3]) > 0
+        if ascan(dds_arr_osm1()[i, 5], ausl[3]) > 0
           fl := .t.
           exit
         endif
       else
-        if ascan(dds_arr_osm1[i, 7], lshifr) > 0
+        if ascan(dds_arr_osm1()[i, 7], lshifr) > 0
           fl := .t.
           exit
         endif
@@ -575,56 +575,56 @@ Function is_osmotr_DDS(ausl, _vozrast, arr, _etap, _pol, tip_lu)
   if tip_lu == TIP_LU_DDSOP .and. left(lshifr, 5) == '2.87.'
     lshifr := '2.83.' + substr(lshifr, 6)
   endif
-  if _etap == 2 .and. (j := ascan(dds_arr_osmotr_KDP2, {|x| x[2] == lshifr})) > 0
-    lshifr := dds_arr_osmotr_KDP2[j, 1]
+  if _etap == 2 .and. (j := ascan(dds_arr_osmotr_KDP2(), {|x| x[2] == lshifr})) > 0
+    lshifr := dds_arr_osmotr_KDP2()[j, 1]
   endif
-  for i := 1 to count_dds_arr_osm1
+  for i := 1 to Len( dds_arr_osm1() )
     if _etap == 1
-      if ascan(dds_arr_osm1[i, 5], ausl[3]) > 0
+      if ascan(dds_arr_osm1()[i, 5], ausl[3]) > 0
         fl := .t.
         exit
       endif
     else
-      if ascan(dds_arr_osm1[i, 7], lshifr) > 0
+      if ascan(dds_arr_osm1()[i, 7], lshifr) > 0
         fl := .t.
         exit
       endif
     endif
   next
   if fl
-    s := '"' + lshifr + '.' + dds_arr_osm1[i, 1] + '"'
-    /*if !between(_vozrast,dds_arr_osm1[i, 3],dds_arr_osm1[i, 4])
+    s := '"' + lshifr + '.' + dds_arr_osm1()[i, 1] + '"'
+    /*if !between(_vozrast,dds_arr_osm1()[i, 3],dds_arr_osm1()[i, 4])
       aadd(arr,'¥ª®àà¥ªâ­ë© ¢®§à áâ ¯ æ¨¥­â  ¤«ï ãá«ã£¨ ' + s)
     endif*/
-    if !empty(dds_arr_osm1[i, 2]) .and. !(dds_arr_osm1[i, 2] == _pol)
+    if !empty(dds_arr_osm1()[i, 2]) .and. !(dds_arr_osm1()[i, 2] == _pol)
       aadd(arr, '¥á®¢¬¥áâ¨¬®áâì ¯® ¯®«ã ¢ ãá«ã£¥ ' + s)
     endif
-    if ascan(dds_arr_osm1[i, 5], ausl[3]) == 0
+    if ascan(dds_arr_osm1()[i, 5], ausl[3]) == 0
       aadd(arr, '¥ â®â ¯à®ä¨«ì ¢ ãá«ã£¥ ' + s)
     endif
-    /*if ascan(dds_arr_osm1[i, 6],ausl[4]) == 0
+    /*if ascan(dds_arr_osm1()[i, 6],ausl[4]) == 0
       aadd(arr,'¥ â  á¯¥æ¨ «ì­®áâì ¢à ç  ¢ ãá«ã£¥ ' + s)
-      aadd(arr,' ã ‚ á: '+lstr(ausl[4])+', à §à¥è¥­®: '+print_array(dds_arr_osm1[i, 6]))
+      aadd(arr,' ã ‚ á: '+lstr(ausl[4])+', à §à¥è¥­®: '+print_array(dds_arr_osm1()[i, 6]))
     endif*/
   endif
   if !fl .and. _etap == 2
-    for i := 1 to count_dds_arr_osm2
-      if ascan(dds_arr_osm2[i, 7], lshifr) > 0 .and. ascan(dds_arr_osm2[i, 5], ausl[3]) > 0
+    for i := 1 to Len( dds_arr_osm2() )
+      if ascan(dds_arr_osm2()[i, 7], lshifr) > 0 .and. ascan(dds_arr_osm2()[i, 5], ausl[3]) > 0
         fl := .t.
         exit
       endif
     next
     if fl
-      s := '"' + lshifr + '.' + dds_arr_osm2[i, 1] + '"'
-      if !between(_vozrast, dds_arr_osm2[i, 3], dds_arr_osm2[i, 4])
+      s := '"' + lshifr + '.' + dds_arr_osm2()[i, 1] + '"'
+      if !between(_vozrast, dds_arr_osm2()[i, 3], dds_arr_osm2()[i, 4])
         aadd(arr, '¥ª®àà¥ªâ­ë© ¢®§à áâ ¯ æ¨¥­â  ¤«ï ãá«ã£¨ ' + s)
       endif
-      if ascan(dds_arr_osm2[i, 5], ausl[3]) == 0
+      if ascan(dds_arr_osm2()[i, 5], ausl[3]) == 0
         aadd(arr, '¥ â®â ¯à®ä¨«ì ¢ ãá«ã£¥ ' + s)
       endif
-      /*if ascan(dds_arr_osm2[i, 6],ausl[4]) == 0
+      /*if ascan(dds_arr_osm2()[i, 6],ausl[4]) == 0
         aadd(arr,'¥ â  á¯¥æ¨ «ì­®áâì ¢à ç  ¢ ãá«ã£¥ ' + s)
-        aadd(arr,' ã ‚ á: '+lstr(ausl[4])+', à §à¥è¥­®: '+print_array(dds_arr_osm2[i, 6]))
+        aadd(arr,' ã ‚ á: '+lstr(ausl[4])+', à §à¥è¥­®: '+print_array(dds_arr_osm2()[i, 6]))
       endif*/
     endif
   endif
@@ -635,23 +635,23 @@ Function is_issl_DDS(ausl, _vozrast, arr)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, s, fl := .f., lshifr := alltrim(ausl[1])
 
-  for i := 1 to count_dds_arr_iss
-    if ascan(dds_arr_iss[i, 7], lshifr) > 0
+  for i := 1 to Len( dds_arr_iss() )
+    if ascan(dds_arr_iss()[i, 7], lshifr) > 0
       fl := .t.
       exit
     endif
   next
   if fl .and. valtype(_vozrast) == 'N'
-    s := '"' + lshifr + '.' + dds_arr_iss[i, 1] + '"'
-    if !between(_vozrast, dds_arr_iss[i, 3], dds_arr_iss[i, 4])
+    s := '"' + lshifr + '.' + dds_arr_iss()[i, 1] + '"'
+    if !between(_vozrast, dds_arr_iss()[i, 3], dds_arr_iss()[i, 4])
       aadd(arr, '¥ª®àà¥ªâ­ë© ¢®§à áâ ¯ æ¨¥­â  ¤«ï ãá«ã£¨ ' + s)
     endif
-    if ascan(dds_arr_iss[i, 5],ausl[3]) == 0
+    if ascan(dds_arr_iss()[i, 5],ausl[3]) == 0
       aadd(arr, '¥ â®â ¯à®ä¨«ì ¢ ãá«ã£¥ ' + s)
     endif
-    /*if ascan(dds_arr_iss[i, 6],ausl[4]) == 0
+    /*if ascan(dds_arr_iss()[i, 6],ausl[4]) == 0
       aadd(arr,'¥ â  á¯¥æ¨ «ì­®áâì ¢à ç  ¢ ãá«ã£¥ ' + s)
-      aadd(arr,' ã ‚ á: '+lstr(ausl[4])+', à §à¥è¥­®: '+print_array(dds_arr_iss[i, 6]))
+      aadd(arr,' ã ‚ á: '+lstr(ausl[4])+', à §à¥è¥­®: '+print_array(dds_arr_iss()[i, 6]))
     endif*/
   endif
   return fl
@@ -760,7 +760,7 @@ Function license_for_dispans(_tip, _n_data, _ta)
       arr_date_disp[i, 4] := stod(lstr(arr_date_disp[i, 4]))
     next
   endif
-  if (i := ascan(arr_date_disp, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
+  if (i := ascan(arr_date_disp, {|x| x[1] == glob_mo()[ _MO_KOD_TFOMS ] })) > 0
     if arr_date_disp[i, _tip + 1] == 0
       aadd(_ta, '“ ‚ è¥© Œ ­¥â «¨æ¥­§¨¨ ­  ' + mm_tip[_tip])
     elseif arr_date_disp[i, 4] > _n_data

@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 01.06.24 ПН - добавление или редактирование случая (листа учета)
+// 13.09.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -65,85 +65,86 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     m1PROFIL := 68, ; // педиатрия
     m1IDSP   := 17   // законченный случай в п-ке
   //
-  Private mm_kateg_uch := { { 'ребенок-сирота', 0 }, ;
-    { 'ребенок, оставшийся без попечения родителей', 1 }, ;
-    { 'ребенок, находящийся в трудной жизненной ситуации', 2 }, ;
-    { 'нет категории', 3 } }
+//  Private mm_kateg_uch := { { 'ребенок-сирота', 0 }, ;
+//    { 'ребенок, оставшийся без попечения родителей', 1 }, ;
+//    { 'ребенок, находящийся в трудной жизненной ситуации', 2 }, ;
+//    { 'нет категории', 3 } }
   Private mm_mesto_prov := { { 'медицинская организация', 0 }, ;
     { 'общеобразовательное учреждение', 1 } }
-  Private mm_fiz_razv := { { 'нормальное', 0 }, ;
-    { 'с отклонениями', 1 } }
-  Private mm_fiz_razv1 := { { 'нет    ', 0 }, ;
-    { 'дефицит', 1 }, ;
-    { 'избыток', 2 } }
-  Private mm_fiz_razv2 := { { 'нет    ', 0 }, ;
-    { 'низкий ', 1 }, ;
-    { 'высокий', 2 } }
-  Private mm_psih2 := { { 'норма', 0 }, { 'нарушения', 1 } }
-  Private mm_142me3 := { { 'регулярные', 0 }, ;
-    { 'нерегулярные', 1 } }
-  Private mm_142me4 := { { 'обильные', 0 }, ;
-    { 'умеренные', 1 }, ;
-    { 'скудные', 2 } }
-  Private mm_142me5 := { { 'болезненные', 0 }, ;
-    { 'безболезненные', 1 } }
+//  Private mm_fiz_razv := { { 'нормальное', 0 }, ;
+//    { 'с отклонениями', 1 } }
+//  Private mm_fiz_razv1 := { { 'нет    ', 0 }, ;
+//    { 'дефицит', 1 }, ;
+//    { 'избыток', 2 } }
+//  Private mm_fiz_razv2 := { { 'нет    ', 0 }, ;
+//    { 'низкий ', 1 }, ;
+//    { 'высокий', 2 } }
+//  Private mm_psih2 := { { 'норма', 0 }, { 'нарушения', 1 } }
+//  Private mm_142me3 := { { 'регулярные', 0 }, ;
+//    { 'нерегулярные', 1 } }
+//  Private mm_142me4 := { { 'обильные', 0 }, ;
+//    { 'умеренные', 1 }, ;
+//    { 'скудные', 2 } }
+//  Private mm_142me5 := { { 'болезненные', 0 }, ;
+//    { 'безболезненные', 1 } }
   Private mm_dispans := { { 'ранее', 1 }, { 'впервые', 2 }, { 'не уст.', 0 } }
   Private mm_usl := { { 'амб.', 0 }, { 'дн/с', 1 }, { 'стац', 2 } }
   Private mm_uch := { { 'МУЗ ', 1 }, { 'ГУЗ ', 0 }, { 'фед.', 2 }, { 'част', 3 } }
   Private mm_uch1 := AClone( mm_uch )
+
   AAdd( mm_uch1, { 'сан.', 4 } )
   Private mm_gr_fiz_do := { { 'I', 1 }, { 'II', 2 }, { 'III', 3 }, { 'IV', 4 } }
   Private mm_gr_fiz := AClone( mm_gr_fiz_do )
   AAdd( mm_gr_fiz_do, { 'отсутствует', 0 } )
   AAdd( mm_gr_fiz, { 'не допущен', 0 } )
-  Private mm_invalid2 := { { 'с рождения', 0 }, { 'приобретенная', 1 } }
-  Private mm_invalid5 := { { 'некоторые инфекционные и паразитарные,', 1 }, ;
-    { ' из них: туберкулез,', 101 }, ;
-    { '         сифилис,', 201 }, ;
-    { '         ВИЧ-инфекция;', 301 }, ;
-    { 'новообразования;', 2 }, ;
-    { 'болезни крови, кроветворных органов ...', 3 }, ;
-    { 'болезни эндокринной системы ...', 4 }, ;
-    { ' из них: сахарный диабет;', 104 }, ;
-    { 'психические расстройства и расстройства поведения,', 5 }, ;
-    { ' в том числе умственная отсталость;', 105 }, ;
-    { 'болезни нервной системы,', 6 }, ;
-    { ' из них: церебральный паралич,', 106 }, ;
-    { '         другие паралитические синдромы;', 206 }, ;
-    { 'болезни глаза и его придаточного аппарата;', 7 }, ;
-    { 'болезни уха и сосцевидного отростка;', 8 }, ;
-    { 'болезни системы кровообращения;', 9 }, ;
-    { 'болезни органов дыхания,', 10 }, ;
-    { ' из них: астма,', 110 }, ;
-    { '         астматический статус;', 210 }, ;
-    { 'болезни органов пищеварения;', 11 }, ;
-    { 'болезни кожи и подкожной клетчатки;', 12 }, ;
-    { 'болезни костно-мышечной системы и соединительной ткани;', 13 }, ;
-    { 'болезни мочеполовой системы;', 14 }, ;
-    { 'отдельные состояния, возникающие в перинатальном периоде;', 15 }, ;
-    { 'врожденные аномалии,', 16 }, ;
-    { ' из них: аномалии нервной системы,', 116 }, ;
-    { '         аномалии системы кровообращения,', 216 }, ;
-    { '         аномалии опорно-двигательного аппарата;', 316 }, ;
-    { 'последствия травм, отравлений и др.', 17 } }
-  Private mm_invalid6 := { { 'умственные', 1 }, ;
-    { 'другие психологические', 2 }, ;
-    { 'языковые и речевые', 3 }, ;
-    { 'слуховые и вестибулярные', 4 }, ;
-    { 'зрительные', 5 }, ;
-    { 'висцеральные и метаболические расстройства питания', 6 }, ;
-    { 'двигательные', 7 }, ;
-    { 'уродующие', 8 }, ;
-    { 'общие и генерализованные', 9 } }
-  Private mm_invalid8 := { { 'полностью', 1 }, ;
-    { 'частично', 2 }, ;
-    { 'начата', 3 }, ;
-    { 'не выполнена', 0 } }
-  Private mm_privivki1 := { { 'привит по возрасту', 0 }, ;
-    { 'не привит по медицинским показаниям', 1 }, ;
-    { 'не привит по другим причинам', 2 } }
-  Private mm_privivki2 := { { 'полностью', 1 }, ;
-    { 'частично', 2 } }
+//  Private mm_invalid2 := { { 'с рождения', 0 }, { 'приобретенная', 1 } }
+//  Private mm_invalid5 := { { 'некоторые инфекционные и паразитарные,', 1 }, ;
+//    { ' из них: туберкулез,', 101 }, ;
+//    { '         сифилис,', 201 }, ;
+//    { '         ВИЧ-инфекция;', 301 }, ;
+//    { 'новообразования;', 2 }, ;
+//    { 'болезни крови, кроветворных органов ...', 3 }, ;
+//    { 'болезни эндокринной системы ...', 4 }, ;
+//    { ' из них: сахарный диабет;', 104 }, ;
+//    { 'психические расстройства и расстройства поведения,', 5 }, ;
+//    { ' в том числе умственная отсталость;', 105 }, ;
+//    { 'болезни нервной системы,', 6 }, ;
+//    { ' из них: церебральный паралич,', 106 }, ;
+//    { '         другие паралитические синдромы;', 206 }, ;
+//    { 'болезни глаза и его придаточного аппарата;', 7 }, ;
+//    { 'болезни уха и сосцевидного отростка;', 8 }, ;
+//    { 'болезни системы кровообращения;', 9 }, ;
+//    { 'болезни органов дыхания,', 10 }, ;
+//    { ' из них: астма,', 110 }, ;
+//    { '         астматический статус;', 210 }, ;
+//    { 'болезни органов пищеварения;', 11 }, ;
+//    { 'болезни кожи и подкожной клетчатки;', 12 }, ;
+//    { 'болезни костно-мышечной системы и соединительной ткани;', 13 }, ;
+//    { 'болезни мочеполовой системы;', 14 }, ;
+//    { 'отдельные состояния, возникающие в перинатальном периоде;', 15 }, ;
+//    { 'врожденные аномалии,', 16 }, ;
+//    { ' из них: аномалии нервной системы,', 116 }, ;
+//    { '         аномалии системы кровообращения,', 216 }, ;
+//    { '         аномалии опорно-двигательного аппарата;', 316 }, ;
+//    { 'последствия травм, отравлений и др.', 17 } }
+//  Private mm_invalid6 := { { 'умственные', 1 }, ;
+//    { 'другие психологические', 2 }, ;
+//    { 'языковые и речевые', 3 }, ;
+//    { 'слуховые и вестибулярные', 4 }, ;
+//    { 'зрительные', 5 }, ;
+//    { 'висцеральные и метаболические расстройства питания', 6 }, ;
+//    { 'двигательные', 7 }, ;
+//    { 'уродующие', 8 }, ;
+//    { 'общие и генерализованные', 9 } }
+//  Private mm_invalid8 := { { 'полностью', 1 }, ;
+//    { 'частично', 2 }, ;
+//    { 'начата', 3 }, ;
+//    { 'не выполнена', 0 } }
+//  Private mm_privivki1 := { { 'привит по возрасту', 0 }, ;
+//    { 'не привит по медицинским показаниям', 1 }, ;
+//    { 'не привит по другим причинам', 2 } }
+//  Private mm_privivki2 := { { 'полностью', 1 }, ;
+//    { 'частично', 2 } }
   //
   Private metap := 1, mperiod := 0, mshifr_zs := '', mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
     mkateg_uch, m1kateg_uch := 3, ; // Категория учета ребенка:
@@ -308,8 +309,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     { 'U_NAME',     'C',     65,      0 } ;  // наименование услуги
   } )
   Use ( cur_dir() + 'tmp' )
-  Index On Str( u_kod, 4 ) to ( cur_dir() + 'tmpk' )
-  Index On fsort_usl( u_shifr ) to ( cur_dir() + 'tmpn' )
+  Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + 'tmpk' )
+  Index On fsort_usl( FIELD->u_shifr ) to ( cur_dir() + 'tmpn' )
   Set Index to ( cur_dir() + 'tmpk' ), ( cur_dir() + 'tmpn' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', , 'HUMAN' )
@@ -539,7 +540,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             m1var := 'm1lis' + lstr( i )
             If is_disp_19
               &m1var := 0
-            Elseif glob_yes_kdp2[ TIP_LU_PN ] .and. AScan( glob_arr_usl_LIS, np_arr_issled[ i, 1 ] ) > 0 .and. hu->is_edit > 0
+            Elseif glob_yes_kdp2()[ TIP_LU_PN ] .and. AScan( glob_arr_usl_LIS, np_arr_issled[ i, 1 ] ) > 0 .and. hu->is_edit > 0
               &m1var := hu->is_edit
             Endif
             mvar := 'mlis' + lstr( i )
@@ -643,29 +644,29 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   mmesto_prov := inieditspr( A__MENUVERT, mm_mesto_prov, m1mesto_prov ) // место проведения
   mmobilbr := inieditspr( A__MENUVERT, mm_danet, m1mobilbr )
   mschool := inieditspr( A__POPUPMENU, dir_server() + 'mo_schoo', m1school )
-  mkateg_uch := inieditspr( A__MENUVERT, mm_kateg_uch, m1kateg_uch )
+  mkateg_uch := inieditspr( A__MENUVERT, mm_kateg_uch(), m1kateg_uch )
   If !Empty( m1MO_PR )
     mMO_PR := ret_mo( m1MO_PR )[ _MO_SHORT_NAME ]
   Endif
-  mfiz_razv  := inieditspr( A__MENUVERT, mm_fiz_razv,  m1FIZ_RAZV )
-  mfiz_razv1 := inieditspr( A__MENUVERT, mm_fiz_razv1, m1FIZ_RAZV1 )
-  mfiz_razv2 := inieditspr( A__MENUVERT, mm_fiz_razv2, m1FIZ_RAZV2 )
-  mpsih21 := inieditspr( A__MENUVERT, mm_psih2, m1psih21 )
-  mpsih22 := inieditspr( A__MENUVERT, mm_psih2, m1psih22 )
-  mpsih23 := inieditspr( A__MENUVERT, mm_psih2, m1psih23 )
-  m142me3 := inieditspr( A__MENUVERT, mm_142me3, m1142me3 )
-  m142me4 := inieditspr( A__MENUVERT, mm_142me4, m1142me4 )
-  m142me5 := inieditspr( A__MENUVERT, mm_142me5, m1142me5 )
+  mfiz_razv  := inieditspr( A__MENUVERT, mm_fiz_razv(),  m1FIZ_RAZV )
+  mfiz_razv1 := inieditspr( A__MENUVERT, mm_fiz_razv1(), m1FIZ_RAZV1 )
+  mfiz_razv2 := inieditspr( A__MENUVERT, mm_fiz_razv2(), m1FIZ_RAZV2 )
+  mpsih21 := inieditspr( A__MENUVERT, mm_psih2(), m1psih21 )
+  mpsih22 := inieditspr( A__MENUVERT, mm_psih2(), m1psih22 )
+  mpsih23 := inieditspr( A__MENUVERT, mm_psih2(), m1psih23 )
+  m142me3 := inieditspr( A__MENUVERT, mm_142me3(), m1142me3 )
+  m142me4 := inieditspr( A__MENUVERT, mm_142me4(), m1142me4 )
+  m142me5 := inieditspr( A__MENUVERT, mm_142me5(), m1142me5 )
   mdiag_15_1 := inieditspr( A__MENUVERT, mm_danet, m1diag_15_1 )
   mdiag_16_1 := inieditspr( A__MENUVERT, mm_danet, m1diag_16_1 )
   mstep2 := inieditspr( A__MENUVERT, mm_step2, m1step2 )
   minvalid1 := inieditspr( A__MENUVERT, mm_danet,    m1invalid1 )
-  minvalid2 := inieditspr( A__MENUVERT, mm_invalid2, m1invalid2 )
-  minvalid5 := inieditspr( A__MENUVERT, mm_invalid5, m1invalid5 )
-  minvalid6 := inieditspr( A__MENUVERT, mm_invalid6, m1invalid6 )
-  minvalid8 := inieditspr( A__MENUVERT, mm_invalid8, m1invalid8 )
-  mprivivki1 := inieditspr( A__MENUVERT, mm_privivki1, m1privivki1 )
-  mprivivki2 := inieditspr( A__MENUVERT, mm_privivki2, m1privivki2 )
+  minvalid2 := inieditspr( A__MENUVERT, mm_invalid2(), m1invalid2 )
+  minvalid5 := inieditspr( A__MENUVERT, mm_invalid5(), m1invalid5 )
+  minvalid6 := inieditspr( A__MENUVERT, mm_invalid6(), m1invalid6 )
+  minvalid8 := inieditspr( A__MENUVERT, mm_invalid8(), m1invalid8 )
+  mprivivki1 := inieditspr( A__MENUVERT, mm_privivki1(), m1privivki1 )
+  mprivivki2 := inieditspr( A__MENUVERT, mm_privivki2(), m1privivki2 )
   mgr_fiz_do := inieditspr( A__MENUVERT, mm_gr_fiz_do, m1gr_fiz_do )
   mgr_fiz    := inieditspr( A__MENUVERT, mm_gr_fiz, m1gr_fiz )
   mDS_ONK    := inieditspr( A__MENUVERT, mm_danet, M1DS_ONK )
@@ -774,7 +775,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
       @ ++j, 1 To j, 78
       @ ++j, 1 Say 'Категория учета ребенка' Get mkateg_uch ;
-        reader {| x| menu_reader( x, mm_kateg_uch, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_kateg_uch(), A__MENUVERT, , , .f. ) }
       ++j
       @ ++j, 1 Say 'Сроки профилактики' Get mn_data ;
         valid {| g| f_k_data( g, 1 ), ;
@@ -806,14 +807,14 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       @ Row(), Col() + 1 Say 'см'
       ++j
       @ ++j, 1 Say 'Физическое развитие' Get mfiz_razv ;
-        reader {| x| menu_reader( x, mm_fiz_razv, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_fiz_razv(), A__MENUVERT, , , .f. ) } ;
         valid {|| iif( m1FIZ_RAZV == 0, ( mfiz_razv1 := 'нет    ', m1fiz_razv1 := 0, ;
         mfiz_razv2 := 'нет    ', m1fiz_razv2 := 0 ), nil ), .t. }
       @ ++j, 10 Say 'отклонение массы тела' Get mfiz_razv1 ;
-        reader {| x| menu_reader( x, mm_fiz_razv1, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_fiz_razv1(), A__MENUVERT, , , .f. ) } ;
         When m1FIZ_RAZV == 1
       @ j, 39 Say ', роста' Get mfiz_razv2 ;
-        reader {| x| menu_reader( x, mm_fiz_razv2, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_fiz_razv2(), A__MENUVERT, , , .f. ) } ;
         When m1FIZ_RAZV == 1
       status_key( '^<Esc>^ выход без записи ^<PgDn>^ на 2-ю страницу' )
       If !Empty( a_smert )
@@ -846,7 +847,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           endif*/
           If fl
             fl_kdp2 := .f.
-            If !is_disp_19 .and. glob_yes_kdp2[ TIP_LU_PN ] .and. AScan( glob_arr_usl_LIS, np_arr_issled[ i, 1 ] ) > 0
+            If !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_PN ] .and. AScan( glob_arr_usl_LIS, np_arr_issled[ i, 1 ] ) > 0
               fl_kdp2 := .t.
             Endif
             mvarv := 'MTAB_NOMiv' + lstr( i )
@@ -977,9 +978,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         @ ++j, 30 Say 'предречевое и речевое развитие' Get m1psih14 Pict '99'
       Else
         @ ++j, 1 Say PadC( 'Оценка психического развития:', 78, '_' )
-        @ ++j, 1 Say 'психомоторная сфера' Get mpsih21 reader {| x| menu_reader( x, mm_psih2, A__MENUVERT, , , .f. ) }
-        @ ++j, 1 Say 'интеллект          ' Get mpsih22 reader {| x| menu_reader( x, mm_psih2, A__MENUVERT, , , .f. ) }
-        @ --j, 40 Say 'эмоц.вегетативная сфера' Get mpsih23 reader {| x| menu_reader( x, mm_psih2, A__MENUVERT, , , .f. ) }
+        @ ++j, 1 Say 'психомоторная сфера' Get mpsih21 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT, , , .f. ) }
+        @ ++j, 1 Say 'интеллект          ' Get mpsih22 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT, , , .f. ) }
+        @ --j, 40 Say 'эмоц.вегетативная сфера' Get mpsih23 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT, , , .f. ) }
         ++j
       Endif
       ++j
@@ -995,11 +996,11 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         @ ++j, 1 Say '  menarhe' Get m142me1 Pict '99'
         @ j, Col() + 1 Say 'лет,' Get m142me2 Pict '99'
         @ j, Col() + 1 Say 'месяцев, menses' Get m142me3 ;
-          reader {| x| menu_reader( x, mm_142me3, A__MENUVERT, , , .f. ) }
+          reader {| x| menu_reader( x, mm_142me3(), A__MENUVERT, , , .f. ) }
         @ j, 50 Say ',' Get m142me4 ;
-          reader {| x| menu_reader( x, mm_142me4, A__MENUVERT, , , .f. ) }
+          reader {| x| menu_reader( x, mm_142me4(), A__MENUVERT, , , .f. ) }
         @ j, 61 Say ',' Get m142me5 ;
-          reader {| x| menu_reader( x, mm_142me5, A__MENUVERT, , , .f. ) }
+          reader {| x| menu_reader( x, mm_142me5(), A__MENUVERT, , , .f. ) }
       Endif
       ++j
       @ ++j, 1 Say 'ДО ПРОВЕДЕНИЯ ПРОФОСМОРА: практически здоров' Get mdiag_15_1 ;
@@ -1216,27 +1217,27 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'Инвалидность' Get minvalid1 ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
       @ j, 30 Say 'если "да":' Get minvalid2 ;
-        reader {| x| menu_reader( x, mm_invalid2, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_invalid2(), A__MENUVERT, , , .f. ) } ;
         When m1invalid1 == 1
       @ ++j, 2 Say 'установлена впервые' Get minvalid3 ;
         When m1invalid1 == 1
       @ j, Col() + 1 Say 'дата последнего освидетельствования' Get minvalid4 ;
         When m1invalid1 == 1
       @ ++j, 2 Say 'Заболевания/инвалидность' Get minvalid5 ;
-        reader {| x| menu_reader( x, mm_invalid5, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_invalid5(), A__MENUVERT, , , .f. ) } ;
         When m1invalid1 == 1
       @ ++j, 2 Say 'Виды нарушений в состоянии здоровья' Get minvalid6 ;
-        reader {| x| menu_reader( x, mm_invalid6, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_invalid6(), A__MENUVERT, , , .f. ) } ;
         When m1invalid1 == 1
       @ ++j, 2 Say 'Дата назначения индивидуальной программы реабилитации' Get minvalid7 ;
         When m1invalid1 == 1
       @ j, Col() Say ' выполнение' Get minvalid8 ;
-        reader {| x| menu_reader( x, mm_invalid8, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_invalid8(), A__MENUVERT, , , .f. ) } ;
         When m1invalid1 == 1
       @ ++j, 1 Say 'Прививки' Get mprivivki1 ;
-        reader {| x| menu_reader( x, mm_privivki1, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_privivki1(), A__MENUVERT, , , .f. ) }
       @ j, 50 Say 'Не привит' Get mprivivki2 ;
-        reader {| x| menu_reader( x, mm_privivki2, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_privivki2(), A__MENUVERT, , , .f. ) } ;
         When m1privivki1 > 0
       @ ++j, 2 Say 'Нуждается в вакцинации' Get mprivivki3 Pict '@S54' ;
         When m1privivki1 > 0
@@ -1387,7 +1388,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Endif
         If _fl_ .and. not_audio_s /*.and. np_arr_issled[i, 4] == 0 // не гормон*/
           m1var := 'm1lis' + lstr( i )
-          If !is_disp_19 .and. glob_yes_kdp2[ TIP_LU_PN ] .and. &m1var > 0
+          If !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_PN ] .and. &m1var > 0
             &mvart := -1
           Endif
           If Empty( &mvard )
@@ -1721,7 +1722,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       arr_lis2 := {}
       arr_usl_dop := {}
       arr_usl_otkaz := {}
-      If !is_disp_19 .and. glob_yes_kdp2[ TIP_LU_PN ]
+      If !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_PN ]
         For i := 1 To count_pn_arr_iss
           If ValType( arr_iss[ i, 9 ] ) == 'D' .and. arr_iss[ i, 9 ] >= mn_data .and. Len( arr_iss[ i ] ) > 9 ;
               .and. ValType( arr_iss[ i, 10 ] ) == 'N' .and. eq_any( arr_iss[ i, 10 ], 1, 2 )
@@ -2026,7 +2027,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server() + 'mo_hismo', , 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
+        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo

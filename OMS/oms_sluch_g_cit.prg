@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.06.24 жидкостная цитология рака шейки матки
+// 13.09.25 жидкостная цитология рака шейки матки
 Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -17,7 +17,7 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     bg := {| o, k| get_mkb10( o, k, .t. ) }
   Local top2 := 11
 
-  If Empty( glob_klin_diagn )
+  If Empty( glob_klin_diagn() )
     Return func_error( 4, 'В вашем учреждении не разрешены специальные лабораторные исследования' )
   Endif
   //
@@ -187,9 +187,9 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
   Endif
   //
   str_1 := ' случая леч.-диагн.процедуры при проведении '
-  If AScan( glob_klin_diagn, 1 ) > 0
+  If AScan( glob_klin_diagn(), 1 ) > 0
     str_1 += 'жидкостной цитологии'
-  Elseif AScan( glob_klin_diagn, 2 ) > 0
+  Elseif AScan( glob_klin_diagn(), 2 ) > 0
     str_1 += 'пренатального скрининга'
   Endif
   If Loc_kod == 0
@@ -302,9 +302,9 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
         arr_iss[ 1, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
       Endif
       arr_iss[ 1, 4 ] := 34 // профиль - клиническая лабораторная диагностика
-      If AScan( glob_klin_diagn, 1 ) > 0 // жидкостной цитологии
+      If AScan( glob_klin_diagn(), 1 ) > 0 // жидкостной цитологии
         arr_iss[ 1, 5 ] := '4.20.702' // шифр услуги
-      Elseif AScan( glob_klin_diagn, 2 ) > 0 // пренатального скрининга
+      Elseif AScan( glob_klin_diagn(), 2 ) > 0 // пренатального скрининга
         arr_iss[ 1, 5 ] := '4.15.746' // шифр услуги
       Endif
       err_date_diap( mn_data, 'Дата диагностики' )

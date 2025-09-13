@@ -227,6 +227,7 @@ mo_version.prg
 .\DISPANSER\oms_DVN_func.prg
 .\DISPANSER\oms_DDS.prg
 .\DISPANSER\oms_DDS_func.prg
+.\DISPANSER\oms_DDS_init.prg
 .\DISPANSER\oms_PN.prg
 .\DISPANSER\oms_PN_func.prg
 .\DISPANSER\oms_naprav_zno.prg
