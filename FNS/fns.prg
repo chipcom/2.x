@@ -548,7 +548,7 @@ function input_spravka_fns()
 
     str_sem := 'Справка ФНС человека ' + lstr( glob_kartotek )
     If ! g_slock( str_sem )
-      Return func_error( 4, err_slock )
+      Return func_error( 4, err_slock() )
     Endif
 
     SetColor( cDataCGet )

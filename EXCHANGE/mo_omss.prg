@@ -11,7 +11,7 @@ Function read_from_tf()
     nErr, cFile, cName, arr_XML_info[ 7 ], tip_csv_file := 0, kod_csv_reestr := 0
 
   If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin )
+    Return func_error( 4, err_admin() )
   Endif
   If find_unfinished_reestr_sp_tk()
     Return func_error( 4, 'Попытайтесь снова' )

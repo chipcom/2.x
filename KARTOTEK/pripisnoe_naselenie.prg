@@ -48,10 +48,10 @@ Function pripisnoe_naselenie( k )
         pripisnoe_naselenie_create_sverka()
         g_sunlock( str_sem )
       Else
-        func_error( 4, err_slock )
+        func_error( 4, err_slock() )
       Endif
     Else
-      func_error( 4, err_admin )
+      func_error( 4, err_admin() )
     Endif
   Case k == 15
     edit_uchast_spisok()
@@ -1775,7 +1775,7 @@ Function f2_vvod_uchast_spisok( nKey, oBrow )
     If ku > 10000
       func_error( 4, "Слишком много пациентов в списке" )
     Elseif ! hb_user_curUser:isadmin()
-      func_error( 4, err_admin )
+      func_error( 4, err_admin() )
     Elseif ( much := input_value( 18, 5, 20, 74, color1, ;
         "Введите номер участка для простановки всем пациентам из списка", 0, "99" ) ) != NIL ;
         .and. much > 0 ;// .and. involved_password(1,vp,"смены номера участка всем пациентам из списка") ;

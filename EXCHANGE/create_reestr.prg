@@ -17,7 +17,7 @@ Function create_reestr()
   local arrKolSl
 
   If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin )
+    Return func_error( 4, err_admin() )
   Endif
   If find_unfinished_reestr_sp_tk()
     Return func_error( 4, 'Попытайтесь снова' )

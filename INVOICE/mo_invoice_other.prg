@@ -14,7 +14,7 @@ Function other_schets( k )
   Do Case
   Case k == 1
     If ! hb_user_curUser:isadmin()
-      Return func_error( 4, err_admin )
+      Return func_error( 4, err_admin() )
     Endif
     mas_pmt := { "Список ~прочих счетов", ;
       "~Невыписанные счета", ;
@@ -2065,7 +2065,7 @@ Function akt_kontrol_2012()
   Local t_arr[ BR_LEN ], blk, s
 
   If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin )
+    Return func_error( 4, err_admin() )
   Endif
   If g_slock( str_sem )
     buf := SaveScreen()
@@ -2726,7 +2726,7 @@ Function f2_view_registr_schet( nKey, oBrow )
     Private name_schet := AllTrim( schet_->nschet )
     Private _date_schet := schet_->dschet
     Close databases
-    If g_slock1task( sem_task, sem_vagno ) // запрет доступа всем
+    If g_slock1task( sem_task(), sem_vagno() ) // запрет доступа всем
       If involved_password( 4, name_schet, "удаления/перевыставления счёта " + name_schet ) ;
           .and. f_esc_enter( "удаления счёта" ) ;
           .and. m_copy_db_from_end( .t. ) // резервное копирование
@@ -2885,7 +2885,7 @@ Function f2_view_registr_schet( nKey, oBrow )
       Endif
       Close databases
       // разрешение доступа всем
-      g_sunlock( sem_vagno )
+      g_sunlock( sem_vagno() )
       Keyboard ""
     Else
       func_error( 4, "В данный момент работают другие задачи. Операция запрещена!" )

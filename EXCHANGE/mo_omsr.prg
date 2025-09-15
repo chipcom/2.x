@@ -790,7 +790,7 @@ Function vozvrat_reestr( ver )
   Local k, buf := SaveScreen(), tmp_help := chm_help_code, mkod_reestr
 
   If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin )
+    Return func_error( 4, err_admin() )
   Endif
   If !g_slock( Sreestr_sem )
     Return func_error( 4, Sreestr_err )

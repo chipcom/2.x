@@ -317,6 +317,22 @@ function arr_VMP( param )
   endif
   return vmp
 
+// 15.09.25
+function sem_task()
+  return 'Учёт работы МО'
+  
+// 15.09.25
+function sem_vagno()
+  return 'Учёт работы МО - ответственный режим'
+  
+// 15.09.25
+function err_slock()
+  return 'В данный момент с этим режимом работает другой пользователь. Доступ запрещён!'
+
+// 15.09.25
+function err_admin()
+  return 'Доступ в данный режим разрешен только администратору системы!'
+
 // 11.09.25
 function hColor()
 
