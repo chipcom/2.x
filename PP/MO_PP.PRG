@@ -57,19 +57,19 @@ Function pp_nastr( k )
     If hb_user_curUser:isadmin()
       ne_real()
     Else
-      func_error( 4, err_admin )
+      func_error( 4, err_admin() )
     Endif
   Case k == 2
     If hb_user_curUser:isadmin()
       pp_nastr_ist_bol()
     Else
-      func_error( 4, err_admin )
+      func_error( 4, err_admin() )
     Endif
   Case k == 3
     If hb_user_curUser:isadmin()
       f1nastr_all( mas_pmt[ k ], X_PPOKOJ )
     Else
-      func_error( 4, err_admin )
+      func_error( 4, err_admin() )
     Endif
   Case k == 4
     pp_nastr_rab_mesto()

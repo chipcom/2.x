@@ -37,7 +37,7 @@ Function edit_pers()
     g_sunlock( str_sem )
     rest_box( buf )
   Else
-    func_error( 4, err_slock )
+    func_error( 4, err_slock() )
   Endif
   Return Nil
 

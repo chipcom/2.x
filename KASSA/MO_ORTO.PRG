@@ -1420,7 +1420,7 @@ Function kart_orto( r )
   Endif
   str_sem := "ОРТ Редактирование человека " + lstr( glob_kartotek )
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   buf := SaveScreen()
   Private fl_found, str_find, muslovie, regim := r

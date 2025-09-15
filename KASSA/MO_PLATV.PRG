@@ -178,7 +178,7 @@ Function kart_plat()
     //
     str_sem := "ПУ Редактирование человека " + lstr( glob_kartotek )
     If !g_slock( str_sem )
-      Return func_error( 4, err_slock )
+      Return func_error( 4, err_slock() )
     Endif
     buf := SaveScreen()
     Private fl_found, str_find, muslovie
@@ -1764,7 +1764,7 @@ Function f3_po_plat( nKey, oBrow )
     glob_k_fio := tmp->fio
     str_sem := "ПУ Редактирование человека " + lstr( glob_kartotek )
     If !g_slock( str_sem )
-      func_error( 4, err_slock )
+      func_error( 4, err_slock() )
       Return flag
     Endif
     If nKey == K_ENTER
@@ -1971,7 +1971,7 @@ Function close_lu( k )
   Do Case
   Case k == 1
     If !hb_user_curUser:isadmin()
-      Return func_error( 4, err_admin )
+      Return func_error( 4, err_admin() )
     Endif
     mas_pmt := { "Закрыть л/учета для ~одного больного", ;
       "Закрыть л/учета для ~всех", ;
@@ -2025,7 +2025,7 @@ Function f1close_lu( par )
   muslovie += " .and. !eof()"
   str_sem := "ПУ Закрытие листа учета"
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   Do Case
   Case par == 1  // Закрыть лист учета для одного больного

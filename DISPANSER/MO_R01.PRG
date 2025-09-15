@@ -3105,7 +3105,7 @@ Function delete_reestr_r01()
   Local t_arr[ BR_LEN ], blk
 
   If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin )
+    Return func_error( 4, err_admin() )
   Endif
   g_use( dir_server() + "mo_dr01m",, "R01m" )
   Index On Descend( DToS( DWORK ) + TWORK1 ) to ( cur_dir() + "tmp_dr01m" )

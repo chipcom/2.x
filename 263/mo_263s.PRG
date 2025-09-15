@@ -30,7 +30,7 @@ Function _263_s_gospit()
   Local buf := save_maxrow(), blk, t_arr[ BR_LEN ], fl, i, n
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   If ( i := popup_prompt( T_ROW, T_COL + 5, si, ;
       { 'Добавить ~госпитализацию', ;
@@ -691,7 +691,7 @@ Function _263_s_vybytie()
   Local buf := save_maxrow(), blk, t_arr[ BR_LEN ], fl, i
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   If ( i := popup_prompt( T_ROW, T_COL + 5, si, ;
       { '~Не введена дата выбытия (ещё лечатся)', ;
@@ -1024,7 +1024,7 @@ Function _263_s_napr()
   Local buf := save_maxrow(), blk, t_arr[ BR_LEN ], fl, i, n
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   /*if (i := popup_prompt(T_ROW, T_COL + 5,si, ;
             {'~Не подтверждена дата госпитализации пол-ки', ;
@@ -1350,7 +1350,7 @@ Function _263_s_annul()
   Local buf := save_maxrow(), blk, t_arr[ BR_LEN ], fl, i, n
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   /*if (i := popup_prompt(T_ROW, T_COL + 5,si, ;
             {'~Не подтверждена дата госпитализации пол-ки', ;
@@ -1630,7 +1630,7 @@ Function _263_s_svob_kojki()
   Local buf, blk, t_arr[ BR_LEN ], fl := .t., k := 0
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   g_use( dir_server() + 'mo_n7d', , 'D7' )
   If LastRec() == 0

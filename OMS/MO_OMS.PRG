@@ -1040,7 +1040,7 @@ Function oms_del()
   Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear
 
   If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin )
+    Return func_error( 4, err_admin() )
   Endif
   If ( arr_m := input_year() ) != Nil .and. ;
       input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
@@ -1251,7 +1251,7 @@ Function oms_zav_lech( k )
       popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL + 5, sk, mas_pmt, mas_msg, mas_fun )
       g_sunlock( str_sem )
     Else
-      func_error( 4, err_slock )
+      func_error( 4, err_slock() )
     Endif
   Case k == 1
     f1oms_zav_lech( 1 )
@@ -1277,7 +1277,7 @@ Function f1oms_zav_lech( k )
       If ret_oms_human( iif( k == 1, B_END, B_STANDART ) )
         str_sem := 'Редактирование человека ' + lstr( glob_perso )
         If !g_slock( str_sem )
-          Return func_error( 4, err_slock )
+          Return func_error( 4, err_slock() )
         Endif
         tmp_color := SetColor( color1 )
         buf := SaveScreen()

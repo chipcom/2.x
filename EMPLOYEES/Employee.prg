@@ -84,7 +84,7 @@ function editEmployees( nType )
 			hb_Alert( 'В данный момент сотрудников редактирует другой администратор. Ждите.', , , 4 )
 		endif
 	else
-		hb_Alert( err_admin, , , 4 )
+		hb_Alert( err_admin(), , , 4 )
 	endif
 	return nil
 

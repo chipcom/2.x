@@ -537,7 +537,7 @@ Function recreate_some_schet_from_file_sp( arr )
   Endif
   Close databases
 
-  If mo_lock_task( X_OMS ) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
+  If mo_lock_task( X_OMS ) // запрет только ОМС G_SLock1Task(sem_task(),sem_vagno()) // запрет доступа всем
     k := Len( arr_schet )
     s := iif( k == 1, "счёта ", lstr( k ) + " счетов " )
     If iif( arr_schet[ 1, 5 ] > SToD( "20220224" ) .and. arr_schet[ 1, 5 ] < SToD( "20220228" ), .t., involved_password( 3, arr_schet[ 1, 4 ], "пересоздания " + s + arr_schet[ 1, 4 ] ) ) ;
@@ -854,7 +854,7 @@ Function recreate_some_schet_from_file_sp( arr )
     Endif
     Close databases
     // разрешение доступа всем
-    // G_SUnLock(sem_vagno)
+    // G_SUnLock(sem_vagno())
     mo_unlock_task( X_OMS )
     Keyboard ""
     If go_to_schet // если выписаны счета

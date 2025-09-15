@@ -37,7 +37,7 @@ Function vounc_input_nazn()
   Local arr, ret, buf, str_sem := 'vounc_input_nazn'
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   Private ltip_mnn
   If polikl1_kart() > 0
@@ -221,7 +221,7 @@ Function vounc_input_recept()
   Local buf, str_sem := 'vounc_input_recept'
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   If polikl1_kart() > 0
     buf := SaveScreen()
@@ -1165,7 +1165,7 @@ Function vounc_sprav_nastr( reg )
       vounc_mem_ser     := Space( 10 )
   Case reg == 2 .and. vounc_tools_ini( 1, 0, 0 ) // редактирование
     If ! hb_user_curUser:isadmin()
-      Return func_error( 4, err_admin )
+      Return func_error( 4, err_admin() )
     Endif
     str_sem := 'Редактирование настроек VOUNC'
     If g_slock( str_sem )
@@ -1222,7 +1222,7 @@ Function vounc_sprav_nastr( reg )
       Close databases
       g_sunlock( str_sem )
     Else
-      func_error( 4, err_slock )
+      func_error( 4, err_slock() )
     Endif
   Endcase
   Return Nil

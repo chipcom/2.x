@@ -17,7 +17,7 @@ Function _263_p_napr()
   Local buf := save_maxrow(), blk, t_arr[ BR_LEN ], fl, n
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   Private arr_m
   If ( arr_m := year_month( T_ROW, T_COL + 5 ) ) == NIL
@@ -475,7 +475,7 @@ Function _263_p_annul()
   Local buf := save_maxrow(), blk, t_arr[ BR_LEN ], fl, n
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   Private arr_m
   If ( arr_m := year_month( T_ROW, T_COL + 5 ) ) == NIL

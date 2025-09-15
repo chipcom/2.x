@@ -1516,7 +1516,7 @@ Function polikl_kart( k )
         If k1 > 0
           str_sem := 'Редактирование человека ' + lstr( glob_perso )
           If !g_slock( str_sem )
-            Return func_error( 4, err_slock )
+            Return func_error( 4, err_slock() )
           Endif
           Private fl_v_lech := .t.
         Endif
@@ -1541,7 +1541,7 @@ Function polikl_kart( k )
           If k1 > 0
             str_sem := 'Редактирование человека ' + lstr( glob_perso )
             If !g_slock( str_sem )
-              Return func_error( 4, err_slock )
+              Return func_error( 4, err_slock() )
             Endif
             Private fl_v_lech := .t.
           Endif
@@ -1591,7 +1591,7 @@ Function polikl_kart( k )
           If k1 > 0
             str_sem := 'Редактирование человека ' + lstr( glob_perso )
             If !g_slock( str_sem )
-              Return func_error( 4, err_slock )
+              Return func_error( 4, err_slock() )
             Endif
             Private fl_v_lech := .t.
           Endif
@@ -1622,7 +1622,7 @@ Function polikl_kart( k )
         If k1 > 0
           str_sem := 'Редактирование человека ' + lstr( glob_perso )
           If !g_slock( str_sem )
-            Return func_error( 4, err_slock )
+            Return func_error( 4, err_slock() )
           Endif
           Private fl_v_lech := .t.
         Endif

@@ -306,10 +306,10 @@ Static Function del_d_u_spr()
   Local buf := savescreen(), s1, s2, k1, k2
 
   if !empty(t_arr[US_SEMAPHORE])
-    if G_SCount(sem_task) > 1
+    if G_SCount(sem_task()) > 1
       return func_error('В данный момент УДАЛЕНИЕ ДУБЛИКАТА запрещено. Работает другая задача.')
     endif
-    G_SLock(sem_vagno)
+    G_SLock(sem_vagno())
   endif
   n_message({'Данный режим предназначен для удаления одной строки', ;
             '"' + t_arr[US_ROD_PADEG] + '" и переноса всей', ;
@@ -351,6 +351,6 @@ Static Function del_d_u_spr()
   endif
   restscreen(buf)
   if !empty(t_arr[US_SEMAPHORE])
-    G_SUnLock(sem_vagno)
+    G_SUnLock(sem_vagno())
   endif
   return .t.

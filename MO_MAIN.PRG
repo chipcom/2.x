@@ -65,10 +65,10 @@ Procedure Main( ... )
     MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;
     forever := 'forever'
   Public gpasskod := ret_gpasskod()
-  Public sem_task := 'Учёт работы МО'
-  Public sem_vagno := 'Учёт работы МО - ответственный режим'
-  Public err_slock := 'В данный момент с этим режимом работает другой пользователь. Доступ запрещён!'
-  Public err_admin := 'Доступ в данный режим разрешен только администратору системы!'
+//  Public sem_task := 'Учёт работы МО'
+//  Public sem_vagno := 'Учёт работы МО - ответственный режим'
+//  Public err_slock := 'В данный момент с этим режимом работает другой пользователь. Доступ запрещён!'
+//  Public err_admin := 'Доступ в данный режим разрешен только администратору системы!'
   Public fr_data := '_data', fr_titl := '_titl'
 
   Public dir_exe := dir_exe()
@@ -164,7 +164,7 @@ Procedure Main( ... )
   If ! hb_user_curUser:isadmin()
     verify_fio_polzovat := .f.
   Endif
-  If ! g_sopen( sem_task, sem_vagno, fio_polzovat, p_name_comp )
+  If ! g_sopen( sem_task(), sem_vagno(), fio_polzovat, p_name_comp )
     If Type( 'verify_fio_polzovat' ) == 'L' .and. verify_fio_polzovat
       func_error( 'В данный момент работает другой оператор под фамилией "' + fio_polzovat + '"' )
     Else
@@ -188,7 +188,7 @@ Procedure Main( ... )
   init_program() // инициализация программы (переменных, массивов,...)
 
   If controlbases( 1, _version() ) // если необходимо
-    If g_slock1task( sem_task, sem_vagno )  // запрет доступа всем
+    If g_slock1task( sem_task(), sem_vagno() )  // запрет доступа всем
       buf := SaveScreen()
       f_message( { 'Переход на новую версию программы ' + fs_version( _version() ) + ' от ' + _date_version() }, , , , 8 )
       // провести реконструкцию БД
@@ -205,7 +205,7 @@ Procedure Main( ... )
         // dubl_zap_kod_tf()          // удалить дубликаты записей в картотеке
       Endif
       // разрешение доступа всем
-      g_sunlock( sem_vagno )
+      g_sunlock( sem_vagno() )
       RestScreen( buf )
     Else
       n_message( { 'Вы запустили новую версию задачи ' + fs_version( _version() ) + ' от ' + _date_version(), ;
@@ -456,7 +456,7 @@ Function main_center_screen( r0, a_parol )
 //
 Function m_help()
 
-  Local tmp_help, pt
+  Local tmp_help
 
   tmp_help := chm_help_code
   chm_help_code := 100
@@ -666,12 +666,12 @@ Function f_end( yes_copy )
     If yes_copy
       i := getinivar( tmp_ini, { { group_ini, 'base_copy', '1' }, ;
         { group_ini, 'path_copy', '' } } )
-      If i[ 1 ] != Nil .and. i[ 1 ] == '1' .and. g_slock1task( sem_task, sem_vagno )
+      If i[ 1 ] != Nil .and. i[ 1 ] == '1' .and. g_slock1task( sem_task(), sem_vagno() )
         If Len( i ) > 1 .and. i[ 2 ] != Nil .and. !Empty( i[ 2 ] )
           spath := i[ 2 ]
         Endif
         m_copy_db_from_end( .f., spath ) // резервное копирование
-        g_sunlock( sem_vagno ) // разрешение доступа всем
+        g_sunlock( sem_vagno() ) // разрешение доступа всем
       Endif
     Endif
   RECOVER USING error
@@ -679,7 +679,7 @@ Function f_end( yes_copy )
   End
   //
   Begin Sequence
-    g_sclose( sem_task ) // удалить все семафоры для данной задачи
+    g_sclose( sem_task() ) // удалить все семафоры для данной задачи
   RECOVER USING error
     //
   End

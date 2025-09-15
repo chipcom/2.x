@@ -192,7 +192,7 @@ Function oplata_vz()
     @ 1, 42 Say PadC( fam_i_o( glob_k_fio ), 35 ) Color color8
   Endif
   If !g_slock( str_find )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   t_arr[ BR_TOP ] := T_ROW
   t_arr[ BR_BOTTOM ] := MaxRow() -2
@@ -364,7 +364,7 @@ Function edit_pr_vz()
   Local i := 1, k, buf := SaveScreen(), str_sem := 'Редактирование предприятий по взаимозачету'
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   Do While i > 0
     If ( i := popup_prompt( T_ROW, T_COL -5, i, mas_edit, , , , .f. ) ) == A__APPEND
@@ -425,7 +425,7 @@ Function edit_d_smo()
   Local i := 1, k, buf := SaveScreen(), str_sem := 'Редактирование добровольных СМО'
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   Do While i > 0
     If ( i := popup_prompt( T_ROW, T_COL -5, i, mas_edit, , , , .f. ) ) == A__APPEND

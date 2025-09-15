@@ -54,7 +54,7 @@ Function reconstruct_security( is_local_version )
   local path_DB // путь к БД приложения
 
   If controlbases( 1, _version() ) // если необходимо
-    If g_slock1task( sem_task, sem_vagno )  // запрет доступа всем
+    If g_slock1task( sem_task(), sem_vagno() )  // запрет доступа всем
       path_DB := dir_server()
       // реконструкция файлов доступа к системе и обновлений БД
       If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf() )
@@ -64,7 +64,7 @@ Function reconstruct_security( is_local_version )
         reconstruct( path_DB + 'roles', roles, , , .t. )
         reconstruct( path_DB + 'ver_updateDB', mo_updateDB, , , .t. )
       Endif
-      g_sunlock( sem_vagno )
+      g_sunlock( sem_vagno() )
     Endif
   Endif
   Return Nil

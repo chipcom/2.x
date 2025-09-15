@@ -15,7 +15,7 @@ Function nastr_sprav_FFOMS(k)
   do case
     case k == 0
       if ! hb_user_curUser:IsAdmin()
-        return func_error(4, err_admin)
+        return func_error(4, err_admin())
       endif
       arr_ref := {'V002', 'V020', 'V006', 'V034', 'MethodINJ', 'Implantant'}
       arr_name := {'ПРОФИЛЕЙ оказанной медицинской помощи', 'ПРОФИЛЕЙ КОЙКИ', ;
@@ -43,7 +43,7 @@ Function nastr_sprav_FFOMS(k)
         fnastr_sprav_FFOMS(0, arr_spr[k], arr_spr_name[k])
         G_SUnLock(str_sem)
       else
-        func_error(4, err_slock)
+        func_error(4, err_slock())
       endif
       arr_spr := arr_name   // подставим имена пунктов меню
   endcase

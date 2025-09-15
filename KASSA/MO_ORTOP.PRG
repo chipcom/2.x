@@ -174,7 +174,7 @@ Function ff2edit_ysl( nKey, oBrow )
     mkod := RecNo()
     str_sem := "Редактирование состава услуги"
     If !g_slock( str_sem )
-      Return func_error( 4, err_slock )
+      Return func_error( 4, err_slock() )
     Endif
     buf1 := box_shadow( 9, 5, 14, 75, color8, ;
       if( nKey == K_INS, "Добавление новой услуги", ;

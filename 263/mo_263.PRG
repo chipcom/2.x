@@ -1736,7 +1736,7 @@ Function _263_to_i01()
   Local buf := save_maxrow(), blk, t_arr[ BR_LEN ]
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   Private goal_dir := dir_server() + dir_NAPR_MO() + hb_ps()
   g_use( dir_server() + 'mo_nfile', , 'NF' )
@@ -1926,7 +1926,7 @@ Function _263_to_i03()
   Local buf := save_maxrow(), blk, t_arr[ BR_LEN ]
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   Private goal_dir := dir_server() + dir_NAPR_MO() + hb_ps()
   g_use( dir_server() + 'mo_nfile', , 'NF' )
@@ -2097,7 +2097,7 @@ Function _263_to_i04( k )
   Private ppaket := k
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   Private goal_dir := dir_server() + dir_NAPR_MO() + hb_ps()
   g_use( dir_server() + 'mo_nfile', , 'NF' )
@@ -2271,7 +2271,7 @@ Function _263_to_i06()
   Local buf := save_maxrow(), blk, t_arr[ BR_LEN ]
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   Private goal_dir := dir_server() + dir_NAPR_MO() + hb_ps(), ;
     mm_tip_vyb := { { 'выписан', 1 }, { 'умер', 2 }, { 'перевод в другое отделение', 3 } }
@@ -2474,7 +2474,7 @@ Function _263_to_nastr()
   Local ar, sr, mm_tmp := {}
 
   If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin )
+    Return func_error( 4, err_admin() )
   Endif
 
   Delete file tmp.dbf
@@ -3634,7 +3634,7 @@ Function _263_from_i01()
   Local buf := save_maxrow(), blk, t_arr[ BR_LEN ]
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   g_use( dir_server() + 'mo_nfile', , 'NF' )
   Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;

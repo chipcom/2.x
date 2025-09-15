@@ -9,13 +9,13 @@ Function m_index_db()
 
   Local t2 := 0
 
-  If g_slock1task( sem_task, sem_vagno )  // запрет доступа всем
+  If g_slock1task( sem_task(), sem_vagno() )  // запрет доступа всем
     If f_esc_enter( 'переиндексирования' )
       t2 := pereindex()
       ___uslugi()
     Endif
     // разрешение доступа всем
-    g_sunlock( sem_vagno )
+    g_sunlock( sem_vagno() )
     Keyboard ''
     If t2 > 0
       n_message( { '', 'Время переиндексирования - ' + SecToTime( t2 ) },, ;

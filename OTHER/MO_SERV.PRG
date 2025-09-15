@@ -2590,10 +2590,10 @@ Function f_export( k )
     // full_naselenie_create_BARS()
     // G_SUnLock(str_sem)
     // else
-    // func_error(4,err_slock)
+    // func_error(4,err_slock())
     // endif
     // else
-    // func_error(4,err_admin)
+    // func_error(4,err_admin())
     // endif
   Case k == 13
     If hb_user_curUser:isadmin()
@@ -2602,10 +2602,10 @@ Function f_export( k )
         create_schets_oblsdrav()
         g_sunlock( str_sem )
       Else
-        func_error( 4, err_slock )
+        func_error( 4, err_slock() )
       Endif
     Else
-      func_error( 4, err_admin )
+      func_error( 4, err_admin() )
     Endif
   Case k == 14
     If hb_user_curUser:isadmin()
@@ -2614,10 +2614,10 @@ Function f_export( k )
         pripisnoe_naselenie_create_oblsdrav()
         g_sunlock( str_sem )
       Else
-        func_error( 4, err_slock )
+        func_error( 4, err_slock() )
       Endif
     Else
-      func_error( 4, err_admin )
+      func_error( 4, err_admin() )
     Endif
   Case k == 15
     If hb_user_curUser:isadmin()
@@ -2626,10 +2626,10 @@ Function f_export( k )
         pripisnoe_naselenie_create_vomiac()
         g_sunlock( str_sem )
       Else
-        func_error( 4, err_slock )
+        func_error( 4, err_slock() )
       Endif
     Else
-      func_error( 4, err_admin )
+      func_error( 4, err_admin() )
     Endif
   Case k == 21
     export_military()
@@ -3307,7 +3307,7 @@ Function nastr_all( k, nTask )
   Do Case
   Case k == 0
     If ! hb_user_curUser:isadmin()
-      Return func_error( 4, err_admin )
+      Return func_error( 4, err_admin() )
     Endif
     mas_pmt := { "Общие настройки" }
     mas_msg := { "Общие настройки работы с программой" }
@@ -4069,7 +4069,7 @@ Function f1nastr_all( nameTask, nTask )
     Close databases
     g_sunlock( str_sem )
   Else
-    func_error( 4, err_slock )
+    func_error( 4, err_slock() )
   Endif
 
   Return Nil

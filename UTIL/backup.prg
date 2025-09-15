@@ -236,7 +236,7 @@ Function create_zip( par, dir_archiv )
 
   zip_xml_mo := zip_xml_tf := zip_napr_mo := zip_napr_tf := zip_xml_fns := ''
   If par == 1
-    If ! g_slock1task( sem_task, sem_vagno )  // запрет доступа всем
+    If ! g_slock1task( sem_task(), sem_vagno() )  // запрет доступа всем
       func_error( 4, 'В данный момент работают другие задачи. Копирование запрещено!' )
       Return Nil
     Endif
@@ -353,7 +353,7 @@ Function create_zip( par, dir_archiv )
   Endif
   // разрешение доступа всем
   If par == 1
-    g_sunlock( sem_vagno )
+    g_sunlock( sem_vagno() )
   Endif
   Keyboard ''
   If ! fl

@@ -71,7 +71,7 @@ Function edit_password()
   Private c_1 := T_COL + 5, c_2
 
   If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin )
+    Return func_error( 4, err_admin() )
   Endif
   If !g_slock( 'edit_pass' )
     Return func_error( 4, 'В данный момент пароли редактирует другой администратор. Ждите.' )

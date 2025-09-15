@@ -16,7 +16,7 @@ Function edit_spr_uslugi( k )
   Do Case
   Case k == 0
     If ! hb_user_curUser:isadmin()
-      Return func_error( 4, err_admin )
+      Return func_error( 4, err_admin() )
     Endif
     mas_pmt := { '~Редактирование услуг', ;
       'Услуги Минздрава РФ (~ФФОМС)', ;
@@ -77,7 +77,7 @@ Function f1_uslugi()
   Local tmpAlias, i
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   If !use_base( 'lusl' ) .or. !use_base( 'luslc' ) .or. ;
       !g_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
@@ -793,7 +793,7 @@ Function spr_uslugi_ffoms()
 
   str_sem := 'Редактирование услуг'
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   If !use_base( 'luslf' ) .or. !g_use( dir_server() + 'mo_su', , 'MOSU' )
     Close databases
@@ -1099,7 +1099,7 @@ Function f_k_uslugi( r1 )
   Default r1 To 2
   Private pr1 := r1, pc1 := 2, pc2 := 77, fl_found := .t.
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'PERSO' )
   g_use( dir_server() + 'uslugi_k', dir_server() + 'uslugi_k', 'UK' )
@@ -1432,7 +1432,7 @@ Function f_trkoef()
   str_sem := 'Редактирование коэффициентов - UCH_USL'
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   mywait()
   dbCreate( cur_dir() + 'tmp', uslugi )
@@ -1767,7 +1767,7 @@ Function f_trpers()
     mtitle := 'Плановые УЕТ персонала ' + arr_m[ 4 ]
   Endif
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   mywait()
   If g_use( dir_server() + 'uch_pers', dir_server() + 'uch_pers', 'UCHP' ) .and. ;
@@ -1880,7 +1880,7 @@ Function f_ns_uslugi()
 
   str_sem := 'Редактирование несовместимых услуг'
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   g_use( dir_server() + 'ns_usl', , 'UK' )
   Index On Upper( name ) to ( cur_dir() + 'tmp_usl' )
@@ -2380,7 +2380,7 @@ Function f5_uslugi( r1, c1 )
   Private pr1 := r1, pc1, pc2
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   If c2 > 77
     c2 := 77

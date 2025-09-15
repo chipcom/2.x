@@ -144,7 +144,7 @@ Function edit_proch_spr( k )
       popup_edit( dir_server() + 's_mr', T_ROW, T_COL + 5, MaxRow() -2, , 1 )
       g_sunlock( str_sem )
     Else
-      func_error( 4, err_slock )
+      func_error( 4, err_slock() )
     Endif
   Case k == 3
     mas_pmt := { '~Редактирование', ;
@@ -458,7 +458,7 @@ Function fdeld_s_kem()
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, 'Оператору доступ в данный режим запрещен!' )
   Endif
-  If !g_slock1task( sem_task, sem_vagno )  // запрет доступа всем
+  If !g_slock1task( sem_task(), sem_vagno() )  // запрет доступа всем
     Return func_error( 'В данный момент УДАЛЕНИЕ ДУБЛИКАТА запрещено. Работает другая задача.' )
   Endif
   n_message( { 'Данный режим предназначен для удаления одной строки', ;
@@ -514,7 +514,7 @@ Function fdeld_s_kem()
     Endif
   Endif
   RestScreen( buf )
-  g_sunlock( sem_vagno )
+  g_sunlock( sem_vagno() )
   Return Nil
 
 // 29.07.13
@@ -1306,7 +1306,7 @@ Function spr_struct_org( k )
       reread_glob_mo() // перечитать массив glob_MO
       hb_main_curOrg := torganizationdb():getorganization()
     Else
-      func_error( 4, err_slock )
+      func_error( 4, err_slock() )
     Endif
   Case k == 5
     str_sem := 'Привязка участковых врачей к участкам'
@@ -1314,7 +1314,7 @@ Function spr_struct_org( k )
       f_attach_uch_vrach()
       g_sunlock( str_sem )
     Else
-      func_error( 4, err_slock )
+      func_error( 4, err_slock() )
     Endif
   Endcase
   If k > 0
@@ -1803,7 +1803,7 @@ Function edit_strah()
   Local i := 1, k, buf := SaveScreen(), str_sem := 'Редактирование прочих компаний'
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   If ( k := AScan( arr, {| x| Lower( x[ 1 ] ) == 'tfoms' } ) ) > 0
     del_array( arr, k )
@@ -1836,7 +1836,7 @@ Function edit_komit( d )
   Local i := 1, k, buf := SaveScreen(), str_sem := 'Редактирование комитетов (МО)'
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   Do While i > 0
     If ( i := popup_prompt( T_ROW, T_COL + 5, i, mas_edit, , , , .f. ) ) == A__APPEND

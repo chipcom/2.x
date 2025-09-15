@@ -61,7 +61,7 @@ Function f_ort_nar()
   If fl
     str_sem := "KASSA - Редактирование человека " + lstr( glob_kartotek )
     If !g_slock( str_sem )
-      Return func_error( 4, err_slock )
+      Return func_error( 4, err_slock() )
     Endif
     buf := SaveScreen()
     use_base( "kas_ort", "HUMAN" )
@@ -182,7 +182,7 @@ Function f3_kas_ort( nKey, oBrow )
   Case nKey == K_INS .and. par == 1
     str_sem := "KASSA - Добавление ортопедического наряда"
     If !g_slock( str_sem )
-      Return func_error( 4, err_slock )
+      Return func_error( 4, err_slock() )
     Endif
     enter_1 := 0
     Private mvid := Space( 10 ), m1vid := 2, ;
