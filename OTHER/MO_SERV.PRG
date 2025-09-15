@@ -1085,7 +1085,7 @@ Function f_lis_polis()
     arr_pac[ LIS_OKATO ] := "18"
   Endif
   arr_pac[ LIS_OKATO ] := PadR( arr_pac[ LIS_OKATO ], 11, "0" )
-  If AScan( glob_array_srf, {| x| x[ 2 ] == Left( arr_pac[ LIS_OKATO ], 2 ) } ) == 0
+  If AScan( glob_array_srf(), {| x| x[ 2 ] == Left( arr_pac[ LIS_OKATO ], 2 ) } ) == 0
     arr_pac[ LIS_OKATO ] := PadR( "18", 11, "0" )
   Endif
   //
@@ -4688,7 +4688,7 @@ Function mo_read_el_polis( /*@*/k)
     @ 15, 2 Say "Полис ОМС: " + AllTrim( arr_epolis[ _EP_NPOLIS ] ) Color color8
     @ 16, 2 Say "           действителен с " + full_date( arr_epolis[ _EP_D_BEGIN ] ) + " по " + full_date( arr_epolis[ _EP_D_END ] ) Color color8
     @ 17, 2 Say "СМО: " + iif( Empty( arr_epolis[ _EP_NAMESMO ] ), "не найдена, ОГРН: " + arr_epolis[ _EP_OGRN ], AllTrim( arr_epolis[ _EP_NAMESMO ] ) ) Color color8
-    @ 18, 2 Say "Субъект РФ территории страхования: " + inieditspr( A__MENUVERT, glob_array_srf, arr_epolis[ _EP_OKATO ] ) Color color8
+    @ 18, 2 Say "Субъект РФ территории страхования: " + inieditspr( A__MENUVERT, glob_array_srf(), arr_epolis[ _EP_OKATO ] ) Color color8
     @ 10, 0 To 19, 79 double Color color8
     str_center( 10, " Информация с электронного полиса ", "GR+/R" )
     fillscrarea( 20, 0, 24, 79, "░", color1 )

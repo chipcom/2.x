@@ -495,7 +495,7 @@ Function create_file_hodatajstvo( arr_m )
               find ( PadR( human_->smo, 5 ) )
               frd->okato := smo->okato
             Endif
-            frd->region := inieditspr( A__MENUVERT, glob_array_srf, frd->okato )
+            frd->region := inieditspr( A__MENUVERT, glob_array_srf(), frd->okato )
             frd->proch := AllTrim( AllTrim( kart_->PHONE_H ) + " " + AllTrim( kart_->PHONE_M ) + " " + kart_->PHONE_W )
           Endif
           Select TMP_K1

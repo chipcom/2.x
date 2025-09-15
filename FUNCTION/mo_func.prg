@@ -133,7 +133,7 @@ Function smo_to_screen( ltip )
     Endif
     lokato := iif( ltip == 1, kart_->KVARTAL_D, human_->okato )
     If !Empty( lokato )
-      s += '/' + inieditspr( A__MENUVERT, glob_array_srf, lokato )
+      s += '/' + inieditspr( A__MENUVERT, glob_array_srf(), lokato )
     Endif
   Endif
 

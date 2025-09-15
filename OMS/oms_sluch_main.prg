@@ -612,7 +612,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   // mpovod    := inieditspr(A__MENUVERT, stm_povod, m1povod)
   // mtravma   := inieditspr(A__MENUVERT, stm_travma, m1travma)
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd',  m1otd )
-  mokato    := inieditspr( A__MENUVERT, glob_array_srf, m1okato )
+  mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
   If ibrm > 0

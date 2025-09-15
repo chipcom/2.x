@@ -98,7 +98,7 @@ Function files_nsi_exists( dir_file )
   Endif
   Return lRet
 
-// 13.09.25 проверка и переиндексирование справочников ТФОМС
+// 15.09.25 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir( dir_spavoch, working_dir, flag )
 
   Local fl := .t., i, buf := save_maxrow()
@@ -183,7 +183,8 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   okato_index( flag )
   //
   // справочник страховых компаний РФ
-  sbase := '_mo_smo'
+/*
+  sbase := '_mo_smo' 
   glob_array_srf := {}
   r_use( dir_spavoch + sbase )
   Index On FIELD->okato to ( working_dir + sbase ) UNIQUE
@@ -197,26 +198,28 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   Use ( working_dir + 'tmp_srf' ) New Alias TMP
   r_use( dir_spavoch + '_okator', working_dir + '_okatr', 'RE' )
   r_use( dir_spavoch + '_okatoo', working_dir + '_okato', 'OB' )
-  For i := 1 To Len( glob_array_srf )
+  For i := 1 To Len( glob_array_srf() )
     Select OB
-    find ( glob_array_srf[ i, 2 ] )
+    find ( glob_array_srf()[ i, 2 ] )
     If Found()
-      glob_array_srf[ i, 1 ] := RTrim( ob->name )
+      glob_array_srf()[ i, 1 ] := RTrim( ob->name )
     Else
       Select RE
-      find ( Left( glob_array_srf[ i, 2 ], 2 ) )
+      find ( Left( glob_array_srf()[ i, 2 ], 2 ) )
       If Found()
-        glob_array_srf[ i, 1 ] := RTrim( re->name )
-      Elseif Left( glob_array_srf[ i, 2 ], 2 ) == '55'
-        glob_array_srf[ i, 1 ] := 'г.Байконур'
+        glob_array_srf()[ i, 1 ] := RTrim( re->name )
+      Elseif Left( glob_array_srf()[ i, 2 ], 2 ) == '55'
+        glob_array_srf()[ i, 1 ] := 'г.Байконур'
       Endif
     Endif
     Select TMP
     Append Blank
-    tmp->okato := glob_array_srf[ i, 2 ]
-    tmp->name  := iif( SubStr( glob_array_srf[ i, 2 ], 3, 1 ) == '0', '', '  ' ) + glob_array_srf[ i, 1 ]
+    tmp->okato := glob_array_srf()[ i, 2 ]
+    tmp->name  := iif( SubStr( glob_array_srf()[ i, 2 ], 3, 1 ) == '0', '', '  ' ) + glob_array_srf()[ i, 1 ]
   Next
   Close databases
+*/
+  glob_array_srf( dir_spavoch, working_dir )
   rest_box( buf )
   Return Nil
 
