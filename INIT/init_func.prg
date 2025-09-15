@@ -291,6 +291,19 @@ function Transform_SNILS( param )
 
   return Transform( param, picture_pf() )
 
+// 15.09.25
+function g_arr_stand( param )
+
+  static arr_stand
+
+  if HB_ISNIL( arr_stand )
+    arr_stand := {} 
+  endif
+  if PCount() == 1
+    AAdd( arr_stand, param )
+  endif
+  return arr_stand
+
 // 11.09.25
 function hColor()
 

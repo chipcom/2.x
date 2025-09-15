@@ -307,9 +307,9 @@ Function ret_arr_stand( mdate )
 
   Local i, arr := {}
 
-  For i := 1 To Len( g_arr_stand )
-    If mdate >= g_arr_stand[ i, 1 ]
-      arr := g_arr_stand[ i, 2 ]
+  For i := 1 To Len( g_arr_stand() )
+    If mdate >= g_arr_stand()[ i, 1 ]
+      arr := g_arr_stand()[ i, 2 ]
     Endif
   Next
   Return arr

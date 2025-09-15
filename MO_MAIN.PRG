@@ -251,7 +251,7 @@ Function app_ini()
   Set Color To
   Return Nil
 
-// 11.09.25
+// 15.09.25
 Function f_main( r0, is_local_version, a_parol )
 
 //  Static arr1 := { ;
@@ -317,7 +317,8 @@ Function f_main( r0, is_local_version, a_parol )
       Endif
     Endif
   Next
-  Public glob_task, blk_ekran, g_arr_stand := {}, ;
+//  Public g_arr_stand := {}
+  Public glob_task, blk_ekran, ;
     main_menu, main_message, first_menu, ;
     first_message, func_menu, cmain_menu
   If fl_exit
@@ -392,7 +393,7 @@ Function main_up_screen()
   @ k + 1, MaxCol() -4 Say hour_min( Seconds() ) Color 'W+/N'
   Return k + 1
 
-// 09.09.25 вывести центральные строки главного экрана
+// 15.09.25 вывести центральные строки главного экрана
 Function main_center_screen( r0, a_parol )
 
   Static nLen := 11
@@ -402,7 +403,7 @@ Function main_center_screen( r0, a_parol )
     'астма', 'диабет', 'панкреатит' }
   Local s, i, c, k, t_arr, r1, buf, mst := ''
 
-  g_arr_stand := {}
+//  g_arr_stand := {} 
   If ValType( glob_mo()[ _MO_STANDART ] ) == 'A'
     For k := 1 To Len( glob_mo()[ _MO_STANDART ] )
       t_arr := { glob_mo()[ _MO_STANDART, k, 1 ], {} }
@@ -413,7 +414,8 @@ Function main_center_screen( r0, a_parol )
           AAdd( t_arr[ 2 ], i )
         Endif
       Next
-      AAdd( g_arr_stand, AClone( t_arr ) )
+//      AAdd( g_arr_stand, AClone( t_arr ) )
+      g_arr_stand( AClone( t_arr ) )
     Next
   Endif
   If .t.
