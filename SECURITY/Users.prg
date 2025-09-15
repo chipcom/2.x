@@ -16,19 +16,20 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.07.24 ввод пароля
+// 12.09.25 ввод пароля
 function inp_password_bay( is_local_version, is_create )
+	
 	local strPassword := space( 10 )
 	local i_p := 0, ta := {}
 	local oUser := nil
 	local aMessageRepeat := { 'Не верный пароль!', 'Попробуйте еще раз...' }
 	local aMessageEnd := { 'Нет прав доступа к системе!', 'Вы превысили число возможных попыток получить доступ!' }
 	
-	public TIP_ADM := 0
-	public grup_polzovat := 1, dolj_polzovat := '', ;
-		kod_polzovat := chr( 0 ), tip_polzovat := TIP_ADM, fio_polzovat := '', ;
+	public kod_polzovat := chr( 0 ), fio_polzovat := '', ;
 		yes_parol := .t.
-		
+//	Public dolj_polzovat := '', grup_polzovat := 1, tip_polzovat := TIP_ADM
+//	public TIP_ADM := 0
+
 	if ( is_local_version .and. ! TStructFiles():New():ExistFileClass( 'TUserDB' ) ) .or. is_create
 		hb_user_curUser := TUser():New(, 'Локальная версия', 0)
 		yes_parol := .f.
@@ -49,9 +50,9 @@ function inp_password_bay( is_local_version, is_create )
 				mfio			:= oUser:FIO
 				fio_polzovat	:= alltrim( mfio )
 				kod_polzovat	:= chr( oUser:ID() )
-				tip_polzovat	:= oUser:Access
-				dolj_polzovat	:= alltrim( oUser:Position )
-				grup_polzovat	:= oUser:KEK
+//				tip_polzovat	:= oUser:Access
+//				dolj_polzovat	:= alltrim( oUser:Position )
+//				grup_polzovat	:= oUser:KEK
 
 				oper_parol := oUser:PasswordFR	// int(val(s))
 				oper_frparol := oUser:PasswordFRSuper	// oper_parol
@@ -71,7 +72,8 @@ function inp_password_bay( is_local_version, is_create )
 		exit
 	enddo
 	aadd( ta, alltrim( fio_polzovat ) )
-	aadd( ta, 'Тип доступа: "' + { 'Администратор', 'Оператор', '', 'Контролёр' }[ tip_polzovat + 1 ] + '"' )
+//	aadd( ta, 'Тип доступа: "' + { 'Администратор', 'Оператор', '', 'Контролёр' }[ tip_polzovat + 1 ] + '"' )
+	aadd( ta, 'Тип доступа: "' + { 'Администратор', 'Оператор', '', 'Контролёр' }[ oUser:Access + 1 ] + '"' )
 	if !empty( alltrim( oUser:Position ) )
 		aadd( ta, 'Должность: ' + alltrim( oUser:Position ) )
 	endif

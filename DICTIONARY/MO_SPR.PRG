@@ -549,7 +549,7 @@ Function fdel_school( k )
   Local _fl := .t., arr, i
 
   r_use( dir_server() + 'human', , '__B' )
-  Index On kod to ( cur_dir() + 'tmp_b' ) For Between( ishod, 301, 309 )
+  Index On FIELD->kod to ( cur_dir() + 'tmp_b' ) For Between( FIELD->ishod, 301, 309 )
   Go Top
   Do While !Eof()
     arr := read_arr_dispans( __b->kod )
@@ -769,7 +769,7 @@ Function fs_opl_51( nKey, oBrow, regim, lregim )
       Skip
     Enddo
     Commit
-    Index On Str( tip, 2 ) + _usl_1 + Str( razryad, 2 ) + Str( otdal, 1 ) to ( cur_dir() + 'tmp_u5' )
+    Index On Str( FIELD->tip, 2 ) + FIELD->_usl_1 + Str( FIELD->razryad, 2 ) + Str( FIELD->otdal, 1 ) to ( cur_dir() + 'tmp_u5' )
     find ( str_find )
     ret := Found()
     rest_box( buf )
@@ -944,7 +944,7 @@ Function spr_opl_52()
 
   mywait()
   g_use( dir_server() + 'mo_pers', , 'PERSO' )
-  Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' )
+  Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_pers' )
   Go Top
   t_arr[ BR_TOP ] := 2
   t_arr[ BR_BOTTOM ] := MaxRow() -2
@@ -1111,7 +1111,7 @@ Function fs_opl_71( nKey, oBrow, regim, mtitle )
   Do Case
   Case regim == 'open'
     g_use( dir_server() + 'u_usl_7', , 'U7' )
-    Index On Upper( name ) to ( cur_dir() + 'tmp_u7' )
+    Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_u7' )
     Go Top
     ret := !Eof()
   Case regim == 'edit'
@@ -1148,7 +1148,7 @@ Function fs_opl_71( nKey, oBrow, regim, mtitle )
       a_net := slist2arr( u7->usl_del )
       useuch_usl()
       r_use( dir_server() + 'uslugi', , 'USL' )
-      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmpu' )
+      Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmpu' )
       Go Top
       Do While !Eof()
         If _f_usl_danet( a_da, a_net )
@@ -1341,7 +1341,7 @@ Function f_attach_uch_vrach()
   Private p2blk := {| i| i := iif( Between( p2->kateg, 1, 4 ), p2->kateg, 1 ), ;
     ' (' + { 'вр', 'ср', 'мл', 'пр' }[ i ] + '.) ' }
   g_use( dir_server() + 'mo_uchvr', , 'UV' )
-  Index On Str( uch, 2 ) to ( cur_dir() + 'tmp' )
+  Index On Str( FIELD->uch, 2 ) to ( cur_dir() + 'tmp' )
   For i := 1 To Len( arr )
     find ( Str( arr[ i ], 2 ) )
     If !Found()
@@ -1363,7 +1363,7 @@ Function f_attach_uch_vrach()
     Skip
   Enddo
   dbUnlockAll()
-  Index On Str( uch, 2 ) to ( cur_dir() + 'tmp' ) For is == 1
+  Index On Str( FIELD->uch, 2 ) to ( cur_dir() + 'tmp' ) For FIELD->is == 1
   t_arr[ BR_TOP ] := T_ROW
   t_arr[ BR_BOTTOM ] := MaxRow() -2
   t_arr[ BR_LEFT ]  := 2
@@ -1546,7 +1546,7 @@ Function valid_kod_tfoms( get )
   Endif
   Return fl
 
-// 27.03.24 редактирование справочника отделений
+// 13.09.25 редактирование справочника отделений
 Function edit_otd()
 
   Local i, j, blk, arr[ US_LEN ], fl
@@ -1580,9 +1580,9 @@ Function edit_otd()
   If glob_mo[ _MO_KOD_TFOMS ] == '126501'
     ins_array( mm_tiplu, 3, { 'неотложная медицинская помощь', TIP_LU_NMP } )
   Endif
-  If AScan( glob_klin_diagn, 1 ) > 0
+  If AScan( glob_klin_diagn(), 1 ) > 0
     AAdd( mm_tiplu, { 'жидкостная цитология рака шейки матки', TIP_LU_G_CIT } )
-  Elseif AScan( glob_klin_diagn, 2 ) > 0
+  Elseif AScan( glob_klin_diagn(), 2 ) > 0
     AAdd( mm_tiplu, { 'пренатальный скрининг наруш.внутр.разв.', TIP_LU_G_CIT } )
   Endif
   Private mm1tiplu := AClone( mm_tiplu )
@@ -1675,7 +1675,7 @@ Function fdel_otd( k )
   If _fl
     r_use( dir_server() + 'human', dir_server() + 'humann', '__B' )
     For i := 0 To 9
-      find ( Str( i, 1 ) + Str( k, 3 ) ) // index on str(tip_h, 1)+ str(otd, 3)+...
+      find ( Str( i, 1 ) + Str( k, 3 ) ) // index on str(FIELD->tip_h, 1)+ str(FIELD->otd, 3)+...
       If Found()
         _fl := .f.
         Exit

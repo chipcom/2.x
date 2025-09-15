@@ -98,7 +98,7 @@ Function files_nsi_exists( dir_file )
   Endif
   Return lRet
 
-// 06.01.25 проверка и переиндексирование справочников ТФОМС
+// 13.09.25 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir( dir_spavoch, working_dir, flag )
 
   Local fl := .t., i, buf := save_maxrow()
@@ -110,7 +110,7 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
 
   Default flag To .f.
 
-  AFill( glob_yes_kdp2, .f. )
+//  AFill( glob_yes_kdp2, .f. )
 
   If flag
     mywait( 'Подождите, идет переиндексация файлов НСИ в рабочей области...' )
@@ -229,7 +229,7 @@ Function dep_index_and_fill( val_year, dir_spavoch, working_dir, flag )
   sbase := prefixfilerefname( val_year ) + 'dep'  // справочник отделений на конкретный год
   If hb_vfExists( dir_spavoch + sbase + sdbf() )
     r_use( dir_spavoch + sbase, , 'DEP' )
-    Index On Str( FIELD->code, 3 ) to ( working_dir + sbase ) For FIELD->codem == glob_mo[ _MO_KOD_TFOMS ]
+    Index On Str( FIELD->code, 3 ) to ( working_dir + sbase ) For FIELD->codem == glob_mo()[ _MO_KOD_TFOMS ]
 
     If val_year == WORK_YEAR
       dbEval( {|| AAdd( mm_otd_dep, { AllTrim( dep->name_short ) + ' (' + AllTrim( dep->name ) + ')', dep->code, dep->place } ) } )
@@ -242,7 +242,7 @@ Function dep_index_and_fill( val_year, dir_spavoch, working_dir, flag )
       sbase := prefixfilerefname( val_year ) + 'deppr' // справочник отделения + профили  на конкретный год
       If hb_vfExists( dir_spavoch + sbase + sdbf() )
         r_use( dir_spavoch + sbase, , 'DEP' )
-        Index On Str( FIELD->code, 3 ) + Str( FIELD->pr_mp, 3 ) to ( working_dir + sbase ) For FIELD->codem == glob_mo[ _MO_KOD_TFOMS ]
+        Index On Str( FIELD->code, 3 ) + Str( FIELD->pr_mp, 3 ) to ( working_dir + sbase ) For FIELD->codem == glob_mo()[ _MO_KOD_TFOMS ]
         Use
       Endif
     Endif
@@ -292,9 +292,9 @@ Function uslc_index( val_year, dir_spavoch, working_dir, flag )
 
     r_use( dir_spavoch + sbase, , 'LUSLC' )
     Index On FIELD->shifr + Str( FIELD->vzros_reb, 1 ) + Str( FIELD->depart, 3 ) + DToS( FIELD->datebeg ) to ( working_dir + sbase ) ;
-      For FIELD->codemo == glob_mo[ _MO_KOD_TFOMS ]
+      For FIELD->codemo == glob_mo()[ _MO_KOD_TFOMS ]
     Index On FIELD->codemo + FIELD->shifr + Str( FIELD->vzros_reb, 1 ) + Str( FIELD->depart, 3 ) + DToS( FIELD->datebeg ) to ( working_dir + index_usl_name ) ;
-      For FIELD->codemo == glob_mo[ _MO_KOD_TFOMS ] // для совместимости со старой версией справочника
+      For FIELD->codemo == glob_mo()[ _MO_KOD_TFOMS ] // для совместимости со старой версией справочника
 
     Close databases
   Endif

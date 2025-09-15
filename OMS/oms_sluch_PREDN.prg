@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.02.24 ПредН - добавление или редактирование случая (листа учета)
+// 13.09.25 ПредН - добавление или редактирование случая (листа учета)
 Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -31,7 +31,7 @@ Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
     M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
     m1company := 0, mcompany, mm_company, ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
-  msmo := '34007', rec_inogSMO := 0, ;
+    msmo := '34007', rec_inogSMO := 0, ;
     mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 ), ;
     mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ), mnpolis := Space( 20 )
   Private mkod := Loc_kod, mtip_h, is_talon := .f., ;
@@ -40,36 +40,36 @@ Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
     M1OTD := glob_otd[ 1 ], MOTD, ;
     M1FIO_KART := 1, MFIO_KART, ;
     MUCH_DOC    := Space( 10 ), ; // вид и номер учетного документа
-  MKOD_DIAG   := Space( 5 ), ; // шифр 1-ой осн.болезни
-  MKOD_DIAG2  := Space( 5 ), ; // шифр 2-ой осн.болезни
-  MKOD_DIAG3  := Space( 5 ), ; // шифр 3-ой осн.болезни
-  MKOD_DIAG4  := Space( 5 ), ; // шифр 4-ой осн.болезни
-  MSOPUT_B1   := Space( 5 ), ; // шифр 1-ой сопутствующей болезни
-  MSOPUT_B2   := Space( 5 ), ; // шифр 2-ой сопутствующей болезни
-  MSOPUT_B3   := Space( 5 ), ; // шифр 3-ой сопутствующей болезни
-  MSOPUT_B4   := Space( 5 ), ; // шифр 4-ой сопутствующей болезни
-  MDIAG_PLUS  := Space( 8 ), ; // дополнения к диагнозам
-  adiag_talon[ 16 ], ; // из статталона к диагнозам
-  m1rslt  := L_BEGIN_RSLT + 1, ; // результат (присвоена I группа здоровья)
+    MKOD_DIAG   := Space( 5 ), ; // шифр 1-ой осн.болезни
+    MKOD_DIAG2  := Space( 5 ), ; // шифр 2-ой осн.болезни
+    MKOD_DIAG3  := Space( 5 ), ; // шифр 3-ой осн.болезни
+    MKOD_DIAG4  := Space( 5 ), ; // шифр 4-ой осн.болезни
+    MSOPUT_B1   := Space( 5 ), ; // шифр 1-ой сопутствующей болезни
+    MSOPUT_B2   := Space( 5 ), ; // шифр 2-ой сопутствующей болезни
+    MSOPUT_B3   := Space( 5 ), ; // шифр 3-ой сопутствующей болезни
+    MSOPUT_B4   := Space( 5 ), ; // шифр 4-ой сопутствующей болезни
+    MDIAG_PLUS  := Space( 8 ), ; // дополнения к диагнозам
+    adiag_talon[ 16 ], ; // из статталона к диагнозам
+    m1rslt  := L_BEGIN_RSLT + 1, ; // результат (присвоена I группа здоровья)
     m1ishod := 306, ; // исход = осмотр
-  MN_DATA := st_N_DATA, ; // дата начала лечения
-  MK_DATA := st_K_DATA, ; // дата окончания лечения
-  MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
-  M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
-  m1povod  := 4, ;   // Профилактический
+    MN_DATA := st_N_DATA, ; // дата начала лечения
+    MK_DATA := st_K_DATA, ; // дата окончания лечения
+    MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
+    M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
+    m1povod  := 4, ;   // Профилактический
     m1travma := 0, ;
     m1USL_OK :=  USL_OK_POLYCLINIC, ; // поликлиника
-  m1VIDPOM :=  1, ; // первичная
-  m1PROFIL := 68, ; // педиатрия
-  m1IDSP   := 17   // законченный случай в п-ке
+    m1VIDPOM :=  1, ; // первичная
+    m1PROFIL := 68, ; // педиатрия
+    m1IDSP   := 17   // законченный случай в п-ке
   //
   Private mm_gr_fiz := { { 'I', 1 }, { 'II', 2 }, { 'III', 3 }, { 'IV', 4 }, { 'не допущен', 0 } }
   //
   Private metap := 1, mperiod := 0, mshifr_zs := '', ;
     mMO_PR := Space( 10 ), m1MO_PR := st_mo_pr, ; // код МО прикрепления
-  mschool := Space( 10 ), m1school := st_school, ; // код обр.учреждения
-  mtip_school := Space( 10 ), m1tip_school := 0, ; // тип обр.учреждения
-  mGRUPPA := 0, ;    // группа здоровья после дисп-ии
+    mschool := Space( 10 ), m1school := st_school, ; // код обр.учреждения
+    mtip_school := Space( 10 ), m1tip_school := 0, ; // тип обр.учреждения
+    mGRUPPA := 0, ;    // группа здоровья после дисп-ии
     mGR_FIZ, m1GR_FIZ := 1, ;
     mstep2, m1step2 := 0
   Private mvar, m1var, m1lis := 0
@@ -280,7 +280,7 @@ Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
           &mvar := c4tod( hu->date_u )
           If j == 1
             m1var := 'm1lis' + lstr( i )
-            If glob_yes_kdp2[ TIP_LU_PREDN ] .and. AScan( glob_arr_usl_LIS, npred_arr_issled[ i, 1 ] ) > 0 ;
+            If glob_yes_kdp2()[ TIP_LU_PREDN ] .and. AScan( glob_arr_usl_LIS, npred_arr_issled[ i, 1 ] ) > 0 ;
                 .and. hu->is_edit == 1
               &m1var := 1
             Endif
@@ -454,7 +454,7 @@ Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
             &mvard := mn_data
           Endif
           fl_kdp2 := .f.
-          If glob_yes_kdp2[ TIP_LU_PREDN ] .and. AScan( glob_arr_usl_LIS, npred_arr_issled[ i, 1 ] ) > 0
+          If glob_yes_kdp2()[ TIP_LU_PREDN ] .and. AScan( glob_arr_usl_LIS, npred_arr_issled[ i, 1 ] ) > 0
             fl_kdp2 := .t.
           Endif
           @ ++j, 1 Say PadR( npred_arr_issled[ i, 3 ], 38 )
@@ -704,7 +704,7 @@ Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
           arr_iss[ i, 6 ] := mdef_diagnoz
           arr_iss[ i, 9 ] := &mvard
           m1var := 'm1lis' + lstr( i )
-          If glob_yes_kdp2[ TIP_LU_PREDN ] .and. &m1var == 1
+          If glob_yes_kdp2()[ TIP_LU_PREDN ] .and. &m1var == 1
             arr_iss[ i, 10 ] := 1 // кровь проверяют в КДП2
           Endif
           max_date1 := Max( max_date1, arr_iss[ i, 9 ] )
@@ -884,7 +884,7 @@ Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
       Endif
       mywait( 'Ждите. Производится запись листа учёта...' )
       m1lis := 0
-      If glob_yes_kdp2[ TIP_LU_PREDN ]
+      If glob_yes_kdp2()[ TIP_LU_PREDN ]
         For i := 1 To count_predn_arr_iss
           If ValType( arr_iss[ i, 9 ] ) == 'D' .and. arr_iss[ i, 9 ] >= mn_data .and. Len( arr_iss[ i ] ) > 9 ;
               .and. ValType( arr_iss[ i, 10 ] ) == 'N' .and. arr_iss[ i, 10 ] == 1

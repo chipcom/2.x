@@ -468,9 +468,9 @@ METHOD New( nId, lNew, lDeleted ) CLASS TSubdivision
 	::FDeleted			:= hb_defaultValue( lDeleted, .f. )
 	::FID						:= hb_defaultValue( nID, 0 )
 
-	if ascan( glob_klin_diagn, 1 ) > 0
+	if ascan( glob_klin_diagn(), 1 ) > 0
 		aadd( ::aTypeLU, { 'жидкостная цитология рака шейки матки', TIP_LU_G_CIT } )
-	elseif ascan( glob_klin_diagn, 2 ) > 0
+	elseif ascan( glob_klin_diagn(), 2 ) > 0
 		aadd( ::aTypeLU, { 'пренатальный скрининг наруш.внутр.разв.', TIP_LU_G_CIT } )
 	endif
 	

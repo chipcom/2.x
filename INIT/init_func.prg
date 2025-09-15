@@ -250,6 +250,33 @@ function glob_menu_mz_rf( index, param )
   endif
   return glob_menu
 
+// 13.09.25
+function glob_klin_diagn( param )
+
+  static klin_diagn
+
+  if isnil( klin_diagn )
+    klin_diagn := {}
+  endif
+  if PCount() == 1 .and. ( ValType( param ) == 'N' )
+    aadd( klin_diagn, param )
+  endif
+  return klin_diagn
+
+// 13.09.25
+function glob_yes_kdp2( index, param )
+
+  static glob_kdp2
+
+  if isnil( glob_kdp2 )
+    glob_kdp2 := Array( 10 )
+    AFill( glob_kdp2, .f. )
+  endif
+  if PCount() == 2 .and. ( ValType( index ) == 'N' ) .and. ( ValType( param ) == 'L' )
+    glob_kdp2[ index ] := param
+  endif
+  return glob_kdp2
+
 // 12.09.25
 function pict_cena()
   return '9999999.99'

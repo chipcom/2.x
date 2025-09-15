@@ -287,7 +287,7 @@ Function f2_k_plat( oBrow )
   mark_keys( { "<Esc>", "<Enter>", "<Ins>", "<Del>", "<Ctrl+Enter>", "<F3>", "<F4>", "<F8>", "<F9>", "<F10>" }, "R/W" )
   Return Nil
 
-// 20.10.23
+// 12.09.25
 Function f3_k_plat( nKey, oBrow )
 
   Local j := 0, flag := -1, buf := save_row( MaxRow() ), buf1, fl := .f., rec, mkod, ;
@@ -465,7 +465,7 @@ Function f3_k_plat( nKey, oBrow )
     clrline( 23, color0 )
     mdov_date  := oper_dov_date
     mdov_nomer := oper_dov_nomer
-    mdov_dolgn := dolj_polzovat
+    mdov_dolgn := hb_user_curUser:Position    // dolj_polzovat
     t_hum_rec := human->( RecNo() )
     kart_kod := human->kod_k
     t_k_data := Year( human->k_data )

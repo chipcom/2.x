@@ -246,11 +246,12 @@ Function f1_inf_dds_karta( nKey, oBrow, regim )
 
   Return ret
 
-// 12.09.25
+// 13.09.25
 Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
 
   Static st := "     ", ub := "<u><b>", ue := "</b></u>", sh := 88
   Local adbf, s, i, j, k, y, m, d, fl, mm_danet, blk := {| s| __dbAppend(), field->stroke := s }
+  local mm_invalid5 := mm_invalid5()
 
   delfrfiles()
   r_use( dir_server() + "mo_stdds" )
@@ -310,7 +311,7 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
       s += ub + ret_okato_ulica( kart->adres, kart_->okatog, 1, 2 ) + ue + "."
     Endif
     frd->( Eval( blk, s ) )
-    s := st + "5. Категория: " + f3_inf_dds_karta( mm_kateg_uch, m1kateg_uch, "; ", ub, ue )
+    s := st + "5. Категория: " + f3_inf_dds_karta( mm_kateg_uch(), m1kateg_uch, "; ", ub, ue )
     frd->( Eval( blk, s ) )
     s := st + "6. Полное наименование медицинской организации, в которой " + ;
       "несовершеннолетний получает первичную медико-санитарную помощь: "
@@ -392,7 +393,7 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
     s := st + "2.2. Дата рождения: " + ub + date_month( mdate_r, .t. ) + ue + "."
     frd->( Eval( blk, s ) )
     s := st + "2.3. Категория учета ребенка, находящегося в тяжелой жизненной ситуации: "
-    s += f3_inf_dds_karta( mm_kateg_uch, m1kateg_uch, "; ", ub, ue )
+    s += f3_inf_dds_karta( mm_kateg_uch(), m1kateg_uch, "; ", ub, ue )
     frd->( Eval( blk, s ) )
     s := st + "2.4. На момент проведения диспансеризации находится "
     mm_gde_nahod1[ 3, 1 ] := "попечительством"
@@ -413,8 +414,8 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
     s += iif( p_tip_lu == TIP_LU_DDSOP .or. Empty( mdate_post ), Replicate( "_", 15 ), ub + full_date( mdate_post ) + ue ) + "."
     frd->( Eval( blk, s ) )
     s := st + "5. Причина выбытия из стационарного учреждения: "
-    del_array( mm_prich_vyb, 1 ) // удалить 1-ый элемент "{"не выбыл", 0}"
-    s += f3_inf_dds_karta( mm_prich_vyb, m1prich_vyb,, ub, ue )
+// НЕ ЗНАЮ ЗАЧЕМ    del_array( mm_prich_vyb(), 1 ) // удалить 1-ый элемент "{"не выбыл", 0}"
+    s += f3_inf_dds_karta( mm_prich_vyb(), m1prich_vyb,, ub, ue )
     frd->( Eval( blk, s ) )
     s := st + "5.1. Дата выбытия: " + iif( Empty( mDATE_VYB ), Replicate( "_", 15 ), ub + full_date( mDATE_VYB ) + ue ) + "."
     frd->( Eval( blk, s ) )
@@ -467,7 +468,7 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
     s += "масса (кг) " + iif( !fl, "________", ub + st + lstr( mWEIGHT ) + st + ue ) + "; "
     s += "рост (см) " + iif( !fl, "________", ub + st + lstr( mHEIGHT ) + st + ue ) + "; "
     s += "окружность головы (см) " + iif( !fl .or. mPER_HEAD == 0, "________", ub + st + lstr( mPER_HEAD ) + st + ue ) + "; "
-    s += "физическое развитие " + f3_inf_dds_karta( mm_fiz_razv, iif( fl, m1FIZ_RAZV, -1 ),, ub, ue, .f. )
+    s += "физическое развитие " + f3_inf_dds_karta( mm_fiz_razv(), iif( fl, m1FIZ_RAZV, -1 ),, ub, ue, .f. )
     s += " (" + f3_inf_dds_karta( mm_fiz_razv1, iif( fl, m1FIZ_RAZV1, -1 ),, ub, ue, .f. )
     s += ", " + f3_inf_dds_karta( mm_fiz_razv2, iif( fl, m1FIZ_RAZV2, -1 ),, ub, ue, .f. )
     s += " - нужное подчеркнуть)."
@@ -489,11 +490,11 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
   fl := ( lvozrast > 4 )
   s := st + "13.2. Для детей в возрасте 5 - 17 лет:"
   frd->( Eval( blk, s ) )
-  s := st + "13.2.1. Психомоторная сфера: " + f3_inf_dds_karta( mm_psih2, iif( fl, m1psih21, -1 ),, ub, ue )
+  s := st + "13.2.1. Психомоторная сфера: " + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih21, -1 ),, ub, ue )
   frd->( Eval( blk, s ) )
-  s := st + "13.2.2. Интеллект: " + f3_inf_dds_karta( mm_psih2, iif( fl, m1psih22, -1 ),, ub, ue )
+  s := st + "13.2.2. Интеллект: " + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih22, -1 ),, ub, ue )
   frd->( Eval( blk, s ) )
-  s := st + "13.2.3. Эмоционально-вегетативная сфера: " + f3_inf_dds_karta( mm_psih2, iif( fl, m1psih23, -1 ),, ub, ue )
+  s := st + "13.2.3. Эмоционально-вегетативная сфера: " + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih23, -1 ),, ub, ue )
   frd->( Eval( blk, s ) )
   fl := ( mpol == "М" .and. lvozrast > 9 )
   s := st + "14. Оценка полового развития (с 10 лет):"
@@ -514,9 +515,9 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
   If fl .and. emptyall( m142p, m142ax, m142ma, m142me, m142me1, m142me2 )
     m1142me3 := m1142me4 := m1142me5 := -1
   Endif
-  s += "menses (характеристика): " + f3_inf_dds_karta( mm_142me3, iif( fl, m1142me3, -1 ),, ub, ue, .f. )
-  s += ", " + f3_inf_dds_karta( mm_142me4, iif( fl, m1142me4, -1 ),, ub, ue, .f. )
-  s += ", " + f3_inf_dds_karta( mm_142me5, iif( fl, m1142me5, -1 ), " и ", ub, ue )
+  s += "menses (характеристика): " + f3_inf_dds_karta( mm_142me3(), iif( fl, m1142me3, -1 ),, ub, ue, .f. )
+  s += ", " + f3_inf_dds_karta( mm_142me4(), iif( fl, m1142me4, -1 ),, ub, ue, .f. )
+  s += ", " + f3_inf_dds_karta( mm_142me5(), iif( fl, m1142me5, -1 ), " и ", ub, ue )
   frd->( Eval( blk, s ) )
   s := st + "15. Состояние здоровья до проведения " + ;
     iif( p_tip_lu == TIP_LU_PN, "настоящего профилактического медицинского осмотра:", "диспансеризации:" )
@@ -734,7 +735,7 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
     m1invalid8 := -1
   Endif
   s := st + '16.7. Инвалидность: ' + f3_inf_dds_karta( mm_danet, m1invalid1,, ub, ue )
-  s := Left( s, Len( s ) -1 ) + '; если "да": ' + f3_inf_dds_karta( mm_invalid2, m1invalid2,, ub, ue )
+  s := Left( s, Len( s ) -1 ) + '; если "да": ' + f3_inf_dds_karta( mm_invalid2(), m1invalid2,, ub, ue )
   s := Left( s, Len( s ) -1 ) + '; установлена впервые (дата) ' + iif( Empty( minvalid3 ), Replicate( "_", 15 ), ub + full_date( minvalid3 ) + ue )
   s += '; дата последнего освидетельствования ' + iif( Empty( minvalid4 ), Replicate( "_", 15 ), ub + full_date( minvalid4 ) + ue ) + '.'
   frd->( Eval( blk, s ) )
@@ -747,13 +748,13 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
   frd->( Eval( blk, s ) )
   s := st + '16.7.2.Виды нарушений в состоянии здоровья:'
   frd->( Eval( blk, s ) )
-  s := st + f3_inf_dds_karta( mm_invalid6, m1invalid6, '; ', ub, ue )
+  s := st + f3_inf_dds_karta( mm_invalid6(), m1invalid6, '; ', ub, ue )
   frd->( Eval( blk, s ) )
   s := st + '16.7.3. Индивидуальная программа реабилитации ребенка-инвалида:'
   frd->( Eval( blk, s ) )
   s := st + 'дата назначения: ' + iif( Empty( minvalid7 ), Replicate( "_", 15 ), ub + full_date( minvalid7 ) + ue ) + ';'
   frd->( Eval( blk, s ) )
-  s := st + 'выполнение на момент диспансеризации: ' + f3_inf_dds_karta( mm_invalid8, m1invalid8,, ub, ue )
+  s := st + 'выполнение на момент диспансеризации: ' + f3_inf_dds_karta( mm_invalid8(), m1invalid8,, ub, ue )
   frd->( Eval( blk, s ) )
   s := st + "16.8. Группа состояния здоровья: " + f3_inf_dds_karta( mm_gruppa, mGRUPPA,, ub, ue )
   frd->( Eval( blk, s ) )
@@ -766,18 +767,18 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
     '. Проведение профилактических прививок:'
   frd->( Eval( blk, s ) )
   s := st
-  For j := 1 To Len( mm_privivki1 )
-    If m1privivki1 == mm_privivki1[ j, 2 ]
+  For j := 1 To Len( mm_privivki1() )
+    If m1privivki1 == mm_privivki1()[ j, 2 ]
       s += ub
     Endif
-    s += mm_privivki1[ j, 1 ]
-    If m1privivki1 == mm_privivki1[ j, 2 ]
+    s += mm_privivki1()[ j, 1 ]
+    If m1privivki1 == mm_privivki1()[ j, 2 ]
       s += ue
     Endif
-    If mm_privivki1[ j, 2 ] == 0
+    If mm_privivki1()[ j, 2 ] == 0
       s += "; "
     Else
-      s += ": " + f3_inf_dds_karta( mm_privivki2, iif( m1privivki1 == mm_privivki1[ j, 2 ], m1privivki2, -1 ),, ub, ue, .f. ) + "; "
+      s += ": " + f3_inf_dds_karta( mm_privivki2(), iif( m1privivki1 == mm_privivki1()[ j, 2 ], m1privivki2, -1 ),, ub, ue, .f. ) + "; "
     Endif
   Next
   s += 'нуждается в проведении вакцинации (ревакцинации) с указанием наименования прививки (нужное подчеркнуть): '
@@ -882,7 +883,7 @@ Function f4_inf_dds_karta( par, _etap, et2 )
 
   If par == 1
     If iif( _etap == nil, .t., _etap == 1 )
-      For i := 1 To count_dds_arr_osm1
+      For i := 1 To Len( dds_arr_osm1() )
         k := 0
         Do Case
         Case i ==  1 // {"офтальмолог","", 0, 17,{65},{1112},{"2.83.21"}}, ;
@@ -910,10 +911,10 @@ Function f4_inf_dds_karta( par, _etap, et2 )
         Endcase
         mvart := "MTAB_NOMov" + lstr( i )
         mvard := "MDATEo" + lstr( i )
-        If Between( mvozrast, dds_arr_osm1[ i, 3 ], dds_arr_osm1[ i, 4 ] ) .and. ;
-            iif( Empty( dds_arr_osm1[ i, 2 ] ), .t., dds_arr_osm1[ i, 2 ] == mpol )
+        If Between( mvozrast, dds_arr_osm1()[ i, 3 ], dds_arr_osm1()[ i, 4 ] ) .and. ;
+            iif( Empty( dds_arr_osm1()[ i, 2 ] ), .t., dds_arr_osm1()[ i, 2 ] == mpol )
           If !emptyany( &mvard, &mvart )
-            AAdd( arr, { dds_arr_osm1[ i, 1 ], &mvard, "", i, k } )
+            AAdd( arr, { dds_arr_osm1()[ i, 1 ], &mvard, "", i, k } )
           Endif
         Endif
       Next
@@ -925,26 +926,26 @@ Function f4_inf_dds_karta( par, _etap, et2 )
           k := 0
           mvart := "MTAB_NOMov" + lstr( i )
           mvard := "MDATEo" + lstr( i )
-          If !Between( mvozrast, dds_arr_osm1[ i, 3 ], dds_arr_osm1[ i, 4 ] )
+          If !Between( mvozrast, dds_arr_osm1()[ i, 3 ], dds_arr_osm1()[ i, 4 ] )
             If !emptyany( &mvard, &mvart )
-              AAdd( arr, { dds_arr_osm1[ i, 1 ], &mvard, "", i, k } )
+              AAdd( arr, { dds_arr_osm1()[ i, 1 ], &mvard, "", i, k } )
             Endif
           Endif
         Next
       Endif
       If eq_any( et2, 0, 2 )
-        For i := 1 To count_dds_arr_osm2
+        For i := 1 To Len( dds_arr_osm2() )
           k := 0
           mvart := "MTAB_NOM2ov" + lstr( i )
           mvard := "MDATE2o" + lstr( i )
           If !emptyany( &mvard, &mvart )
-            AAdd( arr, { dds_arr_osm2[ i, 1 ], &mvard, "", i, k } )
+            AAdd( arr, { dds_arr_osm2()[ i, 1 ], &mvard, "", i, k } )
           Endif
         Next
       Endif
     Endif
   Else
-    For i := 1 To count_dds_arr_iss
+    For i := 1 To Len( dds_arr_iss() )
       k := 0
       Do Case
       Case i ==  1 // {"Клинический анализ мочи","", 0, 17,{34},{1107, 1301, 1402, 1702},{"4.2.153"}}, ;
@@ -973,9 +974,9 @@ Function f4_inf_dds_karta( par, _etap, et2 )
       mvart := "MTAB_NOMiv" + lstr( i )
       mvard := "MDATEi" + lstr( i )
       mvarr := "MREZi" + lstr( i )
-      If Between( mvozrast, dds_arr_iss[ i, 3 ], dds_arr_iss[ i, 4 ] )
+      If Between( mvozrast, dds_arr_iss()[ i, 3 ], dds_arr_iss()[ i, 4 ] )
         If !emptyany( &mvard, &mvart )
-          AAdd( arr, { dds_arr_iss[ i, 1 ], &mvard, &mvarr, i, k } )
+          AAdd( arr, { dds_arr_iss()[ i, 1 ], &mvard, &mvarr, i, k } )
         Endif
       Endif
     Next
@@ -1031,14 +1032,14 @@ Function inf_dds_svod( par, par2, is_schet )
         { "f4",   "C",     1,     0 }, ; //
         { "f5",   "C",     1,     0 }; //
       }
-      For i := 1 To count_dds_arr_iss
+      For i := 1 To Len( dds_arr_iss() )
         AAdd( adbf, { "di_" + lstr( i ), "C", 8, 0 } )
       Next
-      For i := 1 To count_dds_arr_osm1
+      For i := 1 To Len( dds_arr_osm1() )
         AAdd( adbf, { "d1_" + lstr( i ), "C", 8, 0 } )
       Next
       AAdd( adbf, { "d1_zs", "C", 8, 0 } )
-      For i := 1 To count_dds_arr_osm2
+      For i := 1 To Len( dds_arr_osm2() )
         AAdd( adbf, { "d2_" + lstr( i ), "C", 8, 0 } )
       Next
       dbCreate( cur_dir() + "tmpfio", adbf )
@@ -1108,14 +1109,14 @@ Function inf_dds_svod( par, par2, is_schet )
         { "f3",   "N",     8,     0 }, ; //
         { "f4",   "N",     8,     0 }, ; //
         { "f5",   "N",     8,     0 } }
-      For i := 1 To count_dds_arr_iss
+      For i := 1 To Len( dds_arr_iss() )
         AAdd( adbf, { "di_" + lstr( i ), "N", 8, 0 } )
       Next
-      For i := 1 To count_dds_arr_osm1
+      For i := 1 To Len( dds_arr_osm1() )
         AAdd( adbf, { "d1_" + lstr( i ), "N", 8, 0 } )
       Next
       AAdd( adbf, { "d1_zs", "N", 8, 0 } )
-      For i := 1 To count_dds_arr_osm2
+      For i := 1 To Len( dds_arr_osm2() )
         AAdd( adbf, { "d2_" + lstr( i ), "N", 8, 0 } )
       Next
       dbCreate( fr_titl, adbf )
@@ -1148,14 +1149,14 @@ Function inf_dds_svod( par, par2, is_schet )
           frt->nomer := frd->nomer
           frt->kol_opl += frd->noplata
           frt->cena_1 += frd->cena_1
-          For i := 1 To count_dds_arr_iss
+          For i := 1 To Len( dds_arr_iss() )
             poled := "frd->di_" + lstr( i )
             polet := "frt->di_" + lstr( i )
             If !Empty( &poled )
               &polet := &polet + 1
             Endif
           Next
-          For i := 1 To count_dds_arr_osm1
+          For i := 1 To Len( dds_arr_osm1() )
             poled := "frd->d1_" + lstr( i )
             polet := "frt->d1_" + lstr( i )
             If !Empty( &poled )
@@ -1165,7 +1166,7 @@ Function inf_dds_svod( par, par2, is_schet )
           If !Empty( frd->d1_zs )
             frt->d1_zs++
           Endif
-          For i := 1 To count_dds_arr_osm2
+          For i := 1 To Len( dds_arr_osm2() )
             poled := "frd->d2_" + lstr( i )
             polet := "frt->d2_" + lstr( i )
             If !Empty( &poled )
@@ -6159,11 +6160,12 @@ Function f1_inf_dnl_karta( nKey, oBrow, regim )
 
   Return ret
 
-// 12.09.25
+// 13.09.25
 Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
 
   Static st := "     ", ub := "<u><b>", ue := "</b></u>", sh := 88
   Local adbf, s, i, j, k, y, m, d, fl, mm_danet, blk := {| s| __dbAppend(), field->stroke := s }
+  local mm_invalid5 := mm_invalid5()
 
   delfrfiles()
   r_use( dir_server() + "mo_stdds" )
@@ -6222,7 +6224,7 @@ Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
     s += ub + ret_okato_ulica( kart->adres, kart_->okatog, 1, 2 ) + ue + "."
   Endif
   frd->( Eval( blk, s ) )
-  s := st + "5. Категория: " + f3_inf_dds_karta( mm_kateg_uch, m1kateg_uch, "; ", ub, ue )
+  s := st + "5. Категория: " + f3_inf_dds_karta( mm_kateg_uch(), m1kateg_uch, "; ", ub, ue )
   frd->( Eval( blk, s ) )
   s := st + "6. Полное наименование медицинской организации, в которой " + ;
     "несовершеннолетний получает первичную медико-санитарную помощь: "
@@ -6281,7 +6283,7 @@ Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
     If i == 1
       s += "окружность головы (см) " + iif( !fl .or. mPER_HEAD == 0, "________", ub + st + lstr( mPER_HEAD ) + st + ue ) + "; "
     Endif
-    s += "физическое развитие " + f3_inf_dds_karta( mm_fiz_razv, iif( fl, m1FIZ_RAZV, -1 ),, ub, ue, .f. )
+    s += "физическое развитие " + f3_inf_dds_karta( mm_fiz_razv(), iif( fl, m1FIZ_RAZV, -1 ),, ub, ue, .f. )
     s += " (" + f3_inf_dds_karta( mm_fiz_razv1, iif( fl, m1FIZ_RAZV1, -1 ),, ub, ue, .f. )
     s += ", " + f3_inf_dds_karta( mm_fiz_razv2, iif( fl, m1FIZ_RAZV2, -1 ),, ub, ue, .f. )
     s += " - нужное подчеркнуть)."
@@ -6303,11 +6305,11 @@ Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
   fl := ( lvozrast > 4 )
   s := st + "13.2. Для детей в возрасте 5 - 17 лет:"
   frd->( Eval( blk, s ) )
-  s := st + "13.2.1. Психомоторная сфера: " + f3_inf_dds_karta( mm_psih2, iif( fl, m1psih21, -1 ),, ub, ue )
+  s := st + "13.2.1. Психомоторная сфера: " + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih21, -1 ),, ub, ue )
   frd->( Eval( blk, s ) )
-  s := st + "13.2.2. Интеллект: " + f3_inf_dds_karta( mm_psih2, iif( fl, m1psih22, -1 ),, ub, ue )
+  s := st + "13.2.2. Интеллект: " + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih22, -1 ),, ub, ue )
   frd->( Eval( blk, s ) )
-  s := st + "13.2.3. Эмоционально-вегетативная сфера: " + f3_inf_dds_karta( mm_psih2, iif( fl, m1psih23, -1 ),, ub, ue )
+  s := st + "13.2.3. Эмоционально-вегетативная сфера: " + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih23, -1 ),, ub, ue )
   frd->( Eval( blk, s ) )
   fl := ( mpol == "М" .and. lvozrast > 9 )
   s := st + "14. Оценка полового развития (с 10 лет):"
@@ -6328,9 +6330,9 @@ Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
   If fl .and. emptyall( m142p, m142ax, m142ma, m142me, m142me1, m142me2 )
     m1142me3 := m1142me4 := m1142me5 := -1
   Endif
-  s += "menses (характеристика): " + f3_inf_dds_karta( mm_142me3, iif( fl, m1142me3, -1 ),, ub, ue, .f. )
-  s += ", " + f3_inf_dds_karta( mm_142me4, iif( fl, m1142me4, -1 ),, ub, ue, .f. )
-  s += ", " + f3_inf_dds_karta( mm_142me5, iif( fl, m1142me5, -1 ), " и ", ub, ue )
+  s += "menses (характеристика): " + f3_inf_dds_karta( mm_142me3(), iif( fl, m1142me3, -1 ),, ub, ue, .f. )
+  s += ", " + f3_inf_dds_karta( mm_142me4(), iif( fl, m1142me4, -1 ),, ub, ue, .f. )
+  s += ", " + f3_inf_dds_karta( mm_142me5(), iif( fl, m1142me5, -1 ), " и ", ub, ue )
   frd->( Eval( blk, s ) )
   s := st + "15. Состояние здоровья до проведения настоящего профилактического осмотра:"
   frd->( Eval( blk, s ) )
@@ -6514,7 +6516,7 @@ Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
     m1invalid8 := -1
   Endif
   s := st + '16.7. Инвалидность: ' + f3_inf_dds_karta( mm_danet, m1invalid1,, ub, ue )
-  s := Left( s, Len( s ) -1 ) + '; если "да": ' + f3_inf_dds_karta( mm_invalid2, m1invalid2,, ub, ue )
+  s := Left( s, Len( s ) -1 ) + '; если "да": ' + f3_inf_dds_karta( mm_invalid2(), m1invalid2,, ub, ue )
   s := Left( s, Len( s ) -1 ) + '; установлена впервые (дата) ' + iif( Empty( minvalid3 ), Replicate( "_", 15 ), ub + full_date( minvalid3 ) + ue )
   s += '; дата последнего освидетельствования ' + iif( Empty( minvalid4 ), Replicate( "_", 15 ), ub + full_date( minvalid4 ) + ue ) + '.'
   frd->( Eval( blk, s ) )
@@ -6527,13 +6529,13 @@ s := st+'(' + f3_inf_DDS_karta(mm_invalid5,m1invalid5,' ',ub,ue)
 frd->(eval(blk,s))
 s := st+'16.7.2.Виды нарушений в состоянии здоровья:'
 frd->(eval(blk,s))
-s := st + f3_inf_DDS_karta(mm_invalid6,m1invalid6,'; ',ub,ue)
+s := st + f3_inf_DDS_karta(mm_invalid6(),m1invalid6,'; ',ub,ue)
 frd->(eval(blk,s))
 s := st+'16.7.3. Индивидуальная программа реабилитации ребенка-инвалида:'
 frd->(eval(blk,s))
 s := st+'дата назначения: '+iif(empty(minvalid7), replicate("_", 15), ub + full_date(minvalid7)+ue)+';'
 frd->(eval(blk,s))
-s := st+'выполнение на момент диспансеризации: ' + f3_inf_DDS_karta(mm_invalid8,m1invalid8,,ub,ue)
+s := st+'выполнение на момент диспансеризации: ' + f3_inf_DDS_karta(mm_invalid8(),m1invalid8,,ub,ue)
 frd->(eval(blk,s))*/
   s := st + "16.8. Группа состояния здоровья: " + f3_inf_dds_karta( mm_gruppa, mGRUPPA,, ub, ue )
   frd->( Eval( blk, s ) )
@@ -6543,18 +6545,18 @@ frd->(eval(blk,s))*/
 /*s := st+'16.10'+'. Проведение профилактических прививок:'
 frd->(eval(blk,s))
 s := st
-for j := 1 to len(mm_privivki1)
-  if m1privivki1 == mm_privivki1[j, 2]
+for j := 1 to len(mm_privivki1())
+  if m1privivki1 == mm_privivki1()[j, 2]
     s += ub
   endif
-  s += mm_privivki1[j, 1]
-  if m1privivki1 == mm_privivki1[j, 2]
+  s += mm_privivki1()[j, 1]
+  if m1privivki1 == mm_privivki1()[j, 2]
     s += ue
   endif
-  if mm_privivki1[j, 2] == 0
+  if mm_privivki1()[j, 2] == 0
     s += "; "
   else
-    s += ": " + f3_inf_DDS_karta(mm_privivki2,iif(m1privivki1==mm_privivki1[j, 2],m1privivki2,-1),,ub,ue,.f.)+"; "
+    s += ": " + f3_inf_DDS_karta(mm_privivki2(),iif(m1privivki1==mm_privivki1()[j, 2],m1privivki2,-1),,ub,ue,.f.)+"; "
   endif
 next
 s += 'нуждается в проведении вакцинации (ревакцинации) с указанием наименования прививки (нужное подчеркнуть): '

@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.10.24 ДВН - добавление или редактирование случая (листа учета)
+// 13.09.25 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -474,7 +474,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                   m1var := 'm1lis' + lstr( i )
                   If is_disp_19
                     &m1var := 0
-                  Elseif glob_yes_kdp2[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS, dvn_arr_usl[ i, 2 ] ) > 0 .and. hu->is_edit > 0
+                  Elseif glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS, dvn_arr_usl[ i, 2 ] ) > 0 .and. hu->is_edit > 0
                     &m1var := hu->is_edit
                   Endif
                   mvar := 'mlis' + lstr( i )
@@ -857,7 +857,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                 fl_g_cit := .f.
                 m1g_cit := 1 // в МО
               Endif
-            Elseif !is_disp_19 .and. glob_yes_kdp2[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS, dvn_arr_usl[ i, 2 ] ) > 0
+            Elseif !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS, dvn_arr_usl[ i, 2 ] ) > 0
               fl_kdp2 := .t.
             Endif
           Endif
@@ -1259,7 +1259,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             If ValType( ar[ 2 ] ) == 'C'
               arr_osm1[ i, 5 ] := ar[ 2 ] // шифр услуги
               m1var := 'm1lis' + lstr( i )
-              If !is_disp_19 .and. glob_yes_kdp2[ TIP_LU_DVN ] .and. &m1var > 0
+              If !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_DVN ] .and. &m1var > 0
                 arr_osm1[ i, 11 ] := &m1var // кровь проверяют в КДП2
               Endif
               If ar[ 2 ] == '2.3.1'
@@ -1516,7 +1516,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         If ValType( arr_osm1[ i, 9 ] ) == 'D'
           If arr_osm1[ i, 5 ] == '4.20.2' .and. arr_osm1[ i, 9 ] < mn_data // не в рамках диспансеризации
             m1g_cit := 1 // если и было =2, убираем
-          Elseif !is_disp_19 .and. glob_yes_kdp2[ TIP_LU_DVN ] .and. arr_osm1[ i, 9 ] >= mn_data .and. Len( arr_osm1[ i ] ) > 10 ;
+          Elseif !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_DVN ] .and. arr_osm1[ i, 9 ] >= mn_data .and. Len( arr_osm1[ i ] ) > 10 ;
               .and. ValType( arr_osm1[ i, 11 ] ) == 'N' .and. arr_osm1[ i, 11 ] > 0
             m1lis := arr_osm1[ i, 11 ] // в рамках диспансеризации
           Endif
@@ -1830,7 +1830,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server() + 'mo_hismo', , 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
+        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo
