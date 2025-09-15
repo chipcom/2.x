@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 
 
-// 17.03.25 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 15.09.25 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -226,7 +226,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   If lvmp > 0
     If lvidvmp == 0
       AAdd( arerr, ' не введён метод ВМП' )
-    Elseif ( AScan( arr_12_VMP, lvidvmp ) == 0 .and. Year( lk_data ) < 2021 )
+    Elseif ( AScan( arr_VMP(), lvidvmp ) == 0 .and. Year( lk_data ) < 2021 )
       AAdd( arerr, ' для метода ВМП ' + lstr( lvidvmp ) + ' нет услуги ТФОМС' )
     Else
       lksg := getserviceforvmp( lvidvmp, lk_data, human_2->VIDVMP, human_2->METVMP, human_2->PN5, full_diagnoz_human( human->KOD_DIAG, human->DIAG_PLUS ) )

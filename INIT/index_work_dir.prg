@@ -249,7 +249,7 @@ Function dep_index_and_fill( val_year, dir_spavoch, working_dir, flag )
   Endif
   Return Nil
 
-// 14.03.23
+// 15.09.23
 Function usl_index( val_year, dir_spavoch, working_dir, flag )
 
   Local sbase
@@ -270,7 +270,8 @@ Function usl_index( val_year, dir_spavoch, working_dir, flag )
       // do while left(lusl->shifr,5) == '1.21.' .and. !eof()
       // do while left(lusl->shifr, 5) == '1.22.' .and. !eof()
       Do While Left( lusl->shifr, 5 ) == shifrVMP .and. !Eof()
-        AAdd( arr_12_VMP, Int( Val( SubStr( lusl->shifr, 6 ) ) ) )
+//        AAdd( arr_12_VMP, Int( Val( SubStr( lusl->shifr, 6 ) ) ) )
+        arr_VMP( Int( Val( SubStr( lusl->shifr, 6 ) ) ) )
         Skip
       Enddo
     Endif

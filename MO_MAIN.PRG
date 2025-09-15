@@ -16,7 +16,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 13.09.25
+// 15.09.25
 Procedure Main( ... )
 
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
@@ -91,7 +91,7 @@ Procedure Main( ... )
   // перенес из index_work_dir
   Public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
 
-  Public arr_12_VMP := {}
+//  Public arr_VMP := {}
 //  Public is_napr_pol := .f. // работа с направлениями на госпитализацию в п-ке
 //  Public is_napr_stac := .f. // работа с направлениями на госпитализацию в стационаре
 //  Public glob_klin_diagn := {}  // работа со специальными лабораторными исследованиями

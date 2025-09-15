@@ -304,6 +304,19 @@ function g_arr_stand( param )
   endif
   return arr_stand
 
+// 15.09.25
+function arr_VMP( param )
+
+  static vmp
+
+  if HB_ISNIL( vmp )
+    vmp := {} 
+  endif
+  if PCount() == 1
+    AAdd( vmp, param )
+  endif
+  return vmp
+
 // 11.09.25
 function hColor()
 
