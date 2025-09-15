@@ -6,7 +6,6 @@
 
 Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
-static err_admin := 'Доступ в данный режим разрешен только администратору системы!'
 
 // 16.08.25
 Function create_reestrZSL_2025()
@@ -26,7 +25,7 @@ Function create_reestrZSL_2025()
 //  private p_array_PZ
 
   If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin )
+    Return func_error( 4, err_admin() )
   Endif
 
   // временно

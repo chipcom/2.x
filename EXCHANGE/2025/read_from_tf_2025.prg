@@ -15,7 +15,7 @@ Function read_from_tf_2025()
 
   Private p_var_manager := 'Read_From_TFOMS', p_ctrl_enter_sp_tk := .f.
   If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin )
+    Return func_error( 4, err_admin() )
   Endif
   If find_unfinished_reestr_sp_tk()
     Return func_error( 4, 'Попытайтесь снова' )
