@@ -235,7 +235,7 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
 
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
-  mokato    := inieditspr( A__MENUVERT, glob_array_srf, m1okato )
+  mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
   f_valid_komu(, -1 )

@@ -672,13 +672,13 @@ Function r_list_uch( par, name_func )
     If AllTrim( kart_->SMO ) == '34'
       s := ret_inogsmo_name( 1 )
       mkomu += iif( Empty( s ), 'ТФОМС (иногородние)', s )
-      mmest_inog := inieditspr( A__MENUVERT, glob_array_srf, kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
+      mmest_inog := inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
     Elseif Left( kart_->SMO, 2 ) == '34'
       mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
       mmest_inog := 'Волгоградская область'
     Elseif !Empty( kart_->SMO )
       mkomu += init_ismo( kart_->SMO )
-      mmest_inog := inieditspr( A__MENUVERT, glob_array_srf, kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
+      mmest_inog := inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
     Endif
   Else
     mkomu := ''

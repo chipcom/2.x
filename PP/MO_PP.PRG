@@ -2714,7 +2714,7 @@ Function f2_v_human_pp( nkey, oBrow )
       If AllTrim( kart_->SMO ) == '34'
         s := ret_inogsmo_name( 1 )
         mkomu += iif( Empty( s ), 'ТФОМС (иногородние)', s )
-        frd->mest_inog := 'Регион финансирования: ' + inieditspr( A__MENUVERT, glob_array_srf, kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
+        frd->mest_inog := 'Регион финансирования: ' + inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
         frd->mestnost := s4 + ', область 3,' + sb1 + ' иногородние -4,' + sb2 + 'иностранцы -5'
       Elseif Left( kart_->SMO, 2 ) == '34'
         mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
@@ -2722,7 +2722,7 @@ Function f2_v_human_pp( nkey, oBrow )
         frd->mestnost := s4 + ', область 3, иногородние -4, иностранцы -5'
       Elseif !Empty( kart_->SMO )
         mkomu += init_ismo( kart_->SMO )
-        frd->mest_inog := 'Регион финансирования: ' + inieditspr( A__MENUVERT, glob_array_srf, kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
+        frd->mest_inog := 'Регион финансирования: ' + inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
         frd->mestnost := s4 + ', область 3,' + sb1 + ' иногородние -4,' + sb2 + 'иностранцы -5'
       Endif
     Else
