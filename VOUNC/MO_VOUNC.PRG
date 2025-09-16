@@ -1254,7 +1254,7 @@ Function vounc_tools_ini( reg, k1, k2 )
   If ( fl := semaphor_tools_ini( 1 ) )
     name_section += '-' + lstr( k1 ) + '-' + lstr( k2 )
     If reg == 1 // чтение
-      ta := getinisect( tools_ini, name_section ) // вернуть двумерный массив содержимого секции {{'наим.','знач.'},...}
+      ta := getinisect( tools_ini(), name_section ) // вернуть двумерный массив содержимого секции {{'наим.','знач.'},...}
       For j := 1 To Len( ta )
         If ( i := AScan( arr, {| x| Upper( x[ 1 ] ) == ta[ j, 1 ] } ) ) > 0
           &( arr[ i, 1 ] ) := iif( arr[ i, 2 ] == 'C', ta[ j, 2 ], Val( ta[ j, 2 ] ) )
@@ -1268,7 +1268,7 @@ Function vounc_tools_ini( reg, k1, k2 )
         v := &( arr[ i, 1 ] )
         AAdd( ta, { arr[ i, 1 ], iif( arr[ i, 2 ] == 'C', v, lstr( v ) ) } )
       Next
-      setinisect( tools_ini, name_section, ta ) // запись секции в ini.файл
+      setinisect( tools_ini(), name_section, ta ) // запись секции в ini.файл
     Endif
     semaphor_tools_ini( 2 )
   Endif

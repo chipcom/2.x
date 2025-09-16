@@ -457,7 +457,7 @@ Function e_statist( k )
     f_stat_boln()
   Case k == 61 .or. k == 62
     Private prs := k -60
-    Private file_stat := { f_stat_com, f_stat_lpu }[ prs ]
+    Private file_stat := { f_stat_com(), f_stat_lpu() }[ prs ]
     Private dostup_stat := { .f., .t. }[ prs ]
     If kod_polzovat == Chr( 0 )
       dostup_stat := .t.

@@ -4079,7 +4079,7 @@ Function copy_tools_ini()
 
   Local i := 0, fl := .f., bSaveHandler
 
-  If !hb_FileExists( tools_ini ) // если ни разу не заходили в режим настроек
+  If !hb_FileExists( tools_ini() ) // если ни разу не заходили в режим настроек
     Return .t.
   Endif
   If ( fl := semaphor_tools_ini( 1 ) )
@@ -4088,11 +4088,11 @@ Function copy_tools_ini()
       bSaveHandler := ErrorBlock( {| x| Break( x ) } )
       //
       Begin Sequence
-        // if files_time(tools_ini,local_tools_ini)
-        Delete File ( local_tools_ini )
-        Copy File ( tools_ini ) to ( local_tools_ini )
+        // if files_time(tools_ini(),local_tools_ini())
+        Delete File ( local_tools_ini() )
+        Copy File ( tools_ini() ) to ( local_tools_ini() )
         // endif
-        If hb_FileExists( local_tools_ini )
+        If hb_FileExists( local_tools_ini() )
           fl := .t.
         Endif
       RECOVER USING error
@@ -4199,7 +4199,7 @@ Function tools_ini_oms( reg, k1, k2, fll )
   If ( fl := iif( fll, semaphor_tools_ini( 1 ), .t. ) )
     name_section += "-" + lstr( k1 ) + "-" + lstr( k2 )
     If reg == 1 // чтение
-      ta := getinisect( iif( fll, tools_ini, local_tools_ini ), name_section ) // вернуть двумерный массив содержимого секции {{"наим.","знач."},...}
+      ta := getinisect( iif( fll, tools_ini(), local_tools_ini() ), name_section ) // вернуть двумерный массив содержимого секции {{"наим.","знач."},...}
       For j := 1 To Len( ta )
         If ( i := AScan( arr, {| x| Upper( x[ 1 ] ) == ta[ j, 1 ] } ) ) > 0
           If arr[ i, 2 ] == "C"
@@ -4241,7 +4241,7 @@ Function tools_ini_oms( reg, k1, k2, fll )
           AAdd( ta, { arr[ i, 1 ], DToS( v ) } )
         Endif
       Next
-      setinisect( tools_ini, name_section, ta ) // запись секции в ini.файл
+      setinisect( tools_ini(), name_section, ta ) // запись секции в ini.файл
     Endif
     If fll
       semaphor_tools_ini( 2 )
@@ -4266,7 +4266,7 @@ Function tools_ini_pp( reg, k1, k2, fll )
   If ( fl := iif( fll, semaphor_tools_ini( 1 ), .t. ) )
     name_section += "-" + lstr( k1 ) + "-" + lstr( k2 )
     If reg == 1 // чтение
-      ta := getinisect( iif( fll, tools_ini, local_tools_ini ), name_section ) // вернуть двумерный массив содержимого секции {{"наим.","знач."},...}
+      ta := getinisect( iif( fll, tools_ini(), local_tools_ini() ), name_section ) // вернуть двумерный массив содержимого секции {{"наим.","знач."},...}
       For j := 1 To Len( ta )
         If ( i := AScan( arr, {| x| Upper( x[ 1 ] ) == ta[ j, 1 ] } ) ) > 0
           &( arr[ i, 1 ] ) := iif( arr[ i, 2 ] == "C", ta[ j, 2 ], Int( Val( ta[ j, 2 ] ) ) )
@@ -4278,7 +4278,7 @@ Function tools_ini_pp( reg, k1, k2, fll )
         v := &( arr[ i, 1 ] )
         AAdd( ta, { arr[ i, 1 ], iif( arr[ i, 2 ] == "C", v, lstr( v ) ) } )
       Next
-      setinisect( tools_ini, name_section, ta ) // запись секции в ini.файл
+      setinisect( tools_ini(), name_section, ta ) // запись секции в ini.файл
     Endif
     If fll
       semaphor_tools_ini( 2 )
@@ -4308,7 +4308,7 @@ Function tools_ini_platn( reg, k1, k2, fll )
   If ( fl := iif( fll, semaphor_tools_ini( 1 ), .t. ) )
     name_section += "-" + lstr( k1 ) + "-" + lstr( k2 )
     If reg == 1 // чтение
-      ta := getinisect( iif( fll, tools_ini, local_tools_ini ), name_section ) // вернуть двумерный массив содержимого секции {{"наим.","знач."},...}
+      ta := getinisect( iif( fll, tools_ini(), local_tools_ini() ), name_section ) // вернуть двумерный массив содержимого секции {{"наим.","знач."},...}
       For j := 1 To Len( ta )
         If ( i := AScan( arr, {| x| Upper( x[ 1 ] ) == ta[ j, 1 ] } ) ) > 0
           &( arr[ i, 1 ] ) := iif( arr[ i, 2 ] == "C", ta[ j, 2 ], Val( ta[ j, 2 ] ) )
@@ -4323,7 +4323,7 @@ Function tools_ini_platn( reg, k1, k2, fll )
         v := &( arr[ i, 1 ] )
         AAdd( ta, { arr[ i, 1 ], iif( arr[ i, 2 ] == "C", v, lstr( v ) ) } )
       Next
-      setinisect( tools_ini, name_section, ta ) // запись секции в ini.файл
+      setinisect( tools_ini(), name_section, ta ) // запись секции в ini.файл
     Endif
     If fll
       semaphor_tools_ini( 2 )
@@ -4356,7 +4356,7 @@ Function tools_ini_orto( reg, k1, k2, fll )
   If ( fl := iif( fll, semaphor_tools_ini( 1 ), .t. ) )
     name_section += "-" + lstr( k1 ) + "-" + lstr( k2 )
     If reg == 1 // чтение
-      ta := getinisect( iif( fll, tools_ini, local_tools_ini ), name_section ) // вернуть двумерный массив содержимого секции {{"наим.","знач."},...}
+      ta := getinisect( iif( fll, tools_ini(), local_tools_ini() ), name_section ) // вернуть двумерный массив содержимого секции {{"наим.","знач."},...}
       For j := 1 To Len( ta )
         If ( i := AScan( arr, {| x| Upper( x[ 1 ] ) == ta[ j, 1 ] } ) ) > 0
           &( arr[ i, 1 ] ) := iif( arr[ i, 2 ] == "C", ta[ j, 2 ], Int( Val( ta[ j, 2 ] ) ) )
@@ -4368,7 +4368,7 @@ Function tools_ini_orto( reg, k1, k2, fll )
         v := &( arr[ i, 1 ] )
         AAdd( ta, { arr[ i, 1 ], iif( arr[ i, 2 ] == "C", v, lstr( v ) ) } )
       Next
-      setinisect( tools_ini, name_section, ta ) // запись секции в ini.файл
+      setinisect( tools_ini(), name_section, ta ) // запись секции в ini.файл
     Endif
     If fll
       semaphor_tools_ini( 2 )

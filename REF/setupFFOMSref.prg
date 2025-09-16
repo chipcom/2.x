@@ -118,7 +118,7 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
   endcase
   //
   if (fl := Semaphor_Tools_Ini(1))
-    arr := GetIniVar(tools_ini, {{_name, '0', ''}})
+    arr := GetIniVar(tools_ini(), {{_name, '0', ''}})
     arr := list2arr(arr[1])
     if len(arr) > 0
       ob_kol := len(arr)
@@ -131,7 +131,7 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
         delete for !tmp_ga->is
         pack
         //
-        arr1 := GetIniVar(tools_ini, {{_name, '1-' + lstr(glob_uch[1]), ''}})
+        arr1 := GetIniVar(tools_ini(), {{_name, '1-' + lstr(glob_uch[1]), ''}})
         arr1 := list2arr(arr1[1])
         if len(arr1) > 0
           ob_kol := len(arr1)
@@ -145,7 +145,7 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
           delete for !tmp_ga->is
           pack
           //
-          arr2 := GetIniVar(tools_ini, {{_name, sKey, ''}})
+          arr2 := GetIniVar(tools_ini(), {{_name, sKey, ''}})
           arr2 := list2arr(arr2[1])
           if len(arr2) > 0
             ob_kol := len(arr2)
@@ -188,7 +188,7 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
     arr := {}
     tmp_ga->(dbeval({|| iif(tmp_ga->is, aadd(arr, tmp_ga->kod), nil) }))
     if Semaphor_Tools_Ini(1)
-      SetIniVar(tools_ini, {{_name, sKey, arr2list(arr)}})
+      SetIniVar(tools_ini(), {{_name, sKey, arr2list(arr)}})
       Semaphor_Tools_Ini(2)
     endif
   endif
@@ -243,12 +243,12 @@ Function create_classif_FFOMS(reg, _name)
     name_arr := 'get_implantant()'
   endif
 
-  arr := GetIniVar(local_tools_ini,{{_name, '0', ''}})
+  arr := GetIniVar(local_tools_ini(),{{_name, '0', ''}})
   arr := list2arr(arr[1])
   if len(arr) > 0
     ret := aclone(arr)
     if reg > 0
-      arr1 := GetIniVar(local_tools_ini, {{_name, '1-' + lstr(glob_uch[1]), ''}})
+      arr1 := GetIniVar(local_tools_ini(), {{_name, '1-' + lstr(glob_uch[1]), ''}})
       arr1 := list2arr(arr1[1])
       if (k := len(arr1)) > 0
         for i := k to 1 step -1
@@ -259,7 +259,7 @@ Function create_classif_FFOMS(reg, _name)
         ret := aclone(arr1)
       endif
       if reg == 2
-        arr2 := GetIniVar(local_tools_ini, {{_name, '2-' + lstr(glob_otd[1]), ''}})
+        arr2 := GetIniVar(local_tools_ini(), {{_name, '2-' + lstr(glob_otd[1]), ''}})
         arr2 := list2arr(arr2[1])
         if (k := len(arr2)) > 0
           for i := k to 1 step -1

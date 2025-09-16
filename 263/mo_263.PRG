@@ -24,7 +24,7 @@ Function begin_task_263()
     dir_263_from := AllTrim( a2default( ar, 'dir_from', '' ) )
     dir_263_copy := AllTrim( a2default( ar, 'dir_copy', '' ) )
     work_otd_263 := Int( Val( a2default( ar, 'work_otd', '0' ) ) )
-    ar := getinisect( tools_ini, group_ini )
+    ar := getinisect( tools_ini(), group_ini )
     work_otd_263 := Int( Val( a2default( ar, 'work_otd', lstr( work_otd_263 ) ) ) )
 
     sbase := prefixfilerefname( WORK_YEAR ) + 'uslc'
@@ -2512,7 +2512,7 @@ Function _263_to_nastr()
   tmp->path1 := a2default( ar, 'dir_to', '' )
   tmp->path2 := a2default( ar, 'dir_from', '' )
   tmp->path3 := a2default( ar, 'dir_copy', '' )
-  ar := getinisect( tools_ini, group_ini )
+  ar := getinisect( tools_ini(), group_ini )
   tmp->work_otd := Int( Val( a2default( ar, 'work_otd', lstr( work_otd_263 ) ) ) )
   Close databases
   If f_edit_spr( A__EDIT, mm_tmp, 'настройке каталогов обмена', 'g_use(cur_dir() + "tmp", , , .t., .t.)', 0, 1 ) > 0
@@ -2532,7 +2532,7 @@ Function _263_to_nastr()
       dir_263_to   := AllTrim( tmp->path1 )
       dir_263_from := AllTrim( tmp->path2 )
       dir_263_copy := AllTrim( tmp->path3 )
-      setinivar( tools_ini, { { group_ini, 'work_otd', tmp->work_otd } } )
+      setinivar( tools_ini(), { { group_ini, 'work_otd', tmp->work_otd } } )
     Endif
   Endif
   Close databases

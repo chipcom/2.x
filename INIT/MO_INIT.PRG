@@ -10,6 +10,7 @@
 Function init_first()
 
   Local buf := save_maxrow()
+  Local fl
 
   mywait()
   // инициализировать массив DBF-файлов базы данных
@@ -68,11 +69,11 @@ Function init_first()
     'июле', 'августе', 'сентябре', 'октябре', 'ноябре', 'декабре' }
   //
 //  Public tmp_ini := 'TMP' + sini()
-  Public tools_ini := dir_server() + 'TOOLS' + sini()
-  Public local_tools_ini := 'LOCTOOLS' + sini()
-  Public f_stat_com := dir_exe() + 'stat_com' + sfrm()
-  Public f_stat_lpu := dir_server() + 'stat_lpu' + sini()
-  Public file_uchast := dir_server() + 'prik_uch' + smem()
+//  Public tools_ini := dir_server() + 'TOOLS' + sini()
+//  Public local_tools_ini := 'LOCTOOLS' + sini()
+//  Public f_stat_com := dir_exe() + 'stat_com' + sfrm()
+//  Public f_stat_lpu := dir_server() + 'stat_lpu' + sini()
+//  Public file_uchast := dir_server() + 'prik_uch' + smem()
   Public mm_danet := { { 'нет', 0 }, { 'да ', 1 } }
   Public mm_vid_polis := { { 'старый', 1 }, { 'врем. ', 2 }, { 'новый ', 3 } }
   Public mm_gorod_selo := { { 'город', 1 }, { 'село', 2 }, { 'р/поселок', 3 } }
@@ -292,7 +293,6 @@ Function init_first()
     { 'умер', 6 } }
 
   rest_box( buf )
-
   Return Nil
 
 // 12.09.25 инициализация программы

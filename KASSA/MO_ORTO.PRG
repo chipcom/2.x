@@ -3305,8 +3305,8 @@ Function ret_uchast( r, c )
           arr := { luch } ; such := luch
         Endif
       Elseif j == 3
-        If hb_FileExists( file_uchast )
-          luch := FileStr( file_uchast )
+        If hb_FileExists( file_uchast() )
+          luch := FileStr( file_uchast() )
         Endif
         If ( luch := input_value( 20, 2, 22, 77, color1, ;
             "Прикрепленные участки (напр.: 1-20,23)", ;
@@ -3333,7 +3333,7 @@ Function ret_uchast( r, c )
             arr := nil
             func_error( 4, "Некорректно введен список прикрепленных участков." )
           Else
-            StrFile( AllTrim( luch ), file_uchast )
+            StrFile( AllTrim( luch ), file_uchast() )
           Endif
         Endif
       Endif
@@ -3364,8 +3364,8 @@ Function init_uchast( arr )
     If Len( arr ) == 1
       s := "№ " + lstr( arr[ 1 ] )
     Else
-      If hb_FileExists( file_uchast )
-        s := FileStr( file_uchast )
+      If hb_FileExists( file_uchast() )
+        s := FileStr( file_uchast() )
       Else
         s := ""
         For i := 1 To Len( arr )
