@@ -19,7 +19,7 @@ Function begin_task_263()
       dir_263_from, ;        // каталог, откуда читаются полученные пакеты
       dir_263_copy, ;        // каталог, куда перезаписываются прочитанные пакеты
       work_otd_263          // 1-работать с отделениями в подзадаче
-    ar := getinisect( tmp_ini, group_ini )
+    ar := getinisect( tmp_ini(), group_ini )
     dir_263_to   := AllTrim( a2default( ar, 'dir_to', '' ) )
     dir_263_from := AllTrim( a2default( ar, 'dir_from', '' ) )
     dir_263_copy := AllTrim( a2default( ar, 'dir_copy', '' ) )
@@ -2508,7 +2508,7 @@ Function _263_to_nastr()
   init_base( cur_dir() + 'tmp', , mm_tmp, 0 )
   Use ( cur_dir() + 'tmp' ) new
   Append Blank
-  ar := getinisect( tmp_ini, group_ini )
+  ar := getinisect( tmp_ini(), group_ini )
   tmp->path1 := a2default( ar, 'dir_to', '' )
   tmp->path2 := a2default( ar, 'dir_from', '' )
   tmp->path3 := a2default( ar, 'dir_copy', '' )
@@ -2527,7 +2527,7 @@ Function _263_to_nastr()
         { group_ini, 'dir_from', tmp->path2 }, ;
         { group_ini, 'dir_copy', tmp->path3 } ;
         }
-      setinivar( tmp_ini, mm_tmp )
+      setinivar( tmp_ini(), mm_tmp )
       work_otd_263 := tmp->work_otd
       dir_263_to   := AllTrim( tmp->path1 )
       dir_263_from := AllTrim( tmp->path2 )

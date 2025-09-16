@@ -18,7 +18,7 @@ Function begin_task_oms()
     fl := f_err_sem_vagno_task( X_OMS )
   Elseif copy_tools_ini()
     tools_ini_oms( 1, 0, 0 )
-    i := getinivar( tmp_ini, { { 'RAB_MESTO', 'oms_pole', '0' } } )
+    i := getinivar( tmp_ini(), { { 'RAB_MESTO', 'oms_pole', '0' } } )
     If i[ 1 ] != NIL
       mem_oms_pole := Int( Val( i[ 1 ] ) )
     Endif

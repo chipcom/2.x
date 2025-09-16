@@ -1513,13 +1513,13 @@ Function input_fusluga()
   Local ar, musl, arr_usl, buf, fl, s
   Local sbase
 
-  ar := getinisect( tmp_ini, 'Fuslugi' )
+  ar := getinisect( tmp_ini(), 'Fuslugi' )
   musl := PadR( a2default( ar, 'shifr' ), 20 )
   If ( musl := input_value( 18, 6, 20, 73, color1, Space( 13 ) + '‚Ά¥¤¨β¥ θ¨δΰ γα«γ£¨', musl, '@K@!' ) ) != Nil .and. !Empty( musl )
     buf := save_maxrow()
     mywait()
     musl := transform_shifr( musl )
-    setinisect( tmp_ini, 'Fuslugi', { { 'shifr', musl } } )
+    setinisect( tmp_ini(), 'Fuslugi', { { 'shifr', musl } } )
     r_use( dir_server() + 'mo_su', { dir_server() + 'mo_sush', ;
       dir_server() + 'mo_sush1' }, 'USL' )
     fl := .f.

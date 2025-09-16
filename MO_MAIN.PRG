@@ -339,7 +339,7 @@ Function f_main( r0, is_local_version, a_parol )
     //
     r := Int( ( MaxRow() - r0 - Len( arr ) ) / 2 ) -1
     c := Int( ( MaxCol() + 1 - lens ) / 2 ) -1
-    ar := getinisect( tmp_ini, 'task' )
+    ar := getinisect( tmp_ini(), 'task' )
     k := i := Int( Val( a2default( ar, 'current_task', lstr( X_OMS ) ) ) )
     Do While .t.
       If ( i := popup_2array( arr, r + r0, c, i, , , 'Выбор задачи', 'B+/W', 'N+/W, W+/N*' ) ) == 0
@@ -362,7 +362,7 @@ Function f_main( r0, is_local_version, a_parol )
       @ r0, 0 Say full_date( sys_date ) Color 'W+/N' // перевывести дату
       @ r0, MaxCol() -4 Say hour_min( Seconds() ) Color 'W+/N' // перевывести время
     Enddo
-    setinisect( tmp_ini, 'task', { { 'current_task', lstr( k ) } } )
+    setinisect( tmp_ini(), 'task', { { 'current_task', lstr( k ) } } )
   Endif
   Return Nil
 
@@ -664,7 +664,7 @@ Function f_end( yes_copy )
     Close All
     Default yes_copy To .t.
     If yes_copy
-      i := getinivar( tmp_ini, { { group_ini, 'base_copy', '1' }, ;
+      i := getinivar( tmp_ini(), { { group_ini, 'base_copy', '1' }, ;
         { group_ini, 'path_copy', '' } } )
       If i[ 1 ] != Nil .and. i[ 1 ] == '1' .and. g_slock1task( sem_task(), sem_vagno() )
         If Len( i ) > 1 .and. i[ 2 ] != Nil .and. !Empty( i[ 2 ] )

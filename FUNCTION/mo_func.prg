@@ -512,14 +512,14 @@ Function input_usluga( arr_tfoms )
 
   Local ar, musl, arr_usl, buf, fl_tfoms := ( ValType( arr_tfoms ) == 'A' )
 
-  ar := getinisect( tmp_ini, 'uslugi' )
+  ar := getinisect( tmp_ini(), 'uslugi' )
   musl := PadR( a2default( ar, 'shifr' ), 10 )
   If ( musl := input_value( 18, 6, 20, 73, color1, ;
       Space( 17 ) + '‚Ά¥¤¨β¥ θ¨δΰ γα«γ£¨', musl, '@K' ) ) != Nil .and. !Empty( musl )
     buf := save_maxrow()
     mywait()
     musl := transform_shifr( musl )
-    setinisect( tmp_ini, 'uslugi', { { 'shifr', musl } } )
+    setinisect( tmp_ini(), 'uslugi', { { 'shifr', musl } } )
     r_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
     find ( musl )
     If Found()
@@ -607,7 +607,7 @@ Function input_uch( r, c, date1, date2 )
     Return ret
   Endif
   If Empty( glob_uch[ 1 ] )
-    ar := getinivar( tmp_ini, { { 'uch_otd', 'uch', '0' }, ;
+    ar := getinivar( tmp_ini(), { { 'uch_otd', 'uch', '0' }, ;
       { 'uch_otd', 'OTD', '0' } } )
     glob_uch[ 1 ] := Int( Val( ar[ 1 ] ) )
     glob_otd[ 1 ] := Int( Val( ar[ 2 ] ) )
@@ -647,7 +647,7 @@ Function input_uch( r, c, date1, date2 )
   If ret != NIL
     glob_uch := ret
     st_a_uch := { glob_uch }
-    setinivar( tmp_ini, { { 'uch_otd', 'UCH', glob_uch[ 1 ] } } )
+    setinivar( tmp_ini(), { { 'uch_otd', 'UCH', glob_uch[ 1 ] } } )
   Endif
 
   Return ret
@@ -711,7 +711,7 @@ Function input_otd( r, c, date1, date2, nTask )
   Endif
   If ret != NIL
     glob_otd := ret
-    setinivar( tmp_ini, { { 'uch_otd', 'OTD', glob_otd[ 1 ] } } )
+    setinivar( tmp_ini(), { { 'uch_otd', 'OTD', glob_otd[ 1 ] } } )
   Endif
 
   Return ret

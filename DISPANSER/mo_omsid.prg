@@ -5058,7 +5058,7 @@ Function f22_inf_dvn()
   If ( st_a_uch := inputn_uch( T_ROW, T_COL -5,,, @lcount_uch ) ) != NIL ;
       .and. ( arr_m := year_month(,,, 5 ) ) != NIL
     Private mk1, mispoln, mtel_isp
-    ar := getinisect( tmp_ini, group_ini )
+    ar := getinisect( tmp_ini(), group_ini )
     mk1 := Int( Val( a2default( ar, "mk1", "0" ) ) )
     mispoln := PadR( a2default( ar, "mispoln", "" ), 20 )
     mtel_isp := PadR( a2default( ar, "mtel_isp", "" ), 20 )
@@ -5073,7 +5073,7 @@ Function f22_inf_dvn()
     { "999999",, }, ; // массив Picture для редактирования
     17 )
     If LastKey() != K_ESC
-      setinisect( tmp_ini, group_ini, { { "mk1", mk1 }, ;
+      setinisect( tmp_ini(), group_ini, { { "mk1", mk1 }, ;
         { "mispoln", mispoln }, ;
         { "mtel_isp", mtel_isp };
         } )

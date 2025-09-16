@@ -2096,7 +2096,7 @@ Function f_get_file_xml_sds( /*@*/path2_sds)
     func_error( 4, err_admin() )
     Return Nil
   Endif
-  ar := getinisect( tmp_ini, "RAB_MESTO" )
+  ar := getinisect( tmp_ini(), "RAB_MESTO" )
   path1_sds := AllTrim( a2default( ar, "path1_sds" ) )
   path2_sds := AllTrim( a2default( ar, "path2_sds" ) )
   If Empty( path1_sds )
@@ -2288,7 +2288,7 @@ Function import_kart_from_sds()
     Return Nil
   Endif
   If path1_sds == Nil // проверяем только один раз
-    ar := getinisect( tmp_ini, "RAB_MESTO" )
+    ar := getinisect( tmp_ini(), "RAB_MESTO" )
     path1_sds := AllTrim( a2default( ar, "path1_sds" ) )
     path2_sds := AllTrim( a2default( ar, "path2_sds" ) )
     If !Empty( path1_sds )

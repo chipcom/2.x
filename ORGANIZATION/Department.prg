@@ -109,10 +109,10 @@ function SelectDepartment( r, c, dBegin, dEnd )
 	local ret := nil
 	
 	if empty( glob_uch[ 1 ] )
-		// tmp_ini - глобальная переменная, хранит имя файла конфигурации ('tmp.ini')
+		// tmp_ini() - глобальная переменная, хранит имя файла конфигурации ('tmp.ini')
 		// glob_uch := { 0, '' } // глобальное учреждение массив
 		// glob_otd := { 0, '' } // глобальное отделение массив
-		ar := GetIniVar( tmp_ini, { { 'uch_otd', 'uch', '0' }, ;
+		ar := GetIniVar( tmp_ini(), { { 'uch_otd', 'uch', '0' }, ;
                            { 'uch_otd', 'otd', '0' } } )
 		glob_uch[ 1 ] := int( val( ar[ 1 ] ) )
 		glob_otd[ 1 ] := int( val( ar[ 2 ] ) )
@@ -129,7 +129,7 @@ function SelectDepartment( r, c, dBegin, dEnd )
 	if ret != nil
 		glob_uch := { ret:ID, ret:Name }
 		st_a_uch := { glob_uch }
-		SetIniVar( tmp_ini, { { 'uch_otd', 'uch', glob_uch[ 1 ] } } )
+		SetIniVar( tmp_ini(), { { 'uch_otd', 'uch', glob_uch[ 1 ] } } )
 	endif
 	return ret
 	

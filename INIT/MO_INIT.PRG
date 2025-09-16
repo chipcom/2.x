@@ -6,7 +6,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 10.09.25 начальная инициализация программы (до входа в Reconstruct_BD)
+// 16.09.25 начальная инициализация программы (до входа в Reconstruct_BD)
 Function init_first()
 
   Local buf := save_maxrow()
@@ -67,7 +67,7 @@ Function init_first()
   Public mm_monthR := { 'январе', 'феврале', 'марте', 'апреле', 'мае', 'июне', ;
     'июле', 'августе', 'сентябре', 'октябре', 'ноябре', 'декабре' }
   //
-  Public tmp_ini := 'TMP' + sini()
+//  Public tmp_ini := 'TMP' + sini()
   Public tools_ini := dir_server() + 'TOOLS' + sini()
   Public local_tools_ini := 'LOCTOOLS' + sini()
   Public f_stat_com := dir_exe() + 'stat_com' + sfrm()

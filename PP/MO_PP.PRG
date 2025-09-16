@@ -13,7 +13,7 @@ Function begin_task_ppokoj()
   If n_zapusk == 0
     ++n_zapusk
     _pp_nastr( 0 )
-    ar := getinisect( tmp_ini, 'PP_RAB_MESTO' )
+    ar := getinisect( tmp_ini(), 'PP_RAB_MESTO' )
     Public memPPsvod     := Int( Val( a2default( ar, 'PRN_SVOD',  '3' ) ) )
     Public memPPdos_fast := Int( Val( a2default( ar, 'dos_fast',  '0' ) ) )
   Endif
@@ -228,7 +228,7 @@ Function pp_nastr_rab_mesto()
   mywait()
   Close databases
   Delete file tmp.dbf
-  ar := getinisect( tmp_ini, group_ini )
+  ar := getinisect( tmp_ini(), group_ini )
   If pp_IST_BOL == 1 // да
     AAdd( mm_tmp, { 'n_ist_bol', 'N', 6, 0, NIL, ;
       NIL, ;
@@ -267,7 +267,7 @@ Function pp_nastr_rab_mesto()
     Endif
     memPPsvod     := tmp->PRN_SVOD
     memPPdos_fast := tmp->dos_fast
-    setinivar( tmp_ini, { ;
+    setinivar( tmp_ini(), { ;
       { group_ini, 'PRN_SVOD',  tmp->PRN_SVOD  }, ;
       { group_ini, 'dos_fast',  tmp->dos_fast  };
       } )
@@ -1670,7 +1670,7 @@ Function ppokoj_kart( k )
   import_kart_from_sds()
   // ///////////////////////////////////////////////////
   Private tmp, name_reader := ''
-  ar := getinivar( tmp_ini, { { 'polikl1','s_regim','1' }, ;
+  ar := getinivar( tmp_ini(), { { 'polikl1','s_regim','1' }, ;
     { 'polikl1','s_shablon', '' }, ;
     { 'polikl1','s_polis','' }, ;
     { 'polikl1','s_snils','' }, ;
@@ -1856,7 +1856,7 @@ Function ppokoj_kart( k )
       Endif
     Endif
   Endif
-  setinisect( tmp_ini, 'polikl1', { { 's_regim',lstr( s_regim ) }, ;
+  setinisect( tmp_ini(), 'polikl1', { { 's_regim',lstr( s_regim ) }, ;
     { 's_shablon', s_shablon    }, ;
     { 's_polis',s_polis      }, ;
     { 's_snils',s_snils      } } )

@@ -39,7 +39,7 @@ function open_Excel_automatic()
 
   local opn
   
-  opn := val( getinivar( tmp_ini, { { 'RAB_MESTO', 'open_Excel', '0' } } )[ 1 ] )
+  opn := val( getinivar( tmp_ini(), { { 'RAB_MESTO', 'open_Excel', '0' } } )[ 1 ] )
   return iif( opn == 1, .t., .f. )
 
 // 06.03.24

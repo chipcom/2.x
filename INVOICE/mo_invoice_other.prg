@@ -2692,7 +2692,7 @@ Function f2_view_registr_schet( nKey, oBrow )
       ret := 0
     Endif
   Case nKey == K_F2
-    Private ar := getinisect( tmp_ini, "schet" )
+    Private ar := getinisect( tmp_ini(), "schet" )
     Private mnomer := PadR( a2default( ar, "number" ), 15 )
     box_shadow( 16, 20, 20, 59, color8 )
     SetColor( cDataCGet )
@@ -2715,7 +2715,7 @@ Function f2_view_registr_schet( nKey, oBrow )
     Else
       oBrow:gotop()
       Goto ( rec1 )
-      setinivar( tmp_ini, { { "schet", "number", mnomer } } )
+      setinivar( tmp_ini(), { { "schet", "number", mnomer } } )
       ret := 0
     Endif
   Case nKey == K_F9
