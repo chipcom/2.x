@@ -2024,7 +2024,7 @@ Function create_dbf_for_lis( par )
 
   Default par To 1
   If par == 2 // Создание файла для ЛИС из БД КДП2 (пациенты с кодом ЛИС и, возможно, изменёнными реквизитами)
-    AAdd( adbf, { 'KOD_LIS',   'C', 10, 0 } )
+    AAdd( adbf, { 'kod_LIS',   'C', 10, 0 } )
   Endif
   n_file := 'L' + glob_mo[ _MO_KOD_TFOMS ]
   dbCreate( n_file, adbf )
@@ -2063,7 +2063,7 @@ Function create_dbf_for_lis( par )
       tmp->ser_ud := LTrim( kart_->ser_ud ) // серия удостоверения личности
       tmp->nom_ud := LTrim( kart_->nom_ud ) // номер удостоверения личности
       If par == 2
-        tmp->KOD_LIS := kart2->kod_AK
+        tmp->kod_LIS := kart2->kod_AK
       Endif
       If tmp->( RecNo() ) % 500 == 0
         Commit

@@ -52,7 +52,7 @@ Function f_import( k )
   Local mas_pmt, mas_msg, mas_fun, j
 
   Default k To 1
-  If AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 // КДП-2
+  If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 // КДП-2
     import_from_lis()
   Else
     Do Case
@@ -2545,7 +2545,7 @@ Function f_export( k )
   Default k To 1
   Do Case
   Case k == 1
-    If AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 // КДП-2
+    If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 // КДП-2
       mas_pmt := { "Экспорт в ~ЛИС", ;
         "Экспорт ~счетов в ВОМИАЦ" }
       mas_msg := { "Экспорт сведений в ЛИС", ;

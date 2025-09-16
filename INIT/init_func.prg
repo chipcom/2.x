@@ -333,6 +333,10 @@ function err_slock()
 function err_admin()
   return 'Доступ в данный режим разрешен только администратору системы!'
 
+// 16.09.25
+function kod_LIS()
+  return { '125901', '805965' }
+
 // 11.09.25
 function hColor()
 
