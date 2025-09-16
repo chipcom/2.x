@@ -559,7 +559,7 @@ Function regi_nastr( k )
 
   Return Nil
 
-// 12.09.25
+// 16.09.25
 Function r_list_uch( par, name_func )
 
   // 0 - 'ind_karta' инд.карта или 'f_f025u' форма 025
@@ -632,7 +632,8 @@ Function r_list_uch( par, name_func )
     AAdd( s_prim1, '' )
   Endif
   If !( kod_polzovat == Chr( 0 ) )
-    mregistrator := AllTrim( fio_polzovat )
+//    mregistrator := AllTrim( fio_polzovat )
+    mregistrator := AllTrim( hb_user_curUser:FIO )
   Endif
   mfio := Upper( kart->fio )
   mpolis := kart->polis

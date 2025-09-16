@@ -50,7 +50,7 @@ Function prn_k_fr( k )
   Endif
   Return Nil
 
-// 18.11.14 свод за смену
+// 16.09.25 свод за смену
 Function prn_k_svod()
 
   Local arr_m, buf, i, k, arr, n_file := cur_dir() + "smena.txt", sh := 64, ;
@@ -127,7 +127,8 @@ Function prn_k_svod()
   add_string( "" )
   add_string( Center( "Свод за смену № " + lstr( glob_smena ), sh ) )
   add_string( Center( arr_m[ 4 ], sh ) )
-  add_string( Center( "Кассир: " + AllTrim( fio_polzovat ), sh ) )
+//  add_string( Center( "Кассир: " + AllTrim( fio_polzovat ), sh ) )
+  add_string( Center( "Кассир: " + AllTrim( AllTrim( hb_user_curUser:FIO ) ), sh ) )
   add_string( "" )
   For i := 1 To Len( arr )
     If arr[ i, 1 ] == arr[ i, 2 ]
@@ -343,7 +344,8 @@ Function prn_k_plat( tip_ot )
     add_string( Center( "Реестр платных услуг", sh ) )
     If tip_ot == 1
       add_string( Center( arr_m[ 4 ] + ", смена " + lstr( glob_smena ), sh ) )
-      add_string( Center( "Медрегистратор: " + AllTrim( fio_polzovat ), sh ) )
+//      add_string( Center( "Медрегистратор: " + AllTrim( fio_polzovat ), sh ) )
+      add_string( Center( "Медрегистратор: " + AllTrim( hb_user_curUser:FIO ), sh ) )
     Else
       add_string( Center( arr_m[ 4 ], sh ) )
     Endif
@@ -520,7 +522,8 @@ Function prn_rees_ort()
     add_string( "" )
     add_string( Center( "Реестр ортопедических услуг", sh ) )
     add_string( Center( arr_m[ 4 ] + ", смена " + lstr( glob_smena ), sh ) )
-    add_string( Center( "Медрегистратор: " + AllTrim( fio_polzovat ), sh ) )
+//    add_string( Center( "Медрегистратор: " + AllTrim( fio_polzovat ), sh ) )
+    add_string( Center( "Медрегистратор: " + AllTrim( hb_user_curUser:FIO ), sh ) )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
     Go Top

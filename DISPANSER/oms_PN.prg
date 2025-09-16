@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.09.25 ПН - добавление или редактирование случая (листа учета)
+// 16.09.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -1712,11 +1712,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       err_date_diap( mk_data, 'Дата окончания лечения' )
       //
       RestScreen( buf )
-      If mem_op_out == 2 .and. yes_parol
-        box_shadow( 19, 10, 22, 69, cColorStMsg )
-        str_center( 20, 'Оператор "' + fio_polzovat + '".', cColorSt2Msg )
-        str_center( 21, 'Ввод данных за ' + date_month( sys_date ), cColorStMsg )
-      Endif
+      message_save_LU()
       mywait( 'Ждите. Производится запись листа учёта...' )
       m1lis := 0
       arr_lis2 := {}

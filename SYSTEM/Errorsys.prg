@@ -184,9 +184,14 @@ function __errMessage( arr_error )
 	cMessage += '(' + dtoc( directory( s )[ 1, F_DATE ] ) + ', ' + lstr( memory( 1 ) ) + 'Кб)' + hb_eol()
 //	cMessage += 'Версия: ' + Err_version + hb_eol()
 	cMessage += 'Версия: ' + Err_version() + hb_eol()
-	if type( 'fio_polzovat' ) == 'C' .and. !empty( fio_polzovat )
-		cMessage += 'Пользователь: ' + alltrim( fio_polzovat )
+//	if type( 'fio_polzovat' ) == 'C' .and. !empty( fio_polzovat )
+//		cMessage += 'Пользователь: ' + alltrim( fio_polzovat )
+//	endif
+	if ! empty( hb_user_curUser:FIO )
+		cMessage += 'Пользователь: ' + AllTrim( hb_user_curUser:FIO )
 	endif
+        str_center( 20, 'Оператор "' + AllTrim( hb_user_curUser:FIO ) + '".',  cColorSt2Msg )
+
 	cMessage += hb_eol()
 	
 	cMessage += '->OS: ' + OS() + hb_eol()

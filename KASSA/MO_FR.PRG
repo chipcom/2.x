@@ -807,7 +807,7 @@ Function val_u_chek( get, n )
   Endif
   Return update_gets()
 
-// 22.10.19
+// 16.09.25
 Function chek_fr( vsum, vsd, /*@*/cur_chek, vbank, sekcia, /*@*/fr_serial_number, address, tip_kart, tip_oplat )
 
   Local fl := .t., name_tov, buf := save_maxrow(), ;
@@ -840,8 +840,10 @@ Function chek_fr( vsum, vsd, /*@*/cur_chek, vbank, sekcia, /*@*/fr_serial_number
     If oper_parol > 0 .and. oper_parol < 31
       t_vrem := fr_readpassword( oper_parol )
       // if substr(alltrim(t_vrem[1]),1,6) == "Š€‘‘ˆ" //alltrim(fio_polzovat)
-      fr_writepassword( oper_parol, fio_polzovat )
-      fr_writepassword( 30, fio_polzovat )
+//      fr_writepassword( oper_parol, fio_polzovat )
+//      fr_writepassword( 30, fio_polzovat )
+      fr_writepassword( oper_parol, AllTrim( hb_user_curUser:FIO ) )
+      fr_writepassword( 30, AllTrim( hb_user_curUser:FIO ) )
       // endif
     Endif
     If fr_read_otrezka() > 0

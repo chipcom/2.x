@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 28.06.25 ДВН - добавление или редактирование случая (листа учета)
+// 16.09.25 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -1087,11 +1087,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       err_date_diap( mn_data, "Дата начала углубленной диспансеризации после COVID" )
       err_date_diap( mk_data, "Дата окончания углубленной диспансеризации после COVID" )
       //
-      If mem_op_out == 2 .and. yes_parol
-        box_shadow( 19, 10, 22, 69, cColorStMsg )
-        str_center( 20, 'Оператор "' + fio_polzovat + '".', cColorSt2Msg )
-        str_center( 21, 'Ввод данных за ' + date_month( sys_date ), cColorStMsg )
-      Endif
+      message_save_LU()
       mywait()
       is_prazdnik := f_is_prazdnik_dvn_covid( mn_data )
 
