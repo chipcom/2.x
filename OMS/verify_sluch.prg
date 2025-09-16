@@ -778,7 +778,7 @@ Function verify_sluch( fl_view )
           AAdd( ta, 'не заполнено поле "Врач, оказавший услугу ' + AllTrim( usl->shifr ) + '"' )
         Endif
       Else
-        If Empty( mvrach ) .and. !( AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) )
+        If Empty( mvrach ) .and. !( AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) )
           mvrach := hu->kod_vr
         Endif
         pers->( dbGoto( hu->kod_vr ) )
@@ -1324,7 +1324,7 @@ Function verify_sluch( fl_view )
     Select HU
     Skip
   Enddo
-  If !is_mgi .and. AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0
+  If !is_mgi .and. AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0
     If eq_any( human_->profil, 6, 34 )
       human->KOD_DIAG := 'Z01.7' // всегда
     Endif
@@ -1568,7 +1568,7 @@ Function verify_sluch( fl_view )
 
       arr_perso := addkoddoctortoarray( arr_perso, mohu->kod_vr )
 
-      If Empty( mvrach ) .and. !( AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) )
+      If Empty( mvrach ) .and. !( AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) )
         mvrach := mohu->kod_vr
       Endif
       pers->( dbGoto( mohu->kod_vr ) )
@@ -2067,13 +2067,13 @@ Function verify_sluch( fl_view )
       AAdd( ta, 'для диагноза ' + AllTrim( mdiagnoz[ 1 ] ) + ' (искусственное прерывание беременности по медицинским показаниям) не указан сопутствующий диагноз' )
     Endif
   Endif
-  If Empty( human_->VRACH ) .and. !( AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) )
+  If Empty( human_->VRACH ) .and. !( AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) )
     human_->VRACH := mvrach // врача из первой услуги
   Endif
-  If AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
+  If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
     mpzkol := Len( au_lu )
   Endif
-  If AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
+  If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
     If !Empty( human_2->PN3 )
       human->UCH_DOC := lstr( human_2->PN3 ) // ORDER по ЛИС перезаписываем (вдруг исправили)
     Endif
@@ -2703,7 +2703,7 @@ Function verify_sluch( fl_view )
   If human_->USL_OK == USL_OK_POLYCLINIC .and. human->ishod < 101 ;// не диспансеризация
     .and. m1novor == human_->NOVOR ;
       .and. !( is_2_80 .or. is_2_82 ) ;// не неотложная помощь
-    .and. !( AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) ) ; // не КДП2
+    .and. !( AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) ) ; // не КДП2
     .and. kkt == 0 ; // не отдельно стоящая иссл.процедура
     .and. Len( a_period_amb ) > 0
     For i := 1 To Len( a_period_amb )
@@ -2923,7 +2923,7 @@ Function verify_sluch( fl_view )
       AAdd( ta, 'в случае не проставлен профиль' )
     Endif
     //
-    If AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
+    If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
       // не проверять
     Else
       arr_prvs := { human_->PRVS }
@@ -4861,7 +4861,7 @@ Function verify_sluch( fl_view )
   Endif
   If Len( ta ) > 0
     _ocenka := 0
-    If AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. Type( 'old_npr_mo' ) == 'C'
+    If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. Type( 'old_npr_mo' ) == 'C'
       If !( old_npr_mo == human_->NPR_MO )
         If !( old_npr_mo == '000000' )
           verify_ff( -1, .t., 80 ) // безусловный перевод страницы
@@ -4895,7 +4895,7 @@ Function verify_sluch( fl_view )
   Else
     If is_disp_DDS .or. is_prof_PN .or. is_disp_DVN
       mpzkol := 1
-    Elseif AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
+    Elseif AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
       mpzkol := Len( au_lu ) // кол-во анализов
     Endif
     If Len( arr_unit ) == 1

@@ -98,7 +98,7 @@ Function verify_oms( arr_m, fl_view )
   g_use( dir_server() + 'human_', , 'HUMAN_' )
   g_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
-  If AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. fl_view
+  If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. fl_view
     Private old_npr_mo := '000000'
     Index On f_napr_mo_lis() + Upper( fio ) + Str( kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) ;
       While human->k_data <= arr_m[ 6 ] .and. !Eof() ;

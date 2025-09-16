@@ -49,7 +49,7 @@ Procedure Main( ... )
 
   //
 //  Public Err_version := fs_version( _version() ) + ' от ' + _date_version()
-  Public kod_LIS   := { '125901', '805965' }
+//  Public kod_LIS   := { '125901', '805965' }
   //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
 
