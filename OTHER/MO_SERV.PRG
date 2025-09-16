@@ -4224,7 +4224,7 @@ Function tools_ini_oms( reg, k1, k2, fll )
       If !yes_bukva
         yes_d_plus := "+-"  // вернуть значение по умолчанию
       Endif
-      i := getinivar( tmp_ini, { { "RAB_MESTO", "okato_umolch", "" } } )
+      i := getinivar( tmp_ini(), { { "RAB_MESTO", "okato_umolch", "" } } )
       If i[ 1 ] != Nil .and. !Empty( i[ 1 ] )
         okato_umolch := i[ 1 ]
       Endif
@@ -4403,7 +4403,7 @@ Function nastr_rab_mesto()
     "исход", ;            // 6
     "повод обращения", ;  // 7
     "способ оплаты" }     // 8
-  ar := getinisect( tmp_ini, group_ini )
+  ar := getinisect( tmp_ini(), group_ini )
   sr := a2default( ar, "sc_reader" )
   If !Empty( sr )
     mm_reader[ 2, 1 ] := sr
@@ -4505,7 +4505,7 @@ Function nastr_rab_mesto()
       AAdd( mm_tmp, { group_ini, "path1_sds", AllTrim( tmp->path1_sds ) } )
       AAdd( mm_tmp, { group_ini, "path2_sds", AllTrim( tmp->path2_sds ) } )
     Endif
-    setinivar( tmp_ini, mm_tmp )
+    setinivar( tmp_ini(), mm_tmp )
   Endif
   Close databases
 
@@ -4757,7 +4757,7 @@ Function mo_read_el_polis( /*@*/k)
         kfio->OT  := arr_epolis[ _EP_OT ]
       Endif
       Close databases
-      setinisect( tmp_ini, "polikl1", { { "s_regim", "1" }, { "s_shablon", "" }, { "s_polis", "" }, { "s_snils", "" } } )
+      setinisect( tmp_ini(), "polikl1", { { "s_regim", "1" }, { "s_shablon", "" }, { "s_polis", "" }, { "s_snils", "" } } )
       fl := .t.
     Endif
   Endif

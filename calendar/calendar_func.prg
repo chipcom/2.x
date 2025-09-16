@@ -73,7 +73,7 @@ Function year_month( rr, cc, za_v, kmp, ch_mm, ret_time )
     begin_date, end_date, old_set, fl, ar, r1, c1, r2, c2
   Local i, sy, smp, sm, mbeg, mend, sdate, sdek, s1date, s1time, s2time
 
-  ar := getinisect( tmp_ini, 'ymonth' )
+  ar := getinisect( tmp_ini(), 'ymonth' )
   sy     := Int( Val( a2default( ar, 'sy', lstr( Year( sys_date ) ) ) ) )
   sm     := Int( Val( a2default( ar, 'sm', lstr( Month( sys_date ) ) ) ) )
   smp    := Int( Val( a2default( ar, 'smp', '3' ) ) )
@@ -272,7 +272,7 @@ Function year_month( rr, cc, za_v, kmp, ch_mm, ret_time )
     end_date += Chr( k2 ) + Chr( 1 )
     end_date := dtoc4( EoM( c4tod( end_date ) ) )
   Endif
-  setinisect( tmp_ini, 'ymonth', ;
+  setinisect( tmp_ini(), 'ymonth', ;
     { { 'sy', lstr( sy ) }, { 'sm', lstr( sm ) }, { 'smp', lstr( smp ) }, ;
     { 'mbeg', lstr( mbeg ) }, { 'mend', lstr( mend ) }, { 'sdate', DToS( sdate ) }, ;
     { 's1date', DToS( s1date ) }, { 'sdek', lstr( sdek ) }, ;

@@ -23,7 +23,7 @@ Function polikl1_kart()
   import_kart_from_sds()
   /////////////////////////////////////////////////////
   Private tmp, name_reader := ''
-  ar := GetIniVar(tmp_ini, {{'polikl1'  , 's_regim'  , '1'}, ;
+  ar := GetIniVar(tmp_ini(), {{'polikl1'  , 's_regim'  , '1'}, ;
                            {'polikl1'  , 's_shablon', '' }, ;
                            {'polikl1'  , 's_polis'  , '' }, ;
                            {'polikl1'  , 's_snils'  , '' }, ;
@@ -169,7 +169,7 @@ Function polikl1_kart()
       endif
     endif
   endif
-  SetIniSect(tmp_ini, 'polikl1', {{'s_regim'  , lstr(s_regim)}, ;
+  SetIniSect(tmp_ini(), 'polikl1', {{'s_regim'  , lstr(s_regim)}, ;
                                   {'s_shablon', s_shablon    }, ;
                                   {'s_polis'  , s_polis      }, ;
                                   {'s_snils'  , s_snils      }})

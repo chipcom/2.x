@@ -85,7 +85,7 @@ Function append_kart()
 // 03.09.17
 Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
-  Local ar := getinivar( tmp_ini, { { 'RAB_MESTO', 'kart_polis', '1' } } )
+  Local ar := getinivar( tmp_ini(), { { 'RAB_MESTO', 'kart_polis', '1' } } )
 
   Private p_edit_kartoteka := .f., p_find_polis := Int( Val( ar[ 1 ] ) )
 

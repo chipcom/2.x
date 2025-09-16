@@ -156,3 +156,26 @@ function check_extension_file(fileName, sExt)
 
   return lower(right(fileName, len(sExt))) == lower(sExt)
 
+// 16.09.25
+function tmp_ini()
+  return 'TMP' + sini()
+
+// 16.09.25
+function tools_ini()
+  return dir_server() + 'TOOLS' + sini()
+
+// 16.09.25
+function local_tools_ini()
+  return 'LOCTOOLS' + sini()
+
+// 16.09.25
+function f_stat_com()
+  return dir_exe() + 'stat_com' + sfrm()
+
+// 16.09.25
+function f_stat_lpu()
+  return dir_server() + 'stat_lpu' + sini()
+
+// 16.09.25
+function file_uchast()
+  return dir_server() + 'prik_uch' + smem()

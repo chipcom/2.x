@@ -412,7 +412,7 @@ function SelectDepartmentAndSubdivision( k, r, c, date1, date2, nTask )
 	local oSub := nil
 	
 	if empty( glob_uch[1] )
-		ar := GetIniVar( tmp_ini, { { 'uch_otd', 'uch', '0' }, ;
+		ar := GetIniVar( tmp_ini(), { { 'uch_otd', 'uch', '0' }, ;
 									{ 'uch_otd', 'otd', '0' } } )
 		glob_uch[1] := int( val( ar[1] ) )
 		glob_otd[1] := int( val( ar[2] ) )
@@ -423,14 +423,14 @@ function SelectDepartmentAndSubdivision( k, r, c, date1, date2, nTask )
 	endif
 	if ( oDep := SelectDepartment( r, c, date1, date2 ) ) != nil
 		glob_uch := { oDep:ID(), alltrim( oDep:Name() ) }
-		SetIniVar( tmp_ini, { { 'uch_otd', 'uch', glob_uch[1] } } )
+		SetIniVar( tmp_ini(), { { 'uch_otd', 'uch', glob_uch[1] } } )
 		
 		if type( 'm1otd' ) == 'N' .and. m1otd > 0
 			glob_otd[1] := m1otd
 		endif
 		if ( oSub := SelectSubdivision( r, c, oDep:ID(), date1, date2 ) ) != nil
 			glob_otd := { oSub:Code(), alltrim( oSub:Name() ) }
-			SetIniVar( tmp_ini, { { 'uch_otd', 'otd', glob_otd[ 1 ] } } )
+			SetIniVar( tmp_ini(), { { 'uch_otd', 'otd', glob_otd[ 1 ] } } )
 			
 			if valtype( motd ) == 'C'
 				n := len( motd )

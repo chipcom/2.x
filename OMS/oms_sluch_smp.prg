@@ -192,7 +192,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
   Endif
   chm_help_code := 3002
   //
-  ar := getinivar( tmp_ini, { { 'RAB_MESTO', 'kart_polis', '1' } } )
+  ar := getinivar( tmp_ini(), { { 'RAB_MESTO', 'kart_polis', '1' } } )
   Private mm_rslt := {}, mm_ishod := {}, rslt_umolch := 401, ishod_umolch := 401, p_find_polis := Int( Val( ar[ 1 ] ) )
   If tip_lu == TIP_LU_NMP
     rslt_umolch := 301 ; ishod_umolch := 301

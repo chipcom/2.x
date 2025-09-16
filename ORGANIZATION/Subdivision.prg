@@ -306,7 +306,7 @@ function SelectSubdivision( r, c, department, dBegin, dEnd, nTask )
 	endif
 	if ret != nil
 		glob_otd := { ret:ID(), ret:Name() }
-		SetIniVar( tmp_ini, { { 'uch_otd', 'otd', glob_otd[ 1 ] } } )
+		SetIniVar( tmp_ini(), { { 'uch_otd', 'otd', glob_otd[ 1 ] } } )
 	endif
 	return ret
 	

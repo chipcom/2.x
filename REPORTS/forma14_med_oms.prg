@@ -146,7 +146,7 @@ Function forma14_med_oms()
   lal := create_name_alias( 'lusl', arr_m[ 1 ] )
   lalf := create_name_alias( 'luslf', arr_m[ 1 ] )
   Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
-  ar := getinisect( tmp_ini, group_ini )
+  ar := getinisect( tmp_ini(), group_ini )
   mk1 := Int( Val( a2default( ar, 'mk1', '0' ) ) )
   mk2 := Int( Val( a2default( ar, 'mk2', '0' ) ) )
   mk3 := Int( Val( a2default( ar, 'mk3', '0' ) ) )
@@ -181,7 +181,7 @@ Function forma14_med_oms()
   If LastKey() == K_ESC
     Return Nil
   Endif
-  setinisect( tmp_ini, group_ini, { { 'mk1', mk1 }, ;
+  setinisect( tmp_ini(), group_ini, { { 'mk1', mk1 }, ;
     { 'mk2', mk2 }, ;
     { 'mk3', mk3 }, ;
     { 'mk4', mk4 }, ;

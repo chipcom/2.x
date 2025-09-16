@@ -1420,7 +1420,7 @@ Function polikl_kart( k )
   // обмен информацией с программой Smart Delta Systems
   import_kart_from_sds()
   // ///////////////////////////////////////////////////
-  ar := getinivar( tmp_ini, { { 'polikl1','s_regim', '1' }, ;
+  ar := getinivar( tmp_ini(), { { 'polikl1','s_regim', '1' }, ;
     { 'polikl1','s_shablon', '' }, ;
     { 'polikl1','s_polis', '' }, ;
     { 'polikl1','s_snils', '' }, ;
@@ -1641,7 +1641,7 @@ Function polikl_kart( k )
       Endif
     Endif
   Endif
-  setinisect( tmp_ini, 'polikl1', { { 's_regim', lstr( s_regim ) }, ;
+  setinisect( tmp_ini(), 'polikl1', { { 's_regim', lstr( s_regim ) }, ;
     { 's_shablon', s_shablon    }, ;
     { 's_polis', s_polis      }, ;
     { 's_snils', s_snils      } } )
@@ -2201,7 +2201,7 @@ Function input_schet( rr, r, c )
   If !myfiledeleted( cur_dir() + 'tmp' + sdbf() )
     Return fl
   Endif
-  ar := getinisect( tmp_ini, 'schet' )
+  ar := getinisect( tmp_ini(), 'schet' )
   Private mnomer := PadR( a2default( ar, 'number' ), 15 ), ;
     p_i := Val( a2default( ar, 'i', '1' ) )
   If .t. // (i := popup_prompt(r,c,p_i,mas_pmt)) > 0
@@ -2271,7 +2271,7 @@ Function input_schet( rr, r, c )
     Endcase
   Endif
   Close databases
-  setinisect( tmp_ini, 'schet', { { 'number', mnomer }, { 'i', lstr( p_i ) } } )
+  setinisect( tmp_ini(), 'schet', { { 'number', mnomer }, { 'i', lstr( p_i ) } } )
   If fl
     r_use( dir_server() + 'schet_', , 'SCHET_' )
     r_use( dir_server() + 'schet', dir_server() + 'schetk', 'SCHET' )
