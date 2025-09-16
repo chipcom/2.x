@@ -7,7 +7,7 @@
 #define MAX_REC_REESTR 9999
 #define BASE_ISHOD_RZD 500
 
-// 15.08.25
+// 16.09.25
 Function verify_oms_2025( kod_smo, arr_m, fl_view )
 
   // Возврат: arrKolSl (массив)
@@ -102,7 +102,7 @@ Function verify_oms_2025( kod_smo, arr_m, fl_view )
   g_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
 
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
-  If AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. fl_view
+  If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. fl_view
     Private old_npr_mo := '000000'
     Index On f_napr_mo_lis() + Upper( FIELD->fio ) + Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) ;
       While human->k_data <= arr_m[ 6 ] .and. !Eof() ;

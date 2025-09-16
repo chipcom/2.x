@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.08.25
+// 16.09.25
 function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth )
 
 
@@ -723,7 +723,7 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
       sCOMENTSL := ''
       If p_tip_reestr == 1
         mo_add_xml_stroke( oSL, 'PRVS', put_prvs_to_reestr( human_->PRVS, _NYEAR ) )
-        If ( !is_mgi .and. AScan( kod_LIS, glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) ) .or. human_->profil == 15 // гистология
+        If ( !is_mgi .and. AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) ) .or. human_->profil == 15 // гистология
           mo_add_xml_stroke( oSL, 'IDDOKT', '0' )
         Else
           p2->( dbGoto( human_->vrach ) )
@@ -838,7 +838,7 @@ function elem_reestr_sluch_2025( oXmlDoc, fl_ver, p_tip_reestr, _nyear, _nmonth 
           mo_add_xml_stroke( oUSL, 'ID_U', hu_->ID_U )
           fl := .f.
           If eq_any( hu->is_edit, 1, 2 ) // гематологические исследования
-            mo_add_xml_stroke( oUSL, 'LPU', kod_LIS[ hu->is_edit ] ) // иссл-ие проводится в КДП2 или РДЛ
+            mo_add_xml_stroke( oUSL, 'LPU', kod_LIS()[ hu->is_edit ] ) // иссл-ие проводится в КДП2 или РДЛ
           Elseif lshifr == '4.20.2' .or. hu->is_edit == 3 // жидкостная цитология или приём в ВОКОД
             mo_add_xml_stroke( oUSL, 'LPU', '103001' ) // т.е. иссл-ие проводится в онкологии
           Elseif hu->is_edit == 4
