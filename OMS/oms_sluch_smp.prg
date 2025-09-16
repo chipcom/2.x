@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.09.25 СМП - добавление или редактирование случая (листа учета)
+// 16.09.25 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -722,11 +722,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         Loop
       Endif
       err_date_diap( mn_data, 'Дата выезда' )
-      If mem_op_out == 2 .and. yes_parol
-        box_shadow( 19, 10, 22, 69, cColorStMsg )
-        str_center( 20, 'Оператор "' + fio_polzovat + '".', cColorSt2Msg )
-        str_center( 21, 'Ввод данных за ' + date_month( sys_date ), cColorStMsg )
-      Endif
+      message_save_LU()
       mywait()
       make_diagp( 2 )  // сделать 'пятизначные' диагнозы
       If m1komu == 0

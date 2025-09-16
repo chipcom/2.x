@@ -219,7 +219,7 @@ Function fillzip( arr_f, sFileName )
   Endif
   Return sFileName
 
-// 10.09.25
+// 16.09.25
 Function create_zip( par, dir_archiv )
 
   Static sast := '*', sfile_begin := '_begin.txt', sfile_end := '_end.txt'
@@ -256,7 +256,8 @@ Function create_zip( par, dir_archiv )
     zip_napr_tf := dir_NAPR_TF() + szip()
     zip_xml_fns := 'XML_FNS' + szip()
     hb_vfErase( sfile_begin )
-    hb_MemoWrit( sfile_begin, full_date( Date() ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
+//    hb_MemoWrit( sfile_begin, full_date( Date() ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
+    hb_MemoWrit( sfile_begin, full_date( Date() ) + ' ' + Time() + ' ' + hb_OEMToANSI( AllTrim( hb_user_curUser:FIO ) ) )
     //
     arr_f := {}
     scandirfiles_for_backup( dir_server() + dir_XML_MO() + hb_ps(), sast + szip(), blk, afterDate )
@@ -332,7 +333,8 @@ Function create_zip( par, dir_archiv )
       fl := func_error( 4, 'Возникла ошибка при архивировании базы данных.' )
     Endif
     hb_vfErase( sfile_end )
-    hb_MemoWrit( sfile_end, full_date( Date() ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
+//    hb_MemoWrit( sfile_end, full_date( Date() ) + ' ' + Time() + ' ' + hb_OEMToANSI( fio_polzovat ) )
+    hb_MemoWrit( sfile_end, full_date( Date() ) + ' ' + Time() + ' ' + hb_OEMToANSI( AllTrim( hb_user_curUser:FIO ) ) )
     RestScreen( buf )
   Endif
   // удаляем ненужные архивы

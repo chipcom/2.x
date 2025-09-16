@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 27.07.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 16.09.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1076,11 +1076,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         m1spec_na := 1 // Направлен для получения специализированной медицинской помощи (в т.ч. ВМП)
       Endif
       //
-      If mem_op_out == 2 .and. yes_parol
-        box_shadow( 19, 10, 22, 69, cColorStMsg )
-        str_center( 20, 'Оператор "' + fio_polzovat + '".', cColorSt2Msg )
-        str_center( 21, 'Ввод данных за ' + date_month( sys_date ), cColorStMsg )
-      Endif
+      message_save_LU()
       mywait()
       is_prazdnik := ! is_work_day( mn_data )
 

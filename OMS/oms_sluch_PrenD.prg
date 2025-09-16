@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.02.24 ПренД - добавление или редактирование случая (листа учета)
+// 16.09.25 ПренД - добавление или редактирование случая (листа учета)
 Function oms_sluch_prend( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -339,11 +339,7 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
       Endif
       err_date_diap( mn_data, 'Дата диагностики' )
       //
-      If mem_op_out == 2 .and. yes_parol
-        box_shadow( 19, 10, 22, 69, cColorStMsg )
-        str_center( 20, 'Оператор "' + fio_polzovat + '".', cColorSt2Msg )
-        str_center( 21, 'Ввод данных за ' + date_month( sys_date ), cColorStMsg )
-      Endif
+      message_save_LU()
       mywait()
       //
       sv1 := MTAB_NOM1

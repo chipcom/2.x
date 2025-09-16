@@ -12,7 +12,7 @@ Function f_d_dializ()
 
   Return .t.
 
-// 25.06.24 гемодиализ (1) и перитонеальный диализ (2)
+// 16.09.24 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -463,11 +463,7 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
       Elseif k == 1
         Exit
       Endif
-      If mem_op_out == 2 .and. yes_parol
-        box_shadow( 19, 10, 22, 69, cColorStMsg )
-        str_center( 20, 'Оператор "' + fio_polzovat + '".', cColorSt2Msg )
-        str_center( 21, 'Ввод данных за ' + date_month( sys_date ), cColorStMsg )
-      Endif
+      message_save_LU()
       mywait()
       make_diagp( 2 )  // сделать 'пятизначные' диагнозы
       If m1komu == 0

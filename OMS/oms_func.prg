@@ -32,6 +32,7 @@ function arr_patient_died_during_treatment( mkod_k, loc_kod )
 
 // 26.05.22 проверка на соответствие услуги профилю
 Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
+
   Local s := '', s1 := ''
 
   if valtype(short_shifr) == 'C' .and. !empty(short_shifr) .and. !(alltrim(lshifr) == alltrim(short_shifr))
@@ -68,7 +69,8 @@ Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
   
 // 12.02.23 проверка на соответствие услуги специальности
 Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach)
-  Local s := '', s1 := '', s2, i, k
+
+  Local s := '', s1 := '', s2, k
   local arr_conv_V015_V021 := conversion_V015_V021()
 
   if valtype(short_shifr) == 'C' .and. !empty(short_shifr) .and. !(alltrim(lshifr) == alltrim(short_shifr))
@@ -113,6 +115,7 @@ Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach
   
 // 07.06.24 собрать шифры услуг в случае
 function collect_uslugi( rec_number )
+
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrUslugi := {}
@@ -144,6 +147,7 @@ function collect_uslugi( rec_number )
 
 // 07.06.24 собрать даты оказания услуг в случае
 function collect_date_uslugi( rec_number )
+
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrDate := {}, aSortDate
@@ -241,7 +245,7 @@ Function is_osmotr_PN(ausl, _period, arr, _etap, _pol)
 // 28.01.18
 Function is_issled_PN(ausl, _period, arr, _pol)
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, j, s := '', fl := .f., lshifr := alltrim(ausl[1])
+  Local i, s := '', fl := .f., lshifr := alltrim(ausl[1])
 
   if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
     lshifr := np_arr_not_zs[i, 1]
@@ -268,8 +272,9 @@ Function is_issled_PN(ausl, _period, arr, _pol)
 
 // 14.02.16 если услуга из 1 этапа
 Function is_1_etap_PN_17(ausl, _period, _etap)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
+  Local i, fl := .f., lshifr := alltrim(ausl[1])
 
   if _etap == 2 .and. (i := ascan(np_arr_osmotr_KDP2_17, {|x| x[2] == lshifr})) > 0
     lshifr := np_arr_osmotr_KDP2_17[i, 1]
@@ -295,6 +300,7 @@ Function is_1_etap_PN_17(ausl, _period, _etap)
 
 // 14.02.16
 Function is_osmotr_PN_17(ausl, _period, arr, _etap, _pol)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, s, fl := .f., lshifr := alltrim(ausl[1])
 
@@ -331,8 +337,9 @@ Function is_osmotr_PN_17(ausl, _period, arr, _etap, _pol)
 
 // 02.03.16
 Function is_issled_PN_17(ausl, _period, arr, _pol)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, j, s := '', fl := .f., lshifr := alltrim(ausl[1])
+  Local i, s := '', fl := .f., lshifr := alltrim(ausl[1])
 
   for i := 1 to count_pn_arr_iss_17
     if np_arr_issled_17[i, 1] == lshifr
@@ -356,6 +363,7 @@ Function is_issled_PN_17(ausl, _period, arr, _pol)
 
 // 20.06.19
 Function is_usluga_dvn(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1]), fl_19
 
@@ -453,6 +461,7 @@ Function is_usluga_dvn(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
 
 // 18.05.15
 Function is_usluga_dvn13(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1])
 
@@ -541,8 +550,9 @@ Function is_usluga_dvn13(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
 
 // 10.05.16 является врачебным осмотром детей-сирот на первом этапе
 Function is_osmotr_DDS_1_etap(ausl, _vozrast, _etap, _pol, tip_lu)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
+  Local i, fl := .f., lshifr := alltrim(ausl[1])
 
   // вместо услуг "2.87.*" сделаем "2.83.*"
   if tip_lu == TIP_LU_DDSOP .and. left(lshifr, 5) == '2.87.'
@@ -568,6 +578,7 @@ Function is_osmotr_DDS_1_etap(ausl, _vozrast, _etap, _pol, tip_lu)
 
 // 13.02.17 является врачебным осмотром детей-сирот
 Function is_osmotr_DDS(ausl, _vozrast, arr, _etap, _pol, tip_lu)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, j, s, fl := .f., lshifr := alltrim(ausl[1])
 
@@ -632,7 +643,8 @@ Function is_osmotr_DDS(ausl, _vozrast, arr, _etap, _pol, tip_lu)
 
 // 13.05.13 является исследованием детей-сирот
 Function is_issl_DDS(ausl, _vozrast, arr)
-// ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, s, fl := .f., lshifr := alltrim(ausl[1])
 
   for i := 1 to Len( dds_arr_iss() )
@@ -659,6 +671,7 @@ Function is_issl_DDS(ausl, _vozrast, arr)
 
 // 21.08.24 функция проверки лицензии на диспансеризацию/профилактику
 Function license_for_dispans(_tip, _n_data, _ta)
+
   // список учреждений с датой лицензии на диспансеризацию
   Static arr_date_disp := { ;
     {101003, 1, 0, 20130726}, ;  // 101003;ГБУЗ "ВОКБ № 3";+;;26.07.2013
@@ -773,6 +786,7 @@ Function license_for_dispans(_tip, _n_data, _ta)
   
 // 25.08.13 если услуга из 1 этапа
 Function is_issled_PerN(ausl, _period, arr, _pol)
+
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, s := '', fl := .f., lshifr := alltrim(ausl[1])
 
@@ -796,8 +810,9 @@ Function is_issled_PerN(ausl, _period, arr, _pol)
   
 // 19.08.13 если услуга из 1 этапа
 Function is_1_etap_PredN(ausl, _period, _etap)
+
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
+  Local i, fl := .f., lshifr := alltrim(ausl[1])
 
   for i := 1 to count_predn_arr_osm
     if _etap == 1
@@ -820,6 +835,7 @@ Function is_1_etap_PredN(ausl, _period, _etap)
   
 // 13.02.17
 Function is_osmotr_PredN(ausl, _period, arr, _etap, _pol)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, s, fl := .f., lshifr := alltrim(ausl[1])
   
@@ -860,6 +876,7 @@ Function is_osmotr_PredN(ausl, _period, arr, _etap, _pol)
   
 // 19.08.13
 Function is_issled_PredN(ausl, _period, arr, _pol)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, s := '', fl := .f., lshifr := alltrim(ausl[1])
 
@@ -889,8 +906,9 @@ Function is_issled_PredN(ausl, _period, arr, _pol)
   
 // 06.11.19 если услуга из 1 этапа
 Function is_1_etap_PN(ausl, _period, _etap)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, j, s, fl := .f., fl_profil := .f., lshifr := alltrim(ausl[1])
+  Local i, j, fl := .f., fl_profil := .f., lshifr := alltrim(ausl[1])
 
   if eq_any(left(lshifr, 4), '2.3.', '2.91')
     fl_profil := .t.
@@ -930,3 +948,12 @@ Function is_1_etap_PN(ausl, _period, _etap)
 Function is_death(_rslt)
   return eq_any(_rslt, 105, 106, 205, 206, 313, 405, 406, 411) // по результату лечения
 
+// 16.09.25
+function message_save_LU()
+
+  If mem_op_out == 2 .and. yes_parol
+    box_shadow( 19, 10, 22, 69, cColorStMsg )
+    str_center( 20, 'Оператор "' + AllTrim( hb_user_curUser:FIO ) + '".', cColorSt2Msg )
+    str_center( 21, 'Ввод данных за ' + date_month( Date() ), cColorStMsg )
+  Endif
+  return nil

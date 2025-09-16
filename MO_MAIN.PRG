@@ -16,7 +16,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 15.09.25
+// 16.09.25
 Procedure Main( ... )
 
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
@@ -164,9 +164,11 @@ Procedure Main( ... )
   If ! hb_user_curUser:isadmin()
     verify_fio_polzovat := .f.
   Endif
-  If ! g_sopen( sem_task(), sem_vagno(), fio_polzovat, p_name_comp )
+//  If ! g_sopen( sem_task(), sem_vagno(), fio_polzovat, p_name_comp )
+  If ! g_sopen( sem_task(), sem_vagno(), AllTrim( hb_user_curUser:FIO ), p_name_comp )
     If Type( 'verify_fio_polzovat' ) == 'L' .and. verify_fio_polzovat
-      func_error( 'В данный момент работает другой оператор под фамилией "' + fio_polzovat + '"' )
+//      func_error( 'В данный момент работает другой оператор под фамилией "' + fio_polzovat + '"' )
+      func_error( 'В данный момент работает другой оператор под фамилией "' + AllTrim( hb_user_curUser:FIO ) + '"' )
     Else
       If !hb_user_curUser:isadmin()
         hb_Alert( 'В данный момент другой задачей выполняется ответственный режим. Проверьте системный монитор' )

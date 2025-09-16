@@ -287,7 +287,7 @@ Function f2_k_plat( oBrow )
   mark_keys( { "<Esc>", "<Enter>", "<Ins>", "<Del>", "<Ctrl+Enter>", "<F3>", "<F4>", "<F8>", "<F9>", "<F10>" }, "R/W" )
   Return Nil
 
-// 12.09.25
+// 16.09.25
 Function f3_k_plat( nKey, oBrow )
 
   Local j := 0, flag := -1, buf := save_row( MaxRow() ), buf1, fl := .f., rec, mkod, ;
@@ -450,7 +450,7 @@ Function f3_k_plat( nKey, oBrow )
   Case nKey == K_F9 // .and. human->cena > 0
     // печать договора
     Private pac_FIO, pac_adres, pac_data, dog_data, pac_kod, pac_1FIO, pac_kvit, phone_m
-    Private m1vid_ud, mvidan_ud, mnom, MSER, MVID_UD, mregistrator := AllTrim( fio_polzovat )
+    Private m1vid_ud, mvidan_ud, mnom, MSER, MVID_UD
     Private mplat_fio := human->plat_fio, mplat_inn := human->plat_inn, nom_prihod := 0
     Private mplat_adres  := Space( 50 ), ; // адрес плательщика
     mplat_pasport := Space( 15 ), ;  // документ плательщика
@@ -461,6 +461,7 @@ Function f3_k_plat( nKey, oBrow )
     Private mmesto_r, ;       // место рождения
       m, ;      // документ выдан
     mdata_vidan_ud   // дата выдачи удостоверения
+    private mregistrator := AllTrim( hb_user_curUser:FIO )  // AllTrim( fio_polzovat )
     buf := SaveScreen()
     clrline( 23, color0 )
     mdov_date  := oper_dov_date

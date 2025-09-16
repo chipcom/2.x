@@ -70,7 +70,8 @@ Function begin_task_kassa()
   If hb_FileExists( "__kassa_.log" ) .and. FileSize( "__kassa_.log" ) > 5000000
     Delete file __kassa_.log
   Endif
-  blk_ekran := {| _s| _s := AllTrim( fio_polzovat ) + ;
+//  blk_ekran := {| _s| _s := AllTrim( fio_polzovat ) + ;
+  blk_ekran := {| _s| _s := AllTrim( hb_user_curUser:FIO ) + ;
     ", смена: " + lstr( glob_smena ) + ", " + ;
     full_date( sys_date ), ;
     DevPos( MaxRow() -2, MaxCol() -Len( _s ) ), ;

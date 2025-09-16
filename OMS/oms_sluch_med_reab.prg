@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.06.24 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
+// 16.09.25 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
 Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -409,11 +409,7 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
       err_date_diap( mn_data, 'Дата начала лечения' )
       err_date_diap( mk_data, 'Дата окончания лечения' )
       RestScreen( buf )
-      If mem_op_out == 2 .and. yes_parol
-        box_shadow( 19, 10, 22, 69, cColorStMsg )
-        str_center( 20, 'Оператор "' + fio_polzovat + '".', cColorSt2Msg )
-        str_center( 21, 'Ввод данных за ' + date_month( sys_date ), cColorStMsg )
-      Endif
+      message_save_LU()
       mywait( 'Ждите. Производится запись листа учёта ...' )
 
       make_diagp( 2 )  // сделать "пятизначные" диагнозы
