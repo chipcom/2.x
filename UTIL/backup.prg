@@ -285,8 +285,8 @@ Function create_zip( par, dir_archiv )
     hb_vfErase( dir_archiv + zip_file )
     // сначала прочие файлы
     ar := { sfile_begin, ;
-      tools_ini, ;
-      f_stat_lpu, ;
+      tools_ini(), ;
+      f_stat_lpu(), ;
       dir_server() + 'f39_nast' + sini(), ;
       dir_server() + 'usl1year' + smem(), ;
       dir_server() + 'error.txt' }

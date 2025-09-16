@@ -1082,7 +1082,7 @@ Function print_rule( n )
 //
 Function get_nas_rule()
 
-  Local ar := getinisect( f_stat_lpu, sect_nastr ), ar2, i, j
+  Local ar := getinisect( f_stat_lpu(), sect_nastr ), ar2, i, j
 
   If Len( ar ) == 0
     m1print := { 11, 13 }
@@ -1234,7 +1234,7 @@ Function nastr_rule()
     s := ""
     AEval( m1f57, {| x| s += lstr( x ) + "," } )
     AAdd( arr, { nastr_f57, Left( s, Len( s ) -1 ) } )
-    setinisect( f_stat_lpu, sect_nastr, arr )
+    setinisect( f_stat_lpu(), sect_nastr, arr )
   Endif
   SetColor( tmp_color )
   RestScreen( buf )
@@ -1246,7 +1246,7 @@ Function read_rule( regim )
 
   Local sregim := ""
   Local i, j, j1, s, arr, adbf, file_stat, val_stroke := " ", ret := .f.
-  Local ar_nastr := getinisect( f_stat_lpu, sect_nastr )
+  Local ar_nastr := getinisect( f_stat_lpu(), sect_nastr )
 
   Do Case
   Case regim == D_RULE_N_PRINT
@@ -1304,7 +1304,7 @@ Function read_rule( regim )
   dbCreate( cur_dir() + "tmp_rule", adbf )
   Use ( cur_dir() + "tmp_rule" ) new
   For j1 := 1 To 2   // 1 - комитет, 2 - ЛПУ
-    file_stat := { f_stat_com, f_stat_lpu }[ j1 ]
+    file_stat := { f_stat_com(), f_stat_lpu() }[ j1 ]
     For j := 1 To 6    // номер правила
       s := lstr( j1 ) + lstr( j )
       If s $ val_stroke
