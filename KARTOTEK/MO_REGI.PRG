@@ -748,7 +748,7 @@ Function r_list_uch( par, name_func )
 
   Return Nil
 
-// 12.09.25
+// 17.09.25
 Function new_list_uch( par, name_func )
 
   // 0 - 'f_f025u' форма 025/у
@@ -797,7 +797,8 @@ Function new_list_uch( par, name_func )
   Endif
   mregistrator := ''
   If !( kod_polzovat == Chr( 0 ) )
-    mregistrator := AllTrim( fio_polzovat )
+//    mregistrator := AllTrim( fio_polzovat )
+    mregistrator := AllTrim( hb_user_curUser:FIO )
   Endif
   delfrfiles()
   r_use( dir_server() + 'organiz', , 'ORG' )

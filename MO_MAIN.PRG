@@ -6,7 +6,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-External ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
+// External ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
+External ust_printer, ReadModal, like, flstr, prover_dbf
 // старые (редко используемые) отчёты запускаем из hrb-файлов (для уменьшения задачи)
 Dynamic i_new_boln
 Dynamic i_kol_del_zub
@@ -16,7 +17,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 16.09.25
+// 17.09.25
 Procedure Main( ... )
 
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
@@ -73,7 +74,8 @@ Procedure Main( ... )
 
   Public dir_exe := dir_exe()
   Public cur_dir := chip_currpath()
-  Public dir_server := '', p_name_comp := ''
+  Public p_name_comp := ''
+  Public dir_server := ''
 //  Public dir_XML_MO := 'XML_MO', dir_XML_TF := 'XML_TF'
 //  Public dir_NAPR_MO := 'NAPR_MO', dir_NAPR_TF := 'NAPR_TF'
 //  Public _tmp_dir  := 'TMP___'

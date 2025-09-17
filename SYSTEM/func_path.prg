@@ -5,7 +5,7 @@
 
 #require 'hbsqlit3'
 
-// 03.06.25
+// 17.09.25
 Function read_server_mem( /*@*/is_local_version )
 
   Local nameFile := cur_dir() + 'server.mem'
@@ -13,18 +13,15 @@ Function read_server_mem( /*@*/is_local_version )
 
   If hb_FileExists( nameFile )
     ft_use( nameFile )
-//    dir_server( AllTrim( ft_readln() ) )
     cDir := AllTrim( ft_readln() )
     ft_use()
     is_local_version := .f.
   Else // иначе = текущий каталог
-//    dir_server( cur_dir() )
     cDir := cur_dir()
     is_local_version := .t.
   Endif
   dir_server( cDir )
   Return dir_server()
-//  Return cDir
 
 // 03.06.25
 Function checking_access_to_server( dir_s )
@@ -63,10 +60,8 @@ Function checking_access_to_server( dir_s )
     endcase
     s_err += '! Код ошибки ' + lstr( err )
     func_error( s_err )
-//    app_finish()
   else
     fclose( fp )
-//  delete file ( tmp_file )
     hb_vfErase( tmp_file )
     flag := .t.
   endif
