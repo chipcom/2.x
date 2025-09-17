@@ -29,7 +29,6 @@ proc ErrorSys()
 //
 static function DefError( e )
 	local i, k, s, cMessage, aOptions, nChoice, arr_error := {}
-	local cName
 
 	// По умолчанию деление на ноль дает ноль
 	if ( e:genCode == EG_ZERODIV )
@@ -148,14 +147,16 @@ static function isFuncErr( s )
 	next
 	return fl
 
-// 28.05.17 просмотр файла ошибок (рекомендуется включать в меню "Сервис")
+// 17.09.25 просмотр файла ошибок (рекомендуется включать в меню "Сервис")
 function view_errors()
 
-	if !file( dir_server() + err_file )
+	local err_server
+
+	err_server := dir_server()
+	if !file( err_server + err_file )
 		return func_error( 4, 'Не обнаружен файл ошибок!' )
 	endif
-	// keyboard chr( K_END )
-	viewtext( Devide_Into_Pages( dir_server() + err_file, 80, 84 ), , , , .t., , , 5, , , .f. )
+	viewtext( Devide_Into_Pages( err_server + err_file, 80, 84 ), , , , .t., , , 5, , , .f. )
 	return nil
 
 // разбить текстовый файл на страницы
@@ -163,7 +164,9 @@ function Devide_Into_Pages( cFile, HH, sh )
 	local tmp_file := '_TMP_.txt'
 	
 	DEFAULT HH TO 60
-	fp := fcreate( tmp_file ) ; n_list := 1 ; tek_stroke := 0
+	fp := fcreate( tmp_file )
+	n_list := 1
+	tek_stroke := 0
 	ft_use( cFile )
 	do while !ft_Eof()
 		verify_FF( HH, valtype( sh ) == 'N', sh )
@@ -174,26 +177,22 @@ function Devide_Into_Pages( cFile, HH, sh )
 	fclose( fp )
 	return tmp_file
 
-// функция формирования текстового сообщения для ошибки
+// 17.09.25 функция формирования текстового сообщения для ошибки
 function __errMessage( arr_error )
-	local s := '', cMessage := ''
 	
+	local s := '', cMessage := ''
+	local curUser
+
 	set date german
 	s := exename()
 	cMessage += 'Дата: ' + dtoc( date() ) + ', время: ' + sectotime( seconds() ) + ' ' + StripPath( s )
 	cMessage += '(' + dtoc( directory( s )[ 1, F_DATE ] ) + ', ' + lstr( memory( 1 ) ) + 'Кб)' + hb_eol()
-//	cMessage += 'Версия: ' + Err_version + hb_eol()
 	cMessage += 'Версия: ' + Err_version() + hb_eol()
-//	if type( 'fio_polzovat' ) == 'C' .and. !empty( fio_polzovat )
-//		cMessage += 'Пользователь: ' + alltrim( fio_polzovat )
-//	endif
-	if ! empty( hb_user_curUser:FIO )
-		cMessage += 'Пользователь: ' + AllTrim( hb_user_curUser:FIO )
+	curUser := alltrim( hb_user_curUser:FIO )
+	if ! empty( curUser )
+		cMessage += 'Пользователь: ' + curUser
 	endif
-        str_center( 20, 'Оператор "' + AllTrim( hb_user_curUser:FIO ) + '".',  cColorSt2Msg )
-
 	cMessage += hb_eol()
-	
 	cMessage += '->OS: ' + OS() + hb_eol()
 	cMessage += '->Computer Name: ' + GetEnv( 'COMPUTERNAME' ) + hb_eol()
 	cMessage += '->User Name: '     + GetEnv( 'USERNAME' ) + hb_eol()
@@ -205,26 +204,21 @@ function __errMessage( arr_error )
 	cMessage += replicate( '*', 79 ) + hb_eol()
 	return cMessage
 
-// функция записи в файл ошибок
+// 17.09.25 функция записи в файл ошибок
 function __errSave( cMessage )
-	local cName
-
-	if __mvExist( 'dir_server' )
-		if type( 'dir_server' ) != 'C'
-			private dir_server := ''
-		endif
-	else
-		private dir_server := ''
-	endif
 	
-	cName := TempFile( dir_server(), 'txt', SetFCreate() )
+	local cName
+	local err_server, nRet
+
+	err_server := dir_server()
+	cName := TempFile( err_server, 'txt', SetFCreate() )
 	strfile( cMessage, cName, .t. )
-	if hb_FileExists( dir_server() + err_file )
-		if filesize( dir_server() + err_file ) > 500000  // если больше 0.5 Мб,
-			FErase( dir_server() + err_file )        // удаляем файл и начинаем с нуля
+	if hb_FileExists( err_server + err_file )
+		if filesize( err_server + err_file ) > 500000  // если больше 0.5 Мб,
+			FErase( err_server + err_file )        // удаляем файл и начинаем с нуля
 		endif
-		nRet := FileAppend( dir_server() + err_file, cName )
+		nRet := FileAppend( err_server + err_file, cName )
 	endif
-	FileCopy( cName, dir_server() + err_file, )
+	FileCopy( cName, err_server + err_file, )
 	FErase( cName )        // удаляем временный файл
 	return nil
