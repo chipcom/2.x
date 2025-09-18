@@ -303,3 +303,4 @@ mo_version.prg
 .\FUNC_LIB\univ_spr.prg
 .\FUNC_LIB\semaphor_bay.prg
 .\FUNC_LIB\net_moni.prg
+.\FUNC_LIB\v_text.prg
