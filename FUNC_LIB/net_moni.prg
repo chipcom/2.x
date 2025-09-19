@@ -153,6 +153,7 @@ Static Function f1_net_mon( par )
 Static Function f2_net_mon()
 
   Local i := 0, adbf, fl := .f., buf := save_row( MaxRow() )
+  Local bSaveHandler, oError
 
   mywait()
   Delete File ( tmp1monitor )
@@ -165,7 +166,7 @@ Static Function f2_net_mon()
       If hb_FileExists( tmp1monitor )
         fl := .t.
       Endif
-    RECOVER USING error
+    RECOVER USING oError
       fl := .f.
     End
     //
@@ -237,11 +238,12 @@ Static Function f2_net_mon()
   rest_box( buf )
   Return fl
 
-// 19.10.17 удалить семафор вызовом из сетевого монитора (по имени задачи)
+// 18.09.25 удалить семафор вызовом из сетевого монитора (по имени задачи)
 Function del_sem_other( t_name )
 
   Local fl := .f., tmp_select := Select(), bSaveHandler
   Local sbase, sem_dbf
+  Local oError
 
   sbase := dir_server() + 'semaphor'
   sem_dbf := sbase + '.dbf'
@@ -256,7 +258,7 @@ Function del_sem_other( t_name )
         , ;            // readonly
         'RU866' )
       fl := .t.
-    RECOVER USING error
+    RECOVER USING oError
       fl := .f.
       If Select( 'SEMAPHOR' ) > 0
         SEMAPHOR->( dbCloseArea() )

@@ -675,10 +675,10 @@ Procedure mytxtfr( iRegim, tm, is_albom )
   Endif
   Return
 
-// конвертирует DOS-строку в WINDOWS-строку специально для FR
+// 18.09.25 конвертирует DOS-строку в WINDOWS-строку специально для FR
 Function fr_oemtoansi( dos_str )
 
-  Local len_str, i, cur_char, win_str := ''
+  Local len_str, i, cur_asc, win_str := ''
 
   len_str := Len( dos_str )
   For i := 1 To len_str
@@ -776,15 +776,11 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
       Set Index to ( cur_dir() + fr_data )
     Endif
     Go Top
-//    FrPrn:setworkarea( cur_dir() + fr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
-//    FrPrn:setworkarea( fr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
     FrPrn:setworkarea( aliasFr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
   Endif
   If File( cur_dir() + fr_titl + sdbf() )
     Use ( cur_dir() + fr_titl ) NEW
     Go Top
-//    FrPrn:setworkarea( cur_dir() + fr_titl, Select(), .t. ) // .t. dbf-файл в OEM кодировке
-//    FrPrn:setworkarea( fr_titl, Select(), .t. ) // .t. dbf-файл в OEM кодировке
     FrPrn:setworkarea( aliasFr_titl, Select(), .t. ) // .t. dbf-файл в OEM кодировке
   Endif
   For j := 1 To max_FR_date_dbf
@@ -796,8 +792,6 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
         Set Index to ( nfile )
       Endif
       Go Top
-//      FrPrn:setworkarea( nfile, Select(), .t. ) // .t. dbf-файл в OEM кодировке
-//      FrPrn:setworkarea( fr_data + LTrim( Str( j ) ), Select(), .t. ) // .t. dbf-файл в OEM кодировке
       FrPrn:setworkarea( aliasFr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
     Endif
   Next
@@ -872,19 +866,16 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
   FrPrn:destroyfr()
   //
   If File( cur_dir() + fr_data + sdbf() )
-//    &fr_data.->( dbCloseArea() )
     aliasFr_data := '_data'
     ( aliasFr_data )->( dbCloseArea() )
   Endif
   If File( fr_titl + sdbf() )
-//    &fr_titl.->( dbCloseArea() )
     ( aliasFr_titl )->( dbCloseArea() )
   Endif
   For j := 1 To max_FR_date_dbf
     nfile := cur_dir() + fr_data + LTrim( Str( j ) )
     aliasFr_data := '_data' + LTrim( Str( j ) )
     If File( nfile + sdbf() )
-//      &nfile.->( dbCloseArea() )
       ( aliasFr_data )->( dbCloseArea() )
     Endif
   Next
