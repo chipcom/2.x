@@ -337,6 +337,10 @@ function err_admin()
 function kod_LIS()
   return { '125901', '805965' }
 
+// 20.09.25
+function mm_danet()
+  return { { 'нет', 0 }, { 'да ', 1 } }
+
 // 11.09.25
 function hColor()
 

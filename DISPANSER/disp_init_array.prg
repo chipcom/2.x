@@ -183,15 +183,22 @@ function mm_142me4()
 function mm_142me5()
   return { { 'болезненные', 0 }, { 'безболезненные', 1 } }
   
-//function mm_dispans()
-//  return { { 'ранее', 1 }, { 'впервые', 2 }, { 'не уст.', 0 } }
+// 20.09.25
+function mm_dispans()
+  return { { 'ранее', 1 }, { 'впервые', 2 }, { 'не уст.', 0 } }
+
+// 20.09.25
+function mm_usl()
+  return { { 'амб.', 0 }, { 'дн/с', 1 }, { 'стац', 2 } }
   
-//function mm_usl()
-//  return { { 'амб.', 0 }, { 'дн/с', 1 }, { 'стац', 2 } }
-  
-//function mm_uch()
-//  return { { 'МУЗ ', 1 }, { 'ГУЗ ', 0 }, { 'фед.', 2 }, { 'част', 3 } }
-  
+// 20.09.25
+function mm_uch()
+  return { { 'МУЗ ', 1 }, { 'ГУЗ ', 0 }, { 'фед.', 2 }, { 'част', 3 } }
+
+// 20.09.25
+function mm_gr_fiz_do()
+  return { { 'I', 1 }, { 'II', 2 }, { 'III', 3 }, { 'IV', 4 } }
+
 function mm_invalid2()
   return { { 'с рождения', 0 }, { 'приобретенная', 1 } }
   
