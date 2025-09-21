@@ -6618,16 +6618,18 @@ next*/
 
   Return Nil
 
-// 02.06.20
+// 21.09.25
 Function f4_inf_dnl_karta( par, _etap )
 
   Local i, k := 0, fl, arr := {}, ar
+  local arr_PN_osmotr
 
-  If Type( "mperiod" ) == "N" .and. Between( mperiod, 1, 31 )
+  If Type( 'mperiod' ) == 'N' .and. Between( mperiod, 1, 31 )
     //
   Else
     mperiod := ret_period_pn( mdate_r, mn_data, mk_data,, @k )
   Endif
+  arr_PN_osmotr := np_arr_osmotr( mk_data )
   If !Between( mperiod, 1, 31 )
     mperiod := k
   Endif
@@ -6635,53 +6637,63 @@ Function f4_inf_dnl_karta( par, _etap )
     mperiod := 31
   Endif
   np_oftal_2_85_21( mperiod, mk_data )
-  ar := np_arr_1_etap[ mperiod ]
+  ar := np_arr_1_etap( mk_data )[ mperiod ]
   If par == 1
     If iif( _etap == nil, .t., _etap == 1 )
-      For i := 1 To count_pn_arr_osm -1
-        mvart := "MTAB_NOMov" + lstr( i )
-        mvard := "MDATEo" + lstr( i )
+//      For i := 1 To count_pn_arr_osm - 1
+      For i := 1 To Len( arr_PN_osmotr ) - 1
+        mvart := 'MTAB_NOMov' + lstr( i )
+        mvard := 'MDATEo' + lstr( i )
         fl := .t.
-        If fl .and. !Empty( np_arr_osmotr[ i, 2 ] )
-          fl := ( mpol == np_arr_osmotr[ i, 2 ] )
+//        If fl .and. !Empty( np_arr_osmotr[ i, 2 ] )
+//          fl := ( mpol == np_arr_osmotr[ i, 2 ] )
+        If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] )
+          fl := ( mpol == arr_PN_osmotr[ i, 2 ] )
         Endif
         If fl
-          fl := ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0 )
+//          fl := ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0 )
+          fl := ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) > 0 )
         Endif
         If fl .and. !emptyany( &mvard, &mvart )
-          AAdd( arr, { np_arr_osmotr[ i, 3 ], &mvard, "", i, f5_inf_dnl_karta( i ) } )
+//          AAdd( arr, { np_arr_osmotr[ i, 3 ], &mvard, "", i, f5_inf_dnl_karta( i ) } )
+          AAdd( arr, { arr_PN_osmotr[ i, 3 ], &mvard, '', i, f5_inf_dnl_karta( i ) } )
         Endif
       Next
     Endif
-    AAdd( arr, { "педиатр (врач общей практики)", MDATEp1, "", -1, 1 } )
+    AAdd( arr, { 'педиатр (врач общей практики)', MDATEp1, '', -1, 1 } )
     If metap == 2 .and. iif( _etap == nil, .t., _etap == 2 )
-      For i := 1 To count_pn_arr_osm -1
-        mvart := "MTAB_NOMov" + lstr( i )
-        mvard := "MDATEo" + lstr( i )
+//      For i := 1 To count_pn_arr_osm -1
+      For i := 1 To Len( arr_PN_osmotr )
+        mvart := 'MTAB_NOMov' + lstr( i )
+        mvard := 'MDATEo' + lstr( i )
         fl := .t.
-        If fl .and. !Empty( np_arr_osmotr[ i, 2 ] )
-          fl := ( mpol == np_arr_osmotr[ i, 2 ] )
+//        If fl .and. !Empty( np_arr_osmotr[ i, 2 ] )
+//          fl := ( mpol == np_arr_osmotr[ i, 2 ] )
+        If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] )
+          fl := ( mpol == arr_PN_osmotr[ i, 2 ] )
         Endif
         If fl
-          fl := ( AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) == 0 )
+//          fl := ( AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) == 0 )
+          fl := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) == 0 )
         Endif
         If fl .and. !emptyany( &mvard, &mvart )
-          AAdd( arr, { np_arr_osmotr[ i, 3 ], &mvard, "", i, f5_inf_dnl_karta( i ) } )
+//          AAdd( arr, { np_arr_osmotr[ i, 3 ], &mvard, "", i, f5_inf_dnl_karta( i ) } )
+          AAdd( arr, { arr_PN_osmotr[ i, 3 ], &mvard, '', i, f5_inf_dnl_karta( i ) } )
         Endif
       Next
-      AAdd( arr, { "педиатр (врач общей практики)", MDATEp2, "", -2, 1 } )
+      AAdd( arr, { 'педиатр (врач общей практики)', MDATEp2, '', -2, 1 } )
     Endif
   Else
-    For i := 1 To count_pn_arr_iss // исследования
-      mvart := "MTAB_NOMiv" + lstr( i )
-      mvard := "MDATEi" + lstr( i )
-      mvarr := "MREZi" + lstr( i )
+    For i := 1 To count_pn_arr_iss( mk_data ) // исследования
+      mvart := 'MTAB_NOMiv' + lstr( i )
+      mvard := 'MDATEi' + lstr( i )
+      mvarr := 'MREZi' + lstr( i )
       fl := .t.
-      If fl .and. !Empty( np_arr_issled[ i, 2 ] )
-        fl := ( mpol == np_arr_issled[ i, 2 ] )
+      If fl .and. !Empty( np_arr_issled( mk_data )[ i, 2 ] )
+        fl := ( mpol == np_arr_issled( mk_data )[ i, 2 ] )
       Endif
       If fl
-        fl := ( AScan( ar[ 5 ], np_arr_issled[ i, 1 ] ) > 0 )
+        fl := ( AScan( ar[ 5 ], np_arr_issled( mk_data )[ i, 1 ] ) > 0 )
       Endif
       If fl .and. !emptyany( &mvard, &mvart )
         k := 0
@@ -6726,18 +6738,20 @@ Function f4_inf_dnl_karta( par, _etap )
         Case i == 14 // {"13.1.1"  ,   , "Электрокардиография", 0, 111,{110103, 110303, 110906, 111006, 111905, 112212, 112611, 113418, 113509, 180202} }, ;
           k := 13
         Endcase
-        AAdd( arr, { np_arr_issled[ i, 3 ], &mvard, &mvarr, i, k } )
+        AAdd( arr, { np_arr_issled( mk_data )[ i, 3 ], &mvard, &mvarr, i, k } )
       Endif
     Next
     // добавим "2.4.2" "скрининг на выявление психич.развития"
-    i := count_pn_arr_osm  // последний элемент массива
-    mvart := "MTAB_NOMov" + lstr( i )
-    mvard := "MDATEo" + lstr( i )
-    If ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0 ) .and. !emptyany( &mvard, &mvart )
-      AAdd( arr, { np_arr_osmotr[ i, 3 ], &mvard, "", i, 21 } )
+//    i := count_pn_arr_osm  // последний элемент массива
+    i := Len( arr_PN_osmotr )  // последний элемент массива
+    mvart := 'MTAB_NOMov' + lstr( i )
+    mvard := 'MDATEo' + lstr( i )
+//    If ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0 ) .and. !emptyany( &mvard, &mvart )
+//      AAdd( arr, { np_arr_osmotr[ i, 3 ], &mvard, '', i, 21 } )
+    If ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) > 0 ) .and. !emptyany( &mvard, &mvart )
+      AAdd( arr, { arr_PN_osmotr[ i, 3 ], &mvard, '', i, 21 } )
     Endif
   Endif
-
   Return arr
 
 // 25.11.13

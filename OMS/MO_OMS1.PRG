@@ -6,29 +6,28 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 28.09.18 добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
+// 20.09.25 добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
 Function np_oftal_2_85_21( _period, _k_data )
 
   Static lshifr := '2.85.21'
   Local i
 
   If _period == 13 // 12 месяцев с 1 сентября
-    i := AScan( np_arr_1_etap[ _period, 4 ], lshifr )
+    i := AScan( np_arr_1_etap( _k_data )[ _period, 4 ], lshifr )
     If _k_data > 0d20180831 // с 1 сентября
       If i == 0
-        ins_array( np_arr_1_etap[ _period, 4 ], 4, lshifr ) // добавить пере ЛОРом 4-ым элементом
+        ins_array( np_arr_1_etap( _k_data )[ _period, 4 ], 4, lshifr ) // добавить пере ЛОРом 4-ым элементом
       Endif
     Else
       If i > 0
-        del_array( np_arr_1_etap[ _period, 4 ], i )
+        del_array( np_arr_1_etap( _k_data )[ _period, 4 ], i )
       Endif
     Endif
   Endif
-
   Return Nil
 
-// 19.03.19 вернуть шифр услуги законченного случая для ПН
-Function ret_shifr_zs_pn( _period )
+// 20.09.25 вернуть шифр услуги законченного случая для ПН
+Function ret_shifr_zs_pn( _period, mdata )
 
   Local lshifr := ''
 
@@ -44,7 +43,7 @@ Function ret_shifr_zs_pn( _period )
   Case eq_any( _period, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15 )
     lshifr := '72.2.42' // 4мес, 5мес, 6мес, 7мес, 8мес, 9мес, 10мес, 11мес, 1год3мес, 1год6мес
   Case _period == 13
-    If AScan( np_arr_1_etap[ _period, 4 ], '2.85.21' ) > 0  // если есть офтальмолог
+    If AScan( np_arr_1_etap( mdata )[ _period, 4 ], '2.85.21' ) > 0  // если есть офтальмолог
       lshifr := iif( m1lis > 0, '72.2.65', '72.2.64' ) // 12 месяцев с 1 сентября
     Else
       lshifr := iif( m1lis > 0, '72.2.45', '72.2.44' ) // 12 месяцев
@@ -72,7 +71,6 @@ Function ret_shifr_zs_pn( _period )
   Case _period == 31
     lshifr := iif( m1lis > 0, '72.2.63', '72.2.62' ) // 17 лет
   Endcase
-
   Return lshifr
 
 // 28.01.18
@@ -110,21 +108,25 @@ Function add_pediatr_pn( _pv, _pa, _date, _diag )
 
   Return arr
 
-// 28.01.18 вернуть возрастной период для профилактики несовершеннолетних
+// 20.09.25 вернуть возрастной период для профилактики несовершеннолетних
 Function ret_period_pn( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
 
   Local i, _m, _d, _y, _m2, _d2, _y2, lperiod, sm, sm_, sm1, sm2, yn_data, yk_data
+  local arr_PN_etap
 
   Store 0 To _m, _d, _y, _m2, _d2, _y2, lperiod
   yn_data := Year( ln_data )
   yk_data := Year( lk_data )
+  arr_PN_etap := np_arr_1_etap( lk_data )
   ls := ''
   count_ymd( ldate_r, ln_data, @_y, @_m, @_d ) // реальный возраст на начало
   count_ymd( ldate_r, lk_data, @_y2, @_m2, @_d2 ) // реальный возраст на окончание
   ret_i := 31
-  For i := Len( np_arr_1_etap ) To 1 Step -1
+//  For i := Len( np_arr_1_etap() ) To 1 Step -1
+  For i := Len( arr_PN_etap ) To 1 Step -1
     If i > 17 // 4 года и старше
-      If mdvozrast == np_arr_1_etap[ i, 2, 1 ]
+//      If mdvozrast == np_arr_1_etap()[ i, 2, 1 ]
+      If mdvozrast == arr_PN_etap[ i, 2, 1 ]
         ret_i := lperiod := i
         ls := ' (' + lstr( mdvozrast ) + ' ' + s_let( mdvozrast ) + ')'
         If yn_data != yk_data
@@ -134,8 +136,10 @@ Function ret_period_pn( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
         Exit
       Endif
     Elseif mdvozrast < 4 // до 3 лет (включительно)
-      sm1 := Round( Val( lstr( np_arr_1_etap[ i, 2, 1 ] ) + '.' + StrZero( np_arr_1_etap[ i, 2, 2 ], 2 ) ), 4 )
-      sm2 := Round( Val( lstr( np_arr_1_etap[ i, 3, 1 ] ) + '.' + StrZero( np_arr_1_etap[ i, 3, 2 ], 2 ) ), 4 )
+//      sm1 := Round( Val( lstr( np_arr_1_etap()[ i, 2, 1 ] ) + '.' + StrZero( np_arr_1_etap()[ i, 2, 2 ], 2 ) ), 4 )
+//      sm2 := Round( Val( lstr( np_arr_1_etap()[ i, 3, 1 ] ) + '.' + StrZero( np_arr_1_etap()[ i, 3, 2 ], 2 ) ), 4 )
+      sm1 := Round( Val( lstr( arr_PN_etap[ i, 2, 1 ] ) + '.' + StrZero(arr_PN_etap[ i, 2, 2 ], 2 ) ), 4 )
+      sm2 := Round( Val( lstr( arr_PN_etap[ i, 3, 1 ] ) + '.' + StrZero( arr_PN_etap[ i, 3, 2 ], 2 ) ), 4 )
       sm := Round( Val( lstr( _y ) + '.' + StrZero( _m, 2 ) + StrZero( _d, 2 ) ), 4 )
       sm_ := Round( Val( lstr( _y2 ) + '.' + StrZero( _m2, 2 ) + StrZero( _d2, 2 ) ), 4 )
       If sm1 <= sm
@@ -161,19 +165,30 @@ Function ret_period_pn( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
             Exit
           Endif
           ls := ' ('
-          If np_arr_1_etap[ i, 2, 1 ] > 0
-            ls += lstr( np_arr_1_etap[ i, 2, 1 ] ) + ' ' + s_let( np_arr_1_etap[ i, 2, 1 ] ) + ' '
+//          If np_arr_1_etap()[ i, 2, 1 ] > 0
+//            ls += lstr( np_arr_1_etap()[ i, 2, 1 ] ) + ' ' + s_let( np_arr_1_etap()[ i, 2, 1 ] ) + ' '
+//          Endif
+//          If np_arr_1_etap()[ i, 2, 2 ] > 0
+//            ls += lstr( np_arr_1_etap()[ i, 2, 2 ] ) + ' ' + mes_cev( np_arr_1_etap()[ i, 2, 2 ] )
+//          Endif
+          If arr_PN_etap[ i, 2, 1 ] > 0
+            ls += lstr( arr_PN_etap[ i, 2, 1 ] ) + ' ' + s_let( arr_PN_etap[ i, 2, 1 ] ) + ' '
           Endif
-          If np_arr_1_etap[ i, 2, 2 ] > 0
-            ls += lstr( np_arr_1_etap[ i, 2, 2 ] ) + ' ' + mes_cev( np_arr_1_etap[ i, 2, 2 ] )
+          If arr_PN_etap[ i, 2, 2 ] > 0
+            ls += lstr( arr_PN_etap[ i, 2, 2 ] ) + ' ' + mes_cev( arr_PN_etap[ i, 2, 2 ] )
           Endif
           ls := RTrim( ls ) + ')'
         Else
+//          ls := 'Должен быть период ' + ;
+//            iif( np_arr_1_etap()[ i, 2, 1 ] == 0, '', lstr( np_arr_1_etap()[ i, 2, 1 ] ) + 'г.' ) + ;
+//            iif( np_arr_1_etap()[ i, 2, 2 ] == 0, '', lstr( np_arr_1_etap()[ i, 2, 2 ] ) + 'мес.' ) + '-' + ;
+//            iif( np_arr_1_etap()[ i, 3, 1 ] == 0, '', lstr( np_arr_1_etap()[ i, 3, 1 ] ) + 'г.' ) + ;
+//            iif( np_arr_1_etap()[ i, 3, 2 ] == 0, '', lstr( np_arr_1_etap()[ i, 3, 2 ] ) + 'мес.' ) + ', а у Вас ' + ;
           ls := 'Должен быть период ' + ;
-            iif( np_arr_1_etap[ i, 2, 1 ] == 0, '', lstr( np_arr_1_etap[ i, 2, 1 ] ) + 'г.' ) + ;
-            iif( np_arr_1_etap[ i, 2, 2 ] == 0, '', lstr( np_arr_1_etap[ i, 2, 2 ] ) + 'мес.' ) + '-' + ;
-            iif( np_arr_1_etap[ i, 3, 1 ] == 0, '', lstr( np_arr_1_etap[ i, 3, 1 ] ) + 'г.' ) + ;
-            iif( np_arr_1_etap[ i, 3, 2 ] == 0, '', lstr( np_arr_1_etap[ i, 3, 2 ] ) + 'мес.' ) + ', а у Вас ' + ;
+            iif( arr_PN_etap[ i, 2, 1 ] == 0, '', lstr( arr_PN_etap[ i, 2, 1 ] ) + 'г.' ) + ;
+            iif( arr_PN_etap[ i, 2, 2 ] == 0, '', lstr( arr_PN_etap[ i, 2, 2 ] ) + 'мес.' ) + '-' + ;
+            iif( arr_PN_etap[ i, 3, 1 ] == 0, '', lstr( arr_PN_etap[ i, 3, 1 ] ) + 'г.' ) + ;
+            iif( arr_PN_etap[ i, 3, 2 ] == 0, '', lstr( arr_PN_etap[ i, 3, 2 ] ) + 'мес.' ) + ', а у Вас ' + ;
             iif( _y == 0, '', lstr( _y ) + 'г.' ) + ;
             iif( _m == 0, '', lstr( _m ) + 'мес.' ) + ;
             iif( _d == 0, '', lstr( _d ) + 'дн.' ) + '-' + ;
@@ -185,7 +200,6 @@ Function ret_period_pn( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
       Endif
     Endif
   Next
-
   Return lperiod
 
 // 04.02.16 вернуть шифр услуги законченного случая для ПредН

@@ -111,7 +111,7 @@ Function fget_spec_deti( k, r, c, a_spec )
   Select ( tmp_select )
   Return { 1, s }
 
-// 05.09.21
+// 21.09.25
 Function save_arr_pn( lkod )
 
   Local arr := {}, k, ta
@@ -268,7 +268,7 @@ Function save_arr_pn( lkod )
     AAdd( arr, { '16.12', AllTrim( mrek_disp ) } ) // Рекомендации по диспансерному наблюдению, лечению, медицинской реабилитации и санаторно-курортному лечению с указанием диагноза (код МКБ), вида медицинской организации и специальности (должности) врача
   Endif
   // 18.результаты проведения исследований
-  For i := 1 To count_pn_arr_iss
+  For i := 1 To count_pn_arr_iss( mk_data )
     mvar := 'MREZi' + lstr( i )
     If !Empty( &mvar )
       AAdd( arr, { '18.' + lstr( i ), AllTrim( &mvar ) } )
@@ -361,7 +361,7 @@ Function save_arr_pn( lkod )
   save_arr_dispans( lkod, arr )
   Return Nil
 
-// 05.09.21
+// 21.09.25
 Function read_arr_pn( lkod, is_all )
 
   Local arr, i, k
@@ -602,7 +602,7 @@ Function read_arr_pn( lkod, is_all )
         Case arr[ i, 1 ] == '57' .and. ValType( arr[ i, 2 ] ) == 'N'
           m1profil_kojki := arr[ i, 2 ]
         Otherwise
-          For k := 1 To count_pn_arr_iss
+          For k := 1 To count_pn_arr_iss( mk_data )
             If arr[ i, 1 ] == '18.' + lstr( k ) .and. ValType( arr[ i, 2 ] ) == 'C'
               mvar := 'MREZi' + lstr( k )
               &mvar := PadR( arr[ i, 2 ], 17 )

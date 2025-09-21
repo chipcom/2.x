@@ -109,7 +109,7 @@ Function prover_rule()
   Endif
   Return Nil
 
-// 05.01.17
+// 21.09.21
 Function f1_prover_rule( blk_usl, ab, n_forma )
 
   Static a_d_talon[ 16 ]
@@ -137,13 +137,13 @@ Function f1_prover_rule( blk_usl, ab, n_forma )
       lta := {} ; lbukva := AllTrim( human_->STATUS_ST )
       If eq_any( human->ishod, 101, 102, 201, 202, 203, 204, 205, 301, 302 )
         If eq_any( human->ishod, 101, 102 )
-          arr := ret_f12_pn( human->kod, 1 )
+          arr := ret_f12_pn( human->kod, 1, human->k_data )
           lnum_kol := 9 // профосмотр
         Elseif eq_any( human->ishod, 201, 202, 203, 204, 205 )
           arr := ret_f12_dvn( human->kod, 2 )
           lnum_kol := iif( human->ishod == 203, 9, 10 ) // профосмотр или диспансеризация
         Elseif eq_any( human->ishod, 301, 302 )
-          arr := ret_f12_pn( human->kod, 2 )
+          arr := ret_f12_pn( human->kod, 2, human->k_data )
           lnum_kol := 9 // профосмотр
         Endif
         If Empty( arr )

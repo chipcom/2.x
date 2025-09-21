@@ -189,82 +189,107 @@ function collect_date_uslugi( rec_number )
   select( tmp_select )
   return aSortDate
 
-// 06.11.19
-Function is_osmotr_PN(ausl, _period, arr, _etap, _pol)
+// 20.09.25
+Function is_osmotr_PN(ausl, _period, arr, _etap, _pol, mdata)
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 
   Local i, j, s, fl := .f., fl_profil := .f., lshifr := alltrim(ausl[1])
+  local arr_PN_osmotr
+  local arr_not_zs
 
+  arr_PN_osmotr := np_arr_osmotr( mdata )
+  arr_not_zs := np_arr_not_zs()
   if eq_any(left(lshifr, 4), '2.3.', '2.91')
     fl_profil := .t.
   elseif _etap == 1
-    if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
-      lshifr := np_arr_not_zs[i, 1]
+//    if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
+//      lshifr := np_arr_not_zs[i, 1]
+//    endif
+    if (i := ascan(arr_not_zs, {|x| x[2] == lshifr})) > 0
+      lshifr := arr_not_zs[i, 1]
     endif
-  elseif (i := ascan(np_arr_osmotr_KDP2, {|x| x[2] == lshifr})) > 0
-    lshifr := np_arr_osmotr_KDP2[i, 1]
+  elseif (i := ascan(np_arr_osmotr_KDP2(), {|x| x[2] == lshifr})) > 0
+    lshifr := np_arr_osmotr_KDP2()[i, 1]
   endif
-  for i := 1 to count_pn_arr_osm
+  for i := 1 to Len( arr_PN_osmotr )  //count_pn_arr_osm
     if _etap == 1 .or. fl_profil
-      if valtype(np_arr_osmotr[i, 4]) == 'N'
-        if np_arr_osmotr[i, 4] == ausl[3]
-          lshifr := np_arr_osmotr[i, 1] // искусственно
+//      if valtype(np_arr_osmotr[i, 4]) == 'N'
+//        if np_arr_osmotr[i, 4] == ausl[3]
+//          lshifr := np_arr_osmotr[i, 1] // искусственно
+      if valtype(arr_PN_osmotr[i, 4]) == 'N'
+        if arr_PN_osmotr[i, 4] == ausl[3]
+          lshifr := arr_PN_osmotr[i, 1] // искусственно
           fl := .t.
           exit
         endif
-      elseif (j := ascan(np_arr_osmotr[i, 4], ausl[3])) > 0
-        lshifr := np_arr_osmotr[i, 1] // искусственно
+//      elseif (j := ascan(np_arr_osmotr[i, 4], ausl[3])) > 0
+//        lshifr := np_arr_osmotr[i, 1] // искусственно
+      elseif (j := ascan(arr_PN_osmotr[i, 4], ausl[3])) > 0
+        lshifr := arr_PN_osmotr[i, 1] // искусственно
         fl := .t.
         exit
       endif
     else
-      if np_arr_osmotr[i, 1] == lshifr
+//      if np_arr_osmotr[i, 1] == lshifr
+      if arr_PN_osmotr[i, 1] == lshifr
         fl := .t.
         exit
       endif
     endif
   next
   if fl
-    s := '"' + lshifr + '.' + np_arr_osmotr[i, 3] + '"'
-    if _etap == 1 .and. ascan(np_arr_1_etap[_period, 4], lshifr) == 0
+//    s := '"' + lshifr + '.' + np_arr_osmotr[i, 3] + '"'
+    s := '"' + lshifr + '.' + arr_PN_osmotr[i, 3] + '"'
+//    if _etap == 1 .and. ascan(np_arr_1_etap[_period, 4], lshifr) == 0
+    if _etap == 1 .and. ascan(np_arr_1_etap( mdata )[_period, 4], lshifr) == 0
       aadd(arr, 'Некорректный возрастной период пациента для ' + s)
     endif
-    if !empty(np_arr_osmotr[i, 2]) .and. !(np_arr_osmotr[i, 2] == _pol)
+//    if !empty(np_arr_osmotr[i, 2]) .and. !(np_arr_osmotr[i, 2] == _pol)
+//      aadd(arr, 'Несовместимость по полу в услуге ' + s)
+//    endif
+    if !empty(arr_PN_osmotr[i, 2]) .and. !(arr_PN_osmotr[i, 2] == _pol)
       aadd(arr, 'Несовместимость по полу в услуге ' + s)
     endif
-    if valtype(np_arr_osmotr[i, 4]) == 'N'
-      if np_arr_osmotr[i, 4] != ausl[3]
+//    if valtype(np_arr_osmotr[i, 4]) == 'N'
+//      if np_arr_osmotr[i, 4] != ausl[3]
+    if valtype(arr_PN_osmotr[i, 4]) == 'N'
+      if arr_PN_osmotr[i, 4] != ausl[3]
         aadd(arr, 'Не тот профиль в услуге ' + s)
       endif
-    elseif (j := ascan(np_arr_osmotr[i, 4], ausl[3])) == 0
+//    elseif (j := ascan(np_arr_osmotr[i, 4], ausl[3])) == 0
+    elseif (j := ascan(arr_PN_osmotr[i, 4], ausl[3])) == 0
       aadd(arr, 'Не тот профиль в услуге ' + s)
     endif
   endif
   return fl
 
-// 28.01.18
-Function is_issled_PN(ausl, _period, arr, _pol)
+// 21.09.25
+Function is_issled_PN(ausl, _period, arr, _pol, mdata)
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, s := '', fl := .f., lshifr := alltrim(ausl[1])
 
-  if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
-    lshifr := np_arr_not_zs[i, 1]
+//  if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
+//    lshifr := np_arr_not_zs[i, 1]
+//  endif
+  if (i := ascan(np_arr_not_zs(), {|x| x[2] == lshifr})) > 0
+    lshifr := np_arr_not_zs()[i, 1]
   endif
-  for i := 1 to count_pn_arr_iss
-    if np_arr_issled[i, 1] == lshifr
-      s := '"' + lshifr + '.' + np_arr_issled[i, 3] + '"'
-      if valtype(np_arr_issled[i, 2]) == 'C' .and. !(np_arr_issled[i, 2] == _pol)
+  for i := 1 to count_pn_arr_iss( mdata )
+    if np_arr_issled( mdata )[i, 1] == lshifr
+      s := '"' + lshifr + '.' + np_arr_issled( mdata )[i, 3] + '"'
+      if valtype(np_arr_issled( mdata )[i, 2]) == 'C' .and. !(np_arr_issled( mdata )[i, 2] == _pol)
         aadd(arr, 'Несовместимость по полу в услуге ' + s)
       endif
       fl := .t.
       exit
     endif
   next
-  if fl .and. np_arr_issled[i, 4] < 2
-    if ascan(np_arr_1_etap[_period, 5], lshifr) == 0
+  if fl .and. np_arr_issled( mdata )[i, 4] < 2
+//    if ascan(np_arr_1_etap[_period, 5], lshifr) == 0
+    if ascan(np_arr_1_etap( mdata )[_period, 5], lshifr) == 0
       aadd(arr, 'Некорректный возрастной период пациента для ' + s)
     endif
-    if valtype(np_arr_issled[i, 5]) == 'N' .and. np_arr_issled[i, 5] != ausl[3]
+    if valtype(np_arr_issled( mdata )[i, 5]) == 'N' .and. np_arr_issled( mdata )[i, 5] != ausl[3]
       aadd(arr, 'Не тот профиль в иссл-ии ' + s)
     endif
   endif
@@ -904,43 +929,54 @@ Function is_issled_PredN(ausl, _period, arr, _pol)
   endif
   return fl
   
-// 06.11.19 если услуга из 1 этапа
-Function is_1_etap_PN(ausl, _period, _etap)
+// 21.09.25 если услуга из 1 этапа
+Function is_1_etap_PN(ausl, _period, _etap, mdata)
   
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, j, fl := .f., fl_profil := .f., lshifr := alltrim(ausl[1])
+  Local arr_PN_osmotr
 
+  arr_PN_osmotr := np_arr_osmotr( mdata )
   if eq_any(left(lshifr, 4), '2.3.', '2.91')
     fl_profil := .t.
   elseif _etap == 1
-    if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
-      lshifr := np_arr_not_zs[i, 1]
+//    if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
+//      lshifr := np_arr_not_zs[i, 1]
+//    endif
+    if (i := ascan(np_arr_not_zs(), {|x| x[2] == lshifr})) > 0
+      lshifr := np_arr_not_zs()[i, 1]
     endif
-  elseif (i := ascan(np_arr_osmotr_KDP2, {|x| x[2] == lshifr})) > 0
-    lshifr := np_arr_osmotr_KDP2[i, 1]
+  elseif (i := ascan(np_arr_osmotr_KDP2(), {|x| x[2] == lshifr})) > 0
+    lshifr := np_arr_osmotr_KDP2()[i, 1]
   endif
-  for i := 1 to count_pn_arr_osm
+  for i := 1 to Len( arr_PN_osmotr )  //count_pn_arr_osm
     if _etap == 1 .or. fl_profil
-      if valtype(np_arr_osmotr[i, 4]) == 'N'
-        if np_arr_osmotr[i, 4] == ausl[3]
-          lshifr := np_arr_osmotr[i, 1] // искусственно
+//      if valtype(np_arr_osmotr[i, 4]) == 'N'
+//        if np_arr_osmotr[i, 4] == ausl[3]
+//          lshifr := np_arr_osmotr[i, 1] // искусственно
+      if valtype(arr_PN_osmotr[i, 4]) == 'N'
+        if arr_PN_osmotr[i, 4] == ausl[3]
+          lshifr := arr_PN_osmotr[i, 1] // искусственно
           fl := .t.
           exit
         endif
-      elseif (j := ascan(np_arr_osmotr[i, 4], ausl[3])) > 0
-        lshifr := np_arr_osmotr[i, 1] // искусственно
+//      elseif (j := ascan(np_arr_osmotr[i, 4], ausl[3])) > 0
+//        lshifr := np_arr_osmotr[i, 1] // искусственно
+      elseif (j := ascan(arr_PN_osmotr[i, 4], ausl[3])) > 0
+        lshifr := arr_PN_osmotr[i, 1] // искусственно
         fl := .t.
         exit
       endif
     else
-      if np_arr_osmotr[i, 1] == lshifr
+//      if np_arr_osmotr[i, 1] == lshifr
+      if arr_PN_osmotr[i, 1] == lshifr
         fl := .t.
         exit
       endif
     endif
   next
   if fl
-    fl := (ascan(np_arr_1_etap[_period, 4], lshifr) > 0)
+    fl := (ascan(np_arr_1_etap( mData )[_period, 4], lshifr) > 0)
   endif
   return fl
 

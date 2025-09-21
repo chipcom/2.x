@@ -516,8 +516,8 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
-  monko8    := inieditspr( A__MENUVERT, mm_vokod, m1onko8 )
-  monko10   := inieditspr( A__MENUVERT, mm_vokod, m1onko10 )
+  monko8    := inieditspr( A__MENUVERT, mm_vokod(), m1onko8 )
+  monko10   := inieditspr( A__MENUVERT, mm_vokod(), m1onko10 )
   mismo     := init_ismo( m1ismo )
   f_valid_komu(, -1 )
   If m1komu == 0
@@ -1025,7 +1025,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
       // when m1step2==1
       ++j; @ j, 1 Say 'гематолог'
-      @ j, 24 Get monko8 reader {| x| menu_reader( x, mm_vokod, A__MENUVERT,,, .f. ) } When m1step2 == 1
+      @ j, 24 Get monko8 reader {| x| menu_reader( x, mm_vokod(), A__MENUVERT,,, .f. ) } When m1step2 == 1
       @ j, 30 Get MTAB_NOM2ov8 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1 .and. m1onko8 == 0
       If mem_por_ass > 0
         @ j, 36 Get MTAB_NOM2oa8 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1 .and. m1onko8 == 0
@@ -1044,7 +1044,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
       // when m1step2==1
       ++j; @ j, 1 Say 'детский онколог'
-      @ j, 24 Get monko10 reader {| x| menu_reader( x, mm_vokod, A__MENUVERT,,, .f. ) } When m1step2 == 1
+      @ j, 24 Get monko10 reader {| x| menu_reader( x, mm_vokod(), A__MENUVERT,,, .f. ) } When m1step2 == 1
       @ j, 30 Get MTAB_NOM2ov10 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1 .and. m1onko10 == 0
       If mem_por_ass > 0
         @ j, 36 Get MTAB_NOM2oa10 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1 .and. m1onko10 == 0

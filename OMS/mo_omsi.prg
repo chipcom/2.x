@@ -1908,7 +1908,7 @@ Function pr_sprav_onko( n )
   viewtext( name_file, , , , .t., , , reg_print )
   Return Nil
 
-// 05.11.19
+// 21.09.25
 Function f_blank_usl_pn()
 
   Static arrv := { ;
@@ -1931,6 +1931,7 @@ Function f_blank_usl_pn()
     { '17 лет', 31 };
     }
   Local i, mperiod, ar, s, buf := SaveScreen(), ret_arr[ 2 ]
+  local arr
 
   delfrfiles()
   Do While ( mperiod := popup_2array( arrv, 3, 11, mperiod, 1, @ret_arr, ;
@@ -1942,16 +1943,17 @@ Function f_blank_usl_pn()
     dbCreate( fr_data, { { 'name', 'C', 100, 0 } } )
     Use ( fr_data ) New Alias FRD
     np_oftal_2_85_21( mperiod, 0d20180901 )
-    ar := np_arr_1_etap[ mperiod ]
+//    ar := np_arr_1_etap[ mperiod ]
+    ar := np_arr_1_etap( Date() )[ mperiod ]
     If !Empty( ar[ 5 ] ) // не пустой массив исследований
-      For i := 1 To count_pn_arr_iss
-        If AScan( ar[ 5 ], np_arr_issled[ i, 1 ] ) > 0
-          s := np_arr_issled[ i, 3 ]
-          // if ascan(glob_arr_usl_LIS,np_arr_issled[i, 1]) > 0
+      For i := 1 To count_pn_arr_iss( Date() )
+        If AScan( ar[ 5 ], np_arr_issled( Date() )[ i, 1 ] ) > 0
+          s := np_arr_issled( Date() )[ i, 3 ]
+          // if ascan(glob_arr_usl_LIS,np_arr_issled( Date() )[i, 1]) > 0
           // s += '    <b><i>в МО / в КДП2</b></i>'
           // endif
-          If ValType( np_arr_issled[ i, 2 ] ) == 'C'
-            s += ' (' + iif( np_arr_issled[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
+          If ValType( np_arr_issled( Date() )[ i, 2 ] ) == 'C'
+            s += ' (' + iif( np_arr_issled( Date() )[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
           Endif
           Append Blank
           frd->name := s
@@ -1960,12 +1962,19 @@ Function f_blank_usl_pn()
     Endif
     dbCreate( fr_data + '1', { { 'name', 'C', 100, 0 } } )
     Use ( fr_data + '1' ) New Alias FRD1
+    arr := np_arr_osmotr( Date() )
     If !Empty( ar[ 4 ] ) // не пустой массив осмотров
-      For i := 1 To count_pn_arr_osm
-        If AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0
-          s := np_arr_osmotr[ i, 3 ]
-          If ValType( np_arr_osmotr[ i, 2 ] ) == 'C'
-            s += ' (' + iif( np_arr_osmotr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
+      For i := 1 To Len( arr ) //count_pn_arr_osm
+//        If AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0
+//          s := np_arr_osmotr[ i, 3 ]
+//          If ValType( np_arr_osmotr[ i, 2 ] ) == 'C'
+//            s += ' (' + iif( np_arr_osmotr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
+//          Endif
+
+        If AScan( ar[ 4 ], arr[ i, 1 ] ) > 0
+          s := arr[ i, 3 ]
+          If ValType( arr[ i, 2 ] ) == 'C'
+            s += ' (' + iif( arr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
           Endif
           Append Blank
           frd1->name := s
@@ -1976,11 +1985,17 @@ Function f_blank_usl_pn()
     frd1->name := 'педиатр (врач общей практики)'
     dbCreate( fr_data + '2', { { 'name', 'C', 100, 0 } } )
     Use ( fr_data + '2' ) New Alias FRD2
-    For i := 1 To count_pn_arr_osm
-      If AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) == 0
-        s := np_arr_osmotr[ i, 3 ]
-        If ValType( np_arr_osmotr[ i, 2 ] ) == 'C'
-          s += ' (' + iif( np_arr_osmotr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
+    arr := np_arr_osmotr( Date() )
+    For i := 1 To Len( arr )  //count_pn_arr_osm
+//      If AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) == 0
+//        s := np_arr_osmotr[ i, 3 ]
+//        If ValType( np_arr_osmotr[ i, 2 ] ) == 'C'
+//          s += ' (' + iif( np_arr_osmotr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
+//        Endif
+      If AScan( ar[ 4 ], arr[ i, 1 ] ) == 0
+        s := arr[ i, 3 ]
+        If ValType( arr[ i, 2 ] ) == 'C'
+          s += ' (' + iif( arr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
         Endif
         Append Blank
         frd2->name := s

@@ -1030,8 +1030,8 @@ Function ret_f12_dvn( Loc_kod, par )
 
   Return arr
 
-// 12.12.16 возврат массива диагнозов для формы 12 из профосмотров несовершеннолетних и дисп-ии детей-сирот
-Function ret_f12_pn( Loc_kod, par )
+// 21.09.25 возврат массива диагнозов для формы 12 из профосмотров несовершеннолетних и дисп-ии детей-сирот
+Function ret_f12_pn( Loc_kod, par, mdata )
 
   Local arr, ad := {}, i, j, k, s, lshifr
 
@@ -1051,7 +1051,7 @@ Function ret_f12_pn( Loc_kod, par )
   If par == 1
     read_arr_dds( Loc_kod )
   Else
-    For i := 1 To count_pn_arr_iss // исследования
+    For i := 1 To count_pn_arr_iss( mdata ) // исследования
       mvar := "MREZi" + lstr( i )
       Private &mvar := Space( 17 )
     Next
@@ -1065,8 +1065,8 @@ Function ret_f12_pn( Loc_kod, par )
           lshifr := usl->shifr
         Endif
         lshifr := AllTrim( lshifr )
-        For i := 1 To count_pn_arr_iss // исследования
-          If np_arr_issled[ i, 1 ] == lshifr
+        For i := 1 To count_pn_arr_iss( mdata ) // исследования
+          If np_arr_issled( mdata )[ i, 1 ] == lshifr
             If lshifr == "3.5.4"  // "Аудиологический скрининг"
               frt->v1800_1++
               mvar := "MREZi" + lstr( i )
@@ -1119,11 +1119,12 @@ Function ret_f12_pn( Loc_kod, par )
 
   Return arr
 
-// 16.01.20
+// 21.09.25
 Function f1_f12( jh, is_diag )
 
   Local arr_d := {}, is_talon := .t., arr := {}, i, j, k, m, k4, k1, s, v, v4 := 0, ;
     mvozrast, fl, fl_plus, _dispans, kol_sluch, kol_plus, fl_z, mpol, lnum_kol := 0
+
   Private spec_vozrast := 0, spec1vozrast := 0, mlet := 0
 
   If human_->NOVOR > 0
@@ -1161,13 +1162,13 @@ Function f1_f12( jh, is_diag )
   If eq_any( human->ishod, 101, 102, 201, 202, 203, 204, 205, 301, 302 )
 
     If eq_any( human->ishod, 101, 102 )
-      arr := ret_f12_pn( human->kod, 1 )
+      arr := ret_f12_pn( human->kod, 1, human->k_data )
       lnum_kol := 9 // профосмотр
     Elseif eq_any( human->ishod, 201, 203, 204 )
       arr := ret_f12_dvn( human->kod, 1 )
       lnum_kol := iif( human->ishod == 203, 9, 10 ) // профосмотр или диспансеризация
     Elseif eq_any( human->ishod, 301, 302 )
-      arr := ret_f12_pn( human->kod, 2 )
+      arr := ret_f12_pn( human->kod, 2, human->k_data )
       lnum_kol := 9 // профосмотр
     Endif
     If Empty( arr ) .and. eq_any( human->ishod, 202, 205 )
@@ -1262,7 +1263,6 @@ Function f1_f12( jh, is_diag )
   If Len( arr_d ) > 0
     ++jh
   Endif
-
   Return jh
 
 // 14.01.20
@@ -1846,18 +1846,18 @@ Function forma_12_o()
 
   Return Nil
 
-// 05.01.16
+// 21.09.25
 Function f1_f12_o( jh )
 
   Local arr_d := {}, arr := {}, i, j, k, s, fl, fl_plus, arv, pole, is_talon := .t.
 
   If eq_any( human->ishod, 101, 102, 201, 202, 203, 204, 205, 301, 302 )
     If eq_any( human->ishod, 101, 102 )
-      arr := ret_f12_pn( human->kod, 1 )
+      arr := ret_f12_pn( human->kod, 1, human->k_data )
     Elseif eq_any( human->ishod, 201, 203, 204 )
       arr := ret_f12_dvn( human->kod, 1 )
     Elseif eq_any( human->ishod, 301, 302 )
-      arr := ret_f12_pn( human->kod, 2 )
+      arr := ret_f12_pn( human->kod, 2, human->k_data )
     Endif
     For i := 1 To Len( arr )
       arr[ i, 1 ] := PadR( arr[ i, 1 ], 5 )
