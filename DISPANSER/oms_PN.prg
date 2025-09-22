@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.09.25 ПН - добавление или редактирование случая (листа учета)
+// 22.09.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -14,15 +14,19 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, arr_del := {}, mrec_hu := 0, ;
     buf := SaveScreen(), tmp_color := SetColor(), a_smert := {}, ;
     p_uch_doc := '@!', pic_diag := '@K@!', arr_usl := {}, ;
-    i, j, k, n, s, s1, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
+    s, s1, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
     pos_read := 0, k_read := 0, count_edit := 0, larr, lu_kod, ;
     tmp_help := chm_help_code, fl_write_sluch := .f., _y, _m, _d, t_arr[ 2 ], ;
     arr_prof := {}, is_3_5_4 := .f.
 
+  local i, j, k, n, fl, str_1
   local arr_PN_issled
   local arr_PN_osmotr
   local arr_osmotr_KDP2
   local arr_not_zs
+  local larr_p, larr_i, larr_o  // массивы для приемов педиатров, исследований, осмотров
+  local _arr
+  local cur_napr := 0, count_napr := 0, mnapr_onk := Space( 10 ) // для направлений на онкологию
   local mm_mesto_prov := { ;
     { 'медицинская организация', 0 }, ;
     { 'общеобразовательное учреждение', 1 } ;
@@ -32,11 +36,14 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     { 'да   ', 1 }, ;
     { 'ОТКАЗ', 2 } ;
   }
-  local dir_DB
+  local dir_DB // каталог БД
+  local work_dir  // текущий рабочий каталог
+
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0, f_print To ''
   dir_DB := dir_server()
+  work_dir := cur_dir()
   //
   If kod_kartotek == 0 // добавление в картотеку
     If ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
@@ -164,7 +171,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 //  Private mm_privivki2 := { { 'полностью', 1 }, ;
 //    { 'частично', 2 } }
   //
-  Private metap := 1, mperiod := 0, mshifr_zs := '', mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
+  Private metap := 1, mperiod := 0, mshifr_zs := '', m1napr_onk := 0, ;
     mkateg_uch, m1kateg_uch := 3, ; // Категория учета ребенка:
     mmesto_prov := Space( 10 ), m1mesto_prov := 0, ; // место проведения
     mMO_PR := Space( 10 ), m1MO_PR := st_mo_pr, ; // код МО прикрепления
@@ -236,8 +243,10 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   Private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
 
   Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
-    mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
+    mshifr, mshifr1, mname_u, mU_KOD, tip_onko_napr := 0, ;
     mTab_Number := 0
+
+//, cur_napr := 0, count_napr := 0, mnapr_onk := Space( 10 )
 
   arr_osmotr_KDP2 := np_arr_osmotr_KDP2()
   arr_not_zs := np_arr_not_zs() 
@@ -291,7 +300,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     m1var := 'M1LIS' + lstr( i )
     Private &m1var := 0
     mvar := 'MLIS' + lstr( i )
-    Private &mvar := inieditspr( A__MENUVERT, mm_kdp2, &m1var )
+    Private &mvar := inieditspr( A__MENUVERT, mm_kdp2, &m1var ) 
   Next
 //  For i := 1 To count_pn_arr_osm // осмотры
 /*
@@ -327,15 +336,15 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   //
   AFill( adiag_talon, 0 )
   //
-  dbCreate( cur_dir() + 'tmp', { ;
+  dbCreate( work_dir + 'tmp', { ;
     { 'U_KOD',    'N',      4,      0 }, ;  // код услуги
     { 'U_SHIFR',    'C',     10,      0 }, ;  // шифр услуги
     { 'U_NAME',     'C',     65,      0 } ;  // наименование услуги
   } )
-  Use ( cur_dir() + 'tmp' )
-  Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + 'tmpk' )
-  Index On fsort_usl( FIELD->u_shifr ) to ( cur_dir() + 'tmpn' )
-  Set Index to ( cur_dir() + 'tmpk' ), ( cur_dir() + 'tmpn' )
+  Use ( work_dir + 'tmp' )
+  Index On Str( FIELD->u_kod, 4 ) to ( work_dir + 'tmpk' )
+  Index On fsort_usl( FIELD->u_shifr ) to ( work_dir + 'tmpn' )
+  Set Index to ( work_dir + 'tmpk' ), ( work_dir + 'tmpn' )
   r_use( dir_DB + 'human_', , 'HUMAN_' )
   r_use( dir_DB + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
@@ -417,7 +426,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     Enddo
     Set Index To
   Endif
-  If Loc_kod > 0
+  If Loc_kod > 0  // запись вHUMAN.DBF уже существует (существует лист учета)
     Select HUMAN
     Goto ( Loc_kod )
     M1LPU       := human->LPU
@@ -458,8 +467,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     Endif
     arr_PN_osmotr := np_arr_osmotr( mk_data )
     //
-//    larr_i := Array( count_pn_arr_iss )
-    larr_i := Array( count_pn_arr_iss( mk_data ) )
+    larr_i := Array( count_pn_arr_iss( mk_data ) )  // Array( count_pn_arr_iss )
     AFill( larr_i, 0 )
     larr_o := Array( Len( arr_PN_osmotr ) ) //count_pn_arr_osm( mk_data ) )
     AFill( larr_o, 0 )
@@ -485,10 +493,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         ++m1usl2
       Else
         fl := .t.
-//        For i := 1 To count_pn_arr_iss
-        For i := 1 To count_pn_arr_iss( mk_data )
-//          If np_arr_issled[ i, 1 ] == lshifr
-          If arr_PN_issled[ i, 1 ] == lshifr
+        For i := 1 To count_pn_arr_iss( mk_data ) // count_pn_arr_iss
+          If arr_PN_issled[ i, 1 ] == lshifr  // np_arr_issled[ i, 1 ] == lshifr
             fl := .f.
             larr_i[ i ] := hu->( RecNo() )
             Exit
@@ -639,21 +645,23 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       mnameismo := ret_inogsmo_name( 2, @rec_inogSMO, .t. ) // открыть и закрыть
     Endif
   Endif
+
   If !( Left( msmo, 2 ) == '34' ) // не Волгоградская область
     m1ismo := msmo
     msmo := '34'
   Endif
 
-  dbCreate( cur_dir() + 'tmp_onkna', create_struct_temporary_onkna() )
+  dbCreate( work_dir + 'tmp_onkna', create_struct_temporary_onkna() )
   cur_napr := 1 // при ред-ии - сначала первое направление текущее
   count_napr := collect_napr_zno( Loc_kod )
   If count_napr > 0
     mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
   Endif
 
-  Close databases
+  dbCloseAll()
   is_talon := .t.
 
+// Начало работы с обработкой данных
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )
   MFIO_KART := _f_fio_kart()
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
@@ -741,7 +749,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   make_diagp( 1 )  // сделать 'шестизначные' диагнозы
   Private num_screen := 1
   Do While .t.
-    Close databases
+    dbCloseAll()
     DispBegin()
     If num_screen == 5
       hS := 32
@@ -776,7 +784,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         s += s1
       Endif
       @ j, wS - Len( s ) Say s Color color14
-      If !Between( mperiod, 1, 31 )
+      If !Between( mperiod, 1, 31 ) //  Len( np_arr_1_etap( mk_data ) ) )
         DispEnd()
         func_error( 4, 'Не удалось определить возрастной период!' )
         If !Empty( s1 )
@@ -860,39 +868,38 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         n_message( a_smert, , 'GR+/R', 'W+/R', , , 'G+/R' )
       Endif
     Elseif num_screen == 2
-      np_oftal_2_85_21( mperiod, mk_data )
+      if mk_data < 0d20250901
+        np_oftal_2_85_21( mperiod, mk_data )
+      endif
       ar := np_arr_1_etap( mk_data )[ mperiod ]
-
-//  For i := 1 To count_pn_arr_osm // осмотры
-  For i := 1 To Len( arr_PN_osmotr )  //count_pn_arr_osm( mk_data ) // осмотры
-    mvar := 'MTAB_NOMov' + lstr( i )
-    Private &mvar := 0
-    mvar := 'MTAB_NOMoa' + lstr( i )
-    Private &mvar := 0
-    mvar := 'MDATEo' + lstr( i )
-    Private &mvar := CToD( '' )
-    mvar := 'MKOD_DIAGo' + lstr( i )
-    Private &mvar := Space( 6 )
-    mvar := 'MOTKAZo' + lstr( i )
-    Private &mvar := mm_otkaz[ 1, 1 ]
-    mvar := 'M1OTKAZo' + lstr( i )
-    Private &mvar := mm_otkaz[ 1, 2 ]
-  Next
-  For i := 1 To 2                // педиатр(ы)
-    mvar := 'MTAB_NOMpv' + lstr( i )
-    Private &mvar := 0
-    mvar := 'MTAB_NOMpa' + lstr( i )
-    Private &mvar := 0
-    mvar := 'MDATEp' + lstr( i )
-    Private &mvar := CToD( '' )
-    mvar := 'MKOD_DIAGp' + lstr( i )
-    Private &mvar := Space( 6 )
-    mvar := 'MOTKAZp' + lstr( i )
-    Private &mvar := mm_otkaz[ 1, 1 ]
-    mvar := 'M1OTKAZp' + lstr( i )
-    Private &mvar := mm_otkaz[ 1, 2 ]
-  Next
-
+      For i := 1 To Len( arr_PN_osmotr )  //count_pn_arr_osm // осмотры
+        mvar := 'MTAB_NOMov' + lstr( i )
+        Private &mvar := 0
+        mvar := 'MTAB_NOMoa' + lstr( i )
+        Private &mvar := 0
+        mvar := 'MDATEo' + lstr( i )
+        Private &mvar := CToD( '' )
+        mvar := 'MKOD_DIAGo' + lstr( i )
+        Private &mvar := Space( 6 )
+        mvar := 'MOTKAZo' + lstr( i )
+        Private &mvar := mm_otkaz[ 1, 1 ]
+        mvar := 'M1OTKAZo' + lstr( i )
+        Private &mvar := mm_otkaz[ 1, 2 ]
+      Next
+      For i := 1 To 2                // педиатр(ы)
+        mvar := 'MTAB_NOMpv' + lstr( i )
+        Private &mvar := 0
+        mvar := 'MTAB_NOMpa' + lstr( i )
+        Private &mvar := 0
+        mvar := 'MDATEp' + lstr( i )
+        Private &mvar := CToD( '' )
+        mvar := 'MKOD_DIAGp' + lstr( i )
+        Private &mvar := Space( 6 )
+        mvar := 'MOTKAZp' + lstr( i )
+        Private &mvar := mm_otkaz[ 1, 1 ]
+        mvar := 'M1OTKAZp' + lstr( i )
+        Private &mvar := mm_otkaz[ 1, 2 ]
+      Next
 
       If !Empty( ar[ 5 ] ) // не пустой массив исследований
         @ ++j, 1 Say 'I этап наименований исследований       Врач Ассис.  Дата     Выполнение Результат' Color 'RB+/B'
@@ -900,16 +907,13 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           @ j, 45 Say Space( 6 )
         Endif
         not_hormon := .t.
-//        For i := 1 To count_pn_arr_iss
-        For i := 1 To count_pn_arr_iss( mk_data )
+        For i := 1 To count_pn_arr_iss( mk_data ) // count_pn_arr_iss
           fl := .t.
-//          If fl .and. !Empty( np_arr_issled[ i, 2 ] )
-          If fl .and. !Empty( arr_PN_issled[ i, 2 ] )
+          If fl .and. !Empty( arr_PN_issled[ i, 2 ] ) // fl .and. !Empty( np_arr_issled[ i, 2 ] )
             fl := ( mpol == np_arr_issled[ i, 2 ] )
           Endif
           If fl
-//            fl := ( AScan( ar[ 5 ], np_arr_issled[ i, 1 ] ) > 0 )
-            fl := ( AScan( ar[ 5 ], arr_PN_issled[ i, 1 ] ) > 0 )
+            fl := ( AScan( ar[ 5 ], arr_PN_issled[ i, 1 ] ) > 0 ) // ( AScan( ar[ 5 ], np_arr_issled[ i, 1 ] ) > 0 )
           Endif
           /*//if fl .and. np_arr_issled[i, 4] == 1 // гормон
           if fl .and. arr_PN_issled[i, 4] == 1 // гормон
@@ -935,8 +939,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             If Empty( &mvard )
               &mvard := mn_data
             Endif
-//            @ ++j, 1 Say PadR( np_arr_issled[ i, 3 ], 38 )
-            @ ++j, 1 Say PadR( arr_PN_issled[ i, 3 ], 38 )
+            @ ++j, 1 Say PadR( arr_PN_issled[ i, 3 ], 38 )  // @ ++j, 1 Say PadR( np_arr_issled[ i, 3 ], 38 )
             If fl_kdp2
               @ j, 34 get &mvarlis reader {| x| menu_reader( x, mm_kdp2, A__MENUVERT, , , .f. ) }
             Endif
@@ -963,8 +966,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             fl := ( mpol == arr_PN_osmotr[ i, 2 ] )
           Endif
           If fl
-//            fl := ( AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0 )
-            fl := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) > 0 )
+            fl := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) > 0 ) // ( AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0 )
           Endif
 /*
           If fl .and. mperiod == 16 .and. mk_data < 0d20191101 .and. np_arr_osmotr[ i, 1 ] == '2.4.2' // 2 года
@@ -1026,17 +1028,14 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
       For i := 1 To Len( arr_PN_osmotr )  // count_pn_arr_osm
         fl := .t.
-//        If fl .and. !Empty( np_arr_osmotr[ i, 2 ] )
-//          fl := ( mpol == np_arr_osmotr[ i, 2 ] )
-        If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] )
-          fl := ( mpol == arr_PN_osmotr[ i, 2 ] )
+        If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] ) // fl .and. !Empty( np_arr_osmotr[ i, 2 ] )
+          fl := ( mpol == arr_PN_osmotr[ i, 2 ] ) // fl := ( mpol == np_arr_osmotr[ i, 2 ] )
         Endif
         If fl .and. !Empty( ar[ 4 ] )
-//          fl := ( AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) == 0 )
-          fl := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) == 0 )
+
+          fl := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) == 0 ) // fl := ( AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) == 0 )
         Endif
-//        If fl .and. !( np_arr_osmotr[ i, 1 ] == '2.4.2' )
-        If fl .and. !( arr_PN_osmotr[ i, 1 ] == '2.4.2' )
+        If fl .and. !( arr_PN_osmotr[ i, 1 ] == '2.4.2' ) // If fl .and. !( np_arr_osmotr[ i, 1 ] == '2.4.2' )
           mvonk := 'MONKO' + lstr( i )
           mvarv := 'MTAB_NOMov' + lstr( i )
           mvara := 'MTAB_NOMoa' + lstr( i )
@@ -1398,7 +1397,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         func_error( 4, 'Профосмотр оказан взрослому пациенту!' )
         Loop
       Endif
-      If !Between( mperiod, 1, 31 )
+      If !Between( mperiod, 1, 31 )  // Len( np_arr_1_etap( mk_data ) ) )
         func_error( 4, 'Не удалось определить возрастной период!' )
         num_screen := 1
         Loop
@@ -1444,10 +1443,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Else
         mdef_diagnoz := 'Z00.3 '
       Endif
-//      arr_iss := Array( count_pn_arr_iss, 10 )
-      arr_iss := Array( count_pn_arr_iss( mk_data ), 10 )
+      arr_iss := Array( count_pn_arr_iss( mk_data ), 10 ) // Array( count_pn_arr_iss, 10 )
       afillall( arr_iss, 0 )
-      r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
+      r_use( dir_exe() + '_mo_mkb', work_dir + '_mo_mkb', 'MKB_10' )
       r_use( dir_DB + 'mo_pers', dir_DB + 'mo_pers', 'P2' )
       num_screen := 2
       max_date1 := max_date2 := mn_data
@@ -1693,8 +1691,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             _fl_ := ( mpol == arr_PN_osmotr[ i, 2 ] )
           Endif
           If _fl_
-//            _fl_ := ( AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) == 0 )
-            _fl_ := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) == 0 )
+            _fl_ := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) == 0 )  // ( AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) == 0 )
           Endif
           If _fl_
             mvonk := 'm1onko' + lstr( i )
@@ -1883,7 +1880,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Next
       Endif
       // добавим педиатра I этапа
-      AAdd( arr_osm1, add_pediatr_pn( MTAB_NOMpv1, MTAB_NOMpa1, MDATEp1, MKOD_DIAGp1 ) )
+      AAdd( arr_osm1, add_pediatr_pn( MTAB_NOMpv1, MTAB_NOMpa1, MDATEp1, MKOD_DIAGp1, mpol, mdef_diagnoz ) )
       If metap == 1 // I этап
         For i := 1 To Len( arr_iss )
           If ValType( arr_iss[ i, 5 ] ) == 'C'
@@ -1947,7 +1944,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           arr_usl_dop[ j, 9 ] := mn_data
         Endif
       Else  // оформление 2-го этапа по-новому
-        Use ( cur_dir() + 'tmp' ) new
+        Use ( work_dir + 'tmp' ) new
         Go Top
         Do While !Eof()
           If is_lab_usluga( tmp->u_shifr )
@@ -2001,7 +1998,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           Endif
         Next
         // добавим педиатра II этапа
-        AAdd( arr_osm2, add_pediatr_pn( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2 ) )
+        AAdd( arr_osm2, add_pediatr_pn( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz ) )
         i := Len( arr_osm2 )
         m1vrach  := arr_osm2[ i, 1 ]
         m1prvs   := arr_osm2[ i, 2 ]
@@ -2193,7 +2190,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_DB + 'mo_hismo', , 'SN' )
-        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
+        Index On Str( FIELD->kod, 7 ) to ( work_dir + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo
@@ -2262,12 +2259,12 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.
-      Close databases
+      dbCloseAll()
       stat_msg( 'Запись завершена!', .f. )
     Endif
     Exit
   Enddo
-  Close databases
+  dbCloseAll()
   SetColor( tmp_color )
   RestScreen( buf )
   chm_help_code := tmp_help
