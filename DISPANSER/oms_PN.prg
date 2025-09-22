@@ -277,8 +277,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
     Next
   Next
-//  For i := 1 To count_pn_arr_iss // исследования
-  For i := 1 To count_pn_arr_iss( Date() ) // исследования
+  arr_PN_issled := np_arr_issled( Date() )
+  For i := 1 To Len( arr_PN_issled ) //count_pn_arr_iss( Date() ) // For i := 1 To count_pn_arr_iss // исследования
     If eq_any( i, 8, 10 )  // гематолог и детский онколог
       m1var := 'M1ONKO' + lstr( i )
       Private &m1var := 0
@@ -467,7 +467,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     Endif
     arr_PN_osmotr := np_arr_osmotr( mk_data )
     //
-    larr_i := Array( count_pn_arr_iss( mk_data ) )  // Array( count_pn_arr_iss )
+    larr_i := Array( Len( arr_PN_issled ) ) // count_pn_arr_iss( mk_data ) )  // Array( count_pn_arr_iss )
     AFill( larr_i, 0 )
     larr_o := Array( Len( arr_PN_osmotr ) ) //count_pn_arr_osm( mk_data ) )
     AFill( larr_o, 0 )
@@ -493,7 +493,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         ++m1usl2
       Else
         fl := .t.
-        For i := 1 To count_pn_arr_iss( mk_data ) // count_pn_arr_iss
+        For i := 1 To Len( arr_PN_issled ) // count_pn_arr_iss( mk_data ) // count_pn_arr_iss
           If arr_PN_issled[ i, 1 ] == lshifr  // np_arr_issled[ i, 1 ] == lshifr
             fl := .f.
             larr_i[ i ] := hu->( RecNo() )
@@ -868,10 +868,24 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         n_message( a_smert, , 'GR+/R', 'W+/R', , , 'G+/R' )
       Endif
     Elseif num_screen == 2
-      if mk_data < 0d20250901
-        np_oftal_2_85_21( mperiod, mk_data )
-      endif
       ar := np_arr_1_etap( mk_data )[ mperiod ]
+      if mk_data < 0d20250901
+//        добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
+//        np_oftal_2_85_21( mperiod, mk_data )  // развернул функцию
+        If mperiod == 13 // 12 месяцев с 1 сентября
+          i := AScan( ar[ 4 ], '2.85.21' )
+          If mk_data > 0d20180831 // с 1 сентября
+            If i == 0
+              ins_array( ar[ 4 ], 4, '2.85.21' ) // добавить пере ЛОРом 4-ым элементом
+            Endif
+          Else
+            If i > 0
+              del_array( ar[ 4 ], i )
+          Endif
+        Endif
+      Endif
+
+      endif
       For i := 1 To Len( arr_PN_osmotr )  //count_pn_arr_osm // осмотры
         mvar := 'MTAB_NOMov' + lstr( i )
         Private &mvar := 0
@@ -907,7 +921,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           @ j, 45 Say Space( 6 )
         Endif
         not_hormon := .t.
-        For i := 1 To count_pn_arr_iss( mk_data ) // count_pn_arr_iss
+        For i := 1 To Len( arr_PN_issled ) // count_pn_arr_iss( mk_data ) // count_pn_arr_iss
           fl := .t.
           If fl .and. !Empty( arr_PN_issled[ i, 2 ] ) // fl .and. !Empty( np_arr_issled[ i, 2 ] )
             fl := ( mpol == np_arr_issled[ i, 2 ] )
@@ -1443,7 +1457,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Else
         mdef_diagnoz := 'Z00.3 '
       Endif
-      arr_iss := Array( count_pn_arr_iss( mk_data ), 10 ) // Array( count_pn_arr_iss, 10 )
+      arr_iss := Array( Len( arr_PN_issled ), 10 ) //count_pn_arr_iss( mk_data ), 10 ) // Array( count_pn_arr_iss, 10 )
       afillall( arr_iss, 0 )
       r_use( dir_exe() + '_mo_mkb', work_dir + '_mo_mkb', 'MKB_10' )
       r_use( dir_DB + 'mo_pers', dir_DB + 'mo_pers', 'P2' )
@@ -1464,8 +1478,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       is_otkaz := .f.
       is_neonat := .f.
       ar := np_arr_1_etap( mk_data )[ mperiod ]
-//      For i := 1 To count_pn_arr_iss
-      For i := 1 To count_pn_arr_iss( mk_data )
+      For i := 1 To Len( arr_PN_issled )  // count_pn_arr_iss( mk_data ) // For i := 1 To count_pn_arr_iss
         mvart := 'MTAB_NOMiv' + lstr( i )
         mvara := 'MTAB_NOMia' + lstr( i )
         mvard := 'MDATEi' + lstr( i )
@@ -1871,8 +1884,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       arr_usl_dop := {}
       arr_usl_otkaz := {}
       If !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_PN ]
-//        For i := 1 To count_pn_arr_iss
-        For i := 1 To count_pn_arr_iss( mk_data )
+        For i := 1 To Len( arr_PN_issled ) // count_pn_arr_iss( mk_data ) // For i := 1 To count_pn_arr_iss
           If ValType( arr_iss[ i, 9 ] ) == 'D' .and. arr_iss[ i, 9 ] >= mn_data .and. Len( arr_iss[ i ] ) > 9 ;
               .and. ValType( arr_iss[ i, 10 ] ) == 'N' .and. eq_any( arr_iss[ i, 10 ], 1, 2 )
             m1lis := arr_iss[ i, 10 ] // в рамках диспансеризации
