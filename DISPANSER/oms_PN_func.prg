@@ -95,10 +95,12 @@ Function ret_period_pn( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
   Next
   Return lperiod
 
-// 22.09.25
-Function add_pediatr_pn( _pv, _pa, _date, _diag, mpol, mdef_diagnoz )
+// 23.09.25
+Function add_pediatr_pn( _pv, _pa, _date, _diag, mpol, mdef_diagnoz, mobil )
 
   Local arr[ 10 ]
+
+  default mobil to 0
 
   AFill( arr, 0 )
 //  Select P2
@@ -116,7 +118,11 @@ Function add_pediatr_pn( _pv, _pa, _date, _diag, mpol, mdef_diagnoz )
   Endif
   arr[ 4 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), 57, 68 ) // профиль
   if _date >= 0d20250901
-    arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.87.49', '2.87.49' ) // шифр услуги
+    if mobil == 0
+      arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.94.1', '2.94.1' ) // шифр услуги
+    else
+      arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.94.11', '2.94.11' ) // шифр услуги
+    endif
   else
     arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.85.15', '2.85.14' ) // шифр услуги
   endif

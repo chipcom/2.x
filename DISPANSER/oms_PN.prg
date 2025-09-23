@@ -432,7 +432,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             mvar := 'MLIS' + lstr( i )
             Private &mvar
           Next
-          arr_PN_osmotr := np_arr_osmotr( human->k_data )
+          arr_PN_osmotr := np_arr_osmotr( human->k_data, m1mobilbr )
           If _mperiod > 0
             AAdd( arr_prof, { _mperiod, human->n_data, human->k_data } )
             If eq_any( _mperiod, 1, 2 )
@@ -500,7 +500,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     If metap == 2
       m1step2 := 1
     Endif
-    arr_PN_osmotr := np_arr_osmotr( mk_data )
+    arr_PN_osmotr := np_arr_osmotr( mk_data, m1mobilbr )
     //
     larr_i := Array( Len( arr_PN_issled ) ) // count_pn_arr_iss( mk_data ) )  // Array( count_pn_arr_iss )
     AFill( larr_i, 0 )
@@ -814,7 +814,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       s1 := ' '
       is_disp_19 := !( mk_data < 0d20191101 )
       arr_PN_issled := np_arr_issled( mk_data )
-      arr_PN_osmotr := np_arr_osmotr( mk_data )
+      arr_PN_osmotr := np_arr_osmotr( mk_data, m1mobilbr )
       mperiod := ret_period_pn( mdate_r, mn_data, mk_data, @s1 )
       s := AllTrim( mfio )
       If mperiod > 0
@@ -1929,7 +1929,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Next
       Endif
       // добавим педиатра I этапа
-      AAdd( arr_osm1, add_pediatr_pn( MTAB_NOMpv1, MTAB_NOMpa1, MDATEp1, MKOD_DIAGp1, mpol, mdef_diagnoz ) )
+      AAdd( arr_osm1, add_pediatr_pn( MTAB_NOMpv1, MTAB_NOMpa1, MDATEp1, MKOD_DIAGp1, mpol, mdef_diagnoz, m1mobilbr ) )
       If metap == 1 // I этап
         For i := 1 To Len( arr_iss )
           If ValType( arr_iss[ i, 5 ] ) == 'C'
@@ -2047,7 +2047,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           Endif
         Next
         // добавим педиатра II этапа
-        AAdd( arr_osm2, add_pediatr_pn( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz ) )
+        AAdd( arr_osm2, add_pediatr_pn( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr ) )
         i := Len( arr_osm2 )
         m1vrach  := arr_osm2[ i, 1 ]
         m1prvs   := arr_osm2[ i, 2 ]
