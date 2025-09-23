@@ -1509,7 +1509,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Return Nil
 
-// 21.09.25 работаем по текущей записи
+// 23.09.25 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1828,7 +1828,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
                 0, ;     // цена
                 1 } )     // 1-отказ, 2-невозможность
             Endif
-          Elseif ( i := AScan( np_arr_osmotr( human->k_data ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0 // осмотры
+          Elseif ( i := AScan( np_arr_osmotr( human->k_data, m1mobilbr ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0 // осмотры
 //            If ( i := AScan( np_arr_osmotr_KDP2, {| x| x[ 1 ] == lshifr } ) ) > 0
 //              lshifr := np_arr_osmotr_KDP2[ i, 3 ]  // замена врачебного приёма на 2.3.*
 //            Endif

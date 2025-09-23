@@ -854,15 +854,15 @@ Function is_issled_PN(ausl, _period, arr, _pol, mdata)
   endif
   return fl
 
-// 20.09.25
-Function is_osmotr_PN(ausl, _period, arr, _etap, _pol, mdata)
+// 23.09.25
+Function is_osmotr_PN(ausl, _period, arr, _etap, _pol, mdata, mobil)
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 
   Local i, j, s, fl := .f., fl_profil := .f., lshifr := alltrim(ausl[1])
   local arr_PN_osmotr
   local arr_not_zs
 
-  arr_PN_osmotr := np_arr_osmotr( mdata )
+  arr_PN_osmotr := np_arr_osmotr( mdata, mobil )
   arr_not_zs := np_arr_not_zs()
   if eq_any(left(lshifr, 4), '2.3.', '2.91')
     fl_profil := .t.
@@ -906,7 +906,7 @@ Function is_osmotr_PN(ausl, _period, arr, _etap, _pol, mdata)
 //    s := '"' + lshifr + '.' + np_arr_osmotr[i, 3] + '"'
     s := '"' + lshifr + '.' + arr_PN_osmotr[i, 3] + '"'
 //    if _etap == 1 .and. ascan(np_arr_1_etap[_period, 4], lshifr) == 0
-    if _etap == 1 .and. ascan(np_arr_1_etap( mdata )[_period, 4], lshifr) == 0
+    if _etap == 1 .and. ascan(np_arr_1_etap( mdata, mobil )[_period, 4], lshifr) == 0
       aadd(arr, 'Некорректный возрастной период пациента для ' + s)
     endif
 //    if !empty(np_arr_osmotr[i, 2]) .and. !(np_arr_osmotr[i, 2] == _pol)
@@ -928,14 +928,14 @@ Function is_osmotr_PN(ausl, _period, arr, _etap, _pol, mdata)
   endif
   return fl
 
-// 21.09.25 если услуга из 1 этапа
-Function is_1_etap_PN(ausl, _period, _etap, mdata)
+// 23.09.25 если услуга из 1 этапа
+Function is_1_etap_PN(ausl, _period, _etap, mdata, mobil)
   
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, j, fl := .f., fl_profil := .f., lshifr := alltrim(ausl[1])
   Local arr_PN_osmotr
 
-  arr_PN_osmotr := np_arr_osmotr( mdata )
+  arr_PN_osmotr := np_arr_osmotr( mdata, mobil )
   if eq_any(left(lshifr, 4), '2.3.', '2.91')
     fl_profil := .t.
   elseif _etap == 1
@@ -975,7 +975,7 @@ Function is_1_etap_PN(ausl, _period, _etap, mdata)
     endif
   next
   if fl
-    fl := (ascan(np_arr_1_etap( mData )[_period, 4], lshifr) > 0)
+    fl := (ascan(np_arr_1_etap( mData, mobil )[_period, 4], lshifr) > 0)
   endif
   return fl
 

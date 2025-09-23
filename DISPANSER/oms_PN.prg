@@ -905,7 +905,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         n_message( a_smert, , 'GR+/R', 'W+/R', , , 'G+/R' )
       Endif
     Elseif num_screen == 2
-      ar := np_arr_1_etap( mk_data )[ mperiod ]
+      ar := np_arr_1_etap( mk_data, m1mobilbr )[ mperiod ]
       if mk_data < 0d20250901
 //        добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
 //        np_oftal_2_85_21( mperiod, mk_data )  // развернул функцию
@@ -1072,7 +1072,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           reader {| x| menu_reader( x, { {|k, r, c| ob2_v_usl( .t., r + 1 ) } }, A__FUNCTION, , , .f. ) } ;
           When m1step2 == 1
       Endif
-      ar := np_arr_1_etap( mk_data )[ mperiod ]
+      ar := np_arr_1_etap( mk_data, m1mobilbr )[ mperiod ]
       @ ++j, 1 Say 'II этап наименований осмотров          Врач Ассис.  Дата     Выполнение' Color 'RB+/B'
       If mem_por_ass == 0
         @ j, 45 Say Space( 6 )
@@ -1514,7 +1514,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       fl := .t.
       is_otkaz := .f.
       is_neonat := .f.
-      ar := np_arr_1_etap( mk_data )[ mperiod ]
+      ar := np_arr_1_etap( mk_data, m1mobilbr )[ mperiod ]
       For i := 1 To Len( arr_PN_issled )  // count_pn_arr_iss( mk_data ) // For i := 1 To count_pn_arr_iss
         mvart := 'MTAB_NOMiv' + lstr( i )
         mvara := 'MTAB_NOMia' + lstr( i )

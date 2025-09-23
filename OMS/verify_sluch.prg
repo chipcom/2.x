@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 21.09.25
+// 23.09.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -3655,7 +3655,7 @@ Function verify_sluch( fl_view )
               Endif
 //            Elseif ( i := AScan( np_arr_osmotr, {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0 // осмотры
             Elseif ( i := AScan( arr_PN_osmotr, {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0 // осмотры
-              If is_osmotr_pn( { lshifr, ar[ 6 ], ar[ 4 ], ar[ 2 ] }, mperiod, ta, metap, human->pol, dEnd )
+              If is_osmotr_pn( { lshifr, ar[ 6 ], ar[ 4 ], ar[ 2 ] }, mperiod, ta, metap, human->pol, dEnd, m1mobilbr )
                 ++kol_d_otkaz
               Endif
             Endif
@@ -3699,7 +3699,7 @@ Function verify_sluch( fl_view )
             If au_lu[ i, 2 ] < dBegin
               AAdd( ta, 'дата осмотра педиатра не попадает в диапазон лечения' )
             Endif
-          Elseif is_1_etap_pn( au_lu[ i ], mperiod, metap, dEnd ) // если услуга из 1 этапа
+          Elseif is_1_etap_pn( au_lu[ i ], mperiod, metap, dEnd, m1mobilbr ) // если услуга из 1 этапа
             If mvozrast < 2
               If au_lu[ i, 2 ] < AddMonth( dBegin, -1 )
                 AAdd( ta, s + ' оказана более 1 месяца назад' )
@@ -3723,7 +3723,7 @@ Function verify_sluch( fl_view )
             If dEnd == au_lu[ i, 2 ]
               is_last_den := .t.
             Endif
-          Elseif is_osmotr_pn( au_lu[ i ], mperiod, ta, metap, mpol, dEnd )
+          Elseif is_osmotr_pn( au_lu[ i ], mperiod, ta, metap, mpol, dEnd, m1mobilbr )
             If eq_any( Left( au_lu[ i, 1 ], 4 ), '2.3.', '2.4.', '2.85', '2.91' )
               ++kvp
             Endif
