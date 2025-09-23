@@ -558,20 +558,21 @@ Function save_arr_pn( lkod )
   save_arr_dispans( lkod, arr )
   Return Nil
 
-// 21.09.25
+// 23.09.25
 Function read_arr_pn( lkod, is_all )
 
   Local arr, i, k
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
   Local oldSelect
+  local mvar
 
+//  Private mvar
   If ! aliasIsUse
     oldSelect := Select()
     r_use( dir_server() + 'mo_pers',, 'TPERS' )
   Endif
 
   Default is_all To .t.
-  Private mvar
   arr := read_arr_dispans( lkod )
   For i := 1 To Len( arr )
     If ValType( arr[ i ] ) == 'A' .and. ValType( arr[ i, 1 ] ) == 'C'

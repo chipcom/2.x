@@ -246,7 +246,7 @@ Function f1_inf_dds_karta( nKey, oBrow, regim )
 
   Return ret
 
-// 13.09.25
+// 23.09.25
 Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
 
   Static st := "     ", ub := "<u><b>", ue := "</b></u>", sh := 88
@@ -628,7 +628,7 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
   frd->( Eval( blk, s ) )
   If p_tip_lu == TIP_LU_PN
     s := st + "15.10. Медицинская группа для занятий физической культурой: "
-    s += f3_inf_dds_karta( mm_gr_fiz_do, m1GR_FIZ_DO,, ub, ue )
+    s += f3_inf_dds_karta( mm_gr_fiz_do(), m1GR_FIZ_DO,, ub, ue )
     frd->( Eval( blk, s ) )
   Endif
   s := st + "16. Состояние здоровья по результатам проведения " + ;
@@ -6160,7 +6160,7 @@ Function f1_inf_dnl_karta( nKey, oBrow, regim )
 
   Return ret
 
-// 13.09.25
+// 23.09.25
 Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
 
   Static st := "     ", ub := "<u><b>", ue := "</b></u>", sh := 88
@@ -6414,7 +6414,7 @@ Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
   mm_gruppa := { { "I", 1 }, { "II", 2 }, { "III", 3 }, { "IV", 4 }, { "V", 5 } }
   s := st + "15.7. Группа состояния здоровья: " + f3_inf_dds_karta( mm_gruppa, mGRUPPA_DO,, ub, ue )
   frd->( Eval( blk, s ) )
-  s := st + "15.8. Медицинская группа для занятий физической культурой: " + f3_inf_dds_karta( mm_gr_fiz_do, m1GR_FIZ_DO,, ub, ue )
+  s := st + "15.8. Медицинская группа для занятий физической культурой: " + f3_inf_dds_karta( mm_gr_fiz_do(), m1GR_FIZ_DO,, ub, ue )
   frd->( Eval( blk, s ) )
   s := st + "16. Состояние здоровья по результатам проведения настоящего профилактического осмотра:"
   frd->( Eval( blk, s ) )

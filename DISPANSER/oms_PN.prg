@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 22.09.25 ПН - добавление или редактирование случая (листа учета)
+// 23.09.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -36,6 +36,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     { 'да   ', 1 }, ;
     { 'ОТКАЗ', 2 } ;
   }
+  local mm_gr_fiz_do
+  local mm_gr_fiz
+
   local dir_DB // каталог БД
   local work_dir  // текущий рабочий каталог
 
@@ -51,6 +54,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     Endif
   Endif
   chm_help_code := 3002
+
+  Private mvar, m1var, m1lis := 0
   Private mfio := Space( 50 ), mpol, mdate_r, madres, mvozrast, mdvozrast, msvozrast := ' ', ;
     M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
     m1company := 0, mcompany, mm_company, ;
@@ -118,10 +123,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   Private mm_uch1 := AClone( mm_uch )
 
   AAdd( mm_uch1, { 'сан.', 4 } )
-  Private mm_gr_fiz_do := { { 'I', 1 }, { 'II', 2 }, { 'III', 3 }, { 'IV', 4 } }
-  Private mm_gr_fiz := AClone( mm_gr_fiz_do )
-  AAdd( mm_gr_fiz_do, { 'отсутствует', 0 } )
-  AAdd( mm_gr_fiz, { 'не допущен', 0 } )
+
 //  Private mm_invalid2 := { { 'с рождения', 0 }, { 'приобретенная', 1 } }
 //  Private mm_invalid5 := { { 'некоторые инфекционные и паразитарные,', 1 }, ;
 //    { ' из них: туберкулез,', 101 }, ;
@@ -226,7 +228,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   Private mprivivki1, m1privivki1 := 0, ;
     mprivivki2, m1privivki2 := 0, ;
     mprivivki3 := Space( 100 )
-  Private mvar, m1var, m1lis := 0
   Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
   Private mdopo_na, m1dopo_na := 0
   Private mm_dopo_na := arr_mm_dopo_na()
@@ -248,6 +249,14 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
 //, cur_napr := 0, count_napr := 0, mnapr_onk := Space( 10 )
 
+//  Private mm_gr_fiz_do := { { 'I', 1 }, { 'II', 2 }, { 'III', 3 }, { 'IV', 4 } }
+//  Private mm_gr_fiz := AClone( mm_gr_fiz_do )
+
+  mm_gr_fiz_do := mm_gr_fiz_do()
+  mm_gr_fiz := AClone( mm_gr_fiz_do )
+  AAdd( mm_gr_fiz_do, { 'отсутствует', 0 } )
+  AAdd( mm_gr_fiz, { 'не допущен', 0 } )
+  
   arr_osmotr_KDP2 := np_arr_osmotr_KDP2()
   arr_not_zs := np_arr_not_zs() 
   For i := 1 To 5
@@ -277,6 +286,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
     Next
   Next
+/*
   arr_PN_issled := np_arr_issled( Date() )
   For i := 1 To Len( arr_PN_issled ) //count_pn_arr_iss( Date() ) // For i := 1 To count_pn_arr_iss // исследования
     If eq_any( i, 8, 10 )  // гематолог и детский онколог
@@ -302,6 +312,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     mvar := 'MLIS' + lstr( i )
     Private &mvar := inieditspr( A__MENUVERT, mm_kdp2, &m1var ) 
   Next
+*/
 //  For i := 1 To count_pn_arr_osm // осмотры
 /*
   For i := 1 To count_pn_arr_osm( Date() ) // осмотры
@@ -397,6 +408,30 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           read_arr_pn( human->kod, .f. ) // читаем переменную 'mperiod'
           _mperiod := mperiod
           arr_PN_issled := np_arr_issled( human->k_data )
+          For i := 1 To Len( arr_PN_issled ) //count_pn_arr_iss( Date() ) // For i := 1 To count_pn_arr_iss // исследования
+//            If eq_any( i, 8, 10 )  // гематолог и детский онколог
+            m1var := 'M1ONKO' + lstr( i )
+            Private &m1var
+            mvar := 'MONKO' + lstr( i )
+            Private &mvar
+//            Endif
+            mvar := 'MTAB_NOMiv' + lstr( i )
+            Private &mvar
+            mvar := 'MTAB_NOMia' + lstr( i )
+            Private &mvar
+            mvar := 'MDATEi' + lstr( i )
+            Private &mvar
+            mvar := 'MREZi' + lstr( i )
+            Private &mvar
+            mvar := 'MOTKAZi' + lstr( i )
+            Private &mvar
+            mvar := 'M1OTKAZi' + lstr( i )
+            Private &mvar
+            m1var := 'M1LIS' + lstr( i )
+            Private &m1var
+            mvar := 'MLIS' + lstr( i )
+            Private &mvar
+          Next
           arr_PN_osmotr := np_arr_osmotr( human->k_data )
           If _mperiod > 0
             AAdd( arr_prof, { _mperiod, human->n_data, human->k_data } )
@@ -605,6 +640,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Endif
       Next
     Next
+
+
     read_arr_pn( Loc_kod )
     If metap == 1 .and. m1p_otk == 1
       m1step2 := 2

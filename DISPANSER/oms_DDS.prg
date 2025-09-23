@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.09.25 ДДС - добавление или редактирование случая (листа учета)
+// 23.09.25 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -565,7 +565,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
   mstep2 := inieditspr( A__MENUVERT, mm_danet, m1step2 )
   minvalid1 := inieditspr( A__MENUVERT, mm_danet,    m1invalid1 )
   minvalid2 := inieditspr( A__MENUVERT, mm_invalid2(), m1invalid2 )
-  minvalid5 := inieditspr( A__MENUVERT, mm_invalid5, m1invalid5 )
+  minvalid5 := inieditspr( A__MENUVERT, mm_invalid5(), m1invalid5 )
   minvalid6 := inieditspr( A__MENUVERT, mm_invalid6(), m1invalid6 )
   minvalid8 := inieditspr( A__MENUVERT, mm_invalid8(), m1invalid8 )
   mprivivki1 := inieditspr( A__MENUVERT, mm_privivki1(), m1privivki1 )
