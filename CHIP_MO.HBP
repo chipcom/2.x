@@ -220,7 +220,6 @@ mo_version.prg
 
 .\MO\external_mo.prg
 
-.\DISPANSER\disp_init_array.prg
 .\DISPANSER\oms_DVN_setup.prg
 .\DISPANSER\oms_DVN_COVID.prg
 .\DISPANSER\oms_DVN_func_COVID.prg
@@ -228,6 +227,7 @@ mo_version.prg
 .\DISPANSER\oms_DVN_func.prg
 .\DISPANSER\oms_DDS.prg
 .\DISPANSER\oms_DDS_func.prg
+.\DISPANSER\oms_DDS_array.prg
 .\DISPANSER\oms_PN.prg
 .\DISPANSER\oms_PN_func.prg
 .\DISPANSER\oms_PN_array.prg

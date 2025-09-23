@@ -258,7 +258,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   AAdd( mm_gr_fiz, { 'не допущен', 0 } )
   
   arr_osmotr_KDP2 := np_arr_osmotr_KDP2()
-  arr_not_zs := np_arr_not_zs() 
+//  arr_not_zs := np_arr_not_zs() 
   For i := 1 To 5
     For k := 1 To 14
       s := 'diag_15_' + lstr( i ) + '_' + lstr( k )
@@ -408,6 +408,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           read_arr_pn( human->kod, .f. ) // читаем переменную 'mperiod'
           _mperiod := mperiod
           arr_PN_issled := np_arr_issled( human->k_data )
+
+          arr_not_zs := np_arr_not_zs( human->k_data ) 
+
           For i := 1 To Len( arr_PN_issled ) //count_pn_arr_iss( Date() ) // For i := 1 To count_pn_arr_iss // исследования
 //            If eq_any( i, 8, 10 )  // гематолог и детский онколог
             m1var := 'M1ONKO' + lstr( i )
@@ -815,6 +818,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       is_disp_19 := !( mk_data < 0d20191101 )
       arr_PN_issled := np_arr_issled( mk_data )
       arr_PN_osmotr := np_arr_osmotr( mk_data, m1mobilbr )
+      arr_not_zs := np_arr_not_zs( mk_data ) 
+
       mperiod := ret_period_pn( mdate_r, mn_data, mk_data, @s1 )
       s := AllTrim( mfio )
       If mperiod > 0

@@ -829,7 +829,7 @@ Function read_arr_pn( lkod, is_all )
 
   Return Nil
 
-// 21.09.25
+// 23.09.25
 Function is_issled_pn( ausl, _period, arr, _pol, mdata )
 
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
@@ -838,8 +838,8 @@ Function is_issled_pn( ausl, _period, arr, _pol, mdata )
   // if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
   // lshifr := np_arr_not_zs[i, 1]
   // endif
-  If ( i := AScan( np_arr_not_zs(), {| x| x[ 2 ] == lshifr } ) ) > 0
-    lshifr := np_arr_not_zs()[ i, 1 ]
+  If ( i := AScan( np_arr_not_zs( mdata ), {| x| x[ 2 ] == lshifr } ) ) > 0
+    lshifr := np_arr_not_zs( mdata )[ i, 1 ]
   Endif
   For i := 1 To count_pn_arr_iss( mdata )
     If np_arr_issled( mdata )[ i, 1 ] == lshifr
@@ -873,7 +873,7 @@ Function is_osmotr_pn( ausl, _period, arr, _etap, _pol, mdata, mobil )
   Local arr_not_zs
 
   arr_PN_osmotr := np_arr_osmotr( mdata, mobil )
-  arr_not_zs := np_arr_not_zs()
+  arr_not_zs := np_arr_not_zs( mdata )
   If eq_any( Left( lshifr, 4 ), '2.3.', '2.91' )
     fl_profil := .t.
   Elseif _etap == 1
@@ -953,8 +953,8 @@ Function is_1_etap_pn( ausl, _period, _etap, mdata, mobil )
     // if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
     // lshifr := np_arr_not_zs[i, 1]
     // endif
-    If ( i := AScan( np_arr_not_zs(), {| x| x[ 2 ] == lshifr } ) ) > 0
-      lshifr := np_arr_not_zs()[ i, 1 ]
+    If ( i := AScan( np_arr_not_zs( mdata ), {| x| x[ 2 ] == lshifr } ) ) > 0
+      lshifr := np_arr_not_zs( mdata )[ i, 1 ]
     Endif
   Elseif ( i := AScan( np_arr_osmotr_kdp2(), {| x| x[ 2 ] == lshifr } ) ) > 0
     lshifr := np_arr_osmotr_kdp2()[ i, 1 ]
