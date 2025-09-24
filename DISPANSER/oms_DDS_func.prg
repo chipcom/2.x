@@ -3,26 +3,29 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 10.05.16 является врачебным осмотром детей-сирот на первом этапе
+// 24.09.25 является врачебным осмотром детей-сирот на первом этапе
 Function is_osmotr_DDS_1_etap(ausl, _vozrast, _etap, _pol, tip_lu)
   
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, fl := .f., lshifr := alltrim(ausl[1])
+  // ausl - { lshifr,mdate,hu_->profil,hu_->PRVS }
 
+  Local i, fl := .f., lshifr := alltrim(ausl[1])
+  local arr_DDS_osm1
+
+  arr_DDS_osm1 := dds_arr_osm1()
   // вместо услуг "2.87.*" сделаем "2.83.*"
   if tip_lu == TIP_LU_DDSOP .and. left(lshifr, 5) == '2.87.'
     lshifr := '2.83.' + substr(lshifr, 6)
   endif
-  for i := 1 to Len( dds_arr_osm1() )
-    if iif(empty(dds_arr_osm1()[i, 2]), .t., dds_arr_osm1()[i, 2] == mpol) .and. ;
-                           between(_vozrast, dds_arr_osm1()[i, 3], dds_arr_osm1()[i, 4])
+  for i := 1 to Len( arr_DDS_osm1 )
+    if iif( empty( arr_DDS_osm1[ i, 2 ] ), .t., arr_DDS_osm1[ i, 2 ] == _pol ) .and. ;
+                           between(_vozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] )
       if _etap == 1
-        if ascan(dds_arr_osm1()[i, 5], ausl[3]) > 0
+        if ascan( arr_DDS_osm1[ i, 5 ], ausl[ 3 ] ) > 0
           fl := .t.
           exit
         endif
       else
-        if ascan(dds_arr_osm1()[i, 7], lshifr) > 0
+        if ascan( arr_DDS_osm1[ i, 7 ], lshifr ) > 0
           fl := .t.
           exit
         endif
@@ -31,11 +34,17 @@ Function is_osmotr_DDS_1_etap(ausl, _vozrast, _etap, _pol, tip_lu)
   next
   return fl
 
-// 13.02.17 является врачебным осмотром детей-сирот
+// 24.09.25 является врачебным осмотром детей-сирот
 Function is_osmotr_DDS(ausl, _vozrast, arr, _etap, _pol, tip_lu)
   
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  // ausl - { lshifr,mdate,hu_->profil,hu_->PRVS }
+
   Local i, j, s, fl := .f., lshifr := alltrim(ausl[1])
+  local arr_DDS_osm1
+  local arr_DDS_osm2
+
+  arr_DDS_osm1 := dds_arr_osm1()
+  arr_DDS_osm2 := dds_arr_osm2()
 
   // вместо услуг "2.87.*" сделаем "2.83.*"
   if tip_lu == TIP_LU_DDSOP .and. left(lshifr, 5) == '2.87.'
@@ -44,28 +53,28 @@ Function is_osmotr_DDS(ausl, _vozrast, arr, _etap, _pol, tip_lu)
   if _etap == 2 .and. (j := ascan(dds_arr_osmotr_KDP2(), {|x| x[2] == lshifr})) > 0
     lshifr := dds_arr_osmotr_KDP2()[j, 1]
   endif
-  for i := 1 to Len( dds_arr_osm1() )
+  for i := 1 to Len( arr_DDS_osm1 )
     if _etap == 1
-      if ascan(dds_arr_osm1()[i, 5], ausl[3]) > 0
+      if ascan( arr_DDS_osm1[ i, 5 ], ausl[ 3 ] ) > 0
         fl := .t.
         exit
       endif
     else
-      if ascan(dds_arr_osm1()[i, 7], lshifr) > 0
+      if ascan( arr_DDS_osm1[ i, 7 ], lshifr ) > 0
         fl := .t.
         exit
       endif
     endif
   next
   if fl
-    s := '"' + lshifr + '.' + dds_arr_osm1()[i, 1] + '"'
+    s := '"' + lshifr + '.' + arr_DDS_osm1[i, 1] + '"'
     /*if !between(_vozrast,dds_arr_osm1()[i, 3],dds_arr_osm1()[i, 4])
       aadd(arr,'Некорректный возраст пациента для услуги ' + s)
     endif*/
-    if !empty(dds_arr_osm1()[i, 2]) .and. !(dds_arr_osm1()[i, 2] == _pol)
+    if !empty( arr_DDS_osm1[ i, 2 ] ) .and. !( arr_DDS_osm1[ i, 2 ] == _pol)
       aadd(arr, 'Несовместимость по полу в услуге ' + s)
     endif
-    if ascan(dds_arr_osm1()[i, 5], ausl[3]) == 0
+    if ascan( arr_DDS_osm1[ i, 5 ], ausl[ 3 ] ) == 0
       aadd(arr, 'Не тот профиль в услуге ' + s)
     endif
     /*if ascan(dds_arr_osm1()[i, 6],ausl[4]) == 0
@@ -74,19 +83,19 @@ Function is_osmotr_DDS(ausl, _vozrast, arr, _etap, _pol, tip_lu)
     endif*/
   endif
   if !fl .and. _etap == 2
-    for i := 1 to Len( dds_arr_osm2() )
-      if ascan(dds_arr_osm2()[i, 7], lshifr) > 0 .and. ascan(dds_arr_osm2()[i, 5], ausl[3]) > 0
+    for i := 1 to Len( arr_DDS_osm2 )
+      if ascan( arr_DDS_osm2[ i, 7 ], lshifr ) > 0 .and. ascan( arr_DDS_osm2[ i, 5 ], ausl[ 3 ] ) > 0
         fl := .t.
         exit
       endif
     next
     if fl
-      s := '"' + lshifr + '.' + dds_arr_osm2()[i, 1] + '"'
-      if !between(_vozrast, dds_arr_osm2()[i, 3], dds_arr_osm2()[i, 4])
-        aadd(arr, 'Некорректный возраст пациента для услуги ' + s)
+      s := '"' + lshifr + '.' + arr_DDS_osm2[ i, 1 ] + '"'
+      if !between( _vozrast, arr_DDS_osm2[ i, 3 ], arr_DDS_osm2[ i, 4 ] )
+        aadd( arr, 'Некорректный возраст пациента для услуги ' + s )
       endif
-      if ascan(dds_arr_osm2()[i, 5], ausl[3]) == 0
-        aadd(arr, 'Не тот профиль в услуге ' + s)
+      if ascan( arr_DDS_osm2[ i, 5 ], ausl[ 3 ] ) == 0
+        aadd( arr, 'Не тот профиль в услуге ' + s )
       endif
       /*if ascan(dds_arr_osm2()[i, 6],ausl[4]) == 0
         aadd(arr,'Не та специальность врача в услуге ' + s)
@@ -99,22 +108,25 @@ Function is_osmotr_DDS(ausl, _vozrast, arr, _etap, _pol, tip_lu)
 // 13.05.13 является исследованием детей-сирот
 Function is_issl_DDS(ausl, _vozrast, arr)
 
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
+  // ausl - { lshifr,mdate,hu_->profil,hu_->PRVS }
 
-  for i := 1 to Len( dds_arr_iss() )
-    if ascan(dds_arr_iss()[i, 7], lshifr) > 0
+  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
+  local arr_DDS_iss
+
+  arr_DDS_iss := dds_arr_iss()
+  for i := 1 to Len( arr_DDS_iss )
+    if ascan( arr_DDS_iss[ i, 7 ], lshifr ) > 0
       fl := .t.
       exit
     endif
   next
-  if fl .and. valtype(_vozrast) == 'N'
-    s := '"' + lshifr + '.' + dds_arr_iss()[i, 1] + '"'
-    if !between(_vozrast, dds_arr_iss()[i, 3], dds_arr_iss()[i, 4])
-      aadd(arr, 'Некорректный возраст пациента для услуги ' + s)
+  if fl .and. valtype( _vozrast ) == 'N'
+    s := '"' + lshifr + '.' + arr_DDS_iss[ i, 1 ] + '"'
+    if !between( _vozrast, arr_DDS_iss[ i, 3 ], arr_DDS_iss[ i, 4 ] )
+      aadd( arr, 'Некорректный возраст пациента для услуги ' + s )
     endif
-    if ascan(dds_arr_iss()[i, 5],ausl[3]) == 0
-      aadd(arr, 'Не тот профиль в услуге ' + s)
+    if ascan( arr_DDS_iss[ i, 5 ], ausl[ 3 ] ) == 0
+      aadd( arr, 'Не тот профиль в услуге ' + s )
     endif
     /*if ascan(dds_arr_iss()[i, 6],ausl[4]) == 0
       aadd(arr,'Не та специальность врача в услуге ' + s)
