@@ -93,7 +93,6 @@ Function ret_period_pn( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
       Endif
     Endif
   Next
-
   Return lperiod
 
 // 23.09.25
@@ -138,7 +137,6 @@ Function add_pediatr_pn( _pv, _pa, _date, _diag, mpol, mdef_diagnoz, mobil )
     Endif
   Endif
   arr[ 9 ] := _date
-
   Return arr
 
 // 20.09.25 добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
@@ -159,7 +157,6 @@ Function np_oftal_2_85_21( _period, _k_data )
       Endif
     Endif
   Endif
-
   Return Nil
 
 // 20.09.25 вернуть шифр услуги законченного случая для ПН
@@ -207,7 +204,6 @@ Function ret_shifr_zs_pn( _period, mdata )
   Case _period == 31
     lshifr := iif( m1lis > 0, '72.2.63', '72.2.62' ) // 17 лет
   Endcase
-
   Return lshifr
 
 // 07.02.23
@@ -222,7 +218,7 @@ Function fget_spec_deti( k, r, c, a_spec )
     Endif
     Select MOSPEC
     find ( '2.' )
-    Do While Left( mospec->shifr, 2 ) == '2.' .and. !Eof()
+    Do While Left( mospec->shifr, 2 ) == '2.' .and. ! Eof()
       If mospec->vzros_reb == 1 // дети
         If AScan( as, mospec->prvs_new ) == 0
           AAdd( as, mospec->prvs_new )
@@ -238,7 +234,8 @@ Function fget_spec_deti( k, r, c, a_spec )
         as[ i ] := arr_conv_V015_V021[ j, 1 ]                          // в 15-ый справочник
       Endif
     Next
-    dbCreate( n_file, { { 'name', 'C', 30, 0 }, ;
+    dbCreate( n_file, { ;
+      { 'name', 'C', 30, 0 }, ;
       { 'kod', 'C', 4, 0 }, ;
       { 'kod_up', 'C', 4, 0 }, ;
       { 'name1', 'C', 50, 0 }, ;
@@ -316,7 +313,6 @@ Function fget_spec_deti( k, r, c, a_spec )
   Endif
   tmp_ga->( dbCloseArea() )
   Select ( tmp_select )
-
   Return { 1, s }
 
 // 21.09.25
@@ -567,7 +563,6 @@ Function save_arr_pn( lkod )
     Select( oldSelect )
   Endif
   save_arr_dispans( lkod, arr )
-
   Return Nil
 
 // 23.09.25
@@ -826,13 +821,13 @@ Function read_arr_pn( lkod, is_all )
     TPERS->( dbCloseArea() )
     Select( oldSelect )
   Endif
-
   Return Nil
 
 // 23.09.25
 Function is_issled_pn( ausl, _period, arr, _pol, mdata )
 
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  // ausl - {lshifr,mdate,hu_->profil,hu_->PRVS}
+
   Local i, s := '', fl := .f., lshifr := AllTrim( ausl[ 1 ] )
 
   // if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
@@ -860,13 +855,12 @@ Function is_issled_pn( ausl, _period, arr, _pol, mdata )
       AAdd( arr, 'Не тот профиль в иссл-ии ' + s )
     Endif
   Endif
-
   Return fl
 
 // 23.09.25
 Function is_osmotr_pn( ausl, _period, arr, _etap, _pol, mdata, mobil )
 
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  // ausl - {lshifr,mdate,hu_->profil,hu_->PRVS}
 
   Local i, j, s, fl := .f., fl_profil := .f., lshifr := AllTrim( ausl[ 1 ] )
   Local arr_PN_osmotr
@@ -936,13 +930,13 @@ Function is_osmotr_pn( ausl, _period, arr, _etap, _pol, mdata, mobil )
       AAdd( arr, 'Не тот профиль в услуге ' + s )
     Endif
   Endif
-
   Return fl
 
 // 23.09.25 если услуга из 1 этапа
 Function is_1_etap_pn( ausl, _period, _etap, mdata, mobil )
 
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  // ausl - { lshifr,mdate,hu_->profil,hu_->PRVS }
+
   Local i, j, fl := .f., fl_profil := .f., lshifr := AllTrim( ausl[ 1 ] )
   Local arr_PN_osmotr
 
@@ -988,10 +982,9 @@ Function is_1_etap_pn( ausl, _period, _etap, mdata, mobil )
   If fl
     fl := ( AScan( np_arr_1_etap( mData, mobil )[ _period, 4 ], lshifr ) > 0 )
   Endif
-
   Return fl
 
-// 21.09.25
+// 24.09.25
 Function f_blank_usl_pn()
 
   Static arrv := { ;
@@ -1021,12 +1014,11 @@ Function f_blank_usl_pn()
       'Вклыдыши услуг к л/у профилактики несовершеннолетних', 'B/W', color5 ) ) > 0
     dbCreate( fr_titl, { { 'name', 'C', 130, 0 } } )
     Use ( fr_titl ) New Alias FRT
-    Append Blank
+    frt->( dbAppend() )
     frt->name := ret_arr[ 1 ]
     dbCreate( fr_data, { { 'name', 'C', 100, 0 } } )
     Use ( fr_data ) New Alias FRD
     np_oftal_2_85_21( mperiod, 0d20180901 )
-    // ar := np_arr_1_etap[ mperiod ]
     ar := np_arr_1_etap( Date() )[ mperiod ]
     If !Empty( ar[ 5 ] ) // не пустой массив исследований
       For i := 1 To count_pn_arr_iss( Date() )
@@ -1038,7 +1030,7 @@ Function f_blank_usl_pn()
           If ValType( np_arr_issled( Date() )[ i, 2 ] ) == 'C'
             s += ' (' + iif( np_arr_issled( Date() )[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
           Endif
-          Append Blank
+          frd->( dbAppend() )
           frd->name := s
         Endif
       Next
@@ -1053,18 +1045,17 @@ Function f_blank_usl_pn()
         // If ValType( np_arr_osmotr[ i, 2 ] ) == 'C'
         // s += ' (' + iif( np_arr_osmotr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
         // Endif
-
         If AScan( ar[ 4 ], arr[ i, 1 ] ) > 0
           s := arr[ i, 3 ]
           If ValType( arr[ i, 2 ] ) == 'C'
             s += ' (' + iif( arr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
           Endif
-          Append Blank
+          frd1->( dbAppend() )
           frd1->name := s
         Endif
       Next
     Endif
-    Append Blank
+    frd1->( dbAppend() )
     frd1->name := 'педиатр (врач общей практики)'
     dbCreate( fr_data + '2', { { 'name', 'C', 100, 0 } } )
     Use ( fr_data + '2' ) New Alias FRD2
@@ -1080,15 +1071,14 @@ Function f_blank_usl_pn()
         If ValType( arr[ i, 2 ] ) == 'C'
           s += ' (' + iif( arr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
         Endif
-        Append Blank
+        frd2->( dbAppend() )
         frd2->name := s
       Endif
     Next
-    Append Blank
+    frd2->( dbAppend() )
     frd2->name := 'педиатр (врач общей практики)'
-    Close databases
+    dbCloseAll()
     call_fr( 'mo_b_pn1' )
   Enddo
   RestScreen( buf )
-
   Return Nil
