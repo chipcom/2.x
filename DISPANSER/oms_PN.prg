@@ -42,6 +42,12 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   local dir_DB // каталог БД
   local work_dir  // текущий рабочий каталог
 
+  local arr_iss  
+  local arr_lis2
+  local arr_usl_dop
+  local arr_osm1
+  local bukva
+  local arr_etap
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0, f_print To ''
@@ -238,7 +244,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
   Private mnapr_stac, m1napr_stac := 0, mm_napr_stac := arr_mm_napr_stac(), ;
     mprofil_stac, m1profil_stac := 0
-  Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0, arr_usl_otkaz := {}
+  Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
+  Private arr_usl_otkaz := {}
   Private mm_otkaz := { { 'выпол.', 0 }, { 'ОТКАЗ ', 1 } }, is_neonat := .f.
 
   Private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
@@ -286,15 +293,15 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
     Next
   Next
-/*
-  arr_PN_issled := np_arr_issled( Date() )
-  For i := 1 To Len( arr_PN_issled ) //count_pn_arr_iss( Date() ) // For i := 1 To count_pn_arr_iss // исследования
-    If eq_any( i, 8, 10 )  // гематолог и детский онколог
+
+//  arr_PN_issled := np_arr_issled( Date() )
+  For i := 1 To 30
+//    If eq_any( i, 8, 10 )  // гематолог и детский онколог
       m1var := 'M1ONKO' + lstr( i )
       Private &m1var := 0
       mvar := 'MONKO' + lstr( i )
       Private &mvar := inieditspr( A__MENUVERT, mm_vokod(), &m1var )
-    Endif
+//    Endif
     mvar := 'MTAB_NOMiv' + lstr( i )
     Private &mvar := 0
     mvar := 'MTAB_NOMia' + lstr( i )
@@ -312,10 +319,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     mvar := 'MLIS' + lstr( i )
     Private &mvar := inieditspr( A__MENUVERT, mm_kdp2, &m1var ) 
   Next
-*/
-//  For i := 1 To count_pn_arr_osm // осмотры
-/*
-  For i := 1 To count_pn_arr_osm( Date() ) // осмотры
+
+  For i := 1 To 30 // осмотры
     mvar := 'MTAB_NOMov' + lstr( i )
     Private &mvar := 0
     mvar := 'MTAB_NOMoa' + lstr( i )
@@ -343,7 +348,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     mvar := 'M1OTKAZp' + lstr( i )
     Private &mvar := mm_otkaz[ 1, 2 ]
   Next
-*/
+
   //
   AFill( adiag_talon, 0 )
   //
@@ -410,7 +415,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           arr_PN_issled := np_arr_issled( human->k_data )
 
           arr_not_zs := np_arr_not_zs( human->k_data ) 
-
+/*
           For i := 1 To Len( arr_PN_issled ) //count_pn_arr_iss( Date() ) // For i := 1 To count_pn_arr_iss // исследования
 //            If eq_any( i, 8, 10 )  // гематолог и детский онколог
             m1var := 'M1ONKO' + lstr( i )
@@ -435,6 +440,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             mvar := 'MLIS' + lstr( i )
             Private &mvar
           Next
+*/
           arr_PN_osmotr := np_arr_osmotr( human->k_data, m1mobilbr )
           If _mperiod > 0
             AAdd( arr_prof, { _mperiod, human->n_data, human->k_data } )
@@ -464,7 +470,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     Enddo
     Set Index To
   Endif
-  If Loc_kod > 0  // запись вHUMAN.DBF уже существует (существует лист учета)
+  If Loc_kod > 0  // запись в HUMAN.DBF уже существует (существует лист учета)
     Select HUMAN
     Goto ( Loc_kod )
     M1LPU       := human->LPU
@@ -503,12 +509,53 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     If metap == 2
       m1step2 := 1
     Endif
-    arr_PN_osmotr := np_arr_osmotr( mk_data, m1mobilbr )
+
+
+//          arr_PN_issled := np_arr_issled( human->k_data )
+//          arr_not_zs := np_arr_not_zs( human->k_data ) 
+/*
+          For i := 1 To Len( arr_PN_issled ) //count_pn_arr_iss( Date() ) // For i := 1 To count_pn_arr_iss // исследования
+//            If eq_any( i, 8, 10 )  // гематолог и детский онколог
+            m1var := 'M1ONKO' + lstr( i )
+            Private &m1var
+            mvar := 'MONKO' + lstr( i )
+            Private &mvar
+//            Endif
+            mvar := 'MTAB_NOMiv' + lstr( i )
+            Private &mvar
+            mvar := 'MTAB_NOMia' + lstr( i )
+            Private &mvar
+            mvar := 'MDATEi' + lstr( i )
+            Private &mvar
+            mvar := 'MREZi' + lstr( i )
+            Private &mvar
+            mvar := 'MOTKAZi' + lstr( i )
+            Private &mvar
+            mvar := 'M1OTKAZi' + lstr( i )
+            Private &mvar
+            m1var := 'M1LIS' + lstr( i )
+            Private &m1var
+            mvar := 'MLIS' + lstr( i )
+            Private &mvar
+          Next
+*/
+
+          read_arr_pn( Loc_kod )
+
+          arr_not_zs := np_arr_not_zs( human->k_data ) 
+          arr_PN_issled := np_arr_issled( human->k_data )
+          arr_PN_osmotr := np_arr_osmotr( human->k_data, m1mobilbr )
+
+          arr_etap := np_arr_1_etap( mk_data, m1mobilbr )[ mperiod ]
+//    arr_PN_osmotr := np_arr_osmotr( mk_data, m1mobilbr )
+//    arr_PN_issled := np_arr_issled( mk_data )
     //
-    larr_i := Array( Len( arr_PN_issled ) ) // count_pn_arr_iss( mk_data ) )  // Array( count_pn_arr_iss )
-    AFill( larr_i, 0 )
-    larr_o := Array( Len( arr_PN_osmotr ) ) //count_pn_arr_osm( mk_data ) )
-    AFill( larr_o, 0 )
+//    larr_i := Array( Len( arr_PN_issled ) )
+    larr_i := Array( Len( arr_etap[ 5 ] ) )
+    AFill( larr_i, 0 )  // исследования
+//    larr_o := Array( Len( arr_PN_osmotr ) )
+    larr_o := Array( Len( arr_etap[ 4 ] ) )
+    AFill( larr_o, 0 )  // осмотр
     larr_p := {}
     mdate1 := mdate2 := CToD( '' )
     r_use( dir_DB + 'uslugi', , 'USL' )
@@ -531,12 +578,12 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         ++m1usl2
       Else
         fl := .t.
-        For i := 1 To Len( arr_PN_issled ) // count_pn_arr_iss( mk_data ) // count_pn_arr_iss
-          If arr_PN_issled[ i, 1 ] == lshifr  // np_arr_issled[ i, 1 ] == lshifr
+//        For i := 1 To Len( arr_PN_issled )
+        For i := 1 To Len( arr_etap[ 5 ] )
+          If arr_PN_issled[ i, 1 ] == lshifr
             fl := .f.
             larr_i[ i ] := hu->( RecNo() )
             Exit
-//          Elseif ( j := AScan( np_arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 .and. np_arr_issled[ i, 1 ] == np_arr_not_zs[ j, 1 ]
           Elseif ( j := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 .and. arr_PN_issled[ i, 1 ] == arr_not_zs[ j, 1 ]
             fl := .f.
             larr_i[ i ] := hu->( RecNo() )
@@ -544,17 +591,14 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           Endif
         Next
         If fl
-//          For i := 1 To count_pn_arr_osm( mk_data )
-//            If Left( np_arr_osmotr[ i, 1 ], 4 ) == '2.4.'
-//              If lshifr == np_arr_osmotr[ i, 1 ]
-          For i := 1 To Len( arr_PN_osmotr )
+//          For i := 1 To Len( arr_PN_osmotr )
+          For i := 1 To Len( arr_etap[ 4 ] )
             If Left( arr_PN_osmotr[ i, 1 ], 4 ) == '2.4.'
               If lshifr == arr_PN_osmotr[ i, 1 ]
                 fl := .f.
                 larr_o[ i ] := hu->( RecNo() )
                 Exit
               Endif
-//            Elseif f_profil_ginek_otolar( np_arr_osmotr[ i, 4 ], hu_->PROFIL )
             Elseif f_profil_ginek_otolar( arr_PN_osmotr[ i, 4 ], hu_->PROFIL )
               fl := .f.
               larr_o[ i ] := hu->( RecNo() )
@@ -619,8 +663,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             m1var := 'm1lis' + lstr( i )
             If is_disp_19
               &m1var := 0
-//            Elseif glob_yes_kdp2()[ TIP_LU_PN ] .and. AScan( glob_arr_usl_LIS, np_arr_issled[ i, 1 ] ) > 0 .and. hu->is_edit > 0
-            Elseif glob_yes_kdp2()[ TIP_LU_PN ] .and. AScan( glob_arr_usl_LIS, arr_PN_issled[ i, 1 ] ) > 0 .and. hu->is_edit > 0
+            Elseif glob_yes_kdp2()[ TIP_LU_PN ] .and. AScan( glob_arr_usl_LIS(), arr_PN_issled[ i, 1 ] ) > 0 .and. hu->is_edit > 0
               &m1var := hu->is_edit
             Endif
             mvar := 'mlis' + lstr( i )
@@ -656,7 +699,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             ValType( ar[ 10 ] ) == 'C' .and. ar[ 10 ] $ 'io'
           lshifr := AllTrim( ar[ 5 ] )
           bukva := ar[ 10 ]
-//          If ( i := AScan( iif( bukva == 'i', np_arr_issled, np_arr_osmotr ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
           If ( i := AScan( iif( bukva == 'i', arr_PN_issled, arr_PN_osmotr ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
             If ValType( ar[ 1 ] ) == 'N' .and. ar[ 1 ] > 0
               p2->( dbGoto( ar[ 1 ] ) )
@@ -788,6 +830,69 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   SetColor( cDataCGet )
   make_diagp( 1 )  // сделать 'шестизначные' диагнозы
   Private num_screen := 1
+
+      arr_PN_issled := np_arr_issled( mk_data )
+      arr_PN_osmotr := np_arr_osmotr( mk_data, m1mobilbr )
+      arr_not_zs := np_arr_not_zs( mk_data ) 
+
+/*      For i := 1 To Len( arr_PN_osmotr )  // осмотры
+        mvar := 'MTAB_NOMov' + lstr( i )
+        Private &mvar := 0
+        mvar := 'MTAB_NOMoa' + lstr( i )
+        Private &mvar := 0
+        mvar := 'MDATEo' + lstr( i )
+        Private &mvar := CToD( '' )
+        mvar := 'MKOD_DIAGo' + lstr( i )
+        Private &mvar := Space( 6 )
+        mvar := 'MOTKAZo' + lstr( i )
+        Private &mvar := mm_otkaz[ 1, 1 ]
+        mvar := 'M1OTKAZo' + lstr( i )
+        Private &mvar := mm_otkaz[ 1, 2 ]
+      Next
+
+          For i := 1 To Len( arr_PN_issled ) // исследования
+//            If eq_any( i, 8, 10 )  // гематолог и детский онколог
+            m1var := 'M1ONKO' + lstr( i )
+            Private &m1var
+            mvar := 'MONKO' + lstr( i )
+            Private &mvar
+//            Endif
+            mvar := 'MTAB_NOMiv' + lstr( i )
+            Private &mvar
+              Private &mvar := 0
+            mvar := 'MTAB_NOMia' + lstr( i )
+            Private &mvar
+              Private &mvar := 0
+            mvar := 'MDATEi' + lstr( i )
+            Private &mvar
+            mvar := 'MREZi' + lstr( i )
+            Private &mvar
+            mvar := 'MOTKAZi' + lstr( i )
+            Private &mvar
+            mvar := 'M1OTKAZi' + lstr( i )
+            Private &mvar
+            m1var := 'M1LIS' + lstr( i )
+            Private &m1var
+            mvar := 'MLIS' + lstr( i )
+            Private &mvar
+          Next
+*/
+/*
+      For i := 1 To 2                // педиатр(ы)
+        mvar := 'MTAB_NOMpv' + lstr( i )
+        Private &mvar := 0
+        mvar := 'MTAB_NOMpa' + lstr( i )
+        Private &mvar := 0
+        mvar := 'MDATEp' + lstr( i )
+        Private &mvar := CToD( '' )
+        mvar := 'MKOD_DIAGp' + lstr( i )
+        Private &mvar := Space( 6 )
+        mvar := 'MOTKAZp' + lstr( i )
+        Private &mvar := mm_otkaz[ 1, 1 ]
+        mvar := 'M1OTKAZp' + lstr( i )
+        Private &mvar := mm_otkaz[ 1, 2 ]
+      Next
+*/      
   Do While .t.
     dbCloseAll()
     DispBegin()
@@ -923,12 +1028,12 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           Else
             If i > 0
               del_array( ar[ 4 ], i )
+            Endif
           Endif
         Endif
-      Endif
-
       endif
-      For i := 1 To Len( arr_PN_osmotr )  //count_pn_arr_osm // осмотры
+/*
+      For i := 1 To Len( arr_PN_osmotr )  // осмотры
         mvar := 'MTAB_NOMov' + lstr( i )
         Private &mvar := 0
         mvar := 'MTAB_NOMoa' + lstr( i )
@@ -942,6 +1047,35 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         mvar := 'M1OTKAZo' + lstr( i )
         Private &mvar := mm_otkaz[ 1, 2 ]
       Next
+*/
+/*
+          For i := 1 To Len( arr_PN_issled ) //count_pn_arr_iss( Date() ) // For i := 1 To count_pn_arr_iss // исследования
+//            If eq_any( i, 8, 10 )  // гематолог и детский онколог
+            m1var := 'M1ONKO' + lstr( i )
+            Private &m1var
+            mvar := 'MONKO' + lstr( i )
+            Private &mvar
+//            Endif
+            mvar := 'MTAB_NOMiv' + lstr( i )
+            Private &mvar
+              Private &mvar := 0
+            mvar := 'MTAB_NOMia' + lstr( i )
+            Private &mvar
+              Private &mvar := 0
+            mvar := 'MDATEi' + lstr( i )
+            Private &mvar
+            mvar := 'MREZi' + lstr( i )
+            Private &mvar
+            mvar := 'MOTKAZi' + lstr( i )
+            Private &mvar
+            mvar := 'M1OTKAZi' + lstr( i )
+            Private &mvar
+            m1var := 'M1LIS' + lstr( i )
+            Private &m1var
+            mvar := 'MLIS' + lstr( i )
+            Private &mvar
+          Next
+
       For i := 1 To 2                // педиатр(ы)
         mvar := 'MTAB_NOMpv' + lstr( i )
         Private &mvar := 0
@@ -956,34 +1090,24 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         mvar := 'M1OTKAZp' + lstr( i )
         Private &mvar := mm_otkaz[ 1, 2 ]
       Next
-
+*/
       If !Empty( ar[ 5 ] ) // не пустой массив исследований
         @ ++j, 1 Say 'I этап наименований исследований       Врач Ассис.  Дата     Выполнение Результат' Color 'RB+/B'
         If mem_por_ass == 0
           @ j, 45 Say Space( 6 )
         Endif
         not_hormon := .t.
-        For i := 1 To Len( arr_PN_issled ) // count_pn_arr_iss( mk_data ) // count_pn_arr_iss
+        For i := 1 To Len( arr_PN_issled )
           fl := .t.
-          If fl .and. !Empty( arr_PN_issled[ i, 2 ] ) // fl .and. !Empty( np_arr_issled[ i, 2 ] )
-            fl := ( mpol == np_arr_issled[ i, 2 ] )
+          If fl .and. !Empty( arr_PN_issled[ i, 2 ] )
+            fl := ( mpol == arr_PN_issled[ i, 2 ] )
           Endif
           If fl
-            fl := ( AScan( ar[ 5 ], arr_PN_issled[ i, 1 ] ) > 0 ) // ( AScan( ar[ 5 ], np_arr_issled[ i, 1 ] ) > 0 )
+            fl := ( AScan( ar[ 5 ], arr_PN_issled[ i, 1 ] ) > 0 )
           Endif
-          /*//if fl .and. np_arr_issled[i, 4] == 1 // гормон
-          if fl .and. arr_PN_issled[i, 4] == 1 // гормон
-            if not_hormon
-         ++j; @ j, 1 say padr('Исследование уровня гормонов в крови', 38) color color8
-              @ j, 39 get mhormon ;
-                 reader {|x| menu_reader(x, {{|k,r,c| get_hormon_pn(k,r,c)}},A__FUNCTION,,, .f.)}
-            endif
-            fl := not_hormon := .f.
-          endif*/
           If fl
             fl_kdp2 := .f.
-//            If !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_PN ] .and. AScan( glob_arr_usl_LIS, np_arr_issled[ i, 1 ] ) > 0
-            If !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_PN ] .and. AScan( glob_arr_usl_LIS, arr_PN_issled[ i, 1 ] ) > 0
+            If !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_PN ] .and. AScan( glob_arr_usl_LIS(), arr_PN_issled[ i, 1 ] ) > 0
               fl_kdp2 := .t.
             Endif
             mvarv := 'MTAB_NOMiv' + lstr( i )
@@ -995,7 +1119,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             If Empty( &mvard )
               &mvard := mn_data
             Endif
-            @ ++j, 1 Say PadR( arr_PN_issled[ i, 3 ], 38 )  // @ ++j, 1 Say PadR( np_arr_issled[ i, 3 ], 38 )
+            @ ++j, 1 Say PadR( arr_PN_issled[ i, 3 ], 38 )
             If fl_kdp2
               @ j, 34 get &mvarlis reader {| x| menu_reader( x, mm_kdp2, A__MENUVERT, , , .f. ) }
             Endif
@@ -1014,7 +1138,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         @ j, 45 Say Space( 6 )
       Endif
       If !Empty( ar[ 4 ] ) // не пустой массив осмотров
-        For i := 1 To Len( arr_PN_osmotr )  // count_pn_arr_osm
+        For i := 1 To Len( arr_etap[ 4 ] )  // Len( arr_PN_osmotr )
           fl := .t.
 //          If fl .and. !Empty( np_arr_osmotr[ i, 2 ] )
 //            fl := ( mpol == np_arr_osmotr[ i, 2 ] )
@@ -1082,7 +1206,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       If mem_por_ass == 0
         @ j, 45 Say Space( 6 )
       Endif
-      For i := 1 To Len( arr_PN_osmotr )  // count_pn_arr_osm
+      For i := 1 To Len( arr_PN_osmotr )
         fl := .t.
         If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] ) // fl .and. !Empty( np_arr_osmotr[ i, 2 ] )
           fl := ( mpol == arr_PN_osmotr[ i, 2 ] ) // fl := ( mpol == np_arr_osmotr[ i, 2 ] )
@@ -1499,7 +1623,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Else
         mdef_diagnoz := 'Z00.3 '
       Endif
-      arr_iss := Array( Len( arr_PN_issled ), 10 ) //count_pn_arr_iss( mk_data ), 10 ) // Array( count_pn_arr_iss, 10 )
+      arr_iss := Array( Len( arr_PN_issled ), 10 )
       afillall( arr_iss, 0 )
       r_use( dir_exe() + '_mo_mkb', work_dir + '_mo_mkb', 'MKB_10' )
       r_use( dir_DB + 'mo_pers', dir_DB + 'mo_pers', 'P2' )
@@ -1571,7 +1695,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               Endif
             Endif
           Else
-//            arr_iss[ i, 2 ] := -ret_new_spec( np_arr_issled[ i, 6, 1 ] )
             arr_iss[ i, 2 ] := -ret_new_spec( arr_PN_issled[ i, 6, 1 ] )
             arr_iss[ i, 10 ] := &m1var // кровь проверяют в КДП2 или в РДЛ
           Endif
@@ -1611,7 +1734,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Loop
       Endif
       fl := .t.
-//      arr_osm1 := Array( count_pn_arr_osm, 10 )
       arr_osm1 := Array( Len( arr_PN_osmotr ), 10 )
       afillall( arr_osm1, 0 )
       For i := 1 To Len( arr_PN_osmotr )  // count_pn_arr_osm
@@ -1926,7 +2048,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       arr_usl_dop := {}
       arr_usl_otkaz := {}
       If !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_PN ]
-        For i := 1 To Len( arr_PN_issled ) // count_pn_arr_iss( mk_data ) // For i := 1 To count_pn_arr_iss
+        For i := 1 To Len( arr_PN_issled )
           If ValType( arr_iss[ i, 9 ] ) == 'D' .and. arr_iss[ i, 9 ] >= mn_data .and. Len( arr_iss[ i ] ) > 9 ;
               .and. ValType( arr_iss[ i, 10 ] ) == 'N' .and. eq_any( arr_iss[ i, 10 ], 1, 2 )
             m1lis := arr_iss[ i, 10 ] // в рамках диспансеризации
@@ -1947,9 +2069,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
                 arr_iss[ i, 10 ] == 0 .and. ; // услуга не в КДП2
                 Between( arr_iss[ i, 9 ], mn_data, mk_data ) .and. ; // умещается в период
                 ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
-//                ( j := AScan( np_arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
                 arr := AClone( arr_iss[ i ] )  // добавим
-//                arr[ 5 ] := np_arr_not_zs[ j, 2 ] // шифр исследования
                 arr[ 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
                 AAdd( arr_usl_dop, arr )          // с ценой
               Endif
@@ -1963,8 +2083,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               AAdd( arr_usl_otkaz, arr_osm1[ i ] )
             Else
               lshifr := AllTrim( arr_osm1[ i, 5 ] )
-//              If ( j := AScan( np_arr_osmotr_KDP2, {| x| x[ 1 ] == lshifr } ) ) > 0
-//                arr_osm1[ i, 5 ] := np_arr_osmotr_KDP2[ j, 3 ]  // замена на 2.3.*
               If ( j := AScan( arr_osmotr_KDP2, {| x| x[ 1 ] == lshifr } ) ) > 0
                 arr_osm1[ i, 5 ] := arr_osmotr_KDP2[ j, 3 ]  // замена на 2.3.*
               Endif
@@ -1973,7 +2091,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
                 Between( arr_osm1[ i, 9 ], mn_data, mk_data ) ; // и умещается в период
                 .and. j > 0  // и найдено соответствие
                 arr := AClone( arr_osm1[ i ] )       // добавим
-//                arr[ 5 ] := np_arr_osmotr_KDP2[ j, 4 ]  // замена на 2.91.*
                 arr[ 5 ] := arr_osmotr_KDP2[ j, 4 ]  // замена на 2.91.*
                 AAdd( arr_usl_dop, arr )             // с ценой
               Endif
@@ -2017,9 +2134,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               If arr_iss[ i, 10 ] == 0 ; // кровь проверяют у нас в МО
                 .and. Between( arr_iss[ i, 9 ], mn_data, mk_data ) .and. ; // и в сроки профосмотра
                 ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
-//                ( j := AScan( np_arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
                 arr := AClone( arr_iss[ i ] )  // добавим
-//                arr[ 5 ] := np_arr_not_zs[ j, 2 ] // шифр исследования
                 arr[ 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
                 AAdd( arr_usl_dop, arr )          // с ценой
               Endif
@@ -2034,9 +2149,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               AAdd( arr_usl_otkaz, arr_osm1[ i ] )
             Else
               lshifr := AllTrim( arr_osm1[ i, 5 ] )
-//              If ( j := AScan( np_arr_osmotr_KDP2, {| x| x[ 1 ] == lshifr } ) ) > 0
-//                arr_osm1[ i, 5 ] := np_arr_osmotr_KDP2[ j, 3 ]  // замена на 2.3.*
-//              Endif
               If ( j := AScan( arr_osmotr_KDP2, {| x| x[ 1 ] == lshifr } ) ) > 0
                 arr_osm1[ i, 5 ] := arr_osmotr_KDP2[ j, 3 ]  // замена на 2.3.*
               Endif
@@ -2044,7 +2156,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               If Between( arr_osm1[ i, 9 ], mn_data, mk_data ) ; // и умещается в период
                 .and. j > 0  // и найдено соответствие
                 arr := AClone( arr_osm1[ i ] )       // добавим
-//                arr[ 5 ] := np_arr_osmotr_KDP2[ j, 4 ]  // замена на 2.91.*
                 arr[ 5 ] := arr_osmotr_KDP2[ j, 4 ]  // замена на 2.91.*
                 AAdd( arr_usl_dop, arr )             // с ценой
               Endif
@@ -2069,9 +2180,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               If arr_osm2[ i, 10 ] == 3 // если услуга оказана в ВОКОД
                 arr_osm2[ i, 5 ] := '2.3.1'
               Endif
-//              If !Empty( arr_lis2 ) .and. ( j := AScan( np_arr_osmotr_KDP2, {| x| x[ 1 ] == lshifr } ) ) > 0
-//                arr_osm2[ i, 5 ] := np_arr_osmotr_KDP2[ j, 2 ] // услуги заменим на аналогичные шифры без гематологии
-//              Endif
               If !Empty( arr_lis2 ) .and. ( j := AScan( arr_osmotr_KDP2, {| x| x[ 1 ] == lshifr } ) ) > 0
                 arr_osm2[ i, 5 ] := arr_osmotr_KDP2[ j, 2 ] // услуги заменим на аналогичные шифры без гематологии
               Endif

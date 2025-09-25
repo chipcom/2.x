@@ -321,6 +321,7 @@ Function save_arr_pn( lkod )
   Local arr := {}, k, ta
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
   Local oldSelect
+  local i
 
   If ! aliasIsUse
     oldSelect := Select()
@@ -471,8 +472,9 @@ Function save_arr_pn( lkod )
   If !Empty( mrek_disp )
     AAdd( arr, { '16.12', AllTrim( mrek_disp ) } ) // Рекомендации по диспансерному наблюдению, лечению, медицинской реабилитации и санаторно-курортному лечению с указанием диагноза (код МКБ), вида медицинской организации и специальности (должности) врача
   Endif
+altd()
   // 18.результаты проведения исследований
-  For i := 1 To count_pn_arr_iss( mk_data )
+  For i := 1 To len( np_arr_issled( mk_data ) ) //count_pn_arr_iss( mk_data )
     mvar := 'MREZi' + lstr( i )
     If !Empty( &mvar )
       AAdd( arr, { '18.' + lstr( i ), AllTrim( &mvar ) } )
@@ -1024,7 +1026,7 @@ Function f_blank_usl_pn()
       For i := 1 To count_pn_arr_iss( Date() )
         If AScan( ar[ 5 ], np_arr_issled( Date() )[ i, 1 ] ) > 0
           s := np_arr_issled( Date() )[ i, 3 ]
-          // if ascan(glob_arr_usl_LIS,np_arr_issled( Date() )[i, 1]) > 0
+          // if ascan(glob_arr_usl_LIS(),np_arr_issled( Date() )[i, 1]) > 0
           // s += '    <b><i>в МО / в КДП2</b></i>'
           // endif
           If ValType( np_arr_issled( Date() )[ i, 2 ] ) == 'C'

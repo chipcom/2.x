@@ -341,43 +341,31 @@ function kod_LIS()
 function mm_danet()
   return { { 'нет', 0 }, { 'да ', 1 } }
 
-// 11.09.25
-function hColor()
-
-  static hashColor
-
-  if HB_ISNIL( hashColor )
-    hashColor := { => }
-    hb_HCaseMatch( hashColor, .f. )
-    hashColor[ 'color0' ] := 'N/BG, W+/N'
-    hashColor[ 'color1' ] := 'W+/B, W+/R'
-    hashColor[ 'color_uch' ] := 'B/BG, W+/B'
-    hashColor[ 'col_tit_uch' ] := 'B+/BG'
-    hashColor[ 'col1menu' ] := 'N/BG, W+/N, B/BG, BG+/N'
-    hashColor[ 'col2menu' ] := 'N/BG, W+/N, B/BG, BG+/N'
-    hashColor[ 'col_tit_popup' ] := 'B/BG'
-    //
-    hashColor[ 'cColorStMsg' ] := 'W+/R, , , , B/W'                 // Stat_msg
-    hashColor[ 'cColorSt1Msg' ] := 'W+/R, , , , B/W'                // Stat_msg
-    hashColor[ 'cColorSt2Msg' ] := 'GR+/R, , , , B/W'               // Stat_msg
-    hashColor[ 'cColorWait' ] := 'W+/R*, , , , B/W'                 // Ждите
-    //
-    hashColor[ 'cCalcMain' ] := 'N/W, GR+/R'                     // Калькулятор
-    //
-    hashColor[ 'cColorText' ] := 'W+/N, BG+/N, , , B/W'
-    //
-    hashColor[ 'cHelpCMain' ] := 'W+/RB, W+/N, , , B/W'             // Помощь
-    hashColor[ 'cHelpCTitle' ] := 'G+/RB'
-    hashColor[ 'cHelpCStatus' ] := 'BG+/RB'
-    // Ввод данных
-    hashColor[ 'cDataCScr' ]  := 'W+/B, B/BG'
-    hashColor[ 'cDataCGet' ]  := 'W+/B, W+/R, , , BG+/B'
-    hashColor[ 'cDataCSay' ]  := 'BG+/B, W+/R, , , BG+/B'
-    hashColor[ 'cDataCMenu' ] := 'N/BG, W+/N, , , B/W'
-    hashColor[ 'cDataPgDn' ]  := 'BG/B'
-    hashColor[ 'color5' ]     := 'N/W, GR+/R, , , B/W'
-    hashColor[ 'color8' ]     := 'GR+/B, W+/R'
-    hashColor[ 'color13' ]    := 'W/B, W+/R, , , BG+/B'             // некотоpое выделение
-    hashColor[ 'color14' ]    := 'G+/B, W+/R'
-  endif
-  return hashColor
+// 25.09.25
+function glob_arr_usl_LIS()
+  
+  local arr_usl_LIS
+  
+  arr_usl_LIS := { ;
+    '4.11.136', ;// "Клинический анализ крови (развёрнутый)"
+    '4.11.137', ;// "Клинический анализ крови (3 показателя)"
+    '4.12.169', ;// "Исследование уровня глюкозы в крови"
+    '4.12.170', ;// "Определение гликированного гемоглобина крови"
+    '4.12.171', ;// "Тест на толерантность к глюкозе"
+    '4.12.172', ;// "Биохимический общетерапевтическ.анализ крови"
+    '4.12.173', ;// "Исследование липидного спектра крови"
+    '4.12.174', ;// "Исследование крови на общий холестерин"
+    '4.14.66', ;// "Кровь на простат-специфический антиген"
+    '4.14.67', ;// "пролактин (гормон)"
+    '4.14.68', ;// "фолликулостимулирующий гормон"
+    '4.14.69', ;// "лютеинизирующий гормон"
+    '4.14.70', ;// "эстрадиол (гормон)"
+    '4.14.71', ;// "прогестерон (гормон)"
+    '4.14.72', ;// "тиреотропный гормон"
+    '4.14.73', ;// "трийодтиронин (гормон)"
+    '4.14.74', ;// "тироксин (гормон)"
+    '4.14.75', ;// "соматотропный гормон"
+    '4.14.76', ;// "кортизол (гормон)"
+    '4.14.77' ; // "тестостерон (гормон)"
+  }
+  return arr_usl_LIS
