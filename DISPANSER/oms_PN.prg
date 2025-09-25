@@ -923,9 +923,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           Else
             If i > 0
               del_array( ar[ 4 ], i )
+            Endif
           Endif
         Endif
-      Endif
 
       endif
       For i := 1 To Len( arr_PN_osmotr )  //count_pn_arr_osm // осмотры

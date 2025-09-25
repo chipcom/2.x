@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 23.09.25
+// 25.09.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -3535,7 +3535,7 @@ Function verify_sluch( fl_view )
       If au_lu[ i, 2 ] > dEnd
         AAdd( ta, 'услуга ' + au_lu[ i, 5 ] + '(' + date_8( au_lu[ i, 2 ] ) + ') не попадает в диапазон лечения' )
       Endif
-      If is_issl_dds( au_lu[ i ], mvozrast, ta )
+      If is_issl_dds( au_lu[ i ], mvozrast, ta, human->K_DATA )
         s := 'услуга ' + au_lu[ i, 5 ] + '(' + date_8( au_lu[ i, 2 ] ) + ')'
         If AllTrim( au_lu[ i, 1 ] ) == '7.61.3'
           If au_lu[ i, 2 ] < AddMonth( dBegin, -12 )
@@ -3555,7 +3555,7 @@ Function verify_sluch( fl_view )
         Endif
       Else
         s := 'услуга ' + au_lu[ i, 5 ] + '-' + inieditspr( A__MENUVERT, getv002(), au_lu[ i, 3 ] ) + '(' + date_8( au_lu[ i, 2 ] ) + ')'
-        If is_osmotr_dds_1_etap( au_lu[ i ], mvozrast, metap, mpol, tip_lu ) // eq_any(alltrim(au_lu[i, 5]),'2.3.1','2.4.1') // + 2.4.1-психиатр
+        If is_osmotr_dds_1_etap( au_lu[ i ], mvozrast, metap, mpol, tip_lu, human->K_DATA ) // eq_any(alltrim(au_lu[i, 5]),'2.3.1','2.4.1') // + 2.4.1-психиатр
           If eq_any( au_lu[ i, 3 ], 68, 57 ) // педиатр (врач общей практики)
             If au_lu[ i, 2 ] < dBegin
               AAdd( ta, 'дата осмотра педиатра на I этапе не попадает в диапазон лечения' )
@@ -3579,7 +3579,7 @@ Function verify_sluch( fl_view )
             AAdd( ta, 'в л/у услуга ' + AllTrim( au_lu[ i, 1 ] ) + ', а должна быть ' + s + ;
               ' для возраста ' + lstr( mvozrast ) + ' ' + s_let( mvozrast ) )
           Endif
-        Elseif is_osmotr_dds( au_lu[ i ], mvozrast, ta, metap, mpol, tip_lu )
+        Elseif is_osmotr_dds( au_lu[ i ], mvozrast, ta, metap, mpol, tip_lu, human->K_DATA )
           If eq_any( Left( au_lu[ i, 1 ], 5 ), '2.83.', '2.87.' )
             ++kvp
           Elseif Left( au_lu[ i, 1 ], 4 ) == '2.3.'

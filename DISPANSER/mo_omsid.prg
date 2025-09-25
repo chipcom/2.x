@@ -876,14 +876,18 @@ Function f3_inf_dds_karta( _menu, _i, _r, ub, ue, fl )
 
   Return s
 
-// 04.05.16
+// 25.09.25
 Function f4_inf_dds_karta( par, _etap, et2 )
 
   Local i, k, arr := {}
+  local arr_DDS_iss, arr_DDS_osm1, arr_DDS_osm2
 
+  arr_DDS_iss := dds_arr_iss( mk_data )
+  arr_DDS_osm1 := dds_arr_osm1( mk_data )
+  arr_DDS_osm2 := dds_arr_osm2( mk_data )
   If par == 1
     If iif( _etap == nil, .t., _etap == 1 )
-      For i := 1 To Len( dds_arr_osm1() )
+      For i := 1 To Len( arr_DDS_osm1 )
         k := 0
         Do Case
         Case i ==  1 // {"офтальмолог","", 0, 17,{65},{1112},{"2.83.21"}}, ;
@@ -911,10 +915,10 @@ Function f4_inf_dds_karta( par, _etap, et2 )
         Endcase
         mvart := "MTAB_NOMov" + lstr( i )
         mvard := "MDATEo" + lstr( i )
-        If Between( mvozrast, dds_arr_osm1()[ i, 3 ], dds_arr_osm1()[ i, 4 ] ) .and. ;
-            iif( Empty( dds_arr_osm1()[ i, 2 ] ), .t., dds_arr_osm1()[ i, 2 ] == mpol )
+        If Between( mvozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] ) .and. ;
+            iif( Empty( arr_DDS_osm1[ i, 2 ] ), .t., arr_DDS_osm1[ i, 2 ] == mpol )
           If !emptyany( &mvard, &mvart )
-            AAdd( arr, { dds_arr_osm1()[ i, 1 ], &mvard, "", i, k } )
+            AAdd( arr, { arr_DDS_osm1[ i, 1 ], &mvard, "", i, k } )
           Endif
         Endif
       Next
@@ -926,26 +930,26 @@ Function f4_inf_dds_karta( par, _etap, et2 )
           k := 0
           mvart := "MTAB_NOMov" + lstr( i )
           mvard := "MDATEo" + lstr( i )
-          If !Between( mvozrast, dds_arr_osm1()[ i, 3 ], dds_arr_osm1()[ i, 4 ] )
+          If !Between( mvozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] )
             If !emptyany( &mvard, &mvart )
-              AAdd( arr, { dds_arr_osm1()[ i, 1 ], &mvard, "", i, k } )
+              AAdd( arr, { arr_DDS_osm1[ i, 1 ], &mvard, "", i, k } )
             Endif
           Endif
         Next
       Endif
       If eq_any( et2, 0, 2 )
-        For i := 1 To Len( dds_arr_osm2() )
+        For i := 1 To Len( arr_DDS_osm2 )
           k := 0
           mvart := "MTAB_NOM2ov" + lstr( i )
           mvard := "MDATE2o" + lstr( i )
           If !emptyany( &mvard, &mvart )
-            AAdd( arr, { dds_arr_osm2()[ i, 1 ], &mvard, "", i, k } )
+            AAdd( arr, { arr_DDS_osm2[ i, 1 ], &mvard, "", i, k } )
           Endif
         Next
       Endif
     Endif
   Else
-    For i := 1 To Len( dds_arr_iss() )
+    For i := 1 To Len( arr_DDS_iss )
       k := 0
       Do Case
       Case i ==  1 // {"Клинический анализ мочи","", 0, 17,{34},{1107, 1301, 1402, 1702},{"4.2.153"}}, ;
@@ -974,14 +978,13 @@ Function f4_inf_dds_karta( par, _etap, et2 )
       mvart := "MTAB_NOMiv" + lstr( i )
       mvard := "MDATEi" + lstr( i )
       mvarr := "MREZi" + lstr( i )
-      If Between( mvozrast, dds_arr_iss()[ i, 3 ], dds_arr_iss()[ i, 4 ] )
+      If Between( mvozrast, arr_DDS_iss[ i, 3 ], arr_DDS_iss[ i, 4 ] )
         If !emptyany( &mvard, &mvart )
-          AAdd( arr, { dds_arr_iss()[ i, 1 ], &mvard, &mvarr, i, k } )
+          AAdd( arr, { arr_DDS_iss[ i, 1 ], &mvard, &mvarr, i, k } )
         Endif
       Endif
     Next
   Endif
-
   Return arr
 
 // 28.01.15

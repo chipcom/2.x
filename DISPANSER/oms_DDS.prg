@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
  
-// 24.09.25 ДДС - добавление или редактирование случая (листа учета)
+// 25.09.25 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -269,7 +269,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       Endif
     Next
   Next
-
+/*
   arr_DDS_osm1 := dds_arr_osm1()
   arr_DDS_osm2 := dds_arr_osm2()
   arr_DDS_iss := dds_arr_iss()
@@ -308,6 +308,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     mvar := 'MKOD_DIAG2o' + lstr( i )
     Private &mvar := Space( 6 )
   Next
+*/
   //
   AFill( adiag_talon, 0 )
   r_use( dir_DB + 'human_',, 'HUMAN_' )
@@ -403,6 +404,48 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     metap      := human->ishod - 100
     mGRUPPA    := human_->RSLT_NEW - L_BEGIN_RSLT
     is_disp_19 := !( mk_data < 0d20191101 )
+
+
+  arr_DDS_osm1 := dds_arr_osm1( human->K_DATA )
+  arr_DDS_osm2 := dds_arr_osm2( human->K_DATA )
+  arr_DDS_iss := dds_arr_iss( human->K_DATA )
+
+  For i := 1 To Len( arr_DDS_iss )
+    mvar := 'MTAB_NOMiv' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOMia' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATEi' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MREZi' + lstr( i )
+    Private &mvar := Space( 17 )
+    m1var := 'M1LIS' + lstr( i )
+    Private &m1var := 0
+    mvar := 'MLIS' + lstr( i )
+    Private &mvar := inieditspr( A__MENUVERT, mm_kdp2, &m1var )
+  Next
+  For i := 1 To Len( arr_DDS_osm1 )
+    mvar := 'MTAB_NOMov' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOMoa' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATEo' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MKOD_DIAGo' + lstr( i )
+    Private &mvar := Space( 6 )
+  Next
+  For i := 1 To Len( arr_DDS_osm2 )
+    mvar := 'MTAB_NOM2ov' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOM2oa' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATE2o' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MKOD_DIAG2o' + lstr( i )
+    Private &mvar := Space( 6 )
+  Next
+
+
     //
     larr := Array( 3, Len( arr_DDS_osm2 ) )
     afillall( larr, 0 )
@@ -642,6 +685,11 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       is_disp_19 := !( mk_data < 0d20191101 )
       s := AllTrim( mfio ) + ' (' + lstr( mvozrast ) + ' ' + s_let( mvozrast ) + ')'
       @ j, wS - Len( s ) Say s Color color14
+
+  arr_DDS_osm1 := dds_arr_osm1( mk_data )
+  arr_DDS_osm2 := dds_arr_osm2( mk_data )
+  arr_DDS_iss := dds_arr_iss( mk_data )
+
     Endif
     If num_screen == 1 // 
       @ ++j, 1 Say 'Учреждение' Get mlpu When .f. Color cDataCSay
@@ -726,6 +774,43 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     Elseif num_screen == 2 // 
       fl_kdp2 := Array( Len( arr_DDS_iss ) )
       AFill( fl_kdp2, .f. )
+
+  For i := 1 To Len( arr_DDS_iss )
+    mvar := 'MTAB_NOMiv' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOMia' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATEi' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MREZi' + lstr( i )
+    Private &mvar := Space( 17 )
+    m1var := 'M1LIS' + lstr( i )
+    Private &m1var := 0
+    mvar := 'MLIS' + lstr( i )
+    Private &mvar := inieditspr( A__MENUVERT, mm_kdp2, &m1var )
+  Next
+  For i := 1 To Len( arr_DDS_osm1 )
+    mvar := 'MTAB_NOMov' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOMoa' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATEo' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MKOD_DIAGo' + lstr( i )
+    Private &mvar := Space( 6 )
+  Next
+  For i := 1 To Len( arr_DDS_osm2 )
+    mvar := 'MTAB_NOM2ov' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOM2oa' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATE2o' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MKOD_DIAG2o' + lstr( i )
+    Private &mvar := Space( 6 )
+  Next
+
+
       For i := 1 To Len( arr_DDS_iss )
         mvar := 'MDATEi' + lstr( i )
         If Empty( &mvar )
