@@ -8,7 +8,7 @@ function arr_NO_YES()
 
   return { { 'нет', 0 }, { 'да ', 1 } }
 
-// 20.02.24 формирование массива о смерти пациента
+// 25.09.25 формирование массива о смерти пациента
 function arr_patient_died_during_treatment( mkod_k, loc_kod )
   // mkod_k - код пациента по БД картотеки kartotek.dbf
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -18,7 +18,8 @@ function arr_patient_died_during_treatment( mkod_k, loc_kod )
 
   local a_smert := {}
 
-  find ( Str( mkod_k, 7 ) )
+//  find ( Str( mkod_k, 7 ) )
+  human->( dbSeek( Str( mkod_k, 7 ) ) )
   Do While human->kod_k == mkod_k .and. !Eof()
     If RecNo() != loc_kod .and. is_death( human_->RSLT_NEW ) .and. ;
         human_->oplata != 9 .and. human_->NOVOR == 0
@@ -26,7 +27,7 @@ function arr_patient_died_during_treatment( mkod_k, loc_kod )
         'Лечение с ' + full_date( human->N_DATA ) + ' по ' + full_date( human->K_DATA ) }
       Exit
     Endif
-    Skip
+    human->( dbSkip() )
   Enddo 
   return a_smert
 

@@ -241,6 +241,8 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   Private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
 
+  Private mperiod := 0
+
   //
   For i := 1 To 5
     For k := 1 To 14

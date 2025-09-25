@@ -225,7 +225,8 @@ Function save_arr_dds( lkod )
     AAdd( arr, { 'mdate_r', mdate_r } )
   Endif
   AAdd( arr, { '0', m1mobilbr } )   // 'N',мобильная бригада
-  AAdd( arr, { '1', m1stacionar } ) // 'N',код стационара
+  AAdd( arr, { '1', mperiod } ) // 'N',номер диапазона (от 1 до 33)
+//  AAdd( arr, { '1', m1stacionar } ) // 'N',код стационара
   AAdd( arr, { '2.3', m1kateg_uch } ) // 'N',Категория учета ребенка: 0-ребенок-сирота; 1-ребенок, оставшийся без попечения родителей; 2-ребенок, находящийся в трудной жизненной ситуации, 3-нет категории
   AAdd( arr, { '2.4', m1gde_nahod } ) // 'N',На момент проведения диспансеризации находится 0-в стационарном учреждении, 1-под опекой, 2-попечительством, 3-передан в приемную семью, 4-передан в патронатную семью, 5-усыновлен (удочерена), 6-другое
   AAdd( arr, { '4', mdate_post } ) // 'D',Дата поступления в стационарное учреждение
@@ -475,7 +476,8 @@ Function read_arr_dds( lkod )
       Case arr[ i, 1 ] == '0' .and. ValType( arr[ i, 2 ] ) == 'N'
         m1mobilbr := arr[ i, 2 ]
       Case arr[ i, 1 ] == '1'
-        // m1stacionar := arr[i,2]
+        // m1stacionar := arr[ i, 2 ]
+        mperiod := arr[ i, 2 ]
       Case arr[ i, 1 ] == '2.3' .and. ValType( arr[ i, 2 ] ) == 'N'
         m1kateg_uch := arr[ i, 2 ]
       Case arr[ i, 1 ] == '2.4' .and. ValType( arr[ i, 2 ] ) == 'N'
