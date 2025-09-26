@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.09.25 ПН - добавление или редактирование случая (листа учета)
+// 26.09.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -48,6 +48,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   local arr_osm1
   local bukva
   local arr_etap
+  local len_osmotr_II_etap := 0
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0, f_print To ''
@@ -547,8 +548,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           arr_PN_osmotr := np_arr_osmotr( human->k_data, m1mobilbr )
 
           arr_etap := np_arr_1_etap( mk_data, m1mobilbr )[ mperiod ]
-//    arr_PN_osmotr := np_arr_osmotr( mk_data, m1mobilbr )
-//    arr_PN_issled := np_arr_issled( mk_data )
     //
 //    larr_i := Array( Len( arr_PN_issled ) )
     larr_i := Array( Len( arr_etap[ 5 ] ) )
@@ -1140,22 +1139,12 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       If !Empty( ar[ 4 ] ) // не пустой массив осмотров
         For i := 1 To Len( arr_etap[ 4 ] )  // Len( arr_PN_osmotr )
           fl := .t.
-//          If fl .and. !Empty( np_arr_osmotr[ i, 2 ] )
-//            fl := ( mpol == np_arr_osmotr[ i, 2 ] )
           If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] )
             fl := ( mpol == arr_PN_osmotr[ i, 2 ] )
           Endif
           If fl
-            fl := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) > 0 ) // ( AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0 )
+            fl := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) > 0 )
           Endif
-/*
-          If fl .and. mperiod == 16 .and. mk_data < 0d20191101 .and. np_arr_osmotr[ i, 1 ] == '2.4.2' // 2 года
-            fl := .f.
-          Endif
-          If fl .and. mperiod == 20 .and. mk_data < 0d20191101 .and. np_arr_osmotr[ i, 1 ] == '2.85.24' // 6 лет
-            fl := .f.
-          Endif
-*/
           If fl .and. mperiod == 16 .and. mk_data < 0d20191101 .and. arr_PN_osmotr[ i, 1 ] == '2.4.2' // 2 года
             fl := .f.
           Endif
@@ -1171,7 +1160,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             If Empty( &mvard )
               &mvard := mn_data
             Endif
-//            @ ++j, 1 Say PadR( np_arr_osmotr[ i, 3 ], 38 )
             @ ++j, 1 Say PadR( arr_PN_osmotr[ i, 3 ], 38 )
             @ j, 39 get &mvarv Pict '99999' valid {| g| v_kart_vrach( g ) }
             If mem_por_ass > 0
@@ -1208,21 +1196,20 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
       For i := 1 To Len( arr_PN_osmotr )
         fl := .t.
-        If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] ) // fl .and. !Empty( np_arr_osmotr[ i, 2 ] )
-          fl := ( mpol == arr_PN_osmotr[ i, 2 ] ) // fl := ( mpol == np_arr_osmotr[ i, 2 ] )
+        If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] )
+          fl := ( mpol == arr_PN_osmotr[ i, 2 ] )
         Endif
         If fl .and. !Empty( ar[ 4 ] )
 
-          fl := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) == 0 ) // fl := ( AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) == 0 )
+          fl := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) == 0 )
         Endif
-        If fl .and. !( arr_PN_osmotr[ i, 1 ] == '2.4.2' ) // If fl .and. !( np_arr_osmotr[ i, 1 ] == '2.4.2' )
+        If fl .and. !( arr_PN_osmotr[ i, 1 ] == '2.4.2' )
           mvonk := 'MONKO' + lstr( i )
           mvarv := 'MTAB_NOMov' + lstr( i )
           mvara := 'MTAB_NOMoa' + lstr( i )
           mvard := 'MDATEo' + lstr( i )
           mvaro := 'MOTKAZo' + lstr( i )
           mvarz := 'MKOD_DIAGo' + lstr( i )
-//          @ ++j, 1 Say PadR( np_arr_osmotr[ i, 3 ], 38 )
           @ ++j, 1 Say PadR( arr_PN_osmotr[ i, 3 ], 38 )
           If eq_any( i, 8, 10 )
             @ j, 32 get &mvonk reader {| x| menu_reader( x, mm_vokod(), A__MENUVERT, , , .f. ) } When m1step2 == 1
@@ -1738,22 +1725,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       afillall( arr_osm1, 0 )
       For i := 1 To Len( arr_PN_osmotr )  // count_pn_arr_osm
         _fl_ := .t.
-//        If _fl_ .and. !Empty( np_arr_osmotr[ i, 2 ] )
-//          _fl_ := ( mpol == np_arr_osmotr[ i, 2 ] )
         If _fl_ .and. !Empty( arr_PN_osmotr[ i, 2 ] )
           _fl_ := ( mpol == arr_PN_osmotr[ i, 2 ] )
         Endif
-/*
-        If _fl_
-          _fl_ := ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0 )
-        Endif
-        If _fl_ .and. mperiod == 16 .and. mk_data < 0d20191101 .and. np_arr_osmotr[ i, 1 ] == '2.4.2' // 2 года
-          _fl_ := .f.
-        Endif
-        If _fl_ .and. mperiod == 20 .and. mk_data < 0d20191101 .and. np_arr_osmotr[ i, 1 ] == '2.85.24' // 6 лет
-          _fl_ := .f.
-        Endif
-*/
         If _fl_
           _fl_ := ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) > 0 )
         Endif
@@ -1770,13 +1744,10 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           mvard := 'MDATEo' + lstr( i )
           mvarz := 'MKOD_DIAGo' + lstr( i )
           If Empty( &mvard )
-//            fl := func_error( 4, 'Не введена дата осмотра I этапа "' + np_arr_osmotr[ i, 3 ] + '"' )
             fl := func_error( 4, 'Не введена дата осмотра I этапа "' + arr_PN_osmotr[ i, 3 ] + '"' )
           Elseif metap == 2 .and. &mvard > d12
-//            fl := func_error( 4, 'Дата осмотра "' + np_arr_osmotr[ i, 3 ] + '" не в I-ом этапе (> 20 дней)' )
             fl := func_error( 4, 'Дата осмотра "' + arr_PN_osmotr[ i, 3 ] + '" не в I-ом этапе (> 20 дней)' )
           Elseif Empty( &mvart )
-//            fl := func_error( 4, 'Не введен врач в осмотре I этапа "' + np_arr_osmotr[ i, 3 ] + '"' )
             fl := func_error( 4, 'Не введен врач в осмотре I этапа "' + arr_PN_osmotr[ i, 3 ] + '"' )
           Else
             Select P2
@@ -1792,14 +1763,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
                 arr_osm1[ i, 3 ] := p2->kod
               Endif
             Endif
-/*
-            If ValType( np_arr_osmotr[ i, 4 ] ) == 'N'
-              arr_osm1[ i, 4 ] := np_arr_osmotr[ i, 4 ] // профиль
-            Elseif ( j := AScan( np_arr_osmotr[ i, 5 ], ret_old_prvs( arr_osm1[ i, 2 ] ) ) ) > 0
-              arr_osm1[ i, 4 ] := np_arr_osmotr[ i, 4, j ] // профиль
-            Endif
-            arr_osm1[ i, 5 ] := np_arr_osmotr[ i, 1 ] // шифр услуги
-*/
             If ValType( arr_PN_osmotr[ i, 4 ] ) == 'N'
               arr_osm1[ i, 4 ] := arr_PN_osmotr[ i, 4 ] // профиль
             Elseif ( j := AScan( arr_PN_osmotr[ i, 5 ], ret_old_prvs( arr_osm1[ i, 2 ] ) ) ) > 0
@@ -1860,15 +1823,13 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           metap := 2
         Endif
         ku := 0
-        For i := 1 To Len( arr_PN_osmotr )  // count_pn_arr_osm
+        For i := 1 To Len( arr_PN_osmotr )
           _fl_ := .t.
-//          If _fl_ .and. !Empty( np_arr_osmotr[ i, 2 ] )
-//            _fl_ := ( mpol == np_arr_osmotr[ i, 2 ] )
           If _fl_ .and. !Empty( arr_PN_osmotr[ i, 2 ] )
             _fl_ := ( mpol == arr_PN_osmotr[ i, 2 ] )
           Endif
           If _fl_
-            _fl_ := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) == 0 )  // ( AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) == 0 )
+            _fl_ := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) == 0 )
           Endif
           If _fl_
             mvonk := 'm1onko' + lstr( i )
@@ -1880,16 +1841,13 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               &mvart := -1
             Endif
             If !Empty( &mvard ) .and. Empty( &mvart )
-//              fl := func_error( 4, 'Не введен врач в осмотре II этапа "' + np_arr_osmotr[ i, 3 ] + '"' )
               fl := func_error( 4, 'Не введен врач в осмотре II этапа "' + arr_PN_osmotr[ i, 3 ] + '"' )
             Elseif !Empty( &mvart ) .and. Empty( &mvard )
-//              fl := func_error( 4, 'Не введена дата осмотра II этапа "' + np_arr_osmotr[ i, 3 ] + '"' )
               fl := func_error( 4, 'Не введена дата осмотра II этапа "' + arr_PN_osmotr[ i, 3 ] + '"' )
             Elseif !emptyany( &mvard, &mvart )
               ++ku
               metap := 2
               if &mvard < MDATEp1
-//                fl := func_error( 4, 'Дата осмотра II этапа "' + np_arr_osmotr[ i, 3 ] + '" внутри I этапа' )
                 fl := func_error( 4, 'Дата осмотра II этапа "' + arr_PN_osmotr[ i, 3 ] + '" внутри I этапа' )
               Endif
               if &mvart > 0
@@ -1907,18 +1865,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
                   Endif
                 Endif
               Else // приём в онкодиспансере
-//                arr_osm2[ i, 2 ] := -ret_new_spec( np_arr_osmotr[ i, 5, 1 ] )
                 arr_osm2[ i, 2 ] := -ret_new_spec( arr_PN_osmotr[ i, 5, 1 ] )
                 arr_osm2[ i, 10 ] := 3
               Endif
-/*
-              If ValType( np_arr_osmotr[ i, 4 ] ) == 'N'
-                arr_osm2[ i, 4 ] := np_arr_osmotr[ i, 4 ] // профиль
-              Elseif ( j := AScan( np_arr_osmotr[ i, 5 ], ret_old_prvs( arr_osm2[ i, 2 ] ) ) ) > 0
-                arr_osm2[ i, 4 ] := np_arr_osmotr[ i, 4, j ] // профиль
-              Endif
-              arr_osm2[ i, 5 ] := np_arr_osmotr[ i, 1 ] // шифр услуги
-*/
               If ValType( arr_PN_osmotr[ i, 4 ] ) == 'N'
                 arr_osm2[ i, 4 ] := arr_PN_osmotr[ i, 4 ] // профиль
               Elseif ( j := AScan( arr_PN_osmotr[ i, 5 ], ret_old_prvs( arr_osm2[ i, 2 ] ) ) ) > 0
