@@ -50,6 +50,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   local arr_etap
   local elem_osmotr
   local len_osmotr_II_etap := 0
+  local count_II
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0, f_print To ''
@@ -546,7 +547,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
           arr_not_zs := np_arr_not_zs( human->k_data ) 
           arr_PN_issled := np_arr_issled( human->k_data )
-          arr_PN_osmotr := np_arr_osmotr( human->k_data, m1mobilbr )
+          arr_PN_osmotr := np_arr_osmotr( human->k_data, m1mobilbr, @count_II )
 
           arr_etap := np_arr_1_etap( mk_data, m1mobilbr )[ mperiod ]
     //
@@ -592,14 +593,20 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Next
         If fl
 //          For i := 1 To Len( arr_PN_osmotr )
+//            If Left( arr_PN_osmotr[ i, 1 ], 4 ) == '2.4.'
+//              If lshifr == arr_PN_osmotr[ i, 1 ]
           For i := 1 To Len( arr_etap[ 4 ] )
-            If Left( arr_PN_osmotr[ i, 1 ], 4 ) == '2.4.'
-              If lshifr == arr_PN_osmotr[ i, 1 ]
+            if Empty( elem_osmotr := get_element_osmotr( arr_etap[ 4, i ], arr_PN_osmotr ) )
+              loop
+            endif
+            If Left( elem_osmotr[ 1 ], 4 ) == '2.4.'
+              If lshifr == elem_osmotr[ 1 ]
                 fl := .f.
                 larr_o[ i ] := hu->( RecNo() )
                 Exit
               Endif
-            Elseif f_profil_ginek_otolar( arr_PN_osmotr[ i, 4 ], hu_->PROFIL )
+//            Elseif f_profil_ginek_otolar( arr_PN_osmotr[ i, 4 ], hu_->PROFIL )
+            Elseif f_profil_ginek_otolar( elem_osmotr[ 4 ], hu_->PROFIL )
               fl := .f.
               larr_o[ i ] := hu->( RecNo() )
               Exit
@@ -699,7 +706,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             ValType( ar[ 10 ] ) == 'C' .and. ar[ 10 ] $ 'io'
           lshifr := AllTrim( ar[ 5 ] )
           bukva := ar[ 10 ]
-          If ( i := AScan( iif( bukva == 'i', arr_PN_issled, arr_PN_osmotr ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
+//          If ( i := AScan( iif( bukva == 'i', arr_PN_issled, arr_PN_osmotr ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
+          If ( i := AScan( iif( bukva == 'i', arr_PN_issled, arr_etap ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
             If ValType( ar[ 1 ] ) == 'N' .and. ar[ 1 ] > 0
               p2->( dbGoto( ar[ 1 ] ) )
               mvar := 'MTAB_NOM' + bukva + 'v' + lstr( i )
@@ -931,7 +939,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         s += s1
       Endif
       @ j, wS - Len( s ) Say s Color color14
-      If !Between( mperiod, 1, 31 ) //  Len( np_arr_1_etap( mk_data ) ) )
+      If !Between( mperiod, 1, 31 )
         DispEnd()
         func_error( 4, 'Не удалось определить возрастной период!' )
         If !Empty( s1 )
@@ -1139,9 +1147,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
       If !Empty( ar[ 4 ] ) // не пустой массив осмотров
         For i := 1 To Len( arr_etap[ 4 ] )  // Len( arr_PN_osmotr )
-          if Empty( elem_osmotr := get_element_osmotr( arr_etap[ 4, i ], arr_PN_osmotr ) )
-            loop
-          endif
           fl := .t.
 /*          If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] )
             fl := ( mpol == arr_PN_osmotr[ i, 2 ] )
@@ -1172,6 +1177,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             @ j, 62 get &mvaro reader {| x| menu_reader( x, mm_otkaz, A__MENUVERT, , , .f. ) }
           Endif
 */
+          if Empty( elem_osmotr := get_element_osmotr( arr_etap[ 4, i ], arr_PN_osmotr ) )
+            loop
+          endif
           If fl .and. !Empty( elem_osmotr[ 2 ] )
             fl := ( mpol == elem_osmotr[ 2 ] )
           Endif
@@ -1193,7 +1201,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             If Empty( &mvard )
               &mvard := mn_data
             Endif
-altd()
             @ ++j, 1 Say PadR( elem_osmotr[ 3 ], 38 )
             @ j, 39 get &mvarv Pict '99999' valid {| g| v_kart_vrach( g ) }
             If mem_por_ass > 0
@@ -1228,7 +1235,11 @@ altd()
       If mem_por_ass == 0
         @ j, 45 Say Space( 6 )
       Endif
+
+
+altd()
       For i := 1 To Len( arr_PN_osmotr )
+//      For i := Len( arr_PN_osmotr ) - count_II To Len( arr_PN_osmotr )
         fl := .t.
         If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] )
           fl := ( mpol == arr_PN_osmotr[ i, 2 ] )
