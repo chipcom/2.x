@@ -48,7 +48,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   local arr_osm1
   local bukva
   local arr_etap
-  local elem_osmotr
+  local elem_osmotr, elem_issled
   local len_osmotr_II_etap := 0
   local count_II
   //
@@ -581,11 +581,16 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         fl := .t.
 //        For i := 1 To Len( arr_PN_issled )
         For i := 1 To Len( arr_etap[ 5 ] )
-          If arr_PN_issled[ i, 1 ] == lshifr
+          if Empty( elem_issled := get_element_PN( arr_etap[ 5, i ], arr_PN_issled ) )
+            loop
+          endif
+//          If arr_PN_issled[ i, 1 ] == lshifr
+          If elem_issled[ 1 ] == lshifr
             fl := .f.
             larr_i[ i ] := hu->( RecNo() )
             Exit
-          Elseif ( j := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 .and. arr_PN_issled[ i, 1 ] == arr_not_zs[ j, 1 ]
+//          Elseif ( j := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 .and. arr_PN_issled[ i, 1 ] == arr_not_zs[ j, 1 ]
+          Elseif ( j := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 .and. elem_issled[ 1 ] == arr_not_zs[ j, 1 ]
             fl := .f.
             larr_i[ i ] := hu->( RecNo() )
             Exit
@@ -596,7 +601,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 //            If Left( arr_PN_osmotr[ i, 1 ], 4 ) == '2.4.'
 //              If lshifr == arr_PN_osmotr[ i, 1 ]
           For i := 1 To Len( arr_etap[ 4 ] )
-            if Empty( elem_osmotr := get_element_osmotr( arr_etap[ 4, i ], arr_PN_osmotr ) )
+            if Empty( elem_osmotr := get_element_PN( arr_etap[ 4, i ], arr_PN_osmotr ) )
               loop
             endif
             If Left( elem_osmotr[ 1 ], 4 ) == '2.4.'
@@ -1177,7 +1182,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             @ j, 62 get &mvaro reader {| x| menu_reader( x, mm_otkaz, A__MENUVERT, , , .f. ) }
           Endif
 */
-          if Empty( elem_osmotr := get_element_osmotr( arr_etap[ 4, i ], arr_PN_osmotr ) )
+          if Empty( elem_osmotr := get_element_PN( arr_etap[ 4, i ], arr_PN_osmotr ) )
             loop
           endif
           If fl .and. !Empty( elem_osmotr[ 2 ] )
@@ -1237,7 +1242,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
 
 
-altd()
+// altd()
       For i := 1 To Len( arr_PN_osmotr )
 //      For i := Len( arr_PN_osmotr ) - count_II To Len( arr_PN_osmotr )
         fl := .t.
