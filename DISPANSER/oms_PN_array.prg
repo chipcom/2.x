@@ -370,6 +370,17 @@ function mm_vokod()
   return { { '¢ ŒŽ ', 0 }, { '‚ŽŠŽ„', 3 } }
 
 // 26.09.25
+function get_element_osmotr( shifr, arr_PN_osmotr )
+
+  local i
+
+  If ( i := AScan( arr_PN_osmotr, {| x| x[ 1 ] == shifr } ) ) > 0
+    return arr_PN_osmotr[ i ]
+  endif
+  return {}
+
+
+// 26.09.25
 function np_arr_osmotr( mdata, mobil, /*@*/count_II )
 
   local arr_PN_osmotr

@@ -48,6 +48,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   local arr_osm1
   local bukva
   local arr_etap
+  local elem_osmotr
   local len_osmotr_II_etap := 0
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
@@ -1138,10 +1139,12 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
       If !Empty( ar[ 4 ] ) // не пустой массив осмотров
         For i := 1 To Len( arr_etap[ 4 ] )  // Len( arr_PN_osmotr )
+          if Empty( elem_osmotr := get_element_osmotr( arr_etap[ 4, i ], arr_PN_osmotr ) )
+            loop
+          endif
           fl := .t.
-          If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] )
+/*          If fl .and. !Empty( arr_PN_osmotr[ i, 2 ] )
             fl := ( mpol == arr_PN_osmotr[ i, 2 ] )
-          Endif
           If fl
             fl := ( AScan( ar[ 4 ], arr_PN_osmotr[ i, 1 ] ) > 0 )
           Endif
@@ -1161,6 +1164,37 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               &mvard := mn_data
             Endif
             @ ++j, 1 Say PadR( arr_PN_osmotr[ i, 3 ], 38 )
+            @ j, 39 get &mvarv Pict '99999' valid {| g| v_kart_vrach( g ) }
+            If mem_por_ass > 0
+              @ j, 45 get &mvara Pict '99999' valid {| g| v_kart_vrach( g ) }
+            Endif
+            @ j, 51 get &mvard
+            @ j, 62 get &mvaro reader {| x| menu_reader( x, mm_otkaz, A__MENUVERT, , , .f. ) }
+          Endif
+*/
+          If fl .and. !Empty( elem_osmotr[ 2 ] )
+            fl := ( mpol == elem_osmotr[ 2 ] )
+          Endif
+          If fl
+            fl := ( AScan( ar[ 4 ], elem_osmotr[ 1 ] ) > 0 )
+          Endif
+          If fl .and. mperiod == 16 .and. mk_data < 0d20191101 .and. elem_osmotr[ 1 ] == '2.4.2' // 2 года
+            fl := .f.
+          Endif
+          If fl .and. mperiod == 20 .and. mk_data < 0d20191101 .and. elem_osmotr[ 1 ] == '2.85.24' // 6 лет
+            fl := .f.
+          Endif
+          If fl
+            mvarv := 'MTAB_NOMov' + lstr( i )
+            mvara := 'MTAB_NOMoa' + lstr( i )
+            mvard := 'MDATEo' + lstr( i )
+            mvaro := 'MOTKAZo' + lstr( i )
+            mvarz := 'MKOD_DIAGo' + lstr( i )
+            If Empty( &mvard )
+              &mvard := mn_data
+            Endif
+altd()
+            @ ++j, 1 Say PadR( elem_osmotr[ 3 ], 38 )
             @ j, 39 get &mvarv Pict '99999' valid {| g| v_kart_vrach( g ) }
             If mem_por_ass > 0
               @ j, 45 get &mvara Pict '99999' valid {| g| v_kart_vrach( g ) }
