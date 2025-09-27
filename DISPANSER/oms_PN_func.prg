@@ -472,7 +472,6 @@ Function save_arr_pn( lkod )
   If !Empty( mrek_disp )
     AAdd( arr, { '16.12', AllTrim( mrek_disp ) } ) // Рекомендации по диспансерному наблюдению, лечению, медицинской реабилитации и санаторно-курортному лечению с указанием диагноза (код МКБ), вида медицинской организации и специальности (должности) врача
   Endif
-altd()
   // 18.результаты проведения исследований
   For i := 1 To len( np_arr_issled( mk_data ) ) //count_pn_arr_iss( mk_data )
     mvar := 'MREZi' + lstr( i )
