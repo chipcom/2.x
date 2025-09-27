@@ -1083,3 +1083,14 @@ Function f_blank_usl_pn()
   Enddo
   RestScreen( buf )
   Return Nil
+
+// 27.09.25 - добавление пустых записей в файл БД до опреде6ленного количества
+function add_empty_record( alias, num_rec )
+
+  // alias - строка алиас-а куда добавляем
+  // num_rec - последний номер добавляемой записи
+
+  Do While ( alias )->( LastRec() ) < num_rec
+    ( alias )->( dbAppend() )
+  Enddo
+  return nil
