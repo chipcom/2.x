@@ -319,13 +319,14 @@ Function fget_spec_deti( k, r, c, a_spec )
   Return { 1, s }
 
 // 21.09.25
-Function save_arr_pn( lkod )
+Function save_arr_pn( lkod, mdata )
 
   Local arr := {}, k, ta
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
   Local oldSelect
   local i
 
+  default mdata to Date()
   If ! aliasIsUse
     oldSelect := Select()
     r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'TPERS' )
@@ -476,7 +477,7 @@ Function save_arr_pn( lkod )
     AAdd( arr, { '16.12', AllTrim( mrek_disp ) } ) // Рекомендации по диспансерному наблюдению, лечению, медицинской реабилитации и санаторно-курортному лечению с указанием диагноза (код МКБ), вида медицинской организации и специальности (должности) врача
   Endif
   // 18.результаты проведения исследований
-  For i := 1 To len( np_arr_issled( mk_data ) ) //count_pn_arr_iss( mk_data )
+  For i := 1 To len( np_arr_issled( mdata ) ) //count_pn_arr_iss( mdata )
     mvar := 'MREZi' + lstr( i )
     If !Empty( &mvar )
       AAdd( arr, { '18.' + lstr( i ), AllTrim( &mvar ) } )
@@ -485,7 +486,7 @@ Function save_arr_pn( lkod )
   If !Empty( arr_usl_otkaz )
     AAdd( arr, { '29', arr_usl_otkaz } ) // массив
   Endif
-  If mk_data >= 0d20210801
+  If mdata >= 0d20210801
     If mtab_v_dopo_na != 0
       If TPERS->( dbSeek( Str( mtab_v_dopo_na, 5 ) ) )
         AAdd( arr, { '47', { m1dopo_na, TPERS->kod } } )
@@ -501,7 +502,7 @@ Function save_arr_pn( lkod )
   If Type( 'm1p_otk' ) == 'N'
     AAdd( arr, { '51', m1p_otk } )
   Endif
-  If mk_data >= 0d20210801
+  If mdata >= 0d20210801
     If Type( 'm1napr_v_mo' ) == 'N'
       If mtab_v_mo != 0
         If TPERS->( dbSeek( Str( mtab_v_mo, 5 ) ) )
@@ -521,7 +522,7 @@ Function save_arr_pn( lkod )
   If Type( 'arr_mo_spec' ) == 'A' .and. !Empty( arr_mo_spec )
     AAdd( arr, { '53', arr_mo_spec } ) // массив
   Endif
-  If mk_data >= 0d20210801
+  If mdata >= 0d20210801
     If Type( 'm1napr_stac' ) == 'N'
       If mtab_v_stac != 0
         If TPERS->( dbSeek( Str( mtab_v_stac, 5 ) ) )
@@ -541,7 +542,7 @@ Function save_arr_pn( lkod )
   If Type( 'm1profil_stac' ) == 'N'
     AAdd( arr, { '55', m1profil_stac } )
   Endif
-  If mk_data >= 0d20210801
+  If mdata >= 0d20210801
     If Type( 'm1napr_reab' ) == 'N'
       If mtab_v_reab != 0
         If TPERS->( dbSeek( Str( mtab_v_reab, 5 ) ) )
@@ -584,6 +585,7 @@ Function read_arr_pn( lkod, is_all, mdata )
   Endif
 
   Default is_all To .t.
+  default mdata to Date()
   arr := read_arr_dispans( lkod )
   For i := 1 To Len( arr )
     If ValType( arr[ i ] ) == 'A' .and. ValType( arr[ i, 1 ] ) == 'C'

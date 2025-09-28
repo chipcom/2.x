@@ -19,8 +19,13 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     tmp_help := chm_help_code, fl_write_sluch := .f., _y, _m, _d, t_arr[ 2 ], ;
     arr_prof := {}, is_3_5_4 := .f.
   local count_pn_arr_iss, count_pn_arr_osm
+  local mm_uch1
   local mm_mesto_prov := { { 'медицинская организация', 0 }, ;
     { 'общеобразовательное учреждение', 1 } }
+  local mm_usl := { { 'амб.', 0 }, { 'дн/с', 1 }, { 'стац', 2 } }
+  local mm_dispans := { { 'ранее', 1 }, { 'впервые', 2 }, { 'не уст.', 0 } }
+  local mm_gr_fiz_do
+  local mm_gr_fiz
 
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
@@ -69,16 +74,17 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     m1PROFIL := 68, ; // педиатрия
     m1IDSP   := 17   // законченный случай в п-ке
   //
-//  Private mm_mesto_prov := { { 'медицинская организация', 0 }, ;
-//    { 'общеобразовательное учреждение', 1 } }
-  Private mm_dispans := { { 'ранее', 1 }, { 'впервые', 2 }, { 'не уст.', 0 } }
-  Private mm_usl := { { 'амб.', 0 }, { 'дн/с', 1 }, { 'стац', 2 } }
-  Private mm_uch := { { 'МУЗ ', 1 }, { 'ГУЗ ', 0 }, { 'фед.', 2 }, { 'част', 3 } }
-  Private mm_uch1 := AClone( mm_uch )
+//  Private mm_dispans := { { 'ранее', 1 }, { 'впервые', 2 }, { 'не уст.', 0 } }
+//  Private mm_usl := { { 'амб.', 0 }, { 'дн/с', 1 }, { 'стац', 2 } }
+//  Private mm_uch := { { 'МУЗ ', 1 }, { 'ГУЗ ', 0 }, { 'фед.', 2 }, { 'част', 3 } }
+//  Private mm_uch1 := AClone( mm_uch() )
 
+  mm_uch1 := AClone( mm_uch() )
   AAdd( mm_uch1, { 'сан.', 4 } )
-  Private mm_gr_fiz_do := { { 'I', 1 }, { 'II', 2 }, { 'III', 3 }, { 'IV', 4 } }
-  Private mm_gr_fiz := AClone( mm_gr_fiz_do )
+//  Private mm_gr_fiz_do := { { 'I', 1 }, { 'II', 2 }, { 'III', 3 }, { 'IV', 4 } }
+  mm_gr_fiz_do := mm_gr_fiz_do()
+//  Private mm_gr_fiz := AClone( mm_gr_fiz_do )
+  mm_gr_fiz := AClone( mm_gr_fiz_do )
   AAdd( mm_gr_fiz_do, { 'отсутствует', 0 } )
   AAdd( mm_gr_fiz, { 'не допущен', 0 } )
   //
@@ -142,8 +148,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   Private mdopo_na, m1dopo_na := 0
   Private mm_dopo_na := arr_mm_dopo_na()
   Private gl_arr := { ;  // для битовых полей
-  { 'dopo_na', 'N', 10, 0, , , , {| x| inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
-    }
+    { 'dopo_na', 'N', 10, 0, , , , {| x| inieditspr( A__MENUBIT, mm_dopo_na, x ) } } ;
+  }
   Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
     arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
   Private mnapr_stac, m1napr_stac := 0, mm_napr_stac := arr_mm_napr_stac(), ;
@@ -775,7 +781,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'МО прикрепления' Get mMO_PR ;
         reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) }
       @ ++j, 1 Say 'Общеобразовательное учреждение' Get mschool ;
-        reader {| x| menu_reader( x, { dir_server() + 'mo_schoo', , , , , , 'Общеобразовательные учр-ия', 'B/BG' }, A__POPUPBASE, , , .f. ) }
+        reader {| x| menu_reader( x, { dir_server() + 'mo_schoo', , , , , , 'Общеобразовательные учр-ия', 'B/BG' }, A__POPUPBASE, , , .f. ) } ;
+        when m1mesto_prov == 1
       ++j
       @ ++j, 1 Say 'Вес' Get mWEIGHT Pict '999' ;
         valid {|| iif( Between( mWEIGHT, 2, 170 ), , func_error( 4, 'Неразумный вес' ) ), .t. }
@@ -1034,7 +1041,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_15_1 == 0
           Case k == 5
             @ j, 25 get &mvar ;
-              reader {| x| menu_reader( x, mm_uch, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_uch(), A__MENUVERT, , , .f. ) } ;
               When m1diag_15_1 == 0
           Case k == 6
             @ j, 30 get &mvar ;
@@ -1042,7 +1049,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_15_1 == 0
           Case k == 7
             @ j, 35 get &mvar ;
-              reader {| x| menu_reader( x, mm_uch, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_uch(), A__MENUVERT, , , .f. ) } ;
               When m1diag_15_1 == 0
           Case k == 8
             @ j, 40 get &mvar ;
@@ -1137,7 +1144,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 6
             @ j, 29 get &mvar ;
-              reader {| x| menu_reader( x, mm_uch, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_uch(), A__MENUVERT, , , .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 7
             @ j, 34 get &mvar ;
@@ -1149,7 +1156,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 9
             @ j, 43 get &mvar ;
-              reader {| x| menu_reader( x, mm_uch, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_uch(), A__MENUVERT, , , .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 10
             @ j, 48 get &mvar ;
@@ -1161,7 +1168,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 12
             @ j, 57 get &mvar ;
-              reader {| x| menu_reader( x, mm_uch, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_uch(), A__MENUVERT, , , .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 13
             @ j, 62 get &mvar ;
@@ -1628,7 +1635,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             Exit
           Endif
           pole_1pervich := 'm1diag_16_' + lstr( i ) + '_2' // 0, 1
-          pole_1dispans := 'm1diag_16_' + lstr( i ) + '_3' // mm_dispans := {{'ранее', 1}, {'впервые', 2}, {'не уст.', 0}}
+          pole_1dispans := 'm1diag_16_' + lstr( i ) + '_3'
           AAdd( arr_diag, { &mvar, &pole_1pervich, &pole_1dispans } )
         Endif
       Next
@@ -1706,7 +1713,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Next
       Endif
       // добавим педиатра I этапа
-      AAdd( arr_osm1, add_pediatr_pn( MTAB_NOMpv1, MTAB_NOMpa1, MDATEp1, MKOD_DIAGp1, m1mobilbr ) )
+      AAdd( arr_osm1, add_pediatr_pn( MTAB_NOMpv1, MTAB_NOMpa1, MDATEp1, MKOD_DIAGp1, mpol, mdef_diagnoz, m1mobilbr ) )
       If metap == 1 // I этап
         For i := 1 To Len( arr_iss )
           If ValType( arr_iss[ i, 5 ] ) == 'C'
@@ -1813,7 +1820,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           Endif
         Next
         // добавим педиатра II этапа
-        AAdd( arr_osm2, add_pediatr_pn( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, m1mobilbr ) )
+        AAdd( arr_osm2, add_pediatr_pn( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr ) )
         i := Len( arr_osm2 )
         m1vrach  := arr_osm2[ i, 1 ]
         m1prvs   := arr_osm2[ i, 2 ]
@@ -2064,7 +2071,11 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           deleterec( .t., .f. )  // очистка записи без пометки на удаление
         Next
       Endif
-      save_arr_pn( mkod )
+      // очищаем перед сохранением
+      if m1mesto_prov == 0
+        m1school := 0
+      endif
+      save_arr_pn( mkod, mk_data )
       If m1step2 == 2 ; // направлен и отказался от 2-го этапа
         .and. m1ds_onk == 1 // подозрение на злокачественное новообразование
         save_mo_onkna( mkod )
