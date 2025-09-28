@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.09.25 ПН - добавление или редактирование случая (листа учета)
+// 28.09.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -19,6 +19,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     tmp_help := chm_help_code, fl_write_sluch := .f., _y, _m, _d, t_arr[ 2 ], ;
     arr_prof := {}, is_3_5_4 := .f.
   local count_pn_arr_iss, count_pn_arr_osm
+  local mm_mesto_prov := { { 'медицинская организация', 0 }, ;
+    { 'общеобразовательное учреждение', 1 } }
+
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0, f_print To ''
@@ -66,28 +69,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     m1PROFIL := 68, ; // педиатрия
     m1IDSP   := 17   // законченный случай в п-ке
   //
-//  Private mm_kateg_uch := { { 'ребенок-сирота', 0 }, ;
-//    { 'ребенок, оставшийся без попечения родителей', 1 }, ;
-//    { 'ребенок, находящийся в трудной жизненной ситуации', 2 }, ;
-//    { 'нет категории', 3 } }
-  Private mm_mesto_prov := { { 'медицинская организация', 0 }, ;
-    { 'общеобразовательное учреждение', 1 } }
-//  Private mm_fiz_razv := { { 'нормальное', 0 }, ;
-//    { 'с отклонениями', 1 } }
-//  Private mm_fiz_razv1 := { { 'нет    ', 0 }, ;
-//    { 'дефицит', 1 }, ;
-//    { 'избыток', 2 } }
-//  Private mm_fiz_razv2 := { { 'нет    ', 0 }, ;
-//    { 'низкий ', 1 }, ;
-//    { 'высокий', 2 } }
-//  Private mm_psih2 := { { 'норма', 0 }, { 'нарушения', 1 } }
-//  Private mm_142me3 := { { 'регулярные', 0 }, ;
-//    { 'нерегулярные', 1 } }
-//  Private mm_142me4 := { { 'обильные', 0 }, ;
-//    { 'умеренные', 1 }, ;
-//    { 'скудные', 2 } }
-//  Private mm_142me5 := { { 'болезненные', 0 }, ;
-//    { 'безболезненные', 1 } }
+//  Private mm_mesto_prov := { { 'медицинская организация', 0 }, ;
+//    { 'общеобразовательное учреждение', 1 } }
   Private mm_dispans := { { 'ранее', 1 }, { 'впервые', 2 }, { 'не уст.', 0 } }
   Private mm_usl := { { 'амб.', 0 }, { 'дн/с', 1 }, { 'стац', 2 } }
   Private mm_uch := { { 'МУЗ ', 1 }, { 'ГУЗ ', 0 }, { 'фед.', 2 }, { 'част', 3 } }
@@ -98,54 +81,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   Private mm_gr_fiz := AClone( mm_gr_fiz_do )
   AAdd( mm_gr_fiz_do, { 'отсутствует', 0 } )
   AAdd( mm_gr_fiz, { 'не допущен', 0 } )
-//  Private mm_invalid2 := { { 'с рождения', 0 }, { 'приобретенная', 1 } }
-//  Private mm_invalid5 := { { 'некоторые инфекционные и паразитарные,', 1 }, ;
-//    { ' из них: туберкулез,', 101 }, ;
-//    { '         сифилис,', 201 }, ;
-//    { '         ВИЧ-инфекция;', 301 }, ;
-//    { 'новообразования;', 2 }, ;
-//    { 'болезни крови, кроветворных органов ...', 3 }, ;
-//    { 'болезни эндокринной системы ...', 4 }, ;
-//    { ' из них: сахарный диабет;', 104 }, ;
-//    { 'психические расстройства и расстройства поведения,', 5 }, ;
-//    { ' в том числе умственная отсталость;', 105 }, ;
-//    { 'болезни нервной системы,', 6 }, ;
-//    { ' из них: церебральный паралич,', 106 }, ;
-//    { '         другие паралитические синдромы;', 206 }, ;
-//    { 'болезни глаза и его придаточного аппарата;', 7 }, ;
-//    { 'болезни уха и сосцевидного отростка;', 8 }, ;
-//    { 'болезни системы кровообращения;', 9 }, ;
-//    { 'болезни органов дыхания,', 10 }, ;
-//    { ' из них: астма,', 110 }, ;
-//    { '         астматический статус;', 210 }, ;
-//    { 'болезни органов пищеварения;', 11 }, ;
-//    { 'болезни кожи и подкожной клетчатки;', 12 }, ;
-//    { 'болезни костно-мышечной системы и соединительной ткани;', 13 }, ;
-//    { 'болезни мочеполовой системы;', 14 }, ;
-//    { 'отдельные состояния, возникающие в перинатальном периоде;', 15 }, ;
-//    { 'врожденные аномалии,', 16 }, ;
-//    { ' из них: аномалии нервной системы,', 116 }, ;
-//    { '         аномалии системы кровообращения,', 216 }, ;
-//    { '         аномалии опорно-двигательного аппарата;', 316 }, ;
-//    { 'последствия травм, отравлений и др.', 17 } }
-//  Private mm_invalid6 := { { 'умственные', 1 }, ;
-//    { 'другие психологические', 2 }, ;
-//    { 'языковые и речевые', 3 }, ;
-//    { 'слуховые и вестибулярные', 4 }, ;
-//    { 'зрительные', 5 }, ;
-//    { 'висцеральные и метаболические расстройства питания', 6 }, ;
-//    { 'двигательные', 7 }, ;
-//    { 'уродующие', 8 }, ;
-//    { 'общие и генерализованные', 9 } }
-//  Private mm_invalid8 := { { 'полностью', 1 }, ;
-//    { 'частично', 2 }, ;
-//    { 'начата', 3 }, ;
-//    { 'не выполнена', 0 } }
-//  Private mm_privivki1 := { { 'привит по возрасту', 0 }, ;
-//    { 'не привит по медицинским показаниям', 1 }, ;
-//    { 'не привит по другим причинам', 2 } }
-//  Private mm_privivki2 := { { 'полностью', 1 }, ;
-//    { 'частично', 2 } }
   //
   Private metap := 1, mperiod := 0, mshifr_zs := '', mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
     mkateg_uch, m1kateg_uch := 3, ; // Категория учета ребенка:
@@ -364,7 +299,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             ' по ' + full_date( human->K_DATA ) }
         Endif
         If eq_any( human->ishod, 301, 302 ) // если профилактика несовершеннолетних
-          read_arr_pn( human->kod, .f. ) // читаем переменную 'mperiod'
+          read_arr_pn( human->kod, .f., human->K_DATA ) // читаем переменную 'mperiod'
           _mperiod := mperiod
           If _mperiod > 0
             AAdd( arr_prof, { _mperiod, human->n_data, human->k_data } )
@@ -608,7 +543,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Endif
       Next
     Next
-    read_arr_pn( Loc_kod )
+    read_arr_pn( Loc_kod, .t., mk_data )
     If metap == 1 .and. m1p_otk == 1
       m1step2 := 2
     Endif
@@ -661,7 +596,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   Close databases
   is_talon := .t.
-
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )
   MFIO_KART := _f_fio_kart()
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
@@ -1819,14 +1753,14 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         m1assis  := arr_osm1[ i, 3 ]
         m1PROFIL := arr_osm1[ i, 4 ]
         // MKOD_DIAG := padr(arr_osm1[i, 6], 6)
-        If !is_otkaz // добавляем код ЗС
+        If ! is_otkaz .and. mk_data < 0d20250901  // добавляем код ЗС до 01.09.25
           AAdd( arr_usl_dop, Array( 10 ) )
           j := Len( arr_usl_dop )
           arr_usl_dop[ j, 1 ] := m1vrach
           arr_usl_dop[ j, 2 ] := m1prvs
           arr_usl_dop[ j, 3 ] := m1assis
           arr_usl_dop[ j, 4 ] := 151 // для кода ЗС - мед.осмотрам профилактическим
-          arr_usl_dop[ j, 5 ] := ret_shifr_zs_pn( mperiod )
+          arr_usl_dop[ j, 5 ] := ret_shifr_zs_pn( mperiod, mk_data )
           arr_usl_dop[ j, 6 ] := MKOD_DIAG
           arr_usl_dop[ j, 9 ] := mn_data
         Endif

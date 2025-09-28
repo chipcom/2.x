@@ -159,51 +159,54 @@ Function np_oftal_2_85_21( _period, _k_data )
   Endif
   Return Nil
 
-// 20.09.25 вернуть шифр услуги законченного случая для ПН
+// 28.09.25 вернуть шифр услуги законченного случая для ПН
 Function ret_shifr_zs_pn( _period, mdata )
 
   Local lshifr := ''
 
-  Do Case
-  Case _period == 1
-    lshifr := iif( is_neonat, '72.2.37', '72.2.38' ) // 0 месяцев
-  Case _period == 2
-    lshifr := '72.2.39' // 1 месяц
-  Case _period == 3
-    lshifr := iif( m1lis > 0, '72.2.41', '72.2.40' ) // 2 мес
-  Case _period == 4
-    lshifr := '72.2.43' // 3 месяца
-  Case eq_any( _period, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15 )
-    lshifr := '72.2.42' // 4мес, 5мес, 6мес, 7мес, 8мес, 9мес, 10мес, 11мес, 1год3мес, 1год6мес
-  Case _period == 13
-    If AScan( np_arr_1_etap( mdata )[ _period, 4 ], '2.85.21' ) > 0  // если есть офтальмолог
-      lshifr := iif( m1lis > 0, '72.2.65', '72.2.64' ) // 12 месяцев с 1 сентября
-    Else
-      lshifr := iif( m1lis > 0, '72.2.45', '72.2.44' ) // 12 месяцев
-    Endif
-  Case _period == 16
-    lshifr := '72.2.46' // 2 года
-  Case _period == 17
-    lshifr := iif( m1lis > 0, '72.2.48', '72.2.47' ) // 3 года
-  Case eq_any( _period, 18, 19, 22, 23, 25, 26 )
-    lshifr := '72.2.49' // 4 года, 5 лет, 8 лет, 9 лет, 11 лет, 12лет
-  Case _period == 20
-    lshifr := iif( m1lis > 0, '72.2.51', '72.2.50' ) // 6 лет
-  Case _period == 21
-    lshifr := iif( m1lis > 0, '72.2.53', '72.2.52' ) // 7 лет
-  Case _period == 24
-    lshifr := iif( m1lis > 0, '72.2.55', '72.2.54' ) // 10 лет
-  Case _period == 27
-    lshifr := '72.2.56' // 13 лет
-  Case _period == 28
-    lshifr := '72.2.57' // 14 лет
-  Case _period == 29
-    lshifr := iif( m1lis > 0, '72.2.59', '72.2.58' ) // 15 лет
-  Case _period == 30
-    lshifr := iif( m1lis > 0, '72.2.61', '72.2.60' ) // 16 лет
-  Case _period == 31
-    lshifr := iif( m1lis > 0, '72.2.63', '72.2.62' ) // 17 лет
-  Endcase
+  if mdata >= 0d20250901
+  else
+    Do Case
+    Case _period == 1
+      lshifr := iif( is_neonat, '72.2.37', '72.2.38' ) // 0 месяцев
+    Case _period == 2
+      lshifr := '72.2.39' // 1 месяц
+    Case _period == 3
+      lshifr := iif( m1lis > 0, '72.2.41', '72.2.40' ) // 2 мес
+    Case _period == 4
+      lshifr := '72.2.43' // 3 месяца
+    Case eq_any( _period, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15 )
+      lshifr := '72.2.42' // 4мес, 5мес, 6мес, 7мес, 8мес, 9мес, 10мес, 11мес, 1год3мес, 1год6мес
+    Case _period == 13
+      If AScan( np_arr_1_etap( mdata )[ _period, 4 ], '2.85.21' ) > 0  // если есть офтальмолог
+        lshifr := iif( m1lis > 0, '72.2.65', '72.2.64' ) // 12 месяцев с 1 сентября
+      Else
+        lshifr := iif( m1lis > 0, '72.2.45', '72.2.44' ) // 12 месяцев
+      Endif
+    Case _period == 16
+      lshifr := '72.2.46' // 2 года
+    Case _period == 17
+      lshifr := iif( m1lis > 0, '72.2.48', '72.2.47' ) // 3 года
+    Case eq_any( _period, 18, 19, 22, 23, 25, 26 )
+      lshifr := '72.2.49' // 4 года, 5 лет, 8 лет, 9 лет, 11 лет, 12лет
+    Case _period == 20
+      lshifr := iif( m1lis > 0, '72.2.51', '72.2.50' ) // 6 лет
+    Case _period == 21
+      lshifr := iif( m1lis > 0, '72.2.53', '72.2.52' ) // 7 лет
+    Case _period == 24
+      lshifr := iif( m1lis > 0, '72.2.55', '72.2.54' ) // 10 лет
+    Case _period == 27
+      lshifr := '72.2.56' // 13 лет
+    Case _period == 28
+      lshifr := '72.2.57' // 14 лет
+    Case _period == 29
+      lshifr := iif( m1lis > 0, '72.2.59', '72.2.58' ) // 15 лет
+    Case _period == 30
+      lshifr := iif( m1lis > 0, '72.2.61', '72.2.60' ) // 16 лет
+    Case _period == 31
+      lshifr := iif( m1lis > 0, '72.2.63', '72.2.62' ) // 17 лет
+    Endcase
+  Endif
   Return lshifr
 
 // 07.02.23
@@ -566,8 +569,8 @@ Function save_arr_pn( lkod )
   save_arr_dispans( lkod, arr )
   Return Nil
 
-// 23.09.25
-Function read_arr_pn( lkod, is_all )
+// 28.09.25
+Function read_arr_pn( lkod, is_all, mdata )
 
   Local arr, i, k
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
@@ -808,7 +811,7 @@ Function read_arr_pn( lkod, is_all )
         Case arr[ i, 1 ] == '57' .and. ValType( arr[ i, 2 ] ) == 'N'
           m1profil_kojki := arr[ i, 2 ]
         Otherwise
-          For k := 1 To count_pn_arr_iss( mk_data )
+          For k := 1 To count_pn_arr_iss( mdata )
             If arr[ i, 1 ] == '18.' + lstr( k ) .and. ValType( arr[ i, 2 ] ) == 'C'
               mvar := 'MREZi' + lstr( k )
               &mvar := PadR( arr[ i, 2 ], 17 )
