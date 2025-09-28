@@ -7074,7 +7074,7 @@ Function f21_inf_dnl( par )
 
   Return Nil
 
-// 20.06.20
+// 28.09.25
 Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // сводная информация
 
   Local ii, im, i, j, k, s, sumr := 0, ar := { 0 }, ltip_school := -1, ar15[ 26 ], ;
@@ -7100,7 +7100,7 @@ Function f1_f21_inf_dnl( Loc_kod, kod_kartotek ) // сводная информация
   Next
   ii := 1
   is_2 := ( human->ishod == 302 ) // это второй этап
-  read_arr_pn( Loc_kod )
+  read_arr_pn( Loc_kod, .t., human->K_DATA )
   If human->pol == "М"
     If m1napr_stac > 0
       ar15[ 23 ] ++
@@ -7900,7 +7900,7 @@ Function inf_dnl_030poo( is_schet )
 
   Return Nil
 
-// 14.07.19
+// 28.09.25
 Function f2_inf_dnl_030poo( Loc_kod, kod_kartotek ) // сводная информация
 
   Local i, j, k, av := {}, av1 := {}, ad := {}, arr, s, fl, ;
@@ -7999,7 +7999,7 @@ Function f2_inf_dnl_030poo( Loc_kod, kod_kartotek ) // сводная информация
   If !Between( mdvozrast, 0, 17 )
     mdvozrast := 17
   Endif
-  read_arr_pn( Loc_kod )
+  read_arr_pn( Loc_kod, .t., human->K_DATA )
   arr_deti[ 1 ] ++
   If mdvozrast < 5
     arr_deti[ 2 ] ++

@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 12.09.25 создание XML-файлов реестра
+// 26.09.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
@@ -386,7 +386,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         if ( p_tip_reestr == 1 )
           if ( kol_sl == 1 .and. ( human->k_data >= 0d20250101 ) ) ;  // одинарный случай
               .or. ( kol_sl == 2 .and. ( ksl_date >= 0d20250101 ) )   // двойной случай
-            mo_add_xml_stroke( oPAC, 'SOC', kart->pc3 )
+            mo_add_xml_stroke( oPAC, 'SOC', iif( Empty( kart->pc3 ), '000', kart->pc3 ) )
           endif
         endif
         // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
@@ -405,7 +405,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         Endif
 
         if ( p_tip_reestr == 2 ) .and. ( human->k_data >= 0d20250101 )
-          mo_add_xml_stroke( oPAC, 'SOC', kart->pc3 )
+          mo_add_xml_stroke( oPAC, 'SOC', iif( Empty( kart->pc3 ), '000', kart->pc3 ) )
         endif
           
         // заполним сведения о законченном случае оказания медицинской помощи для XML-документа
@@ -1509,7 +1509,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Return Nil
 
-// 23.09.25 работаем по текущей записи
+// 28.09.25 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1807,7 +1807,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
     read_arr_dds( human->kod )
   Elseif eq_any( human->ishod, 301, 302 ) // профосмотры несовершеннолетних
     arr_usl_otkaz := {}
-    read_arr_pn( human->kod )
+    read_arr_pn( human->kod, .t., human->K_DATA )
     If ValType( arr_usl_otkaz ) == 'A'
       For j := 1 To Len( arr_usl_otkaz )
         ar := arr_usl_otkaz[ j ]

@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 25.09.25
+// 28.09.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -71,6 +71,8 @@ Function verify_sluch( fl_view )
     arr_usl_otkaz := {}, m1novor := 0, mpol := human->pol, mDATE_R2 := CToD( '' ), ;
     is_oncology := 0, is_oncology_smp := 0
 
+  private mk_data
+
   mIDPC := ''
   rec_human := human->( RecNo() )
 
@@ -114,6 +116,7 @@ Function verify_sluch( fl_view )
   glob_kartotek := human->kod_k
   dBegin := human->n_data
   dEnd := human->k_data
+  mk_data := human->k_data
   cd1 := dtoc4( dBegin )
   cd2 := dtoc4( dEnd )
   yearBegin := Year( dBegin )
@@ -632,7 +635,7 @@ Function verify_sluch( fl_view )
   kvp_2_78 := kvp_2_79 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 := kol_55_1 := 0
   kvp_70_5 := kvp_70_6 := kvp_70_3 := kvp_72_2 := kvp_72_3 := kvp_72_4 := 0
   is_2_78 := is_2_79 := is_2_80 := is_2_81 := is_2_82 := .f.
-  is_2_83 := is_2_84 := is_2_85 := is_2_86 := is_2_87 := is_2_88 := is_2_89 := .f.
+  is_2_83 := is_2_84 := is_2_85 := is_2_86 := is_2_87 := is_2_88 := is_2_89 := is_2_94 := .f.
   a_2_89 := Array( 15 )
   AFill( a_2_89, 0 )
   is_disp_DDS := is_disp_DVN := is_disp_DVN3 := is_prof_PN := is_neonat := is_pren_diagn := .f.
@@ -1122,6 +1125,10 @@ Function verify_sluch( fl_view )
         Elseif left_lshifr_5 == '70.9.'
           mIDSP := 30 // диспансеризация репродуктивного здоровья
           is_disp_DRZ := .t.
+          is_exist_Prescription := .t.
+        Elseif left_lshifr_5 == '2.94.' // профилактика несовершеннолетних c 01.09.25
+          is_prof_PN := .t.
+          is_2_94 := .t.
           is_exist_Prescription := .t.
         Elseif left_lshifr_5 == '2.85.' // профилактика несовершеннолетних
           is_prof_PN := .t.
@@ -3623,7 +3630,6 @@ Function verify_sluch( fl_view )
     Endif
   Endif
   If is_prof_PN //
-    arr_PN_osmotr := np_arr_osmotr( dEnd )
     human_->profil := 151  // медицинским осмотрам профилактическим
     metap := 1
     m1mobilbr := 0
@@ -3639,7 +3645,8 @@ Function verify_sluch( fl_view )
     mperiod := ret_period_pn( mdate_r, dBegin, dEnd )
     If Between( mperiod, 1, 31 )
       np_oftal_2_85_21( mperiod, dEnd ) // добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
-      read_arr_pn( human->kod )
+      read_arr_pn( human->kod, .t., dEnd )
+      arr_PN_osmotr := np_arr_osmotr( dEnd, m1mobilbr )
       kol_d_otkaz := 0
       If ValType( arr_usl_otkaz ) == 'A'
         For j := 1 To Len( arr_usl_otkaz )
@@ -3724,7 +3731,7 @@ Function verify_sluch( fl_view )
               is_last_den := .t.
             Endif
           Elseif is_osmotr_pn( au_lu[ i ], mperiod, ta, metap, mpol, dEnd, m1mobilbr )
-            If eq_any( Left( au_lu[ i, 1 ], 4 ), '2.3.', '2.4.', '2.85', '2.91' )
+            If eq_any( Left( au_lu[ i, 1 ], 4 ), '2.3.', '2.4.', '2.85', '2.91', '2.94' )
               ++kvp
             Endif
             If dBegin == au_lu[ i, 2 ]
@@ -3819,16 +3826,13 @@ Function verify_sluch( fl_view )
             Next k
           Endif
           If !fl .and. dEnd < 0d20191101
-//            If mperiod == 16 .and. np_arr_osmotr[ j, 1 ] == '2.4.2' // 2 года
             If mperiod == 16 .and. arr_PN_osmotr[ j, 1 ] == '2.4.2' // 2 года
               fl := .t. // услуга не должна быть оказана
-//            Elseif mperiod == 20 .and. np_arr_osmotr[ j, 1 ] == '2.85.24' // 6 лет
             Elseif mperiod == 20 .and. arr_PN_osmotr[ j, 1 ] == '2.85.24' // 6 лет
               fl := .t. // услуга не должна быть оказана
             Endif
           Endif
           If !fl
-//            AAdd( ta, 'некорректно записан врачебный осмотр 1-го этапа "' + np_arr_osmotr[ j, 3 ] + ' (отредактируйте)' )
             AAdd( ta, 'некорректно записан врачебный осмотр 1-го этапа "' + arr_PN_osmotr[ j, 3 ] + ' (отредактируйте)' )
           Endif
         Endif
@@ -3837,8 +3841,9 @@ Function verify_sluch( fl_view )
         fl := .f.
         For i := 1 To Len( au_lu )
           If eq_any( au_lu[ i, 3 ], 68, 57 ) ; // педиатр (врач общей практики)
-            .and. Left( au_lu[ i, 1 ], 4 ) == '2.3.' // на 1-ом этапе
-            fl := .t. ; Exit
+              .and. ( Left( au_lu[ i, 1 ], 4 ) == '2.3.' .or. Left( au_lu[ i, 1 ], 4 ) == '2.94' )  // на 1-ом этапе
+            fl := .t.
+            Exit
           Endif
         Next i
         If !fl

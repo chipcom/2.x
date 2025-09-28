@@ -1030,7 +1030,7 @@ Function ret_f12_dvn( Loc_kod, par )
 
   Return arr
 
-// 21.09.25 возврат массива диагнозов для формы 12 из профосмотров несовершеннолетних и дисп-ии детей-сирот
+// 28.09.25 возврат массива диагнозов для формы 12 из профосмотров несовершеннолетних и дисп-ии детей-сирот
 Function ret_f12_pn( Loc_kod, par, mdata )
 
   Local arr, ad := {}, i, j, k, s, lshifr
@@ -1055,7 +1055,7 @@ Function ret_f12_pn( Loc_kod, par, mdata )
       mvar := "MREZi" + lstr( i )
       Private &mvar := Space( 17 )
     Next
-    read_arr_pn( Loc_kod )
+    read_arr_pn( Loc_kod, .t., mdata )
     If Select( "frt" ) > 0
       Select HU
       find ( Str( Loc_kod, 7 ) )
