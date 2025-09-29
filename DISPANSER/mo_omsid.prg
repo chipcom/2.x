@@ -246,12 +246,16 @@ Function f1_inf_dds_karta( nKey, oBrow, regim )
 
   Return ret
 
-// 23.09.25
+// 29.09.25
 Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
 
   Static st := "     ", ub := "<u><b>", ue := "</b></u>", sh := 88
   Local adbf, s, i, j, k, y, m, d, fl, mm_danet, blk := {| s| __dbAppend(), field->stroke := s }
   local mm_invalid5 := mm_invalid5()
+  local mm_gr_fiz
+
+  mm_gr_fiz := AClone( mm_gr_fiz_do() )
+  AAdd( mm_gr_fiz, { 'не допущен', 0 } )
 
   delfrfiles()
   r_use( dir_server() + "mo_stdds" )
@@ -855,9 +859,9 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
 // 05.07.13
 Function f3_inf_dds_karta( _menu, _i, _r, ub, ue, fl )
 
-  Local j, s := ""
+  Local j, s := ''
 
-  Default _r To ", ", fl To .t.
+  Default _r To ', ', fl To .t.
   For j := 1 To Len( _menu )
     If _i == _menu[ j, 2 ]
       s += ub
@@ -871,9 +875,8 @@ Function f3_inf_dds_karta( _menu, _i, _r, ub, ue, fl )
     Endif
   Next
   If fl
-    s += " (нужное подчеркнуть)."
+    s += ' (нужное подчеркнуть).'
   Endif
-
   Return s
 
 // 04.05.16
@@ -6160,12 +6163,16 @@ Function f1_inf_dnl_karta( nKey, oBrow, regim )
 
   Return ret
 
-// 23.09.25
+// 29.09.25
 Function f2_inf_dnl_karta( Loc_kod, kod_kartotek, lvozrast )
 
   Static st := "     ", ub := "<u><b>", ue := "</b></u>", sh := 88
   Local adbf, s, i, j, k, y, m, d, fl, mm_danet, blk := {| s| __dbAppend(), field->stroke := s }
   local mm_invalid5 := mm_invalid5()
+  local mm_gr_fiz
+
+  mm_gr_fiz := AClone( mm_gr_fiz_do() )
+  AAdd( mm_gr_fiz, { 'не допущен', 0 } )
 
   delfrfiles()
   r_use( dir_server() + "mo_stdds" )
