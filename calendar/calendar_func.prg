@@ -328,3 +328,24 @@ Function count_days( d1, d2 )
 // 16.02.2020 является ли выходным (праздничным) днём проведения диспансеризации
 Function f_is_prazdnik_dvn( _n_data )
   Return ! is_work_day( _n_data )
+
+// 29.09.25
+function valid_date( get, dBegin, dEnd, lEmpty )
+
+  local lRet := .t., d
+
+  if ValType( get ) == 'O'
+    d := CToD( get:Buffer )
+  endif
+  default lEmpty to .t.
+  if Empty( d ) .and. ! lEmpty
+    lRet := .f.
+  endif
+  if ! Empty( d ) .and. ( d < dBegin .or. d > dEnd )
+    lRet := .f.
+  Endif
+  if ! lRet
+    func_error( 5, 'Не допустимая дата!' )
+    get:varput( get:original )
+  endif
+  return .t.
