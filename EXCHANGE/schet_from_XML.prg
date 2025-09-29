@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.06.25 создать счета по результатам прочитанного реестра СП
+// 29.09.25 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
 
   Local arr_schet := {}, c, i, j, lbukva, ;
@@ -1077,8 +1077,12 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
       If Found() // нашли в отосланном реестре
         oPAC := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'PERS' ) )
         mo_add_xml_stroke( oPAC, 'ID_PAC', t3->ID_PAC )
-        mo_add_xml_stroke( oPAC, 'FAM', t3->FAM )
-        mo_add_xml_stroke( oPAC, 'IM', t3->IM )
+        If !Empty( t3->FAM )
+          mo_add_xml_stroke( oPAC, 'FAM', t3->FAM )
+        endif
+        If !Empty( t3->IM )
+          mo_add_xml_stroke( oPAC, 'IM', t3->IM )
+        endif
         If !Empty( t3->OT )
           mo_add_xml_stroke( oPAC, 'OT', t3->OT )
         Endif
