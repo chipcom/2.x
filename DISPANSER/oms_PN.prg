@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.09.25 ПН - добавление или редактирование случая (листа учета)
+// 29.09.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -537,7 +537,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               &m1var := hu->is_edit
             Endif
             mvar := 'monko' + lstr( i )
-            &mvar := inieditspr( A__MENUVERT, mm_vokod, &m1var )
+            &mvar := inieditspr( A__MENUVERT, mm_vokod(), &m1var )
           Elseif !Empty( hu_->kod_diag ) .and. !( Left( hu_->kod_diag, 1 ) == 'Z' )
             mvar := 'MKOD_DIAG' + bukva + lstr( i )
             &mvar := hu_->kod_diag
@@ -938,7 +938,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           mvarz := 'MKOD_DIAGo' + lstr( i )
           @ ++j, 1 Say PadR( np_arr_osmotr( mk_data, m1mobilbr )[ i, 3 ], 38 )
           If eq_any( i, 8, 10 )
-            @ j, 32 get &mvonk reader {| x| menu_reader( x, mm_vokod, A__MENUVERT, , , .f. ) } When m1step2 == 1
+            @ j, 32 get &mvonk reader {| x| menu_reader( x, mm_vokod(), A__MENUVERT, , , .f. ) } When m1step2 == 1
           Endif
           @ j, 39 get &mvarv Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
           If mem_por_ass > 0

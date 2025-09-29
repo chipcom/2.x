@@ -687,7 +687,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         update_get( 'mspolis' ), update_get( 'mnpolis' ), ;
         update_get( 'mvidpolis' ) }
       //
-      @ ++j, 1 Say 'Направление: дата' Get mNPR_DATE
+      @ ++j, 1 Say 'Направление: дата' Get mNPR_DATE valid {| g, o| valid_date( g, 0d20000101, 0d20301231 ) }
       @ j, Col() + 1 Say 'из МО' Get mNPR_MO ;
         reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
         Color colget_menu
