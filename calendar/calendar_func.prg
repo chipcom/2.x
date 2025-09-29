@@ -345,7 +345,7 @@ function valid_date( get, dBegin, dEnd, lEmpty )
     lRet := .f.
   Endif
   if ! lRet
-    func_error( 5, 'Не допустимая дата!' )
+    func_error( 5, 'Недопустимая дата!' )
     get:varput( get:original )
   endif
   return .t.
