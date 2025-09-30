@@ -457,13 +457,14 @@ Function save_arr_dds( lkod )
   Return Nil
 
 // 25.09.25
-Function read_arr_dds( lkod )
+Function read_arr_dds( lkod, mdata )
 
   Local arr, i, k
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
   Local oldSelect
   Private mvar
 
+  default mdata to Date()
   If ! aliasIsUse
     oldSelect := Select()
     r_use( dir_server() + 'mo_pers',, 'TPERS' )
@@ -720,3 +721,87 @@ Function read_arr_dds( lkod )
     Select( oldSelect )
   Endif
   Return Nil
+
+// 30.09.25 вернуть возрастной период для профилактики несовершеннолетних
+Function ret_period_DDS( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
+
+  Local i, _m, _d, _y, _m2, _d2, _y2, lperiod, sm, sm_, sm1, sm2, yn_data, yk_data
+  Local arr_DDS_etap
+
+  Store 0 To _m, _d, _y, _m2, _d2, _y2, lperiod
+  yn_data := Year( ln_data )
+  yk_data := Year( lk_data )
+  arr_DDS_etap := DDS_arr_etap( lk_data )
+  ls := ''
+  count_ymd( ldate_r, ln_data, @_y, @_m, @_d ) // реальный возраст на начало
+  count_ymd( ldate_r, lk_data, @_y2, @_m2, @_d2 ) // реальный возраст на окончание
+  ret_i := 31
+  For i := Len( arr_DDS_etap ) To 1 Step -1
+    If i > 17 // 4 года и старше
+      If mdvozrast == arr_DDS_etap[ i, 2, 1 ]
+        ret_i := lperiod := i
+        ls := ' (' + lstr( mdvozrast ) + ' ' + s_let( mdvozrast ) + ')'
+        If yn_data != yk_data
+          lperiod := 0
+          ls := 'Ошибка! Начало и окончание профилактики должны быть в одном календарном году'
+        Endif
+        Exit
+      Endif
+    Elseif mdvozrast < 4 // до 3 лет (включительно)
+      sm1 := Round( Val( lstr( arr_DDS_etap[ i, 2, 1 ] ) + '.' + StrZero( arr_DDS_etap[ i, 2, 2 ], 2 ) ), 4 )
+      sm2 := Round( Val( lstr( arr_DDS_etap[ i, 3, 1 ] ) + '.' + StrZero( arr_DDS_etap[ i, 3, 2 ], 2 ) ), 4 )
+      sm := Round( Val( lstr( _y ) + '.' + StrZero( _m, 2 ) + StrZero( _d, 2 ) ), 4 )
+      sm_ := Round( Val( lstr( _y2 ) + '.' + StrZero( _m2, 2 ) + StrZero( _d2, 2 ) ), 4 )
+      If sm1 <= sm
+        ret_i := i
+        If sm_ <= sm2
+          lperiod := i
+          If lperiod == 1 // новорожденный
+            ls := '(новорожденный)'
+            If _m2 == 1 .or. _d2 > 29
+              lperiod := 0
+              ls := 'Ошибка! Новорожденному должно быть не более 29 дней'
+            Endif
+            Exit
+          Elseif lperiod == 16 // 2 года
+            ls := ' (2 года)'
+            If mdvozrast > 2
+              lperiod := 0
+              ls := 'Ошибка! Ребёнку в ' + lstr( yn_data ) + ' календарном году уже исполняется 3 года'
+            Endif
+            Exit
+          Elseif lperiod == 17 // 3 года
+            ls := ' (3 года)'
+            Exit
+          Endif
+          ls := ' ('
+          If arr_DDS_etap[ i, 2, 1 ] > 0
+            ls += lstr( arr_DDS_etap[ i, 2, 1 ] ) + ' ' + s_let( arr_DDS_etap[ i, 2, 1 ] ) + ' '
+          Endif
+          If arr_DDS_etap[ i, 2, 2 ] > 0
+            ls += lstr( arr_DDS_etap[ i, 2, 2 ] ) + ' ' + mes_cev( arr_DDS_etap[ i, 2, 2 ] )
+          Endif
+          ls := RTrim( ls ) + ')'
+        Else
+          // ls := 'Должен быть период ' + ;
+          // iif( np_arr_1_etap()[ i, 2, 1 ] == 0, '', lstr( np_arr_1_etap()[ i, 2, 1 ] ) + 'г.' ) + ;
+          // iif( np_arr_1_etap()[ i, 2, 2 ] == 0, '', lstr( np_arr_1_etap()[ i, 2, 2 ] ) + 'мес.' ) + '-' + ;
+          // iif( np_arr_1_etap()[ i, 3, 1 ] == 0, '', lstr( np_arr_1_etap()[ i, 3, 1 ] ) + 'г.' ) + ;
+          // iif( np_arr_1_etap()[ i, 3, 2 ] == 0, '', lstr( np_arr_1_etap()[ i, 3, 2 ] ) + 'мес.' ) + ', а у Вас ' + ;
+          ls := 'Должен быть период ' + ;
+            iif( arr_DDS_etap[ i, 2, 1 ] == 0, '', lstr( arr_DDS_etap[ i, 2, 1 ] ) + 'г.' ) + ;
+            iif( arr_DDS_etap[ i, 2, 2 ] == 0, '', lstr( arr_DDS_etap[ i, 2, 2 ] ) + 'мес.' ) + '-' + ;
+            iif( arr_DDS_etap[ i, 3, 1 ] == 0, '', lstr( arr_DDS_etap[ i, 3, 1 ] ) + 'г.' ) + ;
+            iif( arr_DDS_etap[ i, 3, 2 ] == 0, '', lstr( arr_DDS_etap[ i, 3, 2 ] ) + 'мес.' ) + ', а у Вас ' + ;
+            iif( _y == 0, '', lstr( _y ) + 'г.' ) + ;
+            iif( _m == 0, '', lstr( _m ) + 'мес.' ) + ;
+            iif( _d == 0, '', lstr( _d ) + 'дн.' ) + '-' + ;
+            iif( _y2 == 0, '', lstr( _y2 ) + 'г.' ) + ;
+            iif( _m2 == 0, '', lstr( _m2 ) + 'мес.' ) + ;
+            iif( _d2 == 0, '', lstr( _d2 ) + 'дн.' )
+        Endif
+        Exit
+      Endif
+    Endif
+  Next
+  Return lperiod
