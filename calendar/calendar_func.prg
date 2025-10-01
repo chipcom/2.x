@@ -329,14 +329,11 @@ Function count_days( d1, d2 )
 Function f_is_prazdnik_dvn( _n_data )
   Return ! is_work_day( _n_data )
 
-// 29.09.25
-function valid_date( get, dBegin, dEnd, lEmpty )
+// 01.10.25
+function valid_date( d, dBegin, dEnd, lEmpty )
 
-  local lRet := .t., d
+  local lRet := .t.
 
-  if ValType( get ) == 'O'
-    d := CToD( get:Buffer )
-  endif
   default lEmpty to .t.
   if Empty( d ) .and. ! lEmpty
     lRet := .f.
@@ -344,8 +341,4 @@ function valid_date( get, dBegin, dEnd, lEmpty )
   if ! Empty( d ) .and. ( d < dBegin .or. d > dEnd )
     lRet := .f.
   Endif
-  if ! lRet
-    func_error( 5, 'Недопустимая дата!' )
-    get:varput( get:original )
-  endif
-  return .t.
+  return lRet
