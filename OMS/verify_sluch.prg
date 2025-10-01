@@ -1332,6 +1332,11 @@ Function verify_sluch( fl_view )
     Select HU
     Skip
   Enddo
+
+  if ! valid_date( human_2->NPR_DATE, 0d20000101, 0d20301231, .t. )
+    AAdd( ta, 'Недопустимое значение поля "Дата направления"' )
+  endif
+  
   If !is_mgi .and. AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0
     If eq_any( human_->profil, 6, 34 )
       human->KOD_DIAG := 'Z01.7' // всегда
@@ -3780,7 +3785,7 @@ Function verify_sluch( fl_view )
       ar := AClone( np_arr_1_etap( dEnd )[ mperiod, 5 ] )
       For i := 1 To Len( ar ) // исследования
         lshifr := AllTrim( ar[ i ] )
-        If AScan( au_lu, {| x| AllTrim( x[ 1 ] ) == lshifr } ) > 0
+        If ( AScan( au_lu, {| x| AllTrim( x[ 1 ] ) == lshifr } ) > 0 ) .or. ( lshifr == '4.29.2' ) // исследование уровня холестерина в крови
           // услуга оказана
         Elseif AScan( arr_usl_otkaz, {| x| ValType( x ) == 'A' .and. ValType( x[ 5 ] ) == 'C' .and. AllTrim( x[ 5 ] ) == lshifr } ) > 0
           // услуга в отказах

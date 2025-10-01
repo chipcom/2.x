@@ -1381,7 +1381,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             fl := func_error( 4, 'Не введена дата иссл-ия "' + np_arr_issled( mk_data )[ i, 3 ] + '"' )
           Elseif metap == 2 .and. &mvard > d12
             fl := func_error( 4, 'Дата иссл-ия "' + np_arr_issled( mk_data )[ i, 3 ] + '" не в I-ом этапе (> 20 дней)' )
-          Elseif Empty( &mvart )
+          Elseif Empty( &mvart ) .and. np_arr_issled( mk_data )[ i, 1 ] != '4.29.2' // исследование уровня холестерина в крови
             fl := func_error( 4, 'Не введен врач в иссл-ии "' + np_arr_issled( mk_data )[ i, 3 ] + '"' )
           Endif
         Endif
