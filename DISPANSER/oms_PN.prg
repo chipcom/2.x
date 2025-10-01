@@ -14,10 +14,11 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, arr_del := {}, mrec_hu := 0, ;
     buf := SaveScreen(), tmp_color := SetColor(), a_smert := {}, ;
     p_uch_doc := '@!', pic_diag := '@K@!', arr_usl := {}, ;
-    i, j, k, n, s, s1, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
+    colget_menu := 'R/W', colgetImenu := 'R/BG', ;
     pos_read := 0, k_read := 0, count_edit := 0, larr, lu_kod, ;
     tmp_help := chm_help_code, fl_write_sluch := .f., _y, _m, _d, t_arr[ 2 ], ;
     arr_prof := {}, is_3_5_4 := .f.
+  local i, j, k, n, s, s1, fl
   local count_pn_arr_iss, count_pn_arr_osm
   local mm_uch1
   local mm_mesto_prov := { { 'медицинская организация', 0 }, ;
@@ -26,11 +27,18 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   local mm_dispans := { { 'ранее', 1 }, { 'впервые', 2 }, { 'не уст.', 0 } }
   local mm_gr_fiz_do
   local mm_gr_fiz
+  local _arr, larr_i, larr_o, larr_p
+  local bukva
+  local arr_iss
+  local arr_osm1, arr_osm2
+  local dir_DB, work_dir
 
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0, f_print To ''
   //
+  dir_DB := dir_server()
+  work_dir := cur_dir()
   If kod_kartotek == 0 // добавление в картотеку
     If ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
       Return Nil
@@ -79,14 +87,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 //  Private mm_uch := { { 'МУЗ ', 1 }, { 'ГУЗ ', 0 }, { 'фед.', 2 }, { 'част', 3 } }
 //  Private mm_uch1 := AClone( mm_uch() )
 
-  mm_uch1 := AClone( mm_uch() )
-  AAdd( mm_uch1, { 'сан.', 4 } )
-//  Private mm_gr_fiz_do := { { 'I', 1 }, { 'II', 2 }, { 'III', 3 }, { 'IV', 4 } }
-  mm_gr_fiz_do := mm_gr_fiz_do()
-//  Private mm_gr_fiz := AClone( mm_gr_fiz_do )
-  mm_gr_fiz := AClone( mm_gr_fiz_do )
-  AAdd( mm_gr_fiz_do, { 'отсутствует', 0 } )
-  AAdd( mm_gr_fiz, { 'не допущен', 0 } )
   //
   Private metap := 1, mperiod := 0, mshifr_zs := '', mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
     mkateg_uch, m1kateg_uch := 3, ; // Категория учета ребенка:
@@ -162,6 +162,15 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
     mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
     mTab_Number := 0
+
+  mm_uch1 := AClone( mm_uch() )
+  AAdd( mm_uch1, { 'сан.', 4 } )
+//  Private mm_gr_fiz_do := { { 'I', 1 }, { 'II', 2 }, { 'III', 3 }, { 'IV', 4 } }
+  mm_gr_fiz_do := mm_gr_fiz_do()
+//  Private mm_gr_fiz := AClone( mm_gr_fiz_do )
+  mm_gr_fiz := AClone( mm_gr_fiz_do )
+  AAdd( mm_gr_fiz_do, { 'отсутствует', 0 } )
+  AAdd( mm_gr_fiz, { 'не допущен', 0 } )
 
   For i := 1 To 5
     For k := 1 To 14
@@ -247,24 +256,24 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   //
   AFill( adiag_talon, 0 )
   //
-  dbCreate( cur_dir() + 'tmp', { ;
+  dbCreate( work_dir + 'tmp', { ;
     { 'U_KOD',    'N',      4,      0 }, ;  // код услуги
     { 'U_SHIFR',    'C',     10,      0 }, ;  // шифр услуги
     { 'U_NAME',     'C',     65,      0 } ;  // наименование услуги
   } )
-  Use ( cur_dir() + 'tmp' )
-  Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + 'tmpk' )
-  Index On fsort_usl( FIELD->u_shifr ) to ( cur_dir() + 'tmpn' )
-  Set Index to ( cur_dir() + 'tmpk' ), ( cur_dir() + 'tmpn' )
-  r_use( dir_server() + 'human_', , 'HUMAN_' )
-  r_use( dir_server() + 'human', , 'HUMAN' )
+  Use ( work_dir + 'tmp' )
+  Index On Str( FIELD->u_kod, 4 ) to ( work_dir + 'tmpk' )
+  Index On fsort_usl( FIELD->u_shifr ) to ( work_dir + 'tmpn' )
+  Set Index to ( work_dir + 'tmpk' ), ( work_dir + 'tmpn' )
+  r_use( dir_DB + 'human_', , 'HUMAN_' )
+  r_use( dir_DB + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
   If mkod_k > 0
-    r_use( dir_server() + 'kartote2', , 'KART2' )
+    r_use( dir_DB + 'kartote2', , 'KART2' )
     Goto ( mkod_k )
-    r_use( dir_server() + 'kartote_', , 'KART_' )
+    r_use( dir_DB + 'kartote_', , 'KART_' )
     Goto ( mkod_k )
-    r_use( dir_server() + 'kartotek', , 'KART' )
+    r_use( dir_DB + 'kartotek', , 'KART' )
     Goto ( mkod_k )
     M1FIO       := 1
     mfio        := kart->fio
@@ -295,7 +304,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     Endif
     // проверка исхода = СМЕРТЬ и поиск предыдущих профилактик
     Select HUMAN
-    Set Index to ( dir_server() + 'humankk' )
+    Set Index to ( dir_DB + 'humankk' )
     find ( Str( mkod_k, 7 ) )
     Do While human->kod_k == mkod_k .and. !Eof()
       If RecNo() != Loc_kod .and. human_->oplata != 9 .and. human_->NOVOR == 0 .and. Year( human->k_data ) > 2017
@@ -310,8 +319,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           If _mperiod > 0
             AAdd( arr_prof, { _mperiod, human->n_data, human->k_data } )
             If eq_any( _mperiod, 1, 2 )
-              r_use( dir_server() + 'uslugi', , 'USL' )
-              r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
+              r_use( dir_DB + 'uslugi', , 'USL' )
+              r_use( dir_DB + 'human_u', dir_DB + 'human_u', 'HU' )
               find ( Str( human->kod, 7 ) )
               Do While hu->kod == human->kod .and. !Eof()
                 usl->( dbGoto( hu->u_kod ) )
@@ -423,7 +432,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     AFill( larr_o, 0 )
     larr_p := {}
     mdate1 := mdate2 := CToD( '' )
-    r_use( dir_server() + 'uslugi', , 'USL' )
+    r_use( dir_DB + 'uslugi', , 'USL' )
     use_base( 'human_u' )
     find ( Str( Loc_kod, 7 ) )
     Do While hu->kod == Loc_kod .and. !Eof()
@@ -494,7 +503,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Enddo
       Endif
     Endif
-    r_use( dir_server() + 'mo_pers', , 'P2' )
+    r_use( dir_DB + 'mo_pers', , 'P2' )
     For j := 1 To 3
       If j == 1
         _arr := larr_i
@@ -593,7 +602,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     msmo := '34'
   Endif
 
-  dbCreate( cur_dir() + 'tmp_onkna', create_struct_temporary_onkna() )
+  dbCreate( work_dir + 'tmp_onkna', create_struct_temporary_onkna() )
   cur_napr := 1 // при ред-ии - сначала первое направление текущее
   count_napr := collect_napr_zno( Loc_kod )
   If count_napr > 0
@@ -605,8 +614,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )
   MFIO_KART := _f_fio_kart()
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
-  mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
-  motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
+  mlpu      := inieditspr( A__POPUPMENU, dir_DB + 'mo_uch', m1lpu )
+  motd      := inieditspr( A__POPUPMENU, dir_DB + 'mo_otd', m1otd )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
@@ -628,7 +637,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   //
   mmesto_prov := inieditspr( A__MENUVERT, mm_mesto_prov, m1mesto_prov ) // место проведения
   mmobilbr := inieditspr( A__MENUVERT, mm_danet, m1mobilbr )
-  mschool := inieditspr( A__POPUPMENU, dir_server() + 'mo_schoo', m1school )
+  mschool := inieditspr( A__POPUPMENU, dir_DB + 'mo_schoo', m1school )
   mkateg_uch := inieditspr( A__MENUVERT, mm_kateg_uch(), m1kateg_uch )
   If !Empty( m1MO_PR )
     mMO_PR := ret_mo( m1MO_PR )[ _MO_SHORT_NAME ]
@@ -781,7 +790,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'МО прикрепления' Get mMO_PR ;
         reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) }
       @ ++j, 1 Say 'Общеобразовательное учреждение' Get mschool ;
-        reader {| x| menu_reader( x, { dir_server() + 'mo_schoo', , , , , , 'Общеобразовательные учр-ия', 'B/BG' }, A__POPUPBASE, , , .f. ) } ;
+        reader {| x| menu_reader( x, { dir_DB + 'mo_schoo', , , , , , 'Общеобразовательные учр-ия', 'B/BG' }, A__POPUPBASE, , , .f. ) } ;
         when m1mesto_prov == 1
       ++j
       @ ++j, 1 Say 'Вес' Get mWEIGHT Pict '999' ;
@@ -1338,8 +1347,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
       arr_iss := Array( count_pn_arr_iss, 10 )
       afillall( arr_iss, 0 )
-      r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
-      r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2' )
+      r_use( dir_exe() + '_mo_mkb', work_dir + '_mo_mkb', 'MKB_10' )
+      r_use( dir_DB + 'mo_pers', dir_DB + 'mo_pers', 'P2' )
       num_screen := 2
       max_date1 := max_date2 := mn_data
       d12 := mn_data -1
@@ -1772,7 +1781,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           arr_usl_dop[ j, 9 ] := mn_data
         Endif
       Else  // оформление 2-го этапа по-новому
-        Use ( cur_dir() + 'tmp' ) new
+        Use ( work_dir + 'tmp' ) new
         Go Top
         Do While !Eof()
           If is_lab_usluga( tmp->u_shifr )
@@ -1866,8 +1875,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       use_base( 'lusl' )
       use_base( 'luslc' )
       use_base( 'uslugi' )
-      r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
-        dir_server() + 'uslugi1s' }, 'USL1' )
+      r_use( dir_DB + 'uslugi1', { dir_DB + 'uslugi1', ;
+        dir_DB + 'uslugi1s' }, 'USL1' )
       Private mu_cena
       mcena_1 := 0
       glob_podr := ''
@@ -2008,8 +2017,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
-        g_use( dir_server() + 'mo_hismo', , 'SN' )
-        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
+        g_use( dir_DB + 'mo_hismo', , 'SN' )
+        Index On Str( FIELD->kod, 7 ) to ( work_dir + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo
