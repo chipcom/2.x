@@ -3787,7 +3787,9 @@ Function verify_sluch( fl_view )
         lshifr := AllTrim( ar[ i ] )
         If ( AScan( au_lu, {| x| AllTrim( x[ 1 ] ) == lshifr } ) > 0 ) .or. ( lshifr == '4.29.2' ) // исследование уровня холестерина в крови
           // услуга оказана
-        Elseif AScan( arr_usl_otkaz, {| x| ValType( x ) == 'A' .and. ValType( x[ 5 ] ) == 'C' .and. AllTrim( x[ 5 ] ) == lshifr } ) > 0
+        Elseif dEnd < 0d20250901 .and. AScan( arr_usl_otkaz, {| x| ValType( x ) == 'A' .and. ValType( x[ 5 ] ) == 'C' .and. AllTrim( x[ 5 ] ) == lshifr } ) > 0
+          // услуга в отказах
+        elseif dEnd >= 0d20250901 .and. proverka_otkaza_new( dEnd, arr_usl_otkaz, lshifr )
           // услуга в отказах
         Else
           s := ''

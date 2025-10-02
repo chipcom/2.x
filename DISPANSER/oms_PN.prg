@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 29.09.25 ПН - добавление или редактирование случая (листа учета)
+// 02.10.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -29,7 +29,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   local mm_gr_fiz
   local _arr, larr_i, larr_o, larr_p
   local bukva
-  local arr_iss
+  local arr_iss, arr_not_zs
   local arr_osm1, arr_osm2
   local dir_DB, work_dir
 
@@ -321,8 +321,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             If eq_any( _mperiod, 1, 2 )
               r_use( dir_DB + 'uslugi', , 'USL' )
               r_use( dir_DB + 'human_u', dir_DB + 'human_u', 'HU' )
-              find ( Str( human->kod, 7 ) )
-              Do While hu->kod == human->kod .and. !Eof()
+              hu->( dbSeek( Str( human->kod, 7 ) ) )  //find ( Str( human->kod, 7 ) )
+              Do While hu->kod == human->kod .and. ! hu->( Eof() )
                 usl->( dbGoto( hu->u_kod ) )
                 If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data ) )
                   lshifr := usl->shifr
@@ -330,8 +330,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
                 If AllTrim( lshifr ) == '3.5.4' // Аудиологический скрининг
                   is_3_5_4 := .t.
                 Endif
-                Select HU
-                Skip
+//                Select HU
+//                Skip
+                hu->( dbSkip() )
               Enddo
               hu->( dbCloseArea() )
               usl->( dbCloseArea() )
@@ -432,6 +433,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     AFill( larr_o, 0 )
     larr_p := {}
     mdate1 := mdate2 := CToD( '' )
+
+    arr_not_zs := np_arr_not_zs( mk_data )
+
     r_use( dir_DB + 'uslugi', , 'USL' )
     use_base( 'human_u' )
     find ( Str( Loc_kod, 7 ) )
@@ -457,7 +461,11 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             fl := .f.
             larr_i[ i ] := hu->( RecNo() )
             Exit
-          Elseif ( j := AScan( np_arr_not_zs( mk_data ), {| x| x[ 2 ] == lshifr } ) ) > 0 .and. np_arr_issled( mk_data )[ i, 1 ] == np_arr_not_zs( mk_data )[ j, 1 ]
+          Elseif ( mk_data >= 0d20250901 ) .and. ( j := AScan( arr_not_zs, {| x| x[ 1 ] == lshifr } ) ) > 0 .and. np_arr_issled( mk_data )[ i, 1 ] == arr_not_zs[ j, 2 ]
+            fl := .f.
+            larr_i[ i ] := hu->( RecNo() )
+            Exit
+          Elseif ( mk_data < 0d20250901 ) .and. ( j := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 .and. np_arr_issled( mk_data )[ i, 1 ] == arr_not_zs[ j, 1 ]
             fl := .f.
             larr_i[ i ] := hu->( RecNo() )
             Exit
@@ -567,7 +575,16 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         ar := arr_usl_otkaz[ j ]
         If ValType( ar ) == 'A' .and. Len( ar ) > 9 .and. ValType( ar[ 5 ] ) == 'C' .and. ;
             ValType( ar[ 10 ] ) == 'C' .and. ar[ 10 ] $ 'io'
-          lshifr := AllTrim( ar[ 5 ] )
+          
+          if mk_data >= 0d20250901
+            if ( k := AScan( arr_not_zs, { | x | x[ 2 ] == ar[ 5 ] } ) ) > 0
+              lshifr := arr_not_zs[ k, 1 ]
+            else
+              lshifr := AllTrim( ar[ 5 ] )
+            endif
+          else
+            lshifr := AllTrim( ar[ 5 ] )
+          Endif
           bukva := ar[ 10 ]
           If ( i := AScan( iif( bukva == 'i', np_arr_issled( mk_data ), np_arr_osmotr( mk_data, m1mobilbr ) ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
             If ValType( ar[ 1 ] ) == 'N' .and. ar[ 1 ] > 0
@@ -1728,15 +1745,30 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           If ValType( arr_iss[ i, 5 ] ) == 'C'
             If arr_iss[ i, 10 ] == 9 // отказ
               arr_iss[ i, 10 ] := 'i'
-              AAdd( arr_usl_otkaz, arr_iss[ i ] )
+              if mk_data >= 0d20250901
+//                if Between( arr_iss[ i, 9 ], mn_data, mk_data ) .and. ; // умещается в период
+//                    ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
+//                  arr_iss[ i, 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
+//                  AAdd( arr_usl_otkaz, arr_iss[ i ] )
+////                  arr := AClone( arr_iss[ i ] )  // добавим
+////                  arr[ 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
+////                  AAdd( arr_usl_dop, arr )          // без тарифа
+//altd()
+                  if ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
+                    arr_iss[ i, 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
+                  Endif
+                endif
+//              else
+                AAdd( arr_usl_otkaz, arr_iss[ i ] )
+//              endif
             Else
               AAdd( arr_usl_dop, arr_iss[ i ] )
               If is_otkaz .and. ; // в случае были отказы
-                arr_iss[ i, 10 ] == 0 .and. ; // услуга не в КДП2
-                Between( arr_iss[ i, 9 ], mn_data, mk_data ) .and. ; // умещается в период
-                ( j := AScan( np_arr_not_zs( mk_data ), {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
+                  arr_iss[ i, 10 ] == 0 .and. ; // услуга не в КДП2
+                  Between( arr_iss[ i, 9 ], mn_data, mk_data ) .and. ; // умещается в период
+                  ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
                 arr := AClone( arr_iss[ i ] )  // добавим
-                arr[ 5 ] := np_arr_not_zs( mk_data )[ j, 2 ] // шифр исследования
+                arr[ 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
                 AAdd( arr_usl_dop, arr )          // с ценой
               Endif
             Endif
@@ -1794,15 +1826,32 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           If ValType( arr_iss[ i, 5 ] ) == 'C'
             If arr_iss[ i, 10 ] == 9 // отказ
               arr_iss[ i, 10 ] := 'i'
-              AAdd( arr_usl_otkaz, arr_iss[ i ] )
+              arr_iss[ i, 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
+              if mk_data >= 0d20250901
+//                if Between( arr_iss[ i, 9 ], mn_data, mk_data ) .and. ; // и в сроки профосмотра
+//                      ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
+//                  AAdd( arr_usl_otkaz, arr_iss[ i ] )
+////                  arr := AClone( arr_iss[ i ] )  // добавим
+////                  arr[ 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
+////                  AAdd( arr_usl_dop, arr )          // без тарифа
+//altd()
+//                Endif
+//              else
+                if ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
+                  arr_iss[ i, 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
+                Endif
+                AAdd( arr_usl_otkaz, arr_iss[ i ] )
+              endif
+
             Else
               AAdd( arr_usl_dop, arr_iss[ i ] )
               If arr_iss[ i, 10 ] == 0 ; // кровь проверяют у нас в МО
-                .and. Between( arr_iss[ i, 9 ], mn_data, mk_data ) .and. ; // и в сроки профосмотра
-                ( j := AScan( np_arr_not_zs( mk_data ), {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
+                    .and. Between( arr_iss[ i, 9 ], mn_data, mk_data ) .and. ; // и в сроки профосмотра
+                    ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
                 arr := AClone( arr_iss[ i ] )  // добавим
-                arr[ 5 ] := np_arr_not_zs( mk_data )[ j, 2 ] // шифр исследования
+                arr[ 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
                 AAdd( arr_usl_dop, arr )          // с ценой
+              else
               Endif
             Endif
           Endif
