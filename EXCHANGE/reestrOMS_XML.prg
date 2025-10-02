@@ -1509,11 +1509,14 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Return Nil
 
-// 28.09.25 работаем по текущей записи
+// 02.10.25 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
   Local locPRVS
+  local arr_not_zs, lc, lpods
+
+  arr_not_zs := np_arr_not_zs( human->k_data )
 
   fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
   lshifr_zak_sl := lvidpoms := ''
@@ -1819,7 +1822,16 @@ Function f1_create2reestr19( _nyear, _nmonth )
             ldate := ar[ 9 ]
           Endif
           If ar[ 10 ] == 'i' // исследования
-            If ( i := AScan( np_arr_issled( human->k_data ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
+            if human->k_data >= 0d20250901
+              lc := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } )
+              if lc > 0
+                lpods := arr_not_zs[ lc, 1 ]
+              else
+                lpods := lshifr
+              endif
+            endif
+//            If ( i := AScan( np_arr_issled( human->k_data ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
+            If ( i := AScan( np_arr_issled( human->k_data ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lpods } ) ) > 0
               AAdd( a_otkaz, { lshifr, ;
                 ar[ 6 ], ; // диагноз
                 ldate, ; // дата
@@ -1828,13 +1840,20 @@ Function f1_create2reestr19( _nyear, _nmonth )
                 0, ;     // цена
                 1 } )     // 1-отказ, 2-невозможность
             Endif
-          Elseif ( i := AScan( np_arr_osmotr( human->k_data, m1mobilbr ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0 // осмотры
-//            If ( i := AScan( np_arr_osmotr_KDP2, {| x| x[ 1 ] == lshifr } ) ) > 0
-//              lshifr := np_arr_osmotr_KDP2[ i, 3 ]  // замена врачебного приёма на 2.3.*
-//            Endif
-            If ( i := AScan( np_arr_osmotr_KDP2(), {| x| x[ 1 ] == lshifr } ) ) > 0
-              lshifr := np_arr_osmotr_KDP2()[ i, 3 ]  // замена врачебного приёма на 2.3.*
-            Endif
+          elseIf ar[ 10 ] == 'o' // осмотры
+//          Elseif ( i := AScan( np_arr_osmotr( human->k_data, m1mobilbr ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0 // осмотры
+            if human->k_data >= 0d20250901
+              lc := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } )
+              if lc > 0
+                lpods := arr_not_zs[ lc, 1 ]
+              else
+                lpods := lshifr
+              endif
+            else
+              If ( i := AScan( np_arr_osmotr_KDP2(), {| x| x[ 1 ] == lshifr } ) ) > 0
+                lshifr := np_arr_osmotr_KDP2()[ i, 3 ]  // замена врачебного приёма на 2.3.*
+              Endif
+            endif
             AAdd( a_otkaz, { lshifr, ;
               ar[ 6 ], ; // диагноз
               ldate, ; // дата
