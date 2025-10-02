@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 28.09.25
+// 02.10.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -3799,32 +3799,28 @@ Function verify_sluch( fl_view )
           AAdd( ta, 'некорректно записано исследование ' + lshifr + ' ' + s + ' (отредактируйте)' )
         Endif
       Next
-//      ar := AClone( np_arr_1_etap[ mperiod, 4 ] )
       ar := AClone( np_arr_1_etap( dEnd )[ mperiod, 4 ] )
       For i := 1 To Len( ar ) // осмотры 1 -го этапа
         lshifr := AllTrim( ar[ i ] )
-//        If ( j := AScan( np_arr_osmotr, {| x| x[ 1 ] == lshifr } ) ) > 0
         If ( j := AScan( arr_PN_osmotr, {| x| x[ 1 ] == lshifr } ) ) > 0
           fl := .f.
           If AScan( au_lu, {| x| AllTrim( x[ 1 ] ) == lshifr } ) > 0
             fl := .t. // услуга оказана
-          Elseif AScan( arr_usl_otkaz, {| x| ValType( x ) == 'A' .and. ValType( x[ 5 ] ) == 'C' .and. AllTrim( x[ 5 ] ) == lshifr } ) > 0
+          Elseif  dEnd < 0d20250901 .and. AScan( arr_usl_otkaz, {| x| ValType( x ) == 'A' .and. ValType( x[ 5 ] ) == 'C' .and. AllTrim( x[ 5 ] ) == lshifr } ) > 0
             fl := .t. // услуга в отказах
-//          Elseif !Empty( np_arr_osmotr[ j, 2 ] ) .and. !( np_arr_osmotr[ j, 2 ] == human->pol )
+          elseif dEnd >= 0d20250901 .and. proverka_otkaza_new( dEnd, arr_usl_otkaz, lshifr )
+            fl := .t. // услуга в отказах
           Elseif !Empty( arr_PN_osmotr[ j, 2 ] ) .and. !( arr_PN_osmotr[ j, 2 ] == human->pol )
             Loop
           Else
             For k := 1 To Len( au_lu )
               // проверяем только нулевые услуги
               If eq_any( Left( au_lu[ k, 1 ], 4 ), '2.3.', '2.4.' )
-//                If ValType( np_arr_osmotr[ j, 4 ] ) == 'N'
-//                  If au_lu[ k, 3 ] == np_arr_osmotr[ j, 4 ]
                 If ValType( arr_PN_osmotr[ j, 4 ] ) == 'N'
                   If au_lu[ k, 3 ] == arr_PN_osmotr[ j, 4 ]
                     fl := .t. // услуга оказана (нашли по профилю)
                     Exit
                   Endif
-//                Elseif AScan( np_arr_osmotr[ j, 4 ], au_lu[ k, 3 ] ) > 0
                 Elseif AScan( arr_PN_osmotr[ j, 4 ], au_lu[ k, 3 ] ) > 0
                   fl := .t. // услуга оказана (нашли по профилю)
                   Exit

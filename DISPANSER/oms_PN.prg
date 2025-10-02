@@ -1753,7 +1753,6 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 ////                  arr := AClone( arr_iss[ i ] )  // добавим
 ////                  arr[ 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
 ////                  AAdd( arr_usl_dop, arr )          // без тарифа
-//altd()
                   if ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
                     arr_iss[ i, 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
                   Endif
@@ -1778,7 +1777,15 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           If ValType( arr_osm1[ i, 5 ] ) == 'C'
             If arr_osm1[ i, 10 ] == 9 // отказ
               arr_osm1[ i, 10 ] := 'o'
-              AAdd( arr_usl_otkaz, arr_osm1[ i ] )
+              if mk_data >= 0d20250901
+                if ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_osm1[ i, 5 ] } ) ) > 0
+                  arr_osm1[ i, 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
+                Endif
+                AAdd( arr_usl_otkaz, arr_osm1[ i ] )
+              else
+
+                AAdd( arr_usl_otkaz, arr_osm1[ i ] )
+              endif
             Else
               lshifr := AllTrim( arr_osm1[ i, 5 ] )
               If ( j := AScan( np_arr_osmotr_KDP2(), {| x| x[ 1 ] == lshifr } ) ) > 0
@@ -1826,23 +1833,13 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           If ValType( arr_iss[ i, 5 ] ) == 'C'
             If arr_iss[ i, 10 ] == 9 // отказ
               arr_iss[ i, 10 ] := 'i'
-              arr_iss[ i, 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
+//              arr_iss[ i, 5 ] := arr_not_zs[ j, 2 ]   // шифр исследования
               if mk_data >= 0d20250901
-//                if Between( arr_iss[ i, 9 ], mn_data, mk_data ) .and. ; // и в сроки профосмотра
-//                      ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
-//                  AAdd( arr_usl_otkaz, arr_iss[ i ] )
-////                  arr := AClone( arr_iss[ i ] )  // добавим
-////                  arr[ 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
-////                  AAdd( arr_usl_dop, arr )          // без тарифа
-//altd()
-//                Endif
-//              else
                 if ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
                   arr_iss[ i, 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
                 Endif
                 AAdd( arr_usl_otkaz, arr_iss[ i ] )
               endif
-
             Else
               AAdd( arr_usl_dop, arr_iss[ i ] )
               If arr_iss[ i, 10 ] == 0 ; // кровь проверяют у нас в МО
@@ -1861,7 +1858,12 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             lshifr := AllTrim( arr_osm1[ i, 5 ] )
             If arr_osm1[ i, 10 ] == 9 // отказ от осмотра
               arr_osm1[ i, 10 ] := 'o'
-              AAdd( arr_usl_otkaz, arr_osm1[ i ] )
+              if mk_data >= 0d20250901
+                if ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_osm1[ i, 5 ] } ) ) > 0
+                  arr_osm1[ i, 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
+                Endif
+                AAdd( arr_usl_otkaz, arr_osm1[ i ] )
+              endif
             Else
               lshifr := AllTrim( arr_osm1[ i, 5 ] )
               If ( j := AScan( np_arr_osmotr_KDP2(), {| x| x[ 1 ] == lshifr } ) ) > 0
@@ -1890,7 +1892,12 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             lshifr := AllTrim( arr_osm2[ i, 5 ] )
             If arr_osm2[ i, 10 ] == 9 // отказ от осмотра
               arr_osm2[ i, 10 ] := 'o'
-              AAdd( arr_usl_otkaz, arr_osm2[ i ] )
+              if mk_data >= 0d20250901
+                if ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_osm2[ i, 5 ] } ) ) > 0
+                  arr_osm2[ i, 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
+                Endif
+                AAdd( arr_usl_otkaz, arr_osm2[ i ] )
+              endif
             Else
               If arr_osm2[ i, 10 ] == 3 // если услуга оказана в ВОКОД
                 arr_osm2[ i, 5 ] := '2.3.1'
