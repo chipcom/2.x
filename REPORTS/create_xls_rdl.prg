@@ -149,7 +149,7 @@ Function create_xls_rdl( name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd
     If Len( st_a_uch ) == 1
       worksheet_merge_range( worksheetError, iRow, 0, iRow++, 9, hb_StrToUTF8( string_selected_otd( st_a_otd, lcount_otd ) ), format_header_main )
     Endif
-  //  iRow := 0
+    iRow := 0
 	FRD->( dbGoTop() )
 	// 
     worksheet_write_string( worksheetError, iRow, 0, '№ п/п', format_header )
@@ -311,7 +311,7 @@ iRow++
 Do While ! FRD2->( Eof() )
   worksheet_write_string( worksheetError, iRow, 0, hb_StrToUTF8( AllTrim( FRD2->NUM_USL ) ), format_text )
   worksheet_write_string( worksheetError, iRow, 1, hb_StrToUTF8( AllTrim( frd2->otd  ) ), format_text )
-  worksheet_write_string( worksheetError, iRow, 2, hb_StrToUTF8( AllTrim(  str(fRD2->NS_SLUCH, 10) ) ), format_text )
+  worksheet_write_string( worksheetError, iRow, 2, hb_StrToUTF8( AllTrim( fRD2->Uch_doc ) ), format_text )
   worksheet_write_string( worksheetError, iRow, 3, hb_StrToUTF8( AllTrim( frd2->k_data ) ), format_text )
   worksheet_write_string( worksheetError, iRow, 4, hb_StrToUTF8( AllTrim( frd2->fio ) ), format_text )
   worksheet_write_string( worksheetError, iRow, 5, hb_StrToUTF8( AllTrim( FRD2->DATE_R ) ), format_text )

@@ -1001,7 +1001,7 @@ Function f1_view_rak_akt_schet_human( nk, ob, regim )
       Return ret
     Endif
     If ! hb_user_curUser:isadmin()
-      func_error( 4, err_admin() )
+      func_error( 4, err_admin )
       Return ret
     Endif
     rec := raksh->( RecNo() )
@@ -2013,7 +2013,8 @@ Function akt_list_of_refusal_pacient()
     { 'vr_fio',    "C", 50, 0 }, ;     
     { 'vr_snils',  "C", 11, 0 }, ;    
     { "npschet",   "N", 10, 0 }, ;
-    { "penalty",   "N", 10, 0 } }  
+    { "penalty",   "N", 10, 0 },;
+    { "Uch_doc",   "C", 10, 0 }}  
   dbCreate( fr_data, adbf )
   Use ( fr_data ) New Alias FRD
   adbf := { { "REFREASON", "N", 3, 0 }, ;
@@ -2052,7 +2053,8 @@ Function akt_list_of_refusal_pacient()
     { "drak", "C", 10, 0 }, ;
     { "nakt", "C", 50, 0 }, ;
     { "dakt", "C", 10, 0 }, ;
-    { "penalty",   "N", 10, 0 } }  
+    { "penalty",   "N", 10, 0 }, ;   
+    { "Uch_doc",   "C", 10, 0 }}  
   dbCreate( fr_data + "2", adbf )
   dbCreate( fr_data + "3", adbf )
   dbCreate( fr_data + "4", adbf )
@@ -2226,6 +2228,7 @@ Function akt_list_of_refusal_pacient()
                   frd->vr_kod    := human_->vrach
                   frd->npschet   := human_->schet_zap 
                   frd->penalty   := raksh->penalty   
+                  frd->Uch_doc   := human->uch_doc
                   select MO_PERS
                   goto frd->vr_kod
                   frd->vr_kod1   :=  lstr(mo_pers->tab_nom)
@@ -2294,6 +2297,7 @@ Function akt_list_of_refusal_pacient()
    //   frd2->shifr_usl", "C", 10, 0 }, ;  // шифр услуги
    //  frd2->name_usl", "C", 250, 0 }, ; // наименование услуги
   //    frd2->NUMORDER", "N", 10, 0 }, ;   // Номер заявки(ORDER Number)
+      frd2->Uch_doc      := frd->Uch_doc 
       frd2->fio          := frd->fio
       frd2->date_r       := frd->date_r  
    //   frd2->kol_usl", "N", 10, 0 }, ;    // кол-во услуг
