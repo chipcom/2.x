@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 02.10.25
+// 05.10.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -1238,7 +1238,10 @@ Function verify_sluch( fl_view )
         Elseif left_lshifr_5 == '70.6.' // диспансеризация детей-сирот
           is_disp_DDS := .t.
           mIDSP := 11 // диспансеризация
-          ++kvp_70_6
+          tip_lu := iif( !Empty( human->ZA_SMO ), TIP_LU_DDS, TIP_LU_DDSOP )
+          if ! ( dEnd >= 0d20250901 .and. ( tip_lu == TIP_LU_DDSOP .or. tip_lu == TIP_LU_DDS ) )
+            ++kvp_70_6
+          endif
           is_70_6 := .t.
           mdate_u2 := dtoc4( human->k_data )
           is_exist_Prescription := .t.
@@ -3581,30 +3584,42 @@ Function verify_sluch( fl_view )
               AAdd( ta, s + ' оказана более 3 месяцев назад' )
             Endif
           Endif
-        Elseif au_lu[ i, 2 ] < dBegin
+        Elseif ( au_lu[ i, 2 ] < dBegin ) .and. ;
+            ! ( ( mvozrast >= 2 ) .and. ( au_lu[ i, 2 ] >= AddMonth( dBegin, -3 ) ) ) .and. ;
+            ! ( ( mvozrast < 2 ) .and. ( au_lu[ i, 2 ] >= AddMonth( dBegin, -1 ) ) ) .and. ;
+            ! ( au_lu[ i, 5 ] == '7.2.702' )
           AAdd( ta, s + ' не попадает в диапазон лечения' )
         Endif
-        If eq_any( Left( au_lu[ i, 1 ], 5 ), '70.5.', '70.6.' )
-          ++zs
-          s := ret_shifr_zs_dds( tip_lu )
-          If !( AllTrim( au_lu[ i, 1 ] ) == s )
-            AAdd( ta, 'в л/у услуга ' + AllTrim( au_lu[ i, 1 ] ) + ', а должна быть ' + s + ;
-              ' для возраста ' + lstr( mvozrast ) + ' ' + s_let( mvozrast ) )
+        if dEnd < 0d20250901
+          If eq_any( Left( au_lu[ i, 1 ], 5 ), '70.5.', '70.6.' )
+            ++zs
+            s := ret_shifr_zs_dds( tip_lu )
+            If dEnd < 0d20250901 .and. !( AllTrim( au_lu[ i, 1 ] ) == s )
+              AAdd( ta, 'в л/у услуга ' + AllTrim( au_lu[ i, 1 ] ) + ', а должна быть ' + s + ;
+                ' для возраста ' + lstr( mvozrast ) + ' ' + s_let( mvozrast ) )
+            Endif
+          Elseif is_osmotr_dds( au_lu[ i ], mvozrast, ta, metap, mpol, tip_lu, human->K_DATA )
+            If eq_any( Left( au_lu[ i, 1 ], 5 ), '2.83.', '2.87.' )
+              ++kvp
+            Elseif Left( au_lu[ i, 1 ], 4 ) == '2.3.'
+              ++kvp
+            Endif
+            If dBegin == au_lu[ i, 2 ]
+              is_1_den := .t.
+            Endif
+            If dEnd == au_lu[ i, 2 ]
+              is_last_den := .t.
+            Endif
+          Else
+            oth_usl += AllTrim( au_lu[ i, 1 ] ) + ' '
           Endif
-        Elseif is_osmotr_dds( au_lu[ i ], mvozrast, ta, metap, mpol, tip_lu, human->K_DATA )
-          If eq_any( Left( au_lu[ i, 1 ], 5 ), '2.83.', '2.87.' )
-            ++kvp
-          Elseif Left( au_lu[ i, 1 ], 4 ) == '2.3.'
-            ++kvp
-          Endif
+        else
           If dBegin == au_lu[ i, 2 ]
             is_1_den := .t.
           Endif
           If dEnd == au_lu[ i, 2 ]
             is_last_den := .t.
           Endif
-        Else
-          oth_usl += AllTrim( au_lu[ i, 1 ] ) + ' '
         Endif
       Endif
     Next

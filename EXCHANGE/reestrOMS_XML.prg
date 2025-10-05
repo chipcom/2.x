@@ -1509,7 +1509,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
 
   Return Nil
 
-// 02.10.25 работаем по текущей записи
+// 05.10.25 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1807,7 +1807,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
   a_otkaz := {}
   arr_nazn := {}
   If eq_any( human->ishod, 101, 102 ) // дисп-ия детей-сирот
-    read_arr_dds( human->kod )
+    read_arr_dds( human->kod, human->K_DATA )
   Elseif eq_any( human->ishod, 301, 302 ) // профосмотры несовершеннолетних
     arr_usl_otkaz := {}
     read_arr_pn( human->kod, .t., human->K_DATA )
