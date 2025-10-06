@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 05.10.25 ДДС - добавление или редактирование случая (листа учета)
+// 06.10.25 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -24,7 +24,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
   local _arr, larr_i, larr_o, larr_p
   local bukva, s1, i, j, k, s, str_1, fl, i1, i2, _fl_
   local count_DDS_arr_issled, count_DDS_arr_osm
-  local arr_prof := {}, ar, arr_DDS_issled, arr_DDS_osm, arr_usl_dop
+  local arr_prof := {}, ar, arr_DDS_issled, arr_DDS_osm, arr_usl_dop, arr_DDS_osm_etap2
   local arr_not_zs
   local arr_iss
   local arr_osm1, arr_osm2
@@ -32,8 +32,10 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
   local dir_DB
   local work_dir
   local mdate1, mdate2
-  local num_screen, hS, wS
-  local  m1lpu := glob_uch[ 1 ], mlpu, m1otd, motd
+  local num_screen, hS, wS, ku
+  local m1lpu := glob_uch[ 1 ], mlpu, m1otd, motd
+  local is_7_2_702 := .f., is_4_29_4 := .f.
+
 
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
@@ -459,8 +461,11 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 */        
       If fl .and. metap == 2 // два этапа
         m1step2 := 1
-        For i := 1 To Len( dds_arr_osm2( mk_data, tip_lu ) )
-          If AScan( dds_arr_osm2( mk_data, tip_lu )[ i, 5 ], hu_->PROFIL ) > 0 .and. Empty( larr_o[ i ] )
+        arr_DDS_osm_etap2 := dds_arr_osm2( mk_data, tip_lu )
+//        For i := 1 To Len( dds_arr_osm2( mk_data, tip_lu ) )
+//          If AScan( dds_arr_osm2( mk_data, tip_lu )[ i, 5 ], hu_->PROFIL ) > 0 .and. Empty( larr_o[ i ] )
+        For i := 1 To Len( arr_DDS_osm_etap2 )
+          If AScan( arr_DDS_osm_etap2[ i, 5 ], hu_->PROFIL ) > 0 .and. Empty( larr_o[ i ] )
             fl := .f.
             larr_o[ i ] := hu->( RecNo() )
 /*
@@ -472,7 +477,8 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
               Endif
             Endif
 */
-            If i == Len( dds_arr_osm2( mk_data, tip_lu ) )
+//            If i == Len( dds_arr_osm2( mk_data, tip_lu ) )
+            If i == Len( arr_DDS_osm_etap2 )
               mdate2 := c4tod( hu->date_u )
             Endif
             Exit
@@ -484,8 +490,11 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     Enddo
     If !emptyany( mdate1, mdate2 ) .and. mdate1 > mdate2 // если осмотр педиатра I этапа позднее педиатра II этапа
       k := larr[ 2, Len( dds_arr_osm1() ) ] // запомнить
-      larr[ 2, Len( dds_arr_osm1() ) ] := larr[ 3, Len( dds_arr_osm2( mk_data, tip_lu ) ) ]
-      larr[ 3, Len( dds_arr_osm2( mk_data, tip_lu ) ) ] := k // обменять значения
+      
+//      larr[ 2, Len( dds_arr_osm1() ) ] := larr[ 3, Len( dds_arr_osm2( mk_data, tip_lu ) ) ]
+//      larr[ 3, Len( dds_arr_osm2( mk_data, tip_lu ) ) ] := k // обменять значения
+      larr[ 2, Len( dds_arr_osm1() ) ] := larr[ 3, Len( arr_DDS_osm_etap2 ) ]
+      larr[ 3, Len( arr_DDS_osm_etap2 ) ] := k // обменять значения
     Endif
     r_use( dir_DB + 'mo_pers',, 'P2' )
     For j := 1 To 3
@@ -840,6 +849,35 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       If mem_por_ass == 0
         @ j, 45 Say Space( 6 )
       Endif
+      arr_DDS_osm_etap2 := dds_arr_osm2( mk_data, tip_lu )
+      For i := 1 To Len( arr_DDS_osm_etap2 )  //count_DDS_arr_osm
+        fl := .t.
+        If fl .and. !Empty( arr_DDS_osm_etap2[ i, 2 ] )
+          fl := ( mpol == arr_DDS_osm_etap2[ i, 2 ] )
+        Endif
+        If fl .and. !Empty( ar[ 4 ] )
+          fl := ( AScan( ar[ 4 ], arr_DDS_osm_etap2[ i, 7 ] ) == 0 )
+        Endif
+        If fl .and. !( arr_DDS_osm_etap2[ i, 7 ] == '2.4.2' )
+//          mvonk := 'MONKO' + lstr( i )
+          mvarv := 'MTAB_NOM2ov' + lstr( i )
+          mvara := 'MTAB_NOM2oa' + lstr( i )
+          mvard := 'MDATE2o' + lstr( i )
+//          mvaro := 'MOTKAZo' + lstr( i )
+//          mvarz := 'MKOD_DIAGo' + lstr( i )
+          @ ++j, 1 Say PadR( arr_DDS_osm_etap2[ i, 1 ], 38 )
+//          If eq_any( i, 8, 10 )
+//            @ j, 32 get &mvonk reader {| x| menu_reader( x, mm_vokod(), A__MENUVERT, , , .f. ) } When m1step2 == 1
+//          Endif
+          @ j, 39 get &mvarv Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+          If mem_por_ass > 0
+            @ j, 45 get &mvara Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+          Endif
+          @ j, 51 get &mvard When m1step2 == 1
+//          @ j, 62 get &mvaro reader {| x| menu_reader( x, mm_otkaz, A__MENUVERT, , , .f. ) } When m1step2 == 1
+        Endif
+      Next
+/*      
       For i := 1 To Len( arr_DDS_osm )  //count_DDS_arr_osm
         fl := .t.
         If fl .and. !Empty( arr_DDS_osm[ i, 2 ] )
@@ -849,16 +887,16 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
           fl := ( AScan( ar[ 4 ], arr_DDS_osm[ i, 1 ] ) == 0 )
         Endif
         If fl .and. !( arr_DDS_osm[ i, 1 ] == '2.4.2' )
-          mvonk := 'MONKO' + lstr( i )
-          mvarv := 'MTAB_NOMov' + lstr( i )
-          mvara := 'MTAB_NOMoa' + lstr( i )
-          mvard := 'MDATEo' + lstr( i )
+//          mvonk := 'MONKO' + lstr( i )
+          mvarv := 'MTAB_NOM2ov' + lstr( i )
+          mvara := 'MTAB_NOM2oa' + lstr( i )
+          mvard := 'MDATE2o' + lstr( i )
 //          mvaro := 'MOTKAZo' + lstr( i )
 //          mvarz := 'MKOD_DIAGo' + lstr( i )
           @ ++j, 1 Say PadR( arr_DDS_osm[ i, 3 ], 38 )
-          If eq_any( i, 8, 10 )
-            @ j, 32 get &mvonk reader {| x| menu_reader( x, mm_vokod(), A__MENUVERT, , , .f. ) } When m1step2 == 1
-          Endif
+//          If eq_any( i, 8, 10 )
+//            @ j, 32 get &mvonk reader {| x| menu_reader( x, mm_vokod(), A__MENUVERT, , , .f. ) } When m1step2 == 1
+//          Endif
           @ j, 39 get &mvarv Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
           If mem_por_ass > 0
             @ j, 45 get &mvara Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
@@ -867,6 +905,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 //          @ j, 62 get &mvaro reader {| x| menu_reader( x, mm_otkaz, A__MENUVERT, , , .f. ) } When m1step2 == 1
         Endif
       Next
+*/      
       @ ++j, 1 Say PadR( 'педиатр (врач общей практики)', 38 ) Color color8
       @ j, 39 Get MTAB_NOMpv2 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
       If mem_por_ass > 0
@@ -1299,6 +1338,10 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         Endif
 //        If Between( mvozrast, arr_DDS_issled[ i, 3 ], arr_DDS_issled[ i, 4 ] )
         If _fl_
+
+          is_7_2_702 := iif( arr_DDS_issled[ i, 1 ] == '7.2.702', .t., .f. )
+          is_4_29_4 := iif( arr_DDS_issled[ i, 1 ] == '4.29.4', .t., .f. )
+
           if ! ( arr_DDS_issled[ i, 1 ] == '4.29.2' .or. arr_DDS_issled[ i, 1 ] == '4.29.4' .or. arr_DDS_issled[ i, 1 ] == '7.2.702' )
             if Empty( &mvart )  //.and. ;
               fl := func_error( 4, 'Не введен врач в иссл-ии "' + arr_DDS_issled[ i, 3 ] + '"' )  // код исследования arr_DDS_issled[ i, 1 ]
@@ -1347,6 +1390,12 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         Loop
       Endif
       fl := .t.
+
+      if is_7_2_702 .and. is_4_29_4
+        fl := func_error( 4, 'Не допускается одновременное проведение исследований "7.2.702" и "4.29.4"' )
+        num_screen := 2
+      endif
+
       k := 0
       arr_osm1 := Array( Len( arr_DDS_osm ), 10 )
       afillall( arr_osm1, 0 )
@@ -1433,6 +1482,9 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       num_screen := 3
       metap := 1
       fl := .t.
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
       if mk_data < 0d20250901
         For i := 7 To 8 // стоматолог и эндокринолог на 2 этапе
           mvart := 'MTAB_NOMov' + lstr( i )
@@ -1484,18 +1536,36 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
           Loop
         Endif
       endif
-      arr_osm2 := Array( Len( dds_arr_osm2( mk_data, tip_lu ) ), 10 ) ; afillall( arr_osm2, 0 )
-      For i := 1 To Len( dds_arr_osm2( mk_data, tip_lu ) )
-        mvart := 'MTAB_NOM2ov' + lstr( i )
-        mvara := 'MTAB_NOM2oa' + lstr( i )
-        mvard := 'MDATE2o' + lstr( i )
+      
+        arr_DDS_osm_etap2 := dds_arr_osm2( mk_data, tip_lu )
+//      arr_osm2 := Array( Len( dds_arr_osm2( mk_data, tip_lu ) ), 10 )
+      arr_osm2 := Array( Len( arr_DDS_osm_etap2 ), 10 )
+      afillall( arr_osm2, 0 )
+      if m1step2 == 1 // направлен на 2-ой этап
+        num_screen := 3
+        fl := .t.
+        If !emptyany( MTAB_NOMpv2, MDATEp2 )
+          metap := 2
+        Endif
+        ku := 0
+
+        //      For i := 1 To Len( dds_arr_osm2( mk_data, tip_lu ) )
+        For i := 1 To Len( arr_DDS_osm_etap2 )
+          mvart := 'MTAB_NOM2ov' + lstr( i )
+          mvara := 'MTAB_NOM2oa' + lstr( i )
+          mvard := 'MDATE2o' + lstr( i )
 //        mvarz := 'MKOD_DIAG2o' + lstr( i )
-        arr_osm2[ i, 4 ] := dds_arr_osm2( mk_data, tip_lu )[ i, 5, 1 ]
+/*
+//        arr_osm2[ i, 4 ] := dds_arr_osm2( mk_data, tip_lu )[ i, 5, 1 ]
+        arr_osm2[ i, 4 ] := arr_DDS_osm_etap2[ i, 5, 1 ]
         If arr_osm2[ i, 4 ] == 12 .and. m1onko8 == 3
           &mvart := -1
         Elseif arr_osm2[ i, 4 ] == 18 .and. m1onko10 == 3
           &mvart := -1
         Endif
+*/
+        
+/*        
         If !Empty( &mvard ) .and. Empty( &mvart )
           fl := func_error( 4, 'Не введен врач в осмотре II этапа  "' + dds_arr_osm2( mk_data, tip_lu )[ i, 1 ] + '"' )
         Elseif !Empty( &mvart ) .and. Empty( &mvard )
@@ -1505,56 +1575,83 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
           if &mvard < max_date1
             fl := func_error( 4, 'Дата осмотра II этапа "' + dds_arr_osm2( mk_data, tip_lu )[ i, 1 ] + '" внутри I этапа' )
           Endif
-          if &mvart > 0
-            p2->( dbSeek( Str( &mvart, 5 ) ) )
-            If p2->( Found() )
-              arr_osm2[ i, 1 ] := p2->kod
-              arr_osm2[ i, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
+*/
+          If !Empty( &mvard ) .and. Empty( &mvart )
+            fl := func_error( 4, 'Не введен врач в осмотре II этапа  "' + arr_DDS_osm_etap2[ i, 1 ] + '"' )
+          Elseif !Empty( &mvart ) .and. Empty( &mvard )
+            fl := func_error( 4, 'Не введена дата осмотра II этапа "' + arr_DDS_osm_etap2[ i, 1 ] + '"' )
+          Elseif !emptyany( &mvard, &mvart )
+            ++ku
+            metap := 2
+//            if &mvard < max_date1
+            if &mvard < MDATEp1
+              fl := func_error( 4, 'Дата осмотра II этапа "' + arr_DDS_osm_etap2[ i, 1 ] + '" внутри I этапа' )
             Endif
-            If !Empty( &mvara )
-              p2->( dbSeek( Str( &mvara, 5 ) ) )
+            if &mvart > 0
+              p2->( dbSeek( Str( &mvart, 5 ) ) )
               If p2->( Found() )
-                arr_osm2[ i, 3 ] := p2->kod
+                arr_osm2[ i, 1 ] := p2->kod
+                arr_osm2[ i, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
               Endif
+              If !Empty( &mvara )
+                p2->( dbSeek( Str( &mvara, 5 ) ) )
+                If p2->( Found() )
+                  arr_osm2[ i, 3 ] := p2->kod
+                Endif
+              Endif
+            Else // приём в онкодиспансере
+//            arr_osm2[ i, 2 ] := -ret_new_spec( dds_arr_osm2( mk_data, tip_lu )[ i, 6, 1 ] )
+              arr_osm2[ i, 2 ] := -ret_new_spec( arr_DDS_osm_etap2[ i, 6, 1 ] )
+              arr_osm2[ i, 10 ] := 3
             Endif
-          Else // приём в онкодиспансере
-            arr_osm2[ i, 2 ] := -ret_new_spec( dds_arr_osm2( mk_data, tip_lu )[ i, 6, 1 ] )
-            arr_osm2[ i, 10 ] := 3
-          Endif
-          arr_osm2[ i, 5 ] := dds_arr_osm2( mk_data, tip_lu )[ i, 7, 1 ]
+          
+//          arr_osm2[ i, 5 ] := dds_arr_osm2( mk_data, tip_lu )[ i, 7, 1 ]
+//          // 'педиатр','',0,17,{68,57},{1134,1110},{'2.83.14','2.83.15'}
+//          If Len( dds_arr_osm2( mk_data, tip_lu )[ i, 5 ] ) == 2 .and. Len( dds_arr_osm2( mk_data, tip_lu )[ i, 6 ] ) == 2 ;
+//              .and. Len( dds_arr_osm2( mk_data, tip_lu )[ i, 7 ] ) == 2 ;
+//              .and. ret_new_spec( dds_arr_osm2( mk_data, tip_lu )[ i, 6, 2 ] ) == arr_osm2[ i, 2 ]
+//            arr_osm2[ i, 4 ] := dds_arr_osm2( mk_data, tip_lu )[ i, 5, 2 ]
+//            arr_osm2[ i, 5 ] := dds_arr_osm2( mk_data, tip_lu )[ i, 7, 2 ]
+//          Endif
+            arr_osm2[ i, 5 ] := arr_DDS_osm_etap2[ i, 7 ]
           // 'педиатр','',0,17,{68,57},{1134,1110},{'2.83.14','2.83.15'}
-          If Len( dds_arr_osm2( mk_data, tip_lu )[ i, 5 ] ) == 2 .and. Len( dds_arr_osm2( mk_data, tip_lu )[ i, 6 ] ) == 2 ;
-              .and. Len( dds_arr_osm2( mk_data, tip_lu )[ i, 7 ] ) == 2 ;
-              .and. ret_new_spec( dds_arr_osm2( mk_data, tip_lu )[ i, 6, 2 ] ) == arr_osm2[ i, 2 ]
-            arr_osm2[ i, 4 ] := dds_arr_osm2( mk_data, tip_lu )[ i, 5, 2 ]
-            arr_osm2[ i, 5 ] := dds_arr_osm2( mk_data, tip_lu )[ i, 7, 2 ]
-          Endif
+            If Len( arr_DDS_osm_etap2[ i, 5 ] ) == 2 .and. Len( arr_DDS_osm_etap2[ i, 6 ] ) == 2 ;
+                .and. ret_new_spec( arr_DDS_osm_etap2[ i, 6, 2 ] ) == arr_osm2[ i, 2 ]
+              arr_osm2[ i, 4 ] := arr_DDS_osm_etap2[ i, 5, 2 ]
+              arr_osm2[ i, 5 ] := arr_DDS_osm_etap2[ i, 7 ]
+            Endif
+
 //          If Empty( &mvarz ) .or. Left( &mvarz, 1 ) == 'Z'
-            arr_osm2[ i, 6 ] := mdef_diagnoz
+              arr_osm2[ i, 6 ] := mdef_diagnoz
 //          Else
 //            arr_osm2[ i, 6 ] := &mvarz
-            Select MKB_10
-            find ( PadR( arr_osm2[ i, 6 ], 6 ) )
-            If Found() .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
-              fl := func_error( 4, 'Несовместимость диагноза по полу ' + arr_osm2[ i, 6 ] )
-            Endif
+//              Select MKB_10
+              mkb_10->( dbSeek( PadR( arr_osm2[ i, 6 ], 6 ) ) ) //find ( PadR( arr_osm2[ i, 6 ], 6 ) )
+              If mkb_10->( Found() ) .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
+                fl := func_error( 4, 'Несовместимость диагноза по полу ' + arr_osm2[ i, 6 ] )
+              Endif
 //          Endif
-          arr_osm2[ i, 9 ] := &mvard
-          max_date2 := Max( max_date2, arr_osm2[ i, 9 ] )
+            arr_osm2[ i, 9 ] := &mvard
+            max_date2 := Max( max_date2, arr_osm2[ i, 9 ] )
+          Endif
+          If !fl
+            exit
+          Endif
+        Next
+        If fl .and. metap == 2
+          If emptyany( MTAB_NOMpv2, MDATEp2 )
+            fl := func_error( 4, 'Не введён педиатр (врач общей практики) в осмотрах II этапа' )
+          Elseif MDATEp1 == MDATEp2
+            fl := func_error( 4, 'Педиатры на I и II этапах провели осмотры в один день!' )
+          Elseif MDATEp2 < max_date2
+            fl := func_error( 4, 'Педиатр (врач общей практики) на II этапе должен проводить осмотр последним!' )
+          Elseif Empty( ku )
+            fl := func_error( 4, 'На II этапе кроме осмотра педиатра должен быть ещё какой-нибудь осмотр.' )
+          Endif
+          If !fl
+            Loop
+          Endif
         Endif
-        If !fl ; exit ; Endif
-      Next
-      If fl .and. metap == 2
-        If emptyall( arr_osm2[ Len( dds_arr_osm2( mk_data, tip_lu ) ), 1 ], arr_osm2[ Len( dds_arr_osm2( mk_data, tip_lu ) ), 9 ] )
-          fl := func_error( 4, 'Не введён педиатр (врач общей практики) в осмотрах II этапа' )
-        Elseif arr_osm1[ Len( dds_arr_osm1() ), 9 ] == arr_osm2[ Len( dds_arr_osm2( mk_data, tip_lu ) ), 9 ]
-          fl := func_error( 4, 'Педиатры на I и II этапах провели осмотры в один день!' )
-        Elseif arr_osm2[ Len( dds_arr_osm2( mk_data, tip_lu ) ), 9 ] < max_date2
-          fl := func_error( 4, 'Педиатр (врач общей практики) на II этапе должен проводить осмотр последним!' )
-        Endif
-      Endif
-      If !fl
-        Loop
       Endif
       num_screen := 4
       If !Between( mGRUPPA_DO, 1, 5 )
@@ -1665,30 +1762,34 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
           // MKOD_DIAG := padr( arr_osm1[ i, 6 ], 6 )
         endif
       Else  // metap := 2
-/*
-        For i := 1 To Len( arr_osm2 )
-          If arr_osm2[ i, 10 ] == 3 // если услуга оказана в ВОКОД
-            arr_osm2[ i, 5 ] := '2.3.1'
+
+        if mk_data < 0d20250901
+          For i := 1 To Len( arr_osm2 )
+            If arr_osm2[ i, 10 ] == 3 // если услуга оказана в ВОКОД
+              arr_osm2[ i, 5 ] := '2.3.1'
+            Endif
+          Next
+          If tip_lu == TIP_LU_DDSOP // дли детей-сирот под опекой вместо услуг '2.83.*' сделаем '2.87.*'
+            For i := 1 To Len( dds_arr_osm1() )
+              If ValType( arr_osm1[ i, 5 ] ) == 'C' .and. Left( arr_osm1[ i, 5 ], 5 ) == '2.83.'
+                arr_osm1[ i, 5 ] := '2.87.' + SubStr( arr_osm1[ i, 5 ], 6 )
+              Endif
+            Next
+          
+//            For i := 1 To Len( dds_arr_osm2( mk_data, tip_lu ) )
+            For i := 1 To Len( arr_DDS_osm_etap2 )
+              If ValType( arr_osm2[ i, 5 ] ) == 'C' .and. Left( arr_osm2[ i, 5 ], 5 ) == '2.83.'
+                arr_osm2[ i, 5 ] := '2.87.' + SubStr( arr_osm2[ i, 5 ], 6 )
+              Endif
+            Next
           Endif
-        Next
-        If tip_lu == TIP_LU_DDSOP // дли детей-сирот под опекой вместо услуг '2.83.*' сделаем '2.87.*'
-          For i := 1 To Len( dds_arr_osm1() )
-            If ValType( arr_osm1[ i, 5 ] ) == 'C' .and. Left( arr_osm1[ i, 5 ], 5 ) == '2.83.'
-              arr_osm1[ i, 5 ] := '2.87.' + SubStr( arr_osm1[ i, 5 ], 6 )
-            Endif
-          Next
-          For i := 1 To Len( dds_arr_osm2( mk_data, tip_lu ) )
-            If ValType( arr_osm2[ i, 5 ] ) == 'C' .and. Left( arr_osm2[ i, 5 ], 5 ) == '2.83.'
-              arr_osm2[ i, 5 ] := '2.87.' + SubStr( arr_osm2[ i, 5 ], 6 )
-            Endif
-          Next
+//          i := Len( dds_arr_osm2( mk_data, tip_lu ) )
+//          i := Len( arr_DDS_osm_etap2 )
+//          m1vrach  := arr_osm2[ i, 1 ]
+//          m1prvs   := arr_osm2[ i, 2 ]
+//          m1PROFIL := arr_osm2[ i, 4 ]
+          // MKOD_DIAG := padr(arr_osm2[i,6],6)
         Endif
-        i := Len( dds_arr_osm2( mk_data, tip_lu ) )
-        m1vrach  := arr_osm2[ i, 1 ]
-        m1prvs   := arr_osm2[ i, 2 ]
-        m1PROFIL := arr_osm2[ i, 4 ]
-        // MKOD_DIAG := padr(arr_osm2[i,6],6)
-*/
       Endif
       make_diagp( 2 )  // сделать 'пятизначные' диагнозы
       //
@@ -1726,6 +1827,10 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       If metap == 2
         // добавим педиатра II этапа
         AAdd( arr_osm2, add_pediatr_DDS( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
+        i := Len( arr_DDS_osm_etap2 )
+        m1vrach  := arr_osm2[ i, 1 ]
+        m1prvs   := arr_osm2[ i, 2 ]
+        m1PROFIL := arr_osm2[ i, 4 ]
         For i := 1 To Len( arr_osm2 )
           If ValType( arr_osm2[ i, 5 ] ) == 'C'
             arr_osm2[ i, 7 ] := foundourusluga( arr_osm2[ i, 5 ], mk_data, arr_osm2[ i, 4 ], M1VZROS_REB, @mu_cena )
