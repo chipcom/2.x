@@ -51,9 +51,6 @@ Function is_osmotr_dds( ausl, _vozrast, arr, _etap, _pol, tip_lu, mdata )
   If tip_lu == TIP_LU_DDSOP .and. Left( lshifr, 5 ) == '2.87.'
     lshifr := '2.83.' + SubStr( lshifr, 6 )
   Endif
-//  If _etap == 2 .and. ( j := AScan( dds_arr_osmotr_kdp2(), {| x| x[ 2 ] == lshifr } ) ) > 0
-//    lshifr := dds_arr_osmotr_kdp2()[ j, 1 ]
-//  Endif
   For i := 1 To Len( arr_DDS_osm1 )
     If _etap == 1
       If AScan( arr_DDS_osm1[ i, 5 ], ausl[ 3 ] ) > 0
