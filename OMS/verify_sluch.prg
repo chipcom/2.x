@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 05.10.25
+// 08.10.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -522,7 +522,6 @@ Function verify_sluch( fl_view )
             If eq_any( Left( lshifr, 5 ), '2.80.', '2.82.', '60.4.', '60.5.', '60.6.', '60.7.', '60.8.', '60.9.' )
               is_period_amb := .f.
               Exit
-              // elseif lshifr == '60.3.1' // перит.диализ
             Elseif eq_any( lshifr, '60.3.1', '60.3.12', '60.3.13' )  // 04.12.22
               AAdd( a_dializ, { human->n_data, human->k_data, human_->USL_OK, human->OTD, 3 } ) // диализы не в кругл.стационаре
               Exit
@@ -684,14 +683,12 @@ Function verify_sluch( fl_view )
     Enddo
   Endif
   // проверим не этап ли это углубленной диспансеризации после COVID
-  // If eq_any( human->ishod, 401, 402 )
   If is_sluch_dispanser_COVID( human->ishod )
     is_disp_DVN_COVID := .t.
     is_exist_Prescription := .t.
   Endif
 
   // проверим не этап ли это диспансеризации репродуктивного здоровья
-  // If eq_any( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
   If is_sluch_dispanser_DRZ( human->ishod )
     is_disp_DRZ := .t.
     is_exist_Prescription := .t.
@@ -763,7 +760,6 @@ Function verify_sluch( fl_view )
         Endif
         hu_->profil := lprofil
       Endif
-      // if left(lshifr, 5) == '60.8.' .and. hb_main_curOrg:Kod_Tfoms != '805903'
       If Left( lshifr, 5 ) == '60.8.' .and. ! is_volgamedlab()
         hu_->profil := 15   // гистология за исключение "Волгамедлаб"
         mprvs := hu_->PRVS := -13 // Клиническая лабораторная диагностика
@@ -843,7 +839,9 @@ Function verify_sluch( fl_view )
       dbSelectArea( lal )
       find ( PadR( lshifr, 10 ) )
       If Found() .and. !Empty( &lal.->unit_code ) .and. AScan( arr_unit, &lal.->unit_code ) == 0
-        AAdd( arr_unit, &lal.->unit_code )
+        if AllTrim( lshifr ) != '7.2.702' // временно
+          AAdd( arr_unit, &lal.->unit_code )
+        Endif
       Endif
       AAdd( au_lu, { lshifr, ;    // 1 шифр услуги
         mdate, ;                  // 2 дата предоставления
@@ -4754,19 +4752,9 @@ Function verify_sluch( fl_view )
     AAdd( ta, 'вернулся из ТФОМС с ошибкой и ещё не отредактирован' )
   Endif
   If Len( arr_unit ) > 1
-//    If Select( 'MOUNIT' ) == 0
-//      sbase := prefixfilerefname( yearEnd ) + 'unit'
-//      r_use( dir_exe() + sbase, cur_dir() + sbase, 'MOUNIT' )
-//    Endif
     s := 'совокупность услуг должна быть из одной учётной единицы объёма, а в данном случае: '
-//    Select MOUNIT
     For i := 1 To Len( arr_unit )
-//      find ( Str( arr_unit[ i ], 3 ) )
-//      If Found()
-//        s += AllTrim( mounit->name ) + ', '
-//      Endif
       if ( iFind := AScan( arrPZ, { | x | x[ 2 ] == arr_unit[ i ] } ) ) > 0
-//        s += arrPZ[ iFind, 3 ] + ', '
         s += arrPZ[ iFind, PZ_ARRAY_NAME ] + ', '
       endif
     Next
@@ -4935,17 +4923,7 @@ Function verify_sluch( fl_view )
       mpzkol := Len( au_lu ) // кол-во анализов
     Endif
     If Len( arr_unit ) == 1
-//      If Select( 'MOUNIT' ) == 0
-//        sbase := prefixfilerefname( yearEnd ) + 'unit'
-//        r_use( dir_exe() + sbase, cur_dir() + sbase, 'MOUNIT' )
-//      Endif
-//      Select MOUNIT
-//      find ( Str( arr_unit[ 1 ], 3 ) )
-//      If Found() .and. mounit->pz > 0
-//        mpztip := mounit->pz
-//      Endif
       if ( iFind := AScan( arrPZ, { | x | x[ 2 ] == arr_unit[ 1 ] } ) ) > 0
-//        mpztip := arrPZ[ iFind, 1 ]
         mpztip := arrPZ[ iFind, PZ_ARRAY_ID ]
       endif
     Endif
