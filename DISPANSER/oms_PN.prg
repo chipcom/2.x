@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 02.10.25 ПН - добавление или редактирование случая (листа учета)
+// 10.10.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -1839,14 +1839,15 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
                   arr_iss[ i, 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
                 Endif
                 AAdd( arr_usl_otkaz, arr_iss[ i ] )
+                AAdd( arr_usl_dop, arr_iss[ i ] )
               endif
             Else
-              AAdd( arr_usl_dop, arr_iss[ i ] )
+//              AAdd( arr_usl_dop, arr_iss[ i ] )
               If arr_iss[ i, 10 ] == 0 ; // кровь проверяют у нас в МО
                     .and. Between( arr_iss[ i, 9 ], mn_data, mk_data ) .and. ; // и в сроки профосмотра
                     ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_iss[ i, 5 ] } ) ) > 0
                 arr := AClone( arr_iss[ i ] )  // добавим
-                arr[ 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
+                arr[ 5 ] := arr_not_zs[ j, 1 ] // шифр исследования
                 AAdd( arr_usl_dop, arr )          // с ценой
               else
               Endif
