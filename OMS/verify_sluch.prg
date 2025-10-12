@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 08.10.25
+// 12.10.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -18,7 +18,7 @@ Function verify_sluch( fl_view )
   local yearBegin // год даты начала случая
   local yearEnd // год даты окончания случая
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
-    i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
+    i, j, jk, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
     a_period_amb := {}, a_1_11, u_1_stom := '', lprofil, ;
     lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[ 2 ], ltip, lkol, ;
     a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0, ;
@@ -59,7 +59,8 @@ Function verify_sluch( fl_view )
   local s_lek_pr
   local iFind, aCheck, cUsluga, iCount
   local arrPZ
-  local arr_PN_osmotr
+  local arr_PN_osmotr, arr_not_zs
+  local arr_pn_issled
 
   Default fl_view To .t.
 
@@ -3666,6 +3667,7 @@ Function verify_sluch( fl_view )
       read_arr_pn( human->kod, .t., dEnd )
       arr_PN_osmotr := np_arr_osmotr( dEnd, m1mobilbr )
       kol_d_otkaz := 0
+      arr_pn_issled := np_arr_issled( dEnd )
       If ValType( arr_usl_otkaz ) == 'A'
         For j := 1 To Len( arr_usl_otkaz )
           ar := arr_usl_otkaz[ j ]
@@ -3673,12 +3675,11 @@ Function verify_sluch( fl_view )
               ValType( ar[ 10 ] ) == 'C' .and. ar[ 10 ] $ 'io'
             lshifr := AllTrim( ar[ 5 ] )
             If ar[ 10 ] == 'i' // исследования
-              If ( i := AScan( np_arr_issled( dEnd ), {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
+              If ( i := AScan( arr_pn_issled, {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
                 If is_issled_pn( { lshifr, ar[ 6 ], ar[ 4 ], ar[ 2 ] }, mperiod, ta, human->pol, dEnd )
                   ++kol_d_otkaz
                 Endif
               Endif
-//            Elseif ( i := AScan( np_arr_osmotr, {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0 // осмотры
             Elseif ( i := AScan( arr_PN_osmotr, {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0 // осмотры
               If is_osmotr_pn( { lshifr, ar[ 6 ], ar[ 4 ], ar[ 2 ] }, mperiod, ta, metap, human->pol, dEnd, m1mobilbr )
                 ++kol_d_otkaz
@@ -3806,10 +3807,21 @@ Function verify_sluch( fl_view )
           // услуга в отказах
         Else
           s := ''
-          If ( j := AScan( np_arr_issled( dEnd ), {| x| x[ 1 ] == lshifr } ) ) > 0
-            s := np_arr_issled( dEnd )[ j, 3 ]
+          arr_not_zs := np_arr_not_zs( dEnd )
+          
+//          If ( ( j := AScan( np_arr_issled( dEnd ), {| x| x[ 1 ] == lshifr } ) ) > 0 ) .and. ;
+//              ( ( jk := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 )
+//            if np_arr_issled( dEnd )[ j, 1 ] != arr_not_zs[ jk, 1 ]
+//              s := np_arr_issled( dEnd )[ j, 3 ]
+          If ( ( j := AScan( arr_pn_issled, {| x| x[ 1 ] == lshifr } ) ) > 0 ) .and. ;
+              ( ( jk := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 )
+            if arr_pn_issled[ j, 1 ] != arr_not_zs[ jk, 1 ]
+              s := arr_pn_issled[ j, 3 ]
+              AAdd( ta, 'некорректно записано исследование ' + lshifr + ' ' + s + ' (отредактируйте)' )
+            endif
+//            s := np_arr_issled( dEnd )[ j, 3 ]
           Endif
-          AAdd( ta, 'некорректно записано исследование ' + lshifr + ' ' + s + ' (отредактируйте)' )
+//          AAdd( ta, 'некорректно записано исследование ' + lshifr + ' ' + s + ' (отредактируйте)' )
         Endif
       Next
       ar := AClone( np_arr_1_etap( dEnd )[ mperiod, 4 ] )
