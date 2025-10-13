@@ -23,11 +23,11 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     tmp_help := chm_help_code, fl_write_sluch := .f.
   local _arr, larr_i, larr_o, larr_p
   local bukva, s1, i, j, k, s, str_1, fl, i1, i2, _fl_
-  local count_DDS_arr_issled, count_DDS_arr_osm
-  local arr_prof := {}, ar, arr_DDS_issled, arr_DDS_osm, arr_usl_dop
   local arr_not_zs
   local arr_iss
   local arr_osm1, arr_osm2
+  local count_DDS_arr_issled, count_DDS_arr_osm
+  local arr_prof := {}, ar, arr_DDS_issled, arr_DDS_osm, arr_usl_dop
   local mm_uch1
   local dir_DB
   local work_dir

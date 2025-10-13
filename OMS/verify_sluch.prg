@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 12.10.25
+// 13.10.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -3538,7 +3538,9 @@ Function verify_sluch( fl_view )
     Else
       AAdd( ta, 'диспансеризацию детей-сирот надо вводить через специальный экран ввода' )
     Endif
-    is_1_den := is_last_den := .f. ; zs := kvp := 0 ; oth_usl := ''
+    is_1_den := is_last_den := .f.
+    zs := kvp := 0
+    oth_usl := ''
     For i := 1 To Len( au_lu )
       If au_lu[ i, 3 ] == 0
         AAdd( ta, 'в услуге ' + AllTrim( au_lu[ i, 1 ] ) + ' не проставлен профиль' )
@@ -3589,6 +3591,7 @@ Function verify_sluch( fl_view )
             ! ( au_lu[ i, 5 ] == '7.2.702' )
           AAdd( ta, s + ' не попадает в диапазон лечения' )
         Endif
+/*
         if dEnd < 0d20250901
           If eq_any( Left( au_lu[ i, 1 ], 5 ), '70.5.', '70.6.' )
             ++zs
@@ -3597,7 +3600,7 @@ Function verify_sluch( fl_view )
               AAdd( ta, 'в л/у услуга ' + AllTrim( au_lu[ i, 1 ] ) + ', а должна быть ' + s + ;
                 ' для возраста ' + lstr( mvozrast ) + ' ' + s_let( mvozrast ) )
             Endif
-          Elseif is_osmotr_dds( au_lu[ i ], mvozrast, ta, metap, mpol, tip_lu, human->K_DATA )
+          Elseif is_osmotr_dds( au_lu[ i ], mvozrast, ta, metap, mpol, tip_lu, human->K_DATA, m1mobilbr )
             If eq_any( Left( au_lu[ i, 1 ], 5 ), '2.83.', '2.87.' )
               ++kvp
             Elseif Left( au_lu[ i, 1 ], 4 ) == '2.3.'
@@ -3619,6 +3622,13 @@ Function verify_sluch( fl_view )
           If dEnd == au_lu[ i, 2 ]
             is_last_den := .t.
           Endif
+        Endif
+*/
+        If dBegin == au_lu[ i, 2 ]
+          is_1_den := .t.
+        Endif
+        If dEnd == au_lu[ i, 2 ]
+          is_last_den := .t.
         Endif
       Endif
     Next
