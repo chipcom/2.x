@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.10.25 ПН - добавление или редактирование случая (листа учета)
+// 13.10.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -1623,7 +1623,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
             Elseif !emptyany( &mvard, &mvart )
               ++ku
               metap := 2
-              if ( &mvard >= mn_data ) .and. ( &mvard <= MDATEp1 )
+              if ( &mvard <= MDATEp1 )
                 fl := func_error( 4, 'Дата осмотра II этапа "' + np_arr_osmotr( mk_data, m1mobilbr )[ i, 3 ] + '" внутри I этапа' )
               Endif
               if &mvart > 0
@@ -1783,7 +1783,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 */
       // добавим педиатра I этапа
       AAdd( arr_osm1, add_pediatr_pn( MTAB_NOMpv1, MTAB_NOMpa1, MDATEp1, MKOD_DIAGp1, mpol, mdef_diagnoz, m1mobilbr ) )
-      If metap == 1 // I этап
+//      If metap == 1 // I этап
         For i := 1 To Len( arr_iss )
           If ValType( arr_iss[ i, 5 ] ) == 'C'
             If arr_iss[ i, 10 ] == 9 .or. arr_iss[ i, 9 ] < mn_data // отказ или выполнено ранее
@@ -1849,7 +1849,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           arr_usl_dop[ j, 6 ] := MKOD_DIAG
           arr_usl_dop[ j, 9 ] := mn_data
         Endif
-      Else  // оформление 2-го этапа по-новому
+//      Else  // оформление 2-го этапа по-новому
+      if metap == 2
 /*
         Use ( work_dir + 'tmp' ) new
         Go Top
