@@ -3,25 +3,229 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 07.02.23
+// 20.09.25 вернуть возрастной период для профилактики несовершеннолетних
+Function ret_period_pn( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
+
+  Local i, _m, _d, _y, _m2, _d2, _y2, lperiod, sm, sm_, sm1, sm2, yn_data, yk_data
+  Local arr_PN_etap
+
+  Store 0 To _m, _d, _y, _m2, _d2, _y2, lperiod
+  yn_data := Year( ln_data )
+  yk_data := Year( lk_data )
+  arr_PN_etap := np_arr_1_etap( lk_data )
+  ls := ''
+  count_ymd( ldate_r, ln_data, @_y, @_m, @_d ) // реальный возраст на начало
+  count_ymd( ldate_r, lk_data, @_y2, @_m2, @_d2 ) // реальный возраст на окончание
+  ret_i := 31
+  For i := Len( arr_PN_etap ) To 1 Step -1 // Len( np_arr_1_etap() ) To 1 Step -1
+    If i > 17 // 4 года и старше
+      If mdvozrast == arr_PN_etap[ i, 2, 1 ]  // np_arr_1_etap()[ i, 2, 1 ]
+        ret_i := lperiod := i
+        ls := ' (' + lstr( mdvozrast ) + ' ' + s_let( mdvozrast ) + ')'
+        If yn_data != yk_data
+          lperiod := 0
+          ls := 'Ошибка! Начало и окончание профилактики должны быть в одном календарном году'
+        Endif
+        Exit
+      Endif
+    Elseif mdvozrast < 4 // до 3 лет (включительно)
+      sm1 := Round( Val( lstr( arr_PN_etap[ i, 2, 1 ] ) + '.' + StrZero( arr_PN_etap[ i, 2, 2 ], 2 ) ), 4 )
+      sm2 := Round( Val( lstr( arr_PN_etap[ i, 3, 1 ] ) + '.' + StrZero( arr_PN_etap[ i, 3, 2 ], 2 ) ), 4 )
+      sm := Round( Val( lstr( _y ) + '.' + StrZero( _m, 2 ) + StrZero( _d, 2 ) ), 4 )
+      sm_ := Round( Val( lstr( _y2 ) + '.' + StrZero( _m2, 2 ) + StrZero( _d2, 2 ) ), 4 )
+      If sm1 <= sm
+        ret_i := i
+        If sm_ <= sm2
+          lperiod := i
+          If lperiod == 1 // новорожденный
+            ls := '(новорожденный)'
+            If _m2 == 1 .or. _d2 > 29
+              lperiod := 0
+              ls := 'Ошибка! Новорожденному должно быть не более 29 дней'
+            Endif
+            Exit
+          Elseif lperiod == 16 // 2 года
+            ls := ' (2 года)'
+            If mdvozrast > 2
+              lperiod := 0
+              ls := 'Ошибка! Ребёнку в ' + lstr( yn_data ) + ' календарном году уже исполняется 3 года'
+            Endif
+            Exit
+          Elseif lperiod == 17 // 3 года
+            ls := ' (3 года)'
+            Exit
+          Endif
+          ls := ' ('
+          If arr_PN_etap[ i, 2, 1 ] > 0
+            ls += lstr( arr_PN_etap[ i, 2, 1 ] ) + ' ' + s_let( arr_PN_etap[ i, 2, 1 ] ) + ' '
+          Endif
+          If arr_PN_etap[ i, 2, 2 ] > 0
+            ls += lstr( arr_PN_etap[ i, 2, 2 ] ) + ' ' + mes_cev( arr_PN_etap[ i, 2, 2 ] )
+          Endif
+          ls := RTrim( ls ) + ')'
+        Else
+          ls := 'Должен быть период ' + ;
+            iif( arr_PN_etap[ i, 2, 1 ] == 0, '', lstr( arr_PN_etap[ i, 2, 1 ] ) + 'г.' ) + ;
+            iif( arr_PN_etap[ i, 2, 2 ] == 0, '', lstr( arr_PN_etap[ i, 2, 2 ] ) + 'мес.' ) + '-' + ;
+            iif( arr_PN_etap[ i, 3, 1 ] == 0, '', lstr( arr_PN_etap[ i, 3, 1 ] ) + 'г.' ) + ;
+            iif( arr_PN_etap[ i, 3, 2 ] == 0, '', lstr( arr_PN_etap[ i, 3, 2 ] ) + 'мес.' ) + ', а у Вас ' + ;
+            iif( _y == 0, '', lstr( _y ) + 'г.' ) + ;
+            iif( _m == 0, '', lstr( _m ) + 'мес.' ) + ;
+            iif( _d == 0, '', lstr( _d ) + 'дн.' ) + '-' + ;
+            iif( _y2 == 0, '', lstr( _y2 ) + 'г.' ) + ;
+            iif( _m2 == 0, '', lstr( _m2 ) + 'мес.' ) + ;
+            iif( _d2 == 0, '', lstr( _d2 ) + 'дн.' )
+        Endif
+        Exit
+      Endif
+    Endif
+  Next
+  Return lperiod
+
+// 23.09.25
+Function add_pediatr_pn( _pv, _pa, _date, _diag, mpol, mdef_diagnoz, mobil )
+
+  Local arr[ 10 ]
+
+  Default mobil To 0
+
+  AFill( arr, 0 )
+  // Select P2
+  p2->( dbSeek( Str( _pv, 5 ) ) )
+  If p2->( Found() )
+    arr[ 1 ] := p2->kod
+    arr[ 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
+  Endif
+  If !Empty( _pa )
+    // Select P2
+    p2->( dbSeek( Str( _pa, 5 ) ) )
+    If p2->( Found() )
+      arr[ 3 ] := p2->kod
+    Endif
+  Endif
+  arr[ 4 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), 57, 68 ) // профиль
+  If _date >= 0d20250901
+    If mobil == 0
+      arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.94.1', '2.94.1' ) // шифр услуги
+    Else
+      arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.94.11', '2.94.11' ) // шифр услуги
+    Endif
+  Else
+    arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.85.15', '2.85.14' ) // шифр услуги
+  Endif
+  If Empty( _diag ) .or. Left( _diag, 1 ) == 'Z'
+    arr[ 6 ] := mdef_diagnoz
+  Else
+    arr[ 6 ] := _diag
+    // Select MKB_10
+    mkb_10->( dbSeek( PadR( arr[ 6 ], 6 ) ) )
+    If mkb_10->( Found() ) .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
+      func_error( 4, 'Несовместимость диагноза по полу ' + arr[ 6 ] )
+    Endif
+  Endif
+  arr[ 9 ] := _date
+  Return arr
+
+// 20.09.25 добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
+Function np_oftal_2_85_21( _period, _k_data )
+
+  Static lshifr := '2.85.21'
+  Local i
+
+  If _period == 13 // 12 месяцев с 1 сентября
+    i := AScan( np_arr_1_etap( _k_data )[ _period, 4 ], lshifr )
+    If _k_data > 0d20180831 // с 1 сентября
+      If i == 0
+        ins_array( np_arr_1_etap( _k_data )[ _period, 4 ], 4, lshifr ) // добавить пере ЛОРом 4-ым элементом
+      Endif
+    Else
+      If i > 0
+        del_array( np_arr_1_etap( _k_data )[ _period, 4 ], i )
+      Endif
+    Endif
+  Endif
+  Return Nil
+
+// 28.09.25 вернуть шифр услуги законченного случая для ПН
+Function ret_shifr_zs_pn( _period, mdata )
+
+  Local lshifr := ''
+
+  if mdata >= 0d20250901
+  else
+    Do Case
+    Case _period == 1
+      lshifr := iif( is_neonat, '72.2.37', '72.2.38' ) // 0 месяцев
+    Case _period == 2
+      lshifr := '72.2.39' // 1 месяц
+    Case _period == 3
+//      lshifr := iif( m1lis > 0, '72.2.41', '72.2.40' ) // 2 мес
+      lshifr := '72.2.40' // 2 мес
+    Case _period == 4
+      lshifr := '72.2.43' // 3 месяца
+    Case eq_any( _period, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15 )
+      lshifr := '72.2.42' // 4мес, 5мес, 6мес, 7мес, 8мес, 9мес, 10мес, 11мес, 1год3мес, 1год6мес
+    Case _period == 13
+      If AScan( np_arr_1_etap( mdata )[ _period, 4 ], '2.85.21' ) > 0  // если есть офтальмолог
+//        lshifr := iif( m1lis > 0, '72.2.65', '72.2.64' ) // 12 месяцев с 1 сентября
+        lshifr := '72.2.64' // 12 месяцев с 1 сентября
+      Else
+//        lshifr := iif( m1lis > 0, '72.2.45', '72.2.44' ) // 12 месяцев
+        lshifr := '72.2.44' // 12 месяцев
+      Endif
+    Case _period == 16
+      lshifr := '72.2.46' // 2 года
+    Case _period == 17
+//      lshifr := iif( m1lis > 0, '72.2.48', '72.2.47' ) // 3 года
+      lshifr := '72.2.47' // 3 года
+    Case eq_any( _period, 18, 19, 22, 23, 25, 26 )
+      lshifr := '72.2.49' // 4 года, 5 лет, 8 лет, 9 лет, 11 лет, 12лет
+    Case _period == 20
+//      lshifr := iif( m1lis > 0, '72.2.51', '72.2.50' ) // 6 лет
+      lshifr := '72.2.50' // 6 лет
+    Case _period == 21
+//      lshifr := iif( m1lis > 0, '72.2.53', '72.2.52' ) // 7 лет
+      lshifr := '72.2.52' // 7 лет
+    Case _period == 24
+//      lshifr := iif( m1lis > 0, '72.2.55', '72.2.54' ) // 10 лет
+      lshifr := '72.2.54' // 10 лет
+    Case _period == 27
+      lshifr := '72.2.56' // 13 лет
+    Case _period == 28
+      lshifr := '72.2.57' // 14 лет
+    Case _period == 29
+//      lshifr := iif( m1lis > 0, '72.2.59', '72.2.58' ) // 15 лет
+      lshifr := '72.2.58' // 15 лет
+    Case _period == 30
+//      lshifr := iif( m1lis > 0, '72.2.61', '72.2.60' ) // 16 лет
+      lshifr := '72.2.60' // 16 лет
+    Case _period == 31
+//      lshifr := iif( m1lis > 0, '72.2.63', '72.2.62' ) // 17 лет
+      lshifr := '72.2.62' // 17 лет
+    Endcase
+  Endif
+  Return lshifr
+
+// 12.10.25
 Function fget_spec_deti( k, r, c, a_spec )
 
   Local tmp_select := Select(), i, j, as := {}, s, blk, t_arr[ BR_LEN ], n_file := cur_dir() + 'tmpspecdeti'
   Local arr_conv_V015_V021 := conversion_v015_v021()
+  local rec
 
   If !hb_FileExists( n_file + sdbf() )
     If Select( 'MOSPEC' ) == 0
       r_use( dir_exe() + '_mo_spec', cur_dir() + '_mo_spec', 'MOSPEC' )
     Endif
     Select MOSPEC
-    find ( '2.' )
-    Do While Left( mospec->shifr, 2 ) == '2.' .and. !Eof()
+    mospec->( dbSeek( '2.' ) )    //find ( '2.' )
+    Do While Left( mospec->shifr, 2 ) == '2.' .and. ! mospec->( Eof() )
       If mospec->vzros_reb == 1 // дети
         If AScan( as, mospec->prvs_new ) == 0
           AAdd( as, mospec->prvs_new )
         Endif
       Endif
-      Skip
+      mospec->( dbSkip() )  //  Skip
     Enddo
     If Select( 'MOSPEC' ) > 0
       mospec->( dbCloseArea() )
@@ -31,50 +235,54 @@ Function fget_spec_deti( k, r, c, a_spec )
         as[ i ] := arr_conv_V015_V021[ j, 1 ]                          // в 15-ый справочник
       Endif
     Next
-    dbCreate( n_file, { { 'name', 'C', 30, 0 }, ;
+    dbCreate( n_file, { ;
+      { 'name', 'C', 30, 0 }, ;
       { 'kod', 'C', 4, 0 }, ;
       { 'kod_up', 'C', 4, 0 }, ;
       { 'name1', 'C', 50, 0 }, ;
       { 'is', 'L', 1, 0 } } )
     Use ( n_file ) New Alias SDVN
     Use ( cur_dir() + 'tmp_v015' ) index ( cur_dir() + 'tmpkV015' ) New Alias tmp_ga
-    Go Top
-    Do While !Eof()
+    tmp_ga->( dbGoTop() )   //  Go Top
+    Do While !tmp_ga->( Eof() )
       If ( i := AScan( as, Int( Val( tmp_ga->kod ) ) ) ) > 0
-        Select SDVN
-        Append Blank
+//        Select SDVN
+//        Append Blank
+        sdvn->( dbAppend() )
         sdvn->name := AfterAtNum( '.', tmp_ga->name, 1 )
         sdvn->kod := tmp_ga->kod
         s := ''
-        Select TMP_GA
-        rec := RecNo()
-        Do While !Empty( tmp_ga->kod_up )
-          find ( tmp_ga->kod_up )
-          If Found()
+//        Select TMP_GA
+//        rec := RecNo()
+        rec := tmp_ga->( RecNo() )
+        Do While ! Empty( tmp_ga->kod_up )
+          tmp_ga->( dbSeek( tmp_ga->kod_up ) )    //  find ( tmp_ga->kod_up )
+          If tmp_ga->( Found() )
             s += AllTrim( AfterAtNum( '.', tmp_ga->name, 1 ) ) + '/'
           Else
             Exit
           Endif
         Enddo
-        Goto ( rec )
+//        Goto ( rec )
+        tmp_ga->( dbGoto( rec ) )
         sdvn->name1 := s
       Endif
-      Skip
+      tmp_ga->( dbSkip() )    //Skip
     Enddo
     sdvn->( dbCloseArea() )
     tmp_ga->( dbCloseArea() )
   Endif
   Use ( n_file ) New Alias tmp_ga
-  Do While !Eof()
+  Do While ! tmp_ga->( Eof() )
     tmp_ga->is := ( AScan( a_spec, Int( Val( tmp_ga->kod ) ) ) > 0 )
-    Skip
+    tmp_ga->( dbSkip() )    //  Skip
   Enddo
-  Index On Upper( name ) + kod to ( n_file )
+  Index On Upper( FIELD->name ) + FIELD->kod to ( n_file )
   If r <= MaxRow() / 2
     t_arr[ BR_TOP ] := r + 1
     t_arr[ BR_BOTTOM ] := MaxRow() -2
   Else
-    t_arr[ BR_BOTTOM ] := r -1
+    t_arr[ BR_BOTTOM ] := r - 1
     t_arr[ BR_TOP ] := 2
   Endif
   blk := {|| iif( tmp_ga->is, { 1, 2 }, { 3, 4 } ) }
@@ -90,17 +298,17 @@ Function fget_spec_deti( k, r, c, a_spec )
     }
   t_arr[ BR_EDIT ] := {| nk, ob| f1get_spec_dvn( nk, ob, 'edit' ) }
   t_arr[ BR_STAT_MSG ] := {|| status_key( '^<Esc>^ - выход;  ^<Ins>^ - отметить специальность/снять отметку со специальности' ) }
-  Go Top
+  tmp_ga->( dbGoTop() )   //  Go Top
   edit_browse( t_arr )
   s := ''
   ASize( a_spec, 0 )
-  Go Top
-  Do While !Eof()
+  tmp_ga->( dbGoTop() )   //  Go Top
+  Do While ! tmp_ga->( Eof() )
     If tmp_ga->is
       s += AllTrim( tmp_ga->kod ) + ','
       AAdd( a_spec, Int( Val( tmp_ga->kod ) ) )
     Endif
-    Skip
+    tmp_ga->( dbSkip() )  //  Skip
   Enddo
   If Empty( s )
     s := '---'
@@ -111,19 +319,22 @@ Function fget_spec_deti( k, r, c, a_spec )
   Select ( tmp_select )
   Return { 1, s }
 
-// 05.09.21
-Function save_arr_pn( lkod )
+// 21.09.25
+Function save_arr_pn( lkod, mdata )
 
   Local arr := {}, k, ta
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
   Local oldSelect
+  local i
+  local mvar
 
+  default mdata to Date()
   If ! aliasIsUse
     oldSelect := Select()
     r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'TPERS' )
   Endif
 
-  Private mvar
+//  Private mvar
   If Type( 'mfio' ) == 'C'
     AAdd( arr, { 'mfio', AllTrim( mfio ) } )
   Endif
@@ -153,14 +364,14 @@ Function save_arr_pn( lkod )
     AAdd( arr, { '13.2.3', m1psih23 } )  // 'N1',Эмоционально-вегетативная сфера: (норма, отклонение)
   Endif
   If mpol == 'М'
-    AAdd( arr, { '14.1.P',m141p } )     // 'N1',Половая формула мальчика
-    AAdd( arr, { '14.1.Ax',m141ax } )   // 'N1',Половая формула мальчика
-    AAdd( arr, { '14.1.Fa',m141fa } )   // 'N1',Половая формула мальчика
+    AAdd( arr, { '14.1.P', m141p } )     // 'N1',Половая формула мальчика
+    AAdd( arr, { '14.1.Ax', m141ax } )   // 'N1',Половая формула мальчика
+    AAdd( arr, { '14.1.Fa', m141fa } )   // 'N1',Половая формула мальчика
   Else
-    AAdd( arr, { '14.2.P',m142p } )     // 'N1',Половая формула девочки
-    AAdd( arr, { '14.2.Ax',m142ax } )   // 'N1',Половая формула девочки
-    AAdd( arr, { '14.2.Ma',m142ma } )   // 'N1',Половая формула девочки
-    AAdd( arr, { '14.2.Me',m142me } )   // 'N1',Половая формула девочки
+    AAdd( arr, { '14.2.P', m142p } )     // 'N1',Половая формула девочки
+    AAdd( arr, { '14.2.Ax', m142ax } )   // 'N1',Половая формула девочки
+    AAdd( arr, { '14.2.Ma', m142ma } )   // 'N1',Половая формула девочки
+    AAdd( arr, { '14.2.Me', m142me } )   // 'N1',Половая формула девочки
     AAdd( arr, { '14.2.Me1', m142me1 } ) // 'N2',Половая формула девочки - menarhe (лет)
     AAdd( arr, { '14.2.Me2', m142me2 } ) // 'N2',Половая формула девочки - menarhe (месяцев)
     AAdd( arr, { '14.2.Me3', m1142me3 } ) // 'N1',Половая формула девочки - menses (характеристика): регулярные, нерегулярные, обильные, умеренные, скудные, болезненные и безболезненные
@@ -268,7 +479,7 @@ Function save_arr_pn( lkod )
     AAdd( arr, { '16.12', AllTrim( mrek_disp ) } ) // Рекомендации по диспансерному наблюдению, лечению, медицинской реабилитации и санаторно-курортному лечению с указанием диагноза (код МКБ), вида медицинской организации и специальности (должности) врача
   Endif
   // 18.результаты проведения исследований
-  For i := 1 To count_pn_arr_iss
+  For i := 1 To len( np_arr_issled( mdata ) )
     mvar := 'MREZi' + lstr( i )
     If !Empty( &mvar )
       AAdd( arr, { '18.' + lstr( i ), AllTrim( &mvar ) } )
@@ -277,7 +488,7 @@ Function save_arr_pn( lkod )
   If !Empty( arr_usl_otkaz )
     AAdd( arr, { '29', arr_usl_otkaz } ) // массив
   Endif
-  If mk_data >= 0d20210801
+  If mdata >= 0d20210801
     If mtab_v_dopo_na != 0
       If TPERS->( dbSeek( Str( mtab_v_dopo_na, 5 ) ) )
         AAdd( arr, { '47', { m1dopo_na, TPERS->kod } } )
@@ -293,7 +504,7 @@ Function save_arr_pn( lkod )
   If Type( 'm1p_otk' ) == 'N'
     AAdd( arr, { '51', m1p_otk } )
   Endif
-  If mk_data >= 0d20210801
+  If mdata >= 0d20210801
     If Type( 'm1napr_v_mo' ) == 'N'
       If mtab_v_mo != 0
         If TPERS->( dbSeek( Str( mtab_v_mo, 5 ) ) )
@@ -313,7 +524,7 @@ Function save_arr_pn( lkod )
   If Type( 'arr_mo_spec' ) == 'A' .and. !Empty( arr_mo_spec )
     AAdd( arr, { '53', arr_mo_spec } ) // массив
   Endif
-  If mk_data >= 0d20210801
+  If mdata >= 0d20210801
     If Type( 'm1napr_stac' ) == 'N'
       If mtab_v_stac != 0
         If TPERS->( dbSeek( Str( mtab_v_stac, 5 ) ) )
@@ -333,7 +544,7 @@ Function save_arr_pn( lkod )
   If Type( 'm1profil_stac' ) == 'N'
     AAdd( arr, { '55', m1profil_stac } )
   Endif
-  If mk_data >= 0d20210801
+  If mdata >= 0d20210801
     If Type( 'm1napr_reab' ) == 'N'
       If mtab_v_reab != 0
         If TPERS->( dbSeek( Str( mtab_v_reab, 5 ) ) )
@@ -361,20 +572,22 @@ Function save_arr_pn( lkod )
   save_arr_dispans( lkod, arr )
   Return Nil
 
-// 05.09.21
-Function read_arr_pn( lkod, is_all )
+// 28.09.25
+Function read_arr_pn( lkod, is_all, mdata )
 
   Local arr, i, k
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
   Local oldSelect
+  Local mvar
 
+  // Private mvar
   If ! aliasIsUse
     oldSelect := Select()
     r_use( dir_server() + 'mo_pers',, 'TPERS' )
   Endif
 
   Default is_all To .t.
-  Private mvar
+  default mdata to Date()
   arr := read_arr_dispans( lkod )
   For i := 1 To Len( arr )
     If ValType( arr[ i ] ) == 'A' .and. ValType( arr[ i, 1 ] ) == 'C'
@@ -602,7 +815,7 @@ Function read_arr_pn( lkod, is_all )
         Case arr[ i, 1 ] == '57' .and. ValType( arr[ i, 2 ] ) == 'N'
           m1profil_kojki := arr[ i, 2 ]
         Otherwise
-          For k := 1 To count_pn_arr_iss
+          For k := 1 To Len( np_arr_issled( mdata ) )
             If arr[ i, 1 ] == '18.' + lstr( k ) .and. ValType( arr[ i, 2 ] ) == 'C'
               mvar := 'MREZi' + lstr( k )
               &mvar := PadR( arr[ i, 2 ], 17 )
@@ -616,4 +829,230 @@ Function read_arr_pn( lkod, is_all )
     TPERS->( dbCloseArea() )
     Select( oldSelect )
   Endif
+  Return Nil
+
+// 12.10.25
+Function is_issled_pn( ausl, _period, arr, _pol, mdata )
+
+  // ausl - {lshifr,mdate,hu_->profil,hu_->PRVS}
+
+  Local i, s := '', fl := .f., lshifr := AllTrim( ausl[ 1 ] )
+  local arr_pn_issled
+  local arr_pn_zs
+
+  arr_pn_issled := np_arr_issled( mdata )
+  arr_pn_zs := np_arr_not_zs( mdata )
+  If ( i := AScan( arr_pn_zs, {| x| x[ 2 ] == lshifr } ) ) > 0
+    lshifr := arr_pn_zs[ i, 1 ]
+  Endif
+  For i := 1 To Len( arr_pn_issled )
+    If arr_pn_issled[ i, 1 ] == lshifr
+      s := '"' + lshifr + '.' + arr_pn_issled[ i, 3 ] + '"'
+      If ValType( arr_pn_issled[ i, 2 ] ) == 'C' .and. !( arr_pn_issled[ i, 2 ] == _pol )
+        AAdd( arr, 'Несовместимость по полу в услуге ' + s )
+      Endif
+      fl := .t.
+      Exit
+    Endif
+  Next
+  If fl .and. arr_pn_issled[ i, 4 ] < 2
+    If AScan( np_arr_1_etap( mdata )[ _period, 5 ], lshifr ) == 0
+      AAdd( arr, 'Некорректный возрастной период пациента для ' + s )
+    Endif
+    If ValType( arr_pn_issled[ i, 5 ] ) == 'N' .and. arr_pn_issled[ i, 5 ] != ausl[ 3 ]
+      AAdd( arr, 'Не тот профиль в иссл-ии ' + s )
+    Endif
+  Endif
+  Return fl
+
+// 12.10.25
+Function is_osmotr_pn( ausl, _period, arr, _etap, _pol, mdata, mobil )
+
+  // ausl - {lshifr,mdate,hu_->profil,hu_->PRVS}
+
+  Local i, j, s, fl := .f., fl_profil := .f., lshifr := AllTrim( ausl[ 1 ] )
+  Local arr_PN_osmotr
+  Local arr_not_zs
+
+  arr_PN_osmotr := np_arr_osmotr( mdata, mobil )
+  arr_not_zs := np_arr_not_zs( mdata )
+  If eq_any( Left( lshifr, 4 ), '2.3.', '2.91' )
+    fl_profil := .t.
+  Elseif _etap == 1
+    If ( i := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0
+      lshifr := arr_not_zs[ i, 1 ]
+    Endif
+  Elseif ( i := AScan( np_arr_osmotr_kdp2(), {| x| x[ 2 ] == lshifr } ) ) > 0
+    lshifr := np_arr_osmotr_kdp2()[ i, 1 ]
+  Endif
+  For i := 1 To Len( arr_PN_osmotr )  // count_pn_arr_osm
+    If _etap == 1 .or. fl_profil
+      If ValType( arr_PN_osmotr[ i, 4 ] ) == 'N'
+        If arr_PN_osmotr[ i, 4 ] == ausl[ 3 ]
+          lshifr := arr_PN_osmotr[ i, 1 ] // искусственно
+          fl := .t.
+          Exit
+        Endif
+      Elseif ( j := AScan( arr_PN_osmotr[ i, 4 ], ausl[ 3 ] ) ) > 0
+        lshifr := arr_PN_osmotr[ i, 1 ] // искусственно
+        fl := .t.
+        Exit
+      Endif
+    Else
+      // if np_arr_osmotr[i, 1] == lshifr
+      If arr_PN_osmotr[ i, 1 ] == lshifr
+        fl := .t.
+        Exit
+      Endif
+    Endif
+  Next
+  If fl
+    s := '"' + lshifr + '.' + arr_PN_osmotr[ i, 3 ] + '"'
+    If _etap == 1 .and. AScan( np_arr_1_etap( mdata, mobil )[ _period, 4 ], lshifr ) == 0
+      AAdd( arr, 'Некорректный возрастной период пациента для ' + s )
+    Endif
+    If !Empty( arr_PN_osmotr[ i, 2 ] ) .and. !( arr_PN_osmotr[ i, 2 ] == _pol )
+      AAdd( arr, 'Несовместимость по полу в услуге ' + s )
+    Endif
+    If ValType( arr_PN_osmotr[ i, 4 ] ) == 'N'
+      If arr_PN_osmotr[ i, 4 ] != ausl[ 3 ]
+        AAdd( arr, 'Не тот профиль в услуге ' + s )
+      Endif
+    Elseif ( j := AScan( arr_PN_osmotr[ i, 4 ], ausl[ 3 ] ) ) == 0
+      AAdd( arr, 'Не тот профиль в услуге ' + s )
+    Endif
+  Endif
+  Return fl
+
+// 12.10.25 если услуга из 1 этапа
+Function is_1_etap_pn( ausl, _period, _etap, mdata, mobil )
+
+  // ausl - { lshifr,mdate,hu_->profil,hu_->PRVS }
+
+  Local i, j, fl := .f., fl_profil := .f., lshifr := AllTrim( ausl[ 1 ] )
+  Local arr_PN_osmotr
+  local arr_pn_zs
+
+  arr_PN_osmotr := np_arr_osmotr( mdata, mobil )
+  arr_pn_zs := np_arr_not_zs( mdata )
+  If eq_any( Left( lshifr, 4 ), '2.3.', '2.91' )
+    fl_profil := .t.
+  Elseif _etap == 1
+    If ( i := AScan( arr_pn_zs, {| x| x[ 2 ] == lshifr } ) ) > 0
+      lshifr := arr_pn_zs[ i, 1 ]
+    Endif
+  Elseif ( i := AScan( np_arr_osmotr_kdp2(), {| x| x[ 2 ] == lshifr } ) ) > 0
+    lshifr := np_arr_osmotr_kdp2()[ i, 1 ]
+  Endif
+  For i := 1 To Len( arr_PN_osmotr )  // count_pn_arr_osm
+    If _etap == 1 .or. fl_profil
+      If ValType( arr_PN_osmotr[ i, 4 ] ) == 'N'
+        If arr_PN_osmotr[ i, 4 ] == ausl[ 3 ]
+          lshifr := arr_PN_osmotr[ i, 1 ] // искусственно
+          fl := .t.
+          Exit
+        Endif
+      Elseif ( j := AScan( arr_PN_osmotr[ i, 4 ], ausl[ 3 ] ) ) > 0
+        lshifr := arr_PN_osmotr[ i, 1 ] // искусственно
+        fl := .t.
+        Exit
+      Endif
+    Else
+      If arr_PN_osmotr[ i, 1 ] == lshifr
+        fl := .t.
+        Exit
+      Endif
+    Endif
+  Next
+  If fl
+    fl := ( AScan( np_arr_1_etap( mData, mobil )[ _period, 4 ], lshifr ) > 0 )
+  Endif
+  Return fl
+
+// 12.10.25
+Function f_blank_usl_pn()
+
+  Static arrv := { ;
+    { 'Новорожденный', 1 }, ;
+    { '1 месяц', 2 }, ;
+    { '2 месяца', 3 }, ;
+    { '3 месяца', 4 }, ;
+    { '4 м., 5 м., 6 м., 7 м., 8 м., 9 м., 10 м., 11 м., 1 год 3 м., 1 год 6 м.', 5 }, ;
+    { '1 год', 13 }, ;
+    { '2 года', 16 }, ;
+    { '3 года', 17 }, ;
+    { '4 года, 5 лет, 8 лет, 9 лет, 11 лет, 12 лет', 18 }, ;
+    { '6 лет', 20 }, ;
+    { '7 лет', 21 }, ;
+    { '10 лет', 24 }, ;
+    { '13 лет', 27 }, ;
+    { '14 лет', 28 }, ;
+    { '15 лет', 29 }, ;
+    { '16 лет', 30 }, ;
+    { '17 лет', 31 };
+    }
+  Local i, mperiod, ar, s, buf := SaveScreen(), ret_arr[ 2 ]
+  Local arr, arr_pn_issled
+  local fr_data := '_data', fr_titl := '_titl'
+
+  delfrfiles()
+  arr_pn_issled := np_arr_issled( Date() )
+  Do While ( mperiod := popup_2array( arrv, 3, 11, mperiod, 1, @ret_arr, ;
+      'Вклыдыши услуг к л/у профилактики несовершеннолетних', 'B/W', color5 ) ) > 0
+    dbCreate( fr_titl, { { 'name', 'C', 130, 0 } } )
+    Use ( fr_titl ) New Alias FRT
+    frt->( dbAppend() )
+    frt->name := ret_arr[ 1 ]
+    dbCreate( fr_data, { { 'name', 'C', 100, 0 } } )
+    Use ( fr_data ) New Alias FRD
+    np_oftal_2_85_21( mperiod, 0d20180901 )
+    ar := np_arr_1_etap( Date() )[ mperiod ]
+    If !Empty( ar[ 5 ] ) // не пустой массив исследований
+      For i := 1 To Len( arr_pn_issled )
+        If AScan( ar[ 5 ], arr_pn_issled[ i, 1 ] ) > 0
+          s := arr_pn_issled[ i, 3 ]
+          If ValType( arr_pn_issled[ i, 2 ] ) == 'C'
+            s += ' (' + iif( arr_pn_issled[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
+          Endif
+          frd->( dbAppend() )
+          frd->name := s
+        Endif
+      Next
+    Endif
+    dbCreate( fr_data + '1', { { 'name', 'C', 100, 0 } } )
+    Use ( fr_data + '1' ) New Alias FRD1
+    arr := np_arr_osmotr( Date() )
+    If !Empty( ar[ 4 ] ) // не пустой массив осмотров
+      For i := 1 To Len( arr )
+        If AScan( ar[ 4 ], arr[ i, 1 ] ) > 0
+          s := arr[ i, 3 ]
+          If ValType( arr[ i, 2 ] ) == 'C'
+            s += ' (' + iif( arr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
+          Endif
+          frd1->( dbAppend() )
+          frd1->name := s
+        Endif
+      Next
+    Endif
+    frd1->( dbAppend() )
+    frd1->name := 'педиатр (врач общей практики)'
+    dbCreate( fr_data + '2', { { 'name', 'C', 100, 0 } } )
+    Use ( fr_data + '2' ) New Alias FRD2
+    arr := np_arr_osmotr( Date() )
+    For i := 1 To Len( arr )
+      If AScan( ar[ 4 ], arr[ i, 1 ] ) == 0
+        s := arr[ i, 3 ]
+        If ValType( arr[ i, 2 ] ) == 'C'
+          s += ' (' + iif( arr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
+        Endif
+        frd2->( dbAppend() )
+        frd2->name := s
+      Endif
+    Next
+    frd2->( dbAppend() )
+    frd2->name := 'педиатр (врач общей практики)'
+    dbCloseAll()
+    call_fr( 'mo_b_pn1' )
+  Enddo
+  RestScreen( buf )
   Return Nil

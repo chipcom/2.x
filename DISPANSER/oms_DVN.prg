@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.09.25 ДВН - добавление или редактирование случая (листа учета)
+// 25.09.25 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -474,7 +474,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                   m1var := 'm1lis' + lstr( i )
                   If is_disp_19
                     &m1var := 0
-                  Elseif glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS, dvn_arr_usl[ i, 2 ] ) > 0 .and. hu->is_edit > 0
+                  Elseif glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS(), dvn_arr_usl[ i, 2 ] ) > 0 .and. hu->is_edit > 0
                     &m1var := hu->is_edit
                   Endif
                   mvar := 'mlis' + lstr( i )
@@ -857,7 +857,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                 fl_g_cit := .f.
                 m1g_cit := 1 // в МО
               Endif
-            Elseif !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS, dvn_arr_usl[ i, 2 ] ) > 0
+            Elseif !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS(), dvn_arr_usl[ i, 2 ] ) > 0
               fl_kdp2 := .t.
             Endif
           Endif

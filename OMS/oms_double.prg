@@ -811,11 +811,12 @@ function exist_reserve_KSG(kod_pers, aliasHUMAN)
   endif  
   return ret
 
-// 26.12.23
+// 09.10.25
 function diagnosis_for_replacement( cDiag, nUsl_ok, double_sl )
   local aDiag := {'Z92.2', ;
                   'Z92.4', ;
-                  'Z92.8' ;
+                  'Z92.8', ;
+                  'Z92.9', ;
                 }
                 //   'Z25.8' ;
                 //  }

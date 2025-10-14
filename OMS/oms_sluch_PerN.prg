@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.09.25 ПерН - добавление или редактирование случая (листа учета)
+// 25.09.25 ПерН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -240,7 +240,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
           &mvar := c4tod( hu->date_u )
           If j == 1
             m1var := 'm1lis' + lstr( i )
-            If glob_yes_kdp2()[ TIP_LU_PERN ] .and. AScan( glob_arr_usl_LIS, nper_arr_issled[ i, 1 ] ) > 0 ;
+            If glob_yes_kdp2()[ TIP_LU_PERN ] .and. AScan( glob_arr_usl_LIS(), nper_arr_issled[ i, 1 ] ) > 0 ;
                 .and. hu->is_edit == 1
               &m1var := 1
             Endif
@@ -385,7 +385,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
       MDATEi2 := mn_data
     Endif
     @ j, 1 Say PadR( 'Клинический анализ крови', 38 )
-    If glob_yes_kdp2()[ TIP_LU_PERN ] .and. AScan( glob_arr_usl_LIS, nper_arr_issled[ 2, 1 ] ) > 0
+    If glob_yes_kdp2()[ TIP_LU_PERN ] .and. AScan( glob_arr_usl_LIS(), nper_arr_issled[ 2, 1 ] ) > 0
       @ j, 34 Get mlis2 reader {| x| menu_reader( x, mm_kdp2, A__MENUVERT, , , .f. ) }
     Endif
     @ j, 39 Get MTAB_NOMiv2 Pict '99999' valid {| g| v_kart_vrach( g ) }

@@ -2,18 +2,16 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
-
-// 07.10.25 ДДС - добавление или редактирование случая (листа учета)
+ 
+// 25.09.25 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   // f_print - наименование функции для печати
-  
   Static st_N_DATA, st_K_DATA, ;
     st_stacionar := 0, st_kateg_uch := 0, st_mo_pr := '      '
-
   Local L_BEGIN_RSLT := iif( tip_lu == TIP_LU_DDS, 320, 346 )
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, arr_del := {}, mrec_hu := 0, ;
     buf := SaveScreen(), tmp_color := SetColor(), a_smert := {}, ;
@@ -21,31 +19,21 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     colget_menu := 'R/W', colgetImenu := 'R/BG', ;
     pos_read := 0, k_read := 0, count_edit := 0, larr, lu_kod, ;
     tmp_help := chm_help_code, fl_write_sluch := .f.
-  local _arr, larr_i, larr_o, larr_p
-  local bukva, s1, i, j, k, s, str_1, fl, i1, i2, _fl_
-  local arr_not_zs
-  local arr_iss
-  local arr_osm1, arr_osm2
-  local count_DDS_arr_issled, count_DDS_arr_osm
-  local arr_prof := {}, ar, arr_DDS_issled, arr_DDS_osm, arr_usl_dop
-  local mm_uch1
-  local dir_DB
-  local work_dir
-  local mdate1, mdate2
-  local num_screen, hS, wS, ku
-  local m1lpu := glob_uch[ 1 ], mlpu, m1otd, motd
-  local is_7_2_702 := .f., is_4_29_4 := .f.
-  local ddd
+  local i, j, k, s, fl, bukva
+
+  local dir_DB // каталог БД
+  local work_dir  // текущий рабочий каталог
+  local arr_DDS_osm1
+  local arr_DDS_osm2
+  local arr_DDS_iss
 
   //
+
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0, f_print To ''
   //
   dir_DB := dir_server()
   work_dir := cur_dir()
-  num_screen := 1
-  m1lpu := glob_uch[ 1 ]
-  m1otd := glob_otd[ 1 ]
 
   If kod_kartotek == 0 // добавление в картотеку
     If ( kod_kartotek := edit_kartotek( 0,,, .t. ) ) == 0
@@ -53,15 +41,17 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     Endif
   Endif
   chm_help_code := 3002
-  Private mfio := Space( 50 ), mpol, mdate_r, madres, mvozrast, mdvozrast, msvozrast := ' ', ;
+  Private mfio := Space( 50 ), mpol, mdate_r, madres, mvozrast, ;
     M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
     m1company := 0, mcompany, mm_company, ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС,1-компании,3-комитеты/ЛПУ,5-личный счет
     msmo := '34007', rec_inogSMO := 0, ;
     mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 ), ;
     mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ), mnpolis := Space( 20 )
-  Private mkod := Loc_kod, ;
+  Private mkod := Loc_kod, mtip_h, is_talon := .f., is_disp_19 := .t., ;
     mkod_k := kod_kartotek, fl_kartotek := ( kod_kartotek == 0 ), ;
+    M1LPU := glob_uch[ 1 ], MLPU, ;
+    M1OTD := glob_otd[ 1 ], MOTD, ;
     M1FIO_KART := 1, MFIO_KART, ;
     MUCH_DOC    := Space( 10 ),; // вид и номер учетного документа
     mmobilbr, m1mobilbr := 0, ;
@@ -75,22 +65,113 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     MSOPUT_B4   := Space( 5 ),; // шифр 4-ой сопутствующей болезни
     MDIAG_PLUS  := Space( 8 ),; // дополнения к диагнозам
     adiag_talon[ 16 ],; // из статталона к диагнозам
+    m1rslt  := 321,; // результат (присвоена I группа здоровья)
+    m1ishod := 306,; // исход
     MN_DATA := st_N_DATA,; // дата начала лечения
-    mk_data := st_K_DATA,; // дата окончания лечения
+    MK_DATA := st_K_DATA,; // дата окончания лечения
     MVRACH := Space( 10 ),; // фамилия и инициалы лечащего врача
     M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
     m1povod  := 4, ;   // Профилактический
+    m1travma := 0, ;
     m1USL_OK :=  USL_OK_POLYCLINIC, ; // поликлиника
-    m1rslt  := 321,; // результат (присвоена I группа здоровья)
-    m1ishod := 306,; // исход
     m1VIDPOM :=  1, ; // первичная
     m1PROFIL := 68, ; // педиатрия
     m1IDSP   := 11   // диспансеризация
   //
+//  Private mm_kateg_uch := { { 'ребенок-сирота', 0 }, ;
+//    { 'ребенок, оставшийся без попечения родителей', 1 }, ;
+//    { 'ребенок, находящийся в трудной жизненной ситуации', 2 }, ;
+//    { 'нет категории', 3 } }
+//  Private mm_gde_nahod := { { 'в стационарном учреждении', 0 }, ;
+//    { 'под опекой', 1 }, ;
+//    { 'под попечительством', 2 }, ;
+//    { 'передан в приемную семью', 3 }, ;
+//    { 'передан в патронатную семью', 4 }, ;
+//    { 'усыновлен (удочерена)', 5 }, ;
+//    { 'другое', 6 } }
+  Private mm_gde_nahod1 := AClone( mm_gde_nahod() )
+//  Private mm_prich_vyb := { { 'не выбыл', 0 }, ;
+//    { 'опека', 1 }, ;
+//    { 'попечительство', 2 }, ;
+//    { 'усыновление (удочерение)', 3 }, ;
+//    { 'передан в приемную семью', 4 }, ;
+//    { 'передан в патронатную семью', 5 }, ;
+//    { 'выбыл в другое стационарное учреждение', 6 }, ;
+//    { 'выбыл по возрасту', 7 }, ;
+//    { 'смерть', 8 }, ;
+//    { 'другое', 9 } }
+//  Private mm_fiz_razv := { { 'нормальное', 0 }, ;
+//    { 'с отклонениями', 1 } }
+//  Private mm_fiz_razv1 := { { 'нет    ', 0 }, ;
+//    { 'дефицит', 1 }, ;
+//    { 'избыток', 2 } }
+//  Private mm_fiz_razv2 := { { 'нет    ', 0 }, ;
+//    { 'низкий ', 1 }, ;
+//    { 'высокий', 2 } }
+//  Private mm_psih2 := { { 'норма', 0 }, { 'отклонение', 1 } }
+//  Private mm_142me3 := { { 'регулярные', 0 }, ;
+//    { 'нерегулярные', 1 } }
+//  Private mm_142me4 := { { 'обильные', 0 }, ;
+//    { 'умеренные', 1 }, ;
+//    { 'скудные', 2 } }
+//  Private mm_142me5 := { { 'болезненные', 0 }, ;
+//    { 'безболезненные', 1 } }
+  Private mm_dispans := { { 'ранее', 1 }, { 'впервые', 2 }, { 'не уст.', 0 } }
+  Private mm_usl := { { 'амб.', 0 }, { 'дн/с', 1 }, { 'стац', 2 } }
+  Private mm_uch := { { 'МУЗ ', 1 }, { 'ГУЗ ', 0 }, { 'фед.', 2 }, { 'част', 3 } }
+  Private mm_uch1 := AClone( mm_uch )
+  AAdd( mm_uch1, { 'сан.', 4 } )
+//  Private mm_invalid2 := { { 'с рождения', 0 }, { 'приобретенная', 1 } }
+//  Private mm_invalid5 := { { 'некоторые инфекционные и паразитарные,', 1 }, ;
+//    { ' из них: туберкулез,', 101 }, ;
+//    { '         сифилис,', 201 }, ;
+//    { '         ВИЧ-инфекция;', 301 }, ;
+//    { 'новообразования;', 2 }, ;
+//    { 'болезни крови, кроветворных органов ...', 3 }, ;
+//    { 'болезни эндокринной системы ...', 4 }, ;
+//    { ' из них: сахарный диабет;', 104 }, ;
+//    { 'психические расстройства и расстройства поведения,', 5 }, ;
+//    { ' в том числе умственная отсталость;', 105 }, ;
+//    { 'болезни нервной системы,', 6 }, ;
+//    { ' из них: церебральный паралич,', 106 }, ;
+//    { '         другие паралитические синдромы;', 206 }, ;
+//    { 'болезни глаза и его придаточного аппарата;', 7 }, ;
+//    { 'болезни уха и сосцевидного отростка;', 8 }, ;
+//    { 'болезни системы кровообращения;', 9 }, ;
+//    { 'болезни органов дыхания,', 10 }, ;
+//    { ' из них: астма,', 110 }, ;
+//    { '         астматический статус;', 210 }, ;
+//    { 'болезни органов пищеварения;', 11 }, ;
+//    { 'болезни кожи и подкожной клетчатки;', 12 }, ;
+//    { 'болезни костно-мышечной системы и соединительной ткани;', 13 }, ;
+//    { 'болезни мочеполовой системы;', 14 }, ;
+//    { 'отдельные состояния, возникающие в перинатальном периоде;', 15 }, ;
+//    { 'врожденные аномалии,', 16 }, ;
+//    { ' из них: аномалии нервной системы,', 116 }, ;
+//    { '         аномалии системы кровообращения,', 216 }, ;
+//    { '         аномалии опорно-двигательного аппарата;', 316 }, ;
+//    { 'последствия травм, отравлений и др.', 17 } }
+//  Private mm_invalid6 := { { 'умственные', 1 }, ;
+//    { 'другие психологические', 2 }, ;
+//    { 'языковые и речевые', 3 }, ;
+//    { 'слуховые и вестибулярные', 4 }, ;
+//    { 'зрительные', 5 }, ;
+//    { 'висцеральные и метаболические расстройства питания', 6 }, ;
+//    { 'двигательные', 7 }, ;
+//    { 'уродующие', 8 }, ;
+//    { 'общие и генерализованные', 9 } }
+//  Private mm_invalid8 := { { 'полностью', 1 }, ;
+//    { 'частично', 2 }, ;
+//    { 'начата', 3 }, ;
+//    { 'не выполнена', 0 } }
+//  Private mm_privivki1 := { { 'привит по возрасту', 0 }, ;
+//    { 'не привит по медицинским показаниям', 1 }, ;
+//    { 'не привит по другим причинам', 2 } }
+//  Private mm_privivki2 := { { 'полностью', 1 }, ;
+//    { 'частично', 2 } }
   //
   Private mstacionar, m1stacionar := st_stacionar, ; // код стационара
     metap := 1, mshifr_zs := '', ;
-    mperiod := 0, ;
     mkateg_uch, m1kateg_uch := st_kateg_uch, ; // Категория учета ребенка:
     mgde_nahod, m1gde_nahod := iif( tip_lu == TIP_LU_DDS, 0, 1 ), ; // На момент проведения диспансеризации находится
     mdate_post := CToD( '' ), ; // Дата поступления в стационарное учреждение
@@ -144,11 +225,13 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
   Private mprivivki1, m1privivki1 := 0, ;
     mprivivki2, m1privivki2 := 0, ;
     mprivivki3 := Space( 100 )
-  Private mvar, m1var, m1onko8 := 0, monko8, m1onko10 := 0, monko10
+  Private mvar, m1var, m1lis := 0, m1onko8 := 0, monko8, m1onko10 := 0, monko10
   Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
-
   Private mdopo_na, m1dopo_na := 0
   Private mm_dopo_na := arr_mm_dopo_na()
+  Private gl_arr := { ;  // для битовых полей
+    { 'dopo_na', 'N', 10, 0,,,, {| x| inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
+    }
   Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
     arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
   Private mnapr_stac, m1napr_stac := 0, ;
@@ -158,21 +241,8 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   Private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
 
-  Private gl_arr := { ;  // для битовых полей
-    { 'dopo_na', 'N', 10, 0,,,, {| x| inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
-  }
-  Private mm_gde_nahod1 := AClone( mm_gde_nahod() )
-  Private gl_area
-//  private ;
-//    mtip_h, ;
-//    m1lpu := glob_uch[ 1 ], mlpu, ;
-//    m1otd := glob_otd[ 1 ], motd, ;
-//  Private mm_otkaz := { { 'выпол.', 0 }, { 'ОТКАЗ ', 1 } }
+  Private mperiod := 0
 
-  mm_uch1 := AClone( mm_uch() )
-  AAdd( mm_uch1, { 'сан.', 4 } )
-
-  // PRIVATE переменные для экранных форм
   //
   For i := 1 To 5
     For k := 1 To 14
@@ -201,8 +271,12 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       Endif
     Next
   Next
+/*
+  arr_DDS_osm1 := dds_arr_osm1()
+  arr_DDS_osm2 := dds_arr_osm2()
+  arr_DDS_iss := dds_arr_iss()
 
-  For i := 1 To 30 // исследования, максимум 30
+  For i := 1 To Len( arr_DDS_iss )
     mvar := 'MTAB_NOMiv' + lstr( i )
     Private &mvar := 0
     mvar := 'MTAB_NOMia' + lstr( i )
@@ -211,27 +285,32 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     Private &mvar := CToD( '' )
     mvar := 'MREZi' + lstr( i )
     Private &mvar := Space( 17 )
+    m1var := 'M1LIS' + lstr( i )
+    Private &m1var := 0
+    mvar := 'MLIS' + lstr( i )
+    Private &mvar := inieditspr( A__MENUVERT, mm_kdp2, &m1var )
   Next
-  For i := 1 To 40  // первый этап осмотры, максимум 40
+  For i := 1 To Len( arr_DDS_osm1 )
     mvar := 'MTAB_NOMov' + lstr( i )
     Private &mvar := 0
     mvar := 'MTAB_NOMoa' + lstr( i )
     Private &mvar := 0
     mvar := 'MDATEo' + lstr( i )
     Private &mvar := CToD( '' )
-//    mvar := 'MKOD_DIAGo' + lstr( i )
-//    Private &mvar := Space( 6 )
-  Next
-  For i := 1 To 2                // педиатр(ы)
-    mvar := 'MTAB_NOMpv' + lstr( i )
-    Private &mvar := 0
-    mvar := 'MTAB_NOMpa' + lstr( i )
-    Private &mvar := 0
-    mvar := 'MDATEp' + lstr( i )
-    Private &mvar := CToD( '' )
-    mvar := 'MKOD_DIAGp' + lstr( i )
+    mvar := 'MKOD_DIAGo' + lstr( i )
     Private &mvar := Space( 6 )
   Next
+  For i := 1 To Len( arr_DDS_osm2 )
+    mvar := 'MTAB_NOM2ov' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOM2oa' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATE2o' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MKOD_DIAG2o' + lstr( i )
+    Private &mvar := Space( 6 )
+  Next
+*/
   //
   AFill( adiag_talon, 0 )
   r_use( dir_DB + 'human_',, 'HUMAN_' )
@@ -274,56 +353,19 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     // проверка исхода = СМЕРТЬ
     Select HUMAN
     Set Index to ( dir_DB + 'humankk' )
-
-    human->( dbSeek( Str( mkod_k, 7 ) ) )
-    Do While human->kod_k == mkod_k .and. ! human->( Eof() )
-      If human->( RecNo() ) != Loc_kod .and. human_->oplata != 9 .and. human_->NOVOR == 0 .and. Year( human->k_data ) > 2017
-        If is_death( human_->RSLT_NEW )
-          a_smert := { 'Данный больной умер!', ;
-            'Лечение с ' + full_date( human->N_DATA ) + ;
-            ' по ' + full_date( human->K_DATA ) }
-        Endif
-        
-        If iif( tip_lu == TIP_LU_DDS, eq_any( human->ishod, 321, 322, 323, 324, 325 ), eq_any( human->ishod, 347, 348, 349, 350, 351 ) ) // если диспансеризация детей-сирот и род опекой
-          read_arr_DDS( human->kod, .f., human->K_DATA ) // читаем переменную 'mperiod'
-          _mperiod := mperiod
-          If _mperiod > 0
-            AAdd( arr_prof, { _mperiod, human->n_data, human->k_data } )
-            If eq_any( _mperiod, 1, 2 )
-              r_use( dir_DB + 'uslugi', , 'USL' )
-              r_use( dir_DB + 'human_u', dir_DB + 'human_u', 'HU' )
-              hu->( dbSeek( Str( human->kod, 7 ) ) )
-              Do While hu->kod == human->kod .and. ! hu->( Eof() )
-                usl->( dbGoto( hu->u_kod ) )
-                If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data ) )
-                  lshifr := usl->shifr
-                Endif
-                hu->( dbSkip() ) // Skip
-              Enddo
-              hu->( dbCloseArea() )
-              usl->( dbCloseArea() )
-            Endif
-          Endif
-        Endif
-      Endif
-      human->( dbSkip() )
-    Enddo
-
+    arr_patient_died_during_treatment( mkod_k, loc_kod )
     Set Index To
-    arr_DDS_osm := dds_arr_osm1_new( mk_data, m1mobilbr, tip_lu )
-    count_DDS_arr_osm := Len( arr_DDS_osm )
-    count_DDS_arr_issled := Len( DDS_arr_issled( mk_data ) )
   Endif
   If Loc_kod > 0
     Select HUMAN
     Goto ( Loc_kod )
-    m1lpu       := human->LPU
-    m1otd       := human->OTD
+    M1LPU       := human->LPU
+    M1OTD       := human->OTD
     M1FIO       := 1
     mfio        := human->fio
     mpol        := human->pol
     mdate_r     := human->date_r
-//    MTIP_H      := human->tip_h
+    MTIP_H      := human->tip_h
     M1VZROS_REB := human->VZROS_REB
     MADRES      := human->ADRES         // адрес больного
     MMR_DOL     := human->MR_DOL        // место работы или причина безработности
@@ -363,119 +405,130 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     mcena_1    := human->CENA_1
     metap      := human->ishod - 100
     mGRUPPA    := human_->RSLT_NEW - L_BEGIN_RSLT
+    is_disp_19 := !( mk_data < 0d20191101 )
 
-    count_DDS_arr_issled := Len( DDS_arr_issled( mk_data ) )
+
+  arr_DDS_osm1 := dds_arr_osm1( human->K_DATA )
+  arr_DDS_osm2 := dds_arr_osm2( human->K_DATA )
+  arr_DDS_iss := dds_arr_iss( human->K_DATA )
+
+  For i := 1 To Len( arr_DDS_iss )
+    mvar := 'MTAB_NOMiv' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOMia' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATEi' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MREZi' + lstr( i )
+    Private &mvar := Space( 17 )
+    m1var := 'M1LIS' + lstr( i )
+    Private &m1var := 0
+    mvar := 'MLIS' + lstr( i )
+    Private &mvar := inieditspr( A__MENUVERT, mm_kdp2, &m1var )
+  Next
+  For i := 1 To Len( arr_DDS_osm1 )
+    mvar := 'MTAB_NOMov' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOMoa' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATEo' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MKOD_DIAGo' + lstr( i )
+    Private &mvar := Space( 6 )
+  Next
+  For i := 1 To Len( arr_DDS_osm2 )
+    mvar := 'MTAB_NOM2ov' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOM2oa' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATE2o' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MKOD_DIAG2o' + lstr( i )
+    Private &mvar := Space( 6 )
+  Next
+
+
     //
-    arr_DDS_osm := dds_arr_osm1_new( mk_data, m1mobilbr, tip_lu )
-    
-    larr := Array( 3, Len( arr_DDS_osm ) )
+    larr := Array( 3, Len( arr_DDS_osm2 ) )
     afillall( larr, 0 )
-
-    If metap == 2
-      m1step2 := 1
-    Endif
-
-    larr_i := Array( count_DDS_arr_issled )
-    AFill( larr_i, 0 )
-    larr_o := Array( count_DDS_arr_osm )
-    AFill( larr_o, 0 )
-    larr_p := {}
     mdate1 := mdate2 := CToD( '' )
-
-    arr_not_zs := DDS_usl_replace( mk_data )
-
     r_use( dir_DB + 'uslugi',, 'USL' )
     use_base( 'human_u' )
-
-    hu->( dbSeek( Str( Loc_kod, 7 ) ) )   // find ( Str( Loc_kod, 7 ) )
-    Do While hu->kod == Loc_kod .and. !hu->( Eof() )
+    find ( Str( Loc_kod, 7 ) )
+    Do While hu->kod == Loc_kod .and. !Eof()
       usl->( dbGoto( hu->u_kod ) )
       If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, mk_data ) )
         lshifr := usl->shifr
       Endif
       lshifr := AllTrim( lshifr )
-      fl := .t.
-      arr_DDS_issled := DDS_arr_issled( mk_data )
-      For i := 1 To count_DDS_arr_issled
-        if arr_DDS_issled[ i, 1 ] == lshifr
-          fl := .f.
-          larr_i[ i ] := hu->( RecNo() )
-          Exit
-        Elseif ( mk_data >= 0d20250901 ) .and. ( j := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 .and. arr_DDS_issled[ i, 1 ] == arr_not_zs[ j, 1 ]
-          fl := .f.
-          larr_i[ i ] := hu->( RecNo() )
-          Exit
-//        Elseif ( mk_data < 0d20250901 ) .and. ( j := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 .and. arr_DDS_issled[ i, 1 ] == arr_not_zs[ j, 1 ]
-//          fl := .f.
-//          larr_i[ i ] := hu->( RecNo() )
-//          Exit
-        Endif
-      Next
-      If fl
-        For i := 1 To count_DDS_arr_osm
-          If Left( arr_DDS_osm[ i, 1 ], 4 ) == '2.4.'
-            If lshifr == arr_DDS_osm[ i, 1 ]
-              fl := .f.
-              larr_o[ i ] := hu->( RecNo() )
-              Exit
-            Endif
-          Elseif f_profil_ginek_otolar( arr_DDS_osm[ i, 4 ], hu_->PROFIL )
+      If eq_any( Left( lshifr, 5 ), '70.5.', '70.6.' )
+        mshifr_zs := lshifr
+      Else
+        fl := .t.
+        For i := 1 To Len( arr_DDS_iss )
+          If AScan( arr_DDS_iss[ i, 7 ], lshifr ) > 0 .and. Empty( larr[ 1, i ] )
             fl := .f.
-            larr_o[ i ] := hu->( RecNo() )
-            Exit
-          Endif
-        Next i
-      Endif
-      If fl .and. eq_any( hu_->PROFIL, 68, 57 )
-        AAdd( larr_p, { hu->( RecNo() ), c4tod( hu->date_u ) } )
-      Endif
-
-      If fl .and. metap == 2 // два этапа
-        m1step2 := 1
-        arr_DDS_osm := dds_arr_osm1_new( mk_data, m1mobilbr, tip_lu )
-
-        For i := 1 To Len( arr_DDS_osm )
-          If AScan( arr_DDS_osm[ i, 5 ], hu_->PROFIL ) > 0 .and. Empty( larr_o[ i ] )
-            fl := .f.
-            larr_o[ i ] := hu->( RecNo() )
-            If i == Len( arr_DDS_osm )
-              mdate2 := c4tod( hu->date_u )
-            Endif
+            larr[ 1, i ] := hu->( RecNo() )
             Exit
           Endif
         Next
+        If fl
+          For i := 1 To Len( arr_DDS_osm1 )
+            If AScan( arr_DDS_osm1[ i, 5 ], hu_->PROFIL ) > 0 .and. Empty( larr[ 2, i ] )
+              fl := .f.
+              larr[ 2, i ] := hu->( RecNo() )
+              If i == Len( arr_DDS_osm1 )
+                mdate1 := c4tod( hu->date_u )
+              Endif
+              Exit
+            Endif
+          Next
+        Endif
+        If fl .and. metap == 2 // два этапа
+          m1step2 := 1
+          For i := 1 To Len( arr_DDS_osm2 )
+            If AScan( arr_DDS_osm2[ i, 5 ], hu_->PROFIL ) > 0 .and. Empty( larr[ 3, i ] )
+              fl := .f.
+              larr[ 3, i ] := hu->( RecNo() )
+              If hu->is_edit == 3
+                If hu_->PROFIL == 12
+                  m1onko8 := 3
+                Elseif hu_->PROFIL == 18
+                  m1onko10 := 3
+                Endif
+              Endif
+              If i == Len( arr_DDS_osm2 )
+                mdate2 := c4tod( hu->date_u )
+              Endif
+              Exit
+            Endif
+          Next
+        Endif
       Endif
       AAdd( arr_usl, hu->( RecNo() ) )
-      hu->( dbSkip() )
+      Select HU
+      Skip
     Enddo
-
-    If Len( larr_p ) > 1 // если осмотр педиатра I этапа позднее педиатра II этапа
-      ASort( larr_p,,, {| x, y| x[ 2 ] < y[ 2 ] } )
-      If metap == 1
-        ASize( larr_p, 1 ) // отрезать лишние приёмы
-      Else
-        Do While Len( larr_p ) > 2 // когда педиатр I этапа введён как две услуги (2.3.* и 2.91.*)
-          hb_ADel( larr_p, 2, .t. ) // т.е. оставляем первый и последний приём
-        Enddo
-      Endif
+    If !emptyany( mdate1, mdate2 ) .and. mdate1 > mdate2 // если осмотр педиатра I этапа позднее педиатра II этапа
+      k := larr[ 2, Len( arr_DDS_osm1 ) ] // запомнить
+      larr[ 2, Len( arr_DDS_osm1 ) ] := larr[ 3, Len( arr_DDS_osm2 ) ]
+      larr[ 3, Len( arr_DDS_osm2 ) ] := k // обменять значения
     Endif
-
     r_use( dir_DB + 'mo_pers',, 'P2' )
     For j := 1 To 3
       If j == 1
-        _arr := larr_i
+        _arr := arr_DDS_iss
         bukva := 'i'
       Elseif j == 2
-        _arr := larr_o
+        _arr := arr_DDS_osm1
         bukva := 'o'
       Else
-        _arr := larr_p
-        bukva := 'p'
+        _arr := arr_DDS_osm2
+        bukva := '2o'
       Endif
       For i := 1 To Len( _arr )
-        k := iif( j == 3, _arr[ i, 1 ], _arr[ i ] )
-        If !Empty( k )
-          hu->( dbGoto( k ) )
+        If !Empty( larr[ j, i ] )
+          hu->( dbGoto( larr[ j, i ] ) )
           If hu->kod_vr > 0
             p2->( dbGoto( hu->kod_vr ) )
             mvar := 'MTAB_NOM' + bukva + 'v' + lstr( i )
@@ -488,39 +541,41 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
           Endif
           mvar := 'MDATE' + bukva + lstr( i )
           &mvar := c4tod( hu->date_u )
-//          if !Empty( hu_->kod_diag ) .and. !( Left( hu_->kod_diag, 1 ) == 'Z' )
-//            mvar := 'MKOD_DIAG' + bukva + lstr( i )
-//            &mvar := hu_->kod_diag
-//          Endif
+          If j == 1
+            m1var := 'm1lis' + lstr( i )
+            If is_disp_19
+              &m1var := 0
+            Elseif glob_yes_kdp2()[ tip_lu ] .and. AScan( glob_arr_usl_LIS, arr_DDS_iss[ i, 7, 1 ] ) > 0 .and. hu->is_edit > 0
+              &m1var := hu->is_edit
+            Endif
+            mvar := 'mlis' + lstr( i )
+            &mvar := inieditspr( A__MENUVERT, mm_kdp2, &m1var )
+          Elseif !Empty( hu_->kod_diag ) .and. !( Left( hu_->kod_diag, 1 ) == 'Z' )
+            mvar := 'MKOD_DIAG' + bukva + lstr( i )
+            &mvar := hu_->kod_diag
+          Endif
         Endif
       Next
     Next
-    read_arr_dds( Loc_kod, mk_data )
     If AllTrim( msmo ) == '34'
       mnameismo := ret_inogsmo_name( 2, @rec_inogSMO, .t. ) // открыть и закрыть
     Endif
+    read_arr_dds( Loc_kod )
   Endif
   If !( Left( msmo, 2 ) == '34' ) // не Волгоградская область
     m1ismo := msmo
     msmo := '34'
   Endif
-
-  dbCreate( work_dir + 'tmp_onkna', create_struct_temporary_onkna() )
-  cur_napr := 1 // при ред-ии - сначала первое направление текущее
-  count_napr := collect_napr_zno( Loc_kod )
-  If count_napr > 0
-    mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
-  Endif
-
+  is_talon := .t.
   dbCloseAll()
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )
   MFIO_KART := _f_fio_kart()
-  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
+  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
   mlpu      := inieditspr( A__POPUPMENU, dir_DB + 'mo_uch', m1lpu )
   motd      := inieditspr( A__POPUPMENU, dir_DB + 'mo_otd', m1otd )
-  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
+  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
-  mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
+  mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   monko8    := inieditspr( A__MENUVERT, mm_vokod(), m1onko8 )
   monko10   := inieditspr( A__MENUVERT, mm_vokod(), m1onko10 )
   mismo     := init_ismo( m1ismo )
@@ -599,15 +654,16 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
   str_1 := ' случая диспансеризации детей-сирот'
   If Loc_kod == 0
     str_1 := 'Добавление' + str_1
-//    mtip_h := yes_vypisan
+    mtip_h := yes_vypisan
   Else
     str_1 := 'Редактирование' + str_1
   Endif
   SetColor( color8 )
   @ 0, 0 Say PadC( str_1, 80 ) Color 'B/BG*'
-
+  Private gl_area
   SetColor( cDataCGet )
   make_diagp( 1 )  // сделать 'шестизначные' диагнозы
+  Private num_screen := 1
   Do While .t.
     dbCloseAll()
     DispBegin()
@@ -628,28 +684,16 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     Endif
     @ j, 0 Say 'Экран ' + lstr( num_screen ) Color color8
     If num_screen > 1
-      s1 := ' '
-      mperiod := ret_period_DDS( mdate_r, mn_data, mk_data, @s1 )
+      is_disp_19 := !( mk_data < 0d20191101 )
       s := AllTrim( mfio ) + ' (' + lstr( mvozrast ) + ' ' + s_let( mvozrast ) + ')'
       @ j, wS - Len( s ) Say s Color color14
 
-      If !Between( mperiod, 1, 31 )
-        DispEnd()
-        func_error( 4, 'Не удалось определить возрастной период!' )
-        If !Empty( s1 )
-          func_error( 10, s1 )
-        Endif
-        num_screen := 1
-        Loop
-      Elseif ( i := AScan( arr_prof, {| x| x[ 1 ] == mperiod } ) ) > 0
-        DispEnd()
-        func_error( 4, 'Уже была аналогичная профилактика с ' + date_8( arr_prof[ i, 2 ] ) + ' по ' + date_8( arr_prof[ i, 3 ] ) )
-        num_screen := 1
-        Loop
-      Endif
+  arr_DDS_osm1 := dds_arr_osm1( mk_data )
+  arr_DDS_osm2 := dds_arr_osm2( mk_data )
+  arr_DDS_iss := dds_arr_iss( mk_data )
+
     Endif
-    arr_DDS_osm := DDS_arr_osm1_new( mk_data, m1mobilbr, tip_lu )
-    If num_screen == 1
+    If num_screen == 1 // 
       @ ++j, 1 Say 'Учреждение' Get mlpu When .f. Color cDataCSay
       @ Row(), Col() + 2 Say 'Отделение' Get motd When .f. Color cDataCSay
       //
@@ -657,7 +701,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         reader {| x| menu_reader( x, { {| k, r, c| get_fio_kart( k, r, c ) } }, A__FUNCTION,,, .f. ) } ;
         valid {| g, o| update_get( 'mkomu' ), update_get( 'mcompany' ) }
       @ ++j, 1 Say 'Принадлежность счёта' Get mkomu ;
-        reader {| x| menu_reader( x, mm_komu(), A__MENUVERT,,, .f. ) } ;
+        reader {| x| menu_reader( x, mm_komu, A__MENUVERT,,, .f. ) } ;
         valid {| g, o| f_valid_komu( g, o ) } ;
         Color colget_menu
       @ Row(), Col() + 1 Say '==>' Get mcompany ;
@@ -667,7 +711,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'Полис ОМС: серия' Get mspolis When m1komu == 0
       @ Row(), Col() + 3 Say 'номер'  Get mnpolis When m1komu == 0
       @ Row(), Col() + 3 Say 'вид'    Get mvidpolis ;
-        reader {| x| menu_reader( x, mm_vid_polis(), A__MENUVERT,,, .f. ) } ;
+        reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT,,, .f. ) } ;
         When m1komu == 0 ;
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
       @ ++j, 1 To j, 78
@@ -694,7 +738,10 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 To j, 78
       ++j
       @ ++j, 1 Say 'Сроки диспансеризации' Get mn_data ;
-        valid {| g| f_k_data( g, 1 ), iif( mvozrast < 18, nil, func_error( 4, 'Это взрослый пациент!' ) ), .t. }
+        valid {| g| f_k_data( g, 1 ), ;
+        iif( mvozrast < 18, nil, func_error( 4, 'Это взрослый пациент!' ) ), ;
+        .t. ;
+        }
       @ Row(), Col() + 1 Say '-'   Get mk_data valid {| g| f_k_data( g, 2 ) }
       @ Row(), Col() + 3 Get mvzros_reb When .f. Color cDataCSay
       @ ++j, 1 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
@@ -726,144 +773,437 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       If !Empty( a_smert )
         n_message( a_smert,, 'GR+/R', 'W+/R',,, 'G+/R' )
       Endif
-    Elseif num_screen == 2
+    Elseif num_screen == 2 // 
+      fl_kdp2 := Array( Len( arr_DDS_iss ) )
+      AFill( fl_kdp2, .f. )
 
-      ar := DDS_arr_etap( mk_data, m1mobilbr )[ iif( mk_data >= 0d20250901, mperiod, mvozrast ) ]
-      arr_DDS_issled := DDS_arr_issled( mk_data )
-      If !Empty( ar[ 5 ] ) // не пустой массив исследований
-        @ ++j, 1 Say 'I этап наименований исследований       Врач Ассис.  Дата     Результат' Color 'RB+/B'
-        If mem_por_ass == 0
-          @ j, 45 Say Space( 6 )
+  For i := 1 To Len( arr_DDS_iss )
+    mvar := 'MTAB_NOMiv' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOMia' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATEi' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MREZi' + lstr( i )
+    Private &mvar := Space( 17 )
+    m1var := 'M1LIS' + lstr( i )
+    Private &m1var := 0
+    mvar := 'MLIS' + lstr( i )
+    Private &mvar := inieditspr( A__MENUVERT, mm_kdp2, &m1var )
+  Next
+  For i := 1 To Len( arr_DDS_osm1 )
+    mvar := 'MTAB_NOMov' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOMoa' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATEo' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MKOD_DIAGo' + lstr( i )
+    Private &mvar := Space( 6 )
+  Next
+  For i := 1 To Len( arr_DDS_osm2 )
+    mvar := 'MTAB_NOM2ov' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOM2oa' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATE2o' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MKOD_DIAG2o' + lstr( i )
+    Private &mvar := Space( 6 )
+  Next
+
+
+      For i := 1 To Len( arr_DDS_iss )
+        mvar := 'MDATEi' + lstr( i )
+        If Empty( &mvar )
+          &mvar := mn_data
         Endif
-        For i := 1 To len( arr_DDS_issled )
-          fl := .t.
-          If fl .and. !Empty( arr_DDS_issled[ i, 2 ] )
-            fl := ( mpol == arr_DDS_issled[ i, 2 ] )
-          Endif
-          If fl
-            fl := ( AScan( ar[ 5 ], arr_DDS_issled[ i, 1 ] ) > 0 )
-          Endif
-          If fl
-            mvarv := 'MTAB_NOMiv' + lstr( i )
-            mvara := 'MTAB_NOMia' + lstr( i )
-            mvard := 'MDATEi' + lstr( i )
-            mvarr := 'MREZi' + lstr( i )
-            If Empty( &mvard )
-              &mvard := mn_data
-            Endif
-            @ ++j, 1 Say PadR( arr_DDS_issled[ i, 3 ], 38 )
-            @ j, 39 get &mvarv Pict '99999' valid {| g| v_kart_vrach( g ) }
-            If mem_por_ass > 0
-              @ j, 45 get &mvara Pict '99999' valid {| g| v_kart_vrach( g ) }
-            Endif
-            @ j, 51 get &mvard
-            @ j, 62 get &mvarr
-          Endif
-        Next
+        If !is_disp_19 .and. glob_yes_kdp2()[ tip_lu ] .and. AScan( glob_arr_usl_LIS, arr_DDS_iss[ i, 7, 1 ] ) > 0
+          fl_kdp2[ i ] := .t.
+        Endif
+      Next
+      For i := 1 To Len( arr_DDS_osm1 )
+        mvar := 'MDATEo' + lstr( i )
+        If Empty( &mvar )
+          &mvar := mn_data
+        Endif
+      Next
+      @ ++j, 1 Say 'I этап наименований исследований       Врач Ассис.  Дата     Результат' Color 'RB+/B'
+      @ ++j, 1 Say 'Клинический анализ мочи'
+      @ j, 39 Get MTAB_NOMiv1 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      If mem_por_ass > 0
+        @ j, 45 Get MTAB_NOMia1 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Else
+        @ j - 1, 45 Say Space( 6 )
+      Endif
+      @ j, 51 Get MDATEi1
+      @ j, 62 Get MREZi1
+      @ ++j, 1 Say 'Клинический анализ крови'
+      If fl_kdp2[ 2 ]
+        @ j, 34 Get mlis2 reader {| x| menu_reader( x, mm_kdp2, A__MENUVERT,,, .f. ) }
+      Endif
+      @ j, 39 Get MTAB_NOMiv2 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      If mem_por_ass > 0
+        @ j, 45 Get MTAB_NOMia2 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Endif
+      @ j, 51 Get MDATEi2
+      @ j, 62 Get MREZi2
+      @ ++j, 1 Say 'Иссл-ние уровня глюкозы в крови'
+      If fl_kdp2[ 3 ]
+        @ j, 34 Get mlis3 reader {| x| menu_reader( x, mm_kdp2, A__MENUVERT,,, .f. ) }
+      Endif
+      @ j, 39 Get MTAB_NOMiv3 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      If mem_por_ass > 0
+        @ j, 45 Get MTAB_NOMia3 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Endif
+      @ j, 51 Get MDATEi3
+      @ j, 62 Get MREZi3
+      @ ++j, 1 Say 'Электрокардиография'
+      @ j, 39 Get MTAB_NOMiv4 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      If mem_por_ass > 0
+        @ j, 45 Get MTAB_NOMia4 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Endif
+      @ j, 51 Get MDATEi4
+      @ j, 62 Get MREZi4
+      If mvozrast >= 15
+        @ ++j, 1 Say 'Флюорография легких (с 15 лет)'
+        @ j, 39 Get MTAB_NOMiv5 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        If mem_por_ass > 0
+          @ j, 45 Get MTAB_NOMia5 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        Endif
+        @ j, 51 Get MDATEi5
+        @ j, 62 Get MREZi5
+      Endif
+      If mvozrast < 1
+        @ ++j, 1 Say 'УЗИ гол.мозга/нейросонография(до 1г.)'
+        @ j, 39 Get MTAB_NOMiv6 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        If mem_por_ass > 0
+          @ j, 45 Get MTAB_NOMia6 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        Endif
+        @ j, 51 Get MDATEi6
+        @ j, 62 Get MREZi6
+      Endif
+      If mvozrast >= 7
+        @ ++j, 1 Say 'УЗИ щитовидной железы (с 7 лет)'
+        @ j, 39 Get MTAB_NOMiv7 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        If mem_por_ass > 0
+          @ j, 45 Get MTAB_NOMia7 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        Endif
+        @ j, 51 Get MDATEi7
+        @ j, 62 Get MREZi7
+      Endif
+      @ ++j, 1 Say 'УЗИ сердца'
+      @ j, 39 Get MTAB_NOMiv8 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      If mem_por_ass > 0
+        @ j, 45 Get MTAB_NOMia8 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Endif
+      @ j, 51 Get MDATEi8
+      @ j, 62 Get MREZi8
+      If mvozrast < 1
+        @ ++j, 1 Say 'УЗИ тазобедренных суставов (до 1г.)'
+        @ j, 39 Get MTAB_NOMiv9 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        If mem_por_ass > 0
+          @ j, 45 Get MTAB_NOMia9 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        Endif
+        @ j, 51 Get MDATEi9
+        @ j, 62 Get MREZi9
+      Endif
+      @ ++j, 1 Say 'УЗИ органов брюшной полости'
+      @ j, 39 Get MTAB_NOMiv10 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      If mem_por_ass > 0
+        @ j, 45 Get MTAB_NOMia10 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Endif
+      @ j, 51 Get MDATEi10
+      @ j, 62 Get MREZi10
+      If mvozrast >= 7
+        @ ++j, 1 Say 'УЗИ органов репродуктивной системы'
+        @ j, 39 Get MTAB_NOMiv11 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        If mem_por_ass > 0
+          @ j, 45 Get MTAB_NOMia11 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        Endif
+        @ j, 51 Get MDATEi11
+        @ j, 62 Get MREZi11
       Endif
       //
-//      arr_DDS_osm := DDS_arr_osm1_new( mk_data, m1mobilbr, tip_lu )
+      // @ ++j,1 say 'I этап наименований осмотров           Врач Ассис.  Дата     Диагноз' color 'RB+/B'
       @ ++j, 1 Say 'I этап наименований осмотров           Врач Ассис.  Дата     ' Color 'RB+/B'
-      If mem_por_ass == 0
-        @ j, 45 Say Space( 6 )
-      Endif
-      If !Empty( ar[ 4 ] ) // не пустой массив осмотров
-        For i := 1 To Len( arr_DDS_osm )
-          fl := .t.
-          If fl .and. !Empty( arr_DDS_osm[ i, 2 ] )
-            fl := ( mpol == arr_DDS_osm[ i, 2 ] )
-          Endif
-          If fl
-            fl := ( AScan( ar[ 4 ], arr_DDS_osm[ i, 1 ] ) > 0 )
-          Endif
-          If fl
-            mvarv := 'MTAB_NOMov' + lstr( i )
-            mvara := 'MTAB_NOMoa' + lstr( i )
-            mvard := 'MDATEo' + lstr( i )
-//            mvarz := 'MKOD_DIAGo' + lstr( i )
-            If Empty( &mvard )
-              &mvard := mn_data
-            Endif
-            
-            @ ++j, 1 Say PadR( arr_DDS_osm[ i, 3 ], 38 )
-            @ j, 39 get &mvarv Pict '99999' valid {| g| v_kart_vrach( g ) }
-            If mem_por_ass > 0
-              @ j, 45 get &mvara Pict '99999' valid {| g| v_kart_vrach( g ) }
-            Endif
-            @ j, 51 get &mvard
-          Endif
-        Next
-      Endif
-      If Empty( MDATEp1 )
-        MDATEp1 := mk_data
-      Endif
-      @ ++j, 1 Say PadR( 'педиатр (врач общей практики)', 38 ) Color color8
-      @ j, 39 Get MTAB_NOMpv1 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      @ ++j, 1 Say 'офтальмолог'
+      @ j, 39 Get MTAB_NOMov1 Pict '99999' valid {| g| v_kart_vrach( g ) }
       If mem_por_ass > 0
-        @ j, 45 Get MTAB_NOMpa1 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        @ j, 45 Get MTAB_NOMoa1 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Else
+        @ j - 1, 45 Say Space( 6 )
       Endif
-      @ j, 51 Get MDATEp1
+      @ j, 51 Get MDATEo1
+      // @ j,62 get mkod_diago1 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
+      @ ++j, 1 Say 'оториноларинголог'
+      @ j, 39 Get MTAB_NOMov2 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      If mem_por_ass > 0
+        @ j, 45 Get MTAB_NOMoa2 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Endif
+      @ j, 51 Get MDATEo2
+      // @ j,62 get mkod_diago2 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
+      @ ++j, 1 Say 'детский хирург'
+      @ j, 39 Get MTAB_NOMov3 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      If mem_por_ass > 0
+        @ j, 45 Get MTAB_NOMoa3 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Endif
+      @ j, 51 Get MDATEo3
+      // @ j,62 get mkod_diago3 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
+      @ ++j, 1 Say 'травматолог-ортопед'
+      @ j, 39 Get MTAB_NOMov4 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      If mem_por_ass > 0
+        @ j, 45 Get MTAB_NOMoa4 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Endif
+      @ j, 51 Get MDATEo4
+      // @ j,62 get mkod_diago4 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
+      If mpol == 'Ж'
+        @ ++j, 1 Say 'акушер-гинеколог (девочки)'
+        @ j, 39 Get MTAB_NOMov5 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        If mem_por_ass > 0
+          @ j, 45 Get MTAB_NOMoa5 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        Endif
+        @ j, 51 Get MDATEo5
+        // @ j,62 get mkod_diago5 picture pic_diag ;
+        // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
+      Endif
+      If mpol == 'М'
+        @ ++j, 1 Say 'детский уролог-андролог (мальчики)'
+        @ j, 39 Get MTAB_NOMov6 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        If mem_por_ass > 0
+          @ j, 45 Get MTAB_NOMoa6 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        Endif
+        @ j, 51 Get MDATEo6
+        // @ j,62 get mkod_diago6 picture pic_diag ;
+        // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
+      Endif
+      If mvozrast >= 3
+        @ ++j, 1 Say 'детский стоматолог (с 3 лет)'
+        @ j, 39 Get MTAB_NOMov7 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        If mem_por_ass > 0
+          @ j, 45 Get MTAB_NOMoa7 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        Endif
+        @ j, 51 Get MDATEo7
+        // @ j,62 get mkod_diago7 picture pic_diag ;
+        // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
+      Elseif Empty( MTAB_NOMov7 )
+        MDATEo7 := CToD( '' )
+      Endif
+      If mvozrast >= 5
+        @ ++j, 1 Say 'детский эндокринолог (с 5 лет)'
+        @ j, 39 Get MTAB_NOMov8 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        If mem_por_ass > 0
+          @ j, 45 Get MTAB_NOMoa8 Pict '99999' valid {| g| v_kart_vrach( g ) }
+        Endif
+        @ j, 51 Get MDATEo8
+        // @ j,62 get mkod_diago8 picture pic_diag ;
+        // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
+      Elseif Empty( MTAB_NOMov8 )
+        MDATEo8 := CToD( '' )
+      Endif
+      @ ++j, 1 Say 'невролог'
+      @ j, 39 Get MTAB_NOMov9 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      If mem_por_ass > 0
+        @ j, 45 Get MTAB_NOMoa9 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Endif
+      @ j, 51 Get MDATEo9
+      // @ j,62 get mkod_diago9 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
+      @ ++j, 1 Say 'психиатр'
+      @ j, 39 Get MTAB_NOMov10 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      If mem_por_ass > 0
+        @ j, 45 Get MTAB_NOMoa10 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Endif
+      @ j, 51 Get MDATEo10
+      // @ j,62 get mkod_diago10 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
+      @ ++j, 1 Say 'педиатр'
+      @ j, 39 Get MTAB_NOMov11 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      If mem_por_ass > 0
+        @ j, 45 Get MTAB_NOMoa11 Pict '99999' valid {| g| v_kart_vrach( g ) }
+      Endif
+      @ j, 51 Get MDATEo11
+      // @ j,62 get mkod_diago11 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ на 3-ю страницу' )
-
-    Elseif num_screen == 3
-      ar := DDS_arr_etap( mk_data, m1mobilbr )[ iif( mk_data >= 0d20250901, mperiod, mvozrast ) ]
+    Elseif num_screen == 3 // 
       @ ++j, 1 Say 'II этап диспансеризации детей-сирот и детей, находящихся в тяжелой жизненной'
       @ ++j, 1 Say 'ситуации. Выберите, необходимо вводить врачебные осмотры II этапа?' Get mstep2 ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
       ++j
-      @ ++j, 1 Say 'II этап наименований осмотров          Врач Ассис.  Дата' Color 'RB+/B'
-
-      If mem_por_ass == 0
-        @ j, 45 Say Space( 6 )
+      // @ ++j,1 say ' II этап наим. осмотров       Врач Ассис.  Дата     Диагноз' color 'RB+/B'
+      @ ++j, 1 Say ' II этап наим. осмотров       Врач Ассис.  Дата     ' Color 'RB+/B'
+      If mvozrast < 3
+        @ ++j, 1 Say 'детский стоматолог до 3 лет'
+        @ j, 30 Get MTAB_NOMov7 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+        If mem_por_ass > 0
+          @ j, 36 Get MTAB_NOMoa7 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+        Else
+          @ j - 1, 36 Say Space( 6 )
+        Endif
+        @ j, 42 Get MDATEo7 When m1step2 == 1
+        // @ j,53 get mkod_diago7 picture pic_diag ;
+        // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) when m1step2==1
       Endif
-      For i := 1 To Len( arr_DDS_osm )
-        fl := .t.
-        If fl .and. !Empty( arr_DDS_osm[ i, 3 ] )
-          fl := ( mpol == arr_DDS_osm[ i, 3 ] )
+      If mvozrast < 5
+        @ ++j, 1 Say 'детский эндокринолог до 5 лет'
+        @ j, 30 Get MTAB_NOMov8 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+        If mem_por_ass > 0
+          @ j, 36 Get MTAB_NOMoa8 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+        Else
+          @ j - 1, 36 Say Space( 6 )
         Endif
-        If fl .and. !Empty( ar[ 4 ] )
-          fl := ( AScan( ar[ 4 ], arr_DDS_osm[ i, 1 ] ) == 0 )
-        Endif
-        If fl .and. !( arr_DDS_osm[ i, 1 ] == '2.4.2' )
-//          mvonk := 'MONKO' + lstr( i )
-          mvarv := 'MTAB_NOMov' + lstr( i )
-          mvara := 'MTAB_NOMoa' + lstr( i )
-          mvard := 'MDATEo' + lstr( i )
-//          mvarz := 'MKOD_DIAGo' + lstr( i )
-          @ ++j, 1 Say PadR( arr_DDS_osm[ i, 2], 38 )
-          
-//          If eq_any( i, 8, 10 )
-//            @ j, 32 get &mvonk reader {| x| menu_reader( x, mm_vokod(), A__MENUVERT, , , .f. ) } When m1step2 == 1
-//          Endif
-          @ j, 39 get &mvarv Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
-          If mem_por_ass > 0
-            @ j, 45 get &mvara Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
-          Endif
-          @ j, 51 get &mvard When m1step2 == 1
-        Endif
-      Next
-
-      @ ++j, 1 Say PadR( 'педиатр (врач общей практики)', 38 ) Color color8
-      @ j, 39 Get MTAB_NOMpv2 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+        @ j, 42 Get MDATEo8 When m1step2 == 1
+        // @ j,53 get mkod_diago8 picture pic_diag ;
+        // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) when m1step2==1
+      Endif
+      @ ++j, 1 Say 'пульмонолог'
+      @ j, 30 Get MTAB_NOM2ov1 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
       If mem_por_ass > 0
-        @ j, 45 Get MTAB_NOMpa2 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+        @ j, 36 Get MTAB_NOM2oa1 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      Else
+        @ j - 1, 36 Say Space( 6 )
       Endif
-      @ j, 51 Get MDATEp2 When m1step2 == 1
+      @ j, 42 Get MDATE2o1 When m1step2 == 1
+      // @ j,53 get mkod_diag2o1 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'дерматовенеролог'
+      @ j, 30 Get MTAB_NOM2ov2 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa2 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      Endif
+      @ j, 42 Get MDATE2o2 When m1step2 == 1
+      // @ j,53 get mkod_diag2o2 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'ревматолог'
+      @ j, 30 Get MTAB_NOM2ov3 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa3 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      Endif
+      @ j, 42 Get MDATE2o3 When m1step2 == 1
+      // @ j,53 get mkod_diag2o3 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'аллерголог-иммунолог'
+      @ j, 30 Get MTAB_NOM2ov4 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa4 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      Endif
+      @ j, 42 Get MDATE2o4 When m1step2 == 1
+      // @ j,53 get mkod_diag2o4 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'детский кардиолог'
+      @ j, 30 Get MTAB_NOM2ov5 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa5 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      Endif
+      @ j, 42 Get MDATE2o5 When m1step2 == 1
+      // @ j,53 get mkod_diag2o5 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'гастроэнтеролог'
+      @ j, 30 Get MTAB_NOM2ov6 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa6 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      Endif
+      @ j, 42 Get MDATE2o6 When m1step2 == 1
+      // @ j,53 get mkod_diag2o6 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'нефролог'
+      @ j, 30 Get MTAB_NOM2ov7 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa7 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      Endif
+      @ j, 42 Get MDATE2o7 When m1step2 == 1
+      // @ j,53 get mkod_diag2o7 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'гематолог'
+      @ j, 24 Get monko8 reader {| x| menu_reader( x, mm_vokod(), A__MENUVERT,,, .f. ) } When m1step2 == 1
+      @ j, 30 Get MTAB_NOM2ov8 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1 .and. m1onko8 == 0
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa8 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1 .and. m1onko8 == 0
+      Endif
+      @ j, 42 Get MDATE2o8 When m1step2 == 1
+      // @ j,53 get mkod_diag2o8 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'инфекционист'
+      @ j, 30 Get MTAB_NOM2ov9 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa9 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      Endif
+      @ j, 42 Get MDATE2o9 When m1step2 == 1
+      // @ j,53 get mkod_diag2o9 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'детский онколог'
+      @ j, 24 Get monko10 reader {| x| menu_reader( x, mm_vokod(), A__MENUVERT,,, .f. ) } When m1step2 == 1
+      @ j, 30 Get MTAB_NOM2ov10 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1 .and. m1onko10 == 0
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa10 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1 .and. m1onko10 == 0
+      Endif
+      @ j, 42 Get MDATE2o10 When m1step2 == 1
+      // @ j,53 get mkod_diag2o10 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'нейрохирург'
+      @ j, 30 Get MTAB_NOM2ov11 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa11 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      Endif
+      @ j, 42 Get MDATE2o11 When m1step2 == 1
+      // @ j,53 get mkod_diag2o11 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'колопроктолог'
+      @ j, 30 Get MTAB_NOM2ov12 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa12 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      Endif
+      @ j, 42 Get MDATE2o12 When m1step2 == 1
+      // @ j,53 get mkod_diag2o12 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'сердечно-сосудистый хирург'
+      @ j, 30 Get MTAB_NOM2ov13 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa13 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      Endif
+      @ j, 42 Get MDATE2o13 When m1step2 == 1
+      // @ j,53 get mkod_diag2o13 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
+      @ ++j, 1 Say 'педиатр'
+      @ j, 30 Get MTAB_NOM2ov14 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      If mem_por_ass > 0
+        @ j, 36 Get MTAB_NOM2oa14 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
+      Endif
+      @ j, 42 Get MDATE2o14 When m1step2 == 1
+      // @ j,53 get mkod_diag2o14 picture pic_diag ;
+      // reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
+      // when m1step2==1
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 2-ю страницу ^<PgDn>^ на 4-ю страницу' )
-
-    Elseif num_screen == 4
-
+    Elseif num_screen == 4 // 
       If mvozrast < 5
         @ ++j, 1 Say PadC( 'Оценка психического развития (возраст развития):', 78, '_' )
         @ ++j, 1 Say 'познавательная функция' Get m1psih11 Pict '99'
         @ ++j, 1 Say 'моторная функция      ' Get m1psih12 Pict '99'
-        @ --j, 30 Say 'эмоциональная и социальная    ' Get m1psih13 Pict '99'
+        --j; @ j, 30 Say 'эмоциональная и социальная    ' Get m1psih13 Pict '99'
         @ ++j, 30 Say 'предречевое и речевое развитие' Get m1psih14 Pict '99'
       Else
         @ ++j, 1 Say PadC( 'Оценка психического развития:', 78, '_' )
         @ ++j, 1 Say 'психомоторная сфера' Get mpsih21 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT,,, .f. ) }
         @ ++j, 1 Say 'интеллект          ' Get mpsih22 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT,,, .f. ) }
-        @ --j, 40 Say 'эмоц.вегетативная сфера' Get mpsih23 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT,,, .f. ) }
+        --j; @ j, 40 Say 'эмоц.вегетативная сфера' Get mpsih23 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT,,, .f. ) }
         ++j
       Endif
       ++j
@@ -904,9 +1244,9 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
             m1var := 'm1' + s
             If fl
               If eq_any( k, 2 )
-                mm_m := mm_dispans()
+                mm_m := mm_dispans
               Elseif eq_any( k, 4, 6, 9, 11 )
-                mm_m := mm_usl()
+                mm_m := mm_usl
               Elseif eq_any( k, 5, 7, 10, 12 )
                 mm_m := mm_uch1
               Else
@@ -925,7 +1265,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
               When m1diag_15_1 == 0
           Case k == 2
             @ j, 8 get &mvar ;
-              reader {| x| menu_reader( x, mm_dispans(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_dispans, A__MENUVERT,,, .f. ) } ;
               When m1diag_15_1 == 0
           Case k == 3
             @ j, 16 get &mvar ;
@@ -933,19 +1273,19 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
               When m1diag_15_1 == 0
           Case k == 4
             @ j, 20 get &mvar ;
-              reader {| x| menu_reader( x, mm_usl(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_usl, A__MENUVERT,,, .f. ) } ;
               When m1diag_15_1 == 0
           Case k == 5
             @ j, 25 get &mvar ;
-              reader {| x| menu_reader( x, mm_uch(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_uch, A__MENUVERT,,, .f. ) } ;
               When m1diag_15_1 == 0
           Case k == 6
             @ j, 30 get &mvar ;
-              reader {| x| menu_reader( x, mm_usl(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_usl, A__MENUVERT,,, .f. ) } ;
               When m1diag_15_1 == 0
           Case k == 7
             @ j, 35 get &mvar ;
-              reader {| x| menu_reader( x, mm_uch(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_uch, A__MENUVERT,,, .f. ) } ;
               When m1diag_15_1 == 0
           Case k == 8
             @ j, 40 get &mvar ;
@@ -953,7 +1293,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
               When m1diag_15_1 == 0
           Case k == 9
             @ j, 44 get &mvar ;
-              reader {| x| menu_reader( x, mm_usl(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_usl, A__MENUVERT,,, .f. ) } ;
               When m1diag_15_1 == 0
           Case k == 10
             @ j, 49 get &mvar ;
@@ -961,7 +1301,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
               When m1diag_15_1 == 0
           Case k == 11
             @ j, 54 get &mvar ;
-              reader {| x| menu_reader( x, mm_usl(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_usl, A__MENUVERT,,, .f. ) } ;
               When m1diag_15_1 == 0
           Case k == 12
             @ j, 59 get &mvar ;
@@ -982,9 +1322,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'ГРУППА состояния ЗДОРОВЬЯ ДО проведения диспансеризации' Color color8
       @ j, Col() + 1 Get mGRUPPA_DO Pict '9'
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 3-ю страницу ^<PgDn>^ на 5-ю страницу' )
-
-    Elseif num_screen == 5
-
+    Elseif num_screen == 5 // 
       @ ++j, 1 Say 'ПО РЕЗУЛЬТАТАМ ПРОВЕДЕНИЯ ДИСПАНСЕРИЗАЦИИ: практически здоров' Get mdiag_16_1 ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
       @ ++j, 1 Say '──────┬───┬───────┬─────────────┬─────────────┬─────────────┬─────────────┬───'
@@ -1003,9 +1341,9 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
             m1var := 'm1' + s
             If fl
               If eq_any( k, 3 )
-                mm_m := mm_dispans()
+                mm_m := mm_dispans
               Elseif eq_any( k, 5, 8, 11, 14 )
-                mm_m := mm_usl()
+                mm_m := mm_usl
               Elseif eq_any( k, 6, 9, 12, 15 )
                 mm_m := mm_uch1
               Else
@@ -1028,7 +1366,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 3
             @ j, 12 get &mvar ;
-              reader {| x| menu_reader( x, mm_dispans(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_dispans, A__MENUVERT,,, .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 4
             @ j, 20 get &mvar ;
@@ -1036,11 +1374,11 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 5
             @ j, 24 get &mvar ;
-              reader {| x| menu_reader( x, mm_usl(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_usl, A__MENUVERT,,, .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 6
             @ j, 29 get &mvar ;
-              reader {| x| menu_reader( x, mm_uch(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_uch, A__MENUVERT,,, .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 7
             @ j, 34 get &mvar ;
@@ -1048,11 +1386,11 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 8
             @ j, 38 get &mvar ;
-              reader {| x| menu_reader( x, mm_usl(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_usl, A__MENUVERT,,, .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 9
             @ j, 43 get &mvar ;
-              reader {| x| menu_reader( x, mm_uch(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_uch, A__MENUVERT,,, .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 10
             @ j, 48 get &mvar ;
@@ -1060,11 +1398,11 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 11
             @ j, 52 get &mvar ;
-              reader {| x| menu_reader( x, mm_usl(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_usl, A__MENUVERT,,, .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 12
             @ j, 57 get &mvar ;
-              reader {| x| menu_reader( x, mm_uch(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_uch, A__MENUVERT,,, .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 13
             @ j, 62 get &mvar ;
@@ -1072,7 +1410,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 14
             @ j, 66 get &mvar ;
-              reader {| x| menu_reader( x, mm_usl(), A__MENUVERT,,, .f. ) } ;
+              reader {| x| menu_reader( x, mm_usl, A__MENUVERT,,, .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 15
             @ j, 71 get &mvar ;
@@ -1085,43 +1423,55 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
           Endcase
         Next
       Next
-      @ ++j, 1 To j, 78
+      ++j
+      @ j, 1 To j, 78
       // @ ++j,1 say 'Признак подозрения на злокачественное новообразование' get mDS_ONK ;
       // reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
 
       dispans_napr( mk_data, @j, .f. )  // вызов заполнения блока направлений
 
-      @ ++j, 1 To j, 78
-      @ ++j, 1 Say 'Инвалидность' Get minvalid1 ;
+      ++j
+      @ j, 1 To j, 78
+      ++j
+      @ j, 1 Say 'Инвалидность' Get minvalid1 ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
       @ j, 30 Say 'если "да":' Get minvalid2 ;
         reader {| x| menu_reader( x, mm_invalid2(), A__MENUVERT,,, .f. ) } ;
         When m1invalid1 == 1
-      @ ++j, 2 Say 'установлена впервые' Get minvalid3 ;
+      ++j
+      @ j, 2 Say 'установлена впервые' Get minvalid3 ;
         When m1invalid1 == 1
       @ j, Col() + 1 Say 'дата последнего освидетельствования' Get minvalid4 ;
         When m1invalid1 == 1
-      @ ++j, 2 Say 'Заболевания/инвалидность' Get minvalid5 ;
-        reader {| x| menu_reader( x, mm_invalid5(), A__MENUVERT,,, .f. ) } ;
+      ++j
+      @ j, 2 Say 'Заболевания/инвалидность' Get minvalid5 ;
+        reader {| x| menu_reader( x, mm_invalid5, A__MENUVERT,,, .f. ) } ;
         When m1invalid1 == 1
-      @ ++j, 2 Say 'Виды нарушений в состоянии здоровья' Get minvalid6 ;
+      ++j
+      @ j, 2 Say 'Виды нарушений в состоянии здоровья' Get minvalid6 ;
         reader {| x| menu_reader( x, mm_invalid6(), A__MENUVERT,,, .f. ) } ;
         When m1invalid1 == 1
-      @ ++j, 2 Say 'Дата назначения индивидуальной программы реабилитации' Get minvalid7 ;
+      ++j
+      @ j, 2 Say 'Дата назначения индивидуальной программы реабилитации' Get minvalid7 ;
         When m1invalid1 == 1
       @ j, Col() Say ' выполнение' Get minvalid8 ;
         reader {| x| menu_reader( x, mm_invalid8(), A__MENUVERT,,, .f. ) } ;
         When m1invalid1 == 1
-      @ ++j, 1 Say 'Прививки' Get mprivivki1 ;
+      ++j
+      @ j, 1 Say 'Прививки' Get mprivivki1 ;
         reader {| x| menu_reader( x, mm_privivki1(), A__MENUVERT,,, .f. ) }
       @ j, 50 Say 'Не привит' Get mprivivki2 ;
         reader {| x| menu_reader( x, mm_privivki2(), A__MENUVERT,,, .f. ) } ;
         When m1privivki1 > 0
-      @ ++j, 2 Say 'Нуждается в вакцинации' Get mprivivki3 Pict '@S64' ;
+      ++j
+      @ j, 2 Say 'Нуждается в вакцинации' Get mprivivki3 Pict '@S64' ;
         When m1privivki1 > 0
-      @ ++j, 1 Say 'Рекомендации здорового образа жизни' Get mrek_form Pict '@S52'
-      @ ++j, 1 Say 'Рекомендации по диспансерному наблюдению' Get mrek_disp Pict '@S47'
-      @ ++j, 1 Say 'ГРУППА состояния ЗДОРОВЬЯ по результатам проведения диспансеризации' Color color8
+      ++j
+      @ j, 1 Say 'Рекомендации здорового образа жизни' Get mrek_form Pict '@S52'
+      ++j
+      @ j, 1 Say 'Рекомендации по диспансерному наблюдению' Get mrek_disp Pict '@S47'
+      ++j
+      @ j, 1 Say 'ГРУППА состояния ЗДОРОВЬЯ по результатам проведения диспансеризации' Color color8
       @ j, Col() + 1 Get mGRUPPA Pict '9'
       status_key( '^<Esc>^ выход без записи;  ^<PgUp>^ вернуться на 4-ю страницу;  ^<PgDn>^ ЗАПИСЬ' )
     Endif
@@ -1135,8 +1485,6 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         k := f_alert( { PadC( 'Выберите действие', 60, '.' ) }, ;
           { ' Выход без записи ', ' Запись ', ' Возврат в редактирование ' }, ;
           iif( LastKey() == K_ESC, 1, 2 ), 'W+/N', 'N+/N', MaxRow() -2,, 'W+/N,N/BG' )
-
-
       Endif
     Else
       If LastKey() == K_PGUP
@@ -1243,7 +1591,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       Else
         mdef_diagnoz := 'Z00.3 '
       Endif
-      arr_iss := Array( Len( arr_DDS_issled ), 10 )
+      arr_iss := Array( Len( arr_DDS_iss ), 10 )
       afillall( arr_iss, 0 )
       r_use( dir_exe() + '_mo_mkb', work_dir + '_mo_mkb', 'MKB_10' )
       r_use( dir_DB + 'mo_pers', dir_DB + 'mo_pers', 'P2' )
@@ -1252,81 +1600,61 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       d12 := mn_data - 1
       k := 0
       If metap == 2
-        Do While ++d12 <= mk_data
+        Do While++d12 <= mk_data
           If is_work_day( d12 )
-            If ++k == 10
+            If++k == 10
               Exit
             Endif
           Endif
         Enddo
       Endif
       fl := .t.
-      For i := 1 To Len( arr_DDS_issled )
+      For i := 1 To Len( arr_DDS_iss )
         mvart := 'MTAB_NOMiv' + lstr( i )
         mvara := 'MTAB_NOMia' + lstr( i )
         mvard := 'MDATEi' + lstr( i )
         mvarr := 'MREZi' + lstr( i )
-
-        _fl_ := .t.
-        If _fl_ .and. !Empty( arr_DDS_issled[ i, 2 ] )
-          _fl_ := ( mpol == arr_DDS_issled[ i, 2 ] )
-        Endif
-        If _fl_
-          _fl_ := ( AScan( ar[ 5 ], arr_DDS_issled[ i, 1 ] ) > 0 )
-        Endif
-        If _fl_
-
-          if ! ( arr_DDS_issled[ i, 1 ] == '4.29.2' .or. arr_DDS_issled[ i, 1 ] == '4.29.4' .or. arr_DDS_issled[ i, 1 ] == '7.2.702' )
-            if Empty( &mvart )  //.and. ;
-              fl := func_error( 4, 'Не введен врач в иссл-ии "' + arr_DDS_issled[ i, 3 ] + '"' )  // код исследования arr_DDS_issled[ i, 1 ]
-            else
-              If Empty( &mvard )
-                fl := func_error( 4, 'Не введена дата иссл-ия "' + arr_DDS_issled[ i, 3 ] + '"' )  // код исследования arr_DDS_issled[ i, 1 ]
-
-              Elseif mvozrast < 2 .and. &mvard < AddMonth( mn_data, -1 )
-                fl := func_error( 4, 'услуга "' + arr_DDS_issled[ i, 3 ] + '" оказана более 1 месяца назад' )  // код исследования arr_DDS_issled[ i, 1 ]
-              Elseif mvozrast > 2 .and. &mvard < AddMonth( mn_data, -3 )
-                fl := func_error( 4, 'услуга "' + arr_DDS_issled[ i, 3 ] + '" оказана более 3 месяцев назад' )  // код исследования arr_DDS_issled[ i, 1 ]
-              elseif ( arr_DDS_issled[ i, 1 ] == '7.2.702' ) .and. &mvard < AddMonth( mn_data, -12 )
-                fl := func_error( 4, 'услуга "' + arr_DDS_issled[ i, 3 ] + '" оказана более 12 месяцев назад' )  // код исследования arr_DDS_issled[ i, 1 ]
-              Elseif metap == 2 .and. &mvard > d12
-                fl := func_error( 4, 'Дата иссл-ия "' + arr_DDS_issled[ i, 3 ] + '" не в I-ом этапе (> 10 дней)' )  // код исследования arr_DDS_issled[ i, 1 ]
-              endif
-            endif
-          endif
-        Endif
-        If _fl_ .and. !emptyany( &mvard, &mvart )
-          if ! is_7_2_702 .and. arr_DDS_issled[ i, 1 ] == '7.2.702'
-            is_7_2_702 := .t.
-          endif
-          if ! is_4_29_4 .and. arr_DDS_issled[ i, 1 ] == '4.29.4'
-            is_4_29_4 := .t.
-          endif
-          if &mvart > 0
-            p2->( dbSeek( Str( &mvart, 5 ) ) )
-            If p2->( Found() )
-              arr_iss[ i, 1 ] := p2->kod
-              arr_iss[ i, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
-            Endif
-            If !Empty( &mvara )
-              p2->( dbSeek( Str( &mvara, 5 ) ) )
-              If p2->( Found() )
-                arr_iss[ i, 3 ] := p2->kod
-              Endif
-            Endif
+        If Between( mvozrast, arr_DDS_iss[ i, 3 ], arr_DDS_iss[ i, 4 ] )
+          m1var := 'm1lis' + lstr( i )
+          If !is_disp_19 .and. glob_yes_kdp2()[ tip_lu ] .and. &m1var > 0
+            &mvart := -1
           Endif
-          arr_iss[ i, 4 ] := arr_DDS_issled[ i, 5 ]
-          if ( mk_data >= 0d20250901 ) .and. ! Empty( &mvard ) .and. ( &mvard < mn_data )
-            if ( j := AScan( arr_not_zs, {| x| x[ 1 ] == arr_DDS_issled[ i, 1 ] } ) ) > 0
-              arr_iss[ i, 5 ] := arr_not_zs[ j, 2 ] // шифр исследования
+          If Empty( &mvard )
+            fl := func_error( 4, 'Не введена дата иссл-ия "' + arr_DDS_iss[ i, 1 ] + '"' )
+          Elseif metap == 2 .and. &mvard > d12
+            fl := func_error( 4, 'Дата иссл-ия "' + arr_DDS_iss[ i, 1 ] + '" не в I-ом этапе (> 10 дней)' )
+          Elseif Empty( &mvart )
+            fl := func_error( 4, 'Не введен врач в иссл-ии "' + arr_DDS_iss[ i, 1 ] + '"' )
+          Else
+            if &mvart > 0
+              Select P2
+              find ( Str( &mvart, 5 ) )
+              If Found()
+                arr_iss[ i, 1 ] := p2->kod
+                arr_iss[ i, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
+              Endif
+              If !Empty( &mvara )
+                Select P2
+                find ( Str( &mvara, 5 ) )
+                If Found()
+                  arr_iss[ i, 3 ] := p2->kod
+                Endif
+              Endif
+            Else
+              arr_iss[ i, 2 ] := -ret_new_spec( arr_DDS_iss[ i, 6, 1 ] )
+              arr_iss[ i, 10 ] := &m1var // кровь проверяют в КДП2
             Endif
-          else
-            arr_iss[ i, 5 ] := arr_DDS_issled[ i, 1 ]
-          endif
-          arr_iss[ i, 6 ] := mdef_diagnoz
-          arr_iss[ i, 9 ] := &mvard
+            arr_iss[ i, 4 ] := arr_DDS_iss[ i, 5, 1 ]
+            arr_iss[ i, 5 ] := arr_DDS_iss[ i, 7, 1 ]
+            // УЗИ органов репродуктивной системы {'8.2.2','8.2.3'}
+            If Len( arr_DDS_iss[ i, 7 ] ) > 1 .and. mpol == 'Ж'
+              arr_iss[ i, 5 ] := arr_DDS_iss[ i, 7, 2 ]
+            Endif
+            arr_iss[ i, 6 ] := mdef_diagnoz
+            arr_iss[ i, 9 ] := &mvard
             //
-          max_date1 := Max( max_date1, arr_iss[ i, 9 ] )
+            max_date1 := Max( max_date1, arr_iss[ i, 9 ] )
+          Endif
         Endif
         If !fl
           exit
@@ -1336,67 +1664,60 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         Loop
       Endif
       fl := .t.
-      if is_7_2_702 .and. is_4_29_4
-        is_7_2_702 := .f.
-        is_4_29_4 := .f.
-        fl := func_error( 4, 'Не допускается одновременное наличие рентгенографии и иммуннодиагностики' )
-        num_screen := 2
-      endif
-
       k := 0
-      arr_osm1 := Array( Len( arr_DDS_osm ), 10 )
+      arr_osm1 := Array( Len( arr_DDS_osm1 ), 10 )
       afillall( arr_osm1, 0 )
-      For i := 1 To Len( arr_DDS_osm )
-
-        _fl_ := .t.
-        If _fl_ .and. !Empty( arr_DDS_osm[ i, 2 ] )
-          _fl_ := ( mpol == arr_DDS_osm[ i, 2 ] )
+      For i := 1 To Len( arr_DDS_osm1 )
+        mvart := 'MTAB_NOMov' + lstr( i )
+        mvara := 'MTAB_NOMoa' + lstr( i )
+        mvard := 'MDATEo' + lstr( i )
+        mvarz := 'MKOD_DIAGo' + lstr( i )
+        if &mvard == mn_data
+          k := i
         Endif
-        If _fl_
-          _fl_ := ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], arr_DDS_osm[ i, 1 ] ) > 0 )
-        Endif
-
-        If _fl_
-          mvart := 'MTAB_NOMov' + lstr( i )
-          mvara := 'MTAB_NOMoa' + lstr( i )
-          mvard := 'MDATEo' + lstr( i )
-//          mvarz := 'MKOD_DIAGo' + lstr( i )
-          if &mvard == mn_data
-            k := i
-          Endif
-          If iif( Empty( arr_DDS_osm[ i, 2 ] ), .t., arr_DDS_osm[ i, 2 ] == mpol )  //.and. ;
-            If Empty( &mvard )
-              fl := func_error( 4, 'Не введена дата осмотра I этапа "' + arr_DDS_osm[ i, 1 ] + '"' )
-            Elseif metap == 2 .and. &mvard > d12
-              fl := func_error( 4, 'Дата осмотра "' + arr_DDS_osm[ i, 1 ] + '" не в I-ом этапе (> 10 дней)' )
-            Elseif Empty( &mvart )
-              fl := func_error( 4, 'Не введен врач в осмотре I этапа  "' + arr_DDS_osm[ i, 1 ] + '"' )
-            Else
-              p2->( dbSeek( Str( &mvart, 5 ) ) )
-              If p2->( Found() )
-                arr_osm1[ i, 1 ] := p2->kod
-                arr_osm1[ i, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
+        If iif( Empty( arr_DDS_osm1[ i, 2 ] ), .t., arr_DDS_osm1[ i, 2 ] == mpol ) .and. ;
+            Between( mvozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] )
+          If Empty( &mvard )
+            fl := func_error( 4, 'Не введена дата осмотра I этапа "' + arr_DDS_osm1[ i, 1 ] + '"' )
+          Elseif metap == 2 .and. &mvard > d12
+            fl := func_error( 4, 'Дата осмотра "' + arr_DDS_osm1[ i, 1 ] + '" не в I-ом этапе (> 10 дней)' )
+          Elseif Empty( &mvart )
+            fl := func_error( 4, 'Не введен врач в осмотре I этапа  "' + arr_DDS_osm1[ i, 1 ] + '"' )
+          Else
+            Select P2
+            find ( Str( &mvart, 5 ) )
+            If Found()
+              arr_osm1[ i, 1 ] := p2->kod
+              arr_osm1[ i, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
+            Endif
+            If !Empty( &mvara )
+              Select P2
+              find ( Str( &mvara, 5 ) )
+              If Found()
+                arr_osm1[ i, 3 ] := p2->kod
               Endif
-              If !Empty( &mvara )
-                p2->( dbSeek( Str( &mvara, 5 ) ) )
-                If p2->( Found() )
-                  arr_osm1[ i, 3 ] := p2->kod
-                Endif
-              Endif
-              arr_osm1[ i, 4 ] := arr_DDS_osm[ i, 4 ]
-              arr_osm1[ i, 5 ] := arr_DDS_osm[ i, 1 ]
-//              If Empty( &mvarz ) .or. Left( &mvarz, 1 ) == 'Z'
+            Endif
+            arr_osm1[ i, 4 ] := arr_DDS_osm1[ i, 5, 1 ]
+            arr_osm1[ i, 5 ] := arr_DDS_osm1[ i, 7, 1 ]
+            // 'педиатр','',0,17,{68,57},{1134,1110},{'2.83.14','2.83.15'}
+            If Len( arr_DDS_osm1[ i, 5 ] ) == 2 .and. Len( arr_DDS_osm1[ i, 6 ] ) == 2 ;
+                .and. Len( arr_DDS_osm1[ i, 7 ] ) == 2 ;
+                .and. arr_DDS_osm1[ i, 6, 2 ] == ret_old_prvs( arr_osm1[ i, 2 ] )
+              arr_osm1[ i, 4 ] := arr_DDS_osm1[ i, 5, 2 ]
+              arr_osm1[ i, 5 ] := arr_DDS_osm1[ i, 7, 2 ]
+            Endif
+            If Empty( &mvarz ) .or. Left( &mvarz, 1 ) == 'Z'
               arr_osm1[ i, 6 ] := mdef_diagnoz
-//              Else
-//              arr_osm1[ i, 6 ] := &mvarz
-              mkb_10->( dbSeek( PadR( arr_osm1[ i, 6 ], 6 ) ) )
-              If mkb_10->( Found() ) .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
+            Else
+              arr_osm1[ i, 6 ] := &mvarz
+              Select MKB_10
+              find ( PadR( arr_osm1[ i, 6 ], 6 ) )
+              If Found() .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
                 fl := func_error( 4, 'Несовместимость диагноза по полу ' + arr_osm1[ i, 6 ] )
               Endif
-//              Endif
-              arr_osm1[ i, 9 ] := &mvard
-              max_date1 := Max( max_date1, arr_osm1[ i, 9 ] )
             Endif
+            arr_osm1[ i, 9 ] := &mvard
+            max_date1 := Max( max_date1, arr_osm1[ i, 9 ] )
           Endif
         Endif
         If !fl
@@ -1406,12 +1727,10 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       If !fl
         Loop
       Endif
-      If emptyany( MTAB_NOMpv1, MDATEp1 )
+      If emptyall( arr_osm1[ Len( arr_DDS_osm1 ), 1 ], arr_osm1[ Len( arr_DDS_osm1 ), 9 ] )
         fl := func_error( 4, 'Не введён педиатр (врач общей практики) в осмотрах I этапа' )
-      Elseif MDATEp1 < max_date1
+      Elseif arr_osm1[ Len( arr_DDS_osm1 ), 9 ] < max_date1
         fl := func_error( 4, 'Педиатр (врач общей практики) на I этапе должен проводить осмотр последним!' )
-      Elseif metap == 2 .and. MDATEp1 > d12
-        fl := func_error( 4, 'Дата осмотра педиатра I этапа не умещается в 20 рабочих дней' )
       Endif
       If !fl
         Loop
@@ -1419,148 +1738,133 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       num_screen := 3
       metap := 1
       fl := .t.
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-      if mk_data < 0d20250901
-        For i := 7 To 8 // стоматолог и эндокринолог на 2 этапе
-          mvart := 'MTAB_NOMov' + lstr( i )
-          mvara := 'MTAB_NOMoa' + lstr( i )
-          mvard := 'MDATEo' + lstr( i )
-//          mvarz := 'MKOD_DIAGo' + lstr( i )
-          If !Between( mvozrast, dds_arr_osm1()[ i, 3 ], dds_arr_osm1()[ i, 4 ] )
-            If !Empty( &mvard ) .and. Empty( &mvart )
-              fl := func_error( 4, 'Не введен врач в осмотре II этапа  "' + dds_arr_osm1()[ i, 1 ] + '"' )
-            Elseif !Empty( &mvart ) .and. Empty( &mvard )
-              fl := func_error( 4, 'Не введена дата осмотра II этапа "' + dds_arr_osm1()[ i, 1 ] + '"' )
-            Elseif !emptyany( &mvard, &mvart )
-              metap := 2
-              if &mvard < max_date1
-                fl := func_error( 4, 'Дата осмотра II этапа "' + dds_arr_osm1()[ i, 1 ] + '" внутри I этапа' )
-              Endif
-              p2->( dbSeek( Str( &mvart, 5 ) ) )
-              If p2->( Found() )
-                arr_osm1[ i, 1 ] := p2->kod
-                arr_osm1[ i, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
-              Endif
-              If !Empty( &mvara )
-                p2->( dbSeek( Str( &mvara, 5 ) ) )
-                If p2->( Found() )
-                  arr_osm1[ i, 3 ] := p2->kod
-                Endif
-              Endif
-              arr_osm1[ i, 4 ] := arr_DDS_osm[ i, 4 ]
-              arr_osm1[ i, 5 ] := arr_DDS_osm[ i, 1 ]
-//              If Empty( &mvarz ) .or. Left( &mvarz, 1 ) == 'Z'
-                arr_osm1[ i, 6 ] := mdef_diagnoz
-  //            Else
-//                arr_osm1[ i, 6 ] := &mvarz
-                mkb_10->( dbSeek( PadR( arr_osm1[ i, 6 ], 6 ) ) )   // find ( PadR( arr_osm1[ i, 6 ], 6 ) )
-                If mkb_10->( Found() ) .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
-                  fl := func_error( 4, 'Несовместимость диагноза по полу ' + arr_osm1[ i, 6 ] )
-                Endif
-//              Endif
-              arr_osm1[ i, 9 ] := &mvard
-              max_date2 := Max( max_date2, arr_osm1[ i, 9 ] )
+      For i := 7 To 8 // стоматолог и эндокринолог на 2 этапе
+        mvart := 'MTAB_NOMov' + lstr( i )
+        mvara := 'MTAB_NOMoa' + lstr( i )
+        mvard := 'MDATEo' + lstr( i )
+        mvarz := 'MKOD_DIAGo' + lstr( i )
+        If !Between( mvozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] )
+          If !Empty( &mvard ) .and. Empty( &mvart )
+            fl := func_error( 4, 'Не введен врач в осмотре II этапа  "' + arr_DDS_osm1[ i, 1 ] + '"' )
+          Elseif !Empty( &mvart ) .and. Empty( &mvard )
+            fl := func_error( 4, 'Не введена дата осмотра II этапа "' + arr_DDS_osm1[ i, 1 ] + '"' )
+          Elseif !emptyany( &mvard, &mvart )
+            metap := 2
+            if &mvard < max_date1
+              fl := func_error( 4, 'Дата осмотра II этапа "' + arr_DDS_osm1[ i, 1 ] + '" внутри I этапа' )
             Endif
+            Select P2
+            find ( Str( &mvart, 5 ) )
+            If Found()
+              arr_osm1[ i, 1 ] := p2->kod
+              arr_osm1[ i, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
+            Endif
+            If !Empty( &mvara )
+              Select P2
+              find ( Str( &mvara, 5 ) )
+              If Found()
+                arr_osm1[ i, 3 ] := p2->kod
+              Endif
+            Endif
+            arr_osm1[ i, 4 ] := arr_DDS_osm1[ i, 5, 1 ]
+            arr_osm1[ i, 5 ] := arr_DDS_osm1[ i, 7, 1 ]
+            If Empty( &mvarz ) .or. Left( &mvarz, 1 ) == 'Z'
+              arr_osm1[ i, 6 ] := mdef_diagnoz
+            Else
+              arr_osm1[ i, 6 ] := &mvarz
+              Select MKB_10
+              find ( PadR( arr_osm1[ i, 6 ], 6 ) )
+              If Found() .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
+                fl := func_error( 4, 'Несовместимость диагноза по полу ' + arr_osm1[ i, 6 ] )
+              Endif
+            Endif
+            arr_osm1[ i, 9 ] := &mvard
+            max_date2 := Max( max_date2, arr_osm1[ i, 9 ] )
           Endif
-          If !fl
-            exit
-          Endif
-        Next
+        Endif
         If !fl
-          Loop
+          exit
         Endif
-      endif
-      arr_osm2 := Array( Len( arr_DDS_osm ), 10 )
+      Next
+      If !fl
+        Loop
+      Endif
+      arr_osm2 := Array( Len( arr_DDS_osm2 ), 10 )
       afillall( arr_osm2, 0 )
-      if m1step2 == 1 // направлен на 2-ой этап
-        num_screen := 3
-        fl := .t.
-        If !emptyany( MTAB_NOMpv2, MDATEp2 )
+      For i := 1 To Len( arr_DDS_osm2 )
+        mvart := 'MTAB_NOM2ov' + lstr( i )
+        mvara := 'MTAB_NOM2oa' + lstr( i )
+        mvard := 'MDATE2o' + lstr( i )
+        mvarz := 'MKOD_DIAG2o' + lstr( i )
+        arr_osm2[ i, 4 ] := arr_DDS_osm2[ i, 5, 1 ]
+        If arr_osm2[ i, 4 ] == 12 .and. m1onko8 == 3
+          &mvart := -1
+        Elseif arr_osm2[ i, 4 ] == 18 .and. m1onko10 == 3
+          &mvart := -1
+        Endif
+        If !Empty( &mvard ) .and. Empty( &mvart )
+          fl := func_error( 4, 'Не введен врач в осмотре II этапа  "' + arr_DDS_osm2[ i, 1 ] + '"' )
+        Elseif !Empty( &mvart ) .and. Empty( &mvard )
+          fl := func_error( 4, 'Не введена дата осмотра II этапа "' + arr_DDS_osm2[ i, 1 ] + '"' )
+        Elseif !emptyany( &mvard, &mvart )
           metap := 2
-        Endif
-        ku := 0
-
-        For i := 1 To Len( arr_DDS_osm )
-          _fl_ := .t.
-          If _fl_ .and. !Empty( arr_DDS_osm[ i, 3 ] )
-            _fl_ := ( mpol == arr_DDS_osm[ i, 3 ] )
+          if &mvard < max_date1
+            fl := func_error( 4, 'Дата осмотра II этапа "' + arr_DDS_osm2[ i, 1 ] + '" внутри I этапа' )
           Endif
-          If _fl_
-            _fl_ := ( AScan( ar[ 4 ], arr_DDS_osm[ i, 1 ] ) == 0 )
-          Endif
-          if _fl_
-            mvart := 'MTAB_NOMov' + lstr( i )
-            mvara := 'MTAB_NOMoa' + lstr( i )
-            mvard := 'MDATEo' + lstr( i )
-//        mvarz := 'MKOD_DIAG2o' + lstr( i )
-            If !Empty( &mvard ) .and. Empty( &mvart )
-              fl := func_error( 4, 'Не введен врач в осмотре II этапа  "' + arr_DDS_osm[ i, 3 ] + '"' )
-            Elseif !Empty( &mvart ) .and. Empty( &mvard )
-              fl := func_error( 4, 'Не введена дата осмотра II этапа "' + arr_DDS_osm[ i, 3 ] + '"' )
-            Elseif !emptyany( &mvard, &mvart )
-              ++ku
-              metap := 2
-//            if &mvard < max_date1
-              if &mvard < MDATEp1
-                fl := func_error( 4, 'Дата осмотра II этапа "' + arr_DDS_osm[ i, 3 ] + '" внутри I этапа' )
-              Endif
-              if &mvart > 0
-                p2->( dbSeek( Str( &mvart, 5 ) ) )
-                If p2->( Found() )
-                  arr_osm2[ i, 1 ] := p2->kod
-                  arr_osm2[ i, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
-                Endif
-                If !Empty( &mvara )
-                  p2->( dbSeek( Str( &mvara, 5 ) ) )
-                  If p2->( Found() )
-                    arr_osm2[ i, 3 ] := p2->kod
-                  Endif
-                Endif
-              Else // приём в онкодиспансере
-                arr_osm2[ i, 2 ] := -ret_new_spec( arr_DDS_osm[ i, 5, 1 ] )
-                arr_osm2[ i, 10 ] := 3
-              Endif
-          
-              If ValType( arr_DDS_osm[ i, 4 ] ) == 'N'
-                arr_osm2[ i, 4 ] := arr_DDS_osm[ i, 4 ] // профиль
-              Elseif ( j := AScan( arr_DDS_osm[ i, 5 ], ret_old_prvs( arr_osm2[ i, 2 ] ) ) ) > 0
-                arr_osm2[ i, 4 ] := arr_DDS_osm[ i, 4, j ] // профиль
-              Endif
-              arr_osm2[ i, 5 ] := arr_DDS_osm[ i, 1 ] // шифр услуги
-
-//          If Empty( &mvarz ) .or. Left( &mvarz, 1 ) == 'Z'
-                arr_osm2[ i, 6 ] := mdef_diagnoz
-//          Else
-//            arr_osm2[ i, 6 ] := &mvarz
-                mkb_10->( dbSeek( PadR( arr_osm2[ i, 6 ], 6 ) ) ) //find ( PadR( arr_osm2[ i, 6 ], 6 ) )
-                If mkb_10->( Found() ) .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
-                  fl := func_error( 4, 'Несовместимость диагноза по полу ' + arr_osm2[ i, 6 ] )
-                Endif
-//          Endif
-              arr_osm2[ i, 9 ] := &mvard
-              max_date2 := Max( max_date2, arr_osm2[ i, 9 ] )
+          if &mvart > 0
+            Select P2
+            find ( Str( &mvart, 5 ) )
+            If Found()
+              arr_osm2[ i, 1 ] := p2->kod
+              arr_osm2[ i, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
             Endif
-          endif
-          If !fl
-            exit
+            If !Empty( &mvara )
+              Select P2
+              find ( Str( &mvara, 5 ) )
+              If Found()
+                arr_osm2[ i, 3 ] := p2->kod
+              Endif
+            Endif
+          Else // приём в онкодиспансере
+            arr_osm2[ i, 2 ] := -ret_new_spec( arr_DDS_osm2[ i, 6, 1 ] )
+            arr_osm2[ i, 10 ] := 3
           Endif
-        Next
-        If fl .and. metap == 2
-          If emptyany( MTAB_NOMpv2, MDATEp2 )
-            fl := func_error( 4, 'Не введён педиатр (врач общей практики) в осмотрах II этапа' )
-          Elseif MDATEp1 == MDATEp2
-            fl := func_error( 4, 'Педиатры на I и II этапах провели осмотры в один день!' )
-          Elseif MDATEp2 < max_date2
-            fl := func_error( 4, 'Педиатр (врач общей практики) на II этапе должен проводить осмотр последним!' )
-          Elseif Empty( ku )
-            fl := func_error( 4, 'На II этапе кроме осмотра педиатра должен быть ещё какой-нибудь осмотр.' )
+          arr_osm2[ i, 5 ] := arr_DDS_osm2[ i, 7, 1 ]
+          // 'педиатр','',0,17,{68,57},{1134,1110},{'2.83.14','2.83.15'}
+          If Len( arr_DDS_osm2[ i, 5 ] ) == 2 .and. Len( arr_DDS_osm2[ i, 6 ] ) == 2 ;
+              .and. Len( arr_DDS_osm2[ i, 7 ] ) == 2 ;
+              .and. ret_new_spec( arr_DDS_osm2[ i, 6, 2 ] ) == arr_osm2[ i, 2 ]
+            arr_osm2[ i, 4 ] := arr_DDS_osm2[ i, 5, 2 ]
+            arr_osm2[ i, 5 ] := arr_DDS_osm2[ i, 7, 2 ]
           Endif
-          If !fl
-            Loop
+          If Empty( &mvarz ) .or. Left( &mvarz, 1 ) == 'Z'
+            arr_osm2[ i, 6 ] := mdef_diagnoz
+          Else
+            arr_osm2[ i, 6 ] := &mvarz
+            Select MKB_10
+            find ( PadR( arr_osm2[ i, 6 ], 6 ) )
+            If Found() .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
+              fl := func_error( 4, 'Несовместимость диагноза по полу ' + arr_osm2[ i, 6 ] )
+            Endif
           Endif
+          arr_osm2[ i, 9 ] := &mvard
+          max_date2 := Max( max_date2, arr_osm2[ i, 9 ] )
         Endif
+        If !fl
+          exit
+        Endif
+      Next
+      If fl .and. metap == 2
+        If emptyall( arr_osm2[ Len( arr_DDS_osm2 ), 1 ], arr_osm2[ Len( arr_DDS_osm2 ), 9 ] )
+          fl := func_error( 4, 'Не введён педиатр (врач общей практики) в осмотрах II этапа' )
+        Elseif arr_osm1[ Len( arr_DDS_osm1 ), 9 ] == arr_osm2[ Len( arr_DDS_osm2 ), 9 ]
+          fl := func_error( 4, 'Педиатры на I и II этапах провели осмотры в один день!' )
+        Elseif arr_osm2[ Len( arr_DDS_osm2 ), 9 ] < max_date2
+          fl := func_error( 4, 'Педиатр (врач общей практики) на II этапе должен проводить осмотр последним!' )
+        Endif
+      Endif
+      If !fl
+        Loop
       Endif
       num_screen := 4
       If !Between( mGRUPPA_DO, 1, 5 )
@@ -1577,7 +1881,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
             Exit
           Endif
           pole_1pervich := 'm1diag_16_' + lstr( i ) + '_2' // 0,1
-          pole_1dispans := 'm1diag_16_' + lstr( i ) + '_3' // mm_dispans() := {{'ранее',1},{'впервые',2},{'не уст.',0}}
+          pole_1dispans := 'm1diag_16_' + lstr( i ) + '_3' // mm_dispans := {{'ранее',1},{'впервые',2},{'не уст.',0}}
           AAdd( arr_diag, { &mvar, &pole_1pervich, &pole_1dispans } )
         Endif
       Next
@@ -1617,7 +1921,9 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
           Else
             fl := func_error( 4, 'не найден диагноз ' + AllTrim( arr_diag[ i, 1 ] ) + ' в справочнике МКБ-10' )
           Endif
-          If !fl ; exit ; Endif
+          If !fl
+            exit
+          Endif
         Next
         If !fl
           Loop
@@ -1644,9 +1950,18 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         str_center( 21, 'Ввод данных за ' + date_month( sys_date ), cColorStMsg )
       Endif
       mywait( 'Ждите. Производится запись листа учёта...' )
+      m1lis := 0
+      If !is_disp_19 .and. glob_yes_kdp2()[ tip_lu ]
+        For i := 1 To Len( arr_DDS_iss )
+          If ValType( arr_iss[ i, 9 ] ) == 'D' .and. arr_iss[ i, 9 ] >= mn_data .and. Len( arr_iss[ i ] ) > 9 ;
+              .and. ValType( arr_iss[ i, 10 ] ) == 'N' .and. arr_iss[ i, 10 ] > 0
+            m1lis := arr_iss[ i, 10 ] // в рамках диспансеризации отправили в КДП2
+          Endif
+        Next
+      Endif
       //
       If metap == 1
-        For i := 1 To Len( dds_arr_osm1() )
+        For i := 1 To Len( arr_DDS_osm1 )
           If ValType( arr_osm1[ i, 5 ] ) == 'C' .and. Left( arr_osm1[ i, 5 ], 5 ) == '2.83.'
             If eq_any( AllTrim( arr_osm1[ i, 5 ] ), '2.83.14', '2.83.15' ) // педиатр, врач общей практики
               arr_osm1[ i, 5 ] := '2.3.2'
@@ -1655,48 +1970,57 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
             Endif
           Endif
         Next
-        if mk_data < 0d20250901
-          AAdd( arr_osm1, Array( 10 ) )
-          i := Len( dds_arr_osm1() ) + 1
-          arr_osm1[ i, 1 ] := arr_osm1[ i - 1, 1 ]
-          arr_osm1[ i, 2 ] := arr_osm1[ i - 1, 2 ]
-          arr_osm1[ i, 3 ] := arr_osm1[ i - 1, 3 ]
-          arr_osm1[ i, 4 ] := arr_osm1[ i - 1, 4 ]
-          arr_osm1[ i, 5 ] := ret_shifr_zs_dds( tip_lu )
-          arr_osm1[ i, 6 ] := arr_osm1[ i - 1, 6 ]
-          arr_osm1[ i, 9 ] := mn_data
-          m1vrach  := arr_osm1[ i, 1 ]
-          m1prvs   := arr_osm1[ i, 2 ]
-          m1PROFIL := arr_osm1[ i, 4 ]
-          // MKOD_DIAG := padr( arr_osm1[ i, 6 ], 6 )
-        endif
+        AAdd( arr_osm1, Array( 10 ) )
+        i := Len( arr_DDS_osm1 ) + 1
+        arr_osm1[ i, 1 ] := arr_osm1[ i - 1, 1 ]
+        arr_osm1[ i, 2 ] := arr_osm1[ i - 1, 2 ]
+        arr_osm1[ i, 3 ] := arr_osm1[ i - 1, 3 ]
+        arr_osm1[ i, 4 ] := arr_osm1[ i - 1, 4 ]
+        arr_osm1[ i, 5 ] := ret_shifr_zs_dds( tip_lu )
+        arr_osm1[ i, 6 ] := arr_osm1[ i - 1, 6 ]
+        arr_osm1[ i, 9 ] := mn_data
+        m1vrach  := arr_osm1[ i, 1 ]
+        m1prvs   := arr_osm1[ i, 2 ]
+        m1PROFIL := arr_osm1[ i, 4 ]
+        // MKOD_DIAG := padr(arr_osm1[i,6],6)
       Else  // metap := 2
-
-        if mk_data < 0d20250901
-          For i := 1 To Len( arr_osm2 )
-            If arr_osm2[ i, 10 ] == 3 // если услуга оказана в ВОКОД
-              arr_osm2[ i, 5 ] := '2.3.1'
+        If m1lis > 0 // услуги заменим на аналогичные шифры без гематологии
+          For i := 1 To Len( arr_osm1 )
+            If ValType( arr_osm1[ i, 5 ] ) == 'C' .and. ( j := AScan( dds_arr_osmotr_KDP2(), {| x| x[ 1 ] == arr_osm1[ i, 5 ] } ) ) > 0
+              arr_osm1[ i, 5 ] := dds_arr_osmotr_KDP2()[ j, 2 ]
             Endif
           Next
-          If tip_lu == TIP_LU_DDSOP // дли детей-сирот под опекой вместо услуг '2.83.*' сделаем '2.87.*'
-            For i := 1 To Len( dds_arr_osm1() )
-              If ValType( arr_osm1[ i, 5 ] ) == 'C' .and. Left( arr_osm1[ i, 5 ], 5 ) == '2.83.'
-                arr_osm1[ i, 5 ] := '2.87.' + SubStr( arr_osm1[ i, 5 ], 6 )
-              Endif
-            Next
-          
-            For i := 1 To Len( arr_DDS_osm )
-              If ValType( arr_osm2[ i, 5 ] ) == 'C' .and. Left( arr_osm2[ i, 5 ], 5 ) == '2.83.'
-                arr_osm2[ i, 5 ] := '2.87.' + SubStr( arr_osm2[ i, 5 ], 6 )
-              Endif
-            Next
-          Endif
-          // MKOD_DIAG := padr(arr_osm2[i,6],6)
+          For i := 1 To Len( arr_osm2 )
+            If ValType( arr_osm2[ i, 5 ] ) == 'C' .and. ( j := AScan( dds_arr_osmotr_KDP2(), {| x| x[ 1 ] == arr_osm2[ i, 5 ] } ) ) > 0
+              arr_osm2[ i, 5 ] := dds_arr_osmotr_KDP2()[ j, 2 ]
+            Endif
+          Next
         Endif
+        For i := 1 To Len( arr_osm2 )
+          If arr_osm2[ i, 10 ] == 3 // если услуга оказана в ВОКОД
+            arr_osm2[ i, 5 ] := '2.3.1'
+          Endif
+        Next
+        If tip_lu == TIP_LU_DDSOP // дли детей-сирот под опекой вместо услуг '2.83.*' сделаем '2.87.*'
+          For i := 1 To Len( arr_DDS_osm1 )
+            If ValType( arr_osm1[ i, 5 ] ) == 'C' .and. Left( arr_osm1[ i, 5 ], 5 ) == '2.83.'
+              arr_osm1[ i, 5 ] := '2.87.' + SubStr( arr_osm1[ i, 5 ], 6 )
+            Endif
+          Next
+          For i := 1 To Len( arr_DDS_osm2 )
+            If ValType( arr_osm2[ i, 5 ] ) == 'C' .and. Left( arr_osm2[ i, 5 ], 5 ) == '2.83.'
+              arr_osm2[ i, 5 ] := '2.87.' + SubStr( arr_osm2[ i, 5 ], 6 )
+            Endif
+          Next
+        Endif
+        i := Len( arr_DDS_osm2 )
+        m1vrach  := arr_osm2[ i, 1 ]
+        m1prvs   := arr_osm2[ i, 2 ]
+        m1PROFIL := arr_osm2[ i, 4 ]
+        // MKOD_DIAG := padr(arr_osm2[i,6],6)
       Endif
       make_diagp( 2 )  // сделать 'пятизначные' диагнозы
       //
-
       use_base( 'lusl' )
       use_base( 'luslc' )
       use_base( 'uslugi' )
@@ -1709,42 +2033,32 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       glob_otd_dep := 0
       For i := 1 To Len( arr_iss )
         If ValType( arr_iss[ i, 5 ] ) == 'C'
+          arr_iss[ i, 7 ] := foundourusluga( arr_iss[ i, 5 ], mk_data, arr_iss[ i, 4 ], M1VZROS_REB, @mu_cena )
+          arr_iss[ i, 8 ] := mu_cena
+          mcena_1 += mu_cena
           AAdd( arr_usl_dop, arr_iss[ i ] )
         Endif
       Next
-      
-      // добавим педиатра I этапа
-      AAdd( arr_osm1, add_pediatr_DDS( MTAB_NOMpv1, MTAB_NOMpa1, MDATEp1, MKOD_DIAGp1, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
-
       For i := 1 To Len( arr_osm1 )
         If ValType( arr_osm1[ i, 5 ] ) == 'C'
+          arr_osm1[ i, 7 ] := foundourusluga( arr_osm1[ i, 5 ], mk_data, arr_osm1[ i, 4 ], M1VZROS_REB, @mu_cena )
+          arr_osm1[ i, 8 ] := mu_cena
+          mcena_1 += mu_cena
           AAdd( arr_usl_dop, arr_osm1[ i ] )
         Endif
       Next
       If metap == 2
-        // добавим педиатра II этапа
-        AAdd( arr_osm2, add_pediatr_DDS( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
-        i := Len( arr_DDS_osm )
-        m1vrach  := arr_osm2[ i, 1 ]
-        m1prvs   := arr_osm2[ i, 2 ]
-        m1PROFIL := arr_osm2[ i, 4 ]
         For i := 1 To Len( arr_osm2 )
           If ValType( arr_osm2[ i, 5 ] ) == 'C'
+            arr_osm2[ i, 7 ] := foundourusluga( arr_osm2[ i, 5 ], mk_data, arr_osm2[ i, 4 ], M1VZROS_REB, @mu_cena )
+            arr_osm2[ i, 8 ] := mu_cena
+            mcena_1 += mu_cena
             AAdd( arr_usl_dop, arr_osm2[ i ] )
           Endif
         Next
       Endif
-
-      For i := 1 To Len( arr_usl_dop )
-        If Empty( arr_usl_dop[ i, 7 ] ) // т.к. для услуг, направляемых в КДП2, код уже известен (а цена =0)
-          arr_usl_dop[ i, 7 ] := foundourusluga( arr_usl_dop[ i, 5 ], mk_data, arr_usl_dop[ i, 4 ], M1VZROS_REB, @mu_cena )
-          arr_usl_dop[ i, 8 ] := mu_cena
-          mcena_1 += mu_cena
-        Endif
-      Next
       //
       use_base( 'human' )
-
       If Loc_kod > 0
         find ( Str( Loc_kod, 7 ) )
         mkod := Loc_kod
@@ -1754,7 +2068,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         mkod := RecNo()
         Replace human->kod With mkod
       Endif
-      Select HUMAN_   // increase_DB_to_specified_size( alias, size )
+      Select HUMAN_
       Do While human_->( LastRec() ) < mkod
         Append Blank
       Enddo
@@ -1769,7 +2083,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       g_rlock( forever )
       //
       st_N_DATA := MN_DATA
-      st_K_DATA := mk_data
+      st_K_DATA := MK_DATA
       If m1stacionar > 0
         st_stacionar := m1stacionar
       Endif
@@ -1807,11 +2121,11 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       human_->SMO       := msmo
       human->STR_CRB    := m1str_crb
       human->POLIS      := make_polis( mspolis, mnpolis ) // серия и номер страхового полиса
-      human->LPU        := m1lpu         // код учреждения
-      human->OTD        := m1otd         // код отделения
+      human->LPU        := M1LPU         // код учреждения
+      human->OTD        := M1OTD         // код отделения
       human->UCH_DOC    := MUCH_DOC      // вид и номер учетного документа
       human->N_DATA     := MN_DATA       // дата начала лечения
-      human->K_DATA     := mk_data       // дата окончания лечения
+      human->K_DATA     := MK_DATA       // дата окончания лечения
       human->CENA := human->CENA_1 := MCENA_1 // стоимость лечения
       human->ishod      := 100 + metap
       human->OBRASHEN   := '' // <Признак подозрения на ЗНО>: - всегда указывается <0>iif(m1DS_ONK == 1, '1', ' ')
@@ -1825,6 +2139,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       human_->DISPANS   := s
       human_->STATUS_ST := ''
       human_->POVOD     := 6 // {'2.2-Диспансеризация',6,'2.2'},;
+      // human_->TRAVMA    := m1travma
       human_->VPOLIS    := m1vidpolis
       human_->SPOLIS    := LTrim( mspolis )
       human_->NPOLIS    := LTrim( mnpolis )
@@ -1940,7 +2255,6 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       Endif
       save_arr_dds( mkod )
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
-
       fl_write_sluch := .t.
       dbCloseAll()
       stat_msg( 'Запись завершена!', .f. )
@@ -1951,7 +2265,6 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
   SetColor( tmp_color )
   RestScreen( buf )
   chm_help_code := tmp_help
-
   If fl_write_sluch // если записали - запускаем проверку
     If Type( 'fl_edit_DDS' ) == 'L'
       fl_edit_DDS := .t.
@@ -1960,5 +2273,4 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       verify_oms_sluch( glob_perso )
     Endif
   Endif
-
   Return Nil

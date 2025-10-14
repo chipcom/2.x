@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.09.25 ПредН - добавление или редактирование случая (листа учета)
+// 25.09.25 ПредН - добавление или редактирование случая (листа учета)
 Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -280,7 +280,7 @@ Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
           &mvar := c4tod( hu->date_u )
           If j == 1
             m1var := 'm1lis' + lstr( i )
-            If glob_yes_kdp2()[ TIP_LU_PREDN ] .and. AScan( glob_arr_usl_LIS, npred_arr_issled[ i, 1 ] ) > 0 ;
+            If glob_yes_kdp2()[ TIP_LU_PREDN ] .and. AScan( glob_arr_usl_LIS(), npred_arr_issled[ i, 1 ] ) > 0 ;
                 .and. hu->is_edit == 1
               &m1var := 1
             Endif
@@ -454,7 +454,7 @@ Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
             &mvard := mn_data
           Endif
           fl_kdp2 := .f.
-          If glob_yes_kdp2()[ TIP_LU_PREDN ] .and. AScan( glob_arr_usl_LIS, npred_arr_issled[ i, 1 ] ) > 0
+          If glob_yes_kdp2()[ TIP_LU_PREDN ] .and. AScan( glob_arr_usl_LIS(), npred_arr_issled[ i, 1 ] ) > 0
             fl_kdp2 := .t.
           Endif
           @ ++j, 1 Say PadR( npred_arr_issled[ i, 3 ], 38 )

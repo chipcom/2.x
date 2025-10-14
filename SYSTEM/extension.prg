@@ -309,3 +309,14 @@ function Err_version()
     strVersion := fs_version( _version() ) + ' от ' + _date_version()
   endif
   return strVersion
+
+// 28.09.25 - добавление пустых записей в файл БД до опреде6ленного количества
+function increase_DB_to_specified_size( alias, size )
+
+  // alias - строка алиас-а куда добавляем
+  // size - необходимое количество записей в файле БД
+
+  Do While ( alias )->( LastRec() ) < size
+    ( alias )->( dbAppend() )
+  Enddo
+  return nil

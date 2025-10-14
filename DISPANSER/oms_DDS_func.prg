@@ -2,6 +2,126 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+ 
+// 25.09.25 является врачебным осмотром детей-сирот на первом этапе
+Function is_osmotr_dds_1_etap( ausl, _vozrast, _etap, _pol, tip_lu, mdata )
+
+  // ausl - { lshifr,mdate,hu_->profil,hu_->PRVS }
+
+  Local i, fl := .f., lshifr := AllTrim( ausl[ 1 ] )
+  Local arr_DDS_osm1
+
+  arr_DDS_osm1 := dds_arr_osm1( mdata )
+  // вместо услуг "2.87.*" сделаем "2.83.*"
+  If tip_lu == TIP_LU_DDSOP .and. Left( lshifr, 5 ) == '2.87.'
+    lshifr := '2.83.' + SubStr( lshifr, 6 )
+  Endif
+  For i := 1 To Len( arr_DDS_osm1 )
+    If iif( Empty( arr_DDS_osm1[ i, 2 ] ), .t., arr_DDS_osm1[ i, 2 ] == _pol ) .and. ;
+        Between( _vozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] )
+      If _etap == 1
+        If AScan( arr_DDS_osm1[ i, 5 ], ausl[ 3 ] ) > 0
+          fl := .t.
+          Exit
+        Endif
+      Else
+        If AScan( arr_DDS_osm1[ i, 7 ], lshifr ) > 0
+          fl := .t.
+          Exit
+        Endif
+      Endif
+    Endif
+  Next
+  Return fl
+
+/*
+// 13.10.25 является врачебным осмотром детей-сирот
+Function is_osmotr_dds( ausl, _vozrast, arr, _etap, _pol, tip_lu, mdata, mobil )
+
+  // ausl - { lshifr,mdate,hu_->profil,hu_->PRVS }
+
+  Local i, j, s, fl := .f., lshifr := AllTrim( ausl[ 1 ] )
+  Local arr_DDS_osm1, arr_DDS_osm1_new
+  Local arr_DDS_osm2, arr_DDS_osm2_new
+
+  default mobil to 0  // обычный ДДС ( 1 - мобильная бригада )
+
+  arr_DDS_osm1 := dds_arr_osm1( mdata )
+  arr_DDS_osm1_new := dds_arr_osm1_new(  mdata, mobil, tip_lu, 2 )  // выбираем I этап
+  arr_DDS_osm2 := dds_arr_osm2( mdata )
+  arr_DDS_osm2_new := dds_arr_osm1_new(  mdata, mobil, tip_lu, 3 )  // выбираем II этап
+
+  // вместо услуг "2.87.*" сделаем "2.83.*"
+  If tip_lu == TIP_LU_DDSOP .and. Left( lshifr, 5 ) == '2.87.'
+    lshifr := '2.83.' + SubStr( lshifr, 6 )
+  Endif
+  For i := 1 To Len( arr_DDS_osm1 )
+    If _etap == 1
+      If AScan( arr_DDS_osm1[ i, 5 ], ausl[ 3 ] ) > 0
+        fl := .t.
+        Exit
+      Endif
+    Else
+      If AScan( arr_DDS_osm1[ i, 7 ], lshifr ) > 0
+        fl := .t.
+        Exit
+      Endif
+    Endif
+  Next
+  If fl
+    s := '"' + lshifr + '.' + arr_DDS_osm1[ i, 1 ] + '"'
+    If !Empty( arr_DDS_osm1[ i, 2 ] ) .and. !( arr_DDS_osm1[ i, 2 ] == _pol )
+      AAdd( arr, 'Несовместимость по полу в услуге ' + s )
+    Endif
+    If AScan( arr_DDS_osm1[ i, 5 ], ausl[ 3 ] ) == 0
+      AAdd( arr, 'Не тот профиль в услуге ' + s )
+    Endif
+  Endif
+  If !fl .and. _etap == 2
+    For i := 1 To Len( arr_DDS_osm2 )
+      If AScan( arr_DDS_osm2[ i, 7 ], lshifr ) > 0 .and. AScan( arr_DDS_osm2[ i, 5 ], ausl[ 3 ] ) > 0
+        fl := .t.
+        Exit
+      Endif
+    Next
+    If fl
+      s := '"' + lshifr + '.' + arr_DDS_osm2[ i, 1 ] + '"'
+      If !Between( _vozrast, arr_DDS_osm2[ i, 3 ], arr_DDS_osm2[ i, 4 ] )
+        AAdd( arr, 'Некорректный возраст пациента для услуги ' + s )
+      Endif
+      If AScan( arr_DDS_osm2[ i, 5 ], ausl[ 3 ] ) == 0
+        AAdd( arr, 'Не тот профиль в услуге ' + s )
+      Endif
+    Endif
+  Endif
+  Return fl
+*/
+
+// 25.09.25 является исследованием детей-сирот
+Function is_issl_dds( ausl, _vozrast, arr, mdata )
+
+  // ausl - { lshifr,mdate,hu_->profil,hu_->PRVS }
+
+  Local i, s, fl := .f., lshifr := AllTrim( ausl[ 1 ] )
+  Local arr_DDS_iss
+
+  arr_DDS_iss := dds_arr_iss( mdata )
+  For i := 1 To Len( arr_DDS_iss )
+    If AScan( arr_DDS_iss[ i, 7 ], lshifr ) > 0
+      fl := .t.
+      Exit
+    Endif
+  Next
+  If fl .and. ValType( _vozrast ) == 'N'
+    s := '"' + lshifr + '.' + arr_DDS_iss[ i, 1 ] + '"'
+    If !Between( _vozrast, arr_DDS_iss[ i, 3 ], arr_DDS_iss[ i, 4 ] )
+      AAdd( arr, 'Некорректный возраст пациента для услуги ' + s )
+    Endif
+    If AScan( arr_DDS_iss[ i, 5 ], ausl[ 3 ] ) == 0
+      AAdd( arr, 'Не тот профиль в услуге ' + s )
+    Endif
+  Endif
+  Return fl
 
 // 19.03.19 вернуть шифр услуги законченного случая для диспансеризации детей-сирот
 Function ret_shifr_zs_dds( tip_lu )
@@ -71,7 +191,7 @@ Function ret_shifr_zs_dds( tip_lu )
   Endif
   Return s
 
-// 05.09.21
+// 25.09.25
 Function save_arr_dds( lkod )
 
   Local arr := {}, k, ta
@@ -91,7 +211,8 @@ Function save_arr_dds( lkod )
     AAdd( arr, { 'mdate_r', mdate_r } )
   Endif
   AAdd( arr, { '0', m1mobilbr } )   // 'N',мобильная бригада
-  AAdd( arr, { '1', m1stacionar } ) // 'N',код стационара
+  AAdd( arr, { '1', mperiod } ) // 'N',номер диапазона (от 1 до 33)
+  // AAdd( arr, { '1', m1stacionar } ) // 'N',код стационара
   AAdd( arr, { '2.3', m1kateg_uch } ) // 'N',Категория учета ребенка: 0-ребенок-сирота; 1-ребенок, оставшийся без попечения родителей; 2-ребенок, находящийся в трудной жизненной ситуации, 3-нет категории
   AAdd( arr, { '2.4', m1gde_nahod } ) // 'N',На момент проведения диспансеризации находится 0-в стационарном учреждении, 1-под опекой, 2-попечительством, 3-передан в приемную семью, 4-передан в патронатную семью, 5-усыновлен (удочерена), 6-другое
   AAdd( arr, { '4', mdate_post } ) // 'D',Дата поступления в стационарное учреждение
@@ -120,14 +241,14 @@ Function save_arr_dds( lkod )
     AAdd( arr, { '13.2.3', m1psih23 } )  // 'N1',Эмоционально-вегетативная сфера: (норма, отклонение)
   Endif
   If mpol == 'М'
-    AAdd( arr, { '14.1.P',m141p } )     // 'N1',Половая формула мальчика
-    AAdd( arr, { '14.1.Ax',m141ax } )   // 'N1',Половая формула мальчика
-    AAdd( arr, { '14.1.Fa',m141fa } )   // 'N1',Половая формула мальчика
+    AAdd( arr, { '14.1.P', m141p } )     // 'N1',Половая формула мальчика
+    AAdd( arr, { '14.1.Ax', m141ax } )   // 'N1',Половая формула мальчика
+    AAdd( arr, { '14.1.Fa', m141fa } )   // 'N1',Половая формула мальчика
   Else
-    AAdd( arr, { '14.2.P',m142p } )     // 'N1',Половая формула девочки
-    AAdd( arr, { '14.2.Ax',m142ax } )   // 'N1',Половая формула девочки
-    AAdd( arr, { '14.2.Ma',m142ma } )   // 'N1',Половая формула девочки
-    AAdd( arr, { '14.2.Me',m142me } )   // 'N1',Половая формула девочки
+    AAdd( arr, { '14.2.P', m142p } )     // 'N1',Половая формула девочки
+    AAdd( arr, { '14.2.Ax', m142ax } )   // 'N1',Половая формула девочки
+    AAdd( arr, { '14.2.Ma', m142ma } )   // 'N1',Половая формула девочки
+    AAdd( arr, { '14.2.Me', m142me } )   // 'N1',Половая формула девочки
     AAdd( arr, { '14.2.Me1', m142me1 } ) // 'N2',Половая формула девочки - menarhe (лет)
     AAdd( arr, { '14.2.Me2', m142me2 } ) // 'N2',Половая формула девочки - menarhe (месяцев)
     AAdd( arr, { '14.2.Me3', m1142me3 } ) // 'N1',Половая формула девочки - menses (характеристика): регулярные, нерегулярные, обильные, умеренные, скудные, болезненные и безболезненные
@@ -234,7 +355,7 @@ Function save_arr_dds( lkod )
     AAdd( arr, { '16.11', AllTrim( mrek_disp ) } ) // Рекомендации по диспансерному наблюдению, лечению, медицинской реабилитации и санаторно-курортному лечению с указанием диагноза (код МКБ), вида медицинской организации и специальности (должности) врача
   Endif
   // 18.результаты проведения исследований
-  For i := 1 To Len( dds_arr_iss() )
+  For i := 1 To Len( dds_arr_iss( mk_data ) )
     mvar := 'MREZi' + lstr( i )
     If !Empty( &mvar )
       AAdd( arr, { '18.' + lstr( i ), AllTrim( &mvar ) } )
@@ -321,14 +442,15 @@ Function save_arr_dds( lkod )
   save_arr_dispans( lkod, arr )
   Return Nil
 
-// 05.09.21
-Function read_arr_dds( lkod )
+// 05.10.25
+Function read_arr_dds( lkod, mdata )
 
   Local arr, i, k
   Local aliasIsUse := aliasisalreadyuse( 'TPERS' )
   Local oldSelect
   Private mvar
 
+  Default mdata To Date()
   If ! aliasIsUse
     oldSelect := Select()
     r_use( dir_server() + 'mo_pers',, 'TPERS' )
@@ -341,7 +463,8 @@ Function read_arr_dds( lkod )
       Case arr[ i, 1 ] == '0' .and. ValType( arr[ i, 2 ] ) == 'N'
         m1mobilbr := arr[ i, 2 ]
       Case arr[ i, 1 ] == '1'
-        // m1stacionar := arr[i,2]
+        // m1stacionar := arr[ i, 2 ]
+        mperiod := arr[ i, 2 ]
       Case arr[ i, 1 ] == '2.3' .and. ValType( arr[ i, 2 ] ) == 'N'
         m1kateg_uch := arr[ i, 2 ]
       Case arr[ i, 1 ] == '2.4' .and. ValType( arr[ i, 2 ] ) == 'N'
@@ -570,7 +693,7 @@ Function read_arr_dds( lkod )
       Case arr[ i, 1 ] == '57' .and. ValType( arr[ i, 2 ] ) == 'N'
         m1profil_kojki := arr[ i, 2 ]
       Otherwise
-        For k := 1 To Len( dds_arr_iss() )
+        For k := 1 To Len( dds_arr_iss( mdata ) )
           If arr[ i, 1 ] == '18.' + lstr( k ) .and. ValType( arr[ i, 2 ] ) == 'C'
             mvar := 'MREZi' + lstr( k )
             &mvar := PadR( arr[ i, 2 ], 17 )
@@ -584,3 +707,138 @@ Function read_arr_dds( lkod )
     Select( oldSelect )
   Endif
   Return Nil
+
+// 30.09.25 вернуть возрастной период для профилактики несовершеннолетних
+Function ret_period_dds( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
+
+  Local i, _m, _d, _y, _m2, _d2, _y2, lperiod, sm, sm_, sm1, sm2, yn_data, yk_data
+  Local arr_DDS_etap
+
+  Store 0 To _m, _d, _y, _m2, _d2, _y2, lperiod
+  yn_data := Year( ln_data )
+  yk_data := Year( lk_data )
+  arr_DDS_etap := dds_arr_etap( lk_data )
+  ls := ''
+  count_ymd( ldate_r, ln_data, @_y, @_m, @_d ) // реальный возраст на начало
+  count_ymd( ldate_r, lk_data, @_y2, @_m2, @_d2 ) // реальный возраст на окончание
+  ret_i := 31
+  For i := Len( arr_DDS_etap ) To 1 Step -1
+    If i > 17 // 4 года и старше
+      If mdvozrast == arr_DDS_etap[ i, 2, 1 ]
+        ret_i := lperiod := i
+        ls := ' (' + lstr( mdvozrast ) + ' ' + s_let( mdvozrast ) + ')'
+        If yn_data != yk_data
+          lperiod := 0
+          ls := 'Ошибка! Начало и окончание профилактики должны быть в одном календарном году'
+        Endif
+        Exit
+      Endif
+    Elseif mdvozrast < 4 // до 3 лет (включительно)
+      sm1 := Round( Val( lstr( arr_DDS_etap[ i, 2, 1 ] ) + '.' + StrZero( arr_DDS_etap[ i, 2, 2 ], 2 ) ), 4 )
+      sm2 := Round( Val( lstr( arr_DDS_etap[ i, 3, 1 ] ) + '.' + StrZero( arr_DDS_etap[ i, 3, 2 ], 2 ) ), 4 )
+      sm := Round( Val( lstr( _y ) + '.' + StrZero( _m, 2 ) + StrZero( _d, 2 ) ), 4 )
+      sm_ := Round( Val( lstr( _y2 ) + '.' + StrZero( _m2, 2 ) + StrZero( _d2, 2 ) ), 4 )
+      If sm1 <= sm
+        ret_i := i
+        If sm_ <= sm2
+          lperiod := i
+          If lperiod == 1 // новорожденный
+            ls := '(новорожденный)'
+            If _m2 == 1 .or. _d2 > 29
+              lperiod := 0
+              ls := 'Ошибка! Новорожденному должно быть не более 29 дней'
+            Endif
+            Exit
+          Elseif lperiod == 16 // 2 года
+            ls := ' (2 года)'
+            If mdvozrast > 2
+              lperiod := 0
+              ls := 'Ошибка! Ребёнку в ' + lstr( yn_data ) + ' календарном году уже исполняется 3 года'
+            Endif
+            Exit
+          Elseif lperiod == 17 // 3 года
+            ls := ' (3 года)'
+            Exit
+          Endif
+          ls := ' ('
+          If arr_DDS_etap[ i, 2, 1 ] > 0
+            ls += lstr( arr_DDS_etap[ i, 2, 1 ] ) + ' ' + s_let( arr_DDS_etap[ i, 2, 1 ] ) + ' '
+          Endif
+          If arr_DDS_etap[ i, 2, 2 ] > 0
+            ls += lstr( arr_DDS_etap[ i, 2, 2 ] ) + ' ' + mes_cev( arr_DDS_etap[ i, 2, 2 ] )
+          Endif
+          ls := RTrim( ls ) + ')'
+        Else
+          // ls := 'Должен быть период ' + ;
+          // iif( np_arr_1_etap()[ i, 2, 1 ] == 0, '', lstr( np_arr_1_etap()[ i, 2, 1 ] ) + 'г.' ) + ;
+          // iif( np_arr_1_etap()[ i, 2, 2 ] == 0, '', lstr( np_arr_1_etap()[ i, 2, 2 ] ) + 'мес.' ) + '-' + ;
+          // iif( np_arr_1_etap()[ i, 3, 1 ] == 0, '', lstr( np_arr_1_etap()[ i, 3, 1 ] ) + 'г.' ) + ;
+          // iif( np_arr_1_etap()[ i, 3, 2 ] == 0, '', lstr( np_arr_1_etap()[ i, 3, 2 ] ) + 'мес.' ) + ', а у Вас ' + ;
+          ls := 'Должен быть период ' + ;
+            iif( arr_DDS_etap[ i, 2, 1 ] == 0, '', lstr( arr_DDS_etap[ i, 2, 1 ] ) + 'г.' ) + ;
+            iif( arr_DDS_etap[ i, 2, 2 ] == 0, '', lstr( arr_DDS_etap[ i, 2, 2 ] ) + 'мес.' ) + '-' + ;
+            iif( arr_DDS_etap[ i, 3, 1 ] == 0, '', lstr( arr_DDS_etap[ i, 3, 1 ] ) + 'г.' ) + ;
+            iif( arr_DDS_etap[ i, 3, 2 ] == 0, '', lstr( arr_DDS_etap[ i, 3, 2 ] ) + 'мес.' ) + ', а у Вас ' + ;
+            iif( _y == 0, '', lstr( _y ) + 'г.' ) + ;
+            iif( _m == 0, '', lstr( _m ) + 'мес.' ) + ;
+            iif( _d == 0, '', lstr( _d ) + 'дн.' ) + '-' + ;
+            iif( _y2 == 0, '', lstr( _y2 ) + 'г.' ) + ;
+            iif( _m2 == 0, '', lstr( _m2 ) + 'мес.' ) + ;
+            iif( _d2 == 0, '', lstr( _d2 ) + 'дн.' )
+        Endif
+        Exit
+      Endif
+    Endif
+  Next
+  Return lperiod
+
+// 05.10.25
+Function add_pediatr_DDS( _pv, _pa, _date, _diag, mpol, mdef_diagnoz, mobil, tip_lu )
+
+  Local arr[ 10 ]
+
+  Default mobil To 0
+  default tip_lu to TIP_LU_DDSOP
+
+  AFill( arr, 0 )
+  p2->( dbSeek( Str( _pv, 5 ) ) )
+  If p2->( Found() )
+    arr[ 1 ] := p2->kod
+    arr[ 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
+  Endif
+  If !Empty( _pa )
+    p2->( dbSeek( Str( _pa, 5 ) ) ) // find ( Str( _pa, 5 ) )
+    If p2->( Found() )
+      arr[ 3 ] := p2->kod
+    Endif
+  Endif
+  arr[ 4 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), 57, 68 ) // профиль
+  If _date >= 0d20250901
+    If mobil == 0
+      if tip_lu == TIP_LU_DDSOP
+        arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '70.6.100', '70.6.100' ) // шифр услуги
+      else
+        arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '70.5.100', '70.5.100' ) // шифр услуги
+      endif
+    Else
+      if tip_lu == TIP_LU_DDSOP
+        arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '70.6.110', '70.6.110' ) // шифр услуги
+      else
+        arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '70.5.110', '70.5.110' ) // шифр услуги
+      endif
+    Endif
+  Else
+    arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.85.15', '2.85.14' ) // шифр услуги
+  Endif
+  If Empty( _diag ) .or. Left( _diag, 1 ) == 'Z'
+    arr[ 6 ] := mdef_diagnoz
+  Else
+    arr[ 6 ] := _diag
+    // Select MKB_10
+    mkb_10->( dbSeek( PadR( arr[ 6 ], 6 ) ) )  // find ( PadR( arr[ 6 ], 6 ) )
+    If mkb_10->( Found() ) .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
+      func_error( 4, 'Несовместимость диагноза по полу ' + arr[ 6 ] )
+    Endif
+  Endif
+  arr[ 9 ] := _date
+  Return arr
