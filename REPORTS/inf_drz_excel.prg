@@ -6,7 +6,7 @@
 
 Static lcount_uch  := 1
 
-// 12.10.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 14.10.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas_rez_M  )
 
   Local workbook, worksheet, ws2511, ws2517, wsFemale, wsMan   // , analiz
@@ -695,7 +695,7 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
 
     form_text_add := fmt_excel_hL_vC_wrap( workbook )
     format_set_font_size( form_text_add, 9 )
-    format_set_bg_color( form_text_add, 0xcd66cd )
+    format_set_bg_color( form_text_add, 0xf3f6f4 )
     format_set_border( form_text_add, LXW_BORDER_NONE )
 
     form_text_add1 := fmt_excel_hR_vC_wrap( workbook )
@@ -704,10 +704,11 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
 
     form_text_add2 := fmt_excel_hR_vC_wrap( workbook )
     format_set_font_size( form_text_add2, 9 )
-    format_set_bg_color( form_text_add2, 0xcdcdcd )
+    format_set_bg_color( form_text_add2, 0xeeeeff )
     format_set_border( form_text_add2, LXW_BORDER_NONE )
 
     wsFemale := workbook_add_worksheet( workbook,  'Женщины' )
+    worksheet_set_tab_color( wsFemale, 0xd0e0e3 )
     worksheet_set_column( wsFemale, 0, 0, 61.2 )
     worksheet_set_column( wsFemale, 1, 1, 61.2 )
     worksheet_set_column( wsFemale, 2, 2, 11 )
@@ -890,6 +891,7 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsFemale, 77, 2, lstr(mas_rez_w[68]), form_text_add2 )
 
     wsMan := workbook_add_worksheet( workbook,  'Мужчины' )
+    worksheet_set_tab_color( wsMan, 0xd9ead3 ) 
     worksheet_set_column( wsMan, 0, 0, 61.2 )
     worksheet_set_column( wsMan, 1, 1, 61.2 )
     worksheet_set_column( wsMan, 2, 2, 11 )

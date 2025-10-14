@@ -8,7 +8,7 @@
 
 Static lcount_uch  := 1
 
-// 12.10.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 14.10.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz()
 
   Local arr_m, buf := save_maxrow()
@@ -31,15 +31,42 @@ Function inf_drz()
   local M_mas2 := { "Е66", "A56.1", "А59", "А54", "A63.8", "A63.0", "N41.1", "N45", "B26", "E10"}  //10
 
   local W_mas11 := {0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0}, W_mas13 := {0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0}
+//  local W_mas11, W_mas13
   Local W_mas12 := {0,0,0,0,0,0,0,0,0,0,0,0,0},  W_mas14 := {0,0,0,0,0,0,0,0,0,0,0,0,0}
+//  Local W_mas12,  W_mas14
   local M_mas11 := {0,0,0,0},  M_mas13 := {0,0,0,0}  
+//  local M_mas11, M_mas13
   Local M_mas12 := {0,0,0,0,0,0,0,0,0,0},  M_mas14 := {0,0,0,0,0,0,0,0,0,0} 
-  Local MM_mas[28], WW_mas[70] //diapazon := {}
-  local xxx, d1, d2, t_human := 0, flag_t_human := .F., mas_d_human := {"","","",""} 
+//  Local M_mas12,  M_mas14
+  Local MM_mas[ 28 ], WW_mas[ 70 ] //diapazon := {}
+  local xxx, d1, d2, t_human := 0, flag_t_human := .F., mas_d_human := { '', '', '', '' }
+  local sk
 
   Default sdate To sys_date
   Default sdate1 To sys_date
 
+  mywait( 'Составление отчета. Пожалуйста подождите...' )
+/*
+  W_mas11 := Array( 21 )
+  AFill( W_mas11, 0 )
+  W_mas13 := Array( 21 )
+  AFill( W_mas13, 0 )
+
+  W_mas12 := Array( 13 )
+  AFill( W_mas12, 0 )
+  W_mas14 := Array( 13 )
+  AFill( W_mas13, 0 )
+  
+  M_mas11 := Array( 4 )
+  AFill( M_mas11, 0 )
+  M_mas13 := Array( 4 )
+  AFill( M_mas13, 0 )
+
+  M_mas12 := Array( 10 )
+  AFill( M_mas12, 0 )
+  M_mas14 := Array( 10 )
+  AFill( M_mas14, 0 )
+*/
   //
   For i := 1 To 5 // создадим приватные переменные для выявленных диагнозов
     sk := lstr( i )
