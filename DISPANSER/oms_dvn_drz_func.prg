@@ -8,13 +8,13 @@
 
 Static lcount_uch  := 1
 
-// 09.04.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 12.10.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz()
 
   Local arr_m, buf := save_maxrow()
   Local name_file := 'Диспансеризация репродуктивного здоровья'
   Local arr, i, arr_1
-  Local name_file_full := name_file + '.xlsx'
+  Local name_file_full := name_file + '.xlsx' 
   Local lCity := .f., lPatologiya := .f.
   Local beginPeriod
   Local sdate1, sdate, blk
@@ -22,8 +22,24 @@ Function inf_drz()
   Local is_weekend
   Local fl_d_full := .t.,   fl_d_city := .t.,  fl_d_full_1 := .t.,   fl_d_city_1 := .t.
 
+  local W_mas1 := { "D25", "Е28", "N70-N73", "N76", "N80", "N81", "N84.0",;
+                    "N85.0-N85.1", "N86", "N87", "С53", "N91-N94", "N96", "N97",;
+                    "Q50-Q52", "N60", "С50", "A55-A56", "A54", "A63.8", "A59"} //21 
+  local W_mas2 := { "E43-E44", "R63.5", "Е66", "Z72.0", "Z57", "Z72.1", "Z72.2",;  
+                    "E00-E07", "E10-E14", "Е22.1", "Е25", "L68.0", "I10-I15"} //13   
+  local M_mas1 := { "N46", "E29.1", "I86.1", "N44" } //4
+  local M_mas2 := { "Е66", "A56.1", "А59", "А54", "A63.8", "A63.0", "N41.1", "N45", "B26", "E10"}  //10
+
+  local W_mas11 := {0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0}, W_mas13 := {0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0}
+  Local W_mas12 := {0,0,0,0,0,0,0,0,0,0,0,0,0},  W_mas14 := {0,0,0,0,0,0,0,0,0,0,0,0,0}
+  local M_mas11 := {0,0,0,0},  M_mas13 := {0,0,0,0}  
+  Local M_mas12 := {0,0,0,0,0,0,0,0,0,0},  M_mas14 := {0,0,0,0,0,0,0,0,0,0} 
+  Local MM_mas[28], WW_mas[70] //diapazon := {}
+  local xxx, d1, d2, t_human := 0, flag_t_human := .F., mas_d_human := {"","","",""} 
+
   Default sdate To sys_date
   Default sdate1 To sys_date
+
   //
   For i := 1 To 5 // создадим приватные переменные для выявленных диагнозов
     sk := lstr( i )
@@ -46,6 +62,7 @@ Function inf_drz()
   Else
     arr_m := year_month( T_ROW, T_COL - 5, , 1 )
   Endif
+  //mywaite()
   If  arr_m != NIL
     // arr[1, ...]-мужчины, arr[2, ...]-мужчины село, arr[3, ...]-женщины, arr[4, ...]-женщины село
     // arr[..., 12]- в выходные и праздничные дни
@@ -83,10 +100,14 @@ Function inf_drz()
     Set Relation To RecNo() into KART_
 
     r_use( dir_server() + 'human_', , 'HUMAN_' )
-    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
+   // r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' ) //не подходит
+    r_use( dir_server() + 'human', , 'HUMAN' ) 
+    index on str(kod_k,7)+str(human->ishod,3) to tmp_dr for year(k_data) == 2025
+
     Set Relation To RecNo() into HUMAN_
-    dbSeek( DToS( beginPeriod ), .t. )
-    Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
+    //dbSeek( DToS( beginPeriod ), .t. )
+    go top
+    Do While !eof()   //human->k_data <= arr_m[ 6 ] .and. !Eof()
       m1nazn_l  := 0
       m1dopo_na := 0
       m1ssh_na  := 0
@@ -114,18 +135,66 @@ Function inf_drz()
           &pole_1dispans := 0
           &pole_1pervich := 0
         Next
+        //mydebug(,human->fio)
         read_arr_drz( human->kod, .t. )
+        if t_human != human->kod_k
+          t_human := human->kod_k
+          flag_t_human := .T.
+          mas_d_human := {"","","",""} 
+        else
+          flag_t_human := .F.           
+        endif   
         If human->pol == 'М'
-          If human->ishod - BASE_ISHOD_RZD != 2  // не второй этап
-            fl_d_full := .t.
-            fl_d_city := .t.
-            fl_d_full_1 := .t. // впервые всего
-            fl_d_city_1 := .t. // впервые не город - правка ГОРОД
+           // массив 1 и 3
+            // мужчины
             For iii := 1 To 4
               pole_diag := 'mdiag' + lstr( iii )
               pole_1pervich := 'm1pervich' + lstr( iii )
               pole_1dispans := 'm1dispans' + lstr( iii )
+              // Проверка на наличее ранее установленных диагнозов.
+              If !Empty( &pole_diag ) //.and.  AScan( mas_d_human, &pole_diag  ) > 0 .and. human->ishod - BASE_ISHOD_RZD == 2 
+                 // мужчины + второй этап + Не повторяемый диагноз
+                for xxx := 1 to 4
+                  lll := len(alltrim(M_mas1[xxx]))   
+                  if padr(&pole_diag ,lll) == padr(M_mas1[xxx] ,lll)
+                    //mydebug(,"ОК            ")
+                     mdvozrast := Year( human->n_data ) - Year( human->date_r )
+                     if mdvozrast > 29 
+                       M_mas13[xxx] := M_mas13[xxx] +1
+                     else
+                       M_mas11[xxx] := M_mas11[xxx] +1
+                     endif 
+                  endif 
+                next
+              endif
+            next  
+          If human->ishod - BASE_ISHOD_RZD != 2  // не второй этап
+            // мыссив 2 и 4
+            fl_d_full := .t.
+            fl_d_city := .t.
+            fl_d_full_1 := .t. // впервые всего
+            fl_d_city_1 := .t. // впервые не город - правка ГОРОД 
+            For iii := 1 To 4
+              pole_diag := 'mdiag' + lstr( iii )
+              pole_1pervich := 'm1pervich' + lstr( iii )
+              pole_1dispans := 'm1dispans' + lstr( iii )
+              // Превый этап и НОВЫЙ пациент
               If !Empty( &pole_diag )
+                 // мужчины
+                // if flag_t_human 
+                //   mas_d_human[iii] :=  &pole_diag
+                // endif
+                 for xxx := 1 to 10
+                   lll := len(alltrim(M_mas2[xxx]))   
+                   if padr(&pole_diag ,lll) == padr(M_mas2[xxx] ,lll)
+                     mdvozrast := Year( human->n_data ) - Year( human->date_r )
+                     if mdvozrast > 29 
+                       M_mas14[xxx] := M_mas14[xxx] +1
+                     else
+                       M_mas12[xxx] := M_mas12[xxx] +1
+                     endif 
+                   endif 
+                 next
                 if &pole_1dispans > 0 // состот на ДН
                   arr[ 1, 18 ]++
                   if &pole_1pervich == 1 // впервые
@@ -224,6 +293,48 @@ Function inf_drz()
             Endif
           Endif
         Else  // женщины
+          //mydebug(,human->fio)
+          For iii := 1 To 4
+            pole_diag := 'mdiag' + lstr( iii )
+            pole_1pervich := 'm1pervich' + lstr( iii )
+            pole_1dispans := 'm1dispans' + lstr( iii )
+            If !Empty( &pole_diag ) //.and. human->ishod - BASE_ISHOD_RZD == 2 
+                // Ж + второй этап + Не повторяемый диагноз
+              for xxx := 1 to 21
+                lll := len(alltrim(W_mas1[xxx]))   
+                if lll > 5
+                  // проверка на ПЕРВИЧНОСТЬ диагноза
+                  if (&pole_1pervich) == 1
+                    d1 := Token( W_mas1[xxx], "-", 1 )
+                    d2 := Token( W_mas1[xxx], "-", 2 )
+                    d1 := diag_to_num( d1, 1 )
+                    d2 := diag_to_num( d2, 2 )  
+                    d00 := diag_to_num( &pole_diag,1 )
+                    if d00 >= d1 .and. d00 <= d2
+                      mdvozrast := Year( human->n_data ) - Year( human->date_r )
+                      if mdvozrast > 29 
+                        W_mas13[xxx] := W_mas13[xxx] +1
+                      else
+                        W_mas11[xxx] := W_mas11[xxx] +1
+                      endif 
+                    endif
+                  endif  
+                else  
+                  // проверка на ПЕРВИЧНОСТЬ диагноза
+                  if (&pole_1pervich) == 1
+                    if padr(&pole_diag ,lll) == padr(W_mas1[xxx] ,lll)
+                      mdvozrast := Year( human->n_data ) - Year( human->date_r )
+                      if mdvozrast > 29 
+                        W_mas13[xxx] := W_mas13[xxx] +1
+                      else
+                        W_mas11[xxx] := W_mas11[xxx] +1
+                      endif 
+                    endif 
+                  endif  
+                endif  
+              next
+            endif  
+          next
           If human->ishod - BASE_ISHOD_RZD != 2  // не второй этап
             fl_d_full := .t.
             fl_d_city := .t.
@@ -234,6 +345,42 @@ Function inf_drz()
               pole_1pervich := 'm1pervich' + lstr( iii )
               pole_1dispans := 'm1dispans' + lstr( iii )
               If !Empty( &pole_diag )
+                for xxx := 1 to 13
+                  lll := len(alltrim(W_mas2[xxx]))   
+                  if lll > 5
+                    // проверка на ПЕРВИЧНОСТЬ диагноза
+                    if (&pole_1pervich) == 1
+                      //if flag_t_human 
+                      //  mas_d_human[iii] :=  &pole_diag
+                      //endif
+                      d1 := Token( W_mas2[xxx], "-", 1 )
+                      d2 := Token( W_mas2[xxx], "-", 2 )
+                      d1 := diag_to_num( d1, 1 )
+                      d2 := diag_to_num( d2, 2 )  
+                      d00 := diag_to_num(alltrim(&pole_diag),1 )
+                      if d00 >= d1 .and. d00 <= d2
+                        mdvozrast := Year( human->n_data ) - Year( human->date_r )
+                        if mdvozrast > 29 
+                          W_mas14[xxx] := W_mas14[xxx] +1
+                        else
+                          W_mas12[xxx] := W_mas12[xxx] +1
+                        endif 
+                      endif  
+                    endif
+                  else  
+                    // проверка на ПЕРВИЧНОСТЬ диагноза
+                    if (&pole_1pervich) == 1
+                      if padr(&pole_diag ,lll) == padr(W_mas2[xxx] ,lll)
+                        mdvozrast := Year( human->n_data ) - Year( human->date_r )
+                        if mdvozrast > 29 
+                          W_mas14[xxx] := W_mas14[xxx] +1
+                        else
+                          W_mas12[xxx] := W_mas12[xxx] +1
+                        endif 
+                      endif 
+                    endif  
+                  endif  
+                next
                 if &pole_1dispans > 0 // состот на ДН
                   arr[ 3, 18 ]++
                   if &pole_1pervich == 1 // впервые
@@ -406,7 +553,18 @@ Function inf_drz()
       Skip
     Enddo
     dbCloseAll()
-    inf_drz_excel( hb_OEMToANSI( name_file_full ), arr_m, arr, arr_1, lcount_uch )
+    //
+    acopy(M_mas11,MM_mas)
+    acopy(M_mas12,MM_mas,,,5)
+    acopy(M_mas13,MM_mas,,,15)
+    acopy(M_mas14,MM_mas,,,19)
+    //
+    acopy(W_mas11,WW_mas)
+    acopy(W_mas12,WW_mas,,,22)
+    acopy(W_mas13,WW_mas,,,35)
+    acopy(W_mas14,WW_mas,,,56)
+   //
+    inf_drz_excel( hb_OEMToANSI( name_file_full ), arr_m, arr, arr_1, lcount_uch, WW_mas, MM_mas )
     work_with_excel_file( name_file_full )
   Endif
 
