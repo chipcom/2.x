@@ -755,27 +755,32 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsFemale, 29, 1, 'А63.8. Урогенитальные заболевания, вызванные Mycoplasma genitalium', form_text_add )
     worksheet_write_string( wsFemale, 30, 1, 'А59 Трихомониаз', form_text_add )
 
-    worksheet_write_string( wsFemale, 10, 2, lstr(mas_rez_w[1]), form_text_add2 )
-    worksheet_write_string( wsFemale, 11, 2, lstr(mas_rez_w[2]), form_text_add2 )
-    worksheet_write_string( wsFemale, 12, 2, lstr(mas_rez_w[3]), form_text_add2 )
-    worksheet_write_string( wsFemale, 13, 2, lstr(mas_rez_w[4]), form_text_add2 )
-    worksheet_write_string( wsFemale, 14, 2, lstr(mas_rez_w[5]), form_text_add2 )
-    worksheet_write_string( wsFemale, 15, 2, lstr(mas_rez_w[6]), form_text_add2 )
-    worksheet_write_string( wsFemale, 16, 2, lstr(mas_rez_w[7]), form_text_add2 )
-    worksheet_write_string( wsFemale, 17, 2, lstr(mas_rez_w[8]), form_text_add2 )
-    worksheet_write_string( wsFemale, 18, 2, lstr(mas_rez_w[9]), form_text_add2 )
-    worksheet_write_string( wsFemale, 19, 2, lstr(mas_rez_w[10]), form_text_add2 )
-    worksheet_write_string( wsFemale, 20, 2, lstr(mas_rez_w[11]), form_text_add2 )
-    worksheet_write_string( wsFemale, 21, 2, lstr(mas_rez_w[12]), form_text_add2 )
-    worksheet_write_string( wsFemale, 22, 2, lstr(mas_rez_w[13]), form_text_add2 )
-    worksheet_write_string( wsFemale, 23, 2, lstr(mas_rez_w[14]), form_text_add2 )
-    worksheet_write_string( wsFemale, 24, 2, lstr(mas_rez_w[15]), form_text_add2 )
-    worksheet_write_string( wsFemale, 25, 2, lstr(mas_rez_w[16]), form_text_add2 )
-    worksheet_write_string( wsFemale, 26, 2, lstr(mas_rez_w[17]), form_text_add2 )
-    worksheet_write_string( wsFemale, 27, 2, lstr(mas_rez_w[18]), form_text_add2 )
-    worksheet_write_string( wsFemale, 28, 2, lstr(mas_rez_w[19]), form_text_add2 )
-    worksheet_write_string( wsFemale, 29, 2, lstr(mas_rez_w[20]), form_text_add2 )
-    worksheet_write_string( wsFemale, 30, 2, lstr(mas_rez_w[21]), form_text_add2 )
+    for i := 1 to 21
+      worksheet_write_number( wsFemale, i + 9, 2, mas_rez_w[ i ], form_text_add2 )
+    next
+/*
+    worksheet_write_number( wsFemale, 10, 2, mas_rez_w[ 1 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 11, 2, mas_rez_w[ 2 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 12, 2, mas_rez_w[ 3 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 13, 2, mas_rez_w[ 4 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 14, 2, mas_rez_w[ 5 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 15, 2, mas_rez_w[ 6 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 16, 2, mas_rez_w[ 7 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 17, 2, mas_rez_w[ 8 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 18, 2, mas_rez_w[ 9 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 19, 2, mas_rez_w[ 10 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 20, 2, mas_rez_w[ 11 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 21, 2, mas_rez_w[ 12 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 22, 2, mas_rez_w[ 13 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 23, 2, mas_rez_w[ 14 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 24, 2, mas_rez_w[ 15 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 25, 2, mas_rez_w[ 16 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 26, 2, mas_rez_w[ 17 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 27, 2, mas_rez_w[ 18 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 28, 2, mas_rez_w[ 19 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 29, 2, mas_rez_w[ 20 ], form_text_add2 )
+    worksheet_write_number( wsFemale, 30, 2, mas_rez_w[ 21 ], form_text_add2 )
+*/
 
     worksheet_write_string( wsFemale, 31, 0, 'Число женщин 18-29 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го диспансеризациия и общей диспансеризации', form_text_add )
     for i := 32 to 43
@@ -795,6 +800,10 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsFemale, 42, 1, 'L68.0 гирсутизм', form_text_add )
     worksheet_write_string( wsFemale, 43, 1, 'I10-I15 болезни, характеризующиеся повышенным кровяным давлением', form_text_add )
 
+    for i := 22 to 34
+      worksheet_write_number( wsFemale, i + 9, 2, mas_rez_w[ i ], form_text_add2 )
+    next
+/*
     worksheet_write_string( wsFemale, 31, 2, lstr(mas_rez_w[22]), form_text_add2 )
     worksheet_write_string( wsFemale, 32, 2, lstr(mas_rez_w[23]), form_text_add2 )
     worksheet_write_string( wsFemale, 33, 2, lstr(mas_rez_w[24]), form_text_add2 )
@@ -808,7 +817,7 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsFemale, 41, 2, lstr(mas_rez_w[32]), form_text_add2 )
     worksheet_write_string( wsFemale, 42, 2, lstr(mas_rez_w[33]), form_text_add2 )
     worksheet_write_string( wsFemale, 43, 2, lstr(mas_rez_w[34]), form_text_add2 )
-
+*/
     worksheet_write_string( wsFemale, 44, 0, 'Число женщин 30-49 лет с выявленными заболеваниями репродуктивной системы по кодам МКБ-10 по результатам 1-го и 2-го этапа диспансеризациия', form_text_add )
     for i := 45 to 64
       worksheet_write_string( wsFemale, i, 0, '', form_text_add )
@@ -835,6 +844,10 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsFemale, 63, 1, 'А63.8. Урогенитальные заболевания, вызванные Mycoplasma genitalium', form_text_add )
     worksheet_write_string( wsFemale, 64, 1, 'А59 Трихомониаз', form_text_add )
 
+    for i := 35 to 55
+      worksheet_write_number( wsFemale, i + 9, 2, mas_rez_w[ i ], form_text_add2 )
+    next
+/*
     worksheet_write_string( wsFemale, 44, 2, lstr(mas_rez_w[35]), form_text_add2 )
     worksheet_write_string( wsFemale, 45, 2, lstr(mas_rez_w[36]), form_text_add2 )
     worksheet_write_string( wsFemale, 46, 2, lstr(mas_rez_w[37]), form_text_add2 )
@@ -856,7 +869,7 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsFemale, 62, 2, lstr(mas_rez_w[53]), form_text_add2 )
     worksheet_write_string( wsFemale, 63, 2, lstr(mas_rez_w[54]), form_text_add2 )
     worksheet_write_string( wsFemale, 64, 2, lstr(mas_rez_w[55]), form_text_add2 )
-
+*/
 
     worksheet_write_string( wsFemale, 65, 0, 'Число женщин 30-49 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го диспансеризациия и общей диспансеризации', form_text_add )
     for i := 66 to 77
@@ -876,6 +889,10 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsFemale, 76, 1, 'L68.0 гирсутизм', form_text_add )
     worksheet_write_string( wsFemale, 77, 1, 'I10-I15 болезни, характеризующиеся повышенным кровяным давлением', form_text_add )
 
+    for i := 56 to 68
+      worksheet_write_number( wsFemale, i + 9, 2, mas_rez_w[ i ], form_text_add2 )
+    next
+/*
     worksheet_write_string( wsFemale, 65, 2, lstr(mas_rez_w[56]), form_text_add2 )
     worksheet_write_string( wsFemale, 66, 2, lstr(mas_rez_w[57]), form_text_add2 )
     worksheet_write_string( wsFemale, 67, 2, lstr(mas_rez_w[58]), form_text_add2 )
@@ -889,7 +906,7 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsFemale, 75, 2, lstr(mas_rez_w[66]), form_text_add2 )
     worksheet_write_string( wsFemale, 76, 2, lstr(mas_rez_w[67]), form_text_add2 )
     worksheet_write_string( wsFemale, 77, 2, lstr(mas_rez_w[68]), form_text_add2 )
-
+*/
     wsMan := workbook_add_worksheet( workbook,  'Мужчины' )
     worksheet_set_tab_color( wsMan, 0xd9ead3 ) 
     worksheet_set_column( wsMan, 0, 0, 61.2 )
@@ -920,11 +937,15 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsMan, 11, 1, 'I86.1 Варикоцеле', form_text_add )
     worksheet_write_string( wsMan, 12, 1, 'N44 Перекрут яичка', form_text_add )
 
+    for i := 1 to 4
+      worksheet_write_number( wsMan, i + 8, 2, mas_rez_w[ i ], form_text_add2 )
+    next
+/*
     worksheet_write_string( wsMan, 9, 2,  lstr(mas_rez_m[1]), form_text_add2 )
     worksheet_write_string( wsMan, 10, 2, lstr(mas_rez_m[2]), form_text_add2 )
     worksheet_write_string( wsMan, 11, 2, lstr(mas_rez_m[3]), form_text_add2 )
     worksheet_write_string( wsMan, 12, 2, lstr(mas_rez_m[4]), form_text_add2 )
-
+*/
     worksheet_write_string( wsMan, 13, 0, 'Число мужячин 18-29 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го этапа диспансеризации и общей диспансеризации, всего', form_text_add )
     for i := 14 to 22
       worksheet_write_string( wsMan, i, 0, '', form_text_add )
@@ -940,6 +961,10 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsMan, 21, 1, 'B26 Эпидемический паротит', form_text_add )
     worksheet_write_string( wsMan, 22, 1, 'E10 Сахарный диабет 1 типа', form_text_add )
 
+    for i := 5 to 14
+      worksheet_write_number( wsMan, i + 8, 2, mas_rez_w[ i ], form_text_add2 )
+    next
+/*
     worksheet_write_string( wsMan, 13, 2, lstr(mas_rez_m[5]), form_text_add2 )
     worksheet_write_string( wsMan, 14, 2, lstr(mas_rez_m[6]), form_text_add2 )
     worksheet_write_string( wsMan, 15, 2, lstr(mas_rez_m[7]), form_text_add2 )
@@ -950,7 +975,7 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsMan, 20, 2, lstr(mas_rez_m[12]), form_text_add2 )
     worksheet_write_string( wsMan, 21, 2, lstr(mas_rez_m[13]), form_text_add2 )
     worksheet_write_string( wsMan, 22, 2, lstr(mas_rez_m[14]), form_text_add2 )
-
+*/
 
     worksheet_write_string( wsMan, 23, 0, 'Число мужчин 30-49 лет с выявленными заболеваниями репродуктивной системы по кодам МКБ-10 по результатам 1-го и 2-го этапов диспансеризации, всего', form_text_add )
     for i := 24 to 26
@@ -961,11 +986,15 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsMan, 25, 1, 'I86.1 Варикоцеле', form_text_add )
     worksheet_write_string( wsMan, 26, 1, 'N44 Перекрут яичка', form_text_add )
 
+    for i := 15 to 18
+      worksheet_write_number( wsMan, i + 8, 2, mas_rez_w[ i ], form_text_add2 )
+    next
+/*
     worksheet_write_string( wsMan, 23, 2, lstr(mas_rez_m[15]), form_text_add2 )
     worksheet_write_string( wsMan, 24, 2, lstr(mas_rez_m[16]), form_text_add2 )
     worksheet_write_string( wsMan, 25, 2, lstr(mas_rez_m[17]), form_text_add2 )
     worksheet_write_string( wsMan, 26, 2, lstr(mas_rez_m[18]), form_text_add2 )
-
+*/
     worksheet_write_string( wsMan, 27, 0, 'Число мужчин 30-49 лет с выявленными факторами риска нарушения репродуктивной системы по кодам МКБ-10 по результатам 1-го этапа диспансеризации и общей диспансеризации, всего', form_text_add )
     for i := 28 to 36
       worksheet_write_string( wsMan, i, 0, '', form_text_add )
@@ -981,6 +1010,10 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsMan, 35, 1, 'B26 Эпидемический паротит', form_text_add )
     worksheet_write_string( wsMan, 36, 1, 'E10 Сахарный диабет 1 типа', form_text_add )
 
+    for i := 19 to 28
+      worksheet_write_number( wsMan, i + 8, 2, mas_rez_w[ i ], form_text_add2 )
+    next
+/*
     worksheet_write_string( wsMan, 27, 2, lstr(mas_rez_m[19]), form_text_add2 )
     worksheet_write_string( wsMan, 28, 2, lstr(mas_rez_m[20]), form_text_add2 )
     worksheet_write_string( wsMan, 29, 2, lstr(mas_rez_m[21]), form_text_add2 )
@@ -991,7 +1024,7 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
     worksheet_write_string( wsMan, 34, 2, lstr(mas_rez_m[26]), form_text_add2 )
     worksheet_write_string( wsMan, 35, 2, lstr(mas_rez_m[27]), form_text_add2 )
     worksheet_write_string( wsMan, 36, 2, lstr(mas_rez_m[28]), form_text_add2 )
-
+*/
     workbook_close( workbook )
 
   Endif
