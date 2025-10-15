@@ -15,6 +15,7 @@ Function create_reestr()
 
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
   local arrKolSl
+  local adbf
 
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, err_admin() )
