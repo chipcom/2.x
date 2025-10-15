@@ -319,7 +319,7 @@ Function fget_spec_deti( k, r, c, a_spec )
   Select ( tmp_select )
   Return { 1, s }
 
-// 21.09.25
+// 15.10.25
 Function save_arr_pn( lkod, mdata )
 
   Local arr := {}, k, ta
@@ -358,6 +358,14 @@ Function save_arr_pn( lkod, mdata )
     AAdd( arr, { '13.1.2', m1psih12 } )  // 'N1',моторная функция (возраст развития)
     AAdd( arr, { '13.1.3', m1psih13 } )  // 'N1',эмоциональная и социальная (контакт с окружающим миром) функции (возраст развития)
     AAdd( arr, { '13.1.4', m1psih14 } )  // 'N1',предречевое и речевое развитие (возраст развития)
+    AAdd( arr, { '13.1.5', m1psih24 } )  //
+    AAdd( arr, { '13.1.6', m1psih25 } )  //
+    AAdd( arr, { '13.1.7', m1psih26 } )  //
+    AAdd( arr, { '13.1.8', m1psih27 } )  //
+    AAdd( arr, { '13.1.9', m1psih28 } )  //
+    AAdd( arr, { '13.1.10', m1psih29 } )  //
+    AAdd( arr, { '13.1.11', m1psih30 } )  //
+    AAdd( arr, { '13.1.12', m1psih31 } )  //
   Else
     AAdd( arr, { '13.2.1', m1psih21 } )  // 'N1',Психомоторная сфера: (норма, отклонение)
     AAdd( arr, { '13.2.2', m1psih22 } )  // 'N1',Интеллект: (норма, отклонение)
@@ -572,7 +580,7 @@ Function save_arr_pn( lkod, mdata )
   save_arr_dispans( lkod, arr )
   Return Nil
 
-// 28.09.25
+// 15.10.25
 Function read_arr_pn( lkod, is_all, mdata )
 
   Local arr, i, k
@@ -625,6 +633,22 @@ Function read_arr_pn( lkod, is_all, mdata )
           m1psih13 := arr[ i, 2 ]
         Case arr[ i, 1 ] == '13.1.4' .and. ValType( arr[ i, 2 ] ) == 'N'
           m1psih14 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.5' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih24 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.6' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih25 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.7' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih26 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.8' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih27 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.9' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih28 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.10' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih29 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.11' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih30 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.1.12' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih31 := arr[ i, 2 ]
         Case arr[ i, 1 ] == '13.2.1' .and. ValType( arr[ i, 2 ] ) == 'N'
           m1psih21 := arr[ i, 2 ]
         Case arr[ i, 1 ] == '13.2.2' .and. ValType( arr[ i, 2 ] ) == 'N'

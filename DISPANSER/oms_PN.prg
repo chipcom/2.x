@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.10.25 ПН - добавление или редактирование случая (листа учета)
+// 15.10.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -102,6 +102,16 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     mpsih21, m1psih21 := 0, ;  // Психомоторная сфера: (норма, отклонение)
     mpsih22, m1psih22 := 0, ;  // Интеллект: (норма, отклонение)
     mpsih23, m1psih23 := 0, ;  // Эмоционально-вегетативная сфера: (норма, отклонение)
+    ;
+    mpsih24, m1psih24 := 0, ;  // нарушение когнитивных функций
+    mpsih25, m1psih25 := 0, ;  // нарушение учебных навыков
+    mpsih26, m1psih26 := 0, ;  // эмоциональные нарушения
+    mpsih27, m1psih27 := 0, ;  // предречевое развитие
+    mpsih28, m1psih28 := 0, ;  // понимание речи
+    mpsih29, m1psih29 := 0, ;  // активная речь
+    mpsih30, m1psih30 := 0, ;  // нарушение коммуникативных навыков
+    mpsih31, m1psih31 := 0, ;  // сенсорное развитие
+    ;
     m141p   := 0, ; // Половая формула мальчика P
     m141ax  := 0, ; // Половая формула мальчика Ax
     m141fa  := 0, ; // Половая формула мальчика Fa
@@ -643,6 +653,16 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   mpsih21 := inieditspr( A__MENUVERT, mm_psih2(), m1psih21 )
   mpsih22 := inieditspr( A__MENUVERT, mm_psih2(), m1psih22 )
   mpsih23 := inieditspr( A__MENUVERT, mm_psih2(), m1psih23 )
+
+  mpsih24 := inieditspr( A__MENUVERT, mm_danet(), m1psih24 )
+  mpsih25 := inieditspr( A__MENUVERT, mm_danet(), m1psih25 )
+  mpsih26 := inieditspr( A__MENUVERT, mm_danet(), m1psih26 )
+  mpsih27 := inieditspr( A__MENUVERT, mm_activ(), m1psih27 )
+  mpsih28 := inieditspr( A__MENUVERT, mm_partial(), m1psih28 )
+  mpsih29 := inieditspr( A__MENUVERT, mm_used(), m1psih29 )
+  mpsih30 := inieditspr( A__MENUVERT, mm_danet(), m1psih30 )
+  mpsih31 := inieditspr( A__MENUVERT, mm_sensor(), m1psih31 )
+  
   m142me3 := inieditspr( A__MENUVERT, mm_142me3(), m1142me3 )
   m142me4 := inieditspr( A__MENUVERT, mm_142me4(), m1142me4 )
   m142me5 := inieditspr( A__MENUVERT, mm_142me5(), m1142me5 )
@@ -939,20 +959,34 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       @ j, 51 Get MDATEp2 When m1step2 == 1
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 2-ю страницу ^<PgDn>^ на 4-ю страницу' )
     Elseif num_screen == 4
-      If mdvozrast < 5 // если меньше 5 лет
-        @ ++j, 1 Say PadC( 'Оценка психического развития (возраст развития):', 78, '_' )
+      @ ++j, 1 Say PadC( 'Оценка психического развития ' + iif( mdvozrast < 5, '(возраст развития):', '' ), 78, '_' )
+      If mdvozrast < 5 .and. mk_data < 0d20250901 // если меньше 5 лет и mk_data < 0d20250901
         @ ++j, 1 Say 'познавательная функция' Get m1psih11 Pict '99'
         @ ++j, 1 Say 'моторная функция      ' Get m1psih12 Pict '99'
         @ --j, 30 Say 'эмоциональная и социальная    ' Get m1psih13 Pict '99'
         @ ++j, 30 Say 'предречевое и речевое развитие' Get m1psih14 Pict '99'
-      Else
-        @ ++j, 1 Say PadC( 'Оценка психического развития:', 78, '_' )
+      elseif mdvozrast >= 5 .and. mk_data < 0d20250901
         @ ++j, 1 Say 'психомоторная сфера' Get mpsih21 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT, , , .f. ) }
         @ ++j, 1 Say 'интеллект          ' Get mpsih22 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT, , , .f. ) }
         @ --j, 40 Say 'эмоц.вегетативная сфера' Get mpsih23 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT, , , .f. ) }
         ++j
+      elseif mdvozrast < 5 .and. mk_data >= 0d20250901
+        @ ++j, 1 Say  'познавательная функция ' Get m1psih11 Pict '99'
+        @ j, 28 Say  'моторная функция ' Get m1psih12 Pict '99'
+        @ j, 50 Say 'речевое развитие    ' Get m1psih14 Pict '99'
+        @ ++j, 1 Say 'нар.когнитивные ф-ции ' Get mpsih24 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
+        @ ++j, 1 Say  'эмоциональные нарушения' Get mpsih26 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
+        @ --j, 40 Say 'нар. учебные навыки   ' Get mpsih25 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
+        @ ++j, 40 Say 'предречевое развитие   ' Get mpsih27 reader {| x| menu_reader( x, mm_activ(), A__MENUVERT, , , .f. ) }
+
+        @ ++j, 1 Say 'понимание речи         ' Get mpsih28 reader {| x| menu_reader( x, mm_partial(), A__MENUVERT, , , .f. ) }
+        @ ++j, 1 Say 'активная речь          ' Get mpsih29 reader {| x| menu_reader( x, mm_used(), A__MENUVERT, , , .f. ) }
+        @ --j, 40 Say 'нар.коммуникатив. нав. ' Get mpsih30 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
+        @ ++j, 40 Say 'сенсорное развитие    ' Get mpsih31 reader {| x| menu_reader( x, mm_sensor(), A__MENUVERT, , , .f. ) }
+
+      elseif mdvozrast >= 5 .and. mk_data >= 0d20250901
       Endif
-      ++j
+//      ++j
       If mpol == 'М'
         @ ++j, 1 Say 'Половая формула мальчика: P' Get m141p Pict '9'
         @ j, Col() Say ', Ax' Get m141ax Pict '9'

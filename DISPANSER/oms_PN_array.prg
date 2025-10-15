@@ -448,6 +448,7 @@ function proverka_otkaza_new( d, arr_otkaz, lshifr )
     lRet := .t.
   endif
   return lRet
+
 function mm_fiz_razv()
   return { { 'нормальное', 0 }, { 'с отклонениями', 1 } }
 
@@ -552,3 +553,43 @@ function mm_privivki1()
   
 function mm_privivki2()
   return { { 'полностью', 1 }, { 'частично', 2 } }
+
+// 15.10.25
+function mm_activ()
+  return { { 'да', 1 }, { 'не активно', 2 }, { 'нет', 0 } }
+
+// 15.10.25
+function mm_partial()
+  return { { 'да', 1 }, { 'частично', 2 }, { 'нет', 0 } }
+
+// 15.10.25
+function mm_used()
+  return { { 'да', 1 }, { 'не пользуется', 2 }, { 'нет', 0 } }
+
+// 15.10.25
+function mm_sensor()
+  return { { 'развито', 1 }, { 'частично развито', 2 }, { 'не развито', 0 } }
+
+// 15.10.25
+function mm_view_obraz()
+  return { { 'опрятен', 1 }, { 'не опрятен', 0 } }
+
+// 15.10.25
+function mm_access()
+  return { { 'да', 1 }, { 'частично доступен', 2 }, { 'нет', 0 } }
+
+// 15.10.25
+function mm_nastr()
+  return { { 'ровный', 1 }, { 'лабильный', 2 }, { 'дисфоричный', 3 }, { 'тревожный', 0 } }
+
+// 15.10.25
+function mm_intelect()
+  return { { 'без особенностей', 0 }, { 'нарущена', 1 } }
+
+// 15.10.25
+function mm_self_harm()
+  return { { 'есть', 0 }, { 'нет', 1 } }
+
+// 15.10.25
+function mm_socium()
+  return { { 'нарушена', 0 }, { 'не нарушена', 1 } }
