@@ -9,8 +9,8 @@
 
 // Static sadiag1
 
-// 05.10.25 работаем по текущей записи
-Function f1_create2reestr19( _nyear, _nmonth )
+// 16.10.25 работаем по текущей записи
+Function f1_create2reestr19( _nyear, p_tip_reestr )
 
   Local i, j, lst, s
   Local locPRVS
