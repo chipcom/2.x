@@ -417,7 +417,7 @@ function elem_reestr_sluch_2025( oXmlDoc, p_tip_reestr, _nyear  )
             mo_add_xml_stroke( oSL, 'DS3', RTrim( mdiagnoz3[ i ] ) )
           Endif
         Next
-        If need_reestr_c_zab( is_oncology, human_->USL_OK, mdiagnoz[ 1 ] ) .or. is_oncology_smp > 0
+        If need_reestr_c_zab_2025( is_oncology, human_->USL_OK, mdiagnoz[ 1 ] ) .or. is_oncology_smp > 0
           If lTypeLUOnkoDisp
 //            mo_add_xml_stroke( oSL, 'C_ZAB', '2' ) //
             mo_add_xml_stroke( oSL, 'C_ZAB', '3' ) // согласно разговора с Антоновой 23.10.24
@@ -1306,3 +1306,16 @@ function is_DISABILITY( p_tip_reestr )
   endif
   return fl_DISABILITY
 
+// 19.08.25 необходимо ли вывести характер заболевания в реестр
+Function need_reestr_c_zab_2025( is_oncology, lUSL_OK, osn_diag )
+
+  Local fl := .f.
+
+  If lUSL_OK < 4
+    If lUSL_OK == 3 .and. !( Left( osn_diag, 1 ) == 'Z' )
+      fl := .t. // условия оказания <амбулаторно> (USL_OK=3) и основной диагноз не из группы Z00-Z99
+    Elseif is_oncology == 2
+      fl := .t. // при установленном ЗНО
+    Endif
+  Endif
+  Return fl
