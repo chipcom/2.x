@@ -319,7 +319,7 @@ Function fget_spec_deti( k, r, c, a_spec )
   Select ( tmp_select )
   Return { 1, s }
 
-// 15.10.25
+// 16.10.25
 Function save_arr_pn( lkod, mdata )
 
   Local arr := {}, k, ta
@@ -370,6 +370,16 @@ Function save_arr_pn( lkod, mdata )
     AAdd( arr, { '13.2.1', m1psih21 } )  // 'N1',Психомоторная сфера: (норма, отклонение)
     AAdd( arr, { '13.2.2', m1psih22 } )  // 'N1',Интеллект: (норма, отклонение)
     AAdd( arr, { '13.2.3', m1psih23 } )  // 'N1',Эмоционально-вегетативная сфера: (норма, отклонение)
+    AAdd( arr, { '13.2.4', m1psih32 } )  // 
+    AAdd( arr, { '13.2.5', m1psih33 } )  // 
+    AAdd( arr, { '13.2.6', m1psih34 } )  // 
+    AAdd( arr, { '13.2.7', m1psih35 } )  // 
+    AAdd( arr, { '13.2.8', m1psih36 } )  // 
+    AAdd( arr, { '13.2.9', m1psih37 } )  // 
+    AAdd( arr, { '13.2.10', m1psih38 } )  // 
+    AAdd( arr, { '13.2.11', m1psih39 } )  // 
+    AAdd( arr, { '13.2.12', m1psih40 } )  // 
+    AAdd( arr, { '13.2.13', m1psih41 } )  // 
   Endif
   If mpol == 'М'
     AAdd( arr, { '14.1.P', m141p } )     // 'N1',Половая формула мальчика
@@ -580,7 +590,7 @@ Function save_arr_pn( lkod, mdata )
   save_arr_dispans( lkod, arr )
   Return Nil
 
-// 15.10.25
+// 16.10.25
 Function read_arr_pn( lkod, is_all, mdata )
 
   Local arr, i, k
@@ -655,6 +665,28 @@ Function read_arr_pn( lkod, is_all, mdata )
           m1psih22 := arr[ i, 2 ]
         Case arr[ i, 1 ] == '13.2.3' .and. ValType( arr[ i, 2 ] ) == 'N'
           m1psih23 := arr[ i, 2 ]
+
+        Case arr[ i, 1 ] == '13.2.4' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih32 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.5' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih33 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.6' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih34 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.7' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih35 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.8' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih36 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.9' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih37 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.10' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih38 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.11' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih39 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.12' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih40 := arr[ i, 2 ]
+        Case arr[ i, 1 ] == '13.2.13' .and. ValType( arr[ i, 2 ] ) == 'N'
+          m1psih41 := arr[ i, 2 ]
+
         Case arr[ i, 1 ] == '14.1.P' .and. ValType( arr[ i, 2 ] ) == 'N'
           m141p := arr[ i, 2 ]
         Case arr[ i, 1 ] == '14.1.Ax' .and. ValType( arr[ i, 2 ] ) == 'N'
@@ -1080,3 +1112,10 @@ Function f_blank_usl_pn()
   Enddo
   RestScreen( buf )
   Return Nil
+
+// 16.10.25
+function calc_imt( /*@*/IMT )
+
+  IMT := iif( mHEIGHT != 0, ( mWEIGHT / ( ( mHEIGHT / 100 ) ** 2 ) ), 0 )
+  update_get( 'IMT' )
+  return .t.

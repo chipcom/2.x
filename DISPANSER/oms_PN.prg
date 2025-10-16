@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 15.10.25 ПН - добавление или редактирование случая (листа учета)
+// 16.10.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -33,6 +33,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   local arr_pn_issled
   local count_pn_arr_iss, count_pn_arr_osm
   local dir_DB, work_dir
+  local IMT := 0
 
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
@@ -106,11 +107,22 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     mpsih24, m1psih24 := 0, ;  // нарушение когнитивных функций
     mpsih25, m1psih25 := 0, ;  // нарушение учебных навыков
     mpsih26, m1psih26 := 0, ;  // эмоциональные нарушения
-    mpsih27, m1psih27 := 0, ;  // предречевое развитие
-    mpsih28, m1psih28 := 0, ;  // понимание речи
-    mpsih29, m1psih29 := 0, ;  // активная речь
+    mpsih27, m1psih27 := 1, ;  // предречевое развитие
+    mpsih28, m1psih28 := 1, ;  // понимание речи
+    mpsih29, m1psih29 := 1, ;  // активная речь
     mpsih30, m1psih30 := 0, ;  // нарушение коммуникативных навыков
-    mpsih31, m1psih31 := 0, ;  // сенсорное развитие
+    mpsih31, m1psih31 := 1, ;  // сенсорное развитие
+    ;
+    mpsih32, m1psih32 := 1, ;  // внешний вид
+    mpsih33, m1psih33 := 1, ;  // доступен к контакту
+    mpsih34, m1psih34 := 1, ;  // фон настроения
+    mpsih35, m1psih35 := 0, ;  // обманы восприятия
+    mpsih36, m1psih36 := 0, ;  // интеллектуальная функция
+    mpsih37, m1psih37 := 0, ;  // нарушения когнитивных функций
+    mpsih38, m1psih38 := 0, ;  // нарушение учебных навыков
+    mpsih39, m1psih39 := 0, ;  // суицидальные наклонности
+    mpsih40, m1psih40 := 1, ;  // самоповреждения
+    mpsih41, m1psih41 := 1, ;  // социальная сфера
     ;
     m141p   := 0, ; // Половая формула мальчика P
     m141ax  := 0, ; // Половая формула мальчика Ax
@@ -662,6 +674,17 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   mpsih29 := inieditspr( A__MENUVERT, mm_used(), m1psih29 )
   mpsih30 := inieditspr( A__MENUVERT, mm_danet(), m1psih30 )
   mpsih31 := inieditspr( A__MENUVERT, mm_sensor(), m1psih31 )
+
+  mpsih32 := inieditspr( A__MENUVERT, mm_view_obraz(), m1psih32 )
+  mpsih33 := inieditspr( A__MENUVERT, mm_contact(), m1psih33 )
+  mpsih34 := inieditspr( A__MENUVERT, mm_nastroenie(), m1psih34 )
+  mpsih35 := inieditspr( A__MENUVERT, mm_danet(), m1psih35 )
+  mpsih36 := inieditspr( A__MENUVERT, mm_intelect(), m1psih36 )
+  mpsih37 := inieditspr( A__MENUVERT, mm_danet(), m1psih37 )
+  mpsih38 := inieditspr( A__MENUVERT, mm_danet(), m1psih38 )
+  mpsih39 := inieditspr( A__MENUVERT, mm_danet(), m1psih39 )
+  mpsih40 := inieditspr( A__MENUVERT, mm_self_harm(), m1psih40 )
+  mpsih41 := inieditspr( A__MENUVERT, mm_socium(), m1psih41 )
   
   m142me3 := inieditspr( A__MENUVERT, mm_142me3(), m1142me3 )
   m142me4 := inieditspr( A__MENUVERT, mm_142me4(), m1142me4 )
@@ -761,6 +784,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
     Endif
     If num_screen == 1
+
+      calc_imt( @IMT )  // вычислим индекс массы тела
+
       @ ++j, 1 Say 'Учреждение' Get mlpu When .f. Color cDataCSay
       @ Row(), Col() + 2 Say 'Отделение' Get motd When .f. Color cDataCSay
       //
@@ -808,12 +834,14 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         when m1mesto_prov == 1
       ++j
       @ ++j, 1 Say 'Вес' Get mWEIGHT Pict '999' ;
-        valid {|| iif( Between( mWEIGHT, 2, 170 ), , func_error( 4, 'Неразумный вес' ) ), .t. }
+        valid {|| iif( Between( mWEIGHT, 2, 170 ), , func_error( 4, 'Неразумный вес' ) ), calc_imt( @IMT ), .t. }
       @ Row(), Col() + 1 Say 'кг, рост' Get mHEIGHT Pict '999' ;
-        valid {|| iif( Between( mHEIGHT, 40, 250 ), , func_error( 4, 'Неразумный рост' ) ), .t. }
+        valid {|| iif( Between( mHEIGHT, 40, 250 ), , func_error( 4, 'Неразумный рост' ) ), calc_imt( @IMT ), .t. }
       @ Row(), Col() + 1 Say 'см, окружность головы' Get mPER_HEAD  Pict '999' ;
         valid {|| iif( mdvozrast < 5, iif( Between( mPER_HEAD, 10, 100 ), , func_error( 4, 'Неразумный размер окружности головы' ) ), ), .t. }
-      @ Row(), Col() + 1 Say 'см'
+      @ Row(), Col() + 1 Say 'см, ИМТ'
+
+      @ Row(), Col() + 1 get IMT PICT '999.999' when .f.
       ++j
       @ ++j, 1 Say 'Физическое развитие' Get mfiz_razv ;
         reader {| x| menu_reader( x, mm_fiz_razv(), A__MENUVERT, , , .f. ) } ;
@@ -985,6 +1013,16 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         @ ++j, 40 Say 'сенсорное развитие    ' Get mpsih31 reader {| x| menu_reader( x, mm_sensor(), A__MENUVERT, , , .f. ) }
 
       elseif mdvozrast >= 5 .and. mk_data >= 0d20250901
+        @ ++j, 1 Say 'внешний вид              ' Get mpsih32 reader {| x| menu_reader( x, mm_view_obraz(), A__MENUVERT, , , .f. ) }
+        @ j, 45 Say  'доступен к контакту' Get mpsih33 reader {| x| menu_reader( x, mm_contact(), A__MENUVERT, , , .f. ) }
+        @ ++j, 1 Say 'фон настроения           ' Get mpsih34 reader {| x| menu_reader( x, mm_nastroenie(), A__MENUVERT, , , .f. ) }
+        @ j, 45 Say  'обманы восприятия' Get mpsih35 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
+        @ ++j, 1 Say 'интеллектуальная функция ' Get mpsih36 reader {| x| menu_reader( x, mm_intelect(), A__MENUVERT, , , .f. ) }
+        @ j, 45 Say  'нарушения когнитивных функций' Get mpsih37 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
+        @ ++j, 1 Say 'нарушение учебных навыков' Get mpsih38 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
+        @ j, 45 Say  'суицидальные наклонности' Get mpsih39 reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
+        @ ++j, 1 Say 'самоповреждения          ' Get mpsih40 reader {| x| menu_reader( x, mm_self_harm(), A__MENUVERT, , , .f. ) }
+        @ j, 45 Say  'социальная сфера' Get mpsih41 reader {| x| menu_reader( x, mm_socium(), A__MENUVERT, , , .f. ) }
       Endif
 //      ++j
       If mpol == 'М'
