@@ -9,11 +9,12 @@
 
 // Static sadiag1
 
-// 10.01.24
-Function create1reestr19( _recno, _nyear, _nmonth )
+// 17.10.25
+Function create1reestr19( _recno, _nyear, _nmonth, p_tip_reestr )
 
   Local buf := SaveScreen(), s, i, j, pole
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
+  local reg_sort
 
   Private mpz, oldpz, atip
 
@@ -49,7 +50,7 @@ Function create1reestr19( _recno, _nyear, _nmonth )
       'Составление реестра случаев за ' + mm_month[ _nmonth ] + Str( _nyear, 5 ) + ' года', 'BG+/GR', ;
       .t., .t., , , 'f2create1reestr19', , ;
       { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B', , 300 } )
-    If pkol > 0 .and. ( j := f_alert( { '', ;
+    If pkol > 0 .and. ( reg_sort := f_alert( { '', ;
         'Каким образом сортировать реестр, отправляемый в ТФОМС', ;
         '' }, ;
         { ' по ~ФИО пациента ', ' по ~убыванию стоимости ' }, ;
@@ -60,11 +61,11 @@ Function create1reestr19( _recno, _nyear, _nmonth )
         '', ;
         'Изменить её будет НЕВОЗМОЖНО!', ;
         '', ;
-        'Сортировка реестра: ' + { 'по ФИО пациента', 'по убыванию стоимости лечения' }[ j ] }, , ;
+        'Сортировка реестра: ' + { 'по ФИО пациента', 'по убыванию стоимости лечения' }[ reg_sort ] }, , ;
         'GR+/R', 'W+/R' )
       If f_esc_enter( 'составления реестра' )
         RestScreen( buf )
-        create2reestr19( _recno, _nyear, _nmonth, j )
+        create2reestr19( _recno, _nyear, _nmonth, reg_sort, p_tip_reestr )
       Endif
     Endif
   Endif

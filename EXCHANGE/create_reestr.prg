@@ -6,7 +6,7 @@
 Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
-// 03.07.24
+// 17.10.25
 Function create_reestr()
 
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, pole
@@ -295,7 +295,7 @@ Function create_reestr()
               Pack
             Endif
             If tmp->nyear > 2018 // 2019 год
-              create1reestr19( tmp->( RecNo() ), tmp->nyear, tmp->nmonth )
+              create1reestr19( tmp->( RecNo() ), tmp->nyear, tmp->nmonth, p_tip_reestr )
             Else
               // см. файл not_use/create1reestr17.prg
               func_error( 10, 'Реестр ранее 2019 года не формируется!' )
