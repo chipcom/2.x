@@ -231,6 +231,7 @@ mo_version.prg
 .\DISPANSER\oms_PN.prg
 .\DISPANSER\oms_PN_func.prg
 .\DISPANSER\oms_PN_array.prg
+.\DISPANSER\oms_PN_DDS_func.prg
 .\DISPANSER\oms_naprav_zno.prg
 .\DISPANSER\oms_dispans_diagnoze.prg
 .\DISPANSER\oms_dispans_func.prg

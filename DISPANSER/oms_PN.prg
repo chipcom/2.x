@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.10.25 ПН - добавление или редактирование случая (листа учета)
+// 18.10.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -987,6 +987,8 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       @ j, 51 Get MDATEp2 When m1step2 == 1
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 2-ю страницу ^<PgDn>^ на 4-ю страницу' )
     Elseif num_screen == 4
+      j := input_psih_health( j, mdvozrast, mk_data )
+/*
       @ ++j, 1 Say PadC( 'Оценка психического развития ' + iif( mdvozrast < 5, '(возраст развития):', '' ), 78, '_' )
       If mdvozrast < 5 .and. mk_data < 0d20250901 // если меньше 5 лет и mk_data < 0d20250901
         @ ++j, 1 Say 'познавательная функция' Get m1psih11 Pict '99'
@@ -1024,6 +1026,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         @ ++j, 1 Say 'самоповреждения          ' Get mpsih40 reader {| x| menu_reader( x, mm_self_harm(), A__MENUVERT, , , .f. ) }
         @ j, 45 Say  'социальная сфера' Get mpsih41 reader {| x| menu_reader( x, mm_socium(), A__MENUVERT, , , .f. ) }
       Endif
+*/
 //      ++j
       If mpol == 'М'
         @ ++j, 1 Say 'Половая формула мальчика: P' Get m141p Pict '9'

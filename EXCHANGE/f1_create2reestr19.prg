@@ -49,27 +49,24 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
   ar_dn := {}
   //
   is_oncology_smp := 0
+  arr_onkna := {}
+
   is_oncology := f_is_oncology( 1, @is_oncology_smp )
   If p_tip_reestr == 2
     is_oncology := 0
   Endif
-  arr_onkna := {}
+
   Select ONKNA
   find ( Str( human->kod, 7 ) )
   Do While onkna->kod == human->kod .and. !Eof()
     P2TABN->( dbGoto( onkna->KOD_VR ) )
     If !( P2TABN->( Eof() ) ) .and. !( P2TABN->( Bof() ) )
-      // aadd(arr_nazn, {3, i, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))}) // теперь каждое назначение в отдельном PRESCRIPTIONS
       mosu->( dbGoto( onkna->U_KOD ) )
       AAdd( arr_onkna, { onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL, mosu->shifr1, onkna->NAPR_MO, P2TABN->snils, lstr( ret_prvs_v015tov021( P2TABN->PRVS_NEW ) ) } )
     Else
-      // aadd(arr_nazn, {3, i, '', ''}) // теперь каждое назначение в отдельном PRESCRIPTIONS
       mosu->( dbGoto( onkna->U_KOD ) )
       AAdd( arr_onkna, { onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL, mosu->shifr1, onkna->NAPR_MO, '', '' } )
     Endif
-
-    // mosu->(dbGoto(onkna->U_KOD))
-    // aadd(arr_onkna, {onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL,mosu->shifr1, onkna->NAPR_MO})
     Skip
   Enddo
   Select ONKCO

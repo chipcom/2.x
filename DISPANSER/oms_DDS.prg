@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.10.25 ДДС - добавление или редактирование случая (листа учета)
+// 18.10.25 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -900,16 +900,15 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 2-ю страницу ^<PgDn>^ на 4-ю страницу' )
 
     Elseif num_screen == 4
-
+      j := input_psih_health( j, mvozrast, mk_data )
+/*
       @ ++j, 1 Say PadC( 'Оценка психического развития ' + iif( mvozrast < 5, '(возраст развития):', '' ), 78, '_' )
       If mvozrast < 5 .and. mk_data < 0d20250901 // если меньше 5 лет и mk_data < 0d20250901
-        @ ++j, 1 Say PadC( 'Оценка психического развития (возраст развития):', 78, '_' )
         @ ++j, 1 Say 'познавательная функция' Get m1psih11 Pict '99'
         @ ++j, 1 Say 'моторная функция      ' Get m1psih12 Pict '99'
         @ --j, 30 Say 'эмоциональная и социальная    ' Get m1psih13 Pict '99'
         @ ++j, 30 Say 'предречевое и речевое развитие' Get m1psih14 Pict '99'
       elseif mvozrast >= 5 .and. mk_data < 0d20250901
-        @ ++j, 1 Say PadC( 'Оценка психического развития:', 78, '_' )
         @ ++j, 1 Say 'психомоторная сфера' Get mpsih21 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT,,, .f. ) }
         @ ++j, 1 Say 'интеллект          ' Get mpsih22 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT,,, .f. ) }
         @ --j, 40 Say 'эмоц.вегетативная сфера' Get mpsih23 reader {| x| menu_reader( x, mm_psih2(), A__MENUVERT,,, .f. ) }
@@ -938,6 +937,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         @ ++j, 1 Say 'самоповреждения          ' Get mpsih40 reader {| x| menu_reader( x, mm_self_harm(), A__MENUVERT, , , .f. ) }
         @ j, 45 Say  'социальная сфера' Get mpsih41 reader {| x| menu_reader( x, mm_socium(), A__MENUVERT, , , .f. ) }
       Endif
+*/
 //      ++j
       If mpol == 'М'
         @ ++j, 1 Say 'Половая формула мальчика: P' Get m141p Pict '9'
