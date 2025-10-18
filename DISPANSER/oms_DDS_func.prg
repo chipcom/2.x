@@ -898,3 +898,628 @@ Function add_pediatr_DDS( _pv, _pa, _date, _diag, mpol, mdef_diagnoz, mobil, tip
   Endif
   arr[ 9 ] := _date
   Return arr
+
+// 18.10.25
+Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
+
+  Static st := '     ', ub := '<u><b>', ue := '</b></u>', sh := 88
+  Local adbf, s, i, j, k, y, m, d, fl, mm_danet, blk := {| s| __dbAppend(), field->stroke := s }
+  local mm_invalid5 := mm_invalid5()
+  local mm_gr_fiz
+
+  mm_gr_fiz := AClone( mm_gr_fiz_do() )
+  AAdd( mm_gr_fiz, { 'не допущен', 0 } )
+
+  delfrfiles()
+  r_use( dir_server() + 'mo_stdds' )
+  If Type( 'm1stacionar' ) == 'N' .and. m1stacionar > 0
+    Goto ( m1stacionar )
+  Endif
+  r_use( dir_server() + 'kartote_',, 'KART_' )
+  Goto ( kod_kartotek )
+  r_use( dir_server() + 'kartotek',, 'KART' )
+  Goto ( kod_kartotek )
+  r_use( dir_server() + 'mo_pers',, 'P2' )
+  Goto ( m1vrach )
+  r_use( dir_server() + 'organiz',, 'ORG' )
+  adbf := { { 'name', 'C', 130, 0 }, ;
+    { 'prikaz', 'C', 50, 0 }, ;
+    { 'forma', 'C', 50, 0 }, ;
+    { 'titul', 'C', 100, 0 }, ;
+    { 'fio', 'C', 50, 0 }, ;
+    { 'k_data', 'C', 40, 0 }, ;
+    { 'vrach', 'C', 40, 0 }, ;
+    { 'glavn', 'C', 40, 0 } }
+  dbCreate( fr_titl, adbf )
+  Use ( fr_titl ) New Alias FRT
+  Append Blank
+  frt->name := glob_mo[ _MO_SHORT_NAME ]
+  frt->fio := mfio
+  frt->k_data := date_month( mk_data )
+  frt->vrach := fam_i_o( p2->fio )
+  frt->glavn := fam_i_o( org->ruk )
+  adbf := { { 'stroke', 'C', 2000, 0 } }
+  dbCreate( fr_data, adbf )
+  Use ( fr_data ) New Alias FRD
+  If p_tip_lu == TIP_LU_PN // профилактика несовершеннолетних
+
+    if mk_data < 0d20250901
+      frt->prikaz := 'от 21.12.2012г. № 1346н'
+      frt->forma  := '030-ПО/у-12'
+    else
+      frt->prikaz := 'от 14.04.2025г. № 211н'
+      frt->forma  := '030-ПО/у'
+    endif
+
+    frt->titul  := 'Карта профилактического медицинского осмотра несовершеннолетнего'
+    s := st + '1. Фамилия, имя, отчество несовершеннолетнего: ' + ub + AllTrim( mfio ) + ue + '.'
+    frd->( Eval( blk, s ) )
+    s := st + 'Пол: ' + f3_inf_dds_karta( { { 'муж.', 'М' }, { 'жен.', 'Ж' } }, mpol, '/', ub, ue )
+    frd->( Eval( blk, s ) )
+    s := st + 'Дата рождения: ' + ub + date_month( mdate_r, .t. ) + ue + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '2. Полис обязательного медицинского страхования: '
+    s += 'серия ' + iif( Empty( mspolis ), Replicate( '_', 15 ), ub + AllTrim( mspolis ) + ue )
+    s += ' № ' + ub + AllTrim( mnpolis ) + ue + '.'
+    frd->( Eval( blk, s ) )
+    s := st + 'Страховая медицинская организация: ' + ub + AllTrim( mcompany ) + ue + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '3. Страховой номер индивидуального лицевого счета: '
+//    s += iif( Empty( kart->snils ), Replicate( '_', 25 ), ub + Transform( kart->SNILS, picture_pf ) + ue ) + '.'
+    s += iif( Empty( kart->snils ), Replicate( '_', 25 ), ub + Transform_SNILS( kart->SNILS ) + ue ) + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '4. Адрес места жительства: '
+    If emptyall( kart_->okatog, kart->adres )
+      s += Replicate( '_', 50 ) + ' ' + Replicate( '_', sh ) + '.'
+    Else
+      s += ub + ret_okato_ulica( kart->adres, kart_->okatog, 1, 2 ) + ue + '.'
+    Endif
+    frd->( Eval( blk, s ) )
+    s := st + '5. Категория: ' + f3_inf_dds_karta( mm_kateg_uch(), m1kateg_uch, '; ', ub, ue )
+    frd->( Eval( blk, s ) )
+    s := st + '6. Полное наименование медицинской организации, в которой ' + ;
+      'несовершеннолетний получает первичную медико-санитарную помощь: '
+    s += ub + ret_mo( m1MO_PR )[ _MO_FULL_NAME ] + ue + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '7. Юридический адрес медицинской организации, в которой ' + ;
+      'несовершеннолетний получает первичную медико-санитарную помощь: '
+    s += ub + ret_mo( m1MO_PR )[ _MO_ADRES ] + ue + '.'
+    frd->( Eval( blk, s ) )
+    madresschool := ''
+    If Type( 'm1school' ) == 'N' .and. m1school > 0
+      r_use( dir_server() + 'mo_schoo',, 'SCH' )
+      Goto ( m1school )
+      If !Empty( sch->fname )
+        mschool := AllTrim( sch->fname )
+        madresschool := AllTrim( sch->adres )
+      Endif
+    Endif
+    s := st + '8. Полное наименование образовательного учреждения, в котором ' + ;
+      'обучается несовершеннолетний: ' + ub + mschool + ue + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '9. Юридический адрес образовательного учреждения, в котором ' + ;
+      'обучается несовершеннолетний: '
+    If Empty( madresschool )
+      frd->( Eval( blk, s ) )
+      s := Replicate( '_', sh ) + '.'
+    Else
+      s += ub + madresschool + ue + '.'
+    Endif
+    frd->( Eval( blk, s ) )
+    s := st + '10. Дата начала медицинского осмотра: ' + ub + full_date( mn_data ) + ue + '.'
+    frd->( Eval( blk, s ) )
+  Else // диспансеризация детей-сирот
+    if mk_data < 0d20250901
+      frt->prikaz := 'от 15.02.2013г. № 72н'
+      frt->forma  := '030-Д/с/у-13'
+    else
+      frt->prikaz := 'от 14.04.2025г. № 212н'
+      frt->forma  := '030/у-Д/с'
+    endif
+    frt->titul  := 'Карта диспансеризации несовершеннолетнего'
+    s := st + '1. Полное наименование стационарного учреждения: '
+    If p_tip_lu == TIP_LU_DDS
+      s += ub + AllTrim( mstacionar ) + ue + '.'
+      frd->( Eval( blk, s ) )
+    Else
+      frd->( Eval( blk, s ) )
+      s := Replicate( '_', sh ) + '.'
+      frd->( Eval( blk, s ) )
+    Endif
+    s := st + '1.1. Прежнее наименование (в случае его изменения):'
+    frd->( Eval( blk, s ) )
+    s := Replicate( '_', sh ) + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '1.2. Ведомственная принадлежность: '
+    If p_tip_lu == TIP_LU_DDS
+      i := mo_stdds->vedom
+      If !Between( i, 0, 3 )
+        i := 3
+      Endif
+    Else
+      i := -1
+    Endif
+    mm_vedom := { { 'органы здравоохранения', 0 }, ;
+      { 'образования', 1 }, ;
+      { 'социальной защиты', 2 }, ;
+      { 'другое', 3 } }
+    s += f3_inf_dds_karta( mm_vedom, i,, ub, ue )
+    frd->( Eval( blk, s ) )
+    s := st + '1.3. Юридический адрес стационарного учреждения: '
+    If p_tip_lu == TIP_LU_DDS .and. !Empty( mo_stdds->adres )
+      s += ub + AllTrim( mo_stdds->adres ) + ue + '.'
+    Endif
+    frd->( Eval( blk, s ) )
+    If p_tip_lu == TIP_LU_DDSOP .or. Empty( mo_stdds->adres )
+      s := Replicate( '_', sh ) + '.'
+      frd->( Eval( blk, s ) )
+    Endif
+    s := st + '2. Фамилия, имя, отчество несовершеннолетнего: ' + ub + AllTrim( mfio ) + ue + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '2.1. Пол: '
+    s += f3_inf_dds_karta( { { 'муж.', 'М' }, { 'жен.', 'Ж' } }, mpol, '/', ub, ue )
+    frd->( Eval( blk, s ) )
+    s := st + '2.2. Дата рождения: ' + ub + date_month( mdate_r, .t. ) + ue + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '2.3. Категория учета ребенка, находящегося в тяжелой жизненной ситуации: '
+    s += f3_inf_dds_karta( mm_kateg_uch(), m1kateg_uch, '; ', ub, ue )
+    frd->( Eval( blk, s ) )
+    s := st + '2.4. На момент проведения диспансеризации находится '
+    mm_gde_nahod1[ 3, 1 ] := 'попечительством'
+    s += f3_inf_dds_karta( mm_gde_nahod1, m1gde_nahod,, ub, ue )
+    frd->( Eval( blk, s ) )
+    s := st + '3. Полис обязательного медицинского страхования:'
+    frd->( Eval( blk, s ) )
+    s := st + 'серия ' + iif( Empty( mspolis ), Replicate( '_', 15 ), ub + AllTrim( mspolis ) + ue )
+    s += ' № ' + ub + AllTrim( mnpolis ) + ue + '.'
+    frd->( Eval( blk, s ) )
+    s := st + 'Страховая медицинская организация: ' + ub + AllTrim( mcompany ) + ue + '.'
+    frd->( Eval( blk, s ) )
+    s := st + 'Страховой номер индивидуального лицевого счета: '
+//    s += iif( Empty( kart->snils ), Replicate( '_', 25 ), ub + Transform( kart->SNILS, picture_pf ) + ue ) + '.'
+    s += iif( Empty( kart->snils ), Replicate( '_', 25 ), ub + Transform_SNILS( kart->SNILS ) + ue ) + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '4. Дата поступления в стационарное учреждение: '
+    s += iif( p_tip_lu == TIP_LU_DDSOP .or. Empty( mdate_post ), Replicate( '_', 15 ), ub + full_date( mdate_post ) + ue ) + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '5. Причина выбытия из стационарного учреждения: '
+// НЕ ЗНАЮ ЗАЧЕМ    del_array( mm_prich_vyb(), 1 ) // удалить 1-ый элемент '{'не выбыл', 0}'
+    s += f3_inf_dds_karta( mm_prich_vyb(), m1prich_vyb,, ub, ue )
+    frd->( Eval( blk, s ) )
+    s := st + '5.1. Дата выбытия: ' + iif( Empty( mDATE_VYB ), Replicate( '_', 15 ), ub + full_date( mDATE_VYB ) + ue ) + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '6. Отсутствует на момент проведения диспансеризации:'
+    frd->( Eval( blk, s ) )
+    s := Replicate( '_', 73 ) + ' (указать причину).'
+    frd->( Eval( blk, s ) )
+    s := st + '7. Адрес места жительства: '
+    If emptyall( kart_->okatog, kart->adres )
+      s += Replicate( '_', 50 ) + ' ' + Replicate( '_', sh ) + '.'
+    Else
+      s += ub + ret_okato_ulica( kart->adres, kart_->okatog, 1, 2 ) + ue + '.'
+    Endif
+    frd->( Eval( blk, s ) )
+    s := st + '8. Полное наименование медицинской организации, выбранной ' + ;
+      'несовершеннолетним (его родителем или иным законным представителем) ' + ;
+      'для получения первичной медико-санитарной помощи: '
+    s += ub + ret_mo( m1MO_PR )[ _MO_FULL_NAME ] + ue + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '9. Юридический адрес медицинской организации, выбранной ' + ;
+      'несовершеннолетним (его родителем или иным законным представителем) ' + ;
+      'для получения первичной медико-санитарной помощи: '
+    s += ub + ret_mo( m1MO_PR )[ _MO_ADRES ] + ue + '.'
+    frd->( Eval( blk, s ) )
+    s := st + '10. Дата начала диспансеризации: ' + ub + full_date( mn_data ) + ue + '.'
+    frd->( Eval( blk, s ) )
+  Endif
+  s := st + '11. Полное наименование и юридический адрес медицинской организации, ' + ;
+    'проводившей ' + iif( p_tip_lu == TIP_LU_PN, 'профилактический медицинский осмотр: ', 'диспансеризацию: ' ) + ;
+    ub + glob_mo[ _MO_FULL_NAME ] + ', ' + glob_mo[ _MO_ADRES ] + ue + '.'
+  frd->( Eval( blk, s ) )
+  s := st + '12. Оценка физического развития с учетом возраста на момент ' + ;
+    iif( p_tip_lu == TIP_LU_PN, 'медицинского осмотра:', 'диспансеризации:' )
+  frd->( Eval( blk, s ) )
+  count_ymd( mdate_r, mn_data, @y, @m, @d )
+  s := ub + st + lstr( d ) + st + ue + ' (число дней) ' + ;
+    ub + st + lstr( m ) + st + ue + ' (месяцев) ' + ;
+    ub + st + lstr( y ) + st + ue + ' лет.'
+  frd->( Eval( blk, s ) )
+  mm_fiz_razv1 := { { 'дефицит массы тела', 1 }, { 'избыток массы тела', 2 } }
+  mm_fiz_razv2 := { { 'низкий рост', 1 }, { 'высокий рост', 2 } }
+  For i := 1 To 2
+    s := st + '12.' + lstr( i ) + '. Для детей в возрасте ' + ;
+      { '0 - 4 лет: ', '5 - 17 лет включительно: ' }[ i ]
+    If i == 1
+      fl := ( lvozrast < 5 )
+    Else
+      fl := ( lvozrast > 4 )
+    Endif
+    s += 'масса (кг) ' + iif( !fl, '________', ub + st + lstr( mWEIGHT ) + st + ue ) + '; '
+    s += 'рост (см) ' + iif( !fl, '________', ub + st + lstr( mHEIGHT ) + st + ue ) + '; '
+    s += 'окружность головы (см) ' + iif( !fl .or. mPER_HEAD == 0, '________', ub + st + lstr( mPER_HEAD ) + st + ue ) + '; '
+    s += 'физическое развитие ' + f3_inf_dds_karta( mm_fiz_razv(), iif( fl, m1FIZ_RAZV, -1 ),, ub, ue, .f. )
+    s += ' (' + f3_inf_dds_karta( mm_fiz_razv1, iif( fl, m1FIZ_RAZV1, -1 ),, ub, ue, .f. )
+    s += ', ' + f3_inf_dds_karta( mm_fiz_razv2, iif( fl, m1FIZ_RAZV2, -1 ),, ub, ue, .f. )
+    s += ' - нужное подчеркнуть).'
+    frd->( Eval( blk, s ) )
+  Next
+
+  rep_psih_health_and_sex( lvozrast, mk_data, TIP_LU_DDS )
+/*
+  fl := ( lvozrast < 5 ) 
+  s := st + '13. Оценка психического развития (состояния):'
+  frd->( Eval( blk, s ) )
+  s := st + '13.1. Для детей в возрасте 0 - 4 лет:'
+  frd->( Eval( blk, s ) )
+  s := st + 'познавательная функция (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih11 ) + st + ue ) + ';'
+  frd->( Eval( blk, s ) )
+  s := st + 'моторная функция (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih12 ) + st + ue ) + ';'
+  frd->( Eval( blk, s ) )
+  s := st + 'эмоциональная и социальная (контакт с окружающим миром) функции (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih13 ) + st + ue ) + ';'
+  frd->( Eval( blk, s ) )
+  s := st + 'предречевое и речевое развитие (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih14 ) + st + ue ) + '.'
+  frd->( Eval( blk, s ) )
+  fl := ( lvozrast > 4 )
+  s := st + '13.2. Для детей в возрасте 5 - 17 лет:'
+  frd->( Eval( blk, s ) )
+  s := st + '13.2.1. Психомоторная сфера: ' + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih21, -1 ),, ub, ue )
+  frd->( Eval( blk, s ) )
+  s := st + '13.2.2. Интеллект: ' + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih22, -1 ),, ub, ue )
+  frd->( Eval( blk, s ) )
+  s := st + '13.2.3. Эмоционально-вегетативная сфера: ' + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih23, -1 ),, ub, ue )
+  frd->( Eval( blk, s ) )
+  fl := ( mpol == 'М' .and. lvozrast > 9 )
+  s := st + '14. Оценка полового развития (с 10 лет):'
+  frd->( Eval( blk, s ) )
+  s := st + '14.1. Половая формула мальчика: Р ' + iif( !fl .or. m141p == 0, '________', ub + st + lstr( m141p ) + st + ue )
+  s += ' Ах ' + iif( !fl .or. m141ax == 0, '________', ub + st + lstr( m141ax ) + st + ue )
+  s += ' Fa ' + iif( !fl .or. m141fa == 0, '________', ub + st + lstr( m141fa ) + st + ue ) + '.'
+  frd->( Eval( blk, s ) )
+  fl := ( mpol == 'Ж' .and. lvozrast > 9 )
+  s := st + '14.2. Половая формула девочки: Р ' + iif( !fl .or. m142p == 0, '________', ub + st + lstr( m142p ) + st + ue )
+  s += ' Ах ' + iif( !fl .or. m142ax == 0, '________', ub + st + lstr( m142ax ) + st + ue )
+  s += ' Ma ' + iif( !fl .or. m142ma == 0, '________', ub + st + lstr( m142ma ) + st + ue )
+  s += ' Me ' + iif( !fl .or. m142me == 0, '________', ub + st + lstr( m142me ) + st + ue ) + ';'
+  frd->( Eval( blk, s ) )
+  s := st + 'характеристика менструальной функции: menarhe ('
+  s += iif( !fl .or. m142me1 == 0, '________', ub + st + lstr( m142me1 ) + st + ue ) + ' лет, '
+  s += iif( !fl .or. m142me2 == 0, '________', ub + st + lstr( m142me2 ) + st + ue ) + ' месяцев); '
+  If fl .and. emptyall( m142p, m142ax, m142ma, m142me, m142me1, m142me2 )
+    m1142me3 := m1142me4 := m1142me5 := -1
+  Endif
+  s += 'menses (характеристика): ' + f3_inf_dds_karta( mm_142me3(), iif( fl, m1142me3, -1 ),, ub, ue, .f. )
+  s += ', ' + f3_inf_dds_karta( mm_142me4(), iif( fl, m1142me4, -1 ),, ub, ue, .f. )
+  s += ', ' + f3_inf_dds_karta( mm_142me5(), iif( fl, m1142me5, -1 ), ' и ', ub, ue )
+  frd->( Eval( blk, s ) )
+*/  
+  s := st + '15. Состояние здоровья до проведения ' + ;
+    iif( p_tip_lu == TIP_LU_PN, 'настоящего профилактического медицинского осмотра:', 'диспансеризации:' )
+  frd->( Eval( blk, s ) )
+  If lvozrast < 14
+    mdef_diagnoz := 'Z00.1'
+  Else
+    mdef_diagnoz := 'Z00.3'
+  Endif
+  s := st + '15.1. Практически здоров ' + iif( m1diag_15_1 == 0, Replicate( '_', 30 ), ub + st + RTrim( mdef_diagnoz ) + st + ue ) + ' (код по МКБ).'
+  frd->( Eval( blk, s ) )
+  //
+  mm_dispans := { { 'установлено ранее', 1 }, { 'установлено впервые', 2 }, { 'не установлено', 0 } }
+  mm_danet := { { 'да', 1 }, { 'нет', 0 } }
+  mm_usl := { { 'в амбулаторных условиях', 0 }, ;
+    { 'в условиях дневного стационара', 1 }, ;
+    { 'в стационарных условиях', 2 } }
+  mm_uch := { { 'в муниципальных медицинских организациях', 1 }, ;
+    { 'в государственных медицинских организациях субъекта Российской Федерации ', 0 }, ;
+    { 'в федеральных медицинских организациях', 2 }, ;
+    { 'частных медицинских организациях', 3 } }
+  mm_uch1 := AClone( mm_uch )
+  AAdd( mm_uch1, { 'санаторно-курортных организациях', 4 } )
+  mm_danet1 := { { 'оказана', 1 }, { 'не оказана', 0 } }
+  For i := 1 To 5
+    fl := .f.
+    For k := 1 To 14
+      mvar := 'mdiag_15_' + lstr( i ) + '_' + lstr( k )
+      If k == 1
+        fl := !Empty( &mvar ) .and. m1diag_15_1 == 0
+      Else
+        m1var := 'm1diag_15_' + lstr( i ) + '_' + lstr( k )
+        If fl
+          Do Case
+          Case eq_any( k, 4, 5, 6, 7 )
+            mvar := 'm1diag_15_' + lstr( i ) + '_3'
+            if &mvar != 1 // если не 'да'
+              &m1var := -1
+            Endif
+          Case eq_any( k, 9, 10, 11, 12 )
+            mvar := 'm1diag_15_' + lstr( i ) + '_8'
+            if &mvar != 1 // если не 'да'
+              &m1var := -1
+            Endif
+          Case k == 14
+            mvar := 'm1diag_15_' + lstr( i ) + '_13'
+            if &mvar != 1 // если не 'да'
+              &m1var := -1
+            Endif
+          Endcase
+        Else
+          &m1var := -1
+        Endif
+      Endif
+    Next
+  Next
+  For i := 1 To 5
+    fl := .f.
+    s := s1 := s2 := s3 := s4 := s5 := s6 := ''
+    For k := 1 To 14
+      mvar := 'mdiag_15_' + lstr( i ) + '_' + lstr( k )
+      If k == 1
+        fl := !Empty( &mvar ) .and. m1diag_15_1 == 0
+      Else
+        m1var := 'm1diag_15_' + lstr( i ) + '_' + lstr( k )
+      Endif
+      Do Case
+      Case k == 1
+        s := st + '15.' + lstr( i + 1 ) + '. Диагноз ' + iif( !fl, Replicate( '_', 30 ), ub + st + RTrim( &mvar ) + st + ue ) + ' (код по МКБ).'
+      Case k == 2
+        s1 := st + '15.' + lstr( i + 1 ) + '.1. Диспансерное наблюдение: ' + f3_inf_dds_karta( mm_dispans, &m1var,, ub, ue )
+      Case k == 3
+        s2 := st + '15.' + lstr( i + 1 ) + '.2. Лечение было назначено: ' + f3_inf_dds_karta( mm_danet, &m1var,, ub, ue )
+      Case k == 4
+        s2 := Left( s2, Len( s2 ) -1 ) + '; если "да": ' + f3_inf_dds_karta( mm_usl, &m1var,, ub, ue )
+      Case k == 5
+        s2 := Left( s2, Len( s2 ) -1 ) + '; ' + f3_inf_dds_karta( mm_uch, &m1var,, ub, ue )
+      Case k == 6
+        s3 := st + '15.' + lstr( i + 1 ) + '.3. Лечение было выполнено: ' + f3_inf_dds_karta( mm_usl, &m1var,, ub, ue )
+      Case k == 7
+        s3 := Left( s3, Len( s3 ) -1 ) + '; ' + f3_inf_dds_karta( mm_uch, &m1var,, ub, ue )
+      Case k == 8
+        s4 := st + '15.' + lstr( i + 1 ) + '.4. Медицинская реабилитация и (или) санаторно-курортное лечение были назначены: ' + f3_inf_dds_karta( mm_danet, &m1var,, ub, ue )
+      Case k == 9
+        s4 := Left( s4, Len( s4 ) -1 ) + '; если "да": ' + f3_inf_dds_karta( mm_usl, &m1var,, ub, ue )
+      Case k == 10
+        s4 := Left( s4, Len( s4 ) -1 ) + '; ' + f3_inf_dds_karta( mm_uch1, &m1var,, ub, ue )
+      Case k == 11
+        s5 := st + '15.' + lstr( i + 1 ) + '.5. Медицинская реабилитация и (или) санаторно-курортное лечение были выполнены: ' + f3_inf_dds_karta( mm_usl, &m1var,, ub, ue )
+      Case k == 12
+        s5 := Left( s5, Len( s5 ) -1 ) + '; ' + f3_inf_dds_karta( mm_uch1, &m1var,, ub, ue )
+      Case k == 13
+        s6 := st + '15.' + lstr( i + 1 ) + '.6. Высокотехнологичная медицинская помощь была рекомендована: ' + f3_inf_dds_karta( mm_danet, &m1var,, ub, ue )
+      Case k == 14
+        s6 := Left( s6, Len( s6 ) -1 ) + '; если "да": ' + f3_inf_dds_karta( mm_danet1, &m1var,, ub, ue )
+      Endcase
+    Next
+    frd->( Eval( blk, s ) )
+    frd->( Eval( blk, s1 ) )
+    frd->( Eval( blk, s2 ) )
+    frd->( Eval( blk, s3 ) )
+    frd->( Eval( blk, s4 ) )
+    frd->( Eval( blk, s5 ) )
+    frd->( Eval( blk, s6 ) )
+  Next
+  mm_gruppa := { { 'I', 1 }, { 'II', 2 }, { 'III', 3 }, { 'IV', 4 }, { 'V', 5 } }
+  s := st + '15.9. Группа состояния здоровья: ' + f3_inf_dds_karta( mm_gruppa, mGRUPPA_DO,, ub, ue )
+  frd->( Eval( blk, s ) )
+  If p_tip_lu == TIP_LU_PN
+    s := st + '15.10. Медицинская группа для занятий физической культурой: '
+    s += f3_inf_dds_karta( mm_gr_fiz_do(), m1GR_FIZ_DO,, ub, ue )
+    frd->( Eval( blk, s ) )
+  Endif
+  s := st + '16. Состояние здоровья по результатам проведения ' + ;
+    iif( p_tip_lu == TIP_LU_PN, 'настоящего профилактического медицинского осмотра:', 'диспансеризации:' )
+  frd->( Eval( blk, s ) )
+  s := st + '16.1. Практически здоров ' + iif( m1diag_16_1 == 0, Replicate( '_', 30 ), ub + st + RTrim( mkod_diag ) + st + ue ) + ' (код по МКБ).'
+  frd->( Eval( blk, s ) )
+  For i := 1 To 5
+    fl := .f.
+    For k := 1 To 16
+      mvar := 'mdiag_16_' + lstr( i ) + '_' + lstr( k )
+      If k == 1
+        fl := !Empty( &mvar ) .and. m1diag_16_1 == 0
+      Else
+        m1var := 'm1diag_16_' + lstr( i ) + '_' + lstr( k )
+        If fl
+          Do Case
+          Case eq_any( k, 5, 6 )
+            mvar := 'm1diag_16_' + lstr( i ) + '_4'
+            if &mvar != 1 // если не 'да'
+              &m1var := -1
+            Endif
+          Case eq_any( k, 8, 9 )
+            mvar := 'm1diag_16_' + lstr( i ) + '_7'
+            if &mvar != 1 // если не 'да'
+              &m1var := -1
+            Endif
+          Case eq_any( k, 11, 12 )
+            mvar := 'm1diag_16_' + lstr( i ) + '_10'
+            if &mvar != 1 // если не 'да'
+              &m1var := -1
+            Endif
+          Case eq_any( k, 14, 15 )
+            mvar := 'm1diag_16_' + lstr( i ) + '_13'
+            if &mvar != 1 // если не 'да'
+              &m1var := -1
+            Endif
+          Endcase
+        Else
+          &m1var := -1
+        Endif
+      Endif
+    Next
+  Next
+  For i := 1 To 5
+    fl := .f.
+    s := s1 := s2 := s3 := s4 := s5 := s6 := s7 := ''
+    For k := 1 To 16
+      mvar := 'mdiag_16_' + lstr( i ) + '_' + lstr( k )
+      If k == 1
+        fl := !Empty( &mvar ) .and. m1diag_16_1 == 0
+      Else
+        m1var := 'm1diag_16_' + lstr( i ) + '_' + lstr( k )
+      Endif
+      Do Case
+      Case k == 1
+        s := st + '16.' + lstr( i + 1 ) + '. Диагноз ' + iif( !fl, Replicate( '_', 30 ), ub + st + RTrim( &mvar ) + st + ue ) + ' (код по МКБ).'
+      Case k == 2
+        s1 := st + '16.' + lstr( i + 1 ) + '.1. Диагноз установлен впервые: ' + f3_inf_dds_karta( mm_danet, &m1var,, ub, ue )
+      Case k == 3
+        s2 := st + '16.' + lstr( i + 1 ) + '.2. Диспансерное наблюдение: ' + f3_inf_dds_karta( mm_dispans, &m1var,, ub, ue )
+      Case k == 4
+        s3 := st + '16.' + lstr( i + 1 ) + '.3. Дополнительные консультации и исследования назначены: ' + f3_inf_dds_karta( mm_danet, &m1var,, ub, ue )
+      Case k == 5
+        s3 := Left( s3, Len( s3 ) -1 ) + '; если "да": ' + f3_inf_dds_karta( mm_usl, &m1var,, ub, ue )
+      Case k == 6
+        s3 := Left( s3, Len( s3 ) -1 ) + '; ' + f3_inf_dds_karta( mm_uch, &m1var,, ub, ue )
+      Case k == 7
+        s4 := st + '16.' + lstr( i + 1 ) + '.4. Дополнительные консультации и исследования выполнены: ' + f3_inf_dds_karta( mm_danet, &m1var,, ub, ue )
+      Case k == 8
+        s4 := Left( s4, Len( s4 ) -1 ) + '; если "да": ' + f3_inf_dds_karta( mm_usl, &m1var,, ub, ue )
+      Case k == 9
+        s4 := Left( s4, Len( s4 ) -1 ) + '; ' + f3_inf_dds_karta( mm_uch, &m1var,, ub, ue )
+      Case k == 10
+        s5 := st + '16.' + lstr( i + 1 ) + '.5. Лечение назначено: ' + f3_inf_dds_karta( mm_danet, &m1var,, ub, ue )
+      Case k == 11
+        s5 := Left( s5, Len( s5 ) -1 ) + '; если "да": ' + f3_inf_dds_karta( mm_usl, &m1var,, ub, ue )
+      Case k == 12
+        s5 := Left( s5, Len( s5 ) -1 ) + '; ' + f3_inf_dds_karta( mm_uch, &m1var,, ub, ue )
+      Case k == 13
+        s6 := st + '16.' + lstr( i + 1 ) + '.6. Медицинская реабилитация и (или) санаторно-курортное лечение назначены: ' + f3_inf_dds_karta( mm_danet, &m1var,, ub, ue )
+      Case k == 14
+        s6 := Left( s6, Len( s6 ) -1 ) + '; если "да": ' + f3_inf_dds_karta( mm_usl, &m1var,, ub, ue )
+      Case k == 15
+        s6 := Left( s6, Len( s6 ) -1 ) + '; ' + f3_inf_dds_karta( mm_uch1, &m1var,, ub, ue )
+      Case k == 16
+        s7 := st + '16.' + lstr( i + 1 ) + '.7. Высокотехнологичная медицинская помощь была рекомендована: ' + f3_inf_dds_karta( mm_danet, &m1var,, ub, ue )
+      Endcase
+    Next
+    frd->( Eval( blk, s ) )
+    frd->( Eval( blk, s1 ) )
+    frd->( Eval( blk, s2 ) )
+    frd->( Eval( blk, s3 ) )
+    frd->( Eval( blk, s4 ) )
+    frd->( Eval( blk, s5 ) )
+    frd->( Eval( blk, s6 ) )
+    frd->( Eval( blk, s7 ) )
+  Next
+  If m1invalid1 == 0
+    m1invalid2 := m1invalid5 := m1invalid6 := m1invalid8 := -1
+    minvalid3 := minvalid4 := minvalid7 := CToD( '' )
+  Endif
+  If Empty( minvalid7 )
+    m1invalid8 := -1
+  Endif
+  s := st + '16.7. Инвалидность: ' + f3_inf_dds_karta( mm_danet, m1invalid1,, ub, ue )
+  s := Left( s, Len( s ) -1 ) + '; если "да": ' + f3_inf_dds_karta( mm_invalid2(), m1invalid2,, ub, ue )
+  s := Left( s, Len( s ) -1 ) + '; установлена впервые (дата) ' + iif( Empty( minvalid3 ), Replicate( '_', 15 ), ub + full_date( minvalid3 ) + ue )
+  s += '; дата последнего освидетельствования ' + iif( Empty( minvalid4 ), Replicate( '_', 15 ), ub + full_date( minvalid4 ) + ue ) + '.'
+  frd->( Eval( blk, s ) )
+  s := st + '16.7.1. Заболевания, обусловившие возникновение инвалидности:'
+  frd->( Eval( blk, s ) )
+  mm_invalid5[ 6, 1 ] := 'болезни крови, кроветворных органов и отдельные нарушения, вовлекающие иммунный механизм;'
+  mm_invalid5[ 7, 1 ] := 'болезни эндокринной системы, расстройства питания и нарушения обмена веществ,'
+  ATail( mm_invalid5 )[ 1 ] := 'последствия травм, отравлений и других воздействий внешних причин)'
+  s := st + '(' + f3_inf_dds_karta( mm_invalid5, m1invalid5, ' ', ub, ue )
+  frd->( Eval( blk, s ) )
+  s := st + '16.7.2.Виды нарушений в состоянии здоровья:'
+  frd->( Eval( blk, s ) )
+  s := st + f3_inf_dds_karta( mm_invalid6(), m1invalid6, '; ', ub, ue )
+  frd->( Eval( blk, s ) )
+  s := st + '16.7.3. Индивидуальная программа реабилитации ребенка-инвалида:'
+  frd->( Eval( blk, s ) )
+  s := st + 'дата назначения: ' + iif( Empty( minvalid7 ), Replicate( '_', 15 ), ub + full_date( minvalid7 ) + ue ) + ';'
+  frd->( Eval( blk, s ) )
+  s := st + 'выполнение на момент диспансеризации: ' + f3_inf_dds_karta( mm_invalid8(), m1invalid8,, ub, ue )
+  frd->( Eval( blk, s ) )
+  s := st + '16.8. Группа состояния здоровья: ' + f3_inf_dds_karta( mm_gruppa, mGRUPPA,, ub, ue )
+  frd->( Eval( blk, s ) )
+  If p_tip_lu == TIP_LU_PN
+    s := st + '16.9. Медицинская группа для занятий физической культурой: '
+    s += f3_inf_dds_karta( mm_gr_fiz, m1GR_FIZ,, ub, ue )
+    frd->( Eval( blk, s ) )
+  Endif
+  s := st + iif( p_tip_lu == TIP_LU_PN, '16.10', '16.9' ) + ;
+    '. Проведение профилактических прививок:'
+  frd->( Eval( blk, s ) )
+  s := st
+  For j := 1 To Len( mm_privivki1() )
+    If m1privivki1 == mm_privivki1()[ j, 2 ]
+      s += ub
+    Endif
+    s += mm_privivki1()[ j, 1 ]
+    If m1privivki1 == mm_privivki1()[ j, 2 ]
+      s += ue
+    Endif
+    If mm_privivki1()[ j, 2 ] == 0
+      s += '; '
+    Else
+      s += ': ' + f3_inf_dds_karta( mm_privivki2(), iif( m1privivki1 == mm_privivki1()[ j, 2 ], m1privivki2, -1 ),, ub, ue, .f. ) + '; '
+    Endif
+  Next
+  s += 'нуждается в проведении вакцинации (ревакцинации) с указанием наименования прививки (нужное подчеркнуть): '
+  If m1privivki1 > 0 .and. !Empty( mprivivki3 )
+    s += ub + AllTrim( mprivivki3 ) + ue
+  Endif
+  frd->( Eval( blk, s ) )
+  s := Replicate( '_', sh ) + '.'
+  frd->( Eval( blk, s ) )
+  s := st + iif( p_tip_lu == TIP_LU_PN, '16.11', '16.10' ) + ;
+    '. Рекомендации по формированию здорового образа жизни, режиму дня, питанию, физическому развитию, иммунопрофилактике, занятиям физической культурой: '
+  k := 3
+  If !Empty( mrek_form )
+    k := 1
+    s += ub + AllTrim( mrek_form ) + ue
+  Endif
+  frd->( Eval( blk, s ) )
+  For i := 1 To k
+    s := Replicate( '_', sh ) + iif( i == k, '.', '' )
+    frd->( Eval( blk, s ) )
+  Next
+  If p_tip_lu == TIP_LU_PN
+    s := st + '16.12. Рекомендации о необходимости установления или продолжения ' + ;
+      'диспансерного наблюдения, включая диагноз заболевания (состояния) ' + ;
+      'и код МКБ, по лечению, медицинской реабилитации и ' + ;
+      'санаторно-курортному лечению с указанием вида медицинской ' + ;
+      'организации (санаторно-курортной организации) и специальности ' + ;
+      '(должности) врача: '
+  Else
+    s := st + '16.11. Рекомендации по диспансерному наблюдению, лечению, ' + ;
+      'медицинской реабилитации и санаторно-курортному лечению с указанием ' + ;
+      'диагноза (код МКБ), вида медицинской организации и специальности ' + ;
+      '(должности) врача: '
+  Endif
+  k := 5
+  If !Empty( mrek_disp )
+    k := 2
+    s += ub + AllTrim( mrek_disp ) + ue
+  Endif
+  frd->( Eval( blk, s ) )
+  For i := 1 To k
+    s := Replicate( '_', sh ) + iif( i == k, '.', '' )
+    frd->( Eval( blk, s ) )
+  Next
+  //
+  adbf := { { 'name', 'C', 60, 0 }, ;
+    { 'data', 'C', 10, 0 }, ;
+    { 'rezu', 'C', 17, 0 } }
+  dbCreate( fr_data + '1', adbf )
+  Use ( fr_data + '1' ) New Alias FRD1
+  dbCreate( fr_data + '2', adbf )
+  Use ( fr_data + '2' ) New Alias FRD2
+  arr := iif( p_tip_lu == TIP_LU_PN, f4_inf_dnl_karta( 1 ), f4_inf_dds_karta( 1 ) )
+  For i := 1 To Len( arr )
+    Select FRD1
+    Append Blank
+    frd1->name := arr[ i, 1 ]
+    frd1->data := full_date( arr[ i, 2 ] )
+  Next
+  arr := iif( p_tip_lu == TIP_LU_PN, f4_inf_dnl_karta( 2 ), f4_inf_dds_karta( 2 ) )
+  For i := 1 To Len( arr )
+    Select FRD2
+    Append Blank
+    frd2->name := arr[ i, 1 ]
+    frd2->data := full_date( arr[ i, 2 ] )
+    frd2->rezu := arr[ i, 3 ]
+  Next
+  //
+  Close databases
+  call_fr( 'mo_030dcu13' )
+  Return Nil

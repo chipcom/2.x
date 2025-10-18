@@ -46,6 +46,125 @@ function input_psih_health( j, age, mdata )
   endif
   return j
 
+// 18.10.25
+function rep_psih_health_and_sex( lvozrast, mdata, type )
+
+  // type - тип листа учета
+
+  local st, ub, ue, fl, s, blk, head_psih, head_sex
+
+  st := Space( 5 )
+  ub := '<u><b>'
+  ue := '</b></u>'
+  head_psih := iif( type == TIP_LU_PN, '13.', '14.' )
+  head_sex := iif( type == TIP_LU_PN, '14.', '15.' )
+  blk := {| s| __dbAppend(), field->stroke := s }
+  fl := ( lvozrast < 5 )
+  s := st + head_psih + ' Оценка психического развития (состояния):'
+  frd->( Eval( blk, s ) )
+  if mdata < 0d20250901
+    s := st + head_psih + '1. Для детей в возрасте 0 - 4 лет:'
+    frd->( Eval( blk, s ) )
+    s := st + 'познавательная функция (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih11 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'моторная функция (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih12 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'эмоциональная и социальная (контакт с окружающим миром) функции (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih13 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'предречевое и речевое развитие (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih14 ) + st + ue ) + '.'
+    frd->( Eval( blk, s ) )
+    fl := ( lvozrast > 4 )
+    s := st + head_psih + '2. Для детей в возрасте 5 - 17 лет:'
+    frd->( Eval( blk, s ) )
+    s := st + head_psih + '2.1. Психомоторная сфера: ' + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih21, -1 ),, ub, ue )
+    frd->( Eval( blk, s ) )
+    s := st + head_psih + '2.2. Интеллект: ' + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih22, -1 ),, ub, ue )
+    frd->( Eval( blk, s ) )
+    s := st + head_psih + '2.3. Эмоционально-вегетативная сфера: ' + f3_inf_dds_karta( mm_psih2(), iif( fl, m1psih23, -1 ),, ub, ue )
+    frd->( Eval( blk, s ) )
+  else
+    s := st + head_psih + '1. Для детей в возрасте 0 - 4 лет:'
+    frd->( Eval( blk, s ) )
+    s := st + 'познавательная функция (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih11 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'нарушение когнитивных функций ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih24 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'нарушение учебных навыков ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih25 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'моторная функция (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih12 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'эмоциональные нарушения ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih26 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'предречевое развитие ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_activ(), m1psih27 ) + st + ue ) + '.'
+    frd->( Eval( blk, s ) )
+    s := st + 'речевое развитие (возраст развития) ' + iif( !fl, '________', ub + st + lstr( m1psih14 ) + st + ue ) + '.'
+    frd->( Eval( blk, s ) )
+    s := st + 'понимание речи ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_partial(), m1psih28 ) + st + ue ) + '.'
+    frd->( Eval( blk, s ) )
+    s := st + 'активная речь ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_used(), m1psih29 ) + st + ue ) + '.'
+    frd->( Eval( blk, s ) )
+    s := st + 'нарушение коммуникативных навыков ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih30 ) + st + ue ) + '.'
+    frd->( Eval( blk, s ) )
+    s := st + 'сенсорное развитие ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_sensor(), m1psih31 ) + st + ue ) + '.'
+    frd->( Eval( blk, s ) )
+    fl := ( lvozrast > 4 )
+    s := st + head_psih + '2. Для детей в возрасте 5 - 17 лет:'
+    frd->( Eval( blk, s ) )
+    s := st + 'внешний вид ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_view_obraz(), m1psih32 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'доступен к контакту ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_contact(), m1psih33 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'фон настроения ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_nastroenie(), m1psih34 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'обманы восприятия ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih35 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'интеллектуальная функция ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_intelect(), m1psih36 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'нарушения когнитивных функций ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih37 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'нарушение учебных навыков ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih38 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'суицидальные наклонности ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_danet(), m1psih39 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'самоповреждения ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_self_harm(), m1psih40 ) + st + ue ) + ';'
+    frd->( Eval( blk, s ) )
+    s := st + 'социальная сфера ' + iif( !fl, '________', ub + st + inieditspr( A__MENUVERT, mm_socium(), m1psih41 ) + st + ue ) + '.'
+    frd->( Eval( blk, s ) )
+  endif
+
+  // половая характеристика
+  fl := ( mpol == 'М' .and. lvozrast > 9 )
+  s := st + '14. Оценка полового развития (с 10 лет):'
+  frd->( Eval( blk, s ) )
+  s := st + head_sex + '1. Половая формула мальчика: Р ' + iif( !fl .or. m141p == 0, '________', ub + st + lstr( m141p ) + st + ue )
+  s += ' Ах ' + iif( !fl .or. m141ax == 0, '________', ub + st + lstr( m141ax ) + st + ue )
+  s += ' Fa ' + iif( !fl .or. m141fa == 0, '________', ub + st + lstr( m141fa ) + st + ue ) + '.'
+  frd->( Eval( blk, s ) )
+  fl := ( mpol == 'Ж' .and. lvozrast > 9 )
+  s := st + head_sex + '2. Половая формула девочки: Р ' + iif( !fl .or. m142p == 0, '________', ub + st + lstr( m142p ) + st + ue )
+  s += ' Ах ' + iif( !fl .or. m142ax == 0, '________', ub + st + lstr( m142ax ) + st + ue )
+  s += ' Ma ' + iif( !fl .or. m142ma == 0, '________', ub + st + lstr( m142ma ) + st + ue )
+  s += ' Me ' + iif( !fl .or. m142me == 0, '________', ub + st + lstr( m142me ) + st + ue ) + ';'
+  frd->( Eval( blk, s ) )
+  s := st + 'характеристика менструальной функции: menarhe ('
+  s += iif( !fl .or. m142me1 == 0, '________', ub + st + lstr( m142me1 ) + st + ue ) + ' лет, '
+  s += iif( !fl .or. m142me2 == 0, '________', ub + st + lstr( m142me2 ) + st + ue ) + ' месяцев); '
+  If fl .and. emptyall( m142p, m142ax, m142ma, m142me, m142me1, m142me2 )
+    m1142me3 := m1142me4 := m1142me5 := -1
+  Endif
+  s += 'menses (характеристика): ' + f3_inf_dds_karta( mm_142me3(), iif( fl, m1142me3, -1 ),, ub, ue, .f. )
+  s += ', ' + f3_inf_dds_karta( mm_142me4(), iif( fl, m1142me4, -1 ),, ub, ue, .f. )
+  s += ', ' + f3_inf_dds_karta( mm_142me5(), iif( fl, m1142me5, -1 ), ' и ', ub, ue )
+  frd->( Eval( blk, s ) )
+  return nil
+
+// 16.10.25
+function calc_imt( /*@*/IMT )
+
+  IMT := iif( mHEIGHT != 0, ( mWEIGHT / ( ( mHEIGHT / 100 ) ** 2 ) ), 0 )
+  update_get( 'IMT' )
+  return .t.
+
 // 15.10.25
 function mm_activ()
   return { { 'да', 1 }, { 'не активно', 2 }, { 'нет', 0 } }
