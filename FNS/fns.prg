@@ -127,18 +127,17 @@ function reestr_spravka_fns()
 
   dbCloseAll()
   RestScreen( buf )
-
   return nil
 
-// 15.01.25
+// 20.10.25
 Function defcolumn_spravka_fns( oBrow )
 
   Local oColumn, s
   Local blk := {|| iif( Empty( fns->kod_xml ), { 5, 6 }, { 3, 4 } ) }
 
-//  oColumn := TBColumnNew( ' Год ', {|| str( fns->nyear, 4 ) } )
-//  oColumn:colorBlock := blk
-//  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( ' Год ', {|| str( fns->nyear, 4 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( ' Номер ', {|| str( fns->num_s, 5 ) } )
   oColumn:colorBlock := blk
@@ -176,7 +175,6 @@ Function defcolumn_spravka_fns( oBrow )
   s := '<Esc> выход <F9> печать'
   @ MaxRow(), 0 Say PadC( s, 80 ) Color 'N/W'
   mark_keys( { '<Esc>', '<Del>', '<F5>', '<F9>' }, 'R/W' )
-
   Return Nil
 
 // 02.01.25
@@ -207,7 +205,6 @@ Function serv_spravka_fns( nKey, oBrow )
   Otherwise
     Keyboard ''
   Endcase
-
   Return flag
 
 // 12.03.25
@@ -455,10 +452,9 @@ function exist_spravka( get, kod_kart, onePerson )
   endif
 
   select( tmp_select )
-
   return .t.
 
-// 29.01.25
+// 20.10.25
 function input_spravka_fns()
 
   Local str_sem
@@ -467,27 +463,29 @@ function input_spravka_fns()
     mINN := space( 12 ), ;
     mSumma := 0.0, mSum1 := 0.0, mSum2 := 0.0, ;
     j := 0, i, mkod
-  local nYear := 2024 // отчетный год
-//  local arr_m
-
   local aFIOPlat, mDOB, mVID, mSerNomer, mKogda
   local predst := '', predst_doc := '', pred_ruk := 0
   local org := hb_main_curOrg
   local aFIOPredst, oldSumma := 0.0
 
+  local nYear // := 2024 // отчетный год
+  local arr_m
+
   Private aCheck := {}
-  private mm_plat := { { 'он же ', 1 }, ;
+  private mm_plat := { ;
+    { 'он же ', 1 }, ;
     { 'другой', 0 } }, ;
     m1P_ATTR := 1, mP_ATTR  // вид плательщика
   private mKod_payer := 0   // код плательщика
 
-//  If ( arr_m := input_year() ) == NIL
-//    Return Nil
-//  Endif
-//  if arr_m[ 1 ] != 2024
-//    hb_Alert( 'Справки для ФНС составляются на 2024 год' )
-//    return nil
-//  endif
+  If ( arr_m := input_year() ) == NIL
+    Return Nil
+  Endif
+  nYear := arr_m[ 1 ]
+  if nYear < 2024 .or. nYear > Year( Date() )
+    hb_Alert( 'Справки для ФНС составляются не ранее 2024 года и не позже ' + Str( year( Date() ), 4 ) + ' года!' )
+    return nil
+  endif
   mP_ATTR := inieditspr( A__MENUVERT, mm_plat, m1p_attr )
   _fns_nastr( 0 ) // проверим сущетствование настроек
   _fns_nastr( 1 ) // прочитаем сущетствующие настроеки
@@ -677,7 +675,6 @@ function input_spravka_fns()
     g_sunlock( str_sem )
     dbCloseAll()
   endif
-  
   return nil
 
 // 25.08.24
@@ -724,7 +721,6 @@ Function inf_fns( k )
       si1 := j
     Endif
   Endif
-
   Return Nil
 
 // 28.01.25
@@ -820,6 +816,5 @@ function soot_doc( nVid )
 //  hb_hSet(aHash, , 08 )
 //  11	Свидетельство о рассмотрении ходатайства о признании лица беженцем на территории Российской Федерации по существу
 //  hb_hSet(aHash, , 11 )
-
   return ret
 
