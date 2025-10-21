@@ -577,7 +577,7 @@ Function f31_view_r_pr_nas( reg, s, s1 )
 
   Return Nil
 
-// 29.03.23
+// 20.10.25
 Function preparation_for_pripisnoe_naselenie()
   Local i, j, k, aerr, buf := SaveScreen(), blk, t_arr[ BR_LEN ], cur_year, ;
     str_sem := "preparation_for_pripisnoe_naselenie"
@@ -693,6 +693,9 @@ Function preparation_for_pripisnoe_naselenie()
       Elseif Year( kart->date_r ) < 1900
         AAdd( aerr, "дата рождения: " + full_date( kart->date_r ) + " ( < 1900г.)" )
       Endif
+      if len(AllTrim( kart2->KOD_MIS )) != 16
+        AAdd( aerr, 'не верный номер ЕНП' )
+      endif  
       If kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
         AAdd( aerr, 'данный пациент уже прикреплён к Вашей МО с ' + ;
           iif( Empty( kart2->pc4 ), full_date( kart2->DATE_PR ), AllTrim( kart2->pc4 ) ) + "г." )
@@ -919,68 +922,76 @@ Function preparation_for_pripisnoe_naselenie()
           s1 := iif( i == 1, "", hb_eol() )
           // 1 - Номер записи в файле с 10.06.19г.
           s1 += Eval( blk, lstr( i ) ) + ";"
-          // 1 - Действие
+          // 2 - Действие
           s := "Р"
           s1 += Eval( blk, s ) + ";"
-          // 2 - Код типа ДПФС
+          // 3 - Код типа ДПФС
           s := iif( kart_->vpolis == 3, "П", iif( kart_->vpolis == 2, "В", "С" ) )
+          // П - Бумажный полис ОМС единого образца Э - Электронный полис ОМС единого образца
+          // В ? Временное свидетельство С ? Полис старого образца К ? В составе УЭК
           s1 += Eval( blk, s ) + ";"
-          // 3 - Серия и номер ДПФС
-          s := iif( kart_->vpolis == 3, "", ;
-            iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ), ;
-            AllTrim( kart_->SPOLIS ) + " № " + AllTrim( kart_->NPOLIS ) ) )
+          // 4 - Серия и номер ДПФС
+          s := iif( kart_->vpolis == 3, AllTrim( kart2->KOD_MIS ), ;
+            iif( kart_->vpolis == 2, AllTrim( kart2->KOD_MIS ) ,  AllTrim( kart2->KOD_MIS ) ) )
+          //s := iif( kart_->vpolis == 3, "", ;
+          //  iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ), ;
+          //  AllTrim( kart_->SPOLIS ) + " № " + AllTrim( kart_->NPOLIS ) ) )
           s1 += Eval( blk, f_s_csv( s ) ) + ";"
-          // 4 - Единый номер полиса ОМС
+          // 5 - Единый номер полиса ОМС
           s := iif( kart_->vpolis == 3, AllTrim( kart_->NPOLIS ), "" )
           s1 += Eval( blk, s ) + ";"
           arr_fio := retfamimot( 1, .f. )
-          // 5 - Фамилия застрахованного лица
+          // 6 - Фамилия застрахованного лица
           s1 += Eval( blk, f_s_csv( arr_fio[ 1 ] ) ) + ";"
-          // 6 - Имя застрахованного лица
+          // 7 - Имя застрахованного лица
           s1 += Eval( blk, f_s_csv( arr_fio[ 2 ] ) ) + ";"
-          // 7 - Отчество застрахованного лица
+          // 8 - У - Отчество застрахованного лица
           s1 += Eval( blk, f_s_csv( arr_fio[ 3 ] ) ) + ";"
-          // 8 - Дата рождения застрахованного лица
+          // 9 - ДА - Дата рождения застрахованного лица
           s1 += Eval( blk, DToS( kart->date_r ) ) + ";"
-          // 9 - Место рождения застрахованного лица
+          // 10 - Нет- Место рождения застрахованного лица
           s := iif( eq_any( kart_->vid_ud, 3, 14 ), AllTrim( del_spec_symbol( kart_->mesto_r ) ), "" )
           s1 += Eval( blk, f_s_csv( s ) ) + ";"
-          // 10 - Тип документа, удостоверяющего личность
+          // 11 - У - Тип документа, удостоверяющего личность
           s1 += Eval( blk, lstr( kart_->vid_ud ) ) + ";"
-          // 11 - Номер или серия и номер документа, удостоверяющего личность.
+          // 12 - У - Номер или серия и номер документа, удостоверяющего личность.
           s := AllTrim( kart_->ser_ud ) + " № " + AllTrim( kart_->nom_ud )
           s1 += Eval( blk, f_s_csv( s ) ) + ";"
-          // 12 - Дата выдачи документа, удостоверяющего личность
+          // 13 - У - Дата выдачи документа, удостоверяющего личность
           s := iif( Empty( kart_->kogdavyd ), "", DToS( kart_->kogdavyd ) )
           s1 += Eval( blk, s ) + ";"
-          // 13 - Наименование органа, выдавшего документ
+          // 14 - У - Наименование органа, выдавшего документ
           s := AllTrim( inieditspr( A__POPUPMENU, dir_server() + "s_kemvyd", kart_->kemvyd ) )
           s1 += Eval( blk, f_s_csv( s ) ) + ";"
-          // 14 - СНИЛС застрахованного лица
+          // 15 - У - СНИЛС застрахованного лица
           s1 += Eval( blk, AllTrim( kart->snils ) ) + ";"
-          // 15 - Идентификатор МО
+          // 16 - Да - Идентификатор МО
           s1 += Eval( blk, glob_mo[ _MO_KOD_TFOMS ] ) + ";"
-          // 16 - Способ прикрепления
+          // 17 - Да - Способ прикрепления
           s1 += Eval( blk, lstr( krtp->S_PRIK ) ) + ";"
-          // 17 - Тип прикрепления (Зарезервированное поле)
+          // 18 - Нет -Тип прикрепления (Зарезервированное поле)
           s := ""
           s1 += Eval( blk, s ) + ";"
-          // 18 - Дата заявления
+          // 19 - Да - Дата заявления застрахованного
           s1 += Eval( blk, DToS( krtp->D_PRIK ) ) + ";"
-          // 19 - Дата открепления
+          // 20 - Нет - Дата открепления
           s1 += Eval( blk, "" ) + ";"
-          // 20 ОИД МО
+          // 21 - Да - ОИД МО
           s1 += Eval( blk, f_s_csv( loidmo ) ) + ";"
-          // 21 код подразделения
+          // 22 - Да - код подразделения из "Паспорта ЛПУ" иначе 0
           s := AllTrim( otd->kod_podr )
-          s1 += Eval( blk, f_s_csv( s ) ) + ";"
-          // 22 номер участка
+          if len(s) > 0
+            s1 += Eval( blk, f_s_csv( s ) ) + ";"
+          else
+            s1 += Eval( blk,"0" ) + ";"
+          endif  
+          // 23 - Да - номер участка
           s := lstr( tmp_krtp->uchast )
           s1 += Eval( blk, s ) + ";"
-          // 23 СНИЛС врача
+          // 24 - Да - СНИЛС врача
           s := p2->snils
           s1 += Eval( blk, s ) + ";"
-          // 24 категория врача
+          // 25 -Да - категория врача (1-врач  2-фельдшер)
           s := iif( p2->kateg == 1, "1", "2" )
           s1 += Eval( blk, s )
           //
@@ -1017,30 +1028,32 @@ Function preparation_for_pripisnoe_naselenie()
             s1 := iif( i == 1, "", hb_eol() )
             // 1 - Номер записи в файле с 10.06.19г.
             s1 += Eval( blk, lstr( i ) ) + ";"
-            // 1 - Действие
-            s := "И" // !!!!!!!!!!!!!! с версии 2.2.12
+            // 2 - Действие
+            s := "И" // 
             s1 += Eval( blk, s ) + ";"
-            // 2 - Код типа ДПФС
+            // 3 - Код типа ДПФС
             s := iif( kart_->vpolis == 3, "П", iif( kart_->vpolis == 2, "В", "С" ) )
             s1 += Eval( blk, s ) + ";"
-            // 3 - Серия и номер ДПФС
-            s := iif( kart_->vpolis == 3, "", ;
-              iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ), ;
-              AllTrim( kart_->SPOLIS ) + " № " + AllTrim( kart_->NPOLIS ) ) )
+            // 4 - Серия и номер ДПФС
+            s := iif( kart_->vpolis == 3, AllTrim( kart2->KOD_MIS ), ;
+              iif( kart_->vpolis == 2, AllTrim( kart2->KOD_MIS ) ,  AllTrim( kart2->KOD_MIS ) ) )
+            //s := iif( kart_->vpolis == 3, "", ;
+            //  iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ), ;
+            //  AllTrim( kart_->SPOLIS ) + " № " + AllTrim( kart_->NPOLIS ) ) )
             s1 += Eval( blk, f_s_csv( s ) ) + ";"
-            // 4 - Единый номер полиса ОМС
+            // 5 - Единый номер полиса ОМС
             s := iif( kart_->vpolis == 3, AllTrim( kart_->NPOLIS ), "" )
             s1 += Eval( blk, s ) + ";"
             arr_fio := retfamimot( 1, .f. )
-            // 5 - Фамилия застрахованного лица
+            // 6 - Фамилия застрахованного лица
             s1 += Eval( blk, f_s_csv( arr_fio[ 1 ] ) ) + ";"
-            // 6 - Имя застрахованного лица
+            // 7 - Имя застрахованного лица
             s1 += Eval( blk, f_s_csv( arr_fio[ 2 ] ) ) + ";"
-            // 7 - Отчество застрахованного лица
+            // 8 - Отчество застрахованного лица
             s1 += Eval( blk, f_s_csv( arr_fio[ 3 ] ) ) + ";"
-            // 8 - Дата рождения застрахованного лица
+            // 9 - Дата рождения застрахованного лица
             s1 += Eval( blk, DToS( kart->date_r ) ) + ";"
-            // 9 - Место рождения застрахованного лица
+            // 10 - Место рождения застрахованного лица
             s := iif( eq_any( kart_->vid_ud, 3, 14 ), AllTrim( del_spec_symbol( kart_->mesto_r ) ), "" )
             s1 += Eval( blk, f_s_csv( s ) ) + ";"
             fl := AScan( getvidud(), {| x| x[ 2 ] == kart_->vid_ud } ) == 0
@@ -1060,18 +1073,18 @@ Function preparation_for_pripisnoe_naselenie()
               fl := .t.
             Endif
             If fl
-              // 10 - Тип документа, удостоверяющего личность
+              // 11 - Тип документа, удостоверяющего личность
               s1 += Eval( blk, "" ) + ";"
-              // 11 - Номер или серия и номер документа, удостоверяющего личность.
+              // 12 - Номер или серия и номер документа, удостоверяющего личность.
               s1 += Eval( blk, "" ) + ";"
             Else
-              // 10 - Тип документа, удостоверяющего личность
+              // 11 - Тип документа, удостоверяющего личность
               s1 += Eval( blk, lstr( kart_->vid_ud ) ) + ";"
-              // 11 - Номер или серия и номер документа, удостоверяющего личность.
+              // 12 - Номер или серия и номер документа, удостоверяющего личность.
               s := AllTrim( kart_->ser_ud ) + " № " + AllTrim( kart_->nom_ud )
               s1 += Eval( blk, f_s_csv( s ) ) + ";"
             Endif
-            // 12 - Дата выдачи документа, удостоверяющего личность
+            // 13 - Дата выдачи документа, удостоверяющего личность
             lkogdavyd := kart_->kogdavyd
             If !Empty( kart_->kogdavyd ) .and. !Between( kart_->kogdavyd, kart->date_r, sys_date )
               If kart_->vid_ud == 3 // свид_во о рождении
@@ -1082,37 +1095,41 @@ Function preparation_for_pripisnoe_naselenie()
             Endif
             s := iif( Empty( lkogdavyd ), "", DToS( lkogdavyd ) )
             s1 += Eval( blk, s ) + ";"
-            // 13 - Наименование органа, выдавшего документ
+            // 14 - Наименование органа, выдавшего документ
             s := AllTrim( inieditspr( A__POPUPMENU, dir_server() + "s_kemvyd", kart_->kemvyd ) )
             s1 += Eval( blk, f_s_csv( s ) ) + ";"
-            // 14 - СНИЛС застрахованного лица
+            // 15 - СНИЛС застрахованного лица
             If !Empty( lsnils := kart->snils ) .and. !val_snils( kart->snils, 2 )
               lsnils := ""
             Endif
             s1 += Eval( blk, AllTrim( lsnils ) ) + ";"
-            // 15 - Идентификатор МО
+            // 16 - Идентификатор МО
             s1 += Eval( blk, glob_mo[ _MO_KOD_TFOMS ] ) + ";"
-            // 16 - Способ прикрепления
+            // 17 - Способ прикрепления
             s1 += Eval( blk, lstr( krtp->S_PRIK ) ) + ";"
-            // 17 - Тип прикрепления (Зарезервированное поле)
+            // 18 - Тип прикрепления (Зарезервированное поле)
             s := ""
             s1 += Eval( blk, s ) + ";"
-            // 18 - Дата заявления
+            // 19 - Дата заявления
             s1 += Eval( blk, DToS( krtp->D_PRIK ) ) + ";"
-            // 19 - Дата открепления
+            // 20 - Дата открепления
             s1 += Eval( blk, "" ) + ";"
-            // 20 ОИД МО
+            // 21 ОИД МО
             s1 += Eval( blk, f_s_csv( loidmo ) ) + ";"
-            // 21 код подразделения
+            // 22 код подразделения
             s := AllTrim( otd->kod_podr )
-            s1 += Eval( blk, f_s_csv( s ) ) + ";"
-            // 22 номер участка
+            if len(s) > 0
+              s1 += Eval( blk, f_s_csv( s ) ) + ";"
+            else
+              s1 += Eval( blk,"0" ) + ";"
+            endif  
+            // 23 номер участка
             s := lstr( kart->uchast )
             s1 += Eval( blk, s ) + ";"
-            // 23 СНИЛС врача
+            // 24 СНИЛС врача
             s := p2->snils
             s1 += Eval( blk, s ) + ";"
-            // 24 категория врача
+            // 25 категория врача
             s := iif( p2->kateg == 1, "1", "2" )
             s1 += Eval( blk, s )
             //
