@@ -9,7 +9,7 @@
 
 // Static sadiag1
 
-// 17.10.25 создание XML-файлов реестра
+// 21.10.25 создание XML-файлов реестра
 Function create2reestr19( _recno, _nyear, _nmonth, reg_sort, p_tip_reestr )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
@@ -298,10 +298,10 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort, p_tip_reestr )
     @ MaxRow(), 0 Say Str( rhum->REES_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
 
     // записываем элемент для случая
-    elem_reestr_sluch_2025( oXmlDoc, p_tip_reestr, _nyear )
+    elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear )
 
     // записываем элемент для пациента
-    elem_reestr_pacient_2025( oXmlDocPacient, fl_ver, p_tip_reestr )      
+    elem_reestr_pacient( oXmlDocPacient, fl_ver, p_tip_reestr )      
     rhum->( dbSkip() )  //  Skip
   Enddo
   dbUnlockAll()

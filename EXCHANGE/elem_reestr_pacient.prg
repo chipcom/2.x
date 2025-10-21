@@ -5,8 +5,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.09.25
-function elem_reestr_pacient_2025( oXmlDoc, fl_ver, p_tip_reestr )
+// 21.10.25
+function elem_reestr_pacient( oXmlDoc, fl_ver, p_tip_reestr )
 
   local arr_fio, smr
   local oPAC
