@@ -5,6 +5,8 @@
 #include 'chip_mo.ch'
 
 #define BASE_ISHOD_RZD 500  //
+#define LIMITED_DATE_MIN  1905
+#define LIMITED_DATE_MAX  2030
 
 // 22.10.25
 Function verify_sluch( fl_view )
@@ -131,8 +133,11 @@ Function verify_sluch( fl_view )
   cuch_doc := human->uch_doc
 
   // проверка по датам
-  If Year( human->date_r ) < 1900
-    AAdd( ta, 'дата рождения: ' + full_date( human->date_r ) + ' ( < 1900г.)' )
+  If Year( human->date_r ) < LIMITED_DATE_MIN
+    AAdd( ta, 'дата рождения: ' + full_date( human->date_r ) + ' ( < ' + str( LIMITED_DATE_MIN, 4 ) + 'г.)' )
+  Endif
+  If Year( human->date_r ) > LIMITED_DATE_MAX
+    AAdd( ta, 'дата рождения: ' + full_date( human->date_r ) + ' ( > ' + str( LIMITED_DATE_MAX, 4 ) + 'г.)' )
   Endif
   If human->date_r > human->n_data
     AAdd( ta, 'дата рождения: ' + full_date( human->date_r ) + ;
@@ -316,6 +321,11 @@ Function verify_sluch( fl_view )
         AAdd( ta, s )
       Endif
     Endif
+    if ! Empty( kart_->kogdavyd ) .and. ;
+        ( Year( kart_->kogdavyd ) < LIMITED_DATE_MIN .or. Year( kart_->kogdavyd ) > LIMITED_DATE_MAX )
+      AAdd( ta, 'дата выдачи документа удостоверяющего личность должна быть между ' ;
+        + str( LIMITED_DATE_MIN, 4 ) + ' и ' + str( LIMITED_DATE_MAX, 4 ) + ' годом' )
+    endif
     If human_->usl_ok < USL_OK_AMBULANCE .and. human_->vpolis < 3 .and. !eq_any( Left( human_->OKATO, 2 ), '  ', '18' ) // иногородние
       If Empty( kart_->kogdavyd )
         AAdd( ta, 'для иногородних без нового полиса обязательно заполнение поля "Дата выдачи документа, удостоверяющего личность"' )

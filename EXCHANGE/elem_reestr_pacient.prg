@@ -93,7 +93,6 @@ function elem_reestr_pacient( oXmlDoc, fl_ver, p_tip_reestr )
     Endif
   Endif
   If !Empty( kart->snils )
-//    mo_add_xml_stroke( oPAC, 'SNILS', Transform( kart->SNILS, picture_pf ) )
     mo_add_xml_stroke( oPAC, 'SNILS', Transform_SNILS( kart->SNILS ) )
   Endif
   If human_->vpolis == 3 .and. Empty( kart_->okatog )
