@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 13.10.25
+// 22.10.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -187,9 +187,13 @@ Function verify_sluch( fl_view )
   //
   // ПРОВЕРЯЕМ ДИАГНОЗЫ
   //
-  mdiagnoz := diag_to_array(, , , , .t. )
+  mdiagnoz := diag_to_array(, , , , .t. ) 
   If Len( mdiagnoz ) == 0 .or. Empty( mdiagnoz[ 1 ] )
     AAdd( ta, 'не заполнено поле "ОСНОВНОЙ ДИАГНОЗ"' )
+  Endif
+  // проверим заполненные "фиктивные" диагнозы
+  if Upper( AllTrim( mdiagnoz[ 1 ] ) ) == 'Z92.9' .and. ( Len( mdiagnoz ) == 1 .or. Empty( AllTrim( mdiagnoz[ 2 ] ) ) )
+    AAdd( ta, 'для основного диагноза Z92.9 дополнительно заполняется сопутствующий диагноз' )
   Endif
 
   l_mdiagnoz_fill := ( Len( mdiagnoz ) > 0 )
