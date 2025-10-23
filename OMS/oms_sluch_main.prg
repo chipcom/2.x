@@ -3,7 +3,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.09.25 добавление или редактирование случая (листа учета)
+#define LIMITED_INT_HEI_MIN 20
+#define LIMITED_INT_HEI_MAX 250
+
+#define LIMITED_NUM_WEI_MIN 0.3
+#define LIMITED_NUM_WEI_MAX 499.9
+
+// 23.10.25 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1559,9 +1565,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           Endif
           If fl_2_4
             @ ++j, 5 Get lstr_wei Color color1 When .f.
-            @ j, Col() + 1 Get mwei When eq_any( m1usl_tip, 2, 4 )
+            @ j, Col() + 1 Get mwei Valid( LIMITED_NUM_WEI_MIN < val( mWEI ) < LIMITED_NUM_WEI_MAX ) When eq_any( m1usl_tip, 2, 4 )
             @ j, Col() + 1 Get lstr_hei Color color1 When .f.
-            @ j, Col() + 1 Get mhei When eq_any( m1usl_tip, 2, 4 )
+            @ j, Col() + 1 Get mhei Valid( LIMITED_INT_HEI_MIN < val( mhei ) < LIMITED_INT_HEI_MAX ) When eq_any( m1usl_tip, 2, 4 )
             @ j, Col() + 1 Get lstr_bsa Color color1 When .f.
             @ j, Col() + 1 Get mbsa When eq_any( m1usl_tip, 2, 4 )
             @ ++j, 5 Get lstr_err Color color1 When .f.
@@ -1600,9 +1606,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             Endif
             If fl2_2_4
               @ ++j, 5 Get lstr_vmpwei Color color1 When .f.
-              @ j, Col() + 1 Get mwei When eq_any( m1usl_vmp, 2, 4 )
+              @ j, Col() + 1 Get mwei Valid( LIMITED_NUM_WEI_MIN < val( mWEI ) < LIMITED_NUM_WEI_MAX ) When eq_any( m1usl_tip, 2, 4 )
               @ j, Col() + 1 Get lstr_vmphei Color color1 When .f.
-              @ j, Col() + 1 Get mhei When eq_any( m1usl_vmp, 2, 4 )
+              @ j, Col() + 1 Get mhei Valid( LIMITED_INT_HEI_MIN < val( mhei ) < LIMITED_INT_HEI_MAX ) When eq_any( m1usl_tip, 2, 4 )
               @ j, Col() + 1 Get lstr_vmpbsa Color color1 When .f.
               @ j, Col() + 1 Get mbsa When eq_any( m1usl_vmp, 2, 4 )
               @ ++j, 5 Get lstr_vmperr Color color1 When .f.

@@ -5,10 +5,18 @@
 #include 'chip_mo.ch'
 
 #define BASE_ISHOD_RZD 500  //
+
+// нижеследующее взято из правил schemaType.xsd
 #define LIMITED_DATE_MIN  1905
 #define LIMITED_DATE_MAX  2030
 
-// 22.10.25
+#define LIMITED_INT_HEI_MIN 20
+#define LIMITED_INT_HEI_MAX 250
+
+#define LIMITED_NUM_WEI_MIN 0.3
+#define LIMITED_NUM_WEI_MAX 499.9
+
+// 23.10.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -3893,7 +3901,8 @@ Function verify_sluch( fl_view )
         fl := .f.
         For i := 1 To Len( au_lu )
           If eq_any( au_lu[ i, 3 ], 68, 57 ) ; // педиатр (врач общей практики)
-              .and. ( Left( au_lu[ i, 1 ], 4 ) == '2.3.' .or. Left( au_lu[ i, 1 ], 4 ) == '2.94' )  // на 1-ом этапе
+              .and. ( ( Left( au_lu[ i, 1 ], 4 ) == '2.85' ) .or. ;
+              ( Left( au_lu[ i, 1 ], 4 ) == '2.3.' .or. Left( au_lu[ i, 1 ], 4 ) == '2.94' ) ) // на 1-ом этапе
             fl := .t.
             Exit
           Endif

@@ -979,7 +979,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           @ j, 62 get &mvaro reader {| x| menu_reader( x, mm_otkaz, A__MENUVERT, , , .f. ) } When m1step2 == 1
         Endif
       Next
-      @ ++j, 1 Say PadR( 'педиатр (врач общей практики)', 38 ) Color color8
+      @ ++j, 1 Say PadR( 'педиатр (врач общей практики)', 38 ) Color color8 
       @ j, 39 Get MTAB_NOMpv2 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
       If mem_por_ass > 0
         @ j, 45 Get MTAB_NOMpa2 Pict '99999' valid {| g| v_kart_vrach( g ) } When m1step2 == 1
@@ -1797,7 +1797,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       m1assis  := arr_osm1[ i, 3 ]
       m1PROFIL := arr_osm1[ i, 4 ]
       // MKOD_DIAG := padr(arr_osm1[i, 6], 6)
-      If ! is_otkaz .and. mk_data < 0d20250901  // добавляем код ЗС до 01.09.25
+      If ! is_otkaz .and. mk_data < 0d20250901 .and. metap != 2  // добавляем код ЗС до 01.09.25
         AAdd( arr_usl_dop, Array( 10 ) )
         j := Len( arr_usl_dop )
         arr_usl_dop[ j, 1 ] := m1vrach
