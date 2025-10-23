@@ -34,7 +34,7 @@ Function is_osmotr_dds_1_etap( ausl, _vozrast, _etap, _pol, tip_lu, mdata )
   Next
   Return fl
 
-/*
+
 // 13.10.25 является врачебным осмотром детей-сирот
 Function is_osmotr_dds( ausl, _vozrast, arr, _etap, _pol, tip_lu, mdata, mobil )
 
@@ -95,7 +95,7 @@ Function is_osmotr_dds( ausl, _vozrast, arr, _etap, _pol, tip_lu, mdata, mobil )
     Endif
   Endif
   Return fl
-*/
+
 
 // 25.09.25 является исследованием детей-сирот
 Function is_issl_dds( ausl, _vozrast, arr, mdata )
