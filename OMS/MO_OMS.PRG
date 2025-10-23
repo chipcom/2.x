@@ -1770,7 +1770,7 @@ Function f1ret_oms_human( oBrow )
 
   Return Nil
 
-// 11.07.25 
+// 23.10.25 
 Function f2ret_oms_human( nkey )
 
   Static tmp := ' '
@@ -2412,7 +2412,8 @@ Function f2ret_oms_human( nkey )
                   PadR( AllTrim( lshifr ), 6 ) == '2.92.9' .or. ;
                   PadR( AllTrim( lshifr ), 6 ) == '2.92.10' .or. ;
                   PadR( AllTrim( lshifr ), 6 ) == '2.92.11' .or. ;
-                  PadR( AllTrim( lshifr ), 6 ) == '2.92.12'
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.12' .or. ;
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.13'
                 If PadR( AllTrim( lshifr ), 6 ) == '2.92.3' // дети
                   mas_otchet[ 34, 3 ] += 1
                   mas_otchet[ 34, 4 ] += human->cena_1

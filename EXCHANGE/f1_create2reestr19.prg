@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500
 
-// 18.10.25 работаем по текущей записи
+// 23.10.25 работаем по текущей записи
 Function f1_create2reestr19( _nyear, p_tip_reestr )
 
   Local i, j, lst, s
@@ -150,7 +150,7 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
       If ( hu->stoim_1 > 0 .or. Left( lshifr, 3 ) == '71.' ) .and. ( i := ret_vid_pom( 1, lshifr, human->k_data ) ) > 0
         lvidpom := i
         // для школ здоровья ХНИЗ
-        if eq_any( lshifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12' )
+        if eq_any( lshifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12', '2.92.13' )
           if eq_any( locPRVS, '76', '49' )  // тераипия, педиатрия
             lvidpom := 12
           elseif eq_any( lshifr, '2.92.4', '2.92.5', '2.92.9', '2.92.10', '2.92.11' ) .and. locPRVS == '39'   // общая врачебная практика (семейная медицина)

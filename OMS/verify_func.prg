@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.05.25
+// 23.10.25
 function diabetes_school_xniz( shifr, nAge, dni, kol_93_1, kol_93_2, rslt, ishod, ta )
 
   local s
@@ -48,7 +48,7 @@ function diabetes_school_xniz( shifr, nAge, dni, kol_93_1, kol_93_2, rslt, ishod
       if nAge >= 18 .and. kol_93_2 < 5
         AAdd( ta, s + '5 раз' )
       Endif
-    elseif  shifr == '2.92.12'
+    elseif  shifr == '2.92.12' .or. shifr == '2.92.13'
       If nAge < 18 .and. dni < 10
         AAdd( ta, s + '10 дней' )
       Endif
