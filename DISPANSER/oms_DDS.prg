@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.10.25 ДДС - добавление или редактирование случая (листа учета)
+// 24.10.25 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -776,7 +776,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       Endif
     Elseif num_screen == 2
 
-      ar := DDS_arr_etap( mk_data, m1mobilbr )[ iif( mk_data >= 0d20250901, mperiod, mvozrast ) ]
+      ar := DDS_arr_etap( mk_data, m1mobilbr )[ iif( mk_data >= 0d20250901, mperiod, mvozrast ) ] 
       arr_DDS_issled := DDS_arr_issled( mk_data )
       If !Empty( ar[ 5 ] ) // не пустой массив исследований
         @ ++j, 1 Say 'I этап наименований исследований       Врач Ассис.  Дата     Результат' Color 'RB+/B'

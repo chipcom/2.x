@@ -887,14 +887,20 @@ Function read_arr_pn( lkod, is_all, mdata )
   Endif
   Return Nil
 
-// 12.10.25
+// 24.10.25
 Function is_issled_pn( ausl, _period, arr, _pol, mdata )
 
   // ausl - {lshifr,mdate,hu_->profil,hu_->PRVS}
 
-  Local i, s := '', fl := .f., lshifr := AllTrim( ausl[ 1 ] )
+  Local i, s := '', fl := .f., lshifr // := AllTrim( ausl[ 1 ] )
   local arr_pn_issled
   local arr_pn_zs
+
+  if ValType( ausl ) == 'A'
+    lshifr := ausl[ 1 ]
+  else
+    lshifr := ausl
+  endif
 
   arr_pn_issled := np_arr_issled( mdata )
   arr_pn_zs := np_arr_not_zs( mdata )
@@ -921,14 +927,20 @@ Function is_issled_pn( ausl, _period, arr, _pol, mdata )
   Endif
   Return fl
 
-// 12.10.25
+// 24.10.25
 Function is_osmotr_pn( ausl, _period, arr, _etap, _pol, mdata, mobil )
 
   // ausl - {lshifr,mdate,hu_->profil,hu_->PRVS}
 
-  Local i, j, s, fl := .f., fl_profil := .f., lshifr := AllTrim( ausl[ 1 ] )
+  Local i, j, s, fl := .f., fl_profil := .f., lshifr  // := AllTrim( ausl[ 1 ] )
   Local arr_PN_osmotr
   Local arr_not_zs
+
+  if ValType( ausl ) == 'A'
+    lshifr := ausl[ 1 ]
+  else
+    lshifr := ausl
+  endif
 
   arr_PN_osmotr := np_arr_osmotr( mdata, mobil )
   arr_not_zs := np_arr_not_zs( mdata )
@@ -971,10 +983,10 @@ Function is_osmotr_pn( ausl, _period, arr, _etap, _pol, mdata, mobil )
       AAdd( arr, 'Несовместимость по полу в услуге ' + s )
     Endif
     If ValType( arr_PN_osmotr[ i, 4 ] ) == 'N'
-      If arr_PN_osmotr[ i, 4 ] != ausl[ 3 ]
+      If ( ValType( ausl ) == 'A' ) .and. ( arr_PN_osmotr[ i, 4 ] != ausl[ 3 ] )
         AAdd( arr, 'Не тот профиль в услуге ' + s )
       Endif
-    Elseif ( j := AScan( arr_PN_osmotr[ i, 4 ], ausl[ 3 ] ) ) == 0
+    Elseif ( ValType( ausl ) == 'A' ) .and. ( ( j := AScan( arr_PN_osmotr[ i, 4 ], ausl[ 3 ] ) ) == 0 )
       AAdd( arr, 'Не тот профиль в услуге ' + s )
     Endif
   Endif

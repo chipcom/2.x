@@ -3603,7 +3603,7 @@ Function verify_sluch( fl_view )
             lshifr := AllTrim( ar[ 5 ] )
             If ar[ 10 ] == 'i' // исследования
               If ( i := AScan( np_arr_issled, {| x| ValType( x[ 1 ] ) == 'C' .and. x[ 1 ] == lshifr } ) ) > 0
-                If is_issled_pn( { lshifr, ar[ 6 ], ar[ 4 ], ar[ 2 ] }, mperiod, ta, human->pol )
+                If is_issled_pn( { lshifr, ar[ 6 ], ar[ 4 ], ar[ 2 ] }, mperiod, ta, human->pol, dEnd )
                   ++kol_d_otkaz
                 Endif
               Endif
