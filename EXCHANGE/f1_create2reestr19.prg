@@ -52,7 +52,7 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
   tarif_zak_sl := human->cena_1
 //  is_oncology_smp := 0
 //  is_oncology := f_is_oncology( 1, @is_oncology_smp )
-//  If p_tip_reestr == 2
+//  If p_tip_reestr == TYPE_REESTR_DISPASER
 //    is_oncology := 0
 //  Endif
 
@@ -118,7 +118,7 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
     lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
     If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, , , @lst, , @s )
       lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
-      If human_->USL_OK == 3 .and. is_usluga_disp_nabl( lshifr )
+      If human_->USL_OK == USL_OK_POLYCLINIC .and. is_usluga_disp_nabl( lshifr )
         ldate_next := c4tod( human->DATE_OPL )
         fl_disp_nabl := .t.
       Endif
@@ -168,7 +168,7 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
           endif
         endif
       Endif
-      If human_->USL_OK == 3
+      If human_->USL_OK == USL_OK_POLYCLINIC
         If f_is_neotl_pom( lshifr )
           lfor_pom := 2 // неотложная
         Elseif eq_any( Left( lshifr, 5 ), '60.4.', '60.5.', '60.6.', '60.7.', '60.8.' )
@@ -185,7 +185,7 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
           is_zak_sl_vr := .t.
         Else
           is_zak_sl_vr := .t. // КСГ
-          If human_->USL_OK < 3 .and. p_tip_reestr == 1
+          If human_->USL_OK < 3 .and. p_tip_reestr == TYPE_REESTR_GENERAL
             tarif_zak_sl := hu->STOIM_1
             If !Empty( human_2->pc1 )
               akslp := list2arr( human_2->pc1 )
@@ -212,7 +212,7 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
     Select HU
     Skip
   Enddo
-  If human_->USL_OK == 1 .and. human_2->VMP == 1 .and. !emptyany( human_2->VIDVMP, human_2->METVMP ) // ВМП
+  If human_->USL_OK == USL_OK_HOSPITAL .and. human_2->VMP == 1 .and. !emptyany( human_2->VIDVMP, human_2->METVMP ) // ВМП
     is_KSG := .f.
   Endif
   If !Empty( lvidpoms )
@@ -555,9 +555,9 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
 //    adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
 //  Next
 /////
-//  If p_tip_reestr == 1
+//  If p_tip_reestr == TYPE_REESTR_GENERAL
 //    If glob_mo[ _MO_IS_UCH ] .and. ;                    // наше МО имеет прикреплённое население
-//        human_->USL_OK == 3 .and. ;                    // поликлиника
+//        human_->USL_OK == USL_OK_POLYCLINIC .and. ;                    // поликлиника
 //        kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ] .and. ; // прикреплён к нашему МО
 //      Between( kart_->INVALID, 1, 4 )                    // инвалид
 //      Select INV

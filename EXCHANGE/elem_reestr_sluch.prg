@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.10.25
+// 26.10.25
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -14,7 +14,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Local oONK_SL, oDIAG, oPROT, oONK
   Local oLEK, oDOSE
   Local oUSL, oMR_USL_N, oMED_DEV
-  Local oPAC, oDISAB, oINJ
+  Local oPAC, oINJ    // , oDISAB
 
   Local fl, lshifr1
   Local i, j
@@ -33,7 +33,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Local kol_sl, isl
   Local is_oncology_smp, is_oncology, arr_onkna, arr_onkco, arr_onksl, arr_onkdi, arr_onkpr, arr_onk_usl
   Local mdiagnoz, mdiagnoz3
-  Local cSMOname, fl_DISABILITY := .f.
+  Local cSMOname  // , fl_DISABILITY := .f.
   Local adiag_talon[ 16 ], tmpSelect
   Local a_fusl := {}
   Local laluslf, lal
@@ -130,7 +130,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     Endif
 
     mdiagnoz := diag_for_xml( , .t., , , .t. )
-    If p_tip_reestr == 2
+    If p_tip_reestr == TYPE_REESTR_DISPASER
       If human->OBRASHEN == '1' .and. AScan( mdiagnoz, {| x| PadR( x, 5 ) == 'Z03.1' } ) == 0
         AAdd( mdiagnoz, 'Z03.1' )
       Endif
@@ -152,8 +152,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     For i := 1 To 16
       adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
     Next
-
-    fl_DISABILITY := is_disability( p_tip_reestr )
 
     tmpSelect := Select()
     dbSelectArea( 'MOHU' )
@@ -201,17 +199,28 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           StrZero( human_->NOVOR, 2 )
         mo_add_xml_stroke( oPAC, 'NOVOR', mnovor )
       Endif
-      If human_->USL_OK == 1 .and. human_2->VNR > 0
+      If human_->USL_OK == USL_OK_HOSPITAL .and. human_2->VNR > 0
         // стационар + л/у на недоношенного ребёнка
         mo_add_xml_stroke( oPAC, 'VNOV_D', lstr( human_2->VNR ) )
       Endif
-      If ( p_tip_reestr == 1 )
+
+//      If ( p_tip_reestr == 1 )
         If ( kol_sl == 1 .and. ( human->k_data >= 0d20250101 ) ) ;  // одинарный случай
           .or. ( kol_sl == 2 .and. ( ksl_date >= 0d20250101 ) )   // двойной случай
           mo_add_xml_stroke( oPAC, 'SOC', iif( Empty( kart->pc3 ), '000', kart->pc3 ) )
         Endif
-      Endif
+//      Endif
+
       // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
+      if p_tip_reestr == TYPE_REESTR_GENERAL .and. ;                    // реестр окоазания мед. помощи за исключенем диспансеризации
+          human_->USL_OK == USL_OK_POLYCLINIC .and. ; // поликлиника
+          glob_mo[ _MO_IS_UCH ] .and. ;               // наше МО имеет прикреплённое население
+          kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ]    // прикреплён к нашему МО
+        elem_disability( oPac )
+      endif
+/*
+      fl_DISABILITY := is_disability( p_tip_reestr )
+
       If fl_DISABILITY // Сведения о первичном признании застрахованного лица инвалидом
         // заполним сведения об инвалидности пациента для XML-документа
         oDISAB := oPAC:add( hxmlnode():new( 'DISABILITY' ) )
@@ -225,11 +234,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           mo_add_xml_stroke( oDISAB, 'DS_INV', inv->DIAG_INV )
         Endif
       Endif
-
-      If ( p_tip_reestr == 2 ) .and. ( human->k_data >= 0d20250101 )
+*/
+/*
+      If ( p_tip_reestr == TYPE_REESTR_DISPASER ) .and. ( human->k_data >= 0d20250101 )
         mo_add_xml_stroke( oPAC, 'SOC', iif( Empty( kart->pc3 ), '000', kart->pc3 ) )
       Endif
-
+*/
       // заполним сведения о законченном случае оказания медицинской помощи для XML-документа
       oSLUCH := oZAP:add( hxmlnode():new( 'Z_SL' ) )
       mo_add_xml_stroke( oSLUCH, 'IDCASE', lstr( rhum->REES_ZAP ) )
@@ -241,7 +251,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oSLUCH, 'ID_C', human_->ID_C )
       Endif
 
-      If p_tip_reestr == 2  // для реестров по диспансеризации
+      If p_tip_reestr == TYPE_REESTR_DISPASER  // для реестров по диспансеризации
         s := Space( 3 )
         ret_tip_lu( @s )
         If !Empty( s )
@@ -254,7 +264,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       Else
         mo_add_xml_stroke( oSLUCH, 'VIDPOM', lstr( lvidpom ) )
       Endif
-      If p_tip_reestr == 1
+      If p_tip_reestr == TYPE_REESTR_GENERAL
         lal := iif( kol_sl == 2, 'human_3', 'human_' )
         mo_add_xml_stroke( oSLUCH, 'ISHOD', lstr( &lal.->ISHOD_NEW ) )
         If kol_sl == 2
@@ -264,11 +274,11 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         lal := iif( kol_sl == 2, 'human_3', 'human' )
         mo_add_xml_stroke( oSLUCH, 'SUMV', lstr( &lal.->cena_1, 10, 2 ) )
         Do Case
-        Case human_->USL_OK == 1 // стационар
+        Case human_->USL_OK == USL_OK_HOSPITAL // стационар
           i := iif( Left( human_->FORMA14, 1 ) == '1', 1, 3 )
-        Case human_->USL_OK == 2 // дневной стационар
+        Case human_->USL_OK == USL_OK_DAY_HOSPITAL // дневной стационар
           i := iif( Left( human_->FORMA14, 1 ) == '2', 2, 3 )
-        Case human_->USL_OK == 4 // скорая помощь
+        Case human_->USL_OK == USL_OK_AMBULANCE // скорая помощь
           i := iif( Left( human_->FORMA14, 1 ) == '1', 1, 2 )
         Otherwise
           i := lfor_pom
@@ -298,14 +308,14 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
       endDateZK := &lal.->K_DATA
 
-      If p_tip_reestr == 1
+      If p_tip_reestr == TYPE_REESTR_GENERAL
         If kol_sl == 2
           mo_add_xml_stroke( oSLUCH, 'KD_Z', lstr( human_3->k_data - human_3->n_data ) ) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
         Elseif kol_kd > 0
           mo_add_xml_stroke( oSLUCH, 'KD_Z', lstr( kol_kd ) ) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
         Endif
       Endif
-      If human_->USL_OK == 1 // стационар
+      If human_->USL_OK == USL_OK_HOSPITAL // стационар
         // вес недоношенных детей для л/у матери
         lal := iif( kol_sl == 2, 'human_3', 'human_2' )
         if &lal.->VNR1 > 0
@@ -320,7 +330,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       Endif
       lal := iif( kol_sl == 2, 'human_3', 'human_' )
       mo_add_xml_stroke( oSLUCH, 'RSLT', lstr( &lal.->RSLT_NEW ) )
-      If p_tip_reestr == 1
+      If p_tip_reestr == TYPE_REESTR_GENERAL
         If human_2->PN6 == 1
           mo_add_xml_stroke( oSLUCH, 'MSE', '1' )
         Endif
@@ -334,14 +344,13 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     // заполним сведения о случае оказания медицинской помощи для XML-документа
     oSL := oSLUCH:add( hxmlnode():new( 'SL' ) )
     mo_add_xml_stroke( oSL, 'SL_ID', human_->ID_C )
-    If ( is_vmp := human_->USL_OK == 1 .and. human_2->VMP == 1 ;// ВМП
+    If ( is_vmp := human_->USL_OK == USL_OK_HOSPITAL .and. human_2->VMP == 1 ;// ВМП
       .and. !emptyany( human_2->VIDVMP, human_2->METVMP ) )
       mo_add_xml_stroke( oSL, 'VID_HMP', human_2->VIDVMP )
       mo_add_xml_stroke( oSL, 'METOD_HMP', lstr( human_2->METVMP ) )
     Endif
     otd->( dbGoto( human->OTD ) )
-    // if human->K_DATA < 0d20230601 .and. human_->USL_OK == 1 .and. is_otd_dep
-    If human_->USL_OK == 1 .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
+    If human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
       f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
       If ( i := AScan( mm_otd_dep, {| x| x[ 2 ] == glob_otd_dep } ) ) == 0
         i := 1
@@ -350,12 +359,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       mo_add_xml_stroke( oSL, 'PODR', lstr( glob_otd_dep ) )
     Endif
     mo_add_xml_stroke( oSL, 'PROFIL', lstr( human_->PROFIL ) )
-    If p_tip_reestr == 1
-      If human_->USL_OK < 3
+    If p_tip_reestr == TYPE_REESTR_GENERAL
+      If human_->USL_OK < 3 // стационар или дневной стационар
         mo_add_xml_stroke( oSL, 'PROFIL_K', lstr( human_2->PROFIL_K ) )
       Endif
       mo_add_xml_stroke( oSL, 'DET', iif( human->VZROS_REB == 0, '0', '1' ) )
-      If human_->USL_OK == 3
+      If human_->USL_OK == USL_OK_POLYCLINIC
         If ( s := get_idpc_from_v025_by_number( human_->povod ) ) == ''
           s := '2.6'
         Endif
@@ -381,12 +390,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     Endif
     mo_add_xml_stroke( oSL, 'NHISTORY', iif( Empty( human->UCH_DOC ), lstr( human->kod ), human->UCH_DOC ) )
 
-    If !is_vmp .and. eq_any( human_->USL_OK, 1, 2 )
+    If !is_vmp .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       mo_add_xml_stroke( oSL, 'P_PER', lstr( human_2->P_PER ) ) // Признак поступления/перевода
     Endif
     mo_add_xml_stroke( oSL, 'DATE_1', date2xml( human->N_DATA ) )
     mo_add_xml_stroke( oSL, 'DATE_2', date2xml( human->K_DATA ) )
-    If p_tip_reestr == 1
+    If p_tip_reestr == TYPE_REESTR_GENERAL
       If kol_kd > 0
         mo_add_xml_stroke( oSL, 'KD', lstr( kol_kd ) ) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
       Endif
@@ -411,7 +420,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       lReplaceDiagnose := .t.
     Endif
     mo_add_xml_stroke( oSL, 'DS1', RTrim( mdiagnoz[ 1 ] ) )
-    If p_tip_reestr == 2  // для реестров по диспансеризации
+    If p_tip_reestr == TYPE_REESTR_DISPASER  // для реестров по диспансеризации
       s := 3 // не подлежит диспансерному наблюдению
       If adiag_talon[ 1 ] == 1 // впервые
         mo_add_xml_stroke( oSL, 'DS1_PR', '1' ) // Признак первичного установления  диагноза
@@ -430,7 +439,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         AAdd( ar_dn, { '2', RTrim( mdiagnoz[ 1 ] ), '', '' } )
       Endif
     Endif
-    If p_tip_reestr == 1
+    If p_tip_reestr == TYPE_REESTR_GENERAL
       For i := 2 To Len( mdiagnoz )
         If !Empty( mdiagnoz[ i ] )
           mo_add_xml_stroke( oSL, 'DS2', RTrim( mdiagnoz[ i ] ) )
@@ -446,7 +455,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           // mo_add_xml_stroke( oSL, 'C_ZAB', '2' ) //
           mo_add_xml_stroke( oSL, 'C_ZAB', '3' ) // согласно разговора с Антоновой 23.10.24
         Else
-          If human_->USL_OK == 3 .and. human_->povod == 4 // если P_CEL=1.3
+          If human_->USL_OK == USL_OK_POLYCLINIC .and. human_->povod == 4 // если P_CEL=1.3
             // mo_add_xml_stroke( oSL, 'C_ZAB', '2' ) // При диспансерном наблюдении характер заболевания не может быть <Острое>
             mo_add_xml_stroke( oSL, 'C_ZAB', '3' ) // согласно разговора с Антоновой 23.10.24
           Else
@@ -454,7 +463,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           Endif
         Endif
       Endif
-      If human_->USL_OK < 4
+      If human_->USL_OK < 4 // все кроме скорой помощи
         i := 0
         If human->OBRASHEN == '1' .and. is_oncology < 2
           i := 1
@@ -463,7 +472,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       Else
         mo_add_xml_stroke( oSL, 'DS_ONK', '0' )
       Endif
-      If human_->USL_OK == 3 .and. human_->povod == 4 // Обязательно, если P_CEL=1.3
+      If human_->USL_OK == USL_OK_POLYCLINIC .and. human_->povod == 4 // Обязательно, если P_CEL=1.3
         s := 1 // состоит
         If adiag_talon[ 1 ] == 2 // ранее
           If adiag_talon[ 2 ] == 1
@@ -571,6 +580,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     Endif
     If is_KSG
       // заполним сведения о КСГ для XML-документа
+      elem_ksg( oSl, lshifr_zak_sl, endDateZK, is_oncology )
+/*
       oKSG := oSL:add( hxmlnode():new( 'KSG_KPG' ) )
       mo_add_xml_stroke( oKSG, 'N_KSG', lshifr_zak_sl )
 
@@ -621,6 +632,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oSLk, 'CODE_KIRO', lstr( akiro[ 1 ] ) )
         mo_add_xml_stroke( oSLk, 'VAL_K', lstr( akiro[ 2 ], 4, 2 ) )
       Endif
+*/
     Elseif is_zak_sl .or. is_zak_sl_vr
       mo_add_xml_stroke( oSL, 'CODE_MES1', lshifr_zak_sl )
     Endif
@@ -655,7 +667,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oCONS, 'DT_CONS', date2xml( onkco->DT_CONS ) )
       Endif
     Endif
-    If human_->USL_OK == 3 .and. lTypeLUOnkoDisp  // постановка на учет онкобольного
+    If human_->USL_OK == USL_OK_POLYCLINIC .and. lTypeLUOnkoDisp  // постановка на учет онкобольного
       oONK_SL := oSL:add( hxmlnode():new( 'ONK_SL' ) )
       mo_add_xml_stroke( oONK_SL, 'DS1_T', lstr( onksl->DS1_T ) )
       If ! Empty( onksl->STAD )
@@ -793,7 +805,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       Endif
     Endif
     sCOMENTSL := ''
-    If p_tip_reestr == 1
+    If p_tip_reestr == TYPE_REESTR_GENERAL
       mo_add_xml_stroke( oSL, 'PRVS', put_prvs_to_reestr( human_->PRVS, _NYEAR ) )
       If ( !is_mgi .and. AScan( kod_lis(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) ) .or. human_->profil == 15 // гистология
         mo_add_xml_stroke( oSL, 'IDDOKT', '0' )
@@ -810,10 +822,10 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       // проверим лекарственные препараты
       If eq_any( RTrim( mdiagnoz[ 1 ] ), 'U07.1', 'U07.2' ) .and. ( count_years( human->DATE_R, human->k_data ) >= 18 ) ;
           .and. !check_diag_pregant()
-        If ( human_->USL_OK == 1 ) .and. ( human->k_data >= 0d20220101 )
+        If ( human_->USL_OK == USL_OK_HOSPITAL ) .and. ( human->k_data >= 0d20220101 )
           flLekPreparat := ( human_->PROFIL != 158 ) .and. ( human_->VIDPOM != 32 ) ;
             .and. ( Lower( AllTrim( human_2->PC3 ) ) != 'stt5' )
-        Elseif ( human_->USL_OK == 3 ) .and. ( human->k_data >= 0d20220401 )
+        Elseif ( human_->USL_OK == USL_OK_POLYCLINIC ) .and. ( human->k_data >= 0d20220401 )
           flLekPreparat := ( human_->PROFIL != 158 ) .and. ( human_->VIDPOM != 32 ) ;
             .and. ( get_idpc_from_v025_by_number( human_->povod ) == '3.0' )
         Endif
@@ -853,7 +865,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       j := 0
       If ( ibrm := f_oms_beremenn( mdiagnoz[ 1 ], human->K_DATA ) ) == 1 .and. eq_any( human_->profil, 136, 137 ) // акушерству и гинекологии
         j := iif( human_2->pn2 == 1, 4, 3 )
-      Elseif ibrm == 2 .and. human_->USL_OK == 3 // поликлиника
+      Elseif ibrm == 2 .and. human_->USL_OK == USL_OK_POLYCLINIC // поликлиника
         j := iif( human_2->pn2 == 1, 5, 6 )
         If j == 5 .and. !eq_any( human_->profil, 136, 137 )
           j := 6  // т.е. только акушер-гинеколог может поставить на учёт по беременности
@@ -862,7 +874,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       If j > 0
         sCOMENTSL += lstr( j )
       Endif
-      If human_->USL_OK == 3 .and. eq_any( lvidpom, 1, 11, 12, 13 )
+      If human_->USL_OK == USL_OK_POLYCLINIC .and. eq_any( lvidpom, 1, 11, 12, 13 )
         sCOMENTSL += ':;' // пока так (потом добавим дисп.наблюдение)
       Endif
     Else   // для реестров по диспансеризации
@@ -890,7 +902,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         sCOMENTSL := lstr( j )
       Endif
     Endif
-    If p_tip_reestr == 1 .and. !Empty( sCOMENTSL ) // .and. ! lTypeLUOnkoDisp
+    If p_tip_reestr == TYPE_REESTR_GENERAL .and. !Empty( sCOMENTSL ) // .and. ! lTypeLUOnkoDisp
       mo_add_xml_stroke( oSL, 'COMENTSL', sCOMENTSL )
     Endif
     If !is_zak_sl
@@ -928,9 +940,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
             mo_add_xml_stroke( oUSL, 'LPU', CODE_LPU )
           Endif
         Endif
-        If p_tip_reestr == 1
-          // if human->K_DATA < 0d20230601 .and. human_->USL_OK == 1 .and. is_otd_dep
-          If human_->USL_OK == 1 .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
+        If p_tip_reestr == TYPE_REESTR_GENERAL
+          // if human->K_DATA < 0d20230601 .and. human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep
+          If human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
             otd->( dbGoto( hu->OTD ) )
             f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
             If ( i := AScan( mm_otd_dep, {| x| x[ 2 ] == glob_otd_dep } ) ) == 0
@@ -948,11 +960,11 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         If Found()
           mo_add_xml_stroke( oUSL, 'VID_VME', AllTrim( t21->shifr_mz ) )
         Endif
-        If p_tip_reestr == 1
+        If p_tip_reestr == TYPE_REESTR_GENERAL
           mo_add_xml_stroke( oUSL, 'DET', iif( human->VZROS_REB == 0, '0', '1' ) )
         Endif
         mo_add_xml_stroke( oUSL, 'DATE_IN', date2xml( c4tod( hu->DATE_U ) ) )
-        If p_tip_reestr == 1
+        If p_tip_reestr == TYPE_REESTR_GENERAL
           If ! Empty( hu_->DATE_END ) .and. ( hu->KOL_1 > 1 )
             mo_add_xml_stroke( oUSL, 'DATE_OUT', date2xml( hu_->DATE_END ) )
           Else
@@ -961,7 +973,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Else
           mo_add_xml_stroke( oUSL, 'DATE_OUT', date2xml( c4tod( hu_->DATE_U2 ) ) )
         Endif
-        If p_tip_reestr == 1
+        If p_tip_reestr == TYPE_REESTR_GENERAL
           // подменим диагноз если необходимо для генно-инженерных препаратов или
           // операции по поводу грыж, взрослые (уровень 4), для случаев проведения
           // антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами
@@ -982,9 +994,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oUSL, 'TARIF', lstr( hu->U_CENA, 10, 2 ) )
         mo_add_xml_stroke( oUSL, 'SUMV_USL', lstr( hu->STOIM_1, 10, 2 ) )
 
-        If ( human->k_data >= 0d20210801 .and. p_tip_reestr == 2 ) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
-          .or. ( endDateZK >= 0d20220101 .and. p_tip_reestr == 1 )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
-          // .or. (human->k_data >= 0d20220101 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+        If ( human->k_data >= 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER ) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
+          .or. ( endDateZK >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+          // .or. (human->k_data >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
 
           If between_date( human->n_data, human->k_data, c4tod( hu->DATE_U ) )
             oMR_USL_N := oUSL:add( hxmlnode():new( 'MR_USL_N' ) )
@@ -993,7 +1005,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
             p2->( dbGoto( hu->kod_vr ) )
             mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', p2->snils )
           Endif
-        Else  // if (human->k_data < 0d20210801 .and. p_tip_reestr == 2)
+        Else  // if (human->k_data < 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER)
           mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( hu_->PRVS, _NYEAR ) )
           If c4tod( hu->DATE_U ) < human->n_data ; // если сделано ранее
             .or. eq_any( hu->is_edit, -1, 1, 2, 3 ) .or. lshifr == '4.20.2' .or. Left( lshifr, 5 ) == '60.8.' .or. fl
@@ -1005,7 +1017,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
       Next
     Endif
-    If p_tip_reestr == 2 .and. Len( a_otkaz ) > 0 // отказы (диспансеризация или профосмоты несовешеннолетних)
+    If p_tip_reestr == TYPE_REESTR_DISPASER .and. Len( a_otkaz ) > 0 // отказы (диспансеризация или профосмоты несовешеннолетних)
       // заполним сведения об услугах для XML-документа
       For j := 1 To Len( a_otkaz )
         oUSL := oSL:add( hxmlnode():new( 'USL' ) )
@@ -1026,8 +1038,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oUSL, 'TARIF', lstr( a_otkaz[ j, 6 ], 10, 2 ) )
         mo_add_xml_stroke( oUSL, 'SUMV_USL', lstr( a_otkaz[ j, 6 ], 10, 2 ) )
 
-        If human->k_data >= 0d20210801 .and. p_tip_reestr == 2 ; // новые правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
-          .or. ( endDateZK >= 0d20220101 .and. p_tip_reestr == 1 )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+        If human->k_data >= 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER ; // новые правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
+          .or. ( endDateZK >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
         Else
           mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( a_otkaz[ j, 5 ], _NYEAR ) )
           mo_add_xml_stroke( oUSL, 'CODE_MD', '0' ) // отказ => 0
@@ -1036,7 +1048,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       Next
     Endif
 
-    // if p_tip_reestr == 1 .and. len(a_fusl) > 0 // добавляем операции
+    // if p_tip_reestr == TYPE_REESTR_GENERAL .and. len(a_fusl) > 0 // добавляем операции
     If Len( a_fusl ) > 0 // добавляем операции // исправил чтобы брала углубленную диспансеризацию COVID
       For j := 1 To Len( a_fusl )
         Select MOHU
@@ -1053,7 +1065,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oUSL, 'IDSERV', lstr( mohu->REES_ZAP ) )
         mo_add_xml_stroke( oUSL, 'ID_U', mohu->ID_U )
         mo_add_xml_stroke( oUSL, 'LPU', CODE_LPU )
-        If human_->USL_OK == 1 .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
+        If human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
           otd->( dbGoto( mohu->OTD ) )
           f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
           If ( i := AScan( mm_otd_dep, {| x| x[ 2 ] == glob_otd_dep } ) ) == 0
@@ -1063,13 +1075,13 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           mo_add_xml_stroke( oUSL, 'PODR', lstr( glob_otd_dep ) )
         Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( mohu->PROFIL ) )
-        If p_tip_reestr == 1
+        If p_tip_reestr == TYPE_REESTR_GENERAL
           mo_add_xml_stroke( oUSL, 'VID_VME', lshifr )
           mo_add_xml_stroke( oUSL, 'DET', iif( human->VZROS_REB == 0, '0', '1' ) )
         Endif
         mo_add_xml_stroke( oUSL, 'DATE_IN', date2xml( c4tod( mohu->DATE_U ) ) )
         mo_add_xml_stroke( oUSL, 'DATE_OUT', date2xml( c4tod( mohu->DATE_U2 ) ) )
-        If p_tip_reestr == 1
+        If p_tip_reestr == TYPE_REESTR_GENERAL
           // подменим диагноз если необходимо для генно-инженерных препаратов или
           // операции по поводу грыж, взрослые (уровень 4), для случаев проведения
           // антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами
@@ -1079,7 +1091,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
             mo_add_xml_stroke( oUSL, 'DS', mohu->kod_diag )
           Endif
         Endif
-        If p_tip_reestr == 2
+        If p_tip_reestr == TYPE_REESTR_DISPASER
           // разобраться с отказами услугами ФФОМС
           If AScan( arr_ne_vozm, lshifr ) > 0
             mo_add_xml_stroke( oUSL, 'P_OTK', '2' )
@@ -1089,10 +1101,10 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
         mo_add_xml_stroke( oUSL, 'CODE_USL', lshifr )
         mo_add_xml_stroke( oUSL, 'KOL_USL', lstr( mohu->KOL_1, 6, 2 ) )
-        If p_tip_reestr == 1
+        If p_tip_reestr == TYPE_REESTR_GENERAL
           mo_add_xml_stroke( oUSL, 'TARIF', lstr( mohu->U_CENA, 10, 2 ) )// lstr(mohu->U_CENA, 10, 2))
           mo_add_xml_stroke( oUSL, 'SUMV_USL', lstr( mohu->STOIM_1, 10, 2 ) )// lstr(mohu->STOIM_1, 10, 2))
-        Elseif p_tip_reestr == 2
+        Elseif p_tip_reestr == TYPE_REESTR_DISPASER
           mo_add_xml_stroke( oUSL, 'TARIF', '0' )// lstr(mohu->U_CENA, 10, 2))
           mo_add_xml_stroke( oUSL, 'SUMV_USL', '0' )// lstr(mohu->STOIM_1, 10, 2))
         Endif
@@ -1101,9 +1113,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )  // добавил 04.08.21
           mo_add_xml_stroke( oUSL, 'CODE_MD', '0' )
         Else
-          If ( human->k_data >= 0d20210801 .and. p_tip_reestr == 2 ) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
-            .or. ( human->k_data >= 0d20220101 .and. p_tip_reestr == 1 )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
-            If ( p_tip_reestr == 1 ) .and. ( Year( human->k_data ) > 2021 ) .and. service_requires_implants( lshifr, c4tod( hu_->DATE_U2 ) )
+          If ( human->k_data >= 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER ) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
+            .or. ( human->k_data >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+            If ( p_tip_reestr == TYPE_REESTR_GENERAL ) .and. ( Year( human->k_data ) > 2021 ) .and. service_requires_implants( lshifr, c4tod( hu_->DATE_U2 ) )
               For Each row in collect_implantant( human->kod, mohu->( RecNo() ) )
                 oMED_DEV := oUSL:add( hxmlnode():new( 'MED_DEV' ) )
                 mo_add_xml_stroke( oMED_DEV, 'DATE_MED', date2xml( row[ 3 ] ) )
@@ -1119,7 +1131,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
               p2->( dbGoto( mohu->kod_vr ) )
               mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', p2->snils )
             Endif
-          Else  // if human->k_data < 0d20220101 .and. p_tip_reestr == 1
+          Else  // if human->k_data < 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL
             mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )  // добавил 04.08.21
             p2->( dbGoto( mohu->kod_vr ) )                                            // добавил 04.08.21
             mo_add_xml_stroke( oUSL, 'CODE_MD', p2->snils )                          // добавил 04.08.21
@@ -1140,7 +1152,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
       Next j
     Endif
-    If p_tip_reestr == 2 .and. !Empty( sCOMENTSL )   // для реестров по диспансеризации
+    If p_tip_reestr == TYPE_REESTR_DISPASER .and. !Empty( sCOMENTSL )   // для реестров по диспансеризации
       If ( is_disp_DVN .or. is_disp_DVN_COVID .or. is_disp_DRZ )
         sCOMENTSL += ':'
         If !Empty( ar_dn ) // взят на диспансерное наблюдение
@@ -1177,180 +1189,3 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Endif
 
   Return Nil
-
-// 20.08.25
-Function schet_smoname()
-
-  Local cRet
-
-  cRet := ''
-  If AllTrim( human_->smo ) == '34'
-    cRet := ret_inogsmo_name( 2 )
-  Endif
-
-  Return cRet
-
-// 19.08.25
-Function schet_is_oncology( p_tip_reestr, /*@*/is_oncology_smp )
-
-  is_oncology_smp := 0
-
-  Return iif( p_tip_reestr == 2, 0, f_is_oncology( 1, @is_oncology_smp ) )
-
-// 19.08.25
-Function collect_schet_onkna()
-
-  Local arr_onkna, tmpSelect
-
-  tmpSelect := Select()
-  arr_onkna := {}
-  dbSelectArea( 'ONKNA' )
-  onkna->( dbSeek( Str( human->kod, 7 ) ) )
-  Do While onkna->kod == human->kod .and. !onkna->( Eof() )
-    P2TABN->( dbGoto( onkna->KOD_VR ) )
-    If !( P2TABN->( Eof() ) ) .and. !( P2TABN->( Bof() ) )
-      mosu->( dbGoto( onkna->U_KOD ) )
-      AAdd( arr_onkna, { onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL, mosu->shifr1, onkna->NAPR_MO, P2TABN->snils, lstr( ret_prvs_v015tov021( P2TABN->PRVS_NEW ) ) } )
-    Else
-      mosu->( dbGoto( onkna->U_KOD ) )
-      AAdd( arr_onkna, { onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL, mosu->shifr1, onkna->NAPR_MO, '', '' } )
-    Endif
-    onkna->( dbSkip() )
-  Enddo
-  Select( tmpSelect )
-
-  Return arr_onkna
-
-// 19.08.25
-Function collect_schet_onkco()
-
-  Local arr_onkco, tmpSelect
-
-  tmpSelect := Select()
-  arr_onkco := {}
-  dbSelectArea( 'ONKCO' )
-  onkco->( dbSeek( Str( human->kod, 7 ) ) )
-  Select( tmpSelect )
-
-  Return arr_onkco
-
-// 19.08.25
-Function collect_schet_onksl()
-
-  Local arr_onksl, tmpSelect
-
-  tmpSelect := Select()
-  arr_onksl := {}
-  dbSelectArea( 'ONKSL' )
-  onksl->( dbSeek( Str( human->kod, 7 ) ) )
-  Select( tmpSelect )
-
-  Return arr_onksl
-
-// 19.08.25
-Function collect_schet_onkdi()
-
-  Local arr_onkdi, tmpSelect
-
-  tmpSelect := Select()
-  arr_onkdi := {}
-  dbSelectArea( 'ONKSL' )
-  onksl->( dbSeek( Str( human->kod, 7 ) ) )
-
-  If eq_any( onksl->b_diag, 98, 99 )
-    dbSelectArea( 'ONKDI' )
-    onkdi->( dbSeek( Str( human->kod, 7 ) ) )
-    Do While onkdi->kod == human->kod .and. !Eof()
-      AAdd( arr_onkdi, { onkdi->DIAG_DATE, onkdi->DIAG_TIP, onkdi->DIAG_CODE, onkdi->DIAG_RSLT } )
-      onkdi->( dbSkip() )
-    Enddo
-  Endif
-  Select( tmpSelect )
-
-  Return arr_onkdi
-
-// 19.08.25
-Function collect_schet_onkpr()
-
-  Local arr_onkpr, tmpSelect
-
-  tmpSelect := Select()
-  arr_onkpr := {}
-  dbSelectArea( 'ONKSL' )
-  onksl->( dbSeek( Str( human->kod, 7 ) ) )
-
-  If human_->USL_OK < 3 // противопоказания по лечению только в стационаре и дневном стационаре
-    dbSelectArea( 'ONKPR' )
-    onkpr->( dbSeek( Str( human->kod, 7 ) ) )
-    Do While onkpr->kod == human->kod .and. ! onkpr->( Eof() )
-      AAdd( arr_onkpr, { onkpr->PROT, onkpr->D_PROT } )
-      onkpr->( dbSkip() )
-    Enddo
-  Endif
-  If eq_any( onksl->b_diag, 0, 7, 8 ) .and. AScan( arr_onkpr, {| x| x[ 1 ] == onksl->b_diag } ) == 0
-    // добавим отказ,не показано,противопоказано по гистологии
-    AAdd( arr_onkpr, { onksl->b_diag, human->n_data } )
-  Endif
-  Select( tmpSelect )
-
-  Return arr_onkpr
-
-// 19.08.25
-Function collect_schet_onkusl()
-
-  Local arr_onkusl, tmpSelect
-
-  tmpSelect := Select()
-  arr_onkusl := {}
-  If iif( human_2->VMP == 1, .t., Between( onksl->DS1_T, 0, 2 ) )
-    dbSelectArea( 'ONKUS' )
-    onkus->( dbSeek( Str( human->kod, 7 ) ) )
-    Do While onkus->kod == human->kod .and. !onkus->( Eof() )
-      If Between( onkus->USL_TIP, 1, 5 )
-        AAdd( arr_onkusl, onkus->USL_TIP )
-      Endif
-      onkus->( dbSkip() )
-    Enddo
-  Endif
-  Select( tmpSelect )
-
-  Return arr_onkusl
-
-// 18.08.25
-Function is_disability( p_tip_reestr )
-
-  Local fl_DISABILITY := .f.
-  Local tmpSelect
-
-  If p_tip_reestr == 1
-    If glob_mo[ _MO_IS_UCH ] .and. ;                    // наше МО имеет прикреплённое население
-        human_->USL_OK == 3 .and. ;                    // поликлиника
-        kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ] .and. ; // прикреплён к нашему МО
-      Between( kart_->INVALID, 1, 4 )                    // инвалид
-      tmpSelect := Select()
-      dbSelectArea( 'INV' )
-      inv->( dbSeek( Str( human->kod_k, 7 ) ) )
-      If inv->( Found() ) .and. ! emptyany( inv->DATE_INV, inv->PRICH_INV )
-        // дата начала лечения отстоит от даты первичного установления инвалидности не более чем на год
-        fl_DISABILITY := ( inv->DATE_INV < human->n_data .and. human->n_data <= AddMonth( inv->DATE_INV, 12 ) )
-      Endif
-      Select( tmpSelect )
-    Endif
-  Endif
-
-  Return fl_DISABILITY
-
-// 19.08.25 необходимо ли вывести характер заболевания в реестр
-Function need_reestr_c_zab_2025( is_oncology, lUSL_OK, osn_diag )
-
-  Local fl := .f.
-
-  If lUSL_OK < 4
-    If lUSL_OK == 3 .and. !( Left( osn_diag, 1 ) == 'Z' )
-      fl := .t. // условия оказания <амбулаторно> (USL_OK=3) и основной диагноз не из группы Z00-Z99
-    Elseif is_oncology == 2
-      fl := .t. // при установленном ЗНО
-    Endif
-  Endif
-
-  Return fl
