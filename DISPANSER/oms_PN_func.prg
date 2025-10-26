@@ -976,9 +976,9 @@ Function is_osmotr_pn( ausl, _period, arr, _etap, _pol, mdata, mobil )
   Next
   If fl
     s := '"' + lshifr + '.' + arr_PN_osmotr[ i, 3 ] + '"'
-    If _etap == 1 .and. AScan( np_arr_1_etap( mdata, mobil )[ _period, 4 ], lshifr ) == 0
-      AAdd( arr, 'Некорректный возрастной период пациента для ' + s )
-    Endif
+//    If _etap == 1 .and. ( AScan( np_arr_1_etap( mdata, mobil )[ _period, 4 ], lshifr ) == 0 )
+//      AAdd( arr, 'Некорректный возрастной период пациента для ' + s )
+//    Endif
     If !Empty( arr_PN_osmotr[ i, 2 ] ) .and. !( arr_PN_osmotr[ i, 2 ] == _pol )
       AAdd( arr, 'Несовместимость по полу в услуге ' + s )
     Endif

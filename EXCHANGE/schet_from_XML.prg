@@ -1094,18 +1094,7 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
         If !Empty( t3->tel )
           mo_add_xml_stroke( oPAC, 'TEL', t3->tel )
         Endif
-        If Empty( t3->FAM_P )
-          mo_add_xml_stroke( oPAC, 'FAM_P', t3->FAM )
-          mo_add_xml_stroke( oPAC, 'IM_P', t3->IM )
-          If !Empty( t3->OT )
-            mo_add_xml_stroke( oPAC, 'OT_P', t3->OT )
-          Endif
-          mo_add_xml_stroke( oPAC, 'W_P', t3->W )
-          mo_add_xml_stroke( oPAC, 'DR_P', t3->DR )
-          If !Empty( t3->dost )
-            mo_add_xml_stroke( oPAC, 'DOST_P', t3->dost ) // отсутствует отчество
-          Endif
-        else
+        If ! Empty( t3->FAM_P )
           mo_add_xml_stroke( oPAC, 'FAM_P', t3->FAM_P )
           mo_add_xml_stroke( oPAC, 'IM_P', t3->IM_P )
           If !Empty( t3->OT_P )
@@ -1116,6 +1105,19 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
           If !Empty( t3->dost_p )
             mo_add_xml_stroke( oPAC, 'DOST_P', t3->dost_p ) // отсутствует отчество
           Endif
+        else
+/*
+          mo_add_xml_stroke( oPAC, 'FAM_P', t3->FAM )
+          mo_add_xml_stroke( oPAC, 'IM_P', t3->IM )
+          If !Empty( t3->OT )
+            mo_add_xml_stroke( oPAC, 'OT_P', t3->OT )
+          Endif
+          mo_add_xml_stroke( oPAC, 'W_P', t3->W )
+          mo_add_xml_stroke( oPAC, 'DR_P', t3->DR )
+          If !Empty( t3->dost )
+            mo_add_xml_stroke( oPAC, 'DOST_P', t3->dost ) // отсутствует отчество
+          Endif
+*/
         Endif
         If !Empty( t3->MR )
           mo_add_xml_stroke( oPAC, 'MR', t3->MR )
