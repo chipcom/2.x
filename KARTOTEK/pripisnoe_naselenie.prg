@@ -577,9 +577,9 @@ Function f31_view_r_pr_nas( reg, s, s1 )
 
   Return Nil
 
-// 20.10.25
+// 25.10.25
 Function preparation_for_pripisnoe_naselenie()
-  Local i, j, k, aerr, buf := SaveScreen(), blk, t_arr[ BR_LEN ], cur_year, ;
+  Local i, j, k, aerr, buf := SaveScreen(), blk, t_arr[ BR_LEN ], cur_year, t_polis, ;
     str_sem := "preparation_for_pripisnoe_naselenie"
 
   mywait()
@@ -685,7 +685,11 @@ Function preparation_for_pripisnoe_naselenie()
     Go Top
     Do While !Eof()
       ++ii
+
       aerr := {}
+      if ii > 24999  // Ограничение !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        AAdd( aerr, 'Превышено кол-во пациентов в пакете. Более 25 000. Завтра создайте следующий пакет' )
+      endif  
       If Empty( kart->date_r )
         AAdd( aerr, 'не заполнено поле "Дата рождения"' )
       Elseif kart->date_r >= sys_date
@@ -693,7 +697,7 @@ Function preparation_for_pripisnoe_naselenie()
       Elseif Year( kart->date_r ) < 1900
         AAdd( aerr, "дата рождения: " + full_date( kart->date_r ) + " ( < 1900г.)" )
       Endif
-      if len(AllTrim( kart2->KOD_MIS )) != 16
+      if len(AllTrim( kart2->KOD_MIS )) != 16 .or. len(AllTrim( kart_->NPOLIS  )) != 16 
         AAdd( aerr, 'не верный номер ЕНП' )
       endif  
       If kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
@@ -930,9 +934,13 @@ Function preparation_for_pripisnoe_naselenie()
           // П - Бумажный полис ОМС единого образца Э - Электронный полис ОМС единого образца
           // В ? Временное свидетельство С ? Полис старого образца К ? В составе УЭК
           s1 += Eval( blk, s ) + ";"
-          // 4 - Серия и номер ДПФС
-          s := iif( kart_->vpolis == 3, AllTrim( kart2->KOD_MIS ), ;
-            iif( kart_->vpolis == 2, AllTrim( kart2->KOD_MIS ) ,  AllTrim( kart2->KOD_MIS ) ) )
+          // 4 - cерия и номер ДПФС
+          if len(AllTrim( kart2->KOD_MIS )) == 16
+            t_polis := alltrim(kart2->KOD_MIS)
+          else
+            t_polis :=  alltrim(kart_->NPOLIS)
+          endif    
+          s := t_polis
           //s := iif( kart_->vpolis == 3, "", ;
           //  iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ), ;
           //  AllTrim( kart_->SPOLIS ) + " № " + AllTrim( kart_->NPOLIS ) ) )
@@ -1035,8 +1043,14 @@ Function preparation_for_pripisnoe_naselenie()
             s := iif( kart_->vpolis == 3, "П", iif( kart_->vpolis == 2, "В", "С" ) )
             s1 += Eval( blk, s ) + ";"
             // 4 - Серия и номер ДПФС
-            s := iif( kart_->vpolis == 3, AllTrim( kart2->KOD_MIS ), ;
-              iif( kart_->vpolis == 2, AllTrim( kart2->KOD_MIS ) ,  AllTrim( kart2->KOD_MIS ) ) )
+             if len(AllTrim( kart2->KOD_MIS )) == 16
+              t_polis := alltrim(kart2->KOD_MIS)
+             else
+              t_polis :=  alltrim(kart_->NPOLIS)
+             endif    
+             s := t_polis
+            //s := iif( kart_->vpolis == 3, AllTrim( kart2->KOD_MIS ), ;
+            //  iif( kart_->vpolis == 2, AllTrim( kart2->KOD_MIS ) ,  AllTrim( kart2->KOD_MIS ) ) )
             //s := iif( kart_->vpolis == 3, "", ;
             //  iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ), ;
             //  AllTrim( kart_->SPOLIS ) + " № " + AllTrim( kart_->NPOLIS ) ) )
