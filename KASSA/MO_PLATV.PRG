@@ -204,11 +204,11 @@ Function kart_plat()
   Endif
   Return Nil
 
-// 08.10.17
+// 25.10.25
 Function f2_k_plat( oBrow )
 
   Local oColumn, s, blk := {|| iif( human->is_kas == 2, { 5, 6 }, iif( human->cena > 0, { 1, 2 }, { 3, 4 } ) ) }
-  Local tip_bank := { "бн", "МИ", "VI", "MC", "БАНК" }
+  Local tip_bank := { "бн", "МИ", "VI", "MC", "БАНК", "СБП" }
 
   If glob_kassa == 1 .and. mek_kassa == 1 // в кассе 01.12.2008
     // oColumn := TBColumnNew("  ",{|| iif(human->sbank < 1, "    ",iif(human->sbank == human->cena, "б/н ","б/нН")) })
@@ -287,7 +287,7 @@ Function f2_k_plat( oBrow )
   mark_keys( { "<Esc>", "<Enter>", "<Ins>", "<Del>", "<Ctrl+Enter>", "<F3>", "<F4>", "<F8>", "<F9>", "<F10>" }, "R/W" )
   Return Nil
 
-// 16.09.25
+// 25.10.25
 Function f3_k_plat( nKey, oBrow )
 
   Local j := 0, flag := -1, buf := save_row( MaxRow() ), buf1, fl := .f., rec, mkod, ;
@@ -356,6 +356,7 @@ Function f3_k_plat( nKey, oBrow )
       { "vrach", "C", 50, 0 }, ;
       { "cena", "N", 10, 2 }, ;
       { "kol",  "N",  4, 0 }, ;
+      { "nds22", "N",  1, 0 }, ;
       { "nds20", "N",  1, 0 }, ;
       { "nds18", "N",  1, 0 }, ;
       { "nds10", "N",  1, 0 } }
@@ -415,6 +416,8 @@ Function f3_k_plat( nKey, oBrow )
           tmp->nds10 := 1
         Elseif lnds == 20
           tmp->nds20 := 1
+        Elseif lnds == 22
+          tmp->nds22 := 1
         Endif
       Endif
       Select HU
@@ -426,7 +429,7 @@ Function f3_k_plat( nKey, oBrow )
       mplat_fio := human->plat_fio, mplat_inn := human->plat_inn
     v_summa := v_sdacha := v_bank := 0
     If yes_chek( @v_summa, @v_sdacha, @v_bank,, @maddress, @tip_kart ) .and. ;
-        chek_fr( v_summa, v_sdacha, @ln_chek, v_bank,, @fr_zavodnomer, maddress, tip_kart )
+        chek_fr( v_summa, v_sdacha, @ln_chek, v_bank,, @fr_zavodnomer, maddress, tip_kart ) 
       Select HUMAN
       g_rlock( forever )
       human->is_kas  := 1
@@ -570,6 +573,7 @@ Function f3_k_plat( nKey, oBrow )
       { "kod_vr",    "N",  4, 0 }, ;
       { "full_name", "C", 255, 0 }, ;
       { "vrach",     "C", 50, 0 }, ;
+      { "nds22",     "N",  1, 0 }, ;
       { "nds20",     "N",  1, 0 }, ;
       { "nds18",     "N",  1, 0 }, ;
       { "nds10",     "N",  1, 0 }, ;
@@ -605,6 +609,8 @@ Function f3_k_plat( nKey, oBrow )
         tmp->nds10 := 1
       Elseif lnds == 20
         tmp->nds20 := 1
+      Elseif lnds == 22
+        tmp->nds22 := 1
       Endif
       // зубная формула
       Select HUMANST

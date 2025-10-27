@@ -812,11 +812,11 @@ Function opl_kart( mkod_human, mkod_lpu )
   RestScreen( buf )
   Return mcena_opl
 
-// 19.07.14
+// 25.10.25
 Function fe_o_kopl( oBrow )
 
   Local oColumn, blk_color
-  Local tip_bank := { " ¡­ ", "Œˆ", "VISA", "M C " }
+  Local tip_bank := { " ¡­ ", "Œˆ", "VISA", "M C ", "€Š", "‘" }
 
   blk_color := {|| { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 } }[ ho->tip_usl + 1 ] }
   If glob_kassa == 1

@@ -629,7 +629,7 @@ Static Function f_err_annul( s1 )
   n_message( ar2,, "GR+/R", "GR+/R",,, "BG+/R" )
   Return Nil
 
-// 24.08.25
+// 25.10.25
 Function yes_chek( /*@*/vsum, /*@*/vsd, /*@*/vbank, rm, /*@*/address, /*@*/tip_kart )
 
   Static spict := "9999999.99"
@@ -639,13 +639,14 @@ Function yes_chek( /*@*/vsum, /*@*/vsd, /*@*/vbank, rm, /*@*/address, /*@*/tip_k
     { "€ŠŽ‚‘Šˆ‰ ……‚Ž„", 4 } }
   Local j, fl := .f., tmp_color, buf, buf24, a[ 3 ], r := 16
 
+   If mek_bnbank == 2
+    ASize( tip_bank_kart, 3 )
+  Endif
   if mek_sbp == 1
     aadd(tip_bank_kart,  { "‘", 5 })
   endif  
   //
-  If  mek_bnbank == 2
-    ASize( tip_bank_kart, 3 )
-  Endif
+ 
   If p_summa >= 0 // ª áá  ¯® 54-”‡
     tmp_color := SetColor( cDataCGet )
     Private vnos_summa := 0, bank_summa := 0, ;
