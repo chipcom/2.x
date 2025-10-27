@@ -6,16 +6,6 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// нижеследующее взято из правил schemaType.xsd
-#define LIMITED_DATE_MIN  1905
-#define LIMITED_DATE_MAX  2030
-
-#define LIMITED_INT_HEI_MIN 20
-#define LIMITED_INT_HEI_MAX 250
-
-#define LIMITED_NUM_WEI_MIN 0.3
-#define LIMITED_NUM_WEI_MAX 499.9
-
 // 27.10.25
 Function verify_sluch( fl_view )
 

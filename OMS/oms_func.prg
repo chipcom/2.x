@@ -625,3 +625,34 @@ function message_save_LU()
     str_center( 21, 'Ввод данных за ' + date_month( Date() ), cColorStMsg )
   Endif
   return nil
+
+// 27.10.25
+function check_Weight( weight )
+
+  local fl := .t.
+//  local min := LIMITED_NUM_WEIGHT_MIN
+//  local max := LIMITED_NUM_WEIGHT_MAX
+
+  if valtype( weight ) == 'C'
+    weight := val( weight )
+  endif
+  if ( LIMITED_NUM_WEIGHT_MIN > weight ) .or. (  weight > LIMITED_NUM_WEIGHT_MAX )
+    func_error( 'Вес должен быть в пределах от ' + alltrim( str( LIMITED_NUM_WEIGHT_MIN, 5, 1 ) ) + ' до ' + str( LIMITED_NUM_WEIGHT_MAX, 5, 1 ) + ' кг!' )
+    fl := .f.
+  endif
+  return fl
+
+// 27.10.25
+function check_Height( height )
+
+  local fl := .t.
+
+  if valtype( height ) == 'C'
+    height := val( height )
+  endif
+
+  if ( LIMITED_INT_HEIGHT_MIN > height ) .or. ( height > LIMITED_INT_HEIGHT_MAX )
+    func_error( 'Рост должен быть в пределах от ' + Alltrim( str( LIMITED_INT_HEIGHT_MIN, 3 ) ) + ' до ' + str( LIMITED_INT_HEIGHT_MAX, 5, 1 ) + ' см!' )
+    fl := .f.
+  endif
+  return fl
