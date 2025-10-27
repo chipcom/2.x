@@ -5,6 +5,133 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 27.10.25
+function elem_mr_usl_n( oUsl, nyear, number, prvs, snils )
+
+  // тэг о мед. работниках выполнивших услугу
+  local oMR_USL_N
+
+  oMR_USL_N := oUSL:add( hxmlnode():new( 'MR_USL_N' ) )
+  mo_add_xml_stroke( oMR_USL_N, 'MR_N', lstr( number ) )   // пока ставим 1 исполнитель
+  mo_add_xml_stroke( oMR_USL_N, 'PRVS', put_prvs_to_reestr( prvs, nyear ) )
+//  p2->( dbGoto( mohu->kod_vr ) )
+  mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', snils )
+  return nil
+
+// 26.10.25
+function elem_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
+
+  // тэг добавляется только для реестров 1 типа и помощь в условиях дневного
+  // и кругосуточного стационара
+
+  Local dPUMPver40 := 0d20240301
+  local oKSG, oSLk
+  Local akslp, iAKSLP, tKSLP, cKSLP // массив, счетчик для цикла по КСЛП
+  Local akiro
+
+  // заполним сведения о КСГ для XML-документа
+  akslp := {}
+  akiro := {}
+  oKSG := oSL:add( hxmlnode():new( 'KSG_KPG' ) )
+  mo_add_xml_stroke( oKSG, 'N_KSG', lshifr_zak_sl )
+
+  If mdata >= dPUMPver40   // дата окончания случая после 01.03.24
+    mo_add_xml_stroke( oKSG, 'K_ZP', '1' )  // пока ставим 1
+  Endif
+
+  If !Empty( human_2->pc3 ) .and. !Left( human_2->pc3, 1 ) == '6' // кроме 'старости'
+    mo_add_xml_stroke( oKSG, 'CRIT', human_2->pc3 )
+  Elseif is_oncology  == 2
+    If !Empty( onksl->crit ) .and. !( AllTrim( onksl->crit ) == 'нет' )
+      mo_add_xml_stroke( oKSG, 'CRIT', onksl->crit )
+    Endif
+    If !Empty( onksl->crit2 )
+      mo_add_xml_stroke( oKSG, 'CRIT', onksl->crit2 )  // второй критерий
+    Endif
+  Endif
+
+  If ! Empty( human_2->pc1 )
+    akslp := list2arr( human_2->pc1 )
+  Endif
+
+  mo_add_xml_stroke( oKSG, 'SL_K', iif( Empty( akslp ), '0', '1' ) )
+  If !Empty( akslp )
+    // заполним сведения о КСГ для XML-документа
+    If Year( human->K_DATA ) >= 2021     // 02.02.21 Байкин
+      tKSLP := getkslptable( human->K_DATA )
+
+      mo_add_xml_stroke( oKSG, 'IT_SL', lstr( ret_koef_kslp_21_xml( akslp, tKSLP, Year( human->K_DATA ) ), 7, 5 ) )
+
+      For iAKSLP := 1 To Len( akslp )
+        If ( cKSLP := AScan( tKSLP, {| x| x[ 1 ] == akslp[ iAKSLP ] } ) ) > 0
+          oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
+          mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ iAKSLP ] ) )
+          mo_add_xml_stroke( oSLk, 'VAL_C', lstr( tKSLP[ cKSLP, 4 ], 7, 5 ) )
+        Endif
+      Next
+    Else
+/*
+      mo_add_xml_stroke( oKSG, 'IT_SL', lstr( ret_koef_kslp( akslp ), 7, 5 ) )
+      oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
+      mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ 1 ] ) )
+      mo_add_xml_stroke( oSLk, 'VAL_C', lstr( akslp[ 2 ], 7, 5 ) )
+      If Len( akslp ) >= 4
+        oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
+        mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ 3 ] ) )
+        mo_add_xml_stroke( oSLk, 'VAL_C', lstr( akslp[ 4 ], 7, 5 ) )
+      Endif
+*/
+    Endif
+  Endif
+
+  If ! Empty( human_2->pc2 )
+    akiro := list2arr( human_2->pc2 )
+  Endif
+  If ! Empty( akiro )
+    // заполним сведения о КИРО для XML-документа
+    oSLk := oKSG:add( hxmlnode():new( 'S_KIRO' ) )
+    mo_add_xml_stroke( oSLk, 'CODE_KIRO', lstr( akiro[ 1 ] ) )
+    mo_add_xml_stroke( oSLk, 'VAL_K', lstr( akiro[ 2 ], 4, 2 ) )
+  Endif
+  return nil
+
+// 26.10.25
+function elem_disability( oPac )
+
+  // тэг добавляется только для реестров 1 типа и амбулаторно-поликлинической помощи в
+  // учреждениях имеющих прикрепленное население
+  
+  local oDISAB
+  Local tmpSelect
+
+//  If glob_mo[ _MO_IS_UCH ] .and. ;                      // наше МО имеет прикреплённое население
+//      human_->USL_OK == USL_OK_POLYCLINIC .and. ;                    // поликлиника
+//      kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ] .and. ;  // прикреплён к нашему МО
+  if Between( kart_->INVALID, 1, 4 )                   // инвалид
+    tmpSelect := Select()
+    dbSelectArea( 'INV' )
+    inv->( dbSeek( Str( human->kod_k, 7 ) ) )
+//    If inv->( Found() ) .and. ! emptyany( inv->DATE_INV, inv->PRICH_INV )
+    If inv->( Found() ) .and. ! ( empty( inv->DATE_INV ) .or. Empty( inv->PRICH_INV ) )
+      // дата начала лечения отстоит от даты первичного установления инвалидности не более чем на год
+      if ( inv->DATE_INV < human->n_data .and. human->n_data <= AddMonth( inv->DATE_INV, 12 ) )
+        // заполним сведения об инвалидности пациента для XML-документа
+        oDISAB := oPAC:add( hxmlnode():new( 'DISABILITY' ) )
+        // группа инвалидности при первичном признании застрахованного лица инвалидом
+        mo_add_xml_stroke( oDISAB, 'INV', lstr( kart_->invalid ) )
+        // Дата первичного установления инвалидности
+        mo_add_xml_stroke( oDISAB, 'DATA_INV', date2xml( inv->DATE_INV ) )
+        // Код причины установления  инвалидности
+        mo_add_xml_stroke( oDISAB, 'REASON_INV', lstr( inv->PRICH_INV ) )
+        If !Empty( inv->DIAG_INV ) // Код основного заболевания по МКБ-10
+          mo_add_xml_stroke( oDISAB, 'DS_INV', inv->DIAG_INV )
+        Endif
+      endif
+    Endif
+    Select( tmpSelect )
+  Endif
+  return nil
+
 // 20.08.25
 Function schet_smoname()
 
@@ -143,119 +270,6 @@ Function collect_schet_onkusl()
 
   Return arr_onkusl
 
-// 26.10.25
-function elem_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
-
-  // тэг добавляется только для реестров 1 типа и помощь в условиях дневного
-  // и кругосуточного стационара
-
-  Local dPUMPver40 := 0d20240301
-  local oKSG, oSLk
-  Local akslp, iAKSLP, tKSLP, cKSLP // массив, счетчик для цикла по КСЛП
-  Local akiro
-
-  // заполним сведения о КСГ для XML-документа
-  akslp := {}
-  akiro := {}
-  oKSG := oSL:add( hxmlnode():new( 'KSG_KPG' ) )
-  mo_add_xml_stroke( oKSG, 'N_KSG', lshifr_zak_sl )
-
-  If mdata >= dPUMPver40   // дата окончания случая после 01.03.24
-    mo_add_xml_stroke( oKSG, 'K_ZP', '1' )  // пока ставим 1
-  Endif
-
-  If !Empty( human_2->pc3 ) .and. !Left( human_2->pc3, 1 ) == '6' // кроме 'старости'
-    mo_add_xml_stroke( oKSG, 'CRIT', human_2->pc3 )
-  Elseif is_oncology  == 2
-    If !Empty( onksl->crit ) .and. !( AllTrim( onksl->crit ) == 'нет' )
-      mo_add_xml_stroke( oKSG, 'CRIT', onksl->crit )
-    Endif
-    If !Empty( onksl->crit2 )
-      mo_add_xml_stroke( oKSG, 'CRIT', onksl->crit2 )  // второй критерий
-    Endif
-  Endif
-
-  If ! Empty( human_2->pc1 )
-    akslp := list2arr( human_2->pc1 )
-  Endif
-
-  mo_add_xml_stroke( oKSG, 'SL_K', iif( Empty( akslp ), '0', '1' ) )
-  If !Empty( akslp )
-    // заполним сведения о КСГ для XML-документа
-    If Year( human->K_DATA ) >= 2021     // 02.02.21 Байкин
-      tKSLP := getkslptable( human->K_DATA )
-
-      mo_add_xml_stroke( oKSG, 'IT_SL', lstr( ret_koef_kslp_21_xml( akslp, tKSLP, Year( human->K_DATA ) ), 7, 5 ) )
-
-      For iAKSLP := 1 To Len( akslp )
-        If ( cKSLP := AScan( tKSLP, {| x| x[ 1 ] == akslp[ iAKSLP ] } ) ) > 0
-          oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
-          mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ iAKSLP ] ) )
-          mo_add_xml_stroke( oSLk, 'VAL_C', lstr( tKSLP[ cKSLP, 4 ], 7, 5 ) )
-        Endif
-      Next
-    Else
-/*
-      mo_add_xml_stroke( oKSG, 'IT_SL', lstr( ret_koef_kslp( akslp ), 7, 5 ) )
-      oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
-      mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ 1 ] ) )
-      mo_add_xml_stroke( oSLk, 'VAL_C', lstr( akslp[ 2 ], 7, 5 ) )
-      If Len( akslp ) >= 4
-        oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
-        mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ 3 ] ) )
-        mo_add_xml_stroke( oSLk, 'VAL_C', lstr( akslp[ 4 ], 7, 5 ) )
-      Endif
-*/
-    Endif
-  Endif
-
-  If ! Empty( human_2->pc2 )
-    akiro := list2arr( human_2->pc2 )
-  Endif
-  If ! Empty( akiro )
-    // заполним сведения о КИРО для XML-документа
-    oSLk := oKSG:add( hxmlnode():new( 'S_KIRO' ) )
-    mo_add_xml_stroke( oSLk, 'CODE_KIRO', lstr( akiro[ 1 ] ) )
-    mo_add_xml_stroke( oSLk, 'VAL_K', lstr( akiro[ 2 ], 4, 2 ) )
-  Endif
-  return nil
-
-// 26.10.25
-function elem_disability( oPac )
-
-  // тэг добавляется только для реестров 1 типа и амбулаторно-поликлинической помощи в
-  // учреждениях имеющих прикрепленное население
-  
-  local oDISAB
-  Local tmpSelect
-
-//  If glob_mo[ _MO_IS_UCH ] .and. ;                      // наше МО имеет прикреплённое население
-//      human_->USL_OK == USL_OK_POLYCLINIC .and. ;                    // поликлиника
-//      kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ] .and. ;  // прикреплён к нашему МО
-  if Between( kart_->INVALID, 1, 4 )                   // инвалид
-    tmpSelect := Select()
-    dbSelectArea( 'INV' )
-    inv->( dbSeek( Str( human->kod_k, 7 ) ) )
-//    If inv->( Found() ) .and. ! emptyany( inv->DATE_INV, inv->PRICH_INV )
-    If inv->( Found() ) .and. ! ( empty( inv->DATE_INV ) .or. Empty( inv->PRICH_INV ) )
-      // дата начала лечения отстоит от даты первичного установления инвалидности не более чем на год
-      if ( inv->DATE_INV < human->n_data .and. human->n_data <= AddMonth( inv->DATE_INV, 12 ) )
-        // заполним сведения об инвалидности пациента для XML-документа
-        oDISAB := oPAC:add( hxmlnode():new( 'DISABILITY' ) )
-        // группа инвалидности при первичном признании застрахованного лица инвалидом
-        mo_add_xml_stroke( oDISAB, 'INV', lstr( kart_->invalid ) )
-        // Дата первичного установления инвалидности
-        mo_add_xml_stroke( oDISAB, 'DATA_INV', date2xml( inv->DATE_INV ) )
-        // Код причины установления  инвалидности
-        mo_add_xml_stroke( oDISAB, 'REASON_INV', lstr( inv->PRICH_INV ) )
-        If !Empty( inv->DIAG_INV ) // Код основного заболевания по МКБ-10
-          mo_add_xml_stroke( oDISAB, 'DS_INV', inv->DIAG_INV )
-        Endif
-      endif
-    Endif
-    Select( tmpSelect )
-  Endif
-  return nil
 /*
 // 26.10.25
 Function is_disability( p_tip_reestr )

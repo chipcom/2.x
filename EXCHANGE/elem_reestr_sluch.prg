@@ -5,20 +5,19 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.10.25
+// 27.10.25
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
   Local oSL, oSLUCH
-  Local oPRESCRIPTION, oPRESCRIPTIONS, oKSG, oSLk, oNAPR, oCONS
+  Local oPRESCRIPTION, oPRESCRIPTIONS, oNAPR, oCONS
   Local oONK_SL, oDIAG, oPROT, oONK
   Local oLEK, oDOSE
-  Local oUSL, oMR_USL_N, oMED_DEV
-  Local oPAC, oINJ    // , oDISAB
+  Local oUSL, oMED_DEV
+  Local oPAC, oINJ
 
   Local fl, lshifr1
   Local i, j
-  Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
   Local arrLP, row
   Local endDateZK
@@ -33,11 +32,13 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Local kol_sl, isl
   Local is_oncology_smp, is_oncology, arr_onkna, arr_onkco, arr_onksl, arr_onkdi, arr_onkpr, arr_onk_usl
   Local mdiagnoz, mdiagnoz3
-  Local cSMOname  // , fl_DISABILITY := .f.
+  Local cSMOname
   Local adiag_talon[ 16 ], tmpSelect
-  Local a_fusl := {}
+  Local a_fusl
   Local laluslf, lal
   Local s
+//  Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
+//  Local oKSG, oSLk, oMR_USL_N, oDISAB, fl_DISABILITY := .f.
 
   Private is_zak_sl, is_zak_sl_vr
   Private lshifr_zak_sl, lvidpoms
@@ -75,6 +76,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   ksl_date := nil
   For isl := 1 To kol_sl
 
+    a_fusl := {}
     a_usl := {} // для корректной работы с двойным сдучаем
     is_zak_sl := is_zak_sl_vr := .f.
     lshifr_zak_sl := lvidpoms := ''
@@ -996,14 +998,14 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
         If ( human->k_data >= 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER ) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
           .or. ( endDateZK >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
-          // .or. (human->k_data >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
 
           If between_date( human->n_data, human->k_data, c4tod( hu->DATE_U ) )
-            oMR_USL_N := oUSL:add( hxmlnode():new( 'MR_USL_N' ) )
-            mo_add_xml_stroke( oMR_USL_N, 'MR_N', lstr( 1 ) )   // пока ставим 1 исполнитель
-            mo_add_xml_stroke( oMR_USL_N, 'PRVS', put_prvs_to_reestr( hu_->PRVS, _NYEAR ) )
+//            oMR_USL_N := oUSL:add( hxmlnode():new( 'MR_USL_N' ) )
+//            mo_add_xml_stroke( oMR_USL_N, 'MR_N', lstr( 1 ) )   // пока ставим 1 исполнитель
+//            mo_add_xml_stroke( oMR_USL_N, 'PRVS', put_prvs_to_reestr( hu_->PRVS, _NYEAR ) )
             p2->( dbGoto( hu->kod_vr ) )
-            mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', p2->snils )
+//            mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', p2->snils )
+            elem_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, p2->snils ) // пока ставим 1 исполнитель
           Endif
         Else  // if (human->k_data < 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER)
           mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( hu_->PRVS, _NYEAR ) )
@@ -1125,11 +1127,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
             Endif
 
             If between_date( human->n_data, human->k_data, c4tod( mohu->DATE_U ) )
-              oMR_USL_N := oUSL:add( hxmlnode():new( 'MR_USL_N' ) )
-              mo_add_xml_stroke( oMR_USL_N, 'MR_N', lstr( 1 ) )   // пока ставим 1 исполнитель
-              mo_add_xml_stroke( oMR_USL_N, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )
+//              oMR_USL_N := oUSL:add( hxmlnode():new( 'MR_USL_N' ) )
+//              mo_add_xml_stroke( oMR_USL_N, 'MR_N', lstr( 1 ) )   // пока ставим 1 исполнитель
+//              mo_add_xml_stroke( oMR_USL_N, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )
               p2->( dbGoto( mohu->kod_vr ) )
-              mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', p2->snils )
+//              mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', p2->snils )
+              elem_mr_usl_n( oUsl, _nyear, 1, mohu->PRVS, p2->snils ) // пока ставим 1 исполнитель
             Endif
           Else  // if human->k_data < 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL
             mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )  // добавил 04.08.21
