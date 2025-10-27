@@ -835,6 +835,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
       If flLekPreparat
         // добавим в xml-документ информацию о лекарственных препаратах
+/*
         arrLP := collect_lek_pr( human->( RecNo() ) )
         If Len( arrLP ) != 0
           For Each row in arrLP
@@ -852,6 +853,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
             Endif
           Next
         Endif
+*/
+        elem_lek_pr( oSl, human->( RecNo() ) )
       Endif
 
       If !Empty( ldate_next )
@@ -1116,16 +1119,18 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           mo_add_xml_stroke( oUSL, 'CODE_MD', '0' )
         Else
           If ( human->k_data >= 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER ) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
-            .or. ( human->k_data >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
-            If ( p_tip_reestr == TYPE_REESTR_GENERAL ) .and. ( Year( human->k_data ) > 2021 ) .and. service_requires_implants( lshifr, c4tod( hu_->DATE_U2 ) )
+              .or. ( human->k_data >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+            If ( p_tip_reestr == TYPE_REESTR_GENERAL ) .and. service_requires_implants( lshifr, c4tod( hu_->DATE_U2 ) )
+/*
               For Each row in collect_implantant( human->kod, mohu->( RecNo() ) )
                 oMED_DEV := oUSL:add( hxmlnode():new( 'MED_DEV' ) )
                 mo_add_xml_stroke( oMED_DEV, 'DATE_MED', date2xml( row[ 3 ] ) )
                 mo_add_xml_stroke( oMED_DEV, 'CODE_MEDDEV', lstr( row[ 4 ] ) )
                 mo_add_xml_stroke( oMED_DEV, 'NUMBER_SER', AllTrim( row[ 5 ] ) )
               Next
+*/
+              elem_med_dev( oUsl, human->kod, mohu->( RecNo() ) )
             Endif
-
             If between_date( human->n_data, human->k_data, c4tod( mohu->DATE_U ) )
 //              oMR_USL_N := oUSL:add( hxmlnode():new( 'MR_USL_N' ) )
 //              mo_add_xml_stroke( oMR_USL_N, 'MR_N', lstr( 1 ) )   // пока ставим 1 исполнитель

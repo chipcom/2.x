@@ -6,9 +6,54 @@
 #include 'chip_mo.ch'
 
 // 27.10.25
+function elem_lek_pr( oSl, mkod_human )
+
+  // тэг Сведения о введенных лекарственных препаратах (за исключением случаев оказания высокотехнологичной медицинской помощи и 
+  // медицинской помощи при ЗНО)
+  // добавим в xml-документ информацию о лекарственных препаратах
+
+  local oLEK, oDOSE
+  local arrLP, row
+
+  arrLP := collect_lek_pr( mkod_human )
+  If Len( arrLP ) != 0
+    For Each row in arrLP
+      oLEK := oSL:add( hxmlnode():new( 'LEK_PR' ) )
+      mo_add_xml_stroke( oLEK, 'DATA_INJ', date2xml( row[ 1 ] ) )
+      mo_add_xml_stroke( oLEK, 'CODE_SH', row[ 8 ] )
+      If ! Empty( row[ 3 ] )
+        mo_add_xml_stroke( oLEK, 'REGNUM', row[ 3 ] )
+        // mo_add_xml_stroke(oLEK, 'CODE_MARK', '')  // для дальнейшего использования
+        oDOSE := oLEK:add( hxmlnode():new( 'LEK_DOSE' ) )
+        mo_add_xml_stroke( oDOSE, 'ED_IZM', Str( row[ 4 ], 3, 0 ) )
+        mo_add_xml_stroke( oDOSE, 'DOSE_INJ', Str( row[ 5 ], 8, 2 ) )
+        mo_add_xml_stroke( oDOSE, 'METHOD_INJ', Str( row[ 6 ], 3, 0 ) )
+        mo_add_xml_stroke( oDOSE, 'COL_INJ', Str( row[ 7 ], 5, 0 ) )
+      Endif
+    Next
+  Endif
+  return nil
+
+// 27.10.25
+function elem_med_dev( oUsl, human_kod, mohu_recno )
+
+  // тэг о Сведения о медицинских изделиях, имплантируемых в организм человека
+
+  local oMED_DEV, row
+
+  For Each row in collect_implantant( human_kod, mohu_recNo )
+    oMED_DEV := oUSL:add( hxmlnode():new( 'MED_DEV' ) )
+    mo_add_xml_stroke( oMED_DEV, 'DATE_MED', date2xml( row[ 3 ] ) )
+    mo_add_xml_stroke( oMED_DEV, 'CODE_MEDDEV', lstr( row[ 4 ] ) )
+    mo_add_xml_stroke( oMED_DEV, 'NUMBER_SER', AllTrim( row[ 5 ] ) )
+  Next
+  return nil
+
+// 27.10.25
 function elem_mr_usl_n( oUsl, nyear, number, prvs, snils )
 
   // тэг о мед. работниках выполнивших услугу
+
   local oMR_USL_N
 
   oMR_USL_N := oUSL:add( hxmlnode():new( 'MR_USL_N' ) )
