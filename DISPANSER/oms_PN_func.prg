@@ -887,7 +887,7 @@ Function read_arr_pn( lkod, is_all, mdata )
   Endif
   Return Nil
 
-// 24.10.25
+// 27.10.25
 Function is_issled_pn( ausl, _period, arr, _pol, mdata )
 
   // ausl - {lshifr,mdate,hu_->profil,hu_->PRVS}
@@ -897,11 +897,10 @@ Function is_issled_pn( ausl, _period, arr, _pol, mdata )
   local arr_pn_zs
 
   if ValType( ausl ) == 'A'
-    lshifr := ausl[ 1 ]
+    lshifr := AllTrim( ausl[ 1 ] )
   else
-    lshifr := ausl
+    lshifr := AllTrim( ausl )
   endif
-
   arr_pn_issled := np_arr_issled( mdata )
   arr_pn_zs := np_arr_not_zs( mdata )
   If ( i := AScan( arr_pn_zs, {| x| x[ 2 ] == lshifr } ) ) > 0
@@ -927,7 +926,7 @@ Function is_issled_pn( ausl, _period, arr, _pol, mdata )
   Endif
   Return fl
 
-// 24.10.25
+// 27.10.25
 Function is_osmotr_pn( ausl, _period, arr, _etap, _pol, mdata, mobil )
 
   // ausl - {lshifr,mdate,hu_->profil,hu_->PRVS}
@@ -937,9 +936,9 @@ Function is_osmotr_pn( ausl, _period, arr, _etap, _pol, mdata, mobil )
   Local arr_not_zs
 
   if ValType( ausl ) == 'A'
-    lshifr := ausl[ 1 ]
+    lshifr := AllTrim( ausl[ 1 ] )
   else
-    lshifr := ausl
+    lshifr := AllTrim( ausl )
   endif
 
   arr_PN_osmotr := np_arr_osmotr( mdata, mobil )
