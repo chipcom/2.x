@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.10.25 ДДС - добавление или редактирование случая (листа учета)
+// 27.10.25 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -776,7 +776,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       Endif
     Elseif num_screen == 2
 
-      ar := DDS_arr_etap( mk_data, m1mobilbr )[ iif( mk_data >= 0d20250901, mperiod, mvozrast ) ] 
+      ar := DDS_arr_etap( mk_data, m1mobilbr, tip_lu )[ iif( mk_data >= 0d20250901, mperiod, mvozrast ) ] 
       arr_DDS_issled := DDS_arr_issled( mk_data )
       If !Empty( ar[ 5 ] ) // не пустой массив исследований
         @ ++j, 1 Say 'I этап наименований исследований       Врач Ассис.  Дата     Результат' Color 'RB+/B'
@@ -854,7 +854,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ на 3-ю страницу' )
 
     Elseif num_screen == 3
-      ar := DDS_arr_etap( mk_data, m1mobilbr )[ iif( mk_data >= 0d20250901, mperiod, mvozrast ) ]
+      ar := DDS_arr_etap( mk_data, m1mobilbr, tip_lu )[ iif( mk_data >= 0d20250901, mperiod, mvozrast ) ]
       @ ++j, 1 Say 'II этап диспансеризации детей-сирот и детей, находящихся в тяжелой жизненной'
       @ ++j, 1 Say 'ситуации. Выберите, необходимо вводить врачебные осмотры II этапа?' Get mstep2 ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
@@ -1785,7 +1785,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         Endif
       Next
       
-      // добавим педиатра I этапа
+      // добавим педиатра I этапа 
       AAdd( arr_osm1, add_pediatr_DDS( MTAB_NOMpv1, MTAB_NOMpa1, MDATEp1, MKOD_DIAGp1, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
 
       For i := 1 To Len( arr_osm1 )

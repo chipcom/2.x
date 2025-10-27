@@ -16,7 +16,7 @@
 #define LIMITED_NUM_WEI_MIN 0.3
 #define LIMITED_NUM_WEI_MAX 499.9
 
-// 23.10.25
+// 27.10.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -2774,12 +2774,12 @@ Function verify_sluch( fl_view )
       AAdd( ta, 'в случае применены ' + lstr( kvp_2_78 ) + ' услуги "2.78.*" (должна быть одна)' )
     Endif
   Endif
-  If is_disp_DDS // is_70_5 .or. is_70_6
+  If is_disp_DDS // is_70_5 .or. is_70_6 
     mIDSP := 11 // диспансеризация
-    If kvp_70_5 > 1
+    If kvp_70_5 > 1 .and. dEnd < 0d20250901
       AAdd( ta, 'в случае применены ' + lstr( kvp_70_5 ) + ' услуги "70.5.*" (должна быть одна)' )
     Endif
-    If kvp_70_6 > 1
+    If kvp_70_6 > 1 .and. dEnd < 0d20250901
       AAdd( ta, 'в случае применены ' + lstr( kvp_70_6 ) + ' услуги "70.6.*" (должна быть одна)' )
     Endif
   Endif
