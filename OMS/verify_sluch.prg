@@ -3782,7 +3782,7 @@ Function verify_sluch( fl_view )
               is_last_den := .t.
             Endif
           Elseif !( metap == 2 .and. is_lab_usluga( au_lu[ i, 1 ] ) )
-            oth_usl += AllTrim( au_lu[ i, 1 ] ) + ' '
+//            oth_usl += AllTrim( au_lu[ i, 1 ] ) + ' '
           Endif
         Endif
       Next
