@@ -32,7 +32,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Local adiag_talon[ 16 ], tmpSelect
   Local a_fusl
   Local laluslf, lal
-  Local s
+  Local s, sCOMENTSL
+  local ar_dn
+
 //  Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
 //  Local oKSG, oSLk, oMR_USL_N, oDISAB, fl_DISABILITY := .f.
 //  Local oLEK, oDOSE, oMED_DEV, oINJ
@@ -62,8 +64,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Private arr_nazn
   Private arr_ne_vozm
   Private mtab_v_dopo_na, mtab_v_mo, mtab_v_stac, mtab_v_reab, mtab_v_sanat
-  Private ar_dn
   Private arr_usl_otkaz
+//  Private ar_dn
 
   flLekPreparat := .f.
 
@@ -77,6 +79,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   For isl := 1 To kol_sl
 
     a_fusl := {}
+    ar_dn := {}
     a_usl := {} // для корректной работы с двойным сдучаем
     is_zak_sl := is_zak_sl_vr := .f.
     lshifr_zak_sl := lvidpoms := ''
@@ -99,7 +102,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     arr_nazn := {}
     arr_ne_vozm := {}
     mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
-    ar_dn := {}
 
     If isl == 1 .and. kol_sl == 2
       Select HUMAN_3
@@ -1187,7 +1189,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
             sCOMENTSL := Left( sCOMENTSL, Len( sCOMENTSL ) -1 )
           Endif
         Endif
-        sCOMENTSL += ';'
+        sCOMENTSL += ';' 
       Endif
       mo_add_xml_stroke( oSL, 'COMENTSL', sCOMENTSL )
     Endif

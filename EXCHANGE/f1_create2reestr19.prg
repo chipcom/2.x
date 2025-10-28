@@ -16,101 +16,10 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
 
   arr_not_zs := np_arr_not_zs( human->k_data )
 
-//  fl_DISABILITY := .f.
-//  a_fusl := {}
-//  m1veteran := 0
-//  is_zak_sl := is_zak_sl_vr := .f.
-//  lshifr_zak_sl := lvidpoms := ''
-//  a_usl := {}
-//  lvidpom := 1 ; lfor_pom := 3
-//  a_usl_name := {}
-//  atmpusl := {}
-//  akslp := {}
-//  akiro := {}
-//  kol_kd := 0
-//  is_KSG := is_mgi := .f.
-//  v_reabil_slux := 0
-//  m1mobilbr := 0  // мобильная бригада
-//  m1mesto_prov := 0
-//  m1p_otk := 0    // признак отказа
-//  m1dopo_na := 0
-//  m1napr_v_mo := 0
-//  arr_mo_spec := {}
-//  m1napr_stac := 0
-//  m1profil_stac := 0
-//  m1napr_reab := 0
-//  m1profil_kojki := 0
-//  pr_amb_reab := .f.
-//  fl_disp_nabl := .f.
-//  is_disp_DVN := .f.
-//  is_disp_DVN_COVID := .f.
-//  is_disp_DRZ := .f.
-//  ldate_next := CToD( '' )
-//  ar_dn := {}
   //
 
   tarif_zak_sl := human->cena_1
-//  is_oncology_smp := 0
-//  is_oncology := f_is_oncology( 1, @is_oncology_smp )
-//  If p_tip_reestr == TYPE_REESTR_DISPASER
-//    is_oncology := 0
-//  Endif
 
-//  arr_onkna := {}
-//  Select ONKNA
-//  find ( Str( human->kod, 7 ) )
-//  Do While onkna->kod == human->kod .and. !Eof()
-//    P2TABN->( dbGoto( onkna->KOD_VR ) )
-//    If !( P2TABN->( Eof() ) ) .and. !( P2TABN->( Bof() ) )
-//      mosu->( dbGoto( onkna->U_KOD ) )
-//      AAdd( arr_onkna, { onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL, mosu->shifr1, onkna->NAPR_MO, P2TABN->snils, lstr( ret_prvs_v015tov021( P2TABN->PRVS_NEW ) ) } )
-//    Else
-//      mosu->( dbGoto( onkna->U_KOD ) )
-//      AAdd( arr_onkna, { onkna->NAPR_DATE, onkna->NAPR_V, onkna->MET_ISSL, mosu->shifr1, onkna->NAPR_MO, '', '' } )
-//    Endif
-//    Skip
-//  Enddo
-//  Select ONKCO
-//  find ( Str( human->kod, 7 ) )
-  //
-//  Select ONKSL
-//  find ( Str( human->kod, 7 ) )
-  //
-//  arr_onkdi := {}
-//  If eq_any( onksl->b_diag, 98, 99 ) 
-//    Select ONKDI
-//    find ( Str( human->kod, 7 ) )
-//    Do While onkdi->kod == human->kod .and. !Eof()
-//      AAdd( arr_onkdi, { onkdi->DIAG_DATE, onkdi->DIAG_TIP, onkdi->DIAG_CODE, onkdi->DIAG_RSLT } )
-//      Skip
-//    Enddo
-//  Endif
-  //
-//  arr_onkpr := {}
-//  If human_->USL_OK < 3 // противопоказания по лечению только в стационаре и дневном стационаре
-//    Select ONKPR
-//    find ( Str( human->kod, 7 ) )
-//    Do While onkpr->kod == human->kod .and. !Eof()
-//      AAdd( arr_onkpr, { onkpr->PROT, onkpr->D_PROT } )
-//      Skip
-//    Enddo
-//  Endif
-//  If eq_any( onksl->b_diag, 0, 7, 8 ) .and. AScan( arr_onkpr, {| x| x[ 1 ] == onksl->b_diag } ) == 0
-    // добавим отказ,не показано,противопоказано по гистологии
-//    AAdd( arr_onkpr, { onksl->b_diag, human->n_data } )
-//  Endif
-  //
-//  arr_onk_usl := {}
-//  If iif( human_2->VMP == 1, .t., Between( onksl->DS1_T, 0, 2 ) )
-//    Select ONKUS
-//    find ( Str( human->kod, 7 ) )
-//    Do While onkus->kod == human->kod .and. !Eof()
-//      If Between( onkus->USL_TIP, 1, 5 )
-//        AAdd( arr_onk_usl, onkus->USL_TIP )
-//      Endif
-//      Skip
-//    Enddo
-//  Endif
   //
   Select HU
   find ( Str( human->kod, 7 ) )
@@ -296,14 +205,8 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
       // lvidpoms := '11'
     Endif
   Endif
-//  Select MOHU
-//  find ( Str( human->kod, 7 ) )
-//  Do While mohu->kod == human->kod .and. !Eof()
-//    AAdd( a_fusl, mohu->( RecNo() ) )
-//    Skip
-//  Enddo
   
-  a_otkaz := {}
+  a_otkaz := {} 
   arr_nazn := {}
   If eq_any( human->ishod, 101, 102 ) // дисп-ия детей-сирот
     read_arr_dds( human->kod )
@@ -543,47 +446,4 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
       AAdd( arr_nazn, { 6, m1profil_kojki, '', '' } )
     Endif
   Endif
-//  cSMOname := ''
-//  If AllTrim( human_->smo ) == '34'
-//    cSMOname := ret_inogsmo_name( 2 )
-//  Endif
-//  mdiagnoz := diag_for_xml( , .t., , , .t. )
-
-///// 26.12.24
-//  AFill( adiag_talon, 0 )
-//  For i := 1 To 16
-//    adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
-//  Next
-/////
-//  If p_tip_reestr == TYPE_REESTR_GENERAL
-//    If glob_mo[ _MO_IS_UCH ] .and. ;                    // наше МО имеет прикреплённое население
-//        human_->USL_OK == USL_OK_POLYCLINIC .and. ;                    // поликлиника
-//        kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ] .and. ; // прикреплён к нашему МО
-//      Between( kart_->INVALID, 1, 4 )                    // инвалид
-//      Select INV
-//      find ( Str( human->kod_k, 7 ) )
-//      If Found() .and. !emptyany( inv->DATE_INV, inv->PRICH_INV )
-//        // дата начала лечения отстоит от даты первичного установления инвалидности не более чем на год
-//        fl_DISABILITY := ( inv->DATE_INV < human->n_data .and. human->n_data <= AddMonth( inv->DATE_INV, 12 ) )
-//      Endif
-//    Endif
-//  Else
-//    If human->OBRASHEN == '1' .and. AScan( mdiagnoz, {| x| PadR( x, 5 ) == 'Z03.1' } ) == 0
-//      AAdd( mdiagnoz, 'Z03.1' )
-//    Endif
-//    // AFill( adiag_talon, 0 )
-//    // For i := 1 To 16
-//    //   adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
-//    // Next
-//  Endif
-//  mdiagnoz3 := {}
-//  If !Empty( human_2->OSL1 )
-//    AAdd( mdiagnoz3, human_2->OSL1 )
-//  Endif
-//  If !Empty( human_2->OSL2 )
-//    AAdd( mdiagnoz3, human_2->OSL2 )
-//  Endif
-//  If !Empty( human_2->OSL3 )
-//    AAdd( mdiagnoz3, human_2->OSL3 )
-//  Endif
   Return Nil
