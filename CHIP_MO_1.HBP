@@ -266,6 +266,7 @@ mo_version.prg
 .\EXCHANGE\func_exchange.prg
 .\EXCHANGE\elem_reestr_pacient.prg
 .\EXCHANGE\elem_reestr_sluch.prg
+.\EXCHANGE\elem_func.prg
 
 .\263\mo_263.prg
 .\263\mo_263p.prg

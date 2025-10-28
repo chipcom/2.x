@@ -5,29 +5,25 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.10.25
+// 28.10.25
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
   Local oSL, oSLUCH
   Local oPRESCRIPTION, oPRESCRIPTIONS, oNAPR, oCONS
   Local oONK_SL, oDIAG, oPROT, oONK
-  Local oLEK, oDOSE
-  Local oUSL, oMED_DEV
-  Local oPAC, oINJ
+  Local oUSL
+  Local oPAC
 
   Local fl, lshifr1
   Local i, j
   Local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
-  Local arrLP, row
   Local endDateZK
   Local diagnoz_replace := ''
   Local flLekPreparat
   Local lReplaceDiagnose := .f.
   Local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
   Local dPUMPver40 := 0d20240301
-  Local old_lek, old_sh
-  Local aRegnum, iLekPr
   Local mnovor
   Local kol_sl, isl
   Local is_oncology_smp, is_oncology, arr_onkna, arr_onkco, arr_onksl, arr_onkdi, arr_onkpr, arr_onk_usl
@@ -39,6 +35,10 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Local s
 //  Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
 //  Local oKSG, oSLk, oMR_USL_N, oDISAB, fl_DISABILITY := .f.
+//  Local oLEK, oDOSE, oMED_DEV, oINJ
+//  Local arrLP, row
+//  Local old_lek, old_sh
+//  Local aRegnum, iLekPr
 
   Private is_zak_sl, is_zak_sl_vr
   Private lshifr_zak_sl, lvidpoms
@@ -746,7 +746,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
               mo_add_xml_stroke( oONK, 'LUCH_TIP', lstr( onkus->LUCH_TIP ) )
             Endif
             If eq_any( onkus->USL_TIP, 2, 4 )
-
+/*
               If human->k_data >= 0d20250101
                 arrLP := collect_lek_pr( human->( RecNo() ) )
                 If Len( arrLP ) > 0
@@ -795,6 +795,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
                   Skip
                 Enddo
               Endif
+*/
+              elem_lek_pr_zno( oONK, human->k_data, human->( RecNo() ), human->kod )
 
               If onkus->PPTR > 0
                 mo_add_xml_stroke( oONK, 'PPTR', '1' )
