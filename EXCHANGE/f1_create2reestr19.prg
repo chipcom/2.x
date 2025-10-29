@@ -7,14 +7,12 @@
 
 #define BASE_ISHOD_RZD 500
 
-// 23.10.25 работаем по текущей записи
+// 29.10.25 работаем по текущей записи
 Function f1_create2reestr19( _nyear, p_tip_reestr )
 
   Local i, j, lst, s
   Local locPRVS
   local arr_not_zs, lc, lpods
-
-  arr_not_zs := np_arr_not_zs( human->k_data )
 
   //
 
@@ -206,6 +204,7 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
     Endif
   Endif
   
+  arr_not_zs := np_arr_not_zs( human->k_data )
   a_otkaz := {} 
   arr_nazn := {}
   If eq_any( human->ishod, 101, 102 ) // дисп-ия детей-сирот

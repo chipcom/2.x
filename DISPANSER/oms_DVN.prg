@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.09.25 ДВН - добавление или редактирование случая (листа учета)
+// 29.10.25 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -1040,15 +1040,15 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
         reader {| x | menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
-        When m1ds_onk == 1
+        When m1ds_onk == 0
       @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } When m1ds_onk == 0
 
       dispans_napr( mk_data, @j, .t. )  // вызов заполнения блока направлений
 
       @ ++j, 1 Say 'ГРУППА состояния ЗДОРОВЬЯ'
       @ j, Col() + 1 Get mGRUPPA ;
-        reader {| x | menu_reader( x, mm_gruppa, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, iif( m1DS_ONK == 1, mm_gruppaD2, mm_gruppa ), A__MENUVERT, , , .f. ) }
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 2-ю страницу ^<PgDn>^ ЗАПИСЬ' )
     Endif
     DispEnd()
