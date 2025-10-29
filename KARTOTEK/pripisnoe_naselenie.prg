@@ -577,7 +577,7 @@ Function f31_view_r_pr_nas( reg, s, s1 )
 
   Return Nil
 
-// 25.10.25
+// 29.10.25
 Function preparation_for_pripisnoe_naselenie()
   Local i, j, k, aerr, buf := SaveScreen(), blk, t_arr[ BR_LEN ], cur_year, t_polis, ;
     str_sem := "preparation_for_pripisnoe_naselenie"
@@ -697,7 +697,7 @@ Function preparation_for_pripisnoe_naselenie()
       Elseif Year( kart->date_r ) < 1900
         AAdd( aerr, "дата рождения: " + full_date( kart->date_r ) + " ( < 1900г.)" )
       Endif
-      if len(AllTrim( kart2->KOD_MIS )) != 16 .or. len(AllTrim( kart_->NPOLIS  )) != 16 
+      if len(AllTrim( kart2->KOD_MIS )) != 16 .and. len(AllTrim( kart_->NPOLIS  )) != 16 
         AAdd( aerr, 'не верный номер ЕНП' )
       endif  
       If kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
@@ -940,13 +940,13 @@ Function preparation_for_pripisnoe_naselenie()
           else
             t_polis :=  alltrim(kart_->NPOLIS)
           endif    
-          s := t_polis
+          s :=  iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ),t_polis )
           //s := iif( kart_->vpolis == 3, "", ;
           //  iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ), ;
           //  AllTrim( kart_->SPOLIS ) + " № " + AllTrim( kart_->NPOLIS ) ) )
           s1 += Eval( blk, f_s_csv( s ) ) + ";"
           // 5 - Единый номер полиса ОМС
-          s := iif( kart_->vpolis == 3, AllTrim( kart_->NPOLIS ), "" )
+          s := t_polis
           s1 += Eval( blk, s ) + ";"
           arr_fio := retfamimot( 1, .f. )
           // 6 - Фамилия застрахованного лица
@@ -1042,21 +1042,19 @@ Function preparation_for_pripisnoe_naselenie()
             // 3 - Код типа ДПФС
             s := iif( kart_->vpolis == 3, "П", iif( kart_->vpolis == 2, "В", "С" ) )
             s1 += Eval( blk, s ) + ";"
-            // 4 - Серия и номер ДПФС
-             if len(AllTrim( kart2->KOD_MIS )) == 16
+            // 4 - cерия и номер ДПФС
+            if len(AllTrim( kart2->KOD_MIS )) == 16
               t_polis := alltrim(kart2->KOD_MIS)
-             else
+            else
               t_polis :=  alltrim(kart_->NPOLIS)
-             endif    
-             s := t_polis
-            //s := iif( kart_->vpolis == 3, AllTrim( kart2->KOD_MIS ), ;
-            //  iif( kart_->vpolis == 2, AllTrim( kart2->KOD_MIS ) ,  AllTrim( kart2->KOD_MIS ) ) )
+            endif    
+            s :=  iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ),t_polis )
             //s := iif( kart_->vpolis == 3, "", ;
             //  iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ), ;
             //  AllTrim( kart_->SPOLIS ) + " № " + AllTrim( kart_->NPOLIS ) ) )
             s1 += Eval( blk, f_s_csv( s ) ) + ";"
             // 5 - Единый номер полиса ОМС
-            s := iif( kart_->vpolis == 3, AllTrim( kart_->NPOLIS ), "" )
+            s := t_polis
             s1 += Eval( blk, s ) + ";"
             arr_fio := retfamimot( 1, .f. )
             // 6 - Фамилия застрахованного лица
