@@ -16,22 +16,25 @@ Static mas1pmt := { '~все оказанные случаи', ;
 Function dispanserizacia( k )
 
   Static si1 := 1, si2 := 1, sj := 1, sj1 := 1
-  Local mas_pmt, mas_msg, mas_fun, j, j1
+  Local mas_pmt, mas_msg, mas_fun, j
 
   Default k To 1
   Do Case
   Case k == 1
-    mas_pmt := { '~Дети-сироты', ;
+    mas_pmt := { ;
+      '~Дети-сироты', ;
       '~Взрослое население', ;
       '~Несовершеннолетние', ;
       '~Сводная информация', ;
       '~Репродуктивное здоровье' }
-    mas_msg := { 'Информация по диспансеризации детей-сирот', ;
+    mas_msg := { ;
+      'Информация по диспансеризации детей-сирот', ;
       'Информация по диспансеризации и профилактике взрослого населения', ;
       'Информация по медицинским осмотрам несовершеннолетних', ;
       'Сводные документы по всем видам диспансеризации и профилактики', ;
       'Проведение диспансеризации репродуктивного здоровья' }
-    mas_fun := { 'dispanserizacia(11)', ;
+    mas_fun := { ;
+      'dispanserizacia(11)', ;
       'dispanserizacia(12)', ;
       'dispanserizacia(13)', ;
       'dispanserizacia(14)', ;
@@ -66,17 +69,20 @@ Function inf_dds( k )
   Default k To 1
   Do Case
   Case k == 1
-    mas_pmt := { '~Карта диспансеризации', ;
+    mas_pmt := { ;
+      '~Карта диспансеризации', ;
       '~Список пациентов', ;
       'Своды для Обл~здрава', ;
       'Форма № 030-Д/с/~о-13', ;
       'XML-файл для ~портала МЗРФ' }
-    mas_msg := { 'Распечатка карты диспансеризации (учётная форма № 030-Д/с/у-13)', ;
+    mas_msg := { ;
+      'Распечатка карты диспансеризации (учётная форма № 030-Д/с/у-13)', ;
       'Распечатка списка пациентов, которым проведена диспансеризация детей-сирот', ;
       'Распечатка различных сводов для Облздрава Волгоградской области', ;
       'Сведения о диспансеризации несовершеннолетних (отчётная форма № 030-Д/с/о-13)', ;
       'Создание XML-файла для загрузки на портал Минздрава РФ' }
-    mas_fun := { 'inf_DDS(11)', ;
+    mas_fun := { ;
+      'inf_DDS(11)', ;
       'inf_DDS(12)', ;
       'inf_DDS(13)', ;
       'inf_DDS(14)', ;
@@ -99,10 +105,11 @@ Function inf_dds( k )
     Case k == 13
       If ( j1 := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0
         If ( j := popup_prompt( T_ROW, T_COL -5, sj2, ;
-            { 'Вывод таблицы со списком детей', ;
-            'Вывод в Excel для ВОДКБ', ;
-            'Вывод таблицы к письму №14-05/50', ;
-            'Вывод таблицы 2510' } ) ) > 0
+            { ;
+              'Вывод таблицы со списком детей', ;
+              'Вывод в Excel для ВОДКБ', ;
+              'Вывод таблицы к письму №14-05/50', ;
+              'Вывод таблицы 2510' } ) ) > 0
           sj2 := j
           If j > 2
             inf_dds_svod2( j, j1 )
@@ -142,7 +149,7 @@ Function inf_dds_karta()
     If f0_inf_dds( arr_m, .f. )
       r_use( dir_server() + 'human',, 'HUMAN' )
       Use ( cur_dir() + 'tmp' ) new
-      Set Relation To kod into HUMAN
+      Set Relation To FIELD->kod into HUMAN
       Index On Upper( human->fio ) to ( cur_dir() + 'tmp' )
       Private blk_open := {|| dbCloseAll(), ;
         r_use( dir_server() + 'human_',, 'HUMAN_' ), ;
@@ -186,14 +193,13 @@ Function f0_inf_dds( arr_m, is_schet, is_reg, is_snils )
   If !del_dbf_file( cur_dir() + 'tmp' + sdbf() )
     Return .f.
   Endif
-  dbCreate( cur_dir() + 'tmp', { { 'kod', 'N', 7, 0 }, ;
-    { 'is', 'N', 1, 0 } } )
+  dbCreate( cur_dir() + 'tmp', { { 'kod', 'N', 7, 0 }, { 'is', 'N', 1, 0 } } )
   Use ( cur_dir() + 'tmp' ) new
   r_use( dir_server() + 'schet_',, 'SCHET_' )
   r_use( dir_server() + 'kartotek',, 'KART' )
   r_use( dir_server() + 'human_',, 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
-  Set Relation To RecNo() into HUMAN_, To kod_k into KART
+  Set Relation To RecNo() into HUMAN_, To FIELD->kod_k into KART
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
   Index On kod to ( cur_dir() + 'tmp_h' ) ;
     For iif( p_tip_lu == TIP_LU_DDS, !Empty( za_smo ), Empty( za_smo ) ) .and. ;
@@ -268,71 +274,73 @@ Function f3_inf_dds_karta( _menu, _i, _r, ub, ue, fl )
   Endif
   Return s
 
-// 28.01.15
+// 30.10.25
 Function inf_dds_svod( par, par2, is_schet )
 
   Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec
+  local adbf
 
   If ( arr_m := year_month( T_ROW, T_COL -5 ) ) != NIL
     mywait()
     If f0_inf_dds( arr_m, is_schet > 1, is_schet == 3 )
       adbf := { ;
-        { 'nomer',   'N',     6,     0 }, ;
-        { 'KOD',   'N',     7,     0 }, ; // код (номер записи)
-        { 'KOD_K',   'N',     7,     0 }, ; // код по картотеке
-        { 'FIO',   'C',    50,     0 }, ; // Ф.И.О. больного
-        { 'DATE_R',   'D',     8,     0 }, ; // дата рождения больного
-        { 'N_DATA',   'D',     8,     0 }, ; // дата начала лечения
-        { 'K_DATA',   'D',     8,     0 }, ; // дата окончания лечения
-        { 'sroki',   'C',    11,     0 }, ; // сроки лечения
-        { 'noplata',   'N',     1,     0 }, ; //
-        { 'oplata',   'C',    30,     0 }, ; // оплата
-        { 'CENA_1',   'N',    10,     2 }, ; // оплачиваемая сумма лечения
-        { 'KOD_DIAG',   'C',     5,     0 }, ; // шифр 1-ой осн.болезни
-        { 'etap',   'N',     1,     0 }, ; //
-        { 'gruppa_do',   'N',     1,     0 }, ; //
-        { 'gruppa',   'N',     1,     0 }, ; //
-        { 'gd1',   'C',     1,     0 }, ; //
-        { 'gd2',   'C',     1,     0 }, ; //
-        { 'gd3',   'C',     1,     0 }, ; //
-        { 'gd4',   'C',     1,     0 }, ; //
-        { 'gd5',   'C',     1,     0 }, ; //
-        { 'g1',   'C',     1,     0 }, ; //
-        { 'g2',   'C',     1,     0 }, ; //
-        { 'g3',   'C',     1,     0 }, ; //
-        { 'g4',   'C',     1,     0 }, ; //
-        { 'g5',   'C',     1,     0 }, ; //
-        { 'vperv',   'C',     1,     0 }, ; //
-        { 'dispans',   'C',     1,     0 }, ; //
-        { 'n1',   'C',     1,     0 }, ; //
-        { 'n2',   'C',     1,     0 }, ; //
-        { 'n3',   'C',     1,     0 }, ; //
-        { 'p1',   'C',     1,     0 }, ; //
-        { 'p2',   'C',     1,     0 }, ; //
-        { 'p3',   'C',     1,     0 }, ; //
-        { 'f1',   'C',     1,     0 }, ; //
-        { 'f2',   'C',     1,     0 }, ; //
-        { 'f3',   'C',     1,     0 }, ; //
-        { 'f4',   'C',     1,     0 }, ; //
-        { 'f5',   'C',     1,     0 }; //
+        { 'nomer',   'N',  6, 0 }, ;
+        { 'KOD',     'N',  7, 0 }, ; // код (номер записи)
+        { 'KOD_K',   'N',  7, 0 }, ; // код по картотеке
+        { 'FIO',     'C', 50, 0 }, ; // Ф.И.О. больного
+        { 'DATE_R',  'D',  8, 0 }, ; // дата рождения больного
+        { 'N_DATA',  'D',  8, 0 }, ; // дата начала лечения
+        { 'K_DATA',  'D',  8, 0 }, ; // дата окончания лечения
+        { 'sroki',   'C', 11, 0 }, ; // сроки лечения
+        { 'noplata', 'N',  1, 0 }, ; //
+        { 'oplata',  'C', 30, 0 }, ; // оплата
+        { 'CENA_1',  'N', 10, 2 }, ; // оплачиваемая сумма лечения
+        { 'KOD_DIAG','C',  5, 0 }, ; // шифр 1-ой осн.болезни
+        { 'etap',    'N',  1, 0 }, ; //
+        { 'gruppa_do','N', 1, 0 }, ; //
+        { 'gruppa',  'N',  1, 0 }, ; //
+        { 'gd1',     'C',  1, 0 }, ; //
+        { 'gd2',     'C',  1, 0 }, ; //
+        { 'gd3',     'C',  1, 0 }, ; //
+        { 'gd4',     'C',  1, 0 }, ; //
+        { 'gd5',     'C',  1, 0 }, ; //
+        { 'g1',      'C',  1, 0 }, ; //
+        { 'g2',      'C',  1, 0 }, ; //
+        { 'g3',      'C',  1, 0 }, ; //
+        { 'g4',      'C',  1, 0 }, ; //
+        { 'g5',      'C',  1, 0 }, ; //
+        { 'vperv',   'C',  1, 0 }, ; //
+        { 'dispans', 'C',  1, 0 }, ; //
+        { 'n1',      'C',  1, 0 }, ; //
+        { 'n2',      'C',  1, 0 }, ; //
+        { 'n3',      'C',  1, 0 }, ; //
+        { 'p1',      'C',  1, 0 }, ; //
+        { 'p2',      'C',  1, 0 }, ; //
+        { 'p3',      'C',  1, 0 }, ; //
+        { 'f1',      'C',  1, 0 }, ; //
+        { 'f2',      'C',  1, 0 }, ; //
+        { 'f3',      'C',  1, 0 }, ; //
+        { 'f4',      'C',  1, 0 }, ; //
+        { 'f5',      'C',  1, 0 }; //
       }
-      For i := 1 To Len( dds_arr_iss() )
+//      For i := 1 To Len( dds_arr_iss() )
+      For i := 1 To Len( DDS_arr_issled( arr_m[ 5 ] ) )
         AAdd( adbf, { 'di_' + lstr( i ), 'C', 8, 0 } )
       Next
-      For i := 1 To Len( dds_arr_osm1() )
+      For i := 1 To Len( dds_arr_osm1( arr_m[ 5 ]) )
         AAdd( adbf, { 'd1_' + lstr( i ), 'C', 8, 0 } )
       Next
       AAdd( adbf, { 'd1_zs', 'C', 8, 0 } )
-      For i := 1 To Len( dds_arr_osm2() )
+      For i := 1 To Len( dds_arr_osm2() ) 
         AAdd( adbf, { 'd2_' + lstr( i ), 'C', 8, 0 } )
       Next
       dbCreate( cur_dir() + 'tmpfio', adbf )
       r_use( dir_server() + 'mo_rak',, 'RAK' )
       r_use( dir_server() + 'mo_raks',, 'RAKS' )
-      Set Relation To akt into RAK
+      Set Relation To FIELD->akt into RAK
       r_use( dir_server() + 'mo_raksh',, 'RAKSH' )
-      Set Relation To kod_raks into RAKS
-      Index On Str( kod_h, 7 ) + DToS( rak->DAKT ) to ( cur_dir() + 'tmp_raksh' )
+      Set Relation To FIELD->kod_raks into RAKS
+      Index On Str( FIELD->kod_h, 7 ) + DToS( rak->DAKT ) to ( cur_dir() + 'tmp_raksh' )
       Private blk_open := {|| dbCloseAll(), ;
         r_use( dir_server() + 'human_',, 'HUMAN_' ), ;
         r_use( dir_server() + 'human',, 'HUMAN' ), ;
@@ -361,38 +369,39 @@ Function inf_dds_svod( par, par2, is_schet )
       Close databases
       delfrfiles()
       r_use( dir_server() + 'organiz',, 'ORG' )
-      adbf := { { 'name', 'C', 130, 0 }, ;
-        { 'nomer', 'N', 6, 0 }, ;
-        { 'kol_opl', 'N', 6, 0 }, ;
+      adbf := { ;
+        { 'name',   'C', 130, 0 }, ;
+        { 'nomer',  'N',  6, 0 }, ;
+        { 'kol_opl','N',  6, 0 }, ;
         { 'CENA_1', 'N', 15, 2 }, ;
         { 'period', 'C', 250, 0 }, ;
-        { 'period2', 'C', 50, 0 }, ;
-        { 'kol2', 'C', 60, 0 }, ;
-        { 'kol3', 'C', 60, 0 }, ;
-        { 'kol4', 'C', 60, 0 }, ;
-        { 'gd1',   'N',     8,     0 }, ; //
-        { 'gd2',   'N',     8,     0 }, ; //
-        { 'gd3',   'N',     8,     0 }, ; //
-        { 'gd4',   'N',     8,     0 }, ; //
-        { 'gd5',   'N',     8,     0 }, ; //
-        { 'g1',   'N',     8,     0 }, ; //
-        { 'g2',   'N',     8,     0 }, ; //
-        { 'g3',   'N',     8,     0 }, ; //
-        { 'g4',   'N',     8,     0 }, ; //
-        { 'g5',   'N',     8,     0 }, ; //
-        { 'vperv',   'N',     8,     0 }, ; //
-        { 'dispans',   'N',     8,     0 }, ; //
-        { 'n1',   'N',     8,     0 }, ; //
-        { 'n2',   'N',     8,     0 }, ; //
-        { 'n3',   'N',     8,     0 }, ; //
-        { 'p1',   'N',     8,     0 }, ; //
-        { 'p2',   'N',     8,     0 }, ; //
-        { 'p3',   'N',     8,     0 }, ; //
-        { 'f1',   'N',     8,     0 }, ; //
-        { 'f2',   'N',     8,     0 }, ; //
-        { 'f3',   'N',     8,     0 }, ; //
-        { 'f4',   'N',     8,     0 }, ; //
-        { 'f5',   'N',     8,     0 } }
+        { 'period2','C', 50, 0 }, ;
+        { 'kol2',   'C', 60, 0 }, ;
+        { 'kol3',   'C', 60, 0 }, ;
+        { 'kol4',   'C', 60, 0 }, ;
+        { 'gd1',    'N',  8, 0 }, ; //
+        { 'gd2',    'N',  8, 0 }, ; //
+        { 'gd3',    'N',  8, 0 }, ; //
+        { 'gd4',    'N',  8, 0 }, ; //
+        { 'gd5',    'N',  8, 0 }, ; //
+        { 'g1',     'N',  8, 0 }, ; //
+        { 'g2',     'N',  8, 0 }, ; //
+        { 'g3',     'N',  8, 0 }, ; //
+        { 'g4',     'N',  8, 0 }, ; //
+        { 'g5',     'N',  8, 0 }, ; //
+        { 'vperv',  'N',  8, 0 }, ; //
+        { 'dispans','N',  8, 0 }, ; //
+        { 'n1',     'N',  8, 0 }, ; //
+        { 'n2',     'N',  8, 0 }, ; //
+        { 'n3',     'N',  8, 0 }, ; //
+        { 'p1',     'N',  8, 0 }, ; //
+        { 'p2',     'N',  8, 0 }, ; //
+        { 'p3',     'N',  8, 0 }, ; //
+        { 'f1',     'N',  8, 0 }, ; //
+        { 'f2',     'N',  8, 0 }, ; //
+        { 'f3',     'N',  8, 0 }, ; //
+        { 'f4',     'N',  8, 0 }, ; //
+        { 'f5',     'N',  8, 0 } }
       For i := 1 To Len( dds_arr_iss() )
         AAdd( adbf, { 'di_' + lstr( i ), 'N', 8, 0 } )
       Next
