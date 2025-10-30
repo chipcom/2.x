@@ -441,7 +441,7 @@ Function change_num_napr()
   Return update_gets()
 
 // 29.10.25 блок направлений после диспансеризации
-Function dispans_napr( mk_data, /*@*/j, lAdult, lFull )
+Function dispans_napr( mk_data, /*@*/j, lAdult, lFull ) 
 
   // mk_data - дата окончания случая диспансеризации
   // j - счетчик строк на экране
@@ -454,6 +454,33 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull )
   default lFull to .f.
 
   If mk_data >= 0d20210801  // по новому ПУМП
+    if m1DS_ONK == 1  // подозрение на ЗНО - да
+      // дополнительное рбследования
+      mdopo_na := ''
+      m1dopo_na := 0
+      mtab_v_dopo_na := 0
+      mnapr_stac := ''
+      m1napr_stac := 0
+      // стационар
+      m1profil_stac := 0
+      mtab_v_stac := 0
+      mprofil_stac := ''
+      mtab_v_stac := 0
+      // реабилитация
+      mnapr_reab := ''
+      m1napr_reab := 0
+      mprofil_kojki := ''
+      m1profil_kojki := 0
+      mtab_v_reab := 0
+      // санаторно-курортное
+      msank_na := ''
+      m1sank_na := 0
+      mtab_v_sanat := 0
+
+      update_gets()
+//      update_get( 'mdopo_na' )
+//      update_get( 'mtab_v_dopo_na' )
+    endif
     @ j, 74 Say 'Врач'
     @ ++j, 1 Say Replicate( '─', 78 ) Color color1
     // направление на дополниельное обследование
