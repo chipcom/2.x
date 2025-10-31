@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
  
-// 25.09.25 является врачебным осмотром детей-сирот на первом этапе
+// 31.10.25 является врачебным осмотром детей-сирот на первом этапе
 Function is_osmotr_dds_1_etap( ausl, _vozrast, _etap, _pol, tip_lu, mdata )
 
   // ausl - { lshifr,mdate,hu_->profil,hu_->PRVS }
@@ -18,7 +18,7 @@ Function is_osmotr_dds_1_etap( ausl, _vozrast, _etap, _pol, tip_lu, mdata )
   Endif
   For i := 1 To Len( arr_DDS_osm1 )
     If iif( Empty( arr_DDS_osm1[ i, 2 ] ), .t., arr_DDS_osm1[ i, 2 ] == _pol ) .and. ;
-        Between( _vozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] )
+        iif( mdata >= 0d20250901, .t., Between( _vozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] ) )
       If _etap == 1
         If AScan( arr_DDS_osm1[ i, 5 ], ausl[ 3 ] ) > 0
           fl := .t.
