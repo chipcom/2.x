@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.10.25
+// 31.10.25
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -43,7 +43,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 //  Local aRegnum, iLekPr
 
   Private is_zak_sl, is_zak_sl_vr
-  Private lshifr_zak_sl, lvidpoms
+  Private lshifr_zak_sl //  , lvidpoms
   Private a_usl
   Private a_usl_name
   Private lvidpom
@@ -82,7 +82,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     ar_dn := {}
     a_usl := {} // для корректной работы с двойным сдучаем
     is_zak_sl := is_zak_sl_vr := .f.
-    lshifr_zak_sl := lvidpoms := ''
+    lshifr_zak_sl := '' //  lvidpoms := ''
     a_usl_name := {}
     lvidpom := 1
     lfor_pom := 3

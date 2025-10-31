@@ -7,23 +7,24 @@
 
 #define BASE_ISHOD_RZD 500
 
-// 29.10.25 работаем по текущей записи
+// 31.10.25 работаем по текущей записи
 Function f1_create2reestr19( _nyear, p_tip_reestr )
 
-  Local i, j, lst, s
+  Local i, j, lst, sVidpoms
   Local locPRVS
   local arr_not_zs, lc, lpods
-
+  local lvidpoms
   //
 
   tarif_zak_sl := human->cena_1
 
   //
+  lvidpoms := ''
   Select HU
   find ( Str( human->kod, 7 ) )
   Do While hu->kod == human->kod .and. !Eof()
     lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
-    If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, , , @lst, , @s )
+    If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, , , @lst, , @sVidpoms )
       lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
       If human_->USL_OK == USL_OK_POLYCLINIC .and. is_usluga_disp_nabl( lshifr )
         ldate_next := c4tod( human->DATE_OPL )
@@ -38,30 +39,42 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
       Elseif Left( lshifr, 5 ) == '60.9.'
         is_mgi := .t.
       Endif
-      If !Empty( s ) .and. ',' $ s
-        lvidpoms := s
+      If !Empty( sVidpoms ) .and. ',' $ sVidpoms
+        lvidpoms := sVidpoms
       Endif
       // попытка правки
+      locPRVS := put_prvs_to_reestr( human_->PRVS, _NYEAR )
       If AllTrim( lshifr ) == '2.78.107'
         // терпевт + общая врачебная практика
-        If eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '76', '39' )
+//        If eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '76', '39' )
+        If eq_any( locPRVS, '76', '39' )
           lvidpoms := '12'
-        Elseif eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '2', '17', '24', '25', '35', '41', '45', '46', ;
+//        Elseif eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '2', '17', '24', '25', '35', '41', '45', '46', ;
+        Elseif eq_any( locPRVS, '2', '17', '24', '25', '35', '41', '45', '46', ;
             '68', '71', '79', '84', '90', '92', '95' )
           lvidpoms := '13'
         Endif
         // фельдшер
         // lvidpoms := '11'
       Endif
-      locPRVS := put_prvs_to_reestr( human_->PRVS, _NYEAR )
       If ( hu->stoim_1 > 0 .or. Left( lshifr, 3 ) == '71.' ) .and. ( i := ret_vid_pom( 1, lshifr, human->k_data ) ) > 0
         lvidpom := i
         // для школ здоровья ХНИЗ
-        if eq_any( lshifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12', '2.92.13' )
+//        if eq_any( lshifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12', '2.92.13' )
+        if eq_any( lshifr, '2.93.1', '2.93.2', '2.92.2', '2.92.3', '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12', '2.92.13' )
+/*
           if eq_any( locPRVS, '76', '49' )  // тераипия, педиатрия
           elseif eq_any( locPRVS, '206' )  // фельдшер
             lvidpom := 11
           elseif eq_any( lshifr, '2.92.4', '2.92.5', '2.92.9', '2.92.10', '2.92.11' ) .and. locPRVS == '39'   // общая врачебная практика (семейная медицина)
+            lvidpom := 12
+          else  // узкие специалисты
+            lvidpom := 13
+          endif
+*/
+          if locPRVS == '206'  // фельдшер
+            lvidpom := 11
+          elseif eq_any( locPRVS, '76', '49', '39' )  // тераипия, педиатрия, общая врачебная практика
             lvidpom := 12
           else  // узкие специалисты
             lvidpom := 13
@@ -71,8 +84,10 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
         if eq_any( lshifr, '2.76.100', '2.76.101', '2.76.102' )
           if eq_any( locPRVS, '76', '39' )  // тераипия, общая врачебная практика (семейная медицина)
             lvidpom := 12
-          else  // 206 - лечебное дело (средний мед. персонал)
+          elseif   locPRVS == '206'  // фельдшер, лечебное дело (средний мед. персонал)
             lvidpom := 11
+          else
+            lvidpom := 13
           endif
         endif
       Endif
