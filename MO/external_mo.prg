@@ -5,11 +5,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 03.02.25 в GET-е вернуть {_MO_SHORT_NAME, _MO_KOD_TFOMS} и по пробелу - очистка поля
+// 09.09.25 в GET-е вернуть {_MO_SHORT_NAME, _MO_KOD_TFOMS} и по пробелу - очистка поля
 Function f_get_mo( k, r, c, lusl, lpar )
 
   Static skodN := ''
-  Local arr_mo3 := {}, ret, r1, r2, i, lcolor, tmp_select := Select()
+  Local arr_mo3 := {}, ret, r1, r2, i, j, lcolor, tmp_select := Select()
 
   Default lpar To 1
   Private muslovie, loc_arr_MO, ppar := lpar
@@ -43,13 +43,13 @@ Function f_get_mo( k, r, c, lusl, lpar )
   If Empty( arr_mo3 ) .or. ppar == 2
     lmo3 := 0
   Endif
-  dbCreate( cur_dir + 'tmp_mo', { ;
+  dbCreate( cur_dir() + 'tmp_mo', { ;
     { 'kodN', 'C', 6, 0 }, ;
     { 'kodF', 'C', 6, 0 }, ;
     { 'mo3', 'N', 1, 0 }, ;
     { 'name', 'C', 72, 0 } ;
     } )
-  Use ( cur_dir + 'tmp_mo' ) New Alias RG
+  Use ( cur_dir() + 'tmp_mo' ) New Alias RG
   Do While .t.
     Zap
     If lmo3 == 0
@@ -59,13 +59,13 @@ Function f_get_mo( k, r, c, lusl, lpar )
         rg->kodN := rg->kodF := '999999'
         rg->name := '=== сторонняя МО (не в ОМС или не в Волгоградской области) ==='
       Endif
-      For i := 1 To Len( glob_arr_mo )
-        loc_arr_MO := glob_arr_mo[ i ]
-        If iif( muslovie == NIL, .t., &muslovie ) // .and. year(sys_date) <= year(glob_arr_mo[i, _MO_DEND])
+      For i := 1 To Len( glob_arr_mo() )
+        loc_arr_MO := glob_arr_mo()[ i ]
+        If iif( muslovie == NIL, .t., &muslovie ) // .and. year(sys_date) <= year(glob_arr_mo()[i, _MO_DEND])
           Append Blank
-          rg->kodN := glob_arr_mo[ i, _MO_KOD_TFOMS ]
-          rg->kodF := glob_arr_mo[ i, _MO_KOD_FFOMS ]
-          rg->name := glob_arr_mo[ i, _MO_SHORT_NAME ]
+          rg->kodN := glob_arr_mo()[ i, _MO_KOD_TFOMS ]
+          rg->kodF := glob_arr_mo()[ i, _MO_KOD_FFOMS ]
+          rg->name := glob_arr_mo()[ i, _MO_SHORT_NAME ]
           If AScan( arr_mo3, rg->kodN ) > 0
             rg->mo3 := 1
           Endif
@@ -74,19 +74,19 @@ Function f_get_mo( k, r, c, lusl, lpar )
     Else
       lcolor := 'N/W*, GR+/R'
       For j := 1 To Len( arr_mo3 )
-        If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == arr_mo3[ j ] } ) ) > 0 // .and. Year( sys_date ) <= Year( glob_arr_mo[ i, _MO_DEND ] )
+        If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == arr_mo3[ j ] } ) ) > 0 // .and. Year( sys_date ) <= Year( glob_arr_mo[ i, _MO_DEND ] )
           Append Blank
-          rg->kodN := glob_arr_mo[ i, _MO_KOD_TFOMS ]
-          rg->kodF := glob_arr_mo[ i, _MO_KOD_FFOMS ]
-          rg->name := glob_arr_mo[ i, _MO_SHORT_NAME ]
+          rg->kodN := glob_arr_mo()[ i, _MO_KOD_TFOMS ]
+          rg->kodF := glob_arr_mo()[ i, _MO_KOD_FFOMS ]
+          rg->name := glob_arr_mo()[ i, _MO_SHORT_NAME ]
           rg->mo3 := 1
         Endif
       Next
     Endif
-    Index On Upper( name ) to ( cur_dir + 'tmp_mo' )
+    Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_mo' )
     Go Top
     If Empty( pkodN )
-      pkodN := glob_mo[ _MO_KOD_TFOMS ]
+      pkodN := glob_mo()[ _MO_KOD_TFOMS ]
     Endif
     If !Empty( pkodN )
       Locate For kodN == pkodN
@@ -118,7 +118,6 @@ Function f_get_mo( k, r, c, lusl, lpar )
   Enddo
   rg->( dbCloseArea() )
   Select ( tmp_select )
-
   Return ret
 
 // 13.10.20
@@ -134,10 +133,9 @@ Function f2get_mo( oBrow )
   Else
     status_key( '^<Esc>^ - выход; ^<Enter>^ - выбор; ^<Пробел>^ - очистка' + iif( glob_task == X_263 .or. muslovie != NIL, '', '; ^<F3>^ - все МО' ) )
   Endif
-
   Return Nil
 
-// 13.10.20
+// 09.09.25
 Function f3get_mo( nkey, oBrow )
 
   Local ret := -1, cCode, rec
@@ -159,7 +157,6 @@ Function f3get_mo( nkey, oBrow )
       ret := 0
     Endif
   Elseif nKey == K_F3 .and. glob_task != X_263 .and. muslovie == Nil .and. ppar == 1
-
     aRet := viewf003()
     If ! Empty( aRet[ 1 ] )
       _fl_add_mo := .t.
@@ -167,28 +164,21 @@ Function f3get_mo( nkey, oBrow )
       rg->kodN := aRet[ 1 ]
       rg->name := aRet[ 2 ]
       rg->mo3 := 0
-      glob_arr_mo := getmo_mo_new( '_mo_mo', .t. )
+//      glob_arr_mo := getmo_mo( '_mo_mo', .t. )
+      glob_arr_mo := glob_arr_mo( .t. )
     Endif
-
     ret := 1
-    // p_mo := 1
-    // pkodN := rg->kodN
-    // lmo3 := iif(lmo3 == 0, 1, 0)
-    // if lmo3 == 1 .and. rg->mo3 != lmo3
-    // pkodN := ''
-    // endif
   Elseif nKey == K_SPACE
     _fl_space := .t.
     ret := 1
   Endif
-
   Return ret
 
-// вернуть массив по МО с кодом ТФОМС cCode
+// 09.09.25 вернуть массив по МО с кодом ТФОМС cCode
 Function ret_mo( cCode )
 
   // cCode - код МО по ТФОМС
-  Local i, arr := AClone( glob_arr_mo[ 1 ] ) // возьмём первое по порядку МО
+  Local i, arr := AClone( glob_arr_mo()[ 1 ] ) // возьмём первое по порядку МО
 
   For i := 1 To Len( arr )
     If ValType( arr[ i ] ) == 'C'
@@ -196,16 +186,15 @@ Function ret_mo( cCode )
     Endif
   Next
   If !Empty( cCode )
-    If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == cCode } ) ) > 0
-      arr := glob_arr_mo[ i ]
-    Elseif ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_FFOMS ] == cCode } ) ) > 0
-      arr := glob_arr_mo[ i ]
+    If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cCode } ) ) > 0
+      arr := glob_arr_mo()[ i ]
+    Elseif ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == cCode } ) ) > 0
+      arr := glob_arr_mo()[ i ]
     Endif
   Endif
-
   Return arr
 
-// 28.02.25 проверить направляющую МО по дате направления и дате окончания действия
+// 09.09.25 проверить направляющую МО по дате направления и дате окончания действия
 Function verify_dend_mo( cCode, ldate, is_record )
 
   Static a_mo := { ;
@@ -247,8 +236,8 @@ Function verify_dend_mo( cCode, ldate, is_record )
 
   Default is_record To .f.
   cCode := ret_mo( cCode )[ _MO_KOD_TFOMS ]
-  If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == cCode } ) ) > 0
-    If ldate > glob_arr_mo[ i, _MO_DEND ]
+  If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cCode } ) ) > 0
+    If ldate > glob_arr_mo()[ i, _MO_DEND ]
       fl := .f.
       If is_record
         For j := 1 To Len( a_mo )
@@ -258,23 +247,20 @@ Function verify_dend_mo( cCode, ldate, is_record )
           Endif
         Next
       Endif
-
       fl := .t. // пока так
-
       If fl
 //        human_->NPR_MO := lstr( a_mo[ j, 1 ] ) // перезаписываем код направляющего МО в листе учёта ОМС
         human_->NPR_MO := cCode
       Else
-        s := '<' + glob_arr_mo[ i, _MO_SHORT_NAME ] + '> закончила свою деятельность ' + date_8( glob_arr_mo[ i, _MO_DEND ] ) + 'г.'
+        s := '<' + glob_arr_mo()[ i, _MO_SHORT_NAME ] + '> закончила свою деятельность ' + date_8( glob_arr_mo()[ i, _MO_DEND ] ) + 'г.'
       Endif
     Endif
   Else
     s := 'в справочнике медицинских организаций не найдена МО с кодом ' + cCode
   Endif
-
   Return s
 
-// инициализация выборки нескольких МО
+// 09.09.25 инициализация выборки нескольких МО
 Function ini_ed_mo( lval )
 
   Local s := ''
@@ -282,13 +268,12 @@ Function ini_ed_mo( lval )
   If Empty( lval )
     s := 'Все МО,'
   Else
-    AEval( glob_arr_mo, {| x| s += iif( x[ _MO_KOD_TFOMS ] $ lval, AllTrim( x[ _MO_SHORT_NAME ] ) + ',', '' ) } )
+    AEval( glob_arr_mo(), {| x| s += iif( x[ _MO_KOD_TFOMS ] $ lval, AllTrim( x[ _MO_SHORT_NAME ] ) + ',', '' ) } )
   Endif
   s := SubStr( s, 1, Len( s ) -1 )
-
   Return s
 
-// выбор нескольких МО
+// 09.09.25 выбор нескольких МО
 Function inp_bit_mo( k, r, c )
 
   Static arr
@@ -298,9 +283,9 @@ Function inp_bit_mo( k, r, c )
   mywait()
   If arr == NIL
     arr := {}
-    AEval( glob_arr_mo, {| x| AAdd( arr, x[ _MO_SHORT_NAME ] ) } )
+    AEval( glob_arr_mo(), {| x| AAdd( arr, x[ _MO_SHORT_NAME ] ) } )
   Endif
-  AEval( glob_arr_mo, {| x| AAdd( t_mas, iif( x[ _MO_KOD_TFOMS ] $ k, ' * ', '   ' ) + x[ _MO_SHORT_NAME ] ) } )
+  AEval( glob_arr_mo(), {| x| AAdd( t_mas, iif( x[ _MO_KOD_TFOMS ] $ k, ' * ', '   ' ) + x[ _MO_SHORT_NAME ] ) } )
   mlen := Len( t_mas )
   i := 1
   status_key( '^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins,+,->^ - смена выбора МО' )
@@ -319,7 +304,7 @@ Function inp_bit_mo( k, r, c )
       'Выбор наиболее часто встречающихся направляющих МО', 'B/BG' ) ) > 0
     For i := 1 To mlen
       If '*' == SubStr( t_mas[ i ], 2, 1 )
-        m1var += glob_arr_mo[ i, _MO_KOD_TFOMS ] + ','
+        m1var += glob_arr_mo()[ i, _MO_KOD_TFOMS ] + ','
       Endif
     Next
     m1var := Left( m1var, Len( m1var ) -1 )
@@ -327,5 +312,4 @@ Function inp_bit_mo( k, r, c )
   Endif
   RestScreen( buf )
   SetColor( tmp_color )
-
   Return iif( ret == 0, NIL, { m1var, s } )

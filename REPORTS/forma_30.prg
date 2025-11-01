@@ -6,8 +6,8 @@
 // 06.11.22
 Function forma_30()
 
-  Local i, j, k, arr, s, buf := save_maxrow(), fl_exit := .f., ;
-    reg_print, name_file := cur_dir + "_form_30" + stxt, ;
+  Local buf := save_maxrow(), fl_exit := .f., ;
+    reg_print, name_file := cur_dir() + "_form_30.txt", ;
     jh := 0, jh1 := 0, arr_m
 
   If ( arr_m := year_month() ) == NIL
@@ -27,9 +27,9 @@ Function forma_30()
     { "p11",   "N", 7, 0 }, ;
     { "p12",   "N", 7, 0 }, ;
     { "p13",   "N", 7, 0 } }
-  dbCreate( cur_dir + "tmp", adbf )
-  Use ( cur_dir + "tmp" ) new
-  Index On Str( tip, 1 ) + Str( kod, 9 ) to ( cur_dir + "tmp" )
+  dbCreate( cur_dir() + "tmp", adbf )
+  Use ( cur_dir() + "tmp" ) new
+  Index On Str( tip, 1 ) + Str( kod, 9 ) to ( cur_dir() + "tmp" )
   //
   adbf := { { "tip",   "N", 1, 0 }, ;  // 1-4
   { "kod",   "N", 9, 0 }, ;  // врач,профиль,специальность,услуга
@@ -44,9 +44,9 @@ Function forma_30()
     { "p13",   "N", 7, 0 }, ;
     { "p14",   "N", 7, 0 }, ;
     { "p15",   "N", 7, 0 } }
-  dbCreate( cur_dir + "tmp1", adbf )
-  Use ( cur_dir + "tmp1" ) new
-  Index On Str( tip, 1 ) + Str( kod, 9 ) to ( cur_dir + "tmp1" )
+  dbCreate( cur_dir() + "tmp1", adbf )
+  Use ( cur_dir() + "tmp1" ) new
+  Index On Str( tip, 1 ) + Str( kod, 9 ) to ( cur_dir() + "tmp1" )
   //
   adbf := { { "tip",   "N", 1, 0 }, ;  // 1-4
   { "kod",   "N", 9, 0 }, ;  // врач,профиль,специальность,услуга
@@ -64,27 +64,27 @@ Function forma_30()
     { "p13",   "N", 7, 0 }, ;
     { "p14",   "N", 7, 0 }, ;
     { "p15",   "N", 7, 0 } }
-  dbCreate( cur_dir + "tmp2", adbf )
-  Use ( cur_dir + "tmp2" ) new
-  Index On Str( tip, 1 ) + Str( kod, 9 ) to ( cur_dir + "tmp2" )
+  dbCreate( cur_dir() + "tmp2", adbf )
+  Use ( cur_dir() + "tmp2" ) new
+  Index On Str( tip, 1 ) + Str( kod, 9 ) to ( cur_dir() + "tmp2" )
   //
-  r_use( dir_server + "mo_su",, "MOSU" )
-  r_use( dir_server + "mo_hu", dir_server + "mo_hu", "MOHU" )
+  r_use( dir_server() + "mo_su",, "MOSU" )
+  r_use( dir_server() + "mo_hu", dir_server() + "mo_hu", "MOHU" )
   Set Relation To u_kod into MOSU
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "human_u_",, "HU_" )
-  r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "human_u_",, "HU_" )
+  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + "kartote_",, "KART_" )
-  r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server() + "kartote_",, "KART_" )
+  r_use( dir_server() + "kartotek",, "KART" )
   Set Relation To RecNo() into KART_
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   If pi1 == 1 // по дате окончания лечения
     begin_date := arr_m[ 5 ]
     end_date := arr_m[ 6 ]
-    r_use( dir_server + "human_2",, "HUMAN_2" )
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+    r_use( dir_server() + "human_2",, "HUMAN_2" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
     Set Relation To kod_k into KART, To RecNo() into HUMAN_, RecNo() into HUMAN_2
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -104,12 +104,12 @@ Function forma_30()
       Skip
     Enddo
   Else
-    r_use( dir_server + "human_2",, "HUMAN_2" )
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+    r_use( dir_server() + "human_2",, "HUMAN_2" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
     Set Relation To kod_k into KART, To RecNo() into HUMAN_, RecNo() into HUMAN_2
-    r_use( dir_server + "schet_",, "SCHET_" )
-    r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+    r_use( dir_server() + "schet_",, "SCHET_" )
+    r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
     Set Relation To RecNo() into SCHET_
     Set Filter To Empty( schet_->IS_DOPLATA )
     dbSeek( arr_m[ 7 ], .t. )
@@ -158,7 +158,7 @@ Function forma_30()
   sh := Len( arr_title[ 1 ] )
   reg_print := 6
   fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( PadR( org->name, 108 ) )
   add_string( PadL( "Форма № 30", sh ) )
   add_string( PadL( "Утверждена Приказом", sh ) )
@@ -177,16 +177,16 @@ Function forma_30()
   add_string( Center( "1. Работа врачей медицинской организации в амбулаторных условиях", sh ) )
   add_string( "(2100)" + PadL( "Код по ОКЕИ: посещение в смену - 545", sh - 6 ) )
   AEval( arr_title, {| x| add_string( x ) } )
-  Use ( cur_dir + "tmp" ) New index ( cur_dir + "tmp" )
+  Use ( cur_dir() + "tmp" ) New index ( cur_dir() + "tmp" )
   find ( Str( 0, 1 ) )
   If Found()
     f2_f30( "Врачи всего", "01" )
     add_string( Replicate( "-", sh ) )
     add_string( "в т.ч. по врачам" )
-    r_use( dir_server + "mo_pers",, "PERS" )
+    r_use( dir_server() + "mo_pers",, "PERS" )
     Select TMP
     Set Relation To kod into PERS
-    Index On Upper( pers->fio ) to ( cur_dir + "tmp" ) For tip == 1
+    Index On Upper( pers->fio ) to ( cur_dir() + "tmp" ) For tip == 1
     Go Top
     Do While !Eof()
       f2_f30( lstr( pers->tab_nom ) + " " + fam_i_o( pers->fio ) )
@@ -196,7 +196,7 @@ Function forma_30()
     add_string( "в т.ч. по профилям" )
     Select TMP
     Set Relation To
-    Index On Str( kod, 9 ) to ( cur_dir + "tmp" ) For tip == 2
+    Index On Str( kod, 9 ) to ( cur_dir() + "tmp" ) For tip == 2
     Go Top
     Do While !Eof()
       f2_f30( inieditspr( A__MENUVERT, getv002(), tmp->kod ) )
@@ -206,27 +206,27 @@ Function forma_30()
     add_string( "в т.ч. по специальностям" )
     Select TMP
     Set Relation To
-    Index On PadR( lstr( kod ), 9 ) to ( cur_dir + "tmp" ) For tip == 3
+    Index On PadR( lstr( kod ), 9 ) to ( cur_dir() + "tmp" ) For tip == 3
     Go Top
     Do While !Eof()
       f2_f30( inieditspr( A__MENUVERT, getv015(), tmp->kod ) )
       Skip
     Enddo
-    r_use( dir_server + "uslugi",, "USL" )
+    r_use( dir_server() + "uslugi",, "USL" )
     add_string( Replicate( "-", sh ) )
     add_string( "в т.ч. по услугам" )
     Select TMP
     Set Relation To kod into USL
-    Index On fsort_usl( usl->shifr ) to ( cur_dir + "tmp" ) For tip == 4
+    Index On fsort_usl( usl->shifr ) to ( cur_dir() + "tmp" ) For tip == 4
     Go Top
     Do While !Eof()
       f2_f30( AllTrim( usl->shifr ) + " " + usl->name )
       Skip
     Enddo
-    r_use( dir_server + "mo_su",, "MOSU" )
+    r_use( dir_server() + "mo_su",, "MOSU" )
     Select TMP
     Set Relation To kod into MOSU
-    Index On fsort_usl( mosu->shifr ) to ( cur_dir + "tmp" ) For tip == 5
+    Index On fsort_usl( mosu->shifr ) to ( cur_dir() + "tmp" ) For tip == 5
     Go Top
     Do While !Eof()
       lshifr := AllTrim( mosu->shifr1 )
@@ -257,13 +257,13 @@ Function forma_30()
   add_string( Center( "1. Коечный фонд и его использование", sh ) )
   add_string( "(3100)" + PadL( "Коды по ОКЕИ: койка - 911, человек - 792", sh - 6 ) )
   AEval( arr_title, {| x| add_string( x ) } )
-  Use ( cur_dir + "tmp1" ) New index ( cur_dir + "tmp1" )
+  Use ( cur_dir() + "tmp1" ) New index ( cur_dir() + "tmp1" )
   find ( Str( 0, 1 ) )
   If Found()
     f2_f30( "Коек всего",, 2 ) // !!!!!!!
     add_string( Replicate( "-", sh ) )
     add_string( "в т.ч. по профилям" )
-    Index On Str( kod, 9 ) to ( cur_dir + "tmp1" ) For tip == 1
+    Index On Str( kod, 9 ) to ( cur_dir() + "tmp1" ) For tip == 1
     Go Top
     Do While !Eof()
       f2_f30( inieditspr( A__MENUVERT, getv002(), tmp1->kod ),, 2 )
@@ -294,16 +294,16 @@ Function forma_30()
   add_string( Center( "1. Работа врачей медицинской организации в амбулаторных условиях", sh ) )
   add_string( "(2100)" + PadL( "Код по ОКЕИ: посещение в смену - 545", sh - 6 ) )
   AEval( arr_title, {| x| add_string( x ) } )
-  Use ( cur_dir + "tmp2" ) New index ( cur_dir + "tmp2" )
+  Use ( cur_dir() + "tmp2" ) New index ( cur_dir() + "tmp2" )
   find ( Str( 0, 1 ) )
   If Found()  // в tmp уже должны входить
     f2_f30_dop( "Врачи всего", "01" )
     add_string( Replicate( "-", sh ) )
     add_string( "в т.ч. по врачам" )
-    // R_Use(dir_server+"mo_pers",,"PERS")
+    // R_Use(dir_server()+"mo_pers",,"PERS")
     Select TMP2
     Set Relation To kod into PERS
-    Index On Upper( pers->fio ) to ( cur_dir + "tmp2" ) For tip == 1
+    Index On Upper( pers->fio ) to ( cur_dir() + "tmp2" ) For tip == 1
     Go Top
     Do While !Eof()
       f2_f30_dop( lstr( pers->tab_nom ) + " " + fam_i_o( pers->fio ) )
@@ -313,7 +313,7 @@ Function forma_30()
     add_string( "в т.ч. по профилям" )
     Select TMP2
     Set Relation To
-    Index On Str( kod, 9 ) to ( cur_dir + "tmp2" ) For tip == 2
+    Index On Str( kod, 9 ) to ( cur_dir() + "tmp2" ) For tip == 2
     Go Top
     Do While !Eof()
       f2_f30_dop( inieditspr( A__MENUVERT, getv002(), tmp2->kod ) )
@@ -323,27 +323,27 @@ Function forma_30()
     add_string( "в т.ч. по специальностям" )
     Select TMP2
     Set Relation To
-    Index On PadR( lstr( kod ), 9 ) to ( cur_dir + "tmp2" ) For tip == 3
+    Index On PadR( lstr( kod ), 9 ) to ( cur_dir() + "tmp2" ) For tip == 3
     Go Top
     Do While !Eof()
       f2_f30_dop( inieditspr( A__MENUVERT, getv015(), tmp2->kod ) )
       Skip
     Enddo
-    // R_Use(dir_server+"uslugi",,"USL")
+    // R_Use(dir_server()+"uslugi",,"USL")
     add_string( Replicate( "-", sh ) )
     add_string( "в т.ч. по услугам" )
     Select TMP2
     Set Relation To kod into USL
-    Index On fsort_usl( usl->shifr ) to ( cur_dir + "tmp2" ) For tip == 4
+    Index On fsort_usl( usl->shifr ) to ( cur_dir() + "tmp2" ) For tip == 4
     Go Top
     Do While !Eof()
       f2_f30_dop( AllTrim( usl->shifr ) + " " + usl->name )
       Skip
     Enddo
-    // R_Use(dir_server+"mo_su",,"MOSU")
+    // R_Use(dir_server()+"mo_su",,"MOSU")
     Select TMP2
     Set Relation To kod into MOSU
-    Index On fsort_usl( mosu->shifr ) to ( cur_dir + "tmp2" ) For tip == 5
+    Index On fsort_usl( mosu->shifr ) to ( cur_dir() + "tmp2" ) For tip == 5
     Go Top
     Do While !Eof()
       lshifr := AllTrim( mosu->shifr1 )

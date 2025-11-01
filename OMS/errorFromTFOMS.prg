@@ -12,7 +12,7 @@ Function f3oms_edit()
   local s1, aTokens, adbf
   Local lek_pr := .f.
 
-  If !myfiledeleted( cur_dir + "tmp_h" + sdbf )
+  If !myfiledeleted( cur_dir() + "tmp_h" + sdbf() )
     Return Nil
   Endif
 
@@ -22,15 +22,15 @@ Function f3oms_edit()
     buf24 := save_maxrow()
     mywait()
     arr := {}
-    dbCreate( cur_dir + "tmp_h", ;
+    dbCreate( cur_dir() + "tmp_h", ;
       { { "kod", "N", 7, 0 }, ;
       { "SREFREASON", "C", 12, 0 }, ;
       { "REFREASON", "N", 10, 0 } } )
-    Use ( cur_dir + "tmp_h" ) new
-    r_use( dir_server + "mo_refr",, "REFR" )
-    Index On Str( kodz, 8 ) to ( cur_dir + "tmp_refr" ) For tipz == 1
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+    Use ( cur_dir() + "tmp_h" ) new
+    r_use( dir_server() + "mo_refr",, "REFR" )
+    Index On Str( kodz, 8 ) to ( cur_dir() + "tmp_refr" ) For tipz == 1
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
     Set Relation To RecNo() into HUMAN_, To Str( human->kod, 8 ) into REFR
 
     // заполним временный файл БД видами полученных ошибок
@@ -88,16 +88,16 @@ Function f3oms_edit()
         { "otd_kod", "N", 3, 0 }, ;
         { "smo_kod", "C", 5, 0 }, ;
         { "napr_uch", "C", 6, 0 } }
-      dbCreate( cur_dir + fr_data + '2', adbf )
+      dbCreate( cur_dir() + fr_data + '2', adbf )
       If f_esc_enter( "создания отчета в Excel ", .t. )
-        // dbcreate(cur_dir + fr_data + '2', adbf)
-        Use ( cur_dir + fr_data + '2' ) New Alias FRD2
+        // dbcreate(cur_dir() + fr_data + '2', adbf)
+        Use ( cur_dir() + fr_data + '2' ) New Alias FRD2
         // база готова
-        r_use( dir_server + "mo_otd",, "OTD" )
-        r_use( dir_server + "human_2",, "HU2" )
-        r_use( dir_server + "uslugi",, "USL" )
-        r_use( dir_server + "human_u_",, "HU_" )
-        r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+        r_use( dir_server() + "mo_otd",, "OTD" )
+        r_use( dir_server() + "human_2",, "HU2" )
+        r_use( dir_server() + "uslugi",, "USL" )
+        r_use( dir_server() + "human_u_",, "HU_" )
+        r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
         Set Relation To RecNo() into HU_, To u_kod into USL
         use_base( "lusl" )
         Select tmp_h
@@ -158,13 +158,13 @@ Function f3oms_edit()
       Private mr1 := T_ROW, regim_vyb := 2, p_del_error := ret_arr
       kod_REFREASON_menu := iRefr
       Do While .t.
-        r_use( dir_server + "mo_otd",, "OTD" )
-        g_use( dir_server + "human_",, "HUMAN_" )
-        r_use( dir_server + "human",, "HUMAN" )
+        r_use( dir_server() + "mo_otd",, "OTD" )
+        g_use( dir_server() + "human_",, "HUMAN_" )
+        r_use( dir_server() + "human",, "HUMAN" )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
-        Use ( cur_dir + "tmp_h" ) new
+        Use ( cur_dir() + "tmp_h" ) new
         Set Relation To kod into HUMAN
-        Index On Upper( human->fio ) to ( cur_dir + "tmp_h" ) For REFREASON == iRefr
+        Index On Upper( human->fio ) to ( cur_dir() + "tmp_h" ) For REFREASON == iRefr
         If srec == NIL
           Go Top
         Else
@@ -187,7 +187,7 @@ Function f3oms_edit()
             glob_kartotek := human->kod_k
             glob_k_fio := fio_plus_novor()
             glob_otd[ 1 ] := human->otd
-            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server + "mo_otd", human->otd )
+            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + "mo_otd", human->otd )
             If Len( glob_otd ) == 2
               AAdd( glob_otd, human_->usl_ok )
             Else
@@ -200,7 +200,7 @@ Function f3oms_edit()
               glob_otd[ 4 ] := k
             Endif
             glob_uch[ 1 ] := human->LPU
-            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server + "mo_uch", human->LPU )
+            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + "mo_uch", human->LPU )
             fl_schet := ( human->schet > 0 )
           Endif
         Else

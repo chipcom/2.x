@@ -54,22 +54,22 @@ Function reconstruct_security( is_local_version )
   local path_DB // путь к БД приложения
 
   If controlbases( 1, _version() ) // если необходимо
-    If g_slock1task( sem_task, sem_vagno )  // запрет доступа всем
-      path_DB := dir_server
+    If g_slock1task( sem_task(), sem_vagno() )  // запрет доступа всем
+      path_DB := dir_server()
       // реконструкция файлов доступа к системе и обновлений БД
-      If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf )
+      If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf() )
         reconstruct( path_DB + 'base1', base1, , , .t. )
         reconstruct( path_DB + 'mo_oper', mo_oper, 'index_base("mo_oper")', , .t. )
         reconstruct( path_DB + 'mo_opern', mo_opern, 'index_base("mo_opern")', , .t. )
         reconstruct( path_DB + 'roles', roles, , , .t. )
         reconstruct( path_DB + 'ver_updateDB', mo_updateDB, , , .t. )
       Endif
-      g_sunlock( sem_vagno )
+      g_sunlock( sem_vagno() )
     Endif
   Endif
   Return Nil
 
-// 18.02.25 реконстукция баз данных
+// 22.10.25 реконстукция баз данных
 Function reconstruct_db( is_local_version, is_create )
 
   Local base1 := { ;
@@ -525,10 +525,10 @@ Function reconstruct_db( is_local_version, is_create )
   Local mo_onksl := { ; // Сведения о случае лечения онкологического заболевания
     { 'KOD',        'N',   7, 0 }, ; // код больного
     { 'DS1_T',      'N',   1, 0 }, ; // Повод обращения(N018): 0-первичное лечение, 1-рецидив, 2-прогрессирование, 3-динам.наблюдение, 4-диспанс.наблюдение, 5-диагностика, 6-симптоматическое лечение
-    { 'STAD',       'N',   3, 0 }, ; // Стадия заболевания(N002)обязательно при DS1_T = от 0 до 4
-    { 'ONK_T',      'N',   3, 0 }, ; // Значение Tumor(N003) обязательно для взрослых при при DS1_T=0
-    { 'ONK_N',      'N',   3, 0 }, ; // Значение Nodus(N004) обязательно для взрослых при при DS1_T=0
-    { 'ONK_M',      'N',   3, 0 }, ; // Значение Metastasis(N005) обязательно для взрослых при при DS1_T=0
+    { 'STAD',       'N',   5, 0 }, ; // Стадия заболевания(N002)обязательно при DS1_T = от 0 до 4
+    { 'ONK_T',      'N',   5, 0 }, ; // Значение Tumor(N003) обязательно для взрослых при при DS1_T=0
+    { 'ONK_N',      'N',   5, 0 }, ; // Значение Nodus(N004) обязательно для взрослых при при DS1_T=0
+    { 'ONK_M',      'N',   5, 0 }, ; // Значение Metastasis(N005) обязательно для взрослых при при DS1_T=0
     { 'MTSTZ',      'N',   1, 0 }, ; // Признак выявления отдалённых метастазов Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1, 2
     { 'B_DIAG',     'N',   2, 0 }, ; // гистология:99-не надо, 98-сделана(результат получен), 97-сделана(результат не получен), 0-отказ, 7-не показано, 8-противопоказано
     { 'SOD',        'N',   6, 2 }, ; // Суммарная очаговая доза Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4), м.б.=0
@@ -576,7 +576,8 @@ Function reconstruct_db( is_local_version, is_create )
     { 'KOD',        'N',   7, 0 }, ; // код больного
     { 'REGNUM',     'C',   6, 0 }, ; // IDD лек.препарата N020
     { 'CODE_SH',    'C',  20, 0 }, ; // код схемы лек.терапии V024
-    { 'DATE_INJ',   'D',   8, 0 } ;  // дата введения лек.препарата
+    { 'DATE_INJ',   'D',   8, 0 }, ;  // дата введения лек.препарата
+    { 'ID_ZAP',     'N',   6, 0 } ; // IDD лек.препарата N021
   }
 
   //
@@ -836,7 +837,10 @@ Function reconstruct_db( is_local_version, is_create )
     { 'DATE_OUT',   'D', 8, 0 }, ; // дата отправки в ТФОМС
     { 'NUMB_OUT',   'N', 2, 0 }, ; // номер отправки в ТФОМС, сколько раз всего записывали файл на носитель
     { 'KOL',        'N', 6, 0 }, ; // количество пациентов в реестре
-    { 'SUMMA',      'N',15, 2 } ;  // сумма случаев в реестре
+    { 'SUMMA',      'N',15, 2 }, ; // сумма случаев в реестре
+    { 'NOMER_S',    'C',15, 0 }, ; // если реестр счета, то номер счета
+    { 'BUKVA',      'C', 1, 0 }, ; // буква на конце счета
+    { 'VER_APP',    'C',10, 0 }  ; // номер версии из которой сформирован реестр
   }
   //
   Local mo_xml := { ; // Список отосланных и принятых XML-файлов 'mo_xml'
@@ -847,7 +851,7 @@ Function reconstruct_db( is_local_version, is_create )
     { 'TFILE',      'C', 5, 0 }, ; // время создания файла
     { 'DREAD',      'D', 8, 0 }, ; // дата чтения/записи
     { 'TREAD',      'C', 5, 0 }, ; // время чтения/записи
-    { 'TIP_IN',     'N', 2, 0 }, ; // тип принимаемого файла: 3-ФЛК, 4-СП, 5-РАК, пишем в каталог XML_TF
+    { 'TIP_IN',     'N', 2, 0 }, ; // тип принимаемого файла: 3-ФЛК, 4-СП, 5-РАК, 7-ФЛК 25, пишем в каталог XML_TF
     { 'TIP_OUT',    'N', 2, 0 }, ; // тип высылаемого файла: 1-реестр, 2-счет, пишем в каталог XML_MO
     { 'DWORK',      'D', 8, 0 }, ; // дата обработки файла
     { 'TWORK1',     'C', 5, 0 }, ; // время начала обработки
@@ -1657,11 +1661,10 @@ Function reconstruct_db( is_local_version, is_create )
   // }
   //
 
-  path_DB := dir_server
+  path_DB := dir_server()
 
   f_init_r01() // инициализация всех файлов инф.сопровождения по диспансеризации
-  // f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
-  If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf )
+  If !is_local_version .or. hb_FileExists( path_DB + 'base1' + sdbf() )
     reconstruct( path_DB + 'base1', base1, , , .t. )
     reconstruct( path_DB + 'mo_oper', mo_oper, 'index_base("mo_oper")', , .t. )
     reconstruct( path_DB + 'mo_opern', mo_opern, 'index_base("mo_opern")', , .t. )
@@ -1822,7 +1825,7 @@ Function reconstruct_db( is_local_version, is_create )
     org->uroven := get_uroven()
   Endif
   Use
-  If glob_mo[ _MO_KOD_TFOMS ] == kod_VOUNC
+  If glob_mo[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
     vounc_reconstruct_db()
   Endif
 
@@ -1873,7 +1876,7 @@ Function vounc_reconstruct_db()
   //
   local path_DB // путь к БД приложения
 
-  path_DB := dir_server
+  path_DB := dir_server()
 
   reconstruct( path_DB + 'vouncmnn', vouncmnn, , , .t. )
   reconstruct( path_DB + 'vounctrn', vounctrn, , , .t. )
@@ -1921,7 +1924,7 @@ Function reconstruct_double_sl()
   //
   local path_DB // путь к БД приложения
 
-  path_DB := dir_server
+  path_DB := dir_server()
   reconstruct( path_DB + 'human_3', human_3, 'index_base("human_3")', 'пролеченным больным3', .t. )
   Return Nil
 
@@ -2089,7 +2092,7 @@ Function reconstruct_263()
   }
   local path_DB
 
-  path_DB := dir_server
+  path_DB := dir_server()
 
   reconstruct( path_DB + 'mo_nfile', mo_nfile, , , .t. )
   reconstruct( path_DB + 'mo_nfina', mo_nfina, , , .t. )
@@ -2155,7 +2158,7 @@ Function reconstruct_d01()
   }
   local path_DB
 
-  path_DB := dir_server
+  path_DB := dir_server()
   reconstruct( path_DB + 'mo_d01', mo_d01, , , .t. )
   reconstruct( path_DB + 'mo_d01k', mo_d01k, , , .t. )
   reconstruct( path_DB + 'mo_d01d', mo_d01d, , , .t. )
@@ -2328,7 +2331,7 @@ Function reconstruct_dr()
   }
   Local path_DB
 
-  path_DB := dir_server
+  path_DB := dir_server()
   reconstruct( path_DB + 'mo_dr01', mo_dr01,,, .t. )
   reconstruct( path_DB + 'mo_dr01m', mo_dr01m,,, .t. )
   reconstruct( path_DB + 'mo_dr01k', mo_dr01k,,, .t. )

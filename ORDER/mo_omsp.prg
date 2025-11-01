@@ -12,20 +12,20 @@ Function read_xml_file_rpd( arr_XML_info, aerr )
 
   blk_PD := {|| AAdd( aerr, "« âñ¦­ë© ¤®ªã¬¥­â ü " + AllTrim( tmp2->_N_PD ) + " ®â " + date_8( tmp2->_D_PD ) ) }
   blk_schet := {|| AAdd( aerr, " ‘—ð’ ü " + AllTrim( tmp3->_nschet ) + " ®â " + date_8( tmp3->_dschet ) ) }
-  Use ( cur_dir + "tmp1file" ) New Alias TMP1
+  Use ( cur_dir() + "tmp1file" ) New Alias TMP1
   tmp1->_SMO     := arr_XML_info[ 2 ]
   tmp1->_CODE_MO := arr_XML_info[ 3 ]
-  Use ( cur_dir + "tmp2file" ) New Alias TMP2
-  Use ( cur_dir + "tmp3file" ) New Alias TMP3
-  Index On Str( kod_pd, 10 ) to ( cur_dir + "tmp3" )
-  Use ( cur_dir + "tmp4file" ) New Alias TMP4
-  Index On Str( kod_pd, 10 ) + Str( kod_s, 10 ) to ( cur_dir + "tmp4" )
+  Use ( cur_dir() + "tmp2file" ) New Alias TMP2
+  Use ( cur_dir() + "tmp3file" ) New Alias TMP3
+  Index On Str( kod_pd, 10 ) to ( cur_dir() + "tmp3" )
+  Use ( cur_dir() + "tmp4file" ) New Alias TMP4
+  Index On Str( kod_pd, 10 ) + Str( kod_s, 10 ) to ( cur_dir() + "tmp4" )
   // á­ ç «  ­ ©¤ñ¬ ª®¤ë áç¥â®¢ ¨ ª®¤ë «¨áâ®¢ ãçñâ 
-  g_use( dir_server + "schet_", , "SCHET_" )
-  Index On DToS( dschet ) + Upper( nschet ) to ( cur_dir + "tmp_sch_" )
-  r_use( dir_server + "mo_otd", , "OTD" )
-  g_use( dir_server + "human_", , "HUMAN_" )
-  g_use( dir_server + "human", , "HUMAN" )
+  g_use( dir_server() + "schet_", , "SCHET_" )
+  Index On DToS( dschet ) + Upper( nschet ) to ( cur_dir() + "tmp_sch_" )
+  r_use( dir_server() + "mo_otd", , "OTD" )
+  g_use( dir_server() + "human_", , "HUMAN_" )
+  g_use( dir_server() + "human", , "HUMAN" )
   Set Relation To RecNo() into HUMAN_, To otd into OTD
   Select TMP2
   Go Top
@@ -52,9 +52,9 @@ Function read_xml_file_rpd( arr_XML_info, aerr )
         Endif
         //
         Select HUMAN
-        Set Index to ( dir_server + "humans" )
+        Set Index to ( dir_server() + "humans" )
         find ( Str( tmp3->kod_schet, 6 ) )
-        Index On Str( human_->schet_zap, 6 ) to ( cur_dir + "tmp_hum" ) For ishod != 89 While schet == tmp3->kod_schet
+        Index On Str( human_->schet_zap, 6 ) to ( cur_dir() + "tmp_hum" ) For ishod != 89 While schet == tmp3->kod_schet
         Select TMP4
         find ( Str( tmp3->kod_pd, 10 ) + Str( tmp3->kod_s, 10 ) )
         Do While tmp3->kod_pd == tmp4->kod_pd .and. tmp3->kod_s == tmp4->kod_s .and. !Eof()
@@ -109,9 +109,9 @@ Function read_xml_file_rpd( arr_XML_info, aerr )
     Return Nil
   Endif
   // § ¯¨è¥¬ ¯à¨­¨¬ ¥¬ë© ä ©« (€Š)
-  // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
-  chip_copy_zipxml( full_zip, dir_server + dir_XML_TF )
-  g_use( dir_server + "mo_xml", , "MO_XML" )
+  // chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server()+dir_XML_TF())
+  chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
+  g_use( dir_server() + "mo_xml", , "MO_XML" )
   addrecn()
   mo_xml->KOD := RecNo()
   mo_xml->FNAME := cReadFile
@@ -132,14 +132,14 @@ Function read_xml_file_rpd( arr_XML_info, aerr )
   //
   Select HUMAN
   Set Index To
-  r_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
-  g_use( dir_server + "schet", , "SCHET" )
-  g_use( dir_server + "mo_rpd", , "RPD" )
-  Index On Str( PD, 6 ) to ( cur_dir + "tmprpd" )
-  g_use( dir_server + "mo_rpds", , "RPDS" )
-  Index On Str( PD, 6 ) to ( cur_dir + "tmprpds" )
-  g_use( dir_server + "mo_rpdsh", , "RPDSH" )
-  Index On Str( KOD_H, 7 ) to ( cur_dir + "tmprpdsh" )
+  r_use( dir_server() + "human_3", { dir_server() + "human_3", dir_server() + "human_32" }, "HUMAN_3" )
+  g_use( dir_server() + "schet", , "SCHET" )
+  g_use( dir_server() + "mo_rpd", , "RPD" )
+  Index On Str( PD, 6 ) to ( cur_dir() + "tmprpd" )
+  g_use( dir_server() + "mo_rpds", , "RPDS" )
+  Index On Str( PD, 6 ) to ( cur_dir() + "tmprpds" )
+  g_use( dir_server() + "mo_rpdsh", , "RPDSH" )
+  Index On Str( KOD_H, 7 ) to ( cur_dir() + "tmprpdsh" )
   Select TMP2
   Go Top
   Do While !Eof()
@@ -278,7 +278,7 @@ Function reestr_rpd_tmpfile( oXmlDoc, aerr, mname_xml )
 
   Default aerr TO {}, mname_xml To ""
   stat_msg( " á¯ ª®¢ª /çâ¥­¨¥/ ­ «¨§ à¥¥áâà  ¯« âñ¦­ëå ¤®ª¬ã¥­â®¢ " + BeforAtNum( ".", mname_xml ) )
-  dbCreate( cur_dir + "tmp1file", { ; // ®¤­  § ¯¨áì
+  dbCreate( cur_dir() + "tmp1file", { ; // ®¤­  § ¯¨áì
   { "_VERSION",   "C",  5, 0 }, ;
     { "_DATA",      "D",  8, 0 }, ;
     { "_FILENAME",  "C", 26, 0 }, ;
@@ -288,7 +288,7 @@ Function reestr_rpd_tmpfile( oXmlDoc, aerr, mname_xml )
   { "KOL_SCH",    "N",  6, 0 }, ; // ª®«-¢® áç¥â®¢ ¢ ä ©«¥
   { "KOL_PAC",    "N",  6, 0 };  // ª®«-¢® ¯ æ¨¥­â®¢ ¢ ä ©«¥
   } )
-  dbCreate( cur_dir + "tmp2file", { ;  // ¬­®£® „
+  dbCreate( cur_dir() + "tmp2file", { ;  // ¬­®£® „
   { "kod_pd",     "N",  6, 0 }, ; // ª®¤ § ¯¨á¨ „
   { "_T_PD",      "N",  1, 0 }, ; // 1-¯« âñ¦­®¥ ¯®àãç¥­¨¥, 2-¯¨áì¬® ®¡ ã¬¥­ìè¥­¨¨ § ¤®«¦­¥­­®áâ¨
   { "_N_PD",      "C", 25, 0 }, ; // ­®¬¥à „
@@ -299,7 +299,7 @@ Function reestr_rpd_tmpfile( oXmlDoc, aerr, mname_xml )
   { "_S_ALL",     "N", 15, 2 }, ; // áã¬¬  ®¯« âë
   { "_KBK",       "C", 20, 0 };  // ŠŠ
   } )
-  dbCreate( cur_dir + "tmp3file", { ; // ¢ ª ¦¤®¬ „ ¬­®£® áç¥â®¢
+  dbCreate( cur_dir() + "tmp3file", { ; // ¢ ª ¦¤®¬ „ ¬­®£® áç¥â®¢
   { "kod_pd",     "N",  6, 0 }, ; // ª®¤ § ¯¨á¨ „
   { "kod_s",      "N",  6, 0 }, ; // ª®¤ áç¥â 
   { "_CODE",      "N", 12, 0 }, ; // ª®¤ § ¯¨á¨ áç¥â 
@@ -313,7 +313,7 @@ Function reestr_rpd_tmpfile( oXmlDoc, aerr, mname_xml )
   { "_PLAT",      "C",  5, 0 }, ; // ¯« â¥«ìé¨ª (‘ŒŽ ¨«¨ ’”)
   { "_S_SCH",     "N", 15, 2 };  // áã¬¬ë ®¯« âë áçñâ  ¢ „
   } )
-  dbCreate( cur_dir + "tmp4file", { ;
+  dbCreate( cur_dir() + "tmp4file", { ;
     { "kod_pd",     "N",  6, 0 }, ; // ª®¤ § ¯¨á¨ „
   { "kod_s",      "N",  6, 0 }, ; // ª®¤ áç¥â 
   { "_CODE",      "N", 12, 0 }, ; // ª®¤ § ¯¨á¨ áç¥â 
@@ -322,11 +322,11 @@ Function reestr_rpd_tmpfile( oXmlDoc, aerr, mname_xml )
   { "_ID_C",      "C", 36, 0 }, ; // ª®¤ á«ãç ï
   { "_S_SL",      "N", 11, 2 };  // áã¬¬  ®¯« âë á«ãç ï ¢ „
   } )
-  Use ( cur_dir + "tmp1file" ) New Alias TMP1
+  Use ( cur_dir() + "tmp1file" ) New Alias TMP1
   Append Blank
-  Use ( cur_dir + "tmp2file" ) New Alias TMP2
-  Use ( cur_dir + "tmp3file" ) New Alias TMP3
-  Use ( cur_dir + "tmp4file" ) New Alias TMP4
+  Use ( cur_dir() + "tmp2file" ) New Alias TMP2
+  Use ( cur_dir() + "tmp3file" ) New Alias TMP3
+  Use ( cur_dir() + "tmp4file" ) New Alias TMP4
   For j := 1 To Len( oXmlDoc:aItems[ 1 ]:aItems )
     @ 24, 1 Say PadR( lstr( j ), 6 ) Color cColorSt2Msg
     oXmlNode := oXmlDoc:aItems[ 1 ]:aItems[ j ]
@@ -391,8 +391,8 @@ Function reestr_rpd_tmpfile( oXmlDoc, aerr, mname_xml )
 // 17.03.13
 Function view_pd()
 
-  g_use( dir_server + "mo_xml", , "MO_XML" )
-  Index On DToS( DFILE ) to ( cur_dir + "tmp_xml" ) For tip_in == _XML_FILE_RPD DESCENDING
+  g_use( dir_server() + "mo_xml", , "MO_XML" )
+  Index On DToS( DFILE ) to ( cur_dir() + "tmp_xml" ) For tip_in == _XML_FILE_RPD DESCENDING
   Go Top
   If Eof()
     func_error( 4, "¥â à¥¥áâà®¢ ¯« âñ¦­ëå ¤®ªã¬¥­â®¢" )
@@ -441,19 +441,19 @@ Function f2_view_rpd( nKey, oBrow )
 
   Do Case
   Case nKey == K_F3
-    viewtext( devide_into_pages( dir_server + dir_XML_TF + cslash + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ), , , , .t., , , 2 )
+    viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ), , , , .t., , , 2 )
     ret := 0
   Case nKey == K_ENTER
     view_rpd_pd( rec )
     Close databases
     //
-    g_use( dir_server + "mo_xml", cur_dir + "tmp_xml", "MO_XML" )
+    g_use( dir_server() + "mo_xml", cur_dir() + "tmp_xml", "MO_XML" )
     Goto ( rec )
     ret := 0
   Case nKey == K_CTRL_F12
     ret := delete_rpd( rec, AllTrim( mo_xml->FNAME ), Empty( mo_xml->TWORK2 ) )
     Close databases
-    g_use( dir_server + "mo_xml", cur_dir + "tmp_xml", "MO_XML" )
+    g_use( dir_server() + "mo_xml", cur_dir() + "tmp_xml", "MO_XML" )
     Goto ( rec )
   Endcase
   RestScreen( buf )
@@ -475,12 +475,12 @@ Function delete_rpd( lrec, lname, not_end )
     stat_msg( "®¤â¢¥à¤¨â¥ à áä®à¬¨à®¢ ­¨¥ ¥éñ à §." ) ; mybell( 2 )
     If f_esc_enter( "à áä®à¬¨à®¢ ­¨ï „", .t. )
       mywait( "†¤¨â¥. à®¨§¢®¤¨âáï à áä®à¬¨à®¢ ­¨¥ „." )
-      g_use( dir_server + "mo_rpdsh", , "RPDSH" )
-      Index On Str( kod_rpds, 6 ) to ( cur_dir + "tmprpdsh" )
-      g_use( dir_server + "mo_rpds", , "RPDS" )
-      Index On Str( pd, 6 ) to ( cur_dir + "tmprpds" )
-      g_use( dir_server + "mo_rpd", , "RPD" )
-      Index On Str( kod_xml, 6 ) to ( cur_dir + "tmprpd" )
+      g_use( dir_server() + "mo_rpdsh", , "RPDSH" )
+      Index On Str( kod_rpds, 6 ) to ( cur_dir() + "tmprpdsh" )
+      g_use( dir_server() + "mo_rpds", , "RPDS" )
+      Index On Str( pd, 6 ) to ( cur_dir() + "tmprpds" )
+      g_use( dir_server() + "mo_rpd", , "RPD" )
+      Index On Str( kod_xml, 6 ) to ( cur_dir() + "tmprpd" )
       ia := is := ih := 0
       Do While .t.
         ++ia
@@ -524,14 +524,14 @@ Function view_rpd_pd( lrec )
 
   Local blk, blk_t_pd, t_arr[ BR_LEN ]
 
-  r_use( dir_server + "mo_rpd", , "RPD" )
-  Index On n_pd to ( cur_dir + "tmp_rpd" ) For kod_xml == lrec
+  r_use( dir_server() + "mo_rpd", , "RPD" )
+  Index On n_pd to ( cur_dir() + "tmp_rpd" ) For kod_xml == lrec
   Go Top
   t_arr[ BR_TOP ] := T_ROW
   t_arr[ BR_BOTTOM ] := 22
   t_arr[ BR_LEFT ] := 2
   t_arr[ BR_RIGHT ] := 77
-  t_arr[ BR_TITUL ] := "„ " + AllTrim( mo_xml->FNAME ) + sxml + " ®â " + date_8( mo_xml->dfile )
+  t_arr[ BR_TITUL ] := "„ " + AllTrim( mo_xml->FNAME ) + sxml() + " ®â " + date_8( mo_xml->dfile )
   t_arr[ BR_TITUL_COLOR ] := "B/G*"
   t_arr[ BR_COLOR ] := color0
   t_arr[ BR_ARR_BROWSE ] := { 'Í', '°', 'Í', "N/BG,W+/N,B/BG,W+/B", .t. }
@@ -558,7 +558,7 @@ Function f1_view_rpd_pd( nk, ob, regim )
     view_rpd_pd_schet( rpd->pd )
     Close databases
     //
-    r_use( dir_server + "mo_rpd", cur_dir + "tmp_rpd", "rpd" )
+    r_use( dir_server() + "mo_rpd", cur_dir() + "tmp_rpd", "rpd" )
     Goto ( rec )
     ret := 0
   Endif
@@ -570,11 +570,11 @@ Function view_rpd_pd_schet( lpd )
 
   Local blk, t_arr[ BR_LEN ]
 
-  r_use( dir_server + "schet_", , "SCHET_" )
-  r_use( dir_server + "schet", , "SCHET" )
-  r_use( dir_server + "mo_rpds", , "RPDS" )
+  r_use( dir_server() + "schet_", , "SCHET_" )
+  r_use( dir_server() + "schet", , "SCHET" )
+  r_use( dir_server() + "mo_rpds", , "RPDS" )
   Set Relation To schet into SCHET, To schet into SCHET_
-  Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir + "tmp_rpds" ) For pd == lpd
+  Index On DToS( schet_->dschet ) + schet_->nschet to ( cur_dir() + "tmp_rpds" ) For pd == lpd
   Go Top
   t_arr[ BR_TOP ] := T_ROW
   t_arr[ BR_BOTTOM ] := 22
@@ -609,9 +609,9 @@ Function f1_view_rpd_pd_schet( nk, ob, regim )
     view_rpd_pd_schet_human( rpds->kod_rpds, Round( schet->SUMMA, 2 ) == Round( rpds->S_SCH, 2 ) )
     Close databases
     //
-    r_use( dir_server + "schet_", , "SCHET_" )
-    r_use( dir_server + "schet", , "SCHET" )
-    r_use( dir_server + "mo_rpds", cur_dir + "tmp_rpds", "RPDS" )
+    r_use( dir_server() + "schet_", , "SCHET_" )
+    r_use( dir_server() + "schet", , "SCHET" )
+    r_use( dir_server() + "mo_rpds", cur_dir() + "tmp_rpds", "RPDS" )
     Set Relation To schet into SCHET, To schet into SCHET_
     Goto ( rec )
     ret := 0
@@ -624,18 +624,18 @@ Function view_rpd_pd_schet_human( lkod_rpds, is_equal )
 
   Local blk, t_arr[ BR_LEN ]
 
-  r_use( dir_server + "human_", , "HUMAN_" )
-  r_use( dir_server + "human", , "HUMAN" )
+  r_use( dir_server() + "human_", , "HUMAN_" )
+  r_use( dir_server() + "human", , "HUMAN" )
   Set Relation To RecNo() into HUMAN_
-  g_use( dir_server + "mo_rpdsh", , "rpdSH" )
+  g_use( dir_server() + "mo_rpdsh", , "rpdSH" )
   Set Relation To KOD_H into HUMAN
   If is_equal
-    Index On Str( kod_h, 7 ) to ( cur_dir + "tmp_rpdsh1" ) For kod_rpds == lkod_rpds
+    Index On Str( kod_h, 7 ) to ( cur_dir() + "tmp_rpdsh1" ) For kod_rpds == lkod_rpds
   Else
-    Index On Str( kod_h, 7 ) to ( cur_dir + "tmp_rpdsh1" )
+    Index On Str( kod_h, 7 ) to ( cur_dir() + "tmp_rpdsh1" )
   Endif
-  Index On Str( human_->SCHET_ZAP, 6 ) to ( cur_dir + "tmp_rpdsh" ) For kod_rpds == lkod_rpds
-  Set Index to ( cur_dir + "tmp_rpdsh" ), ( cur_dir + "tmp_rpdsh1" )
+  Index On Str( human_->SCHET_ZAP, 6 ) to ( cur_dir() + "tmp_rpdsh" ) For kod_rpds == lkod_rpds
+  Set Index to ( cur_dir() + "tmp_rpdsh" ), ( cur_dir() + "tmp_rpdsh1" )
   Go Top
   t_arr[ BR_TOP ] := T_ROW
   t_arr[ BR_BOTTOM ] := 23
@@ -672,13 +672,13 @@ Function f1_view_rpd_pd_schet_human( par, nk, regim )
     lkod := rpdsh->kod_h
     If par == 2
       If Select( "RPDS" ) == 0
-        r_use( dir_server + "mo_rpds", , "RPDS" )
+        r_use( dir_server() + "mo_rpds", , "RPDS" )
       Else
         Select RPDS
         Set Index To
       Endif
       If Select( "RPD" ) == 0
-        r_use( dir_server + "mo_rpd", , "RPD" )
+        r_use( dir_server() + "mo_rpd", , "RPD" )
       Else
         Select RPD
         Set Index To
@@ -760,7 +760,7 @@ Function ret_menu_rpd_schet( r, c )
 Function i_list_of_pd()
 
   Local buf := save_maxrow(), lsmo := {}, arr_smo, lmenu, i, j, k, s, t_arr[ 2 ], ;
-    fl, arr_m, name_file := cur_dir + 'spis_pd', sh := 80, HH := 60
+    fl, arr_m, name_file := cur_dir() + 'spis_pd', sh := 80, HH := 60
 
   If ( lmenu := ret_menu_rpd_schet() ) == NIL
     Return Nil
@@ -772,36 +772,36 @@ Function i_list_of_pd()
     Return Nil
   Endif
   mywait()
-  dbCreate( cur_dir + "tmp", { ;
+  dbCreate( cur_dir() + "tmp", { ;
     { "tip", "N", 1, 0 }, ;
     { "rec", "N", 7, 0 }, ;
     { "rec_up", "N", 7, 0 }, ;
     { "plat", "C", 5, 0 }, ;
     { "summa", "N", 15, 2 } } )
-  Use ( cur_dir + "tmp" ) new
-  Index On Str( tip, 1 ) + Str( rec, 7 ) to ( cur_dir + "tmp" )
-  dbCreate( cur_dir + "tmp1", { ;
+  Use ( cur_dir() + "tmp" ) new
+  Index On Str( tip, 1 ) + Str( rec, 7 ) to ( cur_dir() + "tmp" )
+  dbCreate( cur_dir() + "tmp1", { ;
     { "tip", "N", 1, 0 }, ;
     { "rec", "N", 7, 0 }, ;
     { "bukva", "C", 1, 0 }, ;
     { "summa", "N", 15, 2 } } )
-  Use ( cur_dir + "tmp1" ) new
-  Index On Str( tip, 1 ) + Str( rec, 7 ) + bukva to ( cur_dir + "tmp1" )
-  r_use( dir_server + "schet_", , "SCHET_" )
-  r_use( dir_server + "schet", , "SCHET" )
+  Use ( cur_dir() + "tmp1" ) new
+  Index On Str( tip, 1 ) + Str( rec, 7 ) + bukva to ( cur_dir() + "tmp1" )
+  r_use( dir_server() + "schet_", , "SCHET_" )
+  r_use( dir_server() + "schet", , "SCHET" )
   Set Relation To RecNo() into SCHET_
-  r_use( dir_server + "mo_otd", , "OTD" )
-  r_use( dir_server + "human_", , "HUMAN_" )
-  r_use( dir_server + "human", , "HUMAN" )
+  r_use( dir_server() + "mo_otd", , "OTD" )
+  r_use( dir_server() + "human_", , "HUMAN_" )
+  r_use( dir_server() + "human", , "HUMAN" )
   Set Relation To RecNo() into HUMAN_, To otd into OTD
-  r_use( dir_server + "mo_rpdsh", , "RPDSH" )
-  Index On Str( KOD_RPDS, 6 ) to ( cur_dir + "tmprpdsh" )
-  r_use( dir_server + "mo_rpds", , "RPDS" )
-  Index On Str( PD, 6 ) to ( cur_dir + "tmprpds" )
-  r_use( dir_server + "mo_rpd", , "RPD" )
-  Index On Str( kod_xml, 6 ) to ( cur_dir + "tmprpd" )
-  r_use( dir_server + "mo_xml", , "MO_XML" )
-  Index On dfile to ( cur_dir + "tmp_xml" ) For TIP_IN == _XML_FILE_RPD
+  r_use( dir_server() + "mo_rpdsh", , "RPDSH" )
+  Index On Str( KOD_RPDS, 6 ) to ( cur_dir() + "tmprpdsh" )
+  r_use( dir_server() + "mo_rpds", , "RPDS" )
+  Index On Str( PD, 6 ) to ( cur_dir() + "tmprpds" )
+  r_use( dir_server() + "mo_rpd", , "RPD" )
+  Index On Str( kod_xml, 6 ) to ( cur_dir() + "tmprpd" )
+  r_use( dir_server() + "mo_xml", , "MO_XML" )
+  Index On dfile to ( cur_dir() + "tmp_xml" ) For TIP_IN == _XML_FILE_RPD
   Go Top
   Do While !Eof()
     @ MaxRow(), 0 Say date_8( mo_xml->DFILE ) Color cColorWait
@@ -927,7 +927,7 @@ Function i_list_of_pd()
     If ( ireg := popup_prompt( T_ROW, T_COL - 5, ireg, mas_pmt ) ) == 0
       Exit
     Endif
-    n_file := name_file + lstr( ireg ) + stxt
+    n_file := name_file + lstr( ireg ) + stxt()
     mywait()
     fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
     add_string( PadR( glob_mo[ _MO_SHORT_NAME ], sh - 14 ) + date_8( sys_date ) + " " + hour_min( Seconds() ) )
@@ -954,11 +954,11 @@ Function i_list_of_pd()
         "     ‘ã¬¬      ³   ¨¬¥­®¢ ­¨¥ ä ©«  „  ³   ¤ â                               ", ;
         "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ" }
       AEval( arr_title, {| x| add_string( x ) } )
-      r_use( dir_server + "mo_xml", , "MO_XML" )
-      Use ( cur_dir + "tmp1" ) index ( cur_dir + "tmp1" ) new
-      Use ( cur_dir + "tmp" ) new
+      r_use( dir_server() + "mo_xml", , "MO_XML" )
+      Use ( cur_dir() + "tmp1" ) index ( cur_dir() + "tmp1" ) new
+      Use ( cur_dir() + "tmp" ) new
       Set Relation To rec into MO_XML
-      Index On DToS( mo_xml->DFILE ) + mo_xml->FNAME to ( cur_dir + "tmp_" ) For tip == 1
+      Index On DToS( mo_xml->DFILE ) + mo_xml->FNAME to ( cur_dir() + "tmp_" ) For tip == 1
       Go Top
       Do While !Eof()
         If AScan( lsmo, {| x| Int( Val( tmp->plat ) ) == x[ 2 ] } ) > 0
@@ -993,14 +993,14 @@ Function i_list_of_pd()
         "     ‘ã¬¬      ³  ®¬¥à ¯« âñ¦­®£® ¤®ª-â  ³   ¤ â                               ", ;
         "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ" }
       AEval( arr_title, {| x| add_string( x ) } )
-      r_use( dir_server + "mo_rpd", , "RPD" )
-      r_use( dir_server + "mo_xml", , "MO_XML" )
-      Use ( cur_dir + "tmp1" ) index ( cur_dir + "tmp1" ) new
-      Use ( cur_dir + "tmp" ) new
+      r_use( dir_server() + "mo_rpd", , "RPD" )
+      r_use( dir_server() + "mo_xml", , "MO_XML" )
+      Use ( cur_dir() + "tmp1" ) index ( cur_dir() + "tmp1" ) new
+      Use ( cur_dir() + "tmp" ) new
       Set Relation To rec into MO_XML, To rec into RPD
-      Index On DToS( mo_xml->DFILE ) + mo_xml->FNAME to ( cur_dir + "tmp_" ) For tip == 1
-      Index On Str( rec_up, 7 ) + DToS( rpd->D_PD ) + rpd->N_PD to ( cur_dir + "tmp2_" ) For tip == 2
-      Set Index to ( cur_dir + "tmp_" ), ( cur_dir + "tmp2_" )
+      Index On DToS( mo_xml->DFILE ) + mo_xml->FNAME to ( cur_dir() + "tmp_" ) For tip == 1
+      Index On Str( rec_up, 7 ) + DToS( rpd->D_PD ) + rpd->N_PD to ( cur_dir() + "tmp2_" ) For tip == 2
+      Set Index to ( cur_dir() + "tmp_" ), ( cur_dir() + "tmp2_" )
       Set Order To 1
       Go Top
       Do While !Eof()
@@ -1054,18 +1054,18 @@ Function i_list_of_pd()
         "     ‘ã¬¬      ³ ®¬¥à áçñâ    ³¤ â  áçñâ ³¤ â  à¥£¨áâà æ¨¨                     ", ;
         "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ" }
       AEval( arr_title, {| x| add_string( x ) } )
-      r_use( dir_server + "schet_", , "SCHET_" )
-      r_use( dir_server + "mo_rpds", , "RPDS" )
+      r_use( dir_server() + "schet_", , "SCHET_" )
+      r_use( dir_server() + "mo_rpds", , "RPDS" )
       Set Relation To schet into SCHET_
-      r_use( dir_server + "mo_rpd", , "RPD" )
-      r_use( dir_server + "mo_xml", , "MO_XML" )
-      Use ( cur_dir + "tmp1" ) index ( cur_dir + "tmp1" ) new
-      Use ( cur_dir + "tmp" ) new
+      r_use( dir_server() + "mo_rpd", , "RPD" )
+      r_use( dir_server() + "mo_xml", , "MO_XML" )
+      Use ( cur_dir() + "tmp1" ) index ( cur_dir() + "tmp1" ) new
+      Use ( cur_dir() + "tmp" ) new
       Set Relation To rec into MO_XML, To rec into RPD, To rec into RPDS
-      Index On DToS( mo_xml->DFILE ) + mo_xml->FNAME to ( cur_dir + "tmp_" ) For tip == 1
-      Index On Str( rec_up, 7 ) + DToS( rpd->D_PD ) + rpd->N_PD to ( cur_dir + "tmp2_" ) For tip == 2
-      Index On Str( rec_up, 7 ) + DToS( schet_->DSCHET ) + schet_->NSCHET to ( cur_dir + "tmp3_" ) For tip == 3
-      Set Index to ( cur_dir + "tmp_" ), ( cur_dir + "tmp2_" ), ( cur_dir + "tmp3_" )
+      Index On DToS( mo_xml->DFILE ) + mo_xml->FNAME to ( cur_dir() + "tmp_" ) For tip == 1
+      Index On Str( rec_up, 7 ) + DToS( rpd->D_PD ) + rpd->N_PD to ( cur_dir() + "tmp2_" ) For tip == 2
+      Index On Str( rec_up, 7 ) + DToS( schet_->DSCHET ) + schet_->NSCHET to ( cur_dir() + "tmp3_" ) For tip == 3
+      Set Index to ( cur_dir() + "tmp_" ), ( cur_dir() + "tmp2_" ), ( cur_dir() + "tmp3_" )
       Set Order To 1
       Go Top
       Do While !Eof()
@@ -1130,23 +1130,23 @@ Function i_list_of_pd()
         "   Ž¯« â   ³‘ã¬¬  á«ãç ï³ ü ¢ áçñâ¥, ”ˆŽ ¯ æ¨¥­â , ®â¤., áà®ª¨ «¥ç¥­¨ï          ", ;
         "ÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ" }
       AEval( arr_title, {| x| add_string( x ) } )
-      r_use( dir_server + "mo_otd", , "OTD" )
-      r_use( dir_server + "human_", , "HUMAN_" )
-      r_use( dir_server + "human", , "HUMAN" )
+      r_use( dir_server() + "mo_otd", , "OTD" )
+      r_use( dir_server() + "human_", , "HUMAN_" )
+      r_use( dir_server() + "human", , "HUMAN" )
       Set Relation To RecNo() into HUMAN_, To otd into OTD
-      r_use( dir_server + "schet_", , "SCHET_" )
-      r_use( dir_server + "mo_rpds", , "RPDS" )
+      r_use( dir_server() + "schet_", , "SCHET_" )
+      r_use( dir_server() + "mo_rpds", , "RPDS" )
       Set Relation To schet into SCHET_
-      r_use( dir_server + "mo_rpd", , "RPD" )
-      r_use( dir_server + "mo_xml", , "MO_XML" )
-      Use ( cur_dir + "tmp1" ) index ( cur_dir + "tmp1" ) new
-      Use ( cur_dir + "tmp" ) new
+      r_use( dir_server() + "mo_rpd", , "RPD" )
+      r_use( dir_server() + "mo_xml", , "MO_XML" )
+      Use ( cur_dir() + "tmp1" ) index ( cur_dir() + "tmp1" ) new
+      Use ( cur_dir() + "tmp" ) new
       Set Relation To rec into MO_XML, To rec into RPD, To rec into RPDS, To rec into HUMAN
-      Index On DToS( mo_xml->DFILE ) + mo_xml->FNAME to ( cur_dir + "tmp_" ) For tip == 1
-      Index On Str( rec_up, 7 ) + DToS( rpd->D_PD ) + rpd->N_PD to ( cur_dir + "tmp2_" ) For tip == 2
-      Index On Str( rec_up, 7 ) + DToS( schet_->DSCHET ) + schet_->NSCHET to ( cur_dir + "tmp3_" ) For tip == 3
-      Index On Str( rec_up, 7 ) + Str( human_->SCHET_ZAP, 6 ) to ( cur_dir + "tmp4_" ) For tip == 4
-      Set Index to ( cur_dir + "tmp_" ), ( cur_dir + "tmp2_" ), ( cur_dir + "tmp3_" ), ( cur_dir + "tmp4_" )
+      Index On DToS( mo_xml->DFILE ) + mo_xml->FNAME to ( cur_dir() + "tmp_" ) For tip == 1
+      Index On Str( rec_up, 7 ) + DToS( rpd->D_PD ) + rpd->N_PD to ( cur_dir() + "tmp2_" ) For tip == 2
+      Index On Str( rec_up, 7 ) + DToS( schet_->DSCHET ) + schet_->NSCHET to ( cur_dir() + "tmp3_" ) For tip == 3
+      Index On Str( rec_up, 7 ) + Str( human_->SCHET_ZAP, 6 ) to ( cur_dir() + "tmp4_" ) For tip == 4
+      Set Index to ( cur_dir() + "tmp_" ), ( cur_dir() + "tmp2_" ), ( cur_dir() + "tmp3_" ), ( cur_dir() + "tmp4_" )
       Set Order To 1
       Go Top
       Do While !Eof()
@@ -1308,11 +1308,11 @@ Function akt_sverki_smo()
     { "nsch", "C", 15, 0 }, ;
     { "dsch", "D", 8, 0 }, ;
     { "summa", "N", 15, 2 } }
-  dbCreate( cur_dir + "tmp", adbf )
-  Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir() + "tmp", adbf )
+  Use ( cur_dir() + "tmp" ) new
   afillall( aitog, 0 )
-  r_use( dir_server + "schet_", , "SCHET_" )
-  r_use( dir_server + "schet", , "SCHET" )
+  r_use( dir_server() + "schet_", , "SCHET_" )
+  r_use( dir_server() + "schet", , "SCHET" )
   Set Relation To RecNo() into SCHET_
   Go Top
   Do While !Eof()
@@ -1336,22 +1336,22 @@ Function akt_sverki_smo()
     Select SCHET
     Skip
   Enddo
-  r_use( dir_server + "human_", , "HUMAN_" )
-  r_use( dir_server + "human", , "HUMAN" )
+  r_use( dir_server() + "human_", , "HUMAN_" )
+  r_use( dir_server() + "human", , "HUMAN" )
   Set Relation To RecNo() into HUMAN_
-  r_use( dir_server + "mo_raksh", , "RAKSH" )
+  r_use( dir_server() + "mo_raksh", , "RAKSH" )
   Set Relation To KOD_H into HUMAN
-  Index On Str( kod_raks, 6 ) to ( cur_dir + "tmp_raksh" ) For !emptyall( SANK_MEK, SANK_MEE, SANK_EKMP, PENALTY )
-  r_use( dir_server + "mo_raks", , "RAKS" )
+  Index On Str( kod_raks, 6 ) to ( cur_dir() + "tmp_raksh" ) For !emptyall( SANK_MEK, SANK_MEE, SANK_EKMP, PENALTY )
+  r_use( dir_server() + "mo_raks", , "RAKS" )
   Set Relation To schet into SCHET
-  Index On Str( akt, 6 ) to ( cur_dir + "tmpraks" ) For plat == lsmo[ 1 ]
-  r_use( dir_server + "mo_rak", , "RAK" )
-  Index On Str( kod_xml, 6 ) to ( cur_dir + "tmprak" ) // for between(dakt,arr_m[5],arr_m[6])
-  r_use( dir_server + "mo_xml", , "MO_XML" )
+  Index On Str( akt, 6 ) to ( cur_dir() + "tmpraks" ) For plat == lsmo[ 1 ]
+  r_use( dir_server() + "mo_rak", , "RAK" )
+  Index On Str( kod_xml, 6 ) to ( cur_dir() + "tmprak" ) // for between(dakt,arr_m[5],arr_m[6])
+  r_use( dir_server() + "mo_xml", , "MO_XML" )
   If ismo == 34
-    Index On dfile to ( cur_dir + "tmp_xml" ) For TIP_IN == _XML_FILE_RAK .and. Between( dfile, arr_m[ 5 ], arr_m[ 6 ] )
+    Index On dfile to ( cur_dir() + "tmp_xml" ) For TIP_IN == _XML_FILE_RAK .and. Between( dfile, arr_m[ 5 ], arr_m[ 6 ] )
   Else
-    Index On dfile to ( cur_dir + "tmp_xml" ) For TIP_IN == _XML_FILE_RAK .and. Between( dfile, arr_m[ 5 ] + a1, arr_m[ 6 ] + a2 )
+    Index On dfile to ( cur_dir() + "tmp_xml" ) For TIP_IN == _XML_FILE_RAK .and. Between( dfile, arr_m[ 5 ] + a1, arr_m[ 6 ] + a2 )
   Endif
   Go Top
   Do While !Eof()
@@ -1392,16 +1392,16 @@ Function akt_sverki_smo()
   Enddo
   Select RAKS
   Set Relation To
-  r_use( dir_server + "mo_rpds", , "RPDS" )
+  r_use( dir_server() + "mo_rpds", , "RPDS" )
   Set Relation To schet into SCHET
-  Index On Str( PD, 6 ) to ( cur_dir + "tmprpds" ) For plat == lsmo[ 1 ]
-  r_use( dir_server + "mo_rpd", , "RPD" )
-  Index On Str( kod_xml, 6 ) to ( cur_dir + "tmprpd" ) // for between(d_pd,arr_m[5],arr_m[6])
+  Index On Str( PD, 6 ) to ( cur_dir() + "tmprpds" ) For plat == lsmo[ 1 ]
+  r_use( dir_server() + "mo_rpd", , "RPD" )
+  Index On Str( kod_xml, 6 ) to ( cur_dir() + "tmprpd" ) // for between(d_pd,arr_m[5],arr_m[6])
   Select MO_XML
   If ismo == 34
-    Index On dfile to ( cur_dir + "tmp_xml" ) For TIP_IN == _XML_FILE_RPD .and. Between( dfile, arr_m[ 5 ], arr_m[ 6 ] )
+    Index On dfile to ( cur_dir() + "tmp_xml" ) For TIP_IN == _XML_FILE_RPD .and. Between( dfile, arr_m[ 5 ], arr_m[ 6 ] )
   Else
-    Index On dfile to ( cur_dir + "tmp_xml" ) For TIP_IN == _XML_FILE_RPD .and. Between( dfile, arr_m[ 5 ] + a1, arr_m[ 6 ] + a2 )
+    Index On dfile to ( cur_dir() + "tmp_xml" ) For TIP_IN == _XML_FILE_RPD .and. Between( dfile, arr_m[ 5 ] + a1, arr_m[ 6 ] + a2 )
   Endif
   Go Top
   Do While !Eof()
@@ -1450,8 +1450,9 @@ Function akt_sverki_smo()
   Elseif ireg == 3
     name_file += "s"
   Endif
+  name_file += stxt()
   mywait()
-  fp := FCreate( name_file + stxt ) ; n_list := 1 ; tek_stroke := 0
+  fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
   add_string( glob_mo[ _MO_SHORT_NAME ] )
   If ireg == 1
     For i := 1 To 2
@@ -1474,8 +1475,8 @@ Function akt_sverki_smo()
       Endif
     Next
   Else
-    Use ( cur_dir + "tmp" ) new
-    Index On Str( tip, 1 ) + Str( nomer, 1 ) + DToS( dsch ) + nsch to ( cur_dir + "tmp" )
+    Use ( cur_dir() + "tmp" ) new
+    Index On Str( tip, 1 ) + Str( nomer, 1 ) + DToS( dsch ) + nsch to ( cur_dir() + "tmp" )
     arr_title := { ;
       "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", ;
       "     ‘ã¬¬      ³   ®¬¥à ¨ ¤ â  áçñâ    ³ü ¨ ¤ â   ªâ  ª®­âà®«ï (¯« â.¤®ªã¬¥­â )", ;
@@ -1544,8 +1545,7 @@ Function akt_sverki_smo()
   Close databases
   FClose( fp )
   rest_box( buf )
-  viewtext( name_file + stxt, , , , .t., , , 2 )
-
+  viewtext( name_file, , , , .t., , , 2 )
   Return Nil
 
 // 14.02.19
@@ -1704,7 +1704,7 @@ Function pr1_oborot_schet()
 // 30.03.23
 Function f1pr1_oborot_schet( asmo, ssmo )
 
-  Local adbf, i, n, arr_title, n_file := "oborot1" + stxt, sh, HH := 60, buf := save_maxrow()
+  Local adbf, i, n, arr_title, n_file := cur_dir() + "oborot1.txt", sh, HH := 60, buf := save_maxrow()
 
   mywait()
   adbf := { { "nschet", "C", 15, 0 }, ;
@@ -1723,44 +1723,44 @@ Function f1pr1_oborot_schet( asmo, ssmo )
     { "sum_sn", "N", 15, 2 }, ;
     { "penalty", "N", 15, 2 }, ;
     { "sum_op", "N", 15, 2 } }
-  dbCreate( cur_dir + "tmp", adbf )
-  Use ( cur_dir + "tmp" ) new
-  dbCreate( cur_dir + "tmp1", adbf )
-  Use ( cur_dir + "tmp1" ) new
+  dbCreate( cur_dir() + "tmp", adbf )
+  Use ( cur_dir() + "tmp" ) new
+  dbCreate( cur_dir() + "tmp1", adbf )
+  Use ( cur_dir() + "tmp1" ) new
   Do Case
   Case m1schet == 0 // ¨â®£® ¯® ‘ŒŽ
-    Index On smo to ( cur_dir + "tmp1" )
+    Index On smo to ( cur_dir() + "tmp1" )
   Case m1schet == 1 // ¨â®£® ¯® ãçà¥¦¤¥­¨ï¬/®â¤¥«¥­¨ï¬
-    Index On Str( otd, 3 ) to ( cur_dir + "tmp1" )
+    Index On Str( otd, 3 ) to ( cur_dir() + "tmp1" )
   Case m1schet == 2 // ¨â®£® ¯® â¨¯ ¬ áç¥â®¢
-    Index On bukva to ( cur_dir + "tmp1" )
+    Index On bukva to ( cur_dir() + "tmp1" )
   Endcase
   Private arr_m := pdate
-  r_use( dir_server + "mo_uch", , "UCH" )
-  r_use( dir_server + "mo_otd", , "OTD" )
-  r_use( dir_server + "human_", , "HUMAN_" )
-  r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+  r_use( dir_server() + "mo_uch", , "UCH" )
+  r_use( dir_server() + "mo_otd", , "OTD" )
+  r_use( dir_server() + "human_", , "HUMAN_" )
+  r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
   Set Relation To RecNo() into HUMAN_
-  r_use( dir_server + "mo_raksh", , "RAKSH" )
-  Index On Str( kod_h, 7 ) to ( cur_dir + "tmp_raksh" ) For !emptyall( SANK_MEK, SANK_MEE, SANK_EKMP )
-  r_use( dir_server + "mo_rpdsh", , "RPDSH" )
-  Index On Str( KOD_H, 7 ) to ( cur_dir + "tmprpdsh" )
+  r_use( dir_server() + "mo_raksh", , "RAKSH" )
+  Index On Str( kod_h, 7 ) to ( cur_dir() + "tmp_raksh" ) For !emptyall( SANK_MEK, SANK_MEE, SANK_EKMP )
+  r_use( dir_server() + "mo_rpdsh", , "RPDSH" )
+  Index On Str( KOD_H, 7 ) to ( cur_dir() + "tmprpdsh" )
   //
-  r_use( dir_server + "schet_", , "SCHET_" )
-  r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+  r_use( dir_server() + "schet_", , "SCHET_" )
+  r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
   Set Relation To RecNo() into SCHET_
   Do Case
   Case m1poisk == 0 // ¯® ¤ â¥ ®âçñâ­®£® ¯¥à¨®¤ 
-    Index On pdate + fsort_schet( schet_->nschet, nomer_s ) to ( cur_dir + "tmp" ) ;
+    Index On pdate + fsort_schet( schet_->nschet, nomer_s ) to ( cur_dir() + "tmp" ) ;
       For schet_->NREGISTR == 0 .and. Empty( schet_->IS_DOPLATA ) .and. ;
       between_otch_period( schet_->dschet, schet_->NYEAR, schet_->NMONTH, arr_m[ 5 ], arr_m[ 6 ] )
   Case m1poisk == 1 // ¯® ¤ â¥ ¢ëáâ ¢«¥­¨ï áç¥â 
     dbSeek( arr_m[ 7 ], .t. )
-    Index On pdate + fsort_schet( schet_->nschet, nomer_s ) to ( cur_dir + "tmp" ) ;
+    Index On pdate + fsort_schet( schet_->nschet, nomer_s ) to ( cur_dir() + "tmp" ) ;
       For schet_->NREGISTR == 0 .and. Empty( schet_->IS_DOPLATA ) ;
       While pdate <= arr_m[ 8 ]
   Case m1poisk == 2 // ¯® ¤ â¥ à¥£¨áâà æ¨¨ áç¥â 
-    Index On pdate + fsort_schet( schet_->nschet, nomer_s ) to ( cur_dir + "tmp" ) ;
+    Index On pdate + fsort_schet( schet_->nschet, nomer_s ) to ( cur_dir() + "tmp" ) ;
       For schet_->NREGISTR == 0 .and. Empty( schet_->IS_DOPLATA ) .and. ;
       Between( date_reg_schet(), arr_m[ 5 ], arr_m[ 6 ] )
   Endcase
@@ -1863,13 +1863,13 @@ Function f1pr1_oborot_schet( asmo, ssmo )
   Elseif m1schet == 3 // ¯® áç¥â ¬
     Close databases
     Copy file tmp.dbf To tmp1.dbf
-    Use ( cur_dir + "tmp1" ) new
+    Use ( cur_dir() + "tmp1" ) new
   Endif
   Commit
   Select TMP1
   Do Case
   Case m1schet == 0 // ¯® ‘ŒŽ
-    Index On smo to ( cur_dir + "tmp1" )
+    Index On smo to ( cur_dir() + "tmp1" )
     n := 25 // glob_arr_smo[i, 1]
     arr_title := { ;
       "_________________________", ;
@@ -1877,21 +1877,21 @@ Function f1pr1_oborot_schet( asmo, ssmo )
       "_________________________" }
   Case m1schet == 1 // ¯® ®â¤¥«¥­¨ï¬
     Set Relation To otd into OTD, To uch into UCH
-    Index On Upper( uch->name ) + Str( uch, 3 ) + Upper( otd->name ) + Str( otd, 3 ) to ( cur_dir + "tmp1" )
+    Index On Upper( uch->name ) + Str( uch, 3 ) + Upper( otd->name ) + Str( otd, 3 ) to ( cur_dir() + "tmp1" )
     n := 31
     arr_title := { ;
       "_______________________________", ;
       "    “çà¥¦¤¥­¨¥/®â¤¥«¥­¨¥       ", ;
       "_______________________________" }
   Case m1schet == 2 // ¯® â¨¯ ¬ áç¥â®¢
-    Index On bukva to ( cur_dir + "tmp1" )
+    Index On bukva to ( cur_dir() + "tmp1" )
     n := 45
     arr_title := { ;
       "_____________________________________________", ;
       "   ’¨¯ë áç¥â®¢                               ", ;
       "_____________________________________________" }
   Case m1schet == 3 // ¯® áç¥â ¬
-    Index On ot_per + smo + nschet + DToS( dschet ) to ( cur_dir + "tmp1" ) ;
+    Index On ot_per + smo + nschet + DToS( dschet ) to ( cur_dir() + "tmp1" ) ;
       For kol1 > 0 .and. iif( m1dolg == 0, .t., !Empty( summa1 - sum_sn - sum_op ) )
     n := 39
     arr_title := { ;

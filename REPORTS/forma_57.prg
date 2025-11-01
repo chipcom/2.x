@@ -12,7 +12,7 @@ Static f39_sect := "Форма 39 - "
 Function forma_57( k )
 
   Static si1 := 1
-  Local mas_pmt, mas_msg, mas_fun, j, uch_otd
+  Local mas_pmt, mas_msg, mas_fun, j
 
   Default k To 1
   Do Case
@@ -59,7 +59,7 @@ Function forma_57_( is_diag )
     fl_exit := .f., jh := 0, jt := 0, mshifr, mvozrast, d1, d2, ;
     arr_stroke := { {}, {}, {} }, fl, s, arr, bbuf, blk_usl, ab := {}
 
-  file_form := dir_exe() + "_mo_form" + sdbf
+  file_form := dir_exe() + "_mo_form" + sdbf()
   If !hb_FileExists( file_form )
     Return func_error( 4, "Не обнаружен файл настройки статистических форм " + Upper( file_form ) )
   Endif
@@ -146,9 +146,9 @@ Function forma_57_( is_diag )
     AAdd( arr_57_wide, diapazon )
   Next
   //
-  dbCreate( cur_dir + "tmp", adbf )
-  Use ( cur_dir + "tmp" ) New Alias TMP
-  Index On Str( voz, 1 ) + stroke to ( cur_dir + "tmp" )
+  dbCreate( cur_dir() + "tmp", adbf )
+  Use ( cur_dir() + "tmp" ) New Alias TMP
+  Index On Str( voz, 1 ) + stroke to ( cur_dir() + "tmp" )
   Use ( file_form ) New Alias FRM
   Set Filter To forma == 57
   Go Top
@@ -196,38 +196,38 @@ Function forma_57_( is_diag )
   //
   If is_diag > 1
     AAdd( adbf, { "diagnoz", "C", 5, 0 } )
-    dbCreate( cur_dir + "tmp_dia", adbf )
-    Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
-    Index On Str( voz, 1 ) + diagnoz to ( cur_dir + "tmp_dia" )
+    dbCreate( cur_dir() + "tmp_dia", adbf )
+    Use ( cur_dir() + "tmp_dia" ) New Alias TMP_D
+    Index On Str( voz, 1 ) + diagnoz to ( cur_dir() + "tmp_dia" )
   Endif
   If is_diag == 3
     AAdd( adbf, { "kod_human", "N", 7, 0 } )
-    dbCreate( cur_dir + "tmp_hum", adbf )
-    Use ( cur_dir + "tmp_hum" ) New Alias TMP_H
-    Index On Str( voz, 1 ) + diagnoz + Str( kod_human, 7 ) to ( cur_dir + "tmp_hum" )
+    dbCreate( cur_dir() + "tmp_hum", adbf )
+    Use ( cur_dir() + "tmp_hum" ) New Alias TMP_H
+    Index On Str( voz, 1 ) + diagnoz + Str( kod_human, 7 ) to ( cur_dir() + "tmp_hum" )
   Endif
   //
-  r_use( dir_server + "kartotek",, "KART" )
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-  r_use( dir_server + "human_2",, "HUMAN_2" )
-  r_use( dir_server + "human_",, "HUMAN_" )
+  r_use( dir_server() + "kartotek",, "KART" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+  r_use( dir_server() + "human_2",, "HUMAN_2" )
+  r_use( dir_server() + "human_",, "HUMAN_" )
   If yes_rule  // "исправляем" в соответствии с правилами статистики
     bbuf := save_maxrow()
     mywait( "Ждите. Создаётся условный индексный файл..." )
     If pi1 == 1 // по дате окончания лечения
-      r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+      r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
       Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
       dbSeek( DToS( arr_m[ 5 ] ), .t. )
-      Index On Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir + "tmp_h" ) ;
+      Index On Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir() + "tmp_h" ) ;
         While k_data <= arr_m[ 6 ] ;
         For kod > 0 .and. human_->usl_ok == 3 .and. human_->oplata < 9 ;
         .and. human_->NOVOR == 0 .and. func_pi_schet()
     Else
-      r_use( dir_server + "schet",, "SCHET" )
-      r_use( dir_server + "human",, "HUMAN" )
+      r_use( dir_server() + "schet",, "SCHET" )
+      r_use( dir_server() + "human",, "HUMAN" )
       Set Relation To schet into SCHET, To RecNo() into HUMAN_, To RecNo() into HUMAN_2
-      Index On Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir + "tmp_h" ) ;
+      Index On Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir() + "tmp_h" ) ;
         For kod > 0 .and. human_->usl_ok == 3 .and. human_->oplata < 9 ;
         .and. human_->NOVOR == 0 .and. Between( schet->pdate, arr_m[ 7 ], arr_m[ 8 ] ) ;
         progress
@@ -257,7 +257,7 @@ Function forma_57_( is_diag )
     closegauge( hGauge )
   Else  // не "исправляем" в соответствии с правилами статистики
     If pi1 == 1 // по дате окончания лечения
-      r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+      r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
       Set Relation To kod_k into KART, To RecNo() into HUMAN_, To RecNo() into HUMAN_2
       dbSeek( DToS( begin_date ), .t. )
       Do While human->k_data <= end_date .and. !Eof()
@@ -277,10 +277,10 @@ Function forma_57_( is_diag )
         Skip
       Enddo
     Else
-      r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+      r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
       Set Relation To kod_k into KART, To RecNo() into HUMAN_, To RecNo() into HUMAN_2
-      r_use( dir_server + "schet_",, "SCHET_" )
-      r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+      r_use( dir_server() + "schet_",, "SCHET_" )
+      r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
       Set Relation To RecNo() into SCHET_
       Set Filter To Empty( schet_->IS_DOPLATA )
       dbSeek( arr_m[ 7 ], .t. )
@@ -324,7 +324,7 @@ Function forma_57_( is_diag )
   Use ( fr_titl ) New Alias FRT
   Append Blank
   //
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   frt->name := AllTrim( org->name )
   frt->adres := AllTrim( org->adres )
   frt->period := arr_m[ 4 ]
@@ -334,17 +334,17 @@ Function forma_57_( is_diag )
     frt->name1 := "[ по дате выписки счета ]"
   Endif
   If is_diag > 1
-    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
-    Use ( cur_dir + "tmp_dia" ) index ( cur_dir + "tmp_dia" ) New Alias TMP_D
+    r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "MKB10" )
+    Use ( cur_dir() + "tmp_dia" ) index ( cur_dir() + "tmp_dia" ) New Alias TMP_D
   Endif
   If is_diag == 3
-    r_use( dir_server + "schet",, "SCHET" )
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human",, "HUMAN" )
+    r_use( dir_server() + "schet",, "SCHET" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human",, "HUMAN" )
     Set Relation To RecNo() into HUMAN_
-    Use ( cur_dir + "tmp_hum" ) New Alias TMP_H
+    Use ( cur_dir() + "tmp_hum" ) New Alias TMP_H
     Set Relation To kod_human into HUMAN
-    Index On Str( voz, 1 ) + diagnoz + Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir + "tmp_hum" )
+    Index On Str( voz, 1 ) + diagnoz + Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir() + "tmp_hum" )
   Endif
   adbf := { ;
     { "name", "C", 250, 0 }, ;
@@ -357,10 +357,10 @@ Function forma_57_( is_diag )
   For i := 0 To 2
     name_f := fr_data + iif( i > 0, lstr( i ), "" )
     al := "FRD" + iif( i > 0, lstr( i ), "" )
-    dbCreate( cur_dir + name_f, adbf )
-    e_use( cur_dir + name_f,, al )
+    dbCreate( cur_dir() + name_f, adbf )
+    e_use( cur_dir() + name_f,, al )
   Next
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ) new
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ) new
   For x := 1 To 3 // diag1[x] => {s1,1,diapazon,tmp->table,s2,s4}
     al := "FRD" + iif( x > 1, lstr( x - 1 ), "" )
     // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}

@@ -9,22 +9,22 @@ Function i_kol_del_zub( par )
 
   hGauge := gaugenew(,,, 'Информация о количестве удалённых зубов', .t. )
   gaugedisplay( hGauge )
-  dbCreate( cur_dir + 'tmp', { ;
+  dbCreate( cur_dir() + 'tmp', { ;
     { 'god', 'N', 4, 0 }, ;
     { 'kod_k', 'N', 7, 0 }, ;
     { 'pol', 'C', 1, 0 }, ;
     { 'vozr', 'N', 2, 0 }, ;
     { 'kol', 'N', 6, 0 } } )
-  Use ( cur_dir + 'tmp' ) new
+  Use ( cur_dir() + 'tmp' ) new
   Index On Str( god, 4 ) + Str( kod_k, 7 ) To tmp memory
   use_base( 'lusl' )
-  r_use( dir_server + 'uslugi',, 'USL' )
-  r_use( dir_server + 'human_u_',, 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  r_use( dir_server() + 'uslugi',, 'USL' )
+  r_use( dir_server() + 'human_u_',, 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'human_2',, 'HUMAN_2' )
-  r_use( dir_server + 'human_',, 'HUMAN_' )
-  r_use( dir_server + 'human',, 'HUMAN' )
+  r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+  r_use( dir_server() + 'human_',, 'HUMAN_' )
+  r_use( dir_server() + 'human',, 'HUMAN' )
   Set Relation To kod into HUMAN_, To kod into HUMAN_2
   Go Top
   Do While !Eof()
@@ -75,10 +75,10 @@ Function i_kol_del_zub( par )
   Close databases
   If !fl_exit .and. k > 0
     agod := {}
-    Use ( cur_dir + 'tmp' ) new
+    Use ( cur_dir() + 'tmp' ) new
     Index On god To tmp Unique memory
     dbEval( {|| AAdd( agod, tmp->god ) } )
-    name_file := 'del_zub' + stxt
+    name_file := 'del_zub.txt'
     HH := 60
     arr_title := { ;
       '─────────────────┬───────────────┬───────────────┬───────────────', ;

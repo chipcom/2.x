@@ -2,7 +2,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 16.03.25
+// 09.04.25
 function get_array_PZ( mYear)
 
   static hArray
@@ -10,6 +10,9 @@ function get_array_PZ( mYear)
   local arr := {}, aTable, nI
   local nameView, strSQL, fl := .f.
 
+  if ValType( mYear ) == 'D'
+    mYear := Year( mYear )
+  endif
   if hArray == nil
     hArray := hb_Hash()
   Endif
@@ -48,7 +51,7 @@ FUNCTION initPZarray()
     sbase :=  prefixFileRefName( nYear ) + 'unit'  // справочник на конкретный год
     if exists_file_TFOMS( nYear, 'unit')
       arrPZ := get_array_PZ( nYear )
-      file_index := cur_dir() + sbase + sntx
+      file_index := cur_dir() + sbase + sntx()
       if hb_FileExists( file_index )
         G_Use( dir_exe() + sbase, cur_dir() + sbase, 'UNIT' )
       else

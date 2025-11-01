@@ -5,8 +5,9 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 29.10.18 возврат кода по картотеке 
+// 12.09.25 возврат кода по картотеке 
 Function polikl1_kart()
+  
   Static sesc := '^<Esc>^ выход  '
   Static senter := '^<Enter>^ ввод  '
   Static sF10p := '^<F10>^ поиск по полису  '
@@ -15,14 +16,14 @@ Function polikl1_kart()
   Static sF11 := '^<F11>^ читать электронный полис'
   Static s_regim := 1, s_shablon := '', s_polis := '', s_snils := ''
   Local tmp1, tmp_help := chm_help_code, mkod := -1, i, fl_number := .t., ;
-        k1 := 0, k2 := 1, str_sem, mbukva := '', tmp_color, buf, buf24, ar, s
+        k1 := 0, k2 := 1, mbukva := '', tmp_color, buf, buf24, ar, s
   
   chm_help_code := 1//HK_shablon_fio
   // обмен информацией с программой Smart Delta Systems
   import_kart_from_sds()
   /////////////////////////////////////////////////////
   Private tmp, name_reader := ''
-  ar := GetIniVar(tmp_ini, {{'polikl1'  , 's_regim'  , '1'}, ;
+  ar := GetIniVar(tmp_ini(), {{'polikl1'  , 's_regim'  , '1'}, ;
                            {'polikl1'  , 's_shablon', '' }, ;
                            {'polikl1'  , 's_polis'  , '' }, ;
                            {'polikl1'  , 's_snils'  , '' }, ;
@@ -63,7 +64,7 @@ Function polikl1_kart()
       tmp := padr(s_snils, 11)
       tmp_color := setcolor(color14)
       buf := box_shadow(18, 9, 20, 70)
-      @ 19, 14 say 'Введите СНИЛС для поиска в картотеке' get tmp pict '@K' + picture_pf valid val_snils(tmp, 1)
+      @ 19, 14 say 'Введите СНИЛС для поиска в картотеке' get tmp pict '@K' + picture_pf() valid val_snils(tmp, 1)
       s := sesc + senter + sF10f
       if !empty(name_reader)
         s += sF11
@@ -168,7 +169,7 @@ Function polikl1_kart()
       endif
     endif
   endif
-  SetIniSect(tmp_ini, 'polikl1', {{'s_regim'  , lstr(s_regim)}, ;
+  SetIniSect(tmp_ini(), 'polikl1', {{'s_regim'  , lstr(s_regim)}, ;
                                   {'s_shablon', s_shablon    }, ;
                                   {'s_polis'  , s_polis      }, ;
                                   {'s_snils'  , s_snils      }})

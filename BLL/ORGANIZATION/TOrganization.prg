@@ -137,6 +137,7 @@ METHOD function  getINN						CLASS TOrganization
 	return ::FINN
 	
 METHOD procedure setINN( cVal )				CLASS TOrganization
+	
 	::FINN := cVal
 	return
 
@@ -144,6 +145,7 @@ METHOD function  getKPP						CLASS TOrganization
 	return ::FKPP
 	
 METHOD procedure setKPP( cVal )				CLASS TOrganization
+	
 	::FKPP := cVal
 	return
 
@@ -160,6 +162,7 @@ METHOD FUNCTION getKod_Tfoms					CLASS TOrganization
 	return ::FKod_Tfoms
 
 METHOD PROCEDURE setKod_Tfoms( cVal )		CLASS TOrganization
+	
 	::FKod_Tfoms := cVal
 	return
 
@@ -170,6 +173,7 @@ METHOD FUNCTION getName_Tfoms1251				CLASS TOrganization
 	return win_OEMToANSI( ::FName_Tfoms )
 
 METHOD PROCEDURE setName_Tfoms( cVal )		CLASS TOrganization
+	
 	::FName_Tfoms := cVal
 	return
 
@@ -177,6 +181,7 @@ METHOD FUNCTION getUroven						CLASS TOrganization
 	return ::FUroven
 
 METHOD PROCEDURE setUroven( nVal )			CLASS TOrganization
+	
 	::FUroven := nVal
 	return
 
@@ -187,6 +192,7 @@ METHOD FUNCTION getName1251					CLASS TOrganization
 	return win_OEMToANSI( ::FName )
 
 METHOD PROCEDURE setName( cVal )				CLASS TOrganization
+	
 	::FName := cVal
 	return
 
@@ -197,6 +203,7 @@ METHOD FUNCTION getName_schet1251				CLASS TOrganization
 	return win_OEMToANSI( ::FName_schet )
 
 METHOD PROCEDURE setName_schet( cVal )		CLASS TOrganization
+	
 	::FName_schet := cVal
 	return
 
@@ -207,6 +214,7 @@ METHOD FUNCTION getAddress1251				CLASS TOrganization
 	return win_OEMToANSI( ::FAddress )
 
 METHOD PROCEDURE setAddress( cVal )			CLASS TOrganization
+	
 	::FAddress := cVal
 	return
 
@@ -214,6 +222,7 @@ METHOD FUNCTION getPhone						CLASS TOrganization
 	return ::FPhone
 
 METHOD PROCEDURE setPhone( cVal )			CLASS TOrganization
+	
 	::FPhone := cVal
 	return
 
@@ -221,6 +230,7 @@ METHOD FUNCTION getOKONH						CLASS TOrganization
 	return ::FOkonh
 
 METHOD PROCEDURE setOKOPNH( cVal )			CLASS TOrganization
+	
 	::FOkonh := cVal
 	return
 
@@ -228,6 +238,7 @@ METHOD FUNCTION getOKPO						CLASS TOrganization
 	return ::FOkpo
 
 METHOD PROCEDURE setOKPO( cVal )				CLASS TOrganization
+	
 	::FOkpo := cVal
 	return
 
@@ -235,6 +246,7 @@ METHOD FUNCTION getE_1							CLASS TOrganization
 	return ::FE_1
 
 METHOD PROCEDURE setE_1( cVal )				CLASS TOrganization
+	
 	::FE_1 := cVal
 	return
 
@@ -242,6 +254,7 @@ METHOD FUNCTION getName2						CLASS TOrganization
 	return ::FName2
 
 METHOD PROCEDURE setName2( cVal )			CLASS TOrganization
+	
 	::FName2 := cVal
 	return
 
@@ -252,6 +265,7 @@ METHOD FUNCTION getOGRN						CLASS TOrganization
 	return ::FOgrn
 
 METHOD PROCEDURE setOGRN( cVal )				CLASS TOrganization
+	
 	::FOgrn := cVal
 	return
 
@@ -259,6 +273,7 @@ METHOD FUNCTION getRuk_fio					CLASS TOrganization
 	return ::FRuk_fio
 
 METHOD PROCEDURE setRuk_fio( cVal )			CLASS TOrganization
+	
 	::FRuk_fio := cVal
 	return
 
@@ -269,6 +284,7 @@ METHOD FUNCTION getRuk						CLASS TOrganization
 	return ::FRuk
 
 METHOD PROCEDURE setRuk( cVal )				CLASS TOrganization
+	
 	::FRuk := cVal
 	return
 
@@ -279,6 +295,7 @@ METHOD FUNCTION getRuk_r						CLASS TOrganization
 	return ::FRuk_r
 
 METHOD PROCEDURE setRuk_r( cVal )			CLASS TOrganization
+	
 	::FRuk_r := cVal
 	return
 
@@ -289,6 +306,7 @@ METHOD FUNCTION getBux						CLASS TOrganization
 	return ::FBux
 
 METHOD PROCEDURE setBux( cVal )				CLASS TOrganization
+	
 	::FBux := cVal
 	return
 
@@ -299,6 +317,7 @@ METHOD FUNCTION getIspolnit					CLASS TOrganization
 	return ::FIspolnit
 
 METHOD PROCEDURE setIspolnit( cVal )			CLASS TOrganization
+	
 	::FIspolnit := cVal
 	return
 
@@ -309,6 +328,7 @@ METHOD FUNCTION getName_d						CLASS TOrganization
 	return ::FName_d
 
 METHOD PROCEDURE setName_d( cVal )			CLASS TOrganization
+	
 	::FName_d := cVal
 	return
 
@@ -319,6 +339,7 @@ METHOD FUNCTION getFilial_h					CLASS TOrganization
 	return ::FFilial_h
 	
 METHOD PROCEDURE setFilial_h( nVal )			CLASS TOrganization
+	
 	::FFilial_h := nVal
 	return
 
@@ -326,6 +347,7 @@ METHOD FUNCTION getBank						CLASS TOrganization
 	return ::FBank
 
 METHOD PROCEDURE setBank( obj )				CLASS TOrganization
+	
 	::FBank := obj
 	return
 
@@ -333,6 +355,7 @@ METHOD FUNCTION getBankSecond					CLASS TOrganization
 	return ::FBankSecond
 
 METHOD PROCEDURE setBankSecond( obj )		CLASS TOrganization
+	
 	::FBankSecond := obj
 	return
 					

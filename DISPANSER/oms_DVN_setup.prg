@@ -513,8 +513,8 @@ Function ret_etap_dvn( lkod_h, lkod_k )
 
   Local ae := { {}, {} }, fl, i, k, d1 := Year( mn_data )
 
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humankk', 'HUMAN' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
   find ( Str( lkod_k, 7 ) )
   Do While human->kod_k == lkod_k .and. !Eof()

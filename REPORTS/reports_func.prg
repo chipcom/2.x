@@ -39,7 +39,7 @@ function open_Excel_automatic()
 
   local opn
   
-  opn := val( getinivar( tmp_ini, { { 'RAB_MESTO', 'open_Excel', '0' } } )[ 1 ] )
+  opn := val( getinivar( tmp_ini(), { { 'RAB_MESTO', 'open_Excel', '0' } } )[ 1 ] )
   return iif( opn == 1, .t., .f. )
 
 // 06.03.24
@@ -218,7 +218,7 @@ Function arr_titleN_otd( arr_o, c_otd )
 function test_excel()
   local wb
   Local name_fileXLS := 'test'
-  Local name_fileXLS_full := cur_dir + name_fileXLS + '.xlsx'
+  Local name_fileXLS_full := cur_dir() + name_fileXLS + '.xlsx'
   
   wb  := workbook_new( name_fileXLS_full )
   zakladka_excel_report( wb, 'Титульный лист' )

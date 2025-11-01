@@ -4,6 +4,7 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'tfile.ch'
 
 // 15.08.17 редактирование справочника персонала
 Function edit_pers()
@@ -21,8 +22,8 @@ Function edit_pers()
       str_find, muslovie;
       }
     If use_base( 'mo_pers' )
-      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir + 'tmp_pers' )
-      Set Index to ( cur_dir + 'tmp_pers' ), ( dir_server + 'mo_pers' )
+      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir() + 'tmp_pers' )
+      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server() + 'mo_pers' )
       find ( str_find )
       If !Found()
         Keyboard Chr( K_INS )
@@ -36,12 +37,11 @@ Function edit_pers()
     g_sunlock( str_sem )
     rest_box( buf )
   Else
-    func_error( 4, err_slock )
+    func_error( 4, err_slock() )
   Endif
-
   Return Nil
 
-// 28.01.25
+// 12.09.25
 Function f1edit_pers( oBrow )
 
   Static ak := { '   ', 'вр.', 'ср.', 'мл.', 'пр.' }
@@ -56,7 +56,8 @@ Function f1edit_pers( oBrow )
   oColumn := TBColumnNew( 'Таб.№', {|| put_val( P2->tab_nom, 5 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( PadC( 'СНИЛС', 14 ), {|| Transform( p2->SNILS, picture_pf ) } )
+//  oColumn := TBColumnNew( PadC( 'СНИЛС', 14 ), {|| Transform( p2->SNILS, picture_pf ) } )
+  oColumn := TBColumnNew( PadC( 'СНИЛС', 14 ), {|| Transform_SNILS( p2->SNILS ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
   oColumn := TBColumnNew( 'Кат', {|| ak[ P2->kateg + 1 ] } )
@@ -76,10 +77,9 @@ Function f1edit_pers( oBrow )
 //  mark_keys( { '<F2>', '<F3>' }, 'R/BG' )
   @ mr, 45 Say ' <F2> - поиск' Color 'GR+/BG'
   mark_keys( { '<F2>', '<F3>' }, 'R/BG' )
-
   Return Nil
 
-// 28.01.25
+// 12.09.25
 Function f2edit_pers( nKey, oBrow )
 
   Static gmenu_kateg := { { 'врач                ', 1 }, ;
@@ -93,7 +93,8 @@ Function f2edit_pers( nKey, oBrow )
   Static osn_sovm := { { 'основная работа', 0 }, ;
     { 'совмещение     ', 1 } }
   Local buf, fl := .f., rec, j, k, tmp_color, mkod, r, ret := -1
-  local i, max_nom, iSort, name_file := cur_dir() + 'personal' + stxt, s
+  local i, max_nom, iSort, s
+//  local name_file := cur_dir() + 'personal.txt'
   local typeSort := { ;
     'по фамилии          ', ;
     'по табельному номеру', ;
@@ -105,28 +106,29 @@ Function f2edit_pers( nKey, oBrow )
   Case nKey == K_F2
     Return f4edit_pers( K_F2 )
   Case nKey == K_F3
-//    iSort := 1
-//    if ( iSort := popup_prompt( 10, 20, iSort, typeSort ) ) == 0
-//      return ret
-//    endif
-//    if iSort == 1
-//      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir() + 'tmp_pers' )
-//      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server + 'mo_pers' )
-//      GOTO Top
-//    elseif iSort == 2
-//      Index On tab_nom to ( cur_dir() + 'tmp_persTN' )
-//      Set Index to ( cur_dir() + 'tmp_persTN' ), ( dir_server + 'mo_pers' )
-//      GOTO Top
-//    elseif iSort == 3
-//      Index On prvs_021 to ( cur_dir() + 'tmp_pers21' )
-//      Set Index to ( cur_dir() + 'tmp_pers21' ), ( dir_server + 'mo_pers' )
-//      GOTO Top
-//    elseif iSort == 4
-//      Index On otd to ( cur_dir() + 'tmp_persOTD' )
-//      Set Index to ( cur_dir() + 'tmp_persOTD' ), ( dir_server + 'mo_pers' )
-//      GOTO Top
-//    endif
-//    Return 0
+/*    iSort := 1
+    if ( iSort := popup_prompt( 10, 20, iSort, typeSort ) ) == 0
+      return ret
+    endif
+    if iSort == 1
+      Index On iif( kod > 0, '1', '0' ) + Upper( fio ) to ( cur_dir() + 'tmp_pers' )
+      Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server() + 'mo_pers' )
+      GOTO Top
+    elseif iSort == 2
+      Index On tab_nom to ( cur_dir() + 'tmp_persTN' )
+      Set Index to ( cur_dir() + 'tmp_persTN' ), ( dir_server() + 'mo_pers' )
+      GOTO Top
+    elseif iSort == 3
+      Index On prvs_021 to ( cur_dir() + 'tmp_pers21' )
+      Set Index to ( cur_dir() + 'tmp_pers21' ), ( dir_server() + 'mo_pers' )
+      GOTO Top
+    elseif iSort == 4
+      Index On otd to ( cur_dir() + 'tmp_persOTD' )
+      Set Index to ( cur_dir() + 'tmp_persOTD' ), ( dir_server() + 'mo_pers' )
+      GOTO Top
+    endif
+    Return 0
+*/
   Case nKey == K_F9
     If ( j := f_alert( { PadC( 'Выберите порядок сортировки при печати', 60, '.' ) }, ;
         { ' По ФИО ', ' По таб.номеру ' }, ;
@@ -135,7 +137,9 @@ Function f2edit_pers( nKey, oBrow )
     Endif
     rec := p2->( RecNo() )
     buf := save_maxrow()
-    mywait()
+    
+    spr_personal( 1, j )
+/*    mywait()
     fp := FCreate( name_file )
     n_list := 1
     tek_stroke := 0
@@ -191,10 +195,11 @@ Function f2edit_pers( nKey, oBrow )
       add_string( s )
     Endif
     Set Order To 1
-    Goto ( rec )
     FClose( fp )
-    rest_box( buf )
     viewtext( name_file, , , , .t., , , 2 )
+*/
+    rest_box( buf )
+    Goto ( rec )
   Case nKey == K_INS .or. ( nKey == K_ENTER .and. kod > 0 )
     Save Screen To buf
     Private mfio := Space( 50 ), m1uch := 0, m1otd := 0, m1kateg := 1, ;
@@ -241,8 +246,8 @@ Function f2edit_pers( nKey, oBrow )
     If mstavka <= 0
       mstavka := 1
     Endif
-    much      := inieditspr( A__POPUPBASE, dir_server + 'mo_uch', m1uch )
-    motd      := inieditspr( A__POPUPBASE, dir_server + 'mo_otd', m1otd )
+    much      := inieditspr( A__POPUPBASE, dir_server() + 'mo_uch', m1uch )
+    motd      := inieditspr( A__POPUPBASE, dir_server() + 'mo_otd', m1otd )
     mkateg    := inieditspr( A__MENUVERT, gmenu_kateg, m1kateg )
     mvid      := inieditspr( A__MENUVERT, osn_sovm, m1vid )
     mvr_kateg := inieditspr( A__MENUVERT, menu_vr_kateg, m1vr_kateg )
@@ -267,7 +272,7 @@ Function f2edit_pers( nKey, oBrow )
       valid {| g| val_tab_nom( g, nKey ) }
     @ r, 36 Say 'Сводный табельный номер' Get msvod_nom Picture '99999'
     @ ++r, 2 Say 'Ф.И.О.' Get mfio
-    @ ++r, 2 Say 'СНИЛС' Get msnils Picture picture_pf Valid val_snils( msnils, 1 )
+    @ ++r, 2 Say 'СНИЛС' Get msnils Picture picture_pf() Valid val_snils( msnils, 1 )
     @ ++r, 2 Say 'Учр-е' Get much ;
       reader {| x| menu_reader( x, { {| k, r, c| ret_uch_otd( k, r, c ) } }, A__FUNCTION, , , .f. ) }
     @ r, 39 Say 'Отделение' Get motd When .f.
@@ -357,22 +362,22 @@ Function f2edit_pers( nKey, oBrow )
     buf := save_maxrow()
     s := 'Ждите! Производится проверка на допустимость удаления '
     mywait( s + 'human_u' )
-    r_use( dir_server + 'human_u', , 'HU' )
-    Set Index to ( dir_server + 'human_uv' )
+    r_use( dir_server() + 'human_u', , 'HU' )
+    Set Index to ( dir_server() + 'human_uv' )
     find ( Str( k, 4 ) )
     If !( fl := Found() )
-      Set Index to ( dir_server + 'human_ua' )
+      Set Index to ( dir_server() + 'human_ua' )
       find ( Str( k, 4 ) )
       fl := Found()
     Endif
     hu->( dbCloseArea() )
     If !fl
       mywait( s + 'hum_p_u' )
-      r_use( dir_server + 'hum_p_u', , 'HU' )  // проверить Платные услуги
-      Set Index to ( dir_server + 'hum_p_uv' )
+      r_use( dir_server() + 'hum_p_u', , 'HU' )  // проверить Платные услуги
+      Set Index to ( dir_server() + 'hum_p_uv' )
       find ( Str( k, 4 ) )
       If !( fl := Found() )
-        Set Index to ( dir_server + 'hum_p_ua' )
+        Set Index to ( dir_server() + 'hum_p_ua' )
         find ( Str( k, 4 ) )
         fl := Found()
       Endif
@@ -380,11 +385,11 @@ Function f2edit_pers( nKey, oBrow )
     Endif
     If !fl
       mywait( s + 'hum_oru' )
-      r_use( dir_server + 'hum_oru', , 'HU' ) // проверить Ортопедию
-      Set Index to ( dir_server + 'hum_oruv' )
+      r_use( dir_server() + 'hum_oru', , 'HU' ) // проверить Ортопедию
+      Set Index to ( dir_server() + 'hum_oruv' )
       find ( Str( k, 4 ) )
       If !( fl := Found() )
-        Set Index to ( dir_server + 'hum_orua' )
+        Set Index to ( dir_server() + 'hum_orua' )
         find ( Str( k, 4 ) )
         fl := Found()
       Endif
@@ -392,18 +397,18 @@ Function f2edit_pers( nKey, oBrow )
     Endif
     If !fl
       mywait( s + 'kas_pl_u' )
-      r_use( dir_server + 'kas_pl_u', , 'HU' ) // проверить Кассу
-      Index On Str( kod_vr, 4 ) to ( cur_dir + 'tmp_hu' ) For kod_vr > 0
+      r_use( dir_server() + 'kas_pl_u', , 'HU' ) // проверить Кассу
+      Index On Str( kod_vr, 4 ) to ( cur_dir() + 'tmp_hu' ) For kod_vr > 0
       find ( Str( k, 4 ) )
       fl := Found()
       hu->( dbCloseArea() )
       If !fl
         mywait( s + 'kas_ort' )
-        r_use( dir_server + 'kas_ort', , 'HU' )
-        Index On Str( kod_vr, 4 ) to ( cur_dir + 'tmp_hu' ) For kod_vr > 0
+        r_use( dir_server() + 'kas_ort', , 'HU' )
+        Index On Str( kod_vr, 4 ) to ( cur_dir() + 'tmp_hu' ) For kod_vr > 0
         find ( Str( k, 4 ) )
         If !( fl := Found() )
-          Index On Str( kod_tex, 4 ) to ( cur_dir + 'tmp_hu' ) For kod_tex > 0
+          Index On Str( kod_tex, 4 ) to ( cur_dir() + 'tmp_hu' ) For kod_tex > 0
           find ( Str( k, 4 ) )
           fl := Found()
         Endif
@@ -421,7 +426,6 @@ Function f2edit_pers( nKey, oBrow )
       ret := 0
     Endif
   Endcase
-
   Return ret
 
 // 27.02.23
@@ -445,7 +449,6 @@ Function set_prvs( get, regim )
     update_get( 'mprvs' )
     update_get( 'mname_dolj' )
   Endif
-
   Return fl
 
 // проверка на допустимость табельного номера
@@ -478,7 +481,6 @@ Function val_tab_nom( get, nKey )
       mtab_nom := get:original
     Endif
   Endif
-
   Return fl
 
 //
@@ -568,5 +570,143 @@ Function f4edit_pers( nkey )
     Goto rec1
   Endif
   RestScreen( buf )
-
   Return fl
+
+// 12.09.25
+function spr_personal( type_report, type_sort )
+
+  local ft, arr_title := {}
+  local s, max_nom, i, k
+  local name_file := cur_dir() + 'personal.txt'
+  local aRow
+
+  if type_report == 1
+    If type_sort == 1
+      Set Order To 1
+      find ( str_find )
+    Else
+      Set Order To 2
+      Go Top
+    Endif
+  elseif type_report == 2
+    r_use( dir_server() + 'mo_pers',, 'P2' )
+    Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
+  endif
+
+  mywait()
+  ft := tfiletext():new( name_file, , .t., , .t. )
+  ft:add_string( '' )
+  ft:add_string( 'Список работающего персонала с табельными номерами', FILE_CENTER, ' ' )
+  ft:add_string( '' )
+
+  ft:Add_Column( 'Таб.№', 5, FILE_RIGHT )
+  ft:Add_Column( 'Ф.И.О.', 40, FILE_LEFT, , .t., FILE_CENTER )
+
+  if type_report == 1
+    ft:Add_Column( 'СНИЛС', 14, FILE_LEFT )
+    ft:Add_Column( 'Специальность', 26, FILE_LEFT )
+  elseif type_report == 2
+    ft:Add_Column( 'Специальность', 26, FILE_LEFT )
+  endif
+  ft:EnableTableHeader := .t.
+  ft:printTableHeader()
+  Do While !Eof()
+    aRow := {}
+    if type_report == 1
+      If iif( type_sort == 2, kod > 0, .t. ) .and. between_date( p2->dbegin, p2->dend )
+        AAdd( aRow, put_val( p2->tab_nom, 5 ) )
+        AAdd( aRow, iif( Empty( p2->svod_nom ), Space( 5 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 5 ) ) + ;
+          ' ' + AllTrim( p2->fio ) )
+//        AAdd( aRow, Transform( p2->SNILS, picture_pf ) )
+        AAdd( aRow, Transform_SNILS( p2->SNILS ) )
+        AAdd( aRow, ret_tmp_prvs( p2->prvs, p2->prvs_new ) )
+      Endif
+    elseif type_report == 2
+      AAdd( aRow, put_val( p2->tab_nom, 5 ) )
+      AAdd( aRow, iif( Empty( p2->svod_nom ), Space( 5 ), PadL( '(' + lstr( p2->svod_nom ) + ')', 5 ) ) + ;
+        ' ' + AllTrim( p2->fio ) )
+      AAdd( aRow, ret_tmp_prvs( p2->prvs, p2->prvs_new ) )
+    endif
+    ft:Add_Row( aRow )
+    Skip
+  Enddo
+
+  if type_report == 1
+    Set Order To 2
+    Go Bottom
+    max_nom := p2->tab_nom
+    ft:add_string( Replicate( '=', ft:Width ) )
+    ft:add_string( 'Список свободных табельных номеров:', FILE_CENTER, ' ' )
+    s := ''
+    k := 0
+    For i := 1 To max_nom
+      find ( Str( i, 5 ) )
+      If !Found()
+        s += lstr( i ) + ', '
+        If Len( s ) > ft:Width
+          ft:add_string( s )
+          s := ''
+          If ++k > 10
+            ft:add_string( '...' )
+            Exit
+          Endif
+        Endif
+      Endif
+    Next
+    If !Empty( s )
+      ft:add_string( s )
+    Endif
+    Set Order To 1
+  endif
+  ft := nil
+  if type_report == 2
+    p2->( dbCloseArea() )
+  endif
+  viewtext( name_file, , , , .t., , , 2 )
+  return nil
+
+// 07.03.21 список персонала
+/* Function spr_personal() 
+
+  Local sh := 80, HH := 57, fl := .t., s
+
+  mywait()
+  fp := FCreate( cur_dir() + 'spisok' + stxt() )
+  n_list := 1
+  tek_stroke := 0
+  add_string( '' )
+  add_string( Center( 'Списочный состав персонала с табельными номерами', sh ) )
+  add_string( '' )
+  add_string( Center( AllTrim( glob_uch[ 2 ] ) + ' (' + AllTrim( glob_otd[ 2 ] ) + ')', sh ) )
+  add_string( PadL( date_8( sys_date ) + 'г.', sh ) )
+  If r_use( dir_server() + 'mo_pers',, 'PERSO' )
+    Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
+    Do While !Eof()
+      If fl .or. tek_stroke > HH
+        If !fl
+          add_string( Chr( 12 ) )
+          tek_stroke := 0
+          n_list++
+          next_list( sh )
+        Endif
+        add_string( '─────┬──────────────────────────────────────────────────┬──────────────────────' )
+        add_string( 'Таб.№│                       Ф.И.О.                     │ Специальность        ' )
+        add_string( '─────┴──────────────────────────────────────────────────┴──────────────────────' )
+      Endif
+      fl := .f.
+      s := put_val( perso->tab_nom, 5 ) + ;
+        iif( Empty( perso->svod_nom ), Space( 5 ), PadL( '(' + lstr( perso->svod_nom ) + ')', 5 ) ) + ;
+        ' ' + PadR( AllTrim( perso->fio ), 45 )
+      If !emptyall( perso->prvs, perso->prvs_new )
+        s += ' ' + ret_tmp_prvs( perso->prvs, perso->prvs_new )
+      Endif
+      add_string( s )
+      Select PERSO
+      Skip
+    Enddo
+  Endif
+  Close databases
+  FClose( fp )
+  viewtext( 'spisok' + stxt(),,,,,,, 2 )
+  Return Nil
+*/

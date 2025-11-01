@@ -12,7 +12,7 @@ Function f_d_dializ()
 
   Return .t.
 
-// 25.06.24 гемодиализ (1) и перитонеальный диализ (2)
+// 16.09.24 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -109,9 +109,9 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
   Endif
   AEval( getv012(), {| x| iif( x[ 5 ] == m1usl_ok, AAdd( mm_ishod, x ), nil ) } )
   //
-  r_use( dir_server + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
   Goto ( kod_kartotek )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Goto ( kod_kartotek )
   mFIO        := kart->FIO
   mpol        := kart->pol
@@ -155,8 +155,8 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
   Close databases
   chm_help_code := 3002
   //
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humankk', 'HUMAN' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
   // проверка исхода = СМЕРТЬ
   // find ( Str( mkod_k, 7 ) )
@@ -176,7 +176,7 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
     msmo := '34'
   Endif
   If m1vrach > 0
-    r_use( dir_server + 'mo_pers', , 'P2' )
+    r_use( dir_server() + 'mo_pers', , 'P2' )
     Goto ( m1vrach )
     MTAB_NOM := p2->tab_nom
     m1prvs := -ret_new_spec( p2->prvs, p2->prvs_new )
@@ -189,10 +189,10 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
   mrslt     := inieditspr( A__MENUVERT, mm_rslt, m1rslt )
   mishod    := inieditspr( A__MENUVERT, mm_ishod, m1ishod )
-  mlpu      := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', m1lpu )
-  motd      := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', m1otd )
+  mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
+  motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
-  mokato    := inieditspr( A__MENUVERT, glob_array_srf, m1okato )
+  mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
   f_valid_komu( , -1 )
@@ -440,8 +440,8 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
       use_base( 'lusl' )
       use_base( 'luslc' )
       use_base( 'uslugi' )
-      r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
-        dir_server + 'uslugi1s' }, 'USL1' )
+      r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+        dir_server() + 'uslugi1s' }, 'USL1' )
       glob_podr := ''
       glob_otd_dep := 0
       fl := .t.
@@ -463,11 +463,7 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
       Elseif k == 1
         Exit
       Endif
-      If mem_op_out == 2 .and. yes_parol
-        box_shadow( 19, 10, 22, 69, cColorStMsg )
-        str_center( 20, 'Оператор "' + fio_polzovat + '".', cColorSt2Msg )
-        str_center( 21, 'Ввод данных за ' + date_month( sys_date ), cColorStMsg )
-      Endif
+      message_save_LU()
       mywait()
       make_diagp( 2 )  // сделать 'пятизначные' диагнозы
       If m1komu == 0
@@ -487,10 +483,10 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
       use_base( 'luslf' )
       use_base( 'mo_su' )
       use_base( 'uslugi' )
-      r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
-        dir_server + 'uslugi1s' }, 'USL1' )
-      g_use( dir_server + 'mo_hismo', , 'SN' )
-      Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+      r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+        dir_server() + 'uslugi1s' }, 'USL1' )
+      g_use( dir_server() + 'mo_hismo', , 'SN' )
+      Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
       use_base( 'mo_hu' )
       use_base( 'human_u' )
       use_base( 'human' )

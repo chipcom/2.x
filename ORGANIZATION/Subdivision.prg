@@ -22,7 +22,7 @@
 
 static strSubdivision := 'РЕДАКТИРОВАНИЕ ОТДЕЛЕНИЯ'
 
-// 27.03.24 редактирование списка отделений
+// 13.09.25 редактирование списка отделений
 function editSubdivisions()
 	local blkEditObject
 	local aEdit
@@ -58,9 +58,9 @@ function editSubdivisions()
 
 	private mm1tiplu := aclone( mm_tiplu )
 	
-	if ascan( glob_klin_diagn, 1 ) > 0
+	if ascan( glob_klin_diagn(), 1 ) > 0
 		aadd( mm_tiplu, { 'жидкостная цитология рака шейки матки', TIP_LU_G_CIT } )
-	elseif ascan(glob_klin_diagn,2) > 0
+	elseif ascan( glob_klin_diagn(), 2 ) > 0
 		aadd( mm_tiplu, { 'пренатальный скрининг наруш.внутр.разв.', TIP_LU_G_CIT } )
 	endif
 	
@@ -208,10 +208,10 @@ function editSubdivision( oBrowse, aObjects, oSubdivision, nKey )
 			//oSubdivision:IDSP := m1mIDSP
 			//oSubdivision:IDVMP := m1mIDVMP
 			
-/*if is_adres_podr
-  if ( i := ascan( glob_adres_podr, { | x | x[ 1 ] == glob_mo[ _MO_KOD_TFOMS ] } ) ) > 0
-    for j := 1 to len( glob_adres_podr[ i, 2 ] )
-	 aadd( mm_adres_podr, { glob_adres_podr[ i, 2, j, 3 ], glob_adres_podr[ i, 2, j, 2 ] } )
+/*if is_adres_podr()
+  if ( i := ascan( glob_adres_podr(), { | x | x[ 1 ] == glob_mo()[ _MO_KOD_TFOMS ] } ) ) > 0
+    for j := 1 to len( glob_adres_podr()[ i, 2 ] )
+	 aadd( mm_adres_podr, { glob_adres_podr()[ i, 2, j, 3 ], glob_adres_podr()[ i, 2, j, 2 ] } )
 	next
   endif
   Ins_Array(arr[US_EDIT_SPR],7,{"ADRES_PODR","N",2,0,,;
@@ -219,14 +219,14 @@ function editSubdivision( oBrowse, aObjects, oSubdivision, nKey )
                                 0,{|x|inieditspr(A__MENUVERT,mm_adres_podr,x)},;
                                 "Адрес удалённого подразделения для стационара"})
 endif                       
-if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
- G_Use(dir_server+"mo_otd",,"OTD")
+if is_adres_podr() .and. (i := ascan(glob_adres_podr(), {|x| x[1] == glob_mo()[_MO_KOD_TFOMS] })) > 0
+ G_Use(dir_server()+"mo_otd",,"OTD")
  go top
  do while !eof()
-    if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr[i,2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;
-                          .and. !(otd->CODE_TFOMS == glob_adres_podr[i,2,j,1])
+    if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr()[i,2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;
+                          .and. !(otd->CODE_TFOMS == glob_adres_podr()[i,2,j,1])
      G_RLock(forever)
-     otd->CODE_TFOMS := glob_adres_podr[i,2,j,1]
+     otd->CODE_TFOMS := glob_adres_podr()[i,2,j,1]
      UnLock
    endif
    skip
@@ -272,7 +272,7 @@ static function get_kod_podr( k, r, c )
 	
 	if isnil( arr ) // только при первом вызове
 		arr := {}
-		aObject := T_Mo_podrDB():GetListByCodeTFOMS( glob_mo[ _MO_KOD_TFOMS ] )
+		aObject := T_Mo_podrDB():GetListByCodeTFOMS( glob_mo()[ _MO_KOD_TFOMS ] )
 		for each item in aObject
 			aadd( arr, { '(' + alltrim( item:KodOtd ) + ') ' + alltrim( item:Name ), item:KodOtd } )
 		next
@@ -306,7 +306,7 @@ function SelectSubdivision( r, c, department, dBegin, dEnd, nTask )
 	endif
 	if ret != nil
 		glob_otd := { ret:ID(), ret:Name() }
-		SetIniVar( tmp_ini, { { 'uch_otd', 'otd', glob_otd[ 1 ] } } )
+		SetIniVar( tmp_ini(), { { 'uch_otd', 'otd', glob_otd[ 1 ] } } )
 	endif
 	return ret
 	

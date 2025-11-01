@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 30.01.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 29.10.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -48,6 +48,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     { 'Направлен на II этап, предварительно присвоена III группа репродуктивного здоровья', 12, 379 } ;
   }
   local mm_gruppaD2 := asize( aclone( mm_gruppaD1 ), 3 )  // для II этапа уменьшим число эл-тов списка
+  local year_begin_drz
 
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
@@ -141,7 +142,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       return NIL
     endif
   elseif loc_kod > 0
-    R_Use( dir_server + 'human', , 'HUMAN' )
+    R_Use( dir_server() + 'human', , 'HUMAN' )
     goto (Loc_kod)
     fl := (human->k_data < 0d20240101)
     Use
@@ -151,7 +152,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   endif
 
   for i := 1 to 5 // создадим приватные переменные для выявленных диагнозов
-    sk := lstr( i )
+    sk := lstr( i ) 
     pole_diag := 'mdiag' + sk
     pole_d_diag := 'mddiag' + sk
     pole_pervich := 'mpervich' + sk
@@ -189,17 +190,17 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // 
   afill( adiag_talon, 0 )
 
-  R_Use( dir_server + 'human_2', , 'HUMAN_2' )
-  R_Use( dir_server + 'human_', , 'HUMAN_' )
-  R_Use( dir_server + 'human', , 'HUMAN' )
+  R_Use( dir_server() + 'human_2', , 'HUMAN_2' )
+  R_Use( dir_server() + 'human_', , 'HUMAN_' )
+  R_Use( dir_server() + 'human', , 'HUMAN' )
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
 
   if mkod_k > 0
-    R_Use( dir_server + 'kartote2', , 'KART2' )
+    R_Use( dir_server() + 'kartote2', , 'KART2' )
     goto ( mkod_k )
-    R_Use( dir_server + 'kartote_', , 'KART_' )
+    R_Use( dir_server() + 'kartote_', , 'KART_' )
     goto ( mkod_k )
-    R_Use( dir_server + 'kartotek', , 'KART' )
+    R_Use( dir_server() + 'kartotek', , 'KART' )
     goto ( mkod_k )
     M1FIO       := 1
     mfio        := kart->fio
@@ -219,6 +220,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
     nAge := Year( mn_data ) - Year( mdate_r ) // число лет на время проведения ДРЗ
     nGender := mpol
+    year_begin_drz := Year( mn_data )
   
     if kart->MI_GIT == 9
       m1komu    := kart->KOMU
@@ -235,7 +237,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     // проверка исхода = СМЕРТЬ
     ah := {}
     select HUMAN
-    set index to (dir_server + 'humankk' )
+    set index to (dir_server() + 'humankk' )
     find ( str( mkod_k, 7 ) )
     do while human->kod_k == mkod_k .and. !eof()
       if human_->oplata != 9 .and. human_->NOVOR == 0 .and. recno() != Loc_kod
@@ -291,6 +293,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
     nAge := Year( mn_data ) - Year( mdate_r ) // число лет на время проведения ДРЗ
     nGender := mpol
+    year_begin_drz := Year( mn_data )
   
     if empty( val( msmo := human_->SMO ) )
       m1komu := human->KOMU
@@ -305,6 +308,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     m1rslt     := human_->RSLT_NEW
     //
     is_prazdnik := ! is_work_day( mn_data )
+    year_begin_drz := Year( mn_data )
 
     metap := human->ishod - BASE_ISHOD_RZD   // получим сохраненный этап диспансеризации
 
@@ -322,8 +326,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     larr := array( 2, lenArr_Uslugi_DRZ )
     arr_usl := {}
     afillall( larr, 0 )
-    R_Use( dir_server + 'uslugi', , 'USL')
-    R_Use( dir_server + 'mo_su', , 'MOSU')
+    R_Use( dir_server() + 'uslugi', , 'USL')
+    R_Use( dir_server() + 'mo_su', , 'MOSU')
     use_base( 'mo_hu' )
     use_base( 'human_u' )
 
@@ -399,7 +403,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       endif
     next
     //
-    R_Use(dir_server + 'mo_pers', , 'P2' )
+    R_Use(dir_server() + 'mo_pers', , 'P2' )
     read_arr_drz( Loc_kod, .t. )     // читаем сохраненные данные по углубленной диспансеризации
 
     view_uslugi := uslugi_to_view( uslugi_etapa )
@@ -502,7 +506,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
   endif
 
-  dbcreate(cur_dir + 'tmp_onkna', create_struct_temporary_onkna())
+  dbcreate(cur_dir() + 'tmp_onkna', create_struct_temporary_onkna())
   cur_napr := 1 // при ред-ии - сначала первое направление текущее
   count_napr := collect_napr_zno( Loc_kod )
   if count_napr > 0
@@ -522,10 +526,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   mndisp    := inieditspr( A__MENUVERT, mm_ndisp, metap )
   mrab_nerab := inieditspr( A__MENUVERT, menu_rab, m1rab_nerab )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
-  mlpu      := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', m1lpu )
-  motd      := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', m1otd )
+  mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
+  motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
-  mokato    := inieditspr( A__MENUVERT, glob_array_srf, m1okato )
+  mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
   mDS_ONK    := inieditspr(A__MENUVERT, mm_danet, M1DS_ONK)
@@ -584,6 +588,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
   Private num_screen := 1
 
+  if ! ret_ndisp_drz( Loc_kod, kod_kartotek, year_begin_drz )
+    dbCloseAll()
+    return nil  // выходим из карты ввода
+  endif
+
   Do While .t.
     Close databases
     DispBegin()
@@ -627,16 +636,19 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'Сроки' Get mn_data ;
         valid {| g | f_k_data( g, 1 ), f_valid_begdata_drz( g, Loc_kod ), ;
         iif( ( mvozrast < 18 .or. mvozrast > 49 ), func_error( 4, 'Пациент не подлежит данному виду диспансеризации!' ), nil ), ;
-        ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
+        ret_ndisp_drz( Loc_kod, kod_kartotek, year( mn_data ) ) ;
         }
       @ Row(), Col() + 1 Say '-' Get mk_data ;
-        valid {| g | f_k_data( g, 2 ), ret_ndisp_drz( Loc_kod, kod_kartotek ) ;
+        valid {| g | f_k_data( g, 2 ), ret_ndisp_drz( Loc_kod, kod_kartotek, year( mn_data ) ) ;
         }
 
       @ j, Col() + 5 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
 
-      ret_ndisp_drz( Loc_kod, kod_kartotek )
+      // if ! ret_ndisp_drz( Loc_kod, kod_kartotek, year( mn_data ) )
+      //   dbCloseAll()
+      //   return nil  // выходим из карты ввода
+      // endif
 
       @ ++j, 8 Get mndisp When .f. Color color14  // заголовок
 
@@ -699,8 +711,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         m1GRUPPA := mm_gruppa[ i, 2 ]
       Endif
 
-      ret_ndisp_drz( Loc_kod, kod_kartotek )
-
       dispans_vyav_diag( @j, mndisp ) // вызов заполнения блока выявленных заболеваний
       // подвал второго листа
       @ ++j, 1 Say 'Диспансерное наблюдение установлено' Get mdispans ;
@@ -711,10 +721,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         reader { | x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
       @ ++j, 1 say 'Направления при подозрении на ЗНО' get mnapr_onk ;
         reader { | x | menu_reader( x, { { | k, r, c | fget_napr_ZNO( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
-        when m1ds_onk == 1
+        when m1ds_onk == 0
 
       @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
+        reader {| x | menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } when m1ds_onk == 0
 
       dispans_napr( mk_data, @j, .t., .t. )  // вызов заполнения блока направлений
 
@@ -722,7 +732,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
       @ ++j, 1 Say 'ГРУППА состояния ЗДОРОВЬЯ'
       @ j, Col() + 1 Get mGRUPPA ;
-        reader {| x | menu_reader( x, mm_gruppa, A__MENUVERT,,, .f. ) }
+        reader {| x | menu_reader( x, iif( m1DS_ONK == 0, mm_gruppa, mm_gruppaD2 ), A__MENUVERT,,, .f. ) }
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ ЗАПИСЬ' )
     Endif
     DispEnd()
@@ -809,8 +819,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       //
       // ////////////////////////////////////////////////////////////
       mdef_diagnoz := DGZ
-      r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10' )
-      r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2' )
+      r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
+      r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2' )
       num_screen := 2
       fl := .t.
       k := 0
@@ -1066,11 +1076,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         m1spec_na := 1 // Направлен для получения специализированной медицинской помощи (в т.ч. ВМП)
       Endif
       //
-      If mem_op_out == 2 .and. yes_parol
-        box_shadow( 19, 10, 22, 69, cColorStMsg )
-        str_center( 20, 'Оператор "' + fio_polzovat + '".', cColorSt2Msg )
-        str_center( 21, 'Ввод данных за ' + date_month( sys_date ), cColorStMsg )
-      Endif
+      message_save_LU()
       mywait()
       is_prazdnik := ! is_work_day( mn_data )
 
@@ -1334,8 +1340,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       use_base( 'lusl' )
       use_base( 'luslc' )
       use_base( 'uslugi' )
-      r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
-        dir_server + 'uslugi1s' }, 'USL1' )
+      r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+        dir_server() + 'uslugi1s' }, 'USL1' )
       mcena_1 := mu_cena := 0
       For i := 1 To Len( arr_osm1 )
         If ValType( arr_osm1[ i, 5 ] ) == 'C'
@@ -1494,8 +1500,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
-        g_use( dir_server + 'mo_hismo',, 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+        g_use( dir_server() + 'mo_hismo',, 'SN' )
+        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo
@@ -1526,7 +1532,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       Enddo
       HDISP->( dbCloseArea() )
 
-      r_use( dir_server + 'mo_su',, 'MOSU' )
+      r_use( dir_server() + 'mo_su',, 'MOSU' )
       use_base( 'mo_hu' )
       // удалим старые услуги ФФОМС
       Do While .t.

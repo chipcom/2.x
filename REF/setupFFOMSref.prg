@@ -15,7 +15,7 @@ Function nastr_sprav_FFOMS(k)
   do case
     case k == 0
       if ! hb_user_curUser:IsAdmin()
-        return func_error(4, err_admin)
+        return func_error(4, err_admin())
       endif
       arr_ref := {'V002', 'V020', 'V006', 'V034', 'MethodINJ', 'Implantant'}
       arr_name := {'ПРОФИЛЕЙ оказанной медицинской помощи', 'ПРОФИЛЕЙ КОЙКИ', ;
@@ -43,7 +43,7 @@ Function nastr_sprav_FFOMS(k)
         fnastr_sprav_FFOMS(0, arr_spr[k], arr_spr_name[k])
         G_SUnLock(str_sem)
       else
-        func_error(4, err_slock)
+        func_error(4, err_slock())
       endif
       arr_spr := arr_name   // подставим имена пунктов меню
   endcase
@@ -99,11 +99,10 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
     name_arr := 'get_implantant()'
   endif
   
-  // if !init_tmp_glob_array(, &name_arr, sys_date, _name == 'V002')
   if !init_tmp_glob_array(, &name_arr, sys_date, .f.)
     return NIL
   endif
-  use (cur_dir + 'tmp_ga') new
+  use (cur_dir() + 'tmp_ga') new
   ob_kol := lastrec()
   sKey := lstr(reg)
   s := 'Настройка по '
@@ -119,7 +118,7 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
   endcase
   //
   if (fl := Semaphor_Tools_Ini(1))
-    arr := GetIniVar(tools_ini, {{_name, '0', ''}})
+    arr := GetIniVar(tools_ini(), {{_name, '0', ''}})
     arr := list2arr(arr[1])
     if len(arr) > 0
       ob_kol := len(arr)
@@ -132,7 +131,7 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
         delete for !tmp_ga->is
         pack
         //
-        arr1 := GetIniVar(tools_ini, {{_name, '1-' + lstr(glob_uch[1]), ''}})
+        arr1 := GetIniVar(tools_ini(), {{_name, '1-' + lstr(glob_uch[1]), ''}})
         arr1 := list2arr(arr1[1])
         if len(arr1) > 0
           ob_kol := len(arr1)
@@ -146,7 +145,7 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
           delete for !tmp_ga->is
           pack
           //
-          arr2 := GetIniVar(tools_ini, {{_name, sKey, ''}})
+          arr2 := GetIniVar(tools_ini(), {{_name, sKey, ''}})
           arr2 := list2arr(arr2[1])
           if len(arr2) > 0
             ob_kol := len(arr2)
@@ -161,7 +160,7 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
     close databases
     return NIL
   endif
-  index on upper(name) to (cur_dir + 'tmp_ga')
+  index on upper(name) to (cur_dir() + 'tmp_ga')
   buf := savescreen()
   box_shadow(0, 50, 2, 77, color1)
   p_blk := {|| SetPos(1, 51), DispOut(padc('Выбрано строк: ' + lstr(ob_kol), 26), color8) }
@@ -189,7 +188,7 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
     arr := {}
     tmp_ga->(dbeval({|| iif(tmp_ga->is, aadd(arr, tmp_ga->kod), nil) }))
     if Semaphor_Tools_Ini(1)
-      SetIniVar(tools_ini, {{_name, sKey, arr2list(arr)}})
+      SetIniVar(tools_ini(), {{_name, sKey, arr2list(arr)}})
       Semaphor_Tools_Ini(2)
     endif
   endif
@@ -244,12 +243,12 @@ Function create_classif_FFOMS(reg, _name)
     name_arr := 'get_implantant()'
   endif
 
-  arr := GetIniVar(local_tools_ini,{{_name, '0', ''}})
+  arr := GetIniVar(local_tools_ini(),{{_name, '0', ''}})
   arr := list2arr(arr[1])
   if len(arr) > 0
     ret := aclone(arr)
     if reg > 0
-      arr1 := GetIniVar(local_tools_ini, {{_name, '1-' + lstr(glob_uch[1]), ''}})
+      arr1 := GetIniVar(local_tools_ini(), {{_name, '1-' + lstr(glob_uch[1]), ''}})
       arr1 := list2arr(arr1[1])
       if (k := len(arr1)) > 0
         for i := k to 1 step -1
@@ -260,7 +259,7 @@ Function create_classif_FFOMS(reg, _name)
         ret := aclone(arr1)
       endif
       if reg == 2
-        arr2 := GetIniVar(local_tools_ini, {{_name, '2-' + lstr(glob_otd[1]), ''}})
+        arr2 := GetIniVar(local_tools_ini(), {{_name, '2-' + lstr(glob_otd[1]), ''}})
         arr2 := list2arr(arr2[1])
         if (k := len(arr2)) > 0
           for i := k to 1 step -1

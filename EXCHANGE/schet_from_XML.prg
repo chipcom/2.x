@@ -4,11 +4,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 05.02.25 создать счета по результатам прочитанного реестра СП
+// 22.10.25 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
 
-  Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva, ;
-    doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1, ;
+  Local arr_schet := {}, c, i, j, lbukva, ;
+    mnn, fl, name_zip, arr_zip := {}, lshifr1, ;
     CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], code_schet, mb, me, nsh, ;
     CODE_MO  := glob_mo[ _MO_KOD_FFOMS ], s1
   Local controlVer
@@ -20,48 +20,48 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
   local oZAP, oPAC, oDISAB, oSLUCH, oPRESCRIPTION, oPRESCRIPTIONS, oD
   local oSl, oOnk, oProt, oDiag, oNAPR, oKSG, oSLk, oOnk_sl, oCONS, oLek, oINJ
   local dEndZsl // дата окончания случая
-
+  local oXmlDoc, oXmlNode
 
   Default fl_msg To .t., arr_s TO {}
   Private pole
   //
-  Use ( cur_dir + 'tmp1file' ) New Alias TMP1
+  Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
   mdate_schet := tmp1->_DSCHET
   nsh := f_mb_me_nsh( tmp1->_year, @mb, @me )
   // составляем массив будущих счетов
   // открыть распакованный реестр
-  Use ( cur_dir + 'tmp_r_t1' ) New index ( cur_dir + 'tmpt1' ) Alias T1
-  Use ( cur_dir + 'tmp_r_t2' ) New index ( cur_dir + 'tmpt2' ) Alias T2
-  Use ( cur_dir + 'tmp_r_t3' ) New index ( cur_dir + 'tmpt3' ) Alias T3
-  Use ( cur_dir + 'tmp_r_t4' ) New index ( cur_dir + 'tmpt4' ) Alias T4
-  Use ( cur_dir + 'tmp_r_t5' ) New index ( cur_dir + 'tmpt5' ) Alias T5
-  Use ( cur_dir + 'tmp_r_t6' ) New index ( cur_dir + 'tmpt6' ) Alias T6
-  Use ( cur_dir + 'tmp_r_t7' ) New index ( cur_dir + 'tmpt7' ) Alias T7
-  Use ( cur_dir + 'tmp_r_t8' ) New index ( cur_dir + 'tmpt8' ) Alias T8
-  Use ( cur_dir + 'tmp_r_t9' ) New index ( cur_dir + 'tmpt9' ) Alias T9
-  Use ( cur_dir + 'tmp_r_t10' ) New index ( cur_dir + 'tmpt10' ) Alias T10
-  Use ( cur_dir + 'tmp_r_t11' ) New index ( cur_dir + 'tmpt11' ) Alias T11
-  Use ( cur_dir + 'tmp_r_t12' ) New index ( cur_dir + 'tmpt12' ) Alias T12
-  Use ( cur_dir + 'tmp_r_t1_1' ) New index ( cur_dir + 'tmpt1_1' ) Alias T1_1
-  r_use( dir_server + 'mo_pers', , 'PERS' )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  Use ( cur_dir() + 'tmp_r_t1' ) New index ( cur_dir() + 'tmpt1' ) Alias T1
+  Use ( cur_dir() + 'tmp_r_t2' ) New index ( cur_dir() + 'tmpt2' ) Alias T2
+  Use ( cur_dir() + 'tmp_r_t3' ) New index ( cur_dir() + 'tmpt3' ) Alias T3
+  Use ( cur_dir() + 'tmp_r_t4' ) New index ( cur_dir() + 'tmpt4' ) Alias T4
+  Use ( cur_dir() + 'tmp_r_t5' ) New index ( cur_dir() + 'tmpt5' ) Alias T5
+  Use ( cur_dir() + 'tmp_r_t6' ) New index ( cur_dir() + 'tmpt6' ) Alias T6
+  Use ( cur_dir() + 'tmp_r_t7' ) New index ( cur_dir() + 'tmpt7' ) Alias T7
+  Use ( cur_dir() + 'tmp_r_t8' ) New index ( cur_dir() + 'tmpt8' ) Alias T8
+  Use ( cur_dir() + 'tmp_r_t9' ) New index ( cur_dir() + 'tmpt9' ) Alias T9
+  Use ( cur_dir() + 'tmp_r_t10' ) New index ( cur_dir() + 'tmpt10' ) Alias T10
+  Use ( cur_dir() + 'tmp_r_t11' ) New index ( cur_dir() + 'tmpt11' ) Alias T11
+  Use ( cur_dir() + 'tmp_r_t12' ) New index ( cur_dir() + 'tmpt12' ) Alias T12
+  Use ( cur_dir() + 'tmp_r_t1_1' ) New index ( cur_dir() + 'tmpt1_1' ) Alias T1_1
+  r_use( dir_server() + 'mo_pers', , 'PERS' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
-  g_use( dir_server + 'human_u_', , 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  g_use( dir_server() + 'human_u_', , 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'mo_su', , 'MOSU' )
-  g_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  r_use( dir_server() + 'mo_su', , 'MOSU' )
+  g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
-  g_use( dir_server + 'mo_xml', , 'MO_XML' )
-  g_use( dir_server + 'human_3', { dir_server + 'human_3', dir_server + 'human_32' }, 'HUMAN_3' )
+  g_use( dir_server() + 'mo_xml', , 'MO_XML' )
+  g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
   use_base( 'human' )
   Set Order To 0
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
-  Use ( cur_dir + 'tmp2file' ) New Alias TMP2
-  Index On Upper( fio ) to ( cur_dir + 'tmp2' ) For _OPLATA == 1
+  Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
+  Index On Upper( fio ) to ( cur_dir() + 'tmp2' ) For _OPLATA == 1
   Go Top
   Do While !Eof()
     c := ' '
@@ -169,10 +169,10 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
         i := arr_schet[ ii, 10 ]
         arr_schet[ ii, 3 ] := arr_schet[ ii, 4 ] := 0
         Select TMP2
-        Index On Upper( _ID_C ) to ( cur_dir + 'tmp2' ) For schet == ii
+        Index On Upper( _ID_C ) to ( cur_dir() + 'tmp2' ) For schet == ii
         dbEval( {|| tmp2->SCHET_ZAP := 0 } ) // обнуляем номер позиции в счёте
-        Use ( cur_dir + 'tmp_s_id' ) New Alias TS
-        Index On NIDCASE to ( cur_dir + 'tmp_ts' ) For kod == pr_array_schet[ i, 11 ]
+        Use ( cur_dir() + 'tmp_s_id' ) New Alias TS
+        Index On NIDCASE to ( cur_dir() + 'tmp_ts' ) For kod == pr_array_schet[ i, 11 ]
         Go Top
         Do While !Eof()
           Select TMP2
@@ -229,8 +229,8 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
       Endif
     Next
   Endif
-  r_use( dir_server + 'schet_',, 'SCH' )
-  Index On smo + Str( nn, nsh ) to ( cur_dir + 'tmp_sch' ) For nyear == tmp1->_YEAR .and. nmonth == tmp1->_MONTH
+  r_use( dir_server() + 'schet_',, 'SCH' )
+  Index On smo + Str( nn, nsh ) to ( cur_dir() + 'tmp_sch' ) For nyear == tmp1->_YEAR .and. nmonth == tmp1->_MONTH
   fl := .f.
   For i := 1 To Len( arr_schet )
     fl := .f. ; sKodSMO := arr_schet[ i, 1 ]
@@ -270,7 +270,7 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
   mdate_schet := Max( mdate_schet, sys_date )
   StrFile( Space( 10 ) + 'Список составленных счетов:' + hb_eol(), cFileProtokol, .t. )
   Select TMP2
-  Index On Str( schet, 6 ) + Str( schet_zap, 6 ) to ( cur_dir + 'tmp2' ) For schet_zap > 0
+  Index On Str( schet, 6 ) + Str( schet_zap, 6 ) to ( cur_dir() + 'tmp2' ) For schet_zap > 0
   For ii := 1 To Len( arr_schet )
     mnn := arr_schet[ ii, 9 ]
     sKodSMO := AllTrim( arr_schet[ ii, 1 ] )
@@ -350,6 +350,9 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
       Endif
       If ( controlVer >= 202501 ) // с января 2025 года
         sVersion := '5.0'
+      Endif
+      If ( controlVer >= 202507 ) // с июля 2025 года
+        sVersion := '5.1'
       Endif
     elseif p_tip_reestr == 2
       // файла реестра случаев второго типа при формировании счета ОМС
@@ -1049,9 +1052,9 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
     Enddo
     Commit
     @ MaxRow(), 0 Say ' запись' Color cColorSt2Msg
-    oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml )
-    name_zip := AllTrim( mo_xml->FNAME ) + szip
-    arr_zip := { AllTrim( mo_xml->FNAME ) + sxml }
+    oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml() )
+    name_zip := AllTrim( mo_xml->FNAME ) + szip()
+    arr_zip := { AllTrim( mo_xml->FNAME ) + sxml() }
     //
     stat_msg( 'Составление реестра пациентов по счёту № ' + mn_schet )
     oXmlDoc := hxmldoc():new()
@@ -1074,8 +1077,12 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
       If Found() // нашли в отосланном реестре
         oPAC := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'PERS' ) )
         mo_add_xml_stroke( oPAC, 'ID_PAC', t3->ID_PAC )
-        mo_add_xml_stroke( oPAC, 'FAM', t3->FAM )
-        mo_add_xml_stroke( oPAC, 'IM', t3->IM )
+        If !Empty( t3->FAM )
+          mo_add_xml_stroke( oPAC, 'FAM', t3->FAM )
+        endif
+        If !Empty( t3->IM )
+          mo_add_xml_stroke( oPAC, 'IM', t3->IM )
+        endif
         If !Empty( t3->OT )
           mo_add_xml_stroke( oPAC, 'OT', t3->OT )
         Endif
@@ -1087,7 +1094,7 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
         If !Empty( t3->tel )
           mo_add_xml_stroke( oPAC, 'TEL', t3->tel )
         Endif
-        If !Empty( t3->FAM_P )
+        If ! Empty( t3->FAM_P )
           mo_add_xml_stroke( oPAC, 'FAM_P', t3->FAM_P )
           mo_add_xml_stroke( oPAC, 'IM_P', t3->IM_P )
           If !Empty( t3->OT_P )
@@ -1098,6 +1105,19 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
           If !Empty( t3->dost_p )
             mo_add_xml_stroke( oPAC, 'DOST_P', t3->dost_p ) // отсутствует отчество
           Endif
+        else
+/*
+          mo_add_xml_stroke( oPAC, 'FAM_P', t3->FAM )
+          mo_add_xml_stroke( oPAC, 'IM_P', t3->IM )
+          If !Empty( t3->OT )
+            mo_add_xml_stroke( oPAC, 'OT_P', t3->OT )
+          Endif
+          mo_add_xml_stroke( oPAC, 'W_P', t3->W )
+          mo_add_xml_stroke( oPAC, 'DR_P', t3->DR )
+          If !Empty( t3->dost )
+            mo_add_xml_stroke( oPAC, 'DOST_P', t3->dost ) // отсутствует отчество
+          Endif
+*/
         Endif
         If !Empty( t3->MR )
           mo_add_xml_stroke( oPAC, 'MR', t3->MR )
@@ -1131,8 +1151,8 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
       Skip
     Enddo
     @ MaxRow(), 0 Say ' запись' Color cColorSt2Msg
-    oXmlDoc:save( AllTrim( mo_xml->FNAME2 ) + sxml )
-    AAdd( arr_zip, AllTrim( mo_xml->FNAME2 ) + sxml )
+    oXmlDoc:save( AllTrim( mo_xml->FNAME2 ) + sxml() )
+    AAdd( arr_zip, AllTrim( mo_xml->FNAME2 ) + sxml() )
     If chip_create_zipxml( name_zip, arr_zip, .t. )
       // может быть, сделать ещё что-нибудь после записи счёта?
     Endif

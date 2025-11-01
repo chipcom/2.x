@@ -4,9 +4,6 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// Static sadiag1 := {}
-
-//
 Function vounc_begin_task()
 
   Static n_zapusk := 0
@@ -15,8 +12,10 @@ Function vounc_begin_task()
   If n_zapusk == 0
     ++n_zapusk
     Public sem_vagno_VOUNC := 'Важный режим в задаче VOUNC', ;
-      mm_tip_mnn := { { 'ингибитор кальцинейрина', 0 }, ;
-      { 'микофенолат            ', 1 } }, ;
+      mm_tip_mnn := { ;
+        { 'ингибитор кальцинейрина', 0 }, ;
+        { 'микофенолат            ', 1 } ;
+      }, ;
       mm_lf_lat := { { 'mg', 0 }, { 'mg/ml', 1 } }, ;
       mm_lf := { { 'мг   ', 0 }, { 'мг/мл', 1 } }
     vounc_sprav_nastr( 1 )
@@ -29,58 +28,7 @@ Function vounc_begin_task()
   Else
     fl := .f.
   Endif
-
   Return fl
-
-//
-Function vounc_f1main()
-
-  AAdd( cmain_menu, 1 )
-  AAdd( main_menu, ' ~Ввод данных ' )
-  AAdd( main_message, 'Ввод данных' )
-  AAdd( first_menu, { '~Назначения', ;
-    '~Рецепты', 0, ;
-    '~Картотека' } )
-  AAdd( first_message,  { ;
-    'Редактирование назначений лекарственных препаратов', ;
-    'Ввод/редактирование рецептов', ;
-    'Ввод/редактирование картотеки (регистратура)' } )
-  AAdd( func_menu, { 'vounc_input_nazn()', ;
-    'vounc_input_recept()', ;
-    'oms_kartoteka()' } )
-  //
-  AAdd( cmain_menu, 34 )
-  AAdd( main_menu, ' ~Информация ' )
-  AAdd( main_message, 'Просмотр / печать' )
-  AAdd( first_menu, { '~Назначения', ;
-    '~Рецепты', ;
-    '~Справочники' } )
-  AAdd( first_message,  { ;   // информация
-    'Просмотр / печать назначений', ;
-    'Просмотр / печать отчетов по выписке рецептов', ;
-    'Просмотр/печать справочников' ;
-    } )
-  AAdd( func_menu, { ;    // информация
-    'vounc_info_nazn()', ;
-    'vounc_info_recept()', ;
-    'vounc_info_sprav()' ;
-    } )
-  //
-  AAdd( cmain_menu, 51 )
-  AAdd( main_menu, ' ~Справочники ' )
-  AAdd( main_message, 'Редактирование справочников' )
-  AAdd( first_menu, { '~Торговые наименования', ;
-    '~МНН', 0, ;
-    '~Настройка программы' } )
-  AAdd( first_message, { ;
-    'Редактирование торговых наименований препаратов', ;
-    'Редактирование международных непатентованных наименований препаратов', ;
-    'Настройка программы (некоторых значений по умолчанию)' } )
-  AAdd( func_menu, { 'vounc_sprav_trn()', ;
-    'vounc_sprav_mnn()', ;
-    'vounc_sprav_nastr(2)' } )
-
-  Return Nil
 
 //
 Function vounc_input_nazn()
@@ -89,7 +37,7 @@ Function vounc_input_nazn()
   Local arr, ret, buf, str_sem := 'vounc_input_nazn'
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   Private ltip_mnn
   If polikl1_kart() > 0
@@ -101,13 +49,13 @@ Function vounc_input_nazn()
     Endif
     If ltip_mnn != NIL
       buf := SaveScreen()
-      Private blk_open := {|| r_use( dir_server + 'vouncmnn', , 'MNN' ), ;
-        r_use( dir_server + 'vounctrn', , 'TRN' ), ;
+      Private blk_open := {|| r_use( dir_server() + 'vouncmnn', , 'MNN' ), ;
+        r_use( dir_server() + 'vounctrn', , 'TRN' ), ;
         dbSetRelation( 'MNN', {|| mnn }, 'mnn' ), ;
-        g_use( dir_server + 'vouncnaz', , 'NAZN' ), ;
+        g_use( dir_server() + 'vouncnaz', , 'NAZN' ), ;
         dbSetRelation( 'TRN', {|| tovar }, 'tovar' ) }
       Eval( blk_open )
-      Index On Str( kod_k, 7 ) + Str( Descend( DATE_NAZ ), 10 ) to ( cur_dir + 'tmp_nazn' )
+      Index On Str( FIELD->kod_k, 7 ) + Str( Descend( FIELD->DATE_NAZ ), 10 ) to ( cur_dir() + 'tmp_nazn' )
       If ltip_mnn < 2
         Set Filter To mnn->tip_mnn == ltip_mnn
       Endif
@@ -132,7 +80,6 @@ Function vounc_input_nazn()
     Endif
   Endif
   g_sunlock( str_sem )
-
   Return Nil
 
 //
@@ -174,7 +121,6 @@ Function f1_vounc_input_nazn( oBrow )
   oBrow:addcolumn( oColumn )
   //
   status_key( '^<Esc>^-выход; ^<Enter>^-редактирование; ^<Ins>^-добавление; ^<Del>^-удаление' )
-
   Return Nil
 
 //
@@ -233,7 +179,7 @@ Function f2_vounc_input_nazn( nKey, oBrow )
     status_key( '^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение ввода' )
     myread()
     Eval( blk_open )
-    Set Index to ( cur_dir + 'tmp_nazn' )
+    Set Index to ( cur_dir() + 'tmp_nazn' )
     Goto ( rec )
     If LastKey() != K_ESC .and. !emptyany( mdate_naz, mkod_diag, m1tovar, mkol_naz ) .and. f_esc_enter( 1 )
       fl_found := .t.
@@ -267,7 +213,6 @@ Function f2_vounc_input_nazn( nKey, oBrow )
   Otherwise
     Keyboard ''
   Endcase
-
   Return flag
 
 //
@@ -276,17 +221,17 @@ Function vounc_input_recept()
   Local buf, str_sem := 'vounc_input_recept'
 
   If !g_slock( str_sem )
-    Return func_error( 4, err_slock )
+    Return func_error( 4, err_slock() )
   Endif
   If polikl1_kart() > 0
     buf := SaveScreen()
-    Private blk_open := {|| r_use( dir_server + 'vouncmnn', , 'MNN' ), ;
-      r_use( dir_server + 'vounctrn', , 'TRN' ), ;
+    Private blk_open := {|| r_use( dir_server() + 'vouncmnn', , 'MNN' ), ;
+      r_use( dir_server() + 'vounctrn', , 'TRN' ), ;
       dbSetRelation( 'MNN', {|| mnn }, 'mnn' ), ;
-      g_use( dir_server + 'vouncrec', , 'RCP' ), ;
+      g_use( dir_server() + 'vouncrec', , 'RCP' ), ;
       dbSetRelation( 'TRN', {|| tovar }, 'tovar' ) }
     Eval( blk_open )
-    Index On Str( kod_k, 7 ) + Str( Descend( DATE_R ), 10 ) + Str( 999999 - NUMBER_R, 6 ) to ( cur_dir + 'tmp_rcp' )
+    Index On Str( FIELD->kod_k, 7 ) + Str( Descend( FIELD->DATE_R ), 10 ) + Str( 999999 - FIELD->NUMBER_R, 6 ) to ( cur_dir() + 'tmp_rcp' )
     Private fl_found, str_find, muslovie
     str_find := Str( glob_kartotek, 7 )
     muslovie := 'rcp->kod_k == glob_kartotek'
@@ -307,7 +252,6 @@ Function vounc_input_recept()
     RestScreen( buf )
   Endif
   g_sunlock( str_sem )
-
   Return Nil
 
 //
@@ -315,7 +259,6 @@ Function f1_vounc_input_recept( oBrow )
 
   Local oColumn, blk := {|| iif( rcp->annul == 1, { 5, 6 }, iif( mnn->tip_mnn == 1, { 3, 4 }, { 1, 2 } ) ) }
 
-  //
   oColumn := TBColumnNew( '   Дата;  рецепта', {|| full_date( rcp->date_r ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
@@ -357,7 +300,6 @@ Function f1_vounc_input_recept( oBrow )
   oBrow:addcolumn( oColumn )
   //
   status_key( '^<Esc>^ выход ^<Del>^ аннулирование ^<Enter>^ редакт-ие ^<Ins>^ добавление ^<F9>^ печать' )
-
   Return Nil
 
 //
@@ -388,12 +330,12 @@ Function f2_vounc_input_recept( nKey, oBrow )
       ColorWin( T_ROW + 4, 0, T_ROW + 4, 79, 'N/N', 'BG+/B' )
     Endif
     //
-    r_use( dir_server + 'vouncmnn', , 'MNN' )
-    r_use( dir_server + 'vounctrn', , 'TRN' )
+    r_use( dir_server() + 'vouncmnn', , 'MNN' )
+    r_use( dir_server() + 'vounctrn', , 'TRN' )
     dbSetRelation( 'MNN', {|| mnn }, 'mnn' )
-    g_use( dir_server + 'vouncnaz', , 'NAZN' )
+    g_use( dir_server() + 'vouncnaz', , 'NAZN' )
     dbSetRelation( 'TRN', {|| tovar }, 'tovar' )
-    Index On Str( Descend( DATE_NAZ ), 10 ) to ( cur_dir + 'tmp_nazn' ) For kod_k == glob_kartotek
+    Index On Str( Descend( FIELD->DATE_NAZ ), 10 ) to ( cur_dir() + 'tmp_nazn' ) For FIELD->kod_k == glob_kartotek
     k := { 0, 0 }
     arr := {}
     Go Top
@@ -424,7 +366,7 @@ Function f2_vounc_input_recept( nKey, oBrow )
       mkol_naz  := nazn->kol_naz
       mkol_up   := nazn->kol_up
       If m1vrach > 0
-        r_use( dir_server + 'mo_pers', , 'P2' )
+        r_use( dir_server() + 'mo_pers', , 'P2' )
         Goto ( m1vrach )
         mvrach := fam_i_o( p2->fio )
         MTAB_NOM := p2->tab_nom
@@ -478,8 +420,8 @@ Function f2_vounc_input_recept( nKey, oBrow )
               fl := func_error( 4, 'Не введен врач, выписавший рецепт' )
             Endif
             If fl
-              r_use( dir_server + 'vouncrec', , 'RCP' )
-              Index On Str( number_r, 6 ) to ( cur_dir + 'tmp_rcp1' ) For Year( date_r ) == Year( mdate_r )
+              r_use( dir_server() + 'vouncrec', , 'RCP' )
+              Index On Str( FIELD->number_r, 6 ) to ( cur_dir() + 'tmp_rcp1' ) For Year( FIELD->date_r ) == Year( mdate_r )
               find ( Str( mnumber_r, 6 ) )
               If Found()
                 fl := func_error( 4, 'В этом году уже был введен рецепт № ' + lstr( mnumber_r ) )
@@ -507,7 +449,7 @@ Function f2_vounc_input_recept( nKey, oBrow )
             Endif
             If fl
               fl_found := fl_recept := .t.
-              g_use( dir_server + 'vouncrec', , 'RCP' )
+              g_use( dir_server() + 'vouncrec', , 'RCP' )
               addrecn()
               rec := RecNo()
               rcp->KOD_K    := glob_kartotek
@@ -529,7 +471,7 @@ Function f2_vounc_input_recept( nKey, oBrow )
                   func_error( 4, 'Не удалось записать номер последнего рецепта. Проверьте и исправьте.' )
                 Endif
               Endif
-              Index On Str( kod_k, 7 ) + Str( Descend( DATE_R ), 10 ) + Str( 999999 -NUMBER_R, 6 ) to ( cur_dir + 'tmp_rcp' )
+              Index On Str( FIELD->kod_k, 7 ) + Str( Descend( FIELD->DATE_R ), 10 ) + Str( 999999 - FIELD->NUMBER_R, 6 ) to ( cur_dir() + 'tmp_rcp' )
               Use
             Else
               Loop
@@ -541,7 +483,7 @@ Function f2_vounc_input_recept( nKey, oBrow )
       Endif
     Endif
     Eval( blk_open )
-    Set Index to ( cur_dir + 'tmp_rcp' )
+    Set Index to ( cur_dir() + 'tmp_rcp' )
     Goto ( rec )
     flag := iif( fl_found, 0, 1 )
   Case nKey == K_ENTER .and. rcp->kod_k > 0
@@ -560,7 +502,7 @@ Function f2_vounc_input_recept( nKey, oBrow )
       gl_area := { 1, 0, 23, 79, 0 }
     mtovar := vounc_ret1_name_trn( 1, .t. )
     If m1vrach > 0
-      r_use( dir_server + 'mo_pers', , 'P2' )
+      r_use( dir_server() + 'mo_pers', , 'P2' )
       Goto ( m1vrach )
       mvrach := fam_i_o( p2->fio )
       MTAB_NOM := p2->tab_nom
@@ -585,7 +527,7 @@ Function f2_vounc_input_recept( nKey, oBrow )
     status_key( '^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение ввода' )
     myread()
     Eval( blk_open )
-    Set Index to ( cur_dir + 'tmp_rcp' )
+    Set Index to ( cur_dir() + 'tmp_rcp' )
     Goto ( rec )
     If LastKey() != K_ESC .and. !emptyany( mdate_r, mnumber_r, m1vrach, mkod_diag, m1tovar, mkol_naz ) .and. f_esc_enter( 1 )
       Goto ( rec )
@@ -636,7 +578,6 @@ Function f2_vounc_input_recept( nKey, oBrow )
     Endif
   Endif
   rest_box( buf )
-
   Return flag
 
 //
@@ -673,13 +614,13 @@ Function vounc_print_recept()
   dbCreate( fr_data, adbf )
   Use ( fr_data ) New Alias FRD
   Append Blank
-  r_use( dir_server + 'mo_pers', , 'P2' )
+  r_use( dir_server() + 'mo_pers', , 'P2' )
   Goto ( rcp->vrach )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Goto ( rcp->kod_k )
-  r_use( dir_server + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
   Goto ( rcp->kod_k )
-  r_use( dir_server + 'organiz', , 'ORG' )
+  r_use( dir_server() + 'organiz', , 'ORG' )
   frd->OGRN := org->ogrn
   frd->KOD_LGOT := kart_->KOD_LGOT
   frd->MKB := rcp->kod_diag
@@ -688,7 +629,8 @@ Function vounc_print_recept()
   frd->RC_DATE := iif( d <= 0, '  ', StrZero( d, 2 ) ) + SubStr( full_date( rcp->date_r ), 3 )
   frd->FIO := kart->fio
   frd->DATE_R := full_date( kart->DATE_R )
-  frd->SNILS := iif( Empty( kart->snils ), '', Transform( kart->SNILS, picture_pf ) )
+//  frd->SNILS := iif( Empty( kart->snils ), '', Transform( kart->SNILS, picture_pf ) )
+  frd->SNILS := iif( Empty( kart->snils ), '', Transform_SNILS( kart->SNILS ) )
   frd->POLIS := make_polis( kart_->spolis, kart_->npolis )
   frd->ADRES := lstr( kart->kod_vu )
   frd->FIO_VRACH := p2->fio
@@ -757,21 +699,19 @@ Function vounc_print_recept()
   frd->( dbCloseArea() )
   call_fr( 'mo_rcp' )
   Select RCP
-
   Return Nil
 
 //
 Function vounc_info_nazn()
 
   ne_real()
-
   Return Nil
 
 //
 Function vounc_info_recept( k )
 
   Static sk := 1
-  Local str_sem, mas_pmt, mas_msg, mas_fun, j
+  Local mas_pmt, mas_msg, mas_fun
 
   Default k To 0
   Do Case
@@ -796,7 +736,6 @@ Function vounc_info_recept( k )
   If k > 0
     sk := k
   Endif
-
   Return Nil
 
 // 28.02.13
@@ -810,89 +749,12 @@ Function f1vounc_info_recept()
     { 'Пятница', 6 }, ;
     { 'Суббота', 7 }, ;
     { 'Воскресенье', 1 } }
-  Local sh, HH := 58, buf := save_maxrow(), n_file := cur_dir + 'kol_rcp' + stxt, ;
-    arr_m, adbf, d, in, in2, last_d, skol := 0, am := {}
+  Local sh, HH := 58, buf := save_maxrow(), n_file := cur_dir() + 'kol_rcp.txt', ;
+    arr_m, last_d, skol := 0, am := {}, i, j, m
 
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  /*
-  if (in := input_value(18, 10, 20, 69, color1, ;
-           space(10)+'Выберите начальный день недели',sn,mm_menu)) == NIL
-    return NIL
-  endif
-  sn := in
-  if in > 2
-    in2 := in - 1
-  elseif in == 2
-    in2 := 1
-  elseif in == 1
-    in2 := 7
-  endif
-  mywait()
-  adbf := {{'date1','D', 8, 0}, ;
-           {'date2','D', 8, 0}, ;
-           {'name', 'C', 50, 0}, ;
-           {'kol'  ,'N', 6, 0}}
-  dbcreate(cur_dir + 'tmp',adbf)
-  use (cur_dir + 'tmp')
-  do while dow(arr_m[5]) != in
-    -- arr_m[5]
-  enddo
-  do while dow(arr_m[6]) != in2
-    ++ arr_m[6]
-  enddo
-  for d := arr_m[5] to arr_m[6] step 7
-    append blank
-    tmp->date1 := d
-    tmp->date2 := d+6
-    tmp->name := beforatnum(' ',date_month(tmp->date1), 2)+' - ' + ;
-                 beforatnum(' ',date_month(tmp->date2), 2) + ;
-                 str(year(tmp->date2), 5)+' года'
-  next
-  index on dtos(date1) to (cur_dir + 'tmp')
-  R_Use(dir_server + 'vouncrec', , 'RCP')
-  go top
-  do while !eof()
-    if between(rcp->date_r,arr_m[5],arr_m[6]) .and. rcp->annul == 0
-      d := rcp->date_r
-      do while dow(d) != in
-        -- d
-      enddo
-      select TMP
-      find (dtos(d))
-      if found()
-        tmp->kol ++
-        skol ++
-      endif
-    endif
-    select RCP
-    skip
-  enddo
-  rest_box(buf)
-  if skol == 0
-    func_error(4, 'Не было выписано рецептов ' + arr_m[4])
-  else
-    sh := 60
-    fp   := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-    add_string('')
-    add_string(center('Количество рецептов', sh))
-    add_string(center('с ' + date_8(arr_m[5])+'г. по ' + date_8(arr_m[6]) + 'г.', sh))
-    add_string('')
-    select TMP
-    go top
-    do while !eof()
-      verify_FF(HH, .t., sh)
-      add_string(tmp->name+ str(tmp->kol, 10))
-      skip
-    enddo
-    close databases
-    add_string(replicate('─', sh))
-    add_string(padl('Итого рецептов', 50) + str(skol, 10))
-    fclose(fp)
-    viewtext(n_file)
-  endif
-  */
   sh := 80
   fp := FCreate( n_file )
   n_list := 1
@@ -902,11 +764,11 @@ Function f1vounc_info_recept()
   add_string( Center( 'с ' + date_8( arr_m[ 5 ] ) + 'г. по ' + date_8( arr_m[ 6 ] ) + 'г.', sh ) )
   last_d := arr_m[ 5 ]
   add_string( '' )
-  r_use( dir_server + 'kartotek', , 'KART' )
-  r_use( dir_server + 'vouncrec', , 'RCP' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'vouncrec', , 'RCP' )
   Set Relation To kod_k into KART
-  Index On DToS( DATE_R ) + Str( NUMBER_R, 6 ) to ( cur_dir + 'tmp_rcp' ) ;
-    For Between( date_r, arr_m[ 5 ], arr_m[ 6 ] ) .and. annul == 0
+  Index On DToS( FIELD->DATE_R ) + Str( FIELD->NUMBER_R, 6 ) to ( cur_dir() + 'tmp_rcp' ) ;
+    For Between( FIELD->date_r, arr_m[ 5 ], arr_m[ 6 ] ) .and. FIELD->annul == 0
   Go Top
   Do While !Eof()
     verify_ff( HH, .t., sh )
@@ -944,28 +806,27 @@ Function f1vounc_info_recept()
   FClose( fp )
   Keyboard Chr( K_END )
   viewtext( n_file, , , , .t., , , 2, , , .f. )
-
   Return Nil
 
-//
+// 28.07.25
 Function f2vounc_info_recept()
 
-  Local sh, HH := 57, buf := save_maxrow(), n_file := cur_dir + 'trn_year' + stxt, ;
-    arr_m, adbf
+  Local sh, HH := 57, buf := save_maxrow(), n_file := cur_dir() + 'trn_year.txt', ;
+    arr_m, adbf, i, arr_title, s
 
   If ( arr_m := year_month(, , , 4 ) ) == NIL
     Return Nil
   Endif
   mywait()
   adbf := { { 'TOVAR', 'N', 5, 0 }, ;
-    { 'kol', 'N', 6, 0 } }
+            { 'kol', 'N', 6, 0 } }
   For i := 1 To 12
     AAdd( adbf, { 'kol' + lstr( i ), 'N', 6, 0 } )
   Next
-  dbCreate( cur_dir + 'tmp', adbf )
-  Use ( cur_dir + 'tmp' )
-  Index On Str( tovar, 5 ) to ( cur_dir + 'tmp' )
-  r_use( dir_server + 'vouncrec', , 'RCP' )
+  dbCreate( cur_dir() + 'tmp', adbf )
+  Use ( cur_dir() + 'tmp' )
+  Index On Str( FIELD->tovar, 5 ) to ( cur_dir() + 'tmp' )
+  r_use( dir_server() + 'vouncrec', , 'RCP' )
   Go Top
   Do While !Eof()
     If Between( rcp->date_r, arr_m[ 5 ], arr_m[ 6 ] ) .and. rcp->annul == 0
@@ -1003,12 +864,12 @@ Function f2vounc_info_recept()
     add_string( Center( 'Препараты в рецептах ' + arr_m[ 4 ], sh ) )
     add_string( '' )
     AEval( arr_title, {| x| add_string( x ) } )
-    r_use( dir_server + 'vouncmnn', , 'MNN' )
-    r_use( dir_server + 'vounctrn', , 'TRN' )
+    r_use( dir_server() + 'vouncmnn', , 'MNN' )
+    r_use( dir_server() + 'vounctrn', , 'TRN' )
     Set Relation To mnn into MNN
     Select TMP
     Set Relation To tovar into TRN
-    Index On Str( mnn->TIP_MNN, 1 ) + Upper( trn->name ) + Str( trn->c_lf, 1 ) + Str( trn->doza, 6, 1 ) + Str( trn->n_lf, 4 ) to ( cur_dir + 'tmp' )
+    Index On Str( mnn->TIP_MNN, 1 ) + Upper( trn->name ) + Str( trn->c_lf, 1 ) + Str( trn->doza, 6, 1 ) + Str( trn->n_lf, 4 ) to ( cur_dir() + 'tmp' )
     Go Top
     Do While !Eof()
       s := ''
@@ -1028,26 +889,25 @@ Function f2vounc_info_recept()
     viewtext( n_file, , , , ( sh > 80 ), , , 2 )
   Endif
   Close databases
-
   Return Nil
 
-//
+// 28.05.25
 Function f3vounc_info_recept()
 
-  Local sh, HH := 54, buf := save_maxrow(), n_file := cur_dir + 'pac_trn' + stxt, ;
-    arr_m, adbf
+  Local sh, HH := 54, buf := save_maxrow(), n_file := cur_dir() + 'pac_trn.txt', ;
+    arr_m, adbf, i, arr_title, s, ii
 
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
   mywait()
   adbf := { { 'kod_k', 'N', 7, 0 }, ;
-    { 'TOVAR', 'N', 5, 0 }, ;
-    { 'kol', 'N', 6, 0 } }
-  dbCreate( cur_dir + 'tmp', adbf )
-  Use ( cur_dir + 'tmp' )
-  Index On Str( kod_k, 7 ) + Str( tovar, 5 ) to ( cur_dir + 'tmp' )
-  r_use( dir_server + 'vouncrec', , 'RCP' )
+            { 'TOVAR', 'N', 5, 0 }, ;
+            { 'kol', 'N', 6, 0 } }
+  dbCreate( cur_dir() + 'tmp', adbf )
+  Use ( cur_dir() + 'tmp' )
+  Index On Str( FIELD->kod_k, 7 ) + Str( FIELD->tovar, 5 ) to ( cur_dir() + 'tmp' )
+  r_use( dir_server() + 'vouncrec', , 'RCP' )
   Go Top
   Do While !Eof()
     If Between( rcp->date_r, arr_m[ 5 ], arr_m[ 6 ] ) .and. rcp->annul == 0
@@ -1067,12 +927,12 @@ Function f3vounc_info_recept()
   If tmp->( LastRec() ) == 0
     func_error( 4, 'Не было выписано рецептов ' + arr_m[ 4 ] )
   Else
-    r_use( dir_server + 'vouncmnn', , 'MNN' )
-    r_use( dir_server + 'vounctrn', , 'TRN' )
+    r_use( dir_server() + 'vouncmnn', , 'MNN' )
+    r_use( dir_server() + 'vounctrn', , 'TRN' )
     Set Relation To mnn into MNN
     Select TMP
     Set Relation To tovar into TRN
-    Index On tovar to ( cur_dir + 'tmp' ) unique
+    Index On FIELD->tovar to ( cur_dir() + 'tmp' ) unique
     arr := {}
     Go Top
     Do While !Eof()
@@ -1116,10 +976,10 @@ Function f3vounc_info_recept()
     add_string( Center( 'Больные + препараты в рецептах ' + arr_m[ 4 ], sh ) )
     add_string( '' )
     AEval( arr_title, {| x| add_string( x ) } )
-    r_use( dir_server + 'kartotek', , 'KART' )
+    r_use( dir_server() + 'kartotek', , 'KART' )
     Select TMP
     Set Relation To kod_k into KART
-    Index On Upper( kart->fio ) + Str( kod_k, 7 ) to ( cur_dir + 'tmp' )
+    Index On Upper( kart->fio ) + Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp' )
     old_kart := -1
     s := ''
     ii := 0
@@ -1152,13 +1012,12 @@ Function f3vounc_info_recept()
     viewtext( n_file, , , , ( sh > 80 ), , , 5 )
   Endif
   Close databases
-
   Return Nil
 
 //
 Function vounc_info_sprav()
 
-  Local sh := 64, HH := 57, buf := save_maxrow(), n_file := cur_dir + 'mnn_trn' + stxt, ;
+  Local sh := 64, HH := 57, buf := save_maxrow(), n_file := cur_dir() + 'mnn_trn.txt', ;
     old_tip_mnn := -1
 
   mywait()
@@ -1167,10 +1026,10 @@ Function vounc_info_sprav()
   tek_stroke := 0
   add_string( '' )
   add_string( Center( Expand( 'Список лекарственных препаратов' ), sh ) )
-  r_use( dir_server + 'vounctrn', , 'TRN' )
-  Index On Str( mnn, 5 ) + Upper( name ) + Str( c_lf, 1 ) + Str( doza, 6, 1 ) + Str( n_lf, 4 ) to ( cur_dir + 'tmp_trn' )
-  r_use( dir_server + 'vouncmnn', , 'MNN' )
-  Index On Str( TIP_MNN, 1 ) + Upper( name ) to ( cur_dir + 'tmp_mnn' )
+  r_use( dir_server() + 'vounctrn', , 'TRN' )
+  Index On Str( FIELD->mnn, 5 ) + Upper( FIELD->name ) + Str( FIELD->c_lf, 1 ) + Str( FIELD->doza, 6, 1 ) + Str( n_lf, 4 ) to ( cur_dir() + 'tmp_trn' )
+  r_use( dir_server() + 'vouncmnn', , 'MNN' )
+  Index On Str( FIELD->TIP_MNN, 1 ) + Upper( FIELD->name ) to ( cur_dir() + 'tmp_mnn' )
   Go Top
   Do While !Eof()
     If old_tip_mnn != mnn->tip_mnn
@@ -1195,7 +1054,6 @@ Function vounc_info_sprav()
   FClose( fp )
   rest_box( buf )
   viewtext( n_file )
-
   Return Nil
 
 //
@@ -1207,14 +1065,14 @@ Function vounc_sprav_trn()
   arr[ US_BOTTOM   ] := 23
   arr[ US_LEFT     ] := 0
   arr[ US_RIGHT    ] := 79
-  arr[ US_BASE     ] := dir_server + 'vounctrn'
+  arr[ US_BASE     ] := dir_server() + 'vounctrn'
   arr[ US_ARR_BROWSE ] := { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B', .t. }
   arr[ US_COLUMN   ] := { { ' Наименование', {|| Left( name, 20 ) }, blk }, ;
     { 'дозир.', {|| str_0( doza, 6, 1 ) }, blk }, ;
     { 'ед.из', {|| inieditspr( A__MENUVERT, mm_lf, c_lf ) }, blk }, ;
     { 'в уп', {|| Str( n_lf, 4 ) }, blk }, ;
     { ' По латыни', {|| Left( name_lat, 18 ) }, blk }, ;
-    { ' МНН', {|| Left( inieditspr( A__POPUPMENU, dir_server + 'vouncmnn', mnn ), 21 ) }, blk } }
+    { ' МНН', {|| Left( inieditspr( A__POPUPMENU, dir_server() + 'vouncmnn', mnn ), 21 ) }, blk } }
   arr[ US_BLK_DEL  ] := {| _k| vounc_del_trn( _k ) }
   arr[ US_ROD_PADEG ] := arr[ US_IM_PADEG ] := arr[ US_SEMAPHORE ] := 'ТРН'
   arr[ US_EDIT_SPR ] := { { 'name',    'C', 60, 0, , , Space( 60 ), , 'Наименование' }, ;
@@ -1226,12 +1084,11 @@ Function vounc_sprav_trn()
     'Единицы измерения' }, ;
     { 'n_lf', 'N', 4, 0, , , 0, , 'Количество в упаковке' }, ;
     { 'mnn', 'N', 5, 0, , ;
-    {| x| menu_reader( x, { dir_server + 'vouncmnn' }, A__POPUPMENU, , , .f. ) }, ;
-    1, {| x| inieditspr( A__POPUPMENU, dir_server + 'vouncmnn', x ) }, ;
+    {| x| menu_reader( x, { dir_server() + 'vouncmnn' }, A__POPUPMENU, , , .f. ) }, ;
+    1, {| x| inieditspr( A__POPUPMENU, dir_server() + 'vouncmnn', x ) }, ;
     'МНН' };
     }
   edit_u_spr( 1, arr )
-
   Return Nil
 
 //
@@ -1240,32 +1097,31 @@ Function vounc_del_trn( k )
   Local _fl, buf := save_maxrow()
 
   mywait()
-  r_use( dir_server + 'vouncnaz', , '__B' )
-  Index On Str( tovar, 5 ) to ( cur_dir + 'tmp_nazn' )
+  r_use( dir_server() + 'vouncnaz', , '__B' )
+  Index On Str( FIELD->tovar, 5 ) to ( cur_dir() + 'tmp_nazn' )
   find ( Str( k, 5 ) )
   _fl := Found()
   dbCloseArea()
   If !_fl
-    r_use( dir_server + 'vouncrec', , '__B' )
-    Index On Str( tovar, 5 ) to ( cur_dir + 'tmp_recp' )
+    r_use( dir_server() + 'vouncrec', , '__B' )
+    Index On Str( FIELD->tovar, 5 ) to ( cur_dir() + 'tmp_recp' )
     find ( Str( k, 5 ) )
     _fl := Found()
     dbCloseArea()
   Endif
   rest_box( buf )
-
   Return !_fl
 
 //
 Function vounc_sprav_mnn()
 
-  Local arr[ US_LEN ], blk
+  Local arr[ US_LEN ]
 
   arr[ US_TOP      ] := T_ROW
   arr[ US_BOTTOM   ] := 23
   arr[ US_LEFT     ] := 0
   arr[ US_RIGHT    ] := 79
-  arr[ US_BASE     ] := dir_server + 'vouncmnn'
+  arr[ US_BASE     ] := dir_server() + 'vouncmnn'
   arr[ US_ARR_BROWSE ] := { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B', .t. }
   arr[ US_COLUMN   ] := { { ' МНН', {|| Left( name, 27 ) } }, ;
     { ' По латыни', {|| Left( name_lat, 26 ) } }, ;
@@ -1280,7 +1136,6 @@ Function vounc_sprav_mnn()
     'Тип' };
     }
   edit_u_spr( 1, arr )
-
   Return Nil
 
 //
@@ -1288,11 +1143,10 @@ Function vounc_del_mnn( k )
 
   Local _fl
 
-  r_use( dir_server + 'vounctrn', , '__B' )
+  r_use( dir_server() + 'vounctrn', , '__B' )
   dblocateprogress( {|| __b->mnn == k } )
   _fl := !Found()
   dbCloseArea()
-
   Return _fl
 
 //
@@ -1311,7 +1165,7 @@ Function vounc_sprav_nastr( reg )
       vounc_mem_ser     := Space( 10 )
   Case reg == 2 .and. vounc_tools_ini( 1, 0, 0 ) // редактирование
     If ! hb_user_curUser:isadmin()
-      Return func_error( 4, err_admin )
+      Return func_error( 4, err_admin() )
     Endif
     str_sem := 'Редактирование настроек VOUNC'
     If g_slock( str_sem )
@@ -1344,8 +1198,8 @@ Function vounc_sprav_nastr( reg )
         NIL, ;
         '', nIL, ;
         'Диагноз по умолчанию' } )
-      init_base( cur_dir + 'tmp', , mm_tmp, 0 )
-      Use ( cur_dir + 'tmp' ) new
+      init_base( cur_dir() + 'tmp', , mm_tmp, 0 )
+      Use ( cur_dir() + 'tmp' ) new
       Append Blank
       tmp->regim   := vounc_mem_regim
       tmp->last_rc := vounc_mem_last_rc
@@ -1355,8 +1209,8 @@ Function vounc_sprav_nastr( reg )
       tmp->nom2    := vounc_mem_nom2
       Close databases
       If f_edit_spr( A__EDIT, mm_tmp, 'настройке программы', ;
-          'g_use(cur_dir + "tmp", , , .t., .t.)', 0, 1, 'spr_nastr' ) > 0
-        Use ( cur_dir + 'tmp' ) new
+          'g_use(cur_dir() + "tmp", , , .t., .t.)', 0, 1, 'spr_nastr' ) > 0
+        Use ( cur_dir() + 'tmp' ) new
         vounc_mem_regim   := tmp->regim
         vounc_mem_last_rc := tmp->last_rc
         vounc_mem_ser     := tmp->ser
@@ -1368,10 +1222,9 @@ Function vounc_sprav_nastr( reg )
       Close databases
       g_sunlock( str_sem )
     Else
-      func_error( 4, err_slock )
+      func_error( 4, err_slock() )
     Endif
   Endcase
-
   Return Nil
 
 //
@@ -1384,7 +1237,6 @@ Static Function vounc_val_nom()
   Elseif !Between( mlast_rc, mnom1 - 1, mnom2 )
     func_error( 4, 'Номер последнего (автоматически) добавленного рецепта не попадает в диапазон' )
   Endif
-
   Return .t.
 
 //
@@ -1402,7 +1254,7 @@ Function vounc_tools_ini( reg, k1, k2 )
   If ( fl := semaphor_tools_ini( 1 ) )
     name_section += '-' + lstr( k1 ) + '-' + lstr( k2 )
     If reg == 1 // чтение
-      ta := getinisect( tools_ini, name_section ) // вернуть двумерный массив содержимого секции {{'наим.','знач.'},...}
+      ta := getinisect( tools_ini(), name_section ) // вернуть двумерный массив содержимого секции {{'наим.','знач.'},...}
       For j := 1 To Len( ta )
         If ( i := AScan( arr, {| x| Upper( x[ 1 ] ) == ta[ j, 1 ] } ) ) > 0
           &( arr[ i, 1 ] ) := iif( arr[ i, 2 ] == 'C', ta[ j, 2 ], Val( ta[ j, 2 ] ) )
@@ -1416,11 +1268,10 @@ Function vounc_tools_ini( reg, k1, k2 )
         v := &( arr[ i, 1 ] )
         AAdd( ta, { arr[ i, 1 ], iif( arr[ i, 2 ] == 'C', v, lstr( v ) ) } )
       Next
-      setinisect( tools_ini, name_section, ta ) // запись секции в ini.файл
+      setinisect( tools_ini(), name_section, ta ) // запись секции в ini.файл
     Endif
     semaphor_tools_ini( 2 )
   Endif
-
   Return fl
 
 //
@@ -1429,12 +1280,11 @@ Static Function vounc_ret_name_trn( ltovar, k, fl_upak )
   Local ret := Space( 10 )
 
   If ltovar > 0
-    r_use( dir_server + 'vounctrn', , 'TRN' )
+    r_use( dir_server() + 'vounctrn', , 'TRN' )
     Goto ( ltovar )
     ret := vounc_ret1_name_trn( k, fl_upak )
     Use
   Endif
-
   Return ret
 
 //
@@ -1456,19 +1306,18 @@ Static Function vounc_ret1_name_trn( k, fl_upak )
       ret += ' N' + lstr( trn->n_lf )
     Endif
   Endif
-
   Return ret
 
 //
 Function vounc_get_tovar( k, r, c, _tip_mnn )
 
   Local arr_name := {}, arr_kod := {}
-  Local buf := SaveScreen(), ret, i, r1, r2, c1, c2, l := 0
+  Local buf := SaveScreen(), ret, i, r1, r2, c1, c2, l := 0, s
 
   Default _tip_mnn To 2
-  r_use( dir_server + 'vouncmnn', , 'MNN' )
-  r_use( dir_server + 'vounctrn', , 'TRN' )
-  Index On Upper( name ) to ( cur_dir + 'tmp_trn' )
+  r_use( dir_server() + 'vouncmnn', , 'MNN' )
+  r_use( dir_server() + 'vounctrn', , 'TRN' )
+  Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_trn' )
   dbSetRelation( 'MNN', {|| mnn }, 'mnn' )
   Go Top
   Do While !Eof()
@@ -1510,5 +1359,4 @@ Function vounc_get_tovar( k, r, c, _tip_mnn )
     Endif
   Endif
   RestScreen( buf )
-
   Return ret

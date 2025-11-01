@@ -4,7 +4,6 @@
 #include 'common.ch'
 #include 'chip_mo.ch'
 
-********************************
 // класс для справочник подразделений из паспорта ЛПУ _mo_podr.dbf
 CREATE CLASS T_Mo_podrDB	INHERIT	TBaseObjectDB
 	VISIBLE:
@@ -20,10 +19,12 @@ METHOD New()		CLASS T_Mo_podrDB
 	return self
 
 METHOD function GetListByCodeTFOMS( param )    	CLASS T_Mo_podrDB
+	
 	local hArray := nil, aReturn := {}
 	local cOldArea
 	local cAlias
 	local cFind
+	local obj
 		
 	// получим строку поиска
 	cFind := param
@@ -46,6 +47,7 @@ METHOD function GetListByCodeTFOMS( param )    	CLASS T_Mo_podrDB
 	return aReturn
 
 METHOD function GetByCodePodr( param )    		CLASS T_Mo_podrDB
+	
 	local hArray := nil, ret := nil
 	local cOldArea
 	local cAlias
@@ -68,6 +70,7 @@ METHOD function GetByCodePodr( param )    		CLASS T_Mo_podrDB
 	return ret
 
 METHOD GetByID( nID )					CLASS T_Mo_podrDB
+	
 	local hArray := nil
 	local ret := nil
 	
@@ -78,6 +81,7 @@ METHOD GetByID( nID )					CLASS T_Mo_podrDB
 	return ret
 
 METHOD FillFromHash( hbArray )			CLASS T_Mo_podrDB
+	
 	local obj
 	
 	obj := T_Mo_podr():New( hbArray[ 'ID' ], ;

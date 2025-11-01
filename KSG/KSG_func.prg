@@ -159,23 +159,23 @@ Function f_put_arr_ksg( cLine )
 // Function test_definition_KSG()
 // Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t.
 // stat_msg("Определение КСГ")
-// R_Use(dir_server + "mo_uch",,'UCH')
-// R_Use(dir_server + 'mo_otd',,'OTD')
+// R_Use(dir_server() + "mo_uch",,'UCH')
+// R_Use(dir_server() + 'mo_otd',,'OTD')
 // Use_base("lusl")
 // Use_base("luslc")
 // Use_base('uslugi')
-// R_Use(dir_server + "schet_",,"SCHET_")
-// R_Use(dir_server + "uslugi1",{dir_server + "uslugi1", ;
-// dir_server + "uslugi1s"},"USL1")
+// R_Use(dir_server() + "schet_",,"SCHET_")
+// R_Use(dir_server() + "uslugi1",{dir_server() + "uslugi1", ;
+// dir_server() + "uslugi1s"},"USL1")
 // use_base("human_u") // если понадобится, удалить старый КСГ и добавить новый
-// R_Use(dir_server + "mo_su",,"MOSU")
-// R_Use(dir_server + "mo_hu",dir_server + "mo_hu","MOHU")
+// R_Use(dir_server() + "mo_su",,"MOSU")
+// R_Use(dir_server() + "mo_hu",dir_server() + "mo_hu","MOHU")
 // set relation to u_kod into MOSU
-// R_Use(dir_server + "human_2",,"HUMAN_2")
-// R_Use(dir_server + "human_",,"HUMAN_")
-// G_Use(dir_server + "human",,"HUMAN") // перезаписать сумму
+// R_Use(dir_server() + "human_2",,"HUMAN_2")
+// R_Use(dir_server() + "human_",,"HUMAN_")
+// G_Use(dir_server() + "human",,"HUMAN") // перезаписать сумму
 // set relation to recno() into HUMAN_, to recno() into HUMAN_2
-// n_file := "test_ksg"+stxt
+// n_file := cur_dir() + "test_ksg.txt"
 // fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
 // go top
 // do while !eof()

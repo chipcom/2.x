@@ -11,7 +11,7 @@ Function pr_inog_inostr_new()
     Return Nil
   Endif
   waitstatus( 'ОМС' )
-  dbCreate( cur_dir + 'tmp_kart', { { 'kod', 'N', 7, 0 }, ;
+  dbCreate( cur_dir() + 'tmp_kart', { { 'kod', 'N', 7, 0 }, ;
     { 'vozr', 'N', 2, 0 }, ;
     { 'vid', 'N', 1, 0 }, ;
     { 'profil', 'N', 3, 0 }, ;
@@ -23,25 +23,25 @@ Function pr_inog_inostr_new()
     { 'k_day', 'N', 5, 0 }, ;
     { 'd_begin', 'C', 10, 0 }, ;
     { 'forma', 'N', 1, 0 } } )
-  Use ( cur_dir + 'tmp_kart' ) new
-  Index On Str( kod, 7 ) + Str( vid, 1 ) + Str( profil, 3 ) + region + Str( osnov, 2 ) + Str( ist_fin, 1 ) to ( cur_dir + 'tmp_kart' )
+  Use ( cur_dir() + 'tmp_kart' ) new
+  Index On Str( kod, 7 ) + Str( vid, 1 ) + Str( profil, 3 ) + region + Str( osnov, 2 ) + Str( ist_fin, 1 ) to ( cur_dir() + 'tmp_kart' )
   //
   Private _arr_if := {}, _what_if := _init_if(), _arr_komit := {}
-  r_use( dir_exe() + '_okator', cur_dir + '_okatr', 'REGION' )
-  r_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  r_use( dir_exe() + '_okator', cur_dir() + '_okatr', 'REGION' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
-  r_use( dir_server + 'mo_otd', , 'OTD' )
-  r_use( dir_server + 'mo_kinos', dir_server + 'mo_kinos', 'KIS' )
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
-  r_use( dir_server + 'human_3', { dir_server + 'human_3', ;
-    dir_server + 'human_32' }, 'HUMAN_3' )
-  r_use( dir_server + 'human_2', , 'HUMAN_2' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', { dir_server + 'humand', ;
-    dir_server + 'humank', ;
-    dir_server + 'humankk' }, 'HUMAN' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_kinos', dir_server() + 'mo_kinos', 'KIS' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
+  r_use( dir_server() + 'human_3', { dir_server() + 'human_3', ;
+    dir_server() + 'human_32' }, 'HUMAN_3' )
+  r_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', { dir_server() + 'humand', ;
+    dir_server() + 'humank', ;
+    dir_server() + 'humankk' }, 'HUMAN' )
   Set Relation To kod_k into KART, To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
 
@@ -127,7 +127,7 @@ Function pr_inog_inostr_new()
   Enddo
   If is_task( X_PLATN )
     waitstatus( 'Платные услуги' )
-    r_use( dir_server + 'hum_p', dir_server + 'hum_pd', 'HUMP' )
+    r_use( dir_server() + 'hum_p', dir_server() + 'hum_pd', 'HUMP' )
     Set Relation To kod_k into KART
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While hump->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -178,7 +178,7 @@ Function pr_inog_inostr_new()
   Endif
   If is_task( X_ORTO )
     waitstatus( 'Ортопедия' )
-    r_use( dir_server + 'hum_ort', dir_server + 'hum_ortd', 'HUMO' )
+    r_use( dir_server() + 'hum_ort', dir_server() + 'hum_ortd', 'HUMO' )
     Set Relation To kod_k into KART
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While humo->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -275,14 +275,14 @@ Function f3pr_inog_inostr_new( j, arr_m )
     { 'd_begin', 'C', 10, 0 }, ;
     { 'forma', 'C', 60, 0 } } )
   Use ( fr_data ) New Alias FRD
-  r_use( dir_exe() + '_okator', cur_dir + '_okatr', 'REGION' )
-  r_use( dir_server + 'kartotek', , 'KART' )
-  Use ( cur_dir + 'tmp_kart' ) new
+  r_use( dir_exe() + '_okator', cur_dir() + '_okatr', 'REGION' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
+  Use ( cur_dir() + 'tmp_kart' ) new
   If j == 1 .or. j == 2 .or. j == 5
     Set Relation To kod into KART
-    Index On Upper( kart->fio ) + Str( kart->kod, 7 ) + Str( vid, 1 ) + Str( profil, 3 ) + region + Str( osnov, 2 ) + Str( ist_fin, 1 ) to ( cur_dir + 'tmp_kart' )
+    Index On Upper( kart->fio ) + Str( kart->kod, 7 ) + Str( vid, 1 ) + Str( profil, 3 ) + region + Str( osnov, 2 ) + Str( ist_fin, 1 ) to ( cur_dir() + 'tmp_kart' )
   Else
-    Index On region + Str( osnov, 2 ) + Str( ist_fin, 1 ) + Str( vid, 1 ) + Str( profil, 3 ) to ( cur_dir + 'tmp_kart' )
+    Index On region + Str( osnov, 2 ) + Str( ist_fin, 1 ) + Str( vid, 1 ) + Str( profil, 3 ) to ( cur_dir() + 'tmp_kart' )
   Endif
   If j == 1 .or. j == 2 .or. j == 5
     Select TMP_KART
@@ -332,7 +332,7 @@ Function f3pr_inog_inostr_new( j, arr_m )
       Skip
     Enddo
   Else
-    dbCreate( cur_dir + 'tmp1', { { 'vid', 'N', 1, 0 }, ;
+    dbCreate( cur_dir() + 'tmp1', { { 'vid', 'N', 1, 0 }, ;
       { 'profil', 'N', 3, 0 }, ;
       { 'region', 'C', 3, 0 }, ;
       { 'osnov', 'N', 2, 0 }, ;
@@ -340,8 +340,8 @@ Function f3pr_inog_inostr_new( j, arr_m )
       { 'kol', 'N', 6, 0 }, ;
       { 'kols', 'N', 6, 0 }, ;
       { 'summa', 'N', 15, 2 } } )
-    Use ( cur_dir + 'tmp1' ) new
-    Index On region + Str( osnov, 2 ) + Str( ist_fin, 1 ) + Str( vid, 1 ) + Str( profil, 3 ) to ( cur_dir + 'tmp1' )
+    Use ( cur_dir() + 'tmp1' ) new
+    Index On region + Str( osnov, 2 ) + Str( ist_fin, 1 ) + Str( vid, 1 ) + Str( profil, 3 ) to ( cur_dir() + 'tmp1' )
     Select TMP_KART
     Go Top
     Do While !Eof()

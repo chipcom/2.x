@@ -24,11 +24,11 @@ Function change_cena_oms()
     fl := .t.
     bSaveHandler := ErrorBlock( {| x| Break( x ) } )
     Begin Sequence
-      r_use( dir_server + "human" )
-      Index On Str( schet, 6 ) + Str( tip_h, 1 ) + Upper( SubStr( fio, 1, 20 ) ) to ( dir_server + "humans" ) progress
+      r_use( dir_server() + "human" )
+      Index On Str( schet, 6 ) + Str( tip_h, 1 ) + Upper( SubStr( fio, 1, 20 ) ) to ( dir_server() + "humans" ) progress
       Use
-      r_use( dir_server + "human_u" )
-      Index On Str( kod, 7 ) + date_u to ( dir_server + "human_u" ) progress
+      r_use( dir_server() + "human_u" )
+      Index On Str( kod, 7 ) + date_u to ( dir_server() + "human_u" ) progress
       Use
     RECOVER USING error
       fl := func_error( 10, "Возникла непредвиденная ошибка при переиндексировании!" )
@@ -43,17 +43,17 @@ Function change_cena_oms()
       use_base( "mo_su" )
       Set Order To 0
 
-      g_use( dir_server + "uslugi", { dir_server + "uslugish", ;
-        dir_server + "uslugi" }, "USL" )
+      g_use( dir_server() + "uslugi", { dir_server() + "uslugish", ;
+        dir_server() + "uslugi" }, "USL" )
       Set Order To 0
       use_base( "mo_hu" )
-      r_use( dir_server + "mo_otd",, "OTD" )
-      r_use( dir_server + "mo_uch",, "UCH" )
-      g_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      g_use( dir_server + 'human_3', dir_server + 'human_32', 'HUMAN_3' )
-      g_use( dir_server + "human_2",, "HUMAN_2" )
-      g_use( dir_server + "human_",, "HUMAN_" )
-      g_use( dir_server + "human", dir_server + "humans", "HUMAN" )
+      r_use( dir_server() + "mo_otd",, "OTD" )
+      r_use( dir_server() + "mo_uch",, "UCH" )
+      g_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      g_use( dir_server() + 'human_3', dir_server() + 'human_32', 'HUMAN_3' )
+      g_use( dir_server() + "human_2",, "HUMAN_2" )
+      g_use( dir_server() + "human_",, "HUMAN_" )
+      g_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
       Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To Str( kod, 7 ) into HUMAN_3
       sm_human := i_human := 0
       find ( Str( 0, 6 ) )

@@ -10,13 +10,13 @@
 
 // =========== F003 ===================
 //
-// 14.10.24 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
+// 09.09.25 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
 Function viewf003()
 
   Local nTop, nLeft, nBottom, nRight
   Local tmp_select := Select()
   Local l := 0, fl
-  Local ar, aStruct, dbName := '_mo_f003', indexName := cur_dir + dbName
+  Local ar, aStruct, dbName := '_mo_f003', indexName := cur_dir() + dbName
   Local color_say := 'N/W', color_get := 'W/N*'
   Local oBox, oBoxRegion
   Local strRegion := 'Выбор региона'
@@ -26,9 +26,10 @@ Function viewf003()
   Local selectedRegion := '34'
   Local sbase := 'mo_add'
   Local prev_codem := 0, cur_codem := 0
+  Local i
 
   Private nRegion := 34
-  Private tmpName := cur_dir + 'tmp_F003', tmpAlias := 'tF003'
+  Private tmpName := cur_dir() + 'tmp_F003', tmpAlias := 'tF003'
   Private oBoxCompany
   Private fl_space := .f., fl_other_region := .f.
 
@@ -103,11 +104,11 @@ Function viewf003()
   ( tmpAlias )->( dbGoTop() )
   If fl := alpha_browse( oBox:Top + 1, oBox:Left + 1, oBox:Bottom -5, oBox:Right - 1, 'ColumnF003', color0, , , , , , 'ViewRecordF003', 'controlF003', , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
     // проверяем выбор
-    If ( ifi := hb_AScan( glob_arr_mo, {| x| x[ _MO_KOD_FFOMS ] == ( tmpAlias )->MCOD }, , , .t. ) ) > 0
+    If ( ifi := hb_AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == ( tmpAlias )->MCOD }, , , .t. ) ) > 0
       // нашли в файле
       Alert( 'Медицинское учреждение уже добавлено в справочник!' )
     Else
-      If g_use( dir_server + sbase, dir_server + sbase, sbase, , .t., )
+      If g_use( dir_server() + sbase, dir_server() + sbase, sbase, , .t., )
         ( sbase )->( dbGoTop() )
         Do While ! ( sbase )->( Eof() )
           prev_codem := ( sbase )->CODEM
@@ -144,8 +145,7 @@ Function viewf003()
 // 15.10.21
 Function controlf003( nkey, oBrow )
 
-  Local ret := -1, cCode, rec
-
+  Local ret := -1
   Return ret
 
 // 15.10.21
@@ -180,17 +180,17 @@ Function viewrecordf003()
 
   Return Nil
 
-// 14.10.24
+// 09.09.25
 Function getf003mo( mCode )
 
   // mCode - код МО по F003
-  Local arr, dbName := '_mo_f003', indexName := cur_dir + dbName + 'cod'
+  Local arr, dbName := '_mo_f003', indexName := cur_dir() + dbName + 'cod'
   Local tmp_select := Select()
   Local i // возьмём первое по порядку МО
 
   If SubStr( mCode, 1, 2 ) != '34'
 
-    arr := AClone( glob_arr_mo[ 1 ] )
+    arr := AClone( glob_arr_mo()[ 1 ] )
     If Empty( mCode ) .or. ( Len( mCode ) != 6 )
       For i := 1 To Len( arr )
         If ValType( arr[ i ] ) == 'C'
@@ -223,22 +223,21 @@ Function getf003mo( mCode )
     Endif
     ( dbName )->( dbCloseArea() )
   Else
-    arr := AClone( glob_arr_mo[ 1 ] )
+    arr := AClone( glob_arr_mo()[ 1 ] )
     For i := 1 To Len( arr )
       If ValType( arr[ i ] ) == 'C'
         arr[ i ] := Space( 6 ) // и очистим строковые элементы
       Endif
     Next
     If !Empty( mCode )
-      If ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == mCode } ) ) > 0
-        arr := glob_arr_mo[ i ]
-      Elseif ( i := AScan( glob_arr_mo, {| x| x[ _MO_KOD_FFOMS ] == mCode } ) ) > 0
-        arr := glob_arr_mo[ i ]
+      If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == mCode } ) ) > 0
+        arr := glob_arr_mo()[ i ]
+      Elseif ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_FFOMS ] == mCode } ) ) > 0
+        arr := glob_arr_mo()[ i ]
       Endif
     Endif
   Endif
   Select( tmp_select )
-
   Return arr
 
 // =========== F005 ===================
@@ -381,8 +380,8 @@ Function getf010()
     Endif
     db := nil
     AAdd( _arr, { 'Федерального подчинения', '99', 0 } )
-    If hb_FileExists( dir_exe() + 'f010' + sdbf )
-      FErase( dir_exe() + 'f010' + sdbf )
+    If hb_FileExists( dir_exe() + 'f010' + sdbf() )
+      FErase( dir_exe() + 'f010' + sdbf() )
     Endif
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
   Endif
@@ -493,6 +492,20 @@ Function getf014()
   Endif
 
   Return _arr
+
+// 08.04.25 вернуть строку для кода дефекта с описанием ошибки ФФОМС из справочника F014
+Function ret_f014( lkod )
+
+  Local arrErrors := getf014()
+  Local row := {}
+
+  For Each row in arrErrors
+    If row[ 1 ] == lkod
+      Return '(' + lstr( row[ 1 ] ) + ') ' + row[ 2 ] + ', [' + row[ 3 ] + ']'
+    Endif
+  Next
+
+  Return 'Неизвестная категория проверки с идентификатором: ' + Str( lkod )
 
 // 31.01.25 вернуть строку для кода дефекта с описанием ошибки ФФОМС из справочника F014
 Function retarr_f014( lkod, isEmpty )

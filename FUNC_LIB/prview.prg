@@ -1,5 +1,5 @@
-#include "inkey.ch"
-#include "function.ch"
+#include 'inkey.ch'
+#include 'function.ch'
 
 Static max_FR_date_dbf := 9
 
@@ -26,7 +26,7 @@ Function pr_view( keystroke, regim, inst_print, name_file, yes_FF, is_question )
 
   Local s, s1, fl := .f., rec1 := ft_recno(), buf := save_maxrow(), ;
     nepr_print, tm, m_nlq := 0, kol_list, lport := 1, is_albom, ;
-    k := 0, l_margin := "", _i, t_list, sh1, sh2, sh3, sh4, sh5, ;
+    k := 0, l_margin := '', _i, t_list, sh1, sh2, sh3, sh4, sh5, ;
     fl_exit, rec, fl_begin, sh
 
   If keystroke == K_F10
@@ -41,7 +41,7 @@ Function pr_view( keystroke, regim, inst_print, name_file, yes_FF, is_question )
       lat_lfind, rus_lfind, lat_lnext, rus_lnext )
     Return .f.
   Endif
-  If !( Type( "_p_list_2" ) == "N" )
+  If !( Type( '_p_list_2' ) == 'N' )
     Private _p_list_2 := 0, _p_list_3 := 0, ;
       _p_list_4 := 0, _p_list_5 := 0, _p_list_6 := 0
   Endif
@@ -78,20 +78,20 @@ Function pr_view( keystroke, regim, inst_print, name_file, yes_FF, is_question )
     s := inst_print
     If regim == 8  // Condensed суперкомпакт
       k := 17
-      inst_print := "Condensed"
+      inst_print := 'Condensed'
       m_nlq := 1
     Elseif regim % 3 == 0  // Condensed
       k := 17
-      inst_print := "Condensed"
+      inst_print := 'Condensed'
       m_nlq := 1
     Elseif regim % 3 == 2  // Elita
       k := 12
-      inst_print := "Elite"
+      inst_print := 'Elite'
     Elseif regim % 3 == 1  // Pica
       k := 10
-      inst_print := "Pica"
+      inst_print := 'Pica'
     Endif
-    inst_print += iif( regim < 4, "6", "8" )
+    inst_print += iif( regim < 4, '6', '8' )
     If !Empty( s ) // если на входе другая функция управления кодами принтера
       inst_print := s
     Endif
@@ -100,14 +100,14 @@ Function pr_view( keystroke, regim, inst_print, name_file, yes_FF, is_question )
         l_margin := Space( k )
       Endif
     Endif
-    // 
+    //
     end_print := .f.
     kol_list := tm[ 3 ] - tm[ 2 ] + 1
     lport := _upr_port()
     nepr_print := ( _upr_nepr() == 2 )
     If is_question // задать вопросы
       fl_begin := ( m_nlq := yes_nlq( m_nlq, _upr_epson() ) ) > 0 .and. ;
-        if( Empty( name_file ), print_flag( lport ), .t. )
+        iif( Empty( name_file ), print_flag( lport ), .t. )
     Else  // просто проверить порт принтера
       m_nlq := 1 ; _p_list_2 := 0 ; nepr_print := .t.
       If !( fl_begin := PrintReady( lport ) )
@@ -116,10 +116,10 @@ Function pr_view( keystroke, regim, inst_print, name_file, yes_FF, is_question )
       Endif
     Endif
     If ( fl := fl_begin )
-      status_key( "^<Esc>^ - прекращение печати" )
+      status_key( '^<Esc>^ - прекращение печати' )
       Set Device To Print
       If !Empty( name_file )
-        set printer to &(name_file)
+        SET PRINTER TO &(name_file)
       Elseif lport == 2
         Set Printer To LPT2
       Endif
@@ -128,7 +128,7 @@ Function pr_view( keystroke, regim, inst_print, name_file, yes_FF, is_question )
         put_code( _upr_albom() )  // включить альбомную печать ESC+"&l1O"
       Endif
       SetPRC( 0, 0 )
-      k := &( inst_print + "(1)" )
+      k := &( inst_print + '(1)' )
       If m_nlq == 2
         put_code( _upr_nlq() )
       Endif
@@ -140,9 +140,13 @@ Function pr_view( keystroke, regim, inst_print, name_file, yes_FF, is_question )
             s := ft_readln()
             If f_stroke_next_page( s )
               kol_list--
-              If kol_list == 0 ; exit ; Endif
-              If nepr_print ; myeject(, yes_FF,, sh )
-              else          ; myeject( 1, yes_FF,, sh )
+              If kol_list == 0
+                exit
+              endif
+              If nepr_print
+                myeject(, yes_FF,, sh )
+              else
+                myeject( 1, yes_FF,, sh )
               Endif
             Else
               @ PRow() + 1, 0 Say l_margin + s
@@ -155,6 +159,7 @@ Function pr_view( keystroke, regim, inst_print, name_file, yes_FF, is_question )
             ft_skip()
           Enddo
         Else  // "разрезание" листа на части при печати
+          //
           fl_exit := .f.
           t_list := retshcut( @sh1, @sh2, @sh3, @sh4, @sh5 )
           Do While !ft_eof()
@@ -174,8 +179,10 @@ Function pr_view( keystroke, regim, inst_print, name_file, yes_FF, is_question )
                     Endif
                   Endif
                   If iif( _i == t_list, !ft_eof(), .t. )
-                    If nepr_print ; myeject(, yes_FF, iif( _i == t_list, 0, _i + 1 ), sh )
-                    else          ; myeject( 1, yes_FF, iif( _i == t_list, 0, _i + 1 ), sh )
+                    If nepr_print
+                      myeject(, yes_FF, iif( _i == t_list, 0, _i + 1 ), sh )
+                    else
+                      myeject( 1, yes_FF, iif( _i == t_list, 0, _i + 1 ), sh )
                     Endif
                     ft_skip()
                   Endif
@@ -191,9 +198,13 @@ Function pr_view( keystroke, regim, inst_print, name_file, yes_FF, is_question )
                 Endif
                 ft_skip()
               Enddo
-              If fl_exit ; exit ; Endif
+              If fl_exit
+                exit
+              Endif
             Next
-            If fl_exit ; exit ; Endif
+            If fl_exit
+              exit
+            Endif
           Enddo
           fl := !fl_exit
         Endif
@@ -205,13 +216,13 @@ Function pr_view( keystroke, regim, inst_print, name_file, yes_FF, is_question )
         If is_albom
           put_code( _upr_portr() )  // включить портретную печать ESC+"&l0O"
         Endif
-        k := &( inst_print + "(2)" )
+        k := &( inst_print + '(2)' )
         If !Empty( name_file ) .or. lport == 2
           Set Printer To
         Endif
       RECOVER USING error
         Set Device To Screen
-        fl := func_error( "Ошибка принтера" )
+        fl := func_error( 'Ошибка принтера' )
       End
       // Восстановление начальной программы обработки ошибок
       ErrorBlock( bSaveHandler )
@@ -220,7 +231,6 @@ Function pr_view( keystroke, regim, inst_print, name_file, yes_FF, is_question )
     ft_goto( rec1 )
   Endif
   rest_box( buf )
-
   Return fl
 
 //
@@ -228,20 +238,20 @@ Static Function input_list( par )
 
   Static nom_list := 1
   Local rec1 := ft_recno(), flag := .f., buf, nom2_list, ;
-    buf1 := save_maxrow(), i := 1, tmp_color := SetColor( color0 + ",,,B/BG" )
+    buf1 := save_maxrow(), i := 1, tmp_color := SetColor( color0 + ',,,B/BG' )
 
-  status_key( "^<Esc>^ - отказ;  ^<Enter>^ - подтверждение ввода" )
+  status_key( '^<Esc>^ - отказ;  ^<Enter>^ - подтверждение ввода' )
   If par == 1
     buf := box_shadow( 20, 20, 22, 59 )
-    @ 21, 28 Say "Введите номер листа" Get nom_list Picture "9999"
+    @ 21, 28 Say 'Введите номер листа' Get nom_list Picture '9999'
   Elseif par == 2
     nom2_list := nom_list
     buf := box_shadow( 20, 2, 22, 77 )
-    @ 21, 11 Say "Введите, с какого" Get nom_list Picture "9999"
-    @ 21, 34 Say "по какой" Get nom2_list Picture "9999" Range nom_list, 9999
-    @ 21, 48 Say "лист печатать документ"
+    @ 21, 11 Say 'Введите, с какого' Get nom_list Picture '9999'
+    @ 21, 34 Say 'по какой' Get nom2_list Picture '9999' Range nom_list, 9999
+    @ 21, 48 Say 'лист печатать документ'
   Endif
-  myread( { "confirm" } )
+  myread( { 'confirm' } )
   If LastKey() != K_ESC
     ft_gotop()
     If nom_list == 1
@@ -261,7 +271,7 @@ Static Function input_list( par )
       Enddo
     Endif
     If !flag
-      func_error( 3, "Нет такого листа" )
+      func_error( 3, 'Нет такого листа' )
       ft_goto( rec1 )
     Endif
   Endif
@@ -271,7 +281,6 @@ Static Function input_list( par )
   If par == 1
     nom2_list := nom_list
   Endif
-
   Return { flag, nom_list, nom2_list }
 
 //
@@ -312,18 +321,17 @@ Static Function find_list( k )
     // mybell()
   Endif
   rest_box( buf )
-
   Return fl
 
 // 05.10.17
 Static Function find_stroke( par )
 
-  Static str_find := ""
+  Static str_find := ''
   Local rec1 := ft_recno(), fl := .f., buf := save_maxrow(), k, arr := {}
 
   If par == 1
     If ( k := input_value( 20, 2, 22, 77, color0, ;
-        "Введите ключ для поиска", PadR( str_find, 48 ), "@K@!" ) ) != NIL
+        'Введите ключ для поиска', PadR( str_find, 48 ), '@K@!' ) ) != NIL
       If !Empty( k )
         fl := .t.
         str_find := AllTrim( Upper( k ) )
@@ -335,8 +343,8 @@ Static Function find_stroke( par )
     Endif
   Endif
   If fl
-    For k := 1 To NumToken( str_find, "|" )
-      AAdd( arr, AllTrim( Token( str_find, "|", k ) ) )
+    For k := 1 To NumToken( str_find, '|' )
+      AAdd( arr, AllTrim( Token( str_find, '|', k ) ) )
     Next
     fl := .f.
     mywait()
@@ -350,16 +358,17 @@ Static Function find_stroke( par )
           fl := .t.
         Endif
       Next
-      If fl ; exit ; Endif
+      If fl
+        exit
+      Endif
       ft_skip()
     Enddo
     If !fl
-      func_error( 3, "Неудачный поиск!" )
+      func_error( 3, 'Неудачный поиск!' )
       ft_goto( rec1 )
     Endif
     rest_box( buf )
   Endif
-
   Return fl
 
 //
@@ -389,13 +398,12 @@ Static Function retshcut( sh1, sh2, sh3, sh4, sh5 )
       Endif
     Endif
   Endif
-
   Return t_list
 
 //
 Static Function rets1cut( i, s, sh1, sh2, sh3, sh4, sh5 )
 
-  Local s1 := ""
+  Local s1 := ''
 
   If i == 1
     s1 := Left( s, sh1 - 1 )
@@ -410,7 +418,6 @@ Static Function rets1cut( i, s, sh1, sh2, sh3, sh4, sh5 )
   Else
     s1 := SubStr( s, sh5 )
   Endif
-
   Return s1
 
 //
@@ -428,7 +435,6 @@ Function elite6( k )
   Else
     put_code( _upr_10cpi() )
   Endif
-
   Return Nil
 
 //
@@ -439,40 +445,42 @@ Function condensed6( k )
   Else
     put_code( _upr_10cpi() )
   Endif
-
   Return Nil
 
 //
 Function pica8( k )
 
   If k == 1
-    put_code( _upr_8lpi() ) ; put_code( _upr_10cpi() )
+    put_code( _upr_8lpi() )
+    put_code( _upr_10cpi() )
   Else
-    put_code( _upr_6lpi() ) ; put_code( _upr_10cpi() )
+    put_code( _upr_6lpi() )
+    put_code( _upr_10cpi() )
   Endif
-
   Return Nil
 
 //
 Function elite8( k )
 
   If k == 1
-    put_code( _upr_8lpi() ) ; put_code( _upr_12cpi() )
+    put_code( _upr_8lpi() )
+    put_code( _upr_12cpi() )
   Else
-    put_code( _upr_6lpi() ) ; put_code( _upr_10cpi() )
+    put_code( _upr_6lpi() )
+    put_code( _upr_10cpi() )
   Endif
-
   Return Nil
 
 //
 Function condensed8( k )
 
   If k == 1
-    put_code( _upr_8lpi() ) ; put_code( _upr_17cpi() )
+    put_code( _upr_8lpi() )
+    put_code( _upr_17cpi() )
   Else
-    put_code( _upr_6lpi() ) ; put_code( _upr_10cpi() )
+    put_code( _upr_6lpi() )
+    put_code( _upr_10cpi() )
   Endif
-
   Return Nil
 
 //
@@ -483,9 +491,9 @@ Static Function yes_nlq( k, is_epson )
 
   If is_epson
     If k == 0
-      buf := box_shadow( 11, 6, 15, 72,, "Выбор режима печати" )
-      @ 13, 12 Prompt " Обычная печать (Draft) "
-      @ 13, 39 Prompt " Качественная печать (NLQ) "
+      buf := box_shadow( 11, 6, 15, 72,, 'Выбор режима печати' )
+      @ 13, 12 Prompt ' Обычная печать (Draft) '
+      @ 13, 39 Prompt ' Качественная печать (NLQ) '
       Menu To m
       If m > 0
         mnlq := m
@@ -498,7 +506,6 @@ Static Function yes_nlq( k, is_epson )
     m := 1
   Endif
   SetColor( tmp_color )
-
   Return m
 
 //
@@ -506,24 +513,24 @@ Static Function put_code( s )
 
   Local kol, j, s1
 
-  If ( kol := NumToken( s, " " ) ) == 0
+  If ( kol := NumToken( s, ' ' ) ) == 0
     Return Nil
   Endif
   For j := 1 To kol
-    s1 := Int( Val( Token( s, " ", j ) ) )
+    s1 := Int( Val( Token( s, ' ', j ) ) )
     @ PRow(), PCol() Say Chr( s1 )
   Next
-
   Return Nil
 
 //
 Function export_to_win_editor()
 
-  Local k, s, name_win := "WIN_FILE" + stxt
+  Local k, s, name_win
 
-  Delete File ( name_win )
+  name_win := cur_dir() + 'WIN_FILE' + stxt()
+  hb_vfErase( name_win )
   If File( name_win )
-    Return func_error( 4, "Файл с именем " + name_win + " открыт другим приложением" )
+    Return func_error( 4, 'Файл с именем ' + name_win + ' открыт другим приложением' )
   Endif
   mywait()
   fp := FCreate( name_win )
@@ -542,12 +549,13 @@ Function export_to_win_editor()
   If !Between( k, 0, 2 )
     k := 0
   Endif
-  s := { "write.exe", "Winword.exe", "swriter.exe" }[ k + 1 ]
-  stat_msg( "Выгрузка файла в редактор " + s )
+  s := { 'write.exe', 'Winword.exe', 'swriter.exe' }[ k + 1 ]
+  stat_msg( 'Выгрузка файла в редактор ' + s )
   // ShellExecute(GetDeskTopWindow(),'open',s,cur_dir+'\'+name_win,,1)
   shellexecute( getdesktopwindow(), 'open', s, name_win,, 1 )
-
   Return Nil
+
+//
 
 #include "FastRepH.ch"
 
@@ -557,8 +565,8 @@ Function prn_window( regim, tm, is_albom )
   Default tm TO { .t., 1, 9999 }, is_albom To _upr_isalbom()
   Private lShowCustName := .t.
   Private FrPrn := frreportmanager():new(, .t. ) // .t. ошибки выводятся в OEM кодировке
-  FrPrn:seticon( "MAIN_ICON" )
-  If Type( "name_view_file" ) == "C"
+  FrPrn:seticon( 'MAIN_ICON' )
+  If Type( 'name_view_file' ) == 'C'
     FrPrn:settitle( fr_oemtoansi( Lower( name_view_file ) ) )
   Endif
   FrPrn:startmanualbuild( {|| mytxtfr( regim, tm, is_albom ) }, iif( is_albom, 1, 0 ), , FR_CM )
@@ -566,7 +574,6 @@ Function prn_window( regim, tm, is_albom )
   FrPrn:cleardatasets()
   lShowCustName := .f.
   FrPrn:destroyfr()
-
   Return
 
 //
@@ -576,14 +583,14 @@ Procedure mytxtfr( iRegim, tm, is_albom )
     nLeft, nRight, nTop, nBottom, ;
     nlpi := 2.54 / iif( iRegim < 4, 6, 8 ) * 1.05, ; // перевод 6 или 8 lpi в см
     rec, _i, t_list, sh1, sh2, sh3, sh4, sh5, fl_exit
-  //
+  
   If iRegim == 8
     nlpi := 2.54 / iif( iRegim < 4, 6, 9 ) * 1.05 // перевод 6 или 8 lpi в см
     iRegim := 6
   Endif
   kol_list := tm[ 3 ] - tm[ 2 ] + 1
   len_stroke := ft_strlen()
-  FrPrn:setdefaultfontproperty( "Name", "Lucida Console" )
+  FrPrn:setdefaultfontproperty( 'Name', 'Lucida Console' )
   If iRegim = 1 .or. iRegim = 4    // Pica
     msize := iif( len_stroke < 65, 12, 11 )
   Elseif iRegim = 2  // Elite
@@ -594,19 +601,19 @@ Procedure mytxtfr( iRegim, tm, is_albom )
     // FrPrn:SetDefaultFontProperty("Style", 1) // Bold
     msize := iif( len_stroke < 110, 8, 7 )
   Endif
-  FrPrn:setdefaultfontproperty( "Size", msize )
+  FrPrn:setdefaultfontproperty( 'Size', msize )
   If is_albom
     widthList := 29.7
-    nLeft   := _upr_otstup( "b" )
-    nright  := _upr_otstup( "t" )
-    nTop    := _upr_otstup( "l" )
-    nBottom := _upr_otstup( "r" )
+    nLeft   := _upr_otstup( 'b' )
+    nright  := _upr_otstup( 't' )
+    nTop    := _upr_otstup( 'l' )
+    nBottom := _upr_otstup( 'r' )
   Else
     widthList := 21
-    nLeft   := _upr_otstup( "l" )
-    nright  := _upr_otstup( "r" )
-    nTop    := _upr_otstup( "t" )
-    nBottom := _upr_otstup( "b" )
+    nLeft   := _upr_otstup( 'l' )
+    nright  := _upr_otstup( 'r' )
+    nTop    := _upr_otstup( 't' )
+    nBottom := _upr_otstup( 'b' )
   Endif
   _top := nTop
   nWidth := widthList - nLeft - nright
@@ -614,7 +621,9 @@ Procedure mytxtfr( iRegim, tm, is_albom )
     Do While !ft_eof()
       s := ft_readln()
       If f_stroke_next_page( s )
-        If--kol_list == 0 ; exit ; Endif
+        If --kol_list == 0
+          exit
+        Endif
         FrPrn:newpage()
         _top := nTop
       Else
@@ -637,7 +646,7 @@ Procedure mytxtfr( iRegim, tm, is_albom )
           s := ft_readln()
           If f_stroke_next_page( s ) .or. ft_eof()
             If _i == t_list
-              If--kol_list == 0
+              If --kol_list == 0
                 fl_exit := .t.
                 Exit
               Endif
@@ -655,18 +664,21 @@ Procedure mytxtfr( iRegim, tm, is_albom )
           Endif
           ft_skip()
         Enddo
-        If fl_exit ; exit ; Endif
+        If fl_exit
+          exit
+        Endif
       Next
-      If fl_exit ; exit ; Endif
+      If fl_exit
+        exit
+      Endif
     Enddo
   Endif
-
   Return
 
-// конвертирует DOS-строку в WINDOWS-строку специально для FR
+// 18.09.25 конвертирует DOS-строку в WINDOWS-строку специально для FR
 Function fr_oemtoansi( dos_str )
 
-  Local len_str, i, cur_char, win_str := ""
+  Local len_str, i, cur_asc, win_str := ''
 
   len_str := Len( dos_str )
   For i := 1 To len_str
@@ -725,60 +737,62 @@ Function fr_oemtoansi( dos_str )
     End Case
     win_str += Chr( cur_asc )
   Next
-
   Return ( win_str )
 
-// удалить файлы данных для отчетов FR ("_data.dbf" и "_titl.dbf")
+// 04.06.25 удалить файлы данных для отчетов FR ("_data.dbf" и "_titl.dbf")
 Function delfrfiles()
 
   Local j, nfile
 
-  Delete File ( fr_titl + sdbf )
-  Delete File ( fr_data + sdbf )
-  Delete File ( fr_data + sntx )
+  hb_vfErase( cur_dir() + fr_titl + sdbf() )
+  hb_vfErase( cur_dir() + fr_data + sdbf() )
+  hb_vfErase( cur_dir() + fr_data + sntx() )
   For j := 1 To max_FR_date_dbf
-    nfile := fr_data + LTrim( Str( j ) )
-    Delete File ( nfile + sdbf )
-    Delete File ( nfile + sntx )
+    nfile := cur_dir() + fr_data + LTrim( Str( j ) )
+    hb_vfErase( nfile + sdbf() )
+    hb_vfErase( nfile + sntx() )
   Next
-
   Return Nil
 
-// 19.10.24 запустить генератор отчетов
+// 17.06.25 запустить генератор отчетов
 Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
 
   Static sExt := '.fr3'
   Local i, j, nfile, buf := SaveScreen(), tmp_select := Select(), fl, is_ot := .t.
+  local aliasFr_data, aliasFr_titl
 
-  Default ltip To 1, cFile_Export To '', bMasterDetail TO { || .t. }, is_open To .t.
+  Default ltip To 1, cFile_Export To "", bMasterDetail TO {|| .t. }, is_open To .t.
+  aliasFr_data := '_data'
+  aliasFr_titl := '_titl'
   //
   stat_msg( 'Ждите! Запуск генератора отчетов FastReport.' )
   // Now load and init FastReport
   Private FrPrn := frreportmanager():new(, .t. ), ; // .t. ошибки выводятся в OEM кодировке
-    lShowCustName := .t.
+  lShowCustName := .t.
   FrPrn:seticon( 'MAIN_ICON' )
-  If File( fr_data + sdbf )
-    Use ( fr_data ) NEW
-    If File( fr_data + sntx )
-      Set Index to ( fr_data )
+  If File( cur_dir() + fr_data + sdbf() )
+    Use ( cur_dir() + fr_data ) NEW
+    If File( cur_dir() + fr_data + sntx() )
+      Set Index to ( cur_dir() + fr_data )
     Endif
     Go Top
-    FrPrn:setworkarea( fr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
+    FrPrn:setworkarea( aliasFr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
   Endif
-  If File( fr_titl + sdbf )
-    Use ( fr_titl ) NEW
+  If File( cur_dir() + fr_titl + sdbf() )
+    Use ( cur_dir() + fr_titl ) NEW
     Go Top
-    FrPrn:setworkarea( fr_titl, Select(), .t. ) // .t. dbf-файл в OEM кодировке
+    FrPrn:setworkarea( aliasFr_titl, Select(), .t. ) // .t. dbf-файл в OEM кодировке
   Endif
   For j := 1 To max_FR_date_dbf
-    nfile := fr_data + LTrim( Str( j ) )
-    If File( nfile + sdbf )
+    nfile := cur_dir() + fr_data + LTrim( Str( j ) )
+    If File( nfile + sdbf() )
+      aliasFr_data := '_data' + LTrim( Str( j ) )
       Use ( nfile ) NEW
-      If File( nfile + sntx )
+      If File( nfile + sntx() )
         Set Index to ( nfile )
       Endif
       Go Top
-      FrPrn:setworkarea( nfile, Select(), .t. ) // .t. dbf-файл в OEM кодировке
+      FrPrn:setworkarea( aliasFr_data, Select(), .t. ) // .t. dbf-файл в OEM кодировке
     Endif
   Next
   Eval( bMasterDetail )
@@ -786,11 +800,11 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
     If !( sExt $ Lower( cFile_Otchet ) )
       cFile_Otchet += sExt
     Endif
-    If hb_FileExists( dir_exe + cFile_Otchet )
-      FrPrn:loadfromfile( hb_OEMToANSI( dir_exe + cFile_Otchet ) )   // 14.09.17
+    If hb_FileExists( dir_exe() + cFile_Otchet )
+      FrPrn:loadfromfile( hb_OEMToANSI( dir_exe() + cFile_Otchet ) )   // 14.09.17
       FrPrn:settitle( Lower( cFile_Otchet ) )
     Else
-      is_ot := func_error( 4, 'Не обнаружен файл отчёта ' + dir_exe + cFile_Otchet )
+      is_ot := func_error( 4, 'Не обнаружен файл отчёта ' + dir_exe() + cFile_Otchet )
     Endif
   Else
     fl := .t.
@@ -798,13 +812,13 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
       If !( sExt $ Lower( cFile_Otchet[ i ] ) )
         cFile_Otchet[ i ] += sExt
       Endif
-      If hb_FileExists( dir_exe + cFile_Otchet[ i ] )
-        FrPrn:loadfromfile( hb_OEMToANSI( dir_exe + cFile_Otchet[ i ] ) )
+      If hb_FileExists( dir_exe() + cFile_Otchet[ i ] )
+        FrPrn:loadfromfile( hb_OEMToANSI( dir_exe() + cFile_Otchet[ i ] ) )
         FrPrn:loadfromfile( cFile_Otchet[ i ] )
         FrPrn:preparereport( iif( fl, nil, FR_NOTCLEARLASTREPORT ) )
         fl := .f.
       Else
-        func_error( 4, 'Не обнаружен файл отчёта ' + dir_exe + cFile_Otchet[ i ] )
+        func_error( 4, 'Не обнаружен файл отчёта ' + dir_exe() + cFile_Otchet[ i ] )
       Endif
     Next
     If fl
@@ -851,24 +865,26 @@ Function call_fr( cFile_Otchet, ltip, cFile_Export, bMasterDetail, is_open )
   // Unload FastReport
   FrPrn:destroyfr()
   //
-  If File( fr_data + sdbf )
-    &fr_data.->( dbCloseArea() )
+  If File( cur_dir() + fr_data + sdbf() )
+    aliasFr_data := '_data'
+    ( aliasFr_data )->( dbCloseArea() )
   Endif
-  If File( fr_titl + sdbf )
-    &fr_titl.->( dbCloseArea() )
+  If File( fr_titl + sdbf() )
+    ( aliasFr_titl )->( dbCloseArea() )
   Endif
   For j := 1 To max_FR_date_dbf
-    nfile := fr_data + LTrim( Str( j ) )
-    If File( nfile + sdbf )
-      &nfile.->( dbCloseArea() )
+    nfile := cur_dir() + fr_data + LTrim( Str( j ) )
+    aliasFr_data := '_data' + LTrim( Str( j ) )
+    If File( nfile + sdbf() )
+      ( aliasFr_data )->( dbCloseArea() )
     Endif
   Next
   Select ( tmp_select )
   RestScreen( buf )
   Keyboard ''
-
   Return Nil
 
 // 10.09.13
 Static Function f_stroke_next_page( s )
+  
   Return Left( s, 1 ) == '' .or. Left( s, 2 ) == 'FF'

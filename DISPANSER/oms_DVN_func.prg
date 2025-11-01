@@ -14,7 +14,7 @@ Function read_arr_dvn( lkod, is_all )
 
   If ! aliasIsUse
     oldSelect := Select()
-    r_use( dir_server + 'mo_pers',, 'TPERS' )
+    r_use( dir_server() + 'mo_pers',, 'TPERS' )
   Endif
 
   arr := read_arr_dispans( lkod )
@@ -205,7 +205,7 @@ Function save_arr_dvn( lkod )
 
   If ! aliasIsUse
     oldSelect := Select()
-    r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'TPERS' )
+    r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'TPERS' )
   Endif
 
   If Type( 'mfio' ) == 'C'
@@ -439,12 +439,12 @@ Function fget_spec_dvn( k, r, c, a_spec, lFull )
     { 31, 1 }, ;
     { 97, 1 };
     }
-  local s, blk, t_arr[ BR_LEN ], n_file := cur_dir + 'tmpspecdvn', i
+  local s, blk, t_arr[ BR_LEN ], n_file := cur_dir() + 'tmpspecdvn', i
   Local tmp_select := Select()
 
   default lFull to .f.
 
-  If !hb_FileExists( n_file + sdbf )
+  If !hb_FileExists( n_file + sdbf() )
     dbCreate( n_file, { ;
       { 'name', 'C', 30, 0 }, ;
       { 'kod', 'C', 4, 0 }, ;
@@ -454,7 +454,7 @@ Function fget_spec_dvn( k, r, c, a_spec, lFull )
       { 'is', 'L', 1, 0 } ;
     } )
     Use ( n_file ) New Alias SDVN
-    Use ( cur_dir + 'tmp_v015' ) index ( cur_dir + 'tmpkV015' ) New Alias tmp_ga
+    Use ( cur_dir() + 'tmp_v015' ) index ( cur_dir() + 'tmpkV015' ) New Alias tmp_ga
     Go Top
     Do While !Eof()
       if lFull

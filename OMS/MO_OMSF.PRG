@@ -16,7 +16,6 @@ Function put_0_human_2()
   human_2->VNR := human_2->VNR1 := human_2->VNR2 := human_2->VNR3 := 0
   human_2->PC1 := human_2->PC2 := human_2->PC3 := human_2->PC4 := human_2->PC5 := human_2->PC6 := ''
   human_2->PN1 := human_2->PN2 := human_2->PN3 := human_2->PN4 := human_2->PN5 := human_2->PN6 := 0
-
   Return Nil
 
 // 12.02.24 проверка отключения подразделений
@@ -45,7 +44,6 @@ Function disable_podrazdelenie_tfoms( lkdate )
   If AScan( aCodem, hb_main_curOrg:Kod_Tfoms ) != 0 .and. lkdate >= 0d20230601
     ret := .t.
   Endif
-
   Return ret
 
 // 16.06.23 заполнить код подразделения/отделения
@@ -68,7 +66,7 @@ Function f_put_glob_podr( lusl, lkdate, _arr )
         Endif
       Endif
     Else // для второй половины 2017 года
-      If is_adres_podr
+      If is_adres_podr()
         glob_podr := otd->CODE_TFOMS // код адресного подразделения
         If Empty( glob_podr )
           // базы отделения и учреждения открыты и стоят на нужной записи
@@ -77,7 +75,6 @@ Function f_put_glob_podr( lusl, lkdate, _arr )
       Endif
     Endif
   Endif
-
   Return Len( _arr ) > 0
 
 // 09.12.23
@@ -118,7 +115,6 @@ Function f_oms_beremenn( sdiag, dateSL )
   If eq_any( k, 1, 2 ) .and. Type( 'm1USL_OK' ) == 'N' .and. m1USL_OK == USL_OK_AMBULANCE // СМП
     k := 0
   Endif
-
   Return k
 
 // 27.05.23
@@ -156,7 +152,6 @@ Function f_valid_beremenn( sdiag, dateSL )
     m1prer_b := 0
     mprer_b := Space( 28 )
   Endif
-
   Return update_get( 'mprer_b' )
 
 // 11.09.14 составить усечённые массивы учреждений/отделений на конкретную дату
@@ -167,8 +162,8 @@ Function make_arr_uch_otd( mdate, mlpu )
   If Empty( mdate )
     mdate := sys_date
   Endif
-  r_use( dir_server + 'mo_uch', , 'UCH' )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_uch', , 'UCH' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
   If yes_many_uch .or. not_lpu
     Select UCH
     dbEval( {|| iif( between_date( uch->dbegin, uch->dend, mdate ), AAdd( a_uch, uch->( RecNo() ) ), nil ) } )
@@ -204,7 +199,6 @@ Function make_arr_uch_otd( mdate, mlpu )
     otd->( dbCloseArea() )
     Select ( tmp_select )
   Endif
-
   Return Nil
 
 // 23.12.12 является ли услуга приёмом на дому
@@ -222,14 +216,12 @@ Function priem_na_domu( lshifr )
       Exit
     Endif
   Next
-
   Return fl
 
 // 31.01.13 является ли услуга профилактическим приёмом
 Function priem_profilak( lshifr )
 
   lshifr := AllTrim( lshifr )
-
   Return Left( lshifr, 5 ) == '2.79.' .or. eq_any( lshifr, '2.9.3', '2.32.3', '2.1.4' )
 
 // 24.07.13 является ли услуга приёмом врача общей практики
@@ -255,14 +247,12 @@ Function uslugaobshpraktika( lshifr, lprofil )
       Endif
     Next
   Endif
-
   Return fl
 
 // 09.06.19 проверить, нулевая ли цена услуги в ТФОМС
 Function nuluslugatfoms( lshifr1 )
 
   lshifr1 := AllTrim( lshifr1 )
-
   Return eq_any( Left( lshifr1, 2 ), '3.', '4.', '7.' ) .or. ;
     eq_any( Left( lshifr1, 5 ), '1.11.', '1.19.', '2.60.', '55.1.', '71.1.' ) .or. ;
     eq_any( Left( lshifr1, 4 ), '2.3.', '2.4.', '2.5.', '2.6.' ) .or. ;
@@ -272,6 +262,7 @@ Function nuluslugatfoms( lshifr1 )
 
 // 27.01.14 проверить, возможен ли ввод признака 'на дому' для услуги ТФОМС
 Function domuslugatfoms( lshifr1 )
+
   Return eq_any( Left( lshifr1, 5 ), '2.60.', '2.79.', '2.80.', '2.88.' ) .or. Left( lshifr1, 4 ) == '2.3.'
 
 // 16.01.20 является услуга для среднего медперсонала?
@@ -285,7 +276,6 @@ Function uslugafeldsher( lshifr )
     '2.80.50', '2.80.53', '2.80.54', ;
     '2.88.35', '2.88.36', '2.88.37', ;
     '57.1.46', '57.1.60', '57.1.70', '57.1.71', '57.1.80', '57.1.81' }
-
   Return AScan( arr, AllTrim( lshifr ) ) > 0 .or. ;
     eq_any( Left( lshifr, 2 ), '3.', '4.', '7.' ) .or. ;
     eq_any( Left( lshifr, 3 ), '13.', '14.', '19.', '20.', '21.', '22.' )
@@ -302,7 +292,7 @@ Function init_ismo( lsmo )
 
   If !Empty( lsmo )
     tmp_select := Select()
-    r_use( dir_exe() + '_mo_smo', cur_dir + '_mo_smo2', 'SMO' )
+    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
     find ( PadR( lsmo, 5 ) )
     If Found()
       s := RTrim( smo->name )
@@ -310,7 +300,6 @@ Function init_ismo( lsmo )
     Use
     Select ( tmp_select )
   Endif
-
   Return s
 
 // по дате окончания лечения вернуть массив групп нозологий по модернизации
@@ -318,24 +307,22 @@ Function ret_arr_stand( mdate )
 
   Local i, arr := {}
 
-  For i := 1 To Len( g_arr_stand )
-    If mdate >= g_arr_stand[ i, 1 ]
-      arr := g_arr_stand[ i, 2 ]
+  For i := 1 To Len( g_arr_stand() )
+    If mdate >= g_arr_stand()[ i, 1 ]
+      arr := g_arr_stand()[ i, 2 ]
     Endif
   Next
-
   Return arr
 
 // проверить по листу учета, законченный случай или нет, вернуть шифр услуги
 Function ret_zak_sl( /*@*/susl, /*@*/doplataF, /*@*/doplataR, /*@*/lotd, /*@*/lvrach, __date)
 
-  Static sa_usl
-  Local len_stand, _arr_stand, lshifr, tmp_select := Select(), i, j, k, s, ret := 0
+  Local lshifr, tmp_select := Select(), s, ret := 0
 
   susl := '' ; doplataF := doplataR := lotd := lvrach := 0
   If Select( 'HU' ) == 0
-    r_use( dir_server + 'uslugi', , 'USL' )
-    r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+    r_use( dir_server() + 'uslugi', , 'USL' )
+    r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
     Set Relation To u_kod into USL
   Endif
   Select HU
@@ -349,13 +336,7 @@ Function ret_zak_sl( /*@*/susl, /*@*/doplataF, /*@*/doplataR, /*@*/lotd, /*@*/lv
       lshifr := iif( Empty( s ), usl->shifr, s )
       // в листе учета д.б. одна услуга по ОМС = законченный случай
       If Left( lshifr, 4 ) == '1.7.' // чтобы не проверять лишнее
-        // len_stand := len(_arr_stand := ret_arr_stand(human->k_data))
-        // if !empty(len_stand)
-        // DEFAULT sa_usl TO Uslugi_MKB_Standart() // закачаем массив ноз.форм (услуг по ним)
         susl := AllTrim( lshifr )
-        // for i := 1 to len_stand
-        // j := _arr_stand[i] // код от 1 до 11 (ноз.форм)
-        // if (k := ascan(sa_usl[j],susl)) > 0 // эта услуга входит в стандарт
         lotd := hu->otd
         lvrach := hu->kod_vr
         // то ищем сумму доплат
@@ -373,11 +354,8 @@ Function ret_zak_sl( /*@*/susl, /*@*/doplataF, /*@*/doplataR, /*@*/lotd, /*@*/lv
           Endif
           Skip
         Enddo
-        ret := 1 // ; exit
-        // endif
-        // next
+        ret := 1
         Exit // в листе учета д.б. одна услуга по ОМС
-        // endif
       Elseif Left( lshifr, 5 ) == '70.1.' // чтобы не проверять лишнее
         ret := 2
         Exit
@@ -387,7 +365,6 @@ Function ret_zak_sl( /*@*/susl, /*@*/doplataF, /*@*/doplataR, /*@*/lotd, /*@*/lv
     Skip
   Enddo
   Select ( tmp_select )
-
   Return ret
 
 // вернуть первые два диагоноза для записи в XML-файл
@@ -400,7 +377,6 @@ Function diag_for_xml( al, fl_trim, fl_dop, fl_del, fl_6, adiag_talon )
   If Empty( mdiagnoz[ 1 ] ) // если пустой основной диагноз, заполним его
     mdiagnoz[ 1 ] := 'Z01.8' // Другое уточнённое специальное обследование
   Endif
-
   Return mdiagnoz
 
 // 26.01.17
@@ -416,7 +392,6 @@ Function add_val_2_array( arr, i, j, k1, k2 )
   For k := k1 To k2
     arr[ i, k ] += arr[ j, k ]
   Next
-
   Return Nil
 
 // проверка на соответствие законченного случая диагнозу
@@ -425,7 +400,7 @@ Function zaksluchaccordancediagnoz( lshifr, mdiagnoz, ta )
   Local i, fl := { .f., .f. }
 
   If Select( 'UZK' ) == 0
-    r_use( dir_exe() + '_mo_uslz', cur_dir + '_mo_uslz', 'UZK' )
+    r_use( dir_exe() + '_mo_uslz', cur_dir() + '_mo_uslz', 'UZK' )
     // index on shifr+str(type_diag, 1)+kod_diag to (sbase)
   Endif
   lshifr := PadR( lshifr, 10 )
@@ -450,13 +425,12 @@ Function zaksluchaccordancediagnoz( lshifr, mdiagnoz, ta )
       Endif
     Next
   Endif
-
   Return Nil
 
-// врачебных приемов не должно быть более одного в один день
+// 25.07.25 врачебных приемов не должно быть более одного в один день
 Function vr_pr_1_den( par, /*@*/msg, in_arr)
 
-  Local tmp_select := Select(), lshifr, i, j, k, fl, s, arr_usl := {}, ;
+  Local tmp_select := Select(), lshifr, i, k, fl, s, arr_usl := {}, ;
     ad := {}, _arr := {}, lpshifr := '', arr_pusl := {}
 
   Default in_arr TO {}
@@ -513,13 +487,15 @@ Function vr_pr_1_den( par, /*@*/msg, in_arr)
     Endif
   Next
   For i := 1 To Len( arr_usl )
-    s := 'Услуга "' + arr_usl[ i, 1 ] + '" ' + date_8( c4tod( arr_usl[ i, 2 ] ) ) + 'г. оказана '
-    If arr_usl[ i, 3 ] > 1
-      msg := s + lstr( arr_usl[ i, 3 ] ) + ' раз' + iif( arr_usl[ i, 3 ] < 5, 'а', '' )
-    Elseif arr_usl[ i, 4 ] > 1
-      msg := s + lstr( arr_usl[ i, 4 ] ) + ' раз' + iif( arr_usl[ i, 4 ] < 5, 'а', '' ) + ;
-        ' (в другом случае)'
-    Endif
+    if AllTrim( arr_usl[ i, 1 ] ) != '2.93.2' // исключение для школ ХНИЗ
+      s := 'Услуга "' + arr_usl[ i, 1 ] + '" ' + date_8( c4tod( arr_usl[ i, 2 ] ) ) + 'г. оказана '
+      If arr_usl[ i, 3 ] > 1
+        msg := s + lstr( arr_usl[ i, 3 ] ) + ' раз' + iif( arr_usl[ i, 3 ] < 5, 'а', '' )
+      Elseif arr_usl[ i, 4 ] > 1
+        msg := s + lstr( arr_usl[ i, 4 ] ) + ' раз' + iif( arr_usl[ i, 4 ] < 5, 'а', '' ) + ;
+          ' (в другом случае)'
+      Endif
+    endif
   Next
   For i := 1 To Len( arr_pusl )
     s := arr_pusl[ i, 1 ] + ' (' + inieditspr( A__MENUVERT, getv002(), arr_pusl[ i, 5 ] ) + ;
@@ -540,7 +516,6 @@ Function vr_pr_1_den( par, /*@*/msg, in_arr)
       fl := .f.
     Endif
   Endif
-
   Return fl
 
 // 18.02.14
@@ -579,26 +554,19 @@ Static Function st_pr_1_den( _u_a, /*@*/pshifr)
       Exit
     Endif
   Next
-
   Return iif( fl, lshifr, '' )
 
 // 03.05.23 определить сроки лечения
 Function f_srok_lech( beg_data, end_data, _usl_ok )
 
-  Local s, k
+  Local s
 
   Default _usl_ok To 0
   s := 'Срок лечения с ' + full_date( beg_data ) + ;
     'г. по ' + full_date( end_data ) + 'г.'
   If !emptyany( beg_data, end_data )
-    // k := end_data - beg_data + 1
-    // if _usl_ok == 1  // для стационара
-    // k -= 1         // день поступления и день выписки = один день
-    // endif
-    // s += ' [' + lstr(k) + 'дн.]'
     s += ' [' + lstr( kol_dney_lecheniya( beg_data, end_data, _usl_ok ) ) + 'дн.]'
   Endif
-
   Return s
 
 // 02.02.20
@@ -606,8 +574,8 @@ Function f_arr_usl1()
 
   Local i, s, arr := {}, arr1 := { '2.76.5', '2.76.7' }
 
-  If hb_FileExists( dir_server + 'usl1year' + smem )
-    arr := rest_arr( dir_server + 'usl1year' + smem )
+  If hb_FileExists( dir_server() + 'usl1year' + smem() )
+    arr := rest_arr( dir_server() + 'usl1year' + smem() )
     For i := 1 To Len( arr )
       Select USL
       Goto ( arr[ i ] )
@@ -621,7 +589,6 @@ Function f_arr_usl1()
       Endif
     Next
   Endif
-
   Return arr1
 
 // 18.08.18
@@ -645,7 +612,6 @@ Function verify_uva( reg )
       mtabn_as := 0
     Endif
   Endif
-
   Return Nil
 
 // вернуть табельный номер по коду врача
@@ -659,7 +625,6 @@ Function ret_tabn( lkod_vr )
       ltab_nom := perso->tab_nom
     Endif
   Endif
-
   Return ltab_nom
 
 // 10.04.18 подсчитать и записать сумму случая в режиме ввода услуг в случай ОМС
@@ -700,7 +665,6 @@ Function summa_usl( fl_edit )
     Unlock
     Commit
   Endif
-
   Return Nil
 
 // надо ли учитывать сумму данной услуги в сумме случая
@@ -711,7 +675,7 @@ Function f_paraklinika( lshifr, lshifr1, ldate_usl )
   If !fl .and. Empty( Val( human_->smo ) ) // если не ОМС
     If eq_any( human->komu, 1, 3 ) .and. human->str_crb > 0 // прочие компании/комитеты (МО)
       tmp_select := Select()
-      r_use( dir_server + iif( human->komu == 1, 'str_komp', 'komitet' ), , '_SK' )
+      r_use( dir_server() + iif( human->komu == 1, 'str_komp', 'komitet' ), , '_SK' )
       Goto ( human->str_crb )
       fl := ( _sk->parakl == 1 )
       _sk->( dbCloseArea() )
@@ -720,7 +684,6 @@ Function f_paraklinika( lshifr, lshifr1, ldate_usl )
       fl := ( mem_ls_parakl == 1 )
     Endif
   Endif
-
   Return fl
 
 // 01.03.23 является ли данная услуга услугой ТФОМС
@@ -776,22 +739,11 @@ Function is_usluga_tfoms( lshifr, lshifr1, ldate_usl, ;
 // 15.01.19
 Function ret_tfoms_uet( lshifr, lshifr1, lvzros_reb )
 
-  Local _shifr, tmp_select, luet := 0
+  Local luet := 0, adult
 
-  /*_shifr := iif(empty(lshifr1), lshifr, lshifr1)
-  if left(_shifr, 3) == '57.'
-    tmp_select := select()
-    if select('LUSL') == 0
-      use_base('lusl')
-    endif
-    select LUSL18
-    find (padr(_shifr, 10))
-    if found()
-      luet := iif(lvzros_reb==0,lusl18->uetv,lusl18->uetd)
-    endif
-    select (tmp_select)
-  endif*/
-
+  lshifr := AllTrim( lshifr )
+  lshifr1 := AllTrim( lshifr1 )
+  adult := lvzros_reb
   Return luet
 
 // 22.11.24 проверка на код лабораторной услуги, направляемой в ЦКДЛ
@@ -849,48 +801,7 @@ Function ret_kod_usl_lek_ter( lVZROS_REB )
       skodr := lkod
     Endif
   Endif
-
   Return lkod
-
-// // 13.11.22 функция определения массива в ф-ии редактирования листа учёта
-// Function f_define_tnm_old(n, ldiag)
-// Local ar, sn := lstr(n), sd := padr(ldiag, 5)
-
-// Local lal := 'n' + sn, polek, poled, polei, s := {'', 'ST', 'T', 'N', 'M'}[n]
-// polek := lal + '->kod_' + s
-// poled := lal + '->ds_' + s
-// polei := lal + '->id_' + s
-// if select(lal) == 0
-// R_Use(dir_exe() + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
-// endif
-// dbSelectArea(lal) // встать на справочник N0...
-// set order to 2
-// find (sd)
-// if found()
-// ar := f1_define_tnm(sd, 5, polek, poled, polei)
-// else
-// sd := padr(ldiag, 3)
-// find (sd)
-// if found() .and. sd == alltrim(&poled)
-// ar := f1_define_tnm(sd, 3, polek, poled, polei)
-// else
-// find (space(5))
-// ar := f1_define_tnm(space(5), 5, polek, poled, polei)
-// endif
-// endif
-// return ar
-
-// // 13.11.22
-// Function f1_define_tnm(s, n, polek, poled, polei)
-// Local arr := {}
-
-// do while left(&poled, n) == s .and. !eof()
-// if empty(s) .or. alltrim(&poled) == alltrim(s)
-// aadd(arr, {&polek, &polei})
-// endif
-// skip
-// enddo
-// return arr
 
 // 03.04.20
 Function get_rez_gist( k, r, c )
@@ -937,7 +848,6 @@ Function get_rez_gist( k, r, c )
   ret[ 1 ] := iif( kg > 0, 1, 0 )
   ret[ 2 ] := 'количество гистологий - ' + lstr( kg )
   rest_box( buf )
-
   Return ret
 
 // 15.01.23
@@ -1020,7 +930,6 @@ Function f_valid_usl_tip( g, o )
     update_get( 'lstr_ptr' )
     update_get( 'mpptr' )
   Endif
-
   Return .t.
 
 // 05.09.19 является услугой телемедицины - не заполняется код врача
@@ -1036,7 +945,6 @@ Function is_telemedicina( lshifr, /*@*/fl2)
     fl2 := ( Left( luslf->shifr, 4 ) == 'B01.' )
   Endif
   Select ( tmp_select )
-
   Return fl
 
 // 12.01.20 вернуть разрешённые парные органы
@@ -1053,7 +961,6 @@ Function ret_par_org( lshifr, _k_data )
     Endif
   Endif
   Select ( tmp_select )
-
   Return s
 
 // 22.01.19 обязательна ли зубная формула
@@ -1069,7 +976,6 @@ Function ret_is_zf( lshifr )
     Endif
   Endif
   Select ( tmp_select )
-
   Return n
 
 // 28.03.23 вернуть строку парных органов
@@ -1082,7 +988,6 @@ Function ini_par_org( val, orig )
       ret += getparorgan()[ j, 1 ] + ','
     Endif
   Next
-
   Return iif( Empty( ret ), Space( 10 ), Left( ret, Len( ret ) -1 ) )
 
 // 28.03.23 в GET'е выбор парных органов
@@ -1120,7 +1025,6 @@ Function get_par_org( r, c, val, orig )
     rets := Left( rets, Len( rets ) -1 )
     ret := Left( ret, Len( ret ) -1 )
   Endif
-
   Return { ret, rets }
 
 // 18.09.19
@@ -1134,7 +1038,7 @@ Function f_usl1year( lshifr, _mshifr, _mname )
   If AScan( arr_usl1year, lshifr ) > 0
     mywait()
     Select HUMAN
-    Set Index to ( dir_server + 'humankk' )
+    Set Index to ( dir_server() + 'humankk' )
     find ( Str( glob_kartotek, 7 ) )
     Do While human->kod_k == glob_kartotek .and. !Eof()
       If lyear == Year( human->n_data ) .or. lyear == Year( human->k_data )
@@ -1174,7 +1078,6 @@ Function f_usl1year( lshifr, _mshifr, _mname )
         'GR+/R', 'W+/R', , , 'G+/R' )
     Endif
   Endif
-
   Return Nil
 
 // 11.01.13 вернуть уровень МО в зависимости от даты
@@ -1190,7 +1093,6 @@ Function get_uroven( dDate )
       Endif
     Next
   Endif
-
   Return ret
 
 // для 1-3ур. вернуть уровень для услуг 'койко-день' или 1-й для остальных
@@ -1200,7 +1102,6 @@ Function get2uroven( sShifr, nU )
   If nU < 4 .and. !( Left( sShifr, 2 ) == '1.' )
     nU := 1
   Endif
-
   Return nU
 
 // 24.11.21
@@ -1253,7 +1154,6 @@ Function fcena_oms( sShifr, lVzReb, dDate, /*@*/fl_delete, /*@*/fl_yes, /*@*/_if
     Endif
   Next
   Select ( tmp_select )
-
   Return v
 
 // 24.02.21
@@ -1278,7 +1178,6 @@ Function f1cena_oms( sShifr, sShifr1, lVzReb, dDate, lis_nul, /*@*/fl_uslc, /*@*
   Elseif !lis_nul
     // func_error(4, 'В справочнике ТФОМС данная услуга отсутствует!')
   Endif
-
   Return lu_cena
 
 // Группы МКБ + услуги по стандартам
@@ -1368,7 +1267,6 @@ Function uslugi_mkb_standart()
   AAdd( arr[ 11 ], '1.7.74' )
   AAdd( arr[ 11 ], '1.7.75' )
   AAdd( arr[ 11 ], '1.7.77' )
-
   Return arr
 
 // сделать единую строку полиса из полей серии и номера полиса
@@ -1379,7 +1277,6 @@ Function make_polis( _spolis, _npolis )
   If !Empty( s )
     s += ' '
   Endif
-
   Return s + AllTrim( _npolis )
 
 // 19.05.22 вывести наименование диагноза при вводе случая
@@ -1410,7 +1307,6 @@ Function diag_screen( k, arr_d, lUp )
     Endif
     buf_d := nil
   Endif
-
   Return .t.
 
 
@@ -1439,7 +1335,6 @@ Function put_dop_diag()
       @ arc[ i, 1 ] + row_dop_diag, arc[ i, 2 ] -1 Say iif( fl[ i ], Chr( 16 ), ' ' ) Color color8
     Next
   Endif
-
   Return .t.
 
 // сделать 'пяти или шести-значные' диагнозы
@@ -1472,7 +1367,6 @@ Function make_diagp( k )
     MSOPUT_B3  := Left( MSOPUT_B3, 5 )
     MSOPUT_B4  := Left( MSOPUT_B4, 5 )
   Endif
-
   Return Nil
 
 // сформировать номер амбулаторной карты
@@ -1504,10 +1398,9 @@ Function amb_kartan( fl_0 )
   Elseif is_uchastok == 3
     lnomer := kart2->kod_AK
   Endif
-
   Return lnomer
 
-// 24.07.18 выбрать карточку пациента из картотеки
+// 12.09.25 выбрать карточку пациента из картотеки
 Function polikl_kart( k )
 
   // k = 1 - начало лечения -> ввод карточки
@@ -1527,7 +1420,7 @@ Function polikl_kart( k )
   // обмен информацией с программой Smart Delta Systems
   import_kart_from_sds()
   // ///////////////////////////////////////////////////
-  ar := getinivar( tmp_ini, { { 'polikl1','s_regim', '1' }, ;
+  ar := getinivar( tmp_ini(), { { 'polikl1','s_regim', '1' }, ;
     { 'polikl1','s_shablon', '' }, ;
     { 'polikl1','s_polis', '' }, ;
     { 'polikl1','s_snils', '' }, ;
@@ -1573,7 +1466,7 @@ Function polikl_kart( k )
       tmp := PadR( s_snils, 11 )
       tmp_color := SetColor( color14 )
       buf := box_shadow( 18, 9, 20, 70 )
-      @ 19, 14 Say 'Введите СНИЛС для поиска в картотеке' Get tmp Pict '@K' + picture_pf Valid val_snils( tmp, 1 )
+      @ 19, 14 Say 'Введите СНИЛС для поиска в картотеке' Get tmp Pict '@K' + picture_pf() Valid val_snils( tmp, 1 )
       s := sesc + senter + sF10f
       If !Empty( name_reader )
         s += sF11
@@ -1623,7 +1516,7 @@ Function polikl_kart( k )
         If k1 > 0
           str_sem := 'Редактирование человека ' + lstr( glob_perso )
           If !g_slock( str_sem )
-            Return func_error( 4, err_slock )
+            Return func_error( 4, err_slock() )
           Endif
           Private fl_v_lech := .t.
         Endif
@@ -1648,7 +1541,7 @@ Function polikl_kart( k )
           If k1 > 0
             str_sem := 'Редактирование человека ' + lstr( glob_perso )
             If !g_slock( str_sem )
-              Return func_error( 4, err_slock )
+              Return func_error( 4, err_slock() )
             Endif
             Private fl_v_lech := .t.
           Endif
@@ -1698,7 +1591,7 @@ Function polikl_kart( k )
           If k1 > 0
             str_sem := 'Редактирование человека ' + lstr( glob_perso )
             If !g_slock( str_sem )
-              Return func_error( 4, err_slock )
+              Return func_error( 4, err_slock() )
             Endif
             Private fl_v_lech := .t.
           Endif
@@ -1729,7 +1622,7 @@ Function polikl_kart( k )
         If k1 > 0
           str_sem := 'Редактирование человека ' + lstr( glob_perso )
           If !g_slock( str_sem )
-            Return func_error( 4, err_slock )
+            Return func_error( 4, err_slock() )
           Endif
           Private fl_v_lech := .t.
         Endif
@@ -1748,11 +1641,10 @@ Function polikl_kart( k )
       Endif
     Endif
   Endif
-  setinisect( tmp_ini, 'polikl1', { { 's_regim', lstr( s_regim ) }, ;
+  setinisect( tmp_ini(), 'polikl1', { { 's_regim', lstr( s_regim ) }, ;
     { 's_shablon', s_shablon    }, ;
     { 's_polis', s_polis      }, ;
     { 's_snils', s_snils      } } )
-
   Return mkod
 
 // выбор карточки из картотеки
@@ -1796,7 +1688,6 @@ Function oms_view_kart( r1, r2 )
   Endif
   Close databases
   RestScreen( buf )
-
   Return ( mkod > 0 )
 
 // 20.02.14
@@ -1854,7 +1745,6 @@ Function f1oms_view_kart( oBrow )
   oColumn := TBColumnNew( Center( 'Полис', 17 ), {|| ' ' + kart->polis } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-
   Return Nil
 
 // 05.02.19 есть ли листы учёта по данному пациенту
@@ -1864,9 +1754,9 @@ Function verify_lechenie( kod_kart, /*@*/p1)
 
   p1 := 0
   mywait()
-  r_use( dir_server + 'mo_pp', dir_server + 'mo_pp_h', 'PP' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humankk', 'HUMAN' )
+  r_use( dir_server() + 'mo_pp', dir_server() + 'mo_pp_h', 'PP' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
   For k := 1 To B_STANDART
     // k = 1 - проверим листы, добавленные в Приёмном покое - уже так не делаем
     // k = 2(B_END) - проверим листы с незавершённым лечением
@@ -1903,11 +1793,11 @@ Function verify_lechenie( kod_kart, /*@*/p1)
   human_->( dbCloseArea() )
   human->( dbCloseArea() )
   If ( k := Len( arr ) ) > 0
-    r_use( dir_server + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
     AEval( arr, {| x, i| otd->( dbGoto( x[ 6 ] ) ), arr[ i, 1 ] := Left( otd->name, 30 ) } )
     Use
     If k == 1
-      r_use( dir_server + 'mo_uch', , 'UCH' )
+      r_use( dir_server() + 'mo_uch', , 'UCH' )
       AEval( arr, {| x, i| uch->( dbGoto( x[ 9 ] ) ), arr[ i, 10 ] := ' [' + AllTrim( uch->name ) + ']' } )
       Use
       clrline( MaxRow(), color0 )
@@ -1921,13 +1811,13 @@ Function verify_lechenie( kod_kart, /*@*/p1)
           'N+/BG', ;
           'R/BG', 15, , col1menu ) == 2
         glob_perso := p1 := arr[ 1, 5 ]
-        r_use( dir_server + 'mo_otd', , 'OTD' )
+        r_use( dir_server() + 'mo_otd', , 'OTD' )
         Goto ( arr[ 1, 6 ] )
         glob_otd := { otd->kod, AllTrim( otd->name ), otd->idump, otd->tiplu }
         Use
       Endif
     Else
-      r_use( dir_server + 'mo_uch', , 'UCH' )
+      r_use( dir_server() + 'mo_uch', , 'UCH' )
       AEval( arr, {| x, i| uch->( dbGoto( x[ 9 ] ) ), arr[ i, 10 ] := uch->short_name } )
       Use
       ASort( arr, , , {| x, y| x[ 11 ] < y[ 11 ] } )
@@ -1946,7 +1836,7 @@ Function verify_lechenie( kod_kart, /*@*/p1)
           'Листы учета по больному, не включенные в реестры', 'B/BG', , , mpic, , , ;
           { '═', '░', '═' } ) ) > 0
         glob_perso := p1 := arr[ k, 5 ]
-        r_use( dir_server + 'mo_otd', , 'OTD' )
+        r_use( dir_server() + 'mo_otd', , 'OTD' )
         Goto ( arr[ k, 6 ] )
         glob_otd := { otd->kod, AllTrim( otd->name ), otd->idump, otd->tiplu }
         Use
@@ -1954,17 +1844,16 @@ Function verify_lechenie( kod_kart, /*@*/p1)
     Endif
   Endif
   rest_box( buf )
-
   Return .t.
 
-// 14.03.16 поиск по шаблону в картотеке
+// 12.09.25 поиск по шаблону в картотеке
 Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
 
   Local fl := .f., pos1, pos2, tmp_list, buf, ;
     tmp2 := '', c1, fl_bukva, s_msg, rec_tmp := 0
 
   Default lregim To 1, mbukva To ''
-  If !myfiledeleted( cur_dir + 'tmp_kart' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_kart' + sdbf() )
     Return fl
   Endif
   Private top_frm
@@ -1980,19 +1869,19 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
   //
   Private tmp1, ch
   buf := SaveScreen()
-  dbCreate( cur_dir + 'tmp_kart', { { 'kod', 'N', 7, 0 }, ;
+  dbCreate( cur_dir() + 'tmp_kart', { { 'kod', 'N', 7, 0 }, ;
     { 'fio', 'C', 50, 0 }, ;
     { 'mest_inog', 'N', 1, 0 }, ;
     { 'bukva', 'C', 1, 0 }, ;
     { 'uchast', 'N', 2, 0 }, ;
     { 'kod_vu', 'N', 5, 0 }, ;
     { 'kod_AK', 'C', 6, 0 } } )
-  Use ( cur_dir + 'tmp_kart' ) New Alias TMP
-  Index On Upper( fio ) to ( cur_dir + 'tmp_kart' )
+  Use ( cur_dir() + 'tmp_kart' ) New Alias TMP
+  Index On Upper( fio ) to ( cur_dir() + 'tmp_kart' )
   If lregim == 1
     If fl_number
       If is_uchastok == 1
-        r_use( dir_server + 'kartotek', dir_server + 'kartoteu', 'KART' )
+        r_use( dir_server() + 'kartotek', dir_server() + 'kartoteu', 'KART' )
         find ( input_sh )
         If Found()
           mywait()
@@ -2020,7 +1909,7 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
           func_error( 4, 'Неудачный поиск по коду ' + input_sh + ' в картотеке!' )
         Endif
       Elseif is_uchastok != 3
-        r_use( dir_server + 'kartotek', , 'KART' )
+        r_use( dir_server() + 'kartotek', , 'KART' )
         Goto ( Int( Val( input_sh ) ) )
         If !Eof() .and. kart->kod > 0 .and. !Deleted()
           fl := .t.
@@ -2042,8 +1931,8 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
     Elseif ( pos1 > 0 .or. pos2 > 0 )
       waitstatus( 'Ждите! Производится поиск в картотеке.  (<Esc> - прервать поиск)' )
       @ 2, 0 Say ''
-      r_use( dir_server + 'kartote2', , 'KART2' )
-      r_use( dir_server + 'kartotek', dir_server + 'kartoten', 'KART' )
+      r_use( dir_server() + 'kartote2', , 'KART2' )
+      r_use( dir_server() + 'kartotek', dir_server() + 'kartoten', 'KART' )
       Set Relation To RecNo() into KART2
       tmp2 := Upper( AllTrim( mfio ) )
       ch := Left( LTrim( mfio ), 1 )
@@ -2122,8 +2011,8 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
   Elseif lregim == 2
     waitstatus( 'Ждите! Производится поиск в картотеке.  (<Esc> - прервать поиск)' )
     @ 2, 0 Say ''
-    r_use( dir_server + 'kartote2', , 'KART2' )
-    r_use( dir_server + 'kartotek', dir_server + 'kartotep', 'KART' )
+    r_use( dir_server() + 'kartote2', , 'KART2' )
+    r_use( dir_server() + 'kartotek', dir_server() + 'kartotep', 'KART' )
     Set Relation To RecNo() into KART2
     find ( '1' + mpolis )
     Do While kart->polis == mpolis .and. kart->kod > 0 .and. !Eof()
@@ -2154,8 +2043,8 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
   Elseif lregim == 3
     waitstatus( 'Ждите! Производится поиск в картотеке.  (<Esc> - прервать поиск)' )
     @ 2, 0 Say ''
-    r_use( dir_server + 'kartote2', , 'KART2' )
-    r_use( dir_server + 'kartotek', dir_server + 'kartotes', 'KART' )
+    r_use( dir_server() + 'kartote2', , 'KART2' )
+    r_use( dir_server() + 'kartotek', dir_server() + 'kartotes', 'KART' )
     Set Relation To RecNo() into KART2
     find ( '1' + msnils )
     Do While kart->snils == msnils .and. kart->kod > 0 .and. !Eof()
@@ -2182,7 +2071,8 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
       Select KART
       Skip
     Enddo
-    s_msg := 'по СНИЛС ' + Transform( mSNILS, picture_pf )
+//    s_msg := 'по СНИЛС ' + Transform( mSNILS, picture_pf )
+    s_msg := 'по СНИЛС ' + Transform_SNILS( mSNILS )
   Endif
   fl := ( tmp->( LastRec() ) > 0 )
   Close databases
@@ -2191,10 +2081,10 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
       Public is_r_mu := .f.
     Endif
     Save gets To tmp_list
-    r_use( dir_server + 'kartote2', , 'KART2' )
-    r_use( dir_server + 'kartote_', , 'KART_' )
-    r_use( dir_server + 'kartotek', , 'KART' )
-    Use ( cur_dir + 'tmp_kart' ) index ( cur_dir + 'tmp_kart' ) New Alias TMP
+    r_use( dir_server() + 'kartote2', , 'KART2' )
+    r_use( dir_server() + 'kartote_', , 'KART_' )
+    r_use( dir_server() + 'kartotek', , 'KART' )
+    Use ( cur_dir() + 'tmp_kart' ) index ( cur_dir() + 'tmp_kart' ) New Alias TMP
     Set Relation To kod into KART, To kod into KART_, To kod into KART2
     If rec_tmp > 0
       Goto ( rec_tmp )
@@ -2229,8 +2119,6 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
     func_error( 4, 'Неудачный поиск ' + s_msg + ' в картотеке!' )
   Endif
   RestScreen( buf )
-  //
-
   Return fl
 
 //
@@ -2269,7 +2157,6 @@ Function f1_v_fiotmp( oBrow )
     Endif
   Endif
   status_key( '^<Esc>^ - отказ от выбора;  ^<Enter>^ - выбор' )
-
   Return Nil
 
 //
@@ -2280,7 +2167,6 @@ Function f1_v_fio( oBrow )
   oColumn := TBColumnNew( Center( 'Ф.И.О.', 49 ), {|| PadR( tmp->fio, 49 ) } )
   oBrow:addcolumn( oColumn )
   status_key( '^<Esc>^ - отказ от выбора;  ^<Enter>^ - выбор' )
-
   Return Nil
 
 //
@@ -2290,7 +2176,6 @@ Function f2_v_fio()
   If !( Type( 'dubl1_kart' ) == 'N' )
     Select TMP
   Endif
-
   Return Nil
 
 //
@@ -2313,10 +2198,10 @@ Function input_schet( rr, r, c )
     }
 
   Default r To T_ROW, c To T_COL -5
-  If !myfiledeleted( cur_dir + 'tmp' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp' + sdbf() )
     Return fl
   Endif
-  ar := getinisect( tmp_ini, 'schet' )
+  ar := getinisect( tmp_ini(), 'schet' )
   Private mnomer := PadR( a2default( ar, 'number' ), 15 ), ;
     p_i := Val( a2default( ar, 'i', '1' ) )
   If .t. // (i := popup_prompt(r,c,p_i,mas_pmt)) > 0
@@ -2330,10 +2215,10 @@ Function input_schet( rr, r, c )
       @ 18, 22 Say 'Введите номер счета' Get mnomer Picture '@!@K'
       myread( { 'confirm' } )
       If LastKey() != K_ESC .and. !Empty( mnomer )
-        dbCreate( cur_dir + 'tmp', adbf_tmp )
-        Use ( cur_dir + 'tmp' ) New Alias TMP
-        r_use( dir_server + 'schet_', , 'SCHET_' )
-        r_use( dir_server + 'schet', dir_server + 'schetn', 'SCHET' )
+        dbCreate( cur_dir() + 'tmp', adbf_tmp )
+        Use ( cur_dir() + 'tmp' ) New Alias TMP
+        r_use( dir_server() + 'schet_', , 'SCHET_' )
+        r_use( dir_server() + 'schet', dir_server() + 'schetn', 'SCHET' )
         Set Relation To RecNo() into SCHET_
         find ( PadR( mnomer, 10 ) )
         If Found()
@@ -2369,7 +2254,7 @@ Function input_schet( rr, r, c )
             glob_schet := tmp->kod
           Else
             dbEval( {|| tmp->name := f4_view_list_schet( tmp->komu, tmp->smo, tmp->str_crb ) } )
-            Index On Descend( DToS( date_s ) ) to ( cur_dir + 'tmp' )
+            Index On Descend( DToS( date_s ) ) to ( cur_dir() + 'tmp' )
             Go Top
             If ( fl := alpha_browse( T_ROW, 2, MaxRow() -2, 77, 'f1inp_schet', color0, ;
                 'Счета с номером ' + AllTrim( mnomer ), 'R/BG', ;
@@ -2383,56 +2268,13 @@ Function input_schet( rr, r, c )
       Endif
     Case i == 2
       ne_real()
-        /*if (k := func2_komu(,,r-1,c, .t.)) != NIL
-          buf24 := save_maxrow()
-          mywait()
-          dbcreate(cur_dir + 'tmp',adbf_tmp)
-          Use (cur_dir + 'tmp') new alias TMP
-          index on descend(date_s) to (cur_dir + 'tmp')
-          G_Use(dir_server + 'schet', dir_server + 'schetp','SCHET')
-          find (str(glob_komu, 1)+str(glob_all[1], 2))
-          do while schet->komu == glob_komu .and. schet->str_crb == glob_all[1] .and. !eof()
-            recc++
-            select TMP
-            append blank
-            replace tmp->KOD     with schet->KOD    , ;
-                  tmp->NOMER_S with schet->NOMER_S, ;
-                  tmp->DATE_S  with c4tod(schet->pdate) , ;
-                  tmp->SUMMA   with schet->SUMMA  , ;
-                  tmp->KOL     with schet->KOL    , ;
-                  tmp->LPU     with schet->LPU    , ;
-                  tmp->KOMU    with schet->KOMU   , ;
-                  tmp->ismo    with schet->ismo   , ;
-                  tmp->STR_CRB with schet->STR_CRB, ;
-                  tmp->krit    with fs_krit()
-            select SCHET
-            skip
-          enddo
-          select SCHET
-          Use
-          if recc == 0
-            func_error(4, 'Нет счетов по выбранной организации')
-          else
-            select TMP
-            dbeval({|| tmp->name := inieditspr(A__POPUPMENU, dir_server + 'l_ucher',tmp->lpu)})
-            go top
-            rest_box(buf24)
-            if Alpha_Browse(r, 2,maxrow()-2, 77,'f1inp_schet',color0, ;
-                          k[2],'R/BG', .f.,,,,,,{'═','░','═',,, 180} )
-              glob_schet := tmp->kod
-              glob_uch[1] := tmp->lpu
-              glob_uch[2] := rtrim(tmp->name)
-              fl := .t.
-            endif
-          endif
-        endif*/
     Endcase
   Endif
   Close databases
-  setinisect( tmp_ini, 'schet', { { 'number', mnomer }, { 'i', lstr( p_i ) } } )
+  setinisect( tmp_ini(), 'schet', { { 'number', mnomer }, { 'i', lstr( p_i ) } } )
   If fl
-    r_use( dir_server + 'schet_', , 'SCHET_' )
-    r_use( dir_server + 'schet', dir_server + 'schetk', 'SCHET' )
+    r_use( dir_server() + 'schet_', , 'SCHET_' )
+    r_use( dir_server() + 'schet', dir_server() + 'schetk', 'SCHET' )
     Set Relation To RecNo() into SCHET_
     find ( Str( glob_schet, 6 ) )
     box_shadow( rr, 0, rr + 7, 33, color1, 'Информация о счете', color8, 0 )
@@ -2448,7 +2290,6 @@ Function input_schet( rr, r, c )
     schet->( dbCloseArea() )
   Endif
   SetColor( tmp_color )
-
   Return fl
 
 //
@@ -2468,7 +2309,6 @@ Function f1inp_schet( oBrow )
   oBrow:addcolumn( oColumn )
   oColumn := TBColumnNew( Center( 'Принадлежность счета', 24 ), {|| Left( tmp->name, 24 ) } )
   oBrow:addcolumn( oColumn )
-
   Return Nil
 
 //
@@ -2516,7 +2356,6 @@ Function fs_krit()
       Endif
     Endif
   Endif
-
   Return PadR( s, 13 )
 
 //
@@ -2563,7 +2402,6 @@ Function func_kriterij()
       Endif
     Endif
   Endif
-
   Return s
 
 // 21.03.14
@@ -2593,7 +2431,6 @@ Function save_arr_predn( lkod )
     Endif
   Next
   save_arr_dispans( lkod, arr )
-
   Return Nil
 
 // 14.08.13
@@ -2629,7 +2466,6 @@ Function read_arr_predn( lkod )
       Endcase
     Endif
   Next
-
   Return Nil
 
 // 21.03.14
@@ -2658,7 +2494,6 @@ Function save_arr_pern( lkod )
     Endif
   Next
   save_arr_dispans( lkod, arr )
-
   Return Nil
 
 // 25.08.13
@@ -2692,7 +2527,6 @@ Function read_arr_pern( lkod )
       Endcase
     Endif
   Next
-
   Return Nil
 
 // 19.09.13
@@ -2737,7 +2571,6 @@ Function save_arr_dispans( lkod, arr )
   Endif
   hdisp->( dbCloseArea() )
   Select ( tmp_select )
-
   Return Nil
 
 // 16.06.13
@@ -2753,5 +2586,4 @@ Function read_arr_dispans( lkod )
   Enddo
   hdisp->( dbCloseArea() )
   Select ( tmp_select )
-
   Return rest_arr_mem( s ) // востановление массива из символьной переменной s

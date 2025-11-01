@@ -38,278 +38,7 @@ Function getn001()
     Endif
     db := nil
   Endif
-
   Return _arr
-
-// =========== N002 ===================
-//
-// 09.09.23 вернуть массив ФФОМС N002.xml
-Function getn002()
-
-  // возвращает массив N002 Классификатор стадий (OnkStad)
-  Static _arr
-  Static time_load
-  Local db
-  Local aTable
-  Local nI
-
-  // N002 - Классификатор стадий (OnkStad)
-  // ID_St,      'N',  4 // Идентификатор стадии
-  // DS_St,      'C',  5 // Диагноз по МКБ
-  // KOD_St,     'C',  5 // Стадия
-  // DATEBEG,    'C',  10 // Дата начала действия записи
-  // DATEEND,    'C',  10 // Дата окончания действия записи
-  If timeout_load( @time_load )
-    _arr := {}
-    db := opensql_db()
-    aTable := sqlite3_get_table( db, 'SELECT ' + ;
-      'id_st, ' + ;
-      'ds_st, ' + ;
-      'kod_st, ' + ;
-      'datebeg, ' + ;
-      'dateend ' + ;
-      'FROM n002' )
-    If Len( aTable ) > 1
-      For nI := 2 To Len( aTable )
-        AAdd( _arr, { AllTrim( aTable[ nI, 3 ] ), Val( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 2 ] ), CToD( aTable[ nI, 4 ] ), CToD( aTable[ nI, 5 ] ) } )
-      Next
-    Endif
-    db := nil
-  Endif
-
-  Return _arr
-
-// 09.09.23
-Function getds_n002()
-
-  Static aStadii
-  Static time_load
-  Local row, it, i := 0
-
-  If timeout_load( @time_load )
-    aStadii := {}
-    For Each row in getn002()
-      If ! Empty( row[ 5 ] )
-        Loop
-      Endif
-      If ( it := AScan( aStadii, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
-        AAdd( aStadii[ it, 2 ], { row[ 1 ], row[ 2 ] } )
-      Else
-        AAdd( aStadii, { row[ 3 ], {} } )
-        i++
-        AAdd( aStadii[ i, 2 ], { row[ 1 ], row[ 2 ] } )
-      Endif
-    Next
-    For i := 1 To Len( aStadii )
-      ASort( aStadii[ i, 2 ], , , {| x, y| x[ 1 ] < y[ 1 ] } )
-    Next
-  Endif
-
-  Return aStadii
-
-// =========== N003 ===================
-//
-// 09.09.23 вернуть массив ФФОМС N003.xml
-Function getn003()
-
-  // возвращает массив N003 Классификатор Tumor (OnkT)
-  Static _arr
-  Static time_load
-  Local db
-  Local aTable
-  Local nI
-
-  // N003 - Классификатор Tumor (OnkT)
-  // ID_T,       'N',  4  // Идентификатор T
-  // DS_T,       'C',  5  // Диагноз по МКБ
-  // KOD_T,      'C',  5  // Обозначение T для диагноза
-  // T_NAME,     'C', 250 // Расшифровка T для диагноза
-  // DATEBEG,    'C',  10 // Дата начала действия записи
-  // DATEEND,    'C',  10 // Дата окончания действия записи
-  If timeout_load( @time_load )
-    _arr := {}
-    db := opensql_db()
-    aTable := sqlite3_get_table( db, 'SELECT ' + ;
-      'id_t, ' + ;
-      'ds_t, ' + ;
-      'kod_t, ' + ;
-      't_name, ' + ;
-      'datebeg, ' + ;
-      'dateend ' + ;
-      'FROM n003' )
-    If Len( aTable ) > 1
-      For nI := 2 To Len( aTable )
-        AAdd( _arr, { AllTrim( aTable[ nI, 3 ] ), Val( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 2 ] ), AllTrim( aTable[ nI, 4 ] ), CToD( aTable[ nI, 5 ] ), CToD( aTable[ nI, 6 ] ) } )
-      Next
-    Endif
-    db := nil
-  Endif
-
-  Return _arr
-
-// 09.09.23
-Function getds_n003()
-
-  Static aTumor
-  Static time_load
-  Local row, it, i := 0
-
-  If timeout_load( @time_load )
-    aTumor := {}
-    For Each row in getn003()
-      If ! Empty( row[ 6 ] )
-        Loop
-      Endif
-      If ( it := AScan( aTumor, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
-        AAdd( aTumor[ it, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
-      Else
-        AAdd( aTumor, { row[ 3 ], {} } )
-        i++
-        AAdd( aTumor[ i, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
-      Endif
-    Next
-    For i := 1 To Len( aTumor )
-      ASort( aTumor[ i, 2 ], , , {| x, y| x[ 1 ] < y[ 1 ] } )
-    Next
-  Endif
-
-  Return aTumor
-
-// =========== N004 ===================
-//
-// 09.09.23 вернуть массив ФФОМС N004.xml
-Function getn004()
-
-  // возвращает массив N004 Классификатор Nodus (OnkN)
-  Static _arr
-  Static time_load
-  Local db
-  Local aTable
-  Local nI
-
-  // N004 - Классификатор Nodus (OnkN)
-  // ID_N,       'N',  4 // Идентификатор N
-  // DS_N,       'C',  5 // Диагноз по МКБ
-  // KOD_N,      'C',  5 // Обозначение N для диагноза
-  // N_NAME,     'C',500 // Расшифровка N для диагноза
-  // DATEBEG,    'C',  10 // Дата начала действия записи
-  // DATEEND,    'C',  10 // Дата окончания действия записи
-  If timeout_load( @time_load )
-    _arr := {}
-    db := opensql_db()
-    aTable := sqlite3_get_table( db, 'SELECT ' + ;
-      'id_n, ' + ;
-      'ds_n, ' + ;
-      'kod_n, ' + ;
-      'n_name, ' + ;
-      'datebeg, ' + ;
-      'dateend ' + ;
-      'FROM n004' )
-    If Len( aTable ) > 1
-      For nI := 2 To Len( aTable )
-        AAdd( _arr, { AllTrim( aTable[ nI, 3 ] ), Val( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 2 ] ), AllTrim( aTable[ nI, 4 ] ), CToD( aTable[ nI, 5 ] ), CToD( aTable[ nI, 6 ] ) } )
-      Next
-    Endif
-    db := nil
-  Endif
-
-  Return _arr
-
-// 09.09.23
-Function getds_n004()
-
-  Static aNodus
-  Static time_load
-  Local row, it, i := 0
-
-  If timeout_load( @time_load )
-    aNodus := {}
-    For Each row in getn004()
-      If ! Empty( row[ 6 ] )
-        Loop
-      Endif
-      If ( it := AScan( aNodus, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
-        AAdd( aNodus[ it, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
-      Else
-        AAdd( aNodus, { row[ 3 ], {} } )
-        i++
-        AAdd( aNodus[ i, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
-      Endif
-    Next
-    For i := 1 To Len( aNodus )
-      ASort( aNodus[ i, 2 ], , , {| x, y| x[ 1 ] < y[ 1 ] } )
-    Next
-  Endif
-
-  Return aNodus
-
-// =========== N005 ===================
-//
-// 09.09.23 вернуть массив ФФОМС N005.xml
-Function getn005()
-
-  // возвращает массив N005 Классификатор Metastasis (OnkM)
-  Static _arr
-  Static time_load
-  Local db
-  Local aTable
-  Local nI
-
-  // N005 - Классификатор Metastasis (OnkM)
-  // ID_M,       'N',  4 // Идентификатор M
-  // DS_M,       'C',  5 // Диагноз по МКБ
-  // KOD_M,      'C',  5 // Обозначение M для диагноза
-  // M_NAME,     'C',250 // Расшифровка M для диагноза
-  // DATEBEG,    'C',  10 // Дата начала действия записи
-  // DATEEND,    'C',  10 // Дата окончания действия записи
-  If timeout_load( @time_load )
-    _arr := {}
-    db := opensql_db()
-    aTable := sqlite3_get_table( db, 'SELECT ' + ;
-      'id_m, ' + ;
-      'ds_m, ' + ;
-      'kod_m, ' + ;
-      'm_name, ' + ;
-      'datebeg, ' + ;
-      'dateend ' + ;
-      'FROM n005' )
-    If Len( aTable ) > 1
-      For nI := 2 To Len( aTable )
-        AAdd( _arr, { AllTrim( aTable[ nI, 3 ] ), Val( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 2 ] ), AllTrim( aTable[ nI, 4 ] ), CToD( aTable[ nI, 5 ] ), CToD( aTable[ nI, 6 ] ) } )
-      Next
-    Endif
-    db := nil
-  Endif
-
-  Return _arr
-
-// 09.09.23
-Function getds_n005()
-
-  Static aMetastasis
-  Static time_load
-  Local row, it, i := 0
-
-  If timeout_load( @time_load )
-    aMetastasis := {}
-    For Each row in getn005()
-      If ! Empty( row[ 6 ] )
-        Loop
-      Endif
-      If ( it := AScan( aMetastasis, {| x| x[ 1 ] == row[ 3 ] } ) ) > 0
-        AAdd( aMetastasis[ it, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
-      Else
-        AAdd( aMetastasis, { row[ 3 ], {} } )
-        i++
-        AAdd( aMetastasis[ i, 2 ], { row[ 1 ], row[ 2 ], row[ 4 ] } )
-      Endif
-    Next
-    For i := 1 To Len( aMetastasis )
-      ASort( aMetastasis[ i, 2 ], , , {| x, y| x[ 1 ] < y[ 1 ] } )
-    Next
-  Endif
-
-  Return aMetastasis
 
 // =========== N006 ===================
 //
@@ -352,7 +81,6 @@ Function loadn006()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N007 ===================
@@ -388,7 +116,6 @@ Function getn007()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N008 ===================
@@ -426,7 +153,6 @@ Function loadn008()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // 12.09.23
@@ -438,7 +164,6 @@ Function getn008()
   For Each row in loadn008()
     AAdd( arr, { row[ 3 ], row[ 2 ] } )
   Next
-
   Return arr
 
 // =========== N009 ===================
@@ -476,7 +201,6 @@ Function getn009()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N010 ===================
@@ -514,7 +238,6 @@ Function loadn010()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N011 ===================
@@ -554,7 +277,6 @@ Function loadn011()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // 13.09.23
@@ -566,7 +288,6 @@ Function getn011()
   For Each row in loadn011()
     AAdd( arr, { row[ 4 ], row[ 2 ] } )
   Next
-
   Return arr
 
 // =========== N012 ===================
@@ -604,7 +325,6 @@ Function loadn012()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // 12.09.23
@@ -664,7 +384,6 @@ Function getn013()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N014 ===================
@@ -700,7 +419,6 @@ Function getn014()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N015 ===================
@@ -736,7 +454,6 @@ Function getn015()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N016 ===================
@@ -772,7 +489,6 @@ Function getn016()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N017 ===================
@@ -808,7 +524,6 @@ Function getn017()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N018 ===================
@@ -844,7 +559,6 @@ Function getn018()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N019 ===================
@@ -880,7 +594,6 @@ Function getn019()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // =========== N020 ===================
@@ -926,7 +639,6 @@ Function get_lek_pr_by_id( id_lekp )
   If hb_HHasKey( arr, id_lekp )
     ret := arr[ id_lekp ][ 2 ]
   Endif
-
   Return ret
 
 // 06.01.25
@@ -988,7 +700,6 @@ Function getn020( dk )
     stYear := year_dk
     db := nil
   Endif
-
   Return _arr
 
 // =========== N021 ===================
@@ -1036,7 +747,6 @@ Function loadn021()
     Endif
     db := nil
   Endif
-
   Return _arr
 
 // 24.12.24

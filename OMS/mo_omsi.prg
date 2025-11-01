@@ -18,7 +18,6 @@ Function cut_code_smo( _smo )
       s := '34   '
     Endif
   Endif
-
   Return s
 
 // 19.12.13
@@ -37,7 +36,6 @@ Function menu_schet_akt( r, c )
     glob_schet_akt := j
   Endif
   rest_box( buf )
-
   Return j
 
 // 19.12.13
@@ -50,7 +48,6 @@ Function f_usl_schet_akt( loplata )
   Elseif glob_schet_akt == 3
     fl := ( loplata != 9 )
   Endif
-
   Return fl
 
 // 18.12.24 статистика
@@ -460,7 +457,7 @@ Function e_statist( k )
     f_stat_boln()
   Case k == 61 .or. k == 62
     Private prs := k -60
-    Private file_stat := { f_stat_com, f_stat_lpu }[ prs ]
+    Private file_stat := { f_stat_com(), f_stat_lpu() }[ prs ]
     Private dostup_stat := { .f., .t. }[ prs ]
     If kod_polzovat == Chr( 0 )
       dostup_stat := .t.
@@ -555,11 +552,9 @@ Function e_statist( k )
       si19 := j
     Endif
   Endif
-
   Return Nil
 
-
-// 01.11.24 восстановление объёмов
+// 05.06.25 восстановление объёмов
 Function vosst_ob_em_rak()
 
   Static arr_smo, mm_pz
@@ -581,7 +576,7 @@ Function vosst_ob_em_rak()
     Endif
     mm_pz := { { 'все', 0 } }
 
-    nameArr := get_array_pz( 2024 )
+    nameArr := get_array_pz( 2025 )
     For i := 1 To Len( nameArr )
       AAdd( mm_pz, { nameArr[ i, 3 ], nameArr[ i, 1 ] } )
     Next
@@ -598,7 +593,7 @@ Function vosst_ob_em_rak()
     meks, m1eks := s1eks, ;
     mpz, m1pz := s1pz, ;
     mpoisk, m1poisk := s1poisk, ;
-    myear := 2024, mkvartal := 0
+    myear := 2025, mkvartal := 0
   Private pdate, gl_arr := { ;  // для битовых полей
     { 'smo', 'N', 10, 0, , , , {| x| inieditspr( A__MENUBIT, arr_smo, x ) } };
     }
@@ -626,7 +621,7 @@ Function vosst_ob_em_rak()
       reader {| x| menu_reader( x, mm_eks, A__MENUVERT, , , .f. ) }
     @ r + 6, 2 Say 'Вид план-заказа' Get mpz ;
       reader {| x| menu_reader( x, mm_pz, A__MENUVERT_SPACE, , , .f. ) }
-    @ r + 7, 2 Say 'Отчётный год 2024, отчётный квартал' Get mkvartal Pict '9' Range 0, 4
+    @ r + 7, 2 Say 'Отчётный год 2025, отчётный квартал' Get mkvartal Pict '9' Range 0, 4
     myread()
     If LastKey() == K_ESC
       Exit
@@ -637,8 +632,8 @@ Function vosst_ob_em_rak()
     s1poisk := m1poisk
     If Empty( pdate )
       func_error( 4, 'Не введён период времени' )
-    Elseif pdate[ 1 ] < 2024
-      func_error( 4, 'Данный режим написан для 2024 года' )
+    Elseif pdate[ 1 ] < 2025
+      func_error( 4, 'Данный режим написан для 2025 года' )
     Elseif Empty( m1smo )
       func_error( 4, 'Не введена страховая компания' )
     Else
@@ -654,13 +649,12 @@ Function vosst_ob_em_rak()
     Endif
   Enddo
   RestScreen( buf )
-
   Return Nil
 
 // 02.10.19 функция для списка для восстановления объёмов
 Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
 
-  Local adbf, i, nkvartal, n_file := 'v_ob_em' + stxt, HH := 60, sh := 80, buf := save_maxrow(), t_arr[ 2 ]
+  Local adbf, i, nkvartal, n_file := cur_dir() + 'v_ob_em.txt', HH := 60, sh := 80, buf := save_maxrow(), t_arr[ 2 ]
 
   mywait()
   adbf := { { 'kvartal', 'N', 1, 0 }, ;
@@ -675,24 +669,24 @@ Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
     { 'drak', 'D', 8, 0 }, ;
     { 'usluga', 'C', 10, 0 };
     }
-  dbCreate( cur_dir + 'v_ob_em', adbf )
-  Use ( cur_dir + 'v_ob_em' ) New Alias TMP
+  dbCreate( cur_dir() + 'v_ob_em', adbf )
+  Use ( cur_dir() + 'v_ob_em' ) New Alias TMP
   use_base( 'lusl' )
   use_base( 'luslc' )
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'schet_', , 'SCHET_' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'schet_', , 'SCHET_' )
   r_use_base( 'human_u' )
   Set Relation To u_kod into USL
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', , 'HUMAN' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
-  r_use( dir_server + 'mo_raksh', , 'RAKSH' )
+  r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
   Index On Str( kod_raks, 6 ) To tmpraksh memory
-  r_use( dir_server + 'mo_raks', , 'RAKS' )
+  r_use( dir_server() + 'mo_raks', , 'RAKS' )
   Index On Str( akt, 6 ) To tmpraks memory
-  r_use( dir_server + 'mo_rak', , 'RAK' )
+  r_use( dir_server() + 'mo_rak', , 'RAK' )
   Index On Str( kod_xml, 6 ) + DToS( dakt ) + nakt To tmprak memory
-  r_use( dir_server + 'mo_xml', , 'MO_XML' )
+  r_use( dir_server() + 'mo_xml', , 'MO_XML' )
   Index On dfile To tmp_xml For TIP_IN == _XML_FILE_RAK memory
   Go Top
   Do While !Eof()
@@ -791,9 +785,9 @@ Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
     { 'nrak', 'C', 26, 0 }, ;
     { 'drak', 'D', 8, 0 };
     }
-  dbCreate( cur_dir + 'tmp1', adbf )
-  Use ( cur_dir + 'tmp1' ) new
-  Index On nrak + vid_pz to ( cur_dir + 'tmp1' )
+  dbCreate( cur_dir() + 'tmp1', adbf )
+  Use ( cur_dir() + 'tmp1' ) new
+  Index On nrak + vid_pz to ( cur_dir() + 'tmp1' )
   Select TMP
   Go Top
   Do While !Eof()
@@ -838,14 +832,13 @@ Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
     Close databases
     rest_box( buf )
     viewtext( n_file, , , , .t., , , 2 )
-    t_arr := { 'В каталоге ' + cur_dir, ;
+    t_arr := { 'В каталоге ' + cur_dir(), ;
       'создан файл V_OB_EM.DBF', ;
       'со списком пациентов для загрузки в Excel' }
     n_message( t_arr, , 'GR+/R', 'W+/R', , , 'G+/R' )
   Endif
   Close databases
   rest_box( buf )
-
   Return Nil
 
 // объем работ персонала (по оказанным услуга)
@@ -985,7 +978,7 @@ Function ob1_statist( k, k1 )
     ob2_statist( 10 )
   Case equalany( k, 34, 36 )    // служба + услуги
     fl := .f.
-    r_use( dir_server + 'slugba', dir_server + 'slugba', 'SL' )
+    r_use( dir_server() + 'slugba', dir_server() + 'slugba', 'SL' )
     If si_slugba == NIL
       Go Top
     Else
@@ -1033,7 +1026,6 @@ Function ob1_statist( k, k1 )
       si5 := k -50
     Endif
   Endif
-
   Return Nil
 
 // 12.03.14 объем работ персонала (по номенклатуре ФФОМС)
@@ -1173,9 +1165,7 @@ Function obf_statist( k, k1 )
       si5 := k -50
     Endif
   Endif
-
   Return Nil
-
 
 //
 Function ret_g_o_i( r, c )
@@ -1194,7 +1184,6 @@ Function ret_g_o_i( r, c )
       Endif
     Next
   Endif
-
   Return ret
 
 //
@@ -1214,7 +1203,6 @@ Function ret_z_n( r, c )
       Endif
     Next
   Endif
-
   Return ret
 
 //
@@ -1234,15 +1222,13 @@ Function ret_reestr_no( r, c )
       Endif
     Next
   Endif
-
   Return ret
-
 
 // 28.12.21 статистика по работе операторов
 Function st_operator()
 
   Local i, j, k, mdate, buf24, sh := 0, arr_oper := {}, arr_g, ;
-    s0, s1, s2, s3, s4, buf, name_file := 'operator' + stxt, ;
+    s0, s1, s2, s3, s4, buf, name_file := cur_dir() + 'operator.txt', ;
     arr_title, reg_print := 2, ls, fl_orto := .f., r1 := 9, ;
     arrNtitle, llen, ldec, fl_old, fl_new
   Private koef0, koef1 := 20, koef2 := 9, koef21 := 3, koef3 := 1, ;
@@ -1256,12 +1242,12 @@ Function st_operator()
   If ( arr_g := year_month() ) == NIL
     Return Nil
   Endif
-  r_use( dir_server + 'mo_oper', dir_server + 'mo_oper', 'OP' )
+  r_use( dir_server() + 'mo_oper', dir_server() + 'mo_oper', 'OP' )
   dbSeek( arr_g[ 7 ], .t. )
   fl_old := ( op->pd <= arr_g[ 8 ] .and. !Eof() )
   Close databases
   //
-  r_use( dir_server + 'mo_opern', dir_server + 'mo_opern', 'OP' )
+  r_use( dir_server() + 'mo_opern', dir_server() + 'mo_opern', 'OP' )
   dbSeek( arr_g[ 7 ], .t. )
   fl_new := ( op->pd <= arr_g[ 8 ] .and. !Eof() )
   Close databases
@@ -1340,15 +1326,15 @@ Function st_operator()
     arrNtitle[ 5 ] := '──────────────────────────────┴─────┴──────┴─────┴──────┴─────┴──────┴──────────'
     sh := Max( sh, Len( arrNtitle[ 1 ] ) )
   Endif
-  fp := FCreate( 'operator' + stxt ) ; tek_stroke := 0 ; n_list := 1
+  fp := FCreate( 'operator.txt' ) ; tek_stroke := 0 ; n_list := 1
   add_string( '' )
   add_string( Center( 'Объём работы операторов', sh ) )
   add_string( Center( arr_g[ 4 ], sh ) )
   add_string( '' )
   If fl_old
     AEval( arr_title, {| x| add_string( x ) } )
-    r_use( dir_server + 'base1', , 'B1' )
-    r_use( dir_server + 'mo_oper', dir_server + 'mo_oper', 'OP' )
+    r_use( dir_server() + 'base1', , 'B1' )
+    r_use( dir_server() + 'mo_oper', dir_server() + 'mo_oper', 'OP' )
     dbSeek( arr_g[ 7 ], .t. )
     Do While op->pd <= arr_g[ 8 ] .and. !Eof()
       If ( i := AScan( arr_oper, {| x| x[ 1 ] == op->task } ) ) == 0
@@ -1516,7 +1502,7 @@ Function st_operator()
     Endif
   Endif
   If fl_new
-    dbCreate( cur_dir + 'tmp', { ;
+    dbCreate( cur_dir() + 'tmp', { ;
       { 'PO',      'N',   3,   0 }, ; // код оператора
     { 'FO',      'C',  20,   0 }, ; // ФИО оператора
     { 'PT',      'N',   3,   0 }, ; // код задачи
@@ -1525,10 +1511,10 @@ Function st_operator()
     { 'KK',      'N',   9,   0 }, ; // кол-во (карточек, л/у или услуг)
     { 'KP',      'N',   9,   0 };  // количество введённых полей
     } )
-    Use ( cur_dir + 'tmp' ) new
-    Index On Str( pt, 3 ) + Str( po, 3 ) + Str( ae, 1 ) + Str( tp, 1 ) to ( cur_dir + 'tmp' )
-    r_use( dir_server + 'base1', , 'B1' )
-    r_use( dir_server + 'mo_opern', dir_server + 'mo_opern', 'OP' )
+    Use ( cur_dir() + 'tmp' ) new
+    Index On Str( pt, 3 ) + Str( po, 3 ) + Str( ae, 1 ) + Str( tp, 1 ) to ( cur_dir() + 'tmp' )
+    r_use( dir_server() + 'base1', , 'B1' )
+    r_use( dir_server() + 'mo_opern', dir_server() + 'mo_opern', 'OP' )
     dbSeek( arr_g[ 7 ], .t. )
     Do While op->pd <= arr_g[ 8 ] .and. !Eof()
       _po := Asc( op->po )
@@ -1597,7 +1583,6 @@ Function st_operator()
   Close databases
   rest_box( buf24 )
   viewtext( devide_into_pages( name_file, 60, 80 ), , , , .t., , , 2 )
-
   Return Nil
 
 //
@@ -1617,9 +1602,7 @@ Function fst_operator( get )
     &mvar := get:original
     Return func_error( 4, s + '2 - ' + lstr( KOEF2 -1 ) + '.' )
   Endif
-
   Return .t.
-
 
 //
 Function put_dec_oper( v, l, fl_plus )
@@ -1627,7 +1610,6 @@ Function put_dec_oper( v, l, fl_plus )
   Local s := put_val_0( v, l, 2 )
 
   Default fl_plus To .t.
-
   Return PadL( if( Empty( s ) .or. ! fl_plus, '', ' + ' ) + AllTrim( s ), l )
 
 
@@ -1786,8 +1768,7 @@ Function prn_blank( k )
   Case k == 61 // Контрольный лист учёта ЗНО
     call_fr( 'mo_onko_KL' )
   Case k == 62 // Правила заполнения контрольного листа учёта ЗНО
-    // file_Wordpad(dir_exe() + cslash + 'RULE_KL.RTF')
-    view_file_in_viewer( dir_exe() + cslash + 'RULE_KL.RTF' )
+    view_file_in_viewer( dir_exe() + hb_ps() + 'RULE_KL.RTF' )
   Case k == 71
     call_fr( 'mo_y1dvn' )
   Case k == 72
@@ -1831,14 +1812,12 @@ Function prn_blank( k )
       si7 := j
     Endif
   Endif
-
   Return Nil
-
 
 // 19.09.23
 Function pr_sprav_onk_vmp()
 
-  Local buf := save_maxrow(), name_file := cur_dir + 'metodVMPonko' + stxt, sh := 80, HH := 60, t_arr[ 2 ], i, s
+  Local buf := save_maxrow(), name_file := cur_dir() + 'metodVMPonko.txt', sh := 80, HH := 60, t_arr[ 2 ], i, s
 
   Local row, mm_usl_tip := {}
 
@@ -1850,7 +1829,7 @@ Function pr_sprav_onk_vmp()
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
-  r_use( dir_exe() + '_mo_ovmp', cur_dir + '_mo_ovmp', 'OVMP' )
+  r_use( dir_exe() + '_mo_ovmp', cur_dir() + '_mo_ovmp', 'OVMP' )
   add_string( '' )
   add_string( Center( 'Классификатор методов ВМП по онкозаболеваниям с указанием типов лечения', sh ) )
   add_string( '' )
@@ -1869,7 +1848,6 @@ Function pr_sprav_onk_vmp()
   FClose( fp )
   viewtext( name_file, , , , .t., , , 2 )
   Close databases
-
   Return Nil
 
 // 29.12.24
@@ -1882,7 +1860,7 @@ Function pr_sprav_onko( n )
   Local aStadii, t_arr, k
 
   aStadii := &nameFunc
-  r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
+  r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'DIAG' )
 
   ft := tfiletext():new( name_file, , .t., , .t. )
   // ft:TableHeader := arr_title
@@ -1930,94 +1908,6 @@ Function pr_sprav_onko( n )
   viewtext( name_file, , , , .t., , , reg_print )
   Return Nil
 
-// 05.11.19
-Function f_blank_usl_pn()
-
-  Static arrv := { ;
-    { 'Новорожденный', 1 }, ;
-    { '1 месяц', 2 }, ;
-    { '2 месяца', 3 }, ;
-    { '3 месяца', 4 }, ;
-    { '4 м., 5 м., 6 м., 7 м., 8 м., 9 м., 10 м., 11 м., 1 год 3 м., 1 год 6 м.', 5 }, ;
-    { '1 год', 13 }, ;
-    { '2 года', 16 }, ;
-    { '3 года', 17 }, ;
-    { '4 года, 5 лет, 8 лет, 9 лет, 11 лет, 12 лет', 18 }, ;
-    { '6 лет', 20 }, ;
-    { '7 лет', 21 }, ;
-    { '10 лет', 24 }, ;
-    { '13 лет', 27 }, ;
-    { '14 лет', 28 }, ;
-    { '15 лет', 29 }, ;
-    { '16 лет', 30 }, ;
-    { '17 лет', 31 };
-    }
-  Local i, mperiod, ar, s, buf := SaveScreen(), ret_arr[ 2 ]
-
-  delfrfiles()
-  Do While ( mperiod := popup_2array( arrv, 3, 11, mperiod, 1, @ret_arr, ;
-      'Вклыдыши услуг к л/у профилактики несовершеннолетних', 'B/W', color5 ) ) > 0
-    dbCreate( fr_titl, { { 'name', 'C', 130, 0 } } )
-    Use ( fr_titl ) New Alias FRT
-    Append Blank
-    frt->name := ret_arr[ 1 ]
-    dbCreate( fr_data, { { 'name', 'C', 100, 0 } } )
-    Use ( fr_data ) New Alias FRD
-    np_oftal_2_85_21( mperiod, 0d20180901 )
-    ar := np_arr_1_etap[ mperiod ]
-    If !Empty( ar[ 5 ] ) // не пустой массив исследований
-      For i := 1 To count_pn_arr_iss
-        If AScan( ar[ 5 ], np_arr_issled[ i, 1 ] ) > 0
-          s := np_arr_issled[ i, 3 ]
-          // if ascan(glob_arr_usl_LIS,np_arr_issled[i, 1]) > 0
-          // s += '    <b><i>в МО / в КДП2</b></i>'
-          // endif
-          If ValType( np_arr_issled[ i, 2 ] ) == 'C'
-            s += ' (' + iif( np_arr_issled[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
-          Endif
-          Append Blank
-          frd->name := s
-        Endif
-      Next
-    Endif
-    dbCreate( fr_data + '1', { { 'name', 'C', 100, 0 } } )
-    Use ( fr_data + '1' ) New Alias FRD1
-    If !Empty( ar[ 4 ] ) // не пустой массив осмотров
-      For i := 1 To count_pn_arr_osm
-        If AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) > 0
-          s := np_arr_osmotr[ i, 3 ]
-          If ValType( np_arr_osmotr[ i, 2 ] ) == 'C'
-            s += ' (' + iif( np_arr_osmotr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
-          Endif
-          Append Blank
-          frd1->name := s
-        Endif
-      Next
-    Endif
-    Append Blank
-    frd1->name := 'педиатр (врач общей практики)'
-    dbCreate( fr_data + '2', { { 'name', 'C', 100, 0 } } )
-    Use ( fr_data + '2' ) New Alias FRD2
-    For i := 1 To count_pn_arr_osm
-      If AScan( ar[ 4 ], np_arr_osmotr[ i, 1 ] ) == 0
-        s := np_arr_osmotr[ i, 3 ]
-        If ValType( np_arr_osmotr[ i, 2 ] ) == 'C'
-          s += ' (' + iif( np_arr_osmotr[ i, 2 ] == 'М', 'мальчики', 'девочки' ) + ')'
-        Endif
-        Append Blank
-        frd2->name := s
-      Endif
-    Next
-    Append Blank
-    frd2->name := 'педиатр (врач общей практики)'
-    Close databases
-    call_fr( 'mo_b_pn1' )
-  Enddo
-  RestScreen( buf )
-
-  Return Nil
-
-
 //
 Function ne_real()
 
@@ -2025,7 +1915,6 @@ Function ne_real()
 
   n_message( { 'Приносим извинения.', ;
     'В данный момент функция не реализована.' }, , c, c, , , c1 )
-
   Return Nil
 
 // 24.01.19 отчёт Ф-МПП
@@ -2044,7 +1933,7 @@ Function report_f_mpp()
     Return func_error( 4, 'Первый месяц должен быть ЯНВАРЬ.' )
   Endif
   waitstatus( arr_m[ 4 ] )
-  dbCreate( cur_dir + 'tmp1', { ;
+  dbCreate( cur_dir() + 'tmp1', { ;
     { 'usl_ok', 'N', 1, 0 }, ;
     { 'profil', 'N', 3, 0 }, ;  // профиль в БД
   { 'is_our', 'N', 1, 0 }, ;  // 0-наш, 1-иногородний
@@ -2053,20 +1942,20 @@ Function report_f_mpp()
     { 'kol',    'N', 6, 0 }, ;  // случаев
   { 'usl',    'N', 6, 0 }, ;  // услуг
     { 'summa',  'N', 14, 2 } } )  // оплаченная сумма
-  Use ( cur_dir + 'tmp1' ) new
-  Index On Str( usl_ok, 1 ) + Str( profil, 3 ) + Str( is_our, 1 ) + Str( vid, 1 ) + Str( vz_reb, 1 ) to ( cur_dir + 'tmp1' )
+  Use ( cur_dir() + 'tmp1' ) new
+  Index On Str( usl_ok, 1 ) + Str( profil, 3 ) + Str( is_our, 1 ) + Str( vid, 1 ) + Str( vz_reb, 1 ) to ( cur_dir() + 'tmp1' )
   use_base( 'lusl' )
-  r_use( dir_exe() + '_mo9unit', cur_dir + '_mo9unit', 'MOUNIT' )
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'human_u_', , 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  r_use( dir_exe() + '_mo9unit', cur_dir() + '_mo9unit', 'MOUNIT' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'human_u_', , 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
-  r_use( dir_server + 'human_2', , 'HUMAN_2' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
+  r_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
   //
   //
@@ -2075,17 +1964,17 @@ Function report_f_mpp()
     mdate_rak := 23
   Endif
   //
-  r_use( dir_server + 'mo_xml', , 'MO_XML' )
-  r_use( dir_server + 'mo_rak', , 'RAK' )
+  r_use( dir_server() + 'mo_xml', , 'MO_XML' )
+  r_use( dir_server() + 'mo_rak', , 'RAK' )
   Set Relation To kod_xml into MO_XML
-  r_use( dir_server + 'mo_raks', , 'RAKS' )
+  r_use( dir_server() + 'mo_raks', , 'RAKS' )
   Set Relation To akt into RAK
-  r_use( dir_server + 'mo_raksh', , 'RAKSH' )
+  r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
   Set Relation To kod_raks into RAKS
-  Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
+  Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
   //
-  r_use( dir_server + 'schet_', , 'SCHET_' )
-  r_use( dir_server + 'schet', , 'SCHET' )
+  r_use( dir_server() + 'schet_', , 'SCHET_' )
+  r_use( dir_server() + 'schet', , 'SCHET' )
   Set Relation To RecNo() into SCHET_
   ob_kol := 0
   Go Top
@@ -2240,7 +2129,7 @@ Function report_f_mpp()
   Elseif tmp1->( LastRec() ) == 0
     func_error( 4, 'Нет информации!' )
   Else
-    name_file := '_fmpp' + stxt
+    name_file := cur_dir() + '_fmpp.txt'
     HH := 55
     arr_title := { ;
       '────────────────────────────────────────┬────────────────────────────────┬────────────────────────────────┬────────────────────────────────', ;
@@ -2456,22 +2345,21 @@ Function report_f_mpp()
   Endif
   Close databases
   RestScreen( buf )
-
   Return Nil
 
 // 02.01.23
 Function pril_5_6_62()
 
   Local begin_date, end_date, buf := SaveScreen(), i, j, k, k1, k2, ;
-    t_arr[ 10 ], t_arr1[ 10 ], name_file := 'f14med' + stxt, tfoms_pz[ 5, 11 ], ;
+    t_arr[ 10 ], t_arr1[ 10 ], name_file := cur_dir() + 'f14med.txt', tfoms_pz[ 5, 11 ], ;
     sh, HH := 80, reg_print := 5, is_trudosp, is_rebenok, is_inogoro, ;
     is_reabili, is_ekstra, lshifr1, koef, vid_vp, r1 := 9, fl_exit := .f., ;
     is_vmp, d2_year, ar, arr_excel := {}, fl_error := .f., is_z_sl, ;
     arr_usl, au, ii, lal, lalf
   Local sbase
 
-  If !hb_FileExists( dir_exe() + '_mo_pr62' + sdbf )
-    Return func_error( 4, 'Не обнаружен файл _mo_pr62' + sdbf )
+  If !hb_FileExists( dir_exe() + '_mo_pr62' + sdbf() )
+    Return func_error( 4, 'Не обнаружен файл _mo_pr62' + sdbf() )
   Endif
   Private arr_m := { 2022, 1, 12, 'за январь - декабрь 2022 года', 0d20220101, 0d20221231 }, ;
     mm_uslov := { { 'по счетам отч.периода (без учёта РАК)', 0 }, ;
@@ -2511,21 +2399,21 @@ Function pril_5_6_62()
   use_base( 'luslf' )
 
   sbase := prefixfilerefname( arr_m[ 1 ] ) + 'unit'
-  r_use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
+  r_use( dir_exe() + sbase, cur_dir() + sbase, 'MOUNIT' )
 
-  r_use( dir_server + 'mo_su', , 'MOSU' )
-  r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  r_use( dir_server() + 'mo_su', , 'MOSU' )
+  r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
-  r_use( dir_server + 'uslugi', , 'USL' )
-  r_use( dir_server + 'human_u_', , 'HU_' )
-  r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'human_u_', , 'HU_' )
+  r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   Set Relation To RecNo() into HU_, To u_kod into USL
-  r_use( dir_server + 'kartote_', , 'KART_' )
-  r_use( dir_server + 'kartotek', , 'KART' )
+  r_use( dir_server() + 'kartote_', , 'KART_' )
+  r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
-  r_use( dir_server + 'human_2', , 'HUMAN_2' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humans', 'HUMAN' )
+  r_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
   //
   kds := kdr := 10
@@ -2560,26 +2448,26 @@ Function pril_5_6_62()
   //
   mdate_rak := arr_m[ 6 ] + kdr
   //
-  r_use( dir_server + 'mo_xml', , 'MO_XML' )
-  r_use( dir_server + 'mo_rak', , 'RAK' )
+  r_use( dir_server() + 'mo_xml', , 'MO_XML' )
+  r_use( dir_server() + 'mo_rak', , 'RAK' )
   Set Relation To kod_xml into MO_XML
-  r_use( dir_server + 'mo_raks', , 'RAKS' )
+  r_use( dir_server() + 'mo_raks', , 'RAKS' )
   Set Relation To akt into RAK
-  r_use( dir_server + 'mo_raksh', , 'RAKSH' )
+  r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
   Set Relation To kod_raks into RAKS
-  Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
+  Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
   //
-  dbCreate( cur_dir + 'tmp', { { 'usl_ok', 'N', 1, 0 }, ;
+  dbCreate( cur_dir() + 'tmp', { { 'usl_ok', 'N', 1, 0 }, ;
     { 'stroke', 'C', 3, 0 }, ;
     { 'shifr', 'C', 10, 0 }, ;
     { 'kols', 'N', 6, 0 }, ;
     { 'kold', 'N', 10, 0 }, ;
     { 'summa', 'N', 15, 2 }, ;
     { 'sr_kol', 'N', 5, 1 } } )
-  Use ( cur_dir + 'tmp' ) New Alias TMP
-  Index On Str( usl_ok, 1 ) + shifr to ( cur_dir + 'tmp' )
-  r_use( dir_server + 'schet_', , 'SCHET_' )
-  r_use( dir_server + 'schet', , 'SCHET' )
+  Use ( cur_dir() + 'tmp' ) New Alias TMP
+  Index On Str( usl_ok, 1 ) + shifr to ( cur_dir() + 'tmp' )
+  r_use( dir_server() + 'schet_', , 'SCHET_' )
+  r_use( dir_server() + 'schet', , 'SCHET' )
   Set Relation To RecNo() into SCHET_
   ob_kol := 0
   Go Top
@@ -2736,7 +2624,7 @@ Function pril_5_6_62()
     Skip
   Enddo
   Select TMP
-  Index On Str( usl_ok, 1 ) + stroke to ( cur_dir + 'tmp' )
+  Index On Str( usl_ok, 1 ) + stroke to ( cur_dir() + 'tmp' )
   For i := 1 To 2
     ar := {}
     bk := { 4, 5 }[ i ] ; j := 0
@@ -2796,15 +2684,14 @@ Function pril_5_6_62()
   If fl_999
     viewtext( name_file, , , , .t., , , 5 )
   Endif
-  fill_in_excel_book( dir_exe() + 'mo_pr5_62' + sxls, ;
-    cur_dir + '__pr5_62' + sxls, ;
+  fill_in_excel_book( dir_exe() + 'mo_pr5_62' + sxls(), ;
+    cur_dir() + '__pr5_62' + sxls(), ;
     ar_pr5, ;
     'присланный из ТФОМС' )
-  fill_in_excel_book( dir_exe() + 'mo_pr6_62' + sxls, ;
-    cur_dir + '__pr6_62' + sxls, ;
+  fill_in_excel_book( dir_exe() + 'mo_pr6_62' + sxls(), ;
+    cur_dir() + '__pr6_62' + sxls(), ;
     ar_pr6, ;
     'присланный из ТФОМС' )
-
   Return Nil
 
 // 07.07.20 Мониторинг состояния здоровья населения в части заболеваний, состояний, факторов риска,
@@ -2816,26 +2703,26 @@ Function monitoring_zog()
   Static mas1pmt := { '~все оказанные случаи', ;
     'случаи в выставленных ~счетах', ;
     'случаи в за~регистрированных счетах' }
-  Local sh := 80, HH := 80, n_file := 'monitoring_zog' + stxt
+  Local sh := 80, HH := 80, n_file := cur_dir() + 'monitoring_zog.txt'
   Local fl, par, arr_m, i, j, n, ad, arr, adiag_talon[ 16 ], lcount_uch := 1, buf := save_maxrow()
   Private mdate_r, M1VZROS_REB, is_disp_19, m1tip_mas := 0, m1glukozadn := 0, mglukoza := 0
 
-  If !del_dbf_file( 'tmp' + sdbf )
+  If !del_dbf_file( 'tmp' + sdbf() )
     Return .f.
   Endif
   If ( par := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0 .and. ;
       ( st_a_uch := inputn_uch( T_ROW, T_COL -5, , , @lcount_uch ) ) != Nil .and. ( arr_m := year_month(, , , 5 ) ) != NIL
     mywait()
-    dbCreate( cur_dir + 'tmp', { { 'kod_k', 'N', 7, 0 }, ;
+    dbCreate( cur_dir() + 'tmp', { { 'kod_k', 'N', 7, 0 }, ;
       { 'pens', 'L', 1, 0 }, ;
       { 'diag', 'C', 5, 0 }, ;
       { 'is_1', 'L', 1, 0 }, ;
       { 'disp', 'L', 1, 0 } } )
-    Use ( cur_dir + 'tmp' ) new
-    Index On Str( kod_k, 7 ) + diag to ( cur_dir + 'tmp' )
-    r_use( dir_server + 'schet_', , 'SCHET_' )
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+    Use ( cur_dir() + 'tmp' ) new
+    Index On Str( kod_k, 7 ) + diag to ( cur_dir() + 'tmp' )
+    r_use( dir_server() + 'schet_', , 'SCHET_' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -2985,7 +2872,6 @@ Function monitoring_zog()
       viewtext( n_file, , , , .t., , , 2 )
     Endif
   Endif
-
   Return Nil
 
 // 07.07.20
@@ -2998,5 +2884,4 @@ Function f1monitoring_zog( ldiag )
   Else
     fl := ( tmp->diag == ldiag )
   Endif
-
   Return fl

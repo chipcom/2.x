@@ -14,11 +14,11 @@ Function begin_task_oms()
     ++n_zapusk
     Public arr_opl_7, len_arr_7, mem_oms_pole := 0
   Endif
-  If g_sislock( sem_vagno_task[ X_OMS ] )
+  If g_sislock( sem_vagno_task()[ X_OMS ] )
     fl := f_err_sem_vagno_task( X_OMS )
   Elseif copy_tools_ini()
     tools_ini_oms( 1, 0, 0 )
-    i := getinivar( tmp_ini, { { 'RAB_MESTO', 'oms_pole', '0' } } )
+    i := getinivar( tmp_ini(), { { 'RAB_MESTO', 'oms_pole', '0' } } )
     If i[ 1 ] != NIL
       mem_oms_pole := Int( Val( i[ 1 ] ) )
     Endif
@@ -80,13 +80,13 @@ Function f_valid_komu( get, old )
     If m1komu == 0 // ОМС
       mm_company := AClone( glob_arr_smo )
     Elseif m1komu == 1 // Прочие компании
-      r_use( dir_server + 'str_komp' )
-      Index On Upper( name ) to ( cur_dir + 'tmp_comp' ) For !Between( tfoms, 44, 47 )
+      r_use( dir_server() + 'str_komp' )
+      Index On Upper( name ) to ( cur_dir() + 'tmp_comp' ) For !Between( tfoms, 44, 47 )
       dbEval( {|| AAdd( mm_company, { AllTrim( name ), kod } ) } )
       Use
     Elseif m1komu == 3 // Комитеты/МО
-      r_use( dir_server + 'komitet' )
-      Index On Upper( name ) to ( cur_dir + 'tmp_comp' )
+      r_use( dir_server() + 'komitet' )
+      Index On Upper( name ) to ( cur_dir() + 'tmp_comp' )
       dbEval( {|| AAdd( mm_company, { AllTrim( name ), kod } ) } )
       Use
     Endif
@@ -502,29 +502,29 @@ Function f1oms_edit()
     Endif
     buf24 := save_maxrow()
     mywait()
-    dbCreate( cur_dir + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
-    Use ( cur_dir + 'tmp_h' ) new
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humann', 'HUMAN' )
+    dbCreate( cur_dir() + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
+    Use ( cur_dir() + 'tmp_h' ) new
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humann', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     find ( str_find )
     If yes_h_otd == 1
       If dostup == B_STANDART
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
           For Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) .and. human_->reestr == 0
       Else
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
           For Between( k_data, arr_m[ 5 ], arr_m[ 6 ] )
       Endif
     Else
       If dostup == B_STANDART
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup ;
           For lpu == glob_uch[ 1 ] .and. Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) .and. human_->reestr == 0
       Else
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup ;
           For lpu == glob_uch[ 1 ] .and. Between( k_data, arr_m[ 5 ], arr_m[ 6 ] )
       Endif
@@ -549,13 +549,13 @@ Function f1oms_edit()
     Else
       Private mr1 := T_ROW, regim_vyb := 2
       Do While .t.
-        r_use( dir_server + 'mo_otd', , 'OTD' )
-        r_use( dir_server + 'human_', , 'HUMAN_' )
-        r_use( dir_server + 'human', , 'HUMAN' )
+        r_use( dir_server() + 'mo_otd', , 'OTD' )
+        r_use( dir_server() + 'human_', , 'HUMAN_' )
+        r_use( dir_server() + 'human', , 'HUMAN' )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
-        Use ( cur_dir + 'tmp_h' ) new
+        Use ( cur_dir() + 'tmp_h' ) new
         Set Relation To kod into HUMAN
-        Index On Upper( human->fio ) to ( cur_dir + 'tmp_h' )
+        Index On Upper( human->fio ) to ( cur_dir() + 'tmp_h' )
         Goto ( srec )
         mkod := 0
         buf_scr := SaveScreen()
@@ -571,7 +571,7 @@ Function f1oms_edit()
             glob_kartotek := human->kod_k
             glob_k_fio := fio_plus_novor()
             glob_otd[ 1 ] := human->otd
-            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', human->otd )
+            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', human->otd )
             If Len( glob_otd ) == 2
               AAdd( glob_otd, human_->usl_ok )
             Else
@@ -584,7 +584,7 @@ Function f1oms_edit()
               glob_otd[ 4 ] := k
             Endif
             glob_uch[ 1 ] := human->LPU
-            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', human->LPU )
+            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', human->LPU )
             fl_schet := ( human->schet > 0 )
           Endif
         Else
@@ -650,19 +650,19 @@ Function f2oms_edit()
   Local buf, str_sem, i, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
   Local lek_pr := .f.
 
-  If !myfiledeleted( cur_dir + 'tmp_h' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_h' + sdbf() )
     Return Nil
   Endif
   If ( arr_m := year_month( T_ROW, T_COL + 5, , 3 ) ) != NIL
     buf24 := save_maxrow()
     mywait()
-    dbCreate( cur_dir + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
-    Use ( cur_dir + 'tmp_h' ) new
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+    dbCreate( cur_dir() + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
+    Use ( cur_dir() + 'tmp_h' ) new
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
-    Index On Upper( fio ) to ( cur_dir + 'tmp_h2' ) ;
+    Index On Upper( fio ) to ( cur_dir() + 'tmp_h2' ) ;
       While human->k_data <= arr_m[ 6 ] ;
       For schet < 1 .and. human_->reestr == 0
     srec := 1
@@ -685,13 +685,13 @@ Function f2oms_edit()
     Else
       Private mr1 := T_ROW, regim_vyb := 2
       Do While .t.
-        r_use( dir_server + 'mo_otd', , 'OTD' )
-        r_use( dir_server + 'human_', , 'HUMAN_' )
-        r_use( dir_server + 'human', , 'HUMAN' )
+        r_use( dir_server() + 'mo_otd', , 'OTD' )
+        r_use( dir_server() + 'human_', , 'HUMAN_' )
+        r_use( dir_server() + 'human', , 'HUMAN' )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
-        Use ( cur_dir + 'tmp_h' ) new
+        Use ( cur_dir() + 'tmp_h' ) new
         Set Relation To kod into HUMAN
-        Index On Upper( human->fio ) to ( cur_dir + 'tmp_h' )
+        Index On Upper( human->fio ) to ( cur_dir() + 'tmp_h' )
         Goto ( srec )
         mkod := 0
         yes_h_otd := 2
@@ -709,7 +709,7 @@ Function f2oms_edit()
             glob_kartotek := human->kod_k
             glob_k_fio := fio_plus_novor()
             glob_otd[ 1 ] := human->otd
-            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', human->otd )
+            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', human->otd )
             If Len( glob_otd ) == 2
               AAdd( glob_otd, human_->usl_ok )
             Else
@@ -722,7 +722,7 @@ Function f2oms_edit()
               glob_otd[ 4 ] := k
             Endif
             glob_uch[ 1 ] := human->LPU
-            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', human->LPU )
+            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', human->LPU )
             fl_schet := ( human->schet > 0 )
           Endif
         Else
@@ -791,19 +791,19 @@ Function f4oms_edit()
     iRefr, srec, buf24, buf_scr, mas_pmt
   Local lek_pr := .f.
 
-  If !myfiledeleted( cur_dir + 'tmp_h' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_h' + sdbf() )
     Return Nil
   Endif
   If ( arr_m := year_month( T_ROW, T_COL + 5 ) ) != NIL
     buf24 := save_maxrow()
     mywait()
-    dbCreate( cur_dir + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
-    Use ( cur_dir + 'tmp_h' ) new
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+    dbCreate( cur_dir() + 'tmp_h', { { 'kod', 'N', 7, 0 } } )
+    Use ( cur_dir() + 'tmp_h' ) new
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
-    Index On Upper( fio ) to ( cur_dir + 'tmp_h2' ) ;
+    Index On Upper( fio ) to ( cur_dir() + 'tmp_h2' ) ;
       While human->k_data <= arr_m[ 6 ] ;
       For emptyall( human_->reestr, human->schet ) .and. human_->kod_up > 0
     Go Top
@@ -823,13 +823,13 @@ Function f4oms_edit()
       Private mr1 := T_ROW, regim_vyb := 2
       srec := 1
       Do While .t.
-        r_use( dir_server + 'mo_otd', , 'OTD' )
-        r_use( dir_server + 'human_', , 'HUMAN_' )
-        r_use( dir_server + 'human', , 'HUMAN' )
+        r_use( dir_server() + 'mo_otd', , 'OTD' )
+        r_use( dir_server() + 'human_', , 'HUMAN_' )
+        r_use( dir_server() + 'human', , 'HUMAN' )
         Set Relation To RecNo() into HUMAN_, To otd into OTD
-        Use ( cur_dir + 'tmp_h' ) new
+        Use ( cur_dir() + 'tmp_h' ) new
         Set Relation To kod into HUMAN
-        Index On Upper( human->fio ) to ( cur_dir + 'tmp_h' )
+        Index On Upper( human->fio ) to ( cur_dir() + 'tmp_h' )
         Goto ( srec )
         mkod := 0
         yes_h_otd := 2
@@ -847,7 +847,7 @@ Function f4oms_edit()
             glob_kartotek := human->kod_k
             glob_k_fio := fio_plus_novor()
             glob_otd[ 1 ] := human->otd
-            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', human->otd )
+            glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', human->otd )
             If Len( glob_otd ) == 2
               AAdd( glob_otd, human_->usl_ok )
             Else
@@ -860,7 +860,7 @@ Function f4oms_edit()
               glob_otd[ 4 ] := k
             Endif
             glob_uch[ 1 ] := human->LPU
-            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', human->LPU )
+            glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', human->LPU )
             fl_schet := ( human->schet > 0 )
           Endif
         Else
@@ -1040,7 +1040,7 @@ Function oms_del()
   Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear
 
   If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin )
+    Return func_error( 4, err_admin() )
   Endif
   If ( arr_m := input_year() ) != Nil .and. ;
       input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
@@ -1058,7 +1058,7 @@ Function oms_del()
     If k > 0 .and. ret_oms_human( yes_vypisan + k -1, arr_m ) .and. f_esc_enter( 2, .t. )
       str_sem := 'Редактирование человека ' + lstr( glob_perso )
       If g_slock( str_sem )
-        g_use( dir_server + 'mo_pp', dir_server + 'mo_pp_h', 'PP' )
+        g_use( dir_server() + 'mo_pp', dir_server() + 'mo_pp_h', 'PP' )
         use_base( 'mo_hdisp' )
         use_base( 'mo_hu' )
         use_base( 'human_u' )
@@ -1135,7 +1135,7 @@ Function oms_del()
           g_rlock( forever )
           Replace human->schet With -1  // (вместо нуля)
           // удаляем онкологию
-          g_use( dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'NAPR' ) // онконаправления
+          g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna', 'NAPR' ) // онконаправления
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1143,7 +1143,7 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-          g_use( dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'SL' )
+          g_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'SL' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1151,7 +1151,7 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-          g_use( dir_server + 'mo_onkdi', dir_server + 'mo_onkdi', 'DI' )
+          g_use( dir_server() + 'mo_onkdi', dir_server() + 'mo_onkdi', 'DI' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1159,7 +1159,7 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-          g_use( dir_server + 'mo_onkpr', dir_server + 'mo_onkpr', 'PR' )
+          g_use( dir_server() + 'mo_onkpr', dir_server() + 'mo_onkpr', 'PR' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1167,7 +1167,7 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-          g_use( dir_server + 'mo_onkus', dir_server + 'mo_onkus', 'US' )
+          g_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus', 'US' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1175,7 +1175,7 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-          g_use( dir_server + 'mo_onkco', dir_server + 'mo_onkco', 'CO' )
+          g_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco', 'CO' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1183,7 +1183,7 @@ Function oms_del()
             Endif
             deleterec( .t. )
           Enddo
-          g_use( dir_server + 'mo_onkle', dir_server + 'mo_onkle', 'LE' )
+          g_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle', 'LE' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1196,7 +1196,7 @@ Function oms_del()
           delete_implantants( glob_perso )
 
           // удаление лекарственных препаратов
-          g_use( dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK' )
+          g_use( dir_server() + 'human_lek_pr', dir_server() + 'human_lek_pr', 'LEK' )
           Do While .t.
             find ( Str( glob_perso, 7 ) )
             If !Found()
@@ -1251,7 +1251,7 @@ Function oms_zav_lech( k )
       popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL + 5, sk, mas_pmt, mas_msg, mas_fun )
       g_sunlock( str_sem )
     Else
-      func_error( 4, err_slock )
+      func_error( 4, err_slock() )
     Endif
   Case k == 1
     f1oms_zav_lech( 1 )
@@ -1277,7 +1277,7 @@ Function f1oms_zav_lech( k )
       If ret_oms_human( iif( k == 1, B_END, B_STANDART ) )
         str_sem := 'Редактирование человека ' + lstr( glob_perso )
         If !g_slock( str_sem )
-          Return func_error( 4, err_slock )
+          Return func_error( 4, err_slock() )
         Endif
         tmp_color := SetColor( color1 )
         buf := SaveScreen()
@@ -1315,10 +1315,10 @@ Function f1oms_zav_lech( k )
       }
       buf := save_maxrow()
       mywait()
-      dbCreate( cur_dir + 'tmp', dbf_tmp )
+      dbCreate( cur_dir() + 'tmp', dbf_tmp )
       k1 := k2 := 0
-      Use ( cur_dir + 'tmp' ) Alias TMP
-      r_use( dir_server + 'human', dir_server + 'humann', 'HUMAN' )
+      Use ( cur_dir() + 'tmp' ) Alias TMP
+      r_use( dir_server() + 'human', dir_server() + 'humann', 'HUMAN' )
       find ( Str( B_END, 1 ) )
       Do While human->tip_h == B_END .and. !Eof()
         If iif( yes_h_otd == 1, human->otd == glob_otd[ 1 ], .t. )
@@ -1350,8 +1350,8 @@ Function f1oms_zav_lech( k )
         If yes_h_otd == 1
           mtitul += ' [ ' + AllTrim( glob_otd[ 2 ] ) + ' ]'
         Endif
-        Use ( cur_dir + 'tmp' ) Alias TMP
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' )
+        Use ( cur_dir() + 'tmp' ) Alias TMP
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' )
         If alpha_browse( T_ROW, 0, MaxRow() -4, 79, 'f2oms_zav_lech', color1, ;
             mtitul, 'G+/B', .t., .t., ,, 'f3oms_zav_lech', , ;
             { '═', '░', '═', 'W+/B, BG+/R, GR+/B, GR+/R', , 300 } )
@@ -1489,7 +1489,7 @@ Function f3oms_zav_lech( nKey, oBrow )
       Close databases
       stat_msg( 'Всего удалено листов учета - ' + lstr( j ) )
       mybell( 2, OK )
-      Use ( cur_dir + 'tmp' ) Alias TMP
+      Use ( cur_dir() + 'tmp' ) Alias TMP
       rest_box( buf )
       k := 0
       Keyboard Chr( K_ESC )
@@ -1502,15 +1502,15 @@ Function f3oms_zav_lech( nKey, oBrow )
       buf := save_maxrow()
       mywait()
       rec := RecNo()
-      r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
-      r_use( dir_server + 'human_', , 'HUMAN_' )
-      r_use( dir_server + 'uslugi', , 'USL' )
-      r_use( dir_server + 'mo_pers', , 'PERSO' )
+      r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
+      r_use( dir_server() + 'human_', , 'HUMAN_' )
+      r_use( dir_server() + 'uslugi', , 'USL' )
+      r_use( dir_server() + 'mo_pers', , 'PERSO' )
       arr_title := { ;
         '────────────────────────────────────────────────┬────────────────┬──────────────', ;
         '               Ф.И.О.                           │ Сроки лечения  │    Сумма     ', ;
         '────────────────────────────────────────────────┴────────────────┴──────────────' }
-      n_file := cur_dir + 'z_lech' + stxt
+      n_file := cur_dir() + 'z_lech.txt'
       sh := 80
       HH := 57
       fp := FCreate( n_file )
@@ -1627,12 +1627,12 @@ Function ret_oms_human( dostup, arr_m )
   If dostup == NIL
     str_find := DToS( arr_m[ 5 ] )
     mtitul := 'По дате окончания лечения "' + arr_m[ 4 ] + '"'
-    r_use( dir_server + 'mo_otd', , 'OTD' )
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To otd into OTD
     dbSeek( str_find, .t. )
-    Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+    Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
       While human->k_data <= arr_m[ 6 ] ;
       For schet < 1 .and. human_->reestr == 0
     str_error += ' нет пациентов с датой окончания ' + arr_m[ 4 ]
@@ -1654,30 +1654,30 @@ Function ret_oms_human( dostup, arr_m )
       str_error += ' ' + arr_m[ 4 ]
       mtitul += ' ' + arr_m[ 4 ]
     Endif
-    r_use( dir_server + 'mo_otd', , 'OTD' )
-    r_use( dir_server + 'human_', , 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humann', 'HUMAN' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humann', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To otd into OTD
     find ( str_find )
     If yes_h_otd == 1
       If dostup == B_STANDART
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
           For iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) .and. human_->reestr == 0
       Else
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
           For iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) )
       Endif
     Else
       If dostup == B_STANDART
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup ;
           For lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) ;
           .and. human_->reestr == 0
 
       Else
-        Index On Upper( fio ) to ( cur_dir + 'tmp_hum' ) ;
+        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup ;
           For lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) )
       Endif
@@ -1706,7 +1706,7 @@ Function ret_oms_human( dostup, arr_m )
       glob_kartotek := human->kod_k
       glob_k_fio := fio_plus_novor()
       glob_otd[ 1 ] := human->otd
-      glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', human->otd )
+      glob_otd[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', human->otd )
       If Len( glob_otd ) == 2
         AAdd( glob_otd, human_->usl_ok )
       Else
@@ -1719,7 +1719,7 @@ Function ret_oms_human( dostup, arr_m )
         glob_otd[ 4 ] := k
       Endif
       glob_uch[ 1 ] := human->LPU
-      glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', human->LPU )
+      glob_uch[ 2 ] := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', human->LPU )
       fl_schet := ( human->schet > 0 )
     Endif
     Close databases
@@ -1770,14 +1770,15 @@ Function f1ret_oms_human( oBrow )
 
   Return Nil
 
-// 26.11.24
+// 23.10.25 
 Function f2ret_oms_human( nkey )
 
   Static tmp := ' '
   Local buf := SaveScreen(), buf1, rec1 := RecNo(), fl := -1, ss := 0, ;
-    j, n_file := cur_dir + 'omserror' + stxt, sh := 80, HH := 60, ii
+    j, n_file := cur_dir() + 'omserror.txt', sh := 80, HH := 60, ii
   Local mas_otchet := {}, tmp_2
   Local tmpSelect, flag_RDL := .f.
+  Local kod_PZ := 0, D_flag := .T., DD_flag := .T., arr_sv := {}
 
   For ii := 1 To 48
     AAdd( mas_otchet, { 0, 0, 0, 0 } )
@@ -1787,7 +1788,7 @@ Function f2ret_oms_human( nkey )
     If nkey == K_F9
       mywait()
       tmp_2 := Select()
-      r_use( dir_server + 'mo_otd', , 'mo_otd' )
+      r_use( dir_server() + 'mo_otd', , 'mo_otd' )
       fp := FCreate( n_file )
       tek_stroke := 0
       n_list := 1
@@ -1827,7 +1828,6 @@ Function f2ret_oms_human( nkey )
       RestScreen( buf )
       viewtext( n_file, , , , ( sh > 80 ), , , 2 )
       Return -1
-      // elseif eq_any(nkey,K_F12,K_CTRL_F12) .and. tip_polzovat == TIP_ADM .and. f_Esc_Enter('снятия флага об ошибке', .t.)
     Elseif eq_any( nkey, K_F12, K_CTRL_F12 ) .and. hb_user_curUser:isadmin() .and. f_esc_enter( 'снятия флага об ошибке', .t. )
        /*involved_password(1,p_del_error[2],'снятия со всех пациентов флага об ошибке') ;
            .and. f_alert({padc('Выберите действие', 60,'.')}, ;
@@ -1848,8 +1848,8 @@ Function f2ret_oms_human( nkey )
     Elseif nkey == K_CTRL_F5
       If glob_mo[ _MO_KOD_TFOMS ] == '805965' // РДЛ
         tmpSelect := Select()
-        If hb_vfExists( cur_dir + fr_data + '2' + sdbf )
-          Use ( cur_dir + fr_data + '2' ) New Alias FRD2
+        If hb_vfExists( cur_dir() + fr_data + '2' + sdbf() )
+          Use ( cur_dir() + fr_data + '2' ) New Alias FRD2
           If frd2->( LastRec() ) > 1
             flag_RDL := .t.
           Endif
@@ -1867,9 +1867,9 @@ Function f2ret_oms_human( nkey )
             { 'otd', 'C', 42, 0 }, ;
             { 'otd_kod', 'N', 3, 0 }, ;
             { 'napr_uch', 'C', 6, 0 }  }
-          dbCreate( cur_dir + 'tmp_err', adbf1 )
-          Use ( cur_dir + fr_data + '2' ) New Alias FRD2
-          Use ( cur_dir + 'tmp_err' ) New Alias FRD3
+          dbCreate( cur_dir() + 'tmp_err', adbf1 )
+          Use ( cur_dir() + fr_data + '2' ) New Alias FRD2
+          Use ( cur_dir() + 'tmp_err' ) New Alias FRD3
 
           Private ii_otd
           For ii_otd := 1 To 4
@@ -1953,7 +1953,7 @@ Function f2ret_oms_human( nkey )
           Select( tmpSelect )
           // Здесь запрос на запись ЭКСЕЛЯ
           create_xls_rdl( 'rdl_report' )  // , arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
-          saveto( cur_dir + 'rdl_report.xlsx' )
+          saveto( cur_dir() + 'rdl_report.xlsx' )
         Else
           Select( tmpSelect )
           func_error( 4, "Отчет не формировался !" )
@@ -1962,6 +1962,9 @@ Function f2ret_oms_human( nkey )
       Endif
     Elseif nkey == K_CTRL_F9
       mywait()
+      D_flag := .T.
+      DD_flag := .T.
+      arr_sv := {}
       sh := 110
       fl_povtor := .t.
       fl_povtor1 := .t.
@@ -1972,14 +1975,14 @@ Function f2ret_oms_human( nkey )
       tek_stroke := 0
       n_list := 1
       add_string( '' )
-      add_string( Center( 'Сведения об отклоненных от оплаты случаях и стоимости медицинской помощи', sh ) )
+      add_string( Center( 'Сведения об отклоненных от оплаты случаях и стоимости медицинской помощи', sh ) ) 
       add_string( Center( p_del_error[ 1 ], sh ) )
       add_string( Center( arr_m[ 4 ], sh ) )
       tmp_1 := Select()
-      r_use( dir_server + 'uslugi', , 'USL' )
-      // R_Use(dir_server + 'human', ,'HUMAN')
-      r_use( dir_server + 'human_u_', , 'HU_' )
-      r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+      r_use( dir_server() + 'uslugi', , 'USL' )
+      // R_Use(dir_server() + 'human', ,'HUMAN')
+      r_use( dir_server() + 'human_u_', , 'HU_' )
+      r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
       Set Relation To RecNo() into HU_, To u_kod into USL
       Select ( tmp_1 )
       //
@@ -1992,6 +1995,15 @@ Function f2ret_oms_human( nkey )
 
       Go Top
       Do While !Eof()
+        DD_dlag := .T.
+        if d_flag
+          arrPZ := get_array_PZ( year(human->k_data) )  
+          for i := 1 to len(arrPZ)  
+            aadd(arr_sv,{0,0,0,0})
+          next  
+          d_flag := .F.
+        endif  
+
         fl_povtor := .t.
         fl_povtor1 := .t.
         fl_povtor2 := .t.
@@ -2088,9 +2100,25 @@ Function f2ret_oms_human( nkey )
           If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, , , , , @svp )
             lshifr := iif( Empty( lshifr1 ), usl->shifr, lshifr1 )
           Endif
-          //
+            //
           If HUMAN_->Usl_ok == 1 // стационар
-            If PadR( lshifr, 2 ) == 'st' // KSG
+              If PadR( lshifr, 2 ) == 'st' // KSG
+                kod_PZ := f_arr_plan_zakaz( lshifr, year(human->k_data))
+                if kod_PZ > 0
+                  If human->vzros_reb == 0 // взрослый
+                    arr_sv[kod_PZ,1] += human->cena_1
+                    if DD_dlag 
+                      arr_sv[kod_PZ,3] += 1
+                      DD_dlag := .F.
+                    endif  
+                  else  
+                    arr_sv[kod_PZ,2] += human->cena_1
+                    if DD_dlag 
+                      arr_sv[kod_PZ,4] += 1
+                      DD_dlag := .F.
+                    endif  
+                  endif  
+                endif  
               mas_otch[ 1, 1 ] += 1
               mas_otch[ 2, 1 ] += human->cena_1 // hu->stoim
               If eq_any( PadR( AllTrim( lshifr ), 8 ), 'st12.015', 'st12.016', ;
@@ -2154,7 +2182,23 @@ Function f2ret_oms_human( nkey )
           Endif
           //
           If HUMAN_->Usl_ok == 2 // дневной стационар
-            If PadR( lshifr, 2 ) == 'ds' // KSG -дневной стационар
+           If PadR( lshifr, 2 ) == 'ds' // KSG -дневной стационар
+              kod_PZ := f_arr_plan_zakaz( lshifr, year(human->k_data))
+              if kod_PZ > 0
+                 If human->vzros_reb == 0 // взрослый
+                   arr_sv[kod_PZ,1] += human->cena_1
+                   if DD_dlag 
+                     arr_sv[kod_PZ,3] += 1
+                     DD_dlag := .F.
+                   endif   
+                 else  
+                   arr_sv[kod_PZ,2] += human->cena_1
+                   if DD_dlag 
+                     arr_sv[kod_PZ,4] += 1
+                     DD_dlag := .F.
+                   endif
+                 endif    
+              endif  
               mas_otch[ 3, 1 ] += 1
               mas_otch[ 4, 1 ] += human->cena_1
               If flag_covid
@@ -2215,6 +2259,22 @@ Function f2ret_oms_human( nkey )
           Endif
           //
           If HUMAN_->Usl_ok == 3 // амбулаторная
+            kod_PZ := f_arr_plan_zakaz( lshifr, year(human->k_data))
+            if kod_PZ > 0
+              If human->vzros_reb == 0 // взрослый
+                arr_sv[kod_PZ,1] += hu->stoim
+                if DD_dlag 
+                  arr_sv[kod_PZ,3] += 1
+                  DD_dlag := .F.
+                endif  
+              else  
+                arr_sv[kod_PZ,2] += hu->stoim
+                if DD_dlag 
+                  arr_sv[kod_PZ,4] += 1
+                  DD_dlag := .F.
+                endif  
+              endif  
+            endif 
             // Диспансеризация
             // If eq_any( human->ishod, 401, 402 ) // УД
             If is_sluch_dispanser_covid( human->ishod ) // УД
@@ -2343,7 +2403,17 @@ Function f2ret_oms_human( nkey )
               Endif
               If PadR( AllTrim( lshifr ), 6 ) == '2.92.1' .or. ;
                   PadR( AllTrim( lshifr ), 6 ) == '2.92.2' .or. ;
-                  PadR( AllTrim( lshifr ), 6 ) == '2.92.3'
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.3' .or. ;
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.4' .or. ;
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.5' .or. ;
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.6' .or. ;
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.7' .or. ;
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.8' .or. ;
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.9' .or. ;
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.10' .or. ;
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.11' .or. ;
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.12' .or. ;
+                  PadR( AllTrim( lshifr ), 6 ) == '2.92.13'
                 If PadR( AllTrim( lshifr ), 6 ) == '2.92.3' // дети
                   mas_otchet[ 34, 3 ] += 1
                   mas_otchet[ 34, 4 ] += human->cena_1
@@ -2376,7 +2446,9 @@ Function f2ret_oms_human( nkey )
                 // Травматология и ортопедия == 100
                 // Стоматологии 85, 86, 87, 88, 89, 90, 171,
                 // Медреабилитация 158
-                If PadR( lshifr, 8 ) == '2.78.110' // онкология
+               // if p_cel == "1.3"   //
+
+                If PadR( lshifr, 8 ) == '2.78.110' // онкология check_tip_disp_nabl( dd->kod_diag )
                   If human->vzros_reb == 0 // взрослый
                     mas_otchet[ 44, 1 ] += 1
                     mas_otchet[ 44, 2 ] += human->cena_1
@@ -2384,8 +2456,7 @@ Function f2ret_oms_human( nkey )
                     mas_otchet[ 44, 3 ] += 1
                     mas_otchet[ 44, 4 ] += human->cena_1
                   Endif
-                Endif
-                If PadR( lshifr, 8 ) == '2.78.112' // ССЗ
+                elseIf PadR( lshifr, 8 ) == '2.78.112' // ССЗ
                   If human->vzros_reb == 0 // взрослый
                     mas_otchet[ 45, 1 ] += 1
                     mas_otchet[ 45, 2 ] += human->cena_1
@@ -2393,8 +2464,7 @@ Function f2ret_oms_human( nkey )
                     mas_otchet[ 45, 3 ] += 1
                     mas_otchet[ 45, 4 ] += human->cena_1
                   Endif
-                Endif
-                If PadR( lshifr, 8 ) == '2.78.111' // Сахарный диабет
+                elseIf PadR( lshifr, 8 ) == '2.78.111' // Сахарный диабет
                   If human->vzros_reb == 0 // взрослый
                     mas_otchet[ 46, 1 ] += 1
                     mas_otchet[ 46, 2 ] += human->cena_1
@@ -2402,8 +2472,7 @@ Function f2ret_oms_human( nkey )
                     mas_otchet[ 46, 3 ] += 1
                     mas_otchet[ 46, 4 ] += human->cena_1
                   Endif
-                Endif
-                If  PadR( lshifr, 8 ) == '2.78.109' // прочее диспансерное наблюдение
+                elseIf  PadR( lshifr, 8 ) == '2.78.109' // прочее диспансерное наблюдение
                   If human->vzros_reb == 0 // взрослый
                     mas_otchet[ 47, 1 ] += 1
                     mas_otchet[ 47, 2 ] += human->cena_1
@@ -2411,13 +2480,13 @@ Function f2ret_oms_human( nkey )
                     mas_otchet[ 47, 3 ] += 1
                     mas_otchet[ 47, 4 ] += human->cena_1
                   Endif
-                Endif
-                mas_otchet[ 35, 1 ] := mas_otchet[ 44, 1 ] + mas_otchet[ 45, 1 ] + mas_otchet[ 46, 1 ] + mas_otchet[ 47, 1 ]
-                mas_otchet[ 35, 2 ] := mas_otchet[ 44, 2 ] + mas_otchet[ 45, 2 ] + mas_otchet[ 46, 2 ] + mas_otchet[ 47, 2 ]
-                mas_otchet[ 35, 3 ] := mas_otchet[ 44, 3 ] + mas_otchet[ 45, 3 ] + mas_otchet[ 46, 3 ] + mas_otchet[ 47, 3 ]
-                mas_otchet[ 35, 4 ] := mas_otchet[ 44, 4 ] + mas_otchet[ 45, 4 ] + mas_otchet[ 46, 4 ] + mas_otchet[ 47, 4 ]
-                //
-                If eq_any( human_->profil, 2, 136, 137, 16, 60, 100, 85, 86, 87, 89, 90, 171, 158 )
+                else                //
+                //If eq_any( human_->profil, 2, 136, 137, 16, 60, 100, 85, 86, 87, 89, 90, 171, 158, 97, 108, 122, 77, 53, 11, 112, 29 )
+                  //97 - терапия
+                  //108 - урология
+                  //122 - эндокринология
+                  //77 - ревматологии
+                  // 53- неврология 11- гачтро
                   mas_otch[ 7, 1 ] += 1
                   mas_otch[ 8, 1 ] += hu->stoim
                   If flag_covid
@@ -2451,6 +2520,10 @@ Function f2ret_oms_human( nkey )
                     Endif
                   Endif
                 Endif
+                mas_otchet[ 35, 1 ] := mas_otchet[ 44, 1 ] + mas_otchet[ 45, 1 ] + mas_otchet[ 46, 1 ] + mas_otchet[ 47, 1 ]
+                mas_otchet[ 35, 2 ] := mas_otchet[ 44, 2 ] + mas_otchet[ 45, 2 ] + mas_otchet[ 46, 2 ] + mas_otchet[ 47, 2 ]
+                mas_otchet[ 35, 3 ] := mas_otchet[ 44, 3 ] + mas_otchet[ 45, 3 ] + mas_otchet[ 46, 3 ] + mas_otchet[ 47, 3 ]
+                mas_otchet[ 35, 4 ] := mas_otchet[ 44, 4 ] + mas_otchet[ 45, 4 ] + mas_otchet[ 46, 4 ] + mas_otchet[ 47, 4 ]
               Else // посещения с иными целями
                 // отсекаем нулевки
                 If hu->stoim > 0
@@ -2539,6 +2612,29 @@ Function f2ret_oms_human( nkey )
       mas_otchet[ 14, 4 ] += mas_otchet[ 17, 4 ] + mas_otchet[ 18, 4 ] + mas_otchet[ 19, 4 ] + mas_otchet[ 20, 4 ] + mas_otchet[ 21, 4 ] + ;
         mas_otchet[ 22, 4 ] + mas_otchet[ 23, 4 ]
       //
+      add_string("" )
+      add_string(padc("Отказы по план-заказу",100))
+      add_string( '                                                          Взрослые   Дети     Итого         Взрослые     Дети    Итого' )
+      smm1 := smm2 := smm3 := smm4 := 0
+      ii :=0
+      for i := 1 to len(arrPZ)
+        if arr_sv[i,1] > 0 .or.  arr_sv[i,2] > 0
+           ++ii
+           add_string(padl(lstr(ii),3) +" "+ padr(arrPZ[i,3],49)+ ;
+                      PadL( lstr(arr_sv[i,3]),10)+PadL( lstr(arr_sv[i,4]),9)+PadL( lstr(arr_sv[i,3]+arr_sv[i,4]),9)+ "  сумма "+;
+            put_kop(arr_sv[i,1],10)+put_kop(arr_sv[i,2],11)+put_kop(arr_sv[i,1]+arr_sv[i,2],11))
+           smm1 += arr_sv[i,3]
+           smm2 += arr_sv[i,4]
+           smm3 += arr_sv[i,1]
+           smm4 += arr_sv[i,2]
+        endif  
+      next
+      add_string("-------------------------------------------------------------------------------------------------------------------------" )
+      add_string(padl(" ИТОГО:   ",53)+ ;
+        PadL( lstr(smm1),10)+PadL( lstr(smm2),9)+PadL( lstr(smm1+smm2),9)+ "  сумма "+; 
+        put_kop(smm3,10)+put_kop(smm4,11)+put_kop(smm3+smm4,11))
+
+      add_string("" )
       //
       add_string( '                                                          Взрослые   Дети     Итого         Взрослые     Дети    Итого' )
       add_string( ' 1 = 3+5+31+37 Всего, в том числе                      ' + prn_novor( mas_otchet, 1 ) )
@@ -2603,10 +2699,9 @@ Function f2ret_oms_human( nkey )
       viewtext( n_file, , , , ( sh > 80 ), , , 3 )
       Return -1
       // заплатка
-      // elseif eq_any(nkey,K_F10,K_CTRL_F10) .and. tip_polzovat == TIP_ADM .and. f_Esc_Enter('смена услуги', .t.)
     Elseif eq_any( nkey, K_F10, K_CTRL_F10 ) .and. hb_user_curUser:isadmin() .and. f_esc_enter( 'смена услуги', .t. )
       tmp_1 := Select()
-      g_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+      g_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
       Select ( tmp_1 )
       Go Top
       Do While !Eof()

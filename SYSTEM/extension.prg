@@ -11,11 +11,11 @@ static hExistsFilesNSI  // переменная используется в exists_file_TFOMS(...), arr
 
 // 12.03.23
 function array_exists_files_TFOMS( nYear )
-
   return hExistsFilesNSI[ nYear ]
   
 // 12.03.23
 function exists_file_TFOMS( nYear, nameTFOMS )
+
   local ret := .f., arr, i
 
   if nYear >= 2018
@@ -34,7 +34,7 @@ function value_public_is_VMP( nYear )
   return __mvGet( cVar )
 
 // 26.09.23
-function fill_exists_files_TFOMS( cur_dir )
+function fill_exists_files_TFOMS( working_dir )
   local counterYear, prefix, arr
   local cDbf := '.dbf'
   local cDbt := '.dbt'
@@ -43,7 +43,7 @@ function fill_exists_files_TFOMS( cur_dir )
     hExistsFilesNSI := hb_Hash()
     for counterYear = 2018 to WORK_YEAR
       arr := {}
-      prefix := cur_dir + prefixFileRefName( counterYear )
+      prefix := working_dir + prefixFileRefName( counterYear )
       aadd(arr, { 'vmp_usl', hb_FileExists( prefix + 'vmp_usl' + cDbf ) } )
       aadd(arr, { 'dep', hb_FileExists( prefix + 'dep' + cDbf ) } )
       aadd(arr, { 'deppr', hb_FileExists( prefix + 'deppr' + cDbf ) } )
@@ -67,7 +67,6 @@ function fill_exists_files_TFOMS( cur_dir )
   return nil
 
 function openSQL_DB()
-
   return sqlite3_open( dir_exe() + FILE_NAME_SQL, .f. )
 
 // 19.01.23
@@ -83,7 +82,6 @@ function timeout_load( /*@*/time_load )
       ret := .t.
     endif
   endif
-
   return ret
 
 function aliasIsAlreadyUse( cAlias )
@@ -93,14 +91,13 @@ function aliasIsAlreadyUse( cAlias )
   if select( cAlias ) != 0
     we_opened_it = .t.
   endif
-
   select( save_sel )
   return we_opened_it
 
 // 18.03.23 
 Function create_name_alias( cVarAlias, in_date )
-  //* cVarAlias - строка с начальными символами алиаса
-  //* in_date - дата на которую необходимо сформировать алиас
+  // cVarAlias - строка с начальными символами алиаса
+  // in_date - дата на которую необходимо сформировать алиас
   local ret := cVarAlias, valYear
 
   // проверим входные параметры
@@ -111,11 +108,9 @@ Function create_name_alias( cVarAlias, in_date )
   else
     return ret
   endif
-
-  if   ( ( valYear == WORK_YEAR ) .or. ( valYear < 2018 ) )
+  if ( ( valYear == WORK_YEAR ) .or. ( valYear < 2018 ) )
     return ret
   endif
-
   ret += substr( str( valYear, 4 ), 3 )
   return ret
 
@@ -132,7 +127,6 @@ function prefixFileRefName( in_date )
   else
     valYear := WORK_YEAR
   endif
-
   return '_mo' + substr( str( valYear, 4, 0 ), 4, 1 )
 
 // 23.12.21
@@ -148,7 +142,6 @@ function last_digits_year( in_date )
   else
     valYear := WORK_YEAR
   endif
-
   return str( valYear - 2000, 2, 0 )
 
 // 14.02.21
@@ -164,7 +157,7 @@ function checkNTXFile( cSource, cDest )
   local nPos
 
   if len( arrNTXFile ) == 0
-    arrNTXFile := hb_vfDirectory( cur_dir + '*.ntx' )
+    arrNTXFile := hb_vfDirectory( cur_dir() + '*.ntx' )
   endif
 
   HB_VFTIMEGET( cSource, @tsDateTimeSource )
@@ -179,7 +172,6 @@ function checkNTXFile( cSource, cDest )
   if tsDateTimeSource > tsDateTimeDest
     fl := .t.
   endif
-
   return fl
 
 // 08.10.23
@@ -189,41 +181,142 @@ function suffixFileTimestamp()
   cRet := hb_StrReplace( hb_strShrink( HB_TSTOSTR( hb_DateTime(), .f. ), 4 ), ' :', '__' )
   return cRet
 
-  function SaveTo( cOldFileFull )
-    local nResult
-    local cDirR, cNameR, cExtR
-    local nameFile
-    local newDir
+function SaveTo( cOldFileFull )
+  local nResult
+  local cDirR, cNameR, cExtR
+  local nameFile
+  local newDir
   
-    hb_FNameSplit( cOldFileFull, @cDirR, @cNameR, @cExtR )
-    nameFile := cNameR + cExtR
+  hb_FNameSplit( cOldFileFull, @cDirR, @cNameR, @cExtR )
+  nameFile := cNameR + cExtR
   
-    newDir := manager( 5, 10, maxrow() - 2, , .t., 2, .f., , , ) // "norton" для выбора каталога
-    if !empty( newDir )
-      if upper( newDir ) == upper( cDirR )
-        func_error( 4, 'Выбран каталог, в котором уже записан целевой файл! Это недопустимо.' )
-      else
-        if hb_FileExists( cOldFileFull )
-          mywait( 'Копирование "' + nameFile + '" в каталог "' + newDir + '"' )
-          if hb_FileExists( newDir + nameFile )
-            hb_FileDelete( newDir + nameFile )
-          endif
-          nResult := FRename( ( cOldFileFull ), ( newDir + nameFile ) )
-          if nResult != 0
-            func_error( 4, "Ошибка создания файла " + newDir + nameFile )
-          else
-            n_message( { 'В каталоге ' + newDir + ' записан файл', ;
-              '"' + upper( nameFile ) + '".' ;
-              }, , ;
-              cColorSt2Msg, cColorStMsg, , , "G+/R" )
-          endif
+  newDir := manager( 5, 10, maxrow() - 2, , .t., 2, .f., , , ) // "norton" для выбора каталога
+  if !empty( newDir )
+    if upper( newDir ) == upper( cDirR )
+      func_error( 4, 'Выбран каталог, в котором уже записан целевой файл! Это недопустимо.' )
+    else
+      if hb_FileExists( cOldFileFull )
+        mywait( 'Копирование "' + nameFile + '" в каталог "' + newDir + '"' )
+        if hb_FileExists( newDir + nameFile )
+          hb_FileDelete( newDir + nameFile )
+        endif
+        nResult := FRename( ( cOldFileFull ), ( newDir + nameFile ) )
+        if nResult != 0
+          func_error( 4, "Ошибка создания файла " + newDir + nameFile )
+        else
+          n_message( { 'В каталоге ' + newDir + ' записан файл', ;
+            '"' + upper( nameFile ) + '".' ;
+            }, , ;
+            cColorSt2Msg, cColorStMsg, , , "G+/R" )
         endif
       endif
-    else
-      n_message( { 'В каталоге ' + cDirR + ' записан файл', ;
-      '"' + upper( nameFile ) + '".' ;
-      } , , ;
-      cColorSt2Msg, cColorStMsg, , , "G+/R" )
+    endif
+  else
+    n_message( { 'В каталоге ' + cDirR + ' записан файл', ;
+    '"' + upper( nameFile ) + '".' ;
+    } , , ;
+    cColorSt2Msg, cColorStMsg, , , "G+/R" )
   endif
-  
   return iif( empty( newDir ), nil, newDir + nameFile )
+
+function sdbf()
+  return '.DBF'
+
+function sntx()
+  return '.NTX'
+
+function stxt()
+  return '.TXT'
+
+function szip()
+  return '.ZIP'
+
+function smem()
+  return '.MEM'
+
+function srar()
+  return '.RAR'
+
+function sxml()
+  return '.XML'
+
+function sini()
+  return '.INI'
+
+function sfr3()
+  return '.FR3'
+
+function sfrm()
+  return '.FRM'
+
+function spdf()
+  return '.PDF'
+
+function scsv()
+  return '.CSV'
+
+function sxls()
+  return '.xls'
+
+function schip()
+  return '.CHIP'
+
+function sdbt()
+  return '.dbt'
+
+// 30.05.25
+function dir_XML_MO()
+  return 'XML_MO'
+
+  // 30.05.25
+function dir_XML_TF()
+  return 'XML_TF'
+
+  // 30.05.25
+function dir_NAPR_MO()
+  return 'NAPR_MO'
+
+  // 30.05.25
+function dir_NAPR_TF()
+  return 'NAPR_TF'
+
+// 15.10.24
+function _tmp_dir()
+  
+return 'TMP___'
+
+// 15.10.24
+function _tmp_dir1()
+
+return 'TMP___' + hb_ps()
+
+// 15.10.24
+function _tmp2dir()
+  
+  return 'TMP2___'
+
+// 15.10.24
+function _tmp2dir1()
+  
+  return 'TMP2___' + hb_ps()
+
+// 03.06.25 формирование строки версии программы
+function Err_version()
+  
+  static strVersion
+
+  if HB_ISNIL( strVersion )
+    strVersion := fs_version( _version() ) + ' от ' + _date_version()
+  endif
+  return strVersion
+
+// 28.09.25 - добавление пустых записей в файл БД до опреде6ленного количества
+function increase_DB_to_specified_size( alias, size )
+
+  // alias - строка алиас-а куда добавляем
+  // size - необходимое количество записей в файле БД
+
+  Do While ( alias )->( LastRec() ) < size
+    ( alias )->( dbAppend() )
+  Enddo
+  return nil

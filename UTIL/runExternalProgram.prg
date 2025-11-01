@@ -8,170 +8,156 @@
 
 #define SW_SHOWNORMAL 1
 
-// 07.03.22
-// function openExcel(cFile)
-//   local error
-
-//   // error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', 'Excel.exe', cFile, , 1)
-//   error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', cFile, , , SW_SHOWNORMAL)
-//   // if error <= 32
-//   //   error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', 'scalc.exe', cFile, , 1)
-//   // endif
-//   // if error <= 32
-//   //   func_error(4, 'Эе возможен запуск Excel или LibreOffice Calc!')
-//   // endif
-//   if error <= 32
-//     Err_WAPI_ShellExecute(error, cFile)
-//   endif
-//   return nil
-
 // 14.10.24
 Function f_help()
+
   Local spar := ''
-  local error
-  local cFile := dir_exe() + 'CHIP_MO.CHM'
+  Local error
+  Local cFile := dir_exe() + 'chip_mo.chm'
 
 #ifdef __PLATFORM__UNIX
-  alertx('Помощь не доступна!')
+  alertx( 'Помощь не доступна!' )
 #else
-  if chm_help_code >= 0
-    spar := '-mapid ' + lstr(chm_help_code) + ' '
-  endif
-  error := ShellExecute(GetDeskTopWindow(), 'open', 'hh.exe', spar + cFile, , SW_SHOWNORMAL)
-  if error <= 32
-    Err_WAPI_ShellExecute(error, cFile)
-  endif
+  If chm_help_code >= 0
+    spar := '-mapid ' + lstr( chm_help_code ) + ' '
+  Endif
+  error := shellexecute( getdesktopwindow(), 'open', 'hh.exe', spar + cFile, , SW_SHOWNORMAL )
+  If error <= 32
+    err_wapi_shellexecute( error, cFile )
+  Endif
 #endif
-  return NIL
-  
+  Return Nil
+
 // 14.10.24
-Function view_file_in_Viewer(cFile)
-  local error
+Function view_file_in_viewer( cFile )
+
+  Local error
 
 #ifdef __PLATFORM__UNIX
 #else
-  error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', cFile, , , SW_SHOWNORMAL)
-  if error <= 32
-    Err_WAPI_ShellExecute(error, cFile)
-  endif
+
+  error := wapi_ShellExecute( getdesktopwindow(), 'open', cFile, , , SW_SHOWNORMAL )
+  If error <= 32
+    err_wapi_shellexecute( error, cFile )
+  Endif
 #endif
+  Return Nil
 
-  return NIL
-  
 // 14.10.24
-function Err_WAPI_ShellExecute(nCode, cFile)
+Function err_wapi_shellexecute( nCode, cFile )
 
-  do case
-    case nCode == SE_ERR_FNF
-      alertx('Файл ' + cFile + ' не найден.')
-    case nCode == SE_ERR_PNF
-      alertx('Путь ' + hb_FNameDir(cFile ) + ' отсутствует.')
-    case nCode == SE_ERR_SHARE
-      alertx('Произошла ошибка совместного доступа.')
-    case nCode == SE_ERR_ASSOCINCOMPLETE
-      alertx('Ассоциация имени файла с расширением ' + hb_FNameExt( cFile ) + ' является или неполной или недействительной.')
-    case nCode == SE_ERR_NOASSOC
-      alertx('Отсутствует программа, связанная с типом файла: ' + hb_FNameExt( cFile ))
-    otherwise
-  endcase
-  return nil
+  Do Case
+  Case nCode == SE_ERR_FNF
+    alertx( 'Файл ' + cFile + ' не найден.' )
+  Case nCode == SE_ERR_PNF
+    alertx( 'Путь ' + hb_FNameDir( cFile ) + ' отсутствует.' )
+  Case nCode == SE_ERR_SHARE
+    alertx( 'Произошла ошибка совместного доступа.' )
+  Case nCode == SE_ERR_ASSOCINCOMPLETE
+    alertx( 'Ассоциация имени файла с расширением ' + hb_FNameExt( cFile ) + ' является или неполной или недействительной.' )
+  Case nCode == SE_ERR_NOASSOC
+    alertx( 'Отсутствует программа, связанная с типом файла: ' + hb_FNameExt( cFile ) )
+  Otherwise
+  Endcase
+  Return Nil
 
-** 10.11.13 запуск Excel'а
-Function Start_Excel(/*@*/oExcel, /*@*/is_open_or_create)
+// * 10.11.13 запуск Excel'а
+Function start_excel( /*@*/oExcel, /*@*/is_open_or_create)
+
   Static sExcel := 'Excel.Application'
-  Local ret := .f., bSaveHandler := ERRORBLOCK( {|x| BREAK(x)})
+  Local ret := .f., bSaveHandler := ErrorBlock( {| x| Break( x ) } )
 
   is_open_or_create := 0
-  BEGIN SEQUENCE
-    oExcel := GetActiveObject(sExcel) // проверим, не открыт ли уже Excel
-    oExcel:DisplayAlerts:=.f.
+  Begin Sequence
+    oExcel := GetActiveObject( sExcel ) // проверим, не открыт ли уже Excel
+    oExcel:DisplayAlerts := .f.
     is_open_or_create := 1
     ret := .t.
   RECOVER USING error
     ret := .f.
-    BEGIN SEQUENCE
-      oExcel := CreateObject(sExcel)  // иначе открываем сами
+    Begin Sequence
+      oExcel := CreateObject( sExcel )  // иначе открываем сами
       is_open_or_create := 2
       ret := .t.
     RECOVER USING error
       ret := .f.
-    END
-  END
-  ERRORBLOCK(bSaveHandler)
+    End
+  End
+  ErrorBlock( bSaveHandler )
   Return ret
 
-** 16.07.17 заполнить таблицу Excel'а
-Function fill_in_Excel_Book(inFile, outFile, fillArray, smsg)
+// 16.07.17 заполнить таблицу Excel'а
+Function fill_in_excel_book( inFile, outFile, fillArray, smsg )
+
   Local buf := save_maxrow(), bSaveHandler, msgArray := {}
-  local oSheet, oBook, oExcel, is_open_or_create, iS, jC, a, v, s
-  
-  keyboard ''
-  if !hb_FileExists(inFile)
-    return func_error(4, 'Не обнаружен файл шаблона ' + inFile)
-  elseif valtype(smsg) == 'C'
-    aadd(msgArray, 'Имеется возможность выгрузить информацию в файл/шаблон Excel,')
-    aadd(msgArray, smsg + '.')
-    aadd(msgArray, 'Файл ' + upper(outFile) + ' не должет быть открыт')
-    aadd(msgArray, '(и, вообще, лучше закрыть программу Excel, если она открыта).')
-    aadd(msgArray, '')
-    aadd(msgArray, 'Выберите действие:')
-    if f_alert(msgArray, {' Отказ ', ' Выгрузка в файл Excel '}, 1, 'GR+/R', 'W+/R', , ,'GR+/R,N/BG') != 2
-      return NIL
-    endif
-  endif
-  stat_msg('Ждите! Производится запуск Excel')
-  if Start_Excel(@oExcel, @is_open_or_create)
+  Local oSheet, oBook, oExcel, is_open_or_create, iS, jC, a, v, s
+
+  Keyboard ''
+  If !hb_FileExists( inFile )
+    Return func_error( 4, 'Не обнаружен файл шаблона ' + inFile )
+  Elseif ValType( smsg ) == 'C'
+    AAdd( msgArray, 'Имеется возможность выгрузить информацию в файл/шаблон Excel,' )
+    AAdd( msgArray, smsg + '.' )
+    AAdd( msgArray, 'Файл ' + Upper( outFile ) + ' не должет быть открыт' )
+    AAdd( msgArray, '(и, вообще, лучше закрыть программу Excel, если она открыта).' )
+    AAdd( msgArray, '' )
+    AAdd( msgArray, 'Выберите действие:' )
+    If f_alert( msgArray, { ' Отказ ', ' Выгрузка в файл Excel ' }, 1, 'GR+/R', 'W+/R', , , 'GR+/R,N/BG' ) != 2
+      Return Nil
+    Endif
+  Endif
+  stat_msg( 'Ждите! Производится запуск Excel' )
+  If start_excel( @oExcel, @is_open_or_create )
     oExcel:Visible := .f.
-    oExcel:DisplayAlerts:=.f.
-    oBook := oExcel:WorkBooks:Open(inFile)
-    FOR EACH oSheet IN oBook:WorkSheets
-      stat_msg('Обрабатывается лист "' + oSheet:Name + '"')
-      if (iS := ascan(fillArray, {|x| x[1] == oSheet:Name})) > 0
-        a := fillArray[iS, 2]
-        for jC := 1 to len(a) // цикл по ячейкам конкретного листа
+    oExcel:DisplayAlerts := .f.
+    oBook := oExcel:WorkBooks:open( inFile )
+    For Each oSheet IN oBook:WorkSheets
+      stat_msg( 'Обрабатывается лист "' + oSheet:Name + '"' )
+      If ( iS := AScan( fillArray, {| x| x[ 1 ] == oSheet:Name } ) ) > 0
+        a := fillArray[ iS, 2 ]
+        For jC := 1 To Len( a ) // цикл по ячейкам конкретного листа
           s := ''
-          if (v := valtype(a[jC, 3])) == 'N'
-            s := lstr(a[jC, 3])
-          elseif v == 'C'
-            s := a[jC, 3]
-          elseif v == 'D'
-            s := full_date(a[jC, 3])
-          endif
-          oSheet:Cells(a[jC, 1],a[jC, 2]):Value := s
-        next
-      endif
-    next
-    bSaveHandler := ERRORBLOCK({|x| BREAK(x)})
-    BEGIN SEQUENCE
-      if int(val(oExcel:get('Version'))) < 12
-        oBook:SaveAs(outFile, 43)  // xlExcel9795
-      else
-        oBook:SaveAs(outFile, 56)  // xlExcel8
-      endif
-      if is_open_or_create == 2 // если Excel не был открыт, а мы его открыли
-        oBook:close(.f., , .f.)   // закрыть книгу
-        oExcel:Quit()           // закрываем Excel
+          If ( v := ValType( a[ jC, 3 ] ) ) == 'N'
+            s := lstr( a[ jC, 3 ] )
+          Elseif v == 'C'
+            s := a[ jC, 3 ]
+          Elseif v == 'D'
+            s := full_date( a[ jC, 3 ] )
+          Endif
+          oSheet:cells( a[ jC, 1 ], a[ jC, 2 ] ):Value := s
+        Next
+      Endif
+    Next
+    bSaveHandler := ErrorBlock( {| x| Break( x ) } )
+    Begin Sequence
+      If Int( Val( oExcel:Get( 'Version' ) ) ) < 12
+        oBook:saveas( outFile, 43 )  // xlExcel9795
+      Else
+        oBook:saveas( outFile, 56 )  // xlExcel8
+      Endif
+      If is_open_or_create == 2 // если Excel не был открыт, а мы его открыли
+        oBook:close( .f., , .f. )   // закрыть книгу
+        oExcel:quit()           // закрываем Excel
         oBook  := nil
         oSheet := nil
         oExcel := nil
-        millisec(1000)  // pause
-        WAPI_SHELLEXECUTE(0, 'OPEN', outFile) // снова запускаем Excel
-      else
-        oBook:Activate()        // сделать книгу активной
+        Millisec( 1000 )  // pause
+        wapi_ShellExecute( 0, 'OPEN', outFile ) // снова запускаем Excel
+      Else
+        oBook:activate()        // сделать книгу активной
         oExcel:Visible := .t.   // сделать Excel видимым
-      endif
+      Endif
     RECOVER USING error
-      oBook:close(.f., , .f.)   // закрыть книгу
-      oExcel:Quit()           // закрываем Excel
+      oBook:close( .f., , .f. )   // закрыть книгу
+      oExcel:quit()           // закрываем Excel
       oBook  := nil
       oSheet := nil
       oExcel := nil
-      func_error(4, 'Ошибка сохранения файла ' + upper(outFile))
-    END
-    ERRORBLOCK(bSaveHandler)
-  else
-    func_error(4, 'Неудачная попытка запуска Excel')
-  endif
-  rest_box(buf)
-  return NIL
-  
+      func_error( 4, 'Ошибка сохранения файла ' + Upper( outFile ) )
+    End
+    ErrorBlock( bSaveHandler )
+  Else
+    func_error( 4, 'Неудачная попытка запуска Excel' )
+  Endif
+  rest_box( buf )
+  Return Nil

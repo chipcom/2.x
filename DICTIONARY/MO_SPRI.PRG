@@ -4,12 +4,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
+#include 'tfile.ch'
 
-// 08.09.23 просмотр/печать общих справочников
+// 12.05.25 просмотр/печать общих справочников
 Function o_sprav( k )
 
   Static sk := 1, sk1 := 1, sk2 := 1
-  Local str_sem, mas_pmt, mas_msg, mas_fun, j
+  Local mas_pmt, mas_msg, mas_fun
 
   Default k To 0
   Do Case
@@ -42,7 +43,7 @@ Function o_sprav( k )
   Case k == 2
     spr_info_diagn()
   Case k == 3
-    spr_personal()
+    spr_personal( 2, 1 )
   Case k == 4
     mas_pmt := { 'Услуги диагностики при дообследовании на ~ЗНО', ;
       'Услуги по типам лечения ~ОНКОзаболеваний', ;
@@ -71,33 +72,24 @@ Function o_sprav( k )
     mas_pmt := { 'Классификатор стадий (N00~2)', ;
       'Классификатор Tumor (N00~3)', ;
       'Классификатор Nodus (N00~4)', ;
-      'Классификатор Metastasis (N00~5)' } // , ;
-    // 'Справочник соответствия стадий TNM (N00~6)'}
+      'Классификатор Metastasis (N00~5)' }
     mas_msg := { 'Распечатка классификатора стадий (N002)', ;
       'Распечатка классификатора Tumor (N003)', ;
       'Распечатка классификатора Nodus (N004)', ;
-      'Распечатка классификатора Metastasis (N005)' }  // , ;
-    // 'Распечатка справочника соответствия стадий TNM (N006)'}
+      'Распечатка классификатора Metastasis (N005)' }
     mas_fun := { 'o_sprav(21)', ;
       'o_sprav(22)', ;
       'o_sprav(23)', ;
-      'o_sprav(24)' }  // , ;
-    // 'o_sprav(25)'}
+      'o_sprav(24)' }
     popup_prompt( T_ROW, T_COL -5, sk2, mas_pmt, mas_msg, mas_fun )
   Case k == 21 //
-    // pr_sprav_N002(2)
     pr_sprav_onko( 2 )
   Case k == 22 //
-    // pr_sprav_N002(3)
     pr_sprav_onko( 3 )
   Case k == 23 //
-    // pr_sprav_N002(4)
     pr_sprav_onko( 4 )
   Case k == 24 //
-    // pr_sprav_N002(5)
     pr_sprav_onko( 5 )
-    // case k == 25 // Справочник соответствия стадий TNM
-    // pr_sprav_N006()
   Endcase
   If k > 0
     If k > 20
@@ -108,7 +100,6 @@ Function o_sprav( k )
       sk := k
     Endif
   Endif
-
   Return Nil
 
 // 02.02.22
@@ -116,7 +107,7 @@ Function fspr_uslugi( k )
 
   Static _su := 110
   Static sk := 1, sk1 := 1, sk2 := 1
-  Local str_sem, mas_pmt, mas_msg, mas_fun, j, s
+  Local mas_pmt, mas_msg, mas_fun
 
   Default k To 0
   Do Case
@@ -250,14 +241,13 @@ Function fspr_uslugi( k )
       sk := k
     Endif
   Endif
-
   Return Nil
 
 // 08.05.24
 Function f4_uslugi( reg )
 
   Local i, s := 'Список услуг ', mas[ 2 ], buf := save_maxrow(), ;
-    n_file := cur_dir + 'uslugi' + stxt, sh := 80, HH := 60, l, k, j, lshifr, lshifr1, lname
+    n_file := cur_dir() + 'uslugi.txt', sh := 80, HH := 60, l, k, j, lshifr, lshifr1, lname
   Local lExcel := .f., iOutput
   Local name_fileXLS := 'Price_' + suffixfiletimestamp()
   Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
@@ -352,11 +342,11 @@ Function f4_uslugi( reg )
   endif
   use_base( 'lusl' )
   use_base( 'luslc' )
-  r_use( dir_server + 'mo_uch', , 'LPU' )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
-  r_use( dir_server + 'usl_otd', dir_server + 'usl_otd', 'UO' )
-  r_use( dir_server + 'uslugi',, 'USL' )
-  Index On iif( kod > 0, '1', '0' ) + fsort_usl( shifr ) to ( cur_dir + 'tmp_usl' )
+  r_use( dir_server() + 'mo_uch', , 'LPU' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'usl_otd', dir_server() + 'usl_otd', 'UO' )
+  r_use( dir_server() + 'uslugi',, 'USL' )
+  Index On iif( kod > 0, '1', '0' ) + fsort_usl( shifr ) to ( cur_dir() + 'tmp_usl' )
   Go Top
   Do While !Eof()
     lshifr := ''
@@ -443,11 +433,10 @@ Function f4_uslugi( reg )
   Endif
   Return Nil
 
-
 //
 Function f42_uslugi( reg, _shifr )
 
-  Local s := "", v1, v2, fl1del, fl2del
+  Local s := '', v1, v2, fl1del, fl2del
 
   If reg == 1
     Select LUSL
@@ -456,42 +445,40 @@ Function f42_uslugi( reg, _shifr )
       v1 := fcena_oms( lusl->shifr, .t., sys1_date, @fl1del )
       v2 := fcena_oms( lusl->shifr, .f., sys1_date, @fl2del )
       If fl1del .and. fl2del
-        s += "удалена ТФОМС"
+        s += 'удалена ТФОМС'
       Else
-        s += "Ц=" + dellastnul( v1 ) + ";ЦД=" + dellastnul( v2 )
+        s += 'Ц=' + dellastnul( v1 ) + ';ЦД=' + dellastnul( v2 )
       Endif
     Elseif !emptyall( usl->cena, usl->cena_d )
-      s += "Ц=" + dellastnul( usl->cena ) + ";ЦД=" + dellastnul( usl->cena_d )
+      s += 'Ц=' + dellastnul( usl->cena ) + ';ЦД=' + dellastnul( usl->cena_d )
     Endif
   Endif
   // для платных услуг
   If eq_any( reg, 2, 3, 23 )
     If eq_any( reg, 2, 23 ) .and. !emptyall( usl->pcena, usl->pcena_d )
-      s += "ПлЦ=" + dellastnul( usl->pcena )
+      s += 'ПлЦ=' + dellastnul( usl->pcena )
       If !Empty( usl->pnds )
-        s += "(НДС=" + dellastnul( usl->pnds ) + ")"
+        s += '(НДС=' + dellastnul( usl->pnds ) + ')'
       Endif
-      s += ";ПлЦД=" + dellastnul( usl->pcena_d )
+      s += ';ПлЦД=' + dellastnul( usl->pcena_d )
       If !Empty( usl->pnds_d )
-        s += "(НДС=" + dellastnul( usl->pnds_d ) + ")"
+        s += '(НДС=' + dellastnul( usl->pnds_d ) + ')'
       Endif
     Endif
     If eq_any( reg, 3, 23 ) .and. !Empty( usl->dms_cena )
       If !Empty( s )
-        s += ";"
+        s += ';'
       Endif
-      s += "ДМС=" + dellastnul( usl->dms_cena )
+      s += 'ДМС=' + dellastnul( usl->dms_cena )
     Endif
   Endif
-
   Return s
-
 
 // 26.05.23
 Function v_1usluga()
 
-  Local arr_usl, atf := { 0, '', '' }, i := 1, k, mas[ 2 ], sh := 80, HH := 60, j := 0, j1, ;
-    sb, fl, lshifr, s, n_file := cur_dir + 'usluga_1' + stxt
+  Local arr_usl, atf := { 0, '', '' }, i := 1, k, mas[ 2 ], sh := 80, HH := 60, j := 0, ;
+    lshifr, s, n_file := cur_dir() + 'usluga_1.txt'
   Local prefix := prefixfilerefname( WORK_YEAR )
 
   If ( arr_usl := input_usluga( atf ) ) != NIL
@@ -500,10 +487,10 @@ Function v_1usluga()
     n_list := 1
     tek_stroke := 0
 
-    r_use( dir_exe() + prefix + 'dep', cur_dir + prefix + 'dep', 'DEP' )
+    r_use( dir_exe() + prefix + 'dep', cur_dir() + prefix + 'dep', 'DEP' )
     use_base( 'lusl' )
     use_base( 'luslc' )
-    r_use( dir_server + 'uslugi', dir_server + 'uslugi', 'USL' )
+    r_use( dir_server() + 'uslugi', dir_server() + 'uslugi', 'USL' )
     add_string( '' )
     add_string( Center( 'ПРОСМОТР УСЛУГИ', sh ) )
     add_string( '' )
@@ -596,14 +583,13 @@ Function v_1usluga()
     FClose( fp )
     viewtext( n_file, , , , , , , 2 )
   Endif
-
   Return Nil
 
 
 // 08.02.23
 Function v_k_uslugi()
 
-  Local sh := 80, HH := 57, n_file := cur_dir + 'k_uslugi' + stxt
+  Local sh := 80, HH := 57, n_file := cur_dir() + 'k_uslugi.txt'
 
   mywait()
   fp := FCreate( n_file )
@@ -612,10 +598,10 @@ Function v_k_uslugi()
   add_string( '' )
   add_string( Center( 'КОМПЛЕКСНЫЕ УСЛУГИ', sh ) )
   add_string( '' )
-  r_use( dir_server + 'uslugi', dir_server + 'uslugish', 'USL' )
-  r_use( dir_server + 'uslugi1k', dir_server + 'uslugi1k', 'U1K' )
+  r_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
+  r_use( dir_server() + 'uslugi1k', dir_server() + 'uslugi1k', 'U1K' )
   Set Relation To shifr1 into USL
-  r_use( dir_server + 'uslugi_k', dir_server + 'uslugi_k', 'UK' )
+  r_use( dir_server() + 'uslugi_k', dir_server() + 'uslugi_k', 'UK' )
   Go Top
   Do While !Eof()
     verify_ff( HH -3, .t., sh )
@@ -634,13 +620,12 @@ Function v_k_uslugi()
   Close databases
   FClose( fp )
   viewtext( n_file, , , , , , , 2 )
-
   Return Nil
 
 // 31.01.23
 Function v_implantant()
 
-  Local vrem_local := '', k, l, s, i, ss, sh := 80, HH := 57, n_file := cur_dir + 'implant' + stxt
+  Local vrem_local := '', k, l, s, i, sh := 80, HH := 57, n_file := cur_dir() + 'implant.txt'
   Local mas[ 2 ]
   Local arrImplantant := get_implantant()
 
@@ -653,21 +638,7 @@ Function v_implantant()
   add_string( '' )
   l := sh
   ASort( arrImplantant, , , {| x, y| ( PadR( x[ 7 ], 75 ) + x[ 1 ] ) < ( PadR( y[ 7 ], 75 ) + y[ 1 ] ) } )
-  // vrem_local := arrImplantant[1, 7]
-  // if len(alltrim(vrem_local)) < 2
-  // add_string(center('Без группы', sh))
-  // else
-  // add_string(center(vrem_local, sh))
-  // endif
   For i := 1 To Len( arrImplantant )
-    // if vrem_local != arrImplantant[i, 7]
-    // if verify_FF(HH, .t., sh)
-    // endif
-    // vrem_local := arrImplantant[i, 7]
-    // add_string('')
-    // add_string(center(vrem_local, sh))
-    // add_string('')
-    // endif
     If verify_ff( HH, .t., sh )
     Endif
     k := perenos( mas, AllTrim( arrImplantant[ i, 1 ] ), l, ' , ;' )
@@ -679,15 +650,12 @@ Function v_implantant()
   Next
   FClose( fp )
   viewtext( n_file, , , , , , , 2 )
-
   Return Nil
-
-
 
 // 08.02.23
 Function v_nulusluga()
 
-  Local mas[ 2 ], k, l, s, sh := 80, HH := 57, n_file := cur_dir + 'n_uslugi' + stxt
+  Local mas[ 2 ], k, l, s, sh := 80, HH := 57, n_file := cur_dir() + 'n_uslugi.txt'
 
   mywait()
   fp := FCreate( n_file )
@@ -704,12 +672,12 @@ Function v_nulusluga()
   Else
     l := sh
   Endif
-  r_use( dir_server + 'uslugi', , 'USL' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
   For i := 1 To 2
     add_string( '' )
     add_string( Center( iif( i == 1, '[ ОМС ]', '[ Платные услуги ]' ), sh ) )
     add_string( '' )
-    Index On iif( kod > 0, '1', '0' ) + fsort_usl( shifr ) to ( cur_dir + 'tmp_usl' ) ;
+    Index On iif( kod > 0, '1', '0' ) + fsort_usl( shifr ) to ( cur_dir() + 'tmp_usl' ) ;
       For !Empty( shifr ) .and. iif( i == 1, is_nul, is_nulp )
     Go Top
     Do While !Eof()
@@ -721,9 +689,6 @@ Function v_nulusluga()
         verify_ff( HH, .t., sh )
       Endif
       s := RTrim( usl->shifr ) + ' '
-      // if usl->zf == 1
-      // s += '[ЗФ] '
-      // endif
       k := perenos( mas, s + AllTrim( usl->name ), l, ' , ;' )
       s := PadR( mas[ 1 ], l )
       If mem_trudoem == 2
@@ -746,20 +711,19 @@ Function v_nulusluga()
   Close databases
   FClose( fp )
   viewtext( n_file, , , , , , , 2 )
-
   Return Nil
 
 // 30.05.23 даты смены цен
 Function usl1tfoms()
 
-  Local k, buf := save_maxrow(), name_file := cur_dir + 'uslugi' + stxt, sh := 80, HH := 60, ;
-    i, s, fl, v1, v2, mdate, pole, nu, t_arr[ BR_LEN ], ret, ret_arr, scode, dy
+  Local k, buf := save_maxrow(), name_file := cur_dir() + 'uslugi.txt', sh := 80, HH := 60, ;
+    i, s, mdate, t_arr[ BR_LEN ], ret, ret_arr, scode, dy
   Local sbase, tmpAlias
 
   mywait()
-  dbCreate( cur_dir + 'tmp', { { 'ibeg', 'N', 1, 0 }, { 'iend', 'N', 1, 0 }, { 'data', 'D', 8, 0 } } )
-  Use ( cur_dir + 'tmp' ) new
-  Index On DToS( data ) to ( cur_dir + 'tmp' )
+  dbCreate( cur_dir() + 'tmp', { { 'ibeg', 'N', 1, 0 }, { 'iend', 'N', 1, 0 }, { 'data', 'D', 8, 0 } } )
+  Use ( cur_dir() + 'tmp' ) new
+  Index On DToS( data ) to ( cur_dir() + 'tmp' )
   use_base( 'luslc' )
 
   For i := 2018 To WORK_YEAR
@@ -768,7 +732,7 @@ Function usl1tfoms()
       Loop
     Endif
     Select ( tmpAlias )
-    Index On datebeg to ( cur_dir + 'tmp_' + tmpAlias ) For !Empty( datebeg ) .and. codemo == glob_mo[ _MO_KOD_TFOMS ] unique
+    Index On datebeg to ( cur_dir() + 'tmp_' + tmpAlias ) For !Empty( datebeg ) .and. codemo == glob_mo[ _MO_KOD_TFOMS ] unique
     Go Top
     Do While !Eof()
       Select TMP
@@ -779,7 +743,7 @@ Function usl1tfoms()
       Skip
     Enddo
     Select ( tmpAlias )
-    Index On dateend to ( cur_dir + 'tmp_' + tmpAlias ) For !Empty( dateend ) .and. codemo == glob_mo[ _MO_KOD_TFOMS ] unique
+    Index On dateend to ( cur_dir() + 'tmp_' + tmpAlias ) For !Empty( dateend ) .and. codemo == glob_mo[ _MO_KOD_TFOMS ] unique
     Go Top
     Do While !Eof()
       Select TMP
@@ -794,7 +758,6 @@ Function usl1tfoms()
     Enddo
   Next
   Close databases
-
   rest_box( buf )
   t_arr[ BR_TOP ] := T_ROW
   t_arr[ BR_BOTTOM ] := MaxRow() -2
@@ -805,17 +768,16 @@ Function usl1tfoms()
     { 'Окончание; действия;  услуг', {|| iif( tmp->iend == 1, full_date( tmp->data ), Space( 10 ) ) } } }
   t_arr[ BR_STAT_MSG ] := {|| status_key( '^<Esc>^ - выход;  ^<Enter>^ - выбор' ) }
   t_arr[ BR_ENTER ] := {|| ret := { tmp->data, tmp->ibeg, tmp->iend } }
-  Use ( cur_dir + 'tmp' ) index ( cur_dir + 'tmp' ) new
+  Use ( cur_dir() + 'tmp' ) index ( cur_dir() + 'tmp' ) new
   Keyboard Chr( K_END )
   edit_browse( t_arr )
   Close databases
-
   If ret != NIL
     mdate := ret[ 1 ]
     dy := Year( mdate )
     scode := glob_mo[ _MO_KOD_TFOMS ]
     mywait()
-    dbCreate( cur_dir + 'tmp1', { { 'shifr',   'C', 10, 0 }, ;
+    dbCreate( cur_dir() + 'tmp1', { { 'shifr',   'C', 10, 0 }, ;
       { 'flv',     'L', 1, 0 }, ;
       { 'fld',     'L', 1, 0 }, ;
       { 'depart',  'N', 3, 0 }, ;
@@ -823,10 +785,10 @@ Function usl1tfoms()
       { 'cenad',   'N', 10, 2 } } )
 
     sbase := prefixfilerefname( dy ) + 'dep'
-    r_use( dir_exe() + sbase, cur_dir + sbase, 'DEP' )
+    r_use( dir_exe() + sbase, cur_dir() + sbase, 'DEP' )
 
-    Use ( cur_dir + 'tmp1' ) new
-    Index On shifr + Str( depart, 3 ) to ( cur_dir + 'tmp1' )
+    Use ( cur_dir() + 'tmp1' ) new
+    Index On shifr + Str( depart, 3 ) to ( cur_dir() + 'tmp1' )
     fp := FCreate( name_file )
     n_list := 1
     tek_stroke := 0
@@ -839,9 +801,6 @@ Function usl1tfoms()
       use_base( 'luslc' )
       tmpAlias := create_name_alias( 'LUSLC', dy )
       Select ( tmpAlias )
-      // set order to 2 // работаем с собственными ценами
-      // find (scode)
-      // do while (tmpAlias)->CODEMO == scode .and. !eof()
       Go Top
       Do While !Eof()
         If ( tmpAlias )->datebeg == mdate
@@ -871,7 +830,7 @@ Function usl1tfoms()
       lal := create_name_alias( lal, dy )
       Set Relation To shifr into ( lal )
 
-      Index On fsort_usl( shifr ) to ( cur_dir + 'tmp1' )
+      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp1' )
       Go Top
       old := Space( 10 )
       Do While !Eof()
@@ -920,9 +879,6 @@ Function usl1tfoms()
       use_base( 'luslc' )
       tmpAlias := create_name_alias( 'LUSLC', dy )
       Select ( tmpAlias )
-      // set order to 2 // работаем с собственными ценами
-      // find (scode)
-      // do while (tmpAlias)->CODEMO == scode .and. !eof()
       Go Top
       Do While !Eof()
         If !Empty( ( tmpAlias )->dateend ) .and. ( tmpAlias )->dateend == mdate
@@ -951,7 +907,7 @@ Function usl1tfoms()
       lal := create_name_alias( lal, dy )
       Set Relation To shifr into ( lal )
 
-      Index On fsort_usl( shifr ) to ( cur_dir + 'tmp1' )
+      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp1' )
       Go Top
       old := Space( 10 )
       Do While !Eof()
@@ -997,7 +953,6 @@ Function usl1tfoms()
     FClose( fp )
     viewtext( name_file, , , , .t., , , 2 )
   Endif
-
   Return Nil
 
 // 15.01.18
@@ -1012,19 +967,18 @@ Function ret_otd_dep()
   If ValType( ret_arr ) == "A"
     glob_otd_dep := ret_arr[ 2 ]
   Endif
-
   Return ret_arr
 
-// 07.08.17
+// 09.09.25
 Function f_spr_usl_adres_podr()
 
   Static arr := {}
   Local i, j, ret_arr
 
-  If ( i := AScan( glob_adres_podr, {| x| x[ 1 ] == glob_mo[ _MO_KOD_TFOMS ] } ) ) > 0
+  If ( i := AScan( glob_adres_podr(), {| x| x[ 1 ] == glob_mo[ _MO_KOD_TFOMS ] } ) ) > 0
     If Empty( arr )
-      For j := 1 To Len( glob_adres_podr[ i, 2 ] )
-        AAdd( arr, { glob_adres_podr[ i, 2, j, 3 ], glob_adres_podr[ i, 2, j, 1 ] } )
+      For j := 1 To Len( glob_adres_podr()[ i, 2 ] )
+        AAdd( arr, { glob_adres_podr()[ i, 2, j, 3 ], glob_adres_podr()[ i, 2, j, 1 ] } )
       Next
     Endif
     popup_2array( arr, T_ROW, T_COL - 5, glob_podr, 1, @ret_arr, "Адрес удалённого подразделения", "B/BG" )
@@ -1035,15 +989,14 @@ Function f_spr_usl_adres_podr()
   If Empty( ret_arr )
     glob_podr := glob_mo[ _MO_KOD_TFOMS ] // по умолчанию
   Endif
-
   Return ret_arr
 
-// 16.06.23
+// 11.05.25
 Function usl2tfoms()
 
   Static sdate
-  Local k, buf := save_maxrow(), name_file := cur_dir + 'uslugi' + stxt, nu, ret_arr, ;
-    sh := 80, HH := 60, t_arr, i, s, fl, v1, v2, mdate, fl1uslc, fl2uslc, ;
+  Local k, buf := save_maxrow(), name_file := cur_dir() + 'uslugi.txt', nu, ret_arr, ;
+    sh := 80, HH := 60, t_arr, i, s, v1, v2, mdate, fl1uslc, fl2uslc, ;
     ta[ 2 ], lyear, fl1del, fl2del, len_ksg := 10
   Local arrKSLP, rowKSLP, tmpKSLP, arrKIRO, rowKIRO, tmpKIRO
   Local sbase
@@ -1077,11 +1030,6 @@ Function usl2tfoms()
     n_list := 1
     tek_stroke := 0
     nu := get_uroven( mdate )
-    /*if between(nu, 1, 3)
-      s := "Уровень цен на мед.услуги: "+lstr(nu)
-    else
-      s := "Индивидуальные тарифы на мед.услуги"
-    endif*/
     add_string( glob_mo[ _MO_SHORT_NAME ] + iif( ValType( ret_arr ) == 'A', ' (' + ret_arr[ 1 ] + ')', '' ) )
     add_string( '' )
     add_string( Center( 'Список услуг по группе', sh ) )
@@ -1121,23 +1069,28 @@ Function usl2tfoms()
       sbase := prefixfilerefname( lyear ) + 'k006'
       r_use( dir_exe() + sbase, , 'K006' )
 
-      Index On SHIFR + Str( ns, 6 ) to ( cur_dir + 'tmp_k006' ) unique
-      Index On SHIFR + Str( ns, 6 ) + ds + sy to ( cur_dir + 'tmp_k006_' )
-      Set Index to ( cur_dir + 'tmp_k006' ), ( cur_dir + 'tmp_k006_' )
+      Index On SHIFR + Str( ns, 6 ) to ( cur_dir() + 'tmp_k006' ) unique
+      Index On SHIFR + Str( ns, 6 ) + ds + sy to ( cur_dir() + 'tmp_k006_' )
+      Set Index to ( cur_dir() + 'tmp_k006' ), ( cur_dir() + 'tmp_k006_' )
     Endif
     use_base( 'luslc' )
     use_base( 'lusl' )
     lal := 'lusl'
     lal := create_name_alias( lal, lyear )
-
     dbSelectArea( lal )
     If t_arr[ 2 ] > 500
-      Index On fsort_usl( shifr ) to ( cur_dir + 'tmplu' ) For is_ksg( shifr, t_arr[ 2 ] -500 ) .and. datebeg >= BoY( mdate )
+      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmplu' ) For is_ksg( shifr, t_arr[ 2 ] -500 ) .and. datebeg >= BoY( mdate )
+    elseif t_arr[ 2 ] == 400
+      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmpvmp' ) For substr( shifr, 1, 5 ) == code_services_VMP( lyear ) .and. !is_ksg( shifr )
     Else
-      Index On fsort_usl( shifr ) to ( cur_dir + 'tmp' ) For usl2arr( shifr )[ 1 ] == k .and. !is_ksg( shifr )
+      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp' ) For usl2arr( shifr )[ 1 ] == k .and. !is_ksg( shifr )
     Endif
     Go Top
     Do While !Eof()
+      if t_arr[ 2 ] == 1 .and. ( SubStr( &lal.->shifr, 1, 5 ) == code_services_VMP( lyear ) )
+        Skip
+        loop
+      endif
       v1 := fcena_oms( &lal.->shifr, .t., mdate, @fl1del, @fl1uslc )
       v2 := fcena_oms( &lal.->shifr, .f., mdate, @fl2del, @fl2uslc )
       If !( fl1del .and. fl2del )
@@ -1235,7 +1188,6 @@ Function usl2tfoms()
     FClose( fp )
     viewtext( name_file, , , , .t., , , 2 )
   Endif
-
   Return Nil
 
 // 08.12.21
@@ -1257,7 +1209,6 @@ Function ret_vozrast_k006( s )
   Case s == '6'
     ret := "взрослый"
   Endcase
-
   Return ret
 
 // 08.12.21
@@ -1289,13 +1240,12 @@ Function f_ret_kz_ksg( lkz, lkslp, lkiro )
   If !Empty( lkiro )
     s += '; КИРО: ' + AllTrim( lkiro )
   Endif
-
   Return s
 
 // 08.02.23
 Function usl3tfoms()
 
-  Local i, k, buf := save_maxrow(), name_file := cur_dir + 'uslugi' + stxt, ;
+  Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugi.txt', ;
     sh := 85, HH := 80, mas1[ 5 ], mas2[ 5 ], arr[ 5 ], k1, k2, t_arr, mdate, lyear
 
   //
@@ -1324,9 +1274,9 @@ Function usl3tfoms()
     add_string( Center( 'по состоянию на ' + date_month( mdate, .t. ), sh ) )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
-    dbCreate( cur_dir + "tmp", { { "shifr", "C", 10, 0 } } )
-    Use ( cur_dir + "tmp" ) new
-    r_use( dir_server + 'uslugi',, 'USL' )
+    dbCreate( cur_dir() + "tmp", { { "shifr", "C", 10, 0 } } )
+    Use ( cur_dir() + "tmp" ) new
+    r_use( dir_server() + 'uslugi',, 'USL' )
     Go Top
     Do While !Eof()
       lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, mdate )
@@ -1341,16 +1291,16 @@ Function usl3tfoms()
     Enddo
     Select TMP
     Set Relation To RecNo() into USL
-    Index On shifr + fsort_usl( usl->shifr ) to ( cur_dir + "tmp" )
+    Index On shifr + fsort_usl( usl->shifr ) to ( cur_dir() + "tmp" )
     use_base( 'lusl' )
     lal := 'lusl'
     lal := create_name_alias( lal, lyear )
 
     dbSelectArea( lal )
     If t_arr[ 2 ] > 500
-      Index On fsort_usl( shifr ) to ( cur_dir + "tmplu" ) For is_ksg( shifr, t_arr[ 2 ] -500 ) .and. datebeg >= BoY( mdate )
+      Index On fsort_usl( shifr ) to ( cur_dir() + "tmplu" ) For is_ksg( shifr, t_arr[ 2 ] -500 ) .and. datebeg >= BoY( mdate )
     Else
-      Index On fsort_usl( shifr ) to ( cur_dir + "tmplu" ) For usl2arr( shifr )[ 1 ] == k .and. !is_ksg( shifr )
+      Index On fsort_usl( shifr ) to ( cur_dir() + "tmplu" ) For usl2arr( shifr )[ 1 ] == k .and. !is_ksg( shifr )
     Endif
     Go Top
     Do While !Eof()
@@ -1396,10 +1346,9 @@ Function usl3tfoms()
     FClose( fp )
     viewtext( name_file,,,, .t.,,, 5 )
   Endif
-
   Return Nil
 
-// 08.11.21
+// 11.05.21
 Function usl9tfoms( mdate )
 
   Static sdate, sarr1
@@ -1423,33 +1372,35 @@ Function usl9tfoms( mdate )
     { "70. Диспансеризация", 70 }, ;
     { "71. Скорая медицинская помощь", 71 }, ;
     { "72. Профилактические медицинские осмотры", 72 } }
-  Local i, ls, sShifr, arr1 := {}, lyear, fl_delete := .t., fl_yes := .f., lal := 'luslc'
+  Local i, ls, sShifr, arr1 := {}, fl_delete := .t., fl_yes := .f., lal := 'luslc'
 
   If Empty( sdate ) .or. sdate != mdate
     lal := create_name_alias( lal, mdate )
 
+    ins_array( arr, 1, { "Высокотехнологичная медицинская помощь", 400 } )
     ins_array( arr, 1, { "КСГ в ДНЕВНОМ стационаре", 502 } )
     ins_array( arr, 1, { "КСГ в СТАЦИОНАРЕ", 501 } )
 
     use_base( 'luslc' )
     For i := 1 To Len( arr )
-      If arr[ i, 2 ] > 500
+      If arr[ i, 2 ] == 400
+        sShifr := code_services_VMP( Year( mdate ) )
+      elseif arr[ i, 2 ] > 500
         sShifr := iif( arr[ i, 2 ] == 501, "st", "ds" )
       Else
         sShifr := lstr( arr[ i, 2 ] ) + "."
       Endif
       ls := Len( sShifr )
       dbSelectArea( lal )
-
       Set Order To 1
       find ( sShifr )
       Do While sShifr == Left( &lal.->shifr, ls ) .and. !Eof()
-        If iif( arr[ i, 2 ] > 500, is_ksg( &lal.->shifr ), .t. )
+        If ( iif( arr[ i, 2 ] > 500, is_ksg( &lal.->shifr ), .t. ) ) .or. ( arr[ i, 2 ] == 400 )
           fl_yes := .t.
           // поиск цены по дате окончания лечения
           If between_date( &lal.->datebeg, &lal.->dateend, mdate )
-            fl_delete := .f. ; Exit
-
+            fl_delete := .f.
+            Exit
           Endif
         Endif
         Skip
@@ -1464,7 +1415,6 @@ Function usl9tfoms( mdate )
   Endif
   sdate := mdate
   sarr1 := AClone( arr1 )
-
   Return arr1
 
 // 08.02.23
@@ -1510,7 +1460,6 @@ Function usl3ffoms()
   For i := 1 To Len( arr )
     arr[ i ] := { arr[ i ], Left( arr[ i ], 3 ) }
   Next
-
   Return arr
 
 
@@ -1557,9 +1506,7 @@ Function usl4ffoms()
   For i := 1 To Len( arr )
     arr[ i ] := { arr[ i ], Left( arr[ i ], 2 ) }
   Next
-
   Return arr
-
 
 // 08.02.23
 Function usl5ffoms()
@@ -1643,20 +1590,18 @@ Function usl5ffoms()
   For i := 1 To Len( arr )
     arr[ i ] := { arr[ i ], Left( arr[ i ], 3 ) }
   Next
-
   Return arr
 
 // 08.02.23
 Function usl_stom_ffoms()
 
   Static arr_gr := { "Общепрофильные", "Ортодонтия", "Терапевтическая стоматология", "Физиотерапия", "Хирургическая стоматология" }
-  Local i, j, k, s, buf := save_maxrow(), name_file := cur_dir + "uslugiS" + stxt, sh := 80, HH := 60, t_arr[ 2 ], fl
+  Local i, j, k, s, buf := save_maxrow(), name_file := cur_dir() + "uslugiS.txt", sh := 80, HH := 60, t_arr[ 2 ], fl
 
   mywait()
   r_use_base( "luslf" )
-  Index On Str( grp, 1 ) + shifr to ( cur_dir + "tmp_uslf" )
+  Index On Str( grp, 1 ) + shifr to ( cur_dir() + "tmp_uslf" )
   fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
-  // add_string("2020 год")
   add_string( Str( WORK_YEAR, 4, 0 ) + ' год' )
   add_string( Center( "Номенклатура стоматологических услуг Минздрава РФ (ФФОМС)", sh ) )
   add_string( "" )
@@ -1688,17 +1633,16 @@ Function usl_stom_ffoms()
   rest_box( buf )
   FClose( fp )
   viewtext( name_file,,,, .t.,,, 2 )
-
   Return Nil
 
 // 24.05.23 Распечатка списка услуг с использованием телемедицинских технологий
 Function usl_telemedicina()
 
-  Local i, j, k, buf := save_maxrow(), name_file := cur_dir + 'uslugiT' + stxt, sh := 80, HH := 60, t_arr[ 2 ], fl
+  Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiT.txt', sh := 80, HH := 60, t_arr[ 2 ]
 
   mywait()
   r_use_base( 'luslf' )
-  Index On shifr to ( cur_dir + 'tmp_uslf' ) For telemed == 1
+  Index On shifr to ( cur_dir() + 'tmp_uslf' ) For telemed == 1
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
@@ -1707,7 +1651,6 @@ Function usl_telemedicina()
   add_string( '' )
   Go Top
   Do While !Eof()
-    // k := perenos(t_arr, alltrim(luslf->shifr) + ' ' + luslf->name, sh)
     k := perenos( t_arr, PadR( luslf->shifr, 15 ) + ' ' + luslf->name, sh )
     verify_ff( HH - k, .t., sh )
     add_string( t_arr[ 1 ] )
@@ -1720,17 +1663,16 @@ Function usl_telemedicina()
   rest_box( buf )
   FClose( fp )
   viewtext( name_file, , , , .t., , , 2 )
-
   Return Nil
 
 // 28.03.23 Распечатка списка операций на парных органах
 Function usl_par_organ()
 
-  Local i, j, k, buf := save_maxrow(), name_file := cur_dir + 'uslugiT' + stxt, sh := 80, HH := 60, t_arr[ 2 ], fl
+  Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiT.txt', sh := 80, HH := 60, t_arr[ 2 ]
 
   mywait()
   r_use_base( 'luslf' )
-  Index On shifr to ( cur_dir + 'tmp_uslf' ) For !Empty( par_org )
+  Index On shifr to ( cur_dir() + 'tmp_uslf' ) For !Empty( par_org )
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
@@ -1757,7 +1699,6 @@ Function usl_par_organ()
   rest_box( buf )
   FClose( fp )
   viewtext( name_file, , , , .t., , , 2 )
-
   Return Nil
 
 // 08.02.23 Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО
@@ -1768,7 +1709,7 @@ Function usl_napr_ffoms()
     { '2 - инструментальная диагностика', 2 }, ;
     { '3 - методы лучевой диагностики, за исключением дорогостоящих', 3 }, ;
     { '4 - дорогостоящие методы лучевой диагностики (КТ, МРТ, ангиография)', 4 } }
-  Local i, j, k, buf := save_maxrow(), name_file := cur_dir + 'uslugiON' + stxt, sh := 80, HH := 60, t_arr[ 2 ], fl, ar
+  Local i, j, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiON.txt', sh := 80, HH := 60, t_arr[ 2 ], fl, ar
 
   If ( t_arr := bit_popup( T_ROW, T_COL -5, arr_gr, , color0, 1, 'Метод диагностического исследования', 'B/BG' ) ) == NIL
     Return Nil
@@ -1776,7 +1717,7 @@ Function usl_napr_ffoms()
   ar := AClone( t_arr )
   mywait()
   r_use_base( 'luslf' )
-  Index On Str( onko_napr, 1 ) + shifr to ( cur_dir + 'tmp_uslf' )
+  Index On Str( onko_napr, 1 ) + shifr to ( cur_dir() + 'tmp_uslf' )
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
@@ -1807,7 +1748,6 @@ Function usl_napr_ffoms()
   rest_box( buf )
   FClose( fp )
   viewtext( name_file, , , , .t., , , 2 )
-
   Return Nil
 
 // 08.02.23 Вывод списка услуг по типам лечения ОНКОзаболеваний
@@ -1820,7 +1760,7 @@ Function usl_ksg_ffoms()
     { '4 - Химиолучевая терапия', 4 }, ;
     { '5 - Неспецифическое лечение (осложнения противоопухолевой терапии, установка/замена порт системы (катетера))', 5 }, ;
     { '6 - Диагностика', 6 } }
-  Local i, j, k, buf := save_maxrow(), name_file := cur_dir + 'uslugiOK' + stxt, sh := 80, HH := 60, t_arr[ 2 ], fl, ar
+  Local i, j, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiOK.txt', sh := 80, HH := 60, t_arr[ 2 ], fl, ar
 
   If ( t_arr := bit_popup( T_ROW, T_COL -5, arr_gr, , color0, 1, 'Тип лечения онкологических заболеваний', 'B/BG' ) ) == NIL
     Return Nil
@@ -1828,7 +1768,7 @@ Function usl_ksg_ffoms()
   ar := AClone( t_arr )
   mywait()
   r_use_base( 'luslf' )
-  Index On Str( onko_ksg, 1 ) + shifr to ( cur_dir + 'tmp_uslf' )
+  Index On Str( onko_ksg, 1 ) + shifr to ( cur_dir() + 'tmp_uslf' )
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
@@ -1863,14 +1803,13 @@ Function usl_ksg_ffoms()
   rest_box( buf )
   FClose( fp )
   viewtext( name_file, , , , .t., , , 2 )
-
   Return Nil
 
 // 08.02.23
 Function usl1ffoms()
 
   Static su := 'A01', suA := '01', suB := '001'
-  Local k, buf := save_maxrow(), name_file := cur_dir + 'uslugiF' + stxt, arr[ 2 ], ;
+  Local k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiF.txt', arr[ 2 ], ;
     sh := 80, HH := 60, t_arr[ 2 ], t_aA[ 2 ], t_aB[ 2 ], i, n, s, fl := .f.
 
   If !Empty( popup_2array( usl3ffoms(), T_ROW, T_COL -5, su, 1, @t_arr, ;
@@ -1946,13 +1885,12 @@ Function usl1ffoms()
     FClose( fp )
     viewtext( name_file, , , , .t., , , 2 )
   Endif
-
   Return Nil
 
 // 27.05.23
 Function usl2ffoms()
 
-  Local i, k, buf := save_maxrow(), name_file := cur_dir + 'uslugiF' + stxt, sh := 85, HH := 80, mas1[ 5 ]
+  Local i, k, buf := save_maxrow(), name_file := cur_dir() + 'uslugiF.txt', sh := 85, HH := 80, mas1[ 5 ]
 
   //
   mywait()
@@ -1967,7 +1905,7 @@ Function usl2ffoms()
   add_string( '' )
   AEval( arr_title, {| x| add_string( x ) } )
   use_base( 'luslf' )
-  r_use( dir_server + 'mo_su', dir_server + 'mo_sush1', 'MOSU' )
+  r_use( dir_server() + 'mo_su', dir_server() + 'mo_sush1', 'MOSU' )
   Go Top
   Do While !Eof()
     k := 1
@@ -2005,14 +1943,13 @@ Function usl2ffoms()
   rest_box( buf )
   FClose( fp )
   viewtext( name_file, , , , .t., , , 5 )
-
   Return Nil
 
 // 08.02.23
 Function usl6ffoms( lksg )
 
-  Local k, buf := save_maxrow(), name_file := cur_dir + 'usl_ksg' + stxt, nu, sh := 80, HH := 78, ;
-    t_arr, i, s, fl, v1, v2, mdate, fl1uslc, fl2uslc, ta[ 2 ], fl1del, fl2del, ret_arr
+  Local k, buf := save_maxrow(), name_file := cur_dir() + 'usl_ksg.txt', sh := 80, HH := 78, ;
+    i, s, v1, v2, mdate, fl1uslc, fl2uslc, ta[ 2 ], fl1del, fl2del, ret_arr
   Local sbase
 
   glob_otd_dep := 0
@@ -2020,25 +1957,25 @@ Function usl6ffoms( lksg )
     Return Nil
   Endif
   mywait()
-  dbCreate( cur_dir + 'tmp', { ;
+  dbCreate( cur_dir() + 'tmp', { ;
     { 'SHIFR',      'C',     10,      0 }, ;
     { 'NAME',       'C',    255,      0 }, ;
     { 'CENA_V',     'C',     10,      0 }, ;
     { 'CENA_D',     'C',     10,      0 } } )
-  Use ( cur_dir + 'tmp' ) new
-  dbCreate( cur_dir + "tmp1", { ;
+  Use ( cur_dir() + 'tmp' ) new
+  dbCreate( cur_dir() + "tmp1", { ;
     { 'SHIFR',      'C',     10,      0 }, ;
     { 'SHIFR1',     'C',     20,      0 } } )
-  Use ( cur_dir + 'tmp1' ) new
-  Index On shifr1 + shifr to ( cur_dir + 'tmp1' )
+  Use ( cur_dir() + 'tmp1' ) new
+  Index On shifr1 + shifr to ( cur_dir() + 'tmp1' )
   mdate := sys_date
 
   sbase := prefixfilerefname( WORK_YEAR ) + 'k006'
   r_use( dir_exe() + sbase, , 'K006' )
-  Index On SHIFR + SY to ( cur_dir + 'tmp_t009' )
+  Index On SHIFR + SY to ( cur_dir() + 'tmp_t009' )
   use_base( 'luslc' )
   use_base( 'lusl' )
-  Index On fsort_usl( shifr ) to ( cur_dir + 'tmp_lusl' ) For is_ksg( shifr, lksg ) .and. datebeg >= BoY( mdate )
+  Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp_lusl' ) For is_ksg( shifr, lksg ) .and. datebeg >= BoY( mdate )
   Go Top
   Do While !Eof()
     v1 := fcena_oms( lusl->shifr, .t., mdate, @fl1del, @fl1uslc )
@@ -2103,7 +2040,7 @@ Function usl6ffoms( lksg )
   use_base( 'luslf' )
   old_shifr := Space( 20 )
   Select TMP
-  Index On shifr to ( cur_dir + 'tmp' )
+  Index On shifr to ( cur_dir() + 'tmp' )
   Select TMP1
   Go Top
   Do While !Eof()
@@ -2146,19 +2083,18 @@ Function usl6ffoms( lksg )
   Close databases
   rest_box( buf )
   FClose( fp )
-  name_fr := 'mo_v1ksg' + sfr3
+  name_fr := 'mo_v1ksg' + sfr3()
   If _upr_epson() .or. ! File( dir_exe() + name_fr )
     viewtext( name_file, , , , .t., , , 5 )
   Else
     call_fr( name_fr, , , {|| FrPrn:setmasterdetail( '_data', '_data1', {|| _data->shifr1 } ) } )
   Endif
-
   Return Nil
 
 // 25.01.23
 Function usl11ffoms()
 
-  Local buf := save_maxrow(), name_file := cur_dir + 'vidVMP' + stxt, sh := 80, HH := 60, t_arr[ 2 ], i, j, k
+  Local buf := save_maxrow(), name_file := cur_dir() + 'vidVMP.txt', sh := 80, HH := 60, t_arr[ 2 ], i, j, k
   Local arrV018 := getv018( BoY() )
 
   mywait()
@@ -2180,14 +2116,14 @@ Function usl11ffoms()
   rest_box( buf )
   FClose( fp )
   viewtext( name_file, , , , .t., , , 2 )
-
   Return Nil
 
 // 25.01.23
 Function usl12ffoms()
 
   Static sast, sarr
-  Local buf := save_maxrow(), name_file := cur_dir + 'metodVMP' + stxt, sh := 80, HH := 60, t_arr[ 2 ], a, i, j, k, n, s
+  Local buf := save_maxrow(), name_file := cur_dir() + 'metodVMP.txt', sh := 80, HH := 60, t_arr[ 2 ], ;
+    a, i, j, k, n, s, l
   Local arrV018 := getv018( BoY() )
   Local arrV019 := getv019( BoY() )
 
@@ -2241,13 +2177,12 @@ Function usl12ffoms()
     FClose( fp )
     viewtext( name_file, , , , .t., , , 2 )
   Endif
-
   Return Nil
 
 //
 Function spr_other()
 
-  Local mas_pmt, mas_msg, mas_fun, j, r, c := T_COL - 5
+  Local mas_pmt, mas_msg, mas_fun, r, c := T_COL - 5
 
   mas_pmt := { "~Прочие организации", ;
     "~Комитеты (МО)", ;
@@ -2267,21 +2202,20 @@ Function spr_other()
     r := 2 ; c := T_COL + 10
   Endif
   popup_prompt( r, c, 1, mas_pmt, mas_msg, mas_fun )
-
   Return Nil
 
 //
 Function f1spr_other( k )
 
-  Local buf := save_maxrow(), mas1 := {}, mas2
+  Local buf := save_maxrow(), mas1 := {}
 
   Do Case
   Case k == 1
-    popup_edit( dir_server + "str_komp", T_ROW, T_COL - 5, T_ROW + 8,, PE_VIEW,,,, {|| !Between( tfoms, 44, 47 ) } )
+    popup_edit( dir_server() + "str_komp", T_ROW, T_COL - 5, T_ROW + 8,, PE_VIEW,,,, {|| !Between( tfoms, 44, 47 ) } )
   Case k == 2
-    popup_edit( dir_server + "komitet", T_ROW, T_COL - 5, T_ROW + 8,, PE_VIEW )
+    popup_edit( dir_server() + "komitet", T_ROW, T_COL - 5, T_ROW + 8,, PE_VIEW )
   Case k == 3
-    If r_use( dir_server + "slugba", dir_server + "slugba", "SL" )
+    If r_use( dir_server() + "slugba", dir_server() + "slugba", "SL" )
       Go Top
       Do While alpha_browse( T_ROW, T_COL - 5, MaxRow() -2, T_COL + 45, "f2spr_other", color0 )
         f3spr_other( 1 )
@@ -2292,7 +2226,6 @@ Function f1spr_other( k )
   Endcase
   Close databases
   rest_box( buf )
-
   Return Nil
 
 //
@@ -2301,13 +2234,12 @@ Function f2spr_other( oBrow )
   oBrow:addcolumn( TBColumnNew( "Шифр", {|| sl->shifr } ) )
   oBrow:addcolumn( TBColumnNew( Center( "Наименование службы", 40 ), {|| sl->name } ) )
   status_key( "^<Esc>^ - выход;  ^<Enter>^ - выбор службы" )
-
   Return Nil
 
 // 08.02.23
 Function f3spr_other( reg )
 
-  Local buf := save_maxrow(), n_file := cur_dir + 'uslugi' + stxt, ;
+  Local buf := save_maxrow(), n_file := cur_dir() + 'uslugi.txt', ;
     sh := 80, HH := 60, l, k, mas[ 2 ]
 
   mywait()
@@ -2323,15 +2255,15 @@ Function f3spr_other( reg )
   Endif
   use_base( 'lusl' )
   use_base( 'luslc' )
-  r_use( dir_server + 'uslugi', dir_server + "uslugisl", 'USL' )
+  r_use( dir_server() + 'uslugi', dir_server() + "uslugisl", 'USL' )
   If reg == 1
     add_string( Center( "Список услуг по службе:", 80 ) )
     add_string( Center( lstr( sl->shifr ) + ". " + AllTrim( sl->name ), 80 ) )
     find ( Str( sl->shifr, 3 ) )
-    Index On fsort_usl( shifr ) to ( cur_dir + "tmp" ) For kod > 0 While slugba == sl->shifr
+    Index On fsort_usl( shifr ) to ( cur_dir() + "tmp" ) For kod > 0 While slugba == sl->shifr
   Else
     add_string( Center( "Список услуг с непроставленной службой", 80 ) )
-    Index On fsort_usl( shifr ) to ( cur_dir + "tmp" ) For f5spr_other()
+    Index On fsort_usl( shifr ) to ( cur_dir() + "tmp" ) For f5spr_other()
   Endif
   add_string( "" )
   If mem_trudoem == 2
@@ -2399,7 +2331,6 @@ Function f3spr_other( reg )
   FClose( fp )
   viewtext( n_file,,,,,,, 2 )
   rest_box( buf )
-
   Return Nil
 
 //
@@ -2413,75 +2344,28 @@ Function f5spr_other()
   If fl
     fl := ( slugba <= 0 )
   Endif
-
   Return fl
-
-// 07.03.21
-// список персонала
-Function spr_personal()
-
-  Local k, sh := 80, HH := 57, fl := .t., s
-
-  mywait()
-  fp := FCreate( cur_dir + "spisok" + stxt ) ; n_list := 1 ; tek_stroke := 0
-  add_string( "" )
-  add_string( Center( "Списочный состав персонала с табельными номерами", sh ) )
-  add_string( "" )
-  add_string( Center( AllTrim( glob_uch[ 2 ] ) + " (" + AllTrim( glob_otd[ 2 ] ) + ")", sh ) )
-  add_string( PadL( date_8( sys_date ) + "г.", sh ) )
-  If r_use( dir_server + "mo_pers",, "PERSO" )
-    Index On Upper( fio ) to ( cur_dir + "tmp_pers" ) For kod > 0
-    Do While !Eof()
-      If fl .or. tek_stroke > HH
-        If !fl
-          add_string( Chr( 12 ) )
-          tek_stroke := 0
-          n_list++
-          next_list( sh )
-        Endif
-        add_string( "─────┬──────────────────────────────────────────────────┬──────────────────────" )
-        add_string( "Таб.№│                       Ф.И.О.                     │ Специальность        " )
-        add_string( "─────┴──────────────────────────────────────────────────┴──────────────────────" )
-      Endif
-      fl := .f.
-      s := put_val( perso->tab_nom, 5 ) + ;
-        iif( Empty( perso->svod_nom ), Space( 5 ), PadL( "(" + lstr( perso->svod_nom ) + ")", 5 ) ) + ;
-        " " + PadR( AllTrim( perso->fio ), 45 )
-      If !emptyall( perso->prvs, perso->prvs_new )
-        s += " " + ret_tmp_prvs( perso->prvs, perso->prvs_new )
-      Endif
-      add_string( s )
-      Select PERSO
-      Skip
-    Enddo
-  Endif
-  Close databases
-  FClose( fp )
-  viewtext( "spisok" + stxt,,,,,,, 2 )
-
-  Return Nil
-
 
 // список отделений с кодами
 Function spr_kod_otd()
 
-  Local sh := 64, HH := 57, buf := save_maxrow(), n_file := cur_dir + "kod_otd" + stxt
+  Local sh := 64, HH := 57, buf := save_maxrow(), n_file := cur_dir() + "kod_otd.txt"
 
   mywait()
   Private t_arr := {}, count_uch := 0
-  r_use( dir_server + 'mo_uch',, "UCH" )
+  r_use( dir_server() + 'mo_uch',, "UCH" )
   dbEval( {|| count_uch++, AAdd( t_arr, { kod, AllTrim( name ) } ) } )
   If count_uch == 0
     func_error( 4, "База учреждений пуста!" )
   Else
-    r_use( dir_server + 'mo_otd',, 'OTD' )
-    Index On Str( kod_lpu, 3 ) + Upper( name ) to ( cur_dir + "tmp_otd" ) For !Empty( name )
+    r_use( dir_server() + 'mo_otd',, 'OTD' )
+    Index On Str( kod_lpu, 3 ) + Upper( name ) to ( cur_dir() + "tmp_otd" ) For !Empty( name )
     fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
     add_string( "" )
     add_string( Center( Expand( "КОДЫ ОТДЕЛЕНИЙ" ), sh ) )
     add_string( "" )
     Select UCH
-    Index On Upper( name ) to ( cur_dir + "tmp_uch" ) For !Empty( name )
+    Index On Upper( name ) to ( cur_dir() + "tmp_uch" ) For !Empty( name )
     Go Top
     Do While !Eof()
       add_string( "" )
@@ -2501,15 +2385,13 @@ Function spr_kod_otd()
   FClose( fp )
   rest_box( buf )
   viewtext( n_file )
-
   Return Nil
-
 
 // просмотр/печать справочника диагнозов
 Function spr_info_diagn( k )
 
   Static sk := 1
-  Local str_sem, mas_pmt, mas_msg, mas_fun, j
+  Local mas_pmt, mas_msg, mas_fun
 
   Default k To 0
   Do Case
@@ -2536,14 +2418,13 @@ Function spr_info_diagn( k )
   If k > 0
     sk := k
   Endif
-
   Return Nil
 
-
-// 26.07.23
+// 10.07.25
 Function f_10diag( k )
 
   Local buf := SaveScreen(), i := 1, c1 := 1, c2 := 77, msh_b, msh_e, arr_t, s, s1
+  Local name_file, ft
 
   Private pregim := k, uregim := 1
 
@@ -2551,22 +2432,22 @@ Function f_10diag( k )
   Do Case
   Case k == 1
     mywait()
-    r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
+    r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'DIAG' )
     Go Top
     alpha_browse( 2, c1, MaxRow() -2, c2, 'f1_10diag', color0, , , .t., , , , 'f2_10diag', , {, , , 'N/BG, W+/N, B/BG, BG+/B, GR/BG, BG+/GR', .t. } )
   Case k == 2
     r_use( dir_exe() + '_mo_mkbk' )
-    Index On sh_b + Str( ks, 1 ) to ( cur_dir + 'tmp' )
+    Index On sh_b + Str( ks, 1 ) to ( cur_dir() + 'tmp' )
     Go Top
     alpha_browse( 2, 0, MaxRow() -2, 79, 'f1_10diag', color0, , , .t., , , , , , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
   Case k == 3
     r_use( dir_exe() + '_mo_mkbg' )
-    Index On sh_b + Str( ks, 1 ) to ( cur_dir + 'tmp' )
+    Index On sh_b + Str( ks, 1 ) to ( cur_dir() + 'tmp' )
     Go Top
     alpha_browse( 2, c1, MaxRow() -2, c2, 'f1_10diag', color0, , , .t., , , , , , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
   Case k == 4 .or. k == 5
     r_use( dir_exe() + '_mo_mkb' + iif( pregim == 4, 'k', 'g' ) )
-    Index On sh_b + Str( ks, 1 ) to ( cur_dir + 'tmp_d' )
+    Index On sh_b + Str( ks, 1 ) to ( cur_dir() + 'tmp_d' )
     Use
     Do While .t.
       r_use( dir_exe() + '_mo_mkb' + iif( pregim == 4, 'k', 'g' ) )
@@ -2598,37 +2479,52 @@ Function f_10diag( k )
         Else
           AAdd( arr_t, '( ' + AllTrim( msh_b ) + ' - ' + AllTrim( msh_e ) + ' )' )
         Endif
-        Private sh := 76, HH := 77
-        fp := FCreate( cur_dir + 'diagtmp.txt' )
-        n_list := 1
-        tek_stroke := 0
-        add_string( '' )
-        r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG' )
+        name_file := cur_dir() + 'diagtmp.txt' 
+        ft := tfiletext():new( name_file, , .t., , .t. )
+        ft:add_string( '' )
+        ft:add_string( 'Список работающего персонала с табельными номерами', FILE_CENTER, ' ' )
+        ft:add_string( '' )
         For k := 1 To Len( arr_t )
-          add_string( Center( arr_t[ k ], sh ) )
+          ft:add_string( Center( arr_t[ k ] ) )
         Next
-        add_string( '' )
-        add_string( Center( '[ знаком "-" перед шифром отмечены диагнозы, не входящие в ОМС ]', sh ) )
-        add_string( '' )
+        ft:add_string( '' )
+        ft:add_string( Center( '[ знаком "-" перед шифром отмечены диагнозы, не входящие в ОМС ]' ) )
+        ft:add_string( '' )
+
+//        Private sh := 76, HH := 77
+//        fp := FCreate( name_file )
+//        n_list := 1
+//        tek_stroke := 0
+//        add_string( '' )
+        r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'DIAG' )
+//        For k := 1 To Len( arr_t )
+//          add_string( Center( arr_t[ k ], sh ) )
+//        Next
+//        add_string( '' )
+//        add_string( Center( '[ знаком "-" перед шифром отмечены диагнозы, не входящие в ОМС ]', sh ) )
+//        add_string( '' )
         dbSeek( PadR( msh_b, 5 ), .t. )
-        Do While Left( shifr, 3 ) <= msh_e .and. !Eof()
-          If ks == 0
-            verify_ff( HH, .t., sh )
+        Do While Left( diag->shifr, 3 ) <= msh_e .and. !Eof()
+//          If ks == 0
+//            verify_ff( HH, .t., sh )
+//          Endif
+          If !( '.' $ diag->shifr ) .and. diag->ks == 0
+//            add_string( '' )
+            ft:add_string( '' )
           Endif
-          If !( '.' $ shifr ) .and. ks == 0
-            add_string( '' )
-          Endif
-          s1 := iif( ks == 0 .and. !Empty( diag->pol ), iif( diag->pol == 'М', '<муж.>', '<жен.>' ), Space( 6 ) )
-          s := iif( '.' $ shifr, s1, '' )
-          s += iif( ks == 0 .and. !between_date_new( diag->dbegin, diag->dend ), '-', ' ' )
-          s += PadR( if( ks == 0, shifr, '' ), 6 )
-          s += ' ' + RTrim( name )
-          add_string( s )
+          s1 := iif( diag->ks == 0 .and. !Empty( diag->pol ), iif( diag->pol == 'М', '<муж.>', '<жен.>' ), Space( 6 ) )
+          s := iif( '.' $ diag->shifr, s1, '' )
+          s += iif( diag->ks == 0 .and. !between_date_new( diag->dbegin, diag->dend ), '-', ' ' ) 
+          s += PadR( if( diag->ks == 0, diag->shifr, '' ), 6 )
+          s += ' ' + RTrim( diag->name )
+//          add_string( s )
+          ft:add_string( s )
           Skip
         Enddo
         Close databases
-        FClose( fp )
-        viewtext( 'diagtmp.txt', , , , , , , 5 )
+//        FClose( fp )
+        ft := nil
+        viewtext( name_file, , , , , , , 5 )
       Else
         Exit
       Endif
@@ -2636,7 +2532,6 @@ Function f_10diag( k )
   Endcase
   Close databases
   RestScreen( buf )
-
   Return Nil
 
 // 13.04.21
@@ -2681,7 +2576,6 @@ Function f1_10diag( oBrow )
       Endif
     Endif
   Endif
-
   Return Nil
 
 //
@@ -2790,38 +2684,49 @@ Function f2_10diag( nKey, oBrow )
       find ( sshifr )
     Endif
   Endcase
-
   Return k
 
-//
+// 10.07.25
 Function f3_10diag( nKey, nInd )
 
   Local rec, i
+  local name_file, s
+  local ft
 
   If nKey == K_F9
     rec := RecNo()
-    Private sh := 76, HH := 77
-    fp := FCreate( cur_dir + "diagtmp.txt" ) ; n_list := 1 ; tek_stroke := 0
-    add_string( "" )
-    add_string( Center( "Результат поиска по подстроке: " + mname, sh ) )
-    add_string( "" )
+    name_file := cur_dir() + 'diagtmp.txt'
+
+    ft := tfiletext():new( name_file, , .t., , .t. )
+    ft:add_string( '' )
+    ft:add_string( 'Результат поиска по подстроке: ' + mname, FILE_CENTER, ' ' )
+    ft:add_string( '' )
+
+//    Private sh := 76, HH := 77
+//    fp := FCreate( name_file )
+//    n_list := 1
+//    tek_stroke := 0
+//    add_string( "" )
+//    add_string( Center( "Результат поиска по подстроке: " + mname, sh ) )
+//    add_string( "" )
     For i := 1 To Len( parr )
       find ( Left( parr[ i ], 6 ) )
-      Do While shifr == Left( parr[ i ], 6 ) .and. !Eof()
-        If ks == 0
-          verify_ff( HH, .t., sh )
-        Endif
-        s := PadR( if( ks == 0, shifr, "" ), 7 )
-        s += " " + RTrim( name )
-        add_string( s )
+      Do While diag->shifr == Left( parr[ i ], 6 ) .and. !Eof()
+//        If ks == 0
+//          verify_ff( HH, .t., sh )
+//        Endif
+        s := PadR( if( diag->ks == 0, diag->shifr, '' ), 7 )
+        s += ' ' + RTrim( diag->name )
+//        add_string( s )
+        ft:add_string( s )
         Skip
       Enddo
     Next
-    FClose( fp )
-    viewtext( "diagtmp.txt",,,,,,, 5 )
+//    FClose( fp )
+    ft := nil
+    viewtext( name_file,,,,,,, 5 )
     Goto ( rec )
   Endif
-
   Return -1
 
 
@@ -2834,7 +2739,7 @@ Function f10_diagnoz()
 
   change_attr()
   mywait()
-  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "DIAG" )
   Go Top
   If srec != NIL
     Goto ( srec )
@@ -2846,9 +2751,7 @@ Function f10_diagnoz()
   If tmp_select > 0
     Select ( tmp_select )
   Endif
-
   Return Nil
-
 
 //
 Function diag_to_num( lshifr, j )
@@ -2876,603 +2779,4 @@ Function diag_to_num( lshifr, j )
     Next
     lnum := Int( Val( s ) )
   Endif
-
   Return lnum
-
-// 09.12.18 инициализировать все mem (public) - переменные
-Function init_all_mem_public()
-
-  // настраиваемые из всех задач
-  Public mem_smp_input := 0
-  Public mem_smp_tel := 0
-  Public mem_dom_aktiv := 0
-  Public mem_beg_rees := 1
-  Public mem_end_rees := 999999
-  Public mem_bnn_rees := 1
-  Public mem_enn_rees := 99
-  Public mem_bnn13rees := -1
-  Public mem_enn13rees := -1
-  Public okato_umolch := "18401395000"
-  Public public_date := CToD( "" ) // датa, по которую (включительно) запрещено редактировать данные
-  Public mem_kart_error := 0  // 1 - разрешать администратору устанавливать статус амбулаторной карты
-  Public mem_kodkrt  := 1     // 2 - если есть регистратура???
-  Public mem_trudoem := 1
-  Public mem_tr_plan := 2     // да
-  Public mem_sound   := 2     // да
-  Public mem_pol     := 1
-  Public mem_diag4   := 2     // да
-  Public mem_diagno  := 2     // да
-  Public mem_kodotd  := 1
-  Public mem_otdusl  := 1
-  Public mem_ordusl  := 1
-  Public mem_ordu_1  := 2     // да
-  Public mem_kat_va  := 2     // да
-  Public mem_vv_v_a  := 2
-  Public mem_por_vr  := 1
-  Public mem_por_ass := 2
-  Public mem_por_kol := 3
-  Public mem_date_1  := CToD( "" )
-  Public mem_date_2  := CToD( "" )
-  Public yes_many_uch := .f.  // выбор отделения только из "своего" учреждения
-  Public mem_ff_lu := 1
-  // Приёмный покой
-  Public pp_NOVOR     := 1  // вводить новорожденного
-  Public pp_KEM_NAPR  := "" // список наиболее часто встречающихся направляющих ЛПУ
-  Public pp_POB_D_LEK := 1  // вводить побочное действие лекарств
-  Public pp_KOD_VR    := 1  // вводить кода врача приёмного отделения
-  Public pp_TRAVMA    := 1  // вводить вид травмы
-  Public pp_NE_ZAK    := 1  // запрет ввода, если еще не закончил лечение по предыдущему случаю
-  // ОМС
-  Public mem_KEM_NAPR := "" // список наиболее часто встречающихся направляющих ЛПУ
-  Public mem_edit_ist := 2
-  Public mem_e_istbol := 1
-  Public mem_op_out  := 1    // нет
-  Public mem_st_kat  := 1
-  Public mem_st_pov  := 1
-  Public mem_st_trav := 1
-  Public mem_zav_l   := 3     // запоминать предыдущий
-  Public mem_pom_va   := 1    // нет
-  Public mem_coplec   := 1    // нет
-  Public mem_dni_vr  := 365  // для совместимости - не храним
-  Public is_uchastok := 0
-  Public is_oplata := 5       // способ оплаты
-  Public yes_h_otd := 1
-  Public yes_vypisan := B_STANDART // или B_END  при работе с "Завершением лечения"
-  Public yes_num_lu := 0      // =1 - номер л/у равен номеру записи
-  Public yes_d_plus := "+-"   // по умолчанию после диагноза
-  Public yes_bukva := .f.     // если разрешается ввод букв
-  Public is_zf_stomat := 0    // зубная формула = нет
-  Public mem_ls_parakl := 0   // Включать ПАРАКЛИНИКУ в сумму ЛИЧНОГО СЧЁТА
-  Public is_0_schet := 0
-  Public pp_OMS := .t.    // записываем из приёмного покоя л/у в задачу ОМС
-  Public pp_date_OMS      // с какой даты
-  Public mem_n_V034 := 0  // вид справочника V034
-  Public mem_methodinj := 0  // вид справочника ПУТИ ВВЕДЕНИЯ
-  // для задачи "Платные услуги" и "ЛПУ-Касса"
-  Public delta_chek := 0  // перечитать из "lpu.ini"-файла
-  // для задачи "Платные услуги"
-  Public mem_anonim := 0  // работать с анонимами
-  Public glob_pl_reg := 0 // нет квит.книжки, 1 - есть
-  Public glob_close := 0  // закрытие л/учета: платные и в/зачет вручную, ДМС по оплате
-  Public glob_kassa := 0  // нет кассового аппарата, 1 - кассовый аппарат: Штрих-ФР-Ф
-  Public mem_naprvr  := 2  // для платных услуг
-  Public mem_plsoput := 1  // для платных услуг
-  Public mem_dogovor := "_DOGOVOR.SHB"  // для платных услуг
-  Public mem_pl_ms   := 0  // для платных услуг
-  Public mem_pl_sn   := 0  // для платных услуг
-  Public mem_dms     := 0  // для платных услуг
-  Public mem_edit_s  := 2
-  // для задачи "Ортопедия"
-  Public mem_ort_na  := Space( 10 ) // ортопедия
-  Public mem_ort_sl  := Space( 10 ) // ортопедия
-  Public mem_ort_ysl := 1     // нет // ортопедия
-  Public mem_ortotd  := 0            // ортопедия
-  Public mem_ortot1  := 1            // ортопедия
-  Public mem_ort_ms  := 2     // да  // ортопедия
-  Public mem_ort_bp  := "ZAKAZ_BP.SMY"// ортопедия
-  Public mem_ort_pl  := "ZAKAZ_PL.SMY"// ортопедия
-  Public mem_ort_dat := 1             // ортопедия
-  Public mem_ort_f8  := "LIST_U_8.SHB" // ортопедия
-  Public mem_ortfflu := 1              // ортопедия
-  Public mem_ort_dog := Space( 3 )   // расширение догов. ортопедии
-  Public mem_ort_f39 := 0  // работать с формой 39
-
-  Public MUSIC_ON_OFF := ( mem_sound == 2 )
-
-  If ( j := search_file( "lpu" + sini, 2 ) ) != NIL
-  /*i := GetIniVar( j, {{"kartoteka","uchastok",}} )
-  if i[1] != NIL .and. eq_any(i[1],"1","2")
-    is_uchastok := int(val(i[1]))
-  endif
-  i := GetIniVar( j, {{"diagnoz","bukva",}} )
-  if i[1] != NIL
-    yes_d_plus := i[1]
-    for i := 1 to len(yes_d_plus)
-      if asc(substr(yes_d_plus,i, 1)) > 64
-        yes_bukva := .t. ; exit
-      endif
-    next
-  endif
-  i := GetIniVar( j, {{'uslugi',"oplata",}} )
-  if i[1] != NIL
-    is_oplata := int(val(i[1]))
-    if !between(is_oplata, 5, 7)
-      is_oplata := 5
-    endif
-  endif
-  // Разрешается выписывать счета с нулевой суммой (по параклинике):
-  i := GetIniVar( j, {{'uslugi',"schet_nul",}} )
-  if i[1] != NIL
-    is_0_schet := int(val(i[1]))
-    if !between(is_0_schet, 0, 1)
-      is_0_schet := 0
-    endif
-  endif
-  i := GetIniVar( j, {{"lechenie","human_otd",}, ;
-                      {"lechenie","standart",}, ;
-                      {"lechenie","many_uch",}} )
-  if i[1] != NIL .and. i[1] == "2"
-    yes_h_otd := 2        // работаем без выбора отделений
-  endif
-  if i[2] != NIL .and. i[2] == "2"
-    yes_vypisan := B_END  // установлена задача "Завершение лечения"
-  endif
-  if i[3] != NIL .and. i[3] == "2"
-    yes_many_uch := .t.  // выбор отделения из всех доступных учреждений
-  endif
-  //
-  i := GetIniVar( j, {{"list_uch","nomer",}} )
-  if i[1] != NIL
-    if upper(i[1]) == "RECNO"
-      yes_num_lu := 1  // номер л/у равен номеру записи
-    endif
-  endif
-  // для задачи "Платные услуги"
-  i := GetIniVar( j, {{"lpu_plat","regi_plat",}, ;
-                      {"lpu_plat","close",}, ;
-                      {"lpu_plat","kassa",}} )
-  if i[1] != NIL .and. i[1] == "1"
-    glob_pl_reg := 1  // вводим квитанционную книжку в задаче "Платные услуги"
-  endif
-  if i[2] != NIL .and. i[1] == "1"
-    glob_close := 1  // закрытие листа учета - вручную
-  endif
-  if i[3] != NIL .and. eq_any(i[3],"elves","fr")
-    glob_kassa := 1   // кассовый аппарат: Штрих-ФР-Ф
-    glob_pl_reg := 0  // убираем квитанционную книжку
-  endif*/
-    // для задачи "Платные услуги" и "ЛПУ-Касса"
-    i := getinivar( j, { { "kassa", "delta_chek", } } )
-    If i[ 1 ] != NIL
-      delta_chek := Int( Val( i[ 1 ] ) )
-    Endif
-  Endif
-  //
-  If ( j := search_file( "lpu_stom" + sini ) ) != NIL
-    k := getinisect( j, "Категория" )
-    If !Empty( k )
-      stm_kategor2 := {}
-      For i := 1 To Len( k )
-        AAdd( stm_kategor2, { k[ i, 1 ], Int( Val( k[ i, 2 ] ) ) } )
-      Next
-    Endif
-    k := getinisect( j, "Повод" )
-    If !Empty( k )
-      stm_povod := {}
-      For i := 1 To Len( k )
-        AAdd( stm_povod, { k[ i, 1 ], Int( Val( k[ i, 2 ] ) ) } )
-      Next
-    Endif
-    k := getinisect( j, "Травма" )
-    If !Empty( k )
-      stm_travma := {}
-      For i := 1 To Len( k )
-        AAdd( stm_travma, { k[ i, 1 ], Int( Val( k[ i, 2 ] ) ) } )
-      Next
-    Endif
-  Endif
-  //
-  Public dlo_version := 4
-  Public is_r_mu := .f.
-  Public gpath_reg := "" // путь к файлам R_MU.DBF
-
-  Return Nil
-
-// 15.10.24 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
-Function recreate_some_schet_from_file_sp( arr )
-
-  Local arr_XML_info[ 8 ], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[ 2 ], ;
-    i, s, rec_schet, rec_schet_xml, go_to_schet := .f., arr_schet := {}
-
-  Private name_schet, _date_schet, mXML_REESTR
-
-  For i := 1 To Len( arr )
-    Select SCHET
-    Goto ( arr[ i ] )
-    If emptyany( schet_->name_xml, schet_->kod_xml ) .or. schet_->IS_MODERN == 1
-      Return func_error( 4, "Некорректно заполнены поля счёта " + RTrim( schet_->nschet ) + ". Операция запрещена." )
-    Endif
-    If i == 1
-      mXML_REESTR := schet_->XML_REESTR // ссылка на реестр СП и ТК
-    Elseif mXML_REESTR != schet_->XML_REESTR
-      Return func_error( 4, "Счёт " + RTrim( schet_->nschet ) + " из другого реестра СП и ТК. Операция запрещена." )
-    Endif
-    AAdd( arr_schet, { ;
-      arr[ i ], ;                  // 1 - schet->(recno())
-      schet_->kod_xml, ;         // 2 - ссылка на файл "mo_xml"
-      schet_->name_xml, ;        // 3 - имя XML-файла без расширения (и ZIP-архива)
-      AllTrim( schet_->nschet ), ; // 4 - номер счета
-    schet_->dschet ;          // 5 - дата формирования счета
-      } )
-  Next
-  //
-  mo_xml->( dbGoto( mXML_REESTR ) )
-  If Empty( mo_xml->REESTR )
-    Return func_error( 4, "Отсутствует ссылка на первичный реестр! Операция запрещена." )
-  Endif
-  Private cReadFile := AllTrim( mo_xml->FNAME ) // имя файла реестра СП и ТК
-  Private cFileProtokol := cReadFile + stxt     // имя файла протокола чтения реестра СП и ТК
-  Private mkod_reestr := mo_xml->REESTR       // код первичного реестра
-  Private cTimeBegin := hour_min( Seconds() )
-  Private name_zip := cReadFile + szip          // имя архива файла реестра СП и ТК
-  cFile := cReadFile + sxml                     // имя XML-файла реестра СП и ТК
-  //
-  rees->( dbGoto( mkod_reestr ) )
-  Private name_reestr := AllTrim( rees->name_xml ) + szip // имя архива файла первичного реестра
-  // распаковываем первичный реестр
-  If ( arr_f := extract_zip_xml( dir_server + dir_XML_MO + cslash, name_reestr ) ) == NIL
-    Return func_error( 4, "Ошибка в распаковке архива реестра " + name_reestr )
-  Endif
-  // распаковываем реестр СП и ТК
-  If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF + cslash, name_zip ) ) == NIL
-    Return func_error( 4, "Ошибка в распаковке архива реестра СП и ТК " + name_zip )
-  Endif
-  If ( n := AScan( arr_f, {| x| Upper( name_without_ext( x ) ) == Upper( cReadFile ) } ) ) == 0
-    Return func_error( 4, "В архиве " + name_zip + " нет файла " + cReadFile + sxml )
-  Endif
-  Close databases
-
-  If mo_lock_task( X_OMS ) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
-    k := Len( arr_schet )
-    s := iif( k == 1, "счёта ", lstr( k ) + " счетов " )
-    If iif( arr_schet[ 1, 5 ] > SToD( "20220224" ) .and. arr_schet[ 1, 5 ] < SToD( "20220228" ), .t., involved_password( 3, arr_schet[ 1, 4 ], "пересоздания " + s + arr_schet[ 1, 4 ] ) ) ;
-        .and. f_esc_enter( "пересоздания " + s ) // .and. m_copy_DB_from_end(.t.) // резервное копирование
-      Private fl_open := .t.
-      index_base( "schet" ) // для составления счетов
-      index_base( "human" ) // для разноски счетов
-      index_base( "human_3" ) // двойные случаи
-      Use ( dir_server + "human_u" ) New READONLY
-      Index On Str( kod, 7 ) + date_u to ( dir_server + "human_u" ) progress
-      Use
-      Use ( dir_server + "mo_hu" ) New READONLY
-      Index On Str( kod, 7 ) + date_u to ( dir_server + "mo_hu" ) progress
-      Use
-      index_base( "mo_refr" )  // для записи причин отказов
-      //
-      mywait()
-      StrFile( hb_eol() + ;
-        Space( 10 ) + "Повторная обработка файла: " + cFile + ;
-        hb_eol(), cFileProtokol )
-      StrFile( Space( 10 ) + full_date( sys_date ) + "г. " + cTimeBegin + ;
-        hb_eol(), cFileProtokol, .t. )
-      mywait( "Производится анализ файла " + cFile )
-      // читаем файл в память
-      oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
-      If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
-        AAdd( aerr, "Ошибка в чтении файла " + cFile )
-      Else
-        reestr_sp_tk_tmpfile( oXmlDoc, aerr, cReadFile )
-      Endif
-      If Empty( aerr )
-        r_use( dir_server + "mo_rees",, "REES" )
-        Goto ( mkod_reestr )
-        If !extract_reestr( rees->( RecNo() ), rees->name_xml )
-          AAdd( aerr, Center( "Не найден ZIP-архив с РЕЕСТРом № " + lstr( mnschet ) + " от " + date_8( tmp1->_DSCHET ), 80 ) )
-          AAdd( aerr, "" )
-          AAdd( aerr, Center( dir_server + dir_XML_MO + cslash + AllTrim( rees->name_xml ) + szip, 80 ) )
-          AAdd( aerr, "" )
-          AAdd( aerr, Center( "Без данного архива дальнейшая работа НЕВОЗМОЖНА!", 80 ) )
-        Endif
-      Endif
-      Close databases
-      If Empty( aerr )
-        dbCreate( cur_dir + "tmpsh", { { "kod_h", "N", 7, 0 } } )
-        Use ( cur_dir + "tmpsh" ) new
-        r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
-        For i := 1 To Len( arr_schet )
-          find ( Str( arr_schet[ i, 1 ], 6 ) )
-          Do While human->schet == arr_schet[ i, 1 ] .and. !Eof()
-            Select tmpsh
-            Append Blank
-            Replace kod_h With human->kod
-            Select HUMAN
-            Skip
-          Enddo
-        Next
-        Select tmpsh
-        Index On Str( kod_h, 7 ) to ( cur_dir + "tmpsh" )
-        r_use( dir_server + "mo_rhum",, "RHUM" )
-        Index On Str( REES_ZAP, 6 ) to ( cur_dir + "tmp_rhum" ) For reestr == mkod_reestr
-        // открыть распакованный реестр
-        Use ( cur_dir + "tmp_r_t1" ) New Alias T1
-        Index On Str( Val( n_zap ), 6 ) to ( cur_dir + "tmpt1" )
-        Use ( cur_dir + "tmp_r_t2" ) New Alias T2
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + "tmpt2" )
-        Use ( cur_dir + "tmp_r_t3" ) New Alias T3
-        Index On Upper( ID_PAC ) to ( cur_dir + "tmpt3" )
-        Use ( cur_dir + "tmp_r_t4" ) New Alias T4
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + "tmpt4" )
-        Use ( cur_dir + "tmp_r_t5" ) New Alias T5
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + "tmpt5" )
-        Use ( cur_dir + "tmp_r_t6" ) New Alias T6
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + "tmpt6" )
-        Use ( cur_dir + "tmp_r_t7" ) New Alias T7
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + "tmpt7" )
-        Use ( cur_dir + "tmp_r_t8" ) New Alias T8
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + "tmpt8" )
-        Use ( cur_dir + "tmp_r_t9" ) New Alias T
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + "tmpt9" )
-        Use ( cur_dir + "tmp_r_t10" ) New Alias T10
-        Index On IDCASE + Str( sluch, 6 ) + regnum + code_sh + date_inj to ( cur_dir + "tmpt10" )
-        Use ( cur_dir + "tmp_r_t11" ) New Alias T11
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + "tmpt11" )
-        Use ( cur_dir + "tmp_r_t12" ) New Alias T12
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir + "tmpt12" )
-        Use ( cur_dir + "tmp_r_t1_1" ) New Alias T1_1
-        Index On IDCASE to ( cur_dir + "tmpt1_1" )
-        Use ( cur_dir + "tmp2file" ) New Alias TMP2
-        is_new_err := .f.  // ушли ли какие-либо случаи в ошибки (т.е. новые ошибки)
-        Go Top
-        Do While !Eof()
-          If tmp2->_OPLATA == 1
-            Select T1
-            find ( Str( tmp2->_N_ZAP, 6 ) )
-            If Found()
-              t1->VPOLIS := lstr( tmp2->_VPOLIS )
-              t1->SPOLIS := tmp2->_SPOLIS
-              t1->NPOLIS := tmp2->_NPOLIS
-              t1->ENP    := tmp2->_ENP
-              t1->SMO    := tmp2->_SMO
-              t1->SMO_OK := tmp2->_SMO_OK
-              t1->MO_PR  := tmp2->_MO_PR
-            Endif
-          Endif
-          Select RHUM
-          find ( Str( tmp2->_N_ZAP, 6 ) )
-          If Found() .and. rhum->KOD_HUM > 0
-            Select tmpsh
-            find ( Str( rhum->KOD_HUM, 7 ) )
-            If Found()
-              tmp2->kod_human := rhum->KOD_HUM
-              If tmp2->_OPLATA > 1
-                is_new_err := .t. // т.е. в новом реестре СП и ТК человек ушёл в ошибки (а раньше попадал в счёт)
-              Endif
-            Endif
-          Else
-            AAdd( aerr, "" )
-            AAdd( aerr, " - не найден пациент с номером записи " + lstr( tmp2->_N_ZAP ) )
-          Endif
-          Select TMP2
-          Skip
-        Enddo
-        Select TMP2
-        Delete For kod_human == 0 // удалим тех, кто не входит в выбранные счета
-        Pack
-      Endif
-      Close databases
-      If Empty( aerr ) .and. is_new_err
-        r_use( dir_server + 'mo_otd',, 'OTD' )
-        g_use( dir_server + "human_",, "HUMAN_" )
-        g_use( dir_server + "human", { dir_server + "humann", dir_server + "humans" }, "HUMAN" )
-        Set Order To 0 // индексы открыты для реконструкции при перезаписи ФИО
-        Set Relation To RecNo() into HUMAN_, To otd into OTD
-        g_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
-        g_use( dir_server + "mo_rhum",, "RHUM" )
-        Index On Str( REES_ZAP, 6 ) to ( cur_dir + "tmp_rhum" ) For reestr == mkod_reestr
-        g_use( dir_server + "mo_refr", dir_server + "mo_refr", "REFR" )
-        Use ( cur_dir + "tmp3file" ) New Alias TMP3
-        Index On Str( _n_zap, 8 ) to ( cur_dir + "tmp3" )
-        Use ( cur_dir + "tmp2file" ) New Alias TMP2
-        Go Top
-        Do While !Eof()
-          If tmp2->_OPLATA > 1 // удаляем из счёта, удаляем из реестра, оформляем ошибку
-            Select RHUM
-            find ( Str( tmp2->_N_ZAP, 6 ) )
-            g_rlock( forever )
-            rhum->OPLATA := tmp2->_OPLATA
-            is_2 := 0
-            Select HUMAN
-            Goto ( rhum->KOD_HUM )
-            If eq_any( human->ishod, 88, 89 )
-              Select HUMAN_3
-              If human->ishod == 88
-                Set Order To 1
-                is_2 := 1
-              Else
-                Set Order To 2
-                is_2 := 2
-              Endif
-              find ( Str( rhum->KOD_HUM, 7 ) )
-              If Found() // если нашли двойной случай
-                Select HUMAN
-                If human->ishod == 88  // если реестр составлен по 1-му листу
-                  Goto ( human_3->kod2 )  // встать на 2-ой
-                Else
-                  Goto ( human_3->kod )   // иначе - на 1-ый
-                Endif
-                human->( g_rlock( forever ) )
-                human->schet := 0 ; human->tip_h := B_STANDART
-                //
-                human_->( g_rlock( forever ) )
-                human_->OPLATA := tmp2->_OPLATA
-                human_->REESTR := 0 // направляется на дальнейшее редактирование
-                human_->ST_VERIFY := 0 // снова ещё не проверен
-                If human_->REES_NUM > 0
-                  human_->REES_NUM := human_->REES_NUM - 1
-                Endif
-                human_->REES_ZAP := 0
-                If human_->schet_zap > 0
-                  If human_->SCHET_NUM > 0
-                    human_->SCHET_NUM := human_->SCHET_NUM - 1
-                  Endif
-                  human_->schet_zap := 0
-                Endif
-                //
-                human_3->( g_rlock( forever ) )
-                human_3->OPLATA := tmp2->_OPLATA
-                human_3->schet := 0
-                human_3->REESTR := 0
-                If human_3->REES_NUM > 0
-                  human_3->REES_NUM := human_3->REES_NUM - 1
-                Endif
-                human_3->REES_ZAP := 0
-                If human_3->SCHET_NUM > 0
-                  human_3->SCHET_NUM := human_3->SCHET_NUM -1
-                Endif
-                human_3->schet_zap := 0
-              Endif
-            Endif
-            Select HUMAN
-            Goto ( rhum->KOD_HUM )
-            g_rlock( forever )
-            human->schet := 0 ; human->tip_h := B_STANDART
-            human_->( g_rlock( forever ) )
-            human_->OPLATA := tmp2->_OPLATA
-            human_->REESTR := 0 // а направляется на дальнейшее редактирование
-            human_->ST_VERIFY := 0 // снова ещё не проверен
-            If human_->REES_NUM > 0
-              human_->REES_NUM := human_->REES_NUM - 1
-            Endif
-            human_->REES_ZAP := 0
-            If human_->SCHET_NUM > 0
-              human_->SCHET_NUM := human_->SCHET_NUM - 1
-            Endif
-            human_->schet_zap := 0
-            //
-            lal := "human"
-            If is_2 > 0
-              lal += "_3"
-            Endif
-            StrFile( "!!! " + AllTrim( human->fio ) + ", " + full_date( human->date_r ) + ;
-              iif( Empty( otd->SHORT_NAME ), "", " [" + AllTrim( otd->SHORT_NAME ) + "]" ) + ;
-              " " + AllTrim( human->KOD_DIAG ) + ;
-              " " + date_8( &lal.->n_data ) + "-" + date_8( &lal.->k_data ) + ;
-              hb_eol(), cFileProtokol, .t. )
-            Select REFR
-            Do While .t.
-              find ( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) )
-              If !Found() ; exit ; Endif
-              deleterec( .t. )
-            Enddo
-            Select TMP3
-            find ( Str( tmp2->_N_ZAP, 8 ) )
-            Do While tmp2->_N_ZAP == tmp3->_N_ZAP .and. !Eof()
-              Select REFR
-              addrec( 1 )
-              refr->TIPD := 1
-              refr->KODD := mkod_reestr
-              refr->TIPZ := 1
-              refr->KODZ := rhum->KOD_HUM
-              refr->IDENTITY := tmp2->_IDENTITY
-              refr->REFREASON := tmp3->_REFREASON
-              refr->SREFREASON := tmp3->SREFREASON
-              If Empty( refr->SREFREASON )
-                If Empty( s := ret_t005( refr->REFREASON ) )
-                  s := lstr( refr->REFREASON ) + ' неизвестная причина отказа'
-                Endif
-              Else
-                s := 'код ошибки = ' + tmp3->SREFREASON + ' '
-                s += '"' + getcategorycheckerrorbyid_q017( Left( tmp3->SREFREASON, 4 ) )[ 2 ] + '" '
-                // s += alltrim(inieditspr(A__POPUPMENU, dir_exe() + "_mo_Q015", tmp3->SREFREASON))
-                s += AllTrim( inieditspr( A__MENUVERT, loadq015(), tmp3->SREFREASON ) )
-              Endif
-              k := perenos( t_arr, s, 75 )
-              For i := 1 To k
-                StrFile( Space( 5 ) + t_arr[ i ] + hb_eol(), cFileProtokol, .t. )
-              Next
-              Select TMP3
-              Skip
-            Enddo
-            If is_2 > 0
-              StrFile( Space( 5 ) + '- разбейте двойной случай в режиме "ОМС/Двойные случаи/Разделить"' + ;
-                hb_eol(), cFileProtokol, .t. )
-              StrFile( Space( 5 ) + '- отредактируйте каждый из случаев в режиме "ОМС/Редактирование"' + ;
-                hb_eol(), cFileProtokol, .t. )
-              StrFile( Space( 5 ) + '- снова соберите случай в режиме "ОМС/Двойные случаи/Создать"' + ;
-                hb_eol(), cFileProtokol, .t. )
-            Endif
-          Endif
-          Select TMP2
-          Skip
-        Enddo
-        Close databases
-        StrFile( hb_eol(), cFileProtokol, .t. )
-      Endif
-      If Empty( aerr )
-        arr_f := {}
-        // создадим новые счета
-        go_to_schet := create_schet_from_xml( arr_XML_info, aerr,, arr_f, cReadFile )
-        Close databases
-        If Empty( aerr ) // если нет ошибок
-          use_base( "schet" )
-          Set Relation To
-          g_use( dir_server + "mo_xml",, "MO_XML" )
-          // удалим старые счета
-          For i := 1 To Len( arr_schet )
-            StrFile( hb_eol() + ;
-              "удалён старый счёт № " + arr_schet[ i, 4 ] + " от " + full_date( arr_schet[ i, 5 ] ) + ;
-              hb_eol(), cFileProtokol, .t. )
-            Select SCHET_
-            Goto ( arr_schet[ i, 1 ] )
-            deleterec( .t., .f. )  // без пометки на удаление
-            //
-            Select SCHET
-            Goto ( arr_schet[ i, 1 ] )
-            deleterec( .t. )
-            //
-            Select MO_XML
-            Goto ( arr_schet[ i, 2 ] )
-            deleterec( .t. )
-          Next
-          Close databases
-        Endif
-      Endif
-      If Empty( aerr )
-        // дозапишем предыдущий файл протокола обработки новым протоколом
-        f_append_file( dir_server + dir_XML_TF + cslash + cFileProtokol, cFileProtokol )
-        viewtext( devide_into_pages( dir_server + dir_XML_TF + cslash + cFileProtokol, 60, 80 ),,,, .t.,,, 2 )
-      Else
-        AEval( aerr, {| x| StrFile( x + hb_eol(), cFileProtokol, .t. ) } )
-        viewtext( devide_into_pages( cFileProtokol, 60, 80 ),,,, .t.,,, 2 )
-      Endif
-      Delete File ( cFileProtokol )
-    Endif
-    Close databases
-    // разрешение доступа всем
-    // G_SUnLock(sem_vagno)
-    mo_unlock_task( X_OMS )
-    Keyboard ""
-    If go_to_schet // если выписаны счета
-      Keyboard Chr( K_ENTER )
-    Endif
-  Else
-    func_error( 4, "В данный момент работают другие задачи. Операция запрещена!" )
-  Endif
-
-  Return Nil
-
-// 08.02.23 дополнить файл ofile строками из файла nfile
-Function f_append_file( ofile, nfile )
-
-  Local s
-
-  ft_use( nfile )
-  ft_gotop()
-  Do While !ft_eof()
-    s := ft_readln()
-    StrFile( s + hb_eol(), ofile, .t. )
-    ft_skip()
-  Enddo
-  ft_use()
-
-  Return Nil

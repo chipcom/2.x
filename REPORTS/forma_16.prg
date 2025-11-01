@@ -44,16 +44,16 @@ Function forma_16( k )
 Function forma_16_vn( is_diag )
 
   Static sy := 1
-  Local begin_date, end_date, pole, file_form, jh := 0, jt := 0, ;
+  Local begin_date, end_date, file_form, jh := 0, jt := 0, ;
     i, j, k, buf := save_maxrow(), adbf, lfp, t_arr1[ 20 ], t_arr2[ 20 ], ;
-    mdate_b_1, mdate_b_2, mshifr, mdate_r, mvozrast, d1, d2, ;
+    d1, d2, ;
     arr_title, sh, HH := 76, reg_print := 6, n_file, ;
-    yes_otd, fl, lshifr, arr_stroke := {}, ;
+    yes_otd, lshifr, arr_stroke := {}, ;
     lmenu := { "~‘¢®¤­ ï ¢¥¤®¬®áâì", "‚¥¤®¬®áâì ¯® ~®â¤¥«¥­¨î" }
 
-  n_file := iif( is_diag, "_frm_16d", "_form_16" ) + stxt
-  If ( file_form := search_file( "forma_16" + sfrm ) ) == NIL
-    Return func_error( 4, "¥ ®¡­ àã¦¥­ ä ©« FORMA_16" + sfrm )
+  n_file := iif( is_diag, "_frm_16d", "_form_16" ) + stxt()
+  If ( file_form := search_file( "forma_16" + sfrm() ) ) == NIL
+    Return func_error( 4, "¥ ®¡­ àã¦¥­ ä ©« FORMA_16" + sfrm() )
   Endif
   // if count_uch > 1
   AAdd( lmenu, "‚¥¤®¬®áâì ¯® ~ãçà¥¦¤¥­¨î" )
@@ -98,9 +98,9 @@ Function forma_16_vn( is_diag )
     { "v10", "N", 7, 0 } }
   waitstatus()
   //
-  dbCreate( cur_dir + "tmp", adbf )
-  Use ( cur_dir + "tmp" ) New Alias TMP
-  Index On stroke to ( cur_dir + "tmp" )
+  dbCreate( cur_dir() + "tmp", adbf )
+  Use ( cur_dir() + "tmp" ) New Alias TMP
+  Index On stroke to ( cur_dir() + "tmp" )
   lfp := FOpen( file_form )
   Do While .t.
     updatestatus()
@@ -114,7 +114,7 @@ Function forma_16_vn( is_diag )
       s2 := AllTrim( Token( s, " ", 2 ) )
   /*for i := 1 to len(s2) // ¯à®¢¥àª  ­  àãááª¨¥ ¡ãª¢ë ¢ ¤¨ £­®§ å
     if ISRALPHA(substr(s2,i,1))
-      strfile(s2+eos,"ttt.ttt",.t.)
+      strfile(s2+hb_eol(),"ttt.ttt",.t.)
       exit
     endif
   next*/
@@ -160,17 +160,17 @@ Function forma_16_vn( is_diag )
   //
   If is_diag
     AAdd( adbf, { "diagnoz", "C", 5, 0 } )
-    dbCreate( cur_dir + "tmp_dia", adbf )
-    Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
-    Index On diagnoz + Upper( pol ) to ( cur_dir + "tmp_dia" )
+    dbCreate( cur_dir() + "tmp_dia", adbf )
+    Use ( cur_dir() + "tmp_dia" ) New Alias TMP_D
+    Index On diagnoz + Upper( pol ) to ( cur_dir() + "tmp_dia" )
   Endif
   //
-  r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server() + "kartotek",, "KART" )
   If pi1 == 1 // ¯® ¤ â¥ ®ª®­ç ­¨ï «¥ç¥­¨ï
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human",, "BO" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human",, "BO" )
     Set Relation To kod_k into KART, To RecNo() into HUMAN_
-    Index On DToS( k_data ) to ( cur_dir + "tmp_f16" ) ;
+    Index On DToS( k_data ) to ( cur_dir() + "tmp_f16" ) ;
       For human_->oplata < 9 .and. func_pi_schet( .t., "bo" ) .and. ;
       bolnich > 0 .and. Between( date_b_2, arr_m[ 7 ], arr_m[ 8 ] ) ;
       progress
@@ -186,11 +186,11 @@ Function forma_16_vn( is_diag )
       Skip
     Enddo
   Else
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humans", "BO" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humans", "BO" )
     Set Relation To kod_k into KART, To RecNo() into HUMAN_
-    r_use( dir_server + "schet_",, "SCHET_" )
-    r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+    r_use( dir_server() + "schet_",, "SCHET_" )
+    r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
     Set Relation To RecNo() into SCHET_
     Set Filter To Empty( schet_->IS_DOPLATA )
     dbSeek( arr_m[ 7 ], .t. )
@@ -227,7 +227,7 @@ Function forma_16_vn( is_diag )
     "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÁÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÄ" }
   fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
   sh := Len( arr_title[ 1 ] )
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( PadR( org->name, 60 ) + PadL( "”®à¬  16-¢­", sh -60 ) )
   add_string( PadL( "“â¢¥à¦¤¥­ ", sh ) )
   add_string( PadL( "à¨ª §®¬ ®ááâ â ", sh ) )
@@ -250,8 +250,8 @@ Function forma_16_vn( is_diag )
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
   If is_diag
-    r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "MKB10" )
-    Use ( cur_dir + "tmp_dia" ) New Alias TMP_D
+    r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "MKB10" )
+    Use ( cur_dir() + "tmp_dia" ) New Alias TMP_D
     Go Top
     Do While !Eof()
       If AScan( arr_stroke, tmp_d->stroke ) == 0
@@ -259,9 +259,9 @@ Function forma_16_vn( is_diag )
       Endif
       Skip
     Enddo
-    Index On stroke + diagnoz + iif( pol == "Œ", "1", "2" ) to ( cur_dir + "tmp_dia" )
+    Index On stroke + diagnoz + iif( pol == "Œ", "1", "2" ) to ( cur_dir() + "tmp_dia" )
   Endif
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmp" ) new
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ) new
   ft_use( file_form )
   Do While !ft_eof() .and. !Empty( s := ft_readln() )
     If iif( is_diag, !( SubStr( s, 6, 1 ) == " " ), .t. )

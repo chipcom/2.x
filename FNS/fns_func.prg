@@ -6,7 +6,7 @@
 #include 'tfile.ch'
 #include 'chip_mo.ch'
 
-// 04.02.25
+// 07.05.25
 FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   Local detail_font_name, detail_font_nameBold
@@ -27,7 +27,7 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
   fError:width := 100
   
   IF ( pdf := HPDF_New() ) == NIL   // создание pdf - объекта файла
-    fError:add_string( 'HPDF_New() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_New()' ) )
     fError := nil
     func_error( 4, 'Справка для ФНС не может быть создана!' )
     RETURN .f.
@@ -35,58 +35,53 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
 
   // загрузим шрифты
   if ( detail_font_name := HPDF_LoadTTFontFromFile ( pdf, TTFArial, HPDF_TRUE ) ) == NIL
-    fError:add_string( 'HPDF_LoadTTFontFromFile() ARIAL - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() ARIAL' ) )
   endif
-  fError:add_string( 'HPDF_LoadTTFontFromFile() ARIAL - ' + detail_font_name )
+  fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() ARIAL' ) )  // + detail_font_name )
 
   if ( detail_font_nameBold := HPDF_LoadTTFontFromFile ( pdf, TTFArialBold, HPDF_TRUE ) ) == NIL
-    fError:add_string( 'HPDF_LoadTTFontFromFile() ARIAL Bold - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() ARIAL Bold' ) )
   endif
-  fError:add_string( 'HPDF_LoadTTFontFromFile() ARIAL Bold - ' + detail_font_nameBold )
+  fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() ARIAL Bold' ) ) // + detail_font_nameBold )
 
   if ( detail_font_courier := HPDF_LoadTTFontFromFile ( pdf, TTFCourier, HPDF_TRUE ) ) == NIL
-    fError:add_string( 'HPDF_LoadTTFontFromFile() COURIER - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() COURIER' ) )
   endif
-  fError:add_string( 'HPDF_LoadTTFontFromFile() COURIER - ' + detail_font_courier )
+  fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() COURIER' ) ) // + detail_font_courier )
 
   if ( detail_font_eangnivc := HPDF_LoadTTFontFromFile ( pdf, TTFEanGnivc, HPDF_TRUE ) ) == NIL
-    fError:add_string( 'HPDF_LoadTTFontFromFile() EANGNIVC - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() EANGNIVC' ) )
   endif
-  fError:add_string( 'HPDF_LoadTTFontFromFile() EANGNIVC - ' + detail_font_eangnivc )
+  fError:add_string( strErrorPdf( pdf, 'HPDF_LoadTTFontFromFile() EANGNIVC' ) ) // + detail_font_eangnivc )
 
   if ( tFont := HPDF_GetFont ( pdf, detail_font_name, 'CP1251' ) ) == NIL
-    fError:add_string( 'HPDF_GetFont() ARIAL - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_GetFont() ARIAL' ) )
   else
-//    AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_name, 'CP1251' ) )
     AAdd( aFonts, tFont )
   endif
   if ( tFont := HPDF_GetFont ( pdf, detail_font_nameBold, 'CP1251' ) ) == NIL
-    fError:add_string( 'HPDF_GetFont() ARIAL Bold - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_GetFont() ARIAL Bold' ) )
   else
-//    AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_nameBold, 'CP1251' ) )
     AAdd( aFonts, tFont )
   endif
   if ( tFont := HPDF_GetFont ( pdf, detail_font_courier, 'CP1251' ) ) == NIL
-    fError:add_string( 'HPDF_GetFont() Courier - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_GetFont() Courier' ) )
   else
-//    AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_courier, 'CP1251' ) )
     AAdd( aFonts, tFont )
   endif
   if ( tFont := HPDF_GetFont ( pdf, detail_font_eangnivc, 'CP1251' ) ) == NIL
-    fError:add_string( 'HPDF_GetFont() EANGNIVC - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_GetFont() EANGNIVC' ) )
   else
-//    AAdd( aFonts, HPDF_GetFont ( pdf, detail_font_eangnivc, 'CP1251' ) )
     AAdd( aFonts, tFont )
   endif
 
   /* установим режим сжатия */
   if ( pdfReturn := HPDF_SetCompressionMode( pdf, HPDF_COMP_ALL ) ) != HPDF_OK
-    fError:add_string( 'HPDF_SetCompressionMode() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_SetCompressionMode()' ) )
   endif
 
-//  if ( pdfReturn := HPDF_SetPageMode( pdf, HPDF_PAGE_MODE_USE_OUTLINE ) ) != HPDF_OK
   if ( pdfReturn := HPDF_SetPageMode( pdf, HPDF_PAGE_MODE_USE_NONE ) ) != HPDF_OK
-    fError:add_string( 'HPDF_SetPageMode() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
+    fError:add_string( strErrorPdf( pdf, 'HPDF_SetPageMode()' ) )
   endif
 
   designPage1( pdf, hArr, aFonts, fError )
@@ -95,64 +90,13 @@ FUNCTION DesignSpravkaPDF( cFileToSave, hArr )
     designPage2( pdf, hArr, aFonts, fError )
   endif
 
-  IF HPDF_SaveToFile( pdf, cFileToSave ) != 0
-//    func_error( 4, '0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
-    fError:add_string( 'HPDF_SaveToFile() - 0x' + hb_NumToHex( HPDF_GetError( pdf ), 4 ), hb_HPDF_GetErrorString( HPDF_GetError( pdf ) ), HPDF_GetErrorDetail( pdf ) )
-    func_error( 4, 'Ошибка создания печатной формы справки для ФНС!' )
+  IF HPDF_SaveToFile_Wrap( pdf, cFileToSave, 'справки для ФНС', fError ) != 0
     fl := .f.
   ENDIF 
 
   HPDF_Free( pdf )
   fError := nil
-
-  RETURN fl //  hb_FileExists( cFileToSave )
-
-// 27.07.24
-function mm_to_pt( x_y )
-
-   local t := x_y / 25.4
-
-   t := t * 72
-   return t
-
-// 26.07.24
-function out_text( pg, x, y, sText )
-
-   HPDF_Page_BeginText( pg )
-   HPDF_Page_TextOut( pg, mm_to_pt( x ), mm_to_pt( y ), win_OEMToANSI( sText ) )
-   HPDF_Page_EndText( pg )
- 
-   return nil
-
-// 26.07.24
-function out_text_center( pg, y, sText )
-
-  local tw, width
-
-  sText := win_OEMToANSI ( sText )
-  width  := HPDF_Page_GetWidth( pg )
-  tw := HPDF_Page_TextWidth( pg, sText )
-  HPDF_Page_BeginText( pg )
-  HPDF_Page_TextOut( pg, ( width - tw ) / 2, mm_to_pt( y ), sText )
-  HPDF_Page_EndText( pg )
- 
-  return nil
-
-// 27.07.24
-function out_kvadr( pg, x, y )
-
-   HPDF_Page_SetDash( pg, , 0, 0 )
-
-   HPDF_Page_SetLineWidth( pg, 15 )
-
-   /* Line Cap Style */
-   HPDF_Page_SetLineCap( pg, HPDF_BUTT_END )
-
-   HPDF_Page_MoveTo( pg, mm_to_pt( x ) + 15, mm_to_pt( y ) ) //- 25 )
-   HPDF_Page_LineTo( pg, mm_to_pt( x ) + 30, mm_to_pt( y ) ) //- 25 )
-   HPDF_Page_Stroke( pg )
-
-   return nil
+  RETURN fl
 
 // 29.07.24
 function fill_INN( pg, inn, kpp, num )
@@ -170,7 +114,6 @@ function fill_INN( pg, inn, kpp, num )
   for i := 1 to len( tStr )
    out_text( pg, 124 + ( i - 1 ) * 5, 280, substr( tStr, i, 1 ) ) //58
   next
-
   return nil
 
 // 29.07.24
@@ -181,7 +124,6 @@ function out_format( pg, x, y, sText )
   for i := 1 to len( sText )
     out_text( pg, x + ( i - 1 ) * 5, y, substr( sText, i, 1 ) )
   next
-
   return nil
 
 // 30.07.24
@@ -195,7 +137,6 @@ function transform_sum( sum )
     ret := ret + replicate( '-', 13 - len( ret ) ) + '.'
   endif
   ret := ret + transform( ( sum - cel ) * 100, '@L 99' )
-
   return ret
 
 // 30.07.24
@@ -273,5 +214,4 @@ function create_string_EanGnivc( str )
       + middleProtectTemplate ;
       + rightPartCode ;
       + rightProtectTemplate
-
   return rez

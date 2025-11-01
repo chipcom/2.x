@@ -3,13 +3,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.02.25 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+// 19.06.25 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
 
   Local p_tip_reestr
   Local tmpSelect
   Local arr_f, ii, oXmlDoc, j, j1, j2, j3, j4, _ar, buf := save_maxrow(), fl := .f., is_old := .f.
-  local name_zip := AllTrim( mname_xml ) + szip
+  local name_zip := AllTrim( mname_xml ) + szip()
   Local ushifr
   local oNode1, oNode11, oNode2, oNode3, oNode4, oNode5
   local lREGNUM, lREGNUM_DOP, lCODE_SH
@@ -109,10 +109,10 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
     { "DS1_T",    "C", 1, 0 }, ; // Повод обращения:0 - первичное лечение;1 - рецидив;2 - прогрессирование
     { "PR_CONS",  "C", 1, 0 }, ; // Сведения о проведении консилиума:1 - определена тактика обследования;2 - определена тактика лечения;3 - изменена тактика лечения.
     { "DT_CONS",  "C", 10, 0 }, ; // Дата проведения консилиума       Обязательно к заполнению при заполненном PR_CONS
-    { "STAD",     "C", 3, 0 }, ; // Стадия заболевания       Заполняется в соответствии со справочником N002
-    { "ONK_T",    "C", 3, 0 }, ; // Значение Tumor   Заполняется в соответствии со справочником N003
-    { "ONK_N",    "C", 3, 0 }, ; // Значение Nodus   Заполняется в соответствии со справочником N004
-    { "ONK_M",    "C", 3, 0 }, ; // Значение Metastasis      Заполняется в соответствии со справочником N005
+    { "STAD",     "C", 4, 0 }, ; // Стадия заболевания       Заполняется в соответствии со справочником N002
+    { "ONK_T",    "C", 5, 0 }, ; // Значение Tumor   Заполняется в соответствии со справочником N003
+    { "ONK_N",    "C", 5, 0 }, ; // Значение Nodus   Заполняется в соответствии со справочником N004
+    { "ONK_M",    "C", 5, 0 }, ; // Значение Metastasis      Заполняется в соответствии со справочником N005
     { "MTSTZ",    "C", 1, 0 }, ; // Признак выявления отдалённых метастазов  Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2
     { "SOD",      "C", 6, 0 }, ;  // Суммарная очаговая доза Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)
     { "K_FR",     "C", 2, 0 }, ; //
@@ -304,7 +304,7 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
 
 
   //
-  Default flag_tmp1 To .f., is_all To .t., goal_dir To dir_server + dir_XML_MO + cslash
+  Default flag_tmp1 To .f., is_all To .t., goal_dir To dir_server() + dir_XML_MO() + hb_ps()
   Private pole
   stat_msg( "Распаковка/чтение/анализ " + iif( eq_any( Left( mname_xml, 3 ), "HRM", "FRM" ), "реестра ", "счёта " ) + mname_xml )
 
@@ -312,34 +312,34 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
 
   If ( arr_f := extract_zip_xml( goal_dir, name_zip ) ) != NIL
     fl := .t.
-    dbCreate( cur_dir + "tmp_r_t1", _table1 )
-    dbCreate( cur_dir + "tmp_r_t1_1", _table1 )
-    dbCreate( cur_dir + "tmp_r_t2", _table2 )
-    dbCreate( cur_dir + "tmp_r_t3", _table3 )
-    dbCreate( cur_dir + "tmp_r_t4", _table4 )
-    dbCreate( cur_dir + "tmp_r_t5", _table5 )
-    dbCreate( cur_dir + "tmp_r_t6", _table6 )
-    dbCreate( cur_dir + "tmp_r_t7", _table7 )
-    dbCreate( cur_dir + "tmp_r_t8", _table8 )
-    dbCreate( cur_dir + "tmp_r_t9", _table9 )
-    dbCreate( cur_dir + "tmp_r_t10", _table10 )
-    dbCreate( cur_dir + "tmp_r_t11", _table11 )
-    dbCreate( cur_dir + "tmp_r_t12", _table12 )
-    Use ( cur_dir + "tmp_r_t1" ) New Alias T1
-    Use ( cur_dir + "tmp_r_t2" ) New Alias T2
-    Use ( cur_dir + "tmp_r_t3" ) New Alias T3
-    Use ( cur_dir + "tmp_r_t4" ) New Alias T4
-    Use ( cur_dir + "tmp_r_t5" ) New Alias T5
-    Use ( cur_dir + "tmp_r_t6" ) New Alias T6
-    Use ( cur_dir + "tmp_r_t7" ) New Alias T7
-    Use ( cur_dir + "tmp_r_t8" ) New Alias T8
-    Use ( cur_dir + "tmp_r_t9" ) New Alias T9
-    Use ( cur_dir + "tmp_r_t10" ) New Alias T10
-    Use ( cur_dir + "tmp_r_t11" ) New Alias T11
-    Use ( cur_dir + "tmp_r_t12" ) New Alias T12
-    Use ( cur_dir + "tmp_r_t1_1" ) New Alias T1_1
+    dbCreate( cur_dir() + "tmp_r_t1", _table1 )
+    dbCreate( cur_dir() + "tmp_r_t1_1", _table1 )
+    dbCreate( cur_dir() + "tmp_r_t2", _table2 )
+    dbCreate( cur_dir() + "tmp_r_t3", _table3 )
+    dbCreate( cur_dir() + "tmp_r_t4", _table4 )
+    dbCreate( cur_dir() + "tmp_r_t5", _table5 )
+    dbCreate( cur_dir() + "tmp_r_t6", _table6 )
+    dbCreate( cur_dir() + "tmp_r_t7", _table7 )
+    dbCreate( cur_dir() + "tmp_r_t8", _table8 )
+    dbCreate( cur_dir() + "tmp_r_t9", _table9 )
+    dbCreate( cur_dir() + "tmp_r_t10", _table10 )
+    dbCreate( cur_dir() + "tmp_r_t11", _table11 )
+    dbCreate( cur_dir() + "tmp_r_t12", _table12 )
+    Use ( cur_dir() + "tmp_r_t1" ) New Alias T1
+    Use ( cur_dir() + "tmp_r_t2" ) New Alias T2
+    Use ( cur_dir() + "tmp_r_t3" ) New Alias T3
+    Use ( cur_dir() + "tmp_r_t4" ) New Alias T4
+    Use ( cur_dir() + "tmp_r_t5" ) New Alias T5
+    Use ( cur_dir() + "tmp_r_t6" ) New Alias T6
+    Use ( cur_dir() + "tmp_r_t7" ) New Alias T7
+    Use ( cur_dir() + "tmp_r_t8" ) New Alias T8
+    Use ( cur_dir() + "tmp_r_t9" ) New Alias T9
+    Use ( cur_dir() + "tmp_r_t10" ) New Alias T10
+    Use ( cur_dir() + "tmp_r_t11" ) New Alias T11
+    Use ( cur_dir() + "tmp_r_t12" ) New Alias T12
+    Use ( cur_dir() + "tmp_r_t1_1" ) New Alias T1_1
     If flag_tmp1
-      dbCreate( cur_dir + "tmp1file", { ;
+      dbCreate( cur_dir() + "tmp1file", { ;
         { "_VERSION",   "C",  5, 0 }, ;
         { "_DATA",      "D",  8, 0 }, ;
         { "_FILENAME",  "C", 26, 0 }, ;
@@ -354,7 +354,7 @@ Function extract_reestr( mkod, mname_xml, flag_tmp1, is_all, goal_dir )
         { "_KOL",       "N",  6, 0 }, ;
         { "_MAX",       "N",  8, 0 };
         } )
-      Use ( cur_dir + "tmp1file" ) New Alias TMP1
+      Use ( cur_dir() + "tmp1file" ) New Alias TMP1
       Append Blank
     Endif
     For ii := 1 To Len( arr_f )

@@ -10,19 +10,19 @@ Function i_new_boln( oEdit )
   If ( arr_m := year_month() ) != NIL
     mywait()
     //
-    dbCreate( cur_dir + 'tmp', { { 'is', 'N', 1, 0 }, ;
+    dbCreate( cur_dir() + 'tmp', { { 'is', 'N', 1, 0 }, ;
       { 'kod_k', 'N', 7, 0 }, ;
       { 'task', 'N', 1, 0 }, ;
       { 'uch', 'N', 3, 0 }, ;
       { 'otd', 'N', 3, 0 }, ;
       { 'data', 'D', 8, 0 }, ;
       { 'KOD_P', 'C', 1, 0 } } ) // ª®¤ ¯®«ì§®¢ â¥«ï, ¤®¡ ¢¨¢è¥£® «/ã
-    Use ( cur_dir + 'tmp' ) new
-    Index On Str( kod_k, 7 ) to ( cur_dir + 'tmp' )
+    Use ( cur_dir() + 'tmp' ) new
+    Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp' )
     If is_task( X_REGIST )
       waitstatus( '®¤§ ¤ ç  …ƒˆ‘’€’“€' )
-      r_use( dir_server + 'mo_regi', dir_server + 'mo_regi2', 'REGI' )
-      // index on pdate to (dir_server+'mo_regi2') progress
+      r_use( dir_server() + 'mo_regi', dir_server() + 'mo_regi2', 'REGI' )
+      // index on pdate to (dir_server()+'mo_regi2') progress
       dbSeek( arr_m[ 7 ], .t. )
       Do While regi->pdate <= arr_m[ 8 ] .and. !Eof()
         updatestatus()
@@ -53,8 +53,8 @@ Function i_new_boln( oEdit )
     Endif
     If is_task( X_PPOKOJ )
       waitstatus( '®¤§ ¤ ç  ˆðŒ›‰ ŽŠŽ‰' )
-      r_use( dir_server + 'mo_pp', dir_server + 'mo_pp_d', 'PP' )
-      // index on dtos(n_data)+n_time to (dir_server+'mo_pp_d') progress
+      r_use( dir_server() + 'mo_pp', dir_server() + 'mo_pp_d', 'PP' )
+      // index on dtos(n_data)+n_time to (dir_server()+'mo_pp_d') progress
       dbSeek( DToS( arr_m[ 5 ] ), .t. )
       Do While pp->n_data <= arr_m[ 6 ] .and. !Eof()
         updatestatus()
@@ -85,10 +85,10 @@ Function i_new_boln( oEdit )
     Endif
     If is_task( X_PLATN )
       waitstatus( '®¤§ ¤ ç  ‹€’›… “‘‹“ƒˆ' )
-      r_use( dir_server + 'hum_p', dir_server + 'hum_pd', 'PLAT' )
-      // index on dtos(k_data) to (dir_server+'hum_pd') progress
+      r_use( dir_server() + 'hum_p', dir_server() + 'hum_pd', 'PLAT' )
+      // index on dtos(k_data) to (dir_server()+'hum_pd') progress
       dbSeek( DToS( AddMonth( arr_m[ 5 ], -6 ) ), .t. )
-      Index On DToS( n_data ) to ( cur_dir + 'tmp_plat' ) ;
+      Index On DToS( n_data ) to ( cur_dir() + 'tmp_plat' ) ;
         For Between( n_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
         While k_data <= arr_m[ 6 ]
       Go Top
@@ -119,8 +119,8 @@ Function i_new_boln( oEdit )
       Enddo
       plat->( dbCloseArea() )
       If is_task( X_KASSA )
-        r_use( dir_server + 'kas_pl', dir_server + 'kas_pl2', 'KP' )
-        // index on dtos(k_data) to (dir_server+'kas_pl2') progress
+        r_use( dir_server() + 'kas_pl', dir_server() + 'kas_pl2', 'KP' )
+        // index on dtos(k_data) to (dir_server()+'kas_pl2') progress
         dbSeek( DToS( arr_m[ 5 ] ), .t. )
         Do While kp->k_data <= arr_m[ 6 ] .and. !Eof()
           updatestatus()
@@ -149,10 +149,10 @@ Function i_new_boln( oEdit )
       Endif
     Endif
     If is_task( X_ORTO )
-      r_use( dir_server + 'hum_ort', dir_server + 'hum_ortd', 'ORT' )
-      // index on dtos(k_data) to (dir_server+'hum_ortd') progress
+      r_use( dir_server() + 'hum_ort', dir_server() + 'hum_ortd', 'ORT' )
+      // index on dtos(k_data) to (dir_server()+'hum_ortd') progress
       dbSeek( DToS( AddMonth( arr_m[ 5 ], -6 ) ), .t. )
-      Index On DToS( n_data ) to ( cur_dir + 'tmp_ort' ) ;
+      Index On DToS( n_data ) to ( cur_dir() + 'tmp_ort' ) ;
         For Between( n_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
         While k_data <= arr_m[ 6 ]
       Go Top
@@ -182,8 +182,8 @@ Function i_new_boln( oEdit )
       Enddo
       ort->( dbCloseArea() )
       If is_task( X_KASSA )
-        r_use( dir_server + 'kas_ort', dir_server + 'kas_ort2', 'KP' )
-        // index on dtos(k_data) to (dir_server+'kas_ort2') progress
+        r_use( dir_server() + 'kas_ort', dir_server() + 'kas_ort2', 'KP' )
+        // index on dtos(k_data) to (dir_server()+'kas_ort2') progress
         dbSeek( DToS( arr_m[ 5 ] ), .t. )
         Do While kp->k_data <= arr_m[ 6 ] .and. !Eof()
           updatestatus()
@@ -212,10 +212,10 @@ Function i_new_boln( oEdit )
       Endif
     Endif
     waitstatus( '®¤§ ¤ ç  ŽŒ‘' )
-    r_use( dir_server + 'human', dir_server + 'humand', 'OMS' )
-    // index on dtos(k_data)+uch_doc to (dir_server+'humand') progress
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'OMS' )
+    // index on dtos(k_data)+uch_doc to (dir_server()+'humand') progress
     dbSeek( DToS( AddMonth( arr_m[ 5 ], -6 ) ), .t. )
-    Index On DToS( n_data ) to ( cur_dir + 'tmp_oms' ) ;
+    Index On DToS( n_data ) to ( cur_dir() + 'tmp_oms' ) ;
       For Between( n_data, arr_m[ 5 ], arr_m[ 6 ] ) ;
       While k_data <= arr_m[ 6 ]
     Go Top
@@ -245,7 +245,7 @@ Function i_new_boln( oEdit )
       Skip
     Enddo
     Select OMS
-    Set Index to ( dir_server + 'humankk' )
+    Set Index to ( dir_server() + 'humankk' )
     Select TMP
     Go Top
     Do While !Eof()
@@ -266,7 +266,7 @@ Function i_new_boln( oEdit )
     Enddo
     oms->( dbCloseArea() )
     If is_task( X_PPOKOJ )
-      r_use( dir_server + 'mo_pp', dir_server + 'mo_pp_r', 'PP' )
+      r_use( dir_server() + 'mo_pp', dir_server() + 'mo_pp_r', 'PP' )
       Select TMP
       Go Top
       Do While !Eof()
@@ -288,7 +288,7 @@ Function i_new_boln( oEdit )
       pp->( dbCloseArea() )
     Endif
     If is_task( X_PLATN )
-      r_use( dir_server + 'hum_p', dir_server + 'hum_pkk', 'PLAT' )
+      r_use( dir_server() + 'hum_p', dir_server() + 'hum_pkk', 'PLAT' )
       Select TMP
       Go Top
       Do While !Eof()
@@ -309,7 +309,7 @@ Function i_new_boln( oEdit )
       Enddo
       plat->( dbCloseArea() )
       If is_task( X_KASSA )
-        r_use( dir_server + 'kas_pl', dir_server + 'kas_pl1', 'KP' )
+        r_use( dir_server() + 'kas_pl', dir_server() + 'kas_pl1', 'KP' )
         Select TMP
         Go Top
         Do While !Eof()
@@ -332,7 +332,7 @@ Function i_new_boln( oEdit )
       Endif
     Endif
     If is_task( X_ORTO )
-      r_use( dir_server + 'hum_ort', dir_server + 'hum_ortk', 'ORT' )
+      r_use( dir_server() + 'hum_ort', dir_server() + 'hum_ortk', 'ORT' )
       Select TMP
       Go Top
       Do While !Eof()
@@ -353,7 +353,7 @@ Function i_new_boln( oEdit )
       Enddo
       ort->( dbCloseArea() )
       If is_task( X_KASSA )
-        r_use( dir_server + 'kas_ort', dir_server + 'kas_ort1', 'KP' )
+        r_use( dir_server() + 'kas_ort', dir_server() + 'kas_ort1', 'KP' )
         Select TMP
         Go Top
         Do While !Eof()
@@ -377,8 +377,8 @@ Function i_new_boln( oEdit )
     Endif
     waitstatus( '®¢ë¥ ¯ æ¨¥­âë' )
 
-    r_use( dir_server + 'kartote2',, 'KART2' )
-    Index On pc1 to ( cur_dir + 'tmpkart2' ) For !Empty( pc1 ) .and. Between( SubStr( pc1, 2, 4 ), arr_m[ 7 ], arr_m[ 8 ] )
+    r_use( dir_server() + 'kartote2',, 'KART2' )
+    Index On pc1 to ( cur_dir() + 'tmpkart2' ) For !Empty( pc1 ) .and. Between( SubStr( pc1, 2, 4 ), arr_m[ 7 ], arr_m[ 8 ] )
     Go Top
     Do While !Eof()
       updatestatus()
@@ -417,16 +417,16 @@ Function i_new_boln( oEdit )
       { 'adres', 'C', 250, 0 }, ;
       { 'oper', 'C', 100, 0 } } )
     Use ( fr_data ) New Alias FRD
-    r_use( dir_server + 'base1',, 'BASE1' )
-    r_use( dir_server + 'kartote2',, 'KART2' )
-    r_use( dir_server + 'kartote_',, 'KART_' )
-    r_use( dir_server + 'kartotek',, 'KART' )
-    Use ( cur_dir + 'tmp' ) new
+    r_use( dir_server() + 'base1',, 'BASE1' )
+    r_use( dir_server() + 'kartote2',, 'KART2' )
+    r_use( dir_server() + 'kartote_',, 'KART_' )
+    r_use( dir_server() + 'kartotek',, 'KART' )
+    Use ( cur_dir() + 'tmp' ) new
     Set Relation To kod_k into KART, To kod_k into KART_, To kod_k into KART2
 
     waitstatus( '®¤®¦¤¨â¥, ¨¤¥â ®¡à ¡®âª ' )
 
-    Index On Upper( kart->fio ) to ( cur_dir + 'tmp' ) For is > 0
+    Index On Upper( kart->fio ) to ( cur_dir() + 'tmp' ) For is > 0
     Go Top
     Do While !Eof()
       updatestatus()
@@ -436,22 +436,22 @@ Function i_new_boln( oEdit )
         Select BASE1
         Goto ( Asc( tmp->kod_p ) )
         If !Eof() .and. !Empty( base1->p1 )
-          s += AllTrim( Crypt( base1->p1, gpasskod ) ) + eos
+          s += AllTrim( Crypt( base1->p1, gpasskod ) ) + hb_eol()
         Endif
       Endif
       If tmp->task == X_REGIST
         If !Empty( tmp->otd )
           If tmp->uch == 1
-            s += inieditspr( A__POPUPMENU, dir_server + 'mo_otd', tmp->otd )
+            s += inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', tmp->otd )
           Else
-            s += inieditspr( A__POPUPMENU, dir_server + 'p_priem', tmp->otd )
+            s += inieditspr( A__POPUPMENU, dir_server() + 'p_priem', tmp->otd )
           Endif
         Endif
       Else
         If !Empty( tmp->otd )
-          s += inieditspr( A__POPUPMENU, dir_server + 'mo_otd', tmp->otd )
+          s += inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', tmp->otd )
           If tmp->task != X_OMS
-            s += eos
+            s += hb_eol()
           Endif
         Endif
         Do Case

@@ -25,7 +25,7 @@ Function po_statist( k )
       "~Журнал Регистрации", ;
       "Настраиваемый журнал ~Регистрации", ; // 21.05.08
       "По дате приема ~денег";
-    }
+      }
     mas_msg := { "Статистика по объему работ персонала (по дате окончания лечения)", ;
       "Статистика по объему работ (по номеру квитанционной книжки)", ;
       "Статистика по направившим врачам", ;
@@ -34,7 +34,7 @@ Function po_statist( k )
       "Журнал регистрации договоров", ;
       "Настраиваемый журнал Регистрации", ; // 21.05.08
       "По дате приема денег";
-    }
+      }
     mas_fun := { "Po_statist(11)", ;
       "Po_statist(12)", ;
       "Po_statist(13)", ;
@@ -43,9 +43,9 @@ Function po_statist( k )
       "Po_statist(18)", ;
       "Po_statist(19)", ;
       "Po_statist(17)";
-    }
+      }
     Private p_net_otd := .t.
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
     restuchotd( uch_otd )
   Case k == 11
     pob_statist()
@@ -58,7 +58,7 @@ Function po_statist( k )
       "Статистика по направившим врачам с расшифровкой по услугам" }
     mas_fun := { "Po_statist(31)", ;
       "Po_statist(32)" }
-    popup_prompt( T_ROW, T_COL - 5, si3, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si3, mas_pmt, mas_msg, mas_fun )
   Case k == 14
     mas_pmt := { "~Больные по ДМС и взаимозачету", ;
       "~Оплата по ДМС и взаимозачету", ;
@@ -80,7 +80,7 @@ Function po_statist( k )
       AAdd( mas_fun, "Po_statist(25)" )
       AAdd( mas_fun, "Po_statist(26)" )
     Endif
-    popup_prompt( T_ROW, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 15
     pl_mnog_poisk()
   Case k == 16
@@ -97,7 +97,7 @@ Function po_statist( k )
       "Po_statist(72)", ;
       "Po_statist(73)";
       }
-    popup_prompt( T_ROW, T_COL - 5, si3, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si3, mas_pmt, mas_msg, mas_fun )
   Case k == 18
     pl_pl_dogovor()
   Case k == 19
@@ -107,13 +107,13 @@ Function po_statist( k )
     Default si4 To glob_close + 1
     mas_pmt := { "По дате ~окончания лечения", ;
       "По дате ~закрытия л/учета" }
-    If ( j := popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt ) ) > 0
+    If ( j := popup_prompt( T_ROW, T_COL -5, si4, mas_pmt ) ) > 0
       si4 := j
       Private pi1 := si4 + 1
       If k == 21
         pl_vzaimozach()
       Else
-        vr_vzaimozach( k - 23 )
+        vr_vzaimozach( k -23 )
       Endif
     Endif
   Case k == 22
@@ -162,7 +162,7 @@ Function pob_statist()
   Private pi1 := si, psz
 
   Default si To glob_close + 2
-  popup_prompt( T_ROW, T_COL - 5, si, mas_pmt, mas_msg, mas_fun )
+  popup_prompt( T_ROW, T_COL -5, si, mas_pmt, mas_msg, mas_fun )
   If pi1 != NIL ; si := pi1 ; Endif
 
   Return Nil
@@ -182,7 +182,7 @@ Function pob1_statist( k, k1 )
       "Статистика по объему работ с подсчетом заработной платы" }
     mas_fun := { "Pob1_statist(1,1)", ;
       "Pob1_statist(1,2)" } //
-    popup_prompt( T_ROW, T_COL - 5, si0, mas_pmt, mas_msg, mas_fun, color0 + ",R/BG,GR+/N" )
+    popup_prompt( T_ROW, T_COL -5, si0, mas_pmt, mas_msg, mas_fun, color0 + ",R/BG,GR+/N" )
   Case k == 1
     psz := si0 := k1
     mas_pmt := { "~Отделения", ;
@@ -197,7 +197,7 @@ Function pob1_statist( k, k1 )
       "Pob1_statist(12)", ;
       "Pob1_statist(13)", ;
       "Pob1_statist(14)" }
-    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11  // отделения
     mas_pmt := { "~Список отделений", ;
       "Отделение + ~персонал", ;
@@ -223,7 +223,7 @@ Function pob1_statist( k, k1 )
       "Pob1_statist(26)", ;
       "Pob1_statist(27)", ;
       "Pob1_statist(28)" }
-    popup_prompt( T_ROW, T_COL - 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 12  // службы
     mas_pmt := { "Службы + ~отделения", ;
       "Службы + ~услуги", ;
@@ -234,7 +234,7 @@ Function pob1_statist( k, k1 )
     mas_fun := { "Pob1_statist(31)", ;
       "Pob1_statist(32)", ;
       "Pob1_statist(33)" }
-    popup_prompt( T_ROW, T_COL - 5, si3, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si3, mas_pmt, mas_msg, mas_fun )
   Case k == 13  // персонал
     mas_pmt := { "1 человек + ~услуги", ;
       "~1 человек + услуги + больные", ;
@@ -259,7 +259,7 @@ Function pob1_statist( k, k1 )
       AAdd( mas_fun, "Pob1_statist(46)" )
       AAdd( mas_fun, "Pob1_statist(47)" )
     Endif
-    popup_prompt( T_ROW, T_COL - 5, si4, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si4, mas_pmt, mas_msg, mas_fun )
   Case k == 14  // услуги
     mas_pmt := { "~Список услуг", ;
       "Все ~услуги", ;
@@ -270,7 +270,7 @@ Function pob1_statist( k, k1 )
     mas_fun := { "Pob1_statist(51)", ;
       "Pob1_statist(52)", ;
       "Pob1_statist(53)" }
-    popup_prompt( T_ROW, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si5, mas_pmt, mas_msg, mas_fun )
     // ** отделения
   Case k == 21    // список отделений
     pob2_statist( 1 )
@@ -295,13 +295,13 @@ Function pob1_statist( k, k1 )
     pob2_statist( 10 )
   Case k == 33    // служба + услуги
     fl := .f.
-    g_use( dir_server + "slugba", dir_server + "slugba", "SL" )
+    g_use( dir_server() + "slugba", dir_server() + "slugba", "SL" )
     If si_slugba == NIL
       Go Top
     Else
       find ( Str( si_slugba, 3 ) )
     Endif
-    If alpha_browse( T_ROW, T_COL - 5, MaxRow() -2, T_COL + 45, "f2spr_other", color0 )
+    If alpha_browse( T_ROW, T_COL -5, MaxRow() -2, T_COL + 45, "f2spr_other", color0 )
       fl := .t. ; si_slugba := sl->shifr
       j := { sl->shifr, lstr( sl->shifr ) + ". " + AllTrim( sl->name ) }
     Endif
@@ -313,7 +313,7 @@ Function pob1_statist( k, k1 )
   Case k == 41    // конкретный работающий + услуги
     pob2_statist( 5 )
   Case k == 42    // конкретный работающий + услуги + больные
-    If ( j := popup_prompt( T_ROW, T_COL - 5, si5, ;
+    If ( j := popup_prompt( T_ROW, T_COL -5, si5, ;
         { "Все ~услуги", "~Список услуг" } ) ) > 0
       pob2_statist( 13,, ( j == 1 ) )
     Endif
@@ -367,33 +367,33 @@ Function pob2_statist( k, serv_arr, is_all )
   Default is_all To .t.
   Private skol := { 0, 0 }, strud := { 0, 0 }, sstoim := { 0, 0 }, krvz, arr_dms
   If equalany( k, 2, 3, 4, 8, 9 )  // по отделению
-    If ( st_a_otd := inputn_otd( T_ROW, T_COL - 5, .f., .f. ) ) == NIL
+    If ( st_a_otd := inputn_otd( T_ROW, T_COL -5, .f., .f. ) ) == NIL
       Return Nil
     Endif
     AEval( st_a_otd, {| x| AAdd( arr_otd, x ) } )
     If k == 8 .and. ( musluga := input_usluga() ) == NIL
       Return Nil
     Endif
-    If k == 9 .and. !input_perso( T_ROW, T_COL - 5, .f. )
+    If k == 9 .and. !input_perso( T_ROW, T_COL -5, .f. )
       Return Nil
     Endif
   Else  // по учреждению(ям)
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
       Return Nil
     Endif
-    r_use( dir_server + "mo_otd",, "OTD" )
+    r_use( dir_server() + "mo_otd",, "OTD" )
     dbEval( {|| AAdd( arr_otd, { otd->( RecNo() ), otd->name, otd->kod_lpu } ) }, ;
       {|| f_is_uch( st_a_uch, otd->kod_lpu ) } )
     OTD->( dbCloseArea() )
     If Len( st_a_uch ) > 1
-      g_use( dir_server + "mo_uch",, "UCH" )
+      g_use( dir_server() + "mo_uch",, "UCH" )
       For i := 1 To Len( arr_otd )
         Goto ( arr_otd[ i, 3 ] )
         arr_otd[ i, 2 ] := "[" + AllTrim( uch->name ) + "] " + AllTrim( arr_otd[ i, 2 ] )
       Next
       uch->( dbCloseArea() )
     Endif
-    If ( ( k == 5 .and. serv_arr == NIL ) .or. k == 13 ) .and. !input_perso( T_ROW, T_COL - 5, .f. )
+    If ( ( k == 5 .and. serv_arr == NIL ) .or. k == 13 ) .and. !input_perso( T_ROW, T_COL -5, .f. )
       Return Nil
     Endif
   Endif
@@ -405,7 +405,7 @@ Function pob2_statist( k, serv_arr, is_all )
   If k == 5 .and. serv_arr != Nil .and. ( mperso := input_kperso() ) == NIL
     mywait()
     mperso := {}
-    r_use( dir_server + "mo_pers",, "PERSO" )
+    r_use( dir_server() + "mo_pers",, "PERSO" )
     Go Top
     Do While !Eof()
       If perso->kod > 0
@@ -415,11 +415,11 @@ Function pob2_statist( k, serv_arr, is_all )
     Enddo
     perso->( dbCloseArea() )
   Endif
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If pi1 == 1  // по дате лечения
- /* G_Use(dir_server+"mo_otd",,"OTD")
+ /* G_Use(dir_server()+"mo_otd",,"OTD")
   dbeval({|| if(otd->usluga > 0 .and. ascan(arr_kd,otd->usluga) == 0, ;
                    aadd(arr_kd,otd->usluga), NIL),;
              if(otd->usluga_d > 0 .and. ascan(arr_kd,otd->usluga_d) == 0, ;
@@ -439,7 +439,7 @@ Function pob2_statist( k, serv_arr, is_all )
     { "K_DATA",     "D",      8,      0 }, ;  // дата окончания лечения
     { "KOL",    "N",      5,      0 }, ;  // количество услуг
     { "STOIM",      "N",     20,      4 };   // стоимость услуг
-  }
+    }
   adbf2 := { ;
     { "otd",        "N",      3,      0 }, ;  // отделение, где оказана услуга
     { "U_KOD",    "N",      4,      0 }, ;  // код услуги
@@ -453,15 +453,15 @@ Function pob2_statist( k, serv_arr, is_all )
     { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
     { "KOL",    "N",      6,      0 }, ;  // количество услуг
     { "STOIM",    "N",     16,      4 };   // итоговая стоимость услуги
-  }
+    }
   If k == 13 .and. !is_all
-    dbCreate( cur_dir + "tmp", adbf2 )
-    Use ( cur_dir + "tmp" )
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    dbCreate( cur_dir() + "tmp", adbf2 )
+    Use ( cur_dir() + "tmp" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
-    Use ( cur_dir + "tmp" )
+    Use ( cur_dir() + "tmp" )
     dbEval( {|| AAdd( arr_usl, tmp->u_kod ) } )
     Use
     If Len( arr_usl ) == 0
@@ -469,71 +469,71 @@ Function pob2_statist( k, serv_arr, is_all )
     Endif
   Endif
   If equalany( k, 8, 9, 13, 14 )  // вывод списка больных
-    dbCreate( cur_dir + "tmp", adbf1 )
+    dbCreate( cur_dir() + "tmp", adbf1 )
   Else
-    dbCreate( cur_dir + "tmp", adbf2 )
+    dbCreate( cur_dir() + "tmp", adbf2 )
   Endif
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
-  Use ( cur_dir + "tmp" )
+  Use ( cur_dir() + "tmp" )
   Do Case
   Case k == 0  // Количество услуг и сумма лечения по службам (с разбивкой по отделениям)
-    Index On Str( kod_vr, 4 ) + Str( otd, 3 ) to ( cur_dir + "tmpk" )
-    Index On Str( kod_vr, 4 ) + Upper( Left( u_name, 20 ) ) to ( cur_dir + "tmpn" )
+    Index On Str( kod_vr, 4 ) + Str( otd, 3 ) to ( cur_dir() + "tmpk" )
+    Index On Str( kod_vr, 4 ) + Upper( Left( u_name, 20 ) ) to ( cur_dir() + "tmpn" )
   Case k == 1  // Количество услуг и сумма лечения по отделениям
-    Index On Str( otd, 3 ) to ( cur_dir + "tmpk" )
-    Index On fio to ( cur_dir + "tmpn" )
+    Index On Str( otd, 3 ) to ( cur_dir() + "tmpk" )
+    Index On fio to ( cur_dir() + "tmpn" )
   Case k == 2  // Статистика по работе персонала в конкретном отделении
-    Index On Str( vr_as, 1 ) + Str( kod_vr, 4 ) to ( cur_dir + "tmpk" )
-    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr, 4 ) + Str( vr_as, 1 ) to ( cur_dir + "tmpn" )
+    Index On Str( vr_as, 1 ) + Str( kod_vr, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr, 4 ) + Str( vr_as, 1 ) to ( cur_dir() + "tmpn" )
   Case k == 3  // Статистика по услугам, оказанным в конкретном отделении
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 4  // Статистика по работе персонала (плюс оказанные услуги) в конкретном отделении
-    Index On Str( vr_as, 1 ) + Str( kod_vr, 4 ) + Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr, 4 ) + Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( vr_as, 1 ) + Str( kod_vr, 4 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr, 4 ) + Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 5  // Статистика по работе конкретного человека (плюс оказанные услуги)
-    Index On Str( vr_as, 1 ) + Str( kod_vr, 4 ) + Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
+    Index On Str( vr_as, 1 ) + Str( kod_vr, 4 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
     If serv_arr == NIL
-      Index On Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+      Index On Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
     Else
-      Index On Upper( Left( fio, 30 ) ) + Str( kod_vr, 4 ) + Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+      Index On Upper( Left( fio, 30 ) ) + Str( kod_vr, 4 ) + Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
     Endif
   Case k == 6  // Статистика по конкретным услугам
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
   Case k == 7  // Статистика по работе всего персонала
-    Index On Str( vr_as, 1 ) + Str( kod_vr, 4 ) to ( cur_dir + "tmpk" )
-    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr, 4 ) + Str( vr_as, 1 ) to ( cur_dir + "tmpn" )
+    Index On Str( vr_as, 1 ) + Str( kod_vr, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr, 4 ) + Str( vr_as, 1 ) to ( cur_dir() + "tmpn" )
   Case equalany( k, 8, 9 )  // вывод списка больных
-    Index On Str( kod, 7 ) to ( cur_dir + "tmpk" )
-    Index On DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir + "tmpn" )
+    Index On Str( kod, 7 ) to ( cur_dir() + "tmpk" )
+    Index On DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir() + "tmpn" )
   Case k == 10 // Статистика по услугам по всем службам
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On Str( kod_vr, 4 ) + fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Str( kod_vr, 4 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 11 // Статистика по услугам конкретной службы
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 12 // Статистика по всем услугам
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 13  // вывод услуг + списка больных
-    Index On Str( u_kod, 4 ) + Str( kod, 7 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) + Str( u_kod, 4 ) + DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) + Str( kod, 7 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) + Str( u_kod, 4 ) + DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir() + "tmpn" )
   Case k == 14  // Статистика по конкретным услугам + список больных
-    Index On Str( u_kod, 4 ) + Str( kod, 7 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) + Str( u_kod, 4 ) + DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir + "tmpn" )
+    Index On Str( u_kod, 4 ) + Str( kod, 7 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) + Str( u_kod, 4 ) + DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
   Endcase
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpk" ), ( cur_dir + "tmpn" ) Alias TMP
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpk" ), ( cur_dir() + "tmpn" ) Alias TMP
   If mem_trudoem == 2
     useuch_usl()
   Endif
-  // G_Use(dir_server+"cena_usl",dir_server+"cena_usl","CENA")
-  g_use( dir_server + "kartotek",, "KART" )
-  g_use( dir_server + "uslugi",, "USL" )
+  // G_Use(dir_server()+"cena_usl",dir_server()+"cena_usl","CENA")
+  g_use( dir_server() + "kartotek",, "KART" )
+  g_use( dir_server() + "uslugi",, "USL" )
   Private is_1_usluga := ( Len( arr_usl ) == 1 )
   If psz == 2 .and. eq_any( is_oplata, 5, 6, 7 )
     open_opl_5()
@@ -541,20 +541,20 @@ Function pob2_statist( k, serv_arr, is_all )
       cre_tmp7()
     Endif
   Endif
-  r_use( dir_server + "mo_pers",, "PERSO" )
+  r_use( dir_server() + "mo_pers",, "PERSO" )
   If equalany( k, 5, 9, 13 )  // Статистика по работе конкретного врача/ассистента
     If serv_arr == NIL
       mperso := { glob_human }
     Endif
-    g_use( dir_server + "hum_p",, "HUMAN" )
-    g_use( dir_server + "hum_p_u", { dir_server + "hum_p_uv", ;
-      dir_server + "hum_p_ua", ;
-      dir_server + "hum_p_u" }, "HU" )
+    g_use( dir_server() + "hum_p",, "HUMAN" )
+    g_use( dir_server() + "hum_p_u", { dir_server() + "hum_p_uv", ;
+      dir_server() + "hum_p_ua", ;
+      dir_server() + "hum_p_u" }, "HU" )
     If pi1 == 3  // по дате закрытия листа учета
       Select HU
-      Set Index to ( dir_server + "hum_p_u" )
+      Set Index to ( dir_server() + "hum_p_u" )
       Select HUMAN
-      Set Index to ( dir_server + "hum_pc" )
+      Set Index to ( dir_server() + "hum_pc" )
       For xx := 0 To 2
         If AScan( krvz, xx ) > 0
           Select HUMAN
@@ -612,7 +612,7 @@ Function pob2_statist( k, serv_arr, is_all )
                 Endif
                 If AScan( arr_kd, hu->u_kod ) > 0 .and. hu->kol > 0 .and. ;
                     ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0 .and. ;
-                    ( md := c4tod( hu->date_u ) + hu->kol -1 ) >= arr[ 5 ]
+                    ( md := c4tod( hu->date_u ) + hu->kol - 1 ) >= arr[ 5 ]
                   human->( dbGoto( hu->kod ) )
                   If k == 5
                     // если дата окончания койко-дней >= begin_date
@@ -640,7 +640,7 @@ Function pob2_statist( k, serv_arr, is_all )
                 human->( dbGoto( hu->kod ) )
                 If len_kd > 0 .and. AScan( arr_kd, hu->u_kod ) > 0  // койко-день
                   If hu->kol > 0 .and. ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0
-                    If ( md := c4tod( hu->date_u ) ) + hu->kol -1 > arr[ 6 ]
+                    If ( md := c4tod( hu->date_u ) ) + hu->kol - 1 > arr[ 6 ]
                       // если кол-во койко-дней выходит за конечную дату
                       mkol := arr[ 6 ] - md + 1
                       mstoim := round_5( hu->stoim / hu->kol * mkol, 2 )
@@ -707,9 +707,9 @@ Function pob2_statist( k, serv_arr, is_all )
     is_1_usluga := ( Len( arr_usl ) == 1 )
     t_date1 := dtoc4( arr[ 5 ] -60 )
     t_date2 := dtoc4( arr[ 5 ] -1 )
-    g_use( dir_server + "hum_p",, "HUMAN" )
-    g_use( dir_server + "hum_p_u", { dir_server + "hum_p_uk", ;
-      dir_server + "hum_p_u" }, "HU" )
+    g_use( dir_server() + "hum_p",, "HUMAN" )
+    g_use( dir_server() + "hum_p_u", { dir_server() + "hum_p_uk", ;
+      dir_server() + "hum_p_u" }, "HU" )
     For xx := 1 To Len( arr_usl )
       If k == 6
         tmp->( dbGoto( arr_usl[ xx, 2 ] ) )
@@ -730,7 +730,7 @@ Function pob2_statist( k, serv_arr, is_all )
           If len_kd > 0 .and. Between( hu->date_u, t_date1, t_date2 ) .and. ;
               AScan( arr_kd, hu->u_kod ) > 0 .and. hu->kol > 0 .and. ;
               ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0 .and. ;
-              ( md := c4tod( hu->date_u ) + hu->kol -1 ) >= arr[ 5 ]
+              ( md := c4tod( hu->date_u ) + hu->kol - 1 ) >= arr[ 5 ]
             If k == 6
               // если дата окончания койко-дней >= begin_date
               md := Min( md, arr[ 6 ] )
@@ -744,7 +744,7 @@ Function pob2_statist( k, serv_arr, is_all )
             // если койко-день
             If len_kd > 0 .and. AScan( arr_kd, hu->u_kod ) > 0
               If hu->kol > 0 .and. ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0
-                If ( md := c4tod( hu->date_u ) ) + hu->kol -1 > arr[ 6 ]
+                If ( md := c4tod( hu->date_u ) ) + hu->kol - 1 > arr[ 6 ]
                   // если кол-во койко-дней выходит за конечную дату
                   mkol := arr[ 6 ] - md + 1
                   mstoim := round_5( hu->stoim / hu->kol * mkol, 2 )
@@ -815,8 +815,8 @@ Function pob2_statist( k, serv_arr, is_all )
   Else
     Do Case
     Case pi1 == 1  // по дате лечения
-      g_use( dir_server + "hum_p",, "HUMAN" )
-      g_use( dir_server + "hum_p_u", dir_server + "hum_p_ud", "HU" )
+      g_use( dir_server() + "hum_p",, "HUMAN" )
+      g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_ud", "HU" )
       Set Relation To kod into HUMAN
       If len_kd > 0  // если есть услуги "Койко-день" для работающих отделений
         // сначала проверим койко-дни за 60 дней до начальной даты
@@ -828,7 +828,7 @@ Function pob2_statist( k, serv_arr, is_all )
           Endif
           If AScan( arr_kd, hu->u_kod ) > 0 .and. hu->kol > 0 .and. ;
               ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0 .and. ;
-              ( md := c4tod( hu->date_u ) + hu->kol -1 ) >= arr[ 5 ]
+              ( md := c4tod( hu->date_u ) + hu->kol - 1 ) >= arr[ 5 ]
             // если дата окончания койко-дней >= begin_date
             md := Min( md, arr[ 6 ] )
             mkol := md - arr[ 5 ] + 1
@@ -849,7 +849,7 @@ Function pob2_statist( k, serv_arr, is_all )
           Endif
           If len_kd > 0 .and. AScan( arr_kd, hu->u_kod ) > 0  // койко-день
             If hu->kol > 0 .and. ( i := AScan( arr_otd, {| x| hu->otd == x[ 1 ] } ) ) > 0
-              If ( md := c4tod( hu->date_u ) ) + hu->kol -1 > arr[ 6 ]
+              If ( md := c4tod( hu->date_u ) ) + hu->kol - 1 > arr[ 6 ]
                 // если кол-во койко-дней выходит за конечную дату
                 mkol := arr[ 6 ] - md + 1
                 mstoim := round_5( hu->stoim / hu->kol * mkol, 2 )
@@ -867,8 +867,8 @@ Function pob2_statist( k, serv_arr, is_all )
         Enddo
       Endif
     Case pi1 == 2  // по дате окончания лечения
-      g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-      g_use( dir_server + "hum_p", dir_server + "hum_pd", "HUMAN" )
+      g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+      g_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
       dbSeek( DToS( arr[ 5 ] ), .t. )
       Do While human->k_data <= arr[ 6 ] .and. !Eof()
         updatestatus()
@@ -886,8 +886,8 @@ Function pob2_statist( k, serv_arr, is_all )
         Skip
       Enddo
     Case pi1 == 3  // по дате закрытия листа учета
-      g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-      g_use( dir_server + "hum_p", dir_server + "hum_pc", "HUMAN" )
+      g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+      g_use( dir_server() + "hum_p", dir_server() + "hum_pc", "HUMAN" )
       For xx := 0 To 2
         If AScan( krvz, xx ) > 0
           Select HUMAN
@@ -925,8 +925,8 @@ Function pob2_statist( k, serv_arr, is_all )
         "                         │Отде-│  Дата  │               ", ;
         "         Ф.И.О.          │ление│окон.леч│ Сумма лечения ", ;
         "─────────────────────────┴─────┴────────┴───────────────" }
-      g_use( dir_server + "mo_otd",, "OTD" )
-      g_use( dir_server + "hum_p",, "HUMAN" )
+      g_use( dir_server() + "mo_otd",, "OTD" )
+      g_use( dir_server() + "hum_p",, "HUMAN" )
       Set Relation To otd into OTD
     Else
       len_n := 58
@@ -955,15 +955,15 @@ Function pob2_statist( k, serv_arr, is_all )
     Endif
     sh := Len( arr_title[ 1 ] )
     Set( _SET_DELETED, .f. )
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpk" ), ( cur_dir + "tmpn" ) New Alias TMP
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpk" ), ( cur_dir() + "tmpn" ) New Alias TMP
     If !equalany( k, 1, 8, 9 )
       If equalany( k, 0, 10 )
-        r_use( dir_server + "slugba", dir_server + "slugba", "SL" )
+        r_use( dir_server() + "slugba", dir_server() + "slugba", "SL" )
       Endif
       If Between( k, 3, 6 ) .or. Between( k, 10, 14 )
-        r_use( dir_server + "uslugi",, "USL" )
+        r_use( dir_server() + "uslugi",, "USL" )
       Endif
-      r_use( dir_server + "mo_pers",, "PERSO" )
+      r_use( dir_server() + "mo_pers",, "PERSO" )
       Select TMP
       Set Order To 0
       Go Top
@@ -1040,7 +1040,7 @@ Function pob2_statist( k, serv_arr, is_all )
       Endif
     Endif
     Set( _SET_DELETED, .t. )
-    fp := FCreate( "ob_stat" + stxt ) ; tek_stroke := 0 ; n_list := 1
+    fp := FCreate( cur_dir() + "ob_stat.txt" ) ; tek_stroke := 0 ; n_list := 1
     add_string( "ПЛАТНЫЕ УСЛУГИ" )
     If k == 0
       add_string( Center( "Статистика по службам (с разбивкой по отделениям)", sh ) )
@@ -1153,7 +1153,7 @@ Function pob2_statist( k, serv_arr, is_all )
       Select TMP
       Do While !Eof()
         If equalany( k, 0, 10 ) .and. old_shifr != tmp->kod_vr
-          add_string( Space( 4 ) + Replicate( ".", sh - 4 ) )
+          add_string( Space( 4 ) + Replicate( ".", sh -4 ) )
           add_string( PadR( Space( 4 ) + old_slugba, len_n ) + ;
             Str( pkol, 7, 0 ) + ;
             if( mem_trudoem == 2, put_val_0( ptrud, 9, 1 ), "" ) + ;
@@ -1162,8 +1162,8 @@ Function pob2_statist( k, serv_arr, is_all )
           pkol := ptrud := pstoim := 0
         Endif
         If k == 4 .and. !( old_perso == tmp->kod_vr .and. old_vr_as == tmp->vr_as )
-          add_string( Space( 4 ) + Replicate( ".", sh - 4 ) )
-          add_string( PadR( Space( 4 ) + old_fio, len_n - 4 ) + ;
+          add_string( Space( 4 ) + Replicate( ".", sh -4 ) )
+          add_string( PadR( Space( 4 ) + old_fio, len_n -4 ) + ;
             if( psz == 1, if( old_vr_as == 1, "врач", "асс." ), Space( 4 ) ) + ;
             Str( pkol, 7, 0 ) + ;
             if( mem_trudoem == 2, put_val_0( ptrud, 9, 1 ), "" ) + ;
@@ -1225,7 +1225,7 @@ Function pob2_statist( k, serv_arr, is_all )
               Endif
               s += tmp->fio
             Endif
-            s := PadR( s, len_n - 5 ) + " " + ;
+            s := PadR( s, len_n -5 ) + " " + ;
               if( psz == 1, if( tmp->vr_as == 1, "врач", "асс." ), Space( 4 ) )
             skol[ tmp->vr_as ] += tmp->kol
             strud[ tmp->vr_as ] += tmp->trudoem
@@ -1250,7 +1250,7 @@ Function pob2_statist( k, serv_arr, is_all )
                 fl := .f.
                 If !emptyall( skol[ 1 ], strud[ 1 ], sstoim[ 1 ] )
                   fl := .t.
-                  s := PadL( "И Т О Г О :  ", len_n - 4 )
+                  s := PadL( "И Т О Г О :  ", len_n -4 )
                   If psz == 1 ; s += "врач"
                   else        ; s += Space( 4 )
                   Endif
@@ -1266,7 +1266,7 @@ Function pob2_statist( k, serv_arr, is_all )
                 Endif
                 If !emptyall( skol[ 2 ], strud[ 2 ], sstoim[ 2 ] )
                   s := if( fl, "", "И Т О Г О :  " )
-                  add_string( PadL( s, len_n - 4 ) + "асс." + ;
+                  add_string( PadL( s, len_n -4 ) + "асс." + ;
                     Str( skol[ 2 ], 7, 0 ) + ;
                     if( mem_trudoem == 2, put_val_0( strud[ 2 ], 9, 1 ), "" ) + ;
                     put_kope( sstoim[ 2 ], 15 ) )
@@ -1287,8 +1287,8 @@ Function pob2_statist( k, serv_arr, is_all )
               // ". "+upper(rtrim(tmp->fio)))
               // endif
             Endif
-            j := perenos( arr, tmp->u_shifr + " " + tmp->u_name, len_n - 6 )
-            s := PadR( arr[ 1 ], len_n - 4 ) + ;
+            j := perenos( arr, tmp->u_shifr + " " + tmp->u_name, len_n -6 )
+            s := PadR( arr[ 1 ], len_n -4 ) + ;
               if( psz == 1, if( tmp->vr_as == 1, "врач", "асс." ), Space( 4 ) )
             skol[ tmp->vr_as ] += tmp->kol
             strud[ tmp->vr_as ] += tmp->trudoem
@@ -1309,7 +1309,7 @@ Function pob2_statist( k, serv_arr, is_all )
         Skip
       Enddo
       If equalany( k, 0, 10 )
-        add_string( Space( 4 ) + Replicate( ".", sh - 4 ) )
+        add_string( Space( 4 ) + Replicate( ".", sh -4 ) )
         add_string( PadR( Space( 4 ) + old_slugba, len_n ) + ;
           Str( pkol, 7, 0 ) + ;
           if( mem_trudoem == 2, put_val_0( ptrud, 9, 1 ), "" ) + ;
@@ -1317,8 +1317,8 @@ Function pob2_statist( k, serv_arr, is_all )
         add_string( "" )
       Endif
       If k == 4
-        add_string( Space( 4 ) + Replicate( ".", sh - 4 ) )
-        add_string( PadR( Space( 4 ) + old_fio, len_n - 4 ) + ;
+        add_string( Space( 4 ) + Replicate( ".", sh -4 ) )
+        add_string( PadR( Space( 4 ) + old_fio, len_n -4 ) + ;
           if( psz == 1, if( old_vr_as == 1, "врач", "асс." ), Space( 4 ) ) + ;
           Str( pkol, 7, 0 ) + ;
           if( mem_trudoem == 2, put_val_0( ptrud, 9, 1 ), "" ) + ;
@@ -1329,7 +1329,7 @@ Function pob2_statist( k, serv_arr, is_all )
       fl := .f.
       If !emptyall( skol[ 1 ], strud[ 1 ], sstoim[ 1 ] )
         fl := .t.
-        s := PadL( "И Т О Г О :  ", len_n - 4 )
+        s := PadL( "И Т О Г О :  ", len_n -4 )
         If equalany( k, 2, 4, 5, 7 ) .and. psz == 1
           s += "врач"
         Else
@@ -1342,7 +1342,7 @@ Function pob2_statist( k, serv_arr, is_all )
       Endif
       If ( equalany( k, 2, 4, 5, 7 ) ) .and. !emptyall( skol[ 2 ], strud[ 2 ], sstoim[ 2 ] )
         s := if( fl, "", "И Т О Г О :  " )
-        s := PadL( s, len_n - 4 ) + "асс."
+        s := PadL( s, len_n -4 ) + "асс."
         add_string( s + ;
           Str( skol[ 2 ], 7, 0 ) + ;
           if( mem_trudoem == 2, put_val_0( strud[ 2 ], 9, 1 ), "" ) + ;
@@ -1352,7 +1352,7 @@ Function pob2_statist( k, serv_arr, is_all )
         If !emptyall( ssumv_ysl, ssumv_uet, ssumv_sum )
           add_string( Replicate( "─", sh ) )
           fl := .t.
-          s := PadL( "В С Е Г О :  ", len_n - 4 )
+          s := PadL( "В С Е Г О :  ", len_n -4 )
           If psz == 1 ; s += "врач"
           else        ; s += Space( 4 )
           Endif
@@ -1363,7 +1363,7 @@ Function pob2_statist( k, serv_arr, is_all )
         Endif
         If !emptyall( ssuma_ysl, ssuma_uet, ssuma_sum )
           s := if( fl, "", "В С Е Г О :  " )
-          add_string( PadL( s, len_n - 4 ) + "асс." + ;
+          add_string( PadL( s, len_n -4 ) + "асс." + ;
             Str( ssuma_ysl, 7, 0 ) + ;
             if( mem_trudoem == 2, put_val_0( ssuma_uet, 9, 1 ), "" ) + ;
             put_kope( ssuma_sum, 15 ) )
@@ -1375,7 +1375,7 @@ Function pob2_statist( k, serv_arr, is_all )
     Endif
     FClose( fp )
     Close databases
-    viewtext( "ob_stat" + stxt,,,, ( sh > 80 ),,, regim )
+    viewtext( cur_dir() + "ob_stat.txt",,,, ( sh > 80 ),,, regim )
   Endif
 
   Return Nil
@@ -1782,12 +1782,12 @@ Function st_plat_fio( reg )
   Static svr_as := 1, mas_pmt := { "~Врачи", "~Ассистенты", "~Медсестры", "~Санитарки" }
   Local vr_as, adbf, i, j, arr[ 2 ], begin_date, end_date, ;
     fl_exit := .f., sh, HH := 57, reg_print, s, xx, n, nvr, ;
-    arr_otd := {}, n_file := "plat_fio" + stxt, buf := save_row( MaxRow() )
-  Private krvz, arr_dms, d_file := "PLAT_FIO" + sdbf
+    arr_otd := {}, n_file := cur_dir() + "plat_fio.txt", buf := save_row( MaxRow() )
+  Private krvz, arr_dms, d_file := "PLAT_FIO" + sdbf()
   If !del_dbf_file( d_file )
     Return Nil
   Endif
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   If ( arr := year_month() ) == NIL
@@ -1795,18 +1795,18 @@ Function st_plat_fio( reg )
   Endif
   begin_date := arr[ 7 ]
   end_date := arr[ 8 ]
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If reg == 2
-    If ( vr_as := popup_prompt( T_ROW, T_COL - 5, svr_as, mas_pmt ) ) == 0
+    If ( vr_as := popup_prompt( T_ROW, T_COL -5, svr_as, mas_pmt ) ) == 0
       Return Nil
     Endif
     svr_as := vr_as
   Endif
   mywait()
-  r_use( dir_server + "mo_uch",, "UCH" )
-  r_use( dir_server + "mo_otd",, "OTD" )
+  r_use( dir_server() + "mo_uch",, "UCH" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
   Go Top
   Do While !Eof()
     If f_is_uch( st_a_uch, otd->kod_lpu )
@@ -1821,14 +1821,14 @@ Function st_plat_fio( reg )
     { "kod_p", "N", 4, 0 }, ;  // код персонала
     { "otd",  "N", 3, 0 }, ;  // код отделения
     { "summa", "N", 12, 2 } ;
-  }   // общая сумма лечения по данному отделению
-  dbCreate( cur_dir + "tmp", adbf )
-  Use ( cur_dir + "tmp" ) new
-  Index On Str( kod_k, 7 ) + Str( kod, 7 ) + Str( otd, 3 ) + Str( kod_p, 4 ) to ( cur_dir + "tmp" )
-  r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-  r_use( dir_server + "hum_p",, "HUMAN" )
+    }   // общая сумма лечения по данному отделению
+  dbCreate( cur_dir() + "tmp", adbf )
+  Use ( cur_dir() + "tmp" ) new
+  Index On Str( kod_k, 7 ) + Str( kod, 7 ) + Str( otd, 3 ) + Str( kod_p, 4 ) to ( cur_dir() + "tmp" )
+  r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+  r_use( dir_server() + "hum_p",, "HUMAN" )
   If pi1 == 3  // по дате закрытия листа учета
-    Set Index to ( dir_server + "hum_pc" )
+    Set Index to ( dir_server() + "hum_pc" )
     For xx := 0 To 2
       If AScan( krvz, xx ) > 0
         Select HUMAN
@@ -1856,7 +1856,7 @@ Function st_plat_fio( reg )
       If fl_exit ; exit ; Endif
     Next
   Else  // только по дате окончания лечения
-    Set Index to ( dir_server + "hum_pd" )
+    Set Index to ( dir_server() + "hum_pd" )
     dbSeek( DToS( arr[ 5 ] ), .t. )
     Do While human->k_data <= arr[ 6 ] .and. !Eof()
       updatestatus()
@@ -1935,30 +1935,30 @@ Function st_plat_fio( reg )
     dbCreate( d_file, adbf )
     Use ( d_file ) New Alias DD
     reg_print :=  f_reg_print( arr_title, @sh )
-    r_use( dir_server + "mo_uch",, "UCH" )
-    r_use( dir_server + "mo_otd",, "OTD" )
+    r_use( dir_server() + "mo_uch",, "UCH" )
+    r_use( dir_server() + "mo_otd",, "OTD" )
     Set Relation To kod_lpu into UCH // , to recno() into OTD
-    r_use( dir_server + "kartotek",, "KART" )
-    r_use( dir_server + "hum_p",, "HUMAN" )
-    Use ( cur_dir + "tmp" ) new
+    r_use( dir_server() + "kartotek",, "KART" )
+    r_use( dir_server() + "hum_p",, "HUMAN" )
+    Use ( cur_dir() + "tmp" ) new
     Set Relation To otd into OTD, To kod_k into KART, To kod into HUMAN
     If reg == 2
       If vr_as < 3
-        r_use( dir_server + "mo_pers",, "perso" )
+        r_use( dir_server() + "mo_pers",, "perso" )
         Select TMP
         Set Relation To kod_p into perso Additive
       Else
-        r_use( dir_server + "plat_ms",, "perso" )
+        r_use( dir_server() + "plat_ms",, "perso" )
         Select TMP
         Set Relation To kod_p into perso Additive
       Endif
     Endif
     If reg == 1
       Index On Left( Upper( kart->fio ), 20 ) + Str( kod_k, 7 ) + DToS( human->k_data ) + ;
-        Upper( uch->name ) + Upper( otd->short_name ) to ( cur_dir + "tmp" )
+        Upper( uch->name ) + Upper( otd->short_name ) to ( cur_dir() + "tmp" )
     Else
       Index On Left( Upper( kart->fio ), 20 ) + Str( kod_k, 7 ) + Upper( uch->name ) + ;
-        Upper( otd->short_name ) + Upper( perso->fio ) to ( cur_dir + "tmp" )
+        Upper( otd->short_name ) + Upper( perso->fio ) to ( cur_dir() + "tmp" )
     Endif
     fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
     add_string( "ПЛАТНЫЕ УСЛУГИ" )
@@ -2114,7 +2114,7 @@ Function f1_plat_fio( reg, vr_as )
 //
 Function st_plat_ms( reg )
 
-  Local i, j, arr[ 2 ], begin_date, end_date, n_file := "plat_ms" + stxt, ;
+  Local i, j, arr[ 2 ], begin_date, end_date, n_file := cur_dir() + "plat_ms.txt", ;
     fl_exit := .f., sh, HH := 57, reg_print := 1, s, arr_dms, ;
     ss, ss1, ss2, ss3, arr_title, adbf, krvz, xx
 
@@ -2123,33 +2123,33 @@ Function st_plat_ms( reg )
   Endif
   begin_date := arr[ 7 ]
   end_date := arr[ 8 ]
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If psz == 1
-  /*Private usl_dop := rest_arr(dir_server+"usl_pl_d"+smem),;
-          usl_mat := rest_arr(dir_server+"usl_pl_m"+smem)*/
+  /*Private usl_dop := rest_arr(dir_server()+"usl_pl_d"+smem()),;
+          usl_mat := rest_arr(dir_server()+"usl_pl_m"+smem())*/
   Endif
   adbf := { ;
     { "KOD",        "N",      4,      0 }, ;  // код персонала
-  { "KOL1",    "N",      6,      0 }, ;  // платные
+    { "KOL1",    "N",      6,      0 }, ;  // платные
     { "SUM1",    "N",     14,      2 }, ;  // платные
-  { "KOL2",    "N",      6,      0 }, ;  // доплаты за услуги
+    { "KOL2",    "N",      6,      0 }, ;  // доплаты за услуги
     { "SUM2",    "N",     14,      2 }, ;  // доплаты за услуги
-  { "KOL3",    "N",      6,      0 }, ;  // материалы
+    { "KOL3",    "N",      6,      0 }, ;  // материалы
     { "SUM3",    "N",     14,      2 }, ;  // материалы
-  { "SUMMA",      "N",     18,      2 };   // ст-ть услуг (зарплата)
-  }
-  dbCreate( cur_dir + "tmp", adbf )
+    { "SUMMA",      "N",     18,      2 };   // ст-ть услуг (зарплата)
+    }
+  dbCreate( cur_dir() + "tmp", adbf )
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
-  Use ( cur_dir + "tmp" )
-  Index On Str( kod, 4 ) to ( cur_dir + "tmp" )
+  Use ( cur_dir() + "tmp" )
+  Index On Str( kod, 4 ) to ( cur_dir() + "tmp" )
   // по дате окончания лечения
-  g_use( dir_server + "uslugi", dir_server + "uslugi", "USL" )
-  g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-  g_use( dir_server + "hum_p", dir_server + "hum_pd", "HUMAN" )
+  g_use( dir_server() + "uslugi", dir_server() + "uslugi", "USL" )
+  g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+  g_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
   If pi1 == 3  // по дате закрытия листа учета
-    Set Index to ( dir_server + "hum_pc" )
+    Set Index to ( dir_server() + "hum_pc" )
     For xx := 0 To 2
       If AScan( krvz, xx ) > 0
         Select HUMAN
@@ -2236,11 +2236,11 @@ Function st_plat_ms( reg )
     add_string( Center( s, sh ) )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
-    g_use( dir_server + "plat_ms",, "PMS" )
+    g_use( dir_server() + "plat_ms",, "PMS" )
     Store 0 To ss, ss1, ss2, ss3
-    Use ( cur_dir + "tmp" ) new
+    Use ( cur_dir() + "tmp" ) new
     Set Relation To kod into PMS
-    Index On Upper( pms->fio ) to ( cur_dir + "tmp" )
+    Index On Upper( pms->fio ) to ( cur_dir() + "tmp" )
     Go Top
     Do While !Eof()
       If verify_ff( HH, .t., sh )
@@ -2262,7 +2262,7 @@ Function st_plat_ms( reg )
     Enddo
     add_string( Replicate( "─", sh ) )
     If psz == 1
-      add_string( put_kope( ss1, sh - 36 ) + put_kope( ss2, 18 ) + put_kope( ss3, 18 ) )
+      add_string( put_kope( ss1, sh -36 ) + put_kope( ss2, 18 ) + put_kope( ss3, 18 ) )
     Else
       add_string( put_kope( ss, sh ) )
     Endif
@@ -2403,14 +2403,14 @@ Function pl_mnog_poisk()
   Local mm_tmp := {}, k
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
     mm_mest := { { "Волгоград или область", 1 }, { "иногородние", 2 } }, ;
-    tmp_help := 0, hGauge, name_file := "pl_mnog" + stxt, ;
+    tmp_help := 0, hGauge, name_file := cur_dir() + "pl_mnog.txt", ;
     sh := 80, HH := 77, r1 := 2, a_diagnoz[ 3 ], a_uslugi[ 20 ], ;
     k_usl, fl_stom := .f., ;
     mm_da_net := { { "нет", 1 }, { "да ", 2 } }, lvid_doc := 0, ;
     menu_plat := { { "платные    ", PU_PLAT }, ;
     { "добр/страх.", PU_D_SMO }, ;
     { "взаимозачет", PU_PR_VZ } }, ;
-    tmp_file := "tmp_mn_p" + sdbf
+    tmp_file := "tmp_mn_p" + sdbf()
 
   // help_code
   Private ssumma := 0
@@ -2422,15 +2422,15 @@ Function pl_mnog_poisk()
     "Диагноз", ;
     "Услуги", ;
     "Услуги+врачи" }
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   Private pr_arr := {}, pr_arr_otd := {}, is_talon := ret_is_talon()
   //
-  g_use( dir_server + "mo_otd",, "OTD" )
+  g_use( dir_server() + "mo_otd",, "OTD" )
   dbEval( {|| AAdd( pr_arr, { otd->( RecNo() ), otd->name, otd->kod_lpu, "" } ) }, ;
     {|| f_is_uch( st_a_uch, otd->kod_lpu ) .and. between_date( otd->dbeginp, otd->dendp, sys_date ) } )
-  g_use( dir_server + "mo_uch",, "UCH" )
+  g_use( dir_server() + "mo_uch",, "UCH" )
   AEval( pr_arr, {| x, i| dbGoto( x[ 3 ] ), pr_arr[ i, 4 ] := uch->name } )
   //
   ASort( pr_arr,,, {| x, y| iif( x[ 3 ] == y[ 3 ], Upper( x[ 2 ] ) < Upper( y[ 2 ] ), ;
@@ -2443,14 +2443,14 @@ Function pl_mnog_poisk()
   //
   Private pdate_lech, pdate_schet, mstr_crb := 0, mslugba
   //
-  dbCreate( cur_dir + "tmp", { ;
+  dbCreate( cur_dir() + "tmp", { ;
     { "U_KOD",    "N",      4,      0 }, ;  // код услуги
   { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-  { "U_NAME",     "C",     65,      0 } ;  // наименование услуги
+    { "U_NAME",     "C",     65,      0 } ;  // наименование услуги
   } )
-  Use ( cur_dir + "tmp" )
-  Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-  Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+  Use ( cur_dir() + "tmp" )
+  Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+  Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   tmp->( dbCloseArea() )
   AAdd( mm_tmp, { "date_lech", "N", 4, 0, NIL, ;
     {| x| menu_reader( x, ;
@@ -2478,7 +2478,7 @@ Function pl_mnog_poisk()
       "Буква (перед участком)" } )
     AAdd( mm_tmp, { "uchast", "N", 1, 0,, ;
       {| x| menu_reader( x, ;
-      { {|k, r, c| get_uchast( r + 1, c ) } }, A__FUNCTION ) }, ;
+      { {| k, r, c| get_uchast( r + 1, c ) } }, A__FUNCTION ) }, ;
       0, {|| init_uchast( arr_uchast ) }, ;
       "Участок (участки)" } )
   Endif
@@ -2500,7 +2500,7 @@ Function pl_mnog_poisk()
     "Место жительства:" } )
   AAdd( mm_tmp, { "_okato", "C", 11, 0, NIL, ;
     {| x| menu_reader( x, ;
-    { {|k, r, c| get_okato_ulica( k, r, c, { k, m_okato, } ) } }, A__FUNCTION ) }, ;
+    { {| k, r, c| get_okato_ulica( k, r, c, { k, m_okato, } ) } }, A__FUNCTION ) }, ;
     Space( 11 ), {| x| Space( 11 ) }, ;
     'Адрес регистрации (ОКАТО)' } )
   // 12.11.16
@@ -2544,7 +2544,7 @@ Function pl_mnog_poisk()
               "МЕСТО ЖИТЕЛЬСТВА: г/о/и",;
               {|g,o|valid_mest_inog(g,o,2)} })
 aadd(mm_tmp, {"rajon_git","N",2,0,NIL,;
-              {|x|menu_reader(x,{dir_server+"rajon",,;
+              {|x|menu_reader(x,{dir_server()+"rajon",,;
                       {||FIELD->tip==m1mi_git}},A__POPUPMENU)},;
               0,{|| space(10) },;
               "   район",,;
@@ -2555,7 +2555,7 @@ aadd(mm_tmp, {"mest_inog","N",2,0,NIL,;
               "Финансирование: г/о/и",;
               {|g,o|valid_mest_inog(g,o)} })
 aadd(mm_tmp, {"rajon","N",2,0,NIL,;
-              {|x|menu_reader(x,{dir_server+"rajon",,;
+              {|x|menu_reader(x,{dir_server()+"rajon",,;
                       {||FIELD->tip==m1mest_inog}},A__POPUPMENU)},;
               0,{|| space(10) },;
               "   район",,;
@@ -2569,7 +2569,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
   If yes_h_otd == 1
     AAdd( mm_tmp, { "otd", "N", 3, 0, NIL, ;
       {| x| menu_reader( x, ;
-      { {|k, r, c| get_otd( k, r + 1, c ) } }, A__FUNCTION ) }, ;
+      { {| k, r, c| get_otd( k, r + 1, c ) } }, A__FUNCTION ) }, ;
       0, {|| Space( 10 ) }, ;
       "Отделение, в котором выписан счет" } )
   Endif
@@ -2579,17 +2579,17 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
     "Категория оплаты" } )
   AAdd( mm_tmp, { "uslugi", "N", 4, 0, NIL, ;
     {| x| menu_reader( x, ;
-    { {|k, r, c| ob2_v_usl( .t., r + 1 ) } }, A__FUNCTION ) }, ;
+    { {| k, r, c| ob2_v_usl( .t., r + 1 ) } }, A__FUNCTION ) }, ;
     0, {|| Space( 10 ) }, ;
     "Оказанные услуги" } )
   AAdd( mm_tmp, { "otd_usl", "N", 3, 0, NIL, ;
     {| x| menu_reader( x, ;
-    { {|k, r, c| get_otd( k, r + 1, c ) } }, A__FUNCTION ) }, ;
+    { {| k, r, c| get_otd( k, r + 1, c ) } }, A__FUNCTION ) }, ;
     0, {|| Space( 10 ) }, ;
     "Отделение, в котором оказана услуга" } )
   AAdd( mm_tmp, { "slug_usl", "N", 3, 0, NIL, ;
     {| x| menu_reader( x, ;
-    { {|k, r, c| get_slugba( k, r, c ) } }, A__FUNCTION ) }, ;
+    { {| k, r, c| get_slugba( k, r, c ) } }, A__FUNCTION ) }, ;
     0, {|| Space( 10 ) }, ;
     "Служба, в которой оказана услуга" } )
   AAdd( mm_tmp, { "vr1", "N", 5, 0, NIL, ;
@@ -2669,17 +2669,17 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
   Delete File ( tmp_file )
   init_base( tmp_file,, mm_tmp, 0 )
   //
-  r_use( dir_server + "plat_ms", dir_server + "plat_ms", "MS" )
-  r_use( dir_server + "mo_pers", dir_server + "mo_pers", "PERSO" )
+  r_use( dir_server() + "plat_ms", dir_server() + "plat_ms", "MS" )
+  r_use( dir_server() + "mo_pers", dir_server() + "mo_pers", "PERSO" )
   k := f_edit_spr( A__APPEND, mm_tmp, "множественному запросу", ;
-    "g_use(cur_dir+'tmp_mn_p',,,.t.,.t.)", 0, 1,,,,, "pwrite_mn_p" )
+    "g_use(cur_dir()+'tmp_mn_p',,,.t.,.t.)", 0, 1,,,,, "pwrite_mn_p" )
   If k > 0
     mywait()
     Use ( tmp_file ) New Alias MN
     If is_talon .and. mn->kategor == 0
       is_talon := .f.
     Endif
-    r_use( dir_server + "mo_pers", dir_server + "mo_pers", "PERSO" )
+    r_use( dir_server() + "mo_pers", dir_server() + "mo_pers", "PERSO" )
     Select PERSO
     If mn->vr1 > 0
       find ( Str( mn->vr1, 5 ) )
@@ -2700,7 +2700,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
       Endif
     Endif
     If is_oplata != 7
-      r_use( dir_server + "plat_ms", dir_server + "plat_ms", "MS" )
+      r_use( dir_server() + "plat_ms", dir_server() + "plat_ms", "MS" )
       If mn->med1 > 0
         find ( "1" + Str( mn->med1, 5 ) )
         If Found()
@@ -2762,7 +2762,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
       Endif
     Endif
     If mn->uslugi > 0
-      Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpn" ) new
+      Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpn" ) new
       Go Top
       dbEval( {|| AAdd( arr_usl, { tmp->u_kod, tmp->u_shifr, tmp->u_name, 0, 0 } ) } )
       tmp->( dbCloseArea() )
@@ -2772,17 +2772,17 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
     If !flag_hu .and. is_oplata != 7
       flag_hu := ( mn->med1 > 0 .or. mn->san1 > 0 )
     Endif
-    dbCreate( cur_dir + "tmp", { { "kod", "N", 7, 0 }, ;
+    dbCreate( cur_dir() + "tmp", { { "kod", "N", 7, 0 }, ;
       { "stoim", "N", 10, 2 } } )
-    Use ( cur_dir + "tmp" ) new
-    dbCreate( cur_dir + "tmp_k", { { "kod_k", "N", 7, 0 } } )
-    Use ( cur_dir + "tmp_k" ) new
-    Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_k" )
+    Use ( cur_dir() + "tmp" ) new
+    dbCreate( cur_dir() + "tmp_k", { { "kod_k", "N", 7, 0 } } )
+    Use ( cur_dir() + "tmp_k" ) new
+    Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_k" )
     fl_exit := .f.
     status_key( "^<Esc>^ - прервать поиск" )
-    g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
+    g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
     If mn->slug_usl > 0
-      g_use( dir_server + "uslugi",, "USL" )
+      g_use( dir_server() + "uslugi",, "USL" )
       Select HU
       Set Relation To u_kod into USL
     Endif
@@ -2790,12 +2790,12 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
       ab_open()
     Endif
     Private c_view := 0, c_found := 0
-    r_use( dir_server + "kartote2",, "KART2" )
-    r_use( dir_server + "kartote_",, "KART_" )
-    r_use( dir_server + "kartotek",, "KART" )
+    r_use( dir_server() + "kartote2",, "KART2" )
+    r_use( dir_server() + "kartote_",, "KART_" )
+    r_use( dir_server() + "kartotek",, "KART" )
     Set Relation To RecNo() into KART_, RecNo() into KART2
     If p_regim == 1
-      r_use( dir_server + "hum_p", dir_server + "hum_pd", "HUMAN" )
+      r_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
       Set Relation To kod_k into KART
       dbSeek( DToS( pdate_lech[ 5 ] ), .t. )
       Do While human->k_data <= pdate_lech[ 6 ] .and. !Eof()
@@ -2809,7 +2809,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
         Skip
       Enddo
     Else  // по дате закрытия листа учета
-      r_use( dir_server + "hum_p", dir_server + "hum_pc", "HUMAN" )
+      r_use( dir_server() + "hum_p", dir_server() + "hum_pc", "HUMAN" )
       Set Relation To kod_k into KART
       For xx := 0 To 2
         If iif( mn->tip_usl >= 0, xx == mn->tip_usl, .t. )
@@ -2842,8 +2842,8 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
       s2 := if( fl_summa, " лечения ", "  услуг  " )
       arr_title := { ;
         "────────────────────────────────────────┬─────────", ;
-        "             Ф.И.О. больного            │" + s1,;
-        "                                        │" + s2,;
+        "             Ф.И.О. больного            │" + s1, ;
+        "                                        │" + s2, ;
         "────────────────────────────────────────┴─────────" }
       If IsBit( mn->vid_doc, 1 )
         arr_title[ 1 ] += "┬────────"
@@ -2894,19 +2894,19 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
       Else
         reg_print := 6
       Endif
-      r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-      r_use( dir_server + "uslugi",, "USL" )
-      r_use( dir_server + "mo_pers",, "PERSO" )
-      r_use( dir_server + "kartote2",, "KART2" )
-      r_use( dir_server + "kartote_",, "KART_" )
-      r_use( dir_server + "kartotek",, "KART" )
+      r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+      r_use( dir_server() + "uslugi",, "USL" )
+      r_use( dir_server() + "mo_pers",, "PERSO" )
+      r_use( dir_server() + "kartote2",, "KART2" )
+      r_use( dir_server() + "kartote_",, "KART_" )
+      r_use( dir_server() + "kartotek",, "KART" )
       Set Relation To RecNo() into KART_, To RecNo() into KART2
-      r_use( dir_server + "hum_p",, "HUMAN" )
+      r_use( dir_server() + "hum_p",, "HUMAN" )
       Set Relation To kod_k into KART
-      Use ( cur_dir + "tmp_k" ) new
-      Use ( cur_dir + "tmp" ) new
+      Use ( cur_dir() + "tmp_k" ) new
+      Use ( cur_dir() + "tmp" ) new
       Set Relation To kod into HUMAN
-      Index On Upper( kart->fio ) + DToS( human->k_data ) to ( cur_dir + "tmp" )
+      Index On Upper( kart->fio ) + DToS( human->k_data ) to ( cur_dir() + "tmp" )
       //
       fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
       add_string( "" )
@@ -2985,21 +2985,21 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
                  inieditspr(A__MENUVERT, menu_mest, mn->mi_git))
     endif
     if mn->rajon_git > 0
-      add_string("  Район: "+inieditspr(A__POPUPMENU, dir_server+"rajon", mn->rajon_git))
+      add_string("  Район: "+inieditspr(A__POPUPMENU, dir_server()+"rajon", mn->rajon_git))
     endif
     if mn->mest_inog >= 0
       add_string("Финансирование: "+;
                  inieditspr(A__MENUVERT, menu_mest, mn->mest_inog))
     endif
     if mn->rajon > 0
-      add_string("  Район: "+inieditspr(A__POPUPMENU, dir_server+"rajon", mn->rajon))
+      add_string("  Район: "+inieditspr(A__POPUPMENU, dir_server()+"rajon", mn->rajon))
     endif    */
       If !Empty( mn->kod_diag )
         add_string( "Шифр заболевания: " + mn->kod_diag )
       Endif
       If yes_h_otd == 1 .and. mn->otd > 0
         add_string( "Отделение: " + ;
-          inieditspr( A__POPUPMENU, dir_server + "mo_otd", mn->otd ) )
+          inieditspr( A__POPUPMENU, dir_server() + "mo_otd", mn->otd ) )
       Endif
       If mn->tip_usl >= 0
         add_string( "Категория оплаты: " + ;
@@ -3017,7 +3017,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
       Endif
       If mn->otd_usl > 0
         add_string( "Отделение, в котором оказана услуга: " + ;
-          inieditspr( A__POPUPMENU, dir_server + "mo_otd", mn->otd_usl ) )
+          inieditspr( A__POPUPMENU, dir_server() + "mo_otd", mn->otd_usl ) )
       Endif
       If mn->vr1 > 0
         add_string( "Врач, оказавший услугу(и): " + AllTrim( mn->vr ) )
@@ -3464,9 +3464,9 @@ Function pl_napr_vrach()
 
   Local i, j, arr, begin_date, end_date, s, buf := save_row( MaxRow() ), ;
     fl_exit := .f., sh, HH := 60, reg_print, speriod, ;
-    arr_title, name_file := "napr_vr" + stxt, arr_m, adbf
+    arr_title, name_file := cur_dir() + "napr_vr.txt", arr_m, adbf
 
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
@@ -3481,10 +3481,10 @@ Function pl_napr_vrach()
   { "KOL",    "N",      6,      0 }, ;  // количество больных
     { "SUMMA",    "N",     14,      2 };   // общая стоимость
   }
-  dbCreate( cur_dir + "tmp", adbf )
-  Use ( cur_dir + "tmp" )
-  Index On Str( kod_vr, 4 ) to ( cur_dir + "tmp" )
-  r_use( dir_server + "hum_p", dir_server + "hum_pd", "HUMAN" )
+  dbCreate( cur_dir() + "tmp", adbf )
+  Use ( cur_dir() + "tmp" )
+  Index On Str( kod_vr, 4 ) to ( cur_dir() + "tmp" )
+  r_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
   Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
     updatestatus()
@@ -3525,14 +3525,14 @@ Function pl_napr_vrach()
     add_string( Center( speriod, sh ) )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
-    r_use( dir_server + "mo_uch",, "UCH" )
-    r_use( dir_server + "mo_otd",, "OTD" )
+    r_use( dir_server() + "mo_uch",, "UCH" )
+    r_use( dir_server() + "mo_otd",, "OTD" )
     Set Relation To kod_lpu into UCH
-    r_use( dir_server + "mo_pers",, "perso" )
+    r_use( dir_server() + "mo_pers",, "perso" )
     Set Relation To otd into OTD
-    Use ( cur_dir + "tmp" ) new
+    Use ( cur_dir() + "tmp" ) new
     Set Relation To kod_vr into perso
-    Index On Upper( uch->name ) + Upper( otd->name ) + Str( perso->otd, 3 ) + Upper( perso->fio ) to ( cur_dir + "tmp" )
+    Index On Upper( uch->name ) + Upper( otd->name ) + Str( perso->otd, 3 ) + Upper( perso->fio ) to ( cur_dir() + "tmp" )
     old_otd := kol_otd := sum_otd := j := 0
     Go Top
     Do While !Eof()
@@ -3541,7 +3541,7 @@ Function pl_napr_vrach()
       Endif
       If old_otd != perso->otd
         If old_otd != 0
-          add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
+          add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
           add_string( PadL( "Итого: " + put_val( kol_otd, 6 ) + put_kope( sum_otd, 12 ), sh ) )
           kol_otd := sum_otd := 0
         Endif
@@ -3562,7 +3562,7 @@ Function pl_napr_vrach()
       Skip
     Enddo
     If old_otd != 0
-      add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
+      add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
       add_string( PadL( "Итого: " + put_val( kol_otd, 6 ) + put_kope( sum_otd, 12 ), sh ) )
     Endif
     Close databases
@@ -3578,9 +3578,9 @@ Function pl_napr2vrach()
 
   Local i, j, arr[ 2 ], begin_date, end_date, s, buf := save_row( MaxRow() ), ;
     fl_exit := .f., sh, HH := 60, reg_print, speriod, ;
-    arr_title, name_file := "napr_vr2" + stxt, arr_m, adbf, mperso
+    arr_title, name_file := cur_dir() + "napr_vr2.txt", arr_m, adbf, mperso
 
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
@@ -3592,7 +3592,7 @@ Function pl_napr2vrach()
   If ( mperso := input_kperso() ) == NIL
     mywait()
     mperso := {}
-    r_use( dir_server + "mo_pers",, "perso" )
+    r_use( dir_server() + "mo_pers",, "perso" )
     Go Top
     Do While !Eof()
       If perso->kod > 0
@@ -3605,19 +3605,19 @@ Function pl_napr2vrach()
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   adbf := { ;
     { "U_KOD",    "N",      4,      0 }, ;  // код услуги
-    { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
+  { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
     { "U_NAME",     "C",     65,      0 }, ;  // наименование услуги
-    { "TAB_NOM",    "N",      5,      0 }, ;  // таб.номер врача
+  { "TAB_NOM",    "N",      5,      0 }, ;  // таб.номер врача
     { "KOD_VR",     "N",      4,      0 }, ;  // код врача
-    { "FIO",        "C",     50,      0 }, ;  // Ф.И.О. врача
+  { "FIO",        "C",     50,      0 }, ;  // Ф.И.О. врача
     { "KOL",    "N",      6,      0 }, ;  // количество услуг
-    { "STOIM",    "N",     14,      2 };   // итоговая стоимость услуги
-  }
-  dbCreate( cur_dir + "tmp", adbf )
-  Use ( cur_dir + "tmp" ) new
-  Index On Str( kod_vr, 4 ) + Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-  r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-  r_use( dir_server + "hum_p", dir_server + "hum_pd", "HUMAN" )
+  { "STOIM",    "N",     14,      2 };   // итоговая стоимость услуги
+    }
+  dbCreate( cur_dir() + "tmp", adbf )
+  Use ( cur_dir() + "tmp" ) new
+  Index On Str( kod_vr, 4 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+  r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+  r_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
   Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
     updatestatus()
@@ -3652,10 +3652,10 @@ Function pl_napr2vrach()
     func_error( 4, "Нет сведений!" )
   Else
     mywait()
-    r_use( dir_server + "uslugi",, "USL" )
-    r_use( dir_server + "mo_pers",, "PERSO" )
+    r_use( dir_server() + "uslugi",, "USL" )
+    r_use( dir_server() + "mo_pers",, "PERSO" )
     Set( _SET_DELETED, .f. )
-    Use ( cur_dir + "tmp" ) new
+    Use ( cur_dir() + "tmp" ) new
     Go Top
     Do While !Eof()
       Select USL
@@ -3681,7 +3681,7 @@ Function pl_napr2vrach()
     Enddo
     Set( _SET_DELETED, .t. )
     Select TMP
-    Index On Upper( fio ) + Str( kod_vr, 4 ) + fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Index On Upper( fio ) + Str( kod_vr, 4 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
     reg_print := 2
     arr_title := { ;
       "──────────────────────────────────────────────────────────┬──────┬──────────────", ;
@@ -3760,27 +3760,27 @@ Function ob_ved_vz()
   a_t[ 3 ] := "                              │  " + p_sb + "г.│    Дебет   │    Кредит  │  " + p_se + "г."
   a_t[ 4 ] := "──────────────────────────────┴────────────┴────────────┴────────────┴────────────"
   //
-  dbCreate( cur_dir + "tmp", { { "kod_k","N", 7, 0 }, ; // код больного по картотеке
-    { "pr_smo","N", 6, 0 }, ; // код предприятия / СМО
-    { "SALDO1","N", 13, 2 }, ;
-    { "DEBET","N", 13, 2 }, ;
-    { "KREDIT","N", 13, 2 }, ;
-    { "SALDO2","N", 13, 2 } } ) //
-  dbCreate( cur_dir + "tmp1", { { "name","C", 30, 0 }, ; // наименование предприятия
-    { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
-    { "pr_smo","N", 6, 0 }, ; // код предприятия / СМО
-    { "SALDO1","N", 13, 2 }, ;
-    { "DEBET","N", 13, 2 }, ;
-    { "KREDIT","N", 13, 2 }, ;
-    { "SALDO2","N", 13, 2 } } ) //
-  r_use( dir_server + "p_pr_vz",, "PRED" )
-  r_use( dir_server + "p_d_smo",, "SMO" )
-  Use ( cur_dir + "tmp" ) new
-  Index On Str( pr_smo, 6 ) + Str( kod_k, 7 ) to ( cur_dir + "tmp" )
-  Use ( cur_dir + "tmp1" ) new
-  Index On Str( tip_usl, 1 ) + Str( pr_smo, 6 ) to ( cur_dir + "tmp1" )
-  r_use( dir_server + "hum_p",, "HP" )
-  Index On kod_k to ( cur_dir + "tmp_hp" ) ;
+  dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
+  { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
+  { "SALDO1", "N", 13, 2 }, ;
+    { "DEBET", "N", 13, 2 }, ;
+    { "KREDIT", "N", 13, 2 }, ;
+    { "SALDO2", "N", 13, 2 } } ) //
+  dbCreate( cur_dir() + "tmp1", { { "name", "C", 30, 0 }, ; // наименование предприятия
+  { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
+  { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
+  { "SALDO1", "N", 13, 2 }, ;
+    { "DEBET", "N", 13, 2 }, ;
+    { "KREDIT", "N", 13, 2 }, ;
+    { "SALDO2", "N", 13, 2 } } ) //
+  r_use( dir_server() + "p_pr_vz",, "PRED" )
+  r_use( dir_server() + "p_d_smo",, "SMO" )
+  Use ( cur_dir() + "tmp" ) new
+  Index On Str( pr_smo, 6 ) + Str( kod_k, 7 ) to ( cur_dir() + "tmp" )
+  Use ( cur_dir() + "tmp1" ) new
+  Index On Str( tip_usl, 1 ) + Str( pr_smo, 6 ) to ( cur_dir() + "tmp1" )
+  r_use( dir_server() + "hum_p",, "HP" )
+  Index On kod_k to ( cur_dir() + "tmp_hp" ) ;
     For equalany( hp->tip_usl, 1, 2 ) .and. hp->k_data <= arr_m[ 6 ] progress
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   Go Top
@@ -3826,7 +3826,7 @@ Function ob_ved_vz()
     Skip
   Enddo
   //
-  r_use( dir_server + "plat_vz",, "OPL" )
+  r_use( dir_server() + "plat_vz",, "OPL" )
   Go Top
   Do While !Eof()
     updatestatus()
@@ -3919,8 +3919,8 @@ Function ob_ved_vz()
     t_arr[ BR_EDIT ] := {| nk, ob| f1ob_ved_vz( nk, ob, "edit" ) }
     t_arr[ BR_STAT_MSG ] := {|| ;
       status_key( "^<Esc>^ - выход;  ^<Enter>^ - выбор;  ^<F9>^ - печать" ) }
-    Use ( cur_dir + "tmp1" ) new
-    Index On Upper( name ) to ( cur_dir + "tmp1" )
+    Use ( cur_dir() + "tmp1" ) new
+    Index On Upper( name ) to ( cur_dir() + "tmp1" )
     Go Top
     edit_browse( t_arr )
     Close databases
@@ -3933,7 +3933,7 @@ Function ob_ved_vz()
 Function f1ob_ved_vz( nKey, oBrow, regim )
 
   Local ret := -1, buf, fl := .f., rec, tmp_color, i, j, ;
-    s, sh, HH := 58, reg_print := 2, arr_title, name_file := "ob_ved" + stxt
+    s, sh, HH := 58, reg_print := 2, arr_title, name_file := cur_dir() + "ob_ved.txt"
 
   Do Case
   Case regim == "edit"
@@ -3943,7 +3943,7 @@ Function f1ob_ved_vz( nKey, oBrow, regim )
       buf := save_row( MaxRow() )
       sh := Len( a_t[ 1 ] )
       fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-      r_use( dir_server + "organiz",, "ORG" )
+      r_use( dir_server() + "organiz",, "ORG" )
       add_string( AllTrim( org->name ) )
       org->( dbCloseArea() )
       add_string( "" )
@@ -4015,10 +4015,10 @@ Function f2ob_ved_vz()
   t_arr[ BR_EDIT ] := {| nk, ob| f3ob_ved_vz( nk, ob, "edit" ) }
   t_arr[ BR_STAT_MSG ] := {|| ;
     status_key( "^<Esc>^ выход;  ^<Enter>^ оборотка по человеку;  ^<F8>^ полная оборотка;  ^<F9>^ печать" ) }
-  r_use( dir_server + "kartotek",, "KART" )
-  Use ( cur_dir + "tmp" ) New Alias TMP
+  r_use( dir_server() + "kartotek",, "KART" )
+  Use ( cur_dir() + "tmp" ) New Alias TMP
   Set Relation To kod_k into KART
-  Index On Upper( kart->fio ) to ( cur_dir + "tmp" ) For tmp1->pr_smo == tmp->pr_smo
+  Index On Upper( kart->fio ) to ( cur_dir() + "tmp" ) For tmp1->pr_smo == tmp->pr_smo
   Go Top
   edit_browse( t_arr )
   tmp->( dbCloseArea() )
@@ -4031,7 +4031,7 @@ Function f2ob_ved_vz()
 Function f3ob_ved_vz( nKey, oBrow, regim )
 
   Local ret := -1, buf, fl := .f., rec, tmp_color, i, j, k, t_arr[ 2 ], ;
-    s, sh, HH := 58, reg_print := 2, arr_title, name_file := "ob_ved" + stxt
+    s, sh, HH := 58, reg_print := 2, arr_title, name_file := cur_dir() + "ob_ved.txt"
 
   Do Case
   Case regim == "edit"
@@ -4044,7 +4044,7 @@ Function f3ob_ved_vz( nKey, oBrow, regim )
       muslovie := "hp->tip_usl==1 .and. hp->pr_smo==glob_d_smo[1]"
       ouslovie := "opl->tip==1 .and. opl->pr_smo==glob_d_smo[1]"
       f4ob_ved_vz( 1 )
-      r_use( dir_server + "kartotek",, "KART" )
+      r_use( dir_server() + "kartotek",, "KART" )
       Select TMP
       Set Relation To kod_k into KART
       Goto ( rec )
@@ -4053,7 +4053,7 @@ Function f3ob_ved_vz( nKey, oBrow, regim )
       buf := save_row( MaxRow() )
       sh := Len( a_t[ 1 ] )
       fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-      r_use( dir_server + "organiz",, "ORG" )
+      r_use( dir_server() + "organiz",, "ORG" )
       add_string( AllTrim( org->name ) )
       org->( dbCloseArea() )
       add_string( "" )
@@ -4103,7 +4103,7 @@ Function f3ob_ved_vz( nKey, oBrow, regim )
       ouslovie := "opl->tip==1 .and. opl->pr_smo==glob_d_smo[1]"
       ouslovie += " .and. opl->kod_k==" + lstr( tmp->kod_k )
       f4ob_ved_vz( 0 )
-      r_use( dir_server + "kartotek",, "KART" )
+      r_use( dir_server() + "kartotek",, "KART" )
       Select TMP
       Set Relation To kod_k into KART
       Goto ( rec )
@@ -4115,20 +4115,20 @@ Function f3ob_ved_vz( nKey, oBrow, regim )
 //
 Function f4ob_ved_vz( par )
 
-  Local s, sh, HH := 58, reg_print, arr_title, n_file := "ob_ved" + stxt, ;
+  Local s, sh, HH := 58, reg_print, arr_title, n_file := cur_dir() + "ob_ved.txt", ;
     buf := save_row( MaxRow() ), adbf, msaldo1, msaldo2, sum1, sum2
 
   mywait()
   adbf := { { "d_dokum", "D", 8, 0 }, ;
     { "prim",   "C", 30, 0 }, ;
     { "summa",  "N", 11, 2 } }
-  dbCreate( cur_dir + "tmp1_", adbf )
-  dbCreate( cur_dir + "tmp2_", adbf )
-  Use ( cur_dir + "tmp1_" ) new
-  r_use( dir_server + "kartotek",, "KART" )
-  r_use( dir_server + "hum_p", dir_server + "hum_pd", "HP" )
+  dbCreate( cur_dir() + "tmp1_", adbf )
+  dbCreate( cur_dir() + "tmp2_", adbf )
+  Use ( cur_dir() + "tmp1_" ) new
+  r_use( dir_server() + "kartotek",, "KART" )
+  r_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HP" )
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
-  Index On DToS( k_data ) to ( cur_dir + "tmp_hp" ) for &muslovie While hp->k_data <= arr_m[ 6 ]
+  Index On DToS( k_data ) to ( cur_dir() + "tmp_hp" ) for &muslovie While hp->k_data <= arr_m[ 6 ]
   Go Top
   Do While !Eof()
     kart->( dbGoto( hp->kod_k ) )
@@ -4141,9 +4141,9 @@ Function f4ob_ved_vz( par )
     Skip
   Enddo
   //
-  Use ( cur_dir + "tmp2_" ) new
-  r_use( dir_server + "plat_vz",, "OPL" )
-  Index On DToS( date_opl ) to ( cur_dir + "tmp_opl" ) for &ouslovie .and. Between( date_opl, arr_m[ 5 ], arr_m[ 6 ] )
+  Use ( cur_dir() + "tmp2_" ) new
+  r_use( dir_server() + "plat_vz",, "OPL" )
+  Index On DToS( date_opl ) to ( cur_dir() + "tmp_opl" ) for &ouslovie .and. Between( date_opl, arr_m[ 5 ], arr_m[ 6 ] )
   Go Top
   Do While !Eof()
     Select TMP2_
@@ -4199,14 +4199,14 @@ Function f4ob_ved_vz( par )
   If msaldo1 >= 0
     add_string( s )
   Else
-    add_string( PadL( s, sh - 2 ) )
+    add_string( PadL( s, sh -2 ) )
   Endif
   AEval( arr_title, {| x| add_string( x ) } )
   Select TMP1_
-  Index On DToS( d_dokum ) + prim to ( cur_dir + "tmp1_" )
+  Index On DToS( d_dokum ) + prim to ( cur_dir() + "tmp1_" )
   Go Top
   Select TMP2_
-  Index On DToS( d_dokum ) + prim to ( cur_dir + "tmp2_" )
+  Index On DToS( d_dokum ) + prim to ( cur_dir() + "tmp2_" )
   Go Top
   Do While !( tmp1_->( Eof() ) .and. tmp2_->( Eof() ) )
     If verify_ff( HH, .t., sh )
@@ -4240,7 +4240,7 @@ Function f4ob_ved_vz( par )
   If msaldo2 >= 0
     add_string( s )
   Else
-    add_string( PadL( s, sh - 2 ) )
+    add_string( PadL( s, sh -2 ) )
   Endif
   FClose( fp )
   rest_box( buf )
@@ -4262,7 +4262,7 @@ Function rees1_vzaim( name_file )
     "──────────────────────────────────────────────┴────┴─────────────────┴─────────" }
   sh := Len( arr_title[ 1 ] )
   fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( AllTrim( org->name ) )
   org->( dbCloseArea() )
   add_string( "" )
@@ -4293,11 +4293,11 @@ Function rees1_vzaim( name_file )
     add_string( s )
     Skip
   Enddo
-  If verify_ff( HH - 5, .t., sh )
+  If verify_ff( HH -5, .t., sh )
     AEval( arr_title, {| x| add_string( x ) } )
   Endif
   add_string( Replicate( "─", sh ) )
-  add_string( PadL( "Итого : " + lstr( sk ), sh - 30 ) + put_kop( ss, 30 ) )
+  add_string( PadL( "Итого : " + lstr( sk ), sh -30 ) + put_kop( ss, 30 ) )
   add_string( "" )
   add_string( "" )
   add_string( Center( "Главный бухгалтер _________________", sh ) )
@@ -4313,7 +4313,7 @@ Function rees2_vzaim( name_file )
   Local buf := save_row( MaxRow() ), sh, HH := 52, arr_title, s, i, j, k, sk, ss, ;
     arr2title, reg_print := 6, afio[ 10 ], lfio := 19, kfio, lsk, lss, adbf, ;
     aadres[ 2 ], kadres, apolis[ 10 ], kpolis
-  Private d_file := "P_REESTR" + sdbf
+  Private d_file := "P_REESTR" + sdbf()
 
   If !del_dbf_file( d_file )
     Return Nil
@@ -4345,7 +4345,7 @@ Function rees2_vzaim( name_file )
     "───┴───────────────────┴─────────────────┴────────┴──────────┴─────────────────────────────────────────────────────────────────┴─────┴───────┴────┴──────────┴───────────" }
   sh := Len( arr_title[ 1 ] )
   fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( AllTrim( org->name ) + if( Empty( org->inn ), "", ", ИНН " + org->inn ) )
   add_string( AllTrim( org->adres ) + if( Empty( org->telefon ), "", " тел." + org->telefon ) )
   add_string( "р/с № " + AllTrim( org->r_schet ) + " в " + RTrim( org->bank ) + ;
@@ -4362,11 +4362,11 @@ Function rees2_vzaim( name_file )
   add_string( Center( arr_m[ 4 ], sh ) )
   dbCreate( d_file, adbf )
   Use ( d_file ) New Alias DD
-  r_use( dir_server + "mo_otd",, "OTD" )
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "mo_pers",, "perso" )
-  r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HPU" )
-  r_use( dir_server + "hum_p",, "HP" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "mo_pers",, "perso" )
+  r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
+  r_use( dir_server() + "hum_p",, "HP" )
   AEval( arr_title, {| x| add_string( x ) } )
   j := sk := ss := 0
   Select TMP
@@ -4492,7 +4492,7 @@ Function rees2_vzaim( name_file )
         add_string( s )
       Next
       add_string( PadL( Replicate( "-", 41 ), sh ) )
-      add_string( PadL( lstr( lsk ) + Str( lss, 11, 2 ), sh - 12 ) )
+      add_string( PadL( lstr( lsk ) + Str( lss, 11, 2 ), sh -12 ) )
       add_string( "" )
     Next
     Select TMP
@@ -4504,11 +4504,11 @@ Function rees2_vzaim( name_file )
   hpu->( dbCloseArea() )
   usl->( dbCloseArea() )
   otd->( dbCloseArea() )
-  If verify_ff( HH - 5, .t., sh )
+  If verify_ff( HH -5, .t., sh )
     AEval( arr2title, {| x| add_string( x ) } )
   Endif
   add_string( Replicate( "─", sh ) )
-  add_string( PadL( "Итого : " + lstr( sk ) + Str( ss, 11, 2 ), sh - 12 ) )
+  add_string( PadL( "Итого : " + lstr( sk ) + Str( ss, 11, 2 ), sh -12 ) )
   add_string( "" )
   add_string( "" )
   add_string( Center( "Главный врач _________________                         Главный бухгалтер _________________", sh ) )
@@ -4554,7 +4554,7 @@ Function pl_pl_dogovor()
 
   Local buf := save_row( MaxRow() ), sh, HH := 49, arr_title, s, i, j, k, sk, ss, ;
     arr2title, reg_print := 6, afio[ 10 ], lfio := 19, kfio, lsk, lss, adbf, ;
-    aadres[ 2 ], kadres, apolis[ 10 ], kpolis, name_file := "jurnal.txt", arr_dms, ;
+    aadres[ 2 ], kadres, apolis[ 10 ], kpolis, name_file := cur_dir() + "jurnal.txt", arr_dms, ;
     kol_vo := 0, usl_nds18 := 0, usl_nds18_1 := 0, ;
     usl_nds10 := 0, usl_nds10_1 := 0, ;
     usl_nds20 := 0, usl_nds20_1 := 0
@@ -4567,27 +4567,27 @@ Function pl_pl_dogovor()
     "                             │       │                                                                 │ (руб.)│луг │  (руб.)  │  услуги  │  услуги  ", ;
     "─────────────────────────────┴───────┴─────────────────────────────────────────────────────────────────┴───────┴────┴──────────┴──────────┴──────────" }
   Private krvz
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   mywait()
   sh := Len( arr_title[ 1 ] )
   fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( Center( "Ж У Р Н А Л", sh ) )
   add_string( Center( "учета заказов граждан на оказание им платных медицинских услуг(помощи)", sh ) )
   add_string( Center( arr_m[ 4 ], sh ) )
   tit_tip_usl( krvz, arr_dms, sh )
-  r_use( dir_server + "kartotek",, "KART" )
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HPU" )
-  r_use( dir_server + "hum_p",, "HU" )
+  r_use( dir_server() + "kartotek",, "KART" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
+  r_use( dir_server() + "hum_p",, "HU" )
   AEval( arr_title, {| x| add_string( x ) } )
   j := sk := ss := 0
   Select HU
@@ -4684,25 +4684,25 @@ Function pl_pl_dogovor()
   Enddo
   Close databases
   add_string( Replicate( "─", sh ) )
-  add_string( PadL( "Итого : " + Str( ss, 11, 2 ), sh - 12 ) )
-  add_string( PadL( "Итого договоров: " + Str( kol_vo, 11 ), sh - 12 ) )
+  add_string( PadL( "Итого : " + Str( ss, 11, 2 ), sh -12 ) )
+  add_string( PadL( "Итого договоров: " + Str( kol_vo, 11 ), sh -12 ) )
   If usl_nds18 > 0
-    add_string( PadL( "Количество услуг с НДС 18% : " + Str( usl_nds18, 11 ), sh - 12 ) )
+    add_string( PadL( "Количество услуг с НДС 18% : " + Str( usl_nds18, 11 ), sh -12 ) )
   Endif
   If usl_nds18_1 > 0
-    add_string( PadL( "Сумма услуг с НДС 18% : " + Str( usl_nds18_1, 11, 2 ), sh - 12 ) )
+    add_string( PadL( "Сумма услуг с НДС 18% : " + Str( usl_nds18_1, 11, 2 ), sh -12 ) )
   Endif
   If usl_nds10 > 0
-    add_string( PadL( "Количество услуг с НДС 10% : " + Str( usl_nds10, 11 ), sh - 12 ) )
+    add_string( PadL( "Количество услуг с НДС 10% : " + Str( usl_nds10, 11 ), sh -12 ) )
   Endif
   If usl_nds10_1 > 0
-    add_string( PadL( "Сумма услуг с НДС 10% : " + Str( usl_nds10_1, 11, 2 ), sh - 12 ) )
+    add_string( PadL( "Сумма услуг с НДС 10% : " + Str( usl_nds10_1, 11, 2 ), sh -12 ) )
   Endif
   If usl_nds20 > 0
-    add_string( PadL( "Количество услуг с НДС 20% : " + Str( usl_nds20, 11 ), sh - 12 ) )
+    add_string( PadL( "Количество услуг с НДС 20% : " + Str( usl_nds20, 11 ), sh -12 ) )
   Endif
   If usl_nds20_1 > 0
-    add_string( PadL( "Сумма услуг с НДС 20% : " + Str( usl_nds20_1, 11, 2 ), sh - 12 ) )
+    add_string( PadL( "Сумма услуг с НДС 20% : " + Str( usl_nds20_1, 11, 2 ), sh -12 ) )
   Endif
   add_string( "" )
   add_string( Center( "Главный врач _________________                         Главный бухгалтер _________________", sh ) )
@@ -4722,7 +4722,7 @@ Function pl_pl_2dogovor()
 
   Local buf := save_row( MaxRow() ), sh, HH := 49, arr_title, s, i, k, sk, ss, ;
     arr2title, reg_print := 6, afio[ 10 ], lfio := 19, kfio, lsk, lss, adbf, ;
-    aadres[ 2 ], kadres, apolis[ 10 ], kpolis, name_file := "jurnal1.txt", ;
+    aadres[ 2 ], kadres, apolis[ 10 ], kpolis, name_file := cur_dir() + "jurnal1.txt", ;
     usl_nds18 := 0, usl_nds18_1 := 0, ;
     usl_nds10 := 0, usl_nds10_1 := 0, ;
     usl_nds20 := 0, usl_nds20_1 := 0, ;
@@ -4874,7 +4874,7 @@ Function pl_pl_2dogovor()
     "┴──────────" }
 
   Private krvz
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   Private glob_pozic
@@ -4884,7 +4884,7 @@ Function pl_pl_2dogovor()
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   mywait()
@@ -4903,24 +4903,24 @@ Function pl_pl_2dogovor()
   //
   sh := Len( arr_title[ 1 ] )
   fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-  // R_Use(dir_server+"kas_usld",,"PUSL",,,.T.)
+  // R_Use(dir_server()+"kas_usld",,"PUSL",,,.T.)
   // index on str(u_kod,4) to tmp_ud
-  r_use( dir_server + "mo_pers",, "perso" )
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "mo_pers",, "perso" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( Center( "Ж У Р Н А Л", sh ) )
   add_string( Center( "учета заказов граждан на предоставление им платных медицинских услуг(помощи)", sh ) )
   add_string( Center( arr_m[ 4 ], sh ) )
   tit_tip_usl( krvz, arr_dms, sh )
-  r_use( dir_server + "kartotek",, "KART" )
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HPU" )
-  r_use( dir_server + "hum_p",, "HU" )
+  r_use( dir_server() + "kartotek",, "KART" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
+  r_use( dir_server() + "hum_p",, "HU" )
   If glob_mo[ _MO_KOD_TFOMS ] == '171004' // КБ-4
-    Index On DToS( N_data ) + Str( kv_cia, 6 ) to ( cur_dir + "tmp_hum" ) For Between( N_data, arr_m[ 5 ], arr_m[ 6 ] )
+    Index On DToS( N_data ) + Str( kv_cia, 6 ) to ( cur_dir() + "tmp_hum" ) For Between( N_data, arr_m[ 5 ], arr_m[ 6 ] )
   Else
-    Index On pdate + Str( kv_cia, 6 ) to ( cur_dir + "tmp_hum" ) For Between( pdate, arr_m[ 7 ], arr_m[ 8 ] )
+    Index On pdate + Str( kv_cia, 6 ) to ( cur_dir() + "tmp_hum" ) For Between( pdate, arr_m[ 7 ], arr_m[ 8 ] )
   Endif
-  Set Index to ( dir_server + "hum_pkk" ), ( cur_dir + "tmp_hum" )
+  Set Index to ( dir_server() + "hum_pkk" ), ( cur_dir() + "tmp_hum" )
   Set Order To 2
   //
   AEval( arr_title, {| x| add_string( x ) } )
@@ -4936,7 +4936,7 @@ Function pl_pl_2dogovor()
       If f_is_pozic( glob_pozic, 1 )
         nom_prihod := 0
         t_recno := hu->( RecNo() )
-        // index on str(kod_k,7)+dtos(k_data) to (dir_server+"hum_pkk") descending progress
+        // index on str(kod_k,7)+dtos(k_data) to (dir_server()+"hum_pkk") descending progress
         kart_kod := hu->kod_k
         t_k_data := Year( hu->k_data )
         Set Order To 1
@@ -5096,25 +5096,25 @@ Function pl_pl_2dogovor()
   Enddo
   Close databases
   add_string( Replicate( "─", sh ) )
-  add_string( PadL( "Итого : " + lstr( ss, 15, 2 ), sh - 11 ) )
-  add_string( PadL( "Итого договоров : " + lstr( kol_vo ), sh - 11 ) )
+  add_string( PadL( "Итого : " + lstr( ss, 15, 2 ), sh -11 ) )
+  add_string( PadL( "Итого договоров : " + lstr( kol_vo ), sh -11 ) )
   If usl_nds18 > 0
-    add_string( PadL( "Количество услуг с НДС 18% : " + Str( usl_nds18, 11 ), sh - 11 ) )
+    add_string( PadL( "Количество услуг с НДС 18% : " + Str( usl_nds18, 11 ), sh -11 ) )
   Endif
   If usl_nds18_1 > 0
-    add_string( PadL( "Сумма услуг с НДС 18% : " + Str( usl_nds18_1, 11, 2 ), sh - 11 ) )
+    add_string( PadL( "Сумма услуг с НДС 18% : " + Str( usl_nds18_1, 11, 2 ), sh -11 ) )
   Endif
   If usl_nds10 > 0
-    add_string( PadL( "Количество услуг с НДС 10% : " + Str( usl_nds10, 11 ), sh - 11 ) )
+    add_string( PadL( "Количество услуг с НДС 10% : " + Str( usl_nds10, 11 ), sh -11 ) )
   Endif
   If usl_nds10_1 > 0
-    add_string( PadL( "Сумма услуг с НДС 10% : " + Str( usl_nds10_1, 11, 2 ), sh - 11 ) )
+    add_string( PadL( "Сумма услуг с НДС 10% : " + Str( usl_nds10_1, 11, 2 ), sh -11 ) )
   Endif
   If usl_nds20 > 0
-    add_string( PadL( "Количество услуг с НДС 20% : " + Str( usl_nds20, 11 ), sh - 12 ) )
+    add_string( PadL( "Количество услуг с НДС 20% : " + Str( usl_nds20, 11 ), sh -12 ) )
   Endif
   If usl_nds20_1 > 0
-    add_string( PadL( "Сумма услуг с НДС 20% : " + Str( usl_nds20_1, 11, 2 ), sh - 12 ) )
+    add_string( PadL( "Сумма услуг с НДС 20% : " + Str( usl_nds20_1, 11, 2 ), sh -12 ) )
   Endif
   add_string( "" )
   add_string( "" )
@@ -5192,7 +5192,7 @@ Function pl1_priemden( tip )
   // 2 - по кассовым аппаратам
   // 3 - по кассирам
   Local fl := .t., buf := save_row( MaxRow() ), sm := 0, HH := 52, ;
-    n_file := "platn.txt", arr_m, sum3 := 0, sh, sm_sn := 0, arr_dms, ;
+    n_file := cur_dir() + "platn.txt", arr_m, sum3 := 0, sh, sm_sn := 0, arr_dms, ;
     sm_1 := 0, sm_2 := 0, vrem_kas, sm1, sm2, t_name_ysl, mas_name := {}
   Local arr_title := { ;
     "──────────────────────────────────────────────────────────┬────────┬───────────", ;
@@ -5201,7 +5201,7 @@ Function pl1_priemden( tip )
     }
   sh := Len( arr_title[ 1 ] )
   Private krvz
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
@@ -5209,7 +5209,7 @@ Function pl1_priemden( tip )
   Endif
   //
   mywait()
-  dbCreate( cur_dir + "tmp", { { "kod",        "N",  4,  0 }, ;
+  dbCreate( cur_dir() + "tmp", { { "kod",        "N",  4,  0 }, ;
     { "name",       "C", 65,  0 }, ;
     { "full_name",  "C", 120,  0 }, ;
     { "kod_1",      "C", 10,  0 }, ;
@@ -5219,19 +5219,19 @@ Function pl1_priemden( tip )
     { "operatf",    "C", 40,  0 }, ;
     { "FR_zavod",   "C", 16,  0 };
     } )
-  Use ( cur_dir + "tmp" ) new
+  Use ( cur_dir() + "tmp" ) new
   If tip == 1
-    Index On Str( kod, 4 ) to ( cur_dir + "tmp_u" )
+    Index On Str( kod, 4 ) to ( cur_dir() + "tmp_u" )
   Elseif tip == 2
-    Index On Str( kod, 4 ) + fr_zavod to ( cur_dir + "tmp_u" )
+    Index On Str( kod, 4 ) + fr_zavod to ( cur_dir() + "tmp_u" )
   Else
-    Index On Str( kod, 4 ) + Str( operat, 3 ) to ( cur_dir + "tmp_u" )
+    Index On Str( kod, 4 ) + Str( operat, 3 ) to ( cur_dir() + "tmp_u" )
   Endif
   If yes_parol
-    r_use( dir_server + "base1",, "BASE1" )
+    r_use( dir_server() + "base1",, "BASE1" )
   Endif
-  r_use( dir_server + "hum_p",, "HUM" )
-  r_use( dir_server + "hum_p_U", dir_server + "hum_p_U", "HUM_U" )
+  r_use( dir_server() + "hum_p",, "HUM" )
+  r_use( dir_server() + "hum_p_U", dir_server() + "hum_p_U", "HUM_U" )
   Select HUM
   Go Top
   sum3 := 0
@@ -5275,7 +5275,7 @@ Function pl1_priemden( tip )
     Skip
   Enddo
   //
-  r_use( dir_server + "uslugi",, "USL" )
+  r_use( dir_server() + "uslugi",, "USL" )
   Select TMP
   Go Top
   Do While !Eof()
@@ -5289,7 +5289,7 @@ Function pl1_priemden( tip )
     Skip
   Enddo
   Select TMP
-  Index On kod_1 to ( cur_dir + "tmp_u" )
+  Index On kod_1 to ( cur_dir() + "tmp_u" )
   fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
   add_string( Center( "Оплата услуг", sh ) )
   add_string( Center( "по дате начала лечения", sh ) )
@@ -5303,11 +5303,11 @@ Function pl1_priemden( tip )
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
   If tip == 1
-    Index On kod_1 to ( cur_dir + "tmp_u" )
+    Index On kod_1 to ( cur_dir() + "tmp_u" )
   Elseif tip == 2
-    Index On fr_zavod + kod_1 to ( cur_dir + "tmp_u" )
+    Index On fr_zavod + kod_1 to ( cur_dir() + "tmp_u" )
   Else
-    Index On operatf + kod_1 to ( cur_dir + "tmp_u" )
+    Index On operatf + kod_1 to ( cur_dir() + "tmp_u" )
   Endif
   Go Top
   sm1 := 0
@@ -5404,7 +5404,7 @@ Function pl2_priemden( tip )
   // 2 - по кассовым аппаратам
   // 3 - по кассирам
   Local fl := .t., buf := save_row( MaxRow() ), sm := 0, HH := 51, ;
-    n_file := "platn.txt", arr_m, sum3 := 0, sh, sm_sn := 0, arr_dms, ;
+    n_file := cur_dir() + "platn.txt", arr_m, sum3 := 0, sh, sm_sn := 0, arr_dms, ;
     sm_1 := 0, sm_2 := 0, vrem_kas, sm1, sm2, t_name_ysl, mas_name := {}, ;
     t, t1
 
@@ -5424,7 +5424,7 @@ Function pl2_priemden( tip )
     }
   Private krvz, lpole, spole
   Private arr_kkm := {}
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
@@ -5432,7 +5432,7 @@ Function pl2_priemden( tip )
   Endif
   //
   mywait()
-  dbCreate( cur_dir + "tmp", { { "kod",        "N",  4,  0 }, ;
+  dbCreate( cur_dir() + "tmp", { { "kod",        "N",  4,  0 }, ;
     { "name",       "C", 65,  0 }, ;
     { "full_name",  "C", 120,  0 }, ;
     { "kod_1",      "C", 10,  0 }, ;
@@ -5465,10 +5465,10 @@ Function pl2_priemden( tip )
     { "summa12",    "N", 12,  2 }, ;
     { "kol_vo12",   "N", 10,  0 };
     } )
-  Use ( cur_dir + "tmp" ) new
-  Index On Str( kod, 4 ) to ( cur_dir + "tmp_u" )
-  r_use( dir_server + "hum_p",, "HUM" )
-  r_use( dir_server + "hum_p_U", dir_server + "hum_p_U", "HUM_U" )
+  Use ( cur_dir() + "tmp" ) new
+  Index On Str( kod, 4 ) to ( cur_dir() + "tmp_u" )
+  r_use( dir_server() + "hum_p",, "HUM" )
+  r_use( dir_server() + "hum_p_U", dir_server() + "hum_p_U", "HUM_U" )
   Select HUM
   Go Top
   sum3 := 0
@@ -5506,7 +5506,7 @@ Function pl2_priemden( tip )
     Skip
   Enddo
   //
-  r_use( dir_server + "uslugi",, "USL" )
+  r_use( dir_server() + "uslugi",, "USL" )
   Select TMP
   Go Top
   Do While !Eof()
@@ -5521,7 +5521,7 @@ Function pl2_priemden( tip )
   Enddo
   //
   Select TMP
-  Index On kod_1 to ( cur_dir + "tmp_u" )
+  Index On kod_1 to ( cur_dir() + "tmp_u" )
   fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
   For i := 1 To Len( arr_kkm )
     arr_title[ 1 ] := arr_title[ 1 ] + arr_1title[ 1 ]
@@ -5537,7 +5537,7 @@ Function pl2_priemden( tip )
   tit_tip_usl( krvz, arr_dms, sh ) // 16.04.08
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
-  Index On kod_1 to ( cur_dir + "tmp_u" )
+  Index On kod_1 to ( cur_dir() + "tmp_u" )
   Go Top
   sm1 := 0
   sm2 := 0
@@ -5637,7 +5637,7 @@ Function inputnplpozic( r, c, fl_max )
       l_a_pozic := {} ; st_pozic := {}
       For i := 1 To 15
         If "*" == SubStr( t_mas[ i ], 2, 1 )
-          AAdd( l_a_pozic, { ( i - 1 ), AllTrim( mas_s[ i ] ), } )
+          AAdd( l_a_pozic, { ( i -1 ), AllTrim( mas_s[ i ] ), } )
           AAdd( st_pozic, mas[ i ] )
         Endif
       Next
@@ -5698,9 +5698,9 @@ Function k_statist( k )
       AAdd( mas_msg, "Оформление реестра платных услуг при сдаче выручки" )
       AAdd( mas_fun, "k_statist(17)" )
     Endif
-    popup_prompt( T_ROW, T_COL - 5, si, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si, mas_pmt, mas_msg, mas_fun )
   Otherwise
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       Do Case
       Case k == 11
         f1r_s_plat( 1 )
@@ -5753,7 +5753,7 @@ return NIL
 Function Pd2_statist(k)
 Local i, j, arr, begin_date, end_date, s, buf := save_row(maxrow()),;
       fl_exit := .f., sh, HH := 40, reg_print, speriod,;
-      arr_title, name_file := "r_dohod"+stxt, arr_m
+      arr_title, name_file := cur_dir() + "r_dohod.txt", arr_m
 if (arr_m := year_month()) == NIL
   return NIL
 endif
@@ -5772,15 +5772,15 @@ aeval(gmenu_scu, {|x| aadd(arr, {"s"+lstr(x[2]),"N",18,2} ),;
                       aadd(p_arr, {1,x[2],0} ) } )
 aeval(gmenu1_scu, {|x| aadd(arr, {"z"+lstr(x[2]),"N",18,2} ),;
                        aadd(p_arr, {2,x[2],0} ) } )
-dbcreate(cur_dir+"tmp", arr)
-use (cur_dir+"tmp")
-index on str(tip,1)+str(kod,3) to (cur_dir+"tmpk")
-index on str(tip,1)+upper(name) to (cur_dir+"tmpn")
-use (cur_dir+"tmp") index (cur_dir+"tmpk"),(cur_dir+"tmpn") alias TMP
-//G_Use(dir_server+"cena_usl",dir_server+"cena_usl","CENA")
-G_Use(dir_server+"uslugi",,"USL")
-G_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HU")
-G_Use(dir_server+"hum_p",dir_server+"hum_pd","HUMAN")
+dbcreate(cur_dir()+"tmp", arr)
+use (cur_dir()+"tmp")
+index on str(tip,1)+str(kod,3) to (cur_dir()+"tmpk")
+index on str(tip,1)+upper(name) to (cur_dir()+"tmpn")
+use (cur_dir()+"tmp") index (cur_dir()+"tmpk"),(cur_dir()+"tmpn") alias TMP
+//G_Use(dir_server()+"cena_usl",dir_server()+"cena_usl","CENA")
+G_Use(dir_server()+"uslugi",,"USL")
+G_Use(dir_server()+"hum_p_u",dir_server()+"hum_p_u","HU")
+G_Use(dir_server()+"hum_p",dir_server()+"hum_pd","HUMAN")
 dbseek(dtos(arr_m[5]),.t.)
 do while human->k_data <= arr_m[6] .and. !eof()
   UpdateStatus()
@@ -5806,9 +5806,9 @@ if fl_exit ; return NIL ; endif
 if j == 0
   func_error(4,"Нет сведений (или не настроен СТАНДАРТНЫЙ вид оплаты по конечному результату)!")
 else
-  G_Use(dir_server+"otdeleni",,"OTD")
-  G_Use(dir_server+"slugba",dir_server+"slugba","SL")
-  use (cur_dir+"tmp") index (cur_dir+"tmpk"),(cur_dir+"tmpn") new alias TMP
+  G_Use(dir_server()+"otdeleni",,"OTD")
+  G_Use(dir_server()+"slugba",dir_server()+"slugba","SL")
+  use (cur_dir()+"tmp") index (cur_dir()+"tmpk"),(cur_dir()+"tmpn") new alias TMP
   go top
   do while !eof()
     if tmp->tip == 1
@@ -5957,7 +5957,7 @@ Function f1r_s_plat()
 
   Local i, j, arr, begin_date, end_date, s, buf := save_row( MaxRow() ), ;
     fl_exit := .f., sh, HH := 57, reg_print, lyear, slyear, speriod, ;
-    arr_title, name_file := "r_dopl" + stxt, old_vr := 0, ;
+    arr_title, name_file := cur_dir() + "r_dopl.txt", old_vr := 0, ;
     vstoim := 0, sstoim := 0, blk
   Private arr_m, kv[ 2 ]
 
@@ -5969,34 +5969,34 @@ Function f1r_s_plat()
   end_date := arr_m[ 8 ]
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   //
-  dbCreate( cur_dir + "tmp", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
+  dbCreate( cur_dir() + "tmp", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
   { "kv_cia", "N", 6, 0 }, ; // номер квитанции
-  { "U_KOD","N", 4, 0 }, ; // код услуги
-  { "SHIFR","C", 10, 0 }, ; // шифр услуги
+  { "U_KOD", "N", 4, 0 }, ; // код услуги
+  { "SHIFR", "C", 10, 0 }, ; // шифр услуги
   { "KOD_VR", "N", 4, 0 }, ; // код врача
-  { "KOL","N", 5, 0 }, ; // количество услуг
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуги
-  Use ( cur_dir + "tmp" )
-  Index On Str( kod_vr, 4 ) + Str( n_kvit, 5 ) + Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-  Index On Str( kod_vr, 4 ) + Str( n_kvit, 5 ) + fsort_usl( shifr ) to ( cur_dir + "tmpn" )
-  dbCreate( cur_dir + "tmpt", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуги
-  Use ( cur_dir + "tmpt" )
-  Index On Str( n_kvit, 5 ) to ( cur_dir + "tmpt" )
-  dbCreate( cur_dir + "tmpu", { { "U_KOD","N", 4, 0 }, ; // код услуги
-  { "SHIFR","C", 10, 0 }, ; // шифр услуги
-  { "KOL","N", 5, 0 }, ; // количество услуг
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуги
-  Use ( cur_dir + "tmpu" )
-  Index On Str( u_kod, 4 ) to ( cur_dir + "tmpuk" )
-  Index On fsort_usl( shifr ) to ( cur_dir + "tmpun" )
+  { "KOL", "N", 5, 0 }, ; // количество услуг
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
+  Use ( cur_dir() + "tmp" )
+  Index On Str( kod_vr, 4 ) + Str( n_kvit, 5 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+  Index On Str( kod_vr, 4 ) + Str( n_kvit, 5 ) + fsort_usl( shifr ) to ( cur_dir() + "tmpn" )
+  dbCreate( cur_dir() + "tmpt", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
+  Use ( cur_dir() + "tmpt" )
+  Index On Str( n_kvit, 5 ) to ( cur_dir() + "tmpt" )
+  dbCreate( cur_dir() + "tmpu", { { "U_KOD", "N", 4, 0 }, ; // код услуги
+  { "SHIFR", "C", 10, 0 }, ; // шифр услуги
+  { "KOL", "N", 5, 0 }, ; // количество услуг
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
+  Use ( cur_dir() + "tmpu" )
+  Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpuk" )
+  Index On fsort_usl( shifr ) to ( cur_dir() + "tmpun" )
   Close databases
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpk" ), ( cur_dir + "tmpn" ) New Alias TMP
-  Use ( cur_dir + "tmpt" ) index ( cur_dir + "tmpt" ) New Alias TMPT
-  Use ( cur_dir + "tmpu" ) index ( cur_dir + "tmpuk" ), ( cur_dir + "tmpun" ) New Alias TMPU
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "hum_p",, "HP" )
-  r_use( dir_server + "hum_p_u", dir_server + "hum_p_ud", "HPU" )
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpk" ), ( cur_dir() + "tmpn" ) New Alias TMP
+  Use ( cur_dir() + "tmpt" ) index ( cur_dir() + "tmpt" ) New Alias TMPT
+  Use ( cur_dir() + "tmpu" ) index ( cur_dir() + "tmpuk" ), ( cur_dir() + "tmpun" ) New Alias TMPU
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "hum_p",, "HP" )
+  r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_ud", "HPU" )
   Set Relation To kod into HP, To u_kod into USL
   dbSeek( arr_m[ 7 ], .t. )
   Do While hpu->date_u <= arr_m[ 8 ] .and. !Eof()
@@ -6059,8 +6059,8 @@ Function f1r_s_plat()
     add_string( Center( speriod, sh ) )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
-    g_use( dir_server + "mo_pers",, "PERSO" )
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpn" ) New Alias TMP
+    g_use( dir_server() + "mo_pers",, "PERSO" )
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpn" ) New Alias TMP
     Set Relation To kod_vr into PERSO
     Go Top
     Do While !Eof()
@@ -6069,8 +6069,8 @@ Function f1r_s_plat()
       Endif
       If old_vr != tmp->kod_vr
         If old_vr != 0
-          add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
-          add_string( Space( sh - 20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
+          add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
+          add_string( Space( sh -20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
           vstoim := 0
         Endif
         add_string( "[" + lstr( ret_tabn( tmp->kod_vr ) ) + "] " + AllTrim( perso->fio ) )
@@ -6083,17 +6083,17 @@ Function f1r_s_plat()
       Select TMP
       Skip
     Enddo
-    add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
-    add_string( Space( sh - 20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
+    add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
+    add_string( Space( sh -20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
     add_string( Replicate( "─", sh ) )
-    add_string( Space( sh - 20 ) + "ВСЕГО:" + PadL( expand_value( sstoim, 2 ), 14 ) )
+    add_string( Space( sh -20 ) + "ВСЕГО:" + PadL( expand_value( sstoim, 2 ), 14 ) )
     add_string( Replicate( "─", sh ) )
     //
-    If verify_ff( HH - 2, .t., sh )
+    If verify_ff( HH -2, .t., sh )
       AEval( arr_title, {| x| add_string( x ) } )
     Endif
     add_string( Space( 15 ) + "в том числе:" )
-    Use ( cur_dir + "tmpt" ) index ( cur_dir + "tmpt" ) new
+    Use ( cur_dir() + "tmpt" ) index ( cur_dir() + "tmpt" ) new
     Go Top
     Do While !Eof()
       If verify_ff( HH, .t., sh )
@@ -6104,11 +6104,11 @@ Function f1r_s_plat()
       Skip
     Enddo
     //
-    If verify_ff( HH - 2, .t., sh )
+    If verify_ff( HH -2, .t., sh )
       AEval( arr_title, {| x| add_string( x ) } )
     Endif
     add_string( Space( 15 ) + "в том числе:" )
-    Use ( cur_dir + "tmpu" ) index ( cur_dir + "tmpun" ) new
+    Use ( cur_dir() + "tmpu" ) index ( cur_dir() + "tmpun" ) new
     Go Top
     Do While !Eof()
       If verify_ff( HH, .t., sh )
@@ -6134,7 +6134,7 @@ Function f2r_spl_plat( reg )
   Static snomer := 1, sreg1 := 1
   Local i, j, k, arr[ 2 ], s, buf := save_row( MaxRow() ), buf1, reg1, ;
     fl_exit := .f., sh, HH := 57, reg_print, ;
-    arr_title, name_file := "n_kvit" + stxt, ;
+    arr_title, name_file := cur_dir() + "n_kvit.txt", ;
     vstoim := 0, sstoim := 0, old := 0, up_usl, ;
     speriod, begin_date, end_date, cp := " "
 
@@ -6145,7 +6145,7 @@ Function f2r_spl_plat( reg )
   Endif
   snomer := mnomer
   buf1 := box_shadow( 0, 0, 0, 30, color8, "Квитанционная книжка N " + lstr( mnomer ),, 0 )
-  If ( reg1 := popup_prompt( T_ROW, T_COL - 5, sreg1, ;
+  If ( reg1 := popup_prompt( T_ROW, T_COL -5, sreg1, ;
       { "В ~целом по квитанционной книжке", ;
       "За ~период времени" } ) ) == 0
     rest_box( buf1 )
@@ -6157,15 +6157,15 @@ Function f2r_spl_plat( reg )
   sreg1 := reg1
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   //
-  dbCreate( cur_dir + "tmp", { { "U_KOD","N", 4, 0 }, ; // код услуги
+  dbCreate( cur_dir() + "tmp", { { "U_KOD", "N", 4, 0 }, ; // код услуги
   { "KOD_VR", "N", 4, 0 }, ; // код врача
-  { "KOL","N", 5, 0 }, ; // количество услуг
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуги
-  Use ( cur_dir + "tmp" )
-  Index On Str( kod_vr, 4 ) + Str( u_kod, 4 ) to ( cur_dir + "tmp" )
-  r_use( dir_server + "uslugi", dir_server + "uslugi", "USL" )
-  r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HPU" )
-  r_use( dir_server + "hum_p", dir_server + "hum_pv", "HP" )
+  { "KOL", "N", 5, 0 }, ; // количество услуг
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
+  Use ( cur_dir() + "tmp" )
+  Index On Str( kod_vr, 4 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmp" )
+  r_use( dir_server() + "uslugi", dir_server() + "uslugi", "USL" )
+  r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
+  r_use( dir_server() + "hum_p", dir_server() + "hum_pv", "HP" )
   dbSeek( Str( mnomer, 5 ) )
   Do While hp->n_kvit == mnomer .and. !Eof()
     updatestatus()
@@ -6204,14 +6204,14 @@ Function f2r_spl_plat( reg )
   Else
     mywait()
     reg_print := 2
-    r_use( dir_server + "uslugi",, "USL" )
-    r_use( dir_server + "mo_pers",, "PERSO" )
-    Use ( cur_dir + "tmp" ) New Alias TMP
+    r_use( dir_server() + "uslugi",, "USL" )
+    r_use( dir_server() + "mo_pers",, "PERSO" )
+    Use ( cur_dir() + "tmp" ) New Alias TMP
     Set Relation To kod_vr into PERSO, To u_kod into USL
     If reg == 1
-      Index On Str( kod_vr, 4 ) + fsort_usl( usl->shifr ) to ( cur_dir + "tmp" )
+      Index On Str( kod_vr, 4 ) + fsort_usl( usl->shifr ) to ( cur_dir() + "tmp" )
     Elseif reg == 2
-      Index On Str( u_kod, 4 ) + fsort_usl( usl->shifr ) + Str( kod_vr, 4 ) to ( cur_dir + "tmp" )
+      Index On Str( u_kod, 4 ) + fsort_usl( usl->shifr ) + Str( kod_vr, 4 ) to ( cur_dir() + "tmp" )
     Endif
     arr_title := { ;
       "───────────────────────────────────────────────────────────┬─────┬─────────────", ;
@@ -6237,8 +6237,8 @@ Function f2r_spl_plat( reg )
       If reg == 1
         If old != tmp->kod_vr
           If old != 0
-            add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
-            add_string( Space( sh - 20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
+            add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
+            add_string( Space( sh -20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
             vstoim := 0
           Endif
           add_string( "" )
@@ -6249,8 +6249,8 @@ Function f2r_spl_plat( reg )
       Else
         If old != tmp->u_kod
           If old != 0
-            add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
-            add_string( Space( sh - 20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
+            add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
+            add_string( Space( sh -20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
             vstoim := 0
           Endif
           add_string( "" )
@@ -6269,10 +6269,10 @@ Function f2r_spl_plat( reg )
       Select TMP
       Skip
     Enddo
-    add_string( Space( sh - 20 ) + Replicate( "-", 20 ) )
-    add_string( Space( sh - 20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
+    add_string( Space( sh -20 ) + Replicate( "-", 20 ) )
+    add_string( Space( sh -20 ) + "Итого:" + PadL( expand_value( vstoim, 2 ), 14 ) )
     add_string( Replicate( "═", sh ) )
-    add_string( Space( sh - 20 ) + "ИТОГО:" + PadL( expand_value( sstoim, 2 ), 14 ) )
+    add_string( Space( sh -20 ) + "ИТОГО:" + PadL( expand_value( sstoim, 2 ), 14 ) )
     Close databases
     FClose( fp )
     rest_box( buf )
@@ -6292,7 +6292,7 @@ Function f3r_s_plat()
   Static snomer := 1, sreg1 := 1
   Local i, j, k, arr[ 2 ], s, buf := save_row( MaxRow() ), buf1, reg1, ;
     fl_exit := .f., sh, HH := 57, reg_print, ;
-    arr_title, name_file := "n_kvitan" + stxt, ;
+    arr_title, name_file := cur_dir() + "n_kvitan.txt", ;
     vstoim := 0, sstoim := 0, old := 0, ;
     speriod, begin_date, end_date, cp := " ", ss := 0
 
@@ -6303,7 +6303,7 @@ Function f3r_s_plat()
   Endif
   snomer := mnomer
   buf1 := box_shadow( 0, 0, 0, 30, color8, "Квитанционная книжка N " + lstr( mnomer ),, 0 )
-  If ( reg1 := popup_prompt( T_ROW, T_COL - 5, sreg1, ;
+  If ( reg1 := popup_prompt( T_ROW, T_COL -5, sreg1, ;
       { "В ~целом по квитанционной книжке", ;
       "За ~период времени" } ) ) == 0
     rest_box( buf1 )
@@ -6315,14 +6315,14 @@ Function f3r_s_plat()
   sreg1 := reg1
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   //
-  dbCreate( cur_dir + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
+  dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
   { "kv_cia", "N", 6, 0 }, ; // номер квитанции
   { "pdate", "C", 4, 0 }, ;
-    { "KOL","N", 5, 0 }, ; // количество услуг
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуги
-  Use ( cur_dir + "tmp" )
-  r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HPU" )
-  r_use( dir_server + "hum_p", dir_server + "hum_pv", "HP" )
+    { "KOL", "N", 5, 0 }, ; // количество услуг
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
+  Use ( cur_dir() + "tmp" )
+  r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
+  r_use( dir_server() + "hum_p", dir_server() + "hum_pv", "HP" )
   dbSeek( Str( mnomer, 5 ) )
   Do While hp->n_kvit == mnomer .and. !Eof()
     updatestatus()
@@ -6358,10 +6358,10 @@ Function f3r_s_plat()
   Else
     mywait()
     reg_print := 2
-    r_use( dir_server + "kartotek",, "KART" )
-    Use ( cur_dir + "tmp" ) New Alias TMP
+    r_use( dir_server() + "kartotek",, "KART" )
+    Use ( cur_dir() + "tmp" ) New Alias TMP
     Set Relation To kod_k into KART
-    Index On Str( kv_cia, 6 ) + pdate to ( cur_dir + "tmp" )
+    Index On Str( kv_cia, 6 ) + pdate to ( cur_dir() + "tmp" )
     arr_title := { ;
       "───────────────────────────────────────────┬────────┬──────┬─────┬─────────────", ;
       "                                           │  Дата  │№ кви-│ Кол.│  Стоимость  ", ;
@@ -6391,7 +6391,7 @@ Function f3r_s_plat()
       Skip
     Enddo
     add_string( Replicate( "─", sh ) )
-    add_string( PadR( lstr( tmp->( LastRec() ) ) + " чел.", 20 ) + PadL( "Итого : " + lput_kop( ss ), sh - 20 ) )
+    add_string( PadR( lstr( tmp->( LastRec() ) ) + " чел.", 20 ) + PadL( "Итого : " + lput_kop( ss ), sh -20 ) )
     Close databases
     FClose( fp )
     rest_box( buf )
@@ -6413,7 +6413,7 @@ Function f4r_s_plat()
     blk := {| b, ar, nDim, nElem, nKey| f1_s_vyruchka( b, ar, nDim, nElem, nKey ) }, ;
     i, j, k, arr[ 2 ], s, buf1, reg1, min_date, max_date, ;
     fl_exit := .f., sh, HH := 78, reg_print, ;
-    arr_title, name_file := "boln_usl" + stxt, ;
+    arr_title, name_file := cur_dir() + "boln_usl.txt", ;
     vstoim := 0, sstoim := 0, old := 0, arr_otd, ;
     speriod, begin_date, end_date, cp := " ", ss := 0
 
@@ -6424,7 +6424,7 @@ Function f4r_s_plat()
   Endif
   slyear := Chr( Val( SubStr( StrZero( lyear, 4 ), 1, 2 ) ) ) + ;
     Chr( Val( SubStr( StrZero( lyear, 4 ), 3, 2 ) ) )
-  arrn_browse( T_ROW, T_COL - 5, MaxRow() -2, T_COL + 15, arr_kv, mas12, 1,, color0, ;
+  arrn_browse( T_ROW, T_COL -5, MaxRow() -2, T_COL + 15, arr_kv, mas12, 1,, color0, ;
     "Квитанции", col_tit_popup,,, mpic, blk, { .t., .t., .t. } )
   If !f_esc_enter( "поиска" )
     Return Nil
@@ -6439,20 +6439,20 @@ Function f4r_s_plat()
     Endif
   Next
   //
-  dbCreate( cur_dir + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
+  dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
   { "rec_hp", "N", 7, 0 }, ; // номер записи по базе "hum_p"
   { "kv_cia", "N", 6, 0 }, ; // номер квитанции
-  { "KOL","N", 5, 0 }, ; // количество услуг
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуги
-  Use ( cur_dir + "tmp" )
-  g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HPU" )
-  g_use( dir_server + "hum_p",, "HP" )
+  { "KOL", "N", 5, 0 }, ; // количество услуг
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуги
+  Use ( cur_dir() + "tmp" )
+  g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
+  g_use( dir_server() + "hum_p",, "HP" )
   If glob_mo[ _MO_KOD_TFOMS ] == '114504' // Поликлиника 4
-    Index On n_kvit to ( cur_dir + "tmp_hp" ) ;
+    Index On n_kvit to ( cur_dir() + "tmp_hp" ) ;
       For f_is_uch( st_a_uch, hp->lpu ) .and. Left( hp->pdate, 2 ) == slyear ;
       .and. AScan( arr_kv, {| x| Between( hp->N_kvit, x[ 1 ], x[ 2 ] ) } ) > 0
   Else
-    Index On n_kvit to ( cur_dir + "tmp_hp" ) ;
+    Index On n_kvit to ( cur_dir() + "tmp_hp" ) ;
       For f_is_uch( st_a_uch, hp->lpu ) .and. Left( hp->pdate, 2 ) == slyear ;
       .and. AScan( arr_kv, {| x| Between( hp->kv_cia, x[ 1 ], x[ 2 ] ) } ) > 0
   Endif
@@ -6495,17 +6495,17 @@ Function f4r_s_plat()
   Else
     mywait()
     reg_print := 5
-    g_use( dir_server + "plat_ms", dir_server + "plat_ms", "MS" )
-    g_use( dir_server + "uslugi",, "USL" )
-    g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HPU" )
+    g_use( dir_server() + "plat_ms", dir_server() + "plat_ms", "MS" )
+    g_use( dir_server() + "uslugi",, "USL" )
+    g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
     Set Relation To u_kod into USL
-    g_use( dir_server + "mo_otd",, "OTD" )
-    g_use( dir_server + "hum_p",, "HP" )
+    g_use( dir_server() + "mo_otd",, "OTD" )
+    g_use( dir_server() + "hum_p",, "HP" )
     Set Relation To otd into OTD
-    g_use( dir_server + "kartotek",, "KART" )
-    Use ( cur_dir + "tmp" ) New Alias TMP
+    g_use( dir_server() + "kartotek",, "KART" )
+    Use ( cur_dir() + "tmp" ) New Alias TMP
     Set Relation To kod_k into KART, To rec_hp into HP
-    Index On Str( kv_cia, 6 ) to ( cur_dir + "tmp" )
+    Index On Str( kv_cia, 6 ) to ( cur_dir() + "tmp" )
     arr_title := { ;
       "─────┬──────────┬────────────────────────────────────────────┬──────┬─────┬─────────", ;
       "Отде-│Номер амб.│ Ф.И.О. больного                            │№ кви-│ Кол.│Стоимость", ;
@@ -6528,7 +6528,7 @@ Function f4r_s_plat()
     AEval( arr_title, {| x| add_string( x ) } )
     Go Top
     Do While !Eof()
-      If verify_ff( HH - 1, .t., sh )
+      If verify_ff( HH -1, .t., sh )
         AEval( arr_title, {| x| add_string( x ) } )
       Endif
       If ( i := AScan( arr_otd, {| x| x[ 1 ] == hp->otd } ) ) == 0
@@ -6616,7 +6616,7 @@ Function f4r_s_plat()
     If verify_ff( HH - Len( arr_otd ) -1, .t., sh )
       AEval( arr_title, {| x| add_string( x ) } )
     Endif
-    add_string( PadR( lstr( tmp->( LastRec() ) ) + " чел.", 20 ) + PadL( "Итого : " + lput_kop( ss ), sh - 20 ) )
+    add_string( PadR( lstr( tmp->( LastRec() ) ) + " чел.", 20 ) + PadL( "Итого : " + lput_kop( ss ), sh -20 ) )
     Close databases
     ASort( arr_otd, {| x, y| Upper( x[ 2 ] ) < Upper( y[ 2 ] ) } )
     For i := 1 To Len( arr_otd )
@@ -6640,20 +6640,20 @@ Function f4r_s_plat()
 //
 Function f5r_s_plat()
 
-  Local buf, i, k, mas12, arr_m, n_file := "spis_kvi" + stxt, sh := 64, ssum := 0
+  Local buf, i, k, mas12, arr_m, n_file := cur_dir() + "spis_kvi.txt", sh := 64, ssum := 0
 
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
   buf := save_row( MaxRow() )
   mywait()
-  dbCreate( cur_dir + "tmp", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
+  dbCreate( cur_dir() + "tmp", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
   { "kv_cia", "N", 6, 0 }, ; // номер квитанции
   { "stoim", "N", 10, 2 } } ) // сумма квитанции
-  Use ( cur_dir + "tmp" )
-  Index On Str( kv_cia, 6 ) to ( cur_dir + "tmp" )
-  g_use( dir_server + "hum_p",, "HP" )
-  Index On n_kvit to ( cur_dir + "tmp_hp" ) ;
+  Use ( cur_dir() + "tmp" )
+  Index On Str( kv_cia, 6 ) to ( cur_dir() + "tmp" )
+  g_use( dir_server() + "hum_p",, "HP" )
+  Index On n_kvit to ( cur_dir() + "tmp_hp" ) ;
     For f_is_uch( st_a_uch, hp->lpu ) .and. Between( hp->pdate, arr_m[ 7 ], arr_m[ 8 ] )
   Go Top
   Do While !Eof()
@@ -6671,7 +6671,7 @@ Function f5r_s_plat()
   Enddo
   //
   Select TMP
-  Index On Str( n_kvit, 5 ) + Str( kv_cia, 6 ) to ( cur_dir + "tmp" )
+  Index On Str( n_kvit, 5 ) + Str( kv_cia, 6 ) to ( cur_dir() + "tmp" )
   Go Top
   mas12 := {} ; AAdd( mas12, { tmp->n_kvit, tmp->kv_cia, tmp->kv_cia, 0 } ) ; i := 1
   Do While !Eof()
@@ -6709,10 +6709,10 @@ Function f5r_s_plat()
     Endif
     If mas12[ i, 2 ] == mas12[ i, 3 ]
       add_string( PadR( "Квитанция N " + lstr( mas12[ i, 2 ] ), 32 ) + ;
-        PadL( expand_value( mas12[ i, 4 ], 2 ), sh - 32 ) )
+        PadL( expand_value( mas12[ i, 4 ], 2 ), sh -32 ) )
     Else
       add_string( PadR( "Квитанции с N " + lstr( mas12[ i, 2 ] ) + " по N " + lstr( mas12[ i, 3 ] ), 32 ) + ;
-        PadL( expand_value( mas12[ i, 4 ], 2 ), sh - 32 ) )
+        PadL( expand_value( mas12[ i, 4 ], 2 ), sh -32 ) )
     Endif
   Next
   add_string( "" )
@@ -6734,7 +6734,7 @@ Function pl_vyruchka()
   Local lyear, slyear, s_date, arr_kv := { { 1, 999999 } }, buf, i, k, ;
     mas12 := { { 1, " с ..." }, { 2, "по ..." } }, mpic := { { 6, 0 }, { 6, 0 } }, ;
     blk := {| b, ar, nDim, nElem, nKey| f1_s_vyruchka( b, ar, nDim, nElem, nKey ) }, ;
-    n_file := "s_vyruch" + stxt, sh := 64, ssum := 0, hGauge
+    n_file := cur_dir() + "s_vyruch.txt", sh := 64, ssum := 0, hGauge
 
   If ( lyear := input_value( 20, 15, 22, 64, color1, ;
       "За какой год желаете получить информацию", ;
@@ -6749,7 +6749,7 @@ Function pl_vyruchka()
   If s_date == NIL
     Return Nil
   Endif
-  arrn_browse( T_ROW, T_COL - 5, MaxRow() -2, T_COL + 15, arr_kv, mas12, 1,, color0, ;
+  arrn_browse( T_ROW, T_COL -5, MaxRow() -2, T_COL + 15, arr_kv, mas12, 1,, color0, ;
     "Квитанции", col_tit_popup,,, mpic, blk, { .t., .t., .t. } )
   If f_esc_enter( "поиска" )
     buf := save_row( MaxRow() )
@@ -6761,13 +6761,13 @@ Function pl_vyruchka()
         ADel( arr_kv, i ) ; --k
       Endif
     Next
-    dbCreate( cur_dir + "tmp", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
+    dbCreate( cur_dir() + "tmp", { { "n_kvit", "N", 5, 0 }, ; // номер квитанционной книжки
     { "kv_cia", "N", 6, 0 }, ; // номер квитанции
     { "stoim", "N", 10, 2 } } ) // сумма квитанции
-    Use ( cur_dir + "tmp" )
-    Index On Str( kv_cia, 6 ) to ( cur_dir + "tmp" )
-    g_use( dir_server + "hum_p",, "HP" )
-    Index On n_kvit to ( cur_dir + "tmp_hp" ) ;
+    Use ( cur_dir() + "tmp" )
+    Index On Str( kv_cia, 6 ) to ( cur_dir() + "tmp" )
+    g_use( dir_server() + "hum_p",, "HP" )
+    Index On n_kvit to ( cur_dir() + "tmp_hp" ) ;
       For f_is_uch( st_a_uch, hp->lpu ) .and. Left( hp->pdate, 2 ) == slyear ;
       .and. AScan( arr_kv, {| x| Between( hp->kv_cia, x[ 1 ], x[ 2 ] ) } ) > 0
     Go Top
@@ -6786,7 +6786,7 @@ Function pl_vyruchka()
     Enddo
     //
     Select TMP
-    Index On Str( n_kvit, 5 ) + Str( kv_cia, 6 ) to ( cur_dir + "tmp" )
+    Index On Str( n_kvit, 5 ) + Str( kv_cia, 6 ) to ( cur_dir() + "tmp" )
     Go Top
     mas12 := {} ; AAdd( mas12, { tmp->n_kvit, tmp->kv_cia, tmp->kv_cia, 0 } ) ; i := 1
     Do While !Eof()
@@ -6823,10 +6823,10 @@ Function pl_vyruchka()
       Endif
       If mas12[ i, 2 ] == mas12[ i, 3 ]
         add_string( PadR( "Квитанция N " + lstr( mas12[ i, 2 ] ), 32 ) + ;
-          PadL( expand_value( mas12[ i, 4 ], 2 ), sh - 32 ) )
+          PadL( expand_value( mas12[ i, 4 ], 2 ), sh -32 ) )
       Else
         add_string( PadR( "Квитанции с N " + lstr( mas12[ i, 2 ] ) + " по N " + lstr( mas12[ i, 3 ] ), 32 ) + ;
-          PadL( expand_value( mas12[ i, 4 ], 2 ), sh - 32 ) )
+          PadL( expand_value( mas12[ i, 4 ], 2 ), sh -32 ) )
       Endif
     Next
     add_string( "" )
@@ -6919,36 +6919,36 @@ Function po_proverka( k )
     AAdd( mas_pmt, "~Направитель==асистент" )
     AAdd( mas_msg, "Проверка на совпадение асистента и направителя" )
     AAdd( mas_fun, "Po_proverka(18)" )
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
     restuchotd( uch_otd )
   Case k == 11
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_pr_vr_as( 1 )
     Endif
   Case k == 12
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_pr_vr_as( 2 )
     Endif
   Case k == 13
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_pr_vr_as( 3 )
     Endif
   Case k == 14
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_pr_ot_pe()
     Endif
   Case k == 15
     po_pr_oms()
   Case k == 16
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_pr_vr_as( 4 )
     Endif
   Case k == 17
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_isp_nap( 1 )
     Endif
   Case k == 18
-    If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) != NIL
+    If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) != NIL
       po_isp_nap( 2 )
     Endif
   Endcase
@@ -6971,7 +6971,7 @@ Function po_proverka( k )
 Function po_isp_nap( reg )
 
   Local i, j, k, arr, fl, fl_exit := .f., buf := save_row( MaxRow() ), ;
-    s, sh, HH := 57, arr_title, name_file := "proverka" + stxt, ;
+    s, sh, HH := 57, arr_title, name_file := cur_dir() + "proverka.txt", ;
     arr_usl := {}
 
   If ( arr := year_month() ) == NIL
@@ -6984,24 +6984,24 @@ Function po_isp_nap( reg )
       1, "N+/BG", "R/BG",,, col1menu ) ) == 0
     Return Nil
   Elseif k == 2
-    dbCreate( cur_dir + "tmp", { ;
+    dbCreate( cur_dir() + "tmp", { ;
       { "U_KOD",    "N",      4,      0 }, ;  // код услуги
     { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
     { "U_NAME",     "C",     65,      0 } } )  // наименование услуги
-    Use ( cur_dir + "tmp" )
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Use ( cur_dir() + "tmp" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
-    Use ( cur_dir + "tmp" )
+    Use ( cur_dir() + "tmp" )
     dbEval( {|| AAdd( arr_usl, tmp->u_kod ) } )
     Use
   Endif
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
-  dbCreate( cur_dir + "tmp", { { "rec", "N", 7, 0 }, { "rec_vr", "N", 6, 0 }, { "sum_usl", "N", 8, 2 } } )
-  Use ( cur_dir + "tmp" ) new
-  g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-  g_use( dir_server + "hum_p", dir_server + "hum_pd", "HUMAN" )
+  dbCreate( cur_dir() + "tmp", { { "rec", "N", 7, 0 }, { "rec_vr", "N", 6, 0 }, { "sum_usl", "N", 8, 2 } } )
+  Use ( cur_dir() + "tmp" ) new
+  g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+  g_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
   dbSeek( DToS( arr[ 5 ] ), .t. )
   Do While human->k_data <= arr[ 6 ] .and. !Eof()
     updatestatus()
@@ -7059,14 +7059,14 @@ Function po_isp_nap( reg )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
     //
-    g_use( dir_server + "MO_pers",, "PERSO" )
-    g_use( dir_server + "kartotek",, "KART" )
+    g_use( dir_server() + "MO_pers",, "PERSO" )
+    g_use( dir_server() + "kartotek",, "KART" )
     Select HUMAN
     Set Index To
     Set Relation To kod_k into KART
     Select TMP
     Set Relation To rec into HUMAN
-    Index On Upper( kart->fio ) to ( cur_dir + "tmp" )
+    Index On Upper( kart->fio ) to ( cur_dir() + "tmp" )
     Go Top
     i := 0
     hGauge := gaugenew(,,, "Создание текстового файла", .t. )
@@ -7117,7 +7117,7 @@ Function po_isp_nap( reg )
 Function po_pr_vr_as( reg )
 
   Local i, j, k, arr, fl, fl_exit := .f., buf := save_row( MaxRow() ), ;
-    s, sh, HH := 57, arr_title, name_file := "proverka" + stxt, ;
+    s, sh, HH := 57, arr_title, name_file := cur_dir() + "proverka.txt", ;
     arr_usl := {}
 
   If ( arr := year_month() ) == NIL
@@ -7130,24 +7130,24 @@ Function po_pr_vr_as( reg )
       1, "N+/BG", "R/BG",,, col1menu ) ) == 0
     Return Nil
   Elseif k == 2
-    dbCreate( cur_dir + "tmp", { ;
+    dbCreate( cur_dir() + "tmp", { ;
       { "U_KOD",    "N",      4,      0 }, ;  // код услуги
     { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
     { "U_NAME",     "C",     65,      0 } } )  // наименование услуги
-    Use ( cur_dir + "tmp" )
-    Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+    Use ( cur_dir() + "tmp" )
+    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
-    Use ( cur_dir + "tmp" )
+    Use ( cur_dir() + "tmp" )
     dbEval( {|| AAdd( arr_usl, tmp->u_kod ) } )
     Use
   Endif
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
-  dbCreate( cur_dir + "tmp", { { "rec", "N", 7, 0 } } )
-  Use ( cur_dir + "tmp" ) new
-  g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-  g_use( dir_server + "hum_p", dir_server + "hum_pd", "HUMAN" )
+  dbCreate( cur_dir() + "tmp", { { "rec", "N", 7, 0 } } )
+  Use ( cur_dir() + "tmp" ) new
+  g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+  g_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
   dbSeek( DToS( arr[ 5 ] ), .t. )
   Do While human->k_data <= arr[ 6 ] .and. !Eof()
     updatestatus()
@@ -7207,13 +7207,13 @@ Function po_pr_vr_as( reg )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
     //
-    g_use( dir_server + "kartotek",, "KART" )
+    g_use( dir_server() + "kartotek",, "KART" )
     Select HUMAN
     Set Index To
     Set Relation To kod_k into KART
     Select TMP
     Set Relation To rec into HUMAN
-    Index On Upper( kart->fio ) to ( cur_dir + "tmp" )
+    Index On Upper( kart->fio ) to ( cur_dir() + "tmp" )
     Go Top
     i := 0
     hGauge := gaugenew(,,, "Создание текстового файла", .t. )
@@ -7247,7 +7247,7 @@ Function po_pr_vr_as( reg )
 Function po_pr_oms( reg )
 
   Local i, j, k, arr, fl, fl_exit := .f., buf := save_row( MaxRow() ), s, sh := 81, ;
-    HH := 57, name_file := "proverka" + stxt, arr_usl := {}, numer := 1
+    HH := 57, name_file := cur_dir() + "proverka.txt", arr_usl := {}, numer := 1
 
   If ( arr := year_month() ) == NIL
     Return Nil
@@ -7260,14 +7260,14 @@ Function po_pr_oms( reg )
   add_string( Center( arr[ 4 ], sh ) )
   //
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
-  g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "PHU" )
-  g_use( dir_server + "uslugi",, "USL" )
-  g_use( dir_server + "hum_p",, "PHUMAN" )
-  Index On Str( kod_k, 7 ) + DToS( n_data ) to ( cur_dir + "tmpp" )
-  g_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+  g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "PHU" )
+  g_use( dir_server() + "uslugi",, "USL" )
+  g_use( dir_server() + "hum_p",, "PHUMAN" )
+  Index On Str( kod_k, 7 ) + DToS( n_data ) to ( cur_dir() + "tmpp" )
+  g_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
   Set Filter To !eq_any( mest_inog, 6, 7 )
-  g_use( dir_server + "human", dir_server + "humans", "HUMAN" )
-  g_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+  g_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
+  g_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
   Select SCHET
   Go Top
   Do While !Eof()
@@ -7334,17 +7334,17 @@ Function po_pr_oms( reg )
 Function po_pr_ot_pe()
 
   Local i := 0, j, k, arr, fl, fl_exit := .f., buf := save_row( MaxRow() ), ;
-    s, sh, HH := 57, arr_title, name_file := "prov_otd" + stxt, ;
+    s, sh, HH := 57, arr_title, name_file := cur_dir() + "prov_otd.txt", ;
     arr_usl := {}
 
   If ( arr := year_month() ) == NIL
     Return Nil
   Endif
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
-  dbCreate( cur_dir + "tmp", { { "rec", "N", 7, 0 }, ;
+  dbCreate( cur_dir() + "tmp", { { "rec", "N", 7, 0 }, ;
     { "otd", "N", 3, 0 }, ;
     { "otd_new", "N", 3, 0 } } )
-  Use ( cur_dir + "tmp" ) new
+  Use ( cur_dir() + "tmp" ) new
   arr_title := { ;
     "─────────────────────────────────────────────────┬──────────┬──────────", ;
     "              Ф.И.О. больного                    │Дата окон.│  Сумма   ", ;
@@ -7360,10 +7360,10 @@ Function po_pr_ot_pe()
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
   //
-  g_use( dir_server + "kartotek",, "KART" )
-  g_use( dir_server + "mo_pers",, "PERSO" )
-  g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-  g_use( dir_server + "hum_p", dir_server + "hum_pd", "HUMAN" )
+  g_use( dir_server() + "kartotek",, "KART" )
+  g_use( dir_server() + "mo_pers",, "PERSO" )
+  g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+  g_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
   dbSeek( DToS( arr[ 5 ] ), .t. )
   Do While human->k_data <= arr[ 6 ] .and. !Eof()
     updatestatus()
@@ -7419,13 +7419,13 @@ Function po_pr_ot_pe()
         1, "N+/BG", "R/BG", 17,, col1menu ) ) == 2
       hGauge := gaugenew(,,, "Изменение кодов отделений", .t. )
       gaugedisplay( hGauge )
-      g_use( dir_server + "hum_p_u", { dir_server + "hum_p_u", ;
-        dir_server + "hum_p_uk", ;
-        dir_server + "hum_p_ud", ;
-        dir_server + "hum_p_uv", ;
-        dir_server + "hum_p_ua" }, "HU" )
+      g_use( dir_server() + "hum_p_u", { dir_server() + "hum_p_u", ;
+        dir_server() + "hum_p_uk", ;
+        dir_server() + "hum_p_ud", ;
+        dir_server() + "hum_p_uv", ;
+        dir_server() + "hum_p_ua" }, "HU" )
       Set Order To 0
-      Use ( cur_dir + "tmp" ) new
+      Use ( cur_dir() + "tmp" ) new
       Go Top
       Do While !Eof()
         gaugeupdate( hGauge, RecNo() / LastRec() )
@@ -7465,22 +7465,22 @@ Function pl_vzaimozach()
   Endif
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   //
-  dbCreate( cur_dir + "tmp", { { "kod_k","N", 7, 0 }, ; // код больного по картотеке
+  dbCreate( cur_dir() + "tmp", { { "kod_k", "N", 7, 0 }, ; // код больного по картотеке
   { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
-  { "pr_smo","N", 6, 0 }, ; // код предприятия / СМО
-  { "KOL","N", 5, 0 }, ; // количество листов учета
+  { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
+  { "KOL", "N", 5, 0 }, ; // количество листов учета
   { "D_POLIS", "C", 25, 0 }, ; // полис
-  { "N_DATA","D", 8, 0 }, ; // дата начала лечения
-  { "K_DATA","D", 8, 0 }, ; // дата окончания лечения
-  { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуг
-  Use ( cur_dir + "tmp" ) new
-  Index On Str( tip_usl, 1 ) + Str( pr_smo, 6 ) + Str( kod_k, 7 ) to ( cur_dir + "tmp" )
-  dbCreate( cur_dir + "tmp2", { { "rec_tmp", "N", 6, 0 }, ;
-    { "rec_hp","N", 7, 0 }, ;
+  { "N_DATA", "D", 8, 0 }, ; // дата начала лечения
+  { "K_DATA", "D", 8, 0 }, ; // дата окончания лечения
+  { "STOIM", "N", 10, 2 } } ) // итоговая стоимость услуг
+  Use ( cur_dir() + "tmp" ) new
+  Index On Str( tip_usl, 1 ) + Str( pr_smo, 6 ) + Str( kod_k, 7 ) to ( cur_dir() + "tmp" )
+  dbCreate( cur_dir() + "tmp2", { { "rec_tmp", "N", 6, 0 }, ;
+    { "rec_hp", "N", 7, 0 }, ;
     { "D_POLIS", "C", 25, 0 } } ) // полис
-  Use ( cur_dir + "tmp2" ) new
+  Use ( cur_dir() + "tmp2" ) new
   If pi1 == 2  // по дате окончания лечения
-    g_use( dir_server + "hum_p", dir_server + "hum_pd", "HP" )
+    g_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HP" )
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While hp->k_data <= arr_m[ 6 ] .and. !Eof()
       updatestatus()
@@ -7494,7 +7494,7 @@ Function pl_vzaimozach()
       Skip
     Enddo
   Else// pi1 == 3  // по дате закрытия листа учета
-    g_use( dir_server + "hum_p", dir_server + "hum_pc", "HP" )
+    g_use( dir_server() + "hum_p", dir_server() + "hum_pc", "HP" )
     For xx := 1 To 2
       Select HP
       dbSeek( Str( xx, 1 ) + "1" + DToS( arr_m[ 5 ] ), .t. )
@@ -7512,15 +7512,15 @@ Function pl_vzaimozach()
   Endif
   j := tmp->( LastRec() )
   If !fl_exit .and. j > 0
-    dbCreate( cur_dir + "tmp1", { { "name","C", 30, 0 }, ; // наименование предприятия
+    dbCreate( cur_dir() + "tmp1", { { "name", "C", 30, 0 }, ; // наименование предприятия
     { "tip_usl", "N", 1, 0 }, ; // 2-взаимозачет, 1-добр.СМО
-    { "pr_smo","N", 6, 0 }, ; // код предприятия / СМО
-    { "KOL","N", 6, 0 }, ; // количество больных
-    { "STOIM","N", 11, 2 } } ) // итоговая стоимость лечения
-    g_use( dir_server + "p_pr_vz",, "PRED" )
-    g_use( dir_server + "p_d_smo",, "SMO" )
-    Use ( cur_dir + "tmp1" ) new
-    Index On Str( tip_usl, 1 ) + Str( pr_smo, 6 ) to ( cur_dir + "tmp1" )
+    { "pr_smo", "N", 6, 0 }, ; // код предприятия / СМО
+    { "KOL", "N", 6, 0 }, ; // количество больных
+    { "STOIM", "N", 11, 2 } } ) // итоговая стоимость лечения
+    g_use( dir_server() + "p_pr_vz",, "PRED" )
+    g_use( dir_server() + "p_d_smo",, "SMO" )
+    Use ( cur_dir() + "tmp1" ) new
+    Index On Str( tip_usl, 1 ) + Str( pr_smo, 6 ) to ( cur_dir() + "tmp1" )
     Select TMP
     Go Top
     Do While !Eof()
@@ -7552,7 +7552,7 @@ Function pl_vzaimozach()
     j := tmp1->( LastRec() )
     mywait()
     Select TMP2
-    Index On Str( rec_tmp, 6 ) to ( cur_dir + "tmp2" )
+    Index On Str( rec_tmp, 6 ) to ( cur_dir() + "tmp2" )
   Endif
   Close databases
   rest_box( buf )
@@ -7582,8 +7582,8 @@ Function pl_vzaimozach()
     t_arr[ BR_EDIT ] := {| nk, ob| f1_pl_vzaim( nk, ob, "edit" ) }
     t_arr[ BR_STAT_MSG ] := {|| ;
       status_key( "^<Esc>^ - выход;  ^<Enter>^ - выбор для печати; ^<F9>^ - сводная печать" ) } // 16.04.08
-    Use ( cur_dir + "tmp1" ) new
-    Index On Upper( name ) to ( cur_dir + "tmp1" )
+    Use ( cur_dir() + "tmp1" ) new
+    Index On Upper( name ) to ( cur_dir() + "tmp1" )
     Go Top
     edit_browse( t_arr )
     Close databases
@@ -7598,7 +7598,7 @@ Function pl_vzaimozach()
 Function f1_pl_vzaim( nKey, oBrow, regim )
 
   Local ret := -1, buf, fl := .f., t_arr[ BR_LEN ]
-  Local sm := 0, HH := 52, n_file := "platn.txt", sum3 := 0, sh
+  Local sm := 0, HH := 52, n_file := cur_dir() + "platn.txt", sum3 := 0, sh
   Local arr_title := { ;
     "───────────────────────────────────────────────────┬────────┬───────────", ;
     "                  Услуги                           │ Кол-во │   Сумма   ", ;
@@ -7634,33 +7634,33 @@ Function f1_pl_vzaim( nKey, oBrow, regim )
     t_arr[ BR_STAT_MSG ] := {|| ;
       status_key( "^<Esc>^ - выход;  ^<Enter>^ - выбор для печати;  ^<F9>^ - печать реестра" ) }
     mywait()
-    Use ( cur_dir + "tmp2" ) index ( cur_dir + "tmp2" ) new
-    g_use( dir_server + "kartotek",, "KART" )
-    Use ( cur_dir + "tmp" ) New Alias TMP
+    Use ( cur_dir() + "tmp2" ) index ( cur_dir() + "tmp2" ) new
+    g_use( dir_server() + "kartotek",, "KART" )
+    Use ( cur_dir() + "tmp" ) New Alias TMP
     Set Relation To kod_k into KART
-    Index On Upper( kart->fio ) to ( cur_dir + "tmp" ) ;
+    Index On Upper( kart->fio ) to ( cur_dir() + "tmp" ) ;
       For tmp1->tip_usl == tmp->tip_usl .and. tmp1->pr_smo == tmp->pr_smo
     edit_browse( t_arr )
     Close databases
     RestScreen( buf )
-    Use ( cur_dir + "tmp1" ) index ( cur_dir + "tmp1" ) new
+    Use ( cur_dir() + "tmp1" ) index ( cur_dir() + "tmp1" ) new
     Goto ( rec_tmp1 )
   Elseif regim == "edit" .and. nKey == K_F9
     rec_tmp1 := tmp1->( RecNo() )
     buf := SaveScreen()
     mywait()
-    dbCreate( cur_dir + "tmp9", { { "kod",     "N", 4,   0 }, ;
+    dbCreate( cur_dir() + "tmp9", { { "kod",     "N", 4,   0 }, ;
       { "name",    "C", 60,  0 }, ;
       { "kod_1",   "C", 10,  0 }, ;
       { "kol_vo",  "N", 10,  0 }, ;
       { "summa",   "N", 12,  2 } } )
-    Use ( cur_dir + "tmp2" ) index ( cur_dir + "tmp2" ) new
-    Use ( cur_dir + "tmp9" ) new
-    Index On kod to ( cur_dir + "tmp_u" )
-    g_use( dir_server + "hum_p_U", dir_server + "hum_p_U", "HUM_U",,, .t. )
-    g_use( dir_server + "hum_p",, "HP" )
-    Use ( cur_dir + "tmp" ) New Alias TMP
-    Index On Str( tmp->kol, 6 ) to ( cur_dir + "tmp" ) ;
+    Use ( cur_dir() + "tmp2" ) index ( cur_dir() + "tmp2" ) new
+    Use ( cur_dir() + "tmp9" ) new
+    Index On kod to ( cur_dir() + "tmp_u" )
+    g_use( dir_server() + "hum_p_U", dir_server() + "hum_p_U", "HUM_U",,, .t. )
+    g_use( dir_server() + "hum_p",, "HP" )
+    Use ( cur_dir() + "tmp" ) New Alias TMP
+    Index On Str( tmp->kol, 6 ) to ( cur_dir() + "tmp" ) ;
       For tmp1->tip_usl == tmp->tip_usl .and. tmp1->pr_smo == tmp->pr_smo
     Go Top
     Do While !Eof()
@@ -7687,7 +7687,7 @@ Function f1_pl_vzaim( nKey, oBrow, regim )
       Select TMP
       Skip
     Enddo
-    g_use( dir_server + "uslugi",, "USL" )
+    g_use( dir_server() + "uslugi",, "USL" )
     Select TMP9
     Go Top
     Do While !Eof()
@@ -7700,7 +7700,7 @@ Function f1_pl_vzaim( nKey, oBrow, regim )
       Skip
     Enddo
     Select TMP9
-    Index On kod_1 to ( cur_dir + "tmp_u" )
+    Index On kod_1 to ( cur_dir() + "tmp_u" )
     fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
     add_string( Center( "Оплата услуг", sh ) )
     add_string( Center( "по дате начала лечения", sh ) )
@@ -7735,7 +7735,7 @@ Function f1_pl_vzaim( nKey, oBrow, regim )
     FClose( fp )
     viewtext( n_file,,,, ( sh > 80 ),,, 1 )
     RestScreen( buf )
-    Use ( cur_dir + "tmp1" ) index ( cur_dir + "tmp1" ) new
+    Use ( cur_dir() + "tmp1" ) index ( cur_dir() + "tmp1" ) new
     Goto ( rec_tmp1 )
   Endif
 
@@ -7748,7 +7748,7 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
 
   Static sf_nomer, sf_date, sa_nomer, sa_date
   Local ret := -1, buf, fl := .f., rec, tmp_color, ah, ahu, i, j, k, fl_one, ;
-    s, sh, HH := 76, reg_print, arr_title, name_file := "vzaimoza" + stxt, ;
+    s, sh, HH := 76, reg_print, arr_title, name_file := cur_dir() + "vzaimoza.txt", ;
     d, sd, kol_usl, sk, ss, is_fio, is_sokr, old, mas_pmt
 
   Do Case
@@ -7771,7 +7771,7 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
       Go Top
       dbEval( {|| sk++, ss += tmp->stoim } )
       Go Top
-      Do While ( i := popup_prompt( T_ROW, T_COL - 5, i, mas_pmt,,, ;
+      Do While ( i := popup_prompt( T_ROW, T_COL -5, i, mas_pmt,,, ;
           "BG+/RB,W+/R,W+/RB,GR+/R" ) ) > 0
         If eq_any( i, 1, 3 )
           If ( k := input_diapazon( MaxRow() -4, 9, MaxRow() -2, 68, color8, ;
@@ -7801,13 +7801,13 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
           rees_new_vzaim_pol3( name_file )
         Endif
         Close databases
-        Use ( cur_dir + "tmp1" ) index ( cur_dir + "tmp1" ) new
+        Use ( cur_dir() + "tmp1" ) index ( cur_dir() + "tmp1" ) new
         Goto ( rec_tmp1 )
-        Use ( cur_dir + "tmp2" ) index ( cur_dir + "tmp2" ) new
-        g_use( dir_server + "kartotek",, "KART" )
-        Use ( cur_dir + "tmp" ) New Alias TMP
+        Use ( cur_dir() + "tmp2" ) index ( cur_dir() + "tmp2" ) new
+        g_use( dir_server() + "kartotek",, "KART" )
+        Use ( cur_dir() + "tmp" ) New Alias TMP
         Set Relation To kod_k into KART
-        Set Index to ( cur_dir + "tmp" )
+        Set Index to ( cur_dir() + "tmp" )
         Goto ( rec )
       Enddo
     Case nKey == K_ENTER
@@ -7817,18 +7817,18 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
       If is_zf_stomat == 1
         use_base( "humanst" )
       Endif
-      g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HPU" )
-      g_use( dir_server + "hum_p",, "HP" )
+      g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
+      g_use( dir_server() + "hum_p",, "HP" )
       Select TMP2
       find ( Str( tmp->( RecNo() ), 6 ) )
       Do While tmp2->rec_tmp == tmp->( RecNo() ) .and. !Eof()
         Select HP
         Goto ( tmp2->rec_hp )
-        arr := { hp->KOD_DIAG,;
-          hp->SOPUT_B1,;
-          hp->SOPUT_B2,;
-          hp->SOPUT_B3,;
-          hp->SOPUT_B4,;
+        arr := { hp->KOD_DIAG, ;
+          hp->SOPUT_B1, ;
+          hp->SOPUT_B2, ;
+          hp->SOPUT_B3, ;
+          hp->SOPUT_B4, ;
           hp->SOPUT_B5 }
         For i := 1 To Len( arr )
           If !Empty( arr[ i ] ) .and. AScan( ah, arr[ i ] ) == 0
@@ -7871,9 +7871,9 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
         humanst->( dbCloseArea() )
       Endif
       //
-      g_use( dir_server + "plat_ms",, "PMS" )
-      g_use( dir_server + "mo_pers",, "perso" )
-      g_use( dir_server + "uslugi",, "USL" )
+      g_use( dir_server() + "plat_ms",, "PMS" )
+      g_use( dir_server() + "mo_pers",, "perso" )
+      g_use( dir_server() + "uslugi",, "USL" )
       For i := 1 To Len( ahu )
         // услуга
         Select USL
@@ -7924,7 +7924,7 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
         "────────┴──────────────────────────────────────┴─────┴─────────┴────────────────────" }
       sh := Len( arr_title[ 1 ] )
       fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
-      r_use( dir_server + "organiz",, "ORG" )
+      r_use( dir_server() + "organiz",, "ORG" )
       add_string( AllTrim( org->name ) )
       org->( dbCloseArea() )
       add_string( "" )
@@ -7960,7 +7960,7 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
             add_string( Replicate( " - ", sh / 3 ) )
           Endif
         Else
-          add_string( PadL( "Итого за " + date_8( d ) + ": " + lput_kop( sd ), sh - 21, "-" ) )
+          add_string( PadL( "Итого за " + date_8( d ) + ": " + lput_kop( sd ), sh -21, "-" ) )
           sd := 0
         Endif
         d := ahu[ i, 1 ]
@@ -7973,10 +7973,10 @@ Function f2_pl_vzaim( nKey, oBrow, regim )
         sd += ahu[ i, 5 ]
       Next
       If !fl_one
-        add_string( PadL( "Итого за " + date_8( d ) + ": " + lput_kop( sd ), sh - 21, "-" ) )
+        add_string( PadL( "Итого за " + date_8( d ) + ": " + lput_kop( sd ), sh -21, "-" ) )
       Endif
       add_string( Replicate( "─", sh ) )
-      add_string( PadL( "Итого : " + put_val( kol_usl, 4 ) + put_kope( tmp->stoim, 12 ), sh - 21 ) )
+      add_string( PadL( "Итого : " + put_val( kol_usl, 4 ) + put_kope( tmp->stoim, 12 ), sh -21 ) )
       add_string( "" )
       add_string( "" )
       add_string( "         Зав.отделением _________________                 Дата ______________" )
@@ -8034,7 +8034,7 @@ Function f3_pl_vzaim()
 Function vr_vzaimozach( regim )
 
   Local i, j, k, fl, fl_exit := .f., buf := save_row( MaxRow() ), ;
-    sh, HH := 60, reg_print := 2, arr_title, n_file := "vr_vzaim" + stxt
+    sh, HH := 60, reg_print := 2, arr_title, n_file := cur_dir() + "vr_vzaim.txt"
   Private arr_m
 
   If ( arr_m := year_month() ) == NIL
@@ -8042,26 +8042,26 @@ Function vr_vzaimozach( regim )
   Endif
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   //
-  dbCreate( cur_dir + "tmp", { { "kod",        "N",      4,      0 }, ; // код персонала
+  dbCreate( cur_dir() + "tmp", { { "kod",        "N",      4,      0 }, ; // код персонала
   { "FIO",        "C",     50,      0 }, ;  // Ф.И.О. врача
-  { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
+    { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
   { "KOL",    "N",      6,      0 }, ;  // количество услуг
     { "STOIM_OB",   "N",     12,      2 }, ;  // итоговая стоимость услуг
   { "STOIM",    "N",     12,      2 }, ;  // итоговая стоимость услуг
-  { "ZARPLATA",   "N",     12,      2 } } )  // на зарплату
-  Use ( cur_dir + "tmp" )
-  Index On Str( kod, 4 ) to ( cur_dir + "tmp" )
+    { "ZARPLATA",   "N",     12,      2 } } )  // на зарплату
+  Use ( cur_dir() + "tmp" )
+  Index On Str( kod, 4 ) to ( cur_dir() + "tmp" )
   useuch_usl()
-  g_use( dir_server + "uslugi",, "USL" )
+  g_use( dir_server() + "uslugi",, "USL" )
   If eq_any( is_oplata, 5, 6, 7 )
     open_opl_5()
   Endif
-  g_use( dir_server + "mo_pers",, "perso" )
-  g_use( dir_server + "plat_ms",, "PMS" )
-  g_use( dir_server + "kartotek",, "KART" )
-  g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
+  g_use( dir_server() + "mo_pers",, "perso" )
+  g_use( dir_server() + "plat_ms",, "PMS" )
+  g_use( dir_server() + "kartotek",, "KART" )
+  g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
   If pi1 == 2
-    g_use( dir_server + "hum_p", dir_server + "hum_pd", "HUMAN" )
+    g_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
       updatestatus()
@@ -8079,7 +8079,7 @@ Function vr_vzaimozach( regim )
       Skip
     Enddo
   Else
-    g_use( dir_server + "hum_p", dir_server + "hum_pc", "HUMAN" )
+    g_use( dir_server() + "hum_p", dir_server() + "hum_pc", "HUMAN" )
     For xx := 0 To 2
       Select HUMAN
       dbSeek( Str( xx, 1 ) + "1" + DToS( arr_m[ 5 ] ), .t. )
@@ -8131,8 +8131,8 @@ Function vr_vzaimozach( regim )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
     skol := sstoim := sstoim_ob := szarplata := 0
-    Use ( cur_dir + "tmp" ) new
-    Index On Upper( fio ) to ( cur_dir + "tmp" ) For stoim > 0
+    Use ( cur_dir() + "tmp" ) new
+    Index On Upper( fio ) to ( cur_dir() + "tmp" ) For stoim > 0
     Go Top
     Do While !Eof()
       If verify_ff( HH, .t., sh )
@@ -8268,7 +8268,7 @@ Function pr_opl_vz()
 
   Local i, j, arr, begin_date, end_date, s, buf := save_row( MaxRow() ), ;
     fl_exit := .f., sh, HH := 58, reg_print, ssumma := 0, ;
-    arr_title, name_file := "vzoplata" + stxt, arr_m, adbf, ;
+    arr_title, name_file := cur_dir() + "vzoplata.txt", arr_m, adbf, ;
     menu_opl := { { "безналичн.", 0 }, ;
     { "наличными ", 1 }, ;
     { "в/зачет   ", 2 } }
@@ -8290,11 +8290,11 @@ Function pr_opl_vz()
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
   //
-  g_use( dir_server + "kartotek",, "KART" )
-  g_use( dir_server + "p_pr_vz",, "VZ" )
-  g_use( dir_server + "p_d_smo",, "SMO" )
-  g_use( dir_server + "plat_vz",, "OPL" )
-  Index On DToS( date_opl ) + Str( tip, 1 ) + Str( pr_smo, 6 ) + Str( kod_k, 7 ) to ( cur_dir + "tmp" ) ;
+  g_use( dir_server() + "kartotek",, "KART" )
+  g_use( dir_server() + "p_pr_vz",, "VZ" )
+  g_use( dir_server() + "p_d_smo",, "SMO" )
+  g_use( dir_server() + "plat_vz",, "OPL" )
+  Index On DToS( date_opl ) + Str( tip, 1 ) + Str( pr_smo, 6 ) + Str( kod_k, 7 ) to ( cur_dir() + "tmp" ) ;
     For Between( date_opl, arr_m[ 5 ], arr_m[ 6 ] ) progress
   Go Top
   Do While !Eof()
@@ -8426,11 +8426,11 @@ Function get_slugba( k, r, c )
   Local ret, r1, r2
 
   If ( r1 := r + 1 ) > MaxRow() / 2
-    r2 := r - 1 ; r1 := 2
+    r2 := r -1 ; r1 := 2
   Else
     r2 := MaxRow() -2
   Endif
-  g_use( dir_server + "slugba", dir_server + "slugba", "SL" )
+  g_use( dir_server() + "slugba", dir_server() + "slugba", "SL" )
   If k > 0
     find ( Str( k, 3 ) )
   Endif
@@ -8465,7 +8465,7 @@ Function input_kperso()
     { 2, "  Ф.И.О." } }, ;
     blk := {| b, ar, nDim, nElem, nKey| f1_i_kperso( b, ar, nDim, nElem, nKey ) }
 
-  g_use( dir_server + "mo_pers", dir_server + "mo_pers", "PERSO" )
+  g_use( dir_server() + "mo_pers", dir_server() + "mo_pers", "PERSO" )
   If Len( mas1 ) == 0
     AAdd( mas1, { 0, Space( 50 ), 0 } )
   Endif
@@ -8531,8 +8531,8 @@ Function ob2_v_usl( is_get, r1, mtitul )
 
   Default is_get To .f., r1 To T_ROW
   If r1 > 14 ; r1 := 14 ; Endif
-  r_use( dir_server + "uslugi", dir_server + "uslugish", "USL" )
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpk" ), ( cur_dir + "tmpn" ) New Alias TMP
+  r_use( dir_server() + "uslugi", dir_server() + "uslugish", "USL" )
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpk" ), ( cur_dir() + "tmpn" ) New Alias TMP
   Set Order To 2
   t_arr[ BR_TOP ] := r1
   t_arr[ BR_BOTTOM ] := MaxRow() -2
@@ -8579,7 +8579,7 @@ Function ob21v_usl( nKey, oBrow, regim, mtitul )
       mywait()
       rec := RecNo()
       Private reg_print := 2
-      n_file := "ob2_v_us" + stxt
+      n_file := cur_dir() + "ob2_v_us.txt"
       fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
       add_string( "" )
       add_string( Center( mtitul, sh ) )
@@ -8605,7 +8605,7 @@ Function ob21v_usl( nKey, oBrow, regim, mtitul )
       Save Screen To buf
       Private mshifr := Space( 10 )
       tmp_color := SetColor( cDataCScr )
-      box_shadow( k, pc1 + 1, 21, pc2 - 1,, "Добавление услуги", cDataPgDn )
+      box_shadow( k, pc1 + 1, 21, pc2 -1,, "Добавление услуги", cDataPgDn )
       SetColor( cDataCGet )
       @ k + 1, pc1 + 27 Say "Шифр услуги" Get mshifr Picture "@!" ;
         Valid valid_shifr()
@@ -8714,7 +8714,7 @@ Function inputn_otd( r, c, fl_all_uch, fl_all_otd, a_inp_uch, /*@*/c_otd)
     Elseif glob_task == X_ORTO
       pole += "o" ; pole2 += "o"
     Endif
-    r_use( dir_server + "mo_otd",, "OTD" )
+    r_use( dir_server() + "mo_otd",, "OTD" )
     Go Top
     Do While !Eof()
       If otd->kod_lpu == glob_uch[ 1 ] .and. ;
@@ -8734,7 +8734,7 @@ Function inputn_otd( r, c, fl_all_uch, fl_all_otd, a_inp_uch, /*@*/c_otd)
     Endif
     If r < 0 // т.е. GET находится внизу экрана
       k := Abs( r ) -2
-      If ( r := k - count_otd -1 ) < 2
+      If ( r := k - count_otd - 1 ) < 2
         r := 2
       Endif
     Else
@@ -8838,7 +8838,7 @@ Function inputn_uch( r, c, date1, date2, /*@*/c_uch)
   Local i, k, mas_u := {}, mas := {}, t_mas, c2, ;
     buf := SaveScreen(), tmp_select := Select(), l_a_uch
 
-  r_use( dir_server + "mo_uch",, "UCH" )
+  r_use( dir_server() + "mo_uch",, "UCH" )
   Go Top
   Do While !Eof()
     If between_date( uch->DBEGIN, uch->DEND, date1, date2 )
@@ -8861,7 +8861,7 @@ Function inputn_uch( r, c, date1, date2, /*@*/c_uch)
   Else
     If r < 0 // т.е. GET находится внизу экрана
       k := Abs( r ) -2
-      If ( r := k - count_uch -1 ) < 2
+      If ( r := k - count_uch - 1 ) < 2
         r := 2
       Endif
     Else
@@ -8924,7 +8924,7 @@ Function usl_p_kart( mkod_human, mkod_lpu )
 
   Local k
 
-  r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server() + "kartotek",, "KART" )
   Goto ( glob_kartotek )
   Private smvzros_reb := kart->vzros_reb, ;
     smdate_r := kart->date_r, ;
@@ -8946,7 +8946,7 @@ Function fp_ret_lpu( k, r, c )
   If r < 13
     r1 := r + 1
   Else
-    r2 := r - 1
+    r2 := r -1
   Endif
   If inpute_otd( r1, c, r2 )
     mas := { glob_uch[ 1 ], PadR( glob_uch[ 2 ], 30 ) }
@@ -8961,10 +8961,10 @@ Function fp_ret_lpu( k, r, c )
 Function sv_ved_plat()
 
   Local arr, arr_m, buf, arr_title, sh, HH := 40, reg_print := 3, ;
-    n_file := "svod_ved" + stxt, arr_otd := {}, old_kateg, lfio
+    n_file := cur_dir() + "svod_ved.txt", arr_otd := {}, old_kateg, lfio
 
   pi := 3
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   Private ym_kol_mes := 1
@@ -8972,7 +8972,7 @@ Function sv_ved_plat()
     Return Nil
   Endif
   arr_m := AClone( arr )
-  g_use( dir_server + "mo_otd",, "OTD" )
+  g_use( dir_server() + "mo_otd",, "OTD" )
   dbEval( {|| AAdd( arr_otd, { otd->( RecNo() ), otd->name, otd->kod_lpu } ) }, ;
     {|| f_is_uch( st_a_uch, otd->kod_lpu ) } )
   OTD->( dbCloseArea() )
@@ -8987,15 +8987,15 @@ Function sv_ved_plat()
     arr_title[ 5 ] := "                 Ф.И.О.                 │ услуг│выпол.│   услуг   │ услуг│   услуг   │ услуг│   услуг   │ услуг│   услуг   ║         ║            "
     arr_title[ 6 ] := "────────────────────────────────────────┴──────┴──────┴───────────┴──────┴───────────┴──────┴───────────┴──────┴───────────╨─────────╨────────────"
     sh := Len( arr_title[ 1 ] )
-    g_use( dir_server + "uch_pers", dir_server + "uch_pers", "UCHP" )
-    g_use( dir_server + "mo_uch",, "UCH" )
-    g_use( dir_server + "mo_otd",, "OTD" )
+    g_use( dir_server() + "uch_pers", dir_server() + "uch_pers", "UCHP" )
+    g_use( dir_server() + "mo_uch",, "UCH" )
+    g_use( dir_server() + "mo_otd",, "OTD" )
     Set Relation To kod_lpu into UCH
-    g_use( dir_server + "mo_pers",, "perso" )
+    g_use( dir_server() + "mo_pers",, "perso" )
     Set Relation To otd into OTD
-    Use ( cur_dir + "tmp" ) New Alias TMP
+    Use ( cur_dir() + "tmp" ) New Alias TMP
     Set Relation To kod_vr into perso
-    Index On Str( perso->kateg, 1 ) + Upper( uch->name ) + Upper( otd->name ) + Str( perso->otd, 3 ) + Upper( perso->fio ) to ( cur_dir + "tmp" )
+    Index On Str( perso->kateg, 1 ) + Upper( uch->name ) + Upper( otd->name ) + Str( perso->otd, 3 ) + Upper( perso->fio ) to ( cur_dir() + "tmp" )
     fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
     add_string( Center( "Сводная ведомость [объем работ]", sh ) )
     titlen_uch( st_a_uch, sh )
@@ -9087,7 +9087,7 @@ Function sv1_ved_plat( arr, arr_otd )
   adbf2 := { ;
     { "KOD_VR",     "N",      4,      0 }, ;  // код врача
   { "FIO",        "C",     50,      0 }, ;  // Ф.И.О. врача (ассистента)
-  { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
+    { "TRUDOEM",    "N",     11,      4 }, ;  // трудоемкость услуг УЕТ
   { "KOL",    "N",      6,      0 }, ;  // количество услуг
     { "STOIM",    "N",     14,      2 }, ;  // итоговая стоимость услуги
   { "KOL1",    "N",      6,      0 }, ;  // платные
@@ -9097,21 +9097,21 @@ Function sv1_ved_plat( arr, arr_otd )
   { "KOL3",    "N",      6,      0 }, ;  // материалы
     { "STOIM3",    "N",     14,      2 };   // материалы
   }
-  dbCreate( cur_dir + "tmp", adbf2 )
+  dbCreate( cur_dir() + "tmp", adbf2 )
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
-  Use ( cur_dir + "tmp" )
-  Index On Str( kod_vr, 4 ) to ( cur_dir + "tmpk" )
+  Use ( cur_dir() + "tmp" )
+  Index On Str( kod_vr, 4 ) to ( cur_dir() + "tmpk" )
   If mem_trudoem == 2
     useuch_usl()
   Endif
-  // G_Use(dir_server+"cena_usl",dir_server+"cena_usl","CENA")
-  r_use( dir_server + "uslugi",, "USL" )
+  // G_Use(dir_server()+"cena_usl",dir_server()+"cena_usl","CENA")
+  r_use( dir_server() + "uslugi",, "USL" )
   // pi1 == 2  // по дате выписки счета
   pole_kol := "hu->kol_1"
   pole_stoim := "hu->stoim_1"
-  r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-  r_use( dir_server + "human", dir_server + "humans", "HUMAN" )
-  r_use( dir_server + "schet", dir_server + "schetd", "SCHET" )
+  r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+  r_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
+  r_use( dir_server() + "schet", dir_server() + "schetd", "SCHET" )
   Set Filter To !eq_any( mest_inog, 6, 7 )
   dbSeek( begin_date, .t. )
   Do While schet->pdate <= end_date .and. !Eof()
@@ -9200,22 +9200,22 @@ Function sv2_ved_plat( arr, arr_otd )
     xx, yy, pole_va, lrec, t_date1, t_date2, arr_title, msum, msum_opl, ;
     musluga, mperso, mkod_perso, arr_usl := {}, adbf1, adbf2
   Private skol := { 0, 0 }, strud := { 0, 0 }, sstoim := { 0, 0 }
-/*Private usl_dop := rest_arr(dir_server+"usl_pl_d"+smem),;
-        usl_mat := rest_arr(dir_server+"usl_pl_m"+smem)*/
+/*Private usl_dop := rest_arr(dir_server()+"usl_pl_d"+smem()),;
+        usl_mat := rest_arr(dir_server()+"usl_pl_m"+smem())*/
 
   begin_date := arr[ 7 ]
   end_date := arr[ 8 ]
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpk" ) Alias TMP
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpk" ) Alias TMP
   If mem_trudoem == 2
     useuch_usl()
   Endif
-  // G_Use(dir_server+"cena_usl",dir_server+"cena_usl","CENA")
-  r_use( dir_server + "kartotek",, "KART" )
-  r_use( dir_server + "uslugi", dir_server + "uslugi", "USL" )
+  // G_Use(dir_server()+"cena_usl",dir_server()+"cena_usl","CENA")
+  r_use( dir_server() + "kartotek",, "KART" )
+  r_use( dir_server() + "uslugi", dir_server() + "uslugi", "USL" )
   // pi1 == 2  // по дате окончания лечения
-  r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-  r_use( dir_server + "hum_p", dir_server + "hum_pd", "HUMAN" )
+  r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+  r_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
   dbSeek( DToS( arr[ 5 ] ), .t. )
   Do While human->k_data <= arr[ 6 ] .and. !Eof()
     updatestatus()
@@ -9278,7 +9278,7 @@ Function souslpkart( mkod_human, mkod_lpu )
   afillall( mvu, 0 )
   mywait()
   //
-  r_use( dir_server + "mo_otd",, "OTD" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
   dbEval( {|| if( mem_otdusl == 2, ;
     AAdd( pr1arr_otd, { otd->( RecNo() ), otd->name, otd->kod_lpu, "" } ), nil );
     }, ;
@@ -9287,7 +9287,7 @@ Function souslpkart( mkod_human, mkod_lpu )
   If yes_many_uch
     dbEval( {|| AAdd( pr_arr, { otd->( RecNo() ), otd->name, otd->kod_lpu, "" } ) }, ;
       {|| between_date( otd->dbeginp, otd->dendp, sys_date ) } )
-    r_use( dir_server + "mo_uch",, "UCH" )
+    r_use( dir_server() + "mo_uch",, "UCH" )
     AEval( pr_arr, {| x, i| dbGoto( x[ 3 ] ), pr_arr[ i, 4 ] := uch->name } )
     AEval( pr1arr_otd, {| x, i| dbGoto( x[ 3 ] ), pr1arr_otd[ i, 4 ] := uch->name } )
     uch->( dbCloseArea() )
@@ -9302,8 +9302,8 @@ Function souslpkart( mkod_human, mkod_lpu )
     AEval( pr_arr, {| x| AAdd( pr_arr_otd, x[ 2 ] ) } )
   Endif
   //
-  r_use( dir_server + "uslugi",, "USL" )
-  g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
   adbf := dbStruct()
   AAdd( adbf, { "date_u1", "D", 8, 0 } )
   AAdd( adbf, { "shifr_u", "C", 10, 0 } )
@@ -9311,13 +9311,13 @@ Function souslpkart( mkod_human, mkod_lpu )
   AAdd( adbf, { "is_nul", "L", 1, 0 } )
   AAdd( adbf, { "number", "N", 6, 0 } )
   AAdd( adbf, { "rec_hu", "N", 7, 0 } )
-  dbCreate( cur_dir + "tmp_usl", adbf )
-  Use ( cur_dir + "tmp_usl" ) New Alias tmp
+  dbCreate( cur_dir() + "tmp_usl", adbf )
+  Use ( cur_dir() + "tmp_usl" ) New Alias tmp
   Private i_date_u1 := FieldPos( "date_u1" )
   If mem_ordusl == 1
-    Index On DToS( date_u1 ) + fsort_usl( shifr_u ) to ( cur_dir + "tmp_usl" )
+    Index On DToS( date_u1 ) + fsort_usl( shifr_u ) to ( cur_dir() + "tmp_usl" )
   Else
-    Index On fsort_usl( shifr_u ) + DToS( date_u1 ) to ( cur_dir + "tmp_usl" )
+    Index On fsort_usl( shifr_u ) + DToS( date_u1 ) to ( cur_dir() + "tmp_usl" )
   Endif
   Select HU
   Set Relation To u_kod into USL
@@ -9352,22 +9352,22 @@ Function souslpkart( mkod_human, mkod_lpu )
   Close databases
   //
   Private flag_1 := .t.
-  If g_use( dir_server + "hum_p",, "HUMAN" ) .and. ;
-      g_use( dir_server + "hum_p_u", { dir_server + "hum_p_u", ;
-      dir_server + "hum_p_uk", ;
-      dir_server + "hum_p_ud", ;
-      dir_server + "hum_p_uv", ;
-      dir_server + "hum_p_ua" }, "HU" ) .and. ;
-      r_use( dir_server + "uslugi", dir_server + "uslugish", "USL" ) .and. ;
-      r_use( dir_server + "mo_otd",, "OTD" ) .and. ;
-      r_use( dir_server + "plat_ms", dir_server + "plat_ms", "MS" ) .and. ;
-      r_use( dir_server + "usl_otd", dir_server + "usl_otd", "UO" ) .and. ;
-      r_use( dir_server + "mo_pers", dir_server + "mo_pers", "PERSO" )
+  If g_use( dir_server() + "hum_p",, "HUMAN" ) .and. ;
+      g_use( dir_server() + "hum_p_u", { dir_server() + "hum_p_u", ;
+      dir_server() + "hum_p_uk", ;
+      dir_server() + "hum_p_ud", ;
+      dir_server() + "hum_p_uv", ;
+      dir_server() + "hum_p_ua" }, "HU" ) .and. ;
+      r_use( dir_server() + "uslugi", dir_server() + "uslugish", "USL" ) .and. ;
+      r_use( dir_server() + "mo_otd",, "OTD" ) .and. ;
+      r_use( dir_server() + "plat_ms", dir_server() + "plat_ms", "MS" ) .and. ;
+      r_use( dir_server() + "usl_otd", dir_server() + "usl_otd", "UO" ) .and. ;
+      r_use( dir_server() + "mo_pers", dir_server() + "mo_pers", "PERSO" )
     Select HUMAN
     Goto ( mkod_human )
     last_date := Max( human->n_data, last_date )
     Private is_kassa := ( human->is_kas != 1 )
-    Use ( cur_dir + "tmp_usl" ) index ( cur_dir + "tmp_usl" ) New Alias TMP
+    Use ( cur_dir() + "tmp_usl" ) index ( cur_dir() + "tmp_usl" ) New Alias TMP
     Set Relation To otd into OTD
     Go Top
     cls
@@ -9393,9 +9393,9 @@ Function souslpkart( mkod_human, mkod_lpu )
       .f., .t.,, "F1e_p_kusl", "F2e_p_kusl",, ;
       { "═", "░", "═", l_color, .t., 180 } )
     If yes_parol .and. ( mvu[ 1, 1 ] > 0 .or. mvu[ 2, 1 ] > 0 .or. mvu[ 3, 1 ] > 0 ) ;
-        .and. hb_FileExists( dir_server + "mo_opern" + sdbf )
+        .and. hb_FileExists( dir_server() + "mo_opern" + sdbf() )
       Close databases
-      If g_use( dir_server + "mo_opern", dir_server + "mo_opern", "OP" )
+      If g_use( dir_server() + "mo_opern", dir_server() + "mo_opern", "OP" )
         For i := 1 To 3
           If mvu[ i, 1 ] > 0
             write_work_oper( glob_task, OPER_USL, i, mvu[ i, 1 ], mvu[ i, 2 ], .f. )
@@ -9672,7 +9672,7 @@ Function f2e_p_kusl( nKey, oBrow )
       pmsan3 := if( nKey == K_INS, pr_san3, tmp->san3 ), msan3 := 0, ;
       pr_k_usl := {}, ;  // массив комплексных услуг
     gl_area := { 1, 0, 23, 79, 0 }
-    motd := inieditspr( A__POPUPMENU, dir_server + "mo_otd", m1otd )
+    motd := inieditspr( A__POPUPMENU, dir_server() + "mo_otd", m1otd )
     If mkod_vr > 0
       Select PERSO
       Goto ( mkod_vr )
@@ -9722,7 +9722,7 @@ Function f2e_p_kusl( nKey, oBrow )
         msan3 := ms->tab_nom
       Endif
     Endif
-    box_shadow( r1 - 1, 0, 23, 79, color8, ;
+    box_shadow( r1 -1, 0, 23, 79, color8, ;
       if( nKey == K_INS, "Добавление новой", ;
       "Редактирование" ) + " платной услуги", "RB+/B" )
     Do While .t.
@@ -9730,7 +9730,7 @@ Function f2e_p_kusl( nKey, oBrow )
       If mem_kodotd == 1
         @ r1 + 1, 2 Say "Отделение, в котором оказана услуга" Get motd ;
           reader {| x| menu_reader( x, ;
-          { {|k, r, c| get_otd( k, r + 1, c, .t. ) } }, A__FUNCTION,,, .f. ) }
+          { {| k, r, c| get_otd( k, r + 1, c, .t. ) } }, A__FUNCTION,,, .f. ) }
       Else
         @ r1 + 1, 2 Say "Отделение, в котором оказана услуга" Get m1otd Pict "99" ;
           when {| g| f5e_p_kusl( g, 1, 10 ) } ;
@@ -9742,7 +9742,7 @@ Function f2e_p_kusl( nKey, oBrow )
       @ r1 + 3, 2 Say "Шифр услуги" Get mshifr Pict "@!" ;
         when {| g| f5e_p_kusl( g, 1, 2 ) } ;
         valid {| g| f5e_p_kusl( g, 2, 2 ) }
-      @ Row(), 40 Say "Цена услуги" Get mu_cena Pict pict_cena ;
+      @ Row(), 40 Say "Цена услуги" Get mu_cena Pict pict_cena() ;
         When .f. Color color14
       @ r1 + 4, 2 Say "Услуга" Get mname_u When .f. Color color14
       ix := 4
@@ -9766,7 +9766,7 @@ Function f2e_p_kusl( nKey, oBrow )
             valid {| g| f5e_p_kusl( g, 2, 5 ) }
         Endif
       Next
-      @ r1 + 9, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena ;
+      @ r1 + 9, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena() ;
         when {| g| is_kassa .and. mem_edit_s == 2 .and. f5e_p_kusl( g, 1, 7 ) } ;
         valid {| g| f5e_p_kusl( g, 2, 7 ) }
       If mt_edit > 1
@@ -10008,14 +10008,14 @@ Function stuslpkart( mkod_human, mkod_lpu )
   afillall( mvu, 0 )
   mywait()
   //
-  r_use( dir_server + "mo_otd",, "OTD" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
   dbEval( {|| iif( mem_otdusl == 2, AAdd( pr1arr_otd, { otd->( RecNo() ), otd->name, otd->kod_lpu, "" } ), ) }, ;
     {|| iif( yes_many_uch, .t., otd->kod_lpu == glob_uch[ 1 ] ) };
     )
   If yes_many_uch
     dbEval( {|| AAdd( pr_arr, { otd->( RecNo() ), otd->name, otd->kod_lpu, "" } ) }, ;
       {|| between_date( otd->dbeginp, otd->dendp, sys_date ) } )
-    r_use( dir_server + "mo_uch",, "UCH" )
+    r_use( dir_server() + "mo_uch",, "UCH" )
     AEval( pr_arr, {| x, i| dbGoto( x[ 3 ] ), pr_arr[ i, 4 ] := uch->name } )
     AEval( pr1arr_otd, {| x, i| dbGoto( x[ 3 ] ), pr1arr_otd[ i, 4 ] := uch->name } )
     uch->( dbCloseArea() )
@@ -10031,24 +10031,24 @@ Function stuslpkart( mkod_human, mkod_lpu )
   Endif
   //
   use_base( "humanst" )
-  r_use( dir_server + "uslugi",, "USL" )
-  g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
   adbf := dbStruct()
-  AAdd( adbf, { "KOD_DIAG","C", 5, 0 } )  // шифр 1-ой осн.болезни
-  AAdd( adbf, { "ZF","C", 30, 0 } )  // зубная формула
+  AAdd( adbf, { "KOD_DIAG", "C", 5, 0 } )  // шифр 1-ой осн.болезни
+  AAdd( adbf, { "ZF", "C", 30, 0 } )  // зубная формула
   AAdd( adbf, { "date_u1",  "D", 8, 0 } )
   AAdd( adbf, { "shifr_u",  "C", 10, 0 } )
   AAdd( adbf, { "name_u",   "C", 65, 0 } )
   AAdd( adbf, { "is_nul",   "L", 1, 0 } )
   AAdd( adbf, { "number",   "N", 6, 0 } )
   AAdd( adbf, { "rec_hu",   "N", 7, 0 } )
-  dbCreate( cur_dir + "tmp_usl", adbf )
-  Use ( cur_dir + "tmp_usl" ) New Alias tmp
+  dbCreate( cur_dir() + "tmp_usl", adbf )
+  Use ( cur_dir() + "tmp_usl" ) New Alias tmp
   Private i_date_u1 := FieldPos( "date_u1" )
   If mem_ordusl == 1
-    Index On DToS( date_u1 ) + fsort_usl( shifr_u ) to ( cur_dir + "tmp_usl" )
+    Index On DToS( date_u1 ) + fsort_usl( shifr_u ) to ( cur_dir() + "tmp_usl" )
   Else
-    Index On fsort_usl( shifr_u ) + DToS( date_u1 ) to ( cur_dir + "tmp_usl" )
+    Index On fsort_usl( shifr_u ) + DToS( date_u1 ) to ( cur_dir() + "tmp_usl" )
   Endif
   Select HU
   Set Relation To u_kod into USL
@@ -10089,24 +10089,24 @@ Function stuslpkart( mkod_human, mkod_lpu )
   Close databases
   //
   Private flag_1 := .t.
-  If g_use( dir_server + "hum_p",, "HUMAN" ) .and. ;
-      g_use( dir_server + "hum_p_u", { dir_server + "hum_p_u", ;
-      dir_server + "hum_p_uk", ;
-      dir_server + "hum_p_ud", ;
-      dir_server + "hum_p_uv", ;
-      dir_server + "hum_p_ua" }, "HU" ) .and. ;
-      r_use( dir_server + "uslugi", dir_server + "uslugish", "USL" ) .and. ;
-      r_use( dir_server + "mo_otd",, "OTD" ) .and. ;
-      r_use( dir_server + "plat_ms", dir_server + "plat_ms", "MS" ) .and. ;
-      r_use( dir_server + "usl_otd", dir_server + "usl_otd", "UO" ) .and. ;
-      r_use( dir_server + "mo_pers", dir_server + "mo_pers", "PERSO" )
+  If g_use( dir_server() + "hum_p",, "HUMAN" ) .and. ;
+      g_use( dir_server() + "hum_p_u", { dir_server() + "hum_p_u", ;
+      dir_server() + "hum_p_uk", ;
+      dir_server() + "hum_p_ud", ;
+      dir_server() + "hum_p_uv", ;
+      dir_server() + "hum_p_ua" }, "HU" ) .and. ;
+      r_use( dir_server() + "uslugi", dir_server() + "uslugish", "USL" ) .and. ;
+      r_use( dir_server() + "mo_otd",, "OTD" ) .and. ;
+      r_use( dir_server() + "plat_ms", dir_server() + "plat_ms", "MS" ) .and. ;
+      r_use( dir_server() + "usl_otd", dir_server() + "usl_otd", "UO" ) .and. ;
+      r_use( dir_server() + "mo_pers", dir_server() + "mo_pers", "PERSO" )
     use_base( "kart_st" )
     use_base( "humanst" )
     Select HUMAN
     Goto ( mkod_human )
     last_date := Max( human->n_data, last_date )
     Private is_kassa := ( human->is_kas != 1 )
-    Use ( cur_dir + "tmp_usl" ) index ( cur_dir + "tmp_usl" ) New Alias TMP
+    Use ( cur_dir() + "tmp_usl" ) index ( cur_dir() + "tmp_usl" ) New Alias TMP
     Set Relation To otd into OTD
     Go Top
     cls
@@ -10132,9 +10132,9 @@ Function stuslpkart( mkod_human, mkod_lpu )
       .f., .t.,, "ST1e_p_kusl", "ST2e_p_kusl",, ;
       { "═", "░", "═", l_color, .t., 180 } )
     If yes_parol .and. ( mvu[ 1, 1 ] > 0 .or. mvu[ 2, 1 ] > 0 .or. mvu[ 3, 1 ] > 0 ) ;
-        .and. hb_FileExists( dir_server + "mo_opern" + sdbf )
+        .and. hb_FileExists( dir_server() + "mo_opern" + sdbf() )
       Close databases
-      If g_use( dir_server + "mo_opern", dir_server + "mo_opern", "OP" )
+      If g_use( dir_server() + "mo_opern", dir_server() + "mo_opern", "OP" )
         For i := 1 To 3
           If mvu[ i, 1 ] > 0
             write_work_oper( glob_task, OPER_USL, i, mvu[ i, 1 ], mvu[ i, 2 ], .f. )
@@ -10276,7 +10276,7 @@ Function st2e_p_kusl( nKey, oBrow )
       pmsan3 := iif( nKey == K_INS, pr_san3, tmp->san3 ), msan3 := 0, ;
       pr_k_usl := {}, ;  // массив комплексных услуг
     gl_area := { 1, 0, 23, 79, 0 }
-    motd := inieditspr( A__POPUPMENU, dir_server + "mo_otd", m1otd )
+    motd := inieditspr( A__POPUPMENU, dir_server() + "mo_otd", m1otd )
     If mkod_vr > 0
       Select PERSO
       Goto ( mkod_vr )
@@ -10326,7 +10326,7 @@ Function st2e_p_kusl( nKey, oBrow )
         msan3 := ms->tab_nom
       Endif
     Endif
-    box_shadow( r1 - 1, 0, 23, 79, color8, iif( nKey == K_INS, "Добавление новой", ;
+    box_shadow( r1 -1, 0, 23, 79, color8, iif( nKey == K_INS, "Добавление новой", ;
       "Редактирование" ) + " платной услуги", "RB+/B" )
     Do While .t.
       SetColor( cDataCGet )
@@ -10348,7 +10348,7 @@ Function st2e_p_kusl( nKey, oBrow )
       @ r1 + 5, 2 Say "Шифр услуги" Get mshifr Pict "@!" ;
         when {| g| f5e_p_kusl( g, 1, 2 ) } ;
         valid {| g| f5e_p_kusl( g, 2, 2 ) }
-      @ Row(), 40 Say "Цена услуги" Get mu_cena Pict pict_cena ;
+      @ Row(), 40 Say "Цена услуги" Get mu_cena Pict pict_cena() ;
         When .f. Color color14
       @ r1 + 6, 2 Say "Услуга" Get mname_u When .f. Color color14
       ix := 6
@@ -10373,7 +10373,7 @@ Function st2e_p_kusl( nKey, oBrow )
         Endif
       Next
       ++ix
-      @ r1 + ix, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena ;
+      @ r1 + ix, 2 Say "Общая стоимость услуги" Get mstoim Pict pict_cena() ;
         when {| g| is_kassa .and. mem_edit_s == 2 .and. f5e_p_kusl( g, 1, 7 ) } ;
         valid {| g| f5e_p_kusl( g, 2, 7 ) }
       If mt_edit > 1
@@ -10698,19 +10698,19 @@ Static Function summa_usl( s )
 
 //
 
-//  14.02.13
+// 14.02.13
 Function st1_plat_fio()
 
   Local reg := 1
   Local vr_as, adbf, i, j, arr[ 2 ], begin_date, end_date, ;
     fl_exit := .f., sh, HH := 57, reg_print, s, xx, n, nvr, ;
-    arr_otd := {}, n_file := "plat_fio" + stxt, buf := save_maxrow()
-  Private krvz, arr_dms, d_file := "PLAT_FIO" + sdbf, otdeleni := {}
+    arr_otd := {}, n_file := cur_dir() + "plat_fio.txt", buf := save_maxrow()
+  Private krvz, arr_dms, d_file := "PLAT_FIO" + sdbf(), otdeleni := {}
 
   If !del_dbf_file( d_file )
     Return Nil
   Endif
-  If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5 ) ) == NIL
+  If ( st_a_uch := inputn_uch( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
   Endif
   If ( arr := year_month() ) == NIL
@@ -10718,12 +10718,12 @@ Function st1_plat_fio()
   Endif
   begin_date := arr[ 7 ]
   end_date := arr[ 8 ]
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   mywait()
-  r_use( dir_server + "mo_uch",, "UCH" )
-  r_use( dir_server + "mo_otd",, "OTD" )
+  r_use( dir_server() + "mo_uch",, "UCH" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
   Go Top
   Do While !Eof()
     If f_is_uch( st_a_uch, otd->kod_lpu )
@@ -10734,19 +10734,19 @@ Function st1_plat_fio()
   Enddo
   Close databases
   adbf := { { "kod",  "N", 7, 0 }, ;  // код л/у
-  { "kod_k", "N", 7, 0 }, ;  // код по картотеке
+    { "kod_k", "N", 7, 0 }, ;  // код по картотеке
   { "kod_p", "N", 4, 0 }, ;  // код персонала
-  { "otd",  "N", 3, 0 }, ;  // код отделения
+    { "otd",  "N", 3, 0 }, ;  // код отделения
   { "summa", "N", 12, 2 }, ;  // общая сумма лечения по данному отделению
-  { "sm_vozvr", "N", 12, 2 }; // общая сумма лечения по данному отделению
+    { "sm_vozvr", "N", 12, 2 }; // общая сумма лечения по данному отделению
   }
-  dbCreate( cur_dir + "tmp", adbf )
-  Use ( cur_dir + "tmp" ) new
-  Index On Str( kod_k, 7 ) + Str( kod, 7 ) + Str( otd, 3 ) + Str( kod_p, 4 ) to ( cur_dir + "tmp" )
-  g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-  g_use( dir_server + "hum_p",, "HUMAN" )
+  dbCreate( cur_dir() + "tmp", adbf )
+  Use ( cur_dir() + "tmp" ) new
+  Index On Str( kod_k, 7 ) + Str( kod, 7 ) + Str( otd, 3 ) + Str( kod_p, 4 ) to ( cur_dir() + "tmp" )
+  g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+  g_use( dir_server() + "hum_p",, "HUMAN" )
   If pi1 == 3  // по дате закрытия листа учета
-    Set Index to ( dir_server + "hum_pc" )
+    Set Index to ( dir_server() + "hum_pc" )
     For xx := 0 To 2
       If AScan( krvz, xx ) > 0
         Select HUMAN
@@ -10774,7 +10774,7 @@ Function st1_plat_fio()
       If fl_exit ; exit ; Endif
     Next
   Else  // только по дате окончания лечения
-    Set Index to ( dir_server + "hum_pd" )
+    Set Index to ( dir_server() + "hum_pd" )
     dbSeek( DToS( arr[ 5 ] ), .t. )
     Do While human->k_data <= arr[ 6 ] .and. !Eof()
       updatestatus()
@@ -10857,28 +10857,28 @@ Function st1_plat_fio()
     dbCreate( d_file, adbf )
     Use ( d_file ) New Alias DD
     reg_print := f_reg_print( arr_title, @sh )
-    r_use( dir_server + "mo_uch",, "UCH" )
-    r_use( dir_server + "mo_otd",, "OTD" )
+    r_use( dir_server() + "mo_uch",, "UCH" )
+    r_use( dir_server() + "mo_otd",, "OTD" )
     Set Relation To kod_lpu into UCH
-    g_use( dir_server + "kartotek",, "KART" )
-    g_use( dir_server + "uslugi",, "USL" )
-    g_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
+    g_use( dir_server() + "kartotek",, "KART" )
+    g_use( dir_server() + "uslugi",, "USL" )
+    g_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
     Set Relation To u_kod into USL
-    g_use( dir_server + "hum_p",, "HUMAN" )
-    Use ( cur_dir + "tmp" ) new
+    g_use( dir_server() + "hum_p",, "HUMAN" )
+    Use ( cur_dir() + "tmp" ) new
     Set Relation To otd into OTD, To kod_k into KART, To kod into HUMAN
     If reg == 2
       If vr_as < 3
-        r_use( dir_server + "mo_pers",, "PERSO" )
+        r_use( dir_server() + "mo_pers",, "PERSO" )
         Set Relation To kod_p into PERSO Additive
       Else
-        g_use( dir_server + "plat_ms",, "P2" )
+        g_use( dir_server() + "plat_ms",, "P2" )
         Select TMP
         Set Relation To kod_p into P2 Additive
       Endif
     Endif
     Index On Upper( uch->name ) + Left( Upper( otd->name ), 20 ) + Left( Upper( kart->fio ), 20 ) + Str( kod_k, 7 ) + DToS( human->k_data ) ;
-      to ( cur_dir + "tmp" )
+      to ( cur_dir() + "tmp" )
     fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
     add_string( "ПЛАТНЫЕ УСЛУГИ" )
     add_string( Center( "Статистика по работе персонала", sh ) )
@@ -11079,22 +11079,22 @@ Function pl_print_faktura( ret, sk, ss )
   Use ( fr_titl ) New Alias _t
   Append Blank
   Use ( fr_data ) New Alias _d
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   pok_name := pok_adres := pok_inn := ""
   s := "Оказание медицинских услуг " + arr_m[ 4 ] + " - " + lstr( sk ) + " чел."
   If tmp1->tip_usl == 1
-    r_use( dir_server + "p_d_smo",, "PK" )
+    r_use( dir_server() + "p_d_smo",, "PK" )
   Else
-    r_use( dir_server + "p_pr_vz",, "PK" )
+    r_use( dir_server() + "p_pr_vz",, "PK" )
   Endif
   Goto ( tmp1->pr_smo )
   pok_name := AllTrim( iif( Empty( pk->fname ), pk->name, pk->fname ) )
   pok_adres := AllTrim( pk->adres )
   pok_inn := AllTrim( pk->inn )
   //
-  _t->pril := "Приложение № 1" + eos + ;
-    "к постановлению Правительства" + eos + ;
-    "Российской Федерации" + eos + ;
+  _t->pril := "Приложение № 1" + hb_eol() + ;
+    "к постановлению Правительства" + hb_eol() + ;
+    "Российской Федерации" + hb_eol() + ;
     "от 26 декабря 2011 г. № 1137"
   _t->pril2 := "(в ред.Постановления Правительства РФ от 19.08.2017 №981)"
   _t->title1 := "СЧЕТ-ФАКТУРА  № " + AllTrim( ret[ 1 ] ) + " от " + date_month( ret[ 2 ], .t. )
@@ -11131,7 +11131,7 @@ Function pl_print_faktura( ret, sk, ss )
   _t->fio_ruk := AllTrim( org->ruk )
   _t->fio_bux := AllTrim( org->bux )
   Close databases
-  call_fr( "mo_faktu" + sfr3 )
+  call_fr( "mo_faktu" + sfr3() )
 
   Return Nil
 
@@ -11161,13 +11161,13 @@ Function pl_print_akt( ret, sk, ss )
   Use ( fr_titl ) New Alias _t
   Append Blank
   Use ( fr_data ) New Alias _d
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   p_name := p_adres := p_inn := ""
   s := "Оказание медицинских услуг " + arr_m[ 4 ] + " - " + lstr( sk ) + " чел."
   If tmp1->tip_usl == 1
-    r_use( dir_server + "p_d_smo",, "PK" )
+    r_use( dir_server() + "p_d_smo",, "PK" )
   Else
-    r_use( dir_server + "p_pr_vz",, "PK" )
+    r_use( dir_server() + "p_pr_vz",, "PK" )
   Endif
   Goto ( tmp1->pr_smo )
   p_name := AllTrim( iif( Empty( pk->fname ), pk->name, pk->fname ) )
@@ -11192,7 +11192,7 @@ Function pl_print_akt( ret, sk, ss )
   _t->stoim := lstr( ss, 15, 2 )
   _t->sstoim := srub_kop( ss, .t. )
   Close databases
-  call_fr( "mo_akt" + sfr3 )
+  call_fr( "mo_akt" + sfr3() )
 
   Return Nil
 
@@ -11226,11 +11226,11 @@ Function rees_new_vzaim( nd_faktura )
     { "data",    "C", 10, 0 }, ;
     { "kod",     "C", 15, 0 }, ;
     { "name",    "C", 70, 0 }, ;
-    { "ZF","C", 30, 0 }, ;
+    { "ZF", "C", 30, 0 }, ;
     { "vrach",   "C", 50, 0 }, ;
     { "diagnoz", "C", 6, 0 }, ;
     { "GP_NOMER", "C", 16, 0 }, ; // № гарантийного письма по ДМС
-  { "GP_DATE","C", 10, 0 }, ; // дата гарантийного письма по ДМС
+  { "GP_DATE", "C", 10, 0 }, ; // дата гарантийного письма по ДМС
   { "cena",    "N", 10, 2 }, ;
     { "kol",     "N", 4, 0 }, ;
     { "summa",   "N", 12, 2 } }
@@ -11241,15 +11241,15 @@ Function rees_new_vzaim( nd_faktura )
   //
   _t->n_fakt := nd_faktura[ 1 ]
   _t->d_fakt := full_date( nd_faktura[ 2 ] )
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   _t->prod_name := AllTrim( org->name )
   _t->prod1name := "ИНН/КПП " + AllTrim( org->inn ) + "    Адрес: " + AllTrim( org->adres )
   _t->prod2name := "Банк " + AllTrim( org->bank ) + "    БИК " + AllTrim( org->smfo ) + "    Р/С " + ;
     AllTrim( org->r_schet )
   If tmp1->tip_usl == 1
-    r_use( dir_server + "p_d_smo",, "PK" )
+    r_use( dir_server() + "p_d_smo",, "PK" )
   Else
-    r_use( dir_server + "p_pr_vz",, "PK" )
+    r_use( dir_server() + "p_pr_vz",, "PK" )
   Endif
   Goto ( tmp1->pr_smo )
   _t->pok_name := AllTrim( iif( Empty( pk->fname ), pk->name, pk->fname ) )
@@ -11261,10 +11261,10 @@ Function rees_new_vzaim( nd_faktura )
   _t->pok2name := "Банк " + AllTrim( pk->bank ) + "    БИК " + AllTrim( pk->smfo ) + "    Р/С " + ;
     AllTrim( pk->r_schet )
   use_base( "humanst" )
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "mo_pers",, "perso" )
-  r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HPU" )
-  r_use( dir_server + "hum_p",, "HP" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "mo_pers",, "perso" )
+  r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
+  r_use( dir_server() + "hum_p",, "HP" )
   j := ss := 0
   Select TMP
   Go Top
@@ -11331,18 +11331,18 @@ Function rees_new_vzaim( nd_faktura )
         Append Blank
         If i == 1
           _d->nomer := j
-          _d->fio   := AllTrim( kart->fio ) + eos
-          _d->polis := AllTrim( hp->d_polis ) + eos
+          _d->fio   := AllTrim( kart->fio ) + hb_eol()
+          _d->polis := AllTrim( hp->d_polis ) + hb_eol()
           _d->n_kart := amb_kartan()
         Endif
         If i <= Len( ausl )
           _d->data  := full_date( ausl[ i, 1 ] )
           _d->kod   := ausl[ i, 2 ]
-          _d->name  := AllTrim( ausl[ i, 3 ] ) + eos
+          _d->name  := AllTrim( ausl[ i, 3 ] ) + hb_eol()
           _d->cena  := iif( ausl[ i, 4 ] > 0, ausl[ i, 5 ] / ausl[ i, 4 ], ausl[ i, 5 ] )
           _d->kol   := ausl[ i, 4 ]
           _d->summa := ausl[ i, 5 ]
-          _d->zf    := AllTrim( ausl[ i, 6 ] ) + eos
+          _d->zf    := AllTrim( ausl[ i, 6 ] ) + hb_eol()
           _d->vrach := ausl[ i, 7 ]
           lss += ausl[ i, 5 ]
         Endif
@@ -11350,7 +11350,7 @@ Function rees_new_vzaim( nd_faktura )
           _d->diagnoz := adiag[ i ]
         Endif
         If i <= Len( agp )
-          _d->GP_NOMER := AllTrim( agp[ i, 1 ] ) + eos
+          _d->GP_NOMER := AllTrim( agp[ i, 1 ] ) + hb_eol()
           _d->GP_DATE  := full_date( agp[ i, 2 ] )
         Endif
       Next
@@ -11369,7 +11369,7 @@ Function rees_new_vzaim( nd_faktura )
   Close databases
   rest_box( buf )
   message_fr_excel()
-  call_fr( "mo_reesdms" + sfr3 )
+  call_fr( "mo_reesdms" + sfr3() )
 
   Return Nil
 
@@ -11390,9 +11390,9 @@ Function message_fr_excel()
     { "", "Нажмите любую клавишу для вывода документа в FastReport" }, ;
     color1, ;  // строка цвета для рамки
   cDataCSay, ;  // строка цвета для текста
-  , ;  // верхний ряд рамки (99 - центировать)
+    , ;  // верхний ряд рамки (99 - центировать)
   , ;  // левая колонка рамки (99 - центрировать)
-  color8 )   // строка цвета для бегущей строки
+    color8 )   // строка цвета для бегущей строки
 
   Return Nil
 
@@ -11438,15 +11438,15 @@ Function rees_new_vzaim_pol3( nd_faktura )
   //
   // _t->n_fakt := nd_faktura[1]
   // _t->d_fakt := full_date(nd_faktura[2])
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   _t->prod_name := AllTrim( org->name )
   _t->prod1name := "ИНН/КПП " + AllTrim( org->inn ) + "    Адрес: " + AllTrim( org->adres )
   _t->prod2name := "Банк " + AllTrim( org->bank ) + "    БИК " + AllTrim( org->smfo ) + "    Р/С " + ;
     AllTrim( org->r_schet )
   If tmp1->tip_usl == 1
-    r_use( dir_server + "p_d_smo",, "PK" )
+    r_use( dir_server() + "p_d_smo",, "PK" )
   Else
-    r_use( dir_server + "p_pr_vz",, "PK" )
+    r_use( dir_server() + "p_pr_vz",, "PK" )
   Endif
   Goto ( tmp1->pr_smo )
   _t->pok_name := AllTrim( iif( Empty( pk->fname ), pk->name, pk->fname ) )
@@ -11458,10 +11458,10 @@ Function rees_new_vzaim_pol3( nd_faktura )
   _t->pok2name := "Банк " + AllTrim( pk->bank ) + "    БИК " + AllTrim( pk->smfo ) + "    Р/С " + ;
     AllTrim( pk->r_schet )
   use_base( "humanst" )
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "mo_pers",, "perso" )
-  r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HPU" )
-  r_use( dir_server + "hum_p",, "HP" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "mo_pers",, "perso" )
+  r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HPU" )
+  r_use( dir_server() + "hum_p",, "HP" )
   j := ss := 0
   Select TMP
   Go Top
@@ -11511,7 +11511,7 @@ Function rees_new_vzaim_pol3( nd_faktura )
         Append Blank
         If i == 1
           _d->nomer  := j
-          _d->fio    := AllTrim( kart->fio ) + eos
+          _d->fio    := AllTrim( kart->fio ) + hb_eol()
           _d->pol    := AllTrim( kart->pol )
           _d->adres  := AllTrim( kart->adres )
           _d->date_r := full_date( kart->date_r )
@@ -11520,7 +11520,7 @@ Function rees_new_vzaim_pol3( nd_faktura )
         If i <= Len( ausl )
           _d->data  := full_date( ausl[ i, 1 ] )
           _d->kod   := ausl[ i, 2 ]
-          _d->name  := AllTrim( ausl[ i, 3 ] ) + eos
+          _d->name  := AllTrim( ausl[ i, 3 ] ) + hb_eol()
           _d->summa := ausl[ i, 5 ]
           lss += ausl[ i, 5 ]
         Endif
@@ -11540,7 +11540,7 @@ Function rees_new_vzaim_pol3( nd_faktura )
   Close databases
   rest_box( buf )
   message_fr_excel()
-  call_fr( "mo_reesdmsP3" + sfr3 )
+  call_fr( "mo_reesdmsP3" + sfr3() )
 
   Return Nil
 
@@ -11551,7 +11551,7 @@ Function rees_new_vzaim_pol3( nd_faktura )
 Function pl_vozvrat()
 
   Local fl := .t., buf := save_row( MaxRow() ), sm := 0, HH := 52, ;
-    n_file := "platn.txt", arr_m, sh, sm_sn := 0, krvz, arr_dms, ;
+    n_file := cur_dir() + "platn.txt", arr_m, sh, sm_sn := 0, krvz, arr_dms, ;
     sm_usl := 0
   Local arr_title := { ;
     "───────────────────────────────────────────────────┬────────┬───────────", ;
@@ -11560,7 +11560,7 @@ Function pl_vozvrat()
     }
 
   sh := Len( arr_title[ 1 ] )
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
@@ -11576,12 +11576,12 @@ Function pl_vozvrat()
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
   //
-  r_use( dir_server + "mo_pers",, "P2" )
-  r_use( dir_server + "uslugi",, "USL" )
-  r_use( dir_server + "kartotek",, "KART" )
-  r_use( dir_server + "hum_p_U", dir_server + "hum_p_U", "HUM_U" )
-  r_use( dir_server + "hum_p",, "HUM" )
-  Index On date_voz + FR_zavod  to ( cur_dir + "tmp_uu" ) For sum_voz > 0
+  r_use( dir_server() + "mo_pers",, "P2" )
+  r_use( dir_server() + "uslugi",, "USL" )
+  r_use( dir_server() + "kartotek",, "KART" )
+  r_use( dir_server() + "hum_p_U", dir_server() + "hum_p_U", "HUM_U" )
+  r_use( dir_server() + "hum_p",, "HUM" )
+  Index On date_voz + FR_zavod  to ( cur_dir() + "tmp_uu" ) For sum_voz > 0
   // human->date_voz with dtoc4(date()), human->sum_voz with p_summa
   Go Top
   Do While !Eof()
@@ -11624,7 +11624,7 @@ Function pl_vozvrat()
     Skip
   Enddo
   add_string( Replicate( "─", sh ) )
-  add_string( PadR( "ИТОГО возврат: ",59 ) + put_kope( sm_sn,12 ) )
+  add_string( PadR( "ИТОГО возврат: ", 59 ) + put_kope( sm_sn, 12 ) )
   add_string( PadR( "ИТОГО сумма услуг: ", 59 ) + put_kope( sm_usl, 12 ) )
   Close databases
   FClose( fp )
@@ -11640,7 +11640,7 @@ Function pl_vozvrat()
 Function pl_priemshk()
 
   Local fl := .t., buf := save_row( MaxRow() ), sm2 := 0, HH := 52, ;
-    n_file := "platn.txt", arr_m, sh, krvz, arr_dms, ;
+    n_file := cur_dir() + "platn.txt", arr_m, sh, krvz, arr_dms, ;
     mas_op1 := {}, mas_op2 := {}, mas_op3 := {}, i, arr[ 2 ], sm_bn := 0, ;
     t_hum_rec, kart_kod, t_k_data, nom_prihod := 0, sm_n := 0
 
@@ -11657,18 +11657,18 @@ Function pl_priemshk()
   Endif
 
   sh := Len( arr_title[ 1 ] )
-  If ( krvz := fbp_tip_usl( T_ROW, T_COL - 5, @arr_dms ) ) == NIL
+  If ( krvz := fbp_tip_usl( T_ROW, T_COL -5, @arr_dms ) ) == NIL
     Return Nil
   Endif
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  If !myfiledeleted( cur_dir + "tmp" + sdbf )
+  If !myfiledeleted( cur_dir() + "tmp" + sdbf() )
     Return Nil
   Endif
   //
   mywait()
-  dbCreate( cur_dir + "tmp", { { "kod",     "N",  4,  0 }, ;
+  dbCreate( cur_dir() + "tmp", { { "kod",     "N",  4,  0 }, ;
     { "fio",     "C", 60,  0 }, ;
     { "chek",    "N", 10,  0 }, ;
     { "kod_hum", "N", 10,  0 }, ;
@@ -11676,7 +11676,7 @@ Function pl_priemshk()
     { "operat",  "N", 10,  0 }, ;
     { "operatf", "C", 40,  0 }, ;
     { "operatd", "C", 40,  0 }, ;
-    { "FR_DATA", "D",  8,  0 }, ;
+    { "fr_data", "D",  8,  0 }, ;
     { "fr_time", "N",  5,  0 }, ;
     { "t_flag",  "N",  1,  0 }, ;
     { "summa",   "N", 12,  2 }, ;
@@ -11684,16 +11684,16 @@ Function pl_priemshk()
     { "fio_vr",  "C", 60,  0 }, ;
     { "summa_bn", "N", 12,  2 }, ;
     { "summa_n", "N", 12,  2 } } )
-  Use ( cur_dir + "tmp" ) new
+  Use ( cur_dir() + "tmp" ) new
   If yes_parol
-    r_use( dir_server + "base1",, "BASE1" )
+    r_use( dir_server() + "base1",, "BASE1" )
   Endif
-  r_use( dir_server + "kartotek",, "KART" )
-  r_use( dir_server + "mo_pers",, "PERS" )
-  r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HUM_U" )
-  r_use( dir_server + "hum_p", dir_server + "hum_pkk", "HUM" )
-  Index On fr_data  to ( cur_dir + "tmp_uu" ) For !Empty( fr_data )
-  // index on str(kod_k,7)+dtos(k_data)+str(KV_CIA,6) to (dir_server+"hum_pkk") descending progress
+  r_use( dir_server() + "kartotek",, "KART" )
+  r_use( dir_server() + "mo_pers",, "PERS" )
+  r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HUM_U" )
+  r_use( dir_server() + "hum_p", dir_server() + "hum_pkk", "HUM" )
+  Index On fr_data to ( cur_dir() + "tmp_uu" ) For !Empty( fr_data )
+  // index on str(kod_k,7)+dtos(k_data)+str(KV_CIA,6) to (dir_server()+"hum_pkk") descending progress
   // go top
   dbSeek( arr_m[ 7 ], .t. )
   Do While hum->fr_data <= arr_m[ 8 ] .and. !Eof()
@@ -11767,8 +11767,8 @@ Function pl_priemshk()
     Skip
   Enddo
   Close databases
-  Use ( cur_dir + "tmp" ) new
-  Index On operat to ( cur_dir + "tmp_u" ) unique
+  Use ( cur_dir() + "tmp" ) new
+  Index On operat to ( cur_dir() + "tmp_u" ) unique
   Go Top
   Do While !Eof()
     AAdd( mas_op1, tmp->operat )
@@ -11791,7 +11791,7 @@ Function pl_priemshk()
     fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
     add_string( Center( "Р Е Е С Т Р", sh ) )
     add_string( Center( "регистрации чеков на оплату оказанных медицинских платных услуг населению", sh ) )
-    r_use( dir_server + "organiz",, "ORG" )
+    r_use( dir_server() + "organiz",, "ORG" )
     For i := 1 To perenos( arr, AllTrim( org->name ), sh )
       add_string( Center( AllTrim( arr[ i ] ), sh ) )
     Next
@@ -11800,8 +11800,8 @@ Function pl_priemshk()
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
     sm2 := ii := 0
-    Use ( cur_dir + "tmp" ) new
-    Index On fr_time to ( cur_dir + "tmp_u" ) For operat == mas_op1[ bkol_oper ]
+    Use ( cur_dir() + "tmp" ) new
+    Index On fr_time to ( cur_dir() + "tmp_u" ) For operat == mas_op1[ bkol_oper ]
     Go Top
     Do While !Eof()
       If verify_ff( HH, .t., sh )
@@ -11888,7 +11888,7 @@ Function pl_priemshk()
 //
 Function f2_inf_fr()
 
-  Local j := 0, s, buf := save_row( MaxRow() ), n_file := "_kassa1.txt", sh := 65, ;
+  Local j := 0, s, buf := save_row( MaxRow() ), n_file := cur_dir() + "_kassa1.txt", sh := 65, ;
     HH := 60
   Local arr_title := { ;
     "─" }
@@ -11899,9 +11899,9 @@ Function f2_inf_fr()
   add_string( PadC( "Список больных без чеков", sh ) )
   add_string( PadC( "по состоянию на " + date_month( sys_date, .t. ), sh ) )
   add_string( "" )
-  r_use( dir_server + "kartotek",, "KART" )
-  r_use( dir_server + "hum_p",, "HUMAN" )
-  Index On DToS( k_data ) to ( cur_dir + "tmp" ) For is_kas == 2 progress
+  r_use( dir_server() + "kartotek",, "KART" )
+  r_use( dir_server() + "hum_p",, "HUMAN" )
+  Index On DToS( k_data ) to ( cur_dir() + "tmp" ) For is_kas == 2 progress
   Go Top
   Do While !Eof()
     If verify_ff( HH, .t., sh )
@@ -11944,7 +11944,7 @@ Function inf_fr( k )
       "inf_fr(12)", ;
       "inf_fr(13)", ;
       "inf_fr(14)" }
-    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
     f1_inf_fr( 1 )
   Case k == 12

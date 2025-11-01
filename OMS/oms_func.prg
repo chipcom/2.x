@@ -8,7 +8,7 @@ function arr_NO_YES()
 
   return { { 'нет', 0 }, { 'да ', 1 } }
 
-// 20.02.24 формирование массива о смерти пациента
+// 25.09.25 формирование массива о смерти пациента
 function arr_patient_died_during_treatment( mkod_k, loc_kod )
   // mkod_k - код пациента по БД картотеки kartotek.dbf
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -18,7 +18,8 @@ function arr_patient_died_during_treatment( mkod_k, loc_kod )
 
   local a_smert := {}
 
-  find ( Str( mkod_k, 7 ) )
+//  find ( Str( mkod_k, 7 ) )
+  human->( dbSeek( Str( mkod_k, 7 ) ) )
   Do While human->kod_k == mkod_k .and. !Eof()
     If RecNo() != loc_kod .and. is_death( human_->RSLT_NEW ) .and. ;
         human_->oplata != 9 .and. human_->NOVOR == 0
@@ -26,19 +27,20 @@ function arr_patient_died_during_treatment( mkod_k, loc_kod )
         'Лечение с ' + full_date( human->N_DATA ) + ' по ' + full_date( human->K_DATA ) }
       Exit
     Endif
-    Skip
+    human->( dbSkip() )
   Enddo 
   return a_smert
 
 // 26.05.22 проверка на соответствие услуги профилю
 Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
+
   Local s := '', s1 := ''
 
   if valtype(short_shifr) == 'C' .and. !empty(short_shifr) .and. !(alltrim(lshifr) == alltrim(short_shifr))
     s1 := '(' + alltrim(short_shifr) + ')'
   endif
   if select('MOPROF') == 0
-    R_Use(dir_exe() + '_mo_prof', cur_dir + '_mo_prof', 'MOPROF')
+    R_Use(dir_exe() + '_mo_prof', cur_dir() + '_mo_prof', 'MOPROF')
   endif
   lshifr := padr(lshifr, 20)
   lvzros_reb := iif(lvzros_reb == 0, 0, 1)
@@ -68,14 +70,15 @@ Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
   
 // 12.02.23 проверка на соответствие услуги специальности
 Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach)
-  Local s := '', s1 := '', s2, i, k
+
+  Local s := '', s1 := '', s2, k
   local arr_conv_V015_V021 := conversion_V015_V021()
 
   if valtype(short_shifr) == 'C' .and. !empty(short_shifr) .and. !(alltrim(lshifr) == alltrim(short_shifr))
     s1 := '(' + alltrim(short_shifr) + ')'
   endif
   if select('MOSPEC') == 0
-    R_Use(dir_exe() + '_mo_spec', cur_dir + '_mo_spec', 'MOSPEC')
+    R_Use(dir_exe() + '_mo_spec', cur_dir() + '_mo_spec', 'MOSPEC')
   endif
   lshifr := padr(lshifr, 20)
   lvzros_reb := iif(lvzros_reb == 0, 0, 1)
@@ -113,6 +116,7 @@ Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach
   
 // 07.06.24 собрать шифры услуг в случае
 function collect_uslugi( rec_number )
+
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrUslugi := {}
@@ -144,6 +148,7 @@ function collect_uslugi( rec_number )
 
 // 07.06.24 собрать даты оказания услуг в случае
 function collect_date_uslugi( rec_number )
+
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrDate := {}, aSortDate
@@ -185,177 +190,9 @@ function collect_date_uslugi( rec_number )
   select( tmp_select )
   return aSortDate
 
-// 06.11.19
-Function is_osmotr_PN(ausl, _period, arr, _etap, _pol)
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-
-  Local i, j, s, fl := .f., fl_profil := .f., lshifr := alltrim(ausl[1])
-
-  if eq_any(left(lshifr, 4), '2.3.', '2.91')
-    fl_profil := .t.
-  elseif _etap == 1
-    if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
-      lshifr := np_arr_not_zs[i, 1]
-    endif
-  elseif (i := ascan(np_arr_osmotr_KDP2, {|x| x[2] == lshifr})) > 0
-    lshifr := np_arr_osmotr_KDP2[i, 1]
-  endif
-  for i := 1 to count_pn_arr_osm
-    if _etap == 1 .or. fl_profil
-      if valtype(np_arr_osmotr[i, 4]) == 'N'
-        if np_arr_osmotr[i, 4] == ausl[3]
-          lshifr := np_arr_osmotr[i, 1] // искусственно
-          fl := .t.
-          exit
-        endif
-      elseif (j := ascan(np_arr_osmotr[i, 4], ausl[3])) > 0
-        lshifr := np_arr_osmotr[i, 1] // искусственно
-        fl := .t.
-        exit
-      endif
-    else
-      if np_arr_osmotr[i, 1] == lshifr
-        fl := .t.
-        exit
-      endif
-    endif
-  next
-  if fl
-    s := '"' + lshifr + '.' + np_arr_osmotr[i, 3] + '"'
-    if _etap == 1 .and. ascan(np_arr_1_etap[_period, 4], lshifr) == 0
-      aadd(arr, 'Некорректный возрастной период пациента для ' + s)
-    endif
-    if !empty(np_arr_osmotr[i, 2]) .and. !(np_arr_osmotr[i, 2] == _pol)
-      aadd(arr, 'Несовместимость по полу в услуге ' + s)
-    endif
-    if valtype(np_arr_osmotr[i, 4]) == 'N'
-      if np_arr_osmotr[i, 4] != ausl[3]
-        aadd(arr, 'Не тот профиль в услуге ' + s)
-      endif
-    elseif (j := ascan(np_arr_osmotr[i, 4], ausl[3])) == 0
-      aadd(arr, 'Не тот профиль в услуге ' + s)
-    endif
-  endif
-  return fl
-
-// 28.01.18
-Function is_issled_PN(ausl, _period, arr, _pol)
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, j, s := '', fl := .f., lshifr := alltrim(ausl[1])
-
-  if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
-    lshifr := np_arr_not_zs[i, 1]
-  endif
-  for i := 1 to count_pn_arr_iss
-    if np_arr_issled[i, 1] == lshifr
-      s := '"' + lshifr + '.' + np_arr_issled[i, 3] + '"'
-      if valtype(np_arr_issled[i, 2]) == 'C' .and. !(np_arr_issled[i, 2] == _pol)
-        aadd(arr, 'Несовместимость по полу в услуге ' + s)
-      endif
-      fl := .t.
-      exit
-    endif
-  next
-  if fl .and. np_arr_issled[i, 4] < 2
-    if ascan(np_arr_1_etap[_period, 5], lshifr) == 0
-      aadd(arr, 'Некорректный возрастной период пациента для ' + s)
-    endif
-    if valtype(np_arr_issled[i, 5]) == 'N' .and. np_arr_issled[i, 5] != ausl[3]
-      aadd(arr, 'Не тот профиль в иссл-ии ' + s)
-    endif
-  endif
-  return fl
-
-// 14.02.16 если услуга из 1 этапа
-Function is_1_etap_PN_17(ausl, _period, _etap)
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
-
-  if _etap == 2 .and. (i := ascan(np_arr_osmotr_KDP2_17, {|x| x[2] == lshifr})) > 0
-    lshifr := np_arr_osmotr_KDP2_17[i, 1]
-  endif
-  for i := 1 to count_pn_arr_osm_17
-    if _etap == 1
-      if np_arr_osmotr_17[i, 4] == ausl[3]
-        lshifr := np_arr_osmotr_17[i, 1] // искусственно
-        fl := .t.
-        exit
-      endif
-    else
-      if np_arr_osmotr_17[i, 1] == lshifr
-        fl := .t.
-        exit
-      endif
-    endif
-  next
-  if fl
-    fl := (ascan(np_arr_1_etap_17[_period, 4], lshifr) > 0)
-  endif
-  return fl
-
-// 14.02.16
-Function is_osmotr_PN_17(ausl, _period, arr, _etap, _pol)
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
-
-  if _etap == 2 .and. (i := ascan(np_arr_osmotr_KDP2_17, {|x| x[2] == lshifr})) > 0
-    lshifr := np_arr_osmotr_KDP2_17[i, 1]
-  endif
-  for i := 1 to count_pn_arr_osm_17
-    if _etap == 1
-      if np_arr_osmotr_17[i, 4] == ausl[3]
-        lshifr := np_arr_osmotr_17[i, 1] // искусственно
-        fl := .t.
-        exit
-      endif
-    else
-      if np_arr_osmotr_17[i, 1] == lshifr
-        fl := .t.
-        exit
-      endif
-    endif
-  next
-  if fl
-    s := '"' + lshifr + '.' + np_arr_osmotr_17[i, 3] + '"'
-    if _etap == 1 .and. ascan(np_arr_1_etap_17[_period, 4], lshifr) == 0
-      aadd(arr, 'Некорректный возрастной период пациента для ' + s)
-    endif
-    if !empty(np_arr_osmotr_17[i, 2]) .and. !(np_arr_osmotr_17[i, 2] == _pol)
-      aadd(arr, 'Несовместимость по полу в услуге ' + s)
-    endif
-    if np_arr_osmotr_17[i, 4] != ausl[3]
-      aadd(arr, 'Не тот профиль в услуге ' + s)
-    endif
-  endif
-  return fl
-
-// 02.03.16
-Function is_issled_PN_17(ausl, _period, arr, _pol)
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, j, s := '', fl := .f., lshifr := alltrim(ausl[1])
-
-  for i := 1 to count_pn_arr_iss_17
-    if np_arr_issled_17[i, 1] == lshifr
-      s := '"' + lshifr + '.' + np_arr_issled_17[i, 3] + '"'
-      if valtype(np_arr_issled_17[i, 2]) == 'C' .and. !(np_arr_issled_17[i, 2] == _pol)
-        aadd(arr, 'Несовместимость по полу в услуге ' + s)
-      endif
-      fl := .t.
-      exit
-    endif
-  next
-  if fl .and. np_arr_issled_17[i, 4] < 2
-    if ascan(np_arr_1_etap_17[_period, 5], lshifr) == 0
-      aadd(arr, 'Некорректный возрастной период пациента для ' + s)
-    endif
-    if valtype(np_arr_issled_17[i, 5]) == 'N' .and. np_arr_issled_17[i, 5] != ausl[3]
-      aadd(arr, 'Не тот профиль в иссл-ии ' + s)
-    endif
-  endif
-  return fl
-
 // 20.06.19
 Function is_usluga_dvn(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1]), fl_19
 
@@ -453,6 +290,7 @@ Function is_usluga_dvn(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
 
 // 18.05.15
 Function is_usluga_dvn13(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1])
 
@@ -539,126 +377,9 @@ Function is_usluga_dvn13(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
   endif
   return fl
 
-// 10.05.16 является врачебным осмотром детей-сирот на первом этапе
-Function is_osmotr_DDS_1_etap(ausl, _vozrast, _etap, _pol, tip_lu)
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
-
-  // вместо услуг "2.87.*" сделаем "2.83.*"
-  if tip_lu == TIP_LU_DDSOP .and. left(lshifr, 5) == '2.87.'
-    lshifr := '2.83.' + substr(lshifr, 6)
-  endif
-  for i := 1 to count_dds_arr_osm1
-    if iif(empty(dds_arr_osm1[i, 2]), .t., dds_arr_osm1[i, 2] == mpol) .and. ;
-                           between(_vozrast, dds_arr_osm1[i, 3], dds_arr_osm1[i, 4])
-      if _etap == 1
-        if ascan(dds_arr_osm1[i, 5], ausl[3]) > 0
-          fl := .t.
-          exit
-        endif
-      else
-        if ascan(dds_arr_osm1[i, 7], lshifr) > 0
-          fl := .t.
-          exit
-        endif
-      endif
-    endif
-  next
-  return fl
-
-// 13.02.17 является врачебным осмотром детей-сирот
-Function is_osmotr_DDS(ausl, _vozrast, arr, _etap, _pol, tip_lu)
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, j, s, fl := .f., lshifr := alltrim(ausl[1])
-
-  // вместо услуг "2.87.*" сделаем "2.83.*"
-  if tip_lu == TIP_LU_DDSOP .and. left(lshifr, 5) == '2.87.'
-    lshifr := '2.83.' + substr(lshifr, 6)
-  endif
-  if _etap == 2 .and. (j := ascan(dds_arr_osmotr_KDP2, {|x| x[2] == lshifr})) > 0
-    lshifr := dds_arr_osmotr_KDP2[j, 1]
-  endif
-  for i := 1 to count_dds_arr_osm1
-    if _etap == 1
-      if ascan(dds_arr_osm1[i, 5], ausl[3]) > 0
-        fl := .t.
-        exit
-      endif
-    else
-      if ascan(dds_arr_osm1[i, 7], lshifr) > 0
-        fl := .t.
-        exit
-      endif
-    endif
-  next
-  if fl
-    s := '"' + lshifr + '.' + dds_arr_osm1[i, 1] + '"'
-    /*if !between(_vozrast,dds_arr_osm1[i, 3],dds_arr_osm1[i, 4])
-      aadd(arr,'Некорректный возраст пациента для услуги ' + s)
-    endif*/
-    if !empty(dds_arr_osm1[i, 2]) .and. !(dds_arr_osm1[i, 2] == _pol)
-      aadd(arr, 'Несовместимость по полу в услуге ' + s)
-    endif
-    if ascan(dds_arr_osm1[i, 5], ausl[3]) == 0
-      aadd(arr, 'Не тот профиль в услуге ' + s)
-    endif
-    /*if ascan(dds_arr_osm1[i, 6],ausl[4]) == 0
-      aadd(arr,'Не та специальность врача в услуге ' + s)
-      aadd(arr,' у Вас: '+lstr(ausl[4])+', разрешено: '+print_array(dds_arr_osm1[i, 6]))
-    endif*/
-  endif
-  if !fl .and. _etap == 2
-    for i := 1 to count_dds_arr_osm2
-      if ascan(dds_arr_osm2[i, 7], lshifr) > 0 .and. ascan(dds_arr_osm2[i, 5], ausl[3]) > 0
-        fl := .t.
-        exit
-      endif
-    next
-    if fl
-      s := '"' + lshifr + '.' + dds_arr_osm2[i, 1] + '"'
-      if !between(_vozrast, dds_arr_osm2[i, 3], dds_arr_osm2[i, 4])
-        aadd(arr, 'Некорректный возраст пациента для услуги ' + s)
-      endif
-      if ascan(dds_arr_osm2[i, 5], ausl[3]) == 0
-        aadd(arr, 'Не тот профиль в услуге ' + s)
-      endif
-      /*if ascan(dds_arr_osm2[i, 6],ausl[4]) == 0
-        aadd(arr,'Не та специальность врача в услуге ' + s)
-        aadd(arr,' у Вас: '+lstr(ausl[4])+', разрешено: '+print_array(dds_arr_osm2[i, 6]))
-      endif*/
-    endif
-  endif
-  return fl
-
-// 13.05.13 является исследованием детей-сирот
-Function is_issl_DDS(ausl, _vozrast, arr)
-// ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
-
-  for i := 1 to count_dds_arr_iss
-    if ascan(dds_arr_iss[i, 7], lshifr) > 0
-      fl := .t.
-      exit
-    endif
-  next
-  if fl .and. valtype(_vozrast) == 'N'
-    s := '"' + lshifr + '.' + dds_arr_iss[i, 1] + '"'
-    if !between(_vozrast, dds_arr_iss[i, 3], dds_arr_iss[i, 4])
-      aadd(arr, 'Некорректный возраст пациента для услуги ' + s)
-    endif
-    if ascan(dds_arr_iss[i, 5],ausl[3]) == 0
-      aadd(arr, 'Не тот профиль в услуге ' + s)
-    endif
-    /*if ascan(dds_arr_iss[i, 6],ausl[4]) == 0
-      aadd(arr,'Не та специальность врача в услуге ' + s)
-      aadd(arr,' у Вас: '+lstr(ausl[4])+', разрешено: '+print_array(dds_arr_iss[i, 6]))
-    endif*/
-  endif
-  return fl
-
-
 // 21.08.24 функция проверки лицензии на диспансеризацию/профилактику
 Function license_for_dispans(_tip, _n_data, _ta)
+
   // список учреждений с датой лицензии на диспансеризацию
   Static arr_date_disp := { ;
     {101003, 1, 0, 20130726}, ;  // 101003;ГБУЗ "ВОКБ № 3";+;;26.07.2013
@@ -760,7 +481,7 @@ Function license_for_dispans(_tip, _n_data, _ta)
       arr_date_disp[i, 4] := stod(lstr(arr_date_disp[i, 4]))
     next
   endif
-  if (i := ascan(arr_date_disp, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
+  if (i := ascan(arr_date_disp, {|x| x[1] == glob_mo()[ _MO_KOD_TFOMS ] })) > 0
     if arr_date_disp[i, _tip + 1] == 0
       aadd(_ta, 'У Вашей МО нет лицензии на ' + mm_tip[_tip])
     elseif arr_date_disp[i, 4] > _n_data
@@ -773,6 +494,7 @@ Function license_for_dispans(_tip, _n_data, _ta)
   
 // 25.08.13 если услуга из 1 этапа
 Function is_issled_PerN(ausl, _period, arr, _pol)
+
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, s := '', fl := .f., lshifr := alltrim(ausl[1])
 
@@ -796,8 +518,9 @@ Function is_issled_PerN(ausl, _period, arr, _pol)
   
 // 19.08.13 если услуга из 1 этапа
 Function is_1_etap_PredN(ausl, _period, _etap)
+
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
+  Local i, fl := .f., lshifr := alltrim(ausl[1])
 
   for i := 1 to count_predn_arr_osm
     if _etap == 1
@@ -820,6 +543,7 @@ Function is_1_etap_PredN(ausl, _period, _etap)
   
 // 13.02.17
 Function is_osmotr_PredN(ausl, _period, arr, _etap, _pol)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, s, fl := .f., lshifr := alltrim(ausl[1])
   
@@ -860,6 +584,7 @@ Function is_osmotr_PredN(ausl, _period, arr, _etap, _pol)
   
 // 19.08.13
 Function is_issled_PredN(ausl, _period, arr, _pol)
+  
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, s := '', fl := .f., lshifr := alltrim(ausl[1])
 
@@ -887,46 +612,47 @@ Function is_issled_PredN(ausl, _period, arr, _pol)
   endif
   return fl
   
-// 06.11.19 если услуга из 1 этапа
-Function is_1_etap_PN(ausl, _period, _etap)
-  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-  Local i, j, s, fl := .f., fl_profil := .f., lshifr := alltrim(ausl[1])
-
-  if eq_any(left(lshifr, 4), '2.3.', '2.91')
-    fl_profil := .t.
-  elseif _etap == 1
-    if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
-      lshifr := np_arr_not_zs[i, 1]
-    endif
-  elseif (i := ascan(np_arr_osmotr_KDP2, {|x| x[2] == lshifr})) > 0
-    lshifr := np_arr_osmotr_KDP2[i, 1]
-  endif
-  for i := 1 to count_pn_arr_osm
-    if _etap == 1 .or. fl_profil
-      if valtype(np_arr_osmotr[i, 4]) == 'N'
-        if np_arr_osmotr[i, 4] == ausl[3]
-          lshifr := np_arr_osmotr[i, 1] // искусственно
-          fl := .t.
-          exit
-        endif
-      elseif (j := ascan(np_arr_osmotr[i, 4], ausl[3])) > 0
-        lshifr := np_arr_osmotr[i, 1] // искусственно
-        fl := .t.
-        exit
-      endif
-    else
-      if np_arr_osmotr[i, 1] == lshifr
-        fl := .t.
-        exit
-      endif
-    endif
-  next
-  if fl
-    fl := (ascan(np_arr_1_etap[_period, 4], lshifr) > 0)
-  endif
-  return fl
-
 // проверка, умер ли пациент
 Function is_death(_rslt)
   return eq_any(_rslt, 105, 106, 205, 206, 313, 405, 406, 411) // по результату лечения
 
+// 16.09.25
+function message_save_LU()
+
+  If mem_op_out == 2 .and. yes_parol
+    box_shadow( 19, 10, 22, 69, cColorStMsg )
+    str_center( 20, 'Оператор "' + AllTrim( hb_user_curUser:FIO ) + '".', cColorSt2Msg )
+    str_center( 21, 'Ввод данных за ' + date_month( Date() ), cColorStMsg )
+  Endif
+  return nil
+
+// 27.10.25
+function check_Weight( weight )
+
+  local fl := .t.
+//  local min := LIMITED_NUM_WEIGHT_MIN
+//  local max := LIMITED_NUM_WEIGHT_MAX
+
+  if valtype( weight ) == 'C'
+    weight := val( weight )
+  endif
+  if ( LIMITED_NUM_WEIGHT_MIN > weight ) .or. (  weight > LIMITED_NUM_WEIGHT_MAX )
+    func_error( 'Вес должен быть в пределах от ' + alltrim( str( LIMITED_NUM_WEIGHT_MIN, 5, 1 ) ) + ' до ' + str( LIMITED_NUM_WEIGHT_MAX, 5, 1 ) + ' кг!' )
+    fl := .f.
+  endif
+  return fl
+
+// 27.10.25
+function check_Height( height )
+
+  local fl := .t.
+
+  if valtype( height ) == 'C'
+    height := val( height )
+  endif
+
+  if ( LIMITED_INT_HEIGHT_MIN > height ) .or. ( height > LIMITED_INT_HEIGHT_MAX )
+    func_error( 'Рост должен быть в пределах от ' + Alltrim( str( LIMITED_INT_HEIGHT_MIN, 3 ) ) + ' до ' + str( LIMITED_INT_HEIGHT_MAX, 5, 1 ) + ' см!' )
+    fl := .f.
+  endif
+  return fl

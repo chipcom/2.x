@@ -9,8 +9,29 @@ function diag_in_list_dn( diag )
 
   return AScan( diag_disp_nabl(), AllTrim( upper( diag ) ) ) > 0
 
-// 24.10.24
+// 19.05.25
 Function diag_disp_nabl()
+
+  Static arr
+  local db
+  local aTable
+  local nI
+
+  if HB_ISNIL( arr )
+    arr := {}
+    db := openSQL_DB()
+    aTable := sqlite3_get_table( db, 'SELECT diag FROM diagnozeDN' )
+    if len( aTable ) > 1
+      for nI := 2 to Len( aTable )
+        aadd( arr, AllTrim( aTable[ nI, 1 ] ) )
+      next
+    endif
+    db := nil
+  endif
+  return arr
+
+// 24.10.24
+Function diag_disp_nabl_old()
 
   Static arr
 
@@ -697,5 +718,4 @@ Function diag_disp_nabl()
       'N19' ;
       }
   Endif
-
   Return arr

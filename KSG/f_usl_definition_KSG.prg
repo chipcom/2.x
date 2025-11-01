@@ -17,8 +17,8 @@ Function f_usl_definition_KSG(lkod, k_data2, lDoubleSluch)
     Use_base('uslugi')
     if select('USL1') == 0
       is_usl1 := .t.
-      R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1', ;
-                                  dir_server + 'uslugi1s'}, 'USL1')
+      R_Use(dir_server() + 'uslugi1', {dir_server() + 'uslugi1', ;
+                                  dir_server() + 'uslugi1s'}, 'USL1')
     endif
     select TMP
     if lastrec() > 0
@@ -240,7 +240,7 @@ Function f_usl_definition_KSG(lkod, k_data2, lDoubleSluch)
       usl1->(dbCloseArea())
     endif
     usl->(dbCloseArea()) // переоткрыть справочник услуг
-    R_Use(dir_server + 'uslugi', dir_server + 'uslugish', 'USL')
+    R_Use(dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL')
     select TMP
     set relation to otd into OTD
     if tmp_rec > 0

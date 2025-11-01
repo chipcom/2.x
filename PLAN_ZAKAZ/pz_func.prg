@@ -74,7 +74,7 @@ Function f_arr_plan_zakaz( lshifr, lyear )
 //    sAliasUnit := create_name_alias( 'MOUNIT', lyear )
 //    if select( sAliasUnit ) == 0
 //      sbase := prefixFileRefName( lyear ) + 'unit'
-//      R_Use( dir_exe() + sbase, cur_dir + sbase, sAliasUnit )
+//      R_Use( dir_exe() + sbase, cur_dir() + sbase, sAliasUnit )
 //    endif
 //    select ( sAliasUnit )
 //    set order to 1
@@ -116,7 +116,7 @@ Function ret_PZ_VMP( lunit, kDate )
 
 //  if select( 'MOUNIT' ) == 0
 //    sbase := prefixFileRefName( nYear ) + 'unit'
-//    R_Use( dir_exe() + sbase, cur_dir + sbase, 'MOUNIT' )
+//    R_Use( dir_exe() + sbase, cur_dir() + sbase, 'MOUNIT' )
 //  endif
 //  select MOUNIT
 //  find ( str( lunit, 3 ) )

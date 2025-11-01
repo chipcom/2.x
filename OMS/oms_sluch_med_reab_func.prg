@@ -14,20 +14,20 @@ Function defenition_usluga_med_reab( lkod, vid, shrm, vto )
   shifr_reab := type_reabilitacia( vto )[ vid, 3 ][ shrm ]
 
   mywait( 'Добавление услуги' )
-  r_use( dir_server + 'mo_uch', , 'UCH' )
-  r_use( dir_server + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_uch', , 'UCH' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
   use_base( 'lusl' )
   use_base( 'luslc' )
   use_base( 'uslugi' )
-  r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
-    dir_server + 'uslugi1s' }, 'USL1' )
+  r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+    dir_server() + 'uslugi1s' }, 'USL1' )
   use_base( 'human_u' ) // если понадобится, удалить старую услугу и добавить новую
-  r_use( dir_server + 'mo_su', , 'MOSU' )
-  r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU' )
+  r_use( dir_server() + 'mo_su', , 'MOSU' )
+  r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To u_kod into MOSU
-  g_use( dir_server + 'human_2', , 'HUMAN_2' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  g_use( dir_server + 'human', , 'HUMAN' ) // перезаписать сумму
+  g_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  g_use( dir_server() + 'human', , 'HUMAN' ) // перезаписать сумму
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   HUMAN->( dbGoto( lkod ) )
   lyear := Year( human->K_DATA )
@@ -132,7 +132,7 @@ Function type_reabilitacia( vto )
     AAdd( ret, { 'лечении органов дыхания', 6, { '2.89.45', '2.89.46', '2.89.47' } } )
     AAdd( ret, { 'онкологическое лечение', 7, { '2.89.48', '2.89.49', '2.89.50' } } )
     // aadd(ret, {'лечении органов дыхания, после COVID-19, телемедицина', 8, {'2.89.42', '2.89.43', '2.89.44'}})
-    if vto == YES // использование высокотехнологического оборудования
+    if vto == CHIP_YES // использование высокотехнологического оборудования
       ret[ 1, 3 ] := { '', '2.89.51', '2.89.52' }
       ret[ 2, 3 ] := { '', '2.89.53', '2.89.54' }
       ret[ 3, 3 ] := { '', '2.89.55', '2.89.56' }
@@ -155,7 +155,7 @@ Function type_shrm_reabilitacia( vto )
 
   local ret := {}
 
-  if vto == NO // не используется высокотехнологичное оборудование
+  if vto == CHIP_NO // не используется высокотехнологичное оборудование
     AAdd( ret, { 'ШРМ 1', 1 } )
   endif
   AAdd( ret, { 'ШРМ 2', 2 } )
@@ -544,7 +544,7 @@ Function ret_array_med_reab( vid, shrm, adult, vto )
   local tmp_arr
 
   Default adult To .t.
-  if vto == NO
+  if vto == CHIP_NO
     tmp_arr := arr_uslugi_med_reab
   else
     tmp_arr := arr_uslugi_med_reab_vto

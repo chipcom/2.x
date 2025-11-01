@@ -13,8 +13,8 @@ Function forma_792_miac()
 
   waitstatus( arr_m[ 4 ] )
   For i := 1 To 3
-    If i != 2 .and. hb_FileExists( dir_server + arr_f[ i ] + sdbf )
-      r_use( dir_server + arr_f[ i ],, '_B' )
+    If i != 2 .and. hb_FileExists( dir_server() + arr_f[ i ] + sdbf() )
+      r_use( dir_server() + arr_f[ i ],, '_B' )
       Go Top
       Do While !Eof()
         If iif( i == 1, !Between( _b->tfoms, 44, 47 ), .t. ) .and. _b->ist_fin == I_FIN_BUD
@@ -25,7 +25,7 @@ Function forma_792_miac()
       Use
     Endif
   Next
-  dbCreate( cur_dir + 'tmp', { { 'nstr', 'N', 1, 0 }, ;
+  dbCreate( cur_dir() + 'tmp', { { 'nstr', 'N', 1, 0 }, ;
     { 'oms', 'N', 1, 0 }, ;
     { 'profil', 'N', 3, 0 }, ;
     { 'kol1', 'N', 6, 0 }, ;
@@ -38,22 +38,22 @@ Function forma_792_miac()
     { 'sum4', 'N', 15, 2 }, ;
     { 'kol', 'N', 6, 0 }, ;
     { 'sum', 'N', 15, 2 } } )
-  Use ( cur_dir + 'tmp' ) New Alias TMP
-  Index On Str( oms, 1 ) + Str( nstr, 1 ) + Str( profil, 3 ) to ( cur_dir + 'tmp' )
-  r_use( dir_server + 'mo_rak',, 'RAK' )
-  r_use( dir_server + 'mo_raks',, 'RAKS' )
+  Use ( cur_dir() + 'tmp' ) New Alias TMP
+  Index On Str( oms, 1 ) + Str( nstr, 1 ) + Str( profil, 3 ) to ( cur_dir() + 'tmp' )
+  r_use( dir_server() + 'mo_rak',, 'RAK' )
+  r_use( dir_server() + 'mo_raks',, 'RAKS' )
   Set Relation To akt into RAK
-  r_use( dir_server + 'mo_raksh',, 'RAKSH' )
+  r_use( dir_server() + 'mo_raksh',, 'RAKSH' )
   Set Relation To kod_raks into RAKS
-  Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' )
+  Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' )
   //
-  r_use( dir_server + 'schet_',, 'SCHET_' )
-  r_use( dir_server + 'schet',, 'SCHET' )
+  r_use( dir_server() + 'schet_',, 'SCHET_' )
+  r_use( dir_server() + 'schet',, 'SCHET' )
   Set Relation To RecNo() into SCHET_
   //
-  r_use( dir_server + 'human_2',, 'HUMAN_2' )
-  r_use( dir_server + 'human_',, 'HUMAN_' )
-  r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+  r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+  r_use( dir_server() + 'human_',, 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
   Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -161,7 +161,7 @@ Function forma_792_miac()
         'ÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄ' }
       sh := Len( arr_title[ 1 ] )
       //
-      nfile := 'pr_792' + stxt
+      nfile := 'pr_792.txt'
       fp := FCreate( nfile ) ; n_list := 1 ; tek_stroke := 0
       add_string( Center( '” ªâ¨ç¥áª¨¥ ¯®ª § â¥«¨ ®¡êñ¬  ¨ ä¨­ ­á®¢®£® ®¡¥á¯¥ç¥­¨ï á¯¥æ¨ «¨§¨à®¢ ­­®© ¬¥¤¨æ¨­áª®© ¯®¬®é¨, ®ª § ­­®© ¢', sh ) )
       add_string( Center( 'áâ æ¨®­ à­ëå ãá«®¢¨ïå, ¯® ®â¤¥«ì­ë¬ ¯à®ä¨«ï¬ ¬¥¤¨æ¨­áª®© ¯®¬®é¨ §  2016 £®¤ (¢ âëá.àã¡.)', sh ) )

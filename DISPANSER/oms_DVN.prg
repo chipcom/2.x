@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.10.24 ДВН - добавление или редактирование случая (листа учета)
+// 29.10.25 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -172,13 +172,13 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
     endif
     mkod_k := kod_kartotek
-    r_use( dir_server + 'kartotek', , 'KART' )
+    r_use( dir_server() + 'kartotek', , 'KART' )
     Goto ( mkod_k )
     mpol        := kart->pol
     mdate_r     := kart->date_r
     kart->( dbCloseArea() )
   Elseif Loc_kod > 0
-    r_use( dir_server + 'human', , 'HUMAN' )
+    r_use( dir_server() + 'human', , 'HUMAN' )
     Goto ( Loc_kod )
     mpol    := human->pol
     mdate_r := human->date_r
@@ -251,16 +251,16 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Next
   //
   AFill( adiag_talon, 0 )
-  r_use( dir_server + 'human_2', , 'HUMAN_2' )
-  r_use( dir_server + 'human_', , 'HUMAN_' )
-  r_use( dir_server + 'human', , 'HUMAN' )
+  r_use( dir_server() + 'human_2', , 'HUMAN_2' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   If mkod_k > 0
-    r_use( dir_server + 'kartote2', , 'KART2' )
+    r_use( dir_server() + 'kartote2', , 'KART2' )
     Goto ( mkod_k )
-    r_use( dir_server + 'kartote_', , 'KART_' )
+    r_use( dir_server() + 'kartote_', , 'KART_' )
     Goto ( mkod_k )
-    r_use( dir_server + 'kartotek', , 'KART' )
+    r_use( dir_server() + 'kartotek', , 'KART' )
     Goto ( mkod_k )
     M1FIO       := 1
     mfio        := kart->fio
@@ -292,7 +292,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     // проверка исхода = СМЕРТЬ
     ah := {}
     Select HUMAN
-    Set Index to ( dir_server + 'humankk' )
+    Set Index to ( dir_server() + 'humankk' )
     find ( Str( mkod_k, 7 ) )
     Do While human->kod_k == mkod_k .and. !Eof()
       If human_->oplata != 9 .and. human_->NOVOR == 0 .and. RecNo() != Loc_kod
@@ -425,7 +425,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     fl_4_1_12 := .f.
     larr := Array( 2, count_dvn_arr_usl )
     afillall( larr, 0 )
-    r_use( dir_server + 'uslugi', , 'USL' )
+    r_use( dir_server() + 'uslugi', , 'USL' )
     use_base( 'human_u' )
     find ( Str( Loc_kod, 7 ) )
     Do While hu->kod == Loc_kod .and. !Eof()
@@ -474,7 +474,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                   m1var := 'm1lis' + lstr( i )
                   If is_disp_19
                     &m1var := 0
-                  Elseif glob_yes_kdp2[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS, dvn_arr_usl[ i, 2 ] ) > 0 .and. hu->is_edit > 0
+                  Elseif glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS(), dvn_arr_usl[ i, 2 ] ) > 0 .and. hu->is_edit > 0
                     &m1var := hu->is_edit
                   Endif
                   mvar := 'mlis' + lstr( i )
@@ -508,12 +508,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Select HU
       Skip
     Enddo
-    r_use( dir_server + 'mo_pers', , 'P2' )
+    r_use( dir_server() + 'mo_pers', , 'P2' )
     read_arr_dvn( Loc_kod )
     If metap == 1 .and. Between( m1GRUPPA, 11, 14 ) .and. m1p_otk == 1
       m1GRUPPA += 10
     Endif
-    // R_Use(dir_server + 'mo_pers',,'P2')
+    // R_Use(dir_server() + 'mo_pers',,'P2')
     For i := 1 To count_dvn_arr_usl
       If !Empty( larr[ 1, i ] )
         hu->( dbGoto( larr[ 1, i ] ) )
@@ -590,7 +590,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Next j
     Endif
     // собираем онкологические направления
-    dbCreate( cur_dir + 'tmp_onkna', create_struct_temporary_onkna() )
+    dbCreate( cur_dir() + 'tmp_onkna', create_struct_temporary_onkna() )
     cur_napr := 1 // при ред-ии - сначала первое направление текущее
     count_napr := collect_napr_zno( Loc_kod )
     If count_napr > 0
@@ -611,10 +611,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   mndisp    := inieditspr( A__MENUVERT, mm_ndisp, metap )
   mrab_nerab := inieditspr( A__MENUVERT, menu_rab, m1rab_nerab )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
-  mlpu      := inieditspr( A__POPUPMENU, dir_server + 'mo_uch', m1lpu )
-  motd      := inieditspr( A__POPUPMENU, dir_server + 'mo_otd', m1otd )
+  mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
+  motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
-  mokato    := inieditspr( A__MENUVERT, glob_array_srf, m1okato )
+  mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
   f_valid_komu(, -1 )
@@ -857,7 +857,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                 fl_g_cit := .f.
                 m1g_cit := 1 // в МО
               Endif
-            Elseif !is_disp_19 .and. glob_yes_kdp2[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS, dvn_arr_usl[ i, 2 ] ) > 0
+            Elseif !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS(), dvn_arr_usl[ i, 2 ] ) > 0
               fl_kdp2 := .t.
             Endif
           Endif
@@ -1040,15 +1040,15 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
         reader {| x | menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
-        When m1ds_onk == 1
+        When m1ds_onk == 0
       @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } When m1ds_onk == 0
 
       dispans_napr( mk_data, @j, .t. )  // вызов заполнения блока направлений
 
       @ ++j, 1 Say 'ГРУППА состояния ЗДОРОВЬЯ'
       @ j, Col() + 1 Get mGRUPPA ;
-        reader {| x | menu_reader( x, mm_gruppa, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, iif( m1DS_ONK == 1, mm_gruppaD2, mm_gruppa ), A__MENUVERT, , , .f. ) }
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 2-ю страницу ^<PgDn>^ ЗАПИСЬ' )
     Endif
     DispEnd()
@@ -1156,8 +1156,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
       //
       mdef_diagnoz := iif( metap == 2, 'Z01.8 ', 'Z00.8 ' )
-      r_use( dir_exe() + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10' )
-      r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2' )
+      r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
+      r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2' )
       num_screen := 2
       max_date1 := mn_data
       fl := .t.
@@ -1259,7 +1259,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             If ValType( ar[ 2 ] ) == 'C'
               arr_osm1[ i, 5 ] := ar[ 2 ] // шифр услуги
               m1var := 'm1lis' + lstr( i )
-              If !is_disp_19 .and. glob_yes_kdp2[ TIP_LU_DVN ] .and. &m1var > 0
+              If !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_DVN ] .and. &m1var > 0
                 arr_osm1[ i, 11 ] := &m1var // кровь проверяют в КДП2
               Endif
               If ar[ 2 ] == '2.3.1'
@@ -1504,11 +1504,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       err_date_diap( mn_data, 'Дата начала лечения' )
       err_date_diap( mk_data, 'Дата окончания лечения' )
       //
-      If mem_op_out == 2 .and. yes_parol
-        box_shadow( 19, 10, 22, 69, cColorStMsg )
-        str_center( 20, 'Оператор "' + fio_polzovat + '".', cColorSt2Msg )
-        str_center( 21, 'Ввод данных за ' + date_month( sys_date ), cColorStMsg )
-      Endif
+      message_save_LU()
       mywait()
       //
       m1lis := 0
@@ -1516,7 +1512,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         If ValType( arr_osm1[ i, 9 ] ) == 'D'
           If arr_osm1[ i, 5 ] == '4.20.2' .and. arr_osm1[ i, 9 ] < mn_data // не в рамках диспансеризации
             m1g_cit := 1 // если и было =2, убираем
-          Elseif !is_disp_19 .and. glob_yes_kdp2[ TIP_LU_DVN ] .and. arr_osm1[ i, 9 ] >= mn_data .and. Len( arr_osm1[ i ] ) > 10 ;
+          Elseif !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_DVN ] .and. arr_osm1[ i, 9 ] >= mn_data .and. Len( arr_osm1[ i ] ) > 10 ;
               .and. ValType( arr_osm1[ i, 11 ] ) == 'N' .and. arr_osm1[ i, 11 ] > 0
             m1lis := arr_osm1[ i, 11 ] // в рамках диспансеризации
           Endif
@@ -1680,8 +1676,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       use_base( 'lusl' )
       use_base( 'luslc' )
       use_base( 'uslugi' )
-      r_use( dir_server + 'uslugi1', { dir_server + 'uslugi1', ;
-        dir_server + 'uslugi1s' }, 'USL1' )
+      r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+        dir_server() + 'uslugi1s' }, 'USL1' )
       mcena_1 := mu_cena := 0
       arr_usl_dop := {}
       arr_usl_otkaz := {}
@@ -1829,8 +1825,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
-        g_use( dir_server + 'mo_hismo', , 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+        g_use( dir_server() + 'mo_hismo', , 'SN' )
+        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo

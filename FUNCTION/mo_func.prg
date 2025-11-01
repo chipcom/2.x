@@ -47,8 +47,8 @@ Function write_work_oper( _pt, _tp, _ae, _kk, _kp, _open )
   Static llen := 6
 
   Default _kk To 1, _kp To 0, _open To .t.
-  If yes_parol .and. hb_FileExists( dir_server + 'mo_opern' + sdbf ) .and. ;
-      iif( _open, g_use( dir_server + 'mo_opern', dir_server + 'mo_opern', 'OP' ), .t. )
+  If yes_parol .and. hb_FileExists( dir_server() + 'mo_opern' + sdbf() ) .and. ;
+      iif( _open, g_use( dir_server() + 'mo_opern', dir_server() + 'mo_opern', 'OP' ), .t. )
     _pt := Chr( _pt )
     _tp := Chr( _tp )
     _ae := Chr( _ae )
@@ -97,8 +97,8 @@ Function ret_inogsmo_name( ltip, /*@*/rec, fl_close)
 
   Default fl_close To .f.
   If Select( 'SN' ) == 0
-    r_use( dir_server + iif( ltip == 1, 'mo_kismo', 'mo_hismo' ), , 'SN' )
-    Index On Str( kod, 7 ) to ( cur_dir + 'tmp_ismo' )
+    r_use( dir_server() + iif( ltip == 1, 'mo_kismo', 'mo_hismo' ), , 'SN' )
+    Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
     fl := .t.
   Endif
   Select SN
@@ -133,7 +133,7 @@ Function smo_to_screen( ltip )
     Endif
     lokato := iif( ltip == 1, kart_->KVARTAL_D, human_->okato )
     If !Empty( lokato )
-      s += '/' + inieditspr( A__MENUVERT, glob_array_srf, lokato )
+      s += '/' + inieditspr( A__MENUVERT, glob_array_srf(), lokato )
     Endif
   Endif
 
@@ -301,7 +301,7 @@ Function init_tmp_glob_array( name_base, _glob_array, _date, is_all )
   Local i, len1, len2, f2type, fl_is, tmp_select
 
   Default name_base To 'tmp_ga', is_all To .f.
-  If !myfiledeleted( cur_dir + name_base + sdbf )
+  If !myfiledeleted( cur_dir() + name_base + sdbf() )
     Return .f.
   Endif
   tmp_select := Select()
@@ -512,15 +512,15 @@ Function input_usluga( arr_tfoms )
 
   Local ar, musl, arr_usl, buf, fl_tfoms := ( ValType( arr_tfoms ) == 'A' )
 
-  ar := getinisect( tmp_ini, 'uslugi' )
+  ar := getinisect( tmp_ini(), 'uslugi' )
   musl := PadR( a2default( ar, 'shifr' ), 10 )
   If ( musl := input_value( 18, 6, 20, 73, color1, ;
       Space( 17 ) + 'Введите шифр услуги', musl, '@K' ) ) != Nil .and. !Empty( musl )
     buf := save_maxrow()
     mywait()
     musl := transform_shifr( musl )
-    setinisect( tmp_ini, 'uslugi', { { 'shifr', musl } } )
-    r_use( dir_server + 'uslugi', dir_server + 'uslugish', 'USL' )
+    setinisect( tmp_ini(), 'uslugi', { { 'shifr', musl } } )
+    r_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
     find ( musl )
     If Found()
       susl := musl
@@ -552,7 +552,7 @@ Function ret_1st_otd( lkod_uch )
 
   Local k, tmp_select := Select()
 
-  r_use( dir_server + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
   Locate For otd->kod_lpu == lkod_uch
   If Found()
     k := { otd->( RecNo() ), AllTrim( otd->name ) }
@@ -603,20 +603,20 @@ Function input_uch( r, c, date1, date2 )
 
   Local ret, k, fl_is, tmp_select := Select()
 
-  If !myfiledeleted( cur_dir + 'tmp_ga' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_ga' + sdbf() )
     Return ret
   Endif
   If Empty( glob_uch[ 1 ] )
-    ar := getinivar( tmp_ini, { { 'uch_otd', 'uch', '0' }, ;
+    ar := getinivar( tmp_ini(), { { 'uch_otd', 'uch', '0' }, ;
       { 'uch_otd', 'OTD', '0' } } )
     glob_uch[ 1 ] := Int( Val( ar[ 1 ] ) )
     glob_otd[ 1 ] := Int( Val( ar[ 2 ] ) )
   Endif
-  dbCreate( cur_dir + 'tmp_ga', { { 'name', 'C', 30, 0 }, ;
+  dbCreate( cur_dir() + 'tmp_ga', { { 'name', 'C', 30, 0 }, ;
     { 'kod', 'N', 3, 0 }, ;
     { 'is', 'L', 1, 0 } } )
-  Use ( cur_dir + 'tmp_ga' ) new
-  r_use( dir_server + 'mo_uch', , 'UCH' )
+  Use ( cur_dir() + 'tmp_ga' ) new
+  r_use( dir_server() + 'mo_uch', , 'UCH' )
   Go Top
   Do While !Eof()
     fl_is := between_date( uch->DBEGIN, uch->DEND, date1, date2 )
@@ -635,7 +635,7 @@ Function input_uch( r, c, date1, date2 )
   If ( k := tmp_ga->( LastRec() ) ) == 1
     ret := { tmp_ga->kod, AllTrim( tmp_ga->name ) }
   Else
-    Index On Upper( name ) to ( cur_dir + 'tmp_ga' )
+    Index On Upper( name ) to ( cur_dir() + 'tmp_ga' )
   Endif
   tmp_ga->( dbCloseArea() )
   Select ( tmp_select )
@@ -647,7 +647,7 @@ Function input_uch( r, c, date1, date2 )
   If ret != NIL
     glob_uch := ret
     st_a_uch := { glob_uch }
-    setinivar( tmp_ini, { { 'uch_otd', 'UCH', glob_uch[ 1 ] } } )
+    setinivar( tmp_ini(), { { 'uch_otd', 'UCH', glob_uch[ 1 ] } } )
   Endif
 
   Return ret
@@ -662,16 +662,16 @@ Function input_otd( r, c, date1, date2, nTask )
   Local ret, k, fl_is, tmp_select := Select()
 
   Default nTask To X_OMS
-  If !myfiledeleted( cur_dir + 'tmp_ga' + sdbf )
+  If !myfiledeleted( cur_dir() + 'tmp_ga' + sdbf() )
     Return ret
   Endif
-  dbCreate( cur_dir + 'tmp_ga', { { 'name', 'C', 30, 0 }, ;
+  dbCreate( cur_dir() + 'tmp_ga', { { 'name', 'C', 30, 0 }, ;
     { 'kod', 'N', 3, 0 }, ;
     { 'idump', 'N', 2, 0 }, ;
     { 'tiplu', 'N', 2, 0 }, ;
     { 'is', 'L', 1, 0 } } )
-  Use ( cur_dir + 'tmp_ga' ) new
-  r_use( dir_server + 'mo_otd', , 'OTD' )
+  Use ( cur_dir() + 'tmp_ga' ) new
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
   Go Top
   Do While !Eof()
     If otd->KOD_LPU == glob_uch[ 1 ]
@@ -700,7 +700,7 @@ Function input_otd( r, c, date1, date2, nTask )
   If ( k := tmp_ga->( LastRec() ) ) == 1
     ret := { tmp_ga->kod, AllTrim( tmp_ga->name ), tmp_ga->idump, tmp_ga->tiplu }
   Else
-    Index On Upper( name ) to ( cur_dir + 'tmp_ga' )
+    Index On Upper( name ) to ( cur_dir() + 'tmp_ga' )
   Endif
   tmp_ga->( dbCloseArea() )
   Select ( tmp_select )
@@ -711,7 +711,7 @@ Function input_otd( r, c, date1, date2, nTask )
   Endif
   If ret != NIL
     glob_otd := ret
-    setinivar( tmp_ini, { { 'uch_otd', 'OTD', glob_otd[ 1 ] } } )
+    setinivar( tmp_ini(), { { 'uch_otd', 'OTD', glob_otd[ 1 ] } } )
   Endif
 
   Return ret
@@ -744,7 +744,7 @@ Function input_perso( r, c, is_null, is_rab )
     Elseif i < 0
       Return func_error( 4, 'Неверный ввод - отрицательный код!' )
     Endif
-    r_use( dir_server + 'mo_pers', dir_server + 'mo_pers', 'PERSO' )
+    r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'PERSO' )
     find ( Str( i, 5 ) )
     If Found()
       glob_human := { perso->kod, ;
@@ -766,8 +766,8 @@ Function input_perso( r, c, is_null, is_rab )
   Private mr := r
   mywait()
   // help_code := H_Input_fio
-  If r_use( dir_server + 'mo_pers', , 'PERSO' )
-    Index On Upper( fio ) to ( cur_dir + 'tmp_pers' ) For kod > 0
+  If r_use( dir_server() + 'mo_pers', , 'PERSO' )
+    Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
     If glob_human[ 1 ] > 0
       Goto ( glob_human[ 1 ] )
       fl := !Eof() .and. !Deleted()
@@ -1176,8 +1176,8 @@ Function f1_s_mr( nKey, oBrow, regim )
 
   Do Case
   Case regim == "open"
-    g_use( dir_server + "s_mr",, "SA" )
-    Index On Upper( name ) to ( cur_dir + "tmp_mr" )
+    g_use( dir_server() + "s_mr",, "SA" )
+    Index On Upper( name ) to ( cur_dir() + "tmp_mr" )
     Go Top
     ret := !Eof()
   Case regim == "edit"
@@ -1348,7 +1348,7 @@ Function forma_nastr( s_titul, arr_strok, nfile, arr, fl )
 //
 Function f9_f_nastr( l_titul, a_strok )
 
-  Local sh := 80, HH := 77, buf := save_maxrow(), n_file := cur_dir + 'frm_nast' + stxt
+  Local sh := 80, HH := 77, buf := save_maxrow(), n_file := cur_dir() + 'frm_nast.txt'
   Local i, k, nrow := Row(), ncol := Col(), tmp_keys, tmp_gets, ta := {}
 
   mywait()
@@ -1375,8 +1375,8 @@ Function f9_f_nastr( l_titul, a_strok )
   For i := 1 To k
     add_string( ta[ i ] )
   Next
-  r_use( dir_server + 'uslugi', , 'USL' )
-  Index On fsort_usl( shifr ) to ( cur_dir + 'tmpu' )
+  r_use( dir_server() + 'uslugi', , 'USL' )
+  Index On fsort_usl( shifr ) to ( cur_dir() + 'tmpu' )
   Go Top
   Do While !Eof()
     If _f_usl_danet( mda, mnet )

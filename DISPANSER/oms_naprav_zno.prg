@@ -27,10 +27,6 @@ Function f5editusl_napr( get, when_valid, k )
           is_usluga_zf := luslf->zf
           tip_onko_napr := luslf->onko_napr
           tip_onko_ksg := luslf->onko_ksg
-          // if (tip_telemed := luslf->telemed) == 1
-          // tip_telemed2 := (left(mshifr, 4) == 'B01.')
-          // endif
-          // tip_par_org := luslf->par_org
           fl1 := .t.
           Select MOSU
           Set Order To 3
@@ -59,17 +55,6 @@ Function f5editusl_napr( get, when_valid, k )
           Endif
           Return fl
         Elseif fl1
-          // mn_base := 1
-          // mstoim_1 := mu_cena := 0
-          // if type('tip_telemed2') == 'L' .and. is_telemedicina(mshifr1, @tip_telemed2) // является услугой телемедицины - не заполняется код врача
-          // tip_telemed := 1
-          // mis_edit := -1
-          // endif
-          // mis_nul := .t.
-          // mkol := mkol_1 := 1
-          // verify_uva(2)
-          // update_gets()
-          // return fl  // !!!!!!!!!!!!!!!!!!!!!
         Endif
       Endif
     Endif
@@ -81,7 +66,6 @@ Function f5editusl_napr( get, when_valid, k )
       Return fl
     Endif
   Endif
-
   Return fl
 
 // 22.05.24 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
@@ -92,23 +76,16 @@ Function fget_napr_zno( k, r, c )
   Local recNumberDoctor := 0
   Local oBox, lAlias
 
-  Private mm_napr_v := {{'нет', 0}, ;
-    {'к онкологу', 1}, ;
-    {'на дообследование', 3}}
-  Private mm_met_issl := {{'нет', 0}, ;
-      {'лабораторная диагностика', 1}, ;
-      {'инструментальная диагностика', 2}, ;
-      {'методы лучевой диагностики (недорогостоящие)', 3}, ;
-      {'дорогостоящие методы лучевой диагностики', 4}}
-  // Private mm_napr_v := {{'нет', 0}, ;
-  //   {'к онкологу', 1}, ;
-  //   {'на биопсию', 2}, ;
-  //   {'на дообследование', 3}, ;
-  //   {'для опредения тактики лечения', 4}}
+  Private mm_napr_v := { { 'нет', 0 }, ;
+    { 'к онкологу', 1 }, ;
+    { 'на дообследование', 3 } }
+  Private mm_met_issl := {{'нет', 0 }, ;
+    { 'лабораторная диагностика', 1 }, ;
+    { 'инструментальная диагностика', 2 }, ;
+    { 'методы лучевой диагностики (недорогостоящие)', 3 }, ;
+    { 'дорогостоящие методы лучевой диагностики', 4 } }
 
 
-  // buf := savescreen()
-  // change_attr() // сделать область экрана "бледной"
   tmp_keys := my_savekey()
   Save gets To tmp_list
   //
@@ -118,7 +95,7 @@ Function fget_napr_zno( k, r, c )
     use_base( 'mo_su' )
   Endif
 
-  Use ( cur_dir + 'tmp_onkna' ) New Alias TNAPR
+  Use ( cur_dir() + 'tmp_onkna' ) New Alias TNAPR
   count_napr := LastRec()
   mNAPR_MO := Space( 6 )
   If cur_napr > 0 .and. cur_napr <= count_napr
@@ -134,10 +111,6 @@ Function fget_napr_zno( k, r, c )
     Endif
     m1NAPR_V := tnapr->NAPR_V
     m1MET_ISSL := tnapr->MET_ISSL
-    // mu_kod := tnapr->U_KOD
-    // mshifr := tnapr->shifr_u
-    // mshifr1 := tnapr->shifr1
-    // mname_u := tnapr->name_u
     mu_kod := iif( m1napr_v == 3, tnapr->U_KOD, 0 )
     mshifr := iif( m1napr_v == 3, tnapr->shifr_u, Space( 20 ) )
     mshifr1 := iif( m1napr_v == 3, tnapr->shifr1, Space( 20 ) )
@@ -172,37 +145,6 @@ Function fget_napr_zno( k, r, c )
   oBox:Save := .t.
   oBox:view()
 
-  // box_shadow(j, 0, j + 9, maxcol() - 2, color1, 'Ввод направлений при подозрении на ЗНО', color8)
-  // @ ++j, 1 say 'НАПРАВЛЕНИЕ №' get cur_napr pict '99' when .f.
-  // @ j, col() say '(из' get count_napr pict '99' when .f.
-  // @ j, col() say ')'
-  // @ j, 29 say '(<F5> - добавление/редактирование направления №...)' color 'G/B'
-  // @ ++j, 3 say 'Дата направления' get mNAPR_DATE ;
-  // valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE, mn_data, mk_data), .t., ;
-  // func_error(4, 'Дата направления должна быть внутри сроков лечения')) }
-  // @ ++j, 3 say 'Табельный номер направившего врача' get mTab_Number pict '99999' ;
-  // valid {|g| iif(!v_kart_vrach(g), func_error(4, strNeedTabNumber), .t.) }
-  // @ ++j, 3 say 'В какую МО направлен' get mnapr_mo ;
-  // reader {|x|menu_reader(x,{{|k, r, c| f_get_mo(k, r, c)}} ,A__FUNCTION, , , .f.)}
-  // @ ++j, 3 say 'Вид направления' get mnapr_v ;
-  // reader {|x|menu_reader(x, mm_napr_v, A__MENUVERT, , , .f.)} //; color colget_menu
-  // @ ++j, 5 say 'Метод диагностического исследования' get mmet_issl ;
-  // reader {|x|menu_reader(x, mm_met_issl, A__MENUVERT, , , .f.)} ;
-  // when m1napr_v == 3 //; color colget_menu
-  // @ ++j, 5 say 'Медицинская услуга' get mshifr pict '@!' ;
-  // when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
-  // valid {|g|
-  // Local fl := f5editusl_napr(g, 2, 2)
-  // if empty(mshifr)
-  // mu_kod  := 0
-  // mname_u := space(65)
-  // mshifr1 := mshifr
-  // elseif fl .and. tip_onko_napr > 0 .and. tip_onko_napr != m1MET_ISSL
-  // func_error(4, 'Тип медуслуги не соответствует методу диагностического исследования')
-  // endif
-  // return fl
-  // }
-  // @ ++j, 7 say 'Услуга' get mname_u when .f. color color14
   @ 1, 1 TBOX oBox Say 'НАПРАВЛЕНИЕ №' Get cur_napr Pict '99' When .f.
   @ 1, Col() TBOX oBox Say '(из' Get count_napr Pict '99' When .f.
   @ 1, Col() TBOX oBox Say ')'
@@ -222,53 +164,33 @@ Function fget_napr_zno( k, r, c )
   @ 7, 5 TBOX oBox Say 'Медицинская услуга' Get mshifr Pict '@!' ;
     when {| g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
     valid {| g|
-  Local fl := f5editusl_napr( g, 2, 2 )
-  If Empty( mshifr )
-    mu_kod  := 0
-    mname_u := Space( 52 )
-    mshifr1 := mshifr
-  Elseif fl .and. tip_onko_napr > 0 .and. tip_onko_napr != m1MET_ISSL
-    func_error( 4, 'Тип медуслуги не соответствует методу диагностического исследования' )
+      Local fl := f5editusl_napr( g, 2, 2 )
+      If Empty( mshifr )
+        mu_kod  := 0
+        mname_u := Space( 52 )
+        mshifr1 := mshifr
+      Elseif fl .and. tip_onko_napr > 0 .and. tip_onko_napr != m1MET_ISSL
+        func_error( 4, 'Тип медуслуги не соответствует методу диагностического исследования' )
+      Endif
+      Return fl
+    }
+  @ 8, 7 TBOX oBox Say 'Услуга' Get mname_u  Pict '@S52' When .f. Color color14
+  //
+  Set Key K_F5 To change_num_napr
+  myread()
+  Set Key K_F5
+  oBox := nil
+
+  recNumberDoctor := get_kod_vrach_by_tabnom( mTab_Number )
+
+  Close databases
+  If !( emptyany( mNAPR_DATE, m1NAPR_V ) .and. count_napr == 0 )
+    If cur_napr == 0
+      cur_napr := 1
+    Endif
   Endif
 
-  Return fl
-}
-@ 8, 7 TBOX oBox Say 'Услуга' Get mname_u  Pict '@S52' When .f. Color color14
-//
-Set Key K_F5 To change_num_napr
-myread()
-Set Key K_F5
-oBox := nil
-
-recNumberDoctor := get_kod_vrach_by_tabnom( mTab_Number )
-
-Close databases
-If !( emptyany( mNAPR_DATE, m1NAPR_V ) .and. count_napr == 0 )
-If cur_napr == 0
-cur_napr := 1
-Endif
-// use (cur_dir + 'tmp_onkna') new alias TNAPR
-// count_napr := lastrec()
-// if cur_napr <= count_napr
-// goto (cur_napr) // номер текущего направления
-// else
-// append blank
-// endif
-// tnapr->NAPR_DATE := mNAPR_DATE
-// tnapr->KOD_VR := recNumberDoctor
-// tnapr->NAPR_MO := m1NAPR_MO
-// tnapr->NAPR_V := m1NAPR_V
-// tnapr->MET_ISSL := iif(m1NAPR_V == 3, m1MET_ISSL, 0)
-// tnapr->U_KOD := iif(m1NAPR_V == 3, mu_kod, 0)
-// tnapr->shifr_u := iif(m1NAPR_V == 3, mshifr, '')
-// tnapr->shifr1 := iif(m1NAPR_V == 3, mshifr1, '')
-// tnapr->name_u := iif(m1NAPR_V == 3, mname_u, '')
-// cur_napr := recno()
-// count_napr := lastrec()
-// use
-Endif
-
-count_napr := save_onko_napr( @cur_napr, ;
+  count_napr := save_onko_napr( @cur_napr, ;
     mNAPR_DATE, ;
     recNumberDoctor, ;
     m1NAPR_MO, ;
@@ -278,28 +200,20 @@ count_napr := save_onko_napr( @cur_napr, ;
     iif( m1NAPR_V == 3, mshifr, '' ), ;
     iif( m1NAPR_V == 3, mshifr1, '' ), ;
     iif( m1NAPR_V == 3, mname_u, '' ) )
-// m1MET_ISSL, ;
-// mu_kod, ;
-// mshifr, ;
-// mshifr1, ;
-// mname_u)
 
-// setcolor(tmp_color)
-Restore gets From tmp_list
-my_restkey( tmp_keys )
-// restscreen(buf)
-
+  Restore gets From tmp_list
+  my_restkey( tmp_keys )
   Return { 0, 'Количество направлений - ' + lstr( count_napr ) }
 
 // 06.07.23
-Function get_onko_napr( /*@*/n_napr)
+Function get_onko_napr( /*@*/n_napr )
 
   Local count_napr, lAlias, tmp_alias := Select(), lOpened := .f., cur_napr := 0
   Local ret_arr := {}
 
   lAlias := 'TNAPR'
   If !( lAlias )->( Used() )
-    Use ( cur_dir + 'tmp_onkna' ) New Alias TNAPR
+    Use ( cur_dir() + 'tmp_onkna' ) New Alias TNAPR
     lOpened := .t.
   Endif
   count_napr := ( lAlias )->( LastRec() )
@@ -316,11 +230,6 @@ Function get_onko_napr( /*@*/n_napr)
     AAdd( ret_arr, ( lAlias )->shifr_u )
     AAdd( ret_arr, ( lAlias )->shifr1 )
     AAdd( ret_arr, ( lAlias )->name_u )
-    // aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->MET_ISSL, 0))
-    // aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->U_KOD, 0))
-    // aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->shifr_u, space(20)))
-    // aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->shifr1, space(20)))
-    // aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->name_u, space(65)))
   Else
     cur_napr := count_napr + 1
     AAdd( ret_arr, CToD( '' ) )
@@ -334,12 +243,10 @@ Function get_onko_napr( /*@*/n_napr)
     AAdd( ret_arr, Space( 65 ) )
   Endif
   n_napr := cur_napr
-
   If lOpened
     ( lAlias )->( dbCloseArea() )
     Select( tmp_alias )
   Endif
-
   Return ret_arr
 
 // 06.07.23
@@ -349,7 +256,7 @@ Function save_onko_napr( /*@*/cur_napr, date_napr, vr_napr, mo_napr, v_napr, met
 
   lAlias := 'TNAPR'
   If !( lAlias )->( Used() )
-    Use ( cur_dir + 'tmp_onkna' ) New Alias TNAPR
+    Use ( cur_dir() + 'tmp_onkna' ) New Alias TNAPR
     lOpened := .t.
   Endif
   count_napr := ( lAlias )->( LastRec() )
@@ -375,7 +282,6 @@ Function save_onko_napr( /*@*/cur_napr, date_napr, vr_napr, mo_napr, v_napr, met
     ( lAlias )->( dbCloseArea() )
     Select( tmp_alias )
   Endif
-
   Return count_napr
 
 // 18.07.23
@@ -386,8 +292,8 @@ Function save_mo_onkna( mkod )
 
   arr := {}
   use_base( 'mo_su' )
-  Use ( cur_dir + 'tmp_onkna' ) New Alias TNAPR
-  g_use( dir_server + 'mo_onkna', dir_server + 'mo_onkna',  'NAPR' ) // онконаправления
+  Use ( cur_dir() + 'tmp_onkna' ) New Alias TNAPR
+  g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna',  'NAPR' ) // онконаправления
   find ( Str( mkod, 7 ) )
   Do While napr->kod == mkod .and. !Eof()
     AAdd( arr, RecNo() )
@@ -441,13 +347,9 @@ Function save_mo_onkna( mkod )
     deleterec( .t. )
   Enddo
 
-  // if lOpened
   tnapr->( dbCloseArea() )
   MOSU->( dbCloseArea() )
   NAPR->( dbCloseArea() )
-  // select(tmp_alias)
-  // endif
-
   Return Nil
 
 // 06.07.23 редактировать другое направление (№...)
@@ -477,7 +379,7 @@ Function change_num_napr()
     recNumberDoctor := get_kod_vrach_by_tabnom( mTab_Number ) // 0
 
     If Select( 'TNAPR' ) == 0
-      Use ( cur_dir + 'tmp_onkna' ) New Alias TNAPR
+      Use ( cur_dir() + 'tmp_onkna' ) New Alias TNAPR
     Else
       Select TNAPR
     Endif
@@ -498,29 +400,6 @@ Function change_num_napr()
     tnapr->KOD_VR := recNumberDoctor
     count_napr := LastRec()
 
-    // count_napr := save_onko_napr(@cur_napr, ;
-    // mNAPR_DATE, ;
-    // recNumberDoctor, ;
-    // m1NAPR_MO, ;
-    // m1NAPR_V, ;
-    // m1MET_ISSL, ;
-    // mu_kod, ;
-    // mshifr, ;
-    // mshifr1, ;
-    // mname_u)
-
-    // //
-    // arr_napr := get_onko_napr(@n)
-    // mNAPR_DATE := arr_napr[1]
-    // mTab_Number := arr_napr[2]
-    // m1NAPR_MO := arr_napr[3]
-    // m1NAPR_V := arr_napr[4]
-    // m1MET_ISSL := arr_napr[5]
-    // mu_kod := arr_napr[6]
-    // mshifr := arr_napr[7]
-    // mshifr1 := arr_napr[8]
-    // mname_u := arr_napr[9]
-
     If n <= count_napr
       cur_napr := n
       Goto ( cur_napr ) // номер текущего направления
@@ -530,11 +409,6 @@ Function change_num_napr()
 
       m1NAPR_MO := tnapr->NAPR_MO
       m1NAPR_V := tnapr->NAPR_V
-      // m1MET_ISSL := tnapr->MET_ISSL
-      // mu_kod := tnapr->U_KOD
-      // mshifr := tnapr->shifr_u
-      // mshifr1 := tnapr->shifr1
-      // mname_u := tnapr->name_u
       m1MET_ISSL := iif( m1napr_v == 3, tnapr->MET_ISSL, 0 )
       mu_kod := iif( m1napr_v == 3, tnapr->U_KOD, 0 )
       mshifr := iif( m1napr_v == 3, tnapr->shifr_u, Space( 20 ) )
@@ -554,12 +428,6 @@ Function change_num_napr()
       mname_u := Space( 52 )
     Endif
 
-    // if empty(m1NAPR_MO)
-    // mNAPR_MO := space(56)
-    // else
-    // mNAPR_MO := left(ret_mo(m1NAPR_MO)[_MO_SHORT_NAME], 56)
-    // endif
-
     mNAPR_V := PadR( inieditspr( A__MENUVERT, mm_napr_v, m1napr_v ), 30 )
     mMET_ISSL := PadR( inieditspr( A__MENUVERT, mm_MET_ISSL, m1MET_ISSL ), 35 )
     tip_onko_napr := 0
@@ -570,11 +438,10 @@ Function change_num_napr()
   my_restkey( tmp_keys )
   SetColor( tmp_color )
   SetCursor()
-
   Return update_gets()
 
-// 11.06.24 блок направлений после диспансеризации
-Function dispans_napr( mk_data, /*@*/j, lAdult, lFull )
+// 29.10.25 блок направлений после диспансеризации
+Function dispans_napr( mk_data, /*@*/j, lAdult, lFull ) 
 
   // mk_data - дата окончания случая диспансеризации
   // j - счетчик строк на экране
@@ -587,16 +454,43 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull )
   default lFull to .f.
 
   If mk_data >= 0d20210801  // по новому ПУМП
+    if m1DS_ONK == 1  // подозрение на ЗНО - да
+      // дополнительное рбследования
+      mdopo_na := ''
+      m1dopo_na := 0
+      mtab_v_dopo_na := 0
+      mnapr_stac := ''
+      m1napr_stac := 0
+      // стационар
+      m1profil_stac := 0
+      mtab_v_stac := 0
+      mprofil_stac := ''
+      mtab_v_stac := 0
+      // реабилитация
+      mnapr_reab := ''
+      m1napr_reab := 0
+      mprofil_kojki := ''
+      m1profil_kojki := 0
+      mtab_v_reab := 0
+      // санаторно-курортное
+      msank_na := ''
+      m1sank_na := 0
+      mtab_v_sanat := 0
+
+      update_gets()
+//      update_get( 'mdopo_na' )
+//      update_get( 'mtab_v_dopo_na' )
+    endif
     @ j, 74 Say 'Врач'
     @ ++j, 1 Say Replicate( '─', 78 ) Color color1
     // направление на дополниельное обследование
     mdopo_na := iif( Len( mdopo_na ) > 0, SubStr( mdopo_na, 1, 31 ), '' )
     @ ++j, 1 Say 'Направлен на дополнительное обследование' Get mdopo_na ;
       reader {| x| menu_reader( x, mm_dopo_na, A__MENUBIT, , , .f. ) } ;
-      valid {|| iif( m1dopo_na == 0, mtab_v_dopo_na := 0, ), update_get( 'mtab_v_dopo_na' ) }
+      valid {|| iif( m1dopo_na == 0, mtab_v_dopo_na := 0, ), update_get( 'mtab_v_dopo_na' ) } when m1DS_ONK == 0
     @ j, 73 Get mtab_v_dopo_na Pict '99999' ;
       valid {| g| iif( ( mtab_v_dopo_na == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
-      When m1dopo_na > 0
+      When m1dopo_na > 0 .and. m1DS_ONK == 0
     // направление в медицинскую организацию
     @ ++j, 1 Say 'Направлен' Get mnapr_v_mo ;
       reader {| x| menu_reader( x, mm_napr_v_mo, A__MENUVERT, , , .f. ) } ;
@@ -620,33 +514,35 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull )
     // направление в стационар
     @ ++j, 1 Say 'Направлен на лечение' Get mnapr_stac ;
       reader {| x| menu_reader( x, mm_napr_stac, A__MENUVERT, , , .f. ) } ;
-      valid {|| iif( m1napr_stac == 0, ( m1profil_stac := 0, mtab_v_stac := 0, mprofil_stac := Space( 32 ) ), ), update_get( 'mprofil_stac' ) }
+      valid {|| iif( m1napr_stac == 0, ( m1profil_stac := 0, mtab_v_stac := 0, mprofil_stac := Space( 32 ) ), ), update_get( 'mprofil_stac' ) } ;
+      when m1DS_ONK == 0
     mprofil_stac := iif( Len( mprofil_stac ) > 0, SubStr( mprofil_stac, 1, 27 ), '' )
     @ j, Col() + 1 Say 'по профилю' Get mprofil_stac Picture '@S27' ;
       reader {| x| menu_reader( x, getv002(), A__MENUVERT, , , .f. ) } ;
-      When m1napr_stac > 0
+      When m1napr_stac > 0 .and. m1DS_ONK == 0
     @ j, 73 Get mtab_v_stac Pict '99999' ;
       valid {| g| iif( ( mtab_v_stac == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
-      When m1napr_stac > 0
+      When m1napr_stac > 0 .and. m1DS_ONK == 0
     // направлен на реабилитацию
     @ ++j, 1 Say 'Направлен на реабилитацию' Get mnapr_reab ;
       reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
-      valid {|| iif( m1napr_reab == 0, ( m1profil_kojki := 0, mtab_v_reab := 0, mprofil_kojki := Space( 30 ) ), ), update_get( 'mprofil_kojki' ) }
+      valid {|| iif( m1napr_reab == 0, ( m1profil_kojki := 0, mtab_v_reab := 0, mprofil_kojki := Space( 30 ) ), ), update_get( 'mprofil_kojki' ) } ;
+      when m1DS_ONK == 0
     mprofil_kojki := iif( Len( mprofil_kojki ) > 0, SubStr( mprofil_kojki, 1, 25 ), '' )
     @ j, Col() + 1 Say ', профиль койки' Get mprofil_kojki ;
       reader {| x| menu_reader( x, getv020(), A__MENUVERT, , , .f. ) } ;
-      When m1napr_reab > 0
+      When m1napr_reab > 0 .and. m1DS_ONK == 0
     @ j, 73 Get mtab_v_reab Pict '99999' ;
       valid {| g| iif( ( mtab_v_reab == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
-      When m1napr_reab > 0
+      When m1napr_reab > 0 .and. m1DS_ONK == 0
     // направлен на санаторно-курортное лечение
     If lAdult
       @ ++j, 1 Say 'Направлен на санаторно-курортное лечение' Get msank_na ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
-        valid {|| iif( m1sank_na == 0, mtab_v_sanat := 0, ), update_get( 'mtab_v_sank' ) }
+        valid {|| iif( m1sank_na == 0, mtab_v_sanat := 0, ), update_get( 'mtab_v_sank' ) } when m1DS_ONK == 0
       @ j, 73 Get mtab_v_sanat Pict '99999' ;
         valid {| g| iif( ( mtab_v_sanat == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
-        when ( m1sank_na > 0 )
+        when m1sank_na > 0 .and. m1DS_ONK == 0
     Endif
   Else  // по старым правилам ПУМП
     @ ++j, 1 Say 'Направлен на дополнительное обследование' Get mdopo_na ;
@@ -680,7 +576,6 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull )
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
     Endif
   Endif
-
   Return Nil
 
 // 27.06.23
@@ -713,7 +608,6 @@ Function checktabnumberdoctor( mk_data, lAdult )
       ret := .f.
     Endif
   Endif
-
   Return ret
 
 // 27.05.22 - возврат структуры временного файла для направлений на онкологию
@@ -738,16 +632,16 @@ Function collect_napr_zno( Loc_kod )
   Local count_napr := 0, tmp_select := Select()
   Local lAlias
 
-  Use ( cur_dir + 'tmp_onkna' ) New Alias TNAPR
+  Use ( cur_dir() + 'tmp_onkna' ) New Alias TNAPR
   lAlias := 'MOSU'
   If !( lAlias )->( Used() )
-    r_use( dir_server + 'mo_su', , 'MOSU' )
+    r_use( dir_server() + 'mo_su', , 'MOSU' )
   Endif
   lAlias := 'NAPR'
   If ( lAlias )->( Used() )
     ( lAlias )->( dbSelectArea() )
   Else
-    r_use( dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'NAPR' ) // онконаправления
+    r_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna', 'NAPR' ) // онконаправления
   Endif
   Set Relation To u_kod into MOSU
   find ( Str( Loc_kod, 7 ) )
@@ -768,9 +662,5 @@ Function collect_napr_zno( Loc_kod )
     Select NAPR
     Skip
   Enddo
-  // if count_napr > 0
-  // mnapr_onk := "Количество направлений - "+lstr(count_napr)
-  // endif
   Select( tmp_select )
-
   Return count_napr

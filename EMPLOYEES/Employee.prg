@@ -84,15 +84,14 @@ function editEmployees( nType )
 			hb_Alert( 'В данный момент сотрудников редактирует другой администратор. Ждите.', , , 4 )
 		endif
 	else
-		hb_Alert( err_admin, , , 4 )
+		hb_Alert( err_admin(), , , 4 )
 	endif
 	return nil
 
-// 06.11.18 редактирование объекта сотрудник
+// 12.09.25 редактирование объекта сотрудник
 function editEmployee( oBrowse, aObjects, oEmployee, nKey )	
 	local fl := .F.
-	local nRow := ROW(), nCol := COL(), tmp_color, r1, r2, i, ;
-		buf := save_maxrow(), buf1
+	local nRow := ROW(), nCol := COL(), tmp_color, i, buf := save_maxrow(), buf1
 	local k, r
 	local tmp := ' ', tmp1, fl1
 	local item, counter
@@ -253,7 +252,7 @@ function editEmployee( oBrowse, aObjects, oEmployee, nKey )
 		@ ++r, 2 say 'Табельный номер' get mtab_nom picture '99999' valid { | g | CheckTabNom( oEmployee, g, nKey ) }
 		@ r, 36 say 'Сводный табельный номер' get msvod_nom picture '99999'
 		@ ++r, 2 say 'Ф.И.О.' get mfio
-		@ ++r, 2 say 'СНИЛС' get msnils picture picture_pf valid val_snils( msnils, 1 )
+		@ ++r, 2 say 'СНИЛС' get msnils picture picture_pf() valid val_snils( msnils, 1 )
 		@ ++r, 2 say 'Учр-е' get much ;
 					reader { | x | menu_reader( x, { { | k, r, c | SelectDepartmentAndSubdivision( k, r, c ) } }, A__FUNCTION, , , .f. ) }
 		@ r, 39 say 'Отделение' get motd when .f.
@@ -413,7 +412,7 @@ function SelectDepartmentAndSubdivision( k, r, c, date1, date2, nTask )
 	local oSub := nil
 	
 	if empty( glob_uch[1] )
-		ar := GetIniVar( tmp_ini, { { 'uch_otd', 'uch', '0' }, ;
+		ar := GetIniVar( tmp_ini(), { { 'uch_otd', 'uch', '0' }, ;
 									{ 'uch_otd', 'otd', '0' } } )
 		glob_uch[1] := int( val( ar[1] ) )
 		glob_otd[1] := int( val( ar[2] ) )
@@ -424,14 +423,14 @@ function SelectDepartmentAndSubdivision( k, r, c, date1, date2, nTask )
 	endif
 	if ( oDep := SelectDepartment( r, c, date1, date2 ) ) != nil
 		glob_uch := { oDep:ID(), alltrim( oDep:Name() ) }
-		SetIniVar( tmp_ini, { { 'uch_otd', 'uch', glob_uch[1] } } )
+		SetIniVar( tmp_ini(), { { 'uch_otd', 'uch', glob_uch[1] } } )
 		
 		if type( 'm1otd' ) == 'N' .and. m1otd > 0
 			glob_otd[1] := m1otd
 		endif
 		if ( oSub := SelectSubdivision( r, c, oDep:ID(), date1, date2 ) ) != nil
 			glob_otd := { oSub:Code(), alltrim( oSub:Name() ) }
-			SetIniVar( tmp_ini, { { 'uch_otd', 'otd', glob_otd[ 1 ] } } )
+			SetIniVar( tmp_ini(), { { 'uch_otd', 'otd', glob_otd[ 1 ] } } )
 			
 			if valtype( motd ) == 'C'
 				n := len( motd )

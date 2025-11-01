@@ -3,12 +3,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.10.16 Мониторинг по видам медицинской помощи для Комитета здравоохранения ВО
+// 11.09.25 Мониторинг по видам медицинской помощи для Комитета здравоохранения ВО
 Function monitoring_vid_pom()
+  
   Static mm_schet := { { 'все случаи', 1 }, { 'в выставленных счетах', 2 }, { 'в зарегистрированных счетах', 3 } }
   Local mm_tmp := {}, buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
-    tmp_help := help_code, hGauge, name_file := 'mon_kz' + stxt, ;
-    sh := 80, HH := 60, i, k, tmp_file := 'tmp_mon' + sdbf, r1, r2
+    tmp_help := help_code, name_file := 'mon_kz.txt', ;
+    sh := 80, HH := 60, i, k, tmp_file := 'tmp_mon' + sdbf(), r1, r2
 
   Private pdate_lech
 
@@ -43,7 +44,7 @@ Function monitoring_vid_pom()
   fillscrarea( r1 - 1, 0, r1 - 1, 79, '░', color1 )
   str_center( r1 - 1, ' Мониторинг по видам медицинской помощи ', color8 )
   fillscrarea( r2 + 1, 0, r2 + 1, 79, '░', color1 )
-  If f_edit_spr( A__APPEND, mm_tmp, '', 'e_use(cur_dir+"tmp_mon")', 0, 1,,,, { r1, 0, r2, 79, -1 }, 'write_mon' ) > 0
+  If f_edit_spr( A__APPEND, mm_tmp, '', 'e_use(cur_dir()+"tmp_mon")', 0, 1,,,, { r1, 0, r2, 79, -1 }, 'write_mon' ) > 0
     RestScreen( buf )
     If Year( pdate_lech[ 5 ] ) < 2016
       Return func_error( 4, 'Данный алгоритм работает с 2016 года' )
@@ -61,27 +62,27 @@ Function monitoring_vid_pom()
       { '  в т.ч. ВМП', '15', 'случай госпитализации', 0, 0 }, ;               // 8
       { 'дневной стационар', '16', 'пациенто-день', 0, 0 } ;                // 9
       }
-    r_use( dir_server + 'uslugi',, 'USL' )
-    r_use( dir_server + 'human_u_',, 'HU_' )
-    r_use( dir_server + 'human_u', dir_server + 'human_u', 'HU' )
+    r_use( dir_server() + 'uslugi',, 'USL' )
+    r_use( dir_server() + 'human_u_',, 'HU_' )
+    r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
     Set Relation To RecNo() into HU_, To u_kod into USL
     If mn->rak == 0
-      r_use( dir_server + 'mo_xml',, 'MO_XML' )
-      r_use( dir_server + 'mo_rak',, 'RAK' )
+      r_use( dir_server() + 'mo_xml',, 'MO_XML' )
+      r_use( dir_server() + 'mo_rak',, 'RAK' )
       Set Relation To kod_xml into MO_XML
-      r_use( dir_server + 'mo_raks',, 'RAKS' )
+      r_use( dir_server() + 'mo_raks',, 'RAKS' )
       Set Relation To akt into RAK
-      r_use( dir_server + 'mo_raksh',, 'RAKSH' )
+      r_use( dir_server() + 'mo_raksh',, 'RAKSH' )
       Set Relation To kod_raks into RAKS
-      Index On Str( kod_h, 7 ) to ( cur_dir + 'tmp_raksh' ) For rak->DAKT <= mn->date_rak
+      Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For rak->DAKT <= mn->date_rak
     Endif
-    r_use( dir_server + 'schet_',, 'SCHET_' )
-    r_use( dir_server + 'schet',, 'SCHET' )
+    r_use( dir_server() + 'schet_',, 'SCHET_' )
+    r_use( dir_server() + 'schet',, 'SCHET' )
     Set Relation To RecNo() into SCHET_
     //
-    r_use( dir_server + 'human_2',, 'HUMAN_2' )
-    r_use( dir_server + 'human_',, 'HUMAN_' )
-    r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+    r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+    r_use( dir_server() + 'human_',, 'HUMAN_' )
+    r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
     dbSeek( DToS( pdate_lech[ 5 ] ), .t. )
     old := pdate_lech[ 5 ] -1
@@ -163,7 +164,7 @@ Function monitoring_vid_pom()
             Skip
           Enddo
           If human_->USL_OK == 1 // стационар
-            If AScan( glob_KSG_dializ, lshifr ) > 0 // КСГ с диализом
+            If AScan( glob_KSG_dializ(), lshifr ) > 0 // КСГ с диализом
               arr[ 6, 5 ] += lsum
             Else
               arr[ 6, 4 ] ++; arr[ 6, 5 ] += lsum
@@ -175,7 +176,7 @@ Function monitoring_vid_pom()
               Endif
             Endif
           Elseif human_->USL_OK == 2 // дневной стационар
-            If AScan( glob_KSG_dializ, lshifr ) == 0
+            If AScan( glob_KSG_dializ(), lshifr ) == 0
               arr[ 9, 4 ] += kp
             Endif
             arr[ 9, 5 ] += lsum

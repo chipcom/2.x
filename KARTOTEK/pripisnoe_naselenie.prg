@@ -48,10 +48,10 @@ Function pripisnoe_naselenie( k )
         pripisnoe_naselenie_create_sverka()
         g_sunlock( str_sem )
       Else
-        func_error( 4, err_slock )
+        func_error( 4, err_slock() )
       Endif
     Else
-      func_error( 4, err_admin )
+      func_error( 4, err_admin() )
     Endif
   Case k == 15
     edit_uchast_spisok()
@@ -101,11 +101,11 @@ Function pripisnoe_naselenie( k )
 Function view_reestr_pripisnoe_naselenie()
   Local buf := SaveScreen()
 
-  Private goal_dir := dir_server + dir_XML_MO + cslash
+  Private goal_dir := dir_server() + dir_XML_MO() + hb_ps()
 
-  g_use( dir_server + "mo_krtf",, "KRTF" )
-  g_use( dir_server + "mo_krtr",, "KRTR" )
-  Index On DToS( dfile ) to ( cur_dir + "tmp_krtr" ) DESCENDING
+  g_use( dir_server() + "mo_krtf",, "KRTF" )
+  g_use( dir_server() + "mo_krtr",, "KRTR" )
+  Index On DToS( dfile ) to ( cur_dir() + "tmp_krtr" ) DESCENDING
   Go Top
   If Eof()
     func_error( 4, "Нет составленных файлов прикрепления" )
@@ -122,7 +122,7 @@ Function view_reestr_pripisnoe_naselenie()
 Function f1_view_r_pr_nas( oBrow )
   Local oColumn, ;
     blk := {| _s| _s := goal_dir + AllTrim( krtr->FNAME ), ;
-    iif( hb_FileExists( _s + scsv ) .or. hb_FileExists( _s + szip ), ;
+    iif( hb_FileExists( _s + scsv() ) .or. hb_FileExists( _s + szip() ), ;
     iif( Empty( krtr->date_out ), { 3, 4 }, { 1, 2 } ), ;
     { 5, 6 } ) }
 
@@ -155,8 +155,8 @@ Function f1_view_r_pr_nas( oBrow )
 Function f11_view_r_pr_nas()
   Local s := ""
 
-  If !( hb_FileExists( goal_dir + AllTrim( krtr->FNAME ) + scsv ) .or. ;
-      hb_FileExists( goal_dir + AllTrim( krtr->FNAME ) + szip ) )
+  If !( hb_FileExists( goal_dir + AllTrim( krtr->FNAME ) + scsv() ) .or. ;
+      hb_FileExists( goal_dir + AllTrim( krtr->FNAME ) + szip() ) )
     krtf->( dbGoto( krtr->kod_f ) )
     If Empty( krtf->TWORK2 )
       s := "не завершён"
@@ -184,13 +184,13 @@ Function f2_view_r_pr_nas( nKey, oBrow )
     If LastKey() == K_ENTER .and. AScan( tmp_pss, Crypt( pss, gpasskod ) ) > 0 ;
         .and. f_esc_enter( "аннулирования файла", .t. )
       krtf->( dbGoto( krtr->kod_f ) )
-      zip_file := AllTrim( krtr->FNAME ) + iif( krtf->TIP_OUT == _CSV_FILE_REESTR, scsv, szip )
+      zip_file := AllTrim( krtr->FNAME ) + iif( krtf->TIP_OUT == _CSV_FILE_REESTR, scsv(), szip() )
       str_sem := "f2_view_r_pr_nas_K_CTRL_F12"
       If g_slock( str_sem )
         mywait()
         i := 0
-        Use ( dir_server + "mo_krtp" ) New Alias KRTP
-        Index On Str( reestr, 6 ) to ( cur_dir + "tmp_k" )
+        Use ( dir_server() + "mo_krtp" ) New Alias KRTP
+        Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_k" )
         Do While .t.
           @ MaxRow(), 0 Say Str( i / krtr->KOL * 100, 6, 2 ) + "%" Color cColorWait
           find ( Str( krtr->KOD, 6 ) )
@@ -215,7 +215,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
     Endif
   Case nKey == K_CTRL_F12
     If Empty( krtf->TWORK2 ) // не дописан
-      zip_file := AllTrim( krtr->FNAME ) + iif( krtf->TIP_OUT == _CSV_FILE_REESTR, scsv, szip )
+      zip_file := AllTrim( krtr->FNAME ) + iif( krtf->TIP_OUT == _CSV_FILE_REESTR, scsv(), szip() )
       If krtr->ANSWER > 0
         func_error( 4, "Ответ для данного файла уже был прочитан - аннулирование запрещено!" )
       Elseif hb_FileExists( goal_dir + zip_file )
@@ -225,8 +225,8 @@ Function f2_view_r_pr_nas( nKey, oBrow )
         If g_slock( str_sem )
           mywait()
           i := 0
-          Use ( dir_server + "mo_krtp" ) New Alias KRTP
-          Index On Str( reestr, 6 ) to ( cur_dir + "tmp_k" )
+          Use ( dir_server() + "mo_krtp" ) New Alias KRTP
+          Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_k" )
           Do While .t.
             @ MaxRow(), 0 Say Str( i / krtr->KOL * 100, 6, 2 ) + "%" Color cColorWait
             find ( Str( krtr->KOD, 6 ) )
@@ -260,7 +260,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
         If Upper( s ) == Upper( goal_dir )
           func_error( 4, "Вы выбрали каталог, в котором уже записан данный файл! Это недопустимо." )
         Else
-          zip_file := AllTrim( krtr->FNAME ) + iif( Left( krtr->FNAME, 2 ) == "MO", scsv, szip )
+          zip_file := AllTrim( krtr->FNAME ) + iif( Left( krtr->FNAME, 2 ) == "MO", scsv(), szip() )
           If hb_FileExists( goal_dir + zip_file )
             mywait( 'Копирование "' + zip_file + '" в каталог "' + s + '"' )
             // copy file (goal_dir+zip_file) to (hb_OemToAnsi(s)+zip_file)
@@ -331,7 +331,7 @@ Function f3_view_r_pr_nas( oBrow )
   Endif
   mywait()
   Select KRTF
-  Index On FNAME to ( cur_dir + "tmp_krtf" ) For reestr == krtr->kod .and. Empty( TIP_OUT )
+  Index On FNAME to ( cur_dir() + "tmp_krtf" ) For reestr == krtr->kod .and. Empty( TIP_OUT )
   Go Top
   Do While !Eof()
     AAdd( mm_func, krtf->kod )
@@ -346,11 +346,11 @@ Function f3_view_r_pr_nas( oBrow )
     AAdd( mm_func, -3 ) ; AAdd( mm_menu, "Список вернувшихся из ТФОМС с кодом ~ошибки" )
     If fl
       ii := 0
-      r_use( dir_server + "mo_krte",, "KRTE" )
-      Index On Str( rees_zap, 6 ) to ( cur_dir + "tmp_krte" ) For reestr == krtr->kod
-      r_use( dir_server + "mo_kartp", dir_server + "mo_kartp", "KARTP" )
-      r_use( dir_server + "mo_krtp",, "KRTP" )
-      Index On Str( rees_zap, 6 ) to ( cur_dir + "tmp_krtp" ) For reestr == krtr->kod
+      r_use( dir_server() + "mo_krte",, "KRTE" )
+      Index On Str( rees_zap, 6 ) to ( cur_dir() + "tmp_krte" ) For reestr == krtr->kod
+      r_use( dir_server() + "mo_kartp", dir_server() + "mo_kartp", "KARTP" )
+      r_use( dir_server() + "mo_krtp",, "KRTP" )
+      Index On Str( rees_zap, 6 ) to ( cur_dir() + "tmp_krtp" ) For reestr == krtr->kod
       Go Top
       Do While !Eof()
         @ MaxRow(), 0 Say Str( ++ii / krtr->kol * 100, 6, 2 ) + "%" Color cColorWait
@@ -451,7 +451,7 @@ Function f3_view_r_pr_nas( oBrow )
       Endif
     Else
       krtf->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF + cslash + AllTrim( krtf->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + AllTrim( krtf->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select KRTR
@@ -460,7 +460,7 @@ Function f3_view_r_pr_nas( oBrow )
 
 // 04.11.14
 Function f31_view_r_pr_nas( reg, s, s1 )
-  Local fl := .t., buf := save_maxrow(), n_file := cur_dir + "prikspis" + stxt, lmo, lerr, ;
+  Local fl := .t., buf := save_maxrow(), n_file := cur_dir() + "prikspis.txt", lmo, lerr, ;
     i, j, k, ii, ar[ 2 ]
 
   mywait()
@@ -484,18 +484,18 @@ Function f31_view_r_pr_nas( reg, s, s1 )
     Endif
   Endif
   add_string( "" )
-  r_use( dir_server + "mo_krte",, "KRTE" )
+  r_use( dir_server() + "mo_krte",, "KRTE" )
   If reg == 3 .or. !fl_csv
-    Index On Str( rees_zap, 6 ) to ( cur_dir + "tmp_krte" ) For reestr == krtr->kod
+    Index On Str( rees_zap, 6 ) to ( cur_dir() + "tmp_krte" ) For reestr == krtr->kod
   Endif
   // список прикреплений по пациенту во времени
-  r_use( dir_server + "mo_kartp", dir_server + "mo_kartp", "KARTP" )
-  r_use( dir_server + "kartote2",, "KART2" )
-  r_use( dir_server + "kartotek",, "KART" )
+  r_use( dir_server() + "mo_kartp", dir_server() + "mo_kartp", "KARTP" )
+  r_use( dir_server() + "kartote2",, "KART2" )
+  r_use( dir_server() + "kartotek",, "KART" )
   Set Relation To RecNo() into KART2
-  r_use( dir_server + "mo_krtp",, "KRTP" )
+  r_use( dir_server() + "mo_krtp",, "KRTP" )
   Set Relation To kod_k into KART
-  Index On Str( rees_zap, 6 ) to ( cur_dir + "tmp_krtp" ) For reestr == krtr->kod
+  Index On Str( rees_zap, 6 ) to ( cur_dir() + "tmp_krtp" ) For reestr == krtr->kod
   ii := k := 0
   Go Top
   Do While !Eof()
@@ -577,22 +577,22 @@ Function f31_view_r_pr_nas( reg, s, s1 )
 
   Return Nil
 
-// 29.03.23
+// 29.10.25
 Function preparation_for_pripisnoe_naselenie()
-  Local i, j, k, aerr, buf := SaveScreen(), blk, t_arr[ BR_LEN ], cur_year, ;
+  Local i, j, k, aerr, buf := SaveScreen(), blk, t_arr[ BR_LEN ], cur_year, t_polis, ;
     str_sem := "preparation_for_pripisnoe_naselenie"
 
   mywait()
-  g_use( dir_server + "mo_krtp",, "KRTP" )
-  Index On kod_k to ( cur_dir + "tmp_k" ) For reestr == 0
-  dbCreate( cur_dir + "tmp_krtp", { ;
+  g_use( dir_server() + "mo_krtp",, "KRTP" )
+  Index On kod_k to ( cur_dir() + "tmp_k" ) For reestr == 0
+  dbCreate( cur_dir() + "tmp_krtp", { ;
     { "rec",   "N", 8, 0 }, ; // номер записи в файле "mo_krtp"
   { "uchast", "N", 2, 0 }, ; // участок
   { "D_PRIK", "D", 8, 0 }, ; // дата прикрепления
   { "S_PRIK", "N", 1, 0 }, ; // способ прикрепления: 1-по месту регистрации, 2-по личному заявлению, 3-
   { "KOD_K", "N", 7, 0 };  // код пациента по файлу "kartotek"
   } )
-  Use ( cur_dir + "tmp_krtp" ) new
+  Use ( cur_dir() + "tmp_krtp" ) new
   use_base( "kartotek" )
   Set Order To 0
   Select KRTP
@@ -616,12 +616,12 @@ Function preparation_for_pripisnoe_naselenie()
   Enddo
   Commit
   Select KRTP
-  Index On Str( reestr, 6 ) to ( cur_dir + "tmp_k" )
+  Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_k" )
   Select TMP_KRTP
   Set Relation To kod_k into KART
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_krtp" )
-  Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kod_k, 7 ) to ( cur_dir + "tmp2krtp" )
-  Set Index to ( cur_dir + "tmp2krtp" ), ( cur_dir + "tmp_krtp" )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_krtp" )
+  Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kod_k, 7 ) to ( cur_dir() + "tmp2krtp" )
+  Set Index to ( cur_dir() + "tmp2krtp" ), ( cur_dir() + "tmp_krtp" )
   Go Top
   RestScreen( buf )
   If LastRec() == 0 .and. ;
@@ -668,24 +668,28 @@ Function preparation_for_pripisnoe_naselenie()
   If tmp_krtp->( LastRec() ) > 0
     mywait()
     cur_year := Year( sys_date )
-    r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+    r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
     Go Bottom
     If !Empty( human->k_data )
       cur_year := Year( human->k_data )
     Endif
     Use
-    cFileProtokol := cur_dir + "prot" + stxt
+    cFileProtokol := cur_dir() + "prot.txt"
     StrFile( Space( 10 ) + "Список ошибок" + hb_eol() + hb_eol(), cFileProtokol )
     ii := i := 0
-    r_use( dir_server + "mo_otd",, "OTD" )
-    r_use( dir_server + "mo_pers",, "P2" )
-    r_use( dir_server + "mo_uchvr",, "UV" )
-    Index On Str( uch, 2 ) to ( cur_dir + "tmp_uv" )
+    r_use( dir_server() + "mo_otd",, "OTD" )
+    r_use( dir_server() + "mo_pers",, "P2" )
+    r_use( dir_server() + "mo_uchvr",, "UV" )
+    Index On Str( uch, 2 ) to ( cur_dir() + "tmp_uv" )
     Select TMP_KRTP
     Go Top
     Do While !Eof()
       ++ii
+
       aerr := {}
+      if ii > 24999  // Ограничение !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        AAdd( aerr, 'Превышено кол-во пациентов в пакете. Более 25 000. Завтра создайте следующий пакет' )
+      endif  
       If Empty( kart->date_r )
         AAdd( aerr, 'не заполнено поле "Дата рождения"' )
       Elseif kart->date_r >= sys_date
@@ -693,6 +697,9 @@ Function preparation_for_pripisnoe_naselenie()
       Elseif Year( kart->date_r ) < 1900
         AAdd( aerr, "дата рождения: " + full_date( kart->date_r ) + " ( < 1900г.)" )
       Endif
+      if len(AllTrim( kart2->KOD_MIS )) != 16 .and. len(AllTrim( kart_->NPOLIS  )) != 16 
+        AAdd( aerr, 'не верный номер ЕНП' )
+      endif  
       If kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
         AAdd( aerr, 'данный пациент уже прикреплён к Вашей МО с ' + ;
           iif( Empty( kart2->pc4 ), full_date( kart2->DATE_PR ), AllTrim( kart2->pc4 ) ) + "г." )
@@ -824,19 +831,19 @@ Function preparation_for_pripisnoe_naselenie()
     Endif
     If k > 1
       s := "MO2"
-      g_use( dir_server + "mo_krtr",, "KRTR" )
+      g_use( dir_server() + "mo_krtr",, "KRTR" )
       Locate For DFILE == sys_date .and. Left( FNAME, 3 ) == s
       If Found()
         func_error( 4, "Файл прикрепления с датой " + full_date( sys_date ) + "г. уже был создан" )
       Elseif f_esc_enter( "создания файла прикрепления", .t. )
         mywait()
         s += glob_mo[ _MO_KOD_TFOMS ] + DToS( sys_date )
-        n_file := s + scsv
-        r_use( dir_exe() + "_mo_podr", cur_dir + "_mo_podr", "PODR" )
+        n_file := s + scsv()
+        r_use( dir_exe() + "_mo_podr", cur_dir() + "_mo_podr", "PODR" )
         find ( glob_mo[ _MO_KOD_TFOMS ] )
         loidmo := AllTrim( podr->oidmo )
         Select KRTR
-        Index On Str( kod, 6 ) to ( cur_dir + "tmp_krtr" )
+        Index On Str( kod, 6 ) to ( cur_dir() + "tmp_krtr" )
         addrec( 6 )
         krtr->KOD := RecNo()
         krtr->FNAME := s
@@ -846,8 +853,8 @@ Function preparation_for_pripisnoe_naselenie()
         krtr->KOL := ii + j
         krtr->KOL_P := 0
         krtr->ANSWER := 0  // 0-не было ответа, 1-был прочитан ответ
-        g_use( dir_server + "mo_krtf",, "KRTF" )
-        Index On Str( kod, 6 ) to ( cur_dir + "tmp_krtf" )
+        g_use( dir_server() + "mo_krtf",, "KRTF" )
+        Index On Str( kod, 6 ) to ( cur_dir() + "tmp_krtf" )
         addrec( 6 )
         krtf->KOD   := RecNo()
         krtf->FNAME := krtr->FNAME
@@ -868,16 +875,16 @@ Function preparation_for_pripisnoe_naselenie()
         Delete File ( n_file )
         fp := FCreate( n_file )
         //
-        r_use( dir_server + "mo_otd",, "OTD" )
-        r_use( dir_server + "mo_pers",, "P2" )
-        r_use( dir_server + "mo_uchvr",, "UV" )
-        Index On Str( uch, 2 ) to ( cur_dir + "tmp_uv" )
-        g_use( dir_server + "mo_krtp",, "KRTP" )
+        r_use( dir_server() + "mo_otd",, "OTD" )
+        r_use( dir_server() + "mo_pers",, "P2" )
+        r_use( dir_server() + "mo_uchvr",, "UV" )
+        Index On Str( uch, 2 ) to ( cur_dir() + "tmp_uv" )
+        g_use( dir_server() + "mo_krtp",, "KRTP" )
         use_base( "kartotek" )
         Set Order To 0
-        Use ( cur_dir + "tmp_krtp" ) new
+        Use ( cur_dir() + "tmp_krtp" ) new
         Set Relation To kod_k into KART
-        Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kod_k, 7 ) to ( cur_dir + "tmp2krtp" )
+        Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kod_k, 7 ) to ( cur_dir() + "tmp2krtp" )
         i := 0
         Go Top
         Do While !Eof()
@@ -919,68 +926,80 @@ Function preparation_for_pripisnoe_naselenie()
           s1 := iif( i == 1, "", hb_eol() )
           // 1 - Номер записи в файле с 10.06.19г.
           s1 += Eval( blk, lstr( i ) ) + ";"
-          // 1 - Действие
+          // 2 - Действие
           s := "Р"
           s1 += Eval( blk, s ) + ";"
-          // 2 - Код типа ДПФС
+          // 3 - Код типа ДПФС
           s := iif( kart_->vpolis == 3, "П", iif( kart_->vpolis == 2, "В", "С" ) )
+          // П - Бумажный полис ОМС единого образца Э - Электронный полис ОМС единого образца
+          // В ? Временное свидетельство С ? Полис старого образца К ? В составе УЭК
           s1 += Eval( blk, s ) + ";"
-          // 3 - Серия и номер ДПФС
-          s := iif( kart_->vpolis == 3, "", ;
-            iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ), ;
-            AllTrim( kart_->SPOLIS ) + " № " + AllTrim( kart_->NPOLIS ) ) )
+          // 4 - cерия и номер ДПФС
+          if len(AllTrim( kart2->KOD_MIS )) == 16
+            t_polis := alltrim(kart2->KOD_MIS)
+          else
+            t_polis :=  alltrim(kart_->NPOLIS)
+          endif    
+          s :=  iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ),t_polis )
+          //s := iif( kart_->vpolis == 3, "", ;
+          //  iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ), ;
+          //  AllTrim( kart_->SPOLIS ) + " № " + AllTrim( kart_->NPOLIS ) ) )
           s1 += Eval( blk, f_s_csv( s ) ) + ";"
-          // 4 - Единый номер полиса ОМС
-          s := iif( kart_->vpolis == 3, AllTrim( kart_->NPOLIS ), "" )
+          // 5 - Единый номер полиса ОМС
+          s := t_polis
           s1 += Eval( blk, s ) + ";"
           arr_fio := retfamimot( 1, .f. )
-          // 5 - Фамилия застрахованного лица
+          // 6 - Фамилия застрахованного лица
           s1 += Eval( blk, f_s_csv( arr_fio[ 1 ] ) ) + ";"
-          // 6 - Имя застрахованного лица
+          // 7 - Имя застрахованного лица
           s1 += Eval( blk, f_s_csv( arr_fio[ 2 ] ) ) + ";"
-          // 7 - Отчество застрахованного лица
+          // 8 - У - Отчество застрахованного лица
           s1 += Eval( blk, f_s_csv( arr_fio[ 3 ] ) ) + ";"
-          // 8 - Дата рождения застрахованного лица
+          // 9 - ДА - Дата рождения застрахованного лица
           s1 += Eval( blk, DToS( kart->date_r ) ) + ";"
-          // 9 - Место рождения застрахованного лица
+          // 10 - Нет- Место рождения застрахованного лица
           s := iif( eq_any( kart_->vid_ud, 3, 14 ), AllTrim( del_spec_symbol( kart_->mesto_r ) ), "" )
           s1 += Eval( blk, f_s_csv( s ) ) + ";"
-          // 10 - Тип документа, удостоверяющего личность
+          // 11 - У - Тип документа, удостоверяющего личность
           s1 += Eval( blk, lstr( kart_->vid_ud ) ) + ";"
-          // 11 - Номер или серия и номер документа, удостоверяющего личность.
+          // 12 - У - Номер или серия и номер документа, удостоверяющего личность.
           s := AllTrim( kart_->ser_ud ) + " № " + AllTrim( kart_->nom_ud )
           s1 += Eval( blk, f_s_csv( s ) ) + ";"
-          // 12 - Дата выдачи документа, удостоверяющего личность
+          // 13 - У - Дата выдачи документа, удостоверяющего личность
           s := iif( Empty( kart_->kogdavyd ), "", DToS( kart_->kogdavyd ) )
           s1 += Eval( blk, s ) + ";"
-          // 13 - Наименование органа, выдавшего документ
-          s := AllTrim( inieditspr( A__POPUPMENU, dir_server + "s_kemvyd", kart_->kemvyd ) )
+          // 14 - У - Наименование органа, выдавшего документ
+          s := AllTrim( inieditspr( A__POPUPMENU, dir_server() + "s_kemvyd", kart_->kemvyd ) )
           s1 += Eval( blk, f_s_csv( s ) ) + ";"
-          // 14 - СНИЛС застрахованного лица
+          // 15 - У - СНИЛС застрахованного лица
           s1 += Eval( blk, AllTrim( kart->snils ) ) + ";"
-          // 15 - Идентификатор МО
+          // 16 - Да - Идентификатор МО
           s1 += Eval( blk, glob_mo[ _MO_KOD_TFOMS ] ) + ";"
-          // 16 - Способ прикрепления
+          // 17 - Да - Способ прикрепления
           s1 += Eval( blk, lstr( krtp->S_PRIK ) ) + ";"
-          // 17 - Тип прикрепления (Зарезервированное поле)
+          // 18 - Нет -Тип прикрепления (Зарезервированное поле)
           s := ""
           s1 += Eval( blk, s ) + ";"
-          // 18 - Дата заявления
+          // 19 - Да - Дата заявления застрахованного
           s1 += Eval( blk, DToS( krtp->D_PRIK ) ) + ";"
-          // 19 - Дата открепления
+          // 20 - Нет - Дата открепления
           s1 += Eval( blk, "" ) + ";"
-          // 20 ОИД МО
+          // 21 - Да - ОИД МО
           s1 += Eval( blk, f_s_csv( loidmo ) ) + ";"
-          // 21 код подразделения
+          // 22 - Да - код подразделения из "Паспорта ЛПУ" иначе 0
           s := AllTrim( otd->kod_podr )
-          s1 += Eval( blk, f_s_csv( s ) ) + ";"
-          // 22 номер участка
+          if len(s) > 0
+            s1 += Eval( blk, f_s_csv( s ) ) + ";"
+          else
+            s1 += Eval( blk,"0" ) + ";"
+          endif  
+          // 23 - Да - номер участка
           s := lstr( tmp_krtp->uchast )
           s1 += Eval( blk, s ) + ";"
-          // 23 СНИЛС врача
+          // 24 - Да - СНИЛС врача
           s := p2->snils
           s1 += Eval( blk, s ) + ";"
-          // 24 категория врача
+          // 25 -Да - категория врача (1-врач  2-фельдшер)
           s := iif( p2->kateg == 1, "1", "2" )
           s1 += Eval( blk, s )
           //
@@ -991,8 +1010,8 @@ Function preparation_for_pripisnoe_naselenie()
         Enddo
         If k == 3 // после смены участка
           Select KRTP
-          Index On Str( reestr, 6 ) to ( cur_dir + "tmp_krtp" )
-          Use ( cur_dir + "tmpu" ) new
+          Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_krtp" )
+          Use ( cur_dir() + "tmpu" ) new
           Set Relation To kod into KART
           Go Top
           Do While !Eof()
@@ -1017,30 +1036,36 @@ Function preparation_for_pripisnoe_naselenie()
             s1 := iif( i == 1, "", hb_eol() )
             // 1 - Номер записи в файле с 10.06.19г.
             s1 += Eval( blk, lstr( i ) ) + ";"
-            // 1 - Действие
-            s := "И" // !!!!!!!!!!!!!! с версии 2.2.12
+            // 2 - Действие
+            s := "И" // 
             s1 += Eval( blk, s ) + ";"
-            // 2 - Код типа ДПФС
+            // 3 - Код типа ДПФС
             s := iif( kart_->vpolis == 3, "П", iif( kart_->vpolis == 2, "В", "С" ) )
             s1 += Eval( blk, s ) + ";"
-            // 3 - Серия и номер ДПФС
-            s := iif( kart_->vpolis == 3, "", ;
-              iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ), ;
-              AllTrim( kart_->SPOLIS ) + " № " + AllTrim( kart_->NPOLIS ) ) )
+            // 4 - cерия и номер ДПФС
+            if len(AllTrim( kart2->KOD_MIS )) == 16
+              t_polis := alltrim(kart2->KOD_MIS)
+            else
+              t_polis :=  alltrim(kart_->NPOLIS)
+            endif    
+            s :=  iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ),t_polis )
+            //s := iif( kart_->vpolis == 3, "", ;
+            //  iif( kart_->vpolis == 2, AllTrim( kart_->NPOLIS ), ;
+            //  AllTrim( kart_->SPOLIS ) + " № " + AllTrim( kart_->NPOLIS ) ) )
             s1 += Eval( blk, f_s_csv( s ) ) + ";"
-            // 4 - Единый номер полиса ОМС
-            s := iif( kart_->vpolis == 3, AllTrim( kart_->NPOLIS ), "" )
+            // 5 - Единый номер полиса ОМС
+            s := t_polis
             s1 += Eval( blk, s ) + ";"
             arr_fio := retfamimot( 1, .f. )
-            // 5 - Фамилия застрахованного лица
+            // 6 - Фамилия застрахованного лица
             s1 += Eval( blk, f_s_csv( arr_fio[ 1 ] ) ) + ";"
-            // 6 - Имя застрахованного лица
+            // 7 - Имя застрахованного лица
             s1 += Eval( blk, f_s_csv( arr_fio[ 2 ] ) ) + ";"
-            // 7 - Отчество застрахованного лица
+            // 8 - Отчество застрахованного лица
             s1 += Eval( blk, f_s_csv( arr_fio[ 3 ] ) ) + ";"
-            // 8 - Дата рождения застрахованного лица
+            // 9 - Дата рождения застрахованного лица
             s1 += Eval( blk, DToS( kart->date_r ) ) + ";"
-            // 9 - Место рождения застрахованного лица
+            // 10 - Место рождения застрахованного лица
             s := iif( eq_any( kart_->vid_ud, 3, 14 ), AllTrim( del_spec_symbol( kart_->mesto_r ) ), "" )
             s1 += Eval( blk, f_s_csv( s ) ) + ";"
             fl := AScan( getvidud(), {| x| x[ 2 ] == kart_->vid_ud } ) == 0
@@ -1060,18 +1085,18 @@ Function preparation_for_pripisnoe_naselenie()
               fl := .t.
             Endif
             If fl
-              // 10 - Тип документа, удостоверяющего личность
+              // 11 - Тип документа, удостоверяющего личность
               s1 += Eval( blk, "" ) + ";"
-              // 11 - Номер или серия и номер документа, удостоверяющего личность.
+              // 12 - Номер или серия и номер документа, удостоверяющего личность.
               s1 += Eval( blk, "" ) + ";"
             Else
-              // 10 - Тип документа, удостоверяющего личность
+              // 11 - Тип документа, удостоверяющего личность
               s1 += Eval( blk, lstr( kart_->vid_ud ) ) + ";"
-              // 11 - Номер или серия и номер документа, удостоверяющего личность.
+              // 12 - Номер или серия и номер документа, удостоверяющего личность.
               s := AllTrim( kart_->ser_ud ) + " № " + AllTrim( kart_->nom_ud )
               s1 += Eval( blk, f_s_csv( s ) ) + ";"
             Endif
-            // 12 - Дата выдачи документа, удостоверяющего личность
+            // 13 - Дата выдачи документа, удостоверяющего личность
             lkogdavyd := kart_->kogdavyd
             If !Empty( kart_->kogdavyd ) .and. !Between( kart_->kogdavyd, kart->date_r, sys_date )
               If kart_->vid_ud == 3 // свид_во о рождении
@@ -1082,37 +1107,41 @@ Function preparation_for_pripisnoe_naselenie()
             Endif
             s := iif( Empty( lkogdavyd ), "", DToS( lkogdavyd ) )
             s1 += Eval( blk, s ) + ";"
-            // 13 - Наименование органа, выдавшего документ
-            s := AllTrim( inieditspr( A__POPUPMENU, dir_server + "s_kemvyd", kart_->kemvyd ) )
+            // 14 - Наименование органа, выдавшего документ
+            s := AllTrim( inieditspr( A__POPUPMENU, dir_server() + "s_kemvyd", kart_->kemvyd ) )
             s1 += Eval( blk, f_s_csv( s ) ) + ";"
-            // 14 - СНИЛС застрахованного лица
+            // 15 - СНИЛС застрахованного лица
             If !Empty( lsnils := kart->snils ) .and. !val_snils( kart->snils, 2 )
               lsnils := ""
             Endif
             s1 += Eval( blk, AllTrim( lsnils ) ) + ";"
-            // 15 - Идентификатор МО
+            // 16 - Идентификатор МО
             s1 += Eval( blk, glob_mo[ _MO_KOD_TFOMS ] ) + ";"
-            // 16 - Способ прикрепления
+            // 17 - Способ прикрепления
             s1 += Eval( blk, lstr( krtp->S_PRIK ) ) + ";"
-            // 17 - Тип прикрепления (Зарезервированное поле)
+            // 18 - Тип прикрепления (Зарезервированное поле)
             s := ""
             s1 += Eval( blk, s ) + ";"
-            // 18 - Дата заявления
+            // 19 - Дата заявления
             s1 += Eval( blk, DToS( krtp->D_PRIK ) ) + ";"
-            // 19 - Дата открепления
+            // 20 - Дата открепления
             s1 += Eval( blk, "" ) + ";"
-            // 20 ОИД МО
+            // 21 ОИД МО
             s1 += Eval( blk, f_s_csv( loidmo ) ) + ";"
-            // 21 код подразделения
+            // 22 код подразделения
             s := AllTrim( otd->kod_podr )
-            s1 += Eval( blk, f_s_csv( s ) ) + ";"
-            // 22 номер участка
+            if len(s) > 0
+              s1 += Eval( blk, f_s_csv( s ) ) + ";"
+            else
+              s1 += Eval( blk,"0" ) + ";"
+            endif  
+            // 23 номер участка
             s := lstr( kart->uchast )
             s1 += Eval( blk, s ) + ";"
-            // 23 СНИЛС врача
+            // 24 СНИЛС врача
             s := p2->snils
             s1 += Eval( blk, s ) + ";"
-            // 24 категория врача
+            // 25 категория врача
             s := iif( p2->kateg == 1, "1", "2" )
             s1 += Eval( blk, s )
             //
@@ -1124,7 +1153,7 @@ Function preparation_for_pripisnoe_naselenie()
         Endif
         FClose( fp )
         If hb_FileExists( n_file )
-          chip_copy_zipxml( n_file, dir_server + dir_XML_MO, .t. )
+          chip_copy_zipxml( n_file, dir_server() + dir_XML_MO(), .t. )
           Keyboard Chr( K_HOME ) + Chr( K_ENTER )
           Select KRTF
           g_rlock( forever )
@@ -1164,7 +1193,7 @@ Function f1_p_f_pripisnoe_naselenie( aerr )
 
   Return Nil
 
-// 05.03.13
+// 09.09.25
 Function kartoteka_z_prikreplenie()
   Static srec := 0
   Local blk, t_arr[ BR_LEN ]
@@ -1188,7 +1217,7 @@ Function kartoteka_z_prikreplenie()
     iif( Empty( kart2->mo_pr ), { 3, 4 }, { 5, 6 } ) ) }
   t_arr[ BR_COLUMN ] := { { Center( "Ф.И.О.", 35 ), {|| Left( kart->fio, 32 ) }, blk }, ;
     { "Дата рожд.", {|| full_date( kart->date_r ) }, blk }, ;
-    { " Прикрепление", {|| PadR( inieditspr( A__MENUVERT, glob_arr_mo, kart2->mo_pr ), 34 ) }, blk } }
+    { " Прикрепление", {|| PadR( inieditspr( A__MENUVERT, glob_arr_mo(), kart2->mo_pr ), 34 ) }, blk } }
   t_arr[ BR_STAT_MSG ] := {|| status_key( "^<Esc>^ - выход; ^^ или нач.буква - поиск; ^<F9>^ - печать заявления на прикрепление" ) }
   t_arr[ BR_EDIT ] := {| nk, ob| f1_k_z_prikreplenie( nk, ob, "edit" ) }
   use_base( "kartotek" )
@@ -1229,7 +1258,7 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
       { "smo", "C", 100, 0 }, ;
       { "ruk_fio", "C", 60, 0 }, ;
       { "ruk", "C", 20, 0 } } )
-    r_use( dir_server + "organiz",, "ORG" )
+    r_use( dir_server() + "organiz",, "ORG" )
     Use ( fr_titl ) New Alias FRT
     Append Blank
     frt->name_org := glob_MO[ _MO_SHORT_NAME ] + " (" + glob_MO[ _MO_KOD_TFOMS ] + ")"
@@ -1251,7 +1280,7 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
         s += "выдан " + full_date( kart_->kogdavyd ) + "г. "
       Endif
       If !Empty( kart_->kemvyd )
-        s += inieditspr( A__POPUPMENU, dir_server + "s_kemvyd", kart_->kemvyd )
+        s += inieditspr( A__POPUPMENU, dir_server() + "s_kemvyd", kart_->kemvyd )
       Endif
     Endif
     frt->pasport := s
@@ -1286,13 +1315,13 @@ Function pripisnoe_naselenie_create_sverka()
     Return Nil
   Endif
   clrline( MaxRow(), color0 )
-  dbCreate( cur_dir + "tmp", { { "kod", "N", 7, 0 } } )
-  Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir() + "tmp", { { "kod", "N", 7, 0 } } )
+  Use ( cur_dir() + "tmp" ) new
   hGauge := gaugenew(,,, "Составление списка для включения в файл сверки", .t. )
   gaugedisplay( hGauge )
   curr := 0
-  r_use( dir_server + "mo_kfio",, "KFIO" )
-  Index On Str( kod, 7 ) to ( cur_dir + "tmp_kfio" )
+  r_use( dir_server() + "mo_kfio",, "KFIO" )
+  Index On Str( kod, 7 ) to ( cur_dir() + "tmp_kfio" )
   r_use_base( "kartotek" )
   Set Order To 2
   find ( "1" )
@@ -1346,11 +1375,11 @@ Function pripisnoe_naselenie_create_sverka()
   Enddo
   fl := .f.
   s := "SZ2"
-  r_use( dir_server + "mo_krtr",, "KRTR" )
-  Index On DToS( DFILE ) to ( cur_dir + "tmp_krtr" ) For Left( FNAME, 3 ) == s
+  r_use( dir_server() + "mo_krtr",, "KRTR" )
+  Index On DToS( DFILE ) to ( cur_dir() + "tmp_krtr" ) For Left( FNAME, 3 ) == s
   ar := {}
   For i := 1 To Len( arr )
-    n_file := s + glob_mo[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] ) + scsv
+    n_file := s + glob_mo[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] ) + scsv()
     s1 := ""
     find ( DToS( arr[ i, 2 ] ) )
     If Found()
@@ -1377,16 +1406,16 @@ Function pripisnoe_naselenie_create_sverka()
   If f_alert( ar, ar2, 1, "GR+/R", "W+/R",,, "GR+/R,N/BG" ) == 2
     mywait()
     blk := {| _s| iif( Empty( _s ), '', '"' + _s + '"' ) }
-    g_use( dir_server + "mo_krtr",, "KRTR" )
-    Index On Str( kod, 6 ) to ( cur_dir + "tmp_krtr" )
-    g_use( dir_server + "mo_krtf",, "KRTF" )
-    Index On Str( kod, 6 ) to ( cur_dir + "tmp_krtf" )
-    g_use( dir_server + "mo_krtp",, "KRTP" )
-    Index On Str( reestr, 6 ) to ( cur_dir + "tmp_k" )
-    r_use( dir_server + "mo_kfio", cur_dir + "tmp_kfio", "KFIO" )
+    g_use( dir_server() + "mo_krtr",, "KRTR" )
+    Index On Str( kod, 6 ) to ( cur_dir() + "tmp_krtr" )
+    g_use( dir_server() + "mo_krtf",, "KRTF" )
+    Index On Str( kod, 6 ) to ( cur_dir() + "tmp_krtf" )
+    g_use( dir_server() + "mo_krtp",, "KRTP" )
+    Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_k" )
+    r_use( dir_server() + "mo_kfio", cur_dir() + "tmp_kfio", "KFIO" )
     r_use_base( "kartotek" )
     Set Order To 0
-    Use ( cur_dir + "tmp" ) new
+    Use ( cur_dir() + "tmp" ) new
     Set Relation To kod into KART
     curr := 0
     RestScreen( buf )
@@ -1420,7 +1449,7 @@ Function pripisnoe_naselenie_create_sverka()
       dbUnlockAll()
       Commit
       //
-      n_file += scsv
+      n_file += scsv()
       Delete File ( n_file )
       fp := FCreate( n_file )
       //
@@ -1525,7 +1554,7 @@ Function pripisnoe_naselenie_create_sverka()
         Endif
       Next ii
       FClose( fp )
-      name_zip := AllTrim( krtr->FNAME ) + szip
+      name_zip := AllTrim( krtr->FNAME ) + szip()
       Select KRTR
       g_rlock( forever )
       krtr->KOL := arr[ i, 1 ]
@@ -1622,14 +1651,14 @@ Function edit_uchast_spisok()
     Return Nil
   Endif
   mywait()
-  dbCreate( cur_dir + "tmp_krtp", { { "KOD_K", "N", 7, 0 } } )
-  Use ( cur_dir + "tmp_krtp" ) new
+  dbCreate( cur_dir() + "tmp_krtp", { { "KOD_K", "N", 7, 0 } } )
+  Use ( cur_dir() + "tmp_krtp" ) new
   // Фильтр по ФИО
   If !Empty( mfl_fio )
     mfl_fio := Upper( AllTrim( mfl_fio ) )
     len_fio := Len( mfl_fio )
   Endif
-  Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_wq" )
+  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_wq" )
   use_base( "kartotek" )
   Go Top
   Do While !Eof()
@@ -1713,20 +1742,20 @@ Function edit_uchast_spisok()
   Endif
   //
   Private TIP_uchast  := 1 // 1-адрес 2-работа
-  g_use( dir_server + "kartotek", { dir_server + "kartotek", ;
-    dir_server + "kartoten", ;
-    dir_server + "kartotep", ;
-    dir_server + "kartoteu" }, "KART" )
+  g_use( dir_server() + "kartotek", { dir_server() + "kartotek", ;
+    dir_server() + "kartoten", ;
+    dir_server() + "kartotep", ;
+    dir_server() + "kartoteu" }, "KART" )
   Set Order To 0
-  Use ( cur_dir + "tmp_krtp" ) new
+  Use ( cur_dir() + "tmp_krtp" ) new
   Set Relation To kod_k into KART
   // устанавливаем реляцию
   If m1fl_sort ==  0 // по фио
-    Index On Upper( kart->fio ) to ( cur_dir + "tmp_ru" )
+    Index On Upper( kart->fio ) to ( cur_dir() + "tmp_ru" )
   Elseif m1fl_sort ==  1 // по адресу
-    Index On Upper( kart->adres ) to ( cur_dir + "tmp_ru" )
+    Index On Upper( kart->adres ) to ( cur_dir() + "tmp_ru" )
   Else
-    Index On Upper( kart->mr_dol ) to ( cur_dir + "tmp_ru" )
+    Index On Upper( kart->mr_dol ) to ( cur_dir() + "tmp_ru" )
     TIP_uchast := 2 // 1-адрес 2-работа
   Endif
   alpha_browse( 2, 0, 23, 79, "f1_vvod_uchast_spisok", color0, "Редактирование участка (" + lstr( ku ) + " чел.)", "BG+/GR", ;
@@ -1775,7 +1804,7 @@ Function f2_vvod_uchast_spisok( nKey, oBrow )
     If ku > 10000
       func_error( 4, "Слишком много пациентов в списке" )
     Elseif ! hb_user_curUser:isadmin()
-      func_error( 4, err_admin )
+      func_error( 4, err_admin() )
     Elseif ( much := input_value( 18, 5, 20, 74, color1, ;
         "Введите номер участка для простановки всем пациентам из списка", 0, "99" ) ) != NIL ;
         .and. much > 0 ;// .and. involved_password(1,vp,"смены номера участка всем пациентам из списка") ;
@@ -1827,7 +1856,7 @@ Function f2_vvod_uchast_spisok( nKey, oBrow )
 Function f3_vvod_uchast_spisok( tip )
   // tip - 1 адрес
   // 2 место работы
-  Local sh, HH := 78, name_file := cur_dir + "reg_prip" + stxt, i := 0, arr_title, s
+  Local sh, HH := 78, name_file := cur_dir() + "reg_prip.txt", i := 0, arr_title, s
 
   s := { "Адрес", "Место работы" }[ tip ]
   arr_title := { ;
@@ -1857,18 +1886,18 @@ Function f3_vvod_uchast_spisok( tip )
 
   Return Nil
 
-// 09.09.15 Просмотр/печать прикреплённого населения
+// 09.09.25 Просмотр/печать прикреплённого населения
 Function spisok_pripisnoe_naselenie( par )
   Static sj, smo := "      "
-  Local i, j, k, s, arr := {}, n_file := cur_dir + "pr_nas" + lstr( par ) + stxt, ll := 0, ;
+  Local i, j, k, s, arr := {}, n_file := cur_dir() + "pr_nas" + lstr( par ) + stxt(), ll := 0, ;
     ret_arr, sh := 120, HH := 57, buf := save_maxrow() // 81 b 80
 
   If Empty( arr_mo )
     mywait()
-    r_use( dir_server + "kartotek",, "KART" )
-    r_use( dir_server + "kartote2",, "KART2" )
+    r_use( dir_server() + "kartotek",, "KART" )
+    r_use( dir_server() + "kartote2",, "KART2" )
     Set Relation To RecNo() into KART
-    Index On mo_pr to ( cur_dir + "tmp_kart2" ) For !kart->( Eof() ) .and. kart->kod > 0
+    Index On mo_pr to ( cur_dir() + "tmp_kart2" ) For !kart->( Eof() ) .and. kart->kod > 0
     Go Top
     Do While !Eof()
       If ( i := AScan( arr_mo, {| x| x[ 2 ] == kart2->mo_pr } ) ) == 0
@@ -1882,8 +1911,8 @@ Function spisok_pripisnoe_naselenie( par )
     Enddo
     Close databases
     For i := 1 To Len( arr_mo )
-      If ( j := AScan( glob_arr_mo, {| x| x[ _MO_KOD_TFOMS ] == arr_mo[ i, 2 ] } ) ) > 0
-        arr_mo[ i, 1 ] := Str( arr_mo[ i, 3 ], 6 ) + " чел. " + arr_mo[ i, 2 ] + " " + glob_arr_mo[ j, _MO_SHORT_NAME ]
+      If ( j := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == arr_mo[ i, 2 ] } ) ) > 0
+        arr_mo[ i, 1 ] := Str( arr_mo[ i, 3 ], 6 ) + " чел. " + arr_mo[ i, 2 ] + " " + glob_arr_mo()[ j, _MO_SHORT_NAME ]
         If arr_mo[ i, 2 ] == glob_MO[ _MO_KOD_TFOMS ]
           AAdd( arr, i )
         Endif
@@ -1909,28 +1938,28 @@ Function spisok_pripisnoe_naselenie( par )
   sj := j
   mywait()
   fl := .t.
-  r_use( dir_server + "kartotek",, "KART" )
-  r_use( dir_server + "kartote_",, "KART_" )
-  r_use( dir_server + "kartote2",, "KART2" )
+  r_use( dir_server() + "kartotek",, "KART" )
+  r_use( dir_server() + "kartote_",, "KART_" )
+  r_use( dir_server() + "kartote2",, "KART2" )
   Set Relation To RecNo() into KART
-  Set Index to ( cur_dir + "tmp_kart2" )
+  Set Index to ( cur_dir() + "tmp_kart2" )
   Do Case
   Case par == 1
     find ( glob_MO[ _MO_KOD_TFOMS ] )
-    Index On iif( sj == 1, "", Str( kart->uchast, 2 ) ) + Upper( kart->fio ) + DToS( kart->date_r ) to ( cur_dir + "tmp_kart" ) ;
+    Index On iif( sj == 1, "", Str( kart->uchast, 2 ) ) + Upper( kart->fio ) + DToS( kart->date_r ) to ( cur_dir() + "tmp_kart" ) ;
       While kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ]
   Case par == 2
     popup_2array( arr_mo, 2, 2, smo, 1, @ret_arr, "Выбор МО прикрепления", "B/BG" )
     If ValType( ret_arr ) == "A"
       smo := ret_arr[ 2 ]
       find ( ret_arr[ 2 ] )
-      Index On iif( sj == 1, "", Str( kart->uchast, 2 ) ) + Upper( kart->fio ) + DToS( kart->date_r ) to ( cur_dir + "tmp_kart" ) ;
+      Index On iif( sj == 1, "", Str( kart->uchast, 2 ) ) + Upper( kart->fio ) + DToS( kart->date_r ) to ( cur_dir() + "tmp_kart" ) ;
         While kart2->mo_pr == ret_arr[ 2 ]
     Else
       fl := .f.
     Endif
   Case par == 3
-    Index On iif( sj == 1, "", Str( kart->uchast, 2 ) ) + Upper( kart->fio ) + DToS( kart->date_r ) to ( cur_dir + "tmp_kart" ) ;
+    Index On iif( sj == 1, "", Str( kart->uchast, 2 ) ) + Upper( kart->fio ) + DToS( kart->date_r ) to ( cur_dir() + "tmp_kart" ) ;
       For !kart->( Eof() ) .and. kart->kod > 0 .and. AScan( arr_no, kart2->mo_pr ) > 0
   Endcase
   If fl
@@ -1990,12 +2019,12 @@ Function spisok_pripisnoe_naselenie( par )
 
 // 25.03.18 Подсчёт количества прикреплённого населения по участкам
 Function kol_uch_pripisnoe_naselenie()
-  Local sh, HH := 60, name_file := cur_dir + "uch_prik" + stxt, arr_title, i, j, k, arr1 := {}, arr2 := {}, ;
+  Local sh, HH := 60, name_file := cur_dir() + "uch_prik.txt", arr_title, i, j, k, arr1 := {}, arr2 := {}, ;
     fl, arr, buf := save_maxrow()
 
   mywait()
-  r_use( dir_exe() + "_okatos", cur_dir + "_okats", "SELO" )
-  r_use( dir_exe() + "_okatoo", cur_dir + "_okato", "OBLAST" )
+  r_use( dir_exe() + "_okatos", cur_dir() + "_okats", "SELO" )
+  r_use( dir_exe() + "_okatoo", cur_dir() + "_okato", "OBLAST" )
   r_use_base( "kartotek" )
   Set Order To
   Go Top

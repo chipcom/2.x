@@ -108,7 +108,7 @@ CREATE CLASS TEmployee	INHERIT	TBaseObjectBLL
 		DATA FOtdal		INIT .f.
 
 		METHOD getSNILS				INLINE ::FSNILS
-		METHOD getSNILSformat		INLINE transform( ::FSNILS, picture_pf )
+		METHOD getSNILSformat		INLINE transform( ::FSNILS, '@R 999-999-999 99' )
 		METHOD setSNILS( cSNILS )
 		METHOD getDBegin				INLINE ::FDBegin
 		METHOD setDBegin( date )
@@ -179,9 +179,9 @@ CREATE CLASS TEmployee	INHERIT	TBaseObjectBLL
 ENDCLASS
 
 METHOD function forJSON()    CLASS TEmployee
+
 	local oRow := nil, obj := nil
 	local hItems, hItem, h
-	local lSUCCES
 
 	h := { => }
 	hItems := { => }
@@ -189,7 +189,7 @@ METHOD function forJSON()    CLASS TEmployee
 	hb_HSet( hItem, 'ID', ltrim( str( ::ID ) ) )
 	hb_HSet( hItem, 'Name', alltrim( ::Name ) )
 	hb_HSet( hItem, 'Position', alltrim( ::Position ) )
-	hb_HSet( hItem, 'SNILS', alltrim( transform( ::SNILS, picture_pf ) ) )
+	hb_HSet( hItem, 'SNILS', alltrim( transform( ::SNILS, '@R 999-999-999 99' ) ) )
 	hb_HSet( hItem, 'TabNom', alltrim( ltrim( str( ::TabNom ) ) ) )
 	return hItem
 	
@@ -206,7 +206,7 @@ METHOD function forJSON()    CLASS TEmployee
 		&& hb_HSet( hItem, 'ID', ltrim( str( obj:ID ) ) )
 		&& hb_HSet( hItem, 'Name', alltrim( obj:Name ) )
 		&& hb_HSet( hItem, 'Position', alltrim( obj:Position ) )
-		&& hb_HSet( hItem, 'SNILS', alltrim( transform( obj:SNILS, picture_pf ) ) )
+		&& hb_HSet( hItem, 'SNILS', alltrim( transform_SNILS( obj:SNILS ) ) )
 		&& hb_HSet( hItem, 'TabNom', alltrim( ltrim( str( obj:TabNom ) ) ) )
 		&& hb_HSet( hItems, 'Сотрудник-' + ltrim( str( obj:ID ) ), hItem )
 	&& next
@@ -347,7 +347,8 @@ METHOD Clone()		 CLASS TEmployee
 	return oTarget
 
 METHOD getShortFIO( )   CLASS TEmployee
-	local cStr, ret := '', k := 0
+	
+	local ret := '', k := 0
 	local cFIO := ::FName, i, s := '', s1 := '', ret_arr := { '', '', '' }
 
 	cFIO := alltrim( cFIO )

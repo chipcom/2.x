@@ -76,11 +76,11 @@ FUNCTION edi_FindPath( cFile )
 
   //  hb_DirBase() - Drive and directory name of running executable ( application ) 
 #ifdef __PLATFORM__UNIX
-  IF File( cFullPath := ( cur_dir + cFile ) ) .OR. ;
+  IF File( cFullPath := ( cur_dir() + cFile ) ) .OR. ;
     File( cFullPath := ( hb_DirBase() + cFile ) )
     // File( cFullPath := ( getenv("HOME") + "/hbedit/" + cFile ) ) .OR. ;
 #else
-  IF File( cFullPath := ( cur_dir + cFile ) ) .OR. ;
+  IF File( cFullPath := ( cur_dir() + cFile ) ) .OR. ;
     File( cFullPath := ( hb_DirBase() + cFile ) )
 #endif
     RETURN cFullPath

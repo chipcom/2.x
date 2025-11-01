@@ -23,7 +23,7 @@ Function view_list_xml_fns()
     Return func_error( 4, reestr_xml_fns_err )
   Endif
 
-  g_use( dir_server + 'reg_xml_fns', , 'xml' )
+  g_use( dir_server() + 'reg_xml_fns', , 'xml' )
   Index On str( kod, 6 ) to ( cur_dir() + 'tmp_xml' ) DESCENDING
   Go Top
   xml->( dbGoTop() )
@@ -54,7 +54,7 @@ function serv_xml_fns( nKey, oBrow )
       If Upper( s ) == Upper( dir_XML_FNS() )
         func_error( 4, 'Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо.' )
       Else
-        xml_file := alltrim( xml->fname ) + sxml
+        xml_file := alltrim( xml->fname ) + sxml()
         If hb_FileExists( dir_XML_FNS() + xml_file )
           mywait( 'Копирование "' + xml_file + '" в каталог "' + s + '"' )
           if ( nResult := hb_vfCopyFile( dir_XML_FNS() + xml_file, s + xml_file ) ) == 0  // скопировано без ошибок
@@ -110,12 +110,12 @@ Function view_list_xml( oBrow )
   ft:EnableTableHeader := .t.
   ft:add_string( '' )
   ft:add_string( 'Список справок в реестре', FILE_CENTER, ' ' )
-  ft:add_string( alltrim( xml->fname ) + sxml, FILE_CENTER, ' ' )
+  ft:add_string( alltrim( xml->fname ) + sxml(), FILE_CENTER, ' ' )
   ft:add_string( 'от ' + transform( xml->dfile, '99.99.99' ) + 'г.', FILE_CENTER, ' ' )
   ft:add_string( '' )
   ft:printTableHeader()
 
-  r_use( dir_server + 'register_fns', , 'fns' )
+  r_use( dir_server() + 'register_fns', , 'fns' )
   fns->( dbGoTop() )
   Do While ! fns->( Eof() )
     if fns->kod_xml == xml->kod
@@ -137,7 +137,7 @@ Function view_list_xml( oBrow )
 function defColumn_xml_FNS( oBrow )
 
   Local oColumn, ;
-    blk := {|| iif( hb_FileExists( dir_XML_FNS() + AllTrim( xml->fname ) + sxml ), ;
+    blk := {|| iif( hb_FileExists( dir_XML_FNS() + AllTrim( xml->fname ) + sxml() ), ;
     iif( Empty( xml->date_out ), { 3, 4 }, { 1, 2 } ), ;
     { 5, 6 } ) }
 
@@ -169,7 +169,7 @@ Function view_xml_fns()
 
   Local s := ''
   
-  If ! hb_FileExists( dir_XML_FNS() + AllTrim( xml->fname ) + sxml )
+  If ! hb_FileExists( dir_XML_FNS() + AllTrim( xml->fname ) + sxml() )
     s := 'нет файла'
   Elseif Empty( xml->date_out )
     s := 'не записан'
@@ -277,7 +277,7 @@ function createXMLtoFNS()
 
   dbCreate( cur_dir() + 'tmp_fns', tmp_fns,, .t., 'tmp_fns' )
   Index On predst + Str( num_s, 7 ) to ( cur_dir() + 'tmp_fns' )
-  r_use( dir_server + 'reg_people_fns', , 'payer' )
+  r_use( dir_server() + 'reg_people_fns', , 'payer' )
   payer->( dbGoTop() )
   use_base( 'reg_fns', 'fns', .t. )
   fns->( dbGoTop() )
@@ -335,7 +335,7 @@ function createXMLtoFNS()
     if curPreds != tmp_fns->predst
       if xml_created
         check_and_create_dir( dir_xml )
-        oXmlDoc:save( dir_xml + nameFileXML + sxml )
+        oXmlDoc:save( dir_xml + nameFileXML + sxml() )
         
         xml_fns->( dbAppend() )
         xml_fns->kod := xml_fns->( recno() )
@@ -345,7 +345,7 @@ function createXMLtoFNS()
         xml_fns->kol1 := kolSpravka
         fill_pole_spravok( 'fns', arr_spravka, xml_fns->kod )
 
-        G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+        G_Use( dir_server() + 'reg_fns_nastr', , 'NASTR_FNS' )
         G_RLock( forever )
         NASTR_FNS->N_FILE_UP := fns_N_SPR_FILE
         nastr_fns->( dbCloseArea() )
@@ -425,7 +425,7 @@ function createXMLtoFNS()
   enddo
   if xml_created
     check_and_create_dir( dir_xml )
-    oXmlDoc:save( dir_xml + nameFileXML + sxml )
+    oXmlDoc:save( dir_xml + nameFileXML + sxml() )
 
     xml_fns->( dbAppend() )
     xml_fns->kod := xml_fns->( recno() )
@@ -435,7 +435,7 @@ function createXMLtoFNS()
     xml_fns->kol1 := kolSpravka
     fill_pole_spravok( 'fns', arr_spravka, xml_fns->kod )
 
-    G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+    G_Use( dir_server() + 'reg_fns_nastr', , 'NASTR_FNS' )
     G_RLock( forever )
     NASTR_FNS->N_FILE_UP := fns_N_SPR_FILE
     nastr_fns->( dbCloseArea() )

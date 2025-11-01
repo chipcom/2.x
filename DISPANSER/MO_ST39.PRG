@@ -28,13 +28,13 @@ Function f_stom_39_terap()
 
   Return Nil
 
-// 06.08.19 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
+// 12.09.25 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
 Function mnog_poisk_dvn1()
 
   Local mm_tmp := {}, mm_sort, t_arr[ 2 ]
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
-    tmp_help := help_code, hGauge, name_file := "_kartDVN" + stxt, ;
-    sh := 80, HH := 77, i, j, a_diagnoz[ 10 ], ta, name_dbf := cur_dir + "_kartDVN" + sdbf, ;
+    tmp_help := help_code, hGauge, name_file := cur_dir() + "_kartDVN.txt", ;
+    sh := 80, HH := 77, i, j, a_diagnoz[ 10 ], ta, name_dbf := cur_dir() + "_kartDVN" + sdbf(), ;
     mm_da_net := { { "нет", 1 }, { "да ", 2 } }, ;
     mm_tip := { { "диспансеризация", 1 }, { "профилактический осмотр", 2 } }, ;
     mm_mest := { { "Волгоград или область", 1 }, { "иногородние", 2 } }, ;
@@ -44,7 +44,7 @@ Function mnog_poisk_dvn1()
     { "прикреплён к нашей МО", 1 }, ;
     { "прикреплён к другим МО", 2 }, ;
     { "прикрепление неизвестно", 3 } }, ;
-    tmp_file := cur_dir + "tmp_mn_p" + sdbf, ;
+    tmp_file := cur_dir() + "tmp_mn_p" + sdbf(), ;
     k_fio, k_adr, tt_fio[ 10 ], tt_adr[ 10 ], fl_exit := .f.
   Local adbf := { ;
     { "BUKVA",   "C",  1, 0 }, ; // буква в участке
@@ -207,7 +207,7 @@ Function mnog_poisk_dvn1()
   init_base( tmp_file,, mm_tmp, 0 )
   //
   k := f_edit_spr( A__APPEND, mm_tmp, "множественному запросу", ;
-    "e_use(cur_dir+'tmp_mn_p')", 0, 1,,,,, "write_mn_p_DVN1" )
+    "e_use(cur_dir()+'tmp_mn_p')", 0, 1,,,,, "write_mn_p_DVN1" )
   If k > 0
     mywait()
     Use ( tmp_file ) New Alias MN
@@ -235,23 +235,23 @@ Function mnog_poisk_dvn1()
     hGauge := gaugenew(,,, "Поиск в картотеке", .t. )
     gaugedisplay( hGauge )
     //
-    dbCreate( cur_dir + "tmp", { { "kod", "N", 7, 0 } },, .t., "TMP" )
+    dbCreate( cur_dir() + "tmp", { { "kod", "N", 7, 0 } },, .t., "TMP" )
     If !Empty( mn->net_dann ) // ВСТАВКА
-      r_use( dir_server + "hum_p", dir_server + "hum_pkk", "HUM_P" )
-      r_use( dir_server + "hum_ort", dir_server + "hum_ortk", "HUM_ORT" )
-      r_use( dir_server + "kas_pl", dir_server + "kas_pl1", "KS_PL" )
-      r_use( dir_server + "kas_ORT", dir_server + "kas_ort1", "KS_ORT" )
-      r_use( dir_server + "mo_regi", dir_server + "mo_regi3", "RU" )
-      r_use( dir_server + "mo_pp", dir_server + "mo_pp_r", "PP" )
-      r_use( dir_server + "mo_nnapr",, "NAPR" )
+      r_use( dir_server() + "hum_p", dir_server() + "hum_pkk", "HUM_P" )
+      r_use( dir_server() + "hum_ort", dir_server() + "hum_ortk", "HUM_ORT" )
+      r_use( dir_server() + "kas_pl", dir_server() + "kas_pl1", "KS_PL" )
+      r_use( dir_server() + "kas_ORT", dir_server() + "kas_ort1", "KS_ORT" )
+      r_use( dir_server() + "mo_regi", dir_server() + "mo_regi3", "RU" )
+      r_use( dir_server() + "mo_pp", dir_server() + "mo_pp_r", "PP" )
+      r_use( dir_server() + "mo_nnapr",, "NAPR" )
       Index On Str( kod_k, 7 ) + DToS( date_d ) To tmp_NA
     Endif // ВСТАВКА- КОНЕЦ
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humankk", "HUMAN" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humankk", "HUMAN" )
     Set Relation To RecNo() into HUMAN_
-    r_use( dir_server + "kartote2",, "KART2" )
-    r_use( dir_server + "kartote_",, "KART_" )
-    r_use( dir_server + "kartotek",, "KART" )
+    r_use( dir_server() + "kartote2",, "KART2" )
+    r_use( dir_server() + "kartote_",, "KART_" )
+    r_use( dir_server() + "kartotek",, "KART" )
     Set Relation To RecNo() into KART_, RecNo() into KART2
     Go Top
     Do While !Eof()
@@ -289,37 +289,37 @@ Function mnog_poisk_dvn1()
       arr_title[ 4 ] += "───────────────────────────────────────────┴──┴──────────┴───────────────────────────────────┴─────┴──────────"
       reg_print := f_reg_print( arr_title, @sh, 2 )
       dbCreate( name_dbf, adbf,, .t., "DVN" )
-      r_use( dir_server + "human", dir_server + "humankk", "HUMAN" )
-      r_use( dir_server + "kartote2",, "KART2" )
-      r_use( dir_server + "kartote_",, "KART_" )
-      r_use( dir_server + "kartotek",, "KART" )
+      r_use( dir_server() + "human", dir_server() + "humankk", "HUMAN" )
+      r_use( dir_server() + "kartote2",, "KART2" )
+      r_use( dir_server() + "kartote_",, "KART_" )
+      r_use( dir_server() + "kartotek",, "KART" )
       Set Relation To RecNo() into KART_, To RecNo() into KART2
-      Use ( cur_dir + "tmp" ) new
+      Use ( cur_dir() + "tmp" ) new
       Set Relation To kod into KART
       stat_msg( "Составление текстового и DBF-файлов (" + lstr( tmp->( LastRec() ) ) + " чел.)" )
       If is_uchastok > 0
         If mn->i_sort == 1 // № участка + Год рождения + ФИО
-          Index On Str( kart->uchast, 2 ) + Str( Abs( mn->god - Year( kart->date_r ) ), 4 ) + Upper( kart->fio ) to ( cur_dir + "tmp" )
+          Index On Str( kart->uchast, 2 ) + Str( Abs( mn->god - Year( kart->date_r ) ), 4 ) + Upper( kart->fio ) to ( cur_dir() + "tmp" )
         Elseif mn->i_sort == 2 // № участка + Год рождения + Адрес
-          Index On Str( kart->uchast, 2 ) + Str( Abs( mn->god - Year( kart->date_r ) ), 4 ) + Upper( kart->adres ) to ( cur_dir + "tmp" )
+          Index On Str( kart->uchast, 2 ) + Str( Abs( mn->god - Year( kart->date_r ) ), 4 ) + Upper( kart->adres ) to ( cur_dir() + "tmp" )
         Elseif mn->i_sort == 4 // № участка + Адрес + Год рождения
-          Index On Str( kart->uchast, 2 ) + Upper( kart->adres ) + Str( Abs( mn->god - Year( kart->date_r ) ), 4 ) to ( cur_dir + "tmp" )
+          Index On Str( kart->uchast, 2 ) + Upper( kart->adres ) + Str( Abs( mn->god - Year( kart->date_r ) ), 4 ) to ( cur_dir() + "tmp" )
         Elseif mn->i_sort == 3 // № участка + Код
           If is_uchastok == 1 // № участка + № в участке
-            Index On Str( kart->uchast, 2 ) + Str( kart->kod_vu, 5 ) + Upper( kart->fio ) to ( cur_dir + "tmp" )
+            Index On Str( kart->uchast, 2 ) + Str( kart->kod_vu, 5 ) + Upper( kart->fio ) to ( cur_dir() + "tmp" )
           Elseif is_uchastok == 2 // № участка + Код по картотеке
-            Index On Str( kart->uchast, 2 ) + Str( kart->kod, 7 ) to ( cur_dir + "tmp" )
+            Index On Str( kart->uchast, 2 ) + Str( kart->kod, 7 ) to ( cur_dir() + "tmp" )
           Elseif is_uchastok == 3 // № участка + номер АК МИС
-            Index On Str( kart->uchast, 2 ) + kart2->kod_AK + Upper( kart->fio ) to ( cur_dir + "tmp" )
+            Index On Str( kart->uchast, 2 ) + kart2->kod_AK + Upper( kart->fio ) to ( cur_dir() + "tmp" )
           Endif
         Endif
       Else
         If mn->i_sort == 1 // Год рождения + ФИО
-          Index On Str( Abs( mn->god - Year( kart->date_r ) ), 4 ) + Upper( kart->fio ) to ( cur_dir + "tmp" )
+          Index On Str( Abs( mn->god - Year( kart->date_r ) ), 4 ) + Upper( kart->fio ) to ( cur_dir() + "tmp" )
         Elseif mn->i_sort == 2 // Год рождения + Адрес
-          Index On Str( Abs( mn->god - Year( kart->date_r ) ), 4 ) + Upper( kart->adres ) to ( cur_dir + "tmp" )
+          Index On Str( Abs( mn->god - Year( kart->date_r ) ), 4 ) + Upper( kart->adres ) to ( cur_dir() + "tmp" )
         Elseif mn->i_sort == 3 // Код по картотеке
-          Index On Str( kod, 7 ) to ( cur_dir + "tmp" )
+          Index On Str( kod, 7 ) to ( cur_dir() + "tmp" )
         Endif
       Endif
       fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
@@ -476,7 +476,8 @@ Function mnog_poisk_dvn1()
         dvn->POLIS := LTrim( kart_->NPOLIS )
         dvn->KOD_SMO := kart_->smo
         dvn->SMO := smo_to_screen( 1 )
-        dvn->SNILS := iif( Empty( kart->SNILS ), "", Transform( kart->SNILS, picture_pf ) )
+//        dvn->SNILS := iif( Empty( kart->SNILS ), "", Transform( kart->SNILS, picture_pf ) )
+        dvn->SNILS := iif( Empty( kart->SNILS ), "", Transform_SNILS( kart->SNILS ) )
         dvn->PENSIONER := iif( kart_->PENSIONER == 1, "пенсионер", "" )
         If !Empty( dvn->mo_pr := kart2->mo_pr )
           dvn->MONAME_PR := ret_mo( kart2->mo_pr )[ _MO_SHORT_NAME ]
@@ -790,9 +791,9 @@ Function mnog_poisk_dvn2()
   Static mm_da_net := { { "нет", 1 }, { "да ", 2 } }
   Local mm_tmp := {}, k
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
-    tmp_help := help_code, hGauge, name_file := "mn_z2dvn" + stxt, ;
+    tmp_help := help_code, hGauge, name_file := cur_dir() + "mn_z2dvn.txt", ;
     sh := 80, HH := 77, i, a_diagnoz[ 10 ], lvid_doc := 0, ;
-    tmp_file := "tmp_mn_p" + sdbf, ;
+    tmp_file := "tmp_mn_p" + sdbf(), ;
     k_diagnoz, k_usl, tt_diagnoz[ 10 ], tt_usl[ 10 ]
   Private ssumma := 0, suet := 0, mm_company := {}, ;
     is_kategor2 := .f., is_talon := ret_is_talon()
@@ -974,9 +975,9 @@ Function mnog_poisk_dvn2()
   Delete File ( tmp_file )
   init_base( tmp_file,, mm_tmp, 0 )
   //
-  r_use( dir_server + "mo_pers", dir_server + "mo_pers", "PERSO" )
+  r_use( dir_server() + "mo_pers", dir_server() + "mo_pers", "PERSO" )
   k := f_edit_spr( A__APPEND, mm_tmp, "множественному запросу", ;
-    "g_use(cur_dir+'tmp_mn_p',,,.t.,.t.)", 0, 1,,,,, "write_mn_p_DVN2" )
+    "g_use(cur_dir()+'tmp_mn_p',,,.t.,.t.)", 0, 1,,,,, "write_mn_p_DVN2" )
   If k > 0
     mywait()
     Use ( tmp_file ) New Alias MN
@@ -988,7 +989,7 @@ Function mnog_poisk_dvn2()
     Endif
     // заменить таб.номер на код
     If mn->vrach1 > 0
-      r_use( dir_server + "mo_pers", dir_server + "mo_pers", "PERSO" )
+      r_use( dir_server() + "mo_pers", dir_server() + "mo_pers", "PERSO" )
       find ( Str( mn->vrach1, 5 ) )
       If Found()
         mn->vrach1 := perso->kod
@@ -1026,34 +1027,34 @@ Function mnog_poisk_dvn2()
         mmr_dol += "*"
       Endif
     Endif
-    dbCreate( cur_dir + "tmp", { { "kod",      "N", 7, 0 }, ;
+    dbCreate( cur_dir() + "tmp", { { "kod",      "N", 7, 0 }, ;
       { "kod_k",    "N", 7, 0 }, ;
       { "etap",     "N", 1, 0 }, ;
       { "vozr",     "N", 2, 0 }, ;
       { "stoim",    "N", 10, 2 } } )
-    Use ( cur_dir + "tmp" ) new
-    dbCreate( cur_dir + "tmp_k", { { "kod_k", "N", 7, 0 }, ;
+    Use ( cur_dir() + "tmp" ) new
+    dbCreate( cur_dir() + "tmp_k", { { "kod_k", "N", 7, 0 }, ;
       { "kol",  "N", 6, 0 } } )
-    Use ( cur_dir + "tmp_k" ) new
-    Index On Str( kod_k, 7 ) to ( cur_dir + "tmp_k" )
+    Use ( cur_dir() + "tmp_k" ) new
+    Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_k" )
     fl_exit := .f.
     status_key( "^<Esc>^ - прервать поиск" )
-    r_use( dir_server + "uslugi",, "USL" )
-    r_use( dir_server + "human_u_",, "HU_" )
-    r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+    r_use( dir_server() + "uslugi",, "USL" )
+    r_use( dir_server() + "human_u_",, "HU_" )
+    r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
     Set Relation To RecNo() into HU_, To u_kod into USL additive
-    r_use( dir_server + "schet_",, "SCHET_" )
-    r_use( dir_server + "schet",, "SCHET" )
+    r_use( dir_server() + "schet_",, "SCHET_" )
+    r_use( dir_server() + "schet",, "SCHET" )
     Set Relation To RecNo() into SCHET_
     //
-    r_use( dir_server + "kartote2",, "KART2" )
-    r_use( dir_server + "kartote_",, "KART_" )
-    r_use( dir_server + "kartotek",, "KART" )
+    r_use( dir_server() + "kartote2",, "KART2" )
+    r_use( dir_server() + "kartote_",, "KART_" )
+    r_use( dir_server() + "kartotek",, "KART" )
     Set Relation To RecNo() into KART_, To RecNo() into KART2
     //
     Private c_view := 0, c_found := 0
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humand", "HUMAN" )  // по дате окончания лечения
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )  // по дате окончания лечения
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( pdate_lech[ 5 ] ), .t. )
     Do While human->k_data <= pdate_lech[ 6 ] .and. !Eof()
@@ -1103,22 +1104,22 @@ Function mnog_poisk_dvn2()
       Endif
       reg_print := f_reg_print( arr_title, @sh, 2 )
       If sh < 65 ; sh := 65 ; Endif
-      r_use( dir_server + "human_u_",, "HU_" )
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+      r_use( dir_server() + "human_u_",, "HU_" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
       Set Relation To RecNo() into HU_
-      r_use( dir_server + "schet_",, "SCHET_" )
-      r_use( dir_server + "schet",, "SCHET" )
+      r_use( dir_server() + "schet_",, "SCHET_" )
+      r_use( dir_server() + "schet",, "SCHET" )
       Set Relation To RecNo() into SCHET_
       If yes_parol
-        r_use( dir_server + "base1",, "BASE1" )
+        r_use( dir_server() + "base1",, "BASE1" )
       Endif
-      r_use( dir_server + "mo_pers",, "PERSO" )
-      r_use( dir_server + "kartote2",, "KART2" )
-      r_use( dir_server + "kartote_",, "KART_" )
-      r_use( dir_server + "kartotek",, "KART" )
+      r_use( dir_server() + "mo_pers",, "PERSO" )
+      r_use( dir_server() + "kartote2",, "KART2" )
+      r_use( dir_server() + "kartote_",, "KART_" )
+      r_use( dir_server() + "kartotek",, "KART" )
       Set Relation To RecNo() into KART_, To RecNo() into KART2
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humank", "HUMAN" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humank", "HUMAN" )
       Set Relation To RecNo() into HUMAN_
       fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
       add_string( "" )
@@ -1227,10 +1228,10 @@ Function mnog_poisk_dvn2()
       Endif
       add_string( "" )
       add_string( " == РЕЗУЛЬТАТЫ ПОИСКА ==" )
-      Use ( cur_dir + "tmp_k" ) new
-      Use ( cur_dir + "tmp" ) new
+      Use ( cur_dir() + "tmp_k" ) new
+      Use ( cur_dir() + "tmp" ) new
       Set Relation To Str( kod, 7 ) into HUMAN
-      Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir + "tmp" )
+      Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir() + "tmp" )
       add_string( "Итого количество больных: " + lstr( tmp_k->( LastRec() ) ) + " чел." )
       s := "Итого листов учета: " + lstr( tmp->( LastRec() ) ) + " на сумму " + lput_kop( ssumma, .t. ) + " руб."
       add_string( s )
@@ -1730,7 +1731,7 @@ Function f39_hir( k )
 //
 Function get_nastr_stom_f39h()
 
-  Local nf := dir_server + f39h_nastr, fl, i
+  Local nf := dir_server() + f39h_nastr, fl, i
 
   If ( fl := File( nf ) )
     For j := 1 To 35
@@ -1833,7 +1834,7 @@ Function forma_39hall( tip_f39 )
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   //
   delfrfiles()
-  dbCreate( cur_dir + "tmp_hum", { { "kod_h", "N", 6, 0 }, ;
+  dbCreate( cur_dir() + "tmp_hum", { { "kod_h", "N", 6, 0 }, ;
     { "date_u", "C", 4, 0 } } )
   cre_tmp_39h( { { "p_kod", "C", 4, 0 }, ;
     { "data", "D", 8, 0 }, ;
@@ -1847,21 +1848,21 @@ Function forma_39hall( tip_f39 )
     { "yet", "N", 10, 2 };
     } )
   Use ( fr_data ) New Alias TMP
-  Index On Str( tip, 1 ) + p_kod to ( cur_dir + "tmp" )
-  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
+  Index On Str( tip, 1 ) + p_kod to ( cur_dir() + "tmp" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "DIAG" )
   //
   If AScan( krvz, 1 ) > 0  // ОМС
     Pi1_OMS := 1
     If Pi1 == 1 // по дате окончания лечения
-      r_use( dir_server + "kartote_",, "KARTOTE_" )
+      r_use( dir_server() + "kartote_",, "KARTOTE_" )
       If AScan( krvz, 3 ) > 0 // платные присутствуют
         // Pi1_OMS := 0
-        r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "PHU" )
-        r_use( dir_server + "hum_p", dir_server + "hum_pkk", "PHUMAN" )
+        r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "PHU" )
+        r_use( dir_server() + "hum_p", dir_server() + "hum_pkk", "PHUMAN" )
       Endif
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
       dbSeek( arr_m[ 5 ], .t. )
       // цикл по ОМС
       Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -1916,16 +1917,16 @@ Function forma_39hall( tip_f39 )
         PHUMAN->( dbCloseArea() )
       Endif
     Else  // дата оказания услуг
-      r_use( dir_server + "kartote_",, "KARTOTE_" )
+      r_use( dir_server() + "kartote_",, "KARTOTE_" )
       If AScan( krvz, 3 ) > 0 // платные присутствуют
         // Pi1_OMS := 0
-        r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "PHU" )
-        r_use( dir_server + "hum_p", dir_server + "hum_pkk", "PHUMAN" )
+        r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "PHU" )
+        r_use( dir_server() + "hum_p", dir_server() + "hum_pkk", "PHUMAN" )
       Endif
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
-      r_use( dir_server + "human_u", dir_server + "human_ud", "HU" )
-      Use ( cur_dir + "tmp_hum" ) New Alias TMP_HUM
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
+      r_use( dir_server() + "human_u", dir_server() + "human_ud", "HU" )
+      Use ( cur_dir() + "tmp_hum" ) New Alias TMP_HUM
       Select HU
       dbSeek( arr_m[ 7 ], .t. )
       Do While hu->date_u <= arr_m[ 8 ] .and. !Eof()
@@ -1937,9 +1938,9 @@ Function forma_39hall( tip_f39 )
         Skip
       Enddo
       Select TMP_HUM
-      Index On Str( kod_h, 6 ) + date_u to ( cur_dir + "tmp_om" ) Unique progress
+      Index On Str( kod_h, 6 ) + date_u to ( cur_dir() + "tmp_om" ) Unique progress
       HU->( dbCloseArea() )
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
       Select TMP_HUM
       // создаём временный индекс - выбираем все нужные нам случ
       // цикл по ОМС
@@ -2003,9 +2004,9 @@ Function forma_39hall( tip_f39 )
   Endif
   // для СОНИРОВАНО
   If AScan( krvz, 1 ) > 0  // ОМС
-    r_use( dir_server + "kartote_",, "KARTOTE_" )
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+    r_use( dir_server() + "kartote_",, "KARTOTE_" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
     dbSeek( arr_m[ 5 ], .t. )
     // цикл по ОМС
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -2034,9 +2035,9 @@ Function forma_39hall( tip_f39 )
   // цикл только по платным
   If AScan( krvz, 3 ) > 0 // .and. ascan(krvz,1) == 0
     Pi1_OMS := 0
-    r_use( dir_server + "kartote_",, "KARTOTE_" )
-    r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-    r_use( dir_server + "hum_p", dir_server + "hum_pd", "HUMAN" )
+    r_use( dir_server() + "kartote_",, "KARTOTE_" )
+    r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+    r_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     // цикл по ОМС
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -2102,7 +2103,7 @@ Function forma_39hall( tip_f39 )
     { "tit2name", "C", 130, 0 }, ;
     { "tit3name", "C", 130, 0 }, ;
     { "tit4name", "C", 130, 0 } } )
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( AllTrim( org->name ) )
   Use ( fr_titl ) new
   Append Blank
@@ -2368,7 +2369,7 @@ Function forma_39h_na( tip )
     'Прочие заболевания' }                    // 28
   Static si1
   Local l, sh := 0, f39_scr := SaveScreen(), i, j
-  Local HH := 58, name_file := "orto_ns" + stxt, ;
+  Local HH := 58, name_file := cur_dir() + "orto_ns.txt", ;
     arr_title := { ;
     "──────────┬──────────────────────────────────────────────────────────────────", ;
     "   Шифр   │                                                                  ", ;
@@ -2466,7 +2467,7 @@ Function forma_39h_na( tip )
 //
 Function f1_forma_39h_na( par, title, tip )
 
-  Local nfile := dir_server + f39h_nastr, name_sect
+  Local nfile := dir_server() + f39h_nastr, name_sect
   Local adbf, arr_usl, i
 
   //
@@ -2481,9 +2482,9 @@ Function f1_forma_39h_na( par, title, tip )
   { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
     { "U_NAME",     "C",     65,      0 };   // наименование услуги
   }
-  dbCreate( cur_dir + "tmp", adbf )
-  r_use( dir_server + "uslugi",, "USL" )
-  Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir() + "tmp", adbf )
+  r_use( dir_server() + "uslugi",, "USL" )
+  Use ( cur_dir() + "tmp" ) new
   For i := 1 To Len( arr_usl )
     Select USL
     Goto ( Val( arr_usl[ i, 2 ] ) )
@@ -2496,8 +2497,8 @@ Function f1_forma_39h_na( par, title, tip )
     Endif
   Next
   Select TMP
-  Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-  Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+  Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+  Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Close databases
   If tip == 1
     ob2_v_usl(, 2, "Настройка формы 39-хирургия: колонка " + title )
@@ -2506,7 +2507,7 @@ Function f1_forma_39h_na( par, title, tip )
   Endif
   If f_esc_enter( 1 )
     arr_usl := {}
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpn" ) New Alias TMP
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpn" ) New Alias TMP
     Go Top
     Do While !Eof()
       AAdd( arr_usl, { tmp->u_shifr, lstr( tmp->u_kod ) } )
@@ -2523,7 +2524,7 @@ Function f1_forma_39h_na( par, title, tip )
 //
 Function f1_forma_39h_prn_na( par, title, tip )
 
-  Local nfile := dir_server + f39h_nastr, name_sect
+  Local nfile := dir_server() + f39h_nastr, name_sect
   Local adbf, arr_usl, i
 
   //
@@ -2538,9 +2539,9 @@ Function f1_forma_39h_prn_na( par, title, tip )
   { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
     { "U_NAME",     "C",     65,      0 };   // наименование услуги
   }
-  dbCreate( cur_dir + "tmp", adbf )
-  r_use( dir_server + "uslugi",, "USL" )
-  Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir() + "tmp", adbf )
+  r_use( dir_server() + "uslugi",, "USL" )
+  Use ( cur_dir() + "tmp" ) new
   For i := 1 To Len( arr_usl )
     Select USL
     Goto ( Val( arr_usl[ i, 2 ] ) )
@@ -2553,7 +2554,7 @@ Function f1_forma_39h_prn_na( par, title, tip )
     Endif
   Next
   Select TMP
-  Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+  Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
 
   Return Nil
 
@@ -2562,7 +2563,7 @@ Function f1_forma_39h_prn_na( par, title, tip )
 //
 Function f1_forma_39h_prn_diag_na( par, title )
 
-  Local nfile := dir_server + f39h_nastr, name_sect
+  Local nfile := dir_server() + f39h_nastr, name_sect
   Local adbf, arr_diag, i
 
   //
@@ -2573,9 +2574,9 @@ Function f1_forma_39h_prn_diag_na( par, title )
   { "d_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
     { "d_NAME",     "C",     65,      0 };   // наименование услуги
   }
-  dbCreate( cur_dir + "tmp", adbf )
-  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
-  Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir() + "tmp", adbf )
+  r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "DIAG" )
+  Use ( cur_dir() + "tmp" ) new
   For i := 1 To Len( arr_diag )
     Select DIAG
     Goto ( Val( arr_diag[ i, 2 ] ) )
@@ -2588,7 +2589,7 @@ Function f1_forma_39h_prn_diag_na( par, title )
     Endif
   Next
   Select TMP
-  Index On d_shifr to ( cur_dir + "tmpn" )
+  Index On d_shifr to ( cur_dir() + "tmpn" )
 
   Return Nil
 
@@ -2636,7 +2637,7 @@ Function fbp_tip_f39( r, c, ret_arr )
 //
 Function f1_forma_39h_na_diag( par, title, tip )
 
-  Local nfile := dir_server + f39h_nastr, name_sect
+  Local nfile := dir_server() + f39h_nastr, name_sect
   Local adbf, arr_diag, i
 
   //
@@ -2647,9 +2648,9 @@ Function f1_forma_39h_na_diag( par, title, tip )
   { "D_SHIFR",    "C",      6,      0 }, ;  // шифр услуги
     { "D_NAME",     "C",     65,      0 };   // наименование услуги
   }
-  dbCreate( cur_dir + "tmp", adbf )
-  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
-  Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir() + "tmp", adbf )
+  r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "DIAG" )
+  Use ( cur_dir() + "tmp" ) new
   For i := 1 To Len( arr_diag )
     Select DIAG
     Goto ( Val( arr_diag[ i, 2 ] ) )
@@ -2662,13 +2663,13 @@ Function f1_forma_39h_na_diag( par, title, tip )
     Endif
   Next
   Select TMP
-  Index On Str( d_kod, 4 ) to ( cur_dir + "tmpk" )
-  Index On d_shifr to ( cur_dir + "tmpn" )
+  Index On Str( d_kod, 4 ) to ( cur_dir() + "tmpk" )
+  Index On d_shifr to ( cur_dir() + "tmpn" )
   Close databases
   ob2_v_diag(, 2, "Настройка формы 39-хирургия: колонка ДИАГНОЗ " + title )
   If f_esc_enter( 1 )
     arr_diag := {}
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpn" ) New Alias TMP
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpn" ) New Alias TMP
     Go Top
     Do While !Eof()
       AAdd( arr_diag, { tmp->d_shifr, lstr( tmp->d_kod ) } )
@@ -2689,8 +2690,8 @@ Function ob2_v_diag( is_get, r1, mtitul )
 
   Default is_get To .f., r1 To T_ROW
   If r1 > 14 ; r1 := 14 ; Endif
-  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
-  Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpk" ), ( cur_dir + "tmpn" ) New Alias TMP
+  r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "DIAG" )
+  Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpk" ), ( cur_dir() + "tmpn" ) New Alias TMP
   Set Order To 2
   t_arr[ BR_TOP ] := r1
   t_arr[ BR_BOTTOM ] := MaxRow() -2
@@ -2834,7 +2835,7 @@ Function f39_ter( k )
 //
 Function get_nastr_stom_f39t()
 
-  Local nf := dir_server + f39t_nastr, fl, i
+  Local nf := dir_server() + f39t_nastr, fl, i
 
   If ( fl := File( nf ) )
     For j := 1 To 56
@@ -2964,7 +2965,7 @@ Function forma_39t_na( tip )
     }
   Static si1
   Local l, sh := 0, f39_scr := SaveScreen(), i, j
-  Local HH := 58, name_file := "orto_ns" + stxt, ;
+  Local HH := 58, name_file := cur_dir() + "orto_ns.txt", ;
     arr_title := { ;
     "──────────┬──────────────────────────────────────────────────────────────────", ;
     "   Шифр   │                                                                  ", ;
@@ -3081,7 +3082,7 @@ Function forma_39t_na( tip )
 //
 Function f1_forma_39t_na( par, title, tip )
 
-  Local nfile := dir_server + f39t_nastr, name_sect
+  Local nfile := dir_server() + f39t_nastr, name_sect
   Local adbf, arr_usl, i
 
   //
@@ -3098,9 +3099,9 @@ Function f1_forma_39t_na( par, title, tip )
   { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
     { "U_NAME",     "C",     65,      0 };   // наименование услуги
   }
-  dbCreate( cur_dir + "tmp", adbf )
-  r_use( dir_server + "uslugi",, "USL" )
-  Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir() + "tmp", adbf )
+  r_use( dir_server() + "uslugi",, "USL" )
+  Use ( cur_dir() + "tmp" ) new
   For i := 1 To Len( arr_usl )
     Select USL
     Goto ( Val( arr_usl[ i, 2 ] ) )
@@ -3113,8 +3114,8 @@ Function f1_forma_39t_na( par, title, tip )
     Endif
   Next
   Select TMP
-  Index On Str( u_kod, 4 ) to ( cur_dir + "tmpk" )
-  Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+  Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+  Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
   Close databases
   If tip == 1
     ob2_v_usl(, 2, "Настройка формы 39-терапия: колонка " + title )
@@ -3125,7 +3126,7 @@ Function f1_forma_39t_na( par, title, tip )
   Endif
   If f_esc_enter( 1 )
     arr_usl := {}
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpn" ) New Alias TMP
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpn" ) New Alias TMP
     Go Top
     Do While !Eof()
       AAdd( arr_usl, { tmp->u_shifr, lstr( tmp->u_kod ) } )
@@ -3142,7 +3143,7 @@ Function f1_forma_39t_na( par, title, tip )
 //
 Function f1_forma_39t_prn_na( par, title, tip )
 
-  Local nfile := dir_server + f39t_nastr, name_sect
+  Local nfile := dir_server() + f39t_nastr, name_sect
   Local adbf, arr_usl, i
 
   //
@@ -3159,9 +3160,9 @@ Function f1_forma_39t_prn_na( par, title, tip )
   { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
     { "U_NAME",     "C",     65,      0 };   // наименование услуги
   }
-  dbCreate( cur_dir + "tmp", adbf )
-  r_use( dir_server + "uslugi",, "USL" )
-  Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir() + "tmp", adbf )
+  r_use( dir_server() + "uslugi",, "USL" )
+  Use ( cur_dir() + "tmp" ) new
   For i := 1 To Len( arr_usl )
     Select USL
     Goto ( Val( arr_usl[ i, 2 ] ) )
@@ -3174,7 +3175,7 @@ Function f1_forma_39t_prn_na( par, title, tip )
     Endif
   Next
   Select TMP
-  Index On fsort_usl( u_shifr ) to ( cur_dir + "tmpn" )
+  Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
 
   Return Nil
 
@@ -3183,7 +3184,7 @@ Function f1_forma_39t_prn_na( par, title, tip )
 //
 Function f1_forma_39t_prn_diag_na( par, title )
 
-  Local nfile := dir_server + f39t_nastr, name_sect
+  Local nfile := dir_server() + f39t_nastr, name_sect
   Local adbf, arr_diag, i
 
   //
@@ -3194,9 +3195,9 @@ Function f1_forma_39t_prn_diag_na( par, title )
   { "d_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
     { "d_NAME",     "C",     65,      0 };   // наименование услуги
   }
-  dbCreate( cur_dir + "tmp", adbf )
-  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
-  Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir() + "tmp", adbf )
+  r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "DIAG" )
+  Use ( cur_dir() + "tmp" ) new
   For i := 1 To Len( arr_diag )
     Select DIAG
     Goto ( Val( arr_diag[ i, 2 ] ) )
@@ -3209,7 +3210,7 @@ Function f1_forma_39t_prn_diag_na( par, title )
     Endif
   Next
   Select TMP
-  Index On d_shifr to ( cur_dir + "tmpn" )
+  Index On d_shifr to ( cur_dir() + "tmpn" )
 
   Return Nil
 
@@ -3235,7 +3236,7 @@ Static Function cre_tmp_39t( adbf )
 //
 Function f1_forma_39t_na_diag( par, title, tip )
 
-  Local nfile := dir_server + f39t_nastr, name_sect
+  Local nfile := dir_server() + f39t_nastr, name_sect
   Local adbf, arr_diag, i
 
   //
@@ -3246,9 +3247,9 @@ Function f1_forma_39t_na_diag( par, title, tip )
   { "D_SHIFR",    "C",      6,      0 }, ;  // шифр услуги
     { "D_NAME",     "C",     65,      0 };   // наименование услуги
   }
-  dbCreate( cur_dir + "tmp", adbf )
-  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
-  Use ( cur_dir + "tmp" ) new
+  dbCreate( cur_dir() + "tmp", adbf )
+  r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "DIAG" )
+  Use ( cur_dir() + "tmp" ) new
   For i := 1 To Len( arr_diag )
     Select DIAG
     Goto ( Val( arr_diag[ i, 2 ] ) )
@@ -3261,13 +3262,13 @@ Function f1_forma_39t_na_diag( par, title, tip )
     Endif
   Next
   Select TMP
-  Index On Str( d_kod, 4 ) to ( cur_dir + "tmpk" )
-  Index On d_shifr to ( cur_dir + "tmpn" )
+  Index On Str( d_kod, 4 ) to ( cur_dir() + "tmpk" )
+  Index On d_shifr to ( cur_dir() + "tmpn" )
   Close databases
   ob2_v_diag(, 2, "Настройка формы 39-терапия: колонка ДИАГНОЗ " + title )
   If f_esc_enter( 1 )
     arr_diag := {}
-    Use ( cur_dir + "tmp" ) index ( cur_dir + "tmpn" ) New Alias TMP
+    Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmpn" ) New Alias TMP
     Go Top
     Do While !Eof()
       AAdd( arr_diag, { tmp->d_shifr, lstr( tmp->d_kod ) } )
@@ -3332,7 +3333,7 @@ Function forma_39tall( tip_f39 )
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   //
   delfrfiles()
-  dbCreate( cur_dir + "tmp_hum", { { "kod_h", "N", 6, 0 }, ;
+  dbCreate( cur_dir() + "tmp_hum", { { "kod_h", "N", 6, 0 }, ;
     { "date_u", "C", 4, 0 } } )
   cre_tmp_39t( { { "p_kod", "C", 4, 0 }, ;
     { "data", "D", 8, 0 }, ;
@@ -3347,22 +3348,22 @@ Function forma_39tall( tip_f39 )
     { "p1", "N", 10, 2 };
     } )
   Use ( fr_data ) New Alias TMP
-  Index On Str( tip, 1 ) + p_kod to ( cur_dir + "tmp" )
-  r_use( dir_exe() + "_mo_mkb", cur_dir + "_mo_mkb", "DIAG" )
+  Index On Str( tip, 1 ) + p_kod to ( cur_dir() + "tmp" )
+  r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "DIAG" )
   //
   If AScan( krvz, 1 ) > 0  // ОМС
     Pi1_OMS := 1
     If Pi1 == 1 // по дате окончания лечения
-      r_use( dir_server + "kartote_",, "KARTOTE_" )
+      r_use( dir_server() + "kartote_",, "KARTOTE_" )
       If AScan( krvz, 3 ) > 0 // платные присутствуют
         // Pi1_OMS := 0
-        r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "PHU" )
-        r_use( dir_server + "hum_p", dir_server + "hum_pkk", "PHUMAN" )
+        r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "PHU" )
+        r_use( dir_server() + "hum_p", dir_server() + "hum_pkk", "PHUMAN" )
       Endif
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
-      r_use( dir_server + "human_u_",, "HU_" )
-      r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
+      r_use( dir_server() + "human_u_",, "HU_" )
+      r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
       dbSeek( arr_m[ 5 ], .t. )
       // цикл по ОМС
       Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -3419,17 +3420,17 @@ Function forma_39tall( tip_f39 )
         PHUMAN->( dbCloseArea() )
       Endif
     Else  // дата оказания услуг
-      r_use( dir_server + "kartote_",, "KARTOTE_" )
+      r_use( dir_server() + "kartote_",, "KARTOTE_" )
       If AScan( krvz, 3 ) > 0 // платные присутствуют
         // Pi1_OMS := 0
-        r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "PHU" )
-        r_use( dir_server + "hum_p", dir_server + "hum_pkk", "PHUMAN" )
+        r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "PHU" )
+        r_use( dir_server() + "hum_p", dir_server() + "hum_pkk", "PHUMAN" )
       Endif
-      r_use( dir_server + "human_",, "HUMAN_" )
-      r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
-      r_use( dir_server + "human_u_",, "HU_" )
-      r_use( dir_server + "human_u", dir_server + "human_ud", "HU" )
-      Use ( cur_dir + "tmp_hum" ) New Alias TMP_HUM
+      r_use( dir_server() + "human_",, "HUMAN_" )
+      r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
+      r_use( dir_server() + "human_u_",, "HU_" )
+      r_use( dir_server() + "human_u", dir_server() + "human_ud", "HU" )
+      Use ( cur_dir() + "tmp_hum" ) New Alias TMP_HUM
       Select HU
       dbSeek( arr_m[ 7 ], .t. )
       Do While hu->date_u <= arr_m[ 8 ] .and. !Eof()
@@ -3441,9 +3442,9 @@ Function forma_39tall( tip_f39 )
         Skip
       Enddo
       Select TMP_HUM
-      Index On Str( kod_h, 6 ) + date_u to ( cur_dir + "tmp_om" ) Unique progress
+      Index On Str( kod_h, 6 ) + date_u to ( cur_dir() + "tmp_om" ) Unique progress
       HU->( dbCloseArea() )
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
       Select TMP_HUM
       // создаём временный индекс - выбираем все нужные нам случ
       // цикл по ОМС
@@ -3509,9 +3510,9 @@ Function forma_39tall( tip_f39 )
   Endif
   // для СОНИРОВАНО
   If AScan( krvz, 1 ) > 0  // ОМС
-    r_use( dir_server + "kartote_",, "KARTOTE_" )
-    r_use( dir_server + "human_",, "HUMAN_" )
-    r_use( dir_server + "human", dir_server + "humand", "HUMAN" )
+    r_use( dir_server() + "kartote_",, "KARTOTE_" )
+    r_use( dir_server() + "human_",, "HUMAN_" )
+    r_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
     dbSeek( arr_m[ 5 ], .t. )
     // цикл по ОМС
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -3540,9 +3541,9 @@ Function forma_39tall( tip_f39 )
   // цикл только по платным
   If AScan( krvz, 3 ) > 0 // .and. ascan(krvz,1) == 0
     Pi1_OMS := 0
-    r_use( dir_server + "kartote_",, "KARTOTE_" )
-    r_use( dir_server + "hum_p_u", dir_server + "hum_p_u", "HU" )
-    r_use( dir_server + "hum_p", dir_server + "hum_pd", "HUMAN" )
+    r_use( dir_server() + "kartote_",, "KARTOTE_" )
+    r_use( dir_server() + "hum_p_u", dir_server() + "hum_p_u", "HU" )
+    r_use( dir_server() + "hum_p", dir_server() + "hum_pd", "HUMAN" )
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     // цикл по ОМС
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -3610,7 +3611,7 @@ Function forma_39tall( tip_f39 )
     { "tit2name", "C", 130, 0 }, ;
     { "tit3name", "C", 130, 0 }, ;
     { "tit4name", "C", 130, 0 } } )
-  r_use( dir_server + "organiz",, "ORG" )
+  r_use( dir_server() + "organiz",, "ORG" )
   add_string( AllTrim( org->name ) )
   Use ( fr_titl ) new
   Append Blank

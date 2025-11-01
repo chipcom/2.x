@@ -1,5 +1,6 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
+#include 'tfile.ch'
 
 // 12.07.24 получение статуса обновления БД до определенной версии
 function get_status_updateDB( idVer )
@@ -8,7 +9,7 @@ function get_status_updateDB( idVer )
 
   local ret := .f., fl
 
-  fl := g_use( dir_server + 'ver_updatedb', , 'UPD', , .t. )
+  fl := g_use( dir_server() + 'ver_updatedb', , 'UPD', , .t. )
 
   Locate For ver == idVer
   If Found() .and. ( UPD->done == 1 )
@@ -26,7 +27,7 @@ function set_status_updateDB( idVer )
 
   local fl := .f.
 
-  fl := g_use( dir_server + 'ver_updatedb', , 'UPD', , .t. )
+  fl := g_use( dir_server() + 'ver_updatedb', , 'UPD', , .t. )
 
   UPD->( dbAppend() )
   UPD->ver := idVer
@@ -42,7 +43,7 @@ Function update_v____()
   Local i := 0, j := 0, fl
 
   stat_msg( 'Заполняем поле "Цель посещения"' )
-  fl := g_use( dir_server + 'human_', , 'HUMAN_', , .t. )
+  fl := g_use( dir_server() + 'human_', , 'HUMAN_', , .t. )
 
 //  use_base( 'mo_pers', 'PERS', .t. ) // откроем файл mo_pers
   if fl
@@ -102,10 +103,10 @@ Function update_v21203()
   // Local t1 := 0, t2 := 0
 
   // t1 := seconds()
-  r_use( dir_server + 'human', dir_server + 'humank', 'HUMAN' )
-  r_use( dir_server + 'mo_hu', dir_server + 'mo_hu', 'HU' )
+  r_use( dir_server() + 'human', dir_server() + 'humank', 'HUMAN' )
+  r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'HU' )
 
-  g_use( dir_server + 'human_im', dir_server + 'human_im', cAlias )
+  g_use( dir_server() + 'human_im', dir_server() + 'human_im', cAlias )
   ( cAlias )->( dbSelectArea() )
   ( cAlias )->( dbGoTop() )
   Do While ! ( cAlias )->( Eof() )
@@ -174,7 +175,7 @@ Function update_v21130()
   Local i := 0, j := 0
   Local lshifr := ''
 
-  r_use( dir_server + 'mo_otd', , 'otd' )
+  r_use( dir_server() + 'mo_otd', , 'otd' )
   OTD->( dbGoTop() )
   Do While ! otd->( Eof() )
     If otd->TIPLU == TIP_LU_DVN_COVID
@@ -189,8 +190,8 @@ Function update_v21130()
 
     stat_msg( 'Проверка и исправление кода врача в листах учета Углубленной диспансеризации' )
 
-    r_use( dir_server + 'uslugi', , 'USL' )
-    r_use( dir_server + 'mo_su', , 'MOSU' )
+    r_use( dir_server() + 'uslugi', , 'USL' )
+    r_use( dir_server() + 'mo_su', , 'MOSU' )
 
     use_base( 'mo_hu' )
     use_base( 'human_u' ) // откроем файл human_u и сопутствующие файлы
@@ -314,8 +315,8 @@ Function update_v50202()     // перенос данных о гинеколгических услугах
   Use_base('lusl')
   Use_base('luslc')
   Use_base('uslugi')
-  R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1',;
-                              dir_server + 'uslugi1s'}, 'USL1')
+  R_Use(dir_server() + 'uslugi1', {dir_server() + 'uslugi1',;
+                              dir_server() + 'uslugi1s'}, 'USL1')
   //проверяем наличие услуг в нашем справочнике - если нет - добавляем
   // и создаем массив позиций в файле услуг
   //Function foundourusluga( lshifr, ldate, lprofil, lvzros_reb, /*@*/lu_cena, ipar, not_cycle)
@@ -345,7 +346,7 @@ Function update_v50202()     // перенос данных о гинеколгических услугах
   Use_base('human')
   Use_base('human_u')
   select HUMAN
-  set order to 4 //   dir_server + 'humand'
+  set order to 4 //   dir_server() + 'humand'
   find (dtos(stod("20250101")))
   do while year(human->k_data)== 2025 .and. !eof()    
     // по случ - отфильтровал - теперь надо по услугам
@@ -397,3 +398,43 @@ Function update_v50202()     // перенос данных о гинеколгических услугах
   dbCloseAll()        // закроем все
   Return Nil
   
+// 30.05.25
+function illegal_stad_kod()
+
+  local cAlias, cAliasHum, ft, exist, i
+  local name_file := cur_dir() + 'error_stad.txt', reg_print := 2
+
+  exist := .f.
+  i := 0
+  cAlias := 'ONKOSL'
+  cAliasHum := 'HUMAN'
+
+  r_use( dir_server() + 'human', , cAliasHum )
+  r_use( dir_server() + 'mo_onksl', , cAlias )
+  ( cAlias )->( dbGoTop() )
+  do while ! ( cAlias )->( Eof() )
+
+    if ( cAlias )->STAD > 333 // последний код старого N002
+      if ! exist
+        ft := tfiletext():new( name_file, , .t., , .t. )
+        ft:add_string( '' )
+        ft:add_string( 'Список пациентов с ошибками стадии онкозаболевания', FILE_CENTER, ' ' )
+        ft:add_string( '' )
+        exist := .t.
+      endif
+      ( cAliasHum )->( dbGoto( ( cAlias )->KOD ) )
+      if ( ! ( cAliasHum )->( Eof() ) ) .and. ( ! ( cAliasHum )->( Bof() ) )
+        ft:add_string( AllTrim( ( cAliasHum )->FIO ) + '  ' + DToC( ( cAliasHum )->Date_R ) )
+      endif
+      i++
+    endif
+    ( cAlias )->( dbSkip() )
+  Enddo
+
+  ( cAlias )->( dbCloseArea() )
+  ( cAliasHum )->( dbCloseArea() )
+  if i > 0
+    ft := nil
+    viewtext( name_file, , , , .t., , , reg_print )
+  endif
+  return nil

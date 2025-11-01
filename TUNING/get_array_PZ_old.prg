@@ -928,7 +928,7 @@ function fill_PZ_array_from_file_1( work_year, arr )
 
   oldSelect := select()
   sbase :=  prefixFileRefName( work_year ) + 'unit'  // справочник на конкретный год
-  file_index := cur_dir() + sbase + sntx
+  file_index := cur_dir() + sbase + sntx()
 
   if exists_file_TFOMS( work_year, 'unit' )
     if hb_FileExists( file_index )
@@ -1820,7 +1820,7 @@ FUNCTION initPZarray()
     if exists_file_TFOMS(j, 'unit')
       nameArr := 'glob_array_PZ_' + last_digits_year( j )
 
-      file_index := cur_dir + sbase + sntx
+      file_index := cur_dir() + sbase + sntx()
       if hb_FileExists( file_index )
         G_Use( dir_exe() + sbase, cur_dir() + sbase, 'UNIT' )
       else

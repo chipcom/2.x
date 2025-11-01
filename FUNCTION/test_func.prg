@@ -1,17 +1,158 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
+#include 'fileio.ch'
+#include 'common.ch'
 
 function test_init()
 
-//   local a
-//   local b, c
+//  local aaa
+  
+//  aaa := getds_sootv_onko( 'C46.1' )
+//  altd()
+return nil
+  
+function GetVersions( code )
 
-//   a := get_array_PZ_new( 2025 )
-// //  a := ksgInList( 'st19.089', 'st19.084-st19.089, st19.094-st19.102, st19.163-st19.181, ds19.058-ds19.062, ds19.067-ds19.078, ds19.135-ds19.156' ) 
-//   b := get_array_PZ_new( 2018 ) 
-//   c := get_array_PZ_new( 2017 ) 
-//   altd()
-  return nil
+  local hArr, aRet
+  local cUrl, HTTPQuery, result, status, bodyJSON, nLengthDecoded
+  local timeout := 5
+
+  cUrl := hb_StrFormat( 'http://nsi.ffoms.ru/nsi-int/api/versions?identifier=%s', code )
+
+  HTTPQuery := CreateObject( 'WinHttp.WinHttpRequest.5.1' )
+  HTTPQuery:Option( 2, 'utf-8' )
+
+  HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
+  HTTPQuery:Open( 'GET', cURL, 0 )
+  HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
+  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/json; charset=utf-8' )
+  HTTPQuery:Send()
+  result := HTTPQuery:WaitForResponse( timeout )
+
+  if result
+    status := HTTPQuery:status()
+    if status == 200
+      bodyJSON := AllTrim( HTTPQuery:ResponseText() )
+      nLengthDecoded := hb_jsonDecode( bodyJSON, @hArr )
+      aRet := hArr[ 'list' ]
+    endif
+  endif
+  HTTPQuery := nil
+  return aRet
+
+function GetStructure( code )
+
+  local hArr
+  local cUrl, HTTPQuery, result, status, bodyJSON, nLengthDecoded
+  local timeout := 5
+
+	cUrl := hb_StrFormat( 'http://nsi.ffoms.ru/nsi-int/api/structure?identifier=%s', code )
+
+  HTTPQuery := CreateObject( 'WinHttp.WinHttpRequest.5.1' )
+  HTTPQuery:Option( 2, 'utf-8' )
+
+  HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
+  HTTPQuery:Open( 'GET', cURL, 0 )
+  HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
+  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/json; charset=utf-8' )
+  HTTPQuery:Send()
+  result := HTTPQuery:WaitForResponse( timeout )
+
+  if result
+		status := HTTPQuery:status()
+    if status == 200
+      bodyJSON := AllTrim( HTTPQuery:ResponseText() )
+      nLengthDecoded := hb_jsonDecode( bodyJSON, @hArr )
+//    aRet := aDict[ 'list' ]
+    endif
+  endif
+  HTTPQuery := nil
+
+  return hArr
+
+//GetFile загружает zip-архив последней версии справочника в формате XML
+function GetFile( hDict, destination )
+
+  local lReturn := .f., s, id, version
+  local cUrl, HTTPQuery, result, status, body
+  local timeout := 5, headers
+  local zipFile
+
+  if isnil( destination ) .or. Empty( destination )
+    destination := '.\'
+  endif
+  s := Split( hDict[ 'providerParam' ], 'v' )
+  id := AllTrim( s[ 1 ] )
+  version := AllTrim( s[ 2 ] )
+
+//	cUrl := hb_StrFormat( 'http://nsi.ffoms.ru/refbook?type=XML&id=%s&version=%s', id, version)
+	cUrl := 'http://nsi.ffoms.ru/refbook?type=XML&' + 'id=' + id + '&' + 'version=' + version
+
+  HTTPQuery := CreateObject( 'WinHttp.WinHttpRequest.5.1' )
+  HTTPQuery:Option( 2, 'utf-8' )
+
+  HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
+  HTTPQuery:Open( 'GET', cURL, 0 )
+  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/zip' )
+  HTTPQuery:Send()
+  result := HTTPQuery:WaitForResponse( timeout )
+
+  if result
+    headers := HTTPQuery:getAllResponseHeaders()
+		status := HTTPQuery:status()
+    if status == 200
+      body := HTTPQuery:ResponseBody()
+      zipFile := destination + hDict[ 'd' ][ 'code' ] + '_' + hDict[ 'user_version' ] + '_XML.zip'
+      hb_MemoWrit( zipFile, body )
+        lReturn := .t.
+    endif
+  endif
+  HTTPQuery := nil
+  return lReturn
+
+// FindDictionary получает последнюю версию справочника по его коду
+function FindDictionary( code )
+
+  local collection := GetDictionaryListFFOMS()
+  local hValues, arr, v
+
+  code := Upper( code )
+	for each v in collection
+    arr := hb_hValues( v )
+    if arr[ 6 ][ 'code' ] == code
+      hValues := v
+    endif
+  next
+  return hValues
+
+// GetDictionaryList получает список справочников с сайта ФФОМС
+function GetDictionaryListFFOMS()
+
+  local aDict, aRet
+  local HTTPQuery, result, timeout := 5
+  local status, statusText, bodyJSON, nLengthDecoded
+  local cURL := 'http://nsi.ffoms.ru/data?pageId=refbookList&containerId=refbookList&size=110'
+
+  HTTPQuery := CreateObject( 'WinHttp.WinHttpRequest.5.1' )
+  HTTPQuery:Option( 2, 'utf-8' )
+
+  HTTPQuery:SetTimeouts( 15000, 15000, 15000, 15000 )
+  HTTPQuery:Open( 'GET', cURL, 0 )
+  HTTPQuery:SetRequestHeader( 'Accept-Charset', 'utf-8' )
+  HTTPQuery:SetRequestHeader( 'Content-Type', 'application/json; charset=utf-8' )
+  HTTPQuery:Send()
+  result := HTTPQuery:WaitForResponse( timeout )
+
+  if result
+		status := HTTPQuery:status()
+    statusText := HTTPQuery:statusText()
+    bodyJSON := AllTrim( HTTPQuery:ResponseText() )
+    nLengthDecoded := hb_jsonDecode( bodyJSON, @aDict )
+    aRet := aDict[ 'list' ]
+  endif
+
+  HTTPQuery := nil
+  return aRet
 
 // 12.07.24
 function convert_P_CEL()

@@ -89,13 +89,13 @@ Function f_is_neotl_pom( lshifr )
 Function f_is_zak_sl_vr( lshifr )
   Return eq_any( Left( lshifr, 5 ), ;
     "2.78.", ; // Законченный случай обращения с лечебной целью к врачу ...
-"2.89.", ; // Законченный случай обращения с целью медицинской реабилитации
+    "2.89.", ; // Законченный случай обращения с целью медицинской реабилитации
     "70.3.", ; // Законченный случай диспансеризации взрослого населения
-"70.5.", ; // Законченный случай диспансеризации детей-сирот в стационаре
+    "70.5.", ; // Законченный случай диспансеризации детей-сирот в стационаре
     "70.6.", ; // Законченный случай диспансеризации детей-сирот под опекой
-"72.1.", ; // Законченный случай профосмотра взрослого населения
+    "72.1.", ; // Законченный случай профосмотра взрослого населения
     "72.2.", ; // Законченный случай профосмотра несовершеннолетних
-"72.3.", ; // Законченный случай предварительного осмотра несовершеннолетних
+    "72.3.", ; // Законченный случай предварительного осмотра несовершеннолетних
     "72.4." )  // Законченный случай периодического осмотра несовершеннолетних
 
 //  13.02.14 является ли услуга первичным стоматологическим приёмом
@@ -118,7 +118,7 @@ Function f_is_1_stom( lshifr, ret_arr )
   Return AScan( a_1_stom, lshifr ) > 0
 
 //  16.10.16 является ли услуга стоматологической с нулевой ценой
-Function is_2_stomat( lshifr, /*@*/is_2_88,is_new)
+Function is_2_stomat( lshifr, /*@*/is_2_88, is_new )
 
   Local a_stom16_2 := { ;
     { 1, "2.78.47", "2.78.53" }, ; // с лечебной целью
@@ -149,7 +149,7 @@ Function is_2_stomat( lshifr, /*@*/is_2_88,is_new)
   Return ret
 
 //  12.03.18 пересечение в стоматологическом случае разных видов посещений
-Function f_vid_p_stom( arr_usl, ta, ret_arr, ret_tip_a, lk_data, /*@*/ret_tip,/*@*/ret_kol,/*@*/is_2_88,arrFusl)
+Function f_vid_p_stom( arr_usl, ta, ret_arr, ret_tip_a, lk_data, /*@*/ret_tip, /*@*/ret_kol, /*@*/is_2_88, arrFusl )
 /*
  arr_usl   - двумерный массив, шифр услуги в первом элементе
  ta        - массив с текстами ошибок
@@ -363,8 +363,8 @@ Function correct_profil( lp )
 // 07.06.24
 Function f_create_diag_srok( nameFile )
 
-//  dbCreate( cur_dir + "tmp_d_srok", ;
-  dbCreate( cur_dir + alltrim( nameFile ), ;
+//  dbCreate( cur_dir() + "tmp_d_srok", ;
+  dbCreate( cur_dir() + alltrim( nameFile ), ;
     { ;
     { 'kod', 'N', 7, 0 }, ;
     { 'tip', 'N', 1, 0 }, ;
@@ -375,7 +375,7 @@ Function f_create_diag_srok( nameFile )
     { 'tip1s', 'C', 3, 0 }, ;
     { 'dni', 'N', 2, 0 } ;
     } )
-  // Use ( cur_dir + "tmp_d_srok" ) New Alias D_SROK
+  // Use ( cur_dir() + "tmp_d_srok" ) New Alias D_SROK
 
   Return Nil
 
@@ -390,15 +390,15 @@ Function f_napr_mo_lis()
 //  Просмотр списка реестров, запись для ТФОМС
 Function view_list_reestr()
 
-  Local i, k, buf := SaveScreen(), tmp_help := chm_help_code
+  Local buf := SaveScreen(), tmp_help := chm_help_code
 
   If !g_slock( Sreestr_sem )
     Return func_error( 4, Sreestr_err )
   Endif
-  Private goal_dir := dir_server + dir_XML_MO + cslash
-  g_use( dir_server + "mo_xml",, "MO_XML" )
-  g_use( dir_server + "mo_rees",, "REES" )
-  Index On DToS( dschet ) + Str( nschet, 6 ) to ( cur_dir + "tmp_rees" ) DESCENDING
+  Private goal_dir := dir_server() + dir_XML_MO() + hb_ps()
+  g_use( dir_server() + "mo_xml",, "MO_XML" )
+  g_use( dir_server() + "mo_rees",, "REES" )
+  Index On DToS( dschet ) + Str( nschet, 6 ) to ( cur_dir() + "tmp_rees" ) DESCENDING
   Go Top
   If Eof()
     func_error( 4, "Нет реестров" )
@@ -412,7 +412,6 @@ Function view_list_reestr()
   g_sunlock( Sreestr_sem )
   chm_help_code := tmp_help
   RestScreen( buf )
-
   Return Nil
 
 
@@ -420,7 +419,7 @@ Function view_list_reestr()
 Function f1_view_list_reestr( oBrow )
 
   Local oColumn, ;
-    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip ), ;
+    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() ), ;
     iif( Empty( rees->date_out ), { 3, 4 }, { 1, 2 } ), ;
     { 5, 6 } ) }
 
@@ -456,13 +455,12 @@ Function f1_view_list_reestr( oBrow )
 
   Return Nil
 
-
 // 
 Static Function f11_view_list_reestr()
 
   Local s := ""
 
-  If !hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip )
+  If !hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() )
     s := "нет файла"
   Elseif Empty( rees->date_out )
     s := "не записан"
@@ -530,7 +528,7 @@ Function f2_view_list_reestr( nKey, oBrow )
           If i > 1
             s += ","
           Endif
-          s += " " + lstr( arr[ i, 1 ] ) + " (" + AllTrim( arr[ i, 2 ] ) + szip + ")"
+          s += " " + lstr( arr[ i, 1 ] ) + " (" + AllTrim( arr[ i, 2 ] ) + szip() + ")"
         Next
         If k > 0
           f_message( { "Обращаем Ваше внимание, что после записи реестра", ;
@@ -545,7 +543,7 @@ Function f2_view_list_reestr( nKey, oBrow )
             If Upper( s ) == Upper( goal_dir )
               func_error( 4, "Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо." )
             Else
-              cFileProtokol := "protrees" + stxt
+              cFileProtokol := cur_dir() + "protrees.txt"
               StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
               smsg := "Реестры записаны на: " + s + ;
                 " (" + full_date( sys_date ) + "г. " + hour_min( Seconds() ) + ")"
@@ -556,12 +554,12 @@ Function f2_view_list_reestr( nKey, oBrow )
                 smsg := lstr( i ) + ". Реестр № " + lstr( rees->nschet ) + ;
                   " от " + date_8( mdate ) + "г. (отч.период " + ;
                   lstr( rees->nyear ) + "/" + StrZero( rees->nmonth, 2 ) + ;
-                  ") " + AllTrim( rees->name_xml ) + szip
+                  ") " + AllTrim( rees->name_xml ) + szip()
                 StrFile( hb_eol() + smsg + hb_eol(), cFileProtokol, .t. )
                 smsg := "   количество пациентов - " + lstr( rees->kol ) + ;
                   ", сумма реестра - " + expand_value( rees->summa, 2 )
                 StrFile( smsg + hb_eol(), cFileProtokol, .t. )
-                zip_file := AllTrim( arr[ i, 2 ] ) + szip
+                zip_file := AllTrim( arr[ i, 2 ] ) + szip()
                 If hb_FileExists( goal_dir + zip_file )
                   mywait( 'Копирование "' + zip_file + '" в каталог "' + s + '"' )
                   // copy file (goal_dir+zip_file) to (hb_OemToAnsi(s)+zip_file)
@@ -611,8 +609,8 @@ Function f2_view_list_reestr( nKey, oBrow )
     ret := 0
   Case nKey == K_F9
     mywait()
-    r_use( dir_server + "mo_rhum",, "RHUM" )
-    nfile := "reesstat" + stxt ; sh := 80 ; HH := 60
+    r_use( dir_server() + "mo_rhum",, "RHUM" )
+    nfile := cur_dir() + "reesstat.txt" ; sh := 80 ; HH := 60
     fp := FCreate( nfile ) ; n_list := 1 ; tek_stroke := 0
     add_string( "" )
     add_string( Center( "Статистика по реестрам", sh ) )
@@ -625,10 +623,10 @@ Function f2_view_list_reestr( nKey, oBrow )
     AEval( arr_title, {| x| add_string( x ) } )
     oldy := oldm := 0
     Select REES
-    Index On Str( NYEAR, 4 ) to ( cur_dir + "tmpr1" ) unique
+    Index On Str( NYEAR, 4 ) to ( cur_dir() + "tmpr1" ) unique
     Go Bottom
     Private syear := rees->NYEAR
-    Index On Str( NYEAR, 4 ) + Str( NMONTH, 2 ) + Str( NSCHET, 6 ) to ( cur_dir + "tmpr1" ) For NYEAR == syear
+    Index On Str( NYEAR, 4 ) + Str( NMONTH, 2 ) + Str( NSCHET, 6 ) to ( cur_dir() + "tmpr1" ) For NYEAR == syear
     Go Top
     Do While !Eof()
       If verify_ff( HH - 2, .t., sh )
@@ -643,11 +641,11 @@ Function f2_view_list_reestr( nKey, oBrow )
       s := Str( rees->NSCHET, 6 ) + " " + date_8( rees->DSCHET ) + " " + PadR( rees->NAME_XML, 20 ) + ;
         Str( rees->KOL, 5 ) + put_kop( rees->SUMMA, 13 )
       Select MO_XML
-      Index On FNAME to ( cur_dir + "tmp_x2" ) ;
+      Index On FNAME to ( cur_dir() + "tmp_x2" ) ;
         For reestr == rees->kod .and. TIP_OUT == 0 .and. TIP_IN == _XML_FILE_SP
       kol_sp := 0 ; dbEval( {|| ++kol_sp } )
       Select RHUM
-      Index On Str( REES_ZAP, 6 ) to ( cur_dir + "tmp_r2" ) ;
+      Index On Str( REES_ZAP, 6 ) to ( cur_dir() + "tmp_r2" ) ;
         For reestr == rees->kod .and. OPLATA == 0
       kol_ne := 0 ; dbEval( {|| ++kol_ne } )
       s += PadC( iif( kol_sp == 0, "-", lstr( kol_sp ) ), 9 )
@@ -661,15 +659,15 @@ Function f2_view_list_reestr( nKey, oBrow )
     FClose( fp )
     Keyboard Chr( K_END )
     viewtext( nfile,,,,,,, 2,,, .f. )
-    g_use( dir_server + "mo_xml",, "MO_XML" )
-    g_use( dir_server + "mo_rees", cur_dir + "tmp_rees", "REES" )
+    g_use( dir_server() + "mo_xml",, "MO_XML" )
+    g_use( dir_server() + "mo_rees", cur_dir() + "tmp_rees", "REES" )
     Goto ( rec )
     ret := 0
   Case nKey == K_CTRL_F12
     ret := delete_reestr_sp_tk( rees->( RecNo() ), AllTrim( rees->NAME_XML ) )
     Close databases
-    g_use( dir_server + "mo_xml",, "MO_XML" )
-    g_use( dir_server + "mo_rees", cur_dir + "tmp_rees", "REES" )
+    g_use( dir_server() + "mo_xml",, "MO_XML" )
+    g_use( dir_server() + "mo_rees", cur_dir() + "tmp_rees", "REES" )
     Goto ( rec )
   Endcase
   SetColor( tmp_color )
@@ -690,7 +688,7 @@ Function f3_view_list_reestr( oBrow )
 
   mywait()
   Select MO_XML
-  Index On FNAME to ( cur_dir + "tmp_xml" ) ;
+  Index On FNAME to ( cur_dir() + "tmp_xml" ) ;
     For reestr == rees->kod .and. Between( TIP_IN, _XML_FILE_FLK, _XML_FILE_SP ) .and. Empty( TIP_OUT )
   Go Top
   Do While !Eof()
@@ -714,7 +712,7 @@ Function f3_view_list_reestr( oBrow )
       f31_view_list_reestr( Abs( mm_func[ i ] ), mm_menu[ i ] )
     Else
       mo_xml->( dbGoto( mm_func[ i ] ) )
-      viewtext( devide_into_pages( dir_server + dir_XML_TF + cslash + AllTrim( mo_xml->FNAME ) + stxt, 60, 80 ),,,, .t.,,, 2 )
+      viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + AllTrim( mo_xml->FNAME ) + stxt(), 60, 80 ),,,, .t.,,, 2 )
     Endif
   Endif
   Select REES
@@ -725,7 +723,7 @@ Function f3_view_list_reestr( oBrow )
 //  15.02.19
 Function f31_view_list_reestr( reg, s )
 
-  Local fl := .t., buf := save_maxrow(), s1, lal, n_file := "reesspis" + stxt
+  Local fl := .t., buf := save_maxrow(), s1, lal, n_file := cur_dir() + "reesspis.txt"
 
   mywait()
   fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
@@ -733,13 +731,13 @@ Function f31_view_list_reestr( reg, s )
   add_string( Center( "Список пациентов реестра № " + lstr( rees->nschet ) + " от " + date_8( rees->dschet ), 80 ) )
   add_string( Center( "( " + CharRem( "~", s ) + " )", 80 ) )
   add_string( "" )
-  r_use( dir_server + "mo_otd",, "OTD" )
-  r_use( dir_server + "human_",, "HUMAN_" )
-  r_use( dir_server + "human",, "HUMAN" )
+  r_use( dir_server() + "mo_otd",, "OTD" )
+  r_use( dir_server() + "human_",, "HUMAN_" )
+  r_use( dir_server() + "human",, "HUMAN" )
   Set Relation To RecNo() into HUMAN_, To otd into OTD
-  r_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
-  r_use( dir_server + "mo_rhum",, "RHUM" )
-  Index On Str( REES_ZAP, 6 ) to ( cur_dir + "tmp_rhum" ) For reestr == rees->kod
+  r_use( dir_server() + "human_3", { dir_server() + "human_3", dir_server() + "human_32" }, "HUMAN_3" )
+  r_use( dir_server() + "mo_rhum",, "RHUM" )
+  Index On Str( REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For reestr == rees->kod
   Go Top
   Do While !Eof()
     Do Case
@@ -798,14 +796,14 @@ Function vozvrat_reestr()
   Local i, k, buf := SaveScreen(), arr, tmp_help := chm_help_code, mkod_reestr
 
   If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin )
+    Return func_error( 4, err_admin() )
   Endif
   If !g_slock( Sreestr_sem )
     Return func_error( 4, Sreestr_err )
   Endif
-  Private goal_dir := dir_server + dir_XML_MO + cslash
-  g_use( dir_server + "mo_rees",, "REES" )
-  Index On DToS( dschet ) + Str( nschet, 6 ) to ( cur_dir + "tmp_rees" ) DESCENDING For Empty( date_out )
+  Private goal_dir := dir_server() + dir_XML_MO() + hb_ps()
+  g_use( dir_server() + "mo_rees",, "REES" )
+  Index On DToS( dschet ) + Str( nschet, 6 ) to ( cur_dir() + "tmp_rees" ) DESCENDING For Empty( date_out )
   Go Top
   If Eof()
     func_error( 4, "Не обнаружено реестров, не отправленных в ТФОМС" )
@@ -816,8 +814,8 @@ Function vozvrat_reestr()
         { '═', '░', '═', "N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R",, 60 } )
       mkod_reestr := rees->KOD
       mywait()
-      g_use( dir_server + "mo_xml",, "MO_XML" )
-      Index On FNAME to ( cur_dir + "tmp_xml" ) For reestr == mkod_reestr .and. TIP_OUT == 0
+      g_use( dir_server() + "mo_xml",, "MO_XML" )
+      Index On FNAME to ( cur_dir() + "tmp_xml" ) For reestr == mkod_reestr .and. TIP_OUT == 0
       k := kol_err := 0
       Go Top
       Do While !Eof()
@@ -851,7 +849,7 @@ Static Function f1vozvrat_reestr( mkod_reestr )
   Local buf := SaveScreen()
 
   Close databases
-  g_use( dir_server + "mo_rees",, "REES" )
+  g_use( dir_server() + "mo_rees",, "REES" )
   Goto ( mkod_reestr )
   stat_msg( "" )
   arr := {}
@@ -869,14 +867,14 @@ Static Function f1vozvrat_reestr( mkod_reestr )
     stat_msg( "Подтвердите удаление ещё раз." ) ; mybell( 2 )
     If f_esc_enter( "удаления реестра № " + lstr( rees->nschet ), .t. )
       mywait( "Ждите. Производится удаление реестра." )
-      g_use( dir_server + "human_u_",, "HU_" )
-      r_use( dir_server + "human_u", dir_server + "human_u", "HU" )
+      g_use( dir_server() + "human_u_",, "HU_" )
+      r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
       Set Relation To RecNo() into HU_
-      g_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
-      g_use( dir_server + "human",, "HUMAN" )
-      g_use( dir_server + "human_",, "HUMAN_" )
-      g_use( dir_server + "mo_rhum",, "RHUM" )
-      Index On Str( reestr, 6 ) to ( cur_dir + "tmp_rhum" )
+      g_use( dir_server() + "human_3", { dir_server() + "human_3", dir_server() + "human_32" }, "HUMAN_3" )
+      g_use( dir_server() + "human",, "HUMAN" )
+      g_use( dir_server() + "human_",, "HUMAN_" )
+      g_use( dir_server() + "mo_rhum",, "RHUM" )
+      Index On Str( reestr, 6 ) to ( cur_dir() + "tmp_rhum" )
       Do While .t.
         Select RHUM
         find ( Str( mkod_reestr, 6 ) )
@@ -1014,11 +1012,11 @@ Static Function f1vozvrat_reestr( mkod_reestr )
         Select RHUM
         deleterec( .t. )
       Enddo
-      zip_file := AllTrim( rees->name_xml ) + szip
+      zip_file := AllTrim( rees->name_xml ) + szip()
       If hb_FileExists( goal_dir + zip_file )
         Delete File ( goal_dir + zip_file )
       Endif
-      g_use( dir_server + "mo_xml",, "MO_XML" )
+      g_use( dir_server() + "mo_xml",, "MO_XML" )
       Goto ( rees->KOD_XML )
       If !Eof() .and. !Deleted()
         deleterec( .t. )
@@ -1040,12 +1038,12 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
     mm_menu := {}, mm_func := {}, mm_flag := {}, mreestr_sp_tk, ;
     arr_f, cFile, oXmlDoc, aerr := {}, is_allow_delete, ;
-    cFileProtokol := "tmp" + stxt, is_other_reestr, bSaveHandler, ;
+    cFileProtokol := cur_dir() + "tmp.txt", is_other_reestr, bSaveHandler, ;
     arr_schet, rees_nschet := rees->nschet, mtip_in
 
   mywait()
   Select MO_XML
-  Index On FNAME to ( cur_dir + "tmp_xml" ) For reestr == mkod_reestr .and. TIP_OUT == 0
+  Index On FNAME to ( cur_dir() + "tmp_xml" ) For reestr == mkod_reestr .and. TIP_OUT == 0
   Go Top
   Do While !Eof()
     If mo_xml->TIP_IN == _XML_FILE_SP
@@ -1093,8 +1091,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
     mtip_in := mo_xml->TIP_IN
     Close databases
     If mtip_in == _XML_FILE_SP // возврат реестра СП и ТК
-      If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF, cFile + szip ) ) != Nil .and. mo_lock_task( X_OMS )
-        cFile += sxml
+      If ( arr_f := extract_zip_xml( dir_server() + dir_XML_TF(), cFile + szip() ) ) != Nil .and. mo_lock_task( X_OMS )
+        cFile += sxml()
         // читаем файл в память
         oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
         If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
@@ -1110,10 +1108,10 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
           Else
             // если точно попал в другой реестр
             is_other_reestr := is_delete_human := .f.
-            r_use( dir_server + "human",, "HUMAN" )
-            r_use( dir_server + "human_",, "HUMAN_" )
-            r_use( dir_server + "mo_rhum",, "RHUM" )
-            Index On Str( REES_ZAP, 6 ) to ( cur_dir + "tmp_rhum" ) For reestr == mkod_reestr
+            r_use( dir_server() + "human",, "HUMAN" )
+            r_use( dir_server() + "human_",, "HUMAN_" )
+            r_use( dir_server() + "mo_rhum",, "RHUM" )
+            Index On Str( REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For reestr == mkod_reestr
             Select TMP2
             Go Top
             Do While !Eof()
@@ -1137,11 +1135,11 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
             Enddo
             If !is_other_reestr .and. !is_delete_human
               // если попал в другой реестр, вернулся с ошибкой, и отредактирован
-              r_use( dir_server + "mo_rees",, "REES" )
+              r_use( dir_server() + "mo_rees",, "REES" )
               Select RHUM
               Set Relation To reestr into REES
               // сортируем пациентов по дате попадания в реестры
-              Index On Str( kod_hum, 7 ) + DToS( rees->DSCHET ) to ( cur_dir + "tmp_rhum" )
+              Index On Str( kod_hum, 7 ) + DToS( rees->DSCHET ) to ( cur_dir() + "tmp_rhum" )
               Select TMP2
               Go Top
               Do While !Eof()
@@ -1173,15 +1171,15 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
               If is_allow_delete
                 Close databases
                 arr_schet := {}
-                r_use( dir_server + "schet_",, "SCH" )
-                Index On nschet to ( cur_dir + "tmp_sch" ) For XML_REESTR == mreestr_sp_tk
+                r_use( dir_server() + "schet_",, "SCH" )
+                Index On nschet to ( cur_dir() + "tmp_sch" ) For XML_REESTR == mreestr_sp_tk
                 dbEval( {|| AAdd( arr_schet, { AllTrim( nschet ), RecNo(), KOD_XML } ) } )
                 sch->( dbCloseArea() )
                 is_allow_delete := .f.
-                g_use( dir_server + "mo_rees",, "REES" )
+                g_use( dir_server() + "mo_rees",, "REES" )
                 Goto ( mkod_reestr )
-                Use ( cur_dir + "tmp1file" ) New Alias TMP1
-                Use ( cur_dir + "tmp2file" ) New Alias TMP2
+                Use ( cur_dir() + "tmp1file" ) New Alias TMP1
+                Use ( cur_dir() + "tmp2file" ) New Alias TMP2
                 arr := {}
                 AAdd( arr, "Реестр № " + lstr( rees->nschet ) + " от " + full_date( rees->dschet ) + "г." )
                 AAdd( arr, 'период "' + lstr( rees->nmonth ) + "/" + lstr( rees->nyear ) + ;
@@ -1225,16 +1223,16 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                 Close databases
                 use_base( "schet" )
                 Set Relation To
-                g_use( dir_server + "schetd",, "SD" )
-                Index On Str( kod, 6 ) to ( cur_dir + "tmp_sd" )
-                g_use( dir_server + "mo_xml",, "MO_XML" )
-                g_use( dir_server + "mo_refr", dir_server + "mo_refr", "REFR" )
-                g_use( dir_server + "mo_rhum",, "RHUM" )
-                Index On Str( REES_ZAP, 6 ) to ( cur_dir + "tmp_rhum" ) For reestr == mkod_reestr
-                g_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
+                g_use( dir_server() + "schetd",, "SD" )
+                Index On Str( kod, 6 ) to ( cur_dir() + "tmp_sd" )
+                g_use( dir_server() + "mo_xml",, "MO_XML" )
+                g_use( dir_server() + "mo_refr", dir_server() + "mo_refr", "REFR" )
+                g_use( dir_server() + "mo_rhum",, "RHUM" )
+                Index On Str( REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For reestr == mkod_reestr
+                g_use( dir_server() + "human_3", { dir_server() + "human_3", dir_server() + "human_32" }, "HUMAN_3" )
                 use_base( "human" )
                 Set Order To 0
-                Use ( cur_dir + "tmp2file" ) New Alias TMP2
+                Use ( cur_dir() + "tmp2file" ) New Alias TMP2
                 Go Top
                 Do While !Eof()
                   Select RHUM
@@ -1380,7 +1378,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                     Select MO_XML
                     Goto ( arr_schet[ i, 3 ] )
                     If !Empty( mo_xml->FNAME )
-                      s := dir_server + dir_XML_MO + cslash + AllTrim( mo_xml->FNAME ) + szip
+                      s := dir_server() + dir_XML_MO() + hb_ps() + AllTrim( mo_xml->FNAME ) + szip()
                       If hb_FileExists( s )
                         Delete File ( s )
                       Endif
@@ -1400,8 +1398,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
         mo_unlock_task( X_OMS )
       Endif
     Elseif mTIP_IN == _XML_FILE_FLK // возврат протокола ФЛК
-      If ( arr_f := extract_zip_xml( dir_server + dir_XML_TF, cFile + szip ) ) != Nil .and. mo_lock_task( X_OMS )
-        cFile += sxml
+      If ( arr_f := extract_zip_xml( dir_server() + dir_XML_TF(), cFile + szip() ) ) != Nil .and. mo_lock_task( X_OMS )
+        cFile += sxml()
         // читаем файл в память
         oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
         If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
@@ -1422,20 +1420,20 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
           Else
             // если точно попал в другой реестр
             is_other_reestr := is_delete_human := .f.
-            Use ( cur_dir + "tmp1file" ) New Alias TMP1
-            Use ( cur_dir + "tmp2file" ) New Alias TMP2
-            Index On Str( tip, 1 ) + Str( oshib, 3 ) + soshib to ( cur_dir + "tmp2" )
-            Use ( cur_dir + "tmp_r_t1" ) New Alias T1
-            Index On Upper( ID_PAC ) to ( cur_dir + "tmp_r_t1" )
-            Use ( cur_dir + "tmp_r_t2" ) New Alias T2
-            Use ( cur_dir + "tmp_r_t3" ) New Alias T3
-            Use ( cur_dir + "tmp_r_t4" ) New Alias T4
+            Use ( cur_dir() + "tmp1file" ) New Alias TMP1
+            Use ( cur_dir() + "tmp2file" ) New Alias TMP2
+            Index On Str( tip, 1 ) + Str( oshib, 3 ) + soshib to ( cur_dir() + "tmp2" )
+            Use ( cur_dir() + "tmp_r_t1" ) New Alias T1
+            Index On Upper( ID_PAC ) to ( cur_dir() + "tmp_r_t1" )
+            Use ( cur_dir() + "tmp_r_t2" ) New Alias T2
+            Use ( cur_dir() + "tmp_r_t3" ) New Alias T3
+            Use ( cur_dir() + "tmp_r_t4" ) New Alias T4
             // заполнить поле "N_ZAP" в файле "tmp2"
             fill_tmp2_file_flk()
-            r_use( dir_server + "human",, "HUMAN" )
-            r_use( dir_server + "human_",, "HUMAN_" )
-            r_use( dir_server + "mo_rhum",, "RHUM" )
-            Index On Str( REES_ZAP, 6 ) to ( cur_dir + "tmp_rhum" ) For reestr == mkod_reestr
+            r_use( dir_server() + "human",, "HUMAN" )
+            r_use( dir_server() + "human_",, "HUMAN_" )
+            r_use( dir_server() + "mo_rhum",, "RHUM" )
+            Index On Str( REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For reestr == mkod_reestr
             Select TMP2
             Go Top
             Do While !Eof()
@@ -1461,11 +1459,11 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
             Enddo
             If !is_other_reestr .and. !is_delete_human
               // если попал в другой реестр, вернулся с ошибкой, и отредактирован
-              r_use( dir_server + "mo_rees",, "REES" )
+              r_use( dir_server() + "mo_rees",, "REES" )
               Select RHUM
               Set Relation To reestr into REES
               // сортируем пациентов по дате попадания в реестры
-              Index On Str( kod_hum, 7 ) + DToS( rees->DSCHET ) to ( cur_dir + "tmp_rhum" )
+              Index On Str( kod_hum, 7 ) + DToS( rees->DSCHET ) to ( cur_dir() + "tmp_rhum" )
               Select TMP2
               Go Top
               Do While !Eof()
@@ -1497,10 +1495,10 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
               If is_allow_delete
                 Close databases
                 is_allow_delete := .f.
-                r_use( dir_server + "mo_rees",, "REES" )
+                r_use( dir_server() + "mo_rees",, "REES" )
                 Goto ( mkod_reestr )
-                Use ( cur_dir + "tmp1file" ) New Alias TMP1
-                Use ( cur_dir + "tmp2file" ) New Alias TMP2
+                Use ( cur_dir() + "tmp1file" ) New Alias TMP1
+                Use ( cur_dir() + "tmp2file" ) New Alias TMP2
                 arr := {}
                 AAdd( arr, "Реестр № " + lstr( rees->nschet ) + " от " + full_date( rees->dschet ) + "г." )
                 AAdd( arr, 'период "' + lstr( rees->nmonth ) + "/" + lstr( rees->nyear ) + ;
@@ -1525,11 +1523,11 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
               // аннулируем последствия чтения реестра ФЛК
               If is_allow_delete
                 Close databases
-                g_use( dir_server + "mo_xml",, "MO_XML" )
-                g_use( dir_server + "mo_rhum",, "RHUM" )
-                Index On Str( REES_ZAP, 6 ) to ( cur_dir + "tmp_rhum" ) For reestr == mkod_reestr
-                g_use( dir_server + "human_",, "HUMAN_" )
-                Use ( cur_dir + "tmp2file" ) New Alias TMP2
+                g_use( dir_server() + "mo_xml",, "MO_XML" )
+                g_use( dir_server() + "mo_rhum",, "RHUM" )
+                Index On Str( REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For reestr == mkod_reestr
+                g_use( dir_server() + "human_",, "HUMAN_" )
+                Use ( cur_dir() + "tmp2file" ) New Alias TMP2
                 Set Relation To kod_human into HUMAN_
                 Go Top
                 Do While !Eof()

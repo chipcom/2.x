@@ -23,7 +23,6 @@ function check_payer( g )
   local mSearch := '', lFind := .f., mINN := space( 12 )
   local mser_ud := Space( 10 ), mnom_ud := Space( 20 ), mkogdavyd := CToD( '' ) // когда выдан паспорт
   local mSer_num, picture_phone := '@R 8(999) 999-99-99'
-//  local oPassport
 
   private mvid_ud, ; // вид удостоверения
           m1vid_ud    := 14, ; // 1-18
@@ -40,7 +39,6 @@ function check_payer( g )
   oBox:ChangeAttr := .t.
   oBox:CaptionColor := color8
   oBox:Caption := 'Плательщик'
-  // oBox:Color := color1
   oBox:Save := .t.
   oBox:view()
 
@@ -120,9 +118,8 @@ function reestr_spravka_fns()
 
   dbSetRelation( 'payer', {|| fns->kod_payer}, 'fns->kod_payer')
   
-  Index On kod to ( cur_dir + "tmp_reg" ) DESCENDING
+  Index On kod to ( cur_dir() + "tmp_reg" ) DESCENDING
   fns->( dbGoTop() )
-//  fns->( dbGoBottom() )
   mtitle := 'Сформированные справки для ФНС'
   alpha_browse( 5, 0, MaxRow() - 2, 79, 'defColumn_Spravka_FNS', color0, mtitle, 'BG+/GR', ;
     .f., .t., , , 'serv_spravka_fns', , ;
@@ -130,18 +127,17 @@ function reestr_spravka_fns()
 
   dbCloseAll()
   RestScreen( buf )
-
   return nil
 
-// 15.01.25
+// 20.10.25
 Function defcolumn_spravka_fns( oBrow )
 
   Local oColumn, s
   Local blk := {|| iif( Empty( fns->kod_xml ), { 5, 6 }, { 3, 4 } ) }
 
-//  oColumn := TBColumnNew( ' Год ', {|| str( fns->nyear, 4 ) } )
-//  oColumn:colorBlock := blk
-//  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( ' Год ', {|| str( fns->nyear, 4 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( ' Номер ', {|| str( fns->num_s, 5 ) } )
   oColumn:colorBlock := blk
@@ -179,7 +175,6 @@ Function defcolumn_spravka_fns( oBrow )
   s := '<Esc> выход <F9> печать'
   @ MaxRow(), 0 Say PadC( s, 80 ) Color 'N/W'
   mark_keys( { '<Esc>', '<Del>', '<F5>', '<F9>' }, 'R/W' )
-
   Return Nil
 
 // 02.01.25
@@ -187,7 +182,6 @@ Function serv_spravka_fns( nKey, oBrow )
 
   Local j := 0, flag := -1, buf := save_row( MaxRow() ), ;
     tmp_color := SetColor(), r1 := 15, c1 := 2
-  local arr_m
   Local name_file := 'Журнал сформированных справок'
   Local name_file_full := name_file + '.xlsx'
 
@@ -211,7 +205,6 @@ Function serv_spravka_fns( nKey, oBrow )
   Otherwise
     Keyboard ''
   Endcase
-
   Return flag
 
 // 12.03.25
@@ -396,7 +389,7 @@ function exist_spravka( get, kod_kart, onePerson )
   tmp_select := select()
 
   // ПЛАТНЫЕ УСЛУГИ
-  if hb_vfExists( dir_server + 'hum_p.dbf' )
+  if hb_vfExists( dir_server() + 'hum_p.dbf' )
     use_base( 'hum_p', 'hum_p' )
     find ( str( glob_kartotek, 7 ) )
     do while hum_p->kod_k == glob_kartotek
@@ -413,7 +406,7 @@ function exist_spravka( get, kod_kart, onePerson )
   endif
 
   // ОРТОПЕДИЯ
-  if hb_vfExists( dir_server + 'hum_ort.dbf' ) .and. hb_vfExists( dir_server + 'hum_oro.dbf' )
+  if hb_vfExists( dir_server() + 'hum_ort.dbf' ) .and. hb_vfExists( dir_server() + 'hum_oro.dbf' )
     use_base( 'hum_ort' )
     find ( str( glob_kartotek, 7 ) )
     do while HUMAN->kod_k == glob_kartotek
@@ -442,7 +435,7 @@ function exist_spravka( get, kod_kart, onePerson )
   endif
 
   // Касса МО
-  if hb_vfExists( dir_server + 'kas_pl.dbf' )
+  if hb_vfExists( dir_server() + 'kas_pl.dbf' )
     use_base( 'kas_pl', 'KASSA' )
     find ( str( glob_kartotek, 7 ) )
     do while KASSA->kod_k == glob_kartotek
@@ -459,10 +452,9 @@ function exist_spravka( get, kod_kart, onePerson )
   endif
 
   select( tmp_select )
-
   return .t.
 
-// 29.01.25
+// 20.10.25
 function input_spravka_fns()
 
   Local str_sem
@@ -471,27 +463,29 @@ function input_spravka_fns()
     mINN := space( 12 ), ;
     mSumma := 0.0, mSum1 := 0.0, mSum2 := 0.0, ;
     j := 0, i, mkod
-  local nYear := 2024 // отчетный год
-//  local arr_m
-
   local aFIOPlat, mDOB, mVID, mSerNomer, mKogda
   local predst := '', predst_doc := '', pred_ruk := 0
   local org := hb_main_curOrg
   local aFIOPredst, oldSumma := 0.0
 
+  local nYear // := 2024 // отчетный год
+  local arr_m
+
   Private aCheck := {}
-  private mm_plat := { { 'он же ', 1 }, ;
+  private mm_plat := { ;
+    { 'он же ', 1 }, ;
     { 'другой', 0 } }, ;
     m1P_ATTR := 1, mP_ATTR  // вид плательщика
   private mKod_payer := 0   // код плательщика
 
-//  If ( arr_m := input_year() ) == NIL
-//    Return Nil
-//  Endif
-//  if arr_m[ 1 ] != 2024
-//    hb_Alert( 'Справки для ФНС составляются на 2024 год' )
-//    return nil
-//  endif
+  If ( arr_m := input_year() ) == NIL
+    Return Nil
+  Endif
+  nYear := arr_m[ 1 ]
+  if nYear < 2024 .or. nYear > Year( Date() )
+    hb_Alert( 'Справки для ФНС составляются не ранее 2024 года и не позже ' + Str( year( Date() ), 4 ) + ' года!' )
+    return nil
+  endif
   mP_ATTR := inieditspr( A__MENUVERT, mm_plat, m1p_attr )
   _fns_nastr( 0 ) // проверим сущетствование настроек
   _fns_nastr( 1 ) // прочитаем сущетствующие настроеки
@@ -511,9 +505,9 @@ function input_spravka_fns()
   endif
 
   If polikl1_kart() > 0
-    R_Use( dir_server + 'kartote_', , 'KART_' )
+    R_Use( dir_server() + 'kartote_', , 'KART_' )
     goto ( glob_kartotek )
-    R_Use( dir_server + 'kartotek', , 'KART' )
+    R_Use( dir_server() + 'kartotek', , 'KART' )
     goto ( glob_kartotek )
 
     if ! kart->( eof() )
@@ -552,7 +546,7 @@ function input_spravka_fns()
 
     str_sem := 'Справка ФНС человека ' + lstr( glob_kartotek )
     If ! g_slock( str_sem )
-      Return func_error( 4, err_slock )
+      Return func_error( 4, err_slock() )
     Endif
 
     SetColor( cDataCGet )
@@ -665,7 +659,7 @@ function input_spravka_fns()
             link_fns->SUM_VOZ := aCheck[ i, 4 ]
             g_rlock( forever )
           next
-          G_Use( dir_server + 'reg_fns_nastr', , 'NASTR_FNS' )
+          G_Use( dir_server() + 'reg_fns_nastr', , 'NASTR_FNS' )
           G_RLock( forever )
           NASTR_FNS->N_SPR_FNS := fns_N_SPR_FNS
 //          Unlock
@@ -681,7 +675,6 @@ function input_spravka_fns()
     g_sunlock( str_sem )
     dbCloseAll()
   endif
-  
   return nil
 
 // 25.08.24
@@ -728,7 +721,6 @@ Function inf_fns( k )
       si1 := j
     Endif
   Endif
-
   Return Nil
 
 // 28.01.25
@@ -764,8 +756,8 @@ function _fns_nastr( k )
       { 'ID_END',     'C',   4,  0 }, ; // идентификатор конечного получателя, для которого предназначен файл выгрузок
       { 'EDIT_SUM',   'N',   1,  0 } ;  // разрешение редактирования оплаченной суммы ( 0 - нет, 1 - да )
    }
-    reconstruct( dir_server + file_mem, mm_tmp, , , .t. )
-    G_Use( dir_server + file_mem, , 'NASTR_FNS' )
+    reconstruct( dir_server() + file_mem, mm_tmp, , , .t. )
+    G_Use( dir_server() + file_mem, , 'NASTR_FNS' )
     if lastrec() == 0
       AddRecN()
       nastr_fns->N_SPR_FNS := fns_N_SPR_FNS
@@ -781,7 +773,7 @@ function _fns_nastr( k )
     endif
     NASTR_FNS->( dbCloseAre() ) //Use
   elseif k == 1
-    R_Use( dir_server + file_mem, , 'NASTR_FNS')
+    R_Use( dir_server() + file_mem, , 'NASTR_FNS')
     fns_N_SPR_FNS  := nastr_fns->N_SPR_FNS
     fns_N_SPR_FILE  := nastr_fns->N_FILE_UP
     fns_PODPISANT  := nastr_fns->PODPIS
@@ -824,6 +816,5 @@ function soot_doc( nVid )
 //  hb_hSet(aHash, , 08 )
 //  11	Свидетельство о рассмотрении ходатайства о признании лица беженцем на территории Российской Федерации по существу
 //  hb_hSet(aHash, , 11 )
-
   return ret
 

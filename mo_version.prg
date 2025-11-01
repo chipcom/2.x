@@ -6,7 +6,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-Static st_version := { 5, 3, 1, 'd' }
+Static st_version := { 5, 10, 1, 'g' }
 Static st_date_version := _DATA_VER
 Static st_full_name := 'ЧИП + Учёт работы Медицинской Организации'
 Static st_short_name := '[ЧИП + Учёт работы МО]'
@@ -26,9 +26,9 @@ Function app_full_name()
 
   Return st_full_name
 
-// 12.12.24 возврат строкового представления версии
+// 03.06.25 возврат строкового представления версии
 Function str_version()
-  Return '  в. ' + fs_version( _version() ) + ' от ' + _date_version() + ' тел.(8442)23-69-56'
+  Return ' в. ' + Err_version() + ' тел.(8442)23-69-56'
 
 // 12.12.24
 Function full_name_version()
@@ -60,8 +60,8 @@ Function get_version_db()
   Local nfile := 'ver_base'
   Local ver__base := 0
 
-  If hb_FileExists( dir_server + nfile + sdbf )
-    r_use( dir_server + nfile, , 'ver' )
+  If hb_FileExists( dir_server() + nfile + sdbf() )
+    r_use( dir_server() + nfile, , 'ver' )
     ver__base := ver->version
     ver->( dbCloseArea() )
   Endif
@@ -73,8 +73,8 @@ Function save_version_db( nVersion )
 
   Local nfile := 'ver_base'
 
-  reconstruct( dir_server + nfile, { { 'version', 'N', 10, 0 } }, , , .t. )
-  g_use( dir_server + nfile, , 'ver' )
+  reconstruct( dir_server() + nfile, { { 'version', 'N', 10, 0 } }, , , .t. )
+  g_use( dir_server() + nfile, , 'ver' )
   If LastRec() == 0
     addrecn()
   Else
