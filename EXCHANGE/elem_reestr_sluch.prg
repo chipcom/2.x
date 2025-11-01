@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 31.10.25
+// 01.11.25
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -48,7 +48,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Private a_usl_name
   Private lvidpom
   Private lfor_pom
-  Private atmpusl
   Private akslp
   Private akiro
   Private is_KSG, is_mgi
@@ -65,6 +64,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Private arr_ne_vozm
   Private mtab_v_dopo_na, mtab_v_mo, mtab_v_stac, mtab_v_reab, mtab_v_sanat
   Private arr_usl_otkaz
+//  Private atmpusl
 //  Private ar_dn
 
   flLekPreparat := .f.
@@ -86,7 +86,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     a_usl_name := {}
     lvidpom := 1
     lfor_pom := 3
-    atmpusl := {}
     akslp := {}
     akiro := {}
     is_KSG := is_mgi := .f.
@@ -102,6 +101,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     arr_nazn := {}
     arr_ne_vozm := {}
     mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+//    atmpusl := {}
 
     If isl == 1 .and. kol_sl == 2
       Select HUMAN_3

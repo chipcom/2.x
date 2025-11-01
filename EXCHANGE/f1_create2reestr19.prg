@@ -7,22 +7,24 @@
 
 #define BASE_ISHOD_RZD 500
 
-// 31.10.25 работаем по текущей записи
+// 01.11.25 работаем по текущей записи
 Function f1_create2reestr19( _nyear, p_tip_reestr )
 
   Local i, j, lst, sVidpoms
   Local locPRVS
   local arr_not_zs, lc, lpods
   local lvidpoms
+  Local atmpusl
   //
 
   tarif_zak_sl := human->cena_1
 
   //
   lvidpoms := ''
-  Select HU
-  find ( Str( human->kod, 7 ) )
-  Do While hu->kod == human->kod .and. !Eof()
+  atmpusl := {}
+//  Select HU 
+  hu->( dbSeek( Str( human->kod, 7 ) ) )  //  find ( Str( human->kod, 7 ) )
+  Do While hu->kod == human->kod .and. ! hu->( Eof() )
     lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
     If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, , , @lst, , @sVidpoms )
       lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
@@ -132,8 +134,9 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
         AAdd( a_usl_name, lshifr )
       Endif
     Endif
-    Select HU
-    Skip
+//    Select HU
+//    Skip
+    hu->( dbSkip() )
   Enddo
   If human_->USL_OK == USL_OK_HOSPITAL .and. human_2->VMP == 1 .and. !emptyany( human_2->VIDVMP, human_2->METVMP ) // ВМП
     is_KSG := .f.
