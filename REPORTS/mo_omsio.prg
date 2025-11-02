@@ -2516,11 +2516,7 @@ Function f1proch_proverka( jt )
     fl_tmp := .f. ; fl_next := .t.
     // проверим правильность определения КСГ
     If human_->USL_OK < 3
-      If ( y := Year( human->K_DATA ) ) > 2018
-        arr := definition_ksg()
-      Else
-        arr := definition_ksg()   // definition_KSG_18() просто подменил
-      Endif
+      arr := definition_ksg()
       If Select( "K006" ) > 0
         k006->( dbCloseArea() )
       Endif

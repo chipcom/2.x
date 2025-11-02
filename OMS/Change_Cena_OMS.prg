@@ -129,11 +129,7 @@ Function change_cena_oms()
             If Select( "K006" ) != 0
               k006->( dbCloseArea() )
             Endif
-            If Year( human->k_data ) > 2018
-              arr_ksg := definition_ksg( 1, k_data2 )
-            Else
-              arr_ksg := definition_ksg( 1, k_data2 )  // definition_KSG_18() просто подменил
-            Endif
+            arr_ksg := definition_ksg( 1, k_data2 )
             fl1 := .t.
             If Len( arr_ksg ) == 7
               If ValType( arr_ksg[ 7 ] ) == "N"
