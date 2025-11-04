@@ -1,10 +1,10 @@
 #include 'inkey.ch'
 #include 'function.ch'
+#include 'tbox.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-
-// 15.09.25 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 04.11.25 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -58,7 +58,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   }
 
   Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0, lstentvmp := 0, ;
-    ar, strSoob, ar1, fl, im, lshifr, ln_data, lk_data, lvr, ldni, ldate_r, lpol, lprofil_k, ;
+    strSoob, ar1, fl, im, lshifr, ln_data, lk_data, lvr, ldni, ldate_r, lpol, lprofil_k, ;
     lfio, cenaTer := 0, cenaHir := 0, ars := {}, arerr := {}, ;
     lksg := '', lcena := 0, lprofil, ldnej := 0, y := 0, m := 0, d := 0, ;
     osn_diag := Space( 6 ), sop_diag := {}, osl_diag := {}, tmp, lrslt, akslp, akiro, ;
@@ -66,13 +66,22 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
     kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := '', lbartell := '', ;
     s_dializ := 0, ahu := {}, amohu := {}, nfile, ;
     date_usl := SToD( '20210101' ) // stod('20200101')
-  local typeKSG, ;  // тип КСГ ( st или ds )
-    uslOkaz         // условия оказания (стационар, дневной стационар м т.д.)
-  local i, j, k, c
+  local typeKSG  // тип КСГ ( st или ds )
+  local uslOkaz         // условия оказания (стационар, дневной стационар м т.д.)
+  local i, j
+  local _a1, ar, ar_crit, ar_crit1
+  local c_crit, icrit
+  local lal, lalf, lage
+  local lsex, llos
+  local sds1, sds2
+  local arr_ad_criteria
+  local oBox
 
   Local iKSLP, newKSLP := '', tmpSelect
   Local humKSLP := ''
   Local vkiro := 0
+	local color_say := 'N/W', color_get := 'W/N*'
+  local two_letters
 
   Default par To 1, sp0 To '', sp1 To Space( 1 ), sp6 To Space( 6 ), sp15 To Space( 20 )
   Default lDoubleSluch To .f.
@@ -123,7 +132,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         g_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'ONKSL' ) // Сведения о случае лечения онкологического заболевания
       Endif
       Select ONKSL
-      find ( Str( human->kod, 7 ) )
+      onksl->( dbSeek( Str( human->kod, 7 ) ) )  //find ( Str( human->kod, 7 ) )
       lad_cr := AllTrim( onksl->crit )
       If lad_cr == 'нет'
         lad_cr := ''
@@ -249,8 +258,8 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   // составляем массив услуг и массив манипуляций
   If par == 1
     Select HU
-    find ( Str( human->kod, 7 ) )
-    Do While hu->kod == human->kod .and. !Eof()
+    hu->( dbSeek( Str( human->kod, 7 ) ) )  //find ( Str( human->kod, 7 ) )
+    Do While hu->kod == human->kod .and. ! hu->( Eof() )
       usl->( dbGoto( hu->u_kod ) )
       If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, date_usl ) )
         lshifr := usl->shifr
@@ -266,14 +275,14 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         ldnej += hu->kol_1
       Endif
       Select HU
-      Skip
+      hu->( dbSkip() )  //  Skip
     Enddo
     If Select( 'MOSU' ) == 0
       r_use( dir_server() + 'mo_su', , 'MOSU' )
     Endif
     Select MOHU
-    find ( Str( human->kod, 7 ) )
-    Do While mohu->kod == human->kod .and. !Eof()
+    mohu->( dbSeek( Str( human->kod, 7 ) ) )  //find ( Str( human->kod, 7 ) )
+    Do While mohu->kod == human->kod .and. ! mohu->( Eof() )
       If mosu->( RecNo() ) != mohu->u_kod
         mosu->( dbGoto( mohu->u_kod ) )
       Endif
@@ -286,7 +295,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         lpar_org += Len( list2arr( mohu->zf ) )
       Endif
       Select MOHU
-      Skip
+      mohu->( dbSkip() )  //  Skip
     Enddo
   Else
     Select IHU
@@ -313,7 +322,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         Endif
       Endif
       Select IHU
-      Skip
+      ihu->( dbSkip() )  //  Skip
     Enddo
   Endif
 
@@ -440,13 +449,12 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         &lal.->kslps, ; // 14
         k006->ad_cr1 } ) // 15
       Endif
-
       K006->( dbSkip() )
     Enddo
   Else
     Set Order To 1
     find ( typeKSG + PadR( osn_diag, 6 ) )
-    Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->ds == PadR( osn_diag, 6 ) .and. !Eof()
+    Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->ds == PadR( osn_diag, 6 ) .and. ! k006->( Eof() )
       lkoef := k006->kz
       dbSelectArea( lal )
       find ( PadR( k006->shifr, 10 ) )
@@ -577,7 +585,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         k006->ad_cr1 } ) // 15
       Endif
       Select K006
-      Skip
+      k006->( dbSkip() )  //  Skip
     Enddo
   Endif
   ar1 := {}
@@ -640,13 +648,17 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   Endif
   // собираем КСГ по манипуляциям (хирургические и комбинированные)
   ar := ar1
+  ar_crit := {}
+  ar_crit1 := {}
+  arr_ad_criteria := getAdditionalCriteria( lk_data )  // загрузим доп. критерии на дату
+
   For im := 1 To Len( amohu )
     If !Empty( lshifr := AllTrim( amohu[ im ] ) )
       _a1 := {}
       Select K006
       Set Order To 2
       find ( typeKSG + PadR( lshifr, 20 ) )
-      Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->sy == PadR( lshifr, 20 ) .and. !Eof()
+      Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->sy == PadR( lshifr, 20 ) .and. ! k006->( Eof() )
         lkoef := k006->kz
         dbSelectArea( lal )
         find ( PadR( k006->shifr, 10 ) )
@@ -693,12 +705,16 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
           Endif
         Endif
         If fl .and. !Empty( k006->ad_cr )  // в справочнике есть доп.критерий
+          two_letters := lower( substr( lshifr, 1, 2 ) )
           fl := .f.
           If !Empty( lad_cr )        // в случае есть доп.критерий
-            fl := ( lad_cr == AllTrim( k006->ad_cr ) )
+            fl := ( lad_cr == AllTrim( k006->ad_cr ) ) .or. ! eq_any( two_letters, 'st', 'ds' )
             If fl
               j++
             Endif
+          else  // add 01.11.25
+            fl := .t.  // add 01.11.25
+            j++  // add 01.11.25
           Endif
         Endif
         If fl .and. !Empty( k006->ad_cr1 )  // в справочнике есть доп.критерий2
@@ -750,16 +766,56 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
           j, ;           // 13
           &lal.->kslps, ; // 14
           k006->ad_cr1 } ) // 15
+          if Empty( k006->ad_cr )
+            AAdd( ar_crit, { '', '--нет критерия--' } )
+            AAdd( ar_crit1, '--нет критерия--' )
+          else
+            c_crit := AllTrim( k006->ad_cr )
+            if ( icrit := AScan( arr_ad_criteria, {| x | AllTrim( x[ 2 ] ) == c_crit } ) ) > 0
+              AAdd( ar_crit, { c_crit, c_crit + ' ' + arr_ad_criteria[ icrit, 6 ] } )
+              AAdd( ar_crit1, c_crit + ' ' + arr_ad_criteria[ icrit, 6 ] )
+            endif
+          endif
         Endif
         Select K006
-        Skip
+        k006->( dbSkip() )  //  Skip
       Enddo
       If Len( _a1 ) > 1 // если по данной услуге более одной КСГ, сортируем по убыванию критериев
-        ASort( _a1, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
-      Endif
-      If Len( _a1 ) > 0
+        If __mvExist( 'mshifr' )
+          if  iif( HB_ISNIL( mshifr ), .f., AllTrim( mshifr ) == AllTrim( lshifr ) ) .and. ;
+              Upper( ProcName( 1 ) ) == Upper( 'f_usl_definition_KSG' ) .and. ;
+              Upper( ProcName( 2 ) ) == Upper( 'f2oms_usl_sluch' )
+            oBox := NIL // уничтожим окно
+            oBox := TBox():New( 2, 10, 22, 70 )
+            oBox:Color := color_say + ',' + color_get
+            oBox:Frame := BORDER_SINGLE
+            oBox:MessageLine := '^<Esc>^ - выход;  ^<Enter>^ - выбор'
+            oBox:Save := .t.
+  
+            oBox:Caption := 'Выбор дополнительного критерия'
+            oBox:View()
+            if ( icrit := AChoice( oBox:Top + 1, oBox:Left + 1, oBox:Bottom - 1, oBox:Right - 1, ar_crit1 ) ) > 0
+              AAdd( ar, AClone( _a1[ icrit ] ) )
+            endif
+            oBox := nil
+          endif
+        elseif Upper( ProcName( 1 ) ) == Upper( 'f_usl_definition_KSG' ) .and. ;
+            Upper( ProcName( 2 ) ) == Upper( 'oms_usl_sluch' )
+          if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
+            AAdd( ar, AClone( _a1[ icrit ] ) )
+          endif
+        elseif Upper( ProcName( 1 ) ) == Upper( 'verify_sluch' ) .and. ! Empty( human_2->PC3 )
+          if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
+              AAdd( ar, AClone( _a1[ icrit ] ) )
+          endif
+        endif
+//        ASort( _a1, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
+      elseif Len( _a1 ) == 1
         AAdd( ar, AClone( _a1[ 1 ] ) )
       Endif
+//      If Len( _a1 ) > 0
+//        AAdd( ar, AClone( _a1[ 1 ] ) )
+//      Endif
     Endif
   Next
   If Len( ar ) > 0
@@ -768,6 +824,16 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       If ar[ i, 2 ] > 0
         fl_cena := .t.
       Endif
+      if ! empty( ar[ i, 10 ] ) // add 01.11.25
+        lad_cr := ar[ i, 10 ]   // add 01.11.25
+        m1ad_cr := ar[ i, 10 ]   // add 01.11.25
+        input_ad_cr := .t.   // add 01.11.25
+
+        human_2->( RLock() )
+        human_2->PC3 := iif( input_ad_cr, m1ad_cr, '' ) 
+        human_2->( dbUnlock() )
+
+      endif                     // add 01.11.25
     Next
     aHirKSG := AClone( ar )
     If Len( aHirKSG ) > 1
