@@ -3,35 +3,45 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
  
-// 31.10.25 является врачебным осмотром детей-сирот на первом этапе
+// 02.11.25 является врачебным осмотром детей-сирот на первом этапе
 Function is_osmotr_dds_1_etap( ausl, _vozrast, _etap, _pol, tip_lu, mdata )
 
   // ausl - { lshifr,mdate,hu_->profil,hu_->PRVS }
 
   Local i, fl := .f., lshifr := AllTrim( ausl[ 1 ] )
-  Local arr_DDS_osm1
+  Local arr_DDS_osm
+//  Local arr_DDS_osm1
+//  Local arr_DDS_osm2
 
-  arr_DDS_osm1 := dds_arr_osm1( mdata )
+//  arr_DDS_osm1 := dds_arr_osm1( mdata )
+//  arr_DDS_osm2 := dds_arr_osm2( mdata, tip_lu )
   // вместо услуг "2.87.*" сделаем "2.83.*"
   If tip_lu == TIP_LU_DDSOP .and. Left( lshifr, 5 ) == '2.87.'
     lshifr := '2.83.' + SubStr( lshifr, 6 )
   Endif
-  For i := 1 To Len( arr_DDS_osm1 )
-    If iif( Empty( arr_DDS_osm1[ i, 2 ] ), .t., arr_DDS_osm1[ i, 2 ] == _pol ) .and. ;
-        iif( mdata >= 0d20250901, .t., Between( _vozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] ) )
-      If _etap == 1
-        If AScan( arr_DDS_osm1[ i, 5 ], ausl[ 3 ] ) > 0
+
+  If _etap == 1
+    arr_DDS_osm := dds_arr_osm1( mdata )
+    For i := 1 To Len( arr_DDS_osm )
+      If iif( Empty( arr_DDS_osm[ i, 2 ] ), .t., arr_DDS_osm[ i, 2 ] == _pol ) .and. ;
+          iif( mdata >= 0d20250901, .t., Between( _vozrast, arr_DDS_osm[ i, 3 ], arr_DDS_osm[ i, 4 ] ) )
+//      If _etap == 1
+        If AScan( arr_DDS_osm[ i, 5 ], ausl[ 3 ] ) > 0
           fl := .t.
           Exit
         Endif
-      Else
-        If AScan( arr_DDS_osm1[ i, 7 ], lshifr ) > 0
-          fl := .t.
-          Exit
-        Endif
+      endif
+    next
+  Else
+    arr_DDS_osm := dds_arr_osm2( mdata, tip_lu )
+//        If AScan( arr_DDS_osm1[ i, 7 ], lshifr ) > 0
+    For i := 1 To Len( arr_DDS_osm )
+      If AScan( arr_DDS_osm[ i, 7 ], lshifr ) > 0
+        fl := .t.
+        Exit
       Endif
-    Endif
-  Next
+    Next
+  endif
   Return fl
 
 
