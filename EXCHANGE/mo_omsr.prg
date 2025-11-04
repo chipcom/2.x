@@ -676,15 +676,22 @@ Function f2_view_list_reestr( nKey, oBrow )
   Return ret
 
 
-// 22.03.24
+// 04.11.25
 Function f3_view_list_reestr( oBrow )
 
   Static si := 1
   Local i, r := Row(), r1, r2, buf := save_maxrow(), ;
-    mm_func := { -1, -2, -3 }, ;
-    mm_menu := { "Список ~всех пациентов в реестре", ;
-    "Список ~обработанных в ТФОМС", ;
-    "Список ~не обработанных в ТФОМС" }
+    mm_func := { 0, -1, -2, -3 }, ;
+    mm_menu := {}// ;
+//      'Список ~всех пациентов в реестре', ;
+//      'Список ~обработанных в ТФОМС', ;
+//      'Список ~не обработанных в ТФОМС' ;
+//    }
+
+    AAdd( mm_menu, 'Версия программы: ' + iif( Empty( rees->VER_APP ), 'до версии 5.11.1', AllTrim( rees->VER_APP ) ) )
+    AAdd( mm_menu, 'Список ~всех пациентов в реестре' )
+    AAdd( mm_menu, 'Список ~обработанных в ТФОМС' )
+    AAdd( mm_menu, 'Список ~не обработанных в ТФОМС' )
 
   mywait()
   Select MO_XML
@@ -707,6 +714,10 @@ Function f3_view_list_reestr( oBrow )
   Endif
   rest_box( buf )
   If ( i := popup_prompt( r1, 10, si, mm_menu,,, color5 ) ) > 0
+    if i == 1
+      Select REES
+      return Nil
+    endif
     si := i
     If mm_func[ i ] < 0
       f31_view_list_reestr( Abs( mm_func[ i ] ), mm_menu[ i ] )

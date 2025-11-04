@@ -96,7 +96,9 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort, p_tip_reestr )
   rees->NAME_XML := aFilesName[ 1 ]
   mkod_reestr := rees->KOD
   rees->CODE  := ret_unique_code( mkod_reestr )
+  rees->VER_APP := fs_version( _version() )
   code_reestr := rees->CODE
+
   //
   g_use( dir_server() + 'mo_xml', , 'MO_XML' )
   addrecn()
