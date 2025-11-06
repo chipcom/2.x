@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 04.11.25 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 06.11.25 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -781,8 +781,8 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         k006->( dbSkip() )  //  Skip
       Enddo
       If Len( _a1 ) > 1 // если по данной услуге более одной КСГ, сортируем по убыванию критериев
-        If __mvExist( 'mshifr' )
-          if  iif( HB_ISNIL( mshifr ), .f., AllTrim( mshifr ) == AllTrim( lshifr ) ) .and. ;
+        If __mvExist( 'mshifr' ) .and. ! HB_ISNIL( mshifr )
+          if  AllTrim( mshifr ) == AllTrim( lshifr ) .and. ;
               Upper( ProcName( 1 ) ) == Upper( 'f_usl_definition_KSG' ) .and. ;
               Upper( ProcName( 2 ) ) == Upper( 'f2oms_usl_sluch' )
             oBox := NIL // уничтожим окно
@@ -799,8 +799,13 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
             endif
             oBox := nil
           endif
-        elseif Upper( ProcName( 1 ) ) == Upper( 'f_usl_definition_KSG' ) .and. ;
-            Upper( ProcName( 2 ) ) == Upper( 'oms_usl_sluch' )
+        elseif Upper( ProcName( 1 ) ) == Upper( 'f_1pac_definition_KSG' ) .and. ;
+            Upper( ProcName( 2 ) ) == Upper( 'oms_sluch_main' )
+          if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
+            AAdd( ar, AClone( _a1[ icrit ] ) )
+          endif
+        elseif ( Upper( ProcName( 1 ) ) == Upper( 'f_usl_definition_KSG' ) .and. ;
+            Upper( ProcName( 2 ) ) == Upper( 'oms_usl_sluch' ) )
           if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
             AAdd( ar, AClone( _a1[ icrit ] ) )
           endif
