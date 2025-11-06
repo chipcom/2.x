@@ -799,20 +799,26 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
             endif
             oBox := nil
           endif
-        elseif Upper( ProcName( 1 ) ) == Upper( 'f_1pac_definition_KSG' ) .and. ;
-            Upper( ProcName( 2 ) ) == Upper( 'oms_sluch_main' )
-          if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
-            AAdd( ar, AClone( _a1[ icrit ] ) )
-          endif
+//        elseif Upper( ProcName( 1 ) ) == Upper( 'f_1pac_definition_KSG' ) .and. ;
+//            Upper( ProcName( 2 ) ) == Upper( 'oms_sluch_main' )
+//          if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
+//            AAdd( ar, AClone( _a1[ icrit ] ) )
+//          endif
         elseif ( Upper( ProcName( 1 ) ) == Upper( 'f_usl_definition_KSG' ) .and. ;
-            Upper( ProcName( 2 ) ) == Upper( 'oms_usl_sluch' ) )
+            Upper( ProcName( 2 ) ) == Upper( 'oms_usl_sluch' ) ) .or. ;
+              ;
+            ( Upper( ProcName( 1 ) ) == Upper( 'f_1pac_definition_KSG' ) .and. ;
+            Upper( ProcName( 2 ) ) == Upper( 'oms_sluch_main' ) ) .or. ;
+              ;
+            ( Upper( ProcName( 1 ) ) == Upper( 'verify_sluch' ) .and. ! Empty( human_2->PC3 ) )
+
           if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
             AAdd( ar, AClone( _a1[ icrit ] ) )
           endif
-        elseif Upper( ProcName( 1 ) ) == Upper( 'verify_sluch' ) .and. ! Empty( human_2->PC3 )
-          if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
-              AAdd( ar, AClone( _a1[ icrit ] ) )
-          endif
+//        elseif Upper( ProcName( 1 ) ) == Upper( 'verify_sluch' ) .and. ! Empty( human_2->PC3 )
+//          if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
+//              AAdd( ar, AClone( _a1[ icrit ] ) )
+//          endif
         endif
 //        ASort( _a1, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
       elseif Len( _a1 ) == 1
