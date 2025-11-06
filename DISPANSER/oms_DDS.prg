@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 30.10.25 ДДС - добавление или редактирование случая (листа учета)
+// 06.11.25 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -81,11 +81,12 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
     m1povod  := 4, ;   // Профилактический
     m1USL_OK :=  USL_OK_POLYCLINIC, ; // поликлиника
-    m1rslt  := 321,; // результат (присвоена I группа здоровья)
-    m1ishod := 306,; // исход
+    m1rslt  := 321,;  // результат (присвоена I группа здоровья)
+    m1ishod := 306,;  // исход
     m1VIDPOM :=  1, ; // первичная
-    m1PROFIL := 68, ; // педиатрия
-    m1IDSP   := 11   // диспансеризация
+    m1IDSP   := 11, ; // диспансеризация
+    m1PROFIL := 151   // медицинским осмотрам профилактическим
+//    m1PROFIL := 68 // педиатрия
   //
   //
   Private mstacionar, m1stacionar := st_stacionar, ; // код стационара
@@ -1907,7 +1908,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       human_->POL2      := ''
       human_->USL_OK    := m1USL_OK
       human_->VIDPOM    := m1VIDPOM
-      human_->PROFIL    := m1PROFIL
+      human_->PROFIL    := 151  // m1PROFIL
       human_->IDSP      := m1IDSP
       human_->NPR_MO    := ''
       human_->FORMA14   := '0000'
