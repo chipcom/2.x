@@ -399,7 +399,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
     larr_i := Array( count_DDS_arr_issled )
     AFill( larr_i, 0 )
-    larr_o := Array( count_DDS_arr_osm )
+    larr_o := Array( Len( arr_DDS_osm ) )   //  count_DDS_arr_osm )
     AFill( larr_o, 0 )
     larr_p := {}
     mdate1 := mdate2 := CToD( '' )
@@ -434,7 +434,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         Endif
       Next
       If fl
-        For i := 1 To count_DDS_arr_osm
+        For i := 1 To Len( arr_DDS_osm )  //  count_DDS_arr_osm
           If Left( arr_DDS_osm[ i, 1 ], 4 ) == '2.4.'
             If lshifr == arr_DDS_osm[ i, 1 ]
               fl := .f.

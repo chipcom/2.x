@@ -6,11 +6,9 @@
 #include "chip_mo.ch"
 
 Static lcount_uch  := 1
-Static mas1pmt := { "~все оказанные случаи", ;
-    "случаи в выставленных ~счетах", ;
-    "случаи в за~регистрированных счетах" }
-
-
+//Static mas1pmt := { "~все оказанные случаи", ;
+//    "случаи в выставленных ~счетах", ;
+//    "случаи в за~регистрированных счетах" }
 
 // 28.06.21 вернуть план диспансеризации на год из R01 для формы 131
 Function ret_plan_disp_131_n( d )
@@ -545,7 +543,7 @@ Function forma_131( par )
       add_string( "" )
       add_string( Center( "Сведения о диспансеризации определённых групп взрослого населения", sh ) )
       titlen_uch( st_a_uch, sh, lcount_uch )
-      add_string( Center( "[ " + CharRem( "~", mas1pmt[ par ] ) + " ]", sh ) )
+      add_string( Center( "[ " + CharRem( "~", mas1pmt()[ par ] ) + " ]", sh ) )
       add_string( Center( arr_m[ 4 ], sh ) )
       add_string( "" )
       add_string( Center( "Сведения о проведении профилактического медицинского осмотра (ПМО)", sh ) )

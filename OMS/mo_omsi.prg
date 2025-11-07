@@ -2700,9 +2700,9 @@ Function monitoring_zog()
 
   Static sad := { 'R73.9', 'E10', 'E11', 'E12', 'E13', 'E14', 'R63.5', 'E66', 'K25', 'K26', 'K29', 'E78', ;
     'K70', 'K71', 'K72', 'K73', 'K74', 'K85', 'K86' }
-  Static mas1pmt := { '~все оказанные случаи', ;
-    'случаи в выставленных ~счетах', ;
-    'случаи в за~регистрированных счетах' }
+//  Static mas1pmt := { '~все оказанные случаи', ;
+//    'случаи в выставленных ~счетах', ;
+//    'случаи в за~регистрированных счетах' }
   Local sh := 80, HH := 80, n_file := cur_dir() + 'monitoring_zog.txt'
   Local fl, par, arr_m, i, j, n, ad, arr, adiag_talon[ 16 ], lcount_uch := 1, buf := save_maxrow()
   Private mdate_r, M1VZROS_REB, is_disp_19, m1tip_mas := 0, m1glukozadn := 0, mglukoza := 0
@@ -2710,7 +2710,7 @@ Function monitoring_zog()
   If !del_dbf_file( 'tmp' + sdbf() )
     Return .f.
   Endif
-  If ( par := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt ) ) > 0 .and. ;
+  If ( par := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt() ) ) > 0 .and. ;
       ( st_a_uch := inputn_uch( T_ROW, T_COL -5, , , @lcount_uch ) ) != Nil .and. ( arr_m := year_month(, , , 5 ) ) != NIL
     mywait()
     dbCreate( cur_dir() + 'tmp', { { 'kod_k', 'N', 7, 0 }, ;
@@ -2855,7 +2855,7 @@ Function monitoring_zog()
       add_string( '' )
       add_string( Center( 'Мониторинг состояния здоровья населения в части заболеваний, состояний, ', sh ) )
       add_string( Center( 'факторов риска, связанных с несоблюдением здорового образа жизни', sh ) )
-      add_string( Center( '[ ' + CharRem( '~', mas1pmt[ par ] ) + ' ]', sh ) )
+      add_string( Center( '[ ' + CharRem( '~', mas1pmt()[ par ] ) + ' ]', sh ) )
       add_string( Center( arr_m[ 4 ], sh ) )
       add_string( full_date( sys_date ) )
       add_string( '───────────────────────────────────────────────────┬───────┬──────┬──────┬──────' )

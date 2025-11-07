@@ -231,6 +231,7 @@ mo_version.prg
 .\DISPANSER\oms_DDS.prg
 .\DISPANSER\oms_DDS_func.prg
 .\DISPANSER\oms_DDS_array.prg
+.\DISPANSER\information_DDS.prg
 
 .\DISPANSER\oms_PN_1.prg
 #.\DISPANSER\oms_PN_func_1.prg
