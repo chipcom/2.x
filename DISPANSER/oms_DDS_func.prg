@@ -774,87 +774,114 @@ Function read_arr_dds( lkod, mdata )
   Endif
   Return Nil
 
-// 30.09.25 вернуть возрастной период для профилактики несовершеннолетних
+// 08.11.25 вернуть возрастной период для профилактики несовершеннолетних
 Function ret_period_dds( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
 
-  Local i, _m, _d, _y, _m2, _d2, _y2, lperiod, sm, sm_, sm1, sm2, yn_data, yk_data
+  Local i, lperiod, sm, sm_, sm1, sm2, yn_data, yk_data
   Local arr_DDS_etap
+  local months_begin  // реальный возраст (месяцы) на начало
+  local months_end    // реальный возраст (месяцы) на окончание
+  local years_begin   // реальный возраст (года) на начало
+  local years_end     // реальный возраст (года) на окончание
+  local days_begin    // реальный возраст (дни) на начало
+  local days_end      // реальный возраст (дни) на окончание
+  local d_change_rule // дата смена правил работы с детьми-сиротами
 
-  Store 0 To _m, _d, _y, _m2, _d2, _y2, lperiod
+  Store 0 To lperiod
+  Store 0 To months_begin, months_end, years_begin, years_end, days_begin, days_end
+
+  d_change_rule := 0d20250901
   yn_data := Year( ln_data )
   yk_data := Year( lk_data )
   arr_DDS_etap := dds_arr_etap( lk_data )
   ls := ''
-  count_ymd( ldate_r, ln_data, @_y, @_m, @_d ) // реальный возраст на начало
-  count_ymd( ldate_r, lk_data, @_y2, @_m2, @_d2 ) // реальный возраст на окончание
-  ret_i := 31
+  count_ymd( ldate_r, ln_data, @years_begin, @months_begin, @days_begin ) // реальный возраст на начало
+  count_ymd( ldate_r, lk_data, @years_end, @months_end, @days_end ) // реальный возраст на окончание
+  if lk_data >= d_change_rule
+    ret_i := 31
+  else
+    ret_i := 6
+  endif
   For i := Len( arr_DDS_etap ) To 1 Step -1
-    If i > 17 // 4 года и старше
-      If mdvozrast == arr_DDS_etap[ i, 2, 1 ]
-        ret_i := lperiod := i
-        ls := ' (' + lstr( mdvozrast ) + ' ' + s_let( mdvozrast ) + ')'
-        If yn_data != yk_data
-          lperiod := 0
-          ls := 'Ошибка! Начало и окончание профилактики должны быть в одном календарном году'
+    if lk_data >= d_change_rule
+      If i > 17 // 4 года и старше
+        If mdvozrast == arr_DDS_etap[ i, 2, 1 ]
+          ret_i := lperiod := i
+          ls := ' (' + lstr( mdvozrast ) + ' ' + s_let( mdvozrast ) + ')'
+          If yn_data != yk_data
+            lperiod := 0
+            ls := 'Ошибка! Начало и окончание диспансеризации должны быть в одном календарном году'
+          Endif
+          Exit
         Endif
-        Exit
-      Endif
-    Elseif mdvozrast < 4 // до 3 лет (включительно)
-      sm1 := Round( Val( lstr( arr_DDS_etap[ i, 2, 1 ] ) + '.' + StrZero( arr_DDS_etap[ i, 2, 2 ], 2 ) ), 4 )
-      sm2 := Round( Val( lstr( arr_DDS_etap[ i, 3, 1 ] ) + '.' + StrZero( arr_DDS_etap[ i, 3, 2 ], 2 ) ), 4 )
-      sm := Round( Val( lstr( _y ) + '.' + StrZero( _m, 2 ) + StrZero( _d, 2 ) ), 4 )
-      sm_ := Round( Val( lstr( _y2 ) + '.' + StrZero( _m2, 2 ) + StrZero( _d2, 2 ) ), 4 )
-      If sm1 <= sm
-        ret_i := i
-        If sm_ <= sm2
-          lperiod := i
-          If lperiod == 1 // новорожденный
-            ls := '(новорожденный)'
-            If _m2 == 1 .or. _d2 > 29
-              lperiod := 0
-              ls := 'Ошибка! Новорожденному должно быть не более 29 дней'
+      Elseif mdvozrast < 4 // до 3 лет (включительно)
+        sm1 := Round( Val( lstr( arr_DDS_etap[ i, 2, 1 ] ) + '.' + StrZero( arr_DDS_etap[ i, 2, 2 ], 2 ) ), 4 )
+        sm2 := Round( Val( lstr( arr_DDS_etap[ i, 3, 1 ] ) + '.' + StrZero( arr_DDS_etap[ i, 3, 2 ], 2 ) ), 4 )
+        sm := Round( Val( lstr( years_begin ) + '.' + StrZero( months_begin, 2 ) + StrZero( days_begin, 2 ) ), 4 )
+        sm_ := Round( Val( lstr( years_end ) + '.' + StrZero( months_end, 2 ) + StrZero( days_end, 2 ) ), 4 )
+        If sm1 <= sm
+          ret_i := i
+          If sm_ <= sm2
+            lperiod := i
+            If lperiod == 1 // новорожденный
+              ls := '(новорожденный)'
+              If months_end == 1 .or. days_end > 29
+                lperiod := 0
+                ls := 'Ошибка! Новорожденному должно быть не более 29 дней'
+              Endif
+              Exit
+            Elseif lperiod == 16 // 2 года
+              ls := ' (2 года)'
+              If mdvozrast > 2
+                lperiod := 0
+                ls := 'Ошибка! Ребёнку в ' + lstr( yn_data ) + ' календарном году уже исполняется 3 года'
+              Endif
+              Exit
+            Elseif lperiod == 17 // 3 года
+              ls := ' (3 года)'
+              Exit
             Endif
-            Exit
-          Elseif lperiod == 16 // 2 года
-            ls := ' (2 года)'
-            If mdvozrast > 2
-              lperiod := 0
-              ls := 'Ошибка! Ребёнку в ' + lstr( yn_data ) + ' календарном году уже исполняется 3 года'
+            ls := ' ('
+            If arr_DDS_etap[ i, 2, 1 ] > 0
+              ls += lstr( arr_DDS_etap[ i, 2, 1 ] ) + ' ' + s_let( arr_DDS_etap[ i, 2, 1 ] ) + ' '
             Endif
-            Exit
-          Elseif lperiod == 17 // 3 года
-            ls := ' (3 года)'
-            Exit
+            If arr_DDS_etap[ i, 2, 2 ] > 0
+              ls += lstr( arr_DDS_etap[ i, 2, 2 ] ) + ' ' + mes_cev( arr_DDS_etap[ i, 2, 2 ] )
+            Endif
+            ls := RTrim( ls ) + ')'
+          Else
+            // ls := 'Должен быть период ' + ;
+            // iif( np_arr_1_etap()[ i, 2, 1 ] == 0, '', lstr( np_arr_1_etap()[ i, 2, 1 ] ) + 'г.' ) + ;
+            // iif( np_arr_1_etap()[ i, 2, 2 ] == 0, '', lstr( np_arr_1_etap()[ i, 2, 2 ] ) + 'мес.' ) + '-' + ;
+            // iif( np_arr_1_etap()[ i, 3, 1 ] == 0, '', lstr( np_arr_1_etap()[ i, 3, 1 ] ) + 'г.' ) + ;
+            // iif( np_arr_1_etap()[ i, 3, 2 ] == 0, '', lstr( np_arr_1_etap()[ i, 3, 2 ] ) + 'мес.' ) + ', а у Вас ' + ;
+            ls := 'Должен быть период ' + ;
+              iif( arr_DDS_etap[ i, 2, 1 ] == 0, '', lstr( arr_DDS_etap[ i, 2, 1 ] ) + 'г.' ) + ;
+              iif( arr_DDS_etap[ i, 2, 2 ] == 0, '', lstr( arr_DDS_etap[ i, 2, 2 ] ) + 'мес.' ) + '-' + ;
+              iif( arr_DDS_etap[ i, 3, 1 ] == 0, '', lstr( arr_DDS_etap[ i, 3, 1 ] ) + 'г.' ) + ;
+              iif( arr_DDS_etap[ i, 3, 2 ] == 0, '', lstr( arr_DDS_etap[ i, 3, 2 ] ) + 'мес.' ) + ', а у Вас ' + ;
+              iif( years_begin == 0, '', lstr( years_begin ) + 'г.' ) + ;
+              iif( months_begin == 0, '', lstr( months_begin ) + 'мес.' ) + ;
+              iif( days_begin == 0, '', lstr( days_begin ) + 'дн.' ) + '-' + ;
+              iif( years_end == 0, '', lstr( years_end ) + 'г.' ) + ;
+              iif( months_end == 0, '', lstr( months_end ) + 'мес.' ) + ;
+              iif( days_end == 0, '', lstr( days_end ) + 'дн.' )
           Endif
-          ls := ' ('
-          If arr_DDS_etap[ i, 2, 1 ] > 0
-            ls += lstr( arr_DDS_etap[ i, 2, 1 ] ) + ' ' + s_let( arr_DDS_etap[ i, 2, 1 ] ) + ' '
-          Endif
-          If arr_DDS_etap[ i, 2, 2 ] > 0
-            ls += lstr( arr_DDS_etap[ i, 2, 2 ] ) + ' ' + mes_cev( arr_DDS_etap[ i, 2, 2 ] )
-          Endif
-          ls := RTrim( ls ) + ')'
-        Else
-          // ls := 'Должен быть период ' + ;
-          // iif( np_arr_1_etap()[ i, 2, 1 ] == 0, '', lstr( np_arr_1_etap()[ i, 2, 1 ] ) + 'г.' ) + ;
-          // iif( np_arr_1_etap()[ i, 2, 2 ] == 0, '', lstr( np_arr_1_etap()[ i, 2, 2 ] ) + 'мес.' ) + '-' + ;
-          // iif( np_arr_1_etap()[ i, 3, 1 ] == 0, '', lstr( np_arr_1_etap()[ i, 3, 1 ] ) + 'г.' ) + ;
-          // iif( np_arr_1_etap()[ i, 3, 2 ] == 0, '', lstr( np_arr_1_etap()[ i, 3, 2 ] ) + 'мес.' ) + ', а у Вас ' + ;
-          ls := 'Должен быть период ' + ;
-            iif( arr_DDS_etap[ i, 2, 1 ] == 0, '', lstr( arr_DDS_etap[ i, 2, 1 ] ) + 'г.' ) + ;
-            iif( arr_DDS_etap[ i, 2, 2 ] == 0, '', lstr( arr_DDS_etap[ i, 2, 2 ] ) + 'мес.' ) + '-' + ;
-            iif( arr_DDS_etap[ i, 3, 1 ] == 0, '', lstr( arr_DDS_etap[ i, 3, 1 ] ) + 'г.' ) + ;
-            iif( arr_DDS_etap[ i, 3, 2 ] == 0, '', lstr( arr_DDS_etap[ i, 3, 2 ] ) + 'мес.' ) + ', а у Вас ' + ;
-            iif( _y == 0, '', lstr( _y ) + 'г.' ) + ;
-            iif( _m == 0, '', lstr( _m ) + 'мес.' ) + ;
-            iif( _d == 0, '', lstr( _d ) + 'дн.' ) + '-' + ;
-            iif( _y2 == 0, '', lstr( _y2 ) + 'г.' ) + ;
-            iif( _m2 == 0, '', lstr( _m2 ) + 'мес.' ) + ;
-            iif( _d2 == 0, '', lstr( _d2 ) + 'дн.' )
+          Exit
         Endif
-        Exit
       Endif
-    Endif
+    else
+//        If mdvozrast == arr_DDS_etap[ i, 2, 1 ]
+        If arr_DDS_etap[ i, 2, 1 ] <= mdvozrast .and. mdvozrast <= arr_DDS_etap[ i, 3, 1 ]
+          ret_i := lperiod := i
+          ls := ' (' + lstr( mdvozrast ) + ' ' + s_let( mdvozrast ) + ')'
+          If yn_data != yk_data
+            lperiod := 0
+            ls := 'Ошибка! Начало и окончание диспансеризации должны быть в одном календарном году'
+          Endif
+          Exit
+        Endif
+    endif
   Next
   Return lperiod
 
@@ -1469,14 +1496,15 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
   call_fr( 'mo_030dcu13' )
   Return Nil
 
-// 19.10.25
+// 09.11.25
 Function f4_inf_dds_karta( par, _etap, et2 )
 
   Local i, k, arr := {}
   local arr_DDS_iss, arr_DDS_osm1, arr_DDS_osm2
 
   arr_DDS_iss := iif( mk_data < 0d20250901, dds_arr_iss( mk_data ), DDS_arr_issled( mk_data ) )
-  arr_DDS_osm1 := iif( mk_data < 0d20250901, dds_arr_osm1( mk_data ), dds_arr_osm1_new( mk_data, 0, TIP_LU_DDS, 2 ) )
+//  arr_DDS_osm1 := iif( mk_data < 0d20250901, dds_arr_osm1( mk_data ), dds_arr_osm1_new( mk_data, 0, TIP_LU_DDS, 2 ) )
+  arr_DDS_osm1 := dds_arr_osm1_new( mk_data, 0, TIP_LU_DDS, 2 )
 //  arr_DDS_osm2 := iif( mk_data < 0d20250901, dds_arr_osm2( mk_data ), dds_arr_osm1_new( mk_data, 0, TIP_LU_DDS, 3 ) )
   arr_DDS_osm2 := dds_arr_osm2( mk_data, p_tip_lu )
   If par == 1
@@ -1510,8 +1538,9 @@ Function f4_inf_dds_karta( par, _etap, et2 )
         mvart := 'MTAB_NOMov' + lstr( i )
         mvard := 'MDATEo' + lstr( i )
         if mk_data < 0d20250901
-          If Between( mvozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] ) .and. ;
-              iif( Empty( arr_DDS_osm1[ i, 2 ] ), .t., arr_DDS_osm1[ i, 2 ] == mpol )
+//          If Between( mvozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] ) .and. ;
+//              iif( Empty( arr_DDS_osm1[ i, 2 ] ), .t., arr_DDS_osm1[ i, 2 ] == mpol )
+          If  iif( Empty( arr_DDS_osm1[ i, 2 ] ), .t., arr_DDS_osm1[ i, 2 ] == mpol )
             If !emptyany( &mvard, &mvart )
               AAdd( arr, { arr_DDS_osm1[ i, 1 ], &mvard, '', i, k } )
             Endif
@@ -1533,11 +1562,11 @@ Function f4_inf_dds_karta( par, _etap, et2 )
           mvart := 'MTAB_NOMov' + lstr( i )
           mvard := 'MDATEo' + lstr( i )
           if mk_data < 0d20250901
-            If !Between( mvozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] )
+//            If !Between( mvozrast, arr_DDS_osm1[ i, 3 ], arr_DDS_osm1[ i, 4 ] )
               If !emptyany( &mvard, &mvart )
                 AAdd( arr, { arr_DDS_osm1[ i, 1 ], &mvard, '', i, k } )
               Endif
-            Endif
+//            Endif
           else
             If !emptyany( &mvard, &mvart )
               AAdd( arr, { arr_DDS_osm1[ i, 1 ], &mvard, '', i, k } )

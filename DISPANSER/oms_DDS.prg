@@ -777,7 +777,8 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       Endif
     Elseif num_screen == 2
 
-      ar := DDS_arr_etap( mk_data, m1mobilbr, tip_lu )[ iif( mk_data >= 0d20250901, mperiod, mvozrast ) ] 
+//      ar := DDS_arr_etap( mk_data, m1mobilbr, tip_lu )[ iif( mk_data >= 0d20250901, mperiod, mvozrast ) ] 
+      ar := DDS_arr_etap( mk_data, m1mobilbr, tip_lu )[ mperiod ] 
       arr_DDS_issled := DDS_arr_issled( mk_data )
       If !Empty( ar[ 5 ] ) // не пустой массив исследований
         @ ++j, 1 Say 'I этап наименований исследований       Врач Ассис.  Дата     Результат' Color 'RB+/B'
@@ -855,7 +856,8 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ на 3-ю страницу' )
 
     Elseif num_screen == 3
-      ar := DDS_arr_etap( mk_data, m1mobilbr, tip_lu )[ iif( mk_data >= 0d20250901, mperiod, mvozrast ) ]
+//      ar := DDS_arr_etap( mk_data, m1mobilbr, tip_lu )[ iif( mk_data >= 0d20250901, mperiod, mvozrast ) ]
+      ar := DDS_arr_etap( mk_data, m1mobilbr, tip_lu )[ mperiod ]
       @ ++j, 1 Say 'II этап диспансеризации детей-сирот и детей, находящихся в тяжелой жизненной'
       @ ++j, 1 Say 'ситуации. Выберите, необходимо вводить врачебные осмотры II этапа?' Get mstep2 ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
@@ -1496,20 +1498,24 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       if mk_data < 0d20250901
-        For i := 7 To 8 // стоматолог и эндокринолог на 2 этапе
+//        For i := 7 To 8 // стоматолог и эндокринолог на 2 этапе
+        For i := 1 To Len( dds_arr_osm1( mk_data ) )
           mvart := 'MTAB_NOMov' + lstr( i )
           mvara := 'MTAB_NOMoa' + lstr( i )
           mvard := 'MDATEo' + lstr( i )
 //          mvarz := 'MKOD_DIAGo' + lstr( i )
-          If !Between( mvozrast, dds_arr_osm1()[ i, 3 ], dds_arr_osm1()[ i, 4 ] )
+//          If !Between( mvozrast, dds_arr_osm1()[ i, 3 ], dds_arr_osm1()[ i, 4 ] )
             If !Empty( &mvard ) .and. Empty( &mvart )
-              fl := func_error( 4, 'Не введен врач в осмотре II этапа  "' + dds_arr_osm1()[ i, 1 ] + '"' )
+//              fl := func_error( 4, 'Не введен врач в осмотре II этапа  "' + dds_arr_osm1()[ i, 1 ] + '"' )
+              fl := func_error( 4, 'Не введен врач в осмотре II этапа  "' + dds_arr_osm1( mk_data )[ i, 3 ] + '"' )
             Elseif !Empty( &mvart ) .and. Empty( &mvard )
-              fl := func_error( 4, 'Не введена дата осмотра II этапа "' + dds_arr_osm1()[ i, 1 ] + '"' )
+//              fl := func_error( 4, 'Не введена дата осмотра II этапа "' + dds_arr_osm1()[ i, 1 ] + '"' )
+              fl := func_error( 4, 'Не введена дата осмотра II этапа "' + dds_arr_osm1( mk_data )[ i, 3 ] + '"' )
             Elseif !emptyany( &mvard, &mvart )
               metap := 2
               if &mvard < max_date1
-                fl := func_error( 4, 'Дата осмотра II этапа "' + dds_arr_osm1()[ i, 1 ] + '" внутри I этапа' )
+//                fl := func_error( 4, 'Дата осмотра II этапа "' + dds_arr_osm1()[ i, 1 ] + '" внутри I этапа' )
+                fl := func_error( 4, 'Дата осмотра II этапа "' + dds_arr_osm1( mk_data )[ i, 3 ] + '" внутри I этапа' )
               Endif
               p2->( dbSeek( Str( &mvart, 5 ) ) )
               If p2->( Found() )
@@ -1536,7 +1542,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
               arr_osm1[ i, 9 ] := &mvard
               max_date2 := Max( max_date2, arr_osm1[ i, 9 ] )
             Endif
-          Endif
+//          Endif
           If !fl
             exit
           Endif
