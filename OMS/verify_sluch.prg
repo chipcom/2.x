@@ -6,7 +6,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 27.10.25
+// 10.11.25
 Function verify_sluch( fl_view )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -19,7 +19,7 @@ Function verify_sluch( fl_view )
   local yearEnd // год даты окончания случая
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
     i, j, jk, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
-    a_period_amb := {}, a_1_11, u_1_stom := '', lprofil, ;
+    a_period_amb, a_1_11, u_1_stom := '', lprofil, ;
     lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[ 2 ], ltip, lkol, ;
     a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0, ;
     lal, lalf
@@ -44,6 +44,7 @@ Function verify_sluch( fl_view )
   Local vozrast, lu_type
   Local kol_dney  // количество дней лечения
   Local is_2_92_ := .f. // наличие услуг школ сахарного диабета или ХНИЗ
+  local is_period_amb
   Local shifr_2_92 := ''  // шифр услуги из группы школ диабета и ХНИЗ
   Local kol_2_93_1 := 0  // кол-во услуг школы диабета, письмо 12-20-154 от 28.04.23
   Local kol_2_93_2 := 0 // кол-во услуг школы больных ХНИЗ, письмо 12-20-313 от 09.06.25
@@ -74,6 +75,7 @@ Function verify_sluch( fl_view )
 
   private mk_data
 
+  a_period_amb := {}
   mIDPC := ''
   rec_human := human->( RecNo() )
 
@@ -539,13 +541,18 @@ Function verify_sluch( fl_view )
               AAdd( a_dializ, { human->n_data, human->k_data, human_->USL_OK, human->OTD, 3 } ) // диализы не в кругл.стационаре
               Exit
             Endif
+            if eq_any( lshifr, '2.92.1', '2.92.2', '2.92.3' ) .or. ;
+                eq_any( lshifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12', '2.92.13' )
+              is_2_92_ := .t.
+            endif
           Endif
         Endif
         Select HU
         Skip
       Enddo
       If is_period_amb
-        AAdd( a_period_amb, { human->n_data, human->k_data, human_->profil, human->OTD, human->( RecNo() ) } )
+        AAdd( a_period_amb, { human->n_data, human->k_data, human_->profil, human->OTD, human->( RecNo() ), is_2_92_ } )
+        is_2_92_ := .f.
       Endif
       Select MOHU
       find ( Str( human->kod, 7 ) )
@@ -2735,7 +2742,8 @@ Function verify_sluch( fl_view )
     .and. Len( a_period_amb ) > 0
     For i := 1 To Len( a_period_amb )
 //      If a_period_amb[ i, 3 ] == human_->profil .and. ! ( human_->profil == 122 .or. human_->profil == 21 ) // кроме эндокринологии 
-      If a_period_amb[ i, 3 ] == human_->profil .and. ! ( eq_any( human_->profil, 122, 21, 97, 11, 29, 17, 53, 56, 68, 75, 4, 100 ) ) // кроме эндокринологии 
+      If a_period_amb[ i, 3 ] == human_->profil .and. ! ( eq_any( human_->profil, 122, 21, 97, 11, 29, 17, 53, 56, 68, 75, 4, 100 ) ) ;// кроме эндокринологии 
+          .and. ! ( a_period_amb[ i, 6 ] .or. is_2_92_ )  // школы ХНИЗ исключаем
         AAdd( ta, 'данный случай пересекается со случаем амбулаторного лечения' )
         otd->( dbGoto( a_period_amb[ i, 4 ] ) )
         AAdd( ta, '└>с тем же профилем ' + ;
