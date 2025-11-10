@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 29.10.25 ПН - добавление или редактирование случая (листа учета)
+// 10.11.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -1252,8 +1252,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
           reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
         @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
-          reader {| x| menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
-          when m1ds_onk == 0
+          reader {| x| menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }   // when m1ds_onk == 0
       Endif
       dispans_napr( mk_data, @j, .f. )  // вызов заполнения блока направлений
 

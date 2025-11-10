@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 29.10.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 10.11.25 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -720,11 +720,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       @ ++j, 1 say 'Признак подозрения на злокачественное новообразование' get mDS_ONK ;
         reader { | x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
       @ ++j, 1 say 'Направления при подозрении на ЗНО' get mnapr_onk ;
-        reader { | x | menu_reader( x, { { | k, r, c | fget_napr_ZNO( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
-        when m1ds_onk == 0
+        reader { | x | menu_reader( x, { { | k, r, c | fget_napr_ZNO( k, r, c ) } }, A__FUNCTION, , , .f. ) }   //  when m1ds_onk == 0
 
       @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) } when m1ds_onk == 0
+        reader {| x | menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }  //  when m1ds_onk == 0
 
       dispans_napr( mk_data, @j, .t., .t. )  // вызов заполнения блока направлений
 
@@ -732,7 +731,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
       @ ++j, 1 Say 'ГРУППА состояния ЗДОРОВЬЯ'
       @ j, Col() + 1 Get mGRUPPA ;
-        reader {| x | menu_reader( x, iif( m1DS_ONK == 0, mm_gruppa, mm_gruppaD2 ), A__MENUVERT,,, .f. ) }
+        reader {| x | menu_reader( x, mm_gruppa, A__MENUVERT,,, .f. ) }
+//        reader {| x | menu_reader( x, iif( m1DS_ONK == 0, mm_gruppa, mm_gruppaD2 ), A__MENUVERT,,, .f. ) }
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ ЗАПИСЬ' )
     Endif
     DispEnd()

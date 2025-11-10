@@ -440,7 +440,7 @@ Function change_num_napr()
   SetCursor()
   Return update_gets()
 
-// 29.10.25 блок направлений после диспансеризации
+// 10.11.25 блок направлений после диспансеризации
 Function dispans_napr( mk_data, /*@*/j, lAdult, lFull ) 
 
   // mk_data - дата окончания случая диспансеризации
@@ -454,6 +454,7 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull )
   default lFull to .f.
 
   If mk_data >= 0d20210801  // по новому ПУМП
+/*
     if m1DS_ONK == 1  // подозрение на ЗНО - да
       // дополнительное рбследования
       mdopo_na := ''
@@ -481,16 +482,17 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull )
 //      update_get( 'mdopo_na' )
 //      update_get( 'mtab_v_dopo_na' )
     endif
+*/
     @ j, 74 Say 'Врач'
     @ ++j, 1 Say Replicate( '─', 78 ) Color color1
     // направление на дополниельное обследование
     mdopo_na := iif( Len( mdopo_na ) > 0, SubStr( mdopo_na, 1, 31 ), '' )
     @ ++j, 1 Say 'Направлен на дополнительное обследование' Get mdopo_na ;
       reader {| x| menu_reader( x, mm_dopo_na, A__MENUBIT, , , .f. ) } ;
-      valid {|| iif( m1dopo_na == 0, mtab_v_dopo_na := 0, ), update_get( 'mtab_v_dopo_na' ) } when m1DS_ONK == 0
+      valid {|| iif( m1dopo_na == 0, mtab_v_dopo_na := 0, ), update_get( 'mtab_v_dopo_na' ) }   //  when m1DS_ONK == 0
     @ j, 73 Get mtab_v_dopo_na Pict '99999' ;
       valid {| g| iif( ( mtab_v_dopo_na == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
-      When m1dopo_na > 0 .and. m1DS_ONK == 0
+      When m1dopo_na > 0  // .and. m1DS_ONK == 0
     // направление в медицинскую организацию
     @ ++j, 1 Say 'Направлен' Get mnapr_v_mo ;
       reader {| x| menu_reader( x, mm_napr_v_mo, A__MENUVERT, , , .f. ) } ;
@@ -514,27 +516,24 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull )
     // направление в стационар
     @ ++j, 1 Say 'Направлен на лечение' Get mnapr_stac ;
       reader {| x| menu_reader( x, mm_napr_stac, A__MENUVERT, , , .f. ) } ;
-      valid {|| iif( m1napr_stac == 0, ( m1profil_stac := 0, mtab_v_stac := 0, mprofil_stac := Space( 32 ) ), ), update_get( 'mprofil_stac' ) } ;
-      when m1DS_ONK == 0
+      valid {|| iif( m1napr_stac == 0, ( m1profil_stac := 0, mtab_v_stac := 0, mprofil_stac := Space( 32 ) ), ), update_get( 'mprofil_stac' ) }   //  when m1DS_ONK == 0
     mprofil_stac := iif( Len( mprofil_stac ) > 0, SubStr( mprofil_stac, 1, 27 ), '' )
     @ j, Col() + 1 Say 'по профилю' Get mprofil_stac Picture '@S27' ;
-      reader {| x| menu_reader( x, getv002(), A__MENUVERT, , , .f. ) } ;
-      When m1napr_stac > 0 .and. m1DS_ONK == 0
+      reader {| x| menu_reader( x, getv002(), A__MENUVERT, , , .f. ) }  //  When m1napr_stac > 0 .and. m1DS_ONK == 0
     @ j, 73 Get mtab_v_stac Pict '99999' ;
       valid {| g| iif( ( mtab_v_stac == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
-      When m1napr_stac > 0 .and. m1DS_ONK == 0
+      When m1napr_stac > 0  //  .and. m1DS_ONK == 0
     // направлен на реабилитацию
     @ ++j, 1 Say 'Направлен на реабилитацию' Get mnapr_reab ;
       reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
-      valid {|| iif( m1napr_reab == 0, ( m1profil_kojki := 0, mtab_v_reab := 0, mprofil_kojki := Space( 30 ) ), ), update_get( 'mprofil_kojki' ) } ;
-      when m1DS_ONK == 0
+      valid {|| iif( m1napr_reab == 0, ( m1profil_kojki := 0, mtab_v_reab := 0, mprofil_kojki := Space( 30 ) ), ), update_get( 'mprofil_kojki' ) }  //  when m1DS_ONK == 0
     mprofil_kojki := iif( Len( mprofil_kojki ) > 0, SubStr( mprofil_kojki, 1, 25 ), '' )
     @ j, Col() + 1 Say ', профиль койки' Get mprofil_kojki ;
       reader {| x| menu_reader( x, getv020(), A__MENUVERT, , , .f. ) } ;
-      When m1napr_reab > 0 .and. m1DS_ONK == 0
+      When m1napr_reab > 0  //  .and. m1DS_ONK == 0
     @ j, 73 Get mtab_v_reab Pict '99999' ;
       valid {| g| iif( ( mtab_v_reab == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
-      When m1napr_reab > 0 .and. m1DS_ONK == 0
+      When m1napr_reab > 0  //  .and. m1DS_ONK == 0
     // направлен на санаторно-курортное лечение
     If lAdult
       @ ++j, 1 Say 'Направлен на санаторно-курортное лечение' Get msank_na ;
@@ -542,7 +541,7 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull )
         valid {|| iif( m1sank_na == 0, mtab_v_sanat := 0, ), update_get( 'mtab_v_sank' ) } when m1DS_ONK == 0
       @ j, 73 Get mtab_v_sanat Pict '99999' ;
         valid {| g| iif( ( mtab_v_sanat == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
-        when m1sank_na > 0 .and. m1DS_ONK == 0
+        when m1sank_na > 0  //  .and. m1DS_ONK == 0
     Endif
   Else  // по старым правилам ПУМП
     @ ++j, 1 Say 'Направлен на дополнительное обследование' Get mdopo_na ;
