@@ -313,13 +313,13 @@ Function f_create_r11()
   Return Nil
 
 // 09.02.20 переопределить все три первичных ключа в картотеке
-Static Function f0_create_r11( sgod )
+Function f0_create_r11( s_god )
 
   Local fl, v, ltip := 0, ltip1 := 0, lvoz := 0, lgod_r
 
   If !emptyany( kart->kod, kart->fio, kart->date_r ) // данную запись в картотеке недавно удалили
     lgod_r := Year( kart->date_r )
-    v := sgod - lgod_r
+    v := s_god - lgod_r
     If ( fl := ( v > 17 ) ) // только взрослое население
       lvoz := 4
       ltip1 := 0
@@ -837,11 +837,13 @@ close databases
 return NIL
 */
 
-// 25.02.21
+// 12.11.25
 Function f32_view_r11( lm )
 
   Local fl := .t., buf := save_maxrow(), k := 0, skol[ 5, 3 ], ames[ 12, 5, 3 ], mrec := 2, n_file := cur_dir() + 'r11_itog.txt', ;
     arr_rees := {}, mkod_reestr := 0
+  local i, j, j1
+
   Private par := .f.
 
   afillall( skol, 0 )
@@ -891,7 +893,7 @@ Function f32_view_r11( lm )
     mkod_reestr := arr_rees[ k ]
     Select RHUM
     find ( Str( mkod_reestr, 6 ) )
-    Do While rhum->reestr == mkod_reestr .and. !Eof()
+    Do While rhum->reestr == mkod_reestr .and. ! rhum->( Eof() )
       If rhum->OPLATA < 2
         i := lm
         j := rhum->tip
@@ -924,7 +926,9 @@ Function f32_view_r11( lm )
     Next
   Endif
   //
-  fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
+  fp := FCreate( n_file )
+  tek_stroke := 0
+  n_list := 1
   add_string( '' )
   add_string( Center( 'Общая информация (R11)', 80 ) )
   add_string( '' )
@@ -958,11 +962,11 @@ Function f32_view_r11( lm )
 
   Return Nil
 
-// 14.12.23 проверить, есть ли не до конца обработанные операции с файлами R11...
+// 12.11.25 проверить, есть ли не до конца обработанные операции с файлами R11...
 // перенесен в MO_R11
 Function find_unfinished_r11()
 
-  Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t.
+  Local fl := .t., skol := 0, mkol := 0, arr := {}, fl_date := .t.
 
 
   Private mrec := 1, smonth := MONTH_UPLOAD // МЕСЯЦ для выгрузки R11
@@ -977,8 +981,9 @@ Function find_unfinished_r11()
       Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_xml' ) For FIELD->tip_in == _XML_FILE_R12 .and. Empty( FIELD->TIP_OUT )
       r_use( dir_server() + 'mo_dr01',, 'REES' )
       Index On Str( FIELD->nn, 3 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == YEAR_UPLOAD_DISPANSER .and. FIELD->NMONTH == smonth .and. FIELD->tip == 1
-      Go Top
-      Do While fl .and. !Eof()
+//      Go Top
+      rees->( dbGoTop() )
+      Do While fl .and. ! rees->( Eof() )
         If rees->kol_err < 0
           fl := .f.
           AAdd( arr, 'В файле PR11 за ' + lstr( rees->NMONTH ) + '-й месяц ' + lstr( YEAR_UPLOAD_DISPANSER ) + 'г. ошибки на уровне файла' )
@@ -987,15 +992,15 @@ Function find_unfinished_r11()
           AAdd( arr, 'Файл PR11 за ' + lstr( rees->NMONTH ) + '-й месяц ' + lstr( YEAR_UPLOAD_DISPANSER ) + ' года не был прочитан' )
         Else
           mkol += ( rees->KOL - rees->KOL_ERR )
-          Select MO_XML
-          find ( Str( rees->kod, 6 ) )
-          If Found() .and. Empty( mo_xml->TWORK2 )
+//          Select MO_XML
+          mo_xml->( dbSeek( Str( rees->kod, 6 ) ) ) //find ( Str( rees->kod, 6 ) )
+          If mo_xml->( Found() ) .and. Empty( mo_xml->TWORK2 )
             fl := .f.
             AAdd( arr, 'Прервано чтение файла ' + AllTrim( mo_xml->FNAME ) + '! Аннулируйте (Ctrl+F12) и прочитайте снова' )
           Endif
         Endif
-        Select REES
-        Skip
+//        Select REES
+        rees->( dbSkip() )  //  Skip
       Enddo
       If fl .and. skol != mkol
         fl := .f.

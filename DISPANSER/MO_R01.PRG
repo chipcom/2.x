@@ -81,7 +81,8 @@ Function fff_init_r01()
 // 23.12.23 Создание файла обмена R05...
 Function f_create_r05()
 
-  Local buf := save_maxrow(), i, fl
+  Local buf := save_maxrow()
+
   Private mdate, mkol1 := 0, mkol2 := 0, mkol11 := 0, mkol12 := 0, mkol13 := 0, ;
     mrec, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ]
   Private sgod := YEAR_UPLOAD_DISPANSER
@@ -95,7 +96,7 @@ Function f_create_r05()
   Goto ( mrec )
   If Empty( r05p->n_y )
     mdate := r05p->D_KZ := 0d20241220                           // ------------------------ЮЮ
-    r05p->N_Y := sgod // год для диспансеризации
+    r05p->N_Y := YEAR_UPLOAD_DISPANSER // год для диспансеризации
     r05p->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
     r05p->KOL1 := 0 // количество пациентов для диспансеризации на год
     r05p->KOL2 := 0 // количество пациентов для профосмотров на год
@@ -120,10 +121,11 @@ Function f_create_r05()
   mas_pmt := { 'План-график на ~год', ;
     'План-график по ~месяцам', ;
     '~Создание файла обмена' }
-  mas_msg := { 'Ввод/редактирование плана-графика диспансеризации на ' + lstr( sgod ) + ' год', ;
+  mas_msg := { 'Ввод/редактирование плана-графика диспансеризации на ' + lstr( YEAR_UPLOAD_DISPANSER ) + ' год', ;
     'Ввод/редактирование плана-графика с разбивкой по месяцам', ;
     'Создание файла обмена R05 с планом-графиком по месяцам и участкам' }
-  mas_fun := { 'f1_create_R05()', ;
+  mas_fun := { ;
+    'f1_create_R05()', ;
     'f2_create_R05()', ;
     'f3_create_R05()' }
   popup_prompt( T_ROW, T_COL - 5, 1, mas_pmt, mas_msg, mas_fun )
@@ -135,9 +137,10 @@ Function f_create_r05()
 Function f1_create_r05()
 
   Local r1 := 13, buf, buf24 := save_maxrow(), tmp_color := SetColor( cDataCGet )
+
   Private skol1 := 0, skol2 := 0, skol11 := 0, skol12 := 0, skol13 := 0
 
-  buf := box_shadow( r1, 2, MaxRow() -2, 77,, 'План-график на ' + lstr( sgod ) + ' год', color8 )
+  buf := box_shadow( r1, 2, MaxRow() -2, 77,, 'План-график на ' + lstr( YEAR_UPLOAD_DISPANSER ) + ' год', color8 )
   Do While .t.
     @ r1 + 1, 54 Say '| прикреплённое' Color color14
     @ r1 + 2, 4 Say 'Приказ КЗ ВО № 3593 от' Get mdate When .f.
@@ -191,7 +194,7 @@ Function f1_create_r05()
         Goto ( mrec )
         g_rlock( forever )
         If Empty( r05p->n_y )
-          r05p->N_Y := sgod // год для диспансеризации
+          r05p->N_Y := YEAR_UPLOAD_DISPANSER // год для диспансеризации
         Endif
         r05p->KOL1 := mkol1
         r05p->KOL11 := mkol11
@@ -224,7 +227,7 @@ Function f_pereschet_R05
   Go Top
   Do While !Eof()
     @ MaxRow(), 0 Say Str( RecNo() / LastRec() * 100, 6, 2 ) + '%' Color cColorWait
-    If ( v := sgod - Year( kart->date_r ) ) > 17 .and. v < 100 ; // взрослый
+    If ( v := YEAR_UPLOAD_DISPANSER - Year( kart->date_r ) ) > 17 .and. v < 100 ; // взрослый
       .and. kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] ; // прикреплён к нашей МО
       .and. !( Left( kart2->PC2, 1 ) == '1' ) // и не умер
       s := Upper( kart->fio ) + ' '
@@ -274,7 +277,8 @@ Function f2_create_r05()
   skol[ 3 ] := r05p->KOL11
   skol[ 4 ] := r05p->KOL12
   skol[ 5 ] := r05p->KOL13
-  dbCreate( 'tmp1', { { 'MES',   'N', 2, 0 }, ;  // месяц
+  dbCreate( 'tmp1', { ;
+    { 'MES',   'N', 2, 0 }, ;  // месяц
     { 'kol1',  'N', 6, 0 }, ;
     { 'kol11',  'N', 6, 0 }, ;
     { 'kol12',  'N', 6, 0 }, ;
@@ -432,7 +436,7 @@ Function f2_create_r05()
   t_arr[ BR_LEFT ] := 0
   t_arr[ BR_RIGHT ] := 74
   t_arr[ BR_COLOR ] := color5
-  t_arr[ BR_TITUL ] := 'План-график на ' + lstr( sgod ) + ' год'
+  t_arr[ BR_TITUL ] := 'План-график на ' + lstr( YEAR_UPLOAD_DISPANSER ) + ' год'
   t_arr[ BR_TITUL_COLOR ] := 'B/W'
   t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/W,W+/N,B/W,W+/B,R/W,W+/R', .t. }
   blk1 := {|| iif( ver_f2_create_r05( tmp1->mes ), { 3, 4 }, { 5, 6 } ) }
@@ -648,7 +652,7 @@ Function f3_create_r05()
       Endif
     Next
     If emptyall( skol[ 1 ], skol[ 2 ] )
-      fl := func_error( 4, 'Не введён план-график на ' + lstr( sgod ) + ' год' )
+      fl := func_error( 4, 'Не введён план-график на ' + lstr( YEAR_UPLOAD_DISPANSER ) + ' год' )
     Endif
     For i := 1 To 12
       For j := 1 To 5
@@ -664,11 +668,11 @@ Function f3_create_r05()
     r05p->( dbCloseArea() )
   Endif
   If fl .and. emptyall( ekol[ 1 ], ekol[ 2 ] )
-    fl := func_error( 4, 'Не введена разбивка по месяцам плана-график на ' + lstr( sgod ) + ' год' )
+    fl := func_error( 4, 'Не введена разбивка по месяцам плана-график на ' + lstr( YEAR_UPLOAD_DISPANSER ) + ' год' )
   Endif
   If fl .and. !( skol[ 1 ] == ekol[ 1 ] .and. skol[ 2 ] == ekol[ 2 ] .and. skol[ 3 ] == ekol[ 3 ] ;
       .and. skol[ 4 ] == ekol[ 4 ] .and. skol[ 5 ] == ekol[ 5 ] )
-    fl := func_error( 4, 'Разбивка по месяцам в сумме не равна плану-графику на ' + lstr( sgod ) + ' год' )
+    fl := func_error( 4, 'Разбивка по месяцам в сумме не равна плану-графику на ' + lstr( YEAR_UPLOAD_DISPANSER ) + ' год' )
   Endif
   If fl
     // !!! ВНИМАНИЕ
@@ -714,7 +718,7 @@ Function f3_create_r05()
         find ( StrZero( uv->uch, 2 ) )
         Do While uv->uch == kart->uchast .and. !Eof()
           updatestatus()
-          If Year( kart->date_r ) + 17 < sgod .and. !kart2->( Eof() .and. !( Left( kart2->PC2, 1 ) == '1' ) );
+          If Year( kart->date_r ) + 17 < YEAR_UPLOAD_DISPANSER .and. !kart2->( Eof() .and. !( Left( kart2->PC2, 1 ) == '1' ) );
               .and. kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ]
             auch[ i, 2 ] ++
           Endif
@@ -754,7 +758,7 @@ Function f3_create_r05()
       rees->KOD    := RecNo()
       rees->REC_5P := mrec // номер записи в файле mo_dr05p
       rees->DSCHET := sys_date
-      rees->NYEAR  := sgod
+      rees->NYEAR  := YEAR_UPLOAD_DISPANSER
       rees->NN     := r05_nn + 1
       s := 'R05' + 'T34M' + CODE_LPU + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + '00' + StrZero( rees->NN, nsh )
       rees->NAME_XML := s
@@ -837,7 +841,7 @@ Function f3_create_r05()
               v := 2
             Endif
             rhum->voz := v // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-прочие
-            rhum->N_Y := sgod // год для диспансеризации
+            rhum->N_Y := YEAR_UPLOAD_DISPANSER // год для диспансеризации
             rhum->N_M := i // месяц для диспансеризации (1-12)
             rhum->UCH := aumes[ i, j, k, 1 ] // номер участка (для отсылки в ТФОМС)
             rhum->REC_5P := mrec // номер записи в файле mo_dr05p
@@ -1488,7 +1492,7 @@ Function verify_packet_r05( par, arr, /*@*/ret_nn )
   r_use( dir_server() + 'mo_xml',, 'MO_XML' )
   Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_xml' ) For FIELD->tip_in == _XML_FILE_R06 .and. Empty( FIELD->TIP_OUT )
   r_use( dir_server() + 'mo_dr05',, 'R05' )
-  Index On Str( FIELD->REC_5P, 3 ) + Str( 1000 - FIELD->nn, 4 ) to ( cur_dir() + 'tmp_r05' ) For FIELD->nyear == sgod
+  Index On Str( FIELD->REC_5P, 3 ) + Str( 1000 - FIELD->nn, 4 ) to ( cur_dir() + 'tmp_r05' ) For FIELD->nyear == YEAR_UPLOAD_DISPANSER
   find ( Str( mrec, 3 ) )
   If Found()
     is_reestr := .t.
@@ -1568,16 +1572,16 @@ Function f_create_r01()
     Select MO_XML
     Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_xml' ) For FIELD->tip_in == _XML_FILE_R02 .and. Empty( FIELD->TIP_OUT )
     r_use( dir_server() + 'mo_dr01',, 'REES' )
-    Index On Str( FIELD->nn, 3 ) + Str( FIELD->NMONTH, 2 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == sgod .and. FIELD->tip == 0
+    Index On Str( FIELD->nn, 3 ) + Str( FIELD->NMONTH, 2 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == YEAR_UPLOAD_DISPANSER .and. FIELD->tip == 0
     Go Top
     Do While !Eof()
       fl1 := .t.
       If rees->kol_err < 0
         // fl := func_error(4,'В файле R02 за '+lstr(rees->NMONTH)+'-й месяц '+;
-        // lstr(sgod)+'г. ошибки на уровне файла! Операция запрещена')
+        // lstr(YEAR_UPLOAD_DISPANSER)+'г. ошибки на уровне файла! Операция запрещена')
       Elseif Empty( rees->answer )
         fl := func_error( 4, 'Файл PR01 за ' + lstr( rees->NMONTH ) + '-й месяц ' + ;
-          lstr( sgod ) + ' года не был прочитан! Операция запрещена' )
+          lstr( YEAR_UPLOAD_DISPANSER ) + ' года не был прочитан! Операция запрещена' )
       Else
         Select MO_XML
         find ( Str( rees->kod, 6 ) )
@@ -1682,7 +1686,7 @@ Function f_create_r01()
             fl_exit := .t. ; Exit
           Endif
           If kart->kod > 0
-            f0_create_r01( sgod, @c_view, @c_found )
+            f0_create_r01( YEAR_UPLOAD_DISPANSER, @c_view, @c_found )
           Endif
           Select KART
           Skip
@@ -1776,7 +1780,7 @@ Function f_create_r01()
   If fl
     If fl1
       If emptyall( ame[ 1 ], ame[ 2 ], ame[ 3 ], ame[ 4 ], ame[ 5 ], ame[ 6 ], ame[ 7 ], ame[ 8 ], ame[ 9 ], ame[ 10 ], ame[ 11 ], ame[ 12 ] )
-        func_error( 4, 'Больше нет необходимости создавать файлы R01 за ' + lstr( sgod ) + ' год' )
+        func_error( 4, 'Больше нет необходимости создавать файлы R01 за ' + lstr( YEAR_UPLOAD_DISPANSER ) + ' год' )
       Else
         f1_create_r01()
       Endif
@@ -1790,19 +1794,19 @@ Function f_create_r01()
   Return Nil
 
 // 18.12.19
-Static Function f0_create_r01( sgod, cv, cf )
+Static Function f0_create_r01( s_god, cv, cf )
 
   Local fl, v, ltip, ltip1, lvoz, ag, lgod_r, s
 
   ++cv
   If ( fl := ( kart2->MO_PR == CODE_LPU ) ) // прикреплён к нашей МО
     lgod_r := Year( kart->date_r )
-    v := sgod - lgod_r
+    v := s_god - lgod_r
     If ( fl := ( v > 17 ) ) // только взрослое население
       Select HUMAN
       find ( Str( kart->kod, 7 ) )
       Do While human->kod_k == kart->kod .and. !Eof()
-        If Between( human->ishod, 201, 203 ) .and. Year( human->k_data ) == sgod
+        If Between( human->ishod, 201, 203 ) .and. Year( human->k_data ) == s_god
           fl := .f. ; Exit // в этом году была диспансеризация или профилактика
         Endif
         Skip
@@ -1916,7 +1920,7 @@ Function f1_create_r01()
   g_use( dir_server() + 'mo_dr01k',, 'RHUM' )
   Index On Str( FIELD->REESTR, 6 ) to ( cur_dir() + 'tmp_rhum' )
   g_use( dir_server() + 'mo_dr01',, 'REES' )
-  Index On Str( FIELD->NMONTH, 2 ) + Str( FIELD->nn, 3 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == sgod .and. FIELD->tip == 0
+  Index On Str( FIELD->NMONTH, 2 ) + Str( FIELD->nn, 3 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == YEAR_UPLOAD_DISPANSER .and. FIELD->tip == 0
   For SMONTH := 1 To 12
     find ( Str( SMONTH, 2 ) )
     Do While SMONTH == rees->NMONTH .and. !Eof()
@@ -1945,7 +1949,7 @@ Function f1_create_r01()
     addrecn()
     rees->KOD    := RecNo()
     rees->DSCHET := sys_date
-    rees->NYEAR  := sgod
+    rees->NYEAR  := YEAR_UPLOAD_DISPANSER
     rees->NMONTH := SMONTH
     rees->NN     := arr_nn[ SMONTH ] + 1
     s := 'R01' + 'T34M' + CODE_LPU + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + StrZero( rees->NMONTH, 2 ) + StrZero( rees->NN, nsh )
@@ -3234,8 +3238,8 @@ Function f1_delete_reestr_r01( nKey, oBrow, regim )
 // 14.12.23 проверить, есть ли не до конца обработанные операции с файлами R01...
 Function find_unfinished_r01()
 
-  Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t., vrem := 0
-  Private sgod := YEAR_UPLOAD_DISPANSER, mrec := 1
+  Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t., vrem := 0, mrec := 1
+  Private sgod := YEAR_UPLOAD_DISPANSER
 
   If glob_mo[ _MO_IS_UCH ]
     If ( fl := verify_packet_r05( 2, arr ) )
@@ -3252,15 +3256,15 @@ Function find_unfinished_r01()
       Select MO_XML
       Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_xml' ) For FIELD->tip_in == _XML_FILE_R02 .and. Empty( FIELD->TIP_OUT )
       r_use( dir_server() + 'mo_dr01',, 'REES' )
-      Index On Str( FIELD->nn, 3 ) + Str( FIELD->NMONTH, 2 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == sgod .and. FIELD->tip == 0
+      Index On Str( FIELD->nn, 3 ) + Str( FIELD->NMONTH, 2 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == YEAR_UPLOAD_DISPANSER .and. FIELD->tip == 0
       Go Top
       Do While fl .and. !Eof()
         If rees->kol_err < 0
           fl := .f.
-          AAdd( arr, 'В файле PR01 за ' + lstr( rees->NMONTH ) + '-й месяц ' + lstr( sgod ) + 'г. ошибки на уровне файла' )
+          AAdd( arr, 'В файле PR01 за ' + lstr( rees->NMONTH ) + '-й месяц ' + lstr( YEAR_UPLOAD_DISPANSER ) + 'г. ошибки на уровне файла' )
         Elseif Empty( rees->answer )
           fl := .f.
-          AAdd( arr, 'Файл PR01 за ' + lstr( rees->NMONTH ) + '-й месяц ' + lstr( sgod ) + ' года не был прочитан' )
+          AAdd( arr, 'Файл PR01 за ' + lstr( rees->NMONTH ) + '-й месяц ' + lstr( YEAR_UPLOAD_DISPANSER ) + ' года не был прочитан' )
         Else
           If rees->NMONTH > 3
             mkol += ( rees->KOL - rees->KOL_ERR )
@@ -3295,8 +3299,10 @@ Function find_unfinished_r01()
 // 14.12.23
 Function find_new_r00()
 
-  Private c_view := 0, c_found := 0, sgod := YEAR_UPLOAD_DISPANSER, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ]
+  Private c_view := 0, c_found := 0, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ]
   Private _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 ), mkol := { 0, 0, 0, 0, 0 }
+  
+  Private sgod := YEAR_UPLOAD_DISPANSER
 
   status_key( '^<Esc>^ - прервать поиск' )
   hGauge := gaugenew(,,, 'Поиск пациентов, подлежащих дисп-ии/профосмотрам', .t. )
@@ -3317,7 +3323,7 @@ Function find_new_r00()
       Select tmp
       find( Str( kart->kod, 7 ) )
       If !Found()
-        f0_create_new_r01( sgod, @c_view, @c_found )
+        f0_create_new_r01( YEAR_UPLOAD_DISPANSER, @c_view, @c_found )
       Endif
     Endif
     Select KART
@@ -3330,14 +3336,14 @@ Function find_new_r00()
   Return Nil
 
 // 26.07.23
-Static Function f0_create_new_r01( sgod, cv, cf )
+Static Function f0_create_new_r01( s_god, cv, cf )
 
   Local fl, v, ltip, ltip1, lvoz, ag, lgod_r, s
 
   ++cv
   If ( fl := ( kart2->MO_PR == CODE_LPU ) ) // прикреплён к нашей МО
     lgod_r := Year( kart->date_r )
-    v := sgod - lgod_r
+    v := s_god - lgod_r
     If ( fl := ( v > 17 ) ) // только взрослое население
       If fl
         lvoz := 4
@@ -3404,8 +3410,10 @@ Function find_new_r000()
   { 'REESTR',     'N', 6, 0 };  // код реестра по файлу 'mo_dr01'
     }
   Local n_file := cur_dir() + 'r01_itog.txt', sh := 120
-  Private c_view := 0, c_found := 0, sgod := YEAR_UPLOAD_DISPANSER, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ]
+
+  Private c_view := 0, c_found := 0, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ]
   Private _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 ), mkol := { 0, 0, 0, 0, 0 }
+  private sgod := YEAR_UPLOAD_DISPANSER
 
   status_key( '^<Esc>^ - прервать поиск' )
   hGauge := gaugenew(,,, 'Поиск пациентов, подлежащих дисп-ии/профосмотрам', .t. )
@@ -3428,7 +3436,7 @@ Function find_new_r000()
       Select tmp
       find( Str( kart->kod, 7 ) )
       If !Found()
-        f0_create_new_r01_0( sgod, @c_view, @c_found )
+        f0_create_new_r01_0( YEAR_UPLOAD_DISPANSER, @c_view, @c_found )
       Endif
     Endif
     Select KART
@@ -3470,14 +3478,14 @@ Function find_new_r000()
   Return Nil
 
 // 17.06.25
-Static Function f0_create_new_r01_0( sgod, cv, cf )
+Static Function f0_create_new_r01_0( s_god, cv, cf )
 
   Local fl, v, ltip, ltip1, lvoz, ag, lgod_r, s
 
   ++cv
   If ( fl := ( kart2->MO_PR != CODE_LPU ) ) // прикреплён к нашей МО
     lgod_r := Year( kart->date_r )
-    v := sgod - lgod_r
+    v := s_god - lgod_r
     If ( fl := ( v > 17 ) ) // только взрослое население
       If fl
         lvoz := 4
