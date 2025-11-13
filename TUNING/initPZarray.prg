@@ -24,8 +24,6 @@ function get_array_PZ( mYear)
     aTable := sqlite3_get_table( db, strSQL )
     If Len( aTable ) > 1
       For nI := 2 To Len( aTable )
-//        AAdd( arr, { val( aTable[ nI, 1 ] ), val( aTable[ nI, 2 ] ), alltrim( aTable[ nI, 3 ] ), ;
-//          alltrim( aTable[ nI, 4 ] ), alltrim( aTable[ nI, 5 ] ), alltrim( aTable[ nI, 6 ] ) } )
         AAdd( arr, { val( aTable[ nI, PZ_ARRAY_ID ] ), val( aTable[ nI, PZ_ARRAY_CODE ] ), alltrim( aTable[ nI, PZ_ARRAY_NAME ] ), ;
           alltrim( aTable[ nI, PZ_ARRAY_SHORT ] ), alltrim( aTable[ nI, PZ_ARRAY_KD ] ), alltrim( aTable[ nI, PZ_ARRAY_ADD_T ] ) } )
         fl := .t.
@@ -41,7 +39,7 @@ function get_array_PZ( mYear)
   endif
   return arr
 
-// 16.03.25
+// 13.11.25
 FUNCTION initPZarray()
 
   LOCAL arrPZ
@@ -56,15 +54,12 @@ FUNCTION initPZarray()
         G_Use( dir_exe() + sbase, cur_dir() + sbase, 'UNIT' )
       else
         G_Use( dir_exe() + sbase, , 'UNIT' )
-        index on str( code, 3 ) to ( cur_dir() + sbase )
+        index on str( FIELD->code, 3 ) to ( cur_dir() + sbase )
       endif
       FOR i := 1 TO Len( arrPZ )
-//         find ( Str( arrPZ[ i, 2 ], 3 ) )
-//        IF Found() .AND. !( unit->pz == arrPZ[ i, 1 ] .AND. unit->ii == i )
-        find ( Str( arrPZ[ i, PZ_ARRAY_CODE ], 3 ) )
-        IF Found() .AND. !( unit->pz == arrPZ[ i, PZ_ARRAY_ID ] .AND. unit->ii == i )
+        unit->( dbSeek( Str( arrPZ[ i, PZ_ARRAY_CODE ], 3 ) ) ) // find ( Str( arrPZ[ i, PZ_ARRAY_CODE ], 3 ) )
+        IF unit->( Found() ) .AND. !( unit->pz == arrPZ[ i, PZ_ARRAY_ID ] .AND. unit->ii == i )
             G_RLock( forever )
-//            unit->pz := arrPZ[ i, 1 ]
             unit->pz := arrPZ[ i, PZ_ARRAY_ID ]
             unit->ii := i
         ENDIF
