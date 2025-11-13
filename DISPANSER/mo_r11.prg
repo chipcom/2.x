@@ -7,18 +7,20 @@
 
 #define MONTH_UPLOAD 12 // МЕСЯЦ для выгрузки R11
 
-// 22.01.25 Создание файла обмена R11...
+// 13.11.25 Создание файла обмена R11...
 Function f_create_r11()
 
   Local buf := save_maxrow(), i, j, ir, s := '', arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
 
-  Private SMONTH := 1, mdate := sys_date, mrec := 1
+  Private mdate := sys_date, mrec := 1
   Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {}, ;
     pkol := 0, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], CODE_MO := glob_mo[ _MO_KOD_FFOMS ], ;
-    mkol := { 0, 0, 0, 0, 0 }, skol[ 5 ], ames[ 12, 5 ], ame[ 12 ], bm := SMONTH, ; // начальный месяц минус один
+    mkol := { 0, 0, 0, 0, 0 }, skol[ 5 ], ames[ 12, 5 ], ame[ 12 ], ;
     _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 )
 
   Private sgod := YEAR_UPLOAD_DISPANSER //  2025
+  Private SMONTH := 1
+  private bm := 1   //  SMONTH // начальный месяц минус один
   //
   mywait()
   fl := .t.
@@ -34,7 +36,7 @@ Function f_create_r11()
   r_use( dir_server() + 'mo_xml',, 'MO_XML' )
   Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_xml' ) For FIELD->tip_in == _XML_FILE_R12 .and. Empty( FIELD->TIP_OUT )
   r_use( dir_server() + 'mo_dr01',, 'REES' )
-  Index On Str( FIELD->nn, 3 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == YEAR_UPLOAD_DISPANSER .and. eq_any( FIELD->NMONTH, SMONTH -1, SMONTH ) .and. FIELD->tip == 1
+  Index On Str( FIELD->nn, 3 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == YEAR_UPLOAD_DISPANSER .and. eq_any( FIELD->NMONTH, MONTH_UPLOAD - 1, MONTH_UPLOAD ) .and. FIELD->tip == 1
   Go Top
   Do While !Eof()
 
@@ -51,7 +53,7 @@ Function f_create_r11()
         If Empty( mo_xml->TWORK2 )
           fl := func_error( 4, 'Прервано чтение файла ' + AllTrim( mo_xml->FNAME ) + ;
             '! Аннулируйте (Ctrl+F12) и прочитайте снова' )
-        Elseif rees->NMONTH == SMONTH
+        Elseif rees->NMONTH == MONTH_UPLOAD
           AAdd( arr_rees, rees->kod )
         Endif
       Endif
@@ -90,7 +92,7 @@ Function f_create_r11()
     Next
     // только для нужного месяца
     For j := 1 To 5
-      skol[ j ] := ames[ SMONTH, j, 1 ]
+      skol[ j ] := ames[ MONTH_UPLOAD, j, 1 ]
     Next
 
     AFill( ame, 0 )
@@ -135,10 +137,10 @@ Function f_create_r11()
               Exit
             Endif
             If Between( j1, 1, 3 )
-              ames[ SMONTH, j1 + 2, 2 ] ++
+              ames[ MONTH_UPLOAD, j1 + 2, 2 ] ++
               skol[ j1 + 2 ] --
             Else
-              ames[ SMONTH, j, 2 ] ++
+              ames[ MONTH_UPLOAD, j, 2 ] ++
               skol[ j ] --
             Endif
           Endif
@@ -186,7 +188,7 @@ Function f_create_r11()
           Go Top
           Do While !Eof()
             If d == koef
-              i := SMONTH
+              i := MONTH_UPLOAD
               If ames[ i, j, 1 ] > ames[ i, j, 2 ] // если ещё не набрали месяц
                 tmp->n_m := i
                 ames[ i, j, 2 ] ++
@@ -210,7 +212,7 @@ Function f_create_r11()
           Endif
           Go Top
           Do While !Eof()
-            If tmp->n_q == 0 .and. tmp->n_m == SMONTH
+            If tmp->n_q == 0 .and. tmp->n_m == MONTH_UPLOAD
               tmp->n_q := Int( ( tmp->n_m + 2 ) / 3 ) // определяем номер квартала по месяцу
               ame[ tmp->n_m ] ++
             Endif
@@ -345,10 +347,12 @@ Function f0_create_r11( s_god )
 
   Return { ltip, ltip1, lvoz }
 
-// 12.09.25
+// 13.11.25
 Function f1_create_r11( lm, fl_dr00 )
 
   Local nsh := 3, smsg, lnn := 0, buf := save_maxrow()
+  local s_month, s
+  local oXmlDoc, oXmlNode, oCONTACTS, oADDRESS
 
   If !f_esc_enter( 'создания файла R11', .t. )
     Return Nil
@@ -364,11 +368,11 @@ Function f1_create_r11( lm, fl_dr00 )
   g_use( dir_server() + 'mo_dr01',, 'REES' )
   Index On Str( FIELD->NMONTH, 2 ) + Str( FIELD->nn, 3 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == YEAR_UPLOAD_DISPANSER .and. FIELD->tip == 1
   find ( Str( lm, 2 ) )
-  Do While lm == rees->NMONTH .and. !Eof()
+  Do While lm == rees->NMONTH .and. ! rees->( Eof() )
     If lnn < rees->nn
       lnn := rees->nn
     Endif
-    Skip
+    rees->( dbSkip() )  //  Skip
   Enddo
   Set Index To
   g_use( dir_server() + 'mo_xml',, 'MO_XML' )
@@ -384,8 +388,8 @@ Function f1_create_r11( lm, fl_dr00 )
   Set Relation To FIELD->kod into KART
   Index On Upper( kart->fio ) + DToS( kart->date_r ) to ( cur_dir() + 'tmp_00' )
   //
-  SMONTH := lm
-  smsg := 'Составление файла R11 за ' + lstr( SMONTH ) + '-й месяц'
+  s_month := lm
+  smsg := 'Составление файла R11 за ' + lstr( s_month ) + '-й месяц'
   stat_msg( smsg )
   Select REES
   addrecn()
@@ -393,14 +397,14 @@ Function f1_create_r11( lm, fl_dr00 )
   rees->tip    := 1
   rees->DSCHET := sys_date
   rees->NYEAR  := YEAR_UPLOAD_DISPANSER
-  rees->NMONTH := SMONTH
+  rees->NMONTH := s_month
   rees->NN     := lnn + 1
   s := 'R11' + 'T34M' + CODE_LPU + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + StrZero( rees->NMONTH, 2 ) + StrZero( rees->NN, nsh )
   rees->NAME_XML := s
   mkod_reestr := rees->KOD
   //
   rm->( g_rlock( forever ) )
-  &( 'rm->reestr' + StrZero( SMONTH, 2 ) ) := mkod_reestr
+  &( 'rm->reestr' + StrZero( s_month, 2 ) ) := mkod_reestr
   //
   Select MO_XML
   addrecn()
@@ -436,7 +440,7 @@ Function f1_create_r11( lm, fl_dr00 )
       addrec( 6 )
       rhum->REESTR := mkod_reestr
       rhum->KOD_K := tmp->kod
-      rhum->n_m := SMONTH
+      rhum->n_m := s_month
       rhum->tip := tmp->tip
       rhum->tip1 := tmp->tip1
       rhum->voz := tmp->voz
@@ -476,7 +480,7 @@ Function f1_create_r11( lm, fl_dr00 )
   Set Relation To FIELD->kod_k into KART
   Index On Str( FIELD->R01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->REESTR == mkod_reestr
   Go Top
-  Do While !Eof()
+  Do While ! rhum->( Eof() )
     @ MaxRow(), 0 Say Str( rhum->R01_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
     arr_fio := retfamimot( 1, .f. )
     oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'PERSONS' ) )
@@ -557,7 +561,7 @@ Function f1_create_r11( lm, fl_dr00 )
       mo_add_xml_stroke( oADDRESS, 'UL', kart->adres )
     Endif
     Select RHUM
-    Skip
+    rhum->( dbSkip() )  //  Skip
   Enddo
   stat_msg( 'Запись XML-файла' )
   oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml() )
@@ -962,25 +966,26 @@ Function f32_view_r11( lm )
 
   Return Nil
 
-// 12.11.25 проверить, есть ли не до конца обработанные операции с файлами R11...
+// 13.11.25 проверить, есть ли не до конца обработанные операции с файлами R11...
 // перенесен в MO_R11
 Function find_unfinished_r11()
 
   Local fl := .t., skol := 0, mkol := 0, arr := {}, fl_date := .t.
 
 
-  Private mrec := 1, smonth := MONTH_UPLOAD // МЕСЯЦ для выгрузки R11
+  Private mrec := 1
   Private sgod := YEAR_UPLOAD_DISPANSER
+  private smonth := MONTH_UPLOAD // МЕСЯЦ для выгрузки R11
 
   If glob_mo[ _MO_IS_UCH ]
     If ( fl := verify_packet_r05( 2, arr ) )
       r_use( dir_server() + 'mo_dr05p',, 'R05p' )
       Goto ( mrec )
-      skol := &( 'r05p->kol1_' + StrZero( smonth, 2 ) ) + &( 'r05p->kol2_' + StrZero( smonth, 2 ) )
+      skol := &( 'r05p->kol1_' + StrZero( MONTH_UPLOAD, 2 ) ) + &( 'r05p->kol2_' + StrZero( MONTH_UPLOAD, 2 ) )
       Select MO_XML
       Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_xml' ) For FIELD->tip_in == _XML_FILE_R12 .and. Empty( FIELD->TIP_OUT )
       r_use( dir_server() + 'mo_dr01',, 'REES' )
-      Index On Str( FIELD->nn, 3 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == YEAR_UPLOAD_DISPANSER .and. FIELD->NMONTH == smonth .and. FIELD->tip == 1
+      Index On Str( FIELD->nn, 3 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == YEAR_UPLOAD_DISPANSER .and. FIELD->NMONTH == MONTH_UPLOAD .and. FIELD->tip == 1
 //      Go Top
       rees->( dbGoTop() )
       Do While fl .and. ! rees->( Eof() )

@@ -1528,20 +1528,23 @@ Function verify_packet_r05( par, arr, /*@*/ret_nn )
 
   Return fl
 
-// 14.12.23 Создание файла обмена R01...
+// 13.11.25 Создание файла обмена R01...
 Function f_create_r01()
 
   Local buf := save_maxrow(), i, j, ir, s := '', arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ;
     azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r
-  Private SMONTH := 1, mdate := sys_date, mrec := 1
-
+  
+  Private mdate := sys_date, mrec := 1
   // !!! ВНИМАНИЕ
   Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {}, ;
     pkol := 0, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], CODE_MO := glob_mo[ _MO_KOD_FFOMS ], ;
-    mkol := { 0, 0, 0, 0, 0 }, skol[ 5 ], ames[ 12, 5 ], ame[ 12 ], bm := SMONTH, ; // начальный месяц минус один
+    mkol := { 0, 0, 0, 0, 0 }, skol[ 5 ], ames[ 12, 5 ], ame[ 12 ], ;
   _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 )
+
   Private sgod := YEAR_UPLOAD_DISPANSER
-  //
+//  Private SMONTH := 1
+  private bm := 1   // SMONTH // начальный месяц минус один  //
+
   f00_create_r01()
   //
   mywait()
@@ -1905,7 +1908,7 @@ Function f00_create_r01()
 // 12.09.25
 Function f1_create_r01()
 
-  Local SMONTH, nsh := 3, smsg, arr_nn[ 12 ]
+  Local imonth, nsh := 3, smsg, arr_nn[ 12 ]
 
   If !f_esc_enter( 'создания файлов R01', .t. )
     Return Nil
@@ -1921,11 +1924,11 @@ Function f1_create_r01()
   Index On Str( FIELD->REESTR, 6 ) to ( cur_dir() + 'tmp_rhum' )
   g_use( dir_server() + 'mo_dr01',, 'REES' )
   Index On Str( FIELD->NMONTH, 2 ) + Str( FIELD->nn, 3 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == YEAR_UPLOAD_DISPANSER .and. FIELD->tip == 0
-  For SMONTH := 1 To 12
-    find ( Str( SMONTH, 2 ) )
-    Do While SMONTH == rees->NMONTH .and. !Eof()
-      If arr_nn[ SMONTH ] < rees->nn
-        arr_nn[ SMONTH ] := rees->nn
+  For imonth := 1 To 12
+    find ( Str( imonth, 2 ) )
+    Do While imonth == rees->NMONTH .and. !Eof()
+      If arr_nn[ imonth ] < rees->nn
+        arr_nn[ imonth ] := rees->nn
       Endif
       Skip
     Enddo
@@ -1939,25 +1942,25 @@ Function f1_create_r01()
   g_use( dir_server() + 'mo_dr00',, 'TMP' )
   Set Relation To FIELD->kod into KART
   Index On Str( FIELD->n_m, 2 ) + Upper( kart->fio ) + DToS( kart->date_r ) to ( cur_dir() + 'tmp_dr00' )
-  For SMONTH := 1 To 12
-    If Empty( ame[ SMONTH ] )
+  For imonth := 1 To 12
+    If Empty( ame[ imonth ] )
       Loop
     Endif
-    smsg := 'Составление файла R01 за ' + lstr( SMONTH ) + '-й месяц'
+    smsg := 'Составление файла R01 за ' + lstr( imonth ) + '-й месяц'
     stat_msg( smsg )
     Select REES
     addrecn()
     rees->KOD    := RecNo()
     rees->DSCHET := sys_date
     rees->NYEAR  := YEAR_UPLOAD_DISPANSER
-    rees->NMONTH := SMONTH
-    rees->NN     := arr_nn[ SMONTH ] + 1
+    rees->NMONTH := imonth
+    rees->NN     := arr_nn[ imonth ] + 1
     s := 'R01' + 'T34M' + CODE_LPU + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + StrZero( rees->NMONTH, 2 ) + StrZero( rees->NN, nsh )
     rees->NAME_XML := s
     mkod_reestr := rees->KOD
     //
     rm->( g_rlock( forever ) )
-    &( 'rm->reestr' + StrZero( SMONTH, 2 ) ) := mkod_reestr
+    &( 'rm->reestr' + StrZero( imonth, 2 ) ) := mkod_reestr
     //
     Select MO_XML
     addrecn()
@@ -1975,8 +1978,8 @@ Function f1_create_r01()
     Commit
     pkol := 0
     Select TMP
-    find ( Str( SMONTH, 2 ) )
-    Do While tmp->n_m == SMONTH .and. !Eof()
+    find ( Str( imonth, 2 ) )
+    Do While tmp->n_m == imonth .and. !Eof()
       If tmp->reestr == 0
         ++pkol
         @ MaxRow(), 1 Say lstr( pkol ) Color cColorSt2Msg
@@ -2101,7 +2104,7 @@ Function f1_create_r01()
     stat_msg( 'Запись XML-файла' )
     oXmlDoc:save( AllTrim( mo_xml->FNAME ) + sxml() )
     chip_create_zipxml( AllTrim( mo_xml->FNAME ) + szip(), { AllTrim( mo_xml->FNAME ) + sxml() }, .t. )
-  Next SMONTH
+  Next imonth
   rm->( g_rlock( forever ) )
   rm->TWORK2 := hour_min( Seconds() )
   Close databases
