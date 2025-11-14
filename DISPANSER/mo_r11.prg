@@ -4,28 +4,31 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'tfile.ch'
 
-#define MONTH_UPLOAD 12 // МЕСЯЦ для выгрузки R11
+// #define MONTH_UPLOAD 12 // МЕСЯЦ для выгрузки R11
 
-// 13.11.25 Создание файла обмена R11...
+// 14.11.25 Создание файла обмена R11...
 Function f_create_r11()
 
   Local buf := save_maxrow(), i, j, ir, s := '', arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
+  local _arr_vozrast_DVN
 
   Private mdate := sys_date, mrec := 1
   Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {}, ;
     pkol := 0, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], CODE_MO := glob_mo[ _MO_KOD_FFOMS ], ;
-    mkol := { 0, 0, 0, 0, 0 }, skol[ 5 ], ames[ 12, 5 ], ame[ 12 ], ;
-    _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 )
+    mkol := { 0, 0, 0, 0, 0 }, skol[ 5 ], ames[ 12, 5 ], ame[ 12 ]
 
   Private sgod := YEAR_UPLOAD_DISPANSER //  2025
   Private SMONTH := 1
   private bm := 1   //  SMONTH // начальный месяц минус один
   //
   mywait()
+  _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 )
   fl := .t.
   fl_1 := .f.
-  SMONTH := lm := MONTH_UPLOAD // МЕСЯЦ
+//  SMONTH := MONTH_UPLOAD // МЕСЯЦ
+  lm := MONTH_UPLOAD // МЕСЯЦ
   dbCreate( cur_dir() + 'tmp_00', { ;
     { 'reestr',     'N', 6, 0 }, ;
     { 'kod',        'N', 7, 0 }, ; // код по картотеке
@@ -106,7 +109,7 @@ Function f_create_r11()
       Go Top
       Do While !Eof()
         kart->( dbGoto( tmp->kod ) )
-        ar := f0_create_r11( YEAR_UPLOAD_DISPANSER )
+        ar := f0_create_r11( YEAR_UPLOAD_DISPANSER, _arr_vozrast_DVN )
         If !( tmp->tip == ar[ 1 ] .and. tmp->tip1 == ar[ 2 ] .and. tmp->voz == ar[ 3 ] )
           tmp->tip := 0
         Endif
@@ -255,7 +258,7 @@ Function f_create_r11()
         kart->(dbGoto(rhum->kod_k))
         if rhum->oplata == 1
           if rhum->tip == 2 // профосмотр
-            ar := f0_create_R11(YEAR_UPLOAD_DISPANSER)
+            ar := f0_create_R11( YEAR_UPLOAD_DISPANSER, _arr_vozrast_DVN )
             if rhum->tip == ar[1] .and. rhum->tip1 == ar[2] .and. rhum->voz == ar[3]
               select TMP
               append blank
@@ -291,7 +294,7 @@ Function f_create_r11()
       Do While rhum->REESTR == arr_rees[ i ] .and. !Eof()
         kart->( dbGoto( rhum->kod_k ) )
         If rhum->oplata == 1
-          ar := f0_create_r11( YEAR_UPLOAD_DISPANSER )
+          ar := f0_create_r11( YEAR_UPLOAD_DISPANSER, _arr_vozrast_DVN )
           If rhum->tip == ar[ 1 ] .and. rhum->tip1 == ar[ 2 ] .and. rhum->voz == ar[ 3 ]
             Select TMP
             Append Blank
@@ -314,8 +317,8 @@ Function f_create_r11()
 
   Return Nil
 
-// 09.02.20 переопределить все три первичных ключа в картотеке
-Function f0_create_r11( s_god )
+// 14.11.25 переопределить все три первичных ключа в картотеке
+Function f0_create_r11( s_god, _arr_vozrast_DVN )
 
   Local fl, v, ltip := 0, ltip1 := 0, lvoz := 0, lgod_r
 
@@ -352,6 +355,7 @@ Function f1_create_r11( lm, fl_dr00 )
 
   Local nsh := 3, smsg, lnn := 0, buf := save_maxrow()
   local s_month, s
+  local smr, arr_fio
   local oXmlDoc, oXmlNode, oCONTACTS, oADDRESS
 
   If !f_esc_enter( 'создания файла R11', .t. )
@@ -623,10 +627,11 @@ Function delete_reestr_r11()
 
   Return Nil
 
-// 09.02.20
+// 14.11.25
 Function f1_delete_reestr_r11( nKey, oBrow, regim )
 
   Local ret := -1, rec_m := r01m->( RecNo() ), ir, fl := .t.
+  local mkod_reestr
 
   If regim == 'edit' .and. nKey == K_ENTER
     If Empty( r01m->twork2 )
@@ -731,7 +736,7 @@ Function delete_month_r11()
     Return Nil
   Else
     pss := get_parol(,,,,, 'N/W', 'W/N*' )
-    If LastKey() == K_ENTER .and. AScan( tmp_pss, Crypt( pss, gpasskod ) ) > 0 .and. f_esc_enter( 'удаления файлов R11', .t. )
+    If LastKey() == K_ENTER .and. AScan( tmp_pss, Crypt( pss, ret_gpasskod() ) ) > 0 .and. f_esc_enter( 'удаления файлов R11', .t. )
       //
     Else
       Return Nil
@@ -841,20 +846,22 @@ close databases
 return NIL
 */
 
-// 12.11.25
+// 14.11.25
 Function f32_view_r11( lm )
 
-  Local fl := .t., buf := save_maxrow(), k := 0, skol[ 5, 3 ], ames[ 12, 5, 3 ], mrec := 2, n_file := cur_dir() + 'r11_itog.txt', ;
-    arr_rees := {}, mkod_reestr := 0
-  local i, j, j1
+  Local fl := .t., buf := save_maxrow(), k := 0, skol[ 5, 3 ], ames[ 12, 5, 3 ], mrec := 2, n_file := cur_dir() + 'r11_itog.txt'
+  local mkod_reestr := 0
+  local i, j, j1, n, ft, mmt
+  local arr_rees
 
   Private par := .f.
 
+  arr_rees := {}
   afillall( skol, 0 )
   afillall( ames, 0 )
   mywait()
   r_use( dir_server() + 'mo_dr05p',, 'R05p' )
-  Goto ( mrec )
+  r05p->( dbGoto( mrec ) )  //  Goto ( mrec )
   skol[ 1, 1 ] := r05p->KOL1
   skol[ 2, 1 ] := r05p->KOL2
   skol[ 3, 1 ] := r05p->KOL11
@@ -885,38 +892,38 @@ Function f32_view_r11( lm )
   Next
   r_use( dir_server() + 'mo_dr01k',, 'RHUM' )
   Index On Str( FIELD->reestr, 6 ) + Str( rhum->R01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' )
-  Select REES
-  Go Top
-  Do While !Eof()
+//  Select REES
+  rees->( dbGoTop() ) //  Go Top
+  Do While ! rees->( Eof() )
     AAdd( arr_rees, rees->kod )
-    Skip
+    rees->( dbSkip() )  //Skip
   Enddo
 
   For k := Len( arr_rees ) To 1 Step -1
 
     mkod_reestr := arr_rees[ k ]
-    Select RHUM
-    find ( Str( mkod_reestr, 6 ) )
+//    Select RHUM
+    rhum->( dbSeek( Str( mkod_reestr, 6 ) ) ) //  find ( Str( mkod_reestr, 6 ) )
     Do While rhum->reestr == mkod_reestr .and. ! rhum->( Eof() )
       If rhum->OPLATA < 2
         i := lm
         j := rhum->tip
         j1 := rhum->tip1
         If Between( j1, 1, 3 )
-          ames[ i, j1 + 2, 2 ] ++
+          ames[ i, j1 + 2, 2 ]++
         Elseif Between( j, 1, 2 )
-          ames[ i, j, 2 ] ++
+          ames[ i, j, 2 ]++
         Endif
         If rhum->OPLATA == 1
           If Between( j1, 1, 3 )
-            ames[ i, j1 + 2, 3 ] ++
+            ames[ i, j1 + 2, 3 ]++
           Elseif Between( j, 1, 2 )
-            ames[ i, j, 3 ] ++
+            ames[ i, j, 3 ]++
           Endif
         Endif
       Endif
-      Select RHUM
-      Skip
+//      Select RHUM
+      rhum->( dbSkip() )  //Skip
     Enddo
   Next k
   rhum->( dbCloseArea() )
@@ -930,9 +937,39 @@ Function f32_view_r11( lm )
     Next
   Endif
   //
+  mmt := { 'диспансеризация', 'профосмотр', 'дисп.пенсионеры', 'дисп.65 лет', 'дисп.66 и старше' }
+  ft := tfiletext():new( n_file, 80, .t., , .t. )
+  ft:add_string( '' )
+  ft:add_string( 'Общая информация (R11)', FILE_CENTER, ' ' )
+  ft:add_string( '' )
+  For i := lm To lm
+    ft:add_string( '──────────────────────────┬─────────────┬─────────────┬────────────┬────────────' )
+    ft:add_string( '     месяц                │  по плану   │  отправлено │  в ТФОМСе  │ расхождение' )
+    ft:add_string( '──────────────────────────┴─────────────┴─────────────┴────────────┴────────────' )
+    n := 26
+    ft:add_string( PadR( mm_month()[ i ], n ) )
+    For j := 1 To 5
+      ft:add_string( PadL( mmt[ j ], n ) + put_val( ames[ i, j, 1 ], 11 ) + ;
+        put_val( ames[ i, j, 2 ], 14 ) + ;
+        put_val( ames[ i, j, 3 ], 13 ) + ;
+        put_val( ames[ i, j, 1 ] - ames[ i, j, 3 ], 12 ) )
+      // skol[j,2] += ames[i,j,2]
+      // skol[j,3] += ames[i,j,3]
+    Next
+  next
+  ft:add_string( PadR( 'Итого:', n ) )
+//  for j := 1 to 5
+//    ft:add_string( padl(mmt[ j ], n ) + put_val( skol[ j, 1 ], 11 ) + ;
+//                              put_val( skol[ j, 2 ], 14) + ;
+//                              put_val( skol[ j, 3], 13 ) + ;
+//                              put_val( skol[ j, 1] - skol[ j, 3 ], 12 ) )
+//  next
+
+/*  
   fp := FCreate( n_file )
   tek_stroke := 0
   n_list := 1
+
   add_string( '' )
   add_string( Center( 'Общая информация (R11)', 80 ) )
   add_string( '' )
@@ -953,20 +990,21 @@ Function f32_view_r11( lm )
     Next
   Next
   add_string( PadR( 'Итого:', n ) )
-/*  for j := 1 to 5
-    add_string(padl(mmt[j],n)+put_val(skol[j,1],11)+;
-                              put_val(skol[j,2],14)+;
-                              put_val(skol[j,3],13)+;
-                              put_val(skol[j,1]-skol[j,3],12))
-  next
-*/
+//  for j := 1 to 5
+//    add_string(padl(mmt[j],n)+put_val(skol[j,1],11)+;
+//                              put_val(skol[j,2],14)+;
+//                              put_val(skol[j,3],13)+;
+//                              put_val(skol[j,1]-skol[j,3],12))
+//  next
   FClose( fp )
+*/
   rest_box( buf )
+  ft := nil
   viewtext( n_file,,,, .t.,,, 2 )
 
   Return Nil
 
-// 13.11.25 проверить, есть ли не до конца обработанные операции с файлами R11...
+// 14.11.25 проверить, есть ли не до конца обработанные операции с файлами R11...
 // перенесен в MO_R11
 Function find_unfinished_r11()
 
@@ -974,8 +1012,8 @@ Function find_unfinished_r11()
 
 
   Private mrec := 1
-  Private sgod := YEAR_UPLOAD_DISPANSER
-  private smonth := MONTH_UPLOAD // МЕСЯЦ для выгрузки R11
+//  Private sgod := YEAR_UPLOAD_DISPANSER
+//  private smonth := MONTH_UPLOAD // МЕСЯЦ для выгрузки R11
 
   If glob_mo[ _MO_IS_UCH ]
     If ( fl := verify_packet_r05( 2, arr ) )

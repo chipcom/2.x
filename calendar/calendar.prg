@@ -163,3 +163,9 @@ Function change_sys_date()
   sys1_date := sys_date
   c4sys_date := dtoc4( sys1_date )
   Return Nil
+
+// 14.11.25
+function mm_month()
+  
+  return { 'январь', 'февраль', 'март', 'апрель', 'май', 'июнь', ; 
+    'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь' }
