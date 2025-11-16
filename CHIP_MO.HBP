@@ -314,3 +314,8 @@ mo_version.prg
 .\FUNC_LIB\semaphor_bay.prg
 .\FUNC_LIB\net_moni.prg
 .\FUNC_LIB\v_text.prg
+
+### 2026
+#.\oms\verify_oms26.prg
+#.\exchange\create_reestr26.prg
+#.\exchange\reestr_XML26.prg

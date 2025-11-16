@@ -4,40 +4,47 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.06.24 сформировать массив имен файлов реестра сведений и пациентов
-function name_reestr_XML( type, nyear, nmonth, mnn, nsh )
+// 16.11.25 сформировать массив имен файлов реестра сведений и пациентов
+function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
   // type - тип реестра (обычный, для диспансеризации)
   // nyear - номер года
   // nmonth - номер месяца
   // mnn - 
   // nsh - 
+  // kod_smo - код страховой компании для реестра счетов с 2026 года
   // Возврат - массив { имя файла реестра сведений, имя файла реестра пациентов }
 
   local sName := ''
   local aFiles
 
-  sName := 'RM' + CODE_LPU + 'T34' + '_' ;
-    + Right( StrZero( NYEAR, 4 ), 2 ) + StrZero( NMONTH, 2 ) + StrZero( mnn, nsh )
-  aFiles := { { 'H', 'F' }[ type ] + sName, ;
-    'L' + sName }
+  if nyear <= 2025
+    sName := 'RM' + CODE_LPU + 'T34' + '_' ;
+      + Right( StrZero( nyear, 4 ), 2 ) + StrZero( nmonth, 2 ) + StrZero( mnn, nsh )
+    aFiles := { { 'H', 'F' }[ type ] + sName, ;
+      'L' + sName }
+  else
+  endif
   return aFiles
 
-// 10.09.25 проверить, нам ли предназначен данный XML-файл
+// 16.11.25 проверить, нам ли предназначен данный XML-файл
 Function is_our_xml( cName, ret_arr )
 
-  Local c, arr_err := {}, i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
+  Local i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
+  Local arr_err := {}
+  local current_mo
 
+  current_mo := glob_MO
   s := cName
   If eq_any( Left( s, 3 ), 'VHR', 'VFR', 'PHR', 'PFR' ) // файл протокола ФЛК
     nTypeFile := _XML_FILE_FLK
     r_use( dir_server() + 'mo_rees', , 'REES' )
     r_use( dir_server() + 'mo_xml', , 'MO_XML' )
-    Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
+    Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
     find ( PadR( SubStr( s, 2 ), 26 ) ) // имя то же самое, начиная со второго знака
     If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
       Select REES
       Goto ( nReestr )
-      cFrom   := glob_MO[ _MO_KOD_TFOMS ]
+      cFrom   := current_mo[ _MO_KOD_TFOMS ]
       cTo     := '34'
       _nYear  := rees->NYEAR
       _nMonth := rees->NMONTH
@@ -56,8 +63,8 @@ Function is_our_xml( cName, ret_arr )
     Endif
     If Len( arr_err ) == 0
       cTo := Left( s, 6 )
-      If !( cTo == glob_MO[ _MO_KOD_TFOMS ] )
-        AAdd( arr_err, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
+      If !( cTo == current_mo[ _MO_KOD_TFOMS ] )
+        AAdd( arr_err, 'Ваш код МО ' + current_mo[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
         If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
           AAdd( arr_err, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
         Endif
@@ -74,13 +81,13 @@ Function is_our_xml( cName, ret_arr )
         nTypeFile := _XML_FILE_D02
         r_use( dir_server() + 'mo_d01', , 'REES' )
         r_use( dir_server() + 'mo_xml', , 'MO_XML' )
-        Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
-        find ( PadR( 'D01T34M' + glob_MO[ _MO_KOD_TFOMS ] + '_' + s, 26 ) ) // сконструировали имя файла D01
+        Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
+        find ( PadR( 'D01T34M' + current_mo[ _MO_KOD_TFOMS ] + '_' + s, 26 ) ) // сконструировали имя файла D01
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
           Select REES
           Goto ( nReestr )
           cFrom   := '34'
-          cTo     := glob_MO[ _MO_KOD_TFOMS ]
+          cTo     := current_mo[ _MO_KOD_TFOMS ]
           _nYear  := rees->NYEAR
           _nMonth := rees->MM
           nNN     := rees->NN
@@ -93,13 +100,13 @@ Function is_our_xml( cName, ret_arr )
         nTypeFile := _XML_FILE_R02
         r_use( dir_server() + 'mo_dr01', , 'REES' )
         r_use( dir_server() + 'MO_XML', , 'MO_XML' )
-        Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
-        find ( PadR( 'R01T34M' + glob_MO[ _MO_KOD_TFOMS ] + '_' + s, 26 ) ) // сконструировали имя файла R01
+        Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
+        find ( PadR( 'R01T34M' + current_mo[ _MO_KOD_TFOMS ] + '_' + s, 26 ) ) // сконструировали имя файла R01
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
           Select REES
           Goto ( nReestr )
           cFrom   := '34'
-          cTo     := glob_MO[ _MO_KOD_TFOMS ]
+          cTo     := current_mo[ _MO_KOD_TFOMS ]
           _nYear  := rees->NYEAR
           _nMonth := rees->NQUARTER
           nNN     := rees->NN
@@ -112,13 +119,13 @@ Function is_our_xml( cName, ret_arr )
         nTypeFile := _XML_FILE_R12
         r_use( dir_server() + 'mo_dr01', , 'REES' )
         r_use( dir_server() + 'MO_XML', , 'MO_XML' )
-        Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
-        find ( PadR( 'R11T34M' + glob_MO[ _MO_KOD_TFOMS ] + '_' + s, 26 ) ) // сконструировали имя файла R11
+        Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
+        find ( PadR( 'R11T34M' + current_mo[ _MO_KOD_TFOMS ] + '_' + s, 26 ) ) // сконструировали имя файла R11
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
           Select REES
           Goto ( nReestr )
           cFrom   := '34'
-          cTo     := glob_MO[ _MO_KOD_TFOMS ]
+          cTo     := current_mo[ _MO_KOD_TFOMS ]
           _nYear  := rees->NYEAR
           _nMonth := rees->NQUARTER
           nNN     := rees->NN
@@ -131,13 +138,13 @@ Function is_our_xml( cName, ret_arr )
         nTypeFile := _XML_FILE_R06
         r_use( dir_server() + 'mo_dr05', , 'REES' )
         r_use( dir_server() + 'MO_XML', , 'MO_XML' )
-        Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
-        find ( PadR( 'R05T34M' + glob_MO[ _MO_KOD_TFOMS ] + '_' + s, 26 ) ) // сконструировали имя файла R05
+        Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
+        find ( PadR( 'R05T34M' + current_mo[ _MO_KOD_TFOMS ] + '_' + s, 26 ) ) // сконструировали имя файла R05
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
           Select REES
           Goto ( nReestr )
           cFrom   := '34'
-          cTo     := glob_MO[ _MO_KOD_TFOMS ]
+          cTo     := current_mo[ _MO_KOD_TFOMS ]
           _nYear  := rees->NYEAR
           _nMonth := 0
           nNN     := rees->NN
@@ -157,8 +164,8 @@ Function is_our_xml( cName, ret_arr )
     Endif
     If Len( arr_err ) == 0
       cTo := Left( s, 6 )
-      If !( cTo == glob_MO[ _MO_KOD_TFOMS ] )
-        AAdd( arr_err, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
+      If !( cTo == current_mo[ _MO_KOD_TFOMS ] )
+        AAdd( arr_err, 'Ваш код МО ' + current_mo[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
         If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
           AAdd( arr_err, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
         Endif
@@ -173,13 +180,13 @@ Function is_our_xml( cName, ret_arr )
         nTypeFile := _XML_FILE_R02
         r_use( dir_server() + 'mo_dr01', , 'REES' )
         r_use( dir_server() + 'MO_XML', , 'MO_XML' )
-        Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
+        Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( SubStr( cName, 2 ), 26 ) ) // сконструировали имя файла R01
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
           Select REES
           Goto ( nReestr )
           cFrom   := '34'
-          cTo     := glob_MO[ _MO_KOD_TFOMS ]
+          cTo     := current_mo[ _MO_KOD_TFOMS ]
           _nYear  := rees->NYEAR
           _nMonth := rees->NMONTH
           nNN     := rees->NN
@@ -192,13 +199,13 @@ Function is_our_xml( cName, ret_arr )
         nTypeFile := _XML_FILE_R12
         r_use( dir_server() + 'mo_dr01', , 'REES' )
         r_use( dir_server() + 'MO_XML', , 'MO_XML' )
-        Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
+        Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( SubStr( cName, 2 ), 26 ) ) // сконструировали имя файла R01
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
           Select REES
           Goto ( nReestr )
           cFrom   := '34'
-          cTo     := glob_MO[ _MO_KOD_TFOMS ]
+          cTo     := current_mo[ _MO_KOD_TFOMS ]
           _nYear  := rees->NYEAR
           _nMonth := rees->NMONTH
           nNN     := rees->NN
@@ -211,13 +218,13 @@ Function is_our_xml( cName, ret_arr )
         nTypeFile := _XML_FILE_R06
         r_use( dir_server() + 'mo_dr05', , 'REES' )
         r_use( dir_server() + 'MO_XML', , 'MO_XML' )
-        Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
+        Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( SubStr( cName, 2 ), 26 ) ) // сконструировали имя файла R05
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
           Select REES
           Goto ( nReestr )
           cFrom   := '34'
-          cTo     := glob_MO[ _MO_KOD_TFOMS ]
+          cTo     := current_mo[ _MO_KOD_TFOMS ]
           _nYear  := rees->NYEAR
           _nMonth := 0
           nNN     := rees->NN
@@ -237,8 +244,8 @@ Function is_our_xml( cName, ret_arr )
     Endif
     If Len( arr_err ) == 0
       cTo := Left( s, 6 )
-      If !( cTo == glob_MO[ _MO_KOD_TFOMS ] )
-        AAdd( arr_err, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
+      If !( cTo == current_mo[ _MO_KOD_TFOMS ] )
+        AAdd( arr_err, 'Ваш код МО ' + current_mo[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
         If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
           AAdd( arr_err, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
         Endif
@@ -253,13 +260,13 @@ Function is_our_xml( cName, ret_arr )
         nTypeFile := _XML_FILE_R02
         r_use( dir_server() + 'mo_dr01', , 'REES' )
         r_use( dir_server() + 'MO_XML', , 'MO_XML' )
-        Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
+        Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( SubStr( cName, 2 ), 26 ) ) // сконструировали имя файла R01
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
           Select REES
           Goto ( nReestr )
           cFrom   := '34'
-          cTo     := glob_MO[ _MO_KOD_TFOMS ]
+          cTo     := current_mo[ _MO_KOD_TFOMS ]
           _nYear  := rees->NYEAR
           _nMonth := rees->NMONTH
           nNN     := rees->NN
@@ -272,13 +279,13 @@ Function is_our_xml( cName, ret_arr )
         nTypeFile := _XML_FILE_R06
         r_use( dir_server() + 'mo_dr05', , 'REES' )
         r_use( dir_server() + 'MO_XML', , 'MO_XML' )
-        Index On Upper( fname ) to ( cur_dir() + 'tmpmoxml' )
+        Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
         find ( PadR( SubStr( cName, 2 ), 26 ) ) // сконструировали имя файла R05
         If Found() .and. ( nReestr := mo_xml->REESTR ) > 0
           Select REES
           Goto ( nReestr )
           cFrom   := '34'
-          cTo     := glob_MO[ _MO_KOD_TFOMS ]
+          cTo     := current_mo[ _MO_KOD_TFOMS ]
           _nYear  := rees->NYEAR
           _nMonth := 0
           nNN     := rees->NN
@@ -326,8 +333,8 @@ Function is_our_xml( cName, ret_arr )
           Endif
           If Len( arr_err ) == 0
             cTo := Left( s, 6 )
-            If !( cTo == glob_MO[ _MO_KOD_TFOMS ] )
-              AAdd( arr_err, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
+            If !( cTo == current_mo[ _MO_KOD_TFOMS ] )
+              AAdd( arr_err, 'Ваш код МО ' + current_mo[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
               If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
                 AAdd( arr_err, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
               Endif
@@ -350,8 +357,8 @@ Function is_our_xml( cName, ret_arr )
         If Len( arr_err ) == 0
           s := AfterAtNum( 'M', s )
           cTo := BeforAtNum( '_', s )
-          If !( cTo == glob_MO[ _MO_KOD_TFOMS ] )
-            AAdd( arr_err, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
+          If !( cTo == current_mo[ _MO_KOD_TFOMS ] )
+            AAdd( arr_err, 'Ваш код МО ' + current_mo[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + cTo )
             If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == cTo } ) ) > 0
               AAdd( arr_err, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
             Endif
@@ -382,18 +389,20 @@ Function is_our_xml( cName, ret_arr )
 
   Return ( Len( arr_err ) == 0 )
 
-// 10.09.25 если это файл с расширениием CSV - прочитать
+// 16.11.25 если это файл с расширениием CSV - прочитать
 Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Local fl := .f., i, s := cName, s1
+  local current_mo
 
+  current_mo := glob_MO
   If eq_any( Left( s, 3 ), 'EO2', 'LO2' ) // файлы протокола прикрепления и открепления
     fl := .t.
     tip_csv_file := iif( Left( s, 1 ) == 'E', _CSV_FILE_PRIKANS, _CSV_FILE_PRIKFLK )
     kod_csv_reestr := 0
-    If ( s1 := SubStr( s, 4, 6 ) ) == glob_MO[ _MO_KOD_TFOMS ]
+    If ( s1 := SubStr( s, 4, 6 ) ) == current_mo[ _MO_KOD_TFOMS ]
       r_use( dir_server() + 'mo_krtf', , 'KRTF' )
-      Index On Upper( fname ) to ( cur_dir() + 'tmp_krtf' )
+      Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmp_krtf' )
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
         fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
@@ -414,7 +423,7 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       Endif
       krtf->( dbCloseArea() )
     Else
-      fl := func_error( 4, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + s1 )
+      fl := func_error( 4, 'Ваш код МО ' + current_mo[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + s1 )
       If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == s1 } ) ) > 0
         func_error( 4, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
       Endif
@@ -425,16 +434,20 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Return fl
 
-// 10.09.25 если это укрупнённый архив, распаковать и прочитать
+// 16.11.25 если это укрупнённый архив, распаковать и прочитать
 Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Static cStFile, si
   Local fl := .f., arr := {}, arr_f, i, s := cName, s1, name_ext, _date, _time, c
+  local current_mo
+  local cFrom, nSMO
 
+
+  current_mo := glob_MO
   Default cStFile To cName
   If Left( s, 3 ) == 'RI0' .or. Left( s, 2 ) == 'I0'
     fl := func_error( 4, 'Данный файл необходимо читать в подзадаче "Учёт направлений на госпитализацию"' )
-  Elseif eq_any( Left( s, 8 ), 'RHRT34_M', 'RFRT34_M' ) .and. SubStr( s, 9, 6 ) == glob_MO[ _MO_KOD_TFOMS ]
+  Elseif eq_any( Left( s, 8 ), 'RHRT34_M', 'RFRT34_M' ) .and. SubStr( s, 9, 6 ) == current_mo[ _MO_KOD_TFOMS ]
     c := SubStr( s, 2, 1 )
     If ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2 ) ) != NIL
       For i := 1 To Len( arr_f )
@@ -479,7 +492,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
         Endif
       Endif
     Endif
-  Elseif Left( s, 6 ) == glob_MO[ _MO_KOD_TFOMS ]
+  Elseif Left( s, 6 ) == current_mo[ _MO_KOD_TFOMS ]
     If ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2 ) ) != NIL
       For i := 1 To Len( arr_f )
         s := Upper( arr_f[ i ] )
@@ -510,7 +523,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       nSMO := Int( Val( cFrom ) )
       If AScan( glob_arr_smo, {| x| x[ 2 ] == nSMO } ) > 0
         s := AfterAtNum( 'M', s )
-        If BeforAtNum( '_', s ) == glob_MO[ _MO_KOD_TFOMS ] .and. ;
+        If BeforAtNum( '_', s ) == current_mo[ _MO_KOD_TFOMS ] .and. ;
             ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2, 'tmp' + szip() ) ) != NIL
           For i := 1 To Len( arr_f )
             If Upper( cName + szip() ) == Upper( arr_f[ i ] )
@@ -525,9 +538,9 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
     fl := .t.
     tip_csv_file := iif( Left( s, 1 ) == 'E', _CSV_FILE_ANSWER, _CSV_FILE_OTKREP )
     kod_csv_reestr := 0
-    If ( s1 := SubStr( s, 3, 6 ) ) == glob_MO[ _MO_KOD_TFOMS ]
+    If ( s1 := SubStr( s, 3, 6 ) ) == current_mo[ _MO_KOD_TFOMS ]
       r_use( dir_server() + 'mo_krtf', , 'KRTF' )
-      Index On Upper( fname ) to ( cur_dir() + 'tmp_krtf' )
+      Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmp_krtf' )
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
         fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
@@ -542,7 +555,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       Endif
       krtf->( dbCloseArea() )
     Else
-      fl := func_error( 4, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + s1 )
+      fl := func_error( 4, 'Ваш код МО ' + current_mo[ _MO_KOD_TFOMS ] + ' не соответствует коду получателя: ' + s1 )
       If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == s1 } ) ) > 0
         func_error( 4, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
       Endif
@@ -551,9 +564,9 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
     fl := .t.
     tip_csv_file := _CSV_FILE_SVERKAO
     kod_csv_reestr := 0
-    If ( s1 := SubStr( s, 4, 6 ) ) == glob_MO[ _MO_KOD_TFOMS ]
+    If ( s1 := SubStr( s, 4, 6 ) ) == current_mo[ _MO_KOD_TFOMS ]
       r_use( dir_server() + 'mo_krtf', , 'KRTF' )
-      Index On Upper( fname ) to ( cur_dir() + 'tmp_krtf' )
+      Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmp_krtf' )
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
         fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
@@ -568,7 +581,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       Endif
       krtf->( dbCloseArea() )
     Else
-      fl := func_error( 4, 'Ваш код МО ' + glob_MO[ _MO_KOD_TFOMS ] + ;
+      fl := func_error( 4, 'Ваш код МО ' + current_mo[ _MO_KOD_TFOMS ] + ;
         ' не соответствует коду получателя: ' + s1 )
       If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == s1 } ) ) > 0
         func_error( 4, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
@@ -586,7 +599,7 @@ Function verify_is_already_xml( cName, /*@*/_date, /*@*/_time)
   Local l, fl, tmp_select := Select()
 
   r_use( dir_server() + 'MO_XML', , 'MX' )
-  Index On Upper( FNAME ) to ( cur_dir() + 'tmp_mxml' )
+  Index On Upper( FIELD->FNAME ) to ( cur_dir() + 'tmp_mxml' )
   l := FieldLen( FieldNum( 'FNAME' ) )
   find ( PadR( cName, l ) )
   If ( fl := Found() )
