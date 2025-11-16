@@ -2,13 +2,15 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'tfile.ch'
 
 #define MAX_REC_REESTR 9999
 #define MAX_REC_REESTR_RDL 5000
 #define BASE_ISHOD_RZD 500
 
-// 29.08.25
+// 15.11.25
 Function verify_oms( arr_m, fl_view )
+  
   // Возврат: arrKolSl (массив)
   // 1 эл. - кол-во обычных случаев, 
   // 2 эл. - кол-во случаев диспансеризации
@@ -21,8 +23,10 @@ Function verify_oms( arr_m, fl_view )
   local  arrKolSl := { 0, 0 }
 
   local max_records_send
+  local current_mo, ft
 
-  max_records_send := iif( glob_mo[ _MO_KOD_TFOMS ] == '805965', MAX_REC_REESTR_RDL, MAX_REC_REESTR ) // число записываемых случаев в реестры
+  current_mo := glob_mo
+  max_records_send := iif( current_mo[ _MO_KOD_TFOMS ] == '805965', MAX_REC_REESTR_RDL, MAX_REC_REESTR ) // число записываемых случаев в реестры
 
   AAdd( mas_file, name_file )
 
@@ -47,6 +51,7 @@ Function verify_oms( arr_m, fl_view )
   Endif
   kr_unlock := iif( fl_view, 50, 1000 )
   waitstatus( 'Начало проверки...' )
+/*
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
@@ -54,6 +59,13 @@ Function verify_oms( arr_m, fl_view )
   add_string( Center( 'Список обнаруженных ошибок', 80 ) )
   add_string( Center( 'по дате окончания лечения ' + arr_m[ 4 ], 80 ) )
   add_string( '' )
+*/
+  ft := tfiletext():new( name_file, , .t., , .t. )
+  ft:add_string( '' )
+  ft:add_string( 'Список обнаруженных ошибок', FILE_CENTER, ' ' )
+  ft:add_string( 'по дате окончания лечения ' + arr_m[ 4 ], FILE_CENTER, ' ' )
+  ft:add_string( '' )
+
   If ! fl_view
     Use ( cur_dir() + 'tmp' ) new
     Use ( cur_dir() + 'tmpb' ) index ( cur_dir() + 'tmpb' ) new
@@ -80,10 +92,10 @@ Function verify_oms( arr_m, fl_view )
     dir_server() + 'human_ud', ;
     dir_server() + 'human_uv', ;
     dir_server() + 'human_ua' }, 'HU' )
-  Set Relation To RecNo() into HU_, To u_kod into USL
+  Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
   r_use( dir_server() + 'mo_su', , 'MOSU' )
   g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
-  Set Relation To u_kod into MOSU
+  Set Relation To FIELD->u_kod into MOSU
   g_use( dir_server() + 'kartote_', , 'KART_' )
   r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
@@ -98,18 +110,18 @@ Function verify_oms( arr_m, fl_view )
   g_use( dir_server() + 'human_', , 'HUMAN_' )
   g_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   dbSeek( DToS( arr_m[ 5 ] ), .t. )
-  If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. fl_view
+  If AScan( kod_LIS(), current_mo[ _MO_KOD_TFOMS ] ) > 0 .and. fl_view
     Private old_npr_mo := '000000'
-    Index On f_napr_mo_lis() + Upper( fio ) + Str( kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) ;
+    Index On f_napr_mo_lis() + Upper( FIELD->fio ) + Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) ;
       While human->k_data <= arr_m[ 6 ] .and. !Eof() ;
-      For tip_h == B_STANDART .and. Empty( schet ) .and. !Empty( k_data )
+      For FIELD->tip_h == B_STANDART .and. Empty( FIELD->schet ) .and. !Empty( FIELD->k_data )
   Else
-    Index On Upper( fio ) + Str( kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) ;
+    Index On Upper( FIELD->fio ) + Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) ;
       While human->k_data <= arr_m[ 6 ] .and. !Eof() ;
-      For tip_h == B_STANDART .and. Empty( schet ) .and. !Empty( k_data )
+      For FIELD->tip_h == B_STANDART .and. Empty( FIELD->schet ) .and. !Empty( FIELD->k_data )
   Endif
   Set Index to ( dir_server() + 'humans' ), ( dir_server() + 'humankk' ), ( dir_server() + 'humand' ), ( cur_dir() + 'tmp_hfio' )
-  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
+  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To FIELD->kod_k into KART
   Set Order To 4
   Go Top
   Do While !Eof()
@@ -142,7 +154,7 @@ Function verify_oms( arr_m, fl_view )
         // не проверять вернувшихся из ТФОМС с ошибкой
       Else
         If arr_m[ 1 ] > 2018
-          fl := verify_sluch( fl_view )
+          fl := verify_sluch( fl_view, ft )
         Endif
         If fl
           ++iprov
@@ -195,12 +207,13 @@ Function verify_oms( arr_m, fl_view )
   dbCommitAll()
   If inprov == 0
     If iprov > 0
-      add_string( 'Проверено случаев - ' + lstr( iprov ) + '. Ошибок не обнаружено.' )
+      ft:add_string( 'Проверено случаев - ' + lstr( iprov ) + '. Ошибок не обнаружено.' )
     Else
-      add_string( 'Нечего проверять!' )
+      ft:add_string( 'Нечего проверять!' )
     Endif
   Endif
-  FClose( fp )
+//  FClose( fp )
+  ft := nil
   If !fl_view
     Select HUMAN
     Set Index To  // отвязываем условный индекс
@@ -209,7 +222,7 @@ Function verify_oms( arr_m, fl_view )
     Select HUMAN_3
     Set Order To 2 // встать на индекс по 2-му случаю
     Select TMPB
-    Index On Str( kod_human, 7 ) to ( cur_dir() + 'tmpb' ) For ishod == 89  // 2-ой лист учёта в двойном случае
+    Index On Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' ) For FIELD->ishod == 89  // 2-ой лист учёта в двойном случае
     Go Top
     Do While !Eof()
       Select HUMAN_3
@@ -275,7 +288,7 @@ Function verify_oms( arr_m, fl_view )
     dbCreate( fr_titl, adbf )
     Use ( fr_titl ) New Alias FRT
     Append Blank
-    frt->name := glob_mo[ _MO_SHORT_NAME ]
+    frt->name := current_mo[ _MO_SHORT_NAME ]
     frt->name1 := 'Список случаев повторных обращений по поводу одного и того же заболевания'
     frt->period := arr_m[ 4 ]
     adbf := { { 'fio', 'C', 100, 0 }, ;
@@ -347,33 +360,39 @@ Function verify_oms( arr_m, fl_view )
     name_file3 := cur_dir() + 'err_sl3.txt'
     AAdd( mas_pmt, 'Список листов учёта, которые не проверялись' )
     AAdd( mas_file, name_file3 )
+    Select HUMAN
+    Set Index To
+/*    
     fp := FCreate( name_file3 )
     n_list := 1
     tek_stroke := 0
-    Select HUMAN
-    Set Index To
     add_string( '' )
     add_string( Center( 'Список листов учёта, которые не проверялись', 80 ) )
+*/
+    ft := tfiletext():new( name_file3, , .t., , .t. )
+    ft:add_string( '' )
+    ft:add_string( 'Список листов учёта, которые не проверялись', FILE_CENTER, ' ' )
+
     r_use( dir_server() + 'str_komp', , 'STR' )
     r_use( dir_server() + 'komitet', , 'KOM' )
     Select TMP_NO
-    Set Relation To kod into HUMAN
-    Index On Str( tip, 1 ) + Str( komu, 1 ) + Str( str_crb, 2 ) + Upper( human->fio ) to ( cur_dir() + 'tmp_no' )
+    Set Relation To FIELD->kod into HUMAN
+    Index On Str( FIELD->tip, 1 ) + Str( FIELD->komu, 1 ) + Str( FIELD->str_crb, 2 ) + Upper( human->fio ) to ( cur_dir() + 'tmp_no' )
     old_tip := old_komu := old_str_crb := -1
     Go Top
     Do While !Eof()
-      verify_ff( 77, .t., 80 )
-      add_string( '' )
+//      verify_ff( 77, .t., 80 )
+      ft:add_string( '' )
       If old_tip != tmp_no->tip
         old_tip := tmp_no->tip
         If tmp_no->tip == 1
-          add_string( PadC( 'Нулевая цена', 80, '-' ) )
+          ft:add_string( 'Нулевая цена', FILE_CENTER, ' ' ) //  PadC( 'Нулевая цена', 80, '-' ) )
         Endif
       Endif
       If old_komu != tmp_no->komu
         old_komu := tmp_no->komu
         If tmp_no->tip == 2 .and. tmp_no->komu == 0
-          add_string( PadC( 'Пустая СМО', 80, '-' ) )
+          ft:add_string( 'Пустая СМО', FILE_CENTER, ' ' ) //  PadC( 'Пустая СМО', 80, '-' ) )
         Endif
       Endif
       If !( old_komu == tmp_no->komu .and. old_str_crb == tmp_no->str_crb )
@@ -382,22 +401,26 @@ Function verify_oms( arr_m, fl_view )
         Do Case
         Case tmp_no->komu == 1
           str->( dbGoto( tmp_no->str_crb ) )
-          add_string( PadC( 'Прочая компания: ' + AllTrim( str->name ), 80, '-' ) )
+//          add_string( PadC( 'Прочая компания: ' + AllTrim( str->name ), 80, '-' ) )
+          ft:add_string( 'Прочая компания: ' + AllTrim( str->name ), FILE_CENTER, '-' )
         Case tmp_no->komu == 3
           kom->( dbGoto( tmp_no->str_crb ) )
-          add_string( PadC( 'Комитет/МО: ' + AllTrim( kom->name ), 80, '-' ) )
+//          add_string( PadC( 'Комитет/МО: ' + AllTrim( kom->name ), 80, '-' ) )
+          ft:add_string( 'Комитет/МО: ' + AllTrim( kom->name ), FILE_CENTER, '-' )
         Case tmp_no->komu == 5
-          add_string( PadC( 'Личный счёт', 80, '-' ) )
+//          add_string( PadC( 'Личный счёт', 80, '-' ) )
+          ft:add_string( 'Личный счёт', FILE_CENTER, '-' )
         Endcase
       Endif
       uch->( dbGoto( human->LPU ) )
       otd->( dbGoto( human->OTD ) )
-      add_string( AllTrim( human->fio ) + ' ' + date_8( human->n_data ) + '-' + date_8( human->k_data ) )
-      add_string( ' ' + AllTrim( uch->name ) + '/' + AllTrim( otd->name ) )
+      ft:add_string( AllTrim( human->fio ) + ' ' + date_8( human->n_data ) + '-' + date_8( human->k_data ) )
+      ft:add_string( ' ' + AllTrim( uch->name ) + '/' + AllTrim( otd->name ) )
       Select TMP_NO
       Skip
     Enddo
-    FClose( fp )
+//    FClose( fp )
+    ft := nil
   Endif
   Close databases
   If fl_view
@@ -426,15 +449,17 @@ Function verify_oms( arr_m, fl_view )
   // arrKolSl[ 2 ] := kol_2r
   Return arrKolSl
 
-// 15.06.24
+// 15.11.25
 Function verify_oms_sluch( mkod )
 
-  Local buf := save_maxrow(), fl := .t., name_file := cur_dir() + 'err_sl.txt'
+  Local buf := save_maxrow(), fl := .t.
+  local ft, name_file := cur_dir() + 'err_sl.txt'
 
   mywait()
   f_create_diag_srok( 'tmp_d_srok' )
   Use ( cur_dir() + 'tmp_d_srok' ) New Alias D_SROK
 
+/*
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
@@ -442,6 +467,14 @@ Function verify_oms_sluch( mkod )
   add_string( Center( 'Список обнаруженных ошибок', 80 ) )
   add_string( Center( 'в листе учёта', 80 ) )
   add_string( '' )
+*/
+
+  ft := tfiletext():new( name_file, , .t., , .t. )
+  ft:add_string( '' )
+  ft:add_string( 'Список обнаруженных ошибок', FILE_CENTER, ' ' )
+  ft:add_string( 'в листе учёта', FILE_CENTER, ' ' )
+  ft:add_string( '' )
+
   //
   r_use( dir_server() + 'mo_pers', , 'PERS' )
   r_use( dir_server() + 'mo_uch', , 'UCH' )
@@ -456,10 +489,10 @@ Function verify_oms_sluch( mkod )
     dir_server() + 'human_ud', ;
     dir_server() + 'human_uv', ;
     dir_server() + 'human_ua' }, 'HU' )
-  Set Relation To RecNo() into HU_, To u_kod into USL
+  Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
   r_use( dir_server() + 'mo_su', , 'MOSU' )
   g_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
-  Set Relation To u_kod into MOSU
+  Set Relation To FIELD->u_kod into MOSU
   g_use( dir_server() + 'kartote_', , 'KART_' )
   r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
@@ -475,15 +508,15 @@ Function verify_oms_sluch( mkod )
   g_use( dir_server() + 'human', { dir_server() + 'humans', ;
     dir_server() + 'humankk', ;
     dir_server() + 'humand' }, 'HUMAN' )
-  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
+  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To FIELD->kod_k into KART
   Goto ( mkod )
   If Empty( human->k_data )
     //
   Elseif Year( human->k_data ) > 2018
-    fl := verify_sluch()
+    fl := verify_sluch( , ft )
   Else
     func_error( 4, 'Случай ранее 2019 года.' )
-    Close databases
+    dbCloseAll()  //  Close databases
     Return Nil
   Endif
   If d_srok->( LastRec() ) > 0
@@ -491,6 +524,7 @@ Function verify_oms_sluch( mkod )
     If fl
       uch->( dbGoto( human->LPU ) )
       otd->( dbGoto( human->OTD ) )
+/*
       add_string( AllTrim( human->fio ) + ' ' + AllTrim( human->kod_diag ) + ' ' + ;
         date_8( human->n_data ) + '-' + date_8( human->k_data ) + ;
         iif( d_srok->tip == 0, '', ' (2.' + am[ d_srok->tip ] + '.*)' ) )
@@ -498,11 +532,20 @@ Function verify_oms_sluch( mkod )
         inieditspr( A__MENUVERT, getv002(), human_->profil ) + '"' )
       pers->( dbGoto( human_->VRACH ) )
       add_string( 'лечащий врач [' + lstr( pers->tab_nom ) + '] ' + pers->fio )
+*/
+      ft:add_string( AllTrim( human->fio ) + ' ' + AllTrim( human->kod_diag ) + ' ' + ;
+        date_8( human->n_data ) + '-' + date_8( human->k_data ) + ;
+        iif( d_srok->tip == 0, '', ' (2.' + am[ d_srok->tip ] + '.*)' ) )
+      ft:add_string( AllTrim( uch->name ) + '/' + AllTrim( otd->name ) + '/профиль по "' + ;
+        inieditspr( A__MENUVERT, getv002(), human_->profil ) + '"' )
+      pers->( dbGoto( human_->VRACH ) )
+      ft:add_string( 'лечащий врач [' + lstr( pers->tab_nom ) + '] ' + pers->fio )
     Endif
     Select HUMAN
     Goto ( d_srok->kod1 )
     uch->( dbGoto( human->LPU ) )
     otd->( dbGoto( human->OTD ) )
+/*
     add_string( '' )
     add_string( Center( 'Предупреждение!', 80 ) )
     add_string( '' )
@@ -514,10 +557,23 @@ Function verify_oms_sluch( mkod )
       inieditspr( A__MENUVERT, getv002(), human_->profil ) + '"' )
     pers->( dbGoto( human_->VRACH ) )
     add_string( 'лечащий врач [' + lstr( pers->tab_nom ) + '] ' + pers->fio )
+*/
+    ft:add_string( '' )
+    ft:add_string( 'Предупреждение!', FILE_CENTER, ' ' )
+    ft:add_string( '' )
+    ft:add_string( 'Обратите внимание, что ' + lstr( d_srok->dni ) + ' дней назад обнаружен случай' )
+    ft:add_string( 'с основным диагнозом ' + AllTrim( human->kod_diag ) + ' ' + ;
+      date_8( human->n_data ) + '-' + date_8( human->k_data ) + ;
+      iif( d_srok->tip1 == 0, '', ' (2.' + am[ d_srok->tip1 ] + '.*)' ) )
+    ft:add_string( AllTrim( uch->name ) + '/' + AllTrim( otd->name ) + '/профиль по "' + ;
+      inieditspr( A__MENUVERT, getv002(), human_->profil ) + '"' )
+    pers->( dbGoto( human_->VRACH ) )
+    ft:add_string( 'лечащий врач [' + lstr( pers->tab_nom ) + '] ' + pers->fio )
     fl := .f.
   Endif
-  Close databases
+  dbCloseAll()  //  Close databases
   FClose( fp )
+  ft := nil
   rest_box( buf )
   If !fl
     viewtext( name_file, , , , .t., , , 5 )

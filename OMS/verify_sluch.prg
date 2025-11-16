@@ -3,11 +3,12 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'tfile.ch'
 
 #define BASE_ISHOD_RZD 500  //
 
-// 10.11.25
-Function verify_sluch( fl_view )
+// 16.11.25
+Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
   local arr_IDPC := {}  // массив для кодов целей посещения
@@ -717,16 +718,17 @@ Function verify_sluch( fl_view )
   d_sroks := ''
 
   Select HU
-  find ( Str( human->kod, 7 ) )
-  If ! Found()
-    add_string( header_error )
+  hu->( dbSeek( Str( human->kod, 7 ) ) )  //   find ( Str( human->kod, 7 ) )
+  If ! hu->( Found() )
+    ft:add_string( header_error, FILE_CENTER, ' ', .t. )
     AAdd( ta, 'для случая отсутствует список оказанных услуг' )
     For i := 1 To Len( ta )
       For j := 1 To perenos( t_arr, ta[ i ], 78 )
         If j == 1
-          add_string( iif( i == 1, ' ', '- ' ) + t_arr[ j ] )
+          ft:add_string( iif( i == 1, ' ', '- ' ) + t_arr[ j ] )
         Else
-          add_string( PadL( AllTrim( t_arr[ j ] ), 80 ) )
+//          add_string( PadL( AllTrim( t_arr[ j ] ), 80 ) )
+          ft:add_string( AllTrim( t_arr[ j ] ), FILE_LEFT )
         Endif
       Next
     Next
@@ -4931,19 +4933,19 @@ Function verify_sluch( fl_view )
     If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. Type( 'old_npr_mo' ) == 'C'
       If !( old_npr_mo == human_->NPR_MO )
         If !( old_npr_mo == '000000' )
-          verify_ff( -1, .t., 80 ) // безусловный перевод страницы
+//          verify_ff( -1, .t., 80 ) // безусловный перевод страницы
         Endif
-        add_string( Replicate( '=', 80 ) )
-        add_string( 'Направление из МО: ' + human_->NPR_MO + ' ' + ret_mo( human_->NPR_MO )[ _MO_SHORT_NAME ] )
-        add_string( Replicate( '=', 80 ) )
+        ft:add_string( Replicate( '=', 80 ) )
+        ft:add_string( 'Направление из МО: ' + human_->NPR_MO + ' ' + ret_mo( human_->NPR_MO )[ _MO_SHORT_NAME ] )
+        ft:add_string( Replicate( '=', 80 ) )
       Endif
       old_npr_mo := human_->NPR_MO
     Endif
-    verify_ff( 80 - Len( ta ) -3, .t., 80 )
+//    verify_ff( 80 - Len( ta ) -3, .t., 80 )
     // вывод заголовок пациента
-    add_string( '' )
-    add_string( header_error )
-    add_string( '' )
+    ft:add_string( '' )
+    ft:add_string( header_error, FILE_CENTER, ' ', .t. )
+    ft:add_string( '' )
 
     If human->cena_1 == 0 ; // если цена нулевая
       .and. eq_any( human->ishod, 201, 202 ) // диспансеризация взрослого населения
@@ -4953,9 +4955,10 @@ Function verify_sluch( fl_view )
     For i := 1 To Len( ta )
       For j := 1 To perenos( t_arr, ta[ i ], 78 )
         If j == 1
-          add_string( '- ' + t_arr[ j ] )
+          ft:add_string( '- ' + t_arr[ j ] )
         Else
-          add_string( PadL( AllTrim( t_arr[ j ] ), 80 ) )
+//          add_string( PadL( AllTrim( t_arr[ j ] ), 80 ) )
+          ft:add_string( AllTrim( t_arr[ j ] ), FILE_LEFT )
         Endif
       Next
     Next
