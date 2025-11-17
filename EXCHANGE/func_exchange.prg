@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.11.25 сформировать массив имен файлов реестра сведений и пациентов
+// 17.11.25 сформировать массив имен файлов реестра сведений и пациентов
 function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
   // type - тип реестра (обычный, для диспансеризации)
   // nyear - номер года
@@ -16,17 +16,23 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
 
   local sName := ''
   local aFiles
+  local codeMO
 
+  codeMO := CODE_LPU
   if nyear <= 2025
-    sName := 'RM' + CODE_LPU + 'T34' + '_' ;
+    sName := 'RM' + codeMO + 'T34' + '_' ;
       + Right( StrZero( nyear, 4 ), 2 ) + StrZero( nmonth, 2 ) + StrZero( mnn, nsh )
     aFiles := { { 'H', 'F' }[ type ] + sName, ;
       'L' + sName }
   else
+    sName := 'M' + codeMO + iif( kod_smo == '34   ', 'T', 'S' ) + kod_smo + '_' + ;
+      + Right( StrZero( nyear, 4 ), 2 ) + StrZero( nmonth, 2 ) + StrZero( mnn, nsh )
+    aFiles := { { 'H', 'X' }[ type ] + sName, ;
+      'L' + sName }
   endif
   return aFiles
 
-// 16.11.25 проверить, нам ли предназначен данный XML-файл
+// 17.11.25 проверить, нам ли предназначен данный XML-файл
 Function is_our_xml( cName, ret_arr )
 
   Local i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
@@ -321,7 +327,8 @@ Function is_our_xml( cName, ret_arr )
         s := SubStr( s, 2 )
         cFrom := BeforAtNum( '_', s )
         nSMO := Int( Val( cFrom ) )
-        If AScan( glob_arr_smo, {| x| x[ 2 ] == nSMO } ) == 0
+//        If AScan( glob_arr_smo, {| x| x[ 2 ] == nSMO } ) == 0
+        If AScan( smo_volgograd(), {| x| x[ 2 ] == nSMO } ) == 0
           AAdd( arr_err, 'Неверный код отправителя: ' + cFrom )
         Endif
         If Len( arr_err ) == 0
@@ -351,7 +358,8 @@ Function is_our_xml( cName, ret_arr )
         s := SubStr( s, 2 )
         cFrom := BeforAtNum( 'M', s )
         nSMO := Int( Val( cFrom ) )
-        If AScan( glob_arr_smo, {| x| x[ 2 ] == nSMO } ) == 0
+//        If AScan( glob_arr_smo, {| x| x[ 2 ] == nSMO } ) == 0
+        If AScan( smo_volgograd(), {| x| x[ 2 ] == nSMO } ) == 0
           AAdd( arr_err, 'Неверный код отправителя: ' + cFrom )
         Endif
         If Len( arr_err ) == 0
@@ -434,8 +442,8 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Return fl
 
-// 16.11.25 если это укрупнённый архив, распаковать и прочитать
-Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
+// 17.11.25 если это укрупнённый архив, распаковать и прочитать
+Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
 
   Static cStFile, si
   Local fl := .f., arr := {}, arr_f, i, s := cName, s1, name_ext, _date, _time, c
@@ -521,7 +529,8 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
       s := SubStr( s, 2 )
       cFrom := BeforAtNum( 'M', s )
       nSMO := Int( Val( cFrom ) )
-      If AScan( glob_arr_smo, {| x| x[ 2 ] == nSMO } ) > 0
+//      If AScan( glob_arr_smo, {| x| x[ 2 ] == nSMO } ) > 0
+      If AScan( smo_volgograd(), {| x| x[ 2 ] == nSMO } ) > 0
         s := AfterAtNum( 'M', s )
         If BeforAtNum( '_', s ) == current_mo[ _MO_KOD_TFOMS ] .and. ;
             ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2, 'tmp' + szip() ) ) != NIL
@@ -593,16 +602,16 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Return fl
 
-// проверить, занесен ли данный файл в 'MO_XML'
-Function verify_is_already_xml( cName, /*@*/_date, /*@*/_time)
+// 17.11.25 проверить, занесен ли данный файл в 'MO_XML'
+Function verify_is_already_xml( cName, /*@*/_date, /*@*/_time )
 
   Local l, fl, tmp_select := Select()
 
   r_use( dir_server() + 'MO_XML', , 'MX' )
   Index On Upper( FIELD->FNAME ) to ( cur_dir() + 'tmp_mxml' )
   l := FieldLen( FieldNum( 'FNAME' ) )
-  find ( PadR( cName, l ) )
-  If ( fl := Found() )
+  mx->( dbSeek( PadR( cName, l ) ) )  //   find ( PadR( cName, l ) )
+  If ( fl := mx->( Found() ) )
     If mx->tip_in > 0  // если принимаемый файл
       _date := mx->DREAD  // то вернём дату последнего чтения (обработки)
       _time := mx->TREAD

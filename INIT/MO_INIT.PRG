@@ -6,7 +6,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.09.25 начальная инициализация программы (до входа в Reconstruct_BD)
+// 17.11.25 начальная инициализация программы (до входа в Reconstruct_BD)
 Function init_first()
 
   Local buf := save_maxrow()
@@ -53,6 +53,7 @@ Function init_first()
     { 'Комитеты/МО    ', 3 }, ;
     { 'Личный счёт    ', 5 } ;
   }
+/*
   Public glob_arr_smo := { ;
     { 'АСП ООО "Капитал МС"-филиал в Волгоградской области',    34007, 1 }, ;
     { 'ОАО "СОГАЗ-Мед"',        34002, 1 }, ;
@@ -67,6 +68,11 @@ Function init_first()
     'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь' }
   Public mm_monthR := { 'январе', 'феврале', 'марте', 'апреле', 'мае', 'июне', ;
     'июле', 'августе', 'сентябре', 'октябре', 'ноябре', 'декабре' }
+*/
+
+  Public glob_arr_smo := smo_volgograd()
+  Public mm_month := mm_month()
+  Public mm_monthR := mm_monthR()
   //
 //  Public tmp_ini := 'TMP' + sini()
 //  Public tools_ini := dir_server() + 'TOOLS' + sini()
