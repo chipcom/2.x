@@ -2112,7 +2112,7 @@ Function f2_inf_n_xmlfile( Loc_kod, kod_kartotek, lvozrast )
 
   Return Nil
 
-// 12.09.25 Запрос несовершеннолетних, подлежащих медосмотрам, методом многовариантного поиска
+// 17.11.25 Запрос несовершеннолетних, подлежащих медосмотрам, методом многовариантного поиска
 Function mnog_poisk_dnl()
 
   Local mm_tmp := {}, mm_sort
@@ -2159,9 +2159,14 @@ Function mnog_poisk_dnl()
   If is_talon
     is_kategor2 := !Empty( stm_kategor2 )
   Endif
-  For i := 1 To Len( glob_arr_smo )
-    If glob_arr_smo[ i, 3 ] == 1
-      AAdd( mm_smo, { glob_arr_smo[ i, 1 ], PadR( lstr( glob_arr_smo[ i, 2 ] ), 5 ) } )
+//  For i := 1 To Len( glob_arr_smo )
+//    If glob_arr_smo[ i, 3 ] == 1
+//      AAdd( mm_smo, { glob_arr_smo[ i, 1 ], PadR( lstr( glob_arr_smo[ i, 2 ] ), 5 ) } )
+//    Endif
+//  Next
+  For i := 1 To Len( smo_volgograd() )
+    If smo_volgograd()[ i, 3 ] == 1
+      AAdd( mm_smo, { smo_volgograd()[ i, 1 ], PadR( lstr( smo_volgograd()[ i, 2 ] ), 5 ) } )
     Endif
   Next
   ta := f2_mnog_poisk_dnl(,,, 1 )

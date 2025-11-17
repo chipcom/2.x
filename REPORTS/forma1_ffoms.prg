@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 01.03.23 распечатка формы №1 из приказа ФОМС №146
+// 17.11.25 распечатка формы №1 из приказа ФОМС №146
 FUNCTION forma1_ffoms()
 
   LOCAL mdate, i, j, k, d1, d2, arr_smo := {}, at1, at2, fl_month, tmp, b1_1, a1_1, ;
@@ -223,8 +223,10 @@ FUNCTION forma1_ffoms()
   IF Len( arr_smo ) > 0
     ASort( arr_smo,,, {| x, y| x[ 2 ] < y[ 2 ] } )
     FOR i := 1 TO Len( arr_smo )
-      IF ( j := AScan( glob_arr_smo, {| x| x[ 2 ] == arr_smo[ i, 2 ] } ) ) > 0
-        arr_smo[ i, 1 ] := glob_arr_smo[ j, 1 ]
+//      IF ( j := AScan( glob_arr_smo, {| x| x[ 2 ] == arr_smo[ i, 2 ] } ) ) > 0
+//        arr_smo[ i, 1 ] := glob_arr_smo[ j, 1 ]
+      IF ( j := AScan( smo_volgograd(), {| x| x[ 2 ] == arr_smo[ i, 2 ] } ) ) > 0
+        arr_smo[ i, 1 ] := smo_volgograd()[ j, 1 ]
       ELSE
         arr_smo[ i, 1 ] := 'СМО с кодом ' + lstr( arr_smo[ i, 2 ] )
       ENDIF

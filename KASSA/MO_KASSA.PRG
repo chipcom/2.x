@@ -442,7 +442,7 @@ Function nastr_kassa( k )
   Endif
   Return Nil
 
-// 12.09.25
+// 17.11.25
 Function kassa_r_list_uch( par, name_func )
 
   // 1 - платные услуги
@@ -503,7 +503,8 @@ Function kassa_r_list_uch( par, name_func )
     mkomu += iif( Empty( s ), "ТФОМС (иногородние)", s )
     mmest_inog := inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
   Elseif Left( kart_->SMO, 2 ) == '34'
-    mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
+//    mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
+    mkomu += AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
     mmest_inog := 'Волгоградская область'
   Elseif !Empty( kart_->SMO )
     mkomu += init_ismo( kart_->SMO )

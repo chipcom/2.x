@@ -287,7 +287,7 @@ Function f2tfoms_hodatajstvo( nKey, oBrow, regim )
 
   Return k
 
-// 12.09.25 á®§¤ ­¨¥ ä ©«  •Ž„€’€‰‘’‚€ ¤«ï ®âáë«ª¨ ¢ ’”ŽŒ‘
+// 17.11.25 á®§¤ ­¨¥ ä ©«  •Ž„€’€‰‘’‚€ ¤«ï ®âáë«ª¨ ¢ ’”ŽŒ‘
 Function create_file_hodatajstvo( arr_m )
 
   // arr_m - ¢à¥¬¥­­®© ¬ áá¨¢
@@ -484,7 +484,8 @@ Function create_file_hodatajstvo( arr_m )
             frd->vidpolis := lstr( human_->VPOLIS ) + "-" + inieditspr( A__MENUVERT, mm_vid_polis, human_->VPOLIS )
             frd->polis := AllTrim( AllTrim( human_->SPOLIS ) + " " + human_->NPOLIS )
             frd->smo := human_->smo
-            frd->name_smo := inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( human_->smo ) ) )
+//            frd->name_smo := inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( human_->smo ) ) )
+            frd->name_smo := inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( human_->smo ) ) )
             If Empty( frd->name_smo )
               Select SMO
               find ( PadR( human_->smo, 5 ) )

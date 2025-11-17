@@ -559,7 +559,7 @@ Function regi_nastr( k )
 
   Return Nil
 
-// 16.09.25
+// 17.11.25
 Function r_list_uch( par, name_func )
 
   // 0 - 'ind_karta' инд.карта или 'f_f025u' форма 025
@@ -675,7 +675,8 @@ Function r_list_uch( par, name_func )
       mkomu += iif( Empty( s ), 'ТФОМС (иногородние)', s )
       mmest_inog := inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
     Elseif Left( kart_->SMO, 2 ) == '34'
-      mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
+//      mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
+      mkomu += AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
       mmest_inog := 'Волгоградская область'
     Elseif !Empty( kart_->SMO )
       mkomu += init_ismo( kart_->SMO )
@@ -748,7 +749,7 @@ Function r_list_uch( par, name_func )
 
   Return Nil
 
-// 17.09.25
+// 17.11.25
 Function new_list_uch( par, name_func )
 
   // 0 - 'f_f025u' форма 025/у
@@ -977,7 +978,8 @@ Function new_list_uch( par, name_func )
     Endif
     frt->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + s
   Elseif Left( kart_->SMO, 2 ) == '34'
-    frt->smo := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
+//    frt->smo := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
+    frt->smo := AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
   Elseif !Empty( kart_->SMO )
     frt->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + init_ismo( kart_->SMO )
   Endif
@@ -1049,7 +1051,8 @@ Function new_list_uch( par, name_func )
     m1company := m1str_crb
   Endif
   If m1komu == 0 // ОМС
-    mm_company := AClone( glob_arr_smo )
+//    mm_company := AClone( glob_arr_smo )
+    mm_company := AClone( smo_volgograd() )
   Elseif m1komu == 1 // Прочие компании
     r_use( dir_server() + 'str_komp' )
     Index On Upper( name ) To tmp_comp For !Between( tfoms, 44, 47 )

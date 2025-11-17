@@ -1290,7 +1290,8 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
     Else
       frt->adres_p := ret_okato_ulica( kart_->adresp, kart_->okatop )
     Endif
-    s := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) ) + ", полис "
+//    s := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) ) + ", полис "
+    s := AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) ) + ", полис "
     s += AllTrim( RTrim( kart_->SPOLIS ) + " " + kart_->NPOLIS ) + " (" + ;
       AllTrim( inieditspr( A__MENUVERT, mm_vid_polis, kart_->VPOLIS ) ) + ")"
     frt->smo := s

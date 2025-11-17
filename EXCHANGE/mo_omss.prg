@@ -504,7 +504,7 @@ Function fill_tmp2_file_flk()
   Endif
   Return Nil
 
-// 22.06.23 прочитать и 'разнести' по базам данных реестр СП и ТК
+// 17.11.25 прочитать и 'разнести' по базам данных реестр СП и ТК
 Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
 
   Local count_in_schet := 0, mnschet, bSaveHandler, ii1, ii2, i, k, t_arr[ 2 ], ;
@@ -564,7 +564,8 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
     Do While !Eof()
       If tmp2->_OPLATA == 1
         ++ii1
-        If AScan( glob_arr_smo, {| x| x[ 2 ] == Int( Val( tmp2->_SMO ) ) } ) == 0
+//        If AScan( glob_arr_smo, {| x| x[ 2 ] == Int( Val( tmp2->_SMO ) ) } ) == 0
+        If AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( tmp2->_SMO ) ) } ) == 0
           AAdd( aerr, 'Некорректное значение атрибута SMO: ' + tmp2->_SMO )
         Endif
       Elseif tmp2->_OPLATA == 2

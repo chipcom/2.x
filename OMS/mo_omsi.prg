@@ -554,7 +554,7 @@ Function e_statist( k )
   Endif
   Return Nil
 
-// 05.06.25 восстановление объёмов
+// 17.11.25 восстановление объёмов
 Function vosst_ob_em_rak()
 
   Static arr_smo, mm_pz
@@ -566,7 +566,8 @@ Function vosst_ob_em_rak()
   Local nameArr // , funcGetPZ
 
   If arr_smo == NIL
-    arr_smo := mo_cut_menu( glob_arr_smo )
+//    arr_smo := mo_cut_menu( glob_arr_smo )
+    arr_smo := mo_cut_menu( smo_volgograd() )
     For i := 1 To Len( arr_smo )
       arr_smo[ i, 3 ] := PadR( lstr( arr_smo[ i, 2 ] ), 5 )
       arr_smo[ i, 2 ] := i

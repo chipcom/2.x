@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 22.10.25 создать счета по результатам прочитанного реестра СП
+// 17.11.25 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
 
   Local arr_schet := {}, c, i, j, lbukva, ;
@@ -331,8 +331,9 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
     //
     StrFile( lstr( ii ) + '. ' + mn_schet + ' от ' + date_8( mdate_schet ) + ' (' + ;
       lstr( arr_schet[ ii, 3 ] ) + ' чел.) ' + ;
-      inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( sKodSMO ) ) ) + ;
+      inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( sKodSMO ) ) ) + ;
       hb_eol(), cFileProtokol, .t. )
+//      inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( sKodSMO ) ) ) + ;
     //
     oXmlDoc := hxmldoc():new()
     oXmlDoc:add( hxmlnode():new( 'ZL_LIST' ) )

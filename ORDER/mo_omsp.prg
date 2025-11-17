@@ -756,7 +756,7 @@ Function ret_menu_rpd_schet( r, c )
 
   Return ret
 
-// 30.03.23 список платёжных поручений
+// 17.11.25 список платёжных поручений
 Function i_list_of_pd()
 
   Local buf := save_maxrow(), lsmo := {}, arr_smo, lmenu, i, j, k, s, t_arr[ 2 ], ;
@@ -894,9 +894,12 @@ Function i_list_of_pd()
   Enddo
   Close databases
   arr_smo := {}
-  For i := 1 To Len( glob_arr_smo )
-    If AScan( lsmo, {| x| Int( Val( x ) ) == glob_arr_smo[ i, 2 ] } ) > 0
-      AAdd( arr_smo, glob_arr_smo[ i ] )
+//  For i := 1 To Len( glob_arr_smo )
+//    If AScan( lsmo, {| x| Int( Val( x ) ) == glob_arr_smo[ i, 2 ] } ) > 0
+//      AAdd( arr_smo, glob_arr_smo[ i ] )
+  For i := 1 To Len( smo_volgograd() )
+    If AScan( lsmo, {| x| Int( Val( x ) ) == smo_volgograd()[ i, 2 ] } ) > 0
+      AAdd( arr_smo, smo_volgograd()[ i ] )
     Endif
   Next
   rest_box( buf )
@@ -1592,7 +1595,7 @@ Function f1akt_sverki_smo( k, s, hitog )
 
   Return s
 
-// 30.03.23 Распечатка информации по выставленным счетам, снятиям по ним, оплате и долге
+// 17.11.25 Распечатка информации по выставленным счетам, снятиям по ним, оплате и долге
 Function pr1_oborot_schet()
 
   Static arr_smo
@@ -1615,7 +1618,8 @@ Function pr1_oborot_schet()
     Next
   Endif
   If arr_smo == NIL
-    arr_smo := mo_cut_menu( glob_arr_smo )
+//    arr_smo := mo_cut_menu( glob_arr_smo )
+    arr_smo := mo_cut_menu( smo_volgograd() )
     For i := 1 To Len( arr_smo )
       arr_smo[ i, 3 ] := PadR( lstr( arr_smo[ i, 2 ] ), 5 )
       arr_smo[ i, 2 ] := i
@@ -1701,7 +1705,7 @@ Function pr1_oborot_schet()
 
   Return Nil
 
-// 30.03.23
+// 17.11.25
 Function f1pr1_oborot_schet( asmo, ssmo )
 
   Local adbf, i, n, arr_title, n_file := cur_dir() + "oborot1.txt", sh, HH := 60, buf := save_maxrow()
@@ -1916,10 +1920,12 @@ Function f1pr1_oborot_schet( asmo, ssmo )
   s1 := s2 := s3 := spenalty := 0
   Do Case
   Case m1schet == 0 // по СМО
-    For i := 1 To Len( glob_arr_smo )
-      find ( PadR( lstr( glob_arr_smo[ i, 2 ] ), 5 ) )
+    For i := 1 To Len( smo_volgograd() )  //  glob_arr_smo )
+//      find ( PadR( lstr( glob_arr_smo[ i, 2 ] ), 5 ) )
+      find ( PadR( lstr( smo_volgograd()[ i, 2 ] ), 5 ) )
       If Found()
-        add_string( PadR( glob_arr_smo[ i, 1 ], n ) + put_kop( tmp1->summa1, 15, 2 ) + ;
+//        add_string( PadR( glob_arr_smo[ i, 1 ], n ) + put_kop( tmp1->summa1, 15, 2 ) + ;
+        add_string( PadR( smo_volgograd()[ i, 1 ], n ) + put_kop( tmp1->summa1, 15, 2 ) + ;
           put_kope( tmp1->sum_sn, 12, 2 ) + put_kope( tmp1->sum_op, 15, 2 ) + ;
           put_kope( tmp1->summa1 - tmp1->sum_sn - tmp1->sum_op, 15, 2 ) )
         s1 += tmp1->summa1

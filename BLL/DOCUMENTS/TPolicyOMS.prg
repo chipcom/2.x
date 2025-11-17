@@ -105,9 +105,9 @@ METHOD FUNCTION GetAsString(format) CLASS TPolicyOMS
       mismo := T_mo_smoDB():getBySMO(m1ismo)
     
       if empty(m1namesmo := int(val(::FSMO)))
-        m1namesmo := glob_arr_smo[1, 2] // по умолчанию = КапиталЪ Медстрах
+        m1namesmo := smo_volgograd()[1, 2] // по умолчанию = КапиталЪ Медстрах
       endif
-      mnamesmo := inieditspr(A__MENUVERT, glob_arr_smo, m1namesmo)
+      mnamesmo := inieditspr(A__MENUVERT, smo_volgograd(), m1namesmo)
       if m1namesmo == 34
         if !empty(mismo)
           mnamesmo := mismo

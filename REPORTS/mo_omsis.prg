@@ -1060,8 +1060,10 @@ Function uzkie1spec()
       { {| k, r, c| k := year_month( r + 1, c ), ;
       if( k == nil, nil, ( parr_m := AClone( k ), k := { k[ 1 ], k[ 4 ] } ) ), ;
       k } }, A__FUNCTION,,, .f. ) }
+//    @ r1 + 3, 4 Say "Страховая компания" Get mstrah ;
+//      reader {| x| menu_reader( x, glob_arr_smo, A__MENUVERT,,, .f. ) }
     @ r1 + 3, 4 Say "Страховая компания" Get mstrah ;
-      reader {| x| menu_reader( x, glob_arr_smo, A__MENUVERT,,, .f. ) }
+      reader {| x| menu_reader( x, smo_volgograd(), A__MENUVERT,,, .f. ) }
     @ r1 + 4, 4 Say "Номер" Get mnomer
     @ Row(), Col() + 1 Say "и дата" Get mdate
     @ Row(), Col() + 1 Say "счета"
@@ -1108,8 +1110,10 @@ Function uzkie2spec()
       { {| k, r, c| k := year_month( r + 1, c ), ;
       if( k == nil, nil, ( parr_m := AClone( k ), k := { k[ 1 ], k[ 4 ] } ) ), ;
       k } }, A__FUNCTION, , , .f. ) }
+//    @ r1 + 3, 4 Say 'Страховая компания' Get mstrah ;
+//      reader {| x| menu_reader( x, glob_arr_smo, A__MENUVERT, , , .f. ) }
     @ r1 + 3, 4 Say 'Страховая компания' Get mstrah ;
-      reader {| x| menu_reader( x, glob_arr_smo, A__MENUVERT, , , .f. ) }
+      reader {| x| menu_reader( x, smo_volgograd(), A__MENUVERT, , , .f. ) }
     @ r1 + 4, 4 Say 'Разрешить исключение некоторых услуг из списка ТФОМС?' Get musl ;
       reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
     @ r1 + 5, 4 Say 'Внешний вид документа' Get mperso ;

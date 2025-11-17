@@ -98,7 +98,7 @@ Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 12.09.25
+// 17.11.25
 Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Static mm_kart_error := { { 'нет замечаний', 0 }, { 'полис недействителен', -8 }, { 'ошибки в реквизитах', -9 } }
@@ -390,9 +390,11 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   madres_reg := ini_adres( 1 )
   madres_pre := ini_adres( 2 )
   If Empty( m1namesmo := Int( Val( msmo ) ) )
-    m1namesmo := glob_arr_smo[ 1, 2 ] // по умолчанию = КапиталЪ Медстрах
+//    m1namesmo := glob_arr_smo[ 1, 2 ] // по умолчанию = КапиталЪ Медстрах
+    m1namesmo := smo_volgograd()[ 1, 2 ] // по умолчанию = КапиталЪ Медстрах
   Endif
-  mnamesmo := inieditspr( A__MENUVERT, glob_arr_smo, m1namesmo )
+//  mnamesmo := inieditspr( A__MENUVERT, glob_arr_smo, m1namesmo )
+  mnamesmo := inieditspr( A__MENUVERT, smo_volgograd(), m1namesmo )
   If m1namesmo == 34
     If !Empty( mismo )
       mnamesmo := PadR( mismo, 41 )
@@ -548,8 +550,11 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
       reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
       Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
 
+//    @ ++ix, 1 Say 'СМО' Get mnamesmo ;
+//      reader {| x| menu_reader( x, glob_arr_smo, A__MENUVERT, , , .f. ) } ;
+//      valid {| g| func_valid_ismo( g, 0, 41, 'namesmo' ) }
     @ ++ix, 1 Say 'СМО' Get mnamesmo ;
-      reader {| x| menu_reader( x, glob_arr_smo, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, smo_volgograd(), A__MENUVERT, , , .f. ) } ;
       valid {| g| func_valid_ismo( g, 0, 41, 'namesmo' ) }
     @ Row(), 47 Say 'полис с' Get mbeg_polis
     @ Row(), Col() + 1 Say 'по' Get msrok_polis

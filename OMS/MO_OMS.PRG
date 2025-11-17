@@ -78,7 +78,8 @@ Function f_valid_komu( get, old )
     mcompany := Space( 30 )
     mm_company := {}
     If m1komu == 0 // ОМС
-      mm_company := AClone( glob_arr_smo )
+//      mm_company := AClone( glob_arr_smo )
+      mm_company := AClone( smo_volgograd() )
     Elseif m1komu == 1 // Прочие компании
       r_use( dir_server() + 'str_komp' )
       Index On Upper( name ) to ( cur_dir() + 'tmp_comp' ) For !Between( tfoms, 44, 47 )

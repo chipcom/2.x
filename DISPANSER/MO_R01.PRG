@@ -2757,7 +2757,7 @@ Function reestr_r02_tmpfile( oXmlDoc, aerr, mname_xml )
 
   Return Nil
 
-// 26.12.22 прочитать и 'разнести' по базам данных файл R02
+// 17.11.25 прочитать и 'разнести' по базам данных файл R02
 Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
 
   Local count_in_schet := 0, bSaveHandler, ii1, ii2, i, j, k, t_arr[ 2 ], ldate_R02, s, err_file := .f.
@@ -2783,7 +2783,8 @@ Function read_xml_file_r02( arr_XML_info, aerr, /*@*/current_i2,tip_f)
     @ MaxRow(), 0 Say Str( ++i / k * 100, 6, 2 ) + '%' Color cColorWait
     If tmp2->_OPLATA == 1
       ++ii1
-      If !Empty( tmp2->_SMO ) .and. AScan( glob_arr_smo, {| x| x[ 2 ] == Int( Val( tmp2->_SMO ) ) } ) == 0
+//      If !Empty( tmp2->_SMO ) .and. AScan( glob_arr_smo, {| x| x[ 2 ] == Int( Val( tmp2->_SMO ) ) } ) == 0
+      If !Empty( tmp2->_SMO ) .and. AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( tmp2->_SMO ) ) } ) == 0
         AAdd( aerr, 'Некорректное значение атрибута SMO: ' + tmp2->_SMO )
       Endif
     Elseif Between( tmp2->_OPLATA, 2, 4 )

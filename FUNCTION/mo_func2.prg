@@ -63,16 +63,19 @@ Function ret_koef_from_rak( lkod )
 
   Return koef
 
-// 24.04.13 вернуть действующую СМО
+// 17.11.25 вернуть действующую СМО
 Function ret_actual_smo( r, c )
 
   Static si := 34007
   Local i, arr := {}, ret, ret_arr
 
   Default r To T_ROW, c To T_COL -5
-  For i := 1 To Len( glob_arr_smo )
-    If glob_arr_smo[ i, 3 ] == 1
-      AAdd( arr, glob_arr_smo[ i ] )
+//  For i := 1 To Len( glob_arr_smo )
+//    If glob_arr_smo[ i, 3 ] == 1
+//      AAdd( arr, glob_arr_smo[ i ] )
+  For i := 1 To Len( smo_volgograd() )
+    If smo_volgograd()[ i, 3 ] == 1
+      AAdd( arr, smo_volgograd()[ i ] )
     Endif
   Next
   If popup_2array( arr, r, c, si, 1, @ret_arr ) > 0 .and. ValType( ret_arr ) == 'A'

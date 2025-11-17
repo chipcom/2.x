@@ -597,7 +597,7 @@ Function del_ppokoj()
   view_human_pp( 2 )
   Return Nil
 
-// 10.09.25
+// 17.11.25
 Function f_kart_pp( Loc_kod, kod_kartotek )
 
   Static mm_gospit := { { 'да ', 0 }, { 'нет', 1 } }
@@ -858,7 +858,8 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
   If !eq_any( m1komu, 0, 1, 3, 5 ) ; m1komu := 0 ; Endif
   mkomu      := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo      := init_ismo( m1ismo )
-  Private old_name_smo := PadR( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( msmo ) ) ), 38 )
+//  Private old_name_smo := PadR( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( msmo ) ) ), 38 )
+  Private old_name_smo := PadR( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( msmo ) ) ), 38 )
   f_valid_komu(, -1 )
   If m1komu == 0
     m1company := Int( Val( msmo ) )
@@ -2109,7 +2110,7 @@ Function f4_v_human_pp()
   Select ( tmp_select )
   Return Nil
 
-// 12.09.25
+// 17.11.25
 Function f2_v_human_pp( nkey, oBrow )
 
   // наименования файлов шаблонов
@@ -2364,7 +2365,8 @@ Function f2_v_human_pp( nkey, oBrow )
       Endif
       frd->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + s
     Elseif Left( kart_->SMO, 2 ) == '34'
-      frd->smo := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
+//      frd->smo := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
+      frd->smo := AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
     Elseif !Empty( kart_->SMO )
       frd->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + init_ismo( kart_->SMO )
     Endif
@@ -2406,7 +2408,8 @@ Function f2_v_human_pp( nkey, oBrow )
       m1company := m1str_crb
     Endif
     If m1komu == 0 // ОМС
-      mm_company := AClone( glob_arr_smo )
+//      mm_company := AClone( glob_arr_smo )
+      mm_company := AClone( smo_volgograd() )
     Elseif m1komu == 1 // Прочие компании
       r_use( dir_server() + 'str_komp' )
       Index On Upper( name ) To tmp_comp For !Between( tfoms, 44, 47 )
@@ -2717,7 +2720,8 @@ Function f2_v_human_pp( nkey, oBrow )
         frd->mest_inog := 'Регион финансирования: ' + inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
         frd->mestnost := s4 + ', область 3,' + sb1 + ' иногородние -4,' + sb2 + 'иностранцы -5'
       Elseif Left( kart_->SMO, 2 ) == '34'
-        mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
+//        mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
+        mkomu += AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
         // frd->mest_inog := 'Регион финансирования: '+'Волгоградская область'
         frd->mestnost := s4 + ', область 3, иногородние -4, иностранцы -5'
       Elseif !Empty( kart_->SMO )

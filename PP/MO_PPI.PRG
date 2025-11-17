@@ -346,7 +346,7 @@ Function pr_svod_pp( k )
   Endif
   Return Nil
 
-// 26.12.12
+// 17.11.25
 Function pr_ob_svod_pp()
 
   Static spar := 1
@@ -565,7 +565,8 @@ Function pr_ob_svod_pp()
   If !Empty( arr_prin )
     For i := 1 To Len( arr_prin )
       If arr_prin[ i, 1 ] == 0
-        arr_prin[ i, 4 ] := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, arr_prin[ i, 2 ] ) )
+//        arr_prin[ i, 4 ] := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, arr_prin[ i, 2 ] ) )
+        arr_prin[ i, 4 ] := AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), arr_prin[ i, 2 ] ) )
       Else
         arr_prin[ i, 4 ] := ''
         If arr_prin[ i, 1 ] == 1

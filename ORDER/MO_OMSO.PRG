@@ -2519,7 +2519,7 @@ Function akt_list_of_refusal_pacient()
 
   Return Nil
 
-// 13.02.19 ‘―¨α®ª €
+// 17.11.25 ‘―¨α®ª €
 Function pr_list_rak()
 
   Static arr_smo
@@ -2527,7 +2527,8 @@ Function pr_list_rak()
     krak := 0, kakt, ksch, kpac, kerr, kpen, sh, HH := 60
 
   If arr_smo == NIL
-    arr_smo := mo_cut_menu( glob_arr_smo )
+//    arr_smo := mo_cut_menu( glob_arr_smo )
+    arr_smo := mo_cut_menu( smo_volgograd() )
   Endif
   If ( arr_m := year_month( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
@@ -2693,12 +2694,13 @@ Function pr_schet_bez_rak()
 
   Return Nil
 
-// 31.01.25 αγ¬¬λ α­οβ¨© ―®  ªβ ¬
+// 17.11.25 αγ¬¬λ α­οβ¨© ―®  ªβ ¬
 Function akt_summa_of_refusal( tip )
 
   // 1 - ―® ¤ β¥ €’€ Ά €
   // 2  - ―® ¤ β¥ €
-  Local buf := save_maxrow(), arr_m, n_file := cur_dir() + 'sum_RAK' + stxt(), sh, HH := 40, arr_smo := AClone( glob_arr_smo )
+  Local buf := save_maxrow(), arr_m, n_file := cur_dir() + 'sum_RAK' + stxt(), sh, HH := 40
+  local arr_smo := AClone( smo_volgograd() )  //  glob_arr_smo )
 
   If ( arr_m := year_month( T_ROW, T_COL -5 ) ) == NIL
     Return Nil
@@ -2939,7 +2941,7 @@ Function akt_summa_of_refusal( tip )
 
   Return Nil
 
-// 28.10.2315 α―¨α®ª α­οβ¨© ―®  ªβ ¬ (¤¥δ¥ªβλ)
+// 17.11.25 α―¨α®ª α­οβ¨© ―®  ªβ ¬ (¤¥δ¥ªβλ)
 Function akt_list_of_refusal_defect()
 
   Static arr_smo
@@ -2956,7 +2958,8 @@ Function akt_list_of_refusal_defect()
   Local buf := SaveScreen(), i, ar, s, r := 14
 
   If arr_smo == NIL
-    arr_smo := mo_cut_menu( glob_arr_smo )
+//    arr_smo := mo_cut_menu( glob_arr_smo )
+    arr_smo := mo_cut_menu( smo_volgograd() )
     For i := 1 To Len( arr_smo )
       arr_smo[ i, 3 ] := PadR( lstr( arr_smo[ i, 2 ] ), 5 )
       arr_smo[ i, 2 ] := i

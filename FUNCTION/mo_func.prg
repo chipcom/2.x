@@ -114,14 +114,15 @@ Function ret_inogsmo_name( ltip, /*@*/rec, fl_close)
 
   Return s
 
-// 22.05.15 СМО на экран (печать)
+// 17.11.25 СМО на экран (печать)
 Function smo_to_screen( ltip )
 
   Local s := '', s1 := '', lsmo, nsmo, lokato
 
   lsmo := iif( ltip == 1, kart_->smo, human_->smo )
   nsmo := Int( Val( lsmo ) )
-  s := inieditspr( A__MENUVERT, glob_arr_smo, nsmo )
+//  s := inieditspr( A__MENUVERT, glob_arr_smo, nsmo )
+  s := inieditspr( A__MENUVERT, smo_volgograd(), nsmo )
   If Empty( s ) .or. nsmo == 34
     If nsmo == 34
       s1 := ret_inogsmo_name( ltip, , .t. )
