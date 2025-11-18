@@ -6,20 +6,6 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
-// вместо иногородней СМО подставить код ТФОМС
-Function cut_code_smo( _smo )
-
-  Local s := Space( 5 )
-
-  If !Empty( _smo )
-    If Left( _smo, 3 ) == '340'
-      s := _smo
-    Else
-      s := '34   '
-    Endif
-  Endif
-  Return s
-
 // 19.12.13
 Function menu_schet_akt( r, c )
 

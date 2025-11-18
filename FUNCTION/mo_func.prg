@@ -90,56 +90,6 @@ Function twowordfamimot( s )
 
   Return fl
 
-// 26.08.14 вернуть иногороднюю СМО
-Function ret_inogsmo_name( ltip, /*@*/rec, fl_close)
-
-  Local s := Space( 100 ), fl := .f., tmp_select := Select()
-
-  Default fl_close To .f.
-  If Select( 'SN' ) == 0
-    r_use( dir_server() + iif( ltip == 1, 'mo_kismo', 'mo_hismo' ), , 'SN' )
-    Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
-    fl := .t.
-  Endif
-  Select SN
-  find ( Str( iif( ltip == 1, kart->kod, human->kod ), 7 ) )
-  If Found()
-    s := sn->SMO_NAME
-    rec := sn->( RecNo() )
-  Endif
-  If fl .and. fl_close
-    sn->( dbCloseArea() )
-  Endif
-  Select ( tmp_select )
-
-  Return s
-
-// 17.11.25 СМО на экран (печать)
-Function smo_to_screen( ltip )
-
-  Local s := '', s1 := '', lsmo, nsmo, lokato
-
-  lsmo := iif( ltip == 1, kart_->smo, human_->smo )
-  nsmo := Int( Val( lsmo ) )
-//  s := inieditspr( A__MENUVERT, glob_arr_smo, nsmo )
-  s := inieditspr( A__MENUVERT, smo_volgograd(), nsmo )
-  If Empty( s ) .or. nsmo == 34
-    If nsmo == 34
-      s1 := ret_inogsmo_name( ltip, , .t. )
-    Else
-      s1 := init_ismo( lsmo )
-    Endif
-    If !Empty( s1 )
-      s := AllTrim( s1 )
-    Endif
-    lokato := iif( ltip == 1, kart_->KVARTAL_D, human_->okato )
-    If !Empty( lokato )
-      s += '/' + inieditspr( A__MENUVERT, glob_array_srf(), lokato )
-    Endif
-  Endif
-
-  Return s
-
 // 15.10.14 проверка корректности GUID
 Function valid_guid( s, par )
 

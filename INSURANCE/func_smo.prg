@@ -68,18 +68,20 @@ Function get_srf( k, r, c )
   t_arr[ BR_TITUL ] := 'Выбор субъекта РФ (территории страхования)'
   t_arr[ BR_TITUL_COLOR ] := 'BG+/GR'
   t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B', .f., 72 }
-  t_arr[ BR_COLUMN ] := { { 'ОКАТО', {|| tmp->okato } }, ;
-    { Center( 'Наименование', 66 ), {|| Left( tmp->name, 66 ) } } }
+  t_arr[ BR_COLUMN ] := { ;
+      { 'ОКАТО', {|| tmp->okato } }, ;
+      { Center( 'Наименование', 66 ), ;
+    {|| Left( tmp->name, 66 ) } } }
   t_arr[ BR_STAT_MSG ] := {|| status_key( '^<Esc>^ - выход;  ^<Enter>^ - выбор;  ^<F2>^ - поиск по подстроке' ) }
   t_arr[ BR_EDIT ] := {| nk, ob| f2_srf( nk, ob ) }
   t_arr[ BR_ENTER ] := {|| ret := { tmp->okato, tmp->name } }
   //
   Use ( cur_dir() + 'tmp_srf' ) New Alias TMP
-  Set Filter To !( okato == '18000' )
+  Set Filter To !( tmp->okato == '18000' )
   If !Empty( k )
-    Locate For okato == k
-    If !Found()
-      Go Top
+    Locate For tmp->okato == k
+    If ! tmp->( Found() )
+      tmp->( dbGoTop() )  //  Go Top
     Endif
   Endif
   edit_browse( t_arr )
@@ -91,7 +93,7 @@ Function f2_srf( nk, ob )
 
   Static stmp1 := ''
   Local rec1 := RecNo(), buf := SaveScreen(), tmp_color, ret := -1, ;
-    r1 := pr2 - 6, r2 := pr2 - 1, i, j, lf, s, rec
+    r1 := pr2 - 6, r2 := pr2 - 1, i
 
   If nk == K_F2
     box_shadow( r1, pc1 + 1, r2, pc2 - 1, cDataPgDn, 'Поиск по ключу', cDataCSay )
@@ -153,17 +155,16 @@ Function when_ismo( get, old )
   mm_ismo := {}
   If !Empty( m1okato )
     r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo', 'SMO' )
-    find ( m1okato )
-    Do While smo->okato == m1okato .and. !Eof()
+    smo->( dbSeek( m1okato ) )  //  find ( m1okato )
+    Do While smo->okato == m1okato .and. ! smo->( Eof() )
       s := AllTrim( smo->name )
       If !Empty( smo->d_end )
         s += ' (до ' + full_date( smo->d_end ) + ')'
       Endif
       AAdd( mm_ismo, { s, smo->smo } )
-      Skip
+      smo->( dbSkip() )   //  Skip
     Enddo
     smo->( dbCloseArea() )
   Endif
 
   Return Len( mm_ismo ) > 0
-

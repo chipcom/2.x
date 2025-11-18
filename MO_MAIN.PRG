@@ -125,8 +125,6 @@ Procedure Main( ... )
 //  Public is_hemodializ := .f.
 //  Public is_per_dializ := .f.
 
-//  Public glob_array_srf // массив страховых компаний
-
   // конец переноса из index_work_dir
 
   SetClearB( ' ' )

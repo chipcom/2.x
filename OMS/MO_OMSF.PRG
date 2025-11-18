@@ -285,23 +285,6 @@ Function is_smp( _USL_OK, _PROFIL )
 
   Return _USL_OK == 4 .or. _PROFIL == 84
 
-// вернуть наименование иногородней СМО
-Function init_ismo( lsmo )
-
-  Local s := Space( 10 ), tmp_select
-
-  If !Empty( lsmo )
-    tmp_select := Select()
-    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
-    find ( PadR( lsmo, 5 ) )
-    If Found()
-      s := RTrim( smo->name )
-    Endif
-    Use
-    Select ( tmp_select )
-  Endif
-  Return s
-
 // по дате окончания лечения вернуть массив групп нозологий по модернизации
 Function ret_arr_stand( mdate )
 
@@ -323,7 +306,7 @@ Function ret_zak_sl( /*@*/susl, /*@*/doplataF, /*@*/doplataR, /*@*/lotd, /*@*/lv
   If Select( 'HU' ) == 0
     r_use( dir_server() + 'uslugi', , 'USL' )
     r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-    Set Relation To u_kod into USL
+    Set Relation To FIELD->u_kod into USL
   Endif
   Select HU
   find ( Str( human->kod, 7 ) )
@@ -1877,7 +1860,7 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
     { 'kod_vu', 'N', 5, 0 }, ;
     { 'kod_AK', 'C', 6, 0 } } )
   Use ( cur_dir() + 'tmp_kart' ) New Alias TMP
-  Index On Upper( fio ) to ( cur_dir() + 'tmp_kart' )
+  Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_kart' )
   If lregim == 1
     If fl_number
       If is_uchastok == 1
@@ -2085,7 +2068,7 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
     r_use( dir_server() + 'kartote_', , 'KART_' )
     r_use( dir_server() + 'kartotek', , 'KART' )
     Use ( cur_dir() + 'tmp_kart' ) index ( cur_dir() + 'tmp_kart' ) New Alias TMP
-    Set Relation To kod into KART, To kod into KART_, To kod into KART2
+    Set Relation To FIELD->kod into KART, To FIELD->kod into KART_, To FIELD->kod into KART2
     If rec_tmp > 0
       Goto ( rec_tmp )
     Else
@@ -2254,7 +2237,7 @@ Function input_schet( rr, r, c )
             glob_schet := tmp->kod
           Else
             dbEval( {|| tmp->name := f4_view_list_schet( tmp->komu, tmp->smo, tmp->str_crb ) } )
-            Index On Descend( DToS( date_s ) ) to ( cur_dir() + 'tmp' )
+            Index On Descend( DToS( FIELD->date_s ) ) to ( cur_dir() + 'tmp' )
             Go Top
             If ( fl := alpha_browse( T_ROW, 2, MaxRow() -2, 77, 'f1inp_schet', color0, ;
                 'Счета с номером ' + AllTrim( mnomer ), 'R/BG', ;
