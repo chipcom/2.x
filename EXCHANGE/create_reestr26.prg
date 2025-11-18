@@ -20,8 +20,8 @@ Function create_reestr26()
 
   private arr_m // пока не знаю как передать
   Private pkol := 0, psumma := 0, ;
-    CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], ;
-    CODE_MO  := glob_mo[ _MO_KOD_FFOMS ]
+    CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], ;
+    CODE_MO  := glob_mo()[ _MO_KOD_FFOMS ]
 //  private p_array_PZ
 
   If ! hb_user_curUser:isadmin()

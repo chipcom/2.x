@@ -78,13 +78,13 @@ Function fff_init_r01()
 
   Return Nil
 
-// 23.12.23 Создание файла обмена R05...
+// 18.11.25 Создание файла обмена R05...
 Function f_create_r05()
 
   Local buf := save_maxrow()
 
   Private mdate, mkol1 := 0, mkol2 := 0, mkol11 := 0, mkol12 := 0, mkol13 := 0, ;
-    mrec, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ]
+    mrec, CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ]
   Private sgod := YEAR_UPLOAD_DISPANSER
 
   //
@@ -631,7 +631,7 @@ Function read_r05( full_zip )
 
   Return fl
 
-// 23.12.19 Создание файла обмена R05
+// 18.11.25 Создание файла обмена R05
 Function f3_create_r05()
 
   Local buf := save_maxrow(), i, j, skol[ 5 ], ekol := { 0, 0, 0, 0, 0 }, k, n, fl := .t.
@@ -760,7 +760,7 @@ Function f3_create_r05()
       rees->DSCHET := sys_date
       rees->NYEAR  := YEAR_UPLOAD_DISPANSER
       rees->NN     := r05_nn + 1
-      s := 'R05' + 'T34M' + CODE_LPU + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + '00' + StrZero( rees->NN, nsh )
+      s := 'R05' + 'T34M' + glob_mo()[ _MO_KOD_TFOMS ] + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + '00' + StrZero( rees->NN, nsh )
       rees->NAME_XML := s
       mkod_reestr := rees->KOD
       //
@@ -786,7 +786,7 @@ Function f3_create_r05()
       mo_add_xml_stroke( oXmlNode, 'DATE_F', date2xml( mo_xml->DFILE ) )
       mo_add_xml_stroke( oXmlNode, 'NAME_F', mo_xml->FNAME )
       oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'GENERAL_INFO' ) )
-      mo_add_xml_stroke( oXmlNode, 'CODEM', CODE_LPU )
+      mo_add_xml_stroke( oXmlNode, 'CODEM', glob_mo()[ _MO_KOD_TFOMS ] )  //  CODE_LPU )
       mo_add_xml_stroke( oXmlNode, 'YEAR', lstr( rees->NYEAR ) )
       mo_add_xml_stroke( oXmlNode, 'SIGN', lstr( r05p->TYPEOFREC ) )
       oVOLUMES := oXmlNode:add( hxmlnode():new( 'VOLUMES' ) )
@@ -1528,7 +1528,7 @@ Function verify_packet_r05( par, arr, /*@*/ret_nn )
 
   Return fl
 
-// 13.11.25 Создание файла обмена R01...
+// 18.11.25 Создание файла обмена R01...
 Function f_create_r01()
 
   Local buf := save_maxrow(), i, j, ir, s := '', arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ;
@@ -1537,7 +1537,7 @@ Function f_create_r01()
   Private mdate := sys_date, mrec := 1
   // !!! ВНИМАНИЕ
   Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {}, ;
-    pkol := 0, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], CODE_MO := glob_mo[ _MO_KOD_FFOMS ], ;
+    pkol := 0, CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], CODE_MO := glob_mo()[ _MO_KOD_FFOMS ], ;
     mkol := { 0, 0, 0, 0, 0 }, skol[ 5 ], ames[ 12, 5 ], ame[ 12 ], ;
   _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 )
 
@@ -1796,13 +1796,13 @@ Function f_create_r01()
 
   Return Nil
 
-// 18.12.19
+// 18.11.25
 Static Function f0_create_r01( s_god, cv, cf )
 
   Local fl, v, ltip, ltip1, lvoz, ag, lgod_r, s
 
   ++cv
-  If ( fl := ( kart2->MO_PR == CODE_LPU ) ) // прикреплён к нашей МО
+  If ( fl := ( kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] ) ) // прикреплён к нашей МО
     lgod_r := Year( kart->date_r )
     v := s_god - lgod_r
     If ( fl := ( v > 17 ) ) // только взрослое население
@@ -1905,7 +1905,7 @@ Function f00_create_r01()
 
   Return Nil
 
-// 12.09.25
+// 18.11.25
 Function f1_create_r01()
 
   Local imonth, nsh := 3, smsg, arr_nn[ 12 ]
@@ -1955,7 +1955,8 @@ Function f1_create_r01()
     rees->NYEAR  := YEAR_UPLOAD_DISPANSER
     rees->NMONTH := imonth
     rees->NN     := arr_nn[ imonth ] + 1
-    s := 'R01' + 'T34M' + CODE_LPU + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + StrZero( rees->NMONTH, 2 ) + StrZero( rees->NN, nsh )
+//    s := 'R01' + 'T34M' + CODE_LPU + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + StrZero( rees->NMONTH, 2 ) + StrZero( rees->NN, nsh )
+    s := 'R01' + 'T34M' + glob_mo()[ _MO_KOD_TFOMS ] + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + StrZero( rees->NMONTH, 2 ) + StrZero( rees->NN, nsh )
     rees->NAME_XML := s
     mkod_reestr := rees->KOD
     //
@@ -2019,7 +2020,7 @@ Function f1_create_r01()
     oXmlDoc:add( hxmlnode():new( 'ZL_LIST' ) )
     oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
     mo_add_xml_stroke( oXmlNode, 'VERSION', '3.0' )
-    mo_add_xml_stroke( oXmlNode, 'CODEM', CODE_LPU )
+    mo_add_xml_stroke( oXmlNode, 'CODEM', glob_mo()[ _MO_KOD_TFOMS ] )  //  CODE_LPU )
     mo_add_xml_stroke( oXmlNode, 'DATE_F', date2xml( mo_xml->DFILE ) )
     mo_add_xml_stroke( oXmlNode, 'NAME_F', mo_xml->FNAME )
     mo_add_xml_stroke( oXmlNode, 'SMO', '34' )
@@ -3300,10 +3301,10 @@ Function find_unfinished_r01()
 
   Return Nil
 
-// 14.12.23
+// 18.11.25
 Function find_new_r00()
 
-  Private c_view := 0, c_found := 0, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ]
+  Private c_view := 0, c_found := 0, CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ]
   Private _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 ), mkol := { 0, 0, 0, 0, 0 }
   
   Private sgod := YEAR_UPLOAD_DISPANSER
@@ -3339,13 +3340,13 @@ Function find_new_r00()
 
   Return Nil
 
-// 26.07.23
+// 18.11.25
 Static Function f0_create_new_r01( s_god, cv, cf )
 
   Local fl, v, ltip, ltip1, lvoz, ag, lgod_r, s
 
   ++cv
-  If ( fl := ( kart2->MO_PR == CODE_LPU ) ) // прикреплён к нашей МО
+  If ( fl := ( kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] ) ) //  CODE_LPU ) ) // прикреплён к нашей МО
     lgod_r := Year( kart->date_r )
     v := s_god - lgod_r
     If ( fl := ( v > 17 ) ) // только взрослое население
@@ -3397,25 +3398,25 @@ Static Function f0_create_new_r01( s_god, cv, cf )
 
   Return Nil
 
-// 17.06.25
+// 18.11.25
 Function find_new_r000()
 
   Local mo_dr000 := { '65 лет', '66 лет и старше', 'пенсионер', 'работающ' }
   Local mo_dr00 := { ; // пул пациентов, подлежащих диспансеризации/профосмотрам взрослого населения
-  { 'kod',        'N', 7, 0 }, ; // код по картотеке
-  { 'tip',        'N', 1, 0 }, ; // 1-диспансеризация, 2-профосмотр
-  { 'tip1',       'N', 1, 0 }, ; // 1-пенсионер,2-65 лет,3-66 лет и старше
-  { 'voz',        'N', 1, 0 }, ; // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-остальные
-  { 'n_m',        'N', 2, 0 }, ; // месяц для диспансеризации (1-12)
-  { 'n_q',        'N', 1, 0 }, ;
+    { 'kod',        'N', 7, 0 }, ; // код по картотеке
+    { 'tip',        'N', 1, 0 }, ; // 1-диспансеризация, 2-профосмотр
+    { 'tip1',       'N', 1, 0 }, ; // 1-пенсионер,2-65 лет,3-66 лет и старше
+    { 'voz',        'N', 1, 0 }, ; // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-остальные
+    { 'n_m',        'N', 2, 0 }, ; // месяц для диспансеризации (1-12)
+    { 'n_q',        'N', 1, 0 }, ;
     { 'enp',        'C', 16, 0 }, ; // ЕНП
-  { 'smo',        'N', 1, 0 }, ; // оповещён ли СМО
-  { 'MO_PR',      'C', 6, 0 }, ; // прикрепление
-  { 'REESTR',     'N', 6, 0 };  // код реестра по файлу 'mo_dr01'
-    }
+    { 'smo',        'N', 1, 0 }, ; // оповещён ли СМО
+    { 'MO_PR',      'C', 6, 0 }, ; // прикрепление
+    { 'REESTR',     'N', 6, 0 };  // код реестра по файлу 'mo_dr01'
+  }
   Local n_file := cur_dir() + 'r01_itog.txt', sh := 120
 
-  Private c_view := 0, c_found := 0, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ]
+  Private c_view := 0, c_found := 0, CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ]
   Private _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 ), mkol := { 0, 0, 0, 0, 0 }
   private sgod := YEAR_UPLOAD_DISPANSER
 
@@ -3481,13 +3482,13 @@ Function find_new_r000()
 
   Return Nil
 
-// 17.06.25
+// 18.11.25
 Static Function f0_create_new_r01_0( s_god, cv, cf )
 
   Local fl, v, ltip, ltip1, lvoz, ag, lgod_r, s
 
   ++cv
-  If ( fl := ( kart2->MO_PR != CODE_LPU ) ) // прикреплён к нашей МО
+  If ( fl := ( kart2->MO_PR != glob_mo()[ _MO_KOD_TFOMS ] ) ) //  CODE_LPU ) ) // прикреплён к нашей МО
     lgod_r := Year( kart->date_r )
     v := s_god - lgod_r
     If ( fl := ( v > 17 ) ) // только взрослое население

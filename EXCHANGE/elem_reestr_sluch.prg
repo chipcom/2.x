@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.11.25
+// 18.11.25
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -34,6 +34,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Local laluslf, lal
   Local s, sCOMENTSL
   local ar_dn
+  local CODE_LPU
 
 //  Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
 //  Local oKSG, oSLk, oMR_USL_N, oDISAB, fl_DISABILITY := .f.
@@ -70,7 +71,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   flLekPreparat := .f.
 
   laluslf := create_name_alias( 'luslf', _nyear )
-
+  CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ]
   //
   Select HUMAN
   Goto ( rhum->kod_hum )  // встали на 2-ой лист учёта

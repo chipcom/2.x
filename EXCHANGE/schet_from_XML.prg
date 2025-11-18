@@ -4,13 +4,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.11.25 создать счета по результатам прочитанного реестра СП
+// 18.11.25 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
 
   Local arr_schet := {}, c, i, j, lbukva, ;
     mnn, fl, name_zip, arr_zip := {}, lshifr1, ;
-    CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], code_schet, mb, me, nsh, ;
-    CODE_MO  := glob_mo[ _MO_KOD_FFOMS ], s1
+    CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], code_schet, mb, me, nsh, ;
+    CODE_MO  := glob_mo()[ _MO_KOD_FFOMS ], s1
   Local controlVer
   Local tmpSelect
   Local ushifr

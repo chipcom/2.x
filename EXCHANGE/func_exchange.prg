@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.11.25 сформировать массив имен файлов реестра сведений и пациентов
+// 18.11.25 сформировать массив имен файлов реестра сведений и пациентов
 function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
   // type - тип реестра (обычный, для диспансеризации)
   // nyear - номер года
@@ -18,7 +18,7 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
   local aFiles
   local codeMO
 
-  codeMO := CODE_LPU
+  codeMO := glob_mo()[ _MO_KOD_TFOMS ] 
   if nyear <= 2025
     sName := 'RM' + codeMO + 'T34' + '_' ;
       + Right( StrZero( nyear, 4 ), 2 ) + StrZero( nmonth, 2 ) + StrZero( mnn, nsh )
@@ -32,14 +32,14 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
   endif
   return aFiles
 
-// 17.11.25 проверить, нам ли предназначен данный XML-файл
+// 18.11.25 проверить, нам ли предназначен данный XML-файл
 Function is_our_xml( cName, ret_arr )
 
   Local i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
   Local arr_err := {}
   local current_mo
 
-  current_mo := glob_MO
+  current_mo := glob_MO()
   s := cName
   If eq_any( Left( s, 3 ), 'VHR', 'VFR', 'PHR', 'PFR' ) // файл протокола ФЛК
     nTypeFile := _XML_FILE_FLK
@@ -397,13 +397,13 @@ Function is_our_xml( cName, ret_arr )
 
   Return ( Len( arr_err ) == 0 )
 
-// 16.11.25 если это файл с расширениием CSV - прочитать
+// 18.11.25 если это файл с расширениием CSV - прочитать
 Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Local fl := .f., i, s := cName, s1
   local current_mo
 
-  current_mo := glob_MO
+  current_mo := glob_MO()
   If eq_any( Left( s, 3 ), 'EO2', 'LO2' ) // файлы протокола прикрепления и открепления
     fl := .t.
     tip_csv_file := iif( Left( s, 1 ) == 'E', _CSV_FILE_PRIKANS, _CSV_FILE_PRIKFLK )
@@ -442,7 +442,7 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Return fl
 
-// 17.11.25 если это укрупнённый архив, распаковать и прочитать
+// 18.11.25 если это укрупнённый архив, распаковать и прочитать
 Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
 
   Static cStFile, si
@@ -451,7 +451,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
   local cFrom, nSMO
 
 
-  current_mo := glob_MO
+  current_mo := glob_MO()
   Default cStFile To cName
   If Left( s, 3 ) == 'RI0' .or. Left( s, 2 ) == 'I0'
     fl := func_error( 4, 'Данный файл необходимо читать в подзадаче "Учёт направлений на госпитализацию"' )

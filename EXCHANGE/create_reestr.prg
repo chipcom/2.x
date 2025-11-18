@@ -6,7 +6,7 @@
 Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
-// 17.10.25
+// 18.11.25
 Function create_reestr()
 
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, pole
@@ -19,8 +19,8 @@ Function create_reestr()
 
   private arr_m // пока не знаю как передать
   Private pkol := 0, psumma := 0, ;
-    CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], ;
-    CODE_MO  := glob_mo[ _MO_KOD_FFOMS ]
+    CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], ;
+    CODE_MO  := glob_mo()[ _MO_KOD_FFOMS ]
 
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, err_admin() )

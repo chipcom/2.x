@@ -8,7 +8,7 @@
 
 // #define MONTH_UPLOAD 12 // МЕСЯЦ для выгрузки R11
 
-// 14.11.25 Создание файла обмена R11...
+// 18.11.25 Создание файла обмена R11...
 Function f_create_r11()
 
   Local buf := save_maxrow(), i, j, ir, s := '', arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
@@ -16,7 +16,7 @@ Function f_create_r11()
 
   Private mdate := sys_date, mrec := 1
   Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {}, ;
-    pkol := 0, CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], CODE_MO := glob_mo[ _MO_KOD_FFOMS ], ;
+    pkol := 0, CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], CODE_MO := glob_mo()[ _MO_KOD_FFOMS ], ;
     mkol := { 0, 0, 0, 0, 0 }, skol[ 5 ], ames[ 12, 5 ], ame[ 12 ]
 
   Private sgod := YEAR_UPLOAD_DISPANSER //  2025
@@ -350,7 +350,7 @@ Function f0_create_r11( s_god, _arr_vozrast_DVN )
 
   Return { ltip, ltip1, lvoz }
 
-// 13.11.25
+// 18.11.25
 Function f1_create_r11( lm, fl_dr00 )
 
   Local nsh := 3, smsg, lnn := 0, buf := save_maxrow()
@@ -403,7 +403,8 @@ Function f1_create_r11( lm, fl_dr00 )
   rees->NYEAR  := YEAR_UPLOAD_DISPANSER
   rees->NMONTH := s_month
   rees->NN     := lnn + 1
-  s := 'R11' + 'T34M' + CODE_LPU + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + StrZero( rees->NMONTH, 2 ) + StrZero( rees->NN, nsh )
+//  s := 'R11' + 'T34M' + CODE_LPU + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + StrZero( rees->NMONTH, 2 ) + StrZero( rees->NN, nsh )
+  s := 'R11' + 'T34M' + glob_mo()[ _MO_KOD_TFOMS ] + '_' + Right( StrZero( rees->NYEAR, 4 ), 2 ) + StrZero( rees->NMONTH, 2 ) + StrZero( rees->NN, nsh )
   rees->NAME_XML := s
   mkod_reestr := rees->KOD
   //
@@ -472,7 +473,7 @@ Function f1_create_r11( lm, fl_dr00 )
   oXmlDoc:add( hxmlnode():new( 'ZL_LIST' ) )
   oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
   mo_add_xml_stroke( oXmlNode, 'VERSION', '3.0' )
-  mo_add_xml_stroke( oXmlNode, 'CODEM', CODE_LPU )
+  mo_add_xml_stroke( oXmlNode, 'CODEM', glob_mo()[ _MO_KOD_TFOMS ] )  //  CODE_LPU )
   mo_add_xml_stroke( oXmlNode, 'DATE_F', date2xml( mo_xml->DFILE ) )
   mo_add_xml_stroke( oXmlNode, 'NAME_F', mo_xml->FNAME )
   mo_add_xml_stroke( oXmlNode, 'SMO', '34' )
