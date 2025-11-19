@@ -1016,7 +1016,7 @@ Function find_unfinished_r11()
 //  Private sgod := YEAR_UPLOAD_DISPANSER
 //  private smonth := MONTH_UPLOAD // Œ…‘Ÿ– ¤«ï ¢ë£àã§ª¨ R11
 
-  If glob_mo[ _MO_IS_UCH ]
+  If glob_mo()[ _MO_IS_UCH ]
     If ( fl := verify_packet_r05( 2, arr ) )
       r_use( dir_server() + 'mo_dr05p',, 'R05p' )
       Goto ( mrec )

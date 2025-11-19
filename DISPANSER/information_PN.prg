@@ -499,7 +499,7 @@ Function f21_inf_dnl( par )
         'ÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄ' }
       sh := Len( arr_title[ 1 ] )
       fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
-      add_string( glob_mo[ _MO_SHORT_NAME ] )
+      add_string( glob_mo()[ _MO_SHORT_NAME ] )
       add_string( PadL( 'à¨«®¦¥­¨¥ ª ¯¨áì¬ã ƒ“‡ "‚ŽŒˆ€–"', sh ) )
       add_string( PadL( 'ü1025 ®â 08.07.2019£.', sh ) )
       add_string( '' )
@@ -1137,7 +1137,7 @@ Function inf_dnl_030poo( is_schet )
       Close databases
       //
       fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
-      add_string( glob_mo[ _MO_SHORT_NAME ] )
+      add_string( glob_mo()[ _MO_SHORT_NAME ] )
       add_string( PadL( 'à¨«®¦¥­¨¥ 3', sh ) )
       add_string( PadL( 'ª à¨ª §ã Œ‡”', sh ) )
       add_string( PadL( 'ü514­ ®â 10.08.2017£.', sh ) )
@@ -2522,7 +2522,7 @@ Function mnog_poisk_dnl()
         Endif
         If Empty( kart2->MO_PR )
           s := ''
-        Elseif kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
+        Elseif kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
           s := '­ è'
         Else
           s := 'çã¦®©'
@@ -2602,9 +2602,9 @@ Static Function f1_mnog_poisk_dnl( cv, cf )
   Endif
   If fl .and. !Empty( mn->o_prik )
     If mn->o_prik == 1 // ª ­ è¥© ŒŽ
-      fl := ( kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] )
+      fl := ( kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] )
     Elseif mn->o_prik == 2 // ª ¤àã£¨¬ ŒŽ
-      fl := !( kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] )
+      fl := !( kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] )
     Else // ¯à¨ªà¥¯«¥­¨¥ ­¥¨§¢¥áâ­®
       fl := Empty( kart2->MO_PR )
     Endif

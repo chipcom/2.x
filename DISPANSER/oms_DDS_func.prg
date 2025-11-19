@@ -979,7 +979,7 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
   dbCreate( fr_titl, adbf )
   Use ( fr_titl ) New Alias FRT
   Append Blank
-  frt->name := glob_mo[ _MO_SHORT_NAME ]
+  frt->name := glob_mo()[ _MO_SHORT_NAME ]
   frt->fio := mfio
   frt->k_data := date_month( mk_data )
   frt->vrach := fam_i_o( p2->fio )
@@ -1085,7 +1085,7 @@ Function f2_inf_dds_karta( Loc_kod, kod_kartotek, lvozrast )
   frd->( Eval( blk, s ) )
   s := st + '12. Полное наименование и юридический адрес медицинской организации, ' + ;
     'проводившей ' + iif( p_tip_lu == TIP_LU_PN, 'профилактический медицинский осмотр: ', 'диспансеризацию: ' ) + ;
-    ub + glob_mo[ _MO_FULL_NAME ] + ', ' + glob_mo[ _MO_ADRES ] + ue + '.'
+    ub + glob_mo()[ _MO_FULL_NAME ] + ', ' + glob_mo()[ _MO_ADRES ] + ue + '.'
   frd->( Eval( blk, s ) )
   s := st + '13. Оценка физического развития с учетом возраста на момент ' + ;
     iif( p_tip_lu == TIP_LU_PN, 'медицинского осмотра:', 'диспансеризации:' )

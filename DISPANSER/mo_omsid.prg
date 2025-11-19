@@ -158,7 +158,7 @@ Function inf_dvn( k )
     inf_ydvn()
   Case k == 41
     // ne_real()
-    // if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
+    // if glob_mo()[_MO_KOD_TFOMS] == '711001' // ЖД-больница
     mas_pmt := { '~Создание плана-графика', ;
       '~Просмотр файлов обмена' }
     mas_msg := { 'Создание файла обмена R05... с планом-графиком по месяцам', ;
@@ -169,7 +169,7 @@ Function inf_dvn( k )
     // endif
   Case k == 42
     // ne_real()
-    // if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
+    // if glob_mo()[_MO_KOD_TFOMS] == '711001' // ЖД-больница
     mas_pmt := { '~Создание файлов обмена', ;
       '~Просмотр файлов обмена' }
     mas_msg := { 'Создание файлов обмена R01... по всем месяцам', ;
@@ -202,7 +202,7 @@ Function inf_dvn( k )
   Case k == 62
     f_view_r01()
   Case k == 43
-//    If glob_mo[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
+//    If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
       mas_pmt := { '~Создание файлов обмена', ;
         '~Просмотр файлов обмена' }
       mas_msg := { 'Создание файлов обмена R11... за конкретный месяц', ;
@@ -1553,7 +1553,7 @@ Function f21_inf_dvn( par ) // свод
     Enddo
     Close databases
     //
-    at := { glob_mo[ _MO_SHORT_NAME ], '[ ' + CharRem( '~', mas1pmt()[ par ] ) + ' за вычетом отказов в оплате ]', arr_m[ 4 ] }
+    at := { glob_mo()[ _MO_SHORT_NAME ], '[ ' + CharRem( '~', mas1pmt()[ par ] ) + ' за вычетом отказов в оплате ]', arr_m[ 4 ] }
     print_shablon( 'svod_dvn', { arr_21, at, ar }, 'tmp1.txt', .f. )
     fp := FCreate( 'tmp2.txt' ) ; n_list := 1 ; tek_stroke := 0
     fl := f_error_dvn( 3, 60, 80 )
@@ -2462,7 +2462,7 @@ Function f22_inf_dvn()
           { 'glavn', 'C', 100, 0 } } )
         Use ( fr_titl ) New Alias FRT
         Append Blank
-        frt->name := glob_mo[ _MO_SHORT_NAME ]
+        frt->name := glob_mo()[ _MO_SHORT_NAME ]
         frt->period := arr_m[ 4 ]
         frt->glavn :=  'Главный врач __________________ ' + fam_i_o( org->ruk )
         frt->ispoln := 'исполнитель: ' + AllTrim( mispoln ) + ' __________________ тел.' + AllTrim( mtel_isp )
@@ -3557,7 +3557,7 @@ Function itog_svod_disp_tf()
     Enddo
     //
     fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
-    add_string( glob_mo[ _MO_SHORT_NAME ] )
+    add_string( glob_mo()[ _MO_SHORT_NAME ] )
     add_string( '' )
     add_string( Center( 'Итоги по диспансеризации, профилактике и медосмотрам', sh ) )
     add_string( Center( '[ ' + CharRem( '~', mas1pmt()[ 3 ] ) + ' ]', sh ) )

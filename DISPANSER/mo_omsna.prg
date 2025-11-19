@@ -382,7 +382,7 @@ Function f_inf_dop_disp_nabl()
     fl := .t.
     If Left( kart2->PC2, 1 ) == '1'
       fl := .f.
-    Elseif !( kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] )
+    Elseif !( kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] )
       fl := .f.
     Endif
     If fl
@@ -1084,7 +1084,7 @@ Function f_inf_disp_nabl( par )
         fl_prikrep := Space( 6 )
         Select KART2
         Goto kart->kod
-        If kart2->mo_pr != glob_mo[ _MO_KOD_TFOMS ]
+        If kart2->mo_pr != glob_mo()[ _MO_KOD_TFOMS ]
           fl_prikrep := kart2->mo_pr
           kol_smena[ iii ] := kol_smena[ iii ] + 1
         Endif
@@ -1141,7 +1141,7 @@ Function f_inf_disp_nabl( par )
             arr_kol_ND[ iii ] := arr_kol_ND[ iii ] + 1
           endif  
           Select _disp_NB
-          VREM_N1 := iif( fl_prikrep == glob_mo[ _MO_KOD_TFOMS ] .or. Len( AllTrim( fl_prikrep ) ) < 1, 'ДА', 'НЕТ' )
+          VREM_N1 := iif( fl_prikrep == glob_mo()[ _MO_KOD_TFOMS ] .or. Len( AllTrim( fl_prikrep ) ) < 1, 'ДА', 'НЕТ' )
           VREM_N2  := iif( Len( AllTrim( kart->adres ) ) < 3, AllTrim( ret_okato_ulica( '', kart_->okatog, 3, 2 ) ) + ' ' + LTrim( kart->adres ), PadR( kart->adres, 40 ) )
           //
           worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( PadR( kart->fio, 50 ) ) ), fmt_text )
@@ -1163,7 +1163,7 @@ Function f_inf_disp_nabl( par )
             arr_kol_ND[ iii ] := arr_kol_ND[ iii ] + 1
           endif  
           Select _disp_NB
-          VREM_N1 := iif( fl_prikrep == glob_mo[ _MO_KOD_TFOMS ] .or. Len( AllTrim( fl_prikrep ) ) < 1, 'ДА', 'НЕТ' )
+          VREM_N1 := iif( fl_prikrep == glob_mo()[ _MO_KOD_TFOMS ] .or. Len( AllTrim( fl_prikrep ) ) < 1, 'ДА', 'НЕТ' )
           VREM_N2  := iif( Len( AllTrim( kart->adres ) ) < 3, AllTrim( ret_okato_ulica( '', kart_->okatog, 3, 2 ) ) + ' ' + LTrim( kart->adres ), PadR( kart->adres, 40 ) )
           //
           worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( kart->fio ) ), fmt_text )
@@ -1228,7 +1228,7 @@ Function f_inf_disp_nabl( par )
         fl_prikrep := Space( 6 )
         Select KART2
         Goto kart->kod
-        If kart2->mo_pr != glob_mo[ _MO_KOD_TFOMS ]
+        If kart2->mo_pr != glob_mo()[ _MO_KOD_TFOMS ]
           fl_prikrep := kart2->mo_pr
           kol_smena1[ iii ] := kol_smena1[ iii ] + 1
         Endif
@@ -1286,7 +1286,7 @@ Function f_inf_disp_nabl( par )
             arr_kol_ND1[ iii ] := arr_kol_ND1[ iii ] + 1
           endif
           Select _disp_NB
-          VREM_N1 := iif( fl_prikrep == glob_mo[ _MO_KOD_TFOMS ] .or. Len( AllTrim( fl_prikrep ) ) < 1, 'ДА', 'НЕТ' )
+          VREM_N1 := iif( fl_prikrep == glob_mo()[ _MO_KOD_TFOMS ] .or. Len( AllTrim( fl_prikrep ) ) < 1, 'ДА', 'НЕТ' )
           VREM_N2   := iif( Len( AllTrim( kart->adres ) ) < 3, AllTrim( ret_okato_ulica( '', kart_->okatog, 3, 2 ) ) + ' ' + LTrim( kart->adres ), PadR( kart->adres, 40 ) )
           //
           //
@@ -1309,7 +1309,7 @@ Function f_inf_disp_nabl( par )
             arr_kol_ND1[ iii ] := arr_kol_ND1[ iii ] + 1
           endif  
           Select _disp_NB
-          VREM_N1 := iif( fl_prikrep == glob_mo[ _MO_KOD_TFOMS ] .or. Len( AllTrim( fl_prikrep ) ) < 1, 'ДА', 'НЕТ' )
+          VREM_N1 := iif( fl_prikrep == glob_mo()[ _MO_KOD_TFOMS ] .or. Len( AllTrim( fl_prikrep ) ) < 1, 'ДА', 'НЕТ' )
           VREM_N2   := iif( Len( AllTrim( kart->adres ) ) < 3, AllTrim( ret_okato_ulica( '', kart_->okatog, 3, 2 ) ) + ' ' + LTrim( kart->adres ), PadR( kart->adres, 40 ) )
           //
           worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( kart->fio ) ), fmt_text )
@@ -1394,7 +1394,7 @@ Function vvod_disp_nabl()
         lcolor := color1
         If Left( _kart2->PC2, 1 ) == '1'
           s := 'УМЕР ' + s ; lcolor := color8
-        Elseif !( _kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] )
+        Elseif !( _kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] )
           s := 'НЕ НАШ ' + s ; lcolor := color8
         Endif
         @ 2, 0 Say PadC( s, 50 ) Color lcolor
@@ -2212,7 +2212,7 @@ Function inf_disp_nabl()
           Select KART2
           Goto kart->kod
           If !Empty( kart2->mo_pr )
-            If glob_mo[ _MO_KOD_TFOMS ] == kart2->mo_pr
+            If glob_mo()[ _MO_KOD_TFOMS ] == kart2->mo_pr
               s := s + '       '
               old_PRIKREP := ''
             Else
@@ -2820,7 +2820,7 @@ Function f_create_d01()
     rees->NYEAR  := 2024 // ЮЮ
     rees->MM     := 12
     rees->NN     := inn + 1
-    s := 'D01' + 'T34M' + glob_mo[ _MO_KOD_TFOMS ] + '_2412' + StrZero( rees->NN, nsh ) // ЮЮ
+    s := 'D01' + 'T34M' + glob_mo()[ _MO_KOD_TFOMS ] + '_2412' + StrZero( rees->NN, nsh ) // ЮЮ
     rees->NAME_XML := s
     mkod_reestr := rees->KOD
     //
@@ -2874,7 +2874,7 @@ Function f_create_d01()
     oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
     mo_add_xml_stroke( oXmlNode, 'VERSION', '1.0' )
     mo_add_xml_stroke( oXmlNode, 'CODE_MO', glob_mo()[ _MO_KOD_FFOMS ] )
-    mo_add_xml_stroke( oXmlNode, 'CODEM', glob_mo[ _MO_KOD_TFOMS ] )
+    mo_add_xml_stroke( oXmlNode, 'CODEM', glob_mo()[ _MO_KOD_TFOMS ] )
     mo_add_xml_stroke( oXmlNode, 'DATE_F', date2xml( mo_xml->DFILE ) )
     mo_add_xml_stroke( oXmlNode, 'NAME_F', mo_xml->FNAME )
     mo_add_xml_stroke( oXmlNode, 'SMO', '34' )
@@ -3091,7 +3091,7 @@ Function f2_view_d01( nKey, oBrow )
           func_error( 4, 'Вы выбрали каталог, в котором уже записан целевой файл! Это недопустимо.' )
         Else
           cFileProtokol := cur_dir() + 'prot_sch.txt'
-          StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
+          StrFile( hb_eol() + Center( glob_mo()[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
           smsg := 'Файл D01 записан на: ' + s + ' (' + full_date( sys_date ) + 'г. ' + hour_min( Seconds() ) + ')'
           StrFile( Center( smsg, 80 ) + hb_eol(), cFileProtokol, .t. )
           k := 0

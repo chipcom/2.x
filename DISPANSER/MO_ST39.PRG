@@ -494,7 +494,7 @@ Function mnog_poisk_dvn1()
         Endif
         If Empty( kart2->MO_PR )
           s := ""
-        Elseif kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
+        Elseif kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
           s := "наш"
         Else
           s := "чужой"
@@ -585,9 +585,9 @@ Static Function f1_mnog_poisk_dvn1( cv, cf )
   Endif
   If fl .and. !Empty( mn->o_prik )
     If mn->o_prik == 1 // к нашей МО
-      fl := ( kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] )
+      fl := ( kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] )
     Elseif mn->o_prik == 2 // к другим МО
-      fl := !( kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] )
+      fl := !( kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] )
     Else // прикрепление неизвестно
       fl := Empty( kart2->MO_PR )
     Endif
@@ -881,7 +881,7 @@ Function mnog_poisk_dvn2()
     "Прикрепление", ;
     {|| iif( m1prikrepl == 2, nil, ( mmo_prik := Space( 70 ), m1mo_prik := Space( 6 ), update_get( "mmo_prik" ) ) ), .t. } } )
   AAdd( mm_tmp, { "mo_prik", "C", 6, 0, NIL, ;
-    {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c, "loc_arr_MO[10].and.loc_arr_MO[2]!=glob_mo[2]" ) } }, A__FUNCTION ) }, ;
+    {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c, "loc_arr_MO[10].and.loc_arr_MO[2]!=glob_mo()[2]" ) } }, A__FUNCTION ) }, ;
     Space( 6 ), {| x| Space( 10 ) }, ;
     '└─> к какому МО',, ;
     {|| m1prikrepl == 2 } } )
@@ -1583,9 +1583,9 @@ Function f1_mnog_poisk_dvn2( cv, cf )
   Endif
   If fl .and. mn->prikrepl > 0
     If mn->prikrepl == 1 // к нашей МО
-      fl := ( kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] )
+      fl := ( kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] )
     Elseif mn->prikrepl == 2 // к другому МО
-      fl := !( kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] )
+      fl := !( kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] )
       If fl .and. !Empty( mn->mo_prik )
         fl := ( kart2->MO_PR == mn->mo_prik )
       Endif

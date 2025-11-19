@@ -228,7 +228,7 @@ Function f_pereschet_R05
   Do While !Eof()
     @ MaxRow(), 0 Say Str( RecNo() / LastRec() * 100, 6, 2 ) + '%' Color cColorWait
     If ( v := YEAR_UPLOAD_DISPANSER - Year( kart->date_r ) ) > 17 .and. v < 100 ; // взрослый
-      .and. kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ] ; // прикреплён к нашей МО
+      .and. kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] ; // прикреплён к нашей МО
       .and. !( Left( kart2->PC2, 1 ) == '1' ) // и не умер
       s := Upper( kart->fio ) + ' '
       If ' УМЕР ' $ s .or. ' УМЕРЛА ' $ s
@@ -719,7 +719,7 @@ Function f3_create_r05()
         Do While uv->uch == kart->uchast .and. !Eof()
           updatestatus()
           If Year( kart->date_r ) + 17 < YEAR_UPLOAD_DISPANSER .and. !kart2->( Eof() .and. !( Left( kart2->PC2, 1 ) == '1' ) );
-              .and. kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ]
+              .and. kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
             auch[ i, 2 ] ++
           Endif
           Skip
@@ -1439,7 +1439,7 @@ Function f31_view_r05( reg, s )
 
   mywait()
   fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
-  add_string( glob_mo[ _MO_SHORT_NAME ] )
+  add_string( glob_mo()[ _MO_SHORT_NAME ] )
   add_string( '' )
   add_string( Center( 'Численность по месяцам из файла ' + AllTrim( rees->NAME_XML ) + ' от ' + date_8( rees->dschet ), sh ) )
   add_string( '' )
@@ -2250,7 +2250,7 @@ Function f2_view_r01( nKey, oBrow )
               func_error( 4, 'Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо.' )
             Else
               cFileProtokol := cur_dir() + 'prot_sch.txt'
-              StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
+              StrFile( hb_eol() + Center( glob_mo()[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
               smsg := 'Файлы R01 записаны на: ' + s + ' (' + full_date( sys_date ) + 'г. ' + hour_min( Seconds() ) + ')'
               StrFile( Center( smsg, 80 ) + hb_eol(), cFileProtokol, .t. )
               k := 0
@@ -3246,7 +3246,7 @@ Function find_unfinished_r01()
   Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t., vrem := 0, mrec := 1
   Private sgod := YEAR_UPLOAD_DISPANSER
 
-  If glob_mo[ _MO_IS_UCH ]
+  If glob_mo()[ _MO_IS_UCH ]
     If ( fl := verify_packet_r05( 2, arr ) )
       r_use( dir_server() + 'mo_dr05p',, 'R05p' )
       Goto ( mrec )

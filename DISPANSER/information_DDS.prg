@@ -364,7 +364,7 @@ Function inf_dds_svod( par, par2, is_schet )
       dbCreate( fr_titl, adbf )
       Use ( fr_titl ) New Alias FRT
       Append Blank
-      frt->name := glob_mo[ _MO_SHORT_NAME ]
+      frt->name := glob_mo()[ _MO_SHORT_NAME ]
       frt->period := iif( p_tip_lu == TIP_LU_DDS, ;
         'пребывающих в стационарных условиях детей-сирот и детей, находящихся в трудной жизненной ситуации', ;
         'детей-сирот и детей, оставшихся без попечения родителей, в том числе усыновлённых (удочерённых), принятых под опеку (попечительство), в приёмную или патронатную семью' )
@@ -661,7 +661,7 @@ Function inf_dds_svod2( par2, is_schet )
       Enddo
       dbCloseAll()
       ft := tfiletext():new( n_file, sh, .t., , .t. )
-      ft:add_string( glob_mo[ _MO_SHORT_NAME ], FILE_LEFT, ' ' )
+      ft:add_string( glob_mo()[ _MO_SHORT_NAME ], FILE_LEFT, ' ' )
       ft:add_string( '' )
       If par2 == 3
         ft:add_string( 'Приложение', FILE_RIGHT, ' ' )
@@ -1095,7 +1095,7 @@ Function inf_dds_030dso( is_schet )
       fp := FCreate( n_file )
       n_list := 1
       tek_stroke := 0
-      add_string( glob_mo[ _MO_SHORT_NAME ] )
+      add_string( glob_mo()[ _MO_SHORT_NAME ] )
       add_string( PadL( 'Приложение 3', sh ) )
       add_string( PadL( 'к Приказу МЗРФ', sh ) )
       add_string( PadL( '№72н от 15.02.2013г.', sh ) )

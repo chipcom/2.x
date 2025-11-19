@@ -78,7 +78,7 @@ Function inf_drz()
     Private &pole_1dispans := 0
   Next
   //
-  If glob_mo[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
+  If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
     blk := {| x, y| if( x > y, func_error( 4, 'Начальная дата больше конечной!' ), .t. ) }
     arr_m := input_diapazon( MaxRow() -4, 2, MaxRow() -2, 76, cDataCGet, ;
       { 'Введите начальную', 'и конечную', 'даты диспансеризации' }, ;
@@ -109,7 +109,7 @@ Function inf_drz()
     // 1- всего 2-село 3- всего 375, 4- село 375, 5- всего 376, 6- село 376, 7- всего 377, 8-село 377, 9 - диаг всего 10 -село
     afillall( arr, 0 )
     afillall( arr_1, 0 )
-    If glob_mo[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
+    If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
       sdate := arr_m[ 2 ]
       sdate1 := arr_m[ 1 ]
       beginPeriod :=  sdate1
@@ -144,7 +144,7 @@ Function inf_drz()
       lPatologiya := .f.
       arr_otklon := {}
       // if between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
-      If is_sluch_dispanser_drz( human->ishod ) .and. iif( glob_mo[ _MO_KOD_TFOMS ] == '711001', f_is_uch( st_a_uch, human->lpu ), .t. )
+      If is_sluch_dispanser_drz( human->ishod ) .and. iif( glob_mo()[ _MO_KOD_TFOMS ] == '711001', f_is_uch( st_a_uch, human->lpu ), .t. )
         kart->( dbGoto( human->kod_k ) )
         lCity := f_is_selo( kart_->gorod_selo, kart_->okatog ) // .Т. - село .F. - город
         // переворот
