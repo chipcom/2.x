@@ -27,7 +27,7 @@ Function ret_vidpom_licensia( lusl_ok, lvidpoms, lprofil )
   }
   Local i, fl := .f.
   For i := 1 To Len( mo_licensia )
-    If mo_licensia[ i, 1 ] == glob_mo[ _MO_KOD_TFOMS ] .and. mo_licensia[ i, 2 ] == lusl_ok
+    If mo_licensia[ i, 1 ] == glob_mo()[ _MO_KOD_TFOMS ] .and. mo_licensia[ i, 2 ] == lusl_ok
       If mo_licensia[ i, 4 ] == 0 // все профили
         lvidpoms := mo_licensia[ i, 3 ]
       Elseif mo_licensia[ i, 4 ] == lprofil // конкретный профиль
@@ -47,7 +47,7 @@ Function ret_vidpom_st_dom_licensia( lusl_ok, lvidpoms, lprofil )
   Local i, fl := .f.
 
   For i := 1 To Len( mo_licensia )
-    If mo_licensia[ i, 1 ] == glob_mo[ _MO_KOD_TFOMS ] .and. mo_licensia[ i, 2 ] == lusl_ok
+    If mo_licensia[ i, 1 ] == glob_mo()[ _MO_KOD_TFOMS ] .and. mo_licensia[ i, 2 ] == lusl_ok
       If mo_licensia[ i, 4 ] == 0 // все профили
         lvidpoms := mo_licensia[ i, 3 ]
       Elseif mo_licensia[ i, 4 ] == lprofil // конкретный профиль
@@ -69,7 +69,7 @@ Function is_komm_smp()
     "806503";   // Волгоградская неотложка новая
     }
   If _is == Nil // т.е. определяется один раз за сеанс работы задачи
-    _is := ( AScan( a_komm_SMP, glob_mo[ _MO_KOD_TFOMS ] ) > 0 )
+    _is := ( AScan( a_komm_SMP, glob_mo()[ _MO_KOD_TFOMS ] ) > 0 )
   Endif
 
   Return _is
@@ -544,7 +544,7 @@ Function f2_view_list_reestr( nKey, oBrow )
               func_error( 4, "Вы выбрали каталог, в котором уже записаны целевые файлы! Это недопустимо." )
             Else
               cFileProtokol := cur_dir() + "protrees.txt"
-              StrFile( hb_eol() + Center( glob_mo[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
+              StrFile( hb_eol() + Center( glob_mo()[ _MO_SHORT_NAME ], 80 ) + hb_eol() + hb_eol(), cFileProtokol )
               smsg := "Реестры записаны на: " + s + ;
                 " (" + full_date( sys_date ) + "г. " + hour_min( Seconds() ) + ")"
               StrFile( Center( smsg, 80 ) + hb_eol(), cFileProtokol, .t. )

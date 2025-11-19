@@ -219,8 +219,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
       if p_tip_reestr == TYPE_REESTR_GENERAL .and. ;                    // à¥¥áâà ®ª® § ­¨ï ¬¥¤. ¯®¬®é¨ §  ¨áª«îç¥­¥¬ ¤¨á¯ ­á¥à¨§ æ¨¨
           human_->USL_OK == USL_OK_POLYCLINIC .and. ; // ¯®«¨ª«¨­¨ª 
-          glob_mo[ _MO_IS_UCH ] .and. ;               // ­ è¥ Œ ¨¬¥¥â ¯à¨ªà¥¯«ñ­­®¥ ­ á¥«¥­¨¥
-          kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ]    // ¯à¨ªà¥¯«ñ­ ª ­ è¥¬ã Œ
+          glob_mo()[ _MO_IS_UCH ] .and. ;               // ­ è¥ Œ ¨¬¥¥â ¯à¨ªà¥¯«ñ­­®¥ ­ á¥«¥­¨¥
+          kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]    // ¯à¨ªà¥¯«ñ­ ª ­ è¥¬ã Œ
         elem_disability( oPac )
       endif
 /*
@@ -815,7 +815,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     sCOMENTSL := ''
     If p_tip_reestr == TYPE_REESTR_GENERAL
       mo_add_xml_stroke( oSL, 'PRVS', put_prvs_to_reestr( human_->PRVS, _NYEAR ) )
-      If ( !is_mgi .and. AScan( kod_lis(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) ) .or. human_->profil == 15 // £¨áâ®«®£¨ï
+      If ( !is_mgi .and. AScan( kod_lis(), glob_mo()[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) ) .or. human_->profil == 15 // £¨áâ®«®£¨ï
         mo_add_xml_stroke( oSL, 'IDDOKT', '0' )
       Else
         p2->( dbGoto( human_->vrach ) )
@@ -944,7 +944,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           If pr_amb_reab .and. Left( lshifr, 2 ) == '4.' .and. Left( hu_->zf, 6 ) == '999999'
             fl := .t.
             mo_add_xml_stroke( oUSL, 'LPU', '999999' )
-          Elseif pr_amb_reab .and. Left( lshifr, 2 ) == '4.' .and. !Empty( Left( hu_->zf, 6 ) ) .and. Left( hu_->zf, 6 ) != glob_mo[ _MO_KOD_TFOMS ]
+          Elseif pr_amb_reab .and. Left( lshifr, 2 ) == '4.' .and. !Empty( Left( hu_->zf, 6 ) ) .and. Left( hu_->zf, 6 ) != glob_mo()[ _MO_KOD_TFOMS ]
             fl := .t.
             mo_add_xml_stroke( oUSL, 'LPU', Left( hu_->zf, 6 ) )
           Else

@@ -142,9 +142,9 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
     is_KSG := .f.
   Endif
   If !Empty( lvidpoms )
-    If !eq_ascan( atmpusl, '55.1.2', '55.1.3' ) .or. glob_mo[ _MO_KOD_TFOMS ] == '801935' // ЭКО-Москва
+    If !eq_ascan( atmpusl, '55.1.2', '55.1.3' ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '801935' // ЭКО-Москва
       lvidpoms := ret_vidpom_licensia( human_->USL_OK, lvidpoms, human_->profil ) // только для дн.стационара при стационаре
-    Elseif eq_ascan( atmpusl, '55.1.2' ) .and. glob_mo[ _MO_KOD_TFOMS ] == '805960'  // грязелечебница
+    Elseif eq_ascan( atmpusl, '55.1.2' ) .and. glob_mo()[ _MO_KOD_TFOMS ] == '805960'  // грязелечебница
       lvidpoms := ret_vidpom_licensia( human_->USL_OK, lvidpoms, human_->profil ) // только для дн.стационара при стационаре
     Else
       If eq_ascan( atmpusl, '55.1.3' )

@@ -973,7 +973,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
       sCOMENTSL := ''
       If p_tip_reestr == 1
         mo_add_xml_stroke( oSL, 'PRVS', put_prvs_to_reestr( human_->PRVS, _NYEAR ) )
-        If ( !is_mgi .and. AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) ) .or. human_->profil == 15 // гистология
+        If ( !is_mgi .and. AScan( kod_LIS(), glob_mo()[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) ) .or. human_->profil == 15 // гистология
           mo_add_xml_stroke( oSL, 'IDDOKT', '0' )
         Else
           p2->( dbGoto( human_->vrach ) )
@@ -1099,7 +1099,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
             If pr_amb_reab .and. Left( lshifr, 2 ) == '4.' .and. Left( hu_->zf, 6 ) == '999999'
               fl := .t.
               mo_add_xml_stroke( oUSL, 'LPU', '999999' )
-            Elseif pr_amb_reab .and. Left( lshifr, 2 ) == '4.' .and. !Empty( Left( hu_->zf, 6 ) ) .and. Left( hu_->zf, 6 ) != glob_mo[ _MO_KOD_TFOMS ]
+            Elseif pr_amb_reab .and. Left( lshifr, 2 ) == '4.' .and. !Empty( Left( hu_->zf, 6 ) ) .and. Left( hu_->zf, 6 ) != glob_mo()[ _MO_KOD_TFOMS ]
               fl := .t.
               mo_add_xml_stroke( oUSL, 'LPU', Left( hu_->zf, 6 ) )
             Else

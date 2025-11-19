@@ -208,9 +208,9 @@ function elem_disability( oPac )
   local oDISAB
   Local tmpSelect
 
-//  If glob_mo[ _MO_IS_UCH ] .and. ;                      // наше МО имеет прикреплённое население
+//  If glob_mo()[ _MO_IS_UCH ] .and. ;                      // наше МО имеет прикреплённое население
 //      human_->USL_OK == USL_OK_POLYCLINIC .and. ;                    // поликлиника
-//      kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ] .and. ;  // прикреплён к нашему МО
+//      kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] .and. ;  // прикреплён к нашему МО
   if Between( kart_->INVALID, 1, 4 )                   // инвалид
     tmpSelect := Select()
     dbSelectArea( 'INV' )
@@ -382,9 +382,9 @@ Function is_disability( p_tip_reestr )
   Local tmpSelect
 
   If p_tip_reestr == TYPE_REESTR_GENERAL
-    If glob_mo[ _MO_IS_UCH ] .and. ;                      // наше МО имеет прикреплённое население
+    If glob_mo()[ _MO_IS_UCH ] .and. ;                      // наше МО имеет прикреплённое население
         human_->USL_OK == USL_OK_POLYCLINIC .and. ;                    // поликлиника
-        kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ] .and. ;  // прикреплён к нашему МО
+        kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] .and. ;  // прикреплён к нашему МО
         Between( kart_->INVALID, 1, 4 )                   // инвалид
       tmpSelect := Select()
       dbSelectArea( 'INV' )

@@ -215,9 +215,9 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
     is_KSG := .f.
   Endif
   If !Empty( lvidpoms )
-    If !eq_ascan( atmpusl, '55.1.2', '55.1.3' ) .or. glob_mo[ _MO_KOD_TFOMS ] == '801935' // ЭКО-Москва
+    If !eq_ascan( atmpusl, '55.1.2', '55.1.3' ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '801935' // ЭКО-Москва
       lvidpoms := ret_vidpom_licensia( human_->USL_OK, lvidpoms, human_->profil ) // только для дн.стационара при стационаре
-    Elseif eq_ascan( atmpusl, '55.1.2' ) .and. glob_mo[ _MO_KOD_TFOMS ] == '805960'  // грязелечебница
+    Elseif eq_ascan( atmpusl, '55.1.2' ) .and. glob_mo()[ _MO_KOD_TFOMS ] == '805960'  // грязелечебница
       lvidpoms := ret_vidpom_licensia( human_->USL_OK, lvidpoms, human_->profil ) // только для дн.стационара при стационаре
     Else
       If eq_ascan( atmpusl, '55.1.3' )
@@ -553,9 +553,9 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
   Next
 ///
   If p_tip_reestr == 1
-    If glob_mo[ _MO_IS_UCH ] .and. ;                    // наше МО имеет прикреплённое население
+    If glob_mo()[ _MO_IS_UCH ] .and. ;                    // наше МО имеет прикреплённое население
         human_->USL_OK == 3 .and. ;                    // поликлиника
-        kart2->MO_PR == glob_MO[ _MO_KOD_TFOMS ] .and. ; // прикреплён к нашему МО
+        kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] .and. ; // прикреплён к нашему МО
       Between( kart_->INVALID, 1, 4 )                    // инвалид
       Select INV
       find ( Str( human->kod_k, 7 ) )
