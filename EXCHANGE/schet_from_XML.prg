@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.11.25 создать счета по результатам прочитанного реестра СП
+// 19.11.25 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
 
   Local arr_schet := {}, c, i, j, lbukva, ;
@@ -368,7 +368,7 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
     mo_add_xml_stroke( oXmlNode, 'SD_Z', lstr( arr_schet[ ii, 3 ] ) ) // новое поле
     oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'SCHET' ) )
     mo_add_xml_stroke( oXmlNode, 'CODE', lstr( code_schet ) )
-    mo_add_xml_stroke( oXmlNode, 'CODE_MO', CODE_MO )
+    mo_add_xml_stroke( oXmlNode, 'CODE_MO', glob_mo()[ _MO_KOD_FFOMS ] )    // CODE_MO )
     mo_add_xml_stroke( oXmlNode, 'YEAR', lstr( tmp1->_YEAR ) )
     mo_add_xml_stroke( oXmlNode, 'MONTH', lstr( tmp1->_MONTH ) )
     mo_add_xml_stroke( oXmlNode, 'NSCHET', mn_schet )

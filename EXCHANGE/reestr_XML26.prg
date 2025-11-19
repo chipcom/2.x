@@ -77,7 +77,7 @@ Function create1reestr26( _recno, _nyear, _nmonth, kod_smo, p_tip_reestr, aBukva
   RestScreen( buf )
   Return Nil
 
-// 20.08.25 создание XML-файлов реестра
+// 19.11.25 создание XML-файлов реестра
 Function create2reestr26( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_reestr, aBukva )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
@@ -334,7 +334,7 @@ Function create2reestr26( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_rees
     // заполним реестр случаев для XML-документа
     oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'SCHET' ) )
     mo_add_xml_stroke( oXmlNode, 'CODE', lstr( code_reestr ) )
-    mo_add_xml_stroke( oXmlNode, 'CODE_MO', CODE_MO )
+    mo_add_xml_stroke( oXmlNode, 'CODE_MO', glob_mo()[ _MO_KOD_FFOMS ] )    //  CODE_MO )
     mo_add_xml_stroke( oXmlNode, 'YEAR', lstr( _NYEAR ) )
     mo_add_xml_stroke( oXmlNode, 'MONTH', lstr( _NMONTH ) )
 //    mo_add_xml_stroke( oXmlNode, 'NSCHET', lstr( rees->NSCHET ) )

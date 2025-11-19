@@ -2482,7 +2482,7 @@ Function spr_disp_nabl()
   rest_box( buf )
   Return Nil
 
-// 12.09.25 Обмен с ТФОМС информацией по диспансерному наблюдению
+// 19.11.25 Обмен с ТФОМС информацией по диспансерному наблюдению
 Function f_create_d01()
 
   Local fl := .t., arr, id01 := 0, lspec, lmesto, buf := save_maxrow()
@@ -2873,7 +2873,7 @@ Function f_create_d01()
     oXmlDoc:add( hxmlnode():new( 'ZL_LIST' ) )
     oXmlNode := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZGLV' ) )
     mo_add_xml_stroke( oXmlNode, 'VERSION', '1.0' )
-    mo_add_xml_stroke( oXmlNode, 'CODE_MO', glob_mo[ _MO_KOD_FFOMS ] )
+    mo_add_xml_stroke( oXmlNode, 'CODE_MO', glob_mo()[ _MO_KOD_FFOMS ] )
     mo_add_xml_stroke( oXmlNode, 'CODEM', glob_mo[ _MO_KOD_TFOMS ] )
     mo_add_xml_stroke( oXmlNode, 'DATE_F', date2xml( mo_xml->DFILE ) )
     mo_add_xml_stroke( oXmlNode, 'NAME_F', mo_xml->FNAME )
