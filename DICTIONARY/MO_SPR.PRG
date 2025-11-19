@@ -28,17 +28,19 @@ Function inp_bit_otd( k, r, c )
   Local mlen, t_mas := {}, buf := SaveScreen(), ret, ;
     i, tmp_color := SetColor(), m1var := '', s := '', ;
     tmp_select := Select(), r1, a_uch := {}
+  local curDate
 
+  curDate := sys_date
   mywait()
   r_use( dir_server() + 'mo_uch', , 'LPU' )
-  dbEval( {|| iif( between_date( lpu->dbegin, lpu->dend, sys_date ), ;
+  dbEval( {|| iif( between_date( lpu->dbegin, lpu->dend, curDate ), ;
     AAdd( a_uch, lpu->( RecNo() ) ), nil ) } )
   r_use( dir_server() + 'mo_otd', , 'OTD' )
-  Set Relation To kod_lpu into LPU
+  Set Relation To FIELD->kod_lpu into LPU
   dbEval( {|| s := if( Chr( RecNo() ) $ k, ' * ', '   ' ) + ;
     PadR( otd->name, 30 ) + ' ' + PadR( lpu->short_name, 5 ) + Str( RecNo(), 10 ), ;
     AAdd( t_mas, s ) }, ;
-    {|| between_date( otd->dbegin, otd->dend, sys_date ) .and. ;
+    {|| between_date( otd->dbegin, otd->dend, curDate ) .and. ;
     AScan( a_uch, otd->kod_lpu ) > 0 };
     )
   otd->( dbCloseArea() )
@@ -72,7 +74,7 @@ Function inp_bit_otd( k, r, c )
 //
 Function fget_slugba( k, r, c )
 
-  Local tmp_help := chm_help_code, k1
+  Local tmp_help := chm_help_code, k1, fl
 
   chm_help_code := -1
   Select SL
@@ -1577,7 +1579,7 @@ Function edit_otd()
     { 'постановка на наблюдение онкопациентов', TIP_LU_ONKO_DISP }, ;  // 17
 	  { 'диспансеризация репродуктивного здоровья',TIP_LU_DRZ } }  // 18
 
-  If glob_mo[ _MO_KOD_TFOMS ] == '126501'
+  If glob_mo()[ _MO_KOD_TFOMS ] == '126501'
     ins_array( mm_tiplu, 3, { 'неотложная медицинская помощь', TIP_LU_NMP } )
   Endif
   If AScan( glob_klin_diagn(), 1 ) > 0
@@ -1692,20 +1694,22 @@ Function fdel_otd( k )
   Select ( tmp_select )
   Return _fl
 
-// 08.11.22
+// 19.11.25
 Function get_kod_podr( k, r, c )
 
   Static arr
   Local ret, ret_arr, tmp_select
+  local gMO
 
+  gMo := glob_mo()[ _MO_KOD_TFOMS ]
   If arr == Nil // только при первом вызове
     arr := {}
     tmp_select := Select()
     r_use( dir_exe() + '_mo_podr', cur_dir() + '_mo_podr', 'PODR' )
-    find ( glob_mo[ _MO_KOD_TFOMS ] )
-    Do While podr->codemo == glob_mo[ _MO_KOD_TFOMS ] .and. !Eof()
+    podr->( dbSeek( gMo ) )    // find ( glob_mo[ _MO_KOD_TFOMS ] )
+    Do While podr->codemo == gMo .and. ! podr->( Eof() )
       AAdd( arr, { '(' + AllTrim( podr->KODOTD ) + ') ' + AllTrim( podr->NAMEOTD ), podr->KODOTD } )
-      Skip
+      podr->( dbSkip() )    //  Skip
     Enddo
     dbCloseArea()
     Select ( tmp_select )
@@ -1718,14 +1722,14 @@ Function get_kod_podr( k, r, c )
   Endif
   Return ret
 
-// 08.11.22
+// 19.11.25
 Function ini_kod_podr( lkod )
 
   Local s := Space( 10 ), tmp_select := Select()
 
   r_use( dir_exe() + '_mo_podr', cur_dir() + '_mo_podr', 'PODR' )
-  find ( glob_mo[ _MO_KOD_TFOMS ] + PadR( Upper( lkod ), 25 ) )
-  If Found()
+  podr->( dbSeek( glob_mo()[ _MO_KOD_TFOMS ] + PadR( Upper( lkod ), 25 ) ) )    //   find ( glob_mo[ _MO_KOD_TFOMS ] + PadR( Upper( lkod ), 25 ) )
+  If podr->( Found() )
     s := '(' + AllTrim( podr->KODOTD ) + ') ' + AllTrim( podr->NAMEOTD )
   Endif
   dbCloseArea()
@@ -1840,8 +1844,6 @@ Function edit_komit( d )
   Endif
   Do While i > 0
     If ( i := popup_prompt( T_ROW, T_COL + 5, i, mas_edit, , , , .f. ) ) == A__APPEND
-      // if (k := f_edit_spr(A__APPEND, gmenu_komit, 'комитету (МО)', ;
-      // 'use_base("komitet")', 2, , , , , , 'f_emp_strah')) > 0
       If ( k := f_edit_spr( A__APPEND, get_komitet(), 'комитету (МО)', ;
           'use_base("komitet")', 2, , , , , , 'f_emp_strah' ) ) > 0
         glob_komitet[ 1 ] := k
@@ -1850,8 +1852,6 @@ Function edit_komit( d )
         ( k := popup_edit( dir_server() + 'komitet', T_ROW + i + 1, T_COL + 5, ;
         T_ROW + i + 7, glob_komitet[ 1 ], PE_RETURN ) ) != NIL
       glob_komitet := k
-      // f_edit_spr(i, gmenu_komit, 'комитету (МО)', ;
-      // 'use_base("komitet")', 2, k[1], , 'fdel_komit', , , 'f_emp_strah')
       f_edit_spr( i, get_komitet(), 'комитету (МО)', ;
         'use_base("komitet")', 2, k[ 1 ], , 'fdel_komit', , , 'f_emp_strah' )
     Endif

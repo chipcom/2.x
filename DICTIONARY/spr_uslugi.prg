@@ -100,7 +100,7 @@ Function f1_uslugi()
         Loop
       Endif
       Select ( tmpAlias )
-      Index On DToS( datebeg ) to ( cur_dir() + 'tmp1' ) unique
+      Index On DToS( FIELD->datebeg ) to ( cur_dir() + 'tmp1' ) unique
       dbEval( {|| AAdd( arr_date_usl, ( tmpAlias )->datebeg ) } )
       Set Index to ( cur_dir() + prefixfilerefname( i ) + 'uslc' ), ( cur_dir() + prefixfilerefname( i ) + 'uslu' )
     Next
@@ -110,9 +110,9 @@ Function f1_uslugi()
     { 'name',    'C', 77, 0 }, ;
     { 'date_b',  'D', 8, 0 } } )
   Use ( cur_dir() + 'tmp_usl1' ) new
-  Index On DToS( date_b ) to ( cur_dir() + 'tmp_usl1' )
+  Index On DToS( FIELD->date_b ) to ( cur_dir() + 'tmp_usl1' )
   Select USL
-  Index On iif( kod > 0, '1', '0' ) + fsort_usl( shifr ) to ( cur_dir() + 'tmp_usl' )
+  Index On iif( FIELD->kod > 0, '1', '0' ) + fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp_usl' )
   Set Index to ( cur_dir() + 'tmp_usl' ), ;
     ( dir_server() + 'uslugi' ), ;
     ( dir_server() + 'uslugish' ), ;
@@ -802,7 +802,7 @@ Function spr_uslugi_ffoms()
   mywait()
   Private tmp_V002 := create_classif_ffoms( 0, 'V002' ) // PROFIL
   Select MOSU
-  Index On iif( kod > 0, '1', '0' ) + shifr1 to ( cur_dir() + 'tmp_usl' )
+  Index On iif( FIELD->kod > 0, '1', '0' ) + FIELD->shifr1 to ( cur_dir() + 'tmp_usl' )
   Set Index to ( cur_dir() + 'tmp_usl' ), ;
     ( dir_server() + 'mo_su' ), ;
     ( dir_server() + 'mo_sush' ), ;
@@ -1277,7 +1277,7 @@ Function f3_k_uslugi()
   AAdd( adbf, { 'name', 'C', 64, 0 } )
   dbCreate( cur_dir() + 'tmp', adbf )
   Use ( cur_dir() + 'tmp' ) New Alias TMP
-  Index On shifr1 to ( cur_dir() + 'tmp' )
+  Index On FIELD->shifr1 to ( cur_dir() + 'tmp' )
   Select U1K
   find ( uk->shifr )
   If ( fl_found := Found() )
@@ -1437,7 +1437,7 @@ Function f_trkoef()
   mywait()
   dbCreate( cur_dir() + 'tmp', uslugi )
   Use ( cur_dir() + 'tmp' ) Alias tmp
-  Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp' )
+  Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp' )
   If useuch_usl() .and. r_use( dir_server() + 'uslugi', , 'USL' )
     k1 := usl->( LastRec() )
     k2 := uu->( LastRec() )
@@ -1449,7 +1449,7 @@ Function f_trkoef()
       k2++
     Enddo
     Select USL
-    Set Relation To Str( kod, 4 ) into UU
+    Set Relation To Str( FIELD->kod, 4 ) into UU
     Go Top
     Do While !Eof()
       If usl->kod > 0
@@ -1481,7 +1481,7 @@ Function f_trkoef()
     usl->( dbCloseArea() )
     Select TMP
     dbCommit()
-    Set Relation To Str( kod, 4 ) into UU
+    Set Relation To Str( FIELD->kod, 4 ) into UU
     Go Top
     Do While Empty( shifr ) .and. !Eof()
       Skip
@@ -1772,7 +1772,7 @@ Function f_trpers()
   mywait()
   If g_use( dir_server() + 'uch_pers', dir_server() + 'uch_pers', 'UCHP' ) .and. ;
       r_use( dir_server() + 'mo_pers', , 'PERSO' )
-    Index On Str( kod, 4 ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
+    Index On Str( FIELD->kod, 4 ) to ( cur_dir() + 'tmp_pers' ) For FIELD->kod > 0
     Select UCHP
     Set Order To 0
     Go Top
@@ -1809,8 +1809,8 @@ Function f_trpers()
     Enddo
     Commit
     Select UCHP
-    Set Relation To Str( kod, 4 ) into PERSO
-    Index On Upper( perso->fio ) to ( cur_dir() + 'tmp_uch' ) For god == lgod .and. mes == lmes
+    Set Relation To Str( FIELD->kod, 4 ) into PERSO
+    Index On Upper( perso->fio ) to ( cur_dir() + 'tmp_uch' ) For FIELD->god == lgod .and. FIELD->mes == lmes
     Set Index to ( cur_dir() + 'tmp_uch' ), ( dir_server() + 'uch_pers' )
     Go Top
     alpha_browse( 2, 2, MaxRow() -2, 77, 'f1_trpers', color0, mtitle, 'BG+/GR', ;
@@ -1883,7 +1883,7 @@ Function f_ns_uslugi()
     Return func_error( 4, err_slock() )
   Endif
   g_use( dir_server() + 'ns_usl', , 'UK' )
-  Index On Upper( name ) to ( cur_dir() + 'tmp_usl' )
+  Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_usl' )
   Go Top
   If Eof()
     fl_found := .f.
@@ -1911,7 +1911,7 @@ Function f2_ns_uslugi( nKey, oBrow )
     add_string( Center( 'Услуги, не совместимые по дате', sh ) )
     r_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
     r_use( dir_server() + 'ns_usl_k', dir_server() + 'ns_usl_k', 'U1K' )
-    Set Relation To shifr into USL
+    Set Relation To FIELD->shifr into USL
     Select UK
     Go Top
     Do While !Eof()
@@ -2012,7 +2012,7 @@ Function f3_ns_uslugi()
   AAdd( adbf, { 'name', 'C', 64, 0 } )
   dbCreate( cur_dir() + 'tmp', adbf )
   Use ( cur_dir() + 'tmp' ) New Alias TMP
-  Index On shifr to ( cur_dir() + 'tmp' )
+  Index On FIELD->shifr to ( cur_dir() + 'tmp' )
   Select U1K
   find ( Str( uk->( RecNo() ), 6 ) )
   If ( fl_found := Found() )
@@ -2273,7 +2273,7 @@ Function f_usl_raz()
     { 'name', 'C', 64, 0 } }
   dbCreate( cur_dir() + 'tmp', adbf )
   Use ( cur_dir() + 'tmp' ) New Alias TMP
-  Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp' )
+  Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp' )
   For i := 1 To Len( arr_usl1year )
     fl_found := .t.
     Select USL

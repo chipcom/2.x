@@ -102,7 +102,7 @@ Function o_sprav( k )
   Endif
   Return Nil
 
-// 02.02.22
+// 19.11.25
 Function fspr_uslugi( k )
 
   Static _su := 110
@@ -180,14 +180,14 @@ Function fspr_uslugi( k )
     k := Len( mas_pmt )
     use_base( 'luslc' )
     Set Order To 2
-    find ( glob_mo[ _MO_KOD_TFOMS ] + 'ds' )
+    find ( glob_mo()[ _MO_KOD_TFOMS ] + 'ds' )
     If Found()
       AAdd( mas_pmt, 'Услуги + КСГ (~дневной стационар)' )
       AAdd( mas_msg, 'Вывод списка разрешённых услуг ФФОМС вместе с КСГ дневного стационара' )
       AAdd( mas_fun, 'fspr_uslugi(28)' )
     Endif
     k := Len( mas_pmt )
-    find ( glob_mo[ _MO_KOD_TFOMS ] + 'st' )
+    find ( glob_mo()[ _MO_KOD_TFOMS ] + 'st' )
     If Found()
       AAdd( mas_pmt, 'Услуги + ~КСГ (стационар)' )
       AAdd( mas_msg, 'Вывод списка разрешённых услуг ФФОМС вместе с КСГ стационара' )
@@ -346,7 +346,7 @@ Function f4_uslugi( reg )
   r_use( dir_server() + 'mo_otd', , 'OTD' )
   r_use( dir_server() + 'usl_otd', dir_server() + 'usl_otd', 'UO' )
   r_use( dir_server() + 'uslugi',, 'USL' )
-  Index On iif( kod > 0, '1', '0' ) + fsort_usl( shifr ) to ( cur_dir() + 'tmp_usl' )
+  Index On iif( FIELD->kod > 0, '1', '0' ) + fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp_usl' )
   Go Top
   Do While !Eof()
     lshifr := ''
@@ -600,7 +600,7 @@ Function v_k_uslugi()
   add_string( '' )
   r_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
   r_use( dir_server() + 'uslugi1k', dir_server() + 'uslugi1k', 'U1K' )
-  Set Relation To shifr1 into USL
+  Set Relation To FIELD->shifr1 into USL
   r_use( dir_server() + 'uslugi_k', dir_server() + 'uslugi_k', 'UK' )
   Go Top
   Do While !Eof()
@@ -677,8 +677,8 @@ Function v_nulusluga()
     add_string( '' )
     add_string( Center( iif( i == 1, '[ ОМС ]', '[ Платные услуги ]' ), sh ) )
     add_string( '' )
-    Index On iif( kod > 0, '1', '0' ) + fsort_usl( shifr ) to ( cur_dir() + 'tmp_usl' ) ;
-      For !Empty( shifr ) .and. iif( i == 1, is_nul, is_nulp )
+    Index On iif( FIELD->kod > 0, '1', '0' ) + fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp_usl' ) ;
+      For !Empty( FIELD->shifr ) .and. iif( i == 1, FIELD->is_nul, FIELD->is_nulp )
     Go Top
     Do While !Eof()
       If mem_trudoem == 2
@@ -723,7 +723,7 @@ Function usl1tfoms()
   mywait()
   dbCreate( cur_dir() + 'tmp', { { 'ibeg', 'N', 1, 0 }, { 'iend', 'N', 1, 0 }, { 'data', 'D', 8, 0 } } )
   Use ( cur_dir() + 'tmp' ) new
-  Index On DToS( data ) to ( cur_dir() + 'tmp' )
+  Index On DToS( FIELD->data ) to ( cur_dir() + 'tmp' )
   use_base( 'luslc' )
 
   For i := 2018 To WORK_YEAR
@@ -732,7 +732,7 @@ Function usl1tfoms()
       Loop
     Endif
     Select ( tmpAlias )
-    Index On datebeg to ( cur_dir() + 'tmp_' + tmpAlias ) For !Empty( datebeg ) .and. codemo == glob_mo[ _MO_KOD_TFOMS ] unique
+    Index On FIELD->datebeg to ( cur_dir() + 'tmp_' + tmpAlias ) For !Empty( FIELD->datebeg ) .and. FIELD->codemo == glob_mo()[ _MO_KOD_TFOMS ] unique
     Go Top
     Do While !Eof()
       Select TMP
@@ -743,7 +743,7 @@ Function usl1tfoms()
       Skip
     Enddo
     Select ( tmpAlias )
-    Index On dateend to ( cur_dir() + 'tmp_' + tmpAlias ) For !Empty( dateend ) .and. codemo == glob_mo[ _MO_KOD_TFOMS ] unique
+    Index On FIELD->dateend to ( cur_dir() + 'tmp_' + tmpAlias ) For !Empty( FIELD->dateend ) .and. FIELD->codemo == glob_mo()[ _MO_KOD_TFOMS ] unique
     Go Top
     Do While !Eof()
       Select TMP
@@ -775,7 +775,7 @@ Function usl1tfoms()
   If ret != NIL
     mdate := ret[ 1 ]
     dy := Year( mdate )
-    scode := glob_mo[ _MO_KOD_TFOMS ]
+    scode := glob_mo()[ _MO_KOD_TFOMS ]
     mywait()
     dbCreate( cur_dir() + 'tmp1', { { 'shifr',   'C', 10, 0 }, ;
       { 'flv',     'L', 1, 0 }, ;
@@ -788,11 +788,11 @@ Function usl1tfoms()
     r_use( dir_exe() + sbase, cur_dir() + sbase, 'DEP' )
 
     Use ( cur_dir() + 'tmp1' ) new
-    Index On shifr + Str( depart, 3 ) to ( cur_dir() + 'tmp1' )
+    Index On FIELD->shifr + Str( FIELD->depart, 3 ) to ( cur_dir() + 'tmp1' )
     fp := FCreate( name_file )
     n_list := 1
     tek_stroke := 0
-    add_string( glob_mo[ _MO_SHORT_NAME ] + iif( ValType( ret_arr ) == 'A', ' (' + ret_arr[ 2 ] + ' - ' + ret_arr[ 1 ] + ')', '' ) )
+    add_string( glob_mo()[ _MO_SHORT_NAME ] + iif( ValType( ret_arr ) == 'A', ' (' + ret_arr[ 2 ] + ' - ' + ret_arr[ 1 ] + ')', '' ) )
     If ret[ 2 ] == 1
       add_string( '' )
       add_string( Center( 'Список цен на услуги', sh ) )
@@ -828,9 +828,9 @@ Function usl1tfoms()
       Select TMP1
 
       lal := create_name_alias( lal, dy )
-      Set Relation To shifr into ( lal )
+      Set Relation To FIELD->shifr into ( lal )
 
-      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp1' )
+      Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp1' )
       Go Top
       old := Space( 10 )
       Do While !Eof()
@@ -905,9 +905,9 @@ Function usl1tfoms()
       lal := 'lusl'
       Select TMP1
       lal := create_name_alias( lal, dy )
-      Set Relation To shifr into ( lal )
+      Set Relation To FIELD->shifr into ( lal )
 
-      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp1' )
+      Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp1' )
       Go Top
       old := Space( 10 )
       Do While !Eof()
@@ -975,7 +975,7 @@ Function f_spr_usl_adres_podr()
   Static arr := {}
   Local i, j, ret_arr
 
-  If ( i := AScan( glob_adres_podr(), {| x| x[ 1 ] == glob_mo[ _MO_KOD_TFOMS ] } ) ) > 0
+  If ( i := AScan( glob_adres_podr(), {| x| x[ 1 ] == glob_mo()[ _MO_KOD_TFOMS ] } ) ) > 0
     If Empty( arr )
       For j := 1 To Len( glob_adres_podr()[ i, 2 ] )
         AAdd( arr, { glob_adres_podr()[ i, 2, j, 3 ], glob_adres_podr()[ i, 2, j, 1 ] } )
@@ -987,7 +987,7 @@ Function f_spr_usl_adres_podr()
     Endif
   Endif
   If Empty( ret_arr )
-    glob_podr := glob_mo[ _MO_KOD_TFOMS ] // по умолчанию
+    glob_podr := glob_mo()[ _MO_KOD_TFOMS ] // по умолчанию
   Endif
   Return ret_arr
 
@@ -1030,7 +1030,7 @@ Function usl2tfoms()
     n_list := 1
     tek_stroke := 0
     nu := get_uroven( mdate )
-    add_string( glob_mo[ _MO_SHORT_NAME ] + iif( ValType( ret_arr ) == 'A', ' (' + ret_arr[ 1 ] + ')', '' ) )
+    add_string( glob_mo()[ _MO_SHORT_NAME ] + iif( ValType( ret_arr ) == 'A', ' (' + ret_arr[ 1 ] + ')', '' ) )
     add_string( '' )
     add_string( Center( 'Список услуг по группе', sh ) )
     add_string( Center( '"' + AllTrim( t_arr[ 1 ] ) + '"', sh ) )
@@ -1069,8 +1069,8 @@ Function usl2tfoms()
       sbase := prefixfilerefname( lyear ) + 'k006'
       r_use( dir_exe() + sbase, , 'K006' )
 
-      Index On SHIFR + Str( ns, 6 ) to ( cur_dir() + 'tmp_k006' ) unique
-      Index On SHIFR + Str( ns, 6 ) + ds + sy to ( cur_dir() + 'tmp_k006_' )
+      Index On FIELD->SHIFR + Str( FIELD->ns, 6 ) to ( cur_dir() + 'tmp_k006' ) unique
+      Index On FIELD->SHIFR + Str( FIELD->ns, 6 ) + FIELD->ds + FIELD->sy to ( cur_dir() + 'tmp_k006_' )
       Set Index to ( cur_dir() + 'tmp_k006' ), ( cur_dir() + 'tmp_k006_' )
     Endif
     use_base( 'luslc' )
@@ -1079,11 +1079,11 @@ Function usl2tfoms()
     lal := create_name_alias( lal, lyear )
     dbSelectArea( lal )
     If t_arr[ 2 ] > 500
-      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmplu' ) For is_ksg( shifr, t_arr[ 2 ] -500 ) .and. datebeg >= BoY( mdate )
+      Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmplu' ) For is_ksg( FIELD->shifr, t_arr[ 2 ] -500 ) .and. FIELD->datebeg >= BoY( mdate )
     elseif t_arr[ 2 ] == 400
-      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmpvmp' ) For substr( shifr, 1, 5 ) == code_services_VMP( lyear ) .and. !is_ksg( shifr )
+      Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmpvmp' ) For substr( FIELD->shifr, 1, 5 ) == code_services_VMP( lyear ) .and. !is_ksg( FIELD->shifr )
     Else
-      Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp' ) For usl2arr( shifr )[ 1 ] == k .and. !is_ksg( shifr )
+      Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp' ) For usl2arr( FIELD->shifr )[ 1 ] == k .and. !is_ksg( FIELD->shifr )
     Endif
     Go Top
     Do While !Eof()
@@ -1291,16 +1291,16 @@ Function usl3tfoms()
     Enddo
     Select TMP
     Set Relation To RecNo() into USL
-    Index On shifr + fsort_usl( usl->shifr ) to ( cur_dir() + "tmp" )
+    Index On FIELD->shifr + fsort_usl( usl->shifr ) to ( cur_dir() + "tmp" )
     use_base( 'lusl' )
     lal := 'lusl'
     lal := create_name_alias( lal, lyear )
 
     dbSelectArea( lal )
     If t_arr[ 2 ] > 500
-      Index On fsort_usl( shifr ) to ( cur_dir() + "tmplu" ) For is_ksg( shifr, t_arr[ 2 ] -500 ) .and. datebeg >= BoY( mdate )
+      Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + "tmplu" ) For is_ksg( FIELD->shifr, t_arr[ 2 ] -500 ) .and. FIELD->datebeg >= BoY( mdate )
     Else
-      Index On fsort_usl( shifr ) to ( cur_dir() + "tmplu" ) For usl2arr( shifr )[ 1 ] == k .and. !is_ksg( shifr )
+      Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + "tmplu" ) For usl2arr( FIELD->shifr )[ 1 ] == k .and. !is_ksg( FIELD->shifr )
     Endif
     Go Top
     Do While !Eof()
@@ -1600,7 +1600,7 @@ Function usl_stom_ffoms()
 
   mywait()
   r_use_base( "luslf" )
-  Index On Str( grp, 1 ) + shifr to ( cur_dir() + "tmp_uslf" )
+  Index On Str( FIELD->grp, 1 ) + FIELD->shifr to ( cur_dir() + "tmp_uslf" )
   fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
   add_string( Str( WORK_YEAR, 4, 0 ) + ' год' )
   add_string( Center( "Номенклатура стоматологических услуг Минздрава РФ (ФФОМС)", sh ) )
@@ -1642,7 +1642,7 @@ Function usl_telemedicina()
 
   mywait()
   r_use_base( 'luslf' )
-  Index On shifr to ( cur_dir() + 'tmp_uslf' ) For telemed == 1
+  Index On FIELD->shifr to ( cur_dir() + 'tmp_uslf' ) For FIELD->telemed == 1
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
@@ -1672,7 +1672,7 @@ Function usl_par_organ()
 
   mywait()
   r_use_base( 'luslf' )
-  Index On shifr to ( cur_dir() + 'tmp_uslf' ) For !Empty( par_org )
+  Index On FIELD->shifr to ( cur_dir() + 'tmp_uslf' ) For !Empty( FIELD->par_org )
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
@@ -1717,7 +1717,7 @@ Function usl_napr_ffoms()
   ar := AClone( t_arr )
   mywait()
   r_use_base( 'luslf' )
-  Index On Str( onko_napr, 1 ) + shifr to ( cur_dir() + 'tmp_uslf' )
+  Index On Str( FIELD->onko_napr, 1 ) + FIELD->shifr to ( cur_dir() + 'tmp_uslf' )
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
@@ -1768,7 +1768,7 @@ Function usl_ksg_ffoms()
   ar := AClone( t_arr )
   mywait()
   r_use_base( 'luslf' )
-  Index On Str( onko_ksg, 1 ) + shifr to ( cur_dir() + 'tmp_uslf' )
+  Index On Str( FIELD->onko_ksg, 1 ) + FIELD->shifr to ( cur_dir() + 'tmp_uslf' )
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
@@ -1967,15 +1967,15 @@ Function usl6ffoms( lksg )
     { 'SHIFR',      'C',     10,      0 }, ;
     { 'SHIFR1',     'C',     20,      0 } } )
   Use ( cur_dir() + 'tmp1' ) new
-  Index On shifr1 + shifr to ( cur_dir() + 'tmp1' )
+  Index On FIELD->shifr1 + FIELD->shifr to ( cur_dir() + 'tmp1' )
   mdate := sys_date
 
   sbase := prefixfilerefname( WORK_YEAR ) + 'k006'
   r_use( dir_exe() + sbase, , 'K006' )
-  Index On SHIFR + SY to ( cur_dir() + 'tmp_t009' )
+  Index On FIELD->SHIFR + FIELD->SY to ( cur_dir() + 'tmp_t009' )
   use_base( 'luslc' )
   use_base( 'lusl' )
-  Index On fsort_usl( shifr ) to ( cur_dir() + 'tmp_lusl' ) For is_ksg( shifr, lksg ) .and. datebeg >= BoY( mdate )
+  Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp_lusl' ) For is_ksg( FIELD->shifr, lksg ) .and. FIELD->datebeg >= BoY( mdate )
   Go Top
   Do While !Eof()
     v1 := fcena_oms( lusl->shifr, .t., mdate, @fl1del, @fl1uslc )
@@ -2014,11 +2014,11 @@ Function usl6ffoms( lksg )
     } )
   Use ( fr_titl ) New Alias FRT
   Append Blank
-  frt->mo := glob_mo[ _MO_SHORT_NAME ] + iif( ValType( ret_arr ) == 'A', ' (' + ret_arr[ 1 ] + ')', '' )
+  frt->mo := glob_mo()[ _MO_SHORT_NAME ] + iif( ValType( ret_arr ) == 'A', ' (' + ret_arr[ 1 ] + ')', '' )
   fp := FCreate( name_file )
   n_list := 1
   tek_stroke := 0
-  add_string( glob_mo[ _MO_SHORT_NAME ] + iif( ValType( ret_arr ) == 'A', ' (' + ret_arr[ 1 ] + ')', '' ) )
+  add_string( glob_mo()[ _MO_SHORT_NAME ] + iif( ValType( ret_arr ) == 'A', ' (' + ret_arr[ 1 ] + ')', '' ) )
   add_string( '' )
   s := 'Услуги ФФОМС + КСГ в ' + iif( lksg == 1, 'стационаре', 'дневном стационаре' )
   frt->str1 := s
@@ -2040,7 +2040,7 @@ Function usl6ffoms( lksg )
   use_base( 'luslf' )
   old_shifr := Space( 20 )
   Select TMP
-  Index On shifr to ( cur_dir() + 'tmp' )
+  Index On FIELD->shifr to ( cur_dir() + 'tmp' )
   Select TMP1
   Go Top
   Do While !Eof()
@@ -2079,7 +2079,7 @@ Function usl6ffoms( lksg )
     Skip
   Enddo
   Select _d1
-  Index On shifr1 + shifr to ( fr_data + '1' )
+  Index On FIELD->shifr1 + FIELD->shifr to ( fr_data + '1' )
   Close databases
   rest_box( buf )
   FClose( fp )
@@ -2260,10 +2260,10 @@ Function f3spr_other( reg )
     add_string( Center( "Список услуг по службе:", 80 ) )
     add_string( Center( lstr( sl->shifr ) + ". " + AllTrim( sl->name ), 80 ) )
     find ( Str( sl->shifr, 3 ) )
-    Index On fsort_usl( shifr ) to ( cur_dir() + "tmp" ) For kod > 0 While slugba == sl->shifr
+    Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + "tmp" ) For FIELD->kod > 0 While FIELD->slugba == sl->shifr
   Else
     add_string( Center( "Список услуг с непроставленной службой", 80 ) )
-    Index On fsort_usl( shifr ) to ( cur_dir() + "tmp" ) For f5spr_other()
+    Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + "tmp" ) For f5spr_other()
   Endif
   add_string( "" )
   If mem_trudoem == 2
@@ -2359,13 +2359,13 @@ Function spr_kod_otd()
     func_error( 4, "База учреждений пуста!" )
   Else
     r_use( dir_server() + 'mo_otd',, 'OTD' )
-    Index On Str( kod_lpu, 3 ) + Upper( name ) to ( cur_dir() + "tmp_otd" ) For !Empty( name )
+    Index On Str( FIELD->kod_lpu, 3 ) + Upper( FIELD->name ) to ( cur_dir() + "tmp_otd" ) For !Empty( FIELD->name )
     fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
     add_string( "" )
     add_string( Center( Expand( "КОДЫ ОТДЕЛЕНИЙ" ), sh ) )
     add_string( "" )
     Select UCH
-    Index On Upper( name ) to ( cur_dir() + "tmp_uch" ) For !Empty( name )
+    Index On Upper( FIELD->name ) to ( cur_dir() + "tmp_uch" ) For !Empty( FIELD->name )
     Go Top
     Do While !Eof()
       add_string( "" )
@@ -2437,17 +2437,17 @@ Function f_10diag( k )
     alpha_browse( 2, c1, MaxRow() -2, c2, 'f1_10diag', color0, , , .t., , , , 'f2_10diag', , {, , , 'N/BG, W+/N, B/BG, BG+/B, GR/BG, BG+/GR', .t. } )
   Case k == 2
     r_use( dir_exe() + '_mo_mkbk' )
-    Index On sh_b + Str( ks, 1 ) to ( cur_dir() + 'tmp' )
+    Index On FIELD->sh_b + Str( FIELD->ks, 1 ) to ( cur_dir() + 'tmp' )
     Go Top
     alpha_browse( 2, 0, MaxRow() -2, 79, 'f1_10diag', color0, , , .t., , , , , , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
   Case k == 3
     r_use( dir_exe() + '_mo_mkbg' )
-    Index On sh_b + Str( ks, 1 ) to ( cur_dir() + 'tmp' )
+    Index On FIELD->sh_b + Str( FIELD->ks, 1 ) to ( cur_dir() + 'tmp' )
     Go Top
     alpha_browse( 2, c1, MaxRow() -2, c2, 'f1_10diag', color0, , , .t., , , , , , { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B' } )
   Case k == 4 .or. k == 5
     r_use( dir_exe() + '_mo_mkb' + iif( pregim == 4, 'k', 'g' ) )
-    Index On sh_b + Str( ks, 1 ) to ( cur_dir() + 'tmp_d' )
+    Index On FIELD->sh_b + Str( FIELD->ks, 1 ) to ( cur_dir() + 'tmp_d' )
     Use
     Do While .t.
       r_use( dir_exe() + '_mo_mkb' + iif( pregim == 4, 'k', 'g' ) )
