@@ -71,27 +71,13 @@ Function create_reestr()
     { 'KOD_SMO',  'C',  5, 0 }, ;  // код СМО
     { 'BUKVA',    'C',  1, 0 } ;   // буква счета
   }
-/*
-  dbCreate( cur_dir() + 'tmpb', { ;
-    { 'kod_tmp', 'N', 6, 0 }, ;
-    { 'kod_human', 'N', 7, 0 }, ;
-    { 'fio', 'C', 50, 0 }, ;
-    { 'n_data', 'D', 8, 0 }, ;
-    { 'k_data', 'D', 8, 0 }, ;
-    { 'cena_1', 'N', 11, 2 }, ;
-    { 'PZKOL', 'N', 3, 0 }, ;
-    { 'PZ', 'N', 3, 0 }, ;
-    { 'ishod', 'N', 3, 0 }, ;
-    { 'tip', 'N', 1, 0 }, ; // 1 - обычный реестр, 2 -диспансеризация
-    { 'yes_del', 'L', 1, 0 }, ; // надо ли удалить после дополнительной проверки
-    { 'PLUS', 'L', 1, 0 } ;  // включается ли в счет
-  } )
-  Use ( cur_dir() + 'tmpb' ) new
-  Index On Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' )
-*/
+
   dbCreate( cur_dir() + 'tmpb', adbf, , .t., 'TMPB' )
   Index On Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' )
-
+/* на будующее
+  dbCreate( 'mem:tmpb', adbf, , .t., 'TMPB' )
+  Index On FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) to ( 'mem:tmpb' )
+*/
   adbf := { ;
     { 'MIN_DATE',    'D',     8,     0 }, ;
     { 'DNI',         'N',     3,     0 }, ;
@@ -99,17 +85,16 @@ Function create_reestr()
     { 'NMONTH',      'N',     2,     0 }, ; // отчетный месяц;;
     { 'KOL',         'N',     6,     0 }, ;
     { 'SUMMA',       'N',    15,     2 }, ;
-    { 'KOD',         'N',     6,     0 } }
+    { 'KOD',         'N',     6,     0 } ;
+  }
 
   mnyear := arr_m[ 1 ]
   mnmonth := arr_m[ 3 ]
   
   private p_array_PZ
 
-// перенесено из reestrOMS_XML
   p_array_PZ := get_array_pz( mnyear )  // получим массив план-заказа на год составления реестра
   lenPZ := len( p_array_PZ )
-// конец перенесено
 
   For i := 0 To lenPZ   // для таблицы _moXunit 03.02.23
     AAdd( adbf, { 'PZ' + lstr( i ), 'N', 9, 2 } )
@@ -122,7 +107,8 @@ Function create_reestr()
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
-  dbSeek( DToS( arr_m[ 5 ] ), .t. )
+
+  human->( dbSeek( DToS( arr_m[ 5 ] ), .t. ) )
   Do While human->k_data <= arr_m[ 6 ] .and. !human->( Eof() )
     If ++k1 % 100 == 0
       @ MaxRow(), 1 Say lstr( k1 ) Color cColorSt2Msg
