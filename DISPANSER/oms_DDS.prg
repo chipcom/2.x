@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.11.25 ДДС - добавление или редактирование случая (листа учета)
+// 20.11.25 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -787,6 +787,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         Endif
         For i := 1 To len( arr_DDS_issled )
           fl := .t.
+          fl := ( ascan( ar[ 5 ], arr_DDS_issled[ i, 1 ] ) > 0 )
           If fl .and. !Empty( arr_DDS_issled[ i, 2 ] )
             fl := ( mpol == arr_DDS_issled[ i, 2 ] )
           Endif
@@ -1725,7 +1726,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       mywait( 'Ждите. Производится запись листа учёта...' )
       //
       If metap == 1
-        For i := 1 To Len( dds_arr_osm1() )
+        For i := 1 To Len( dds_arr_osm1( mk_data ) )
           If ValType( arr_osm1[ i, 5 ] ) == 'C' .and. Left( arr_osm1[ i, 5 ], 5 ) == '2.83.'
             If eq_any( AllTrim( arr_osm1[ i, 5 ] ), '2.83.14', '2.83.15' ) // педиатр, врач общей практики
               arr_osm1[ i, 5 ] := '2.3.2'
@@ -1734,6 +1735,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
             Endif
           Endif
         Next
+/*
         if mk_data < 0d20250901
           AAdd( arr_osm1, Array( 10 ) )
           i := Len( dds_arr_osm1() ) + 1
@@ -1749,6 +1751,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
           m1PROFIL := arr_osm1[ i, 4 ]
           // MKOD_DIAG := padr( arr_osm1[ i, 6 ], 6 )
         endif
+*/
       Else  // metap := 2
 
         if mk_data < 0d20250901
@@ -2007,7 +2010,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         Endif
         hu_->PROFIL := arr_usl_dop[ i, 4 ]
         hu_->PRVS   := arr_usl_dop[ i, 2 ]
-        hu_->kod_diag := arr_usl_dop[ i, 6 ]
+//        hu_->kod_diag := arr_usl_dop[ i, 6 ]
         hu_->zf := ''
         Unlock
       Next

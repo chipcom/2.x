@@ -23,8 +23,9 @@ Function is_osmotr_dds_1_etap( ausl, _vozrast, _etap, _pol, tip_lu, mdata )
   If _etap == 1
     arr_DDS_osm := dds_arr_osm1( mdata )
     For i := 1 To Len( arr_DDS_osm )
-      If iif( Empty( arr_DDS_osm[ i, 2 ] ), .t., arr_DDS_osm[ i, 2 ] == _pol ) .and. ;
-          iif( mdata >= 0d20250901, .t., Between( _vozrast, arr_DDS_osm[ i, 3 ], arr_DDS_osm[ i, 4 ] ) )
+//      If iif( Empty( arr_DDS_osm[ i, 2 ] ), .t., arr_DDS_osm[ i, 2 ] == _pol ) .and. ;
+//          iif( mdata >= 0d20250901, .t., Between( _vozrast, arr_DDS_osm[ i, 3 ], arr_DDS_osm[ i, 4 ] ) )
+      If iif( Empty( arr_DDS_osm[ i, 2 ] ), .t., arr_DDS_osm[ i, 2 ] == _pol )
 //      If _etap == 1
         If AScan( arr_DDS_osm[ i, 5 ], ausl[ 3 ] ) > 0
           fl := .t.
@@ -133,7 +134,7 @@ Function is_issl_dds( ausl, _vozrast, arr, mdata )
   Endif
   Return fl
 
-// 19.03.19 вернуть шифр услуги законченного случая для диспансеризации детей-сирот
+// 20.11.25 вернуть шифр услуги законченного случая для диспансеризации детей-сирот
 Function ret_shifr_zs_dds( tip_lu )
 
   Local s := ''
@@ -169,6 +170,7 @@ Function ret_shifr_zs_dds( tip_lu )
       Endif
     Endif
   Else // дисп-ия проведена в МО (не мобильной бригадой)
+/*
     If m1lis > 0 // без гематологических иссл-ий
       If mvozrast < 1
         s := iif( tip_lu == TIP_LU_DDS, '70.5.15', '70.6.13' )
@@ -184,6 +186,7 @@ Function ret_shifr_zs_dds( tip_lu )
         s := iif( tip_lu == TIP_LU_DDS, '70.5.20', '70.6.18' )
       Endif
     Else  // гематологические иссл-ия проводятся в ЛПУ
+*/
       If mvozrast < 1
         s := iif( tip_lu == TIP_LU_DDS, '70.5.3', '70.6.1' )
       Elseif mvozrast < 3
@@ -197,7 +200,7 @@ Function ret_shifr_zs_dds( tip_lu )
       Else
         s := iif( tip_lu == TIP_LU_DDS, '70.5.8', '70.6.6' )
       Endif
-    Endif
+//    Endif
   Endif
   Return s
 
@@ -774,7 +777,7 @@ Function read_arr_dds( lkod, mdata )
   Endif
   Return Nil
 
-// 08.11.25 вернуть возрастной период для профилактики несовершеннолетних
+// 20.11.25 вернуть возрастной период для профилактики несовершеннолетних
 Function ret_period_dds( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
 
   Local i, lperiod, sm, sm_, sm1, sm2, yn_data, yk_data
@@ -871,10 +874,11 @@ Function ret_period_dds( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
         Endif
       Endif
     else
-//        If mdvozrast == arr_DDS_etap[ i, 2, 1 ]
-        If arr_DDS_etap[ i, 2, 1 ] <= mdvozrast .and. mdvozrast <= arr_DDS_etap[ i, 3, 1 ]
+//        If arr_DDS_etap[ i, 2, 1 ] <= mdvozrast .and. mdvozrast <= arr_DDS_etap[ i, 3, 1 ]
+        If arr_DDS_etap[ i, 2, 1 ] <= mvozrast .and. mvozrast <= arr_DDS_etap[ i, 3, 1 ]
           ret_i := lperiod := i
-          ls := ' (' + lstr( mdvozrast ) + ' ' + s_let( mdvozrast ) + ')'
+//          ls := ' (' + lstr( mdvozrast ) + ' ' + s_let( mdvozrast ) + ')'
+          ls := ' (' + lstr( mvozrast ) + ' ' + s_let( mvozrast ) + ')'
           If yn_data != yk_data
             lperiod := 0
             ls := 'Ошибка! Начало и окончание диспансеризации должны быть в одном календарном году'
@@ -921,7 +925,8 @@ Function add_pediatr_DDS( _pv, _pa, _date, _diag, mpol, mdef_diagnoz, mobil, tip
       endif
     Endif
   Else
-    arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.85.15', '2.85.14' ) // шифр услуги
+//    arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.85.15', '2.85.14' ) // шифр услуги
+    arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.83.15', '2.83.14' ) // шифр услуги
   Endif
   If Empty( _diag ) .or. Left( _diag, 1 ) == 'Z'
     arr[ 6 ] := mdef_diagnoz
