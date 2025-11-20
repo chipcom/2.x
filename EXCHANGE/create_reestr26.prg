@@ -316,7 +316,7 @@ function print_list_pacients( kod_smo, nyear, nmonth )
     viewtext( nfile, , , , .t., , , 2 )
     return nil
 
-// 18.08.25
+// 20.11.25
 function control_and_create_schet26( kod_smo )
 
   // при работе использует созданные алиасы A_SMO и TMPB
@@ -334,53 +334,56 @@ function control_and_create_schet26( kod_smo )
   Local mnyear, mnmonth, bSaveHandler, arr, adbf
 //  Local arr_m
 
+/*
+
   fl := .t.
-//  bSaveHandler := ErrorBlock( {| x| Break( x ) } )
+  bSaveHandler := ErrorBlock( {| x| Break( x ) } )
 
-//  Begin Sequence
-//    r_use( dir_server() + 'human' )
-//    Index On Str( FIELD->schet, 6 ) + Str( FIELD->tip_h, 1 ) + Upper( SubStr( FIELD->fio, 1, 20 ) ) to ( dir_server() + 'humans' ) progress
-//    Index On Str( if( FIELD->kod > 0, FIELD->kod_k, 0 ), 7 ) + Str( FIELD->tip_h, 1 ) to ( dir_server() + 'humankk' ) progress
-//    Index On DToS( FIELD->k_data ) + FIELD->uch_doc to ( dir_server() + 'humand' ) progress
-//    human->( dbCloseArea() )
-//    r_use( dir_server() + 'human_u' )
-//    Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + 'human_u' ) progress
-//    human_u->( dbCloseArea() )
-//    r_use( dir_server() + 'mo_hu' )
-//    Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + 'mo_hu' ) progress
-//    mo_hu->( dbCloseArea() )
-//    r_use( dir_server() + 'human_3' )
-//    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'human_3' ) progress
-//    Index On Str( FIELD->kod2, 7 ) to ( dir_server() + 'human_32' ) progress
-//    human_3->( dbCloseArea() )
-//    r_use( dir_server() + 'mo_onkna' )
-//    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onkna' ) progress
-//    mo_onkna->( dbCloseArea() )
-//    r_use( dir_server() + 'mo_onksl' )
-//    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onksl' ) progress
-//    mo_onksl->( dbCloseArea() )
-//    r_use( dir_server() + 'mo_onkco' )
-//    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onkco' ) progress
-//    mo_onkco->( dbCloseArea() )
-//    r_use( dir_server() + 'mo_onkdi' )
-//    Index On Str( FIELD->kod, 7 ) + Str( FIELD->diag_tip, 1 ) + Str( FIELD->diag_code, 3 ) to ( dir_server() + 'mo_onkdi' ) progress
-//    mo_onkdi->( dbCloseArea() )
-//    r_use( dir_server() + 'mo_onkpr' )
-//    Index On Str( FIELD->kod, 7 ) + Str( FIELD->prot, 1 ) to ( dir_server() + 'mo_onkpr' ) progress
-//    mo_onkpr->( dbCloseArea() )
-//    r_use( dir_server() + 'mo_onkus' )
-//    Index On Str( FIELD->kod, 7 ) + Str( FIELD->usl_tip, 1 ) to ( dir_server() + 'mo_onkus' ) progress
-//    mo_onkus->( dbCloseArea() )
-//    r_use( dir_server() + 'mo_onkle' )
-//    Index On Str( FIELD->kod, 7 ) + FIELD->regnum + FIELD->code_sh + DToS( FIELD->date_inj ) to ( dir_server() + 'mo_onkle' ) progress
-//    mo_onkle->( dbCloseArea() )
-//  RECOVER USING error
-//    fl := func_error( 10, 'Возникла непредвиденная ошибка при переиндексировании!' )
-//  End
-//  ErrorBlock( bSaveHandler )
+  Begin Sequence
+    r_use( dir_server() + 'human' )
+    Index On Str( FIELD->schet, 6 ) + Str( FIELD->tip_h, 1 ) + Upper( SubStr( FIELD->fio, 1, 20 ) ) to ( dir_server() + 'humans' ) progress
+    Index On Str( if( FIELD->kod > 0, FIELD->kod_k, 0 ), 7 ) + Str( FIELD->tip_h, 1 ) to ( dir_server() + 'humankk' ) progress
+    Index On DToS( FIELD->k_data ) + FIELD->uch_doc to ( dir_server() + 'humand' ) progress
+    human->( dbCloseArea() )
+    r_use( dir_server() + 'human_u' )
+    Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + 'human_u' ) progress
+    human_u->( dbCloseArea() )
+    r_use( dir_server() + 'mo_hu' )
+    Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + 'mo_hu' ) progress
+    mo_hu->( dbCloseArea() )
+    r_use( dir_server() + 'human_3' )
+    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'human_3' ) progress
+    Index On Str( FIELD->kod2, 7 ) to ( dir_server() + 'human_32' ) progress
+    human_3->( dbCloseArea() )
+    r_use( dir_server() + 'mo_onkna' )
+    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onkna' ) progress
+    mo_onkna->( dbCloseArea() )
+    r_use( dir_server() + 'mo_onksl' )
+    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onksl' ) progress
+    mo_onksl->( dbCloseArea() )
+    r_use( dir_server() + 'mo_onkco' )
+    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onkco' ) progress
+    mo_onkco->( dbCloseArea() )
+    r_use( dir_server() + 'mo_onkdi' )
+    Index On Str( FIELD->kod, 7 ) + Str( FIELD->diag_tip, 1 ) + Str( FIELD->diag_code, 3 ) to ( dir_server() + 'mo_onkdi' ) progress
+    mo_onkdi->( dbCloseArea() )
+    r_use( dir_server() + 'mo_onkpr' )
+    Index On Str( FIELD->kod, 7 ) + Str( FIELD->prot, 1 ) to ( dir_server() + 'mo_onkpr' ) progress
+    mo_onkpr->( dbCloseArea() )
+    r_use( dir_server() + 'mo_onkus' )
+    Index On Str( FIELD->kod, 7 ) + Str( FIELD->usl_tip, 1 ) to ( dir_server() + 'mo_onkus' ) progress
+    mo_onkus->( dbCloseArea() )
+    r_use( dir_server() + 'mo_onkle' )
+    Index On Str( FIELD->kod, 7 ) + FIELD->regnum + FIELD->code_sh + DToS( FIELD->date_inj ) to ( dir_server() + 'mo_onkle' ) progress
+    mo_onkle->( dbCloseArea() )
+  RECOVER USING error
+    fl := func_error( 10, 'Возникла непредвиденная ошибка при переиндексировании!' )
+  End
+  ErrorBlock( bSaveHandler )
 
-//        dbCloseAll()  // Close databases
-
+  dbCloseAll()
+*/
+  fl := reestr_file_reindex()
   If fl
     // arr_m - PRIVATE переменная
     arrKolSl := verify_oms26( kod_smo, arr_m, .f. )

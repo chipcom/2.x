@@ -6,7 +6,7 @@
 Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
-// 18.11.25
+// 20.11.25
 Function create_reestr()
 
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, pole
@@ -14,13 +14,16 @@ Function create_reestr()
   Local tip_lu
 
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
-  local arrKolSl
-  local adbf
+  local arrKolSl, _k
+  local adbf, currDate
 
-  private arr_m // пока не знаю как передать
-  Private pkol := 0, psumma := 0, ;
-    CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], ;
-    CODE_MO  := glob_mo()[ _MO_KOD_FFOMS ]
+  local arr_m
+  local mnyear, mnmonth
+//  private arr_m // пока не знаю как передать
+
+  Private pkol := 0, psumma := 0  //, ;
+//    CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], ;
+//    CODE_MO  := glob_mo()[ _MO_KOD_FFOMS ]
 
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, err_admin() )
@@ -43,6 +46,7 @@ Function create_reestr()
     Return Nil
   Endif
 
+  currDate := sys_date
   arr := { 'Предупреждение!', ;
     '', ;
     'Во время составления реестра', ;
@@ -83,7 +87,7 @@ Function create_reestr()
     { 'PLUS', 'L', 1, 0 } ;  // включается ли в счет
   } )
   Use ( cur_dir() + 'tmpb' ) new
-  Index On Str( kod_human, 7 ) to ( cur_dir() + 'tmpb' )
+  Index On Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' )
 */
   dbCreate( cur_dir() + 'tmpb', adbf, , .t., 'TMPB' )
   Index On Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' )
@@ -110,15 +114,10 @@ Function create_reestr()
   For i := 0 To lenPZ   // для таблицы _moXunit 03.02.23
     AAdd( adbf, { 'PZ' + lstr( i ), 'N', 9, 2 } )
   Next
-/*
-  dbCreate( cur_dir() + 'tmp', adbf )
-  Use ( cur_dir() + 'tmp' ) New Alias TMP
-*/
   dbCreate( cur_dir() + 'tmp', adbf, , .t., 'TMP' )
-//  Append Blank
   tmp->( dbAppend() )
-
   Replace tmp->nyear With mnyear, tmp->nmonth With mnmonth, tmp->min_date With arr_m[ 6 ]
+
   r_use( dir_server() + 'mo_otd', , 'OTD' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
@@ -148,17 +147,15 @@ Function create_reestr()
         tmp->summa += human->cena_1
       Endif
     Endif
-//    Select HUMAN
-//    Skip
     human->( dbSkip() )
   Enddo
-  Close databases
+  dbCloseAll()
   If k == 0
     rest_box( buf )
     func_error( 4, 'Нет пациентов для включения в реестр с датой окончания ' + arr_m[ 4 ] )
   Else
     Use ( cur_dir() + 'tmp' ) new
-    k := sys_date - tmp->min_date
+    k := currDate - tmp->min_date
     tmp->dni := iif( Between( k, 1, 999 ), k, 0 )
     Go Top
     rest_box( buf )
@@ -167,67 +164,61 @@ Function create_reestr()
         { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B,R/BG', .f., 180 } )
       rest_box( buf )
       // if .f.
-      If sys_date < SToD( StrZero( tmp->nyear, 4 ) + StrZero( tmp->nmonth, 2 ) + '11' )
-        func_error( 10, 'Сегодня ' + date_8( sys_date ) + ', а реестры разрешается отсылать с 11 числа' )
+      If currDate < SToD( StrZero( tmp->nyear, 4 ) + StrZero( tmp->nmonth, 2 ) + '11' )
+        func_error( 10, 'Сегодня ' + date_8( currDate ) + ', а реестры разрешается отсылать с 11 числа' )
       Elseif mo_lock_task( X_OMS )
-        Close databases
+/*
+        dbCloseAll()
         fl := .t.
         bSaveHandler := ErrorBlock( {| x| Break( x ) } )
         Begin Sequence
           r_use( dir_server() + 'human' )
-          Index On Str( schet, 6 ) + Str( tip_h, 1 ) + Upper( SubStr( fio, 1, 20 ) ) to ( dir_server() + 'humans' ) progress
-          Index On Str( if( kod > 0, kod_k, 0 ), 7 ) + Str( tip_h, 1 ) to ( dir_server() + 'humankk' ) progress
-          Index On DToS( k_data ) + uch_doc to ( dir_server() + 'humand' ) progress
+          Index On Str( FIELD->schet, 6 ) + Str( FIELD->tip_h, 1 ) + Upper( SubStr( FIELD->fio, 1, 20 ) ) to ( dir_server() + 'humans' ) progress
+          Index On Str( if( FIELD->kod > 0, FIELD->kod_k, 0 ), 7 ) + Str( FIELD->tip_h, 1 ) to ( dir_server() + 'humankk' ) progress
+          Index On DToS( FIELD->k_data ) + FIELD->uch_doc to ( dir_server() + 'humand' ) progress
           Use
           r_use( dir_server() + 'human_u' )
-          Index On Str( kod, 7 ) + date_u to ( dir_server() + 'human_u' ) progress
+          Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + 'human_u' ) progress
           Use
           r_use( dir_server() + 'mo_hu' )
-          Index On Str( kod, 7 ) + date_u to ( dir_server() + 'mo_hu' ) progress
+          Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + 'mo_hu' ) progress
           Use
           r_use( dir_server() + 'human_3' )
-          Index On Str( kod, 7 ) to ( dir_server() + 'human_3' ) progress
-          Index On Str( kod2, 7 ) to ( dir_server() + 'human_32' ) progress
+          Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'human_3' ) progress
+          Index On Str( FIELD->kod2, 7 ) to ( dir_server() + 'human_32' ) progress
           Use
           r_use( dir_server() + 'mo_onkna' )
-          Index On Str( kod, 7 ) to ( dir_server() + 'mo_onkna' ) progress
+          Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onkna' ) progress
           r_use( dir_server() + 'mo_onksl' )
-          Index On Str( kod, 7 ) to ( dir_server() + 'mo_onksl' ) progress
+          Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onksl' ) progress
           r_use( dir_server() + 'mo_onkco' )
-          Index On Str( kod, 7 ) to ( dir_server() + 'mo_onkco' ) progress
+          Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onkco' ) progress
           r_use( dir_server() + 'mo_onkdi' )
-          Index On Str( kod, 7 ) + Str( diag_tip, 1 ) + Str( diag_code, 3 ) to ( dir_server() + 'mo_onkdi' ) progress
+          Index On Str( FIELD->kod, 7 ) + Str( FIELD->diag_tip, 1 ) + Str( FIELD->diag_code, 3 ) to ( dir_server() + 'mo_onkdi' ) progress
           r_use( dir_server() + 'mo_onkpr' )
-          Index On Str( kod, 7 ) + Str( prot, 1 ) to ( dir_server() + 'mo_onkpr' ) progress
+          Index On Str( FIELD->kod, 7 ) + Str( FIELD->prot, 1 ) to ( dir_server() + 'mo_onkpr' ) progress
           r_use( dir_server() + 'mo_onkus' )
-          Index On Str( kod, 7 ) + Str( usl_tip, 1 ) to ( dir_server() + 'mo_onkus' ) progress
+          Index On Str( FIELD->kod, 7 ) + Str( FIELD->usl_tip, 1 ) to ( dir_server() + 'mo_onkus' ) progress
           r_use( dir_server() + 'mo_onkle' )
-          Index On Str( kod, 7 ) + regnum + code_sh + DToS( date_inj ) to ( dir_server() + 'mo_onkle' ) progress
+          Index On Str( FIELD->kod, 7 ) + FIELD->regnum + FIELD->code_sh + DToS( FIELD->date_inj ) to ( dir_server() + 'mo_onkle' ) progress
           Use
         RECOVER USING error
           fl := func_error( 10, 'Возникла непредвиденная ошибка при переиндексировании!' )
         End
         ErrorBlock( bSaveHandler )
-        Close databases
+        dbCloseAll()
+*/
+        fl := reestr_file_reindex()
         If fl
-          // Private kol_1r := 0, kol_2r := 0
           private p_tip_reestr := 1
           arrKolSl := verify_oms( arr_m, .f. )
           clrline( MaxRow(), color0 )
-          // If kol_1r == 0 .and. kol_2r == 0
           If arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] == 0
             //
-          // Elseif kol_1r > 0 .and. kol_2r == 0
           Elseif arrKolSl[ 1 ] > 0 .and. arrKolSl[ 2 ] == 0
             p_tip_reestr := 1
-          // Elseif kol_1r == 0 .and. kol_2r > 0
           Elseif arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] > 0
             p_tip_reestr := 2
-          // Elseif f_alert( { '', ;
-          //     PadC( 'Выберите тип реестра случаев для отправки в ТФОМС', 70, '.' ), ;
-          //     '' }, ;
-          //     { ' Реестр ~обычный(' + lstr( kol_1r ) + ')', ' Реестр по ~диспансеризации(' + lstr( kol_2r ) + ')' }, ;
-          //     1, 'W/RB', 'G+/RB', MaxRow() -6,, 'BG+/RB,W+/R,W+/RB,GR+/R' ) == 2
           Elseif f_alert( { '', ;
               PadC( 'Выберите тип реестра случаев для отправки в ТФОМС', 70, '.' ), ;
               '' }, ;
@@ -250,7 +241,7 @@ Function create_reestr()
           r_use( dir_server() + 'human_',, 'HUMAN_' )
           r_use( dir_server() + 'human',, 'HUMAN' )
           Use ( cur_dir() + 'tmpb' ) new
-          Set Relation To kod_human into HUMAN, To kod_human into HUMAN_
+          Set Relation To FIELD->kod_human into HUMAN, To FIELD->kod_human into HUMAN_
           Go Top
           Do While !Eof()
             If human_->ST_VERIFY >= 5 .and. tmpb->tip == p_tip_reestr
@@ -291,7 +282,7 @@ Function create_reestr()
           Else
             If _k != tmp->kol
               Select TMPB
-              Delete For yes_del
+              Delete For FIELD->yes_del
               Pack
             Endif
             If tmp->nyear > 2018 // 2019 год
@@ -307,8 +298,48 @@ Function create_reestr()
     Endif
     rest_box( buf )
   Endif
-  Close databases
+  dbCloseAll()
   Return Nil
+
+// 20.11.25
+Function f2create_reestr( nKey, oBrow )
+
+  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := cur_dir() + 'spisok.txt', j := 0
+
+  Do Case
+  Case nkey == K_F9
+    buf := save_maxrow()
+    mywait()
+    rec := tmp->( RecNo() )
+    fp := FCreate( nfile )
+    n_list := 1
+    tek_stroke := 0
+    add_string( '' )
+    add_string( Center( 'Список пациентов за отчётный период ' + Str( tmp->nyear, 4 ) + '/' + StrZero( tmp->nmonth, 2 ), sh ) )
+    add_string( '' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'human', , 'HUMAN' )
+    Set Relation To FIELD->otd into OTD
+    Use ( cur_dir() + 'tmpb' ) new
+    Set Relation To FIELD->kod_human into HUMAN
+    Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir() + 'tmpb' ) For FIELD->kod_tmp == rec
+    Go Top
+    Do While !Eof()
+      verify_ff( HH, .t., sh )
+      add_string( Str( ++j, 5 ) + '. ' + PadR( human->fio, 47 ) + date_8( human->n_data ) + '-' + ;
+        date_8( human->k_data ) + ' [' + otd->short_name + ']' )
+      Skip
+    Enddo
+    FClose( fp )
+    otd->( dbCloseArea() )
+    human->( dbCloseArea() )
+    tmpb->( dbCloseArea() )
+    Select TMP
+    rest_box( buf )
+    viewtext( nfile, , , , , , , 2 )
+  Endcase
+
+  Return k
 
 // 10.06.22
 Function f1create_reestr( oBrow )
@@ -334,43 +365,3 @@ Function f1create_reestr( oBrow )
   status_key( '^<Esc>^ выход;  ^<Enter>^ составить реестр случаев;  ^<F9>^ печать списка пациентов' )
 
   Return Nil
-
-// 19.11.23
-Function f2create_reestr( nKey, oBrow )
-
-  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := cur_dir() + 'spisok.txt', j := 0
-
-  Do Case
-  Case nkey == K_F9
-    buf := save_maxrow()
-    mywait()
-    rec := tmp->( RecNo() )
-    fp := FCreate( nfile )
-    n_list := 1
-    tek_stroke := 0
-    add_string( '' )
-    add_string( Center( 'Список пациентов за отчётный период ' + Str( tmp->nyear, 4 ) + '/' + StrZero( tmp->nmonth, 2 ), sh ) )
-    add_string( '' )
-    r_use( dir_server() + 'mo_otd', , 'OTD' )
-    r_use( dir_server() + 'human', , 'HUMAN' )
-    Set Relation To otd into OTD
-    Use ( cur_dir() + 'tmpb' ) new
-    Set Relation To kod_human into HUMAN
-    Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir() + 'tmpb' ) For kod_tmp == rec
-    Go Top
-    Do While !Eof()
-      verify_ff( HH, .t., sh )
-      add_string( Str( ++j, 5 ) + '. ' + PadR( human->fio, 47 ) + date_8( human->n_data ) + '-' + ;
-        date_8( human->k_data ) + ' [' + otd->short_name + ']' )
-      Skip
-    Enddo
-    FClose( fp )
-    otd->( dbCloseArea() )
-    human->( dbCloseArea() )
-    tmpb->( dbCloseArea() )
-    Select TMP
-    rest_box( buf )
-    viewtext( nfile, , , , , , , 2 )
-  Endcase
-
-  Return k

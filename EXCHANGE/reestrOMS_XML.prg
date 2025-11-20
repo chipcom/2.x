@@ -7,12 +7,10 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// Static sadiag1
-
-// 17.10.25
+// 20.11.25
 Function create1reestr19( _recno, _nyear, _nmonth, p_tip_reestr )
 
-  Local buf := SaveScreen(), s, i, j, pole
+  Local buf := SaveScreen(), i, j, pole
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
   local reg_sort
 
@@ -35,19 +33,20 @@ Function create1reestr19( _recno, _nyear, _nmonth, p_tip_reestr )
 
   Private pkol := tmp->kol, psumma := tmp->summa, pnyear := _nyear
   Private old_kol := pkol, old_summa := psumma, p_blk := {| mkol, msum| f_blk_create1reestr19( _nyear ) }
-  Close databases
+
+  dbCloseAll()
   r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
   Set Order To 2
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
   Use ( cur_dir() + 'tmpb' ) New Alias TMP
-  Set Relation To kod_human into HUMAN
-  Index On Upper( human->fio ) + DToS( tmp->k_data ) to ( cur_dir() + 'tmpb' ) For kod_tmp == _recno
+  Set Relation To FIELD->kod_human into HUMAN
+  Index On Upper( human->fio ) + DToS( tmp->k_data ) to ( cur_dir() + 'tmpb' ) For FIELD->kod_tmp == _recno
   Go Top
   Eval( p_blk )
   If alpha_browse( 3, 0, MaxRow() -4, 79, 'f1create1reestr19', color0, ;
-      'Составление реестра случаев за ' + mm_month[ _nmonth ] + Str( _nyear, 5 ) + ' года', 'BG+/GR', ;
+      'Составление реестра случаев за ' + mm_month()[ _nmonth ] + Str( _nyear, 5 ) + ' года', 'BG+/GR', ;
       .t., .t., , , 'f2create1reestr19', , ;
       { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B', , 300 } )
     If pkol > 0 .and. ( reg_sort := f_alert( { '', ;
@@ -69,7 +68,7 @@ Function create1reestr19( _recno, _nyear, _nmonth, p_tip_reestr )
       Endif
     Endif
   Endif
-  Close databases
+  dbCloseAll()
   RestScreen( buf )
   Return Nil
 
@@ -145,7 +144,7 @@ Function f1create1reestr19( oBrow )
 // 19.01.20
 Function f2create1reestr19( nKey, oBrow )
 
-  Local buf, rec, k := -1, s, i, j, mas_pmt := {}, arr, r1, r2
+  Local buf, rec, k := -1, i, j, mas_pmt := {}, arr, r1, r2
 
   Do Case
   Case nkey == K_INS

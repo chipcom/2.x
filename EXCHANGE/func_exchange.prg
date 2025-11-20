@@ -741,3 +741,50 @@ Function mo_add_xml_stroke( oNode, sTag, sValue )
   oXmlNode:add( sValue )
 
   Return Nil
+
+// 20.11.25
+function reestr_file_reindex()
+
+  local bSaveHandler, fl
+
+  dbCloseAll()
+  fl := .t.
+  bSaveHandler := ErrorBlock( {| x| Break( x ) } )
+  Begin Sequence
+    r_use( dir_server() + 'human' )
+    Index On Str( FIELD->schet, 6 ) + Str( FIELD->tip_h, 1 ) + Upper( SubStr( FIELD->fio, 1, 20 ) ) to ( dir_server() + 'humans' ) progress
+    Index On Str( if( FIELD->kod > 0, FIELD->kod_k, 0 ), 7 ) + Str( FIELD->tip_h, 1 ) to ( dir_server() + 'humankk' ) progress
+    Index On DToS( FIELD->k_data ) + FIELD->uch_doc to ( dir_server() + 'humand' ) progress
+    Use
+    r_use( dir_server() + 'human_u' )
+    Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + 'human_u' ) progress
+    Use
+    r_use( dir_server() + 'mo_hu' )
+    Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + 'mo_hu' ) progress
+    Use
+    r_use( dir_server() + 'human_3' )
+    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'human_3' ) progress
+    Index On Str( FIELD->kod2, 7 ) to ( dir_server() + 'human_32' ) progress
+    Use
+    r_use( dir_server() + 'mo_onkna' )
+    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onkna' ) progress
+    r_use( dir_server() + 'mo_onksl' )
+    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onksl' ) progress
+    r_use( dir_server() + 'mo_onkco' )
+    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onkco' ) progress
+    r_use( dir_server() + 'mo_onkdi' )
+    Index On Str( FIELD->kod, 7 ) + Str( FIELD->diag_tip, 1 ) + Str( FIELD->diag_code, 3 ) to ( dir_server() + 'mo_onkdi' ) progress
+    r_use( dir_server() + 'mo_onkpr' )
+    Index On Str( FIELD->kod, 7 ) + Str( FIELD->prot, 1 ) to ( dir_server() + 'mo_onkpr' ) progress
+    r_use( dir_server() + 'mo_onkus' )
+    Index On Str( FIELD->kod, 7 ) + Str( FIELD->usl_tip, 1 ) to ( dir_server() + 'mo_onkus' ) progress
+    r_use( dir_server() + 'mo_onkle' )
+    Index On Str( FIELD->kod, 7 ) + FIELD->regnum + FIELD->code_sh + DToS( FIELD->date_inj ) to ( dir_server() + 'mo_onkle' ) progress
+    Use
+  RECOVER USING error
+    fl := func_error( 10, 'Возникла непредвиденная ошибка при переиндексировании!' )
+  End
+  ErrorBlock( bSaveHandler )
+  dbCloseAll()
+
+  return fl

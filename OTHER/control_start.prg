@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 03.06.25
+// 20.11.25
 Function find_unfinished_reestr_sp_tk( is_oper, is_count )
 
   Static max_rec := 9990000 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -23,8 +23,8 @@ Function find_unfinished_reestr_sp_tk( is_oper, is_count )
     Endif
     r_use( dir_server() + 'mo_rees', , 'REES' )
     r_use( dir_server() + 'mo_xml', , 'MO_XML' )
-    Set Relation To REESTR into REES
-    Index On FNAME to ( cur_dir() + 'tmp_xml' ) For TIP_IN == _XML_FILE_SP .and. Empty( TWORK2 )
+    Set Relation To FIELD->REESTR into REES
+    Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) For FIELD->TIP_IN == _XML_FILE_SP .and. Empty( FIELD->TWORK2 )
     Go Top
     Do While !Eof()
       AAdd( af, { RTrim( mo_xml->FNAME ), lstr( rees->NSCHET ) } )
@@ -60,7 +60,7 @@ Function find_unfinished_reestr_sp_tk( is_oper, is_count )
 
   Return fl
 
-// 03.06.25 проверить, есть ли неотосланные просроченные листы учёта
+// 20.11.25 проверить, есть ли неотосланные просроченные листы учёта
 Function find_time_limit_human_reestr_sp_tk()
 
   Local buf := SaveScreen(), arr[ 10, 2 ], i, mas_pmt, r, c, n, d := sys_date -23
@@ -78,10 +78,10 @@ Function find_time_limit_human_reestr_sp_tk()
     r_use( dir_server() + 'mo_refr', dir_server() + 'mo_refr', 'REFR' )
     r_use( dir_server() + 'mo_xml', , 'MO_XML' )
     r_use( dir_server() + 'mo_rees', , 'REES' )
-    Set Relation To KOD_XML into MO_XML
+    Set Relation To FIELD->KOD_XML into MO_XML
     r_use( dir_server() + 'mo_rhum', , 'RHUM' )
-    Set Relation To reestr into REES
-    Index On Str( reestr, 6 ) to ( cur_dir() + 'tmp_rhum' ) For OPLATA == 2 .and. d < rees->DSCHET
+    Set Relation To FIELD->reestr into REES
+    Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->OPLATA == 2 .and. d < rees->DSCHET
     Go Top
     Do While !Eof()
       If ( r := sys_date - rees->DSCHET ) <= 0
@@ -124,7 +124,7 @@ Function find_time_limit_human_reestr_sp_tk()
   If LastRec() > 0
     afillall( arr, 0 )
     i := 0
-    Index On dni to ( cur_dir() + 'tmp_tl' ) unique
+    Index On FIELD->dni to ( cur_dir() + 'tmp_tl' ) unique
     Go Top
     If tmp_tl->dni <= 10 // не более 10 дней просрочено, иначе не выводим
       Do While !Eof()
@@ -175,7 +175,7 @@ Function find_time_limit_human_reestr_sp_tk()
 
   Return Nil
 
-// 03.06.25
+// 20.11.25
 Function f1find_time_limit_human_reestr_sp_tk( i, arr )
 
   Local n_file := cur_dir() + 'time_lim.txt', sh := 80, HH := 60
@@ -195,13 +195,13 @@ Function f1find_time_limit_human_reestr_sp_tk( i, arr )
   r_use( dir_server() + 'mo_otd', , 'OTD' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', , 'HUMAN' )
-  Set Relation To RecNo() into HUMAN_, To otd into OTD
+  Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
   Use ( cur_dir() + 'tmp_tl' ) new
-  Set Relation To kod_h into HUMAN
+  Set Relation To FIELD->kod_h into HUMAN
   If i == 10
-    Index On Upper( human->fio ) to ( cur_dir() + 'tmp_tl' ) For dni > arr[ 9, 1 ]
+    Index On Upper( human->fio ) to ( cur_dir() + 'tmp_tl' ) For FIELD->dni > arr[ 9, 1 ]
   Else
-    Index On Upper( human->fio ) to ( cur_dir() + 'tmp_tl' ) For dni == arr[ i, 1 ]
+    Index On Upper( human->fio ) to ( cur_dir() + 'tmp_tl' ) For FIELD->dni == arr[ i, 1 ]
   Endif
   i := 0
   Go Top
