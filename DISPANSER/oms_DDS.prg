@@ -1805,17 +1805,20 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       Next
       If metap == 2
         // добавим педиатра II этапа
-        AAdd( arr_osm2, add_pediatr_DDS( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
+//        AAdd( arr_osm2, add_pediatr_DDS( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
+        AAdd( arr_usl_dop, add_pediatr_DDS( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
 //        i := Len( arr_DDS_osm )
         i := Len( arr_osm2 )
         m1vrach  := arr_osm2[ i, 1 ]
         m1prvs   := arr_osm2[ i, 2 ]
         m1PROFIL := arr_osm2[ i, 4 ]
+/*
         For i := 1 To Len( arr_osm2 )
           If ValType( arr_osm2[ i, 5 ] ) == 'C'
             AAdd( arr_usl_dop, arr_osm2[ i ] )
           Endif
         Next
+*/
       Endif
 
       For i := 1 To Len( arr_usl_dop )
