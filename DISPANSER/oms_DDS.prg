@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.11.25 ДДС - добавление или редактирование случая (листа учета)
+// 24.11.25 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -1805,20 +1805,26 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       Next
       If metap == 2
         // добавим педиатра II этапа
-//        AAdd( arr_osm2, add_pediatr_DDS( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
-        AAdd( arr_usl_dop, add_pediatr_DDS( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
-//        i := Len( arr_DDS_osm )
+        AAdd( arr_osm2, add_pediatr_DDS( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
+//        AAdd( arr_usl_dop, add_pediatr_DDS( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
+        i := Len( arr_DDS_osm )
+
         i := Len( arr_osm2 )
         m1vrach  := arr_osm2[ i, 1 ]
         m1prvs   := arr_osm2[ i, 2 ]
         m1PROFIL := arr_osm2[ i, 4 ]
 /*
+        i := Len( arr_usl_dop )
+        m1vrach  := arr_usl_dop[ i, 1 ]
+        m1prvs   := arr_usl_dop[ i, 2 ]
+        m1PROFIL := arr_usl_dop[ i, 4 ]
+*/
         For i := 1 To Len( arr_osm2 )
           If ValType( arr_osm2[ i, 5 ] ) == 'C'
             AAdd( arr_usl_dop, arr_osm2[ i ] )
           Endif
         Next
-*/
+
       Endif
 
       For i := 1 To Len( arr_usl_dop )
