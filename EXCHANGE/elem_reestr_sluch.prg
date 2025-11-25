@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.11.25
+// 25.11.25
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -993,11 +993,17 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           Else
             mo_add_xml_stroke( oUSL, 'DS', hu_->kod_diag )
           Endif
-        Else
+        Endif
+        if p_tip_reestr == TYPE_REESTR_DISPASER
           If AScan( arr_ne_vozm, lshifr ) > 0
             mo_add_xml_stroke( oUSL, 'P_OTK', '2' )
           Else
-            mo_add_xml_stroke( oUSL, 'P_OTK', '0' )
+            If Len( a_otkaz ) > 0 .and. AScan( a_otkaz, { | x | x[ 1 ] == lshifr } ) > 0 // отказы (диспансеризация или профосмоты несовешеннолетних)
+              mo_add_xml_stroke( oUSL, 'P_OTK', '1' )
+            else
+              mo_add_xml_stroke( oUSL, 'P_OTK', '0' )
+            endif
+//            mo_add_xml_stroke( oUSL, 'P_OTK', '0' )
           Endif
         Endif
         mo_add_xml_stroke( oUSL, 'CODE_USL', lshifr )
@@ -1006,15 +1012,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oUSL, 'SUMV_USL', lstr( hu->STOIM_1, 10, 2 ) )
 
         If ( human->k_data >= 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER ) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
-          .or. ( endDateZK >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
-
+            .or. ( endDateZK >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
           If between_date( human->n_data, human->k_data, c4tod( hu->DATE_U ) )
-//            oMR_USL_N := oUSL:add( hxmlnode():new( 'MR_USL_N' ) )
-//            mo_add_xml_stroke( oMR_USL_N, 'MR_N', lstr( 1 ) )   // пока ставим 1 исполнитель
-//            mo_add_xml_stroke( oMR_USL_N, 'PRVS', put_prvs_to_reestr( hu_->PRVS, _NYEAR ) )
-            p2->( dbGoto( hu->kod_vr ) )
-//            mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', p2->snils )
-            elem_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, p2->snils ) // пока ставим 1 исполнитель
+            if ! ( p_tip_reestr == TYPE_REESTR_DISPASER .and. Len( a_otkaz ) > 0 .and. AScan( a_otkaz, { | x | x[ 1 ] == lshifr } ) > 0 )
+              p2->( dbGoto( hu->kod_vr ) )
+              elem_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, p2->snils ) // пока ставим 1 исполнитель
+            endif
           Endif
         Else  // if (human->k_data < 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER)
           mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( hu_->PRVS, _NYEAR ) )
@@ -1028,6 +1031,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
       Next
     Endif
+/*
     If p_tip_reestr == TYPE_REESTR_DISPASER .and. Len( a_otkaz ) > 0 // отказы (диспансеризация или профосмоты несовешеннолетних)
       // заполним сведения об услугах для XML-документа
       For j := 1 To Len( a_otkaz )
@@ -1058,6 +1062,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
       Next
     Endif
+*/
 
     // if p_tip_reestr == TYPE_REESTR_GENERAL .and. len(a_fusl) > 0 // добавляем операции
     If Len( a_fusl ) > 0 // добавляем операции // исправил чтобы брала углубленную диспансеризацию COVID

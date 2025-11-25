@@ -118,7 +118,6 @@ function elem_mr_usl_n( oUsl, nyear, number, prvs, snils )
   oMR_USL_N := oUSL:add( hxmlnode():new( 'MR_USL_N' ) )
   mo_add_xml_stroke( oMR_USL_N, 'MR_N', lstr( number ) )   // пока ставим 1 исполнитель
   mo_add_xml_stroke( oMR_USL_N, 'PRVS', put_prvs_to_reestr( prvs, nyear ) )
-//  p2->( dbGoto( mohu->kod_vr ) )
   mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', snils )
   return nil
 
