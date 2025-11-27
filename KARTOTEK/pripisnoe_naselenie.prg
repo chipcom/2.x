@@ -1308,7 +1308,7 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
 
   Return ret
 
-// 11.09.17 создать файл(ы) сверки
+// 27.11.25 создать файл(ы) сверки
 Function pripisnoe_naselenie_create_sverka()
   Local ii := 0, s, buf := SaveScreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport
 
@@ -1509,13 +1509,13 @@ Function pripisnoe_naselenie_create_sverka()
         Else
           s := ''
         Endif
-        if !ver_number()
+        if !ver_number( s )
           s := ''
         endif  
         s1 += Eval( blk, s ) + ';'
         // 3 - Единый номер полиса ОМС
         s := iif( kart_->vpolis == 3, AllTrim( kart_->NPOLIS ), '' )
-        if !ver_number()
+        if !ver_number( s )
           s := ''
         endif  
         s1 += Eval( blk, s ) + ';'

@@ -6,7 +6,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-Static st_version := { 5, 11, 1, 'e' }
+Static st_version := { 5, 11, 1, 'f' }
 Static st_date_version := _DATA_VER
 Static st_full_name := 'ЧИП + Учёт работы Медицинской Организации'
 Static st_short_name := '[ЧИП + Учёт работы МО]'
