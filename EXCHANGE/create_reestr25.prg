@@ -7,23 +7,30 @@
 Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
  
-// 01.12.25
+// 02.12.25
 Function create_reestr25( arr_m )
 
-  Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, pole
+  Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, fl, pole
   Local nameArr
   Local tip_lu
 
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
   local arrKolSl, _k
   local adbf, currDate
+  local p_tip_reestr := 1
 
   local mnyear, mnmonth
-//  private arr_m // пока не знаю как передать
 
   Private pkol := 0, psumma := 0  //, ;
-//    CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], ;
-//    CODE_MO  := glob_mo()[ _MO_KOD_FFOMS ]
+  private p_array_PZ
+
+
+  If !myfiledeleted( cur_dir() + 'tmpb' + sdbf() )
+    Return Nil
+  Endif
+  If !myfiledeleted( cur_dir() + 'tmp' + sdbf() )
+    Return Nil
+  Endif
 
   currDate := sys_date
   arr := { 'Предупреждение!', ;
@@ -69,8 +76,6 @@ Function create_reestr25( arr_m )
 
   mnyear := arr_m[ 1 ]
   mnmonth := arr_m[ 3 ]
-  
-  private p_array_PZ
 
   p_array_PZ := get_array_pz( mnyear )  // получим массив план-заказа на год составления реестра
   lenPZ := len( p_array_PZ )
@@ -134,7 +139,7 @@ Function create_reestr25( arr_m )
       Elseif mo_lock_task( X_OMS )
         fl := reestr_file_reindex()
         If fl
-          private p_tip_reestr := 1
+//          private p_tip_reestr := 1
           arrKolSl := verify_oms( arr_m, .f. )
           clrline( MaxRow(), color0 )
           If arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] == 0
@@ -209,12 +214,12 @@ Function create_reestr25( arr_m )
               Delete For FIELD->yes_del
               Pack
             Endif
-            If tmp->nyear > 2018 // 2019 год
+//            If tmp->nyear > 2018 // 2019 год
               create1reestr19( tmp->( RecNo() ), tmp->nyear, tmp->nmonth, p_tip_reestr )
-            Else
-              // см. файл not_use/create1reestr17.prg
-              func_error( 10, 'Реестр ранее 2019 года не формируется!' )
-            Endif
+//            Else
+//              // см. файл not_use/create1reestr17.prg
+//              func_error( 10, 'Реестр ранее 2019 года не формируется!' )
+//            Endif
           Endif
         Endif
         mo_unlock_task( X_OMS )
@@ -224,4 +229,69 @@ Function create_reestr25( arr_m )
   Endif
   dbCloseAll()
 
-  return nil  
+  return nil
+
+// 20.11.25
+Function f2create_reestr( nKey, oBrow )
+
+  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := cur_dir() + 'spisok.txt', j := 0
+
+  Do Case
+  Case nkey == K_F9
+    buf := save_maxrow()
+    mywait()
+    rec := tmp->( RecNo() )
+    fp := FCreate( nfile )
+    n_list := 1
+    tek_stroke := 0
+    add_string( '' )
+    add_string( Center( 'Список пациентов за отчётный период ' + Str( tmp->nyear, 4 ) + '/' + StrZero( tmp->nmonth, 2 ), sh ) )
+    add_string( '' )
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
+    r_use( dir_server() + 'human', , 'HUMAN' )
+    Set Relation To FIELD->otd into OTD
+    Use ( cur_dir() + 'tmpb' ) new
+    Set Relation To FIELD->kod_human into HUMAN
+    Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir() + 'tmpb' ) For FIELD->kod_tmp == rec
+    Go Top
+    Do While !Eof()
+      verify_ff( HH, .t., sh )
+      add_string( Str( ++j, 5 ) + '. ' + PadR( human->fio, 47 ) + date_8( human->n_data ) + '-' + ;
+        date_8( human->k_data ) + ' [' + otd->short_name + ']' )
+      Skip
+    Enddo
+    FClose( fp )
+    otd->( dbCloseArea() )
+    human->( dbCloseArea() )
+    tmpb->( dbCloseArea() )
+    Select TMP
+    rest_box( buf )
+    viewtext( nfile, , , , , , , 2 )
+  Endcase
+
+  Return k
+
+// 10.06.22
+Function f1create_reestr( oBrow )
+
+  Local oColumn, n := 36, n1 := 20, blk
+
+  oColumn := TBColumnNew( 'Отчетный год', {|| Str( tmp->nyear, 4 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( 'Отчетный месяц', {|| Str( tmp->nmonth, 2 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( 'Дни max', {|| put_val( tmp->dni, 3 ) } )
+  oColumn:defColor := { 5, 5 }
+  oColumn:colorBlock := {|| { 5, 5 } }
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( 'Кол-во больных', {|| Str( tmp->kol, 10 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( 'Сумма случаев', {|| Str( tmp->summa, 15, 2 ) } )
+  oColumn:colorBlock := blk
+  oBrow:addcolumn( oColumn )
+  status_key( '^<Esc>^ выход;  ^<Enter>^ составить реестр случаев;  ^<F9>^ печать списка пациентов' )
+
+  Return Nil

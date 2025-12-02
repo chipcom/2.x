@@ -6,22 +6,23 @@
 Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
-// 01.12.25
+// 02.12.25
 Function create_reestr()
 
-  Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, pole
-  Local nameArr
-  Local tip_lu
-
+  Local buf := save_maxrow(), k := 0, k1 := 0
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
-  local arrKolSl, _k
-  local adbf, currDate
-
   local arr_m
-  local mnyear, mnmonth
+
+  //  Local nameArr, i, j, arr, bSaveHandler, fl, pole
+//  Local tip_lu
+
+//  local arrKolSl, _k
+//  local adbf, currDate
+
+//  local mnyear, mnmonth
 //  private arr_m // пока не знаю как передать
 
-  Private pkol := 0, psumma := 0  //, ;
+//  Private pkol := 0, psumma := 0  //, ;
 
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, err_admin() )
@@ -38,7 +39,13 @@ Function create_reestr()
     Return func_error( 4, 'Реестры за ' + Str( DONT_CREATE_REESTR_YEAR, 4 ) + ' год недоступны' )
   elseif arr_m[ 1 ] <= 2018
     return func_error( 10, 'Реестр ранее 2019 года не формируется!' )
+  elseif arr_m[ 1 ] > 2018 .and. arr_m[ 1 ] <= 2025
+    create_reestr25( arr_m )
+  elseif arr_m[ 1 ] >= 2026
+    create_reestr26( arr_m )
   Endif
+
+/*
 
   If !myfiledeleted( cur_dir() + 'tmpb' + sdbf() )
     Return Nil
@@ -75,10 +82,10 @@ Function create_reestr()
 
   dbCreate( cur_dir() + 'tmpb', adbf, , .t., 'TMPB' )
   Index On Str( FIELD->kod_human, 7 ) to ( cur_dir() + 'tmpb' )
-/* на будующее
-  dbCreate( 'mem:tmpb', adbf, , .t., 'TMPB' )
-  Index On FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) to ( 'mem:tmpb' )
-*/
+// на будующее
+//  dbCreate( 'mem:tmpb', adbf, , .t., 'TMPB' )
+//  Index On FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) to ( 'mem:tmpb' )
+//
   adbf := { ;
     { 'MIN_DATE',    'D',     8,     0 }, ;
     { 'DNI',         'N',     3,     0 }, ;
@@ -245,69 +252,5 @@ Function create_reestr()
     rest_box( buf )
   Endif
   dbCloseAll()
-  Return Nil
-
-// 20.11.25
-Function f2create_reestr( nKey, oBrow )
-
-  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := cur_dir() + 'spisok.txt', j := 0
-
-  Do Case
-  Case nkey == K_F9
-    buf := save_maxrow()
-    mywait()
-    rec := tmp->( RecNo() )
-    fp := FCreate( nfile )
-    n_list := 1
-    tek_stroke := 0
-    add_string( '' )
-    add_string( Center( 'Список пациентов за отчётный период ' + Str( tmp->nyear, 4 ) + '/' + StrZero( tmp->nmonth, 2 ), sh ) )
-    add_string( '' )
-    r_use( dir_server() + 'mo_otd', , 'OTD' )
-    r_use( dir_server() + 'human', , 'HUMAN' )
-    Set Relation To FIELD->otd into OTD
-    Use ( cur_dir() + 'tmpb' ) new
-    Set Relation To FIELD->kod_human into HUMAN
-    Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir() + 'tmpb' ) For FIELD->kod_tmp == rec
-    Go Top
-    Do While !Eof()
-      verify_ff( HH, .t., sh )
-      add_string( Str( ++j, 5 ) + '. ' + PadR( human->fio, 47 ) + date_8( human->n_data ) + '-' + ;
-        date_8( human->k_data ) + ' [' + otd->short_name + ']' )
-      Skip
-    Enddo
-    FClose( fp )
-    otd->( dbCloseArea() )
-    human->( dbCloseArea() )
-    tmpb->( dbCloseArea() )
-    Select TMP
-    rest_box( buf )
-    viewtext( nfile, , , , , , , 2 )
-  Endcase
-
-  Return k
-
-// 10.06.22
-Function f1create_reestr( oBrow )
-
-  Local oColumn, n := 36, n1 := 20, blk
-
-  oColumn := TBColumnNew( 'Отчетный год', {|| Str( tmp->nyear, 4 ) } )
-  oColumn:colorBlock := blk
-  oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( 'Отчетный месяц', {|| Str( tmp->nmonth, 2 ) } )
-  oColumn:colorBlock := blk
-  oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( 'Дни max', {|| put_val( tmp->dni, 3 ) } )
-  oColumn:defColor := { 5, 5 }
-  oColumn:colorBlock := {|| { 5, 5 } }
-  oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( 'Кол-во больных', {|| Str( tmp->kol, 10 ) } )
-  oColumn:colorBlock := blk
-  oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( 'Сумма случаев', {|| Str( tmp->summa, 15, 2 ) } )
-  oColumn:colorBlock := blk
-  oBrow:addcolumn( oColumn )
-  status_key( '^<Esc>^ выход;  ^<Enter>^ составить реестр случаев;  ^<F9>^ печать списка пациентов' )
-
+*/
   Return Nil

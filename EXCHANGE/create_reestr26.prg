@@ -7,43 +7,27 @@
 Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
-// 20.11.25
-Function create_reestr26()
+// 02.12.25
+Function create_reestr26( arr_m )
 
   Local mnyear, mnmonth, k := 0, k1 := 0
   Local buf := save_maxrow(), arr, adbf,  i           // , arr_m
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
-  Local tip_lu
+  Local tip_lu, currDate
   Local t_smo   //, arr_smo := {}
   Local lshifr1, lbukva, c
   Local p_array_PZ
 
-  private arr_m // пока не знаю как передать
-  Private pkol := 0, psumma := 0, ;
-    CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], ;
-    CODE_MO  := glob_mo()[ _MO_KOD_FFOMS ]
-//  private p_array_PZ
+  Private pkol := 0, psumma := 0
 
-  If ! hb_user_curUser:isadmin()
-    Return func_error( 4, err_admin() )
-  Endif
-  If find_unfinished_reestr_sp_tk()
-    Return func_error( 4, 'Попытайтесь снова' )
-  Endif
-
-  If ( arr_m := year_month( T_ROW, T_COL + 5, , 3 ) ) == NIL
-    Return Nil
-  Endif
-  // !!! ВНИМАНИЕ
-  If DONT_CREATE_REESTR_YEAR == arr_m[ 1 ]
-    Return func_error( 4, 'Реестры за ' + Str( DONT_CREATE_REESTR_YEAR, 4 ) + ' год недоступны' )
-  Endif
   If !myfiledeleted( cur_dir() + 'tmpb' + sdbf() )
     Return Nil
   Endif
   If !myfiledeleted( cur_dir() + 'tmp' + sdbf() )
     Return Nil
   Endif
+
+  currDate := sys_date
 
   arr := { 'Предупреждение!', ;
            '', ;
@@ -325,60 +309,7 @@ function control_and_create_schet26( kod_smo )
   Local nameArr
   Local p_tip_reestr  // тип формируемого Реестра случаев
   Local cFor, bFor, aBukva
-  Local tip_lu
-  Local t_smo   //, arr_smo := {}
-  Local mnyear, mnmonth, bSaveHandler, arr, adbf
-//  Local arr_m
 
-/*
-
-  fl := .t.
-  bSaveHandler := ErrorBlock( {| x| Break( x ) } )
-
-  Begin Sequence
-    r_use( dir_server() + 'human' )
-    Index On Str( FIELD->schet, 6 ) + Str( FIELD->tip_h, 1 ) + Upper( SubStr( FIELD->fio, 1, 20 ) ) to ( dir_server() + 'humans' ) progress
-    Index On Str( if( FIELD->kod > 0, FIELD->kod_k, 0 ), 7 ) + Str( FIELD->tip_h, 1 ) to ( dir_server() + 'humankk' ) progress
-    Index On DToS( FIELD->k_data ) + FIELD->uch_doc to ( dir_server() + 'humand' ) progress
-    human->( dbCloseArea() )
-    r_use( dir_server() + 'human_u' )
-    Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + 'human_u' ) progress
-    human_u->( dbCloseArea() )
-    r_use( dir_server() + 'mo_hu' )
-    Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + 'mo_hu' ) progress
-    mo_hu->( dbCloseArea() )
-    r_use( dir_server() + 'human_3' )
-    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'human_3' ) progress
-    Index On Str( FIELD->kod2, 7 ) to ( dir_server() + 'human_32' ) progress
-    human_3->( dbCloseArea() )
-    r_use( dir_server() + 'mo_onkna' )
-    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onkna' ) progress
-    mo_onkna->( dbCloseArea() )
-    r_use( dir_server() + 'mo_onksl' )
-    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onksl' ) progress
-    mo_onksl->( dbCloseArea() )
-    r_use( dir_server() + 'mo_onkco' )
-    Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onkco' ) progress
-    mo_onkco->( dbCloseArea() )
-    r_use( dir_server() + 'mo_onkdi' )
-    Index On Str( FIELD->kod, 7 ) + Str( FIELD->diag_tip, 1 ) + Str( FIELD->diag_code, 3 ) to ( dir_server() + 'mo_onkdi' ) progress
-    mo_onkdi->( dbCloseArea() )
-    r_use( dir_server() + 'mo_onkpr' )
-    Index On Str( FIELD->kod, 7 ) + Str( FIELD->prot, 1 ) to ( dir_server() + 'mo_onkpr' ) progress
-    mo_onkpr->( dbCloseArea() )
-    r_use( dir_server() + 'mo_onkus' )
-    Index On Str( FIELD->kod, 7 ) + Str( FIELD->usl_tip, 1 ) to ( dir_server() + 'mo_onkus' ) progress
-    mo_onkus->( dbCloseArea() )
-    r_use( dir_server() + 'mo_onkle' )
-    Index On Str( FIELD->kod, 7 ) + FIELD->regnum + FIELD->code_sh + DToS( FIELD->date_inj ) to ( dir_server() + 'mo_onkle' ) progress
-    mo_onkle->( dbCloseArea() )
-  RECOVER USING error
-    fl := func_error( 10, 'Возникла непредвиденная ошибка при переиндексировании!' )
-  End
-  ErrorBlock( bSaveHandler )
-
-  dbCloseAll()
-*/
   fl := reestr_file_reindex()
   If fl
     // arr_m - PRIVATE переменная
@@ -390,7 +321,6 @@ function control_and_create_schet26( kod_smo )
       p_tip_reestr := 1
     Elseif arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] > 0
       p_tip_reestr := 2
-//    Elseif f_alert( { '', ;
     Elseif ( p_tip_reestr := f_alert( { '', ;
           PadC( 'Выберите тип реестра случаев для отправки в ТФОМС', 70, '.' ), ;
           '' }, ;
