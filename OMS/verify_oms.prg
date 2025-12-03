@@ -18,12 +18,11 @@ Function verify_oms( arr_m, fl_view )
   Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := cur_dir() + 'err_sl.txt', ;
     name_file2, name_file3, kr_unlock, i, ;
     mas_pmt := { 'Список обнаруженных ошибок в результате проверки' }, mas_file := {}
-  // local kol_1r := 0, ; // количество обычных случаев
-  //   kol_2r := 0, ;     // количество случаев диспансеризации
   local  arrKolSl := { 0, 0 }
 
   local max_records_send
   local current_mo, ft
+  local adbf
 
   current_mo := glob_mo
   max_records_send := iif( current_mo[ _MO_KOD_TFOMS ] == '805965', MAX_REC_REESTR_RDL, MAX_REC_REESTR ) // число записываемых случаев в реестры
@@ -51,15 +50,6 @@ Function verify_oms( arr_m, fl_view )
   Endif
   kr_unlock := iif( fl_view, 50, 1000 )
   waitstatus( 'Начало проверки...' )
-/*
-  fp := FCreate( name_file )
-  n_list := 1
-  tek_stroke := 0
-  add_string( '' )
-  add_string( Center( 'Список обнаруженных ошибок', 80 ) )
-  add_string( Center( 'по дате окончания лечения ' + arr_m[ 4 ], 80 ) )
-  add_string( '' )
-*/
   ft := tfiletext():new( name_file, , .t., , .t. )
   ft:add_string( '' )
   ft:add_string( 'Список обнаруженных ошибок', FILE_CENTER, ' ' )
@@ -173,7 +163,6 @@ Function verify_oms( arr_m, fl_view )
               tmpb->kod_tmp := 1
               tmpb->plus := .t.
               If arr_m[ 1 ] > 2016
-//                If Between( human->ishod, 301, 305 ) .or. Between( human->ishod, 201, 205 ) .or. Between( human->ishod, 101, 102 ) .or. Between( human->ishod, 401, 402 ) .or. Between( human->ishod, BASE_ISHOD_RZD + 1, BASE_ISHOD_RZD + 2 )
                 If is_dispanserizaciya( human->ishod )
                   tmpb->tip := 2
                   // kol_2r++
@@ -212,7 +201,6 @@ Function verify_oms( arr_m, fl_view )
       ft:add_string( 'Нечего проверять!' )
     Endif
   Endif
-//  FClose( fp )
   ft := nil
   If !fl_view
     Select HUMAN
@@ -263,12 +251,10 @@ Function verify_oms( arr_m, fl_view )
           tmpb->PZKOL := pz
         Else
           tmpb->tip := 0 // p_tip_reestr
-          // kol_1r--
           arrKolSl[ 1 ]--
         Endif
       Else
         tmpb->tip := 0 // p_tip_reestr
-        // kol_1r--
         arrKolSl[ 1 ]--
       Endif
       Select TMPB
@@ -282,16 +268,19 @@ Function verify_oms( arr_m, fl_view )
     AAdd( mas_file, name_file2 )
     mywait()
     delfrfiles()
-    adbf := { { 'name', 'C', 130, 0 }, ;
+    adbf := { ;
+      { 'name', 'C', 130, 0 }, ;
       { 'name1', 'C', 150, 0 }, ;
-      { 'period', 'C', 150, 0 } }
+      { 'period', 'C', 150, 0 } ;
+    }
     dbCreate( fr_titl, adbf )
     Use ( fr_titl ) New Alias FRT
     Append Blank
     frt->name := current_mo[ _MO_SHORT_NAME ]
     frt->name1 := 'Список случаев повторных обращений по поводу одного и того же заболевания'
     frt->period := arr_m[ 4 ]
-    adbf := { { 'fio', 'C', 100, 0 }, ;
+    adbf := { ;
+      { 'fio', 'C', 100, 0 }, ;
       { 'diag', 'C', 5, 0 }, ;
       { 'diag1', 'C', 5, 0 }, ;
       { 'srok', 'C', 30, 0 }, ;
@@ -301,7 +290,8 @@ Function verify_oms( arr_m, fl_view )
       { 'otd', 'C', 200, 0 }, ;
       { 'otd1', 'C', 200, 0 }, ;
       { 'vrach', 'C', 100, 0 }, ;
-      { 'vrach1', 'C', 100, 0 } }
+      { 'vrach1', 'C', 100, 0 } ;
+    }
     dbCreate( fr_data, adbf )
     Use ( fr_data ) New Alias FRD
     am := { '78', '80', '88', '89' }
@@ -362,13 +352,7 @@ Function verify_oms( arr_m, fl_view )
     AAdd( mas_file, name_file3 )
     Select HUMAN
     Set Index To
-/*    
-    fp := FCreate( name_file3 )
-    n_list := 1
-    tek_stroke := 0
-    add_string( '' )
-    add_string( Center( 'Список листов учёта, которые не проверялись', 80 ) )
-*/
+
     ft := tfiletext():new( name_file3, , .t., , .t. )
     ft:add_string( '' )
     ft:add_string( 'Список листов учёта, которые не проверялись', FILE_CENTER, ' ' )
@@ -381,7 +365,6 @@ Function verify_oms( arr_m, fl_view )
     old_tip := old_komu := old_str_crb := -1
     Go Top
     Do While !Eof()
-//      verify_ff( 77, .t., 80 )
       ft:add_string( '' )
       If old_tip != tmp_no->tip
         old_tip := tmp_no->tip
@@ -401,14 +384,11 @@ Function verify_oms( arr_m, fl_view )
         Do Case
         Case tmp_no->komu == 1
           str->( dbGoto( tmp_no->str_crb ) )
-//          add_string( PadC( 'Прочая компания: ' + AllTrim( str->name ), 80, '-' ) )
           ft:add_string( 'Прочая компания: ' + AllTrim( str->name ), FILE_CENTER, '-' )
         Case tmp_no->komu == 3
           kom->( dbGoto( tmp_no->str_crb ) )
-//          add_string( PadC( 'Комитет/МО: ' + AllTrim( kom->name ), 80, '-' ) )
           ft:add_string( 'Комитет/МО: ' + AllTrim( kom->name ), FILE_CENTER, '-' )
         Case tmp_no->komu == 5
-//          add_string( PadC( 'Личный счёт', 80, '-' ) )
           ft:add_string( 'Личный счёт', FILE_CENTER, '-' )
         Endcase
       Endif
@@ -419,7 +399,6 @@ Function verify_oms( arr_m, fl_view )
       Select TMP_NO
       Skip
     Enddo
-//    FClose( fp )
     ft := nil
   Endif
   Close databases
@@ -444,9 +423,6 @@ Function verify_oms( arr_m, fl_view )
     Endif
   Endif
 
-  // Return Nil
-  // arrKolSl[ 1 ] := kol_1r
-  // arrKolSl[ 2 ] := kol_2r
   Return arrKolSl
 
 // 15.11.25
@@ -458,16 +434,6 @@ Function verify_oms_sluch( mkod )
   mywait()
   f_create_diag_srok( 'tmp_d_srok' )
   Use ( cur_dir() + 'tmp_d_srok' ) New Alias D_SROK
-
-/*
-  fp := FCreate( name_file )
-  n_list := 1
-  tek_stroke := 0
-  add_string( '' )
-  add_string( Center( 'Список обнаруженных ошибок', 80 ) )
-  add_string( Center( 'в листе учёта', 80 ) )
-  add_string( '' )
-*/
 
   ft := tfiletext():new( name_file, , .t., , .t. )
   ft:add_string( '' )
@@ -516,7 +482,7 @@ Function verify_oms_sluch( mkod )
     fl := verify_sluch( , ft )
   Else
     func_error( 4, 'Случай ранее 2019 года.' )
-    dbCloseAll()  //  Close databases
+    dbCloseAll()
     Return Nil
   Endif
   If d_srok->( LastRec() ) > 0
@@ -524,15 +490,6 @@ Function verify_oms_sluch( mkod )
     If fl
       uch->( dbGoto( human->LPU ) )
       otd->( dbGoto( human->OTD ) )
-/*
-      add_string( AllTrim( human->fio ) + ' ' + AllTrim( human->kod_diag ) + ' ' + ;
-        date_8( human->n_data ) + '-' + date_8( human->k_data ) + ;
-        iif( d_srok->tip == 0, '', ' (2.' + am[ d_srok->tip ] + '.*)' ) )
-      add_string( AllTrim( uch->name ) + '/' + AllTrim( otd->name ) + '/профиль по "' + ;
-        inieditspr( A__MENUVERT, getv002(), human_->profil ) + '"' )
-      pers->( dbGoto( human_->VRACH ) )
-      add_string( 'лечащий врач [' + lstr( pers->tab_nom ) + '] ' + pers->fio )
-*/
       ft:add_string( AllTrim( human->fio ) + ' ' + AllTrim( human->kod_diag ) + ' ' + ;
         date_8( human->n_data ) + '-' + date_8( human->k_data ) + ;
         iif( d_srok->tip == 0, '', ' (2.' + am[ d_srok->tip ] + '.*)' ) )
@@ -545,19 +502,7 @@ Function verify_oms_sluch( mkod )
     Goto ( d_srok->kod1 )
     uch->( dbGoto( human->LPU ) )
     otd->( dbGoto( human->OTD ) )
-/*
-    add_string( '' )
-    add_string( Center( 'Предупреждение!', 80 ) )
-    add_string( '' )
-    add_string( 'Обратите внимание, что ' + lstr( d_srok->dni ) + ' дней назад обнаружен случай' )
-    add_string( 'с основным диагнозом ' + AllTrim( human->kod_diag ) + ' ' + ;
-      date_8( human->n_data ) + '-' + date_8( human->k_data ) + ;
-      iif( d_srok->tip1 == 0, '', ' (2.' + am[ d_srok->tip1 ] + '.*)' ) )
-    add_string( AllTrim( uch->name ) + '/' + AllTrim( otd->name ) + '/профиль по "' + ;
-      inieditspr( A__MENUVERT, getv002(), human_->profil ) + '"' )
-    pers->( dbGoto( human_->VRACH ) )
-    add_string( 'лечащий врач [' + lstr( pers->tab_nom ) + '] ' + pers->fio )
-*/
+
     ft:add_string( '' )
     ft:add_string( 'Предупреждение!', FILE_CENTER, ' ' )
     ft:add_string( '' )
@@ -571,8 +516,7 @@ Function verify_oms_sluch( mkod )
     ft:add_string( 'лечащий врач [' + lstr( pers->tab_nom ) + '] ' + pers->fio )
     fl := .f.
   Endif
-  dbCloseAll()  //  Close databases
-  FClose( fp )
+  dbCloseAll()
   ft := nil
   rest_box( buf )
   If !fl

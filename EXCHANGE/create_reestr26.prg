@@ -296,7 +296,7 @@ function print_list_pacients( kod_smo, nyear, nmonth )
     viewtext( nfile, , , , .t., , , 2 )
     return nil
 
-// 20.11.25
+// 03.12.25
 function control_and_create_schet26( kod_smo )
 
   // при работе использует созданные алиасы A_SMO и TMPB
@@ -313,7 +313,7 @@ function control_and_create_schet26( kod_smo )
   fl := reestr_file_reindex()
   If fl
     // arr_m - PRIVATE переменная
-    arrKolSl := verify_oms26( kod_smo, arr_m, .f. )
+    arrKolSl := verify_oms26( arr_m, .f., kod_smo )
     clrline( MaxRow(), color0 )
     If arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] == 0
       // случаев нет

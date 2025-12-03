@@ -8,8 +8,8 @@
 #define MAX_REC_REESTR_RDL 5000
 #define BASE_ISHOD_RZD 500
 
-// 15.11.25
-Function verify_oms26( kod_smo, arr_m, fl_view )
+// 03.12.25
+Function verify_oms26( arr_m, fl_view, kod_smo )
 
   // Возврат: arrKolSl (массив)
   // 1 эл. - кол-во обычных случаев, 
@@ -32,16 +32,10 @@ Function verify_oms26( kod_smo, arr_m, fl_view )
 
   AAdd( mas_file, name_file )
 
-//  Default arr_m To year_month( T_ROW, T_COL + 5, , 3 )
   Default fl_view To .t.
   If arr_m == NIL
     Return arrKolSl
   Endif
-
-//  If arr_m[ 1 ] <= 2026
-//    func_error( 4, 'Случай ранее 2026 года.' )
-//    Return arrKolSl
-//  Endif
 
   current_mo := glob_mo
   check_pacient := { ;
