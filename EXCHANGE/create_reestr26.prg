@@ -8,10 +8,10 @@ Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
 // 02.12.25
-Function create_reestr26( arr_m )
+Function create_reestr26( arr_calendar )
 
   Local mnyear, mnmonth, k := 0, k1 := 0
-  Local buf := save_maxrow(), arr, adbf,  i           // , arr_m
+  Local buf := save_maxrow(), arr, adbf, i
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
   Local tip_lu, currDate
   Local t_smo   //, arr_smo := {}
@@ -19,6 +19,7 @@ Function create_reestr26( arr_m )
   Local p_array_PZ
 
   Private pkol := 0, psumma := 0
+  Private arr_m := arr_calendar
 
   If !myfiledeleted( cur_dir() + 'tmpb' + sdbf() )
     Return Nil
@@ -58,8 +59,8 @@ Function create_reestr26( arr_m )
   dbCreate( 'mem:tmpb', adbf, , .t., 'TMPB' )
   Index On FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) to ( 'mem:tmpb' )
 
-  mnyear := arr_m[ 1 ]
-  mnmonth := arr_m[ 3 ]
+  mnyear := arr_calendar[ 1 ]
+  mnmonth := arr_calendar[ 3 ]
 
   adbf := { ;
     { 'MIN_DATE',    'D',     8,     0 }, ;
@@ -100,8 +101,8 @@ Function create_reestr26( arr_m )
   r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To FIELD->u_kod into MOSU
 
-  human->( dbSeek( DToS( arr_m[ 5 ] ), .t. ) )
-  Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
+  human->( dbSeek( DToS( arr_calendar[ 5 ] ), .t. ) )
+  Do While human->k_data <= arr_calendar[ 6 ] .and. !Eof()
     If ++k1 % 100 == 0
       @ MaxRow(), 1 Say lstr( k1 ) Color cColorSt2Msg
       @ Row(), Col() Say '/' Color 'W/R'
@@ -127,7 +128,7 @@ Function create_reestr26( arr_m )
         A_SMO->( dbAppend() )
         A_SMO->nyear := mnyear
         A_SMO->nmonth := mnmonth
-        A_SMO->min_date := arr_m[ 6 ]
+        A_SMO->min_date := arr_calendar[ 6 ]
         A_SMO->kod_smo := t_smo
       endif
 
@@ -193,7 +194,7 @@ Function create_reestr26( arr_m )
 
   If k == 0
     rest_box( buf )
-    func_error( 4, 'Нет пациентов для включения в реестр с датой окончания ' + arr_m[ 4 ] )
+    func_error( 4, 'Нет пациентов для включения в реестр с датой окончания ' + arr_calendar[ 4 ] )
   Else
 //    Use ( cur_dir() + 'A_SMO' ) new
 //    k := Date() - A_SMO->min_date
@@ -419,6 +420,11 @@ function control_and_create_schet26( kod_smo )
         close_list_alias( { 'TMP' } )
         dbDrop( 'mem:tmp' )  /* освободим память */
         hb_vfErase( 'mem:tmp.ntx' )  /* освободим память от индексного файла */
+
+        A_SMO->kol := _k - A_SMO->kol
+//        dbSelectArea( 'tmpb' )
+//        Delete For yes_del
+//        tmpb->( __dbPack() )
 
       Else
         func_error( 10, 'Реестр ранее августа 2025 года не формируется!' )

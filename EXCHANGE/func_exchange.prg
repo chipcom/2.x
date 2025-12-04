@@ -742,12 +742,12 @@ Function mo_add_xml_stroke( oNode, sTag, sValue )
 
   Return Nil
 
-// 20.11.25
+// 04.12.25
 function reestr_file_reindex()
 
   local bSaveHandler, fl
 
-  dbCloseAll()
+//  dbCloseAll()
   fl := .t.
   bSaveHandler := ErrorBlock( {| x| Break( x ) } )
   Begin Sequence
@@ -768,16 +768,22 @@ function reestr_file_reindex()
     Use
     r_use( dir_server() + 'mo_onkna' )
     Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onkna' ) progress
+    Use
     r_use( dir_server() + 'mo_onksl' )
     Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onksl' ) progress
+    Use
     r_use( dir_server() + 'mo_onkco' )
     Index On Str( FIELD->kod, 7 ) to ( dir_server() + 'mo_onkco' ) progress
+    Use
     r_use( dir_server() + 'mo_onkdi' )
     Index On Str( FIELD->kod, 7 ) + Str( FIELD->diag_tip, 1 ) + Str( FIELD->diag_code, 3 ) to ( dir_server() + 'mo_onkdi' ) progress
+    Use
     r_use( dir_server() + 'mo_onkpr' )
     Index On Str( FIELD->kod, 7 ) + Str( FIELD->prot, 1 ) to ( dir_server() + 'mo_onkpr' ) progress
+    Use
     r_use( dir_server() + 'mo_onkus' )
     Index On Str( FIELD->kod, 7 ) + Str( FIELD->usl_tip, 1 ) to ( dir_server() + 'mo_onkus' ) progress
+    Use
     r_use( dir_server() + 'mo_onkle' )
     Index On Str( FIELD->kod, 7 ) + FIELD->regnum + FIELD->code_sh + DToS( FIELD->date_inj ) to ( dir_server() + 'mo_onkle' ) progress
     Use
@@ -785,6 +791,6 @@ function reestr_file_reindex()
     fl := func_error( 10, 'Возникла непредвиденная ошибка при переиндексировании!' )
   End
   ErrorBlock( bSaveHandler )
-  dbCloseAll()
+//  dbCloseAll()
 
   return fl
