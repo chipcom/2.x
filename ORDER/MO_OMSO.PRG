@@ -1907,7 +1907,7 @@ Function ret_menu_rak_schet( r, c )
 
   Return ret
 
-// 28.07.25 список снятий по актам
+// 04.12.25 список снятий по актам
 Function akt_list_of_refusal_pacient()
 
   Static si := 3
@@ -2515,7 +2515,7 @@ Function akt_list_of_refusal_pacient()
     Append Blank
     If frd2->napr_uch != temp_1
       If temp_4 != 0
-        // вначале код ошибки
+        // вначале ФИО
         frd5->fio        := " ИТОГО "+ alltrim(temp_5)+ " :"
         frd5->sum_sn     := temp_3
         Append Blank
@@ -2528,10 +2528,10 @@ Function akt_list_of_refusal_pacient()
       temp_1 := frd2->napr_uch
       temp_2++
       temp_4 := frd2->sum_sn
-      // так-же обнуляем код ошибки
+      // так-же обнуляем ФИО
       temp_3 := frd2->sum_sn
       temp_5 := padr(frd2->fio,50)
-    Else // МО не меняется - смотрим код ошибки
+    Else // МО не меняется - смотрим ФИО
       if padr(frd2->fio,50) != temp_5
         If temp_3 != 0
           frd5->fio        := " ИТОГО "+ alltrim(temp_5)+ " :"
@@ -2540,6 +2540,7 @@ Function akt_list_of_refusal_pacient()
         endif
         temp_3 := frd2->sum_sn
         temp_5 := padr(frd2->fio,50)
+        temp_4 += frd2->sum_sn
       else  
         frd5->shifr_usl  := " "
         frd5->name_usl   := " "
