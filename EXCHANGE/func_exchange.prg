@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.11.25 сформировать массив имен файлов реестра сведений и пациентов
+// 08.12.25 сформировать массив имен файлов реестра сведений и пациентов
 function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
   // type - тип реестра (обычный, для диспансеризации)
   // nyear - номер года
@@ -25,7 +25,7 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
     aFiles := { { 'H', 'F' }[ type ] + sName, ;
       'L' + sName }
   else
-    sName := 'M' + codeMO + iif( kod_smo == '34   ', 'T', 'S' ) + kod_smo + '_' + ;
+    sName := 'M' + codeMO + iif( kod_smo == '34   ', 'T', 'S' ) + AllTrim( kod_smo ) + '_' + ;
       + Right( StrZero( nyear, 4 ), 2 ) + StrZero( nmonth, 2 ) + StrZero( mnn, nsh )
     aFiles := { { 'H', 'X' }[ type ] + sName, ;
       'L' + sName }
