@@ -7,9 +7,10 @@
 // 28.12.21 читать файлы из ТФОМС (или СМО)
 Function read_from_tf()
 
-  Local name_zip, _date, _time, s, arr_f := {}, buf, blk_sp_tk, fl := .f., n, hUnzip, ;
-    nErr, cFile, cName, arr_XML_info[ 7 ], tip_csv_file := 0, kod_csv_reestr := 0
+  Local name_zip, _date, _time, s, buf, blk_sp_tk, fl, n, cName
+  Local arr_XML_info[ 7 ], arr_f := {}, tip_csv_file := 0, kod_csv_reestr := 0
 
+  fl := .f.
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, err_admin() )
   Endif
@@ -17,9 +18,11 @@ Function read_from_tf()
     Return func_error( 4, 'Попытайтесь снова' )
   Endif
   Private p_var_manager := 'Read_From_TFOMS', p_ctrl_enter_sp_tk := .f.
+  Private full_zip
+
   blk_sp_tk := {|| p_ctrl_enter_sp_tk := .t., __Keyboard( Chr( K_ENTER ) ) }
   SetKey( K_CTRL_ENTER, blk_sp_tk )
-  Private full_zip := manager( T_ROW, T_COL + 5, MaxRow() -2, , .t., 1, , , , '*.zip' )
+  full_zip := manager( T_ROW, T_COL + 5, MaxRow() -2, , .t., 1, , , , '*.zip' )
   SetKey( K_CTRL_ENTER, nil )
   If !Empty( full_zip )
     full_zip := Upper( full_zip )
@@ -112,8 +115,8 @@ Function read_from_tf()
 // 15.10.24 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
-  Local nTypeFile := 0, aerr := {}, j, oXmlDoc, oXmlNode, oNode1, oNode2, ;
-    nCountWithErr := 0, adbf, go_to_schet := .f., go_to_akt := .f., ;
+  Local nTypeFile := 0, aerr := {}, j, oXmlDoc, ;
+    nCountWithErr := 0, go_to_schet := .f., go_to_akt := .f., ;
     go_to_rpd := .f., nerror, buf := save_maxrow()
 
   nTypeFile := arr_XML_info[ 1 ]
@@ -264,7 +267,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 // 22.06.23 прочитать реестр ФЛК
 Function read_xml_file_flk( arr_XML_info, aerr )
 
-  Local ii, pole, i, k, t_arr[ 2 ], adbf, ar
+  Local ii, pole, i, k, t_arr[ 2 ]
 
   mkod_reestr := arr_XML_info[ 7 ]
   Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
@@ -280,7 +283,7 @@ Function read_xml_file_flk( arr_XML_info, aerr )
       hb_eol(), cFileProtokol, .t. )
   Endif
   Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
-  Index On Str( tip, 1 ) + Str( oshib, 3 ) + soshib to ( cur_dir() + 'tmp2' )
+  Index On Str( FIELD->tip, 1 ) + Str( FIELD->oshib, 3 ) + FIELD->soshib to ( cur_dir() + 'tmp2' )
   If is_err_FLK
     If !extract_reestr( rees->( RecNo() ), rees->name_xml )
       AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом № ' + lstr( rees->nschet ) + ' от ' + date_8( rees->DSCHET ), 80 ) )
@@ -292,7 +295,7 @@ Function read_xml_file_flk( arr_XML_info, aerr )
       Return .f.
     Endif
     Use ( cur_dir() + 'tmp_r_t1' ) New Alias T1
-    Index On Upper( ID_PAC ) to ( cur_dir() + 'tmp_r_t1' )
+    Index On Upper( FIELD->ID_PAC ) to ( cur_dir() + 'tmp_r_t1' )
     Use ( cur_dir() + 'tmp_r_t2' ) New Alias T2
     Use ( cur_dir() + 'tmp_r_t3' ) New Alias T3
     Use ( cur_dir() + 'tmp_r_t4' ) New Alias T4
@@ -305,9 +308,9 @@ Function read_xml_file_flk( arr_XML_info, aerr )
     r_use( dir_server() + 'mo_otd', , 'OTD' )
     g_use( dir_server() + 'human_', , 'HUMAN_' )
     g_use( dir_server() + 'human', , 'HUMAN' )
-    Set Relation To RecNo() into HUMAN_, To otd into OTD
+    Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
     g_use( dir_server() + 'mo_rhum', , 'RHUM' )
-    Index On Str( REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == mkod_reestr
+    Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
     Select TMP2 // сначала проверка
     Go Top
     Do While !Eof()
@@ -500,7 +503,7 @@ Function fill_tmp2_file_flk()
   If i > 0
     Select TMP2
     Append From tmp22fil codepage 'RU866'
-    Index On Str( tip, 1 ) + Str( oshib, 3 ) to ( cur_dir() + 'tmp2' )
+    Index On Str( FIELD->tip, 1 ) + Str( FIELD->oshib, 3 ) to ( cur_dir() + 'tmp2' )
   Endif
   Return Nil
 
@@ -520,7 +523,7 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
   mnschet := Int( Val( tmp1->_NSCHET ) )  // в число (отрезать всё, что после '-')
   mANSREESTR := AfterAtNum( '-', tmp1->_NSCHET )
   r_use( dir_server() + 'mo_rees', , 'REES' )
-  Index On Str( NSCHET, 6 ) to ( cur_dir() + 'tmp_rees' ) For NYEAR == tmp1->_YEAR
+  Index On Str( FIELD->NSCHET, 6 ) to ( cur_dir() + 'tmp_rees' ) For FIELD->NYEAR == tmp1->_YEAR
   find ( Str( mnschet, 6 ) )
   If Found()
     mkod_reestr := arr_XML_info[ 7 ] := rees->kod
@@ -536,7 +539,7 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
     StrFile( hb_eol(), cFileProtokol, .t. )
     //
     r_use( dir_server() + 'mo_xml', , 'MO_XML' )
-    Index On ANSREESTR to ( cur_dir() + 'tmp_xml' ) For reestr == mkod_reestr
+    Index On FIELD->ANSREESTR to ( cur_dir() + 'tmp_xml' ) For FIELD->reestr == mkod_reestr
     find ( mANSREESTR )
     If Found()
       AAdd( aerr, 'По реестру № ' + lstr( mnschet ) + ' от ' + date_8( tmp1->_DSCHET ) + ' уже прочитан ответ номер "' + AllTrim( tmp1->_NSCHET ) + '"' )
@@ -556,7 +559,7 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
     r_use( dir_server() + 'human', , 'HUMAN' )
     r_use( dir_server() + 'human_', , 'HUMAN_' )
     r_use( dir_server() + 'mo_rhum', , 'RHUM' )
-    Index On Str( REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == mkod_reestr
+    Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
     Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
     // сначала проверка
     ii1 := ii2 := 0
@@ -627,10 +630,10 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
           index_base( 'human' ) // для разноски счетов
           index_base( 'human_3' ) // двойные случаи
           Use ( dir_server() + 'human_u' ) New READONLY
-          Index On Str( kod, 7 ) + date_u to ( dir_server() + 'human_u' ) progress
+          Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + 'human_u' ) progress
           Use
           Use ( dir_server() + 'mo_hu' ) New READONLY
-          Index On Str( kod, 7 ) + date_u to ( dir_server() + 'mo_hu' ) progress
+          Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + 'mo_hu' ) progress
           Use
         Endif
         If ii2 > 0 // были пациенты с ошибками
@@ -678,34 +681,34 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
       Endif
       // открыть распакованный реестр
       Use ( cur_dir() + 'tmp_r_t1' ) New Alias T1
-      Index On Str( Val( n_zap ), 6 ) to ( cur_dir() + 'tmpt1' )
+      Index On Str( Val( FIELD->n_zap ), 6 ) to ( cur_dir() + 'tmpt1' )
       Use ( cur_dir() + 'tmp_r_t2' ) New Alias T2
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt2' )
+      Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + 'tmpt2' )
       Use ( cur_dir() + 'tmp_r_t3' ) New Alias T3
-      Index On Upper( ID_PAC ) to ( cur_dir() + 'tmpt3' )
+      Index On Upper( FIELD->ID_PAC ) to ( cur_dir() + 'tmpt3' )
       Use ( cur_dir() + 'tmp_r_t4' ) New Alias T4
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt4' )
+      Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + 'tmpt4' )
       Use ( cur_dir() + 'tmp_r_t5' ) New Alias T5
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt5' )
+      Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + 'tmpt5' )
       Use ( cur_dir() + 'tmp_r_t6' ) New Alias T6
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt6' )
+      Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + 'tmpt6' )
       Use ( cur_dir() + 'tmp_r_t7' ) New Alias T7
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt7' )
+      Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + 'tmpt7' )
       Use ( cur_dir() + 'tmp_r_t8' ) New Alias T8
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt8' )
+      Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + 'tmpt8' )
       Use ( cur_dir() + 'tmp_r_t9' ) New Alias T9
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt9' )
+      Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + 'tmpt9' )
       Use ( cur_dir() + 'tmp_r_t10' ) New Alias T10
-      Index On IDCASE + Str( sluch, 6 ) + regnum + code_sh + date_inj to ( cur_dir() + 'tmpt10' )
+      Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) + FIELD->regnum + FIELD->code_sh + FIELD->date_inj to ( cur_dir() + 'tmpt10' )
       Use ( cur_dir() + 'tmp_r_t11' ) New Alias T11
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt11' )
+      Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + 'tmpt11' )
       Use ( cur_dir() + 'tmp_r_t12' ) New Alias T12
-      Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + 'tmpt12' )
+      Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + 'tmpt12' )
       Use ( cur_dir() + 'tmp_r_t1_1' ) New Alias T1_1
-      Index On IDCASE to ( cur_dir() + 'tmpt1_1' )
+      Index On FIELD->IDCASE to ( cur_dir() + 'tmpt1_1' )
       //
       g_use( dir_server() + 'mo_kfio', , 'KFIO' )
-      Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
+      Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
       g_use( dir_server() + 'kartote2', , 'KART2' )
       g_use( dir_server() + 'kartote_', , 'KART_' )
       g_use( dir_server() + 'kartotek', dir_server() + 'kartoten', 'KART' )
@@ -714,12 +717,12 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
       g_use( dir_server() + 'human_', , 'HUMAN_' )
       g_use( dir_server() + 'human', { dir_server() + 'humann', dir_server() + 'humans' }, 'HUMAN' )
       Set Order To 0 // индексы открыты для реконструкции при перезаписи ФИО
-      Set Relation To RecNo() into HUMAN_, To otd into OTD
+      Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
       g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
       g_use( dir_server() + 'mo_rhum', , 'RHUM' )
-      Index On Str( REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == mkod_reestr
+      Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
       Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
-      Index On Str( _n_zap, 8 ) to ( cur_dir() + 'tmp3' )
+      Index On Str( FIELD->_n_zap, 8 ) to ( cur_dir() + 'tmp3' )
       Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
       count_in_schet := LastRec()
       current_i2 := 0
@@ -1030,10 +1033,9 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
 // 18.11.25 создать счета по результатам прочитанного реестра СП
 Function create_schet_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
 
-  Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva, ;
-    doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1, ;
-    CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], code_schet, mb, me, nsh, ;
-    CODE_MO  := glob_mo()[ _MO_KOD_FFOMS ], s1
+  Local arr_schet := {}, k, arr_zip := {}, ;
+    CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], mb, me, nsh, ;
+    CODE_MO  := glob_mo()[ _MO_KOD_FFOMS ]
 
   Default fl_msg To .t., arr_s TO {}
   Private pole
@@ -1141,7 +1143,7 @@ Function protokol_flk_tmpfile( arr_f, aerr )
 // 27.04.20 зачитать реестр СП и ТК во временные файлы
 Function reestr_sp_tk_tmpfile( oXmlDoc, aerr, mname_xml )
 
-  Local j, j1, _ar, oXmlNode, oNode1, oNode2, buf := save_maxrow()
+  Local j, j1, _ar, s, oXmlNode, oNode1, oNode2, buf := save_maxrow()
 
   Default aerr TO {}, mname_xml To ''
   stat_msg( 'Распаковка/чтение/анализ реестра СП и ТК ' + BeforAtNum( '.', mname_xml ) )
@@ -1171,16 +1173,16 @@ Function reestr_sp_tk_tmpfile( oXmlDoc, aerr, mname_xml )
     { 'KOD_HUMAN',  'N',  7, 0 }, ; // код по БД листов учёта
     { 'FIO',        'C', 50, 0 }, ;
     { 'SCHET_CHAR', 'C',  1, 0 }, ; // пусто, буква 'M', или буква 'D'
-    { 'SCHET',  'N',  6, 0 }, ; // код счета
+    { 'SCHET',      'N',  6, 0 }, ; // код счета
     { 'SCHET_ZAP',  'N',  6, 0 }, ; // номер позиции записи в счете
     { '_IDCASE',    'N',  8, 0 }, ;
     { '_ID_C',      'C', 36, 0 }, ;
     { '_IDENTITY',  'N',  1, 0 }, ;
     { 'CORRECT',    'C',  2, 0 }, ;
-    { '_FAM',     'C', 40, 0 }, ; //
-    { '_IM',     'C', 40, 0 }, ; //
-    { '_OT',     'C', 40, 0 }, ; //
-    { '_DR',     'C', 10, 0 }, ; //
+    { '_FAM',       'C', 40, 0 }, ; //
+    { '_IM',        'C', 40, 0 }, ; //
+    { '_OT',        'C', 40, 0 }, ; //
+    { '_DR',        'C', 10, 0 }, ; //
     { '_OPLATA',    'N',  1, 0 };
     } )
   dbCreate( cur_dir() + 'tmp3file', { ;
