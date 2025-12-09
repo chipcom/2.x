@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 16.11.25
+// 09.12.25
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -63,6 +63,7 @@ Function verify_sluch( fl_view, ft )
   local arrPZ
   local arr_PN_osmotr, arr_not_zs
   local arr_pn_issled
+  local aDiagnozes
 
   Default fl_view To .t.
 
@@ -214,8 +215,10 @@ Function verify_sluch( fl_view, ft )
     Endif
   Endif
 
+  aDiagnozes := fill_array_diagnoze()
   If glob_otd[ 4 ] != TIP_LU_DVN_COVID
-    If Len( aDiagnoze_for_check := dublicate_diagnoze( fill_array_diagnoze() ) ) > 0
+//    If Len( aDiagnoze_for_check := dublicate_diagnoze( fill_array_diagnoze() ) ) > 0
+    If Len( aDiagnoze_for_check := dublicate_diagnoze( aDiagnozes ) ) > 0
       For i := 1 To Len( aDiagnoze_for_check )
         AAdd( ta, 'совпадающий диагноз ' + aDiagnoze_for_check[ i, 2 ] + aDiagnoze_for_check[ i, 1 ] )
       Next
@@ -226,6 +229,11 @@ Function verify_sluch( fl_view, ft )
     r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
   Endif
   Select MKB_10
+
+  if human_->usl_ok != USL_OK_AMBULANCE // проверка диагнозов, кроме скорой помощи
+    checking_full_diagnoses_verify( 'MKB_10', aDiagnozes, ta )
+  endif
+
   For i := 1 To Len( mdiagnoz )
     mdiagnoz[ i ] := PadR( mdiagnoz[ i ], 6 )
     find ( mdiagnoz[ i ] )

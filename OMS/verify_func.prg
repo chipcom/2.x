@@ -83,7 +83,7 @@ Function checkrslt_ishod( result, ishod, arr )
   strResult := getrslt_v009( result )
   If strResult == NIL
     AAdd( arr, 'неизвестное значение результата обращения для кода ' + Str( result ) )
-    Return
+    Return nil
   Endif
 
   If eq_any( result, 102, 103, 104, 105, 106, 107, 108, 110 ) .and. ishod == 101
@@ -118,28 +118,7 @@ Function checkrslt_ishod( result, ishod, arr )
     AAdd( arr, str )
   Endif
 
-  Return
-
-// 25.03.23
-Function dublicate_diagnoze( arrDiagnoze )
-
-  Local aRet := {}
-  Local i, cDiagnose
-  Local aHash := hb_Hash()
-
-  For i := 1 To Len( arrDiagnoze )
-    cDiagnose := AllTrim( arrDiagnoze[ i ] )
-    If Empty( cDiagnose )
-      Loop
-    Endif
-    If ! hb_HHasKey( aHash, cDiagnose )
-      hb_HSet( aHash, cDiagnose, .t. )
-    Else
-      AAdd( aRet, { cDiagnose, iif( i < 9, 'в группе "Сопутствующие диагнозы": ', 'в группе "Диагнозы осложнения": ' ) } )
-    Endif
-  Next
-
-  Return aRet
+  Return nil
 
 // 17.09.21 проверка секции направлений пациента
 Function checksectionprescription( arr )

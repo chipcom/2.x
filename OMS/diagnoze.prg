@@ -1,9 +1,63 @@
 #include 'set.ch'
+#include 'hbhash.ch'
 #include 'getexit.ch'
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+
+// 25.03.23
+Function dublicate_diagnoze( arrDiagnoze )
+
+  Local aRet := {}
+  Local i, cDiagnose
+  Local aHash := hb_Hash()
+
+  For i := 1 To Len( arrDiagnoze )
+    cDiagnose := AllTrim( arrDiagnoze[ i ] )
+    If Empty( cDiagnose )
+      Loop
+    Endif
+    If ! hb_HHasKey( aHash, cDiagnose )
+      hb_HSet( aHash, cDiagnose, .t. )
+    Else
+      AAdd( aRet, { cDiagnose, iif( i < 9, 'в группе "Сопутствующие диагнозы": ', 'в группе "Диагнозы осложнения": ' ) } )
+    Endif
+  Next
+
+  Return aRet
+
+// 09.12.25
+function checking_full_diagnoses_verify( alias, aDiag, ta )
+
+  local mshifr, m1, s, i, j
+
+  if ! ( HB_ISNIL( aDiag ) .or. Len( aDiag ) == 0 )
+    for j := 1 to Len( aDiag )
+      s := ''
+      mshifr := AllTrim( aDiag[ j ] )
+      If ! ( '.' $ mshifr ) // если шифр трехзначный
+        m1 := AllTrim( mshifr ) + '.'
+        // теперь проверим на наличие любого четырехзначного шифра
+        ( alias )->( dbSeek( m1 ) ) //  find ( m1 )
+        If ( alias )->( Found() )
+          For i := 0 To 9
+            ( alias )->( dbSeek( m1 + Str( i, 1 ) ) ) //  find ( m1 + Str( i, 1 ) )
+            If ( alias )->( Found() )
+              s += AllTrim( ( alias )->shifr ) + ','
+            Endif
+          Next i
+          s := SubStr( s, 1, Len( s ) -1 )
+        Endif
+      Endif
+      if !Empty( s )
+        AAdd( ta, 'Не допустимый шифр диагноза: ' + aDiag[ j ] )
+        AAdd( ta, '  доступные шифры: ' + s )
+      endif
+    next j
+  endif
+  
+  return nil
 
 // 04.04.24
 Function full_diagnoz_human( diag, dopDiag )
@@ -114,14 +168,16 @@ Function val1_10diag( fl_search, fl_plus, fl_screen, ldate, lpol, lUp )
 
   mshifr := AllTrim( &mvar )
   If lis_talon
-    arr := { 'MKOD_DIAG',;
+    arr := { ;
+      'MKOD_DIAG', ;
       'MKOD_DIAG2', ;
       'MKOD_DIAG3', ;
       'MKOD_DIAG4', ;
-      'MSOPUT_B1',;
-      'MSOPUT_B2',;
-      'MSOPUT_B3',;
-      'MSOPUT_B4' }
+      'MSOPUT_B1', ;
+      'MSOPUT_B2', ;
+      'MSOPUT_B3', ;
+      'MSOPUT_B4' ;
+    }
     If ( jt := AScan( arr, mvar ) ) == 0
       lis_talon := .f.
     Endif
@@ -145,7 +201,7 @@ Function val1_10diag( fl_search, fl_plus, fl_screen, ldate, lpol, lUp )
       fl_4 := .f.
       If !Empty( ldate ) .and. !between_date( diag->dbegin, diag->dend, ldate, , isGeneralDiagnoze )
         fl_4 := .t.  // Диагноз не входит в ОМС
-      Endif
+      Endif 
       If fl_4 .and. mem_diag4 == 2 .and. !( '.' $ mshifr ) // если шифр трехзначный
         m1 := AllTrim( mshifr ) + '.'
         // теперь проверим на наличие любого четырехзначного шифра
@@ -409,14 +465,15 @@ Function when_diag()
 
   Return .t.
 
-// 25.03.23
+// 09.12.25
 Function fill_array_diagnoze( al )
 
-  Local aDiagnoze, tmpSelect
+  Local ad
 
-  Default al      To 'human'  // alias БД листов учета
+  Default al To 'human'  // alias БД листов учета
   If Empty( al )
-    ad := { MKOD_DIAG, ;
+    ad := { ;
+      MKOD_DIAG, ;
       MKOD_DIAG2, ;
       MKOD_DIAG3, ;
       MKOD_DIAG4, ;
@@ -426,16 +483,19 @@ Function fill_array_diagnoze( al )
       MSOPUT_B4, ;
       MOSL1, ;
       MOSL2, ;
-      MOSL3 }
+      MOSL3 ;
+    }
   Else
-    ad := { &al.->KOD_DIAG, ;
+    ad := { ;
+      &al.->KOD_DIAG, ;
       &al.->KOD_DIAG2, ;
       &al.->KOD_DIAG3, ;
       &al.->KOD_DIAG4, ;
       &al.->SOPUT_B1, ;
       &al.->SOPUT_B2, ;
       &al.->SOPUT_B3, ;
-      &al.->SOPUT_B4 }
+      &al.->SOPUT_B4 ;
+    }
     AAdd( ad, human_2->OSL1 )
     AAdd( ad, human_2->OSL2 )
     AAdd( ad, human_2->OSL3 )
@@ -443,34 +503,38 @@ Function fill_array_diagnoze( al )
 
   Return ad
 
-// 31.10.22 вернуть диагнозы в массиве
+// 09.12.25 вернуть диагнозы в массиве
 Function diag_to_array( al, fl_trim, fl_dop, fl_del, fl_6, adiag_talon )
 
   Local ad, _arr := {}, j, k, s, lshifr, dp, dp1, _ta, tmp_select := Select()
 
-  Default al      To 'human', ; // alias БД листов учета
-  fl_trim To .f., ;     // удалять завершающие пробелы
+  Default al To 'human', ; // alias БД листов учета
+    fl_trim To .f., ;     // удалять завершающие пробелы
     fl_dop  To .f., ;     // дописывать букву
     fl_del  To .t., ;     // удалять повторяющиеся диагнозы
     fl_6    To .f.        // разрешать поиск шестизначных диагнозов
   If Empty( al )
-    ad := { MKOD_DIAG, ;
+    ad := { ;
+      MKOD_DIAG, ;
       MKOD_DIAG2, ;
       MKOD_DIAG3, ;
       MKOD_DIAG4, ;
       MSOPUT_B1, ;
       MSOPUT_B2, ;
       MSOPUT_B3, ;
-      MSOPUT_B4 }
+      MSOPUT_B4 ;
+    }
   Else
-    ad := { &al.->KOD_DIAG, ;
+    ad := { ;
+      &al.->KOD_DIAG, ;
       &al.->KOD_DIAG2, ;
       &al.->KOD_DIAG3, ;
       &al.->KOD_DIAG4, ;
       &al.->SOPUT_B1, ;
       &al.->SOPUT_B2, ;
       &al.->SOPUT_B3, ;
-      &al.->SOPUT_B4 }
+      &al.->SOPUT_B4 ;
+    }
   Endif
   If fl_6
     If Select( 'MKB_10' ) == 0
