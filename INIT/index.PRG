@@ -26,7 +26,7 @@ Function m_index_db()
   Endif
   Return Nil
 
-// 10.09.25 внутренняя функция переиндексирования
+// 10.12.25 внутренняя функция переиндексирования
 Function pereindex()
 
   Local buf := SaveScreen(), t1, t2, i, ae[ 3 ]
@@ -37,7 +37,7 @@ Function pereindex()
     'не прерывайте процесс!' },, 'GR+/R', 'W+/R', 13 )
 
   t1 := Seconds()
-//  Private fl_open := .t.
+  Private fl_open := .t.
   For i := 1 To Len( array_files_DB() )
     index_base( array_files_DB()[ i ] )
   Next
@@ -201,7 +201,7 @@ Function pereindex_263()
   rest_box( buf )
   Return Nil
 
-// 10.09.25 функция переиндексирования для одной задачи
+// 10.12.25 функция переиндексирования для одной задачи
 Function pereindex_task( n_task )
 
   Local buf := SaveScreen(), i
@@ -212,7 +212,7 @@ Function pereindex_task( n_task )
       'для подзадачи "' + array_tasks()[ ind_task( n_Task ), 1 ] + '"', ;
       '', ;
       'Во избежание разрушения данных не прерывайте процесс!' },, 'GR+/R', 'W+/R', 13 )
-//    Private fl_open := .t.
+    Private fl_open := .t.
     If !emptyany( array_task_DB( array_files_DB() )[ n_Task, 1 ], array_task_DB( array_files_DB() )[ n_Task, 2 ] )
       For i := array_task_DB( array_files_DB() )[ n_Task, 1 ] To array_task_DB( array_files_DB() )[ n_Task, 2 ]
         index_base( array_files_DB()[ i ] )

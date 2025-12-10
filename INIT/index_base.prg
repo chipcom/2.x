@@ -1,11 +1,11 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 09.09.25
+// 10.12.25
 Function index_base( sBase )
 
   Millisec( 100 )  // задержка на 0.1 с
-//  If Type( "fl_open" ) == "L" .and. fl_open
+  If Type( "fl_open" ) == "L" .and. fl_open
     If !hb_FileExists( dir_server() + sBase + sdbf() ) // если нет файла
       Return Nil                             // выйти из функции
     Endif
@@ -20,7 +20,7 @@ Function index_base( sBase )
         },, 'GR+/R', 'W+/R',,, 'G+/R' )
       Return Nil
     Endif
-//  Endif
+  Endif
   sBase := Lower( sBase )
   Do Case
   Case sBase == "mo_add"
@@ -252,7 +252,7 @@ Function index_base( sBase )
   // Case sBase == "mo_kekez"
   //   Index On Str( FIELD->kod, 7 ) + Str( FIELD->stroke, 2 ) to ( dir_server() + sBase ) progress
   Endcase
-//  If Type( "fl_open" ) == "L" .and. fl_open
+  If Type( "fl_open" ) == "L" .and. fl_open
     __tmp__->( dbCloseArea() )
-//  Endif
+  Endif
   Return Nil
