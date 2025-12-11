@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 09.12.25
+// 11.12.25
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -231,7 +231,7 @@ Function verify_sluch( fl_view, ft )
   Select MKB_10
 
   if human_->usl_ok != USL_OK_AMBULANCE // проверка диагнозов, кроме скорой помощи
-    checking_full_diagnoses_verify( 'MKB_10', aDiagnozes, ta )
+    checking_full_diagnoses_verify( 'MKB_10', mk_data, aDiagnozes, ta )
   endif
 
   For i := 1 To Len( mdiagnoz )

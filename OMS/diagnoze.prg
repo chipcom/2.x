@@ -27,8 +27,8 @@ Function dublicate_diagnoze( arrDiagnoze )
 
   Return aRet
 
-// 09.12.25
-function checking_full_diagnoses_verify( alias, aDiag, ta )
+// 11.12.25
+function checking_full_diagnoses_verify( alias, dk, aDiag, ta )
 
   local mshifr, m1, s, i, j
 
@@ -44,7 +44,9 @@ function checking_full_diagnoses_verify( alias, aDiag, ta )
           For i := 0 To 9
             ( alias )->( dbSeek( m1 + Str( i, 1 ) ) ) //  find ( m1 + Str( i, 1 ) )
             If ( alias )->( Found() )
-              s += AllTrim( ( alias )->shifr ) + ','
+              if valid_date( dk, ( alias )->dBegin, ( alias )->dEnd )
+                s += AllTrim( ( alias )->shifr ) + ','
+              endif
             Endif
           Next i
           s := SubStr( s, 1, Len( s ) -1 )
