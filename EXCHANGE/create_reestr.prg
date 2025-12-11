@@ -24,7 +24,8 @@ Function create_reestr()
 
 //  Private pkol := 0, psumma := 0  //, ;
 
-  If ! hb_user_curUser:isadmin()
+//  If ! hb_user_curUser:isadmin()
+  If ! currentUser():isadmin()
     Return func_error( 4, err_admin() )
   Endif
   If find_unfinished_reestr_sp_tk()

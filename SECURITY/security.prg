@@ -55,22 +55,26 @@ Function involved_password( par, _n_reestr, smsg )
   Enddo
   Return fl
 
-// 11.08.24
+// 11.02.25
 Function edit_password()
 
   Local buf := save_maxrow()
   Local mas11 := {}, mpic := {,,, { 1, 0 } }, mas13 := { .f., .f., .t. }, ;
-    mas12 := { { 1, PadR( ' Ф.И.О.', 20 ) }, ;
-    { 2, PadR( ' Тип доступа', 13 ) }, ;
-    { 3, PadR( ' Должность', 20 ) };
+    mas12 := { ;
+      { 1, PadR( ' Ф.И.О.', 20 ) }, ;
+      { 2, PadR( ' Тип доступа', 13 ) }, ;
+      { 3, PadR( ' Должность', 20 ) };
     }
   Local blk := {| b, ar, nDim, nElem, nKey| f1editpass( b, ar, nDim, nElem, nKey ) }
-  Private menu_tip := { { 'АДМИНИСТРАТОР', 0 }, ;
+  Private menu_tip := { ;
+    { 'АДМИНИСТРАТОР', 0 }, ;
     { 'ОПЕРАТОР     ', 1 }, ;
-    { 'КОНТРОЛЕР    ', 3 } }
+    { 'КОНТРОЛЕР    ', 3 } ;
+  }
   Private c_1 := T_COL + 5, c_2
 
-  If ! hb_user_curUser:isadmin()
+//  If ! hb_user_curUser:isadmin()
+  If ! currentuser():isadmin()
     Return func_error( 4, err_admin() )
   Endif
   If !g_slock( 'edit_pass' )
@@ -118,14 +122,15 @@ Function edit_password()
   Return Nil
 
 // 11.07.24
-Static Function f1editpass( b, ar, nDim, nElem, nKey )
+Function f1editpass( b, ar, nDim, nElem, nKey )
 
   Local nRow := Row(), nCol := Col(), tmp_color, buf := save_maxrow(), buf1, fl := .f., r1, r2, i, ;
     mm_gruppa := { ;
-    { '0 - не работает в задаче КЭК', 0 }, ;
-    { '1 - уровень зав.отделением', 1 }, ;
-    { '2 - уровень зам.гл.врача', 2 }, ;
-    { '3 - уровень комиссии КЭК', 3 } }
+      { '0 - не работает в задаче КЭК', 0 }, ;
+      { '1 - уровень зав.отделением', 1 }, ;
+      { '2 - уровень зам.гл.врача', 2 }, ;
+      { '3 - уровень комиссии КЭК', 3 } ;
+    }
   Local obj, menu_idrole := {}
 
   // собирем доступные группы пользователей
@@ -137,7 +142,8 @@ Static Function f1editpass( b, ar, nDim, nElem, nKey )
   Keyboard ''
   If nKey == K_ENTER
     Private mfio, mdolj, mgruppa, m1gruppa := 0, mtip, m1tip, mpass, moper, ;
-      mfroper, minn,  mdov_date, mdov_nomer, gl_area := { 1, 0, MaxRow() -1, 79, 0 }
+      mfroper, minn,  mdov_date, mdov_nomer
+    private gl_area := { 1, 0, MaxRow() -1, 79, 0 }
 
     If ar[ nElem, 7 ] == 0 .and. Len( ar ) > 1
       ar[ nElem, 6 ] := 1 // по умолчанию добавляется оператор
