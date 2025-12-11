@@ -106,7 +106,7 @@ Function f_p_z19( _pzkol, _pz, k )
   Endif
   Return iif( k == 1, s, s2 )
 
-// 06.02.19
+// 11.12.25
 Function f1create1reestr19( oBrow )
 
   Local oColumn, tmp_color, blk_color := {|| if( tmp->plus, { 1, 2 }, { 3, 4 } ) }, n := 32
@@ -114,7 +114,7 @@ Function f1create1reestr19( oBrow )
   oColumn := TBColumnNew( ' ', {|| if( tmp->plus, '', ' ' ) } )
   oColumn:colorBlock := blk_color
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( Center( 'Ф.И.О. больного', n ), {|| iif( tmp->ishod == 89, PadR( human->fio, n -4 ) + ' 2сл', PadR( human->fio, n ) ) } )
+  oColumn := TBColumnNew( Center( 'Ф.И.О. больного', n ), {|| iif( tmp->ishod == 89, PadR( Upper( human->fio ), n -4 ) + ' 2сл', PadR( Upper( human->fio ), n ) ) } )
   oColumn:colorBlock := blk_color
   oBrow:addcolumn( oColumn )
   oColumn := TBColumnNew( 'План-заказ', {|| PadC( f_p_z19( tmp->pzkol, tmp->pz, 1 ), 10 ) } )

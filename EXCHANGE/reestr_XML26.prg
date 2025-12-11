@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.08.25
+// 11.12.25
 Function create1reestr26( _recno, _nyear, _nmonth, kod_smo, p_tip_reestr, aBukva )
 
   Local buf := SaveScreen(), i, j, pole
@@ -41,8 +41,10 @@ Function create1reestr26( _recno, _nyear, _nmonth, kod_smo, p_tip_reestr, aBukva
 
   dbSelectArea( 'TMP' )
   Set Relation To FIELD->kod_human into HUMAN
-//  Index On Upper( human->fio ) + DToS( tmp->k_data ) to ( cur_dir() + 'tmpb' )  // For kod_tmp == _recno
-//  Go Top
+
+//  Index On Upper( human->fio ) + DToS( tmp->k_data ) to ( cur_dir() + 'tmpb' )  // For FIELD->kod_tmp == _recno
+  Index On Upper( tmp->fio ) + DToS( tmp->k_data ) to ( cur_dir() + 'tmpb' )  // For FIELD->kod_tmp == _recno
+
   tmp->( dbGoTop() )
   Eval( p_blk )
   If alpha_browse( 3, 0, MaxRow() -4, 79, 'f1create1reestr19', color0, ;
@@ -64,10 +66,10 @@ Function create1reestr26( _recno, _nyear, _nmonth, kod_smo, p_tip_reestr, aBukva
         'GR+/R', 'W+/R' )
       If f_esc_enter( 'составления реестра' )
         RestScreen( buf )
-        if reg_sort == 1
-          Index On FIELD->BUKVA + Upper( human->fio ) + DToS( tmp->k_data ) to ( 'mem:tmp' ) For plus  // For kod_tmp == _recno
+        if reg_sort == 1 
+          Index On FIELD->BUKVA + Upper( human->fio ) + DToS( tmp->k_data ) to ( 'mem:tmp' ) For FIELD->plus  // For kod_tmp == _recno
         else
-          Index On FIELD->BUKVA + Str( FIELD->pz, 2 ) + Str( 10000000 - FIELD->cena_1, 11, 2 ) to ( 'mem:tmp' ) For plus   // .and. kod_tmp == _recno 
+          Index On FIELD->BUKVA + Str( FIELD->pz, 2 ) + Str( 10000000 - FIELD->cena_1, 11, 2 ) to ( 'mem:tmp' ) For FIELD->plus   // .and. kod_tmp == _recno 
         endif
         create2reestr26( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_reestr, aBukva )
       Endif
