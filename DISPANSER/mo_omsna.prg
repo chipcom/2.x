@@ -64,7 +64,7 @@ Function disp_nabludenie( k )
       reconstruct_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
       Close databases
       Use ( dir_server() + 'mo_dnab' ) New Alias DN
-      Index On Str( KOD_K, 7 ) + KOD_DIAG to ( dir_server() + 'mo_dnab' )
+      Index On Str( FIELD->KOD_K, 7 ) + FIELD->KOD_DIAG to ( dir_server() + 'mo_dnab' )
       Select DN
       Go Top
       Do While !Eof()
@@ -115,7 +115,7 @@ Function disp_nabludenie( k )
       //
       //
       Commit
-      Index On Str( KOD_K, 7 ) + KOD_DIAG to ( dir_server() + 'mo_dnab' )
+      Index On Str( FIELD->KOD_K, 7 ) + FIELD->KOD_DIAG to ( dir_server() + 'mo_dnab' )
       Close databases
       //
       rest_box( buf )
@@ -134,8 +134,8 @@ Function disp_nabludenie( k )
       r_use( dir_server() + 'mo_d01',, 'D01' )
       g_use( dir_server() + 'mo_d01k',, 'RHUM',.T.,.T. )
       g_use( dir_server() + 'mo_d01d',, 'DD',.T.,.T. )
-      set relation to KOD_D into RHUM
-      Index On Str( rhum->REESTR, 6 ) + Str( rhum->KOD_K, 7 ) + padr(alltrim(KOD_DIAG),3) to ( cur_dir() + 'tmp_dd' ) 
+      set relation to FIELD->KOD_D into RHUM
+      Index On Str( rhum->REESTR, 6 ) + Str( rhum->KOD_K, 7 ) + padr(alltrim(FIELD->KOD_DIAG),3) to ( cur_dir() + 'tmp_dd' ) 
       //{ 'REESTR',   'N', 6, 0 }, ; // код реестра по файлу 'mo_d01'
       //{ 'KOD_K',    'N', 7, 0 }, ; // код по картотеке
       // { 'KOD_DIAG', 'C', 5, 0 }, ;  // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
@@ -246,8 +246,8 @@ Function disp_nabludenie( k )
   Case k == 42
     spr_disp_nabl()
   Case k == 31
-    ne_real()
-    //f_create_d01()
+    //ne_real()
+    f_create_d01()
   Case k == 32
     f_view_d01()
   Case k == 51
@@ -313,8 +313,8 @@ Function fvdn_date_r( _data, mdate_r )
 // 05.12.25
 Function f_inf_dop_disp_nabl()
 
-  Local arr, adiagnoz, sh := 80, HH := 60, buf := save_maxrow(), name_file := cur_dir() + 'disp_nabl.txt', ;
-    buf1, ii1 := 0, s, s2, i, t_arr[ 2 ], ar, ausl, fl
+  Local adiagnoz, sh := 80, HH := 60, buf := save_maxrow(), name_file := cur_dir() + 'disp_nabl.txt', ;
+    buf1, ii1 := 0, s, i, t_arr[ 2 ], ar, ausl, fl
 
   Private mm_dopo_na := { { '2.78', 1 }, { '2.79', 2 }, { '2.88 ДН', 3 }, { '2.88 не ДН', 4 } }
   Private gl_arr := { ;  // для битовых полей
@@ -364,17 +364,17 @@ Function f_inf_dop_disp_nabl()
   r_use( dir_server() + 'uslugi',, 'USL' )
   r_use( dir_server() + 'mo_pers',, 'PERS' )
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-  Set Relation To u_kod into USL
+  Set Relation To FIELD->u_kod into USL
   r_use( dir_server() + 'human_',, 'HUMAN_' )
-  Set Relation To vrach into PERS
+  Set Relation To FIELD->vrach into PERS
   r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
-  Index On Str( kod_k, 7 ) + Descend( DToS( k_data ) ) to ( cur_dir() + 'tmp_humankk' ) ;
+  Index On Str( FIELD->kod_k, 7 ) + Descend( DToS( FIELD->k_data ) ) to ( cur_dir() + 'tmp_humankk' ) ;
     For human_->USL_OK == 3 .and. Between( human->k_data, parr_m[ 5 ], parr_m[ 6 ] ) ;
     progress
   //
   r_use( dir_server() + 'mo_dnab',, 'DD' )
-  Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_dd' ) For kod_k > 0
+  Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_dd' ) For FIELD->kod_k > 0
   r_use( dir_server() + 'kartote2',, 'KART2' )
   r_use( dir_server() + 'kartotek',, 'KART' )
   Set Relation To RecNo() into KART2
@@ -498,17 +498,17 @@ Function  vvodn_disp_nabl()
       // reconstruct_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
       // проверяем на изменение приказа - если диагноза нет - удаляем пациента из списка
       Use ( dir_server() + 'mo_dnab' ) New Alias DN
-      Index On Str( KOD_K, 7 ) + KOD_DIAG to ( dir_server() + 'mo_dnab' )
+      Index On Str( FIELD->KOD_K, 7 ) + FIELD->KOD_DIAG to ( dir_server() + 'mo_dnab' )
       // очистка завершена
       //
       r_use( dir_server() + 'uslugi',, 'USL' )
       r_use( dir_server() + 'human_u_',, 'HU_' )
       r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-      Set Relation To RecNo() into HU_, To u_kod into USL
+      Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
       r_use( dir_server() + 'human_',, 'HUMAN_' )
       r_use( dir_server() + 'human',, 'HUMAN' )
       Set Relation To RecNo() into HUMAN_
-      Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) For human_->usl_ok == 3 .and. k_data > 0d20250101 // ЮЮ
+      Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) For human_->usl_ok == 3 .and. FIELD->k_data > 0d20250101 // ЮЮ
       // ОТрабатываем 2025 ТЕКУЩИЙ
       Go Top
       Do While !Eof()
@@ -667,7 +667,7 @@ Function  vvodn_disp_nabl()
 // 02.12.19 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
 Function vvodp_disp_nabl()
 
-  Local buf := SaveScreen(), k, s, s1, t_arr := Array( BR_LEN ), str_sem1, lcolor
+  Local buf := SaveScreen(), t_arr := Array( BR_LEN )
 
   mywait()
   dbCreate( 'tmp_kart', { ;
@@ -679,7 +679,7 @@ Function vvodp_disp_nabl()
   Use ( cur_dir() + 'tmp_kart' ) new
   r_use( dir_server() + 'kartotek',, '_KART' )
   use_base( 'mo_dnab' )
-  Index On Str( kod_k, 7 ) to ( 'tmp_dnab' ) For kod_k > 0 UNIQUE
+  Index On Str( FIELD->kod_k, 7 ) to ( 'tmp_dnab' ) For FIELD->kod_k > 0 UNIQUE
   Go Top
   Do While !Eof()
     Select _kart
@@ -701,7 +701,7 @@ Function vvodp_disp_nabl()
     RestScreen( buf )
     Return func_error( 4, 'Список для диспансерного наблюдения пуст. Добавление через поиск по леч.врачу' )
   Endif
-  Index On Upper( fio ) to ( cur_dir() + 'tmp_kart' )
+  Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_kart' )
   Go Top
   Do While alpha_browse( T_ROW, 7, MaxRow() -2, 71, 'f1vvodP_disp_nabl', color8,,,,,,,,, { '═', '░', '═', } )
     f2vvodp_disp_nabl( tmp_kart->kod_k )
@@ -725,7 +725,7 @@ Function f1vvodp_disp_nabl( oBrow )
 // 23.12.22 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
 Function f2vvodp_disp_nabl( lkod_k )
 
-  Local buf := SaveScreen(), k, s, s1, t_arr := Array( BR_LEN ), str_sem1, lcolor
+  Local buf := SaveScreen(), t_arr := Array( BR_LEN ), str_sem1
 
   Private str_find, muslovie
 
@@ -772,7 +772,7 @@ Function f2vvodp_disp_nabl( lkod_k )
 Function f3vvodp_disp_nabl( nKey, oBrow, regim )
 
   Local ret := -1
-  Local buf, fl := .f., rec := 0, rec1, r1, r2, tmp_color
+  Local buf, fl := .f., rec := 0, r1, r2, tmp_color
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }
   Local mm_dom := { ;
     { 'в МО   ', 0 }, ;
@@ -1033,24 +1033,24 @@ Function f_inf_disp_nabl( par )
   r_use( dir_server() + 'schet',, 'SCHET' )
   Set Relation To RecNo() into SCHET_
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-  Set Relation To u_kod into USL
+  Set Relation To FIELD->u_kod into USL
   r_use( dir_server() + 'human_',, 'HUMAN_' )
-  Set Relation To vrach into PERS
+  Set Relation To FIELD->vrach into PERS
   r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
-  Index On Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir() + 'tmp_humankk' ) ;
+  Index On Str( FIELD->kod_k, 7 ) + DToS( FIELD->k_data ) to ( cur_dir() + 'tmp_humankk' ) ;
     For human_->USL_OK == 3 .and. human->k_data >= 0d20250101 ; // т.е. текущий год  ЮЮ
   progress
   //
   r_use( dir_server() + 'mo_dnab',, 'DN' )
   r_use( dir_server() + 'mo_d01',, 'D01' )
   r_use( dir_server() + 'mo_d01d',, 'DD' )
-  Index On Str( kod_d, 6 ) to ( cur_dir() + 'tmp_dd' )
+  Index On Str( FIELD->kod_d, 6 ) to ( cur_dir() + 'tmp_dd' )
   r_use( dir_server() + 'kartotek',, 'KART' )
   r_use( dir_server() + 'kartote_',, 'KART_' )
   r_use( dir_server() + 'kartote2',, 'KART2' )
   r_use( dir_server() + 'mo_d01k',, 'RHUM' )
-  Set Relation To kod_k into KART, To reestr into D01
+  Set Relation To FIELD->kod_k into KART, To FIELD->reestr into D01
   // добавляем фильтр - год
   Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kart->kod, 7 ) to ( cur_dir() + 'tmp_rhum' ) ;
     For kart->kod > 0 .and. rhum->oplata == 1 .and. d01->nyear == 2025  // ЮЮ
@@ -1198,7 +1198,7 @@ Function f_inf_disp_nabl( par )
     vrem_kod := 0
     //
     Select DN
-    Set Relation To kod_k into KART, To kod_k into KART_
+    Set Relation To FIELD->kod_k into KART, To FIELD->kod_k into KART_
     Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( dn->kod_k, 7 ) + Descend( DToS( dn->n_data ) ) to ( cur_dir() + 'tmp_dn' ) ;
       For kart->kod > 0
     Go Top
@@ -1503,19 +1503,19 @@ Function  f_inf_prirost_disp_nabl()
   buf := save_maxrow()
   waitstatus( 'Ждите! Идет проверка по диспансерному наблюдению на 2026 год' )
   Use ( dir_server() + 'mo_dnab' ) New Alias DN
-  Index On Str( KOD_K, 7 ) + KOD_DIAG to ( dir_server() + 'mo_dnab' )
+  Index On Str( FIELD->KOD_K, 7 ) + FIELD->KOD_DIAG to ( dir_server() + 'mo_dnab' )
   // очистка завершена
   //
   Use t_DN_SPIS  New Alias DN_SPIS
-  Index On Str( KOD_K, 7 ) + Str( tip, 3 ) To 'DN_SPIS'
+  Index On Str( FIELD->KOD_K, 7 ) + Str( FIELD->tip, 3 ) To 'DN_SPIS'
   r_use( dir_server() + 'uslugi',, 'USL' )
   r_use( dir_server() + 'human_u_',, 'HU_' )
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-  Set Relation To RecNo() into HU_, To u_kod into USL
+  Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
   r_use( dir_server() + 'human_',, 'HUMAN_' )
   r_use( dir_server() + 'human',, 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
-  Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) For human_->usl_ok == 3 .and. k_data > 0d20260101 // ЮЮ
+  Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_hfio' ) For human_->usl_ok == 3 .and. FIELD->k_data > 0d20260101 // ЮЮ
   // ОТрабатываем 2025 ТЕКУЩИЙ
   Go Top
   Do While !Eof()
@@ -1716,7 +1716,7 @@ Function  f_inf_prirost_disp_nabl()
     '─────────────────────────────────────────┬────────────────', ;
     '                   ФИО                   │    Вид  ДН     ', ;
     '─────────────────────────────────────────┴────────────────' }
-  Index On Str( mes, 2 ) + Str( tip, 3 ) + fio To 'DN_SPIS'
+  Index On Str( FIELD->mes, 2 ) + Str( FIELD->tip, 3 ) + FIELD->fio To 'DN_SPIS'
   //
   Select DN_SPIS
   Go Top
@@ -1768,7 +1768,7 @@ Function f0_vvod_disp_nabl()
   Local s := ''
 
   r_use( dir_server() + 'mo_d01k',, 'DK' )
-  Index On Str( reestr, 6 ) to ( cur_dir() + 'tmp_dk' ) For kod_k == glob_kartotek
+  Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_dk' ) For FIELD->kod_k == glob_kartotek
   Go Top
   Do While !Eof()
     If dk->oplata == 0
@@ -2112,17 +2112,17 @@ Function inf_disp_nabl()
     AEval( arr_title, {| x| add_string( x ) } )
     //
     r_use( dir_server() + 'mo_D01E',,  'D01E' ) // ошибки пациента в пакете D01
-    index on str(reestr,6) + str(d01_zap,6) to  ( cur_dir() + 'tmp_D01E' )
+    index on str( FIELD->reestr, 6 ) + str( FIELD->d01_zap, 6 ) to  ( cur_dir() + 'tmp_D01E' )
     r_use( dir_server() + 'mo_D01',,  'D01' )  // пакеты D01
     r_use( dir_server() + 'mo_D01K',,  'D01K' ) // пациента в пакете D01
     r_use( dir_server() + 'mo_D01D',,  'D01D' ) // диагнозы у пациентов в пакете D01
-    Index On Str( kod_n, 6 ) + Str( kod_d, 7 ) to ( cur_dir() + 'tmp_D01' ) DESCENDING
+    Index On Str( FIELD->kod_n, 6 ) + Str( FIELD->kod_d, 7 ) to ( cur_dir() + 'tmp_D01' ) DESCENDING
     r_use( dir_server() + 'mo_pers',,  'PERS' )
     r_use( dir_server() + 'kartote2',, 'KART2' )
     r_use( dir_server() + 'kartote_',, 'KART_' )
     r_use( dir_server() + 'kartotek',, 'KART' )
     r_use_base( 'mo_dnab' )
-    Set Relation To kod_k into KART, To kod_k into KART_, To vrach into PERS
+    Set Relation To FIELD->kod_k into KART, To FIELD->kod_k into KART_, To FIELD->vrach into PERS
     Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( dn->kod_k, 7 ) + dn->kod_diag to ( cur_dir() + 'tmp_dn' ) ;
       For kart->kod > 0
     old := r := rs := ro := 0
@@ -2302,14 +2302,14 @@ Function inf_disp_nabl()
           Endif
         Endif
         // проверка на принятие
-       /* find( Str( dn->( RecNo() ), 6 ) ) 
+        find( Str( dn->( RecNo() ), 6 ) ) 
         If Found()
           If d01d->OPLATA == 1
             // контрольная проверка 
             // r_use( dir_server() + 'mo_D01',,  'D01' )  // пакеты D01
             // r_use( dir_server() + 'mo_D01K',,  'D01K' ) // пациента в пакете D01
             // r_use( dir_server() + 'mo_D01D',,  'D01D' ) // диагнозы у пациентов в пакете D01
-            // Index On Str( kod_n, 6 ) + Str( kod_d, 7 ) to ( cur_dir() + 'tmp_D01' ) DESCENDING
+            // Index On Str( FIELD->kod_n, 6 ) + Str( FIELD->kod_d, 7 ) to ( cur_dir() + 'tmp_D01' ) DESCENDING
             select D01K 
             goto (D01D->kod_d)
             select D01
@@ -2361,9 +2361,9 @@ Function inf_disp_nabl()
               goto (D01D->kod_d)
               select D01E 
               find (str(d01k->reestr,6) + str(d01k->d01_zap,6))   
-              //index on str(reestr,6) + str(d01_zap,6) to  ( cur_dir() + 'tmp_D01E' )
+              //index on str( FIELD->reestr, 6 ) + str( FIELD->d01_zap, 6 ) to  ( cur_dir() + 'tmp_D01E' )
               if found()
-                otvet  := 'ОШИБКА '+lstr(D01E->kod_err)
+                otvet  := 'ОШИБКА ' + lstr( D01E->kod_err )
               else
                 otvet  := 'ОШИБКА 131' 
               endif
@@ -2387,7 +2387,7 @@ Function inf_disp_nabl()
         Else
           otvet  := '       '
         Endif
-        */
+        
         // Конец ВЫБОРКИ
         Select( t_vr )
         s := padr(otvet,11) + s
@@ -2404,9 +2404,9 @@ Function inf_disp_nabl()
         If verify_ff( HH, .t., sh )
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
-        If m1umer == 1
-          // add_string( s )
-          // ++iii1
+        If m1umer == 1                     //------------------------------------------------------------------------------------
+           add_string( s )
+           ++iii1
         Else
           If fl_umer
             add_string( s )
@@ -2485,17 +2485,17 @@ Function spr_disp_nabl()
   rest_box( buf )
   Return Nil
 
-// 19.11.25 Обмен с ТФОМС информацией по диспансерному наблюдению
+// 19.12.25 Обмен с ТФОМС информацией по диспансерному наблюдению
 Function f_create_d01()
 
   Local fl := .t., arr, id01 := 0, lspec, lmesto, buf := save_maxrow()
 
   mywait()
   r_use( dir_server() + 'mo_xml',, 'MO_XML' )
-  Index On Str( reestr, 6 ) to ( cur_dir() + 'tmp_xml' ) ;
+  Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_xml' ) ;
     For DFILE > 0d20251202 .and. tip_in == _XML_FILE_D02 .and. Empty( TIP_OUT ) // ЮЮ
   r_use( dir_server() + 'mo_d01',, 'REES' )
-  Index On Str( nn, 3 ) to ( cur_dir() + 'tmp_d01' ) For nyear == 2025 // ЮЮ
+  Index On Str( FIELD->nn, 3 ) to ( cur_dir() + 'tmp_d01' ) For FIELD->nyear == 2025 // ЮЮ
 
   Go Top
   Do While !Eof()
@@ -2526,9 +2526,9 @@ Function f_create_d01()
   Select REES
   Set Index To
   g_use( dir_server() + 'mo_d01d',, 'DD' )
-  Index On Str( kod_d, 6 ) to ( cur_dir() + 'tmp_d01d' )
+  Index On Str( FIELD->kod_d, 6 ) to ( cur_dir() + 'tmp_d01d' )
   g_use( dir_server() + 'mo_d01k',, 'DK' )
-  Index On Str( reestr, 6 ) to ( cur_dir() + 'tmp_d01k' )
+  Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_d01k' )
   iii := 0
   Do While .t.
     iii++
@@ -2568,13 +2568,13 @@ Function f_create_d01()
   } )
   Use ( cur_dir() + 'tmp1' ) new
   Select DK
-  Set Relation To reestr into REES
-  Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_d01k' ) For rees->nyear == 2025 // ЮЮ
+  Set Relation To FIELD->reestr into REES
+  Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_d01k' ) For rees->nyear == 2025 // ЮЮ
   r_use( dir_server() + 'kartotek',, 'KART' )
   r_use( dir_server() + 'kartote2',, 'KART2' )
   g_use( dir_server() + 'mo_dnab',, 'DN',.T.,.T. )
-  Set Relation To kod_k into KART
-  Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( kod_k, 7 ) to ( cur_dir() + 'tmp_dn' ) For kart->kod > 0 .and. dn->next_data > 0d20260131 // временно
+  Set Relation To FIELD->kod_k into KART
+  Index On Upper( kart->fio ) + DToS( kart->date_r ) + Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_dn' ) For kart->kod > 0 .and. dn->next_data > 0d20260101 // временно
   // unique - переходим - одна запись - один диагноз
   Go Top
   Do While !Eof()
@@ -2593,7 +2593,7 @@ Function f_create_d01()
     //  dn->next_data := dn->next_data +31    
     //endif
     // проверяем дату на 25 год
-    if dn->next_data > 0d20260131 .and. dn->next_data < 0d20270101 //правка 
+    if dn->next_data > 0d20260101 .and. dn->next_data < 0d20270101 //правка 
         //
     Else
       fl := .f.
@@ -2633,7 +2633,7 @@ Function f_create_d01()
   // подготовка завершена в разрезе Пациентов
   // Очищаем от уже принятых пациентов/диагнозов
   Select TMP
-  Index On Str( kod_dn, 7 ) to ( cur_dir() + 'tmp_dnn' )
+  Index On Str( FIELD->kod_dn, 7 ) to ( cur_dir() + 'tmp_dnn' )
   r_use( dir_server() + 'mo_d01d',, 'mo_d01d' ) // список диагнозов пациентов
   Go Top
   Do While !Eof()
@@ -2654,7 +2654,7 @@ Function f_create_d01()
   Pack
   // очищаем от дублей по диагнозу
   Select TMP
-  Index On Str( kod_k, 7 ) + PadR( AllTrim( kod_diag ), 3 ) to ( cur_dir() + 'tmp_dnn' ) unique //21.01.25 уникальность на 3 знака в человеке
+  Index On Str( FIELD->kod_k, 7 ) + PadR( AllTrim( FIELD->kod_diag ), 3 ) to ( cur_dir() + 'tmp_dnn' ) unique //21.01.25 уникальность на 3 знака в человеке
   Go Top
   Do While !Eof()
     If f_is_diag_dn( tmp->kod_diag,,, .f. ) .or. PadR( AllTrim( tmp->kod_diag ), 3 ) == 'E10'// только диагнозы из последнего списка от 21 ноября + E10
@@ -2672,7 +2672,7 @@ Function f_create_d01()
   Set Index To
   Zap
   Select TMP1
-  Index On Str( kod_t, 7 ) to ( cur_dir() + 'tmp_dnn' )
+  Index On Str( FIELD->kod_t, 7 ) to ( cur_dir() + 'tmp_dnn' )
   Go Top
   Do While !Eof()
     Select TMP
@@ -2691,11 +2691,11 @@ Function f_create_d01()
     func_error( 4, 'Не обнаружено пациентов, состоящих под дисп.наблюдением, ещё не отправленных в ТФОМС' )
   Else
    /* Select DK
-    Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_d01k' )
+    Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_d01k' )
     r_use( dir_server() + 'mo_pers',, 'PERSO' )
     Select DN
-    Set Relation To vrach into PERSO
-    Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_dn' )
+    Set Relation To FIELD->vrach into PERSO
+    Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_dn' )
     Select TMP
     Go Top
     Do While !Eof()
@@ -2736,17 +2736,18 @@ Function f_create_d01()
       Next i
       */
     Select DK
-    Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_d01k' )
+    Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_d01k' )
     r_use( dir_server() + 'mo_pers',, 'PERSO' )
     Select DN
-    Set Relation To vrach into PERSO
-    Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_dn' )
+    Set Relation To FIELD->vrach into PERSO
+    Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_dn' )
     Select TMP
     Go Top
     tmp_kod_k := 0
     kol_kod_k := 0
     Do While !Eof()
-      arr := {} ; lmesto := 0
+      arr := {}
+      lmesto := 0
       Select DN
       Goto ( tmp->kod_dn )
       If dn->next_data > SToD( '20260101' )   // 05.12.2025
@@ -2803,7 +2804,7 @@ Function f_create_d01()
     mywait()
     inn := 0 ; nsh := 3
     g_use( dir_server() + 'mo_d01',, 'REES' )
-    Index On Str( nn, 3 ) to ( cur_dir() + 'tmp_d01' ) For nyear == 2024 // ЮЮ
+    Index On Str( FIELD->nn, 3 ) to ( cur_dir() + 'tmp_d01' ) For FIELD->nyear == 2025 // ЮЮ
     Go Top
     Do While !Eof()
       inn := rees->nn
@@ -2846,7 +2847,7 @@ Function f_create_d01()
     pkol := 0
     g_use( dir_server() + 'mo_d01d', cur_dir() + 'tmp_d01d', 'DD' )
     g_use( dir_server() + 'mo_d01k',, 'RHUM' )
-    Index On Str( REESTR, 6 ) + Str( D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' )
+    Index On Str( FIELD->REESTR, 6 ) + Str( FIELD->D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' )
     Do While .t.
       find ( Str( 0, 6 ) )
       If Found()
@@ -2886,8 +2887,8 @@ Function f_create_d01()
     mo_add_xml_stroke( oXmlNode, 'N_PACK', lstr( rees->NN ) )
     //
     Select RHUM
-    Set Relation To kod_k into KART, To kod_k into KART_, To kod_k into KART2
-    Index On Str( D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For REESTR == mkod_reestr
+    Set Relation To FIELD->kod_k into KART, To FIELD->kod_k into KART_, To FIELD->kod_k into KART2
+    Index On Str( FIELD->D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->REESTR == mkod_reestr
     Go Top
     Do While !Eof()
       @ MaxRow(), 0 Say Str( rhum->D01_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
@@ -3001,7 +3002,7 @@ Function f_view_d01()
 
   g_use( dir_server() + 'mo_xml',, 'MO_XML' )
   g_use( dir_server() + 'mo_d01',, 'REES' )
-  Index On Descend( StrZero( nn, 3 ) ) to ( cur_dir() + 'tmp_rees' ) For nyear == 2025 // ЮЮ
+  Index On Descend( StrZero( FIELD->nn, 3 ) ) to ( cur_dir() + 'tmp_rees' ) For FIELD->nyear == 2025 // ЮЮ
   Go Top
   If Eof()
     func_error( 4, 'Не было создано файлов D01... для 2026 года' ) // ЮЮ
@@ -3177,7 +3178,7 @@ Function f3_view_d01( oBrow )
  
   mywait()
   Select MO_XML
-  Index On FNAME to ( cur_dir() + 'tmp_xml' ) ;
+  Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) ;
     For reestr == rees->kod .and. tip_in == _XML_FILE_D02 .and. Empty( TIP_OUT )
   Go Top
   Do While !Eof()
@@ -3245,12 +3246,12 @@ Function  f31_view_d01( reg, s )
   add_string( Center( '[ ' + s + ' ]', 80 ) )
   add_string( '' )
   r_use( dir_server() + 'mo_d01d',, 'DD' )
-  Index On Str( kod_d, 6 ) to ( cur_dir() + 'tmp_dd' )
+  Index On Str( FIELD->kod_d, 6 ) to ( cur_dir() + 'tmp_dd' )
   r_use( dir_server() + 'kartote2',, 'KART2' )
   r_use( dir_server() + 'kartotek',, 'KART' )
   r_use( dir_server() + 'mo_d01k',, 'RHUM' )
-  Set Relation To kod_k into KART
-  Index On Str( rhum->D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == rees->kod
+  Set Relation To FIELD->kod_k into KART
+  Index On Str( rhum->D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == rees->kod
   Go Top
   Do While !Eof()
     If iif( reg == 99, .t., rhum->OPLATA == reg )
@@ -3529,7 +3530,7 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
   rees_kol := rees->kol
   //
   r_use( dir_server() + 'mo_d01k',, 'RHUM' )
-  Index On Str( D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For REESTR == mkod_reestr
+  Index On Str( FIELD->D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->REESTR == mkod_reestr
   Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
   i := 0 ; k := LastRec()
   // сначала проверка
@@ -3567,7 +3568,7 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
   tmp1->kol_err := ii2
   If Empty( ii2 )
     Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
-    Index On Str( _n_zap, 6 ) to ( cur_dir() + 'tmp3' )
+    Index On Str( FIELD->_n_zap, 6 ) to ( cur_dir() + 'tmp3' )
     find ( Str( 0, 6 ) )
     err_file := Found() // ошибки на уровне файла
   Endif
@@ -3611,9 +3612,9 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
     Use
     If ii2 > 0 .or. err_file
       Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
-      Index On Str( _n_zap, 6 ) to ( cur_dir() + 'tmp3' )
+      Index On Str( FIELD->_n_zap, 6 ) to ( cur_dir() + 'tmp3' )
       g_use( dir_server() + 'mo_d01e',, 'REFR' )
-      Index On Str( REESTR, 6 ) + Str( D01_ZAP, 6 ) to ( cur_dir() + 'tmp_D01e' )
+      Index On Str( FIELD->REESTR, 6 ) + Str( FIELD->D01_ZAP, 6 ) to ( cur_dir() + 'tmp_D01e' )
       If err_file
         Select REFR
         Do While .t.
@@ -3648,7 +3649,7 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
     g_use( dir_server() + 'kartote_',, 'KART_' )
     g_use( dir_server() + 'kartotek',, 'KART' )
     g_use( dir_server() + 'mo_d01k',, 'RHUM' )
-    Index On Str( D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For REESTR == mkod_reestr
+    Index On Str( FIELD->D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->REESTR == mkod_reestr
     i := 0
     If err_file
       Go Top
@@ -3660,10 +3661,11 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
       Enddo
     Else
       Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
-      Index On Str( _n_zap, 6 ) to ( cur_dir() + 'tmp3' )
+      Index On Str( FIELD->_n_zap, 6 ) to ( cur_dir() + 'tmp3' )
       Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
-      Index On Str( _n_zap, 6 ) to ( cur_dir() + 'tmp2' )
-      count_in_schet := LastRec() ; current_i2 := 0
+      Index On Str( FIELD->_n_zap, 6 ) to ( cur_dir() + 'tmp2' )
+      count_in_schet := LastRec()
+      current_i2 := 0
       Go Top
       Do While !Eof()
         @ MaxRow(), 0 Say Str( ++i / k * 100, 6, 2 ) + '%' Color cColorWait
@@ -3739,10 +3741,10 @@ Function read_xml_file_d02( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
   Close databases
   // вставить перенос оплаты из DK в DD
   g_use( dir_server() + 'mo_d01d',, 'mo_d01d', .t., .t. ) // список диагнозов пациентов в реестрах
-  Index On Str( kod_d, 7 ) to ( cur_dir() + 'tmp_kodd' )
+  Index On Str( FIELD->kod_d, 7 ) to ( cur_dir() + 'tmp_kodd' )
   // { 'KOD_D',    'N', 6, 0 }, ; // код (номер записи) по файлу 'mo_d01k'
   r_use( dir_server() + 'mo_d01k'  ) // список пациентов в реестрах
-  Index On Str( D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For REESTR == mkod_reestr
+  Index On Str( FIELD->D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->REESTR == mkod_reestr
   //
   Go Top
   Do While !Eof()
@@ -3773,9 +3775,9 @@ Function delete_reestr_d01( mkod_reestr )
     Select REES
     Goto ( mkod_reestr )
     g_use( dir_server() + 'mo_d01d',, 'DD' )
-    Index On Str( kod_d, 6 ) to ( cur_dir() + 'tmp_d01d' )
+    Index On Str( FIELD->kod_d, 6 ) to ( cur_dir() + 'tmp_d01d' )
     g_use( dir_server() + 'mo_d01k',, 'DK' )
-    Index On Str( reestr, 6 ) to ( cur_dir() + 'tmp_d01k' )
+    Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_d01k' )
     Do While .t.
       Select DK
       find ( Str( mkod_reestr, 6 ) )
@@ -3817,7 +3819,7 @@ Function delete_reestr_d02( mkod_reestr, mname_reestr )
 
   mywait()
   Select MO_XML
-  Index On FNAME to ( cur_dir() + 'tmp_xml' ) ;
+  Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) ;
     For reestr == mkod_reestr .and. tip_in == _XML_FILE_D02 .and. TIP_OUT == 0
   Go Top
   Do While !Eof()
@@ -3911,7 +3913,7 @@ Function delete_reestr_d02( mkod_reestr, mname_reestr )
             rees->answer := 0
             rees->kol_err := 0
             g_use( dir_server() + 'mo_d01e',, 'REFR' )
-            Index On Str( REESTR, 6 ) + Str( D01_ZAP, 6 ) to ( cur_dir() + 'tmp_D01e' )
+            Index On Str( FIELD->REESTR, 6 ) + Str( FIELD->D01_ZAP, 6 ) to ( cur_dir() + 'tmp_D01e' )
             Select REFR
             Do While .t.
               find ( Str( mkod_reestr, 6 ) + Str( 0, 6 ) ) // удалим ошибки на уровне файла
@@ -3919,7 +3921,7 @@ Function delete_reestr_d02( mkod_reestr, mname_reestr )
               deleterec( .t. )
             Enddo
             g_use( dir_server() + 'mo_d01k',, 'RHUM' )
-            Index On Str( D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For reestr == mkod_reestr
+            Index On Str( FIELD->D01_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
             Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
             Go Top
             Do While !Eof()
