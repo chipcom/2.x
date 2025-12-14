@@ -6,27 +6,6 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.03.23
-Function dublicate_diagnoze( arrDiagnoze )
-
-  Local aRet := {}
-  Local i, cDiagnose
-  Local aHash := hb_Hash()
-
-  For i := 1 To Len( arrDiagnoze )
-    cDiagnose := AllTrim( arrDiagnoze[ i ] )
-    If Empty( cDiagnose )
-      Loop
-    Endif
-    If ! hb_HHasKey( aHash, cDiagnose )
-      hb_HSet( aHash, cDiagnose, .t. )
-    Else
-      AAdd( aRet, { cDiagnose, iif( i < 9, 'в группе "Сопутствующие диагнозы": ', 'в группе "Диагнозы осложнения": ' ) } )
-    Endif
-  Next
-
-  Return aRet
-
 // 11.12.25
 function checking_full_diagnoses_verify( alias, dk, aDiag, ta )
 
@@ -60,6 +39,163 @@ function checking_full_diagnoses_verify( alias, dk, aDiag, ta )
   endif
   
   return nil
+
+// 09.12.25
+Function fill_array_diagnoze( al )
+
+  Local ad
+
+  Default al To 'human'  // alias БД листов учета
+  If Empty( al )
+    ad := { ;
+      MKOD_DIAG, ;
+      MKOD_DIAG2, ;
+      MKOD_DIAG3, ;
+      MKOD_DIAG4, ;
+      MSOPUT_B1, ;
+      MSOPUT_B2, ;
+      MSOPUT_B3, ;
+      MSOPUT_B4, ;
+      MOSL1, ;
+      MOSL2, ;
+      MOSL3 ;
+    }
+  Else
+    ad := { ;
+      &al.->KOD_DIAG, ;
+      &al.->KOD_DIAG2, ;
+      &al.->KOD_DIAG3, ;
+      &al.->KOD_DIAG4, ;
+      &al.->SOPUT_B1, ;
+      &al.->SOPUT_B2, ;
+      &al.->SOPUT_B3, ;
+      &al.->SOPUT_B4 ;
+    }
+    AAdd( ad, human_2->OSL1 )
+    AAdd( ad, human_2->OSL2 )
+    AAdd( ad, human_2->OSL3 )
+  Endif
+
+  Return ad
+
+// 09.12.25 вернуть диагнозы в массиве
+Function diag_to_array( al, fl_trim, fl_dop, fl_del, fl_6, adiag_talon )
+
+  Local ad, _arr := {}, j, k, s, lshifr, dp, dp1, _ta, tmp_select := Select()
+
+  Default al To 'human', ; // alias БД листов учета
+    fl_trim To .f., ;     // удалять завершающие пробелы
+    fl_dop  To .f., ;     // дописывать букву
+    fl_del  To .t., ;     // удалять повторяющиеся диагнозы
+    fl_6    To .f.        // разрешать поиск шестизначных диагнозов
+  If Empty( al )
+    ad := { ;
+      MKOD_DIAG, ;
+      MKOD_DIAG2, ;
+      MKOD_DIAG3, ;
+      MKOD_DIAG4, ;
+      MSOPUT_B1, ;
+      MSOPUT_B2, ;
+      MSOPUT_B3, ;
+      MSOPUT_B4 ;
+    }
+  Else
+    ad := { ;
+      &al.->KOD_DIAG, ;
+      &al.->KOD_DIAG2, ;
+      &al.->KOD_DIAG3, ;
+      &al.->KOD_DIAG4, ;
+      &al.->SOPUT_B1, ;
+      &al.->SOPUT_B2, ;
+      &al.->SOPUT_B3, ;
+      &al.->SOPUT_B4 ;
+    }
+  Endif
+  If fl_6
+    If Select( 'MKB_10' ) == 0
+      r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
+    Endif
+    Select MKB_10
+  Endif
+  For j := 1 To 8
+    If iif( fl_del, !Empty( ad[ j ] ), .t. )
+      lshifr := ad[ j ]
+      dp := dp1 := ''
+      If fl_trim
+        lshifr := AllTrim( lshifr )
+      Endif
+      If adiag_talon != NIL
+        s := adiag_talon[ j * 2 -1 ]
+        If eq_any( s, 1, 2 )
+          dp := iif( s == 1, '+', '-' )
+        Endif
+        s := adiag_talon[ j * 2 ]
+        If s > 0
+          dp += 'д' + lstr( s )
+        Endif
+      Endif
+      If !Empty( al )
+        k := SubStr( &al.->diag_plus, j, 1 )
+        If fl_6 .and. !Empty( k )
+          find ( ad[ j ] + k )
+          If Found() // если нашли шестизначный шифр
+            lshifr := ad[ j ] + k
+          Endif
+        Endif
+        If fl_dop .and. !Empty( k ) .and. k $ yes_d_plus
+          dp1 := k
+        Endif
+      Endif
+      AAdd( _arr, { lshifr, dp + dp1 } )
+    Endif
+  Next
+  _ta := {}
+  If fl_del // удалим из списка повторяющиеся диагнозы
+    For j := 1 To Len( _arr )
+      If AScan( _ta, {| x| x == _arr[ j, 1 ] } ) == 0
+        AAdd( _ta, _arr[ j, 1 ] )
+      Endif
+    Next
+    For j := 1 To Len( _ta )
+      s := ''
+      For k := 1 To Len( _arr )
+        If _arr[ k, 1 ] == _ta[ j ]
+          s += _arr[ k, 2 ]
+        Endif
+      Next
+      _ta[ j ] += s
+    Next
+  Else
+    For j := 1 To Len( _arr )
+      AAdd( _ta, _arr[ j, 1 ] + _arr[ j, 2 ] )
+    Next
+  Endif
+  If tmp_select > 0
+    Select ( tmp_select )
+  Endif
+
+  Return _ta
+
+// 25.03.23
+Function dublicate_diagnoze( arrDiagnoze )
+
+  Local aRet := {}
+  Local i, cDiagnose
+  Local aHash := hb_Hash()
+
+  For i := 1 To Len( arrDiagnoze )
+    cDiagnose := AllTrim( arrDiagnoze[ i ] )
+    If Empty( cDiagnose )
+      Loop
+    Endif
+    If ! hb_HHasKey( aHash, cDiagnose )
+      hb_HSet( aHash, cDiagnose, .t. )
+    Else
+      AAdd( aRet, { cDiagnose, iif( i < 9, 'в группе "Сопутствующие диагнозы": ', 'в группе "Диагнозы осложнения": ' ) } )
+    Endif
+  Next
+
+  Return aRet
 
 // 04.04.24
 Function full_diagnoz_human( diag, dopDiag )
@@ -466,139 +602,3 @@ Function when_diag()
   SetCursor()
 
   Return .t.
-
-// 09.12.25
-Function fill_array_diagnoze( al )
-
-  Local ad
-
-  Default al To 'human'  // alias БД листов учета
-  If Empty( al )
-    ad := { ;
-      MKOD_DIAG, ;
-      MKOD_DIAG2, ;
-      MKOD_DIAG3, ;
-      MKOD_DIAG4, ;
-      MSOPUT_B1, ;
-      MSOPUT_B2, ;
-      MSOPUT_B3, ;
-      MSOPUT_B4, ;
-      MOSL1, ;
-      MOSL2, ;
-      MOSL3 ;
-    }
-  Else
-    ad := { ;
-      &al.->KOD_DIAG, ;
-      &al.->KOD_DIAG2, ;
-      &al.->KOD_DIAG3, ;
-      &al.->KOD_DIAG4, ;
-      &al.->SOPUT_B1, ;
-      &al.->SOPUT_B2, ;
-      &al.->SOPUT_B3, ;
-      &al.->SOPUT_B4 ;
-    }
-    AAdd( ad, human_2->OSL1 )
-    AAdd( ad, human_2->OSL2 )
-    AAdd( ad, human_2->OSL3 )
-  Endif
-
-  Return ad
-
-// 09.12.25 вернуть диагнозы в массиве
-Function diag_to_array( al, fl_trim, fl_dop, fl_del, fl_6, adiag_talon )
-
-  Local ad, _arr := {}, j, k, s, lshifr, dp, dp1, _ta, tmp_select := Select()
-
-  Default al To 'human', ; // alias БД листов учета
-    fl_trim To .f., ;     // удалять завершающие пробелы
-    fl_dop  To .f., ;     // дописывать букву
-    fl_del  To .t., ;     // удалять повторяющиеся диагнозы
-    fl_6    To .f.        // разрешать поиск шестизначных диагнозов
-  If Empty( al )
-    ad := { ;
-      MKOD_DIAG, ;
-      MKOD_DIAG2, ;
-      MKOD_DIAG3, ;
-      MKOD_DIAG4, ;
-      MSOPUT_B1, ;
-      MSOPUT_B2, ;
-      MSOPUT_B3, ;
-      MSOPUT_B4 ;
-    }
-  Else
-    ad := { ;
-      &al.->KOD_DIAG, ;
-      &al.->KOD_DIAG2, ;
-      &al.->KOD_DIAG3, ;
-      &al.->KOD_DIAG4, ;
-      &al.->SOPUT_B1, ;
-      &al.->SOPUT_B2, ;
-      &al.->SOPUT_B3, ;
-      &al.->SOPUT_B4 ;
-    }
-  Endif
-  If fl_6
-    If Select( 'MKB_10' ) == 0
-      r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
-    Endif
-    Select MKB_10
-  Endif
-  For j := 1 To 8
-    If iif( fl_del, !Empty( ad[ j ] ), .t. )
-      lshifr := ad[ j ]
-      dp := dp1 := ''
-      If fl_trim
-        lshifr := AllTrim( lshifr )
-      Endif
-      If adiag_talon != NIL
-        s := adiag_talon[ j * 2 -1 ]
-        If eq_any( s, 1, 2 )
-          dp := iif( s == 1, '+', '-' )
-        Endif
-        s := adiag_talon[ j * 2 ]
-        If s > 0
-          dp += 'д' + lstr( s )
-        Endif
-      Endif
-      If !Empty( al )
-        k := SubStr( &al.->diag_plus, j, 1 )
-        If fl_6 .and. !Empty( k )
-          find ( ad[ j ] + k )
-          If Found() // если нашли шестизначный шифр
-            lshifr := ad[ j ] + k
-          Endif
-        Endif
-        If fl_dop .and. !Empty( k ) .and. k $ yes_d_plus
-          dp1 := k
-        Endif
-      Endif
-      AAdd( _arr, { lshifr, dp + dp1 } )
-    Endif
-  Next
-  _ta := {}
-  If fl_del // удалим из списка повторяющиеся диагнозы
-    For j := 1 To Len( _arr )
-      If AScan( _ta, {| x| x == _arr[ j, 1 ] } ) == 0
-        AAdd( _ta, _arr[ j, 1 ] )
-      Endif
-    Next
-    For j := 1 To Len( _ta )
-      s := ''
-      For k := 1 To Len( _arr )
-        If _arr[ k, 1 ] == _ta[ j ]
-          s += _arr[ k, 2 ]
-        Endif
-      Next
-      _ta[ j ] += s
-    Next
-  Else
-    For j := 1 To Len( _arr )
-      AAdd( _ta, _arr[ j, 1 ] + _arr[ j, 2 ] )
-    Next
-  Endif
-  If tmp_select > 0
-    Select ( tmp_select )
-  Endif
-
-  Return _ta
