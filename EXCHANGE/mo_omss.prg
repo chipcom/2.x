@@ -4,14 +4,14 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.12.21 читать файлы из ТФОМС (или СМО)
+// 15.12.25 читать файлы из ТФОМС (или СМО)
 Function read_from_tf()
 
   Local name_zip, _date, _time, s, buf, blk_sp_tk, fl, n, cName
   Local arr_XML_info[ 7 ], arr_f := {}, tip_csv_file := 0, kod_csv_reestr := 0
 
   fl := .f.
-  If ! hb_user_curUser:isadmin()
+  If ! currentuser():isadmin()  //hb_user_curUser:isadmin()
     Return func_error( 4, err_admin() )
   Endif
   If find_unfinished_reestr_sp_tk()
@@ -34,7 +34,7 @@ Function read_from_tf()
       endif
       return fl
     endif*/
-    // если это укрупнённый архив, распаковать и прочитать
+    // если это укрупнённый архив, распаковать и прочитать 
     If !is_our_zip( cName, @tip_csv_file, @kod_csv_reestr )
       Return fl
     Endif
@@ -80,6 +80,8 @@ Function read_from_tf()
         s += 'файла ответа на R05'
       Case arr_XML_info[ 1 ] == _XML_FILE_D02
         s += 'файла ответа на D01'
+//      Case arr_XML_info[ 1 ] == _XML_FILE_FLK_25
+//        s += 'протокола ФЛК 2025'
       Endcase
       buf := SaveScreen()
       f_message( { 'Системная дата: ' + date_month( sys_date, .t. ), ;
@@ -112,7 +114,7 @@ Function read_from_tf()
   Endif
   Return fl
 
-// 15.10.24 чтение в память и анализ XML-файла
+// 15.12.25 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local nTypeFile := 0, aerr := {}, j, oXmlDoc, ;
@@ -130,7 +132,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       Return Nil
     Endif
   Next
-  If eq_any( nTypeFile, _XML_FILE_FLK, _XML_FILE_R02, _XML_FILE_R12, _XML_FILE_R06, _XML_FILE_D02 )
+  If eq_any( nTypeFile, _XML_FILE_FLK, _XML_FILE_FLK_25, _XML_FILE_R02, _XML_FILE_R12, _XML_FILE_R06, _XML_FILE_D02 )
     //
   Elseif !mo_lock_task( X_OMS )
     Return .f.
@@ -151,6 +153,10 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
     AAdd( aerr, 'В файле ' + cFile + ' кодировка UTF-8, а должна быть Windows-1251' )
   Elseif nTypeFile == _XML_FILE_FLK
     is_err_FLK := protokol_flk_tmpfile( arr_f, aerr )
+  Elseif nTypeFile == _XML_FILE_FLK_25
+
+    is_err_FLK_25 := protokol_flk_tmpfile_26( arr_f, aerr )
+
   Elseif nTypeFile == _XML_FILE_SP
     reestr_sp_tk_tmpfile( oXmlDoc, aerr, cReadFile )
   Elseif nTypeFile == _XML_FILE_RAK
@@ -187,6 +193,67 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         mo_xml->REESTR := mkod_reestr
         mo_xml->KOL2   := tmp1->KOL2
       Endif
+
+    Case nTypeFile == _XML_FILE_FLK_25
+
+      StrFile( hb_eol() + 'Тип файла: протокол ФЛК (форматно-логического контроля) нового образца' + hb_eol() + hb_eol(), cFileProtokol, .t. )
+      If read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_25, cFileProtokol )
+        // запишем принимаемый файл (протокол ФЛК)
+        chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
+        Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
+        g_use( dir_server() + 'mo_xml', , 'MO_XML' )
+        addrecn()
+        mo_xml->KOD := RecNo()
+        mo_xml->FNAME := cReadFile
+        mo_xml->DREAD := Date()
+        mo_xml->TREAD := hour_min( Seconds() )
+        mo_xml->TIP_IN := _XML_FILE_FLK_25 // тип принимаемого файла;3-ФЛК
+        mo_xml->DWORK  := Date()
+        mo_xml->TWORK1 := cTimeBegin
+        mo_xml->TWORK2 := hour_min( Seconds() )
+        mo_xml->REESTR := arr_XML_info[ 7 ]   // mkod_reestr
+        mo_xml->KOL2   := tmp1->KOL2
+      Endif
+
+      if is_err_FLK_25  // ошибки ФЛК 25 есть
+      else  // ошибок ФЛК нет
+        r_use( dir_server() + 'mo_rees', , 'REES' )
+        rees->( dbGoto( arr_XML_info[ 7 ] ) )
+        use_base( 'schet' )
+        Set Relation To
+        addrec( 6 )
+        mkod := schet->( RecNo() )
+        schet->KOD := mkod
+        schet->NOMER_S := rees->NOMER_S
+        schet->PDATE := dtoc4( rees->DSCHET )
+        schet->KOL   := rees->KOL
+        schet->SUMMA := rees->SUMMA
+//        schet->KOL_OST   := arr_schet[ ii, 3 ]
+//        schet->SUMMA_OST := arr_schet[ ii, 4 ]
+        //
+        Select SCHET_
+        Do While schet_->( LastRec() ) < mkod
+          schet_->( dbAppend() )    // Append Blank
+        Enddo
+        schet_->( dbGoto( mkod ) )
+        g_rlock( forever )
+        schet_->IFIN       := 1 // источник финансирования;1-ТФОМС(СМО)
+        schet_->IS_MODERN  := 0 // является модернизацией, 0-нет
+        schet_->IS_DOPLATA := 0 // является доплатой;0-нет
+        schet_->BUKVA      := rees->BUKVA
+        schet_->NSCHET     := rees->NOMER_S
+        schet_->DSCHET     := rees->DSCHET
+        schet_->SMO        := hb_ATokens( rees->NOMER_S, '-' )[ 1 ]   // код СМО из имени счета
+        schet_->NYEAR      := rees->NYEAR
+        schet_->NMONTH     := rees->NMONTH
+        schet_->NN         := rees->NN
+        schet_->NAME_XML   := rees->NAME_XML
+        schet_->XML_REESTR := mo_xml->KOD
+        schet_->NREGISTR   := 0 // зарегистрирован
+        schet_->CODE := ret_unique_code( mkod, 12 )
+        schet_->KOD_XML := mo_xml->KOD
+      endif
+
     Case nTypeFile == _XML_FILE_SP
       StrFile( hb_eol() + 'Тип файла: реестр СП и ТК (страховой принадлежности и технологического контроля)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
       nCountWithErr := 0
@@ -677,7 +744,7 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
           g_use( dir_server() + 'mo_refr', dir_server() + 'mo_refr', 'REFR' )
         Endif
         // G_Use(dir_server() + 'mo_kfio',,'KFIO')
-        // index on str(kod, 7) to (cur_dir() + 'tmp_kfio')
+        // index on str(FIELD->kod, 7) to (cur_dir() + 'tmp_kfio')
       Endif
       // открыть распакованный реестр
       Use ( cur_dir() + 'tmp_r_t1' ) New Alias T1
@@ -1271,3 +1338,4 @@ Function reestr_sp_tk_tmpfile( oXmlDoc, aerr, mname_xml )
   Commit
   rest_box( buf )
   Return Nil
+

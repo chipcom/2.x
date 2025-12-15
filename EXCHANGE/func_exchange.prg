@@ -32,7 +32,7 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
   endif
   return aFiles
 
-// 18.11.25 проверить, нам ли предназначен данный XML-файл
+// 15.12.25 проверить, нам ли предназначен данный XML-файл
 Function is_our_xml( cName, ret_arr )
 
   Local i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
@@ -302,6 +302,26 @@ Function is_our_xml( cName, ret_arr )
         mo_xml->( dbCloseArea() )
       Endif
     Endif
+  elseif eq_any( Left( s, 3 ), 'VHM', 'VFM' ) // файл протокола ФЛК с 2026 года
+    nTypeFile := _XML_FILE_FLK_25
+    r_use( dir_server() + 'mo_rees', , 'REES' )
+    r_use( dir_server() + 'mo_xml', , 'MO_XML' )
+    Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
+    mo_xml->( dbSeek( PadR( SubStr( s, 2 ), 26 ) ) ) // имя то же самое, начиная со второго знака
+    If mo_xml->( Found() ) .and. ( nReestr := mo_xml->REESTR ) > 0
+//      Select REES
+//      Goto ( nReestr )
+      rees->( dbGoto( nReestr ) )
+      cFrom   := glob_MO[ _MO_KOD_TFOMS ]
+      cTo     := '34'
+      _nYear  := rees->NYEAR
+      _nMonth := rees->NMONTH
+      nNN     := rees->NN
+    Else
+      AAdd( arr_err, 'Это файл ФЛК, но мы не отправляли соответствующий реестр счетов в ТФОМС!' )
+    Endif
+    rees->( dbCloseArea() )
+    mo_xml->( dbCloseArea() )
   Else
     If eq_any( Left( s, 2 ), 'HR', 'FR' ) // файл реестра СП
       s := SubStr( s, 3 )
@@ -442,7 +462,7 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Return fl
 
-// 18.11.25 если это укрупнённый архив, распаковать и прочитать
+// 15.12.25 если это укрупнённый архив, распаковать и прочитать
 Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
 
   Static cStFile, si
@@ -596,6 +616,40 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
         func_error( 4, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
       Endif
     Endif
+  Elseif eq_any( Left( s, 3 ), 'VHM', 'VFM' ) .and. SubStr( s, 4, 6 ) == glob_MO[ _MO_KOD_TFOMS ]
+    c := SubStr( s, 2, 1 )
+    kod_csv_reestr := 0
+    tip_csv_file := 0
+    If ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2 ) ) != NIL
+      For i := 1 To Len( arr_f )
+        s := Upper( arr_f[ i ] )
+        name_ext := name_extention( s )
+        Do Case
+        Case eq_any( Left( s, 3 ), 'VHM', 'VFM' ) .and. name_ext == sxml()
+          s1 := 'протокол ФЛК ' + s
+          // проверим, читали ли уже данный файл
+          If verify_is_already_xml( name_without_ext( s ), @_date, @_time )
+            s1 += ' [прочитан в ' + _time + ' ' + date_8( _date ) + 'г.]'
+          Endif
+          AAdd( arr, { 2, s1, s, name_ext } )
+        Endcase
+      Next
+      ASort( arr, , , {| x, y| x[ 1 ] < y[ 1 ] } )
+      arr_f := {}
+      AEval( arr, {| x| AAdd( arr_f, x[ 2 ] ) } )
+//      i := iif( cStFile == cName, si, 1 )
+//      If ( i := popup_prompt( T_ROW, T_COL -5, i, arr_f ) ) > 0
+//        cStFile := cName
+//        si := i
+//        If arr[ i, 4 ] == spdf()
+//          view_file_in_viewer( _tmp2dir1() + arr[ i, 3 ] )
+//        Elseif arr[ i, 4 ] == szip()
+//          fl := .t.
+//          full_zip := _tmp2dir1() + arr[ i, 3 ] // переопределяем Private-переменную
+//        Endif
+//      Endif
+    endif
+    fl := .t.
   Else
     fl := .t.
   Endif
