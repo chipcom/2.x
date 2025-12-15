@@ -8,7 +8,7 @@
 // 02.04.13 Просмотр списка счетов, запись для ТФОМС, печать счетов
 Function view_list_schet()
 
-  Local i, k, buf := SaveScreen(), tmp_help := chm_help_code, mdate := SToD( '20130101' )
+  Local buf := SaveScreen(), tmp_help := chm_help_code, mdate := SToD( '20130101' )
 
   mywait()
   Close databases
@@ -18,8 +18,8 @@ Function view_list_schet()
   g_use( dir_server() + 'schet', dir_server() + 'schetd', 'SCHET' )
   Set Relation To RecNo() into SCHET_
   dbSeek( dtoc4( mdate ), .t. )
-  Index On DToS( schet_->dschet ) + fsort_schet( schet_->nschet, nomer_s ) to ( cur_dir() + 'tmp_sch' ) ;
-    For schet_->dschet >= mdate .and. !Empty( pdate ) .and. ;
+  Index On DToS( schet_->dschet ) + fsort_schet( schet_->nschet, FIELD->nomer_s ) to ( cur_dir() + 'tmp_sch' ) ;
+    For schet_->dschet >= mdate .and. !Empty( FIELD->pdate ) .and. ;
     ( schet_->IS_DOPLATA == 1 .or. !Empty( Val( schet_->smo ) ) ) ;
     DESCENDING
   Go Top
@@ -488,7 +488,7 @@ Function f4_view_list_schet( lkomu, lsmo, lstr_crb )
 Function recreate_some_schet_from_file_sp( arr )
 
   Local arr_XML_info[ 8 ], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[ 2 ], ;
-    i, s, rec_schet, rec_schet_xml, go_to_schet := .f., arr_schet := {}
+    i, s, go_to_schet := .f., arr_schet := {}
 
   Private name_schet, _date_schet, mXML_REESTR
 
@@ -548,10 +548,10 @@ Function recreate_some_schet_from_file_sp( arr )
       index_base( "human" ) // для разноски счетов
       index_base( "human_3" ) // двойные случаи
       Use ( dir_server() + "human_u" ) New READONLY
-      Index On Str( kod, 7 ) + date_u to ( dir_server() + "human_u" ) progress
+      Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + "human_u" ) progress
       Use
       Use ( dir_server() + "mo_hu" ) New READONLY
-      Index On Str( kod, 7 ) + date_u to ( dir_server() + "mo_hu" ) progress
+      Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + "mo_hu" ) progress
       Use
       index_base( "mo_refr" )  // для записи причин отказов
       //
@@ -596,36 +596,36 @@ Function recreate_some_schet_from_file_sp( arr )
           Enddo
         Next
         Select tmpsh
-        Index On Str( kod_h, 7 ) to ( cur_dir() + "tmpsh" )
+        Index On Str( FIELD->kod_h, 7 ) to ( cur_dir() + "tmpsh" )
         r_use( dir_server() + "mo_rhum",, "RHUM" )
-        Index On Str( REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For reestr == mkod_reestr
+        Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For FIELD->reestr == mkod_reestr
         // открыть распакованный реестр
         Use ( cur_dir() + "tmp_r_t1" ) New Alias T1
-        Index On Str( Val( n_zap ), 6 ) to ( cur_dir() + "tmpt1" )
+        Index On Str( Val( FIELD->n_zap ), 6 ) to ( cur_dir() + "tmpt1" )
         Use ( cur_dir() + "tmp_r_t2" ) New Alias T2
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt2" )
+        Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + "tmpt2" )
         Use ( cur_dir() + "tmp_r_t3" ) New Alias T3
-        Index On Upper( ID_PAC ) to ( cur_dir() + "tmpt3" )
+        Index On Upper( FIELD->ID_PAC ) to ( cur_dir() + "tmpt3" )
         Use ( cur_dir() + "tmp_r_t4" ) New Alias T4
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt4" )
+        Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + "tmpt4" )
         Use ( cur_dir() + "tmp_r_t5" ) New Alias T5
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt5" )
+        Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + "tmpt5" )
         Use ( cur_dir() + "tmp_r_t6" ) New Alias T6
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt6" )
+        Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + "tmpt6" )
         Use ( cur_dir() + "tmp_r_t7" ) New Alias T7
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt7" )
+        Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + "tmpt7" )
         Use ( cur_dir() + "tmp_r_t8" ) New Alias T8
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt8" )
+        Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + "tmpt8" )
         Use ( cur_dir() + "tmp_r_t9" ) New Alias T
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt9" )
+        Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + "tmpt9" )
         Use ( cur_dir() + "tmp_r_t10" ) New Alias T10
-        Index On IDCASE + Str( sluch, 6 ) + regnum + code_sh + date_inj to ( cur_dir() + "tmpt10" )
+        Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) + FIELD->regnum + FIELD->code_sh + FIELD->date_inj to ( cur_dir() + "tmpt10" )
         Use ( cur_dir() + "tmp_r_t11" ) New Alias T11
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt11" )
+        Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + "tmpt11" )
         Use ( cur_dir() + "tmp_r_t12" ) New Alias T12
-        Index On IDCASE + Str( sluch, 6 ) to ( cur_dir() + "tmpt12" )
+        Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + "tmpt12" )
         Use ( cur_dir() + "tmp_r_t1_1" ) New Alias T1_1
-        Index On IDCASE to ( cur_dir() + "tmpt1_1" )
+        Index On FIELD->IDCASE to ( cur_dir() + "tmpt1_1" )
         Use ( cur_dir() + "tmp2file" ) New Alias TMP2
         is_new_err := .f.  // ушли ли какие-либо случаи в ошибки (т.е. новые ошибки)
         Go Top
@@ -671,13 +671,13 @@ Function recreate_some_schet_from_file_sp( arr )
         g_use( dir_server() + "human_",, "HUMAN_" )
         g_use( dir_server() + "human", { dir_server() + "humann", dir_server() + "humans" }, "HUMAN" )
         Set Order To 0 // индексы открыты для реконструкции при перезаписи ФИО
-        Set Relation To RecNo() into HUMAN_, To otd into OTD
+        Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
         g_use( dir_server() + "human_3", { dir_server() + "human_3", dir_server() + "human_32" }, "HUMAN_3" )
         g_use( dir_server() + "mo_rhum",, "RHUM" )
-        Index On Str( REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For reestr == mkod_reestr
+        Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + "tmp_rhum" ) For FIELD->reestr == mkod_reestr
         g_use( dir_server() + "mo_refr", dir_server() + "mo_refr", "REFR" )
         Use ( cur_dir() + "tmp3file" ) New Alias TMP3
-        Index On Str( _n_zap, 8 ) to ( cur_dir() + "tmp3" )
+        Index On Str( FIELD->_n_zap, 8 ) to ( cur_dir() + "tmp3" )
         Use ( cur_dir() + "tmp2file" ) New Alias TMP2
         Go Top
         Do While !Eof()
