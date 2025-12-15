@@ -11,14 +11,16 @@ function menu_X_kassa()
   AAdd( cmain_menu, 1 )
   AAdd( main_menu, ' ~Касса МО ' )
   AAdd( main_message, 'Ввод данных в кассе МО по платным услугам' )
-  AAdd( first_menu, { '~Ввод данных', 0, ;
+  AAdd( first_menu, { ;
+    '~Ввод данных', 0, ;
     '~Картотека' ;
   } )
   AAdd( first_message,  { ;
     'Добавление листка учета лечения платного больного', ;
     'Ввод/редактирование картотеки (регистратура)' ;
   } )
-  AAdd( func_menu, { 'kas_plat()', ;
+  AAdd( func_menu, { ;
+    'kas_plat()', ;
     'oms_kartoteka()' ;
   } )
   AAdd( first_menu[ 1 ], 0 )
@@ -30,7 +32,8 @@ function menu_X_kassa()
     AAdd( cmain_menu, cmain_next_pos() )
     AAdd( main_menu, ' ~Ортопедия ' )
     AAdd( main_message, 'Ввод данных по ортопедическим услугам' )
-    AAdd( first_menu, { '~Новый наряд', ;
+    AAdd( first_menu, { ;
+      '~Новый наряд', ;
       '~Редактирование наряда', 0, ;
       '~Картотека' ;
     } )
@@ -39,7 +42,8 @@ function menu_X_kassa()
       'Редактирование ортопедического наряда (в т.ч. доплата или возврат денег)', ;
       'Ввод/редактирование картотеки (регистратура)' ;
     } )
-    AAdd( func_menu, { 'f_ort_nar(1)', ;
+    AAdd( func_menu, { ;
+      'f_ort_nar(1)', ;
       'f_ort_nar(2)', ;
       'oms_kartoteka()' ;
     } )
@@ -48,7 +52,8 @@ function menu_X_kassa()
   AAdd( cmain_menu, cmain_next_pos() )
   AAdd( main_menu, ' ~Информация ' )
   AAdd( main_message, 'Просмотр / печать' )
-  AAdd( first_menu, { iif( is_task( X_ORTO ), '~Платные услуги', '~Статистика' ), ;
+  AAdd( first_menu, { ;
+    iif( is_task( X_ORTO ), '~Платные услуги', '~Статистика' ), ;
     'Сводная с~татистика', ; // 10.05
     'Спра~вочники', ;
     'Работа с ~кассой' ;
@@ -74,7 +79,8 @@ function menu_X_kassa()
   AAdd( cmain_menu, cmain_next_pos() )
   AAdd( main_menu, ' ~Справочники ' )
   AAdd( main_message, 'Просмотр / редактирование справочников' )
-  AAdd( first_menu, { '~Услуги со сменой цены', ;
+  AAdd( first_menu, { ;
+    '~Услуги со сменой цены', ;
     '~Разовые услуги', ;
     'Работа с ~кассой', 0, ;
     '~Настройка программы' ;
@@ -85,7 +91,8 @@ function menu_X_kassa()
     'Настройка работы с кассовым аппаратом', ;
     'Настройка программы (некоторых значений по умолчанию)' ;
   } )
-  AAdd( func_menu, { 'fk_usl_cena()', ;
+  AAdd( func_menu, { ;
+    'fk_usl_cena()', ;
     'fk_usl_dogov()', ;
     'fr_nastrojka()', ;
     'nastr_kassa(2)' ;

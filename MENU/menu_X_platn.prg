@@ -34,7 +34,8 @@ function menu_X_platn()
   AAdd( cmain_menu, 34 )
   AAdd( main_menu, ' ~Информация ' )
   AAdd( main_message, 'Просмотр / печать общих справочников и статистики' )
-  AAdd( first_menu, { '~Статистика', ;
+  AAdd( first_menu, { ;
+    '~Статистика', ;
     'Спра~вочники', ;
     '~Проверки' ;
   } )

@@ -10,7 +10,8 @@ function menu_X_oms()
   AAdd( cmain_menu, 1 )
   AAdd( main_menu, ' ~ОМС ' )
   AAdd( main_message, 'Ввод данных по обязательному медицинскому страхованию' )
-  AAdd( first_menu, { '~Добавление', ;
+  AAdd( first_menu, { ;
+    '~Добавление', ;
     '~Редактирование', ;
     'Д~войные случаи', ;
     'Смена ~отделения', ;
@@ -23,7 +24,8 @@ function menu_X_oms()
     'Редактирование листка учета лечения больного со сменой отделения', ;
     'Удаление листка учета лечения больного';
   } )
-  AAdd( func_menu, { 'oms_add()', ;
+  AAdd( func_menu, { ;
+    'oms_add()', ;
     'oms_edit()', ;
     'oms_double()', ;
     'oms_smena_otd()', ;
@@ -51,7 +53,8 @@ function menu_X_oms()
   AAdd( cmain_menu, cmain_next_pos( 3 ) )
   AAdd( main_menu, ' ~Реестры ' )
   AAdd( main_message, 'Ввод, печать и учет реестров случаев' )
-  AAdd( first_menu, { 'Про~верка', ;
+  AAdd( first_menu, { ;
+    'Про~верка', ;
     '~Составление', ;
     '~Просмотр', 0, ;
     'Во~зврат', 0 ;
@@ -62,7 +65,8 @@ function menu_X_oms()
     'Просмотр реестра случаев, отправка в ТФОМС', ;
     'Возврат реестра случаев' ;
   } )
-  AAdd( func_menu, { 'verify_OMS()', ;
+  AAdd( func_menu, { ;
+    'verify_OMS()', ;
     'create_reestr()', ;
     'view_list_reestr()', ;
     'vozvrat_reestr()' ;
@@ -82,7 +86,8 @@ function menu_X_oms()
   AAdd( cmain_menu, cmain_next_pos( 3 ) )
   AAdd( main_menu, ' ~Счета ' )
   AAdd( main_message, 'Просмотр, печать и учет счетов по ОМС' )
-  AAdd( first_menu, { '~Чтение из ТФОМС', ;
+  AAdd( first_menu, { ;
+    '~Чтение из ТФОМС', ;
     'Список ~счетов', ;
     '~Регистрация', ;
     '~Акты контроля', ;
@@ -97,7 +102,8 @@ function menu_X_oms()
     'Работа с платёжными документами по оплате (с реестрами платёжных документов)', ;
     'Работа с прочими счетами (создание, редактирование, возврат)', ;
   } )
-  AAdd( func_menu, { 'read_from_tf()', ;
+  AAdd( func_menu, { ;
+    'read_from_tf()', ;
     'view_list_schet()', ;
     'registr_schet()', ;
     'akt_kontrol()', ;
@@ -108,7 +114,8 @@ function menu_X_oms()
   AAdd( cmain_menu, cmain_next_pos( 3 ) )
   AAdd( main_menu, ' ~Информация ' )
   AAdd( main_message, 'Просмотр / печать общих справочников и статистики' )
-  AAdd( first_menu, { 'Лист ~учета', ;
+  AAdd( first_menu, { ;
+    'Лист ~учета', ;
     '~Статистика', ;
     'План-~заказ', ;
     '~Проверки', ;
@@ -123,7 +130,8 @@ function menu_X_oms()
     'Просмотр / печать общих справочников', ;
     'Распечатка всевозможных бланков';
   } )
-  AAdd( func_menu, { 'o_list_uch()', ;
+  AAdd( func_menu, { ;
+    'o_list_uch()', ;
     'e_statist()', ;
     'pz_statist()', ;
     'o_proverka()', ;
@@ -146,7 +154,17 @@ function menu_X_oms()
   AAdd( cmain_menu, cmain_next_pos( 3 ) )
   AAdd( main_menu, ' ~Диспансеризация ' )
   AAdd( main_message, 'Диспансеризация, профилактика, медосмотры и диспансерное наблюдение' )
-  AAdd( first_menu, { '~Диспансеризация и профосмотры', 0, 'Диспансерное ~наблюдение' } )
-  AAdd( first_message, { 'Диспансеризация, профилактика и медосмотры', 'Диспансерное наблюдение' } )
-  AAdd( func_menu, { 'dispanserizacia()', 'disp_nabludenie()' } )
+  AAdd( first_menu, { ;
+    '~Диспансеризация и профосмотры', ;
+    0, ;
+    'Диспансерное ~наблюдение' ;
+  } )
+  AAdd( first_message, { ;
+    'Диспансеризация, профилактика и медосмотры', ;
+    'Диспансерное наблюдение' ;
+  } )
+  AAdd( func_menu, { ;
+    'dispanserizacia()', ;
+    'disp_nabludenie()' ;
+  } )
   return fl

@@ -11,19 +11,21 @@ function menu_X_sprav()
   AAdd( cmain_menu, 1 )
   AAdd( main_menu, ' ~Справочники ' )
   AAdd( main_message, 'Редактирование справочников' )
-  AAdd( first_menu, { '~Структура организации', ;
+  AAdd( first_menu, { ;
+    '~Структура организации', ;
     'Справочник ~услуг', ;
     'П~рочие справочники';
-    } )
+  } )
   AAdd( first_message, { ;
     'Редактирование справочников персонала, отделений, учреждений, организации', ;
     'Редактирование справочника услуг', ;
     'Редактирование прочих справочников'; // ,;
   } )
-  AAdd( func_menu, { 'spr_struct_org()', ;
+  AAdd( func_menu, { ;
+    'spr_struct_org()', ;
     'edit_spr_uslugi()', ;
     'edit_proch_spr()';
-    } )
+  } )
   //
   // перестройка меню
   If hb_user_curUser:ID != 0 .or. hb_user_curUser:issuperuser()
@@ -41,9 +43,13 @@ function menu_X_sprav()
   AAdd( cmain_menu, 40 )
   AAdd( main_menu, ' ~Информация ' )
   AAdd( main_message, 'Просмотр/печать справочников' )
-  AAdd( first_menu, { '~Общие справочники' } )
+  AAdd( first_menu, { ;
+    '~Общие справочники' ;
+  } )
   AAdd( first_message, { ;
     'Просмотр/печать общих справочников';
-    } )
-  AAdd( func_menu, { 'o_sprav()' } )
+  } )
+  AAdd( func_menu, { ;
+    'o_sprav()' ;
+  } )
   return fl

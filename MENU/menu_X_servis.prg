@@ -8,28 +8,33 @@ function menu_X_servis()
   AAdd( main_menu, ' ~Сервисы ' )
   AAdd( main_message, 'Сервисы и настройки' )
   //
-   AAdd( first_menu, { '~Проверка целостности', 0, ;
+   AAdd( first_menu, { ;
+    '~Проверка целостности', 0, ;
     'Изменение ~цен ОМС', 0, ;
     '~Импорт', ;
     '~Экспорт', 0, ;
-    'Прочее ~обслуживание ' } )
+    'Прочее ~обслуживание ' ;
+  } )
   AAdd( first_message, { ;
     'Проверка целостности базы данных на файл-сервере', ;
     'Изменение цен на услуги в соответствии со справочником услуг ТФОМС', ;
     'Различные варианты импорта из других программ', ;
     'Различные варианты экспорта в другие программы/организации', ;
     'Правка ОКАТО г. Волжский'; 
-    } )
-  AAdd( func_menu, { 'prover_dbf(,.f.,(hb_user_curUser:IsAdmin()))', ;
+  } )
+  AAdd( func_menu, { ;
+    'prover_dbf(,.f.,(hb_user_curUser:IsAdmin()))', ;
     'Change_Cena_OMS()', ;
     'f_import()', ;
     'f_export()', ;
-    'OKATO_V()' } )
+    'OKATO_V()' ;
+  } )
    //
   AAdd( cmain_menu, 20 )
   AAdd( main_menu, ' ~Настройки ' )
   AAdd( main_message, 'Настройки' )
-  AAdd( first_menu, { '~Общие настройки', 0, ;
+  AAdd( first_menu, { ;
+    '~Общие настройки', 0, ;
     'Справочники ~ФФОМС', 0, ;
     '~Рабочее место' ;
   } )
@@ -38,7 +43,8 @@ function menu_X_servis()
     'Настройка содержимого справочников ФФОМС (уменьшение количества строк)', ;
     'Настройка рабочего места';
   } )
-  AAdd( func_menu, { 'nastr_all()', ;
+  AAdd( func_menu, { ;
+    'nastr_all()', ;
     'nastr_sprav_FFOMS()', ;
     'nastr_rab_mesto()' ;
   } )

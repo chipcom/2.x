@@ -53,7 +53,8 @@ function menu_X_vounc()
     AAdd( cmain_menu, 51 )
     AAdd( main_menu, ' ~Справочники ' )
     AAdd( main_message, 'Редактирование справочников' )
-    AAdd( first_menu, { '~Торговые наименования', ;
+    AAdd( first_menu, { ;
+      '~Торговые наименования', ;
       '~МНН', 0, ;
       '~Настройка программы' ;
     } )
@@ -62,7 +63,8 @@ function menu_X_vounc()
       'Редактирование международных непатентованных наименований препаратов', ;
       'Настройка программы (некоторых значений по умолчанию)' ;
     } )
-    AAdd( func_menu, { 'vounc_sprav_trn()', ;
+    AAdd( func_menu, { ;
+      'vounc_sprav_trn()', ;
       'vounc_sprav_mnn()', ;
       'vounc_sprav_nastr(2)' ;
     } )

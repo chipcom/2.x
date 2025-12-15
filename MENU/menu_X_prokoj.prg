@@ -10,7 +10,8 @@ function menu_X_prokoj()
   AAdd( cmain_menu, 1 )
   AAdd( main_menu, ' ~Приёмный покой ' )
   AAdd( main_message, 'Ввод данных в приёмном покое стационара' )
-  AAdd( first_menu, { '~Добавление', ;
+  AAdd( first_menu, { ;
+    '~Добавление', ;
     '~Редактирование', 0, ;
     'В другое ~отделение', 0, ;
     '~Удаление' ;
@@ -21,7 +22,8 @@ function menu_X_prokoj()
     'Перевод больного из одного отделения в другое', ;
     'Удаление истории болезни';
     } )
-  AAdd( func_menu, { 'add_ppokoj()', ;
+  AAdd( func_menu, { ;
+    'add_ppokoj()', ;
     'edit_ppokoj()', ;
     'ppokoj_perevod()', ;
     'del_ppokoj()' ;
@@ -29,7 +31,8 @@ function menu_X_prokoj()
   AAdd( cmain_menu, 34 )
   AAdd( main_menu, ' ~Информация ' )
   AAdd( main_message, 'Просмотр / печать статистики по больным' )
-  AAdd( first_menu, { '~Журнал регистрации', ;
+  AAdd( first_menu, { ;
+    '~Журнал регистрации', ;
     'Журнал по ~запросу', 0, ;
     '~Сводная информация', 0, ;
     '~Перевод м/у отделениями', 0, ;
@@ -42,7 +45,8 @@ function menu_X_prokoj()
     'Получение информации о переводе между отделениями', ;
     'Поиск ошибок ввода';
     } )
-  AAdd( func_menu, { 'pr_gurnal_pp()', ;
+  AAdd( func_menu, { ;
+    'pr_gurnal_pp()', ;
     'z_gurnal_pp()', ;
     'pr_svod_pp()', ;
     'pr_perevod_pp()', ;
@@ -51,14 +55,16 @@ function menu_X_prokoj()
   AAdd( cmain_menu, 51 )
   AAdd( main_menu, ' ~Справочники ' )
   AAdd( main_message, 'Ведение справочников' )
-  AAdd( first_menu, { '~Столы', ;
+  AAdd( first_menu, { ;
+    '~Столы', ;
     '~Настройка' ;
   } )
   AAdd( first_message, { ;
     'Работа со справочником столов', ;
     'Настройка значений по умолчанию';
   } )
-  AAdd( func_menu, { 'f_pp_stol()', ;
+  AAdd( func_menu, { ;
+    'f_pp_stol()', ;
     'pp_nastr()' ;
   } )
   return fl

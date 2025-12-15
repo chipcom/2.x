@@ -8,7 +8,8 @@ function menu_X_common()
   AAdd( cmain_menu, MaxCol() -9 )
   AAdd( main_menu, ' Помо~щь ' )
   AAdd( main_message, 'Помощь, настройка принтера' )
-  AAdd( first_menu, { '~Новое в программе', ;
+  AAdd( first_menu, { ;
+    '~Новое в программе', ;
     'Помо~щь', ;
     '~Рабочее место', ;
     '~Принтер', 0, ;
@@ -23,7 +24,8 @@ function menu_X_common()
     'Переидексирование справочников НСИ в рабочем каталоге', ;
     'Режим просмотра - кто находится в задаче и в каком режиме', ;
     'Просмотр файла ошибок' } )
-  AAdd( func_menu, { 'view_file_in_Viewer(dir_exe() + "README.RTF")', ;
+  AAdd( func_menu, { ;
+    'view_file_in_Viewer(dir_exe() + "README.RTF")', ;
     'm_help()', ;
     'nastr_rab_mesto()', ;
     'ust_printer(T_ROW)', ;
