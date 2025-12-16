@@ -6,8 +6,8 @@
 Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
-// 02.12.25
-Function create_reestr()
+// 16.12.25
+Function create_reestr_main()
 
   Local buf := save_maxrow(), k := 0, k1 := 0
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра

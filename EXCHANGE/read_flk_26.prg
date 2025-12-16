@@ -85,7 +85,7 @@ Function protokol_flk_tmpfile_26( arr_f, aerr )
   Return is_err_FLK
 
 // 26.08.25 ¯à®ç¨â âì à¥¥áâà ”‹Š
-Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_25, cFileProtokol )
+Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
 
   Local ii, pole, i, k, t_arr[ 2 ]
   Local mkod_reestr, s
@@ -103,7 +103,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_25, cFileProtokol 
   Endif
   Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
   Index On Str( FIELD->tip, 1 ) + Str( FIELD->oshib, 3 ) + FIELD->soshib to ( cur_dir() + 'tmp2' )
-  If is_err_FLK_25
+  If is_err_FLK_26
     If !extract_reestr( rees->( RecNo() ), rees->name_xml )
       AAdd( aerr, Center( '¥ ­ ©¤¥­ ZIP- àå¨¢ á ……‘’®¬ ‘—…’Ž‚ ü ' + lstr( rees->nschet ) + ' ®â ' + date_8( rees->DSCHET ), 80 ) )
       AAdd( aerr, '' )

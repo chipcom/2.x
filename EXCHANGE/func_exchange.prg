@@ -303,7 +303,7 @@ Function is_our_xml( cName, ret_arr )
       Endif
     Endif
   elseif eq_any( Left( s, 3 ), 'VHM', 'VFM' ) // файл протокола ФЛК с 2026 года
-    nTypeFile := _XML_FILE_FLK_25
+    nTypeFile := _XML_FILE_FLK_26
     r_use( dir_server() + 'mo_rees', , 'REES' )
     r_use( dir_server() + 'mo_xml', , 'MO_XML' )
     Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )

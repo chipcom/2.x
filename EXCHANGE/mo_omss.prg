@@ -80,7 +80,7 @@ Function read_from_tf()
         s += 'файла ответа на R05'
       Case arr_XML_info[ 1 ] == _XML_FILE_D02
         s += 'файла ответа на D01'
-//      Case arr_XML_info[ 1 ] == _XML_FILE_FLK_25
+//      Case arr_XML_info[ 1 ] == _XML_FILE_FLK_26
 //        s += 'протокола ФЛК 2025'
       Endcase
       buf := SaveScreen()
@@ -114,9 +114,10 @@ Function read_from_tf()
   Endif
   Return fl
 
-// 15.12.25 чтение в память и анализ XML-файла
+// 16.12.25 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
+  Local is_err_FLK_26
   Local nTypeFile := 0, aerr := {}, j, oXmlDoc, ;
     nCountWithErr := 0, go_to_schet := .f., go_to_akt := .f., ;
     go_to_rpd := .f., nerror, buf := save_maxrow()
@@ -132,7 +133,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       Return Nil
     Endif
   Next
-  If eq_any( nTypeFile, _XML_FILE_FLK, _XML_FILE_FLK_25, _XML_FILE_R02, _XML_FILE_R12, _XML_FILE_R06, _XML_FILE_D02 )
+  If eq_any( nTypeFile, _XML_FILE_FLK, _XML_FILE_FLK_26, _XML_FILE_R02, _XML_FILE_R12, _XML_FILE_R06, _XML_FILE_D02 )
     //
   Elseif !mo_lock_task( X_OMS )
     Return .f.
@@ -153,9 +154,9 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
     AAdd( aerr, 'В файле ' + cFile + ' кодировка UTF-8, а должна быть Windows-1251' )
   Elseif nTypeFile == _XML_FILE_FLK
     is_err_FLK := protokol_flk_tmpfile( arr_f, aerr )
-  Elseif nTypeFile == _XML_FILE_FLK_25
+  Elseif nTypeFile == _XML_FILE_FLK_26
 
-    is_err_FLK_25 := protokol_flk_tmpfile_26( arr_f, aerr )
+    is_err_FLK_26 := protokol_flk_tmpfile_26( arr_f, aerr )
 
   Elseif nTypeFile == _XML_FILE_SP
     reestr_sp_tk_tmpfile( oXmlDoc, aerr, cReadFile )
@@ -194,10 +195,10 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         mo_xml->KOL2   := tmp1->KOL2
       Endif
 
-    Case nTypeFile == _XML_FILE_FLK_25
+    Case nTypeFile == _XML_FILE_FLK_26
 
       StrFile( hb_eol() + 'Тип файла: протокол ФЛК (форматно-логического контроля) нового образца' + hb_eol() + hb_eol(), cFileProtokol, .t. )
-      If read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_25, cFileProtokol )
+      If read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
         // запишем принимаемый файл (протокол ФЛК)
         chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
         Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
@@ -207,7 +208,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         mo_xml->FNAME := cReadFile
         mo_xml->DREAD := Date()
         mo_xml->TREAD := hour_min( Seconds() )
-        mo_xml->TIP_IN := _XML_FILE_FLK_25 // тип принимаемого файла;3-ФЛК
+        mo_xml->TIP_IN := _XML_FILE_FLK_26 // тип принимаемого файла;3-ФЛК
         mo_xml->DWORK  := Date()
         mo_xml->TWORK1 := cTimeBegin
         mo_xml->TWORK2 := hour_min( Seconds() )
@@ -215,7 +216,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         mo_xml->KOL2   := tmp1->KOL2
       Endif
 
-      if is_err_FLK_25  // ошибки ФЛК 25 есть
+      if is_err_FLK_26  // ошибки ФЛК 25 есть
       else  // ошибок ФЛК нет
         r_use( dir_server() + 'mo_rees', , 'REES' )
         rees->( dbGoto( arr_XML_info[ 7 ] ) )

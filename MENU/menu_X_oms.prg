@@ -67,7 +67,7 @@ function menu_X_oms()
   } )
   AAdd( func_menu, { ;
     'verify_OMS()', ;
-    'create_reestr()', ;
+    'create_reestr_main()', ;
     'view_list_reestr()', ;
     'vozvrat_reestr()' ;
   } )

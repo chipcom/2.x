@@ -249,13 +249,13 @@ mo_version.prg
 .\DISPANSER\diag_disp_nabl.prg
 .\DISPANSER\mo_st39.prg
 
+.\EXCHANGE\create_reestr_main.prg
 .\EXCHANGE\reestrOMS_XML.prg
 .\EXCHANGE\create2reestr19.prg
 .\EXCHANGE\f1_create2reestr19.prg
 .\EXCHANGE\schet_from_XML.prg
 .\EXCHANGE\rak_XML.prg
 .\EXCHANGE\extract_reestr.prg
-.\EXCHANGE\create_reestr.prg
 .\EXCHANGE\mo_omss.prg
 .\EXCHANGE\mo_omsr.prg
 .\EXCHANGE\func_exchange.prg
