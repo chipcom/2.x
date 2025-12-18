@@ -54,7 +54,7 @@ Function change_cena_oms()
       g_use( dir_server() + "human_2",, "HUMAN_2" )
       g_use( dir_server() + "human_",, "HUMAN_" )
       g_use( dir_server() + "human", dir_server() + "humans", "HUMAN" )
-      Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To Str( kod, 7 ) into HUMAN_3
+      Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To Str( FIELD->kod, 7 ) into HUMAN_3
       sm_human := i_human := 0
       find ( Str( 0, 6 ) )
       Do While human->schet == 0 .and. !Eof()

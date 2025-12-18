@@ -20,7 +20,7 @@ Function f_1pac_definition_ksg( lkod, is_msg )
   use_base( 'human_u' ) // если понадобится, удалить старый КСГ и добавить новый
   r_use( dir_server() + 'mo_su', , 'MOSU' )
   r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
-  Set Relation To u_kod into MOSU
+  Set Relation To FIELD->u_kod into MOSU
   g_use( dir_server() + 'human_2', , 'HUMAN_2' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   g_use( dir_server() + 'human', , 'HUMAN' ) // перезаписать сумму

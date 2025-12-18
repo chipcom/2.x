@@ -553,9 +553,9 @@ Function f1oms_edit()
         r_use( dir_server() + 'mo_otd', , 'OTD' )
         r_use( dir_server() + 'human_', , 'HUMAN_' )
         r_use( dir_server() + 'human', , 'HUMAN' )
-        Set Relation To RecNo() into HUMAN_, To otd into OTD
+        Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
         Use ( cur_dir() + 'tmp_h' ) new
-        Set Relation To kod into HUMAN
+        Set Relation To FIELD->kod into HUMAN
         Index On Upper( human->fio ) to ( cur_dir() + 'tmp_h' )
         Goto ( srec )
         mkod := 0
@@ -689,9 +689,9 @@ Function f2oms_edit()
         r_use( dir_server() + 'mo_otd', , 'OTD' )
         r_use( dir_server() + 'human_', , 'HUMAN_' )
         r_use( dir_server() + 'human', , 'HUMAN' )
-        Set Relation To RecNo() into HUMAN_, To otd into OTD
+        Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
         Use ( cur_dir() + 'tmp_h' ) new
-        Set Relation To kod into HUMAN
+        Set Relation To FIELD->kod into HUMAN
         Index On Upper( human->fio ) to ( cur_dir() + 'tmp_h' )
         Goto ( srec )
         mkod := 0
@@ -827,9 +827,9 @@ Function f4oms_edit()
         r_use( dir_server() + 'mo_otd', , 'OTD' )
         r_use( dir_server() + 'human_', , 'HUMAN_' )
         r_use( dir_server() + 'human', , 'HUMAN' )
-        Set Relation To RecNo() into HUMAN_, To otd into OTD
+        Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
         Use ( cur_dir() + 'tmp_h' ) new
-        Set Relation To kod into HUMAN
+        Set Relation To FIELD->kod into HUMAN
         Index On Upper( human->fio ) to ( cur_dir() + 'tmp_h' )
         Goto ( srec )
         mkod := 0
@@ -1631,7 +1631,7 @@ Function ret_oms_human( dostup, arr_m )
     r_use( dir_server() + 'mo_otd', , 'OTD' )
     r_use( dir_server() + 'human_', , 'HUMAN_' )
     r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
-    Set Relation To RecNo() into HUMAN_, To otd into OTD
+    Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
     dbSeek( str_find, .t. )
     Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
       While human->k_data <= arr_m[ 6 ] ;
@@ -1658,7 +1658,7 @@ Function ret_oms_human( dostup, arr_m )
     r_use( dir_server() + 'mo_otd', , 'OTD' )
     r_use( dir_server() + 'human_', , 'HUMAN_' )
     r_use( dir_server() + 'human', dir_server() + 'humann', 'HUMAN' )
-    Set Relation To RecNo() into HUMAN_, To otd into OTD
+    Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
     find ( str_find )
     If yes_h_otd == 1
       If dostup == B_STANDART
@@ -1984,7 +1984,7 @@ Function f2ret_oms_human( nkey )
       // R_Use(dir_server() + 'human', ,'HUMAN')
       r_use( dir_server() + 'human_u_', , 'HU_' )
       r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-      Set Relation To RecNo() into HU_, To u_kod into USL
+      Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
       Select ( tmp_1 )
       //
       Private mas_otch := { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, ;

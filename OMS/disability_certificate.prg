@@ -20,7 +20,7 @@ Function edit_bolnich( par )
   r_use( dir_server() + "mo_uch",, "UCH" )
   g_use( dir_server() + "human_",, "HUMAN_" )
   g_use( dir_server() + "human", dir_server() + "humand", "HUMAN" )
-  Set Relation To RecNo() into HUMAN_, To lpu into UCH, To otd into OTD
+  Set Relation To RecNo() into HUMAN_, To FIELD->lpu into UCH, To FIELD->otd into OTD
   dbSeek( DToS( begin_date ), .t. )
   Index On Upper( fio ) + DToS( k_data ) to ( cur_dir() + "tmp_h" ) ;
     For human_->oplata < 9 .and. !Between( ishod, 101, 305 ) ;

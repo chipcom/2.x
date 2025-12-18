@@ -2709,7 +2709,7 @@ Function verify_sluch( fl_view, ft )
       Endif
     Next i
     Select HU
-    Set Relation To RecNo() into HU_, To u_kod into USL
+    Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
   Endif
 
   u_other := {}

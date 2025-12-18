@@ -138,7 +138,7 @@ Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
   Set Order To 1
   find ( Str( mkod_human, 7 ) )
   Select HU
-  Set Relation To u_kod into USL Additive
+  Set Relation To FIELD->u_kod into USL Additive
   find ( Str( mkod_human, 7 ) )
   If Found()
     Do While hu->kod == mkod_human .and. !Eof()
@@ -209,7 +209,7 @@ Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
     Commit
   Endif
   Select MOHU
-  Set Relation To u_kod into MOSU
+  Set Relation To FIELD->u_kod into MOSU
   find ( Str( mkod_human, 7 ) )
   If Found()
     Do While mohu->kod == mkod_human .and. !Eof()
@@ -276,7 +276,7 @@ Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
   r_use( dir_server() + 'usl_otd', dir_server() + 'usl_otd', 'UO' )
   r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'PERSO' )
   Select TMP
-  Set Relation To otd into OTD
+  Set Relation To FIELD->otd into OTD
   Go Top
   i := tmp->( LastRec() )
   If i == 0

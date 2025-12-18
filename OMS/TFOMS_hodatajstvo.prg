@@ -52,7 +52,7 @@ Function tfoms_hodatajstvo( arr_m, iRefr, par )
   r_use( dir_server() + "kartote_",, "KART_" )
   r_use( dir_server() + "kartotek",, "KART" )
   Use ( cur_dir() + "tmp_k" ) New Alias TMP
-  Set Relation To kod into KART, To kod into KART_
+  Set Relation To FIELD->kod into KART, To FIELD->kod into KART_
   Index On Upper( kart->fio ) to ( cur_dir() + "tmp_k" )
   rest_box( buf24 )
   //
@@ -351,8 +351,8 @@ Function create_file_hodatajstvo( arr_m )
   Set Index To
 
   r_use( dir_server() + "mo_hod_k",, "HODK" )
-  Set Relation To kod into HOD
-  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_hodk" ) ;
+  Set Relation To FIELD->kod into HOD
+  Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + "tmp_hodk" ) ;
     For hod->nyear == arr_m[ 1 ] .and. hod->nmonth == arr_m[ 2 ]
 
   Select TMP_K1
@@ -451,9 +451,9 @@ Function create_file_hodatajstvo( arr_m )
         Set Relation To RecNo() into KART_
         r_use( dir_server() + "human_",, "HUMAN_" )
         r_use( dir_server() + "human",, "HUMAN" )
-        Set Relation To RecNo() into HUMAN_, kod_k into KART
+        Set Relation To RecNo() into HUMAN_, FIELD->kod_k into KART
         Use ( cur_dir() + "tmp_k1" ) new
-        Set Relation To kod_lu into HUMAN
+        Set Relation To FIELD->kod_lu into HUMAN
         Index On Upper( human->fio ) to ( cur_dir() + "tmp_k1" )
         k := 0
         Go Top

@@ -98,7 +98,7 @@ Function f3oms_edit()
         r_use( dir_server() + "uslugi",, "USL" )
         r_use( dir_server() + "human_u_",, "HU_" )
         r_use( dir_server() + "human_u", dir_server() + "human_u", "HU" )
-        Set Relation To RecNo() into HU_, To u_kod into USL
+        Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
         use_base( "lusl" )
         Select tmp_h
         Go Top
@@ -161,9 +161,9 @@ Function f3oms_edit()
         r_use( dir_server() + "mo_otd",, "OTD" )
         g_use( dir_server() + "human_",, "HUMAN_" )
         r_use( dir_server() + "human",, "HUMAN" )
-        Set Relation To RecNo() into HUMAN_, To otd into OTD
+        Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
         Use ( cur_dir() + "tmp_h" ) new
-        Set Relation To kod into HUMAN
+        Set Relation To FIELD->kod into HUMAN
         Index On Upper( human->fio ) to ( cur_dir() + "tmp_h" ) For REFREASON == iRefr
         If srec == NIL
           Go Top

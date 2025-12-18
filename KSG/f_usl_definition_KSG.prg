@@ -239,7 +239,7 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
     usl->( dbCloseArea() ) // переоткрыть справочник услуг
     r_use( dir_server() + 'uslugi', dir_server() + 'uslugish', 'USL' )
     Select TMP
-    Set Relation To otd into OTD
+    Set Relation To FIELD->otd into OTD
     If tmp_rec > 0
       Goto ( tmp_rec )
     Endif

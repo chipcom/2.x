@@ -663,18 +663,18 @@ Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
   r_use( dir_server() + 'uslugi', , 'USL' )
   r_use( dir_server() + 'schet_', , 'SCHET_' )
   r_use_base( 'human_u' )
-  Set Relation To u_kod into USL
+  Set Relation To FIELD->u_kod into USL
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', , 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
   r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
-  Index On Str( kod_raks, 6 ) To tmpraksh memory
+  Index On Str( FIELD->kod_raks, 6 ) To tmpraksh memory
   r_use( dir_server() + 'mo_raks', , 'RAKS' )
-  Index On Str( akt, 6 ) To tmpraks memory
+  Index On Str( FIELD->akt, 6 ) To tmpraks memory
   r_use( dir_server() + 'mo_rak', , 'RAK' )
-  Index On Str( kod_xml, 6 ) + DToS( dakt ) + nakt To tmprak memory
+  Index On Str( FIELD->kod_xml, 6 ) + DToS( FIELD->dakt ) + FIELD->nakt To tmprak memory
   r_use( dir_server() + 'mo_xml', , 'MO_XML' )
-  Index On dfile To tmp_xml For TIP_IN == _XML_FILE_RAK memory
+  Index On FIELD->dfile To tmp_xml For FIELD->TIP_IN == _XML_FILE_RAK memory
   Go Top
   Do While !Eof()
     If iif( m1poisk == 0, Between( mo_xml->DFILE, pdate[ 5 ], pdate[ 6 ] ), .t. )
@@ -1936,14 +1936,14 @@ Function report_f_mpp()
   r_use( dir_server() + 'uslugi', , 'USL' )
   r_use( dir_server() + 'human_u_', , 'HU_' )
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-  Set Relation To RecNo() into HU_, To u_kod into USL
+  Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
   r_use( dir_server() + 'kartote_', , 'KART_' )
   r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
   r_use( dir_server() + 'human_2', , 'HUMAN_2' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
-  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
+  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To FIELD->kod_k into KART
   //
   //
   mdate_rak := arr_m[ 6 ] + iif( arr_m[ 3 ] == 12, 22, 10 ) // по какую дату РАК сумма к оплате 10.04.18
@@ -1953,12 +1953,12 @@ Function report_f_mpp()
   //
   r_use( dir_server() + 'mo_xml', , 'MO_XML' )
   r_use( dir_server() + 'mo_rak', , 'RAK' )
-  Set Relation To kod_xml into MO_XML
+  Set Relation To FIELD->kod_xml into MO_XML
   r_use( dir_server() + 'mo_raks', , 'RAKS' )
-  Set Relation To akt into RAK
+  Set Relation To FIELD->akt into RAK
   r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
-  Set Relation To kod_raks into RAKS
-  Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
+  Set Relation To FIELD->kod_raks into RAKS
+  Index On Str( FIELD->kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
   //
   r_use( dir_server() + 'schet_', , 'SCHET_' )
   r_use( dir_server() + 'schet', , 'SCHET' )
@@ -2390,18 +2390,18 @@ Function pril_5_6_62()
 
   r_use( dir_server() + 'mo_su', , 'MOSU' )
   r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
-  Set Relation To u_kod into MOSU
+  Set Relation To FIELD->u_kod into MOSU
   r_use( dir_server() + 'uslugi', , 'USL' )
   r_use( dir_server() + 'human_u_', , 'HU_' )
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-  Set Relation To RecNo() into HU_, To u_kod into USL
+  Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
   r_use( dir_server() + 'kartote_', , 'KART_' )
   r_use( dir_server() + 'kartotek', , 'KART' )
   Set Relation To RecNo() into KART_
   r_use( dir_server() + 'human_2', , 'HUMAN_2' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
-  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
+  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To FIELD->kod_k into KART
   //
   kds := kdr := 10
   If arr_m[ 1 ] == 2019 .and. arr_m[ 3 ] == 12
@@ -2437,12 +2437,12 @@ Function pril_5_6_62()
   //
   r_use( dir_server() + 'mo_xml', , 'MO_XML' )
   r_use( dir_server() + 'mo_rak', , 'RAK' )
-  Set Relation To kod_xml into MO_XML
+  Set Relation To FIELD->kod_xml into MO_XML
   r_use( dir_server() + 'mo_raks', , 'RAKS' )
-  Set Relation To akt into RAK
+  Set Relation To FIELD->akt into RAK
   r_use( dir_server() + 'mo_raksh', , 'RAKSH' )
-  Set Relation To kod_raks into RAKS
-  Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
+  Set Relation To FIELD->kod_raks into RAKS
+  Index On Str( FIELD->kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
   //
   dbCreate( cur_dir() + 'tmp', { { 'usl_ok', 'N', 1, 0 }, ;
     { 'stroke', 'C', 3, 0 }, ;

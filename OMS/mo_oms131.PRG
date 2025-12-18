@@ -25,9 +25,9 @@ Function ret_plan_disp_131_n( d )
   r_use( dir_server() + "kartotek",, "KART" )
   r_use( dir_server() + "mo_dr01",, "RR" )
   r_use( dir_server() + "mo_dr01k",, "R01" )
-  Set Relation To reestr into RR
-  Index On Str( kod_k, 7 ) to ( cur_dir() + "tmp_r01" ) ;
-    For kod_k > 0 .and. oplata == 1 // .and. tip == 1
+  Set Relation To FIELD->reestr into RR
+  Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + "tmp_r01" ) ;
+    For FIELD->kod_k > 0 .and. FIELD->oplata == 1 // .and. tip == 1
   // oplata == 1  - принято
   // tip == 1 - диспансеризация  2 - проф
   // rr->tip == 0 - 0-R01   1-R11   //
@@ -510,7 +510,7 @@ Function forma_131( par )
       r_use( dir_server() + "human",, "HUMAN" )
       Set Relation To RecNo() into HUMAN_
       Use ( cur_dir() + "tmp" ) index ( cur_dir() + "tmp" ) new
-      Set Relation To kod_k into KART
+      Set Relation To FIELD->kod_k into KART
       ii := 0
       f_error_dvn( 1 )
       mywait( " " )

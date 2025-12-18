@@ -7,7 +7,7 @@
 // 28.02.24
 Function defenition_usluga_med_reab( lkod, vid, shrm, vto )
 
-  Local arr, i, s, lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, fl
+  Local lshifr, lrec, lu_kod, lcena, lyear, mrec_hu
   Local buf := save_maxrow()
   Local shifr_reab
 
@@ -24,7 +24,7 @@ Function defenition_usluga_med_reab( lkod, vid, shrm, vto )
   use_base( 'human_u' ) // если понадобится, удалить старую услугу и добавить новую
   r_use( dir_server() + 'mo_su', , 'MOSU' )
   r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
-  Set Relation To u_kod into MOSU
+  Set Relation To FIELD->u_kod into MOSU
   g_use( dir_server() + 'human_2', , 'HUMAN_2' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   g_use( dir_server() + 'human', , 'HUMAN' ) // перезаписать сумму

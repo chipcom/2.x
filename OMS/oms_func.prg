@@ -135,7 +135,7 @@ function collect_uslugi( rec_number )
   hu->( dbGoto( human_uslugi ) )
 
   dbSelectArea( 'MOHU' )
-  set relation to u_kod into MOSU
+  set relation to FIELD->u_kod into MOSU
   find ( str( human_number, 7 ) )
   do while mohu->kod == human_number .and. ! eof()
     aadd( arrUslugi, alltrim( iif( empty( mosu->shifr ), mosu->shifr1, mosu->shifr ) ) )
