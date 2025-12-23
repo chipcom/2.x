@@ -95,7 +95,7 @@ Function f_create_r05()
   mrec := 1 // пока так
   Goto ( mrec )
   If Empty( r05p->n_y )
-    mdate := r05p->D_KZ := 0d20241220                           // ------------------------ЮЮ
+    mdate := r05p->D_KZ := 0d20251219                           // ------------------------ЮЮ
     r05p->N_Y := YEAR_UPLOAD_DISPANSER // год для диспансеризации
     r05p->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
     r05p->KOL1 := 0 // количество пациентов для диспансеризации на год
@@ -143,7 +143,7 @@ Function f1_create_r05()
   buf := box_shadow( r1, 2, MaxRow() -2, 77,, 'План-график на ' + lstr( YEAR_UPLOAD_DISPANSER ) + ' год', color8 )
   Do While .t.
     @ r1 + 1, 54 Say '| прикреплённое' Color color14
-    @ r1 + 2, 4 Say 'Приказ КЗ ВО № 3593 от' Get mdate When .f.
+    @ r1 + 2, 4 Say 'Приказ КЗ ВО № 3514 от' Get mdate When .f.
     @ Row(), Col() + 12 Say '_план_|_количество___' Color color14
     @ r1 + 3, 4 Say 'Численность лиц для диспансеризации (всего)' Get mkol1  Pict '99999'
     @ Row(), Col() + 1 Say '|' Color color14 Get skol1 Color color8 Pict '99999' When .f.
@@ -212,11 +212,11 @@ Function f1_create_r05()
 
   Return Nil
 
-// 23.12.24 Ввод/редактирование плана-графика с разбивкой по месяцам
+// 23.12.25 Ввод/редактирование плана-графика с разбивкой по месяцам
 Function f_pereschet_R05
 
   Local buf := save_maxrow(), nrow := Row(), ncol := Col(), icurs := SetCursor( 0 ), s, ;
-    _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 )
+    _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20251201 )    //--------------------------------------ЮЮ
 
   mywait( 'Ждите! Производится подсчёт прикреплённого взрослого населения.' )
   skol1 := skol2 := skol11 := skol12 := skol13 := 0
@@ -1528,24 +1528,24 @@ Function verify_packet_r05( par, arr, /*@*/ret_nn )
 
   Return fl
 
-// 18.11.25 Создание файла обмена R01...
+// 22.12.25 Создание файла обмена R01...
 Function f_create_r01()
 
   Local buf := save_maxrow(), i, j, ir, s := '', arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ;
-    azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r
+    azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r, FLAG_POVTOR := 0
   
   Private mdate := sys_date, mrec := 1
   // !!! ВНИМАНИЕ
   Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {}, ;
     pkol := 0, CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], CODE_MO := glob_mo()[ _MO_KOD_FFOMS ], ;
     mkol := { 0, 0, 0, 0, 0 }, skol[ 5 ], ames[ 12, 5 ], ame[ 12 ], ;
-  _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 )
+  _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20251201 ) //---------------------------------------------ЮЮ
 
   Private sgod := YEAR_UPLOAD_DISPANSER
 //  Private SMONTH := 1
   private bm := 1   // SMONTH // начальный месяц минус один  //
 
-  f00_create_r01()
+  //f00_create_r01()  -заплатку временно убрал 22.12.25
   //
   mywait()
   If ( fl := verify_packet_r05( 1, arr ) )
@@ -1673,6 +1673,8 @@ Function f_create_r01()
         status_key( '^<Esc>^ - прервать поиск' )
         hGauge := gaugenew(,,, 'Поиск пациентов, подлежащих дисп-ии/профосмотрам', .t. )
         gaugedisplay( hGauge )
+        Use ( dir_exe() + '_mo_enp' )  New Alias MO_ENP // C16 
+        index on enp to ( cur_dir() + "tmp_enp" )
         Use ( dir_server() + 'mo_dr00' ) New Alias TMP
         Zap  // т.к.первый раз
         r_use( dir_server() + 'human_',, 'HUMAN_' )
@@ -1689,6 +1691,7 @@ Function f_create_r01()
             fl_exit := .t. ; Exit
           Endif
           If kart->kod > 0
+            // ТУТ
             f0_create_r01( YEAR_UPLOAD_DISPANSER, @c_view, @c_found )
           Endif
           Select KART
@@ -1701,7 +1704,7 @@ Function f_create_r01()
           fl := func_error( 4, 'Прервано пользователем!' )
         Endif
       Endif
-    Endif
+    Endif  // окончание создание первичного файла лиц
     //
     If fl
       mywait()
@@ -1737,14 +1740,67 @@ Function f_create_r01()
               If i >= 12  // месяцы
                 i := 0
               Endif
-              Do While i < 12
+              Do While i < 12  // на человека встали - поиск СВОБОДНОГО окошка в месяце
                 ++i
+    /*            @ 10,2 say i 
+                @ 10,20 say tmp->kod
+                  if tmp->january == 1 // этого человека желательно в январь
+                  // проверим набранный ПЕРВЫЙ месяц
+                  if ames[ 1, j, 1 ] > ames[ 1, j, 2 ]
+                     i := 1
+                  endif   
+                 @ 11,2 say i  
+                endif  
+               
                 If ames[ i, j, 1 ] > ames[ i, j, 2 ] // если ещё не набрали месяц
                   tmp->n_m := i
                   ames[ i, j, 2 ] ++
                   skol[ j ] --
                   Exit
                 Endif
+*/
+  //              @ 10,2 say i 
+  //              @ 10,20 say tmp->kod
+                if tmp->january == 1 // этого человека желательно в январь
+                  // проверим набранный ПЕРВЫЙ месяц
+                  if ames[ 1, j, 1 ] > ames[ 1, j, 2 ]
+                     i := 1
+                  endif   
+  //                @ 13,2 say i  
+  //                @ 13,20 say tmp->kod
+  //                @ 14,2 say ames[ 1, j, 2 ]
+                else
+                  if  ames[ 1, j, 1 ] > ames[ 1, j, 2 ]
+                    // это не январь, а январь не набран  
+                    if FLAG_POVTOR > 5    
+                      FLAG_POVTOR := 0
+                    else  
+                      ++FLAG_POVTOR 
+                      exit   
+                    endif  
+                  endif   
+                endif  
+               
+                If ames[ i, j, 1 ] > ames[ i, j, 2 ] // если ещё не набрали месяц
+                  tmp->n_m := i
+                  ames[ i, j, 2 ] ++
+                  skol[ j ] --
+                  Exit
+                Endif
+
+
+
+
+
+
+                // оригинал
+                /*If ames[ i, j, 1 ] > ames[ i, j, 2 ] // если ещё не набрали месяц
+                  tmp->n_m := i
+                  ames[ i, j, 2 ] ++
+                  skol[ j ] --
+                  Exit
+                Endif*/
+
               Enddo
               d := 0
             Endif
@@ -1858,6 +1914,14 @@ Static Function f0_create_r01( s_god, cv, cf )
     Else
       ++mkol[ltip ]
     Endif
+    // добавить проверку на признак - январь
+    select MO_ENP
+    // AllTrim( kart2->KOD_MIS )
+    find (AllTrim( kart2->KOD_MIS )) 
+    if found() 
+      tmp->January := 1
+    endif 
+    //
     If++cf % 500 == 0
       tmp->( dbCommit() )
     Endif
@@ -1869,7 +1933,7 @@ Static Function f0_create_r01( s_god, cv, cf )
   Return Nil
 
 // 14.12.23
-Function f00_create_r01()
+Function f00_create_r01()  // какая-то заплатка
 
   Local fl := .f., v, t1, t2, lgod_r, ltip1, ltip, lvoz
   Local sgod := YEAR_UPLOAD_DISPANSER
@@ -1905,7 +1969,7 @@ Function f00_create_r01()
 
   Return Nil
 
-// 18.11.25
+// 23.11.25
 Function f1_create_r01()
 
   Local imonth, nsh := 3, smsg, arr_nn[ 12 ]
@@ -3305,7 +3369,7 @@ Function find_unfinished_r01()
 Function find_new_r00()
 
   Private c_view := 0, c_found := 0, CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ]
-  Private _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 ), mkol := { 0, 0, 0, 0, 0 }
+  Private _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20251201 ), mkol := { 0, 0, 0, 0, 0 }
   
   Private sgod := YEAR_UPLOAD_DISPANSER
 
@@ -3417,7 +3481,7 @@ Function find_new_r000()
   Local n_file := cur_dir() + 'r01_itog.txt', sh := 120
 
   Private c_view := 0, c_found := 0, CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ]
-  Private _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 ), mkol := { 0, 0, 0, 0, 0 }
+  Private _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20251201 ), mkol := { 0, 0, 0, 0, 0 }
   private sgod := YEAR_UPLOAD_DISPANSER
 
   status_key( '^<Esc>^ - прервать поиск' )
