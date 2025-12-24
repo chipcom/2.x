@@ -56,20 +56,20 @@ Function print_l_uch( mkod, par, regim, lnomer )
                          {'kol', 'N', 4, 0}, ;
                          {'summa', 'N', 11, 2}})
   use (cur_dir() + 'tmp1')
-  index on str(kod, 4) to (cur_dir() + 'tmp11')
-  index on dtos(date_u1) +fsort_usl(shifr) to (cur_dir() + 'tmp12')
-  use (cur_dir() + 'tmp1') index (cur_dir() + 'tmp11'), (cur_dir() + 'tmp12') alias tmp1
-  Use_base('lusl')
-  Use_base('luslf')
-  R_Use(dir_server() + 'uslugi', , 'USL')
-  R_Use(dir_server() + 'human_u_', , 'HU_')
-  R_Use(dir_server() + 'human_u',dir_server() + 'human_u', 'HU')
+  index on str( FIELD->kod, 4 ) to ( cur_dir() + 'tmp11' )
+  index on dtos( FIELD->date_u1 ) + fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp12' )
+  use ( cur_dir() + 'tmp1' ) index ( cur_dir() + 'tmp11' ), ( cur_dir() + 'tmp12' ) alias tmp1
+  Use_base( 'lusl' )
+  Use_base( 'luslf' )
+  R_Use( dir_server() + 'uslugi', , 'USL' )
+  R_Use( dir_server() + 'human_u_', , 'HU_' )
+  R_Use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
   set relation to recno() into HU_
-  R_Use(dir_server() + 'mo_su', , 'MOSU')
-  R_Use(dir_server() + 'mo_hu',dir_server() + 'mo_hu', 'MOHU')
-  R_Use(dir_server() + 'mo_otd', , 'OTD')
-  R_Use(dir_server() + 'human_3',{dir_server() + 'human_3',dir_server() + 'human_32'}, 'HUMAN_3')
-  R_Use(dir_server() + 'human_2', , 'HUMAN_2')
+  R_Use( dir_server() + 'mo_su', , 'MOSU' )
+  R_Use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
+  R_Use( dir_server() + 'mo_otd', , 'OTD' )
+  R_Use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+  R_Use( dir_server() + 'human_2', , 'HUMAN_2' )
   goto (mkod)
   R_Use(dir_server() + 'human_', , 'HUMAN_')
   goto (mkod)
@@ -138,11 +138,11 @@ Function print_l_uch( mkod, par, regim, lnomer )
       else
         R_Use(dir_server() + 'mo_rak', , 'RAK')
         R_Use(dir_server() + 'mo_raks', , 'RAKS')
-        set relation to akt into RAK
+        set relation to FIELD->akt into RAK
         R_Use(dir_server() + 'mo_raksh', , 'RAKSH') 
-        set relation to kod_raks into RAKS
+        set relation to FIELD->kod_raks into RAKS
         arr := {}
-        Index On Str( kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) for kod_h == mkod
+        Index On Str( FIELD->kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) for FIELD->kod_h == mkod
         //Locate for kod_h == mkod
         //do while found()
         //  aadd(arr, {rak->NAKT, rak->DAKT, raksh->REFREASON, raksh->NEXT_KOD})
@@ -421,9 +421,11 @@ Function print_l_uch( mkod, par, regim, lnomer )
     add_string('')
     add_string('  Пациент направлен на МСЭ в бюро медико-социальной экспертизы')
   endif
-  
-  if !empty(mlech_vr)
-    add_string('  Лечащий врач : ' + mlech_vr)
+
+  if ! between( human_->RSLT_NEW, 316, 393 ) // если не диспансеризация и т.п.
+    if !empty(mlech_vr)
+      add_string('  Лечащий врач : ' + mlech_vr)
+    endif
   endif
 
   add_string('')
@@ -1016,11 +1018,11 @@ Function o_list_uch()
           dbSetRelation('OTD', {|| otd}, 'otd' ), ;
           dbSetRelation('SCHET', {|| schet}, 'schet' )}
     eval(blk_open)
-    set index to (dir_server() + 'humankk')
+    set index to ( dir_server() + 'humankk' )
     find (str(glob_kartotek, 7))
     if found()
       mtitul := alltrim(fio)
-      index on dtos(k_data) + dtos(n_data) to (cur_dir() + 'tmp_olu') while kod_k == glob_kartotek descending
+      index on dtos( FIELD->k_data ) + dtos( FIELD->n_data ) to ( cur_dir() + 'tmp_olu' ) while FIELD->kod_k == glob_kartotek descending
       dbeval( {|| ++j } )
       go top
       if yes_parol
@@ -1160,7 +1162,7 @@ Function f4o_list_uch(nKey, oBrow)
       print_spravka_OMS(glob_perso)
     endif
     eval(blk_open)
-    set index to (cur_dir() + 'tmp_olu')
+    set index to ( cur_dir() + 'tmp_olu' )
     goto (rec)
   endif
   return k
@@ -1203,8 +1205,8 @@ Function print_al_uch(arr_h, arr_m)
                    {'kol', 'N', 4, 0}, ;
                    {'summa', 'N', 11, 2}})
   use (cur_dir() + 'tmp1')
-  index on str(kod, 4) to (cur_dir() + 'tmp11')
-  index on dtos(date_u1) + fsort_usl(shifr) to (cur_dir() + 'tmp12')
+  index on str( FIELD->kod, 4 ) to ( cur_dir() + 'tmp11' )
+  index on dtos( FIELD->date_u1 ) + fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmp12' )
   dbCloseAll()
   //
   R_Use(dir_server() + 'human_', , 'HUMAN_')
@@ -1278,7 +1280,7 @@ Function print_al_uch(arr_h, arr_m)
   set relation to recno() into HU_
   R_Use(dir_server() + 'mo_su', , 'MOSU')
   R_Use(dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU')
-  use (cur_dir() + 'tmp1') index (cur_dir() + 'tmp11'), (cur_dir() + 'tmp12') new alias tmp1
+  use ( cur_dir() + 'tmp1' ) index ( cur_dir() + 'tmp11' ), ( cur_dir() + 'tmp12' ) new alias tmp1
   for ii := 1 to len(arr_h)
     select TMP1
     set order to 1
@@ -1500,14 +1502,14 @@ Function create_FR_file_for_spravkaOMS()
   append blank
   frt->name := glob_mo[_MO_FULL_NAME]
   frt->adres := glob_mo[_MO_ADRES]
-  dbcreate(fr_data, {{'name', 'C', 255, 0}, ;
-                    {'name1', 'C', 55, 0}, ;
-                    {'shifr', 'C', 10, 0}, ;
-                    {'kol', 'N', 4, 0}, ;
-                    {'cena', 'N', 11, 2}, ;
-                    {'summa', 'N', 11, 2}})
-  use (fr_data) new alias FRD
-  index on shifr to (cur_dir() + 'tmp1')
+  dbcreate( fr_data, { { 'name', 'C', 255, 0 }, ;
+                    { 'name1', 'C', 55, 0 }, ;
+                    { 'shifr', 'C', 10, 0 }, ;
+                    { 'kol', 'N', 4, 0 }, ;
+                    { 'cena', 'N', 11, 2 }, ;
+                    { 'summa', 'N', 11, 2 } } )
+  use ( fr_data ) new alias FRD
+  index on FIELD->shifr to ( cur_dir() + 'tmp1' )
   return NIL
 
 // 15.12.23 печать справки ОМС по готовому листу учёта
@@ -1598,7 +1600,7 @@ Function print_spravka_OMS(mkod)
     endif
     Skip
   enddo
-  index on str(summa, 11, 2) to (fr_data) descending
+  index on str( FIELD->summa, 11, 2 ) to ( fr_data ) descending
   G_Use(dir_server() + 'mo_sprav', , 'SPR_OMS')
   Locate for kod_h == mkod
   if found()
@@ -1746,7 +1748,7 @@ Function f_spravka_OMS()
         endif
         Skip
       enddo
-      index on str(summa, 11, 2) to (fr_data) descending
+      index on str( FIELD->summa, 11, 2 ) to ( fr_data ) descending
       G_Use(dir_server() + 'mo_sprav', , 'SPR_OMS')
       if rec_spr_oms == 0
         append blank
@@ -1901,7 +1903,7 @@ Function f_otchet_spravka_OMS()
   if (arr_m := year_month()) != NIL
     mywait()
     R_Use(dir_server() + 'mo_sprav', , 'SPR_OMS')
-    index on data to (cur_dir() + 'tmp') for between(data, arr_m[5], arr_m[6])
+    index on FIELD->data to ( cur_dir() + 'tmp' ) for between( FIELD->data, arr_m[ 5 ], arr_m[ 6 ] )
     go top
     do while !eof()
       i := 1
