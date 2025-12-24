@@ -2165,7 +2165,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
 
   Return Nil
 
-// 27.11.24
+// 24.12.25
 Static Function s1_mnog_poisk( cv, cf )
 
   Static a_stom_vp := { {}, {}, {} }
@@ -2462,6 +2462,8 @@ Static Function s1_mnog_poisk( cv, cf )
       fl := ( alltrim(kart->pc3) == '035' )
     elseif mn->svo2 == 65
       fl := ( alltrim(kart->pc3) == '065' )
+    elseif mn->svo2 == 83
+      fl := ( alltrim(kart->pc3) == '083' )
     endif 
   endif  
   If fl .and. mn->mi_git > 0

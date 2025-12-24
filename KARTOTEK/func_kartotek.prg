@@ -5,6 +5,11 @@
 #include 'chip_mo.ch'
 
 // 24.12.25
+function SOCtoString( soc )
+
+  return StrZero( soc, 3 )
+
+// 24.12.25
 function mm_SOC()
 
   local aSOC := { ;
