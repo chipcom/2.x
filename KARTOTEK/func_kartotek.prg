@@ -5,14 +5,19 @@
 #include 'chip_mo.ch'
 
 // 24.12.25
-function mm_SVO()
+function mm_SOC()
 
-  return { ;
+  local aSOC := { ;
     { 'категория отсутствует', 0 }, ;
     { 'участник СВО уволенный в запас (отставку)', 35 }, ;
-    { 'член семьи участника СВО', 65 }, ;
-    { 'инвалид I группы', 83 } ;
+    { 'член семьи участника СВО', 65 } ;
   }
+
+  if Year( Date() ) >= 2026 // начиная с 2026 года
+    AAdd( aSOC, { 'инвалид I группы', 83 } )
+  endif
+
+  return aSOC
 
 // 12.01.25
 function control_number_phone( get )

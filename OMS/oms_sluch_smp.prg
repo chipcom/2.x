@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.09.25 СМП - добавление или редактирование случая (листа учета)
+// 24.12.25 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -22,7 +22,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
   Default st_N_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
   Private row_diag_screen, rdiag := 1
-  private m1SVO := 0, mSVO  // социальная категория
+  private m1SCO := 0, mSCO  // социальная категория
 
   If mem_smp_input == 0
     If  kod_kartotek == 0 // добавление в картотеку
@@ -74,12 +74,12 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         m1KOMU    := kart->KOMU
         M1STR_CRB := kart->STR_CRB
       Endif
-      m1SVO := val( kart->PC3 )
+      m1SCO := val( kart->PC3 )
       If kart->MEST_INOG == 9 // т.е. отдельно занесены Ф.И.О.
         m1MEST_INOG := kart->MEST_INOG
       Endif
 
-      m1SVO := val( kart->PC3 )
+      m1SCO := val( kart->PC3 )
 
       m1vidpolis  := kart_->VPOLIS // вид полиса (от 1 до 3);1-старый, 2-врем., 3-новый
       mspolis     := kart_->SPOLIS // серия полиса
@@ -442,7 +442,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
   mtip      := inieditspr( A__MENUVERT, mm_danet, m1tip )
   musluga   := inieditspr( A__MENUBIT,  mm_usluga, m1usluga )
   mismo     := init_ismo( m1ismo )
-  mSVO := inieditspr( A__MENUVERT, mm_SVO(), m1SVO )
+  mSCO := inieditspr( A__MENUVERT, mm_SOC(), m1SCO )
   If ibrm > 0
     mm_prer_b := iif( ibrm == 1, mm1prer_b, iif( ibrm == 2, mm2prer_b, mm3prer_b ) )
     If ibrm == 1 .and. m1prer_b == 0
@@ -586,8 +586,8 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
     Endif
 
-    @ ++j, 1 Say 'Социальная категория' Get mSVO ;
-      reader {| x| menu_reader( x, mm_SVO(), A__MENUVERT, , , .f. ) }
+    @ ++j, 1 Say 'Социальная категория' Get mSCO ;
+      reader {| x| menu_reader( x, mm_SOC(), A__MENUVERT, , , .f. ) }
 
     //
     @ ++j, 1 Say 'Новорожденный?' Get mnovor ;
@@ -799,7 +799,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         kart->STR_CRB   := m1str_crb
         kart->MI_GIT    := 9
         kart->MEST_INOG := newMEST_INOG
-        kart->PC3 := StrZero( m1SVO, 3 )
+        kart->PC3 := StrZero( m1SCO, 3 )
         //
         Select KART2
         Do While kart2->( LastRec() ) < mkod_k

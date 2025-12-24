@@ -98,7 +98,7 @@ Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 17.11.25
+// 24.12.25
 Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Static mm_kart_error := { { 'нет замечаний', 0 }, { 'полис недействителен', -8 }, { 'ошибки в реквизитах', -9 } }
@@ -190,7 +190,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     MPOLIS_PR2 := Space( 25 ), ;
     mmo_pr := '', ;
     gl_area := { 1, 0, MaxRow() -1, 79, 0 }
-  private m1SVO := 0, mSVO  // социальная категория
+  private m1SCO := 0, mSCO  // социальная категория
   private m1UchastSVO := 0, mUchastSVO  // участник СВО
   //
   If !is_append .and. r_use( dir_server() + 'kartote_', , 'KART_' ) ;
@@ -226,7 +226,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
       mkod_vu := kart->kod_vu
     Endif
     m1UchastSVO := iif( kart->PN1 == 30, 1, 0 )
-    m1SVO := val( kart->PC3 )
+    m1SCO := val( kart->PC3 )
 
     Select KART2
     Goto ( mkod )
@@ -386,7 +386,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   minvalid   := inieditspr( A__MENUVERT, mm_invalid, m1invalid )
   mosn_preb  := inieditspr( A__MENUVERT, get_osn_preb_rf(), m1osn_preb )
   mUchastSVO := inieditspr( A__MENUVERT, mm_danet, m1UchastSVO )
-  mSVO := inieditspr( A__MENUVERT, mm_SVO(), m1SVO )
+  mSCO := inieditspr( A__MENUVERT, mm_SOC(), m1SCO )
   madres_reg := ini_adres( 1 )
   madres_pre := ini_adres( 2 )
   If Empty( m1namesmo := Int( Val( msmo ) ) )
@@ -601,8 +601,8 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
       @ ++ix, 1 Say 'Инвалидность' Get minvalid ;
         reader {| x| menu_reader( x, mm_invalid, A__MENUVERT, , , .f. ) } ;
         valid {|| f_kart_valid_inv( ix ) }
-      @ ix, Col() + 6 Say 'Социальная категория' Get mSVO ;
-        reader {| x| menu_reader( x, mm_SVO(), A__MENUVERT, , , .f. ) }
+      @ ix, Col() + 6 Say 'Социальная категория' Get mSCO ;
+        reader {| x| menu_reader( x, mm_SOC(), A__MENUVERT, , , .f. ) }
     Endif
     If eq_any( glob_task, X_MO )
       @ ++ix, 1 Say 'Льгота по ДЛО' Get mKOD_LGOT ;
@@ -724,7 +724,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
           kart->kod_vu := mkod_vu
         Endif
         kart->PN1 := iif( m1UchastSVO == 1, 30, 0 ) // iif( m1UchastSVO == 1, 30, kart->PN1 )
-        kart->PC3 := StrZero( m1SVO, 3 )
+        kart->PC3 := StrZero( m1SCO, 3 )
         Select KART2
         Do While kart2->( LastRec() ) < mkod
           Append Blank
@@ -1135,7 +1135,7 @@ Function valid_phone( get, is_mobil )
 
   Return fl
 
-// 27.01.25 поиск пациента в картотеке во время режима добавления
+// 24.12.25 поиск пациента в картотеке во время режима добавления
 Function findkartoteka( k, /*@*/lkod_k)
 
   Local s, buf, rec := 0
@@ -1199,7 +1199,7 @@ Function findkartoteka( k, /*@*/lkod_k)
         m1MEST_INOG := kart->MEST_INOG
       Endif
       m1UchastSVO := iif( kart->PN1 == 30, 1, 0 )
-      m1SVO := val( kart->PC3 )
+      m1SCO := val( kart->PC3 )
       m1vidpolis  := kart_->VPOLIS // вид полиса (от 1 до 3);1-старый, 2-врем., 3-новый
       mspolis     := kart_->SPOLIS // серия полиса
       mnpolis     := kart_->NPOLIS // номер полиса

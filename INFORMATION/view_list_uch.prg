@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.09.25
+// 24.12.25
 Function print_l_uch( mkod, par, regim, lnomer )
   
   // mkod - код больного по БД human
@@ -251,7 +251,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
     add_string('  Место работы/учебы: ' + human->mr_dol)
   endif
   add_string( '  Статус пациента: ' + mrab_nerab )
-  add_string( '  Социальная категория пациента: ' + inieditspr( A__MENUVERT, mm_SVO(), val( kart->PC3 ) ) )
+  add_string( '  Социальная категория пациента: ' + inieditspr( A__MENUVERT, mm_SOC(), val( kart->PC3 ) ) )
 
   if human_->NOVOR > 0
     add_string('')

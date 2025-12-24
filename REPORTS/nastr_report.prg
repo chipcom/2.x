@@ -32,7 +32,7 @@ Function string_output( sText, lExcel, ws, row, column, fmt )
 
   Return Nil
 
-// 12.09.25 многовариантный поиск
+// 24.12.25 многовариантный поиск
 Function s_mnog_poisk()
 
   Static lcount_uch  := 1
@@ -113,7 +113,7 @@ Function s_mnog_poisk()
     { 'в файл Excel (формат xlsx)', 2 } ;
     }
   Local arr_title
-  local arr_SVO :=  mm_SVO()
+  local arr_SVO :=  mm_SOC()
 
   local arr_doc := { ;
     'Дата рожд.', ;               // VIEW_DOB
