@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 10.12.25 ДДС - добавление или редактирование случая (листа учета)
+// 24.12.25 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -1798,6 +1798,19 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       // добавим педиатра I этапа 
       AAdd( arr_osm1, add_pediatr_DDS( MTAB_NOMpv1, MTAB_NOMpa1, MDATEp1, MKOD_DIAGp1, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
 
+      if mk_data < 0d20250901
+        If tip_lu == TIP_LU_DDSOP // дли детей-сирот под опекой вместо услуг '2.83.*' сделаем '2.87.*'
+          zamena_uslug_old_DDS( arr_osm1 )
+/*
+          For i := 1 To Len( arr_osm1 )
+            If ValType( arr_osm1[ i, 5 ] ) == 'C' .and. Left( arr_osm1[ i, 5 ], 5 ) == '2.83.'
+              arr_osm1[ i, 5 ] := '2.87.' + SubStr( arr_osm1[ i, 5 ], 6 )
+            Endif
+          Next
+*/
+        endif
+      Endif
+
       For i := 1 To Len( arr_osm1 )
         If ValType( arr_osm1[ i, 5 ] ) == 'C'
           AAdd( arr_usl_dop, arr_osm1[ i ] )
@@ -1806,6 +1819,19 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       If metap == 2
         // добавим педиатра II этапа
         AAdd( arr_osm2, add_pediatr_DDS( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
+        if mk_data < 0d20250901
+          If tip_lu == TIP_LU_DDSOP // дли детей-сирот под опекой вместо услуг '2.83.*' сделаем '2.87.*'
+            zamena_uslug_old_DDS( arr_osm2 )
+/*
+            For i := 1 To Len( arr_osm2 )
+              If ValType( arr_osm2[ i, 5 ] ) == 'C' .and. Left( arr_osm2[ i, 5 ], 5 ) == '2.83.'
+                arr_osm2[ i, 5 ] := '2.87.' + SubStr( arr_osm2[ i, 5 ], 6 )
+              Endif
+            Next
+*/
+          endif
+        Endif
+
 //        AAdd( arr_usl_dop, add_pediatr_DDS( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
 //        i := Len( arr_DDS_osm )
 

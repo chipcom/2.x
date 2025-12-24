@@ -2,7 +2,20 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
- 
+
+// 24.12.25
+function zamena_uslug_old_DDS( arr )
+
+  local i
+
+  For i := 1 To Len( arr )
+    If ValType( arr[ i, 5 ] ) == 'C' .and. Left( arr[ i, 5 ], 5 ) == '2.83.'
+      arr[ i, 5 ] := '2.87.' + SubStr( arr[ i, 5 ], 6 )
+    Endif
+  Next
+
+  return arr
+
 // 02.11.25 является врачебным осмотром детей-сирот на первом этапе
 Function is_osmotr_dds_1_etap( ausl, _vozrast, _etap, _pol, tip_lu, mdata )
 
