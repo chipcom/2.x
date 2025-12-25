@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.11.25
+// 25.12.25
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -35,6 +35,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Local s, sCOMENTSL
   local ar_dn
   local CODE_LPU
+  local sk
 
 //  Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
 //  Local oKSG, oSLk, oMR_USL_N, oDISAB, fl_DISABILITY := .f.
@@ -151,7 +152,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     If !Empty( human_2->OSL3 )
       AAdd( mdiagnoz3, human_2->OSL3 )
     Endif
-    cSMOname := schet_smoname()
 
     AFill( adiag_talon, 0 )
     For i := 1 To 16
@@ -186,6 +186,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       If Len( AllTrim( kart2->kod_mis ) ) == 16
         mo_add_xml_stroke( oPAC, 'ENP', kart2->kod_mis ) // Единый номер полиса единого образца
       Endif
+
+      cSMOname := schet_smoname()
       // mo_add_xml_stroke(oPAC, 'ST_OKATO' ,...) // Регион страхования
       If Empty( cSMOname )
         mo_add_xml_stroke( oPAC, 'SMO', human_->smo )
@@ -194,13 +196,16 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       If !Empty( cSMOname )
         mo_add_xml_stroke( oPAC, 'SMO_NAM', cSMOname )
       Endif
+
+      if _nyear >= 2026 .and. p_tip_reestr == TYPE_REESTR_GENERAL // новый ПУМП на 26 год
+        elem_disability( oPac )
+      endif
+
       If human_->NOVOR == 0
         mo_add_xml_stroke( oPAC, 'NOVOR', '0' )
       Else
-        mnovor := iif( human_->pol2 == 'М', '1', '2' ) + ;
-          StrZero( Day( human_->DATE_R2 ), 2 ) + ;
-          StrZero( Month( human_->DATE_R2 ), 2 ) + ;
-          Right( lstr( Year( human_->DATE_R2 ) ), 2 ) + ;
+        mnovor := iif( human_->pol2 == 'М', '1', '2' ) + StrZero( Day( human_->DATE_R2 ), 2 ) + ;
+          StrZero( Month( human_->DATE_R2 ), 2 ) + Right( lstr( Year( human_->DATE_R2 ) ), 2 ) + ;
           StrZero( human_->NOVOR, 2 )
         mo_add_xml_stroke( oPAC, 'NOVOR', mnovor )
       Endif
@@ -209,42 +214,20 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oPAC, 'VNOV_D', lstr( human_2->VNR ) )
       Endif
 
-//      If ( p_tip_reestr == 1 )
         If ( kol_sl == 1 .and. ( human->k_data >= 0d20250101 ) ) ;  // одинарный случай
           .or. ( kol_sl == 2 .and. ( ksl_date >= 0d20250101 ) )   // двойной случай
           mo_add_xml_stroke( oPAC, 'SOC', iif( Empty( kart->pc3 ), '000', kart->pc3 ) )
         Endif
-//      Endif
 
       // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
-      if p_tip_reestr == TYPE_REESTR_GENERAL .and. ;                    // реестр окоазания мед. помощи за исключенем диспансеризации
-          human_->USL_OK == USL_OK_POLYCLINIC .and. ; // поликлиника
+      
+      if _nyear <= 2026 .and. p_tip_reestr == TYPE_REESTR_GENERAL .and. ;    // старый ПУМП, реестр окоазания мед. помощи за исключенем диспансеризации
+          human_->USL_OK == USL_OK_POLYCLINIC .and. ;   // поликлиника
           glob_mo()[ _MO_IS_UCH ] .and. ;               // наше МО имеет прикреплённое население
           kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]    // прикреплён к нашему МО
         elem_disability( oPac )
       endif
-/*
-      fl_DISABILITY := is_disability( p_tip_reestr )
 
-      If fl_DISABILITY // Сведения о первичном признании застрахованного лица инвалидом
-        // заполним сведения об инвалидности пациента для XML-документа
-        oDISAB := oPAC:add( hxmlnode():new( 'DISABILITY' ) )
-        // группа инвалидности при первичном признании застрахованного лица инвалидом
-        mo_add_xml_stroke( oDISAB, 'INV', lstr( kart_->invalid ) )
-        // Дата первичного установления инвалидности
-        mo_add_xml_stroke( oDISAB, 'DATA_INV', date2xml( inv->DATE_INV ) )
-        // Код причины установления  инвалидности
-        mo_add_xml_stroke( oDISAB, 'REASON_INV', lstr( inv->PRICH_INV ) )
-        If !Empty( inv->DIAG_INV ) // Код основного заболевания по МКБ-10
-          mo_add_xml_stroke( oDISAB, 'DS_INV', inv->DIAG_INV )
-        Endif
-      Endif
-*/
-/*
-      If ( p_tip_reestr == TYPE_REESTR_DISPASER ) .and. ( human->k_data >= 0d20250101 )
-        mo_add_xml_stroke( oPAC, 'SOC', iif( Empty( kart->pc3 ), '000', kart->pc3 ) )
-      Endif
-*/
       // заполним сведения о законченном случае оказания медицинской помощи для XML-документа
       oSLUCH := oZAP:add( hxmlnode():new( 'Z_SL' ) )
       mo_add_xml_stroke( oSLUCH, 'IDCASE', lstr( rhum->REES_ZAP ) )

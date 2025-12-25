@@ -198,7 +198,7 @@ function elem_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
   Endif
   return nil
 
-// 26.10.25
+// 25.12.25
 function elem_disability( oPac )
 
   // тэг добавляется только для реестров 1 типа и амбулаторно-поликлинической помощи в
@@ -207,28 +207,28 @@ function elem_disability( oPac )
   local oDISAB
   Local tmpSelect
 
-//  If glob_mo()[ _MO_IS_UCH ] .and. ;                      // наше МО имеет прикреплённое население
-//      human_->USL_OK == USL_OK_POLYCLINIC .and. ;                    // поликлиника
-//      kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] .and. ;  // прикреплён к нашему МО
   if Between( kart_->INVALID, 1, 4 )                   // инвалид
     tmpSelect := Select()
     dbSelectArea( 'INV' )
     inv->( dbSeek( Str( human->kod_k, 7 ) ) )
-//    If inv->( Found() ) .and. ! emptyany( inv->DATE_INV, inv->PRICH_INV )
     If inv->( Found() ) .and. ! ( empty( inv->DATE_INV ) .or. Empty( inv->PRICH_INV ) )
       // дата начала лечения отстоит от даты первичного установления инвалидности не более чем на год
       if ( inv->DATE_INV < human->n_data .and. human->n_data <= AddMonth( inv->DATE_INV, 12 ) )
-        // заполним сведения об инвалидности пациента для XML-документа
-        oDISAB := oPAC:add( hxmlnode():new( 'DISABILITY' ) )
-        // группа инвалидности при первичном признании застрахованного лица инвалидом
-        mo_add_xml_stroke( oDISAB, 'INV', lstr( kart_->invalid ) )
-        // Дата первичного установления инвалидности
-        mo_add_xml_stroke( oDISAB, 'DATA_INV', date2xml( inv->DATE_INV ) )
-        // Код причины установления  инвалидности
-        mo_add_xml_stroke( oDISAB, 'REASON_INV', lstr( inv->PRICH_INV ) )
-        If !Empty( inv->DIAG_INV ) // Код основного заболевания по МКБ-10
-          mo_add_xml_stroke( oDISAB, 'DS_INV', inv->DIAG_INV )
-        Endif
+        if Year( human->k_data ) >= 2026  // ПУМП от 22.12.25 № 04-18-23
+          mo_add_xml_stroke( oPAC, 'INV', lstr( kart_->invalid ) )   // группа инвалидности при первичном признании застрахованного лица инвалидом
+        else  // старый ПУМП
+          // заполним сведения об инвалидности пациента для XML-документа
+          oDISAB := oPAC:add( hxmlnode():new( 'DISABILITY' ) )
+          // группа инвалидности при первичном признании застрахованного лица инвалидом
+          mo_add_xml_stroke( oDISAB, 'INV', lstr( kart_->invalid ) )
+          // Дата первичного установления инвалидности
+          mo_add_xml_stroke( oDISAB, 'DATA_INV', date2xml( inv->DATE_INV ) )
+          // Код причины установления  инвалидности
+          mo_add_xml_stroke( oDISAB, 'REASON_INV', lstr( inv->PRICH_INV ) )
+          If !Empty( inv->DIAG_INV ) // Код основного заболевания по МКБ-10
+            mo_add_xml_stroke( oDISAB, 'DS_INV', inv->DIAG_INV )
+          Endif
+        endif
       endif
     Endif
     Select( tmpSelect )
