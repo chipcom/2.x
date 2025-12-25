@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 10.11.25 ПН - добавление или редактирование случая (листа учета)
+// 24.12.25 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -1847,6 +1847,22 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       mcena_1 := 0
       glob_podr := ''
       glob_otd_dep := 0
+
+      if mk_data < 0d20250901 .and. metap != 2
+        for i := 1 to len( arr_usl_dop )
+          If ValType( arr_usl_dop[ i, 5 ] ) == 'C' .and. Left( arr_usl_dop[ i, 5 ], 5 ) == '2.85.'
+            if AllTrim( arr_usl_dop[ i, 5 ] ) == '2.85.14'
+              arr_usl_dop[ i, 5 ] := '2.3.2'
+              arr_usl_dop[ i, 7 ] := foundourusluga( arr_usl_dop[ i, 5 ], mk_data, arr_usl_dop[ i, 4 ], M1VZROS_REB, @mu_cena )
+            elseif Left( arr_usl_dop[ i, 5 ], 5 ) == '2.85.'
+              arr_usl_dop[ i, 5 ] := '2.3.1'
+              arr_usl_dop[ i, 7 ] := foundourusluga( arr_usl_dop[ i, 5 ], mk_data, arr_usl_dop[ i, 4 ], M1VZROS_REB, @mu_cena )
+            endif
+            arr_usl_dop[ i, 8 ] := mu_cena
+          Endif
+        next
+      endif
+      
       For i := 1 To Len( arr_usl_dop )
         If Empty( arr_usl_dop[ i, 7 ] ) // т.к. для услуг, направляемых в КДП2, код уже известен (а цена =0)
           arr_usl_dop[ i, 7 ] := foundourusluga( arr_usl_dop[ i, 5 ], mk_data, arr_usl_dop[ i, 4 ], M1VZROS_REB, @mu_cena )
@@ -1854,6 +1870,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           mcena_1 += mu_cena
         Endif
       Next
+
       //
       use_base( 'human' )
       If Loc_kod > 0
