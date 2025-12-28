@@ -902,10 +902,11 @@ Function ret_period_dds( ldate_r, ln_data, lk_data, /*@*/ls, /*@*/ret_i)
   Next
   Return lperiod
 
-// 05.10.25
+// 28.12.25
 Function add_pediatr_DDS( _pv, _pa, _date, _diag, mpol, mdef_diagnoz, mobil, tip_lu )
 
   Local arr[ 10 ]
+  local cDiag
 
   Default mobil To 0
   default tip_lu to TIP_LU_DDSOP
@@ -938,8 +939,22 @@ Function add_pediatr_DDS( _pv, _pa, _date, _diag, mpol, mdef_diagnoz, mobil, tip
       endif
     Endif
   Else
-//    arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.85.15', '2.85.14' ) // θ¨δΰ γα«γ£¨
-    arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.83.15', '2.83.14' ) // θ¨δΰ γα«γ£¨
+    If mvozrast < 1
+      cDiag := iif( tip_lu == TIP_LU_DDS, '70.5.3', '70.6.1' )
+    Elseif mvozrast < 3
+      cDiag := iif( tip_lu == TIP_LU_DDS, '70.5.4', '70.6.2' )
+    Elseif mvozrast < 5
+      cDiag := iif( tip_lu == TIP_LU_DDS, '70.5.5', '70.6.3' )
+    Elseif mvozrast < 7
+      cDiag := iif( tip_lu == TIP_LU_DDS, '70.5.6', '70.6.4' )
+    Elseif mvozrast < 15
+      cDiag := iif( tip_lu == TIP_LU_DDS, '70.5.7', '70.6.5' )
+    Else
+      cDiag := iif( tip_lu == TIP_LU_DDS, '70.5.8', '70.6.6' )
+    Endif
+
+//    arr[ 5 ] := iif( eq_any( arr[ 2 ], 1110, -16 ), '2.83.15', '2.83.14' ) // θ¨δΰ γα«γ£¨
+    arr[ 5 ] := cDiag // θ¨δΰ γα«γ£¨
   Endif
   If Empty( _diag ) .or. Left( _diag, 1 ) == 'Z'
     arr[ 6 ] := mdef_diagnoz

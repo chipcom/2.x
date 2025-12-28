@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.12.25 ДДС - добавление или редактирование случая (листа учета)
+// 28.12.25 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -1797,7 +1797,6 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       
       // добавим педиатра I этапа 
       AAdd( arr_osm1, add_pediatr_DDS( MTAB_NOMpv1, MTAB_NOMpa1, MDATEp1, MKOD_DIAGp1, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
-
       if mk_data < 0d20250901
         If tip_lu == TIP_LU_DDSOP // дли детей-сирот под опекой вместо услуг '2.83.*' сделаем '2.87.*'
           zamena_uslug_old_DDS( arr_osm1 )
@@ -1808,6 +1807,19 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
             Endif
           Next
 */
+        else
+          AAdd( arr_osm1, add_pediatr_DDS( MTAB_NOMpv1, MTAB_NOMpa1, MDATEp1, MKOD_DIAGp1, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
+          arr_osm1[ len( arr_osm1 ), 5 ] := '2.3.2'
+
+          For i := 1 To Len( arr_osm1 )
+            If ValType( arr_osm1[ i, 5 ] ) == 'C' .and. Left( arr_osm1[ i, 5 ], 5 ) == '2.83.'
+              if ( arr_osm1[ i, 5 ] != '2.83.14' ) .or. ( arr_osm1[ i, 5 ] != '2.83.15' )
+                arr_osm1[ i, 5 ] := '2.3.1'
+              else
+                arr_osm1[ i, 5 ] := '2.3.2'
+              Endif
+            Endif
+          Next
         endif
       Endif
 
