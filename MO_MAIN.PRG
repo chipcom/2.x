@@ -335,7 +335,7 @@ Function f_main( r0, is_local_version, a_parol )
       find_time_limit_human_reestr_sp_tk()
 //      If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
 //      find_unfinished_r01()
-      find_unfinished_r11()
+//      find_unfinished_r11()
 //      Endif
     Endif
     //

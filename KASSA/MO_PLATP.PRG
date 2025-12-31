@@ -4549,7 +4549,7 @@ Function pl_pl_1dogovor( k )
 
 //
 
-// 01.03.19
+// 25.12.25
 Function pl_pl_dogovor()
 
   Local buf := save_row( MaxRow() ), sh, HH := 49, arr_title, s, i, j, k, sk, ss, ;
@@ -4557,7 +4557,8 @@ Function pl_pl_dogovor()
     aadres[ 2 ], kadres, apolis[ 10 ], kpolis, name_file := cur_dir() + "jurnal.txt", arr_dms, ;
     kol_vo := 0, usl_nds18 := 0, usl_nds18_1 := 0, ;
     usl_nds10 := 0, usl_nds10_1 := 0, ;
-    usl_nds20 := 0, usl_nds20_1 := 0
+    usl_nds20 := 0, usl_nds20_1 := 0, ;
+    usl_nds22 := 0, usl_nds22_1 := 0 
 
   arr_title := { ;
     "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ", ;
@@ -4647,7 +4648,7 @@ Function pl_pl_dogovor()
           Endif
         Endif
         Select HPU
-        // ‚ë¡®àª  „‘ 18/10/20
+        // ‚ë¡®àª  „‘ 18/10/20/22
         // ¢®§à áâ
         If fv_dog_date_r( hu->n_data, kart->date_r ) > 0 // ¤¥â¨
           If round_5( usl->pnds_d, 0 ) == 18
@@ -4659,6 +4660,9 @@ Function pl_pl_dogovor()
           Elseif round_5( usl->pnds_d, 0 ) == 20
             usl_nds20 := usl_nds20 + hpu->kol
             usl_nds20_1 := usl_nds20_1 + hpu->stoim
+          Elseif round_5( usl->pnds_d, 0 ) == 22
+            usl_nds22 := usl_nds22 + hpu->kol
+            usl_nds22_1 := usl_nds22_1 + hpu->stoim  
           Endif
         Else
           If round_5( usl->pnds, 0 ) == 18
@@ -4670,6 +4674,9 @@ Function pl_pl_dogovor()
           Elseif round_5( usl->pnds, 0 ) == 20
             usl_nds20 := usl_nds20 + hpu->kol
             usl_nds20_1 := usl_nds20_1 + hpu->stoim
+          Elseif round_5( usl->pnds, 0 ) == 22
+            usl_nds22 := usl_nds22 + hpu->kol
+            usl_nds22_1 := usl_nds22_1 + hpu->stoim  
           Endif
         Endif
         //
@@ -4704,6 +4711,12 @@ Function pl_pl_dogovor()
   If usl_nds20_1 > 0
     add_string( PadL( "‘ã¬¬  ãá«ã£ á „‘ 20% : " + Str( usl_nds20_1, 11, 2 ), sh -12 ) )
   Endif
+  If usl_nds22 > 0
+    add_string( PadL( "Š®«¨ç¥áâ¢® ãá«ã£ á „‘ 22% : " + Str( usl_nds22, 11 ), sh -12 ) )
+  Endif
+  If usl_nds22_1 > 0
+    add_string( PadL( "‘ã¬¬  ãá«ã£ á „‘ 22% : " + Str( usl_nds22_1, 11, 2 ), sh -12 ) )
+  Endif
   add_string( "" )
   add_string( Center( "ƒ« ¢­ë© ¢à ç _________________                         ƒ« ¢­ë© ¡ãå£ «â¥à _________________", sh ) )
   FClose( fp )
@@ -4717,7 +4730,7 @@ Function pl_pl_dogovor()
 //
 
 
-// 01.03.19
+// 25.12.25
 Function pl_pl_2dogovor()
 
   Local buf := save_row( MaxRow() ), sh, HH := 49, arr_title, s, i, k, sk, ss, ;
@@ -4726,6 +4739,7 @@ Function pl_pl_2dogovor()
     usl_nds18 := 0, usl_nds18_1 := 0, ;
     usl_nds10 := 0, usl_nds10_1 := 0, ;
     usl_nds20 := 0, usl_nds20_1 := 0, ;
+    usl_nds22 := 0, usl_nds22_1 := 0, ;  
     t_vr, t_as, t_nvr, t_nas, arr_dms, kol_vo := 0, ;
     nom_prihod
 
@@ -5057,7 +5071,7 @@ Function pl_pl_2dogovor()
           Endif
         Endif
         Select HPU
-        // ‚ë¡®àª  „‘ 18/10/20
+        // ‚ë¡®àª  „‘ 18/10/20/22
         // ¢®§à áâ
         If fv_dog_date_r( hu->n_data, kart->date_r ) > 0 // ¤¥â¨
           If round_5( usl->pnds_d, 0 ) == 18
@@ -5069,6 +5083,9 @@ Function pl_pl_2dogovor()
           Elseif round_5( usl->pnds_d, 0 ) == 20
             usl_nds20 := usl_nds20 + hpu->kol
             usl_nds20_1 := usl_nds20_1 + hpu->stoim
+          Elseif round_5( usl->pnds_d, 0 ) == 22
+            usl_nds22 := usl_nds22 + hpu->kol
+            usl_nds22_1 := usl_nds22_1 + hpu->stoim  
           Endif
         Else
           If round_5( usl->pnds, 0 ) == 18
@@ -5080,6 +5097,9 @@ Function pl_pl_2dogovor()
           Elseif round_5( usl->pnds, 0 ) == 20
             usl_nds20 := usl_nds20 + hpu->kol
             usl_nds20_1 := usl_nds20_1 + hpu->stoim
+          Elseif round_5( usl->pnds, 0 ) == 22
+            usl_nds22 := usl_nds22 + hpu->kol
+            usl_nds22_1 := usl_nds22_1 + hpu->stoim
           Endif
         Endif
         Skip
@@ -5115,6 +5135,12 @@ Function pl_pl_2dogovor()
   Endif
   If usl_nds20_1 > 0
     add_string( PadL( "‘ã¬¬  ãá«ã£ á „‘ 20% : " + Str( usl_nds20_1, 11, 2 ), sh -12 ) )
+  Endif
+  If usl_nds22 > 0
+    add_string( PadL( "Š®«¨ç¥áâ¢® ãá«ã£ á „‘ 22% : " + Str( usl_nds22, 11 ), sh -12 ) )
+  Endif
+  If usl_nds22_1 > 0
+    add_string( PadL( "‘ã¬¬  ãá«ã£ á „‘ 22% : " + Str( usl_nds22_1, 11, 2 ), sh -12 ) )
   Endif
   add_string( "" )
   add_string( "" )

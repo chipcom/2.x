@@ -413,7 +413,7 @@ Function f3_kas_ort( nKey, oBrow )
   Endcase
   Return flag
 
-// 05.08.16
+// 25.12.25
 Function f4_kas_ort( rec, tmprec )
 
   Local fl := .f., adbf, buf := SaveScreen(), tmp_color := SetColor( color1 ), ;
@@ -513,12 +513,13 @@ goto (t_hum_rec)*/
         v_summa := v_sdacha := v_bank := 0
         If yes_o_chek( @v_summa, @v_sdacha, @mcena, @v_bank,, @maddress, @tip_kart )
           adbf := { { "name", "C", 128, 0 }, ;  // 00.01.18
-          { "vrach", "C", 40, 0 }, ;
+            { "vrach", "C", 40, 0 }, ;
             { "cena", "N", 10, 2 }, ;
             { "kol",  "N",  4, 0 }, ;
             { "nds20", "N",  1, 0 }, ; // 10.08.08
-          { "nds18", "N",  1, 0 }, ; // 10.08.08
-          { "nds10", "N",  1, 0 } }
+            { "nds22", "N",  1, 0 }, ; // 25.12.25
+            { "nds18", "N",  1, 0 }, ; // 10.08.08
+            { "nds10", "N",  1, 0 } }
           dbCreate( cur_dir() + "tmp", adbf )
           Use ( cur_dir() + "tmp" ) new
           Append Blank

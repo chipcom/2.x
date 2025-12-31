@@ -84,11 +84,12 @@ Function fr_nastrojka( k )
   Endif
   Return Nil
 
-// 24.08.25
+// 30.12.25
 Function f5_sist_fr( k )
 
   Static mm_da_net := { { "да ", 1 }, { "нет", 2 } }
   Static mm_chek := { { "Сквозной номер документа ККМ", 1 }, { "Номер чека продажи ККМ", 2 } }
+  Static mm_nds22 := { { "Не выполнена", 1 }, { "Произведена", 2 } }
   Static n_zapusk := 0
   Local mm_tmp := {}, buf, fl := .f.
 
@@ -102,8 +103,9 @@ Function f5_sist_fr( k )
       MEK_KASSIR := Space( 20 ), ;
       mek_chek   := 1, ;
       mek_bnbank := 2, ;
-      mek_kod_usl := 1 , ;
-      mek_sbp := 2  
+      mek_kod_usl := 1, ;
+      mek_sbp := 2, ;  
+      mek_nds22 := 1  
 
     If File( "_kassa_.mem" )
       Restore From _kassa_ Additive
@@ -140,7 +142,8 @@ Function f5_sist_fr( k )
       mmek_chek := m1mek_chek := mek_chek, ;
       mmeK_bnbank, m1meK_bnbank := meK_bnbank, ;
       mmek_kod_usl, m1mek_kod_usl := mek_kod_usl, ;
-      mmek_sbp,  m1mek_sbp := mek_sbp  
+      mmek_sbp,  m1mek_sbp := mek_sbp, ;  
+      mmek_nds22,  m1mek_nds22 := mek_nds22  
 
     mmeK_bank   := inieditspr( A__MENUVERT, mm_da_net, m1meK_bank )
     mmeK_bnbank   := inieditspr( A__MENUVERT, mm_da_net, m1meK_bnbank )
@@ -149,6 +152,7 @@ Function f5_sist_fr( k )
     mmek_chek   := inieditspr( A__MENUVERT, mm_chek, m1mek_chek )
     mmek_kod_usl := inieditspr( A__MENUVERT, mm_da_net, m1mek_kod_usl )
     mmek_sbp := inieditspr( A__MENUVERT, mm_da_net, m1mek_sbp )
+    mmek_nds22 := inieditspr( A__MENUVERT, mm_nds22, m1mek_nds22 ) 
 
     SetColor( cDataCGet )
     ix := 3
@@ -158,6 +162,8 @@ Function f5_sist_fr( k )
         reader {| x| menu_reader( x, mm_chek, A__MENUVERT,,, .f. ) }
       @ ++ix, 3 Say "Выделять отдельно Переводы СБП " Get mmek_sbp ;
         reader {| x| menu_reader( x, mm_da_net, A__MENUVERT,,, .f. ) }
+      @ ++ix, 3 Say "Перепрошивка ККМ на НДС 22% " Get  mmek_nds22 ; 
+        reader {| x| menu_reader( x,  mm_nds22, A__MENUVERT,,, .f. ) }
       @ ++ix, 3 Say "Вызов драйвера ..." Get mnkassa ;
         reader {| x| menu_reader( x, { {|| fr_draiver() } }, A__FUNCTION,,, .f. ) }
     Endif
@@ -193,6 +199,7 @@ Function f5_sist_fr( k )
         mek_chek    := m1mek_chek
         mek_kod_usl := m1mek_kod_usl
         mek_sbp     := m1mek_sbp
+        mek_nds22   := m1mek_nds22       
       Endif
       Save All Like mek_* To _kassa_
     Endif
@@ -891,10 +898,12 @@ Function chek_fr( vsum, vsd, /*@*/cur_chek, vbank, sekcia, /*@*/fr_serial_number
     If fl .and. tmp->kol > 0
       name_tov := AllTrim( tmp->name )
       t_nds := 0
-      If tmp->nds18 > 0 .or. tmp->nds20 > 0
+      If tmp->nds18 > 0 .or. tmp->nds20 > 0 .or. (tmp->nds22 > 0 .and.  mek_nds22 == 1) // старая прошивка
         t_nds := 1
       Elseif tmp->nds10 > 0
         t_nds := 2
+      Elseif tmp->nds22 > 0 .and. mek_nds22 == 2 // новая прошивка
+        t_nds := 11
       Endif
       s_err := frchf_registr( tmp->cena, tmp->kol, sekcia, name_tov, t_nds, 1, 4, tip_oplat )
       If ( fl := Empty( s_err ) )
@@ -1040,10 +1049,12 @@ Function vozvrat_fr( value, bn_value, /*@*/cur_chek, sekcia, tip_banka )
   Do While !Eof()
     If fl .and. tmp->kol1 > 0
       t_nds := 0
-      If tmp->nds18 > 0 .or. tmp->nds20 > 0
+      If tmp->nds18 > 0 .or. tmp->nds20 > 0 .or. (tmp->nds22 > 0 .and.  mek_nds22 == 1) // старая прошивка
         t_nds := 1
       Elseif tmp->nds10 > 0
         t_nds := 2
+      Elseif tmp->nds22 > 0 .and. mek_nds22 == 2 // новая прошивка
+        t_nds := 11  
       Endif
       s_err := frchf_registr( tmp->vz_cena, tmp->kol1, sekcia, tmp->name_u, t_nds, 2, 4, 4 )
       If ( fl := Empty( s_err ) )
@@ -1387,6 +1398,7 @@ Function frchf_registr( cena, kol_vo, sekcia, name, t_nds, Tip_operation, tip_to
     kol_vo        - количество товара
     sekcia        - номер секции
     name          - наименование товара
+    t_nds         - НДС - НЕТ/10/20/22  
     Tip_operation - 1 == продажа 2 == возврат продажи
     tip_tovar     - тип товара 4 == услуга
     tip_rachet    - тип расчета 4 == полный

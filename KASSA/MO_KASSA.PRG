@@ -813,7 +813,7 @@ Function f3_kas_plat( nKey, oBrow )
   Endcase
   Return flag
 
-// 04.07.17
+// 25.12.25
 Function f4_kas_plat( fl_edit )
 
   Local fl := .f., adbf, buf := SaveScreen(), tmp_color := SetColor( color1 ), ;
@@ -931,7 +931,7 @@ Function f4_kas_plat( fl_edit )
       //
       Use ( cur_dir() + "tmp_usl" ) New index ( cur_dir() + "tmp_usl" )
       adbf := { { "name",   "C", 128, 0 }, ; // 24.12.17
-      { "name_u", "C", 128, 0 }, ;
+        { "name_u", "C", 128, 0 }, ;
         { "vrach",  "C", 40, 0 }, ;
         { "cena",   "N", 10, 2 }, ;
         { "U_CENA", "N", 10, 2 }, ;
@@ -939,8 +939,9 @@ Function f4_kas_plat( fl_edit )
         { "kol",    "N",  4, 0 }, ;
         { "kol1",   "N",  4, 0 }, ;
         { "nds20",  "N",  1, 0 }, ; // 10.08.08
-      { "nds18",  "N",  1, 0 }, ; // 10.08.08
-      { "nds10",  "N",  1, 0 } }
+        { "nds18",  "N",  1, 0 }, ; // 10.08.08
+        { "nds22",  "N",  1, 0 }, ; // 25.12.25  
+        { "nds10",  "N",  1, 0 } }
       dbCreate( cur_dir() + "tmp", adbf )
       Use ( cur_dir() + "tmp" ) new
       adbf := {}
@@ -997,6 +998,8 @@ Function f4_kas_plat( fl_edit )
               tmp->nds18 := 1
             Elseif round_5( usl->pnds_d, 0 ) == 20
               tmp->nds20 := 1
+            Elseif round_5( usl->pnds_d, 0 ) == 22
+              tmp->nds22 := 1  
             Elseif round_5( usl->pnds_d, 0 ) == 10
               tmp->nds10 := 1
             Endif
@@ -1007,6 +1010,8 @@ Function f4_kas_plat( fl_edit )
               tmp->nds18 := 1
             Elseif round_5( usl->pnds, 0 ) == 20
               tmp->nds20 := 1
+            Elseif round_5( usl->pnds, 0 ) == 22
+              tmp->nds22 := 1  
             Elseif round_5( usl->pnds, 0 ) == 10
               tmp->nds10 := 1
             Endif

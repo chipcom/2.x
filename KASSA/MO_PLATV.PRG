@@ -287,7 +287,7 @@ Function f2_k_plat( oBrow )
   mark_keys( { "<Esc>", "<Enter>", "<Ins>", "<Del>", "<Ctrl+Enter>", "<F3>", "<F4>", "<F8>", "<F9>", "<F10>" }, "R/W" )
   Return Nil
 
-// 25.10.25
+// 25.12.25
 Function f3_k_plat( nKey, oBrow )
 
   Local j := 0, flag := -1, buf := save_row( MaxRow() ), buf1, fl := .f., rec, mkod, ;
@@ -354,10 +354,11 @@ Function f3_k_plat( nKey, oBrow )
     Index On fsort_usl( usl->shifr ) to ( cur_dir() + "tmp" ) While hu->kod == human->( RecNo() )
     adbf := { { "name", "C", 128, 0 }, ;
       { "vrach", "C", 50, 0 }, ;
-      { "cena", "N", 10, 2 }, ;
-      { "kol",  "N",  4, 0 }, ;
+      { "cena",  "N", 10, 2 }, ;
+      { "kol",   "N",  4, 0 }, ;
       { "nds22", "N",  1, 0 }, ;
       { "nds20", "N",  1, 0 }, ;
+      { "nds22", "N",  1, 0 }, ;  
       { "nds18", "N",  1, 0 }, ;
       { "nds10", "N",  1, 0 } }
     dbCreate( cur_dir() + "tmp", adbf )
@@ -626,7 +627,7 @@ Function f3_k_plat( nKey, oBrow )
     hu->( dbCloseArea() )
     HUMANST->( dbCloseArea() )
     Select TMP
-    Index On fsort_usl( shifr ) to ( cur_dir() + "tmp" )
+    Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + "tmp" )
     Private p_summa := round_5( human->cena, 2 )
     rec := human->( RecNo() ) ; c1 := human->lpu
     If Len( AllTrim( mem_dogovor ) ) > 3
@@ -2470,7 +2471,7 @@ Function f1closedms()
     { "summa", "N", 11, 2 }, ;
     { "sum_opl", "N", 11, 2 } } )
   Use ( cur_dir() + "tmpk" ) new
-  Index On Str( pr_smo, 6 ) + Str( kod_k, 7 ) to ( cur_dir() + "tmpk" )
+  Index On Str( FIELD->pr_smo, 6 ) + Str( FIELD->kod_k, 7 ) to ( cur_dir() + "tmpk" )
   dbCreate( cur_dir() + "tmph", { { "kod", "N", 7, 0 }, ;
     { "kod_k", "N", 7, 0 }, ;
     { "pr_smo", "N", 6, 0 }, ;
@@ -2504,7 +2505,7 @@ Function f1closedms()
     Skip
   Enddo
   Select TMPH
-  Index On Str( pr_smo, 6 ) + Str( kod_k, 7 ) + DToS( k_data ) to ( cur_dir() + "tmph" )
+  Index On Str( FIELD->pr_smo, 6 ) + Str( FIELD->kod_k, 7 ) + DToS( FIELD->k_data ) to ( cur_dir() + "tmph" )
   Select HU
   Set Order To 0
   //
@@ -2731,7 +2732,7 @@ Function f3_usl_date( rec )
   AAdd( adbf, { "name", "C", 64, 0 } )
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) New Alias TMP
-  Index On shifr to ( cur_dir() + "tmp" )
+  Index On FIELD->shifr to ( cur_dir() + "tmp" )
   Select PUC
   find ( Str( prec, 4 ) )
   If ( fl_found := Found() )
@@ -2939,20 +2940,21 @@ Function vozvrat_platn( kod_human )
   AAdd( adbf, { "date_u1", "D",  8, 0 } )
   AAdd( adbf, { "shifr_u", "C", 10, 0 } )
   AAdd( adbf, { "name_u", "C", 128, 0 } )
-  AAdd( adbf, { "is_nul", "L",  1, 0 } )
-  AAdd( adbf, { "summa1", "N",  9, 3 } )
-  AAdd( adbf, { "summa2", "N",  9, 3 } )
+  AAdd( adbf, { "is_nul",  "L",  1, 0 } )
+  AAdd( adbf, { "summa1",  "N",  9, 3 } )
+  AAdd( adbf, { "summa2",  "N",  9, 3 } )
   AAdd( adbf, { "vz_cena", "N",  9, 3 } )
-  AAdd( adbf, { "kol1",   "N",  5, 0 } )
-  AAdd( adbf, { "number", "N",  6, 0 } )
-  AAdd( adbf, { "rec_hu", "N",  7, 0 } )
-  AAdd( adbf, { "nds20",  "N",  1, 0 } )
-  AAdd( adbf,  { "nds18", "N",  1, 0 } )
-  AAdd( adbf,  { "nds10", "N",  1, 0 } )
+  AAdd( adbf, { "kol1",    "N",  5, 0 } )
+  AAdd( adbf, { "number",  "N",  6, 0 } )
+  AAdd( adbf, { "rec_hu",  "N",  7, 0 } )
+  AAdd( adbf, { "nds20",   "N",  1, 0 } )
+  AAdd( adbf, { "nds22",   "N",  1, 0 } )
+  AAdd( adbf, { "nds18",   "N",  1, 0 } )
+  AAdd( adbf, { "nds10",   "N",  1, 0 } )
   //
   dbCreate( cur_dir() + "tmp_usl", adbf )
   Use ( cur_dir() + "tmp_usl" ) New Alias tmp
-  Index On Str( u_kod, 4 ) + Str( kod_vr, 4 ) + date_u to ( cur_dir() + "tmp1usl" )
+  Index On Str( FIELD->u_kod, 4 ) + Str( FIELD->kod_vr, 4 ) + FIELD->date_u to ( cur_dir() + "tmp1usl" )
   Select HU
   Set Relation To u_kod into USL
   find ( Str( kod_human, 7 ) )
@@ -2984,6 +2986,8 @@ Function vozvrat_platn( kod_human )
             tmp->nds18 := 1
           Elseif round_5( usl->pnds, 0 ) == 20
             tmp->nds20 := 1
+          Elseif round_5( usl->pnds, 0 ) == 22
+            tmp->nds22 := 1  
           Elseif round_5( usl->pnds, 0 ) == 10
             tmp->nds10 := 1
           Endif
@@ -3000,9 +3004,9 @@ Function vozvrat_platn( kod_human )
   Endif
   Select TMP
   If mem_ordusl == 1
-    Index On DToS( date_u1 ) + fsort_usl( shifr_u ) to ( cur_dir() + "tmp_usl" )
+    Index On DToS( FIELD->date_u1 ) + fsort_usl( FIELD->shifr_u ) to ( cur_dir() + "tmp_usl" )
   Else
-    Index On fsort_usl( shifr_u ) + DToS( date_u1 ) to ( cur_dir() + "tmp_usl" )
+    Index On fsort_usl( FIELD->shifr_u ) + DToS( FIELD->date_u1 ) to ( cur_dir() + "tmp_usl" )
   Endif
   tmp->( dbEval( {|| tmp->number := ++j } ) )
   hu->( dbCloseArea() )

@@ -909,7 +909,7 @@ Function f3e_o_kopl()
   @ 23, 2 Say PadL( "Итого: " + lstr( mcena_opl, 11, 2 ), 20 ) Color "W+/N"
   Return Nil
 
-// 15.01.24
+// 25.12.25
 Function f2e_o_kopl( nKey, oBrow )
 
   Static skod_vr := 0, sn_kvit := 0
@@ -1201,13 +1201,15 @@ Function f2e_o_kopl( nKey, oBrow )
       ho->is_kas == 2 .and. ho->cena_opl > 0
     buf := SaveScreen()
     clrline( 23, color0 )
-    adbf := { { "name", "C", 128, 0 }, ;
+    adbf := { ;
+      { "name", "C", 128, 0 }, ;
       { "vrach", "C", 40, 0 }, ;
       { "cena", "N", 10, 2 }, ;
       { "kol",  "N",  5, 1 }, ;
       { "nds20", "N",  1, 0 }, ; // 10.08.08
-    { "nds18", "N",  1, 0 }, ; // 10.08.08
-    { "nds10", "N",  1, 0 } }
+      { "nds22", "N",  1, 0 }, ; // 25.12.25
+      { "nds18", "N",  1, 0 }, ; // 10.08.08
+      { "nds10", "N",  1, 0 } }
     dbCreate( cur_dir() + "tmp", adbf )
     Use ( cur_dir() + "tmp" ) new
     adbf := {}
@@ -1256,7 +1258,7 @@ Function f2e_o_kopl( nKey, oBrow )
   help_code := tmp_help
   Return flag
 
-// 12.02.21
+// 25.12.25
 Function vozvrat_orto()
 
   Local buf := SaveScreen(), ln_chek, ;
@@ -1286,8 +1288,9 @@ Function vozvrat_orto()
       { "vz_cena", "N", 10, 3 }, ;
       { "kol1",   "N",  5, 1 }, ;
       { "nds20",  "N",  1, 0 }, ; // 10.08.08
-    { "nds18",  "N",  1, 0 }, ; // 10.08.08
-    { "nds10",  "N",  1, 0 } }
+      { "nds22",  "N",  1, 0 }, ; // 25.12.25
+      { "nds18",  "N",  1, 0 }, ; // 10.08.08
+      { "nds10",  "N",  1, 0 } }
     dbCreate( cur_dir() + "tmp", adbf )
     Use ( cur_dir() + "tmp" ) new
     adbf := {}
