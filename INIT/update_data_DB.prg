@@ -67,7 +67,7 @@ Function update_v____()
 
   Return Nil
   
-// 03.02.25 проведение изменений в содержимом БД при обновлении
+// 31.12.25 проведение изменений в содержимом БД при обновлении
 Function update_data_db( aVersion )
 
   Local snversion := Int( aVersion[ 1 ] * 10000 + aVersion[ 2 ] * 100 + aVersion[ 3 ] )
@@ -93,7 +93,23 @@ Function update_data_db( aVersion )
     update_v50202()     // перенос данных о гинеколгических услугах
   endif
 
+  If ver_base < 60101 // переход на версию 5.2.2
+    update_v60101()     // перенос данных о инвалидности I группы
+  endif
+
 Return Nil
+
+// 31.12.25
+Function update_v60101()     // перенос данных о инвалидности I группы
+
+  stat_msg( 'Переносим информацию об инвалидах I группы' )
+  use_base( 'kartotek', 'kart', .t. ) // откроем файл kartotek
+
+  dbEval( { || iif( kart_->INVALID == 1, kart->PC3 := '083', kart->PC3 := kart->PC3 ) } )
+
+  dbCloseAll()        // закроем все
+
+  return nil
 
 //  12.03.22
 Function update_v21203()

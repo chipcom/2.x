@@ -54,16 +54,13 @@ Function kartotekToExcel()
   endif
   return nil
 
-// 19.05.25
+// 31.12.25
 function filter_to_kartotek_Excel()
 
   local aCondition := { { ' = ', 1 }, { ' > ', 2 }, { ' < ', 3 } }
   local notUsed := { 'не применять', 1 }
   local aGender := { notUsed, { 'мужской', 2 }, { 'женский', 3 } }
   local aDOB := { notUsed, {'по дате рождения', 2 }, { 'по возрасту', 3 } }
-  local aSocKat := { notUsed, { 'категория отсутствует', 2 }, ;
-    { 'участник СВО уволенный в запас', 3 }, ;
-    { 'член семьи участника СВО', 4 } }
   local minDOB := CToD('')
   local maxDOB := minDOB
   local dAge := minDOB
@@ -72,12 +69,18 @@ function filter_to_kartotek_Excel()
   local iRow := 9
   local oBox, tmp_keys, tmp_gets
   local aReturn := Array( 6 )
+  local aSocKat
+  //:= { notUsed, { 'категория отсутствует', 2 }, ;
+  //    { 'участник СВО уволенный в запас', 3 }, ;
+  //    { 'член семьи участника СВО', 4 } }
 
   private mGender, m1Gender
   private mDOB, m1DOB
   private mCondition, m1Condition
   private mSocKat, m1SocKat
 
+  aSocKat := mm_SOC()
+  hb_AIns( aSocKat, 1, notUsed, .t. )
   m1Gender := 1
   mGender := inieditspr( A__MENUVERT, aGender, m1Gender )
   m1DOB := 1
@@ -146,7 +149,7 @@ function filter_to_kartotek_Excel()
 	my_restkey( tmp_keys )
   return aReturn
 
-// 19.05.25 проверка для фильтра на строку БД
+// 31.12.25 проверка для фильтра на строку БД
 function control_filter_kartotek( cAliasKart, cAliasKart2, cAliasKart_, aFilter )
   local lRet := .t.
   local age
@@ -198,7 +201,11 @@ function control_filter_kartotek( cAliasKart, cAliasKart2, cAliasKart_, aFilter 
         endif
       endif
     endif
-    if aFilter[ 6 ] != 1  // фильтр по социальной категории
+    if aFilter[ 6 ] != 1  // фильтр по социальной категории 
+      if ( cAliasKart )->PC3 != StrZero( aFilter[ 6 ], 3 )
+        lRet := .f.
+      endif
+/*
       if aFilter[ 6 ] == 2
         if ( cAliasKart )->PC3 != '000'
           lRet := .f.
@@ -212,6 +219,7 @@ function control_filter_kartotek( cAliasKart, cAliasKart2, cAliasKart_, aFilter 
             lRet := .f.
         endif
       endif
+*/
     endif
   endif
   return lRet

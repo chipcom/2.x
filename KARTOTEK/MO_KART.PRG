@@ -1064,7 +1064,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 28.03.23 ввод инвалидности
+// 31.12.25 ввод инвалидности
 Function f_kart_valid_inv( r )
 
   Local c := 2, r1, r2, buf, tmp_help, tmp_list, tmp_color, tek_sost, tmp_keys, ;
@@ -1092,6 +1092,10 @@ Function f_kart_valid_inv( r )
     Valid  val1_10diag( .t., .f., .f., MDATE_INV, mpol )
   status_key( '^<PgDn>^ - запись и переход в карточку пациента' )
   myread()
+  if m1INVALID == 1 // инвалид I группы, обновим социальную категорию
+    m1SCO := 83
+    mSCO := inieditspr( A__MENUVERT, mm_SOC(), m1SCO )
+  endif
   RestScreen( buf )
   my_restkey( tmp_keys )
   SetColor( tmp_color )
