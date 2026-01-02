@@ -13,7 +13,7 @@ Function other_schets( k )
   Default k To 1
   Do Case
   Case k == 1
-    If ! hb_user_curUser:isadmin()
+    If ! currentuser():isadmin()
       Return func_error( 4, err_admin() )
     Endif
     mas_pmt := { "Список ~прочих счетов", ;
@@ -2064,7 +2064,7 @@ Function akt_kontrol_2012()
   Local buf, fl, ii := 0, fl_numeration := .f., str_sem := "Оплата счетов"
   Local t_arr[ BR_LEN ], blk, s
 
-  If ! hb_user_curUser:isadmin()
+  If ! currentuser():isadmin()
     Return func_error( 4, err_admin() )
   Endif
   If g_slock( str_sem )

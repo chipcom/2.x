@@ -41,12 +41,12 @@ function editEmployees( nType )
 	local oBox, aEdit := {}
 	local aProperties
 	
-	if hb_user_curUser:IsAdmin()
+	if currentuser():IsAdmin()
 		aEdit := { .t., .t., .t., .t. }
 	else
 		aEdit := { .f., .f., .f., .f. }
 	endif
-	if hb_user_curUser:IsAdmin()
+	if currentuser():IsAdmin()
 		if G_SLock( 'edit_Employees' )
 			
 			oBox := TBox():New( T_ROW, 0, maxrow() - 1, 79, .t. )

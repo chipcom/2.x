@@ -1001,7 +1001,7 @@ Function f1_view_rak_akt_schet_human( nk, ob, regim )
       func_error( 4, "Повторное выставление случая возможно только для OPLATA = 2 и полного отказа" )
       Return ret
     Endif
-    If ! hb_user_curUser:isadmin()
+    If ! currentuser():isadmin()
       func_error( 4, err_admin )
       Return ret
     Endif

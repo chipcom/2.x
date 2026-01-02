@@ -161,22 +161,20 @@ Procedure Main( ... )
 
   hb_main_curOrg := torganizationdb():getorganization()
 
-  If ! hb_user_curUser:isadmin()
+  If ! currentuser():isadmin()
     verify_fio_polzovat := .f.
   Endif
-//  If ! g_sopen( sem_task(), sem_vagno(), fio_polzovat, p_name_comp )
-  If ! g_sopen( sem_task(), sem_vagno(), AllTrim( hb_user_curUser:FIO ), p_name_comp )
+  If ! g_sopen( sem_task(), sem_vagno(), AllTrim( currentuser():FIO ), p_name_comp )
     If Type( 'verify_fio_polzovat' ) == 'L' .and. verify_fio_polzovat
-//      func_error( 'В данный момент работает другой оператор под фамилией "' + fio_polzovat + '"' )
-      func_error( 'В данный момент работает другой оператор под фамилией "' + AllTrim( hb_user_curUser:FIO ) + '"' )
+      func_error( 'В данный момент работает другой оператор под фамилией "' + AllTrim( currentuser():FIO ) + '"' )
     Else
-      If !hb_user_curUser:isadmin()
+      If !currentuser():isadmin()
         hb_Alert( 'В данный момент другой задачей выполняется ответственный режим. Проверьте системный монитор' )
       Else
         func_error( 'Доступ запрещен! В данный момент другой задачей выполняется ответственный режим.' )
       Endif
     Endif
-    If ! hb_user_curUser:isadmin()
+    If ! currentuser():isadmin()
       f_end()
     Endif
   Endif
@@ -313,7 +311,7 @@ Function f_main( r0, is_local_version, a_parol )
         lens := Max( lens, Len( array_tasks()[ i, 1 ] ) )
       Endif
     Else
-      If array_tasks()[ i, 4 ] .and. hb_user_curUser:isallowedtask( i )
+      If array_tasks()[ i, 4 ] .and. currentuser():isallowedtask( i )
         AAdd( arr, array_tasks()[ i ] )
         lens := Max( lens, Len( array_tasks()[ i, 1 ] ) )
       Endif
@@ -330,7 +328,7 @@ Function f_main( r0, is_local_version, a_parol )
     r0 := main_up_screen()
     // вывести центральные строки главного экрана
     main_center_screen( r0, a_parol )
-    If hb_user_curUser:isadmin()
+    If currentuser():isadmin()
       find_unfinished_reestr_sp_tk( .f., .t. )
       find_time_limit_human_reestr_sp_tk()
 //      If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница

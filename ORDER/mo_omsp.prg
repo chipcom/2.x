@@ -466,7 +466,7 @@ Function delete_rpd( lrec, lname, not_end )
 
   Local ret := 0, fl, ia, is, ih
 
-  If not_end .or. hb_user_curUser:isadmin()
+  If not_end .or. currentuser():isadmin()
     fl := .t.
   Else
     fl := involved_password( 2, lname, "подтверждения расформирования РПД" )

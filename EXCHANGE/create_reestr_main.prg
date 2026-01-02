@@ -24,7 +24,7 @@ Function create_reestr_main()
 
 //  Private pkol := 0, psumma := 0  //, ;
 
-//  If ! hb_user_curUser:isadmin()
+//  If ! currentuser():isadmin()
   If ! currentUser():isadmin()
     Return func_error( 4, err_admin() )
   Endif

@@ -17,7 +17,7 @@ function AuditWrite( task, type, work, quantity, field )
 
 	local oAudit, id_user
 
-	id_user := hb_user_curUser:ID
+	id_user := currentuser():ID
 
 	oAudit := TAuditDB():getByParam( Date(), id_user, task, type, work )
 	if isnil( oAudit )

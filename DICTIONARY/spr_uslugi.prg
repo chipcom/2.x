@@ -15,7 +15,7 @@ Function edit_spr_uslugi( k )
   Default k To 0
   Do Case
   Case k == 0
-    If ! hb_user_curUser:isadmin()
+    If ! currentuser():isadmin()
       Return func_error( 4, err_admin() )
     Endif
     mas_pmt := { '~Редактирование услуг', ;

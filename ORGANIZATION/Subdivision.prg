@@ -74,7 +74,7 @@ function editSubdivisions()
 	aProperties := { { 'Name', 'Наименование отделения', 30, blk }, { 'ShortName', 'Сокр.;наим.', 5, blk }, { 'TypeLU_F', 'Лист учета', 10, blk }, ;
 						{ 'Profil_F', 'Профиль', 15, blk } }
 	
-	aEdit := if( hb_user_curUser:IsAdmin(), { .t., .t., .t., .t. }, { .f., .f., .f., .f. } )
+	aEdit := if( currentuser():IsAdmin(), { .t., .t., .t., .t. }, { .f., .f., .f., .f. } )
 
 	// просмотр и редактирование списка отделений
 	oBox := TBox():New( T_ROW, 2, maxrow() - 1, 78, .t. )
@@ -296,7 +296,7 @@ function SelectSubdivision( r, c, department, dBegin, dEnd, nTask )
 	elseif valtype( department ) == 'O' .and. department:ClassName() == upper( 'TDepartment' )
 		idDepartment := department:ID()
 	endif
-	aSubdivisions := TSubdivisionDB():GetList( idDepartment, hb_user_curUser, hb_defaultValue( nTask, X_OMS ), dBegin, dEnd )
+	aSubdivisions := TSubdivisionDB():GetList( idDepartment, currentuser(), hb_defaultValue( nTask, X_OMS ), dBegin, dEnd )
 	if ( kk := Len( aSubdivisions ) ) == 0						// справочник пустой
 		hb_Alert( 'Пустой справочник отделений', , , 4 )
 	elseif kk == 1												// только одна строка в справочнике
@@ -350,7 +350,7 @@ function MultipleSelectedSubdivision( r, c, nTask, dBegin, dEnd, oUser )
 	local aSubdivisions := {}
 	
 	if ( oDep := SelectDepartment( r, c, dBegin, dEnd ) ) != nil
-		aSubdivisions := TSubdivisionDB():GetList( oDep:ID(), hb_user_curUser, ;
+		aSubdivisions := TSubdivisionDB():GetList( oDep:ID(), currentuser(), ;
 				hb_defaultValue( nTask, X_OMS ), dBegin, dEnd )
 		aRet := ChoiceObjectFromArray( r, c, aSubdivisions, .t., 'Отделения' )
 	endif
@@ -373,7 +373,7 @@ function MultipleSelectedSubdivision( r, c, nTask, dBegin, dEnd, oUser )
 //	if ! isnil( selectedDepartmentArray )
 //		mywait()
 //		nDepartment := selectedDepartmentArray[ 1 ]
-//		aSubdivisions := TSubdivisionDB():GetList( nDepartment, hb_user_curUser, , sys_date, sys_date )
+//		aSubdivisions := TSubdivisionDB():GetList( nDepartment, currentuser(), , sys_date, sys_date )
 //		for each item in aSubdivisions
 //			aadd( mas_o, item:Name )
 //			aadd( mas, item:ID )

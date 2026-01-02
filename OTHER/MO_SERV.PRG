@@ -2584,7 +2584,7 @@ Function f_export( k )
       Svoenn_err := "В данный момент с военнослужащими работает другой пользователь"
     popup_prompt( T_ROW - Len( mas_pmt ) -3, T_COL + 5, 1, mas_pmt, mas_msg, mas_fun )
   Case k == 12
-    // if hb_user_curUser:IsAdmin()
+    // if currentuser():IsAdmin()
     // str_sem := "Создание файла отправки в систему БАРС"
     // if G_SLock(str_sem)
     // full_naselenie_create_BARS()
@@ -2596,7 +2596,7 @@ Function f_export( k )
     // func_error(4,err_admin())
     // endif
   Case k == 13
-    If hb_user_curUser:isadmin()
+    If currentuser():isadmin()
       str_sem := "Создание файла отправки в ОБЛЗДРАВ"
       If g_slock( str_sem )
         create_schets_oblsdrav()
@@ -2608,7 +2608,7 @@ Function f_export( k )
       func_error( 4, err_admin() )
     Endif
   Case k == 14
-    If hb_user_curUser:isadmin()
+    If currentuser():isadmin()
       str_sem := "Создание файла отправки в ОБЛЗДРАВ"
       If g_slock( str_sem )
         pripisnoe_naselenie_create_oblsdrav()
@@ -2620,7 +2620,7 @@ Function f_export( k )
       func_error( 4, err_admin() )
     Endif
   Case k == 15
-    If hb_user_curUser:isadmin()
+    If currentuser():isadmin()
       str_sem := "Создание файла отправки в ВОМИАЦ"
       If g_slock( str_sem )
         pripisnoe_naselenie_create_vomiac()
@@ -3306,7 +3306,7 @@ Function nastr_all( k, nTask )
   Default k To 0
   Do Case
   Case k == 0
-    If ! hb_user_curUser:isadmin()
+    If ! currentuser():isadmin()
       Return func_error( 4, err_admin() )
     Endif
     mas_pmt := { "Общие настройки" }
@@ -4414,7 +4414,7 @@ Function nastr_rab_mesto()
     "", {| x| inieditspr( A__MENUVERT, mm_reader, x ) }, ;
     'Устройство чтения смарт-карт (для эл.полиса)', ;
     {|| iif( Empty( m1sc_reader ), .t., f_read_sc_reader() ) }, ;
-    {|| hb_user_curUser:isadmin() } } )
+    {|| currentuser():isadmin() } } )
 
   AAdd( mm_tmp, { "open_Excel", "N", 1, 0, NIL, ;
     {| x| menu_reader( x, arr_NO_YES(), A__MENUVERT ) }, ;
@@ -4425,18 +4425,18 @@ Function nastr_rab_mesto()
     {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
     1, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
     'Выполнять автоматическое резервное копирование при выходе из программы',, ;
-    {|| hb_user_curUser:isadmin() } } )
+    {|| currentuser():isadmin() } } )
   AAdd( mm_tmp, { "wdir", "N", 1, 0, NIL, ;
     {| x| menu_reader( x, mm_wdir, A__MENUVERT ) }, ;
     0, {| x| inieditspr( A__MENUVERT, mm_wdir, x ) }, ;
     '└> куда выполняется копирование', ;
     {|| iif( Empty( m1wdir ), ( mpath_copy := m1path_copy := Space( 100 ), update_get( "mpath_copy" ) ), .t. ) }, ;
-    {|| hb_user_curUser:isadmin() .and. m1base_copy == 1 } } )
+    {|| currentuser():isadmin() .and. m1base_copy == 1 } } )
   AAdd( mm_tmp, { "path_copy", "C", 100, 0, NIL, ;
     {| x| menu_reader( x, { {| k, r, c| mng_dir( k, r, c, "path_copy" ) } }, A__FUNCTION ) }, ;
     " ", {| x| x }, ;
     ' └> каталог для копирования',, ;
-    {|| hb_user_curUser:isadmin() .and. m1base_copy == 1 .and. m1wdir == 1 } } )
+    {|| currentuser():isadmin() .and. m1base_copy == 1 .and. m1wdir == 1 } } )
   AAdd( mm_tmp, { "kart_polis", "N", 1, 0, NIL, ;
     {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
     1, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
@@ -4466,12 +4466,12 @@ Function nastr_rab_mesto()
       {| x| menu_reader( x, { {| k, r, c| mng_dir( k, r, c, "path1_sds" ) } }, A__FUNCTION ) }, ;
       " ", {| x| x }, ;
       '==> для импорта картотеки',, ;
-      {|| hb_user_curUser:isadmin() } } )
+      {|| currentuser():isadmin() } } )
     AAdd( mm_tmp, { "path2_sds", "C", 100, 0, NIL, ;
       {| x| menu_reader( x, { {| k, r, c| mng_dir( k, r, c, "path2_sds" ) } }, A__FUNCTION ) }, ;
       " ", {| x| x }, ;
       '==> для обработанных файлов',, ;
-      {|| hb_user_curUser:isadmin() } } )
+      {|| currentuser():isadmin() } } )
   Endif
   init_base( cur_dir() + "tmp",, mm_tmp, 0 )
   Use ( cur_dir() + "tmp" ) new

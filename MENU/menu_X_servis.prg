@@ -23,7 +23,7 @@ function menu_X_servis()
     'Правка ОКАТО г. Волжский'; 
   } )
   AAdd( func_menu, { ;
-    'prover_dbf(,.f.,(hb_user_curUser:IsAdmin()))', ;
+    'prover_dbf(,.f.,(currentuser():IsAdmin()))', ;
     'Change_Cena_OMS()', ;
     'f_import()', ;
     'f_export()', ;

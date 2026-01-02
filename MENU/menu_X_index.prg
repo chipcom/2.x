@@ -14,7 +14,7 @@ function menu_X_index()
   mydebug(,glob_mo[ _MO_KOD_TFOMS ] )
   
   If glob_mo[ _MO_KOD_TFOMS ] == '103001'
-    If !hb_user_curUser:isadmin()
+    If !currentuser():isadmin()
       AAdd( func_menu, { 'func_error( 4, "‚å®¤ â®«ìª® €„Œˆˆ‘’€’“ !" )' } )
     else
       AAdd( func_menu, { 'm_index_DB()' } )

@@ -273,16 +273,13 @@ METHOD G_UseDB( lTryForever, lExcluUse, lREADONLY )	CLASS TDataAccessDB
 	HB_Default( @lREADONLY, .f. ) 
 
 	cFile		:= ::oDescr:FileName()
-	curUser := hb_user_curUser
+	curUser := currentuser()
 	
 	if !File( cFile )
 		dbCreate( cFile, ::oDescr:StructFile() )
 	endif
 	
 	// получим ID работающего пользователя
-//	if hb_user_curUser != nil
-//		::FIDUser := hb_user_curUser:ID()
-//	endif
 	if curUser != nil
 		::FIDUser := curUser:ID()
 	endif

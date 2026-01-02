@@ -37,12 +37,8 @@ Function edit_u_spr(k, _arr, r1)
       mas_pmt := {'~Редактирование'}
       mas_msg := {'Редактирование справочника ' + t_arr[US_ROD_PADEG]}
       mas_fun := {'edit_u_spr(11)'}
-//      if !(type('tip_polzovat') == 'N')
-//        Private tip_polzovat := 0
-//      endif
       
-//      if valtype(t_arr[US_BLK_DUBL]) == 'B' .and. tip_polzovat == 0  // для администратора
-      if valtype(t_arr[US_BLK_DUBL]) == 'B' .and. hb_user_curUser:IsAdmin()  // для администратора
+      if valtype(t_arr[US_BLK_DUBL]) == 'B' .and. currentuser():IsAdmin()  // для администратора
         aadd(mas_pmt, '~Удаление дубликатов')
         aadd(mas_msg, 'Удаление дубликатов из справочника ' + t_arr[US_ROD_PADEG])
         aadd(mas_fun, 'edit_u_spr(12)')

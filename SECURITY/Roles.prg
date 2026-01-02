@@ -23,7 +23,7 @@ function editRoles()
 	colEnd := colBeg + 40
 	blkEditObject := { | oBrowse, aObjects, object, nKey | editRole( oBrowse, aObjects, object, nKey ) }
 
-	if hb_user_curUser:IsAdmin()
+	if currentuser():IsAdmin()
 		aEdit := { .t., .t., .t., .t. }
 		lWork := G_SLock( 'edit_roles' )
 	else
@@ -42,7 +42,7 @@ function editRoles()
 	else
 		return func_error( 4, 'В данный момент группы пользователей редактирует другой администратор. Ждите.' )
 	endif
-	if lWork .and. hb_user_curUser:IsAdmin()
+	if lWork .and. currentuser():IsAdmin()
 		G_SUnlock( 'edit_roles' )
 	endif
 	return nil

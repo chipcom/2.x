@@ -39,15 +39,11 @@ Function inp_password_bay( is_local_version, is_create )
   Public kod_polzovat := Chr( 0 ), ;
     yes_parol := .t.
 
-  // public  fio_polzovat := ''
-  // Public dolj_polzovat := '', grup_polzovat := 1, tip_polzovat := TIP_ADM
-  // public TIP_ADM := 0
 
   If ( is_local_version .and. ! tstructfiles():new():existfileclass( 'TUserDB' ) ) .or. is_create
     oUser := tuser():new(, 'Локальная версия', 0 )
-
-		hb_user_curUser := oUser // TUser():New(, 'Локальная версия', 0)
-    currentuser( oUser )
+		hb_user_curUser := oUser
+    currentuser( oUser ) 
     yes_parol := .f.
     Return ta
   Endif
@@ -64,13 +60,7 @@ Function inp_password_bay( is_local_version, is_create )
         // присвоим текущего пользователя
         hb_user_curUser := oUser
         currentuser( oUser )
-        // mfio   := oUser:FIO
-        // fio_polzovat := alltrim( mfio )
         kod_polzovat := Chr( oUser:Id() )
-        // tip_polzovat := oUser:Access
-        // dolj_polzovat := alltrim( oUser:Position )
-        // grup_polzovat := oUser:KEK
-
         oper_parol := oUser:PasswordFR // int(val(s))
         oper_frparol := oUser:PasswordFRSuper // oper_parol
         oper_fr_inn := oUser:INN
@@ -88,7 +78,6 @@ Function inp_password_bay( is_local_version, is_create )
     Endif
     Exit
   Enddo
-//  AAdd( ta, AllTrim( hb_user_curUser:FIO ) )
   AAdd( ta, AllTrim( currentuser():FIO ) )
   AAdd( ta, 'Тип доступа: "' + { 'Администратор', 'Оператор', '', 'Контролёр' }[ oUser:Access + 1 ] + '"' )
   If !Empty( AllTrim( oUser:Position ) )
@@ -137,7 +126,6 @@ Function edit_users_bay()
   // endif
   blkEditObject := {| oBrowse, aObjects, object, nKey | edituser( oBrowse, aObjects, object, nKey ) }
 
-//  If hb_user_curUser:isadmin()
   If currentuser():isadmin()
     aEdit := { .t., .t., .t., .t. }
     lWork := g_slock( 'edit_pass' )
@@ -161,7 +149,6 @@ Function edit_users_bay()
   Else
     Return func_error( 4, 'В данный момент пароли редактирует другой администратор. Ждите.' )
   Endif
-//  If lWork .and. hb_user_curUser:isadmin()
   If lWork .and. currentuser():isadmin()
     g_sunlock( 'edit_pass' )
   Endif

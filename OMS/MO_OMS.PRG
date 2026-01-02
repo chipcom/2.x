@@ -1040,7 +1040,7 @@ Function oms_del()
   Static sk := 1
   Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear
 
-  If ! hb_user_curUser:isadmin()
+  If ! currentuser():isadmin()
     Return func_error( 4, err_admin() )
   Endif
   If ( arr_m := input_year() ) != Nil .and. ;
@@ -1759,7 +1759,7 @@ Function f1ret_oms_human( oBrow )
   oColumn := TBColumnNew( ' Стоимость;  лечения', {|| put_kope( human->cena_1, 10 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-  If hb_user_curUser:isadmin()
+  If currentuser():isadmin()
     s := '^<Esc>^ выход  ^<Enter>^ выбор  ^<F2>^ поиск'
     If Type( 'p_del_error' ) == 'A' .and. p_del_error[ 2 ] > 0
       s += '  ^<Ctrl+F12>^ снятие флага об ошибке у всех'
@@ -1829,7 +1829,7 @@ Function f2ret_oms_human( nkey )
       RestScreen( buf )
       viewtext( n_file, , , , ( sh > 80 ), , , 2 )
       Return -1
-    Elseif eq_any( nkey, K_F12, K_CTRL_F12 ) .and. hb_user_curUser:isadmin() .and. f_esc_enter( 'снятия флага об ошибке', .t. )
+    Elseif eq_any( nkey, K_F12, K_CTRL_F12 ) .and. currentuser():isadmin() .and. f_esc_enter( 'снятия флага об ошибке', .t. )
        /*involved_password(1,p_del_error[2],'снятия со всех пациентов флага об ошибке') ;
            .and. f_alert({padc('Выберите действие', 60,'.')}, ;
                          {' Отказ ',' Снять флаг об ошибке со всех пациентов '}, ;
@@ -2700,7 +2700,7 @@ Function f2ret_oms_human( nkey )
       viewtext( n_file, , , , ( sh > 80 ), , , 3 )
       Return -1
       // заплатка
-    Elseif eq_any( nkey, K_F10, K_CTRL_F10 ) .and. hb_user_curUser:isadmin() .and. f_esc_enter( 'смена услуги', .t. )
+    Elseif eq_any( nkey, K_F10, K_CTRL_F10 ) .and. currentuser():isadmin() .and. f_esc_enter( 'смена услуги', .t. )
       tmp_1 := Select()
       g_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
       Select ( tmp_1 )

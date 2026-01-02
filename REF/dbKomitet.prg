@@ -124,7 +124,7 @@ function get_struct_organiz()
     arr := {}
     aadd(arr, {'kod_tfoms', 'C', 8, 0, nil, nil, ;
       space(8), nil, 'Регистрационный код МО в ТФОМС', ;
-      {|g| valid_kod_tfoms(g) }, {|| hb_user_curUser:IsAdmin()}})
+      {|g| valid_kod_tfoms(g) }, {|| currentuser():IsAdmin()}})
     aadd(arr, {'name_tfoms', 'C', 60, 0, nil, , '', , 'Наименование (в ТФОМС)', , {|| .f.}})
     aadd(arr, {'uroven', 'N', 1, 0, nil, , 0, , 'Уровень цен Вашей МО', , {|| .f.}})
     aadd(arr, {'name', 'C', 130, 0, nil, nil, space(130), nil, 'Название'})

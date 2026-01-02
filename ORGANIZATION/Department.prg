@@ -28,7 +28,7 @@ function editDepartments()
 	local aProperties
 
 	blkEditObject := { | oBrowse, aObjects, object, nKey, oDep | editDepartment( oBrowse, aObjects, object, nKey ) }
-	aEdit := if( hb_user_curUser:IsAdmin(), { .t., .t., .t., .t. }, { .f., .f., .f., .f. } )
+	aEdit := if( currentuser():IsAdmin(), { .t., .t., .t., .t. }, { .f., .f., .f., .f. } )
 	
 	aProperties := { { 'Name', 'Наименование', 30 }, { 'ShortName', 'Сокр.;наим.', 5 }, { 'IsUseTalon_F', 'Работа с;талоном ', 8 } }
 	// просмотр и редактирование списка подразделений
@@ -118,7 +118,7 @@ function SelectDepartment( r, c, dBegin, dEnd )
 		glob_otd[ 1 ] := int( val( ar[ 2 ] ) )
 	endif
 	
-	aDepartment := TDepartmentDB():GetList( hb_defaultValue( dBegin, ctod( '' ) ), hb_defaultValue( dEnd, ctod( '' ) ), hb_user_curUser )
+	aDepartment := TDepartmentDB():GetList( hb_defaultValue( dBegin, ctod( '' ) ), hb_defaultValue( dEnd, ctod( '' ) ), currentuser() )
 	if ( kk := Len( aDepartment ) ) == 0
 		hb_Alert( 'Пустой справочник подразделений', , , 4)
 	elseif kk == 1
@@ -136,7 +136,7 @@ function SelectDepartment( r, c, dBegin, dEnd )
 // 05.05.17 - возвращает массив выбранных объектов Подразделений 
 function MultipleSelectedDepartment( r, c, dBegin, dEnd, oUser )
 	local aRet := {}
-	local aDepartment := TDepartmentDB():GetList( dBegin, dEnd, hb_defaultValue( oUser, hb_user_curUser ) )
+	local aDepartment := TDepartmentDB():GetList( dBegin, dEnd, hb_defaultValue( oUser, currentuser() ) )
 	
 	return ChoiceObjectFromArray( r, c, aDepartment, .t., 'Подразделения' )
 

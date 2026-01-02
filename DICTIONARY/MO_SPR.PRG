@@ -457,7 +457,7 @@ Function fdeld_s_kem()
   buf := SaveScreen()
   s1 := s2 := ''
   r := T_ROW
-  If ! hb_user_curUser:isadmin()
+  If ! currentuser():isadmin()
     Return func_error( 4, 'Оператору доступ в данный режим запрещен!' )
   Endif
   If !g_slock1task( sem_task(), sem_vagno() )  // запрет доступа всем

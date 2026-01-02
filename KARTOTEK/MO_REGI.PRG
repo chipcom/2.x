@@ -632,8 +632,7 @@ Function r_list_uch( par, name_func )
     AAdd( s_prim1, '' )
   Endif
   If !( kod_polzovat == Chr( 0 ) )
-//    mregistrator := AllTrim( fio_polzovat )
-    mregistrator := AllTrim( hb_user_curUser:FIO )
+    mregistrator := AllTrim( currentuser():FIO )
   Endif
   mfio := Upper( kart->fio )
   mpolis := kart->polis
@@ -798,8 +797,7 @@ Function new_list_uch( par, name_func )
   Endif
   mregistrator := ''
   If !( kod_polzovat == Chr( 0 ) )
-//    mregistrator := AllTrim( fio_polzovat )
-    mregistrator := AllTrim( hb_user_curUser:FIO )
+    mregistrator := AllTrim( currentuser():FIO )
   Endif
   delfrfiles()
   r_use( dir_server() + 'organiz', , 'ORG' )

@@ -28,7 +28,7 @@ function menu_X_sprav()
   } )
   //
   // перестройка меню
-  If hb_user_curUser:ID != 0 .or. hb_user_curUser:issuperuser()
+  If currentuser():ID != 0 .or. currentuser():issuperuser()
     hb_AIns( first_menu[ Len( first_menu ) ], 4, 0, .t. )
     hb_AIns( first_menu[ Len( first_menu ) ], 5, '~Пользователи', .t. )
     hb_AIns( first_menu[ Len( first_menu ) ], 6, '~Группы пользователей', .t. )

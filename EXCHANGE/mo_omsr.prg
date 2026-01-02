@@ -827,7 +827,7 @@ Function vozvrat_reestr()
 
   Local k, buf := SaveScreen(), tmp_help := chm_help_code, mkod_reestr
 
-  If ! hb_user_curUser:isadmin()
+  If ! currentuser():isadmin()
     Return func_error( 4, err_admin() )
   Endif
   If !g_slock( Sreestr_sem )

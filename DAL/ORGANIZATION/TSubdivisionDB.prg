@@ -89,7 +89,7 @@ METHOD MenuSubdivisions( department, oUser, nTask )		 CLASS TSubdivisionDB
 		idDepartment := department:ID()
 	endif
 	
-	for each oRow in ::GetList( idDepartment, hb_defaultValue( oUser, hb_user_curUser ), ;
+	for each oRow in ::GetList( idDepartment, hb_defaultValue( oUser, currentuser() ), ;
 				hb_defaultValue( nTask, X_PLATN ), Date()  )
 		AADD( aSubdivision, { oRow:Name(), oRow:ID() } )
 	next

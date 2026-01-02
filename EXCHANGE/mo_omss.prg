@@ -11,7 +11,7 @@ Function read_from_tf()
   Local arr_XML_info[ 7 ], arr_f := {}, tip_csv_file := 0, kod_csv_reestr := 0
 
   fl := .f.
-  If ! currentuser():isadmin()  //hb_user_curUser:isadmin()
+  If ! currentuser():isadmin()  //currentuser():isadmin()
     Return func_error( 4, err_admin() )
   Endif
   If find_unfinished_reestr_sp_tk()

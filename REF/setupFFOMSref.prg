@@ -14,7 +14,7 @@ Function nastr_sprav_FFOMS(k)
   DEFAULT k TO 0
   do case
     case k == 0
-      if ! hb_user_curUser:IsAdmin()
+      if ! currentuser():IsAdmin()
         return func_error(4, err_admin())
       endif
       arr_ref := {'V002', 'V020', 'V006', 'V034', 'MethodINJ', 'Implantant'}

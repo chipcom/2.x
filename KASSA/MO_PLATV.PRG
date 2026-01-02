@@ -305,7 +305,7 @@ Function f3_k_plat( nKey, oBrow )
   Case nKey == K_F8 .and. glob_kassa == 1 .and. human->is_kas == 1 .and. ;
       human->kod_k > 0 .and. ver_pub_date( human->k_data, .t. ) .and. ;
       human->cena > 0
-    If !Empty( human->date_close ) .and. !hb_user_curUser:isadmin()
+    If !Empty( human->date_close ) .and. !currentuser():isadmin()
       func_error( 4, err_close )
       Return flag
     Endif
@@ -465,12 +465,12 @@ Function f3_k_plat( nKey, oBrow )
     Private mmesto_r, ;       // место рождения
       m, ;      // документ выдан
     mdata_vidan_ud   // дата выдачи удостоверения
-    private mregistrator := AllTrim( hb_user_curUser:FIO )  // AllTrim( fio_polzovat )
+    private mregistrator := AllTrim( currentuser():FIO )
     buf := SaveScreen()
     clrline( 23, color0 )
     mdov_date  := oper_dov_date
     mdov_nomer := oper_dov_nomer
-    mdov_dolgn := hb_user_curUser:Position    // dolj_polzovat
+    mdov_dolgn := currentuser():Position
     t_hum_rec := human->( RecNo() )
     kart_kod := human->kod_k
     t_k_data := Year( human->k_data )
@@ -650,7 +650,7 @@ Function f3_k_plat( nKey, oBrow )
     flag := 0
     RestScreen( buf )
   Case nKey == K_INS .or. ( nKey == K_ENTER .and. human->kod_k > 0 )
-    If nKey == K_ENTER .and. !Empty( human->date_close ) .and. !hb_user_curUser:isadmin()
+    If nKey == K_ENTER .and. !Empty( human->date_close ) .and. !currentuser():isadmin()
       func_error( 4, err_close )
       Return flag
     Endif
@@ -663,7 +663,7 @@ Function f3_k_plat( nKey, oBrow )
     flag := f_p_kart( nKey )
   Case nKey == K_DEL .and. human->is_kas != 1 .and. ;
       human->kod_k > 0 .and. ver_pub_date( human->k_data, .t. )
-    If !Empty( human->date_close ) .and. !hb_user_curUser:isadmin()
+    If !Empty( human->date_close ) .and. !currentuser():isadmin()
       func_error( 4, err_close )
     Elseif f_esc_enter( 2, .t. )
       mywait()
@@ -699,7 +699,7 @@ Function f3_k_plat( nKey, oBrow )
       rest_box( buf )
     Endif
   Case human->is_kas == 1 .and. nKey == K_DEL .and. human->kod_k > 0 .and. human->cena > 0
-    If !Empty( human->date_close ) .and. !hb_user_curUser:isadmin()
+    If !Empty( human->date_close ) .and. !currentuser():isadmin()
       func_error( 4, err_close )
     Elseif human->sum_voz > 0
       func_error( 4, "По данному листу учета уже производился возврат денег!" )
@@ -734,7 +734,7 @@ Function f3_k_plat( nKey, oBrow )
         // flag := 0
         // rest_box(buf)
         func_error( 4, "Возврат чека проводите по клавише <F8> !" )
-      Elseif hb_user_curUser:isadmin() .and. mek_kassa == 2 .and. ;
+      Elseif currentuser():isadmin() .and. mek_kassa == 2 .and. ;
           involved_password( 1, 1, "возврата " + lput_kop( lsum_voz, .t. ) + " руб." ) .and. ;
           f_esc_enter( "возврата " + lput_kop( lsum_voz, .t. ) + " руб." )
         Select HUMAN
@@ -748,7 +748,7 @@ Function f3_k_plat( nKey, oBrow )
       Endif
     Endif
   Case nKey == K_CTRL_RET .and. human->kod_k > 0
-    If !Empty( human->date_close ) .and. !hb_user_curUser:isadmin()
+    If !Empty( human->date_close ) .and. !currentuser():isadmin()
       func_error( 4, err_close )
       Return flag
     Endif
@@ -1978,7 +1978,7 @@ Function close_lu( k )
   Default k To 1
   Do Case
   Case k == 1
-    If !hb_user_curUser:isadmin()
+    If !currentuser():isadmin()
       Return func_error( 4, err_admin() )
     Endif
     mas_pmt := { "Закрыть л/учета для ~одного больного", ;

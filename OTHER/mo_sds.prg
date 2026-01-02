@@ -2092,7 +2092,7 @@ Function f_get_file_xml_sds( /*@*/path2_sds)
   If !is_obmen_sds()
     Return Nil
   Endif
-  If ! hb_user_curUser:isadmin()
+  If ! currentuser():isadmin()
     func_error( 4, err_admin() )
     Return Nil
   Endif

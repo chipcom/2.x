@@ -448,7 +448,7 @@ Function e_statist( k )
     If kod_polzovat == Chr( 0 )
       dostup_stat := .t.
     Endif
-    If !hb_user_curUser:isadmin()
+    If !currentuser():isadmin()
       dostup_stat := .f.
     Endif
     Private s_msg := '^<Esc>^ выход'
@@ -1223,7 +1223,7 @@ Function st_operator()
     koef_orto := 22, koef1_orto := 22
 
   koef0 := koef1 - koef2
-  If !hb_user_curUser:isadmin()
+  If !currentuser():isadmin()
     Return func_error( 4, 'Доступ в данный режим разрешен только администратору системы!' )
   Endif
   If ( arr_g := year_month() ) == NIL

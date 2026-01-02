@@ -621,7 +621,7 @@ function message_save_LU()
 
   If mem_op_out == 2 .and. yes_parol
     box_shadow( 19, 10, 22, 69, cColorStMsg )
-    str_center( 20, 'Оператор "' + AllTrim( hb_user_curUser:FIO ) + '".', cColorSt2Msg )
+    str_center( 20, 'Оператор "' + AllTrim( currentuser():FIO ) + '".', cColorSt2Msg )
     str_center( 21, 'Ввод данных за ' + date_month( Date() ), cColorStMsg )
   Endif
   return nil

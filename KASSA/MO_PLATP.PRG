@@ -6931,7 +6931,7 @@ Function po_proverka( k )
       "Po_proverka(16)", ;
       "Po_proverka(12)", ;
       "Po_proverka(13)" }
-    If mem_otdusl == 2 .and. hb_user_curUser:isadmin()
+    If mem_otdusl == 2 .and. currentuser():isadmin()
       AAdd( mas_pmt, "~Отделение не равно месту работы" )
       AAdd( mas_msg, "Проверка отделения на равенство месту основной работы персонала" )
       AAdd( mas_fun, "Po_proverka(14)" )
@@ -11723,7 +11723,7 @@ Function pl_priemshk()
   // go top
   dbSeek( arr_m[ 7 ], .t. )
   Do While hum->fr_data <= arr_m[ 8 ] .and. !Eof()
-    If ( hum->kod_oper == Asc( kod_polzovat ) .or. hb_user_curUser:isadmin() .or. hb_user_curUser:iskontroler() ) .and. ;
+    If ( hum->kod_oper == Asc( kod_polzovat ) .or. currentuser():isadmin() .or. currentuser():iskontroler() ) .and. ;
         AScan( krvz, hum->tip_usl ) > 0
       Select KART
       Goto ( hum->kod_k )

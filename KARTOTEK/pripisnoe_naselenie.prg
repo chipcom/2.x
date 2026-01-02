@@ -42,7 +42,7 @@ Function pripisnoe_naselenie( k )
   Case k == 13
     kartoteka_z_prikreplenie()
   Case k == 14
-    If hb_user_curUser:isadmin()
+    If currentuser():isadmin()
       str_sem := 'Создание файла сверки с ТФОМС'
       If g_slock( str_sem )
         pripisnoe_naselenie_create_sverka()
@@ -1810,7 +1810,7 @@ Function f2_vvod_uchast_spisok( nKey, oBrow )
   Case nKey == K_F10
     If ku > 10000
       func_error( 4, 'Слишком много пациентов в списке' )
-    Elseif ! hb_user_curUser:isadmin()
+    Elseif ! currentuser():isadmin()
       func_error( 4, err_admin() )
     Elseif ( much := input_value( 18, 5, 20, 74, color1, ;
         'Введите номер участка для простановки всем пациентам из списка', 0, '99' ) ) != NIL ;

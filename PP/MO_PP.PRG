@@ -54,19 +54,19 @@ Function pp_nastr( k )
       'pp_nastr(4)' }
     popup_prompt( T_ROW, T_COL + 5, sk, mas_pmt, mas_msg, mas_fun )
   Case k == 1
-    If hb_user_curUser:isadmin()
+    If currentuser():isadmin()
       ne_real()
     Else
       func_error( 4, err_admin() )
     Endif
   Case k == 2
-    If hb_user_curUser:isadmin()
+    If currentuser():isadmin()
       pp_nastr_ist_bol()
     Else
       func_error( 4, err_admin() )
     Endif
   Case k == 3
-    If hb_user_curUser:isadmin()
+    If currentuser():isadmin()
       f1nastr_all( mas_pmt[ k ], X_PPOKOJ )
     Else
       func_error( 4, err_admin() )

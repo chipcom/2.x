@@ -60,7 +60,7 @@ METHOD GetList( dBegin, dEnd, oUser )	CLASS TDepartmentDB
 	local aReturn := {}
 	local oRow := nil
 	
-	HB_Default( @oUser, hb_user_curUser ) 
+	HB_Default( @oUser, currentuser() ) 
 	HB_Default( @dBegin, ctod( '' ) )
 	HB_Default( @dEnd, ctod( '' ) ) 
 	for each oRow in ::super:GetList( )
@@ -89,7 +89,7 @@ METHOD MenuDepartments( oUser )			CLASS TDepartmentDB
 	local aDepartment := {}
 	local oRow := nil
 	
-	for each oRow in ::GetList( Date(), , , hb_defaultValue( oUser, hb_user_curUser ) )
+	for each oRow in ::GetList( Date(), , , hb_defaultValue( oUser, currentuser() ) )
 		aadd( aDepartment, { oRow:Name(), oRow:ID() } )
 	next
 	return aDepartment

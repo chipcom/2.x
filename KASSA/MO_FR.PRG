@@ -49,7 +49,7 @@ Function fr_nastrojka( k )
       "fr_nastrojka(16)", ;
       "fr_nastrojka(17)", ;
       "fr_nastrojka(20)" }
-    If ! hb_user_curUser:isadmin()
+    If ! currentuser():isadmin()
       ASize( mas_pmt, 7 )
       ASize( mas_msg, 7 )
       ASize( mas_fun, 7 )
@@ -157,7 +157,7 @@ Function f5_sist_fr( k )
     SetColor( cDataCGet )
     ix := 3
     clrlines( 1, MaxRow() -1 )
-    If hb_user_curUser:isadmin()
+    If currentuser():isadmin()
       @ ++ix, 3 Say "Номером документа считать " Get mmek_chek ;
         reader {| x| menu_reader( x, mm_chek, A__MENUVERT,,, .f. ) }
       @ ++ix, 3 Say "Выделять отдельно Переводы СБП " Get mmek_sbp ;
@@ -168,7 +168,7 @@ Function f5_sist_fr( k )
         reader {| x| menu_reader( x, { {|| fr_draiver() } }, A__FUNCTION,,, .f. ) }
     Endif
     @ ++ix, 3 Say "Сумма денег, внесенная в кассу УТРОМ" Get mostatok  Pict "999999.99"
-    If hb_user_curUser:isadmin()
+    If currentuser():isadmin()
       ++ix
       @ ++ix, 3 Say "Учреждение принимает оплату банковскими переводами ?" Get mmeK_bnbank ;
         reader {| x| menu_reader( x, mm_da_net, A__MENUVERT,,, .f. ) }
@@ -191,7 +191,7 @@ Function f5_sist_fr( k )
     If f_esc_enter( 1 )
       mek_ostato := mostatok
       mek_kassir := mkassir
-      If hb_user_curUser:isadmin()
+      If currentuser():isadmin()
         mek_bank    := m1mek_bank
         mek_bnbank  := m1mek_bnbank
         mek_kassa   := m1mek_kassa
@@ -843,15 +843,11 @@ Function chek_fr( vsum, vsd, /*@*/cur_chek, vbank, sekcia, /*@*/fr_serial_number
   sost             := tt1[ FR_R_FLAG ]
   If tt1[ FR_R_REGIM ] == 4  // смена не открыта
     // загрузка текущего кассира
-    // fio_polzovat
     // oper_parol
     If oper_parol > 0 .and. oper_parol < 31
       t_vrem := fr_readpassword( oper_parol )
-      // if substr(alltrim(t_vrem[1]),1,6) == "КАССИР" //alltrim(fio_polzovat)
-//      fr_writepassword( oper_parol, fio_polzovat )
-//      fr_writepassword( 30, fio_polzovat )
-      fr_writepassword( oper_parol, AllTrim( hb_user_curUser:FIO ) )
-      fr_writepassword( 30, AllTrim( hb_user_curUser:FIO ) )
+      fr_writepassword( oper_parol, AllTrim( currentuser():FIO ) )
+      fr_writepassword( 30, AllTrim( currentuser():FIO ) )
       // endif
     Endif
     If fr_read_otrezka() > 0

@@ -1164,7 +1164,7 @@ Function vounc_sprav_nastr( reg )
       vounc_mem_diag    := 'Z94.0', ;
       vounc_mem_ser     := Space( 10 )
   Case reg == 2 .and. vounc_tools_ini( 1, 0, 0 ) // редактирование
-    If ! hb_user_curUser:isadmin()
+    If ! currentuser():isadmin()
       Return func_error( 4, err_admin() )
     Endif
     str_sem := 'Редактирование настроек VOUNC'

@@ -412,7 +412,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   If eq_any( glob_task, X_PLATN, X_KASSA ) .and. mem_anonim == 1
     ++count_row // Аноним
   Endif
-  If !is_append .and. hb_user_curUser:isadmin() .and. mem_kart_error == 1
+  If !is_append .and. currentuser():isadmin() .and. mem_kart_error == 1
     ++count_row
   Endif
   If glob_task != X_PPOKOJ .and. ( is_uchastok > 0 .or. !Empty( mmo_pr ) ) .and. !is_smp
@@ -484,7 +484,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
       Keyboard Chr( K_TAB )
     Endif
-    If !is_append .and. hb_user_curUser:isadmin() .and. mem_kart_error == 1
+    If !is_append .and. currentuser():isadmin() .and. mem_kart_error == 1
       @ ++ix, 50 Say 'Статус' Get mkart_error ;
         reader {| x| menu_reader( x, mm_kart_error, A__MENUVERT, , , .f. ) }
       Keyboard Chr( K_TAB )

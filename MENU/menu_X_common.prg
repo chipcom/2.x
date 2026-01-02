@@ -30,7 +30,7 @@ function menu_X_common()
     'nastr_rab_mesto()', ;
     'ust_printer(T_ROW)', ;
     'index_work_dir(dir_exe(), cur_dir(), .t.)', ;
-    'net_monitor(T_ROW, T_COL - 7, (hb_user_curUser:IsAdmin()))', ;
+    'net_monitor(T_ROW, T_COL - 7, (currentuser():IsAdmin()))', ;
     'view_errors()' } )
 // добавим переиндексирование некоторых файлов внутри задачи
   If eq_any( glob_task, X_PPOKOJ, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_263 )
@@ -38,7 +38,7 @@ function menu_X_common()
     AAdd( ATail( first_menu ), 'Пере~индексирование' )
     AAdd( ATail( first_message ), 'Переиндексирование части базы данных для задачи "' + array_tasks()[ ind_task(), 5 ] + '"' )
     If glob_mo[ _MO_KOD_TFOMS ] == '103001'
-      If !hb_user_curUser:isadmin()
+      If !currentuser():isadmin()
         AAdd( ATail( func_menu ),  'func_error( 4, "Вход только АДМИНИСТРАТОРУ !" )'  )
       else
         AAdd( ATail( func_menu ), 'pereindex_task()' )

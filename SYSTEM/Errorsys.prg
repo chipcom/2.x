@@ -188,7 +188,7 @@ function __errMessage( arr_error )
 	cMessage += 'Дата: ' + dtoc( date() ) + ', время: ' + sectotime( seconds() ) + ' ' + StripPath( s )
 	cMessage += '(' + dtoc( directory( s )[ 1, F_DATE ] ) + ', ' + lstr( memory( 1 ) ) + 'Кб)' + hb_eol()
 	cMessage += 'Версия: ' + Err_version() + hb_eol()
-	curUser := alltrim( hb_user_curUser:FIO )
+	curUser := alltrim( currentuser():FIO )
 	if ! empty( curUser )
 		cMessage += 'Пользователь: ' + curUser
 	endif

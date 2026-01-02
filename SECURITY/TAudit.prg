@@ -33,7 +33,7 @@ METHOD New( nID, dDate, nIDUser, nTask, nType, nWork, nQuantity, nField, lNew, l
 	::lDeleted			:= hb_DefaultValue( lDeleted, .f. )
 	
 	::_dDate			:= hb_DefaultValue( dDate, sys_date )
-	::_nIDOper			:= hb_DefaultValue( nIDUser, hb_user_curUser:ID() )
+	::_nIDOper			:= hb_DefaultValue( nIDUser, currentuser():ID() )
 	::_nTask			:= hb_DefaultValue( nTask, 0 )
 	::_nType			:= hb_DefaultValue( nType, 0 )
 	::_nWork			:= hb_DefaultValue( nWork, 0 )
@@ -88,7 +88,7 @@ METHOD WriteToAudit( nTask, nType, nWork, nQuantity, nField, _open )     CLASS T
 	hb_Default( @nTask, 1 )
 	hb_Default( @nField, 0 )
 	hb_Default( @_open, .t. )
-	cFind := c4sys_date + chr( hb_user_curUser:ID() ) + chr( nTask ) + chr( nType ) + chr( nWork )
+	cFind := c4sys_date + chr( currentuser():ID() ) + chr( nTask ) + chr( nType ) + chr( nWork )
 	// найдем запись для работы оператора
 	cOldArea := Select()
 	if ::super:RUse()
@@ -103,7 +103,7 @@ METHOD WriteToAudit( nTask, nType, nWork, nQuantity, nField, _open )     CLASS T
 				obj:Field( nField + obj:Field() )
 			endif
 		else
-			obj := ::New( , c4sys_date, hb_user_curUser:ID(), nTask, nType, nWork, nQuantity, nField )
+			obj := ::New( , c4sys_date, currentuser():ID(), nTask, nType, nWork, nQuantity, nField )
 		endif
 		(cAudit)->( dbCloseArea() )
 		dbSelectArea( cOldArea )
@@ -151,7 +151,7 @@ METHOD New( nID, nIDUser, dDate, cV0, cVR, cVK, cVU, nTask, nCharacter, lEdit, l
 	::lDeleted			:= hb_DefaultValue( lDeleted, .f. )
 	
 	::_dDate			:= hb_DefaultValue( dDate, sys_date )
-	::_nIDOper			:= hb_DefaultValue( nIDUser, hb_user_curUser:ID() )
+	::_nIDOper			:= hb_DefaultValue( nIDUser, currentuser():ID() )
 	::_nTask			:= hb_DefaultValue( nTask, 0 )
 	::_nCharacter		:= hb_DefaultValue( nCharacter, 0 )
 	::_cV0				:= hb_DefaultValue( cV0, '   ' )

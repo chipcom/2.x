@@ -2473,7 +2473,7 @@ Function _263_to_nastr()
   Static group_ini := 'OBMEN_263'
   Local ar, sr, mm_tmp := {}
 
-  If ! hb_user_curUser:isadmin()
+  If ! currentuser():isadmin()
     Return func_error( 4, err_admin() )
   Endif
 
@@ -2483,7 +2483,7 @@ Function _263_to_nastr()
     {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
     0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
     'Работаем с отделениями в данной подзадаче?', , ;
-    {|| hb_user_curUser:isadmin() } } )
+    {|| currentuser():isadmin() } } )
   AAdd( mm_tmp, { 'e_1', 'C', 1, 0, NIL, , '', , ;
     ' ', , ;
     {|| .f. } } )
@@ -2494,17 +2494,17 @@ Function _263_to_nastr()
     {| x| menu_reader( x, { {| k, r, c| mng_dir( k, r, c, 'path1_263' ) } }, A__FUNCTION ) }, ;
     ' ', {| x| x }, ;
     '==> для записи пакетов в ТФОМС', , ;
-    {|| hb_user_curUser:isadmin() } } )
+    {|| currentuser():isadmin() } } )
   AAdd( mm_tmp, { 'path2', 'C', 100, 0, NIL, ;
     {| x| menu_reader( x, { {| k, r, c| mng_dir( k, r, c, 'path2_263' ) } }, A__FUNCTION ) }, ;
     ' ', {| x| x }, ;
     '==> для чтения пакетов из ТФОМС', , ;
-    {|| hb_user_curUser:isadmin() } } )
+    {|| currentuser():isadmin() } } )
   AAdd( mm_tmp, { 'path3', 'C', 100, 0, NIL, ;
     {| x| menu_reader( x, { {| k, r, c| mng_dir( k, r, c, 'path3_263' ) } }, A__FUNCTION ) }, ;
     ' ', {| x| x }, ;
     '==> для перезаписи прочитанных пакетов', , ;
-    {|| hb_user_curUser:isadmin() } } )
+    {|| currentuser():isadmin() } } )
   init_base( cur_dir() + 'tmp', , mm_tmp, 0 )
   Use ( cur_dir() + 'tmp' ) new
   Append Blank

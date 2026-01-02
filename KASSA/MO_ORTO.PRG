@@ -1272,7 +1272,7 @@ Function vozvrat_orto()
 
   Private  summa_oplat := 0, summa_oplat_bn := 0, p_summa := 0
 
-  If !Empty( human->k_data ) .and. ! hb_user_curUser:isadmin()
+  If !Empty( human->k_data ) .and. ! currentuser():isadmin()
     func_error( 4, "Пользователь не АДМИНИСТРАТОР, а наряд закрыт !" )
   Elseif ho->sum_voz > 0
     func_error( 4, "По даной оплате уже производился возврат денег!" )

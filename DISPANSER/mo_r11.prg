@@ -584,7 +584,7 @@ Function delete_reestr_r11()
 
   Local t_arr[ BR_LEN ], blk
 
-  If ! hb_user_curUser:isadmin()
+  If ! currentuser():isadmin()
     Return func_error( 4, err_admin() )
   Endif
   g_use( dir_server() + 'mo_dr01m',, 'R01m' )

@@ -70,8 +70,7 @@ Function begin_task_kassa()
   If hb_FileExists( "__kassa_.log" ) .and. FileSize( "__kassa_.log" ) > 5000000
     Delete file __kassa_.log
   Endif
-//  blk_ekran := {| _s| _s := AllTrim( fio_polzovat ) + ;
-  blk_ekran := {| _s| _s := AllTrim( hb_user_curUser:FIO ) + ;
+  blk_ekran := {| _s| _s := AllTrim( currentuser():FIO ) + ;
     ", смена: " + lstr( glob_smena ) + ", " + ;
     full_date( sys_date ), ;
     DevPos( MaxRow() -2, MaxCol() -Len( _s ) ), ;
@@ -1055,7 +1054,7 @@ Function f4_kas_plat( fl_edit )
         Endif
       Else  // возврат
         v_summa := mcena * ( -1 )
-        If mem_vozvra == 2 .and. hb_user_curUser:isadmin() // 07.04.08
+        If mem_vozvra == 2 .and. currentuser():isadmin() // 07.04.08
           fl := .t.                                 // возврат без кассы
           Select HUMAN
           g_rlock( forever )

@@ -73,7 +73,7 @@ Function edit_password()
   }
   Private c_1 := T_COL + 5, c_2
 
-//  If ! hb_user_curUser:isadmin()
+//  If ! currentuser():isadmin()
   If ! currentuser():isadmin()
     Return func_error( 4, err_admin() )
   Endif

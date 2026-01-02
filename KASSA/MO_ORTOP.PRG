@@ -7313,7 +7313,7 @@ Function ort_priemshk()
       Select KART
       Goto ( human->kod_k )
       Select TMP
-      If ho->kod_reg == Asc( kod_polzovat ) .or. hb_user_curUser:isadmin() .or. hb_user_curUser:iskontroler()
+      If ho->kod_reg == Asc( kod_polzovat ) .or. currentuser():isadmin() .or. currentuser():iskontroler()
         Append Blank
         tmp->fio      := kart->fio
         tmp->chek     := ho->kv_cia
