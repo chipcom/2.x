@@ -37,7 +37,7 @@ Function verify_oms26( arr_m, fl_view, kod_smo )
     Return arrKolSl
   Endif
 
-  current_mo := glob_mo
+  current_mo := glob_mo()
   check_pacient := { ;
       'Проверять ~всех пациентов', ;
       'Не проверять вернувшихся из ТФОМС с ~ошибкой' ;
@@ -151,9 +151,9 @@ Function verify_oms26( arr_m, fl_view, kod_smo )
         // не проверять вернувшихся из ТФОМС с ошибкой
       Else
 
-        If arr_m[ 1 ] >= 2025
-          fl := verify_sluch( fl_view, ft )
-        Endif
+//        If arr_m[ 1 ] >= 2025
+        fl := verify_sluch( fl_view, ft )
+//        Endif
         If fl
           ++iprov
           If !fl_view .and. human->ishod != 88 .and. ! exist_reserve_ksg( human->kod, 'HUMAN', ( HUMAN->ishod == 89 .or. HUMAN->ishod == 88 ) ) // это не 1-ый л/у в двойном случае

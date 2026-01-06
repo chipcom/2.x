@@ -57,7 +57,7 @@ Function create_reestr26( arr_calendar )
 //  Use ( cur_dir() + 'tmpb' ) new
 
   dbCreate( 'mem:tmpb', adbf, , .t., 'TMPB' )
-  Index On FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) to ( 'mem:tmpb' )
+  INDEX ON FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) TO ( 'mem:tmpb' )
 
   mnyear := arr_calendar[ 1 ]
   mnmonth := arr_calendar[ 3 ]
@@ -81,7 +81,7 @@ Function create_reestr26( arr_calendar )
   Next i
 
   dbCreate( 'mem:a_smo', adbf, , .t., 'A_SMO' )
-  Index On FIELD->kod_smo to ( 'mem:a_smo' )
+  INDEX ON FIELD->kod_smo TO ( 'mem:a_smo' )
 
   r_use( dir_server() + 'mo_otd', , 'OTD' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
@@ -297,7 +297,7 @@ function print_list_pacients( kod_smo, nyear, nmonth )
     viewtext( nfile, , , , .t., , , 2 )
     return nil
 
-// 03.12.25
+// 04.01.26
 function control_and_create_schet26( kod_smo )
 
   // при работе использует созданные алиасы A_SMO и TMPB
@@ -309,7 +309,6 @@ function control_and_create_schet26( kod_smo )
   Local j, pole
   Local nameArr
   Local p_tip_reestr  // тип формируемого Реестра случаев
-  Local cFor, bFor, aBukva
 
   fl := reestr_file_reindex()
   If fl
@@ -342,16 +341,14 @@ function control_and_create_schet26( kod_smo )
     r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
     Set Order To 2
     r_use( dir_server() + 'human_',, 'HUMAN_' )
-    r_use( dir_server() + 'human', dir_server() + 'humank', 'HUMAN' )
+    r_use( dir_server() + 'human',, 'HUMAN' )
 
-    Set Relation To RecNo() into HUMAN_
+    //    r_use( dir_server() + 'human', dir_server() + 'humank', 'HUMAN' )
+    //    Set Relation To RecNo() into HUMAN_
 
-//    Use ( cur_dir() + 'tmpb' ) new
-//    SELECT tmpb
     dbSelectArea( 'tmpb' )
+    Set Relation To FIELD->kod_human into HUMAN, To FIELD->kod_human into HUMAN_
 
-    Set Relation To FIELD->kod_human into HUMAN //, To FIELD->kod_human into HUMAN_
-//    Go Top
     tmpb->( dbSeek( kod_smo, .t. ) )
     Do While ! ( tmpb->( Eof() ) ) .and. ( tmpb->kod_smo == kod_smo )
       If human_->ST_VERIFY >= 5 .and. tmpb->tip == p_tip_reestr
@@ -399,6 +396,7 @@ function control_and_create_schet26( kod_smo )
 //        tmpb->( __dbPack() )
       Endif
       If A_SMO->nyear >= 2025
+/*        
         cFor := 'FIELD->tip == ' + AllTrim( str( p_tip_reestr, 1 ) ) + '.and. FIELD->kod_smo == "' + kod_smo + '"'
         bFor := &( '{||' + cFor + '}' )
         tmpb->( __dbCopy( 'mem:tmp', , bFor ) )
@@ -412,16 +410,20 @@ function control_and_create_schet26( kod_smo )
           tmp->( dbSkip() )
         end do
         tmp->( ordListClear() )
-        hb_vfErase( 'mem:bukva.ntx' )  /* освободим память от индексного файла */
+        hb_vfErase( 'mem:bukva.ntx' )
         tmp->( dbGoTop() )
+*/
 //
-        create1reestr26( A_SMO->( RecNo() ), A_SMO->nyear, A_SMO->nmonth, kod_smo, p_tip_reestr, aBukva )
-        
+//        create1reestr26( A_SMO->( RecNo() ), A_SMO->nyear, A_SMO->nmonth, kod_smo, p_tip_reestr ) //  , aBukva )
+        create1reestr26( A_SMO->nyear, A_SMO->nmonth, kod_smo, p_tip_reestr ) //  , aBukva )
+/*
         close_list_alias( { 'TMP' } )
-        dbDrop( 'mem:tmp' )  /* освободим память */
-        hb_vfErase( 'mem:tmp.ntx' )  /* освободим память от индексного файла */
+        dbDrop( 'mem:tmp' )
+        hb_vfErase( 'mem:tmp.ntx' )
+*/
 
         A_SMO->kol := _k - A_SMO->kol
+
 //        dbSelectArea( 'tmpb' )
 //        Delete For yes_del
 //        tmpb->( __dbPack() )

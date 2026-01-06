@@ -40,9 +40,10 @@ Function create_reestr_main()
     Return func_error( 4, 'Реестры за ' + Str( DONT_CREATE_REESTR_YEAR, 4 ) + ' год недоступны' )
   elseif arr_m[ 1 ] <= 2018
     return func_error( 10, 'Реестр ранее 2019 года не формируется!' )
-  elseif arr_m[ 1 ] > 2018 .and. arr_m[ 1 ] <= 2025
-    create_reestr25( arr_m )
-  elseif arr_m[ 1 ] >= 2026
+//  elseif arr_m[ 1 ] > 2018 .and. arr_m[ 1 ] <= 2025
+//    create_reestr25( arr_m )
+//  elseif arr_m[ 1 ] >= 2026
+  else
     create_reestr26( arr_m )
   Endif
 

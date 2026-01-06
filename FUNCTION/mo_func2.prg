@@ -87,13 +87,14 @@ Function ret_actual_smo( r, c )
 
   Return ret
 
-// вернуть уникальное значение CODE (N8) для XML-файлов
+// 06.01.26 вернуть уникальное значение CODE (N12) для XML-файлов
 Function ret_unique_code( _kod, nlen )
 
   Static strValid := '0123456789'
   Local i, n, s := ''
 
-  Default nlen To 8
+//  Default nlen To 8
+  Default nlen To 12
   For i := 1 To nlen
     n := Random() + mem_beg_rees // поправка на начальный номер реестра
     s += SubStr( strValid, n % 10 + 1, 1 ) // по алгориитму GUID

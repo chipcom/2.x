@@ -69,7 +69,7 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 22.10.25 реконстукция баз данных
+// 06.01.26 реконстукция баз данных
 Function reconstruct_db( is_local_version, is_create )
 
   Local base1 := { ;
@@ -826,7 +826,7 @@ Function reconstruct_db( is_local_version, is_create )
   //
   Local mo_rees := { ; // Реестр сведений об оказанной медицинской помощи, направляемый в ТФОМС 'mo_rees'
     { 'KOD',        'N', 6, 0 }, ; // код реестра, номер записи
-    { 'CODE',       'N', 8, 0 }, ; // уникальный код;номер записи+mem_beg_rees
+    { 'CODE',       'N',12, 0 }, ; // уникальный код;номер записи+mem_beg_rees
     { 'NSCHET',     'N', 6, 0 }, ; // номер реестра сведений;уникален для отчетных периодов, принадлежащих одному календарному году;
     { 'DSCHET',     'D', 8, 0 }, ; // дата реестра сведений
     { 'NYEAR',      'N', 4, 0 }, ; // отчетный год
@@ -842,6 +842,7 @@ Function reconstruct_db( is_local_version, is_create )
     { 'BUKVA',      'C', 1, 0 }, ; // буква на конце счета
     { 'VER_APP',    'C',12, 0 }  ; // номер версии из которой сформирован реестр
   }
+//    { 'CODE',       'N', 8, 0 }, ; // уникальный код;номер записи+mem_beg_rees
   //
   Local mo_xml := { ; // Список отосланных и принятых XML-файлов 'mo_xml'
     { 'KOD',        'N', 6, 0 }, ; // код;номер записи

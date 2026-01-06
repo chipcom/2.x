@@ -32,7 +32,8 @@ Function create1reestr19( _recno, _nyear, _nmonth, p_tip_reestr )
   Next
 
   Private pkol := tmp->kol, psumma := tmp->summa, pnyear := _nyear
-  Private old_kol := pkol, old_summa := psumma, p_blk := {| mkol, msum| f_blk_create1reestr19( _nyear ) }
+  Private old_kol := pkol, old_summa := psumma
+  private p_blk := {| mkol, msum| f_blk_create1reestr19() }
 
   dbCloseAll()
   r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
@@ -72,8 +73,8 @@ Function create1reestr19( _recno, _nyear, _nmonth, p_tip_reestr )
   RestScreen( buf )
   Return Nil
 
-// 21.05.17
-Function f_blk_create1reestr19( _nyear )
+// 03.01.26
+Function f_blk_create1reestr19()  // 
 
   Local i, s, ta[ 2 ], sh := MaxCol() + 1
 
