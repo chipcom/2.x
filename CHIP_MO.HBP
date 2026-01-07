@@ -318,6 +318,7 @@ mo_version.prg
 ### 2026
 .\exchange\create_reestr25.prg
 .\exchange\create_reestr26.prg
+.\EXCHANGE\create2reestr26.prg
 .\exchange\reestr_XML26.prg
 .\exchange\read_flk_26.prg
 .\oms\verify_oms26.prg

@@ -1151,7 +1151,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
             pole_diag := 'mdiag' + sk
             pole_1dispans := 'm1dispans' + sk
             pole_dn_dispans := 'mdndispans' + sk
-            // If !Empty( &pole_diag ) .and. &pole_1dispans == 1 .and. AScan( sadiag1, AllTrim( &pole_diag ) ) > 0 ;
             If !Empty( &pole_diag ) .and. &pole_1dispans == 1 .and. diag_in_list_dn( &pole_diag ) ;
                 .and. !Empty( &pole_dn_dispans ) ;
                 .and. ( j := AScan( ar_dn, {| x| AllTrim( x[ 2 ] ) == AllTrim( &pole_diag ) } ) ) > 0
