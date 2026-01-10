@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 08.12.25 сформировать массив имен файлов реестра сведений и пациентов
+// 08.01.26 сформировать массив имен файлов реестра сведений и пациентов
 function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
   // type - тип реестра (обычный, для диспансеризации)
   // nyear - номер года
@@ -19,17 +19,19 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
   local codeMO
 
   codeMO := glob_mo()[ _MO_KOD_TFOMS ] 
+/*
   if nyear <= 2025
     sName := 'RM' + codeMO + 'T34' + '_' ;
       + Right( StrZero( nyear, 4 ), 2 ) + StrZero( nmonth, 2 ) + StrZero( mnn, nsh )
     aFiles := { { 'H', 'F' }[ type ] + sName, ;
       'L' + sName }
   else
+*/
     sName := 'M' + codeMO + iif( kod_smo == '34   ', 'T', 'S' ) + AllTrim( kod_smo ) + '_' + ;
       + Right( StrZero( nyear, 4 ), 2 ) + StrZero( nmonth, 2 ) + StrZero( mnn, nsh )
     aFiles := { { 'H', 'X' }[ type ] + sName, ;
       'L' + sName }
-  endif
+//  endif
   return aFiles
 
 // 15.12.25 проверить, нам ли предназначен данный XML-файл
@@ -466,9 +468,10 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
 
   Static cStFile, si
-  Local fl := .f., arr := {}, arr_f, i, s := cName, s1, name_ext, _date, _time, c
+  Local arr_f, i, s1, name_ext, _date, _time, c
   local current_mo
   local cFrom, nSMO
+  Local fl := .f., arr := {}, s := cName
 
 
   current_mo := glob_MO()

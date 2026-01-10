@@ -3,15 +3,17 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.08.25 зачитать протокол ФЛК во временные файлы новая версия
-Function protokol_flk_tmpfile_26( arr_f, aerr )
+// 08.01.26 зачитать протокол ФЛК во временные файлы новая версия
+Function parse_protokol_flk_26( arr_f, aerr )
 
-  Local adbf, ii, j, s, oXmlDoc, oXmlNode, is_err_FLK := .f.
+  Local ii, j, s, oXmlDoc, oXmlNode
+  Local is_err_FLK := .f.
+  Local adbf
 
   adbf := { ;
-    { 'FNAME',  'C', 27, 0 }, ;
-    { 'FNAME1', 'C', 26, 0 }, ;
-    { 'FNAME2', 'C', 26, 0 }, ;
+    { 'FNAME',  'C', 30, 0 }, ; // 27
+    { 'FNAME1', 'C', 30, 0 }, ; // 26
+    { 'FNAME2', 'C', 30, 0 }, ; // 26
     { 'KOL2',   'N',  6, 0 };   // кол-во ошибок
   }
 //  { 'DATE_F', 'D',  8, 0 }, ;
@@ -19,7 +21,7 @@ Function protokol_flk_tmpfile_26( arr_f, aerr )
   tmp1->( dbAppend() )
 
   adbf := { ; // элементы PR
-    { 'TIP',        'N',   1, 0 }, ;  // тип(номер) обрабатываемого файла
+    { 'TIP',        'N',   1, 0 }, ;  // тип (номер) обрабатываемого файла
     { 'OSHIB',      'N',   3, 0 }, ;  // код ошибки T005
     { 'SOSHIB',     'C',  12, 0 }, ;  // код ошибки Q015, Q022
     { 'IM_POL',     'C',  20, 0 }, ;  // имя поля, в котором ошибка
@@ -48,11 +50,11 @@ Function protokol_flk_tmpfile_26( arr_f, aerr )
         Case 'FNAME' == oXmlNode:title
           tmp1->FNAME := mo_read_xml_tag( oXmlNode, aerr, .t. )
         Case 'FNAME_I' == oXmlNode:title
-          If ii == 1
+//          If ii == 1
             tmp1->FNAME1 := mo_read_xml_tag( oXmlNode, aerr, .t. )
-          Else
-            tmp1->FNAME2 := mo_read_xml_tag( oXmlNode, aerr, .t. )
-          Endif
+//          Else
+//            tmp1->FNAME2 := mo_read_xml_tag( oXmlNode, aerr, .t. )
+//          Endif
         Case 'PR' == oXmlNode:title
           dbSelectArea( 'TMP2' )
           tmp2->( dbAppend() )
@@ -103,7 +105,8 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
   Endif
   Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
   Index On Str( FIELD->tip, 1 ) + Str( FIELD->oshib, 3 ) + FIELD->soshib to ( cur_dir() + 'tmp2' )
-  If is_err_FLK_26
+
+  If is_err_FLK_26 // есть ошибки ТФОМС
     If !extract_reestr( rees->( RecNo() ), rees->name_xml )
       AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом СЧЕТОВ № ' + lstr( rees->nschet ) + ' от ' + date_8( rees->DSCHET ), 80 ) )
       AAdd( aerr, '' )
@@ -197,7 +200,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
             dbSelectArea( 'RHUM' )
             rhum->( dbSeek( Str( tmp2->N_ZAP, 6 ) ) )
             If rhum->( Found() )
-              g_rlock( forever )
+              g_rlock( 'forever' )
               rhum->OPLATA := 2
               tmp2->kod_human := rhum->KOD_HUM
               dbSelectArea( 'HUMAN' )
@@ -214,8 +217,8 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
 //              Endif
 
               If human_->REESTR == mkod_reestr
-                g_rlock( forever )
-                human_->( g_rlock( forever ) )
+                g_rlock( 'forever' )
+                human_->( g_rlock( 'forever' ) )
                 human_->OPLATA := 2
                 human_->REESTR := 0 // направляется на дальнейшее редактирование
                 human_->ST_VERIFY := 0 // снова ещё не проверен
