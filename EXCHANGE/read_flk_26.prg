@@ -238,7 +238,6 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
       dbSelectArea( 'TMP2' )
       tmp2->( dbSkip() )
     Enddo
-altd()
   else
     StrFile( '-- Ошибок не обнаружено -- ' + hb_eol(), cFileProtokol, .t. )
   endif
