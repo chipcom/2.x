@@ -177,7 +177,9 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
     Case nTypeFile == _XML_FILE_FLK_26
 
       StrFile( hb_eol() + 'Тип файла: протокол ФЛК (форматно-логического контроля) нового образца' + hb_eol() + hb_eol(), cFileProtokol, .t. )
+
       If read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
+/*
         // запишем принимаемый файл (протокол ФЛК)
         chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
         Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
@@ -193,6 +195,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         mo_xml->TWORK2 := hour_min( Seconds() )
         mo_xml->REESTR := arr_XML_info[ 7 ]   // mkod_reestr
         mo_xml->KOL2   := tmp1->KOL2
+*/
       Endif
 
       if is_err_FLK_26  // ошибки ФЛК 25 есть
