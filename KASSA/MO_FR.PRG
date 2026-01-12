@@ -1118,7 +1118,7 @@ Function vozvrat_fr( value, bn_value, /*@*/cur_chek, sekcia, tip_banka )
   //
   Return fl
 
-// 16.11.18 запрос к кассовому аппарату
+// 09.01.26 запрос к кассовому аппарату
 Function f1_inf_fr( tip )
 
   Local arr := {}, s,  sd, buf := save_row( MaxRow() ), ;
@@ -1145,20 +1145,27 @@ Function f1_inf_fr( tip )
     // fr_serial_number := tt1[FR_R_ZAVNOMER]
     AAdd( arr, " " )
     AAdd( arr, "ПО СВЕДЕНИЮ ФИСКАЛЬНОГО РЕГИСТРАТОРА:" )
-    AAdd( arr, " -Накопление наличности в кассе             " + Str( frch_d_registr( 241 ), 15, 2 ) )
-    AAdd( arr, " -Продажа наличными за смену                " + Str( frch_d_registr( 193 ), 15, 2 ) )
-    AAdd( arr, "  -Возврат продаж наличными за смену        " + Str( frch_d_registr( 195 ), 15, 2 ) )
-    AAdd( arr, " -Продажа карта МИР  за смену               " + Str( frch_d_registr( 197 ), 15, 2 ) )
-    AAdd( arr, "  -Возврат продаж карта МИР  за смену       " + Str( frch_d_registr( 199 ), 15, 2 ) )
-    AAdd( arr, " -Продажа карта VISA за смену               " + Str( frch_d_registr( 201 ), 15, 2 ) )
-    AAdd( arr, "  -Возврат продаж карта VISA за смену       " + Str( frch_d_registr( 203 ), 15, 2 ) )
-    AAdd( arr, " -Продажа карта MasterCard за смену         " + Str( frch_d_registr( 205 ), 15, 2 ) )
-    AAdd( arr, "  -Возврат продаж карта MasterCard за смену " + Str( frch_d_registr( 207 ), 15, 2 ) )
+    AAdd( arr, " -Накопление наличности в кассе                        " + Str( frch_d_registr( 241 ), 10, 2 ) )
+    AAdd( arr, " -Продажа наличными за смену                           " + Str( frch_d_registr( 193 ), 10, 2 ) )
+    AAdd( arr, "  -Возврат продаж наличными за смену                   " + Str( frch_d_registr( 195 ), 10, 2 ) )
+    AAdd( arr, " -Продажа карта МИР  за смену                          " + Str( frch_d_registr( 197 ), 10, 2 ) )
+    AAdd( arr, "  -Возврат продаж карта МИР  за смену                  " + Str( frch_d_registr( 199 ), 10, 2 ) )
+    AAdd( arr, " -Продажа карта VISA за смену                          " + Str( frch_d_registr( 201 ), 10, 2 ) )
+    AAdd( arr, "  -Возврат продаж карта VISA за смену                  " + Str( frch_d_registr( 203 ), 10, 2 ) )
+    AAdd( arr, " -Продажа карта MasterCard за смену                    " + Str( frch_d_registr( 205 ), 10, 2 ) )
+    AAdd( arr, "  -Возврат продаж карта MasterCard за смену            " + Str( frch_d_registr( 207 ), 10, 2 ) )
     AAdd( arr, "НДС " )
-    AAdd( arr, " -Продажа услуги с НДС 18% (20%)            " + Str( frch_d_registr( 209 ), 15, 2 ) )
-    // aadd(arr,"   -Возврат услуги с НДС 18%                "+str(FRCH_d_registr(211),15,2))
-    AAdd( arr, " -Продажа НДС 18% (20%)                     " + Str( frch_d_registr( 225 ), 15, 2 ) )
-    // aadd(arr,"   -Возврат НДС 18%                         "+str(FRCH_d_registr(227),15,2))
+    if mek_nds22 == 2 // новая прошивка
+      AAdd( arr, " -Оборот по налогу 22% с прихода в смене               " + Str( frch_dd_registr( 4507 ), 10, 2 ) ) //209
+      aadd( arr, "  -Оборот по налогу 22% с возврата прихода в смене     " + str( frch_dd_registr( 4509 ), 10, 2 ) )
+      AAdd( arr, " -Накопления по налогу 22% с прихода в смене           " + Str( frch_dd_registr( 4515 ), 10, 2 ) ) //225
+      aadd( arr, "  -Накопления по налогу 22% с возврата прихода в смене " + str( frch_dd_registr( 4517 ), 10, 2 ) )
+    else
+      aadd( arr, " -Продажа услуги с НДС 22%                             "+str(FRCH_d_registr(209),10,2))
+      // aadd(arr,"   -Возврат услуги с НДС 18%                "+str(FRCH_d_registr(211),15,2))
+      aadd( arr, " -Продажа НДС 20%                                      "+str(FRCH_d_registr(225),10,2))
+      //aadd(arr,"   -Возврат НДС 18%                         "+str(FRCH_d_registr(227),15,2))
+    endif  
     AAdd( arr, " " )
     AAdd( arr, "СТАТУС ИНФОРМАЦИОННОГО ОБМЕНА" )
     If Empty( frn_getinfoexchangestatusshtih( @lkexchangeStatus,;
@@ -1167,9 +1174,9 @@ Function f1_inf_fr( tip )
         @lkdocumentNumber, ;
         @lkdateDoc, ;
         @lktimeDoc ) )
-      AAdd( arr, " -Сообщений для передачи в ОФД                   " + PadR( Str( lkmessageCount ), 10 ) )
-      AAdd( arr, " -Номер документа для ОФД первого в очереди      " + PadR( Str( lkdocumentNumber ), 10 ) )
-      AAdd( arr, " -Дата документа для ОФД первого в очереди       " + full_date( lkdateDoc ) )
+      AAdd( arr, " -Сообщений для передачи в ОФД                         " + PadR( Str( lkmessageCount ), 10 ) )
+      AAdd( arr, " -Номер документа для ОФД первого в очереди            " + PadR( Str( lkdocumentNumber ), 10 ) )
+      AAdd( arr, " -Дата документа для ОФД первого в очереди             " + full_date( lkdateDoc ) )
     Else
       AAdd( arr, " -ДАННЫЕ НЕ СЧИТАНЫ" )
     Endif
@@ -1239,17 +1246,17 @@ Function f1_inf_fr( tip )
     Endif
     Close databases
     If tip < 3
-      AAdd( arr, " -Сумма возвратов:                          " + Str( Abs( sv ), 15, 2 ) )
-      AAdd( arr, " -Сумма общего итога оплат за смену:        " + Str( s, 15, 2 ) )
+      AAdd( arr, " -Сумма возвратов:                                " + Str( Abs( sv ), 15, 2 ) )
+      AAdd( arr, " -Сумма общего итога оплат за смену:              " + Str( s, 15, 2 ) )
     Else
-      AAdd( arr, " -Количество чеков за смену:                " + Str( kol, 15 ) )
-      AAdd( arr, " -Сумма общего итога оплат за смену:        " + Str( sum, 15, 2 ) )
+      AAdd( arr, " -Количество чеков за смену:                      " + Str( kol, 15 ) )
+      AAdd( arr, " -Сумма общего итога оплат за смену:              " + Str( sum, 15, 2 ) )
     Endif
-    AAdd( arr, " -Сумма наличных денег в ящике ККМ:         " + Str( sd, 15, 2 ) )
+    AAdd( arr, " -Сумма наличных денег в ящике ККМ:               " + Str( sd, 15, 2 ) )
     If meK_ostato > 0
       AAdd( arr, "" )
-      AAdd( arr, " -Сумма денег, внесенная в кассу УТРОМ:        " + Str( meK_ostato, 15, 2 ) )
-      AAdd( arr, " -Итого сумма наличных денег в ящике ККМ:      " + Str( sd + meK_ostato, 15, 2 ) )
+      AAdd( arr, " -Сумма денег, внесенная в кассу УТРОМ:              " + Str( meK_ostato, 15, 2 ) )
+      AAdd( arr, " -Итого сумма наличных денег в ящике ККМ:            " + Str( sd + meK_ostato, 15, 2 ) )
     Endif
   Endif
   s := hb_eol()
@@ -1681,6 +1688,23 @@ Function frch_d_registr( registr )
   drvFR:Password := oper_parol
   drvFR:RegisterNumber := registr
   If drvFR:getcashreg() < 0
+    t := drvFR:ResultCodeDescription
+    Return AllTrim( t )
+  Else
+    t := drvFR:ContentsOfCashRegister
+  Endif
+  Return t
+
+// 09.01.26  
+// Запрос денежного регистра ДОПОЛНИТЕЛЬНОГО
+Function frch_dd_registr( registr )
+
+  // registr - номер регистра
+  Local t
+
+  drvFR:Password := oper_parol
+  drvFR:RegisterNumber := registr
+  If drvFR:GetCashRegEx() < 0
     t := drvFR:ResultCodeDescription
     Return AllTrim( t )
   Else
