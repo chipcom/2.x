@@ -11662,13 +11662,13 @@ Function pl_vozvrat()
 //
 
 
-// 03.09.23
+// 10.01.26
 Function pl_priemshk()
 
   Local fl := .t., buf := save_row( MaxRow() ), sm2 := 0, HH := 52, ;
     n_file := cur_dir() + "platn.txt", arr_m, sh, krvz, arr_dms, ;
     mas_op1 := {}, mas_op2 := {}, mas_op3 := {}, i, arr[ 2 ], sm_bn := 0, ;
-    t_hum_rec, kart_kod, t_k_data, nom_prihod := 0, sm_n := 0
+    t_hum_rec, kart_kod, t_k_data, nom_prihod := 0, sm_n := 0, sm_QR := 0
 
   Local arr_title := { ;
     "ÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", ;
@@ -11709,7 +11709,8 @@ Function pl_priemshk()
     { "kod_vr",  "N",  4,  0 }, ;
     { "fio_vr",  "C", 60,  0 }, ;
     { "summa_bn", "N", 12,  2 }, ;
-    { "summa_n", "N", 12,  2 } } )
+    { "summa_n", "N", 12,  2 }, ;
+    { "summa_QR", "N", 12,  2 } } )
   Use ( cur_dir() + "tmp" ) new
   If yes_parol
     r_use( dir_server() + "base1",, "BASE1" )
@@ -11736,6 +11737,9 @@ Function pl_priemshk()
       tmp->fr_time  := hum->fr_time
       tmp->summa    := hum->cena
       tmp->summa_bn := hum->sbank
+      if hum->fr_tipkart == 5 //QR ª®¤
+        tmp->summa_QR := hum->sbank
+      endif  
       tmp->summa_n  := hum->cena - hum->sbank
       tmp->operat   := hum->kod_oper
       tmp->dogovor  := lstr( hum->kod_k )
@@ -11836,7 +11840,7 @@ Function pl_priemshk()
       If glob_mo[ _MO_KOD_TFOMS ] == '171004' .or. glob_mo[ _MO_KOD_TFOMS ] == '114504' // Š-4   Š 4
         add_string( Str( ++ii, 3 ) + " " + ;
           PadR( tmp->fio, 38 ) + ;
-          iif( tmp->summa_bn > 0, "", "  " ) + ;
+          iif( tmp->summa_bn > 0,iif(tmp->summa_QR > 0,"QR",""), "  " ) + ;
           PadR( SecToTime( tmp->fr_time ), 5 ) + " " + ;
           PadL( lstr( tmp->chek ), 5 ) + " " + ;
           PadR( tmp->dogovor, 10 ) + " " + ;
@@ -11856,7 +11860,7 @@ Function pl_priemshk()
       Else
         add_string( Str( ++ii, 3 ) + " " + ;
           PadR( tmp->fio, 38 ) + ;
-          iif( tmp->summa_bn > 0, "", "  " ) + ;
+          iif( tmp->summa_bn > 0,iif(tmp->summa_QR > 0,"QR",""), "  " ) + ;
           PadR( SecToTime( tmp->fr_time ), 5 ) + " " + ;
           PadL( lstr( tmp->chek ), 5 ) + " " + ;
           PadL( lstr( tmp->kod_hum ), 6 ) + " " + ;
@@ -11877,6 +11881,7 @@ Function pl_priemshk()
       sm2   := sm2 + tmp->summa
       sm_bn := sm_bn + tmp->summa_bn
       sm_n  := sm_n + tmp->summa_n
+      sm_QR :=  sm_QR + tmp->summa_qr
       Skip
     Enddo
     add_string( Replicate( "Ä", sh ) )
@@ -11889,6 +11894,11 @@ Function pl_priemshk()
     For i := 1 To perenos( arr, "‚á¥£® ­  áã¬¬ã: " + srub_kop( sm2, .t. ), sh )
       add_string( arr[ i ] )
     Next
+    if sm_QR > 0
+      For i := 1 To perenos( arr, "-¨§ ­¨å QR ª®¤: " + srub_kop( sm_QR, .t. ), sh )
+        add_string( arr[ i ] )
+      Next
+    endif
     If meK_bank == 1
       If glob_mo[ _MO_KOD_TFOMS ] == '103001'
         For i := 1 To perenos( arr, "¨§ ­¨å ¢ ª ááã: " + srub_kop( sm_n, .t. ), sh )

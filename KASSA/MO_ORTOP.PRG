@@ -7254,12 +7254,12 @@ Function or_vozvrat()
   Return Nil
 
 
-// 28.12.21
+// 10.01.26
 Function ort_priemshk()
 
   Local fl := .t., buf := save_row( MaxRow() ), sm2 := 0, HH := 52, ;
     n_file := cur_dir() + "platn.txt", arr_m, sh, krvz, arr_dms, ;
-    sm_1 := 0, sm_2 := 0, sm_3 := 0, sm_bn := 0, ;
+    sm_1 := 0, sm_2 := 0, sm_3 := 0, sm_bn := 0, sm_QR := 0, ;
     mas_op1 := {}, mas_op2 := {}, i, arr[ 2 ]
   Local  arr_title := { ;
     "ÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", ;
@@ -7295,6 +7295,7 @@ Function ort_priemshk()
     { "tip_op",  "N",  1,  0 }, ;
     { "nar_z",   "N",  5,  0 }, ;
     { "summa_bn", "N", 12,  2 }, ;
+    { "summa_QR", "N", 12,  2 }, ; 
     { "summaN",  "N", 12,  2 }, ;
     { "summa",   "N", 12,  2 } } )
   Use ( cur_dir() + "tmp" ) new
@@ -7325,6 +7326,9 @@ Function ort_priemshk()
         tmp->tip_op   := ho->tip_opl
         tmp->nar_z    := human->nar_z
         tmp->summa_bn := ho->sbank
+        if ho->fr_tipkart == 5 //QR ª®¤
+          tmp->summa_QR := ho->sbank
+        endif  
         Select PERS
         Goto ( human->kod_vr )
         tmp->fio_vr  := pers->fio
@@ -7385,7 +7389,7 @@ Function ort_priemshk()
       tt1 := inieditspr( A__MENUVERT, menu_opl, tmp->tip_op )
       add_string( Str( ++ii, 3 ) + " " + ;
         PadR( tmp->fio, 38 ) + ;
-        iif( tmp->summa_bn > 0, "", "  " ) + ;
+        iif( tmp->summa_bn > 0, iif(tmp->summa_QR > 0,"QR",""), "  " ) + ;
         PadR( SecToTime( tmp->fr_time ), 5 ) + " " + ;
         PadL( lstr( tmp->chek ), 5 ) + " " + ;
         PadL( lstr( tmp->kod_hum ), 6 ) + " " + ;
@@ -7415,6 +7419,7 @@ Function ort_priemshk()
       Endif
       sm2 += tmp->summa
       sm_bn += tmp->summa_bn
+      sm_QR += tmp->summa_qr
       Select TMP
       Skip
     Enddo
@@ -7424,6 +7429,11 @@ Function ort_priemshk()
     For i := 1 To perenos( arr, "‚á¥£® ­  áã¬¬ã: " + srub_kop( sm2, .t. ), sh )
       add_string( arr[ i ] )
     Next
+    if sm_QR > 0
+      For i := 1 To perenos( arr, "-¨§ ­¨å QR ª®¤: " + srub_kop( sm_QR, .t. ), sh )
+        add_string( arr[ i ] )
+      Next
+    endif
     If meK_bank == 1
       For i := 1 To perenos( arr, "¨§ ­¨å ¢ ª ááã: " + srub_kop( sm2 - sm_bn, .t. ), sh )
         add_string( arr[ i ] )
@@ -7433,7 +7443,7 @@ Function ort_priemshk()
     // add_string(padR("¯« â :   ",61)+put_kope(sm_2,12))
     // add_string(padR(" ¯ë«¥­¥: ",61)+put_kope(sm_3,12))
     add_string( "" )
-    add_string( "            ‘¤ « ¬¥¤.à¥£¨áâà â®à:              /" + AllTrim( mas_op2[ bkol_oper ] ) + "/" )
+    add_string( "            ‘¤ « ¬¥¤.à¥£¨áâà â®à:                         /" + AllTrim( mas_op2[ bkol_oper ] ) + "/" )
     add_string( "" )
     add_string( "            à¨­ï« ª áá¨à:                                /" + AllTrim( mek_kassir ) + "/" )
     FClose( fp )
