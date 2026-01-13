@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 30.12.25
+// 13.01.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -1108,12 +1108,13 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           mo_add_xml_stroke( oUSL, 'SUMV_USL', '0' )// lstr(mohu->STOIM_1, 10, 2))
         Endif
         fl := .f.
-        If is_telemedicina( lshifr, @fl ) // не заполняется код врача
-          mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )  // добавил 04.08.21
-          mo_add_xml_stroke( oUSL, 'CODE_MD', '0' )
-        Else
-//          If ( human->k_data >= 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER ) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
-//              .or. ( human->k_data >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+
+//        If is_telemedicina( lshifr, @fl ) // не заполняется код врача
+//          mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )  // добавил 04.08.21
+//          mo_add_xml_stroke( oUSL, 'CODE_MD', '0' )
+//        Else
+////          If ( human->k_data >= 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER ) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
+////              .or. ( human->k_data >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
             If ( p_tip_reestr == TYPE_REESTR_GENERAL ) .and. service_requires_implants( lshifr, c4tod( hu_->DATE_U2 ) )
               elem_med_dev( oUsl, human->kod, mohu->( RecNo() ) )
             Endif
@@ -1121,12 +1122,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
               p2->( dbGoto( mohu->kod_vr ) )
               elem_mr_usl_n( oUsl, _nyear, 1, mohu->PRVS, p2->snils ) // пока ставим 1 исполнитель
             Endif
-//          Else  // if human->k_data < 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL
-//            mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )  // добавил 04.08.21
-//            p2->( dbGoto( mohu->kod_vr ) )                                            // добавил 04.08.21
-//            mo_add_xml_stroke( oUSL, 'CODE_MD', p2->snils )                          // добавил 04.08.21
-//          Endif
-        Endif
+////          Else  // if human->k_data < 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL
+////            mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )  // добавил 04.08.21
+////            p2->( dbGoto( mohu->kod_vr ) )                                            // добавил 04.08.21
+////            mo_add_xml_stroke( oUSL, 'CODE_MD', p2->snils )                          // добавил 04.08.21
+////          Endif
+//        Endif
         If !Empty( mohu->zf )
           dbSelectArea( laluslf )
           find ( PadR( lshifr, 20 ) )
