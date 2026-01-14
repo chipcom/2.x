@@ -114,11 +114,13 @@ Function read_from_tf()
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local is_err_FLK_26
-  Local nTypeFile := 0, aerr := {}, j, oXmlDoc, ;
+  Local nTypeFile := 0, mkod_reestr, aerr := {}, j, oXmlDoc, ;
     nCountWithErr := 0, go_to_schet := .f., go_to_akt := .f., ;
     go_to_rpd := .f., nerror, buf := save_maxrow()
 
   nTypeFile := arr_XML_info[ 1 ]
+  mkod_reestr := arr_XML_info[ 7 ]
+
   For j := 1 To 4
     If !myfiledeleted( cur_dir() + 'tmp' + lstr( j ) + 'file' + sdbf() )
       Return Nil
@@ -138,8 +140,9 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
   mywait( 'Производится анализ файла ' + cFile )
   Private cReadFile := name_without_ext( cFile ), ;
     cTimeBegin := hour_min( Seconds() ), ;
-    mkod_reestr := 0, mXML_REESTR := 0, mdate_schet, is_err_FLK := .f.
+    mXML_REESTR := 0, mdate_schet, is_err_FLK := .f.
   Private cFileProtokol := cReadFile + stxt()
+//  private mkod_reestr := 0,   
   StrFile( Space( 10 ) + 'Протокол обработки файла: ' + cFile + hb_eol(), cFileProtokol )
   StrFile( Space( 10 ) + full_date( sys_date ) + 'г. ' + cTimeBegin + hb_eol(), cFileProtokol, .t. )
 
@@ -198,7 +201,67 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 */
       Endif
 
-      if is_err_FLK_26  // ошибки ФЛК 25 есть
+      if is_err_FLK_26  // ошибки ФЛК 26 есть
+        // открыть распакованный реестр
+        Use ( cur_dir() + 'tmp_r_t1' ) New Alias T1
+        Index On Str( Val( FIELD->n_zap ), 6 ) to ( cur_dir() + 'tmpt1' )
+        Use ( cur_dir() + 'tmp_r_t2' ) New Alias T2
+        Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + 'tmpt2' )
+        Use ( cur_dir() + 'tmp_r_t3' ) New Alias T3
+        Index On Upper( FIELD->ID_PAC ) to ( cur_dir() + 'tmpt3' )
+
+//        g_use( dir_server() + 'mo_kfio', , 'KFIO' )
+//        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
+//        g_use( dir_server() + 'kartote2', , 'KART2' )
+//        g_use( dir_server() + 'kartote_', , 'KART_' )
+//        g_use( dir_server() + 'kartotek', dir_server() + 'kartoten', 'KART' )
+//        Set Order To 0 // индекс открыт для реконструкции при перезаписи ФИО и даты рождения
+//        r_use( dir_server() + 'mo_otd', , 'OTD' )
+        g_use( dir_server() + 'human_', , 'HUMAN_' )
+        g_use( dir_server() + 'human', { dir_server() + 'humann', dir_server() + 'humans' }, 'HUMAN' )
+        Set Order To 0 // индексы открыты для реконструкции при перезаписи ФИО
+        Set Relation To RecNo() into HUMAN_ //, To FIELD->otd into OTD
+        g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+        g_use( dir_server() + 'mo_rhum', , 'RHUM' )
+        Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
+
+        g_use( dir_server() + 'mo_refr', dir_server() + 'mo_refr', 'REFR' )
+
+        Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
+        Index On Str( FIELD->_n_zap, 8 ) to ( cur_dir() + 'tmp3' )
+        Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
+        tmp2->( dbGoTop() )
+        do while ! tmp2->( Eof() )
+
+            Select REFR
+            Do While .t.
+              refr->( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) )
+              If !Found()
+                Exit
+              Endif
+              deleterec( .t. )
+            Enddo
+            Select TMP3
+            tmp3->( dbSeek( Str( tmp2->N_ZAP, 8 ) ) )
+            Do While tmp2->N_ZAP == tmp3->_N_ZAP .and. ! tmp3->( Eof() )
+              Select REFR
+              addrec( 1 )
+              refr->TIPD := 1
+              refr->KODD := mkod_reestr
+              refr->TIPZ := 1
+              refr->KODZ := rhum->KOD_HUM
+              refr->REFREASON := tmp3->_REFREASON
+              refr->SREFREASON := tmp3->SREFREASON
+//              refr->IDENTITY := tmp2->_IDENTITY
+
+              Select tmp3
+              tmp3->( dbSkip() )
+            Enddo
+
+          tmp2->( dbSkip() )
+        Enddo
+
+altd()
       else  // ошибок ФЛК нет
 //        r_use( dir_server() + 'mo_rees', , 'REES' ) 
         e_use( dir_server() + 'mo_rees', , 'REES' ) 

@@ -40,6 +40,12 @@ Function parse_protokol_flk_26( arr_f, aerr )
 
   dbCreate( cur_dir() + 'tmp22fil', adbf ) // доп.файл, если по одному пациенту > 1 листа учёта
 
+  dbCreate( cur_dir() + 'tmp3file', { ;
+    { '_N_ZAP',     'N',  8, 0 }, ;
+    { '_REFREASON', 'N',  3, 0 }, ;
+    { 'SREFREASON', 'C', 12, 0 };
+    }, , .t., 'TMP3' )
+
   cFile := arr_f[ 1 ]
   If Upper( Right( cFile, 4 ) ) == sxml() .and. ValType( oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile ) ) == 'O'
     For j := 1 To Len( oXmlDoc:aItems[ 1 ]:aItems )
@@ -78,7 +84,7 @@ Function parse_protokol_flk_26( arr_f, aerr )
   dbCommitAll()
   Return is_err_FLK
 
-// 10.01.26 прочитать реестр ФЛК
+// 14.01.26 прочитать реестр ФЛК
 Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
 
   Local i, k, t_arr[ 2 ]  //, pole
@@ -97,6 +103,8 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
   Endif
   Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
   Index On Str( FIELD->oshib, 3 ) + FIELD->soshib to ( cur_dir() + 'tmp2' )
+  Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
+  Index On Str( FIELD->_n_zap, 8 ) to ( cur_dir() + 'tmp3' )
 
   If is_err_FLK_26 // есть ошибки ТФОМС
     If !extract_reestr26( rees->( RecNo() ), rees->name_xml )
@@ -131,6 +139,9 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
     Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_3, To FIELD->otd into OTD
     g_use( dir_server() + 'mo_rhum', , 'RHUM' )
     Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
+
+    g_use( dir_server() + 'mo_refr', dir_server() + 'mo_refr', 'REFR' )
+
     dbSelectArea( 'TMP2' ) // сначала проверка
 
     tmp2->( dbGoTop() )
@@ -197,7 +208,6 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
           If rhum->( Found() )
             g_rlock( 'forever' )
             rhum->OPLATA := 2
-altd()
             tmp2->kod_human := rhum->KOD_HUM
             dbSelectArea( 'HUMAN' )
             human->( dbGoto( rhum->KOD_HUM ) )
@@ -331,6 +341,10 @@ Function fill_tmp2_file_flk_26()
         Endif
       Endcase
     Endif
+    tmp3->( dbAppend() )
+    tmp3->_N_ZAP := tmp2->N_ZAP
+    tmp3->SREFREASON := tmp2->SOSHIB
+    tmp3->_REFREASON := tmp2->OSHIB
     dbSelectArea( 'TMP2' )
     tmp2->( dbSkip() )
   Enddo

@@ -585,73 +585,23 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
               arr_fio := retfamimot( 2, .f., .t. )
               mdate_r := human->date_r
               s := ''
-              // s := space(5) + '!Ошибки в персональных данных!'+hb_eol()
               If !Empty( tmp2->_FAM )
-                // s += space(5) + 'старая фамилия '' + alltrim(arr_fio[1]) + '', изменена на '' + alltrim(tmp2->_FAM) + '''+hb_eol()
                 s += Space( 5 ) + 'фамилия в нашей БД "' + AllTrim( arr_fio[ 1 ] ) + '", в регистре ТФОМС "' + AllTrim( tmp2->_FAM ) + '"' + hb_eol()
                 arr_fio[ 1 ] := AllTrim( tmp2->_FAM )
               Endif
               If !Empty( tmp2->_IM )
-                // s += space(5) + 'старое имя '' + alltrim(arr_fio[2]) + '', изменено на '' + alltrim(tmp2->_IM) + '''+hb_eol()
                 s += Space( 5 ) + 'имя в нашей БД "' + AllTrim( arr_fio[ 2 ] ) + '", в регистре ТФОМС "' + AllTrim( tmp2->_IM ) + '"' + hb_eol()
                 arr_fio[ 2 ] := AllTrim( tmp2->_IM )
               Endif
               If !emptyall( tmp2->CORRECT, tmp2->_OT )
-                // s += space(5) + 'старое отчество '' + alltrim(arr_fio[3]) + '', изменено на '' + alltrim(tmp2->_OT) + '''+hb_eol()
                 s += Space( 5 ) + 'отчество в нашей БД "' + AllTrim( arr_fio[ 3 ] ) + '", в регистре ТФОМС "' + AllTrim( tmp2->_OT ) + '"' + hb_eol()
                 arr_fio[ 3 ] := AllTrim( tmp2->_OT )
               Endif
               If !Empty( tmp2->_DR )
                 mdate_r := xml2date( tmp2->_DR )
-                // s += space(5) + 'старая дата рождения ' + full_date(human->date_r) + ', изменена на ' + full_date(mdate_r) + hb_eol()
                 s += Space( 5 ) + 'дата рождения в нашей БД ' + full_date( human->date_r ) + ', в регистре ТФОМС ' + full_date( mdate_r ) + hb_eol()
               Endif
-              // s += space(5) + '(исправлено - войти в редактирование л/у и подтвердить запись)'+hb_eol()
-              // s += space(5) + '(исправляйте самостоятельно; в случае несогласия обращайтесь в отдел ТФОМС'+hb_eol()
-              // s += space(5) + ' по ведению регистра застрахованных лиц, тел.94-71-59, 95-87-88, 94-67-41)'+hb_eol()
               StrFile( s, cFileProtokol, .t. )
-              /*
-              newMEST_INOG := 0
-              if TwoWordFamImOt(arr_fio[1]) .or. TwoWordFamImOt(arr_fio[2]) .or. TwoWordFamImOt(arr_fio[3])
-                newMEST_INOG := 9
-              endif
-              mfio := arr_fio[1]+' '+arr_fio[2]+' '+arr_fio[3]
-              if kart->MEST_INOG == 9 .or. newMEST_INOG == 9
-                select KFIO
-                find (str(kart->kod, 7))
-                if found()
-                  if newMEST_INOG == 9
-                    G_RLock(forever)
-                    kfio->FAM := arr_fio[1]
-                    kfio->IM  := arr_fio[2]
-                    kfio->OT  := arr_fio[3]
-                    dbUnLock()
-                  else
-                    DeleteRec(.t.)
-                  endif
-                else
-                  if newMEST_INOG == 9
-                    AddRec(7)
-                    kfio->kod := kart->kod
-                    kfio->FAM := arr_fio[1]
-                    kfio->IM  := arr_fio[2]
-                    kfio->OT  := arr_fio[3]
-                    dbUnLock()
-                  endif
-                endif
-              endif
-              select KART
-              G_RLock(forever)
-              kart->fio := mfio
-              kart->date_r := mdate_r
-              kart->MEST_INOG := newMEST_INOG
-              dbUnLock()
-              select HUMAN
-              G_RLock(forever)
-              human->fio := mfio
-              human->date_r := mdate_r
-              dbUnLock()
-              */
             Endif
             Select REFR
             Do While .t.
