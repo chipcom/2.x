@@ -430,7 +430,7 @@ Function view_list_reestr()
   Return Nil
 
 
-// 
+// 14.01.26
 Function f1_view_list_reestr( oBrow )
 
   Local oColumn, ;
@@ -450,10 +450,10 @@ Function f1_view_list_reestr( oBrow )
     Right( lstr( rees->nyear ), 2 ) + '/' + StrZero( rees->nmonth, 2 ) ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( ' Сумма реестра', {|| PadL( expand_value( rees->summa, 2 ), 15 ) } )
+  oColumn := TBColumnNew( 'Сумма реестра', {|| PadL( expand_value( rees->summa, 2 ), 13 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( ' Кол.; бол.', {|| Str( rees->kol, 6 ) } )
+  oColumn := TBColumnNew( 'Кол.;бол.', {|| Str( rees->kol, 5 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
   oColumn := TBColumnNew( ' Наименование файла', {|| PadR( rees->NAME_XML, 22 ) } )

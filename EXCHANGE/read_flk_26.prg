@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 10.01.26 зачитать протокол ФЛК во временные файлы новая версия
+// 14.01.26 зачитать протокол ФЛК во временные файлы новая версия
 Function parse_protokol_flk_26( arr_f, aerr )
 
   Local j, s, oXmlDoc, oXmlNode, cFile
@@ -27,15 +27,15 @@ Function parse_protokol_flk_26( arr_f, aerr )
     { 'ZN_POL',     'C', 100, 0 }, ;  // Значение поля, вызвавшее ошибку. Не заполняется, если ошибка относится к файлу в целом
     { 'NSCHET',     'C',  15, 0 }, ;  // Номер счета, в котором обнаружена ошибка
     { 'BAS_EL',     'C',  20, 0 }, ;  // имя базового элемента
-    { 'N_ZAP',      'C',  36, 0 }, ;  // Номер записи, в одном из полей которой обнаружена ошибка
+    { 'N_ZAP',      'N',   6, 0 }, ;  // поле из первичного реестра
     { 'ID_PAC',     'C',  36, 0 }, ;  // Код записи о пациенте, в которой обнаружена ошибка. Не заполняется только в том случае, если ошибка относится к файлу в целом.
     { 'IDCASE',     'N',  11, 0 }, ;  // Номер законченного случая, в котором обнаружена ошибка(указывается, если ошибка обнаружена внутри тега ?Z_SL?, в том числе во входящих в него элементах ?SL? и услугах)
     { 'SL_ID',      'C',  36, 0 }, ;  // Идентификатор случая, в котором обнаружена ошибка (указывается, если ошибка обнаружена внутри тега ?SL?, в том числе во входящих в него услугах)
     { 'IDSERV',     'C',  36, 0 }, ;  // Номер услуги, в которой обнаружена ошибка (указывается, если ошибка обнаруживается внутри тега ?USL?)
-    { 'COMMENT',    'C', 250, 0 } ;   // описание ошибки
+    { 'COMMENT',    'C', 250, 0 }, ;  // описание ошибки
+    { 'KOD_HUMAN',  'N',   7, 0 } ;   // код по БД листов учёта
   }
-//    { 'N_ZAP',      'N',   6, 0 }, ;  // поле из первичного реестра
-//    { 'KOD_HUMAN',  'N',   7, 0 };   // код по БД листов учёта
+//    { 'N_ZAP',      'C',  36, 0 }, ;  // Номер записи, в одном из полей которой обнаружена ошибка
   dbCreate( cur_dir() + 'tmp2file', adbf, , .t., 'TMP2' ) // элементы PR
 
   dbCreate( cur_dir() + 'tmp22fil', adbf ) // доп.файл, если по одному пациенту > 1 листа учёта
@@ -62,7 +62,7 @@ Function parse_protokol_flk_26( arr_f, aerr )
         tmp2->ZN_POL  := mo_read_xml_stroke( oXmlNode, 'ZN_POL', aerr, .f. )
         tmp2->NSCHET  := mo_read_xml_stroke( oXmlNode, 'NSCHET', aerr, .f. )
         tmp2->BAS_EL  := mo_read_xml_stroke( oXmlNode, 'BAS_EL', aerr, .f. )
-        tmp2->N_ZAP   := mo_read_xml_stroke( oXmlNode, 'N_ZAP', aerr, .f. )
+        tmp2->N_ZAP   := Val( mo_read_xml_stroke( oXmlNode, 'N_ZAP', aerr, .f. ) )
         tmp2->ID_PAC  := mo_read_xml_stroke( oXmlNode, 'ID_PAC', aerr, .f. )
         tmp2->IDCASE  := Val( mo_read_xml_stroke( oXmlNode, 'IDCASE', aerr, .f. ) )
         tmp2->SL_ID   := mo_read_xml_stroke( oXmlNode, 'SL_ID', aerr, .f. )
@@ -123,9 +123,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
 
 // заполнить поле 'N_ZAP' в файле 'tmp2'
     fill_tmp2_file_flk_26()
-altd()
 
-/*
     r_use( dir_server() + 'mo_otd', , 'OTD' )
     r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
     g_use( dir_server() + 'human_', , 'HUMAN_' )
@@ -134,6 +132,7 @@ altd()
     g_use( dir_server() + 'mo_rhum', , 'RHUM' )
     Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
     dbSelectArea( 'TMP2' ) // сначала проверка
+
     tmp2->( dbGoTop() )
     Do While ! tmp2->( Eof() )
       dbSelectArea( 'RHUM' )
@@ -159,7 +158,7 @@ altd()
       dbCloseAll()
       Return .f.
     Endif
-*/
+
   Endif
 
   StrFile( hb_eol() + 'Обработан файл ' + AllTrim( tmp1->FNAME1 ) + hb_eol(), cFileProtokol, .t. )
@@ -185,22 +184,20 @@ altd()
       If !Empty( tmp2->BAS_EL )
         s += ', имя базового элемента = ' + AllTrim( tmp2->BAS_EL )
       Endif
-//      If !Empty( tmp2->ID_BAS )
-//        s += ', GUID базового элемента = ' + AllTrim( tmp2->ID_BAS )
-//      Endif
       If !Empty( tmp2->COMMENT )
         s += ', описание ошибки = ' + AllTrim( tmp2->COMMENT )
       Endif
-      If !Empty( tmp2->BAS_EL )   // .and. !Empty( tmp2->ID_BAS )
+      If !Empty( tmp2->BAS_EL )
         If Empty( tmp2->N_ZAP )
           s += ', СЛУЧАЙ НЕ НАЙДЕН!'
         Else
-/*
+
           dbSelectArea( 'RHUM' )
           rhum->( dbSeek( Str( tmp2->N_ZAP, 6 ) ) )
           If rhum->( Found() )
             g_rlock( 'forever' )
             rhum->OPLATA := 2
+altd()
             tmp2->kod_human := rhum->KOD_HUM
             dbSelectArea( 'HUMAN' )
             human->( dbGoto( rhum->KOD_HUM ) )
@@ -232,7 +229,7 @@ altd()
           else
             s := 'Не найден случай с N_ZAP=' + lstr( tmp2->_N_ZAP ) + ', _ID_PAC=' + tmp2->_ID_PAC
           endif
-*/
+
         Endif
       Endif
       k := perenos( t_arr, s, 75 )
@@ -249,7 +246,7 @@ altd()
   dbCloseAll()
   Return .t.
 
-// 25.08.25 заполнить поле 'N_ZAP' в файле 'tmp2'
+// 14.01.26 заполнить поле 'N_ZAP' в файле 'tmp2'
 Function fill_tmp2_file_flk_26()
 
   Local i, s, s1, adbf, ar
@@ -258,17 +255,17 @@ Function fill_tmp2_file_flk_26()
   dbSelectArea( 'TMP2' )
   adbf := Array( tmp2->( FCount() ) )
   tmp2->( dbGoTop() )
+
   Do While ! tmp2->( Eof() )
-    If !Empty( tmp2->BAS_EL ) // .and. !Empty( tmp2->ID_BAS )
+    If ! Empty( tmp2->BAS_EL )
       s := AllTrim( tmp2->BAS_EL )
-//      s1 := AllTrim( tmp2->ID_BAS )
       Do Case
-      Case s == 'ZAP'
-        dbSelectArea( 'T1' )
-        Locate For t1->N_ZAP == PadR( s1, 6 )
-        If t1->( Found() )
-          tmp2->N_ZAP := Val( t1->N_ZAP )
-        Endif
+//      Case s == 'ZAP'
+//        dbSelectArea( 'T1' )
+//        Locate For t1->N_ZAP == PadR( s1, 6 )
+//        If t1->( Found() )
+//          tmp2->N_ZAP := Val( t1->N_ZAP )
+//        Endif
       Case s == 'PACIENT'
         ar := {}
         dbSelectArea( 'T1' )
@@ -315,11 +312,9 @@ Function fill_tmp2_file_flk_26()
           dbSelectArea( 'T1' )
           t1->( dbSeek( PadR( Upper( s1 ), 36 ) ) )
           Do While Upper( t1->ID_PAC ) == PadR( Upper( s1 ), 36 )
-//            AAdd( ar, Int( Val( t1->N_ZAP ) ) )
-            AAdd( ar, t1->N_ZAP )
+            AAdd( ar, Int( Val( t1->N_ZAP ) ) )
             t1->( dbSkip() )
           Enddo
-altd()
           If Len( ar ) > 0
             dbSelectArea( 'TMP2' )
             tmp2->N_ZAP := ar[ 1 ]
@@ -349,12 +344,12 @@ altd()
   Endif
   Return Nil
 
-// 11.01.26 создать файлы для анализа ФЛК нового образца
+// 14.01.26 создать файлы для анализа ФЛК нового образца
 Function create_files_tmp_flk_26()
 
   Local _table1 := { ;
     { 'KOD',      'N',  6, 0 }, ; // код
-    { 'N_ZAP',    'C', 12, 0 }, ; // номер позиции записи в реестре;поле 'IDCASE' (и 'ZAP') в реестре случаев
+    { 'N_ZAP',    'N',  6, 0 }, ; // номер позиции записи в реестре счетов 26 года
     { 'PR_NOV',   'C',  1, 0 }, ;
     { 'ID_PAC',   'C', 36, 0 }, ; //
     { 'VPOLIS',   'C',  1, 0 }, ; //
@@ -483,6 +478,7 @@ Function create_files_tmp_flk_26()
     { 'NEXT_VISIT','C',10, 0 }, ; //
     { 'TARIF',    'C', 10, 0 } ; //
   }
+//    { 'N_ZAP',    'C', 12, 0 }, ; // номер позиции записи в реестре;поле 'IDCASE' (и 'ZAP') в реестре случаев
   Local _table2 := { ;
     { 'SLUCH',    'N',  6, 0 }, ; // номер случая
     { 'KOD',      'N',  6, 0 }, ; // код

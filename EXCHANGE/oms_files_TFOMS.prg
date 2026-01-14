@@ -110,7 +110,7 @@ Function read_from_tf()
   Endif
   Return fl
 
-// 16.12.25 чтение в память и анализ XML-файла
+// 14.01.26 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local is_err_FLK_26
@@ -200,8 +200,12 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
       if is_err_FLK_26  // ошибки ФЛК 25 есть
       else  // ошибок ФЛК нет
-        r_use( dir_server() + 'mo_rees', , 'REES' )
+//        r_use( dir_server() + 'mo_rees', , 'REES' ) 
+        e_use( dir_server() + 'mo_rees', , 'REES' ) 
         rees->( dbGoto( arr_XML_info[ 7 ] ) )
+        rees->( dbRLock() )
+        rees->RES_TFOMS := 1  // реестр счета принят
+        rees->( dbUnlock() )
         use_base( 'schet' )
         Set Relation To
         addrec( 6 )
