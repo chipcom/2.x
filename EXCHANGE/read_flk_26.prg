@@ -221,7 +221,6 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
 //                human_->( dbGoto( human_3->kod ) )   // встать на 1-ый случай
 //              Endif
 //            Endif
-
             If human_->REESTR == mkod_reestr
               g_rlock( 'forever' )
               human_->( g_rlock( 'forever' ) )
@@ -229,12 +228,13 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
               human_->REESTR := 0 // направляется на дальнейшее редактирование
               human_->ST_VERIFY := 0 // снова ещё не проверен
               If human_->REES_NUM > 0
-                human_->REES_NUM := human_->REES_NUM - 1
+//                human_->REES_NUM := human_->REES_NUM - 1
               Endif
               human->( dbUnlock() )
               s += ', ' + AllTrim( human->fio ) + ', ' + full_date( human->date_r ) + ;
                 iif( Empty( otd->SHORT_NAME ), '', ' [' + AllTrim( otd->SHORT_NAME ) + ']' ) + ;
                 ' ' + date_8( human->n_data ) + '-' + date_8( human->k_data )
+altd()
             Endif
           else
             s := 'Не найден случай с N_ZAP=' + lstr( tmp2->_N_ZAP ) + ', _ID_PAC=' + tmp2->_ID_PAC

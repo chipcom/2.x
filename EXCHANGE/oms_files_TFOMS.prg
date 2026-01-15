@@ -182,7 +182,8 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       StrFile( hb_eol() + 'Тип файла: протокол ФЛК (форматно-логического контроля) нового образца' + hb_eol() + hb_eol(), cFileProtokol, .t. )
 
       If read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
-/*
+      Endif
+
         // запишем принимаемый файл (протокол ФЛК)
         chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
         Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
@@ -198,8 +199,8 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         mo_xml->TWORK2 := hour_min( Seconds() )
         mo_xml->REESTR := arr_XML_info[ 7 ]   // mkod_reestr
         mo_xml->KOL2   := tmp1->KOL2
-*/
-      Endif
+
+//      Endif
 
       if is_err_FLK_26  // ошибки ФЛК 26 есть
         // открыть распакованный реестр
@@ -235,8 +236,8 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
             Select REFR
             Do While .t.
-              refr->( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) )
-              If !Found()
+              refr->( dbSeek( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) ) )
+              If ! refr->( Found() )
                 Exit
               Endif
               deleterec( .t. )
@@ -261,7 +262,6 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
           tmp2->( dbSkip() )
         Enddo
 
-altd()
       else  // ошибок ФЛК нет
 //        r_use( dir_server() + 'mo_rees', , 'REES' ) 
         e_use( dir_server() + 'mo_rees', , 'REES' ) 

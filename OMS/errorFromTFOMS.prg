@@ -4,13 +4,13 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 14.01.26 Редактирование случая с выбором по конкретной ошибке из ТФОМС
+// 15.01.26 Редактирование случая с выбором по конкретной ошибке из ТФОМС
 Function f3oms_edit()
 
   Static si := 1
-  Local buf, str_sem, i, k, arr, old_yes_h_otd := yes_h_otd, iRefr, ret_arr, srec, buf24, buf_scr, s, mas_pmt
+  Local buf, str_sem, i, k, arr, iRefr, ret_arr, srec, buf24, buf_scr, s, mas_pmt
   local s1, aTokens, adbf
-  Local lek_pr := .f.
+  Local lek_pr := .f., old_yes_h_otd := yes_h_otd
 
   If !myfiledeleted( cur_dir() + 'tmp_h' + sdbf() )
     Return Nil
@@ -34,23 +34,25 @@ Function f3oms_edit()
     r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To Str( human->kod, 8 ) into REFR
 
+altd()
     // заполним временный файл БД видами полученных ошибок
-    dbSeek( DToS( arr_m[ 5 ] ), .t. )
+    human->( dbSeek( DToS( arr_m[ 5 ] ), .t. ) )
     Do While human->k_data <= arr_m[ 6 ] .and. !human->( Eof() )
       If human_->reestr == 0 .and. human_->REES_NUM > 0 .and. human->schet == 0
         s := 0
         s1 := ''
         Select REFR
-        find ( Str( human->kod, 8 ) )
-        Do While human->kod == refr->kodz .and. !Eof()
+        refr->( dbSeek( Str( human->kod, 8 ) ) )
+        Do While human->kod == refr->kodz .and. ! refr->( Eof() )
           s := refr->REFREASON // берём последнее значение
           s1 := alltrim( refr->SREFREASON )
-          Skip
+          refr->( dbSkip() )
         Enddo
         If s > 0
-          Select TMP_H
-          Append Blank
-          Replace kod With human->kod, REFREASON With s
+//          Select TMP_H
+//          Append Blank
+          tmp_h->( dbAppend() )
+          Replace tmp_h->kod With human->kod, tmp_h->REFREASON With s
           If ( i := AScan( arr, {| x| x[ 2 ] == tmp_h->REFREASON } ) ) == 0
             If Empty( s := ret_t005( tmp_h->REFREASON ) )
               s := lstr( tmp_h->REFREASON ) + ' неизвестная причина отказа'
@@ -62,7 +64,7 @@ Function f3oms_edit()
           tmp_h->( dbAppend() )
           // replace kod with human->kod, REFREASON with -99, SREFREASON with s1 
 //          Replace kod With human->kod, REFREASON With 10, SREFREASON With s1  // чтобы обмануть выбор пациентов 20/02/21
-          Replace kod With human->kod, REFREASON With hb_CRC32( s1 ), SREFREASON With s1
+          Replace tmp_h->kod With human->kod, tmp_h->REFREASON With hb_CRC32( s1 ), tmp_h->SREFREASON With s1
           If ( i := AScan( arr, {| x| x[ 2 ] == tmp_h->REFREASON } ) ) == 0
             If Len( aTokens := hb_ATokens( s1, '.' ) ) == 3 // ошибка по справочнику Q015
               s := AllTrim( s1 ) + ' ' + getcategorycheckerrorbyid_q017( aTokens[ 1 ] )[ 1 ]
