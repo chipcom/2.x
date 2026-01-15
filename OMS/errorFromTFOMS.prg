@@ -34,7 +34,6 @@ Function f3oms_edit()
     r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To Str( human->kod, 8 ) into REFR
 
-altd()
     // заполним временный файл БД видами полученных ошибок
     human->( dbSeek( DToS( arr_m[ 5 ] ), .t. ) )
     Do While human->k_data <= arr_m[ 6 ] .and. !human->( Eof() )

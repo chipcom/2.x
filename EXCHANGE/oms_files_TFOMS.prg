@@ -110,7 +110,7 @@ Function read_from_tf()
   Endif
   Return fl
 
-// 14.01.26 чтение в память и анализ XML-файла
+// 15.01.26 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local is_err_FLK_26
@@ -231,12 +231,14 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
         Index On Str( FIELD->_n_zap, 8 ) to ( cur_dir() + 'tmp3' )
         Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
+/*
         tmp2->( dbGoTop() )
         do while ! tmp2->( Eof() )
 
             Select REFR
             Do While .t.
-              refr->( dbSeek( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) ) )
+//              refr->( dbSeek( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) ) )
+              refr->( dbSeek( Str( 2, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) ) )
               If ! refr->( Found() )
                 Exit
               Endif
@@ -247,7 +249,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
             Do While tmp2->N_ZAP == tmp3->_N_ZAP .and. ! tmp3->( Eof() )
               Select REFR
               addrec( 1 )
-              refr->TIPD := 1
+              refr->TIPD := 2 // счет
               refr->KODD := mkod_reestr
               refr->TIPZ := 1
               refr->KODZ := rhum->KOD_HUM
@@ -261,9 +263,14 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
           tmp2->( dbSkip() )
         Enddo
+*/
+        e_use( dir_server() + 'mo_rees', , 'REES' ) 
+        rees->( dbGoto( arr_XML_info[ 7 ] ) )
+        rees->( dbRLock() )
+        rees->RES_TFOMS := 3  // 3-ошибка в записях реестра
+        rees->( dbUnlock() )
 
       else  // ошибок ФЛК нет
-//        r_use( dir_server() + 'mo_rees', , 'REES' ) 
         e_use( dir_server() + 'mo_rees', , 'REES' ) 
         rees->( dbGoto( arr_XML_info[ 7 ] ) )
         rees->( dbRLock() )

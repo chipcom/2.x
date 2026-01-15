@@ -84,7 +84,7 @@ Function parse_protokol_flk_26( arr_f, aerr )
   dbCommitAll()
   Return is_err_FLK
 
-// 14.01.26 прочитать реестр ФЛК
+// 15.01.26 прочитать реестр ФЛК
 Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
 
   Local i, k, t_arr[ 2 ]  //, pole
@@ -178,7 +178,39 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
   if tmp2->( LastRec() ) > 0
     tmp2->( dbGoTop() )
     StrFile( '  Список ошибок:' + hb_eol(), cFileProtokol, .t. )
-    Do While ! Eof()
+    Do While ! tmp2->( Eof() )
+
+      dbSelectArea( 'RHUM' )
+      rhum->( dbSeek( Str( tmp2->N_ZAP, 6 ) ) )
+      If rhum->( Found() )
+            Select REFR
+            Do While .t.
+//              refr->( dbSeek( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) ) )
+              refr->( dbSeek( Str( 2, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) ) )
+              If ! refr->( Found() )
+                Exit
+              Endif
+              deleterec( .t. )
+            Enddo
+
+            Select TMP3
+            tmp3->( dbSeek( Str( tmp2->N_ZAP, 8 ) ) )
+            Do While tmp2->N_ZAP == tmp3->_N_ZAP .and. ! tmp3->( Eof() )
+              Select REFR
+              addrec( 1 )
+              refr->TIPD := 2 // счет
+              refr->KODD := mkod_reestr
+              refr->TIPZ := 1
+              refr->KODZ := rhum->KOD_HUM
+              refr->REFREASON := tmp3->_REFREASON
+              refr->SREFREASON := tmp3->SREFREASON
+//              refr->IDENTITY := tmp2->_IDENTITY
+              Select tmp3
+              tmp3->( dbSkip() )
+            Enddo
+      endif
+//altd()
+
       If Empty( tmp2->SOSHIB )
         s := 'код ошибки = ' + lstr( tmp2->OSHIB ) + ' '
         If ( i := AScan( getf012(), {| x| x[ 2 ] == tmp2->OSHIB } ) ) > 0
@@ -234,7 +266,6 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
               s += ', ' + AllTrim( human->fio ) + ', ' + full_date( human->date_r ) + ;
                 iif( Empty( otd->SHORT_NAME ), '', ' [' + AllTrim( otd->SHORT_NAME ) + ']' ) + ;
                 ' ' + date_8( human->n_data ) + '-' + date_8( human->k_data )
-altd()
             Endif
           else
             s := 'Не найден случай с N_ZAP=' + lstr( tmp2->_N_ZAP ) + ', _ID_PAC=' + tmp2->_ID_PAC
