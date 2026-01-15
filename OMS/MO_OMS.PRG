@@ -422,20 +422,23 @@ Function oms_add()
 Function oms_edit( k )
 
   Static sk := 1
-  Local mas_pmt, mas_msg, mas_fun, j
+  Local mas_pmt, mas_msg, mas_fun
 
   Default k To 0
   Do Case
   Case k == 0
-    mas_pmt := { 'Выбор по учреждению/отделению', ;
+    mas_pmt := { ;
+      'Выбор по учреждению/отделению', ;
       'Выбор по отчётному периоду', ;
       'Выбор по ошибке из ТФОМС', ;
       'Выбор по акту снятия из СМО' }
-    mas_msg := { 'Редактирование случая с выбором по учреждению/отделению', ;
+    mas_msg := { ;
+      'Редактирование случая с выбором по учреждению/отделению', ;
       'Редактирование случая с выбором по отчётному периоду', ;
       'Редактирование случая с выбором по конкретной ошибке из ТФОМС', ;
       'Редактирование повторно выставленных случаев (после ввода актов снятия из СМО)' }
-    mas_fun := { 'oms_edit(1)', ;
+    mas_fun := { ;
+      'oms_edit(1)', ;
       'oms_edit(2)', ;
       'oms_edit(3)', ;
       'oms_edit(4)' }
@@ -788,8 +791,8 @@ Function f2oms_edit()
 Function f4oms_edit()
 
   Static si := 1
-  Local buf, str_sem, i, k, arr_m, arr, old_yes_h_otd := yes_h_otd, ;
-    iRefr, srec, buf24, buf_scr, mas_pmt
+  Local buf, str_sem, i, k, arr_m, old_yes_h_otd := yes_h_otd, ;
+    srec, buf24, buf_scr, mas_pmt
   Local lek_pr := .f.
 
   If !myfiledeleted( cur_dir() + 'tmp_h' + sdbf() )
@@ -886,9 +889,9 @@ Function f4oms_edit()
           Endif
           If glob_otd[ 3 ] == 4 .or. ;
               ( glob_otd[ 4 ] > 0 .and. ;
-              glob_otd[ 4 ] != TIP_LU_MED_REAB .and. ;
-              glob_otd[ 4 ] != TIP_LU_H_DIA .and. ;
-              glob_otd[ 4 ] != TIP_LU_P_DIA )
+                glob_otd[ 4 ] != TIP_LU_MED_REAB .and. ;
+                glob_otd[ 4 ] != TIP_LU_H_DIA .and. ;
+                glob_otd[ 4 ] != TIP_LU_P_DIA )
             si := 1
             ASize( mas_pmt, 1 )
             Keyboard Chr( K_ENTER )
@@ -1234,18 +1237,21 @@ Function oms_del()
 Function oms_zav_lech( k )
 
   Static sk := 1, str_sem := 'Завершение лечения'
-  Local mas_pmt, mas_msg, mas_fun, j
+  Local mas_pmt, mas_msg, mas_fun
 
   Default k To 0
   Do Case
   Case k == 0
-    mas_pmt := { 'Завершение лечения для ~одного больного', ;
+    mas_pmt := { ;
+      'Завершение лечения для ~одного больного', ;
       'Завершение лечения для ~всех', ;
       '~Убрать у больного отметку о завершении лечения' }
-    mas_msg := { 'Завершение лечения для одного больного', ;
+    mas_msg := { ;
+      'Завершение лечения для одного больного', ;
       'Завершение лечения для всех', ;
       'Убрать у больного отметку о завершении лечения' }
-    mas_fun := { 'oms_zav_lech(1)', ;
+    mas_fun := { ;
+      'oms_zav_lech(1)', ;
       'oms_zav_lech(2)', ;
       'oms_zav_lech(3)' }
     If g_slock( str_sem )
@@ -1858,7 +1864,8 @@ Function f2ret_oms_human( nkey )
         Endif
         If flag_RDL
           // надо фильтр по коду ошибки
-          adbf1 :=  { { 'num_usl', 'C', 10, 0 }, ;    // номер услуги по порядку
+          adbf1 :=  { ;
+            { 'num_usl', 'C', 10, 0 }, ;    // номер услуги по порядку
             { 'shifr_usl', 'C', 10, 0 }, ;  // шифр услуги
             { 'name_usl', 'C', 250, 0 }, ; // наименование услуги
             { 'NUMORDER', 'N', 10, 0 }, ;   // Номер заявки(ORDER Number)
