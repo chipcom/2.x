@@ -98,13 +98,14 @@ Function edit_kartotek( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Return mkod
 
-// 24.12.25
+// 16.01.26
 Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
 
   Static mm_kart_error := { { 'нет замечаний', 0 }, { 'полис недействителен', -8 }, { 'ошибки в реквизитах', -9 } }
   Static mm_invalid := { { 'нет', 0 }, { '1 группа', 1 }, { '2 группа', 2 }, { '3 группа', 3 }, { 'дети-инвалиды', 4 } }
   Static mm_where_kart := { { 'в регистратуре', 0 }, { 'у врача', 1 }, { 'на руках', 2 } }
   Static st_rab_nerab := 0
+  Static st_vz := 1
   Local tmp_color := SetColor(), tmp_help := chm_help_code, buf := SaveScreen(), ;
     i, c, arr, arr1, dolya := 1, lapp_edit, llen, ldec, in_array, out_array, ;
     is_append := ( mkod == 0 ), old_arr_kart, flag_DVN, ;
@@ -132,7 +133,9 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     MVZROS_REB, M1VZROS_REB := 0, ;
     MADRES      := Space( 50 ), ; // адрес больного
     MMR_DOL     := Space( 50 ), ; // место работы или причина безработности
+    mvz, m1vz := st_vz, ; // Вид занятости
     MRAB_NERAB, M1RAB_NERAB := st_rab_nerab, ; // 0-работающий, 1 -неработающий
+    m1PENSIONER := 0, mPENSIONER, ;
     m1MEST_INOG := 0, newMEST_INOG := 0, ;
     s_prim1     := '', ;
     MVID_UD, ; // вид удостоверения
@@ -157,7 +160,6 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     m1adres_pre := 1, madres_pre, ;
     mPHONE_H := Space( 11 ), mPHONE_M := Space( 11 ), mPHONE_W := Space( 11 ), ;
     m1KOD_LGOT := Space( 3 ), mKOD_LGOT, ;
-    m1PENSIONER := 0, mPENSIONER, ;
     fl_invalid := .f., m1INVALID := 0, mINVALID, mINVALID_ST := 0, ;
     MDATE_INV := CToD( '' ), ; // дата первичного установления инвалидности
     MPRICH_INV := Space( 10 ), M1PRICH_INV := 0, ; // причина первичного установления инвалидности
@@ -207,6 +209,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     mADRES      := kart->ADRES
     mMR_DOL     := kart->MR_DOL
     msrok_polis := c4tod( kart->srok_polis )
+    m1vz        := kart->VZ
     m1RAB_NERAB := kart->RAB_NERAB
     msnils      := kart->snils
     If kart->MI_GIT == 9
@@ -379,6 +382,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   MKEMVYD := inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', M1KEMVYD )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
   mrab_nerab := inieditspr( A__MENUVERT, menu_rab, m1rab_nerab )
+  mvz        := inieditspr( A__MENUVERT, getv039(), m1vz )
   mkategor   := inieditspr( A__MENUVERT, stm_kategor, m1kategor )
   mkategor2  := inieditspr( A__MENUVERT, stm_kategor2, m1kategor2 )
   mKOD_LGOT  := inieditspr( A__MENUVERT, getdlo_lgota(), m1KOD_LGOT )
@@ -585,7 +589,9 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
         @ ++ix, c Say 'Категория МО' Get mkategor2 ;
           reader {| x| menu_reader( x, stm_kategor2, A__MENUVERT, , , .f. ) }
       Endif
-      @ ++ix, 1 Say 'Работающий?' Get mrab_nerab ;
+      @ ++ix, 1 Say 'Вид занятости' Get mvz ;
+        reader {| x| menu_reader( x, getv039(), A__MENUVERT, , , .f. ) }
+      @ Row(), Col() + 5 Say 'Работающий?' Get mrab_nerab ;
         reader {| x| menu_reader( x, menu_rab, A__MENUVERT, , , .f. ) }
       @ Row(), Col() + 5 Say 'Пенсионер?' Get mpensioner ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
@@ -684,6 +690,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
           m1INVALID := 0
         Endif
         fl_write_kartoteka := .t.
+        st_vz := m1vz
         st_rab_nerab := M1RAB_NERAB
         g_use( dir_server() + 'k_prim1', dir_server() + 'k_prim1', 'K_PRIM1' )
         use_base( 'kartotek' )
@@ -709,6 +716,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
         kart->MR_DOL    := mMR_DOL
         kart->POLIS     := make_polis( mspolis, mnpolis ) // серия и номер страхового полиса
         kart->srok_polis := dtoc4( msrok_polis )
+        kart->VZ         := m1vz
         kart->RAB_NERAB := m1RAB_NERAB
         kart->snils     := msnils
         kart->ZA_SMO    := m1kart_error
@@ -992,6 +1000,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
               mdate_r     := kart->date_r
               mADRES      := kart->ADRES
               mMR_DOL     := kart->MR_DOL
+              m1vz        := kart->VZ
               m1RAB_NERAB := kart->RAB_NERAB
               mPOLIS      := kart->POLIS
               m1VIDPOLIS  := kart_->VPOLIS
@@ -1024,6 +1033,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
                 human->ADRES     := MADRES        // адрес больного
                 human->MR_DOL    := MMR_DOL       // место работы или причина безработности
                 human->RAB_NERAB := M1RAB_NERAB   // 0-работающий, 1-неработающий
+                human->VZ        := M1VZ          // Вид занятости, указывается в соответствии со справочником V039 ФФОМС
                 human->KOMU      := M1KOMU        // от 0 до 5
                 human_->SMO      := msmo
                 human->POLIS     := mpolis
@@ -1193,6 +1203,7 @@ Function findkartoteka( k, /*@*/lkod_k)
       m1VZROS_REB := kart->VZROS_REB
       mADRES      := kart->ADRES
       mMR_DOL     := kart->MR_DOL
+      m1vz        := kart->VZ
       m1RAB_NERAB := kart->RAB_NERAB
       msnils      := kart->snils
       If kart->MI_GIT == 9
@@ -3185,7 +3196,7 @@ Function f2dubl_zap()
 
   Return Nil
 
-// 12.09.25
+// 16.01.26
 Function kartotek_to_screen( r1, r2 )
 
   Local i, s, s1, mmo_pr, arr := {}, tmp_select := Select()
@@ -3283,10 +3294,11 @@ Function kartotek_to_screen( r1, r2 )
     smo_to_screen( 1 )
   AAdd( arr, s )
   If eq_any( glob_task, X_REGIST, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_PPOKOJ, X_MO )
-    s := Upper( RTrim( inieditspr( A__MENUVERT, menu_rab, kart->rab_nerab ) ) )
-    If kart_->PENSIONER == 1
-      s += Space( 5 ) + 'пенсионер'
-    Endif
+//    s := Upper( RTrim( inieditspr( A__MENUVERT, menu_rab, kart->rab_nerab ) ) )
+//    If kart_->PENSIONER == 1
+//      s += Space( 5 ) + 'пенсионер'
+//    Endif
+    s := Upper( RTrim( inieditspr( A__MENUVERT, getv039(), kart->VZ ) ) )
     If !Empty( kart->mr_dol )
       s += ',  место работы: ' + kart->mr_dol
     Endif

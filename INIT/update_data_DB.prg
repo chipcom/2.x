@@ -93,11 +93,55 @@ Function update_data_db( aVersion )
     update_v50202()     // перенос данных о гинеколгических услугах
   endif
 
-  If ver_base < 60101 // переход на версию 5.2.2
+  If ver_base < 60101 // переход на версию 6.1.1
     update_v60101()     // перенос данных о инвалидности I группы
   endif
 
+  If ver_base < 60102 // переход на версию 6.1.2
+    update_v60102()     // перенос данных о занятости пациентов
+  endif
+
 Return Nil
+
+// 16.01.26
+Function update_v60102()     // перенос данных о занятости пациентов
+
+  stat_msg( 'Переносим информацию о занятости пациентов' )
+  use_base( 'kartotek', 'kart', .t. ) // откроем файл kartotek
+  kart->( dbGoTop() )
+  do while ! kart->( Eof() )
+    if kart_->PENSIONER == 1
+      kart->VZ := 3
+    elseif kart->RAB_NERAB == 0
+      kart->VZ := 1
+    elseif kart->RAB_NERAB == 1
+      kart->VZ := 5
+    elseif kart->RAB_NERAB == 2
+      kart->VZ := 4
+    else
+      kart->VZ := 6
+    endif
+    kart->( dbSkip() )
+  enddo
+  dbCloseAll()        // закроем все
+
+  use_base( 'human', 'human', .t. ) // откроем файл human
+  human->( dbGoTop() )
+  do while ! human->( Eof() )
+    if human->RAB_NERAB == 0
+      human->VZ := 1
+    elseif human->RAB_NERAB == 1
+      human->VZ := 5
+    elseif human->RAB_NERAB == 2
+      human->VZ := 4
+    else
+      human->VZ := 6
+    endif
+    human->( dbSkip() )
+  enddo
+  dbCloseAll()        // закроем все
+
+  return nil
 
 // 31.12.25
 Function update_v60101()     // перенос данных о инвалидности I группы
