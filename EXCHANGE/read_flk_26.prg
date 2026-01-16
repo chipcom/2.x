@@ -84,7 +84,7 @@ Function parse_protokol_flk_26( arr_f, aerr )
   dbCommitAll()
   Return is_err_FLK
 
-// 15.01.26 прочитать реестр ФЛК
+// 16.01.26 прочитать реестр ФЛК
 Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
 
   Local i, k, t_arr[ 2 ]  //, pole
@@ -183,33 +183,31 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
       dbSelectArea( 'RHUM' )
       rhum->( dbSeek( Str( tmp2->N_ZAP, 6 ) ) )
       If rhum->( Found() )
-            Select REFR
-            Do While .t.
-//              refr->( dbSeek( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) ) )
-              refr->( dbSeek( Str( 2, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) ) )
-              If ! refr->( Found() )
-                Exit
-              Endif
-              deleterec( .t. )
-            Enddo
+        Select REFR
+        Do While .t.
+          refr->( dbSeek( Str( 2, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) ) ) // для счетов
+          If ! refr->( Found() )
+            Exit
+          Endif
+          deleterec( .t. )
+        Enddo
 
-            Select TMP3
-            tmp3->( dbSeek( Str( tmp2->N_ZAP, 8 ) ) )
-            Do While tmp2->N_ZAP == tmp3->_N_ZAP .and. ! tmp3->( Eof() )
-              Select REFR
-              addrec( 1 )
-              refr->TIPD := 2 // счет
-              refr->KODD := mkod_reestr
-              refr->TIPZ := 1
-              refr->KODZ := rhum->KOD_HUM
-              refr->REFREASON := tmp3->_REFREASON
-              refr->SREFREASON := tmp3->SREFREASON
-//              refr->IDENTITY := tmp2->_IDENTITY
-              Select tmp3
-              tmp3->( dbSkip() )
-            Enddo
+        Select TMP3
+        tmp3->( dbSeek( Str( tmp2->N_ZAP, 8 ) ) )
+        Do While tmp2->N_ZAP == tmp3->_N_ZAP .and. ! tmp3->( Eof() )
+          Select REFR
+          addrec( 1 )
+          refr->TIPD := 2 // счет
+          refr->KODD := mkod_reestr
+          refr->TIPZ := 1
+          refr->KODZ := rhum->KOD_HUM
+          refr->REFREASON := tmp3->_REFREASON
+          refr->SREFREASON := tmp3->SREFREASON
+//          refr->IDENTITY := tmp2->_IDENTITY
+          Select tmp3
+          tmp3->( dbSkip() )
+        Enddo
       endif
-//altd()
 
       If Empty( tmp2->SOSHIB )
         s := 'код ошибки = ' + lstr( tmp2->OSHIB ) + ' '
@@ -281,6 +279,26 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
       dbSelectArea( 'TMP2' )
       tmp2->( dbSkip() )
     Enddo
+
+/* исправить
+    Select human_ // очищаем признак добавления в реестр счета
+    Index On Str( FIELD->REESTR, 6 ) to ( cur_dir() + 'tmp_human_' ) For FIELD->REESTR == mkod_reestr
+    human_->( dbSeek( Str( mkod_reestr, 6 ) ) )
+    do while FIELD->REESTR == mkod_reestr .and. ! ( human_->( Eof() ) )
+
+              g_rlock( 'forever' )
+              human_->( g_rlock( 'forever' ) )
+              human_->OPLATA := 2
+              human_->REESTR := 0 // направляется на дальнейшее редактирование
+              human_->ST_VERIFY := 0 // снова ещё не проверен
+              If human_->REES_NUM > 0
+//                human_->REES_NUM := human_->REES_NUM - 1
+              Endif
+              human->( dbUnlock() )
+
+      human_->( dbSkip() )
+    Enddo
+*/
   else
     StrFile( '-- Ошибок не обнаружено -- ' + hb_eol(), cFileProtokol, .t. )
   endif
