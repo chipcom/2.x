@@ -240,6 +240,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort, p_tip_reestr )
   if p_tip_reestr == 1
     // Реестр случаев оказания медицинской помощи, за исключением медицинской помощи по диспансеризации,
     // медицинским осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
+/*
     If ( controlVer >= 202201 ) // с января 2022 года
       sVersion := '3.2'
     Endif
@@ -252,12 +253,17 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort, p_tip_reestr )
     If ( controlVer >= 202507 ) // с июля 2025 года
       sVersion := '5.1'
     Endif
+*/
+    sVersion := '6.0'
   elseif p_tip_reestr == 2
     // Реестр случаев оказания медицинской помощи по диспансеризации, профилактическим медицинским
     // осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
+/*
     If ( controlVer >= 202501 ) // с января 2025 года
       sVersion := '5.0'
     Endif
+*/
+    sVersion := '6.0'
   endif
 
   mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )

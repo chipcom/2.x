@@ -220,6 +220,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
 
       // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
+
+      mo_add_xml_stroke( oPAC, 'VZ', Str( kart->VZ, 2 ) )
       
       if _nyear <= 2026 .and. p_tip_reestr == TYPE_REESTR_GENERAL .and. ;    // старый ПУМП, реестр окоазания мед. помощи за исключенем диспансеризации
           human_->USL_OK == USL_OK_POLYCLINIC .and. ;   // поликлиника
