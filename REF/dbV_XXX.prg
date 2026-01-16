@@ -1340,3 +1340,48 @@ Function getv024( dk )
   Endif
   db := nil
   Return arr
+
+// =========== V039 ===================
+//
+// 16.01.26 вернуть массив по справочнику ФФОМС V039.xml
+Function getv039( dk )
+
+  // V039.xml - Классификатор видов занятости (KVZ)
+  // 1 - ID_VZ(N) 2 - N_VZ(C) 3 - DATEBEG(D) 4 - DATEEND(D)
+  Local arr
+  Local db
+  Local aTable
+  Local nI
+  Local dBeg, dEnd
+
+  arr := {}
+
+  db := opensql_db()
+  aTable := sqlite3_get_table( db, "SELECT " + ;
+    "id_vz, " + ;
+    "n_vz, " + ;
+    "datebeg, " + ;
+    "dateend " + ;
+    "FROM v039" )  //+ ;
+
+//      " WHERE datebeg <= " + dBeg + ;
+//    "AND dateend >= " + dEnd )
+  If Len( aTable ) > 1
+    For nI := 2 To Len( aTable )
+      Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+      dBeg := CToD( aTable[ nI, 3 ] )
+      dEnd := CToD( aTable[ nI, 4 ] )
+      Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+//      if ValType( dk ) == 'D'
+//        if dBeg <= dk .and. ( dk <= dEnd .or. Empty( dEnd ) )
+//          AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 2 ], dBeg, dEnd } )
+//        endif
+//      else
+//        if Year( dBeg ) <= dk .and. ( dk <= Year( dEnd ) .or. Empty( dEnd ) )
+          AAdd( arr, { aTable[ nI, 2 ], Val( aTable[ nI, 1 ] ) } ) //, dBeg, dEnd } )
+//        endif
+//      endif
+    Next
+  Endif
+  db := nil
+  Return arr
