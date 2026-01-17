@@ -1274,15 +1274,18 @@ Function spr_struct_org( k )
   Default k To 0
   Do Case
   Case k == 0
-    mas_pmt := { '~Персонал', ;
+    mas_pmt := { ;
+      '~Персонал', ;
       '~Отделения', ;
       '~Учреждения', ;
       '~Ваша организация' }
-    mas_msg := { 'Редактирование справочника персонала', ;
+    mas_msg := { ;
+      'Редактирование справочника персонала', ;
       'Редактирование справочника отделений', ;
       'Редактирование справочника учреждений', ;
       'Редактирование наименования, адреса и банковских реквизитов Вашей организации' }
-    mas_fun := { 'spr_struct_org(1)', ;
+    mas_fun := { ;
+      'spr_struct_org(1)', ;
       'spr_struct_org(2)', ;
       'spr_struct_org(3)', ;
       'spr_struct_org(4)' }
@@ -1548,10 +1551,12 @@ Function valid_kod_tfoms( get )
   Endif
   Return fl
 
-// 13.09.25 редактирование справочника отделений
+// 17.01.26 редактирование справочника отделений
 Function edit_otd()
 
   Local i, j, blk, arr[ US_LEN ], fl
+
+  local aaa
 
   If input_uch( T_ROW -1, T_COL + 5 ) == NIL
     Return Nil
@@ -1590,6 +1595,9 @@ Function edit_otd()
   Private mm1tiplu := AClone( mm_tiplu )
   hb_ADel( mm1tiplu, 7, .t. )
   hb_ADel( mm1tiplu, 6, .t. )
+
+  Private mm1lpu1 := AClone( get_f033( glob_mo()[ _MO_KOD_FFOMS ] ) )
+
   blk := {|| iif( between_date( dbegin, dend ), { 1, 2 }, { 3, 4 } ) }
   arr[ US_BOTTOM   ] := MaxRow() -2
   arr[ US_LEFT     ] := 2
@@ -1609,12 +1617,17 @@ Function edit_otd()
   arr[ US_BLK_DEL  ] := {| _k| fdel_otd( _k ) }
   arr[ US_IM_PADEG ] := arr[ US_SEMAPHORE ] := 'отделения'
   arr[ US_ROD_PADEG ] := 'отделений'
-  arr[ US_EDIT_SPR ] := { { 'name', 'C', 30, 0, , , Space( 30 ), , 'Наименование отделения' }, ;
+  arr[ US_EDIT_SPR ] := { ;
+    { 'name', 'C', 30, 0, , , Space( 30 ), , 'Наименование отделения' }, ;
     { 'short_name', 'C', 5, 0, , , Space( 5 ), , 'Сокращённое наименование отделения' }, ;
     { 'TIPLU', 'N', 2, 0, , ;
     {| x| menu_reader( x, mm1tiplu, A__MENUVERT, , , .f. ) }, ;
     0, {| x| inieditspr( A__MENUVERT, mm_tiplu, x ) }, ;
     'Вид листа учёта при вводе данных' }, ;
+    { 'LPU_1', 'C',17, 0, , ;
+    {| x| menu_reader( x, mm1lpu1, A__MENUVERT, , , .f. ) }, ;
+    0, {| x| inieditspr( A__MENUVERT, get_f033( glob_mo()[ _MO_KOD_FFOMS ] ), x ) }, ;
+    'Структурное подразделение по ФФОМС' }, ;
     { 'TIP_OTD', 'N', 2, 0, , ;
     {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }, ;
     0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
