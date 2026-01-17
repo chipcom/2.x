@@ -544,3 +544,43 @@ Function getf015()
   Endif
 
   Return _arr
+
+// 17.01.26 вернуть UIDMO из справочника F032
+Function ret_uidmo_f032( mcod )
+
+  Local tmp_select
+  Local cUIDMO := ''
+
+  tmp_select := Select()
+  r_use( dir_exe() + '_mo_f032', cur_dir() + '_mo_f032', 'F032' )
+  f032->( dbSeek( mcod ) )
+  if f032->( Found() )
+    cUIDMO := f032->UIDMO
+  Endif
+  dbCloseArea()
+  Select ( tmp_select )
+
+  return cUIDMO
+
+// 17.01.26 вернуть массив из справочника F033
+Function get_f033( mcod )
+
+  Local tmp_select
+  Local cUIDMO
+  Local arr := {}
+
+  cUIDMO := ret_uidmo_f032( mcod )
+
+  if ! Empty( cUIDMO )
+    tmp_select := Select()
+    r_use( dir_exe() + '_mo_f033', cur_dir() + '_mo_f033', 'F033' )
+    f033->( dbSeek( cUIDMO ) )
+    Do While SubStr( f033->uidspmo, 1, 11 ) == cUIDMO .and. ! f033->( Eof() )
+      AAdd( arr, { AllTrim( f033->NAM_SK ), f033->IDSPMO } )
+      f033->( dbSkip() )
+    Enddo
+    dbCloseArea()
+    Select ( tmp_select )
+  endif
+
+  return arr
