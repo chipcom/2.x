@@ -5,8 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 07.01.26 создание XML-файлов реестра
-//Function create2reestr26( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_reestr, aBukva )
+// 16.01.26 создание XML-файлов реестра
 Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
@@ -23,7 +22,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
   local oPb
   local sk, begin_rees, end_rees
   local aBukva
-
+altd()
   begin_rees := mem_beg_rees
   end_rees := mem_end_rees
   //
@@ -264,17 +263,21 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
     if p_tip_reestr == 1
       // Реестр случаев оказания медицинской помощи, за исключением медицинской помощи по диспансеризации,
       // медицинским осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
-      sVersion := '5.1'
+      sVersion := '6.0'
+/*      
       If ( controlVer >= 202507 ) // с июля 2025 года
         sVersion := '5.1'
       Endif
+*/
     elseif p_tip_reestr == 2
       // Реестр случаев оказания медицинской помощи по диспансеризации, профилактическим медицинским
       // осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
-      sVersion := '5.0'
+      sVersion := '6.0'
+/*      
       If ( controlVer >= 202501 ) // с января 2025 года
         sVersion := '5.0'
       Endif
+*/
     endif
     mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
     mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( rees->DSCHET ) )
@@ -290,6 +293,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 //    mo_add_xml_stroke( oXmlNode, 'NSCHET', lstr( rees->NSCHET ) )
     mo_add_xml_stroke( oXmlNode, 'NSCHET', cNschet )
     mo_add_xml_stroke( oXmlNode, 'DSCHET', date2xml( rees->DSCHET ) )
+    mo_add_xml_stroke( oXmlNode, 'PLAT', iif( kod_smo == '34   ', '34000', kod_smo ) )
     mo_add_xml_stroke( oXmlNode, 'SUMMAV', Str( psumma, 15, 2 ) )
 
     // создадим новый XML-документ для реестра пациентов
