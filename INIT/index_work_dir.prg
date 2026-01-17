@@ -98,7 +98,7 @@ Function files_nsi_exists( dir_file )
   Endif
   Return lRet
 
-// 15.09.25 проверка и переиндексирование справочников ТФОМС
+// 17.01.26 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir( dir_spavoch, working_dir, flag )
 
   Local fl := .t., i, buf := save_maxrow()
@@ -118,11 +118,23 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
     mywait( 'Подождите, идет проверка служебных данных в рабочем каталоге...' )
   Endif
 
+  // справочник F032
+  sbase := '_mo_f032'
+  r_use( dir_spavoch + sbase )
+  Index On FIELD->MCOD to ( working_dir + sbase )
+  dbCloseArea()
+  
+  // справочник F033
+  sbase := '_mo_f033'
+  r_use( dir_spavoch + sbase )
+  Index ON SubStr( FIELD->UIDSPMO, 1, 11 ) to ( working_dir + sbase )
+  dbCloseArea()
+
   // справочник диагнозов
   sbase := '_mo_mkb'
   r_use( dir_spavoch + sbase )
   Index On FIELD->shifr + Str( FIELD->ks, 1 ) to ( working_dir + sbase )
-  Close databases
+  dbCloseArea()
 
   // услуги <-> специальности
   sbase := '_mo_spec'

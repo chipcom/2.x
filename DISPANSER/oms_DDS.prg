@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.12.25 ДДС - добавление или редактирование случая (листа учета)
+// 17.01.26 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -59,7 +59,8 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС,1-компании,3-комитеты/ЛПУ,5-личный счет
     msmo := '34007', rec_inogSMO := 0, ;
     mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 ), ;
-    mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ), mnpolis := Space( 20 )
+    mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ), mnpolis := Space( 20 ), ;
+    M1VZ := 1
   Private mkod := Loc_kod, ;
     mkod_k := kod_kartotek, fl_kartotek := ( kod_kartotek == 0 ), ;
     M1FIO_KART := 1, MFIO_KART, ;
@@ -274,6 +275,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     mADRES      := kart->ADRES
     mMR_DOL     := kart->MR_DOL
     m1RAB_NERAB := kart->RAB_NERAB
+    M1VZ        := kart->VZ
     mPOLIS      := kart->POLIS
     m1VIDPOLIS  := kart_->VPOLIS
     mSPOLIS     := kart_->SPOLIS
@@ -350,6 +352,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     MADRES      := human->ADRES         // адрес больного
     MMR_DOL     := human->MR_DOL        // место работы или причина безработности
     M1RAB_NERAB := human->RAB_NERAB     // 0-работающий, 1-неработающий
+    M1VZ        := human->VZ
     mUCH_DOC    := human->uch_doc
     m1VRACH     := human_->vrach
     MKOD_DIAG0  := human_->KOD_DIAG0
@@ -1925,6 +1928,8 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       human->ADRES      := MADRES        // адрес больного
       human->MR_DOL     := MMR_DOL       // место работы или причина безработности
       human->RAB_NERAB  := M1RAB_NERAB   // 0-работающий, 1-неработающий
+      human->VZ         := M1VZ          // Вид занятости, указывается в соответствии со справочником V039 ФФОМС
+
       human->KOD_DIAG   := mkod_diag     // шифр 1-ой осн.болезни
       human->KOD_DIAG2  := MKOD_DIAG2    // шифр 2-ой осн.болезни
       human->KOD_DIAG3  := MKOD_DIAG3    // шифр 3-ой осн.болезни

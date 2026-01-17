@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 16.09.25 ДВН - добавление или редактирование случая (листа учета)
+// 17.01.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -67,6 +67,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     M1OTD := glob_otd[ 1 ], MOTD, ;
     M1FIO_KART := 1, MFIO_KART, ;
     MRAB_NERAB, M1RAB_NERAB := 0, ; // 0-работающий, 1 -неработающий
+    M1VZ := 1,;
   MUCH_DOC    := Space( 10 ),; // вид и номер учетного документа
   MKOD_DIAG   := Space( 5 ),; // шифр 1-ой осн.болезни
   MKOD_DIAG2  := Space( 5 ),; // шифр 2-ой осн.болезни
@@ -218,6 +219,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     mADRES      := kart->ADRES
     mMR_DOL     := kart->MR_DOL
     m1RAB_NERAB := kart->RAB_NERAB
+    M1VZ        := kart->VZ
     mPOLIS      := kart->POLIS
     m1VIDPOLIS  := kart_->VPOLIS
     mSPOLIS     := kart_->SPOLIS
@@ -262,6 +264,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Select HUMAN
       Goto ( ATail( ah )[ 1 ] )
       M1RAB_NERAB := human->RAB_NERAB // 0-работающий, 1-неработающий, 2-обучающ.ОЧНО
+      M1VZ        := human->VZ
       letap := human->ishod -400
       If eq_any( letap, 1, 2 )
         lrslt_1_etap := human_->RSLT_NEW
@@ -284,6 +287,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     MADRES      := human->ADRES         // адрес больного
     MMR_DOL     := human->MR_DOL        // место работы или причина безработности
     M1RAB_NERAB := human->RAB_NERAB     // 0-работающий, 1-неработающий, 2-обучающ.ОЧНО
+    M1VZ        := human->VZ
     mUCH_DOC    := human->uch_doc
     m1VRACH     := human_->vrach
     MPOLIS      := human->POLIS         // серия и номер страхового полиса
@@ -1198,6 +1202,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       human->ADRES      := MADRES        // адрес больного
       human->MR_DOL     := MMR_DOL       // место работы или причина безработности
       human->RAB_NERAB  := M1RAB_NERAB   // 0-работающий, 1-неработающий, 2-студент
+      human->VZ         := M1VZ          // Вид занятости, указывается в соответствии со справочником V039 ФФОМС
       human->KOD_DIAG   := MKOD_DIAG     // шифр 1-ой осн.болезни
       human->KOD_DIAG2  := MKOD_DIAG2    // шифр 2-ой осн.болезни
       human->KOD_DIAG3  := MKOD_DIAG3    // шифр 3-ой осн.болезни

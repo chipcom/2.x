@@ -22,6 +22,7 @@ METHOD ExistFileClass( className ) CLASS TStructFiles
 	
 	return hb_FileExists( descrFile:FileName )
 
+// 17.01.26
 METHOD New() CLASS TStructFiles
 
 	Local cClassName := '', aEtalonDB := {}, aIndex := { }, cName := '', cAlias := ''
@@ -328,7 +329,8 @@ METHOD New() CLASS TStructFiles
 					{ 'ADDRESS',   'C',150,0 }, ; // адрес нахождения учреждения
 					{ 'CODE_TFOMS','C', 6, 0 }, ; // код подразделения по кодировке ТФОМС - 2017 год
 					{ 'KOD_SOGL',  'N',10, 0 }, ; // код согласования одного отделения с программой SDS
-					{ 'SOME_SOGL', 'C',255,0 } ;  // код согласования нескольких отделений с программой SDS
+					{ 'SOME_SOGL', 'C',255,0 }, ;  // код согласования нескольких отделений с программой SDS
+			    { 'LPU_1',     'C', 17, 0 } ;  // Уникальный номер структурного подразделения МО, осуществляющей деятельность в сфере ОМС, на соответствующий финансовый год, по данным ЕРМО F033
 					}
 	cAlias := 'TSubdivisionDB'
 	aIndex := { }

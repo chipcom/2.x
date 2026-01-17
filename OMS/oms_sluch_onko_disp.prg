@@ -7,7 +7,7 @@
 // согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
 #define CHILD_EXIST .f. // учитывать несовершеннолетних или нет
 
-// 19.07.25 добавление или редактирование случая (листа учета)
+// 17.01.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -49,7 +49,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     mkod_k := kod_kartotek, fl_kartotek := ( kod_kartotek == 0 ), ;
     mfio := Space( 50 ),  mpol, mdate_r, madres, mmr_dol, ;
     M1FIO_KART := 1, MFIO_KART, ;
-    M1VZROS_REB, MVZROS_REB, mpolis, M1RAB_NERAB, ;
+    M1VZROS_REB, MVZROS_REB, mpolis, M1RAB_NERAB, M1VZ := 1, ;
     MUCH_DOC    := Space( 10 ), ; // вид и номер учетного документа
     m1company := 0, mcompany, mm_company, ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
@@ -123,6 +123,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     mADRES      := kart->ADRES
     mMR_DOL     := kart->MR_DOL
     m1RAB_NERAB := kart->RAB_NERAB
+    M1VZ        := kart->VZ
     mPOLIS      := kart->POLIS
     m1VIDPOLIS  := kart_->VPOLIS
     mSPOLIS     := kart_->SPOLIS
@@ -172,6 +173,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     // MADRES      := human->ADRES         // адрес больного
     // MMR_DOL     := human->MR_DOL        // место работы или причина безработности
     // M1RAB_NERAB := human->RAB_NERAB     // 0-работающий, 1-неработающий
+    // M1VZ        := human->VZ
     //
     mUCH_DOC    := human->uch_doc
     m1VRACH     := human_->vrach
@@ -509,6 +511,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
       human->ADRES      := MADRES        // адрес больного
       human->MR_DOL     := MMR_DOL       // место работы или причина безработности
       human->RAB_NERAB  := M1RAB_NERAB   // 0-работающий, 1-неработающий
+      human->VZ         := M1VZ          // Вид занятости, указывается в соответствии со справочником V039 ФФОМС
       human->KOD_DIAG   := MKOD_DIAG     // шифр 1-ой осн.болезни
       human->KOMU       := M1KOMU        // от 0 до 5
       human_->SMO       := msmo
