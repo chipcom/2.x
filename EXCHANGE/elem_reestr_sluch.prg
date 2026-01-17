@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.01.26
+// 17.01.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -340,14 +340,17 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       mo_add_xml_stroke( oSL, 'METOD_HMP', lstr( human_2->METVMP ) )
     Endif
     otd->( dbGoto( human->OTD ) )
+/*
     If human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
       f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
       If ( i := AScan( mm_otd_dep, {| x| x[ 2 ] == glob_otd_dep } ) ) == 0
         i := 1
       Endif
-      mo_add_xml_stroke( oSL, 'LPU_1', lstr( mm_otd_dep[ i, 3 ] ) )
-      mo_add_xml_stroke( oSL, 'PODR', lstr( glob_otd_dep ) )
-    Endif
+*/
+//      mo_add_xml_stroke( oSL, 'LPU_1', lstr( mm_otd_dep[ i, 3 ] ) )
+      mo_add_xml_stroke( oSL, 'LPU_1', otd->LPU_1 )
+//      mo_add_xml_stroke( oSL, 'PODR', lstr( glob_otd_dep ) )
+//    Endif
     mo_add_xml_stroke( oSL, 'PROFIL', lstr( human_->PROFIL ) )
     If p_tip_reestr == TYPE_REESTR_GENERAL
       If human_->USL_OK < 3 // стационар или дневной стационар
@@ -937,16 +940,17 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           Endif
         Endif
         If p_tip_reestr == TYPE_REESTR_GENERAL
-          // if human->K_DATA < 0d20230601 .and. human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep
-          If human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
+//          If human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
             otd->( dbGoto( hu->OTD ) )
-            f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
-            If ( i := AScan( mm_otd_dep, {| x| x[ 2 ] == glob_otd_dep } ) ) == 0
-              i := 1
-            Endif
-            mo_add_xml_stroke( oUSL, 'LPU_1', lstr( mm_otd_dep[ i, 3 ] ) )
-            mo_add_xml_stroke( oUSL, 'PODR', lstr( glob_otd_dep ) )
-          Elseif hu->KOL_RCP < 0 .and. domuslugatfoms( lshifr )
+//            f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
+//            If ( i := AScan( mm_otd_dep, {| x| x[ 2 ] == glob_otd_dep } ) ) == 0
+//              i := 1
+//            Endif
+//            mo_add_xml_stroke( oUSL, 'LPU_1', lstr( mm_otd_dep[ i, 3 ] ) )
+            mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
+//            mo_add_xml_stroke( oUSL, 'PODR', lstr( glob_otd_dep ) )
+//          Elseif hu->KOL_RCP < 0 .and. domuslugatfoms( lshifr )
+          if hu->KOL_RCP < 0 .and. domuslugatfoms( lshifr )
             mo_add_xml_stroke( oUSL, 'PODR', '0' )
           Endif
         Endif
@@ -1066,15 +1070,16 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oUSL, 'IDSERV', lstr( mohu->REES_ZAP ) )
         mo_add_xml_stroke( oUSL, 'ID_U', mohu->ID_U )
         mo_add_xml_stroke( oUSL, 'LPU', CODE_LPU )
-        If human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
+//        If human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
           otd->( dbGoto( mohu->OTD ) )
-          f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
-          If ( i := AScan( mm_otd_dep, {| x| x[ 2 ] == glob_otd_dep } ) ) == 0
-            i := 1
-          Endif
-          mo_add_xml_stroke( oUSL, 'LPU_1', lstr( mm_otd_dep[ i, 3 ] ) )
-          mo_add_xml_stroke( oUSL, 'PODR', lstr( glob_otd_dep ) )
-        Endif
+//          f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
+//          If ( i := AScan( mm_otd_dep, {| x| x[ 2 ] == glob_otd_dep } ) ) == 0
+//            i := 1
+//          Endif
+//          mo_add_xml_stroke( oUSL, 'LPU_1', lstr( mm_otd_dep[ i, 3 ] ) )
+          mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
+//          mo_add_xml_stroke( oUSL, 'PODR', lstr( glob_otd_dep ) )
+//        Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( mohu->PROFIL ) )
         If p_tip_reestr == TYPE_REESTR_GENERAL
           mo_add_xml_stroke( oUSL, 'VID_VME', lshifr )
