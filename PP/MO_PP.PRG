@@ -1275,7 +1275,7 @@ Function f_find_pp_oms()
   rest_box( buf )
   Return Nil
 
-// 11.11.17 записать заголовок листа учёта
+// 17.01.26 записать заголовок листа учёта
 Function f_write_pp_oms( mkod )
 
   Local fl, ldata, lUSL_OK, ret_kod_h := 0
@@ -1392,6 +1392,7 @@ Function f_write_pp_oms( mkod )
   human->VZROS_REB := M1VZROS_REB     // 0-взрослый, 1-ребенок, 2-подросток
   human->ADRES     := kart->ADRES     // адрес больного
   human->RAB_NERAB := kart->RAB_NERAB // 0-работающий, 1 -неработающий
+  human->VZ        := kart->VZ        // Вид занятости, указывается в соответствии со справочником V039 ФФОМС
   human->MR_DOL    := kart->MR_DOL    // место работы или причина безработности
   human->KOMU      := hu->KOMU        // от 0 до 5
   human_->SMO      := iif( hu->KOMU == 0, kart_->smo, '' )

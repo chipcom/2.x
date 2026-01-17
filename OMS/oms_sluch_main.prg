@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.10.25 добавление или редактирование случая (листа учета)
+// 17.01.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -71,7 +71,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     M1OTD := glob_otd[ 1 ], MOTD, ;
     mfio := Space( 50 ),  mpol, mdate_r, madres, mmr_dol, ;
     M1FIO_KART := 1, MFIO_KART, ;
-    M1VZROS_REB, MVZROS_REB, mpolis, M1RAB_NERAB, ;
+    M1VZROS_REB, MVZROS_REB, mpolis, M1RAB_NERAB, M1VZ := 1, ;
     MUCH_DOC    := Space( 10 ), ; // вид и номер учетного документа
     MKOD_DIAG0  := Space( 6 ), ; // шифр первичного диагноза
     MKOD_DIAG   := SKOD_DIAG, ; // шифр 1-ой осн.болезни
@@ -288,6 +288,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     mADRES      := kart->ADRES
     mMR_DOL     := kart->MR_DOL
     m1RAB_NERAB := kart->RAB_NERAB
+    M1VZ        := kart->VZ
     mPOLIS      := kart->POLIS
     m1VIDPOLIS  := kart_->VPOLIS
     mSPOLIS     := kart_->SPOLIS
@@ -328,6 +329,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     MADRES      := human->ADRES         // адрес больного
     MMR_DOL     := human->MR_DOL        // место работы или причина безработности
     M1RAB_NERAB := human->RAB_NERAB     // 0-работающий, 1-неработающий
+    M1VZ        := human->VZ
     mUCH_DOC    := human->uch_doc
     m1reg_lech  := human->reg_lech
     m1VRACH     := human_->vrach
@@ -1960,6 +1962,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human->ADRES      := MADRES        // адрес больного
       human->MR_DOL     := MMR_DOL       // место работы или причина безработности
       human->RAB_NERAB  := M1RAB_NERAB   // 0-работающий, 1-неработающий
+      human->VZ         := M1VZ          // Вид занятости, указывается в соответствии со справочником V039 ФФОМС
       human->KOD_DIAG   := MKOD_DIAG     // шифр 1-ой осн.болезни
       human->KOD_DIAG2  := MKOD_DIAG2    // шифр 2-ой осн.болезни
       human->KOD_DIAG3  := MKOD_DIAG3    // шифр 3-ой осн.болезни

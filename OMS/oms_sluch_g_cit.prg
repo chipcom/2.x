@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.09.25 жидкостная цитология рака шейки матки
+// 17.01.26 жидкостная цитология рака шейки матки
 Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -32,9 +32,10 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
   chm_help_code := 3002
   Private mfio := Space( 50 ), mpol, mdate_r, madres, mvozrast, ;
     M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
+    M1VZ := 1, ;
     m1company := 0, mcompany, mm_company, ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
-  msmo := '34007', rec_inogSMO := 0, ;
+    msmo := '34007', rec_inogSMO := 0, ;
     mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 ), ;
     mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ), mnpolis := Space( 20 )
   Private mkod := Loc_kod, mtip_h, is_talon := .f., ;
@@ -43,15 +44,15 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     M1OTD := glob_otd[ 1 ], MOTD, ;
     M1FIO_KART := 1, MFIO_KART, ;
     MUCH_DOC    := Space( 10 ), ; // вид и номер учетного документа
-  MKOD_DIAG   := 'Z01.7', ; // шифр 1-ой осн.болезни
-  m1rslt  := 314, ; // результат лечения
-  m1ishod := 304, ; // исход = без перемен
-  m1NPR_MO := '', mNPR_MO := Space( 10 ), mNPR_DATE := CToD( '' ), ;
+    MKOD_DIAG   := 'Z01.7', ; // шифр 1-ой осн.болезни
+    m1rslt  := 314, ; // результат лечения
+    m1ishod := 304, ; // исход = без перемен
+    m1NPR_MO := '', mNPR_MO := Space( 10 ), mNPR_DATE := CToD( '' ), ;
     MN_DATA := st_N_DATA, ; // дата начала лечения
-  MK_DATA, ;
+    MK_DATA, ;
     MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
-  M1VRACH := 0, MTAB_NOM := sv1, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
-  m1povod  := 1, ;   // Лечебно-диагностический
+    M1VRACH := 0, MTAB_NOM := sv1, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
+    m1povod  := 1, ;   // Лечебно-диагностический
     m1travma := 0
   //
   r_use( dir_server() + 'human_2', , 'HUMAN_2' )
@@ -73,6 +74,7 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     mADRES      := kart->ADRES
     mMR_DOL     := kart->MR_DOL
     m1RAB_NERAB := kart->RAB_NERAB
+    M1VZ        := kart->VZ
     mPOLIS      := kart->POLIS
     m1VIDPOLIS  := kart_->VPOLIS
     mSPOLIS     := kart_->SPOLIS
@@ -113,6 +115,7 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     MADRES      := human->ADRES         // адрес больного
     MMR_DOL     := human->MR_DOL        // место работы или причина безработности
     M1RAB_NERAB := human->RAB_NERAB     // 0-работающий, 1-неработающий
+    M1VZ        := human->VZ
     mUCH_DOC    := human->uch_doc
     m1NPR_MO    := human_->NPR_MO
     mNPR_DATE   := human_2->NPR_DATE
@@ -376,6 +379,7 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
       human->ADRES      := MADRES        // адрес больного
       human->MR_DOL     := MMR_DOL       // место работы или причина безработности
       human->RAB_NERAB  := M1RAB_NERAB   // 0-работающий, 1-неработающий
+      human->VZ         := M1VZ          // Вид занятости, указывается в соответствии со справочником V039 ФФОМС
       human_->KOD_DIAG0 := ''
       human->KOD_DIAG   := MKOD_DIAG     // шифр 1-ой осн.болезни
       human->KOD_DIAG2  := ''
