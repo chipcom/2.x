@@ -1002,6 +1002,7 @@ Function ret_v022( idmpac, lk_data )
 
   Local i, s := Space( 10 )
   Local aV022 := getv022()
+  Local dk := lk_data
 
   If !Empty( idmpac ) .and. ( ( i := AScan( aV022, {| x| x[ 1 ] == idmpac } ) ) > 0 )
     s := aV022[ i, 2 ]
@@ -1016,7 +1017,6 @@ Function getv025()
 
   Static _arr
   Static time_load
-  Local i
   Local db
   Local aTable
   Local nI
@@ -1353,6 +1353,7 @@ Function getv039( dk )
   Local aTable
   Local nI
   Local dBeg, dEnd
+  Local loc_date := dk
 
   arr := {}
 
@@ -1379,6 +1380,52 @@ Function getv039( dk )
 //      else
 //        if Year( dBeg ) <= dk .and. ( dk <= Year( dEnd ) .or. Empty( dEnd ) )
           AAdd( arr, { aTable[ nI, 2 ], Val( aTable[ nI, 1 ] ) } ) //, dBeg, dEnd } )
+//        endif
+//      endif
+    Next
+  Endif
+  db := nil
+  Return arr
+
+// =========== V040 ===================
+//
+// 18.01.26 вернуть массив по справочнику ФФОМС V040.xml
+Function getv040( dk )
+
+  // V040.xml - Классификатор мест обращений (посещений) (KMOP)
+  // 1 - ID_MOP(N) 2 - N_MOP(C) 3 - DATEBEG(D) 4 - DATEEND(D)
+  Local arr
+  Local db
+  Local aTable
+  Local nI
+  Local dBeg, dEnd
+  Local loc_date := dk
+
+  arr := {}
+
+  db := opensql_db()
+  aTable := sqlite3_get_table( db, "SELECT " + ;
+    "id_mop, " + ;
+    "n_mop, " + ;
+    "datebeg, " + ;
+    "dateend " + ;
+    "FROM v040" )  //+ ;
+
+//      " WHERE datebeg <= " + dBeg + ;
+//    "AND dateend >= " + dEnd )
+  If Len( aTable ) > 1
+    For nI := 2 To Len( aTable )
+      Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+      dBeg := CToD( aTable[ nI, 3 ] )
+      dEnd := CToD( aTable[ nI, 4 ] )
+      Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+//      if ValType( dk ) == 'D'
+//        if dBeg <= dk .and. ( dk <= dEnd .or. Empty( dEnd ) )
+//          AAdd( arr, { aTable[ nI, 1 ], aTable[ nI, 2 ], dBeg, dEnd } )
+//        endif
+//      else
+//        if Year( dBeg ) <= dk .and. ( dk <= Year( dEnd ) .or. Empty( dEnd ) )
+          AAdd( arr, { aTable[ nI, 2 ], Val( aTable[ nI, 1 ] ), dBeg, dEnd } )
 //        endif
 //      endif
     Next

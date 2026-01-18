@@ -23,6 +23,7 @@ Function nastr_sprav_ffoms( k )
       'M003', ;
       'V020', ;
       'V006', ;
+      'V040', ;
       'V034', ;
       'MethodINJ', ;
       'Implantant' ;
@@ -32,6 +33,7 @@ Function nastr_sprav_ffoms( k )
       'Ž”ˆ‹…‰ ¬¥¤¨æ¨­áª®© ¯®¬®é¨ Œ‡ ”', ;
       'Ž”ˆ‹…‰ ŠŽ‰Šˆ', ;
       '“‘‹Ž‚ˆ‰ ®ª § ­¨ï ¬¥¤¨æ¨­áª®© ¯®¬®é¨', ;
+      'Œ…‘’€ Ž€™…ˆ‰ (Ž‘…™…ˆ‰)', ;
       '…„ˆˆ– ˆ‡Œ……ˆŸ', ;
       '“’…‰ ‚‚…„…ˆŸ', ;
       'ˆŒ‹€’€’Ž‚' ;
@@ -41,6 +43,7 @@ Function nastr_sprav_ffoms( k )
       'Š« áá¨ä¨ª â®à Ž”ˆ‹…‰ ¬¥¤¨æ¨­áª®© ¯®¬®é¨ Œ¨­§¤à ¢  ”', ;
       'Š« áá¨ä¨ª â®à Ž”ˆ‹…‰ ŠŽ‰Šˆ', ;
       'Š« áá¨ä¨ª â®à “‘‹Ž‚ˆ‰ ®ª § ­¨ï ¬¥¤¨æ¨­áª®© ¯®¬®é¨', ;
+      'Š« áá¨ä¨ª â®à ¬¥áâ ®¡à é¥­¨© (¯®á¥é¥­¨©)', ;
       'Š« áá¨ä¨ª â®à …„ˆˆ– ˆ‡Œ……ˆŸ', ;
       'Š« áá¨ä¨ª â®à “’…‰ ‚‚…„…ˆŸ «¥ª àáâ¢¥­­ëå ¯à¥¯ à â®¢', ;
       'Š« áá¨ä¨ª â®à ˆŒ‹€’€’Ž‚ ¤«ï ¨á¯®«ì§®¢ ­¨ï' ;
@@ -75,7 +78,9 @@ Function fnastr_sprav_ffoms( k, _n, _m )
 
   Static sk := 1, _name, _msg
   Local mas_pmt, mas_msg, mas_fun
+  Local sdate
 
+  sdate := Date()
   Default k To 0
   Do Case
   Case k == 0
@@ -99,12 +104,12 @@ Function fnastr_sprav_ffoms( k, _n, _m )
   Case k == 1
     f1nastr_sprav_ffoms( 0, _name, _msg )
   Case k == 2
-    If input_uch( T_ROW -1, T_COL + 5, sys_date ) != nil
+    If input_uch( T_ROW -1, T_COL + 5, sdate ) != nil
       f1nastr_sprav_ffoms( 1, _name, _msg )
     Endif
   Case k == 3
-    If input_uch( T_ROW -1, T_COL + 5, sys_date ) != Nil .and. ;
-        input_otd( T_ROW -1, T_COL + 5, sys_date ) != NIL
+    If input_uch( T_ROW -1, T_COL + 5, sdate ) != Nil .and. ;
+        input_otd( T_ROW -1, T_COL + 5, sdate ) != NIL
       f1nastr_sprav_ffoms( 2, _name, _msg )
     Endif
   Endcase
@@ -127,7 +132,7 @@ Function f1nastr_sprav_ffoms( reg, _name, _msg )
     name_arr := 'get_implantant()'
   Endif
 
-  If !init_tmp_glob_array(, &name_arr, sys_date, .f. )
+  If !init_tmp_glob_array(, &name_arr, Date(), .f. )
     Return Nil
   Endif
   Use ( cur_dir() + 'tmp_ga' ) new
@@ -188,7 +193,7 @@ Function f1nastr_sprav_ffoms( reg, _name, _msg )
     Close databases
     Return Nil
   Endif
-  Index On Upper( name ) to ( cur_dir() + 'tmp_ga' )
+  Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_ga' )
   buf := SaveScreen()
   box_shadow( 0, 50, 2, 77, color1 )
   p_blk := {|| SetPos( 1, 51 ), DispOut( PadC( '‚ë¡à ­® áâà®ª: ' + lstr( ob_kol ), 26 ), color8 ) }
@@ -314,7 +319,7 @@ Function create_classif_ffoms( reg, _name )
   Elseif Upper( _name ) == 'V002'
     ret1 := AClone( getv002() )
   Else
-    ret1 := cut_glob_array( &name_arr, sys_date )
+    ret1 := cut_glob_array( &name_arr, Date() )
   Endif
   ASort( ret1, , , {| x, y| Upper( x[ 1 ] ) < Upper( y[ 1 ] ) } )
 
