@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 11.12.25
+// 18.01.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -133,6 +133,11 @@ Function verify_sluch( fl_view, ft )
 
   kol_dney := kol_dney_lecheniya( human->n_data, human->k_data, human_->usl_ok )
   cuch_doc := human->uch_doc
+
+  // проверка отделения
+  if Empty( otd->LPU_1 )
+    AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ' не выбрано "Структурное подразделение по ФФОМС"' )
+  endif
 
   // проверка по датам
   If Year( human->date_r ) < LIMITED_DATE_MIN
@@ -771,6 +776,10 @@ Function verify_sluch( fl_view, ft )
         Next
       Endif
       otd->( dbGoto( hu->OTD ) )
+      // проверка отделения для услуги
+      if Empty( otd->LPU_1 )
+        AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ФФОМС"' )
+      endif
       hu->( g_rlock( forever ) )
       hu_->( g_rlock( forever ) )
       If hu->is_edit == -1 .and. AllTrim( lshifr ) == '4.27.2'
@@ -1596,6 +1605,10 @@ Function verify_sluch( fl_view, ft )
       Endif
     Endif
     otd->( dbGoto( mohu->OTD ) )
+    // проверка отделения для услуги
+    if Empty( otd->LPU_1 )
+      AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ФФОМС"' )
+    endif
     mohu->( g_rlock( forever ) )
     If Empty( mohu->kod_vr ) .and. ( ! is_disp_DVN_COVID ) .and. ( ! is_disp_DRZ ) // исправлено для углубленной диспансеризации и ДРЗ
       If usl_found .and. &lalf.->telemed == 1
