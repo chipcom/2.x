@@ -44,3 +44,29 @@ Function ret_character_vysv( s_code )
     ret := getMzrf798()[ i, 2 ]
   endif
   return ret
+
+// 18.01.26  вернуть массив по справочнику Минздрава РФ OID 1.2.643.5.1.13.13.11.1119.xml
+function getM003()
+
+
+  // OID 1.2.643.5.1.13.13.11.1119.xml - Профили медицинской помощи
+  //  1 - ID(N) 2 - PROFILE(C)
+  local arr := {}
+  local cmdText
+  local db
+  local aTable
+  local nI
+
+  if len( arr ) == 0
+    db := openSQL_DB()
+    cmdText := 'SELECT id, profile FROM m003'
+    aTable := sqlite3_get_table(db, cmdText)
+    if len(aTable) > 1
+      for nI := 2 to Len( aTable )
+        aadd( arr, { alltrim( aTable[ nI, 2 ] ), val( aTable[ nI, 1 ] ), 0d20260101, 0d20260131 } )
+      next
+    endif
+    db := nil
+  endif
+
+  return arr

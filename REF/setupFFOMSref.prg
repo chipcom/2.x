@@ -20,6 +20,7 @@ Function nastr_sprav_ffoms( k )
     Endif
     arr_ref := { ;
       'V002', ;
+      'M003', ;
       'V020', ;
       'V006', ;
       'V034', ;
@@ -28,6 +29,7 @@ Function nastr_sprav_ffoms( k )
       }
     arr_name := { ;
       'ПРОФИЛЕЙ оказанной медицинской помощи', ;
+      'ПРОФИЛЕЙ медицинской помощи МЗ РФ', ;
       'ПРОФИЛЕЙ КОЙКИ', ;
       'УСЛОВИЙ оказания медицинской помощи', ;
       'ЕДИНИЦ ИЗМЕРЕНИЯ', ;
@@ -36,6 +38,7 @@ Function nastr_sprav_ffoms( k )
       }
     arr_spr_name := { ;
       'Классификатор ПРОФИЛЕЙ оказанной медицинской помощи', ;
+      'Классификатор ПРОФИЛЕЙ медицинской помощи Минздрава РФ', ;
       'Классификатор ПРОФИЛЕЙ КОЙКИ', ;
       'Классификатор УСЛОВИЙ оказания медицинской помощи', ;
       'Классификатор ЕДИНИЦ ИЗМЕРЕНИЯ', ;
@@ -71,7 +74,7 @@ Function nastr_sprav_ffoms( k )
 Function fnastr_sprav_ffoms( k, _n, _m )
 
   Static sk := 1, _name, _msg
-  Local str_sem, mas_pmt, mas_msg, mas_fun, j
+  Local mas_pmt, mas_msg, mas_fun
 
   Default k To 0
   Do Case
@@ -114,7 +117,7 @@ Function fnastr_sprav_ffoms( k, _n, _m )
 // 21.04.23
 Function f1nastr_sprav_ffoms( reg, _name, _msg )
 
-  Local buf, t_arr[ BR_LEN ], blk, len1, sKey, i, s, arr, arr1, arr2, fl := .t.
+  Local buf, t_arr[ BR_LEN ], blk, len1, sKey, s, arr, arr1, arr2, fl := .t.
 
   Private name_arr := 'get' + _name + '()', ob_kol, p_blk
 
