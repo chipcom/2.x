@@ -28,6 +28,7 @@ Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
   afillall( mvu, 0 )
   //
   Private tmp_V002 := create_classif_ffoms( 0, 'V002' ) // PROFIL
+  Private tmp_M003 := create_classif_ffoms( 2, 'M003' ) // M003
   //
   mywait()
   r_use( dir_server() + 'usl_uva',, 'OU' )
