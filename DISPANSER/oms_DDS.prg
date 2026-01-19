@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.01.26 ДДС - добавление или редактирование случая (листа учета)
+// 19.01.26 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -53,6 +53,9 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     Endif
   Endif
   chm_help_code := 3002
+
+  Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
+
   Private mfio := Space( 50 ), mpol, mdate_r, madres, mvozrast, mdvozrast, msvozrast := ' ', ;
     M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
     m1company := 0, mcompany, mm_company, ;
@@ -86,7 +89,8 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     m1ishod := 306,;  // исход
     m1VIDPOM :=  1, ; // первичная
     m1IDSP   := 11, ; // диспансеризация
-    m1PROFIL := 151   // медицинским осмотрам профилактическим
+    m1PROFIL := 151, ;   // медицинским осмотрам профилактическим
+    m1MOP := 0, mMOP    // место обращения (посещения) tmp_V040
 //    m1PROFIL := 68 // педиатрия
   //
   //
@@ -366,6 +370,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     MSOPUT_B4   := human->SOPUT_B4
     MDIAG_PLUS  := human->DIAG_PLUS
     MPOLIS      := human->POLIS         // серия и номер страхового полиса
+    m1MOP       := human->MOP           // место обращения
     If human->OBRASHEN == '1'
       m1DS_ONK := 1
     Endif
@@ -548,6 +553,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
   mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   monko8    := inieditspr( A__MENUVERT, mm_vokod(), m1onko8 )
   monko10   := inieditspr( A__MENUVERT, mm_vokod(), m1onko10 )
+  mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
   mismo     := init_ismo( m1ismo )
   f_valid_komu(, -1 )
   If m1komu == 0
@@ -741,7 +747,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       @ ++j, 40 Say 'Дата выбытия' Get mDATE_VYB When m1prich_vyb > 0
       @ ++j, 1 Say 'Отсутствует на момент проведения диспансеризации' Get mPRICH_OTS Pict '@S29'
       @ ++j, 1 To j, 78
-      ++j
+//      ++j
       @ ++j, 1 Say 'Сроки диспансеризации' Get mn_data ;
         valid {| g| f_k_data( g, 1 ), iif( mvozrast < 18, nil, func_error( 4, 'Это взрослый пациент!' ) ), .t. }
       @ Row(), Col() + 1 Say '-'   Get mk_data valid {| g| f_k_data( g, 2 ) }
@@ -749,6 +755,9 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) ;
         .or. mem_edit_ist == 2
+      @ ++j, 1 Say 'Место обращения' Get mMOP ;
+        reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
+
       ++j
       @ ++j, 1 Say 'Медосмотр проведён мобильной бригадой?' Get mmobilbr ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
@@ -1955,6 +1964,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       human->bolnich    := 0
       human->date_b_1   := ''
       human->date_b_2   := ''
+      human->MOP        := m1MOP
       human_->RODIT_DR  := CToD( '' )
       human_->RODIT_POL := ''
       s := ''

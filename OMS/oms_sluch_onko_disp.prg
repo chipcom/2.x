@@ -7,7 +7,7 @@
 // согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
 #define CHILD_EXIST .f. // учитывать несовершеннолетних или нет
 
-// 18.01.26 добавление или редактирование случая (листа учета)
+// 19.01.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -96,7 +96,8 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     m1PROFIL_K := st_profil_k, mPROFIL_K, ;
     m1IDSP   := 29, ;          // за посещение
     mdate_next := sys_date, ;  // дата следующего посещения
-    mSTAD, m1STAD := 0 // Стадия заболевания в соответствии со справочником N002
+    mSTAD, m1STAD := 0, ; // Стадия заболевания в соответствии со справочником N002
+    m1MOP := 0, mMOP    // место обращения (посещения) tmp_V040
 
   Private mm_profil := { { 'педиатрия', 68 }, ;
     { 'гематология', 12 }, ;
@@ -200,6 +201,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     m1ishod    := human_->ISHOD_NEW
     mcena_1    := human->CENA_1
     mdate_next := c4tod( human->DATE_OPL )
+    m1MOP       := human->MOP           // место обращения
     //
     If AllTrim( msmo ) == '34'
       mnameismo := ret_inogsmo_name( 2, @rec_inogSMO, .t. ) // открыть и закрыть
@@ -212,6 +214,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     Endif
     mm_N002 := f_define_tnm( 2, mkod_diag, MK_DATA )
     mSTAD  := PadR( inieditspr( A__MENUVERT, mm_N002, m1STAD ), 5 )
+    mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
 
     // выберем услуги
     r_use( dir_server() + 'uslugi', , 'USL' )
@@ -347,6 +350,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     //
     @ ++j, 1 Say 'Учреждение' Get mlpu When .f. Color cDataCSay
     @ Row(), Col() + 2 Say 'Отделение' Get motd When .f. Color cDataCSay
+    @ ++j, 1 Say 'Место обращения' Get mMOP reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
     //
     //
     ++j
@@ -526,7 +530,9 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
       human->K_DATA     := MK_DATA       // дата окончания лечения
       human->CENA       := MCENA_1       // стоимость лечения
       human->CENA_1     := MCENA_1       // стоимость лечения
-      human->DATE_OPL := dtoc4( mdate_next )  // дата следующего посещения
+      human->DATE_OPL   := dtoc4( mdate_next )  // дата следующего посещения
+      human->MOP        := m1MOP         // место обращения
+
       human_->DISPANS   := '2000000000000000'  // поставлен на диспансерный учет
       human_->VPOLIS    := m1vidpolis
       human_->SPOLIS    := LTrim( mspolis )
@@ -570,7 +576,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
         Goto ( mrec_hu )
         g_rlock( forever )
       Endif
-      Replace hu->kod     With human->kod, ;
+      Replace hu->kod With human->kod, ;
         hu->kod_vr  With m1vrach, ;
         hu->kod_as  With 0, ;
         hu->u_koef  With 1, ;

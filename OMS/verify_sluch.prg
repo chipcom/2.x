@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 18.01.26
+// 19.01.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -419,6 +419,12 @@ Function verify_sluch( fl_view, ft )
   Private is_disp_19 := !( dEnd < 0d20190501 )
   Private is_disp_21 := !( dEnd < 0d20210101 )
   Private is_disp_24 := !( dEnd < 0d20240901 )
+
+  If human_->usl_ok == USL_OK_POLYCLINIC
+    if Empty( human->MOP )
+      AAdd( ta, 'не заполнено "Место обращения (посещения)"' )
+    Endif
+  endif
 
 
   arrUslugi := collect_uslugi( rec_human )   // выберем все коды услуг случая

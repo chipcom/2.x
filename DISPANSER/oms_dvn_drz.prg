@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 17.01.26 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 19.01.26 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -58,6 +58,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   private arr_ne_vozm := {}
   Private ps1dispans := s1dispans, is_prazdnik
 
+  Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
+
   Private mfio := space( 50 ), mpol, mdate_r, mvozrast, ;
     M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
     m1company := 0, mcompany, mm_company, ;
@@ -91,7 +93,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     m1USL_OK := USL_OK_POLYCLINIC, ; // поликлиника
     m1VIDPOM :=  1, ; // первичная
     m1PROFIL := 97, ; // 97-терапия,57-общая врач.практика (семейн.мед-а),42-лечебное дело
-    mcena_1 := 0
+    mcena_1 := 0, ;
+    m1MOP := 0, mMOP  // место обращения (посещения) tmp_V040
 
   private ; // 
     m1ishod := 306, ;  // исход = осмотр
@@ -287,6 +290,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     mUCH_DOC    := human->uch_doc
     m1VRACH     := human_->vrach
     MPOLIS      := human->POLIS         // серия и номер страхового полиса
+    m1MOP       := human->MOP           // место обращения
     m1VIDPOLIS  := human_->VPOLIS
     mSPOLIS     := human_->SPOLIS
     mNPOLIS     := human_->NPOLIS
@@ -537,6 +541,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
   mDS_ONK    := inieditspr(A__MENUVERT, mm_danet, M1DS_ONK)
+  mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
   f_valid_komu(, -1 )
   If m1komu == 0
     m1company := Int( Val( msmo ) )
@@ -648,6 +653,9 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
       @ j, Col() + 5 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
+
+      @ ++j, 1 Say 'Место обращения' Get mMOP ;
+        reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
 
       // if ! ret_ndisp_drz( Loc_kod, kod_kartotek, year( mn_data ) )
       //   dbCloseAll()
@@ -1444,6 +1452,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       human->bolnich    := 0
       human->date_b_1   := ''
       human->date_b_2   := ''
+      human->MOP        := m1MOP
       human_->RODIT_DR  := CToD( '' )
       human_->RODIT_POL := ''
       s := ''
@@ -1488,6 +1497,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         human_->SCHET_ZAP := 0
         human->kod_p   := kod_polzovat    // код оператора
         human->date_e  := c4sys_date
+
       Else // при редактированиии
         human_->kod_p2  := kod_polzovat    // код оператора
         human_->date_e2 := c4sys_date
