@@ -113,6 +113,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     m1P_PER := 0, mP_PER := Space( 35 ), ; // Признак поступления/перевода 1-4
     m1PROFIL := st_profil, mPROFIL, ;
     m1PROFIL_K := st_profil_k, mPROFIL_K, ;
+    m1PROFIL_M := 0, mPROFIL_M, ;
     m1vid_reab := 0, mvid_reab, ;
     m1MOP := 0, mMOP, ;    // место обращения (посещения) tmp_V040
     mstatus_st := Space( 10 ), ;
@@ -374,6 +375,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     m1USL_OK   := human_->USL_OK
     m1PROFIL   := human_->PROFIL
     m1PROFIL_K := human_2->PROFIL_K
+    m1PROFIL_M  := human->PROFIL_M      // Профиль медицинской помощи M003
     m1NPR_MO   := human_->NPR_MO
     mNPR_DATE  := human_2->NPR_DATE
     M1F14_EKST := Int( Val( SubStr( human_->FORMA14, 1, 1 ) ) )
@@ -596,6 +598,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
   mPROFIL   := inieditspr( A__MENUVERT, getv002(), m1PROFIL )
   mPROFIL_K := inieditspr( A__MENUVERT, getv020(),  m1PROFIL_K )
+  mPROFIL_M := inieditspr( A__MENUVERT, getM003(),  m1PROFIL_M )
   mvid_reab := inieditspr( A__MENUVERT, mm_vid_reab, m1vid_reab )
   If !Empty( m1NPR_MO )
     mNPR_MO := ret_mo( m1NPR_MO )[ _MO_SHORT_NAME ]
@@ -820,6 +823,10 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ ++j, 3 Say 'профиль мед.помощи' Get MPROFIL ;
         reader {| x| menu_reader( x, tmp_V002, A__MENUVERT, , , .f. ) } ;
         Valid f_valid2ad_cr( MK_DATA )
+
+      @ j, 50 Say 'профиль МЗ РФ' Get mPROFIL_M ;
+        reader {| x| menu_reader( x, tmp_M003, A__MENUVERT, , , .f. ) }
+      
       @ ++j, 3 Say 'профиль койки' Get MPROFIL_K ;
         reader {| x| menu_reader( x, tmp_V020, A__MENUVERT, , , .f. ) } ;
         When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
@@ -2004,6 +2011,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human->date_b_1   := iif( m1bolnich == 0, '',  dtoc4( mdate_b_1 ) )
       human->date_b_2   := iif( m1bolnich == 0, '',  dtoc4( mdate_b_2 ) )
       human->MOP        := m1MOP
+      human->PROFIL_M    := m1PROFIL_M
       human_->RODIT_DR  := iif( m1bolnich < 2, CToD( '' ),  mrodit_dr )
       human_->RODIT_POL := iif( m1bolnich < 2, '',  mrodit_pol )
       s := ''

@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 
 
-// * 02.04.22 ввод услуг в случай (лист учёта)
+// 19.01.26 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
 
   // mkod_human - код по БД human
@@ -58,6 +58,7 @@ Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
   last_date := human->n_data
   Private m1USL_OK := human_->USL_OK
   Private m1PROFIL := human_->PROFIL
+  Private m1PROFIL_M := human->PROFIL_M
   Private mdiagnoz := diag_to_array(,,,, .t. )
   If Len( mdiagnoz ) == 0
     mdiagnoz := { Space( 6 ) }
@@ -103,36 +104,37 @@ Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
 
   //
   adbf := { ;
-    { 'KOD',   'N',     7,     0 }, ; // код больного в HUMAN.dbf
-    { 'DATE_U',   'C',     4,     0 }, ; // дата оказания услуги
-  { 'date_u2',   'C',     4,     0 }, ; // дата окончания оказания услуги
-  { 'date_u1',   'D',     8,     0 }, ;
-    { 'date_end',   'D',     8,     0 }, ; // дата окончания выполнения многоразовой услуги
-  { 'date_next',   'D',     8,     0 }, ; // дата след.визита для дисп.наблюдения
-  { 'shifr_u',   'C',    20,     0 }, ;
-    { 'shifr1',   'C',    20,     0 }, ;
-    { 'name_u',   'C',    65,     0 }, ;
-    { 'U_KOD',   'N',     6,     0 }, ; // код услуги
-  { 'U_CENA',   'N',    10,     2 }, ; // цена услуги
-  { 'dom',   'N',     2,     0 }, ; // -1 - на дому
-  { 'KOD_VR',   'N',     4,     0 }, ; // код врача
-  { 'KOD_AS',   'N',     4,     0 }, ; // код ассистента
-  { 'OTD',   'N',     3,     0 }, ; // код отделения
-  { 'KOL_1',   'N',     3,     0 }, ; // оплачиваемое количество услуг
+    { 'KOD',       'N',     7,     0 }, ; // код больного в HUMAN.dbf
+    { 'DATE_U',    'C',     4,     0 }, ; // дата оказания услуги
+    { 'date_u2',   'C',     4,     0 }, ; // дата окончания оказания услуги
+    { 'date_u1',   'D',     8,     0 }, ;
+    { 'date_end',  'D',     8,     0 }, ; // дата окончания выполнения многоразовой услуги
+    { 'date_next', 'D',     8,     0 }, ; // дата след.визита для дисп.наблюдения
+    { 'shifr_u',   'C',    20,     0 }, ;
+    { 'shifr1',    'C',    20,     0 }, ;
+    { 'name_u',    'C',    65,     0 }, ;
+    { 'U_KOD',     'N',     6,     0 }, ; // код услуги
+    { 'U_CENA',    'N',    10,     2 }, ; // цена услуги
+    { 'dom',       'N',     2,     0 }, ; // -1 - на дому
+    { 'KOD_VR',    'N',     4,     0 }, ; // код врача
+    { 'KOD_AS',    'N',     4,     0 }, ; // код ассистента
+    { 'OTD',       'N',     3,     0 }, ; // код отделения
+    { 'KOL_1',     'N',     3,     0 }, ; // оплачиваемое количество услуг
     { 'STOIM_1',   'N',    10,     2 }, ; // оплачиваемая стоимость услуги
-  { 'ZF',   'C',    30,     0 }, ; // зубная формула или парные органы
-  { 'PAR_ORG',   'C',    40,     0 }, ; // разрешённые парные органы
-  { 'ID_U',   'C',    36,     0 }, ; // код записи об оказанной услуге;GUID оказанной услуги;создается при добавлении записи
-    { 'PROFIL',   'N',     3,     0 }, ; // профиль;по справочнику V002
-  { 'PRVS',   'N',     9,     0 }, ; // Специальность врача;по справочнику V004;
-    { 'kod_diag',   'C',     6,     0 }, ; // диагноз;перенести из основного диагноза
-  { 'n_base',   'N',     1,     0 }, ; // номер справочника услуг 0-старый,1-новый
-  { 'is_nul',   'L',     1,     0 }, ;
-    { 'is_oms',   'L',     1,     0 }, ;
-    { 'is_zf',   'N',     1,     0 }, ;
+    { 'ZF',        'C',    30,     0 }, ; // зубная формула или парные органы
+    { 'PAR_ORG',   'C',    40,     0 }, ; // разрешённые парные органы
+    { 'ID_U',      'C',    36,     0 }, ; // код записи об оказанной услуге;GUID оказанной услуги;создается при добавлении записи
+    { 'PROFIL',    'N',     3,     0 }, ; // профиль;по справочнику V002
+    { 'PROFIL_M',  'N',     3,     0 }, ; // Профиль медицинской помощи МЗ РФ M003
+    { 'PRVS',      'N',     9,     0 }, ; // Специальность врача;по справочнику V004;
+    { 'kod_diag',  'C',     6,     0 }, ; // диагноз;перенести из основного диагноза
+    { 'n_base',    'N',     1,     0 }, ; // номер справочника услуг 0-старый,1-новый
+    { 'is_nul',    'L',     1,     0 }, ;
+    { 'is_oms',    'L',     1,     0 }, ;
+    { 'is_zf',     'N',     1,     0 }, ;
     { 'is_edit',   'N',     2,     0 }, ;
-    { 'number',   'N',     3,     0 }, ;
-    { 'rec_hu',   'N',     8,     0 } }
+    { 'number',    'N',     3,     0 }, ;
+    { 'rec_hu',    'N',     8,     0 } }
   dbCreate( cur_dir() + 'tmp_usl_', adbf )
   Use ( cur_dir() + 'tmp_usl_' ) New Alias TMP
   Select HUMAN
@@ -174,6 +176,7 @@ Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
       tmp->ZF      := hu_->ZF
       tmp->ID_U    := hu_->ID_U
       tmp->PROFIL  := hu_->PROFIL
+      tmp->PROFIL_M:= hu_->PROFIL_M
       tmp->PRVS    := hu_->PRVS
       tmp->kod_diag := hu_->kod_diag
       tmp->n_base  := 0
@@ -233,6 +236,7 @@ Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
       tmp->ZF      := mohu->ZF
       tmp->ID_U    := mohu->ID_U
       tmp->PROFIL  := mohu->PROFIL
+      tmp->PROFIL_M:= mohu->PROFIL_M
       tmp->PRVS    := mohu->PRVS
       tmp->kod_diag := mohu->kod_diag
       tmp->n_base  := 1

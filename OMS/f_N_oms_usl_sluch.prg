@@ -3,8 +3,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.02.25 ввод услуг в лист учёта
-Function f2oms_usl_sluch( nKey, oBrow )
+// 19.01.26 ввод услуг в лист учёта
+Function f2oms_usl_sluch( nKey, oBrow ) 
 
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF, ;
     st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -70,6 +70,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
       adbf1[ _HU_PROFIL  ] := tmp->PROFIL
       adbf1[ _HU_PRVS    ] := tmp->PRVS
       adbf1[ _HU_N_BASE  ] := tmp->n_base
+      adbf1[ _HU_PROFIL_M  ] := tmp->PROFIL_M
       AAdd( st_arr_dbf, AClone( adbf1 ) )
       Select TMP
       Skip
@@ -130,6 +131,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
           hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
           hu_->kod_diag := human_kod_diag
           hu_->PROFIL   := st_arr_dbf[ k, _HU_PROFIL  ]
+          hu_->PROFIL_M := st_arr_dbf[ k, _HU_PROFIL_M ]
           hu_->PRVS     := st_arr_dbf[ k, _HU_PRVS    ]
         Else
           Select MOHU
@@ -147,6 +149,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
           mohu->ID_U    := mo_guid( 4, mohu->( RecNo() ) )
           mohu->kod_diag := human_kod_diag
           mohu->PROFIL  := st_arr_dbf[ k, _HU_PROFIL ]
+          mohu->PROFIL_M  := st_arr_dbf[ k, _HU_PROFIL_M ]
           mohu->PRVS    := st_arr_dbf[ k, _HU_PRVS  ]
         Endif
         //
@@ -173,6 +176,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
         tmp->STOIM_1  := st_arr_dbf[ k, _HU_STOIM_1 ]
         tmp->kod_diag := human_kod_diag
         tmp->PROFIL   := st_arr_dbf[ k, _HU_PROFIL ]
+        tmp->PROFIL_M := st_arr_dbf[ k, _HU_PROFIL_M ]
         tmp->PRVS     := st_arr_dbf[ k, _HU_PRVS  ]
         tmp->n_base   := st_arr_dbf[ k, _HU_N_BASE ]
         last_date := Max( tmp->date_u1, last_date )
@@ -235,6 +239,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
         adbf1[ _HU_STOIM_1 ] := tmp->STOIM_1
         adbf1[ _HU_KOD_DIAG ] := tmp->kod_diag
         adbf1[ _HU_PROFIL  ] := tmp->PROFIL
+        adbf1[ _HU_PROFIL_M  ] := tmp->PROFIL_M
         adbf1[ _HU_PRVS    ] := tmp->PRVS
         adbf1[ _HU_N_BASE  ] := tmp->n_base
         AAdd( st_arr_dbf_s, AClone( adbf1 ) )
@@ -260,6 +265,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
             adbf1[ _HU_STOIM_1 ] := tmp->STOIM_1
             adbf1[ _HU_KOD_DIAG ] := tmp->kod_diag
             adbf1[ _HU_PROFIL  ] := tmp->PROFIL
+            adbf1[ _HU_PROFIL_M  ] := tmp->PROFIL_M
             adbf1[ _HU_PRVS    ] := tmp->PRVS
             adbf1[ _HU_N_BASE  ] := tmp->n_base
             AAdd( st_arr_dbf_s, AClone( adbf1 ) )
@@ -297,6 +303,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
             hu_->ID_U     := mo_guid( 3, hu_->( RecNo() ) )
             hu_->kod_diag := st_arr_dbf_s[ k, _HU_KOD_DIAG ]
             hu_->PROFIL   := st_arr_dbf_s[ k, _HU_PROFIL  ]
+            hu_->PROFIL_M   := st_arr_dbf_s[ k, _HU_PROFIL_M  ]
             hu_->PRVS     := st_arr_dbf_s[ k, _HU_PRVS    ]
             //
             mrec_hu := hu->( RecNo() )
@@ -315,6 +322,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
             mohu->ID_U    := mo_guid( 4, mohu->( RecNo() ) )
             mohu->kod_diag := human_kod_diag
             mohu->PROFIL  := st_arr_dbf_s[ k, _HU_PROFIL ]
+            mohu->PROFIL_M  := st_arr_dbf_s[ k, _HU_PROFIL_M ]
             mohu->PRVS    := st_arr_dbf_s[ k, _HU_PRVS  ]
             //
             mrec_hu := mohu->( RecNo() )
@@ -342,6 +350,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
           tmp->STOIM_1  := st_arr_dbf_s[ k, _HU_STOIM_1 ]
           tmp->kod_diag := st_arr_dbf_s[ k, _HU_KOD_DIAG ]
           tmp->PROFIL   := st_arr_dbf_s[ k, _HU_PROFIL  ]
+          tmp->PROFIL_M   := st_arr_dbf_s[ k, _HU_PROFIL_M  ]
           tmp->PRVS     := st_arr_dbf_s[ k, _HU_PRVS    ]
           rec_tmp := tmp->( RecNo() )
           If st_arr_dbf_s[ k, _HU_N_BASE ] == 0
@@ -415,6 +424,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
       mpar_org := Space( 10 ), m1par_org := iif( nKey == K_INS, '', tmp->ZF ), ;
       is_gist := .f., mgist := Space( 10 ), m1gist := iif( nKey == K_INS, 4, tmp->is_edit ), ;
       m1PROFIL := iif( nKey == K_INS, human_->profil, tmp->profil ), mPROFIL, ;
+      m1PROFIL_M := iif( nKey == K_INS, human->profil_m, tmp->profil_m ), mPROFIL_M, ;
       mkol_1 := iif( nKey == K_INS, 0, tmp->kol_1 ), ;
       mstoim_1 := iif( nKey == K_INS, 0, tmp->stoim_1 ), ;
       mn_base := iif( nKey == K_INS, 0, tmp->n_base ), ;
@@ -504,8 +514,12 @@ Function f2oms_usl_sluch( nKey, oBrow )
     If Empty( m1PROFIL )
       m1PROFIL := human_->profil
     Endif
+    If Empty( m1PROFIL_M )
+      m1PROFIL_M := human->profil_M
+    Endif
     mdom := inieditspr( A__MENUVERT, mm_dom, m1dom )
     mPROFIL := PadR( inieditspr( A__MENUVERT, getv002(), m1PROFIL ), 69 )
+    mPROFIL_M := PadR( inieditspr( A__MENUVERT, getM003(), m1PROFIL_M ), 69 )
     --r1
     box_shadow( r1 -1, 0, MaxRow() -1, 79, color8, ;
       iif( nKey == K_INS, 'Добавление новой услуги', ;
@@ -604,11 +618,14 @@ Function f2oms_usl_sluch( nKey, oBrow )
             When !Empty( tip_par_org )
         Endif
       Endif
-      ++ix
       @ r1 + ix, 2 Say 'Профиль' Get MPROFIL ;
         reader {| x| menu_reader( x, tmp_V002, A__MENUVERT, , , .f. ) } ;
         When mis_edit == 0 ;
         valid {|| mprofil := PadR( mprofil, 69 ), .t. }
+      ++ix
+      @ r1 + ix, 2 Say 'Профиль МЗ РФ' Get mPROFIL_M ;
+        reader {| x| menu_reader( x, tmp_M003, A__MENUVERT, , , .f. ) } ;
+        valid {|| mPROFIL_M := PadR( mPROFIL_M, 69 ), .t. }
       For x := 1 To 3
         If mem_por_vr == x
           ++ix
@@ -768,6 +785,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
             g_rlock( forever )
             hu_->ID_U   := mo_guid( 3, hu_->( RecNo() ) )
             hu_->PROFIL := m1PROFIL
+            hu_->PROFIL_M := m1PROFIL_M
             hu_->PRVS   := m1PRVS
             hu_->kod_diag := mkod_diag
             // if lTypeLUMedReab .and. !empty(mdate_end)
@@ -797,6 +815,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
             tmp->kod_diag := mkod_diag
             tmp->ZF      := mzf
             tmp->PROFIL  := m1profil
+            tmp->PROFIL_M:= m1PROFIL_M
             tmp->PRVS    := m1prvs
             tmp->date_u1 := mdate_u1
             tmp->shifr_u := mshifr
@@ -823,6 +842,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
             mosu->name   := mname_u
             mosu->shifr1 := mshifr1
             mosu->profil := m1PROFIL
+            mosu->profil_M := m1PROFIL_M
           Endif
           // одна услуга
           If mn_base == 0
@@ -872,6 +892,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
               hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
             Endif
             hu_->PROFIL   := m1PROFIL
+            hu_->PROFIL_M := m1PROFIL_M
             hu_->PRVS     := m1PRVS
             hu_->kod_diag := mkod_diag
             If lTypeLUMedReab .and. !Empty( mdate_end )
@@ -913,6 +934,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
               mohu->ID_U  := mo_guid( 4, mohu->( RecNo() ) )
             Endif
             mohu->PROFIL  := m1PROFIL
+            mohu->PROFIL_M:= m1PROFIL_M
             mohu->PRVS    := m1PRVS
             mohu->kod_diag := mkod_diag
             If is_zf_stomat == 1
@@ -962,6 +984,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
             tmp->ZF    := m1par_org
           Endif
           tmp->PROFIL  := m1profil
+          tmp->PROFIL_M:= m1PROFIL_M
           tmp->PRVS    := m1prvs
           tmp->date_u1 := mdate_u1
           tmp->shifr_u := mshifr
