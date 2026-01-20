@@ -2207,7 +2207,7 @@ Function verify_sluch( fl_view, ft )
 
   // проверка номера направления на госпитализацию
   If eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
-    napr_number := AllTrim( get_NAPR_MO( human->kod, 1 ) )
+    napr_number := AllTrim( get_NAPR_MO( human->kod, _NPR_LECH ) ) 
     if Int( Val( SubStr( human_->FORMA14, 1, 1 ) ) ) == 0 .and. Empty( napr_number )
         AAdd( ta, 'должно быть заполнено поле "Номер направление на госпитализацию"' )
     endif

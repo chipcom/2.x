@@ -8,7 +8,7 @@ function get_NAPR_MO( human_kod, type_npr )
 
   local tmpSelect, cString := Space( 20 )
 
-  default type_npr to 1   // на лечение
+  default type_npr to _NPR_LECH   // на лечение
   tmpSelect := select()
   use_base( 'mo_napr_num' )
   NPR_NUM->( dbSeek( Str( human_kod, 7 ) + StrZero( type_npr, 2 ) ) )
@@ -24,7 +24,7 @@ function set_NAPR_MO( human_kod, type_npr, number )
 
   local tmpSelect, cString := ''
 
-  default type_npr to 1   // на лечение
+  default type_npr to _NPR_LECH   // на лечение
   tmpSelect := select()
   use_base( 'mo_napr_num', , .t. )
   NPR_NUM->( dbSeek( Str( human_kod, 7 ) + StrZero( type_npr, 2 ) ) )
@@ -45,7 +45,7 @@ function del_NAPR_MO( human_kod, type_npr )
 
   local tmpSelect, cString := ''
 
-  default type_npr to 1   // на лечение
+  default type_npr to _NPR_LECH   // на лечение
   tmpSelect := select()
   use_base( 'mo_napr_num', , .t. )
   NPR_NUM->( dbSeek( Str( human_kod, 7 ) + StrZero( type_npr, 2 ) ) )

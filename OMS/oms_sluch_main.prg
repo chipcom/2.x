@@ -349,7 +349,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     MDIAG_PLUS  := human->DIAG_PLUS
     MPOLIS      := human->POLIS         // серия и номер страхового полиса
     m1MOP       := human->MOP           // место обращения
-    mNAPR_NUM   := get_NAPR_MO( human->kod, 1 ) // получить номер направления на лечение, если есть
+    mNAPR_NUM   := get_NAPR_MO( human->kod, _NPR_LECH ) // получить номер направления на лечение, если есть
     If human->OBRASHEN == '1'
       m1DS_ONK := 1
     Endif
@@ -2018,9 +2018,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human->MOP        := m1MOP
       human->PROFIL_M    := m1PROFIL_M
       if ( M1F14_EKST == 3 .and. m1USL_OK == USL_OK_HOSPITAL ) .or. ( M1F14_EKST == 3 .and. m1USL_OK == USL_OK_DAY_HOSPITAL ) 
-        set_NAPR_MO( human->kod, 1, mNAPR_NUM )
+        set_NAPR_MO( human->kod, _NPR_LECH, mNAPR_NUM )
       else
-        del_NAPR_MO( human->kod, 1 )
+        del_NAPR_MO( human->kod, _NPR_LECH )
       endif
       human_->RODIT_DR  := iif( m1bolnich < 2, CToD( '' ),  mrodit_dr )
       human_->RODIT_POL := iif( m1bolnich < 2, '',  mrodit_pol )
