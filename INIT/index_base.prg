@@ -125,8 +125,8 @@ Function index_base( sBase )
     Index On Str( FIELD->kod_hum, 7 ) to ( dir_server() + "human_lek_pr" ) progress
   Case sBase == "human_ser_num"
     Index On FIELD->type_fil + Str( FIELD->rec_n, 7 ) to ( dir_server() + "human_ser_num" ) progress
-  Case sBase == "mo_napr_num"
-    Index On Str( FIELD->kod_h, 7 ) to ( dir_server() + "human_napr" ) progress
+  Case sBase == 'mo_napr_num'
+    Index On Str( FIELD->kod_h, 7 ) + StrZero( FIELD->TYPE_NPR, 2 ) to ( dir_server() + 'human_napr' ) progress
   Case sBase == "mo_hu"
     Index On Str( FIELD->kod, 7 ) + FIELD->date_u to ( dir_server() + "mo_hu" ) progress
     Index On Str( FIELD->u_kod, 6 ) to ( dir_server() + "mo_huk" ) progress

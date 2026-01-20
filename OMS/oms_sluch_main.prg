@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.01.26 добавление или редактирование случая (листа учета)
+// 20.01.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -91,7 +91,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     mishod := Space( 20 ), m1ishod := st_ishod, ; // исход
     m1company := 0, mcompany, mm_company, ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
-    m1NPR_MO := '',  mNPR_MO := Space( 10 ),  mNPR_DATE := CToD( '' ), ;
+    m1NPR_MO := '',  mNPR_MO := Space( 10 ),  mNPR_DATE := CToD( '' ), mNAPR_NUM := Space( 20 ), ;
     m1reg_lech := 0, mreg_lech, ;
     MN_DATA     := st_N_DATA, ; // дата начала лечения
     MK_DATA     := st_K_DATA, ; // дата окончания лечения
@@ -349,6 +349,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     MDIAG_PLUS  := human->DIAG_PLUS
     MPOLIS      := human->POLIS         // серия и номер страхового полиса
     m1MOP       := human->MOP           // место обращения
+    mNAPR_NUM   := get_NAPR_MO( human->kod, 1 ) // получить номер направления на лечение, если есть
     If human->OBRASHEN == '1'
       m1DS_ONK := 1
     Endif
@@ -698,9 +699,13 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         update_get( 'mvidpolis' ) }
       //
       @ ++j, 1 Say 'Направление: дата' Get mNPR_DATE
-      @ j, Col() + 1 Say 'из МО' Get mNPR_MO ;
+      @ j, Col() + 1 Say 'из МО' Get mNPR_MO PICTURE '@S20';
         reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
         Color colget_menu
+
+      @ j, Col() + 1 Say '№' Get mNAPR_NUM PICTURE '@S20' ;
+        Color colget_menu When m1NAPR_MO != 0
+      //        reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
       //
       @ ++j, 1 Say 'Новорожденный?' Get mnovor ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
@@ -2012,6 +2017,11 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human->date_b_2   := iif( m1bolnich == 0, '',  dtoc4( mdate_b_2 ) )
       human->MOP        := m1MOP
       human->PROFIL_M    := m1PROFIL_M
+      if ( M1F14_EKST == 3 .and. m1USL_OK == USL_OK_HOSPITAL ) .or. ( M1F14_EKST == 3 .and. m1USL_OK == USL_OK_DAY_HOSPITAL ) 
+        set_NAPR_MO( human->kod, 1, mNAPR_NUM )
+      else
+        del_NAPR_MO( human->kod, 1 )
+      endif
       human_->RODIT_DR  := iif( m1bolnich < 2, CToD( '' ),  mrodit_dr )
       human_->RODIT_POL := iif( m1bolnich < 2, '',  mrodit_pol )
       s := ''

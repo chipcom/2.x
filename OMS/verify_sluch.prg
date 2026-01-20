@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 19.01.26
+// 20.01.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -64,6 +64,7 @@ Function verify_sluch( fl_view, ft )
   local arr_PN_osmotr, arr_not_zs
   local arr_pn_issled
   local aDiagnozes
+  local napr_number
 
   Default fl_view To .t.
 
@@ -2203,6 +2204,15 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'Направлению на госпитализацию больше двух месяцев' )
     Endif
   Endif
+
+  // проверка номера направления на госпитализацию
+  If eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
+    napr_number := AllTrim( get_NAPR_MO( human->kod, 1 ) )
+    if Int( Val( SubStr( human_->FORMA14, 1, 1 ) ) ) == 0 .and. Empty( napr_number )
+        AAdd( ta, 'должно быть заполнено поле "Номер направление на госпитализацию"' )
+    endif
+  endif
+
   If eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
     i := human_2->p_per
     If !Between( human_2->p_per, 1, 4 ) // если не вводили
