@@ -219,7 +219,7 @@ Function fillzip( arr_f, sFileName )
   Endif
   Return sFileName
 
-// 16.09.25
+// 20.01.26
 Function create_zip( par, dir_archiv )
 
   Static sast := '*', sfile_begin := '_begin.txt', sfile_end := '_end.txt'
@@ -307,7 +307,8 @@ Function create_zip( par, dir_archiv )
       AAdd( ar, cur_dir() + zip_xml_fns )
     Endif
     For i := 1 To Len( array_files_DB() )
-      cFile := Upper( array_files_DB()[ i ] ) + sdbf()
+//      cFile := Upper( array_files_DB()[ i ] ) + sdbf()
+      cFile := array_files_DB()[ i ] + sdbf()
       If hb_vfExists( dir_server() + cFile )
         AAdd( ar, dir_server() + cFile )
       Endif

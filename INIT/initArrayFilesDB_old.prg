@@ -2,7 +2,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 21.05.25 инициализировать массив DBF-файлов базы данных
+// 20.01.26 инициализировать массив DBF-файлов базы данных
 Function init_Array_Files_DB()
 
   local i, arr
@@ -115,6 +115,7 @@ Function init_Array_Files_DB()
   aadd(array_files_DB, 'human_im')
   aadd(array_files_DB, 'human_lek_pr')
   aadd(array_files_DB, 'human_ser_num')
+  aadd(array_files_DB, 'mo_napr_num')
   // реестры и счета
   aadd(array_files_DB, 'mo_rees')
   aadd(array_files_DB, 'mo_xml')

@@ -69,7 +69,7 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 17.01.26 реконстукция баз данных
+// 20.01.26 реконстукция баз данных
 Function reconstruct_db( is_local_version, is_create )
 
   Local base1 := { ;
@@ -1570,6 +1570,12 @@ Function reconstruct_db( is_local_version, is_create )
     { 'KOL1',       'N',   6, 0 } ; // количество справок в файле
   }
   //
+  local mo_napr := { ;  // Список номеров направления
+    { 'KOD_H',        'N',   7, 0 }, ; // код по БД human.dbf
+    { 'TYPE_NPR',   'N',   2, 0 }, ; // тип направления (1-на лечение, 2-при подозрении на ЗНО или установленном диагнозе ЗНО, 3-в случае подозрения на ЗНО: на консультацию в другую МО или на обследование )
+    { 'NUMBER',     'C', 100, 0 }  ; // Номер направления
+  }
+  //
   local path_DB // путь к БД приложения
   //
   // КЭК
@@ -1823,6 +1829,8 @@ Function reconstruct_db( is_local_version, is_create )
   // reconstruct(path_DB + 'mo_kekh', kek_h, 'index_base("mo_kekh")', 'экспертизам2', .t.)
   // reconstruct(path_DB + 'mo_keke', kek_eks, 'index_base("mo_keke")', 'экспертизам3', .t.)
   //
+  reconstruct( path_DB + 'mo_napr_num', mo_napr, 'index_base("mo_napr")', , .t. )
+  // 
   init_base( path_DB + 'komitet', , get_komitet(), 2, , .t. )
   init_base( path_DB + 'str_komp', , get_strah(), 2, , .t. )
   init_base( path_DB + 'organiz', , get_struct_organiz(), 0, , .t. )

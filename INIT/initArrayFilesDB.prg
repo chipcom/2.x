@@ -34,7 +34,7 @@ function array_task_DB( array_DB )
   endif
   return array_task
 
-// 10/09/25
+// 20.01.26
 function array_files_DB()
 
   static array_DB
@@ -147,6 +147,7 @@ function array_files_DB()
     aadd(array_DB, 'human_im')
     aadd(array_DB, 'human_lek_pr')
     aadd(array_DB, 'human_ser_num')
+    aadd(array_DB, 'mo_napr_num')
     // реестры и счета
     aadd(array_DB, 'mo_rees')
     aadd(array_DB, 'mo_xml')
