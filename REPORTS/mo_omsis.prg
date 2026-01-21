@@ -1709,10 +1709,10 @@ Function prikaz_848_miac()
   RestScreen( buf )
   Return Nil
 
-// 06.11.22
+// 20.01.26
 Function f1_prikaz_848_miac()
 
-  Local tfoms_pz[ 11 ], rec, vid_vp, vid1vp, lshifr1, _what_if := _init_if(), d2_year, ss[ 20 ]
+  Local tfoms_pz[ 11 ], rec, vid_vp, vid1vp, lshifr1, _what_if := _init_if(), d2_year, ss[ 33 ]
 
   mywait()
   adbf := { { "nn", "N", 1, 0 }, ;       // 0-основная,1-старики
@@ -1720,15 +1720,15 @@ Function f1_prikaz_848_miac()
   { "tip", "N", 1, 0 }, ;      // 1-стационар,2-АПУ,3,4,5-дн.стационар
   { "spec", "N", 9, 0 }, ;     // профиль или специальность
   { "u_kod", "N", 5, 0 }, ;    // с плюсом - ТФОМС, с минусом - ФФОМС
-  { "p1", "N", 10, 0 }, ;      //
-  { "p2", "N", 10, 0 }, ;      //
-  { "p3", "N", 10, 0 }, ;      //
-  { "p4", "N", 10, 0 }, ;      //
-  { "p5", "N", 10, 0 }, ;      //
-  { "p6", "N", 10, 0 }, ;      //
-  { "p7", "N", 10, 0 }, ;      //
-  { "p8", "N", 10, 0 }, ;       //
-  { "p9", "N", 10, 0 }, ;       //
+  { "p1", "N", 10, 0 }, ;      // СТАЦИОНАР - всего (кроме детей)
+  { "p2", "N", 10, 0 }, ;      // СТАЦИОНАР - (кроме детей)  трудоспособного возраста
+  { "p3", "N", 10, 0 }, ;      // СТАЦИОНАР -всего (кроме детей) умерло
+  { "p4", "N", 10, 0 }, ;      // СТАЦИОНАР - всего умерло - трудоспособного возраста
+  { "p5", "N", 10, 0 }, ;      // СТАЦИОНАР - ребенок
+  { "p6", "N", 10, 0 }, ;      // СТАЦИОНАР - ребенок - умер  || ПОЛИКЛИНИКА - РЕБЕНОК - на дому ||
+  { "p7", "N", 10, 0 }, ;      // СТАЦИОНАР - УСЛУГИ (кроме детей)
+  { "p8", "N", 10, 0 }, ;       // СТАЦИОНАР - УСЛУГИ (кроме детей) трудоспособного возраста
+  { "p9", "N", 10, 0 }, ;       // СТАЦИОНАР - УСЛУГИ - ребенок 
   { "p10", "N", 10, 0 }, ;       //
   { "p11", "N", 10, 0 }, ;       //
   { "p12", "N", 10, 0 }, ;       //
@@ -1737,9 +1737,13 @@ Function f1_prikaz_848_miac()
   { "p15", "N", 10, 0 }, ;       //
   { "p16", "N", 10, 0 }, ;       //
   { "p17", "N", 10, 0 }, ;       //
-  { "p18", "N", 10, 0 }, ;       //
-  { "p19", "N", 10, 0 }, ;       //
-  { "p20", "N", 10, 0 } }        //
+  { "p18", "N", 10, 0 }, ;       // ПОЛИКЛИНИКА - СЕЛО 
+  { "p19", "N", 10, 0 }, ;       // ПОЛИКЛИНИКА - СЕЛО - ЗАБОЛЕВАНИЕ
+  { "p20", "N", 10, 0 }, ;       // ПОЛИКЛИНИКА - СЕЛО - НА ДОМУ
+  { "p30", "N", 10, 0 }, ;       //  поступило 
+  { "p31", "N", 10, 0 }, ;       //  из них село 
+  { "p32", "N", 10, 0 }, ;       //  дети
+  { "p33", "N", 10, 0 }  }       //  старше трудоспособного
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) New Alias TMP
   Index On Str( nn, 1 ) + Str( ist_fin, 1 ) + Str( tip, 1 ) + Str( spec, 9 ) to ( cur_dir() + "tmp" )
@@ -1780,11 +1784,32 @@ Function f1_prikaz_848_miac()
       Endif
     Endif
     If fl
-      f2_prikaz_848_miac( 1, _what_if )
+      f2_prikaz_848_miac( 1, _what_if, .T. )
     Endif
     Select HUMAN
     Skip
   Enddo
+  // продолжаем до конца
+  Do While !Eof()
+    If old != human->k_data
+      old := human->k_data
+      @ MaxRow(), 0 Say date_8( old ) Color "W/R"
+    Endif
+    fl := ( human_->oplata < 9 )
+    If fl .and. m1mest1 > 0
+      If Between( human_->smo, '34001', '34007' ) .or. Empty( human_->smo )
+        fl := ( m1mest1 == 1 )
+      Else
+        fl := ( m1mest1 == 2 )
+      Endif
+    Endif
+    If fl
+      f2_prikaz_848_miac( 1, _what_if, .F. )
+    Endif
+    Select HUMAN
+    Skip
+  Enddo
+ //
   k := tmp->( LastRec() )
   Close databases
   If k == 0
@@ -1836,16 +1861,16 @@ Function f1_prikaz_848_miac()
         Do Case
         Case _tip == 1
           arr_title := { ;
-            "┬─────────────────────────────────┬────────────────────", ;
-            "│       число выбывших пациентов  │проведено койко-дней", ;
-            "├──────────────────────┬──────────┼──────┬──────┬──────", ;
-            "│       взрослые       │   дети   │взрос-│в т.ч.│детьми", ;
-            "├─────┬─────┬─────┬────┼─────┬────┤лыми  │старше│      ", ;
-            "│всего│старш│умерл│стар│выпи-│умер│      │трудос│      ", ;
-            "│выпис│трудо│всего│труд│сано │ло  │      │возрас│      ", ;
-            "├─────┼─────┼─────┼────┼─────┼────┼──────┼──────┼──────", ;
-            "│  6  │ 6.1 │  7  │ 7.1│  8  │ 9  │  11  │ 11.1 │  12  ", ;
-            "┴─────┴─────┴─────┴────┴─────┴────┴──────┴──────┴──────" }
+            "┬─────┬─────┬───────────┬─────────────────────────────────┬────────────────────", ;
+            "│ пост│ из  │ из общего │       число выбывших пациентов  │проведено койко-дней", ;
+            "│упило│ их  │    числа  ├──────────────────────┬──────────┼──────┬──────┬──────", ;
+            "│всего│сель │поступивших│       взрослые       │   дети   │взрос-│в т.ч.│детьми", ;
+            "│ чел │ских ├─────┬─────┼─────┬─────┬─────┬────┼─────┬────┤лыми  │старше│      ", ;
+            "│     │     │ дети│стар │всего│старш│умерл│стар│выпи-│умер│      │трудос│      ", ;
+            "│     │     │     │труд │выпис│трудо│всего│труд│сано │ло  │      │возрас│      ", ;
+            "├─────┼─────┼─────┼──── ├─────┼─────┼─────┼────┼─────┼────┼──────┼──────┼──────", ;
+            "│  5  │ 5.1 │ 5.2 │ 5.3 │  6  │ 6.1 │  7  │ 7.1│  8  │ 9  │  11  │ 11.1 │  12  ", ;
+            "┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴────┴─────┴────┴──────┴──────┴──────" }
           n := f4_prikaz_848_miac( 40, "Профили коек", arr_title )
         Case _tip == 2
           arr_title := { ;
@@ -1891,7 +1916,11 @@ Function f1_prikaz_848_miac()
           If Found()
             Do Case
             Case _tip == 1
-              s += put_val( tmp->p1, 6 ) + ;
+              s += put_val( tmp->p30, 6 ) + ;
+                put_val( tmp->p31, 6 ) + ;
+                put_val( tmp->p32, 6 ) + ;
+                put_val( tmp->p33, 6 ) + ;
+                put_val( tmp->p1, 6 ) + ;
                 put_val( tmp->p2, 6 ) + ;
                 put_val( tmp->p3, 6 ) + ;
                 put_val( tmp->p4, 5 ) + ;
@@ -1920,13 +1949,16 @@ Function f1_prikaz_848_miac()
                 put_val( tmp->p17, 6 )
             Case eq_any( _tip, 3, 4, 5 )
               s += put_val( tmp->p1 + tmp->p2, 6 ) + ;
-                put_val( tmp->p1, 6 ) + ;
+                put_val( tmp->p1, 6 ) + ; 
                 put_val( tmp->p2, 6 ) + ;
                 put_val( tmp->p3 + tmp->p4, 7 ) + ;
                 put_val( tmp->p3, 7 ) + ;
                 put_val( tmp->p4, 7 )
             Endcase
             For iss := 1 To 20
+              ss[ iss ] += &( "tmp->p" + lstr( iss ) )
+            Next iss
+            For iss := 30 To 33
               ss[ iss ] += &( "tmp->p" + lstr( iss ) )
             Next iss
           Endif
@@ -1969,7 +2001,11 @@ Function f1_prikaz_848_miac()
               If Found()
                 Do Case
                 Case _tip == 1
-                  s += put_val( tmpu->p1, 6 ) + ;
+                  s += put_val( tmp->p30, 6 ) + ;
+                    put_val( tmp->p31, 6 ) + ;
+                    put_val( tmp->p32, 6 ) + ;
+                    put_val( tmp->p33, 6 ) + ;
+                    put_val( tmpu->p1, 6 ) + ;
                     put_val( tmpu->p2, 6 ) + ;
                     put_val( tmpu->p3, 6 ) + ;
                     put_val( tmpu->p4, 5 ) + ;
@@ -2014,7 +2050,11 @@ Function f1_prikaz_848_miac()
           s := PadR( "Итого:", n )
           Do Case
           Case _tip == 1
-            s += put_val( ss[ 1 ], 6 ) + ;
+            s += put_val( ss[ 30 ], 6 ) + ;
+              put_val( ss[ 31 ], 6 ) + ;
+              put_val( ss[ 32 ], 6 ) + ;
+              put_val( ss[ 33 ], 6 ) + ;
+              put_val( ss[ 1 ], 6 ) + ;
               put_val( ss[ 2 ], 6 ) + ;
               put_val( ss[ 3 ], 6 ) + ;
               put_val( ss[ 4 ], 5 ) + ;
@@ -2300,8 +2340,8 @@ Function f1_prikaz_848_miac()
   viewtext( name_file,,,, .t.,,, 2 )
   Return Nil
 
-// 28.12.17
-Function f2_prikaz_848_miac( par, _what_if )
+// 21.01.26
+Function f2_prikaz_848_miac( par, _what_if, FLAG_STOP )
 
   Local tfoms_pz[ 20 ], a_usl := {}, i, j, lshifr1, mkol, ;
     _ist_fin := f3_prikaz_848_miac( _what_if ), ;
@@ -2310,7 +2350,10 @@ Function f2_prikaz_848_miac( par, _what_if )
     fl_death := is_death( human_->RSLT_NEW ), au_lu := {}, fl_stom := .f., fl_stom_new := .f., ;
     is_selo := f_is_selo( kart_->gorod_selo, kart_->okatog ), is_2_88 := .f., au_flu := {}, ;
     is_patronag := .f., lusl_ok := 0, vid_vp := 0, vid1vp := 0 // по умолчанию профилактика
+  Local data_lu_begin := date() // что-бы не error
+  
 
+  data_lu_begin := human->n_data
   Select HU
   find ( Str( human->kod, 7 ) )
   Do While hu->kod == human->kod .and. !Eof()
@@ -2319,12 +2362,12 @@ Function f2_prikaz_848_miac( par, _what_if )
       lshifr := iif( Empty( lshifr1 ), usl->shifr, lshifr1 )
       AAdd( au_lu, { lshifr, ;              // 1
         c4tod( hu->date_u ), ;   // 2
-      hu_->profil, ;         // 3
+        hu_->profil, ;         // 3
         hu_->PRVS, ;           // 4
         AllTrim( usl->shifr ), ; // 5
-      hu->kol_1, ;           // 6
+        hu->kol_1, ;           // 6
         c4tod( hu->date_u ), ;   // 7
-      hu_->kod_diag, ;       // 8
+        hu_->kod_diag, ;       // 8
         hu->( RecNo() ), ;       // 9 - номер записи
       0 } )                   // 10 - для возврата
       If eq_any( Left( lshifr, 5 ), "2.80.", "2.82." ) .and. is_2_stomat( lshifr ) == 0 .and. is_2_stomat( lshifr,, .t. ) == 0
@@ -2470,102 +2513,153 @@ Function f2_prikaz_848_miac( par, _what_if )
     Case lusl_ok == 1 // стационар
       If i == 1 // только один раз учтём человека
         If is_rebenok
-          If fl_death
-            tmp->p6++
-          Else
-            tmp->p5++
-          Endif
+          if data_lu_begin >= mdate11  // начало в отчетном периоде 
+            tmp->p32++
+          endif
+          if FLAG_STOP
+            If fl_death
+              tmp->p6++
+            Else
+              tmp->p5++
+            Endif
+          endif  
         Else
+          if data_lu_begin >= mdate11  // начало в отчетном периоде 
+            tmp->p30++
+          endif
           If fl_death
-            tmp->p3++
+            if FLAG_STOP
+              tmp->p3++
+            endif  
             If is_trudosp
-              tmp->p4++
+              if FLAG_STOP
+                tmp->p4++
+              endif  
+              if data_lu_begin >= mdate11  // начало в отчетном периоде 
+                tmp->p33++
+              endif
             Endif
           Else
-            tmp->p1++
+            if FLAG_STOP
+              tmp->p1++
+            endif  
             If is_trudosp
-              tmp->p2++
+              if FLAG_STOP
+                tmp->p2++
+              endif  
+              if data_lu_begin >= mdate11  // начало в отчетном периоде 
+                tmp->p33++
+              endif
             Endif
           Endif
         Endif
       Endif
-      If is_rebenok
-        tmp->p9 += a_usl[ i, 4 ]
-      Else
-        tmp->p7 += a_usl[ i, 4 ]
-        If is_trudosp
-          tmp->p8 += a_usl[ i, 4 ]
+      if FLAG_STOP
+        If is_rebenok
+          tmp->p9 += a_usl[ i, 4 ]
+        Else
+          tmp->p7 += a_usl[ i, 4 ]
+          If is_trudosp
+            tmp->p8 += a_usl[ i, 4 ]
+          Endif
         Endif
-      Endif
+      endif  
     Case lusl_ok == 2 // поликлиника
       If is_selo
-        If a_usl[ i, 5 ] // на дому
-          tmp->p20 += a_usl[ i, 4 ]
-        Else
-          tmp->p18 += a_usl[ i, 4 ]
-          If is_zabol
-            tmp->p19 += a_usl[ i, 4 ]
+        if data_lu_begin >= mdate11  // начало в отчетном периоде 
+          tmp->p31++
+        endif
+        if FLAG_STOP 
+          If a_usl[ i, 5 ] // на дому
+            tmp->p20 += a_usl[ i, 4 ]
+          Else
+            tmp->p18 += a_usl[ i, 4 ]
+            If is_zabol
+              tmp->p19 += a_usl[ i, 4 ]
+            Endif
           Endif
-        Endif
+        endif  
       Endif
       If is_rebenok
-        If a_usl[ i, 5 ] // на дому
-          tmp->p6 += a_usl[ i, 4 ]
-          If is_zabol
-            tmp->p8 += a_usl[ i, 4 ]
-            If vid1vp > 0
-              tmp->p15 += a_usl[ i, 4 ]
+        if data_lu_begin >= mdate11  // начало в отчетном периоде 
+          tmp->p32++
+        endif
+        if FLAG_STOP 
+          If a_usl[ i, 5 ] // на дому
+            tmp->p6 += a_usl[ i, 4 ]
+            If is_zabol
+              tmp->p8 += a_usl[ i, 4 ]
+              If vid1vp > 0
+                tmp->p15 += a_usl[ i, 4 ]
+              Endif
+            Endif
+          Else
+            tmp->p2 += a_usl[ i, 4 ]
+            If is_zabol
+              tmp->p4 += a_usl[ i, 4 ]
+              If vid1vp > 0
+                tmp->p13 += a_usl[ i, 4 ]
+              Endif
             Endif
           Endif
-        Else
-          tmp->p2 += a_usl[ i, 4 ]
-          If is_zabol
-            tmp->p4 += a_usl[ i, 4 ]
-            If vid1vp > 0
-              tmp->p13 += a_usl[ i, 4 ]
-            Endif
+          If vid1vp == 0 .and. vid_vp == 2 .and. i == 1 // количество обращений за вычетом разовых по поводу заболеваний
+            tmp->p17++
           Endif
-        Endif
-        If vid1vp == 0 .and. vid_vp == 2 .and. i == 1 // количество обращений за вычетом разовых по поводу заболеваний
-          tmp->p17++
-        Endif
+        endif  
       Else
-        If a_usl[ i, 5 ] // на дому
-          tmp->p5 += a_usl[ i, 4 ]
-          If is_zabol
-            tmp->p7 += a_usl[ i, 4 ]
-            If vid1vp > 0
-              tmp->p14 += a_usl[ i, 4 ]
+        if data_lu_begin >= mdate11  // начало в отчетном периоде 
+          tmp->p30++
+        endif
+        if FLAG_STOP 
+          If a_usl[ i, 5 ] // на дому
+            tmp->p5 += a_usl[ i, 4 ]
+            If is_zabol
+              tmp->p7 += a_usl[ i, 4 ]
+              If vid1vp > 0
+                tmp->p14 += a_usl[ i, 4 ]
+              Endif
+            Endif
+          Else
+            tmp->p1 += a_usl[ i, 4 ]
+            If is_zabol
+              tmp->p3 += a_usl[ i, 4 ]
+              If vid1vp > 0
+                tmp->p12 += a_usl[ i, 4 ]
+              Endif
             Endif
           Endif
-        Else
-          tmp->p1 += a_usl[ i, 4 ]
-          If is_zabol
-            tmp->p3 += a_usl[ i, 4 ]
-            If vid1vp > 0
-              tmp->p12 += a_usl[ i, 4 ]
-            Endif
+          If vid1vp == 0 .and. vid_vp == 2 .and. i == 1 // количество обращений за вычетом разовых по поводу заболеваний
+            tmp->p16++
           Endif
-        Endif
-        If vid1vp == 0 .and. vid_vp == 2 .and. i == 1 // количество обращений за вычетом разовых по поводу заболеваний
-          tmp->p16++
-        Endif
+        endif  
       Endif
     Case lusl_ok == 3 // дневной стационар
       If i == 1 // только один раз учтём человека
         If is_rebenok
-          tmp->p2++
+          if data_lu_begin >= mdate11  // начало в отчетном периоде 
+            tmp->p32++
+          endif 
+          if FLAG_STOP
+            tmp->p2++
+          endif  
         Else
-          tmp->p1++
+          if data_lu_begin >= mdate11  // начало в отчетном периоде 
+            tmp->p30++
+          endif
+          if FLAG_STOP 
+            tmp->p1++
+          endif  
         Endif
       Endif
-      If is_rebenok
-        tmp->p4 += a_usl[ i, 4 ]
-      Else
-        tmp->p3 += a_usl[ i, 4 ]
-      Endif
+      if FLAG_STOP
+        If is_rebenok
+          tmp->p4 += a_usl[ i, 4 ]
+        Else
+          tmp->p3 += a_usl[ i, 4 ]
+        Endif
+      endif  
     Endcase
-    If m1usl == 1
+    If m1usl == 1 .and. FLAG_STOP //  !!!!!!!!
       Select TMPU
       find ( "0" + Str( _ist_fin, 1 ) + Str( a_usl[ i, 1 ], 1 ) + Str( a_usl[ i, 2 ], 9 ) + Str( a_usl[ i, 3 ], 5 ) )
       If !Found()
@@ -2643,7 +2737,7 @@ Function f2_prikaz_848_miac( par, _what_if )
       Endcase
     Endif
   Next i
-  If is_trudosp // СПРАВОЧНО-пожилые
+  If is_trudosp .and. FLAG_STOP // СПРАВОЧНО-пожилые !!!!!!!!!!!!!!!!!!!!!!!!!
     For i := 1 To Len( a_usl )
       Select TMP
       find ( "10" + Str( a_usl[ i, 1 ], 1 ) + Str( a_usl[ i, 2 ], 9 ) )
@@ -2882,3 +2976,6 @@ Function f4_prikaz_848_miac( n, t, at )
     at[ i ] := s + at[ i ]
   Next
   Return n
+
+
+  

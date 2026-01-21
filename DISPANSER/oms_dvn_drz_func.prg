@@ -8,7 +8,7 @@
 
 Static lcount_uch  := 1
 
-// 14.10.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 21.01.26 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz()
 
   Local arr_m, buf := save_maxrow()
@@ -78,7 +78,7 @@ Function inf_drz()
     Private &pole_1dispans := 0
   Next
   //
-  If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
+  /*If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
     blk := {| x, y| if( x > y, func_error( 4, 'Начальная дата больше конечной!' ), .t. ) }
     arr_m := input_diapazon( MaxRow() -4, 2, MaxRow() -2, 76, cDataCGet, ;
       { 'Введите начальную', 'и конечную', 'даты диспансеризации' }, ;
@@ -86,9 +86,9 @@ Function inf_drz()
     If ( st_a_uch := inputn_uch( T_ROW, T_COL -5,,, @lcount_uch ) ) == NIL
       Return Nil
     Endif
-  Else
+  Else*/
     arr_m := year_month( T_ROW, T_COL - 5, , 1 )
-  Endif
+  //Endif
   //mywaite()
   If  arr_m != NIL
     // arr[1, ...]-мужчины, arr[2, ...]-мужчины село, arr[3, ...]-женщины, arr[4, ...]-женщины село
@@ -109,14 +109,14 @@ Function inf_drz()
     // 1- всего 2-село 3- всего 375, 4- село 375, 5- всего 376, 6- село 376, 7- всего 377, 8-село 377, 9 - диаг всего 10 -село
     afillall( arr, 0 )
     afillall( arr_1, 0 )
-    If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
+    /*If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
       sdate := arr_m[ 2 ]
       sdate1 := arr_m[ 1 ]
       beginPeriod :=  sdate1
       arr_m := { Year( sdate ), NIL, NIL,, sdate1, sdate, dtoc4( sdate1 ), dtoc4( sdate ) }
-    Else
+    Else*/
       beginPeriod := BoY( arr_m[ 6 ] )  // начало периода, расчет идет нарастающим способом
-    Endif
+    //Endif
     Private m1nazn_l  := 0, m1dopo_na := 0, m1ssh_na  := 0, ;
       m1spec_na := 0, m1napr_stac := 0, m1napr_reab := 0, m1sank_na := 0
 
