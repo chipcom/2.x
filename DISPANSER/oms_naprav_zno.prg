@@ -76,14 +76,18 @@ Function fget_napr_zno( k, r, c )
   Local recNumberDoctor := 0
   Local oBox, lAlias
 
-  Private mm_napr_v := { { 'нет', 0 }, ;
+  Private mm_napr_v := { ;
+    { 'нет', 0 }, ;
     { 'к онкологу', 1 }, ;
-    { 'на дообследование', 3 } }
-  Private mm_met_issl := {{'нет', 0 }, ;
+    { 'на дообследование', 3 } ;
+  }
+  Private mm_met_issl := { ;
+    {'нет', 0 }, ;
     { 'лабораторная диагностика', 1 }, ;
     { 'инструментальная диагностика', 2 }, ;
     { 'методы лучевой диагностики (недорогостоящие)', 3 }, ;
-    { 'дорогостоящие методы лучевой диагностики', 4 } }
+    { 'дорогостоящие методы лучевой диагностики', 4 } ;
+  }
   Private mNumber
 
   tmp_keys := my_savekey()
@@ -94,7 +98,6 @@ Function fget_napr_zno( k, r, c )
   If !( lAlias )->( Used() )
     use_base( 'mo_su' )
   Endif
-
   Use ( cur_dir() + 'tmp_onkna' ) New Alias TNAPR 
   count_napr := LastRec()
   mNAPR_MO := Space( 6 )
@@ -290,19 +293,20 @@ Function save_onko_napr( /*@*/cur_napr, date_napr, vr_napr, mo_napr, v_napr, met
   Return count_napr
 
 // 21.01.26
-Function save_mo_onkna( mkod )
+Function save_mo_onkna( mkod, type_npr )
 
-  Local lAlias, tmp_alias := Select(), lOpened := .f.
+  Local tmp_alias := Select(), lOpened := .f.
   Local cur_napr, arr
 
+  default type_npr to _NPR_LECH   // на лечение
   arr := {}
   use_base( 'mo_su' )
   Use ( cur_dir() + 'tmp_onkna' ) New Alias TNAPR
   g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna',  'NAPR' ) // онконаправления
-  find ( Str( mkod, 7 ) )
-  Do While napr->kod == mkod .and. !Eof()
-    AAdd( arr, RecNo() )
-    Skip
+  napr->( dbSeek( Str( mkod, 7 ) ) )
+  Do While napr->kod == mkod .and. ! napr->( Eof() )
+    AAdd( arr, napr->( RecNo() ) )
+    napr->( dbSkip() )
   Enddo
   cur_napr := 0
   Select TNAPR
@@ -312,14 +316,14 @@ Function save_mo_onkna( mkod )
       If tnapr->U_KOD == 0 // добавляем в свой справочник федеральную услугу
         Select MOSU
         Set Order To 3
-        find ( tnapr->shifr1 )
-        If Found()  // наверное, добавили только что
+        mosu->( dbSeek( tnapr->shifr1 ) )
+        If mosu->( Found() )  // наверное, добавили только что
           tnapr->U_KOD := mosu->kod
         Else
           Set Order To 1
-          find ( Str( -1, 6 ) )
-          If Found()
-            g_rlock( forever )
+          mosu->( dbSeek( Str( -1, 6 ) ) )
+          If mosu->( Found() )
+            g_rlock( 'forever' )
           Else
             addrec( 6 )
           Endif
@@ -334,7 +338,7 @@ Function save_mo_onkna( mkod )
         napr->kod := mkod
       Else
         Goto ( arr[ cur_napr ] )
-        g_rlock( forever )
+        g_rlock( 'forever' )
       Endif
       napr->NAPR_DATE := tnapr->NAPR_DATE
       napr->NAPR_MO := tnapr->NAPR_MO
@@ -342,7 +346,7 @@ Function save_mo_onkna( mkod )
       napr->MET_ISSL := iif( tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0 )
       napr->U_KOD := iif( tnapr->NAPR_V == 3, tnapr->U_KOD, 0 )
       napr->KOD_VR := tnapr->KOD_VR
-      set_NAPR_MO( mkod, _NPR_LS_ZNO, tnapr->NUMBER )      
+      set_NAPR_MO( mkod, type_npr, tnapr->NUMBER )      
     Endif
     Select TNAPR
     tnapr->( dbSkip() )
@@ -634,7 +638,7 @@ Function create_struct_temporary_onkna()
           }
 
 // 21.01.26
-Function collect_napr_zno( Loc_kod )
+Function collect_napr_zno( Loc_kod, type_npr )
 
   Local count_napr := 0, tmp_select := Select()
   Local lAlias
@@ -667,7 +671,7 @@ Function collect_napr_zno( Loc_kod )
     tnapr->shifr_u   := iif( Empty( mosu->shifr ), mosu->shifr1, mosu->shifr )
     tnapr->shifr1    := mosu->shifr1
     tnapr->name_u    := mosu->name
-    tnapr->NUMBER    := get_NAPR_MO( Loc_kod, _NPR_LS_ZNO )
+    tnapr->NUMBER    := get_NAPR_MO( Loc_kod, type_npr )
     Select NAPR
     napr->( dbSkip() )
   Enddo

@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 19.01.26 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 21.01.26 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -516,7 +516,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
   dbcreate(cur_dir() + 'tmp_onkna', create_struct_temporary_onkna())
   cur_napr := 1 // при ред-ии - сначала первое направление текущее
-  count_napr := collect_napr_zno( Loc_kod )
+  count_napr := collect_napr_zno( Loc_kod, _NPR_DISP_ZNO )
   if count_napr > 0
     mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
   endif
@@ -1669,7 +1669,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       Close databases
 
       if m1ds_onk == 1 // подозрение на злокачественное новообразование
-        save_mo_onkna( mkod )
+        save_mo_onkna( mkod, _NPR_DISP_ZNO )
       endif
       stat_msg( 'Запись завершена!', .f. )
     Endif

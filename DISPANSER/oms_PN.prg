@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.01.26 ПН - добавление или редактирование случая (листа учета)
+// 21.01.26 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -629,7 +629,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   dbCreate( work_dir + 'tmp_onkna', create_struct_temporary_onkna() )
   cur_napr := 1 // при ред-ии - сначала первое направление текущее
-  count_napr := collect_napr_zno( Loc_kod )
+  count_napr := collect_napr_zno( Loc_kod, _NPR_DISP_ZNO )
   If count_napr > 0
     mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
   Endif
@@ -2084,7 +2084,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       save_arr_pn( mkod, mk_data )
       If m1step2 == 2 ; // направлен и отказался от 2-го этапа
         .and. m1ds_onk == 1 // подозрение на злокачественное новообразование
-        save_mo_onkna( mkod )
+        save_mo_onkna( mkod, _NPR_DISP_ZNO )
       Endif
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.

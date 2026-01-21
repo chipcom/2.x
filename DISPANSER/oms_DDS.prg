@@ -537,7 +537,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   dbCreate( work_dir + 'tmp_onkna', create_struct_temporary_onkna() )
   cur_napr := 1 // при ред-ии - сначала первое направление текущее
-  count_napr := collect_napr_zno( Loc_kod )
+  count_napr := collect_napr_zno( Loc_kod, _NPR_DISP_ZNO )
   If count_napr > 0
     mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
   Endif
@@ -1960,7 +1960,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       human->K_DATA     := mk_data       // дата окончания лечения
       human->CENA := human->CENA_1 := MCENA_1 // стоимость лечения
       human->ishod      := 100 + metap
-      human->OBRASHEN   := '' // <Признак подозрения на ЗНО>: - всегда указывается <0>iif(m1DS_ONK == 1, '1', ' ')
+      human->OBRASHEN   := iif( m1DS_ONK == 1, '1', ' ' )
       human->bolnich    := 0
       human->date_b_1   := ''
       human->date_b_2   := ''
@@ -2090,6 +2090,10 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
       fl_write_sluch := .t.
       dbCloseAll()
+
+      if m1ds_onk == 1 // подозрение на злокачественное новообразование
+        save_mo_onkna( mkod, _NPR_DISP_ZNO )
+      endif
       stat_msg( 'Запись завершена!', .f. )
     Endif
     Exit

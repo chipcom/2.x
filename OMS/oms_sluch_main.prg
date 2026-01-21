@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.01.26 добавление или редактирование случая (листа учета)
+// 21.01.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -437,7 +437,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     Endif
     is_oncology := f_is_oncology( 2 )
     If is_oncology > 0 // онкология - направления
-      count_napr := collect_napr_zno( Loc_kod )
+      count_napr := collect_napr_zno( Loc_kod, _NPR_LECH )
       If count_napr > 0
         old_oncology := .t.
         cur_napr := 1 // при ред-ии - сначала первое направление текущее
@@ -2167,7 +2167,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Endif
       Endif
       If is_oncology > 0 // онкология - направления
-        save_mo_onkna( mkod )
+        save_mo_onkna( mkod, _NPR_LECH )
         //
         g_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco',  'CO' )
         find ( Str( mkod, 7 ) )
