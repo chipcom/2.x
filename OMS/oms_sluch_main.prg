@@ -10,6 +10,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
 
   Static SKOD_DIAG := '     ', st_l_z := 1, st_N_DATA, st_K_DATA, st_rez_gist, ;
     st_vrach := 0, st_profil := 0, st_profil_k := 0, st_rslt := 0, st_ishod := 0, st_povod := 9
+  static st_MOP := 0
   Static menu_bolnich := { { 'нет', 0 }, { 'да ', 1 }, { 'РОД', 2 } }
 
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, ;
@@ -115,7 +116,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     m1PROFIL_K := st_profil_k, mPROFIL_K, ;
     m1PROFIL_M := 0, mPROFIL_M, ;
     m1vid_reab := 0, mvid_reab, ;
-    m1MOP := 0, mMOP, ;    // место обращения (посещения) tmp_V040
+    m1MOP := st_MOP, mMOP, ;    // место обращения (посещения) tmp_V040
     mstatus_st := Space( 10 ), ;
     mpovod, m1povod := st_povod, ;
     mtravma, m1travma := 0, ;
@@ -799,26 +800,27 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       //
       ++j
       rpp := j
-      @ j, 1 Say 'Мед.помощь: условия оказания' Get MUSL_OK ;
+//      @ j, 1 Say 'Мед.помощь: условия оказания' Get MUSL_OK ;
+      @ j, 1 Say 'Мед.помощь: условия' Get MUSL_OK ;
         reader {| x| menu_reader( x, tmp_V006, A__MENUVERT, , , .f. ) } ;
         When diag_screen( 2 ) ;
         valid {| g, o| iif( eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ), ;
         ( mMOP := Space( 25 ), m1MOP := 0, SetPos( rpp, 40 ),  DispOut( 'признак', cDataCGet ) ), ;
-        ( mp_per := Space( 25 ), m1p_per := 0, SetPos( rpp, 42 ),  DispOut( 'посещение', cDataCGet )  ) ), ;
+        ( mp_per := Space( 25 ), m1p_per := 0, SetPos( rpp, 40 ),  DispOut( 'посещение', cDataCGet )  ) ), ;
         update_get( 'mMOP' ), update_get( 'mp_per' ), f_valid_usl_ok( g, o )  }
       If m1usl_ok == USL_OK_POLYCLINIC
-        @ j, 42 Say 'посещение'
+        @ j, 40 Say 'посещение'
+        @ j, 50 Get mMOP ;
+          reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) } ;
+          When m1usl_ok == USL_OK_POLYCLINIC
       Endif
-      @ j, 50 Get mMOP ;
-        reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) } ;
-        When m1usl_ok == USL_OK_POLYCLINIC
 
       If eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
         @ j, 40 Say 'признак'
+        @ j, 48 Get mp_per ;
+          reader {| x| menu_reader( x, mm_p_per, A__MENUVERT, , , .f. ) } ;
+          When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       Endif
-      @ j, 48 Get mp_per ;
-        reader {| x| menu_reader( x, mm_p_per, A__MENUVERT, , , .f. ) } ;
-        When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
 
       If is_dop_ob_em()
         @ ++j, 3 Say 'вид объёмов специализированной медицинской помощи' Get mreg_lech ;
@@ -1969,6 +1971,10 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       /*if isbit(mem_oms_pole, 7)  //  'повод обращения'  7
         st_povod := m1povod
       endif*/
+      If IsBit( mem_oms_pole, 7 )  // место обращения (посещения) tmp_V040  7
+        st_MOP := m1MOP
+      endif
+
       glob_perso := mkod
       If m1komu == 0
         msmo := lstr( m1company )
