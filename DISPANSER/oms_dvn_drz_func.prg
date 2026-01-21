@@ -17,7 +17,7 @@ Function inf_drz()
   Local name_file_full := name_file + '.xlsx' 
   Local lCity := .f., lPatologiya := .f.
   Local beginPeriod
-  Local sdate1, sdate, blk
+  Local sdate1, sdate
   Local pole_diag, pole_1pervich, iii, pole_1dispans
   Local is_weekend
   Local fl_d_full := .t.,   fl_d_city := .t.,  fl_d_full_1 := .t.,   fl_d_city_1 := .t.
@@ -129,7 +129,7 @@ Function inf_drz()
     r_use( dir_server() + 'human_', , 'HUMAN_' )
    // r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' ) //не подходит
     r_use( dir_server() + 'human', , 'HUMAN' ) 
-    index on str(kod_k,7)+str(human->ishod,3) to tmp_dr for year(k_data) == 2025
+    index on str( FIELD->kod_k, 7 ) + str( human->ishod, 3 ) to tmp_dr for year( FIELD->k_data) == 2026
 
     Set Relation To RecNo() into HUMAN_
     //dbSeek( DToS( beginPeriod ), .t. )
@@ -716,7 +716,7 @@ Function ret_ndisp_drz( lkod_h, lkod_k, year_mdate )
 // 08.07.24
 Function ret_etap_drz( lkod_h, lkod_k )
 
-  Local ae := { {}, {} }, fl, i, k, d1 := Year( mn_data )
+  Local ae := { {}, {} }, fl, i, d1 := Year( mn_data )
 
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
@@ -788,8 +788,6 @@ Function valid_date_uslugi_drz( get, metap, beginDate, endDate, lenArr, i )
 
 // 28.03.24
 Function f_valid_begdata_drz( get, loc_kod )
-
-  Local i
 
   If CToD( get:buffer ) < 0d20240101
     get:varput( get:original )
