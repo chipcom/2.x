@@ -8,7 +8,7 @@
 
 Static lcount_uch  := 1
 
-// 14.10.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 21.01.26 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz()
 
   Local arr_m, buf := save_maxrow()
@@ -17,7 +17,7 @@ Function inf_drz()
   Local name_file_full := name_file + '.xlsx' 
   Local lCity := .f., lPatologiya := .f.
   Local beginPeriod
-  Local sdate1, sdate, blk
+  Local sdate1, sdate
   Local pole_diag, pole_1pervich, iii, pole_1dispans
   Local is_weekend
   Local fl_d_full := .t.,   fl_d_city := .t.,  fl_d_full_1 := .t.,   fl_d_city_1 := .t.
@@ -78,7 +78,7 @@ Function inf_drz()
     Private &pole_1dispans := 0
   Next
   //
-  If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
+  /*If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
     blk := {| x, y| if( x > y, func_error( 4, 'Начальная дата больше конечной!' ), .t. ) }
     arr_m := input_diapazon( MaxRow() -4, 2, MaxRow() -2, 76, cDataCGet, ;
       { 'Введите начальную', 'и конечную', 'даты диспансеризации' }, ;
@@ -86,9 +86,9 @@ Function inf_drz()
     If ( st_a_uch := inputn_uch( T_ROW, T_COL -5,,, @lcount_uch ) ) == NIL
       Return Nil
     Endif
-  Else
+  Else*/
     arr_m := year_month( T_ROW, T_COL - 5, , 1 )
-  Endif
+  //Endif
   //mywaite()
   If  arr_m != NIL
     // arr[1, ...]-мужчины, arr[2, ...]-мужчины село, arr[3, ...]-женщины, arr[4, ...]-женщины село
@@ -109,14 +109,14 @@ Function inf_drz()
     // 1- всего 2-село 3- всего 375, 4- село 375, 5- всего 376, 6- село 376, 7- всего 377, 8-село 377, 9 - диаг всего 10 -село
     afillall( arr, 0 )
     afillall( arr_1, 0 )
-    If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
+    /*If glob_mo()[ _MO_KOD_TFOMS ] == '711001' // ЖД-больница
       sdate := arr_m[ 2 ]
       sdate1 := arr_m[ 1 ]
       beginPeriod :=  sdate1
       arr_m := { Year( sdate ), NIL, NIL,, sdate1, sdate, dtoc4( sdate1 ), dtoc4( sdate ) }
-    Else
+    Else*/
       beginPeriod := BoY( arr_m[ 6 ] )  // начало периода, расчет идет нарастающим способом
-    Endif
+    //Endif
     Private m1nazn_l  := 0, m1dopo_na := 0, m1ssh_na  := 0, ;
       m1spec_na := 0, m1napr_stac := 0, m1napr_reab := 0, m1sank_na := 0
 
@@ -129,7 +129,7 @@ Function inf_drz()
     r_use( dir_server() + 'human_', , 'HUMAN_' )
    // r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' ) //не подходит
     r_use( dir_server() + 'human', , 'HUMAN' ) 
-    index on str(kod_k,7)+str(human->ishod,3) to tmp_dr for year(k_data) == 2025
+    index on str( FIELD->kod_k, 7 ) + str( human->ishod, 3 ) to tmp_dr for year( FIELD->k_data) == 2026
 
     Set Relation To RecNo() into HUMAN_
     //dbSeek( DToS( beginPeriod ), .t. )
@@ -716,7 +716,7 @@ Function ret_ndisp_drz( lkod_h, lkod_k, year_mdate )
 // 08.07.24
 Function ret_etap_drz( lkod_h, lkod_k )
 
-  Local ae := { {}, {} }, fl, i, k, d1 := Year( mn_data )
+  Local ae := { {}, {} }, fl, i, d1 := Year( mn_data )
 
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
@@ -788,8 +788,6 @@ Function valid_date_uslugi_drz( get, metap, beginDate, endDate, lenArr, i )
 
 // 28.03.24
 Function f_valid_begdata_drz( get, loc_kod )
-
-  Local i
 
   If CToD( get:buffer ) < 0d20240101
     get:varput( get:original )

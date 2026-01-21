@@ -3,13 +3,14 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.01.26 добавление или редактирование случая (листа учета)
+// 21.01.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
 
   Static SKOD_DIAG := '     ', st_l_z := 1, st_N_DATA, st_K_DATA, st_rez_gist, ;
     st_vrach := 0, st_profil := 0, st_profil_k := 0, st_rslt := 0, st_ishod := 0, st_povod := 9
+  static st_MOP := 0
   Static menu_bolnich := { { 'нет', 0 }, { 'да ', 1 }, { 'РОД', 2 } }
 
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, ;
@@ -61,6 +62,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Private tmp_V006 := create_classif_ffoms( 2, 'V006' ) // USL_OK
   Private tmp_V002 := create_classif_ffoms( 2, 'V002' ) // PROFIL
   Private tmp_V020 := create_classif_ffoms( 2, 'V020' ) // PROFIL_K
+  Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
+  Private tmp_M003 := create_classif_ffoms( 2, 'M003' ) // M003
   Private tmp_V009 := getv009( sys_date ) // rslt
   Private tmp_V012 := getv012( sys_date ) // ishod
   Private mm_rslt, mm_ishod, rslt_umolch := 0, ishod_umolch := 0
@@ -89,7 +92,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     mishod := Space( 20 ), m1ishod := st_ishod, ; // исход
     m1company := 0, mcompany, mm_company, ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
-    m1NPR_MO := '',  mNPR_MO := Space( 10 ),  mNPR_DATE := CToD( '' ), ;
+    m1NPR_MO := '',  mNPR_MO := Space( 10 ),  mNPR_DATE := CToD( '' ), mNAPR_NUM := Space( 20 ), ;
     m1reg_lech := 0, mreg_lech, ;
     MN_DATA     := st_N_DATA, ; // дата начала лечения
     MK_DATA     := st_K_DATA, ; // дата окончания лечения
@@ -111,7 +114,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     m1P_PER := 0, mP_PER := Space( 35 ), ; // Признак поступления/перевода 1-4
     m1PROFIL := st_profil, mPROFIL, ;
     m1PROFIL_K := st_profil_k, mPROFIL_K, ;
+    m1PROFIL_M := 0, mPROFIL_M, ;
     m1vid_reab := 0, mvid_reab, ;
+    m1MOP := st_MOP, mMOP, ;    // место обращения (посещения) tmp_V040
     mstatus_st := Space( 10 ), ;
     mpovod, m1povod := st_povod, ;
     mtravma, m1travma := 0, ;
@@ -344,6 +349,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     MSOPUT_B4   := human->SOPUT_B4
     MDIAG_PLUS  := human->DIAG_PLUS
     MPOLIS      := human->POLIS         // серия и номер страхового полиса
+    m1MOP       := human->MOP           // место обращения
+    mNAPR_NUM   := get_NAPR_MO( human->kod, _NPR_LECH ) // получить номер направления на лечение, если есть
     If human->OBRASHEN == '1'
       m1DS_ONK := 1
     Endif
@@ -370,6 +377,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     m1USL_OK   := human_->USL_OK
     m1PROFIL   := human_->PROFIL
     m1PROFIL_K := human_2->PROFIL_K
+    m1PROFIL_M  := human->PROFIL_M      // Профиль медицинской помощи M003
     m1NPR_MO   := human_->NPR_MO
     mNPR_DATE  := human_2->NPR_DATE
     M1F14_EKST := Int( Val( SubStr( human_->FORMA14, 1, 1 ) ) )
@@ -430,7 +438,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     Endif
     is_oncology := f_is_oncology( 2 )
     If is_oncology > 0 // онкология - направления
-      count_napr := collect_napr_zno( Loc_kod )
+      count_napr := collect_napr_zno( Loc_kod, _NPR_LECH )
       If count_napr > 0
         old_oncology := .t.
         cur_napr := 1 // при ред-ии - сначала первое направление текущее
@@ -589,8 +597,10 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     Endif
     mp_per := inieditspr( A__MENUVERT, mm_p_per, m1p_per )
   Endif
+  mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
   mPROFIL   := inieditspr( A__MENUVERT, getv002(), m1PROFIL )
   mPROFIL_K := inieditspr( A__MENUVERT, getv020(),  m1PROFIL_K )
+  mPROFIL_M := inieditspr( A__MENUVERT, getM003(),  m1PROFIL_M )
   mvid_reab := inieditspr( A__MENUVERT, mm_vid_reab, m1vid_reab )
   If !Empty( m1NPR_MO )
     mNPR_MO := ret_mo( m1NPR_MO )[ _MO_SHORT_NAME ]
@@ -690,9 +700,13 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         update_get( 'mvidpolis' ) }
       //
       @ ++j, 1 Say 'Направление: дата' Get mNPR_DATE
-      @ j, Col() + 1 Say 'из МО' Get mNPR_MO ;
+      @ j, Col() + 1 Say 'из МО' Get mNPR_MO PICTURE '@S20';
         reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
         Color colget_menu
+
+      @ j, Col() + 1 Say '№' Get mNAPR_NUM PICTURE '@S20' ;
+        Color colget_menu When m1NAPR_MO != 0
+      //        reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
       //
       @ ++j, 1 Say 'Новорожденный?' Get mnovor ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
@@ -786,19 +800,28 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       //
       ++j
       rpp := j
-      @ j, 1 Say 'Мед.помощь: условия оказания' Get MUSL_OK ;
+//      @ j, 1 Say 'Мед.помощь: условия оказания' Get MUSL_OK ;
+      @ j, 1 Say 'Мед.помощь: условия' Get MUSL_OK ;
         reader {| x| menu_reader( x, tmp_V006, A__MENUVERT, , , .f. ) } ;
         When diag_screen( 2 ) ;
         valid {| g, o| iif( eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ), ;
-        ( SetPos( rpp, 40 ),  DispOut( 'признак', cDataCGet ) ), ;
-        ( mp_per := Space( 25 ), m1p_per := 0 ) ), ;
-        update_get( 'mp_per' ),  f_valid_usl_ok( g, o )  }
+        ( mMOP := Space( 25 ), m1MOP := 0, SetPos( rpp, 40 ),  DispOut( 'признак', cDataCGet ) ), ;
+        ( mp_per := Space( 25 ), m1p_per := 0, SetPos( rpp, 40 ),  DispOut( 'посещение', cDataCGet )  ) ), ;
+        update_get( 'mMOP' ), update_get( 'mp_per' ), f_valid_usl_ok( g, o )  }
+      If m1usl_ok == USL_OK_POLYCLINIC
+        @ j, 40 Say 'посещение'
+        @ j, 50 Get mMOP ;
+          reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) } ;
+          When m1usl_ok == USL_OK_POLYCLINIC
+      Endif
+
       If eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
         @ j, 40 Say 'признак'
+        @ j, 48 Get mp_per ;
+          reader {| x| menu_reader( x, mm_p_per, A__MENUVERT, , , .f. ) } ;
+          When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       Endif
-      @ j, 48 Get mp_per ;
-        reader {| x| menu_reader( x, mm_p_per, A__MENUVERT, , , .f. ) } ;
-        When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
+
       If is_dop_ob_em()
         @ ++j, 3 Say 'вид объёмов специализированной медицинской помощи' Get mreg_lech ;
           reader {| x| menu_reader( x, mm_reg_lech, A__MENUVERT, , , .f. ) } ;
@@ -807,6 +830,10 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ ++j, 3 Say 'профиль мед.помощи' Get MPROFIL ;
         reader {| x| menu_reader( x, tmp_V002, A__MENUVERT, , , .f. ) } ;
         Valid f_valid2ad_cr( MK_DATA )
+
+      @ j, 50 Say 'профиль МЗ РФ' Get mPROFIL_M ;
+        reader {| x| menu_reader( x, tmp_M003, A__MENUVERT, , , .f. ) }
+      
       @ ++j, 3 Say 'профиль койки' Get MPROFIL_K ;
         reader {| x| menu_reader( x, tmp_V020, A__MENUVERT, , , .f. ) } ;
         When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
@@ -1944,6 +1971,10 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       /*if isbit(mem_oms_pole, 7)  //  'повод обращения'  7
         st_povod := m1povod
       endif*/
+      If IsBit( mem_oms_pole, 7 )  // место обращения (посещения) tmp_V040  7
+        st_MOP := m1MOP
+      endif
+
       glob_perso := mkod
       If m1komu == 0
         msmo := lstr( m1company )
@@ -1990,6 +2021,13 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human->bolnich    := m1bolnich
       human->date_b_1   := iif( m1bolnich == 0, '',  dtoc4( mdate_b_1 ) )
       human->date_b_2   := iif( m1bolnich == 0, '',  dtoc4( mdate_b_2 ) )
+      human->MOP        := m1MOP
+      human->PROFIL_M    := m1PROFIL_M
+      if ( M1F14_EKST == 3 .and. m1USL_OK == USL_OK_HOSPITAL ) .or. ( M1F14_EKST == 3 .and. m1USL_OK == USL_OK_DAY_HOSPITAL ) 
+        set_NAPR_MO( human->kod, _NPR_LECH, mNAPR_NUM )
+      else
+        del_NAPR_MO( human->kod, _NPR_LECH )
+      endif
       human_->RODIT_DR  := iif( m1bolnich < 2, CToD( '' ),  mrodit_dr )
       human_->RODIT_POL := iif( m1bolnich < 2, '',  mrodit_pol )
       s := ''
@@ -2135,7 +2173,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Endif
       Endif
       If is_oncology > 0 // онкология - направления
-        save_mo_onkna( mkod )
+        save_mo_onkna( mkod, _NPR_LECH )
         //
         g_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco',  'CO' )
         find ( Str( mkod, 7 ) )

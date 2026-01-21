@@ -267,11 +267,15 @@ function createXMLtoFNS()
     { 'KOD_XML', 'N',     6,   0 } ; // ссылка на файл 'mo_xml_fns', для отправки в ФНС или число -1 если печатная форма, 0 - если xml файл не формировался
   }
 
-//  If ( arr_m := input_year() ) == NIL
-//    Return Nil
-//  Endif
-//  mYear := arr_m[ 1 ]
-  mYear := 2024
+ If ( arr_m := input_year() ) == NIL
+    Return Nil
+  Endif
+  mYear := arr_m[ 1 ]
+ if mYear > 2025
+   func_error( 'Пакеты Справок можно делать только за прошлые годы' )
+   Return Nil
+ endif
+//  mYear := 2024
 
   use_base( 'xml_fns', 'xml_fns', .t. )
 

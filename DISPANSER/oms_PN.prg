@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.01.26 ПН - добавление или редактирование случая (листа учета)
+// 21.01.26 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -46,6 +46,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Return Nil
     Endif
   Endif
+
+  Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
+
   chm_help_code := 3002
   Private mfio := Space( 50 ), mpol, mdate_r, madres, mvozrast, mdvozrast, msvozrast := ' ', ;
     M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
@@ -83,8 +86,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     m1USL_OK := USL_OK_POLYCLINIC, ; // поликлиника
     m1VIDPOM :=  1, ; // первичная
     m1PROFIL := 68, ; // педиатрия
-    m1IDSP   := 17   // законченный случай в п-ке
-  //
+    m1IDSP   := 17, ; // законченный случай в п-ке
+    m1MOP := 0, mMOP  // место обращения (посещения) tmp_V040
+//
   //
   Private metap := 1, mperiod := 0, mshifr_zs := '', mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
     mkateg_uch, m1kateg_uch := 3, ; // Категория учета ребенка:
@@ -379,6 +383,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     m1VIDPOLIS  := human_->VPOLIS
     mSPOLIS     := human_->SPOLIS
     mNPOLIS     := human_->NPOLIS
+    m1MOP       := human->MOP           // место обращения
     If human->OBRASHEN == '1'
       m1DS_ONK := 1
     Endif
@@ -624,7 +629,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   dbCreate( work_dir + 'tmp_onkna', create_struct_temporary_onkna() )
   cur_napr := 1 // при ред-ии - сначала первое направление текущее
-  count_napr := collect_napr_zno( Loc_kod )
+  count_napr := collect_napr_zno( Loc_kod, _NPR_DISP_ZNO )
   If count_napr > 0
     mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
   Endif
@@ -657,6 +662,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   //
   mmesto_prov := inieditspr( A__MENUVERT, mm_mesto_prov, m1mesto_prov ) // место проведения
   mmobilbr := inieditspr( A__MENUVERT, mm_danet, m1mobilbr )
+  mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
   mschool := inieditspr( A__POPUPMENU, dir_DB + 'mo_schoo', m1school )
   mkateg_uch := inieditspr( A__MENUVERT, mm_kateg_uch(), m1kateg_uch )
   If !Empty( m1MO_PR )
@@ -829,6 +835,9 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         reader {| x| menu_reader( x, mm_mesto_prov, A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Медосмотр проведён мобильной бригадой?' Get mmobilbr ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+      @ ++j, 1 Say 'Место обращения' Get mMOP ;
+        reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
+
       ++j
       @ ++j, 1 Say 'МО прикрепления' Get mMO_PR ;
         reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) }
@@ -1946,6 +1955,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       human->bolnich    := 0
       human->date_b_1   := ''
       human->date_b_2   := ''
+      human->MOP        := m1MOP
       human_->RODIT_DR  := CToD( '' )
       human_->RODIT_POL := ''
       s := '' ; AEval( adiag_talon, {| x| s += Str( x, 1 ) } )
@@ -2074,7 +2084,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       save_arr_pn( mkod, mk_data )
       If m1step2 == 2 ; // направлен и отказался от 2-го этапа
         .and. m1ds_onk == 1 // подозрение на злокачественное новообразование
-        save_mo_onkna( mkod )
+        save_mo_onkna( mkod, _NPR_DISP_ZNO )
       Endif
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.

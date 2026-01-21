@@ -103,7 +103,7 @@ Function update_data_db( aVersion )
 
 Return Nil
 
-// 16.01.26
+// 19.01.26
 Function update_v60102()     // перенос данных о занятости пациентов
 
   stat_msg( 'Переносим информацию о занятости пациентов' )
@@ -139,6 +139,13 @@ Function update_v60102()     // перенос данных о занятости пациентов
     endif
     human->( dbSkip() )
   enddo
+  dbCloseAll()        // закроем все
+
+  stat_msg( 'Корректировка информацию об инвалидах I группы' )
+  use_base( 'kartotek', 'kart', .t. ) // откроем файл kartotek
+
+  dbEval( { || iif( AllTrim( kart->PC3 ) == '083', kart->PC3 := '810', ) } )
+
   dbCloseAll()        // закроем все
 
   return nil

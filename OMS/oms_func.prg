@@ -3,6 +3,63 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 20.01.26
+function get_NAPR_MO( human_kod, type_npr )
+
+  local tmpSelect, cString := Space( 20 )
+
+  default type_npr to _NPR_LECH   // на лечение
+  tmpSelect := select()
+  use_base( 'mo_napr_num' )
+  NPR_NUM->( dbSeek( Str( human_kod, 7 ) + StrZero( type_npr, 2 ) ) )
+  if NPR_NUM->( found() )
+    cString := SubStr( NPR_NUM->NUMBER, 1, 20 )
+  endif
+  NPR_NUM->( dbCloseArea() )
+  select( tmpSelect )
+  return cString
+
+// 21.01.26
+function set_NAPR_MO( human_kod, type_npr, number )
+
+  local tmpSelect, cString := ''
+
+  default type_npr to _NPR_LECH   // на лечение
+  tmpSelect := select()
+  use_base( 'mo_napr_num', , .t. )
+  NPR_NUM->( dbSeek( Str( human_kod, 7 ) + StrZero( type_npr, 2 ) ) )
+  if NPR_NUM->( found() )
+    if Empty( number )
+      deleterec( .t. )
+    else
+      NPR_NUM->NUMBER := number
+    endif
+  else
+    addrec( 7 )
+    NPR_NUM->KOD_H := human_kod
+    NPR_NUM->TYPE_NPR := type_npr
+    NPR_NUM->NUMBER := number
+  endif
+  NPR_NUM->( dbCloseArea() )
+  select( tmpSelect )
+  return nil
+
+// 20.01.26
+function del_NAPR_MO( human_kod, type_npr )
+
+  local tmpSelect, cString := ''
+
+  default type_npr to _NPR_LECH   // на лечение
+  tmpSelect := select()
+  use_base( 'mo_napr_num', , .t. )
+  NPR_NUM->( dbSeek( Str( human_kod, 7 ) + StrZero( type_npr, 2 ) ) )
+  if NPR_NUM->( found() )
+    deleterec( .t. )
+  endif
+  NPR_NUM->( dbCloseArea() )
+  select( tmpSelect )
+  return nil
+
 // 29.02.24
 function arr_NO_YES()
 

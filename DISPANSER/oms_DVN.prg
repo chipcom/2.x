@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.01.26 ДВН - добавление или редактирование случая (листа учета)
+// 21.01.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -20,6 +20,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     fl, tmp_help := chm_help_code, fl_write_sluch := .f., mu_cena, lrslt_1_etap := 0, ;
     sk
   //
+  Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
+
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
   //
@@ -63,7 +65,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     m1VIDPOM :=  1, ; // первичная
     m1PROFIL := 97, ; // 97-терапия, 57-общая врач.практика (семейн.мед-а), 42-лечебное дело
     m1IDSP   := 11, ; // доп.диспансеризация
-    mcena_1 := 0
+    mcena_1 := 0, ;
+    m1MOP := 0, mMOP  // место обращения (посещения) tmp_V040
   //
   Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
   Private metap := 0, ;  // 1-первый этап, 2-второй этап, 3-профилактика
@@ -348,6 +351,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     M1RAB_NERAB := human->RAB_NERAB     // 0-работающий, 1-неработающий, 2-обучающ.ОЧНО
     M1VZ        := human->VZ
     mUCH_DOC    := human->uch_doc
+    m1MOP       := human->MOP           // место обращения
     m1VRACH     := human_->vrach
     /*MKOD_DIAG0  := human_->KOD_DIAG0
     MKOD_DIAG   := human->KOD_DIAG
@@ -596,7 +600,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     // собираем онкологические направления
     dbCreate( cur_dir() + 'tmp_onkna', create_struct_temporary_onkna() )
     cur_napr := 1 // при ред-ии - сначала первое направление текущее
-    count_napr := collect_napr_zno( Loc_kod )
+    count_napr := collect_napr_zno( Loc_kod, _NPR_DISP_ZNO )
     If count_napr > 0
       mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
     Endif
@@ -620,6 +624,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
+  mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
   mismo     := init_ismo( m1ismo )
   f_valid_komu(, -1 )
   If m1komu == 0
@@ -763,6 +768,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
       @ j,Col() + 5 Say 'Мобильная бригада?' Get mmobilbr ;
         reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+      @ ++j, 1 Say 'Место обращения' Get mMOP ;
+        reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
+
       ++j
       @ ++j, 1 Say 'Курение/употребление табака' Get mkurenie ;
         reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
@@ -1772,6 +1780,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       human->bolnich    := 0
       human->date_b_1   := ''
       human->date_b_2   := ''
+      human->MOP        := m1MOP
       human_->RODIT_DR  := CToD( '' )
       human_->RODIT_POL := ''
       s := ''
@@ -1896,7 +1905,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
       save_arr_dvn( mkod )
       If m1ds_onk == 1 // подозрение на злокачественное новообразование
-        save_mo_onkna( mkod )
+        save_mo_onkna( mkod, _NPR_DISP_ZNO )
       Endif
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.

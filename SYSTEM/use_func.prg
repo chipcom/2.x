@@ -256,6 +256,11 @@ Function use_base( sBase, lAlias, lExcluUse, lREADONLY, lUseIndex )
     If fl
       Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
     Endif
+
+  Case sBase == 'mo_napr_num'
+    Default lAlias To 'NPR_NUM'
+    fl := g_use( dir_server() + 'mo_napr_num', dir_server() + 'human_napr', lAlias, , lExcluUse, lREADONLY )
+
   Case sBase == 'human_im'
     Default lAlias To 'IMPL'
     fl := g_use( dir_server() + 'human_im', dir_server() + 'human_im', lAlias, , lExcluUse, lREADONLY )

@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 11.12.25
+// 20.01.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -64,6 +64,7 @@ Function verify_sluch( fl_view, ft )
   local arr_PN_osmotr, arr_not_zs
   local arr_pn_issled
   local aDiagnozes
+  local napr_number
 
   Default fl_view To .t.
 
@@ -133,6 +134,11 @@ Function verify_sluch( fl_view, ft )
 
   kol_dney := kol_dney_lecheniya( human->n_data, human->k_data, human_->usl_ok )
   cuch_doc := human->uch_doc
+
+  // проверка отделения
+  if Empty( otd->LPU_1 )
+    AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ' не выбрано "Структурное подразделение по ФФОМС"' )
+  endif
 
   // проверка по датам
   If Year( human->date_r ) < LIMITED_DATE_MIN
@@ -414,6 +420,12 @@ Function verify_sluch( fl_view, ft )
   Private is_disp_19 := !( dEnd < 0d20190501 )
   Private is_disp_21 := !( dEnd < 0d20210101 )
   Private is_disp_24 := !( dEnd < 0d20240901 )
+
+  If human_->usl_ok == USL_OK_POLYCLINIC
+    if Empty( human->MOP )
+      AAdd( ta, 'не заполнено "Место обращения (посещения)"' )
+    Endif
+  endif
 
 
   arrUslugi := collect_uslugi( rec_human )   // выберем все коды услуг случая
@@ -771,6 +783,10 @@ Function verify_sluch( fl_view, ft )
         Next
       Endif
       otd->( dbGoto( hu->OTD ) )
+      // проверка отделения для услуги
+      if Empty( otd->LPU_1 )
+        AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ФФОМС"' )
+      endif
       hu->( g_rlock( forever ) )
       hu_->( g_rlock( forever ) )
       If hu->is_edit == -1 .and. AllTrim( lshifr ) == '4.27.2'
@@ -1596,6 +1612,10 @@ Function verify_sluch( fl_view, ft )
       Endif
     Endif
     otd->( dbGoto( mohu->OTD ) )
+    // проверка отделения для услуги
+    if Empty( otd->LPU_1 )
+      AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ФФОМС"' )
+    endif
     mohu->( g_rlock( forever ) )
     If Empty( mohu->kod_vr ) .and. ( ! is_disp_DVN_COVID ) .and. ( ! is_disp_DRZ ) // исправлено для углубленной диспансеризации и ДРЗ
       If usl_found .and. &lalf.->telemed == 1
@@ -2184,6 +2204,15 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'Направлению на госпитализацию больше двух месяцев' )
     Endif
   Endif
+
+  // проверка номера направления на госпитализацию
+  If eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
+    napr_number := AllTrim( get_NAPR_MO( human->kod, _NPR_LECH ) ) 
+    if Int( Val( SubStr( human_->FORMA14, 1, 1 ) ) ) == 0 .and. Empty( napr_number )
+        AAdd( ta, 'должно быть заполнено поле "Номер направление на госпитализацию"' )
+    endif
+  endif
+
   If eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
     i := human_2->p_per
     If !Between( human_2->p_per, 1, 4 ) // если не вводили
