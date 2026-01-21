@@ -19,7 +19,7 @@ function get_NAPR_MO( human_kod, type_npr )
   select( tmpSelect )
   return cString
 
-// 20.01.26
+// 21.01.26
 function set_NAPR_MO( human_kod, type_npr, number )
 
   local tmpSelect, cString := ''
@@ -29,7 +29,11 @@ function set_NAPR_MO( human_kod, type_npr, number )
   use_base( 'mo_napr_num', , .t. )
   NPR_NUM->( dbSeek( Str( human_kod, 7 ) + StrZero( type_npr, 2 ) ) )
   if NPR_NUM->( found() )
-    NPR_NUM->NUMBER := number
+    if Empty( number )
+      deleterec( .t. )
+    else
+      NPR_NUM->NUMBER := number
+    endif
   else
     addrec( 7 )
     NPR_NUM->KOD_H := human_kod
