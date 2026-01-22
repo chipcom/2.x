@@ -72,6 +72,19 @@ Function fill_mo_add( sbase )
   Endif
   Return Nil
 
+// 22.01.26
+function code_TFOMS_to_FFOMS( cVal )
+
+  local str := '', i, arr
+
+  cVal := AllTrim( cVal )
+  arr := glob_arr_mo()
+  if ( i := AScan( arr, {| x| x[ 2 ] == cVal } ) ) > 0
+    str := arr[ i, 5 ]
+  endif
+
+  return str
+
 // 02.06.25 вернуть массив _mo_mo.dbf
 Function getmo_mo( dbName, reload )
 
