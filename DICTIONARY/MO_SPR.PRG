@@ -1551,7 +1551,7 @@ Function valid_kod_tfoms( get )
   Endif
   Return fl
 
-// 17.01.26 редактирование справочника отделений
+// 22.01.26 редактирование справочника отделений
 Function edit_otd()
 
   Local i, j, blk, arr[ US_LEN ], fl
@@ -1596,7 +1596,8 @@ Function edit_otd()
   hb_ADel( mm1tiplu, 7, .t. )
   hb_ADel( mm1tiplu, 6, .t. )
 
-  Private mm1lpu1 := AClone( get_f033( glob_mo()[ _MO_KOD_FFOMS ] ) )
+  Private mm_lpu1 := get_f033( glob_mo()[ _MO_KOD_FFOMS ] )
+  Private mm1lpu1 := AClone( mm_lpu1 )
 
   blk := {|| iif( between_date( dbegin, dend ), { 1, 2 }, { 3, 4 } ) }
   arr[ US_BOTTOM   ] := MaxRow() -2
@@ -1626,7 +1627,7 @@ Function edit_otd()
     'Вид листа учёта при вводе данных' }, ;
     { 'LPU_1', 'C',17, 0, , ;
     {| x| menu_reader( x, mm1lpu1, A__MENUVERT, , , .f. ) }, ;
-    0, {| x| inieditspr( A__MENUVERT, get_f033( glob_mo()[ _MO_KOD_FFOMS ] ), x ) }, ;
+    space( 17 ), {| x| inieditspr( A__MENUVERT, mm_lpu1, x ) }, ;
     'Структурное подразделение по ФФОМС' }, ;
     { 'TIP_OTD', 'N', 2, 0, , ;
     {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }, ;
