@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.01.26
+// 22.01.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -278,6 +278,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           mo_add_xml_stroke( oSLUCH, 'NPR_MO', mNPR_MO )
           s := iif( Empty( human_2->NPR_DATE ), human->N_DATA, human_2->NPR_DATE )
           mo_add_xml_stroke( oSLUCH, 'NPR_DATE', date2xml( s ) )
+          if i == 3 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )  // 3 - плаеовая
+            mo_add_xml_stroke( oSLUCH, 'NPR_NUM', get_NAPR_MO( human->kod, _NPR_LECH ) )
+          endif
         Endif
         mo_add_xml_stroke( oSLUCH, 'LPU', CODE_LPU )
       Else  // для реестров по диспансеризации
@@ -351,8 +354,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       mo_add_xml_stroke( oSL, 'LPU_1', otd->LPU_1 )
 //      mo_add_xml_stroke( oSL, 'PODR', lstr( glob_otd_dep ) )
 //    Endif
+    If p_tip_reestr == TYPE_REESTR_DISPASER
+      mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
+    endif
     mo_add_xml_stroke( oSL, 'PROFIL', lstr( human_->PROFIL ) )
     If p_tip_reestr == TYPE_REESTR_GENERAL
+      mo_add_xml_stroke( oSL, 'PROFIL_M', lstr( human->PROFIL_M ) )
       If human_->USL_OK < 3 // стационар или дневной стационар
         mo_add_xml_stroke( oSL, 'PROFIL_K', lstr( human_2->PROFIL_K ) )
       Endif
@@ -377,6 +384,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oSL, 'P_CEL', s )
       Endif
     Endif
+    If human_->USL_OK == USL_OK_POLYCLINIC
+      mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
+    endif
     If is_vmp
       mo_add_xml_stroke( oSL, 'TAL_D', date2xml( human_2->TAL_D ) ) // Дата выдачи талона на ВМП
       mo_add_xml_stroke( oSL, 'TAL_P', date2xml( human_2->TAL_P ) ) // Дата планируемой госпитализации в соответствии с талоном на ВМП
@@ -955,6 +965,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           Endif
         Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( hu_->PROFIL ) )
+        If p_tip_reestr == TYPE_REESTR_GENERAL
+          mo_add_xml_stroke( oUSL, 'PROFIL_M', lstr( hu_->PROFIL_M ) )
+        Endif
         Select T21
         find ( PadR( lshifr, 10 ) )
         If Found()
@@ -1082,6 +1095,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 //        Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( mohu->PROFIL ) )
         If p_tip_reestr == TYPE_REESTR_GENERAL
+          mo_add_xml_stroke( oUSL, 'PROFIL_M', lstr( mohu->PROFIL_M ) )
           mo_add_xml_stroke( oUSL, 'VID_VME', lshifr )
           mo_add_xml_stroke( oUSL, 'DET', iif( human->VZROS_REB == 0, '0', '1' ) )
         Endif
