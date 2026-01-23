@@ -3,12 +3,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.01.26 жидкостная цитология рака шейки матки
+// 22.01.26 жидкостная цитология рака шейки матки
 Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   Static st_N_DATA, sv1 := 0
+  static st_MOP := 0
   Local arr_del := {}, mrec_hu := 0, buf := SaveScreen(), tmp_color := SetColor(), ;
     a_smert := {}, p_uch_doc := '@!', pic_diag := '@K@!', arr_usl := {}, ;
     i, j, k, n, s, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
@@ -30,6 +31,9 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     Endif
   Endif
   chm_help_code := 3002
+
+  Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
+
   Private mfio := Space( 50 ), mpol, mdate_r, madres, mvozrast, ;
     M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
     M1VZ := 1, ;
@@ -48,6 +52,7 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     m1rslt  := 314, ; // результат лечения
     m1ishod := 304, ; // исход = без перемен
     m1NPR_MO := '', mNPR_MO := Space( 10 ), mNPR_DATE := CToD( '' ), ;
+    m1MOP := st_MOP, mMOP, ;    // место обращения (посещения) tmp_V040
     MN_DATA := st_N_DATA, ; // дата начала лечения
     MK_DATA, ;
     MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
@@ -135,6 +140,7 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     mn_data    := human->N_DATA
     mk_data    := human->K_DATA
     mcena_1    := human->CENA_1
+    m1MOP      := human->MOP           // место обращения
     //
     use_base( 'human_u' )
     find ( Str( Loc_kod, 7 ) )
@@ -174,6 +180,9 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
+
+  mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
+
   f_valid_komu( , -1 )
   If m1komu == 0
     m1company := Int( Val( msmo ) )
@@ -244,6 +253,10 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     @ ++j, 1 To j, 78
     @ ++j, 1 Say 'Дата процедуры' Get mn_data ;
       valid {| g| f_k_data( g, 1 ), mk_data := mn_data, f_k_data( g, 2 ) }
+
+    @ j, 40 Say 'Место обращения'
+    @ j, Col() + 1 Get mMOP reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
+
     @ ++j, 1 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
       When diag_screen( 2 ) .and. ;
       ( !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2 )
@@ -361,6 +374,9 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
       g_rlock( forever )
       //
       st_N_DATA := MN_DATA
+      If IsBit( mem_oms_pole, 7 )  // место обращения (посещения) tmp_V040  7
+        st_MOP := m1MOP
+      endif
       glob_perso := mkod
       If m1komu == 0
         msmo := lstr( m1company )
@@ -405,6 +421,7 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
       human->bolnich    := 0
       human->date_b_1   := ''
       human->date_b_2   := ''
+      human->MOP        := m1MOP
       human_->RODIT_DR  := CToD( '' )
       human_->RODIT_POL := ''
       human_->DISPANS   := Replicate( '0', 16 )

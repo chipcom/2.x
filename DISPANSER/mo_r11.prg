@@ -6,9 +6,9 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
-// #define MONTH_UPLOAD 12 // МЕСЯЦ для выгрузки R11
+// #define MONTH_UPLOAD 12 // МЕСЯЦ для выгрузки R11  --- где он ?????
 
-// 18.11.25 Создание файла обмена R11...
+// 22.01.26 Создание файла обмена R11...
 Function f_create_r11()
 
   Local buf := save_maxrow(), i, j, ir, s := '', arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
@@ -19,12 +19,12 @@ Function f_create_r11()
     pkol := 0, CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], CODE_MO := glob_mo()[ _MO_KOD_FFOMS ], ;
     mkol := { 0, 0, 0, 0, 0 }, skol[ 5 ], ames[ 12, 5 ], ame[ 12 ]
 
-  Private sgod := YEAR_UPLOAD_DISPANSER //  2025
+  Private sgod := YEAR_UPLOAD_DISPANSER //  2026
   Private SMONTH := 1
   private bm := 1   //  SMONTH // начальный месяц минус один
   //
   mywait()
-  _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20241201 )
+  _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20251201 )
   fl := .t.
   fl_1 := .f.
 //  SMONTH := MONTH_UPLOAD // МЕСЯЦ

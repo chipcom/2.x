@@ -304,10 +304,11 @@ Function get_fio_kart( k, r, c )
 
   Return ret
 
-// 24.02.16
+// 23.01.26
 Function _f_fio_kart()
 
-  Return PadR( AllTrim( mfio ) + ' ' + iif( mpol == 'М', '(муж.)', '(жен.)' ), 50 )
+//  Return PadR( AllTrim( mfio ) + ' ' + iif( mpol == 'М', '(муж.)', '(жен.)' ), 50 )
+  Return PadR( AllTrim( mfio ) + ' ' + iif( mpol == 'М', '(М)', '(Ж)' ), 50 )
 
 // 30.12.24
 function check_input_INN( get )
