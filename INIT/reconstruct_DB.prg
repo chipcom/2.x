@@ -69,7 +69,7 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 20.01.26 реконстукция баз данных
+// 23.01.26 реконстукция баз данных
 Function reconstruct_db( is_local_version, is_create )
 
   Local base1 := { ;
@@ -402,7 +402,8 @@ Function reconstruct_db( is_local_version, is_create )
     { 'ISHOD',      'N',   3, 0 }, ; //
     { 'VZ',         'N',   2, 0 }, ; // Вид занятости, указывается в соответствии со справочником V039 ФФОМС
     { 'MOP',        'N',   3, 0 }, ; // Классификатор мест обращений (посещений) (KMOP) V040
-    { 'PROFIL_M',   'N',   3, 0 }  ; // профилей медицинской помощи M003
+    { 'PROFIL_M',   'N',   3, 0 }, ; // профилей медицинской помощи M003
+    { 'MO_PR',      'C',   6, 0 }  ; // Код МО, выбранной застрахованным лицом для получения первичной медикосанитарной помощи по справочнику F032
   }
   //
   Local human_ := { ;
