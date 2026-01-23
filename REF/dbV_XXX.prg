@@ -10,12 +10,14 @@
 #define V002_PRNAME   2
 #define V002_DATEBEG  3
 #define V002_DATEEND  4
+#define V002_IS_IDENT 5
+#define V002_PARENT_ID 6
 
-// 23.01.23 вернуть массив по справочнику регионов ТФОМС V002.xml
+// 23.01.26 вернуть массив по справочнику регионов ТФОМС V002.xml
 Function getv002( work_date )
 
   // V002.dbf - Классификатор профилей оказанной медицинской помощи
-  // 1 - PRNAME(C)  2 - IDPR(N)  3 - DATEBEG(D)  4 - DATEEND(D)
+  // 1 - PRNAME(C)  2 - IDPR(N) 3 - IS_IDENT(C) 4 - PARENT_ID(N) 5 - DATEBEG(D)  6 - DATEEND(D)
   Static _arr
   Static time_load
   Local db
@@ -31,11 +33,13 @@ Function getv002( work_date )
       'idpr, ' + ;
       'prname, ' + ;
       'datebeg, ' + ;
-      'dateend ' + ;
+      'dateend, ' + ;
+      'is_ident, ' + ;
+      'parent_id ' + ;
       'FROM v002' )
     If Len( aTable ) > 1
       For nI := 2 To Len( aTable )
-        AAdd( _arr, { AllTrim( aTable[ nI, V002_PRNAME ] ), Val( aTable[ nI, V002_IDPR ] ), CToD( aTable[ nI, V002_DATEBEG ] ), CToD( aTable[ nI, V002_DATEEND ] ) } )
+        AAdd( _arr, { AllTrim( aTable[ nI, V002_PRNAME ] ), Val( aTable[ nI, V002_IDPR ] ), CToD( aTable[ nI, V002_DATEBEG ] ), CToD( aTable[ nI, V002_DATEEND ] ), AllTrim( aTable[ nI, V002_IS_IDENT ] ), Val( aTable[ nI, V002_PARENT_ID ] ) } )
       Next
     Endif
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
@@ -873,7 +877,7 @@ Function getv019( dateSl )
 
 // =========== V020 ===================
 //
-// 26.01.23 вернуть массив по справочнику ФФОМС V020.xml - Классификатор профилей койки
+// 26.01.26 вернуть массив по справочнику ФФОМС V020.xml - Классификатор профилей койки
 Function getv020()
 
   Static _arr
@@ -891,13 +895,15 @@ Function getv020()
       'idk_pr, ' + ;
       'k_prname, ' + ;
       'datebeg, ' + ;
-      'dateend ' + ;
+      'dateend, ' + ;
+      'id_pr, ' + ;
+      'prname ' + ;
       'FROM v020' )
     If Len( aTable ) > 1
       For nI := 2 To Len( aTable )
         AAdd( _arr, { AllTrim( aTable[ nI, 2 ] ), Val( aTable[ nI, 1 ] ), ;
-          CToD( aTable[ nI, 3 ] ), CToD( aTable[ nI, 4 ] ) ;
-          } )
+          CToD( aTable[ nI, 3 ] ), CToD( aTable[ nI, 4 ] ), Val( aTable[ nI, 5 ] ), ;
+          AllTrim( aTable[ nI, 6 ] ) } )
       Next
     Endif
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
