@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.01.26 добавление или редактирование случая (листа учета)
+// 23.01.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -162,6 +162,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Private mTab_Number := 0
   Private mNMSE, m1NMSE := CHIP_NO  // направление на МСЭ
   Private mnapr_onk := Space( 10 ), m1napr_onk := 0
+  private m1MO_PR := Space( 6 ), mMO_PR := Space( 20 )
 
   If mem_zav_l == 1  // да
     m1_l_z := 1   // да
@@ -312,6 +313,15 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     If AllTrim( msmo ) == '34'
       mnameismo := ret_inogsmo_name( 1, , .t. ) // открыть и закрыть
     Endif
+    
+    m1MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
+
+    if Empty( m1MO_PR )
+      mMO_PR := Space( 20 )
+    else
+      mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032(), m1MO_PR ) )
+    endif
+
     // проверка исхода = СМЕРТЬ
     Select HUMAN
     Set Index to ( dir_server() + 'humankk' )
@@ -351,6 +361,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     MPOLIS      := human->POLIS         // серия и номер страхового полиса
     m1MOP       := human->MOP           // место обращения
     mNAPR_NUM   := get_NAPR_MO( human->kod, _NPR_LECH ) // получить номер направления на лечение, если есть
+    m1MO_PR     := human->mo_pr
     If human->OBRASHEN == '1'
       m1DS_ONK := 1
     Endif
@@ -558,6 +569,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       Enddo
     Endif
   Endif
+
   If !( Left( msmo, 2 ) == '34' ) // не Волгоградская область
     m1ismo := msmo ; msmo := '34'
   Endif
@@ -585,7 +597,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_str_spec( p2->PRVS_021 ), 36 )
   Endif
   Close databases
-  MFIO_KART := _f_fio_kart()
+  MFIO_KART := SubStr( _f_fio_kart(), 1, 35 )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
   If Empty( m1USL_OK )
     m1USL_OK := USL_OK_HOSPITAL
@@ -597,13 +609,13 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     Endif
     mp_per := inieditspr( A__MENUVERT, mm_p_per, m1p_per )
   Endif
-  mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
+  mMOP      := SubStr( inieditspr( A__MENUVERT, getv040(), m1MOP ), 1, 29 )
   mPROFIL   := inieditspr( A__MENUVERT, getv002(), m1PROFIL )
   mPROFIL_K := inieditspr( A__MENUVERT, getv020(),  m1PROFIL_K )
   mPROFIL_M := inieditspr( A__MENUVERT, getM003(),  m1PROFIL_M )
   mvid_reab := inieditspr( A__MENUVERT, mm_vid_reab, m1vid_reab )
   If !Empty( m1NPR_MO )
-    mNPR_MO := ret_mo( m1NPR_MO )[ _MO_SHORT_NAME ]
+    mNPR_MO := substr( ret_mo( m1NPR_MO )[ _MO_SHORT_NAME ], 1, 20 )
   Endif
   mDS_ONK   := inieditspr( A__MENUVERT, mm_danet, M1DS_ONK )
   MVMP      := inieditspr( A__MENUVERT, mm_danet, M1VMP )
@@ -627,6 +639,13 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
+
+  if Empty( m1MO_PR )
+    mMO_PR := Space( 20 )
+  else
+    mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032(), m1MO_PR ) )
+  endif
+
   If ibrm > 0
     mm_prer_b := iif( ibrm == 1, mm1prer_b, iif( ibrm == 2, mm2prer_b, mm3prer_b ) )
     If ibrm == 1 .and. m1prer_b == 0
@@ -699,6 +718,10 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         update_get( 'mspolis' ), update_get( 'mnpolis' ), ;
         update_get( 'mvidpolis' ) }
       //
+      @ j, Col() + 1 Say 'Прикрепление' Get mMO_PR ;
+        reader {| x| menu_reader( x, get_f032(), A__MENUVERT, , , .f. ) }
+//      @ ++j, 1 Say 'Место прикрепления' Get mMO_PR ;
+      //
       @ ++j, 1 Say 'Направление: дата' Get mNPR_DATE
       @ j, Col() + 1 Say 'из МО' Get mNPR_MO PICTURE '@S20';
         reader {| x| menu_reader( x, { {| k, r, c| f_get_mo( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
@@ -744,8 +767,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ ++j, 1 Say 'Вес пациента' Get mWeight Picture '999.9' ;
         valid {| g | check_edit_field( g, 2, 1 ) }
       @ j, Col() + 1 Say 'кг.'
+      //
 
-      @ j, Col() + 5 Say 'Первичный диагноз' Get mkod_diag0 Picture pic_diag reader {| o| mygetreader( o, bg ) } Valid val1_10diag( .t., .f., .t., mk_data, iif( m1novor == 0, mpol, mpol2 ) ) ;
+      @ j, Col() + 2 Say 'Первич. диагноз' Get mkod_diag0 Picture pic_diag reader {| o| mygetreader( o, bg ) } Valid val1_10diag( .t., .f., .t., mk_data, iif( m1novor == 0, mpol, mpol2 ) ) ;
         When diag_screen( 2 ) .and. when_diag()
       ++j
       
@@ -800,7 +824,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       //
       ++j
       rpp := j
-//      @ j, 1 Say 'Мед.помощь: условия оказания' Get MUSL_OK ;
+//        reader {| x| menu_reader( x, tmp_V006, A__MENUVERT, , , .f., , , , 17 ) } ;
       @ j, 1 Say 'Мед.помощь: условия' Get MUSL_OK ;
         reader {| x| menu_reader( x, tmp_V006, A__MENUVERT, , , .f. ) } ;
         When diag_screen( 2 ) ;
@@ -811,7 +835,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       If m1usl_ok == USL_OK_POLYCLINIC
         @ j, 40 Say 'посещение'
         @ j, 50 Get mMOP ;
-          reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) } ;
+          reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f., , , , 29 ) } ;
           When m1usl_ok == USL_OK_POLYCLINIC
       Endif
 
@@ -827,12 +851,13 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           reader {| x| menu_reader( x, mm_reg_lech, A__MENUVERT, , , .f. ) } ;
           When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       Endif
+//        reader {| x| menu_reader( x, tmp_V002, A__MENUVERT, , , .f. ) } ;
       @ ++j, 3 Say 'профиль мед.помощи' Get MPROFIL ;
-        reader {| x| menu_reader( x, tmp_V002, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, tmp_V002, A__MENUVERT, , , .f., , , , 27 ) } ;
         Valid f_valid2ad_cr( MK_DATA )
 
       @ j, 50 Say 'профиль МЗ РФ' Get mPROFIL_M ;
-        reader {| x| menu_reader( x, tmp_M003, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, tmp_M003, A__MENUVERT, , , .f., , , , 15 ) }
       
       @ ++j, 3 Say 'профиль койки' Get MPROFIL_K ;
         reader {| x| menu_reader( x, tmp_V020, A__MENUVERT, , , .f. ) } ;
@@ -2022,7 +2047,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human->date_b_1   := iif( m1bolnich == 0, '',  dtoc4( mdate_b_1 ) )
       human->date_b_2   := iif( m1bolnich == 0, '',  dtoc4( mdate_b_2 ) )
       human->MOP        := m1MOP
-      human->PROFIL_M    := m1PROFIL_M
+      human->PROFIL_M   := m1PROFIL_M
+      human->MO_PR      := m1MO_PR
       if ( M1F14_EKST == 3 .and. m1USL_OK == USL_OK_HOSPITAL ) .or. ( M1F14_EKST == 3 .and. m1USL_OK == USL_OK_DAY_HOSPITAL ) 
         set_NAPR_MO( human->kod, _NPR_LECH, mNAPR_NUM )
       else
