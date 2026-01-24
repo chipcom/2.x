@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 
 
-// 19.01.26 ввод услуг в случай (лист учёта)
+// 24.01.26 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
 
   // mkod_human - код по БД human
@@ -259,9 +259,9 @@ Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
   is_1_vvod := ( tmp->( LastRec() ) == 0 .and. mem_ordu_1 == 1 )
   If !is_1_vvod
     If mem_ordusl == 1
-      Index On DToS( date_u1 ) + fsort_usl( shifr_u ) to ( cur_dir() + 'tmp_usl_' )
+      Index On DToS( FIELD->date_u1 ) + fsort_usl( FIELD->shifr_u ) to ( cur_dir() + 'tmp_usl_' )
     Else
-      Index On fsort_usl( shifr_u ) + DToS( date_u1 ) to ( cur_dir() + 'tmp_usl_' )
+      Index On fsort_usl( FIELD->shifr_u ) + DToS( FIELD->date_u1 ) to ( cur_dir() + 'tmp_usl_' )
     Endif
   Endif
   summa_usl( .f. )

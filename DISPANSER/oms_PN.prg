@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.01.26 ПН - добавление или редактирование случая (листа учета)
+// 24.01.26 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -87,7 +87,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     m1VIDPOM :=  1, ; // первичная
     m1PROFIL := 68, ; // педиатрия
     m1IDSP   := 17, ; // законченный случай в п-ке
-    m1MOP := 0, mMOP  // место обращения (посещения) tmp_V040
+    m1MOP := 1, mMOP  // место обращения (посещения) tmp_V040
 //
   //
   Private metap := 1, mperiod := 0, mshifr_zs := '', mnapr_onk := Space( 10 ), m1napr_onk := 0, ;

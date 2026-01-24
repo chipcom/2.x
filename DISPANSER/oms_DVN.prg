@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.01.26 ДВН - добавление или редактирование случая (листа учета)
+// 24.01.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -66,7 +66,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     m1PROFIL := 97, ; // 97-терапия, 57-общая врач.практика (семейн.мед-а), 42-лечебное дело
     m1IDSP   := 11, ; // доп.диспансеризация
     mcena_1 := 0, ;
-    m1MOP := 0, mMOP  // место обращения (посещения) tmp_V040
+    m1MOP := 1, mMOP  // место обращения (посещения) tmp_V040
   //
   Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
   Private metap := 0, ;  // 1-первый этап, 2-второй этап, 3-профилактика

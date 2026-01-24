@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.01.26 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
+// 24.01.26 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
 Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -11,13 +11,14 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
 
   Static skod_diag := '     ', st_n_data, st_k_data, ;
     st_vrach := 0, st_rslt := 0, st_ishod := 0
+  static st_MOP := 1
 
   Local str_1
   Local j // счетчик строк экрана
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, ;
     buf, tmp_color := SetColor(), a_smert := {}, ;
     p_uch_doc := '@!', pic_diag := '@K@!', ;
-    i, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
+    colget_menu := 'R/W', colgetImenu := 'R/BG', ;
     pos_read := 0, k_read := 0, count_edit := 0, ;
     fl_write_sluch := .f., when_uch_doc := .t.
   Local tlist_rslt, list_rslt := {}, list_ishod, row
@@ -26,8 +27,11 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
   Default st_n_data To sys_date, st_k_data To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
 
-  // /++++
+  //
   buf := SaveScreen()
+
+  Private tmp_M003 := create_classif_ffoms( 2, 'M003' ) // M003
+  Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
 
   Private mm_rslt, mm_ishod, rslt_umolch := 0, ishod_umolch := 0, ;
     m1USL_OK := USL_OK_POLYCLINIC, mUSL_OK, ;    // только амбулаторно
@@ -75,6 +79,10 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
     MOSL2       := Space( 6 ), ; // шифр 2-ого диагноза осложнения заболевания
     MOSL3       := Space( 6 )    // шифр 3-ого диагноза осложнения заболевания
 
+  Private m1MOP := st_MOP, mMOP := Space( 25 )    // место обращения (посещения) tmp_V040
+  private m1MO_PR := Space( 6 ), mMO_PR := Space( 20 ) // МО прикрепления
+  private m1PROFIL_M := 17, mPROFIL_M     // медицинская реабилитация
+
   r_use( dir_server() + 'human_2', , 'HUMAN_2' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', , 'HUMAN' )
@@ -101,6 +109,14 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
     mNPOLIS     := kart_->NPOLIS
     m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
     msmo        := kart_->SMO
+
+    m1MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
+    if Empty( m1MO_PR )
+      mMO_PR := Space( 20 )
+    else
+      mMO_PR := Substr( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ), 1, 20 )
+    endif
+
     If kart->MI_GIT == 9
       m1komu    := kart->KOMU
       m1str_crb := kart->STR_CRB
@@ -178,6 +194,9 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
     mk_data    := human->K_DATA
     m1rslt     := human_->RSLT_NEW
     m1ishod    := human_->ISHOD_NEW
+    m1MOP      := human->MOP           // место обращения
+    m1MO_PR    := human->mo_pr
+    m1PROFIL_M := human->PROFIL_M      // Профиль медицинской помощи M003
 
     mcena_1 := human->CENA_1
 
@@ -204,7 +223,6 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
     Goto ( m1vrach )
     MTAB_NOM := p2->tab_nom
     m1prvs := -ret_new_spec( p2->prvs, p2->prvs_new )
-//    mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_tmp_prvs( m1prvs ), 36 )
     mvrach := PadR( fam_i_o( p2->fio ) + ' ' + ret_str_spec( p2->PRVS_021 ), 36 )
   Endif
 
@@ -226,6 +244,7 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
   If !Empty( m1NPR_MO )
     mNPR_MO := ret_mo( m1NPR_MO )[ _MO_SHORT_NAME ]
   Endif
+  mPROFIL_M := inieditspr( A__MENUVERT, getM003(),  m1PROFIL_M )
 
   mvto     := inieditspr( A__MENUVERT, arr_NO_YES(), m1vto )
 
@@ -240,6 +259,14 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
+  mMOP      := SubStr( inieditspr( A__MENUVERT, getv040(), m1MOP ), 1, 25 )
+
+  if Empty( m1MO_PR )
+    mMO_PR := Space( 20 )
+  else
+    mMO_PR := Substr( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ), 1, 20 )
+  endif
+
   f_valid_komu(, -1 )
   If m1komu == 0
     m1company := Int( Val( msmo ) )
@@ -255,7 +282,7 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
     Endif
   Endif
 
-  // /---
+  //
   str_1 := ' случая (листа учёта)'
   If Loc_kod == 0
     str_1 := 'Добавление' + str_1
@@ -306,6 +333,14 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
       When m1komu == 0 ;
       Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
 
+    @ ++j, 1 Say 'МО прикрепления' Get mMO_PR ;
+      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , , 19 ) } // с возможностью очистки по SPACE
+
+    if glob_otd[ 3 ] == USL_OK_POLYCLINIC
+      @ j, Col() + 1 Say 'Место обращения' Get mMOP ;
+        reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f., , , , 25 ) }
+    endif
+
     ++j
     @ ++j, 1 Say 'Направление: дата' Get mnpr_date
     @ j, Col() + 1 Say 'из МО' Get mnpr_mo ;
@@ -332,6 +367,9 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
     @ ++j, 1 Say 'Профиль мед.помощи' Get mprofil ;
       When .f. Color cDataCSay ;
       valid {|| val1_10diag( .t., .t., .t., mk_data, mpol, .t. ) }
+
+    @ j, 50 Say 'профиль МЗ РФ' Get mPROFIL_M ;
+      reader {| x| menu_reader( x, tmp_M003, A__MENUVERT, , , .f., , , , 15 ) }
 
     if Year( mk_data ) >= 2024
       @ ++j, 1 Say 'Использование высокотехнологичного оборудования' Get mvto ;
@@ -455,7 +493,9 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
       If IsBit( mem_oms_pole, 6 )  // "исход",;          6
         st_ISHOD := m1ishod
       Endif
-
+      If IsBit( mem_oms_pole, 7 )  // место обращения (посещения) tmp_V040  7
+        st_MOP := m1MOP
+      endif
       glob_perso := mkod
       If m1komu == 0
         msmo := lstr( m1company )
@@ -487,6 +527,9 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
       human->K_DATA     := MK_DATA       // дата окончания лечения
       human->CENA       := MCENA_1       // стоимость лечения
       human->CENA_1     := MCENA_1       // стоимость лечения
+      human->PROFIL_M   := m1profil_m
+      human->MOP        := m1MOP
+      human->MO_PR      := m1MO_PR
 
       human_->VPOLIS    := m1vidpolis
       human_->SPOLIS    := LTrim( mspolis )
@@ -534,7 +577,7 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server() + 'mo_hismo', , 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
+        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo
