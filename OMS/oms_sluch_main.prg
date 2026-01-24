@@ -3,14 +3,14 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.01.26 добавление или редактирование случая (листа учета)
+// 24.01.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
 
   Static SKOD_DIAG := '     ', st_l_z := 1, st_N_DATA, st_K_DATA, st_rez_gist, ;
     st_vrach := 0, st_profil := 0, st_profil_k := 0, st_rslt := 0, st_ishod := 0, st_povod := 9
-  static st_MOP := 0
+  static st_MOP := 1
   Static menu_bolnich := { { 'нет', 0 }, { 'да ', 1 }, { 'РОД', 2 } }
 
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, ;
@@ -315,11 +315,10 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     Endif
     
     m1MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
-
     if Empty( m1MO_PR )
       mMO_PR := Space( 20 )
     else
-      mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032(), m1MO_PR ) )
+      mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ) )
     endif
 
     // проверка исхода = СМЕРТЬ
@@ -643,7 +642,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   if Empty( m1MO_PR )
     mMO_PR := Space( 20 )
   else
-    mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032(), m1MO_PR ) )
+    mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ) )
   endif
 
   If ibrm > 0
@@ -718,9 +717,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         update_get( 'mspolis' ), update_get( 'mnpolis' ), ;
         update_get( 'mvidpolis' ) }
       //
-      @ j, Col() + 1 Say 'Прикрепление' Get mMO_PR ;
-        reader {| x| menu_reader( x, get_f032(), A__MENUVERT, , , .f. ) }
-//      @ ++j, 1 Say 'Место прикрепления' Get mMO_PR ;
+      @ j, Col() + 1 Say 'МО прикрепления' Get mMO_PR ;
+        reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f. ) } // с возможностью очистки по SPACE
       //
       @ ++j, 1 Say 'Направление: дата' Get mNPR_DATE
       @ j, Col() + 1 Say 'из МО' Get mNPR_MO PICTURE '@S20';
@@ -1239,7 +1237,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         lstr_vmplek := ret_str_onc( 8, 2 )
         lstr_vmpptr := ret_str_onc( 6, 2 )
         Use ( cur_dir() + 'tmp_onkus' ) New Alias TMPOU
-        Index On Str( usl_tip, 1 ) to ( cur_dir() + 'tmp_onkus' )
+        Index On Str( FIELD->usl_tip, 1 ) to ( cur_dir() + 'tmp_onkus' )
         Go Top
         If LastRec() == 0
           Append Blank
@@ -2474,7 +2472,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server() + 'mo_hismo', , 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
+        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo

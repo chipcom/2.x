@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 22.01.26 СМП - добавление или редактирование случая (листа учета)
+// 23.01.26 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -22,9 +22,8 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
   Default st_N_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
   Private row_diag_screen, rdiag := 1
-  private m1SCO := 0, mSCO  // социальная категория
-
-//  private m1MO_PR := Space( 6 ), mMO_PR
+  private m1SCO := 0, mSCO := Space( 20 )  // социальная категория
+  private m1MO_PR := Space( 6 ), mMO_PR := Space( 20 ) // МО прикрепления
 
   If mem_smp_input == 0
     If  kod_kartotek == 0 // добавление в картотеку
@@ -79,26 +78,23 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         m1KOMU    := kart->KOMU
         M1STR_CRB := kart->STR_CRB
       Endif
-      m1SCO := val( kart->PC3 )
       If kart->MEST_INOG == 9 // т.е. отдельно занесены Ф.И.О.
         m1MEST_INOG := kart->MEST_INOG
       Endif
 
-      m1SCO := val( kart->PC3 )
-//      m1MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
-
-      m1vidpolis  := kart_->VPOLIS // вид полиса (от 1 до 3);1-старый, 2-врем., 3-новый
-      mspolis     := kart_->SPOLIS // серия полиса
-      mnpolis     := kart_->NPOLIS // номер полиса
-      msmo        := kart_->SMO    // реестровый номер СМО
+      m1SCO       := val( kart->PC3 )// социальная категория
+      m1vidpolis  := kart_->VPOLIS   // вид полиса (от 1 до 3);1-старый, 2-врем., 3-новый
+      mspolis     := kart_->SPOLIS   // серия полиса
+      mnpolis     := kart_->NPOLIS   // номер полиса
+      msmo        := kart_->SMO      // реестровый номер СМО
       m1vid_ud    := kart_->vid_ud   // вид удостоверения личности
       mser_ud     := kart_->ser_ud   // серия удостоверения личности
       mnom_ud     := kart_->nom_ud   // номер удостоверения личности
       m1kemvyd    := kart_->kemvyd   // кем выдан документ
       mkogdavyd   := kart_->kogdavyd // когда выдан документ
-      mmesto_r    := kart_->mesto_r      // место рождения
-      mokatog     := kart_->okatog       // код места жительства по ОКАТО
-      m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
+      mmesto_r    := kart_->mesto_r  // место рождения
+      mokatog     := kart_->okatog   // код места жительства по ОКАТО
+      m1okato     := kart_->KVARTAL_D// ОКАТО субъекта РФ территории страхования
       //
       arr := retfamimot( 1, .f. )
       mfam := PadR( arr[ 1 ], 40 )
@@ -300,14 +296,13 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       If AllTrim( msmo ) == '34'
         mnameismo := ret_inogsmo_name( 1, , .t. ) // открыть и закрыть
       Endif
-//      m1MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
 
-//      if Empty( m1MO_PR )
-//        mMO_PR := Space( 20 )
-//      else
-//        mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032(), m1MO_PR ) )
-//      endif
-
+      m1MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
+      if Empty( m1MO_PR )
+        mMO_PR := Space( 20 )
+      else
+        mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ) )
+      endif
     Endif
     // проверка исхода = СМЕРТЬ
     Select HUMAN
@@ -350,6 +345,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     MSOPUT_B3   := human->SOPUT_B3
     MSOPUT_B4   := human->SOPUT_B4
     MDIAG_PLUS  := human->DIAG_PLUS
+    m1MO_PR     := human->mo_pr
     mstatus_st  := human_->STATUS_ST
     m1VIDPOLIS  := human_->VPOLIS
     mSPOLIS     := human_->SPOLIS
@@ -457,13 +453,13 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
   mtip      := inieditspr( A__MENUVERT, mm_danet, m1tip )
   musluga   := inieditspr( A__MENUBIT,  mm_usluga, m1usluga )
   mismo     := init_ismo( m1ismo )
-  mSCO := inieditspr( A__MENUVERT, mm_SOC(), m1SCO )
+  mSCO      := SubStr( inieditspr( A__MENUVERT, mm_SOC(), m1SCO ), 1, 20 )
 
-//  if Empty( m1MO_PR )
-//    mMO_PR := Space( 20 )
-//  else
-//    mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032(), m1MO_PR ) )
-//  endif
+  if Empty( m1MO_PR )
+    mMO_PR := Space( 20 )
+  else
+    mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ) )
+  endif
   If ibrm > 0
     mm_prer_b := iif( ibrm == 1, mm1prer_b, iif( ibrm == 2, mm2prer_b, mm3prer_b ) )
     If ibrm == 1 .and. m1prer_b == 0
@@ -608,11 +604,11 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     Endif
 
 
-//      @ ++j, 1 Say 'Место прикрепления' Get mMO_PR ;
-//        reader {| x| menu_reader( x, get_f032(), A__MENUVERT, , , .f. ) }
+    @ ++j, 1 Say 'Социал. категория' Get mSCO ;
+      reader {| x| menu_reader( x, mm_SOC(), A__MENUVERT, , , .f., , , , 20 ) }
 
-    @ ++j, 1 Say 'Социальная категория' Get mSCO ;
-      reader {| x| menu_reader( x, mm_SOC(), A__MENUVERT, , , .f. ) }
+    @ j, Col() + 1 Say 'МО прикрепления' Get mMO_PR ;
+      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f. ) } // с возможностью очистки по SPACE
 
     //
     @ ++j, 1 Say 'Новорожденный?' Get mnovor ;
@@ -972,6 +968,8 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       human->UCH_DOC    := lstr( MUCH_DOC ) // вид и номер учетного документа
       human->N_DATA := human->K_DATA := MN_DATA // дата начала-окончания лечения
       human->CENA := human->CENA_1 := mu_cena // стоимость лечения
+      human->MO_PR      := m1MO_PR
+
       human_->DISPANS   := Replicate( '0', 16 )
       human_->VPOLIS    := m1vidpolis
       human_->SPOLIS    := LTrim( mspolis )
@@ -1177,7 +1175,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   Return Nil
 
-// * 16.11.22 действия в ответ на выбор в меню "Тромболитическая терапия:"
+// 16.11.22 действия в ответ на выбор в меню "Тромболитическая терапия:"
 Function f_valid_brig( get, old, menu1, menu2, st1, st2 )
 
   If m1tip != old .and. old != NIL

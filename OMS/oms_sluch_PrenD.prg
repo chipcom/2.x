@@ -3,12 +3,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.01.26 à¥­„ - ¤®¡ ¢«¥­¨¥ ¨«¨ à¥¤ ªâ¨à®¢ ­¨¥ á«ãç ï («¨áâ  ãç¥â )
+// 24.01.26 à¥­„ - ¤®¡ ¢«¥­¨¥ ¨«¨ à¥¤ ªâ¨à®¢ ­¨¥ á«ãç ï («¨áâ  ãç¥â )
 Function oms_sluch_prend( Loc_kod, kod_kartotek )
 
   // Loc_kod - ª®¤ ¯® „ human.dbf (¥á«¨ = 0 - ¤®¡ ¢«¥­¨¥ «¨áâ  ãç¥â )
   // kod_kartotek - ª®¤ ¯® „ kartotek.dbf (¥á«¨ =0 - ¤®¡ ¢«¥­¨¥ ¢ ª àâ®â¥ªã)
   Static st_N_DATA, sv1 := 0, sv2 := 0, sv3 := 0
+  static st_MOP := 1
   Local arr_del := {}, mrec_hu := 0, buf := SaveScreen(), tmp_color := SetColor(), ;
     a_smert := {}, p_uch_doc := '@!', arr_usl := {}, ;
     i, j, k, n, s, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
@@ -25,6 +26,9 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
     Endif
   Endif
   chm_help_code := 3002
+
+  Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
+
   Private mfio := Space( 50 ), mpol, mdate_r, madres, mvozrast, ;
     M1VZROS_REB, MVZROS_REB, m1novor := 0, M1VZ := 1, ;
     m1company := 0, mcompany, mm_company, ;
@@ -38,26 +42,29 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
     M1OTD := glob_otd[ 1 ], MOTD, ;
     M1FIO_KART := 1, MFIO_KART, ;
     MUCH_DOC    := Space( 10 ), ; // ¢¨¤ ¨ ­®¬¥à ãç¥â­®£® ¤®ªã¬¥­â 
-  MKOD_DIAG   := Space( 5 ), ; // è¨äà 1-®© ®á­.¡®«¥§­¨
-  MKOD_DIAG2  := Space( 5 ), ; // è¨äà 2-®© ®á­.¡®«¥§­¨
-  MKOD_DIAG3  := Space( 5 ), ; // è¨äà 3-®© ®á­.¡®«¥§­¨
-  MKOD_DIAG4  := Space( 5 ), ; // è¨äà 4-®© ®á­.¡®«¥§­¨
-  MSOPUT_B1   := Space( 5 ), ; // è¨äà 1-®© á®¯ãâáâ¢ãîé¥© ¡®«¥§­¨
-  MSOPUT_B2   := Space( 5 ), ; // è¨äà 2-®© á®¯ãâáâ¢ãîé¥© ¡®«¥§­¨
-  MSOPUT_B3   := Space( 5 ), ; // è¨äà 3-®© á®¯ãâáâ¢ãîé¥© ¡®«¥§­¨
-  MSOPUT_B4   := Space( 5 ), ; // è¨äà 4-®© á®¯ãâáâ¢ãîé¥© ¡®«¥§­¨
-  MDIAG_PLUS  := Space( 8 ), ; // ¤®¯®«­¥­¨ï ª ¤¨ £­®§ ¬
-  adiag_talon[ 16 ], ; // ¨§ áâ ââ «®­  ª ¤¨ £­®§ ¬
-  m1rslt  := 314, ; // à¥§ã«ìâ â «¥ç¥­¨ï
-  m1ishod := 306, ; // ¨áå®¤ = ®á¬®âà
-  MN_DATA := st_N_DATA, ; // ¤ â  ­ ç «  «¥ç¥­¨ï
-  MK_DATA, ;
+    MKOD_DIAG   := Space( 5 ), ; // è¨äà 1-®© ®á­.¡®«¥§­¨
+    MKOD_DIAG2  := Space( 5 ), ; // è¨äà 2-®© ®á­.¡®«¥§­¨
+    MKOD_DIAG3  := Space( 5 ), ; // è¨äà 3-®© ®á­.¡®«¥§­¨
+    MKOD_DIAG4  := Space( 5 ), ; // è¨äà 4-®© ®á­.¡®«¥§­¨
+    MSOPUT_B1   := Space( 5 ), ; // è¨äà 1-®© á®¯ãâáâ¢ãîé¥© ¡®«¥§­¨
+    MSOPUT_B2   := Space( 5 ), ; // è¨äà 2-®© á®¯ãâáâ¢ãîé¥© ¡®«¥§­¨
+    MSOPUT_B3   := Space( 5 ), ; // è¨äà 3-®© á®¯ãâáâ¢ãîé¥© ¡®«¥§­¨
+    MSOPUT_B4   := Space( 5 ), ; // è¨äà 4-®© á®¯ãâáâ¢ãîé¥© ¡®«¥§­¨
+    MDIAG_PLUS  := Space( 8 ), ; // ¤®¯®«­¥­¨ï ª ¤¨ £­®§ ¬
+    adiag_talon[ 16 ], ; // ¨§ áâ ââ «®­  ª ¤¨ £­®§ ¬
+    m1rslt  := 314, ; // à¥§ã«ìâ â «¥ç¥­¨ï
+    m1ishod := 306, ; // ¨áå®¤ = ®á¬®âà
+    MN_DATA := st_N_DATA, ; // ¤ â  ­ ç «  «¥ç¥­¨ï
+    MK_DATA, ;
     MVRACH := Space( 10 ), ; // ä ¬¨«¨ï ¨ ¨­¨æ¨ «ë «¥ç é¥£® ¢à ç 
-  M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // ª®¤, â ¡.ü ¨ á¯¥æ-âì «¥ç é¥£® ¢à ç 
-  m1povod  := 1, ;   // ‹¥ç¥¡­®-¤¨ £­®áâ¨ç¥áª¨©
+    M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // ª®¤, â ¡.ü ¨ á¯¥æ-âì «¥ç é¥£® ¢à ç 
+    m1povod  := 1, ;   // ‹¥ç¥¡­®-¤¨ £­®áâ¨ç¥áª¨©
     m1travma := 0
   //
   Private MTAB_NOM1 := sv1, MTAB_NOM2 := sv2, MTAB_NOM3 := sv3
+  Private m1MOP := st_MOP, mMOP := Space( 25 )    // ¬¥áâ® ®¡à é¥­¨ï (¯®á¥é¥­¨ï) tmp_V040
+  private m1MO_PR := Space( 6 ), mMO_PR := Space( 20 ) // Œ ¯à¨ªà¥¯«¥­¨ï
+  private m1profil_m := 0
   //
   AFill( adiag_talon, 0 )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
@@ -85,7 +92,14 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
     mNPOLIS     := kart_->NPOLIS
     m1okato     := kart_->KVARTAL_D // Š€’ áã¡ê¥ªâ  ” â¥àà¨â®à¨¨ áâà å®¢ ­¨ï
     msmo        := kart_->SMO
-    m1MO_PR     := kart2->MO_PR
+
+    m1MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
+    if Empty( m1MO_PR )
+      mMO_PR := Space( 20 )
+    else
+      mMO_PR := Substr( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ), 1, 20 )
+    endif
+
     If kart->MI_GIT == 9
       m1komu    := kart->KOMU
       m1str_crb := kart->STR_CRB
@@ -143,6 +157,8 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
     MSOPUT_B4   := human->SOPUT_B4
     MDIAG_PLUS  := human->DIAG_PLUS
     MPOLIS      := human->POLIS         // á¥à¨ï ¨ ­®¬¥à áâà å®¢®£® ¯®«¨á 
+    m1MOP       := human->MOP           // ¬¥áâ® ®¡à é¥­¨ï
+    m1MO_PR     := human->mo_pr
     For i := 1 To 16
       adiag_talon[ i ] := Int( Val( SubStr( human_->DISPANS, i, 1 ) ) )
     Next
@@ -202,6 +218,14 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
+  mMOP      := SubStr( inieditspr( A__MENUVERT, getv040(), m1MOP ), 1, 25 )
+
+  if Empty( m1MO_PR )
+    mMO_PR := Space( 20 )
+  else
+    mMO_PR := Substr( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ), 1, 20 )
+  endif
+
   f_valid_komu(, -1 )
   If m1komu == 0
     m1company := Int( Val( msmo ) )
@@ -257,6 +281,15 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
       reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
       When m1komu == 0 ;
       Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
+
+    @ ++j, 1 Say 'Œ ¯à¨ªà¥¯«¥­¨ï' Get mMO_PR ;
+      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , , 19 ) } // á ¢®§¬®¦­®áâìî ®ç¨áâª¨ ¯® SPACE
+
+    if glob_otd[ 3 ] == USL_OK_POLYCLINIC
+      @ j, Col() + 1 Say 'Œ¥áâ® ®¡à é¥­¨ï' Get mMOP ;
+        reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f., , , , 25 ) }
+    endif
+
     @ ++j, 1 To j, 78
     @ ++j, 1 Say '„ â  ¤¨ £­®áâ¨ª¨' Get mn_data ;
       valid {| g| f_k_data( g, 1 ), mk_data := mn_data, f_k_data( g, 2 ) }
@@ -392,6 +425,9 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
       g_rlock( forever )
       //
       st_N_DATA := MN_DATA
+      If IsBit( mem_oms_pole, 7 )  // ¬¥áâ® ®¡à é¥­¨ï (¯®á¥é¥­¨ï) tmp_V040  7
+        st_MOP := m1MOP
+      endif
       glob_perso := mkod
       If m1komu == 0
         msmo := lstr( m1company )
@@ -436,6 +472,9 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
       human->bolnich    := 0
       human->date_b_1   := ''
       human->date_b_2   := ''
+      human->PROFIL_M   := m1profil_m
+      human->MOP        := m1MOP
+      human->MO_PR      := m1MO_PR
       human_->RODIT_DR  := CToD( '' )
       human_->RODIT_POL := ''
       s := '' ; AEval( adiag_talon, {| x| s += Str( x, 1 ) } )
@@ -494,7 +533,7 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server() + 'mo_hismo', , 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
+        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo
@@ -544,6 +583,7 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
           hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
         Endif
         hu_->PROFIL := arr_usl_dop[ i, 4 ]
+        hu_->PROFIL_M := m1profil_m
         hu_->PRVS   := arr_usl_dop[ i, 2 ]
         hu_->kod_diag := mdef_diagnoz
         hu_->zf := ''

@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.01.26 ДДС - добавление или редактирование случая (листа учета)
+// 24.01.26 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -90,7 +90,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
     m1VIDPOM :=  1, ; // первичная
     m1IDSP   := 11, ; // диспансеризация
     m1PROFIL := 151, ;   // медицинским осмотрам профилактическим
-    m1MOP := 0, mMOP    // место обращения (посещения) tmp_V040
+    m1MOP := 1, mMOP    // место обращения (посещения) tmp_V040
 //    m1PROFIL := 68 // педиатрия
   //
   //
