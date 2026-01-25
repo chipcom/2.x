@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.01.26 ДВН - добавление или редактирование случая (листа учета)
+// 25.01.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -1781,6 +1781,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       human->date_b_1   := ''
       human->date_b_2   := ''
       human->MOP        := m1MOP
+      human->MO_PR      := m1MO_PR    //  glob_mo()[ _MO_KOD_FFOMS ]
       human_->RODIT_DR  := CToD( '' )
       human_->RODIT_POL := ''
       s := ''
