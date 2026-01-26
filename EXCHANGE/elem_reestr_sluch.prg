@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 22.01.26
+// 23.01.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -214,13 +214,17 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oPAC, 'VNOV_D', lstr( human_2->VNR ) )
       Endif
 
-        If ( kol_sl == 1 .and. ( human->k_data >= 0d20250101 ) ) ;  // одинарный случай
+      If ( kol_sl == 1 .and. ( human->k_data >= 0d20250101 ) ) ;  // одинарный случай
           .or. ( kol_sl == 2 .and. ( ksl_date >= 0d20250101 ) )   // двойной случай
-          mo_add_xml_stroke( oPAC, 'SOC', iif( Empty( kart->pc3 ), '000', kart->pc3 ) )
-        Endif
+        mo_add_xml_stroke( oPAC, 'SOC', iif( Empty( kart->pc3 ), '000', kart->pc3 ) )
+      Endif
 
-      // mo_add_xml_stroke(oPAC, 'MO_PR', ???)
-
+      If p_tip_reestr == TYPE_REESTR_DISPASER  // для реестров по диспансеризации
+//        mo_add_xml_stroke( oPAC, 'NEXT_D', ... )
+      endif
+      if ! Empty( human->MO_PR )
+        mo_add_xml_stroke( oPAC, 'MO_PR', human->MO_PR )
+      endif
       mo_add_xml_stroke( oPAC, 'VZ', Str( kart->VZ, 2 ) )
       
       if _nyear <= 2026 .and. p_tip_reestr == TYPE_REESTR_GENERAL .and. ;    // старый ПУМП, реестр окоазания мед. помощи за исключенем диспансеризации
