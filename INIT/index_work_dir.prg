@@ -98,7 +98,7 @@ Function files_nsi_exists( dir_file )
   Endif
   Return lRet
 
-// 17.01.26 проверка и переиндексирование справочников ТФОМС
+// 22.01.26 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir( dir_spavoch, working_dir, flag )
 
   Local fl := .t., i, buf := save_maxrow()
@@ -121,7 +121,9 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   // справочник F032
   sbase := '_mo_f032'
   r_use( dir_spavoch + sbase )
-  Index On FIELD->MCOD to ( working_dir + sbase )
+  Index On FIELD->MCOD to ( working_dir + sbase ) ;
+    For Substr( FIELD->MCOD, 1, 2 ) == '34'
+
   dbCloseArea()
   
   // справочник F033

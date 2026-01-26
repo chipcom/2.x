@@ -101,7 +101,30 @@ Function update_data_db( aVersion )
     update_v60102()     // перенос данных о занятости пациентов
   endif
 
+  If ver_base < 60103 // переход на версию 6.1.3
+    update_v60103()     // перенос данных о прикреплении пациентов
+  endif
+
 Return Nil
+
+// 23.01.26
+Function update_v60103()     // перенос данных о прикреплении пациентов
+
+  stat_msg( 'Переносим информацию о прикреплении пациентов' )
+  r_use( dir_server() + 'kartote2', , 'KART2' )
+  g_use( dir_server() + 'human', , 'HUMAN', , .t. )
+
+  human->( dbGoTop() )
+  do while ! ( human->( Eof() ) )
+    kart2->( dbGoto( human->kod_k ) )
+    if ( ! ( kart2->( Eof() ) .and. kart2->( Bof() ) ) ) .and. ( ! Empty( kart2->MO_PR ))
+      human->MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
+    endif
+    human->( dbSkip() )
+  enddo
+  dbCloseAll()        // закроем все
+
+  return nil
 
 // 19.01.26
 Function update_v60102()     // перенос данных о занятости пациентов

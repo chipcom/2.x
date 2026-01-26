@@ -10,12 +10,14 @@
 #define V002_PRNAME   2
 #define V002_DATEBEG  3
 #define V002_DATEEND  4
+#define V002_IS_IDENT 5
+#define V002_PARENT_ID 6
 
-// 23.01.23 вернуть массив по справочнику регионов ТФОМС V002.xml
+// 23.01.26 вернуть массив по справочнику регионов ТФОМС V002.xml
 Function getv002( work_date )
 
   // V002.dbf - Классификатор профилей оказанной медицинской помощи
-  // 1 - PRNAME(C)  2 - IDPR(N)  3 - DATEBEG(D)  4 - DATEEND(D)
+  // 1 - PRNAME(C)  2 - IDPR(N) 3 - IS_IDENT(C) 4 - PARENT_ID(N) 5 - DATEBEG(D)  6 - DATEEND(D)
   Static _arr
   Static time_load
   Local db
@@ -31,11 +33,13 @@ Function getv002( work_date )
       'idpr, ' + ;
       'prname, ' + ;
       'datebeg, ' + ;
-      'dateend ' + ;
+      'dateend, ' + ;
+      'is_ident, ' + ;
+      'parent_id ' + ;
       'FROM v002' )
     If Len( aTable ) > 1
       For nI := 2 To Len( aTable )
-        AAdd( _arr, { AllTrim( aTable[ nI, V002_PRNAME ] ), Val( aTable[ nI, V002_IDPR ] ), CToD( aTable[ nI, V002_DATEBEG ] ), CToD( aTable[ nI, V002_DATEEND ] ) } )
+        AAdd( _arr, { AllTrim( aTable[ nI, V002_PRNAME ] ), Val( aTable[ nI, V002_IDPR ] ), CToD( aTable[ nI, V002_DATEBEG ] ), CToD( aTable[ nI, V002_DATEEND ] ), AllTrim( aTable[ nI, V002_IS_IDENT ] ), Val( aTable[ nI, V002_PARENT_ID ] ) } )
       Next
     Endif
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
@@ -873,7 +877,7 @@ Function getv019( dateSl )
 
 // =========== V020 ===================
 //
-// 26.01.23 вернуть массив по справочнику ФФОМС V020.xml - Классификатор профилей койки
+// 26.01.26 вернуть массив по справочнику ФФОМС V020.xml - Классификатор профилей койки
 Function getv020()
 
   Static _arr
@@ -891,13 +895,15 @@ Function getv020()
       'idk_pr, ' + ;
       'k_prname, ' + ;
       'datebeg, ' + ;
-      'dateend ' + ;
+      'dateend, ' + ;
+      'id_pr, ' + ;
+      'prname ' + ;
       'FROM v020' )
     If Len( aTable ) > 1
       For nI := 2 To Len( aTable )
         AAdd( _arr, { AllTrim( aTable[ nI, 2 ] ), Val( aTable[ nI, 1 ] ), ;
-          CToD( aTable[ nI, 3 ] ), CToD( aTable[ nI, 4 ] ) ;
-          } )
+          CToD( aTable[ nI, 3 ] ), CToD( aTable[ nI, 4 ] ), Val( aTable[ nI, 5 ] ), ;
+          AllTrim( aTable[ nI, 6 ] ) } )
       Next
     Endif
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
@@ -1431,4 +1437,108 @@ Function getv040( dk )
     Next
   Endif
   db := nil
+  Return arr
+
+// =========== V041 ===================
+//
+// 26.01.26 вернуть массив по справочнику ФФОМС V041.xml
+Function getv041()
+
+  // V041.xml - Классификатор коэффициентов сложности лечения пациента (KSLP)
+  // 1 - ID_SL(C) 2 - N_SL(C) 3 - PG_SL(C) 4 - K_SL(N) 5 - DATEBEG(D) 6 - DATEEND(D)
+  static arr
+  Local db
+  Local aTable
+  Local nI
+  Local dBeg, dEnd
+
+  if HB_ISNIL( arr )
+    arr := {}
+    db := opensql_db()
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
+      'id_sl, ' + ;
+      'n_sl, ' + ;
+      'pg_sl, ' + ;
+      'k_sl, ' + ;
+      'datebeg, ' + ;
+      'dateend ' + ;
+      'FROM v041' )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+        dBeg := CToD( aTable[ nI, 5 ] )
+        dEnd := CToD( aTable[ nI, 6 ] )
+        Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+        AAdd( arr, { AllTrim( aTable[ nI, 2 ] ), AllTrim( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 3 ] ), Val( aTable[ nI, 4 ] ), dBeg, dEnd } )
+      Next
+    Endif
+  endif
+  db := nil
+  Return arr
+
+// 26.01.26 вернуть массив по справочнику ФФОМС V041.xml
+Function getv041_on_date( dk )
+
+  // V041.xml - Классификатор коэффициентов сложности лечения пациента (KSLP)
+  // 1 - ID_SL(C) 2 - N_SL(C) 3 - PG_SL(C) 4 - K_SL(N) 5 - DATEBEG(D) 6 - DATEEND(D)
+  local arr
+  Local row
+
+  arr := {}
+  for each row in getv041()
+    if between_date_new( row[ 5 ], row[ 6 ], dk )
+      AAdd( arr, row )
+    endif
+  next
+  Return arr
+
+// =========== V042 ===================
+//
+// 26.01.26 вернуть массив по справочнику ФФОМС V042.xml
+Function getv042()
+
+  // V042.xml - ККлассификатор причин оплаты за прерванный случай лечения (KPPSL)
+  // 1 - ID_PR(C) 2 - N_PR(C) 3 - DATEBEG(D) 4 - DATEEND(D)
+  static arr
+  Local db
+  Local aTable
+  Local nI
+  Local dBeg, dEnd
+
+  if HB_ISNIL( arr )
+    arr := {}
+    db := opensql_db()
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
+      'id_pr, ' + ;
+      'n_pr, ' + ;
+      'datebeg, ' + ;
+      'dateend ' + ;
+      'FROM v042' )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+        dBeg := CToD( aTable[ nI, 3 ] )
+        dEnd := CToD( aTable[ nI, 4 ] )
+        Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+        AAdd( arr, { AllTrim( aTable[ nI, 2 ] ), AllTrim( aTable[ nI, 1 ] ), dBeg, dEnd } )
+      Next
+    Endif
+  endif
+  db := nil
+  Return arr
+
+// 26.01.26 вернуть массив по справочнику ФФОМС V042.xml
+Function getv042_on_date( dk )
+
+  // V042.xml - ККлассификатор причин оплаты за прерванный случай лечения (KPPSL)
+  // 1 - ID_PR(C) 2 - N_PR(C) 3 - DATEBEG(D) 4 - DATEEND(D)
+  local arr
+  Local row
+
+  arr := {}
+  for each row in getv042()
+    if between_date_new( row[ 3 ], row[ 4 ], dk )
+      AAdd( arr, row )
+    endif
+  next
   Return arr

@@ -3,12 +3,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.01.26 жидкостная цитология рака шейки матки
+// 24.01.26 жидкостная цитология рака шейки матки
 Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   Static st_N_DATA, sv1 := 0
+  static st_MOP := 1
   Local arr_del := {}, mrec_hu := 0, buf := SaveScreen(), tmp_color := SetColor(), ;
     a_smert := {}, p_uch_doc := '@!', pic_diag := '@K@!', arr_usl := {}, ;
     i, j, k, n, s, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
@@ -30,6 +31,9 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     Endif
   Endif
   chm_help_code := 3002
+
+  Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
+
   Private mfio := Space( 50 ), mpol, mdate_r, madres, mvozrast, ;
     M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
     M1VZ := 1, ;
@@ -54,6 +58,9 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     M1VRACH := 0, MTAB_NOM := sv1, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
     m1povod  := 1, ;   // Лечебно-диагностический
     m1travma := 0
+  Private m1MOP := st_MOP, mMOP := Space( 25 )    // место обращения (посещения) tmp_V040
+  private m1MO_PR := Space( 6 ), mMO_PR := Space( 20 ) // МО прикрепления
+  private m1profil_m := 0
   //
   r_use( dir_server() + 'human_2', , 'HUMAN_2' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
@@ -81,7 +88,14 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     mNPOLIS     := kart_->NPOLIS
     m1okato     := kart_->KVARTAL_D // ОКАТО субъекта РФ территории страхования
     msmo        := kart_->SMO
-    m1MO_PR     := kart2->MO_PR
+
+    m1MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
+    if Empty( m1MO_PR )
+      mMO_PR := Space( 20 )
+    else
+      mMO_PR := Substr( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ), 1, 20 )
+    endif
+
     If kart->MI_GIT == 9
       m1komu    := kart->KOMU
       m1str_crb := kart->STR_CRB
@@ -121,6 +135,7 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     mNPR_DATE   := human_2->NPR_DATE
     m1VRACH     := human_->vrach
     MKOD_DIAG   := human->KOD_DIAG
+    m1MO_PR     := human->mo_pr
     MPOLIS      := human->POLIS         // серия и номер страхового полиса
     m1VIDPOLIS  := human_->VPOLIS
     mSPOLIS     := human_->SPOLIS
@@ -135,13 +150,14 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
     mn_data    := human->N_DATA
     mk_data    := human->K_DATA
     mcena_1    := human->CENA_1
+    m1MOP      := human->MOP           // место обращения
     //
     use_base( 'human_u' )
     find ( Str( Loc_kod, 7 ) )
-    Do While hu->kod == Loc_kod .and. !Eof()
+    Do While hu->kod == Loc_kod .and. ! hu->( Eof() )
       AAdd( arr_usl, hu->( RecNo() ) )
       Select HU
-      Skip
+      hu->( dbSkip() )
     Enddo
     If AllTrim( msmo ) == '34'
       mnameismo := ret_inogsmo_name( 2, @rec_inogSMO, .t. ) // открыть и закрыть
@@ -174,6 +190,14 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
   mismo     := init_ismo( m1ismo )
+  mMOP      := SubStr( inieditspr( A__MENUVERT, getv040(), m1MOP ), 1, 25 )
+
+  if Empty( m1MO_PR )
+    mMO_PR := Space( 20 )
+  else
+    mMO_PR := Substr( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ), 1, 20 )
+  endif
+
   f_valid_komu( , -1 )
   If m1komu == 0
     m1company := Int( Val( msmo ) )
@@ -241,9 +265,20 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
       reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
       When m1komu == 0 ;
       Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
+
+    @ ++j, 1 Say 'МО прикрепления' Get mMO_PR ;
+      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , , 19 ) } // с возможностью очистки по SPACE
+
+    if glob_otd[ 3 ] == USL_OK_POLYCLINIC
+      @ j, Col() + 1 Say 'Место обращения' Get mMOP ;
+        reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f., , , , 25 ) }
+    endif
+
+    //
     @ ++j, 1 To j, 78
     @ ++j, 1 Say 'Дата процедуры' Get mn_data ;
       valid {| g| f_k_data( g, 1 ), mk_data := mn_data, f_k_data( g, 2 ) }
+
     @ ++j, 1 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
       When diag_screen( 2 ) .and. ;
       ( !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2 )
@@ -361,6 +396,9 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
       g_rlock( forever )
       //
       st_N_DATA := MN_DATA
+      If IsBit( mem_oms_pole, 7 )  // место обращения (посещения) tmp_V040  7
+        st_MOP := m1MOP
+      endif
       glob_perso := mkod
       If m1komu == 0
         msmo := lstr( m1company )
@@ -405,6 +443,9 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
       human->bolnich    := 0
       human->date_b_1   := ''
       human->date_b_2   := ''
+      human->MOP        := m1MOP
+      human->MO_PR      := m1MO_PR
+      human->PROFIL_M   := m1profil_m
       human_->RODIT_DR  := CToD( '' )
       human_->RODIT_POL := ''
       human_->DISPANS   := Replicate( '0', 16 )
@@ -505,7 +546,7 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
         hu->stoim := hu->stoim_1 := arr_usl_dop[ i, 8 ]
         Select HU_
         Do While hu_->( LastRec() ) < mrec_hu
-          Append Blank
+          hu_->( dbAppend() )
         Enddo
         Goto ( mrec_hu )
         g_rlock( forever )
@@ -513,6 +554,7 @@ Function oms_sluch_g_cit( Loc_kod, kod_kartotek )
           hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
         Endif
         hu_->PROFIL := arr_usl_dop[ i, 4 ]
+        hu_->PROFIL_M := m1profil_m
         hu_->PRVS   := arr_usl_dop[ i, 2 ]
         hu_->kod_diag := mkod_diag
         hu_->zf := ''

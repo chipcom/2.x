@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 17.01.26 ДВН - добавление или редактирование случая (листа учета)
+// 25.01.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -27,6 +27,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
+
+  Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
 
   // Признак подозрения на злокачественное новообразование для совместимости с функцией dispans_napr()
   Private mDS_ONK, m1DS_ONK := 0
@@ -58,8 +60,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     M1VZROS_REB, MVZROS_REB, m1novor := 0, ;
     m1company := 0, mcompany, mm_company, ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС,1-компании,3-комитеты/ЛПУ,5-личный счет
-  msmo := "34007", rec_inogSMO := 0, ;
-    mokato, m1okato := "", mismo, m1ismo := "", mnameismo := Space( 100 ), ;
+    msmo := '34007', rec_inogSMO := 0, ;
+    mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 ), ;
     mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ), mnpolis := Space( 20 )
   Private mkod := Loc_kod, is_talon := .f., mshifr_zs := "", ;
     mkod_k := kod_kartotek, fl_kartotek := ( kod_kartotek == 0 ), ;
@@ -68,31 +70,32 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     M1FIO_KART := 1, MFIO_KART, ;
     MRAB_NERAB, M1RAB_NERAB := 0, ; // 0-работающий, 1 -неработающий
     M1VZ := 1,;
-  MUCH_DOC    := Space( 10 ),; // вид и номер учетного документа
-  MKOD_DIAG   := Space( 5 ),; // шифр 1-ой осн.болезни
-  MKOD_DIAG2  := Space( 5 ),; // шифр 2-ой осн.болезни
-  MKOD_DIAG3  := Space( 5 ),; // шифр 3-ой осн.болезни
-  MKOD_DIAG4  := Space( 5 ),; // шифр 4-ой осн.болезни
-  MSOPUT_B1   := Space( 5 ),; // шифр 1-ой сопутствующей болезни
-  MSOPUT_B2   := Space( 5 ),; // шифр 2-ой сопутствующей болезни
-  MSOPUT_B3   := Space( 5 ),; // шифр 3-ой сопутствующей болезни
-  MSOPUT_B4   := Space( 5 ),; // шифр 4-ой сопутствующей болезни
-  MDIAG_PLUS  := Space( 8 ),; // дополнения к диагнозам
-  adiag_talon[ 16 ],; // из статталона к диагнозам
-  m1rslt  := 317,; // результат (присвоена I группа здоровья)
-  m1ishod := 306,; // исход = осмотр
-  MN_DATA := st_N_DATA,; // дата начала лечения
-  MK_DATA := st_K_DATA,; // дата окончания лечения
-  MVRACH := Space( 10 ),; // фамилия и инициалы лечащего врача
-  M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
-  m1povod  := 4, ;   // Профилактический
+    MUCH_DOC    := Space( 10 ),; // вид и номер учетного документа
+    MKOD_DIAG   := Space( 5 ),; // шифр 1-ой осн.болезни
+    MKOD_DIAG2  := Space( 5 ),; // шифр 2-ой осн.болезни
+    MKOD_DIAG3  := Space( 5 ),; // шифр 3-ой осн.болезни
+    MKOD_DIAG4  := Space( 5 ),; // шифр 4-ой осн.болезни
+    MSOPUT_B1   := Space( 5 ),; // шифр 1-ой сопутствующей болезни
+    MSOPUT_B2   := Space( 5 ),; // шифр 2-ой сопутствующей болезни
+    MSOPUT_B3   := Space( 5 ),; // шифр 3-ой сопутствующей болезни
+    MSOPUT_B4   := Space( 5 ),; // шифр 4-ой сопутствующей болезни
+    MDIAG_PLUS  := Space( 8 ),; // дополнения к диагнозам
+    adiag_talon[ 16 ],; // из статталона к диагнозам
+    m1rslt  := 317,; // результат (присвоена I группа здоровья)
+    m1ishod := 306,; // исход = осмотр
+    MN_DATA := st_N_DATA,; // дата начала лечения
+    MK_DATA := st_K_DATA,; // дата окончания лечения
+    MVRACH := Space( 10 ),; // фамилия и инициалы лечащего врача
+    M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
+    m1povod  := 4, ;   // Профилактический
     m1travma := 0, ;
     m1USL_OK := USL_OK_POLYCLINIC, ; // поликлиника
-  m1VIDPOM :=  1, ; // первичная
-  m1PROFIL := 97, ; // 97-терапия,57-общая врач.практика (семейн.мед-а),42-лечебное дело
-  m1IDSP   := 11, ; // доп.диспансеризация
-  mmobilbr, m1mobilbr := 0, ;  // мобильная бригада
-  mcena_1 := 0
+    m1VIDPOM :=  1, ; // первичная
+    m1PROFIL := 97, ; // 97-терапия,57-общая врач.практика (семейн.мед-а),42-лечебное дело
+    m1IDSP   := 11, ; // доп.диспансеризация
+    mmobilbr, m1mobilbr := 0, ;  // мобильная бригада
+    mcena_1 := 0, ;
+    m1MOP := 1, mMOP  // место обращения (посещения) tmp_V040
   //
   Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
   Private metap := 1, ;  // 1-первый этап, 2-второй этап (по умолчанию 1 этап)
@@ -105,16 +108,19 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     mdopo_na, m1dopo_na := 0, mssh_na, m1ssh_na  := 0, ;
     mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
   Private mvar, m1var // переменный для организации ввода ин-ции в табличной части
-  Private mm_ndisp := { { "Углубленная диспансеризация I  этап", 1 }, ;
+  Private mm_ndisp := { ;
+    { "Углубленная диспансеризация I  этап", 1 }, ;
     { "Углубленная диспансеризация II этап", 2 } }
-  Private mm_strong := { { 'Легкое течение болезни', 1 }, ;
+  Private mm_strong := { ;
+    { 'Легкое течение болезни', 1 }, ;
     { 'Среднее течение болезни', 2 }, ;
     { 'Тяжелое течение болезни', 3 }, ;
     { 'Крайне тяжелое течение', 4 }, ;
     { 'Отсутствуют сведения о болезни', 5 } } // Письмо ТФОМС 09-30-370 от 03.12.21
   Private mstrong, m1strong := 1
 
-  Private mm_komorbid := { { 'Иное', 0 }, ;
+  Private mm_komorbid := { ;
+    { 'Иное', 0 }, ;
     { '1 группа', 1 }, ;
     { '2 группа', 2 } }
   Private mkomorbid, m1komorbid := 0
@@ -289,6 +295,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     M1RAB_NERAB := human->RAB_NERAB     // 0-работающий, 1-неработающий, 2-обучающ.ОЧНО
     M1VZ        := human->VZ
     mUCH_DOC    := human->uch_doc
+    m1MOP       := human->MOP           // место обращения
     m1VRACH     := human_->vrach
     MPOLIS      := human->POLIS         // серия и номер страхового полиса
     m1VIDPOLIS  := human_->VPOLIS
@@ -522,6 +529,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
+  mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
   mismo     := init_ismo( m1ismo )
   f_valid_komu(, -1 )
   If m1komu == 0
@@ -650,6 +658,10 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         func_error( 4, iif( Empty( mDateCOVID ), 'Дата окончания лечения не может быть пустой!', 'Прошло меньше 60 дней после заболевания!' ) ), ;
         .t. ) } ;
         when ( m1strong != 5 )   // редактируем только на первом этапе  // Письмо ТФОМС 09-30-370 от 03.12.21
+
+      @ j, Col() + 1 Say 'Место обращения' Get mMOP ;
+        reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
+
       If metap == 1 // вводим только на первом этапе
         @ ++j, 1 Say "Пульсооксиметрия" Get mOKSI Pict "999" ;
           valid {|| iif( Between( mOKSI, 70, 100 ),, func_error( 4, "Неразумные показания пульсооксиметрии" ) ), .t. }
@@ -1226,6 +1238,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       human->bolnich    := 0
       human->date_b_1   := ""
       human->date_b_2   := ""
+      human->MOP        := m1MOP
+      human->MO_PR      := m1MO_PR    //  glob_mo()[ _MO_KOD_FFOMS ]
       human_->RODIT_DR  := CToD( "" )
       human_->RODIT_POL := ""
       s := ""

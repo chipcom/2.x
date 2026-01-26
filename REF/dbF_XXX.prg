@@ -545,6 +545,45 @@ Function getf015()
 
   Return _arr
 
+// 22.01.26
+function get_f032()
+
+  static arr
+  Local tmp_select
+
+  if HB_ISNIL( arr )
+    arr := {}
+    r_use( dir_exe() + '_mo_f032', cur_dir() + '_mo_f032', 'F032' )
+    f032->( dbGoTop() )
+    do while ! f032->( Eof() )
+      AAdd( arr, { AllTrim( f032->NAMEMOK ), f032->MCOD } )
+      f032->( dbSkip() )
+    enddo
+    dbCloseArea()
+    Select ( tmp_select )
+  endif
+  return arr
+
+// 24.01.26
+function get_f032_prik()
+
+  static arr
+
+  local i, j, loc_m
+  local arr_glob := glob_arr_mo()
+  local arr_f032 := get_f032()
+
+  if HB_ISNIL( arr )
+    arr := {}
+    for i := 1 to len( arr_f032 )
+      loc_m := arr_f032[ i, 2 ]
+      if ( j := ascan( arr_glob, { | x | ( x[ _MO_KOD_FFOMS ] == loc_m ) .and. x[ _MO_IS_UCH ] } ) ) > 0
+        AAdd( arr, { arr_f032[ i, 1 ], arr_f032[ i, 2 ] } )
+      endif
+    next
+  endif
+  return arr
+
 // 17.01.26 вернуть UIDMO из справочника F032
 Function ret_uidmo_f032( mcod )
 

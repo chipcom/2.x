@@ -7,7 +7,7 @@
 // согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
 #define CHILD_EXIST .f. // учитывать несовершеннолетних или нет
 
-// 19.01.26 добавление или редактирование случая (листа учета)
+// 24.01.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -16,6 +16,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     st_vrach := 0, st_profil := 0, st_profil_k := 0, ;
     st_rslt := 314, ; // динамическое наблюдение
     st_ishod := 304 // без перемен
+  Static st_MOP
 
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, ;
     buf, tmp_color := SetColor(), a_smert := {}, ;
@@ -97,9 +98,12 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     m1IDSP   := 29, ;          // за посещение
     mdate_next := sys_date, ;  // дата следующего посещения
     mSTAD, m1STAD := 0, ; // Стадия заболевания в соответствии со справочником N002
-    m1MOP := 0, mMOP    // место обращения (посещения) tmp_V040
+    m1MOP := 1, mMOP := Space( 25 )    // место обращения (посещения) tmp_V040
+  private m1MO_PR := Space( 6 ), mMO_PR := Space( 20 ) // МО прикрепления
+  private m1PROFIL_M := 22, mPROFIL_M     // онкология
 
-  Private mm_profil := { { 'педиатрия', 68 }, ;
+  Private mm_profil := { ;
+    { 'педиатрия', 68 }, ;
     { 'гематология', 12 }, ;
     { 'детская онкология', 18 }, ;
     { 'онкология', 60 }, ;
@@ -133,6 +137,14 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     mNPOLIS     := kart_->NPOLIS
     m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
     msmo        := kart_->SMO
+
+    m1MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
+    if Empty( m1MO_PR )
+      mMO_PR := Space( 20 )
+    else
+      mMO_PR := Substr( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ), 1, 20 )
+    endif
+
     If kart->MI_GIT == 9
       m1komu    := kart->KOMU
       m1str_crb := kart->STR_CRB
@@ -202,6 +214,8 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     mcena_1    := human->CENA_1
     mdate_next := c4tod( human->DATE_OPL )
     m1MOP       := human->MOP           // место обращения
+    m1MO_PR    := human->mo_pr
+    m1PROFIL_M := human->PROFIL_M      // Профиль медицинской помощи M003
     //
     If AllTrim( msmo ) == '34'
       mnameismo := ret_inogsmo_name( 2, @rec_inogSMO, .t. ) // открыть и закрыть
@@ -212,9 +226,14 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     If Found()
       m1STAD := sl->STAD
     Endif
-    mm_N002 := f_define_tnm( 2, mkod_diag, MK_DATA )
-    mSTAD  := PadR( inieditspr( A__MENUVERT, mm_N002, m1STAD ), 5 )
-    mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
+    mm_N002   := f_define_tnm( 2, mkod_diag, MK_DATA )
+    mSTAD     := PadR( inieditspr( A__MENUVERT, mm_N002, m1STAD ), 5 )
+
+    if Empty( m1MO_PR )
+      mMO_PR := Space( 20 )
+    else
+      mMO_PR := Substr( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ), 1, 20 )
+    endif
 
     // выберем услуги
     r_use( dir_server() + 'uslugi', , 'USL' )
@@ -259,11 +278,14 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
   If m1PROFIL == 0
     If vozrast < 18 .and. CHILD_EXIST
       m1PROFIL := 18  // детская онкология
+      m1PROFIL_M := 10
     Else
       m1PROFIL := 60  // онкология
+      m1PROFIL_M := 22
     Endif
   Endif
   mPROFIL := inieditspr( A__MENUVERT, mm_profil, m1PROFIL )
+  mPROFIL_M := inieditspr( A__MENUVERT, getM003(),  m1PROFIL_M )
 
   If !( Left( msmo, 2 ) == '34' ) // не Волгоградская область
     m1ismo := msmo
@@ -320,6 +342,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
       mcompany := PadR( mnameismo, 38 )
     Endif
   Endif
+  mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
   caption_window := ' случая постановки на диспансерный учет онкологического пациента'
   If Loc_kod == 0
     caption_window := 'Добавление' + caption_window
@@ -327,9 +350,8 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
   Else
     caption_window := 'Редактирование' + caption_window
   Endif
-
   SetColor( color8 )
-  top2 := 10
+  top2 := 8
   myclear( top2 )
   @ top2 -1, 0 Say PadC( caption_window, 80 ) Color "B/BG*"
   Private gl_area := { 1, 0, MaxRow() -1, MaxCol(), 0 }
@@ -350,7 +372,6 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
     //
     @ ++j, 1 Say 'Учреждение' Get mlpu When .f. Color cDataCSay
     @ Row(), Col() + 2 Say 'Отделение' Get motd When .f. Color cDataCSay
-    @ ++j, 1 Say 'Место обращения' Get mMOP reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
     //
     //
     ++j
@@ -376,17 +397,26 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
       reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
       When m1komu == 0 ;
       Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
+
+    @ ++j, 1 Say 'МО прикрепления' Get mMO_PR ;
+      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , , 19 ) } // с возможностью очистки по SPACE
+
+    if glob_otd[ 3 ] == USL_OK_POLYCLINIC
+      @ j, Col() + 1 Say 'Место обращения' Get mMOP ;
+        reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f., , , , 25 ) }
+    endif
     //
     ++j
     //
-    //
     @ ++j, 1 Say '№ амб.карты (истории)' Get much_doc Picture '@!' When when_uch_doc
     //
-    @ ++j, 1 Say 'Профиль' Get mPROFIL ;
+    @ ++j, 1 Say 'Профиль' Get mPROFIL ; 
       reader {| x| menu_reader( x, mm_profil, A__MENUVERT, , , .f. ) } // ; color colget_menu
+
+    @ j, 50 Say 'профиль МЗ РФ' Get mPROFIL_M ;
+      reader {| x| menu_reader( x, tmp_M003, A__MENUVERT, , , .f., , , , 15 ) }
     //
     @ ++j, 1 Say 'Дата постановки на диспансерный учет' Get mn_data valid {| g| f_k_data( g, 1 ) }
-    //
     //
     ++j
     @ j, 1 Say 'Дата следующей явки для диспансерного наблюдения' Get mdate_next valid ( mdate_next > MN_DATA )
@@ -487,14 +517,14 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
       Endif
       Select HUMAN_
       Do While human_->( LastRec() ) < mkod
-        Append Blank
+        human_->( dbAppend() )
       Enddo
       Goto ( mkod )
       g_rlock( forever )
       //
       Select HUMAN_2
       Do While human_2->( LastRec() ) < mkod
-        Append Blank
+        human_2->( dbAppend() )
       Enddo
       Goto ( mkod )
       g_rlock( forever )
@@ -531,7 +561,9 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
       human->CENA       := MCENA_1       // стоимость лечения
       human->CENA_1     := MCENA_1       // стоимость лечения
       human->DATE_OPL   := dtoc4( mdate_next )  // дата следующего посещения
+      human->PROFIL_M   := m1profil_m
       human->MOP        := m1MOP         // место обращения
+      human->MO_PR      := m1MO_PR
 
       human_->DISPANS   := '2000000000000000'  // поставлен на диспансерный учет
       human_->VPOLIS    := m1vidpolis
@@ -592,7 +624,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
         hu->KOL_RCP With 0
       Select HU_
       Do While hu_->( LastRec() ) < mrec_hu
-        Append Blank
+        hu_->( dbAppend() )
       Enddo
       Goto ( mrec_hu )
       g_rlock( forever )
@@ -600,6 +632,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
         hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
       Endif
       hu_->PROFIL   := m1PROFIL
+      hu_->PROFIL_M := m1PROFIL_M
       hu_->PRVS     := m1PRVS
       hu_->kod_diag := mkod_diag
       hu_->zf       := ''

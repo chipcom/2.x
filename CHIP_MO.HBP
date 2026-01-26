@@ -296,6 +296,8 @@ mo_version.prg
 .\INSURANCE\func_smo.prg
 
 .\FUNC_LIB\prview.prg
+.\FUNC_LIB\iniedspr.prg
+.\FUNC_LIB\menuread.prg
 .\FUNC_LIB\univ_spr.prg
 .\FUNC_LIB\semaphor_bay.prg
 .\FUNC_LIB\net_moni.prg
