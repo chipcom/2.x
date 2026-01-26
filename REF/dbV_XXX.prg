@@ -1438,3 +1438,107 @@ Function getv040( dk )
   Endif
   db := nil
   Return arr
+
+// =========== V041 ===================
+//
+// 26.01.26 вернуть массив по справочнику ФФОМС V041.xml
+Function getv041()
+
+  // V041.xml - Классификатор коэффициентов сложности лечения пациента (KSLP)
+  // 1 - ID_SL(C) 2 - N_SL(C) 3 - PG_SL(C) 4 - K_SL(N) 5 - DATEBEG(D) 6 - DATEEND(D)
+  static arr
+  Local db
+  Local aTable
+  Local nI
+  Local dBeg, dEnd
+
+  if HB_ISNIL( arr )
+    arr := {}
+    db := opensql_db()
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
+      'id_sl, ' + ;
+      'n_sl, ' + ;
+      'pg_sl, ' + ;
+      'k_sl, ' + ;
+      'datebeg, ' + ;
+      'dateend ' + ;
+      'FROM v041' )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+        dBeg := CToD( aTable[ nI, 5 ] )
+        dEnd := CToD( aTable[ nI, 6 ] )
+        Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+        AAdd( arr, { AllTrim( aTable[ nI, 2 ] ), AllTrim( aTable[ nI, 1 ] ), AllTrim( aTable[ nI, 3 ] ), Val( aTable[ nI, 4 ] ), dBeg, dEnd } )
+      Next
+    Endif
+  endif
+  db := nil
+  Return arr
+
+// 26.01.26 вернуть массив по справочнику ФФОМС V041.xml
+Function getv041_on_date( dk )
+
+  // V041.xml - Классификатор коэффициентов сложности лечения пациента (KSLP)
+  // 1 - ID_SL(C) 2 - N_SL(C) 3 - PG_SL(C) 4 - K_SL(N) 5 - DATEBEG(D) 6 - DATEEND(D)
+  local arr
+  Local row
+
+  arr := {}
+  for each row in getv041()
+    if between_date_new( row[ 5 ], row[ 6 ], dk )
+      AAdd( arr, row )
+    endif
+  next
+  Return arr
+
+// =========== V042 ===================
+//
+// 26.01.26 вернуть массив по справочнику ФФОМС V042.xml
+Function getv042()
+
+  // V042.xml - ККлассификатор причин оплаты за прерванный случай лечения (KPPSL)
+  // 1 - ID_PR(C) 2 - N_PR(C) 3 - DATEBEG(D) 4 - DATEEND(D)
+  static arr
+  Local db
+  Local aTable
+  Local nI
+  Local dBeg, dEnd
+
+  if HB_ISNIL( arr )
+    arr := {}
+    db := opensql_db()
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
+      'id_pr, ' + ;
+      'n_pr, ' + ;
+      'datebeg, ' + ;
+      'dateend ' + ;
+      'FROM v042' )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+        dBeg := CToD( aTable[ nI, 3 ] )
+        dEnd := CToD( aTable[ nI, 4 ] )
+        Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+        AAdd( arr, { AllTrim( aTable[ nI, 2 ] ), AllTrim( aTable[ nI, 1 ] ), dBeg, dEnd } )
+      Next
+    Endif
+  endif
+  db := nil
+  Return arr
+
+// 26.01.26 вернуть массив по справочнику ФФОМС V042.xml
+Function getv042_on_date( dk )
+
+  // V042.xml - ККлассификатор причин оплаты за прерванный случай лечения (KPPSL)
+  // 1 - ID_PR(C) 2 - N_PR(C) 3 - DATEBEG(D) 4 - DATEEND(D)
+  local arr
+  Local row
+
+  arr := {}
+  for each row in getv042()
+    if between_date_new( row[ 3 ], row[ 4 ], dk )
+      AAdd( arr, row )
+    endif
+  next
+  Return arr
