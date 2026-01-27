@@ -321,6 +321,11 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ) )
     endif
 
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
+    Goto ( m1otd )
+    m1PROFIL_M := otd->PROFIL_M
+    otd->( dbCloseArea() )
+
     // проверка исхода = СМЕРТЬ
     Select HUMAN
     Set Index to ( dir_server() + 'humankk' )
@@ -581,6 +586,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     Endif
     If Empty( m1PROFIL_K )
       m1PROFIL_K := otd->PROFIL_K
+    Endif
+    If Empty( m1PROFIL_M )
+      m1PROFIL_M := otd->PROFIL_M
     Endif
   Endif
   r_use( dir_server() + 'mo_uch', , 'UCH' )

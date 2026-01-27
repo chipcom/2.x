@@ -105,7 +105,28 @@ Function update_data_db( aVersion )
     update_v60103()     // перенос данных о прикреплении пациентов
   endif
 
+  If ver_base < 60104 // переход на версию 6.1.4
+    update_v60104()     // Заполним информацию о местах оказания помощи пациентам
+  endif
+
 Return Nil
+
+// 27.01.26
+Function update_v60104()     // Заполним информацию о местах оказания помощи пациентам
+
+  stat_msg( 'Заполним информацию о местах оказания помощи пациентам' )
+  use_base( 'human', , .t. )
+
+  human->( dbGoTop() )
+  do while ! ( human->( Eof() ) )
+    if ( human_->USL_OK == USL_OK_POLYCLINIC ) .and. ( human->MOP == 0 )
+      human->MOP := 1 // поликлиника
+    endif
+    human->( dbSkip() )
+  enddo
+  dbCloseAll()        // закроем все
+
+  return nil
 
 // 23.01.26
 Function update_v60103()     // перенос данных о прикреплении пациентов
