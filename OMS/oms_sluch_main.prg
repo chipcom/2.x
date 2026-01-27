@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.01.26 добавление или редактирование случая (листа учета)
+// 27.01.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -92,7 +92,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     mishod := Space( 20 ), m1ishod := st_ishod, ; // исход
     m1company := 0, mcompany, mm_company, ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
-    m1NPR_MO := '',  mNPR_MO := Space( 10 ),  mNPR_DATE := CToD( '' ), mNAPR_NUM := Space( 20 ), ;
+    m1NPR_MO := '',  mNPR_MO := Space( 20 ),  mNPR_DATE := CToD( '' ), mNAPR_NUM := Space( 20 ), ;
     m1reg_lech := 0, mreg_lech, ;
     MN_DATA     := st_N_DATA, ; // дата начала лечения
     MK_DATA     := st_K_DATA, ; // дата окончания лечения
@@ -623,7 +623,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   mmodpac   := ret_v022( m1modpac, mk_data )
   mreg_lech := inieditspr( A__MENUVERT, mm_reg_lech, m1reg_lech )
   MNOVOR    := inieditspr( A__MENUVERT, mm_danet, M1NOVOR )
-  MF14_EKST := inieditspr( A__MENUVERT, mm_ekst, M1F14_EKST )
+  MF14_EKST := inieditspr( A__MENUVERT, mm_ekst(), M1F14_EKST )
   MF14_SKOR := inieditspr( A__MENUVERT, mm_danet, M1F14_SKOR )
   MF14_VSKR := inieditspr( A__MENUVERT, mm_vskrytie, M1F14_VSKR )
   MF14_RASH := inieditspr( A__MENUVERT, mm_danet, M1F14_RASH )
@@ -879,7 +879,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
 
       //
       @ ++j, 1 Say 'Госпитализирован' Get MF14_EKST ;
-        reader {| x| menu_reader( x, mm_ekst, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_ekst(), A__MENUVERT, , , .f. ) } ;
         valid {| g, o| f_valid_f14_ekst( g, o ) }
       @ Row(), Col() + 3 Say 'Доставлен скорой помощью' Get MF14_SKOR ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
@@ -2047,7 +2047,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human->MOP        := m1MOP
       human->PROFIL_M   := m1PROFIL_M
       human->MO_PR      := m1MO_PR
-      if ( M1F14_EKST == 3 .and. m1USL_OK == USL_OK_HOSPITAL ) .or. ( M1F14_EKST == 3 .and. m1USL_OK == USL_OK_DAY_HOSPITAL ) 
+      if ( M1F14_EKST == 0 ) .and. ( ( m1USL_OK == USL_OK_HOSPITAL ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL ) )
         set_NAPR_MO( human->kod, _NPR_LECH, mNAPR_NUM )
       else
         del_NAPR_MO( human->kod, _NPR_LECH )

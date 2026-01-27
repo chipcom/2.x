@@ -341,6 +341,14 @@ function kod_LIS()
 function mm_danet()
   return { { 'нет', 0 }, { 'да ', 1 } }
 
+// 27.01.26
+function mm_ekst()
+  return { ;
+    { 'в плановом порядке', 0 }, ;
+    { 'по экст.показаниям', 1 }, ;
+    { 'неотложная помощь ', 2 } ;
+  }
+
 // 25.09.25
 function glob_arr_usl_LIS()
   
