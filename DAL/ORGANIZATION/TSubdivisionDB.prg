@@ -133,6 +133,10 @@ METHOD Save( oSubdivision ) CLASS TSubdivisionDB
 		hb_hSet(aHash, 'CODE_TFOMS',	oSubdivision:CodeTFOMS )
 		hb_hSet(aHash, 'SOME_SOGL',		oSubdivision:SomeSogl )
 		
+		hb_hSet(aHash, 'LPU_1',		oSubdivision:LPU_1 )
+		hb_hSet(aHash, 'MOP',		oSubdivision:MOP )
+		hb_hSet(aHash, 'PROFIL_M',		oSubdivision:Profil_M )
+
 		hb_hSet(aHash, 'ID',			oSubdivision:ID )
 		hb_hSet(aHash, 'REC_NEW',		oSubdivision:IsNew )
 		hb_hSet(aHash, 'DELETED',		oSubdivision:IsDeleted )
@@ -177,5 +181,9 @@ METHOD FillFromHash( hbArray )     CLASS TSubdivisionDB
 	obj:Address := hbArray[ 'ADDRESS' ]
 	obj:CodeTFOMS := hbArray[ 'CODE_TFOMS' ]
 	obj:SomeSogl := hbArray[ 'SOME_SOGL' ]
-	obj:CodeSubTFOMS  := hbArray[ 'CODE_DEP' ]
+	obj:CodeSubTFOMS  := hbArray[ 'CODE_DEP' ] 
+
+	obj:LPU_1  := hbArray[ 'LPU_1' ] 
+	obj:MOP  := hbArray[ 'MOP' ] 
+	obj:Profil_M  := hbArray[ 'PROFIL_M' ] 
 	return obj

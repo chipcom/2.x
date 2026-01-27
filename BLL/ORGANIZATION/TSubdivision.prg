@@ -52,6 +52,10 @@ CREATE CLASS TSubdivision	INHERIT	TBaseObjectBLL
 		PROPERTY IDVMP READ getIDVMP WRITE setIDVMP							// код видов медицинской помощи
 		PROPERTY KodSogl READ getKodSogl WRITE setKodSogl					// код согласования с программой SDS
 		
+		PROPERTY LPU_1 READ getLPU_1 WRITE setLPU_1
+		PROPERTY MOP READ getMOP WRITE setMOP
+		PROPERTY Profil_M READ getProfil_M WRITE setProfil_M
+
 		PROPERTY CodeSubTFOMS READ getCodeSubTFOMS WRITE setCodeSubTFOMS	// код отделения по кодировке ТФОМС из справочника SprDep - 2018 год
 		PROPERTY AddressSubdivision READ getAddressSub WRITE setAddressSub	// код удалённого подразделения по массиву glob_arr_podr - 2017 год
 		PROPERTY CodeTFOMS READ getCodeTFOMS WRITE setCodeTFOMS				// код подразделения по кодировке ТФОМС - 2017 год
@@ -117,7 +121,10 @@ CREATE CLASS TSubdivision	INHERIT	TBaseObjectBLL
 		DATA FCodeTFOMS		INIT space( 6 )
 		DATA FSomeSogl		INIT space( 255 )
 		DATA FDepartment	INIT nil
-		DATA FAddress		INIT space(150)
+		DATA FAddress			INIT space(150)
+		DATA FLPU_1				INIT space( 17 )
+		DATA FMOP					INIT 0
+		DATA FProfil_M		INIT 0
 		
 		METHOD getCode
 		METHOD setCode( nVal )
@@ -167,8 +174,15 @@ CREATE CLASS TSubdivision	INHERIT	TBaseObjectBLL
 		METHOD setKodSogl( nVal )
 		METHOD getAddress
 		METHOD setAddress( cVar )
-		
-		METHOD getCodeSubTFOMS()				INLINE ::FCodeSubTFOMS
+
+		METHOD getLPU_1()									INLINE ::FLPU_1
+		METHOD setLPU_1( param )					INLINE ::FLPU_1 := param
+		METHOD getMOP()									INLINE ::FMOP
+		METHOD setMOP( param )						INLINE ::FMOP := param
+		METHOD getProfil_M()							INLINE ::FProfil_M
+		METHOD setProfil_M( param )				INLINE ::FProfil_M := param
+			
+		METHOD getCodeSubTFOMS()					INLINE ::FCodeSubTFOMS
 		METHOD setCodeSubTFOMS( param )		INLINE ::FCodeSubTFOMS := param
 		METHOD getAddressSub
 		METHOD setAddressSub( nVal )
