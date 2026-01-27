@@ -1564,6 +1564,7 @@ Function edit_otd()
   Private tmp_V002 := create_classif_ffoms( 1, 'V002' ) // PROFIL
   Private tmp_V020 := create_classif_ffoms( 1, 'V020' ) // PROFIL_K
   Private tmp_V006 := create_classif_ffoms( 1, 'V006' ) // USL_OK
+  Private tmp_M003 := create_classif_ffoms( 1, 'M003' ) // M003
   // Private tmp_V008 := create_classif_FFOMS(1, 'V008') // VIDPOM
   // Private tmp_V010 := create_classif_FFOMS(1, 'V010') // IDSP
   Private mm_adres_podr := {}
@@ -1633,10 +1634,18 @@ Function edit_otd()
     {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }, ;
     0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
     'Является данное отделение приёмным покоем стационара' }, ;
+    { 'MOP', 'N', 3, 0, , ;
+    {| x| menu_reader( x, getv040(), A__MENUVERT, , , .f. ) }, ;
+    9, {| x| inieditspr( A__MENUVERT, getv040(), x ) }, ;
+    'Место обращения (посещения) по умолчанию' }, ;
     { 'PROFIL', 'N', 3, 0, , ;
     {| x| menu_reader( x, tmp_V002, A__MENUVERT_SPACE, , , .f. ) }, ;
     0, {| x| inieditspr( A__MENUVERT, getv002(), x ) }, ;
     'Профиль мед.помощи' }, ;
+    { 'PROFIL_M', 'N', 3, 0, , ;
+    {| x| menu_reader( x, tmp_M003, A__MENUVERT, , , .f. ) }, ;
+    9, {| x| inieditspr( A__MENUVERT, tmp_M003, x ) }, ;
+    'Профиль мед.помощи МЗ РФ' }, ;
     { 'PROFIL_K', 'N', 3, 0, , ;
     {| x| menu_reader( x, tmp_V020, A__MENUVERT_SPACE, , , .f. ) }, ;
     0, {| x| inieditspr( A__MENUVERT, getv020(), x ) }, ;

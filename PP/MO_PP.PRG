@@ -597,7 +597,7 @@ Function del_ppokoj()
   view_human_pp( 2 )
   Return Nil
 
-// 17.11.25
+// 27.01.26
 Function f_kart_pp( Loc_kod, kod_kartotek )
 
   Static mm_gospit := { { 'да ', 0 }, { 'нет', 1 } }
@@ -848,7 +848,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
   mpr_gospit := inieditspr( A__MENUVERT, mmpp_pr_gospit, m1pr_gospit )
   msost_op   := inieditspr( A__MENUVERT, menu_sost_op, m1sost_op )
   mgospit0   := inieditspr( A__MENUVERT, menu0gospit, m1gospit0 )
-  mgospit1   := inieditspr( A__MENUVERT, mm_ekst, m1gospit1 )
+  mgospit1   := inieditspr( A__MENUVERT, mm_ekst(), m1gospit1 )
   mgospit2   := inieditspr( A__MENUVERT, menu2gospit, m1gospit2 )
   mishod1    := inieditspr( A__MENUVERT, mmpp1ishod, m1ishod1 )
   mishod2    := inieditspr( A__MENUVERT, mmpp2ishod, m1ishod2 )
@@ -978,7 +978,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       reader {| x| menu_reader( x, menu0gospit, A__MENUVERT,,, .f. ) } ;
       When m1is_gospit == 0
     @ j, Col() Say ',' Get mgospit1 ;
-      reader {| x| menu_reader( x, mm_ekst, A__MENUVERT,,, .f. ) } ;
+      reader {| x| menu_reader( x, mm_ekst(), A__MENUVERT,,, .f. ) } ;
       When m1is_gospit == 0
     ++j ; @ j, 1 Say 'Дата госпитализации' Get mg_data ;
       When m1is_gospit == 0
@@ -1630,7 +1630,7 @@ Function pp_val_k_data( get )
   Endif
   Return .t.
 
-// 07.11.17
+// 27.01.26
 Function pp_valid_gospit( get, old )
 
   If m1is_gospit != old .and. old != NIL
@@ -1644,7 +1644,7 @@ Function pp_valid_gospit( get, old )
       Endif
     Else
       m1gospit0 := 0 ; mgospit0 := PadR( '', Len( menu0gospit[ 1, 1 ] ) )
-      m1gospit1 := 0 ; mgospit1 := PadR( '', Len( mm_ekst[ 1, 1 ] ) )
+      m1gospit1 := 0 ; mgospit1 := PadR( '', Len( mm_ekst()[ 1, 1 ] ) )
       m1stol    := 0 ; mstol := Space( 10 )
       mg_data := CToD( '' )
       mg_time := Space( 5 )
@@ -2111,7 +2111,7 @@ Function f4_v_human_pp()
   Select ( tmp_select )
   Return Nil
 
-// 17.11.25
+// 27.01.26
 Function f2_v_human_pp( nkey, oBrow )
 
   // наименования файлов шаблонов
@@ -2620,7 +2620,7 @@ Function f2_v_human_pp( nkey, oBrow )
         date_8( hu->DATE_R2 ) + ', пол ' + hu->POL2 + ')'
     Endif
     frd->gospit0   := inieditspr( A__MENUVERT, menu0gospit, hu->gospit0 )
-    frd->gospit1   := inieditspr( A__MENUVERT, mm_ekst, hu->GOSPIT1 )
+    frd->gospit1   := inieditspr( A__MENUVERT, mm_ekst(), hu->GOSPIT1 )
     If hu->IS_GOSPIT == 1 // не госпитализирован 02.05.18
       frd->gospit0 := ''
       frd->gospit1 := 'НЕТ'
