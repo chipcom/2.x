@@ -27,17 +27,17 @@ Function _263_p_napr()
   mywait()
   r_use( dir_server() + 'kartote_', , '_KART_' )
   r_use( dir_server() + 'kartotek', , '_KART' )
-  Set Relation To kod into _KART_
+  Set Relation To FIELD->kod into _KART_
   r_use( dir_server() + 'mo_nfile', , 'NF' )
   g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-  Set Relation To kod_k into _KART, To KOD_F_1out into NF
+  Set Relation To FIELD->kod_k into _KART, To FIELD->KOD_F_1out into NF
   If arr_m[ 5 ] == arr_m[ 6 ]
-    Index On Str( n_napr, 6 ) to ( cur_dir() + 'tmp_napr' ) ;
-      For n_napr > 0 .and. date_d == arr_m[ 5 ] ;
+    Index On Str( FIELD->n_napr, 6 ) to ( cur_dir() + 'tmp_napr' ) ;
+      For FIELD->n_napr > 0 .and. FIELD->date_d == arr_m[ 5 ] ;
       descending
   Else
     Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) ;
-      For n_napr > 0 .and. Between( date_d, arr_m[ 5 ], arr_m[ 6 ] )
+      For FIELD->n_napr > 0 .and. Between( FIELD->date_d, arr_m[ 5 ], arr_m[ 6 ] )
     Go Top
     If Eof()
       Close databases
@@ -142,7 +142,7 @@ Function f2_263_p_napr( nKey, oBrow, regim )
     If nKey == K_INS .or. ( napr->KOD > 0 .and. nKey == K_ENTER )
       rec := napr->( RecNo() )
       Private mn_napr := iif( nKey == K_INS, 0, napr->n_napr ), ; // уникальный номер направления (п-ка)
-      mfio    := iif( nKey == K_INS, '', _kart->fio ), ;
+        mfio    := iif( nKey == K_INS, '', _kart->fio ), ;
         mdate_r := iif( nKey == K_INS, CToD( '' ), _kart->date_r ), ;
         mpol    := iif( nKey == K_INS, '', _kart->pol ), ;
         mphone  := iif( nKey == K_INS, .t., emptyall( _kart_->PHONE_M, _kart_->PHONE_H, _kart_->PHONE_W ) )
@@ -156,7 +156,7 @@ Function f2_263_p_napr( nKey, oBrow, regim )
         //
         r_use( dir_server() + 'kartote_', , '_KART_' )
         r_use( dir_server() + 'kartotek', , '_KART' )
-        Set Relation To kod into _KART_
+        Set Relation To FIELD->kod into _KART_
         If k > 0
           Goto ( glob_kartotek )
           mfio    := _kart->fio
@@ -166,13 +166,13 @@ Function f2_263_p_napr( nKey, oBrow, regim )
         Endif
         r_use( dir_server() + 'mo_nfile', , 'NF' )
         g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-        Set Relation To kod_k into _KART, To KOD_F_1out into NF
+        Set Relation To FIELD->kod_k into _KART, To FIELD->KOD_F_1out into NF
         Set Index to ( cur_dir() + 'tmp_napr' )
         If k <= 0
           func_error( 4, 'Для добавления направления сначала необходимо выбрать пациента!' )
           Return iif( fl_found, -1, 1 )
         Endif
-        Index On Str( N_NAPR, 6 ) to ( cur_dir() + 'tmp_napr1' ) For n_napr > 0
+        Index On Str( FIELD->N_NAPR, 6 ) to ( cur_dir() + 'tmp_napr1' ) For FIELD->n_napr > 0
         For i := 1 To 999999
           find ( Str( i, 6 ) )
           If !Found() // нашли свободный номер
@@ -188,7 +188,7 @@ Function f2_263_p_napr( nKey, oBrow, regim )
         Endif
       Elseif napr->t_ans_1 == 2
         r_use( dir_server() + 'mo_nfina', , 'NFN' )
-        Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == napr->KOD_F_1out
+        Index On Str( FIELD->kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For FIELD->kod_f == napr->KOD_F_1out
         find ( Str( napr->kod, 6 ) )
         If Found()
           s_error := 'ошибка ' + lstr( nfn->OSHIB ) + ' - ' + inieditspr( A__MENUVERT, gett008(), nfn->OSHIB )
@@ -204,21 +204,21 @@ Function f2_263_p_napr( nKey, oBrow, regim )
       mywait()
       Private mkod := iif( nKey == K_INS, 0, napr->KOD ), ;
         m1kod_k := iif( nKey == K_INS, glob_kartotek, napr->kod_k ), ; // код по картотеке
-      md_napr := iif( nKey == K_INS, Min( arr_m[ 6 ], sys_date ), napr->DATE_D ), ; // дата направления
-      motd := Space( 10 ), m1otd := if( nKey == K_INS, 0, napr->otd_1 ), ;
+        md_napr := iif( nKey == K_INS, Min( arr_m[ 6 ], sys_date ), napr->DATE_D ), ; // дата направления
+        motd := Space( 10 ), m1otd := if( nKey == K_INS, 0, napr->otd_1 ), ;
         mkod_diag := iif( nKey == K_INS, Space( 6 ), napr->ds_1 ), ; // диагноз поликлиники
-      musl_ok, m1usl_ok := iif( nKey == K_INS .or. napr->usl_ok_1 != 2, 1, napr->usl_ok_1 ), ; // условия оказания мед.помощи
-      mdisp, m1disp := iif( nKey == K_INS, 0, napr->disp_1 ), ; // условия оказания мед.помощи
-      mforma, m1forma := iif( nKey == K_INS, 3, napr->F_MEDC_1 ), ; // форма оказания мед.помощи по V014 (для п-ки 2-неотложная и 3-плановая)
-      mdate_hosp := iif( nKey == K_INS, nil, napr->DATE_H_1 ), ; // планируемая дата госпитализации
-      mprofil_k, m1profil_k := iif( nKey == K_INS, 0, napr->PROFIL_K_1 ), ; // профиль койки по справочнику T007
-      mprofil, m1profil := iif( nKey == K_INS, 0, napr->PROFIL_1 ), ; // профиль мед.помощи по справочнику V002
-      m1vrach := iif( nKey == K_INS, s1vrach, napr->VRACH_1 ), ; // лечащий врач по mo_pers
-      MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
-      MTAB_NOM := 0, m1prvs := 0, ; // таб.№ лечащего врача
-      mstac_mo := Space( 10 ), ;
+        musl_ok, m1usl_ok := iif( nKey == K_INS .or. napr->usl_ok_1 != 2, 1, napr->usl_ok_1 ), ; // условия оказания мед.помощи
+        mdisp, m1disp := iif( nKey == K_INS, 0, napr->disp_1 ), ; // условия оказания мед.помощи
+        mforma, m1forma := iif( nKey == K_INS, 3, napr->F_MEDC_1 ), ; // форма оказания мед.помощи по V014 (для п-ки 2-неотложная и 3-плановая)
+        mdate_hosp := iif( nKey == K_INS, nil, napr->DATE_H_1 ), ; // планируемая дата госпитализации
+        mprofil_k, m1profil_k := iif( nKey == K_INS, 0, napr->PROFIL_K_1 ), ; // профиль койки по справочнику T007
+        mprofil, m1profil := iif( nKey == K_INS, 0, napr->PROFIL_1 ), ; // профиль мед.помощи по справочнику V002
+        m1vrach := iif( nKey == K_INS, s1vrach, napr->VRACH_1 ), ; // лечащий врач по mo_pers
+        MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
+        MTAB_NOM := 0, m1prvs := 0, ; // таб.№ лечащего врача
+        mstac_mo := Space( 10 ), ;
         m1stac_mo := iif( nKey == K_INS, s1stac_mo, napr->S_CODEM ), ;  // код стационара
-      gl_area := { 1, 0, 23, 79, 0 }
+        gl_area := { 1, 0, 23, 79, 0 }
       If work_otd_263 == 1
         Private pr_arr := {}, pr_arr_otd := {}, pr1arr_otd := {}
         make_arr_uch_otd( md_napr )
@@ -375,7 +375,7 @@ Function f2_263_p_napr( nKey, oBrow, regim )
           Endif
           Select NAPR
           If nKey == K_INS
-            Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_napr1' )
+            Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_napr1' )
             Set Index to ( cur_dir() + 'tmp_napr1' ), ( cur_dir() + 'tmp_napr' )
             addrec( 6 )
             napr->KOD := RecNo() // код направления - номер записи
@@ -485,12 +485,12 @@ Function _263_p_annul()
   mywait()
   r_use( dir_server() + 'kartote_', , '_KART_' )
   r_use( dir_server() + 'kartotek', , '_KART' )
-  Set Relation To kod into _KART_
+  Set Relation To FIELD->kod into _KART_
   r_use( dir_server() + 'mo_nfile', , 'NF' )
   g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-  Set Relation To kod_k into _KART, To KOD_F_3out into NF
+  Set Relation To FIELD->kod_k into _KART, To FIELD->KOD_F_3out into NF
   If arr_m[ 5 ] == arr_m[ 6 ]
-    Index On Str( n_napr, 6 ) to ( cur_dir() + 'tmp_napr' ) For for_263_p_annul() descending
+    Index On Str( FIELD->n_napr, 6 ) to ( cur_dir() + 'tmp_napr' ) For for_263_p_annul() descending
   Else
     Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For for_263_p_annul()
   Endif
@@ -572,25 +572,25 @@ Function f2_263_p_annul( nKey, oBrow, regim )
       mywait()
       Private ;
         mn_napr := napr->n_napr, ; // уникальный номер направления (п-ка)
-      mfio    := _kart->fio, ;
+        mfio    := _kart->fio, ;
         mdate_r := _kart->date_r, ;
         mpol    := _kart->pol, ;
         mkod    := napr->KOD, ;
         m1kod_k := napr->kod_k, ; // код по картотеке
-      md_napr := napr->DATE_D, ; // дата направления
-      motd := Space( 10 ), m1otd := napr->otd_1, ;
+        md_napr := napr->DATE_D, ; // дата направления
+        motd := Space( 10 ), m1otd := napr->otd_1, ;
         mkod_diag := napr->ds_1, ; // диагноз поликлиники
-      mforma, m1forma := napr->F_MEDC_1, ; // форма оказания мед.помощи по V014 (для п-ки 2-неотложная и 3-плановая)
-      mdate_hosp := napr->DATE_H_1, ; // планируемая дата госпитализации
-      musl_ok, m1usl_ok := iif( napr->usl_ok_1 == 2, 2, 1 ), ; // условия оказания мед.помощи
-      mprofil_k, m1profil_k := napr->PROFIL_K_1, ; // профиль койки по справочнику T007
-      mprofil, m1profil := napr->PROFIL_1, ; // профиль мед.помощи по справочнику V002
-      m1vrach := napr->VRACH_1, ; // лечащий врач по mo_pers
-      MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
-      MTAB_NOM := 0, m1prvs := 0, ; // таб.№ лечащего врача
-      mstac_mo := Space( 10 ), ;
+        mforma, m1forma := napr->F_MEDC_1, ; // форма оказания мед.помощи по V014 (для п-ки 2-неотложная и 3-плановая)
+        mdate_hosp := napr->DATE_H_1, ; // планируемая дата госпитализации
+        musl_ok, m1usl_ok := iif( napr->usl_ok_1 == 2, 2, 1 ), ; // условия оказания мед.помощи
+        mprofil_k, m1profil_k := napr->PROFIL_K_1, ; // профиль койки по справочнику T007
+        mprofil, m1profil := napr->PROFIL_1, ; // профиль мед.помощи по справочнику V002
+        m1vrach := napr->VRACH_1, ; // лечащий врач по mo_pers
+        MVRACH := Space( 10 ), ; // фамилия и инициалы лечащего врача
+        MTAB_NOM := 0, m1prvs := 0, ; // таб.№ лечащего врача
+        mstac_mo := Space( 10 ), ;
         m1stac_mo := napr->S_CODEM, ;  // код стационара
-      mdate_3 := napr->date_3, ;
+        mdate_3 := napr->date_3, ;
         mrea_annul := Space( 10 ), m1rea_annul := napr->rea_annul, ;
         gl_area := { 1, 0, 23, 79, 0 }
       If work_otd_263 == 1
@@ -759,11 +759,11 @@ Function _263_p_svob_kojki()
   Endif
   If ( si := i ) == 1
     r_use( dir_server() + 'mo_n7in', , 'N7' )
-    Index On codem + Upper( PadR( inieditspr( A__MENUVERT, arr_t007(), PROFIL_K ), 60 ) ) + ;
-      Str( profil_k, 3 ) + Str( usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' )
+    Index On FIELD->codem + Upper( PadR( inieditspr( A__MENUVERT, arr_t007(), FIELD->PROFIL_K ), 60 ) ) + ;
+      Str( FIELD->profil_k, 3 ) + Str( FIELD->usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' )
     r_use( dir_server() + 'mo_nfile', , 'NF' )
     Index On Upper( PadR( ret_mo( SubStr( nf->name_f, 12, 6 ) )[ _MO_SHORT_NAME ], 30 ) ) to ( cur_dir() + 'tmp_nf' ) ;
-      For TIP_F == 7 .and. IN_OUT == 2 .and. ;
+      For FIELD->TIP_F == 7 .and. FIELD->IN_OUT == 2 .and. ;
       AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == SubStr( nf->name_f, 12, 6 ) } ) > 0
     Go Top
     If Eof()
@@ -789,7 +789,7 @@ Function _263_p_svob_kojki()
     Endif
   Elseif i == 2
     r_use( dir_server() + 'mo_n7in', , 'N7' )
-    Index On Str( profil_k, 3 ) to ( cur_dir() + 'tmp_n7' ) UNIQUE
+    Index On Str( FIELD->profil_k, 3 ) to ( cur_dir() + 'tmp_n7' ) UNIQUE
     Go Top
     If Eof()
       func_error( 4, 'Ещё не было чтения пакетов I07' )
@@ -807,10 +807,10 @@ Function _263_p_svob_kojki()
         sprofil_k := ret_arr[ 2 ]
         r_use( dir_server() + 'mo_nfile', , 'NF' )
         Select N7
-        Set Relation To kod_f into NF
-        Index On Upper( PadR( ret_mo( codem )[ _MO_SHORT_NAME ], 30 ) ) + codem + Str( usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' ) ;
-          For profil_k == ret_arr[ 2 ] .and. ;
-          AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == codem } ) > 0
+        Set Relation To FIELD->kod_f into NF
+        Index On Upper( PadR( ret_mo( FIELD->codem )[ _MO_SHORT_NAME ], 30 ) ) + FIELD->codem + Str( FIELD->usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' ) ;
+          For FIELD->profil_k == ret_arr[ 2 ] .and. ;
+          AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == FIELD->codem } ) > 0
         Go Top
         t_arr[ BR_TOP ] := 2
         t_arr[ BR_BOTTOM ] := MaxRow() -5
@@ -835,7 +835,7 @@ Function _263_p_svob_kojki()
     Endif
   Elseif i == 3
     r_use( dir_server() + 'mo_n7in', , 'N7' )
-    Index On Str( profil, 3 ) + Str( usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' ) UNIQUE
+    Index On Str( FIELD->profil, 3 ) + Str( FIELD->usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' ) UNIQUE
     Go Top
     If Eof()
       func_error( 4, 'Ещё не было чтения пакетов I07' )
@@ -853,10 +853,10 @@ Function _263_p_svob_kojki()
         sprofil := ret_arr[ 2 ]
         r_use( dir_server() + 'mo_nfile', , 'NF' )
         Select N7
-        Set Relation To kod_f into NF
-        Index On Upper( PadR( ret_mo( codem )[ _MO_SHORT_NAME ], 30 ) ) + codem + Str( usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' ) ;
-          For profil == ret_arr[ 2 ] .and. ;
-          AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == codem } ) > 0
+        Set Relation To FIELD->kod_f into NF
+        Index On Upper( PadR( ret_mo( FIELD->codem )[ _MO_SHORT_NAME ], 30 ) ) + FIELD->codem + Str( FIELD->usl_ok, 1 ) to ( cur_dir() + 'tmp_n7' ) ;
+          For FIELD->profil == ret_arr[ 2 ] .and. ;
+          AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == FIELD->codem } ) > 0
         Go Top
         t_arr[ BR_TOP ] := 2
         t_arr[ BR_BOTTOM ] := MaxRow() -5
