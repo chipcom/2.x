@@ -46,9 +46,6 @@ function load_exists_uslugi()
         skip
       enddo
 
-      // ‚…Œ…Ž
-is_napr_pol( .t. )
-      //
       ( lAlias )->( dbSeek ( kod_mo_tfoms + '60.3.' ) )
 //      if ( lAlias )->( found() )
 //        is_alldializ := .t.
