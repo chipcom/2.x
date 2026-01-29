@@ -30,8 +30,8 @@ Function begin_task_263()
     sbase := prefixfilerefname( WORK_YEAR ) + 'uslc'
     r_use( dir_exe() + sbase, , 'USLC' )
 
-    Index On codemo to ( cur_dir() + 'tmp_uslc' ) ;
-      For datebeg == 0d20190101 .and. eq_any( Left( shifr, 5 ), '1.11.', '55.1.' ) ;
+    Index On FIELD->codemo to ( cur_dir() + 'tmp_uslc' ) ;
+      For FIELD->datebeg == 0d20190101 .and. eq_any( Left( FIELD->shifr, 5 ), '1.11.', '55.1.' ) ;
       UNIQUE
     dbEval( {|| AAdd( p_arr_stac_VO, uslc->codemo ) } )
     Use
@@ -135,11 +135,11 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
   Set Relation To RecNo() into KART_
   g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
   Set Relation To kod_k into KART
-  Index On Str( kod_k, 7 ) to ( cur_dir() + 'tmp_naprkodk' )
+  Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_naprkodk' )
   // I01
   Select NAPR
-  Index On kod to ( cur_dir() + 'tmp_napr' ) ;
-    For n_napr > 0 .and. Empty( KOD_F_1out )
+  Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) ;
+    For FIELD->n_napr > 0 .and. Empty( FIELD->KOD_F_1out )
   Go Top
   Do While !Eof()
     If ( i := AScan( arr_i01, {| x| x[ 1 ] == napr->DATE_D } ) ) == 0
@@ -315,8 +315,8 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
   Next
   // I03
   Select NAPR
-  Index On kod to ( cur_dir() + 'tmp_napr' ) ;
-    For n_napr > 0 .and. KOD_F_1out > 0 .and. TIP_ANNUL == 3 .and. Empty( KOD_F_3out )
+  Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) ;
+    For FIELD->n_napr > 0 .and. FIELD->KOD_F_1out > 0 .and. FIELD->TIP_ANNUL == 3 .and. Empty( FIELD->KOD_F_3out )
   Go Top
   Do While !Eof()
     If ( i := AScan( arr_i03, {| x| x[ 1 ] == napr->DATE_3 } ) ) == 0
@@ -327,9 +327,9 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
     Select NAPR
     Skip
   Enddo
-  Index On kod to ( cur_dir() + 'tmp_napr' ) ;
-    for ( KOD_F_1in > 0 .or. ( T_ANS_1 == 1 .and. CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ] ) ) ;
-    .and. TIP_ANNUL == 2 .and. Empty( KOD_F_3out )
+  Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) ;
+    for ( FIELD->KOD_F_1in > 0 .or. ( FIELD->T_ANS_1 == 1 .and. FIELD->CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ] ) ) ;
+    .and. FIELD->TIP_ANNUL == 2 .and. Empty( FIELD->KOD_F_3out )
   Go Top
   Do While !Eof()
     If ( i := AScan( arr_i03, {| x| x[ 1 ] == napr->DATE_3 } ) ) == 0
@@ -380,7 +380,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
   Next
   // I04
   Select NAPR
-  Index On kod to ( cur_dir() + 'tmp_napr' ) For Between( TYPE_H_4, 1, 3 ) .and. Empty( KOD_F_4out )
+  Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) For Between( FIELD->TYPE_H_4, 1, 3 ) .and. Empty( FIELD->KOD_F_4out )
   Go Top
   Do While !Eof()
     If ( i := AScan( arr_i04, {| x| x[ 1 ] == napr->DATE_H_4 } ) ) == 0
@@ -519,7 +519,7 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
   Next
   // I05
   Select NAPR
-  Index On kod to ( cur_dir() + 'tmp_napr' ) For TYPE_H_4 == 4 .and. Empty( KOD_F_4out )
+  Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) For FIELD->TYPE_H_4 == 4 .and. Empty( FIELD->KOD_F_4out )
   Go Top
   Do While !Eof()
     If ( i := AScan( arr_i05, {| x| x[ 1 ] == napr->DATE_H_4 } ) ) == 0
@@ -655,8 +655,8 @@ Function _263_to_proverka( yes_msg, /*@*/yes_I07)
   Next
   // I06
   Select NAPR
-  Index On kod to ( cur_dir() + 'tmp_napr' ) ;
-    For KOD_F_4out > 0 .and. T_ANS_4 == 1 .and. !Empty( DATE_6 ) .and. Empty( KOD_F_6out )
+  Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) ;
+    For FIELD->KOD_F_4out > 0 .and. FIELD->T_ANS_4 == 1 .and. !Empty( FIELD->DATE_6 ) .and. Empty( FIELD->KOD_F_6out )
   Go Top
   Do While !Eof()
     If ( i := AScan( arr_i06, {| x| x[ 1 ] == napr->DATE_6 } ) ) == 0
@@ -897,13 +897,13 @@ Function _263_to_sostavlenie()
   Set Relation To RecNo() into KART_, To RecNo() into KART2
   g_use( dir_server() + 'mo_nfina', , 'NFN' )
   g_use( dir_server() + 'mo_nfile', , 'NF' )
-  Index On Str( tip_f, 1 ) + DToS( date_r ) + Str( in_out, 1 ) + Str( nn, 4 ) to ( cur_dir() + 'tmp_nf' )
+  Index On Str( FIELD->tip_f, 1 ) + DToS( FIELD->date_r ) + Str( FIELD->in_out, 1 ) + Str( FIELD->nn, 4 ) to ( cur_dir() + 'tmp_nf' )
   g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-  Set Relation To kod_k into KART
+  Set Relation To FIELD->kod_k into KART
 
   // I01
   Select NAPR
-  Index On kod to ( cur_dir() + 'tmp_napr' ) For n_napr > 0 .and. Empty( KOD_F_1out )
+  Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) For FIELD->n_napr > 0 .and. Empty( FIELD->KOD_F_1out )
   Go Top
   Do While !Eof()
     If ( i := AScan( arr_i01, {| x| x[ 1 ] == napr->DATE_D } ) ) == 0
@@ -1049,12 +1049,12 @@ Function _263_to_sostavlenie()
       arr_i03 := {}
       Select NAPR
       If k == 2
-        Index On kod to ( cur_dir() + 'tmp_napr' ) ;
-          for ( KOD_F_1in > 0 .or. ( T_ANS_1 == 1 .and. CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ] ) ) ;
-          .and. TIP_ANNUL == 2 .and. Empty( KOD_F_3out )
+        Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) ;
+          for ( FIELD->KOD_F_1in > 0 .or. ( FIELD->T_ANS_1 == 1 .and. FIELD->CODEM_1 == glob_mo()[ _MO_KOD_TFOMS ] ) ) ;
+          .and. FIELD->TIP_ANNUL == 2 .and. Empty( FIELD->KOD_F_3out )
       Else
-        Index On kod to ( cur_dir() + 'tmp_napr' ) ;
-          For n_napr > 0 .and. KOD_F_1out > 0 .and. TIP_ANNUL == 3 .and. Empty( KOD_F_3out )
+        Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) ;
+          For FIELD->n_napr > 0 .and. FIELD->KOD_F_1out > 0 .and. FIELD->TIP_ANNUL == 3 .and. Empty( FIELD->KOD_F_3out )
       Endif
       Go Top
       Do While !Eof()
@@ -1144,7 +1144,7 @@ Function _263_to_sostavlenie()
   // I04
   If !fl_error
     Select NAPR
-    Index On kod to ( cur_dir() + 'tmp_napr' ) For Between( TYPE_H_4, 1, 3 ) .and. Empty( KOD_F_4out )
+    Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) For Between( FIELD->TYPE_H_4, 1, 3 ) .and. Empty( FIELD->KOD_F_4out )
     Go Top
     Do While !Eof()
       If ( i := AScan( arr_i04, {| x| x[ 1 ] == napr->DATE_H_4 } ) ) == 0
@@ -1280,7 +1280,7 @@ Function _263_to_sostavlenie()
   // I05
   If !fl_error
     Select NAPR
-    Index On kod to ( cur_dir() + 'tmp_napr' ) For TYPE_H_4 == 4 .and. Empty( KOD_F_4out )
+    Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) For FIELD->TYPE_H_4 == 4 .and. Empty( FIELD->KOD_F_4out )
     Go Top
     Do While !Eof()
       If ( i := AScan( arr_i05, {| x| x[ 1 ] == napr->DATE_H_4 } ) ) == 0
@@ -1414,8 +1414,8 @@ Function _263_to_sostavlenie()
   // I06
   If !fl_error
     Select NAPR
-    Index On kod to ( cur_dir() + 'tmp_napr' ) ;
-      For KOD_F_4out > 0 .and. T_ANS_4 == 1 .and. !Empty( DATE_6 ) .and. Empty( KOD_F_6out )
+    Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) ;
+      For FIELD->KOD_F_4out > 0 .and. FIELD->T_ANS_4 == 1 .and. !Empty( FIELD->DATE_6 ) .and. Empty( FIELD->KOD_F_6out )
     Go Top
     Do While !Eof()
       If ( i := AScan( arr_i06, {| x| x[ 1 ] == napr->DATE_6 } ) ) == 0
@@ -1525,7 +1525,7 @@ Function _263_to_sostavlenie()
     g_use( dir_server() + 'mo_n7d', , 'D7' )
     nfile := 'I07T34M' + glob_mo()[ _MO_KOD_TFOMS ]
     Select NF
-    Index On Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) For in_out == 1
+    Index On Upper( FIELD->name_f ) to ( cur_dir() + 'tmp_nf' ) For FIELD->in_out == 1
     find ( Upper( nfile ) ) // наверное уже отправляли I07 в ТФОМС
     If Found()
       g_rlock( forever ) // бесконечная попытка блокировать запись
@@ -1696,7 +1696,7 @@ Function _263_to_protokol()
     rest_box( buf )
     Return func_error( 4, 'Пока ещё не создавали информационные пакеты для отправки в ТФОМС' )
   Endif
-  Index On Descend( txt_f ) to ( cur_dir() + 'tmp' )
+  Index On Descend( FIELD->txt_f ) to ( cur_dir() + 'tmp' )
   Go Top
   t_arr[ BR_TOP ] := T_ROW
   t_arr[ BR_BOTTOM ] := MaxRow() -2
@@ -1740,8 +1740,8 @@ Function _263_to_i01()
   Endif
   Private goal_dir := dir_server() + dir_NAPR_MO() + hb_ps()
   g_use( dir_server() + 'mo_nfile', , 'NF' )
-  Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
-    For in_out == 1 .and. tip_f == 1 DESCENDING
+  Index On DToS( FIELD->date_r ) + Upper( FIELD->name_f ) to ( cur_dir() + 'tmp_nf' ) ;
+    For FIELD->in_out == 1 .and. FIELD->tip_f == 1 DESCENDING
   Go Top
   If Eof()
     Close databases
@@ -1830,7 +1830,7 @@ Function f2_263_to_i01( nKey, oBrow, regim )
         If f_esc_enter( 'аннулирования', .t. )
           mywait()
           g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-          Index On kod to ( cur_dir() + 'tmp_napr' ) For KOD_F_1out == nf->kod
+          Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) For FIELD->KOD_F_1out == nf->kod
           arr := {}
           dbEval( {|| AAdd( arr, napr->( RecNo() ) ) } )
           Set Index To
@@ -1871,12 +1871,12 @@ Function f2_263_to_i01( nKey, oBrow, regim )
       add_string( 'Это информационный пакет со сведениями о выписанных в поликлинике направлениях' )
       r_use( dir_server() + 'kartote_', , '_KART_' )
       r_use( dir_server() + 'kartotek', , '_KART' )
-      Set Relation To kod into _KART_
+      Set Relation To FIELD->kod into _KART_
       r_use( dir_server() + 'mo_nfina', , 'NFN' )
-      Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == nf->kod
+      Index On Str( FIELD->kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For FIELD->kod_f == nf->kod
       r_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-      Set Relation To kod_k into _KART
-      Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For KOD_F_1out == nf->kod
+      Set Relation To FIELD->kod_k into _KART
+      Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For FIELD->KOD_F_1out == nf->kod
       i := 0
       Go Top
       Do While !Eof()
@@ -1930,8 +1930,8 @@ Function _263_to_i03()
   Endif
   Private goal_dir := dir_server() + dir_NAPR_MO() + hb_ps()
   g_use( dir_server() + 'mo_nfile', , 'NF' )
-  Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
-    For in_out == 1 .and. tip_f == 3 DESCENDING
+  Index On DToS( FIELD->date_r ) + Upper( FIELD->name_f ) to ( cur_dir() + 'tmp_nf' ) ;
+    For FIELD->in_out == 1 .and. FIELD->tip_f == 3 DESCENDING
   Go Top
   If Eof()
     Close databases
@@ -1987,7 +1987,7 @@ Function f2_263_to_i03( nKey, oBrow, regim )
         If f_esc_enter( 'аннулирования', .t. )
           mywait()
           g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-          Index On kod to ( cur_dir() + 'tmp_napr' ) For KOD_F_3out == nf->kod
+          Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) For FIELD->KOD_F_3out == nf->kod
           arr := {}
           dbEval( {|| AAdd( arr, napr->( RecNo() ) ) } )
           Set Index To
@@ -2028,12 +2028,12 @@ Function f2_263_to_i03( nKey, oBrow, regim )
       add_string( 'Это информационный пакет с аннулированными направлениями' )
       r_use( dir_server() + 'kartote_', , '_KART_' )
       r_use( dir_server() + 'kartotek', , '_KART' )
-      Set Relation To kod into _KART_
+      Set Relation To FIELD->kod into _KART_
       r_use( dir_server() + 'mo_nfina', , 'NFN' )
-      Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == nf->kod
+      Index On Str( FIELD->kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For FIELD->kod_f == nf->kod
       r_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-      Set Relation To kod_k into _KART
-      Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For KOD_F_3out == nf->kod
+      Set Relation To FIELD->kod_k into _KART
+      Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For FIELD->KOD_F_3out == nf->kod
       i := 0
       Go Top
       Do While !Eof()
@@ -2101,8 +2101,8 @@ Function _263_to_i04( k )
   Endif
   Private goal_dir := dir_server() + dir_NAPR_MO() + hb_ps()
   g_use( dir_server() + 'mo_nfile', , 'NF' )
-  Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
-    For in_out == 1 .and. tip_f == ppaket DESCENDING
+  Index On DToS( FIELD->date_r ) + Upper( FIELD->name_f ) to ( cur_dir() + 'tmp_nf' ) ;
+    For FIELD->in_out == 1 .and. FIELD->tip_f == ppaket DESCENDING
   Go Top
   If Eof()
     Close databases
@@ -2158,7 +2158,7 @@ Function f2_263_to_i04( nKey, oBrow, regim )
         If f_esc_enter( 'аннулирования', .t. )
           mywait()
           g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-          Index On kod to ( cur_dir() + 'tmp_napr' ) For KOD_F_4out == nf->kod
+          Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) For FIELD->KOD_F_4out == nf->kod
           arr := {}
           dbEval( {|| AAdd( arr, napr->( RecNo() ) ) } )
           Set Index To
@@ -2203,12 +2203,12 @@ Function f2_263_to_i04( nKey, oBrow, regim )
       Endif
       r_use( dir_server() + 'kartote_', , '_KART_' )
       r_use( dir_server() + 'kartotek', , '_KART' )
-      Set Relation To kod into _KART_
+      Set Relation To FIELD->kod into _KART_
       r_use( dir_server() + 'mo_nfina', , 'NFN' )
-      Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == nf->kod
+      Index On Str( FIELD->kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For FIELD->kod_f == nf->kod
       r_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-      Set Relation To kod_k into _KART
-      Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For KOD_F_4out == nf->kod
+      Set Relation To FIELD->kod_k into _KART
+      Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For FIELD->KOD_F_4out == nf->kod
       i := 0
       Go Top
       Do While !Eof()
@@ -2277,8 +2277,8 @@ Function _263_to_i06()
     mm_tip_vyb := { { 'выписан', 1 }, { 'умер', 2 }, { 'перевод в другое отделение', 3 } }
 
   g_use( dir_server() + 'mo_nfile', , 'NF' )
-  Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
-    For in_out == 1 .and. tip_f == 6 DESCENDING
+  Index On DToS( FIELD->date_r ) + Upper( FIELD->name_f ) to ( cur_dir() + 'tmp_nf' ) ;
+    For FIELD->in_out == 1 .and. FIELD->tip_f == 6 DESCENDING
   Go Top
   If Eof()
     Close databases
@@ -2334,7 +2334,7 @@ Function f2_263_to_i06( nKey, oBrow, regim )
         If f_esc_enter( 'аннулирования', .t. )
           mywait()
           g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-          Index On kod to ( cur_dir() + 'tmp_napr' ) For KOD_F_6out == nf->kod
+          Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) For FIELD->KOD_F_6out == nf->kod
           arr := {}
           dbEval( {|| AAdd( arr, napr->( RecNo() ) ) } )
           Set Index To
@@ -2375,12 +2375,12 @@ Function f2_263_to_i06( nKey, oBrow, regim )
       add_string( 'Это информационный пакет с выписанными пациентами' )
       r_use( dir_server() + 'kartote_', , '_KART_' )
       r_use( dir_server() + 'kartotek', , '_KART' )
-      Set Relation To kod into _KART_
+      Set Relation To FIELD->kod into _KART_
       r_use( dir_server() + 'mo_nfina', , 'NFN' )
-      Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For kod_f == nf->kod
+      Index On Str( FIELD->kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For FIELD->kod_f == nf->kod
       r_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-      Set Relation To kod_k into _KART
-      Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For KOD_F_6out == nf->kod
+      Set Relation To FIELD->kod_k into _KART
+      Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) For FIELD->KOD_F_6out == nf->kod
       i := 0
       Go Top
       Do While !Eof()
@@ -2580,15 +2580,15 @@ Function _263_from_read()
   name_txt := DToS( sys_date ) + '_' + CharRem( ':', PadR( SecToTime( Seconds() ), 8 ) ) + stxt()
   //
   g_use( dir_server() + 'mo_kfio', , 'KFIO' )
-  Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
+  Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
   g_use( dir_server() + 'mo_kismo', , 'KSN' )
-  Index On Str( kod, 7 ) to ( cur_dir() + 'tmpkismo' )
+  Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmpkismo' )
   use_base( 'kartotek' )
   g_use( dir_server() + 'mo_n7in', , 'N7' )
-  Index On Str( kod_f, 6 ) to ( cur_dir() + 'tmp7in' )
+  Index On Str( FIELD->kod_f, 6 ) to ( cur_dir() + 'tmp7in' )
   g_use( dir_server() + 'mo_nfina', , 'NFN' )
   g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-  Index On Upper( id_1 ) to ( cur_dir() + 'tmp_napr' )
+  Index On Upper( FIELD->id_1 ) to ( cur_dir() + 'tmp_napr' )
   g_use( dir_server() + 'mo_nfile', , 'NF' )
   For ii := 1 To Len( arr_f )
     name_zip := strippath( arr_f[ ii ] )  // имя файла без пути
@@ -2610,7 +2610,7 @@ Function _263_from_read()
       If Left( cName, 1 ) == 'R' // протокол ответа на наш пакет
         type_paket := Int( Val( SubStr( cName, 4, 1 ) ) )
         Select NF
-        Index On Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) For in_out == 1
+        Index On Upper( FIELD->name_f ) to ( cur_dir() + 'tmp_nf' ) For FIELD->in_out == 1
         find ( PadR( SubStr( Upper( cName ), 2 ), 26 ) ) // поиск нашего первичного пакета
         If Found()
           StrFile( Space( 5 ) + 'обрабатывается ПРОТОКОЛ обработки информационного пакета' + hb_eol() + ;
@@ -2641,9 +2641,9 @@ Function _263_from_read()
               Do Case
               Case nf->TIP_F == 1
                 Select NFN
-                Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For KOD_F == nf->KOD
+                Index On Str( FIELD->kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For FIELD->KOD_F == nf->KOD
                 Select NAPR
-                Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For KOD_F_1out == nf->KOD
+                Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For FIELD->KOD_F_1out == nf->KOD
                 Go Top
                 Do While !Eof()
                   nerr := iif( tmp1->kol2 == 0, 2, 1 )
@@ -2690,9 +2690,9 @@ Function _263_from_read()
                 Enddo
               Case nf->TIP_F == 3
                 Select NFN
-                Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For KOD_F == nf->KOD
+                Index On Str( FIELD->kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For FIELD->KOD_F == nf->KOD
                 Select NAPR
-                Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For KOD_F_3out == nf->KOD
+                Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For FIELD->KOD_F_3out == nf->KOD
                 Go Top
                 Do While !Eof()
                   nerr := iif( tmp1->kol2 == 0, 2, 1 )
@@ -2739,9 +2739,9 @@ Function _263_from_read()
                 Enddo
               Case nf->TIP_F == 4 .or. nf->TIP_F == 5
                 Select NFN
-                Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For KOD_F == nf->KOD
+                Index On Str( FIELD->kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For FIELD->KOD_F == nf->KOD
                 Select NAPR
-                Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For KOD_F_4out == nf->KOD
+                Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For FIELD->KOD_F_4out == nf->KOD
                 Go Top
                 Do While !Eof()
                   nerr := iif( tmp1->kol2 == 0, 2, 1 )
@@ -2788,9 +2788,9 @@ Function _263_from_read()
                 Enddo
               Case nf->TIP_F == 6
                 Select NFN
-                Index On Str( kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For KOD_F == nf->KOD
+                Index On Str( FIELD->kod_n, 6 ) to ( cur_dir() + 'tmp_nfn' ) For FIELD->KOD_F == nf->KOD
                 Select NAPR
-                Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For KOD_F_6out == nf->KOD
+                Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For FIELD->KOD_F_6out == nf->KOD
                 Go Top
                 Do While !Eof()
                   nerr := iif( tmp1->kol2 == 0, 2, 1 )
@@ -2844,7 +2844,7 @@ Function _263_from_read()
               Do Case
               Case nf->TIP_F == 1
                 Select NAPR
-                Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For KOD_F_1out == nf->KOD
+                Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For FIELD->KOD_F_1out == nf->KOD
                 Go Top
                 Do While !Eof()
                   g_rlock( forever )
@@ -2854,7 +2854,7 @@ Function _263_from_read()
                 Enddo
               Case nf->TIP_F == 3
                 Select NAPR
-                Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For KOD_F_3out == nf->KOD
+                Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For FIELD->KOD_F_3out == nf->KOD
                 Go Top
                 Do While !Eof()
                   g_rlock( forever )
@@ -2864,7 +2864,7 @@ Function _263_from_read()
                 Enddo
               Case nf->TIP_F == 4 .or. nf->TIP_F == 5
                 Select NAPR
-                Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For KOD_F_4out == nf->KOD
+                Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For FIELD->KOD_F_4out == nf->KOD
                 Go Top
                 Do While !Eof()
                   g_rlock( forever )
@@ -2874,7 +2874,7 @@ Function _263_from_read()
                 Enddo
               Case nf->TIP_F == 6
                 Select NAPR
-                Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For KOD_F_6out == nf->KOD
+                Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_naprkod' ) For FIELD->KOD_F_6out == nf->KOD
                 Go Top
                 Do While !Eof()
                   g_rlock( forever )
@@ -2915,7 +2915,7 @@ Function _263_from_read()
       Else // полученный файл информационного пакета
         type_paket := Int( Val( SubStr( cName, 3, 1 ) ) )
         Select NF
-        Index On Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) For in_out == 2
+        Index On Upper( FIELD->name_f ) to ( cur_dir() + 'tmp_nf' ) For FIELD->in_out == 2
         find ( PadR( Upper( cName ), 26 ) ) // поиск, м.б. уже читали?
         If Found()
           StrFile( Space( 5 ) + 'данный файл уже был прочитан ' + date_8( nf->DWORK ) + 'г. в ' + nf->TWORK2 + ;
@@ -2965,7 +2965,7 @@ Function _263_from_read()
                 If _263_i01_tmpfile( af[ 1 ], aerr )
                   is_read := .t.
                   Select NAPR
-                  Index On num_d to ( cur_dir() + 'tmp_naprnum' )
+                  Index On FIELD->num_d to ( cur_dir() + 'tmp_naprnum' )
                   // добавим запись о принимаемом файле
                   Select NF
                   g_rlock( .t., forever ) // бесконечная попытка добавить запись
@@ -3131,9 +3131,9 @@ Function _263_from_read()
                 If _263_i04_tmpfile( af[ 1 ], aerr )
                   is_read := .t.
                   Select NAPR
-                  Index On Upper( id_4 ) to ( cur_dir() + 'tmp_naprid4' )
+                  Index On Upper( FIELD->id_4 ) to ( cur_dir() + 'tmp_naprid4' )
                   If !( sFrom == glob_mo()[ _MO_KOD_TFOMS ] ) .and. is_napr_pol()
-                    Index On Upper( id_1 ) to ( cur_dir() + 'tmp_naprid1' )
+                    Index On Upper( FIELD->id_1 ) to ( cur_dir() + 'tmp_naprid1' )
                     Set Index to ( cur_dir() + 'tmp_naprid4' ), ( cur_dir() + 'tmp_naprid1' )
                   Endif
                   // добавим запись о принимаемом файле
@@ -3276,10 +3276,10 @@ Function _263_from_read()
                 If _263_i06_tmpfile( af[ 1 ], aerr )
                   is_read := .t.
                   Select NAPR
-                  Index On Upper( id_6 ) to ( cur_dir() + 'tmp_naprid6' )
+                  Index On Upper( FIELD->id_6 ) to ( cur_dir() + 'tmp_naprid6' )
                   If !( sFrom == glob_mo()[ _MO_KOD_TFOMS ] ) .and. is_napr_pol()
-                    Index On Upper( id_1 ) to ( cur_dir() + 'tmp_naprid1' )
-                    Index On DToS( DATE_H_4 ) to ( cur_dir() + 'tmp_naprd4' )
+                    Index On Upper( FIELD->id_1 ) to ( cur_dir() + 'tmp_naprid1' )
+                    Index On DToS( FIELD->DATE_H_4 ) to ( cur_dir() + 'tmp_naprd4' )
                     Set Index to ( cur_dir() + 'tmp_naprid6' ), ( cur_dir() + 'tmp_naprid1' ), ( cur_dir() + 'tmp_naprd4' )
                   Endif
                   // добавим запись о принимаемом файле
@@ -3594,7 +3594,7 @@ Function _263_from_protokol()
     rest_box( buf )
     Return func_error( 4, 'Пока ещё не читали информационные пакеты из ТФОМС' )
   Endif
-  Index On Descend( txt_f ) to ( cur_dir() + 'tmp' )
+  Index On Descend( FIELD->txt_f ) to ( cur_dir() + 'tmp' )
   Go Top
   t_arr[ BR_TOP ] := T_ROW
   t_arr[ BR_BOTTOM ] := MaxRow() -2
@@ -3637,8 +3637,8 @@ Function _263_from_i01()
     Return func_error( 4, err_slock() )
   Endif
   g_use( dir_server() + 'mo_nfile', , 'NF' )
-  Index On DToS( date_r ) + Upper( name_f ) to ( cur_dir() + 'tmp_nf' ) ;
-    For in_out == 2 .and. tip_f == 1 DESCENDING
+  Index On DToS( FIELD->date_r ) + Upper( FIELD->name_f ) to ( cur_dir() + 'tmp_nf' ) ;
+    For FIELD->in_out == 2 .and. FIELD->tip_f == 1 DESCENDING
   Go Top
   If Eof()
     Close databases
@@ -3714,7 +3714,7 @@ Function f2_263_from_i01( nKey, oBrow, regim )
         If f_esc_enter( 'аннулирования', .t. )
           mywait()
           g_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-          Index On kod to ( cur_dir() + 'tmp_napr' ) For KOD_F_1in == nf->kod
+          Index On FIELD->kod to ( cur_dir() + 'tmp_napr' ) For FIELD->KOD_F_1in == nf->kod
           arr := {}
           dbEval( {|| AAdd( arr, napr->( RecNo() ) ) } )
           Set Index To
@@ -3752,11 +3752,11 @@ Function f2_263_from_i01( nKey, oBrow, regim )
       add_string( 'от МО ' + CharOne( '"', ret_mo( SubStr( nf->name_f, 12, 6 ) )[ _MO_SHORT_NAME ] ) )
       r_use( dir_server() + 'kartote_', , '_KART_' )
       r_use( dir_server() + 'kartotek', , '_KART' )
-      Set Relation To kod into _KART_
+      Set Relation To FIELD->kod into _KART_
       r_use( dir_server() + 'mo_nnapr', , 'NAPR' )
-      Set Relation To kod_k into _KART
+      Set Relation To FIELD->kod_k into _KART
       Index On Upper( _kart->fio ) + Str( _kart->kod, 7 ) to ( cur_dir() + 'tmp_napr' ) ;
-        For KOD_F_1in == nf->kod
+        For FIELD->KOD_F_1in == nf->kod
       i := 0
       Go Top
       Do While !Eof()
@@ -3990,7 +3990,7 @@ Function _263_protokol_tmpfile( nfile, aerr )
     Next j
   Endif
   Select TMP2
-  Index On Upper( ID_BAS ) to ( cur_dir() + 'tmp2file' )
+  Index On Upper( FIELD->ID_BAS ) to ( cur_dir() + 'tmp2file' )
   Commit
   Return is_err_FLK
 

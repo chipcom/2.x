@@ -45,8 +45,7 @@ function load_exists_uslugi()
         endif
         skip
       enddo
-    
-    //
+
       ( lAlias )->( dbSeek ( kod_mo_tfoms + '60.3.' ) )
 //      if ( lAlias )->( found() )
 //        is_alldializ := .t.
@@ -101,7 +100,9 @@ function load_exists_uslugi()
         glob_menu_mz_rf( 2, ( lAlias )->( found() ) )
       endif
 
-      // is_napr_stac( .t. )  // Άª«ξη « Ά ­ η «¥ £®¤  ¤«ο £®α―¨β «¨§ ζ¨¨
+      // ‚……
+is_napr_stac( .t. )  // Άª«ξη « Ά ­ η «¥ £®¤  ¤«ο £®α―¨β «¨§ ζ¨¨
+      //
     
     //
       tmp_stom := { '2.78.54', '2.78.55', '2.78.56', '2.78.57', '2.78.58', '2.78.59', '2.78.60' }
