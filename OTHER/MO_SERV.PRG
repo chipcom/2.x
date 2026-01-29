@@ -4382,8 +4382,22 @@ Function tools_ini_orto( reg, k1, k2, fll )
 Function nastr_input( k, nTask )
   Return Nil
 
+// 29.01.26
+function mm_oms_pole()
 
-// 21.01.26 настройка рабочего места
+  return { ;
+    'сроки лечения', ;    // 1
+    'леч.врач', ;         // 2
+    'осн.диагноз', ;      // 3
+    'профиль', ;          // 4
+    'результат', ;        // 5
+    'исход', ;            // 6
+    'место обращения', ;  // 7
+    'способ оплаты',  ;   // 8
+    'профиль МЗ РФ' ;     // 9
+  }
+
+// 29.01.26 настройка рабочего места
 Function nastr_rab_mesto()
 
   Static group_ini := "RAB_MESTO"
@@ -4399,6 +4413,7 @@ Function nastr_rab_mesto()
     { 'нет', Space( 50 ) }, ;
     { 'подключить', '1' } ;
   }
+/*
   Private mm_oms_pole := { ;
     'сроки лечения', ;    // 1
     'леч.врач', ;         // 2
@@ -4410,6 +4425,7 @@ Function nastr_rab_mesto()
     'способ оплаты' ;    // 8
   }
 //    'повод обращения', ;  // 7
+*/
   ar := getinisect( tmp_ini(), group_ini )
   sr := a2default( ar, 'sc_reader' )
   If !Empty( sr )
@@ -4452,8 +4468,8 @@ Function nastr_rab_mesto()
     'Какие поля запоминать и переносить в следующий добавляемый случай при вводе',, ;
     {|| .f. } } )
   AAdd( mm_tmp, { 'oms_pole', 'N', 15, 0, NIL, ;
-    {| x| menu_reader( x, mm_oms_pole, A__MENUBIT ) }, ;
-    0, {| x| inieditspr( A__MENUBIT, mm_oms_pole, x ) }, ;
+    {| x| menu_reader( x, mm_oms_pole(), A__MENUBIT ) }, ;
+    0, {| x| inieditspr( A__MENUBIT, mm_oms_pole(), x ) }, ;
     'л/у ОМС:' } )
   AAdd( mm_tmp, { 'wokato', 'N', 1, 0, NIL, ;
     {| x| menu_reader( x, mm_wokato, A__MENUVERT ) }, ;
