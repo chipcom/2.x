@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.01.26 добавление или редактирование случая (листа учета)
+// 29.01.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -112,9 +112,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     mDATE_R2 := CToD( '' ),  mpol2 := ' ', ;
     m1USL_OK := 0, mUSL_OK, ;
     m1P_PER := 0, mP_PER := Space( 35 ), ; // Признак поступления/перевода 1-4
-    m1PROFIL := st_profil, mPROFIL, ;
+    m1PROFIL := st_profil, mPROFIL := space( 27 ), ;
     m1PROFIL_K := st_profil_k, mPROFIL_K, ;
-    m1PROFIL_M := 0, mPROFIL_M, ;
+    m1PROFIL_M := 0, mPROFIL_M := Space( 15 ), ;
     m1vid_reab := 0, mvid_reab, ;
     m1MOP := st_MOP, mMOP, ;    // место обращения (посещения) tmp_V040
     mstatus_st := Space( 10 ), ;
@@ -617,9 +617,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     mp_per := inieditspr( A__MENUVERT, mm_p_per, m1p_per )
   Endif
   mMOP      := SubStr( inieditspr( A__MENUVERT, getv040(), m1MOP ), 1, 29 )
-  mPROFIL   := inieditspr( A__MENUVERT, getv002(), m1PROFIL )
+  mPROFIL   := SubStr( inieditspr( A__MENUVERT, getv002(), m1PROFIL ), 1, 27 )
   mPROFIL_K := inieditspr( A__MENUVERT, getv020(),  m1PROFIL_K )
-  mPROFIL_M := inieditspr( A__MENUVERT, getM003(),  m1PROFIL_M )
+  mPROFIL_M := Substr( inieditspr( A__MENUVERT, getM003(),  m1PROFIL_M ), 1, 15 )
   mvid_reab := inieditspr( A__MENUVERT, mm_vid_reab, m1vid_reab )
   If !Empty( m1NPR_MO )
     mNPR_MO := substr( ret_mo( m1NPR_MO )[ _MO_SHORT_NAME ], 1, 20 )
