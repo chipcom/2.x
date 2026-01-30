@@ -11,6 +11,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   Static SKOD_DIAG := '     ', st_l_z := 1, st_N_DATA, st_K_DATA, st_rez_gist, ;
     st_vrach := 0, st_profil := 0, st_profil_k := 0, st_rslt := 0, st_ishod := 0, st_povod := 9
   static st_MOP := 1
+  static st_PROFIL_M := 0
   Static menu_bolnich := { { 'нет', 0 }, { 'да ', 1 }, { 'РОД', 2 } }
 
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, ;
@@ -114,7 +115,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     m1P_PER := 0, mP_PER := Space( 35 ), ; // Признак поступления/перевода 1-4
     m1PROFIL := st_profil, mPROFIL := space( 27 ), ;
     m1PROFIL_K := st_profil_k, mPROFIL_K, ;
-    m1PROFIL_M := 0, mPROFIL_M := Space( 15 ), ;
+    m1PROFIL_M := st_PROFIL_M, mPROFIL_M := Space( 15 ), ;
     m1vid_reab := 0, mvid_reab, ;
     m1MOP := st_MOP, mMOP, ;    // место обращения (посещения) tmp_V040
     mstatus_st := Space( 10 ), ;
@@ -321,10 +322,12 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       mMO_PR := AllTrim( inieditspr( A__MENUVERT, get_f032_prik(), m1MO_PR ) )
     endif
 
-    r_use( dir_server() + 'mo_otd', , 'OTD' )
-    Goto ( m1otd )
-    m1PROFIL_M := otd->PROFIL_M
-    otd->( dbCloseArea() )
+    if Empty( st_PROFIL_M )
+      r_use( dir_server() + 'mo_otd', , 'OTD' )
+      Goto ( m1otd )
+      m1PROFIL_M := otd->PROFIL_M
+      otd->( dbCloseArea() )
+    endif
 
     // проверка исхода = СМЕРТЬ
     Select HUMAN
@@ -2004,6 +2007,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       endif*/
       If IsBit( mem_oms_pole, 7 )  // место обращения (посещения) tmp_V040  7
         st_MOP := m1MOP
+      endif
+      If IsBit( mem_oms_pole, 9 )  // профиль МЗ РФ M003  9
+        st_PROFIL_M := m1PROFIL_M
       endif
 
       glob_perso := mkod

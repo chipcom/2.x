@@ -1,8 +1,8 @@
 #include 'common.ch'
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
 
 // 25.01.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
@@ -15,8 +15,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, arr_del := {}, mrec_hu := 0, mrec_mohu := 0, ;
     buf := SaveScreen(), tmp_color := SetColor(), a_smert := {}, ;
-    p_uch_doc := "@!", pic_diag := "@K@!", arr_usl := {}, ah, ;
-    i, j, k, s, colget_menu := "R/W", colgetImenu := "R/BG", ;
+    p_uch_doc := '@!', pic_diag := '@K@!', arr_usl := {}, ah, ;
+    i, j, k, s, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
     pos_read := 0, k_read := 0, count_edit := 0, ar, larr, lu_kod, ;
     fl, tmp_help := chm_help_code, fl_write_sluch := .f., mu_cena, lrslt_1_etap := 0
 
@@ -41,12 +41,12 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Return Nil
     Endif
   Elseif Loc_kod > 0
-    r_use( dir_server() + "human",, "HUMAN" )
+    r_use( dir_server() + 'human',, 'HUMAN' )
     Goto ( Loc_kod )
     fl := ( human->k_data < 0d20210701 )
     Use
     If fl
-      Return func_error( 4, "Углубленная диспансеризация после COVID началась 01 июля 2021 году" )
+      Return func_error( 4, 'Углубленная диспансеризация после COVID началась 01 июля 2021 году' )
     Endif
   Endif
 
@@ -63,7 +63,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     msmo := '34007', rec_inogSMO := 0, ;
     mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 ), ;
     mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ), mnpolis := Space( 20 )
-  Private mkod := Loc_kod, is_talon := .f., mshifr_zs := "", ;
+  Private mkod := Loc_kod, is_talon := .f., mshifr_zs := '', ;
     mkod_k := kod_kartotek, fl_kartotek := ( kod_kartotek == 0 ), ;
     M1LPU := glob_uch[ 1 ], MLPU, ;
     M1OTD := glob_otd[ 1 ], MOTD, ;
@@ -109,8 +109,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
   Private mvar, m1var // переменный для организации ввода ин-ции в табличной части
   Private mm_ndisp := { ;
-    { "Углубленная диспансеризация I  этап", 1 }, ;
-    { "Углубленная диспансеризация II этап", 2 } }
+    { 'Углубленная диспансеризация I  этап', 1 }, ;
+    { 'Углубленная диспансеризация II этап', 2 } }
   Private mm_strong := { ;
     { 'Легкое течение болезни', 1 }, ;
     { 'Среднее течение болезни', 2 }, ;
@@ -129,14 +129,14 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   Private mm_gruppaP := arr_mm_gruppaP()
   Private mm_gruppaD1 := { ;
-    { "Проведена диспансеризация - присвоена I группа здоровья",1, 317 }, ;
-    { "Проведена диспансеризация - присвоена II группа здоровья",2, 318 }, ;
-    { "Проведена диспансеризация - присвоена IIIа группа здоровья", 3, 355 }, ;
-    { "Проведена диспансеризация - присвоена IIIб группа здоровья", 4, 356 }, ;
-    { "Направлен на 2 этап, предварительно присвоена I группа здоровья",11, 352 }, ;
-    { "Направлен на 2 этап, предварительно присвоена II группа здоровья",12, 353 }, ;
-    { "Направлен на 2 этап, предварительно присвоена IIIа группа здоровья", 13, 357 }, ;
-    { "Направлен на 2 этап, предварительно присвоена IIIб группа здоровья", 14, 358 };
+    { 'Проведена диспансеризация - присвоена I группа здоровья',1, 317 }, ;
+    { 'Проведена диспансеризация - присвоена II группа здоровья',2, 318 }, ;
+    { 'Проведена диспансеризация - присвоена IIIа группа здоровья', 3, 355 }, ;
+    { 'Проведена диспансеризация - присвоена IIIб группа здоровья', 4, 356 }, ;
+    { 'Направлен на 2 этап, предварительно присвоена I группа здоровья',11, 352 }, ;
+    { 'Направлен на 2 этап, предварительно присвоена II группа здоровья',12, 353 }, ;
+    { 'Направлен на 2 этап, предварительно присвоена IIIа группа здоровья', 13, 357 }, ;
+    { 'Направлен на 2 этап, предварительно присвоена IIIб группа здоровья', 14, 358 };
     }
   Private mm_gruppaD2 := AClone( mm_gruppaD1 )
   ASize( mm_gruppaD2, 4 )
@@ -150,7 +150,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   Private mm_dispans := arr_mm_dispans()
   Private mm_dopo_na := arr_mm_dopo_na()
   Private gl_arr := { ;  // для битовых полей
-  { "dopo_na", "N", 10, 0,,,, {| x| inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
+  { 'dopo_na', 'N', 10, 0,,,, {| x| inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
     }
   Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
     arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
@@ -168,54 +168,54 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   For i := 1 To 5
     sk := lstr( i )
-    pole_diag := "mdiag" + sk
-    pole_d_diag := "mddiag" + sk
-    pole_pervich := "mpervich" + sk
-    pole_1pervich := "m1pervich" + sk
-    pole_stadia := "m1stadia" + sk
-    pole_dispans := "mdispans" + sk
-    pole_1dispans := "m1dispans" + sk
-    pole_d_dispans := "mddispans" + sk
-    pole_dn_dispans := "mdndispans" + sk
+    pole_diag := 'mdiag' + sk
+    pole_d_diag := 'mddiag' + sk
+    pole_pervich := 'mpervich' + sk
+    pole_1pervich := 'm1pervich' + sk
+    pole_stadia := 'm1stadia' + sk
+    pole_dispans := 'mdispans' + sk
+    pole_1dispans := 'm1dispans' + sk
+    pole_d_dispans := 'mddispans' + sk
+    pole_dn_dispans := 'mdndispans' + sk
     Private &pole_diag := Space( 6 )
-    Private &pole_d_diag := CToD( "" )
+    Private &pole_d_diag := CToD( '' )
     Private &pole_pervich := Space( 7 )
     Private &pole_1pervich := 0
     Private &pole_stadia := 1
     Private &pole_dispans := Space( 10 )
     Private &pole_1dispans := 0
-    Private &pole_d_dispans := CToD( "" )
-    Private &pole_dn_dispans := CToD( "" )
+    Private &pole_d_dispans := CToD( '' )
+    Private &pole_dn_dispans := CToD( '' )
   Next
 
   For i := 1 To Len( ret_arrays_disp_covid() )  // создадим поля ввода для всех возможных услуг диспансеризации
-    mvar := "MTAB_NOMv" + lstr( i )
+    mvar := 'MTAB_NOMv' + lstr( i )
     Private &mvar := 0
-    mvar := "MTAB_NOMa" + lstr( i )
+    mvar := 'MTAB_NOMa' + lstr( i )
     Private &mvar := 0
-    mvar := "MDATE" + lstr( i )
-    Private &mvar := CToD( "" )
-    mvar := "MKOD_DIAG" + lstr( i )
+    mvar := 'MDATE' + lstr( i )
+    Private &mvar := CToD( '' )
+    mvar := 'MKOD_DIAG' + lstr( i )
     Private &mvar := Space( 6 )
-    mvar := "MOTKAZ" + lstr( i )
+    mvar := 'MOTKAZ' + lstr( i )
     Private &mvar := mm_otkaz[ 1, 1 ]
-    mvar := "M1OTKAZ" + lstr( i )
+    mvar := 'M1OTKAZ' + lstr( i )
     Private &mvar := mm_otkaz[ 1, 2 ]
   Next
   //
   AFill( adiag_talon, 0 )
 
-  r_use( dir_server() + "human_2",, "HUMAN_2" )
-  r_use( dir_server() + "human_",, "HUMAN_" )
-  r_use( dir_server() + "human",, "HUMAN" )
+  r_use( dir_server() + 'human_2',, 'HUMAN_2' )
+  r_use( dir_server() + 'human_',, 'HUMAN_' )
+  r_use( dir_server() + 'human',, 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
 
   If mkod_k > 0
-    r_use( dir_server() + "kartote2",, "KART2" )
+    r_use( dir_server() + 'kartote2',, 'KART2' )
     Goto ( mkod_k )
-    r_use( dir_server() + "kartote_",, "KART_" )
+    r_use( dir_server() + 'kartote_',, 'KART_' )
     Goto ( mkod_k )
-    r_use( dir_server() + "kartotek",, "KART" )
+    r_use( dir_server() + 'kartotek',, 'KART' )
     Goto ( mkod_k )
     M1FIO       := 1
     mfio        := kart->fio
@@ -248,13 +248,13 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     // проверка исхода = СМЕРТЬ
     ah := {}
     Select HUMAN
-    Set Index to ( dir_server() + "humankk" )
+    Set Index to ( dir_server() + 'humankk' )
     find ( Str( mkod_k, 7 ) )
     Do While human->kod_k == mkod_k .and. !Eof()
       If human_->oplata != 9 .and. human_->NOVOR == 0 .and. RecNo() != Loc_kod
         If is_death( human_->RSLT_NEW ) .and. Empty( a_smert )
-          a_smert := { "Данный больной умер!", ;
-            "Лечение с " + full_date( human->N_DATA ) + " по " + full_date( human->K_DATA ) }
+          a_smert := { 'Данный больной умер!', ;
+            'Лечение с ' + full_date( human->N_DATA ) + ' по ' + full_date( human->K_DATA ) }
         Endif
         // If Between( human->ishod, 401, 402 )
         If is_sluch_dispanser_COVID( human->ishod )
@@ -329,10 +329,10 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     arr_usl := {} // array(len(uslugiEtap_DVN_COVID(metap)))
     afillall( larr, 0 )
     // afillall(arr_usl,0)
-    r_use( dir_server() + "uslugi",, "USL" )
-    r_use( dir_server() + "mo_su",, "MOSU" )
-    use_base( "mo_hu" )
-    use_base( "human_u" )
+    r_use( dir_server() + 'uslugi',, 'USL' )
+    r_use( dir_server() + 'mo_su',, 'MOSU' )
+    use_base( 'mo_hu' )
+    use_base( 'human_u' )
 
     // сначала выберем информацию из human_u по услугам ТФОМС
     find ( Str( Loc_kod, 7 ) )
@@ -344,7 +344,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       lshifr := AllTrim( lshifr )
       For i := 1 To Len( uslugietap_dvn_covid( metap ) )
         If Empty( larr[ 1, i ] )
-          If ValType( uslugietap_dvn_covid( metap )[ i, 2 ] ) == "C" .and. uslugietap_dvn_covid( metap )[ i, 12 ] == 0  // услуга ТФОМС
+          If ValType( uslugietap_dvn_covid( metap )[ i, 2 ] ) == 'C' .and. uslugietap_dvn_covid( metap )[ i, 12 ] == 0  // услуга ТФОМС
             If uslugietap_dvn_covid( metap )[ i, 2 ] == lshifr
               fl := .f.
               larr[ 1, i ] := hu->( RecNo() )
@@ -352,9 +352,9 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
               // arr_usl[i] := hu->(recno())
               AAdd( arr_usl, hu->( RecNo() ) )
 
-              If ValType( uslugietap_dvn_covid( metap )[ i, 13 ] ) == "C" .and. !Empty( uslugietap_dvn_covid( metap )[ i, 13 ] )
+              If ValType( uslugietap_dvn_covid( metap )[ i, 13 ] ) == 'C' .and. !Empty( uslugietap_dvn_covid( metap )[ i, 13 ] )
                 Select MOHU
-                Set Relation To u_kod into MOSU
+                Set Relation To FIELD->u_kod into MOSU
                 find ( Str( Loc_kod, 7 ) )
                 Do While MOHU->kod == Loc_kod .and. !Eof()
                   MOSU->( dbGoto( MOHU->u_kod ) )
@@ -377,14 +377,14 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
     // затем выберем информацию из mo_hu по услугам ФФОМС
     Select MOHU
-    Set Relation To u_kod into MOSU
+    Set Relation To FIELD->u_kod into MOSU
     find ( Str( Loc_kod, 7 ) )
     Do While MOHU->kod == Loc_kod .and. !Eof()
       MOSU->( dbGoto( MOHU->u_kod ) )
       lshifr := AllTrim( iif( Empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
       For i := 1 To Len( uslugietap_dvn_covid( metap ) )
         If Empty( larr[ 1, i ] )
-          If ValType( uslugietap_dvn_covid( metap )[ i, 2 ] ) == "C" .and. uslugietap_dvn_covid( metap )[ i, 12 ] == 1  // услуга ФФОМС
+          If ValType( uslugietap_dvn_covid( metap )[ i, 2 ] ) == 'C' .and. uslugietap_dvn_covid( metap )[ i, 12 ] == 1  // услуга ФФОМС
             If uslugietap_dvn_covid( metap )[ i, 2 ] == lshifr
               fl := .f.
               larr[ 1, i ] := MOHU->( RecNo() )
@@ -398,105 +398,105 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Skip
     Enddo
     //
-    r_use( dir_server() + "mo_pers",, "P2" )
+    r_use( dir_server() + 'mo_pers',, 'P2' )
     read_arr_dvn_covid( Loc_kod )     // читаем сохраненные данные по углубленной диспансеризации
 
     If metap == 1 .and. Between( m1GRUPPA, 11, 14 ) .and. m1p_otk == 1
       m1GRUPPA += 10
     Endif
     For i := 1 To Len( larr[ 1 ] )
-      If ( ValType( larr[ 2, i ] ) == "C" ) .and. ( ! eq_any( SubStr( larr[ 2, i ], 1, 1 ), 'A', 'B' ) )  // это услуга ТФОМС, а не ФФОМС (первый символ не A,B)
+      If ( ValType( larr[ 2, i ] ) == 'C' ) .and. ( ! eq_any( SubStr( larr[ 2, i ], 1, 1 ), 'A', 'B' ) )  // это услуга ТФОМС, а не ФФОМС (первый символ не A,B)
         If larr[ 2, i ] == '70.8.1'  // пропустим эту услугу
           Loop
         Endif
         hu->( dbGoto( larr[ 1, i ] ) )
         If hu->kod_vr > 0
           p2->( dbGoto( hu->kod_vr ) )
-          mvar := "MTAB_NOMv" + lstr( i )
+          mvar := 'MTAB_NOMv' + lstr( i )
           &mvar := p2->tab_nom
         Endif
         If hu->kod_as > 0
           p2->( dbGoto( hu->kod_as ) )
-          mvar := "MTAB_NOMa" + lstr( i )
+          mvar := 'MTAB_NOMa' + lstr( i )
           &mvar := p2->tab_nom
         Endif
-        mvar := "MDATE" + lstr( i )
+        mvar := 'MDATE' + lstr( i )
         &mvar := c4tod( hu->date_u )
-        If !Empty( hu_->kod_diag ) .and. !( Left( hu_->kod_diag, 1 ) == "U" )
-          mvar := "MKOD_DIAG" + lstr( i )
+        If !Empty( hu_->kod_diag ) .and. !( Left( hu_->kod_diag, 1 ) == 'U' )
+          mvar := 'MKOD_DIAG' + lstr( i )
           &mvar := hu_->kod_diag
         Endif
-        m1var := "M1OTKAZ" + lstr( i )
+        m1var := 'M1OTKAZ' + lstr( i )
         &m1var := 0 // выполнено
-        If ValType( uslugietap_dvn_covid( metap )[ i, 2 ] ) == "C"
+        If ValType( uslugietap_dvn_covid( metap )[ i, 2 ] ) == 'C'
           If AScan( arr_otklon, uslugietap_dvn_covid( metap )[ i, 2 ] ) > 0
             &m1var := 3 // выполнено, обнаружены отклонения
           Endif
         Endif
-        mvar := "MOTKAZ" + lstr( i )
+        mvar := 'MOTKAZ' + lstr( i )
         &mvar := inieditspr( A__MENUVERT, mm_otkaz, &m1var )
-      Elseif ( ValType( larr[ 2, i ] ) == "C" ) .and. ( eq_any( SubStr( larr[ 2, i ], 1, 1 ), 'A', 'B' ) )  // это услуга ФФОМС (первый символ A,B)
+      Elseif ( ValType( larr[ 2, i ] ) == 'C' ) .and. ( eq_any( SubStr( larr[ 2, i ], 1, 1 ), 'A', 'B' ) )  // это услуга ФФОМС (первый символ A,B)
         MOHU->( dbGoto( larr[ 1, i ] ) )
         If MOHU->kod_vr > 0
           p2->( dbGoto( MOHU->kod_vr ) )
-          mvar := "MTAB_NOMv" + lstr( i )
+          mvar := 'MTAB_NOMv' + lstr( i )
           &mvar := p2->tab_nom
         Endif
         If MOHU->kod_as > 0
           p2->( dbGoto( MOHU->kod_as ) )
-          mvar := "MTAB_NOMa" + lstr( i )
+          mvar := 'MTAB_NOMa' + lstr( i )
           &mvar := p2->tab_nom
         Endif
-        mvar := "MDATE" + lstr( i )
+        mvar := 'MDATE' + lstr( i )
         &mvar := c4tod( MOHU->date_u )
-        If !Empty( MOHU->kod_diag ) .and. !( Left( MOHU->kod_diag, 1 ) == "U" )
-          mvar := "MKOD_DIAG" + lstr( i )
+        If !Empty( MOHU->kod_diag ) .and. !( Left( MOHU->kod_diag, 1 ) == 'U' )
+          mvar := 'MKOD_DIAG' + lstr( i )
           &mvar := hu_->kod_diag
         Endif
-        m1var := "M1OTKAZ" + lstr( i )
+        m1var := 'M1OTKAZ' + lstr( i )
         &m1var := 0 // выполнено
-        If ValType( uslugietap_dvn_covid( metap )[ i, 2 ] ) == "C"
+        If ValType( uslugietap_dvn_covid( metap )[ i, 2 ] ) == 'C'
           If AScan( arr_otklon, uslugietap_dvn_covid( metap )[ i, 2 ] ) > 0
             &m1var := 3 // выполнено, обнаружены отклонения
           Endif
         Endif
-        mvar := "MOTKAZ" + lstr( i )
+        mvar := 'MOTKAZ' + lstr( i )
         &mvar := inieditspr( A__MENUVERT, mm_otkaz, &m1var )
       Endif
     Next
     If AllTrim( msmo ) == '34'
       mnameismo := ret_inogsmo_name( 2, @rec_inogSMO, .t. ) // открыть и закрыть
     Endif
-    If ValType( arr_usl_otkaz ) == "A"
+    If ValType( arr_usl_otkaz ) == 'A'
       For j := 1 To Len( arr_usl_otkaz )
         ar := arr_usl_otkaz[ j ]
-        If ValType( ar ) == "A" .and. Len( ar ) >= 5 .and. ValType( ar[ 5 ] ) == "C"
+        If ValType( ar ) == 'A' .and. Len( ar ) >= 5 .and. ValType( ar[ 5 ] ) == 'C'
           lshifr := AllTrim( ar[ 5 ] )
 
           For i := 1 To Len( uslugietap_dvn_covid( metap ) )
-            If ValType( uslugietap_dvn_covid( metap )[ i, 2 ] ) == "C" .and. ;
+            If ValType( uslugietap_dvn_covid( metap )[ i, 2 ] ) == 'C' .and. ;
                 ( uslugietap_dvn_covid( metap )[ i, 2 ] == lshifr )
-              If ValType( ar[ 1 ] ) == "N" .and. ar[ 1 ] > 0
+              If ValType( ar[ 1 ] ) == 'N' .and. ar[ 1 ] > 0
                 p2->( dbGoto( ar[ 1 ] ) )
-                mvar := "MTAB_NOMv" + lstr( i )
+                mvar := 'MTAB_NOMv' + lstr( i )
                 &mvar := p2->tab_nom
               Endif
-              If ValType( ar[ 3 ] ) == "N" .and. ar[ 3 ] > 0
+              If ValType( ar[ 3 ] ) == 'N' .and. ar[ 3 ] > 0
                 p2->( dbGoto( ar[ 3 ] ) )
-                mvar := "MTAB_NOMa" + lstr( i )
+                mvar := 'MTAB_NOMa' + lstr( i )
                 &mvar := p2->tab_nom
               Endif
-              mvar := "MDATE" + lstr( i )
+              mvar := 'MDATE' + lstr( i )
               &mvar := mn_data
-              If Len( ar ) >= 9 .and. ValType( ar[ 9 ] ) == "D"
+              If Len( ar ) >= 9 .and. ValType( ar[ 9 ] ) == 'D'
                 &mvar := ar[ 9 ]
               Endif
-              m1var := "M1OTKAZ" + lstr( i )
+              m1var := 'M1OTKAZ' + lstr( i )
               &m1var := 1
-              If Len( ar ) >= 10 .and. ValType( ar[ 10 ] ) == "N" .and. Between( ar[ 10 ], 1, 2 )
+              If Len( ar ) >= 10 .and. ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
                 &m1var := ar[ 10 ]
               Endif
-              mvar := "MOTKAZ" + lstr( i )
+              mvar := 'MOTKAZ' + lstr( i )
               &mvar := inieditspr( A__MENUVERT, mm_otkaz, &m1var )
             Endif
           Next i
@@ -524,8 +524,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   mndisp    := inieditspr( A__MENUVERT, mm_ndisp, metap )
   mrab_nerab := inieditspr( A__MENUVERT, menu_rab, m1rab_nerab )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
-  mlpu      := inieditspr( A__POPUPMENU, dir_server() + "mo_uch", m1lpu )
-  motd      := inieditspr( A__POPUPMENU, dir_server() + "mo_otd", m1otd )
+  mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
+  motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
@@ -554,11 +554,11 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   mnapr_v_mo := inieditspr( A__MENUVERT, mm_napr_v_mo, m1napr_v_mo )
   mkomorbid := inieditspr( A__MENUVERT, mm_komorbid, m1komorbid )
   If Empty( arr_mo_spec )
-    ma_mo_spec := "---"
+    ma_mo_spec := '---'
   Else
-    ma_mo_spec := ""
+    ma_mo_spec := ''
     For i := 1 To Len( arr_mo_spec )
-      ma_mo_spec += lstr( arr_mo_spec[ i ] ) + ","
+      ma_mo_spec += lstr( arr_mo_spec[ i ] ) + ','
     Next
     ma_mo_spec := Left( ma_mo_spec, Len( ma_mo_spec ) -1 )
   Endif
@@ -575,21 +575,21 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   Endif
   //
   If !Empty( f_print )
-    return &( f_print + "(" + lstr( Loc_kod ) + "," + lstr( kod_kartotek ) + ")" )
+    return &( f_print + '(' + lstr( Loc_kod ) + ',' + lstr( kod_kartotek ) + ')' )
   Endif
 
   //
-  str_1 := " случая углубленной диспансеризации взрослого населения (COVID)"
+  str_1 := ' случая углубленной диспансеризации взрослого населения (COVID)'
   If Loc_kod == 0
-    str_1 := "Добавление" + str_1
+    str_1 := 'Добавление' + str_1
   Else
-    str_1 := "Редактирование" + str_1
+    str_1 := 'Редактирование' + str_1
   Endif
 
   SetColor( color8 )
   Private gl_area
   SetColor( cDataCGet )
-  make_diagp( 1 )  // сделать "шестизначные" диагнозы
+  make_diagp( 1 )  // сделать 'шестизначные' диагнозы
 
   Private num_screen := 1
   Do While .t.
@@ -598,57 +598,57 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     hS := 26
     wS := 80
     SetMode( hS, wS )
-    @ 0, 0 Say PadC( str_1, wS ) Color "B/BG*"
+    @ 0, 0 Say PadC( str_1, wS ) Color 'B/BG*'
     gl_area := { 1, 0, MaxRow() -1, MaxCol(), 0 }
 
     j := 1
     myclear( j )
 
-    @ j, 0 Say "Экран " + lstr( num_screen ) Color color8
+    @ j, 0 Say 'Экран ' + lstr( num_screen ) Color color8
     If num_screen > 1
-      s := AllTrim( mfio ) + " (" + lstr( mvozrast ) + " " + s_let( mvozrast ) + ")"
+      s := AllTrim( mfio ) + ' (' + lstr( mvozrast ) + ' ' + s_let( mvozrast ) + ')'
       @ j, wS - Len( s ) Say s Color color14
     Endif
     If num_screen == 1 //
-      @ ++j, 1 Say "ФИО" Get mfio_kart ;
+      @ ++j, 1 Say 'ФИО' Get mfio_kart ;
         reader {| x| menu_reader( x, { {| k, r, c| get_fio_kart( k, r, c ) } }, A__FUNCTION,,, .f. ) } ;
-        valid {| g, o| update_get( "mdate_r" ), ;
-        update_get( "mkomu" ), update_get( "mcompany" ) }
-      @ Row(), Col() + 5 Say "Д.р." Get mdate_r When .f. Color color14
+        valid {| g, o| update_get( 'mdate_r' ), ;
+        update_get( 'mkomu' ), update_get( 'mcompany' ) }
+      @ Row(), Col() + 5 Say 'Д.р.' Get mdate_r When .f. Color color14
 
-      @ ++j, 1 Say " Принадлежность счёта" Get mkomu ;
+      @ ++j, 1 Say ' Принадлежность счёта' Get mkomu ;
         reader {| x| menu_reader( x, mm_komu, A__MENUVERT,,, .f. ) } ;
         valid {| g, o| f_valid_komu( g, o ) } ;
         Color colget_menu
-      @ Row(), Col() + 1 Say "==>" Get mcompany ;
+      @ Row(), Col() + 1 Say '==>' Get mcompany ;
         reader {| x| menu_reader( x, mm_company, A__MENUVERT,,, .f. ) } ;
         When m1komu < 5 ;
         valid {| g| func_valid_ismo( g, m1komu, 38 ) }
-      @ ++j, 1 Say " Полис ОМС: серия" Get mspolis When m1komu == 0
-      @ Row(), Col() + 3 Say "номер"  Get mnpolis When m1komu == 0
-      @ Row(), Col() + 3 Say "вид"    Get mvidpolis ;
+      @ ++j, 1 Say ' Полис ОМС: серия' Get mspolis When m1komu == 0
+      @ Row(), Col() + 3 Say 'номер'  Get mnpolis When m1komu == 0
+      @ Row(), Col() + 3 Say 'вид'    Get mvidpolis ;
         reader {| x| menu_reader( x, mm_vid_polis, A__MENUVERT,,, .f. ) } ;
         When m1komu == 0 ;
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
       //
-      @ ++j, 1 Say "Сроки" Get mn_data ;
+      @ ++j, 1 Say 'Сроки' Get mn_data ;
         valid {| g| f_k_data( g, 1 ), f_valid_begdata_dvn_covid( g, Loc_kod ), ;
-        iif( mvozrast < 18, func_error( 4, "Это не взрослый пациент!" ), nil ), ;
+        iif( mvozrast < 18, func_error( 4, 'Это не взрослый пациент!' ), nil ), ;
         ret_ndisp_covid( Loc_kod, kod_kartotek );
         }
-      @ Row(), Col() + 1 Say "-" Get mk_data ;
+      @ Row(), Col() + 1 Say '-' Get mk_data ;
         valid {| g| f_k_data( g, 2 ), f_valid_enddata_dvn_covid( g, Loc_kod ), ;
         ret_ndisp_covid( Loc_kod, kod_kartotek ) ;
         }
 
-      @ j, Col() + 5 Say "№ амбулаторной карты" Get much_doc Picture "@!" ;
+      @ j, Col() + 5 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
 
       ret_ndisp_covid( Loc_kod, kod_kartotek )
 
       @ ++j, 8 Get mndisp When .f. Color color14
 
-      @ ++j, 1 Say "Степень тяжести болезни"
+      @ ++j, 1 Say 'Степень тяжести болезни'
       @ j, Col() + 1 Get mstrong ;
         reader {| x| menu_reader( x, mm_strong, A__MENUVERT,,, .f. ) };
         valid {| g| valid_strong_date( g ) }
@@ -663,19 +663,19 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
 
       If metap == 1 // вводим только на первом этапе
-        @ ++j, 1 Say "Пульсооксиметрия" Get mOKSI Pict "999" ;
-          valid {|| iif( Between( mOKSI, 70, 100 ),, func_error( 4, "Неразумные показания пульсооксиметрии" ) ), .t. }
-        @ Row(), Col() + 1 Say "%"
-        @ j, Col() + 5 Say "Одышка/отеки" Get mdyspnea ;
+        @ ++j, 1 Say 'Пульсооксиметрия' Get mOKSI Pict '999' ;
+          valid {|| iif( Between( mOKSI, 70, 100 ),, func_error( 4, 'Неразумные показания пульсооксиметрии' ) ), .t. }
+        @ Row(), Col() + 1 Say '%'
+        @ j, Col() + 5 Say 'Одышка/отеки' Get mdyspnea ;
           reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
-        @ j, Col() + 5 Say "Коморбидная форма"
+        @ j, Col() + 5 Say 'Коморбидная форма'
         @ j, Col() + 1 Get mkomorbid ;
           reader {| x| menu_reader( x, mm_komorbid, A__MENUVERT,,, .f. ) }
       Endif
 
-      @ ++j, 1 Say "────────────────────────────────────────────┬─────┬─────┬──────────┬──────────" Color color8
-      @ ++j, 1 Say "Наименования исследований                   │врач │ассис│дата услуг│выполнение " Color color8
-      @ ++j, 1 Say "────────────────────────────────────────────┴─────┴─────┴──────────┴──────────" Color color8
+      @ ++j, 1 Say '────────────────────────────────────────────┬─────┬─────┬──────────┬──────────' Color color8
+      @ ++j, 1 Say 'Наименования исследований                   │врач │ассис│дата услуг│выполнение ' Color color8
+      @ ++j, 1 Say '────────────────────────────────────────────┴─────┴─────┴──────────┴──────────' Color color8
       If mem_por_ass == 0
         @ j - 1, 52 Say Space( 5 )
       Endif
@@ -687,26 +687,26 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         i_otkaz := 0
         If f_is_usl_oms_sluch_dvn_covid( i, metap, .f., @fl_diag, @i_otkaz )
           If fl_diag .and. fl_vrach
-            @ ++j, 1 Say "────────────────────────────────────────────┬─────┬─────┬───────────" Color color8
-            @ ++j, 1 Say "Наименования осмотров                       │врач │ассис│дата услуги" Color color8
-            @ ++j, 1 Say "────────────────────────────────────────────┴─────┴─────┴───────────" Color color8
+            @ ++j, 1 Say '────────────────────────────────────────────┬─────┬─────┬───────────' Color color8
+            @ ++j, 1 Say 'Наименования осмотров                       │врач │ассис│дата услуги' Color color8
+            @ ++j, 1 Say '────────────────────────────────────────────┴─────┴─────┴───────────' Color color8
             If mem_por_ass == 0
               @ j - 1, 52 Say Space( 5 )
             Endif
             fl_vrach := .f.
           Endif
-          mvarv := "MTAB_NOMv" + lstr( i )
-          mvara := "MTAB_NOMa" + lstr( i )
-          mvard := "MDATE" + lstr( i )
+          mvarv := 'MTAB_NOMv' + lstr( i )
+          mvara := 'MTAB_NOMa' + lstr( i )
+          mvard := 'MDATE' + lstr( i )
           If Empty( &mvard )
             &mvard := mn_data
           Endif
-          mvarz := "MKOD_DIAG" + lstr( i )
-          mvaro := "MOTKAZ" + lstr( i )
+          mvarz := 'MKOD_DIAG' + lstr( i )
+          mvaro := 'MOTKAZ' + lstr( i )
           @ ++j, 1 Say uslugietap_dvn_covid( metap )[ i, 1 ]
-          @ j, 46 get &mvarv Pict "99999" valid {| g| v_kart_vrach( g ) } when {| g| condition_when_uslugi_covid( g, metap, mOKSI, m1dyspnea, m1strong ) }
+          @ j, 46 get &mvarv Pict '99999' valid {| g| v_kart_vrach( g ) } when {| g| condition_when_uslugi_covid( g, metap, mOKSI, m1dyspnea, m1strong ) }
           If mem_por_ass > 0
-            @ j, 52 get &mvara Pict "99999" valid {| g| v_kart_vrach( g ) } when {| g| condition_when_uslugi_covid( g, metap, mOKSI, m1dyspnea, m1strong ) }
+            @ j, 52 get &mvara Pict '99999' valid {| g| v_kart_vrach( g ) } when {| g| condition_when_uslugi_covid( g, metap, mOKSI, m1dyspnea, m1strong ) }
           Endif
           @ j, 58 get &mvard valid {| g| valid_date_uslugi_covid( g, metap, mn_data, mk_data, lenArr_Uslugi_DVN_COVID, i ) } when {| g| condition_when_uslugi_covid( g, metap, mOKSI, m1dyspnea, m1strong ) }
           If fl_diag
@@ -724,8 +724,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           Endif
         Endif
       Next
-      @ ++j, 1 Say Replicate( "─", 68 ) Color color8
-      status_key( "^<Esc>^ выход без записи ^<PgDn>^ на 2-ю страницу" )
+      @ ++j, 1 Say Replicate( '─', 68 ) Color color8
+      status_key( '^<Esc>^ выход без записи ^<PgDn>^ на 2-ю страницу' )
     Elseif num_screen == 2 //
 
       mm_gruppa := { mm_gruppaD1, mm_gruppaD2 }[ metap ]
@@ -738,20 +738,20 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
       dispans_vyav_diag( @j, mndisp ) // вызов заполнения блока выявленных заболеваний
       // подвал второго листа
-      @ ++j, 1 Say "Диспансерное наблюдение установлено" Get mdispans ;
+      @ ++j, 1 Say 'Диспансерное наблюдение установлено' Get mdispans ;
         reader {| x| menu_reader( x, mm_dispans, A__MENUVERT,,, .f. ) } ;
         When !emptyall( mdispans1, mdispans2, mdispans3, mdispans4, mdispans5 )
-      @ ++j, 1 Say "Назначено лечение (для ф.131)" Get mnazn_l ;
+      @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
 
       dispans_napr( mk_data, @j, .t. )  // вызов заполнения блока направлений
 
       ++j
 
-      @ ++j, 1 Say "ГРУППА состояния ЗДОРОВЬЯ"
+      @ ++j, 1 Say 'ГРУППА состояния ЗДОРОВЬЯ'
       @ j, Col() + 1 Get mGRUPPA ;
         reader {| x| menu_reader( x, mm_gruppa, A__MENUVERT,,, .f. ) }
-      status_key( "^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ ЗАПИСЬ" )
+      status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ ЗАПИСЬ' )
     Endif
     DispEnd()
     count_edit += myread()
@@ -763,9 +763,9 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         k := 3
         --num_screen
       Else
-        k := f_alert( { PadC( "Выберите действие", 60, "." ) }, ;
-          { " Выход без записи ", " Запись ", " Возврат в редактирование " }, ;
-          iif( LastKey() == K_ESC, 1, 2 ), "W+/N", "N+/N", MaxRow() -2,, "W+/N,N/BG" )
+        k := f_alert( { PadC( 'Выберите действие', 60, '.' ) }, ;
+          { ' Выход без записи ', ' Запись ', ' Возврат в редактирование ' }, ;
+          iif( LastKey() == K_ESC, 1, 2 ), 'W+/N', 'N+/N', MaxRow() -2,, 'W+/N,N/BG' )
       Endif
     Else
       If LastKey() == K_PGUP
@@ -774,9 +774,9 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           --num_screen
         Endif
       Elseif LastKey() == K_ESC
-        If ( k := f_alert( { PadC( "Выберите действие", 60, "." ) }, ;
-            { " Выход без записи ", " Возврат в редактирование " }, ;
-            1, "W+/N", "N+/N", MaxRow() -2,, "W+/N,N/BG" ) ) == 2
+        If ( k := f_alert( { PadC( 'Выберите действие', 60, '.' ) }, ;
+            { ' Выход без записи ', ' Возврат в редактирование ' }, ;
+            1, 'W+/N', 'N+/N', MaxRow() -2,, 'W+/N,N/BG' ) ) == 2
           k := 3
         Endif
       Else
@@ -784,10 +784,10 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         ++num_screen
         If mvozrast < 18
           num_screen := 1
-          func_error( 4, "Это не взрослый пациент!" )
+          func_error( 4, 'Это не взрослый пациент!' )
         Elseif metap == 0
           num_screen := 1
-          func_error( 4, "Проверьте сроки диспансеризации!" )
+          func_error( 4, 'Проверьте сроки диспансеризации!' )
         Endif
       Endif
     Endif
@@ -799,11 +799,11 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       num_screen := 1
       If m1komu < 5 .and. Empty( m1company )
         If m1komu == 0
-          s := "СМО"
+          s := 'СМО'
         Elseif m1komu == 1
-          s := "компании"
+          s := 'компании'
         Else
-          s := "комитета/МО"
+          s := 'комитета/МО'
         Endif
         func_error( 4, 'Не заполнено наименование ' + s )
         Loop
@@ -813,27 +813,27 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         Loop
       Endif
       If Empty( mn_data )
-        func_error( 4, "Не введена дата начала углубленной диспансеризации после COVID." )
+        func_error( 4, 'Не введена дата начала углубленной диспансеризации после COVID.' )
         Loop
       Endif
       If mvozrast < 18
-        func_error( 4, "Диспансеризация оказана НЕ взрослому пациенту!" )
+        func_error( 4, 'Диспансеризация оказана НЕ взрослому пациенту!' )
         Loop
       Endif
       If Empty( mk_data )
-        func_error( 4, "Не введена дата окончания углубленной диспансеризации после COVID." )
+        func_error( 4, 'Не введена дата окончания углубленной диспансеризации после COVID.' )
         Loop
       Endif
 //      If ! Empty( mk_data ) .and. mk_data > 0d20240719  // письмо 09-20-360 от 22.07.24
-//        func_error( 4, "После 19.07.24 года углубленная диспансеризация после COVID не проводится." )
+//        func_error( 4, 'После 19.07.24 года углубленная диспансеризация после COVID не проводится.' )
 //        Loop
 //      Endif
-      If Empty( CharRepl( "0", much_doc, Space( 10 ) ) )
+      If Empty( CharRepl( '0', much_doc, Space( 10 ) ) )
         func_error( 4, 'Не заполнен номер амбулаторной карты' )
         Loop
       Endif
 //      If eq_any( m1gruppa, 3, 4, 13, 14 ) .and. ( m1dopo_na == 0 ) .and. ( m1napr_v_mo == 0 ) .and. ( m1napr_stac == 0 ) .and. ( m1napr_reab == 0 )
-//        func_error( 4, "Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!" )
+//        func_error( 4, 'Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!' )
       if check_group_nazn( '1', 3, 4, 13, 14 )
         Loop
       Endif
@@ -843,8 +843,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       //
       // ////////////////////////////////////////////////////////////
       mdef_diagnoz := 'U09.9 '
-      r_use( dir_exe() + "_mo_mkb", cur_dir() + "_mo_mkb", "MKB_10" )
-      r_use( dir_server() + "mo_pers", dir_server() + "mo_pers", "P2" )
+      r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
+      r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2' )
       num_screen := 2
       fl := .t.
       k := 0
@@ -858,17 +858,17 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         fl_diag := .f.
         i_otkaz := 0
         f_is_usl_oms_sluch_dvn_covid( i, metap, .t., @fl_diag, @i_otkaz )
-        mvart := "MTAB_NOMv" + lstr( i )
-        mvara := "MTAB_NOMa" + lstr( i )
-        mvard := "MDATE" + lstr( i )
-        mvarz := "MKOD_DIAG" + lstr( i )
-        mvaro := "M1OTKAZ" + lstr( i )
+        mvart := 'MTAB_NOMv' + lstr( i )
+        mvara := 'MTAB_NOMa' + lstr( i )
+        mvard := 'MDATE' + lstr( i )
+        mvarz := 'MKOD_DIAG' + lstr( i )
+        mvaro := 'M1OTKAZ' + lstr( i )
         ar := uslugietap_dvn_covid( metap )[ i ]
         // для заполнения услуги 70.8.1
-        If ValType( ar[ 2 ] ) == "C" .and. ar[ 2 ] == "B01.026.001"
+        If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == 'B01.026.001'
           tmpvr := &mvart
         Endif
-        If ValType( ar[ 2 ] ) == "C" .and. ar[ 2 ] == "70.8.1" .and. metap == 1
+        If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == '70.8.1' .and. metap == 1
           &mvard := mn_data
           &mvart := tmpvr
         Endif
@@ -884,10 +884,10 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           If Found()
             arr_osm1[ i, 1 ] := p2->kod
           Endif
-          If ValType( ar[ 11 ] ) == "A" // специальность
+          If ValType( ar[ 11 ] ) == 'A' // специальность
             arr_osm1[ i, 2 ] := ar[ 11, 1 ]
           Endif
-          If ValType( ar[ 10 ] ) == "N" // профиль
+          If ValType( ar[ 10 ] ) == 'N' // профиль
             arr_osm1[ i, 4 ] := ar[ 10 ]
           Endif
           arr_osm1[ i, 5 ] := ar[ 2 ] // шифр услуги
@@ -897,10 +897,10 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           --kol_d_usl
         Elseif i_otkaz == 1 .and. &mvaro == 1  // ОТКАЗ от манипуляции
           arr_osm1[ i, 1 ] := 0
-          If ValType( ar[ 11 ] ) == "A" // специальность
+          If ValType( ar[ 11 ] ) == 'A' // специальность
             arr_osm1[ i, 2 ] := ar[ 11, 1 ]
           Endif
-          If ValType( ar[ 10 ] ) == "N" // профиль
+          If ValType( ar[ 10 ] ) == 'N' // профиль
             arr_osm1[ i, 4 ] := ar[ 10 ]
           Endif
           arr_osm1[ i, 5 ] := ar[ 2 ] // шифр услуги
@@ -926,7 +926,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
               arr_osm1[ i, 3 ] := p2->kod
             Endif
           Endif
-          If ValType( ar[ 10 ] ) == "N" // профиль
+          If ValType( ar[ 10 ] ) == 'N' // профиль
             arr_osm1[ i, 4 ] := ret_profil_dispans_covid( ar[ 10 ], arr_osm1[ i, 2 ] )
           Else
             If Len( ar[ 10 ] ) == Len( ar[ 11 ] ) ; // кол-во профилей = кол-ву спец-тей
@@ -938,7 +938,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
             Endif
             arr_osm1[ i, 4 ] := ar[ 10, j ] // профиль
           Endif
-          If ValType( ar[ 2 ] ) == "C"  // шифр услуги
+          If ValType( ar[ 2 ] ) == 'C'  // шифр услуги
             arr_osm1[ i, 5 ] := ar[ 2 ] // шифр услуги
           Else
             If Len( ar[ 2 ] ) >= metap
@@ -958,7 +958,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
             Select MKB_10
             find ( PadR( arr_osm1[ i, 6 ], 6 ) )
             If Found() .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
-              fl := func_error( 4, "Несовместимость диагноза по полу " + arr_osm1[ i, 6 ] )
+              fl := func_error( 4, 'Несовместимость диагноза по полу ' + arr_osm1[ i, 6 ] )
             Endif
           Endif
           arr_osm1[ i, 10 ] := &mvaro
@@ -986,20 +986,20 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       arr_diag := {}
       For i := 1 To 5
         sk := lstr( i )
-        pole_diag := "mdiag" + sk
-        pole_d_diag := "mddiag" + sk
-        pole_1pervich := "m1pervich" + sk
-        pole_1dispans := "m1dispans" + sk
-        pole_d_dispans := "mddispans" + sk
-        pole_dn_dispans := "mdndispans" + sk
+        pole_diag := 'mdiag' + sk
+        pole_d_diag := 'mddiag' + sk
+        pole_1pervich := 'm1pervich' + sk
+        pole_1dispans := 'm1dispans' + sk
+        pole_d_dispans := 'mddispans' + sk
+        pole_dn_dispans := 'mdndispans' + sk
         If !Empty( &pole_diag )
-          If Left( &pole_diag, 1 ) == "U"
+          If Left( &pole_diag, 1 ) == 'U'
             fl := func_error( 4, 'Диагноз ' + RTrim( &pole_diag ) + '(первый символ "U") не вводится. Это не заболевание!' )
           elseif &pole_1pervich == 0
             If Empty( &pole_d_diag )
-              fl := func_error( 4, "Не введена дата выявления диагноза " + &pole_diag )
+              fl := func_error( 4, 'Не введена дата выявления диагноза ' + &pole_diag )
             elseif &pole_1dispans == 1 .and. Empty( &pole_d_dispans )
-              fl := func_error( 4, "Не введена дата установления диспансерного наблюдения для диагноза " + &pole_diag )
+              fl := func_error( 4, 'Не введена дата установления диспансерного наблюдения для диагноза ' + &pole_diag )
             Endif
           Endif
           If fl .and. Between( &pole_1pervich, 0, 1 ) // предварительные диагнозы не берём
@@ -1011,7 +1011,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         Endif
       Next
       If Len( arr_diag ) > 0 .and. m1strong != 5   // Письмо ТФОМС 09-30-370 от 03.12.21
-        AAdd( arr_diag, { mdef_diagnoz, 0, 0, CToD( "" ) } )
+        AAdd( arr_diag, { mdef_diagnoz, 0, 0, CToD( '' ) } )
       Endif
       If !fl
         Loop
@@ -1022,14 +1022,14 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         MKOD_DIAG := mdef_diagnoz
       Else
         For i := 1 To Len( arr_diag )
-          If arr_diag[ i, 2 ] == 0 // "ранее выявлено"
+          If arr_diag[ i, 2 ] == 0 // 'ранее выявлено'
             arr_diag[ i, 2 ] := 2  // заменяем, как в листе учёта ОМС
           Endif
-          If arr_diag[ i, 3 ] > 0 // "дисп.наблюдение установлено" и "ранее выявлено"
-            If arr_diag[ i, 2 ] == 2 // "ранее выявлено"
-              arr_diag[ i, 3 ] := 1 // то "Состоит"
+          If arr_diag[ i, 3 ] > 0 // 'дисп.наблюдение установлено' и 'ранее выявлено'
+            If arr_diag[ i, 2 ] == 2 // 'ранее выявлено'
+              arr_diag[ i, 3 ] := 1 // то 'Состоит'
             Else
-              arr_diag[ i, 3 ] := 2 // то "Взят"
+              arr_diag[ i, 3 ] := 2 // то 'Взят'
             Endif
           Endif
         Next
@@ -1051,10 +1051,10 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           find ( PadR( arr_diag[ i, 1 ], 6 ) )
           If Found()
             If !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
-              fl := func_error( 4, "несовместимость диагноза по полу " + AllTrim( arr_diag[ i, 1 ] ) )
+              fl := func_error( 4, 'несовместимость диагноза по полу ' + AllTrim( arr_diag[ i, 1 ] ) )
             Endif
           Else
-            fl := func_error( 4, "не найден диагноз " + AllTrim( arr_diag[ i, 1 ] ) + " в справочнике МКБ-10" )
+            fl := func_error( 4, 'не найден диагноз ' + AllTrim( arr_diag[ i, 1 ] ) + ' в справочнике МКБ-10' )
           Endif
           If !fl
             Exit
@@ -1066,7 +1066,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Endif
 
       If  m1strong != 5  // Письмо ТФОМС 09-30-370 от 03.12.21
-        AAdd( arr_diag, { mdef_diagnoz, 0, 0, CToD( "" ) } ) // всегда добавляем в лист учета
+        AAdd( arr_diag, { mdef_diagnoz, 0, 0, CToD( '' ) } ) // всегда добавляем в лист учета
       Endif
 
       mm_gruppa := { mm_gruppaD1, mm_gruppaD2 }[ metap ]
@@ -1083,7 +1083,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           m1p_otk := 1 // отказ от прихода на 2-й этап
         Endif
       Else
-        func_error( 4, "Не введена ГРУППА состояния ЗДОРОВЬЯ" )
+        func_error( 4, 'Не введена ГРУППА состояния ЗДОРОВЬЯ' )
         Loop
       Endif
       //
@@ -1100,34 +1100,34 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         m1spec_na := 1 // Направлен для получения специализированной медицинской помощи (в т.ч. ВМП)
       Endif
       //
-      err_date_diap( mn_data, "Дата начала углубленной диспансеризации после COVID" )
-      err_date_diap( mk_data, "Дата окончания углубленной диспансеризации после COVID" )
+      err_date_diap( mn_data, 'Дата начала углубленной диспансеризации после COVID' )
+      err_date_diap( mk_data, 'Дата окончания углубленной диспансеризации после COVID' )
       //
       message_save_LU()
       mywait()
       is_prazdnik := f_is_prazdnik_dvn_covid( mn_data )
 
-      make_diagp( 2 )  // сделать "пятизначные" диагнозы
+      make_diagp( 2 )  // сделать 'пятизначные' диагнозы
       If m1dispans > 0
         s1dispans := m1dispans
       Endif
       //
-      use_base( "lusl" )
-      use_base( "luslc" )
-      use_base( "uslugi" )
-      r_use( dir_server() + "uslugi1", { dir_server() + "uslugi1", ;
-        dir_server() + "uslugi1s" }, "USL1" )
+      use_base( 'lusl' )
+      use_base( 'luslc' )
+      use_base( 'uslugi' )
+      r_use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1', ;
+        dir_server() + 'uslugi1s' }, 'USL1' )
       mcena_1 := mu_cena := 0
       arr_usl_dop := {}
       arr_usl_otkaz := {}
       arr_otklon := {}
-      glob_podr := ""
+      glob_podr := ''
       glob_otd_dep := 0
       iUslDop := 0
       iUslOtkaz := 0
       iUslOtklon := 0
       For i := 1 To Len( arr_osm1 )
-        If ValType( arr_osm1[ i, 5 ] ) == "C"
+        If ValType( arr_osm1[ i, 5 ] ) == 'C'
           If arr_osm1[ i, 12 ] == 0
             arr_osm1[ i, 7 ] := foundourusluga( arr_osm1[ i, 5 ], mk_data, arr_osm1[ i, 4 ], M1VZROS_REB, @mu_cena )
             arr_osm1[ i, 8 ] := iif( eq_any( arr_osm1[ i, 10 ], 0, 3 ), mu_cena, 0 )
@@ -1171,7 +1171,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         mcena_1 += iif( arr_usl_dop[ i, 1 ] == 0, 0, arr_usl_dop[ i, 8 ] )
       Next
       //
-      use_base( "human" )
+      use_base( 'human' )
       If Loc_kod > 0
         find ( Str( Loc_kod, 7 ) )
         mkod := Loc_kod
@@ -1201,7 +1201,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         msmo := lstr( m1company )
         m1str_crb := 0
       Else
-        msmo := ""
+        msmo := ''
         m1str_crb := m1company
       Endif
       //
@@ -1236,24 +1236,24 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       human->CENA := human->CENA_1 := MCENA_1 // стоимость лечения
       human->ishod      := 400 + metap
       human->bolnich    := 0
-      human->date_b_1   := ""
-      human->date_b_2   := ""
+      human->date_b_1   := ''
+      human->date_b_2   := ''
       human->MOP        := m1MOP
       human->MO_PR      := m1MO_PR    //  glob_mo()[ _MO_KOD_FFOMS ]
-      human_->RODIT_DR  := CToD( "" )
-      human_->RODIT_POL := ""
-      s := ""
+      human_->RODIT_DR  := CToD( '' )
+      human_->RODIT_POL := ''
+      s := ''
       AEval( adiag_talon, {| x| s += Str( x, 1 ) } )
       human_->DISPANS   := s
-      human_->STATUS_ST := ""
+      human_->STATUS_ST := ''
       human_->POVOD     := iif( metap == 3, 5, 6 )
       human_->VPOLIS    := m1vidpolis
       human_->SPOLIS    := LTrim( mspolis )
       human_->NPOLIS    := LTrim( mnpolis )
-      human_->OKATO     := "" // это поле вернётся из ТФОМС в случае иногороднего
+      human_->OKATO     := '' // это поле вернётся из ТФОМС в случае иногороднего
       human_->NOVOR     := 0
-      human_->DATE_R2   := CToD( "" )
-      human_->POL2      := ""
+      human_->DATE_R2   := CToD( '' )
+      human_->POL2      := ''
       human_->USL_OK    := m1USL_OK
       human_->VIDPOM    := m1VIDPOM
       human_->PROFIL    := 151    // m1PROFIL
@@ -1268,7 +1268,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
       human_->VRACH     := m1vrach
       human_->PRVS      := m1prvs
-      human_->OPLATA    := 0 // уберём "2", если отредактировали запись из реестра СП и ТК
+      human_->OPLATA    := 0 // уберём '2', если отредактировали запись из реестра СП и ТК
       human_->ST_VERIFY := 0 // снова ещё не проверен
       If Loc_kod == 0  // при добавлении
         human_->ID_PAC    := mo_guid( 1, human_->( RecNo() ) )
@@ -1296,12 +1296,12 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
             fl_nameismo := .t.
           Endif
         Else
-          human_->SMO := m1ismo  // заменяем "34" на код иногородней СМО
+          human_->SMO := m1ismo  // заменяем '34' на код иногородней СМО
         Endif
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
-        g_use( dir_server() + "mo_hismo",, "SN" )
-        Index On Str( kod, 7 ) to ( cur_dir() + "tmp_ismo" )
+        g_use( dir_server() + 'mo_hismo',, 'SN' )
+        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo
@@ -1320,9 +1320,9 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Endif
       i1 := Len( arr_usl )
 
-      r_use( dir_server() + "mo_su",, "MOSU" )
-      use_base( "mo_hu" )
-      use_base( "human_u" )
+      r_use( dir_server() + 'mo_su',, 'MOSU' )
+      use_base( 'mo_hu' )
+      use_base( 'human_u' )
       For i := 1 To Len( arr_usl_dop )  // i2
         flExist := .f.
         If arr_usl_dop[ i, 12 ] == 0   // это услуга ТФОМС
@@ -1352,7 +1352,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           hu->u_koef  := 1
           hu->u_kod   := arr_usl_dop[ i, 7 ]
           hu->u_cena  := arr_usl_dop[ i, 8 ]
-          hu->is_edit := iif( Len( arr_usl_dop[ i ] ) > 10 .and. ValType( arr_usl_dop[ i, 11 ] ) == "N", arr_usl_dop[ i, 11 ], 0 )
+          hu->is_edit := iif( Len( arr_usl_dop[ i ] ) > 10 .and. ValType( arr_usl_dop[ i, 11 ] ) == 'N', arr_usl_dop[ i, 11 ], 0 )
           hu->date_u  := dtoc4( arr_usl_dop[ i, 9 ] )
           hu->otd     := m1otd
           hu->kol := hu->kol_1 := 1
@@ -1370,12 +1370,12 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           hu_->PROFIL := arr_usl_dop[ i, 4 ]
           hu_->PRVS   := arr_usl_dop[ i, 2 ]
           hu_->kod_diag := iif( Empty( arr_usl_dop[ i, 6 ] ), MKOD_DIAG, arr_usl_dop[ i, 6 ] )
-          hu_->zf := ""
+          hu_->zf := ''
           Unlock
         Else  // 1 - это услуга ФФОМС
           // затем выберем информацию из mo_hu по услугам ФФОМС
           Select MOHU
-          Set Relation To u_kod into MOSU
+          Set Relation To FIELD->u_kod into MOSU
           find ( Str( Loc_kod, 7 ) )
           Do While MOHU->kod == Loc_kod .and. !Eof()
             MOSU->( dbGoto( MOHU->u_kod ) )
@@ -1434,7 +1434,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
             Else
               // затем выберем информацию из mo_hu по услугам ФФОМС
               Select MOHU
-              Set Relation To u_kod into MOSU
+              Set Relation To FIELD->u_kod into MOSU
               find ( Str( Loc_kod, 7 ) )
               Do While MOHU->kod == Loc_kod .and. !Eof()
                 MOSU->( dbGoto( MOHU->u_kod ) )
@@ -1456,7 +1456,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.
       Close databases
-      stat_msg( "Запись завершена!", .f. )
+      stat_msg( 'Запись завершена!', .f. )
     Endif
     Exit
   Enddo
@@ -1466,7 +1466,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   RestScreen( buf )
   chm_help_code := tmp_help
   If fl_write_sluch // если записали - запускаем проверку
-    If Type( "fl_edit_DVN_COVID" ) == "L"
+    If Type( 'fl_edit_DVN_COVID' ) == 'L'
       fl_edit_DVN_COVID := .t.
     Endif
     If !Empty( Val( msmo ) )

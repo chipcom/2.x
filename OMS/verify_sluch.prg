@@ -4184,7 +4184,7 @@ Function verify_sluch( fl_view, ft )
           Endif
         Next
       Endif
-      If fl .and. !is_disp_19 .and. AScan( dvn_700, {| x| x[ 2 ] == lshifr } ) > 0
+      If fl .and. !is_disp_19 .and. AScan( dvn_700(), {| x| x[ 2 ] == lshifr } ) > 0
         fl := .f. // к нулевой услуге добавлена услуга с ценой на '700'
       Endif
       If fl .and. !eq_any( Left( lshifr, 5 ), '70.3.', '70.7.', '72.1.', '72.5.', '72.6.', '72.7.' )
@@ -4406,7 +4406,7 @@ Function verify_sluch( fl_view, ft )
         If dEnd == au_lu[ i, 2 ]
           is_last_den := .t.
         Endif
-      Elseif AScan( dvn_700, {| x| x[ 2 ] == lshifr } ) > 0
+      Elseif AScan( dvn_700(), {| x| x[ 2 ] == lshifr } ) > 0
         ++k700 // к нулевой услуге добавлена услуга с ценой на '700'
       Elseif eq_any( Left( lshifr, 5 ), '70.3.', '70.7.', '72.1.', '72.5.', '72.6.', '72.7.' )
         ++zs
@@ -4444,9 +4444,9 @@ Function verify_sluch( fl_view, ft )
       Elseif emptyall( zs, k700 ) .and. !is_disp_19
         AAdd( ta, 'в листе нет услуг с ценой' )
       Endif
-      If ( i := AScan( dvn_85, {| x| x[ 1 ] == kol_d_usl } ) ) > 0
+      If ( i := AScan( dvn_85(), {| x| x[ 1 ] == kol_d_usl } ) ) > 0
         If is_disp_19
-          k := dvn_85[ i, 1 ] - dvn_85[ i, 2 ]
+          k := dvn_85()[ i, 1 ] - dvn_85()[ i, 2 ]
           If kol_n_date + kol_d_otkaz <= k // отказы + ранее оказано менее 15%
             If zs == 0
               AAdd( ta, 'в листе учета должна быть услуга "законченный случай" - отредактируйте' )
@@ -4455,7 +4455,7 @@ Function verify_sluch( fl_view, ft )
             AAdd( ta, 'данный случай не может быть отправлен в ТФОМС, т.к. оказано менее 85% услуг (оказано в прошлом календарном году-' + lstr( kol_n_date ) + ', отказов-' + lstr( kol_d_otkaz ) + ', всего учитываемых услуг-' + lstr( kol_d_usl ) + ')' )
           Endif
         Else
-          If ( k := dvn_85[ i, 1 ] - dvn_85[ i, 2 ] ) < kol_d_otkaz
+          If ( k := dvn_85()[ i, 1 ] - dvn_85()[ i, 2 ] ) < kol_d_otkaz
             AAdd( ta, 'отказы пациента составляют ' + lstr( kol_d_otkaz / kol_d_usl * 100, 5, 0 ) + '% (должно быть не более 15%)' )
             AAdd( ta, 'отказов-' + lstr( kol_d_otkaz ) + ', всего учитываемых услуг-' + lstr( kol_d_usl ) )
           Elseif kol_n_date + kol_d_otkaz <= k // отказы + ранее оказано менее 15%
@@ -4485,8 +4485,8 @@ Function verify_sluch( fl_view, ft )
       If zs > 1
         AAdd( ta, 'в листе учета более одной услуги "законченный случай"' )
       Endif
-      If ( i := AScan( prof_vn_85, {| x| x[ 1 ] == kol_d_usl } ) ) > 0
-        If prof_vn_85[ i, 1 ] - prof_vn_85[ i, 2 ] < kol_d_otkaz
+      If ( i := AScan( prof_vn_85(), {| x| x[ 1 ] == kol_d_usl } ) ) > 0
+        If prof_vn_85()[ i, 1 ] - prof_vn_85()[ i, 2 ] < kol_d_otkaz
           AAdd( ta, 'отказы пациента составляют ' + lstr( kol_d_otkaz / kol_d_usl * 100, 5, 0 ) + '% (должно быть не более 15%)' )
           AAdd( ta, 'отказов-' + lstr( kol_d_otkaz ) + ', всего учитываемых услуг-' + lstr( kol_d_usl ) )
         Endif
