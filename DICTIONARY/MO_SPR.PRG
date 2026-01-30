@@ -1551,7 +1551,7 @@ Function valid_kod_tfoms( get )
   Endif
   Return fl
 
-// 22.01.26 редактирование справочника отделений
+// 30.01.26 редактирование справочника отделений
 Function edit_otd()
 
   Local i, j, blk, arr[ US_LEN ], fl
@@ -1643,7 +1643,7 @@ Function edit_otd()
     0, {| x| inieditspr( A__MENUVERT, getv002(), x ) }, ;
     'Профиль мед.помощи' }, ;
     { 'PROFIL_M', 'N', 3, 0, , ;
-    {| x| menu_reader( x, tmp_M003, A__MENUVERT, , , .f. ) }, ;
+    {| x| menu_reader( x, tmp_M003, A__MENUVERT_SPACE, , , .f. ) }, ;
     9, {| x| inieditspr( A__MENUVERT, tmp_M003, x ) }, ;
     'Профиль мед.помощи МЗ РФ' }, ;
     { 'PROFIL_K', 'N', 3, 0, , ;
