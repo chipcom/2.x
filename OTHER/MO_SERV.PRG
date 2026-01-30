@@ -5561,7 +5561,7 @@ Function f2_create_main_base_from_reestrs( mname_xml )
             /*if ascan(arr2m_vozrast_DVN,mdvozrast) > 0
               m1etap := 5
               human->ishod := 205
-            elseif human->POL == "†" .and. ascan(arr2g_vozrast_DVN,mdvozrast) > 0
+            elseif human->POL == "†" .and. ascan(arr2g_vozrast_DVN(),mdvozrast) > 0
               m1etap := 5
               human->ishod := 205
             endif*/
@@ -6085,7 +6085,7 @@ Function f3_create_main_base_from_reestrs()
       /*if ascan(arr2m_vozrast_DVN,mdvozrast) > 0
         m1etap := 5
         human->ishod := 205
-      elseif human->POL == "†" .and. ascan(arr2g_vozrast_DVN,mdvozrast) > 0
+      elseif human->POL == "†" .and. ascan(arr2g_vozrast_DVN(),mdvozrast) > 0
         m1etap := 5
         human->ishod := 205
       endif*/

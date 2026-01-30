@@ -394,7 +394,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     //
     ret_arr_vozrast_dvn( mk_data )
     // / !!!!
-//    ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
     ret_arrays_disp( mk_data )
     metap := human->ishod - 200
     If is_disp_19
@@ -501,7 +500,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             Endif
           Next
         Endif
-        If fl .and. AScan( dvn_700, {| x | x[ 2 ] == lshifr } ) > 0
+        If fl .and. AScan( dvn_700(), {| x | x[ 2 ] == lshifr } ) > 0
           fl := .f. // к нулевой услуге добавлена услуга с ценой на '700'
         Endif
         If fl
@@ -1615,8 +1614,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           If kol_n_date == 1
             not_zs := .t. // выставляем по отдельным тарифам
           Endif
-        Elseif ( i := AScan( dvn_85, {| x | x[ 1 ] == kol } ) ) > 0 // определить 85%
-          k := dvn_85[ i, 1 ] - dvn_85[ i, 2 ] // 15%
+        Elseif ( i := AScan( dvn_85(), {| x | x[ 1 ] == kol } ) ) > 0 // определить 85%
+          k := dvn_85()[ i, 1 ] - dvn_85()[ i, 2 ] // 15%
           If is_disp_19
             If kol_n_date + kol_otkaz <= k // отказы + ранее оказано менее 15%
               // выставляем по законченному случаю
@@ -1659,7 +1658,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             Endif
           Endif
         Else
-          // если такого кол-ва услуг нет в массиве 'dvn_85', отсечём в проверке
+          // если такого кол-ва услуг нет в массиве 'dvn_85()', отсечём в проверке
         Endif
         If not_zs // выставляем по отдельным тарифам
           del_array( arr_osm1, i_zs ) // удаляем законченный случай
@@ -1669,10 +1668,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                 .and. !( Len( arr_osm1[ i ] ) > 10 .and. ValType( arr_osm1[ i, 11 ] ) == 'N' .and. arr_osm1[ i, 11 ] > 0 ) ; // не в КДП2
               .and. eq_any( arr_osm1[ i, 10 ], 0, 3 ) ; // не отказ
               .and. arr_osm1[ i, 9 ] >= mn_data ; // оказано во время дисп-ии
-              .and. ( k := AScan( dvn_700, {| x | x[ 1 ] == arr_osm1[ i, 5 ] } ) ) > 0
+              .and. ( k := AScan( dvn_700(), {| x | x[ 1 ] == arr_osm1[ i, 5 ] } ) ) > 0
               AAdd( larr, AClone( arr_osm1[ i ] ) )
               j := Len( larr )
-              larr[ j, 5 ] := dvn_700[ k, 2 ]
+              larr[ j, 5 ] := dvn_700()[ k, 2 ]
             Endif
           Next
           For i := 1 To Len( larr )

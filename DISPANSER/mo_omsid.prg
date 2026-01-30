@@ -507,7 +507,6 @@ Function f1_131_u( nKey, oBrow, regim )
       mdvozrast := ret_vozr_dvn_veteran( mdvozrast, human->k_data )
     Endif
 
-    // ret_arrays_disp( is_disp_19, is_disp_21, is_disp_24 )
     ret_arrays_disp( mk_data )
     ret_tip_mas( mWEIGHT, mHEIGHT, @m1tip_mas )
     Select HU
@@ -2714,11 +2713,9 @@ Function f2_inf_dvn( is_schet, par )
         { 'vrach',   'C',    15,     0 }, ; // врач
         { 'DATA_O',   'C',    35,     0 } ; // сроки другого этапа
       }
-      // ret_arrays_disp( .f. )
       ret_arrays_disp()
-      Private count_dvn_arr_usl18 := Len( dvn_arr_usl18 )
-      Private count_dvn_arr_umolch18 := Len( dvn_arr_umolch18 )
-      // ret_arrays_disp( .t., .t. )
+      Private count_dvn_arr_usl18 := Len( dvn_arr_usl18() )
+      Private count_dvn_arr_umolch18 := Len( dvn_arr_umolch18() )
       ret_arrays_disp()
       For i := 1 To Max( count_dvn_arr_usl18, count_dvn_arr_usl )
         AAdd( adbf, { 'd_' + lstr( i ), 'C', 24, 0 } )
@@ -3004,7 +3001,6 @@ Function f2_inf_dvn_svod( par, kod_h ) // сводная информация
   is_2021 := p := ( mk_data < 0d20210101 )
   is_2019 := !is_2018
   ret_arr_vozrast_dvn( mk_data )
-  // ret_arrays_disp( is_2019, is_2021 )
   ret_arrays_disp( mk_data )
   If ppar == 1 // диспансеризация 1 этап
     m1GRUPPA := ret_gruppa_dvn( human_->RSLT_NEW, @fl2 )
@@ -3107,9 +3103,9 @@ Function f2_inf_dvn_svod( par, kod_h ) // сводная информация
   pers->( dbGoto( human_->vrach ) )
   tf->vrach := fam_i_o( pers->fio )
   lcount := iif( is_2018, count_dvn_arr_usl18, count_dvn_arr_usl )
-  larr_dvn := iif( is_2018, dvn_arr_usl18, dvn_arr_usl )
+  larr_dvn := iif( is_2018, dvn_arr_usl18(), dvn_arr_usl )
   lcount_u := iif( is_2018, count_dvn_arr_umolch18, count_dvn_arr_umolch )
-  larr_dvn_u := iif( is_2018, dvn_arr_umolch18, dvn_arr_umolch )
+  larr_dvn_u := iif( is_2018, dvn_arr_umolch18(), dvn_arr_umolch )
   larr := Array( 2, lcount ) ; afillall( larr, 0 )
   Select HU
   find ( Str( kod_h, 7 ) )
@@ -3126,7 +3122,7 @@ Function f2_inf_dvn_svod( par, kod_h ) // сводная информация
       If metap != 2
         If is_2018
           If lshifr == '2.3.3' .and. hu_->PROFIL == 3 ; // акушерскому делу
-            .and. ( i := AScan( dvn_arr_usl18, {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == '4.20.1' } ) ) > 0
+            .and. ( i := AScan( dvn_arr_usl18(), {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == '4.20.1' } ) ) > 0
             fl := .f. ; larr[ 1, i ] := hu->( RecNo() )
           Endif
         Else
@@ -3182,7 +3178,7 @@ Function f2_inf_dvn_svod( par, kod_h ) // сводная информация
       If metap != 2
         If is_2018
           If hu_->PROFIL == 3 .and. ;
-              AScan( dvn_arr_usl18, {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == '4.20.1' } ) > 0
+              AScan( dvn_arr_usl18(), {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == '4.20.1' } ) > 0
             &mvar := 2 // невозможность выполнения
           Endif
         Else
@@ -3260,14 +3256,14 @@ Function f21_inf_dvn_svod18( par )
       mvaro := 'M1OTKAZ' + lstr( i )
       If f_is_usl_oms_sluch_dvn( i, metap, iif( metap == 3, mvozrast, mdvozrast ), mpol )
         If !emptyany( &mvard, &mvart )
-          AAdd( arr, { dvn_arr_usl18[ i, 1 ], &mvard, '', i, &mvaro } )
+          AAdd( arr, { dvn_arr_usl18()[ i, 1 ], &mvard, '', i, &mvaro } )
         Endif
       Endif
     Next
   Else
     For i := 1 To count_dvn_arr_umolch18
       If f_is_umolch_sluch_dvn( i, metap, iif( metap == 3, mvozrast, mdvozrast ), mpol )
-        AAdd( arr, { dvn_arr_umolch18[ i, 1 ], iif( dvn_arr_umolch18[ i, 8 ] == 0, mn_data, mk_data ), '', i, 0 } )
+        AAdd( arr, { dvn_arr_umolch18()[ i, 1 ], iif( dvn_arr_umolch18()[ i, 8 ] == 0, mn_data, mk_data ), '', i, 0 } )
       Endif
     Next
   Endif
