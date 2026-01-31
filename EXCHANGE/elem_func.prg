@@ -5,6 +5,103 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 31.01.26
+function elem_napr( oSl, arr_onkna )
+
+  local oNAPR
+  local mNPR_MO, j
+
+  For j := 1 To Len( arr_onkna )
+    // заполним сведения о направлениях для XML-документа
+    oNAPR := oSL:add( hxmlnode():new( 'NAPR' ) )
+    mo_add_xml_stroke( oNAPR, 'NAPR_DATE', date2xml( arr_onkna[ j, 1 ] ) )
+    If !Empty( arr_onkna[ j, 5 ] ) .and. !Empty( mNPR_MO := ret_mo( arr_onkna[ j, 5 ] )[ _MO_KOD_FFOMS ] )
+      mo_add_xml_stroke( oNAPR, 'NAPR_MO', mNPR_MO )
+    Endif
+    mo_add_xml_stroke( oNAPR, 'NAPR_V', lstr( arr_onkna[ j, 2 ] ) )
+    If arr_onkna[ j, 2 ] == 3
+      mo_add_xml_stroke( oNAPR, 'MET_ISSL', lstr( arr_onkna[ j, 3 ] ) )
+      mo_add_xml_stroke( oNAPR, 'NAPR_USL', arr_onkna[ j, 4 ] )
+    Endif
+  Next j
+
+  return nil
+
+// 31.01.26
+function elem_prescriptions( oSl, human_kod, mdata, arr_onkna )
+
+  local oPRESCRIPTIONS, oPRESCRIPTION
+  local arr_nazn, j //, arr_onkna
+  local mNPR_MO
+
+//  if is_oncology > 0
+//    arr_onkna := collect_schet_onkna()
+//  else
+//    arr_onkna := {}
+//  endif
+  arr_nazn := prescriptions_dispans( human_kod, Year( mdata ) )
+
+  If Len( arr_nazn ) > 0 .or. ( human->OBRASHEN == '1' .and. Len( arr_onkna ) > 0 )
+    // заполним сведения о назначениях по результатам диспансеризации для XML-документа
+    oPRESCRIPTION := oSL:add( hxmlnode():new( 'PRESCRIPTION' ) )
+    For j := 1 To Len( arr_nazn )
+      oPRESCRIPTIONS := oPRESCRIPTION:add( hxmlnode():new( 'PRESCRIPTIONS' ) )
+      mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_N', lstr( j ) )
+      mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_R', lstr( arr_nazn[ j, 1 ] ) )
+
+      If !Empty( arr_nazn[ j, 3 ] )   // по новому ПУМП с 01.08.21
+        mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_IDDOKT', arr_nazn[ j, 3 ] )
+      Endif
+
+      If !Empty( arr_nazn[ j, 4 ] )   // по новому ПУМП с 01.08.21
+        mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_SPDOCT', arr_nazn[ j, 4 ] )
+      Endif
+
+      If eq_any( arr_nazn[ j, 1 ], 1, 2 )
+        // к какому специалисту направлен
+        mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_SP', arr_nazn[ j, 2 ] ) // результат ф-ии put_prvs_to_reestr(human_->PRVS, _NYEAR)
+      Elseif arr_nazn[ j, 1 ] == 3
+        mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_V', lstr( arr_nazn[ j, 2 ] ) )
+        // if human->OBRASHEN == '1'
+        // mo_add_xml_stroke(oPRESCRIPTIONS,'NAZ_USL',arr_nazn[j, 3]) // Мед.услуга (код), указанная в направлении
+        // endif
+      Elseif eq_any( arr_nazn[ j, 1 ], 4, 5 )
+        mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_PMP', lstr( arr_nazn[ j, 2 ] ) )
+      Elseif arr_nazn[ j, 1 ] == 6
+        mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_PK', lstr( arr_nazn[ j, 2 ] ) )
+      Endif
+    Next j
+    If human->OBRASHEN == '1' // подозрение на ЗНО
+      For j := 1 To Len( arr_onkna )
+        // заполним сведения о назначениях по результатам диспансеризации для XML-документа
+        oPRESCRIPTIONS := oPRESCRIPTION:add( hxmlnode():new( 'PRESCRIPTIONS' ) )
+        mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_N', lstr( j + Len( arr_nazn ) ) )
+        mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_R', lstr( iif( arr_onkna[ j, 2 ] == 1, 2, arr_onkna[ j, 2 ] ) ) )
+
+        If !Empty( arr_onkna[ j, 6 ] )   // по новому ПУМП с 01.08.21
+          mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_IDDOKT', arr_onkna[ j, 6 ] )
+        Endif
+
+        If !Empty( arr_onkna[ j, 7 ] )   // по новому ПУМП с 01.08.21
+          mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_SPDOCT', arr_onkna[ j, 7 ] )
+        Endif
+
+        If arr_onkna[ j, 2 ] == 1 // направление к онкологу
+          mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_SP', iif( human->VZROS_REB == 0, '41', '19' ) ) // спец-ть онкология или детская онкология
+        Else // == 3 на дообследование
+          mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_V', lstr( arr_onkna[ j, 3 ] ) )
+          mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_USL', arr_onkna[ j, 4 ] )
+        Endif
+        mo_add_xml_stroke( oPRESCRIPTIONS, 'NAPR_DATE', date2xml( arr_onkna[ j, 1 ] ) )
+        If !Empty( arr_onkna[ j, 5 ] ) .and. !Empty( mNPR_MO := ret_mo( arr_onkna[ j, 5 ] )[ _MO_KOD_FFOMS ] )
+          mo_add_xml_stroke( oPRESCRIPTIONS, 'NAPR_MO', mNPR_MO )
+        Endif
+      Next j
+    Endif
+  Endif
+
+  return nil
+
 // 28.10.25
 function elem_lek_pr_zno( oONK, mdata, human_recno, mkod_human )
 

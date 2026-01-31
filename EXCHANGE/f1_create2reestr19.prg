@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500
 
-// 25.11.25 работаем по текущей записи
+// 31.01.26 работаем по текущей записи
 Function f1_create2reestr19( _nyear, p_tip_reestr )
 
   Local i, j, lst, sVidpoms
@@ -226,10 +226,12 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
   
   arr_not_zs := np_arr_not_zs( human->k_data )
   a_otkaz := {} 
-  arr_nazn := {}
-  If eq_any( human->ishod, 101, 102 ) // дисп-ия детей-сирот
+//  arr_nazn := {}
+//  If eq_any( human->ishod, 101, 102 ) // дисп-ия детей-сирот
+  if is_sluch_dispanser_deti_siroty( human->ishod ) // дисп-ия детей-сирот
     read_arr_dds( human->kod )
-  Elseif eq_any( human->ishod, 301, 302 ) // профосмотры несовершеннолетних
+//  Elseif eq_any( human->ishod, 301, 302 ) // профосмотры несовершеннолетних
+  Elseif is_sluch_dispanser_profilaktika_deti( human->ishod ) // профосмотры несовершеннолетних
     arr_usl_otkaz := {}
     read_arr_pn( human->kod )
     If ValType( arr_usl_otkaz ) == 'A'
@@ -287,7 +289,8 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
         Endif
       Next j
     Endif
-  Elseif Between( human->ishod, 201, 205 ) // дисп-ия I этап или профилактика
+//  Elseif Between( human->ishod, 201, 205 ) // дисп-ия I этап или профилактика
+  elseif is_sluch_dispanser_DVN_prof( human->ishod ) // диспансеризация/профилактика взрослого населения
     is_disp_DVN := .t.
     arr_usl_otkaz := {}
     For i := 1 To 5
@@ -415,6 +418,7 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
       Next j
     Endif
   Endif
+/*
   If m1dopo_na > 0
     For i := 1 To 4
       If IsBit( m1dopo_na, i )
@@ -465,4 +469,5 @@ Function f1_create2reestr19( _nyear, p_tip_reestr )
       AAdd( arr_nazn, { 6, m1profil_kojki, '', '' } )
     Endif
   Endif
+*/
   Return Nil

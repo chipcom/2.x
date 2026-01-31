@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.01.26
+// 31.01.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -36,6 +36,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   local ar_dn
   local CODE_LPU
   local sk
+  local lDispans, vozrast, next_d
+
+  local arr_nazn
 
 //  Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
 //  Local oKSG, oSLk, oMR_USL_N, oDISAB, fl_DISABILITY := .f.
@@ -62,7 +65,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Private pr_amb_reab, fl_disp_nabl, is_disp_DVN, is_disp_DVN_COVID, is_disp_DRZ
   Private ldate_next
   Private a_otkaz
-  Private arr_nazn
+//  Private arr_nazn
   Private arr_ne_vozm
   Private mtab_v_dopo_na, mtab_v_mo, mtab_v_stac, mtab_v_reab, mtab_v_sanat
   Private arr_usl_otkaz
@@ -100,7 +103,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     pr_amb_reab := fl_disp_nabl := is_disp_DVN := is_disp_DVN_COVID := is_disp_DRZ := .f.
     ldate_next := CToD( '' )
     a_otkaz := {}
-    arr_nazn := {}
+//    arr_nazn := {}
     arr_ne_vozm := {}
     mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
 //    atmpusl := {}
@@ -220,7 +223,19 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       Endif
 
       If p_tip_reestr == TYPE_REESTR_DISPASER  // для реестров по диспансеризации
-//        mo_add_xml_stroke( oPAC, 'NEXT_D', ... )
+        otd->( dbGoto( human->OTD ) )
+        lDispans := eq_any( otd->TIPLU, TIP_LU_DDS, TIP_LU_DVN, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN, TIP_LU_DVN_COVID, TIP_LU_DRZ )
+
+        if eq_any( otd->TIPLU, TIP_LU_DDS, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN )
+          if ( vozrast := count_years( human->date_r, human->n_data ) ) < 1 // возраст меньше года
+            next_d := AddMonth( human->k_data, 1 )
+          else
+            next_d := AddMonth( human->k_data, 12 )
+          endif
+        else
+          next_d := AddMonth( human->k_data, 12 )
+        Endif
+        mo_add_xml_stroke( oPAC, 'NEXT_D', Str( Month( next_d ), 2 ) )
       endif
       if ! Empty( human->MO_PR )
         mo_add_xml_stroke( oPAC, 'MO_PR', human->MO_PR )
@@ -386,11 +401,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           s := '2.7'
         Endif
         mo_add_xml_stroke( oSL, 'P_CEL', s )
+        mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
       Endif
     Endif
-    If human_->USL_OK == USL_OK_POLYCLINIC
-      mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
-    endif
+//    If human_->USL_OK == USL_OK_POLYCLINIC
+//      mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
+//    endif
     If is_vmp
       mo_add_xml_stroke( oSL, 'TAL_D', date2xml( human_2->TAL_D ) ) // Дата выдачи талона на ВМП
       mo_add_xml_stroke( oSL, 'TAL_P', date2xml( human_2->TAL_P ) ) // Дата планируемой госпитализации в соответствии с талоном на ВМП
@@ -527,6 +543,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       Next
       i := iif( human->OBRASHEN == '1', 1, 0 )
       mo_add_xml_stroke( oSL, 'DS_ONK', lstr( i ) )
+
+      if p_tip_reestr == TYPE_REESTR_DISPASER
+//        arr_nazn := prescriptions_dispans( human->kod, Year( human->k_data ) )
+        elem_prescriptions( oSl, human->kod, human->k_data, arr_onkna )
+      Endif
+/*
       If Len( arr_nazn ) > 0 .or. ( human->OBRASHEN == '1' .and. Len( arr_onkna ) > 0 )
         // заполним сведения о назначениях по результатам диспансеризации для XML-документа
         oPRESCRIPTION := oSL:add( hxmlnode():new( 'PRESCRIPTION' ) )
@@ -585,6 +607,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           Next j
         Endif
       Endif
+*/
     Endif
     If is_KSG
       // заполним сведения о КСГ для XML-документа
@@ -645,6 +668,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       mo_add_xml_stroke( oSL, 'CODE_MES1', lshifr_zak_sl )
     Endif
     If human_->USL_OK < 4 .and. is_oncology > 0
+/*
       For j := 1 To Len( arr_onkna )
         // заполним сведения о направлениях для XML-документа
         oNAPR := oSL:add( hxmlnode():new( 'NAPR' ) )
@@ -658,6 +682,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           mo_add_xml_stroke( oNAPR, 'NAPR_USL', arr_onkna[ j, 4 ] )
         Endif
       Next j
+*/
+      elem_napr( oSl, arr_onkna )
     Endif
     If ( is_oncology > 0 .or. is_oncology_smp > 0 ) .and. ! lTypeLUOnkoDisp
       // заполним сведения о консилиумах для XML-документа
@@ -967,6 +993,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           if hu->KOL_RCP < 0 .and. domuslugatfoms( lshifr )
             mo_add_xml_stroke( oUSL, 'PODR', '0' )
           Endif
+        else
+          mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
         Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( hu_->PROFIL ) )
         If p_tip_reestr == TYPE_REESTR_GENERAL

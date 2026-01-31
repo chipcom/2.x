@@ -452,3 +452,83 @@ function dispans_vyav_diag( /*@*/j, mndisp )
   @ ++j, 1 Say Replicate( '─', 78 ) Color color1
 
   return nil
+
+// 31.01.26
+function prescriptions_dispans( human_kod, _NYEAR )
+
+  local arr_nazn := {}
+  Local arr, i, k
+  Local aliasIsUse := aliasisalreadyuse( 'P2TABN' )
+  Local oldSelect
+
+  If ! aliasIsUse
+    oldSelect := Select()
+    r_use( dir_server() + 'mo_pers',, 'P2TABN' )
+  Endif
+
+  arr := read_arr_dispans( human_kod )
+/*
+  if is_sluch_dispanser_deti_siroty( human->ishod ) // дисп-ия детей-сирот
+  elseif is_sluch_dispanser_profilaktika_deti( human->ishod ) // профосмотры несовершеннолетних
+  elseif is_sluch_dispanser_DVN_prof( human->ishod ) // диспансеризация/профилактика взрослого населения
+  Elseif is_sluch_dispanser_COVID( human->ishod ) // углубленная диспансеризация после COVID
+  elseif is_sluch_dispanser_DRZ( human->ishod ) // диспансеризации репродуктивного здоровья
+  endif
+*/
+  If m1dopo_na > 0
+    For i := 1 To 4
+      If IsBit( m1dopo_na, i )
+        If mtab_v_dopo_na != 0
+          If P2TABN->( dbSeek( Str( mtab_v_dopo_na, 5 ) ) )
+            AAdd( arr_nazn, { 3, i, P2TABN->snils, lstr( ret_prvs_v015tov021( P2TABN->PRVS_NEW ) ) } ) // теперь каждое назначение в отдельном PRESCRIPTIONS
+          Else
+            AAdd( arr_nazn, { 3, i, '', '' } ) // теперь каждое назначение в отдельном PRESCRIPTIONS
+          Endif
+        Else
+          AAdd( arr_nazn, { 3, i, '', '' } ) // теперь каждое назначение в отдельном PRESCRIPTIONS
+        Endif
+      Endif
+    Next
+  Endif
+  If Between( m1napr_v_mo, 1, 2 ) .and. !Empty( arr_mo_spec )
+    For i := 1 To Len( arr_mo_spec ) // теперь каждая специальность в отдельном PRESCRIPTIONS
+      If mtab_v_mo != 0
+        If P2TABN->( dbSeek( Str( mtab_v_mo, 5 ) ) )
+          AAdd( arr_nazn, { m1napr_v_mo, put_prvs_to_reestr( -arr_mo_spec[ i ], _NYEAR ), P2TABN->snils, lstr( ret_prvs_v015tov021( P2TABN->PRVS_NEW ) ) } )  // '-', т.к. спец-ть была в кодировке V015
+        Else
+          AAdd( arr_nazn, { m1napr_v_mo, put_prvs_to_reestr( -arr_mo_spec[ i ], _NYEAR ), '', '' } ) // '-', т.к. спец-ть была в кодировке V015
+        Endif
+      Else
+        AAdd( arr_nazn, { m1napr_v_mo, put_prvs_to_reestr( -arr_mo_spec[ i ], _NYEAR ), '', '' } ) // '-', т.к. спец-ть была в кодировке V015
+      Endif
+    Next
+  Endif
+  If Between( m1napr_stac, 1, 2 ) .and. m1profil_stac > 0
+    If mtab_v_stac != 0
+      If P2TABN->( dbSeek( Str( mtab_v_stac, 5 ) ) )
+        AAdd( arr_nazn, { iif( m1napr_stac == 1, 5, 4 ), m1profil_stac, P2TABN->snils, lstr( ret_prvs_v015tov021( P2TABN->PRVS_NEW ) ) } )
+      Else
+        AAdd( arr_nazn, { iif( m1napr_stac == 1, 5, 4 ), m1profil_stac, '', '' } )
+      Endif
+    Else
+      AAdd( arr_nazn, { iif( m1napr_stac == 1, 5, 4 ), m1profil_stac, '', '' } )
+    Endif
+  Endif
+  If m1napr_reab == 1 .and. m1profil_kojki > 0
+    If mtab_v_reab != 0
+      If P2TABN->( dbSeek( Str( mtab_v_reab, 5 ) ) )
+        AAdd( arr_nazn, { 6, m1profil_kojki, P2TABN->snils, lstr( ret_prvs_v015tov021( P2TABN->PRVS_NEW ) ) } )
+      Else
+        AAdd( arr_nazn, { 6, m1profil_kojki, '', '' } )
+      Endif
+    Else
+      AAdd( arr_nazn, { 6, m1profil_kojki, '', '' } )
+    Endif
+  Endif
+
+  If ! aliasIsUse
+    P2TABN->( dbCloseArea() )
+    Select( oldSelect )
+  Endif
+
+  return arr_nazn

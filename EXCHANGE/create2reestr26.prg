@@ -22,7 +22,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
   local oPb
   local sk, begin_rees, end_rees
   local aBukva
-altd()
+
   begin_rees := mem_beg_rees
   end_rees := mem_end_rees
   //
