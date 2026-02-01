@@ -14,16 +14,16 @@ Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.
 Function ret_vidpom_licensia( lusl_ok, lvidpoms, lprofil )
 
   Static mo_licensia := { ;
-    { '101004', 2, '31', 0 }, ;  // ВОУНЦ
-    { '141023', 2, '31', 0 }, ;  // б-ца 15
-    { '801935', 2, '31', 0 }, ;  // ЭКО-Москва
-    { '391001', 2, '31', 0 }, ;  // Камышинская гор.б-ца 1
-    { '101001', 2, '13', 60 }, ;   // ОКБ-1 - онкология
-    { '451001', 2, '13', 60 }, ;   // Михайловская ЦРБ - онкология
-    { '451001', 2, '13', 136 }, ;   // Михайловская ЦРБ - акушерству и гинекологии
-    { '451001', 2, '13', 184 }, ;   // Михайловская ЦРБ - акушерству и гинекологии (искусственному прерыванию беременности)
-    { '124528', 2, '13', 158 }, ;   // 28 п-ка - реабилитация
-    { '805960', 2, '13', 97 };   // грязелечебница
+    { '101004', 2, '31',   0 }, ;  // ВОУНЦ
+    { '141023', 2, '31',   0 }, ;  // б-ца 15
+    { '801935', 2, '31',   0 }, ;  // ЭКО-Москва
+    { '391001', 2, '31',   0 }, ;  // Камышинская гор.б-ца 1
+    { '101001', 2, '13',  60 }, ;  // ОКБ-1 - онкология
+    { '451001', 2, '13',  60 }, ;  // Михайловская ЦРБ - онкология
+    { '451001', 2, '13', 136 }, ;  // Михайловская ЦРБ - акушерству и гинекологии
+    { '451001', 2, '13', 184 }, ;  // Михайловская ЦРБ - акушерству и гинекологии (искусственному прерыванию беременности)
+    { '124528', 2, '13', 158 }, ;  // 28 п-ка - реабилитация
+    { '805960', 2, '13',  97 } ;   // грязелечебница
   }
   Local i, fl := .f.
   For i := 1 To Len( mo_licensia )
@@ -66,7 +66,7 @@ Function is_komm_smp()
   Static a_komm_SMP := { ;
     '806501', ; // Волгоградская неотложка
     '806502', ; // Медтранс
-    '806503';   // Волгоградская неотложка новая
+    '806503' ;  // Волгоградская неотложка новая
     }
 
   If _is == Nil // т.е. определяется один раз за сеанс работы задачи
@@ -245,7 +245,10 @@ Function f_vid_p_stom( arr_usl, ta, ret_arr, ret_tip_a, lk_data, /*@*/ret_tip, /
   Local a_stom, a_stom16_2, i, j, jm, k := 0, n := 0, lshifr, s := '', y, is_new, lshifr2 := ''
   
   If ValType( lk_data ) == 'D' .and. ( y := Year( lk_data ) ) > 2015 // 2016 год
-    jm := 0 ; ret_tip := 0 ; ret_kol := 0 ; is_2_88 := .f.
+    jm := 0
+    ret_tip := 0
+    ret_kol := 0
+    is_2_88 := .f.
     is_new := ( lk_data >= 0d20160801 )
     If is_new // с 1 августа 2016 года
       a_stom16_2 := a_new_stom16_2
@@ -261,7 +264,9 @@ Function f_vid_p_stom( arr_usl, ta, ret_arr, ret_tip_a, lk_data, /*@*/ret_tip, /
           jm := j
           ret_tip := a_stom16_2[ j, 1 ]
           is_2_88 := ( j == 3 )
-          ++n ; s += ' ' + lshifr ; Exit
+          ++n
+          s += ' ' + lshifr
+          Exit
         Endif
       Next
     Next
@@ -298,7 +303,9 @@ Function f_vid_p_stom( arr_usl, ta, ret_arr, ret_tip_a, lk_data, /*@*/ret_tip, /
               Endif
             Else
               For j := 1 To Len( a_new_stom16 )
-                If j == jm ; loop ; Endif
+                If j == jm
+                  loop
+                Endif
                 If AScan( a_new_stom16[ j ], lshifr ) > 0
                   AAdd( ta, 'услуга ' + s + ' относится к другому типу листа учёта' )
                   Exit
@@ -332,7 +339,9 @@ Function f_vid_p_stom( arr_usl, ta, ret_arr, ret_tip_a, lk_data, /*@*/ret_tip, /
     For i := 1 To 3
       For j := 1 To Len( arr_usl )
         If ( k := AScan( a_stom[ i ], AllTrim( arr_usl[ j, 1 ] ) ) ) > 0
-          ++n ; s += ' ' + a_stom[ i, k ] ; Exit
+          ++n
+          s += ' ' + a_stom[ i, k ]
+          Exit
         Endif
       Next
     Next
@@ -491,6 +500,7 @@ Function f2_view_list_reestr( nKey, oBrow )
 
   Local ret := -1, rec := rees->( RecNo() ), tmp_color := SetColor(), r, r1, r2, ;
     s, buf := SaveScreen(), arr, i, k, mdate, t_arr[ 2 ], arr_pmt := {}
+  local nfile
 
   Do Case
   Case nKey == K_F7
@@ -654,7 +664,8 @@ Function f2_view_list_reestr( nKey, oBrow )
       If !( oldy == rees->NYEAR .and. oldm == rees->NMONTH )
         add_string( '' )
         add_string( PadC( 'Отчётный период ' + lstr( rees->nyear ) + '/' + StrZero( rees->nmonth, 2 ), sh, '_' ) )
-        oldy := rees->NYEAR ; oldm := rees->NMONTH
+        oldy := rees->NYEAR
+        oldm := rees->NMONTH
         @ MaxRow(), 1 Say lstr( rees->nyear ) + '/' + StrZero( rees->nmonth, 2 ) Color cColorWait
       Endif
       s := Str( rees->NSCHET, 6 ) + ' ' + date_8( rees->DSCHET ) + ' ' + PadR( rees->NAME_XML, 20 ) + ;
@@ -662,11 +673,13 @@ Function f2_view_list_reestr( nKey, oBrow )
       Select MO_XML
       Index On FIELD->FNAME to ( cur_dir() + 'tmp_x2' ) ;
         For FIELD->reestr == rees->kod .and. FIELD->TIP_OUT == 0 .and. FIELD->TIP_IN == _XML_FILE_SP
-      kol_sp := 0 ; dbEval( {|| ++kol_sp } )
+      kol_sp := 0
+      dbEval( {|| ++kol_sp } )
       Select RHUM
       Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_r2' ) ;
         For FIELD->reestr == rees->kod .and. FIELD->OPLATA == 0
-      kol_ne := 0 ; dbEval( {|| ++kol_ne } )
+      kol_ne := 0
+      dbEval( {|| ++kol_ne } )
       s += PadC( iif( kol_sp == 0, '-', lstr( kol_sp ) ), 9 )
       s += PadC( iif( kol_ne == 0, '-', lstr( kol_ne ) ), 13 )
       s += ' ' + iif( kol_ne == 0, ' =', '!!!' )
@@ -896,7 +909,8 @@ Static Function f1vozvrat_reestr( mkod_reestr )
   AAdd( arr, 'из данного реестра, а реестр будет удален.' )
   f_message( arr,, color1, color8 )
   If f_esc_enter( 'удаления реестра № ' + lstr( rees->nschet ), .t. )
-    stat_msg( 'Подтвердите удаление ещё раз.' ) ; mybell( 2 )
+    stat_msg( 'Подтвердите удаление ещё раз.' )
+    mybell( 2 )
     If f_esc_enter( 'удаления реестра № ' + lstr( rees->nschet ), .t. )
       mywait( 'Ждите. Производится удаление реестра.' )
       g_use( dir_server() + 'human_u_',, 'HU_' )
@@ -910,7 +924,9 @@ Static Function f1vozvrat_reestr( mkod_reestr )
       Do While .t.
         Select RHUM
         find ( Str( mkod_reestr, 6 ) )
-        If !Found() ; exit ; Endif
+        If !Found()
+          exit
+        Endif
         //
         Select HUMAN_
         Goto ( rhum->KOD_HUM )
@@ -1055,7 +1071,8 @@ Static Function f1vozvrat_reestr( mkod_reestr )
       Endif
       Select REES
       deleterec( .t. )
-      stat_msg( 'Реестр удалён!' ) ; mybell( 2, OK )
+      stat_msg( 'Реестр удалён!' )
+      mybell( 2, OK )
     Endif
   Endif
   Close databases
@@ -1109,9 +1126,11 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
     Return 1
   Endif
   If r <= 18
-    r1 := r + 1 ; r2 := r1 + Len( mm_menu ) + 1
+    r1 := r + 1
+    r2 := r1 + Len( mm_menu ) + 1
   Else
-    r2 := r - 1 ; r1 := r2 - Len( mm_menu ) -1
+    r2 := r - 1
+    r1 := r2 - Len( mm_menu ) -1
   Endif
   If ( i := popup_prompt( r1, 10, 1, mm_menu,,, color5 ) ) > 0
     is_allow_delete := mm_flag[ i ]
@@ -1154,12 +1173,14 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                 Select HUMAN
                 Goto ( rhum->KOD_HUM )
                 If emptyany( human->kod, human->fio )
-                  is_delete_human := .t. ; Exit
+                  is_delete_human := .t.
+                  Exit
                 Endif
                 Select HUMAN_
                 Goto ( rhum->KOD_HUM )
                 If human_->REESTR > 0 .and. human_->REESTR != mkod_reestr
-                  is_other_reestr := .t. ; Exit
+                  is_other_reestr := .t.
+                  Exit
                 Endif
               Endif
               Select TMP2
@@ -1186,7 +1207,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                   Skip
                 Enddo
                 If r1 > 0 .and. r > r1  // если текущий реестр не последний
-                  is_other_reestr := .t. ; Exit
+                  is_other_reestr := .t.
+                  Exit
                 Endif
                 Select TMP2
                 Skip
@@ -1227,9 +1249,11 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                 AAdd( arr, 'реестра СП и ТК, а также сам реестр СП и ТК, будут удалены.' )
                 f_message( arr,, cColorSt2Msg, cColorSt1Msg )
                 s := 'Подтвердите аннулирование реестра СП и ТК'
-                stat_msg( s ) ; mybell( 1 )
+                stat_msg( s )
+                mybell( 1 )
                 If f_esc_enter( 'аннулирования', .t. )
-                  stat_msg( s + ' ещё раз.' ) ; mybell( 3 )
+                  stat_msg( s + ' ещё раз.' )
+                  mybell( 3 )
                   If f_esc_enter( 'аннулирования', .t. )
                     mywait()
                     is_allow_delete := .t.
@@ -1281,7 +1305,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                       Select HUMAN
                       Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
                       human->( g_rlock( forever ) )
-                      human->schet := 0 ; human->tip_h := B_STANDART
+                      human->schet := 0
+                      human->tip_h := B_STANDART
                       human_->( g_rlock( forever ) )
                       If human_->schet_zap > 0
                         If human_->SCHET_NUM > 0
@@ -1308,7 +1333,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                     Select HUMAN
                     Goto ( tmp2->kod_human )
                     human->( g_rlock( forever ) )
-                    human->schet := 0 ; human->tip_h := B_STANDART
+                    human->schet := 0
+                    human->tip_h := B_STANDART
                     human_->( g_rlock( forever ) )
                     If human_->schet_zap > 0
                       If human_->SCHET_NUM > 0
@@ -1322,7 +1348,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                   Elseif human->ishod == 89 // теперь проверим, не двойной ли это случай (по-новому)
                     // сначала обработаем 2-ой случай
                     human->( g_rlock( forever ) )
-                    human->schet := 0 ; human->tip_h := B_STANDART
+                    human->schet := 0
+                    human->tip_h := B_STANDART
                     human_->( g_rlock( forever ) )
                     If human_->schet_zap > 0
                       If human_->SCHET_NUM > 0
@@ -1341,7 +1368,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                       Select HUMAN
                       Goto ( human_3->kod ) // встать на 1-ый лист учёта
                       human->( g_rlock( forever ) )
-                      human->schet := 0 ; human->tip_h := B_STANDART
+                      human->schet := 0
+                      human->tip_h := B_STANDART
                       human_->( g_rlock( forever ) )
                       If human_->schet_zap > 0
                         If human_->SCHET_NUM > 0
@@ -1369,7 +1397,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                     Select HUMAN
                     Goto ( tmp2->kod_human )
                     human->( g_rlock( forever ) )
-                    human->schet := 0 ; human->tip_h := B_STANDART
+                    human->schet := 0
+                    human->tip_h := B_STANDART
                     human_->( g_rlock( forever ) )
                     If human_->schet_zap > 0
                       If human_->SCHET_NUM > 0
@@ -1384,7 +1413,9 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                   Select REFR
                   Do While .t.
                     find ( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( tmp2->kod_human, 8 ) )
-                    If !Found() ; exit ; Endif
+                    If !Found()
+                      exit
+                    Endif
                     deleterec( .t. )
                   Enddo
                   Select TMP2
@@ -1422,7 +1453,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                 Goto ( mreestr_sp_tk )
                 deleterec()
                 Close databases
-                stat_msg( 'Реестр СП и ТК успешно аннулирован. Можно прочитать ещё раз.' ) ; mybell( 5 )
+                stat_msg( 'Реестр СП и ТК успешно аннулирован. Можно прочитать ещё раз.' )
+                mybell( 5 )
               Endif
             Endif
           Endif
@@ -1477,12 +1509,14 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                   Select HUMAN
                   Goto ( rhum->KOD_HUM )
                   If emptyany( human->kod, human->fio )
-                    is_delete_human := .t. ; Exit
+                    is_delete_human := .t.
+                    Exit
                   Endif
                   Select HUMAN_
                   Goto ( rhum->KOD_HUM )
                   If human_->REESTR > 0 .and. human_->REESTR != mkod_reestr
-                    is_other_reestr := .t. ; Exit
+                    is_other_reestr := .t.
+                    Exit
                   Endif
                 Endif
               Endif
@@ -1510,7 +1544,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                   Skip
                 Enddo
                 If r1 > 0 .and. r > r1  // если текущий реестр не последний
-                  is_other_reestr := .t. ; Exit
+                  is_other_reestr := .t.
+                  Exit
                 Endif
                 Select TMP2
                 Skip
@@ -1543,9 +1578,11 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                 AAdd( arr, 'данного протокола ФЛК, а также сам протокол, будут удалены.' )
                 f_message( arr,, cColorSt2Msg, cColorSt1Msg )
                 s := 'Подтвердите аннулирование чтения протокола ФЛК'
-                stat_msg( s ) ; mybell( 1 )
+                stat_msg( s )
+                mybell( 1 )
                 If f_esc_enter( 'аннулирования', .t. )
-                  stat_msg( s + ' ещё раз.' ) ; mybell( 3 )
+                  stat_msg( s + ' ещё раз.' )
+                  mybell( 3 )
                   If f_esc_enter( 'аннулирования', .t. )
                     mywait()
                     is_allow_delete := .t.
@@ -1579,7 +1616,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                 Goto ( mreestr_sp_tk )
                 deleterec()
                 Close databases
-                stat_msg( 'Протокол ФЛК успешно аннулирован.' ) ; mybell( 5 )
+                stat_msg( 'Протокол ФЛК успешно аннулирован.' )
+                mybell( 5 )
               Endif
             Endif
           Endif
