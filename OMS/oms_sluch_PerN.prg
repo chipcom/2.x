@@ -71,7 +71,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
   mprotivo, m1protivo := 0, mgruppa := 0, m1GR_FIZ := 0
   Private mvar, m1var, m1lis := 0
   //
-  For i := 1 To count_Pern_arr_iss // исследования
+  For i := 1 To Len( nper_arr_issled() ) // исследования
     mvar := 'MTAB_NOMiv' + lstr( i )
     Private &mvar := 0
     mvar := 'MTAB_NOMia' + lstr( i )
@@ -179,7 +179,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
     mk_data    := human->K_DATA
     mcena_1    := human->CENA_1
     //
-    larr_i := Array( count_Pern_arr_iss )
+    larr_i := Array( Len( nper_arr_issled() ) )
     AFill( larr_i, 0 )
     larr_p := {}
     mdate1 := mdate2 := CToD( '' )
@@ -196,8 +196,8 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
         mshifr_zs := lshifr
       Else
         fl := .t.
-        For i := 1 To count_Pern_arr_iss
-          If nPer_arr_issled[ i, 1 ] == lshifr
+        For i := 1 To Len( nper_arr_issled() )
+          If nper_arr_issled()[ i, 1 ] == lshifr
             fl := .f.
             larr_i[ i ] := hu->( RecNo() )
             Exit
@@ -242,7 +242,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
           &mvar := c4tod( hu->date_u )
           If j == 1
             m1var := 'm1lis' + lstr( i )
-            If glob_yes_kdp2()[ TIP_LU_PERN ] .and. AScan( glob_arr_usl_LIS(), nper_arr_issled[ i, 1 ] ) > 0 ;
+            If glob_yes_kdp2()[ TIP_LU_PERN ] .and. AScan( glob_arr_usl_LIS(), nper_arr_issled()[ i, 1 ] ) > 0 ;
                 .and. hu->is_edit == 1
               &m1var := 1
             Endif
@@ -387,7 +387,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
       MDATEi2 := mn_data
     Endif
     @ j, 1 Say PadR( 'Клинический анализ крови', 38 )
-    If glob_yes_kdp2()[ TIP_LU_PERN ] .and. AScan( glob_arr_usl_LIS(), nper_arr_issled[ 2, 1 ] ) > 0
+    If glob_yes_kdp2()[ TIP_LU_PERN ] .and. AScan( glob_arr_usl_LIS(), nper_arr_issled()[ 2, 1 ] ) > 0
       @ j, 34 Get mlis2 reader {| x| menu_reader( x, mm_kdp2, A__MENUVERT, , , .f. ) }
     Endif
     @ j, 39 Get MTAB_NOMiv2 Pict '99999' valid {| g| v_kart_vrach( g ) }
@@ -498,23 +498,23 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
       Else
         mdef_diagnoz := 'Z00.3 '
       Endif
-      arr_iss := Array( count_Pern_arr_iss, 10 )
+      arr_iss := Array( Len( nper_arr_issled() ), 10 )
       afillall( arr_iss, 0 )
       r_use( dir_exe() + '_mo_mkb', cur_dir() + '_mo_mkb', 'MKB_10' )
       r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'P2' )
       max_date1 := max_date2 := mn_data
       fl := .t.
       ar := nPer_arr_1_etap[ mperiod ]
-      For i := 1 To count_Pern_arr_iss
-        If AScan( ar[ 5 ], nPer_arr_issled[ i, 1 ] ) > 0
+      For i := 1 To Len( nper_arr_issled() )
+        If AScan( ar[ 5 ], nper_arr_issled()[ i, 1 ] ) > 0
           mvart := 'MTAB_NOMiv' + lstr( i )
           mvara := 'MTAB_NOMia' + lstr( i )
           mvard := 'MDATEi' + lstr( i )
           mvarr := 'MREZi' + lstr( i )
           If Empty( &mvard )
-            fl := func_error( 4, 'Не введена дата иссл-ия "' + nPer_arr_issled[ i, 3 ] + '"' )
+            fl := func_error( 4, 'Не введена дата иссл-ия "' + nper_arr_issled()[ i, 3 ] + '"' )
           Elseif Empty( &mvart )
-            fl := func_error( 4, 'Не введен врач в иссл-ии "' + nPer_arr_issled[ i, 3 ] + '"' )
+            fl := func_error( 4, 'Не введен врач в иссл-ии "' + nper_arr_issled()[ i, 3 ] + '"' )
           Else
             Select P2
             find ( Str( &mvart, 5 ) )
@@ -529,8 +529,8 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
                 arr_iss[ i, 3 ] := p2->kod
               Endif
             Endif
-            arr_iss[ i, 4 ] := nPer_arr_issled[ i, 5 ] // профиль
-            arr_iss[ i, 5 ] := nPer_arr_issled[ i, 1 ] // шифр услуги
+            arr_iss[ i, 4 ] := nper_arr_issled()[ i, 5 ] // профиль
+            arr_iss[ i, 5 ] := nper_arr_issled()[ i, 1 ] // шифр услуги
             arr_iss[ i, 6 ] := mdef_diagnoz
             arr_iss[ i, 9 ] := &mvard
             m1var := 'm1lis' + lstr( i )
@@ -564,7 +564,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
       mywait( 'Ждите. Производится запись листа учёта...' )
       m1lis := 0
       If glob_yes_kdp2()[ TIP_LU_PN ]
-        For i := 1 To count_Pern_arr_iss
+        For i := 1 To Len( nper_arr_issled() )
           If ValType( arr_iss[ i, 9 ] ) == 'D' .and. arr_iss[ i, 9 ] >= mn_data .and. Len( arr_iss[ i ] ) > 9 ;
               .and. ValType( arr_iss[ i, 10 ] ) == 'N' .and. arr_iss[ i, 10 ] == 1
             m1lis := 1 // в рамках диспансеризации
