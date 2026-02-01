@@ -3300,54 +3300,54 @@ Function f21_inf_dvn_svod( par )
 // 25.11.13
 Function f4_inf_predn_karta( par, _etap )
 
-  Local i, k, fl, arr := {}, ar := npred_arr_1_etap[ mperiod ]
+  Local i, k, fl, arr := {}, ar := npred_arr_1_etap()[ mperiod ]
 
   If par == 1
     If iif( _etap == nil, .t., _etap == 1 )
-      For i := 1 To count_predn_arr_osm
+      For i := 1 To Len( npred_arr_osmotr() )
         mvart := 'MTAB_NOMov' + lstr( i )
         mvard := 'MDATEo' + lstr( i )
         fl := .t.
-        If fl .and. !Empty( npred_arr_osmotr[ i, 2 ] )
-          fl := ( mpol == npred_arr_osmotr[ i, 2 ] )
+        If fl .and. !Empty( npred_arr_osmotr()[ i, 2 ] )
+          fl := ( mpol == npred_arr_osmotr()[ i, 2 ] )
         Endif
         If fl
-          fl := ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], npred_arr_osmotr[ i, 1 ] ) > 0 )
+          fl := ( !Empty( ar[ 4 ] ) .and. AScan( ar[ 4 ], npred_arr_osmotr()[ i, 1 ] ) > 0 )
         Endif
         If fl .and. !emptyany( &mvard, &mvart )
-          AAdd( arr, { npred_arr_osmotr[ i, 3 ], &mvard, '', i, f5_inf_dnl_karta( i ) } )
+          AAdd( arr, { npred_arr_osmotr()[ i, 3 ], &mvard, '', i, f5_inf_dnl_karta( i ) } )
         Endif
       Next
     Endif
     AAdd( arr, { 'педиатр (врач общей практики)', MDATEp1, '', -1, 1 } )
     If metap == 2 .and. iif( _etap == nil, .t., _etap == 2 )
-      For i := 1 To count_predn_arr_osm
+      For i := 1 To Len( npred_arr_osmotr() )
         mvart := 'MTAB_NOMov' + lstr( i )
         mvard := 'MDATEo' + lstr( i )
         fl := .t.
-        If fl .and. !Empty( npred_arr_osmotr[ i, 2 ] )
-          fl := ( mpol == npred_arr_osmotr[ i, 2 ] )
+        If fl .and. !Empty( npred_arr_osmotr()[ i, 2 ] )
+          fl := ( mpol == npred_arr_osmotr()[ i, 2 ] )
         Endif
         If fl
-          fl := ( AScan( ar[ 4 ], npred_arr_osmotr[ i, 1 ] ) == 0 )
+          fl := ( AScan( ar[ 4 ], npred_arr_osmotr()[ i, 1 ] ) == 0 )
         Endif
         If fl .and. !emptyany( &mvard, &mvart )
-          AAdd( arr, { npred_arr_osmotr[ i, 3 ], &mvard, '', i, f5_inf_dnl_karta( i ) } )
+          AAdd( arr, { npred_arr_osmotr()[ i, 3 ], &mvard, '', i, f5_inf_dnl_karta( i ) } )
         Endif
       Next
       AAdd( arr, { 'педиатр (врач общей практики)', MDATEp2, '', -2, 1 } )
     Endif
   Else
-    For i := 1 To count_predn_arr_iss // исследования
+    For i := 1 To Len( npred_arr_issled() ) // исследования
       mvart := 'MTAB_NOMiv' + lstr( i )
       mvard := 'MDATEi' + lstr( i )
       mvarr := 'MREZi' + lstr( i )
       fl := .t.
-      If fl .and. !Empty( npred_arr_issled[ i, 2 ] )
-        fl := ( mpol == npred_arr_issled[ i, 2 ] )
+      If fl .and. !Empty( npred_arr_issled()[ i, 2 ] )
+        fl := ( mpol == npred_arr_issled()[ i, 2 ] )
       Endif
       If fl
-        fl := ( AScan( ar[ 5 ], npred_arr_issled[ i, 1 ] ) > 0 )
+        fl := ( AScan( ar[ 5 ], npred_arr_issled()[ i, 1 ] ) > 0 )
       Endif
       If fl .and. !emptyany( &mvard, &mvart )
         k := 0
@@ -3375,7 +3375,7 @@ Function f4_inf_predn_karta( par, _etap )
         Case i == 11 // {'13.1.1'  ,   , 'Электрокардиография', 0, 111,{110103, 110303, 110906, 111006, 111905, 112212, 112611, 113418, 113509, 180202} }, ;
           k := 13
         Endcase
-        AAdd( arr, { npred_arr_issled[ i, 3 ], &mvard, &mvarr, i, k } )
+        AAdd( arr, { npred_arr_issled()[ i, 3 ], &mvard, &mvarr, i, k } )
       Endif
     Next
   Endif
@@ -3390,11 +3390,11 @@ Function f4_inf_pern_karta( par )
   If par == 1
     AAdd( arr, { 'педиатр (врач общей практики)', MDATEp1, '', -1, 1 } )
   Else
-    For i := 1 To count_Pern_arr_iss // исследования
+    For i := 1 To Len( nper_arr_issled() ) // исследования
       mvart := 'MTAB_NOMiv' + lstr( i )
       mvard := 'MDATEi' + lstr( i )
       mvarr := 'MREZi' + lstr( i )
-      fl := ( AScan( ar[ 5 ], nPer_arr_issled[ i, 1 ] ) > 0 )
+      fl := ( AScan( ar[ 5 ], nper_arr_issled()[ i, 1 ] ) > 0 )
       If fl .and. !emptyany( &mvard, &mvart )
         k := 0
         Do Case
@@ -3405,7 +3405,7 @@ Function f4_inf_pern_karta( par )
         Case i ==  1 // {'16.1.16' ,   , 'Анализ окиси углерода выдыхаем.воздуха', 0, 34,{1107, 1301, 1402, 1702} };
           k := 17
         Endcase
-        AAdd( arr, { nPer_arr_issled[ i, 3 ], &mvard, &mvarr, i, k } )
+        AAdd( arr, { nper_arr_issled()[ i, 3 ], &mvard, &mvarr, i, k } )
       Endif
     Next
   Endif

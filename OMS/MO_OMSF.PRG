@@ -2407,7 +2407,7 @@ Function save_arr_predn( lkod )
   AAdd( arr, { '16.8', mGRUPPA } )    // 'N1',группа здоровья после дисп-ии
   AAdd( arr, { '16.9', m1GR_FIZ } )    // 'N1',группа здоровья для физкультуры
   // 18.результаты проведения исследований
-  For i := 1 To count_predn_arr_iss
+  For i := 1 To Len( npred_arr_issled() )
     mvar := 'MREZi' + lstr( i )
     If !Empty( &mvar )
       AAdd( arr, { '18.' + lstr( i ), AllTrim( &mvar ) } )
@@ -2440,7 +2440,7 @@ Function read_arr_predn( lkod )
       Case arr[ i, 1 ] == '16.9' .and. ValType( arr[ i, 2 ] ) == 'N'
         m1GR_FIZ := arr[ i, 2 ]
       Otherwise
-        For k := 1 To count_predn_arr_iss
+        For k := 1 To Len( npred_arr_issled() )
           If arr[ i, 1 ] == '18.' + lstr( k ) .and. ValType( arr[ i, 2 ] ) == 'C'
             mvar := 'MREZi' + lstr( k )
             &mvar := PadR( arr[ i, 2 ], 17 )
@@ -2470,7 +2470,7 @@ Function save_arr_pern( lkod )
   AAdd( arr, { '9', m1tip_school } ) // 'N1',тип образовательного учреждения
   AAdd( arr, { '10', m1protivo } ) // 'N1',противопоказания к продолжению учёбы
   // 18.результаты проведения исследований
-  For i := 1 To count_pern_arr_iss
+  For i := 1 To Len( nper_arr_issled() )
     mvar := 'MREZi' + lstr( i )
     If !Empty( &mvar )
       AAdd( arr, { '18.' + lstr( i ), AllTrim( &mvar ) } )
@@ -2501,7 +2501,7 @@ Function read_arr_pern( lkod )
       Case arr[ i, 1 ] == '10' .and. ValType( arr[ i, 2 ] ) == 'N'
         m1protivo := arr[ i, 2 ]
       Otherwise
-        For k := 1 To count_pern_arr_iss
+        For k := 1 To Len( nper_arr_issled() )
           If arr[ i, 1 ] == '18.' + lstr( k ) .and. ValType( arr[ i, 2 ] ) == 'C'
             mvar := 'MREZi' + lstr( k )
             &mvar := PadR( arr[ i, 2 ], 17 )
