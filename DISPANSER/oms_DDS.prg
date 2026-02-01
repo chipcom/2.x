@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.01.26 ДДС - добавление или редактирование случая (листа учета)
+// 01.02.26 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -1858,9 +1858,13 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
 //        AAdd( arr_usl_dop, add_pediatr_DDS( MTAB_NOMpv2, MTAB_NOMpa2, MDATEp2, MKOD_DIAGp2, mpol, mdef_diagnoz, m1mobilbr, tip_lu ) )
 //        i := Len( arr_DDS_osm )
-
+        for i := 1 to len( arr_osm2 )
+          if ! Empty( arr_osm2[ i, 1 ] )
+            AAdd( arr_usl_dop, arr_osm2[ i ] )
+          endif
+        next
         i := Len( arr_osm2 )
-        AAdd( arr_usl_dop, arr_osm2[ i ] )
+//        AAdd( arr_usl_dop, arr_osm2[ i ] )
 
         m1vrach  := arr_osm2[ i, 1 ]
         m1prvs   := arr_osm2[ i, 2 ]
