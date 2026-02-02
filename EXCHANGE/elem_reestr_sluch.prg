@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 31.01.26
+// 02.02.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -186,8 +186,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oPAC, 'SPOLIS', human_->SPOLIS )
       Endif
       mo_add_xml_stroke( oPAC, 'NPOLIS', human_->NPOLIS )
-      If Len( AllTrim( kart2->kod_mis ) ) == 16
-        mo_add_xml_stroke( oPAC, 'ENP', kart2->kod_mis ) // Единый номер полиса единого образца
+      If ( ( human_->VPOLIS == 3 ) .and. ( Len ( AllTrim( human_->NPOLIS ) ) == 16 ) ) .or. Len( AllTrim( kart2->kod_mis ) ) == 16
+        if ! Empty( human_->NPOLIS )
+          mo_add_xml_stroke( oPAC, 'ENP', AllTrim( human_->NPOLIS ) ) // Единый номер полиса единого образца
+        else
+          mo_add_xml_stroke( oPAC, 'ENP', kart2->kod_mis ) // Единый номер полиса единого образца
+        endif
       Endif
 
       cSMOname := schet_smoname()
