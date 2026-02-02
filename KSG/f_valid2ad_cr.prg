@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.02.25
+// 02.02.26
 Function f_valid2ad_cr( k_date )
   Static mm_bartel := { ;
     {'индекс Бартела 60 баллов и менее', '60'}, ;
@@ -248,5 +248,10 @@ Function f_valid2ad_cr( k_date )
         update_get('mad_cr')
       endif
     endif
+  endif
+  if m1profil != 0
+    m1profil_m := soot_v002_m003( m1profil )
+    mprofil_m := Substr( inieditspr( A__MENUVERT, getM003(),  m1PROFIL_M ), 1, 15 )
+    update_get('mprofil_m')
   endif
   return .t.
