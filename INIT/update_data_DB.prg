@@ -109,7 +109,49 @@ Function update_data_db( aVersion )
     update_v60104()     // Заполним информацию о местах оказания помощи пациентам
   endif
 
+  If ver_base < 60201 // переход на версию 6.2.1
+    update_v60201()     // Заполним информацию о профиле МЗ РФ
+  endif
+
 Return Nil
+
+// 02.02.26
+Function update_v60201()     // Заполним информацию о профиле МЗ РФ
+
+  stat_msg( 'Заполним информацию о профиле МЗ РФ в листах учета' )
+  
+  use_base( 'human', , .t. )
+  human->( dbGoTop() )
+  do while ! ( human->( Eof() ) )
+    if ( human_->PROFIL != 0 ) .and. ( human->PROFIL_M == 0 )
+      human->PROFIL_M := soot_v002_m003( human_->PROFIL )
+    endif
+    human->( dbSkip() )
+  enddo
+
+  stat_msg( 'Заполним информацию о профиле МЗ РФ в услугах' )
+
+  g_use( dir_server() + 'human_u_', , 'HU_', , .t., .f. )
+  hu_->( dbGoTop() )
+  do while ! ( hu_->( Eof() ) )
+    if ( hu_->PROFIL != 0 ) .and. ( hu_->PROFIL_M == 0 )
+      hu_->PROFIL_M := soot_v002_m003( hu_->PROFIL )
+    endif
+    hu_->( dbSkip() )
+  enddo
+
+  use_base( 'mo_hu', , .t. )
+  mohu->( dbGoTop() )
+  do while ! ( mohu->( Eof() ) )
+    if ( mohu->PROFIL != 0 ) .and. ( mohu->PROFIL_M == 0 )
+      mohu->PROFIL_M := soot_v002_m003( mohu->PROFIL )
+    endif
+    mohu->( dbSkip() )
+  enddo
+
+  dbCloseAll()        // закроем все
+
+  return nil
 
 // 27.01.26
 Function update_v60104()     // Заполним информацию о местах оказания помощи пациентам
