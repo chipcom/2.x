@@ -268,20 +268,22 @@ Function init_tmp_glob_array( name_base, _glob_array, _date, is_all )
       Endif
     Endif
   Next
-  dbCreate( name_base, { { 'name', 'C', len1, 0 }, ;
+  dbCreate( name_base, { ;
+    { 'name', 'C', len1, 0 }, ;
     { 'kod', f2type, len2, 0 }, ;
-    { 'is', 'L', 1, 0 } } )
+    { 'is', 'L', 1, 0 } ;
+  } )
   Use ( name_base ) New Alias tmp_ga
   For i := 1 To Len( _glob_array )
     fl_is := between_date( _glob_array[ i, 3 ], _glob_array[ i, 4 ], _date )
     If iif( is_all, .t., fl_is )
-      Append Blank
-      Replace name With _glob_array[ i, 1 ], ;
-        kod With _glob_array[ i, 2 ], ;
-        is With fl_is
+      tmp_ga->( dbAppend() )
+      tmp_ga->name := _glob_array[ i, 1 ]
+      tmp_ga->kod := _glob_array[ i, 2 ]
+      tmp_ga->is := fl_is
     Endif
   Next
-  Index On Upper( name ) to ( name_base )
+  Index On Upper( FIELD->name ) to ( name_base )
   tmp_ga->( dbCloseArea() )
   Select ( tmp_select )
 
@@ -586,7 +588,7 @@ Function input_uch( r, c, date1, date2 )
   If ( k := tmp_ga->( LastRec() ) ) == 1
     ret := { tmp_ga->kod, AllTrim( tmp_ga->name ) }
   Else
-    Index On Upper( name ) to ( cur_dir() + 'tmp_ga' )
+    Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_ga' )
   Endif
   tmp_ga->( dbCloseArea() )
   Select ( tmp_select )
@@ -651,7 +653,7 @@ Function input_otd( r, c, date1, date2, nTask )
   If ( k := tmp_ga->( LastRec() ) ) == 1
     ret := { tmp_ga->kod, AllTrim( tmp_ga->name ), tmp_ga->idump, tmp_ga->tiplu }
   Else
-    Index On Upper( name ) to ( cur_dir() + 'tmp_ga' )
+    Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_ga' )
   Endif
   tmp_ga->( dbCloseArea() )
   Select ( tmp_select )
@@ -718,7 +720,7 @@ Function input_perso( r, c, is_null, is_rab )
   mywait()
   // help_code := H_Input_fio
   If r_use( dir_server() + 'mo_pers', , 'PERSO' )
-    Index On Upper( fio ) to ( cur_dir() + 'tmp_pers' ) For kod > 0
+    Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_pers' ) For FIELD->kod > 0
     If glob_human[ 1 ] > 0
       Goto ( glob_human[ 1 ] )
       fl := !Eof() .and. !Deleted()
@@ -1128,7 +1130,7 @@ Function f1_s_mr( nKey, oBrow, regim )
   Do Case
   Case regim == "open"
     g_use( dir_server() + "s_mr",, "SA" )
-    Index On Upper( name ) to ( cur_dir() + "tmp_mr" )
+    Index On Upper( FIELD->name ) to ( cur_dir() + "tmp_mr" )
     Go Top
     ret := !Eof()
   Case regim == "edit"
@@ -1327,7 +1329,7 @@ Function f9_f_nastr( l_titul, a_strok )
     add_string( ta[ i ] )
   Next
   r_use( dir_server() + 'uslugi', , 'USL' )
-  Index On fsort_usl( shifr ) to ( cur_dir() + 'tmpu' )
+  Index On fsort_usl( FIELD->shifr ) to ( cur_dir() + 'tmpu' )
   Go Top
   Do While !Eof()
     If _f_usl_danet( mda, mnet )

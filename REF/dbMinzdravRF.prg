@@ -63,7 +63,7 @@ function getM003()
     aTable := sqlite3_get_table(db, cmdText)
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd( arr, { alltrim( aTable[ nI, 2 ] ), val( aTable[ nI, 1 ] ), 0d20260101, 0d20260131 } )
+        aadd( arr, { alltrim( aTable[ nI, 2 ] ), val( aTable[ nI, 1 ] ), 0d20260101, 0d22221231 } )
       next
     endif
     db := nil

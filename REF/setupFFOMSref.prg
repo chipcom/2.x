@@ -119,20 +119,24 @@ Function fnastr_sprav_ffoms( k, _n, _m )
 
   Return Nil
 
-// 21.04.23
+// 02.02.26
 Function f1nastr_sprav_ffoms( reg, _name, _msg )
 
   Local buf, t_arr[ BR_LEN ], blk, len1, sKey, s, arr, arr1, arr2, fl := .t.
+  local retFunc
+  local name_arr := 'get' + _name + '()'
 
-  Private name_arr := 'get' + _name + '()', ob_kol, p_blk
+  private ob_kol, p_blk
 
   If Upper( _name ) == 'V034'
     name_arr := 'get_ed_izm()'
   Elseif Upper( _name ) == 'IMPLANTANT'
     name_arr := 'get_implantant()'
   Endif
+  retFunc := &name_arr
 
-  If !init_tmp_glob_array(, &name_arr, Date(), .f. )
+//  If !init_tmp_glob_array(, &name_arr, Date(), .f. )
+  If !init_tmp_glob_array(, retFunc, Date(), .f. )
     Return Nil
   Endif
   Use ( cur_dir() + 'tmp_ga' ) new
@@ -190,7 +194,7 @@ Function f1nastr_sprav_ffoms( reg, _name, _msg )
     semaphor_tools_ini( 2 )
   Endif
   If !fl
-    Close databases
+    dbCloseAll()
     Return Nil
   Endif
   Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_ga' )
@@ -225,7 +229,7 @@ Function f1nastr_sprav_ffoms( reg, _name, _msg )
       semaphor_tools_ini( 2 )
     Endif
   Endif
-  Close databases
+  dbCloseAll()
   RestScreen( buf )
 
   Return Nil
