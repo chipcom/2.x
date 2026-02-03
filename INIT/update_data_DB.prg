@@ -11,7 +11,7 @@ function get_status_updateDB( idVer )
 
   fl := g_use( dir_server() + 'ver_updatedb', , 'UPD', , .t. )
 
-  Locate For ver == idVer
+  Locate For FIELD->ver == idVer
   If Found() .and. ( UPD->done == 1 )
     ret := .t.
   endif
@@ -37,36 +37,6 @@ function set_status_updateDB( idVer )
 
   return fl
 
-// 10.07.24 
-Function update_v____()
-
-  Local i := 0, j := 0, fl
-
-  stat_msg( '‡ ¯®«­ï¥¬ ¯®«¥ "–¥«ì ¯®á¥é¥­¨ï"' )
-  fl := g_use( dir_server() + 'human_', , 'HUMAN_', , .t. )
-
-//  use_base( 'mo_pers', 'PERS', .t. ) // ®âªà®¥¬ ä ©« mo_pers
-  if fl
-    HUMAN_->( dbSelectArea() )
-    HUMAN_->( dbGoTop() )
-    Do While ! HUMAN_->( Eof() )
-  //    i++
-      @ MaxRow(), 1 Say HUMAN_->( RecNo() ) Color cColorStMsg
-  //    If ! Empty( HUMAN_->PRVS_NEW )
-  //      j := 0
-  //      If ( j := AScan( arr_conv_V015_V021, {| x| x[ 1 ] == pers->PRVS_NEW } ) ) > 0
-  //        HUMAN_->PRVS_021 := arr_conv_V015_V021[ j, 2 ]
-  //      Endif
-  //    Elseif ! Empty( HUMAN_->PRVS )
-  //      HUMAN_->PRVS_021 := ret_prvs_v021( HUMAN_->PRVS )
-  //    Endif
-      HUMAN_->( dbSkip() )
-    End Do
-    dbCloseAll()        // § ªà®¥¬ ¢á¥
-  endif
-
-  Return Nil
-  
 // 31.12.25 ¯à®¢¥¤¥­¨¥ ¨§¬¥­¥­¨© ¢ á®¤¥à¦¨¬®¬ „ ¯à¨ ®¡­®¢«¥­¨¨
 Function update_data_db( aVersion )
 
@@ -258,9 +228,6 @@ Function update_v21203()
 
   Local cAlias := 'IMPL'
 
-  // Local t1 := 0, t2 := 0
-
-  // t1 := seconds()
   r_use( dir_server() + 'human', dir_server() + 'humank', 'HUMAN' )
   r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'HU' )
 
@@ -287,12 +254,6 @@ Function update_v21203()
   ( cAlias )->( dbSelectArea() )
   index_base( 'human_im' )
   dbCloseAll()        // § ªà®¥¬ ¢á¥
-  // t2 := seconds() - t1
-  // if t2 > 0
-  // n_message({"","‚à¥¬ï ®¡å®¤  „ - "+sectotime(t2)},,;
-  // color1,cDataCSay,,,color8)
-  // endif
-  // alertx(i, 'Š®«¨ç¥áâ¢® á®âàã¤­¨ª®¢')
 
   Return Nil
 
@@ -309,7 +270,7 @@ Function update_v21208()
   pers->( dbGoTop() )
   Do While ! pers->( Eof() )
     i++
-    @ MaxRow(), 1 Say pers->fio Color cColorStMsg
+    @ MaxRow(), 1 Say pers->fio Color 'W+/R, , , , B/W'
     If ! Empty( pers->PRVS_NEW )
       j := 0
       If ( j := AScan( arr_conv_V015_V021, {| x| x[ 1 ] == pers->PRVS_NEW } ) ) > 0
@@ -374,7 +335,7 @@ Function update_v21130()
 
             If lshifr == '70.8.1' .and. human_->VRACH != hu->KOD_VR
               i++
-              @ MaxRow(), 1 Say human->fio Color cColorStMsg
+              @ MaxRow(), 1 Say human->fio Color 'W+/R, , , , B/W'
               human_->( dbSelectArea() )
               If human_->( dbRLock() )
                 human_->VRACH := hu->KOD_VR
@@ -387,7 +348,7 @@ Function update_v21130()
 
         Elseif human->ishod == 402
           Select MOHU
-          Set Relation To u_kod into MOSU
+          Set Relation To FIELD->u_kod into MOSU
           mohu->( dbSeek( Str( mkod, 7 ) ) )
           Do While MOHU->kod == mkod .and. !Eof()
             MOSU->( dbGoto( MOHU->u_kod ) )
@@ -395,7 +356,7 @@ Function update_v21130()
 
             If ( lshifr == 'B01.026.002' .or. lshifr == 'B01.047.002' .or. lshifr == 'B01.047.006' ) .and. human_->VRACH != mohu->KOD_VR
               j++
-              @ MaxRow(), 1 Say human->fio Color cColorStMsg
+              @ MaxRow(), 1 Say human->fio Color 'W+/R, , , , B/W'
               human_->( dbSelectArea() )
               If human_->( dbRLock() )
                 human_->VRACH := mohu->KOD_VR
@@ -431,116 +392,112 @@ Function update_v50202()     // ¯¥à¥­®á ¤ ­­ëå ® £¨­¥ª®«£¨ç¥áª¨å ãá«ã£ å
 
   local  i
   Local org_gen_N_PNF := { ;  
-   "101001",; //	ƒ“‡ "‚ŽŠ ü 1"
-   "101002",; //	ƒ“‡ "‚Ž„Š"
-   "101003",; //	ƒ“‡ "‚ŽŠ ü 3"
-   "101201",; //	ƒ“‡ "‚ŽŠƒ‚‚"
-   "102604",; //	ƒ“‡ "‚ŽŠŠ‚„"
-   "104001",; //	ƒ“‡ "‚ŽŠ–Œ"
-   "104401",; //	ƒ“‡ "‚ŽŠŠ–"
-   "106001",; //	ƒ“‡ "‚ŽŠ– ü 1", £.‚®«¦áª¨©
-   "106002",; //	ƒ“‡ "‚ŽŠ– ü 2"
-   "131001",; //	ƒ“‡ "ƒŠ ü 1"
-   "131940",; //	”ƒ“‡ ‚ŒŠ– ”Œ€ ®áá¨¨
-   "146004",; //	ƒ“‡ "®¤¨«ì­ë© ¤®¬ ü 4"
-   "151005",; //	ƒ“‡ "Š ü 5"
-   "161007",; //	ƒ“‡ "Š ‘Œ ü 7"
-   "171004",; //	ƒ“‡ "Š«¨­¨ç¥áª ï ¡®«ì­¨æ  ü 4 "
-   "184551",; //	”¨«¨ « ŽŽŽ "Œ…„ˆ‘" ¢ £.‚®«£®£à ¤¥
-   "186002",; //	ƒ“‡ "Š«¨­¨ç¥áª¨© à®¤¨«ì­ë© ¤®¬ ü 2"
-   "254570",; //	€Ž "‚’‡"
-   "731002",; //	”Š“‡ "Œ‘— Œ‚„ ®áá¨¨ ¯® ‚®«£®£à ¤áª®© ®¡« áâ¨"
-   "741904",; //	”ƒ“ "413 ‚ƒ" Œ¨­®¡®à®­ë ®áá¨¨
-   "801926",; //	ŽŽŽ "ƒ¥­®¬-‚®«£ "
-   "804504",; //	€Ž "”– "’¨â ­- àà¨ª ¤ë"
-   "805929",; //	ŽŽŽ "ŒŠ "¥ä«¥ªá"
-   "805938",; //	Œ—“ "‡„ŽŽ‚œ…+"
-   "805960",; //	ŽŽŽ "‚¨â -‹ ©â"
-   "805972"} //	ŽŽŽ "Š«¨­¨ª  ‘¥¬ìï"
+   '101001', ; //	ƒ“‡ '‚ŽŠ ü 1'
+   '101002', ; //	ƒ“‡ '‚Ž„Š'
+   '101003', ; //	ƒ“‡ '‚ŽŠ ü 3'
+   '101201', ; //	ƒ“‡ '‚ŽŠƒ‚‚'
+   '102604', ; //	ƒ“‡ '‚ŽŠŠ‚„'
+   '104001', ; //	ƒ“‡ '‚ŽŠ–Œ'
+   '104401', ; //	ƒ“‡ '‚ŽŠŠ–'
+   '106001', ; //	ƒ“‡ '‚ŽŠ– ü 1', £.‚®«¦áª¨©
+   '106002', ; //	ƒ“‡ '‚ŽŠ– ü 2'
+   '131001', ; //	ƒ“‡ 'ƒŠ ü 1'
+   '131940', ; //	”ƒ“‡ ‚ŒŠ– ”Œ€ ®áá¨¨
+   '146004', ; //	ƒ“‡ '®¤¨«ì­ë© ¤®¬ ü 4'
+   '151005', ; //	ƒ“‡ 'Š ü 5'
+   '161007', ; //	ƒ“‡ 'Š ‘Œ ü 7'
+   '171004', ; //	ƒ“‡ 'Š«¨­¨ç¥áª ï ¡®«ì­¨æ  ü 4 '
+   '184551', ; //	”¨«¨ « ŽŽŽ 'Œ…„ˆ‘' ¢ £.‚®«£®£à ¤¥
+   '186002', ; //	ƒ“‡ 'Š«¨­¨ç¥áª¨© à®¤¨«ì­ë© ¤®¬ ü 2'
+   '254570', ; //	€Ž '‚’‡'
+   '731002', ; //	”Š“‡ 'Œ‘— Œ‚„ ®áá¨¨ ¯® ‚®«£®£à ¤áª®© ®¡« áâ¨'
+   '741904', ; //	”ƒ“ '413 ‚ƒ' Œ¨­®¡®à®­ë ®áá¨¨
+   '801926', ; //	ŽŽŽ 'ƒ¥­®¬-‚®«£ '
+   '804504', ; //	€Ž '”– '’¨â ­- àà¨ª ¤ë'
+   '805929', ; //	ŽŽŽ 'ŒŠ '¥ä«¥ªá'
+   '805938', ; //	Œ—“ '‡„ŽŽ‚œ…+'
+   '805960', ; //	ŽŽŽ '‚¨â -‹ ©â'
+   '805972' } //	ŽŽŽ 'Š«¨­¨ª  ‘¥¬ìï'
   
-  Local mas_usl_gen0      := {"2.79.13", "2.79.47", "2.80.8",  "2.88.33",  "2.78.26"}
-  Local mas_usl_gen_N_PNF := {"2.79.78", "2.79.80", "2.80.70", "2.88.147", "2.78.118"}
-  Local mas_usl_gen_PNF   := {"2.79.77", "2.79.79", "2.80.69", "2.88.146", "2.78.117"}
-  Local mas_kod_gen_N_PNF := {0,0,0,0,0}
-  Local mas_kod_gen_PNF   := {0,0,0,0,0}
-  Local mas_kod_gen0      := {0,0,0,0,0}
+  Local mas_usl_gen0      := { '2.79.13', '2.79.47', '2.80.8',  '2.88.33',  '2.78.26' }
+  Local mas_usl_gen_N_PNF := { '2.79.78', '2.79.80', '2.80.70', '2.88.147', '2.78.118' }
+  Local mas_usl_gen_PNF   := { '2.79.77', '2.79.79', '2.80.69', '2.88.146', '2.78.117' }
+  Local mas_kod_gen_N_PNF := { 0, 0, 0, 0, 0 }
+  Local mas_kod_gen_PNF   := { 0, 0, 0, 0, 0 }
+  Local mas_kod_gen0      := { 0, 0, 0, 0, 0 }
   Local cena, flag := .F. 
   
   
   stat_msg( 'ˆ§¬¥­¥­¨¥ ¨­ä®à¬ æ¨¨ ® £¨­¥ª®«®£¨ç¥áª¨å ¯à¨¥¬ å' )
-  Use_base('lusl')
-  Use_base('luslc')
-  Use_base('uslugi')
-  R_Use(dir_server() + 'uslugi1', {dir_server() + 'uslugi1',;
-                              dir_server() + 'uslugi1s'}, 'USL1')
+  Use_base( 'lusl' )
+  Use_base( 'luslc' )
+  Use_base( 'uslugi' )
+  R_Use( dir_server() + 'uslugi1', { dir_server() + 'uslugi1',;
+                              dir_server() + 'uslugi1s' }, 'USL1' )
   //¯à®¢¥àï¥¬ ­ «¨ç¨¥ ãá«ã£ ¢ ­ è¥¬ á¯à ¢®ç­¨ª¥ - ¥á«¨ ­¥â - ¤®¡ ¢«ï¥¬
   // ¨ á®§¤ ¥¬ ¬ áá¨¢ ¯®§¨æ¨© ¢ ä ©«¥ ãá«ã£
   //Function foundourusluga( lshifr, ldate, lprofil, lvzros_reb, /*@*/lu_cena, ipar, not_cycle)
-  for i := 1 to len(org_gen_N_PNF)
-     my_debug(,i)
-     my_debug(,org_gen_N_PNF[i])
-     my_debug(,glob_mo[ _MO_KOD_TFOMS ])
-     my_debug(,_MO_KOD_TFOMS)
-    if org_gen_N_PNF[i] == glob_mo[ _MO_KOD_TFOMS ] 
+  for i := 1 to len( org_gen_N_PNF )
+    if org_gen_N_PNF[ i ] == glob_mo()[ _MO_KOD_TFOMS ] 
       flag := .T. 
     endif
   next  
   if flag
     for i := 1 to 5
-      mas_kod_gen_N_PNF[i] := foundourusluga( mas_usl_gen_N_PNF[i], 0d20250102,136,0,cena)
+      mas_kod_gen_N_PNF[ i ] := foundourusluga( mas_usl_gen_N_PNF[ i ], 0d20250102, 136, 0, cena )
     next
   else
     for i := 1 to 5
-      mas_kod_gen_PNF[i] := foundourusluga( mas_usl_gen_PNF[i], 0d20250102,136,0,cena)
+      mas_kod_gen_PNF[ i ] := foundourusluga( mas_usl_gen_PNF[ i ], 0d20250102, 136, 0, cena )
     next
   endif  
   // â¥¯¥àì áâ àë¥ ãá«ã£¨   
   for i := 1 to 5
-    mas_kod_gen0[i] := foundourusluga( mas_usl_gen0[i], 0d20241202,136,0,cena) // á¬®âàî ¯® ¤¥ª ¡àî 2024 £®¤ 
+    mas_kod_gen0[ i ] := foundourusluga( mas_usl_gen0[ i ], 0d20241202, 136, 0, cena ) // á¬®âàî ¯® ¤¥ª ¡àî 2024 £®¤ 
   next    
   // ¬ áá¨¢ë ¤«ï § ¬¥­ë £®â®¢ë
-  Use_base('human')
-  Use_base('human_u')
+  Use_base( 'human' )
+  Use_base( 'human_u' )
   select HUMAN
   set order to 4 //   dir_server() + 'humand'
-  find (dtos(stod("20250101")))
-  do while year(human->k_data)== 2025 .and. !eof()    
+  find ( dtos( stod( '20250101' ) ) )
+  do while year( human->k_data )== 2025 .and. !eof()    
     // ¯® á«ãç - ®âä¨«ìâà®¢ « - â¥¯¥àì ­ ¤® ¯® ãá«ã£ ¬
     select hu
     set order to 1
-    find (str(human->kod,7))
+    find ( str( human->kod, 7 ) )
     do while human->kod == hu->kod .and. !eof() 
       // ¯à®¢¥àï¥¬ ­  è¨äà ãá«ã£¨ ¯® á¯¨áªã 
-      g_rlock( forever )
-      if hu->u_kod == mas_kod_gen0[1]
+      g_rlock( 'forever' )
+      if hu->u_kod == mas_kod_gen0[ 1 ]
         if flag
-          hu->u_kod := mas_kod_gen_N_PNF[1]
+          hu->u_kod := mas_kod_gen_N_PNF[ 1 ]
         else
-          hu->u_kod := mas_kod_gen_PNF[1]
+          hu->u_kod := mas_kod_gen_PNF[ 1 ]
         endif
-      elseif hu->u_kod == mas_kod_gen0[2]
+      elseif hu->u_kod == mas_kod_gen0[ 2 ]
         if flag
-          hu->u_kod := mas_kod_gen_N_PNF[2]
+          hu->u_kod := mas_kod_gen_N_PNF[ 2 ]
         else
-          hu->u_kod := mas_kod_gen_PNF[2]
+          hu->u_kod := mas_kod_gen_PNF[ 2 ]
         endif
-      elseif hu->u_kod == mas_kod_gen0[3]  
+      elseif hu->u_kod == mas_kod_gen0[ 3 ]  
         if flag
-          hu->u_kod := mas_kod_gen_N_PNF[3]
+          hu->u_kod := mas_kod_gen_N_PNF[ 3 ]
         else
-          hu->u_kod := mas_kod_gen_PNF[3]
+          hu->u_kod := mas_kod_gen_PNF[ 3 ]
         endif
-      elseif hu->u_kod == mas_kod_gen0[4]
+      elseif hu->u_kod == mas_kod_gen0[ 4 ]
         if flag
-          hu->u_kod := mas_kod_gen_N_PNF[4]
+          hu->u_kod := mas_kod_gen_N_PNF[ 4 ]
         else
-          hu->u_kod := mas_kod_gen_PNF[4]
+          hu->u_kod := mas_kod_gen_PNF[ 4 ]
         endif
-      elseif hu->u_kod == mas_kod_gen0[5]
+      elseif hu->u_kod == mas_kod_gen0[ 5 ]
         if flag
-          hu->u_kod := mas_kod_gen_N_PNF[5]
+          hu->u_kod := mas_kod_gen_N_PNF[ 5 ]
         else
-          hu->u_kod := mas_kod_gen_PNF[5]
+          hu->u_kod := mas_kod_gen_PNF[ 5 ]
         endif
       endif  
       select hu 
