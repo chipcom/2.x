@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 02.02.26
+// 03.02.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -312,8 +312,6 @@ Function verify_sluch( fl_view, ft )
         AAdd( ta, 'должно быть заполнено поле "НОМЕР удостоверения личности" для "' + ;
           inieditspr( A__MENUVERT, getvidud(), kart_->vid_ud ) + '"' )
       Endif
-      // elseif !eq_any(kart_->vid_ud, 9, 18, 21, 24) .and. !ver_number(kart_->nom_ud)
-      // aadd(ta, 'поле 'НОМЕР удостоверения личности' должно быть цифровым')
     Endif
     If !Empty( kart_->nom_ud )
       s := Space( 80 )
@@ -341,13 +339,14 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'дата выдачи документа удостоверяющего личность должна быть между ' ;
         + str( LIMITED_DATE_MIN, 4 ) + ' и ' + str( LIMITED_DATE_MAX, 4 ) + ' годом' )
     endif
-    If human_->usl_ok < USL_OK_AMBULANCE .and. human_->vpolis < 3 .and. !eq_any( Left( human_->OKATO, 2 ), '  ', '18' ) // иногородние
+//    If human_->usl_ok < USL_OK_AMBULANCE .and. human_->vpolis < 3 .and. !eq_any( Left( human_->OKATO, 2 ), '  ', '18' ) // иногородние
+    If human_->vpolis < 3
       If Empty( kart_->kogdavyd )
-        AAdd( ta, 'для иногородних без нового полиса обязательно заполнение поля "Дата выдачи документа, удостоверяющего личность"' )
+        AAdd( ta, 'для пацентов без нового полиса обязательно заполнение поля "Дата выдачи документа, удостоверяющего личность"' )
       Endif
       If Empty( kart_->kemvyd ) .or. ;
           Empty( del_spec_symbol( inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', kart_->kemvyd ) ) )
-        AAdd( ta, 'для иногородних без нового полиса обязательно заполнение поля "Наименование органа, выдавшего документ, удостоверяющий личность"' )
+        AAdd( ta, 'для пациентов без нового полиса обязательно заполнение поля "Наименование органа, выдавшего документ, удостоверяющий личность"' )
       Endif
     Endif
   Endif
