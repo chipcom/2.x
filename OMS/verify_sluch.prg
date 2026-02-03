@@ -302,6 +302,37 @@ Function verify_sluch( fl_view, ft )
   //
   // ПРОВЕРЯЕМ УДОСТОВЕРЕНИЕ ЛИЧНОСТИ
   //
+  If eq_any( kart_->vid_ud, 3, 14 ) .and. ;
+      !Empty( kart_->ser_ud ) .and. Empty( del_spec_symbol( kart_->mesto_r ) )
+    AAdd( ta, iif( kart_->vid_ud == 3, 'для свид-ва о рождении', 'для паспорта РФ' ) + ;
+      ' обязательно заполнение поля "Место рождения"' )
+  Endif
+  if human_->vpolis != 3
+    If AScan( getvidud(), {| x | x[ 2 ] == kart_->vid_ud } ) == 0
+      AAdd( ta, 'не заполнено поле "ВИД удостоверения личности"' )
+    endif
+    If eq_any( kart_->vid_ud, 1, 3, 14 ) .and. Empty( kart_->ser_ud )
+      AAdd( ta, 'не заполнено поле "СЕРИЯ удостоверения личности" для "' + ;
+        inieditspr( A__MENUVERT, getvidud(), kart_->vid_ud ) + '"' )
+    Endif
+    If Empty( kart_->nom_ud )
+      AAdd( ta, 'должно быть заполнено поле "НОМЕР удостоверения личности" для "' + ;
+        inieditspr( A__MENUVERT, getvidud(), kart_->vid_ud ) + '"' )
+    Endif
+    If Empty( kart_->kogdavyd )
+      AAdd( ta, 'для пацентов без нового полиса обязательно заполнение поля "Дата выдачи документа, удостоверяющего личность"' )
+    Endif
+    if ! Empty( kart_->kogdavyd ) .and. ;
+        ( Year( kart_->kogdavyd ) < LIMITED_DATE_MIN .or. Year( kart_->kogdavyd ) > LIMITED_DATE_MAX )
+      AAdd( ta, 'дата выдачи документа удостоверяющего личность должна быть между ' ;
+        + str( LIMITED_DATE_MIN, 4 ) + ' и ' + str( LIMITED_DATE_MAX, 4 ) + ' годом' )
+    endif
+    If Empty( kart_->kemvyd ) .or. ;
+        Empty( del_spec_symbol( inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', kart_->kemvyd ) ) )
+      AAdd( ta, 'для пациентов без нового полиса обязательно заполнение поля "Наименование органа, выдавшего документ, удостоверяющий личность"' )
+    Endif
+  endif
+/*
   If AScan( getvidud(), {| x | x[ 2 ] == kart_->vid_ud } ) == 0
     If human_->vpolis < 3
       AAdd( ta, 'не заполнено поле "ВИД удостоверения личности"' )
@@ -350,6 +381,7 @@ Function verify_sluch( fl_view, ft )
       Endif
     Endif
   Endif
+*/
   val_fio( retfamimot( 2, .f. ), ta )
 
 //  Select HUMAN
