@@ -115,16 +115,21 @@ Function update_data_db( aVersion )
 
 Return Nil
 
-// 02.02.26
+// 03.02.26
 Function update_v60201()     // Заполним информацию о профиле МЗ РФ
 
   stat_msg( 'Заполним информацию о профиле МЗ РФ в листах учета' )
   
+  r_use( dir_server() + 'kartote2', , 'KART2' )
   use_base( 'human', , .t. )
   human->( dbGoTop() )
   do while ! ( human->( Eof() ) )
     if ( human_->PROFIL != 0 ) .and. ( human->PROFIL_M == 0 )
       human->PROFIL_M := soot_v002_m003( human_->PROFIL )
+    endif
+    kart2->( dbGoto( human->kod_k ) )
+    if ( ! ( kart2->( Eof() ) .and. kart2->( Bof() ) ) ) .and. ( ! Empty( kart2->MO_PR ))
+      human->MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
     endif
     human->( dbSkip() )
   enddo
