@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.10.25
+// 03.02.26
 function elem_reestr_pacient( oXmlDoc, fl_ver, p_tip_reestr )
 
   local arr_fio, smr
@@ -71,33 +71,28 @@ function elem_reestr_pacient( oXmlDoc, fl_ver, p_tip_reestr )
       mo_add_xml_stroke( oPAC, 'DOST_P', '3' ) // отсутствует имя
     Endif
   Endif
-  If !Empty( smr := del_spec_symbol( kart_->mesto_r ) )
+  If ! Empty( smr := del_spec_symbol( kart_->mesto_r ) )
     mo_add_xml_stroke( oPAC, 'MR', smr )
   Endif
-  If human_->vpolis == 3 .and. emptyany( kart_->nom_ud, kart_->nom_ud )
-    // для нового полиса паспорт необязателен
-  Else
+  If human_->vpolis != 3
     mo_add_xml_stroke( oPAC, 'DOCTYPE', lstr( kart_->vid_ud ) )
-    If !Empty( kart_->ser_ud )
+    If ! Empty( kart_->ser_ud )
       mo_add_xml_stroke( oPAC, 'DOCSER', kart_->ser_ud )
     Endif
     mo_add_xml_stroke( oPAC, 'DOCNUM', kart_->nom_ud )
-  Endif
-  If fl_ver == 32 .and. human_->vpolis < 3 .and. !eq_any( Left( human_->OKATO, 2 ), '  ', '18' ) // иногородние
-    If !Empty( kart_->kogdavyd )
+    If ! Empty( kart_->kogdavyd )
       mo_add_xml_stroke( oPAC, 'DOCDATE', date2xml( kart_->kogdavyd ) )
     Endif
-    If !Empty( kart_->kemvyd ) .and. ;
-        !Empty( smr := del_spec_symbol( inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', kart_->kemvyd ) ) )
+    If ! Empty( kart_->kemvyd ) .and. ;
+        ! Empty( smr := del_spec_symbol( inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', kart_->kemvyd ) ) )
       mo_add_xml_stroke( oPAC, 'DOCORG', smr )
     Endif
   Endif
+
   If !Empty( kart->snils )
     mo_add_xml_stroke( oPAC, 'SNILS', Transform_SNILS( kart->SNILS ) )
   Endif
-  If human_->vpolis == 3 .and. Empty( kart_->okatog )
-    // для нового полиса место регистрации необязательно
-  Else
+  If Len( AllTrim( kart_->okatog ) ) == 11
     mo_add_xml_stroke( oPAC, 'OKATOG', kart_->okatog )
   Endif
   If Len( AllTrim( kart_->okatop ) ) == 11
