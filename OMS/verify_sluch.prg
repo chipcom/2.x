@@ -301,14 +301,15 @@ Function verify_sluch( fl_view, ft )
   Endif
   //
   //
-  // Ž‚…Ÿ…Œ “„Ž‘’Ž‚……ˆ… ‹ˆ—Ž‘’ˆ
+  // Ž‚…Ÿ…Œ “„Ž‘’Ž‚……ˆ… ‹ˆ—Ž‘’ˆ ˆŽ’‘“’‘’‚ˆˆ …
   //
   If eq_any( kart_->vid_ud, 3, 14 ) .and. ;
       !Empty( kart_->ser_ud ) .and. Empty( del_spec_symbol( kart_->mesto_r ) )
     AAdd( ta, iif( kart_->vid_ud == 3, '¤«ï á¢¨¤-¢  ® à®¦¤¥­¨¨', '¤«ï ¯ á¯®àâ  ”' ) + ;
       ' ®¡ï§ â¥«ì­® § ¯®«­¥­¨¥ ¯®«ï "Œ¥áâ® à®¦¤¥­¨ï"' )
   Endif
-  if human_->vpolis != 3
+
+  if human_->vpolis != 3 .and. ( Empty( kart->kod_mis ) .or. ( Len( kart->kod_mis ) == 16 ) )
     If AScan( getvidud(), {| x | x[ 2 ] == kart_->vid_ud } ) == 0
       AAdd( ta, '­¥ § ¯®«­¥­® ¯®«¥ "‚ˆ„ ã¤®áâ®¢¥à¥­¨ï «¨ç­®áâ¨"' )
     endif
@@ -791,7 +792,7 @@ Function verify_sluch( fl_view, ft )
         AAdd( ta, '­¥ § ¯®«­¥­® ¯®«¥ "à®ä¨«ì Œ‡ ”" ¤«ï «¨áâ  ãç¥â ' )
     endif
   endif
-
+ 
   lshifr := ''
   lshifr1 := ''
   Do While hu->kod == human->kod .and. !Eof()

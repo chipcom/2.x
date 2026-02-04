@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.10.25 форма 14-МЕД (ОМС)
+// 00.01.26 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 
   Static group_ini := 'f14_med_oms'
@@ -23,6 +23,9 @@ Function forma14_med_oms()
   Local sbase
   Local lal, lalf
   Local nameArr, j1
+
+  Private arr_NEW_amb[19,5]
+  afillall( arr_NEW_amb, 0 )
 
   old5 := old2 := 0
   afillall( arr_skor, 0 )
@@ -141,7 +144,7 @@ Function forma14_med_oms()
 
 
   // //////////////////////////////////////////////////////////////////
-  arr_m := { 2025, 1, 9, 'за январь - сентябрь 2025 года', 0d20250101, 0d20250930 }  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  arr_m := { 2025, 1, 12, 'за январь - декабрь 2025 года', 0d20250101, 0d20251231 }  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // //////////////////////////////////////////////////////////////////
   lal := create_name_alias( 'lusl', arr_m[ 1 ] )
   lalf := create_name_alias( 'luslf', arr_m[ 1 ] )
@@ -247,7 +250,7 @@ Function forma14_med_oms()
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To kod_k into KART
   //
   // //////////////////////////////////////////////////////////////////
-  mdate_rak := arr_m[ 6 ] + 10 // по какую дату РАК сумма к оплате 10.10.25    Основание - письмо  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  mdate_rak := arr_m[ 6 ] + 16 // по какую дату РАК сумма к оплате 16.01.26    Основание - письмо  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // //////////////////////////////////////////////////////////////////
   r_use( dir_server() + 'mo_xml', , 'MO_XML' )
   r_use( dir_server() + 'mo_rak', , 'RAK' )
@@ -273,7 +276,7 @@ Function forma14_med_oms()
       mdate1 := SToD( StrZero( schet_->nyear, 4 ) + StrZero( schet_->nmonth, 2 ) + '25' ) // !!!
       //
       // 2025 год
-      k := 7 // дата регистрации по 07.10.25 // Основание - письмо!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      k := 16 // дата регистрации по 16.01.26 // Основание - письмо!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //
       fl := Between( mdate, arr_m[ 5 ], arr_m[ 6 ] + k ) .and. Between( mdate1, arr_m[ 5 ], arr_m[ 6 ] ) // !!отч.период 2023 год
     Endif
@@ -281,7 +284,6 @@ Function forma14_med_oms()
       Select HUMAN
       find ( Str( schet->kod, 6 ) )
       Do While human->schet == schet->kod .and. !Eof()
-        updatestatus()
         If Inkey() == K_ESC
           fl_exit := .t.
           Exit
@@ -335,6 +337,7 @@ Function forma14_med_oms()
           If !( fl_stom := ( schet_->BUKVA == 'T' ) ) // стоматология в отдельной таблице
             arr_pril5[ 1, igs ] += Round( human->cena_1 * koef, 2 )
           Endif
+
           If schet_->BUKVA == 'K' // отдельные медицинские услуги учитываем только суммой d 14-й форме
             arr_pol1[ 6, 4 ] += Round( human->cena_1 * koef, 2 )
             If is_inogoro
@@ -350,6 +353,7 @@ Function forma14_med_oms()
               If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, , , , , @svp )
                 lshifr := iif( Empty( lshifr1 ), usl->shifr, lshifr1 )
               Endif
+             
               If PadR( AllTrim( lshifr ), 5 ) == '60.4.'
                 // KT
                 arr_pol3000[ 23, 4 ] += Round( hu->stoim_1 * koef, 2 )
@@ -417,6 +421,9 @@ Function forma14_med_oms()
             Goto ( vr_rec )
             Select HUMAN
           Endif
+          //
+          // ДОРАБОТКИ 2026
+          // forma14_med_oms_ambul()
           //
           If human_->USL_OK == 3 // только поликлиника
             // if !eq_any(schet_->BUKVA,'K','T','S','Z','M','H')
@@ -652,11 +659,10 @@ Function forma14_med_oms()
               Endif
               If f_is_zak_sl_vr( lshifr )
                 is_z_sl := .t.
-              elseif eq_any( lshifr, '2.92.1', '2.92.2', '2.92.3', ;  // школа сахарного диабета
-                                     '2.92.4', '2.92.5', '2.92.6', ;
-                                     '2.92.7', '2.92.8', '2.92.9', ;
-                                     '2.92.10', '2.92.11', '2.92.12', ;
-                                     '2.92.13' ) // школы ХНИЗ как обращения
+              elseif eq_any( lshifr, '2.92.1', '2.92.2', '2.92.3',;  // школа сахарного диабета
+                                     '2.92.4', '2.92.5', '2.92.6',;
+                                     '2.92.7', '2.92.8', '2.92.9',;
+                                     '2.92.10', '2.92.11', '2.92.12') // школы ХНИЗ как обращения
                 is_z_sl := .t.
               Endif
               //
@@ -1949,8 +1955,86 @@ Function forma14_med_oms()
   If fl_error
     viewtext( devide_into_pages( cFileProtokol, 60, 80 ),,,, .t.,,, 3 )
   Endif
+mydebug(,print_array( arr_NEW_amb))
+ 
+
   fill_in_excel_book( dir_exe() + 'mo_14med' + sxls(), ;
     cur_dir() + '__14med' + sxls(), ;
     arr_excel, ;
     'присланный из ТФОМС' )
   Return Nil
+
+/*
+  //01.02.26
+  function forma14_med_oms_ambul()
+  local vvr_rec, LLshifr1 := " ", llshifr := " "
+  local ssvp, tunit  := 0
+  Local FFLAG
+  // arr_NEW_amb
+  // интересуют ТОЛЬКО АМБУЛАТОРНЫЕ СЛУЧАИ
+  If human_->USL_OK != 3 // только поликлиника
+    return 
+  endif  
+  ssvp := Space( 5 )
+  vvr_rec := hu->( RecNo() )
+  Select HU
+  find ( Str( human->kod, 7 ) )
+  Do While hu->kod == human->kod .and. !Eof()
+    llshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
+    If is_usluga_tfoms( usl->shifr, llshifr1, human->k_data, , , , , ,@tunit )
+      llshifr := iif( Empty( llshifr1 ), usl->shifr, llshifr1 )
+    Endif
+    // посещениея с профилактической целью всего
+    // строка 1
+    mydebug(,llshifr)
+
+    FFLAG := .F.
+    If PadR( AllTrim( llshifr ), 5 ) == "2.79." .and. !eq_any( PadR( AllTrim( llshifr ), 8 ), ;
+                                                    '2.79.59 ', '2.79.60 ', '2.79.61 ', ;
+                                                    '2.79.62 ', '2.79.63 ', '2.79.64 ') 
+      FFLAG := .T. 
+    endif
+    If !FFLAG .and. PadR( AllTrim( llshifr ), 5 ) == "2.76."
+      FFLAG := .T. 
+    endif  
+    If !FFLAG .and. PadR( AllTrim( llshifr ), 5 ) == "2.88." .and.!eq_any( PadR( AllTrim( llshifr ), 8 ), ;
+                                                    '2.88.46 ', '2.88.47 ', '2.88.48 ', ;
+                                                    '2.88.49 ', '2.88.50 ', '2.88.51 ') 
+      FFLAG := .T. 
+    endif
+    If !FFLAG .and. PadR( AllTrim( llshifr ), 5 ) == "2.81."
+      FFLAG := .T. 
+    endif  
+    // Учетные единицы 
+    if !FFLAG 
+ //     mydebug(,tunit)
+      If  eq_any( tunit, 318, 319, 320, 321, 261, 512, 672, 673, 767 ) 
+        FFLAG := .T. 
+      endif 
+    endif  
+    if FFLAG // приемы
+      arr_NEW_amb[1,1]++ 
+    endif  
+
+
+
+    Select HU
+    skip
+  enddo
+  if FFLAG // суммы
+    arr_NEW_amb[1,3] := arr_NEW_amb[1,3] + human->cena_1  
+  endif  
+  Select HU
+  Goto ( vvr_rec )
+  return  
+*/
+   /*
+   If eq_any( PadR( AllTrim( lshifr ), 8 ), ;
+            '2.79.34 ', '2.79.37 ', '2.79.38 ', ;
+            '2.79.49 ', '2.79.50 ', '2.79.63 ', ;
+            '2.79.64 ', '2.88.35 ', '2.88.36 ', ;
+            '2.79.37 ', '2.88.50 ', '2.88.54 ', ;
+            '2.88.116', '2.88.117', '2.88.118' )
+   If !( eq_any( munit, 29, 141, 142 ) .or. Between( munit, 207, 258 ) )
+   Private arr_NEW_amb[19,5]
+*/
