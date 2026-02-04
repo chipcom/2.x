@@ -303,7 +303,7 @@ Function verify_sluch( fl_view, ft )
   //
   // ПРОВЕРЯЕМ УДОСТОВЕРЕНИЕ ЛИЧНОСТИ ПРИОТСУТСТВИИ ЕНП
   //
-  If eq_any( kart_->vid_ud, 3, 14 ) .and. ;
+  If ( human_->usl_ok != USL_OK_AMBULANCE ) .and. eq_any( kart_->vid_ud, 3, 14 ) .and. ;
       !Empty( kart_->ser_ud ) .and. Empty( del_spec_symbol( kart_->mesto_r ) )
     AAdd( ta, iif( kart_->vid_ud == 3, 'для свид-ва о рождении', 'для паспорта РФ' ) + ;
       ' обязательно заполнение поля "Место рождения"' )
