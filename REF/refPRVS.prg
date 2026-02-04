@@ -231,7 +231,8 @@ Function init_tmp_prvs( _date, is_all )
       len1 := Max( len1, Len( lstr( _glob_array[ i, 2 ] ) + AllTrim( _glob_array[ i, 1 ] ) ) + 1 )
     Endif
   Next
-  dbCreate( cur_dir() + 'tmp_V004', { { 'name', 'C', len1, 0 }, ;
+  dbCreate( cur_dir() + 'tmp_V004', { ;
+    { 'name', 'C', len1, 0 }, ;
     { 'kod', 'C', 9, 0 }, ;
     { 'is', 'L', 1, 0 } } )
   Use ( cur_dir() + 'tmp_V004' ) new
@@ -244,8 +245,8 @@ Function init_tmp_prvs( _date, is_all )
         is With fl_is
     Endif
   Next
-  Index On Upper( name ) to ( cur_dir() + 'tmp_V004' )
-  Index On kod to ( cur_dir() + 'tmpkV004' )
+  Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_V004' ) 
+  Index On FIELD->kod to ( cur_dir() + 'tmpkV004' )
   tmp_V004->( dbCloseArea() )
   //
   len1 := 0
@@ -275,8 +276,8 @@ Function init_tmp_prvs( _date, is_all )
         is With fl_is
     Endif
   Next
-  Index On Upper( name ) to ( cur_dir() + 'tmp_V015' )
-  Index On kod to ( cur_dir() + 'tmpkV015' )
+  Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_V015' )
+  Index On FIELD->kod to ( cur_dir() + 'tmpkV015' )
   Set Order To 0
   Go Top
   Do While !Eof()

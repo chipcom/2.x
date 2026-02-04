@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 03.02.26
+// 04.02.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -65,6 +65,7 @@ Function verify_sluch( fl_view, ft )
   local arr_pn_issled
   local aDiagnozes
   local napr_number
+  local iProfil_m
 
   Default fl_view To .t.
 
@@ -786,7 +787,7 @@ Function verify_sluch( fl_view, ft )
   Endif
 
   if ! eq_any( lu_type, TIP_LU_DDS, TIP_LU_DVN, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN, TIP_LU_DVN_COVID, TIP_LU_DRZ )
-    if Empty( human->PROFIL_M ) .and. ( i := soot_v002_m003( human_->PROFIL ) ) > 0
+    if Empty( human->PROFIL_M ) .and. ( ( iProfil_m := soot_v002_m003( human_->PROFIL ) ) > 0 )
         AAdd( ta, 'не заполнено поле "Профиль МЗ РФ" для листа учета' )
     endif
   endif
@@ -801,7 +802,7 @@ Function verify_sluch( fl_view, ft )
       Endif
 
       if ! eq_any( lu_type, TIP_LU_DDS, TIP_LU_DVN, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN, TIP_LU_DVN_COVID, TIP_LU_DRZ )
-        if Empty( hu_->PROFIL_M )
+        if Empty( human->PROFIL_M ) .and. ( ( iProfil_m := soot_v002_m003( human_->PROFIL ) ) > 0 )
           AAdd( ta, 'не заполнено поле "Профиль МЗ РФ" для услуги "' + AllTrim( usl->shifr ) + '"' )
         endif
       endif
