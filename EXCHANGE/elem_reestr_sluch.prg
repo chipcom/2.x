@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 02.02.26
+// 04.02.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -945,7 +945,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         sCOMENTSL := lstr( j )
       Endif
     Endif
-    If p_tip_reestr == TYPE_REESTR_GENERAL .and. !Empty( sCOMENTSL ) // .and. ! lTypeLUOnkoDisp
+    If p_tip_reestr == TYPE_REESTR_GENERAL .and. !Empty( sCOMENTSL ) .and. sCOMENTSL != ':;' // .and. ! lTypeLUOnkoDisp
       mo_add_xml_stroke( oSL, 'COMENTSL', sCOMENTSL )
     Endif
     If !is_zak_sl
@@ -1226,7 +1226,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
         sCOMENTSL += ';' 
       Endif
-      mo_add_xml_stroke( oSL, 'COMENTSL', sCOMENTSL )
+//      mo_add_xml_stroke( oSL, 'COMENTSL', sCOMENTSL )
     Endif
   Next isl
   Select RHUM
