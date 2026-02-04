@@ -1904,7 +1904,7 @@ Function ne_real()
     'В данный момент функция не реализована.' }, , c, c, , , c1 )
   Return Nil
 
-// 24.01.19 отчёт Ф-МПП
+// 04.02.26 //24.01.19 отчёт Ф-МПП
 Function report_f_mpp()
 
   Local begin_date, end_date, buf := SaveScreen(), arr_m, i, j, k, k1, k2, is_rebenok, is_inogoro, ;
@@ -1932,7 +1932,13 @@ Function report_f_mpp()
   Use ( cur_dir() + 'tmp1' ) new
   Index On Str( usl_ok, 1 ) + Str( profil, 3 ) + Str( is_our, 1 ) + Str( vid, 1 ) + Str( vz_reb, 1 ) to ( cur_dir() + 'tmp1' )
   use_base( 'lusl' )
-  r_use( dir_exe() + '_mo9unit', cur_dir() + '_mo9unit', 'MOUNIT' )
+  //r_use( dir_exe() + '_mo9unit', cur_dir() + '_mo9unit', 'MOUNIT' ) 
+  lalias := create_name_alias( 'lusl', arr_m[ 1 ]  )
+  // select LUSL
+  dbSelectArea( lalias )
+  mydebug(,lalias)
+  sbase := prefixfilerefname( arr_m[ 1 ] ) + 'unit'
+  r_use( dir_exe() + sbase, , 'MOUNIT' )
   r_use( dir_server() + 'uslugi', , 'USL' )
   r_use( dir_server() + 'human_u_', , 'HU_' )
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
@@ -1947,9 +1953,9 @@ Function report_f_mpp()
   //
   //
   mdate_rak := arr_m[ 6 ] + iif( arr_m[ 3 ] == 12, 22, 10 ) // по какую дату РАК сумма к оплате 10.04.18
-  If arr_m[ 3 ] == 12 .and. glob_mo[ _MO_KOD_TFOMS ] == '134505'
-    mdate_rak := 23
-  Endif
+  //If arr_m[ 3 ] == 12 .and. glob_mo[ _MO_KOD_TFOMS ] == '134505'
+  // mdate_rak := 23
+  //Endif
   //
   r_use( dir_server() + 'mo_xml', , 'MO_XML' )
   r_use( dir_server() + 'mo_rak', , 'RAK' )
@@ -1976,9 +1982,9 @@ Function report_f_mpp()
       //
       // 18 год
       k := iif( arr_m[ 3 ] == 12, 21, 10 ) // дата регистрации по 10.04.18
-      If arr_m[ 3 ] == 12 .and. glob_mo[ _MO_KOD_TFOMS ] == '134505'
-        k := 23
-      Endif
+      //If arr_m[ 3 ] == 12 .and. glob_mo[ _MO_KOD_TFOMS ] == '134505'
+      //  k := 23
+      //Endif
       //
       fl := Between( mdate, arr_m[ 5 ], arr_m[ 6 ] + k ) ;
         .and. Between( mdate1, arr_m[ 5 ], arr_m[ 6 ] ) // !!отч.период 18 год
@@ -2027,28 +2033,28 @@ Function report_f_mpp()
                   If Left( lshifr, 5 ) == '1.11.'
                     musl += hu->kol_1
                   Endif
-                  Select LUSL
+                  Select &lalias
                   find ( PadR( lshifr, 10 ) )
-                  If Found() .and. !Empty( lusl->unit_code )
-                    munit := lusl->unit_code
+                  If Found() .and. !Empty( &lalias->unit_code )
+                    munit := &lalias->unit_code
                     If !( eq_any( munit, 29, 141, 142 ) .or. Between( munit, 207, 258 ) )
                       munit := 0
                     Endif
                   Endif
                 Elseif human_->USL_OK == 2 // дневной стационар
-                  Select LUSL
+                  Select &lalias
                   find ( PadR( lshifr, 10 ) )
-                  If Found() .and. !Empty( lusl->unit_code )
-                    munit := lusl->unit_code
+                  If Found() .and. !Empty( &lalias->unit_code )
+                    munit := &lalias->unit_code
                     If !eq_any( munit, 143, 259 )
                       munit := 0
                     Endif
                   Endif
                 Elseif human_->USL_OK == 3 // поликлиника
-                  Select LUSL
+                  Select &lalias //LUSL
                   find ( PadR( lshifr, 10 ) )
-                  If Found() .and. !Empty( lusl->unit_code )
-                    munit := lusl->unit_code
+                  If Found() .and. !Empty( &lalias->unit_code )
+                    munit := &lalias->unit_code
                     musl += hu->kol_1
                   Endif
                 Endif
@@ -2064,15 +2070,15 @@ Function report_f_mpp()
             Elseif human_->USL_OK == 2 // дневной стационар
               //
             Elseif human_->USL_OK == 3 // поликлиника
-              If eq_any( munit, 31, 146 )
+              If eq_any( munit, 31, 146 )  // неотложка
                 mvid := 2
-              Elseif eq_any( munit, 32, 147, 205 )
+              Elseif eq_any( munit, 32, 147, 205 ) // по заболеванию
                 mvid := 3
                 If munit == 205 // перит.диализ
                   mkol := musl := 1
                 Endif
               Else
-                If Between( munit, 260, 262 ) // диспансеризация
+                If  eq_any( munit, 260, 262, 318, 319, 320, 321, 670, 671, 672, 673, 674, 675 ) // диспансеризация Between
                   musl := 1 // вместо количества услуг учитываем одну услугу
                 Elseif eq_any( munit, 30, 38, 145 )
                   // профилактика - учитываем услуги
