@@ -7,7 +7,7 @@
 Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
-// 02.12.25
+// 05.02.26
 Function create_reestr26( arr_calendar )
 
   Local mnyear, mnmonth, k := 0, k1 := 0
@@ -15,7 +15,7 @@ Function create_reestr26( arr_calendar )
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
   Local tip_lu, currDate
   Local t_smo   //, arr_smo := {}
-  Local lshifr1, lbukva, c
+  Local lshifr1, lbukva, c, fl
   Local p_array_PZ
 
   Private pkol := 0, psumma := 0
@@ -37,6 +37,11 @@ Function create_reestr26( arr_calendar )
   n_message( arr, , 'GR+/R', 'W+/R', , , 'G+/R' )
   
   stat_msg( 'Подождите, работаю...' )
+
+  fl := reestr_file_reindex()
+  if fl
+    mo_lock_task( X_OMS )
+  endif
   adbf := { ;
     { 'kod_tmp',  'N',  6, 0 }, ;
     { 'kod_human','N',  7, 0 }, ;
@@ -216,6 +221,9 @@ Function create_reestr26( arr_calendar )
   hb_vfErase( 'mem:a_smo.ntx' )  /* освободим память от индексного файла */
   dbDrop( 'mem:tmpb' )  /* освободим память */
   hb_vfErase( 'mem:tmpb.ntx' )  /* освободим память от индексного файла */
+  if fl
+    mo_unlock_task( X_OMS )
+  endif
   return nil
 
 // 13.08.25
@@ -297,7 +305,7 @@ function print_list_pacients( kod_smo, nyear, nmonth )
     viewtext( nfile, , , , .t., , , 2 )
     return nil
 
-// 04.01.26
+// 05.02.26
 function control_and_create_schet26( kod_smo )
 
   // при работе использует созданные алиасы A_SMO и TMPB
@@ -310,8 +318,8 @@ function control_and_create_schet26( kod_smo )
   Local nameArr
   Local p_tip_reestr  // тип формируемого Реестра случаев
 
-  fl := reestr_file_reindex()
-  If fl
+//  fl := reestr_file_reindex()
+//  If fl
     // arr_m - PRIVATE переменная
     arrKolSl := verify_oms26( arr_m, .f., kod_smo )
     clrline( MaxRow(), color0 )
@@ -432,6 +440,6 @@ function control_and_create_schet26( kod_smo )
         func_error( 10, 'Реестр ранее августа 2025 года не формируется!' )
       Endif
     Endif
-  Endif
+//  Endif
   rest_box( buf )
   return nil
