@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.01.26 СМП - добавление или редактирование случая (листа учета)
+// 05.02.26 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -254,6 +254,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     m1PROFIL := iif( tip_lu == TIP_LU_SMP, 84, 160 ), ;
     m1IDSP   := iif( tip_lu == TIP_LU_SMP, 24, 41 )
   Private mm_prer_b := mm2prer_b
+  private m1profil_m := soot_v002_m003( m1PROFIL )
   //
   AEval( getv009(), {| x| iif( x[ 5 ] == m1USL_OK, AAdd( mm_rslt, x ), nil ) } )
   AEval( getv012(), {| x| iif( x[ 5 ] == m1USL_OK, AAdd( mm_ishod, x ), nil ) } )
@@ -968,6 +969,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       human->UCH_DOC    := lstr( MUCH_DOC ) // вид и номер учетного документа
       human->N_DATA := human->K_DATA := MN_DATA // дата начала-окончания лечения
       human->CENA := human->CENA_1 := mu_cena // стоимость лечения
+      human->PROFIL_M   := m1profil_m
       human->MO_PR      := m1MO_PR
 
       human_->DISPANS   := Replicate( '0', 16 )
@@ -1073,6 +1075,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
       Endif
       hu_->PROFIL   := m1PROFIL
+      hu_->PROFIL_M := m1profil_m
       hu_->PRVS     := m1PRVS
       hu_->kod_diag := mkod_diag
       hu_->zf       := ''
@@ -1141,6 +1144,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
               mohu->PROFIL  := m1PROFIL
               mohu->PRVS    := m1PRVS
               mohu->kod_diag := mkod_diag
+              mohu->PROFIL_M := m1profil_m
             Endif
           Else
             Select MOHU
