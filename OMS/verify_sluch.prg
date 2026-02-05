@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 04.02.26
+// 05.02.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -309,7 +309,7 @@ Function verify_sluch( fl_view, ft )
       ' обязательно заполнение поля "Место рождения"' )
   Endif
 
-  if human_->vpolis != 3 .and. ( Empty( kart->kod_mis ) .or. ( Len( kart->kod_mis ) == 16 ) )
+  if human_->vpolis != 3 .and. ( Empty( kart->kod_mis ) .or. ( Len( AllTrim( kart->kod_mis ) ) == 16 ) )
     If AScan( getvidud(), {| x | x[ 2 ] == kart_->vid_ud } ) == 0
       AAdd( ta, 'не заполнено поле "ВИД удостоверения личности"' )
     endif
