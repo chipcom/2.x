@@ -309,7 +309,8 @@ Function verify_sluch( fl_view, ft )
       ' обязательно заполнение поля "Место рождения"' )
   Endif
 
-  if human_->vpolis != 3 .and. ( Empty( kart->kod_mis ) .or. ( Len( AllTrim( kart->kod_mis ) ) == 16 ) )
+  if Empty( kart->kod_mis ) .or. ( Len( AllTrim( kart->kod_mis ) ) != 16 )
+//  if human_->vpolis != 3 .and. ( Empty( kart->kod_mis ) .or. ( Len( AllTrim( kart->kod_mis ) ) == 16 ) )
     If AScan( getvidud(), {| x | x[ 2 ] == kart_->vid_ud } ) == 0
       AAdd( ta, 'не заполнено поле "ВИД удостоверения личности"' )
     endif
