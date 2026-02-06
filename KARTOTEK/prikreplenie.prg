@@ -52,7 +52,7 @@ Function wq_import()
       return func_error(4, 'Данный файл уже был импортирован!')
     endif
     R_Use(dir_server() + 'mo_krtr', , 'KRTR')
-    index on wq to (cur_dir() + 'tmp_krtr') for !empty(wq)
+    index on FIELD->wq to ( cur_dir() + 'tmp_krtr' ) for !empty( FIELD->wq )
     find (padr(substr(cName, 10), 11))
     fl := found()
     Use
@@ -78,11 +78,11 @@ Function wq_import()
       if upper(left(s, 3)) == 'WQ2'
         s := substr(s, 4)
         cMO := substr(s, 1, 6)
-        if cMO == glob_MO[_MO_KOD_TFOMS]
+        if cMO == glob_mo()[_MO_KOD_TFOMS]
           last_file := padr(last_file, 11)
           k := 0
           R_Use(dir_server() + 'mo_krtr', , 'KRTR')
-          index on wq to (cur_dir() + 'tmp_krtr') for !empty(wq)
+          index on FIELD->wq to (cur_dir() + 'tmp_krtr') for !empty( FIELD->wq )
           go top
           do while !eof()
             if last_file == krtr->wq
@@ -105,7 +105,7 @@ Function wq_import()
             k := 0
           endif
           if k > 0
-            arr := {glob_MO[_MO_SHORT_NAME]}
+            arr := {glob_mo()[_MO_SHORT_NAME]}
             aadd(arr, 'Читается файл ' + name_dbf + ' с прикреплённым населением,')
             aadd(arr, 'по которому в ТФОМС ещё не прикреплены врачи (участки) - ' + lstr(k) + ' чел.')
             buf := save_maxrow()
@@ -155,7 +155,7 @@ Function wq_import()
               Use (dir_server() + fbase) new alias WQ
               i1 := i2 := 0
               G_Use(dir_server() + 'mo_kfio', , 'KFIO')
-              index on str(kod, 7) to (cur_dir() + 'tmp_kfio')
+              index on str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
               use_base('kartotek')
               R_Use(_tmp_dir1() + cName, , 'T1')
               go top
@@ -381,7 +381,7 @@ Function wq_import()
             rest_box(buf)
           endif
         else
-          func_error(4, 'Ваш код МО ' + glob_MO[_MO_KOD_TFOMS] + ;
+          func_error(4, 'Ваш код МО ' + glob_mo()[_MO_KOD_TFOMS] + ;
                      ' не соответствует коду получателя: ' + cMO)
         endif
       else
@@ -413,7 +413,7 @@ Function wq_view()
   add_string('')
   aeval(arr_title, {|x| add_string(x)})
   R_Use(dir_server()+fname, , 'WQ')
-  index on upper(fio) + dtos(dr) to (cur_dir() + 'tmp_wq')
+  index on upper( FIELD->fio ) + dtos( FIELD->dr ) to ( cur_dir() + 'tmp_wq' )
   go top
   do while !eof()
     if verify_FF(HH, .t., sh)
@@ -438,7 +438,7 @@ Function wq_edit_uchast()
     return func_error(4, 'Не было чтения файла в новом формате!')
   endif
   R_Use(dir_server() + 'mo_krtr', , 'KRTR')
-  index on wq to (cur_dir() + 'tmp_krtr') for !empty(wq)
+  index on FIELD->wq to (cur_dir() + 'tmp_krtr') for !empty(FIELD->wq)
   find (padr(substr(fname, 10), 11))
   fl := found()
   Use
@@ -449,7 +449,7 @@ Function wq_edit_uchast()
   Use_base('kartotek')
   set order to 0
   G_Use(dir_server()+fname, , 'WQ')
-  index on upper(fio)+dtos(dr) to (cur_dir() + 'tmp_wq')
+  index on upper(FIELD->fio)+dtos(FIELD->dr) to (cur_dir() + 'tmp_wq')
   go top
   Private ku := wq->(lastrec())
   if ku == 0
@@ -544,10 +544,11 @@ Function f2_wq_edit_uchast(nKey, oBrow)
   endcase
   return flag
 
-// 29.03.23 Подготовка и создание файлов прикрепления для WQ...
+// 01.02.26 Подготовка и создание файлов прикрепления для WQ...
 Function wq_prikreplenie()
   Local i, j := 0, arr_uch := {}, fl_err := .f., buf := save_maxrow(), ;
       fl := .f., filename := wq_ret_last_name()
+  Local i_i, ii, K, jj
 
   if empty(filename)
     return func_error(4, 'Не было чтения файла в новом формате!')
@@ -555,7 +556,7 @@ Function wq_prikreplenie()
   Private nkod_reestr := 0
   mywait()
   R_Use(dir_server() + 'mo_krtr', , 'KRTR')
-  index on wq to (cur_dir() + 'tmp_krtr') for !empty(wq)
+  index on FIELD->wq to (cur_dir() + 'tmp_krtr') for !empty(FIELD->wq)
   go top
   if eof() // т.е. первый раз
     nkod_reestr := 1
@@ -574,7 +575,7 @@ Function wq_prikreplenie()
     fl := !func_error(4, 'На последний файл прикрепления не был прочитан ответ. Запрет операции!')
   endif
   if !fl
-    index on dtos(dfile) to (cur_dir() + 'tmp_krtr') for left(fname, 3) == 'MO2'
+    index on dtos(FIELD->dfile) to (cur_dir() + 'tmp_krtr') for left(FIELD->fname, 3) == 'MO2'
     find (dtos(sys_date))
     if found()
       fl := !func_error(4, 'Файл прикрепления с датой ' + full_date(sys_date) + 'г. уже был создан')
@@ -594,7 +595,7 @@ Function wq_prikreplenie()
     mywait()
     //
     R_Use(dir_server() + filename, , 'WQ')
-    index on upper(fio) + dtos(dr) to (cur_dir() + 'tmp_wq')
+    index on upper(FIELD->fio) + dtos(FIELD->dr) to (cur_dir() + 'tmp_wq')
     go top
     do while !eof()
       if empty(wq->uchast)
@@ -666,7 +667,7 @@ Function wq_prikreplenie()
   R_Use(dir_server() + 'mo_otd', , 'OTD')
   R_Use(dir_server() + 'mo_pers', , 'P2')
   R_Use(dir_server() + 'mo_uchvr', , 'UV')
-  index on str(uch, 2) to (cur_dir() + 'tmp_uv')
+  index on str(FIELD->uch, 2) to (cur_dir() + 'tmp_uv')
   j := 0
   for i := 1 to len(arr_uch)
     s := str(arr_uch[i, 1], 2) + ':'
@@ -729,110 +730,130 @@ Function wq_prikreplenie()
       return func_error(4, 'В данный момент с этим режимом работает другой пользователь.')
     endif
     mywait()
-    s := 'MO2' + glob_mo[_MO_KOD_TFOMS] + dtos(mdate)
-    n_file := s + scsv()
-    G_Use(dir_server() + 'mo_krtr', , 'KRTR')
-    index on str(kod, 6) to (cur_dir() + 'tmp_krtr')
-    AddRec(6)
-    krtr->KOD := recno()
-    krtr->FNAME := s
-    krtr->DFILE := mdate
-    krtr->DATE_OUT := ctod('')
-    krtr->NUMB_OUT := 0
-    krtr->WQ := substr(filename, 6) // YYMMDDN - окончание имени файла
-    krtr->KOL := 0
-    krtr->KOL_P := 0
-    krtr->ANSWER := 0  // 0-не было ответа, 1-был прочитан ответ
-    G_Use(dir_server() + 'mo_krtf', , 'KRTF')
-    index on str(kod, 6) to (cur_dir() + 'tmp_krtf')
-    AddRec(6)
-    krtf->KOD   := recno()
-    krtf->FNAME := krtr->FNAME
-    krtf->DFILE := krtr->DFILE
-    krtf->TFILE := hour_min(seconds())
-    krtf->TIP_IN := 0
-    krtf->TIP_OUT := _CSV_FILE_REESTR
-    krtf->REESTR := krtr->KOD
-    krtf->DWORK := sys_date
-    krtf->TWORK1 := hour_min(seconds()) // время начала обработки
-    krtf->TWORK2 := ''                  // время окончания обработки
-    //
-    krtr->KOD_F := krtf->KOD
-    dbUnLockAll()
-    Commit
-    //
-    blk := {|_s| iif(empty(_s), '', '"' + _s + '"')}
-    delete file (n_file)
-    fp := fcreate(n_file)
-    //
-    G_Use(dir_server() + 'mo_krtp', , 'KRTP')
-    index on str(reestr, 6) to (cur_dir() + 'tmp_krtp')
-    mywait('Создание файла прикрепления')
-    j := ii := 0
-    R_Use(dir_exe() + '_mo_podr', cur_dir() + '_mo_podr', 'PODR')
-    find (glob_mo[_MO_KOD_TFOMS])
-    loidmo := alltrim(podr->oidmo)
-    R_Use(dir_server() + 'mo_otd', , 'OTD')
-    R_Use(dir_server() + 'mo_pers', , 'P2')
-    R_Use(dir_server() + 'mo_uchvr', cur_dir() + 'tmp_uv', 'UV')
-    R_Use(dir_server() + filename, , 'WQ')
-    use_base('kartotek')
-    set order to 0
-    use (cur_dir() + 'tmp') new
-    set relation to kod_wq into WQ
-    index on upper(wq->fio) to (cur_dir() + 'tmp__')
-    go top
-    do while !eof()
-      @ maxrow(), 0 say str(++j / tmp->(lastrec()) * 100, 6, 2) + '%' color cColorWait
-      if (i := ascan(arr_uch, {|x| x[1] == wq->uchast })) == 0
-        fl := .f.
-      else
-        select UV
-        find (str(arr_uch[i, 1], 2))
-        if found() .and. !emptyall(uv->vrach, uv->vrachv, uv->vrachd)
-          select P2
-          if empty(uv->vrach)
-            fl := .f.
-            if empty(uv->vrachv)
-              //
-            elseif tmp->vr == 0 // взрослые
-              fl := .t.
-              p2->(dbGoto(uv->vrachv))
-              otd->(dbGoto(p2->otd))
-            endif
-            if empty(uv->vrachd)
-              //
-            elseif tmp->vr == 1 // дети
-              fl := .t.
-              p2->(dbGoto(uv->vrachd))
-              otd->(dbGoto(p2->otd))
-            endif
-          else // все
-            fl := .t.
-            p2->(dbGoto(uv->vrach))
-            otd->(dbGoto(p2->otd))
-          endif
-        else
+    // J - кол-во пациентов 
+    i_i := -1
+    ii := j
+    arr := {}
+    Do While ii > 0
+      k := Min( ii, 4998 ) ; i_i++
+      AAdd( arr, { k, i_i, 0 } )
+      // i_i - номер файла 
+      ii -= k
+    Enddo
+     G_Use(dir_server() + 'mo_krtp', , 'KRTP')
+      index on str( FIELD->reestr, 6 ) to (cur_dir() + 'tmp_krtp')
+      mywait('Создание файла прикрепления')
+      j := ii := 0
+      R_Use(dir_exe() + '_mo_podr', cur_dir() + '_mo_podr', 'PODR')
+      find (glob_mo()[_MO_KOD_TFOMS])
+      loidmo := alltrim(podr->oidmo)
+      R_Use(dir_server() + 'mo_otd', , 'OTD')
+      R_Use(dir_server() + 'mo_pers', , 'P2')
+      R_Use(dir_server() + 'mo_uchvr', cur_dir() + 'tmp_uv', 'UV')
+      G_Use(dir_server() + 'mo_krtr', , 'KRTR')
+      G_Use(dir_server() + 'mo_krtf', , 'KRTF')
+      R_Use(dir_server() + filename, , 'WQ')
+      use_base('kartotek')
+      set order to 0
+      use (cur_dir() + 'tmp') new
+      set relation to FIELD->kod_wq into WQ
+      index on upper( wq->fio ) to (cur_dir() + 'tmp__')
+      go top
+    // начало цикла
+    mydebug(,print_array(arr))
+    for i_i := 1 to len(arr)
+      select tmp
+      s := 'MO2' + glob_mo()[_MO_KOD_TFOMS] + dtos(mdate) + lstr(i_i)
+      n_file := s + scsv()
+      select KRTR //G_Use(dir_server() + 'mo_krtr', , 'KRTR')
+      index on str(FIELD->kod, 6) to (cur_dir() + 'tmp_krtr')
+      AddRec(6)
+      krtr->KOD := recno()
+      krtr->FNAME := s
+      krtr->DFILE := mdate
+      krtr->DATE_OUT := ctod('')
+      krtr->NUMB_OUT := 0
+      krtr->WQ := substr(filename, 6) // YYMMDDN - окончание имени файла
+      krtr->KOL := 0
+      krtr->KOL_P := 0
+      krtr->ANSWER := 0  // 0-не было ответа, 1-был прочитан ответ
+      select KRTF //G_Use(dir_server() + 'mo_krtf', , 'KRTF')
+      index on str(FIELD->kod, 6) to (cur_dir() + 'tmp_krtf')
+      AddRec(6)
+      krtf->KOD   := recno()
+      krtf->FNAME := krtr->FNAME
+      krtf->DFILE := krtr->DFILE
+      krtf->TFILE := hour_min(seconds())
+      krtf->TIP_IN := 0
+      krtf->TIP_OUT := _CSV_FILE_REESTR
+      krtf->REESTR := krtr->KOD
+      krtf->DWORK := sys_date
+      krtf->TWORK1 := hour_min(seconds()) // время начала обработки
+      krtf->TWORK2 := ''                  // время окончания обработки
+      //
+      krtr->KOD_F := krtf->KOD
+      dbUnLockAll()
+      Commit
+      //
+      blk := {|_s| iif(empty(_s), '', '"' + _s + '"')}
+      delete file (n_file)
+      fp := fcreate(n_file)
+      //
+      select TMP   /////////////////////////////////// 
+       // go top
+       //do while !eof()
+      For jj := 1 To arr[ i_i, 1 ]
+       // @ maxrow(), 0 say str(++j / tmp->(lastrec()) * 100, 6, 2) + '%' color cColorWait
+        if (i := ascan(arr_uch, {|x| x[1] == wq->uchast })) == 0
           fl := .f.
+        else
+          select UV
+          find (str(arr_uch[i, 1], 2))
+          if found() .and. !emptyall(uv->vrach, uv->vrachv, uv->vrachd)
+            select P2
+            if empty(uv->vrach)
+              fl := .f.
+              if empty(uv->vrachv)
+                //
+              elseif tmp->vr == 0 // взрослые
+                fl := .t.
+                p2->(dbGoto(uv->vrachv))
+                otd->(dbGoto(p2->otd))
+              endif
+              if empty(uv->vrachd)
+                //
+              elseif tmp->vr == 1 // дети
+                fl := .t.
+                p2->(dbGoto(uv->vrachd))
+                otd->(dbGoto(p2->otd))
+              endif
+            else // все
+              fl := .t.
+              p2->(dbGoto(uv->vrach))
+              otd->(dbGoto(p2->otd))
+            endif
+          else
+            fl := .f.
+          endif
         endif
-      endif
-      if fl
-        select KART
-        goto (wq->kod_k)
-        ++ii
-        select KRTP
-        AddRec(6)
-        krtp->REESTR   := krtr->KOD      // код реестра;по файлу 'mo_krtr'
-        krtp->KOD_K    := wq->kod_k      // код пациента по файлу 'kartotek'
-        krtp->D_PRIK   := wq->LPUDT      // дата прикрепления (заявления)
-        krtp->S_PRIK   := 1              // способ прикрепления: 1-по месту регистрации, 2-по личному заявлению (без изменения м/ж), 3-по личному заявлению (в связи с изменением м/ж)
-        krtp->UCHAST   := wq->uchast     // номер участка
-        krtp->SNILS_VR := p2->snils      // СНИЛС участкового врача
-        krtp->KOD_PODR := alltrim(otd->kod_podr) // код подразделения по паспорту ЛПУ
-        krtp->REES_ZAP := ii             // номер строки в реестре
-        krtp->OPLATA   := 0              // тип оплаты;сначала 0, 1-прикреплён, 2-ошибки
-        krtp->D_PRIK1  := ctod('')       // дата прикрепления
-        //
+        if fl
+          select KART
+          goto (wq->kod_k)
+          ++ii
+          select KRTP
+          AddRec(6)
+          krtp->REESTR   := krtr->KOD      // код реестра;по файлу 'mo_krtr'
+          krtp->KOD_K    := wq->kod_k      // код пациента по файлу 'kartotek'
+          krtp->D_PRIK   := wq->LPUDT      // дата прикрепления (заявления)
+          krtp->S_PRIK   := 1              // способ прикрепления: 1-по месту регистрации, 2-по личному заявлению (без изменения м/ж), 3-по личному заявлению (в связи с изменением м/ж)
+          krtp->UCHAST   := wq->uchast     // номер участка
+          krtp->SNILS_VR := p2->snils      // СНИЛС участкового врача
+          krtp->KOD_PODR := alltrim(otd->kod_podr) // код подразделения по паспорту ЛПУ
+          krtp->REES_ZAP := ii             // номер строки в реестре
+          krtp->OPLATA   := 0              // тип оплаты;сначала 0, 1-прикреплён, 2-ошибки
+          krtp->D_PRIK1  := ctod('')       // дата прикрепления
+          //
+        @ maxrow(), 0 say str(++j / arr[ i_i, 1 ] * 100, 6, 2) + '%' color cColorWait
         s1 := iif(ii==1, '', hb_eol())
         // 1 - Номер записи в файле с 10.06.19г.
         s1 += eval(blk, lstr(ii)) + ';'
@@ -929,7 +950,7 @@ Function wq_prikreplenie()
         endif
         s1 += eval(blk, alltrim(lsnils)) + ';'
         // 15 - Идентификатор МО
-        s1 += eval(blk, glob_mo[_MO_KOD_TFOMS]) + ';'
+        s1 += eval(blk, glob_mo()[_MO_KOD_TFOMS]) + ';'
         // 16 - Способ прикрепления
         s1 += eval(blk, lstr(krtp->S_PRIK)) + ';'
         // 17 - Тип прикрепления (Зарезервированное поле)
@@ -958,33 +979,46 @@ Function wq_prikreplenie()
         s1 += eval(blk, s)
         //
         fwrite(fp, hb_OemToAnsi(s1))
+        endif
+      //  if ii % 3000 == 0
+      //    dbUnLockAll()
+      //    Commit
+      //  endif
+        select TMP
+        skip
+      next
+      fclose(fp)  // зарытие файла
+      select KRTR
+      G_RLock(forever)
+      krtr->KOL := ii
+      select KRTF
+      G_RLock(forever)
+      krtf->KOL := ii
+      krtf->TWORK2 := hour_min(seconds()) // время окончания обработки
+      dbUnLockAll()
+      Commit
+      // перенос
+      if ii > 0 .and. hb_FileExists(n_file)
+        chip_copy_zipXML(n_file, dir_server() + dir_XML_MO(), .t.)
+        stat_msg('Файл прикрепления создан!')
+        mybell(3, OK)
+       //
+      else
+        func_error(4, 'Ошибка создания файла ' + n_file)
       endif
-      if ii % 3000 == 0
-        dbUnLockAll()
-        Commit
-      endif
-      select TMP
-      skip
-    enddo
-    fclose(fp)
-    select KRTR
-    G_RLock(forever)
-    krtr->KOL := ii
-    select KRTF
-    G_RLock(forever)
-    krtf->KOL := ii
-    krtf->TWORK2 := hour_min(seconds()) // время окончания обработки
+      ii := 0
+    next
     close databases
     G_SUnLock(str_sem)
     rest_box(buf)
-    if ii > 0 .and. hb_FileExists(n_file)
-      chip_copy_zipXML(n_file, dir_server() + dir_XML_MO(), .t.)
-      stat_msg('Файл прикрепления создан!')
-      mybell(3, OK)
+  //  if ii > 0 .and. hb_FileExists(n_file)
+  //    chip_copy_zipXML(n_file, dir_server() + dir_XML_MO(), .t.)
+  //    stat_msg('Файл прикрепления создан!')
+  //    mybell(3, OK)
       keyboard chr(K_ESC) + chr(K_HOME) + chr(K_ENTER)
-    else
-      func_error(4, 'Ошибка создания файла ' + n_file)
-    endif
+  //  else
+  //    func_error(4, 'Ошибка создания файла ' + n_file)
+  //  endif
   endif
   return NIL
 

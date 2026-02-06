@@ -538,7 +538,7 @@ Function f31_view_r_pr_nas( reg, s, s1 )
           s += 'заказ на прикрепление с ' + date_8( md_prik )
         Endif
       Elseif krtp->OPLATA == 2 .and. !Empty( kart2->MO_PR )
-        If kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
+        If kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
           s += 'ранее прикреплён к Вашей МО'
         Else
           s += 'ранее прикреплён к ' + ret_mo( kart2->MO_PR )[ _MO_SHORT_NAME ]
@@ -577,21 +577,22 @@ Function f31_view_r_pr_nas( reg, s, s1 )
 
   Return Nil
 
-// 29.10.25
+// 31.01.26
 Function preparation_for_pripisnoe_naselenie()
   Local i, j, k, aerr, buf := SaveScreen(), blk, t_arr[ BR_LEN ], cur_year, t_polis, ;
     str_sem := 'preparation_for_pripisnoe_naselenie'
+  Local t_num := 0
 
   mywait()
   g_use( dir_server() + 'mo_krtp',, 'KRTP' )
   Index On FIELD->kod_k to ( cur_dir() + 'tmp_k' ) For FIELD->reestr == 0
   dbCreate( cur_dir() + 'tmp_krtp', { ;
-    { 'rec',   'N', 8, 0 }, ; // номер записи в файле 'mo_krtp'
-  { 'uchast', 'N', 2, 0 }, ; // участок
-  { 'D_PRIK', 'D', 8, 0 }, ; // дата прикрепления
-  { 'S_PRIK', 'N', 1, 0 }, ; // способ прикрепления: 1-по месту регистрации, 2-по личному заявлению, 3-
-  { 'KOD_K', 'N', 7, 0 };  // код пациента по файлу 'kartotek'
-  } )
+    { 'rec',    'N', 8, 0 }, ; // номер записи в файле 'mo_krtp'
+    { 'uchast', 'N', 2, 0 }, ; // участок
+    { 'D_PRIK', 'D', 8, 0 }, ; // дата прикрепления
+    { 'S_PRIK', 'N', 1, 0 }, ; // способ прикрепления: 1-по месту регистрации, 2-по личному заявлению, 3-
+    { 'KOD_K',  'N', 7, 0 };   // код пациента по файлу 'kartotek'
+    } )
   Use ( cur_dir() + 'tmp_krtp' ) new
   use_base( 'kartotek' )
   Set Order To 0
@@ -687,8 +688,8 @@ Function preparation_for_pripisnoe_naselenie()
       ++ii
 
       aerr := {}
-      if ii > 24999  // Ограничение !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        AAdd( aerr, 'Превышено кол-во пациентов в пакете. Более 25 000. Завтра создайте следующий пакет' )
+      if ii > 4999  // Ограничение !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        AAdd( aerr, 'Превышено кол-во пациентов в пакете. Более 5 000. Cоздайте следующий пакет' )
       endif  
       If Empty( kart->date_r )
         AAdd( aerr, 'не заполнено поле "Дата рождения"' )
@@ -700,7 +701,7 @@ Function preparation_for_pripisnoe_naselenie()
       if len(AllTrim( kart2->KOD_MIS )) != 16 .and. len(AllTrim( kart_->NPOLIS  )) != 16 
         AAdd( aerr, 'не верный номер ЕНП' )
       endif  
-      If kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
+      If kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
         AAdd( aerr, 'данный пациент уже прикреплён к Вашей МО с ' + ;
           iif( Empty( kart2->pc4 ), full_date( kart2->DATE_PR ), AllTrim( kart2->pc4 ) ) + 'г.' )
       Endif
@@ -817,10 +818,41 @@ Function preparation_for_pripisnoe_naselenie()
         k := 2
       Elseif k == 2
         If ( k := find_change_snils( @j ) ) == 3
-          k := f_alert( { PadC( 'Выберите, каким образом создавать файл прикрепления', 70, '.' ), ;
-            '' }, ;
-            { ' Только по заявлению ', ' Включить ' + lstr( j ) + ' пациентов с изменением уч-ка ' }, ;
-            1, 'N+/G*', 'N/G*', MaxRow() -7,, 'N/G*' )
+          // проверим - кто попал в реесты -без ответов
+          g_use( dir_server() + 'mo_krtp',, 'KRTP' )
+          Index On Str( FIELD->kod_k, 7 ) to ( cur_dir() + 'tmp_krtp' ) for year(FIELD->d_prik) > 2025 .and. FIELD->oplata == 0 
+          Use ( cur_dir() + 'tmpu' ) new  // готовый список сменивших врача.
+          go Top
+          do while !eof()
+             //@ MaxRow(),20 Say 'Поиск ранее отправленных пациентов' Color cColorWait
+             mywait()
+             @ MaxRow(), 0 Say Str( recno() / ( lastrec() ) * 100, 6, 2 ) + '%' Color cColorWait
+            select KRTP 
+            find (Str(tmpu->kod,7))
+            if found()
+              // данную запись надо убрать
+              select TMPU
+              deleterec()
+            endif 
+            select TMPU
+            skip   
+          enddo  
+          // теперь пакуем файл
+          pack
+          j := tmpu->(lastrec())
+          tmpu->(dbclosearea())
+          krtp->(dbclosearea())
+          if ii+j < 4999
+            k := f_alert( { PadC( 'Выберите, каким образом создавать файл прикрепления', 70, '.' ), ;
+              '' }, ;
+              { ' Только по заявлению ', ' Включить ' + lstr( j ) + ' пациентов с изменением уч-ка ' }, ;
+              1, 'N+/G*', 'N/G*', MaxRow() -7,, 'N/G*' )
+          else
+            k := f_alert( { PadC( 'Выберите, каким образом создавать файл прикрепления', 70, '.' ), ;
+              '' }, ;
+              { ' Только по заявлению ', ' Включить ' + lstr( 4999 - ii )  +'из' + lstr( j ) + ' пациентов с изменением уч-ка ' }, ;
+              1, 'N+/G*', 'N/G*', MaxRow() -7,, 'N/G*' )
+          endif    
           If k == 1
             k := 2 ; j := 0
           Elseif k == 2
@@ -832,15 +864,31 @@ Function preparation_for_pripisnoe_naselenie()
     If k > 1
       s := 'MO2'
       g_use( dir_server() + 'mo_krtr',, 'KRTR' )
-      Locate For DFILE == sys_date .and. Left( FNAME, 3 ) == s
+      //Locate For DFILE == sys_date .and. Left( FNAME, 3 ) == s
+      index on dtos(krtr->dfile)+Left( FNAME, 3 )+ substr(fname,18,2) to tmp9
+      find(dtos(sys_date)+s)
       If Found()
-        func_error( 4, 'Файл прикрепления с датой ' + full_date( sys_date ) + 'г. уже был создан' )
-      Elseif f_esc_enter( 'создания файла прикрепления', .t. )
-        mywait()
-        s += glob_mo[ _MO_KOD_TFOMS ] + DToS( sys_date )
+        //func_error( 4, 'Файл прикрепления с датой ' + full_date( sys_date ) + 'г. уже был создан' )
+        // выясняем- сколько сегодня файлов было -
+        t_num := 0
+        select KRTR 
+        do while krtr->DFILE == sys_date .and. Left( FNAME, 3 ) == s .and. !eof()
+          t_num++ 
+          skip
+        enddo  
+        s += glob_mo()[ _MO_KOD_TFOMS ] + DToS( sys_date ) +lstr(t_num)
         n_file := s + scsv()
+      else
+        //
+        s += glob_mo()[ _MO_KOD_TFOMS ] + DToS( sys_date )
+        n_file := s + scsv()
+      endif  
+      if f_esc_enter( 'создания файла прикрепления', .t. )
+        mywait()
+      //  s += glob_mo()[ _MO_KOD_TFOMS ] + DToS( sys_date )
+      //  n_file := s + scsv()
         r_use( dir_exe() + '_mo_podr', cur_dir() + '_mo_podr', 'PODR' )
-        find ( glob_mo[ _MO_KOD_TFOMS ] )
+        find ( glob_mo()[ _MO_KOD_TFOMS ] )
         loidmo := AllTrim( podr->oidmo )
         Select KRTR
         Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_krtr' )
@@ -850,7 +898,11 @@ Function preparation_for_pripisnoe_naselenie()
         krtr->DFILE := sys_date
         krtr->DATE_OUT := CToD( '' )
         krtr->NUMB_OUT := 0
-        krtr->KOL := ii + j
+        if ii+j < 4999
+          krtr->KOL := ii + j
+        else
+          krtr->KOL := 4999
+        endif    
         krtr->KOL_P := 0
         krtr->ANSWER := 0  // 0-не было ответа, 1-был прочитан ответ
         g_use( dir_server() + 'mo_krtf',, 'KRTF' )
@@ -974,7 +1026,7 @@ Function preparation_for_pripisnoe_naselenie()
           // 15 - У - СНИЛС застрахованного лица
           s1 += Eval( blk, AllTrim( kart->snils ) ) + ';'
           // 16 - Да - Идентификатор МО
-          s1 += Eval( blk, glob_mo[ _MO_KOD_TFOMS ] ) + ';'
+          s1 += Eval( blk, glob_mo()[ _MO_KOD_TFOMS ] ) + ';'
           // 17 - Да - Способ прикрепления
           s1 += Eval( blk, lstr( krtp->S_PRIK ) ) + ';'
           // 18 - Нет -Тип прикрепления (Зарезервированное поле)
@@ -1009,12 +1061,13 @@ Function preparation_for_pripisnoe_naselenie()
           Skip
         Enddo
         If k == 3 // после смены участка
+          // вводим ограничение на кол-во записей.31.01.26
           Select KRTP
           Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_krtp' )
-          Use ( cur_dir() + 'tmpu' ) new
+          Use ( cur_dir() + 'tmpu' ) new  // готовый список сменивших врача.
           Set Relation To FIELD->kod into KART
           Go Top
-          Do While !Eof()
+          Do While i < 4999 .and. !Eof()
             ++i
             @ MaxRow(), 0 Say Str( i / ( ii + j ) * 100, 6, 2 ) + '%' Color cColorWait
             p2->( dbGoto( tmpu->kodp ) )
@@ -1116,7 +1169,7 @@ Function preparation_for_pripisnoe_naselenie()
             Endif
             s1 += Eval( blk, AllTrim( lsnils ) ) + ';'
             // 16 - Идентификатор МО
-            s1 += Eval( blk, glob_mo[ _MO_KOD_TFOMS ] ) + ';'
+            s1 += Eval( blk, glob_mo()[ _MO_KOD_TFOMS ] ) + ';'
             // 17 - Способ прикрепления
             s1 += Eval( blk, lstr( krtp->S_PRIK ) ) + ';'
             // 18 - Тип прикрепления (Зарезервированное поле)
@@ -1157,7 +1210,13 @@ Function preparation_for_pripisnoe_naselenie()
           Keyboard Chr( K_HOME ) + Chr( K_ENTER )
           Select KRTF
           g_rlock( forever )
-          krtf->KOL := ii + j
+          mydebug(,ii)
+          mydebug(,j) 
+          if ii+j > 4999
+            krtf->KOL := 4999
+          else  
+            krtf->KOL := ii + j
+          endif 
           krtf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
         Else
           func_error( 4, 'Ошибка создания файла ' + n_file )
@@ -1213,7 +1272,7 @@ Function kartoteka_z_prikreplenie()
     {| _n| skippointer( _n, muslovie ) }, ;
     str_find, muslovie;
     }
-  blk := {|| iif( kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ], { 1, 2 }, ;
+  blk := {|| iif( kart2->mo_pr == glob_mo()[ _MO_KOD_TFOMS ], { 1, 2 }, ;
     iif( Empty( kart2->mo_pr ), { 3, 4 }, { 5, 6 } ) ) }
   t_arr[ BR_COLUMN ] := { { Center( 'Ф.И.О.', 35 ), {|| Left( kart->fio, 32 ) }, blk }, ;
     { 'Дата рожд.', {|| full_date( kart->date_r ) }, blk }, ;
@@ -1240,7 +1299,7 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
   Local j, s, ret := -1
 
   If regim == 'edit' .and. nKey == K_F9
-    If kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ]
+    If kart2->mo_pr == glob_mo()[ _MO_KOD_TFOMS ]
       func_error( 1, 'Данный пациент уже прикреплён к Вашему МО' )
     Endif
     z_rec := kart->( RecNo() )
@@ -1261,7 +1320,7 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
     r_use( dir_server() + 'organiz',, 'ORG' )
     Use ( fr_titl ) New Alias FRT
     Append Blank
-    frt->name_org := glob_MO[ _MO_SHORT_NAME ] + ' (' + glob_MO[ _MO_KOD_TFOMS ] + ')'
+    frt->name_org := glob_mo()[ _MO_SHORT_NAME ] + ' (' + glob_mo()[ _MO_KOD_TFOMS ] + ')'
     frt->adres_org := AllTrim( org->adres )
     frt->fio := kart->fio
     frt->fam_io := fam_i_o( kart->fio )
@@ -1308,7 +1367,7 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
 
   Return ret
 
-// 27.11.25 создать файл(ы) сверки
+// 01.02.26 создать файл(ы) сверки
 Function pripisnoe_naselenie_create_sverka()
   Local ii := 0, s, buf := SaveScreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport
 
@@ -1347,7 +1406,7 @@ Function pripisnoe_naselenie_create_sverka()
         fl := .f.
       Endif
     Endif
-    If !fl .and. kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ]
+    If !fl .and. kart2->mo_pr == glob_mo()[ _MO_KOD_TFOMS ]
       fl := .t.
     Endif
     If fl
@@ -1380,7 +1439,7 @@ Function pripisnoe_naselenie_create_sverka()
   Index On DToS( FIELD->DFILE ) to ( cur_dir() + 'tmp_krtr' ) For Left( FIELD->FNAME, 3 ) == s
   ar := {}
   For i := 1 To Len( arr )
-    n_file := s + glob_mo[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] ) + scsv()
+    n_file := s + glob_mo()[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] ) + scsv()
     s1 := ''
     find ( DToS( arr[ i, 2 ] ) )
     If Found()
@@ -1421,7 +1480,7 @@ Function pripisnoe_naselenie_create_sverka()
     curr := 0
     RestScreen( buf )
     For i := 1 To Len( arr )
-      n_file := 'SZ2' + glob_mo[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] )
+      n_file := 'SZ2' + glob_mo()[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] )
       Select KRTR
       addrec( 6 )
       krtr->KOD := RecNo()
@@ -1710,7 +1769,7 @@ Function edit_uchast_spisok()
       flag := ( Left( kart_->okatop, Len( s ) ) == s )
     Endif
     If flag .and. m1fl_pr == 0 // прикреплён к НАМ
-      flag := ( kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ] )
+      flag := ( kart2->mo_pr == glob_mo()[ _MO_KOD_TFOMS ] )
     Endif
     // Фильтр по адресу
     If flag .and. !Empty( mfl_adres )
@@ -1920,7 +1979,7 @@ Function spisok_pripisnoe_naselenie( par )
     For i := 1 To Len( arr_mo )
       If ( j := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == arr_mo[ i, 2 ] } ) ) > 0
         arr_mo[ i, 1 ] := Str( arr_mo[ i, 3 ], 6 ) + ' чел. ' + arr_mo[ i, 2 ] + ' ' + glob_arr_mo()[ j, _MO_SHORT_NAME ]
-        If arr_mo[ i, 2 ] == glob_MO[ _MO_KOD_TFOMS ]
+        If arr_mo[ i, 2 ] == glob_mo()[ _MO_KOD_TFOMS ]
           AAdd( arr, i )
         Endif
       Else
@@ -1952,9 +2011,9 @@ Function spisok_pripisnoe_naselenie( par )
   Set Index to ( cur_dir() + 'tmp_kart2' )
   Do Case
   Case par == 1
-    find ( glob_MO[ _MO_KOD_TFOMS ] )
+    find ( glob_mo()[ _MO_KOD_TFOMS ] )
     Index On iif( sj == 1, '', Str( kart->uchast, 2 ) ) + Upper( kart->fio ) + DToS( kart->date_r ) to ( cur_dir() + 'tmp_kart' ) ;
-      While kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ]
+      While kart2->mo_pr == glob_mo()[ _MO_KOD_TFOMS ]
   Case par == 2
     popup_2array( arr_mo, 2, 2, smo, 1, @ret_arr, 'Выбор МО прикрепления', 'B/BG' )
     If ValType( ret_arr ) == 'A'
@@ -2037,7 +2096,7 @@ Function kol_uch_pripisnoe_naselenie()
   Go Top
   Do While !Eof()
     @ MaxRow(), 0 Say Str( RecNo() / LastRec() * 100, 6, 2 ) + '%' Color cColorWait
-    If kart->kod > 0 .and. !( Left( kart2->PC2, 1 ) == '1' ) .and. kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ] // прикреплён к НАМ
+    If kart->kod > 0 .and. !( Left( kart2->PC2, 1 ) == '1' ) .and. kart2->mo_pr == glob_mo()[ _MO_KOD_TFOMS ] // прикреплён к НАМ
       v := iif( count_years( kart->date_r, sys_date ) < 18, 2, 1 )
       j := iif( kart->pol == 'М', 2, 3 )
       k := 4 // город
@@ -2099,7 +2158,7 @@ Function kol_uch_pripisnoe_naselenie()
       '─────────┴───────────┴───────────┴───────────┴───────────┴───────────' }
     fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
     sh := Len( arr_title[ 1 ] )
-    add_string( glob_mo[ _MO_SHORT_NAME ] )
+    add_string( glob_mo()[ _MO_SHORT_NAME ] )
     add_string( '' )
     add_string( Center( 'Количество прикреплённых пациентов', sh ) )
     add_string( Center( '[ по состоянию на ' + date_8( sys_date ) + 'г. ]', sh ) )
