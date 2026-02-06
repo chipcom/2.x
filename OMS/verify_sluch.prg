@@ -66,6 +66,8 @@ Function verify_sluch( fl_view, ft )
   local aDiagnozes
   local napr_number
   local iProfil_m
+  local a_mo_prik
+  local lKart2
 
   Default fl_view To .t.
 
@@ -301,15 +303,25 @@ Function verify_sluch( fl_view, ft )
   Endif
   //
   //
-  // Ž‚…Ÿ…Œ “„Ž‘’Ž‚……ˆ… ‹ˆ—Ž‘’ˆ ˆŽ’‘“’‘’‚ˆˆ …
+  // Ž‚…Ÿ…Œ “„Ž‘’Ž‚……ˆ… ‹ˆ—Ž‘’ˆ ˆ Ž’‘“’‘’‚ˆˆ … ˆ ˆŠ…‹…ˆ…
   //
+  a_mo_prik := get_f032_prik()
+  if ( i := AScan( a_mo_prik, {| x | x[ 2 ] == human->MO_PR } ) ) == 0
+    AAdd( ta, '­¥ ¢¥à­ ï ®à£ ­¨§ æ¨ï ¯à¨ªà¥¯«¥­¨ï á ª®¤®¬ "' + human->MO_PR + '"' )
+  endif
+
   If ( human_->usl_ok != USL_OK_AMBULANCE ) .and. eq_any( kart_->vid_ud, 3, 14 ) .and. ;
       !Empty( kart_->ser_ud ) .and. Empty( del_spec_symbol( kart_->mesto_r ) )
     AAdd( ta, iif( kart_->vid_ud == 3, '¤«ï á¢¨¤-¢  ® à®¦¤¥­¨¨', '¤«ï ¯ á¯®àâ  ”' ) + ;
       ' ®¡ï§ â¥«ì­® § ¯®«­¥­¨¥ ¯®«ï "Œ¥áâ® à®¦¤¥­¨ï"' )
   Endif
 
-  if Empty( kart->kod_mis ) .or. ( Len( AllTrim( kart->kod_mis ) ) != 16 )
+  if ! ( lKart2 := aliasIsAlreadyUse( 'KART2' ) )
+    r_use( dir_server() + 'kartote2', , 'KART2' )
+  endif
+  Goto ( human->kod_k )
+
+  if Empty( kart2->kod_mis ) .or. ( Len( AllTrim( kart2->kod_mis ) ) != 16 )
 //  if human_->vpolis != 3 .and. ( Empty( kart->kod_mis ) .or. ( Len( AllTrim( kart->kod_mis ) ) == 16 ) )
     If AScan( getvidud(), {| x | x[ 2 ] == kart_->vid_ud } ) == 0
       AAdd( ta, '­¥ § ¯®«­¥­® ¯®«¥ "‚ˆ„ ã¤®áâ®¢¥à¥­¨ï «¨ç­®áâ¨"' )
@@ -335,6 +347,11 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, '¤«ï ¯ æ¨¥­â®¢ ¡¥§ ­®¢®£® ¯®«¨á  ®¡ï§ â¥«ì­® § ¯®«­¥­¨¥ ¯®«ï " ¨¬¥­®¢ ­¨¥ ®à£ ­ , ¢ë¤ ¢è¥£® ¤®ªã¬¥­â, ã¤®áâ®¢¥àïîé¨© «¨ç­®áâì"' )
     Endif
   endif
+  
+  if ! lKart2
+    kart2->( dbCloseArea() )
+  endif
+
 /*
   If AScan( getvidud(), {| x | x[ 2 ] == kart_->vid_ud } ) == 0
     If human_->vpolis < 3
