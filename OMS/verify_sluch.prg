@@ -67,6 +67,7 @@ Function verify_sluch( fl_view, ft )
   local napr_number
   local iProfil_m
   local a_mo_prik
+  local lKart2
 
   Default fl_view To .t.
 
@@ -306,7 +307,7 @@ Function verify_sluch( fl_view, ft )
   //
   a_mo_prik := get_f032_prik()
   if ( i := AScan( a_mo_prik, {| x | x[ 2 ] == human->MO_PR } ) ) == 0
-    AAdd( ta, 'не верная организация прикрепления с кодом "' + str( human->MO_PR, 6 ) + '"' )
+    AAdd( ta, 'не верная организация прикрепления с кодом "' + human->MO_PR + '"' )
   endif
 
   If ( human_->usl_ok != USL_OK_AMBULANCE ) .and. eq_any( kart_->vid_ud, 3, 14 ) .and. ;
@@ -315,7 +316,12 @@ Function verify_sluch( fl_view, ft )
       ' обязательно заполнение поля "Место рождения"' )
   Endif
 
-  if Empty( kart->kod_mis ) .or. ( Len( AllTrim( kart->kod_mis ) ) != 16 )
+  if ! ( lKart2 := aliasIsAlreadyUse( 'KART2' ) )
+    r_use( dir_server() + 'kartote2', , 'KART2' )
+  endif
+  Goto ( human->kod_k )
+
+  if Empty( kart2->kod_mis ) .or. ( Len( AllTrim( kart2->kod_mis ) ) != 16 )
 //  if human_->vpolis != 3 .and. ( Empty( kart->kod_mis ) .or. ( Len( AllTrim( kart->kod_mis ) ) == 16 ) )
     If AScan( getvidud(), {| x | x[ 2 ] == kart_->vid_ud } ) == 0
       AAdd( ta, 'не заполнено поле "ВИД удостоверения личности"' )
@@ -341,6 +347,11 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'для пациентов без нового полиса обязательно заполнение поля "Наименование органа, выдавшего документ, удостоверяющий личность"' )
     Endif
   endif
+  
+  if ! lKart2
+    kart2->( dbCloseArea() )
+  endif
+
 /*
   If AScan( getvidud(), {| x | x[ 2 ] == kart_->vid_ud } ) == 0
     If human_->vpolis < 3
