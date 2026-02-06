@@ -66,6 +66,7 @@ Function verify_sluch( fl_view, ft )
   local aDiagnozes
   local napr_number
   local iProfil_m
+  local a_mo_prik
 
   Default fl_view To .t.
 
@@ -301,8 +302,13 @@ Function verify_sluch( fl_view, ft )
   Endif
   //
   //
-  // ПРОВЕРЯЕМ УДОСТОВЕРЕНИЕ ЛИЧНОСТИ ПРИОТСУТСТВИИ ЕНП
+  // ПРОВЕРЯЕМ УДОСТОВЕРЕНИЕ ЛИЧНОСТИ ПРИ ОТСУТСТВИИ ЕНП И ПРИКРЕПЛЕНИЕ
   //
+  a_mo_prik := get_f032_prik()
+  if ( i := AScan( a_mo_prik, {| x | x[ 2 ] == human->MO_PR } ) ) == 0
+    AAdd( ta, 'не верная организация прикрепления с кодом "' + str( human->MO_PR, 6 ) + '"' )
+  endif
+
   If ( human_->usl_ok != USL_OK_AMBULANCE ) .and. eq_any( kart_->vid_ud, 3, 14 ) .and. ;
       !Empty( kart_->ser_ud ) .and. Empty( del_spec_symbol( kart_->mesto_r ) )
     AAdd( ta, iif( kart_->vid_ud == 3, 'для свид-ва о рождении', 'для паспорта РФ' ) + ;
