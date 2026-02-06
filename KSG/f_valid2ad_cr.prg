@@ -250,7 +250,7 @@ Function f_valid2ad_cr( k_date )
     endif
   endif
   if m1profil != 0
-    m1profil_m := soot_v002_m003( m1profil )
+    m1profil_m := soot_v002_m003( m1profil, m1vzros_reb )
     mprofil_m := Substr( inieditspr( A__MENUVERT, getM003(),  m1PROFIL_M ), 1, 15 )
     update_get('mprofil_m')
   endif

@@ -83,7 +83,74 @@ Function update_data_db( aVersion )
     update_v60201()     // Заполним информацию о профиле МЗ РФ
   endif
 
+  If ver_base < 60202 // переход на версию 6.2.2
+    update_v60202()     // Заполним информацию о профиле МЗ РФ и UIDSPMO
+  endif
+
 Return Nil
+
+// 06.02.26
+Function update_v60202()     // Заполним информацию о профиле МЗ РФ
+
+  stat_msg( 'Заполним информацию о профиле МЗ РФ в листах учета' )
+  
+  r_use( dir_server() + 'kartote2', , 'KART2' )
+  use_base( 'human', , .t. )
+  human->( dbGoTop() )
+  do while ! ( human->( Eof() ) )
+    if ( human_->PROFIL != 0 )
+      human->PROFIL_M := soot_v002_m003( human_->PROFIL, human->VZROS_REB )
+    endif
+//    kart2->( dbGoto( human->kod_k ) )
+//    if ( ! ( kart2->( Eof() ) .and. kart2->( Bof() ) ) ) .and. ( ! Empty( kart2->MO_PR ))
+//      human->MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
+//    endif
+    human->( dbSkip() )
+  enddo
+
+  stat_msg( 'Заполним информацию о профиле МЗ РФ в услугах' )
+
+  g_use( dir_server() + 'human_u', , 'HU', , .f., .f. )
+  g_use( dir_server() + 'human_u_', , 'HU_', , .t., .f. )
+  hu_->( dbGoTop() )
+  do while ! ( hu_->( Eof() ) )
+    if ( hu_->PROFIL != 0 )
+      hu->( dbGoto( hu_->( RecNo() ) ) )
+      human->( dbGoto( hu->kod ) )
+      hu_->PROFIL_M := soot_v002_m003( hu_->PROFIL, human->VZROS_REB )
+    endif
+    hu_->( dbSkip() )
+  enddo
+
+  use_base( 'mo_hu', , .t. )
+  mohu->( dbGoTop() )
+  do while ! ( mohu->( Eof() ) )
+    if ( mohu->PROFIL != 0 )
+      human->( dbGoto( mohu->kod ) )
+      mohu->PROFIL_M := soot_v002_m003( mohu->PROFIL, human->VZROS_REB )
+    endif
+    mohu->( dbSkip() )
+  enddo
+
+  r_use( dir_exe() + '_mo_f033', , 'F033' )
+
+  g_use( dir_server() + 'mo_otd', , 'OTD', , .t., .f. )
+  otd->( dbGoTop() )
+  do while ! otd->( Eof() )
+    if ! Empty( otd->LPU_1 )
+      Select f033
+      Locate FOR FIELD->IDSPMO == AllTrim( otd->LPU_1 )
+      if Found()
+        otd->LPU_1 := f033->UIDSPMO
+      endif
+      Select otd
+    endif
+    otd->( dbSkip() )
+  enddo
+
+  dbCloseAll()        // закроем все
+
+  return nil
 
 // 03.02.26
 Function update_v60201()     // Заполним информацию о профиле МЗ РФ

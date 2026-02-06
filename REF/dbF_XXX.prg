@@ -601,7 +601,7 @@ Function ret_uidmo_f032( mcod )
 
   return cUIDMO
 
-// 17.01.26 вернуть массив из справочника F033
+// 06.02.26 вернуть массив из справочника F033
 Function get_f033( mcod )
 
   Local tmp_select
@@ -615,7 +615,7 @@ Function get_f033( mcod )
     r_use( dir_exe() + '_mo_f033', cur_dir() + '_mo_f033', 'F033' )
     f033->( dbSeek( cUIDMO ) )
     Do While SubStr( f033->uidspmo, 1, 11 ) == cUIDMO .and. ! f033->( Eof() )
-      AAdd( arr, { AllTrim( f033->NAM_SK ), f033->IDSPMO } )
+      AAdd( arr, { AllTrim( f033->NAM_SK ), f033->UIDSPMO } )
       f033->( dbSkip() )
     Enddo
     dbCloseArea()

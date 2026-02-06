@@ -1,3 +1,6 @@
+#include 'function.ch'
+#include 'chip_mo.ch'
+
 #require 'hbsqlit3'
 
 // 08.01.25 вернуть массив по справочнику Минздрава РФ OID 1.2.643.5.1.13.13.99.2.798.xml
@@ -71,86 +74,95 @@ function getM003()
 
   return arr
 
-// 02.02.26 соответствие профиля МЗ РФ профилю из V002
-function soot_v002_m003( profil )
+// 06.02.26 соответствие профиля МЗ РФ профилю из V002
+function soot_v002_m003( profil, vzros_reb )
 
   static hArray
+  local vzr, retM003
 
-  local retM003 := 0
-
+  Default vzros_reb To 0
   if hArray == nil
     hArray := hb_Hash()
-    hb_HSet( hArray, 3, 1 )
-    hb_HSet( hArray, 4, 3 )
-    hb_HSet( hArray, 5, 4 )
-    hb_HSet( hArray, 11, 5 )
-    hb_HSet( hArray, 12, 6 )
-    hb_HSet( hArray, 14, 7 )
-    hb_HSet( hArray, 16, 8 )
-    hb_HSet( hArray, 17, 9 )
-    hb_HSet( hArray, 18, 10 )
-    hb_HSet( hArray, 19, 11 )
-    hb_HSet( hArray, 20, 12 )
-    hb_HSet( hArray, 21, 13 )
-    hb_HSet( hArray, 23, 50 )
-    hb_HSet( hArray, 28, 14 )
-    hb_HSet( hArray, 29, 15 )
-    hb_HSet( hArray, 30, 16 )
-    hb_HSet( hArray, 36, 51 )
-    hb_HSet( hArray, 41, 53 )
-    hb_HSet( hArray, 43, 54 )
-    hb_HSet( hArray, 53, 18 )
-    hb_HSet( hArray, 54, 19 )
-    hb_HSet( hArray, 55, 20 )
-    hb_HSet( hArray, 56, 21 )
-    hb_HSet( hArray, 60, 22 )
-    hb_HSet( hArray, 65, 24 )
-    hb_HSet( hArray, 68, 26 )
-    hb_HSet( hArray, 71, 28 )
-    hb_HSet( hArray, 73, 30 )
-    hb_HSet( hArray, 75, 31 )
-    hb_HSet( hArray, 76, 32 )
-    hb_HSet( hArray, 77, 33 )
-    hb_HSet( hArray, 81, 34 )
-    hb_HSet( hArray, 84, 35 )
-    hb_HSet( hArray, 85, 57 )
-    hb_HSet( hArray, 86, 36 )
-    hb_HSet( hArray, 87, 36 )
-    hb_HSet( hArray, 87, 36 )
-    hb_HSet( hArray, 88, 36 )
-    hb_HSet( hArray, 89, 36 )
-    hb_HSet( hArray, 90, 36 )
-    hb_HSet( hArray, 96, 23 )
-    hb_HSet( hArray, 97, 37 )
-    hb_HSet( hArray, 98, 38 )
-    hb_HSet( hArray, 99, 39 )
-    hb_HSet( hArray, 100, 40 )
-    hb_HSet( hArray, 105, 58 )
-    hb_HSet( hArray, 108, 42 )
-    hb_HSet( hArray, 110, 43 )
-    hb_HSet( hArray, 112, 44 )
-    hb_HSet( hArray, 114, 46 )
-    hb_HSet( hArray, 116, 48 )
-    hb_HSet( hArray, 122, 49 )
-    hb_HSet( hArray, 136, 2 )
-    hb_HSet( hArray, 137, 2 )
-    hb_HSet( hArray, 146, 52 )
-    hb_HSet( hArray, 147, 53 )
-    hb_HSet( hArray, 158, 17 )
-    hb_HSet( hArray, 158, 55 )
-    hb_HSet( hArray, 163, 23 )
-    hb_HSet( hArray, 164, 27 )
-    hb_HSet( hArray, 166, 32 )
-    hb_HSet( hArray, 167, 4 )
-    hb_HSet( hArray, 171, 57 )
-    hb_HSet( hArray, 171, 57 )
-    hb_HSet( hArray, 177, 41 )
-    hb_HSet( hArray, 179, 47 )
-    hb_HSet( hArray, 184, 2 )
-    hb_HSet( hArray, 185, 56 )
+    hb_HSet( hArray, StrZero( 3, 4 ), 1 )
+    hb_HSet( hArray, StrZero( 4, 4 ), 3 )
+    hb_HSet( hArray, StrZero( 5, 4 ), 4 )
+    hb_HSet( hArray, StrZero( 11, 4 ), 5 )
+    hb_HSet( hArray, StrZero( 12, 4 ), 6 )
+    hb_HSet( hArray, StrZero( 14, 4 ), 7 )
+    hb_HSet( hArray, StrZero( 16, 4 ), 8 )
+    hb_HSet( hArray, StrZero( 17, 4 ), 9 )
+    hb_HSet( hArray, StrZero( 18, 4 ), 10 )
+    hb_HSet( hArray, StrZero( 19, 4 ), 11 )
+    hb_HSet( hArray, StrZero( 20, 4 ), 12 )
+    hb_HSet( hArray, StrZero( 21, 4 ), 13 )
+    hb_HSet( hArray, StrZero( 23, 4 ), 50 )
+    hb_HSet( hArray, StrZero( 28, 4 ), 14 )
+    hb_HSet( hArray, StrZero( 29, 4 ), 15 )
+    hb_HSet( hArray, StrZero( 30, 4 ), 16 )
+    hb_HSet( hArray, StrZero( 36, 4 ), 51 )
+    hb_HSet( hArray, StrZero( 41, 4 ), 53 )
+    hb_HSet( hArray, StrZero( 43, 4 ), 54 )
+    hb_HSet( hArray, StrZero( 53, 4 ), 18 )
+    hb_HSet( hArray, StrZero( 54, 4 ), 19 )
+    hb_HSet( hArray, StrZero( 55, 4 ), 20 )
+    hb_HSet( hArray, StrZero( 56, 4 ), 21 )
+    hb_HSet( hArray, StrZero( 60, 4 ), 22 )
+    hb_HSet( hArray, StrZero( 65, 4 ), 24 )
+    hb_HSet( hArray, StrZero( 68, 4 ), 26 )
+    hb_HSet( hArray, StrZero( 71, 4 ), 28 )
+    hb_HSet( hArray, StrZero( 73, 4 ), 30 )
+    hb_HSet( hArray, StrZero( 75, 4 ), 31 )
+    hb_HSet( hArray, StrZero( 76, 4 ), 32 )
+    hb_HSet( hArray, StrZero( 77, 4 ), 33 )
+    hb_HSet( hArray, StrZero( 81, 4 ), 34 )
+    hb_HSet( hArray, StrZero( 84, 4 ), 35 )
+    hb_HSet( hArray, StrZero( 85, 4 ), 57 )
+    hb_HSet( hArray, StrZero( 86, 4 ), 36 )
+    hb_HSet( hArray, StrZero( 87, 4 ), { 57, 36 } )
+//    hb_HSet( hArray, StrZero( 87, 4 ), 36 )
+    hb_HSet( hArray, StrZero( 88, 4 ), 57 )
+    hb_HSet( hArray, StrZero( 89, 4 ), 57 )
+    hb_HSet( hArray, StrZero( 90, 4 ), 57 )
+    hb_HSet( hArray, StrZero( 96, 4 ), 23 )
+    hb_HSet( hArray, StrZero( 97, 4 ), 37 )
+    hb_HSet( hArray, StrZero( 98, 4 ), 38 )
+    hb_HSet( hArray, StrZero( 99, 4 ), 39 )
+    hb_HSet( hArray, StrZero( 100, 4 ), 40 )
+    hb_HSet( hArray, StrZero( 105, 4 ), 58 )
+    hb_HSet( hArray, StrZero( 108, 4 ), 42 )
+    hb_HSet( hArray, StrZero( 110, 4 ), 43 )
+    hb_HSet( hArray, StrZero( 112, 4 ), 44 )
+    hb_HSet( hArray, StrZero( 114, 4 ), 46 )
+    hb_HSet( hArray, StrZero( 116, 4 ), 48 )
+    hb_HSet( hArray, StrZero( 122, 4 ), 49 )
+    hb_HSet( hArray, StrZero( 136, 4 ), 2 )
+    hb_HSet( hArray, StrZero( 137, 4 ), 2 )
+    hb_HSet( hArray, StrZero( 146, 4 ), 52 )
+    hb_HSet( hArray, StrZero( 147, 4 ), 53 )
+    hb_HSet( hArray, StrZero( 158, 4 ), { 17, 55 } )
+//    hb_HSet( hArray, StrZero( 158, 4 ), 55 )
+    hb_HSet( hArray, StrZero( 163, 4 ), 23 )
+    hb_HSet( hArray, StrZero( 164, 4 ), 27 )
+    hb_HSet( hArray, StrZero( 166, 4 ), 32 )
+    hb_HSet( hArray, StrZero( 167, 4 ), 4 )
+    hb_HSet( hArray, StrZero( 171, 4 ), 57 )
+    hb_HSet( hArray, StrZero( 177, 4 ), 41 )
+    hb_HSet( hArray, StrZero( 179, 4 ), 47 )
+    hb_HSet( hArray, StrZero( 184, 4 ), 2 )
+    hb_HSet( hArray, StrZero( 185, 4 ), 56 )
   Endif
-  if hb_hHaskey( hArray, profil )
-    retM003 := hArray[ profil ]
+
+  retM003 := 0
+  vzr := iif( vzros_reb == 0, '0', '1' )
+  if hb_hHaskey( hArray, StrZero( profil, 4 ) )
+    retM003 := hArray[ StrZero( profil, 4 ) ]
+    if ValType( retM003 ) == 'A'
+      if vzros_reb == 0
+        retM003 := retM003[ 1 ]
+      else
+        retM003 := retM003[ 2 ]
+      endif
+    endif
   endif
 
   return retM003
