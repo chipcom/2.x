@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 31.01.26
+// 06.02.26
 function elem_napr( oSl, arr_onkna )
 
   local oNAPR
@@ -15,6 +15,9 @@ function elem_napr( oSl, arr_onkna )
     // заполним сведения о направлениях для XML-документа
     oNAPR := oSL:add( hxmlnode():new( 'NAPR' ) )
     mo_add_xml_stroke( oNAPR, 'NAPR_DATE', date2xml( arr_onkna[ j, 1 ] ) )
+
+    mo_add_xml_stroke( oNapr, 'NAPR_NUM', get_NAPR_MO( human->kod, _NPR_LECH ) )
+
     If !Empty( arr_onkna[ j, 5 ] ) .and. !Empty( mNPR_MO := ret_mo( arr_onkna[ j, 5 ] )[ _MO_KOD_FFOMS ] )
       mo_add_xml_stroke( oNAPR, 'NAPR_MO', mNPR_MO )
     Endif

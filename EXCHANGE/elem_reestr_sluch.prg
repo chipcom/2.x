@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 04.02.26
+// 06.02.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -245,14 +245,14 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oPAC, 'MO_PR', human->MO_PR )
       endif
       mo_add_xml_stroke( oPAC, 'VZ', Str( kart->VZ, 2 ) )
-      
-      if _nyear <= 2026 .and. p_tip_reestr == TYPE_REESTR_GENERAL .and. ;    // старый ПУМП, реестр окоазания мед. помощи за исключенем диспансеризации
+/*      
+      if _nyear < 2026 .and. p_tip_reestr == TYPE_REESTR_GENERAL .and. ;    // старый ПУМП, реестр окоазания мед. помощи за исключенем диспансеризации
           human_->USL_OK == USL_OK_POLYCLINIC .and. ;   // поликлиника
           glob_mo()[ _MO_IS_UCH ] .and. ;               // наше МО имеет прикреплённое население
           kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]    // прикреплён к нашему МО
         elem_disability( oPac )
       endif
-
+*/
       // заполним сведения о законченном случае оказания медицинской помощи для XML-документа
       oSLUCH := oZAP:add( hxmlnode():new( 'Z_SL' ) )
       mo_add_xml_stroke( oSLUCH, 'IDCASE', lstr( rhum->REES_ZAP ) )
