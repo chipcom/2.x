@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 05.02.26 СМП - добавление или редактирование случая (листа учета)
+// 06.02.26 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -204,7 +204,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     Private mfio := Space( 50 ), mpol, mdate_r, madres, ;
       M1VZROS_REB, MVZROS_REB, m1company := 0, mcompany, mm_company, ;
       mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
-    msmo := '34007', rec_inogSMO := 0, ;
+      msmo := '34007', rec_inogSMO := 0, ;
       mokato, m1okato := '', mismo, m1ismo := '', mnameismo := Space( 100 ), ;
       mvidpolis, m1vidpolis := 1, mspolis := Space( 10 ), mnpolis := Space( 20 )
   Endif
@@ -214,47 +214,47 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     M1OTD := glob_otd[ 1 ], MOTD, ;
     M1FIO_KART := 1, MFIO_KART, ;
     MUCH_DOC    := 0, ; // вид и номер учетного документа
-  MKOD_DIAG   := SKOD_DIAG, ; // шифр 1-ой осн.болезни
-  MKOD_DIAG2  := Space( 5 ), ; // шифр 2-ой осн.болезни
-  MKOD_DIAG3  := Space( 5 ), ; // шифр 3-ой осн.болезни
-  MKOD_DIAG4  := Space( 5 ), ; // шифр 4-ой осн.болезни
-  MSOPUT_B1   := Space( 5 ), ; // шифр 1-ой сопутствующей болезни
-  MSOPUT_B2   := Space( 5 ), ; // шифр 2-ой сопутствующей болезни
-  MSOPUT_B3   := Space( 5 ), ; // шифр 3-ой сопутствующей болезни
-  MSOPUT_B4   := Space( 5 ), ; // шифр 4-ой сопутствующей болезни
-  MDIAG_PLUS  := Space( 8 ), ; // дополнения к диагнозам
-  mrslt, m1rslt := st_rslt, ; // результат
-  mishod, m1ishod := st_ishod, ; // исход
-  MN_DATA := MK_DATA := st_N_DATA, ; // дата начала лечения
-  MVRACH      := Space( 10 ), ; // фамилия и инициалы лечащего врача
-  M1VRACH := st_vrach, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
-  MF14_EKST, M1F14_EKST := 0, ; //
-  m1novor := 0, mnovor, mcount_reb := 0, ;
+    MKOD_DIAG   := SKOD_DIAG, ; // шифр 1-ой осн.болезни
+    MKOD_DIAG2  := Space( 5 ), ; // шифр 2-ой осн.болезни
+    MKOD_DIAG3  := Space( 5 ), ; // шифр 3-ой осн.болезни
+    MKOD_DIAG4  := Space( 5 ), ; // шифр 4-ой осн.болезни
+    MSOPUT_B1   := Space( 5 ), ; // шифр 1-ой сопутствующей болезни
+    MSOPUT_B2   := Space( 5 ), ; // шифр 2-ой сопутствующей болезни
+    MSOPUT_B3   := Space( 5 ), ; // шифр 3-ой сопутствующей болезни
+    MSOPUT_B4   := Space( 5 ), ; // шифр 4-ой сопутствующей болезни
+    MDIAG_PLUS  := Space( 8 ), ; // дополнения к диагнозам
+    mrslt, m1rslt := st_rslt, ; // результат
+    mishod, m1ishod := st_ishod, ; // исход
+    MN_DATA := MK_DATA := st_N_DATA, ; // дата начала лечения
+    MVRACH      := Space( 10 ), ; // фамилия и инициалы лечащего врача
+    M1VRACH := st_vrach, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
+    MF14_EKST, M1F14_EKST := 0, ; //
+    m1novor := 0, mnovor, mcount_reb := 0, ;
     mDATE_R2 := CToD( '' ), mpol2 := ' ', ;
     mbrigada, m1brigada := st_brigada, ;
     mtrombolit, m1trombolit := st_trombolit, ;
     m1brig := 0, mbrig, mm_brig, ;
     m1spec := 1, mspec, ;
     mprer_b := Space( 28 ), m1prer_b := 0, ; // прерывание беременности
-  mm1prer_b := { { 'по медицинским показаниям   ', 1 }, ;
-    { 'НЕ по медицинским показаниям', 2 } }, ;
+    mm1prer_b := { { 'по медицинским показаниям   ', 1 }, ;
+      { 'НЕ по медицинским показаниям', 2 } }, ;
     mm2prer_b := { { 'постановка на учёт по берем.', 1 }, ;
-    { 'продолжение наблюдения      ', 0 } }, ;
+      { 'продолжение наблюдения      ', 0 } }, ;
     mm3prer_b := { { 'отсутствие болевого синдрома', 0 }, ;
-    { 'острая боль                 ', 1 }, ;
-    { 'постоянная некупирующ. боль ', 2 }, ;
-    { 'другая постоянная боль      ', 3 }, ;
-    { 'боль неуточнённая           ', 4 } }, ;
+      { 'острая боль                 ', 1 }, ;
+      { 'постоянная некупирующ. боль ', 2 }, ;
+      { 'другая постоянная боль      ', 3 }, ;
+      { 'боль неуточнённая           ', 4 } }, ;
     mtip, m1tip := 0, ;
     musluga, m1usluga := 0, ;
-    mm_usluga := { { 'А05.10.004.001 Расшифровка ЭКГ', 1 }, ;
-    { 'В01.015.007 Консультация кардиолога', 2 } }, ;
+    mm_usluga := { ;
+      { 'А05.10.004.001 Расшифровка ЭКГ', 1 }, ;
+      { 'В01.015.007 Консультация кардиолога', 2 } }, ;
     m1USL_OK := iif( tip_lu == TIP_LU_SMP, USL_OK_AMBULANCE, USL_OK_POLYCLINIC ), ;
     m1VIDPOM := iif( tip_lu == TIP_LU_SMP, 21, 11 ), ;
     m1PROFIL := iif( tip_lu == TIP_LU_SMP, 84, 160 ), ;
     m1IDSP   := iif( tip_lu == TIP_LU_SMP, 24, 41 )
   Private mm_prer_b := mm2prer_b
-  private m1profil_m := soot_v002_m003( m1PROFIL )
   //
   AEval( getv009(), {| x| iif( x[ 5 ] == m1USL_OK, AAdd( mm_rslt, x ), nil ) } )
   AEval( getv012(), {| x| iif( x[ 5 ] == m1USL_OK, AAdd( mm_ishod, x ), nil ) } )
@@ -426,6 +426,9 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       mnameismo := ret_inogsmo_name( 2, @rec_inogSMO, .t. ) // открыть и закрыть
     Endif
   Endif
+
+  private m1profil_m := soot_v002_m003( m1PROFIL, M1VZROS_REB )
+
   If !( Left( msmo, 2 ) == '34' ) // не Волгоградская область
     m1ismo := msmo ; msmo := '34'
   Endif
