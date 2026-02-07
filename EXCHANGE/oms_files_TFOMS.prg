@@ -4,11 +4,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 08.01.26 ç¨â âì ä ©«ë ¨§ ’”ŽŒ‘ (¨«¨ ‘ŒŽ)
+// 07.02.26 ç¨â âì ä ©«ë ¨§ ’”ŽŒ‘ (¨«¨ ‘ŒŽ)
 Function read_from_tf()
 
   Local name_zip, _date, _time, s, buf, blk_sp_tk, fl, n, cName
-  Local arr_XML_info[ 7 ], arr_f := {}, tip_csv_file := 0, kod_csv_reestr := 0
+  Local arr_XML_info[ 9 ], arr_f := {}, tip_csv_file := 0, kod_csv_reestr := 0
 
   fl := .f.
   If ! currentuser():isadmin()

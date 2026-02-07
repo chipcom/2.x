@@ -34,7 +34,7 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
 //  endif
   return aFiles
 
-// 15.12.25 проверить, нам ли предназначен данный XML-файл
+// 07.02.26 проверить, нам ли предназначен данный XML-файл
 Function is_our_xml( cName, ret_arr )
 
   Local i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
@@ -411,6 +411,20 @@ Function is_our_xml( cName, ret_arr )
     ret_arr[ 5 ] := _nMonth
     ret_arr[ 6 ] := nNN
     ret_arr[ 7 ] := nReestr
+    if eq_any( Left( s, 3 ), 'VHM', 'VFM' ) // файл протокола ФЛК с 2026 года
+      ret_arr[ 8 ] := Left( s, 3 )
+
+      s := SubStr( cName, 10 )
+//        cFrom := BeforAtNum( '_', s )
+
+      If Left( s, 1 ) == 'T'
+        // из ТФОМС
+        ret_arr[ 9 ] := '34   '
+      Else // Left( s, 1 ) == 'S'
+        // от СМО
+        ret_arr[ 9 ] := SubStr( s, 2, 5 )
+      endif
+    endif
   Else
     ins_array( arr_err, 1, '' )
     ins_array( arr_err, 1, 'Принимаемый файл: ' + cName )
