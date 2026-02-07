@@ -35,7 +35,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
     Private &pole_1dispans := 0
     Private &pole_dn_dispans := CToD( '' )
   Next
-  stat_msg( 'Составление реестра случаев' )
+  waitstatus( 'Составление реестров счетов...' )
   nsh := f_mb_me_nsh( _nyear, @mb, @me )
 
   // соберем БУКВЫ СЧЕТОВ
@@ -351,6 +351,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 //      Keyboard Chr( K_TAB ) + Chr( K_ENTER )
     Endif
   next
+  func_error( 5, 'Реестры счетов созданы!' )
 
   close_file_reestr26()
 
