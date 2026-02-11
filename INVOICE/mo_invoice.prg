@@ -37,7 +37,7 @@ Function view_list_schet()
   RestScreen( buf )
   Return Nil
 
-// 24.04.25
+// 11.02.26
 Function f1_view_list_schet( oBrow )
 
   Local oColumn, ;
@@ -70,8 +70,8 @@ Function f1_view_list_schet( oBrow )
   oColumn := TBColumnNew( '  ', {|| f22_view_list_schet() } )
   oColumn:colorBlock := {|| f23_view_list_schet() }
   oBrow:addcolumn( oColumn )
-//  status_key( '^<Esc>^ - выход;  ^<F5>^ - запись счетов за день;  ^<F9>^ - печать счёта/реестра' )
-  status_key( '^<Esc>^-выход ^<F5>^-запись счетов за день ^<F6>^-документы за день ^<F9>^-печать счёта/реестра' )
+//  status_key( '^<Esc>^-выход ^<F5>^-запись счетов за день ^<F6>^-документы за день ^<F9>^-печать счёта/реестра' )
+  status_key( '^<Esc>^-выход ^<F6>^-документы за день ^<F9>^-печать счёта/реестра' )
   Return Nil
 
 //
@@ -214,6 +214,7 @@ Function f2_view_list_schet( nKey, oBrow )
     Select SCHET
     Goto ( rec )
     ret := 0
+/*    
   Case nKey == K_F5
     r := Row()
     arr := {}
@@ -322,11 +323,6 @@ Function f2_view_list_schet( nKey, oBrow )
               Unlock
               Commit
               viewtext( cFileProtokol, , , , .t., , , 2 )
-                /*asize(t_arr, 1)
-                perenos(t_arr,'Записано счетов - ' + lstr(k) + ' в каталог '+s+;
-                     iif(k == len(arr), '', ', не записано счетов - ' + lstr(len(arr)-k)), 60)
-                stat_msg('Запись завершена!')
-                n_message(t_arr,,'GR+/B','W+/B', 18,,'G+/B')*/
             Endif
           Endif
         Endif
@@ -335,6 +331,8 @@ Function f2_view_list_schet( nKey, oBrow )
     Select SCHET
     Goto ( rec )
     ret := 0
+*/
+/*
   Case nKey == K_CTRL_F11 .and. !Empty( schet_->NAME_XML ) .and. schet_->XML_REESTR > 0
     k := schet_->XML_REESTR // ссылка на реестр СП и ТК
     arr := {}
@@ -382,6 +380,8 @@ Function f2_view_list_schet( nKey, oBrow )
         ret := 1
       Endif
     Endif
+*/
+/*
   Case nKey == K_CTRL_F12 .and. !Empty( schet_->NAME_XML ) .and. schet_->XML_REESTR > 0
     recreate_some_schet_from_file_sp( { schet->( RecNo() ) } )
     Close databases
@@ -392,6 +392,7 @@ Function f2_view_list_schet( nKey, oBrow )
     Set Relation To RecNo() into SCHET_
     Go Top
     ret := 1
+*/
   Endcase
   SetColor( tmp_color )
   RestScreen( buf )
@@ -484,6 +485,7 @@ Function f4_view_list_schet( lkomu, lsmo, lstr_crb )
   Endif
   Return s
 
+/*
 // 15.10.24 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
 Function recreate_some_schet_from_file_sp( arr )
 
@@ -880,3 +882,4 @@ Function f_append_file( ofile, nfile )
   Enddo
   ft_use()
   Return Nil
+*/

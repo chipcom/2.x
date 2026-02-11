@@ -208,6 +208,7 @@ Function create_reestr26( arr_calendar )
 //    dbSelectArea( 'A_SMO' )
     A_SMO->( dbGoTop() )
     rest_box( buf )
+
     If alpha_browse( T_ROW, 2, T_ROW + len( smo_volgograd() ) + 2, 77, 'f1create_reestr26', color0, ;
         'Невыписанные реестры случаев', 'R/BG', , , , , 'f2create_reestr26', , ;
         { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B,R/BG', .t., 180 } )

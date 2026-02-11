@@ -37,7 +37,7 @@ function set_status_updateDB( idVer )
 
   return fl
 
-// 31.12.25 проведение изменений в содержимом БД при обновлении
+// 09.02.26 проведение изменений в содержимом БД при обновлении
 Function update_data_db( aVersion )
 
   Local snversion := Int( aVersion[ 1 ] * 10000 + aVersion[ 2 ] * 100 + aVersion[ 3 ] )
@@ -87,7 +87,36 @@ Function update_data_db( aVersion )
     update_v60202()     // Заполним информацию о профиле МЗ РФ и UIDSPMO
   endif
 
+  If ver_base < 60203 // переход на версию 6.2.3
+    update_v60203()     // Заполним информацию о профиле МЗ РФ и UIDSPMO
+  endif
+
 Return Nil
+
+// 09.02.26
+Function update_v60203()     // Заполним информацию о профиле МЗ РФ
+
+  stat_msg( 'Замена СМО 34001 на СМО 34007 в листах учета' )
+  
+  use_base( 'human', , .t. )
+  human->( dbGoTop() )
+  do while ! ( human->( Eof() ) )
+    if ( human_->smo == "34001" .and. human_->reestr == 0 )
+      human_->smo := "34007"
+    endif
+    human->( dbSkip() )
+  enddo
+  dbCloseAll()        // закроем все
+  g_use( dir_server() + 'kartote_', , 'KART_',.T.,.T. )
+  kart_->( dbGoTop() )
+  do while ! ( kart_->( Eof() ) )
+    if ( kart_->smo == '34001' )
+      kart_->smo := '34007'
+    endif
+    kart_->( dbSkip() )
+  enddo
+  dbCloseAll()
+  return nil
 
 // 06.02.26
 Function update_v60202()     // Заполним информацию о профиле МЗ РФ

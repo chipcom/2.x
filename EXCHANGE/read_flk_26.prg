@@ -123,6 +123,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
     Index On Upper( FIELD->ID_PAC ) to ( cur_dir() + 'tmp_r_t1' )
     Use ( cur_dir() + 'tmp_r_t2' ) New Alias T2
     Use ( cur_dir() + 'tmp_r_t3' ) New Alias T3   // для пациентов
+    Index On Upper( FIELD->ID_PAC ) to ( cur_dir() + 'tmp_r_t3' )
 //    Use ( cur_dir() + 'tmp_r_t4' ) New Alias T4
 //    Use ( cur_dir() + 'tmp_r_t5' ) New Alias T5
 //    Use ( cur_dir() + 'tmp_r_t6' ) New Alias T6
@@ -283,7 +284,6 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
       dbSelectArea( 'TMP2' )
       tmp2->( dbSkip() )
     Enddo
-
 /* исправить
     adbf_1 := { ;
       { 'KOD_HUM',  'N',  7, 0 } ; // код HUMAN
@@ -293,7 +293,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
     Select human_ // очищаем признак добавления в реестр счета
     Index On Str( FIELD->REESTR, 7 ) to ( cur_dir() + 'tmp_human_' ) For FIELD->REESTR == mkod_reestr
     human_->( dbSeek( Str( mkod_reestr, 7 ) ) )
-altd()
+
     do while human_->REESTR == mkod_reestr .and. ! ( human_->( Eof() ) )
       g_rlock( 'forever' )
       human_->( g_rlock( 'forever' ) )
@@ -318,60 +318,33 @@ altd()
     Use ( cur_dir() + 'tmp_recno' ) New Alias TR
 
     Select rhum
-      Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_rhum1' )
-      Do While .t.
-        Select RHUM
-        find ( Str( mkod_reestr, 6 ) )
-        If !Found()
-          exit
-        Endif
+    Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_rhum1' )
+    Do While .t.
+      Select RHUM
+      find ( Str( mkod_reestr, 6 ) )
+      If !Found()
+        exit
+      Endif
 
-        //
-        Select HUMAN_
+      //
+      Select HUMAN_
+      Goto ( rhum->KOD_HUM )
+      If human_->REESTR == mkod_reestr // на всякий случай
+        Select HUMAN
         Goto ( rhum->KOD_HUM )
-        If human_->REESTR == mkod_reestr // на всякий случай
-          Select HUMAN
-          Goto ( rhum->KOD_HUM )
+
     TR->( dbAppend() )
     TR->KOD_HUM := human->( RecNo() )
-          If human->ishod == 88 // сначала проверим, не двойной ли это случай (по-старому)
-            Select HUMAN_3
-            Set Order To 1
-            find ( Str( human->kod, 7 ) )
-            If Found()
-              Select HUMAN_
-              Goto ( human_3->kod2 ) // встать на 2-ой лист учёта
-              Select HU
-              find ( Str( human_3->kod2, 7 ) )
-              Do While human_3->kod2 == hu->kod .and. !Eof()
-                hu_->( g_rlock( 'forever' ) )
-                hu_->REES_ZAP := 0
-                hu_->( dbUnlock() )
-                Select HU
-                Skip
-              Enddo
-              human_->( g_rlock( 'forever' ) )
-              If human_->REES_NUM > 0
-//                human_->REES_NUM := human_->REES_NUM - 1
-              Endif
-              human_->REES_ZAP := 0
-              human_->REESTR := 0
-              human_->( dbUnlock() )
-              // обработка заголовка двойного случая
-              human_3->( g_rlock( 'forever' ) )
-              If human_3->REES_NUM > 0
-                human_3->REES_NUM := human_3->REES_NUM - 1
-              Endif
-              human_3->REES_ZAP := 0
-              human_3->REESTR := 0
-              human_3->( dbUnlock() )
-            Endif
-            // возвращаемся к 1-му листу учёта
+        If human->ishod == 88 // сначала проверим, не двойной ли это случай (по-старому)
+          Select HUMAN_3
+          Set Order To 1
+          find ( Str( human->kod, 7 ) )
+          If Found()
             Select HUMAN_
-            Goto ( rhum->KOD_HUM )
+            Goto ( human_3->kod2 ) // встать на 2-ой лист учёта
             Select HU
-            find ( Str( rhum->KOD_HUM, 7 ) )
-            Do While rhum->KOD_HUM == hu->kod .and. !Eof()
+            find ( Str( human_3->kod2, 7 ) )
+            Do While human_3->kod2 == hu->kod .and. !Eof()
               hu_->( g_rlock( 'forever' ) )
               hu_->REES_ZAP := 0
               hu_->( dbUnlock() )
@@ -380,87 +353,115 @@ altd()
             Enddo
             human_->( g_rlock( 'forever' ) )
             If human_->REES_NUM > 0
-//              human_->REES_NUM := human_->REES_NUM - 1
-            Endif
-            human_->REES_ZAP := 0
-            human_->REESTR := 0
-            human_->( dbUnlock() )
-          Elseif human->ishod == 89 // теперь проверим, не двойной ли это случай (по-новому)
-            // сначала обработаем 2-ой случай
-            Select HU
-            find ( Str( rhum->KOD_HUM, 7 ) )
-            Do While rhum->KOD_HUM == hu->kod .and. !Eof()
-              hu_->( g_rlock( 'forever' ) )
-              hu_->REES_ZAP := 0
-              hu_->( dbUnlock() )
-              Select HU
-              Skip
-            Enddo
-            human_->( g_rlock( 'forever' ) )
-            If human_->REES_NUM > 0
-//              human_->REES_NUM := human_->REES_NUM - 1
-            Endif
-            human_->REES_ZAP := 0
-            human_->REESTR := 0
-            human_->( dbUnlock() )
-            // поищем 1-ый случай
-            Select HUMAN_3
-            Set Order To 2
-            find ( Str( human->kod, 7 ) )
-            If Found()
-              Select HUMAN_
-              Goto ( human_3->kod ) // встать на 1-ый лист учёта
-              Select HU
-              find ( Str( human_3->kod2, 7 ) )
-              Do While human_3->kod2 == hu->kod .and. !Eof()
-                hu_->( g_rlock( 'forever' ) )
-                hu_->REES_ZAP := 0
-                hu_->( dbUnlock() )
-                Select HU
-                Skip
-              Enddo
-              human_->( g_rlock( 'forever' ) )
-              If human_->REES_NUM > 0
 //                human_->REES_NUM := human_->REES_NUM - 1
-              Endif
-              human_->REES_ZAP := 0
-              human_->REESTR := 0
-              human_->( dbUnlock() )
-              // обработка заголовка двойного случая
-              human_3->( g_rlock( 'forever' ) )
-              If human_3->REES_NUM > 0
-                human_3->REES_NUM := human_3->REES_NUM - 1
-              Endif
-              human_3->REES_ZAP := 0
-              human_3->REESTR := 0
-              human_3->( dbUnlock() )
-            Endif
-          Else
-            // обработка одинарного случая
-            Select HUMAN_
-            Goto ( rhum->KOD_HUM )
-            Select HU
-            find ( Str( rhum->KOD_HUM, 7 ) )
-            Do While rhum->KOD_HUM == hu->kod .and. !Eof()
-              hu_->( g_rlock( 'forever' ) )
-              hu_->REES_ZAP := 0
-              hu_->( dbUnlock() )
-              Select HU
-              Skip
-            Enddo
-            human_->( g_rlock( 'forever' ) )
-            If human_->REES_NUM > 0
-//              human_->REES_NUM := human_->REES_NUM - 1
             Endif
             human_->REES_ZAP := 0
             human_->REESTR := 0
             human_->( dbUnlock() )
+            // обработка заголовка двойного случая
+            human_3->( g_rlock( 'forever' ) )
+            If human_3->REES_NUM > 0
+              human_3->REES_NUM := human_3->REES_NUM - 1
+            Endif
+            human_3->REES_ZAP := 0
+            human_3->REESTR := 0
+            human_3->( dbUnlock() )
           Endif
+          // возвращаемся к 1-му листу учёта
+          Select HUMAN_
+          Goto ( rhum->KOD_HUM )
+          Select HU
+          find ( Str( rhum->KOD_HUM, 7 ) )
+          Do While rhum->KOD_HUM == hu->kod .and. !Eof()
+            hu_->( g_rlock( 'forever' ) )
+            hu_->REES_ZAP := 0
+            hu_->( dbUnlock() )
+            Select HU
+            Skip
+          Enddo
+          human_->( g_rlock( 'forever' ) )
+          If human_->REES_NUM > 0
+//              human_->REES_NUM := human_->REES_NUM - 1
+          Endif
+          human_->REES_ZAP := 0
+          human_->REESTR := 0
+          human_->( dbUnlock() )
+        Elseif human->ishod == 89 // теперь проверим, не двойной ли это случай (по-новому)
+          // сначала обработаем 2-ой случай
+          Select HU
+          find ( Str( rhum->KOD_HUM, 7 ) )
+          Do While rhum->KOD_HUM == hu->kod .and. !Eof()
+            hu_->( g_rlock( 'forever' ) )
+            hu_->REES_ZAP := 0
+            hu_->( dbUnlock() )
+            Select HU
+            Skip
+          Enddo
+          human_->( g_rlock( 'forever' ) )
+          If human_->REES_NUM > 0
+//              human_->REES_NUM := human_->REES_NUM - 1
+          Endif
+          human_->REES_ZAP := 0
+          human_->REESTR := 0
+          human_->( dbUnlock() )
+          // поищем 1-ый случай
+          Select HUMAN_3
+          Set Order To 2
+          find ( Str( human->kod, 7 ) )
+          If Found()
+            Select HUMAN_
+            Goto ( human_3->kod ) // встать на 1-ый лист учёта
+            Select HU
+            find ( Str( human_3->kod2, 7 ) )
+            Do While human_3->kod2 == hu->kod .and. !Eof()
+              hu_->( g_rlock( 'forever' ) )
+              hu_->REES_ZAP := 0
+              hu_->( dbUnlock() )
+              Select HU
+              Skip
+            Enddo
+            human_->( g_rlock( 'forever' ) )
+            If human_->REES_NUM > 0
+//                human_->REES_NUM := human_->REES_NUM - 1
+            Endif
+            human_->REES_ZAP := 0
+            human_->REESTR := 0
+            human_->( dbUnlock() )
+            // обработка заголовка двойного случая
+            human_3->( g_rlock( 'forever' ) )
+            If human_3->REES_NUM > 0
+              human_3->REES_NUM := human_3->REES_NUM - 1
+            Endif
+            human_3->REES_ZAP := 0
+            human_3->REESTR := 0
+            human_3->( dbUnlock() )
+          Endif
+        Else
+          // обработка одинарного случая
+          Select HUMAN_
+          Goto ( rhum->KOD_HUM )
+          Select HU
+          find ( Str( rhum->KOD_HUM, 7 ) )
+          Do While rhum->KOD_HUM == hu->kod .and. !Eof()
+            hu_->( g_rlock( 'forever' ) )
+            hu_->REES_ZAP := 0
+            hu_->( dbUnlock() )
+            Select HU
+            Skip
+          Enddo
+          human_->( g_rlock( 'forever' ) )
+          If human_->REES_NUM > 0
+//              human_->REES_NUM := human_->REES_NUM - 1
+          Endif
+          human_->REES_ZAP := 0
+          human_->REESTR := 0
+          human_->( dbUnlock() )
         Endif
-        //
-        Select RHUM
-        deleterec( .t. )
-      Enddo
+      Endif
+      //
+      Select RHUM
+      deleterec( .t. )
+    Enddo
     TR->( dbCloseArea() )
 //altd()
 //      create2reestr26( arr_XML_info[ 4 ], arr_XML_info[ 5 ], arr_XML_info[ 9 ], iif( arr_XML_info[ 8 ] == 'VHM', TYPE_REESTR_GENERAL, TYPE_REESTR_DISPASER ), 1 )
@@ -470,7 +471,7 @@ altd()
   dbCloseAll()
   Return .t.
 
-// 07.02.26 заполнить поле 'N_ZAP' в файле 'tmp2'
+// 11.02.26 заполнить поле 'N_ZAP' в файле 'tmp2'
 Function fill_tmp2_file_flk_26()
 
   Local i, s, s1, adbf, ar
@@ -479,7 +480,6 @@ Function fill_tmp2_file_flk_26()
   dbSelectArea( 'TMP2' )
   adbf := Array( tmp2->( FCount() ) )
   tmp2->( dbGoTop() )
-
   Do While ! tmp2->( Eof() )
     If ! Empty( tmp2->BAS_EL )
       s := AllTrim( tmp2->BAS_EL )
@@ -493,25 +493,31 @@ Function fill_tmp2_file_flk_26()
       Case s == 'PACIENT'
         s1 := tmp2->ID_PAC
         ar := {}
-        dbSelectArea( 'T1' )
-        t1->( dbSeek( PadR( Upper( s1 ), 36 ) ) )
-        Do While Upper( t1->ID_PAC ) == PadR( Upper( s1 ), 36 )
-          AAdd( ar, Int( Val( t1->N_ZAP ) ) )
-          t1->( dbSkip() )
-        Enddo
-        If Len( ar ) > 0
-          dbSelectArea( 'T2' )
-          tmp2->N_ZAP := ar[ 1 ]
-          If Len( ar ) > 1
-            AEval( adbf, {| x, i| adbf[ i ] := FieldGet( i ) } )
-            dbSelectArea( 'TMP22' )
-            For i := 2 To Len( ar )
-              tmp22->( dbAppend() )
-              AEval( adbf, {| x, i| FieldPut( i, x ) } )
-              tmp22->N_ZAP := ar[ i ]
-            Next
+
+        if tmp2->N_ZAP != 0
+          AAdd( ar, tmp2->N_ZAP )
+        else
+          dbSelectArea( 'T1' )
+          t1->( dbSeek( PadR( Upper( s1 ), 36 ) ) )
+          Do While Upper( t1->ID_PAC ) == PadR( Upper( s1 ), 36 )
+            AAdd( ar, Int( Val( t1->N_ZAP ) ) )
+            t1->( dbSkip() )
+          Enddo
+          If Len( ar ) > 0
+            dbSelectArea( 'T2' )
+            tmp2->N_ZAP := ar[ 1 ]
+            If Len( ar ) > 1
+              AEval( adbf, {| x, i| adbf[ i ] := FieldGet( i ) } )
+              dbSelectArea( 'TMP22' )
+              For i := 2 To Len( ar )
+                tmp22->( dbAppend() )
+                AEval( adbf, {| x, i| FieldPut( i, x ) } )
+                tmp22->N_ZAP := ar[ i ]
+              Next
+            Endif
           Endif
-        Endif
+        endif
+        
       Case eq_any( s, 'SLUCH', 'Z_SL' )
         dbSelectArea( 'T1' )
         Locate For Upper( t1->ID_C ) == PadR( Upper( s1 ), 36 )
@@ -520,7 +526,6 @@ Function fill_tmp2_file_flk_26()
         Endif
       Case s == 'USL'
 //        s1 := tmp2->SL_ID
-//altd()
 /*
         dbSelectArea( 'T2' )
         Locate For Upper( t2->ID_U ) == PadR( Upper( s1 ), 36 )
@@ -535,7 +540,8 @@ Function fill_tmp2_file_flk_26()
       Case s == 'PERS'
         dbSelectArea( 'T3' )
         s1 := AllTrim( tmp2->ID_PAC )
-        Locate For Upper( t3->ID_PAC ) == PadR( Upper( s1 ), 36 )
+        t3->( dbSeek( PadR( Upper( s1 ), 36 ) ) )
+//        Locate For Upper( t3->ID_PAC ) == PadR( Upper( s1 ), 36 )
         If t3->( Found() )
           ar := {}
           dbSelectArea( 'T1' )

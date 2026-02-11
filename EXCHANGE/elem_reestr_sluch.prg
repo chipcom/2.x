@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.02.26
+// 10.02.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -171,7 +171,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     Select( tmpSelect )
 
 
-    f1_create2reestr19( _nyear, p_tip_reestr )
+    f1_create2reestrCommon( _nyear, p_tip_reestr )
     // заполним реестр записями для XML-документа
     If isl == 1
       oZAP := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZAP' ) )
@@ -242,7 +242,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oPAC, 'NEXT_D', Str( Month( next_d ), 2 ) )
       endif
       if ! Empty( human->MO_PR )
-        mo_add_xml_stroke( oPAC, 'MO_PR', human->MO_PR )
+        if Len( AllTrim( human_->smo ) ) != 2
+          mo_add_xml_stroke( oPAC, 'MO_PR', human->MO_PR )
+        endif
       endif
       mo_add_xml_stroke( oPAC, 'VZ', Str( kart->VZ, 2 ) )
 /*      

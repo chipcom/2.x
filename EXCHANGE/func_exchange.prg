@@ -18,7 +18,7 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
   local aFiles
   local codeMO
 
-  codeMO := glob_mo()[ _MO_KOD_TFOMS ] 
+  codeMO := glob_mo()[ _MO_KOD_TFOMS ]
 /*
   if nyear <= 2025
     sName := 'RM' + codeMO + 'T34' + '_' ;
@@ -865,3 +865,148 @@ function reestr_file_reindex()
 //  dbCloseAll()
 
   return fl
+
+// 11.12.25
+Function f1create1reestrCommon( oBrow )
+
+  Local oColumn, tmp_color, blk_color := {|| if( tmp->plus, { 1, 2 }, { 3, 4 } ) }, n := 32
+
+  oColumn := TBColumnNew( ' ', {|| if( tmp->plus, '', ' ' ) } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( Center( 'Ф.И.О. больного', n ), {|| iif( tmp->ishod == 89, PadR( Upper( human->fio ), n -4 ) + ' 2сл', PadR( Upper( human->fio ), n ) ) } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( 'План-заказ', {|| PadC( f_p_z_reestr( tmp->pzkol, tmp->pz, 1 ), 10 ) } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( 'Кол-во', {|| PadC( f_p_z_reestr( tmp->pzkol, tmp->pz, 2 ), 6 ) } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( 'Нача-; ло', {|| Left( DToC( tmp->n_data ), 5 ) } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( 'Окончан.;лечения', {|| date_8( tmp->k_data ) } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( ' Стоимость; лечения', {|| put_kope( tmp->cena_1, 10 ) } )
+  oColumn:colorBlock := blk_color
+  oBrow:addcolumn( oColumn )
+  tmp_color := SetColor( 'N/BG' )
+  @ MaxRow() -3, 0 Say PadR( ' <Esc> - выход     <Enter> - подтверждение составления реестра', 80 )
+  @ MaxRow() -2, 0 Say PadR( ' <Ins> - отметить одного пациента или снять отметку с одного пациента', 80 )
+  @ MaxRow() -1, 0 Say PadR( ' <+> - отметить всех пациентов (или по одному виду ПЛАНА-ЗАКАЗА) ', 80 )
+  @ MaxRow() -0, 0 Say PadR( ' <-> - снять со всех отметки (никто не попадает в реестр)', 80 )
+  mark_keys( { '<Esc>', '<Enter>', '<Ins>', '<+>', '<->', '<F9>' }, 'R/BG' )
+  SetColor( tmp_color )
+  Return Nil
+
+// 19.01.20
+Function f_p_z_reestr( _pzkol, _pz, k )
+
+  Local s, s2, i
+
+  s2 := AllTrim( str_0( _pzkol, 9, 2 ) )
+  s := atip[ _pz + 1 ]
+  If ( i := AScan( p_array_PZ, {| x| x[ 1 ] == _pz } ) ) > 0 .and. !Empty( p_array_PZ[ i, 5 ] )
+    s2 += p_array_PZ[ i, 5 ]
+  Endif
+  Return iif( k == 1, s, s2 )
+
+// 19.01.20
+Function f2create1reestrCommon( nKey, oBrow )
+
+  Local buf, rec, k := -1, i, j, mas_pmt := {}, arr, r1, r2
+
+  Do Case
+  Case nkey == K_INS
+    Replace tmp->plus With !tmp->plus
+    j := tmp->pz + 1
+    i := AScan( p_array_PZ, {| x| x[ 1 ] == tmp->PZ } )
+    If tmp->plus
+      psumma += tmp->cena_1
+      pkol++
+      If i > 0 .and. !Empty( p_array_PZ[ i, 5 ] )
+        mpz[ j ] ++
+      Else
+        mpz[ j ] += tmp->PZKOL
+      Endif
+    Else
+      psumma -= tmp->cena_1
+      pkol--
+      If i > 0 .and. !Empty( p_array_PZ[ i, 5 ] )
+        mpz[ j ] --
+      Else
+        mpz[ j ] -= tmp->PZKOL
+      Endif
+    Endif
+    Eval( p_blk )
+    k := 0
+    Keyboard Chr( K_TAB )
+  Case nkey == 43  // +
+    arr := {}
+    AAdd( mas_pmt, 'Отметить всех пациентов' )
+    AAdd( arr, -1 )
+    If !Empty( oldpz[ 1 ] )
+      AAdd( mas_pmt, 'Отметить неопределённых пациентов' )
+      AAdd( arr, 0 )
+    Endif
+    For j := 2 To Len( oldpz )
+      If !Empty( oldpz[ j ] ) .and. ( i := AScan( p_array_PZ, {| x| x[ 1 ] == j -1 } ) ) > 0
+        AAdd( mas_pmt, 'Отметить "' + p_array_PZ[ i, 3 ] + '"' )
+        AAdd( arr, j -1 )
+      Endif
+    Next
+    r1 := 12
+    r2 := r1 + Len( mas_pmt ) + 1
+    If r2 > MaxRow() -2
+      r2 := MaxRow() -2
+      r1 := r2 - Len( mas_pmt ) -1
+      If r1 < 2
+        r1 := 2
+      Endif
+    Endif
+    If ( j := popup_scr( r1, 12, r2, 67, mas_pmt, 1, color5, .t. ) ) > 0
+      j := arr[ j ]
+      rec := RecNo()
+      buf := save_maxrow()
+      mywait()
+      If j == -1
+        tmp->( dbEval( {|| tmp->plus := .t. } ) )
+        psumma := old_summa
+        pkol := old_kol
+        AEval( mpz, {| x, i| mpz[ i ] := oldpz[ i ] } )
+      Else
+        psumma := pkol := 0
+        AFill( mpz, 0 )
+        mpz[ j + 1 ] := oldpz[ j + 1 ]
+        Go Top
+        Do While !Eof()
+          If tmp->pz == j
+            tmp->plus := .t.
+            psumma += tmp->cena_1
+            pkol++
+          Else
+            tmp->plus := .f.
+          Endif
+          Skip
+        Enddo
+      Endif
+      Goto ( rec )
+      rest_box( buf )
+      Eval( p_blk )
+      k := 0
+    Endif
+  Case nkey == 45  // -
+    rec := RecNo()
+    buf := save_maxrow()
+    mywait()
+    tmp->( dbEval( {|| tmp->plus := .f. } ) )
+    Goto ( rec )
+    rest_box( buf )
+    psumma := pkol := 0
+    AFill( mpz, 0 )
+    Eval( p_blk )
+    k := 0
+  Endcase
+  Return k

@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 06.02.26
+// 11.02.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -305,24 +305,42 @@ Function verify_sluch( fl_view, ft )
   //
   // ПРОВЕРЯЕМ УДОСТОВЕРЕНИЕ ЛИЧНОСТИ ПРИ ОТСУТСТВИИ ЕНП И ПРИКРЕПЛЕНИЕ
   //
-  a_mo_prik := get_f032_prik()
-  if ( i := AScan( a_mo_prik, {| x | x[ 2 ] == human->MO_PR } ) ) == 0
-    AAdd( ta, 'не верная организация прикрепления с кодом "' + human->MO_PR + '"' )
+  if Empty( AllTrim( human->MO_PR ) )
+    AAdd( ta, 'пустое значение поля "МО прикрепления" в листе учета' )
+  else
+    a_mo_prik := get_f032_prik()
+    if ( i := AScan( a_mo_prik, {| x | x[ 2 ] == human->MO_PR } ) ) == 0
+      AAdd( ta, 'не верная организация прикрепления с кодом "' + human->MO_PR + '"' )
+    endif
   endif
-
-  If ( human_->usl_ok != USL_OK_AMBULANCE ) .and. eq_any( kart_->vid_ud, 3, 14 ) .and. ;
-      !Empty( kart_->ser_ud ) .and. Empty( del_spec_symbol( kart_->mesto_r ) )
-    AAdd( ta, iif( kart_->vid_ud == 3, 'для свид-ва о рождении', 'для паспорта РФ' ) + ;
-      ' обязательно заполнение поля "Место рождения"' )
-  Endif
 
   if ! ( lKart2 := aliasIsAlreadyUse( 'KART2' ) )
     r_use( dir_server() + 'kartote2', , 'KART2' )
   endif
   Goto ( human->kod_k )
 
-  if Empty( kart2->kod_mis ) .or. ( Len( AllTrim( kart2->kod_mis ) ) != 16 )
-//  if human_->vpolis != 3 .and. ( Empty( kart->kod_mis ) .or. ( Len( AllTrim( kart->kod_mis ) ) == 16 ) )
+  if ( Len( AllTrim( kart2->kod_mis ) ) == 16 ) .and. ( human_->vpolis != 3 )
+    kart_->( g_rlock( 'forever' ) )
+    kart_->VPOLIS := 3    // новый
+    kart_->SPOLIS := ''
+    Kart_->NPOLIS := AllTrim( kart2->kod_mis )
+    kart_->( dbUnlock() )
+    human_->( g_rlock( 'forever' ) )
+    human_->VPOLIS := 3    // новый
+    human_->SPOLIS := ''
+    human_->NPOLIS := AllTrim( kart2->kod_mis )
+    human_->( dbUnlock() )
+  endif
+
+  if ( human_->vpolis != 3 ) .and. Empty( kart2->kod_mis ) .or. ( Len( AllTrim( kart2->kod_mis ) ) != 16 )
+
+    If ( human_->usl_ok != USL_OK_AMBULANCE ) .and. ;
+        eq_any( kart_->vid_ud, 3, 14 ) .and. ;
+        ! Empty( kart_->ser_ud ) .and. Empty( del_spec_symbol( kart_->mesto_r ) )
+      AAdd( ta, iif( kart_->vid_ud == 3, 'для свид-ва о рождении', 'для паспорта РФ' ) + ;
+        ' обязательно заполнение поля "Место рождения"' )
+    Endif
+
     If AScan( getvidud(), {| x | x[ 2 ] == kart_->vid_ud } ) == 0
       AAdd( ta, 'не заполнено поле "ВИД удостоверения личности"' )
     endif
@@ -441,7 +459,7 @@ Function verify_sluch( fl_view, ft )
   Endif
   human_->SPOLIS := val_polis( human_->SPOLIS )
   human_->NPOLIS := val_polis( human_->NPOLIS )
-  valid_sn_polis( human_->vpolis, human_->SPOLIS, human_->NPOLIS, ta, Between( human_->smo, '34001', '34007' ) )
+//  valid_sn_polis( human_->vpolis, human_->SPOLIS, human_->NPOLIS, ta, Between( human_->smo, '34001', '34007' ) )
   //
   If Select( 'SMO' ) == 0
     r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )

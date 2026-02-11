@@ -616,11 +616,6 @@ Function f2_view_list_reestr( nKey, oBrow )
               Unlock
               Commit
               viewtext( cFileProtokol,,,, .t.,,, 2 )
-              /*asize(t_arr,1)
-              perenos(t_arr,'Записано реестров - '+lstr(k)+' в каталог '+s+;
-                     iif(k == len(arr), '', ', не записано реестров - '+lstr(len(arr)-k)),60)
-              stat_msg('Запись завершена!')
-              n_message(t_arr,,'GR+/B','W+/B',18,,'G+/B')*/
             Endif
           Endif
         Endif
@@ -1080,8 +1075,7 @@ Static Function f1vozvrat_reestr( mkod_reestr )
 
   Return Nil
 
-
-//  15.10.24 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
+//  11.02.26 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
 Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
 
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
@@ -1094,10 +1088,12 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
   Select MO_XML
   Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) For FIELD->reestr == mkod_reestr .and. FIELD->TIP_OUT == 0
   Go Top
+
   Do While !Eof()
-    If mo_xml->TIP_IN == _XML_FILE_SP
+    If mo_xml->TIP_IN == _XML_FILE_FLK_26 //  _XML_FILE_SP
       AAdd( mm_func, mo_xml->kod )
-      s := 'Реестр СП и ТК ' + RTrim( mo_xml->FNAME ) + ' прочитан ' + date_8( mo_xml->DWORK )
+//      s := 'Реестр СП и ТК ' + RTrim( mo_xml->FNAME ) + ' прочитан ' + date_8( mo_xml->DWORK )
+      s := 'Файл ФЛК ' + RTrim( mo_xml->FNAME ) + ' прочитан ' + date_8( mo_xml->DWORK )
       If Empty( mo_xml->TWORK2 )
         AAdd( mm_flag, .t. )
         s += '-ПРОЦЕСС НЕ ЗАВЕРШЁН'
@@ -1106,13 +1102,13 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
         s += ' в ' + mo_xml->TWORK1
       Endif
       AAdd( mm_menu, s )
-    Elseif mo_xml->TIP_IN == _XML_FILE_FLK
-      If mo_xml->kol2 > 0
-        AAdd( mm_func, mo_xml->kod )
-        AAdd( mm_flag, .f. )
-        s := 'Протокол ФЛК ' + RTrim( mo_xml->FNAME ) + ' прочитан ' + date_8( mo_xml->DWORK ) + ' в ' + mo_xml->TWORK1
-        AAdd( mm_menu, s )
-      Endif
+//    Elseif mo_xml->TIP_IN == _XML_FILE_FLK
+//      If mo_xml->kol2 > 0
+//        AAdd( mm_func, mo_xml->kod )
+//        AAdd( mm_flag, .f. )
+//        s := 'Протокол ФЛК ' + RTrim( mo_xml->FNAME ) + ' прочитан ' + date_8( mo_xml->DWORK ) + ' в ' + mo_xml->TWORK1
+//        AAdd( mm_menu, s )
+//      Endif
     Endif
     Skip
   Enddo
