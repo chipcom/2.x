@@ -7,7 +7,7 @@
 Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
-// 05.02.26
+// 12.02.26
 Function create_reestr26( arr_calendar )
 
   Local mnyear, mnmonth, k := 0, k1 := 0
@@ -88,11 +88,6 @@ Function create_reestr26( arr_calendar )
   dbCreate( 'mem:a_smo', adbf, , .t., 'A_SMO' )
   INDEX ON FIELD->kod_smo TO ( 'mem:a_smo' )
 
-  r_use( dir_server() + 'mo_otd', , 'OTD' )
-  r_use( dir_server() + 'human_', , 'HUMAN_' )
-  r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
-  Set Relation To RecNo() into HUMAN_
-
   r_use( dir_server() + 'uslugi', , 'USL' )
   r_use( dir_server() + 'human_u_', , 'HU_' )
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
@@ -106,7 +101,13 @@ Function create_reestr26( arr_calendar )
   r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
   Set Relation To FIELD->u_kod into MOSU
 
+  r_use( dir_server() + 'mo_otd', , 'OTD' )
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
+  Set Relation To RecNo() into HUMAN_
+
   human->( dbSeek( DToS( arr_calendar[ 5 ] ), .t. ) )
+
   Do While human->k_data <= arr_calendar[ 6 ] .and. !Eof()
     If ++k1 % 100 == 0
       @ MaxRow(), 1 Say lstr( k1 ) Color cColorSt2Msg

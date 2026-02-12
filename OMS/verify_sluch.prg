@@ -305,7 +305,7 @@ Function verify_sluch( fl_view, ft )
   //
   // ‚…… “„‘’‚……… ‹—‘’  ’‘“’‘’‚ …  …‹……
   //
-  if Empty( AllTrim( human->MO_PR ) )
+  if Empty( AllTrim( human->MO_PR ) ) .and. AllTrim( human_->smo ) != '34'
     AAdd( ta, '―γαβ®¥ §­ η¥­¨¥ ―®«ο " ―ΰ¨ªΰ¥―«¥­¨ο" Ά «¨αβ¥ γη¥β ' )
   else
     a_mo_prik := get_f032_prik()

@@ -245,10 +245,10 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
         mo_add_xml_stroke( oPAC, 'NEXT_D', Str( Month( next_d ), 2 ) )
       endif
-      if ! Empty( human->MO_PR )
-        if Len( AllTrim( human_->smo ) ) != 2
+      if ! Empty( human->MO_PR ) .and. ( AllTrim( human_->smo ) != '34' )
+//        if Len( AllTrim( human_->smo ) ) != 2
           mo_add_xml_stroke( oPAC, 'MO_PR', human->MO_PR )
-        endif
+//        endif
       endif
       mo_add_xml_stroke( oPAC, 'VZ', Str( kart->VZ, 2 ) )
 /*      
