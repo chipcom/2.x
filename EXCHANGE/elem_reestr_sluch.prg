@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 10.02.26
+// 12.02.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -182,17 +182,21 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       oPAC := oZAP:add( hxmlnode():new( 'PACIENT' ) )
       mo_add_xml_stroke( oPAC, 'ID_PAC', human_->ID_PAC )
       mo_add_xml_stroke( oPAC, 'VPOLIS', lstr( human_->VPOLIS ) )
-      If !Empty( human_->SPOLIS )
-        mo_add_xml_stroke( oPAC, 'SPOLIS', human_->SPOLIS )
-      Endif
-      mo_add_xml_stroke( oPAC, 'NPOLIS', human_->NPOLIS )
-      If ( ( human_->VPOLIS == 3 ) .and. ( Len ( AllTrim( human_->NPOLIS ) ) == 16 ) ) .or. Len( AllTrim( kart2->kod_mis ) ) == 16
-        if ! Empty( human_->NPOLIS )
-          mo_add_xml_stroke( oPAC, 'ENP', AllTrim( human_->NPOLIS ) ) // Единый номер полиса единого образца
-        else
-          mo_add_xml_stroke( oPAC, 'ENP', kart2->kod_mis ) // Единый номер полиса единого образца
-        endif
-      Endif
+
+      if human_->VPOLIS == 3
+        If ( ( Len ( AllTrim( human_->NPOLIS ) ) == 16 ) ) .or. Len( AllTrim( kart2->kod_mis ) ) == 16
+          if ! Empty( human_->NPOLIS )
+            mo_add_xml_stroke( oPAC, 'ENP', AllTrim( human_->NPOLIS ) ) // Единый номер полиса единого образца
+          else
+            mo_add_xml_stroke( oPAC, 'ENP', kart2->kod_mis ) // Единый номер полиса единого образца
+          endif
+        Endif
+      else
+        If ! Empty( human_->SPOLIS )
+          mo_add_xml_stroke( oPAC, 'SPOLIS', human_->SPOLIS )
+        Endif
+        mo_add_xml_stroke( oPAC, 'NPOLIS', human_->NPOLIS )
+      endif
 
       cSMOname := schet_smoname()
       // mo_add_xml_stroke(oPAC, 'ST_OKATO' ,...) // Регион страхования

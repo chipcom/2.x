@@ -110,7 +110,7 @@ Function read_from_tf()
   Endif
   Return fl
 
-// 15.01.26 чтение в память и анализ XML-файла
+// 12.02.26 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local is_err_FLK_26
@@ -184,25 +184,25 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       If read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
       Endif
 
-        // запишем принимаемый файл (протокол ФЛК)
-        chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
-        Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
-        g_use( dir_server() + 'mo_xml', , 'MO_XML' )
-        addrecn()
-        mo_xml->KOD := RecNo()
-        mo_xml->FNAME := cReadFile
-        mo_xml->DREAD := Date()
-        mo_xml->TREAD := hour_min( Seconds() )
-        mo_xml->TIP_IN := _XML_FILE_FLK_26 // тип принимаемого файла;3-ФЛК
-        mo_xml->DWORK  := Date()
-        mo_xml->TWORK1 := cTimeBegin
-        mo_xml->TWORK2 := hour_min( Seconds() )
-        mo_xml->REESTR := arr_XML_info[ 7 ]   // mkod_reestr
-        mo_xml->KOL2   := tmp1->KOL2
+      // запишем принимаемый файл (протокол ФЛК)
+      chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
+      Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
+      g_use( dir_server() + 'mo_xml', , 'MO_XML' )
+      addrecn()
+      mo_xml->KOD := RecNo()
+      mo_xml->FNAME := cReadFile
+      mo_xml->DREAD := Date()
+      mo_xml->TREAD := hour_min( Seconds() )
+      mo_xml->TIP_IN := _XML_FILE_FLK_26 // тип принимаемого файла;3-ФЛК
+      mo_xml->DWORK  := Date()
+      mo_xml->TWORK1 := cTimeBegin
+      mo_xml->TWORK2 := hour_min( Seconds() )
+      mo_xml->REESTR := arr_XML_info[ 7 ]   // mkod_reestr
+      mo_xml->KOL2   := tmp1->KOL2
 
-//      Endif
+//    Endif
 
-      if is_err_FLK_26  // ошибки ФЛК 26 есть
+      if is_err_FLK_26 == 3 // ошибки ФЛК 26 есть в записях
         // открыть распакованный реестр
         Use ( cur_dir() + 'tmp_r_t1' ) New Alias T1
         Index On Str( Val( FIELD->n_zap ), 6 ) to ( cur_dir() + 'tmpt1' )
@@ -270,7 +270,14 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         rees->RES_TFOMS := 3  // 3-ошибка в записях реестра
         rees->( dbUnlock() )
 
-      else  // ошибок ФЛК нет
+      elseif is_err_FLK_26 == 2  // ошибки есть на весь файл
+        e_use( dir_server() + 'mo_rees', , 'REES' ) 
+        rees->( dbGoto( arr_XML_info[ 7 ] ) )
+        rees->( dbRLock() )
+        rees->RES_TFOMS := 2  // 3-ошибки есть на весь файл
+        rees->( dbUnlock() )
+
+      elseif is_err_FLK_26 == 1  // ошибок ФЛК нет
         e_use( dir_server() + 'mo_rees', , 'REES' ) 
         rees->( dbGoto( arr_XML_info[ 7 ] ) )
         rees->( dbRLock() )

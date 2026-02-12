@@ -3,12 +3,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 14.01.26 зачитать протокол ФЛК во временные файлы новая версия
+// 12.02.26 зачитать протокол ФЛК во временные файлы новая версия
 Function parse_protokol_flk_26( arr_f, aerr )
 
   Local j, s, oXmlDoc, oXmlNode, cFile
   Local is_err_FLK := .f.
   Local adbf
+  local iError := 1   // реестр принят
 
   adbf := { ;
     { 'FNAME',  'C', 30, 0 }, ; // 27
@@ -76,15 +77,18 @@ Function parse_protokol_flk_26( arr_f, aerr )
         tmp2->COMMENT := mo_read_xml_stroke( oXmlNode, 'COMMENT', aerr, .f. )
         If ! Empty( tmp2->BAS_EL )
           is_err_FLK := .t.
+          iError := 3
           tmp1->KOL2++
+        else
+          iError := 2
         Endif
       Endcase
     Next j
   Endif
   dbCommitAll()
-  Return is_err_FLK
+  Return iError   //  is_err_FLK
 
-// 07.02.26 прочитать реестр ФЛК
+// 12.02.26 прочитать реестр ФЛК
 Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
 
   Local i, k, t_arr[ 2 ]  //, pole
@@ -106,7 +110,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
   Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
   Index On Str( FIELD->_n_zap, 8 ) to ( cur_dir() + 'tmp3' )
 
-  If is_err_FLK_26 // есть ошибки ТФОМС
+  If is_err_FLK_26 != 1 // есть ошибки ТФОМС
     If !extract_reestr26( rees->( RecNo() ), rees->name_xml )
       AAdd( aerr, Center( 'Не найден ZIP-архив с РЕЕСТРом СЧЕТОВ № ' + lstr( rees->nschet ) + ' от ' + date_8( rees->DSCHET ), 80 ) )
       AAdd( aerr, '' )

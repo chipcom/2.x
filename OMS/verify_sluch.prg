@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 11.02.26
+// 12.02.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -332,7 +332,8 @@ Function verify_sluch( fl_view, ft )
     human_->( dbUnlock() )
   endif
 
-  if ( human_->vpolis != 3 ) .and. Empty( kart2->kod_mis ) .or. ( Len( AllTrim( kart2->kod_mis ) ) != 16 )
+  if ! ( ( human_->vpolis == 3 ) .and. ( Len( AllTrim( human_->npolis ) ) == 16 ) )
+//  if ( human_->vpolis != 3 ) .and. Empty( kart2->kod_mis ) .or. ( Len( AllTrim( kart2->kod_mis ) ) != 16 )
 
     If ( human_->usl_ok != USL_OK_AMBULANCE ) .and. ;
         eq_any( kart_->vid_ud, 3, 14 ) .and. ;

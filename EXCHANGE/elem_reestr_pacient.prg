@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.02.26
+// 12.02.26
 function elem_reestr_pacient( oXmlDoc, fl_ver, p_tip_reestr )
 
   local arr_fio, smr
@@ -75,8 +75,8 @@ function elem_reestr_pacient( oXmlDoc, fl_ver, p_tip_reestr )
     mo_add_xml_stroke( oPAC, 'MR', smr )
   Endif
 
-  if Empty( kart2->kod_mis ) .or. ( Len( AllTrim( kart2->kod_mis ) ) != 16 )
-    If human_->vpolis != 3
+  If human_->vpolis != 3
+//  if Empty( kart2->kod_mis ) .or. ( Len( AllTrim( kart2->kod_mis ) ) != 16 )
       mo_add_xml_stroke( oPAC, 'DOCTYPE', lstr( kart_->vid_ud ) )
       If ! Empty( kart_->ser_ud )
         mo_add_xml_stroke( oPAC, 'DOCSER', kart_->ser_ud )
@@ -89,7 +89,7 @@ function elem_reestr_pacient( oXmlDoc, fl_ver, p_tip_reestr )
           ! Empty( smr := del_spec_symbol( inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', kart_->kemvyd ) ) )
         mo_add_xml_stroke( oPAC, 'DOCORG', smr )
       Endif
-    Endif
+//    Endif
   endif
 
   If !Empty( kart->snils )
