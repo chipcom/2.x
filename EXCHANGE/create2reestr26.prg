@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.01.26 создание XML-файлов реестра
+// 12.02.26 создание XML-файлов реестра
 Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
@@ -157,7 +157,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
     rees->NYEAR  := _NYEAR
     rees->NMONTH := _NMONTH
     rees->NN     := mnn
-    aFilesName := name_reestr_XML( p_tip_reestr, _NYEAR, _NMONTH, mnschet, 5, kod_smo )
+    aFilesName := name_reestr_XML( p_tip_reestr, _NYEAR, _NMONTH, mnschet, 6, kod_smo )
     rees->NAME_XML := aFilesName[ 1 ]
     mkod_reestr := rees->KOD
     rees->CODE  := ret_unique_code( mkod_reestr )

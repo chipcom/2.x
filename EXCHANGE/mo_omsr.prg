@@ -411,7 +411,7 @@ Function f_napr_mo_lis()
   Return human_->NPR_MO
 
 
-//  Просмотр списка реестров, запись для ТФОМС
+// 12.02.26 Просмотр списка реестров, запись для ТФОМС
 Function view_list_reestr()
 
   Local buf := SaveScreen(), tmp_help := chm_help_code
@@ -430,7 +430,7 @@ Function view_list_reestr()
     chm_help_code := 113
     Private reg := 1
     alpha_browse( T_ROW, 0, 23, 79, 'f1_view_list_reestr', color0,,,,,,, ;
-      'f2_view_list_reestr',, { '═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R', .t., 180 } )
+      'f2_view_list_reestr',, { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R, G+/RB+, GR+/B', .t., 180 } )
   Endif
   Close databases
   g_sunlock( Sreestr_sem )
@@ -439,13 +439,30 @@ Function view_list_reestr()
   Return Nil
 
 
-// 14.01.26
+// 12.02.26 
 Function f1_view_list_reestr( oBrow )
 
   Local oColumn, ;
-    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() ), ;
-    iif( Empty( rees->date_out ), { 3, 4 }, { 1, 2 } ), ;
-    { 5, 6 } ) }
+    blk := {|| ;
+      iif ( rees->nyear < 2026, ;
+        iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() ), ;
+          iif( Empty( rees->date_out ), { 3, 4 }, { 1, 2 } ), ;
+            { 5, 6 } ), ;
+        iif( rees->res_tfoms == 0, { 1, 2 }, ;      // ответ не зачитан
+          iif( rees->res_tfoms == 1, { 7, 8 }, ;    // ответ без ошибок
+            iif( rees->res_tfoms == 2, { 5, 6 }, ;  // ответ с ошибками на весь файл
+              { 3, 4 } ) ) ) ) }                    // ответ с ошибками в записях реестра
+
+//{ '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R, G+/RB+, GR+/B', .t., 180 }
+//        iif( rees->res_tfoms == 1, { 3, 2 }, { 1, 2 } ) ) }
+
+//    blk := {|| iif( hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() ), ;
+//    iif( Empty( rees->date_out ), { 3, 4 }, { 1, 2 } ), ;
+//    { 5, 6 } ) }
+
+//  oColumn := TBColumnNew( '', {|| Str( rees->res_tfoms, 1 ) } )
+//  oColumn:colorBlock := blk
+//  oBrow:addcolumn( oColumn )
 
   oColumn := TBColumnNew( ' Номер', {|| rees->nschet } )
   oColumn:colorBlock := blk
@@ -462,10 +479,11 @@ Function f1_view_list_reestr( oBrow )
   oColumn := TBColumnNew( 'Сумма реестра', {|| PadL( expand_value( rees->summa, 2 ), 13 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( 'Кол.;бол.', {|| Str( rees->kol, 5 ) } )
+  oColumn := TBColumnNew( 'Кол.;бол.', {|| Str( rees->kol, 4 ) } )  //  5 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( ' Наименование файла', {|| PadR( rees->NAME_XML, 22 ) } )
+//  oColumn := TBColumnNew( ' Наименование файла', {|| PadR( rees->NAME_XML, 22 ) } )
+  oColumn := TBColumnNew( ' Наименование файла', {|| Substr( rees->NAME_XML, 1, 26 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
   oColumn := TBColumnNew( 'Примечание', {|| f11_view_list_reestr() } )
@@ -479,20 +497,20 @@ Function f1_view_list_reestr( oBrow )
 
   Return Nil
 
-// 
-Static Function f11_view_list_reestr()
+// 12.02.26 
+Function f11_view_list_reestr()
 
   Local s := ''
 
-  If !hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() )
+  If ! hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() )
     s := 'нет файла'
   Elseif Empty( rees->date_out )
     s := 'не записан'
   Else
-    s := 'зап. ' + lstr( rees->NUMB_OUT ) + ' раз'
+    s := 'зап. ' + lstr( rees->NUMB_OUT ) + 'раз'
   Endif
 
-  Return PadR( s, 10 )
+  Return PadR( s, 9 ) //  10 )
 
 
 // 22.03.24
