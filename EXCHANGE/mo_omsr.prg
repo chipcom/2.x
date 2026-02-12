@@ -429,7 +429,10 @@ Function view_list_reestr()
   Else
     chm_help_code := 113
     Private reg := 1
-    alpha_browse( T_ROW, 0, 23, 79, 'f1_view_list_reestr', color0,,,,,,, ;
+
+    box_shadow( MaxRow() -3, 0, MaxRow() -1, 79, color0 )
+//    alpha_browse( T_ROW, 0, 23, 79, 'f1_view_list_reestr', color0,,,,,, 'f21_view_list_reestr', ;
+    alpha_browse( T_ROW, 0, MaxRow() -4, 79, 'f1_view_list_reestr', color0,,,,,, 'f21_view_list_reestr', ;
       'f2_view_list_reestr',, { '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R, G+/RB+, GR+/B', .t., 180 } )
   Endif
   Close databases
@@ -440,7 +443,7 @@ Function view_list_reestr()
 
 
 // 12.02.26 
-Function f1_view_list_reestr( oBrow )
+Function f1_view_list_reestr( oBrow ) 
 
   Local oColumn, ;
     blk := {|| ;
@@ -502,13 +505,21 @@ Function f11_view_list_reestr()
 
   Local s := ''
 
-  If ! hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() )
-    s := 'нет файла'
-  Elseif Empty( rees->date_out )
-    s := 'не записан'
-  Else
-    s := 'зап. ' + lstr( rees->NUMB_OUT ) + 'раз'
-  Endif
+  if rees->res_tfoms == 1
+    s := 'принят'
+  elseif rees->res_tfoms == 2
+    s := 'отказ'
+  elseif rees->res_tfoms == 3
+    s := 'ошибки'
+  else
+    If ! hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() )
+      s := 'нет файла'
+    Elseif Empty( rees->date_out )
+      s := 'не записан'
+    Else
+      s := 'зап. ' + lstr( rees->NUMB_OUT ) + 'раз'
+    Endif
+  endif
 
   Return PadR( s, 9 ) //  10 )
 
@@ -1643,3 +1654,26 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
   rest_box( buf )
 
   Return 0
+
+// 12.02.26
+Function f21_view_list_reestr() 
+
+  Local s := '', fl := .t., r := Row(), c := Col()
+
+  if rees->nyear >= 2026
+    s := 'Счет № ' + AllTrim( rees->nomer_s ) + ' от ' + DToC( rees->dschet ) + '. '
+    if rees->res_tfoms == 1
+      s += 'Реестр - принят.'
+    elseif rees->res_tfoms == 2
+      s += 'Реестр - отказ на уровне файла.'
+    elseif rees->res_tfoms == 3
+      s += 'Реестр - отказ по причине ошибок.'
+    else
+      s += 'Ответ ТФОМС не получен.'
+    endif
+  else
+    s := 'Информации по счетам отсутствует'
+  endif
+  @ MaxRow() -2, 1 Say PadC( s, 78 ) Color iif( fl, color0, 'R/BG' )
+  SetPos( r, c )
+  Return Nil
