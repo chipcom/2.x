@@ -3715,14 +3715,22 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
       Select KART
       Goto ( krtp->KOD_K )
       // пишем СМО в картотеку 
+      //проверим - что пришло еще раз
       g_rlock( forever )    
-      kart->polis := arr_csv[ i, CSV_A_ENP ]
+      if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
+        kart->polis := arr_csv[ i, CSV_A_ENP ]
+        kart->kod_mis := arr_csv[ i, CSV_A_ENP ]
+      endif
       Select KART_
       g_rlock( forever ) 
-      kart_->npolis := arr_csv[ i, CSV_A_ENP ]
-      kart_->spolis := ""
-      kart_->smo    := alltrim(arr_csv[ i, CSV_A_SMO ])
-      kart_->vpolis := 3
+      if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
+        kart_->npolis := arr_csv[ i, CSV_A_ENP ]
+        kart_->spolis := ""
+        kart_->vpolis := 3
+      endif  
+      if len(alltrim(arr_csv[ i, CSV_A_SMO ])) > 4
+        kart_->smo := alltrim(arr_csv[ i, CSV_A_SMO ])
+      endif
       select HUMAN 
       find ( str(kart->kod,7))
       do while kart->kod == human->kod_k .and. !eof()
@@ -3731,15 +3739,21 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
           goto (human->kod)
           if human_->schet_zap < 1 .and. human_->reestr < 1 // случ не в счете и не в реестре
             g_rlock( forever ) 
-            human_->npolis := arr_csv[ i, CSV_A_ENP ]
-            //human_->spolis := "" - думаю не надо - устарело
-            human_->smo    := alltrim(arr_csv[ i, CSV_A_SMO ])
-            human_->vpolis := 3
+            if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
+              human_->npolis := arr_csv[ i, CSV_A_ENP ]
+              //human_->spolis := "" - думаю не надо - устарело
+              human_->vpolis := 3
+            endif
+            if len(alltrim(arr_csv[ i, CSV_A_SMO ])) > 4
+              human_->smo    := alltrim(arr_csv[ i, CSV_A_SMO ])
+            endif        
             unlock
-            select HUMAN 
-            g_rlock( forever ) 
-            human->mo_pr :=  alltrim(old_mo[i])
-            unlock
+            if len(alltrim(old_mo[i])) > 5
+              select HUMAN 
+              g_rlock( forever ) 
+              human->mo_pr :=  alltrim(old_mo[i])
+              unlock
+            endif  
           endif   
         endif  
         select HUMAN
