@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.12.21
+// 09.02.26
 Function pripisnoe_naselenie( k )
   Static si1 := 1, si2 := 1, si3 := 1
   Local mas_pmt, mas_msg, mas_fun, j, r, nuch, nsmo
@@ -11,30 +11,51 @@ Function pripisnoe_naselenie( k )
   Default k To 1
   Do Case
   Case k == 1
-    mas_pmt := { 'Просмотр ~файлов прикрепления', ;
-      '~Подготовка и создание файлов прикрепления', ;
-      'Печать ~заявления на прикрепление', ;
-      'Создание файла ~сверки с ТФОМС', ;
-      '~Редактирование участков списком', ;
-      '~Импорт WQ2...DBF, простановка участков, отправка' }
-    mas_msg := { 'Просмотр файлов прикрепления (и ответов на них), запись файлов для ТФОМС', ;
-      'Подготовка файлов прикрепления и создание их для отправки в ТФОМС', ;
-      'Печать заявления на прикрепление по пациенту, ещё не прикреплённому к Вашей МО', ;
-      'Создание файла сверки с ТФОМС по прикреплённому населению (письмо № 04-18-20)', ;
-      'Редактирование номера участка для выбранного списка пациентов', ;
-      'Импорт DBF-файла из ТФОМС, простановка участков, создание файла прикрепления' }
-    mas_fun := { 'pripisnoe_naselenie(11)', ;
-      'pripisnoe_naselenie(12)', ;
-      'pripisnoe_naselenie(13)', ;
-      'pripisnoe_naselenie(14)', ;
-      'pripisnoe_naselenie(15)', ;
-      'pripisnoe_naselenie(16)' }
-    If T_ROW > 8
-      r := T_ROW - Len( mas_pmt ) -3
-    Else
-      r := T_ROW
-    Endif
-    popup_prompt( r, T_COL + 5, si1, mas_pmt, mas_msg, mas_fun )
+    If glob_mo()[ _MO_IS_UCH ]  
+      mas_pmt := { ;
+        'Просмотр ~файлов прикрепления', ;
+        '~Подготовка и создание файлов прикрепления', ;
+        'Печать ~заявления на прикрепление', ;
+        'Создание файла ~сверки с ТФОМС', ;
+        '~Редактирование участков списком', ;
+        '~Импорт WQ2...DBF, простановка участков, отправка' }
+      mas_msg := { ;
+        'Просмотр файлов прикрепления (и ответов на них), запись файлов для ТФОМС', ;
+        'Подготовка файлов прикрепления и создание их для отправки в ТФОМС', ;
+        'Печать заявления на прикрепление по пациенту, ещё не прикреплённому к Вашей МО', ;
+        'Создание файла сверки с ТФОМС по прикреплённому населению (письмо № 04-18-20)', ;
+        'Редактирование номера участка для выбранного списка пациентов', ;
+        'Импорт DBF-файла из ТФОМС, простановка участков, создание файла прикрепления' }
+      mas_fun := { ;
+        'pripisnoe_naselenie(11)', ;
+        'pripisnoe_naselenie(12)', ;
+        'pripisnoe_naselenie(13)', ;
+        'pripisnoe_naselenie(14)', ;
+        'pripisnoe_naselenie(15)', ;
+        'pripisnoe_naselenie(16)' }
+      If T_ROW > 8
+        r := T_ROW - Len( mas_pmt ) -3
+      Else
+        r := T_ROW
+      Endif
+      popup_prompt( r, T_COL + 5, si1, mas_pmt, mas_msg, mas_fun )
+    else
+      mas_pmt := { ;
+        'Просмотр ~файлов прикрепления', ;
+        'Создание файла ~сверки с ТФОМС' }
+      mas_msg := { ;
+        'Просмотр файлов прикрепления (и ответов на них), запись файлов для ТФОМС', ;
+        'Создание файла сверки с ТФОМС по прикреплённому населению (письмо № 04-08-07)' }
+      mas_fun := { ;
+        'pripisnoe_naselenie(11)', ;
+        'pripisnoe_naselenie(14)' }
+      If T_ROW > 8
+        r := T_ROW - Len( mas_pmt ) -3
+      Else
+        r := T_ROW
+      Endif
+      popup_prompt( r, T_COL + 5, si1, mas_pmt, mas_msg, mas_fun )
+    endif  
   Case k == 11
     view_reestr_pripisnoe_naselenie()
   Case k == 12
@@ -42,29 +63,46 @@ Function pripisnoe_naselenie( k )
   Case k == 13
     kartoteka_z_prikreplenie()
   Case k == 14
-    If currentuser():isadmin()
-      str_sem := 'Создание файла сверки с ТФОМС'
-      If g_slock( str_sem )
-        pripisnoe_naselenie_create_sverka()
-        g_sunlock( str_sem )
+    If glob_mo()[ _MO_IS_UCH ]  
+      If currentuser():isadmin()
+        str_sem := 'Создание файла сверки с ТФОМС'
+        If g_slock( str_sem )
+          pripisnoe_naselenie_create_sverka(1)
+          g_sunlock( str_sem )
+        Else
+          func_error( 4, err_slock() )
+        Endif
       Else
-        func_error( 4, err_slock() )
+        func_error( 4, err_admin() )
       Endif
-    Else
-      func_error( 4, err_admin() )
-    Endif
+    else
+      If currentuser():isadmin()
+        str_sem := 'Создание файла информации о прикреплении'
+        If g_slock( str_sem )
+          pripisnoe_naselenie_create_sverka(2)
+          g_sunlock( str_sem )
+        Else
+          func_error( 4, err_slock() )
+        Endif
+      Else
+        func_error( 4, err_admin() )
+      Endif
+    endif  
   Case k == 15
     edit_uchast_spisok()
   Case k == 16 // Импорт WQ2...DBF
-    mas_pmt := { '~Импорт WQ2...ZIP', ;
+    mas_pmt := { ;
+      '~Импорт WQ2...ZIP', ;
       '~Просмотр последнего импортированного файла', ;
       'Редактирование ~участков', ;
       '~Создание файлов прикрепления' }
-    mas_msg := { 'Импорт нового файла WQ2...ZIP (после всех операций с предыдущим прочитанным)', ;
+    mas_msg := { ;
+      'Импорт нового файла WQ2...ZIP (после всех операций с предыдущим прочитанным)', ;
       'Просмотр прикреплённым к нашему МО пациентов, присланных в последнем файле', ;
       'Редактирование участков пациентам, присланным в последнем файле', ;
       'Создание файла прикрепления из пациентов последнего файла WQ... для отправки' }
-    mas_fun := { 'pripisnoe_naselenie(31)', ;
+    mas_fun := { ;
+      'pripisnoe_naselenie(31)', ;
       'pripisnoe_naselenie(32)', ;
       'pripisnoe_naselenie(33)', ;
       'pripisnoe_naselenie(34)' }
@@ -179,7 +217,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
 
   krtf->( dbGoto( krtr->kod_f ) )
   Do Case
-  Case nKey == K_CTRL_F10 .and. eq_any( krtf->TIP_OUT, _CSV_FILE_REESTR, _CSV_FILE_SVERKAZ ) .and. krtr->ANSWER == 0
+  Case nKey == K_CTRL_F10 .and. eq_any( krtf->TIP_OUT, _CSV_FILE_REESTR, _CSV_FILE_SVERKAZ, _CSV_FILE_SVERKAZ2 ) .and. krtr->ANSWER == 0
     pss := get_parol(,,,,, 'N/W', 'W/N*' )
     If LastKey() == K_ENTER .and. AScan( tmp_pss, Crypt( pss, gpasskod ) ) > 0 ;
         .and. f_esc_enter( 'аннулирования файла', .t. )
@@ -1367,17 +1405,21 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
 
   Return ret
 
-// 01.02.26 создать файл(ы) сверки
-Function pripisnoe_naselenie_create_sverka()
+// 09.02.26 создать файл(ы) сверки
+Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
   Local ii := 0, s, buf := SaveScreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport
 
-  If !f_esc_enter( 'создания файла сверки', .t. )
+  If !f_esc_enter( iif(TIP_SVERKI == 1,'создания файла сверки','создания файла прикрепления'), .t. )
     Return Nil
   Endif
   clrline( MaxRow(), color0 )
   dbCreate( cur_dir() + 'tmp', { { 'kod', 'N', 7, 0 } } )
   Use ( cur_dir() + 'tmp' ) new
-  hGauge := gaugenew(,,, 'Составление списка для включения в файл сверки', .t. )
+  if TIP_SVERKI == 1
+    hGauge := gaugenew(,,, 'Составление списка для включения в файл сверки', .t. )
+  else
+    hGauge := gaugenew(,,, 'Составление списка для включения в файл прикрепления', .t. )
+  endif  
   gaugedisplay( hGauge )
   curr := 0
   r_use( dir_server() + 'mo_kfio',, 'KFIO' )
@@ -1434,7 +1476,11 @@ Function pripisnoe_naselenie_create_sverka()
     ii -= k
   Enddo
   fl := .f.
-  s := 'SZ2'
+  if TIP_SVERKI == 1
+    s := 'SZ2'
+  else
+    s := 'QA2'
+  endif  
   r_use( dir_server() + 'mo_krtr',, 'KRTR' )
   Index On DToS( FIELD->DFILE ) to ( cur_dir() + 'tmp_krtr' ) For Left( FIELD->FNAME, 3 ) == s
   ar := {}
@@ -1454,7 +1500,7 @@ Function pripisnoe_naselenie_create_sverka()
   If fl
     ins_array( ar, 1, 'Запрет создания ' + s1 + ' сверки:' )
   Else
-    ins_array( ar, 1, 'Подтвердите создание ' + s1 + ' сверки:' )
+    ins_array( ar, 1, 'Подтвердите создание ' + s1 + iif(TIP_SVERKI == 1,' сверки:','прикрепления:') )
     AAdd( ar2, ' Создание ' + s1 + ' сверки ' )
   Endif
   If Len( ar ) < 8
@@ -1480,7 +1526,11 @@ Function pripisnoe_naselenie_create_sverka()
     curr := 0
     RestScreen( buf )
     For i := 1 To Len( arr )
-      n_file := 'SZ2' + glob_mo()[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] )
+      if TIP_SVERKI == 1
+        n_file := 'SZ2' + glob_mo()[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] )
+      else
+        n_file := 'QA2' + glob_mo()[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] )      
+      endif  
       Select KRTR
       addrec( 6 )
       krtr->KOD := RecNo()
@@ -1499,7 +1549,11 @@ Function pripisnoe_naselenie_create_sverka()
       krtf->DFILE := krtr->DFILE
       krtf->TFILE := hour_min( Seconds() )
       krtf->TIP_IN := 0
-      krtf->TIP_OUT := _CSV_FILE_SVERKAZ
+      if TIP_SVERKI == 1
+        krtf->TIP_OUT := _CSV_FILE_SVERKAZ
+      else
+        krtf->TIP_OUT := _CSV_FILE_SVERKAZ2
+      endif    
       krtf->REESTR := krtr->KOD
       krtf->DWORK := sys_date
       krtf->TWORK1 := hour_min( Seconds() ) // время начала обработки
@@ -1513,7 +1567,11 @@ Function pripisnoe_naselenie_create_sverka()
       Delete File ( n_file )
       fp := FCreate( n_file )
       //
-      hGauge := gaugenew(,,, 'Создание файла сверки ' + n_file, .t. )
+      if TIP_SVERKI == 1
+        hGauge := gaugenew(,,, 'Создание файла сверки ' + n_file, .t. )
+      else 
+        hGauge := gaugenew(,,, 'Создание файла прикрепления ' + n_file, .t. )
+      endif
       gaugedisplay( hGauge )
       For ii := 1 To arr[ i, 1 ]
         gaugeupdate( hGauge, ii / arr[ i, 1 ] )
@@ -1553,31 +1611,40 @@ Function pripisnoe_naselenie_create_sverka()
         //
         s1 := iif( ii == 1, '', hb_eol() ) + Eval( blk, lstr( ii ) ) + ';' // в начале - номер по порядку
         // 1 - Код типа ДПФС
-        s := iif( kart_->vpolis == 3, 'П', iif( kart_->vpolis == 2, 'В', 'С' ) )
-        s1 += Eval( blk, s ) + ';'
-        If kart_->vpolis < 3
-          s := AllTrim( kart_->SPOLIS ) + AllTrim( kart_->NPOLIS )
-          If Empty( s )
-            s :=  iif( kart_->vpolis == 2, '123456789', '34' )
-          Endif
-          If kart_->vpolis == 2
-            s := PadR( s, 9, '0' )
+        if TIP_SVERKI == 1
+          s := iif( kart_->vpolis == 3, 'П', iif( kart_->vpolis == 2, 'В', 'С' ) )
+          s1 += Eval( blk, s ) + ';'
+          If kart_->vpolis < 3
+            s := AllTrim( kart_->SPOLIS ) + AllTrim( kart_->NPOLIS )
+            If Empty( s )
+              s :=  iif( kart_->vpolis == 2, '123456789', '34' )
+            Endif
+            If kart_->vpolis == 2
+              s := PadR( s, 9, '0' )
+            Else
+              s := PadR( s, 16, '0' )
+            Endif
           Else
-            s := PadR( s, 16, '0' )
+            s := ''
           Endif
-        Else
-          s := ''
-        Endif
-        if !ver_number( s )
-          s := ''
-        endif  
-        s1 += Eval( blk, s ) + ';'
-        // 3 - Единый номер полиса ОМС
-        s := iif( kart_->vpolis == 3, AllTrim( kart_->NPOLIS ), '' )
-        if !ver_number( s )
-          s := ''
-        endif  
-        s1 += Eval( blk, s ) + ';'
+          if !ver_number( s )
+            s := ''
+          endif  
+          s1 += Eval( blk, s ) + ';'
+          // 3 - Единый номер полиса ОМС
+          s := iif( kart_->vpolis == 3, AllTrim( kart_->NPOLIS ), '' )
+          if !ver_number( s )
+            s := ''
+          endif  
+          s1 += Eval( blk, s ) + ';'
+        else
+          // 3 - Единый номер полиса ОМС или что-есть
+          s := iif( kart_->vpolis == 3, AllTrim( kart_->NPOLIS ),  AllTrim( kart->POLIS ) )
+          if !ver_number( s )
+            s := ''
+          endif  
+          s1 += Eval( blk, s ) + ';'
+        endif 
         /*if fl_polis
           // 2 - Серия и номер ДПФС (только номер - наша область)
           s := iif(kart_->vpolis < 3, alltrim(kart_->NPOLIS), '')
@@ -1588,25 +1655,25 @@ Function pripisnoe_naselenie_create_sverka()
         else
           s1 += ';;'
         endif*/
-        // 4 - Фамилия застрахованного лица
+        // 4 (3) - Фамилия застрахованного лица
         s1 += Eval( blk, arr_fio[ 1 ] ) + ';'
-        // 5 - Имя застрахованного лица
+        // 5 (4) - Имя застрахованного лица
         s1 += Eval( blk, arr_fio[ 2 ] ) + ';'
-        // 6 - Отчество застрахованного лица
+        // 6 (5) - Отчество застрахованного лица
         s1 += Eval( blk, arr_fio[ 3 ] ) + ';'
-        // 7 - Дата рождения застрахованного лица
+        // 7 (6) - Дата рождения застрахованного лица
         s1 += Eval( blk, DToS( kart->date_r ) ) + ';'
         If fl_pasport
-          // 8 - Тип документа, удостоверяющего личность
+          // 8 (7) - Тип документа, удостоверяющего личность
           s := lstr( kart_->vid_ud )
           s1 += Eval( blk, s ) + ';'
-          // 9 - Номер или серия и номер документа, удостоверяющего личность.
+          // 9 (8) - Номер или серия и номер документа, удостоверяющего личность.
           s := AllTrim( kart_->ser_ud ) + ' № ' + AllTrim( kart_->nom_ud )
           s1 += Eval( blk, s ) + ';'
         Else
           s1 += ';;'
         Endif
-        // 10 - СНИЛС застрахованного лица
+        // 10 (9) - СНИЛС застрахованного лица
         s := ''
         If !Empty( kart->snils ) .and. val_snils( kart->snils, 2 )
           s := kart->snils

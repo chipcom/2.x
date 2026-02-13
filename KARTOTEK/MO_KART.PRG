@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 10.03.13 Работа с картотекой в задаче ОМС
+// 09.02.26 Работа с картотекой в задаче ОМС
 Function oms_kartoteka( k )
 
   Static si1 := 1
@@ -28,11 +28,11 @@ Function oms_kartoteka( k )
       'oms_kartoteka(3)', ;
       'oms_kartoteka(4)', ;
       'oms_kartoteka(5)' }
-    If glob_mo[ _MO_IS_UCH ]
+     //If glob_mo()[ _MO_IS_UCH ]  09.02.26
       AAdd( mas_pmt, 'Прикреплённое ~население' )
       AAdd( mas_msg, 'Работа с прикреплённым населением' )
       AAdd( mas_fun, 'oms_kartoteka(6)' )
-    Endif
+    //Endif
     popup_prompt( T_ROW, T_COL + 5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 1
     append_kart()
@@ -237,10 +237,10 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
       If is_uchastok == 3
         mkod_AK := Left( kart2->kod_AK, 6 )
       Endif
-      If glob_mo[ _MO_IS_UCH ]
+      If glob_mo()[ _MO_IS_UCH ]
         If Left( kart2->PC2, 1 ) == '1'
           mmo_pr := 'По информации из ТФОМС пациент У_М_Е_Р'
-        Elseif kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
+        Elseif kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
           mmo_pr := 'Прикреплён '
           If !Empty( kart2->pc4 )
             mmo_pr += 'с ' + AllTrim( kart2->pc4 ) + ' '
@@ -674,7 +674,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
         If !is_smp .and. eq_any( m1vid_ud, 3, 14 ) .and. !Empty( mser_ud ) .and. Empty( del_spec_symbol( mmesto_r ) )
           func_error( 4, iif( m1vid_ud == 3, 'Для свид-ва о рождении', 'Для паспорта РФ' ) + ;
             ' обязательно заполнение поля "Место рождения"' )
-          If !( glob_mo[ _MO_KOD_TFOMS ] == '126501' )
+          If !( glob_mo()[ _MO_KOD_TFOMS ] == '126501' )
             Loop
           Endif
         Endif
@@ -1970,8 +1970,8 @@ Function f1_v_kart( oBrow )
   If p_regim == 3
     blk := {|| if( RecNo() == dubl1_kart, { 3, 4 }, ;
       if( RecNo() == dubl2_kart, { 5, 6 }, { 1, 2 } ) ) }
-  Elseif glob_mo[ _MO_IS_UCH ]
-    blk := {|| iif( kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ], { 1, 2 }, ;
+  Elseif glob_mo()[ _MO_IS_UCH ]
+    blk := {|| iif( kart2->mo_pr == glob_mo()[ _MO_KOD_TFOMS ], { 1, 2 }, ;
       iif( Empty( kart2->mo_pr ), { 3, 4 }, { 5, 6 } ) ) }
   Endif
   If mem_kodkrt == 2
@@ -3198,14 +3198,15 @@ Function f2dubl_zap()
 
   Return Nil
 
-// 16.01.26
+// 12.02.26
 Function kartotek_to_screen( r1, r2 )
 
   Local i, s, s1, mmo_pr, arr := {}, tmp_select := Select()
 
   is_talon := .t. // пока так
-  If is_uchastok > 0 .or. glob_mo[ _MO_IS_UCH ]
-    s := ''
+  s := ''
+  If is_uchastok > 0 .or. glob_mo()[ _MO_IS_UCH ]
+    //s := ''
     If is_uchastok > 0
       s := 'Тип ' + kart->bukva
       s += Space( 3 ) + 'Участок ' + lstr( kart->uchast )
@@ -3216,10 +3217,11 @@ Function kartotek_to_screen( r1, r2 )
       Endif
       s += Space( 3 )
     Endif
-    If glob_mo[ _MO_IS_UCH ]
+  endif  
+    //If glob_mo()[ _MO_IS_UCH ]
       If Left( kart2->PC2, 1 ) == '1'
         mmo_pr := 'По информации из ТФОМС пациент У_М_Е_Р'
-      Elseif kart2->MO_PR == glob_mo[ _MO_KOD_TFOMS ]
+      Elseif kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
         mmo_pr := 'Прикреплён '
         If !Empty( kart2->pc4 )
           mmo_pr += 'с ' + AllTrim( kart2->pc4 ) + ' '
@@ -3228,6 +3230,9 @@ Function kartotek_to_screen( r1, r2 )
         Endif
         mmo_pr += 'к нашей МО'
       Else
+        //mydebug(,kart2->mo_pr)
+       // mydebug(,len(glob_arr_mo()))
+      // mydebug(,print_array(glob_arr_mo()))
         s1 := AllTrim( inieditspr( A__MENUVERT, glob_arr_mo(), kart2->mo_pr ) )
         If Empty( s1 )
           mmo_pr := 'Прикрепление --- неизвестно ---'
@@ -3242,9 +3247,9 @@ Function kartotek_to_screen( r1, r2 )
         Endif
       Endif
       s += mmo_pr
-    Endif
+    //Endif
     AAdd( arr, s )
-  Endif
+  //Endif
   s := 'Ф.И.О.: ' + kart->fio + Space( 7 ) + iif( kart->pol == 'М', 'мужчина', 'женщина' )
   AAdd( arr, s )
   s := 'Дата рождения: ' + full_date( kart->date_r ) + Space( 5 ) + ;
@@ -3361,7 +3366,7 @@ Function prn_itogo_uch_vrach()
   Do While !Eof()
     @ MaxRow(), 0 Say Str( ++ii / kart->( LastRec() ) * 100, 6, 2 ) + '%' Color cColorWait
     If kart->kod > 0 .and. !( Left( kart2->PC2, 1 ) == '1' ) ;
-        .and. kart2->mo_pr == glob_MO[ _MO_KOD_TFOMS ]  // прикреплён к НАМ
+        .and. kart2->mo_pr == glob_mo()[ _MO_KOD_TFOMS ]  // прикреплён к НАМ
       k := iif( count_years( kart->date_r, sys_date ) < 18, 2, 1 )
       If kart->uchast > 0
         fl := .f.
@@ -3411,7 +3416,7 @@ Function prn_itogo_uch_vrach()
   Index On Str( FIELD->kod_tf, 10 ) to ( cur_dir() + 'tmp_kart_etk' )
   r_use( dir_server() + 'kart_et' )
   Index On Str( FIELD->kod_tf, 10 ) to ( cur_dir() + 'tmp_kart_et' ) ;
-    For FIELD->mo_pr == glob_MO[ _MO_KOD_TFOMS ] .and. !Empty( FIELD->snils_vr ) .and. !( kart_et->PC2 == '1' )
+    For FIELD->mo_pr == glob_mo()[ _MO_KOD_TFOMS ] .and. !Empty( FIELD->snils_vr ) .and. !( kart_et->PC2 == '1' )
   Go Top
   Do While !Eof()
     Select KART_ETK

@@ -2,6 +2,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+//12.02.26
 function menu_X_oms()
 
   local fl
@@ -71,10 +72,11 @@ function menu_X_oms()
     'view_list_reestr()', ;
     'vozvrat_reestr()' ;
   } )
-  If glob_mo[ _MO_IS_UCH ]
+  //If glob_mo[ _MO_IS_UCH ]
     AAdd( first_menu[ 2 ], 'П~рикрепления' )
     AAdd( first_message[ 2 ], 'Просмотр файлов прикрепления (и ответов на них), запись файлов для ТФОМС' )
     AAdd( func_menu[ 2 ], 'view_reestr_pripisnoe_naselenie()' )
+  If glob_mo()[ _MO_IS_UCH ]
     AAdd( first_menu[ 2 ], '~Открепления' )
     AAdd( first_message[ 2 ], 'Просмотр полученных из ТФОМС файлов откреплений' )
     AAdd( func_menu[ 2 ], 'view_otkrep_pripisnoe_naselenie()' )

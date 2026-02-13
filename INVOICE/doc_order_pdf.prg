@@ -238,6 +238,7 @@ function print_pdf_reestr( cFileToSave, fError )
   curX := 0
   total := 0
   iPage := 1
+altd()
   do while ! ( dbAliasDT )->( Eof() )
     nCurrent++
     if ( iPage == 2 .and. nCurrent > 13 ) .or. ( iPage > 2 .and. nCurrent > 18 )

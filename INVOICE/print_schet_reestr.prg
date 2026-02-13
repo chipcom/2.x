@@ -94,10 +94,11 @@ function schet_reestr( arr, destination, one, reg )
     fNameReestr := destination + 'SRM' + tailName
   
     Use ( fr_data ) New Alias FRD
-    Index On Str( nomer, 4 ) to ( fr_data )
+    Index On Str( FIELD->nomer, 4 ) to ( fr_data )
     
     Use ( fr_titl ) New Alias FRT
-    Append Blank
+//    Append Blank
+    frt->( dbAppend() )
     frt->name := frt->name_schet := org->name
     If !Empty( org->name_schet )
       frt->name_schet := org->name_schet
@@ -154,8 +155,8 @@ function schet_reestr( arr, destination, one, reg )
     Endif
     frt->susluga := s
     frt->summa := schet->summa
-
-if ! one .or. ( one .and. reg == 2 )
+altd()
+  if ! one .or. ( one .and. reg == 2 )
     hGauge := gaugenew( , , { 'GR+/RB', 'BG+/RB', 'G+/RB' }, 'Составление реестра счёта № ' + AllTrim( schet_->nschet ), .t. )
     gaugedisplay( hGauge )
     Select HUMAN
@@ -248,7 +249,9 @@ if ! one .or. ( one .and. reg == 2 )
           Endif
         Endif
         Select FRD
-        Append Blank
+altd()
+//        Append Blank
+        frd->( dbAppend() )
         frd->nomer := iif( fl_numeration, ii, human_->SCHET_ZAP )
         frd->fio := human->fio
         frd->pol := iif( human->pol == 'М', 'муж', 'жен' )
@@ -307,21 +310,23 @@ if ! one .or. ( one .and. reg == 2 )
     Endif
     closegauge( hGauge )
   endif
-    frd->( dbGoTop() )
-    if one
-      frd->( dbCloseArea() )
-      frt->( dbCloseArea() )
-      if reg == 1
-        call_fr( 'mo_schet' )
-      elseif reg == 2
+
+  frd->( dbGoTop() )
+altd()
+  if one
+    frd->( dbCloseArea() )
+    frt->( dbCloseArea() )
+    if reg == 1
+      call_fr( 'mo_schet' )
+    elseif reg == 2
       call_fr( 'mo_reesv' )
-      endif
-    else
-      print_pdf_order( fNameSchet, fError )
-      print_pdf_reestr( fNameReestr, fError )
-      frd->( dbCloseArea() )
-      frt->( dbCloseArea() )
     endif
+  else
+    print_pdf_order( fNameSchet, fError )
+    print_pdf_reestr( fNameReestr, fError )
+    frd->( dbCloseArea() )
+    frt->( dbCloseArea() )
+  endif
 
   next
   org->( dbCloseArea() )

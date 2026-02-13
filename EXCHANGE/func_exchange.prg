@@ -478,7 +478,7 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Return fl
 
-// 15.12.25 если это укрупнённый архив, распаковать и прочитать
+// 10.02.26 если это укрупнённый архив, распаковать и прочитать
 Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
 
   Static cStFile, si
@@ -633,7 +633,34 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
         func_error( 4, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
       Endif
     Endif
-  Elseif eq_any( Left( s, 3 ), 'VHM', 'VFM' ) .and. SubStr( s, 4, 6 ) == glob_MO[ _MO_KOD_TFOMS ]
+      Elseif Left( s, 3 ) == 'RA2' // ответ на запрос сверки для МО без прикрепления
+        fl := .t.
+    tip_csv_file := _CSV_FILE_SVERKAO2  // Новый формат
+    kod_csv_reestr := 0
+    If ( s1 := SubStr( s, 4, 6 ) ) == current_mo[ _MO_KOD_TFOMS ]
+      r_use( dir_server() + 'mo_krtf', , 'KRTF' )
+      Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmp_krtf' )
+      find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
+      If Found()
+        fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
+        viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
+      Else
+        find ( PadR( 'QA' + SubStr( s, 3 ), 26 ) ) // имя то же самое, начиная с третьего знака
+        If Found()
+          kod_csv_reestr := krtf->REESTR
+        Else
+          fl := func_error( 4, 'Файл запроса по прикреплению для данного протокола обработки мы не отправляли в ТФОМС' )
+        Endif
+      Endif
+      krtf->( dbCloseArea() )
+    Else
+      fl := func_error( 4, 'Ваш код МО ' + current_mo[ _MO_KOD_TFOMS ] + ;
+        ' не соответствует коду получателя: ' + s1 )
+      If ( i := AScan( glob_arr_mo(), {| x| x[ _MO_KOD_TFOMS ] == s1 } ) ) > 0
+        func_error( 4, 'Это файл для: ' + glob_arr_mo()[ i, _MO_SHORT_NAME ] )
+      Endif
+    Endif
+  Elseif eq_any( Left( s, 3 ), 'VHM', 'VFM' ) .and. SubStr( s, 4, 6 ) == glob_MO()[ _MO_KOD_TFOMS ]
     c := SubStr( s, 2, 1 )
     kod_csv_reestr := 0
     tip_csv_file := 0
