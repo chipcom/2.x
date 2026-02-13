@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 12.09.25
+// 13.02.26
 function schet_reestr( arr, destination, one, reg )
   // arr - массив счетов
   // destination - целевой каталог
@@ -71,14 +71,14 @@ function schet_reestr( arr, destination, one, reg )
     dir_server() + 'uslugi1s' }, 'USL1' )
   r_use( dir_server() + 'uslugi', , 'USL' )
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-  Set Relation To u_kod into USL
+  Set Relation To FIELD->u_kod into USL
 
   r_use_base( 'kartotek', , .f. ) // индексы не нужны
 
   g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humans', 'HUMAN' )
-  Set Relation To RecNo() into HUMAN_, To kod_k into KART
+  Set Relation To RecNo() into HUMAN_, To FIELD->kod_k into KART
 
   For iSchet := 1 To Len( arr )
     schet->( dbGoto( arr[ iSchet ] ) )  // встанем на счет
@@ -86,7 +86,7 @@ function schet_reestr( arr, destination, one, reg )
     dbCreate( fr_titl, adbf )
     dbCreate( fr_data, adbf1 )
 
-    tailName := AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) ;
+    tailName := AllTrim( glob_mo()[ _MO_KOD_TFOMS ] ) ;
       + iif( AllTrim( schet_->SMO ) == '34', 'T34', 'S' + AllTrim( schet_->SMO ) ) ;
       + '_' + AllTrim( schet_->nschet ) + '_' ;
       + str( Year( schet_->DSCHET ), 4 ) + StrZero( Month( schet_->DSCHET ), 2 ) + StrZero( Day( schet_->DSCHET ), 2 )  + '.pdf'
@@ -155,7 +155,7 @@ function schet_reestr( arr, destination, one, reg )
     Endif
     frt->susluga := s
     frt->summa := schet->summa
-altd()
+//altd()
   if ! one .or. ( one .and. reg == 2 )
     hGauge := gaugenew( , , { 'GR+/RB', 'BG+/RB', 'G+/RB' }, 'Составление реестра счёта № ' + AllTrim( schet_->nschet ), .t. )
     gaugedisplay( hGauge )
@@ -249,7 +249,7 @@ altd()
           Endif
         Endif
         Select FRD
-altd()
+//altd()
 //        Append Blank
         frd->( dbAppend() )
         frd->nomer := iif( fl_numeration, ii, human_->SCHET_ZAP )
@@ -312,7 +312,7 @@ altd()
   endif
 
   frd->( dbGoTop() )
-altd()
+//altd()
   if one
     frd->( dbCloseArea() )
     frt->( dbCloseArea() )

@@ -93,6 +93,58 @@ Function update_data_db( aVersion )
 
 Return Nil
 
+// 13.02.26
+function update_v60204()
+
+  local arr := {}, mkod
+
+  g_use( dir_server() + 'human_', , 'human_', , .t. )
+  Index On str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_hum_' )
+  g_use( dir_server() + 'human_2', , 'HUMAN_2', , .t. )
+  g_use( dir_server() + 'human', dir_server() + 'humank', 'human', , .t. )
+//  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
+
+  use_base( 'schet' )
+  set order to 2
+
+  r_use( dir_server() + 'mo_rees', , 'REES' )
+  rees->( dbGoTop() )
+  do while ! rees->( Eof() )
+
+    if ( rees->DSCHET >= CToD( '01/02/2026' ) ) .and. ( rees->RES_TFOMS == 1 )
+      schet->( dbSeek( SubStr( rees->NOMER_S, 1, 10 ) + dtoc4( rees->DSCHET ) ) )
+      if schet->( Found() )
+        do while schet_->nschet == rees->NOMER_S .and. ! schet->( Eof() )
+          if schet_->DSCHET == rees->DSCHET
+
+            mkod := schet->kod  // код счета
+            human_->( dbseek( str( rees->KOD , 6 ) ) )
+            if human_->(Found() )
+              do while human_->reestr == rees->KOD .and. ! human_->( Eof() )
+                human->( dbSeek( Str( human_->( RecNo() ), 7) ) )
+                if human->(Found() )
+
+                  human->schet := mkod
+                  human->tip_h := B_SCHET
+        //        AAdd( arr, { human->kod, human->FIO } )
+
+                endif
+                human_->( dbSkip() )
+              enddo
+            endif
+          endif
+          schet->( dbSkip() )
+        enddo
+      endif
+    endif
+    rees->( dbSkip() )
+  enddo
+
+//  Set Relation To
+  dbCloseAll()
+
+  return arr
+
 // 09.02.26
 Function update_v60203()     // Заполним информацию о профиле МЗ РФ
 
