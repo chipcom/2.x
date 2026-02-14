@@ -87,7 +87,7 @@ function serv_xml_fns( nKey, oBrow )
   RestScreen( buf )
   Return ret
 
-// 28.08.24
+// 14.02.26
 Function view_list_xml( oBrow )
 
   Local buf := save_maxrow(), ;
@@ -97,10 +97,10 @@ Function view_list_xml( oBrow )
     }
   local nFile, ft, name_file := cur_dir() + 'fns_nalog.txt'
   local arr_title := { ;
-    'дддддддбддддддбдддддддддддбдддддддддддддддддддддддддддддддбддддддддддбдддддддддддд', ;
-    ' █╝╛╔Ю Ё┼╝Ю-╙═Ё   └═Б═    Ё   ■═╛╗╚╗О, ╗╛О, ╝БГ╔АБ╒╝      Ё  ▒Ц╛╛═1  Ё  ▒Ц╛╛═2', ;
-    'А╞Ю═╒╙╗Ё      ЁА╝АБ═╒╚╔╜╗ОЁ                               Ё    ЮЦ║.  Ё    ЮЦ║.', ;
-    'дддддддеддддддедддддддддддедддддддддддддддддддддддддддддддеддддддддддеддддддддддддд' ;
+    'дддддддбддддддбддддддддддбдддддддддддддддддддддддддддддддбдддддддддддбдддддддддд', ;
+    ' █╝╛╔Ю Ё┼╝Ю-╙═Ё   └═Б═   Ё   ■═╛╗╚╗О, ╗╛О, ╝БГ╔АБ╒╝      Ё   ▒Ц╛╛═1  Ё  ▒Ц╛╛═2  ', ;
+    'А╞Ю═╒╙╗Ё      Ё А╝АБ═╒-╗ОЁ                               Ё    ЮЦ║.   Ё   ЮЦ║.   ', ;
+    'дддддддеддддддеддддддддддедддддддддддддддддддддддддддддддедддддддддддедддддддддд' ;
   }
 
   mywait()
@@ -120,12 +120,12 @@ Function view_list_xml( oBrow )
   Do While ! fns->( Eof() )
     if fns->kod_xml == xml->kod
       ft:add_string( ' ' + str( fns->num_s, 5 ) + ' Ё  ' + strzero( fns->version, 3 ) ;
-        + ' Ё ' + transform( fns->date, '99.99.99' ) + 'Ё ' +  + padr( fns->plat_fio, 30 ) + 'Ё ' ;
-        + str( fns->sum1, 8, 2 ) + ' Ё' + str( fns->sum2, 8, 2 ) )
+        + ' Ё' + transform( fns->date, '99.99.99' ) + 'Ё ' +  + padr( fns->plat_fio, 30 ) + 'Ё ' ;
+        + str( fns->sum1, 10, 2 ) + 'Ё' + str( fns->sum2, 10, 2 ) )
     endif
     fns->( dbSkip() )
   Enddo
-  ft:add_string( 'дддддддаддддддадддддддддддадддддддддддддддддддддддддддддддаддддддддддаддддддддддддд' )
+  ft:add_string( 'дддддддаддддддаддддддддддадддддддддддддддддддддддддддддддадддддддддддадддддддддд' )
   nFile := ft:NameFile
   ft := nil
   viewtext( name_file, , , , .t., , , reg_print )

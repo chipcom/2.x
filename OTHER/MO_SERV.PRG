@@ -3369,7 +3369,7 @@ Function nastr_all( k, nTask )
 
   Return Nil
 
-// 17.07.25 ¡é¨¥ ­ áâà®©ª¨ ª ¦¤®© § ¤ ç¨
+// 14.02.26 ¡é¨¥ ­ áâà®©ª¨ ª ¦¤®© § ¤ ç¨
 Function f1nastr_all( nameTask, nTask )
 
   Local mm_tmp := {}, ctitle
@@ -3637,12 +3637,12 @@ Function f1nastr_all( nameTask, nTask )
         {| x| menu_reader( x, mm_v_methodinj, A__MENUVERT ) }, ;
         0, {| x| inieditspr( A__MENUVERT, mm_v_methodinj, x ) }, ;
         '‚ë¢®¤¨âì ‘¯à ¢®ç­¨ª ””Œ‘ “’ˆ ‚‚…„…ˆŸ:' } )
-      AAdd( mm_tmp, { "beg_rees", "N", 6, 0, NIL, ;
+      AAdd( mm_tmp, { "beg_rees", "N", 4, 0, NIL, ;
         nil, ;
         1, nil, ;
         "„®¯ãáâ¨¬ë© ­ ¨¬¥­ìè¨© ­®¬¥à à¥¥áâà  á«ãç ¥¢", ;
         {|| mbeg_rees > 0 .and. mbeg_rees < mend_rees } } )
-      AAdd( mm_tmp, { "end_rees", "N", 6, 0, NIL, ;
+      AAdd( mm_tmp, { "end_rees", "N", 4, 0, NIL, ;
         nil, ;
         999999, nil, ;
         "„®¯ãáâ¨¬ë© ­ ¨¡®«ìè¨© ­®¬¥à à¥¥áâà  á«ãç ¥¢", ;
@@ -3714,8 +3714,16 @@ Function f1nastr_all( nameTask, nTask )
       tmp->path_rab  := cur_dir()
       tmp->path_exe  := dir_exe()
       tmp->path_dbf  := Upper( dir_server() )
+      // 14.02.26
+      if mem_beg_rees > 9999
+        mem_beg_rees := 4999
+      endif  
       tmp->beg_rees  := mem_beg_rees
+      if mem_end_rees > 9999
+        mem_end_rees := 9999
+      endif
       tmp->end_rees  := mem_end_rees
+      // 
       tmp->bnn_rees  := mem_bnn13rees
       tmp->enn_rees  := mem_enn13rees
       tmp->date_edit := public_date        //

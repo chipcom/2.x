@@ -93,8 +93,8 @@ function loadQ015()
 function getRuleCheckErrorByID_Q015(idRule)
   // idRule - идентификатор правила проверки
   // arr[1] - наименование категории проверки
-  // arr[2] - Код объекта НСИ, на соответствие с которым осуществляется проверка значения элемента
-  // arr[3] - Имя элемента объекта НСИ, на соответствие с которым осуществляется проверка значения элемента
+  // arr[2] - Код объекта НСИ, на соответствие с которым осуществляется проверка значения элемента (id_el)
+  // arr[3] - Имя элемента объекта НСИ, на соответствие с которым осуществляется проверка значения элемента (nsi_obj)
   // arr[4] - Условие проведения проверки элемента
   // arr[5] - Множество допустимых значений элемента
   // arr[6] - комментарий
@@ -142,7 +142,11 @@ function getRuleCheckErrorByID_Q015(idRule)
     AAdd(aRet, sqlite3_column_text(stmt, 3))
     AAdd(aRet, sqlite3_column_text(stmt, 4))
     AAdd(aRet, hb_Utf8ToStr(sqlite3_column_blob(stmt, 5), 'RU866'))
-    AAdd(aRet, hb_Utf8ToStr(sqlite3_column_blob(stmt, 6), 'RU866'))
+    if  len(alltrim(hb_Utf8ToStr(sqlite3_column_blob(stmt, 6), 'RU866'))) > 2
+      AAdd(aRet, hb_Utf8ToStr(sqlite3_column_blob(stmt, 6), 'RU866'))
+    else
+      AAdd(aRet, alltrim(sqlite3_column_text(stmt, 2))+"  "+alltrim(sqlite3_column_text(stmt, 4)))
+    endif     
     AAdd(aRet, hb_Utf8ToStr(sqlite3_column_blob(stmt, 7), 'RU866'))
     AAdd(aRet, ctod(sqlite3_column_text(stmt, 8)))
     AAdd(aRet, ctod(sqlite3_column_text(stmt, 9)))
