@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.02.26 создание XML-файлов реестра
+// 14.02.26 создание XML-файлов реестра
 Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
@@ -210,7 +210,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
         human_->REES_NUM := human_->REES_NUM + 1
       Endif
       human_->REESTR := mkod_reestr
-      human_->REES_ZAP := pkol
+//      human_->REES_ZAP := pkol
       If tmpb->ishod == 89  // 2-й случай
         dbSelectArea( 'HUMAN_3' )
         human_3->( dbSeek( Str( tmpb->kod_human, 7 ) ) )
@@ -220,7 +220,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
             human_3->REES_NUM := human_3->REES_NUM + 1
           Endif
           human_3->REESTR := mkod_reestr
-          human_3->REES_ZAP := pkol
+//          human_3->REES_ZAP := pkol
           //
           dbSelectArea( 'HUMAN' )
           human->( dbGoto( human_3->kod ) ) // встать на 1-й случай
@@ -231,7 +231,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
             human_->REES_NUM := human_->REES_NUM + 1
           Endif
           human_->REESTR := mkod_reestr
-          human_->REES_ZAP := pkol
+//          human_->REES_ZAP := pkol
         Endif
         If pkol % 2000 == 0
           dbUnlockAll()
