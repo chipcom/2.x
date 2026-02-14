@@ -524,12 +524,13 @@ Function f11_view_list_reestr()
   Return PadR( s, 9 ) //  10 )
 
 
-// 22.03.24
+// 14.02.26
 Function f2_view_list_reestr( nKey, oBrow )
 
   Local ret := -1, rec := rees->( RecNo() ), tmp_color := SetColor(), r, r1, r2, ;
     s, buf := SaveScreen(), arr, i, k, mdate, t_arr[ 2 ], arr_pmt := {}
   local nfile
+  local arr_title
 
   Do Case
   Case nKey == K_F7
@@ -665,8 +666,21 @@ Function f2_view_list_reestr( nKey, oBrow )
     fp := FCreate( nfile )
     n_list := 1
     tek_stroke := 0
+    
+    oldy := oldm := 0
+    Select REES
+    Index On Str( FIELD->NYEAR, 4 ) to ( cur_dir() + 'tmpr1' ) unique
+    rees->( dbGoBottom() )  //  Go Bottom
+    Private syear := rees->NYEAR
+    Index On Str( FIELD->NYEAR, 4 ) + Str( FIELD->NMONTH, 2 ) + Str( FIELD->NSCHET, 6 ) to ( cur_dir() + 'tmpr1' ) For FIELD->NYEAR == syear
+    rees->( dbGoTop() ) //  Go Top
+
     add_string( '' )
-    add_string( Center( '‘â â¨áâ¨ª  ¯® à¥¥áâà ¬', sh ) )
+    if syear >= 2026
+      add_string( Center( '‘â â¨áâ¨ª  ¯® à¥¥áâà ¬ áç¥â®¢ ¯à¨­ïâëå ’”ŽŒ‘', sh ) )
+    else
+      add_string( Center( '‘â â¨áâ¨ª  ¯® à¥¥áâà ¬', sh ) )
+    endif
     add_string( '' )
     arr_title := { ;
       'ÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄ', ;
@@ -674,14 +688,12 @@ Function f2_view_list_reestr( nKey, oBrow )
       'à¥¥áâà³ à¥¥áâà ³   ä ©«  à¥¥áâà     ³¡®«ì³   à¥¥áâà   ³‘ ¨ ’Š³à ¡®â.¢ ’”ŽŒ‘³âãá', ;
       'ÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄ' }
     AEval( arr_title, {| x| add_string( x ) } )
-    oldy := oldm := 0
-    Select REES
-    Index On Str( FIELD->NYEAR, 4 ) to ( cur_dir() + 'tmpr1' ) unique
-    Go Bottom
-    Private syear := rees->NYEAR
-    Index On Str( FIELD->NYEAR, 4 ) + Str( FIELD->NMONTH, 2 ) + Str( FIELD->NSCHET, 6 ) to ( cur_dir() + 'tmpr1' ) For FIELD->NYEAR == syear
-    Go Top
-    Do While !Eof()
+
+    Do While ! rees->( Eof() )
+      if rees->nyear >= 2026 .and. rees->RES_TFOMS != 1
+        rees->( dbSkip() )
+        loop
+      endif
       If verify_ff( HH - 2, .t., sh )
         AEval( arr_title, {| x| add_string( x ) } )
       Endif
@@ -732,23 +744,20 @@ Function f2_view_list_reestr( nKey, oBrow )
   Return ret
 
 
-// 04.11.25
+// 14.02.26
 Function f3_view_list_reestr( oBrow )
 
   Static si := 1
   Local i, r := Row(), r1, r2, buf := save_maxrow(), ;
     mm_func := { 0, -1, -2, -3 }, ;
-    mm_menu := {}// ;
-//      '‘¯¨á®ª ~¢á¥å ¯ æ¨¥­â®¢ ¢ à¥¥áâà¥', ;
-//      '‘¯¨á®ª ~®¡à ¡®â ­­ëå ¢ ’”ŽŒ‘', ;
-//      '‘¯¨á®ª ~­¥ ®¡à ¡®â ­­ëå ¢ ’”ŽŒ‘' ;
-//    }
+    mm_menu := {}
 
   AAdd( mm_menu, '‚¥àá¨ï ¯à®£à ¬¬ë: ' + iif( Empty( rees->VER_APP ), '¤® ¢¥àá¨¨ 5.11.1', AllTrim( rees->VER_APP ) ) )
   AAdd( mm_menu, '‘¯¨á®ª ~¢á¥å ¯ æ¨¥­â®¢ ¢ à¥¥áâà¥' )
-  AAdd( mm_menu, '‘¯¨á®ª ~®¡à ¡®â ­­ëå ¢ ’”ŽŒ‘' )
-  AAdd( mm_menu, '‘¯¨á®ª ~­¥ ®¡à ¡®â ­­ëå ¢ ’”ŽŒ‘' )
-
+  if rees->nyear < 2026
+    AAdd( mm_menu, '‘¯¨á®ª ~®¡à ¡®â ­­ëå ¢ ’”ŽŒ‘' )
+    AAdd( mm_menu, '‘¯¨á®ª ~­¥ ®¡à ¡®â ­­ëå ¢ ’”ŽŒ‘' )
+  endif
   mywait()
   Select MO_XML
   Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) ;
