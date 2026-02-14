@@ -1169,3 +1169,28 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
   Endif
 
   Return .t.
+
+// 18.11.25 создать счета по результатам прочитанного реестра СП
+Function create_schet_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
+
+  Local arr_schet := {}, k, arr_zip := {}, ;
+    CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], mb, me, nsh, ;
+    CODE_MO  := glob_mo()[ _MO_KOD_FFOMS ]
+
+  Default fl_msg To .t., arr_s TO {}
+  Private pole
+  //
+  Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
+  mdate_schet := tmp1->_DSCHET
+  nsh := f_mb_me_nsh( tmp1->_year, @mb, @me )
+  k := tmp1->_year
+  Close databases
+  If k > 2018
+    Return create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk )
+  Else
+    // см. файл not_use/create_schet17_from_XML.prg
+    func_error( 10, 'Счет ранее 2019 не формируется!' )
+    Return .f.
+  Endif
+  Return .t.
+
