@@ -587,6 +587,7 @@ Function f2_import_from_lis( par )
       AAdd( aerr, "PAT=" + arr_pac[ LIS_KOD_AK ] + ' "' + mfio + '"' )
       Return aerr
     Endif
+    // номер направления - добавить ?
     If Empty( arr_order[ j, LISS_MO ] )
       AAdd( aerr, "Не заполнена направляющая мед.организация у пациента" )
       AAdd( aerr, "PAT=" + arr_pac[ LIS_KOD_AK ] + ' "' + mfio + '" (ORDER=' + lstr( arr_order[ j, LISS_KOD ] ) + ')' )
@@ -891,7 +892,20 @@ Function f2_import_from_lis( par )
       human->UCH_DOC    := lstr( arr_order[ j, LISS_KOD ] ) // ORDER по ЛИС
       human->N_DATA     := arr_order[ j, LISS_NDATA ]
       human->K_DATA     := arr_order[ j, LISS_KDATA ]
-      //
+      // вставка
+     /* if human->RAB_NERAB == 0
+        human->VZ := 1
+      elseif human->RAB_NERAB == 1
+        human->VZ := 5
+      elseif human->RAB_NERAB == 2
+        human->VZ := 4
+      else
+        human->VZ := 6
+      endif*/
+      human->VZ         :=  6 // 'N',   2, 0 }, ; // Вид занятости, указывается в соответствии со справочником V039 ФФОМС - прочие
+      human->MOP        :=  1 // 'N',   3, 0 }, ; // Классификатор мест обращений (посещений) (KMOP) V040 - поликлиника
+      human->MO_PR      :=  arr_order[ j, LISS_MO ] //  с  6, 0 }  ; // Код МО, выбранной застрахованным лицом для получения первичной медикосанитарной помощи по справочнику F032
+       //
       human_->SMO       := kart_->SMO
       human_->VPOLIS    := kart_->VPOLIS
       human_->SPOLIS    := kart_->SPOLIS
@@ -905,6 +919,9 @@ Function f2_import_from_lis( par )
       human_->USL_OK    := 3  // амбулаторно
       human_->VIDPOM    := 13 // первичная специализированная
       human_->PROFIL    := mprofil // клиническая лабораторная диагностика или бактериология
+      // вставка 13.02.2026
+      human->PROFIL_M   :=  soot_v002_m003( human_->PROFIL, human->VZROS_REB ) // 'N',   3, 0 }, ; // профилей медицинской помощи M003
+      //   
       human_->IDSP      := 4  // лечебно-диагностическая процедура
       human_->NPR_MO    := arr_order[ j, LISS_MO ]
       human_->KOD_DIAG0 := ""
