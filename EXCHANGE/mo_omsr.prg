@@ -749,7 +749,7 @@ Function f3_view_list_reestr( oBrow )
 
   Static si := 1
   Local i, r := Row(), r1, r2, buf := save_maxrow(), ;
-    mm_func := { 0, -1, -2, -3 }, ;
+    mm_func := iif( rees->nyear < 2026, { 0, -1, -2, -3 }, { 0, -1 } ), ;
     mm_menu := {}
 
   AAdd( mm_menu, '‚¥àá¨ï ¯à®£à ¬¬ë: ' + iif( Empty( rees->VER_APP ), '¤® ¢¥àá¨¨ 5.11.1', AllTrim( rees->VER_APP ) ) )
@@ -761,12 +761,13 @@ Function f3_view_list_reestr( oBrow )
   mywait()
   Select MO_XML
   Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) ;
-    For FIELD->reestr == rees->kod .and. Between( FIELD->TIP_IN, _XML_FILE_FLK, _XML_FILE_SP ) .and. Empty( FIELD->TIP_OUT )
-  Go Top
-  Do While !Eof()
+    For FIELD->reestr == rees->kod .and. eq_any( FIELD->TIP_IN, _XML_FILE_FLK, _XML_FILE_SP, _XML_FILE_SCHET_26, _XML_FILE_FLK_26 ) .and. Empty( FIELD->TIP_OUT )
+//    For FIELD->reestr == rees->kod .and. Between( FIELD->TIP_IN, _XML_FILE_FLK, _XML_FILE_SP, _XML_FILE_SCHET_26, _XML_FILE_FLK_26 ) .and. Empty( FIELD->TIP_OUT )
+  mo_xml->( dbGoTop() )   //  Go Top
+  Do While ! mo_xml->( Eof() )
     AAdd( mm_func, mo_xml->kod )
     AAdd( mm_menu, 'à®â®ª®« çâ¥­¨ï ' + RTrim( mo_xml->FNAME ) + iif( Empty( mo_xml->TWORK2 ), '-—’…ˆ… … ‡€‚…˜…Ž', '' ) )
-    Skip
+    mo_xml->( dbSkip() )    //Skip
   Enddo
   Select MO_XML
   Set Index To

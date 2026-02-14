@@ -475,7 +475,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
   dbCloseAll()
   Return .t.
 
-// 11.02.26 заполнить поле 'N_ZAP' в файле 'tmp2'
+// 14.02.26 заполнить поле 'N_ZAP' в файле 'tmp2'
 Function fill_tmp2_file_flk_26()
 
   Local i, s, s1, adbf, ar
@@ -523,6 +523,7 @@ Function fill_tmp2_file_flk_26()
         endif
         
       Case eq_any( s, 'SLUCH', 'Z_SL' )
+        s1 := tmp2->SL_ID
         dbSelectArea( 'T1' )
         Locate For Upper( t1->ID_C ) == PadR( Upper( s1 ), 36 )
         If t1->( Found() )
