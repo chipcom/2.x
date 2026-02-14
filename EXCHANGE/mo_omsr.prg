@@ -743,7 +743,6 @@ Function f2_view_list_reestr( nKey, oBrow )
 
   Return ret
 
-
 // 14.02.26
 Function f3_view_list_reestr( oBrow )
 
@@ -751,6 +750,8 @@ Function f3_view_list_reestr( oBrow )
   Local i, r := Row(), r1, r2, buf := save_maxrow(), ;
     mm_func := iif( rees->nyear < 2026, { 0, -1, -2, -3 }, { 0, -1 } ), ;
     mm_menu := {}
+  local fileName
+  local answer_dir := dir_server() + dir_XML_TF() + hb_ps()
 
   AAdd( mm_menu, 'Версия программы: ' + iif( Empty( rees->VER_APP ), 'до версии 5.11.1', AllTrim( rees->VER_APP ) ) )
   AAdd( mm_menu, 'Список ~всех пациентов в реестре' )
@@ -759,16 +760,26 @@ Function f3_view_list_reestr( oBrow )
     AAdd( mm_menu, 'Список ~не обработанных в ТФОМС' )
   endif
   mywait()
+
   Select MO_XML
   Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) ;
     For FIELD->reestr == rees->kod .and. eq_any( FIELD->TIP_IN, _XML_FILE_FLK, _XML_FILE_SP, _XML_FILE_SCHET_26, _XML_FILE_FLK_26 ) .and. Empty( FIELD->TIP_OUT )
 //    For FIELD->reestr == rees->kod .and. Between( FIELD->TIP_IN, _XML_FILE_FLK, _XML_FILE_SP, _XML_FILE_SCHET_26, _XML_FILE_FLK_26 ) .and. Empty( FIELD->TIP_OUT )
   mo_xml->( dbGoTop() )   //  Go Top
-  Do While ! mo_xml->( Eof() )
-    AAdd( mm_func, mo_xml->kod )
-    AAdd( mm_menu, 'Протокол чтения ' + RTrim( mo_xml->FNAME ) + iif( Empty( mo_xml->TWORK2 ), '-ЧТЕНИЕ НЕ ЗАВЕРШЕНО', '' ) )
-    mo_xml->( dbSkip() )    //Skip
-  Enddo
+  if rees->nyear < 2026
+    Do While  mo_xml->reestr == rees->kod .and. ! ( mo_xml->( Eof() ) )
+      AAdd( mm_func, mo_xml->kod )
+      AAdd( mm_menu, 'Протокол чтения ' + RTrim( mo_xml->FNAME ) + iif( Empty( mo_xml->TWORK2 ), '-ЧТЕНИЕ НЕ ЗАВЕРШЕНО', '' ) )
+      mo_xml->( dbSkip() )    //Skip
+    Enddo
+  else
+    fileName := AllTrim( rees->name_xml )
+    fileName := iif( Left( fileName, 1 ) == 'H', AtRepl( 'HM', fileName, 'VHM'), AtRepl( 'FM', fileName, 'VFM') )
+    If hb_FileExists( answer_dir + fileName + '.TXT' )
+      AAdd( mm_func, mo_xml->kod )
+      AAdd( mm_menu, 'Протокол чтения ' + RTrim( mo_xml->FNAME ) ) // + iif( Empty( mo_xml->TWORK2 ), '-ЧТЕНИЕ НЕ ЗАВЕРШЕНО', '' ) )
+    endif
+  Endif
   Select MO_XML
   Set Index To
   If r <= 12

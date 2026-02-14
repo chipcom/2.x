@@ -573,6 +573,7 @@ Function vozvrat_reestr()
     Return func_error( 4, Sreestr_err )
   Endif
   Private goal_dir := dir_server() + dir_XML_MO() + hb_ps()
+
   g_use( dir_server() + 'mo_rees',, 'REES' )
   Index On DToS( FIELD->dschet ) + Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees' ) DESCENDING For Empty( FIELD->date_out )
   Go Top
@@ -617,6 +618,8 @@ Function vozvrat_reestr()
 Function f1vozvrat_reestr( mkod_reestr )
 
   Local buf := SaveScreen()
+  local zip_file
+  local answer_dir := dir_server() + dir_XML_TF() + hb_ps()
 
   dbCloseAll()
   g_use( dir_server() + 'mo_rees',, 'REES' )
@@ -649,7 +652,7 @@ Function f1vozvrat_reestr( mkod_reestr )
       Do While .t.
         Select RHUM
         find ( Str( mkod_reestr, 6 ) )
-        If !Found()
+        If ! rhum->( Found() )
           exit
         Endif
         //
@@ -670,6 +673,7 @@ Function f1vozvrat_reestr( mkod_reestr )
               Do While human_3->kod2 == hu->kod .and. !Eof()
                 hu_->( g_rlock( forever ) )
                 hu_->REES_ZAP := 0
+                hu_->SCHET_ZAP := 0
                 hu_->( dbUnlock() )
                 Select HU
                 Skip
@@ -680,6 +684,9 @@ Function f1vozvrat_reestr( mkod_reestr )
               Endif
               human_->REES_ZAP := 0
               human_->REESTR := 0
+              human_->SCHET_ZAP := 0
+              human_->SCHET_NUM := 0
+              human_->SCHET := 0
               human_->( dbUnlock() )
               // обработка заголовка двойного случая
               human_3->( g_rlock( forever ) )
@@ -688,6 +695,9 @@ Function f1vozvrat_reestr( mkod_reestr )
               Endif
               human_3->REES_ZAP := 0
               human_3->REESTR := 0
+              human_3->SCHET_ZAP := 0
+              human_3->SCHET_NUM := 0
+              human_3->SCHET := 0
               human_3->( dbUnlock() )
             Endif
             // возвращаемся к 1-му листу учёта
@@ -698,6 +708,7 @@ Function f1vozvrat_reestr( mkod_reestr )
             Do While rhum->KOD_HUM == hu->kod .and. !Eof()
               hu_->( g_rlock( forever ) )
               hu_->REES_ZAP := 0
+              hu_->SCHET_ZAP := 0
               hu_->( dbUnlock() )
               Select HU
               Skip
@@ -708,6 +719,9 @@ Function f1vozvrat_reestr( mkod_reestr )
             Endif
             human_->REES_ZAP := 0
             human_->REESTR := 0
+            human_->SCHET_ZAP := 0
+            human_->SCHET_NUM := 0
+            human_->SCHET := 0
             human_->( dbUnlock() )
           Elseif human->ishod == 89 // теперь проверим, не двойной ли это случай (по-новому)
             // сначала обработаем 2-ой случай
@@ -716,6 +730,7 @@ Function f1vozvrat_reestr( mkod_reestr )
             Do While rhum->KOD_HUM == hu->kod .and. !Eof()
               hu_->( g_rlock( forever ) )
               hu_->REES_ZAP := 0
+              hu_->SCHET_ZAP := 0
               hu_->( dbUnlock() )
               Select HU
               Skip
@@ -726,6 +741,9 @@ Function f1vozvrat_reestr( mkod_reestr )
             Endif
             human_->REES_ZAP := 0
             human_->REESTR := 0
+            human_->SCHET_ZAP := 0
+            human_->SCHET_NUM := 0
+            human_->SCHET := 0
             human_->( dbUnlock() )
             // поищем 1-ый случай
             Select HUMAN_3
@@ -739,6 +757,7 @@ Function f1vozvrat_reestr( mkod_reestr )
               Do While human_3->kod2 == hu->kod .and. !Eof()
                 hu_->( g_rlock( forever ) )
                 hu_->REES_ZAP := 0
+                hu_->SCHET_ZAP := 0
                 hu_->( dbUnlock() )
                 Select HU
                 Skip
@@ -749,6 +768,9 @@ Function f1vozvrat_reestr( mkod_reestr )
               Endif
               human_->REES_ZAP := 0
               human_->REESTR := 0
+              human_->SCHET_ZAP := 0
+              human_->SCHET_NUM := 0
+              human_->SCHET := 0
               human_->( dbUnlock() )
               // обработка заголовка двойного случая
               human_3->( g_rlock( forever ) )
@@ -757,6 +779,9 @@ Function f1vozvrat_reestr( mkod_reestr )
               Endif
               human_3->REES_ZAP := 0
               human_3->REESTR := 0
+              human_3->SCHET_ZAP := 0
+              human_3->SCHET_NUM := 0
+              human_3->SCHET := 0
               human_3->( dbUnlock() )
             Endif
           Else
@@ -768,6 +793,7 @@ Function f1vozvrat_reestr( mkod_reestr )
             Do While rhum->KOD_HUM == hu->kod .and. !Eof()
               hu_->( g_rlock( forever ) )
               hu_->REES_ZAP := 0
+              hu_->SCHET_ZAP := 0
               hu_->( dbUnlock() )
               Select HU
               Skip
@@ -778,6 +804,9 @@ Function f1vozvrat_reestr( mkod_reestr )
             Endif
             human_->REES_ZAP := 0
             human_->REESTR := 0
+            human_->SCHET_ZAP := 0
+            human_->SCHET_NUM := 0
+            human_->SCHET := 0
             human_->( dbUnlock() )
           Endif
         Endif
@@ -789,6 +818,17 @@ Function f1vozvrat_reestr( mkod_reestr )
       If hb_FileExists( goal_dir + zip_file )
         Delete File ( goal_dir + zip_file )
       Endif
+      if rees->nyear >= 2026
+        zip_file := iif( Left( zip_file, 1 ) == 'H', AtRepl( 'HM', zip_file, 'VHM'), AtRepl( 'FM', zip_file, 'VFM') )
+        If hb_FileExists( answer_dir + zip_file )
+          Delete File ( answer_dir + zip_file )
+        Endif
+        zip_file := AtRepl( '.ZIP', zip_file, '') + '.TXT'
+        If hb_FileExists( answer_dir + zip_file )
+          Delete File ( answer_dir + zip_file )
+        Endif
+      Endif
+
       g_use( dir_server() + 'mo_xml',, 'MO_XML' )
       Goto ( rees->KOD_XML )
       If !Eof() .and. !Deleted()

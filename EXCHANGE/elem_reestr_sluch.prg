@@ -975,6 +975,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
         hu_->( g_rlock( forever ) )
         hu_->REES_ZAP := ++iusl
+        hu_->SCHET_ZAP := ++iusl
         lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
         lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
         // заполним сведения об услугах для XML-документа
