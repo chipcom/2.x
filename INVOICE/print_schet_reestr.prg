@@ -155,13 +155,12 @@ function schet_reestr( arr, destination, one, reg )
     Endif
     frt->susluga := s
     frt->summa := schet->summa
-//altd()
   if ! one .or. ( one .and. reg == 2 )
     hGauge := gaugenew( , , { 'GR+/RB', 'BG+/RB', 'G+/RB' }, 'Составление реестра счёта № ' + AllTrim( schet_->nschet ), .t. )
     gaugedisplay( hGauge )
     Select HUMAN
     find ( Str( schet->kod, 6 ) )
-    Do While human->schet == schet->kod .and. !Eof()
+    Do While human->schet == schet->kod .and. ! human->( Eof() )
       fl := .t.
       fl_2 := .f.
       lal := 'human'
@@ -249,7 +248,6 @@ function schet_reestr( arr, destination, one, reg )
           Endif
         Endif
         Select FRD
-//altd()
 //        Append Blank
         frd->( dbAppend() )
         frd->nomer := iif( fl_numeration, ii, human_->SCHET_ZAP )

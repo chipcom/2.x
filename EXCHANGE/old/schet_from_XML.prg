@@ -413,7 +413,8 @@ Function create_schet19_from_xml( arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk 
             Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
           Endif
           human->( g_rlock( forever ) )
-          human->schet := mkod ; human->tip_h := B_SCHET
+          human->schet := mkod
+          human->tip_h := B_SCHET
           human_->( g_rlock( forever ) )
           human_->schet_zap := tmp2->schet_zap
           If human_->SCHET_NUM < 99

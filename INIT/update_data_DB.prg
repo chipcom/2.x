@@ -37,7 +37,7 @@ function set_status_updateDB( idVer )
 
   return fl
 
-// 09.02.26 проведение изменений в содержимом БД при обновлении
+// 14.02.26 проведение изменений в содержимом БД при обновлении
 Function update_data_db( aVersion )
 
   Local snversion := Int( aVersion[ 1 ] * 10000 + aVersion[ 2 ] * 100 + aVersion[ 3 ] )
@@ -91,13 +91,18 @@ Function update_data_db( aVersion )
     update_v60203()     // Заполним информацию о профиле МЗ РФ и UIDSPMO
   endif
 
+  If ver_base < 60204 // переход на версию 6.2.4
+    update_v60203()     // перенос информации о счетах в файл human
+  endif
+
 Return Nil
 
-// 13.02.26
+// 14.02.26
 function update_v60204()
 
   local arr := {}, mkod
 
+  stat_msg( 'Проверка отправленных в ТФОМС счетов' )
   g_use( dir_server() + 'human_', , 'human_', , .t. )
   Index On str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_hum_' )
   g_use( dir_server() + 'human_2', , 'HUMAN_2', , .t. )
@@ -123,11 +128,8 @@ function update_v60204()
               do while human_->reestr == rees->KOD .and. ! human_->( Eof() )
                 human->( dbSeek( Str( human_->( RecNo() ), 7) ) )
                 if human->(Found() )
-
                   human->schet := mkod
                   human->tip_h := B_SCHET
-        //        AAdd( arr, { human->kod, human->FIO } )
-
                 endif
                 human_->( dbSkip() )
               enddo
@@ -139,8 +141,10 @@ function update_v60204()
     endif
     rees->( dbSkip() )
   enddo
+  dbCloseAll()
+  use_base( 'human', , .t. )
+  index_base( 'human' )
 
-//  Set Relation To
   dbCloseAll()
 
   return arr
