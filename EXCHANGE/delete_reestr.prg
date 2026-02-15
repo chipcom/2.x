@@ -12,7 +12,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
     arr_f, cFile, oXmlDoc, aerr := {}, is_allow_delete, ;
     cFileProtokol := cur_dir() + 'tmp.txt', is_other_reestr, bSaveHandler, ;
     arr_schet, rees_nschet := rees->nschet, mtip_in
-  local result_TFOMS
+  local result_TFOMS, arr
+  local is_delete_human
 
   mywait()
   result_TFOMS := rees->RES_TFOMS
@@ -95,27 +96,27 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
             r_use( dir_server() + 'mo_rhum',, 'RHUM' )
             Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
             Select TMP2
-            Go Top
-            Do While !Eof()
+            tmp2->( dbGoTop() )   //  Go Top
+            Do While ! tmp2->( Eof() )
               Select RHUM
               find ( Str( tmp2->_N_ZAP, 6 ) )
-              If Found()
+              If rhum->( Found() )
                 tmp2->kod_human := rhum->KOD_HUM
                 Select HUMAN
-                Goto ( rhum->KOD_HUM )
+                human->( dbGoto( rhum->KOD_HUM ) )    //  Goto ( rhum->KOD_HUM )
                 If emptyany( human->kod, human->fio )
                   is_delete_human := .t.
                   Exit
                 Endif
                 Select HUMAN_
-                Goto ( rhum->KOD_HUM )
+                human_->( dbGoto( rhum->KOD_HUM ) )    //  Goto ( rhum->KOD_HUM )
                 If human_->REESTR > 0 .and. human_->REESTR != mkod_reestr
                   is_other_reestr := .t.
                   Exit
                 Endif
               Endif
               Select TMP2
-              Skip
+              tmp2->( dbSkip() )    //  Skip
             Enddo
             If !is_other_reestr .and. !is_delete_human
               // если попал в другой реестр, вернулся с ошибкой, и отредактирован
@@ -125,8 +126,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
               // сортируем пациентов по дате попадания в реестры
               Index On Str( FIELD->kod_hum, 7 ) + DToS( rees->DSCHET ) to ( cur_dir() + 'tmp_rhum' )
               Select TMP2
-              Go Top
-              Do While !Eof()
+              tmp2->( dbGoTop() )   //  Go Top
+              Do While ! tmp2->( Eof() )
                 r := r1 := 0
                 Select RHUM
                 find ( Str( tmp2->kod_human, 7 ) )
@@ -135,14 +136,14 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                   If rhum->reestr == mkod_reestr
                     r1 := r // какой по номеру текущий реестр
                   Endif
-                  Skip
+                  rhum->( dbSkip() )    //  Skip
                 Enddo
                 If r1 > 0 .and. r > r1  // если текущий реестр не последний
                   is_other_reestr := .t.
                   Exit
                 Endif
                 Select TMP2
-                Skip
+                tmop2->( dbSkip() )   //  Skip
               Enddo
             Endif
             If is_delete_human
@@ -158,11 +159,11 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                 arr_schet := {}
                 r_use( dir_server() + 'schet_',, 'SCH' )
                 Index On FIELD->nschet to ( cur_dir() + 'tmp_sch' ) For FIELD->XML_REESTR == mreestr_sp_tk
-                dbEval( {|| AAdd( arr_schet, { AllTrim( nschet ), RecNo(), KOD_XML } ) } )
+                dbEval( {|| AAdd( arr_schet, { AllTrim( sch->nschet ), RecNo(), sch->KOD_XML } ) } )
                 sch->( dbCloseArea() )
                 is_allow_delete := .f.
                 g_use( dir_server() + 'mo_rees',, 'REES' )
-                Goto ( mkod_reestr )
+                rees->( dbGoto( mkod_reestr ) ) //  Goto ( mkod_reestr )
                 Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
                 Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
                 arr := {}
@@ -220,25 +221,25 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                 use_base( 'human' )
                 Set Order To 0
                 Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
-                Go Top
-                Do While !Eof()
+                tmp2->( dbGoTop() )   //  Go Top
+                Do While ! tmp2->( Eof() )
                   Select RHUM
                   find ( Str( tmp2->_N_ZAP, 6 ) )
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                   rhum->OPLATA := 0
                   Select HUMAN
-                  Goto ( tmp2->kod_human )
+                  human->( dbGoto( tmp2->kod_human ) )    //  Goto ( tmp2->kod_human )
                   If human->ishod == 88  // сначала проверим, не двойной ли это случай (по-старому)
                     Select HUMAN_3
                     Set Order To 1
                     find ( Str( tmp2->kod_human, 7 ) )
-                    If Found()
+                    If human_3->( Found() )
                       Select HUMAN
-                      Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
-                      human->( g_rlock( forever ) )
+                      human->( dbGoto( human_3->kod2 ) )   //  Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
+                      human->( g_rlock( 'forever' ) )
                       human->schet := 0
                       human->tip_h := B_STANDART
-                      human_->( g_rlock( forever ) )
+                      human_->( g_rlock( 'forever' ) )
                       If human_->schet_zap > 0
                         If human_->SCHET_NUM > 0
                           human_->SCHET_NUM := human_->SCHET_NUM - 1
@@ -249,7 +250,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                       human_->REESTR := mkod_reestr
                       Unlock
                       // очистка заголовка двойного случая
-                      human_3->( g_rlock( forever ) )
+                      human_3->( g_rlock( 'forever' ) )
                       human_3->schet := 0
                       If human_3->schet_zap > 0
                         If human_3->SCHET_NUM > 0
@@ -262,11 +263,11 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                     Endif
                     // возвращаемся к 1-му листу учёта
                     Select HUMAN
-                    Goto ( tmp2->kod_human )
-                    human->( g_rlock( forever ) )
+                    human->( dbGoto( tmp2->kod_human ) )    //  Goto ( tmp2->kod_human )
+                    human->( g_rlock( 'forever' ) )
                     human->schet := 0
                     human->tip_h := B_STANDART
-                    human_->( g_rlock( forever ) )
+                    human_->( g_rlock( 'forever' ) )
                     If human_->schet_zap > 0
                       If human_->SCHET_NUM > 0
                         human_->SCHET_NUM := human_->SCHET_NUM - 1
@@ -278,10 +279,10 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                     Unlock
                   Elseif human->ishod == 89 // теперь проверим, не двойной ли это случай (по-новому)
                     // сначала обработаем 2-ой случай
-                    human->( g_rlock( forever ) )
+                    human->( g_rlock( 'forever' ) )
                     human->schet := 0
                     human->tip_h := B_STANDART
-                    human_->( g_rlock( forever ) )
+                    human_->( g_rlock( 'forever' ) )
                     If human_->schet_zap > 0
                       If human_->SCHET_NUM > 0
                         human_->SCHET_NUM := human_->SCHET_NUM - 1
@@ -295,13 +296,13 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                     Select HUMAN_3
                     Set Order To 2
                     find ( Str( human->kod, 7 ) )
-                    If Found() // нашли двойной случай
+                    If human_3->( Found() ) // нашли двойной случай
                       Select HUMAN
-                      Goto ( human_3->kod ) // встать на 1-ый лист учёта
-                      human->( g_rlock( forever ) )
+                      human->( dbGoto( human_3->kod ) )   //  Goto ( human_3->kod ) // встать на 1-ый лист учёта
+                      human->( g_rlock( 'forever' ) )
                       human->schet := 0
                       human->tip_h := B_STANDART
-                      human_->( g_rlock( forever ) )
+                      human_->( g_rlock( 'forever' ) )
                       If human_->schet_zap > 0
                         If human_->SCHET_NUM > 0
                           human_->SCHET_NUM := human_->SCHET_NUM - 1
@@ -312,7 +313,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                       human_->REESTR := mkod_reestr
                       Unlock
                       // очистка заголовка двойного случая
-                      human_3->( g_rlock( forever ) )
+                      human_3->( g_rlock( 'forever' ) )
                       human_3->schet := 0
                       If human_3->schet_zap > 0
                         If human_3->SCHET_NUM > 0
@@ -326,11 +327,11 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                   Else
                     // обработка одинарного случая
                     Select HUMAN
-                    Goto ( tmp2->kod_human )
-                    human->( g_rlock( forever ) )
+                    human->( dbGoto( tmp2->kod_human ) )    //  Goto ( tmp2->kod_human )
+                    human->( g_rlock( 'forever' ) )
                     human->schet := 0
                     human->tip_h := B_STANDART
-                    human_->( g_rlock( forever ) )
+                    human_->( g_rlock( 'forever' ) )
                     If human_->schet_zap > 0
                       If human_->SCHET_NUM > 0
                         human_->SCHET_NUM := human_->SCHET_NUM - 1
@@ -344,33 +345,33 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                   Select REFR
                   Do While .t.
                     find ( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( tmp2->kod_human, 8 ) )
-                    If !Found()
+                    If ! refr->( Found() )
                       exit
                     Endif
                     deleterec( .t. )
                   Enddo
                   Select TMP2
-                  Skip
+                  tmp2->( dbSkip() )    //  Skip
                 Enddo
                 For i := 1 To Len( arr_schet )
                   //
                   Select SD
                   find ( Str( arr_schet[ i, 2 ], 6 ) )
-                  If Found()
+                  If sd->( Found() )
                     deleterec( .t. )
                   Endif
                   //
                   Select SCHET_
-                  Goto ( arr_schet[ i, 2 ] )
+                  schet_->( dbGoto( arr_schet[ i, 2 ] ) )   //Goto ( arr_schet[ i, 2 ] )
                   deleterec( .t., .f. )  // без пометки на удаление
                   //
                   Select SCHET
-                  Goto ( arr_schet[ i, 2 ] )
+                  schet->( dbGoto( arr_schet[ i, 2 ] ) )   //Goto ( arr_schet[ i, 2 ] )
                   deleterec( .t. )
                   //
                   If arr_schet[ i, 3 ] > 0
                     Select MO_XML
-                    Goto ( arr_schet[ i, 3 ] )
+                    mo_xml->( dbGoto( arr_schet[ i, 3 ] ) )   //Goto ( arr_schet[ i, 3 ] )
                     If !Empty( mo_xml->FNAME )
                       s := dir_server() + dir_XML_MO() + hb_ps() + AllTrim( mo_xml->FNAME ) + szip()
                       If hb_FileExists( s )
@@ -381,7 +382,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                   Endif
                 Next
                 Select MO_XML
-                Goto ( mreestr_sp_tk )
+                mo_xml->( dbGoto( mreestr_sp_tk ) )     //  Goto ( mreestr_sp_tk )
                 deleterec()
                 dbCloseAll()
                 stat_msg( 'Реестр СП и ТК успешно аннулирован. Можно прочитать ещё раз.' )
@@ -430,21 +431,21 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
             r_use( dir_server() + 'mo_rhum',, 'RHUM' )
             Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
             Select TMP2
-            Go Top
-            Do While !Eof()
+            TMP2->( dbGoTop() )   //  Go Top
+            Do While ! tmp2->( Eof() )
               If !Empty( tmp2->BAS_EL ) .and. !Empty( tmp2->ID_BAS ) .and. !Empty( tmp2->N_ZAP )
                 Select RHUM
                 find ( Str( tmp2->N_ZAP, 6 ) )
-                If Found()
+                If rhum->( Found() )
                   tmp2->kod_human := rhum->KOD_HUM
                   Select HUMAN
-                  Goto ( rhum->KOD_HUM )
+                  HUMAN->( dbGoto( RHUM->KOD_HUM ) )    //  Goto ( rhum->KOD_HUM )
                   If emptyany( human->kod, human->fio )
                     is_delete_human := .t.
                     Exit
                   Endif
                   Select HUMAN_
-                  Goto ( rhum->KOD_HUM )
+                  human_->( dbGoto( RHUM->KOD_HUM ) )    //  Goto ( rhum->KOD_HUM )
                   If human_->REESTR > 0 .and. human_->REESTR != mkod_reestr
                     is_other_reestr := .t.
                     Exit
@@ -452,7 +453,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                 Endif
               Endif
               Select TMP2
-              Skip
+              tmp2->( dbSkip() )    //  Skip
             Enddo
             If !is_other_reestr .and. !is_delete_human
               // если попал в другой реестр, вернулся с ошибкой, и отредактирован
@@ -462,7 +463,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
               // сортируем пациентов по дате попадания в реестры
               Index On Str( FIELD->kod_hum, 7 ) + DToS( rees->DSCHET ) to ( cur_dir() + 'tmp_rhum' )
               Select TMP2
-              Go Top
+              TMP2->( dbGoTop() )   //  Go Top
               Do While !Eof()
                 r := r1 := 0
                 Select RHUM
@@ -472,14 +473,14 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                   If rhum->reestr == mkod_reestr
                     r1 := r // какой по номеру текущий реестр
                   Endif
-                  Skip
+                  rhum->( dbSkip() )    //  Skip
                 Enddo
                 If r1 > 0 .and. r > r1  // если текущий реестр не последний
                   is_other_reestr := .t.
                   Exit
                 Endif
                 Select TMP2
-                Skip
+                tmp2->( dbSkip() )    //  Skip
               Enddo
             Endif
             If is_delete_human
@@ -529,22 +530,22 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
                 g_use( dir_server() + 'human_',, 'HUMAN_' )
                 Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
                 Set Relation To FIELD->kod_human into HUMAN_
-                Go Top
-                Do While !Eof()
+                tmp2->( dbGoTop() )   //  Go Top
+                Do While ! tmp2->( Eof() )
                   Select RHUM
                   find ( Str( tmp2->N_ZAP, 6 ) )
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                   rhum->OPLATA := 0
                   Select HUMAN_
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                   human_->OPLATA := 0
                   human_->REESTR := mkod_reestr
                   Unlock
                   Select TMP2
-                  Skip
+                  tmp2->( dbSkip() )    //  Skip
                 Enddo
                 Select MO_XML
-                Goto ( mreestr_sp_tk )
+                mo_xml->( dbGoto( mreestr_sp_tk ) )   //  Goto ( mreestr_sp_tk )
                 deleterec()
                 dbCloseAll()
                 stat_msg( 'Протокол ФЛК успешно аннулирован.' )
@@ -578,8 +579,8 @@ Function vozvrat_reestr()
 
   g_use( dir_server() + 'mo_rees',, 'REES' )
   Index On DToS( FIELD->dschet ) + Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees' ) DESCENDING For Empty( FIELD->date_out )
-  Go Top
-  If Eof()
+  rees->( dbGoTop() )     //  Go Top
+  If rees->( Eof() )
     func_error( 4, 'Не обнаружено реестров, не отправленных в ТФОМС' )
   Else
     chm_help_code := 114
@@ -591,14 +592,14 @@ Function vozvrat_reestr()
       g_use( dir_server() + 'mo_xml',, 'MO_XML' )
       Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) For FIELD->reestr == mkod_reestr .and. FIELD->TIP_OUT == 0
       k := kol_err := 0
-      Go Top
-      Do While !Eof()
+      mo_xml->( dbGoTop() )   //  Go Top
+      Do While ! mo_xml->( Eof() )
         If mo_xml->TIP_IN == _XML_FILE_SP
           ++k
         Elseif mo_xml->TIP_IN == _XML_FILE_FLK
           kol_err += mo_xml->kol2
         Endif
-        Skip
+        mo_xml->( dbSkip() )    //  Skip
       Enddo
       If k > 0
         func_error( 4, 'По данному реестру уже были прочитаны реестры СП и ТК. Возврат ЗАПРЕЩЁН!' )
@@ -620,16 +621,16 @@ Function vozvrat_reestr()
 Function f1vozvrat_reestr( mkod_reestr )
 
   Local buf := SaveScreen()
-  local zip_file
+  local zip_file, arr
   local answer_dir := dir_server() + dir_XML_TF() + hb_ps()
 
   dbCloseAll()
   g_use( dir_server() + 'mo_rees',, 'REES' )
-  Goto ( mkod_reestr )
+  rees->( dbGoto( mkod_reestr ) )   //  Goto ( mkod_reestr )
   stat_msg( '' )
   arr := {}
   AAdd( arr, 'Удаляется реестр № ' + lstr( rees->nschet ) + ' от ' + full_date( rees->dschet ) + 'г.' )
-  AAdd( arr, 'за период "' + iif( Between( rees->nmonth, 1, 12 ), mm_month[ rees->nmonth ], lstr( rees->nmonth ) + ' месяц' ) + ;
+  AAdd( arr, 'за период "' + iif( Between( rees->nmonth, 1, 12 ), mm_month()[ rees->nmonth ], lstr( rees->nmonth ) + ' месяц' ) + ;
     Str( rees->nyear, 5 ) + ' года".' )
   AAdd( arr, 'Сумма реестра ' + lput_kop( rees->summa, .t. ) + ;
     ' руб., количество пациентов ' + lstr( rees->kol ) + ' чел.' )
@@ -659,28 +660,28 @@ Function f1vozvrat_reestr( mkod_reestr )
         Endif
         //
         Select HUMAN_
-        Goto ( rhum->KOD_HUM )
+        human_->( dbGoto( rhum->KOD_HUM ) )   //  Goto ( rhum->KOD_HUM )
         If human_->REESTR == mkod_reestr // на всякий случай
           Select HUMAN
-          Goto ( rhum->KOD_HUM )
+          human->( dbGoto( rhum->KOD_HUM ) )   //  Goto ( rhum->KOD_HUM )
           If human->ishod == 88 // сначала проверим, не двойной ли это случай (по-старому)
             Select HUMAN_3
             Set Order To 1
             find ( Str( human->kod, 7 ) )
-            If Found()
+            If human_3->( Found() )
               Select HUMAN_
-              Goto ( human_3->kod2 ) // встать на 2-ой лист учёта
+              human_->( dbGoto( human_3->kod2 ) )   //  Goto ( human_3->kod2 ) // встать на 2-ой лист учёта
               Select HU
               find ( Str( human_3->kod2, 7 ) )
               Do While human_3->kod2 == hu->kod .and. !Eof()
-                hu_->( g_rlock( forever ) )
+                hu_->( g_rlock( 'forever' ) )
                 hu_->REES_ZAP := 0
                 hu_->SCHET_ZAP := 0
                 hu_->( dbUnlock() )
                 Select HU
-                Skip
+                hu->( dbSkip() )    //  Skip
               Enddo
-              human_->( g_rlock( forever ) )
+              human_->( g_rlock( 'forever' ) )
               If human_->REES_NUM > 0
                 human_->REES_NUM := human_->REES_NUM - 1
               Endif
@@ -691,7 +692,7 @@ Function f1vozvrat_reestr( mkod_reestr )
 //              human_->SCHET := 0
               human_->( dbUnlock() )
               // обработка заголовка двойного случая
-              human_3->( g_rlock( forever ) )
+              human_3->( g_rlock( 'forever' ) )
               If human_3->REES_NUM > 0
                 human_3->REES_NUM := human_3->REES_NUM - 1
               Endif
@@ -704,18 +705,18 @@ Function f1vozvrat_reestr( mkod_reestr )
             Endif
             // возвращаемся к 1-му листу учёта
             Select HUMAN_
-            Goto ( rhum->KOD_HUM )
+            human_->( dbGoto( rhum->KOD_HUM ) )   //  Goto ( rhum->KOD_HUM )
             Select HU
             find ( Str( rhum->KOD_HUM, 7 ) )
             Do While rhum->KOD_HUM == hu->kod .and. !Eof()
-              hu_->( g_rlock( forever ) )
+              hu_->( g_rlock( 'forever' ) )
               hu_->REES_ZAP := 0
               hu_->SCHET_ZAP := 0
               hu_->( dbUnlock() )
               Select HU
-              Skip
+              hu->( dbSkip() )    //  Skip
             Enddo
-            human_->( g_rlock( forever ) )
+            human_->( g_rlock( 'forever' ) )
             If human_->REES_NUM > 0
               human_->REES_NUM := human_->REES_NUM - 1
             Endif
@@ -730,14 +731,14 @@ Function f1vozvrat_reestr( mkod_reestr )
             Select HU
             find ( Str( rhum->KOD_HUM, 7 ) )
             Do While rhum->KOD_HUM == hu->kod .and. !Eof()
-              hu_->( g_rlock( forever ) )
+              hu_->( g_rlock( 'forever' ) )
               hu_->REES_ZAP := 0
               hu_->SCHET_ZAP := 0
               hu_->( dbUnlock() )
               Select HU
-              Skip
+              hu->( dbSkip() )    //  Skip
             Enddo
-            human_->( g_rlock( forever ) )
+            human_->( g_rlock( 'forever' ) )
             If human_->REES_NUM > 0
               human_->REES_NUM := human_->REES_NUM - 1
             Endif
@@ -751,20 +752,20 @@ Function f1vozvrat_reestr( mkod_reestr )
             Select HUMAN_3
             Set Order To 2
             find ( Str( human->kod, 7 ) )
-            If Found()
+            If human_3->( Found() )
               Select HUMAN_
-              Goto ( human_3->kod ) // встать на 1-ый лист учёта
+              human_->( dbGoto( human_3->kod ) )    //  Goto ( human_3->kod ) // встать на 1-ый лист учёта
               Select HU
               find ( Str( human_3->kod2, 7 ) )
               Do While human_3->kod2 == hu->kod .and. !Eof()
-                hu_->( g_rlock( forever ) )
+                hu_->( g_rlock( 'forever' ) )
                 hu_->REES_ZAP := 0
                 hu_->SCHET_ZAP := 0
                 hu_->( dbUnlock() )
                 Select HU
-                Skip
+                hu->( dbSkip() )    //  Skip
               Enddo
-              human_->( g_rlock( forever ) )
+              human_->( g_rlock( 'forever' ) )
               If human_->REES_NUM > 0
                 human_->REES_NUM := human_->REES_NUM - 1
               Endif
@@ -775,7 +776,7 @@ Function f1vozvrat_reestr( mkod_reestr )
 //              human_->SCHET := 0
               human_->( dbUnlock() )
               // обработка заголовка двойного случая
-              human_3->( g_rlock( forever ) )
+              human_3->( g_rlock( 'forever' ) )
               If human_3->REES_NUM > 0
                 human_3->REES_NUM := human_3->REES_NUM - 1
               Endif
@@ -789,18 +790,18 @@ Function f1vozvrat_reestr( mkod_reestr )
           Else
             // обработка одинарного случая
             Select HUMAN_
-            Goto ( rhum->KOD_HUM )
+            human_->( dbGoto( rhum->KOD_HUM ) )   //  Goto ( rhum->KOD_HUM )
             Select HU
             find ( Str( rhum->KOD_HUM, 7 ) )
             Do While rhum->KOD_HUM == hu->kod .and. !Eof()
-              hu_->( g_rlock( forever ) )
+              hu_->( g_rlock( 'forever' ) )
               hu_->REES_ZAP := 0
               hu_->SCHET_ZAP := 0
               hu_->( dbUnlock() )
               Select HU
-              Skip
+              hu->( dbSkip() )    //  Skip
             Enddo
-            human_->( g_rlock( forever ) )
+            human_->( g_rlock( 'forever' ) )
             If human_->REES_NUM > 0
               human_->REES_NUM := human_->REES_NUM - 1
             Endif
@@ -832,8 +833,8 @@ Function f1vozvrat_reestr( mkod_reestr )
       Endif
 
       g_use( dir_server() + 'mo_xml',, 'MO_XML' )
-      Goto ( rees->KOD_XML )
-      If !Eof() .and. !Deleted()
+      mo_xml->( dbGoto( rees->KOD_XML ) )   //  Goto ( rees->KOD_XML )
+      If !mo_xml->( Eof() ) .and. ! mo_xml->( Deleted() )
         deleterec( .t. )
       Endif
       Select REES
@@ -846,4 +847,3 @@ Function f1vozvrat_reestr( mkod_reestr )
   RestScreen( buf )
 
   Return Nil
-

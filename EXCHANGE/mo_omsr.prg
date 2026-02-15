@@ -482,11 +482,11 @@ Function f1_view_list_reestr( oBrow )
   oColumn := TBColumnNew( 'Сумма реестра', {|| PadL( expand_value( rees->summa, 2 ), 13 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( 'Кол.;бол.', {|| Str( rees->kol, 4 ) } )  //  5 ) } )
+  oColumn := TBColumnNew( 'Кол.;бол.', {|| Str( rees->kol, 5 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
 //  oColumn := TBColumnNew( ' Наименование файла', {|| PadR( rees->NAME_XML, 22 ) } )
-  oColumn := TBColumnNew( ' Наименование файла', {|| Substr( rees->NAME_XML, 1, 26 ) } )
+  oColumn := TBColumnNew( ' Наименование файла', {|| Substr( rees->NAME_XML, 1, 25 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
   oColumn := TBColumnNew( 'Примечание', {|| f11_view_list_reestr() } )

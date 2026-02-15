@@ -69,7 +69,7 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 27.01.26 реконстукция баз данных
+// 15.02.26 реконстукция баз данных
 Function reconstruct_db( is_local_version, is_create )
 
   Local base1 := { ;
@@ -785,7 +785,7 @@ Function reconstruct_db( is_local_version, is_create )
     { 'MEST_INOG',  'N',      1,      0 }, ; // 0-город, 1-область, 2-иногородний
     { 'RAJON',      'N',      2,      0 }, ; // код района финансирования
     { 'VID_MP',     'N',      1,      0 }, ; // вид медицинской помощи
-    { 'KOL',        'N',      4,      0 }, ; // кол-во и сумма
+    { 'KOL',        'N',      6,      0 }, ; // кол-во и сумма
     { 'SUMMA',      'N',     13,      2 }, ; // включенных в счет
     { 'LPU',        'N',      3,      0 }, ;
     { 'KOMU',       'N',      1,      0 }, ;

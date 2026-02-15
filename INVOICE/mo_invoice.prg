@@ -37,7 +37,7 @@ Function view_list_schet()
   RestScreen( buf )
   Return Nil
 
-// 11.02.26
+// 15.02.26
 Function f1_view_list_schet( oBrow )
 
   Local oColumn, ;
@@ -58,7 +58,7 @@ Function f1_view_list_schet( oBrow )
   oColumn := TBColumnNew( ' Сумма счета', {|| put_kop( schet->summa, 13 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( 'Кол.;бол.', {|| Str( schet->kol, 4 ) } )
+  oColumn := TBColumnNew( 'Кол.;бол.', {|| Str( schet->kol, 5 ) } ) // , 4 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
   oColumn := TBColumnNew( 'Критерий', {|| PadR( f3_view_list_schet(), 10 ) } )

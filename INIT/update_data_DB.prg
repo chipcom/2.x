@@ -37,7 +37,7 @@ function set_status_updateDB( idVer )
 
   return fl
 
-// 14.02.26 проведение изменений в содержимом БД при обновлении
+// 15.02.26 проведение изменений в содержимом БД при обновлении
 Function update_data_db( aVersion )
 
   Local snversion := Int( aVersion[ 1 ] * 10000 + aVersion[ 2 ] * 100 + aVersion[ 3 ] )
@@ -92,12 +92,12 @@ Function update_data_db( aVersion )
   endif
 
   If ver_base < 60204 // переход на версию 6.2.4
-    update_v60203()     // перенос информации о счетах в файл human
+    update_v60204()     // перенос информации о счетах в файл human
   endif
 
 Return Nil
 
-// 14.02.26
+// 15.02.26
 function update_v60204()
 
   local arr := {}, mkod
@@ -109,20 +109,22 @@ function update_v60204()
   g_use( dir_server() + 'human', dir_server() + 'humank', 'human', , .t. )
 //  Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
 
-  use_base( 'schet' )
+  use_base( 'schet', , .t. )
   set order to 2
 
   r_use( dir_server() + 'mo_rees', , 'REES' )
   rees->( dbGoTop() )
-  do while ! rees->( Eof() )
+  do while ! rees->( Eof() ) 
 
     if ( rees->DSCHET >= CToD( '01/02/2026' ) ) .and. ( rees->RES_TFOMS == 1 )
       schet->( dbSeek( SubStr( rees->NOMER_S, 1, 10 ) + dtoc4( rees->DSCHET ) ) )
       if schet->( Found() )
         do while schet_->nschet == rees->NOMER_S .and. ! schet->( Eof() )
           if schet_->DSCHET == rees->DSCHET
-
             mkod := schet->kod  // код счета
+            if schet->KOL != rees->KOL
+              schet->KOL := rees->KOL
+            endif
             human_->( dbseek( str( rees->KOD , 6 ) ) )
             if human_->(Found() )
               do while human_->reestr == rees->KOD .and. ! human_->( Eof() )
