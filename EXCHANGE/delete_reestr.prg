@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-//  14.02.26 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
+// 15.02.26 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
 Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
 
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
@@ -561,10 +561,12 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
 
   Return 0
 
-//  вернуть ещё не записанный на дискету реестр
+// 15.02.26 вернуть ещё не записанный на дискету реестр
 Function vozvrat_reestr()
 
   Local k, buf := SaveScreen(), tmp_help := chm_help_code, mkod_reestr
+  local Sreestr_sem := 'Работа с реестрами'
+  local Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
   If ! currentuser():isadmin()
     Return func_error( 4, err_admin() )
@@ -686,7 +688,7 @@ Function f1vozvrat_reestr( mkod_reestr )
               human_->REESTR := 0
               human_->SCHET_ZAP := 0
               human_->SCHET_NUM := 0
-              human_->SCHET := 0
+//              human_->SCHET := 0
               human_->( dbUnlock() )
               // обработка заголовка двойного случая
               human_3->( g_rlock( forever ) )
@@ -721,7 +723,7 @@ Function f1vozvrat_reestr( mkod_reestr )
             human_->REESTR := 0
             human_->SCHET_ZAP := 0
             human_->SCHET_NUM := 0
-            human_->SCHET := 0
+//            human_->SCHET := 0
             human_->( dbUnlock() )
           Elseif human->ishod == 89 // теперь проверим, не двойной ли это случай (по-новому)
             // сначала обработаем 2-ой случай
@@ -743,7 +745,7 @@ Function f1vozvrat_reestr( mkod_reestr )
             human_->REESTR := 0
             human_->SCHET_ZAP := 0
             human_->SCHET_NUM := 0
-            human_->SCHET := 0
+//            human_->SCHET := 0
             human_->( dbUnlock() )
             // поищем 1-ый случай
             Select HUMAN_3
@@ -770,7 +772,7 @@ Function f1vozvrat_reestr( mkod_reestr )
               human_->REESTR := 0
               human_->SCHET_ZAP := 0
               human_->SCHET_NUM := 0
-              human_->SCHET := 0
+//              human_->SCHET := 0
               human_->( dbUnlock() )
               // обработка заголовка двойного случая
               human_3->( g_rlock( forever ) )
@@ -806,7 +808,7 @@ Function f1vozvrat_reestr( mkod_reestr )
             human_->REESTR := 0
             human_->SCHET_ZAP := 0
             human_->SCHET_NUM := 0
-            human_->SCHET := 0
+//            human_->SCHET := 0
             human_->( dbUnlock() )
           Endif
         Endif
