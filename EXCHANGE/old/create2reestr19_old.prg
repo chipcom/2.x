@@ -343,7 +343,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
         ksl_date := human_3->K_DATA
         Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
       Endif
-      f1_create2reestrCommon( _nyear, _nmonth ) 
+      f1_create2reestr19( _nyear, _nmonth ) 
       // заполним реестр записями для XML-документа
       If isl == 1
         oZAP := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZAP' ) )
