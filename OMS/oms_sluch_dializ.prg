@@ -213,7 +213,7 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
-  mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
+  mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mismo     := init_ismo( m1ismo )
   mMOP      := SubStr( inieditspr( A__MENUVERT, getv040(), m1MOP ), 1, 25 )
   f_valid_komu( , -1 )
@@ -263,7 +263,7 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
       valid {| g, o| update_get( 'mkomu' ), update_get( 'mcompany' ) }
     //
     @ ++j, 1 Say 'Принадлежность счёта' Get mkomu ;
-      reader {| x| menu_reader( x, mm_komu, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, mm_komu(), A__MENUVERT, , , .f. ) } ;
       valid {| g, o| f_valid_komu( g, o ) } ;
       Color colget_menu
     @ Row(), Col() + 1 Say '==>' Get mcompany ;

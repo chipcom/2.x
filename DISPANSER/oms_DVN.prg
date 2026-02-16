@@ -622,7 +622,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
-  mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
+  mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
   mismo     := init_ismo( m1ismo )
   f_valid_komu(, -1 )
@@ -734,7 +734,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ j, 40 Say 'Ветеран ВОВ (блокадник)?' Get mveteran ;
         reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say ' Принадлежность счёта' Get mkomu ;
-        reader {| x | menu_reader( x, mm_komu, A__MENUVERT, , , .f. ) } ;
+        reader {| x | menu_reader( x, mm_komu(), A__MENUVERT, , , .f. ) } ;
         valid {| g, o | f_valid_komu( g, o ) } ;
         Color colget_menu
       @ Row(), Col() + 1 Say '==>' Get mcompany ;

@@ -1962,7 +1962,7 @@ Function z_gurnal_pp()
     0, {| x| inieditspr( A__MENUBIT, menu_vid_opl, x ) }, ;
     'Вид оплаты' } )
   AAdd( mm_tmp, { 'komu', 'N', 2, 0, NIL, ;
-    {| x| menu_reader( x, mm_komu, A__MENUVERT ) }, ;
+    {| x| menu_reader( x, mm_komu(), A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
     'Принадлежность счёта', ;
     {| g, o| f_valid_komu( g, o ) } } )
@@ -2117,7 +2117,7 @@ Function z_gurnal_pp()
     Endif
     If mn->komu >= 0
       add_string( '- принадлежность счёта: ' + ;
-        inieditspr( A__MENUVERT, mm_komu, mn->komu ) )
+        inieditspr( A__MENUVERT, mm_komu(), mn->komu ) )
 
       If mn->company > 0
         add_string( '  ==> ' + ;

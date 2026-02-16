@@ -647,7 +647,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   // mtravma   := inieditspr(A__MENUVERT, stm_travma, m1travma)
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd',  m1otd )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
-  mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
+  mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mismo     := init_ismo( m1ismo )
 
   if Empty( m1MO_PR )
@@ -816,7 +816,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ Row(), Col() Say ','            Get mosl3 Picture pic_diag reader {| o| mygetreader( o, bg ) } When when_diag() Valid val1_10diag( .t., .f., .t., mk_data, iif( m1novor == 0, mpol, mpol2 ) )
       //
       @ ++j, 1 Say 'Принадлежность счёта' Get mkomu ;
-        reader {| x| menu_reader( x, mm_komu, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_komu(), A__MENUVERT, , , .f. ) } ;
         valid {| g, o| f_valid_komu( g, o ) } ;
         Color colget_menu
       @ Row(), Col() + 1 Say '==>' Get mcompany ;

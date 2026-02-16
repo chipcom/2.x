@@ -516,7 +516,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
     -1, {|| Space( 10 ) }, ;
     'Источник финансирования' } )
   AAdd( mm_tmp, { 'komu', 'N', 2, 0, NIL, ;
-    {| x| menu_reader( x, mm_komu, A__MENUVERT ) }, ;
+    {| x| menu_reader( x, mm_komu(), A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
     'Принадлежность счёта', ;
     {| g, o| f_valid_komu( g, o ) } } )
@@ -1442,7 +1442,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
       Endif
       If mn->komu >= 0
-        sOutput := 'Принадлежность счёта: ' + inieditspr( A__MENUVERT, mm_komu, mn->komu )
+        sOutput := 'Принадлежность счёта: ' + inieditspr( A__MENUVERT, mm_komu(), mn->komu )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
         If mn->company > 0
           sOutput := '  ==> ' + inieditspr( A__MENUVERT, mm_company, mn->company )

@@ -453,7 +453,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
   MKEMVYD   := inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', M1KEMVYD )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
-  mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
+  mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mtip      := inieditspr( A__MENUVERT, mm_danet, m1tip )
   musluga   := inieditspr( A__MENUBIT,  mm_usluga, m1usluga )
   mismo     := init_ismo( m1ismo )
@@ -590,7 +590,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
         reader {| x| menu_reader( x, { {| k, r, c| get_adres( 1, k, r, c ) } }, A__FUNCTION, , , .f. ) }
     Endif
     @ ++j, 1 Say 'Принадлежность счёта' Get mkomu ;
-      reader {| x| menu_reader( x, mm_komu, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, mm_komu(), A__MENUVERT, , , .f. ) } ;
       valid {| g, o| f_valid_komu( g, o ) } ;
       Color colget_menu
     @ Row(), Col() + 1 Say '==>' Get mcompany ;

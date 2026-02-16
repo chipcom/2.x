@@ -1042,7 +1042,7 @@ Function new_list_uch( par, name_func )
     m1KOMU    := kart->KOMU
     M1STR_CRB := kart->STR_CRB
   Endif
-  mkomu := inieditspr( A__MENUVERT, mm_komu, m1komu )
+  mkomu := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   If m1komu == 0
     m1company := Int( Val( kart_->SMO ) )
   Elseif eq_any( m1komu, 1, 3 )

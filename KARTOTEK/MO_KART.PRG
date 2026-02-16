@@ -386,7 +386,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   mkategor   := inieditspr( A__MENUVERT, stm_kategor, m1kategor )
   mkategor2  := inieditspr( A__MENUVERT, stm_kategor2, m1kategor2 )
   mKOD_LGOT  := inieditspr( A__MENUVERT, getdlo_lgota(), m1KOD_LGOT )
-  mkomu      := inieditspr( A__MENUVERT, mm_komu, m1komu )
+  mkomu      := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   minvalid   := inieditspr( A__MENUVERT, mm_invalid, m1invalid )
   mosn_preb  := inieditspr( A__MENUVERT, get_osn_preb_rf(), m1osn_preb )
   mUchastSVO := inieditspr( A__MENUVERT, mm_danet, m1UchastSVO )
@@ -566,7 +566,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     @ Row(), Col() + 1 Say 'по' Get msrok_polis
     If eq_any( glob_task, X_REGIST, X_OMS, X_PPOKOJ, X_PLATN, X_ORTO )
       @ ++ix, 1 Say 'Принадлежность счета' Get mkomu ;
-        reader {| x| menu_reader( x, mm_komu, A__MENUVERT, , , .f. ) } ;
+        reader {| x| menu_reader( x, mm_komu(), A__MENUVERT, , , .f. ) } ;
         valid {| g, o| f_valid_komu( g, o ) }
       @ Row(), Col() + 1 Say '==>' Get mcompany ;
         reader {| x| menu_reader( x, mm_company, A__MENUVERT, , , .f. ) } ;
@@ -1242,7 +1242,7 @@ Function findkartoteka( k, /*@*/lkod_k)
       Endif
       mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
       mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
-      mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
+      mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
       mismo     := init_ismo( m1ismo )
       mvid_ud   := PadR( inieditspr( A__MENUVERT, getvidud(), m1vid_ud ), 23 )
       madres_reg := ini_adres( 1 )

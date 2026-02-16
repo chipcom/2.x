@@ -273,7 +273,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
   mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
-  mkomu     := inieditspr( A__MENUVERT, mm_komu, m1komu )
+  mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mismo     := init_ismo( m1ismo )
   f_valid_komu( , -1 )
   If m1komu == 0
@@ -329,7 +329,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
       update_get( 'mkomu' ), update_get( 'mcompany' ) }
     @ Row(), Col() + 5 Say 'Д.р.' Get mdate_r When .f. Color color14
     @ ++j, 1 Say 'Принадлежность счёта' Get mkomu ;
-      reader {| x| menu_reader( x, mm_komu, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, mm_komu(), A__MENUVERT, , , .f. ) } ;
       valid {| g, o| f_valid_komu( g, o ) } ;
       Color colget_menu
     @ Row(), Col() + 1 Say '==>' Get mcompany ;

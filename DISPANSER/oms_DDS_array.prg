@@ -755,15 +755,6 @@ function menu_vzros()
 function mm_vid_polis()
   return { { 'старый', 1 }, { 'врем. ', 2 }, { 'новый ', 3 } }
 
-// 03.10.25
-function mm_komu()
-  return { ;
-    { 'СМО/ТФОМС (ОМС)', 0 }, ;
-    { 'Прочие компании', 1 }, ;
-    { 'Комитеты/МО    ', 3 }, ;
-    { 'Личный счёт    ', 5 } ;
-  }
-
 // 27.10.25
 function DDS_usl_replace( mdata )
 

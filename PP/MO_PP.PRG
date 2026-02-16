@@ -856,7 +856,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
   mbolnich   := inieditspr( A__MENUVERT, menu_bolnich, m1bolnich )
   mstol      := inieditspr( A__POPUPMENU, dir_server() + 'mo_ppst', m1stol )
   If !eq_any( m1komu, 0, 1, 3, 5 ) ; m1komu := 0 ; Endif
-  mkomu      := inieditspr( A__MENUVERT, mm_komu, m1komu )
+  mkomu      := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mismo      := init_ismo( m1ismo )
 //  Private old_name_smo := PadR( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( msmo ) ) ), 38 )
   Private old_name_smo := PadR( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( msmo ) ) ), 38 )
@@ -930,7 +930,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       reader {| x| menu_reader( x, mmpp_rab, A__MENUBIT,,, .f. ) }
     //
     ++j ; @ j, 1 Say 'Принадлежность счета' Get mkomu ;
-      reader {| x| menu_reader( x, mm_komu, A__MENUVERT,,, .f. ) } ;
+      reader {| x| menu_reader( x, mm_komu(), A__MENUVERT,,, .f. ) } ;
       valid {| g, o| f_valid_komu( g, o ), ;
       iif( m1komu == 0, mcompany := old_name_smo, nil ), ;
       update_get( 'mcompany' ) }
@@ -2402,7 +2402,7 @@ Function f2_v_human_pp( nkey, oBrow )
       m1KOMU    := kart->KOMU
       M1STR_CRB := kart->STR_CRB
     Endif
-    mkomu := inieditspr( A__MENUVERT, mm_komu, m1komu )
+    mkomu := inieditspr( A__MENUVERT, mm_komu(), m1komu )
     If m1komu == 0
       m1company := Int( Val( kart_->SMO ) )
     Elseif eq_any( m1komu, 1, 3 )
