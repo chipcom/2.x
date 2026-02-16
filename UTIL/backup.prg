@@ -106,14 +106,14 @@ function create_zip_to_ftp( name, ar, strPath )
   Endif
   return nil
 
-// 22.03.24 запуск режима резервного копирования из меню
-Function m_copy_db( par )
+// 16.02.26 запуск режима резервного копирования из меню
+Function m_copy_db( par ) 
   // par - 1 - резервная копия на диск
   // 2 - резервная копия на FTP-сервер
   // 3 - авторезервирование
   Local zip_file
 
-  If ( zip_file := create_zip( par, '' ) ) == nil
+  If ( zip_file := create_zip( par, '', par ) ) == nil
     Return Nil
   Endif
   // дальнейшая работа с архивом
@@ -131,7 +131,7 @@ Function m_copy_db( par )
   mybell( 2, OK )
   Return Nil
 
-// 10.09.25 запуск режима резервного копирования из f_end()
+// 16.02.26 запуск режима резервного копирования из f_end()
 Function m_copy_db_from_end( del_last, spath )
 
   Local hCurrent, hFile, nSize, fl := .t., ta, zip_file, ;
@@ -189,7 +189,7 @@ Function m_copy_db_from_end( del_last, spath )
     Next
   Endif
   If fl
-    zip_file := create_zip( 3, dir_archiv )
+    zip_file := create_zip( 3, dir_archiv, 1 )
   Endif
   Return fl
 
@@ -219,8 +219,8 @@ Function fillzip( arr_f, sFileName )
   Endif
   Return sFileName
 
-// 20.01.26
-Function create_zip( par, dir_archiv )
+// 16.02.26
+Function create_zip( par, dir_archiv, nPar )
 
   Static sast := '*', sfile_begin := '_begin.txt', sfile_end := '_end.txt'
   Local arr_f, ar
@@ -234,6 +234,9 @@ Function create_zip( par, dir_archiv )
   // Local blk := {| x | f_aadd_copy_db( arr_f, x ) }
   // Local time_zip := 0, t1
 
+  if nPar == 2
+    afterDate := BoY( Date() )
+  endif
   zip_xml_mo := zip_xml_tf := zip_napr_mo := zip_napr_tf := zip_xml_fns := ''
   If par == 1
     If ! g_slock1task( sem_task(), sem_vagno() )  // запрет доступа всем
