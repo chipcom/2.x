@@ -305,8 +305,12 @@ Function verify_sluch( fl_view, ft )
   //
   // Ž‚…Ÿ…Œ “„Ž‘’Ž‚……ˆ… ‹ˆ—Ž‘’ˆ ˆ Ž’‘“’‘’‚ˆˆ … ˆ ˆŠ…‹…ˆ… 
   //
-  if Empty( AllTrim( human->MO_PR ) ) .and. ( AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( human_->smo ) ) } ) != 0 )
-    AAdd( ta, '¯ãáâ®¥ §­ ç¥­¨¥ ¯®«ï "ŒŽ ¯à¨ªà¥¯«¥­¨ï" ¢ «¨áâ¥ ãç¥â ' )
+  if Empty( AllTrim( human->MO_PR ) )
+    if ( AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( human_->smo ) ) } ) != 0 )
+      AAdd( ta, '¯ãáâ®¥ §­ ç¥­¨¥ ¯®«ï "ŒŽ ¯à¨ªà¥¯«¥­¨ï" ¢ «¨áâ¥ ãç¥â ' )
+    endif
+//  elseif Empty( AllTrim( human->MO_PR ) ) .and. ( AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( human_->smo ) ) } ) == 0 )
+    //
   else
     a_mo_prik := get_f032_prik()
     if ( i := AScan( a_mo_prik, {| x | x[ 2 ] == human->MO_PR } ) ) == 0

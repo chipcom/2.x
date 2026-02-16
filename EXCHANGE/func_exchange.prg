@@ -700,7 +700,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
 
   Return fl
 
-// 17.11.25 проверить, занесен ли данный файл в 'MO_XML'
+// 16.02.26 проверить, занесен ли данный файл в 'MO_XML'
 Function verify_is_already_xml( cName, /*@*/_date, /*@*/_time )
 
   Local l, fl, tmp_select := Select()
@@ -713,6 +713,15 @@ Function verify_is_already_xml( cName, /*@*/_date, /*@*/_time )
     If mx->tip_in > 0  // если принимаемый файл
       _date := mx->DREAD  // то вернём дату последнего чтения (обработки)
       _time := mx->TREAD
+      if eq_any( Left( Upper( cName ), 3), 'VHM', 'VFM' ) .and. mx->schet == 0
+        r_use( dir_server() + 'mo_rees', , 'REES' )
+        rees->( dbGoto( mx->reestr ) )
+        if rees->RES_TFOMS == 0 // не читался
+          fl := .f.
+        endif
+        rees->( dbCloseArea() )
+        select mx
+      endif
     Else               // если отсылаемый файл
       _date := mx->DFILE  // то вернём дату создания файла
       _time := mx->TFILE
