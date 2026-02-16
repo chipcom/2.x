@@ -317,14 +317,6 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         schet_->CODE := ret_unique_code( mkod, 12 )
         schet_->KOD_XML := mo_xml->KOD
 
-        // открыть распакованный реестр
-        Use ( cur_dir() + 'tmp_r_t1' ) New Alias T1
-        Index On Str( Val( FIELD->n_zap ), 6 ) to ( cur_dir() + 'tmpt1' )
-        Use ( cur_dir() + 'tmp_r_t2' ) New Alias T2
-        Index On FIELD->IDCASE + Str( FIELD->sluch, 6 ) to ( cur_dir() + 'tmpt2' )
-        Use ( cur_dir() + 'tmp_r_t3' ) New Alias T3
-        Index On Upper( FIELD->ID_PAC ) to ( cur_dir() + 'tmpt3' )
-
 //        g_use( dir_server() + 'mo_kfio', , 'KFIO' )
 //        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
 //        g_use( dir_server() + 'kartote2', , 'KART2' )
@@ -332,6 +324,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 //        g_use( dir_server() + 'kartotek', dir_server() + 'kartoten', 'KART' )
 //        Set Order To 0 // индекс открыт для реконструкции при перезаписи ФИО и даты рождения
 //        r_use( dir_server() + 'mo_otd', , 'OTD' )
+/*
         g_use( dir_server() + 'human_', , 'HUMAN_' )
         g_use( dir_server() + 'human', { dir_server() + 'humann', dir_server() + 'humans' }, 'HUMAN' )
         Set Order To 0 // индексы открыты для реконструкции при перезаписи ФИО
@@ -345,7 +338,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
         Index On Str( FIELD->_n_zap, 8 ) to ( cur_dir() + 'tmp3' )
         Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
-
+*/
       endif 
 /*
     Case nTypeFile == _XML_FILE_FLK
