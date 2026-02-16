@@ -708,7 +708,7 @@ Function fv_date_r( _data, fl_end )
   If fl_end
     If Type( 'M1RAB_NERAB' ) == 'N' .and. m1vzros_reb == 1 .and. M1RAB_NERAB == 0
       M1RAB_NERAB := 1
-      mrab_nerab := inieditspr( A__MENUVERT, menu_rab, m1rab_nerab )
+      mrab_nerab := inieditspr( A__MENUVERT, menu_rab(), m1rab_nerab )
       update_get( 'mrab_nerab' )
     Endif
     If Type( 'm1vid_ud' ) == 'N' .and. Empty( m1vid_ud )

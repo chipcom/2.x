@@ -532,7 +532,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
   MFIO_KART := _f_fio_kart()
   mndisp    := inieditspr( A__MENUVERT, mm_ndisp, metap )
-  mrab_nerab := inieditspr( A__MENUVERT, menu_rab, m1rab_nerab )
+  mrab_nerab := inieditspr( A__MENUVERT, menu_rab(), m1rab_nerab )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
   mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )

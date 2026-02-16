@@ -4,6 +4,24 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 16.02.26
+function menu_rab()
+  
+  return { ;
+    { 'работающий  ', 0 }, ;
+    { 'неработающий', 1 }, ;
+    { 'обучающ.ОЧНО', 2 } ;
+  }
+
+// 16.02.26
+function menu_predst()
+  
+  return { ;
+    { 'родитель', 1 }, ;
+    { 'опекун  ', 2 }, ;
+    { 'прочий  ', 0 } ;
+  }
+
 //  16.02.26
 function mm_komu()
   return { ;

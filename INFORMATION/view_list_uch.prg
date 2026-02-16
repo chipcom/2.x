@@ -182,7 +182,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
   lTypeLUMedReab := (otd->tiplu == TIP_LU_MED_REAB)
 
   mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, human->vzros_reb)
-  mrab_nerab := inieditspr(A__MENUVERT, menu_rab, kart->rab_nerab)
+  mrab_nerab := inieditspr(A__MENUVERT, menu_rab(), kart->rab_nerab)
   mkomu := f4_view_list_schet(human->komu, cut_code_smo(human_->smo), human->str_crb)
   mnum_lu := alltrim(human->uch_doc)
   if yes_num_lu == 1
@@ -1235,7 +1235,7 @@ Function print_al_uch(arr_h, arr_m)
   endif
   //
   mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, human->vzros_reb)
-  mrab_nerab := inieditspr(A__MENUVERT, menu_rab, human->rab_nerab)
+  mrab_nerab := inieditspr(A__MENUVERT, menu_rab(), human->rab_nerab)
   mkomu := f4_view_list_schet(human->komu, cut_code_smo(human_->smo), human->str_crb)
   mnum_lu := alltrim(human->uch_doc)
   if yes_num_lu == 1

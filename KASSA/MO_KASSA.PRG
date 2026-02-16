@@ -509,7 +509,7 @@ Function kassa_r_list_uch( par, name_func )
     mkomu += init_ismo( kart_->SMO )
     mmest_inog := inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // Š€’ áã¡ê¥ªâ  ” â¥àà¨â®à¨¨ áâà å®¢ ­¨ï
   Endif
-  mrab_nerab := Upper( inieditspr( A__MENUVERT, menu_rab, kart->rab_nerab ) )
+  mrab_nerab := Upper( inieditspr( A__MENUVERT, menu_rab(), kart->rab_nerab ) )
   m1vid_ud := kart_->vid_ud
   mnom     := kart_->nom_ud
   mser     := kart_->ser_ud

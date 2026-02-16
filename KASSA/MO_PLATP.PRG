@@ -2535,7 +2535,7 @@ Function pl_mnog_poisk()
     CToD( "" ), nil, ;
     "Дата рождения (максимальная)" } )
   AAdd( mm_tmp, { "rab_nerab", "N", 2, 0, NIL, ;
-    {| x| menu_reader( x, menu_rab, A__MENUVERT ) }, ;
+    {| x| menu_reader( x, menu_rab(), A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
     "Работающий/неработающий" } )
 /*aadd(mm_tmp, {"mi_git","N",2,0,NIL,;
@@ -2977,7 +2977,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
         Endif
       Endif
       If mn->rab_nerab >= 0
-        add_string( Upper( inieditspr( A__MENUVERT, menu_rab, mn->rab_nerab ) ) )
+        add_string( Upper( inieditspr( A__MENUVERT, menu_rab(), mn->rab_nerab ) ) )
       Endif
     /*
     if mn->mi_git >= 0

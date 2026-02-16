@@ -381,7 +381,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   mvid_ud  := inieditspr( A__MENUVERT, getvidud(), m1vid_ud )
   MKEMVYD := inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', M1KEMVYD )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
-  mrab_nerab := inieditspr( A__MENUVERT, menu_rab, m1rab_nerab )
+  mrab_nerab := inieditspr( A__MENUVERT, menu_rab(), m1rab_nerab )
   mvz        := inieditspr( A__MENUVERT, getv039(), m1vz )
   mkategor   := inieditspr( A__MENUVERT, stm_kategor, m1kategor )
   mkategor2  := inieditspr( A__MENUVERT, stm_kategor2, m1kategor2 )
@@ -594,7 +594,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
       @ ++ix, 1 Say 'Вид занятости' Get mvz ;
         reader {| x| menu_reader( x, getv039(), A__MENUVERT, , , .f. ) }
       @ Row(), Col() + 5 Say 'Работающий?' Get mrab_nerab ;
-        reader {| x| menu_reader( x, menu_rab, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, menu_rab(), A__MENUVERT, , , .f. ) }
       @ Row(), Col() + 5 Say 'Пенсионер?' Get mpensioner ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
     Endif
@@ -1459,8 +1459,8 @@ Function f_kart_valid_pred( r )
   Endif
   Private MIS_UHOD_PR1 := inieditspr( A__MENUVERT, mm_danet, M1IS_UHOD_PR1 ), ;
     MIS_FOOD_PR1 := inieditspr( A__MENUVERT, mm_danet, M1IS_FOOD_PR1 ), ;
-    mstatus_PR1 := inieditspr( A__MENUVERT, menu_predst, m1status_PR1 ), ;
-    mstatus_pr2 := inieditspr( A__MENUVERT, menu_predst, m1status_pr2 ), ;
+    mstatus_PR1 := inieditspr( A__MENUVERT, menu_predst(), m1status_PR1 ), ;
+    mstatus_pr2 := inieditspr( A__MENUVERT, menu_predst(), m1status_pr2 ), ;
     gl_area := { 1, 0, MaxRow() -1, 79, 0 }
   If mkol_pred == 2
     h := 14
@@ -1490,7 +1490,7 @@ Function f_kart_valid_pred( r )
   @ r1 + 2, c + 3 Say 'ФИО' Get MFIO_PR1
   @ Row(), Col() + 3 Say 'Д.р.' Get MDATE_R_PR1
   @ r1 + 3, c + 3 Say 'Статус' Get MSTATUS_PR1 ;
-    reader {| x| menu_reader( x, menu_predst, A__MENUVERT, , , .f. ) }
+    reader {| x| menu_reader( x, menu_predst(), A__MENUVERT, , , .f. ) }
   @ Row(), 23 Say 'Госпитализирован?' Get MIS_UHOD_PR1 ;
     reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
     valid {|| iif( M1IS_UHOD_PR1 == 0, ( MIS_FOOD_PR1 := 'нет', M1IS_FOOD_PR1 := 0 ), nil ), ;
@@ -1509,7 +1509,7 @@ Function f_kart_valid_pred( r )
     @ r1 + 2, c + 3 Say 'ФИО' Get MFIO_PR2
     @ Row(), Col() + 3 Say 'Д.р.' Get MDATE_R_PR2
     @ r1 + 3, c + 3 Say 'Статус' Get MSTATUS_PR2 ;
-      reader {| x| menu_reader( x, menu_predst, A__MENUVERT, , , .f. ) }
+      reader {| x| menu_reader( x, menu_predst(), A__MENUVERT, , , .f. ) }
     @ r1 + 4, c + 3 Say 'Адрес' Get MADRES_PR2
     @ r1 + 5, c + 3 Say 'Место работы' Get MMR_DOL_PR2
     @ r1 + 6, c + 3 Say 'Контактный телефон' Get MPHONE_PR2
@@ -3301,7 +3301,7 @@ Function kartotek_to_screen( r1, r2 )
     smo_to_screen( 1 )
   AAdd( arr, s )
   If eq_any( glob_task, X_REGIST, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_PPOKOJ, X_MO )
-//    s := Upper( RTrim( inieditspr( A__MENUVERT, menu_rab, kart->rab_nerab ) ) )
+//    s := Upper( RTrim( inieditspr( A__MENUVERT, menu_rab(), kart->rab_nerab ) ) )
 //    If kart_->PENSIONER == 1
 //      s += Space( 5 ) + 'пенсионер'
 //    Endif

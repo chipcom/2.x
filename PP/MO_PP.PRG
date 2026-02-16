@@ -2581,7 +2581,7 @@ Function f2_v_human_pp( nkey, oBrow )
       Endif
     Endif
     frd->phone := s
-    frd->rab_nerab := Upper( inieditspr( A__MENUVERT, menu_rab, kart->rab_nerab ) )
+    frd->rab_nerab := Upper( inieditspr( A__MENUVERT, menu_rab(), kart->rab_nerab ) )
     frd->vzros_reb := Upper( inieditspr( A__MENUVERT, menu_vzros, kart->vzros_reb ) )
     frd->mi_git    := okato_mi_git( kart_->okatog )
     frd->rajon_git := okato_rajon( kart_->okatog )
@@ -2671,7 +2671,7 @@ Function f2_v_human_pp( nkey, oBrow )
         frd->DATE_ROD := kpr->DATE_R
         frd->FIO_ROD := AllTrim( kpr->fio )
         If kpr->STATUS > 0
-          frd->FIO_ROD := AllTrim( kpr->fio ) + ' (' + AllTrim( inieditspr( A__MENUVERT, menu_predst, kpr->STATUS ) ) + ')'
+          frd->FIO_ROD := AllTrim( kpr->fio ) + ' (' + AllTrim( inieditspr( A__MENUVERT, menu_predst(), kpr->STATUS ) ) + ')'
         Endif
         If kpr->is_uhod == 1
           frd->uhod_rod := 'ƒŽ‘ˆ’€‹ˆ‡ˆŽ‚€ (' + iif( kpr->is_food == 1, 'á ¯¨â ­¨¥¬', '¡¥§ ¯¨â ­¨ï' ) + ')'
@@ -2694,7 +2694,7 @@ Function f2_v_human_pp( nkey, oBrow )
         frd->DATE_ROD2 := kpr->DATE_R
         frd->FIO_ROD2 := AllTrim( kpr->fio )
         If kpr->STATUS > 0
-          frd->FIO_ROD2 := AllTrim( kpr->fio ) + ' (' + AllTrim( inieditspr( A__MENUVERT, menu_predst, kpr->STATUS ) ) + ')'
+          frd->FIO_ROD2 := AllTrim( kpr->fio ) + ' (' + AllTrim( inieditspr( A__MENUVERT, menu_predst(), kpr->STATUS ) ) + ')'
         Endif
         frd->ADRES_ROD2 := kpr->ADRES
         frd->MR_ROD2 := kpr->MR_DOL

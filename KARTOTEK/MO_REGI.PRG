@@ -690,7 +690,7 @@ Function r_list_uch( par, name_func )
     Endif
     mkomu += f4_view_list_schet( m1komu, '', kart->str_crb )
   Endif
-  mrab_nerab := Upper( inieditspr( A__MENUVERT, menu_rab, kart->rab_nerab ) )
+  mrab_nerab := Upper( inieditspr( A__MENUVERT, menu_rab(), kart->rab_nerab ) )
   m1vid_ud := kart_->vid_ud
   mnom     := kart_->nom_ud
   mser     := kart_->ser_ud
@@ -2193,7 +2193,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->OKATOP     := kart_->okatop
         tmp->ADRESP     := ret_okato_ulica( kart_->adresp, kart_->okatop ) // адрес больного
         tmp->MR_DOL     := kart->MR_DOL // место работы или причина безработности
-        tmp->RABOTA     := inieditspr( A__MENUVERT, menu_rab, kart->RAB_NERAB )
+        tmp->RABOTA     := inieditspr( A__MENUVERT, menu_rab(), kart->RAB_NERAB )
         tmp->beg_polis  := full_date( c4tod( kart_->beg_polis ) ) // дата начала действия полиса ;в формате dtoc4();'поле ''beg_polis'' из файла ''k_inog'' для иногородних'
         tmp->END_POLIS  := full_date( c4tod( kart->SROK_POLIS ) ) // срок действия полиса
         tmp->KOD_SMO    := kart_->smo
@@ -2272,7 +2272,7 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->OKATOP     := kart_->okatop
         tmp->ADRESP     := ret_okato_ulica( kart_->adresp, kart_->okatop ) // адрес больного
         tmp->MR_DOL     := kart->MR_DOL // место работы или причина безработности
-        tmp->RABOTA     := inieditspr( A__MENUVERT, menu_rab, kart->RAB_NERAB )
+        tmp->RABOTA     := inieditspr( A__MENUVERT, menu_rab(), kart->RAB_NERAB )
         tmp->beg_polis  := full_date( c4tod( kart_->beg_polis ) ) // дата начала действия полиса ;в формате dtoc4();'поле ''beg_polis'' из файла ''k_inog'' для иногородних'
         tmp->END_POLIS  := full_date( c4tod( kart->SROK_POLIS ) ) // срок действия полиса
         tmp->KOD_SMO    := kart_->smo

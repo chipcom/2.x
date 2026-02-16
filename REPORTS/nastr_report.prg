@@ -372,7 +372,7 @@ Function s_mnog_poisk()
     CToD( '' ), NIL, ;
     'Дата рождения (максимальная)' } )
   AAdd( mm_tmp, { 'rab_nerab', 'N', 2, 0, NIL, ;
-    {| x| menu_reader( x, menu_rab, A__MENUVERT ) }, ;
+    {| x| menu_reader( x, menu_rab(), A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
     'Работающий/неработающий' } )
 //
@@ -1321,7 +1321,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         Endif
       Endif
       If mn->rab_nerab >= 0
-        sOutput := Upper( inieditspr( A__MENUVERT, menu_rab, mn->rab_nerab ) )
+        sOutput := Upper( inieditspr( A__MENUVERT, menu_rab(), mn->rab_nerab ) )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
       Endif
       //

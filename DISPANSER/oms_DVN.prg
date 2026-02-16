@@ -616,7 +616,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )
   MFIO_KART := _f_fio_kart()
   mndisp    := inieditspr( A__MENUVERT, mm_ndisp, metap )
-  mrab_nerab := inieditspr( A__MENUVERT, menu_rab, m1rab_nerab )
+  mrab_nerab := inieditspr( A__MENUVERT, menu_rab(), m1rab_nerab )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
   mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
@@ -730,7 +730,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         update_get( 'mkomu' ), update_get( 'mcompany' ) }
       @ Row(), Col() + 5 Say 'Д.р.' Get mdate_r When .f. Color color14
       @ ++j, 1 Say ' Работающий?' Get mrab_nerab ;
-        reader {| x | menu_reader( x, menu_rab, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, menu_rab(), A__MENUVERT, , , .f. ) }
       @ j, 40 Say 'Ветеран ВОВ (блокадник)?' Get mveteran ;
         reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say ' Принадлежность счёта' Get mkomu ;

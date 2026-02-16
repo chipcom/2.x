@@ -197,7 +197,7 @@ Function mnog_poisk_dvn1()
     CToD( '' ), nil, ;
     'Дата рождения (максимальная)' } )
   AAdd( mm_tmp, { 'rab_nerab', 'N', 2, 0, NIL, ;
-    {| x| menu_reader( x, menu_rab, A__MENUVERT ) }, ;
+    {| x| menu_reader( x, menu_rab(), A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
     'Работающий/неработающий' } )
   AAdd( mm_tmp, { 'smo', 'C', 5, 0, NIL, ;
@@ -398,7 +398,7 @@ Function mnog_poisk_dvn1()
         Endif
       Endif
       If mn->rab_nerab >= 0
-        add_string( Upper( inieditspr( A__MENUVERT, menu_rab, mn->rab_nerab ) ) )
+        add_string( Upper( inieditspr( A__MENUVERT, menu_rab(), mn->rab_nerab ) ) )
       Endif
       If !Empty( mn->smo )
         add_string( 'СМО: ' + inieditspr( A__MENUVERT, mm_smo, mn->smo ) )
@@ -479,7 +479,7 @@ Function mnog_poisk_dvn1()
         s1 += PadR( tt_adr[ 1 ], 36 )
         dvn->ADRESR := AllTrim( ret_okato_ulica( '', kart_->okatog, 3, 2 ) ) + ' ' + LTrim( kart->adres )
         dvn->ADRESP := AllTrim( ret_okato_ulica( '', kart_->okatop, 3, 2 ) ) + ' ' + LTrim( kart_->adresp )
-        dvn->RABOTA := inieditspr( A__MENUVERT, menu_rab, kart->RAB_NERAB )
+        dvn->RABOTA := inieditspr( A__MENUVERT, menu_rab(), kart->RAB_NERAB )
         dvn->POLIS := LTrim( kart_->NPOLIS )
         dvn->KOD_SMO := kart_->smo
         dvn->SMO := smo_to_screen( 1 )
@@ -947,7 +947,7 @@ Function mnog_poisk_dvn2()
     CToD( '' ), nil, ;
     'Дата рождения (максимальная)' } )
   AAdd( mm_tmp, { 'rab_nerab', 'N', 2, 0, NIL, ;
-    {| x| menu_reader( x, menu_rab, A__MENUVERT ) }, ;
+    {| x| menu_reader( x, menu_rab(), A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
     'Работающий/неработающий' } )
   AAdd( mm_tmp, { 'vrach1', 'N', 5, 0, NIL, ;
@@ -1212,7 +1212,7 @@ Function mnog_poisk_dvn2()
         Endif
       Endif
       If mn->rab_nerab >= 0
-        add_string( Upper( inieditspr( A__MENUVERT, menu_rab, mn->rab_nerab ) ) )
+        add_string( Upper( inieditspr( A__MENUVERT, menu_rab(), mn->rab_nerab ) ) )
       Endif
       If mn->vrach1 > 0
         add_string( 'Лечащий врач: ' + AllTrim( mn->vrach ) )
