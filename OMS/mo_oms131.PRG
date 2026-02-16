@@ -1406,9 +1406,9 @@ Function f1_forma_131( Loc_kod, kod_kartotek ) // 131
   Else
     arr_7001[ 3, 2 ] ++
   Endif
-  If ( i := AScan( stm_kategor, {| x| x[ 2 ] == kart_->kategor } ) ) > 0 .and. Between( stm_kategor[ i, 3 ], 1, 8 )
+  If ( i := AScan( stm_kategor(), {| x| x[ 2 ] == kart_->kategor } ) ) > 0 .and. Between( stm_kategor()[ i, 3 ], 1, 8 )
     arr_7001[ 4, 2 ]++  // всего льготников
-    // arr_7001[4+stm_kategor[i,3],2] ++  // по каждой льготе расшифровка
+    // arr_7001[4+stm_kategor()[i,3],2] ++  // по каждой льготе расшифровка
   Endif
   If m1mobilbr == 1
     arr_7001[ 18, 2 ] ++
@@ -1881,9 +1881,9 @@ elseif M1RAB_NERAB == 1
 else
   arr_7001[3,2] ++
 endif
-if (i := ascan(stm_kategor, {|x| x[2] == kart_->kategor })) > 0 .and. between(stm_kategor[i,3],1,8)
+if (i := ascan(stm_kategor(), {|x| x[2] == kart_->kategor })) > 0 .and. between(stm_kategor()[i,3],1,8)
   arr_7001[4,2] ++  // всего льготников
-//  arr_7001[4+stm_kategor[i,3],2] ++  // по каждой льготе расшифровка
+//  arr_7001[4+stm_kategor()[i,3],2] ++  // по каждой льготе расшифровка
 endif
 if m1mobilbr == 1
   arr_7001[18,2] ++

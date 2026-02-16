@@ -294,7 +294,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
     mMO_PR := ret_mo( m1MO_PR )[ _MO_SHORT_NAME ]
   Endif
   mschool := inieditspr( A__POPUPMENU, dir_server() + 'mo_schoo', m1school )
-  mtip_school := inieditspr( A__MENUVERT, mm_tip_school, m1tip_school )
+  mtip_school := inieditspr( A__MENUVERT, mm_tip_school(), m1tip_school )
   mprotivo := inieditspr( A__MENUVERT, mm_danet, m1protivo )
   //
   If !Empty( f_print )
@@ -360,7 +360,7 @@ Function oms_sluch_pern( Loc_kod, kod_kartotek, f_print )
     @ ++j, 1 Say 'Общеобразовательное учреждение' Get mschool ;
       reader {| x| menu_reader( x, { dir_server() + 'mo_schoo', , , , , , 'Общеобразовательные учр-ия', 'B/BG' }, A__POPUPBASE1, , , .f. ) }
     @ ++j, 1 Say 'Тип общеобразовательного учреждения' Get mtip_school ;
-      reader {| x| menu_reader( x, mm_tip_school, A__MENUVERT, , , .f. ) } ;
+      reader {| x| menu_reader( x, mm_tip_school(), A__MENUVERT, , , .f. ) } ;
       valid {|| mperiod := iif( m1tip_school == 1, 1, 2 ), ;
       iif( mperiod == 1, ( MTAB_NOMiv3 := MTAB_NOMia3 := 0, MDATEi3 := CToD( '' ), MREZi3 := Space( 17 ) ), ), ;
       iif( mperiod == 2 .and. Empty( MDATEi3 ), MDATEi3 := mn_data, ), ;

@@ -334,7 +334,7 @@ Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
     mMO_PR := ret_mo( m1MO_PR )[ _MO_SHORT_NAME ]
   Endif
   mschool := inieditspr( A__POPUPMENU, dir_server() + 'mo_schoo', m1school )
-  mtip_school := inieditspr( A__MENUVERT, mm_tip_school, m1tip_school )
+  mtip_school := inieditspr( A__MENUVERT, mm_tip_school(), m1tip_school )
   mstep2  := inieditspr( A__MENUVERT, mm_danet, m1step2 )
   mgr_fiz := inieditspr( A__MENUVERT, mm_gr_fiz, m1gr_fiz )
   //
@@ -427,7 +427,7 @@ Function oms_sluch_predn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'Общеобразовательное учреждение' Get mschool ;
         reader {| x| menu_reader( x, { dir_server() + 'mo_schoo', , , , , , 'Общеобразовательные учр-ия', 'B/BG' }, A__POPUPBASE1, , , .f. ) }
       @ ++j, 1 Say 'Тип общеобразовательного учреждения' Get mtip_school ;
-        reader {| x| menu_reader( x, mm_tip_school, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_tip_school(), A__MENUVERT, , , .f. ) }
       status_key( '^<Esc>^ выход без записи ^<PgDn>^ на 2-ю страницу' )
       If !Empty( a_smert )
         n_message( a_smert, , 'GR+/R', 'W+/R', , , 'G+/R' )

@@ -2236,7 +2236,7 @@ Function mnog_poisk_dnl()
     'Улица (подстрока или шаблон)' } )
   If is_talon
     AAdd( mm_tmp, { 'kategor', 'N', 2, 0, NIL, ;
-      {| x| menu_reader( x, mo_cut_menu( stm_kategor ), A__MENUVERT ) }, ;
+      {| x| menu_reader( x, mo_cut_menu( stm_kategor() ), A__MENUVERT ) }, ;
       0, {|| Space( 10 ) }, ;
       'Код категории льготы' } )
     If is_kategor2
@@ -2415,7 +2415,7 @@ Function mnog_poisk_dnl()
         add_string( 'Улица: ' + madres )
       Endif
       If is_talon .and. mn->kategor > 0
-        add_string( 'Код категории льготы: ' + inieditspr( A__MENUVERT, stm_kategor, mn->kategor ) )
+        add_string( 'Код категории льготы: ' + inieditspr( A__MENUVERT, stm_kategor(), mn->kategor ) )
       Endif
       If is_talon .and. is_kategor2 .and. mn->kategor2 > 0
         add_string( 'Категория МО: ' + inieditspr( A__MENUVERT, stm_kategor2, mn->kategor2 ) )

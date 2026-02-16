@@ -791,8 +791,8 @@ Function f1_131_u( nKey, oBrow, regim )
     Else
       frt->adres := sb1 + PadR( kart->adres, 60 ) + sb2
     Endif
-    If ( i := AScan( stm_kategor, {| x| x[ 2 ] == kart_->kategor } ) ) > 0 .and. Between( stm_kategor[ i, 3 ], 1, 8 )
-      frt->kod_lgot := lstr( stm_kategor[ i, 3 ] )
+    If ( i := AScan( stm_kategor(), {| x| x[ 2 ] == kart_->kategor } ) ) > 0 .and. Between( stm_kategor()[ i, 3 ], 1, 8 )
+      frt->kod_lgot := lstr( stm_kategor()[ i, 3 ] )
     Endif
     frt->mobil := f_131_u_da_net( m1mobilbr, sb1, sb2 )
     frt->n_data := full_date( mn_data )

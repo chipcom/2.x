@@ -4593,7 +4593,7 @@ Function ort_mnog_poisk()
     "Категория больного (наряда)" } )
   If is_talon
     AAdd( mm_tmp, { "kategor", "N", 2, 0, NIL, ;
-      {| x| menu_reader( x, mo_cut_menu( stm_kategor ), A__MENUVERT ) }, ;
+      {| x| menu_reader( x, mo_cut_menu( stm_kategor() ), A__MENUVERT ) }, ;
       0, {|| Space( 10 ) }, ;
       "Код категории льготы" } )
   Endif
@@ -5107,7 +5107,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
       Endif
       If is_talon .and. mn->kategor > 0
         add_string( "Код категории льготы: " + ;
-          inieditspr( A__MENUVERT, stm_kategor, mn->kategor ) )
+          inieditspr( A__MENUVERT, stm_kategor(), mn->kategor ) )
       Endif
       If is_uchastok > 0
         If !Empty( mn->bukva )

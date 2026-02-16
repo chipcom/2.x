@@ -448,7 +448,7 @@ Function kassa_r_list_uch( par, name_func )
   // 2 - ортопедические услуги
   Local i := 1, k, s, buf := save_row( MaxRow() )
   Local luchast := "", arr, m1vid_ud, ;
-    m1kategor := ATail( stm_kategor )[ 2 ]  // т.е. прочие (последнее значение)
+    m1kategor := ATail( stm_kategor() )[ 2 ]  // т.е. прочие (последнее значение)
   Private name_lpu, name_otd, mvzros_reb, mreg_lech, mmest_inog, mrab_nerab, ;
     mkomu, name_org, mmi_git, mkategor := " ", mvid_ud, mnom, mser, ;
     l1nomer, lnomer, mrajon_git, mrajon_fin, mpolis, msrok_polis, ;
@@ -515,7 +515,7 @@ Function kassa_r_list_uch( par, name_func )
   mser     := kart_->ser_ud
   If Empty( stm_kategor2 )
     m1kategor := kart_->kategor
-    mkategor := Upper( inieditspr( A__MENUVERT, stm_kategor, m1kategor ) )
+    mkategor := Upper( inieditspr( A__MENUVERT, stm_kategor(), m1kategor ) )
   Else
     m1kategor := kart_->kategor2
     mkategor := Upper( inieditspr( A__MENUVERT, stm_kategor2, m1kategor ) )

@@ -531,7 +531,7 @@ Function edit_school()
   arr[ US_ARR_BROWSE ] := { '═', '░', '═', , .t. }
   arr[ US_COLUMN   ] := { { ' Наименование', {|| name }, blk }, ;
     { ' Адрес', {|| Left( adres, 26 ) }, blk }, ;
-    { ' Тип', {|| PadR( inieditspr( A__MENUVERT, mm_tip_school, tip ), 14 ) }, blk } }
+    { ' Тип', {|| PadR( inieditspr( A__MENUVERT, mm_tip_school(), tip ), 14 ) }, blk } }
   arr[ US_BLK_DEL  ] := {| _k| fdel_school( _k ) }
   arr[ US_IM_PADEG ] := arr[ US_SEMAPHORE ] := 'образовательные учреждения'
   arr[ US_ROD_PADEG ] := 'образовательных учреждений'
@@ -539,8 +539,8 @@ Function edit_school()
     { 'fname', 'C', 250, 0, , , Space( 250 ), , 'Полное наименование' }, ;
     { 'adres', 'C', 250, 0, , , Space( 250 ), , 'Юридический адрес' }, ;
     { 'tip', 'N', 1, 0, , ;
-    {| x| menu_reader( x, mm_tip_school, A__MENUVERT, , , .f. ) }, ;
-    0, {| x| inieditspr( A__MENUVERT, mm_tip_school, x ) }, 'Тип' };
+    {| x| menu_reader( x, mm_tip_school(), A__MENUVERT, , , .f. ) }, ;
+    0, {| x| inieditspr( A__MENUVERT, mm_tip_school(), x ) }, 'Тип' };
     }
   edit_u_spr( 1, arr )
   Return Nil

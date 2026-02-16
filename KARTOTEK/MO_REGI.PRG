@@ -571,7 +571,7 @@ Function r_list_uch( par, name_func )
 
   Local i := 1, j, k, s, fl, buf := save_maxrow()
   Local luchast := '', arr, m1vid_ud, ;
-    m1kategor := ATail( stm_kategor )[ 2 ]  // т.е. прочие (последнее значение)
+    m1kategor := ATail( stm_kategor() )[ 2 ]  // т.е. прочие (последнее значение)
   Private name_lpu, name_otd, mvzros_reb, mreg_lech, mmest_inog, mrab_nerab, ;
     m1komu := 0, mkomu, name_org, mmi_git, mkategor, mvid_ud, mnom, mser, ;
     l1nomer, lnomer, mrajon_git, mrajon_fin, mpolis, msrok_polis, ;
@@ -698,7 +698,7 @@ Function r_list_uch( par, name_func )
   mmesto_rog := AllTrim( kart_->mesto_r )
   If Empty( stm_kategor2 )
     m1kategor := kart_->kategor
-    mkategor := Upper( inieditspr( A__MENUVERT, stm_kategor, m1kategor ) )
+    mkategor := Upper( inieditspr( A__MENUVERT, stm_kategor(), m1kategor ) )
   Else
     m1kategor := kart_->kategor2
     mkategor := Upper( inieditspr( A__MENUVERT, stm_kategor2, m1kategor ) )
@@ -966,9 +966,9 @@ Function new_list_uch( par, name_func )
   Endif
   frt->adrespL := s // +'   тел. '+frt->phones
   //
-  If ( i := AScan( stm_kategor, {| x| x[ 2 ] == kart_->kategor } ) ) > 0 ;
-      .and. Between( stm_kategor[ i, 3 ], 1, 9 )
-    frt->kod_lgot := lstr( stm_kategor[ i, 3 ] )
+  If ( i := AScan( stm_kategor(), {| x| x[ 2 ] == kart_->kategor } ) ) > 0 ;
+      .and. Between( stm_kategor()[ i, 3 ], 1, 9 )
+    frt->kod_lgot := lstr( stm_kategor()[ i, 3 ] )
   Endif
   If AllTrim( kart_->SMO ) == '34'
     If Empty( s := ret_inogsmo_name( 1 ) )
@@ -1023,7 +1023,7 @@ Function new_list_uch( par, name_func )
   frt->nomer_kart := lnomer
   frt->mesto_rog  := AllTrim( kart_->mesto_r )
   If Empty( stm_kategor2 )
-    frt->kategor := inieditspr( A__MENUVERT, stm_kategor, kart_->kategor )
+    frt->kategor := inieditspr( A__MENUVERT, stm_kategor(), kart_->kategor )
   Else
     frt->kategor := inieditspr( A__MENUVERT, stm_kategor2, kart_->kategor2 )
   Endif
@@ -1247,7 +1247,7 @@ Function list_uch( is_lgotnik )
   Local sh := 80, HH := 55, buf := save_maxrow(), regim_print := 2
   Local i := 1, j, k, tmp[ 2 ], tmp1, w1 := 65, s, fl, rec
   Local n_file := cur_dir() + 'list_uch.txt', arr, mfam1, mima1, mots1, m1vid_ud, ;
-    m1kategor := ATail( stm_kategor )[ 2 ]  // т.е. прочие (последнее значение)
+    m1kategor := ATail( stm_kategor() )[ 2 ]  // т.е. прочие (последнее значение)
 
   //
   Default is_lgotnik To .f.

@@ -1708,9 +1708,9 @@ Function fbp_ist_fin( r, c )
   _arr_if := {}
   _arr_komit := {}
   If Len( _what_if[ 1 ] ) > 1
-    For i := 1 To Len( mm_ist_fin )
-      If AScan( _what_if[ 1 ], mm_ist_fin[ i, 2 ] ) > 0
-        AAdd( arr, mm_ist_fin[ i ] )
+    For i := 1 To Len( mm_ist_fin() )
+      If AScan( _what_if[ 1 ], mm_ist_fin()[ i, 2 ] ) > 0
+        AAdd( arr, mm_ist_fin()[ i ] )
       Endif
     Next
     If ( j := Len( arr ) ) > 0
@@ -1789,7 +1789,7 @@ Function _tit_ist_fin( sh )
       s += _arr_komit[ 1, 1 ]
     Else
       For i := 1 To Len( _arr_if )
-        s += AllTrim( inieditspr( A__MENUVERT, mm_ist_fin, _arr_if[ i ] ) ) + ", "
+        s += AllTrim( inieditspr( A__MENUVERT, mm_ist_fin(), _arr_if[ i ] ) ) + ", "
       Next
     Endif
     s := SubStr( s, 1, Len( s ) -2 ) + " ]"

@@ -823,7 +823,7 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
   Close databases
   Private gl_arr := { ;  // для битовых полей
   { 'vid_opl', 'N', 3, 0,,,, {| x| inieditspr( A__MENUBIT, menu_vid_opl, x ) } }, ;
-    { 'pprab_nerab', 'N', 10, 0,,,, {| x| inieditspr( A__MENUBIT, mmpp_rab, x ) } };
+    { 'pprab_nerab', 'N', 10, 0,,,, {| x| inieditspr( A__MENUBIT, mmpp_rab(), x ) } };
     }
   much := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1uch )
   motd := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
@@ -836,9 +836,9 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
   Endif
   Private OLD_IS_GOSPIT := M1IS_GOSPIT
   mvid_opl   := inieditspr( A__MENUBIT, menu_vid_opl, m1vid_opl )
-  mpprab_nerab := inieditspr( A__MENUBIT, mmpp_rab, m1pprab_nerab )
+  mpprab_nerab := inieditspr( A__MENUBIT, mmpp_rab(), m1pprab_nerab )
   mreg_lech  := inieditspr( A__MENUVERT, mmpp_regim, m1reg_lech )
-  mkategor   := inieditspr( A__MENUVERT, mmpp_kategor, m1kategor )
+  mkategor   := inieditspr( A__MENUVERT, mmpp_kategor(), m1kategor )
   If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
     MKEM_DOST  := inieditspr( A__MENUVERT, mmpp_kem1dost, M1KEM_DOST )
   Else
@@ -922,12 +922,12 @@ Function f_kart_pp( Loc_kod, kod_kartotek )
       @ j, Col() + 1 Get mvrach When .f. Color color14
     Endif
     ++j ; @ j, 1 Say 'Категория льготности' Get mkategor ;
-      reader {| x| menu_reader( x, mmpp_kategor, A__MENUVERT,,, .f. ) }
+      reader {| x| menu_reader( x, mmpp_kategor(), A__MENUVERT,,, .f. ) }
     //
     ++j ; @ j, 1 Say 'Вид оплаты' Get mvid_opl ;
       reader {| x| menu_reader( x, menu_vid_opl, A__MENUBIT,,, .f. ) }
     @ j, 40 Say 'Статус' Get mpprab_nerab ;
-      reader {| x| menu_reader( x, mmpp_rab, A__MENUBIT,,, .f. ) }
+      reader {| x| menu_reader( x, mmpp_rab(), A__MENUBIT,,, .f. ) }
     //
     ++j ; @ j, 1 Say 'Принадлежность счета' Get mkomu ;
       reader {| x| menu_reader( x, mm_komu(), A__MENUVERT,,, .f. ) } ;
@@ -2371,9 +2371,9 @@ Function f2_v_human_pp( nkey, oBrow )
     Elseif !Empty( kart_->SMO )
       frd->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + init_ismo( kart_->SMO )
     Endif
-    If ( i := AScan( stm_kategor, {| x| x[ 2 ] == kart_->kategor } ) ) > 0 ;
-        .and. Between( stm_kategor[ i, 3 ], 1, 9 )
-      frd->kod_lgot := lstr( stm_kategor[ i, 3 ] )
+    If ( i := AScan( stm_kategor(), {| x| x[ 2 ] == kart_->kategor } ) ) > 0 ;
+        .and. Between( stm_kategor()[ i, 3 ], 1, 9 )
+      frd->kod_lgot := lstr( stm_kategor()[ i, 3 ] )
     Endif
 
     frd->name_doc := get_name_vid_ud( kart_->vid_ud )
@@ -2469,8 +2469,8 @@ Function f2_v_human_pp( nkey, oBrow )
       ss += 'платные медицинские услуги - 3, в том числе добровольное медицинское страхование  - 4 ' + sb1 + ', другое - 5' + sb2 + ' '
     Endif
     frd->vid_opl2 := ss
-    frd->pp_status  := inieditspr( 2, mmpp_rab,     hu->rab_nerab )
-    frd->pp_kategor := inieditspr( 1, mmpp_kategor, hu->kategor )
+    frd->pp_status  := inieditspr( 2, mmpp_rab(),     hu->rab_nerab )
+    frd->pp_kategor := inieditspr( 1, mmpp_kategor(), hu->kategor )
     If glob_mo[ _MO_KOD_TFOMS ] == '711001' // РЖД
       frd->kem_dost   := inieditspr( 1, mmpp_kem1dost, hu->kem_dost )
     Else
@@ -2550,7 +2550,7 @@ Function f2_v_human_pp( nkey, oBrow )
     frd->HEIGHT := iif( Empty( kart_->HEIGHT ), '_______', lstr( kart_->HEIGHT ) + ' см' )
     frd->WEIGHT := iif( Empty( kart_->WEIGHT ), '_______', lstr( kart_->WEIGHT ) + ' кг' )
     If Empty( stm_kategor2 )
-      frd->kategor := inieditspr( A__MENUVERT, stm_kategor, kart_->kategor )
+      frd->kategor := inieditspr( A__MENUVERT, stm_kategor(), kart_->kategor )
     Else
       frd->kategor := inieditspr( A__MENUVERT, stm_kategor2, kart_->kategor2 )
     Endif

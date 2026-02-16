@@ -1941,8 +1941,8 @@ Function z_gurnal_pp()
     spar, {|| inieditspr( A__MENUVERT, mm_sort, spar ) }, ;
     'Вид сортировки?' } )
   AAdd( mm_tmp, { 'rab_nerab', 'N', 2, 0, NIL, ;
-    {| x| menu_reader( x, mmpp_rab, A__MENUBIT ) }, ;
-    0, {| x| inieditspr( A__MENUBIT, mmpp_rab, x ) }, ;
+    {| x| menu_reader( x, mmpp_rab(), A__MENUBIT ) }, ;
+    0, {| x| inieditspr( A__MENUBIT, mmpp_rab(), x ) }, ;
     'Социальный статус' } )
   AAdd( mm_tmp, { 'mi_git', 'N', 2, 0, NIL, ;
     {| x| menu_reader( x, mm_mest, A__MENUVERT ) }, ;
@@ -2084,7 +2084,7 @@ Function z_gurnal_pp()
     //
     Private much_doc := '', mfio := '', madres := '', mmr_dol := ''
     If !Empty( mn->rab_nerab )
-      add_string( '- социальный статус: ' + inieditspr( A__MENUBIT, mmpp_rab, mn->rab_nerab ) )
+      add_string( '- социальный статус: ' + inieditspr( A__MENUBIT, mmpp_rab(), mn->rab_nerab ) )
     Endif
     If mn->mi_git > 0
       add_string( '- место жительства: ' + inieditspr( A__MENUVERT, mm_mest, mn->mi_git ) )
@@ -2430,8 +2430,8 @@ Static Function pp_mnog_poisk()
   Endif
   If fl .and. mn->rab_nerab > 0
     fl := .f.
-    For i := 1 To Len( mmpp_rab )
-      j := mmpp_rab[ i, 2 ]
+    For i := 1 To Len( mmpp_rab() )
+      j := mmpp_rab()[ i, 2 ]
       If IsBit( mn->rab_nerab, j ) .and. IsBit( hu->rab_nerab, j )
         fl := .t. ; Exit
       Endif

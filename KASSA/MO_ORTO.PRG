@@ -2825,7 +2825,7 @@ Function pr_zak_nar( tip_print ) // 21.05.08
   Static st_tip_usl := 0
   Local i := 1, j, k, s, fl, buf := save_row( MaxRow() )
   Local luchast := "", arr, mfam1, mima1, mots1, m1vid_ud, ;
-    m1kategor := ATail( stm_kategor )[ 2 ]  // т.е. прочие (последнее значение)
+    m1kategor := ATail( stm_kategor() )[ 2 ]  // т.е. прочие (последнее значение)
   Local lnomer, l1nomer
   Private file_sh1, mLnomer
   Private okato_adresr, okato_adresg, m1fio

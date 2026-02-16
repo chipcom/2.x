@@ -5,6 +5,39 @@
 #include 'function.ch'
 #include 'common.ch'
 
+// 16.02.26
+function mm_filial_tf()
+  
+  return { ;
+    { 'Волгоградский', 1 }, ;
+    { 'Заволжский', 2 }, ;
+    { 'Северный', 3 }, ;
+    { 'Медведицкий', 4 }, ;
+    { 'Хопёрский', 5 }, ;
+    { 'Южный', 6 } ;
+  }
+
+// 16.02.26
+function mm_ist_fin()
+  
+  local arr := AClone( mm1ist_fin() )
+  ins_array( arr, 1, { 'ОМС', I_FIN_OMS } )
+  // "Дата договора"})
+
+  return arr
+
+// 16.02.26
+function mm1ist_fin()
+  
+  return { ;
+    { 'бюджет',      I_FIN_BUD }, ;   // 1
+    { 'расчеты с МО', I_FIN_LPU }, ;   // 2
+    { 'платные',     I_FIN_PLAT }, ;  // 0
+    { 'ДМС',         I_FIN_DMS }, ;   // 5
+    { 'не оплачен',  I_FIN_NEOPL }, ; // 3
+    { 'за свой счёт', I_FIN_OWN } ;    // 4
+  }
+
 // 01.04.23 комитеты/МО
 function get_komitet()
   static arr
@@ -38,8 +71,8 @@ function get_komitet()
                        0, {|x|inieditspr(A__MENUVERT, mm_danet, x)}, ;
                        'Включать ПАРАКЛИНИКУ в сумму счета по данному комитету (МО):'})
     aadd(arr, {'ist_fin', 'N', 1, 0, nil, ;
-                       {|x|menu_reader(x, mm1ist_fin, A__MENUVERT)}, ;
-                       0, {|x|inieditspr(A__MENUVERT, mm1ist_fin, x)}, ;
+                       {|x|menu_reader(x, mm1ist_fin(), A__MENUVERT)}, ;
+                       0, {|x|inieditspr(A__MENUVERT, mm1ist_fin(), x)}, ;
                        'Источник финансирования:'})
   endif
   return arr
@@ -79,8 +112,8 @@ function get_strah()
       0, {|x|inieditspr(A__MENUVERT, mm_danet, x)}, ;
       'Включать ПАРАКЛИНИКУ в сумму счета по данной компании:'})
     aadd(arr, {'ist_fin', 'N', 1, 0, nil, ;
-      {|x|menu_reader(x, mm1ist_fin, A__MENUVERT)}, ;
-      0, {|x|inieditspr(A__MENUVERT, mm1ist_fin, x)}, ;
+      {|x|menu_reader(x, mm1ist_fin(), A__MENUVERT)}, ;
+      0, {|x|inieditspr(A__MENUVERT, mm1ist_fin(), x)}, ;
      'Источник финансирования:'})
   endif
   return arr
@@ -155,8 +188,8 @@ function get_struct_organiz()
     aadd(arr, {'ispolnit', 'C', 20, 0, ,, space(20), , 'Ф.И.О. исполнителя для счетов ОМС'})
     aadd(arr, {'name_d', 'C', 32, 0, ,, space(32), , 'Наименование орг-ии (для договора)'})
     aadd(arr, {'filial_h', 'N', 1, 0, nil, ;
-      {|x|menu_reader(x, mm_filial_tf, A__MENUVERT)}, ;
-      0, {|x|inieditspr(A__MENUVERT, mm_filial_tf, x)}, ;
+      {|x|menu_reader(x, mm_filial_tf(), A__MENUVERT)}, ;
+      0, {|x|inieditspr(A__MENUVERT, mm_filial_tf(), x)}, ;
       'Филиал ТФОМС, в который отправляется файл с ходатайствами'})
   endif
   return arr

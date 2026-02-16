@@ -174,7 +174,7 @@ Function mnog_poisk_dvn1()
     'Улица (подстрока или шаблон)' } )
   If is_talon
     AAdd( mm_tmp, { 'kategor', 'N', 2, 0, NIL, ;
-      {| x| menu_reader( x, mo_cut_menu( stm_kategor ), A__MENUVERT ) }, ;
+      {| x| menu_reader( x, mo_cut_menu( stm_kategor() ), A__MENUVERT ) }, ;
       0, {|| Space( 10 ) }, ;
       'Код категории льготы' } )
     If is_kategor2
@@ -380,7 +380,7 @@ Function mnog_poisk_dvn1()
         add_string( 'Улица: ' + madres )
       Endif
       If is_talon .and. mn->kategor > 0
-        add_string( 'Код категории льготы: ' + inieditspr( A__MENUVERT, stm_kategor, mn->kategor ) )
+        add_string( 'Код категории льготы: ' + inieditspr( A__MENUVERT, stm_kategor(), mn->kategor ) )
       Endif
       If is_talon .and. is_kategor2 .and. mn->kategor2 > 0
         add_string( 'Категория МО: ' + inieditspr( A__MENUVERT, stm_kategor2, mn->kategor2 ) )
@@ -924,7 +924,7 @@ Function mnog_poisk_dvn2()
     'Место работы (подстрока или шаблон)' } )
   If is_talon
     AAdd( mm_tmp, { 'kategor', 'N', 2, 0, NIL, ;
-      {| x| menu_reader( x, mo_cut_menu( stm_kategor ), A__MENUVERT ) }, ;
+      {| x| menu_reader( x, mo_cut_menu( stm_kategor() ), A__MENUVERT ) }, ;
       0, {|| Space( 10 ) }, ;
       'Код категории льготы' } )
     If is_kategor2
@@ -961,7 +961,7 @@ Function mnog_poisk_dvn2()
     '            ',, ;
     {|| .f. } } )
   AAdd( mm_tmp, { 'ist_fin', 'N', 2, 0, NIL, ;
-    {| x| menu_reader( x, mm_ist_fin, A__MENUVERT ) }, ;
+    {| x| menu_reader( x, mm_ist_fin(), A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
     'Источник финансирования' } )
   AAdd( mm_tmp, { 'komu', 'N', 2, 0, NIL, ;
@@ -1192,7 +1192,7 @@ Function mnog_poisk_dvn2()
       Endif
       If is_talon .and. mn->kategor > 0
         add_string( 'Код категории льготы: ' + ;
-          inieditspr( A__MENUVERT, stm_kategor, mn->kategor ) )
+          inieditspr( A__MENUVERT, stm_kategor(), mn->kategor ) )
       Endif
       If is_talon .and. is_kategor2 .and. mn->kategor2 > 0
         add_string( 'Категория МО: ' + ;
@@ -1219,7 +1219,7 @@ Function mnog_poisk_dvn2()
       Endif
       If mn->ist_fin >= 0
         add_string( 'Источник финансирования ' + ;
-          inieditspr( A__MENUVERT, mm_ist_fin, mn->ist_fin ) )
+          inieditspr( A__MENUVERT, mm_ist_fin(), mn->ist_fin ) )
       Endif
       If mn->komu >= 0
         add_string( 'Принадлежность счёта: ' + ;

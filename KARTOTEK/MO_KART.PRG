@@ -153,7 +153,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
     mgragd, m1gragd, ;
     msnils := Space( 11 ), ;
     m1gorod_selo := 1, mgorod_selo, ;
-    mkategor, m1kategor := ATail( stm_kategor )[ 2 ], ;  // т.е. прочие
+    mkategor, m1kategor := ATail( stm_kategor() )[ 2 ], ;  // т.е. прочие
     mkategor2, m1kategor2 := 0, ;
     mokatog := PadR( AllTrim( okato_umolch ), 11, '0' ), mokatop := Space( 11 ), madresp := Space( 50 ), ;
     m1adres_reg := 1, madres_reg, ;
@@ -383,7 +383,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
   mrab_nerab := inieditspr( A__MENUVERT, menu_rab(), m1rab_nerab )
   mvz        := inieditspr( A__MENUVERT, getv039(), m1vz )
-  mkategor   := inieditspr( A__MENUVERT, stm_kategor, m1kategor )
+  mkategor   := inieditspr( A__MENUVERT, stm_kategor(), m1kategor )
   mkategor2  := inieditspr( A__MENUVERT, stm_kategor2, m1kategor2 )
   mKOD_LGOT  := inieditspr( A__MENUVERT, getdlo_lgota(), m1KOD_LGOT )
   mkomu      := inieditspr( A__MENUVERT, mm_komu(), m1komu )
@@ -578,7 +578,7 @@ Function edit_kartotek_( mkod, _top_r, _bot_r, fl_oms, _Human_kod )
         c := Col() + 1
         If .t. // mem_st_kat == 1
           @ ix, c Get mkategor ;
-            reader {| x| menu_reader( x, mo_cut_menu( stm_kategor ), A__MENUVERT, , , .f. ) }
+            reader {| x| menu_reader( x, mo_cut_menu( stm_kategor() ), A__MENUVERT, , , .f. ) }
           c += 24
         Else
           @ ix, c Get m1kategor Pict '99' ;
@@ -1654,8 +1654,8 @@ Function val_st_kat( get )
 
   Local i, fl := .t.
 
-  If ( i := AScan( stm_kategor, {| x| x[ 2 ] == m1kategor } ) ) > 0
-    mkategor := PadR( stm_kategor[ i, 1 ], 38 )
+  If ( i := AScan( stm_kategor(), {| x| x[ 2 ] == m1kategor } ) ) > 0
+    mkategor := PadR( stm_kategor()[ i, 1 ], 38 )
     update_get( 'mkategor' )
   Else
     fl := func_error( 4, 'Недопустимый шифр категории' )
@@ -3333,7 +3333,7 @@ Function kartotek_to_screen( r1, r2 )
   If eq_any( glob_task, X_REGIST, X_OMS, X_PPOKOJ, X_MO )
     s := ''
     If is_talon .and. kart_->kategor > 0
-      s := 'Код категории льготы: ' + RTrim( inieditspr( A__MENUVERT, stm_kategor, kart_->kategor ) ) + Space( 5 )
+      s := 'Код категории льготы: ' + RTrim( inieditspr( A__MENUVERT, stm_kategor(), kart_->kategor ) ) + Space( 5 )
     Endif
     If !Empty( stm_kategor2 ) .and. kart_->kategor2 > 0
       s += 'Категория МО: ' + RTrim( inieditspr( A__MENUVERT, stm_kategor2, kart_->kategor2 ) )

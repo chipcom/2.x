@@ -344,7 +344,7 @@ Function s_mnog_poisk()
     0, {| x| inieditspr( A__MENUVERT, mm_invalid, x ) }, ;
     'Наличие инвалидности' } )
   AAdd( mm_tmp, { 'kategor', 'N', 4, 0, NIL, ;
-    {| x| menu_reader( x, mo_cut_menu( stm_kategor ), A__MENUVERT ) }, ;
+    {| x| menu_reader( x, mo_cut_menu( stm_kategor() ), A__MENUVERT ) }, ;
     0, {|| Space( 10 ) }, ;
     'Код категории льготы' } )
   If is_talon
@@ -512,7 +512,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
     0, {|| Space( 10 ) }, ;
     'Отделение, в котором выписан счет' } )
   AAdd( mm_tmp, { 'ist_fin', 'N', 2, 0, NIL, ;
-    {| x| menu_reader( x, mm_ist_fin, A__MENUVERT ) }, ;
+    {| x| menu_reader( x, mm_ist_fin(), A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
     'Источник финансирования' } )
   AAdd( mm_tmp, { 'komu', 'N', 2, 0, NIL, ;
@@ -1288,7 +1288,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
       Endif
       If mn->kategor > 0
-        sOutput := 'Код категории льготы: ' + inieditspr( A__MENUVERT, stm_kategor, mn->kategor )
+        sOutput := 'Код категории льготы: ' + inieditspr( A__MENUVERT, stm_kategor(), mn->kategor )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
       Endif
       If is_talon .and. is_kategor2 .and. mn->kategor2 > 0
@@ -1438,7 +1438,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
       Endif
       If mn->ist_fin >= 0
-        sOutput := 'Источник финансирования ' + inieditspr( A__MENUVERT, mm_ist_fin, mn->ist_fin )
+        sOutput := 'Источник финансирования ' + inieditspr( A__MENUVERT, mm_ist_fin(), mn->ist_fin )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
       Endif
       If mn->komu >= 0
