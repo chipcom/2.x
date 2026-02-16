@@ -172,7 +172,7 @@ Function year_month( rr, cc, za_v, kmp, ch_mm, ret_time )
     If rr + 12 + 1 > MaxRow() -2
       rr := MaxRow() -12 -3
     Endif
-    If ( km := popup_prompt( rr, cc, sm, mm_month ) ) == 0
+    If ( km := popup_prompt( rr, cc, sm, mm_month() ) ) == 0
       Return Nil
     Endif
     sm := km
@@ -207,7 +207,7 @@ Function year_month( rr, cc, za_v, kmp, ch_mm, ret_time )
     Else
       Do Case
       Case k1 == k2
-        s_mes_god := 'за ' + mm_month[ k1 ] + ' месяц'
+        s_mes_god := 'за ' + mm_month()[ k1 ] + ' месяц'
       Case k1 == 1 .and. k2 == 3
         s_mes_god := 'за I квартал'
       Case k1 == 4 .and. k2 == 6
@@ -241,7 +241,7 @@ Function year_month( rr, cc, za_v, kmp, ch_mm, ret_time )
     Else
       Do Case
       Case k1 == k2
-        s_mes_god := 'в ' + mm_monthR[ k1 ] + ' месяце'
+        s_mes_god := 'в ' + mm_monthR()[ k1 ] + ' месяце'
       Case k1 == 1 .and. k2 == 3
         s_mes_god := 'в I квартале'
       Case k1 == 4 .and. k2 == 6

@@ -980,7 +980,7 @@ Function f32_view_r11( lm )
     add_string( '     ¬¥áïæ                ³  ¯® ¯« ­ã   ³  ®â¯à ¢«¥­® ³  ¢ ’”Œ‘¥  ³ à áå®¦¤¥­¨¥' )
     add_string( 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄ' )
     n := 26
-    add_string( PadR( mm_month[ i ], n ) )
+    add_string( PadR( mm_month()[ i ], n ) )
     For j := 1 To 5
       add_string( PadL( mmt[ j ], n ) + put_val( ames[ i, j, 1 ], 11 ) + ;
         put_val( ames[ i, j, 2 ], 14 ) + ;

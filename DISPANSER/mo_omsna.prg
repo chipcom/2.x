@@ -1716,7 +1716,7 @@ Function  f_inf_prirost_disp_nabl()
   add_string( '' )
   AEval( arr_title, {| x| add_string( x ) } )
   For i := 1 To 12
-    add_string( PadR( mm_month[ i ], 20 ) + Str( arr_DN_new[ i, 1 ], 8 ) + ' ' + Str( arr_DN_new[ i, 2 ], 8 ) + ' ' + Str( arr_DN_new[ i, 3 ], 8 ) + ' ' + Str( arr_DN_new[ i, 4 ], 8 ) )
+    add_string( PadR( mm_month()[ i ], 20 ) + Str( arr_DN_new[ i, 1 ], 8 ) + ' ' + Str( arr_DN_new[ i, 2 ], 8 ) + ' ' + Str( arr_DN_new[ i, 3 ], 8 ) + ' ' + Str( arr_DN_new[ i, 4 ], 8 ) )
     i_1 := i_1 + arr_DN_new[ i, 1 ]
     i_2 := i_2 + arr_DN_new[ i, 2 ]
     i_3 := i_3 + arr_DN_new[ i, 3 ]
@@ -1735,13 +1735,13 @@ Function  f_inf_prirost_disp_nabl()
   //
   Select DN_SPIS
   Go Top
-  add_string( PadC( 'Месяц постановки на ДН ' + mm_month[ dn_spis->mes ], 80 )   )
+  add_string( PadC( 'Месяц постановки на ДН ' + mm_month()[ dn_spis->mes ], 80 )   )
   t_mes := 1
   Do While !Eof()
     updatestatus()
     If t_mes != dn_spis->mes
       add_string( '' )
-      add_string( PadC( 'Месяц постановки на ДН ' + mm_month[ dn_spis->mes ], 80 )  )
+      add_string( PadC( 'Месяц постановки на ДН ' + mm_month()[ dn_spis->mes ], 80 )  )
       add_string( '' )
       t_mes := dn_spis->mes
     Endif
@@ -1761,7 +1761,7 @@ Function  f_inf_prirost_disp_nabl()
     add_string( PadR( DN_spis->fio, 50 ) + name_tip   )
     worksheet_write_string( worksheet, row,   0, hb_StrToUTF8( AllTrim( DN_spis->fio ) ), fmt_text )
     worksheet_write_string( worksheet, row, 1, hb_StrToUTF8( AllTrim( name_tip  ) ), fmt_text )
-    worksheet_write_string( worksheet, row++, 2, hb_StrToUTF8( AllTrim( mm_month[ dn_spis->mes ]  ) ), fmt_text )
+    worksheet_write_string( worksheet, row++, 2, hb_StrToUTF8( AllTrim( mm_month()[ dn_spis->mes ]  ) ), fmt_text )
     Select dn_SPIS
     Skip
   Enddo

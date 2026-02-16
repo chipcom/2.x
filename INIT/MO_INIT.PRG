@@ -71,8 +71,6 @@ Function init_first()
 */
 
   Public glob_arr_smo := smo_volgograd()
-  Public mm_month := mm_month()
-  Public mm_monthR := mm_monthR()
   //
 //  Public tmp_ini := 'TMP' + sini()
 //  Public tools_ini := dir_server() + 'TOOLS' + sini()

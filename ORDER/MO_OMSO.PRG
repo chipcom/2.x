@@ -3323,7 +3323,7 @@ Function f1akt_list_of_refusal_defect( asmo, ssmo )
           old_akt := lakt
         Endif
         If !( old_op == Str( lrak, 6 ) + Str( lakt, 6 ) + lop )
-          tmp1->sop := mm_month[ Int( Val( SubStr( tmp1->op, 5 ) ) ) ] + " " + Left( tmp1->op, 4 ) + " года"
+          tmp1->sop := mm_month()[ Int( Val( SubStr( tmp1->op, 5 ) ) ) ] + " " + Left( tmp1->op, 4 ) + " года"
           old_op := Str( lrak, 6 ) + Str( lakt, 6 ) + lop
         Endif
       Else // объединять все счета

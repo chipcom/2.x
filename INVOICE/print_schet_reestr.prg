@@ -145,7 +145,7 @@ function schet_reestr( arr, destination, one, reg )
       s += 'застрахованным лицам '
     Endif
     If ! emptyany( schet_->nyear, schet_->nmonth )
-      s += 'за ' + mm_month[ schet_->nmonth ] + Str( schet_->nyear, 5 ) + ' года'
+      s += 'за ' + mm_month()[ schet_->nmonth ] + Str( schet_->nyear, 5 ) + ' года'
       ldate := SToD( StrZero( schet_->nyear, 4 ) + StrZero( schet_->nmonth, 2 ) + '01' )
       frt->date_begin := date_month( ldate )
       frt->date_end   := date_month( EoM( ldate ) )

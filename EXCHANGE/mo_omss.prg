@@ -19,7 +19,7 @@ Function read_xml_file_flk( arr_XML_info, aerr )
     hb_eol(), cFileProtokol, .t. )
   If !emptyany( rees->nyear, rees->nmonth )
     StrFile( 'выставленный за ' + ;
-      mm_month[ rees->nmonth ] + Str( rees->nyear, 5 ) + ' года' + ;
+      mm_month()[ rees->nmonth ] + Str( rees->nyear, 5 ) + ' года' + ;
       hb_eol(), cFileProtokol, .t. )
   Endif
   Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
@@ -273,7 +273,7 @@ Function read_xml_file_sp( arr_XML_info, aerr, /*@*/current_i2)
       hb_eol(), cFileProtokol, .t. )
     If !emptyany( rees->nyear, rees->nmonth )
       StrFile( 'выставленный за ' + ;
-        mm_month[ rees->nmonth ] + Str( rees->nyear, 5 ) + ' года' + ;
+        mm_month()[ rees->nmonth ] + Str( rees->nyear, 5 ) + ' года' + ;
         hb_eol(), cFileProtokol, .t. )
     Endif
     StrFile( hb_eol(), cFileProtokol, .t. )

@@ -1555,7 +1555,7 @@ Function forma14_med_oms()
   //
   r_use( dir_server() + 'organiz', , 'ORG' )
   ar := {}
-  AAdd( ar, { 12, 77, mm_month[ arr_m[ 3 ] ] } )
+  AAdd( ar, { 12, 77, mm_month()[ arr_m[ 3 ] ] } )
   AAdd( ar, { 12, 94, Right( lstr( arr_m[ 1 ] ), 2 ) } )
   AAdd( ar, { 35, 48, glob_mo[ _MO_FULL_NAME ] } )
   AAdd( ar, { 37, 19, glob_mo[ _MO_ADRES ] } )

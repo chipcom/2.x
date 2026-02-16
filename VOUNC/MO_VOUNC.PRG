@@ -796,7 +796,7 @@ Function f1vounc_info_recept()
       add_string( full_date( am[ i, 3, j, 1 ] ) + ' -' + Str( am[ i, 3, j, 2 ], 4 ) + ' à¥æ¥¯â®¢' )
     Next
     add_string( Replicate( 'Ä', sh ) )
-    add_string( PadR( mm_month[ am[ i, 1 ] ], 10 ) + ' -' + Str( am[ i, 2 ], 4 ) + ' à¥æ¥¯â®¢' )
+    add_string( PadR( mm_month()[ am[ i, 1 ] ], 10 ) + ' -' + Str( am[ i, 2 ], 4 ) + ' à¥æ¥¯â®¢' )
     add_string( Replicate( 'Ä', sh ) )
   Next
   rest_box( buf )
@@ -850,7 +850,7 @@ Function f2vounc_info_recept()
     arr_title := { 'Ä', ' ', 'Ä' }
     For i := 1 To 12
       arr_title[ 1 ] += 'ÄÄÄÂ'
-      arr_title[ 2 ] += Left( mm_month[ i ], 3 ) + '³'
+      arr_title[ 2 ] += Left( mm_month()[ i ], 3 ) + '³'
       arr_title[ 3 ] += 'ÄÄÄÁ'
     Next
     arr_title[ 1 ] += 'ÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'

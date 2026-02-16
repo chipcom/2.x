@@ -233,7 +233,6 @@ Function f1create_reestr26( oBrow )
 
   Local oColumn, n := 36, n1 := 20, blk
 
-  // mm_month - public массив названий месяцев
   oColumn := TBColumnNew( 'Год', {|| Str( A_SMO->nyear, 4 ) + ' ' } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
