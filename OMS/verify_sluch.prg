@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 12.02.26
+// 16.02.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // ª®¤ ζ¥«¨ ―®α¥ι¥­¨ο ―® α―ΰ Ά®η­¨ªγ V025
@@ -303,9 +303,9 @@ Function verify_sluch( fl_view, ft )
   Endif
   //
   //
-  // ‚…… “„‘’‚……… ‹—‘’  ’‘“’‘’‚ …  …‹……
+  // ‚…… “„‘’‚……… ‹—‘’  ’‘“’‘’‚ …  …‹…… 
   //
-  if Empty( AllTrim( human->MO_PR ) ) .and. AllTrim( human_->smo ) != '34'
+  if Empty( AllTrim( human->MO_PR ) ) .and. ( AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( human_->smo ) ) } ) != 0 )
     AAdd( ta, '―γαβ®¥ §­ η¥­¨¥ ―®«ο " ―ΰ¨ªΰ¥―«¥­¨ο" Ά «¨αβ¥ γη¥β ' )
   else
     a_mo_prik := get_f032_prik()

@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 14.02.26
+// 16.02.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -257,7 +257,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
         mo_add_xml_stroke( oPAC, 'NEXT_D', Str( Month( next_d ), 2 ) )
       endif
-      if ! Empty( human->MO_PR ) .and. ( AllTrim( human_->smo ) != '34' )
+      if ! Empty( human->MO_PR ) .and. ( AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( human_->smo ) ) } ) != 0 )
 //        if Len( AllTrim( human_->smo ) ) != 2
           mo_add_xml_stroke( oPAC, 'MO_PR', human->MO_PR )
 //        endif
