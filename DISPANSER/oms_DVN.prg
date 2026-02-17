@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 03.02.26 ДВН - добавление или редактирование случая (листа учета)
+// 17.02.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -19,6 +19,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     pos_read := 0, k_read := 0, count_edit := 0, ar, larr, lu_kod, ;
     fl, tmp_help := chm_help_code, fl_write_sluch := .f., mu_cena, lrslt_1_etap := 0, ;
     sk
+  local dvn_arr_usl, dvn_arr_umolch, mm_ndisp1
+
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
 
@@ -92,13 +94,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     mdopo_na, m1dopo_na := 0, mssh_na, m1ssh_na  := 0, ;
     mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
   Private mvar, m1var
-  Private mm_ndisp := { ;
-    { 'Диспансеризация I  этап', 1 }, ;
-    { 'Диспансеризация II этап', 2 }, ;
-    { 'Профилактический осмотр', 3 }, ;
-    { 'Дисп.1этап(раз в 2года)', 4 }, ;
-    { 'Дисп.2этап(раз в 2года)', 5 } }
-  Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., ;
+//  Private mm_ndisp := { ;
+//    { 'Диспансеризация I  этап', 1 }, ;
+//    { 'Диспансеризация II этап', 2 }, ;
+//    { 'Профилактический осмотр', 3 }, ;
+//    { 'Дисп.1этап(раз в 2года)', 4 }, ;
+//    { 'Дисп.2этап(раз в 2года)', 5 } }
+//  Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., ;
+  Private mm_gruppa, is_disp_19 := .t., ;
     is_disp_21 := .t., is_disp_nabl := .f.
 //      is_disp_24 := .t.
 
@@ -115,15 +118,17 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
     mTab_Number := 0
   
-  Private mm_napr_v := { { 'нет', 0 }, ;
-    { 'к онкологу', 1 }, ;
-    { 'на дообследование', 3 } }
     /*Private mm_napr_v := {{'нет', 0}, ;
                           {'к онкологу', 1}, ;
                           {'на биопсию', 2}, ;
                           {'на дообследование', 3}, ;
                           {'для опредения тактики лечения', 4}}*/
-  Private mm_met_issl := { { 'нет', 0 }, ;
+  Private mm_napr_v := { ;
+    { 'нет', 0 }, ;
+    { 'к онкологу', 1 }, ;
+    { 'на дообследование', 3 } }
+  Private mm_met_issl := { ;
+    { 'нет', 0 }, ;
     { 'лабораторная диагностика', 1 }, ;
     { 'инструментальная диагностика', 2 }, ;
     { 'методы лучевой диагностики (недорогостоящие)', 3 }, ;
@@ -202,7 +207,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   chm_help_code := 3002
 
-  mm_ndisp1 := AClone( mm_ndisp )
+  mm_ndisp1 := AClone( mm_ndisp_dvn() )
     // оставляем 3-ий и 4-ый этапы
   ASize( mm_ndisp1, 4 )
   hb_ADel( mm_ndisp1, 1, .t. )
@@ -394,7 +399,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     //
     ret_arr_vozrast_dvn( mk_data )
     // / !!!!
-    ret_arrays_disp( mk_data )
+
+    dvn_arr_usl :=dvn_arr_usl( MK_DATA )
+    dvn_arr_umolch := dvn_arr_umolch( MK_DATA )
+
+//    ret_arrays_disp( mk_data )
     metap := human->ishod - 200
     If is_disp_19
       mdvozrast := Year( mn_data ) - Year( mdate_r )
@@ -430,7 +439,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     Endif
     //
     fl_4_1_12 := .f.
-    larr := Array( 2, count_dvn_arr_usl )
+    larr := Array( 2, len( dvn_arr_usl ) )
     afillall( larr, 0 )
     r_use( dir_server() + 'uslugi', , 'USL' )
     use_base( 'human_u' )
@@ -456,7 +465,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           Endif
         Endif
         If fl
-          For i := 1 To count_dvn_arr_umolch
+          For i := 1 To Len( dvn_arr_umolch ) //  count_dvn_arr_umolch
             If Empty( larr[ 2, i ] ) .and. dvn_arr_umolch[ i, 2 ] == lshifr
               fl := .f.
               larr[ 2, i ] := hu->( RecNo() )
@@ -465,7 +474,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           Next
         Endif
         If fl
-          For i := 1 To count_dvn_arr_usl
+          For i := 1 To len( dvn_arr_usl )
             If Empty( larr[ 1, i ] )
               If ValType( dvn_arr_usl[ i, 2 ] ) == 'C'
                 If dvn_arr_usl[ i, 2 ] == '4.20.1'
@@ -521,7 +530,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       m1GRUPPA += 10
     Endif
     // R_Use(dir_server() + 'mo_pers',,'P2')
-    For i := 1 To count_dvn_arr_usl
+    For i := 1 To len( dvn_arr_usl )
       If !Empty( larr[ 1, i ] )
         hu->( dbGoto( larr[ 1, i ] ) )
         If hu->kod_vr > 0
@@ -565,7 +574,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         ar := arr_usl_otkaz[ j ]
         If ValType( ar ) == 'A' .and. Len( ar ) >= 5 .and. ValType( ar[ 5 ] ) == 'C'
           lshifr := AllTrim( ar[ 5 ] )
-          For i := 1 To count_dvn_arr_usl
+          For i := 1 To len( dvn_arr_usl )
             If ValType( dvn_arr_usl[ i, 2 ] ) == 'C' .and. ;
                 ( dvn_arr_usl[ i, 2 ] == lshifr .or. ( Len( dvn_arr_usl[ i ] ) > 11 .and. ValType( dvn_arr_usl[ i, 12 ] ) == 'A' ;
                 .and. AScan( dvn_arr_usl[ i, 12 ], {| x | x[ 1 ] == lshifr } ) > 0 ) )
@@ -615,12 +624,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Close databases
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )
   MFIO_KART := _f_fio_kart()
-  mndisp    := inieditspr( A__MENUVERT, mm_ndisp, metap )
+  mndisp    := inieditspr( A__MENUVERT, mm_ndisp_dvn(), metap )
   mrab_nerab := inieditspr( A__MENUVERT, menu_rab(), m1rab_nerab )
-  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
+  mvzros_reb := inieditspr( A__MENUVERT, menu_vzros(), m1vzros_reb )
   mlpu      := inieditspr( A__POPUPMENU, dir_server() + 'mo_uch', m1lpu )
   motd      := inieditspr( A__POPUPMENU, dir_server() + 'mo_otd', m1otd )
-  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis, m1vidpolis )
+  mvidpolis := inieditspr( A__MENUVERT, mm_vid_polis(), m1vidpolis )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
@@ -639,27 +648,27 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       mcompany := PadR( mnameismo, 38 )
     Endif
   Endif
-  mveteran := inieditspr( A__MENUVERT, mm_danet, m1veteran )
-  mmobilbr := inieditspr( A__MENUVERT, mm_danet, m1mobilbr )
-  mkurenie := inieditspr( A__MENUVERT, mm_danet, m1kurenie )
-  mriskalk := inieditspr( A__MENUVERT, mm_danet, m1riskalk )
-  mpod_alk := inieditspr( A__MENUVERT, mm_danet, m1pod_alk )
+  mveteran := inieditspr( A__MENUVERT, mm_danet(), m1veteran )
+  mmobilbr := inieditspr( A__MENUVERT, mm_danet(), m1mobilbr )
+  mkurenie := inieditspr( A__MENUVERT, mm_danet(), m1kurenie )
+  mriskalk := inieditspr( A__MENUVERT, mm_danet(), m1riskalk )
+  mpod_alk := inieditspr( A__MENUVERT, mm_danet(), m1pod_alk )
   If emptyall( m1riskalk, m1pod_alk )
     m1psih_na := 0
   Endif
-  mpsih_na := inieditspr( A__MENUVERT, mm_danet, m1psih_na )
-  mfiz_akt := inieditspr( A__MENUVERT, mm_danet, m1fiz_akt )
-  mner_pit := inieditspr( A__MENUVERT, mm_danet, m1ner_pit )
-  maddn    := inieditspr( A__MENUVERT, mm_danet, m1addn )
-  mholestdn := inieditspr( A__MENUVERT, mm_danet, m1holestdn )
-  mglukozadn := inieditspr( A__MENUVERT, mm_danet, m1glukozadn )
-  mot_nasl1 := inieditspr( A__MENUVERT, mm_danet, m1ot_nasl1 )
-  mot_nasl2 := inieditspr( A__MENUVERT, mm_danet, m1ot_nasl2 )
-  mot_nasl3 := inieditspr( A__MENUVERT, mm_danet, m1ot_nasl3 )
-  mot_nasl4 := inieditspr( A__MENUVERT, mm_danet, m1ot_nasl4 )
+  mpsih_na := inieditspr( A__MENUVERT, mm_danet(), m1psih_na )
+  mfiz_akt := inieditspr( A__MENUVERT, mm_danet(), m1fiz_akt )
+  mner_pit := inieditspr( A__MENUVERT, mm_danet(), m1ner_pit )
+  maddn    := inieditspr( A__MENUVERT, mm_danet(), m1addn )
+  mholestdn := inieditspr( A__MENUVERT, mm_danet(), m1holestdn )
+  mglukozadn := inieditspr( A__MENUVERT, mm_danet(), m1glukozadn )
+  mot_nasl1 := inieditspr( A__MENUVERT, mm_danet(), m1ot_nasl1 )
+  mot_nasl2 := inieditspr( A__MENUVERT, mm_danet(), m1ot_nasl2 )
+  mot_nasl3 := inieditspr( A__MENUVERT, mm_danet(), m1ot_nasl3 )
+  mot_nasl4 := inieditspr( A__MENUVERT, mm_danet(), m1ot_nasl4 )
   mdispans  := inieditspr( A__MENUVERT, mm_dispans, m1dispans )
-  mDS_ONK   := inieditspr( A__MENUVERT, mm_danet, M1DS_ONK )
-  mnazn_l   := inieditspr( A__MENUVERT, mm_danet, m1nazn_l )
+  mDS_ONK   := inieditspr( A__MENUVERT, mm_danet(), M1DS_ONK )
+  mnazn_l   := inieditspr( A__MENUVERT, mm_danet(), m1nazn_l )
   mdopo_na  := inieditspr( A__MENUBIT, mm_dopo_na, m1dopo_na )
   mnapr_v_mo := inieditspr( A__MENUVERT, mm_napr_v_mo, m1napr_v_mo )
   If Empty( arr_mo_spec )
@@ -673,11 +682,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Endif
   mnapr_stac := inieditspr( A__MENUVERT, mm_napr_stac, m1napr_stac )
   mprofil_stac := inieditspr( A__MENUVERT, getv002(), m1profil_stac )
-  mnapr_reab := inieditspr( A__MENUVERT, mm_danet, m1napr_reab )
+  mnapr_reab := inieditspr( A__MENUVERT, mm_danet(), m1napr_reab )
   mprofil_kojki := inieditspr( A__MENUVERT, getv020(), m1profil_kojki )
-  mssh_na   := inieditspr( A__MENUVERT, mm_danet, m1ssh_na )
-  mspec_na  := inieditspr( A__MENUVERT, mm_danet, m1spec_na )
-  msank_na  := inieditspr( A__MENUVERT, mm_danet, m1sank_na )
+  mssh_na   := inieditspr( A__MENUVERT, mm_danet(), m1ssh_na )
+  mspec_na  := inieditspr( A__MENUVERT, mm_danet(), m1spec_na )
+  msank_na  := inieditspr( A__MENUVERT, mm_danet(), m1sank_na )
   mtip_mas := ret_tip_mas( mWEIGHT, mHEIGHT, @m1tip_mas )
   ret_ndisp( Loc_kod, kod_kartotek )
   //
@@ -732,7 +741,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say ' Работающий?' Get mrab_nerab ;
         reader {| x | menu_reader( x, menu_rab(), A__MENUVERT, , , .f. ) }
       @ j, 40 Say 'Ветеран ВОВ (блокадник)?' Get mveteran ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say ' Принадлежность счёта' Get mkomu ;
         reader {| x | menu_reader( x, mm_komu(), A__MENUVERT, , , .f. ) } ;
         valid {| g, o | f_valid_komu( g, o ) } ;
@@ -744,7 +753,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say ' Полис ОМС: серия' Get mspolis When m1komu == 0
       @ Row(), Col() + 3 Say 'номер'  Get mnpolis When m1komu == 0
       @ Row(), Col() + 3 Say 'вид'    Get mvidpolis ;
-        reader {| x | menu_reader( x, mm_vid_polis, A__MENUVERT, , , .f. ) } ;
+        reader {| x | menu_reader( x, mm_vid_polis(), A__MENUVERT, , , .f. ) } ;
         When m1komu == 0 ;
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
       //
@@ -766,29 +775,29 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
       @ j,Col() + 5 Say 'Мобильная бригада?' Get mmobilbr ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Место обращения' Get mMOP ;
         reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
 
       ++j
       @ ++j, 1 Say 'Курение/употребление табака' Get mkurenie ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Риск пагубного потребления алкоголя (употребление алкоголя)' Get mriskalk ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Риск потребления наркотических/психотропных веществ без назначения врача' Get mpod_alk ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Низкая физическая активность (недостаток физической активности)' Get mfiz_akt ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Нерациональное питание (неприемлемая диета/вредные привычки питания)' Get mner_pit ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Отягощённая наследственность: по злокачественным новообразованиям' Get mot_nasl1 ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say '                            - по сердечно-сосудистым заболеваниям' Get mot_nasl2 ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say '               - по хроническим болезням нижних дыхательных путей' Get mot_nasl3 ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say '                                           - по сахарному диабету' Get mot_nasl4 ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       ++j
       @ ++j, 1 Say 'Вес' Get mWEIGHT Pict '999' ;
         valid {|| iif( Between( mWEIGHT, 30, 200 ), , func_error( 4, 'Неразумный вес' ) ), ;
@@ -809,15 +818,15 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         iif( mad1 > mad2, , func_error( 4, 'Неразумное давление' ) ), ;
         .t. }
       @ Row(), Col() + 1 Say 'мм рт.ст.    Гипотензивная терапия' Get maddn ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say ' Общий холестерин' Get mholest Pict '99.99' ;
         valid {|| iif( Empty( mholest ) .or. Between( mholest, 3, 8 ), , func_error( 4, 'Неразумное значение холестерина' ) ), .t. }
       @ Row(), Col() + 1 Say 'ммоль/л     Гиполипидемическая терапия' Get mholestdn ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say ' Глюкоза' Get mglukoza Pict '99.99' ;
         valid {|| iif( Empty( mglukoza ) .or. Between( mglukoza, 2.2, 25 ), , func_error( 4, 'Критическое значение глюкозы' ) ), .t. }
       @ Row(), Col() + 1 Say 'ммоль/л     Гипогликемическая терапия' Get mglukozadn ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       status_key( '^<Esc>^ выход без записи ^<PgDn>^ на 2-ю страницу' )
       If !Empty( a_smert )
         n_message( a_smert, , 'GR+/R', 'W+/R', , , 'G+/R' )
@@ -842,7 +851,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         @ j -1, 52 Say Space( 5 )
       Endif
       fl_vrach := .t.
-      For i := 1 To count_dvn_arr_usl
+      For i := 1 To len( dvn_arr_usl )
         fl_diag := .f.
         i_otkaz := 0
         If f_is_usl_oms_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz )
@@ -949,7 +958,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ j, 35 Get m1stadia1 Pict '9' Range 1, 4 ;
         When !Empty( mdiag1 )
       @ j, 44 Get mdispans1 ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
         When !Empty( mdiag1 )
       @ j, 54 Get mddispans1 When m1dispans1 == 1
       @ j, 67 Get mdndispans1 When m1dispans1 == 1
@@ -966,7 +975,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ j, 35 Get m1stadia2 Pict '9' Range 1, 4 ;
         When !Empty( mdiag2 )
       @ j, 44 Get mdispans2 ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
         When !Empty( mdiag2 )
       @ j, 54 Get mddispans2 When m1dispans2 == 1
       @ j, 67 Get mdndispans2 When m1dispans2 == 1
@@ -983,7 +992,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ j, 35 Get m1stadia3 Pict '9' Range 1, 4 ;
         When !Empty( mdiag3 )
       @ j, 44 Get mdispans3 ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
         When !Empty( mdiag3 )
       @ j, 54 Get mddispans3 When m1dispans3 == 1
       @ j, 67 Get mdndispans3 When m1dispans3 == 1
@@ -1000,7 +1009,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ j, 35 Get m1stadia4 Pict '9' Range 1, 4 ;
         When !Empty( mdiag4 )
       @ j, 44 Get mdispans4 ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
         When !Empty( mdiag4 )
       @ j, 54 Get mddispans4 When m1dispans4 == 1
       @ j, 67 Get mdndispans4 When m1dispans4 == 1
@@ -1017,7 +1026,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ j, 35 Get m1stadia5 Pict '9' Range 1, 4 ;
         When !Empty( mdiag5 )
       @ j, 44 Get mdispans5 ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
         When !Empty( mdiag5 )
       @ j, 54 Get mddispans5 When m1dispans5 == 1
       @ j, 67 Get mdndispans5 When m1dispans5 == 1
@@ -1048,11 +1057,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
         reader {| x | menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }  //  When m1ds_onk == 0
       @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
-        reader {| x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }  // When m1ds_onk == 0
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }  // When m1ds_onk == 0
 
       dispans_napr( mk_data, @j, .t. )  // вызов заполнения блока направлений
 
@@ -1175,9 +1184,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       not_4_20_1 := .f.
       date_4_1_12 := CToD( '' )
       k := ku := kol_d_usl := 0
-      arr_osm1 := Array( count_dvn_arr_usl, 11 )
+      arr_osm1 := Array( len( dvn_arr_usl ), 11 )
       afillall( arr_osm1, 0 )
-      For i := 1 To count_dvn_arr_usl
+      For i := 1 To len( dvn_arr_usl )
         fl_diag := fl_ekg := .f.
         i_otkaz := 0
         If f_is_usl_oms_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz, @fl_ekg )
@@ -1289,7 +1298,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                 j := 1
               Endif
               arr_osm1[ i, 5 ] := ar[ 2, j ] // шифр услуги
-              If i == count_dvn_arr_usl // последняя услуга из массива - терапевт
+              If i == len( dvn_arr_usl ) // последняя услуга из массива - терапевт
                 If eq_any( metap, 2, 5 )
                   If eq_any( arr_osm1[ i, 2 ], 2002, -206 ) // специальность-фельдшер
                     fl := func_error( 4, 'Фельдшер не может заменить терапевта на II этапе диспансеризации' )
@@ -1369,7 +1378,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       fl := .t.
-      If emptyany( arr_osm1[ count_dvn_arr_usl, 1 ], arr_osm1[ count_dvn_arr_usl, 9 ] )
+      If emptyany( arr_osm1[ len( dvn_arr_usl ), 1 ], arr_osm1[ len( dvn_arr_usl ), 9 ] )
         If metap == 2 .and. i_56_1_723 > 0
           If !( arr_osm1[ i_56_1_723, 9 ] == mn_data .and. arr_osm1[ i_56_1_723, 9 ] == mk_data )
             fl := func_error( 4, 'Начало и окончание должно равняться дате углубленного профилактич.консультирования' )
@@ -1385,7 +1394,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Else
           fl := func_error( 4, 'Не введён приём терапевта (врача общей практики)' )
         Endif
-      Elseif arr_osm1[ count_dvn_arr_usl, 9 ] < mk_data
+      Elseif arr_osm1[ len( dvn_arr_usl ), 9 ] < mk_data
         fl := func_error( 4, 'Терапевт (врач общей практики) должен проводить осмотр последним!' )
       Endif
       If !fl
@@ -1519,7 +1528,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       mywait()
       //
       m1lis := 0
-      For i := 1 To count_dvn_arr_usl
+      For i := 1 To len( dvn_arr_usl )
         If ValType( arr_osm1[ i, 9 ] ) == 'D'
           If arr_osm1[ i, 5 ] == '4.20.2' .and. arr_osm1[ i, 9 ] < mn_data // не в рамках диспансеризации
             m1g_cit := 1 // если и было =2, убираем
@@ -1531,7 +1540,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Next
       is_prazdnik := f_is_prazdnik_dvn( mn_data )
       If eq_any( metap, 2, 5 )
-        i := count_dvn_arr_usl
+        i := len( dvn_arr_usl )
         m1vrach  := arr_osm1[ i, 1 ]
         m1prvs   := arr_osm1[ i, 2 ]
         m1assis  := arr_osm1[ i, 3 ]
@@ -1555,7 +1564,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         arr_osm1[ i, 9 ] := mn_data
         arr_osm1[ i, 10 ] := 0
       Endif
-      For i := 1 To count_dvn_arr_umolch
+      For i := 1 To Len( dvn_arr_umolch )   //  count_dvn_arr_umolch
         If f_is_umolch_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol )
           ++kol_d_usl
           AAdd( arr_osm1, Array( 11 ) )
