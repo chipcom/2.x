@@ -17,6 +17,7 @@ Function pripisnoe_naselenie( k )
         '~Подготовка и создание файлов прикрепления', ;
         'Печать ~заявления на прикрепление', ;
         'Создание файла ~сверки с ТФОМС', ;
+        'Создание файла ~запроса по прикреплению', ;
         '~Редактирование участков списком', ;
         '~Импорт WQ2...DBF, простановка участков, отправка' }
       mas_msg := { ;
@@ -24,6 +25,7 @@ Function pripisnoe_naselenie( k )
         'Подготовка файлов прикрепления и создание их для отправки в ТФОМС', ;
         'Печать заявления на прикрепление по пациенту, ещё не прикреплённому к Вашей МО', ;
         'Создание файла сверки с ТФОМС по прикреплённому населению (письмо № 04-18-20)', ;
+        'Создание файла сверки с ТФОМС по прикреплённому населению (письмо № 04-08-07)', ;
         'Редактирование номера участка для выбранного списка пациентов', ;
         'Импорт DBF-файла из ТФОМС, простановка участков, создание файла прикрепления' }
       mas_fun := { ;
@@ -31,6 +33,7 @@ Function pripisnoe_naselenie( k )
         'pripisnoe_naselenie(12)', ;
         'pripisnoe_naselenie(13)', ;
         'pripisnoe_naselenie(14)', ;
+        'pripisnoe_naselenie(17)', ;
         'pripisnoe_naselenie(15)', ;
         'pripisnoe_naselenie(16)' }
       If T_ROW > 8
@@ -107,6 +110,18 @@ Function pripisnoe_naselenie( k )
       'pripisnoe_naselenie(33)', ;
       'pripisnoe_naselenie(34)' }
     popup_prompt( T_ROW - 3 -Len( mas_pmt ), T_COL + 5, si3, mas_pmt, mas_msg, mas_fun )
+  Case k == 17 // сверка 2 из МО с приписным населением
+     If currentuser():isadmin()
+       str_sem := 'Создание файла сверки с ТФОМС'
+       If g_slock( str_sem )
+         pripisnoe_naselenie_create_sverka(2)
+         g_sunlock( str_sem )
+       Else
+         func_error( 4, err_slock() )
+       Endif
+     Else
+       func_error( 4, err_admin() )
+     Endif
   Case k == 21
     spisok_pripisnoe_naselenie( 1 )
   Case k == 22
@@ -1405,11 +1420,11 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
 
   Return ret
 
-// 09.02.26 создать файл(ы) сверки
+// 15.02.26 создать файл(ы) сверки
 Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
   Local ii := 0, s, buf := SaveScreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport
 
-  If !f_esc_enter( iif(TIP_SVERKI == 1,'создания файла сверки','создания файла прикрепления'), .t. )
+  If !f_esc_enter( iif(TIP_SVERKI == 1,'создания файла сверки','создания файла запроса прик-я'), .t. )
     Return Nil
   Endif
   clrline( MaxRow(), color0 )
@@ -1418,10 +1433,11 @@ Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
   if TIP_SVERKI == 1
     hGauge := gaugenew(,,, 'Составление списка для включения в файл сверки', .t. )
   else
-    hGauge := gaugenew(,,, 'Составление списка для включения в файл прикрепления', .t. )
+    hGauge := gaugenew(,,, 'Составление списка для включения в файл запроса прик-я', .t. )
   endif  
   gaugedisplay( hGauge )
   curr := 0
+  r_use( dir_server() + 'human',dir_server() + 'humankk', 'HUMAN' )
   r_use( dir_server() + 'mo_kfio',, 'KFIO' )
   Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
   r_use_base( 'kartotek' )
@@ -1451,6 +1467,21 @@ Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
     If !fl .and. kart2->mo_pr == glob_mo()[ _MO_KOD_TFOMS ]
       fl := .t.
     Endif
+    // 
+    if fl .and. TIP_SVERKI != 1 // только НОВЫЙ тип сверки 
+     fl := .f.
+     select HUMAN 
+     find ( str(kart->kod,7))
+     do while kart->kod == human->kod_k .and. !eof()
+       if year(human->k_data) > 2025  // пока только данный контроль
+         fl := .T. 
+         exit
+       endif  
+       select HUMAN
+       skip 
+     enddo  
+    endif
+    //
     If fl
       Select TMP
       Append Blank
