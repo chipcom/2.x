@@ -559,7 +559,7 @@ Function regi_nastr( k )
 
   Return Nil
 
-// 17.11.25
+// 17.02.26
 Function r_list_uch( par, name_func )
 
   // 0 - 'ind_karta' инд.карта или 'f_f025u' форма 025
@@ -748,7 +748,7 @@ Function r_list_uch( par, name_func )
 
   Return Nil
 
-// 17.11.25
+// 17.02.26
 Function new_list_uch( par, name_func )
 
   // 0 - 'f_f025u' форма 025/у
@@ -3765,7 +3765,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
         ' (д.р.' + full_date( kart->date_r ) + ') '
       fl_et := .f.
       If mstatus == 2  // не прикреплён ни к кому
-        ++kol2
+       /*  ++kol2
         If Empty( Len( arr_csv[ i, CSV_A_CERR ] ) )
           AAdd( arr_csv[ i, CSV_A_CERR ], -99 )
         Endif
@@ -3784,15 +3784,18 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
             deleterec( .t. ) // если ни к кому не прикреплён, - удалить совсем
           Endif
         Endif
-      Else // !emptyany(arr_csv[i, CSV_A_MO], arr_csv[i, CSV_A_DT])
+        */
+      Else 
+        // !emptyany(arr_csv[i, CSV_A_MO], arr_csv[i, CSV_A_DT])
        // If mstatus == 1 // прикреплен к нам - ПОКА НЕ ДЕЛАЕМ
-       //   fl_et := f_put_et_etk( arr_csv[ i, CSV_A_PID ], arr_csv[ i, CSV_A_ENP ], ;
-       //     arr_csv[ i, CSV_A_DT_MO ], 0, ;
-       //     glob_mo()[ _MO_KOD_TFOMS ], 0, ;
-       //     kart->kod, 1 )
-          //Else 
-        if arr_csv[ i, CSV_A_PID ] > 0  // прикреплён не к нам
-          Select kart_et
+          /*        
+           fl_et := f_put_et_etk( arr_csv[ i, CSV_A_PID ], arr_csv[ i, CSV_A_ENP ], ;
+            arr_csv[ i, CSV_A_DT_MO ], 0, ;
+            glob_mo()[ _MO_KOD_TFOMS ], 0, ;
+            kart->kod, 1 )
+           */
+         //Elseif arr_csv[ i, CSV_A_PID ] > 0  // прикреплён не к нам
+         /* Select kart_et
           find ( Str( arr_csv[ i, CSV_A_PID ], 10 ) )
           If Found()
             g_rlock( forever )
@@ -3808,9 +3811,10 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
             kart_etk->kod_tf := arr_csv[ i, CSV_A_PID ]
             kart_etk->PRIOR := 0 // приоритет = 0
           Endif
-        Endif
-        */
-        // занесём указанное прикрепление
+          */
+        //Endif
+       
+       // занесём указанное прикрепление
         Select KARTP
         find ( Str( krtp->KOD_K, 7 ) + DToS( arr_csv[ i, CSV_A_DT_MO ] ) )
         If Found()
@@ -3822,11 +3826,11 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
         Endif
         kartp->DFILE := krtr->DFILE
         kartp->MO_PR := arr_csv[ i, CSV_A_MO ]
-        If kartp->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
-          kartp->SNILS_VR := krtp->SNILS_VR
-        Else
-          kartp->SNILS_VR := ''
-        Endif
+        //If kartp->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
+        //  kartp->SNILS_VR := krtp->SNILS_VR
+        //Else
+        //  kartp->SNILS_VR := ''
+        //Endif
         If krtp->OPLATA == 1
           ++kol1
         Else
@@ -3836,6 +3840,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
       s_death := '0'
       n_del := 0
       For j := 1 To Len( arr_csv[ i, CSV_A_CERR ] )
+        // ошибки принятые
         Select KRTE
         find ( Str( nkod_reestr, 6 ) + Str( arr_csv[ i, CSV_A_NREC ], 6 ) + Str( arr_csv[ i, CSV_A_CERR, j ], 3 ) )
         If Found()
@@ -3870,7 +3875,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
         s_death, ;
         n_del, ;
         arr_csv[ i, CSV_A_MO ], arr_csv[ i, CSV_A_DT_MO ] )
-      If i % 2000 == 0
+      If i % 1000 == 0
         dbUnlockAll()
         Commit
       Endif

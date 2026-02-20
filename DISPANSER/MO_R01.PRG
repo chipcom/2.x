@@ -78,7 +78,7 @@ Function fff_init_r01()
 
   Return Nil
 
-// 18.11.25 Создание файла обмена R05...
+// 18.02.26 Создание файла обмена R05...
 Function f_create_r05()
 
   Local buf := save_maxrow()
@@ -89,15 +89,15 @@ Function f_create_r05()
 
   //
   g_use( dir_server() + 'mo_dr05p',, 'R05p' )
-  If LastRec() == 0
+  If LastRec() == 1  // правка 02.26
     g_rlock( .t., forever ) // добавить 2-ую запись
   Endif
-  mrec := 1 // пока так
+  mrec := 2 // пока так
   Goto ( mrec )
   If Empty( r05p->n_y )
-    mdate := r05p->D_KZ := 0d20251219                           // ------------------------ЮЮ
+    mdate := r05p->D_KZ := 0d20260211                           // ------------------------ЮЮ
     r05p->N_Y := YEAR_UPLOAD_DISPANSER // год для диспансеризации
-    r05p->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
+    r05p->TYPEOFREC := 1 // 0-первично представленная запись, 1-актуализированная запись
     r05p->KOL1 := 0 // количество пациентов для диспансеризации на год
     r05p->KOL2 := 0 // количество пациентов для профосмотров на год
   Else
@@ -114,6 +114,7 @@ Function f_create_r05()
   // !!! ВНИМАНИЕ
   Private r05_nn := 4, write_reestr := .f., is_reestr := .f.
   verify_packet_r05( 1, {}, @r05_nn )
+  mydebug(,r05_nn)
   Close databases
   If emptyall( mkol1, mkol2 )
     Keyboard Chr( K_HOME ) + Chr( K_ENTER )
@@ -143,7 +144,7 @@ Function f1_create_r05()
   buf := box_shadow( r1, 2, MaxRow() -2, 77,, 'План-график на ' + lstr( YEAR_UPLOAD_DISPANSER ) + ' год', color8 )
   Do While .t.
     @ r1 + 1, 54 Say '| прикреплённое' Color color14
-    @ r1 + 2, 4 Say 'Приказ КЗ ВО № 3514 от' Get mdate When .f.
+    @ r1 + 2, 4 Say 'Приказ КЗ ВО № 380 от' Get mdate When .f.
     @ Row(), Col() + 12 Say '_план_|_количество___' Color color14
     @ r1 + 3, 4 Say 'Численность лиц для диспансеризации (всего)' Get mkol1  Pict '99999'
     @ Row(), Col() + 1 Say '|' Color color14 Get skol1 Color color8 Pict '99999' When .f.
@@ -260,7 +261,6 @@ Function f_pereschet_R05
 
   Return Nil
 
-
 // 23.12.19 Ввод/редактирование плана-графика с разбивкой по месяцам
 Function f2_create_r05()
 
@@ -305,33 +305,40 @@ Function f2_create_r05()
     // tekol[5] += tmp1->kol13
   Next
   //
-  /*if emptyall(ekol[1],ekol[2])
-  // записываем в запись 2 из записи 1 два месяца
-  // первичное заполнение
+  if emptyall(ekol[1],ekol[2])
+    // записываем в запись 2 из записи 1 два месяца
+    // первичное заполнение
     select R05P
     goto (1)
     select TMP1
-    for i := 1 to 2
+    for i := 1 to 12
       goto (i)
-      tmp1->kol1 := &('r05p->kol1_'+strzero(i,2))
-      tmp1->kol2 := &('r05p->kol2_'+strzero(i,2))
-      tmp1->kol11 := &('r05p->kol11_'+strzero(i,2))
-      tmp1->kol12 := &('r05p->kol12_'+strzero(i,2))
-      tmp1->kol13 := &('r05p->kol13_'+strzero(i,2))
-      ekol[1] += tmp1->kol1
-      ekol[2] += tmp1->kol2
-      ekol[3] += tmp1->kol11
-      ekol[4] += tmp1->kol12
-      ekol[5] += tmp1->kol13
-      tekol[1] += tmp1->kol1
-      tekol[2] += tmp1->kol2
-      tekol[3] += tmp1->kol11
-      tekol[4] += tmp1->kol12
-      tekol[5] += tmp1->kol13
+      if i < 3
+        tmp1->kol1 := &('r05p->kol1_'+strzero(i,2))
+        tmp1->kol2 := &('r05p->kol2_'+strzero(i,2))
+        tmp1->kol11 := &('r05p->kol11_'+strzero(i,2))
+        tmp1->kol12 := &('r05p->kol12_'+strzero(i,2))
+        tmp1->kol13 := &('r05p->kol13_'+strzero(i,2))
+        ekol[1] += tmp1->kol1
+        ekol[2] += tmp1->kol2
+        ekol[3] += tmp1->kol11
+        ekol[4] += tmp1->kol12
+        ekol[5] += tmp1->kol13
+      else
+        tmp1->kol2 := &('r05p->kol2_'+strzero(i,2))
+        ekol[2] += tmp1->kol2
+      endif  
+      //tekol[1] += tmp1->kol1
+      //tekol[2] += tmp1->kol2
+      //tekol[3] += tmp1->kol11
+      //tekol[4] += tmp1->kol12
+      //tekol[5] += tmp1->kol13
     next
     select R05P
-    goto (mrec)
+    goto (2) // вторая запись - 2026 год 
     select TMP1
+  endif 
+    /*
     //
     for i := 3 to 12
       goto (i)
@@ -487,6 +494,8 @@ Function f2_create_r05()
   SetColor( tmp_color )
 
   Return Nil
+
+
 
 // 23.12.19
 Function ver_f2_create_r05( lmes )
@@ -699,7 +708,7 @@ Function f3_create_r05()
         fl := func_error( 4, 'План лиц старше труд.возраста должен быть меньше плана итого' )
       Endif
       If !fl
-        func_error( 4, 'Исправьте в плане-графике по месяцам информацию за "' + mm_month()[ i ] + '"' )
+        func_error( 4, 'Исправьте в плане-графике по месяцам информацию за "' + mm_month[ i ] + '"' )
         Exit
       Endif
     Next
@@ -1216,7 +1225,7 @@ Function read_xml_file_r06( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
         Endcase
         If tmp2->_N_ZAP > 0
           StrFile( 'CODE_R=' + lstr( tmp2->_N_ZAP ) + ', ' + s + ;
-            ', год=' + lstr( rhum->n_y ) + ', ' + mm_month()[ rhum->n_m ] + ', уч-к=' + lstr( rhum->uch ) + hb_eol(), cFileProtokol, .t. )
+            ', год=' + lstr( rhum->n_y ) + ', ' + mm_month[ rhum->n_m ] + ', уч-к=' + lstr( rhum->uch ) + hb_eol(), cFileProtokol, .t. )
         Else
           StrFile( 'Ошибка на уровне файла' + hb_eol(), cFileProtokol, .t. )
         Endif
@@ -1467,7 +1476,7 @@ Function f31_view_r05( reg, s )
           v := &( 'r05p->kol1' + lstr( j - 2 ) + '_' + StrZero( i, 2 ) )
         Endif
         If v > 0
-          s := iif( fl, 'в том числе', '' ) + ' на ' + mm_month()[ i ]
+          s := iif( fl, 'в том числе', '' ) + ' на ' + mm_month[ i ]
           fl := .f.
           add_string( PadL( s, 25 ) + Str( v, 6 ) )
         Endif
@@ -1481,7 +1490,7 @@ Function f31_view_r05( reg, s )
   Return Nil
 
 
-// 14.12.23
+// 19.02.26
 Function verify_packet_r05( par, arr, /*@*/ret_nn )
 
   Local fl := .t.
@@ -1493,7 +1502,43 @@ Function verify_packet_r05( par, arr, /*@*/ret_nn )
   Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_xml' ) For FIELD->tip_in == _XML_FILE_R06 .and. Empty( FIELD->TIP_OUT )
   r_use( dir_server() + 'mo_dr05',, 'R05' )
   Index On Str( FIELD->REC_5P, 3 ) + Str( 1000 - FIELD->nn, 4 ) to ( cur_dir() + 'tmp_r05' ) For FIELD->nyear == YEAR_UPLOAD_DISPANSER
-  find ( Str( mrec, 3 ) )
+
+  find ( Str( mrec-1, 3 ) ) // !!!!!!!!!!!!!!!!!!!!!!!!! ВНИМАНИЕ - поиск старых номеров
+  If Found()
+    //is_reestr := .t.  здесь уже не интересно
+    ret_nn := r05->nn
+   // Select MO_XML
+   // find ( Str( r05->kod, 6 ) )
+   // If Found()
+   //   Select REFR
+   //   Locate For reestr == r05->kod
+   //   If Found()
+   //     fl := .f.
+   //     write_reestr := .t.
+   //     AAdd( arr, 'В ответе PR05 на файл обмена R05 присутствуют ошибки' )
+   //     If refr->r05_zap == 0 .and. ( refr->kod_err == 510  .or. refr->kod_err == 508 )
+   //       AAdd( arr, 'Ошибка 510 - отредактируйте плановое количество за год и по месяцам' )
+          // is_reestr := .f. здесь уже не интересно
+   //     Endif
+   //   Else
+   //     write_reestr := .f.
+   //   Endif
+   // Else
+   //   fl := .f.
+   //   AAdd( arr, 'Не получен ответ (PR05) на файл обмена R05' )
+   //   write_reestr := .f.
+   // Endif
+  Else
+    //fl := .f.
+   // write_reestr := .t.
+   // If par == 1 // не выводить данное сообщение (при запуске программы)
+   //   AAdd( arr, 'Не составлен файла обмена R05' )
+   // Endif
+  Endif
+  mydebug(,ret_nn)
+  //
+  select R05
+  find ( Str( mrec, 3 ) ) // !!!!!!!!!!!!!!!!!!!!!!!!! ВНИМАНИЕ - поиск НОВЫХ номеров
   If Found()
     is_reestr := .t.
     ret_nn := r05->nn
@@ -2658,7 +2703,7 @@ Function f32_view_r01()
       add_string( '──────────────────────────┴─────────────┴─────────────┴────────────┴────────────' )
     Endif
     n := 26
-    add_string( PadR( mm_month()[ i ], n ) )
+    add_string( PadR( mm_month[ i ], n ) )
     For j := 1 To 5
       add_string( PadL( mmt[ j ], n ) + put_val( ames[ i, j, 1 ], 11 ) + ;
         put_val( ames[ i, j, 2 ], 14 ) + ;
