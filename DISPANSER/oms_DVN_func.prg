@@ -576,10 +576,12 @@ Function f1get_spec_dvn( nKey, oBrow, regim )
 
   Return 0
 
-// 19.06.19 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
-Function f_is_usl_oms_sluch_dvn( i, _etap, _vozrast, _pol, /*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
+// 20.02.26 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
+Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
 
-  Local fl := .f., ars := {}, ar := dvn_arr_usl[ i ]
+  Local fl := .f., ars := {}, ar
+
+  ar := dvn_arr_usl( mdata, mobil )[ i ]
 
   If ValType( ar[ 3 ] ) == 'N'
     fl := ( ar[ 3 ] == _etap )

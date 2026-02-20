@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.02.26 ДВН - добавление или редактирование случая (листа учета)
+// 20.02.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -400,8 +400,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     ret_arr_vozrast_dvn( mk_data )
     // / !!!!
 
-    dvn_arr_usl :=dvn_arr_usl( MK_DATA )
-    dvn_arr_umolch := dvn_arr_umolch( MK_DATA )
+    dvn_arr_usl :=dvn_arr_usl( MK_DATA, m1mobilbr )
+    dvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
 
 //    ret_arrays_disp( mk_data )
     metap := human->ishod - 200
@@ -509,7 +509,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             Endif
           Next
         Endif
-        If fl .and. AScan( dvn_700(), {| x | x[ 2 ] == lshifr } ) > 0
+        If fl .and. AScan( dvn_700( MK_DATA ), {| x | x[ 2 ] == lshifr } ) > 0
           fl := .f. // к нулевой услуге добавлена услуга с ценой на '700'
         Endif
         If fl
@@ -854,7 +854,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       For i := 1 To len( dvn_arr_usl )
         fl_diag := .f.
         i_otkaz := 0
-        If f_is_usl_oms_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz )
+        If f_is_usl_oms_sluch_dvn( MK_DATA, m1mobilbr, i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz )
           If fl_diag .and. fl_vrach
             @ ++j, 1 Say '────────────────────────────────────────────┬─────┬─────┬───────────' Color color8
             @ ++j, 1 Say 'Наименования осмотров                       │врач │ассис│дата услуги' Color color8
@@ -1189,7 +1189,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       For i := 1 To len( dvn_arr_usl )
         fl_diag := fl_ekg := .f.
         i_otkaz := 0
-        If f_is_usl_oms_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz, @fl_ekg )
+        If f_is_usl_oms_sluch_dvn( MK_DATA, m1mobilbr, i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz, @fl_ekg )
           mvart := 'MTAB_NOMv' + lstr( i )
           If Empty( &mvart ) .and. ( eq_any( metap, 2, 5 ) .or. fl_ekg ) // ЭКГ, не введён врач
             Loop                                                 // и необязательный возраст

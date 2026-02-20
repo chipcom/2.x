@@ -4192,7 +4192,7 @@ Function verify_sluch( fl_view, ft )
     For i := 1 To count_dvn_arr_usl
       fl_ekg := .f.
       i_otkaz := 0
-      If f_is_usl_oms_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, , @i_otkaz, @fl_ekg )
+      If f_is_usl_oms_sluch_dvn( human->k_data, m1mobilbr, i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, , @i_otkaz, @fl_ekg )
         arr1[ i, 2 ] := 1
         arr1[ i, 3 ] := i_otkaz
         arr1[ i, 5 ] := iif( fl_ekg, 1, 0 ) // 1 - необязательный возраст
@@ -4261,7 +4261,7 @@ Function verify_sluch( fl_view, ft )
           Endif
         Next
       Endif
-      If fl .and. !is_disp_19 .and. AScan( dvn_700(), {| x| x[ 2 ] == lshifr } ) > 0
+      If fl .and. !is_disp_19 .and. AScan( dvn_700( human->K_DATA ), {| x| x[ 2 ] == lshifr } ) > 0
         fl := .f. // к нулевой услуге добавлена услуга с ценой на '700'
       Endif
       If fl .and. !eq_any( Left( lshifr, 5 ), '70.3.', '70.7.', '72.1.', '72.5.', '72.6.', '72.7.' )
@@ -4483,7 +4483,7 @@ Function verify_sluch( fl_view, ft )
         If dEnd == au_lu[ i, 2 ]
           is_last_den := .t.
         Endif
-      Elseif AScan( dvn_700(), {| x| x[ 2 ] == lshifr } ) > 0
+      Elseif AScan( dvn_700( human->K_DATA ), {| x| x[ 2 ] == lshifr } ) > 0
         ++k700 // к нулевой услуге добавлена услуга с ценой на '700'
       Elseif eq_any( Left( lshifr, 5 ), '70.3.', '70.7.', '72.1.', '72.5.', '72.6.', '72.7.' )
         ++zs
