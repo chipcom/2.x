@@ -17,7 +17,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 17.09.25
+// 20.02.26
 Procedure Main( ... )
 
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
@@ -192,7 +192,7 @@ Procedure Main( ... )
       buf := SaveScreen()
       f_message( { 'Переход на новую версию программы ' + fs_version( _version() ) + ' от ' + _date_version() }, , , , 8 )
       // провести реконструкцию БД
-      reconstruct_db( is_local_version, is_create )
+      reconstruct_db( is_local_version )
       // провести реконструкцию БД учёта направлений на госпитализацию
       reconstruct_263()
       // для начала работы _first_run() (убрал в NOT_USED)

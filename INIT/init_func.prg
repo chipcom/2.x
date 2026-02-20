@@ -3,6 +3,13 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+// 20.02.26
+function mm_ortispol()
+  
+  return { ;
+    { 'Техник', 0 }, ;
+    { 'Врач', 1 } }
+
 // 11.09.25
 function is_napr_pol( param )
 

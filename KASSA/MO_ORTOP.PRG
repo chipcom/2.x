@@ -6592,9 +6592,7 @@ Function pl_or2dogovor( tip_jurn )
 
   Return Nil
 
-// 
-
-// 13.11.18
+// 20.02.26
 Function oo_spmater()
 
   Local arr, sh, HH := 58, s, s1, s2, s3, fl, ;
@@ -6632,7 +6630,7 @@ Function oo_spmater()
     Endif
     add_string( "" )
     add_string( or0->name )
-    add_string( "  - исполнитель " + AllTrim( inieditspr( A__MENUVERT, mm_ortispol, or0->tip ) ) )
+    add_string( "  - исполнитель " + AllTrim( inieditspr( A__MENUVERT, mm_ortispol(), or0->tip ) ) )
     Select OR2
     Index On usl->shifr to ( cur_dir() + "tmp4" ) For kod_tip == or0->( RecNo() )
     Go Top
