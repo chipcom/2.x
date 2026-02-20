@@ -708,7 +708,7 @@ Function f3_create_r05()
         fl := func_error( 4, 'План лиц старше труд.возраста должен быть меньше плана итого' )
       Endif
       If !fl
-        func_error( 4, 'Исправьте в плане-графике по месяцам информацию за "' + mm_month[ i ] + '"' )
+        func_error( 4, 'Исправьте в плане-графике по месяцам информацию за "' + mm_month()[ i ] + '"' )
         Exit
       Endif
     Next
@@ -1225,7 +1225,7 @@ Function read_xml_file_r06( arr_XML_info, aerr, /*@*/current_i2,lrec_xml)
         Endcase
         If tmp2->_N_ZAP > 0
           StrFile( 'CODE_R=' + lstr( tmp2->_N_ZAP ) + ', ' + s + ;
-            ', год=' + lstr( rhum->n_y ) + ', ' + mm_month[ rhum->n_m ] + ', уч-к=' + lstr( rhum->uch ) + hb_eol(), cFileProtokol, .t. )
+            ', год=' + lstr( rhum->n_y ) + ', ' + mm_month()[ rhum->n_m ] + ', уч-к=' + lstr( rhum->uch ) + hb_eol(), cFileProtokol, .t. )
         Else
           StrFile( 'Ошибка на уровне файла' + hb_eol(), cFileProtokol, .t. )
         Endif
@@ -1476,7 +1476,7 @@ Function f31_view_r05( reg, s )
           v := &( 'r05p->kol1' + lstr( j - 2 ) + '_' + StrZero( i, 2 ) )
         Endif
         If v > 0
-          s := iif( fl, 'в том числе', '' ) + ' на ' + mm_month[ i ]
+          s := iif( fl, 'в том числе', '' ) + ' на ' + mm_month()[ i ]
           fl := .f.
           add_string( PadL( s, 25 ) + Str( v, 6 ) )
         Endif
@@ -2703,7 +2703,7 @@ Function f32_view_r01()
       add_string( '──────────────────────────┴─────────────┴─────────────┴────────────┴────────────' )
     Endif
     n := 26
-    add_string( PadR( mm_month[ i ], n ) )
+    add_string( PadR( mm_month()[ i ], n ) )
     For j := 1 To 5
       add_string( PadL( mmt[ j ], n ) + put_val( ames[ i, j, 1 ], 11 ) + ;
         put_val( ames[ i, j, 2 ], 14 ) + ;

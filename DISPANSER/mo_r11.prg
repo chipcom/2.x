@@ -14,7 +14,7 @@ Function f_create_r11()
   Local buf := save_maxrow(), i, j, ir, s := '', arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
   local _arr_vozrast_DVN
 
-  Private mdate := sys_date, mrec := 1
+  Private mdate := sys_date, mrec := 2
   Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {}, ;
     pkol := 0, CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ], CODE_MO := glob_mo()[ _MO_KOD_FFOMS ], ;
     mkol := { 0, 0, 0, 0, 0 }, skol[ 5 ], ames[ 12, 5 ], ame[ 12 ]
@@ -27,7 +27,7 @@ Function f_create_r11()
   _arr_vozrast_DVN := ret_arr_vozrast_dvn( 0d20251201 )
   fl := .t.
   fl_1 := .f.
-//  SMONTH := MONTH_UPLOAD // МЕСЯЦ
+  //  SMONTH := MONTH_UPLOAD // МЕСЯЦ
   lm := MONTH_UPLOAD // МЕСЯЦ
   dbCreate( cur_dir() + 'tmp_00', { ;
     { 'reestr',     'N', 6, 0 }, ;
@@ -71,6 +71,28 @@ Function f_create_r11()
     Return Nil
   Endif
 
+if  !fl_1 // первый раз - для 2026 года
+// удаляем реестры R01
+
+  mywait()
+  g_use( dir_server() + 'mo_dr00',, 'DR00' )
+  go top
+  do while !eof()
+    if dr00->N_M == MONTH_UPLOAD
+      // должны быть только R01
+      g_rlock( forever )
+      dr00->n_m := 0
+      dr00->n_q := 0
+      dr00->reestr := 0 
+      unlock
+    endif 
+    skip
+  enddo
+  fl_1 := .T.
+  dr00->(dbCloseArea())
+endif
+
+  //
   If fl_1 // .or. code_lpu == '321001'// не первый раз
     r_use( dir_server() + 'mo_dr05p',, 'R05p' )
     Goto ( mrec )
@@ -277,7 +299,7 @@ Function f_create_r11()
     next */
 
     //
-    Select REES
+   /* Select REES
     Index On Str( FIELD->NMONTH, 2 ) + Str( FIELD->nn, 3 ) to ( cur_dir() + 'tmp_dr01' ) For FIELD->NYEAR == YEAR_UPLOAD_DISPANSER .and. FIELD->tip == 0
     find ( Str( lm, 2 ) )
     Do While lm == rees->NMONTH .and. !Eof()
@@ -308,6 +330,7 @@ Function f_create_r11()
         Skip
       Enddo
     Next
+    */
   Endif
 
   dbCloseAll()  //  Close databases
@@ -1012,7 +1035,7 @@ Function find_unfinished_r11()
   Local fl := .t., skol := 0, mkol := 0, arr := {}, fl_date := .t.
 
 
-  Private mrec := 1
+  Private mrec := 2 // !!!!!!!!!!!!
 //  Private sgod := YEAR_UPLOAD_DISPANSER
 //  private smonth := MONTH_UPLOAD // МЕСЯЦ для выгрузки R11
 
