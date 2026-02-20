@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 16.02.26
+// 20.02.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -828,12 +828,14 @@ Function verify_sluch( fl_view, ft )
     Return .f.
   Endif
 
+/*// согласно ПУМП вер. 4.6
   if ! eq_any( lu_type, TIP_LU_DDS, TIP_LU_DVN, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN, TIP_LU_DVN_COVID, TIP_LU_DRZ )
     if Empty( human->PROFIL_M ) .and. ( ( iProfil_m := soot_v002_m003( human_->PROFIL, human->VZROS_REB ) ) > 0 )
         AAdd( ta, 'не заполнено поле "Профиль МЗ РФ" для листа учета' )
     endif
   endif
- 
+*/
+
   lshifr := ''
   lshifr1 := ''
   Do While hu->kod == human->kod .and. !Eof()
@@ -842,13 +844,13 @@ Function verify_sluch( fl_view, ft )
       If Empty( hu->kol_1 )
         AAdd( ta, 'не заполнено поле "Количество услуг" для "' + AllTrim( usl->shifr ) + '"' )
       Endif
-
+/*// согласно ПУМП вер. 4.6
       if ! eq_any( lu_type, TIP_LU_DDS, TIP_LU_DVN, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN, TIP_LU_DVN_COVID, TIP_LU_DRZ )
         if Empty( human->PROFIL_M ) .and. ( ( iProfil_m := soot_v002_m003( human_->PROFIL, human->VZROS_REB ) ) > 0 )
           AAdd( ta, 'не заполнено поле "Профиль МЗ РФ" для услуги "' + AllTrim( usl->shifr ) + '"' )
         endif
       endif
-
+*/
       lshifr := iif( Empty( lshifr1 ), usl->shifr, lshifr1 )
       If hu->STOIM_1 > 0 .or. lTypeLUOnkoDisp .or. Left( lshifr, 3 ) == '71.'  // скорая помощь
         If !Empty( lbukva ) .and. AScan( a_bukva, {| x| x[ 1 ] == lbukva } ) == 0
@@ -1739,12 +1741,13 @@ Function verify_sluch( fl_view, ft )
       Endif
     Endif
 
+/*// согласно ПУМП вер. 4.6
     if ! eq_any( lu_type, TIP_LU_DDS, TIP_LU_DVN, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN, TIP_LU_DVN_COVID, TIP_LU_DRZ )
       if Empty( mohu->PROFIL_M )
         AAdd( ta, 'не заполнено поле "Профиль МЗ РФ" для услуги "' + AllTrim( s ) + '"' )
       endif
     endif
-
+*/
     If Empty( mohu->profil )
       mohu->profil := mosu->profil
       If Empty( mohu->profil )
