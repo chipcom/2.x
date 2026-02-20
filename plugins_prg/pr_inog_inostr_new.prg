@@ -242,12 +242,13 @@ Function pr_inog_inostr_new()
 
   Return Nil
 
-// 08.04.23
+// 20.02.26
 Function f3pr_inog_inostr_new( j, arr_m )
   Static sprofil := 'терапии'
-  Static mm_vid := { 'медицинская помощь, оказанная в стационарных условиях', ;
+  Static mm_vid := { ;
+    'медицинская помощь, оказанная в стационарных условиях', ;
     'медицинская помощь, оказанная в амбулаторных условиях', ;
-    'Экстренная медицинская помощь', ;
+    'экстренная медицинская помощь', ;
     'медицинская помощь в условиях дневного стационара' }
   Static mm_ist_fin := { 'Личные средства гражданина', 'ДМС', 'ОМС', 'средства фед.бюджета', 'средства МО', 'средства субъекта РФ' }
   
@@ -297,7 +298,7 @@ Function f3pr_inog_inostr_new( j, arr_m )
           If Empty( frd->profil := inieditspr( A__MENUVERT, getv002(), tmp_kart->PROFIL ) )
             frd->profil := sprofil
           Endif
-          frd->ist_fin := mm_ist_fin()[ tmp_kart->ist_fin ]
+          frd->ist_fin := mm_ist_fin[ tmp_kart->ist_fin ]
           Select REGION
           find ( Left( tmp_kart->region, 2 ) )
           frd->region := CharRem( '*', name )
@@ -317,7 +318,7 @@ Function f3pr_inog_inostr_new( j, arr_m )
           If Empty( frd->profil := inieditspr( A__MENUVERT, getv002(), tmp_kart->PROFIL ) )
             frd->profil := sprofil
           Endif
-          frd->ist_fin := mm_ist_fin()[ tmp_kart->ist_fin ]
+          frd->ist_fin := mm_ist_fin[ tmp_kart->ist_fin ]
           frd->region := inieditspr( A__MENUVERT, geto001(), tmp_kart->region )
           frd->osnov := inieditspr( A__MENUVERT, get_osn_preb_rf(), tmp_kart->osnov )
           frd->fio := kart->fio
@@ -383,7 +384,7 @@ Function f3pr_inog_inostr_new( j, arr_m )
       If Empty( frd->profil := inieditspr( A__MENUVERT, getv002(), tmp1->PROFIL ) )
         frd->profil := sprofil
       Endif
-      frd->ist_fin := mm_ist_fin()[ tmp1->ist_fin ]
+      frd->ist_fin := mm_ist_fin[ tmp1->ist_fin ]
       If tmp1->osnov < 0
         Select REGION
         find ( Left( tmp1->region, 2 ) )
