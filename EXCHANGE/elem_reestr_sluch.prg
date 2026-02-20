@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.02.26
+// 20.02.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -36,7 +36,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   local ar_dn
   local CODE_LPU
   local sk
-  local lDispans, vozrast, next_d
+  local lDispans := .f.
+  local vozrast, next_d
 
   local arr_nazn
 
@@ -400,7 +401,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     endif
     mo_add_xml_stroke( oSL, 'PROFIL', lstr( human_->PROFIL ) )
     If p_tip_reestr == TYPE_REESTR_GENERAL
-      mo_add_xml_stroke( oSL, 'PROFIL_M', lstr( human->PROFIL_M ) )
+//      mo_add_xml_stroke( oSL, 'PROFIL_M', lstr( human->PROFIL_M ) )   // согласно ПУМП вер. 4.6
       If human_->USL_OK < 3 // стационар или дневной стационар
         mo_add_xml_stroke( oSL, 'PROFIL_K', lstr( human_2->PROFIL_K ) )
       Endif
@@ -705,7 +706,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
       Next j
 */
-      elem_napr( oSl, arr_onkna )
+      elem_napr( oSl, arr_onkna, lDispans )
     Endif
     If ( is_oncology > 0 .or. is_oncology_smp > 0 ) .and. ! lTypeLUOnkoDisp
       // заполним сведения о консилиумах для XML-документа
@@ -1020,9 +1021,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
         Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( hu_->PROFIL ) )
-        If p_tip_reestr == TYPE_REESTR_GENERAL
-          mo_add_xml_stroke( oUSL, 'PROFIL_M', lstr( hu_->PROFIL_M ) )
-        Endif
+//        If p_tip_reestr == TYPE_REESTR_GENERAL
+//          mo_add_xml_stroke( oUSL, 'PROFIL_M', lstr( hu_->PROFIL_M ) )   // согласно ПУМП вер. 4.6
+//        Endif
         Select T21
         find ( PadR( lshifr, 10 ) )
         If Found()
@@ -1150,7 +1151,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 //        Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( mohu->PROFIL ) )
         If p_tip_reestr == TYPE_REESTR_GENERAL
-          mo_add_xml_stroke( oUSL, 'PROFIL_M', lstr( mohu->PROFIL_M ) )
+//          mo_add_xml_stroke( oUSL, 'PROFIL_M', lstr( mohu->PROFIL_M ) )   // согласно ПУМП вер. 4.6
           mo_add_xml_stroke( oUSL, 'VID_VME', lshifr )
           mo_add_xml_stroke( oUSL, 'DET', iif( human->VZROS_REB == 0, '0', '1' ) )
         Endif
