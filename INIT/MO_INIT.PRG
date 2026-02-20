@@ -6,7 +6,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.11.25 начальная инициализация программы (до входа в Reconstruct_BD)
+// 20.02.26 начальная инициализация программы (до входа в Reconstruct_BD)
 Function init_first()
 
   Local buf := save_maxrow()
@@ -191,16 +191,16 @@ Function init_first()
     init_base( dir_server() + 'organiz', , get_struct_organiz(), 0, , .t. )
   Endif
   //
-  Public mm_ortispol := { ;
-    { 'Техник', 0 }, ;
-    { 'Врач', 1 } }
-  Public gmenutorto := {}
-  AAdd( gmenutorto, { 'name', 'C', 65, 0, NIL, NIL, ;
-    Space( 65 ), NIL, 'Наименование материала' } )
-  AAdd( gmenutorto, { 'tip', 'N', 1, 0, NIL, ;
-    {| x| menu_reader( x, mm_ortispol, A__MENUVERT ) }, ;
-    0, {| x| inieditspr( A__MENUVERT, mm_ortispol, x ) }, ;
-    'Исполнитель услуги' } )
+//  Public mm_ortispol := { ;
+//    { 'Техник', 0 }, ;
+//    { 'Врач', 1 } }
+//  Public gmenutorto := {}
+//  AAdd( gmenutorto, { 'name', 'C', 65, 0, NIL, NIL, ;
+//    Space( 65 ), NIL, 'Наименование материала' } )
+//  AAdd( gmenutorto, { 'tip', 'N', 1, 0, NIL, ;
+//    {| x| menu_reader( x, mm_ortispol, A__MENUVERT ) }, ;
+//    0, {| x| inieditspr( A__MENUVERT, mm_ortispol, x ) }, ;
+//    'Исполнитель услуги' } )
   // приёмный покой
   Public glob_perso_pp := 0 // код по БД mo_pp
   Public pict_time := '99:99'

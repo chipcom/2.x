@@ -1,3 +1,5 @@
+#include 'function.ch'
+#include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
 // 09.03.25 реконстукция подсистемы паролей
@@ -69,8 +71,8 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 15.02.26 реконстукция баз данных
-Function reconstruct_db( is_local_version, is_create )
+// 20.02.26 реконстукция баз данных
+Function reconstruct_db( is_local_version )
 
   Local base1 := { ;
     { 'P1',         'C',  20, 0 }, ; // Ф.И.О.
@@ -1813,7 +1815,7 @@ Function reconstruct_db( is_local_version, is_create )
   reconstruct( path_DB + 'hum_oro', hum_o_o, 'index_base("hum_oro")', 'пролеченным больным9', .t. )
   reconstruct( path_DB + 'hum_oru', hum_o_u, 'index_base("hum_oru")', 'пролеченным больным10', .t. )
   reconstruct( path_DB + 'hum_orpl', hum_orpl, 'index_base("hum_orpl")', 'плательщикам', .t. )
-  init_base( path_DB + 'tip_orto', , gmenutorto, 0, , .t. )
+  init_base( path_DB + 'tip_orto', , gmenutorto(), 0, , .t. )
   //
   reconstruct( path_DB + 'kas_pl', kas_pl, 'index_base("kas_pl")', 'кассе-1', .t. )
   reconstruct( path_DB + 'kas_pl_u', kas_pl_u, 'index_base("kas_pl_u")', 'кассе-2', .t. )
@@ -1840,12 +1842,12 @@ Function reconstruct_db( is_local_version, is_create )
   use_base( "organiz" )
   If LastRec() == 0
     addrecn()
-    org->kod_tfoms := glob_mo[ _MO_KOD_TFOMS ]
-    org->name_tfoms := glob_mo[ _MO_SHORT_NAME ]
+    org->kod_tfoms := glob_mo()[ _MO_KOD_TFOMS ]
+    org->name_tfoms := glob_mo()[ _MO_SHORT_NAME ]
     org->uroven := get_uroven()
   Endif
   Use
-  If glob_mo[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
+  If glob_mo()[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
     vounc_reconstruct_db()
   Endif
 
@@ -2364,3 +2366,17 @@ Function reconstruct_dr()
   reconstruct( path_DB + 'mo_dr05e', mo_dr05e,,, .t. )
   reconstruct( path_DB + 'mo_dr00', mo_dr00,,, .t. )
   return nil
+
+// 20.06.26
+function gmenutorto()
+
+  local arr := {}
+
+  AAdd( arr, { 'name', 'C', 65, 0, NIL, NIL, ;
+    Space( 65 ), NIL, 'Наименование материала' } )
+  AAdd( arr, { 'tip', 'N', 1, 0, NIL, ;
+    {| x| menu_reader( x, mm_ortispol(), A__MENUVERT ) }, ;
+    0, {| x| inieditspr( A__MENUVERT, mm_ortispol(), x ) }, ;
+    'Исполнитель услуги' } )
+
+  return arr
