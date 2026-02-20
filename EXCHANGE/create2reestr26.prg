@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 14.02.26 создание XML-файлов реестра
+// 20.02.26 создание XML-файлов реестра
 Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
@@ -175,7 +175,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
     mo_xml->TIP_OUT := _XML_FILE_SCHET_26 // тип высылаемого файла; 7-реестр счетов новой системы обмена
     mo_xml->REESTR := mkod_reestr
 //
-    cNschet := kod_smo + '-' + AllTrim( Str( mnschet ) ) + '-0' + cBukva
+    cNschet := AllTrim( kod_smo ) + '-' + AllTrim( Str( mnschet ) ) + '-0' + cBukva
     rees->KOD_XML := mo_xml->KOD
     rees->NOMER_S := cNschet
     rees->BUKVA := cBukva

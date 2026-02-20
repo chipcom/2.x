@@ -2,7 +2,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 10.02.26
+// 20.02.26
 function new_create( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort, cBukva )
 
   local fl, mnn, mb, me, lengthPacketNumber, mnschet, mkod_reestr, code_reestr
@@ -148,7 +148,7 @@ function new_create( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort, cBukva )
   mo_xml->TIP_OUT := _XML_FILE_SCHET_26 // тип высылаемого файла; 7-реестр счетов новой системы обмена
   mo_xml->REESTR := mkod_reestr
 //
-  cNschet := kod_smo + '-' + AllTrim( Str( mnschet ) ) + '-0' + cBukva
+  cNschet := AllTrim( kod_smo ) + '-' + AllTrim( Str( mnschet ) ) + '-0' + cBukva
   rees->KOD_XML := mo_xml->KOD
   rees->NOMER_S := cNschet
   rees->BUKVA := cBukva
