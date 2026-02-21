@@ -279,6 +279,9 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
       elseif is_err_FLK_26 == 1  // ошибок ФЛК нет
 
+        use_base( 'human', , .t. )
+        Set Order To 0 // индексы открыты для перезаписи номера счета
+
         g_use( dir_server() + 'mo_rhum', , 'RHUM' )
         Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
 
@@ -321,35 +324,17 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         schet_->CODE := ret_unique_code( mkod, 12 )
         schet_->KOD_XML := mo_xml->KOD
 
-        // заполним HUMAN номером счета
+        // заполним HUMAN и HUMAN_ номером счета и номерами записей реестра счета
         Select rhum
         rhum->( dbGoTop() )
         do while ! ( rhum->( Eof() ) )
+          human->( dbGoto( rhum->KOD_HUM ) )
+          if ! ( human->( Eof() ) ) .and. ! ( human->( Bof() ) )
+            human->schet := schet->KOD
+            HUMAN_->SCHET_ZAP := rhum->REES_ZAP
+          endif
           rhum->( dbSkip() )
         enddo
-
-//        g_use( dir_server() + 'mo_kfio', , 'KFIO' )
-//        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
-//        g_use( dir_server() + 'kartote2', , 'KART2' )
-//        g_use( dir_server() + 'kartote_', , 'KART_' )
-//        g_use( dir_server() + 'kartotek', dir_server() + 'kartoten', 'KART' )
-//        Set Order To 0 // индекс открыт для реконструкции при перезаписи ФИО и даты рождения
-//        r_use( dir_server() + 'mo_otd', , 'OTD' )
-/*
-        g_use( dir_server() + 'human_', , 'HUMAN_' )
-        g_use( dir_server() + 'human', { dir_server() + 'humann', dir_server() + 'humans' }, 'HUMAN' )
-        Set Order To 0 // индексы открыты для реконструкции при перезаписи ФИО
-        Set Relation To RecNo() into HUMAN_ //, To FIELD->otd into OTD
-        g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
-        g_use( dir_server() + 'mo_rhum', , 'RHUM' )
-        Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
-
-        g_use( dir_server() + 'mo_refr', dir_server() + 'mo_refr', 'REFR' )
-
-        Use ( cur_dir() + 'tmp3file' ) New Alias TMP3
-        Index On Str( FIELD->_n_zap, 8 ) to ( cur_dir() + 'tmp3' )
-        Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
-*/
       endif 
 /*
     Case nTypeFile == _XML_FILE_FLK
