@@ -95,7 +95,61 @@ Function update_data_db( aVersion )
     update_v60204()     // перенос информации о счетах в файл human
   endif
 
+  If ver_base < 60205 // переход на версию 6.2.5
+    update_v60205()     // Проверка сформированных счетов
+  endif
+
 Return Nil
+
+// 21.02.26
+function update_v60205()
+
+  local mkod, mschet
+
+  stat_msg( 'Проверка сформированных счетов' )
+
+//  g_use( dir_server() + 'human', , 'human', , .t. )
+  use_base( 'human', , .t. )
+
+  r_use( dir_server() + 'mo_rhum', , 'RHUM' )
+  Index On str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_rhum_' )
+
+  use_base( 'schet', , .t. )
+  set order to 2
+
+  r_use( dir_server() + 'mo_rees', , 'REES' )
+  Index On str( FIELD->nyear, 4 ) to ( cur_dir() + 'tmp_rees_' )
+  rees->( dbSeek( '2026' ) )
+  do while ! ( rees->( Eof() ) ) .and. ( rees->nyear == 2026 )
+    if ( rees->RES_TFOMS == 1 )
+      mkod := rees->KOD
+      schet->( dbSeek( SubStr( rees->NOMER_S, 1, 10 ) + dtoc4( rees->DSCHET ) ) )
+      if schet->( Found() )
+        do while schet_->nschet == rees->NOMER_S .and. ! schet->( Eof() )
+          mschet := schet->kod
+          rhum->( dbSeek( str( mkod, 6 ) ) )
+          do while ! ( rhum->( Eof() ) ) .and. ( rhum->reestr == mkod )
+//            mydebug( , str( rhum->reestr, 6 ) + '-' + str( rhum->kod_hum, 7 ) + ': ' + str( rhum->rees_zap, 6 ) )
+//            mydebug( , str( rhum->reestr, 6 ) + '-' + str( rhum->kod_hum, 7 ) + ': ' + str( rhum->rees_zap, 6 ) )
+            human->( dbGoto( rhum->kod_hum ) )
+            if ! ( human->( Eof() )) .and. ! ( human->( Bof() ) )
+              human->schet := mschet
+              human_->SCHET_ZAP := rhum->REES_ZAP
+            endif
+
+            rhum->( dbSkip() )
+          enddo
+          schet->( dbSkip() )
+        enddo
+      endif
+    endif
+    rees->( dbSkip() )
+  enddo
+  dbCloseAll()
+  use_base( 'human', , .t. )
+  index_base( 'human' )
+
+  return nil
 
 // 15.02.26
 function update_v60204()
