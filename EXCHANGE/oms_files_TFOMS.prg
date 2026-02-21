@@ -110,7 +110,7 @@ Function read_from_tf()
   Endif
   Return fl
 
-// 14.02.26 чтение в память и анализ XML-файла
+// 21.02.26 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local is_err_FLK_26
@@ -278,6 +278,10 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         rees->( dbUnlock() )
 
       elseif is_err_FLK_26 == 1  // ошибок ФЛК нет
+
+        g_use( dir_server() + 'mo_rhum', , 'RHUM' )
+        Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
+
         e_use( dir_server() + 'mo_rees', , 'REES' ) 
         rees->( dbGoto( arr_XML_info[ 7 ] ) )
         rees->( dbRLock() )
@@ -316,6 +320,13 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         schet_->NREGISTR   := 0 // зарегистрирован
         schet_->CODE := ret_unique_code( mkod, 12 )
         schet_->KOD_XML := mo_xml->KOD
+
+        // заполним HUMAN номером счета
+        Select rhum
+        rhum->( dbGoTop() )
+        do while ! ( rhum->( Eof() ) )
+          rhum->( dbSkip() )
+        enddo
 
 //        g_use( dir_server() + 'mo_kfio', , 'KFIO' )
 //        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
