@@ -729,14 +729,14 @@ Function ret_tfoms_uet( lshifr, lshifr1, lvzros_reb )
   adult := lvzros_reb
   Return luet
 
-// 22.11.24 проверка на код лабораторной услуги, направляемой в ЦКДЛ
+// 22.02.26 проверка на код лабораторной услуги, направляемой в ЦКДЛ
 Function is_lab_usluga( lshifr )
 
   Static sl := '4.'
   Static arr := { '8.5', '11.5', '12.5', '12.6', '13.5', '15.5', '16.5', '17.5' }
   Local i, fl := .f.
 
-  If Left( lshifr, 2 ) == sl
+  If ValType( lshifr ) == 'C' .and. Left( lshifr, 2 ) == sl
     lshifr := AllTrim( lshifr )
     if lshifr == '4.15.546' // исключение для антител к гепатиту
       return .f.

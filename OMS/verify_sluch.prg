@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 20.02.26
+// 22.02.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -68,6 +68,8 @@ Function verify_sluch( fl_view, ft )
   local iProfil_m
   local a_mo_prik
   local lKart2
+  local dvn_arr_umolch, dvn_arr_usl
+  local arr_unit
 
   Default fl_view To .t.
 
@@ -1245,7 +1247,7 @@ Function verify_sluch( fl_view, ft )
           is_disp_DDS := .t.
           is_2_83 := .t.
           is_exist_Prescription := .t.
-        Elseif left_lshifr_5 == '2.84.'
+        Elseif ( left_lshifr_5 == '2.84.' ) .or. ( left_lshifr_5 == '70.7.' )
           mIDSP := 11 // диспансеризация
           is_disp_DVN := .t.
           is_2_84 := .t.
@@ -4184,12 +4186,16 @@ Function verify_sluch( fl_view, ft )
     Elseif metap == 5 .and. AScan( a_disp, {| x| x[ 1 ] == 4 } ) == 0
       AAdd( ta, 'это II этап диспансеризации, но отсутствует случай I этапа диспансеризации раз в 2 года' )
     Endif
+    dvn_arr_usl := dvn_arr_usl( dEnd, m1mobilbr )
+    dvn_arr_umolch := dvn_arr_umolch( dEnd, m1mobilbr )
     // отметим обязательные услуги
-    arr1 := Array( count_dvn_arr_usl, 5 )
+//    arr1 := Array( count_dvn_arr_usl, 5 )
+    arr1 := Array( Len( dvn_arr_usl ), 5 )
     afillall( arr1, 0 )
-    arr2 := Array( count_dvn_arr_umolch, 5 )
+//    arr2 := Array( count_dvn_arr_umolch, 5 )
+    arr2 := Array( Len( dvn_arr_umolch ), 5 )
     afillall( arr2, 0 )
-    For i := 1 To count_dvn_arr_usl
+    For i := 1 To Len( dvn_arr_usl )  //  count_dvn_arr_usl
       fl_ekg := .f.
       i_otkaz := 0
       If f_is_usl_oms_sluch_dvn( human->k_data, m1mobilbr, i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, , @i_otkaz, @fl_ekg )
@@ -4198,7 +4204,7 @@ Function verify_sluch( fl_view, ft )
         arr1[ i, 5 ] := iif( fl_ekg, 1, 0 ) // 1 - необязательный возраст
       Endif
     Next
-    For i := 1 To count_dvn_arr_umolch
+    For i := 1 To Len( dvn_arr_umolch )   //count_dvn_arr_umolch
       If f_is_umolch_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol )
         arr2[ i, 2 ] := 1
       Endif
@@ -4214,7 +4220,7 @@ Function verify_sluch( fl_view, ft )
         fl := .f.
       Endif
       If fl
-        For i := 1 To count_dvn_arr_umolch
+        For i := 1 To Len( dvn_arr_umolch )   //  count_dvn_arr_umolch
           If arr2[ i, 1 ] == 0 .and. dvn_arr_umolch[ i, 2 ] == lshifr
             arr2[ i, 1 ] ++
             fl := .f.
@@ -4223,7 +4229,7 @@ Function verify_sluch( fl_view, ft )
         Next
       Endif
       If fl
-        For i := 1 To count_dvn_arr_usl
+        For i := 1 To Len( dvn_arr_usl )  //  count_dvn_arr_usl
           If metap == 2 .and. ValType( dvn_arr_usl[ i, 2 ] ) == 'C' .and. dvn_arr_usl[ i, 2 ] == lshifr
             s := '"' + dvn_arr_usl[ i, 2 ] + ' ' + dvn_arr_usl[ i, 1 ] + '"'
             If ValType( dvn_arr_usl[ i, 3 ] ) == 'N'
@@ -4333,7 +4339,7 @@ Function verify_sluch( fl_view, ft )
         ar := arr_usl_otkaz[ j ]
         If ValType( ar ) == 'A' .and. Len( ar ) >= 10 .and. ValType( ar[ 5 ] ) == 'C'
           lshifr := AllTrim( ar[ 5 ] )
-          For i := 1 To count_dvn_arr_usl
+          For i := 1 To Len( dvn_arr_usl )  //  count_dvn_arr_usl
             If ValType( dvn_arr_usl[ i, 2 ] ) == 'C' .and. ;
                 ( dvn_arr_usl[ i, 2 ] == lshifr .or. ( Len( dvn_arr_usl[ i ] ) > 11 .and. ValType( dvn_arr_usl[ i, 12 ] ) == 'A' ;
                 .and. AScan( dvn_arr_usl[ i, 12 ], {| x| x[ 1 ] == lshifr } ) > 0 ) )
@@ -4349,7 +4355,7 @@ Function verify_sluch( fl_view, ft )
                     ++kol_ob_otkaz // кол-во отказов от обязательных услуг
                   Endif
                   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-                  is_usluga_dvn( { lshifr, ar[ 9 ], ar[ 4 ], ar[ 2 ] }, mv, ta, metap, mpol, kod_spec_ter )
+                  is_usluga_dvn( { lshifr, ar[ 9 ], ar[ 4 ], ar[ 2 ] }, mv, ta, metap, mpol, kod_spec_ter, dvn_arr_umolch, dvn_arr_usl )
                   // проверяем на специальность
                   uslugaaccordanceprvs( lshifr, human->vzros_reb, ar[ 2 ], ta, lshifr, iif( ValType( ar[ 1 ] ) == 'N', ar[ 1 ], 0 ) )
                 Endif
@@ -4363,7 +4369,7 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'некорректно записан случай профоосмотра в год диспансеризации - отредактируйте' )
     Endif
     If !eq_any( metap, 2, 5 ) // проверим, выполнены обязательные услуги (и наоборот)
-      For i := 1 To count_dvn_arr_usl
+      For i := 1 To Len( dvn_arr_usl )  //  count_dvn_arr_usl
         s := '"' + iif( ValType( dvn_arr_usl[ i, 2 ] ) == 'C', dvn_arr_usl[ i, 2 ] + ' ', '' )
         s += dvn_arr_usl[ i, 1 ] + '"'
         If arr1[ i, 2 ] == 0 // не надо выполнять
@@ -4396,7 +4402,7 @@ Function verify_sluch( fl_view, ft )
           Endif
         Endif
       Next
-      For i := 1 To count_dvn_arr_umolch
+      For i := 1 To Len( dvn_arr_umolch )   //  count_dvn_arr_umolch
         s := '"' + dvn_arr_umolch[ i, 2 ] + ' ' + dvn_arr_umolch[ i, 1 ] + '"'
         If arr2[ i, 2 ] == 0 // не надо выполнять
           If arr2[ i, 1 ] > 1
@@ -4429,7 +4435,7 @@ Function verify_sluch( fl_view, ft )
       If au_lu[ i, 2 ] > dEnd
         AAdd( ta, s + ' не попадает в диапазон лечения' )
       Endif
-      If is_usluga_dvn( au_lu[ i ], mv, ta, metap, mpol, kod_spec_ter )
+      If is_usluga_dvn( au_lu[ i ], mv, ta, metap, mpol, kod_spec_ter, dvn_arr_umolch, dvn_arr_usl )
         If metap == 1 .and. Empty( hu->u_cena ) .and. !eq_any( Left( lshifr, 5 ), '4.20.', '2.90.' )
           ++kol_d_usl
         Elseif metap == 3 .and. !( lshifr == '56.1.14' )
@@ -4487,14 +4493,16 @@ Function verify_sluch( fl_view, ft )
         ++k700 // к нулевой услуге добавлена услуга с ценой на '700'
       Elseif eq_any( Left( lshifr, 5 ), '70.3.', '70.7.', '72.1.', '72.5.', '72.6.', '72.7.' )
         ++zs
-        If is_prof_disp
-          s := ret_shifr_zs_dvn( 3, mv, mpol, dEnd )
-        Else
-          s := ret_shifr_zs_dvn( metap, mv, mpol, dEnd )
-        Endif
-        If !( lshifr == s )
-          AAdd( ta, 'в л/у услуга ' + lshifr + ', а должна быть ' + s + ' для возраста ' + lstr( mv ) + ' ' + s_let( mv ) + '. Отредактируйте!' )
-        Endif
+        if dEnd < 0d20260101
+          If is_prof_disp
+            s := ret_shifr_zs_dvn( 3, mv, mpol, dEnd )
+          Else
+            s := ret_shifr_zs_dvn( metap, mv, mpol, dEnd )
+          Endif
+          If !( lshifr == s )
+            AAdd( ta, 'в л/у услуга ' + lshifr + ', а должна быть ' + s + ' для возраста ' + lstr( mv ) + ' ' + s_let( mv ) + '. Отредактируйте!' )
+          Endif
+        endif
       Else
         oth_usl += lshifr + ' '
       Endif
@@ -4545,6 +4553,7 @@ Function verify_sluch( fl_view, ft )
             Endif
           Endif
         Endif
+      elseif kol_d_usl == 0
       Else
         AAdd( ta, 'слишком много отказов-' + lstr( kol_d_otkaz ) + ' услуг-' + lstr( kol_d_usl ) )
       Endif

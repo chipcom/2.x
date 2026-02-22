@@ -247,8 +247,8 @@ function collect_date_uslugi( rec_number )
   select( tmp_select )
   return aSortDate
 
-// 20.06.19
-Function is_usluga_dvn(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
+// 21.02.26
+Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, dvn_arr_umolch, dvn_arr_usl )
   
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1]), fl_19
@@ -266,7 +266,7 @@ Function is_usluga_dvn(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
     fl := .t.
   endif
   if !fl
-    for i := 1 to count_dvn_arr_umolch
+    for i := 1 to len( dvn_arr_umolch ) // count_dvn_arr_umolch
       if dvn_arr_umolch[i, 2] == lshifr
         fl := .t.
         exit
@@ -275,7 +275,7 @@ Function is_usluga_dvn(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
   endif
   if !fl
     DEFAULT _spec_ter to 0
-    for i := 1 to count_dvn_arr_usl
+    for i := 1 to Len( dvn_arr_usl )    //   count_dvn_arr_usl
       if valtype(dvn_arr_usl[i, 2]) == 'C'
         if dvn_arr_usl[i, 2] == '4.20.1' .and. lshifr == '4.20.2'
           fl := .t.

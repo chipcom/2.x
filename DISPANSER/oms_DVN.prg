@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.02.26 ДВН - добавление или редактирование случая (листа учета)
+// 22.02.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -15,11 +15,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Local bg := {| o, k| get_mkb10( o, k, .t. ) }, arr_del := {}, mrec_hu := 0, ;
     buf := SaveScreen(), tmp_color := SetColor(), a_smert := {}, ;
     p_uch_doc := '@!', pic_diag := '@K@!', arr_usl := {}, ah, ;
-    i, j, k, s, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
+    k, s, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
     pos_read := 0, k_read := 0, count_edit := 0, ar, larr, lu_kod, ;
     fl, tmp_help := chm_help_code, fl_write_sluch := .f., mu_cena, lrslt_1_etap := 0, ;
     sk
   local dvn_arr_usl, dvn_arr_umolch, mm_ndisp1
+  local arr_usl_dop := {}
+  local j, i, i2
+//  local is_7_61_703 := .f., is_7_61_704 := .f.
 
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
@@ -70,7 +73,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     mcena_1 := 0, ;
     m1MOP := 1, mMOP  // место обращения (посещения) tmp_V040
   //
-  Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
+//  Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
+  Private arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
   Private metap := 0, ;  // 1-первый этап, 2-второй этап, 3-профилактика
     m1ndisp := 3, mndisp, is_dostup_2_year := .f., mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
     mWEIGHT := 0, ;   // вес в кг
@@ -240,7 +244,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     { 'в МО-обычное иссл-е цитологичес.материала', 1 }, ;
     { 'в ВОКОД-жидкостное иссл-ие цит.материала', 2 } }
   // for i := 1 to 33 //count_dvn_arr_usl 19.10.21
-  For i := 1 To 34 // count_dvn_arr_usl 08.09.24
+  For i := 1 To 35 // count_dvn_arr_usl 08.09.24
     mvar := 'MTAB_NOMv' + lstr( i )
     Private &mvar := 0
     mvar := 'MTAB_NOMa' + lstr( i )
@@ -444,13 +448,16 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     r_use( dir_server() + 'uslugi', , 'USL' )
     use_base( 'human_u' )
     find ( Str( Loc_kod, 7 ) )
+iii := 0
     Do While hu->kod == Loc_kod .and. !Eof()
+iii++
       usl->( dbGoto( hu->u_kod ) )
       If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, mk_data ) )
         lshifr := usl->shifr
       Endif
       lshifr := AllTrim( lshifr )
-      If eq_any( Left( lshifr, 5 ), '70.3.', '70.7.', '72.1.', '72.5.', '72.6.', '72.7.' )
+      If eq_any( Left( lshifr, 5 ), '70.3.', '70.7.', '72.1.', '72.5.', '72.6.', '72.7.' ) .and. ;
+          ! eq_any( lshifr, '70.7.63', '70.7.64' )
         mshifr_zs := lshifr
       Else
         fl := .t.
@@ -477,8 +484,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           For i := 1 To len( dvn_arr_usl )
             If Empty( larr[ 1, i ] )
               If ValType( dvn_arr_usl[ i, 2 ] ) == 'C'
-                If dvn_arr_usl[ i, 2 ] == '4.20.1'
-                  If lshifr == '4.20.1'
+                If eq_any( dvn_arr_usl[ i, 2 ], '4.20.1', '4.20.701' )
+                  If eq_any( lshifr, '4.20.1', '4.20.701' )
                     m1g_cit := 1
                   Elseif lshifr == '4.20.2'
                     m1g_cit := 2
@@ -520,10 +527,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             'GR+/R', 'W+/R', , , 'G+/R' )
         Endif
       Endif
-      AAdd( arr_usl, hu->( RecNo() ) )
+      AAdd( arr_usl, { hu->( RecNo() ), lshifr } )
       Select HU
-      Skip
+      hu->( dbSkip() )    //  Skip
     Enddo
+
     r_use( dir_server() + 'mo_pers', , 'P2' )
     read_arr_dvn( Loc_kod )
     If metap == 1 .and. Between( m1GRUPPA, 11, 14 ) .and. m1p_otk == 1
@@ -1202,6 +1210,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           if &mvard == mn_data
             k := i
           Endif
+/*
+          if ! is_7_61_703 .and. ( ValType( dvn_arr_usl[ i, 2 ] ) == 'C' ) .and. dvn_arr_usl[ i, 2 ] == '7.61.703' .and. ! Empty( &mvart )
+              is_7_61_703 := .t.
+            endif
+            if ! is_7_61_704 .and. ( ValType( dvn_arr_usl[ i, 2 ] ) == 'C' ) .and. dvn_arr_usl[ i, 2 ] == '7.61.704' .and. ! Empty( &mvart )
+              is_7_61_704 := .t.
+            endif
+*/
           If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == '4.20.1'
             If not_4_20_1 // не включать услугу
               Loop
@@ -1226,6 +1242,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
               ++ku
               Loop
             Endif
+
           Else
             ++kol_d_usl
           Endif
@@ -1248,7 +1265,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           Elseif Empty( &mvard )
             fl := func_error( 4, 'Не введена дата услуги "' + LTrim( ar[ 1 ] ) + '"' )
           Elseif Empty( &mvart ) .and. ! is_lab_usluga( ar[ 2 ] ) // для услуг ЦКДЛ допускается пустое значение врача
-            fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
+
+//            if ! eq_any( AllTrim( ar[ 2 ] ), '7.61.703', '7.61.704' )
+              fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
+//            endif
           Else
             Select P2
             find ( Str( &mvart, 5 ) )
@@ -1397,6 +1417,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Elseif arr_osm1[ len( dvn_arr_usl ), 9 ] < mk_data
         fl := func_error( 4, 'Терапевт (врач общей практики) должен проводить осмотр последним!' )
       Endif
+/*
+      if is_7_61_703 .and. is_7_61_704
+        is_7_61_703 := .f.
+        is_7_61_704 := .f.
+        fl := func_error( 4, 'Не допускается одновременное наличие флюрографии и флюорографии цифровой' )
+        num_screen := 2
+      endif
+*/
       If !fl
         Loop
       Endif
@@ -1539,6 +1567,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Next
       is_prazdnik := f_is_prazdnik_dvn( mn_data )
+      m1assis := arr_osm1[ len( dvn_arr_usl ), 3 ]
+      i_zs := 0
       If eq_any( metap, 2, 5 )
         i := len( dvn_arr_usl )
         m1vrach  := arr_osm1[ i, 1 ]
@@ -1546,7 +1576,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         m1assis  := arr_osm1[ i, 3 ]
         m1PROFIL := arr_osm1[ i, 4 ]
         // MKOD_DIAG := padr(arr_osm1[i, 6], 6)
-      Else  // metap := 1, 3, 4
+      elseif  eq_any( metap, 1, 3, 4 ) .and. ( MK_DATA < 0d20260101 )
         i := Len( arr_osm1 )
         m1vrach  := arr_osm1[ i, 1 ]
         m1prvs   := arr_osm1[ i, 2 ]
@@ -1564,7 +1594,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         arr_osm1[ i, 9 ] := mn_data
         arr_osm1[ i, 10 ] := 0
       Endif
-      For i := 1 To Len( dvn_arr_umolch )   //  count_dvn_arr_umolch
+      For i := 1 To Len( dvn_arr_umolch )
         If f_is_umolch_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol )
           ++kol_d_usl
           AAdd( arr_osm1, Array( 11 ) )
@@ -1677,10 +1707,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                 .and. !( Len( arr_osm1[ i ] ) > 10 .and. ValType( arr_osm1[ i, 11 ] ) == 'N' .and. arr_osm1[ i, 11 ] > 0 ) ; // не в КДП2
               .and. eq_any( arr_osm1[ i, 10 ], 0, 3 ) ; // не отказ
               .and. arr_osm1[ i, 9 ] >= mn_data ; // оказано во время дисп-ии
-              .and. ( k := AScan( dvn_700(), {| x | x[ 1 ] == arr_osm1[ i, 5 ] } ) ) > 0
+              .and. ( k := AScan( dvn_700( MK_DATA ), {| x | x[ 1 ] == arr_osm1[ i, 5 ] } ) ) > 0
               AAdd( larr, AClone( arr_osm1[ i ] ) )
               j := Len( larr )
-              larr[ j, 5 ] := dvn_700()[ k, 2 ]
+              larr[ j, 5 ] := dvn_700( MK_DATA )[ k, 2 ]
             Endif
           Next
           For i := 1 To Len( larr )
@@ -1724,7 +1754,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       If Loc_kod > 0
         find ( Str( Loc_kod, 7 ) )
         mkod := Loc_kod
-        g_rlock( forever )
+        g_rlock( 'forever' )
       Else
         add1rec( 7 )
         mkod := RecNo()
@@ -1735,14 +1765,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Append Blank
       Enddo
       Goto ( mkod )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       //
       Select HUMAN_2
       Do While human_2->( LastRec() ) < mkod
         Append Blank
       Enddo
       Goto ( mkod )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       //
       st_N_DATA := MN_DATA
       glob_perso := mkod
@@ -1853,7 +1883,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         find ( Str( mkod, 7 ) )
         If Found()
           If fl_nameismo
-            g_rlock( forever )
+            g_rlock( 'forever' )
             sn->smo_name := mnameismo
           Else
             deleterec( .t. )
@@ -1871,13 +1901,21 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       use_base( 'human_u' )
       For i := 1 To i2
         Select HU
-        If i > i1
+        if ( j := AScan( arr_usl, { | x | x[ 2 ] == arr_usl_dop[ i, 5 ] } ) ) > 0
+          Goto ( arr_usl[ j, 1 ] )
+          g_rlock( 'forever' )
+          hb_ADel( arr_usl, j, .t. )
+        else
           add1rec( 7 )
           hu->kod := human->kod
-        Else
-          Goto ( arr_usl[ i ] )
-          g_rlock( forever )
-        Endif
+        endif
+//        If i > i1
+//          add1rec( 7 )
+//          hu->kod := human->kod
+//        Else
+//          Goto ( arr_usl[ i, 1 ] )
+//          g_rlock( 'forever' )
+//        Endif
         mrec_hu := hu->( RecNo() )
         hu->kod_vr  := arr_usl_dop[ i, 1 ]
         hu->kod_as  := arr_usl_dop[ i, 3 ]
@@ -1892,11 +1930,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         hu->KOL_RCP := 0
         Select HU_
         Do While hu_->( LastRec() ) < mrec_hu
-          Append Blank
+          hu_->( dbAppend() )   //  Append Blank
         Enddo
         Goto ( mrec_hu )
-        g_rlock( forever )
-        If i > i1 .or. !valid_guid( hu_->ID_U )
+        g_rlock( 'forever' )
+//        If i > i1 .or. ! valid_guid( hu_->ID_U )
+        If ! valid_guid( hu_->ID_U )
           hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
         Endif
         hu_->PROFIL := arr_usl_dop[ i, 4 ]
@@ -1905,14 +1944,16 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         hu_->zf := ''
         Unlock
       Next
-      If i2 < i1
-        For i := i2 + 1 To i1
+//      If i2 < i1
+      if Len( arr_usl ) > 0
+//        For i := i2 + 1 To i1
+        For i := 1 To len( arr_usl )
           Select HU
-          Goto ( arr_usl[ i ] )
+          hu->( dbGoto( arr_usl[ i, 1 ] ) ) //  Goto ( arr_usl[ i, 1 ] )
           deleterec( .t., .f. )  // очистка записи без пометки на удаление
         Next
       Endif
-      save_arr_dvn( mkod )
+      save_arr_dvn( mkod, mk_data )
       If m1ds_onk == 1 // подозрение на злокачественное новообразование
         save_mo_onkna( mkod, _NPR_DISP_ZNO )
       Endif

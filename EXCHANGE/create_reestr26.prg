@@ -4,10 +4,12 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
+#define MAX_COUNT_REESTR  50000
+
 Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
-// 12.02.26
+// 22.02.26
 Function create_reestr26( arr_calendar )
 
   Local mnyear, mnmonth, k := 0, k1 := 0
@@ -173,13 +175,15 @@ Function create_reestr26( arr_calendar )
       tmpb->BUKVA := c
 
       ++k
-      If A_SMO->kol < 999999
+      If A_SMO->kol < MAX_COUNT_REESTR  //  999999
 //        ++k
         If ! exist_reserve_ksg( human->kod, 'HUMAN', (HUMAN->ishod == 89 .or. HUMAN->ishod == 88) )
           A_SMO->kol++
           A_SMO->min_date := Min( A_SMO->min_date, human->k_data )
         Endif
         A_SMO->summa += human->cena_1
+      else
+        exit
       Endif
     Endif
     Select HUMAN
