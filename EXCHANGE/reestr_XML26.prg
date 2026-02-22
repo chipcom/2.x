@@ -54,7 +54,7 @@ Function create1reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr )
   Eval( p_blk ) 
 
   If alpha_browse( 3, 0, MaxRow() -4, 79, 'f1create1reestrCommon', color0, ;
-      'Составление реестра случаев за ' + mm_month()[ _nmonth ] + Str( _nyear, 5 ) + ' года', 'BG+/GR', ;
+      'Составление реестра счетов за ' + mm_month()[ _nmonth ] + Str( _nyear, 5 ) + ' года', 'BG+/GR', ;
       .t., .t., , , 'f2create1reestrCommon', , ;
       { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B', , 300 } )
     If pkol > 0 .and. ( reg_sort := f_alert( { '', ;

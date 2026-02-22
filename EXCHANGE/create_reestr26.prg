@@ -34,7 +34,7 @@ Function create_reestr26( arr_calendar )
 
   arr := { 'Предупреждение!', ;
            '', ;
-           'Во время составления реестра', ;
+           'Во время составления реестра счета', ;
            'никто не должен работать в задаче ОМС' }
   n_message( arr, , 'GR+/R', 'W+/R', , , 'G+/R' )
   
@@ -176,11 +176,12 @@ Function create_reestr26( arr_calendar )
 
       ++k
       If A_SMO->kol < MAX_COUNT_REESTR  //  999999
-//        ++k
+        //++k
         If ! exist_reserve_ksg( human->kod, 'HUMAN', (HUMAN->ishod == 89 .or. HUMAN->ishod == 88) )
-          A_SMO->kol++
+          A_SMO->kol++ 
           A_SMO->min_date := Min( A_SMO->min_date, human->k_data )
         Endif
+
         A_SMO->summa += human->cena_1
       else
         exit
@@ -215,7 +216,7 @@ Function create_reestr26( arr_calendar )
     rest_box( buf )
 
     If alpha_browse( T_ROW, 2, T_ROW + len( smo_volgograd() ) + 2, 77, 'f1create_reestr26', color0, ;
-        'Невыписанные реестры случаев', 'R/BG', , , , , 'f2create_reestr26', , ;
+        'Невыписанные реестры счетов', 'R/BG', , , , , 'f2create_reestr26', , ;
         { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B,R/BG', .t., 180 } )
       rest_box( buf )
     endif
@@ -256,7 +257,7 @@ Function f1create_reestr26( oBrow )
   oColumn := TBColumnNew( Center( 'Сумма;случаев', 15 ), {|| Str( A_SMO->summa, 15, 2 ) } )
   oColumn:colorBlock := blk
   oBrow:addcolumn( oColumn )
-  status_key( '^<Esc>^ выход;  ^<Enter>^ составить реестр случаев;  ^<F9>^ печать списка пациентов' )
+  status_key( '^<Esc>^ выход;  ^<Enter>^ составить реестр счетов;  ^<F9>^ печать списка пациентов' )
   Return Nil
 
 // 13.08.25
@@ -335,15 +336,15 @@ function control_and_create_schet26( kod_smo )
     Elseif arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] > 0
       p_tip_reestr := 2
     Elseif ( p_tip_reestr := f_alert( { '', ;
-          PadC( 'Выберите тип реестра случаев для отправки в ТФОМС', 70, '.' ), ;
+          PadC( 'Выберите тип реестра счетов для отправки в ТФОМС', 70, '.' ), ;
           '' }, ;
-          { ' Реестр ~обычный(' + lstr( arrKolSl[ 1 ] ) + ')', ' Реестр по ~диспансеризации(' + lstr( arrKolSl[ 2 ] ) + ')' }, ;
+          { ' Счет ~обычный(' + lstr( arrKolSl[ 1 ] ) + ')', ' Счет по ~диспансеризации(' + lstr( arrKolSl[ 2 ] ) + ')' }, ;
           1, 'W/RB', 'G+/RB', MaxRow() -6,, 'BG+/RB,W+/R,W+/RB,GR+/R' ) ) == 0
       rest_box( buf )
       return nil
     Endif
     mywait()
-    _k := A_SMO->kol
+    _k := A_SMO->kol   // фиксация запаса
     A_SMO->kol := 0
     A_SMO->summa := 0
     A_SMO->min_date := SToD( StrZero( A_SMO->nyear, 4 ) + StrZero( A_SMO->nmonth, 2 ) + '01' )
@@ -435,7 +436,12 @@ function control_and_create_schet26( kod_smo )
         hb_vfErase( 'mem:tmp.ntx' )
 */
 
+// НЕПОНЯТКА ЮРА
         A_SMO->kol := _k - A_SMO->kol
+        if A_SMO->kol < 1
+          // если все ЛУ включены - сумму НУЛИМ
+          A_SMO->summa := 0
+        endif  
 
 //        dbSelectArea( 'tmpb' )
 //        Delete For yes_del

@@ -452,9 +452,9 @@ Function f1_view_list_reestr( oBrow )
           iif( Empty( rees->date_out ), { 3, 4 }, { 1, 2 } ), ;
             { 5, 6 } ), ;
         iif( rees->res_tfoms == 0, { 1, 2 }, ;      // ответ не зачитан
-          iif( rees->res_tfoms == 1, { 7, 8 }, ;    // ответ без ошибок
-            iif( rees->res_tfoms == 2, { 5, 6 }, ;  // ответ с ошибками на весь файл
-              { 3, 4 } ) ) ) ) }                    // ответ с ошибками в записях реестра
+          iif( rees->res_tfoms == 1, { 3, 4  }, ;    // ответ без ошибок { 7, 8 }
+            iif( rees->res_tfoms == 2, { 7, 8  }, ;  // ответ с ошибками на весь файл { 5, 6 }
+              { 5, 6 } ) ) ) ) }                    // ответ с ошибками в записях реестра   { 3, 4 } 
 
 //{ '═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R, G+/RB+, GR+/B', .t., 180 }
 //        iif( rees->res_tfoms == 1, { 3, 2 }, { 1, 2 } ) ) }
@@ -521,7 +521,7 @@ Function f11_view_list_reestr()
     Endif
   endif
 
-  Return PadR( s, 9 ) //  10 )
+  Return PadR( s, 10 ) //  10 ) вернул 10 ЮРА
 
 
 // 14.02.26
