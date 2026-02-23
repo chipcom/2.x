@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 22.02.26 ДВН - добавление или редактирование случая (листа учета)
+// 23.02.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -176,7 +176,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   ASize( mm_otkaz1, 3 )
   Private mm_otkaz0 := AClone( mm_otkaz )
   ASize( mm_otkaz0, 2 )
-      
+
+  dvn_arr_usl :=dvn_arr_usl( MK_DATA, m1mobilbr )
+  dvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
+  
 //  If kod_kartotek == 0 // добавление в картотеку
   If kod_kartotek >= 0 // работаем из картотеки
     If kod_kartotek == 0 // добавление в картотеку
