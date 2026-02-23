@@ -310,8 +310,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     ah := {}
     Select HUMAN
     Set Index to ( dir_server() + 'humankk' )
-    find ( Str( mkod_k, 7 ) )
-    Do While human->kod_k == mkod_k .and. !Eof()
+    human->( dbSeek( Str( mkod_k, 7 ) ) )    //  find ( Str( mkod_k, 7 ) )
+    Do While human->kod_k == mkod_k .and. ! human->( Eof() )
       If human_->oplata != 9 .and. human_->NOVOR == 0 .and. RecNo() != Loc_kod
         If is_death( human_->RSLT_NEW ) .and. Empty( a_smert )
           a_smert := { 'Данный больной умер!', ;
@@ -322,7 +322,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       Select HUMAN
-      Skip
+      human->( dbSkip() )   //  Skip
     Enddo
     Set Index To
     If Len( ah ) > 0
@@ -434,7 +434,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         metap := 1
       Elseif metap == 5
         func_error( 4, 'Это второй этап диспансеризации раз в 2 года - удалите этот случай!' )
-        Close databases
+        dbCloseAll()    //  Close databases
         Return Nil
       Endif
     Endif
@@ -450,10 +450,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     afillall( larr, 0 )
     r_use( dir_server() + 'uslugi', , 'USL' )
     use_base( 'human_u' )
-    find ( Str( Loc_kod, 7 ) )
-iii := 0
-    Do While hu->kod == Loc_kod .and. !Eof()
-iii++
+    hu->( dbSeek( Str( Loc_kod, 7 ) ) )   //  find ( Str( Loc_kod, 7 ) )
+    Do While hu->kod == Loc_kod .and. ! hu->( Eof() )
       usl->( dbGoto( hu->u_kod ) )
       If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, mk_data ) )
         lshifr := usl->shifr
@@ -632,7 +630,7 @@ iii++
     msmo := '34'
   Endif
   is_talon := .t.
-  Close databases
+  dbCloseAll()    //  Close databases
   fv_date_r( iif( Loc_kod > 0, mn_data, ) )
   MFIO_KART := _f_fio_kart()
   mndisp    := inieditspr( A__MENUVERT, mm_ndisp_dvn(), metap )
@@ -718,7 +716,7 @@ iii++
   make_diagp( 1 )  // сделать 'шестизначные' диагнозы
   Private num_screen := 1
   Do While .t.
-    Close databases
+    dbCloseAll()    //  Close databases
     DispBegin()
     If metap == 2 .and. num_screen == 2
       hS := 30
@@ -1251,8 +1249,8 @@ iii++
           Endif
           If i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
             Select P2
-            find ( Str( &mvart, 5 ) )
-            If Found()
+            p2->( dbSeek( Str( &mvart, 5 ) ) )   //   find ( Str( &mvart, 5 ) )
+            If p2->( Found() )
               arr_osm1[ i, 1 ] := p2->kod
             Endif
             If ValType( ar[ 11 ] ) == 'A' // специальность
@@ -1274,15 +1272,15 @@ iii++
 //            endif
           Else
             Select P2
-            find ( Str( &mvart, 5 ) )
-            If Found()
+            p2->( dbSeek( Str( &mvart, 5 ) ) )   //   find ( Str( &mvart, 5 ) )
+            If p2->( Found() )
               arr_osm1[ i, 1 ] := p2->kod
               arr_osm1[ i, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
             Endif
             If !Empty( &mvara )
               Select P2
-              find ( Str( &mvara, 5 ) )
-              If Found()
+              p2->( dbSeek( Str( &mvara, 5 ) ) )   //   find ( Str( &mvara, 5 ) )
+              If p2->( Found() )
                 arr_osm1[ i, 3 ] := p2->kod
               Endif
             Endif
@@ -1339,8 +1337,8 @@ iii++
             Else
               arr_osm1[ i, 6 ] := &mvarz
               Select MKB_10
-              find ( PadR( arr_osm1[ i, 6 ], 6 ) )
-              If Found() .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
+              mkb_10->( dbSeek( PadR( arr_osm1[ i, 6 ], 6 ) ) ) //  find ( PadR( arr_osm1[ i, 6 ], 6 ) )
+              If mkb_10->( Found() ) .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
                 fl := func_error( 4, 'Несовместимость диагноза по полу ' + arr_osm1[ i, 6 ] )
               Endif
             Endif
@@ -1500,8 +1498,8 @@ iii++
             MSOPUT_B1 := arr_diag[ i, 1 ]
           Endif
           Select MKB_10
-          find ( PadR( arr_diag[ i, 1 ], 6 ) )
-          If Found()
+          mkb_10->( dbSeek( PadR( arr_diag[ i, 1 ], 6 ) ) ) //  find ( PadR( arr_diag[ i, 1 ], 6 ) )
+          If mkb_10->( Found() )
             If !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
               fl := func_error( 4, 'несовместимость диагноза по полу ' + AllTrim( arr_diag[ i, 1 ] ) )
             Endif
@@ -1755,17 +1753,17 @@ iii++
       //
       use_base( 'human' )
       If Loc_kod > 0
-        find ( Str( Loc_kod, 7 ) )
+        human->( dbSeek( Str( Loc_kod, 7 ) ) )    //  find ( Str( Loc_kod, 7 ) )
         mkod := Loc_kod
         g_rlock( 'forever' )
       Else
         add1rec( 7 )
-        mkod := RecNo()
+        mkod := human->( RecNo() )
         Replace human->kod With mkod
       Endif
       Select HUMAN_
       Do While human_->( LastRec() ) < mkod
-        Append Blank
+        human_->( dbAppend() )    //  Append Blank
       Enddo
       Goto ( mkod )
       g_rlock( 'forever' )
@@ -1883,8 +1881,8 @@ iii++
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server() + 'mo_hismo', , 'SN' )
         Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
-        find ( Str( mkod, 7 ) )
-        If Found()
+        sn->( dbSeek( Str( mkod, 7 ) ) )   //  find ( Str( mkod, 7 ) )
+        If sn->( Found() )
           If fl_nameismo
             g_rlock( 'forever' )
             sn->smo_name := mnameismo
@@ -1962,12 +1960,12 @@ iii++
       Endif
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.
-      Close databases
+      dbCloseAll()    //  Close databases
       stat_msg( 'Запись завершена!', .f. )
     Endif
     Exit
   Enddo
-  Close databases
+  dbCloseAll()    //  Close databases
   SetColor( tmp_color )
   RestScreen( buf )
   chm_help_code := tmp_help

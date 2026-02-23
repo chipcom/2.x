@@ -4287,35 +4287,35 @@ Function verify_sluch( fl_view, ft )
         Endif
       Next
     Elseif eq_any( metap, 2, 5 ) // поверка на обязательное сочетание услуг второго этапа
-      ar := Array( Len( dvn_2_etap ), 2 )
+      ar := Array( Len( dvn_2_etap() ), 2 )
       afillall( ar, 0 )
       For i := 1 To Len( au_lu )
         lshifr := AllTrim( au_lu[ i, 1 ] )
-        For j := 1 To Len( dvn_2_etap )
-          If AScan( dvn_2_etap[ j, 1 ], lshifr ) > 0 .and. Between( mdvozrast, dvn_2_etap[ j, 3 ], dvn_2_etap[ j, 4 ] )
+        For j := 1 To Len( dvn_2_etap() )
+          If AScan( dvn_2_etap()[ j, 1 ], lshifr ) > 0 .and. Between( mdvozrast, dvn_2_etap()[ j, 3 ], dvn_2_etap()[ j, 4 ] )
             ar[ j, 1 ] := 1
-          Elseif AScan( dvn_2_etap[ j, 2 ], lshifr ) > 0 .and. Between( mdvozrast, dvn_2_etap[ j, 3 ], dvn_2_etap[ j, 4 ] )
+          Elseif AScan( dvn_2_etap()[ j, 2 ], lshifr ) > 0 .and. Between( mdvozrast, dvn_2_etap()[ j, 3 ], dvn_2_etap()[ j, 4 ] )
             ar[ j, 2 ] := 1
           Endif
         Next
       Next
-      For j := 1 To Len( dvn_2_etap )
+      For j := 1 To Len( dvn_2_etap() )
         If Empty( ar[ j, 1 ] ) .and. !Empty( ar[ j, 2 ] )
-          If Len( dvn_2_etap[ j, 2 ] ) == 1
-            s := 'для услуги ' + dvn_2_etap[ j, 2, 1 ]
+          If Len( dvn_2_etap()[ j, 2 ] ) == 1
+            s := 'для услуги ' + dvn_2_etap()[ j, 2, 1 ]
           Else
-            s := 'для услуг ' + print_array( dvn_2_etap[ j, 2 ] )
+            s := 'для услуг ' + print_array( dvn_2_etap()[ j, 2 ] )
           Endif
           s += ' обязательно наличие услуги '
-          If Len( dvn_2_etap[ j, 1 ] ) == 1
-            s += dvn_2_etap[ j, 1, 1 ]
+          If Len( dvn_2_etap()[ j, 1 ] ) == 1
+            s += dvn_2_etap()[ j, 1, 1 ]
           Else
-            s += print_array( dvn_2_etap[ j, 1 ] )
+            s += print_array( dvn_2_etap()[ j, 1 ] )
           Endif
-          s += ' (в возрасте от ' + lstr( dvn_2_etap[ j, 3 ] ) + ' до ' + lstr( dvn_2_etap[ j, 4 ] ) + ' лет)'
+          s += ' (в возрасте от ' + lstr( dvn_2_etap()[ j, 3 ] ) + ' до ' + lstr( dvn_2_etap()[ j, 4 ] ) + ' лет)'
           AAdd( ta, s )
           // elseif !empty(ar[j, 1]) .and. empty(ar[j, 2])
-          // aadd(ta, 'для услуги ' + print_array(dvn_2_etap[j, 1]) + ' обязательно наличие  услуг ' + print_array(dvn_2_etap[j, 2]))
+          // aadd(ta, 'для услуги ' + print_array(dvn_2_etap()[j, 1]) + ' обязательно наличие  услуг ' + print_array(dvn_2_etap()[j, 2]))
         Endif
       Next
     Endif
