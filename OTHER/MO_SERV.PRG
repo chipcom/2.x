@@ -57,13 +57,16 @@ Function f_import( k )
   Else
     Do Case
     Case k == 1
-      mas_pmt := { "Импорт ~случаев ОМС", ;
+      mas_pmt := { ;
+        "Импорт ~случаев ОМС", ;
         "Инте~грация с SDS", ;
         "Импорт из ~флюоротеки" }
-      mas_msg := { "Импорт случаев ОМС (листов учёта) из других программ (в формате ЧИП плюс)", ;
+      mas_msg := { ;
+        "Импорт случаев ОМС (листов учёта) из других программ (в формате ЧИП плюс)", ;
         "Интеграция с программой Smart Delta Systems", ;
         'Импорт данных из программы "Флюоротека" фирмы "ЧИП плюс"' }
-      mas_fun := { "f_import(11)", ;
+      mas_fun := { ;
+        "f_import(11)", ;
         "f_import(12)", ;
         "f_import(13)" }
       popup_prompt( T_ROW, T_COL + 5, si1, mas_pmt, mas_msg, mas_fun )
@@ -549,12 +552,13 @@ Function f2_impxml_from_lis( ta )
 
   Return f2_import_from_lis( 2 )
 
-// 28.04.20
+// 22.02.26
 Function f2_import_from_lis( par )
 
   Static siu := 0, jsiu := 0
   Local i, j, k, fl, afio[ 3 ], mfio, aerr := {}, tmp_arr := {}, arr_unit, lvzros_reb, i_738, i_739
   Local t1, t2, t3, t4, ku := 0, ku1 := 0, is_mgi, ko := Len( arr_order )
+  Local mo_pr_human := ""
 
   t1 := Seconds()
   ++ip
@@ -597,6 +601,7 @@ Function f2_import_from_lis( par )
       AAdd( aerr, "PAT=" + arr_pac[ LIS_KOD_AK ] + ' "' + mfio + '" (ORDER=' + lstr( arr_order[ j, LISS_KOD ] ) + ')' )
       Return aerr
     Else
+      mo_pr_human := arr_order[ j, LISS_MO ]
       arr_order[ j, LISS_MO ] := ret_mo( arr_order[ j, LISS_MO ] )[ _MO_KOD_TFOMS ]
     Endif
     // asort(arr_order[j,LISS_USL],,,{|x,y| iif(x[2] == y[2], fsort_usl(x[1]) < fsort_usl(y[1]), x[2] < y[2])})
@@ -904,7 +909,7 @@ Function f2_import_from_lis( par )
       endif*/
       human->VZ         :=  6 // 'N',   2, 0 }, ; // Вид занятости, указывается в соответствии со справочником V039 ФФОМС - прочие
       human->MOP        :=  1 // 'N',   3, 0 }, ; // Классификатор мест обращений (посещений) (KMOP) V040 - поликлиника
-      human->MO_PR      :=  arr_order[ j, LISS_MO ] //  с  6, 0 }  ; // Код МО, выбранной застрахованным лицом для получения первичной медикосанитарной помощи по справочнику F032
+      human->MO_PR      :=  mo_pr_human //  с  6, 0 }  ; // Код МО, выбранной застрахованным лицом для получения первичной медикосанитарной помощи по справочнику F032
        //
       human_->SMO       := kart_->SMO
       human_->VPOLIS    := kart_->VPOLIS
@@ -2907,7 +2912,8 @@ Function f_create_military()
     t_arr[ BR_TITUL_COLOR ] := "B/BG"
     t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', "N/BG,W+/N,B/BG,W+/B", .t. }
     blk := {|| iif( tmp->is, { 1, 2 }, { 3, 4 } ) }
-    t_arr[ BR_COLUMN ] := { { ' ', {|| iif( tmp->is, '', ' ' ) }, blk }, ;
+    t_arr[ BR_COLUMN ] := { ;
+      { ' ', {|| iif( tmp->is, '', ' ' ) }, blk }, ;
       { " Наименование", {|| tmp->name }, blk }, ;
       { " ", {|| iif( tmp->tip == 3, " комитет", "компания" ) }, blk } }
     t_arr[ BR_EDIT ] := {| nk, ob| f1create_military( nk, ob, "edit" ) }
@@ -2995,7 +3001,8 @@ Function f_create_military()
       n_file := "V_" + glob_mo[ _MO_KOD_TFOMS ] + "_" + DToS( sys_date )
       Delete File ( n_file + sxls() )
       delfrfiles()
-      adbf := { { "name_f", "C", 30, 0 }, ;
+      adbf := { ;
+        { "name_f", "C", 30, 0 }, ;
         { "codemo", "C", 6, 0 }, ;
         { "name", "C", 60, 0 }, ;
         { "period", "C", 60, 0 }, ;
@@ -3008,14 +3015,15 @@ Function f_create_military()
       frt->name   := glob_mo[ _MO_SHORT_NAME ]
       frt->data   := full_date( sys_date )
       frt->period := arr_m[ 4 ]
-      adbf := { { "nomer", "N", 4, 0 }, ;
+      adbf := { ;
+        { "nomer", "N", 4, 0 }, ;
         { "fam", "C", 50, 0 }, ;
         { "im", "C", 50, 0 }, ;
         { "ot", "C", 50, 0 }, ;
         { "date_r", "C", 10, 0 }, ;
         { "N_DATA", "C", 10, 0 }, ; // дата начала лечения
-      { "K_DATA", "C", 10, 0 }, ; // дата окончания лечения
-      { "name", "C", 40, 0 } }
+        { "K_DATA", "C", 10, 0 }, ; // дата окончания лечения
+        { "name", "C", 40, 0 } }
       dbCreate( fr_data, adbf )
       Use ( fr_data ) New Alias FRD
       Select TMP1
@@ -3376,40 +3384,53 @@ Function f1nastr_all( nameTask, nTask )
   Local str_sem := "Редактирование общих настроек задачи " + lstr( nTask )
 
   If g_slock( str_sem )
-    Private mm_uchastok := { { 'Не работаем с участком', 0 }, ;
+    Private mm_uchastok := { ;
+      { 'Не работаем с участком', 0 }, ;
       { 'буква + № участка + № в участке "У25/123"', 1 }, ;
       { 'буква + № участка + код пациента "У25/456789"', 2 }, ;
       { 'буква + № участка + номер АК МИС "У25/765432"', 3 } }
-    Private mm_oplata := { { "в зависимости от цены услуги (!рекомендуется!)", 5 }, ;
+    Private mm_oplata := { ;
+      { "в зависимости от цены услуги (!рекомендуется!)", 5 }, ;
       { "в зависимости от стоимости УЕТ",                6 }, ;
       { "% от услуги + зависимость от стоимости УЕТ",    7 } }
-    Private mm_h_otd := { { "с выбором отделения", 1 }, ;
+    Private mm_h_otd := { ;
+      { "с выбором отделения", 1 }, ;
       { "без выбора отделения", 2 } }
-    Private mm_close := { { "платные, ДМС и в/зачет вручную", 1 }, ;
+    Private mm_close := { ;
+      { "платные, ДМС и в/зачет вручную", 1 }, ;
       { "платные и в/зачет вручную, ДМС по оплате", 0 } }
-    Private mm_many_uch := { { "из списка отделений выбранного учреждения", 1 }, ;
+    Private mm_many_uch := { ;
+      { "из списка отделений выбранного учреждения", 1 }, ;
       { "из списка отделений всех доступных учреждений", 2 } }
-    Private mm_num_lu := { { "не работаем с номерами листов учета", 0 }, ;
+    Private mm_num_lu := { ;
+      { "не работаем с номерами листов учета", 0 }, ;
       { "сквозной номер л/у равен номеру записи", 1 } }
-    Private mm_kassa := { { "Нет кассового аппарата", 0 }, ;
+    Private mm_kassa := { ;
+      { "Нет кассового аппарата", 0 }, ;
       { "Кассовый аппарат: Штрих-ФР-Ф", 1 } }
     Private mm_pol    := { { 'Выбор из меню', 1 }, { 'Ввод буквы вручную', 2 } }
     Private mm_ordusl := { { "По дате", 1 }, { "По шифру услуги", 2 } }
     Private mm_kodkrt := { { "Не выводить", 1 }, { "Выводить", 2 } }
-    Private mm_otdusl := { { "Ввод отделения вручную", 1 }, ;
+    Private mm_otdusl := { ;
+      { "Ввод отделения вручную", 1 }, ;
       { "Автоматический выбор отделения по месту работы персонала", 2 } }
     Private mm_stalon := { { 'Выбор из меню', 1 }, { 'Ввод числового значения', 2 } }
     Private mm_zav_l  := { { "да", 1 }, { "нет", 2 }, { "запоминать предыдущий", 3 } }
     Private mm_da_net := { { "нет", 1 }, { "да ", 2 } }
-    Private mm_otdort := { { "Ввод отделения вручную", 1 }, ;
+    Private mm_otdort := { ;
+      { "Ввод отделения вручную", 1 }, ;
       { "Использовать отделение по УМОЛЧАНИЮ", 2 } }
-    Private mm_ort_f39 := { { "Три диагноза + итого протезов", 0 }, ;
+    Private mm_ort_f39 := { ;
+      { "Три диагноза + итого протезов", 0 }, ;
       { "Семь диагнозов + уточнение типов протезов", 1 } }
-    Private mm_v_034 := { { "краткое наименование", 0 }, ;
+    Private mm_v_034 := { ;
+      { "краткое наименование", 0 }, ;
       { "полное наименование", 1 } }
-    Private mm_v_methodinj := { { "на русском", 0 }, ;
+    Private mm_v_methodinj := { ;
+      { "на русском", 0 }, ;
       { "на английском", 1 } }
-    Private mm_dms := { { "внутренние", 0 }, ;
+    Private mm_dms := { ;
+      { "внутренние", 0 }, ;
       { "ФФОМС", 1 } }
     private mm_danet := { { 'да', 1 }, { 'нет', 0 } }
     private mm_versionTNM := { { 'версия 7', 7 }, { 'версия 8', 8 } }
@@ -4166,7 +4187,8 @@ Function semaphor_tools_ini( k )
 // 17.07.25
 Function tools_ini_oms( reg, k1, k2, fll )
 
-  Static arr := { { "okato_umolch",  "C" }, ;
+  Static arr := { ;
+    { "okato_umolch",  "C" }, ;
     { "mem_smp_input", "N" }, ;
     { "mem_smp_tel",   "N" }, ;
     { "mem_dom_aktiv", "N" }, ;
@@ -4279,7 +4301,8 @@ Function tools_ini_oms( reg, k1, k2, fll )
 //
 Function tools_ini_pp( reg, k1, k2, fll )
 
-  Static arr := { { "pp_NOVOR",    "N" }, ;
+  Static arr := { ;
+    { "pp_NOVOR",    "N" }, ;
     { "pp_KEM_NAPR", "C" }, ;
     { "pp_POB_D_LEK", "N" }, ;
     { "pp_KOD_VR",   "N" }, ;
@@ -4316,7 +4339,8 @@ Function tools_ini_pp( reg, k1, k2, fll )
 //
 Function tools_ini_platn( reg, k1, k2, fll )
 
-  Static arr := { { "mem_anonim", "N" }, ;
+  Static arr := { ;
+    { "mem_anonim", "N" }, ;
     { "mem_naprvr", "N" }, ;
     { "mem_edit_s", "N" }, ;
     { "mem_plsoput", "N" }, ;
@@ -4361,7 +4385,8 @@ Function tools_ini_platn( reg, k1, k2, fll )
 //
 Function tools_ini_orto( reg, k1, k2, fll )
 
-  Static arr := { { "mem_ort_na", "C" }, ;
+  Static arr := { ;
+    { "mem_ort_na", "C" }, ;
     { "mem_edit_s", "N" }, ;
     { "mem_ort_sl", "C" }, ;
     { "mem_ort_ysl", "N" }, ;
@@ -4426,9 +4451,11 @@ function mm_oms_pole()
 Function nastr_rab_mesto()
 
   Static group_ini := "RAB_MESTO"
-  Static mm_wdir := { { 'в папку рабочего каталога "OwnChipArchiv"', 0 }, ;
+  Static mm_wdir := { ;
+    { 'в папку рабочего каталога "OwnChipArchiv"', 0 }, ;
     { "в другое место", 1 } }
-  Static mm_wokato := { { 'использовать значение из "Общих настроек"', 0 }, ;
+  Static mm_wokato := { ;
+    { 'использовать значение из "Общих настроек"', 0 }, ;
     { "своя настройка на данном рабочем месте", 1 } }
   Local ar, sr, mm_tmp := {}
 

@@ -3323,7 +3323,7 @@ Function read_csv_file_otkrep( cFile, aerr )
 #define CSV_A_DT_MO  9
 #define CSV_A_CERR  10
 
-// 30.03.23 чтение в память и анализ CSV-файла ответа на запрос для сверки
+// 21.02.26 чтение в память и анализ CSV-файла ответа на запрос для сверки
 Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
@@ -3349,6 +3349,13 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
   // Реестр сведений о прикреплении
   g_use( dir_server() + 'mo_krtr', , 'KRTR' )
   Goto ( nkod_reestr )
+   // список организаций 
+  r_use( dir_exe() + '_mo_mo', , '_mo_mo' )
+  Index On Padr( mcod, 6 ) to ( cur_dir() + "tmp_mo" )
+  // Для коррекции HUMAN
+  use_base( 'HUMAN' )
+  select HUMAN
+  set order to 2 
   // Список отосланных и принятых CSV-файлов
   g_use( dir_server() + 'mo_krtf', , 'KRTF' )
   Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_krtf' )
@@ -3427,8 +3434,60 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
       krtp->D_PRIK1 := iif( eq_any( mstatus, 1, 3 ), arr_csv[ i, CSV_A_DT ], CToD( '' ) )
       Select KART
       Goto ( krtp->KOD_K )
+      // 23.02.26
+      if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
+        if kart->polis != arr_csv[ i, CSV_A_ENP ] .or. kart->kod_mis != arr_csv[ i, CSV_A_ENP ]
+          g_rlock( forever )  
+          kart->polis := arr_csv[ i, CSV_A_ENP ]
+          kart->kod_mis := arr_csv[ i, CSV_A_ENP ]
+        endif  
+      endif
+      //
+   
+      Select KART_
+      g_rlock( forever ) 
+      if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
+        if kart_->npolis != arr_csv[ i, CSV_A_ENP ] .or. kart_->spolis != "" .or. kart_->vpolis != 3
+          kart_->npolis := arr_csv[ i, CSV_A_ENP ]
+          kart_->spolis := ""
+          kart_->vpolis := 3
+        endif
+      endif  
+        // HUMAN
+      select HUMAN 
+      find ( str(kart->kod,7))
+      do while kart->kod == human->kod_k .and. !eof()
+        if year(human->k_data) > 2025 
+          select human_
+          goto (human->kod)
+          if human_->schet_zap < 1 .and. human_->reestr < 1 // случ не в счете и не в реестре
+            fl_ZAP := .F.
+            if human_->vpolis == 3 .and. human_->npolis == arr_csv[ i, CSV_A_ENP ] 
+                // всё совпадает - даже не блокируем для ускорения
+            else
+              g_rlock( forever ) 
+              if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15 
+                human_->npolis := arr_csv[ i, CSV_A_ENP ]
+                //human_->spolis := "" - думаю не надо - устарело
+                human_->vpolis := 3
+              endif  
+              unlock
+            endif 
+            if len(alltrim(old_mo[i])) > 5 .and.  human->mo_pr != alltrim(old_mo[i])
+              select HUMAN 
+              g_rlock( forever ) 
+              human->mo_pr :=  alltrim(old_mo[i])
+              unlock
+            endif  
+          endif   
+        endif  
+        select HUMAN
+        skip 
+      enddo  
+      //
       s := lstr( arr_csv[ i, CSV_A_NREC ] ) + '. ' + AllTrim( kart->fio ) + ;
         ' (д.р.' + full_date( kart->date_r ) + ') '
+      select KART_
       fl_et := .f.
       If mstatus == 2  // не прикреплён ни к кому
         ++kol2
@@ -3557,7 +3616,6 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
     StrFile( hb_eol() + ;
       'Обработано всего       : ' + lstr( k ) + hb_eol(), cFileProtokol, .t. )
     StrFile( 'Прикреплено к нашей  МО: ' + lstr( kol1 ) + hb_eol(), cFileProtokol, .t. )
-    // strfile('---прикреплено к нашей  МО: ' + lstr(kol4) + hb_eol(), cFileProtokol, .t.)
     StrFile( 'Прикреплено к другим МО: ' + lstr( kol3 ) + hb_eol(), cFileProtokol, .t. )
     ASort( au, , , {| x, y| x[ 1 ] < y[ 1 ] } )
     For j := 1 To Len( au )
@@ -3593,11 +3651,12 @@ Return Nil
 
 
   
-  // 12.02.26 чтение в память и анализ CSV-файла ответа на запрос для НОВОЙ сверки 
+  // 23.02.26 чтение в память и анализ CSV-файла ответа на запрос для НОВОЙ сверки 
 Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
     fl_et, au := {}, mmo_pr, md_prik, buf := save_maxrow(), old_mo := {}
+  Local   fl_ZAP := .F. 
 
   stat_msg( 'Предварительная обработка' )
   StrFile( Space( 10 ) + 'Протокол обработки для файла ответа на запрос по Прикреплению' + ;
@@ -3702,35 +3761,34 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
       find ( Str( arr_csv[ i, CSV_A_NREC ], 6 ) )
       g_rlock( forever )
       krtp->OPLATA := mstatus
-      //if arr_csv[ i, CSV_A_UCH ] <= 99
-      //  krtp->UCHAST   := arr_csv[ i, CSV_A_UCH ] // номер участка
-      //else
-      //  krtp->UCHAST  := 0
-      //  arr_csv[ i, CSV_A_UCH ] := 0
-      //endif  
-      //krtp->SNILS_VR := arr_csv[ i, CSV_A_VRACH ] // СНИЛС участкового врача
-      //krtp->KOD_PODR := arr_csv[ i, CSV_A_PODR ] // код подразделения по паспорту ЛПУ
       krtp->D_PRIK1 := iif( eq_any( mstatus, 1, 3 ), arr_csv[ i, CSV_A_DT ], CToD( '' ) )
-      // добавляем СМО
+      // пишем СМО в картотеку  проверим - что пришло еще раз 
+      // пишем ТОЛЬКО РАЗНОЕ
       Select KART
       Goto ( krtp->KOD_K )
-      // пишем СМО в картотеку 
-      //проверим - что пришло еще раз
-      g_rlock( forever )    
       if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
-        kart->polis := arr_csv[ i, CSV_A_ENP ]
-        kart->kod_mis := arr_csv[ i, CSV_A_ENP ]
+        if kart->polis != arr_csv[ i, CSV_A_ENP ] .or. kart->kod_mis != arr_csv[ i, CSV_A_ENP ]
+          g_rlock( forever )  
+          kart->polis := arr_csv[ i, CSV_A_ENP ]
+          kart->kod_mis := arr_csv[ i, CSV_A_ENP ]
+        endif  
       endif
+      //
       Select KART_
       g_rlock( forever ) 
       if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
-        kart_->npolis := arr_csv[ i, CSV_A_ENP ]
-        kart_->spolis := ""
-        kart_->vpolis := 3
+        if kart_->npolis != arr_csv[ i, CSV_A_ENP ] .or. kart_->spolis != "" .or. kart_->vpolis != 3
+          kart_->npolis := arr_csv[ i, CSV_A_ENP ]
+          kart_->spolis := ""
+          kart_->vpolis := 3
+        endif
       endif  
       if len(alltrim(arr_csv[ i, CSV_A_SMO ])) > 4
-        kart_->smo := alltrim(arr_csv[ i, CSV_A_SMO ])
+        if kart_->smo != alltrim(arr_csv[ i, CSV_A_SMO ])
+           kart_->smo := alltrim(arr_csv[ i, CSV_A_SMO ])
+        endif   
       endif
+      // HUMAN
       select HUMAN 
       find ( str(kart->kod,7))
       do while kart->kod == human->kod_k .and. !eof()
@@ -3738,17 +3796,22 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
           select human_
           goto (human->kod)
           if human_->schet_zap < 1 .and. human_->reestr < 1 // случ не в счете и не в реестре
-            g_rlock( forever ) 
-            if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
-              human_->npolis := arr_csv[ i, CSV_A_ENP ]
-              //human_->spolis := "" - думаю не надо - устарело
-              human_->vpolis := 3
-            endif
-            if len(alltrim(arr_csv[ i, CSV_A_SMO ])) > 4
-              human_->smo    := alltrim(arr_csv[ i, CSV_A_SMO ])
-            endif        
-            unlock
-            if len(alltrim(old_mo[i])) > 5
+            fl_ZAP := .F.
+            if human_->vpolis == 3 .and. human_->npolis == arr_csv[ i, CSV_A_ENP ] .and.  human_->smo == alltrim(arr_csv[ i, CSV_A_SMO ])
+                // всё совпадает - даже не блокируем для ускорения
+            else
+              g_rlock( forever ) 
+              if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15 
+                human_->npolis := arr_csv[ i, CSV_A_ENP ]
+                //human_->spolis := "" - думаю не надо - устарело
+                human_->vpolis := 3
+              endif  
+              if len(alltrim(arr_csv[ i, CSV_A_SMO ])) > 4
+                human_->smo    := alltrim(arr_csv[ i, CSV_A_SMO ])
+              endif        
+              unlock
+            endif 
+            if len(alltrim(old_mo[i])) > 5 .and.  human->mo_pr != alltrim(old_mo[i])
               select HUMAN 
               g_rlock( forever ) 
               human->mo_pr :=  alltrim(old_mo[i])
@@ -3765,56 +3828,9 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
         ' (д.р.' + full_date( kart->date_r ) + ') '
       fl_et := .f.
       If mstatus == 2  // не прикреплён ни к кому
-       /*  ++kol2
-        If Empty( Len( arr_csv[ i, CSV_A_CERR ] ) )
-          AAdd( arr_csv[ i, CSV_A_CERR ], -99 )
-        Endif
-        If !Empty( arr_csv[ i, CSV_A_PID ] ) // всё-таки найден в регистре застрахованных
-          Select kart_et
-          find ( Str( arr_csv[ i, CSV_A_PID ], 10 ) )
-          If Found()
-            g_rlock( forever )
-            kart_et->kod_mis := arr_csv[ i, CSV_A_ENP ]
-            kart_et->MO_PR   := '' // не прикреплён ни к кому
-            fl_et := .t.
-          Endif
-          Select kart_etk
-          find ( Str( kart->kod, 7 ) )
-          If Found()
-            deleterec( .t. ) // если ни к кому не прикреплён, - удалить совсем
-          Endif
-        Endif
-        */
+        //
       Else 
-        // !emptyany(arr_csv[i, CSV_A_MO], arr_csv[i, CSV_A_DT])
-       // If mstatus == 1 // прикреплен к нам - ПОКА НЕ ДЕЛАЕМ
-          /*        
-           fl_et := f_put_et_etk( arr_csv[ i, CSV_A_PID ], arr_csv[ i, CSV_A_ENP ], ;
-            arr_csv[ i, CSV_A_DT_MO ], 0, ;
-            glob_mo()[ _MO_KOD_TFOMS ], 0, ;
-            kart->kod, 1 )
-           */
-         //Elseif arr_csv[ i, CSV_A_PID ] > 0  // прикреплён не к нам
-         /* Select kart_et
-          find ( Str( arr_csv[ i, CSV_A_PID ], 10 ) )
-          If Found()
-            g_rlock( forever )
-            kart_et->kod_mis := arr_csv[ i, CSV_A_ENP ]
-            kart_et->DATE_PR := arr_csv[ i, CSV_A_DT_MO ]
-            kart_et->MO_PR   := arr_csv[ i, CSV_A_MO ]
-            fl_et := .t.
-          Endif
-          Select kart_etk
-          find ( Str( kart->kod, 7 ) )
-          If Found()
-            g_rlock( forever )
-            kart_etk->kod_tf := arr_csv[ i, CSV_A_PID ]
-            kart_etk->PRIOR := 0 // приоритет = 0
-          Endif
-          */
-        //Endif
-       
-       // занесём указанное прикрепление
+        // занесём указанное прикрепление
         Select KARTP
         find ( Str( krtp->KOD_K, 7 ) + DToS( arr_csv[ i, CSV_A_DT_MO ] ) )
         If Found()
@@ -3826,11 +3842,6 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
         Endif
         kartp->DFILE := krtr->DFILE
         kartp->MO_PR := arr_csv[ i, CSV_A_MO ]
-        //If kartp->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
-        //  kartp->SNILS_VR := krtp->SNILS_VR
-        //Else
-        //  kartp->SNILS_VR := ''
-        //Endif
         If krtp->OPLATA == 1
           ++kol1
         Else
@@ -3875,7 +3886,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
         s_death, ;
         n_del, ;
         arr_csv[ i, CSV_A_MO ], arr_csv[ i, CSV_A_DT_MO ] )
-      If i % 1000 == 0
+      If i % 3000 == 0
         dbUnlockAll()
         Commit
       Endif
@@ -3895,7 +3906,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
     Commit
     StrFile( hb_eol() + ;
       'Обработано всего       : ' + lstr( k ) + hb_eol(), cFileProtokol, .t. )
-    StrFile( 'Прикреплено к нашей  МО: ' + lstr( kol1 ) + hb_eol(), cFileProtokol, .t. )
+    StrFile( 'Прикреплено к нашей  МО: ' + lstr( kol1 ) + hb_eol(), cFileProtokol, .t. ) 
     // strfile('---прикреплено к нашей  МО: ' + lstr(kol4) + hb_eol(), cFileProtokol, .t.)
     StrFile( 'Прикреплено к другим МО: ' + lstr( kol3 ) + hb_eol(), cFileProtokol, .t. )
     ASort( au, , , {| x, y| x[ 1 ] < y[ 1 ] } )
