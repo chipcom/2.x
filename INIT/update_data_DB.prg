@@ -101,7 +101,7 @@ Function update_data_db( aVersion )
 
 Return Nil
 
-// 21.02.26
+// 23.02.26
 function update_v60205()
 
   local mkod, mschet
@@ -129,14 +129,11 @@ function update_v60205()
           mschet := schet->kod
           rhum->( dbSeek( str( mkod, 6 ) ) )
           do while ! ( rhum->( Eof() ) ) .and. ( rhum->reestr == mkod )
-//            mydebug( , str( rhum->reestr, 6 ) + '-' + str( rhum->kod_hum, 7 ) + ': ' + str( rhum->rees_zap, 6 ) )
-//            mydebug( , str( rhum->reestr, 6 ) + '-' + str( rhum->kod_hum, 7 ) + ': ' + str( rhum->rees_zap, 6 ) )
             human->( dbGoto( rhum->kod_hum ) )
             if ! ( human->( Eof() )) .and. ! ( human->( Bof() ) )
               human->schet := mschet
               human_->SCHET_ZAP := rhum->REES_ZAP
             endif
-
             rhum->( dbSkip() )
           enddo
           schet->( dbSkip() )
@@ -148,7 +145,25 @@ function update_v60205()
   dbCloseAll()
   use_base( 'human', , .t. )
   index_base( 'human' )
-
+  dbCloseAll()
+// доработка для РДЛ
+  if AScan( kod_LIS(), glob_mo()[ _MO_KOD_TFOMS ] ) > 0 
+    use_base( 'human', , .t. )
+    human->( dbGoTop() )
+    do while ! human->( eof() )
+      if year( human->k_data ) > 2025
+        if len( alltrim( human->mo_pr ) ) > 5
+          if substr( alltrim( human->mo_pr ), 1, 2 ) == '34'
+            //
+          else // меняем код на федеральный
+            human->mo_pr := ret_mo( human->mo_pr )[ _MO_KOD_FFOMS  ]
+          endif   
+        endif  
+      endif  
+      human->( dbSkip() )
+    enddo  
+    dbCloseAll()
+  endif
   return nil
 
 // 15.02.26
