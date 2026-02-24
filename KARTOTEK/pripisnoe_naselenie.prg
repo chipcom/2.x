@@ -6,7 +6,7 @@
 // 09.02.26
 Function pripisnoe_naselenie( k )
   Static si1 := 1, si2 := 1, si3 := 1
-  Local mas_pmt, mas_msg, mas_fun, j, r, nuch, nsmo
+  Local mas_pmt, mas_msg, mas_fun, j, r
 
   Default k To 1
   Do Case
@@ -45,13 +45,16 @@ Function pripisnoe_naselenie( k )
     else
       mas_pmt := { ;
         'Просмотр ~файлов прикрепления', ;
-        'Создание файла ~сверки с ТФОМС' }
+        'Создание файла ~сверки с ТФОМС',;
+        'Создание файла ХОДАТАЙСТВА для отсылки в ТФОМС' }
       mas_msg := { ;
         'Просмотр файлов прикрепления (и ответов на них), запись файлов для ТФОМС', ;
-        'Создание файла сверки с ТФОМС по прикреплённому населению (письмо № 04-08-07)' }
+        'Создание файла сверки с ТФОМС по прикреплённому населению (письмо № 04-08-07)',;
+        'Создание файла ХОДАТАЙСТВА для отсылки в ТФОМС'   }
       mas_fun := { ;
         'pripisnoe_naselenie(11)', ;
-        'pripisnoe_naselenie(14)' }
+        'pripisnoe_naselenie(14)',;
+        'pripisnoe_naselenie(39)' }
       If T_ROW > 8
         r := T_ROW - Len( mas_pmt ) -3
       Else
@@ -136,6 +139,8 @@ Function pripisnoe_naselenie( k )
     wq_edit_uchast()
   Case k == 34
     wq_prikreplenie()
+   Case k == 39  
+   tfoms_hodatajstvo_new() 
   Endcase
   If k > 10
     j := Int( Val( Right( lstr( k ), 1 ) ) )
@@ -173,6 +178,7 @@ Function view_reestr_pripisnoe_naselenie()
 
 // 14.07.15
 Function f1_view_r_pr_nas( oBrow )
+
   Local oColumn, ;
     blk := {| _s| _s := goal_dir + AllTrim( krtr->FNAME ), ;
     iif( hb_FileExists( _s + scsv() ) .or. hb_FileExists( _s + szip() ), ;
@@ -206,6 +212,7 @@ Function f1_view_r_pr_nas( oBrow )
 
 // 03.11.14
 Function f11_view_r_pr_nas()
+  
   Local s := ''
 
   If !( hb_FileExists( goal_dir + AllTrim( krtr->FNAME ) + scsv() ) .or. ;
@@ -226,9 +233,10 @@ Function f11_view_r_pr_nas()
 
 // 24.03.15
 Function f2_view_r_pr_nas( nKey, oBrow )
+
   Local pss := Space( 10 ), tmp_pss := my_parol()
   Local ret := -1, rec := krtr->( RecNo() ), tmp_color := SetColor(), r, r1, r2, ;
-    s, buf := SaveScreen(), arr, i, k, mdate, t_arr[ 2 ], arr_pmt := {}
+    s, buf := SaveScreen(), i, t_arr[ 2 ], arr_pmt := {}
 
   krtf->( dbGoto( krtr->kod_f ) )
   Do Case
@@ -355,6 +363,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
 
 // 30.03.23
 Function f3_view_r_pr_nas( oBrow )
+
   Static si := 1, snfile := '', sarr_mo, sarr_err, sjmo, sjerr
   Local i, j, r := Row(), r1, r2, buf := save_maxrow(), fl := .f., ii, ;
     mm_func := { -1 }, mm_menu
@@ -513,8 +522,9 @@ Function f3_view_r_pr_nas( oBrow )
 
 // 04.11.14
 Function f31_view_r_pr_nas( reg, s, s1 )
+
   Local fl := .t., buf := save_maxrow(), n_file := cur_dir() + 'prikspis.txt', lmo, lerr, ;
-    i, j, k, ii, ar[ 2 ]
+    i, k, ii, ar[ 2 ]
 
   mywait()
   fp := FCreate( n_file ) ; tek_stroke := 0 ; n_list := 1
@@ -632,6 +642,7 @@ Function f31_view_r_pr_nas( reg, s, s1 )
 
 // 31.01.26
 Function preparation_for_pripisnoe_naselenie()
+
   Local i, j, k, aerr, buf := SaveScreen(), blk, t_arr[ BR_LEN ], cur_year, t_polis, ;
     str_sem := 'preparation_for_pripisnoe_naselenie'
   Local t_num := 0
@@ -1284,6 +1295,7 @@ Function preparation_for_pripisnoe_naselenie()
 
 // 11.10.15
 Function f1_p_f_pripisnoe_naselenie( aerr )
+
   Local s := Space( 80 ), lfio := '"' + AllTrim( p2->fio ) + '"'
 
   If p2->kateg != 1
@@ -1307,6 +1319,7 @@ Function f1_p_f_pripisnoe_naselenie( aerr )
 
 // 09.09.25
 Function kartoteka_z_prikreplenie()
+
   Static srec := 0
   Local blk, t_arr[ BR_LEN ]
 
@@ -1349,7 +1362,8 @@ Function kartoteka_z_prikreplenie()
 
 // 29.03.23
 Function f1_k_z_prikreplenie( nKey, oBrow, regim )
-  Local j, s, ret := -1
+
+  Local s, ret := -1
 
   If regim == 'edit' .and. nKey == K_F9
     If kart2->mo_pr == glob_mo()[ _MO_KOD_TFOMS ]
@@ -1422,6 +1436,7 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
 
 // 15.02.26 создать файл(ы) сверки
 Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
+
   Local ii := 0, s, buf := SaveScreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport
 
   If !f_esc_enter( iif(TIP_SVERKI == 1,'создания файла сверки','создания файла запроса прик-я'), .t. )
@@ -1745,13 +1760,17 @@ Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
 
 // 05.07.15 быстрое редактирование участков списком
 Function edit_uchast_spisok()
+
   Local flag := .t. // фильтр
-  Local arr_pr := { { 'к нашему МО', 0 }, ;
+  Local arr_pr := { ;
+    { 'к нашему МО', 0 }, ;
     { 'все пациенты', 1 } }
-  Local arr_sr := { { 'по ФИО', 0 }, ;
+  Local arr_sr := { ;
+    { 'по ФИО', 0 }, ;
     { 'по адресу', 1 }, ;
     { 'по месту работы', 2 } }
-  Local arr_voz := { { 'все пациенты', 0 }, ;
+  Local arr_voz := { ;
+    { 'все пациенты', 0 }, ;
     { 'взрослые', 1 }, ;
     { 'дети', 2 } }
   Local t_okato, t_rec, len_fio, buf := SaveScreen()
@@ -1932,6 +1951,7 @@ Function edit_uchast_spisok()
 
 // 29.05.15
 Function f1_vvod_uchast_spisok( oBrow )
+
   Local oColumn, blk
 
   oColumn := TBColumnNew( Center( 'ФИО', 30 ), {|| PadR( kart->fio, 30 ) } )
@@ -1957,6 +1977,7 @@ Function f1_vvod_uchast_spisok( oBrow )
 
 // 28.12.21
 Function f2_vvod_uchast_spisok( nKey, oBrow )
+
   Local j := 0, flag := -1, buf := save_maxrow(), buf1, fl := .f., ;
     nr := Row(), c1, rec, mkod, buf0, tmp_color := SetColor(), t_vr, ;
     vp := Int( Val( lstr( Day( sys_date ) ) + StrZero( Month( sys_date ), 2 ) ) )
@@ -2020,6 +2041,7 @@ Function f2_vvod_uchast_spisok( nKey, oBrow )
 Function f3_vvod_uchast_spisok( tip )
   // tip - 1 адрес
   // 2 место работы
+
   Local sh, HH := 78, name_file := cur_dir() + 'reg_prip.txt', i := 0, arr_title, s
 
   s := { 'Адрес', 'Место работы' }[ tip ]
@@ -2052,6 +2074,7 @@ Function f3_vvod_uchast_spisok( tip )
 
 // 09.09.25 Просмотр/печать прикреплённого населения
 Function spisok_pripisnoe_naselenie( par )
+
   Static sj, smo := '      '
   Local i, j, k, s, arr := {}, n_file := cur_dir() + 'pr_nas' + lstr( par ) + stxt(), ll := 0, ;
     ret_arr, sh := 120, HH := 57, buf := save_maxrow() // 81 b 80
@@ -2183,6 +2206,7 @@ Function spisok_pripisnoe_naselenie( par )
 
 // 25.03.18 Подсчёт количества прикреплённого населения по участкам
 Function kol_uch_pripisnoe_naselenie()
+  
   Local sh, HH := 60, name_file := cur_dir() + 'uch_prik.txt', arr_title, i, j, k, arr1 := {}, arr2 := {}, ;
     fl, arr, buf := save_maxrow()
 
