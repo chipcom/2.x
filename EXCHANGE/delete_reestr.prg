@@ -73,6 +73,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
     cFile := AllTrim( mo_xml->FNAME )
     mtip_in := mo_xml->TIP_IN
     dbCloseAll()
+/*
     If mtip_in == _XML_FILE_SP // возврат реестра СП и ТК
       If ( arr_f := extract_zip_xml( dir_server() + dir_XML_TF(), cFile + szip() ) ) != Nil .and. mo_lock_task( X_OMS )
         cFile += sxml()
@@ -393,7 +394,9 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
         Endif
         mo_unlock_task( X_OMS )
       Endif
-    Elseif mTIP_IN == _XML_FILE_FLK // возврат протокола ФЛК
+    Elseif mTIP_IN == _XML_FILE_FLK // возврат протокола ФЛК
+*/
+    if mTIP_IN == _XML_FILE_FLK // возврат протокола ФЛК
       If ( arr_f := extract_zip_xml( dir_server() + dir_XML_TF(), cFile + szip() ) ) != Nil .and. mo_lock_task( X_OMS )
         cFile += sxml()
         // читаем файл в память

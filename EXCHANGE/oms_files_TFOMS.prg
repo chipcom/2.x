@@ -4,11 +4,12 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 07.02.26 читать файлы из ТФОМС (или СМО)
+// 24.02.26 читать файлы из ТФОМС (или СМО)
 Function read_from_tf()
 
-  Local name_zip, _date, _time, s, buf, blk_sp_tk, fl, n, cName
+  Local name_zip, _date, _time, s, buf, fl, n, cName
   Local arr_XML_info[ 9 ], arr_f := {}, tip_csv_file := 0, kod_csv_reestr := 0
+//  local blk_sp_tk
 
   fl := .f.
   If ! currentuser():isadmin()
@@ -17,11 +18,12 @@ Function read_from_tf()
   If find_unfinished_reestr_sp_tk()
     Return func_error( 4, 'Попытайтесь снова' )
   Endif
-  Private p_var_manager := 'Read_From_TFOMS', p_ctrl_enter_sp_tk := .f.
+  Private p_var_manager := 'Read_From_TFOMS'
   Private full_zip
+//  Private p_ctrl_enter_sp_tk := .f.
 
-  blk_sp_tk := {|| p_ctrl_enter_sp_tk := .t., __Keyboard( Chr( K_ENTER ) ) }
-  SetKey( K_CTRL_ENTER, blk_sp_tk )
+//  blk_sp_tk := {|| p_ctrl_enter_sp_tk := .t., __Keyboard( Chr( K_ENTER ) ) }
+//  SetKey( K_CTRL_ENTER, blk_sp_tk )
   full_zip := manager( T_ROW, T_COL + 5, MaxRow() -2, , .t., 1, , , , '*.zip' )
   SetKey( K_CTRL_ENTER, nil )
   If !Empty( full_zip )
@@ -68,8 +70,8 @@ Function read_from_tf()
         s += 'протокола ФЛК 2026'
 //      Case arr_XML_info[ 1 ] == _XML_FILE_FLK
 //        s += 'протокола ФЛК'
-      Case arr_XML_info[ 1 ] == _XML_FILE_SP
-        s += 'реестра СП и ТК'
+//      Case arr_XML_info[ 1 ] == _XML_FILE_SP
+//        s += 'реестра СП и ТК'
       Case arr_XML_info[ 1 ] == _XML_FILE_RAK
         s += 'р-ра актов контроля'
       Case arr_XML_info[ 1 ] == _XML_FILE_RPD
@@ -91,9 +93,9 @@ Function read_from_tf()
         '', ;
         'Изменить их будет НЕВОЗМОЖНО!' }, , 'R/R*', 'N/R*' )
       fl := .t.
-      If arr_XML_info[ 1 ] == _XML_FILE_SP .and. p_ctrl_enter_sp_tk
-        fl := involved_password( 2, 'HT34M111111_' + Right( cName, 7 ), 'чтения С ОШИБКАМИ реестра СП и ТК' )
-      Endif
+//      If arr_XML_info[ 1 ] == _XML_FILE_SP .and. p_ctrl_enter_sp_tk
+//        fl := involved_password( 2, 'HT34M111111_' + Right( cName, 7 ), 'чтения С ОШИБКАМИ реестра СП и ТК' )
+//      Endif
       fl := f_esc_enter( s, .t. )
       RestScreen( buf )
       If !fl
@@ -159,8 +161,8 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
     is_err_FLK_26 := parse_protokol_flk_26( arr_f, aerr )
 
-  Elseif nTypeFile == _XML_FILE_SP
-    reestr_sp_tk_tmpfile( oXmlDoc, aerr, cReadFile )
+//  Elseif nTypeFile == _XML_FILE_SP
+//    reestr_sp_tk_tmpfile( oXmlDoc, aerr, cReadFile )
   Elseif nTypeFile == _XML_FILE_RAK
     reestr_rak_tmpfile( oXmlDoc, aerr, cReadFile )
   Elseif nTypeFile == _XML_FILE_RPD
