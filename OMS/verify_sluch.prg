@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 22.02.26
+// 24.02.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -1343,7 +1343,8 @@ Function verify_sluch( fl_view, ft )
           mIDSP := 29 // за посещение в поликлинике
           is_prof_PN := .t.
           is_exist_Prescription := .t.
-        Elseif eq_any( left_lshifr_5, '70.3.', '70.7.', '72.1.', '72.5.', '72.6.', '72.7.' ) // диспансеризация взрослых
+        Elseif eq_any( left_lshifr_5, '70.3.', '70.7.', '72.1.', '72.5.', '72.6.', '72.7.' ) //.and. ; // диспансеризация взрослых
+//            ( ! eq_any( AllTrim( lshifr ), '72.5.17', '72.5.18', '72.5.19', '72.5.20', '72.5.317', '72.5.318', '72.5.319', '72.5.320' ) )
           is_disp_DVN := .t.
           is_exist_Prescription := .t.
           If eq_any( left_lshifr_5, '70.3.', '70.7.' )
@@ -1351,10 +1352,16 @@ Function verify_sluch( fl_view, ft )
           Else
             is_disp_DVN3 := .t.
             is_exist_Prescription := .t.
-            mIDSP := 17 // Законченный случай в поликлинике
+            if eq_any( AllTrim( lshifr ), '72.5.17', '72.5.18', '72.5.19', '72.5.20', '72.5.317', '72.5.318', '72.5.319', '72.5.320' )
+              mIDSP := 29 // За посещение
+            else
+              mIDSP := 17 // Законченный случай в поликлинике
+            endif
           Endif
-          ++kvp_70_3
-          is_70_3 := .t.
+          if ! eq_any( AllTrim( lshifr ), '72.5.17', '72.5.18', '72.5.19', '72.5.20', '72.5.317', '72.5.318', '72.5.319', '72.5.320' )
+            ++kvp_70_3
+            is_70_3 := .t.
+          endif
           mdate_u2 := dtoc4( human->k_data )
         Elseif left_lshifr_5 == '72.2.' // профилактика несовершеннолетних
           is_prof_PN := .t.
@@ -2919,10 +2926,10 @@ Function verify_sluch( fl_view, ft )
     Endif
   Endif
   If is_disp_DVN // is_70_3
-    mIDSP := 11 // диспансеризация
-    If is_disp_DVN3 // профилактика
-      mIDSP := 17 // Законченный случай в поликлинике
-    Endif
+//    mIDSP := 11 // диспансеризация
+//    If is_disp_DVN3 // профилактика
+//      mIDSP := 17 // Законченный случай в поликлинике
+//    Endif
     If kvp_70_3 > 1
       AAdd( ta, 'в случае применены ' + lstr( kvp_70_3 ) + ' услуг "зак.сл." (должна быть одна)' )
     Endif
@@ -4530,7 +4537,7 @@ Function verify_sluch( fl_view, ft )
         AAdd( ta, 'в листе нет услуг с ценой' )
       Endif
       If ( i := AScan( dvn_85(), {| x| x[ 1 ] == kol_d_usl } ) ) > 0
-        If is_disp_19
+        If is_disp_19 .and. human->K_DATA < 0d20260101  // до 01.01.26
           k := dvn_85()[ i, 1 ] - dvn_85()[ i, 2 ]
           If kol_n_date + kol_d_otkaz <= k // отказы + ранее оказано менее 15%
             If zs == 0
@@ -4544,7 +4551,7 @@ Function verify_sluch( fl_view, ft )
             AAdd( ta, 'отказы пациента составляют ' + lstr( kol_d_otkaz / kol_d_usl * 100, 5, 0 ) + '% (должно быть не более 15%)' )
             AAdd( ta, 'отказов-' + lstr( kol_d_otkaz ) + ', всего учитываемых услуг-' + lstr( kol_d_usl ) )
           Elseif kol_n_date + kol_d_otkaz <= k // отказы + ранее оказано менее 15%
-            If zs == 0 .or. k700 > 0
+            If ( human->K_DATA < 0d20260101 ) .and. ( zs == 0 .or. k700 > 0 )
               AAdd( ta, 'в листе учета должна быть услуга "законченный случай" - отредактируйте' )
             Endif
           Else

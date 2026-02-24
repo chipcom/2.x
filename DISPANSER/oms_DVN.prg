@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.02.26 ДВН - добавление или редактирование случая (листа учета)
+// 24.02.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -247,7 +247,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     { 'в МО-обычное иссл-е цитологичес.материала', 1 }, ;
     { 'в ВОКОД-жидкостное иссл-ие цит.материала', 2 } }
   // for i := 1 to 33 //count_dvn_arr_usl 19.10.21
-  For i := 1 To 35 // count_dvn_arr_usl 08.09.24
+  For i := 1 To 50 // 35 // count_dvn_arr_usl 08.09.24
     mvar := 'MTAB_NOMv' + lstr( i )
     Private &mvar := 0
     mvar := 'MTAB_NOMa' + lstr( i )
@@ -458,7 +458,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
       lshifr := AllTrim( lshifr )
       If eq_any( Left( lshifr, 5 ), '70.3.', '70.7.', '72.1.', '72.5.', '72.6.', '72.7.' ) .and. ;
-          ! eq_any( lshifr, '70.7.63', '70.7.64' )
+          ! eq_any( lshifr, '70.7.61', '70.7.62', '70.7.63', '70.7.64', '72.5.17', '72.5.18', '72.5.19', '72.5.20' )
         mshifr_zs := lshifr
       Else
         fl := .t.
@@ -1839,7 +1839,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       human_->USL_OK    := m1USL_OK
       human_->VIDPOM    := m1VIDPOM
       human_->PROFIL    := m1PROFIL
-      human_->IDSP      := iif( metap == 3, 17, 11 )
+      human_->IDSP      := iif( metap == 3, iif( human->K_DATA < 0d20260101, 17, 29 ), 11 )
       human_->NPR_MO    := ''
       human_->FORMA14   := '0000'
       human_->KOD_DIAG0 := ''
