@@ -22,6 +22,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   local dvn_arr_usl, dvn_arr_umolch, mm_ndisp1
   local arr_usl_dop := {}
   local j, i, i2
+//  local date_dvn_2026_I_etap := CToD( '  /  /    ')
+//  local date_dvn_2026_III_etap := CToD( '  /  /    ')
 //  local is_7_61_703 := .f., is_7_61_704 := .f.
 
   //
@@ -1211,6 +1213,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           if &mvard == mn_data
             k := i
           Endif
+//altd()
+//          if eq_any( lshifr, '70.7.63', '70.7.363' )
+//            date_dvn_2026_I_etap := &mvard
+//          elseif eq_any( lshifr, '72.5.17', '72.5.18', '72.5.317', '72.5.318' )
+//            date_dvn_2026_III_etap := &mvard
+//          endif
 /*
           if ! is_7_61_703 .and. ( ValType( dvn_arr_usl[ i, 2 ] ) == 'C' ) .and. dvn_arr_usl[ i, 2 ] == '7.61.703' .and. ! Empty( &mvart )
               is_7_61_703 := .t.
@@ -1399,6 +1407,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       fl := .t.
+//altd()
       If emptyany( arr_osm1[ len( dvn_arr_usl ), 1 ], arr_osm1[ len( dvn_arr_usl ), 9 ] )
         If metap == 2 .and. i_56_1_723 > 0
           If !( arr_osm1[ i_56_1_723, 9 ] == mn_data .and. arr_osm1[ i_56_1_723, 9 ] == mk_data )
@@ -1412,10 +1421,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             fl := func_error( 4, 'Результатом 1-го этапа должна быть II группа (и направлен на 2-ой этап)' )
             num_screen := 3
           Endif
-        Else
+        Elseif metap == 2 .and. i_56_1_723 == 0
           fl := func_error( 4, 'Не введён приём терапевта (врача общей практики)' )
+//        elseif date_dvn_2026_I_etap != MK_DATA
+//          fl := func_error( 4, 'Терапевт (врач общей практики) должен проводить осмотр последним!' )
         Endif
-      Elseif arr_osm1[ len( dvn_arr_usl ), 9 ] < mk_data
+//      elseif date_dvn_2026_III_etap != MK_DATA
+//        fl := func_error( 4, 'Терапевт (врач общей практики) должен проводить осмотр последним!' )
+      Elseif ( arr_osm1[ len( dvn_arr_usl ), 9 ] < mk_data ) .and. ( MK_DATA < 0d20260101 )
         fl := func_error( 4, 'Терапевт (врач общей практики) должен проводить осмотр последним!' )
       Endif
 /*
