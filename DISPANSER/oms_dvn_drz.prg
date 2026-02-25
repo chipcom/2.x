@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 03.02.26 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 25.02.26 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -176,7 +176,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     Private &pole_d_dispans := ctod( '' )
     Private &pole_dn_dispans := ctod( '' )
   next
-
+/*
   for i := 1 to len( ret_array_drz() )  // создадим поля ввода для всех возможных услуг диспансеризации
     mvar := 'MTAB_NOMv' + lstr( i )
     Private &mvar := 0
@@ -191,6 +191,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     mvar := 'M1OTKAZ' + lstr( i )
     Private &mvar := arr_mm_result_drz( metap )[ 1, 2 ]
   next
+*/
   // 
   afill( adiag_talon, 0 )
 
@@ -272,6 +273,21 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     endif
   endif
 
+  for i := 1 to len( ret_array_drz( MK_DATA ) )  // создадим поля ввода для всех возможных услуг диспансеризации
+    mvar := 'MTAB_NOMv' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MTAB_NOMa' + lstr( i )
+    Private &mvar := 0
+    mvar := 'MDATE'+lstr( i )
+    Private &mvar := ctod( '' )
+    mvar := 'MKOD_DIAG' + lstr( i )
+    Private &mvar := space( 6 )
+    mvar := 'MOTKAZ' + lstr( i )
+    Private &mvar := substr( arr_mm_result_drz( metap )[ 1, 1 ], 1, 10 )
+    mvar := 'M1OTKAZ' + lstr( i )
+    Private &mvar := arr_mm_result_drz( metap )[ 1, 2 ]
+  next
+
   if Loc_kod > 0  // читаем информацию из HUMAN, HUMAN_U и MO_HU и заполним табличную часть
     select HUMAN
     goto ( Loc_kod )
@@ -318,6 +334,21 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     is_prazdnik := ! is_work_day( mn_data )
     year_begin_drz := Year( mn_data )
 
+    for i := 1 to len( ret_array_drz( MK_DATA ) )  // создадим поля ввода для всех возможных услуг диспансеризации
+      mvar := 'MTAB_NOMv' + lstr( i )
+      Private &mvar := 0
+      mvar := 'MTAB_NOMa' + lstr( i )
+      Private &mvar := 0
+      mvar := 'MDATE'+lstr( i )
+      Private &mvar := ctod( '' )
+      mvar := 'MKOD_DIAG' + lstr( i )
+      Private &mvar := space( 6 )
+      mvar := 'MOTKAZ' + lstr( i )
+      Private &mvar := substr( arr_mm_result_drz( metap )[ 1, 1 ], 1, 10 )
+      mvar := 'M1OTKAZ' + lstr( i )
+      Private &mvar := arr_mm_result_drz( metap )[ 1, 2 ]
+    next
+
     metap := human->ishod - BASE_ISHOD_RZD   // получим сохраненный этап диспансеризации
 
     if between( metap, 1, 2 )
@@ -328,7 +359,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     endif
     //
     // выбираем иформацию об услугах
-    uslugi_etapa := uslugietap_drz( metap, nAge, nGender )  // получим услуги этапа
+    uslugi_etapa := uslugietap_drz( metap, nAge, nGender, MK_DATA )  // получим услуги этапа
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
 
     larr := array( 2, lenArr_Uslugi_DRZ )
@@ -504,13 +535,13 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     next i
   endif
   if isnil( uslugi_etapa )
-    uslugi_etapa := uslugietap_drz( metap, nAge, nGender )  // получим услуги этапа
+    uslugi_etapa := uslugietap_drz( metap, nAge, nGender, MK_DATA )  // получим услуги этапа
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
   endif
 
   if loc_kod == 0 .and. eq_any( lrslt_1_etap, 378, 379 ) .and. Year( date_pred ) == Year( mk_data )
     metap := 2
-    uslugi_etapa := uslugietap_drz( metap, nAge, nGender )  // получим услуги этапа
+    uslugi_etapa := uslugietap_drz( metap, nAge, nGender, MK_DATA )  // получим услуги этапа
     lenArr_Uslugi_DRZ := Len( uslugi_etapa )
   endif
 
@@ -871,10 +902,10 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         ar := view_uslugi[ i ]
 
         // Цитологические исследования
-        if nGender == 'Ж' .and. ar[ 2 ] == 'A08.20.017' .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка цитологического исследования
+        if nGender == 'Ж' .and. ( ( ar[ 2 ] == 'A08.20.017' ) .or. ( ar[ 2 ] == '4.20.708' ) ) .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка цитологического исследования
           lCitIsl := .t.
         endif
-        if nGender == 'Ж' .and. ar[ 2 ] == 'A08.20.017.002' .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка жидкостного цитологического исследования
+        if nGender == 'Ж' .and. ( (ar[ 2 ] == 'A08.20.017.002' ) .or. ( ar[ 2 ] == '4.20.702' ) ) .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка жидкостного цитологического исследования
           lGidCitIsl := .t.
         endif
 
@@ -918,7 +949,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           ( ar[ 2 ] == 'A04.20.001.001' .and. ! lUziMatkiAbdomin ) )
           fl := func_error( 4, 'Не введен врач в услуге УЗИ малого таза' )
         elseif Empty( &mvart ) .and. &mvaro != 4
-          if ! eq_any( ar[ 2 ], 'A08.20.017', 'A08.20.017.002', 'A04.20.001', 'A04.20.001.001' )
+          if ! eq_any( ar[ 2 ], 'A08.20.017', '4.20.708', 'A08.20.017.002', '4.20.702', 'A04.20.001', 'A04.20.001.001' )
             fl := func_error( 4, 'Не введен врач в услуге "' + alltrim( ar[ 1 ] ) + '"' )
           endif
         elseif &mvaro == 2 .and. ;
@@ -1471,7 +1502,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       human_->USL_OK    := m1USL_OK
       human_->VIDPOM    := m1VIDPOM
       human_->PROFIL    := 151    // m1PROFIL
-      human_->IDSP      := 30     // iif(metap == 3, 17, 11)
+      human_->IDSP      := iif( human->K_DATA < 0d20260101, 30, 29 )    //  30
       human_->NPR_MO    := ''
       human_->FORMA14   := '0000'
       human_->KOD_DIAG0 := ''

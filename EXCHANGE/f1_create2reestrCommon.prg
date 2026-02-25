@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500
 
-// 31.01.26 работаем по текущей записи
+// 25.02.26 работаем по текущей записи
 Function f1_create2reestrCommon( _nyear, p_tip_reestr )
 
   Local i, j, lst, sVidpoms
@@ -379,7 +379,7 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
         If ValType( ar ) == 'A' .and. Len( ar ) >= 10 .and. ValType( ar[ 5 ] ) == 'C'
           lshifr := AllTrim( ar[ 5 ] )
 
-          If ( i := AScan( uslugietap_drz( iif( human->ishod == BASE_ISHOD_RZD + 1, 1, 2 ), count_years( human->DATE_R, human->k_data ), human->pol ), {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
+          If ( i := AScan( uslugietap_drz( iif( human->ishod == BASE_ISHOD_RZD + 1, 1, 2 ), count_years( human->DATE_R, human->k_data ), human->pol, human->k_data ), {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
 //            
           Else   // записываем только федеральные услуги
             If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
@@ -401,7 +401,7 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
         If ValType( ar ) == 'A' .and. Len( ar ) >= 10 .and. ValType( ar[ 5 ] ) == 'C'
           lshifr := AllTrim( ar[ 5 ] )
 
-          If ( i := AScan( uslugietap_drz( iif( human->ishod == BASE_ISHOD_RZD + 1, 1, 2 ), count_years( human->DATE_R, human->k_data ), human->pol ), {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
+          If ( i := AScan( uslugietap_drz( iif( human->ishod == BASE_ISHOD_RZD + 1, 1, 2 ), count_years( human->DATE_R, human->k_data ), human->pol, human->k_data ), {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
 //            
           Else   // записываем только федеральные услуги
             If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )

@@ -246,6 +246,7 @@ mo_version.prg
 .\DISPANSER\disp_nab_diag_usl.prg
 .\DISPANSER\oms_dvn_drz.prg
 .\DISPANSER\oms_dvn_drz_func.prg
+.\DISPANSER\oms_dvn_DRZ_array.prg
 .\DISPANSER\diag_disp_nabl.prg
 .\DISPANSER\mo_st39.prg
 
