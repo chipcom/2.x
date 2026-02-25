@@ -70,6 +70,7 @@ Function verify_sluch( fl_view, ft )
   local lKart2
   local dvn_arr_umolch, dvn_arr_usl
   local arr_unit
+  local mo_current  // описатель текущей МО
 
   Default fl_view To .t.
 
@@ -86,6 +87,8 @@ Function verify_sluch( fl_view, ft )
   a_period_amb := {}
   mIDPC := ''
   rec_human := human->( RecNo() )
+
+  mo_current := glob_mo()
 
   If human_->NOVOR > 0
     m1novor := 1 // для переопределения M1VZROS_REB
@@ -616,7 +619,7 @@ Function verify_sluch( fl_view, ft )
           k } )
         // поликлиника
       Elseif human_->USL_OK == USL_OK_POLYCLINIC .and. human->ishod < 101 ;
-          .and. !( human_->profil == 60 .and. glob_mo[ _MO_KOD_TFOMS ] == '103001' ) // не онкология
+          .and. !( human_->profil == 60 .and. mo_current[ _MO_KOD_TFOMS ] == '103001' ) // не онкология
         is_period_amb := .t.
       Endif
       Select HU
@@ -902,7 +905,7 @@ Function verify_sluch( fl_view, ft )
       Elseif Empty( hu->kod_vr )
         If eq_any( AllTrim( lshifr ), '4.20.2' )
           // не заполняется код врача
-        Elseif pr_amb_reab .and. Left( lshifr, 2 ) == '4.' .and. ( Left( hu_->zf, 6 ) == '999999' .or. Left( hu_->zf, 6 ) != glob_mo[ _MO_KOD_TFOMS ] )
+        Elseif pr_amb_reab .and. Left( lshifr, 2 ) == '4.' .and. ( Left( hu_->zf, 6 ) == '999999' .or. Left( hu_->zf, 6 ) != mo_current[ _MO_KOD_TFOMS ] )
           // не заполняется код врача
         Elseif hu->is_edit == -1
           If human_->USL_OK == USL_OK_POLYCLINIC
@@ -914,7 +917,7 @@ Function verify_sluch( fl_view, ft )
           AAdd( ta, 'не заполнено поле "Врач, оказавший услугу ' + AllTrim( usl->shifr ) + '"' )
         Endif
       Else
-        If Empty( mvrach ) .and. !( AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) )
+        If Empty( mvrach ) .and. !( AScan( kod_LIS(), mo_current[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) )
           mvrach := hu->kod_vr
         Endif
         pers->( dbGoto( hu->kod_vr ) )
@@ -1481,7 +1484,7 @@ Function verify_sluch( fl_view, ft )
     AAdd( ta, 'Недопустимое значение поля "Дата направления"' )
   endif
   
-  If !is_mgi .and. AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0
+  If !is_mgi .and. AScan( kod_LIS(), mo_current[ _MO_KOD_TFOMS ] ) > 0
     If eq_any( human_->profil, 6, 34 )
       human->KOD_DIAG := 'Z01.7' // всегда
     Endif
@@ -1502,7 +1505,7 @@ Function verify_sluch( fl_view, ft )
     If Empty( human_->NPR_MO )
       AAdd( ta, 'для услуги 4.17.785 должно быть заполнено поле "Направившая МО"' )
     Elseif Empty( human_2->NPR_DATE )
-      If glob_mo[ _MO_KOD_TFOMS ] == ret_mo( human_->NPR_MO )[ _MO_KOD_TFOMS ]
+      If mo_current[ _MO_KOD_TFOMS ] == ret_mo( human_->NPR_MO )[ _MO_KOD_TFOMS ]
         human_2->NPR_DATE := dBegin
       Else
         AAdd( ta, 'должно быть заполнено поле "Дата направления"' )
@@ -1729,7 +1732,7 @@ Function verify_sluch( fl_view, ft )
 
       arr_perso := addkoddoctortoarray( arr_perso, mohu->kod_vr )
 
-      If Empty( mvrach ) .and. !( AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) )
+      If Empty( mvrach ) .and. !( AScan( kod_LIS(), mo_current[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) )
         mvrach := mohu->kod_vr
       Endif
       pers->( dbGoto( mohu->kod_vr ) )
@@ -2236,13 +2239,13 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'для диагноза ' + AllTrim( mdiagnoz[ 1 ] ) + ' (искусственное прерывание беременности по медицинским показаниям) не указан сопутствующий диагноз' )
     Endif
   Endif
-  If Empty( human_->VRACH ) .and. !( AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) )
+  If Empty( human_->VRACH ) .and. !( AScan( kod_LIS(), mo_current[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) )
     human_->VRACH := mvrach // врача из первой услуги
   Endif
-  If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
+  If AScan( kod_LIS(), mo_current[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
     mpzkol := Len( au_lu )
   Endif
-  If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
+  If AScan( kod_LIS(), mo_current[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
     If !Empty( human_2->PN3 )
       human->UCH_DOC := lstr( human_2->PN3 ) // ORDER по ЛИС перезаписываем (вдруг исправили)
     Endif
@@ -2298,7 +2301,7 @@ Function verify_sluch( fl_view, ft )
     If Empty( human_->NPR_MO )
       AAdd( ta, 'при ПЛАНОВОЙ госпитализации должно быть заполнено поле "Направившая МО"' )
     Elseif Empty( human_2->NPR_DATE )
-      If glob_mo[ _MO_KOD_TFOMS ] == ret_mo( human_->NPR_MO )[ _MO_KOD_TFOMS ]
+      If mo_current[ _MO_KOD_TFOMS ] == ret_mo( human_->NPR_MO )[ _MO_KOD_TFOMS ]
         human_2->NPR_DATE := dBegin
       Else
         AAdd( ta, 'должно быть заполнено поле "Дата направления на госпитализацию"' )
@@ -2881,7 +2884,7 @@ Function verify_sluch( fl_view, ft )
   If human_->USL_OK == USL_OK_POLYCLINIC .and. human->ishod < 101 ;// не диспансеризация
     .and. m1novor == human_->NOVOR ;
       .and. !( is_2_80 .or. is_2_82 ) ;// не неотложная помощь
-    .and. !( AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) ) ; // не КДП2
+    .and. !( AScan( kod_LIS(), mo_current[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 ) ) ; // не КДП2
     .and. kkt == 0 ; // не отдельно стоящая иссл.процедура
     .and. Len( a_period_amb ) > 0
     For i := 1 To Len( a_period_amb )
@@ -3102,7 +3105,7 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'в случае не проставлен профиль' )
     Endif
     //
-    If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
+    If AScan( kod_LIS(), mo_current[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
       // не проверять
     Else
       arr_prvs := { human_->PRVS }
@@ -3144,25 +3147,6 @@ Function verify_sluch( fl_view, ft )
 
     If is_2_92_
       diabetes_school_xniz( shifr_2_92, vozrast, kol_dney, kol_2_93_1, kol_2_93_2, human_->RSLT_NEW, human_->ISHOD_NEW, ta )
-
-      // If !eq_any( human_->RSLT_NEW, 314 )
-      //   AAdd( ta, 'в поле "Результат обращения" должно быть "314 Динамическое наблюдение"' )
-      // Endif
-      // If !eq_any( human_->ISHOD_NEW, 304 )
-      //   AAdd( ta, 'в поле "Исход заболевания" должно быть "304 Без перемен"' )
-      // Endif
-
-      // s := 'услуга 2.93.1 оказывается не менее '
-      // If vozrast < 18 .and. kol_2_93_1 < 10
-      //   AAdd( ta, s + ' 10 раз' )
-      // Elseif vozrast >= 18 .and. kol_2_93_1 < 5
-      //   AAdd( ta, s + ' 5 раз' )
-      // Endif
-      // If vozrast < 18 .and. kol_dney < 10
-      //   AAdd( ta, s + ' 10 дней' )
-      // Elseif vozrast >= 18 .and. kol_dney < 5
-      //   AAdd( ta, s + ' 5 дней' )
-      // Endif
       // конец проверки школ диабета и НХИЗ
     Endif
   Endif
@@ -3234,7 +3218,7 @@ Function verify_sluch( fl_view, ft )
         AAdd( ta, 'Направлению на лечение больше двух месяцев' )
       Endif
       // 10.07.23 после звонка Мызгину
-      // if !(eq_any(glob_mo[_MO_KOD_TFOMS], '103001', '104401') .or. ret_mo(human_->NPR_MO)[_MO_IS_UCH])
+      // if !(eq_any(mo_current[_MO_KOD_TFOMS], '103001', '104401') .or. ret_mo(human_->NPR_MO)[_MO_IS_UCH])
       // aadd(ta, 'введена "Направившая МО", которая не имеет право прикреплять пациентов')
       // endif
     Endif
@@ -3485,7 +3469,7 @@ Function verify_sluch( fl_view, ft )
     If Empty( human_->NPR_MO )
       AAdd( ta, 'для ' + s + ' должно быть заполнено "Направившая МО"' )
     Elseif Empty( human_2->NPR_DATE )
-      If glob_mo[ _MO_KOD_TFOMS ] == ret_mo( human_->NPR_MO )[ _MO_KOD_TFOMS ]
+      If mo_current[ _MO_KOD_TFOMS ] == ret_mo( human_->NPR_MO )[ _MO_KOD_TFOMS ]
         human_2->NPR_DATE := dBegin
       Else
         AAdd( ta, 'должно быть заполнено поле "Дата направления"' )
@@ -3612,15 +3596,15 @@ Function verify_sluch( fl_view, ft )
     If !eq_any( ret_old_prvs( human_->PRVS ), 112207, 113412 ) // НЕФРОЛОГИЯ
       AAdd( ta, 'для ' + s + ' специальность врача должна быть НЕФРОЛОГИЯ' )
     Endif
-    If glob_mo[ _MO_KOD_TFOMS ] == '101004' // УНЦ
+    If mo_current[ _MO_KOD_TFOMS ] == '101004' // УНЦ
       If Empty( AllTrim( human_->NPR_MO ) )
-        human_->NPR_MO := glob_mo[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
+        human_->NPR_MO := mo_current[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
         human_2->( g_rlock( forever ) )
         human_2->NPR_DATE := dBegin
         human_2->( dbUnlock() )
       Endif
-    Elseif ! glob_mo[ _MO_KOD_TFOMS ] == '141023' // не больница 15, временно пока не разберемся
-      human_->NPR_MO := glob_mo[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
+    Elseif ! mo_current[ _MO_KOD_TFOMS ] == '141023' // не больница 15, временно пока не разберемся
+      human_->NPR_MO := mo_current[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
       human_2->( g_rlock( forever ) )
       human_2->NPR_DATE := dBegin
       human_2->( dbUnlock() )
@@ -3636,15 +3620,15 @@ Function verify_sluch( fl_view, ft )
     If !eq_any( ret_old_prvs( human_->PRVS ), 112207, 113412 ) // НЕФРОЛОГИЯ
       AAdd( ta, s + 'специальность врача должна быть НЕФРОЛОГИЯ' )
     Endif
-    If glob_mo[ _MO_KOD_TFOMS ] == '101004' // УНЦ
+    If mo_current[ _MO_KOD_TFOMS ] == '101004' // УНЦ
       If Empty( AllTrim( human_->NPR_MO ) )
-        human_->NPR_MO := glob_mo[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
+        human_->NPR_MO := mo_current[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
         human_2->( g_rlock( forever ) )
         human_2->NPR_DATE := dBegin
         human_2->( dbUnlock() )
       Endif
-    Elseif ! glob_mo[ _MO_KOD_TFOMS ] == '141023' // не больница 15, временно пока не разберемся
-      human_->NPR_MO := glob_mo[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
+    Elseif ! mo_current[ _MO_KOD_TFOMS ] == '141023' // не больница 15, временно пока не разберемся
+      human_->NPR_MO := mo_current[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
       human_2->( g_rlock( forever ) )
       human_2->NPR_DATE := dBegin
       human_2->( dbUnlock() )
@@ -3654,15 +3638,15 @@ Function verify_sluch( fl_view, ft )
   Endif
   If is_s_dializ
     s := 'услуги диализа в стационаре'
-    If glob_mo[ _MO_KOD_TFOMS ] == '101004' // УНЦ
+    If mo_current[ _MO_KOD_TFOMS ] == '101004' // УНЦ
       If Empty( AllTrim( human_->NPR_MO ) )
-        human_->NPR_MO := glob_mo[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
+        human_->NPR_MO := mo_current[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
         human_2->( g_rlock( forever ) )
         human_2->NPR_DATE := dBegin
         human_2->( dbUnlock() )
       Endif
-    Elseif ! glob_mo[ _MO_KOD_TFOMS ] == '141023' // не больница 15, временно пока не разберемся
-      human_->NPR_MO := glob_mo[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
+    Elseif ! mo_current[ _MO_KOD_TFOMS ] == '141023' // не больница 15, временно пока не разберемся
+      human_->NPR_MO := mo_current[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
       human_2->( g_rlock( forever ) )
       human_2->NPR_DATE := dBegin
       human_2->( dbUnlock() )
@@ -5079,7 +5063,7 @@ Function verify_sluch( fl_view, ft )
   Endif
   If Len( ta ) > 0
     _ocenka := 0
-    If AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. Type( 'old_npr_mo' ) == 'C'
+    If AScan( kod_LIS(), mo_current[ _MO_KOD_TFOMS ] ) > 0 .and. Type( 'old_npr_mo' ) == 'C'
       If !( old_npr_mo == human_->NPR_MO )
         If !( old_npr_mo == '000000' )
 //          verify_ff( -1, .t., 80 ) // безусловный перевод страницы
@@ -5114,7 +5098,7 @@ Function verify_sluch( fl_view, ft )
   Else
     If is_disp_DDS .or. is_prof_PN .or. is_disp_DVN
       mpzkol := 1
-    Elseif AScan( kod_LIS(), glob_mo[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
+    Elseif AScan( kod_LIS(), mo_current[ _MO_KOD_TFOMS ] ) > 0 .and. eq_any( human_->profil, 6, 34 )
       mpzkol := Len( au_lu ) // кол-во анализов
     Endif
     If Len( arr_unit ) == 1
