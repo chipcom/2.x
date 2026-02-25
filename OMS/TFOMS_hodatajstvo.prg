@@ -183,7 +183,7 @@ Function tfoms_hodatajstvo( arr_m, iRefr, par )
 
   Return Nil
 
-// 23.02.26 оформление ходатайства
+// 25.02.26 оформление ходатайства
 Function tfoms_hodatajstvo_new( )
   // Функция отрабатывает 
   // arr_m - временной массив
@@ -195,7 +195,7 @@ Function tfoms_hodatajstvo_new( )
     Return Nil
   Endif
 // запрос диапазона
-  If ( arr_m := year_month( T_ROW, T_COL + 5, , 3 ) ) == NIL
+  If ( arr_m := year_month( T_ROW, T_COL + 5, , 3 ) ) == NIL 
     Return Nil
   Endif
 
@@ -209,34 +209,35 @@ Function tfoms_hodatajstvo_new( )
   r_use( dir_server() + 'human', dir_server() + 'humand' , 'HUMAN' ) 
   r_use( dir_server() + 'human_',, 'HUMAN_' )
   select HUMAN 
- //  MYDEBUG(,PRINT_ARRAY(ARR_M))
   find (DToS( arr_m[5]) )
   Go Top
   Do While human->k_data <= arr_m[6] .and. !Eof()
-    select human_
-    goto (human->kod)
-    flag_zap := .F.
-    If human_->reestr == 0 .and. human_->schet_zap == 0
-     // начало контроля
-      if human->mo_pr == '      '
-        flag_zap := .T.
-      elseif human_->vpolis != 3
-        flag_zap := .T.
-      else
-        a_mo_prik := get_f032_prik()
-        if ( i := AScan( a_mo_prik, {| x | x[ 2 ] == human->MO_PR } ) ) == 0
+    if human->komu == 0 // только ОМС
+      select human_
+      goto (human->kod)
+      flag_zap := .F.
+      If human_->reestr == 0 .and. human_->schet_zap == 0
+       // начало контроля
+        if human->mo_pr == '      '
           flag_zap := .T.
+        elseif human_->vpolis != 3
+          flag_zap := .T.
+        else
+          a_mo_prik := get_f032_prik()
+          if ( i := AScan( a_mo_prik, {| x | x[ 2 ] == human->MO_PR } ) ) == 0
+            flag_zap := .T.
+          endif  
+        endif
+        if flag_zap
+          Select TMP_K
+          Append Blank
+          Replace kod With human->kod_k, ;
+          kod_lu With human->( RecNo() ), ;
+          k_data With human->k_data, ;
+          is With 1
         endif  
       endif
-      if flag_zap
-        Select TMP_K
-        Append Blank
-        Replace kod With human->kod_k, ;
-        kod_lu With human->( RecNo() ), ;
-        k_data With human->k_data, ;
-        is With 1
-       endif  
-    endif
+    endif  
     Select human
     Skip
   Enddo

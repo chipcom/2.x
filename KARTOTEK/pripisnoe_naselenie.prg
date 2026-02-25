@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 09.02.26
+// 25.02.26
 Function pripisnoe_naselenie( k )
   Static si1 := 1, si2 := 1, si3 := 1
   Local mas_pmt, mas_msg, mas_fun, j, r
@@ -18,6 +18,7 @@ Function pripisnoe_naselenie( k )
         'Печать ~заявления на прикрепление', ;
         'Создание файла ~сверки с ТФОМС', ;
         'Создание файла ~запроса по прикреплению', ;
+        'Создание файла ХОДАТАЙСТВА для отсылки в ТФОМС', ;  
         '~Редактирование участков списком', ;
         '~Импорт WQ2...DBF, простановка участков, отправка' }
       mas_msg := { ;
@@ -26,6 +27,7 @@ Function pripisnoe_naselenie( k )
         'Печать заявления на прикрепление по пациенту, ещё не прикреплённому к Вашей МО', ;
         'Создание файла сверки с ТФОМС по прикреплённому населению (письмо № 04-18-20)', ;
         'Создание файла сверки с ТФОМС по прикреплённому населению (письмо № 04-08-07)', ;
+        'Создание файла ХОДАТАЙСТВА для отсылки в ТФОМС', ; 
         'Редактирование номера участка для выбранного списка пациентов', ;
         'Импорт DBF-файла из ТФОМС, простановка участков, создание файла прикрепления' }
       mas_fun := { ;
@@ -34,6 +36,7 @@ Function pripisnoe_naselenie( k )
         'pripisnoe_naselenie(13)', ;
         'pripisnoe_naselenie(14)', ;
         'pripisnoe_naselenie(17)', ;
+        'pripisnoe_naselenie(39)', ;
         'pripisnoe_naselenie(15)', ;
         'pripisnoe_naselenie(16)' }
       If T_ROW > 8
@@ -231,7 +234,7 @@ Function f11_view_r_pr_nas()
 
   Return PadR( s, 11 )
 
-// 24.03.15
+// 20.02.26
 Function f2_view_r_pr_nas( nKey, oBrow )
 
   Local pss := Space( 10 ), tmp_pss := my_parol()
@@ -361,7 +364,7 @@ Function f2_view_r_pr_nas( nKey, oBrow )
 
   Return ret
 
-// 30.03.23
+// 25.02.26
 Function f3_view_r_pr_nas( oBrow )
 
   Static si := 1, snfile := '', sarr_mo, sarr_err, sjmo, sjerr
@@ -370,10 +373,11 @@ Function f3_view_r_pr_nas( oBrow )
 
   Private fl_csv := .f., mm_err := {}
 
-  If krtf->TIP_OUT == _CSV_FILE_SVERKAZ
-    mm_err := { { 'Не имеет текущего страхования', 708 }, ; // !!!
-    { 'Прикрепление к МО отсутствует', 709 }, ; //
-    { 'ТФОМС не вернул никакой информации', -99 } } // !!!
+  If krtf->TIP_OUT == _CSV_FILE_SVERKAZ .or. krtf->TIP_OUT == _CSV_FILE_SVERKAZ2 
+    mm_err := { ;
+      { 'Не имеет текущего страхования', 708 }, ; // !!!
+      { 'Прикрепление к МО отсутствует', 709 }, ; //
+      { 'ТФОМС не вернул никакой информации', -99 } } // !!!
   Endif
   If Left( krtr->FNAME, 2 ) == 'MO'
     fl_csv := .t.
@@ -712,12 +716,15 @@ Function preparation_for_pripisnoe_naselenie()
   t_arr[ BR_TITUL_COLOR ] := 'B/W'
   t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/W,W+/N,B/W,W+/B,RB/W,W+/RB', .t., 72 }
   blk := {|| iif( kart->uchast > 0, iif( tmp_krtp->s_prik == 2, { 1, 2 }, { 3, 4 } ), { 5, 6 } ) }
-  Private arr_prik := { { 'по месту регистрации', 1 }, ;
+  Private arr_prik := { ;
+    { 'по месту регистрации', 1 }, ;
     { 'лич/з-е без изм. м/ж', 2 }, ;
     { 'лич/з-е с измен. м/ж', 3 } }
-  Private arr_prik1 := { { 'по личному заявлению (без изменения места жительства)', 2 }, ;
+  Private arr_prik1 := { ;
+    { 'по личному заявлению (без изменения места жительства)', 2 }, ;
     { 'по личному заявлению (в связи с изменением места жительства)', 3 } }
-  t_arr[ BR_COLUMN ] := { { Center( 'Ф.И.О.', 32 ), {|| Left( kart->fio, 32 ) }, blk }, ;
+  t_arr[ BR_COLUMN ] := { ;
+    { Center( 'Ф.И.О.', 32 ), {|| Left( kart->fio, 32 ) }, blk }, ;
     { '   Дата; рождения', {|| full_date( kart->date_r ) }, blk }, ;
     { 'Уч', {|| Str( kart->uchast ) }, blk }, ;
     { '   Дата; заявления', {|| full_date( tmp_krtp->d_prik ) }, blk }, ;
@@ -1333,14 +1340,16 @@ Function kartoteka_z_prikreplenie()
   t_arr[ BR_TITUL ] := 'Картотека - прикрепление'
   t_arr[ BR_TITUL_COLOR ] := 'BG+/GR'
   t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B,R/BG,W+/R', .t., 72 }
-  t_arr[ BR_ARR_BLOCK ] := { {|| findfirst( str_find ) }, ;
+  t_arr[ BR_ARR_BLOCK ] := { ;
+    {|| findfirst( str_find ) }, ;
     {|| findlast( str_find ) }, ;
     {| _n| skippointer( _n, muslovie ) }, ;
     str_find, muslovie;
     }
   blk := {|| iif( kart2->mo_pr == glob_mo()[ _MO_KOD_TFOMS ], { 1, 2 }, ;
     iif( Empty( kart2->mo_pr ), { 3, 4 }, { 5, 6 } ) ) }
-  t_arr[ BR_COLUMN ] := { { Center( 'Ф.И.О.', 35 ), {|| Left( kart->fio, 32 ) }, blk }, ;
+  t_arr[ BR_COLUMN ] := { ;
+    { Center( 'Ф.И.О.', 35 ), {|| Left( kart->fio, 32 ) }, blk }, ;
     { 'Дата рожд.', {|| full_date( kart->date_r ) }, blk }, ;
     { ' Прикрепление', {|| PadR( inieditspr( A__MENUVERT, glob_arr_mo(), kart2->mo_pr ), 34 ) }, blk } }
   t_arr[ BR_STAT_MSG ] := {|| status_key( '^<Esc>^ - выход; ^^ или нач.буква - поиск; ^<F9>^ - печать заявления на прикрепление' ) }
