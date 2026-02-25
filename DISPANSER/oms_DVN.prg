@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.02.26 ДВН - добавление или редактирование случая (листа учета)
+// 25.02.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -1613,7 +1613,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           ++kol_d_usl
           AAdd( arr_osm1, Array( 11 ) )
           j := Len( arr_osm1 )
-          arr_osm1[ j, 1 ] := m1vrach
+//          arr_osm1[ j, 1 ] := m1vrach
+          arr_osm1[ j, 1 ] := p2->kod   //  m1vrach
           arr_osm1[ j, 2 ] := m1prvs
           arr_osm1[ j, 3 ] := m1assis
           arr_osm1[ j, 4 ] := m1PROFIL
