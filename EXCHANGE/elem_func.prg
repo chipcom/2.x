@@ -5,11 +5,12 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.02.26
+// 26.02.26
 function elem_napr( oSl, arr_onkna, lDispans )
 
   local oNAPR
   local mNPR_MO, j
+  local nomer_napr
 
   For j := 1 To Len( arr_onkna )
     // заполним сведения о направлениях для XML-документа
@@ -17,7 +18,11 @@ function elem_napr( oSl, arr_onkna, lDispans )
     mo_add_xml_stroke( oNAPR, 'NAPR_DATE', date2xml( arr_onkna[ j, 1 ] ) )
 
     If ! lDispans    // согласно ПУМП вер. 4.6 ( без поликлиники-диспансеризации)
-      mo_add_xml_stroke( oNapr, 'NAPR_NUM', get_NAPR_MO( human->kod, _NPR_LECH ) )
+      nomer_napr := get_NAPR_MO( human->kod, _NPR_LECH )
+      if ! empty( nomer_napr )
+//        mo_add_xml_stroke( oNapr, 'NAPR_NUM', get_NAPR_MO( human->kod, _NPR_LECH ) )
+        mo_add_xml_stroke( oNapr, 'NAPR_NUM', nomer_napr )
+      endif
     endif
 
     If !Empty( arr_onkna[ j, 5 ] ) .and. !Empty( mNPR_MO := ret_mo( arr_onkna[ j, 5 ] )[ _MO_KOD_FFOMS ] )
