@@ -2,128 +2,145 @@
 #include 'chip_mo.ch'
 
 // 01.11.22
-function getInfoKSLP(dateSl, code)
-  local row := {}
-  local tmpArray := getKSLPtable(dateSl)
+Function getinfokslp( dateSl, code )
 
-  for each row in tmpArray
-    if row[1] == code
-      return row
-    endif
-  next
-  return row
+  Local row := {}
+  Local tmpArray := getkslptable( dateSl )
+
+  For Each row in tmpArray
+    If row[ 1 ] == code
+      Return row
+    Endif
+  Next
+
+  Return row
 
 // 01.11.22
-function getInfoKIRO(dateSl, code)
-  local row := {}
-  local tmpArray := getKIROtable(dateSl)
+Function getinfokiro( dateSl, code )
 
-  for each row in tmpArray
-    if row[1] == code
-      return row
-    endif
-  next
-  return row
+  Local row := {}
+  Local tmpArray := getkirotable( dateSl )
 
-// 14.10.24
-// возвращает массив КСЛЭ на указанную дату
-function getKSLPtable(dateSl)
+  For Each row in tmpArray
+    If row[ 1 ] == code
+      Return row
+    Endif
+  Next
+
+  Return row
+
+// 27.02.26 возвращает массив КСЛП на указанную дату
+Function getkslptable( dateSl )
+
   Local dbName, dbAlias := 'KSLP_'
-  local tmp_select := select()
-  local retKSLP := {}
-  local aKSLP, row
-  local yearSl := year(dateSl)
+  Local tmp_select := Select()
+  Local retKSLP := {}
+  Local aKSLP, row
+  Local yearSl := Year( dateSl )
 
-  static hKSLP, lHashKSLP := .f.
+  Static hKSLP, lHashKSLP := .f.
 
   // при отсутствии ХЭШ-массива создадим его
-  if !lHashKSLP
+  If !lHashKSLP
     hKSLP := hb_Hash()
     lHashKSLP := .t.
-  endif
+  Endif
 
   // получим массив КСЛЭ из хэша по ключу ГОД ОКОЭЧАЭИЯ СЛУЧАЯ, или загрузим его из справочника
-  if hb_HHasKey( hKSLP, yearSl )
-    aKSLP := hb_HGet(hKSLP, yearSl)
-  else
+  If hb_HHasKey( hKSLP, yearSl )
+    aKSLP := hb_HGet( hKSLP, yearSl )
+  Else
     aKSLP := {}
-    tmp_select := select()
-    dbName := prefixFileRefName(dateSl) + 'kslp'
+    tmp_select := Select()
+    dbName := prefixfilerefname( dateSl ) + 'kslp'
 
-    dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbAlias , .t., .f. )
-    (dbAlias)->(dbGoTop())
-    do while !(dbAlias)->(EOF())
-      aadd(aKSLP, { (dbAlias)->CODE, alltrim((dbAlias)->NAME), alltrim((dbAlias)->NAME_F), (dbAlias)->COEFF, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-      (dbAlias)->(dbSkip())
-    enddo
-    (dbAlias)->(dbCloseArea())
-    asort(aKSLP,,,{|x,y| x[1] < y[1] })
+    dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbAlias, .t., .f. )
+    ( dbAlias )->( dbGoTop() )
+    Do While !( dbAlias )->( Eof() )
+      if dateSl >= 0d20260101
+        AAdd( aKSLP, { ( dbAlias )->CODE, AllTrim( ( dbAlias )->NAME ), AllTrim( ( dbAlias )->NAME_F ), ( dbAlias )->COEFF, ( dbAlias )->DATEBEG, ( dbAlias )->DATEEND, ( dbAlias )->ID_SL, ( dbAlias )->PG_SL } )
+      else
+        AAdd( aKSLP, { ( dbAlias )->CODE, AllTrim( ( dbAlias )->NAME ), AllTrim( ( dbAlias )->NAME_F ), ( dbAlias )->COEFF, ( dbAlias )->DATEBEG, ( dbAlias )->DATEEND } )
+      endif
+      ( dbAlias )->( dbSkip() )
+    Enddo
+    ( dbAlias )->( dbCloseArea() )
+    ASort( aKSLP,,, {| x, y| x[ 1 ] < y[ 1 ] } )
 
-    Select(tmp_select)
+    Select( tmp_select )
     // поместим в ХЭШ-массив
-    hKSLP[yearSl] := aKSLP
-  endif
+    hKSLP[ yearSl ] := aKSLP
+  Endif
 
-  // выберем возможные КСЛЭ по дате
-  for each row in aKSLP
-    if between(dateSl, row[5], row[6])
-      aadd(retKSLP, { row[1], row[2], row[3], row[4], row[5], row[6] })
-    endif
-  next
+  // выберем возможные КСЛП по дате
+  For Each row in aKSLP
+    If ( row[ 5 ] <= dateSl ) .and. ( ( dateSl <= row[ 6 ] ) .or. Empty( row[ 6 ] ) ) //, row[ 5 ], row[ 6 ] )
+      if dateSl >= 0d20260101
+        AAdd( retKSLP, { row[ 1 ], row[ 2 ], row[ 3 ], row[ 4 ], row[ 5 ], row[ 6 ], row[ 7 ], row[ 8 ] } )
+      else
+        AAdd( retKSLP, { row[ 1 ], row[ 2 ], row[ 3 ], row[ 4 ], row[ 5 ], row[ 6 ] } )
+      endif
+    Endif
+  Next
 
-  if empty(retKSLP)
-    alertx('Эа дату ' + DToC(dateSl) + ' КСЛЭ отсутствуют!')
-  endif
-  return retKSLP
+  If Empty( retKSLP )
+    alertx( 'На дату ' + DToC( dateSl ) + ' КСЛП отсутствуют!' )
+  Endif
 
-// 14.10.24
-// возвращает массив КИЭО на указанную дату
-function getKIROtable( dateSl )
+  Return retKSLP
+
+// 27.02.26 возвращает массив КИРО на указанную дату
+Function getkirotable( dateSl )
+
   Local dbName, dbAlias := 'KIRO_'
-  local tmp_select := select()
-  local retKIRO := {}
-  local aKIRO, row
-  local yearSl := year(dateSl)
+  Local tmp_select := Select()
+  Local retKIRO := {}
+  Local aKIRO, row
+  Local yearSl := Year( dateSl )
 
-  static hKIRO, lHashKIRO := .f.
+  Static hKIRO, lHashKIRO := .f.
 
   // при отсутствии ХЭШ-массива создадим его
-  if !lHashKIRO
+  If !lHashKIRO
     hKIRO := hb_Hash()
     lHashKIRO := .t.
-  endif
+  Endif
 
-  // получим массив КИЭО из хэша по ключу ГОД ОКОЭЧАЭИЯ СЛУЧАЯ, или загрузим его из справочника
-  if hb_HHasKey( hKIRO, yearSl )
-    aKIRO := hb_HGet(hKIRO, yearSl)
-  else
+  // получим массив КИРО из хэша по ключу ГОД ОКОЗАНИЯ СЛУЧАЯ, или загрузим его из справочника
+  If hb_HHasKey( hKIRO, yearSl )
+    aKIRO := hb_HGet( hKIRO, yearSl )
+  Else
     aKIRO := {}
-    tmp_select := select()
-    dbName := prefixFileRefName(dateSl) + 'kiro'
+    tmp_select := Select()
+    dbName := prefixfilerefname( dateSl ) + 'kiro'
 
-    dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbAlias , .t., .f. )
-    (dbAlias)->(dbGoTop())
-    do while !(dbAlias)->(EOF())
-      aadd(aKIRO, { (dbAlias)->CODE, alltrim((dbAlias)->NAME), alltrim((dbAlias)->NAME_F), (dbAlias)->COEFF, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-      (dbAlias)->(dbSkip())
-    enddo
-    (dbAlias)->(dbCloseArea())
-    asort(aKIRO,,,{|x,y| x[1] < y[1] })
+    dbUseArea( .t., 'DBFNTX', dir_exe() + dbName, dbAlias, .t., .f. )
+    ( dbAlias )->( dbGoTop() )
+    Do While !( dbAlias )->( Eof() )
+      if dateSl >= 0d20260101
+        AAdd( aKIRO, { ( dbAlias )->CODE, AllTrim( ( dbAlias )->NAME ), AllTrim( ( dbAlias )->NAME_F ), 0, ( dbAlias )->DATEBEG, ( dbAlias )->DATEEND } )
+      else
+        AAdd( aKIRO, { ( dbAlias )->CODE, AllTrim( ( dbAlias )->NAME ), AllTrim( ( dbAlias )->NAME_F ), ( dbAlias )->COEFF, ( dbAlias )->DATEBEG, ( dbAlias )->DATEEND } )
+      endif
+      ( dbAlias )->( dbSkip() )
+    Enddo
+    ( dbAlias )->( dbCloseArea() )
+    ASort( aKIRO,,, {| x, y| x[ 1 ] < y[ 1 ] } )
 
-    Select(tmp_select)
+    Select( tmp_select )
     // поместим в ХЭШ-массив
-    hKIRO[yearSl] := aKIRO
-  endif
+    hKIRO[ yearSl ] := aKIRO
+  Endif
 
-  // выберем возможные КИЭО по дате
-  for each row in aKIRO
-    if between(dateSl, row[5], row[6])
-      aadd(retKIRO, { row[1], row[2], row[3], row[4], row[5], row[6] })
-    endif
-  next
+  // выберем возможные КИРО по дате
+  For Each row in aKIRO
+    If ( row[ 5 ] <= dateSl ) .and. ( ( dateSl <= row[ 6 ] ) .or. Empty( row[ 6 ] ) )
+      AAdd( retKIRO, { row[ 1 ], row[ 2 ], row[ 3 ], row[ 4 ], row[ 5 ], row[ 6 ] } )
+    Endif
+  Next
 
-  if empty(retKIRO)
-    alertx('Эа дату ' + DToC(dateSl) + ' КИЭО отсутствуют!')
-  endif
+  If Empty( retKIRO )
+    alertx( 'На дату ' + DToC( dateSl ) + ' КИРО отсутствуют!' )
+  Endif
 
-  return retKIRO
+  Return retKIRO
