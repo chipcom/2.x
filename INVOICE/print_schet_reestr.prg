@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 20.02.26
+// 27.02.26
 function schet_reestr( arr, destination, one, reg )
   // arr - массив счетов
   // destination - целевой каталог
@@ -90,8 +90,9 @@ function schet_reestr( arr, destination, one, reg )
 
     tailName := AllTrim( glob_mo()[ _MO_KOD_TFOMS ] ) ;
       + iif( AllTrim( schet_->SMO ) == '34', 'T34', 'S' + AllTrim( schet_->SMO ) ) ;
-      + '_' + AllTrim( StrTran( schet_->nschet, '   ', '' ) ) + '_' ;
+      + '_' + AllTrim( schet_->nschet ) + '_' ;
       + str( Year( schet_->DSCHET ), 4 ) + StrZero( Month( schet_->DSCHET ), 2 ) + StrZero( Day( schet_->DSCHET ), 2 )  + '.pdf'
+//      + '_' + AllTrim( StrTran( schet_->nschet, '   ', '' ) ) + '_' ;
     fNameSchet := destination + 'SCM' + tailName
     fNameReestr := destination + 'SRM' + tailName
   
