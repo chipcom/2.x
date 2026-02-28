@@ -228,7 +228,7 @@ function elem_mr_usl_n( oUsl, nyear, number, prvs, snils )
   mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', snils )
   return nil
 
-// 26.10.25
+// 28.02.26
 function elem_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
 
   // тэг добавляется только для реестров 1 типа и помощь в условиях дневного
@@ -275,7 +275,8 @@ function elem_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
       For iAKSLP := 1 To Len( akslp )
         If ( cKSLP := AScan( tKSLP, {| x| x[ 1 ] == akslp[ iAKSLP ] } ) ) > 0
           oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
-          mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ iAKSLP ] ) )
+//          mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ iAKSLP ] ) )
+          mo_add_xml_stroke( oSLk, 'IDSL', 'sl' + StrZero( akslp[ iAKSLP ], 3, 0 ) )
           mo_add_xml_stroke( oSLk, 'VAL_C', lstr( tKSLP[ cKSLP, 4 ], 7, 5 ) )
         Endif
       Next
@@ -299,9 +300,11 @@ function elem_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
   Endif
   If ! Empty( akiro )
     // заполним сведения о КИРО для XML-документа
-    oSLk := oKSG:add( hxmlnode():new( 'S_KIRO' ) )
-    mo_add_xml_stroke( oSLk, 'CODE_KIRO', lstr( akiro[ 1 ] ) )
-    mo_add_xml_stroke( oSLk, 'VAL_K', lstr( akiro[ 2 ], 4, 2 ) )
+//    oSLk := oKSG:add( hxmlnode():new( 'S_KIRO' ) )
+//    mo_add_xml_stroke( oSLk, 'CODE_KIRO', lstr( akiro[ 1 ] ) )
+//    mo_add_xml_stroke( oSLk, 'VAL_K', lstr( akiro[ 2 ], 4, 2 ) )
+    mo_add_xml_stroke( oKSG, 'PR_PR', lstr( akiro[ 1 ] ) )
+    mo_add_xml_stroke( oKSG, 'KOEF_PR', lstr( akiro[ 2 ], 7, 5 ) )
   Endif
   return nil
 

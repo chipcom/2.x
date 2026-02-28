@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500
 
-// 31.01.26 работаем по текущей записи
+// 28.02.26 работаем по текущей записи
 Function f1_create2reestrCommon( _nyear, p_tip_reestr )
 
   Local i, j, lst, sVidpoms
@@ -28,14 +28,21 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
     lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
     If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, , , @lst, , @sVidpoms )
       lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
+
+      if ( SubStr( lshifr, 1, 2 ) == 'st' ) .or. ( SubStr( lshifr, 1, 2 ) == 'ds' )
+        lshifr_KSG := lshifr
+        is_KSG := .t.
+      endif
+
       If human_->USL_OK == USL_OK_POLYCLINIC .and. is_usluga_disp_nabl( lshifr )
         ldate_next := c4tod( human->DATE_OPL )
         fl_disp_nabl := .t.
       Endif
       AAdd( atmpusl, lshifr )
+
       If eq_any( Left( lshifr, 5 ), '1.11.', '55.1.' )
         kol_kd += hu->kol_1
-        is_KSG := .t.
+//        is_KSG := .t.
       Elseif Left( lshifr, 5 ) == '2.89.'
         pr_amb_reab := .t.
       Elseif Left( lshifr, 5 ) == '60.9.'
