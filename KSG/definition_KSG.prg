@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.11.25 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 28.02.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -82,6 +82,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   Local vkiro := 0
 	local color_say := 'N/W', color_get := 'W/N*'
   local two_letters
+  local ltype_ksg := 0
 
   Default par To 1, sp0 To '', sp1 To Space( 1 ), sp6 To Space( 6 ), sp15 To Space( 20 )
   Default lDoubleSluch To .f.
@@ -433,21 +434,42 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       j++
       j++
       If fl
-        AAdd( ar, { k006->shifr, ; // 1
-        0, ;           // 2
-          lkoef, ;       // 3
-        &lal.->kiros, ; // 4
-        osn_diag, ;    // 5
-        k006->sy, ;    // 6
-        k006->age, ;   // 7
-        k006->sex, ;   // 8
-        k006->los, ;   // 9
-        k006->ad_cr, ; // 10
-        '', ;        // 11
-        '', ;        // 12
-        j, ;           // 13
-        &lal.->kslps, ; // 14
-        k006->ad_cr1 } ) // 15
+        if lk_data >= 0d20260101
+          AAdd( ar, { k006->shifr, ; // 1
+            0, ;           // 2
+            lkoef, ;       // 3
+            &lal.->kiros, ; // 4
+            osn_diag, ;    // 5
+            k006->sy, ;    // 6
+            k006->age, ;   // 7
+            k006->sex, ;   // 8
+            k006->los, ;   // 9
+            k006->ad_cr, ; // 10
+            '', ;        // 11
+            '', ;        // 12
+            j, ;           // 13
+            &lal.->kslps, ; // 14
+            k006->ad_cr1, ; // 15
+            &lal.->TYPE_KSG } ; // 16
+          )
+        else
+          AAdd( ar, { k006->shifr, ; // 1
+            0, ;           // 2
+            lkoef, ;       // 3
+            &lal.->kiros, ; // 4
+            osn_diag, ;    // 5
+            k006->sy, ;    // 6
+            k006->age, ;   // 7
+            k006->sex, ;   // 8
+            k006->los, ;   // 9
+            k006->ad_cr, ; // 10
+            '', ;        // 11
+            '', ;        // 12
+            j, ;           // 13
+            &lal.->kslps, ; // 14
+            k006->ad_cr1 } ; // 15
+          )
+        endif
       Endif
       K006->( dbSkip() )
     Enddo
@@ -568,21 +590,42 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         If !Empty( k006->sy ) .and. ( i := AScan( amohu, k006->sy ) ) > 0
           AAdd( tmp, i )
         Endif
-        AAdd( ar, { k006->shifr, ; // 1
-        0, ;           // 2
-          lkoef, ;       // 3
-        &lal.->kiros, ; // 4
-        osn_diag, ;    // 5
-        k006->sy, ;    // 6
-        k006->age, ;   // 7
-        k006->sex, ;   // 8
-        k006->los, ;   // 9
-        k006->ad_cr, ; // 10
-        sds1, ;        // 11
-        sds2, ;        // 12
-        j, ;           // 13
-        &lal.->kslps, ; // 14
-        k006->ad_cr1 } ) // 15
+        if lk_data >= 0d20260101
+          AAdd( ar, { k006->shifr, ; // 1
+            0, ;           // 2
+            lkoef, ;       // 3
+            &lal.->kiros, ; // 4
+            osn_diag, ;    // 5
+            k006->sy, ;    // 6
+            k006->age, ;   // 7
+            k006->sex, ;   // 8
+            k006->los, ;   // 9
+            k006->ad_cr, ; // 10
+            sds1, ;        // 11
+            sds2, ;        // 12
+            j, ;           // 13
+            &lal.->kslps, ; // 14
+            k006->ad_cr1, ; // 15
+            &lal.->TYPE_KSG } ; // 16
+          )
+        else
+          AAdd( ar, { k006->shifr, ; // 1
+            0, ;           // 2
+            lkoef, ;       // 3
+            &lal.->kiros, ; // 4
+            osn_diag, ;    // 5
+            k006->sy, ;    // 6
+            k006->age, ;   // 7
+            k006->sex, ;   // 8
+            k006->los, ;   // 9
+            k006->ad_cr, ; // 10
+            sds1, ;        // 11
+            sds2, ;        // 12
+            j, ;           // 13
+            &lal.->kslps, ; // 14
+            k006->ad_cr1 } ; // 15
+          )
+        endif
       Endif
       Select K006
       k006->( dbSkip() )  //  Skip
@@ -605,21 +648,42 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
         j := 1
         ar := {}
-        AAdd( ar1, { k006->shifr, ; // 1
-        0, ;           // 2
-          lkoef, ;       // 3
-        &lal.->kiros, ; // 4
-        k006->ds, ;    // 5
-        lshifr, ;      // 6
-        k006->age, ;   // 7
-        k006->sex, ;   // 8
-        k006->los, ;   // 9
-        k006->ad_cr, ; // 10
-        sds1, ;        // 11
-        sds2, ;        // 12
-        j, ;           // 13
-        &lal.->kslps, ; // 14
-        k006->ad_cr1 } ) // 15
+        if lk_data >= 0d20260101
+          AAdd( ar1, { k006->shifr, ; // 1
+            0, ;           // 2
+            lkoef, ;       // 3
+            &lal.->kiros, ; // 4
+            k006->ds, ;    // 5
+            lshifr, ;      // 6
+            k006->age, ;   // 7
+            k006->sex, ;   // 8
+            k006->los, ;   // 9
+            k006->ad_cr, ; // 10
+            sds1, ;        // 11
+            sds2, ;        // 12
+            j, ;           // 13
+            &lal.->kslps, ; // 14
+            k006->ad_cr1, ; // 15
+            &lal.->kslps } ; // 16
+          )
+        else
+          AAdd( ar1, { k006->shifr, ; // 1
+            0, ;           // 2
+            lkoef, ;       // 3
+            &lal.->kiros, ; // 4
+            k006->ds, ;    // 5
+            lshifr, ;      // 6
+            k006->age, ;   // 7
+            k006->sex, ;   // 8
+            k006->los, ;   // 9
+            k006->ad_cr, ; // 10
+            sds1, ;        // 11
+            sds2, ;        // 12
+            j, ;           // 13
+            &lal.->kslps, ; // 14
+            k006->ad_cr1 } ; // 15
+          )
+        endif
       Endif
     Endif
   Endif
@@ -751,21 +815,40 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
           Endif
         Endif
         If fl
-          AAdd( _a1, { k006->shifr, ; // 1
-          0, ;           // 2
-            lkoef, ;       // 3
-          &lal.->kiros, ; // 4
-          k006->ds, ;    // 5
-          lshifr, ;      // 6
-          k006->age, ;   // 7
-          k006->sex, ;   // 8
-          k006->los, ;   // 9
-          k006->ad_cr, ; // 10
-          sds1, ;        // 11
-          sds2, ;        // 12
-          j, ;           // 13
-          &lal.->kslps, ; // 14
-          k006->ad_cr1 } ) // 15
+          if lk_data >= 0d20260101
+            AAdd( _a1, { k006->shifr, ; // 1
+              0, ;           // 2
+              lkoef, ;       // 3
+              &lal.->kiros, ; // 4
+              k006->ds, ;    // 5
+              lshifr, ;      // 6
+              k006->age, ;   // 7
+              k006->sex, ;   // 8
+              k006->los, ;   // 9
+              k006->ad_cr, ; // 10
+              sds1, ;        // 11
+              sds2, ;        // 12
+              j, ;           // 13
+              &lal.->kslps, ; // 14
+              k006->ad_cr1, ; // 15
+              &lal.->kslps } ) // 16
+          else
+            AAdd( _a1, { k006->shifr, ; // 1
+              0, ;           // 2
+              lkoef, ;       // 3
+              &lal.->kiros, ; // 4
+              k006->ds, ;    // 5
+              lshifr, ;      // 6
+              k006->age, ;   // 7
+              k006->sex, ;   // 8
+              k006->los, ;   // 9
+              k006->ad_cr, ; // 10
+              sds1, ;        // 11
+              sds2, ;        // 12
+              j, ;           // 13
+              &lal.->kslps, ; // 14
+              k006->ad_cr1 } ) // 15
+          endif
           if Empty( k006->ad_cr )
             AAdd( ar_crit, { '', '--нет критерия--' } )
             AAdd( ar_crit1, '--нет критерия--' )
@@ -897,12 +980,18 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
     lcena := aTerKSG[ 1, 2 ]
     lkiro := list2arr( aTerKSG[ 1, 4 ] )
     lkslp := aTerKSG[ 1, 14 ]
+    if lk_data >= 0d20260101
+      ltype_ksg := aTerKSG[ 1, 16 ]
+    endif
   Elseif kol_hir > 0
     aHirKSG[ 1, 1 ] := AllTrim( aHirKSG[ 1, 1 ] )
     lksg  := aHirKSG[ 1, 1 ]
     lcena := aHirKSG[ 1, 2 ]
     lkiro := list2arr( aHirKSG[ 1, 4 ] )
     lkslp := aHirKSG[ 1, 14 ]
+    if lk_data >= 0d20260101
+      ltype_ksg := aHirKSG[ 1, 16 ]
+    endif
   Endif
   akslp := {}
   akiro := {}
@@ -991,8 +1080,8 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       If !Empty( lkiro )
         vkiro := defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lk_data )
 
-        If vkiro > 0
-          akiro := f_cena_kiro( @lcena, vkiro, lk_data )
+        If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
+          akiro := f_cena_kiro( @lcena, vkiro, lk_data, lrslt, ltype_ksg )
           strSoob += '  (КИРО = ' + Str( akiro[ 2 ], 4, 2 ) + ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
         Endif
       Endif
