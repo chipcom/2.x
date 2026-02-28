@@ -1213,7 +1213,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           if &mvard == mn_data
             k := i
           Endif
-//altd()
 //          if eq_any( lshifr, '70.7.63', '70.7.363' )
 //            date_dvn_2026_I_etap := &mvard
 //          elseif eq_any( lshifr, '72.5.17', '72.5.18', '72.5.317', '72.5.318' )
@@ -1407,7 +1406,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       fl := .t.
-//altd()
       If emptyany( arr_osm1[ len( dvn_arr_usl ), 1 ], arr_osm1[ len( dvn_arr_usl ), 9 ] )
         If metap == 2 .and. i_56_1_723 > 0
           If !( arr_osm1[ i_56_1_723, 9 ] == mn_data .and. arr_osm1[ i_56_1_723, 9 ] == mk_data )
