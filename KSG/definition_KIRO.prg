@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 28.02.25
+// 29.02.25
 Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkdata )
 
   // lkiro - α―¨α®ª Ά®§¬®¦­λε  ¤«ο ‘ƒ
@@ -39,15 +39,21 @@ Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkda
     if Len( tmp_v009 ) == 1
       return tmp_v009[ 1, 1 ]
     elseif Len( tmp_v009 ) > 1
+      i := AScan( tmp_v009, { | x | x[ 1 ] == 8 } )
       if ! lKIRO_8
         if ( i := AScan( tmp_v009, { | x | x[ 1 ] == 8 } ) ) > 0
           hb_ADel( tmp_v009, i, .t. )
         endif
+      else
+      return 8
       endif
+      i := AScan( tmp_v009, { | x | x[ 1 ] == 9 } )
       if ! lKIRO_9
         if ( i := AScan( tmp_v009, { | x | x[ 1 ] == 9 } ) ) > 0
           hb_ADel( tmp_v009, i, .t. )
         endif
+      else
+        return 9
       endif
       return tmp_v009[ 1, 1 ]
     else
