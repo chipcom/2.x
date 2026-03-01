@@ -1012,7 +1012,7 @@ Function f_spr_usl_adres_podr()
   Endif
   Return ret_arr
 
-// 11.05.25
+// 27.02.26
 Function usl2tfoms()
 
   Static sdate
@@ -1064,7 +1064,11 @@ Function usl2tfoms()
         k := perenos( ta, AllTrim( rowKSLP[ 3 ] ), 58 )
         For i := 1 To k
           If i == 1
-            tmpKSLP := Str( rowKSLP[ 1 ], 7 ) + ' - ' + ta[ i ] + ' (коеф=' + Str( rowKSLP[ 4 ], 4, 2 ) + ')'
+            if mdate >= 0d20260101
+              tmpKSLP := rowKSLP[ 7 ] + ' - ' + ta[ i ] + ' (коеф=' + Str( rowKSLP[ 4 ], 4, 2 ) + ')'
+            else
+              tmpKSLP := Str( rowKSLP[ 1 ], 7 ) + ' - ' + ta[ i ] + ' (коеф=' + Str( rowKSLP[ 4 ], 4, 2 ) + ')'
+            endif
           Else
             tmpKSLP := Space( 10 ) + ta[ i ]
           Endif

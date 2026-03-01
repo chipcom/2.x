@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 22.02.26
+// 28.02.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -50,6 +50,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Private is_zak_sl, is_zak_sl_vr
   Private lshifr_zak_sl //  , lvidpoms
+  private lshifr
+  private lshifr_KSG
   Private a_usl
   Private a_usl_name
   Private lvidpom
@@ -72,6 +74,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Private arr_usl_otkaz
 //  Private atmpusl
 //  Private ar_dn
+
+  lshifr_KSG := ''
 
   flLekPreparat := .f.
 
@@ -637,7 +641,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     Endif
     If is_KSG
       // заполним сведения о КСГ для XML-документа
-      elem_ksg( oSl, lshifr_zak_sl, endDateZK, is_oncology )
+//      elem_ksg( oSl, lshifr_zak_sl, endDateZK, is_oncology )
+      elem_ksg( oSl, lshifr_KSG, endDateZK, is_oncology )
 /*
       oKSG := oSL:add( hxmlnode():new( 'KSG_KPG' ) )
       mo_add_xml_stroke( oKSG, 'N_KSG', lshifr_zak_sl )

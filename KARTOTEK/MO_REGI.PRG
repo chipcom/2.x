@@ -3323,11 +3323,12 @@ Function read_csv_file_otkrep( cFile, aerr )
 #define CSV_A_DT_MO  9
 #define CSV_A_CERR  10
 
-// 21.02.26 чтение в память и анализ CSV-файла ответа на запрос для сверки
+// 27.02.26 чтение в память и анализ CSV-файла ответа на запрос для сверки
 Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
     fl_et, au := {}, mmo_pr, md_prik, buf := save_maxrow()
+  local old_mo := {}
 
   stat_msg( 'Предварительная обработка' )
   StrFile( Space( 10 ) + 'Протокол обработки для файла ответа на запрос по сверке' + ;
@@ -3372,6 +3373,13 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
     arr_csv[ i, CSV_A_UCH ]   := Int( Val( arr_csv[ i, CSV_A_UCH ] ) )
     arr_csv[ i, CSV_A_DT ]    := SToD( arr_csv[ i, CSV_A_DT ] )
     arr_csv[ i, CSV_A_DT_MO ] := SToD( arr_csv[ i, CSV_A_DT_MO ] )
+    // надо перекодировать МО прикрепления
+    aadd( old_mo, arr_csv[ i, CSV_A_MO ] )
+    select _MO_MO
+    find( padl( arr_csv[ i, CSV_A_MO ], 6 ) )
+    if found()
+      arr_csv[ i, CSV_A_MO ] := _mo_mo->codem        // 7
+    endif  
     Select KRTP
     find ( Str( arr_csv[ i, CSV_A_NREC ], 6 ) )
     If !Found()
