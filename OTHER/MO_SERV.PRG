@@ -700,13 +700,98 @@ Function f2_import_from_lis( par )
   Select KART2
   Set Order To 1
   find ( PadR( arr_pac[ LIS_KOD_AK ], 10 ) )
-  If Found()
+  If Found() // данный челове есть в картотеке - с 01.03.2026 актуализируем
+//    lkod_k := RecNo()
+//    Select KART
+//    Set Order To 0
+//    Goto ( lkod_k )
+//    Select KART_
+//    Goto ( lkod_k )
     lkod_k := RecNo()
     Select KART
     Set Order To 0
     Goto ( lkod_k )
+//   mydebug(,lkod_k) 
+    // актуализируем
+    g_rlock( forever )
+// mydebug(,kart->FIO ) 
+// mydebug(,mfio) 
+    kart->FIO := mfio
+    kart->DATE_R := arr_pac[ LIS_DATE_R ]
+    kart->PC3 := '000'
+    mdate_r := kart->DATE_R
+    fv_date_r()
+    kart->pol := arr_pac[ LIS_POL ]
+    kart->VZROS_REB := m1VZROS_REB
+    kart->POLIS := make_polis( arr_pac[ LIS_SPOLIS ], arr_pac[ LIS_NPOLIS ] )
+    kart->snils := arr_pac[ LIS_SNILS ]
+    If twowordfamimot( afio[ 1 ] ) .or. twowordfamimot( afio[ 2 ] ) .or. twowordfamimot( afio[ 3 ] )
+      kart->MEST_INOG := 9
+    Else
+      kart->MEST_INOG := 0
+    Endif
+    Unlock
+    //
     Select KART_
     Goto ( lkod_k )
+    // актуализируем
+    g_rlock( forever )
+    kart_->VPOLIS := arr_pac[ LIS_VPOLIS ]
+    kart_->SPOLIS := arr_pac[ LIS_SPOLIS ]
+    kart_->NPOLIS := arr_pac[ LIS_NPOLIS ]
+    kart_->vid_ud := arr_pac[ LIS_VID_UD ]
+    kart_->ser_ud := arr_pac[ LIS_SER_UD ]
+    kart_->nom_ud := arr_pac[ LIS_NOM_UD ]
+    kart_->mesto_r := arr_pac[ LIS_MESTO_R ]
+    kart_->okatog := arr_pac[ LIS_OKATO ]
+    kart_->okatop := kart_->okatog
+    If Left( kart_->okatog, 2 ) == "18" // Волгоградская область
+      kart_->SMO := "34007" // ООО "РГС-Медицина"
+    Else
+      kart_->SMO := "34"    // ТФОМС
+      kart_->KVARTAL_D := Left( kart_->okatog, 5 ) // ОКАТО субъекта РФ территории страхования
+    Endif
+    Unlock
+    //
+    Select KART2
+    Set Order To 0
+    Goto ( lkod_k )
+    g_rlock( forever )
+    kart2->kod_tf := 0
+    kart2->kod_mis := ""
+   // kart2->kod_AK := arr_pac[ LIS_KOD_AK ]  // ключевое поле !!! не переписываем
+    kart2->MO_PR := ""
+    kart2->TIP_PR := 0
+    kart2->DATE_PR := CToD( "" )
+    kart2->SNILS_VR := "" // уч.врач ещё не привязан
+    kart2->PC1 := kod_polzovat + c4sys_date + hour_min( Seconds() )
+    kart2->PC2 := ""
+    kart2->PC3 := ""
+    kart2->PC4 := ""
+    Unlock
+    //
+    Select KFIO  // сложное ФИО
+    find ( Str( lkod_k, 7 ) )
+    If Found()
+      If kart->MEST_INOG == 9
+        g_rlock( forever )
+        kfio->FAM := afio[ 1 ]
+        kfio->IM  := afio[ 2 ]
+        kfio->OT  := afio[ 3 ]
+        Unlock
+      Else
+        deleterec( .t. )
+      Endif
+    Else
+      If kart->MEST_INOG == 9
+        addrec( 7 )
+        kfio->kod := lkod_k
+        kfio->FAM := afio[ 1 ]
+        kfio->IM  := afio[ 2 ]
+        kfio->OT  := afio[ 3 ]
+      Endif
+    Endif
+    //////
   Else
     Select KART
     Set Order To 1
@@ -3658,12 +3743,12 @@ Function f1nastr_all( nameTask, nTask )
         {| x| menu_reader( x, mm_v_methodinj, A__MENUVERT ) }, ;
         0, {| x| inieditspr( A__MENUVERT, mm_v_methodinj, x ) }, ;
         'Выводить Справочник ФФОМС ПУТИ ВВЕДЕНИЯ:' } )
-      AAdd( mm_tmp, { "beg_rees", "N", 4, 0, NIL, ;
+      AAdd( mm_tmp, { "beg_rees", "N", 6, 0, NIL, ;
         nil, ;
         1, nil, ;
         "Допустимый наименьший номер реестра случаев", ;
         {|| mbeg_rees > 0 .and. mbeg_rees < mend_rees } } )
-      AAdd( mm_tmp, { "end_rees", "N", 4, 0, NIL, ;
+      AAdd( mm_tmp, { "end_rees", "N", 6, 0, NIL, ;
         nil, ;
         999999, nil, ;
         "Допустимый наибольший номер реестра случаев", ;
@@ -3736,13 +3821,13 @@ Function f1nastr_all( nameTask, nTask )
       tmp->path_exe  := dir_exe()
       tmp->path_dbf  := Upper( dir_server() )
       // 14.02.26
-      if mem_beg_rees > 9999
-        mem_beg_rees := 4999
-      endif  
+      //if mem_beg_rees > 9999
+      //  mem_beg_rees := 4999
+      //endif  
       tmp->beg_rees  := mem_beg_rees
-      if mem_end_rees > 9999
-        mem_end_rees := 9999
-      endif
+      //if mem_end_rees > 9999
+      //  mem_end_rees := 9999
+      //endif
       tmp->end_rees  := mem_end_rees
       // 
       tmp->bnn_rees  := mem_bnn13rees

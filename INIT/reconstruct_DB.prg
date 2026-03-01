@@ -71,7 +71,7 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 20.02.26 реконстукция баз данных
+// 28.02.26 реконстукция баз данных
 Function reconstruct_db( is_local_version )
 
   Local base1 := { ;
@@ -208,7 +208,7 @@ Function reconstruct_db( is_local_version )
     { 'SNILS_VR',   'C',  11, 0 }, ; // СНИЛС участкового врача
     { 'PC1',        'C',  10, 0 }, ; // при добавлении: kod_polzovat + c4sys_date + hour_min(seconds())
     { 'PC2',        'C',  10, 0 }, ; // 0-нет, 1-умер по результатам сверки
-    { 'PC3',        'C',  10, 0 }, ; //
+    { 'PC3',        'C',  10, 0 }, ; // код ошибки из ТФОМС по сверке 28.02.26
     { 'PC4',        'C',  10, 0 }, ; // дата прикрепления к МО
     { 'PC5',        'C',  10, 0 }, ; //
     { 'PN1',        'N',  10, 0 }, ; //

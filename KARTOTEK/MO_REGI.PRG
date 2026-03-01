@@ -3323,12 +3323,12 @@ Function read_csv_file_otkrep( cFile, aerr )
 #define CSV_A_DT_MO  9
 #define CSV_A_CERR  10
 
-// 27.02.26 чтение в память и анализ CSV-файла ответа на запрос для сверки
+// 01.03.26 чтение в память и анализ CSV-файла ответа на запрос для сверки
 Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
-    fl_et, au := {}, mmo_pr, md_prik, buf := save_maxrow()
-  local old_mo := {}
+    fl_et, au := {}, mmo_pr, md_prik, buf := save_maxrow(), old_mo := {}
+  Local _kod_error_zap := " ",  fl_ZAP := .F.
 
   stat_msg( 'Предварительная обработка' )
   StrFile( Space( 10 ) + 'Протокол обработки для файла ответа на запрос по сверке' + ;
@@ -3373,12 +3373,12 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
     arr_csv[ i, CSV_A_UCH ]   := Int( Val( arr_csv[ i, CSV_A_UCH ] ) )
     arr_csv[ i, CSV_A_DT ]    := SToD( arr_csv[ i, CSV_A_DT ] )
     arr_csv[ i, CSV_A_DT_MO ] := SToD( arr_csv[ i, CSV_A_DT_MO ] )
-    // надо перекодировать МО прикрепления
-    aadd( old_mo, arr_csv[ i, CSV_A_MO ] )
+ // надо перекодировать МО прикрепления
+    aadd(old_mo, arr_csv[ i, CSV_A_MO ])
     select _MO_MO
-    find( padl( arr_csv[ i, CSV_A_MO ], 6 ) )
+    find( padl(arr_csv[ i, CSV_A_MO ],6))
     if found()
-      arr_csv[ i, CSV_A_MO ] := _mo_mo->codem        // 7
+      arr_csv[ i, CSV_A_MO ]    :=  _mo_mo->codem        // 7
     endif  
     Select KRTP
     find ( Str( arr_csv[ i, CSV_A_NREC ], 6 ) )
@@ -3591,6 +3591,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
         Endif
         If eq_any( krte->REFREASON, 706, 708, 709, 802, 803 )
           n_del := 1
+          _kod_error_zap := krte->REFREASON
         Endif
       Next
       If fl_et // если найден или добавлен в 'kart_et'
@@ -3602,7 +3603,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
         5, ;
         s_death, ;
         n_del, ;
-        arr_csv[ i, CSV_A_MO ], arr_csv[ i, CSV_A_DT_MO ] )
+        arr_csv[ i, CSV_A_MO ], arr_csv[ i, CSV_A_DT_MO ],_kod_error_zap )
       If i % 2000 == 0
         dbUnlockAll()
         Commit
@@ -3664,7 +3665,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
     fl_et, au := {}, mmo_pr, md_prik, buf := save_maxrow(), old_mo := {}
-  Local   fl_ZAP := .F. 
+  Local   fl_ZAP := .F., _kod_error_zap := 0
 
   stat_msg( 'Предварительная обработка' )
   StrFile( Space( 10 ) + 'Протокол обработки для файла ответа на запрос по Прикреплению' + ;
@@ -3858,8 +3859,9 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
       Endif
       s_death := '0'
       n_del := 0
+       _kod_error_zap := 0
       For j := 1 To Len( arr_csv[ i, CSV_A_CERR ] )
-        // ошибки принятые
+        // ошибки принятые -
         Select KRTE
         find ( Str( nkod_reestr, 6 ) + Str( arr_csv[ i, CSV_A_NREC ], 6 ) + Str( arr_csv[ i, CSV_A_CERR, j ], 3 ) )
         If Found()
@@ -3881,19 +3883,22 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
         Endif
         If eq_any( krte->REFREASON, 706, 708, 709, 802, 803 )
           n_del := 1
+          _kod_error_zap := krte->REFREASON
         Endif
       Next
       If fl_et // если найден или добавлен в 'kart_et'
         kart_et->PC2 := s_death
       Endif
       // запись !!!!
-      kol4 := f_put_date_prik( krtp->KOD_K, ;
+      //mydebug(,kart->fio)
+      //mydebug(,_kod_error_zap)
+      kol4 := f_put_date_prik_new( krtp->KOD_K, ;
         arr_csv[ i, CSV_A_PID ], ;
         arr_csv[ i, CSV_A_ENP ], ;
         5, ;
         s_death, ;
         n_del, ;
-        arr_csv[ i, CSV_A_MO ], arr_csv[ i, CSV_A_DT_MO ] )
+        arr_csv[ i, CSV_A_MO ], arr_csv[ i, CSV_A_DT_MO ],_kod_error_zap )
       If i % 3000 == 0
         dbUnlockAll()
         Commit
@@ -3986,13 +3991,13 @@ Function f_put_et_etk( lpid, lenp, ld_prik, luchast, lmo, lsnils, lkod_k, lprior
 
   Return fl_et
 
-// 10.03.18
-Function f_put_date_prik( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo, ldate_prik_mo )
+// 01.03.26
+Function f_put_date_prik( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo, ldate_prik_mo, _kod_error )
 
   Static j := 0
   Local old_pr, arr := {}
 
-  Default _n_del To 0, lprik_mo To '', ldate_prik_mo To CToD( '' )
+  Default _n_del To 0, lprik_mo To '', ldate_prik_mo To CToD( '' ), _kod_error to 0
 
   Select KARTP
   find ( Str( lkod_k, 7 ) )
@@ -4013,6 +4018,7 @@ Function f_put_date_prik( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo,
     kart2->MO_PR := ''
     kart2->SNILS_VR := '' // уч.врач ещё не привязан
     kart2->PC2 := ''      // не умер
+    kart2->PC3 := ''  
     kart2->PC4 := ''
   Enddo
   Goto ( lkod_k )
@@ -4026,6 +4032,11 @@ Function f_put_date_prik( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo,
   If ldeath != NIL
     kart2->PC2 := ldeath
   Endif
+  //mydebug(,_kod_error)
+  // пока загрушил
+ // if _kod_error > 0
+ //   kart2->PC3 := lstr(_kod_error) 
+ // endif  
   If Empty( arr )
     If _n_del == 1
       kart2->MO_PR := ''
@@ -4047,6 +4058,63 @@ Function f_put_date_prik( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo,
     Elseif ltip_pr == 4
       kart2->pc4 := date_8( kart2->DATE_PR )
     Elseif !emptyany( lprik_mo, ldate_prik_mo ) .and. lprik_mo == kart2->MO_PR
+      kart2->pc4 := date_8( ldate_prik_mo )
+    Endif
+  Endif
+  If kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
+    ++j
+  Endif
+
+  Return j
+
+
+ // 01.03.26
+Function f_put_date_prik_new( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo, ldate_prik_mo, _kod_error )
+
+  Static j := 0
+  Local old_pr, arr := {}
+
+  Default _n_del To 0, lprik_mo To '', ldate_prik_mo To CToD( '' ), _kod_error to 0
+
+  
+  Select KART2
+  Do While kart2->( LastRec() ) < lkod_k
+    g_rlock( .t., forever ) // бесконечная попытка добавить запись
+    kart2->kod_tf := 0
+    kart2->MO_PR := ''
+    kart2->SNILS_VR := '' // уч.врач ещё не привязан
+    kart2->PC2 := ''      // не умер
+    kart2->PC3 := ''  
+    kart2->PC4 := ''
+  Enddo
+  Goto ( lkod_k )
+  g_rlock( forever )
+  If !Empty( lpid )
+    kart2->kod_tf := lpid
+  Endif
+  If !Empty( lenp )
+    kart2->kod_mis := lenp
+  Endif
+  If ldeath != NIL
+    kart2->PC2 := ldeath
+  Endif
+  if _kod_error > 0
+    kart2->PC3 := lstr(_kod_error) 
+  endif  
+  If Empty( arr )
+    If _n_del == 1
+      kart2->MO_PR := ''
+    Endif
+  Else
+    old_pr := kart2->MO_PR // то, что было записано
+    // if len(arr) > 1 .and. !empty(arr[2, 1])
+    // old_pr := arr[2, 1] // предыдущее прикрепление
+    // endif
+    ASort( arr, , , {| x, y| x[ 4 ] > y[ 4 ] } ) // в порядке убывания даты файла
+    kart2->TIP_PR   := ltip_pr
+    kart2->MO_PR    := iif( _n_del == 1, '', arr[ 1, 1 ] )
+    kart2->DATE_PR  := arr[ 1, 2 ]
+     if !emptyany( lprik_mo, ldate_prik_mo ) .and. lprik_mo == kart2->MO_PR
       kart2->pc4 := date_8( ldate_prik_mo )
     Endif
   Endif

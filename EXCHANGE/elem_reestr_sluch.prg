@@ -10,7 +10,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
   Local oSL, oSLUCH
-  Local oPRESCRIPTION, oPRESCRIPTIONS, oNAPR, oCONS
+//  Local oPRESCRIPTION, oPRESCRIPTIONS, oNAPR
+  Local oCONS
   Local oONK_SL, oDIAG, oPROT, oONK
   Local oUSL
   Local oPAC

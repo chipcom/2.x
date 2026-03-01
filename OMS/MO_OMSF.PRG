@@ -687,10 +687,12 @@ Function is_usluga_tfoms( lshifr, lshifr1, ldate_usl, ;
   lbukva := ' '
   _shifr := iif( Empty( lshifr1 ), lshifr, lshifr1 )
   dbSelectArea( lal )
+  mydebug(,PadR( _shifr, 10 ))
   find ( PadR( _shifr, 10 ) )
   If Found() // .and. between_date(lusl->datebeg, lusl->dateend, ldate_usl)
     fl := .t.
     lbukva := AllTrim( &lal.->bukva )
+      mydebug(,lbukva)
     If Len( lbukva ) != 1 // для 18 года
       lbukva := ' '
     Endif

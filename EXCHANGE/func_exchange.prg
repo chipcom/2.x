@@ -478,7 +478,7 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Return fl
 
-// 10.02.26 если это укрупнённый архив, распаковать и прочитать
+// 29.02.26 если это укрупнённый архив, распаковать и прочитать
 Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
 
   Static cStFile, si
@@ -486,6 +486,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
   local current_mo
   local cFrom, nSMO
   Local fl := .f., arr := {}, s := cName
+  local rec_old := 0
 
 
   current_mo := glob_MO()
@@ -615,8 +616,18 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
       Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmp_krtf' )
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
-        fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
-        viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
+        // проверим на окончание чтения 
+        if empty(krtf->twork2)
+          // очистим запись
+           rec_old := krtf->kod
+           krtf->( dbCloseArea() )
+           g_use( dir_server() + 'mo_krtf', , 'KRTF' )
+           goto (rec_old)
+           deleterec( .t., .f. )  // очистка записи без пометки на удаление
+        else   
+          fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
+          viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
+        endif 
       Else
         find ( PadR( 'SZ' + SubStr( s, 3 ), 26 ) ) // имя то же самое, начиная с третьего знака
         If Found()
@@ -642,8 +653,18 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
       Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmp_krtf' )
       find ( PadR( s, 26 ) ) // не принимали ли уже данный файл
       If Found()
-        fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
-        viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
+        // проверим на окончание чтения 
+        if empty(krtf->twork2)
+          // очистим запись
+           rec_old := krtf->kod
+           krtf->( dbCloseArea() )
+           g_use( dir_server() + 'mo_krtf', , 'KRTF' )
+           goto (rec_old)
+           deleterec( .t., .f. )  // очистка записи без пометки на удаление
+        else  
+          fl := func_error( 4, 'Этот файл уже был прочитан в ' + krtf->TFILE + ' ' + date_8( krtf->DFILE ) + 'г.' )
+          viewtext( devide_into_pages( dir_server() + dir_XML_TF() + hb_ps() + cName + stxt(), 60, 80 ), , , , .t., , , 2 )
+        endif  
       Else
         find ( PadR( 'QA' + SubStr( s, 3 ), 26 ) ) // имя то же самое, начиная с третьего знака
         If Found()

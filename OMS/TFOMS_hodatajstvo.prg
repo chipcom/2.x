@@ -183,7 +183,7 @@ Function tfoms_hodatajstvo( arr_m, iRefr, par )
 
   Return Nil
 
-// 25.02.26 оформление ходатайства
+// 01.03.26 оформление ходатайства
 Function tfoms_hodatajstvo_new( )
   // Функция отрабатывает 
   // arr_m - временной массив
@@ -206,11 +206,11 @@ Function tfoms_hodatajstvo_new( )
     { 'k_data', 'D', 8, 0 }, ;
     { 'is', 'N', 1, 0 } } )
   Use ( cur_dir() + 'tmp_k' ) new
+  r_use( dir_server() + 'kartote2', , 'KART2' ) 
   r_use( dir_server() + 'human', dir_server() + 'humand' , 'HUMAN' ) 
   r_use( dir_server() + 'human_',, 'HUMAN_' )
   select HUMAN 
-  find (DToS( arr_m[5]) )
-  Go Top
+  dbSeek( DToS( arr_m[ 5 ] ), .t. ) // обратный порядок
   Do While human->k_data <= arr_m[6] .and. !Eof()
     if human->komu == 0 // только ОМС
       select human_
@@ -218,16 +218,22 @@ Function tfoms_hodatajstvo_new( )
       flag_zap := .F.
       If human_->reestr == 0 .and. human_->schet_zap == 0
        // начало контроля
-        if human->mo_pr == '      '
+       // надо добавить контроль через QA2-RA2 
+        select kart2
+        Goto ( human->kod_k )
+        if len(alltrim(kart2->pc3)) > 2 // ошибка от СВЕРКИ
+          // mydebug(,"111")
           flag_zap := .T.
-        elseif human_->vpolis != 3
-          flag_zap := .T.
-        else
-          a_mo_prik := get_f032_prik()
-          if ( i := AScan( a_mo_prik, {| x | x[ 2 ] == human->MO_PR } ) ) == 0
+        endif  
+        if !flag_zap .and. human_->vpolis != 3
+          // проверяем на наличе ЕНП 
+          select kart2
+          Goto ( human->kod_k )
+          if len(alltrim(kart2->kod_mis)) < 16 // нет верного ЕНП
+           // mydebug(,"222")
             flag_zap := .T.
           endif  
-        endif
+        Endif
         if flag_zap
           Select TMP_K
           Append Blank
@@ -353,7 +359,7 @@ Function f2tfoms_hodatajstvo( nKey, oBrow, regim )
 
   Return k
 
-// 17.11.25 создание файла ХОДАТАЙСТВА для отсылки в ТФОМС
+// 01.03.26 создание файла ХОДАТАЙСТВА для отсылки в ТФОМС
 Function create_file_hodatajstvo( arr_m )
 
   // arr_m - временной массив
@@ -436,7 +442,8 @@ Function create_file_hodatajstvo( arr_m )
   Enddo
   Delete For is == 0
   Pack
-  as := { { 0, '34001', '' }, { 0, '34002', '' }, { 0, '34006', '' }, { 0, '34007', '' }, { 0, 'прочие', '' } }
+  //as := { { 0, '34001', '' }, { 0, '34002', '' }, { 0, '34006', '' }, { 0, '34007', '' }, { 0, 'прочие', '' } }
+  as := {{ 0, '34007', '' }, { 0, '34002', '' }, { 0, 'прочие', '' } }
 
   r_use( dir_server() + 'human_',, 'HUMAN_' )
   Select TMP_K1
@@ -445,7 +452,7 @@ Function create_file_hodatajstvo( arr_m )
   Do While !Eof()
     human_->( dbGoto( tmp_k1->kod_lu ) )
     i := 3
-    If human_->smo == as[ 1, 2 ]
+    If human_->smo == as[ 1, 2 ] // капитал изменился
       i := 1
     Elseif human_->smo == as[ 2, 2 ]
       i := 2
