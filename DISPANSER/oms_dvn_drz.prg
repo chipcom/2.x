@@ -908,7 +908,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         if nGender == 'Ж' .and. ( (ar[ 2 ] == 'A08.20.017.002' ) .or. ( ar[ 2 ] == '4.20.709' ) ) .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка жидкостного цитологического исследования
           lGidCitIsl := .t.
         endif
-
         // УЗИ малого таза услуга 70.9.52
         if nGender == 'Ж' .and. ar[ 2 ] == 'A04.20.001' .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка абдоминального УЗИ
           lUziMatkiAbdomin := .t.
@@ -949,11 +948,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           ( ar[ 2 ] == 'A04.20.001.001' .and. ! lUziMatkiAbdomin ) )
           fl := func_error( 4, 'Не введен врач в услуге УЗИ малого таза' )
         elseif Empty( &mvart ) .and. &mvaro != 4
-          if ! eq_any( ar[ 2 ], 'A08.20.017', '4.20.708', 'A08.20.017.002', '4.20.709', 'A04.20.001', 'A04.20.001.001' )
+          if ! eq_any( ar[ 2 ], 'A08.20.017', '4.20.708', 'A08.20.017.002', '4.20.709', '4.20.707', 'A04.20.001', 'A04.20.001.001' )
             fl := func_error( 4, 'Не введен врач в услуге "' + alltrim( ar[ 1 ] ) + '"' )
           endif
         elseif &mvaro == 2 .and. ;
-            ! ( eq_any( ar[ 2 ], 'A08.20.017', 'A08.20.017.001', 'A08.20.017.002' ) ) // проверка исследования на невозможность
+            ( ( ! ( eq_any( ar[ 2 ], 'A08.20.017', 'A08.20.017.001', 'A08.20.017.002' ) ) ) ;
+              .or. ( ! ( eq_any( ar[ 2 ], '4.20.708', '4.20.707', '4.20.709' ) ) ) ) // проверка исследования на невозможность
           fl := func_error( 4, 'Услуга ' + alltrim( ar[ 1 ] ) + ' не допускает результат "НЕВОЗМОЖНО"' )
         Else  // табельный номер врача и его специальность
          If ! Empty( &mvart ) // табельный номер врача
@@ -1175,20 +1175,40 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             change_field_arr_osm1( indSource, indDest ) 
           endif
           if lCitIsl
-            if ( indSource := index_usluga_etap_drz( arr_osm1, 'A08.20.017', 5) ) > 0  // цитологическое исследование
-              if ( indDest := index_usluga_etap_drz( arr_osm1, 'A08.20.017.001', 5 ) ) > 0
-                change_field_arr_osm1( indSource, indDest )
+            if mk_data >= 0d20260101
+              if ( indSource := index_usluga_etap_drz( arr_osm1, '4.20.708', 5) ) > 0  // цитологическое исследование
+                if ( indDest := index_usluga_etap_drz( arr_osm1, '4.20.707', 5 ) ) > 0
+                  change_field_arr_osm1( indSource, indDest )
+                endif
+              endif
+              if ( j := ascan( arr_osm1, { | x | x[ 5 ] == '4.20.709' } ) ) > 0
+                hb_ADel( arr_osm1, j, .t. )
+              endif
+            else
+              if ( indSource := index_usluga_etap_drz( arr_osm1, 'A08.20.017', 5) ) > 0  // цитологическое исследование
+                if ( indDest := index_usluga_etap_drz( arr_osm1, 'A08.20.017.001', 5 ) ) > 0
+                  change_field_arr_osm1( indSource, indDest )
+                endif
+              endif
+              if ( j := ascan( arr_osm1, { | x | x[ 5 ] == 'A08.20.017.002' } ) ) > 0
+                hb_ADel( arr_osm1, j, .t. )
               endif
             endif
-            if ( j := ascan( arr_osm1, { | x | x[ 5 ] == 'A08.20.017.002' } ) ) > 0
-              hb_ADel( arr_osm1, j, .t. )
-            endif
           else
-            if ( j := ascan( arr_osm1, { | x | x[ 5 ] == 'A08.20.017' } ) ) > 0
-              hb_ADel( arr_osm1, j, .t. )
-            endif
-            if ( j := ascan( arr_osm1, { | x | x[ 5 ] == 'A08.20.017.001' } ) ) > 0
-              hb_ADel( arr_osm1, j, .t. )
+            if mk_data >= 0d20260101
+              if ( j := ascan( arr_osm1, { | x | x[ 5 ] == '4.20.708' } ) ) > 0
+                hb_ADel( arr_osm1, j, .t. )
+              endif
+              if ( j := ascan( arr_osm1, { | x | x[ 5 ] == '4.20.707' } ) ) > 0
+                hb_ADel( arr_osm1, j, .t. )
+              endif
+            else
+              if ( j := ascan( arr_osm1, { | x | x[ 5 ] == 'A08.20.017' } ) ) > 0
+                hb_ADel( arr_osm1, j, .t. )
+              endif
+              if ( j := ascan( arr_osm1, { | x | x[ 5 ] == 'A08.20.017.001' } ) ) > 0
+                hb_ADel( arr_osm1, j, .t. )
+              endif
             endif
           endif
         endif
