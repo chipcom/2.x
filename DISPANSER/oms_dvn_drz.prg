@@ -49,6 +49,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   }
   local mm_gruppaD2 := asize( aclone( mm_gruppaD1 ), 3 )  // для II этапа уменьшим число эл-тов списка
   local year_begin_drz
+  local lUrolog := .f., lSurgeon := .f.
 
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
@@ -893,6 +894,9 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       lUziMatkiTransvag := .f.
       lCitIsl := .f.
       lGidCitIsl := .f.
+      lUrolog := .f.  // услуга уролога
+      lSurgeon := .f. // услуга хирурга
+
       For i := 1 To len( view_uslugi )  //   lenArr_Uslugi_DRZ
         mvart := 'MTAB_NOMv' + lstr( i )
         mvara := 'MTAB_NOMa' + lstr( i )
@@ -900,6 +904,16 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         mvarz := 'MKOD_DIAG' + lstr( i )
         mvaro := 'M1OTKAZ' + lstr( i )
         ar := view_uslugi[ i ]
+
+        // Уролог-Хирург
+        if mk_data >= 0d20260101
+          if nGender == 'М' .and. ( ar[ 2 ] == '70.9.21' ) .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка уролога
+            lUrolog := .t.
+          endif
+          if nGender == 'М' .and. ( ar[ 2 ] == '70.9.22' ) .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка хирург
+            lSurgeon := .t.
+          endif
+        endif
 
         // Цитологические исследования
         if nGender == 'Ж' .and. ( ( ar[ 2 ] == 'A08.20.017' ) .or. ( ar[ 2 ] == '4.20.708' ) ) .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка цитологического исследования
@@ -943,17 +957,21 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           fl := func_error( 4, 'Нельзя применять одновременно услуги УЗИ (трансабдоминальное и трансвагинальное)' )
         elseif ( lCitIsl .and. lGidCitIsl )
           fl := func_error( 4, 'Нельзя применять одновременно услуги цитологии и жидкостной цитологии' )
+        elseif ( lUrolog .and. lSurgeon )
+          fl := func_error( 4, 'Нельзя применять одновременно услуги уролога и хирурга' )
         elseif Empty( &mvart ) .and. &mvaro != 4 .and. ;
           ( ( ar[ 2 ] == 'A04.20.001' .and. ! lUziMatkiTransvag ) .or. ;
           ( ar[ 2 ] == 'A04.20.001.001' .and. ! lUziMatkiAbdomin ) )
           fl := func_error( 4, 'Не введен врач в услуге УЗИ малого таза' )
         elseif Empty( &mvart ) .and. &mvaro != 4
-          if ! eq_any( ar[ 2 ], 'A08.20.017', '4.20.708', 'A08.20.017.002', '4.20.709', '4.20.707', 'A04.20.001', 'A04.20.001.001' )
+          if ! eq_any( ar[ 2 ], 'A08.20.017', '4.20.708', 'A08.20.017.002', ;
+              '4.20.709', '4.20.707', 'A04.20.001', 'A04.20.001.001', ;
+              '70.9.21', '70.9.22' )
             fl := func_error( 4, 'Не введен врач в услуге "' + alltrim( ar[ 1 ] ) + '"' )
           endif
         elseif &mvaro == 2 .and. ;
-            ( ( ! ( eq_any( ar[ 2 ], 'A08.20.017', 'A08.20.017.001', 'A08.20.017.002' ) ) ) ;
-              .or. ( ! ( eq_any( ar[ 2 ], '4.20.708', '4.20.707', '4.20.709' ) ) ) ) // проверка исследования на невозможность
+            ( ! eq_any( ar[ 2 ], 'A08.20.017', 'A08.20.017.001', 'A08.20.017.002', ;
+              '4.20.708', '4.20.707', '4.20.709' ) ) // проверка исследования на невозможность
           fl := func_error( 4, 'Услуга ' + alltrim( ar[ 1 ] ) + ' не допускает результат "НЕВОЗМОЖНО"' )
         Else  // табельный номер врача и его специальность
          If ! Empty( &mvart ) // табельный номер врача
@@ -1145,20 +1163,45 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       next
       if metap == 1
         if nGender == 'М' // мужчины
-          indSource := index_usluga_etap_drz( arr_osm1, '70.9.20', 5)
-          if arr_osm1[ indSource, 14 ] == 84
-            if ( j := ascan( arr_osm1, { | x | x[ 5 ] == 'B01.057.001' } ) ) > 0
-              hb_ADel( arr_osm1, j, .t. )
+          if mk_data < 0d20260101
+            indSource := index_usluga_etap_drz( arr_osm1, '70.9.20', 5)
+            if arr_osm1[ indSource, 14 ] == 84
+              if ( j := ascan( arr_osm1, { | x | x[ 5 ] == 'B01.057.001' } ) ) > 0
+                hb_ADel( arr_osm1, j, .t. )
+              endif
+              indDest := index_usluga_etap_drz( arr_osm1, 'B01.053.001', 5 )
+            else
+              if ( j := ascan( arr_osm1, { | x | x[ 5 ] == 'B01.053.001' } ) ) > 0
+                hb_ADel( arr_osm1, j, .t. )
+              endif
+              indDest := index_usluga_etap_drz( arr_osm1, 'B01.057.001', 5 )
             endif
-            indDest := index_usluga_etap_drz( arr_osm1, 'B01.053.001', 5 )
-          else
-            if ( j := ascan( arr_osm1, { | x | x[ 5 ] == 'B01.053.001' } ) ) > 0
-              hb_ADel( arr_osm1, j, .t. )
+            if indSource != 0 .and. indDest != 0
+              change_field_arr_osm1( indSource, indDest )
             endif
-            indDest := index_usluga_etap_drz( arr_osm1, 'B01.057.001', 5 )
           endif
-          if indSource != 0 .and. indDest != 0
-            change_field_arr_osm1( indSource, indDest )
+          if mk_data >= 0d20260101
+            for i := 1 to Len( arr_osm1 )
+              if arr_osm1[ i, 14 ] == 0
+                hb_ADel( arr_osm1, i, .t. )
+              endif
+            next
+          else
+            indSource := index_usluga_etap_drz( arr_osm1, '70.9.20', 5)
+            if arr_osm1[ indSource, 14 ] == 84
+              if ( j := ascan( arr_osm1, { | x | x[ 5 ] == 'B01.057.001' } ) ) > 0
+                hb_ADel( arr_osm1, j, .t. )
+              endif
+              indDest := index_usluga_etap_drz( arr_osm1, 'B01.053.001', 5 )
+            else
+              if ( j := ascan( arr_osm1, { | x | x[ 5 ] == 'B01.053.001' } ) ) > 0
+                hb_ADel( arr_osm1, j, .t. )
+              endif
+              indDest := index_usluga_etap_drz( arr_osm1, 'B01.057.001', 5 )
+            endif
+            if indSource != 0 .and. indDest != 0
+              change_field_arr_osm1( indSource, indDest )
+            endif
           endif
         else  // женщины
           if eq_any_new( nAge, 21, 24, 27 )
