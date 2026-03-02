@@ -8,7 +8,7 @@
 #define DGZ 'Z00.8 '  //
 #define FIRST_LETTER 'Z'  //
 
-// 25.02.26 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
+// 02.03.26 диспнсеризация репродуктивного здоровья взрослого населения - добавление или редактирование случая (листа учета)
 function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -905,7 +905,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         if nGender == 'Ж' .and. ( ( ar[ 2 ] == 'A08.20.017' ) .or. ( ar[ 2 ] == '4.20.708' ) ) .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка цитологического исследования
           lCitIsl := .t.
         endif
-        if nGender == 'Ж' .and. ( (ar[ 2 ] == 'A08.20.017.002' ) .or. ( ar[ 2 ] == '4.20.702' ) ) .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка жидкостного цитологического исследования
+        if nGender == 'Ж' .and. ( (ar[ 2 ] == 'A08.20.017.002' ) .or. ( ar[ 2 ] == '4.20.709' ) ) .and. &mvaro != 4 .and. ! empty( &mvart ) // проверка жидкостного цитологического исследования
           lGidCitIsl := .t.
         endif
 
@@ -949,7 +949,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           ( ar[ 2 ] == 'A04.20.001.001' .and. ! lUziMatkiAbdomin ) )
           fl := func_error( 4, 'Не введен врач в услуге УЗИ малого таза' )
         elseif Empty( &mvart ) .and. &mvaro != 4
-          if ! eq_any( ar[ 2 ], 'A08.20.017', '4.20.708', 'A08.20.017.002', '4.20.702', 'A04.20.001', 'A04.20.001.001' )
+          if ! eq_any( ar[ 2 ], 'A08.20.017', '4.20.708', 'A08.20.017.002', '4.20.709', 'A04.20.001', 'A04.20.001.001' )
             fl := func_error( 4, 'Не введен врач в услуге "' + alltrim( ar[ 1 ] ) + '"' )
           endif
         elseif &mvaro == 2 .and. ;
