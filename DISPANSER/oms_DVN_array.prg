@@ -45,7 +45,7 @@ function dvn_arr_umolch( dateSl, mobil )
 
   return arr
 
-// 27.02.26
+// 02.03.26
 function dvn_arr_usl( dateSl, mobil )
 
   local arr_dvn_usl, i, blk
@@ -247,7 +247,7 @@ function dvn_arr_usl( dateSl, mobil )
       }, ;
       { ;
         'Приём врача акушера-гинеколога', iif( mobil == 0, '72.5.19', '72.5.319' ), 3, 1, 0, ;
-        1, ;
+        0, ;
         age_etap_3, ;
         1, 1, 136, { 1101 }, ;   //136, { 1101 }, ;
         { ;
