@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.02.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 02.03.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -664,7 +664,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
             j, ;           // 13
             &lal.->kslps, ; // 14
             k006->ad_cr1, ; // 15
-            &lal.->kslps } ; // 16
+            &lal.->TYPE_KSG } ; // 16
           )
         else
           AAdd( ar1, { k006->shifr, ; // 1
@@ -831,7 +831,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
               j, ;           // 13
               &lal.->kslps, ; // 14
               k006->ad_cr1, ; // 15
-              &lal.->kslps } ) // 16
+              &lal.->TYPE_KSG } ) // 16
           else
             AAdd( _a1, { k006->shifr, ; // 1
               0, ;           // 2

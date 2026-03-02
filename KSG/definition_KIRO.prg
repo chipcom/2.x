@@ -23,7 +23,7 @@ Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkda
   if lkdata >= 0d20260101
 
     if ldnej <= 3
-      lKIRO_8 := is_opt_dlit_do_3_dnej
+      lKIRO_8 := ! is_opt_dlit_do_3_dnej
     endif
     if ( obyaz_kol_dnej := obyazat_srok_lech( lksg, lkdata ) ) != 0
       lKIRO_9 := ( ldnej < obyaz_kol_dnej )
@@ -159,8 +159,8 @@ Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkda
   endif
   Return vkiro
 
-// 28.02.26
-Function f_cena_kiro( /*@*/_cena, lkiro, dateSl, lrslt, ltype_ksg )
+// 02.03.26
+Function f_cena_kiro( /*@*/_cena, lkiro, dateSl, lrslt, nType_ksg )
 
   // _cena - изменяемая цена
   // lkiro - уровень КИРО
@@ -172,7 +172,7 @@ Function f_cena_kiro( /*@*/_cena, lkiro, dateSl, lrslt, ltype_ksg )
     aKIRO := tabl_kiro( dateSl )
 
     if ( i := Ascan( aKIRO, { | x | ( x[ 1 ] == lkiro ) .and. ( x[ 4 ] == lrslt ) } ) ) > 0
-      _akiro := { lkiro, iif( ltype_ksg == 0, aKIRO[ i, 3 ], aKIRO[ i, 2 ] ) }
+      _akiro := { lkiro, iif( nType_ksg == 0, aKIRO[ i, 3 ], aKIRO[ i, 2 ] ) }
     endif
   else
     aKIRO := getkirotable( dateSl )
