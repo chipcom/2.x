@@ -1033,12 +1033,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 //        If p_tip_reestr == TYPE_REESTR_GENERAL
 //          mo_add_xml_stroke( oUSL, 'PROFIL_M', lstr( hu_->PROFIL_M ) )   // согласно ПУМП вер. 4.6
 //        Endif
-        Select T21
-        find ( PadR( lshifr, 10 ) )
-        If t21->( Found() )
-          mo_add_xml_stroke( oUSL, 'VID_VME', AllTrim( t21->shifr_mz ) )
-        Endif
         If p_tip_reestr == TYPE_REESTR_GENERAL
+          Select T21
+          find ( PadR( lshifr, 10 ) )
+          If t21->( Found() )
+            mo_add_xml_stroke( oUSL, 'VID_VME', AllTrim( t21->shifr_mz ) )
+          Endif
           mo_add_xml_stroke( oUSL, 'DET', iif( human->VZROS_REB == 0, '0', '1' ) )
         Endif
         mo_add_xml_stroke( oUSL, 'DATE_IN', date2xml( c4tod( hu->DATE_U ) ) )

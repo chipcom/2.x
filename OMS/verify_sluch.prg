@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 02.03.26
+// 03.03.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // ª®¤ æ¥«¨ ¯®á¥é¥­¨ï ¯® á¯à ¢®ç­¨ªã V025
@@ -310,6 +310,7 @@ Function verify_sluch( fl_view, ft )
   //
   // Ž‚…Ÿ…Œ “„Ž‘’Ž‚……ˆ… ‹ˆ—Ž‘’ˆ ˆ Ž’‘“’‘’‚ˆˆ … ˆ ˆŠ…‹…ˆ… 
   //
+/*
   if Empty( AllTrim( human->MO_PR ) )
     if ( AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( human_->smo ) ) } ) != 0 )
       AAdd( ta, '¯ãáâ®¥ §­ ç¥­¨¥ ¯®«ï "ŒŽ ¯à¨ªà¥¯«¥­¨ï" ¢ «¨áâ¥ ãç¥â ' )
@@ -322,7 +323,7 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, '­¥ ¢¥à­ ï ®à£ ­¨§ æ¨ï ¯à¨ªà¥¯«¥­¨ï á ª®¤®¬ "' + human->MO_PR + '"' )
     endif
   endif
-
+*/
   if ! ( lKart2 := aliasIsAlreadyUse( 'KART2' ) )
     r_use( dir_server() + 'kartote2', , 'KART2' )
   endif
@@ -4386,6 +4387,8 @@ Function verify_sluch( fl_view, ft )
                 If dvn_arr_usl[ i, 2 ] == '4.20.1' .and. a_4_20_1[ 1 ] < 3
                   fl := .f.
                 Endif
+              elseif ValType( dvn_arr_usl[ i, 2 ] ) == 'A'
+                  fl := .f.
               Endif
               If fl
                 AAdd( ta, '­¥ ®ª § ­  ãá«ã£  ' + s )
