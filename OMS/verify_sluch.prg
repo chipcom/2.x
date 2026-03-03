@@ -4324,7 +4324,10 @@ Function verify_sluch( fl_view, ft )
       Endcase
     Next
     // учёт и проверка отказов
-    kol_d_usl := kol_d_otkaz := kol_n_date := kol_ob_otkaz := 0
+    kol_d_usl := 0
+    kol_d_otkaz := 0
+    kol_n_date := 0
+    kol_ob_otkaz := 0
     If ValType( arr_usl_otkaz ) == 'A'
       For j := 1 To Len( arr_usl_otkaz )
         ar := arr_usl_otkaz[ j ]
