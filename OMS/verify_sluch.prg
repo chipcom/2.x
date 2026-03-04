@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 03.03.26
+// 04.03.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -3737,7 +3737,7 @@ Function verify_sluch( fl_view, ft )
         Elseif ( au_lu[ i, 2 ] < dBegin ) .and. ;
             ! ( ( mvozrast >= 2 ) .and. ( au_lu[ i, 2 ] >= AddMonth( dBegin, -3 ) ) ) .and. ;
             ! ( ( mvozrast < 2 ) .and. ( au_lu[ i, 2 ] >= AddMonth( dBegin, -1 ) ) ) .and. ;
-            ! ( eq_any( au_lu[ i, 5 ], '7.2.702', '7.61.3' ) )
+            ! ( eq_any( au_lu[ i, 5 ], '7.2.702', '7.61.3', '4.29.103', '4.29.102' ) )
           AAdd( ta, s + ' не попадает в диапазон лечения' )
         Endif
 /*
