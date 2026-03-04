@@ -4,14 +4,14 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 15.02.26 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
+// 04.03.26 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
 Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
 
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
     mm_menu := {}, mm_func := {}, mm_flag := {}, mreestr_sp_tk, ;
     arr_f, cFile, oXmlDoc, aerr := {}, is_allow_delete, ;
-    cFileProtokol := cur_dir() + 'tmp.txt', is_other_reestr, bSaveHandler, ;
-    arr_schet, rees_nschet := rees->nschet, mtip_in
+    cFileProtokol := cur_dir() + 'tmp.txt', is_other_reestr, ;
+    rees_nschet := rees->nschet, mtip_in
   local result_TFOMS, arr
   local is_delete_human
 
@@ -19,13 +19,12 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
   result_TFOMS := rees->RES_TFOMS
   Select MO_XML
   Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) For FIELD->reestr == mkod_reestr .and. FIELD->TIP_OUT == 0
-  mo_xml->( dbGoTop() ) //  Go Top
+  mo_xml->( dbGoTop() )
 
-  if ! ( rees->nyear >= 2026 .and. eq_any( result_TFOMS, 2, 3 ) )
+  if ! ( rees->nyear >= 2026 .and. eq_any( result_TFOMS,1, 2, 3 ) ) // временно добавил 1 (принят)
     Do While ! mo_xml->( Eof() )
       If mo_xml->TIP_IN == _XML_FILE_FLK_26 //  _XML_FILE_SP
         AAdd( mm_func, mo_xml->kod )
-//        s := 'Реестр СП и ТК ' + RTrim( mo_xml->FNAME ) + ' прочитан ' + date_8( mo_xml->DWORK )
         s := 'Файл ФЛК ' + RTrim( mo_xml->FNAME ) + ' прочитан ' + date_8( mo_xml->DWORK )
         If Empty( mo_xml->TWORK2 )
             AAdd( mm_flag, .t. )
@@ -43,17 +42,16 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
 //          AAdd( mm_menu, s )
 //        Endif
       Endif
-      mo_xml->( dbSkip() )  //  Skip
+      mo_xml->( dbSkip() )
     Enddo
   endif
   Select MO_XML
   Set Index To
   rest_box( buf )
   If Len( mm_menu ) == 0
-    if ( rees->nyear >= 2026 .and. eq_any( result_TFOMS, 2, 3 ) ) .or. ( involved_password( 1, rees_nschet, 'подтверждения возврата (удаления) реестра' ) )
-//      If involved_password( 1, rees_nschet, 'подтверждения возврата (удаления) реестра' )
-        f1vozvrat_reestr( mkod_reestr )
-//      Endif
+//    if ( rees->nyear >= 2026 .and. eq_any( result_TFOMS, 2, 3 ) ) .or. ( involved_password( 1, rees_nschet, 'подтверждения возврата (удаления) реестра' ) )
+    If involved_password( 1, rees_nschet, 'подтверждения возврата (удаления) реестра счёта' )
+      f1vozvrat_reestr( mkod_reestr )
     endif
     Return 1
   Endif
