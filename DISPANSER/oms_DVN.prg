@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.02.26 ДВН - добавление или редактирование случая (листа учета)
+// 04.03.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -22,9 +22,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   local dvn_arr_usl, dvn_arr_umolch, mm_ndisp1
   local arr_usl_dop := {}
   local j, i, i2
-//  local date_dvn_2026_I_etap := CToD( '  /  /    ')
-//  local date_dvn_2026_III_etap := CToD( '  /  /    ')
-//  local is_7_61_703 := .f., is_7_61_704 := .f.
 
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
@@ -486,6 +483,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         If fl
           For i := 1 To len( dvn_arr_usl )
             If Empty( larr[ 1, i ] )
+
               If ValType( dvn_arr_usl[ i, 2 ] ) == 'C'
                 If eq_any( dvn_arr_usl[ i, 2 ], '4.20.1', '4.20.701' )
                   If eq_any( lshifr, '4.20.1', '4.20.701' )
@@ -507,6 +505,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                   &mvar := inieditspr( A__MENUVERT, mm_kdp2, &m1var )
                 Endif
               Endif
+
               If fl .and. Len( dvn_arr_usl[ i ] ) > 11 .and. ValType( dvn_arr_usl[ i, 12 ] ) == 'A'
                 If AScan( dvn_arr_usl[ i, 12 ], {| x | x[ 1 ] == lshifr .and. x[ 2 ] == hu_->PROFIL } ) > 0
                   fl := .f.
@@ -853,11 +852,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
         @ j, 80 - Len( s ) Say s Color color14
       Endif
+
       @ ++j, 1 Say '────────────────────────────────────────────┬─────┬─────┬──────────┬──────────' Color color8
       @ ++j, 1 Say 'Наименования исследований                   │врач │ассис│дата услуг│выполнение' Color color8
       @ ++j, 1 Say '────────────────────────────────────────────┴─────┴─────┴──────────┴──────────' Color color8
-      // ++j; @ j, 0 say replicate('─', 80) color color8
-      // ++j; @ j, 0 say '_Наименования исследований____________________врач__ассис_дата услуг_выполнение_' color color8
+
       If mem_por_ass == 0
         @ j -1, 52 Say Space( 5 )
       Endif
@@ -867,17 +866,18 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         i_otkaz := 0
         If f_is_usl_oms_sluch_dvn( MK_DATA, m1mobilbr, i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz )
           If fl_diag .and. fl_vrach
+
             @ ++j, 1 Say '────────────────────────────────────────────┬─────┬─────┬───────────' Color color8
             @ ++j, 1 Say 'Наименования осмотров                       │врач │ассис│дата услуги' Color color8
             @ ++j, 1 Say '────────────────────────────────────────────┴─────┴─────┴───────────' Color color8
-            // ++j; @ j, 0 say replicate('─', 80) color color8
-            // ++j; @ j, 0 say '_Наименования осмотров________________________врач__ассис_дата услуг_диагноз____' color color8
+
             If mem_por_ass == 0
               @ j -1, 52 Say Space( 5 )
             Endif
             fl_vrach := .f.
           Endif
           fl_g_cit := fl_kdp2 := .f.
+/*
           If ValType( dvn_arr_usl[ i, 2 ] ) == 'C'
             If ( fl_g_cit := ( dvn_arr_usl[ i, 2 ] == '4.20.1' ) )
               If m1g_cit == 0
@@ -892,6 +892,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
               fl_kdp2 := .t.
             Endif
           Endif
+*/
           mvarv := 'MTAB_NOMv' + lstr( i )
           mvara := 'MTAB_NOMa' + lstr( i )
           mvard := 'MDATE' + lstr( i )
@@ -932,6 +933,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Next
       @ ++j, 1 Say Replicate( '─', 68 ) Color color8
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ на 3-ю страницу' )
+
     Elseif num_screen == 3 // 
       mm_gruppa := { mm_gruppaD1, mm_gruppaD2, mm_gruppaP, mm_gruppaD4, mm_gruppaD2 }[ metap ]
       If metap == 3
@@ -1194,11 +1196,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       fl := .t.
       not_4_20_1 := .f.
       date_4_1_12 := CToD( '' )
-      k := ku := kol_d_usl := 0
+      k := 0
+      ku := 0
+      kol_d_usl := 0
       arr_osm1 := Array( len( dvn_arr_usl ), 11 )
       afillall( arr_osm1, 0 )
       For i := 1 To len( dvn_arr_usl )
-        fl_diag := fl_ekg := .f.
+        fl_diag := .f.
+        fl_ekg := .f.
         i_otkaz := 0
         If f_is_usl_oms_sluch_dvn( MK_DATA, m1mobilbr, i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz, @fl_ekg )
           mvart := 'MTAB_NOMv' + lstr( i )
@@ -1213,11 +1218,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           if &mvard == mn_data
             k := i
           Endif
-//          if eq_any( lshifr, '70.7.63', '70.7.363' )
-//            date_dvn_2026_I_etap := &mvard
-//          elseif eq_any( lshifr, '72.5.17', '72.5.18', '72.5.317', '72.5.318' )
-//            date_dvn_2026_III_etap := &mvard
-//          endif
 /*
           if ! is_7_61_703 .and. ( ValType( dvn_arr_usl[ i, 2 ] ) == 'C' ) .and. dvn_arr_usl[ i, 2 ] == '7.61.703' .and. ! Empty( &mvart )
               is_7_61_703 := .t.
@@ -1320,22 +1320,25 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                 Endif
               Endif
             Else
-              If Len( ar[ 2 ] ) >= metap
-                j := metap
-              Else
-                j := 1
-              Endif
-              arr_osm1[ i, 5 ] := ar[ 2, j ] // шифр услуги
+//              If Len( ar[ 2 ] ) >= metap
+//                j := metap
+//              Else
+//                j := 1
+//              Endif
+//altd()
+              arr_osm1[ i, 5 ] := dvn_arr_usl[ i, 12, j, 1 ] // ar[ 2, j ]  //  шифр услуги
               If i == len( dvn_arr_usl ) // последняя услуга из массива - терапевт
                 If eq_any( metap, 2, 5 )
                   If eq_any( arr_osm1[ i, 2 ], 2002, -206 ) // специальность-фельдшер
                     fl := func_error( 4, 'Фельдшер не может заменить терапевта на II этапе диспансеризации' )
                   Endif
                 Else // 1 и 3 этап
-                  If eq_any( arr_osm1[ i, 2 ], 2002, -206 ) // специальность-фельдшер
-                    arr_osm1[ i, 5 ] := iif( is_disp_19, '2.3.4', '2.3.3' ) // шифр услуги
-                    arr_osm1[ i, 4 ] := 42 // профиль - лечебному делу
-                  Endif
+                  if mk_data <= 0d20260101
+                    If eq_any( arr_osm1[ i, 2 ], 2002, -206 ) // специальность-фельдшер
+                      arr_osm1[ i, 5 ] := iif( is_disp_19, '2.3.4', '2.3.3' ) // шифр услуги
+                      arr_osm1[ i, 4 ] := 42 // профиль - лечебному делу
+                    Endif
+                endif
                 Endif
               Endif
             Endif
@@ -1421,11 +1424,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           Endif
         Elseif metap == 2 .and. i_56_1_723 == 0
           fl := func_error( 4, 'Не введён приём терапевта (врача общей практики)' )
-//        elseif date_dvn_2026_I_etap != MK_DATA
-//          fl := func_error( 4, 'Терапевт (врач общей практики) должен проводить осмотр последним!' )
         Endif
-//      elseif date_dvn_2026_III_etap != MK_DATA
-//        fl := func_error( 4, 'Терапевт (врач общей практики) должен проводить осмотр последним!' )
       Elseif ( arr_osm1[ len( dvn_arr_usl ), 9 ] < mk_data ) .and. ( MK_DATA < 0d20260101 )
         fl := func_error( 4, 'Терапевт (врач общей практики) должен проводить осмотр последним!' )
       Endif
