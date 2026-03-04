@@ -40,7 +40,7 @@ Function regi_stat( k )
     mas_fun := { 'regi_stat(1)', ;
       'regi_stat(2)', ;
       'regi_stat(3)' }
-    popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 1
     f1regi_stat()
   Case k == 2
@@ -248,7 +248,7 @@ Function f2regi_stat( par )
             PadR( a_f[ i ], nf ) + ' ' + ;
             Space( 11 ) + ;
             PadR( a_a[ i ], na ) + ' ' + ;
-            a_o[ i -1 ] )
+            a_o[ i - 1 ] )
         Next
       Endif
       Select RU
@@ -267,7 +267,7 @@ Function f2regi_stat( par )
 //
 Function edit_priem()
 
-  popup_edit( dir_server() + 'p_priem', T_ROW, T_COL -10, T_ROW + 11, , 1, , ;
+  popup_edit( dir_server() + 'p_priem', T_ROW, T_COL - 10, T_ROW + 11, , 1, , ;
     'fdel_priem', , , , , , 'Первичные приемы', col_tit_popup )
 
   Return Nil
@@ -354,7 +354,7 @@ Function regi_nastr( k )
     If hb_FileExists( 'memvar' + smem() )
       Restore From Memvar Additive
     Else
-      Save All Like mem_* To memvar
+      Save All Like mem_ * To memvar
     Endif
     If !is_talon
       mem_lu_stt := 1
@@ -535,7 +535,7 @@ Function regi_nastr( k )
       If is_talon
         mem_lu_stt := m1a_lu_stt
       Endif
-      Save All Like mem_* To memvar
+      Save All Like mem_ * To memvar
       // if !empty(mem_reg_lr) .and. !('R_MU.DBF' $ upper(mem_reg_lr))
       // func_error(4, 'Неверно выбран регистр федеральных льготников (должен быть файл R_MU.DBF)')
       // endif
@@ -637,8 +637,8 @@ Function r_list_uch( par, name_func )
   mfio := Upper( kart->fio )
   mpolis := kart->polis
   //
-//  msnils := Expand( Transform( kart->SNILS, picture_pf ) )
-  msnils := Expand( Transform_SNILS( kart->SNILS ) )
+  // msnils := Expand( Transform( kart->SNILS, picture_pf ) )
+  msnils := Expand( transform_snils( kart->SNILS ) )
   mpol := kart->pol
   mdate_r := full_date( kart->date_r )
   madres := iif( emptyall( kart_->okatog, kart->adres ), '', ;
@@ -674,7 +674,7 @@ Function r_list_uch( par, name_func )
       mkomu += iif( Empty( s ), 'ТФОМС (иногородние)', s )
       mmest_inog := inieditspr( A__MENUVERT, glob_array_srf(), kart_->KVARTAL_D ) // ОКАТО субъекта РФ территории страхования
     Elseif Left( kart_->SMO, 2 ) == '34'
-//      mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
+      // mkomu += AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
       mkomu += AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
       mmest_inog := 'Волгоградская область'
     Elseif !Empty( kart_->SMO )
@@ -884,8 +884,8 @@ Function new_list_uch( par, name_func )
   frt->ser_polis := kart_->SPOLIS
   frt->nom_polis := kart_->NPOLIS
   frt->polis := LTrim( AllTrim( kart_->SPOLIS ) + ' ' + kart_->NPOLIS )
-//  frt->snils := Transform( kart->SNILS, picture_pf )
-  frt->snils := Transform_SNILS( kart->SNILS )
+  // frt->snils := Transform( kart->SNILS, picture_pf )
+  frt->snils := transform_snils( kart->SNILS )
   frt->pol := iif( kart->pol == 'М', sb1 + 'муж. - 1' + sb2 + ', жен. - 2', 'муж. - 1, ' + sb1 + 'жен. - 2' + sb2 )
   mdate_r := full_date( kart->date_r )
   frt->date_r := mdate_r
@@ -976,7 +976,7 @@ Function new_list_uch( par, name_func )
     Endif
     frt->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + s
   Elseif Left( kart_->SMO, 2 ) == '34'
-//    frt->smo := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
+    // frt->smo := AllTrim( inieditspr( A__MENUVERT, glob_arr_smo, Int( Val( kart_->smo ) ) ) )
     frt->smo := AllTrim( inieditspr( A__MENUVERT, smo_volgograd(), Int( Val( kart_->smo ) ) ) )
   Elseif !Empty( kart_->SMO )
     frt->smo := '(' + AllTrim( kart_->KVARTAL_D ) + ') ' + init_ismo( kart_->SMO )
@@ -1049,7 +1049,7 @@ Function new_list_uch( par, name_func )
     m1company := m1str_crb
   Endif
   If m1komu == 0 // ОМС
-//    mm_company := AClone( glob_arr_smo )
+    // mm_company := AClone( glob_arr_smo )
     mm_company := AClone( smo_volgograd() )
   Elseif m1komu == 1 // Прочие компании
     r_use( dir_server() + 'str_komp' )
@@ -1157,8 +1157,8 @@ Function pr_sh_f5()
     endif
     */
     If Empty( msnils ) .and. !Empty( kart->SNILS )
-//      msnils := Transform( kart->SNILS, picture_pf )
-      msnils := Transform_SNILS( kart->SNILS )
+      // msnils := Transform( kart->SNILS, picture_pf )
+      msnils := transform_snils( kart->SNILS )
     Endif
     r_list_uch( 0, 'f1_pr_shab(file_sh)' )
   Endif
@@ -1324,8 +1324,8 @@ Function list_uch( is_lgotnik )
   tek_stroke := 0
   n_list := 1
   // ЮРА
-//  Private msnils := Transform( kart->SNILS, picture_pf )
-  Private msnils := Transform_SNILS( kart->SNILS )
+  // Private msnils := Transform( kart->SNILS, picture_pf )
+  Private msnils := transform_snils( kart->SNILS )
   If mem_lu_stt == 1
     add_string( PadR( name_lpu, sh / 2 ) + PadL( name_otd, sh / 2 ) )
     add_string( '' )
@@ -1333,7 +1333,7 @@ Function list_uch( is_lgotnik )
     add_string( Center( 'М_Е_Д_И_Ц_И_Н_С_К_И_Х  У_С_Л_У_Г  N  ' + lnomer, sh ) )
     add_string( '' )
   Else
-    add_string( PadR( name_lpu + ' (' + name_otd + ')', sh -18 ) + PadL( 'Форма 025-10у-97', 18 ) )
+    add_string( PadR( name_lpu + ' (' + name_otd + ')', sh - 18 ) + PadL( 'Форма 025-10у-97', 18 ) )
     If !eq_any( mem_razmer, 3, 4 )
       add_string( '' )
     Endif
@@ -1350,13 +1350,13 @@ Function list_uch( is_lgotnik )
     s += ' (' + AllTrim( mrajon_git ) + ')'
   Endif
   add_string( s )
-  k := perenos( tmp, 'Адрес регистрации: ' + madres, sh -2 )
+  k := perenos( tmp, 'Адрес регистрации: ' + madres, sh - 2 )
   add_string( '  ' + tmp[ 1 ] )
   For i := 2 To k
     add_string( PadL( AllTrim( tmp[ 2 ] ), sh ) )
   Next
   If !Empty( madresp )
-    k := perenos( tmp, 'Адрес пребывания: ' + madresp, sh -2 )
+    k := perenos( tmp, 'Адрес пребывания: ' + madresp, sh - 2 )
     add_string( '  ' + tmp[ 1 ] )
     For i := 2 To k
       add_string( PadL( AllTrim( tmp[ 2 ] ), sh ) )
@@ -1434,7 +1434,7 @@ Function list_uch( is_lgotnik )
         add_string( Space( 14 ) + s_prim1[ k ] )
       Next
     Endif
-    If tek_stroke < HH - 7
+    If tek_stroke < HH -7
       add_string( '' )
       add_string( Center( 'О_К_А_З_А_Н_Ы   У_С_Л_У_Г_И', sh ) )
       reg_title( 2, 1 )
@@ -1466,7 +1466,7 @@ Function list_uch( is_lgotnik )
     tek_stroke := 0
     n_list++
     reg_title( 2, 2 )
-    Do While tek_stroke < HH -7
+    Do While tek_stroke < HH - 7
       reg2title()
     Enddo
     add_string( '                                                                  _____________ ' )
@@ -1514,8 +1514,8 @@ Function f_otr_plat( lotd, lnomer, lfio )
   Local sh := 39, arr[ 12 ], i
 
   AFill( arr, Space( sh ) )
-  arr[ 1 ] := PadR( lotd, sh -15 ) + '   ___.___.' + lstr( Year( Date() ) )
-  arr[ 3 ] := PadR( ' ' + lnomer + ' ' + fam_i_o( lfio ), sh -14 ) + ' Диагноз _____'
+  arr[ 1 ] := PadR( lotd, sh - 15 ) + '   ___.___.' + lstr( Year( Date() ) )
+  arr[ 3 ] := PadR( ' ' + lnomer + ' ' + fam_i_o( lfio ), sh - 14 ) + ' Диагноз _____'
   arr[ 4 ] := '----+--------+------+------+-----+-----'
   arr[ 5 ] := 'Отд.| Услуга | Врач |Кол-во| м/с | сан.'
   arr[ 6 ] := '----+--------+------+------+-----+-----'
@@ -1680,7 +1680,7 @@ Function prn_kartoteka( k )
       'prn_kartoteka(23)', ;
       'prn_kartoteka(24)' }
     Private arr_mo := {}, arr_no := {}
-    popup_prompt( T_ROW -3 - Len( mas_pmt ), T_COL + 5, si2, mas_pmt, mas_msg, mas_fun )
+    popup_prompt( T_ROW - 3 - Len( mas_pmt ), T_COL + 5, si2, mas_pmt, mas_msg, mas_fun )
   Case k == 14
     pr_invalid()
   Case k == 21
@@ -1978,7 +1978,7 @@ Static Function f1_pr_invalid()
       fl := ( m1invalid == kart_->INVALID )
     Endif
     If fl .and. m1rab > 0
-      fl := ( kart->rab_nerab == m1rab -1 )
+      fl := ( kart->rab_nerab == m1rab - 1 )
     Endif
     //
     If fl
@@ -2060,8 +2060,8 @@ Function create_dbf_for_lis( par )
       tmp->vpolis := kart_->vpolis
       tmp->spolis := LTrim( kart_->SPOLIS )
       tmp->npolis := LTrim( kart_->NPOLIS )
-//      tmp->SNILS  := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
-      tmp->SNILS  := iif( Empty( kart->SNILS ), '', Transform_SNILS( kart->SNILS ) )
+      // tmp->SNILS  := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
+      tmp->SNILS  := iif( Empty( kart->SNILS ), '', transform_snils( kart->SNILS ) )
       tmp->vid_ud := kart_->vid_ud        // вид удостоверения личности по кодировке ФФОМС
       tmp->ser_ud := LTrim( kart_->ser_ud ) // серия удостоверения личности
       tmp->nom_ud := LTrim( kart_->nom_ud ) // номер удостоверения личности
@@ -2200,8 +2200,8 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->SMO        := smo_to_screen( 1 )
         tmp->vpolis     := inieditspr( A__MENUVERT, mm_vid_polis, kart_->vpolis )
         tmp->polis      := LTrim( kart_->NPOLIS )
-//        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
-        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform_SNILS( kart->SNILS ) )
+        // tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
+        tmp->SNILS      := iif( Empty( kart->SNILS ), '', transform_snils( kart->SNILS ) )
         tmp->vid_ud     := inieditspr( A__MENUVERT, getvidud(), kart_->vid_ud ) // вид удостоверения личности;по кодировке ФФОМС;'PKRT_VID из ''APP_BASE'''
         tmp->ser_ud     := LTrim( kart_->ser_ud ) // серия удостоверения личности;;'PKRT_SER из ''APP_BASE'''
         tmp->nom_ud     := LTrim( kart_->nom_ud ) // номер удостоверения личности;;'PKRT_NOM из ''APP_BASE'''
@@ -2279,8 +2279,8 @@ Function f0_prn_kartotek( par, nuch, nsmo )
         tmp->SMO        := smo_to_screen( 1 )
         tmp->vpolis     := inieditspr( A__MENUVERT, mm_vid_polis, kart_->vpolis )
         tmp->polis      := LTrim( kart_->NPOLIS )
-//        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
-        tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform_SNILS( kart->SNILS ) )
+        // tmp->SNILS      := iif( Empty( kart->SNILS ), '', Transform( kart->SNILS, picture_pf ) )
+        tmp->SNILS      := iif( Empty( kart->SNILS ), '', transform_snils( kart->SNILS ) )
         tmp->vid_ud     := inieditspr( A__MENUVERT, getvidud(), kart_->vid_ud ) // вид удостоверения личности;по кодировке ФФОМС;'PKRT_VID из ''APP_BASE'''
         tmp->ser_ud     := LTrim( kart_->ser_ud ) // серия удостоверения личности;;'PKRT_SER из ''APP_BASE'''
         tmp->nom_ud     := LTrim( kart_->nom_ud ) // номер удостоверения личности;;'PKRT_NOM из ''APP_BASE'''
@@ -2487,7 +2487,7 @@ Function f1_p_f_prikreplenie( nKey, oBrow, regim )
         Select TMP_KRTP
         tmp_krtp->d_prik := md_prik
         tmp_krtp->uchast := muchast
-        If ( i := popup_2array( arr_prik1, r1 -5, 56, tmp_krtp->s_prik ) ) > 0 .and. ;
+        If ( i := popup_2array( arr_prik1, r1 - 5, 56, tmp_krtp->s_prik ) ) > 0 .and. ;
             tmp_krtp->s_prik != i
           If krtp->S_PRIK != i
             Select KRTP
@@ -2619,7 +2619,7 @@ Function f2_p_f_prikreplenie( lkod, /*@*/luchast)
 // 11.03.13
 Function f3_p_f_prikreplenie()
 
-  @ tr -3, 48 Say PadC( 'Отмечено пациентов: ' + lstr( tmp_krtp->( LastRec() ) ), 29 ) Color 'B/W*'
+  @ tr - 3, 48 Say PadC( 'Отмечено пациентов: ' + lstr( tmp_krtp->( LastRec() ) ), 29 ) Color 'B/W*'
 
   Return Nil
 
@@ -2628,7 +2628,7 @@ Function view_otkrep_pripisnoe_naselenie()
 
   Local buf := SaveScreen()
 
-  Private goal_dir := dir_server() + dir_XML_TF() + hb_ps()
+  Private goal_dir := dir_server() + dir_xml_tf() + hb_ps()
 
   r_use( dir_server() + 'mo_krtf', , 'KRTF' )
   Index On DToS( dfile ) to ( cur_dir() + 'tmp_krtf' ) For TIP_IN == _CSV_FILE_OTKREP DESCENDING
@@ -2680,7 +2680,7 @@ Function f2_view_otkrep_pr_nas( nKey, oBrow )
 
   Return ret
 
-  // 09.02.26 чтение в память и анализ CSV-файла
+// 09.02.26 чтение в память и анализ CSV-файла
 Function read_csv_from_tf( cFile, nTypeFile, nkod_reestr )
 
   Local aerr := {}, j, nCountWithErr := 0, adbf, go_to_answer := .f., ;
@@ -2716,9 +2716,9 @@ Function read_csv_from_tf( cFile, nTypeFile, nkod_reestr )
   rest_box( buf )
   If Empty( aerr )
     // запишем принимаемый файл
-    chip_copy_zipxml( full_zip, dir_server() + dir_XML_TF() )
+    chip_copy_zipxml( full_zip, dir_server() + dir_xml_tf() )
     // запишем файл протокола обработки
-    chip_copy_zipxml( cFileProtokol, dir_server() + dir_XML_TF() )
+    chip_copy_zipxml( cFileProtokol, dir_server() + dir_xml_tf() )
   Endif
   If !Empty( aerr )
     AEval( aerr, {| x| StrFile( x + hb_eol(), cFileProtokol, .t. ) } )
@@ -3323,12 +3323,12 @@ Function read_csv_file_otkrep( cFile, aerr )
 #define CSV_A_DT_MO  9
 #define CSV_A_CERR  10
 
-// 01.03.26 чтение в память и анализ CSV-файла ответа на запрос для сверки
+// 03.03.26 чтение в память и анализ CSV-файла ответа на запрос для сверки
 Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
     fl_et, au := {}, mmo_pr, md_prik, buf := save_maxrow(), old_mo := {}
-  Local _kod_error_zap := " ",  fl_ZAP := .F.
+  Local _kod_error_zap := " ",  fl_ZAP := .f.
 
   stat_msg( 'Предварительная обработка' )
   StrFile( Space( 10 ) + 'Протокол обработки для файла ответа на запрос по сверке' + ;
@@ -3350,13 +3350,13 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
   // Реестр сведений о прикреплении
   g_use( dir_server() + 'mo_krtr', , 'KRTR' )
   Goto ( nkod_reestr )
-   // список организаций 
+  // список организаций
   r_use( dir_exe() + '_mo_mo', , '_mo_mo' )
-  Index On Padr( mcod, 6 ) to ( cur_dir() + "tmp_mo" )
+  Index On PadR( codem, 6 ) to ( cur_dir() + "tmp_mo" )
   // Для коррекции HUMAN
   use_base( 'HUMAN' )
-  select HUMAN
-  set order to 2 
+  Select HUMAN
+  Set Order To 2
   // Список отосланных и принятых CSV-файлов
   g_use( dir_server() + 'mo_krtf', , 'KRTF' )
   Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_krtf' )
@@ -3373,13 +3373,13 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
     arr_csv[ i, CSV_A_UCH ]   := Int( Val( arr_csv[ i, CSV_A_UCH ] ) )
     arr_csv[ i, CSV_A_DT ]    := SToD( arr_csv[ i, CSV_A_DT ] )
     arr_csv[ i, CSV_A_DT_MO ] := SToD( arr_csv[ i, CSV_A_DT_MO ] )
- // надо перекодировать МО прикрепления
-    aadd(old_mo, arr_csv[ i, CSV_A_MO ])
-    select _MO_MO
-    find( padl(arr_csv[ i, CSV_A_MO ],6))
-    if found()
-      arr_csv[ i, CSV_A_MO ]    :=  _mo_mo->codem        // 7
-    endif  
+    // надо перекодировать МО прикрепления
+    AAdd( old_mo, arr_csv[ i, CSV_A_MO ] )
+    Select _MO_MO
+    find( PadR( arr_csv[ i, CSV_A_MO ], 6 ) )
+    If Found()
+      old_mo[ i ]    :=  _mo_mo->mcod        // 7
+    Endif
     Select KRTP
     find ( Str( arr_csv[ i, CSV_A_NREC ], 6 ) )
     If !Found()
@@ -3431,71 +3431,73 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
       find ( Str( arr_csv[ i, CSV_A_NREC ], 6 ) )
       g_rlock( forever )
       krtp->OPLATA := mstatus
-      if arr_csv[ i, CSV_A_UCH ] <= 99
+      If arr_csv[ i, CSV_A_UCH ] <= 99
         krtp->UCHAST   := arr_csv[ i, CSV_A_UCH ] // номер участка
-      else
+      Else
         krtp->UCHAST  := 0
         arr_csv[ i, CSV_A_UCH ] := 0
-      endif  
+      Endif
       krtp->SNILS_VR := arr_csv[ i, CSV_A_VRACH ] // СНИЛС участкового врача
       krtp->KOD_PODR := arr_csv[ i, CSV_A_PODR ] // код подразделения по паспорту ЛПУ
       krtp->D_PRIK1 := iif( eq_any( mstatus, 1, 3 ), arr_csv[ i, CSV_A_DT ], CToD( '' ) )
       Select KART
       Goto ( krtp->KOD_K )
       // 23.02.26
-      if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
-        if kart->polis != arr_csv[ i, CSV_A_ENP ] .or. kart->kod_mis != arr_csv[ i, CSV_A_ENP ]
-          g_rlock( forever )  
+      If Len( AllTrim( arr_csv[ i, CSV_A_ENP ] ) ) > 15
+        If kart->polis != arr_csv[ i, CSV_A_ENP ] .or. kart->kod_mis != arr_csv[ i, CSV_A_ENP ]
+          g_rlock( forever )
           kart->polis := arr_csv[ i, CSV_A_ENP ]
           kart->kod_mis := arr_csv[ i, CSV_A_ENP ]
-        endif  
-      endif
+        Endif
+      Endif
       //
-   
+
       Select KART_
-      g_rlock( forever ) 
-      if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
-        if kart_->npolis != arr_csv[ i, CSV_A_ENP ] .or. kart_->spolis != "" .or. kart_->vpolis != 3
+      g_rlock( forever )
+      If Len( AllTrim( arr_csv[ i, CSV_A_ENP ] ) ) > 15
+        If kart_->npolis != arr_csv[ i, CSV_A_ENP ] .or. kart_->spolis != "" .or. kart_->vpolis != 3
           kart_->npolis := arr_csv[ i, CSV_A_ENP ]
           kart_->spolis := ""
           kart_->vpolis := 3
-        endif
-      endif  
-        // HUMAN
-      select HUMAN 
-      find ( str(kart->kod,7))
-      do while kart->kod == human->kod_k .and. !eof()
-        if year(human->k_data) > 2025 
-          select human_
-          goto (human->kod)
-          if human_->schet_zap < 1 .and. human_->reestr < 1 // случ не в счете и не в реестре
-            fl_ZAP := .F.
-            if human_->vpolis == 3 .and. human_->npolis == arr_csv[ i, CSV_A_ENP ] 
-                // всё совпадает - даже не блокируем для ускорения
-            else
-              g_rlock( forever ) 
-              if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15 
+        Endif
+      Endif
+      // HUMAN
+      Select HUMAN
+      find ( Str( kart->kod, 7 ) )
+      Do While kart->kod == human->kod_k .and. !Eof()
+        If Year( human->k_data ) > 2025
+          Select human_
+          Goto ( human->kod )
+          If human_->schet_zap < 1 .and. human_->reestr < 1 // случ не в счете и не в реестре
+            fl_ZAP := .f.
+            If human_->vpolis == 3 .and. human_->npolis == arr_csv[ i, CSV_A_ENP ]
+              // всё совпадает - даже не блокируем для ускорения
+            Else
+              g_rlock( forever )
+              If Len( AllTrim( arr_csv[ i, CSV_A_ENP ] ) ) > 15
                 human_->npolis := arr_csv[ i, CSV_A_ENP ]
-                //human_->spolis := "" - думаю не надо - устарело
+                // human_->spolis := "" - думаю не надо - устарело
                 human_->vpolis := 3
-              endif  
-              unlock
-            endif 
-            if len(alltrim(old_mo[i])) > 5 .and.  human->mo_pr != alltrim(old_mo[i])
-              select HUMAN 
-              g_rlock( forever ) 
-              human->mo_pr :=  alltrim(old_mo[i])
-              unlock
-            endif  
-          endif   
-        endif  
-        select HUMAN
-        skip 
-      enddo  
+              Endif
+              Unlock
+            Endif
+            If Len( AllTrim( old_mo[ i ] ) ) > 5
+              Select HUMAN
+              g_rlock( forever )
+              If Len( arr_csv[ i, CSV_A_CERR ] ) < 1
+                human->mo_pr :=  AllTrim( old_mo[ i ] )
+              Endif
+              Unlock
+            Endif
+          Endif
+        Endif
+        Select HUMAN
+        Skip
+      Enddo
       //
       s := lstr( arr_csv[ i, CSV_A_NREC ] ) + '. ' + AllTrim( kart->fio ) + ;
         ' (д.р.' + full_date( kart->date_r ) + ') '
-      select KART_
+      Select KART_
       fl_et := .f.
       If mstatus == 2  // не прикреплён ни к кому
         ++kol2
@@ -3555,11 +3557,13 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
           kartp->D_PRIK := arr_csv[ i, CSV_A_DT ]
         Endif
         kartp->DFILE := krtr->DFILE
-        kartp->MO_PR := arr_csv[ i, CSV_A_MO ]
-        If kartp->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
-          kartp->SNILS_VR := krtp->SNILS_VR
-        Else
-          kartp->SNILS_VR := ''
+        If Len( arr_csv[ i, CSV_A_CERR ] ) < 1
+          kartp->MO_PR := arr_csv[ i, CSV_A_MO ]
+          If kartp->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]
+            kartp->SNILS_VR := krtp->SNILS_VR
+          Else
+            kartp->SNILS_VR := ''
+          Endif
         Endif
         If krtp->OPLATA == 1
           ++kol1
@@ -3603,7 +3607,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
         5, ;
         s_death, ;
         n_del, ;
-        arr_csv[ i, CSV_A_MO ], arr_csv[ i, CSV_A_DT_MO ],_kod_error_zap )
+        arr_csv[ i, CSV_A_MO ], arr_csv[ i, CSV_A_DT_MO ], _kod_error_zap )
       If i % 2000 == 0
         dbUnlockAll()
         Commit
@@ -3645,27 +3649,27 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
   Endif
   rest_box( buf )
 
-Return Nil
+  Return Nil
 
 #define CSV_A_NREC     1
 #define CSV_A_PID      2    // Персональный идентификатор записи о ЗЛ в базе данных ТФОМС
 #define CSV_A_ENP      3    // ЕНП
-#define CSV_A_MO       7    // Регистрационный код МО, к которому прикреплено ЗЛ на дату обработки сведений. 
+#define CSV_A_MO       7    // Регистрационный код МО, к которому прикреплено ЗЛ на дату обработки сведений.
 #define CSV_A_SMO      4    // Регистрационный код СМО
 #define CSV_A_SMO_B    5    // Дата начала страхования
 #define CSV_A_SMO_E    6    // Дата прекращения страхования
-#define CSV_A_DT_MO_OT 9    // Дата открепления МО  
+#define CSV_A_DT_MO_OT 9    // Дата открепления МО
 #define CSV_A_DT_MO    8    // Дата прикрепления к МО
 #define CSV_A_CERR     10
 
 
-  
-  // 23.02.26 чтение в память и анализ CSV-файла ответа на запрос для НОВОЙ сверки 
+
+// 03.03.26 чтение в память и анализ CSV-файла ответа на запрос для НОВОЙ сверки
 Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
     fl_et, au := {}, mmo_pr, md_prik, buf := save_maxrow(), old_mo := {}
-  Local   fl_ZAP := .F., _kod_error_zap := 0
+  Local   fl_ZAP := .f., _kod_error_zap := 0
 
   stat_msg( 'Предварительная обработка' )
   StrFile( Space( 10 ) + 'Протокол обработки для файла ответа на запрос по Прикреплению' + ;
@@ -3687,13 +3691,13 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
   // Реестр сведений о прикреплении
   g_use( dir_server() + 'mo_krtr', , 'KRTR' )
   Goto ( nkod_reestr )
-  // список организаций 
+  // список организаций
   r_use( dir_exe() + '_mo_mo', , '_mo_mo' )
-  Index On Padr( mcod, 6 ) to ( cur_dir() + "tmp_mo" )
+  Index On PadR( mcod, 6 ) to ( cur_dir() + "tmp_mo" )
   // Для коррекции HUMAN
   use_base( 'HUMAN' )
-  select HUMAN
-  set order to 2 
+  Select HUMAN
+  Set Order To 2
   // Список отосланных и принятых CSV-файлов
   g_use( dir_server() + 'mo_krtf', , 'KRTF' )
   Index On Str( kod, 6 ) to ( cur_dir() + 'tmp_krtf' )
@@ -3712,12 +3716,12 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
     arr_csv[ i, CSV_A_DT_MO_OT ] := SToD( arr_csv[ i, CSV_A_DT_MO_OT ] )    // 9
     arr_csv[ i, CSV_A_DT_MO ]    := SToD( arr_csv[ i, CSV_A_DT_MO ] )       // 8
     // надо перекодировать МО прикрепления
-    aadd(old_mo, arr_csv[ i, CSV_A_MO ])
-    select _MO_MO
-    find( padl(arr_csv[ i, CSV_A_MO ],6))
-    if found()
+    AAdd( old_mo, arr_csv[ i, CSV_A_MO ] )
+    Select _MO_MO
+    find( PadL( arr_csv[ i, CSV_A_MO ], 6 ) )
+    If Found()
       arr_csv[ i, CSV_A_MO ]    :=  _mo_mo->codem        // 7
-    endif  
+    Endif
     Select KRTP
     find ( Str( arr_csv[ i, CSV_A_NREC ], 6 ) )
     If !Found()
@@ -3732,7 +3736,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
       Next
     Endif
   Next
-  _mo_mo->(dbCloseArea())
+  _mo_mo->( dbCloseArea() )
   kol_death := 0
   If Empty( aerr )
     stat_msg( 'Запись в базу данных' )
@@ -3754,7 +3758,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
     For i := 1 To k
       @ MaxRow(), 0 Say Str( i / k * 100, 6, 2 ) + '%' Color cColorSt2Msg
       mstatus := 2
-      If !empty( arr_csv[ i, CSV_A_MO ] )
+      If !Empty( arr_csv[ i, CSV_A_MO ] )
         If arr_csv[ i, CSV_A_MO ] == glob_mo()[ _MO_KOD_TFOMS ]
           mstatus := 1
         Else
@@ -3771,74 +3775,80 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
       g_rlock( forever )
       krtp->OPLATA := mstatus
       krtp->D_PRIK1 := iif( eq_any( mstatus, 1, 3 ), arr_csv[ i, CSV_A_DT ], CToD( '' ) )
-      // пишем СМО в картотеку  проверим - что пришло еще раз 
+      // пишем СМО в картотеку  проверим - что пришло еще раз
       // пишем ТОЛЬКО РАЗНОЕ
       Select KART
       Goto ( krtp->KOD_K )
-      if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
-        if kart->polis != arr_csv[ i, CSV_A_ENP ] .or. kart->kod_mis != arr_csv[ i, CSV_A_ENP ]
-          g_rlock( forever )  
+      If Len( AllTrim( arr_csv[ i, CSV_A_ENP ] ) ) > 15
+        If kart->polis != arr_csv[ i, CSV_A_ENP ] .or. kart->kod_mis != arr_csv[ i, CSV_A_ENP ]
+          g_rlock( forever )
           kart->polis := arr_csv[ i, CSV_A_ENP ]
           kart->kod_mis := arr_csv[ i, CSV_A_ENP ]
-        endif  
-      endif
+        Endif
+      Endif
       //
       Select KART_
-      g_rlock( forever ) 
-      if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15
-        if kart_->npolis != arr_csv[ i, CSV_A_ENP ] .or. kart_->spolis != "" .or. kart_->vpolis != 3
+      g_rlock( forever )
+      If Len( AllTrim( arr_csv[ i, CSV_A_ENP ] ) ) > 15
+        If kart_->npolis != arr_csv[ i, CSV_A_ENP ] .or. kart_->spolis != "" .or. kart_->vpolis != 3
           kart_->npolis := arr_csv[ i, CSV_A_ENP ]
           kart_->spolis := ""
           kart_->vpolis := 3
-        endif
-      endif  
-      if len(alltrim(arr_csv[ i, CSV_A_SMO ])) > 4
-        if kart_->smo != alltrim(arr_csv[ i, CSV_A_SMO ])
-           kart_->smo := alltrim(arr_csv[ i, CSV_A_SMO ])
-        endif   
-      endif
+        Endif
+      Endif
+      If Len( arr_csv[ i, CSV_A_CERR ] ) < 1
+        If Len( AllTrim( arr_csv[ i, CSV_A_SMO ] ) ) > 4
+          If kart_->smo != AllTrim( arr_csv[ i, CSV_A_SMO ] )
+            kart_->smo := AllTrim( arr_csv[ i, CSV_A_SMO ] )
+          Endif
+        Endif
+      Endif
       // HUMAN
-      select HUMAN 
-      find ( str(kart->kod,7))
-      do while kart->kod == human->kod_k .and. !eof()
-        if year(human->k_data) > 2025 
-          select human_
-          goto (human->kod)
-          if human_->schet_zap < 1 .and. human_->reestr < 1 // случ не в счете и не в реестре
-            fl_ZAP := .F.
-            if human_->vpolis == 3 .and. human_->npolis == arr_csv[ i, CSV_A_ENP ] .and.  human_->smo == alltrim(arr_csv[ i, CSV_A_SMO ])
-                // всё совпадает - даже не блокируем для ускорения
-            else
-              g_rlock( forever ) 
-              if len(alltrim(arr_csv[ i, CSV_A_ENP ])) > 15 
+      Select HUMAN
+      find ( Str( kart->kod, 7 ) )
+      Do While kart->kod == human->kod_k .and. !Eof()
+        If Year( human->k_data ) > 2025
+          Select human_
+          Goto ( human->kod )
+          If human_->schet_zap < 1 .and. human_->reestr < 1 // случ не в счете и не в реестре
+            fl_ZAP := .f.
+            If human_->vpolis == 3 .and. human_->npolis == arr_csv[ i, CSV_A_ENP ] .and.  human_->smo == AllTrim( arr_csv[ i, CSV_A_SMO ] )
+              // всё совпадает - даже не блокируем для ускорения
+            Else
+              g_rlock( forever )
+              If Len( AllTrim( arr_csv[ i, CSV_A_ENP ] ) ) > 15
                 human_->npolis := arr_csv[ i, CSV_A_ENP ]
-                //human_->spolis := "" - думаю не надо - устарело
+                // human_->spolis := "" - думаю не надо - устарело
                 human_->vpolis := 3
-              endif  
-              if len(alltrim(arr_csv[ i, CSV_A_SMO ])) > 4
-                human_->smo    := alltrim(arr_csv[ i, CSV_A_SMO ])
-              endif        
-              unlock
-            endif 
-            if len(alltrim(old_mo[i])) > 5 .and.  human->mo_pr != alltrim(old_mo[i])
-              select HUMAN 
-              g_rlock( forever ) 
-              human->mo_pr :=  alltrim(old_mo[i])
-              unlock
-            endif  
-          endif   
-        endif  
-        select HUMAN
-        skip 
-      enddo  
-      select KART_
+              Endif
+              If Len( arr_csv[ i, CSV_A_CERR ] ) < 1
+                If Len( AllTrim( arr_csv[ i, CSV_A_SMO ] ) ) > 4
+                  human_->smo    := AllTrim( arr_csv[ i, CSV_A_SMO ] )
+                Endif
+              Endif
+              Unlock
+            Endif
+            If Len( AllTrim( old_mo[ i ] ) ) > 5 .and.  human->mo_pr != AllTrim( old_mo[ i ] )
+              Select HUMAN
+              g_rlock( forever )
+              If Len( arr_csv[ i, CSV_A_CERR ] ) < 1
+                human->mo_pr :=  AllTrim( old_mo[ i ] )
+              Endif
+              Unlock
+            Endif
+          Endif
+        Endif
+        Select HUMAN
+        Skip
+      Enddo
+      Select KART_
       //
       s := lstr( arr_csv[ i, CSV_A_NREC ] ) + '. ' + AllTrim( kart->fio ) + ;
         ' (д.р.' + full_date( kart->date_r ) + ') '
       fl_et := .f.
       If mstatus == 2  // не прикреплён ни к кому
         //
-      Else 
+      Else
         // занесём указанное прикрепление
         Select KARTP
         find ( Str( krtp->KOD_K, 7 ) + DToS( arr_csv[ i, CSV_A_DT_MO ] ) )
@@ -3850,7 +3860,9 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
           kartp->D_PRIK := arr_csv[ i, CSV_A_DT ]
         Endif
         kartp->DFILE := krtr->DFILE
-        kartp->MO_PR := arr_csv[ i, CSV_A_MO ]
+        If  Len( arr_csv[ i, CSV_A_CERR ] ) < 1 // ошибка прикреп не ставим
+          kartp->MO_PR := arr_csv[ i, CSV_A_MO ]
+        Endif
         If krtp->OPLATA == 1
           ++kol1
         Else
@@ -3859,7 +3871,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
       Endif
       s_death := '0'
       n_del := 0
-       _kod_error_zap := 0
+      _kod_error_zap := 0
       For j := 1 To Len( arr_csv[ i, CSV_A_CERR ] )
         // ошибки принятые -
         Select KRTE
@@ -3890,15 +3902,15 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
         kart_et->PC2 := s_death
       Endif
       // запись !!!!
-      //mydebug(,kart->fio)
-      //mydebug(,_kod_error_zap)
+      // mydebug(,kart->fio)
+      // mydebug(,_kod_error_zap)
       kol4 := f_put_date_prik_new( krtp->KOD_K, ;
         arr_csv[ i, CSV_A_PID ], ;
         arr_csv[ i, CSV_A_ENP ], ;
         5, ;
         s_death, ;
         n_del, ;
-        arr_csv[ i, CSV_A_MO ], arr_csv[ i, CSV_A_DT_MO ],_kod_error_zap )
+        arr_csv[ i, CSV_A_MO ], arr_csv[ i, CSV_A_DT_MO ], _kod_error_zap )
       If i % 3000 == 0
         dbUnlockAll()
         Commit
@@ -3919,7 +3931,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
     Commit
     StrFile( hb_eol() + ;
       'Обработано всего       : ' + lstr( k ) + hb_eol(), cFileProtokol, .t. )
-    StrFile( 'Прикреплено к нашей  МО: ' + lstr( kol1 ) + hb_eol(), cFileProtokol, .t. ) 
+    StrFile( 'Прикреплено к нашей  МО: ' + lstr( kol1 ) + hb_eol(), cFileProtokol, .t. )
     // strfile('---прикреплено к нашей  МО: ' + lstr(kol4) + hb_eol(), cFileProtokol, .t.)
     StrFile( 'Прикреплено к другим МО: ' + lstr( kol3 ) + hb_eol(), cFileProtokol, .t. )
     ASort( au, , , {| x, y| x[ 1 ] < y[ 1 ] } )
@@ -3997,7 +4009,7 @@ Function f_put_date_prik( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo,
   Static j := 0
   Local old_pr, arr := {}
 
-  Default _n_del To 0, lprik_mo To '', ldate_prik_mo To CToD( '' ), _kod_error to 0
+  Default _n_del To 0, lprik_mo To '', ldate_prik_mo To CToD( '' ), _kod_error To 0
 
   Select KARTP
   find ( Str( lkod_k, 7 ) )
@@ -4018,7 +4030,7 @@ Function f_put_date_prik( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo,
     kart2->MO_PR := ''
     kart2->SNILS_VR := '' // уч.врач ещё не привязан
     kart2->PC2 := ''      // не умер
-    kart2->PC3 := ''  
+    kart2->PC3 := ''
     kart2->PC4 := ''
   Enddo
   Goto ( lkod_k )
@@ -4032,11 +4044,11 @@ Function f_put_date_prik( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo,
   If ldeath != NIL
     kart2->PC2 := ldeath
   Endif
-  //mydebug(,_kod_error)
+  // mydebug(,_kod_error)
   // пока загрушил
- // if _kod_error > 0
- //   kart2->PC3 := lstr(_kod_error) 
- // endif  
+  // if _kod_error > 0
+  // kart2->PC3 := lstr(_kod_error)
+  // endif
   If Empty( arr )
     If _n_del == 1
       kart2->MO_PR := ''
@@ -4068,15 +4080,15 @@ Function f_put_date_prik( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo,
   Return j
 
 
- // 01.03.26
+// 01.03.26
 Function f_put_date_prik_new( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik_mo, ldate_prik_mo, _kod_error )
 
   Static j := 0
   Local old_pr, arr := {}
 
-  Default _n_del To 0, lprik_mo To '', ldate_prik_mo To CToD( '' ), _kod_error to 0
+  Default _n_del To 0, lprik_mo To '', ldate_prik_mo To CToD( '' ), _kod_error To 0
 
-  
+
   Select KART2
   Do While kart2->( LastRec() ) < lkod_k
     g_rlock( .t., forever ) // бесконечная попытка добавить запись
@@ -4084,7 +4096,7 @@ Function f_put_date_prik_new( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik
     kart2->MO_PR := ''
     kart2->SNILS_VR := '' // уч.врач ещё не привязан
     kart2->PC2 := ''      // не умер
-    kart2->PC3 := ''  
+    kart2->PC3 := ''
     kart2->PC4 := ''
   Enddo
   Goto ( lkod_k )
@@ -4098,9 +4110,9 @@ Function f_put_date_prik_new( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik
   If ldeath != NIL
     kart2->PC2 := ldeath
   Endif
-  if _kod_error > 0
-    kart2->PC3 := lstr(_kod_error) 
-  endif  
+  If _kod_error > 0
+    kart2->PC3 := lstr( _kod_error )
+  Endif
   If Empty( arr )
     If _n_del == 1
       kart2->MO_PR := ''
@@ -4114,7 +4126,7 @@ Function f_put_date_prik_new( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik
     kart2->TIP_PR   := ltip_pr
     kart2->MO_PR    := iif( _n_del == 1, '', arr[ 1, 1 ] )
     kart2->DATE_PR  := arr[ 1, 2 ]
-     if !emptyany( lprik_mo, ldate_prik_mo ) .and. lprik_mo == kart2->MO_PR
+    If !emptyany( lprik_mo, ldate_prik_mo ) .and. lprik_mo == kart2->MO_PR
       kart2->pc4 := date_8( ldate_prik_mo )
     Endif
   Endif
