@@ -245,8 +245,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     ah := {}
     select HUMAN
     set index to (dir_server() + 'humankk' )
-    find ( str( mkod_k, 7 ) )
-    do while human->kod_k == mkod_k .and. !eof()
+    human->( dbSeek( str( mkod_k, 7 ) ) )   //find ( str( mkod_k, 7 ) )
+    do while human->kod_k == mkod_k .and. ! human->( eof() )
       if human_->oplata != 9 .and. human_->NOVOR == 0 .and. recno() != Loc_kod
         if is_death( human_->RSLT_NEW ) .and. empty( a_smert )
           a_smert := { 'Данный больной умер!', ;
@@ -257,7 +257,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         endif
       endif
       select HUMAN
-      skip
+      human->( dbSkip() )   //  skip
     enddo
     set index to
     if len( ah ) > 0
@@ -372,8 +372,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     use_base( 'human_u' )
 
     // сначала выберем информацию из human_u по услугам ТФОМС
-    find ( str( Loc_kod, 7 ) )
-    do while hu->kod == Loc_kod .and. !eof()
+    hu->( dbSeek( str( Loc_kod, 7 ) ) )   //  find ( str( Loc_kod, 7 ) )
+    do while hu->kod == Loc_kod .and. ! hu->( eof() )
       usl->( dbGoto( hu->u_kod ) )
       if empty( lshifr := opr_shifr_TFOMS( usl->shifr1, usl->kod, mk_data ) )
         lshifr := usl->shifr
@@ -387,19 +387,19 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
               larr[ 1, i ] := hu->( recno() )
               larr[ 2, i ] := lshifr
               aadd( arr_usl, hu->( recno() ) )
-
+//altd()
               if valtype( uslugi_etapa[ i, 13 ] ) == 'C' .and. ! empty( uslugi_etapa[ i, 13 ] )
                 select MOHU
-                set relation to u_kod into MOSU 
-                find ( str( Loc_kod, 7 ) )
-                do while MOHU->kod == Loc_kod .and. ! eof()
+                set relation to FIELD->u_kod into MOSU 
+                mohu->( str( Loc_kod, 7 ) )   //  find ( str( Loc_kod, 7 ) )
+                do while MOHU->kod == Loc_kod .and. ! mohu->( eof() )
                   MOSU->( dbGoto( MOHU->u_kod ) )
                   lshifr := alltrim( iif( empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
                   if lshifr == uslugi_etapa[ i, 13 ]
                     aadd( arr_usl, MOHU->( recno() ) )
                   endif
                   select MOHU
-                  skip
+                  mohu->( dbSkip() )    //skip
                 enddo
                 SELECT HU
               endif
@@ -408,14 +408,14 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         endif
       next
       select HU
-      skip
+      hu->( dbSkip() )    //  skip
     enddo
 
     // затем выберем информацию из mo_hu по услугам ФФОМС
     select MOHU
-    set relation to u_kod into MOSU 
-    find ( str( Loc_kod, 7 ) )
-    do while MOHU->kod == Loc_kod .and. ! eof()
+    set relation to FIELD->u_kod into MOSU 
+    mohu->( dbSeek( str( Loc_kod, 7 ) ) )   //  find ( str( Loc_kod, 7 ) )
+    do while MOHU->kod == Loc_kod .and. ! mohu->( eof() )
       MOSU->( dbGoto( MOHU->u_kod ) )
       lshifr := alltrim( iif( empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
 
@@ -432,7 +432,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         endif
       next
       select MOHU
-      skip
+      mohu->( dbSkip() )    //  skip
     enddo
 
     // добавим услуги НЕ НАЗНАЧЕННЫЕ
@@ -976,8 +976,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         Else  // табельный номер врача и его специальность
          If ! Empty( &mvart ) // табельный номер врача
            Select P2
-           find ( Str( &mvart, 5 ) )
-           If Found()
+           p2->( dbSeek( Str( &mvart, 5 ) ) )   //  find ( Str( &mvart, 5 ) )
+           If p2->( Found() )
              arr_osm1[ i, 1 ] := p2->kod
              arr_osm1[ i, 2 ] := -ret_new_spec( p2->prvs, p2->prvs_new )
              arr_osm1[ i, 14 ] := p2->prvs_021
@@ -985,8 +985,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
          Endif
          If !Empty( &mvara ) // табельный номер ассистента
            Select P2
-           find ( Str( &mvara, 5 ) )
-           If Found()
+           p2->( dbSeek( Str( &mvara, 5 ) ) )   //   find ( Str( &mvara, 5 ) )
+           If p2->( Found() )
              arr_osm1[ i, 3 ] := p2->kod
            Endif
          Endif
@@ -1012,8 +1012,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
           Else
             arr_osm1[ i, 6 ] := &mvarz
             Select MKB_10
-            find ( PadR( arr_osm1[ i, 6 ], 6 ) )
-            If Found() .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
+            mkb_10->( dbSeek( PadR( arr_osm1[ i, 6 ], 6 ) ) )   //   find ( PadR( arr_osm1[ i, 6 ], 6 ) )
+            If mkb_10->( Found() ) .and. !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
               fl := func_error( 4, 'Несовместимость диагноза по полу ' + arr_osm1[ i, 6 ] )
             Endif
           Endif
@@ -1095,8 +1095,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
             MSOPUT_B1 := arr_diag[ i, 1 ]
           Endif
           Select MKB_10
-          find ( PadR( arr_diag[ i, 1 ], 6 ) )
-          If Found()
+          mkb_10->( dbSeek( PadR( arr_diag[ i, 1 ], 6 ) ) )   //   find ( PadR( arr_diag[ i, 1 ], 6 ) )
+          If mkb_10->( Found() )
             If !Empty( mkb_10->pol ) .and. !( mkb_10->pol == mpol )
               fl := func_error( 4, 'несовместимость диагноза по полу ' + AllTrim( arr_diag[ i, 1 ] ) )
             Endif
@@ -1480,9 +1480,9 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       //
       use_base( 'human' )
       If Loc_kod > 0
-        find ( Str( Loc_kod, 7 ) )
+        human->( dbSeek( Str( Loc_kod, 7 ) ) )  //   find ( Str( Loc_kod, 7 ) )
         mkod := Loc_kod
-        g_rlock( forever )
+        g_rlock( 'forever' )
       Else
         add1rec( 7 )
         mkod := RecNo()
@@ -1611,11 +1611,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       Endif
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server() + 'mo_hismo',, 'SN' )
-        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
-        find ( Str( mkod, 7 ) )
-        If Found()
+        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
+        sn->( dbSeek( Str( mkod, 7 ) ) )  //   find ( Str( mkod, 7 ) )
+        If sn->( Found() )
           If fl_nameismo
-            g_rlock( forever )
+            g_rlock( 'forever' )
             sn->smo_name := mnameismo
           Else
             deleterec( .t. )
@@ -1634,8 +1634,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       use_base( 'mo_hdisp' )
       Do While .t.
         Select HDISP 
-        find ( Str( mkod, 7 ) )
-        If ! Found()
+        hdisp->( dbSeek( Str( mkod, 7 ) ) ) // find ( Str( mkod, 7 ) )
+        If ! hdisp->( Found() )
           Exit
         Endif
         deleterec( .t. )
@@ -1647,8 +1647,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       // удалим старые услуги ФФОМС
       Do While .t.
         Select MOHU
-        find ( Str( mkod, 7 ) )
-        If ! Found()
+        mohu->( dbSeek( Str( mkod, 7 ) ) )  //   find ( Str( mkod, 7 ) )
+        If ! mohu->( Found() )
           Exit
         Endif
         deleterec( .t., .f. )  // без пометки на удаление
@@ -1658,8 +1658,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       // удалим старые услуги ТФОМС
       Do While .t.
         Select HU
-        find ( Str( mkod, 7 ) )
-        If ! Found()
+        hu->( dbSeek( Str( mkod, 7 ) ) )    //   find ( Str( mkod, 7 ) )
+        If ! hu->( Found() )
           Exit
         Endif
         //
@@ -1674,19 +1674,19 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         If arr_usl_dop[ i, 12 ] == 0   // это услуга ТФОМС
           // сначала выберем информацию из human_u по услугам ТФОМС
           Select HU
-          find ( Str( Loc_kod, 7 ) )
-          Do While hu->kod == Loc_kod .and. !Eof()
+          hu->( dbSeek( Str( Loc_kod, 7 ) ) )   // find ( Str( Loc_kod, 7 ) )
+          Do While hu->kod == Loc_kod .and. ! hu->( Eof() )
             usl->( dbGoto( hu->u_kod ) )
             If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, mk_data ) )
               lshifr := usl->shifr
             Endif
             lshifr := AllTrim( lshifr )
             If lshifr == AllTrim( arr_usl_dop[ i, 5 ] )
-              g_rlock( forever )
+              g_rlock( 'forever' )
               flExist := .t.
               Exit
             Endif
-            Skip
+            hu->( dbSkip() )    //  Skip
           Enddo
           If ! flExist
             add1rec( 7 )
@@ -1721,9 +1721,9 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         Else  // 1 - это услуга ФФОМС
           // затем выберем информацию из mo_hu по услугам ФФОМС
           Select MOHU
-          Set Relation To u_kod into MOSU
-          find ( Str( Loc_kod, 7 ) )
-          Do While MOHU->kod == Loc_kod .and. !Eof()
+          Set Relation To FIELD->u_kod into MOSU
+          mohu->( dbSeek( Str( Loc_kod, 7 ) ) )   //   find ( Str( Loc_kod, 7 ) )
+          Do While MOHU->kod == Loc_kod .and. ! mohu->( Eof() )
             MOSU->( dbGoto( MOHU->u_kod ) )
             Select MOHU
             lshifr := AllTrim( iif( Empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
@@ -1732,7 +1732,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
               flExist := .t.
               Exit
             Endif
-            Skip
+            mohu->( dbSkip() )  //  Skip
           Enddo
           If ! flExist
             add1rec( 7 )
@@ -1761,7 +1761,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.
-      Close databases
+      dbCloseAll()  // Close databases
 
       if m1ds_onk == 1 // подозрение на злокачественное новообразование
         save_mo_onkna( mkod, _NPR_DISP_ZNO )
@@ -1771,7 +1771,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     Exit
   Enddo
 
-  Close databases
+  dbCloseAll()  // Close databases
   SetColor( tmp_color )
   RestScreen( buf )
   If fl_write_sluch // если записали - запускаем проверку
