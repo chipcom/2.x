@@ -1390,6 +1390,15 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           Exit
         Endif
       Next
+
+
+// очистим рабочий массив от пустоты
+      for i := len( arr_osm1 ) to 1 step -1
+        if arr_osm1[ i, 1 ] == 0
+          hb_ADel( arr_osm1, i, .t. )
+        endif
+      next
+
       If !fl
         Loop
       Endif
@@ -1409,7 +1418,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       fl := .t.
-      If emptyany( arr_osm1[ len( dvn_arr_usl ), 1 ], arr_osm1[ len( dvn_arr_usl ), 9 ] )
+//      If emptyany( arr_osm1[ len( dvn_arr_usl ), 1 ], arr_osm1[ len( dvn_arr_usl ), 9 ] )
+      If emptyany( arr_osm1[ len( arr_osm1 ), 1 ], arr_osm1[ len( arr_osm1 ), 9 ] )
         If metap == 2 .and. i_56_1_723 > 0
           If !( arr_osm1[ i_56_1_723, 9 ] == mn_data .and. arr_osm1[ i_56_1_723, 9 ] == mk_data )
             fl := func_error( 4, 'Начало и окончание должно равняться дате углубленного профилактич.консультирования' )
@@ -1425,7 +1435,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Elseif metap == 2 .and. i_56_1_723 == 0
           fl := func_error( 4, 'Не введён приём терапевта (врача общей практики)' )
         Endif
-      Elseif ( arr_osm1[ len( dvn_arr_usl ), 9 ] < mk_data ) .and. ( MK_DATA < 0d20260101 )
+//      Elseif ( arr_osm1[ len( dvn_arr_usl ), 9 ] < mk_data ) .and. ( MK_DATA < 0d20260101 )
+      Elseif ( arr_osm1[ len( arr_osm1 ), 9 ] < mk_data ) .and. ( MK_DATA < 0d20260101 )
         fl := func_error( 4, 'Терапевт (врач общей практики) должен проводить осмотр последним!' )
       Endif
 /*
@@ -1567,7 +1578,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       mywait()
       //
       m1lis := 0
-      For i := 1 To len( dvn_arr_usl )
+//      For i := 1 To len( dvn_arr_usl )
+      For i := 1 To len( arr_osm1 )
         If ValType( arr_osm1[ i, 9 ] ) == 'D'
           If arr_osm1[ i, 5 ] == '4.20.2' .and. arr_osm1[ i, 9 ] < mn_data // не в рамках диспансеризации
             m1g_cit := 1 // если и было =2, убираем
@@ -1578,40 +1590,44 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Next
       is_prazdnik := f_is_prazdnik_dvn( mn_data )
-      m1assis := arr_osm1[ len( dvn_arr_usl ), 3 ]
+//      m1assis := arr_osm1[ len( dvn_arr_usl ), 3 ]
+      m1assis := arr_osm1[ len( arr_osm1 ), 3 ]
       i_zs := 0
       If eq_any( metap, 2, 5 )
-        i := len( dvn_arr_usl )
+//        i := len( dvn_arr_usl )
+        i := len( arr_osm1 )
         m1vrach  := arr_osm1[ i, 1 ]
         m1prvs   := arr_osm1[ i, 2 ]
         m1assis  := arr_osm1[ i, 3 ]
         m1PROFIL := arr_osm1[ i, 4 ]
         // MKOD_DIAG := padr(arr_osm1[i, 6], 6)
-      elseif  eq_any( metap, 1, 3, 4 ) .and. ( MK_DATA < 0d20260101 )
+      elseif  eq_any( metap, 1, 3, 4 ) //.and. ( MK_DATA < 0d20260101 )
         i := Len( arr_osm1 )
         m1vrach  := arr_osm1[ i, 1 ]
         m1prvs   := arr_osm1[ i, 2 ]
         m1assis  := arr_osm1[ i, 3 ]
         m1PROFIL := arr_osm1[ i, 4 ]
-        // MKOD_DIAG := padr(arr_osm1[i, 6], 6)
-        AAdd( arr_osm1, Array( 11 ) )
-        i := i_zs := Len( arr_osm1 )
-        arr_osm1[ i, 1 ] := arr_osm1[ i - 1, 1 ]
-        arr_osm1[ i, 2 ] := arr_osm1[ i -1, 2 ]
-        arr_osm1[ i, 3 ] := arr_osm1[ i -1, 3 ]
-        arr_osm1[ i, 4 ] := 151 // для кода ЗС - мед.осмотрам профилактическим
-        arr_osm1[ i, 5 ] := ret_shifr_zs_dvn( metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, mk_data )
-        arr_osm1[ i, 6 ] := arr_osm1[ i -1, 6 ]
-        arr_osm1[ i, 9 ] := mn_data
-        arr_osm1[ i, 10 ] := 0
+        if mk_data < 0d20260101
+          // MKOD_DIAG := padr(arr_osm1[i, 6], 6)
+          AAdd( arr_osm1, Array( 11 ) )
+          i := i_zs := Len( arr_osm1 )
+          arr_osm1[ i, 1 ] := arr_osm1[ i - 1, 1 ]
+          arr_osm1[ i, 2 ] := arr_osm1[ i -1, 2 ]
+          arr_osm1[ i, 3 ] := arr_osm1[ i -1, 3 ]
+          arr_osm1[ i, 4 ] := 151 // для кода ЗС - мед.осмотрам профилактическим
+          arr_osm1[ i, 5 ] := ret_shifr_zs_dvn( metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, mk_data )
+          arr_osm1[ i, 6 ] := arr_osm1[ i -1, 6 ]
+          arr_osm1[ i, 9 ] := mn_data
+          arr_osm1[ i, 10 ] := 0
+        endif
       Endif
       For i := 1 To Len( dvn_arr_umolch )
         If f_is_umolch_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol )
           ++kol_d_usl
           AAdd( arr_osm1, Array( 11 ) )
           j := Len( arr_osm1 )
-//          arr_osm1[ j, 1 ] := m1vrach
-          arr_osm1[ j, 1 ] := p2->kod   //  m1vrach
+          arr_osm1[ j, 1 ] := m1vrach
+//          arr_osm1[ j, 1 ] := p2->kod   //  m1vrach
           arr_osm1[ j, 2 ] := m1prvs
           arr_osm1[ j, 3 ] := m1assis
           arr_osm1[ j, 4 ] := m1PROFIL
