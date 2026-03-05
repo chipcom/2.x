@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 04.03.26 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
+// 05.03.26 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
 Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
 
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
@@ -21,7 +21,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
   Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) For FIELD->reestr == mkod_reestr .and. FIELD->TIP_OUT == 0
   mo_xml->( dbGoTop() )
 
-  if ! ( rees->nyear >= 2026 .and. eq_any( result_TFOMS,1, 2, 3 ) ) // временно добавил 1 (принят)
+  if ! ( rees->nyear >= 2026 .and. eq_any( result_TFOMS, 2, 3 ) )
     Do While ! mo_xml->( Eof() )
       If mo_xml->TIP_IN == _XML_FILE_FLK_26 //  _XML_FILE_SP
         AAdd( mm_func, mo_xml->kod )
@@ -49,8 +49,8 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
   Set Index To
   rest_box( buf )
   If Len( mm_menu ) == 0
-//    if ( rees->nyear >= 2026 .and. eq_any( result_TFOMS, 2, 3 ) ) .or. ( involved_password( 1, rees_nschet, 'подтверждения возврата (удаления) реестра' ) )
-    If involved_password( 1, rees_nschet, 'подтверждения возврата (удаления) реестра счёта' )
+    if ( rees->nyear >= 2026 .and. eq_any( result_TFOMS, 2, 3 ) ) .or. ( involved_password( 1, rees_nschet, 'подтверждения возврата (удаления) реестра' ) )
+//    If involved_password( 1, rees_nschet, 'подтверждения возврата (удаления) реестра счёта' )
       f1vozvrat_reestr( mkod_reestr )
     endif
     Return 1
