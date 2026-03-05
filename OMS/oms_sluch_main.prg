@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 29.01.26 добавление или редактирование случая (листа учета)
+// 05.03.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -2061,7 +2061,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human->MOP        := m1MOP
       human->PROFIL_M   := m1PROFIL_M
       human->MO_PR      := m1MO_PR
-      if ( M1F14_EKST == 0 ) .and. ( ( m1USL_OK == USL_OK_HOSPITAL ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL ) )
+      if ( ( M1F14_EKST == 0 ) .and. ( m1USL_OK == USL_OK_HOSPITAL ) ) .or. ( m1USL_OK == USL_OK_DAY_HOSPITAL )
         set_NAPR_MO( human->kod, _NPR_LECH, mNAPR_NUM )
       else
         del_NAPR_MO( human->kod, _NPR_LECH )
