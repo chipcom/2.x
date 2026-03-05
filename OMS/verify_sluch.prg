@@ -1463,6 +1463,7 @@ Function verify_sluch( fl_view, ft )
           AAdd( ta, 'Не найдена услуга ' + RTrim( lshifr ) + iif( human->vzros_reb == 0, ' для взрослых', ' для детей' ) + ' в справочнике ТФОМС' )
         Endif
       Endif
+//altd()
       If is_disp_DVN_COVID .or. is_disp_DRZ
         If hu->kod_vr != 0  // присутствует код врача
           ssumma += hu->stoim_1
