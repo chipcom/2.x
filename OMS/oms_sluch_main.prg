@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 05.03.26 добавление или редактирование случая (листа учета)
+// 06.03.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -706,6 +706,10 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   f_valid2ad_cr( MK_DATA )  // получим дополнительные критерии на дату окончания лечения
 
   Private rdiag := 1, rpp := 1, num_screen := 1, is_onko_VMP := .f.
+
+  if Empty( mMO_PR ) // если пустое поле прикрепления
+    mMO_PR := Space( 20 )
+  endif
 
   Do While .t.
     If num_screen == 1
