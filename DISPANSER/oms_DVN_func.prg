@@ -574,7 +574,7 @@ Function f1get_spec_dvn( nKey, oBrow, regim )
 
   Return 0
 
-// 22.02.26 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
+// 06.03.26 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
 Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
 
   Local fl := .f., ars := {}, ar
@@ -621,7 +621,8 @@ Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_d
     Endif
   Endif
   If fl .and. eq_any( _etap, 2, 3 )
-    i := iif( _pol == 'М', 8, 9 )
+//    i := iif( _pol == 'М', 8, 9 )
+    i := iif( _pol == 'М', 6, 7 )
     If ValType( ar[ i ] ) == 'N'
       fl := ( ar[ i ] != 0 )
     Elseif Type( 'is_disp_19' ) == 'L' .and. is_disp_19
