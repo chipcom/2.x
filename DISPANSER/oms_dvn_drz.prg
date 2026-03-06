@@ -67,7 +67,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС,1-компании,3-комитеты/ЛПУ,5-личный счет
     msmo := '34007', rec_inogSMO := 0, ;
     madres, mokato, m1okato := '', mismo, m1ismo := '', mnameismo := space( 100 ), ;
-    mvidpolis, m1vidpolis := 1, mspolis := space( 10 ), mnpolis := space( 20 )
+    mvidpolis, m1vidpolis := 1, mspolis := space( 10 ), mnpolis := space( 16 )
   Private mkod := Loc_kod, is_talon := .f., mshifr_zs := '', ;
     mkod_k := kod_kartotek, fl_kartotek := ( kod_kartotek == 0 ), ;
     M1LPU := glob_uch[ 1 ], MLPU, ;
@@ -220,7 +220,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     mPOLIS      := kart->POLIS
     m1VIDPOLIS  := kart_->VPOLIS
     mSPOLIS     := kart_->SPOLIS
-    mNPOLIS     := kart_->NPOLIS
+    mNPOLIS     := padr( kart_->NPOLIS, 16 )
     m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
     msmo        := kart_->SMO
     m1MO_PR     := kart2->MO_PR
@@ -310,7 +310,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     m1MOP       := human->MOP           // место обращения
     m1VIDPOLIS  := human_->VPOLIS
     mSPOLIS     := human_->SPOLIS
-    mNPOLIS     := human_->NPOLIS
+    mNPOLIS     := padr( human_->NPOLIS, 16 )
 
     if human->OBRASHEN == '1'
       m1DS_ONK := 1
@@ -615,7 +615,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   Endif
 
   //
-  str_1 := ' случая диспансеризации репродуктивного здоровья взрослых'
+  str_1 := ' случая диспансеризации репродуктивного здоровья ' + iif( metap == 1, 'I этап', 'II этап' ) //  взрослых'
   If Loc_kod == 0
     str_1 := 'Добавление' + str_1
   Else
@@ -652,20 +652,23 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       @ j, wS - Len( s ) Say s Color color14
     Endif
     If num_screen == 1 //
-      @ ++j, 1 Say 'ФИО' Get mfio_kart ;
+//      @ ++j, 1 Say 'ФИО' Get mfio_kart ;
+      @ j, 10 Say 'ФИО' Get mfio_kart ;
         reader {| x | menu_reader( x, { {| k, r, c| get_fio_kart( k, r, c ) } }, A__FUNCTION,,, .f. ) } ;
         valid {| g, o| update_get( 'mdate_r' ), ;
         update_get( 'mkomu' ), update_get( 'mcompany' ) }
-      @ Row(), Col() + 5 Say 'Д.р.' Get mdate_r When .f. Color color14
+//      @ Row(), Col() + 5 Say 'Д.р.' Get mdate_r When .f. Color color14
+      @ Row(), Col() + 1 Say 'Д.р.' Get mdate_r When .f. Color color14
 
-      @ ++j, 1 Say ' Полис ОМС: вид' Get mvidpolis ;
+      @ ++j, 1 Say 'Полис ОМС: вид' Get mvidpolis ;
         reader {| x | menu_reader( x, mm_vid_polis, A__MENUVERT,,, .f. ) } ;
         When m1komu == 0 ;
         Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
-      @ Row(), Col() + 2 Say 'номер'  Get mnpolis When m1komu == 0
-      @ Row(), Col() + 2 Say 'серия' Get mspolis When ( m1vidpolis == 1 .and. m1komu == 0 )
+      @ Row(), Col() + 1 Say '№'  Get mnpolis When m1komu == 0
+//      @ Row(), Col() + 2 Say 'серия' Get mspolis When ( m1vidpolis == 1 .and. m1komu == 0 )
 
-      @ ++j, 1 Say ' Принадлежность счёта' Get mkomu ;
+//      @ ++j, 1 Say ' Принадлежность счёта' Get mkomu ;
+      @ j, Col() + 1 Say 'счёт' Get mkomu ;
         reader {| x | menu_reader( x, mm_komu(), A__MENUVERT,,, .f. ) } ;
         valid {| g, o| f_valid_komu( g, o ) } ;
         Color colget_menu
@@ -673,6 +676,8 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
         reader {| x | menu_reader( x, mm_company, A__MENUVERT,,, .f. ) } ;
         When m1komu < 5 ;
         valid {| g | func_valid_ismo( g, m1komu, 38 ) }
+
+
       //
       @ ++j, 1 Say 'Сроки' Get mn_data ;
         valid {| g | f_k_data( g, 1 ), f_valid_begdata_drz( g, Loc_kod ), ;
@@ -694,7 +699,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
       //   return nil  // выходим из карты ввода
       // endif
 
-      @ ++j, 8 Get mndisp When .f. Color color14  // заголовок
+//      @ ++j, 8 Get mndisp When .f. Color color14  // заголовок
 
       if ! ( metap == 1 .and. nGender == 'М' )  // на I этапе для мужин исследований нет
         @ ++j, 1 Say '────────────────────────────────────────────┬─────┬─────┬──────────┬──────────' Color color8
