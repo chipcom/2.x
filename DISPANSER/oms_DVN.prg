@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 04.03.26 ДВН - добавление или редактирование случая (листа учета)
+// 06.03.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -1866,7 +1866,24 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       human_->USL_OK    := m1USL_OK
       human_->VIDPOM    := m1VIDPOM
       human_->PROFIL    := m1PROFIL
-      human_->IDSP      := iif( metap == 3, iif( human->K_DATA < 0d20260101, 17, 29 ), 11 )
+      if human->K_DATA >= 0d20260101
+        if metap == 1 .or. metap == 3
+          human_->IDSP      := 29 // за посещение
+        elseif metap == 2
+          human_->IDSP      := 30 // За обращение (законченный случай) в поликлинике
+        else
+        endif
+      else
+        if metap == 1
+          human_->IDSP      := 11 // Дополнительная диспансеризация
+        elseif metap == 2
+          human_->IDSP      := 11 // За обращение (законченный случай) в поликлинике
+        elseif metap == 3
+          human_->IDSP      := 30 // За обращение (законченный случай) в поликлинике
+        else
+        endif
+      endif
+//      human_->IDSP      := iif( metap == 3, iif( human->K_DATA < 0d20260101, 17, 29 ), 11 )
       human_->NPR_MO    := ''
       human_->FORMA14   := '0000'
       human_->KOD_DIAG0 := ''
