@@ -88,7 +88,7 @@ Function parse_protokol_flk_26( arr_f, aerr )
   dbCommitAll()
   Return iError   //  is_err_FLK
 
-// 12.02.26 прочитать реестр ФЛК
+// 07.03.26 прочитать реестр ФЛК
 Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
 
   Local i, k, t_arr[ 2 ]  //, pole
@@ -139,9 +139,9 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
 
     r_use( dir_server() + 'mo_otd', , 'OTD' )
 
-      g_use( dir_server() + 'human_u_',, 'HU_' )
-      r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-      Set Relation To RecNo() into HU_
+    g_use( dir_server() + 'human_u_',, 'HU_' )
+    r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
+    Set Relation To RecNo() into HU_
 
     r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
     g_use( dir_server() + 'human_', , 'HUMAN_' )
@@ -156,29 +156,31 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
 
     tmp2->( dbGoTop() )
     Do While ! tmp2->( Eof() )
-      dbSelectArea( 'RHUM' )
-      rhum->( dbSeek( Str( tmp2->N_ZAP, 6 ) ) )
-      If rhum->( Found() )
-        human->( dbGoto( rhum->KOD_HUM ) )
-        If rhum->OPLATA > 0
-          AAdd( aerr, 'Пациент с REES_ZAP=' + lstr( rhum->REES_ZAP ) + ' был прочитан в реестре СП и ТК' )
-          If !Empty( human->fio )
-            AAdd( aerr, '└─>(ФИО пациента = ' + AllTrim( human->fio ) + ')' )
+      if tmp2->N_ZAP != 0
+        dbSelectArea( 'RHUM' )
+        rhum->( dbSeek( Str( tmp2->N_ZAP, 6 ) ) )
+        If rhum->( Found() )
+          human->( dbGoto( rhum->KOD_HUM ) )
+          If rhum->OPLATA > 0
+            AAdd( aerr, 'Пациент с REES_ZAP=' + lstr( rhum->REES_ZAP ) + ' был прочитан в реестре СП и ТК' )
+            If !Empty( human->fio )
+              AAdd( aerr, '└─>(ФИО пациента = ' + AllTrim( human->fio ) + ')' )
+            Endif
           Endif
+          If !( rhum->REES_ZAP == human_->REES_ZAP )
+            AAdd( aerr, 'Не равен параметр REES_ZAP: ' + lstr( rhum->REES_ZAP ) + ' != ' + lstr( human_->REES_ZAP ) )
+          Endif
+        Else
+          AAdd( aerr, 'Не найден случай с N_ZAP=' + lstr( tmp2->N_ZAP ) )
         Endif
-        If !( rhum->REES_ZAP == human_->REES_ZAP )
-          AAdd( aerr, 'Не равен параметр REES_ZAP: ' + lstr( rhum->REES_ZAP ) + ' != ' + lstr( human_->REES_ZAP ) )
-        Endif
-      Else
-        AAdd( aerr, 'Не найден случай с N_ZAP=' + lstr( tmp2->N_ZAP ) )
-      Endif
+      endif
       dbSelectArea( 'TMP2' )
       tmp2->( dbSkip() )
     Enddo
-    If !Empty( aerr )
-      dbCloseAll()
-      Return .f.
-    Endif
+//    If !Empty( aerr )
+//      dbCloseAll()
+//      Return .f.
+//    Endif
 
   Endif
 
@@ -189,33 +191,35 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
     StrFile( '  Список ошибок:' + hb_eol(), cFileProtokol, .t. )
     Do While ! tmp2->( Eof() )
 
-      dbSelectArea( 'RHUM' )
-      rhum->( dbSeek( Str( tmp2->N_ZAP, 6 ) ) )
-      If rhum->( Found() )
-        Select REFR
-        Do While .t.
-          refr->( dbSeek( Str( 2, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) ) ) // для счетов
-          If ! refr->( Found() )
-            Exit
-          Endif
-          deleterec( .t. )
-        Enddo
-
-        Select TMP3
-        tmp3->( dbSeek( Str( tmp2->N_ZAP, 8 ) ) )
-        Do While tmp2->N_ZAP == tmp3->_N_ZAP .and. ! tmp3->( Eof() )
+      if tmp2->N_ZAP != 0
+        dbSelectArea( 'RHUM' )
+        rhum->( dbSeek( Str( tmp2->N_ZAP, 6 ) ) )
+        If rhum->( Found() )
           Select REFR
-          addrec( 1 )
-          refr->TIPD := 1 // 2 // счет
-          refr->KODD := mkod_reestr
-          refr->TIPZ := 1
-          refr->KODZ := rhum->KOD_HUM
-          refr->REFREASON := tmp3->_REFREASON
-          refr->SREFREASON := tmp3->SREFREASON
-//          refr->IDENTITY := tmp2->_IDENTITY
-          Select tmp3
-          tmp3->( dbSkip() )
-        Enddo
+          Do While .t.
+            refr->( dbSeek( Str( 2, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( rhum->KOD_HUM, 8 ) ) ) // для счетов
+            If ! refr->( Found() )
+              Exit
+            Endif
+            deleterec( .t. )
+          Enddo
+
+          Select TMP3
+          tmp3->( dbSeek( Str( tmp2->N_ZAP, 8 ) ) )
+          Do While tmp2->N_ZAP == tmp3->_N_ZAP .and. ! tmp3->( Eof() )
+            Select REFR
+            addrec( 1 )
+            refr->TIPD := 1 // 2 // счет
+            refr->KODD := mkod_reestr
+            refr->TIPZ := 1
+            refr->KODZ := rhum->KOD_HUM
+            refr->REFREASON := tmp3->_REFREASON
+            refr->SREFREASON := tmp3->SREFREASON
+//            refr->IDENTITY := tmp2->_IDENTITY
+            Select tmp3
+            tmp3->( dbSkip() )
+          Enddo
+        endif
       endif
 
       If Empty( tmp2->SOSHIB )
@@ -239,7 +243,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
       Endif
       If !Empty( tmp2->BAS_EL )
         If Empty( tmp2->N_ZAP )
-          s += ', СЛУЧАЙ НЕ НАЙДЕН!'
+          s += ' Ошибка в формате файла ФЛК, СЛУЧАЙ НЕ НАЙДЕН!'
         Else
 
           dbSelectArea( 'RHUM' )
@@ -250,16 +254,18 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
             tmp2->kod_human := rhum->KOD_HUM
             dbSelectArea( 'HUMAN' )
             human->( dbGoto( rhum->KOD_HUM ) )
-//            If human->ishod == 89 // это 2-ой случай в двойном случае
-//              dbSelectArea( 'HUMAN_3' )
-////              Set Order To 2
-//              human_3->( ordSetFocus( 2 ) )
-//              human_3->( dbSeek( Str( rhum->KOD_HUM, 7 ) ) )
-//              If human_3->( Found() )
-//                human->( dbGoto( human_3->kod ) )    // т.к. GUID'ы в реестре из 1-го случая
-//                human_->( dbGoto( human_3->kod ) )   // встать на 1-ый случай
-//              Endif
-//            Endif
+
+            If human->ishod == 89 // это 2-ой случай в двойном случае
+              dbSelectArea( 'HUMAN_3' )
+//              Set Order To 2
+              human_3->( ordSetFocus( 2 ) )
+              human_3->( dbSeek( Str( rhum->KOD_HUM, 7 ) ) )
+              If human_3->( Found() )
+                human->( dbGoto( human_3->kod ) )    // т.к. GUID'ы в реестре из 1-го случая
+                human_->( dbGoto( human_3->kod ) )   // встать на 1-ый случай
+              Endif
+            Endif
+            
             If human_->REESTR == mkod_reestr
               g_rlock( 'forever' )
               human_->( g_rlock( 'forever' ) )
@@ -475,7 +481,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
   dbCloseAll()
   Return .t.
 
-// 14.02.26 заполнить поле 'N_ZAP' в файле 'tmp2'
+// 07.03.26 заполнить поле 'N_ZAP' в файле 'tmp2'
 Function fill_tmp2_file_flk_26()
 
   Local i, s, s1, adbf, ar
@@ -484,6 +490,7 @@ Function fill_tmp2_file_flk_26()
   dbSelectArea( 'TMP2' )
   adbf := Array( tmp2->( FCount() ) )
   tmp2->( dbGoTop() )
+
   Do While ! tmp2->( Eof() )
     If ! Empty( tmp2->BAS_EL )
       s := AllTrim( tmp2->BAS_EL )
@@ -543,32 +550,38 @@ Function fill_tmp2_file_flk_26()
         Endif
 */
       Case s == 'PERS'
+        ar := {}
         dbSelectArea( 'T3' )
         s1 := AllTrim( tmp2->ID_PAC )
-        t3->( dbSeek( PadR( Upper( s1 ), 36 ) ) )
-//        Locate For Upper( t3->ID_PAC ) == PadR( Upper( s1 ), 36 )
-        If t3->( Found() )
-          ar := {}
-          dbSelectArea( 'T1' )
-          t1->( dbSeek( PadR( Upper( s1 ), 36 ) ) )
-          Do While Upper( t1->ID_PAC ) == PadR( Upper( s1 ), 36 )
-            AAdd( ar, Int( Val( t1->N_ZAP ) ) )
-            t1->( dbSkip() )
-          Enddo
-          If Len( ar ) > 0
-            dbSelectArea( 'TMP2' )
-            tmp2->N_ZAP := ar[ 1 ]
-            If Len( ar ) > 1
-              AEval( adbf, {| x, i| adbf[ i ] := FieldGet( i ) } )
-              dbSelectArea( 'TMP22' )
-              For i := 2 To Len( ar )
-                tmp22->( dbAppend() )
-                AEval( adbf, {| x, i| FieldPut( i, x ) } )
-                tmp22->N_ZAP := ar[ i ]
-              Next
+        if Empty( s1 )
+          AAdd( ar, -1 )  // ошибка в файле ФЛК
+          tmp2->N_ZAP := 0  // ошибка в файле ФЛК
+        else
+          t3->( dbSeek( PadR( Upper( s1 ), 36 ) ) )
+//          Locate For Upper( t3->ID_PAC ) == PadR( Upper( s1 ), 36 )
+          If t3->( Found() )
+            ar := {}
+            dbSelectArea( 'T1' )
+            t1->( dbSeek( PadR( Upper( s1 ), 36 ) ) )
+            Do While Upper( t1->ID_PAC ) == PadR( Upper( s1 ), 36 )
+              AAdd( ar, Int( Val( t1->N_ZAP ) ) )
+              t1->( dbSkip() )
+            Enddo
+            If Len( ar ) > 0
+              dbSelectArea( 'TMP2' )
+              tmp2->N_ZAP := ar[ 1 ]
+              If Len( ar ) > 1
+                AEval( adbf, {| x, i| adbf[ i ] := FieldGet( i ) } )
+                dbSelectArea( 'TMP22' )
+                For i := 2 To Len( ar )
+                  tmp22->( dbAppend() )
+                  AEval( adbf, {| x, i| FieldPut( i, x ) } )
+                  tmp22->N_ZAP := ar[ i ]
+                Next
+              Endif
             Endif
           Endif
-        Endif
+        endif
       Endcase
     Endif
     tmp3->( dbAppend() )
