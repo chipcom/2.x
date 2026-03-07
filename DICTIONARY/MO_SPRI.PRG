@@ -1012,7 +1012,7 @@ Function f_spr_usl_adres_podr()
   Endif
   Return ret_arr
 
-// 27.02.26
+// 07.03.26
 Function usl2tfoms()
 
   Static sdate
@@ -1021,6 +1021,8 @@ Function usl2tfoms()
     ta[ 2 ], lyear, fl1del, fl2del, len_ksg := 10
   Local arrKSLP, rowKSLP, tmpKSLP, arrKIRO, rowKIRO, tmpKIRO
   Local sbase
+  local j, aTablKiro, kiro_ter, kiro_xir
+  Local lal
 
   Default sdate To sys1_date
   mdate := input_value( 20, 5, 22, 73, color1, ;
@@ -1077,14 +1079,23 @@ Function usl2tfoms()
       Next
       arrKIRO := getkirotable( mdate )
       add_string( 'ŠˆŽ:' )
+      aTablKiro := tabl_kiro( mdate )
       For Each rowKIRO in arrKIRO
         If between_date( rowKIRO[ 5 ], rowKIRO[ 6 ], mdate )
-          k := perenos( ta, AllTrim( rowKIRO[ 3 ] ), 58 )
+          k := perenos( ta, AllTrim( rowKIRO[ 3 ] ), 50 )
           For i := 1 To k
             If i == 1
-              tmpKIRO := Str( rowKIRO[ 1 ], 7 ) + ' - ' + ta[ i ] + ' (ª®¥ä=' + Str( rowKIRO[ 4 ], 4, 2 ) + ')'
+              if mdate >= 0d20260101
+                if ( j := AScan( aTablKiro, { | x | x[ 1 ] == rowKIRO[ 1 ] } ) ) > 0
+                  kiro_xir := aTablKiro[ j, 2 ]
+                  kiro_ter := aTablKiro[ j, 3 ]
+                endif
+                tmpKIRO := Str( rowKIRO[ 1 ], 2 ) + ' - ' + ta[ i ] + ' (ª®¥ä: å.' + Str( kiro_xir, 4, 2 ) + '/â.' +  + Str( kiro_ter, 4, 2 ) + ')'
+              else
+                tmpKIRO := Str( rowKIRO[ 1 ], 7 ) + ' - ' + ta[ i ] + ' (ª®¥ä=' + Str( rowKIRO[ 4 ], 4, 2 ) + ')'
+              endif
             Else
-              tmpKIRO := Space( 10 ) + ta[ i ]
+              tmpKIRO := Space( 5 ) + ta[ i ]
             Endif
             add_string( tmpKIRO )
           Next
