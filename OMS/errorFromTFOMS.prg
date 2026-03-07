@@ -279,7 +279,7 @@ Function errorarrayffoms( error_code )
   Endif
   Return arr_error
 
-// 26.02.25 отображение полного описания ошибки
+// 07.03.26 отображение полного описания ошибки
 Function erroromskey( nkey, ind )
 
   Local ret := -1, oBox
@@ -287,20 +287,30 @@ Function erroromskey( nkey, ind )
   Local arr := split( parr[ ind ] )
   Local error_code, opis := {}, arr_error, cond := .f.
   Local begin_row := 2, i
+  local k, ta[ 2 ], j
 
   error_code := arr[ 1 ]
 
   If Len( error_code ) < 4
-    perenos( opis, retarr_t005( Val( error_code ) )[ 3 ], 56 )
+    k := perenos( opis, retarr_t005( Val( error_code ) )[ 3 ], 52 )
   Elseif ( Len( error_code ) == 12 ) .and. ( hb_tokenCount( error_code, '.' ) == 3 )
     arr_error := errorarrayffoms( error_code )
-    perenos( opis, arr_error[ 6 ], 56 )
+    k := perenos( opis, arr_error[ 6 ], 52 )
     If ! Empty( arr_error[ 4 ] )
-      hb_AIns( opis, 1, 'Для: ' + arr_error[ 4 ], .t. )
+      k := perenos( ta, arr_error[ 4 ], 52 )
+      for j := 1 to k
+//        hb_AIns( opis, 1, 'Для: ' + arr_error[ 4 ], .t. ) 
+        if j == 1
+          hb_AIns( opis, 1, 'Для: ' + ta[ 1 ], .t. ) 
+        else
+          hb_AIns( opis, j, ta[ j ], .t. ) 
+        endif
+      next
       cond := .t.
     Endif
     If ! Empty( arr_error[ 5 ] )
-      hb_AIns( opis, iif( cond, 2, 1 ), 'Должно быть: ' + arr_error[ 5 ], .t. )
+//      hb_AIns( opis, iif( cond, 2, 1 ), 'Должно быть: ' + arr_error[ 5 ], .t. )
+      hb_AIns( opis, len( opis ) + 1, 'Должно быть: ' + arr_error[ 5 ], .t. )
     Endif
   Else
     // дополнительной информации по ошибке нет
