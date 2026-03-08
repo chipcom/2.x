@@ -221,11 +221,12 @@ mo_version.prg
 
 .\MO\external_mo.prg
 
-.\DISPANSER\oms_DVN_array.prg
+.\DISPANSER\DVN\oms_DVN_array.prg
+.\DISPANSER\DVN\oms_DVN_array_early.prg
+.\DISPANSER\DVN\oms_DVN.prg
+.\DISPANSER\DVN\oms_DVN_func.prg
 .\DISPANSER\oms_DVN_COVID.prg
 .\DISPANSER\oms_DVN_func_COVID.prg
-.\DISPANSER\oms_DVN.prg
-.\DISPANSER\oms_DVN_func.prg
 .\DISPANSER\oms_DDS.prg
 .\DISPANSER\oms_DDS_func.prg
 .\DISPANSER\oms_DDS_array.prg

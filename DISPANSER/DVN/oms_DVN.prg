@@ -22,6 +22,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   local dvn_arr_usl, dvn_arr_umolch, mm_ndisp1
   local arr_usl_dop := {}
   local j, i, i2
+  local usl_zamena
 
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
@@ -1766,14 +1767,28 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         If ValType( arr_osm1[ i, 5 ] ) == 'C'
           arr_osm1[ i, 7 ] := foundourusluga( arr_osm1[ i, 5 ], mk_data, arr_osm1[ i, 4 ], M1VZROS_REB, @mu_cena )
           arr_osm1[ i, 8 ] := mu_cena
-          mcena_1 += mu_cena
+          if mk_data < 0d20260101
+            mcena_1 += mu_cena
+          endif
           If eq_any( arr_osm1[ i, 10 ], 0, 3 ) // выполнено
             AAdd( arr_usl_dop, arr_osm1[ i ] )
             If arr_osm1[ i, 10 ] == 3 // обнаружены отклонения
               AAdd( arr_otklon, arr_osm1[ i, 5 ] )
             Endif
+            if mk_data >= 0d20260101
+              mcena_1 += mu_cena
+            endif
           Else // отказ и невозможность
             AAdd( arr_usl_otkaz, arr_osm1[ i ] )
+/*
+            if mk_data >= 0d20260101
+              usl_zamena := get_zamenauslugi_dvn( mk_data, arr_osm1[ i, 5 ] )
+              arr_osm1[ i, 5 ] := usl_zamena
+              arr_osm1[ i, 7 ] := foundourusluga( arr_osm1[ i, 5 ], mk_data, arr_osm1[ i, 4 ], M1VZROS_REB, @mu_cena )              
+              arr_osm1[ i, 8 ] := 0 //  цена
+              AAdd( arr_usl_dop, arr_osm1[ i ] )
+            endif
+*/
           Endif
         Endif
       Next
