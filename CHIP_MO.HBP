@@ -221,16 +221,24 @@ mo_version.prg
 
 .\MO\external_mo.prg
 
+# диспансеризация взрослого населения
 .\DISPANSER\DVN\oms_DVN_array.prg
 .\DISPANSER\DVN\oms_DVN_array_early.prg
 .\DISPANSER\DVN\oms_DVN.prg
 .\DISPANSER\DVN\oms_DVN_func.prg
-.\DISPANSER\oms_DVN_COVID.prg
-.\DISPANSER\oms_DVN_func_COVID.prg
-.\DISPANSER\oms_DDS.prg
-.\DISPANSER\oms_DDS_func.prg
-.\DISPANSER\oms_DDS_array.prg
-.\DISPANSER\information_DDS.prg
+# диспансеризация репродуктивного здоровья
+.\DISPANSER\DRZ\oms_dvn_drz.prg
+.\DISPANSER\DRZ\oms_dvn_drz_func.prg
+.\DISPANSER\DRZ\oms_dvn_DRZ_array.prg
+# углубленная диспансеризация
+.\DISPANSER\COVID\oms_DVN_COVID.prg
+.\DISPANSER\COVID\oms_DVN_func_COVID.prg
+# диспансеризация детей-сирот и под опекой
+.\DISPANSER\DDS\oms_DDS.prg
+.\DISPANSER\DDS\oms_DDS_func.prg
+.\DISPANSER\DDS\oms_DDS_array.prg
+.\DISPANSER\DDS\information_DDS.prg
+
 .\DISPANSER\oms_PN.prg
 .\DISPANSER\oms_PN_func.prg
 .\DISPANSER\oms_PN_array.prg
@@ -245,9 +253,6 @@ mo_version.prg
 .\DISPANSER\mo_omsid.prg
 .\DISPANSER\disp_nab_func.prg
 .\DISPANSER\disp_nab_diag_usl.prg
-.\DISPANSER\oms_dvn_drz.prg
-.\DISPANSER\oms_dvn_drz_func.prg
-.\DISPANSER\oms_dvn_DRZ_array.prg
 .\DISPANSER\diag_disp_nabl.prg
 .\DISPANSER\mo_st39.prg
 
