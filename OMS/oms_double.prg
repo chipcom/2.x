@@ -627,7 +627,7 @@ Function delete_double_sl()
   endif
   return NIL
 
-// 10.10.22
+// 10.03.26
 Function input_double_sl( par )
 
   Static srec := 0
@@ -644,14 +644,14 @@ Function input_double_sl( par )
     index on upper( FIELD->fio ) to ( cur_dir() + 'tmp_h2' ) ;
         while human->k_data <= arr_m[ 6 ] ;
         for FIELD->ishod == 89 .and. FIELD->schet < 1 .and. human_->reestr == 0
-    go top
-    if eof()
+    human->( dbGoTop() )  // go top
+    if human->( eof() )
       func_error( 4, 'Не найдено двойных случаев ' + arr_m[ 4 ] )
     else
       if srec > 0
-        Locate for kod == srec
-        if !found()
-          go top
+        Locate for human->kod == srec
+        if ! human->( found() )
+          human->( dbGoTop() )    //go top
         endif
       endif
       t_arr[ BR_TOP ] := T_ROW
@@ -673,12 +673,12 @@ Function input_double_sl( par )
         srec := ret[ 1 ]
       endif
     endif
-    close databases
+    dbCloseAll()  //  close databases
     rest_box( buf24 )
   endif
   return ret
 
-// 10.10.22
+// 10.03.26
 Function f1_input_double_sl()
   
   Local fl, rec, rec3
@@ -690,14 +690,14 @@ Function f1_input_double_sl()
     set relation to
     set index to
     select HUMAN_3
-    goto ( rec3 )
+    human_3->( dbGoto( rec3 ) )   // goto ( rec3 )
     select HUMAN_
-    goto ( human_3->kod ) // встать на 1-ый случай
+    human_->( dbGoto( human_3->kod ) )    //  goto ( human_3->kod ) // встать на 1-ый случай
     fl := ( human_->ST_VERIFY == 5 )
     select HUMAN
     set index to ( cur_dir() + 'tmp_h2' )
     set relation to FIELD->kod into HUMAN_, to str( FIELD->kod, 7) into HUMAN_3
-    goto ( rec )
+    human->( dbGoto( rec) )   //  goto ( rec )
   endif
   return fl
 

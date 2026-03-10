@@ -4489,8 +4489,8 @@ Function verify_sluch( fl_view, ft )
       Elseif AScan( dvn_700( human->K_DATA ), {| x| x[ 2 ] == lshifr } ) > 0
         ++k700 // к нулевой услуге добавлена услуга с ценой на '700'
       Elseif eq_any( Left( lshifr, 5 ), '70.3.', '70.7.', '72.1.', '72.5.', '72.6.', '72.7.' )
-        ++zs
         if dEnd < 0d20260101
+          ++zs
           If is_prof_disp
             s := ret_shifr_zs_dvn( 3, mv, mpol, dEnd )
           Else

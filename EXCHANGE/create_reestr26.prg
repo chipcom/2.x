@@ -64,7 +64,8 @@ Function create_reestr26( arr_calendar )
 //  Use ( cur_dir() + 'tmpb' ) new
 
   dbCreate( 'mem:tmpb', adbf, , .t., 'TMPB' )
-  INDEX ON FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) TO ( 'mem:tmpb' )
+//  INDEX ON FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) TO ( 'mem:tmpb' )
+  INDEX ON FIELD->KOD_SMO + FIELD_>FIO + DToS( FIELD->k_data ) TO ( 'mem:tmpb' )
 
   mnyear := arr_calendar[ 1 ]
   mnmonth := arr_calendar[ 3 ]
