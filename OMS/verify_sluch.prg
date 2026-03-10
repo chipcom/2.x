@@ -4046,7 +4046,8 @@ Function verify_sluch( fl_view, ft )
     human_->profil := 151  // медицинским осмотрам профилактическим
     ret_arr_vozrast_dvn( dEnd )
     ret_arrays_disp( dEnd )
-    m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := f_is_prazdnik_dvn( dBegin )
+    m1g_cit := m1veteran := m1dispans := 0
+    is_prazdnik := f_is_prazdnik_dvn( dBegin )
 
     For i := 1 To 5
       sk := lstr( i )

@@ -412,7 +412,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
 //    ret_arrays_disp( mk_data )
     metap := human->ishod - 200
-    If is_disp_19
+//    If is_disp_19
       mdvozrast := Year( mn_data ) - Year( mdate_r )
       // если это профосмотр
       If metap == 3 .and. AScan( ret_arr_vozrast_dvn( mk_data ), mdvozrast ) > 0 // а возраст диспансеризации
@@ -434,10 +434,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         metap := 1
       Elseif metap == 5
         func_error( 4, 'Это второй этап диспансеризации раз в 2 года - удалите этот случай!' )
-        dbCloseAll()    //  Close databases
+        dbCloseAll()
         Return Nil
       Endif
-    Endif
+//    Endif
     If Between( metap, 1, 5 )
       mm_gruppa := { mm_gruppaD1, mm_gruppaD2, mm_gruppaP, mm_gruppaD4, mm_gruppaD2 }[ metap ]
       If ( i := AScan( mm_gruppa, {| x | x[ 3 ] == m1rslt } ) ) > 0
@@ -462,6 +462,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         mshifr_zs := lshifr
       Else
         fl := .t.
+/*
         If is_disp_19
           //
         Else
@@ -472,6 +473,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             larr[ 1, i ] := hu->( RecNo() )
           Endif
         Endif
+*/        
         If fl
           For i := 1 To Len( dvn_arr_umolch ) //  count_dvn_arr_umolch
             If Empty( larr[ 2, i ] ) .and. dvn_arr_umolch[ i, 2 ] == lshifr
@@ -497,11 +499,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                 If dvn_arr_usl[ i, 2 ] == lshifr
                   fl := .f.
                   m1var := 'm1lis' + lstr( i )
-                  If is_disp_19
+//                  If is_disp_19
                     &m1var := 0
-                  Elseif glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS(), dvn_arr_usl[ i, 2 ] ) > 0 .and. hu->is_edit > 0
-                    &m1var := hu->is_edit
-                  Endif
+//                  Elseif glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS(), dvn_arr_usl[ i, 2 ] ) > 0 .and. hu->is_edit > 0
+//                    &m1var := hu->is_edit
+//                  Endif
                   mvar := 'mlis' + lstr( i )
                   &mvar := inieditspr( A__MENUVERT, mm_kdp2, &m1var )
                 Endif
