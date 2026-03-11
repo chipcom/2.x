@@ -9,7 +9,7 @@
 Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
-// 22.02.26
+// 11.03.26
 Function create_reestr26( arr_calendar )
 
   Local mnyear, mnmonth, k := 0, k1 := 0
@@ -65,7 +65,7 @@ Function create_reestr26( arr_calendar )
 
   dbCreate( 'mem:tmpb', adbf, , .t., 'TMPB' )
 //  INDEX ON FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) TO ( 'mem:tmpb' )
-  INDEX ON FIELD->KOD_SMO + FIELD_>FIO + DToS( FIELD->k_data ) TO ( 'mem:tmpb' )
+  INDEX ON FIELD->KOD_SMO + FIELD->FIO + DToS( FIELD->k_data ) TO ( 'mem:tmpb' )
 
   mnyear := arr_calendar[ 1 ]
   mnmonth := arr_calendar[ 3 ]
