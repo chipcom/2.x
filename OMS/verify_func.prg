@@ -3,8 +3,33 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.10.25
-function diabetes_school_xniz( shifr, nAge, dni, kol_93_1, kol_93_2, rslt, ishod, ta )
+// 11.03.26
+function arr_schol_xniz( mdate )
+
+  local arr := { '2.92.1', '2.92.2', '2.92.3', '2.92.4', '2.92.5', ;
+    '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', ;
+    '2.92.12', '2.92.13', '2.92.14', '2.92.15', '2.92.16', '2.92.17', '2.92.18' }
+
+  if mdate >= 0d20260101
+    hb_ADel( arr, 7, .t. )
+  endif
+
+  return arr
+
+// 11.03.26
+// удаление 3-х первых услуг ( 2.92.1, 2.92.2, 2.92.3 )
+function cut_arr_schol_xniz( mdate )
+
+  local arr := arr_schol_xniz( mdate )
+
+  hb_ADel( arr, 1, .t. )
+  hb_ADel( arr, 1, .t. )
+  hb_ADel( arr, 1, .t. )
+
+  return arr
+
+// 11.03.26
+function check_school_xniz( mdate, shifr, nAge, dni, kol_93_1, kol_93_2, rslt, ishod, ta )
 
   local s
 
@@ -29,32 +54,50 @@ function diabetes_school_xniz( shifr, nAge, dni, kol_93_1, kol_93_2, rslt, ishod
     Endif
   else  // cогласно приказа комитета здравоохранения 1362 от 23.05.25
     s := 'услуга 2.93.2 оказывается не менее '
-    if eq_any( shifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.10', '2.92.11' )
-      // для '2.92.11' в приказе не понятно
-      If nAge < 18 .and. dni < 10
-        AAdd( ta, s + '10 дней' )
-      Elseif nAge >= 18 .and. dni < 5
-        AAdd( ta, s + '5 дней' )
-      Endif
-      If nAge < 18 .and. kol_93_2 < 10
-        AAdd( ta, s + '10 раз' )
-      Elseif nAge >= 18 .and. kol_93_2 < 5
-        AAdd( ta, s + '5 раз' )
-      Endif
-    elseif  shifr == '2.92.8' .or. shifr == '2.92.9'
-      if nAge >= 18 .and. dni < 5
-        AAdd( ta, s + '5 дней' )
-      Endif
-      if nAge >= 18 .and. kol_93_2 < 5
-        AAdd( ta, s + '5 раз' )
-      Endif
-    elseif  shifr == '2.92.12' .or. shifr == '2.92.13'
-      If nAge < 18 .and. dni < 10
-        AAdd( ta, s + '10 дней' )
-      Endif
-      If nAge < 18 .and. kol_93_2 < 10
-        AAdd( ta, s + '10 раз' )
-      Endif
+    if mdate >= 0d20260101
+      if eq_any( shifr, '2.92.4', '2.92.8', '2.92.10', '2.92.14', '2.92.15', '2.92.16', '2.92.17' )
+        if dni < 4
+          AAdd( ta, s + '4 дней' )
+        endif
+        If kol_93_2 < 4
+          AAdd( ta, s + '4 раз' )
+        Endif
+      elseif eq_any( shifr,  '2.92.5', '2.92.6', '2.92.9', '2.92.11', '2.92.12', '2.92.13' )
+        if dni < 5
+          AAdd( ta, s + '5 дней' )
+        endif
+        If kol_93_2 < 5
+          AAdd( ta, s + '5 раз' )
+        Endif
+      endif
+    else
+      if eq_any( shifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.10', '2.92.11' )
+        // для '2.92.11' в приказе не понятно
+        If nAge < 18 .and. dni < 10
+          AAdd( ta, s + '10 дней' )
+        Elseif nAge >= 18 .and. dni < 5
+          AAdd( ta, s + '5 дней' )
+        Endif
+        If nAge < 18 .and. kol_93_2 < 10
+          AAdd( ta, s + '10 раз' )
+        Elseif nAge >= 18 .and. kol_93_2 < 5
+          AAdd( ta, s + '5 раз' )
+        Endif
+      elseif  shifr == '2.92.8' .or. shifr == '2.92.9'
+        if nAge >= 18 .and. dni < 5
+          AAdd( ta, s + '5 дней' )
+        Endif
+        if nAge >= 18 .and. kol_93_2 < 5
+          AAdd( ta, s + '5 раз' )
+        Endif
+      elseif  shifr == '2.92.12' .or. shifr == '2.92.13'
+        If nAge < 18 .and. dni < 10
+          AAdd( ta, s + '10 дней' )
+        Endif
+        If nAge < 18 .and. kol_93_2 < 10
+          AAdd( ta, s + '10 раз' )
+        Endif
+      endif
     endif
   endif
   return nil
