@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 08.03.26
+// 11.03.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -4547,7 +4547,7 @@ Function verify_sluch( fl_view, ft )
               AAdd( ta, 'в листе учета должна быть услуга "законченный случай" - отредактируйте' )
             Endif
           Else
-            If zs > 0 .or. Empty( k700 )
+            If ( human->K_DATA < 0d20260101 ) .and. ( zs > 0 .or. Empty( k700 ) )
               AAdd( ta, 'в листе учета не должно быть услуги "законченный случай" - отредактируйте' )
             Endif
           Endif

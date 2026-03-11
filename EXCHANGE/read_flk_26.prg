@@ -281,7 +281,8 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
                 ' ' + date_8( human->n_data ) + '-' + date_8( human->k_data )
             Endif
           else
-            s := 'Не найден случай с N_ZAP=' + lstr( tmp2->_N_ZAP ) + ', _ID_PAC=' + tmp2->_ID_PAC
+//            s := 'Не найден случай с N_ZAP=' + lstr( tmp2->_N_ZAP ) + ', _ID_PAC=' + tmp2->_ID_PAC
+            s := 'Не найден случай с N_ZAP=' + lstr( tmp2->N_ZAP ) + ', _ID_PAC=' + tmp2->ID_PAC
           endif
 
         Endif
