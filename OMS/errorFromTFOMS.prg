@@ -156,13 +156,14 @@ Function f3oms_edit()
         // в случае выбора ошибки 57 (ошибки в персональных данных) или 599 (неверный пол или дата рождения) - старое
         // в случае выбора ошибки ?	001F.00.0625 
       //If eq_any( iRefr, hb_CRC32( s1 ), 599 ) .and. ( i := popup_prompt( T_ROW, T_COL + 5, 1, ;
-      If iRefr == hb_CRC32( "001F.00.0625" ) .and. ( i := popup_prompt( T_ROW, T_COL + 5, 1, ;  
+     /* If iRefr == hb_CRC32( "001F.00.0625" ) .and. ( i := popup_prompt( T_ROW, T_COL + 5, 1, ;  
           { ;
             'Редактирование листов учёта', ;
             'Создание файла ХОДАТАЙСТВА для отсылки в ТФОМС' ;
           },,, color5 ) ) > 1
         Return tfoms_hodatajstvo( arr_m, iRefr, i - 1 )
       Endif
+      */
       Private mr1 := T_ROW, regim_vyb := 2, p_del_error := ret_arr
       kod_REFREASON_menu := iRefr
       Do While .t.

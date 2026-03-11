@@ -41,7 +41,7 @@ Function oms_double( k )
   endif
   return NIL
 
-// 27.05.24 склеить два случая
+// 11.03.26 склеить два случая
 Function create_double_sl()
 
   Local buf, str_sem, str_sem2, i, d, fl, arr_m, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
@@ -76,19 +76,19 @@ Function create_double_sl()
         for FIELD->tip_h == B_STANDART .and. FIELD->schet < 1 .and. human_->reestr == 0 .and. human_->USL_OK == 1 ;
                                 .and. empty( human->ishod ) .and. human_->profil != 158 .and. human_2->vmp == 0
     srec := 1
-    go top
-    do while !eof()
+    human->( dbGoTop() )    //  go top
+    do while ! human->( eof() )
       select TMP_H
-      append blank
+      tmp_h->( dbAppend() )   //append blank
       replace kod with human->kod
       if human->kod == glob_perso
         srec := tmp_h->( recno() )
       endif
       select HUMAN
-      skip
+      human->( dbSkip() )     //  skip
     enddo
     i := tmp_h->( lastrec() )
-    close databases
+    dbCloseAll()    //  close databases
     rest_box( buf24 )
     if i == 0
       func_error( 4, 'В данный момент нет стационарных пациентов с датой окончания ' + arr_m[ 4 ] )
@@ -142,7 +142,7 @@ Function create_double_sl()
         endif
       endif
       restscreen( buf_scr )
-      close databases
+      dbCloseAll()    //  close databases
       if mkod > 0
         str_sem := 'Редактирование человека ' + lstr( glob_perso )
         if G_SLock( str_sem )
@@ -161,16 +161,16 @@ Function create_double_sl()
               for FIELD->kod_k == glob_kartotek .and. FIELD->kod != glob_perso .and. FIELD->schet < 1 .and. ;
                   FIELD->tip_h == B_STANDART .and. human_->reestr == 0 .and. human_->USL_OK == 1 .and. ;
                   FIELD->ishod == 0 .and. human_->profil != 158 .and. human_2->vmp == 0
-          go top
-          do while !eof()
+          human->( dbGoTop() )    //  go top
+          do while ! human->( eof() )
             select TMP_H
-            append blank
+            tmp_h->( dbAppend() )   //  append blank
             replace kod with human->kod
             select HUMAN
-            skip
+            human->( dbSkip() )   //  skip
           enddo
           i := tmp_h->( lastrec() )
-          close databases
+          dbCloseAll()    //  close databases
           rest_box( buf24 )
           if i == 0
             func_error( 4, 'В данный момент больше нет стационарных случаев по данному пациенту' )
@@ -183,7 +183,7 @@ Function create_double_sl()
             use ( cur_dir() + 'tmp_h' ) new
             set relation to FIELD->kod into HUMAN
             index on dtos( human->k_data ) to ( cur_dir() + 'tmp_h' )
-            go top
+            tmp_h->( dbGoTop() )    //  go top
             mkod := 0
             buf_scr := savescreen()
             if Alpha_Browse( T_ROW, 2, maxrow() - 2, 77, 'f1ret_oms_human', color0, ;
@@ -215,7 +215,7 @@ Function create_double_sl()
               endif
             endif
             restscreen( buf_scr )
-            close databases
+            dbCloseAll()    //  close databases
 
             // проверим особые результаты на совпадения
             if rslt_fl1 .or. rslt_fl2
@@ -230,7 +230,7 @@ Function create_double_sl()
                           color1, cDataCSay, , , color8)
                 
                 G_SUnLock( str_sem )
-                close databases
+                dbCloseAll()    //  close databases
                 rest_box( buf )
                 return NIL
               endif
@@ -246,7 +246,7 @@ Function create_double_sl()
                   mywait( 'Выполняется операция слияния двух листов учёта в двойной.' )
 
                   use_base( 'human' )
-                  goto ( glob_perso )
+                  human->( dbGoto( glob_perso ) )   //  goto ( glob_perso )
                   lcena := human->cena_1
                   G_Use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
                   AddRec( 7 )
@@ -293,7 +293,7 @@ Function create_double_sl()
                   endif
                   //
                   select HUMAN
-                  goto ( glob_perso )
+                  human->( dbGoto( glob_perso ) )   // goto ( glob_perso )
                   G_RLock( forever )
                   human->ishod := 88 // это 1-ой л/у в двойном случае
                   human_2->( G_RLock( forever ) )
@@ -301,14 +301,14 @@ Function create_double_sl()
 
                   // 
                   select HUMAN
-                  goto ( glob_perso2 )
+                  human->( dbGoto( glob_perso2 ) )    //  goto ( glob_perso2 )
                   G_RLock( forever )
                   human->ishod := 89 // это 2-ой л/у в двойном случае
                   human_2->( G_RLock( forever ) )
                   human_2->pn4 := glob_perso // ссылка на 1-й лист учёта
 //                  tmp_pc2 := human_2->pc2 // сохраним КИРО из 2-го случая
                   //
-                  close databases
+                  dbCloseAll()    //  close databases
 
                   stat_msg( 'Операция слияния завершена!' )
                   mybell( 2, OK )
@@ -327,7 +327,7 @@ Function create_double_sl()
       endif
     endif
     yes_h_otd := old_yes_h_otd
-    close databases
+    dbCloseAll()    //  close databases
   endif
   rest_box( buf )
   return NIL
@@ -530,6 +530,7 @@ Function recount_double_sl( mkod_human, k_data2 )
 Function view_double_sl()
 
   Local k, buf, arr := {}
+  local fl
 
   if ( k := input_double_sl( 1 ) ) != NIL
     buf := savescreen()
@@ -540,14 +541,14 @@ Function view_double_sl()
     G_Use( dir_server() + 'human_', , 'HUMAN_' )
     G_Use( dir_server() + 'human', , 'HUMAN' )
     set relation to recno() into HUMAN_, to recno() into HUMAN_2, to FIELD->otd into OTD
-    goto ( k[ 1 ] )
+    human->( dbGoto( k[ 1 ] ) )   //  goto ( k[ 1 ] )
     aadd( arr, 'Двойной лист учёта по пациенту: ' + alltrim( k[ 2 ] ) )
     aadd( arr, 'на сумму ' + lstr( human_3->cena_1, 11, 2 )+ ' руб.' )
     aadd( arr, '1-ый в отд. ' + alltrim( otd->name ) + ' на сумму ' + lstr( human->cena_1, 11, 2 ) + ' руб.' )
     aadd( arr, 'c ' + date_8( human->n_data ) + ' по ' + date_8( human->k_data ) + iif( human_->ST_VERIFY == 5, '', ' (с ошибкой)' ) )
     fl := ( human_->ST_VERIFY < 5 )
     select HUMAN
-    goto ( human_3->kod2 )
+    human->( dbGoto( human_3->kod2 ) )   //  goto ( human_3->kod2 )
     aadd( arr, '2-ой в отд. ' +alltrim( otd->name ) + ' на сумму ' + lstr( human->cena_1, 11, 2 ) + ' руб.' )
     aadd( arr, 'c ' + date_8( human->n_data ) + ' по ' + date_8( human->k_data )+ iif( human_->ST_VERIFY == 5, '', ' (с ошибкой)' ) )
     if !fl
@@ -557,7 +558,7 @@ Function view_double_sl()
       aadd( arr, '' )
       aadd( arr, 'Расформируйте двойной лист учёта и отредактируйте оба листа учёта' )
     endif
-    close databases
+    dbCloseAll()    //  close databases
     f_message( arr, , color8, color1 )
     mybell( 1 )
     inkey( 0 )
@@ -737,7 +738,7 @@ function exist_reserve_KSG(kod_pers, aliasHUMAN)
   local oldSelect, ret := .f.
   local lshifr
 
-  If glob_mo[ _MO_KOD_TFOMS ] != '805965' // РДЛ
+  If glob_mo()[ _MO_KOD_TFOMS ] != '805965' // РДЛ
 
     if kod_pers == 0
       return ret
