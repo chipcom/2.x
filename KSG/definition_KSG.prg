@@ -977,6 +977,9 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         lkiro := list2arr( aHirKSG[ 1, 4 ] )
         lkslp := aHirKSG[ 1, 14 ]
         AAdd( ars, ' оставляем КСГ=' + aHirKSG[ 1, 1 ] + ' с коэффициентом затратоёмкости ' + lstr( aHirKSG[ 1, 3 ] ) )
+        if lk_data >= 0d20260101
+          ltype_ksg := aHirKSG[ 1, 16 ]
+        endif
       Endif
     Endif
   Elseif kol_ter > 0
@@ -1084,7 +1087,6 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       Endif
       If !Empty( lkiro )
         vkiro := defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lk_data )
-
         If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
           akiro := f_cena_kiro( @lcena, vkiro, lk_data, lrslt, ltype_ksg )
           strSoob += '  (КИРО = ' + Str( akiro[ 2 ], 4, 2 ) + ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
