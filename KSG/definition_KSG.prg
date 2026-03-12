@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 02.03.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 12.03.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -69,7 +69,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   local typeKSG  // тип КСГ ( st или ds )
   local uslOkaz         // условия оказания (стационар, дневной стационар м т.д.)
   local i, j
-  local _a1, ar, ar_crit, ar_crit1
+  local _a1, ar_ksg, ar_crit, ar_crit1
   local c_crit, icrit
   local lal, lalf, lage
   local lsex, llos
@@ -413,7 +413,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   typeKSG := iif( uslOkaz == USL_OK_HOSPITAL, 'st', 'ds' )
 
   // собираем КСГ по осн.диагнозу (терапевтические и комбинированные)
-  ar := {}
+  ar_ksg := {}
   tmp := {}
   Select K006
 
@@ -435,7 +435,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       j++
       If fl
         if lk_data >= 0d20260101
-          AAdd( ar, { k006->shifr, ; // 1
+          AAdd( ar_ksg, { k006->shifr, ; // 1
             0, ;           // 2
             lkoef, ;       // 3
             &lal.->kiros, ; // 4
@@ -453,7 +453,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
             &lal.->TYPE_KSG } ; // 16
           )
         else
-          AAdd( ar, { k006->shifr, ; // 1
+          AAdd( ar_ksg, { k006->shifr, ; // 1
             0, ;           // 2
             lkoef, ;       // 3
             &lal.->kiros, ; // 4
@@ -591,7 +591,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
           AAdd( tmp, i )
         Endif
         if lk_data >= 0d20260101
-          AAdd( ar, { k006->shifr, ; // 1
+          AAdd( ar_ksg, { k006->shifr, ; // 1
             0, ;           // 2
             lkoef, ;       // 3
             &lal.->kiros, ; // 4
@@ -609,7 +609,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
             &lal.->TYPE_KSG } ; // 16
           )
         else
-          AAdd( ar, { k006->shifr, ; // 1
+          AAdd( ar_ksg, { k006->shifr, ; // 1
             0, ;           // 2
             lkoef, ;       // 3
             &lal.->kiros, ; // 4
@@ -647,7 +647,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
         sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
         j := 1
-        ar := {}
+        ar_ksg := {}
         if lk_data >= 0d20260101
           AAdd( ar1, { k006->shifr, ; // 1
             0, ;           // 2
@@ -687,18 +687,18 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       Endif
     Endif
   Endif
-  If Len( ar ) > 0
+  If Len( ar_ksg ) > 0
     For i := 1 To Len( tmp )
       im := tmp[ i ]
       amohu[ im ] := '' // очистить, чтобы не включать в хирургическую КСГ
     Next
-    For i := 1 To Len( ar )
-      ar[ i, 2 ] := ret_cena_ksg( ar[ i, 1 ], lvr, date_usl )
-      If ar[ i, 2 ] > 0
+    For i := 1 To Len( ar_ksg )
+      ar_ksg[ i, 2 ] := ret_cena_ksg( ar_ksg[ i, 1 ], lvr, date_usl )
+      If ar_ksg[ i, 2 ] > 0
         fl_cena := .t.
       Endif
     Next
-    aTerKSG := AClone( ar )
+    aTerKSG := AClone( ar_ksg )
     If Len( aTerKSG ) > 1
       ASort( aTerKSG, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
     Endif
@@ -711,7 +711,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
     Endif
   Endif
   // собираем КСГ по манипуляциям (хирургические и комбинированные)
-  ar := ar1
+  ar_ksg := ar1
   ar_crit := {}
   ar_crit1 := {}
   arr_ad_criteria := getAdditionalCriteria( lk_data )  // загрузим доп. критерии на дату
@@ -878,14 +878,14 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
             oBox:Caption := 'Выбор дополнительного критерия'
             oBox:View()
             if ( icrit := AChoice( oBox:Top + 1, oBox:Left + 1, oBox:Bottom - 1, oBox:Right - 1, ar_crit1 ) ) > 0
-              AAdd( ar, AClone( _a1[ icrit ] ) )
+              AAdd( ar_ksg, AClone( _a1[ icrit ] ) )
             endif
             oBox := nil
           endif
 //        elseif Upper( ProcName( 1 ) ) == Upper( 'f_1pac_definition_KSG' ) .and. ;
 //            Upper( ProcName( 2 ) ) == Upper( 'oms_sluch_main' )
 //          if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
-//            AAdd( ar, AClone( _a1[ icrit ] ) )
+//            AAdd( ar_ksg, AClone( _a1[ icrit ] ) )
 //          endif
         elseif ( Upper( ProcName( 1 ) ) == Upper( 'f_usl_definition_KSG' ) .and. ;
             Upper( ProcName( 2 ) ) == Upper( 'oms_usl_sluch' ) ) .or. ;
@@ -896,31 +896,36 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
             ( Upper( ProcName( 1 ) ) == Upper( 'verify_sluch' ) .and. ! Empty( human_2->PC3 ) )
 
           if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
-            AAdd( ar, AClone( _a1[ icrit ] ) )
+            AAdd( ar_ksg, AClone( _a1[ icrit ] ) )
           endif
 //        elseif Upper( ProcName( 1 ) ) == Upper( 'verify_sluch' ) .and. ! Empty( human_2->PC3 )
 //          if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
-//              AAdd( ar, AClone( _a1[ icrit ] ) )
+//              AAdd( ar_ksg, AClone( _a1[ icrit ] ) )
 //          endif
         endif
-//        ASort( _a1, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
+// 12.03.26
+        ASort( _a1, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
+//
       elseif Len( _a1 ) == 1
-        AAdd( ar, AClone( _a1[ 1 ] ) )
+        AAdd( ar_ksg, AClone( _a1[ 1 ] ) )
       Endif
-//      If Len( _a1 ) > 0
-//        AAdd( ar, AClone( _a1[ 1 ] ) )
-//      Endif
+
+// 12.03.26
+      If Len( _a1 ) > 0
+        AAdd( ar_ksg, AClone( _a1[ 1 ] ) )
+      Endif
+//
     Endif
   Next
-  If Len( ar ) > 0
-    For i := 1 To Len( ar )
-      ar[ i, 2 ] := ret_cena_ksg( ar[ i, 1 ], lvr, date_usl )
-      If ar[ i, 2 ] > 0
+  If Len( ar_ksg ) > 0
+    For i := 1 To Len( ar_ksg )
+      ar_ksg[ i, 2 ] := ret_cena_ksg( ar_ksg[ i, 1 ], lvr, date_usl )
+      If ar_ksg[ i, 2 ] > 0
         fl_cena := .t.
       Endif
-      if ! empty( ar[ i, 10 ] ) // add 01.11.25
-        lad_cr := ar[ i, 10 ]   // add 01.11.25
-        m1ad_cr := ar[ i, 10 ]   // add 01.11.25
+      if ! empty( ar_ksg[ i, 10 ] ) // add 01.11.25
+        lad_cr := ar_ksg[ i, 10 ]   // add 01.11.25
+        m1ad_cr := ar_ksg[ i, 10 ]   // add 01.11.25
         input_ad_cr := .t.   // add 01.11.25
 
         human_2->( RLock() )
@@ -929,7 +934,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
 
       endif                     // add 01.11.25
     Next
-    aHirKSG := AClone( ar )
+    aHirKSG := AClone( ar_ksg )
     If Len( aHirKSG ) > 1
       ASort( aHirKSG, , , {| x, y| iif( x[ 3 ] == y[ 3 ], x[ 13 ] > y[ 13 ], x[ 3 ] > y[ 3 ] ) } )
     Endif
