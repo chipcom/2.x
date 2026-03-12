@@ -3,6 +3,7 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'tfile.ch'
 
 // #define max_rec_reestr 9999
 
@@ -807,20 +808,29 @@ Function f3_view_list_reestr( oBrow )
 
   Return Nil
 
-
-//  15.02.19
+// 12.03.26
 Function f31_view_list_reestr( reg, s )
 
   Local fl := .t., buf := save_maxrow(), s1, lal, n_file := cur_dir() + 'reesspis.txt'
+  local ft
 
   mywait()
-  fp := FCreate( n_file )
-  tek_stroke := 0
-  n_list := 1
-  add_string( '' )
-  add_string( Center( 'Список пациентов реестра № ' + lstr( rees->nschet ) + ' от ' + date_8( rees->dschet ), 80 ) )
-  add_string( Center( '( ' + CharRem( '~', s ) + ' )', 80 ) )
-  add_string( '' )
+//  fp := FCreate( n_file )
+//  tek_stroke := 0
+//  n_list := 1
+
+  ft := TFileText():New( n_file, , .t., , .t. )
+  ft:add_string( '' )
+//  ft:add_string( Center( 'Список пациентов реестра № ' + lstr( rees->nschet ) + ' от ' + date_8( rees->dschet ), 80 ), , , .t. )
+//  ft:add_string( Center( '( ' + CharRem( '~', s ) + ' )', 80 ) )
+  ft:add_string( 'Список пациентов реестра № ' + lstr( rees->nschet ) + ' от ' + date_8( rees->dschet ), FILE_CENTER )
+  ft:add_string( '( ' + CharRem( '~', s ) + ' )', FILE_CENTER )
+  ft:add_string( '' )
+
+//  add_string( '' )
+//  add_string( Center( 'Список пациентов реестра № ' + lstr( rees->nschet ) + ' от ' + date_8( rees->dschet ), 80 ) )
+//  add_string( Center( '( ' + CharRem( '~', s ) + ' )', 80 ) )
+//  add_string( '' )
   r_use( dir_server() + 'mo_otd',, 'OTD' )
   r_use( dir_server() + 'human_',, 'HUMAN_' )
   r_use( dir_server() + 'human',, 'HUMAN' )
@@ -828,8 +838,8 @@ Function f31_view_list_reestr( reg, s )
   r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
   r_use( dir_server() + 'mo_rhum',, 'RHUM' )
   Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == rees->kod
-  Go Top
-  Do While !Eof()
+  rhum->( dbGoTop() )   //  Go Top
+  Do While ! rhum->( Eof() )
     Do Case
     Case reg == 1
       fl := .t.
@@ -840,20 +850,20 @@ Function f31_view_list_reestr( reg, s )
     Endcase
     If fl
       Select HUMAN
-      Goto ( rhum->kod_hum )
+      human->( dbGoto( rhum->kod_hum ) )    //  Goto ( rhum->kod_hum )
       lal := 'human'
       s1 := ''
       If human->ishod == 88
         s1 := ' 2сл'
         Select HUMAN_3
         Set Order To 1
-        find ( Str( rhum->kod_hum, 7 ) )
+        human_3->( dbSeek( Str( rhum->kod_hum, 7 ) ) )  // find ( Str( rhum->kod_hum, 7 ) )
         lal += '_3'
       Elseif human->ishod == 89
         s1 := ' 2сл'
         Select HUMAN_3
         Set Order To 2
-        find ( Str( rhum->kod_hum, 7 ) )
+        human_3->( dbSeek( Str( rhum->kod_hum, 7 ) ) )  // find ( Str( rhum->kod_hum, 7 ) )
         lal += '_3'
       Endif
       s := PadR( human->fio, 50 -Len( s1 ) ) + s1 + ' ' + otd->short_name + ;
@@ -863,18 +873,20 @@ Function f31_view_list_reestr( reg, s )
       Else
         s := lstr( rhum->REES_ZAP ) + '.' + s
       Endif
-      verify_ff( 60, .t., 80 )
-      add_string( s )
+//      verify_ff( 60, .t., 80 )
+//      add_string( s )
+      ft:add_string( s )
     Endif
     Select RHUM
-    Skip
+    rhum->( dbSkip() )    //  Skip
   Enddo
   human_3->( dbCloseArea() )
   human_->( dbCloseArea() )
   human->( dbCloseArea() )
   otd->( dbCloseArea() )
   rhum->( dbCloseArea() )
-  FClose( fp )
+//  FClose( fp )
+  ft := nil
   rest_box( buf )
   viewtext( n_file,,,, .t.,,, 2 )
 
