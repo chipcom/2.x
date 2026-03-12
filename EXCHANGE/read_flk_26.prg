@@ -120,7 +120,6 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
       dbCloseAll()
       Return .f.
     Endif
-
 //    create_files_tmp_flk_26() // создадим временные файлы для разбора
 
     Use ( cur_dir() + 'tmp_r_t1' ) New Alias T1
@@ -482,7 +481,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
   dbCloseAll()
   Return .t.
 
-// 07.03.26 заполнить поле 'N_ZAP' в файле 'tmp2'
+// 12.03.26 заполнить поле 'N_ZAP' в файле 'tmp2'
 Function fill_tmp2_file_flk_26()
 
   Local i, s, s1, adbf, ar
@@ -538,18 +537,26 @@ Function fill_tmp2_file_flk_26()
           tmp2->N_ZAP := Val( t1->N_ZAP )
         Endif
       Case s == 'USL'
-//        s1 := tmp2->SL_ID
-/*
-        dbSelectArea( 'T2' )
-        Locate For Upper( t2->ID_U ) == PadR( Upper( s1 ), 36 )
-        If t2->( Found() )
-          dbSelectArea( 'T1' )
-          Locate For t1->N_ZAP == t2->IDCASE
-          If t1->( Found() )
+        s1 := tmp2->SL_ID
+//        dbSelectArea( 'T2' )
+//        Locate For Upper( t2->ID_U ) == PadR( Upper( s1 ), 36 )
+//        If t2->( Found() )
+//          dbSelectArea( 'T1' )
+//          Locate For t1->N_ZAP == t2->IDCASE
+//          If t1->( Found() )
+//            tmp2->N_ZAP := Val( t1->N_ZAP )
+//          Endif
+//        Endif
+        dbSelectArea( 'T1' )
+        Locate For Upper( t1->SL_ID ) == PadR( Upper( s1 ), 36 )
+        If t1->( Found() )
+          dbSelectArea( 'T2' )
+          Locate For t2->IDCASE == t1->N_ZAP
+          If t2->( Found() )
             tmp2->N_ZAP := Val( t1->N_ZAP )
           Endif
         Endif
-*/
+
       Case s == 'PERS'
         ar := {}
         dbSelectArea( 'T3' )
