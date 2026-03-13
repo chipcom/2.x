@@ -244,10 +244,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oPAC, 'VNOV_D', lstr( human_2->VNR ) )
       Endif
 
-      If ( kol_sl == 1 .and. ( human->k_data >= 0d20250101 ) ) ;  // одинарный случай
-          .or. ( kol_sl == 2 .and. ( ksl_date >= 0d20250101 ) )   // двойной случай
-        mo_add_xml_stroke( oPAC, 'SOC', iif( Empty( kart->pc3 ), '000', kart->pc3 ) )
-      Endif
+      mo_add_xml_stroke( oPAC, 'SOC', iif( Empty( kart->pc3 ), '000', kart->pc3 ) ) // в новом ПУМП указывается всегда
 
       If p_tip_reestr == TYPE_REESTR_DISPASER  // для реестров по диспансеризации
         otd->( dbGoto( human->OTD ) )

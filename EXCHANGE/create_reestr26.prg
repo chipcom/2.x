@@ -111,7 +111,12 @@ Function create_reestr26( arr_calendar )
 
   human->( dbSeek( DToS( arr_calendar[ 5 ] ), .t. ) )
 
-  Do While human->k_data <= arr_calendar[ 6 ] .and. !Eof()
+  Do While human->k_data <= arr_calendar[ 6 ] .and. ! human->( Eof() )
+    if human->ishod == 88
+      human->( dbSkip() )
+      loop
+    endif
+
     If ++k1 % 100 == 0
       @ MaxRow(), 1 Say lstr( k1 ) Color cColorSt2Msg
       @ Row(), Col() Say '/' Color 'W/R'
@@ -142,19 +147,19 @@ Function create_reestr26( arr_calendar )
       endif
 
       tmpb->( dbAppend() )
-//      tmpb->kod_tmp := 1
       tmpb->kod_human := human->kod
       tmpb->fio := human->fio
       tmpb->n_data := human->n_data
       tmpb->k_data := human->k_data
       tmpb->cena_1 := human->cena_1
       tmpb->PZKOL := human_->pzkol
-//      tmpb->PZ := 
       tmpb->ishod := human->ishod
       tmpb->tip := iif( is_dispanserizaciya( human->ishod ), 2, 1 ) // 1 - обычный реестр, 2 -диспансеризация
-//      tmpb->yes_del :=  // надо ли удалить после дополнительной проверки
       tmpb->PLUS := .t.  // включается ли в счет
       tmpb->kod_smo := t_smo
+//      tmpb->kod_tmp := 1
+//      tmpb->PZ := 
+//      tmpb->yes_del :=  // надо ли удалить после дополнительной проверки
 
       // находим букву счета для случая
       c := ' '
