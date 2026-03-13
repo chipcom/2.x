@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 09.03.26
+// 13.03.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -39,7 +39,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   local sk
   local lDispans := .f.
   local vozrast, next_d
-  local usl_zamena
+  local usl_zamena, nomeklatura_mz
 
   local arr_nazn
 
@@ -1121,9 +1121,18 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 //          find ( PadR( a_otkaz[ j, 1 ], 10 ) )
           t21->( dbSeek( PadR( a_otkaz[ j, 1 ], 10 ) ) )
         endif
-        If t21->( Found() )
-          mo_add_xml_stroke( oUSL, 'VID_VME', AllTrim( t21->shifr_mz ) )
-        Endif
+        nomeklatura_mz := ''
+        if human->K_DATA >= 0d20260101
+          nomeklatura_mz := AllTrim( t21->shifr_mz )
+          if Empty( usl_zamena ) .and. ! Empty( nomeklatura_mz )
+            mo_add_xml_stroke( oUSL, 'VID_VME', nomeklatura_mz )
+          endif
+        else
+          If t21->( Found() )
+            nomeklatura_mz := AllTrim( t21->shifr_mz )
+            mo_add_xml_stroke( oUSL, 'VID_VME', nomeklatura_mz )
+          Endif
+        endif
         mo_add_xml_stroke( oUSL, 'DATE_IN', date2xml( a_otkaz[ j, 3 ] ) )
         mo_add_xml_stroke( oUSL, 'DATE_OUT', date2xml( a_otkaz[ j, 3 ] ) )
         mo_add_xml_stroke( oUSL, 'P_OTK', lstr( a_otkaz[ j, 7 ] ) )
