@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.03.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 13.03.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -902,6 +902,15 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
 //          if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
 //              AAdd( ar_ksg, AClone( _a1[ icrit ] ) )
 //          endif
+        endif
+
+// 13.03.26
+        if ! Empty( human_2->PC3 )  // проверим чтобы найденные КСГ имели нужный доп. критерий
+          for i := len( _a1 ) to 1 step -1
+            if AllTrim( _a1[ i, 10 ] ) != AllTrim( human_2->PC3 )
+              hb_ADel( _a1, i, .t. )
+            endif
+          next
         endif
 // 12.03.26
         ASort( _a1, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
