@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.02.26 создание XML-файлов реестра
+// 13.03.26 создание XML-файлов реестра
 Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
@@ -185,7 +185,9 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
     rees->( dbUnlock() )
     rees->( dbCommit() )
 
-    pkol := psumma := iusl := 0
+    pkol := 0
+    psumma := 0
+    iusl := 0
     dbSelectArea( 'TMP' )
     tmp->( dbGoTop() )
     tmp->( dbSeek( cBukva, .t. ) )
@@ -204,18 +206,20 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
       rhum->REESTR := mkod_reestr
       rhum->KOD_HUM := human->kod
       rhum->REES_ZAP := pkol
-//      human_->( g_rlock( forever ) )
+//      human_->( g_rlock( 'forever' ) )
       human_->( dbRLock() )
       If human_->REES_NUM < 99
         human_->REES_NUM := human_->REES_NUM + 1
       Endif
       human_->REESTR := mkod_reestr
 //      human_->REES_ZAP := pkol
-      If tmpb->ishod == 89  // 2-й случай
+//      If tmpb->ishod == 89  // 2-й случай
+      If tmp->ishod == 89  // 2-й случай
         dbSelectArea( 'HUMAN_3' )
-        human_3->( dbSeek( Str( tmpb->kod_human, 7 ) ) )
+//        human_3->( dbSeek( Str( tmpb->kod_human, 7 ) ) )
+        human_3->( dbSeek( Str( tmp->kod_human, 7 ) ) )
         If human_3->( Found() )
-          g_rlock( forever )
+          g_rlock( 'forever' )
           If human_3->REES_NUM < 99
             human_3->REES_NUM := human_3->REES_NUM + 1
           Endif
@@ -224,7 +228,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
           //
           dbSelectArea( 'HUMAN' )
           human->( dbGoto( human_3->kod ) ) // встать на 1-й случай
-//          human_->( g_rlock( forever ) )
+//          human_->( g_rlock( 'forever' ) )
           human_->( dbRLock() )
           psumma += human->cena_1
           If human_->REES_NUM < 99
@@ -244,7 +248,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
       tmp->(dbSkip() )
     enddo
     dbSelectArea( 'REES' )
-    g_rlock( forever )
+    g_rlock( 'forever' )
     rees->KOL := pkol
     rees->SUMMA := psumma
     dbUnlockAll()
@@ -264,20 +268,10 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
       // Реестр случаев оказания медицинской помощи, за исключением медицинской помощи по диспансеризации,
       // медицинским осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
       sVersion := '6.0'
-/*      
-      If ( controlVer >= 202507 ) // с июля 2025 года
-        sVersion := '5.1'
-      Endif
-*/
     elseif p_tip_reestr == 2
       // Реестр случаев оказания медицинской помощи по диспансеризации, профилактическим медицинским
       // осмотрам несовершеннолетних и профилактическим медицинским осмотрам определенных групп взрослого населения
       sVersion := '6.0'
-/*      
-      If ( controlVer >= 202501 ) // с января 2025 года
-        sVersion := '5.0'
-      Endif
-*/
     endif
     mo_add_xml_stroke( oXmlNode, 'VERSION', sVersion )
     mo_add_xml_stroke( oXmlNode, 'DATA', date2xml( rees->DSCHET ) )

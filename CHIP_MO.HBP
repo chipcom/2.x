@@ -329,9 +329,10 @@ mo_version.prg
 .\exchange\oms_files_TFOMS.prg
 .\oms\verify_oms26.prg
 
-.\exchange\new_create.prg
 .\exchange\f1_create2reestrCommon.prg
 .\exchange\delete_reestr.prg
+
+#.\exchange\new_create.prg
 
 #.\exchange\create2reestr19.prg
 #.\exchange\create_reestr25.prg
