@@ -177,8 +177,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Private mm_otkaz0 := AClone( mm_otkaz )
   ASize( mm_otkaz0, 2 )
 
-  dvn_arr_usl :=dvn_arr_usl( MK_DATA, m1mobilbr )
-  dvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
+//  dvn_arr_usl :=dvn_arr_usl( MK_DATA, m1mobilbr )
+//  dvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
   
 //  If kod_kartotek == 0 // добавление в картотеку
   If kod_kartotek >= 0 // работаем из картотеки
@@ -336,6 +336,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         lrslt_1_etap := human_->RSLT_NEW
       Endif
       read_arr_dvn( human->kod, .f. )
+
+  dvn_arr_usl :=dvn_arr_usl( MK_DATA, m1mobilbr )
+  dvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
+
     Endif
   Endif
   If Empty( mWEIGHT )
@@ -406,7 +410,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     //
     ret_arr_vozrast_dvn( mk_data )
     // / !!!!
-
+    read_arr_dvn( Loc_kod )
+    
     dvn_arr_usl :=dvn_arr_usl( MK_DATA, m1mobilbr )
     dvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
 
@@ -538,7 +543,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     Enddo
 
     r_use( dir_server() + 'mo_pers', , 'P2' )
-    read_arr_dvn( Loc_kod )
+//    read_arr_dvn( Loc_kod )
+
     If metap == 1 .and. Between( m1GRUPPA, 11, 14 ) .and. m1p_otk == 1
       m1GRUPPA += 10
     Endif
@@ -629,6 +635,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       f_valid_diag_oms_sluch_dvn( , i )
     Next i
   Endif
+altd()
   If !( Left( msmo, 2 ) == '34' ) // не Волгоградская область
     m1ismo := msmo
     msmo := '34'

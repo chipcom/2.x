@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.03.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 14.03.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -364,15 +364,16 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   lsex := iif( lpol == 'М', '1', '2' )
 
   llos := {} // ''
-  If ldnej < 4
-    AAdd( llos, '1' ) // llos += '1'
-  Elseif Between( ldnej, 4, 10 )
-    AAdd( llos, '11' )
-  Elseif Between( ldnej, 11, 20 )
-    AAdd( llos, '12' )
-  Elseif Between( ldnej, 21, 30 )
-    AAdd( llos, '13' )
-  Endif
+//  If ldnej < 4
+//    AAdd( llos, '1' ) // llos += '1'
+//  Elseif Between( ldnej, 4, 10 )
+//    AAdd( llos, '11' )
+//  Elseif Between( ldnej, 11, 20 )
+//    AAdd( llos, '12' )
+//  Elseif Between( ldnej, 21, 30 )
+//    AAdd( llos, '13' )
+//  Endif
+  AAdd( llos, code_duration_K006( lk_data, ldnej ) )
   /*
   0 - КИРО не применяется
   1 - длительность случая 3 койко-дня (дней лечения) и менее и пациенту выполнена хирургическая операция
@@ -736,7 +737,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         Endif
         j := 0
         If fl .and. !Empty( k006->ds )
-          fl := ( k006->ds == osn_diag )
+          fl := ( AllTrim( k006->ds ) == osn_diag )
           If fl
             j += 10
           Endif
@@ -903,7 +904,6 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
 //              AAdd( ar_ksg, AClone( _a1[ icrit ] ) )
 //          endif
         endif
-
 // 13.03.26
         if ! Empty( human_2->PC3 )  // проверим чтобы найденные КСГ имели нужный доп. критерий
           for i := len( _a1 ) to 1 step -1
@@ -1115,3 +1115,96 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
 
   Return { ars, arerr, AllTrim( lksg ), lcena, akslp, akiro, s_dializ }
 // 1     2        3            4      5      6        7
+
+// 14.03.26
+function code_duration_K006( dateSl, ldney )
+
+  local ret := ''
+
+  if dateSl >= 0d20260101
+    do case
+      case ldney < 4
+        ret := '1'
+      case ldney >= 4 .and. ldney <= 10
+        ret := '2'
+      case ldney >= 11 .and. ldney <= 20
+        ret := '3'
+      case ldney >= 21 .and. ldney <= 30
+        ret := '4'
+      case ldney > 30
+        ret := '5'
+    endcase
+  else
+    do case
+      case ldney < 4
+        ret := '1'
+      case ldney >= 4 .and. ldney <= 10
+        ret := '11'
+      case ldney >= 11 .and. ldney <= 20
+        ret := '12'
+      case ldney >= 21 .and. ldney <= 30
+        ret := '13'
+      case ldney > 30
+        ret := '14'
+    endcase
+  endif
+
+  return ret
+
+// 14.03.26
+Function ret_duration_k006_str( mdata, s, s1 )
+
+  Local arr, i
+
+/*  
+  Static sd := 'день', sdr := 'дня', sdm := 'дней'
+  Local arr := { '1-3 ' + s1 + sdr, ;                   // 1
+    '4 ' + s1 + sdr + ' и более', ;          // 2
+    '1-6 ' + s1 + sdm, ;                     // 3
+    '7 ' + s1 + sdm + ' и более', ;          // 4
+    '21 ' + s1 + sd + ' и более', ;          // 5
+    '1-20 ' + s1 + sdm, ;                    // 6
+    '1 ' + s1 + sd, ;                        // 7
+    '4-7 ' + s1 + sdm, ;                     // 8
+    '8-10 ' + s1 + sdm, ;                    // 9
+    '11 ' + s1 + sdm + ' и более' }          // 10
+*/
+  arr := { '1-3 ' + s1 + 'дня', ;                                 // 1
+    'от 4 ' + s1 + 'дней до 10 ' + s1 + 'дней включительно', ;    // 2
+    'от 11 ' + s1 + 'дней до 20 ' + s1 + 'дней включительно', ;   // 3
+    'от 21 ' + s1 + 'дня до 30 ' + s1 + 'дней включительно', ;    // 4
+    'более 30 ' + s1 + 'дней' ;                                   // 5
+  }
+  
+  if mdata >= 0d20260101
+    i := Int( Val( s ) )
+  else
+    if AllTrim( s ) == '1'
+      i := 1
+    else
+      i := Int( Val( s ) ) - 10
+    endif
+  endif
+
+  Return 'дл-ть ' + iif( Between( i, 1, 10 ), arr[ i ], '' )
+
+// 08.12.21
+Function ret_vozrast_k006( s )
+
+  Local ret := ''
+
+  Do Case
+  Case s == '1'
+    ret := '0-28 дней'
+  Case s == '2'
+    ret := '29-90 дней'
+  Case s == '3'
+    ret := 'от 91 дня до 1 года'
+  Case s == '4'
+    ret := 'до 2 лет включительно'
+  Case s == '5'
+    ret := 'ребёнок'
+  Case s == '6'
+    ret := 'взрослый'
+  Endcase
+  Return ret

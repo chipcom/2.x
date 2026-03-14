@@ -1012,7 +1012,7 @@ Function f_spr_usl_adres_podr()
   Endif
   Return ret_arr
 
-// 07.03.26
+// 14.03.26
 Function usl2tfoms()
 
   Static sdate
@@ -1184,7 +1184,7 @@ Function usl2tfoms()
                     s += 'ПОЛ ' + iif( k006->SEX == '1', 'мужской', 'женский' ) + '; '
                   Endif
                   If !Empty( k006->LOS )
-                    s += ret_duration_k006( k006->LOS, iif( Left( &lal.->shifr, 1 ) == '1', 'койко', 'пациенто' ) + '-' ) + '; '
+                    s += ret_duration_k006_str( mdate, k006->LOS, iif( Left( &lal.->shifr, 1 ) == '1', 'койко', 'пациенто' ) + '-' ) + '; '
                   Endif
                   If k006->( FieldPos( 'RSLT' ) ) > 0 .and. !Empty( k006->RSLT )
                     s += 'РЕЗУЛЬТАТ ' + AllTrim( k006->RSLT ) + '; '
@@ -1225,45 +1225,6 @@ Function usl2tfoms()
     viewtext( name_file, , , , .t., , , 2 )
   Endif
   Return Nil
-
-// 08.12.21
-Function ret_vozrast_k006( s )
-
-  Local ret := ''
-
-  Do Case
-  Case s == '1'
-    ret := '0-28 дней'
-  Case s == '2'
-    ret := '29-90 дней'
-  Case s == '3'
-    ret := 'от 91 дня до 1 года'
-  Case s == '4'
-    ret := 'до 2 лет включительно'
-  Case s == '5'
-    ret := 'ребёнок'
-  Case s == '6'
-    ret := 'взрослый'
-  Endcase
-  Return ret
-
-// 08.12.21
-Function ret_duration_k006( s, s1 )
-
-  Static sd := 'день', sdr := 'дня', sdm := 'дней'
-  Local arr := { '1-3 ' + s1 + sdr, ;                   // 1
-    '4 ' + s1 + sdr + ' и более', ;          // 2
-    '1-6 ' + s1 + sdm, ;                     // 3
-    '7 ' + s1 + sdm + ' и более', ;          // 4
-    '21 ' + s1 + sd + ' и более', ;          // 5
-    '1-20 ' + s1 + sdm, ;                    // 6
-    '1 ' + s1 + sd, ;                        // 7
-    '4-7 ' + s1 + sdm, ;                     // 8
-    '8-10 ' + s1 + sdm, ;                    // 9
-    '11 ' + s1 + sdm + ' и более' }          // 10
-  Local i := Int( Val( s ) )
-
-  Return 'дл-ть ' + iif( Between( i, 1, 10 ), arr[ i ], '' )
 
 // 08.02.23
 Function f_ret_kz_ksg( lkz, lkslp, lkiro )
