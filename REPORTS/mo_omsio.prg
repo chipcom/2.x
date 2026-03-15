@@ -2188,7 +2188,7 @@ Function file_tmp7( ausl, sh, HH, k )
 
   Return Nil
 
-//
+// 15.03.26
 Function o_proverka( k )
 
   Static si1 := 1
@@ -2202,19 +2202,22 @@ Function o_proverka( k )
       "Не введен код ~ассистента", ;
       "Врач + ~больные за день", ;
       "Одинаковые сочетания - № карты + ~дата вызова", ;
-      "~Рассогласования в базах данных" }
+      "~Рассогласования в базах данных",;
+      "~Подбор иногородних"   }
     mas_msg := { "Общие проверки (многовариантный запрос)", ;
       "Проверка листов учета на отсутствие кода врача", ;
       "Проверка листов учета на отсутствие кода ассистента", ;
       "Вывод списка принятых больных конкретным врачом за день", ;
       "Поиск одинаковых сочетаний номера карты вызова + даты вызова", ;
-      "Поиск рассогласований в базах данных (не заполнены или неверно заполнены поля)" }
+      "Поиск рассогласований в базах данных (не заполнены или неверно заполнены поля)", ;
+      "Поиск пациантов, выставленных ранее в другие области"   }
     mas_fun := { "o_proverka(11)", ;
       "o_proverka(12)", ;
       "o_proverka(13)", ;
       "o_proverka(14)", ;
       "o_proverka(15)", ;
-      "o_proverka(16)" }
+      "o_proverka(16)", ;
+      "o_proverka(17)"}
     uch_otd := saveuchotd()
     Private p_net_otd := .t.
     popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
@@ -2231,6 +2234,8 @@ Function o_proverka( k )
     posik_smp_n_d()
   Case k == 16
     poisk_rassogl()
+  Case k == 17
+    podbor_inogorodnie()  
   Endcase
   If k > 10
     j := Int( Val( Right( lstr( k ), 1 ) ) )
@@ -3456,3 +3461,195 @@ Function f1_poisk_rassogl()
   Endif
 
   Return Nil
+
+  //15.03.26
+  function podbor_inogorodnie()  
+
+  local t_smo, t_okato, t_kod_k,  t_max_data 
+  
+  local buf := save_maxrow(), sh := 80, HH := 80, reg_print := 5,  ;
+    name_file := "inogorod.txt" 
+  Local arr_title := { ;
+      "─────────────────────────────────────────────────┬──────────┬──────────", ;
+      "                                                 │   Дата   | Вероятное", ;    
+      "              Ф.И.О. пациента                    │ рождения │   СМО    ", ;
+      "─────────────────────────────────────────────────┴──────────┴──────────" }
+  sh := Len( arr_title[ 1 ] )
+  
+  stat_msg( 'Поиск иногородиних по счетам 2023-2025г.' )
+  dbCreate( cur_dir() + 'tmp_inog', { ;
+        { 'kod_k', 'N', 7,  0 }, ;
+        { 'smo',   'C', 5,  0 }, ;  
+        { 'okato', 'C', 5,  0 }, ;
+        { 'IN_NO', 'N', 1,  0 }, ;  // 1 - иногород в картотеке
+        { 'FIO',   'C', 50, 0 }, ;
+        { 'DR',    'D',  8, 0 } })  
+
+  Use ( cur_dir() + 'tmp_inog' ) new
+  index on kod_k to tmp_kk 
+  r_use( dir_server() + 'schet_', , 'SCHET_' )
+  r_use( dir_server() + 'human', dir_server() + "humans"  , 'HUMAN' )
+  //Index On Str( FIELD->schet, 6 ) + Str( FIELD->tip_h, 1 ) + Upper( SubStr( FIELD->fio, 1, 20 ) ) to ( dir_server() + "humans" ) progress
+  r_use( dir_server() + 'human_',  , 'HUMAN_' )
+  r_use( dir_server() + 'kartote_', , 'KARTOTE_' )
+  select SCHET_
+  go Top
+  do while !eof()
+    if schet_->nyear == 2023 .or. schet_->nyear == 2024 .or. schet_->nyear == 2025 
+    // берем 25 24 23 года  
+      if alltrim(schet_->smo) == "34"
+        // берем иногородние счета  
+        select HUMAN 
+        find (str(schet_->(recno()),6))
+        do while schet_->(recno()) == human->schet .and. !eof()
+          select human_
+          goto (human->kod)
+         // СОЗДАЕМ СПИСОВ ВОЗМОЖНЫХ ИНОГОРОДНИХ
+          SELECT tmp_inog
+          find (human->kod_k )
+          if !found()
+            APPEND Blank
+            tmp_inog->smo   := human_->smo
+            tmp_inog->okato := human_->okato
+            tmp_inog->kod_k := human->kod_k 
+          endif  
+           //
+          select HUMAN  
+          skip
+        enddo 
+      endif 
+    endif  
+    select SCHET_ 
+    skip
+  enddo  
+// выборка закончена - вторичная проверка - может они в картотеке и есть иногородние
+select tmp_inog
+go top
+do while !eof()
+  select KARTOTE_
+  goto tmp_inog->kod_k 
+  if tmp_inog->smo == kartote_->smo .and. tmp_inog->okato == kartote_->kvartal_d 
+    select tmp_inog
+    g_rlock( forever )
+    tmp_inog->IN_NO := 1  
+    Unlock
+  endif
+  select tmp_inog
+  skip
+enddo
+// 3-я проверка - может они потом были наши ? (до 2026 года)
+// Index On Str( if( FIELD->kod > 0, FIELD->kod_k, 0 ), 7 ) + Str( FIELD->tip_h, 1 ) to ( dir_server() + "humankk" ) progress
+human->(dbCloseArea())
+r_use( dir_server() + 'human', dir_server() + "humankk"  , 'HUMAN' )
+select tmp_inog
+go top
+do while !eof()
+  if tmp_inog->IN_NO < 1 
+    t_max_data := stod("20220101")
+    t_smo      := ""
+    t_okato    := ""
+    select HUMAN
+    find (str(tmp_inog->kod_k,7))
+    do while tmp_inog->kod_k == human->kod_k .and. !eof()
+      if human->k_data > stod("20221231") .and. year(human->k_data) != 2026 .and. human->schet > 0
+        if human->k_data > t_max_data
+          t_max_data := human->k_data  
+          select human_
+          goto (human->kod)
+          t_smo   := human_->smo
+          t_okato := human_->okato 
+        endif 
+      endif  
+      select HUMAN
+      skip
+    enddo
+    select tmp_inog
+    if tmp_inog->smo == t_smo .and. tmp_inog->okato == t_okato
+      // последний точно иногородний
+    else  
+      if padr(alltrim(t_smo),2) == "34" .and.(t_okato == "18000" .or. empty(t_okato))
+        // местный счет
+        g_rlock( forever )
+        tmp_inog->IN_NO := 2  
+        Unlock
+      endif
+    endif  
+  endif
+  select tmp_inog
+  skip
+enddo
+// открыть картотеку
+/*KARTOTE_->(dbCloseArea())
+g_use( dir_server() + 'kartote_', , 'KARTOTE_' )
+select tmp_inog
+go top
+do while !eof()
+  if tmp_inog->IN_NO == 0
+    select KARTOTE_
+    goto tmp_inog->kod_k 
+    g_rlock( forever )
+    if padr(alltrim(t_smo),2) == "34"
+      kartote_->smo := "34"
+    else  
+      kartote_->smo :=  tmp_inog->smo
+    endif
+    kartote_->kvartal_d := tmp_inog->okato
+    Unlock
+  endif 
+  select tmp_inog
+  skip
+enddo*/
+KARTOTE_->(dbCloseArea())
+g_use( dir_server() + 'kartotek', , 'KARTOTEK' )
+select tmp_inog
+go top
+do while !eof()
+  if tmp_inog->IN_NO == 0 .or. tmp_inog->IN_NO == 1
+    select KARTOTEK
+    goto tmp_inog->kod_k 
+    select tmp_inog
+    g_rlock( forever )
+    tmp_inog->fio := alltrim(KARTOTEK->fio)  
+    tmp_inog->dr  := KARTOTEK->date_r
+    Unlock
+  endif 
+  select tmp_inog
+  skip
+enddo
+//
+fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
+add_string( "" )
+AEval( arr_title, {| x| add_string( x ) } )
+ttmp_inogor := ""
+select tmp_inog
+index on  okato+fio to ( cur_dir() + 'tmp_inog' ) for IN_NO == 0 .or. IN_NO == 1
+go top
+do while !eof()
+  if ttmp_inogor != tmp_inog->okato
+    ttmp_inogor := tmp_inog->okato
+    add_string( tmp_inog->okato )
+    add_string("------" + oktadretss( tmp_inog->okato))
+  endif  
+  If verify_ff( HH, .t., sh )
+    AEval( arr_title, {| x| add_string( x ) } )
+  Endif
+  add_string( padr(tmp_inog->fio, 49) +" "+ full_date(tmp_inog->dr)+" "+tmp_inog->smo) 
+  skip
+enddo
+FClose( fp )
+Close databases
+viewtext( name_file,,,, .t.,,, 2 )
+return nil
+
+//  вернуть адрес в строке
+Static Function oktadretss( kod11  )
+
+Local lregion, tmp_select := Select()
+
+  //
+r_use( dir_exe() + '_okator', { cur_dir() + '_okatr', cur_dir() + '_okatrn' }, 'REGION' )
+find ( Left( kod11, 2 ) )
+lregion := region->name
+REGION->(dbCloseArea())
+Select ( tmp_select )
+Return AllTrim( RTrim( lregion ) )

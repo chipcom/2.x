@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 05.03.26 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
+// 14.03.26 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
 Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
 
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
@@ -32,6 +32,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
         Else
             AAdd( mm_flag, .f. )
             s += ' в ' + mo_xml->TWORK1
+            AAdd( mm_func, mo_xml->kod )
         Endif
         AAdd( mm_menu, s )
 //      Elseif mo_xml->TIP_IN == _XML_FILE_FLK
@@ -71,334 +72,13 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
     cFile := AllTrim( mo_xml->FNAME )
     mtip_in := mo_xml->TIP_IN
     dbCloseAll()
-/*
-    If mtip_in == _XML_FILE_SP // возврат реестра СП и ТК
+    //
+    if mTIP_IN == _XML_FILE_FLK_26 // возврат протокола ФЛК26 - kod 8
+      // пока удаление - полностью прочитанного - аналог старого СПиТК
       If ( arr_f := extract_zip_xml( dir_server() + dir_XML_TF(), cFile + szip() ) ) != Nil .and. mo_lock_task( X_OMS )
         cFile += sxml()
         // читаем файл в память
-        oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
-        If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
-          func_error( 4, 'Ошибка в чтении файла ' + cFile )
-        Else // читаем и записываем XML-файл во временные TMP-файлы
-          reestr_sp_tk_tmpfile( oXmlDoc, aerr, cFile )
-          If !Empty( aerr )
-            ins_array( aerr, 1, '' )
-            ins_array( aerr, 1, Center( 'Ошибки в чтении файла ' + cFile, 80 ) )
-            AEval( aerr, {| x| StrFile( x + hb_eol(), cFileProtokol, .t. ) } )
-            viewtext( devide_into_pages( cFileProtokol, 60, 80 ),,,, .t.,,, 2 )
-            Delete File ( cFileProtokol )
-          Else
-            // если точно попал в другой реестр
-            is_other_reestr := is_delete_human := .f.
-            r_use( dir_server() + 'human',, 'HUMAN' )
-            r_use( dir_server() + 'human_',, 'HUMAN_' )
-            r_use( dir_server() + 'mo_rhum',, 'RHUM' )
-            Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
-            Select TMP2
-            tmp2->( dbGoTop() )   //  Go Top
-            Do While ! tmp2->( Eof() )
-              Select RHUM
-              find ( Str( tmp2->_N_ZAP, 6 ) )
-              If rhum->( Found() )
-                tmp2->kod_human := rhum->KOD_HUM
-                Select HUMAN
-                human->( dbGoto( rhum->KOD_HUM ) )    //  Goto ( rhum->KOD_HUM )
-                If emptyany( human->kod, human->fio )
-                  is_delete_human := .t.
-                  Exit
-                Endif
-                Select HUMAN_
-                human_->( dbGoto( rhum->KOD_HUM ) )    //  Goto ( rhum->KOD_HUM )
-                If human_->REESTR > 0 .and. human_->REESTR != mkod_reestr
-                  is_other_reestr := .t.
-                  Exit
-                Endif
-              Endif
-              Select TMP2
-              tmp2->( dbSkip() )    //  Skip
-            Enddo
-            If !is_other_reestr .and. !is_delete_human
-              // если попал в другой реестр, вернулся с ошибкой, и отредактирован
-              r_use( dir_server() + 'mo_rees',, 'REES' )
-              Select RHUM
-              Set Relation To FIELD->reestr into REES
-              // сортируем пациентов по дате попадания в реестры
-              Index On Str( FIELD->kod_hum, 7 ) + DToS( rees->DSCHET ) to ( cur_dir() + 'tmp_rhum' )
-              Select TMP2
-              tmp2->( dbGoTop() )   //  Go Top
-              Do While ! tmp2->( Eof() )
-                r := r1 := 0
-                Select RHUM
-                find ( Str( tmp2->kod_human, 7 ) )
-                Do While tmp2->kod_human == rhum->KOD_HUM
-                  ++r // во сколько реестров попал
-                  If rhum->reestr == mkod_reestr
-                    r1 := r // какой по номеру текущий реестр
-                  Endif
-                  rhum->( dbSkip() )    //  Skip
-                Enddo
-                If r1 > 0 .and. r > r1  // если текущий реестр не последний
-                  is_other_reestr := .t.
-                  Exit
-                Endif
-                Select TMP2
-                tmop2->( dbSkip() )   //  Skip
-              Enddo
-            Endif
-            If is_delete_human
-              func_error( 10, 'Некоторые пациенты из данного реестра уже УДАЛЕНЫ. Операция запрещена!' )
-            Elseif is_other_reestr
-              func_error( 10, 'Пациенты из данного реестра уже ПОПАЛИ В ДРУГОЙ РЕЕСТР. Операция запрещена!' )
-            Else
-              If !is_allow_delete .and. involved_password( 1, rees_nschet, 'аннулирования чтения реестра СП и ТК' )
-                is_allow_delete := .t.
-              Endif
-              If is_allow_delete
-                dbCloseAll()
-                arr_schet := {}
-                r_use( dir_server() + 'schet_',, 'SCH' )
-                Index On FIELD->nschet to ( cur_dir() + 'tmp_sch' ) For FIELD->XML_REESTR == mreestr_sp_tk
-                dbEval( {|| AAdd( arr_schet, { AllTrim( sch->nschet ), RecNo(), sch->KOD_XML } ) } )
-                sch->( dbCloseArea() )
-                is_allow_delete := .f.
-                g_use( dir_server() + 'mo_rees',, 'REES' )
-                rees->( dbGoto( mkod_reestr ) ) //  Goto ( mkod_reestr )
-                Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
-                Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
-                arr := {}
-                AAdd( arr, 'Реестр № ' + lstr( rees->nschet ) + ' от ' + full_date( rees->dschet ) + 'г.' )
-                AAdd( arr, 'период "' + lstr( rees->nmonth ) + '/' + lstr( rees->nyear ) + ;
-                  '", сумма ' + lput_kop( rees->summa, .t. ) + ;
-                  ' руб., кол-во пациентов ' + lstr( rees->kol ) + ' чел.' )
-                AAdd( arr, '' )
-                AAdd( arr, 'Аннулируется реестр СП и ТК № ' + AllTrim( tmp1->_NSCHET ) + ' от ' + full_date( tmp1->_dschet ) + 'г.' )
-                AAdd( arr, 'кол-во пациентов ' + lstr( tmp2->( LastRec() ) ) + ' чел. (файл ' + name_without_ext( cFile ) + ')' )
-                If Len( arr_schet ) > 0
-                  AAdd( arr, 'Количество удаляемых счетов - ' + lstr( Len( arr_schet ) ) + ' сч.' )
-                Endif
-                AAdd( arr, 'После подтверждения аннулирования все последствия чтения данного' )
-                AAdd( arr, 'реестра СП и ТК, а также сам реестр СП и ТК, будут удалены.' )
-                f_message( arr,, cColorSt2Msg, cColorSt1Msg )
-                s := 'Подтвердите аннулирование реестра СП и ТК'
-                stat_msg( s )
-                mybell( 1 )
-                If f_esc_enter( 'аннулирования', .t. )
-                  stat_msg( s + ' ещё раз.' )
-                  mybell( 3 )
-                  If f_esc_enter( 'аннулирования', .t. )
-                    mywait()
-                    is_allow_delete := .t.
-                  Endif
-                Endif
-              Endif
-              // переиндексируем некоторые файлы
-              If is_allow_delete
-                Private fl_open := .t.
-                bSaveHandler := ErrorBlock( {| x| Break( x ) } )
-                Begin Sequence
-                  index_base( 'schet' ) // для составления счетов
-                  index_base( 'human' ) // для разноски счетов
-                  index_base( 'mo_refr' )  // для записи причин отказов
-                  index_base( 'human_3' )  // для двойных случаев
-                RECOVER USING error
-                  is_allow_delete := func_error( 10, 'Возникла непредвиденная ошибка при переиндексировании!' )
-                End
-                ErrorBlock( bSaveHandler )
-              Endif
-              // аннулируем последствия чтения реестра СП и ТК
-              If is_allow_delete
-                dbCloseAll()
-                use_base( 'schet' )
-                Set Relation To
-                g_use( dir_server() + 'schetd',, 'SD' )
-                Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_sd' )
-                g_use( dir_server() + 'mo_xml',, 'MO_XML' )
-                g_use( dir_server() + 'mo_refr', dir_server() + 'mo_refr', 'REFR' )
-                g_use( dir_server() + 'mo_rhum',, 'RHUM' )
-                Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
-                g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
-                use_base( 'human' )
-                Set Order To 0
-                Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
-                tmp2->( dbGoTop() )   //  Go Top
-                Do While ! tmp2->( Eof() )
-                  Select RHUM
-                  find ( Str( tmp2->_N_ZAP, 6 ) )
-                  g_rlock( 'forever' )
-                  rhum->OPLATA := 0
-                  Select HUMAN
-                  human->( dbGoto( tmp2->kod_human ) )    //  Goto ( tmp2->kod_human )
-                  If human->ishod == 88  // сначала проверим, не двойной ли это случай (по-старому)
-                    Select HUMAN_3
-                    Set Order To 1
-                    find ( Str( tmp2->kod_human, 7 ) )
-                    If human_3->( Found() )
-                      Select HUMAN
-                      human->( dbGoto( human_3->kod2 ) )   //  Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
-                      human->( g_rlock( 'forever' ) )
-                      human->schet := 0
-                      human->tip_h := B_STANDART
-                      human_->( g_rlock( 'forever' ) )
-                      If human_->schet_zap > 0
-                        If human_->SCHET_NUM > 0
-                          human_->SCHET_NUM := human_->SCHET_NUM - 1
-                        Endif
-                        human_->schet_zap := 0
-                      Endif
-                      human_->OPLATA := 0
-                      human_->REESTR := mkod_reestr
-                      Unlock
-                      // очистка заголовка двойного случая
-                      human_3->( g_rlock( 'forever' ) )
-                      human_3->schet := 0
-                      If human_3->schet_zap > 0
-                        If human_3->SCHET_NUM > 0
-                          human_3->SCHET_NUM := human_3->SCHET_NUM -1
-                        Endif
-                        human_3->schet_zap := 0
-                      Endif
-                      human_3->OPLATA := 0
-                      human_3->REESTR := mkod_reestr
-                    Endif
-                    // возвращаемся к 1-му листу учёта
-                    Select HUMAN
-                    human->( dbGoto( tmp2->kod_human ) )    //  Goto ( tmp2->kod_human )
-                    human->( g_rlock( 'forever' ) )
-                    human->schet := 0
-                    human->tip_h := B_STANDART
-                    human_->( g_rlock( 'forever' ) )
-                    If human_->schet_zap > 0
-                      If human_->SCHET_NUM > 0
-                        human_->SCHET_NUM := human_->SCHET_NUM - 1
-                      Endif
-                      human_->schet_zap := 0
-                    Endif
-                    human_->OPLATA := 0
-                    human_->REESTR := mkod_reestr
-                    Unlock
-                  Elseif human->ishod == 89 // теперь проверим, не двойной ли это случай (по-новому)
-                    // сначала обработаем 2-ой случай
-                    human->( g_rlock( 'forever' ) )
-                    human->schet := 0
-                    human->tip_h := B_STANDART
-                    human_->( g_rlock( 'forever' ) )
-                    If human_->schet_zap > 0
-                      If human_->SCHET_NUM > 0
-                        human_->SCHET_NUM := human_->SCHET_NUM - 1
-                      Endif
-                      human_->schet_zap := 0
-                    Endif
-                    human_->OPLATA := 0
-                    human_->REESTR := mkod_reestr
-                    Unlock
-                    // поищем 1-ый случай
-                    Select HUMAN_3
-                    Set Order To 2
-                    find ( Str( human->kod, 7 ) )
-                    If human_3->( Found() ) // нашли двойной случай
-                      Select HUMAN
-                      human->( dbGoto( human_3->kod ) )   //  Goto ( human_3->kod ) // встать на 1-ый лист учёта
-                      human->( g_rlock( 'forever' ) )
-                      human->schet := 0
-                      human->tip_h := B_STANDART
-                      human_->( g_rlock( 'forever' ) )
-                      If human_->schet_zap > 0
-                        If human_->SCHET_NUM > 0
-                          human_->SCHET_NUM := human_->SCHET_NUM - 1
-                        Endif
-                        human_->schet_zap := 0
-                      Endif
-                      human_->OPLATA := 0
-                      human_->REESTR := mkod_reestr
-                      Unlock
-                      // очистка заголовка двойного случая
-                      human_3->( g_rlock( 'forever' ) )
-                      human_3->schet := 0
-                      If human_3->schet_zap > 0
-                        If human_3->SCHET_NUM > 0
-                          human_3->SCHET_NUM := human_3->SCHET_NUM -1
-                        Endif
-                        human_3->schet_zap := 0
-                      Endif
-                      human_3->OPLATA := 0
-                      human_3->REESTR := mkod_reestr
-                    Endif
-                  Else
-                    // обработка одинарного случая
-                    Select HUMAN
-                    human->( dbGoto( tmp2->kod_human ) )    //  Goto ( tmp2->kod_human )
-                    human->( g_rlock( 'forever' ) )
-                    human->schet := 0
-                    human->tip_h := B_STANDART
-                    human_->( g_rlock( 'forever' ) )
-                    If human_->schet_zap > 0
-                      If human_->SCHET_NUM > 0
-                        human_->SCHET_NUM := human_->SCHET_NUM - 1
-                      Endif
-                      human_->schet_zap := 0
-                    Endif
-                    human_->OPLATA := 0
-                    human_->REESTR := mkod_reestr
-                    Unlock
-                  Endif
-                  Select REFR
-                  Do While .t.
-                    find ( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( tmp2->kod_human, 8 ) )
-                    If ! refr->( Found() )
-                      exit
-                    Endif
-                    deleterec( .t. )
-                  Enddo
-                  Select TMP2
-                  tmp2->( dbSkip() )    //  Skip
-                Enddo
-                For i := 1 To Len( arr_schet )
-                  //
-                  Select SD
-                  find ( Str( arr_schet[ i, 2 ], 6 ) )
-                  If sd->( Found() )
-                    deleterec( .t. )
-                  Endif
-                  //
-                  Select SCHET_
-                  schet_->( dbGoto( arr_schet[ i, 2 ] ) )   //Goto ( arr_schet[ i, 2 ] )
-                  deleterec( .t., .f. )  // без пометки на удаление
-                  //
-                  Select SCHET
-                  schet->( dbGoto( arr_schet[ i, 2 ] ) )   //Goto ( arr_schet[ i, 2 ] )
-                  deleterec( .t. )
-                  //
-                  If arr_schet[ i, 3 ] > 0
-                    Select MO_XML
-                    mo_xml->( dbGoto( arr_schet[ i, 3 ] ) )   //Goto ( arr_schet[ i, 3 ] )
-                    If !Empty( mo_xml->FNAME )
-                      s := dir_server() + dir_XML_MO() + hb_ps() + AllTrim( mo_xml->FNAME ) + szip()
-                      If hb_FileExists( s )
-                        Delete File ( s )
-                      Endif
-                    Endif
-                    deleterec( .t. )
-                  Endif
-                Next
-                Select MO_XML
-                mo_xml->( dbGoto( mreestr_sp_tk ) )     //  Goto ( mreestr_sp_tk )
-                deleterec()
-                dbCloseAll()
-                stat_msg( 'Реестр СП и ТК успешно аннулирован. Можно прочитать ещё раз.' )
-                mybell( 5 )
-              Endif
-            Endif
-          Endif
-        Endif
-        mo_unlock_task( X_OMS )
-      Endif
-    Elseif mTIP_IN == _XML_FILE_FLK // возврат протокола ФЛК
-*/
-    if mTIP_IN == _XML_FILE_FLK // возврат протокола ФЛК
-      If ( arr_f := extract_zip_xml( dir_server() + dir_XML_TF(), cFile + szip() ) ) != Nil .and. mo_lock_task( X_OMS )
-        cFile += sxml()
-        // читаем файл в память
-        oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile )
+        oXmlDoc := hxmldoc():read( _tmp_dir1() + cFile ) // зачем он нужен ?
         If oXmlDoc == Nil .or. Empty( oXmlDoc:aItems )
           func_error( 4, 'Ошибка в чтении файла ' + cFile )
         Else // читаем и записываем XML-файл во временные TMP-файлы
@@ -407,7 +87,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
           If Empty( aerr ) .and. !extract_reestr( mkod_reestr, mname_reestr )
             AAdd( aerr, 'Не найден ZIP-архив с РЕЕСТРом ' + mname_reestr )
             AAdd( aerr, 'Без данного архива дальнейшая работа НЕВОЗМОЖНА!' )
-          Endif
+          Endif //
           If !Empty( aerr )
             ins_array( aerr, 1, '' )
             ins_array( aerr, 1, Center( 'Ошибки в чтении файла ' + cFile, 80 ) )
@@ -415,153 +95,209 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
             viewtext( devide_into_pages( cFileProtokol, 60, 80 ),,,, .t.,,, 2 )
             Delete File ( cFileProtokol )
           Else
-            // если точно попал в другой реестр
-            is_other_reestr := is_delete_human := .f.
-            Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
-            Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
-            Index On Str( FIELD->tip, 1 ) + Str( FIELD->oshib, 3 ) + FIELD->soshib to ( cur_dir() + 'tmp2' )
-            Use ( cur_dir() + 'tmp_r_t1' ) New Alias T1
-            Index On Upper( FIELD->ID_PAC ) to ( cur_dir() + 'tmp_r_t1' )
-            Use ( cur_dir() + 'tmp_r_t2' ) New Alias T2
-            Use ( cur_dir() + 'tmp_r_t3' ) New Alias T3
-            Use ( cur_dir() + 'tmp_r_t4' ) New Alias T4
-            // заполнить поле 'N_ZAP' в файле 'tmp2'
-            fill_tmp2_file_flk()
-            r_use( dir_server() + 'human',, 'HUMAN' )
-            r_use( dir_server() + 'human_',, 'HUMAN_' )
-            r_use( dir_server() + 'mo_rhum',, 'RHUM' )
-            Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
-            Select TMP2
-            TMP2->( dbGoTop() )   //  Go Top
-            Do While ! tmp2->( Eof() )
-              If !Empty( tmp2->BAS_EL ) .and. !Empty( tmp2->ID_BAS ) .and. !Empty( tmp2->N_ZAP )
-                Select RHUM
-                find ( Str( tmp2->N_ZAP, 6 ) )
-                If rhum->( Found() )
-                  tmp2->kod_human := rhum->KOD_HUM
-                  Select HUMAN
-                  HUMAN->( dbGoto( RHUM->KOD_HUM ) )    //  Goto ( rhum->KOD_HUM )
-                  If emptyany( human->kod, human->fio )
-                    is_delete_human := .t.
-                    Exit
-                  Endif
-                  Select HUMAN_
-                  human_->( dbGoto( RHUM->KOD_HUM ) )    //  Goto ( rhum->KOD_HUM )
-                  If human_->REESTR > 0 .and. human_->REESTR != mkod_reestr
-                    is_other_reestr := .t.
-                    Exit
-                  Endif
-                Endif
-              Endif
-              Select TMP2
-              tmp2->( dbSkip() )    //  Skip
-            Enddo
-            If !is_other_reestr .and. !is_delete_human
-              // если попал в другой реестр, вернулся с ошибкой, и отредактирован
-              r_use( dir_server() + 'mo_rees',, 'REES' )
-              Select RHUM
-              Set Relation To FIELD->reestr into REES
-              // сортируем пациентов по дате попадания в реестры
-              Index On Str( FIELD->kod_hum, 7 ) + DToS( rees->DSCHET ) to ( cur_dir() + 'tmp_rhum' )
-              Select TMP2
-              TMP2->( dbGoTop() )   //  Go Top
-              Do While !Eof()
-                r := r1 := 0
-                Select RHUM
-                find ( Str( tmp2->kod_human, 7 ) )
-                Do While tmp2->kod_human == rhum->KOD_HUM
-                  ++r // во сколько реестров попал
-                  If rhum->reestr == mkod_reestr
-                    r1 := r // какой по номеру текущий реестр
-                  Endif
-                  rhum->( dbSkip() )    //  Skip
-                Enddo
-                If r1 > 0 .and. r > r1  // если текущий реестр не последний
-                  is_other_reestr := .t.
-                  Exit
-                Endif
-                Select TMP2
-                tmp2->( dbSkip() )    //  Skip
-              Enddo
+            if !is_allow_delete .and. involved_password( 1, rees_nschet, 'аннулирования чтения реестра ФЛК' )
+              is_allow_delete := .t.
             Endif
-            If is_delete_human
-              func_error( 10, 'Некоторые пациенты из данного реестра уже УДАЛЕНЫ. Операция запрещена!' )
-            Elseif is_other_reestr
-              func_error( 10, 'Пациенты из данного реестра уже ПОПАЛИ В ДРУГОЙ РЕЕСТР. Операция запрещена!' )
-            Else
-              If !is_allow_delete .and. involved_password( 1, rees_nschet, 'аннулирования чтения протокола ФЛК' )
-                is_allow_delete := .t.
-              Endif
-              If is_allow_delete
-                dbCloseAll()
-                is_allow_delete := .f.
-                r_use( dir_server() + 'mo_rees',, 'REES' )
-                Goto ( mkod_reestr )
-                Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
-                Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
-                arr := {}
-                AAdd( arr, 'Реестр № ' + lstr( rees->nschet ) + ' от ' + full_date( rees->dschet ) + 'г.' )
-                AAdd( arr, 'период "' + lstr( rees->nmonth ) + '/' + lstr( rees->nyear ) + ;
-                  '", сумма ' + lput_kop( rees->summa, .t. ) + ;
-                  ' руб., кол-во пациентов ' + lstr( rees->kol ) + ' чел.' )
-                AAdd( arr, '' )
-                AAdd( arr, 'Аннулируется чтение протокола ФЛК № ' + AllTrim( tmp1->FNAME ) )
-                AAdd( arr, 'кол-во пациентов с ошибкой ' + lstr( tmp2->( LastRec() ) ) + ' чел.' )
-                AAdd( arr, 'После подтверждения аннулирования все последствия чтения' )
-                AAdd( arr, 'данного протокола ФЛК, а также сам протокол, будут удалены.' )
-                f_message( arr,, cColorSt2Msg, cColorSt1Msg )
-                s := 'Подтвердите аннулирование чтения протокола ФЛК'
-                stat_msg( s )
-                mybell( 1 )
+            If is_allow_delete
+              dbCloseAll()
+              //счет только один и он принят 
+              arr_schet := {}
+              r_use( dir_server() + 'schet_',, 'SCH' )
+              Index On FIELD->nschet to ( cur_dir() + 'tmp_sch' ) For FIELD->XML_REESTR == mreestr_sp_tk
+              dbEval( {|| AAdd( arr_schet, { AllTrim( sch->nschet ), RecNo(), sch->KOD_XML } ) } )
+              sch->( dbCloseArea() )
+              //
+              is_allow_delete := .f.
+              g_use( dir_server() + 'mo_rees',, 'REES' )
+              rees->( dbGoto( mkod_reestr ) ) //  Goto ( mkod_reestr )
+              arr := {}
+              AAdd( arr, 'Реестр № ' + lstr( rees->nschet ) + ' от ' + full_date( rees->dschet ) + 'г.' )
+              AAdd( arr, 'период "' + lstr( rees->nmonth ) + '/' + lstr( rees->nyear ) + ;
+                 '", сумма ' + lput_kop( rees->summa, .t. ) + ;
+                 ' руб., кол-во пациентов ' + lstr( rees->kol ) + ' чел.' )
+              AAdd( arr, '' )
+              AAdd( arr, 'Аннулируется чтение протокола ФЛК' )
+              AAdd( arr, 'После подтверждения аннулирования все последствия чтения' )
+              AAdd( arr, 'данного протокола ФЛК, а также сам протокол, будут удалены.' )
+              f_message( arr,, cColorSt2Msg, cColorSt1Msg )
+              s := 'Подтвердите аннулирование чтения протокола ФЛК'
+              stat_msg( s )
+              mybell( 1 )
+              If f_esc_enter( 'аннулирования', .t. )
+                stat_msg( s + ' ещё раз.' )
+                mybell( 3 )
                 If f_esc_enter( 'аннулирования', .t. )
-                  stat_msg( s + ' ещё раз.' )
-                  mybell( 3 )
-                  If f_esc_enter( 'аннулирования', .t. )
-                    mywait()
-                    is_allow_delete := .t.
-                  Endif
+                  mywait()
+                  is_allow_delete := .t.
                 Endif
               Endif
-              // аннулируем последствия чтения реестра ФЛК
-              If is_allow_delete
-                dbCloseAll()
-                g_use( dir_server() + 'mo_xml',, 'MO_XML' )
-                g_use( dir_server() + 'mo_rhum',, 'RHUM' )
-                Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
-                g_use( dir_server() + 'human_',, 'HUMAN_' )
-                Use ( cur_dir() + 'tmp2file' ) New Alias TMP2
-                Set Relation To FIELD->kod_human into HUMAN_
-                tmp2->( dbGoTop() )   //  Go Top
-                Do While ! tmp2->( Eof() )
-                  Select RHUM
-                  find ( Str( tmp2->N_ZAP, 6 ) )
-                  g_rlock( 'forever' )
-                  rhum->OPLATA := 0
-                  Select HUMAN_
-                  g_rlock( 'forever' )
+            Endif //is_allow_delete
+            // переиндексируем некоторые файлы
+            If is_allow_delete // 2
+              Private fl_open := .t.
+              bSaveHandler := ErrorBlock( {| x| Break( x ) } )
+              Begin Sequence
+                index_base( 'schet' ) // для составления счетов
+                index_base( 'human' ) // для разноски счетов
+                index_base( 'mo_refr' )  // для записи причин отказов
+                index_base( 'human_3' )  // для двойных случаев
+              RECOVER USING error
+                is_allow_delete := func_error( 10, 'Возникла непредвиденная ошибка при переиндексировании!' )
+              End
+              ErrorBlock( bSaveHandler )
+            Endif //is_allow_delete -2
+            // аннулируем последствия чтения реестра ФЛК - старый СП и ТК
+            If is_allow_delete
+              dbCloseAll()
+              use_base( 'schet' )
+              Set Relation To
+              g_use( dir_server() + 'schetd',, 'SD' )
+              Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_sd' )
+              g_use( dir_server() + 'mo_xml',, 'MO_XML' )
+              g_use( dir_server() + 'mo_refr', dir_server() + 'mo_refr', 'REFR' )
+              g_use( dir_server() + 'mo_rhum',, 'RHUM' )
+              Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_rhum' ) For FIELD->reestr == mkod_reestr
+              g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+              use_base( 'human' )
+              Set Order To 0
+              select RHUM 
+              go top
+              Do While ! rhum->( Eof() )
+                // идем по RHUM - он заранее отфильтрован на 1 реестр
+                Select RHUM
+                g_rlock( 'forever' )
+                rhum->OPLATA := 0
+                Select HUMAN
+                human->( dbGoto( rhum->kod_hum ) )    //  Goto ( tmp2->kod_human )
+                if human->ishod == 89 // теперь проверим, не двойной ли это случай (по-новому)
+                // сначала обработаем 2-ой случай
+                  human->( g_rlock( 'forever' ) )
+                  human->schet := 0
+                  human->tip_h := B_STANDART
+                  human_->( g_rlock( 'forever' ) )
+                  If human_->schet_zap > 0
+                    If human_->SCHET_NUM > 0
+                      human_->SCHET_NUM := human_->SCHET_NUM - 1
+                    Endif
+                    human_->schet_zap := 0
+                  Endif
                   human_->OPLATA := 0
                   human_->REESTR := mkod_reestr
                   Unlock
-                  Select TMP2
-                  tmp2->( dbSkip() )    //  Skip
+                  // поищем 1-ый случай
+                  Select HUMAN_3
+                  Set Order To 2
+                  find ( Str( human->kod, 7 ) )
+                  If human_3->( Found() ) // нашли двойной случай
+                    Select HUMAN
+                    human->( dbGoto( human_3->kod ) )   //  Goto ( human_3->kod ) // встать на 1-ый лист учёта
+                    human->( g_rlock( 'forever' ) )
+                    human->schet := 0
+                    human->tip_h := B_STANDART
+                    human_->( g_rlock( 'forever' ) )
+                    If human_->schet_zap > 0
+                      If human_->SCHET_NUM > 0
+                        human_->SCHET_NUM := human_->SCHET_NUM - 1
+                      Endif
+                      human_->schet_zap := 0
+                    Endif
+                    human_->OPLATA := 0
+                    human_->REESTR := mkod_reestr
+                    Unlock
+                    // очистка заголовка двойного случая
+                    human_3->( g_rlock( 'forever' ) )
+                    human_3->schet := 0
+                    If human_3->schet_zap > 0
+                      If human_3->SCHET_NUM > 0
+                        human_3->SCHET_NUM := human_3->SCHET_NUM -1
+                      Endif
+                      human_3->schet_zap := 0
+                    Endif
+                    human_3->OPLATA := 0
+                    human_3->REESTR := mkod_reestr
+                  Endif
+                Else
+                  // обработка одинарного случая
+                  Select HUMAN
+                  human->( dbGoto( rhum->kod_hum ) )    //  Goto ( tmp2->kod_human )
+                  human->( g_rlock( 'forever' ) )
+                  human->schet := 0
+                  human->tip_h := B_STANDART
+                  human_->( g_rlock( 'forever' ) )
+                  If human_->schet_zap > 0
+                    If human_->SCHET_NUM > 0
+                      human_->SCHET_NUM := human_->SCHET_NUM - 1
+                    Endif
+                    human_->schet_zap := 0
+                  Endif
+                  human_->OPLATA := 0
+                  human_->REESTR := mkod_reestr
+                  Unlock
+                Endif
+                /* - ошибок в принятом реестре счетов быть не может
+                Select REFR
+                Do While .t.
+                  find ( Str( 1, 1 ) + Str( mkod_reestr, 6 ) + Str( 1, 1 ) + Str( tmp2->kod_human, 8 ) )
+                  If ! refr->( Found() )
+                    exit
+                  Endif
+                  deleterec( .t. )
                 Enddo
-                Select MO_XML
-                mo_xml->( dbGoto( mreestr_sp_tk ) )   //  Goto ( mreestr_sp_tk )
-                deleterec()
-                dbCloseAll()
-                stat_msg( 'Протокол ФЛК успешно аннулирован.' )
-                mybell( 5 )
-              Endif
+                */
+                Select RHUM
+                Skip
+              Enddo
+                // счет имеет одну запись
+              For i := 1 To Len( arr_schet )
+                //
+                Select SD
+                find ( Str( arr_schet[ i, 2 ], 6 ) )
+                If sd->( Found() )
+                  deleterec( .t. )
+                Endif
+                //
+                Select SCHET_
+                schet_->( dbGoto( arr_schet[ i, 2 ] ) )   //Goto ( arr_schet[ i, 2 ] )
+                deleterec( .t., .f. )  // без пометки на удаление
+                //
+                Select SCHET
+                schet->( dbGoto( arr_schet[ i, 2 ] ) )   //Goto ( arr_schet[ i, 2 ] )
+                deleterec( .t. )
+                //
+                If arr_schet[ i, 3 ] > 0
+                  Select MO_XML
+                  mo_xml->( dbGoto( arr_schet[ i, 3 ] ) )   //Goto ( arr_schet[ i, 3 ] )
+                  If !Empty( mo_xml->FNAME )
+                    s := dir_server() + dir_XML_MO() + hb_ps() + AllTrim( mo_xml->FNAME ) + szip()
+                    If hb_FileExists( s )
+                      Delete File ( s )
+                    Endif
+                  Endif
+                  deleterec( .t. )
+                Endif
+              Next
+              Select MO_XML
+              mo_xml->( dbGoto( mreestr_sp_tk ) )     //  Goto ( mreestr_sp_tk )
+              deleterec()
+              // корректируем тип в реестрах
+              g_use( dir_server() + 'mo_rees',, 'REES' )
+              select REES
+              rees->( dbGoto( mkod_reestr ) ) //  Goto ( mkod_reestr )
+              g_rlock( 'forever' )
+              rees->RES_TFOMS := 0
+              Unlock
+              dbCloseAll()
+              stat_msg( 'Реестр ФЛК успешно аннулирован. Можно прочитать ещё раз.' )
+              mybell( 5 )
             Endif
-          Endif
-        Endif
+          Endif // !Empty( aerr )
+        Endif // 4 - ошибка чтения файла
         mo_unlock_task( X_OMS )
-      Endif
-    Endif
-  Endif
+      Endif //3
+    Endif //2
+  Endif //1
   rest_box( buf )
-
-  Return 0
+Return 0
 
 // 15.02.26 вернуть ещё не записанный на дискету реестр
 Function vozvrat_reestr()
