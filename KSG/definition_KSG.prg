@@ -1116,7 +1116,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   Return { ars, arerr, AllTrim( lksg ), lcena, akslp, akiro, s_dializ }
 // 1     2        3            4      5      6        7
 
-// 14.03.26
+// 15.03.26
 function code_duration_K006( dateSl, ldney )
 
   local ret := ''
@@ -1129,9 +1129,9 @@ function code_duration_K006( dateSl, ldney )
         ret := '2'
       case ldney >= 11 .and. ldney <= 20
         ret := '3'
-      case ldney >= 21 .and. ldney <= 30
+      case ldney >= 21 .and. ldney < 30
         ret := '4'
-      case ldney > 30
+      case ldney >= 30
         ret := '5'
     endcase
   else
@@ -1151,7 +1151,7 @@ function code_duration_K006( dateSl, ldney )
 
   return ret
 
-// 14.03.26
+// 15.03.26
 Function ret_duration_k006_str( mdata, s, s1 )
 
   Local arr, i
@@ -1172,9 +1172,10 @@ Function ret_duration_k006_str( mdata, s, s1 )
   arr := { '1-3 ' + s1 + 'дня', ;                                 // 1
     'от 4 ' + s1 + 'дней до 10 ' + s1 + 'дней включительно', ;    // 2
     'от 11 ' + s1 + 'дней до 20 ' + s1 + 'дней включительно', ;   // 3
-    'от 21 ' + s1 + 'дня до 30 ' + s1 + 'дней включительно', ;    // 4
-    'более 30 ' + s1 + 'дней' ;                                   // 5
+    'от 21 ' + s1 + 'дня до 30 ' + s1 + 'дней', ;    // 4
+    'более 30 ' + s1 + 'дней включительно' ;                                   // 5
   }
+//    'от 21 ' + s1 + 'дня до 30 ' + s1 + 'дней включительно', ;    // 4
   
   if mdata >= 0d20260101
     i := Int( Val( s ) )
