@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.03.26 ДВН - добавление или редактирование случая (листа учета)
+// 14.03.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -19,10 +19,13 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     pos_read := 0, k_read := 0, count_edit := 0, ar, larr, lu_kod, ;
     fl, tmp_help := chm_help_code, fl_write_sluch := .f., mu_cena, lrslt_1_etap := 0, ;
     sk
-  local dvn_arr_usl, dvn_arr_umolch, mm_ndisp1
+  local aDvn_arr_usl, aDvn_arr_umolch, mm_ndisp1
   local arr_usl_dop := {}
   local j, i, i2
-  local usl_zamena
+  local usl_zamena, kprof
+  local lFlagEKG_gl := .f., lEKG := .f., lEKG_AI := .f.
+  local lFlagMamoGr_gl := .f., lMamoGr := .f., lMamoGr_AI := .f.
+  local lFlagFluor_gl := .f., lFluor := .f., lFluor_AI := .f.
 
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
@@ -73,7 +76,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     mcena_1 := 0, ;
     m1MOP := 1, mMOP  // место обращения (посещения) tmp_V040
   //
-//  Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
   Private arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
   Private metap := 0, ;  // 1-первый этап, 2-второй этап, 3-профилактика
     m1ndisp := 3, mndisp, is_dostup_2_year := .f., mnapr_onk := Space( 10 ), m1napr_onk := 0, ;
@@ -177,8 +179,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Private mm_otkaz0 := AClone( mm_otkaz )
   ASize( mm_otkaz0, 2 )
 
-//  dvn_arr_usl :=dvn_arr_usl( MK_DATA, m1mobilbr )
-//  dvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
+//  aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
+//  aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
   
 //  If kod_kartotek == 0 // добавление в картотеку
   If kod_kartotek >= 0 // работаем из картотеки
@@ -335,11 +337,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       If eq_any( letap, 1, 4 )
         lrslt_1_etap := human_->RSLT_NEW
       Endif
-      read_arr_dvn( human->kod, .f. )
 
-  dvn_arr_usl :=dvn_arr_usl( MK_DATA, m1mobilbr )
-  dvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
+//      read_arr_dvn( human->kod, .f. )
 
+      aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
+      aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
     Endif
   Endif
   If Empty( mWEIGHT )
@@ -411,9 +413,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     ret_arr_vozrast_dvn( mk_data )
     // / !!!!
     read_arr_dvn( Loc_kod )
-    
-    dvn_arr_usl :=dvn_arr_usl( MK_DATA, m1mobilbr )
-    dvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
+    aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
+    aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
 
 //    ret_arrays_disp( mk_data )
     metap := human->ishod - 200
@@ -451,7 +452,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     Endif
     //
     fl_4_1_12 := .f.
-    larr := Array( 2, len( dvn_arr_usl ) )
+    larr := Array( 2, len( aDvn_arr_usl ) )
     afillall( larr, 0 )
     r_use( dir_server() + 'uslugi', , 'USL' )
     use_base( 'human_u' )
@@ -463,7 +464,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
       lshifr := AllTrim( lshifr )
       If eq_any( Left( lshifr, 5 ), '70.3.', '70.7.', '72.1.', '72.5.', '72.6.', '72.7.' ) .and. ;
-          ! eq_any( lshifr, '70.7.61', '70.7.62', '70.7.63', '70.7.64', '72.5.17', '72.5.18', '72.5.19', '72.5.20' )
+          ! eq_any( lshifr, '70.7.61', '70.7.62', '70.7.63', '70.7.64', '72.5.17', '72.5.18', '72.5.19', '72.5.20' ) .and. ;
+          ! eq_any( lshifr, '70.7.363', '70.7.364', '70.7.361', '70.7.362' ) .and. ;
+          ! eq_any( lshifr, '72.5.317', '72.5.318', '72.5.319', '72.5.320' )
         mshifr_zs := lshifr
       Else
         fl := .t.
@@ -472,7 +475,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           //
         Else
           If lshifr == '2.3.3' .and. hu_->PROFIL == 3  ; // акушерскому делу
-            .and. ( i := AScan( dvn_arr_usl, {| x | ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == '4.1.12' } ) ) > 0
+            .and. ( i := AScan( aDvn_arr_usl, {| x | ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == '4.1.12' } ) ) > 0
             fl_4_1_12 := .t.
             fl := .f.
             larr[ 1, i ] := hu->( RecNo() )
@@ -480,8 +483,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
 */        
         If fl
-          For i := 1 To Len( dvn_arr_umolch ) //  count_dvn_arr_umolch
-            If Empty( larr[ 2, i ] ) .and. dvn_arr_umolch[ i, 2 ] == lshifr
+          For i := 1 To Len( aDvn_arr_umolch ) //  count_dvn_arr_umolch
+            If Empty( larr[ 2, i ] ) .and. aDvn_arr_umolch[ i, 2 ] == lshifr
               fl := .f.
               larr[ 2, i ] := hu->( RecNo() )
               Exit
@@ -489,11 +492,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           Next
         Endif
         If fl
-          For i := 1 To len( dvn_arr_usl )
+          For i := 1 To len( aDvn_arr_usl )
             If Empty( larr[ 1, i ] )
 
-              If ValType( dvn_arr_usl[ i, 2 ] ) == 'C'
-                If eq_any( dvn_arr_usl[ i, 2 ], '4.20.1', '4.20.701' )
+              If ValType( aDvn_arr_usl[ i, 2 ] ) == 'C'
+                If eq_any( aDvn_arr_usl[ i, 2 ], '4.20.1', '4.20.701' )
                   If eq_any( lshifr, '4.20.1', '4.20.701' )
                     m1g_cit := 1
                   Elseif lshifr == '4.20.2'
@@ -501,12 +504,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                     fl := .f.
                   Endif
                 Endif
-                If dvn_arr_usl[ i, 2 ] == lshifr
+                If aDvn_arr_usl[ i, 2 ] == lshifr
                   fl := .f.
                   m1var := 'm1lis' + lstr( i )
 //                  If is_disp_19
                     &m1var := 0
-//                  Elseif glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS(), dvn_arr_usl[ i, 2 ] ) > 0 .and. hu->is_edit > 0
+//                  Elseif glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS(), aDvn_arr_usl[ i, 2 ] ) > 0 .and. hu->is_edit > 0
 //                    &m1var := hu->is_edit
 //                  Endif
                   mvar := 'mlis' + lstr( i )
@@ -514,10 +517,18 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
                 Endif
               Endif
 
-              If fl .and. Len( dvn_arr_usl[ i ] ) > 11 .and. ValType( dvn_arr_usl[ i, 12 ] ) == 'A'
-                If AScan( dvn_arr_usl[ i, 12 ], {| x | x[ 1 ] == lshifr .and. x[ 2 ] == hu_->PROFIL } ) > 0
-                  fl := .f.
-                Endif
+              If fl .and. Len( aDvn_arr_usl[ i ] ) > 11 .and. ValType( aDvn_arr_usl[ i, 12 ] ) == 'A'
+                if ValType( aDvn_arr_usl[ i, 12 ][ 1 ][ 1 ] ) == 'A'
+                  If ( kprof := AScan( aDvn_arr_usl[ i, 12 ], {| x | x[ 2 ] == hu_->PROFIL } ) ) > 0
+                    if AScan( aDvn_arr_usl[ i, 12, kprof, 1 ], lshifr ) > 0
+                      fl := .f.
+                    endif
+                  endif
+                else
+                  If AScan( aDvn_arr_usl[ i, 12 ], {| x | x[ 1 ] == lshifr .and. x[ 2 ] == hu_->PROFIL } ) > 0
+                    fl := .f.
+                  Endif
+                endif
               Endif
               If !fl
                 larr[ 1, i ] := hu->( RecNo() )
@@ -549,7 +560,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       m1GRUPPA += 10
     Endif
     // R_Use(dir_server() + 'mo_pers',,'P2')
-    For i := 1 To len( dvn_arr_usl )
+    For i := 1 To len( aDvn_arr_usl )
       If !Empty( larr[ 1, i ] )
         hu->( dbGoto( larr[ 1, i ] ) )
         If hu->kod_vr > 0
@@ -570,14 +581,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
         m1var := 'M1OTKAZ' + lstr( i )
         &m1var := 0 // выполнено
-        If ValType( dvn_arr_usl[ i, 2 ] ) == 'C'
-          If AScan( arr_otklon, dvn_arr_usl[ i, 2 ] ) > 0
+        If ValType( aDvn_arr_usl[ i, 2 ] ) == 'C'
+          If AScan( arr_otklon, aDvn_arr_usl[ i, 2 ] ) > 0
             &m1var := 3 // выполнено, обнаружены отклонения
-          Elseif dvn_arr_usl[ i, 2 ] == '2.3.1' .and. AScan( arr_otklon, '2.3.3' ) > 0
+          Elseif aDvn_arr_usl[ i, 2 ] == '2.3.1' .and. AScan( arr_otklon, '2.3.3' ) > 0
             &m1var := 3 // выполнено, обнаружены отклонения
-          Elseif dvn_arr_usl[ i, 2 ] == '4.20.1' .and. m1g_cit == 2 .and. AScan( arr_otklon, '4.20.2' ) > 0
+          Elseif aDvn_arr_usl[ i, 2 ] == '4.20.1' .and. m1g_cit == 2 .and. AScan( arr_otklon, '4.20.2' ) > 0
             &m1var := 3 // выполнено, обнаружены отклонения
-          Elseif fl_4_1_12 .and. dvn_arr_usl[ i, 2 ] == '4.1.12'
+          Elseif fl_4_1_12 .and. aDvn_arr_usl[ i, 2 ] == '4.1.12'
             &m1var := 2 // НЕВОЗМОЖНОсть
           Endif
         Endif
@@ -593,10 +604,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         ar := arr_usl_otkaz[ j ]
         If ValType( ar ) == 'A' .and. Len( ar ) >= 5 .and. ValType( ar[ 5 ] ) == 'C'
           lshifr := AllTrim( ar[ 5 ] )
-          For i := 1 To len( dvn_arr_usl )
-            If ValType( dvn_arr_usl[ i, 2 ] ) == 'C' .and. ;
-                ( dvn_arr_usl[ i, 2 ] == lshifr .or. ( Len( dvn_arr_usl[ i ] ) > 11 .and. ValType( dvn_arr_usl[ i, 12 ] ) == 'A' ;
-                .and. AScan( dvn_arr_usl[ i, 12 ], {| x | x[ 1 ] == lshifr } ) > 0 ) )
+          For i := 1 To len( aDvn_arr_usl )
+            If ValType( aDvn_arr_usl[ i, 2 ] ) == 'C' .and. ;
+                ( aDvn_arr_usl[ i, 2 ] == lshifr .or. ( Len( aDvn_arr_usl[ i ] ) > 11 .and. ValType( aDvn_arr_usl[ i, 12 ] ) == 'A' ;
+                .and. AScan( aDvn_arr_usl[ i, 12 ], {| x | x[ 1 ] == lshifr } ) > 0 ) )
               If ValType( ar[ 1 ] ) == 'N' .and. ar[ 1 ] > 0
                 p2->( dbGoto( ar[ 1 ] ) )
                 mvar := 'MTAB_NOMv' + lstr( i )
@@ -635,7 +646,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       f_valid_diag_oms_sluch_dvn( , i )
     Next i
   Endif
-altd()
   If !( Left( msmo, 2 ) == '34' ) // не Волгоградская область
     m1ismo := msmo
     msmo := '34'
@@ -795,7 +805,8 @@ altd()
       @ ++j, 1 Say '№ амбулаторной карты' Get much_doc Picture '@!' ;
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
       @ j,Col() + 5 Say 'Мобильная бригада?' Get mmobilbr ;
-        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
+        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
+        valid {|| aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr ), .t. }
       @ ++j, 1 Say 'Место обращения' Get mMOP ;
         reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
 
@@ -871,7 +882,7 @@ altd()
         @ j -1, 52 Say Space( 5 )
       Endif
       fl_vrach := .t.
-      For i := 1 To len( dvn_arr_usl )
+      For i := 1 To len( aDvn_arr_usl )
         fl_diag := .f.
         i_otkaz := 0
         If f_is_usl_oms_sluch_dvn( MK_DATA, m1mobilbr, i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, @fl_diag, @i_otkaz )
@@ -888,8 +899,8 @@ altd()
           Endif
           fl_g_cit := fl_kdp2 := .f.
 /*
-          If ValType( dvn_arr_usl[ i, 2 ] ) == 'C'
-            If ( fl_g_cit := ( dvn_arr_usl[ i, 2 ] == '4.20.1' ) )
+          If ValType( aDvn_arr_usl[ i, 2 ] ) == 'C'
+            If ( fl_g_cit := ( aDvn_arr_usl[ i, 2 ] == '4.20.1' ) )
               If m1g_cit == 0
                 m1g_cit := 1 // начальное присвоение
               Endif
@@ -898,7 +909,7 @@ altd()
                 fl_g_cit := .f.
                 m1g_cit := 1 // в МО
               Endif
-            Elseif !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS(), dvn_arr_usl[ i, 2 ] ) > 0
+            Elseif !is_disp_19 .and. glob_yes_kdp2()[ TIP_LU_DVN ] .and. AScan( glob_arr_usl_LIS(), aDvn_arr_usl[ i, 2 ] ) > 0
               fl_kdp2 := .t.
             Endif
           Endif
@@ -916,7 +927,7 @@ altd()
           If fl_g_cit
             @ j, 1 Get mg_cit reader {| x | menu_reader( x, mm_g_cit, A__MENUVERT, , , .f. ) }
           Else
-            @ j, 1 Say dvn_arr_usl[ i, 1 ]
+            @ j, 1 Say aDvn_arr_usl[ i, 1 ]
           Endif
           If fl_kdp2
             @ j, 41 get &mvarlis reader {| x | menu_reader( x, mm_kdp2, A__MENUVERT, , , .f. ) }
@@ -1209,9 +1220,17 @@ altd()
       k := 0
       ku := 0
       kol_d_usl := 0
-      arr_osm1 := Array( len( dvn_arr_usl ), 11 )
+      arr_osm1 := Array( len( aDvn_arr_usl ), 11 )
       afillall( arr_osm1, 0 )
-      For i := 1 To len( dvn_arr_usl )
+
+      lEKG := .f.
+      lEKG_AI := .f.
+      lMamoGr := .f.
+      lMamoGr_AI := .f.
+      lFluor := .f.
+      lFluor_AI := .f.
+
+      For i := 1 To len( aDvn_arr_usl )
         fl_diag := .f.
         fl_ekg := .f.
         i_otkaz := 0
@@ -1220,7 +1239,7 @@ altd()
           If Empty( &mvart ) .and. ( eq_any( metap, 2, 5 ) .or. fl_ekg ) // ЭКГ, не введён врач
             Loop                                                 // и необязательный возраст
           Endif
-          ar := dvn_arr_usl[ i ]
+          ar := aDvn_arr_usl[ i ]
           mvara := 'MTAB_NOMa' + lstr( i )
           mvard := 'MDATE' + lstr( i )
           mvarz := 'MKOD_DIAG' + lstr( i )
@@ -1229,13 +1248,44 @@ altd()
             k := i
           Endif
 /*
-          if ! is_7_61_703 .and. ( ValType( dvn_arr_usl[ i, 2 ] ) == 'C' ) .and. dvn_arr_usl[ i, 2 ] == '7.61.703' .and. ! Empty( &mvart )
+          if ! is_7_61_703 .and. ( ValType( aDvn_arr_usl[ i, 2 ] ) == 'C' ) .and. aDvn_arr_usl[ i, 2 ] == '7.61.703' .and. ! Empty( &mvart )
               is_7_61_703 := .t.
             endif
-            if ! is_7_61_704 .and. ( ValType( dvn_arr_usl[ i, 2 ] ) == 'C' ) .and. dvn_arr_usl[ i, 2 ] == '7.61.704' .and. ! Empty( &mvart )
+            if ! is_7_61_704 .and. ( ValType( aDvn_arr_usl[ i, 2 ] ) == 'C' ) .and. aDvn_arr_usl[ i, 2 ] == '7.61.704' .and. ! Empty( &mvart )
               is_7_61_704 := .t.
             endif
 */
+          if mk_data >= 0d20260101 .and. ValType( ar[ 2 ] ) == 'C'
+//            if eq_any( AllTrim( ar[ 2 ] ), '13.1.701', '13.1.707', '13.1.703', '13.1.704' )
+            if is_ekg_dvn_new( AllTrim( ar[ 2 ] ) )
+              lFlagEKG_gl := .t.
+            endif
+            If eq_any( ar[ 2 ], '13.1.701', '13.1.703' ) .and. ! Empty( &mvart )
+              lEKG := .t.
+            endif
+            If eq_any( ar[ 2 ], '13.1.707', '13.1.704' ) .and. ! Empty( &mvart )
+              lEKG_AI := .t.
+            endif
+            if is_MamoGr_dvn_new( AllTrim( ar[ 2 ] ) )
+              lFlagMamoGr_gl := .t.
+            endif
+            If eq_any( ar[ 2 ], '7.57.703', '7.57.705' ) .and. ! Empty( &mvart )
+              lMamoGr := .t.
+            endif
+            If eq_any( ar[ 2 ], '7.57.709', '7.57.706' ) .and. ! Empty( &mvart )
+              lMamoGr_AI := .t.
+            endif
+            if is_Fluor_dvn_new( AllTrim( ar[ 2 ] ) )
+              lFlagFluor_gl := .t.
+            endif
+            If eq_any( ar[ 2 ], '7.61.703', '7.61.705' ) .and. ! Empty( &mvart )
+              lFluor := .t.
+            endif
+            If eq_any( ar[ 2 ], '7.61.709', '7.61.706' ) .and. ! Empty( &mvart )
+              lFluor_AI := .t.
+            endif
+          endif
+          
           If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == '4.20.1'
             If not_4_20_1 // не включать услугу
               Loop
@@ -1283,10 +1333,14 @@ altd()
           Elseif Empty( &mvard )
             fl := func_error( 4, 'Не введена дата услуги "' + LTrim( ar[ 1 ] ) + '"' )
           Elseif Empty( &mvart ) .and. ! is_lab_usluga( ar[ 2 ] ) // для услуг ЦКДЛ допускается пустое значение врача
-
-//            if ! eq_any( AllTrim( ar[ 2 ] ), '7.61.703', '7.61.704' )
+            if ! eq_any( AllTrim( ar[ 2 ] ), ;  // разные виды ЭКГ
+                '13.1.701', '13.1.707', '13.1.703', '13.1.704' ) .and. ;
+                ! eq_any( AllTrim( ar[ 2 ] ), ;  // разные виды мамографии
+                '7.57.703', '7.57.709', '7.57.705', '7.57.706' ) .and. ;
+                ! eq_any( AllTrim( ar[ 2 ] ), ;  // разные виды флюорогафии
+                '7.61.703', '7.61.709', '7.61.705', '7.61.706' )
               fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
-//            endif
+            endif
           Else
             Select P2
             p2->( dbSeek( Str( &mvart, 5 ) ) )   //   find ( Str( &mvart, 5 ) )
@@ -1335,20 +1389,25 @@ altd()
 //              Else
 //                j := 1
 //              Endif
-//altd()
-              arr_osm1[ i, 5 ] := dvn_arr_usl[ i, 12, j, 1 ] // ar[ 2, j ]  //  шифр услуги
-              If i == len( dvn_arr_usl ) // последняя услуга из массива - терапевт
+
+              if ValType( aDvn_arr_usl[ i, 12, j ] ) == 'A'
+                arr_osm1[ i, 5 ] := aDvn_arr_usl[ i, 12, j, 1 ][ m1mobilbr + 1]
+              else
+                arr_osm1[ i, 5 ] := aDvn_arr_usl[ i, 12, j, 1 ] // ar[ 2, j ]  //  шифр услуги
+              endif
+//              arr_osm1[ i, 5 ] := aDvn_arr_usl[ i, 12, j, 1 ] // ar[ 2, j ]  //  шифр услуги
+              If i == len( aDvn_arr_usl ) // последняя услуга из массива - терапевт
                 If eq_any( metap, 2, 5 )
                   If eq_any( arr_osm1[ i, 2 ], 2002, -206 ) // специальность-фельдшер
                     fl := func_error( 4, 'Фельдшер не может заменить терапевта на II этапе диспансеризации' )
                   Endif
                 Else // 1 и 3 этап
-                  if mk_data <= 0d20260101
+                  if mk_data < 0d20260101
                     If eq_any( arr_osm1[ i, 2 ], 2002, -206 ) // специальность-фельдшер
                       arr_osm1[ i, 5 ] := iif( is_disp_19, '2.3.4', '2.3.3' ) // шифр услуги
                       arr_osm1[ i, 4 ] := 42 // профиль - лечебному делу
                     Endif
-                endif
+                  endif
                 Endif
               Endif
             Endif
@@ -1400,7 +1459,30 @@ altd()
           Exit
         Endif
       Next
-
+      if lFlagEKG_gl
+        if ! lEKG .and. ! lEKG_AI
+          fl := func_error( 4, 'Не введен врач в услугах ЭКГ' )
+        endif
+        if lEKG .and. lEKG_AI
+          fl := func_error( 4, 'Нельзя проводить оба варианта проведения ЭКГ' )
+        endif
+      endif
+      if lFlagMamoGr_gl
+        if ! lMamoGr .and. ! lMamoGr_AI
+          fl := func_error( 4, 'Не введен врач в услугах маммографии' )
+        endif
+        if lMamoGr .and. lMamoGr_AI
+          fl := func_error( 4, 'Нельзя проводить оба варианта проведения маммографии' )
+        endif
+      endif
+      if lFlagFluor_gl
+        if ! lFluor .and. ! lFluor_AI
+          fl := func_error( 4, 'Не введен врач в услугах флюорографии' )
+        endif
+        if lFluor .and. lFluor_AI
+          fl := func_error( 4, 'Нельзя проводить оба варианта проведения флюорографии' )
+        endif
+      endif
 
 // очистим рабочий массив от пустоты
       for i := len( arr_osm1 ) to 1 step -1
@@ -1428,7 +1510,7 @@ altd()
         Endif
       Endif
       fl := .t.
-//      If emptyany( arr_osm1[ len( dvn_arr_usl ), 1 ], arr_osm1[ len( dvn_arr_usl ), 9 ] )
+//      If emptyany( arr_osm1[ len( aDvn_arr_usl ), 1 ], arr_osm1[ len( aDvn_arr_usl ), 9 ] )
       If emptyany( arr_osm1[ len( arr_osm1 ), 1 ], arr_osm1[ len( arr_osm1 ), 9 ] )
         If metap == 2 .and. i_56_1_723 > 0
           If !( arr_osm1[ i_56_1_723, 9 ] == mn_data .and. arr_osm1[ i_56_1_723, 9 ] == mk_data )
@@ -1445,7 +1527,7 @@ altd()
         Elseif metap == 2 .and. i_56_1_723 == 0
           fl := func_error( 4, 'Не введён приём терапевта (врача общей практики)' )
         Endif
-//      Elseif ( arr_osm1[ len( dvn_arr_usl ), 9 ] < mk_data ) .and. ( MK_DATA < 0d20260101 )
+//      Elseif ( arr_osm1[ len( aDvn_arr_usl ), 9 ] < mk_data ) .and. ( MK_DATA < 0d20260101 )
       Elseif ( arr_osm1[ len( arr_osm1 ), 9 ] < mk_data ) .and. ( MK_DATA < 0d20260101 )
         fl := func_error( 4, 'Терапевт (врач общей практики) должен проводить осмотр последним!' )
       Endif
@@ -1588,7 +1670,7 @@ altd()
       mywait()
       //
       m1lis := 0
-//      For i := 1 To len( dvn_arr_usl )
+//      For i := 1 To len( aDvn_arr_usl )
       For i := 1 To len( arr_osm1 )
         If ValType( arr_osm1[ i, 9 ] ) == 'D'
           If arr_osm1[ i, 5 ] == '4.20.2' .and. arr_osm1[ i, 9 ] < mn_data // не в рамках диспансеризации
@@ -1600,11 +1682,11 @@ altd()
         Endif
       Next
       is_prazdnik := f_is_prazdnik_dvn( mn_data )
-//      m1assis := arr_osm1[ len( dvn_arr_usl ), 3 ]
+//      m1assis := arr_osm1[ len( aDvn_arr_usl ), 3 ]
       m1assis := arr_osm1[ len( arr_osm1 ), 3 ]
       i_zs := 0
       If eq_any( metap, 2, 5 )
-//        i := len( dvn_arr_usl )
+//        i := len( aDvn_arr_usl )
         i := len( arr_osm1 )
         m1vrach  := arr_osm1[ i, 1 ]
         m1prvs   := arr_osm1[ i, 2 ]
@@ -1631,7 +1713,7 @@ altd()
           arr_osm1[ i, 10 ] := 0
         endif
       Endif
-      For i := 1 To Len( dvn_arr_umolch )
+      For i := 1 To Len( aDvn_arr_umolch )
         If f_is_umolch_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol )
           ++kol_d_usl
           AAdd( arr_osm1, Array( 11 ) )
@@ -1641,9 +1723,9 @@ altd()
           arr_osm1[ j, 2 ] := m1prvs
           arr_osm1[ j, 3 ] := m1assis
           arr_osm1[ j, 4 ] := m1PROFIL
-          arr_osm1[ j, 5 ] := dvn_arr_umolch[ i, 2 ]
+          arr_osm1[ j, 5 ] := aDvn_arr_umolch[ i, 2 ]
           arr_osm1[ j, 6 ] := mdef_diagnoz
-          arr_osm1[ j, 9 ] := iif( dvn_arr_umolch[ i, 8 ] == 0, mn_data, mk_data )
+          arr_osm1[ j, 9 ] := iif( aDvn_arr_umolch[ i, 8 ] == 0, mn_data, mk_data )
           arr_osm1[ j, 10 ] := 0
         Endif
       Next
@@ -1780,6 +1862,14 @@ altd()
             mcena_1 += mu_cena
           endif
           If eq_any( arr_osm1[ i, 10 ], 0, 3 ) // выполнено
+
+            if mk_data >= 0d20260101 .and. arr_osm1[ i, 9 ] < mn_data
+//              usl_zamena := get_zamenauslugi_dvn( mk_data, arr_osm1[ i, 5 ] )
+//              arr_osm1[ i, 5 ] := usl_zamena
+//              arr_osm1[ i, 7 ] := foundourusluga( arr_osm1[ i, 5 ], mk_data, arr_osm1[ i, 4 ], M1VZROS_REB, @mu_cena )              
+//              arr_osm1[ i, 8 ] := 0 //  цена
+            endif
+              
             AAdd( arr_usl_dop, arr_osm1[ i ] )
             If arr_osm1[ i, 10 ] == 3 // обнаружены отклонения
               AAdd( arr_otklon, arr_osm1[ i, 5 ] )
@@ -1787,6 +1877,7 @@ altd()
             if mk_data >= 0d20260101
               mcena_1 += mu_cena
             endif
+//            AAdd( arr_usl_dop, arr_osm1[ i ] )
           Else // отказ и невозможность
             AAdd( arr_usl_otkaz, arr_osm1[ i ] )
 /*

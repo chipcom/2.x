@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 11.03.26
+// 15.03.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -71,6 +71,7 @@ Function verify_sluch( fl_view, ft )
   local dvn_arr_umolch, dvn_arr_usl
   local arr_unit
   local mo_current  // описатель текущей МО
+  local kprof
 
   Default fl_view To .t.
 
@@ -1369,6 +1370,16 @@ Function verify_sluch( fl_view, ft )
             is_70_3 := .t.
           endif
           mdate_u2 := dtoc4( human->k_data )
+        elseif ( human->k_data >= 0d20260101 ) .and. ;
+            eq_any( alltrim_lshifr, '70.7.63', '70.7.64', '70.7.363', '70.7.364', '72.5.17', '72.5.18', '72.5.317', '72.5.318' )
+          is_disp_DVN := .t.
+          is_exist_Prescription := .t.
+          mIDSP := 29 // За посещение
+          if ! eq_any( AllTrim( lshifr ), '72.5.17', '72.5.18', '72.5.19', '72.5.20', '72.5.317', '72.5.318', '72.5.319', '72.5.320' )
+            ++kvp_70_3
+            is_70_3 := .t.
+          endif
+          mdate_u2 := dtoc4( human->k_data )
         Elseif left_lshifr_5 == '72.2.' // профилактика несовершеннолетних
           is_prof_PN := .t.
           ++kvp_72_2
@@ -1439,9 +1450,9 @@ Function verify_sluch( fl_view, ft )
           If fl_del
             AAdd( ta, 'Цена на услугу ' + RTrim( lshifr ) + ' отсутствует в справочнике ТФОМС' )
           Elseif !( Round( v, 2 ) == Round( hu->u_cena, 2 ) )
-            AAdd( ta, 'Ошибка в цене услуги[' + ;
+            AAdd( ta, 'Ошибка в цене услуги[ ' + ;
               iif( human->vzros_reb == 0, 'взр', 'реб' ) + ;
-              ']: ' + RTrim( lshifr ) + ': ' + lstr( hu->u_cena, 9, 2 ) + ;
+              ' ]: ' + RTrim( lshifr ) + ': ' + lstr( hu->u_cena, 9, 2 ) + ;
               ', должно быть: ' + lstr( v, 9, 2 ) )
           Endif
           If !( Round( hu->u_cena * hu->kol_1, 2 ) == Round( hu->stoim_1, 2 ) )
@@ -4250,9 +4261,17 @@ Function verify_sluch( fl_view, ft )
               Endif
             Endif
             If fl .and. Len( dvn_arr_usl[ i ] ) > 11 .and. ValType( dvn_arr_usl[ i, 12 ] ) == 'A'
-              If AScan( dvn_arr_usl[ i, 12 ], {| x| x[ 1 ] == lshifr .and. x[ 2 ] == au_lu[ j, 3 ] } ) > 0
-                fl := .f.
-              Endif
+                if ValType( dvn_arr_usl[ i, 12 ][ 1 ][ 1 ] ) == 'A'
+                  If ( kprof := AScan( dvn_arr_usl[ i, 12 ], {| x | x[ 2 ] == au_lu[ j, 3 ] } ) ) > 0
+                    if AScan( dvn_arr_usl[ i, 12, kprof, 1 ], lshifr ) > 0
+                      fl := .f.
+                    endif
+                  endif
+                else
+                  If AScan( dvn_arr_usl[ i, 12 ], {| x| x[ 1 ] == lshifr .and. x[ 2 ] == au_lu[ j, 3 ] } ) > 0
+                    fl := .f.
+                  Endif
+                endif
             Endif
             If !fl
               arr1[ i, 1 ] ++
@@ -4392,7 +4411,7 @@ Function verify_sluch( fl_view, ft )
               elseif ValType( dvn_arr_usl[ i, 2 ] ) == 'A'
                   fl := .f.
               Endif
-              If fl
+              If fl .and. ! is_disp_DVN
                 AAdd( ta, 'не оказана услуга ' + s )
               Endif
             Endif

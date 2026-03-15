@@ -247,11 +247,12 @@ function collect_date_uslugi( rec_number )
   select( tmp_select )
   return aSortDate
 
-// 08.03.26
+// 14.03.26
 Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, dvn_arr_umolch, dvn_arr_usl )
   
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1]), fl_19
+  local kprof
 
   fl_19 := ( type( 'is_disp_19' ) == 'L' .and. is_disp_19 )
   if ! fl_19 .and. ( ( lshifr == '2.3.3' .and. ausl[ 3 ] == 3 ) .or. ; // акушерскому делу
@@ -284,8 +285,16 @@ Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, dvn_arr_umo
         endif
       endif
       if ! fl .and. len( dvn_arr_usl[ i ] ) > 11 .and. valtype( dvn_arr_usl[ i, 12 ] ) == 'A'
-        if ascan(dvn_arr_usl[ i, 12 ], { | x | x[ 1 ] == lshifr .and. x[ 2 ] == ausl[ 3 ] } ) > 0
-          fl := .t.
+        if ValType( dvn_arr_usl[ i, 12 ][ 1 ][ 1 ] ) == 'A'
+          If ( kprof := AScan( dvn_arr_usl[ i, 12 ], {| x | x[ 2 ] == ausl[ 3 ] } ) ) > 0
+            if AScan( dvn_arr_usl[ i, 12, kprof, 1 ], lshifr ) > 0
+              fl := .t.
+            endif
+          endif
+        else
+          if ascan(dvn_arr_usl[ i, 12 ], { | x | x[ 1 ] == lshifr .and. x[ 2 ] == ausl[ 3 ] } ) > 0
+            fl := .t.
+          endif
         endif
       endif
       if fl

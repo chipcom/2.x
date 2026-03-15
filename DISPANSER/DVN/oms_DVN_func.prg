@@ -3,6 +3,21 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 15.03.26
+function is_ekg_dvn_new( lshifr )
+
+  return eq_any( lshifr, '13.1.701', '13.1.707', '13.1.703', '13.1.704' )
+
+// 15.03.26
+function is_MamoGr_dvn_new( lshifr )
+
+  return eq_any( lshifr, '7.57.703', '7.57.709', '7.57.705', '7.57.706' )
+
+// 15.03.26
+function is_Fluor_dvn_new( lshifr )
+
+  return eq_any( lshifr, '7.61.703', '7.61.709', '7.61.705', '7.61.706' )
+
 // 05.09.21
 Function read_arr_dvn( lkod, is_all )
 
@@ -574,7 +589,7 @@ Function f1get_spec_dvn( nKey, oBrow, regim )
 
   Return 0
 
-// 06.03.26 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
+// 15.03.26 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
 Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
 
   Local fl := .f., ars := {}, ar
@@ -625,10 +640,12 @@ Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_d
     i := iif( _pol == 'М', 6, 7 )
     If ValType( ar[ i ] ) == 'N'
       fl := ( ar[ i ] != 0 )
-    Elseif Type( 'is_disp_19' ) == 'L' .and. is_disp_19
+//    Elseif Type( 'is_disp_19' ) == 'L' .and. is_disp_19
+//      fl := AScan( ar[ i ], _vozrast ) > 0
+//    Else // для 2 этапа и профилактики возраст указан диапазоном
+//      fl := Between( _vozrast, ar[ i, 1 ], ar[ i, 2 ] )
+    else
       fl := AScan( ar[ i ], _vozrast ) > 0
-    Else // для 2 этапа и профилактики возраст указан диапазоном
-      fl := Between( _vozrast, ar[ i, 1 ], ar[ i, 2 ] )
     Endif
   Endif
 
