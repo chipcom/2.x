@@ -4,6 +4,25 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 16.03.26
+function dvn_obyazat_usl( mdate, mobil )
+
+  local arr_obyazat_usl := {}
+
+  default mdate to Date()
+  default mobil to 0
+
+  if mdate >= 0d20260101
+    AAdd( arr_obyazat_usl, iif( mobil == 0, { '7.57.703', '7.57.709' }, { '7.57.705', '7.57.706' } ) ) // маммография
+    AAdd( arr_obyazat_usl, iif( mobil == 0, '4.8.807', '4.8.805' ) )                  // кал на скрытую кровь
+    AAdd( arr_obyazat_usl, iif( mobil == 0, { '70.7.61', '70.7.62' }, { '70.7.361', '70.7.362' } ) )   // посещение гинеколга (акушера)
+    AAdd( arr_obyazat_usl, iif( mobil == 0, '4.1.712', '4.1.713' ) )                  // мазки (соскобы)
+    AAdd( arr_obyazat_usl, iif( mobil == 0, { '4.20.701', '4.20.709' }, { '4.20.703', '4.20.704' } ) ) // цитология
+    AAdd( arr_obyazat_usl, iif( mobil == 0, '4.14.766', '4.14.767' ) )                 // ПСА
+  endif
+
+  return arr_obyazat_usl
+
 // 30.01.26
 function arr_vozrast_DVN()
   
@@ -753,13 +772,14 @@ Function ret_ndisp( lkod_h, lkod_k, /*@*/new_etap, /*@*/msg)
   If m1veteran == 1
     mdvozrast := ret_vozr_dvn_veteran( mdvozrast, mk_data )
   Endif
+  
   If !( is_disp := AScan( ret_arr_vozrast_dvn( mk_data ), mdvozrast ) > 0 )
-    If !is_disp_19 // по старому приказу МЗ РФ
-      is_dostup_2_year := AScan( arr2m_vozrast_DVN(), mdvozrast ) > 0
-      If !is_dostup_2_year .and. mpol == 'Ж'
-        is_dostup_2_year := AScan( arr2g_vozrast_DVN(), mdvozrast ) > 0
-      Endif
-    Endif
+//    If !is_disp_19 // по старому приказу МЗ РФ
+//      is_dostup_2_year := AScan( arr2m_vozrast_DVN(), mdvozrast ) > 0
+//      If !is_dostup_2_year .and. mpol == 'Ж'
+//        is_dostup_2_year := AScan( arr2g_vozrast_DVN(), mdvozrast ) > 0
+//      Endif
+//    Endif
   Endif
   If metap == 0
     If is_disp

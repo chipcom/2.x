@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 15.03.26
+// 16.03.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -1365,7 +1365,11 @@ Function verify_sluch( fl_view, ft )
               mIDSP := 17 // Законченный случай в поликлинике
             endif
           Endif
-          if ! eq_any( AllTrim( lshifr ), '72.5.17', '72.5.18', '72.5.19', '72.5.20', '72.5.317', '72.5.318', '72.5.319', '72.5.320' )
+          if ! eq_any( AllTrim( lshifr ), ;
+                '72.5.17', '72.5.18', '72.5.19', '72.5.20', ;
+                '72.5.317', '72.5.318', '72.5.319', '72.5.320', ;
+                '72.7.17', '72.7.317', '72.7.18', '72.7.318', ;
+                '72.7.19', '72.7.319', '72.7.20', '72.7.320' )
             ++kvp_70_3
             is_70_3 := .t.
           endif
@@ -1375,7 +1379,11 @@ Function verify_sluch( fl_view, ft )
           is_disp_DVN := .t.
           is_exist_Prescription := .t.
           mIDSP := 29 // За посещение
-          if ! eq_any( AllTrim( lshifr ), '72.5.17', '72.5.18', '72.5.19', '72.5.20', '72.5.317', '72.5.318', '72.5.319', '72.5.320' )
+          if ! eq_any( AllTrim( lshifr ), ;
+                '72.5.17', '72.5.18', '72.5.19', '72.5.20', ;
+                '72.5.317', '72.5.318', '72.5.319', '72.5.320', ;
+                '72.7.17', '72.7.317', '72.7.18', '72.7.318', ;
+                '72.7.19', '72.7.319', '72.7.20', '72.7.320' )
             ++kvp_70_3
             is_70_3 := .t.
           endif
@@ -4209,7 +4217,7 @@ Function verify_sluch( fl_view, ft )
         arr1[ i, 5 ] := iif( fl_ekg, 1, 0 ) // 1 - необязательный возраст
       Endif
     Next
-    For i := 1 To Len( dvn_arr_umolch )   //count_dvn_arr_umolch
+    For i := 1 To Len( dvn_arr_umolch )
       If f_is_umolch_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol )
         arr2[ i, 2 ] := 1
       Endif
@@ -4225,7 +4233,7 @@ Function verify_sluch( fl_view, ft )
         fl := .f.
       Endif
       If fl
-        For i := 1 To Len( dvn_arr_umolch )   //  count_dvn_arr_umolch
+        For i := 1 To Len( dvn_arr_umolch )
           If arr2[ i, 1 ] == 0 .and. dvn_arr_umolch[ i, 2 ] == lshifr
             arr2[ i, 1 ] ++
             fl := .f.
@@ -4420,16 +4428,17 @@ Function verify_sluch( fl_view, ft )
           Endif
         Endif
       Next
-      For i := 1 To Len( dvn_arr_umolch )   //  count_dvn_arr_umolch
+      For i := 1 To Len( dvn_arr_umolch )
         s := '"' + dvn_arr_umolch[ i, 2 ] + ' ' + dvn_arr_umolch[ i, 1 ] + '"'
         If arr2[ i, 2 ] == 0 // не надо выполнять
           If arr2[ i, 1 ] > 1
             AAdd( ta, 'не надо выполнять, а выполнили ' + s )
           Endif
         Elseif arr2[ i, 2 ] == 1 // надо выполнять
-          If Empty( arr2[ i, 1 ] )
-            AAdd( ta, 'нет услуги ' + s )
-          Elseif arr2[ i, 1 ] > 1
+//          If Empty( arr2[ i, 1 ] )
+//            AAdd( ta, 'нет услуги ' + s )
+//          Elseif arr2[ i, 1 ] > 1
+          if arr2[ i, 1 ] > 1
             AAdd( ta, 'более одной услуги ' + s )
           Endif
         Endif

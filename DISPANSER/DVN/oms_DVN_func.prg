@@ -3,6 +3,64 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 16.03.26 замена услуг ДВН на профосмотр
+function zamena_usl_dvn_to_prof( arr_osm )
+
+  local i
+
+  // замена услуг
+  If ( i := AScan( arr_osm, {| x | ValType( x[ 5 ] ) == 'C' .and. x[ 5 ] == '70.7.63' } ) ) > 0
+    arr_osm[ i, 5 ] := '72.7.17' // шифр услуги приёма терапевта для профосмотра
+  endif
+  If ( i := AScan( arr_osm, {| x | ValType( x[ 5 ] ) == 'C' .and. x[ 5 ] == '70.7.363' } ) ) > 0
+    arr_osm[ i, 5 ] := '72.7.317' // шифр услуги приёма мобильного терапевта для профосмотра
+  endif
+  If ( i := AScan( arr_osm, {| x | ValType( x[ 5 ] ) == 'C' .and. x[ 5 ] == '70.7.64' } ) ) > 0
+    arr_osm[ i, 5 ] := '72.7.18' // шифр услуги приёма фельдшера для профосмотра
+  endif
+  If ( i := AScan( arr_osm, {| x | ValType( x[ 5 ] ) == 'C' .and. x[ 5 ] == '70.7.364' } ) ) > 0
+    arr_osm[ i, 5 ] := '72.7.318' // шифр услуги приёма мобильного фельдшера для профосмотра
+  endif
+  If ( i := AScan( arr_osm, {| x | ValType( x[ 5 ] ) == 'C' .and. x[ 5 ] == '70.7.61' } ) ) > 0
+    arr_osm[ i, 5 ] := '72.7.19' // шифр услуги приёма гинеколога для профосмотра
+  endif
+  If ( i := AScan( arr_osm, {| x | ValType( x[ 5 ] ) == 'C' .and. x[ 5 ] == '70.7.361' } ) ) > 0
+    arr_osm[ i, 5 ] := '72.7.319' // шифр услуги приёма мобильного гинеколога для профосмотра
+  endif
+  If ( i := AScan( arr_osm, {| x | ValType( x[ 5 ] ) == 'C' .and. x[ 5 ] == '70.7.62' } ) ) > 0
+    arr_osm[ i, 5 ] := '72.7.20' // шифр услуги приёма акушера для профосмотра
+  endif
+  If ( i := AScan( arr_osm, {| x | ValType( x[ 5 ] ) == 'C' .and. x[ 5 ] == '70.7.362' } ) ) > 0
+    arr_osm[ i, 5 ] := '72.7.320' // шифр услуги приёма мобильного акушера для профосмотра
+  endif
+
+  return Nil
+
+// 16.03.26 проверка входит ли услуга ДВН в список обязательных
+function control_obyazat_usl_dvn( mdate, mobil, shifr )
+
+  local i, arr, lRet := .f., j
+
+  default mdate to Date()
+  default mobil to 0
+  shifr := AllTrim( shifr )
+  arr := dvn_obyazat_usl( mdate, mobil )
+  if Len( arr ) > 0
+    for i := 1 to len( arr )
+      if ValType( arr[ i ] ) == 'C' .and. shifr == arr[ i ]
+        lRet := .t.
+        exit
+      elseif ValType( arr[ i ] ) == 'A'
+        if ascan( arr[ i ], shifr ) > 0
+          lRet := .t.
+          exit
+        endif
+      endif
+    next
+  endif
+
+  return lRet
+
 // 15.03.26
 function is_ekg_dvn_new( lshifr )
 
@@ -17,6 +75,11 @@ function is_MamoGr_dvn_new( lshifr )
 function is_Fluor_dvn_new( lshifr )
 
   return eq_any( lshifr, '7.61.703', '7.61.709', '7.61.705', '7.61.706' )
+
+// 15.03.26
+function is_Cit_dvn_new( lshifr )
+
+  return eq_any( lshifr, '4.20.701', '4.20.709', '4.20.703', '4.20.704' )
 
 // 05.09.21
 Function read_arr_dvn( lkod, is_all )

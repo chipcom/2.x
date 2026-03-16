@@ -26,7 +26,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   local lFlagEKG_gl := .f., lEKG := .f., lEKG_AI := .f.
   local lFlagMamoGr_gl := .f., lMamoGr := .f., lMamoGr_AI := .f.
   local lFlagFluor_gl := .f., lFluor := .f., lFluor_AI := .f.
-  local lOtkazMazok := .f., lFlagCit_gl := .f., lCit := .f., lCit_liquid := .f.
 
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
@@ -422,7 +421,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 //    If is_disp_19
       mdvozrast := Year( mn_data ) - Year( mdate_r )
       // если это профосмотр
-/*
       If metap == 3 .and. AScan( ret_arr_vozrast_dvn( mk_data ), mdvozrast ) > 0 // а возраст диспансеризации
         metap := 1 // превращаем в диспансеризацию
         If mk_data < 0d20191101 .and. m1rslt == 345
@@ -437,7 +435,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           m1rslt := 317
         Endif
       Endif
-*/      
       If metap == 4
         func_error( 4, 'Это диспансеризация раз в 2 года - преобразуем в обычную диспансеризацию' )
         metap := 1
@@ -558,6 +555,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
     r_use( dir_server() + 'mo_pers', , 'P2' )
 //    read_arr_dvn( Loc_kod )
+
     If metap == 1 .and. Between( m1GRUPPA, 11, 14 ) .and. m1p_otk == 1
       m1GRUPPA += 10
     Endif
@@ -720,7 +718,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   mspec_na  := inieditspr( A__MENUVERT, mm_danet(), m1spec_na )
   msank_na  := inieditspr( A__MENUVERT, mm_danet(), m1sank_na )
   mtip_mas := ret_tip_mas( mWEIGHT, mHEIGHT, @m1tip_mas )
-altd()
   ret_ndisp( Loc_kod, kod_kartotek )
   //
   If !Empty( f_print )
@@ -738,9 +735,7 @@ altd()
   Private gl_area
   SetColor( cDataCGet )
   make_diagp( 1 )  // сделать 'шестизначные' диагнозы
-
   Private num_screen := 1
-// начинаем работать с экраном  
   Do While .t.
     dbCloseAll()    //  Close databases
     DispBegin()
@@ -1234,8 +1229,6 @@ altd()
       lMamoGr_AI := .f.
       lFluor := .f.
       lFluor_AI := .f.
-      lCit := .f.
-      lCit_liquid := .f.
 
       For i := 1 To len( aDvn_arr_usl )
         fl_diag := .f.
@@ -1291,15 +1284,6 @@ altd()
             If eq_any( ar[ 2 ], '7.61.709', '7.61.706' ) .and. ! Empty( &mvart )
               lFluor_AI := .t.
             endif
-            if is_Cit_dvn_new( AllTrim( ar[ 2 ] ) )
-              lFlagCit_gl := .t.
-            endif
-            If eq_any( ar[ 2 ], '4.20.701', '4.20.703' ) .and. ! Empty( &mvart )
-              lCit := .t.
-            endif
-            If eq_any( ar[ 2 ], '4.20.709', '4.20.704' ) .and. ! Empty( &mvart )
-              lCit_liquid := .t.
-            endif
           endif
           
           If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == '4.20.1'
@@ -1349,15 +1333,12 @@ altd()
           Elseif Empty( &mvard )
             fl := func_error( 4, 'Не введена дата услуги "' + LTrim( ar[ 1 ] ) + '"' )
           Elseif Empty( &mvart ) .and. ! is_lab_usluga( ar[ 2 ] ) // для услуг ЦКДЛ допускается пустое значение врача
-            if ( ValType( ar[ 2 ] ) == 'C' ) .and. ;
-                ( ! eq_any( AllTrim( ar[ 2 ] ), ;  // разные виды ЭКГ
+            if ! eq_any( AllTrim( ar[ 2 ] ), ;  // разные виды ЭКГ
                 '13.1.701', '13.1.707', '13.1.703', '13.1.704' ) .and. ;
                 ! eq_any( AllTrim( ar[ 2 ] ), ;  // разные виды мамографии
                 '7.57.703', '7.57.709', '7.57.705', '7.57.706' ) .and. ;
                 ! eq_any( AllTrim( ar[ 2 ] ), ;  // разные виды флюорогафии
-                '7.61.703', '7.61.709', '7.61.705', '7.61.706' ) .and. ;
-                ! eq_any( AllTrim( ar[ 2 ] ), ;  // разные виды цитологии
-                '4.20.709', '4.20.701', '4.20.704', '4.20.703' ) )
+                '7.61.703', '7.61.709', '7.61.705', '7.61.706' )
               fl := func_error( 4, 'Не введен врач в услуге "' + LTrim( ar[ 1 ] ) + '"' )
             endif
           Else
@@ -1444,9 +1425,6 @@ altd()
               If arr_osm1[ i, 5 ] == '4.1.12' // Осмотр акушеркой, взятие мазка (соскоба)
                 not_4_20_1 := .t. // не включать услугу
               Endif
-              if eq_any( arr_osm1[ i, 5 ], '4.1.712', '4.1.713' ) // взятие мазка (соскоба)
-                lOtkazMazok := .t.
-              endif
             Endif
             If i_otkaz == 3 .and. &mvaro == 2 // НЕВОЗМОЖНОСТЬ для услуги 4.1.12
               If is_disp_19
@@ -1503,14 +1481,6 @@ altd()
         endif
         if lFluor .and. lFluor_AI
           fl := func_error( 4, 'Нельзя проводить оба варианта проведения флюорографии' )
-        endif
-      endif
-      if lFlagCit_gl
-        if ! lCit .and. ! lCit_liquid .and. ! lOtkazMazok
-          fl := func_error( 4, 'Не введен врач в услугах цитологии' )
-        endif
-        if lCit .and. lCit_liquid
-          fl := func_error( 4, 'Нельзя проводить оба варианта проведения цитологии' )
         endif
       endif
 
@@ -1787,8 +1757,7 @@ altd()
   - '4.1.12' взятие мазка с шейки матки,
   - '4.20.1','4.20.2' цитологическое исследование мазка с шейки матки,
   - '4.14.66' определение простат-специфического антигена в крови */
-//              If is_disp_19 .and. eq_any( arr_osm1[ i, 5 ], '4.8.4', '4.14.66', '7.57.3', '2.3.1', '2.3.3', '4.1.12', '4.20.1', '4.20.2' )
-              If control_obyazat_usl_dvn( mk_data, m1mobilbr, arr_osm1[ i, 5 ] )
+              If is_disp_19 .and. eq_any( arr_osm1[ i, 5 ], '4.8.4', '4.14.66', '7.57.3', '2.3.1', '2.3.3', '4.1.12', '4.20.1', '4.20.2' )
                 ++kol_ob_otkaz // кол-во отказов от обязательных услуг
               Endif
             Else// if arr_osm1[i, 10] == 2 если невозможность проведения - просто вычитаем общее кол-во
@@ -1806,27 +1775,18 @@ altd()
           Endif
         Elseif ( i := AScan( dvn_85(), {| x | x[ 1 ] == kol } ) ) > 0 // определить 85%
           k := dvn_85()[ i, 1 ] - dvn_85()[ i, 2 ] // 15%
-//          If is_disp_19
+          If is_disp_19
             If kol_n_date + kol_otkaz <= k // отказы + ранее оказано менее 15%
               // выставляем по законченному случаю
               If kol_ob_otkaz > 0 .and. metap == 1 // надо переделать в профосмотр !!!!!
-//                If ( i := AScan( arr_osm1, {| x | ValType( x[ 5 ] ) == 'C' .and. x[ 5 ] == '2.3.7' } ) ) > 0
-//                  arr_osm1[ i, 5 ] := '2.3.2' // шифр услуги приёма терапевта для профосмотра
-//                Endif
-
-                // замена услуг
-                zamena_usl_dvn_to_prof( arr_osm1 )
-                for j := 1 to len( arr_osm1 ) // удаляем краткое профилактическое консультирование
-                  if eq_any( arr_osm1[ j, 5 ], '56.1.724', '56.1.728' )
-                    hb_ADel( arr_osm1, j, .t. )
-                  endif
-                next
+                If ( i := AScan( arr_osm1, {| x | ValType( x[ 5 ] ) == 'C' .and. x[ 5 ] == '2.3.7' } ) ) > 0
+                  arr_osm1[ i, 5 ] := '2.3.2' // шифр услуги приёма терапевта для профосмотра
+                Endif
                 metap := 3
-//                If eq_any( m1rslt, 355, 356, 357, 358 ) .and. mk_data < 0d20191101 // III группа
-//                  m1rslt := 345
-//                  m1gruppa := 3
-//                Elseif eq_any( m1rslt, 355, 357 ) // IIIа группа
-                if eq_any( m1rslt, 355, 357 ) // IIIа группа
+                If eq_any( m1rslt, 355, 356, 357, 358 ) .and. mk_data < 0d20191101 // III группа
+                  m1rslt := 345
+                  m1gruppa := 3
+                Elseif eq_any( m1rslt, 355, 357 ) // IIIа группа
                   m1rslt := 373
                   m1gruppa := 3
                 Elseif eq_any( m1rslt, 356, 358 ) // IIIб группа
@@ -1839,14 +1799,12 @@ altd()
                   m1rslt := 343
                   m1gruppa := 1
                 Endif
-//                arr_osm1[ i_zs, 5 ] := ret_shifr_zs_dvn( metap, mdvozrast, mpol, mk_data )
-//                func_error( 4, 'Отказ от обязательного исследования - оформляем профилактический осмотр ' + arr_osm1[ i_zs, 5 ] )
-                func_error( 4, 'Отказ от обязательного исследования - оформляем профилактический осмотр' )
+                arr_osm1[ i_zs, 5 ] := ret_shifr_zs_dvn( metap, mdvozrast, mpol, mk_data )
+                func_error( 4, 'Отказ от обязательного исследования - оформляем профилактический осмотр ' + arr_osm1[ i_zs, 5 ] )
               Endif
             Else
               // если < 85%, отсечём в проверке
             Endif
-/*
           Else
             If kol_otkaz <= k // оказано 85% и более
               If kol_n_date + kol_otkaz <= k // отказы + ранее оказано менее 15%
@@ -1858,7 +1816,6 @@ altd()
               // если 'kol - kol_otkaz' < 85%, отсечём в проверке
             Endif
           Endif
-*/
         Else
           // если такого кол-ва услуг нет в массиве 'dvn_85()', отсечём в проверке
         Endif
