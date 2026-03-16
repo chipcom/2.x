@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.03.26 создание XML-файлов реестра
+// 16.03.26 создание XML-файлов реестра
 Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
@@ -22,6 +22,8 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
   local oPb
   local sk, begin_rees, end_rees
   local aBukva
+
+  private idServ  // Порядковый номер записи о медицинской услуге для всего Реестра случаев
 
   begin_rees := mem_beg_rees
   end_rees := mem_end_rees
@@ -187,7 +189,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 
     pkol := 0
     psumma := 0
-    iusl := 0       // количество услуг в реестре слуаев
+    idServ := 0       // Порядковый номер записи о медицинской услуге для всего Реестра случаев
     dbSelectArea( 'TMP' )
     tmp->( dbGoTop() )
     tmp->( dbSeek( cBukva, .t. ) )

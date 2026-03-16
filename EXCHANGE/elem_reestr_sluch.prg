@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 15.03.26
+// 16.03.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -982,8 +982,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           Loop
         Endif
 //        hu_->( g_rlock( 'forever' ) )
-//        hu_->REES_ZAP := ++iusl
-//        hu_->SCHET_ZAP := ++iusl
+//        hu_->REES_ZAP := ++idServ
+//        hu_->SCHET_ZAP := ++idServ
         lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
         lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
 
@@ -993,9 +993,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         endif
 
         hu_->( g_rlock( 'forever' ) )
-        ++iusl                  // увеличим число услуг в реестре случаев
-        hu_->REES_ZAP := iusl   //   ++iusl
-        hu_->SCHET_ZAP := iusl  //    ++iusl
+        ++idServ                  // увеличим число услуг в реестре случаев
+        hu_->REES_ZAP := idServ   //   ++idServ
+        hu_->SCHET_ZAP := idServ  //    ++idServ
 
         // заполним сведения об услугах для XML-документа
         oUSL := oSL:add( hxmlnode():new( 'USL' ) )
@@ -1117,8 +1117,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         endif
 
         oUSL := oSL:add( hxmlnode():new( 'USL' ) )
-        mo_add_xml_stroke( oUSL, 'IDSERV', lstr( iusl ) )   // lstr( ++iusl ) )
-        mo_add_xml_stroke( oUSL, 'ID_U', mo_guid( 3, iusl ) )
+        mo_add_xml_stroke( oUSL, 'IDSERV', lstr( idServ ) )   // lstr( ++iusl ) )
+        mo_add_xml_stroke( oUSL, 'ID_U', mo_guid( 3, idServ ) )   //  iusl ) )
         mo_add_xml_stroke( oUSL, 'LPU', CODE_LPU )
         mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( a_otkaz[ j, 4 ] ) )
@@ -1171,7 +1171,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
         // mohu->( g_rlock( 'forever' ) )
         mohu->( dbRLock() )
-        mohu->REES_ZAP := ++iusl          // увеличим число услуг в реестре случаев
+        mohu->REES_ZAP := ++idServ          // Порядковый номер записи о медицинской услуге для всего Реестра случаев
         lshifr := AllTrim( mosu->shifr1 )
         // заполним сведения об услугах для XML-документа
         oUSL := oSL:add( hxmlnode():new( 'USL' ) )

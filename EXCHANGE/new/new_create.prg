@@ -2,13 +2,15 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 20.02.26
+// 16.03.26
 function new_create( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort, cBukva )
 
   local fl, mnn, mb, me, lengthPacketNumber, mnschet, mkod_reestr, code_reestr
   local begin_rees, end_rees
   local aFilesName
   Local cNschet := ''
+
+  private idServ
 
   begin_rees := mem_beg_rees
   end_rees := mem_end_rees
@@ -158,7 +160,9 @@ function new_create( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort, cBukva )
   rees->( dbUnlock() )
   rees->( dbCommit() )
 
-    pkol := psumma := iusl := 0
+    pkol := 0
+    psumma := 0
+    idServ := 0
     dbSelectArea( 'TMP' )
     tmp->( dbGoTop() )
     tmp->( dbSeek( cBukva, .t. ) )
