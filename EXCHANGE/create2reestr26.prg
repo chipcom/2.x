@@ -187,7 +187,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 
     pkol := 0
     psumma := 0
-    iusl := 0
+    iusl := 0       // количество услуг в реестре слуаев
     dbSelectArea( 'TMP' )
     tmp->( dbGoTop() )
     tmp->( dbSeek( cBukva, .t. ) )

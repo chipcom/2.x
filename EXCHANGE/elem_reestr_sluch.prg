@@ -5,12 +5,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.03.26
+// 15.03.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
   Local oSL, oSLUCH
-//  Local oPRESCRIPTION, oPRESCRIPTIONS, oNAPR
   Local oCONS
   Local oONK_SL, oDIAG, oPROT, oONK
   Local oUSL
@@ -40,6 +39,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   local lDispans := .f.
   local vozrast, next_d
   local usl_zamena, nomeklatura_mz
+  local kod_lshifr
 
   local arr_nazn
 
@@ -981,11 +981,22 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         If hu->kod_vr == 0
           Loop
         Endif
-        hu_->( g_rlock( forever ) )
-        hu_->REES_ZAP := ++iusl
-        hu_->SCHET_ZAP := ++iusl
+//        hu_->( g_rlock( 'forever' ) )
+//        hu_->REES_ZAP := ++iusl
+//        hu_->SCHET_ZAP := ++iusl
         lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
         lshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
+
+        kod_lshifr := SubStr( lshifr, 1, 2 )
+        if ( kod_lshifr == 'st' ) .or. ( kod_lshifr == 'ds' )
+          loop
+        endif
+
+        hu_->( g_rlock( 'forever' ) )
+        ++iusl                  // увеличим число услуг в реестре случаев
+        hu_->REES_ZAP := iusl   //   ++iusl
+        hu_->SCHET_ZAP := iusl  //    ++iusl
+
         // заполним сведения об услугах для XML-документа
         oUSL := oSL:add( hxmlnode():new( 'USL' ) )
         mo_add_xml_stroke( oUSL, 'IDSERV', lstr( hu_->REES_ZAP ) )
@@ -1106,7 +1117,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         endif
 
         oUSL := oSL:add( hxmlnode():new( 'USL' ) )
-        mo_add_xml_stroke( oUSL, 'IDSERV', lstr( ++iusl ) )
+        mo_add_xml_stroke( oUSL, 'IDSERV', lstr( iusl ) )   // lstr( ++iusl ) )
         mo_add_xml_stroke( oUSL, 'ID_U', mo_guid( 3, iusl ) )
         mo_add_xml_stroke( oUSL, 'LPU', CODE_LPU )
         mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
@@ -1158,9 +1169,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         If mohu->kod_vr == 0
           Loop
         Endif
-        // mohu->( g_rlock( forever ) )
+        // mohu->( g_rlock( 'forever' ) )
         mohu->( dbRLock() )
-        mohu->REES_ZAP := ++iusl
+        mohu->REES_ZAP := ++iusl          // увеличим число услуг в реестре случаев
         lshifr := AllTrim( mosu->shifr1 )
         // заполним сведения об услугах для XML-документа
         oUSL := oSL:add( hxmlnode():new( 'USL' ) )
