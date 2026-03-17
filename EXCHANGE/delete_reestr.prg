@@ -10,20 +10,23 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
     mm_menu := {}, mm_func := {}, mm_flag := {}, mreestr_sp_tk, ;
     arr_f, cFile, oXmlDoc, aerr := {}, is_allow_delete, ;
-    cFileProtokol := cur_dir() + 'tmp.txt', is_other_reestr, ;
+    cFileProtokol := cur_dir() + 'tmp.txt', ;
     rees_nschet := rees->nschet, mtip_in
   local result_TFOMS, arr
-  local is_delete_human
+  Local name_delete_file := ''
+  local is_delete_human, is_other_reestr
+
 
   mywait()
   result_TFOMS := rees->RES_TFOMS
+  name_delete_file := alltrim( rees->name_xml )
   Select MO_XML
   Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) For FIELD->reestr == mkod_reestr .and. FIELD->TIP_OUT == 0
   mo_xml->( dbGoTop() )
 
   if ! ( rees->nyear >= 2026 .and. eq_any( result_TFOMS, 2, 3 ) )
     Do While ! mo_xml->( Eof() )
-      If mo_xml->TIP_IN == _XML_FILE_FLK_26 //  _XML_FILE_SP
+      If mo_xml->TIP_IN == _XML_FILE_FLK_26 .and. substr( alltrim( mo_xml->fname ), 2 ) == name_delete_file //  _XML_FILE_SP
         AAdd( mm_func, mo_xml->kod )
         s := '” ©« ”‹Š ' + RTrim( mo_xml->FNAME ) + ' ¯à®ç¨â ­ ' + date_8( mo_xml->DWORK )
         If Empty( mo_xml->TWORK2 )
