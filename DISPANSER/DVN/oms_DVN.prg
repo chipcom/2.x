@@ -27,6 +27,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   local lFlagMamoGr_gl := .f., lMamoGr := .f., lMamoGr_AI := .f.
   local lFlagFluor_gl := .f., lFluor := .f., lFluor_AI := .f.
   local lOtkazMazok := .f., lFlagCit_gl := .f., lCit := .f., lCit_liquid := .f.
+  local lTom_II := .f., iTom, aTom_II // массив ввода врачей для томографии
+  local lRecto_II := .f., lRecto_sigmo := .f., lRecto_mano := .f.
 
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
@@ -180,6 +182,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Private mm_otkaz0 := AClone( mm_otkaz )
   ASize( mm_otkaz0, 2 )
 
+  aTom_II := Array( 5 )
   aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
   aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
   
@@ -339,7 +342,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         lrslt_1_etap := human_->RSLT_NEW
       Endif
 
-//      read_arr_dvn( human->kod, .f. )
+      read_arr_dvn( human->kod, .f. )
+      MUCH_DOC    := human->UCH_DOC   // номер амбулаторной карты
+      m1mobilbr   := 0                // мобильная бригада
 
       aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
       aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
@@ -1238,7 +1243,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       lFluor_AI := .f.
       lCit := .f.
       lCit_liquid := .f.
+      lRecto_sigmo := .f.
+      lRecto_mano := .f.
 
+      AFill( aTom_II, .f. ) // очистим перед проверкой
       For i := 1 To len( aDvn_arr_usl )
         fl_diag := .f.
         fl_ekg := .f.
@@ -1265,7 +1273,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             endif
 */
           if mk_data >= 0d20260101 .and. ValType( ar[ 2 ] ) == 'C'
-//            if eq_any( AllTrim( ar[ 2 ] ), '13.1.701', '13.1.707', '13.1.703', '13.1.704' )
             if is_ekg_dvn_new( AllTrim( ar[ 2 ] ) )
               lFlagEKG_gl := .t.
             endif
@@ -1302,6 +1309,34 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             If eq_any( ar[ 2 ], '4.20.709', '4.20.704' ) .and. ! Empty( &mvart )
               lCit_liquid := .t.
             endif
+            if is_Recto_dvn_II( AllTrim( ar[ 2 ] ) )
+              lRecto_II := .t.
+            endif
+            If ar[ 2 ] == '10.6.710' .and. ! Empty( &mvart )
+              lRecto_sigmo := .t.
+            endif
+            If ar[ 2 ] == '10.4.701' .and. ! Empty( &mvart )
+              lRecto_mano := .t.
+            endif
+            if is_Tomogr_dvn_II( AllTrim( ar[ 2 ] ) )
+              lTom_II := .t.
+            endif
+            If ar[ 2 ] == '7.2.701' .and. ! Empty( &mvart )
+              aTom_II[ 1 ] := .t.
+            endif
+            If ar[ 2 ] == '7.2.702' .and. ! Empty( &mvart )
+              aTom_II[ 2 ] := .t.
+            endif
+            If ar[ 2 ] == '7.2.703' .and. ! Empty( &mvart )
+              aTom_II[ 3 ] := .t.
+            endif
+            If ar[ 2 ] == '7.2.704' .and. ! Empty( &mvart )
+              aTom_II[ 4 ] := .t.
+            endif
+            If ar[ 2 ] == '7.2.705' .and. ! Empty( &mvart )
+              aTom_II[ 5 ] := .t.
+            endif
+
           endif
           
           If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == '4.20.1'
@@ -1514,6 +1549,25 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         if lCit .and. lCit_liquid
           fl := func_error( 4, 'Нельзя проводить оба варианта проведения цитологии' )
         endif
+      endif
+      if lRecto_II
+        if ! lRecto_sigmo .and. ! lRecto_mano
+          fl := func_error( 4, 'Не введен врач в услугах ректосигмоколоноскопии или ректороманоскопии' )
+        endif
+        if lRecto_sigmo .and. lRecto_mano
+          fl := func_error( 4, 'Нельзя проводить проводить одновременно ректосигмоколоноскопию или ректороманоскопию' )
+        endif
+      endif
+      if lTom_II
+        iTom := 0
+        AEval( aTom_II, { | x | iTom += iif( x, 1, 0 ) } )
+        if iTom == 0
+          fl := func_error( 4, 'Не введен врач в услугах томографии и рентгена на II этапе' )
+        endif
+        if iTom > 1
+          fl := func_error( 4, 'Нельзя проводить несколько вариантов проведения томографии и рентгена' )
+        endif
+
       endif
 
 // очистим рабочий массив от пустоты

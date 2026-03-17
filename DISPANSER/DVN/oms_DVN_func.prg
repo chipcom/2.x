@@ -61,6 +61,16 @@ function control_obyazat_usl_dvn( mdate, mobil, shifr )
 
   return lRet
 
+// 17.03.26
+function is_Recto_dvn_II( lshifr )
+
+  return eq_any( lshifr, '10.6.710', '10.4.701' )
+
+// 17.03.26
+function is_Tomogr_dvn_II( lshifr )
+
+  return eq_any( lshifr, '7.2.701', '7.2.703', '7.2.704', '7.2.705', '7.2.702' )
+
 // 15.03.26
 function is_ekg_dvn_new( lshifr )
 
