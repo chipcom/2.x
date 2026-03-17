@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 14.03.26 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
+// 17.03.26 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
 Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
 
   Local i, s, r := Row(), r1, r2, buf := save_maxrow(), ;
@@ -14,7 +14,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
     rees_nschet := rees->nschet, mtip_in
   local result_TFOMS, arr
   Local name_delete_file := ''
-  local is_delete_human, is_other_reestr
+  local fProtocol, lExistProtocol := .f.
 
 
   mywait()
@@ -23,8 +23,12 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
   Select MO_XML
   Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) For FIELD->reestr == mkod_reestr .and. FIELD->TIP_OUT == 0
   mo_xml->( dbGoTop() )
+  fProtocol := dir_server() + dir_xml_tf() + hb_ps() + alltrim( mo_xml->FNAME ) + '.txt'
+  If hb_FileExists( fProtocol )
+    lExistProtocol := .t.
+  endif
 
-  if ! ( rees->nyear >= 2026 .and. eq_any( result_TFOMS, 2, 3 ) )
+  if ! ( rees->nyear >= 2026 .and. eq_any( result_TFOMS, 2, 3 ) ) 
     Do While ! mo_xml->( Eof() )
       If mo_xml->TIP_IN == _XML_FILE_FLK_26 .and. substr( alltrim( mo_xml->fname ), 2 ) == name_delete_file //  _XML_FILE_SP
         AAdd( mm_func, mo_xml->kod )
@@ -53,7 +57,7 @@ Function delete_reestr_sp_tk( mkod_reestr, mname_reestr )
   Set Index To
   rest_box( buf )
   If Len( mm_menu ) == 0
-    if ( rees->nyear >= 2026 .and. eq_any( result_TFOMS, 2, 3 ) ) .or. ( involved_password( 1, rees_nschet, 'подтверждения возврата (удаления) реестра' ) )
+    if ( rees->nyear >= 2026 .and. eq_any( result_TFOMS, 2, 3 ) .and. ! lExistProtocol ) .or. ( involved_password( 1, rees_nschet, 'подтверждения возврата (удаления) реестра' ) )
 //    If involved_password( 1, rees_nschet, 'подтверждения возврата (удаления) реестра счёта' )
       f1vozvrat_reestr( mkod_reestr )
     endif
@@ -357,7 +361,7 @@ Function vozvrat_reestr()
 
   Return Nil
 
-//  14.02.26
+//  17.02.26
 Function f1vozvrat_reestr( mkod_reestr )
 
   Local buf := SaveScreen()
@@ -577,6 +581,11 @@ Function f1vozvrat_reestr( mkod_reestr )
       If !mo_xml->( Eof() ) .and. ! mo_xml->( Deleted() )
         deleterec( .t. )
       Endif
+      Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml_r' ) For FIELD->reestr == mo_xml->REESTR
+      mo_xml->( dbGoTop() )
+      If !mo_xml->( Eof() ) .and. ! mo_xml->( Deleted() )
+        deleterec( .t. )
+      endif
       Select REES
       deleterec( .t. )
       stat_msg( 'Реестр удалён!' )
