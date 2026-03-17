@@ -98,6 +98,9 @@ Function update_data_db( aVersion )
   If ver_base < 60205 // переход на версию 6.2.5
     update_v60205()     // Проверка сформированных счетов
   endif
+  If ver_base < 60302 // переход на версию 6.3.2
+    update_v60302()   // корректировка TIP_H в human.dbf
+  endif
 
 Return Nil
 
@@ -148,6 +151,32 @@ altd()
 
   return Nil
 */
+
+// 17.03.26
+function update_v60302()
+
+  local dt := CToD( '01/01/2026' )
+
+  stat_msg( 'Проверка справочника пациентов' )
+  g_use( dir_server() + 'human', dir_server() + 'humand', 'human', , .t. )
+
+  human->( dbSeek( dtos( dt ) ) )
+  do while ! human->( Eof() ) .and. ( year( human->k_data ) == 2026 )
+
+    if human->TIP_H == 3 .and. human->schet > 0
+      human->TIP_H := 4
+    endif
+
+    human->( dbSkip() )
+  enddo
+//  dbCloseAll()
+  human->( dbCloseArea() )
+  use_base( 'human', , .t. )
+  index_base( 'human' )
+
+  dbCloseAll()
+
+  return nil
 
 // 23.02.26
 function update_v60205()

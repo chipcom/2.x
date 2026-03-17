@@ -112,7 +112,7 @@ Function read_from_tf()
   Endif
   Return fl
 
-// 21.02.26 чтение в память и анализ XML-файла
+// 17.03.26 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local is_err_FLK_26
@@ -333,6 +333,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
           human->( dbGoto( rhum->KOD_HUM ) )
           if ! ( human->( Eof() ) ) .and. ! ( human->( Bof() ) )
             human->schet := schet->KOD
+            human->TIP_H := 4 // счет
             HUMAN_->SCHET_ZAP := rhum->REES_ZAP
           endif
           rhum->( dbSkip() )
