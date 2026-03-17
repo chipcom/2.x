@@ -179,8 +179,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Private mm_otkaz0 := AClone( mm_otkaz )
   ASize( mm_otkaz0, 2 )
 
-//  aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
-//  aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
+  aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
+  aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
   
 //  If kod_kartotek == 0 // добавление в картотеку
   If kod_kartotek >= 0 // работаем из картотеки
