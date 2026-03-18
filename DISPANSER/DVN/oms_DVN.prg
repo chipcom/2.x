@@ -26,10 +26,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   local lFlagEKG_gl := .f., lEKG := .f., lEKG_AI := .f.
   local lFlagMamoGr_gl := .f., lMamoGr := .f., lMamoGr_AI := .f.
   local lFlagFluor_gl := .f., lFluor := .f., lFluor_AI := .f.
-  local lOtkazMazok := .f., lFlagCit_gl := .f., lCit := .f., lCit_liquid := .f.
+  local lFlagCit_gl := .f., iCit, aCit  // массив ввода врачей для цитологий
+  local lOtkazMazok := .f., lNevozCit := .f.  // отказ или невозможность взятия мазка
   local lTom_II := .f., iTom, aTom_II // массив ввода врачей для томографии
   local lRecto_II := .f., lRecto_sigmo := .f., lRecto_mano := .f.
-
+  local mm_otkaz, mm_otkaz1, mm_otkaz0
+  local str_head
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
 
@@ -176,13 +178,20 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   ASize( mm_gruppaD2, 4 )
   Private mm_gruppaD4 := AClone( mm_gruppaD1 )
   ASize( mm_gruppaD4, 8 )
-  Private mm_otkaz := arr_mm_otkaz()
-  Private mm_otkaz1 := AClone( mm_otkaz )
+//  Private mm_otkaz := arr_mm_otkaz()
+//  Private mm_otkaz1 := AClone( mm_otkaz )
+//  ASize( mm_otkaz1, 3 )
+//  Private mm_otkaz0 := AClone( mm_otkaz )
+//  ASize( mm_otkaz0, 2 )
+
+  mm_otkaz := arr_mm_otkaz()
+  mm_otkaz1 := AClone( mm_otkaz )
   ASize( mm_otkaz1, 3 )
-  Private mm_otkaz0 := AClone( mm_otkaz )
+  mm_otkaz0 := AClone( mm_otkaz )
   ASize( mm_otkaz0, 2 )
 
   aTom_II := Array( 5 )
+  aCit := Array( 2 )
   aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
   aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
   
@@ -734,12 +743,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     return &( f_print + '(' + lstr( Loc_kod ) + ',' + lstr( kod_kartotek ) + ')' )
   Endif
   //
-  str_1 := ' случая диспансеризации/профосмотра взрослого населения'
+//  str_head := ' случая диспансеризации/профосмотра взрослого населения'
   If Loc_kod == 0
-    str_1 := 'Добавление' + str_1
+//    str_head := 'Добавление' + str_head
     mtip_h := yes_vypisan
-  Else
-    str_1 := 'Редактирование' + str_1
+//  Else
+//    str_head := 'Редактирование' + str_head
   Endif
   SetColor( color8 )
   Private gl_area
@@ -762,17 +771,26 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       wS := 80
     Endif
     SetMode( hS, wS )
-    @ 0, 0 Say PadC( str_1, wS ) Color 'B/BG*'
+
+  str_head := ' случая ' + iif( metap == 3, 'профосмотра', 'диспансеризации ' + str( metap, 1 ) + ' этапа' ) + ' взрослого населения'
+  If Loc_kod == 0
+    str_head := 'Добавление' + str_head
+  Else
+    str_head := 'Редактирование' + str_head
+  Endif
+
+    @ 0, 0 Say PadC( str_head, wS ) Color 'B/BG*'
     gl_area := { 1, 0, MaxRow() -1, MaxCol(), 0 }
     j := 1
     myclear( j )
-    If yes_num_lu == 1 .and. Loc_kod > 0
+    If yes_num_lu == 1 .and. num_screen == 1 .and. Loc_kod > 0
       @ j, ( wS -30 ) Say PadL( 'Лист учета № ' + lstr( Loc_kod ), 29 ) Color color14
     Endif
     @ j, 0 Say 'Экран ' + lstr( num_screen ) Color color8
     If num_screen > 1
       s := AllTrim( mfio ) + ' (' + lstr( mvozrast ) + ' ' + s_let( mvozrast ) + ')'
-      @ j, wS - Len( s ) Say s Color color14
+//      @ j, wS - Len( s ) Say s Color color14
+      @ j, 9 Say s Color color14
     Endif
     If num_screen == 1 // 
       @ ++j, 1 Say 'ФИО' Get mfio_kart ;
@@ -876,7 +894,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
     Elseif num_screen == 2 // 
       ret_ndisp( Loc_kod, kod_kartotek )
-      @ ++j, 8 Get mndisp When .f. Color color14
+//      @ ++j, 8 Get mndisp When .f. Color color14
       If mvozrast != mdvozrast
         If m1veteran == 1
           s := '(для ветерана проводится по возрасту ' + lstr( mdvozrast ) + ' ' + s_let( mdvozrast ) + ')'
@@ -978,7 +996,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
       mgruppa := inieditspr( A__MENUVERT, mm_gruppa, m1gruppa )
       ret_ndisp( Loc_kod, kod_kartotek )
-      @ ++j, 8 Get mndisp When .f. Color color14
+//      @ ++j, 8 Get mndisp When .f. Color color14
       If mvozrast != mdvozrast
         If m1veteran == 1
           s := '(для ветерана проводится по возрасту ' + lstr( mdvozrast ) + ' ' + s_let( mdvozrast ) + ')'
@@ -1241,12 +1259,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       lMamoGr_AI := .f.
       lFluor := .f.
       lFluor_AI := .f.
-      lCit := .f.
-      lCit_liquid := .f.
       lRecto_sigmo := .f.
       lRecto_mano := .f.
 
       AFill( aTom_II, .f. ) // очистим перед проверкой
+      AFill( aCit, .f. )
       For i := 1 To len( aDvn_arr_usl )
         fl_diag := .f.
         fl_ekg := .f.
@@ -1304,10 +1321,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
               lFlagCit_gl := .t.
             endif
             If eq_any( ar[ 2 ], '4.20.701', '4.20.703' ) .and. ! Empty( &mvart )
-              lCit := .t.
+              aCit[ 1 ] := .t.
             endif
             If eq_any( ar[ 2 ], '4.20.709', '4.20.704' ) .and. ! Empty( &mvart )
-              lCit_liquid := .t.
+              aCit[ 2 ] := .t.
             endif
             if is_Recto_dvn_II( AllTrim( ar[ 2 ] ) )
               lRecto_II := .t.
@@ -1486,19 +1503,25 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
               endif
             Endif
             If i_otkaz == 3 .and. &mvaro == 2 // НЕВОЗМОЖНОСТЬ для услуги 4.1.12
-              If is_disp_19
-                not_4_20_1 := .t. // не включать услугу
-              Else
-                If arr_osm1[ i, 2 ] == 1101 // если указана спец-ть врача
-                  arr_osm1[ i, 5 ] := '2.3.1' // приём врача акушера-гинеколога
-                  arr_osm1[ i, 4 ] := 136 // профиль - акушерству и гинекологии (за исключением использования вспомогательных репродуктивных технологий)
+              if mk_data >= 0d20260101
+              if eq_any( arr_osm1[ i, 5 ], '4.1.712', '4.1.713' ) // взятие мазка (соскоба)
+                lNevozCit := .t.
+              endif
+              else
+                If is_disp_19
+                  not_4_20_1 := .t. // не включать услугу
                 Else
-                  arr_osm1[ i, 5 ] := '2.3.3' // приём фельдшера-акушера
-                  arr_osm1[ i, 4 ] := 3 // профиль - акушерскому делу
+                  If arr_osm1[ i, 2 ] == 1101 // если указана спец-ть врача
+                    arr_osm1[ i, 5 ] := '2.3.1' // приём врача акушера-гинеколога
+                    arr_osm1[ i, 4 ] := 136 // профиль - акушерству и гинекологии (за исключением использования вспомогательных репродуктивных технологий)
+                  Else
+                    arr_osm1[ i, 5 ] := '2.3.3' // приём фельдшера-акушера
+                    arr_osm1[ i, 4 ] := 3 // профиль - акушерскому делу
+                  Endif
+                  arr_osm1[ i, 10 ] := 0 // нет отказа (? может поставить 3-отклонение?)
+                  not_4_20_1 := .t. // не включать услугу
                 Endif
-                arr_osm1[ i, 10 ] := 0 // нет отказа (? может поставить 3-отклонение?)
-                not_4_20_1 := .t. // не включать услугу
-              Endif
+              endif
             Endif
             arr_osm1[ i, 9 ] := &mvard
             // перепишем дату по 'связанным' услугам
@@ -1543,11 +1566,19 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         endif
       endif
       if lFlagCit_gl
-        if ! lCit .and. ! lCit_liquid .and. ! lOtkazMazok
-          fl := func_error( 4, 'Не введен врач в услугах цитологии' )
-        endif
-        if lCit .and. lCit_liquid
-          fl := func_error( 4, 'Нельзя проводить оба варианта проведения цитологии' )
+        iCit := 0
+        AEval( aCit, { | x | iCit += iif( x, 1, 0 ) } )
+        if ! ( lOtkazMazok .or. lNevozCit )
+          if iCit == 0
+            fl := func_error( 4, 'Не введен врач в услугах цитологии' )
+          endif
+          if iCit > 1
+            fl := func_error( 4, 'Нельзя проводить оба варианта проведения цитологии' )
+          endif
+        else
+          if iCit != 0
+            fl := func_error( 4, 'При отказе или невозможности взятия мазка врач в услугах цитологии не нужен' )
+          endif
         endif
       endif
       if lRecto_II
