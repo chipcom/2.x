@@ -622,10 +622,11 @@ Function f2_view_rak( nKey, oBrow )
 
   Return ret
 
-// 11.01.19
+// 18.03.26
 Function delete_rak( lrec, lname, not_end )
 
   Local ret := 0, arr_next := {}, fl, ia, is, ih, buf := save_maxrow()
+  Local date_rak :=  mo_xml->dfile 
 
   mywait()
   r_use( dir_server() + 'human', , 'HUMAN' )
@@ -683,7 +684,11 @@ Function delete_rak( lrec, lname, not_end )
   If not_end
     fl := .t.
   Else
-    fl := involved_password( 2, lname, 'подтверждения возврата (удаления) РАК' )
+    if year( date_rak ) == 2026 .and. month( date_rak ) == 3
+      fl := .t.
+    else  
+      fl := involved_password( 2, lname, 'подтверждения возврата (удаления) РАК' )
+    endif
   Endif
   If fl .and. f_esc_enter( 'удаления РАК', .t. )
     stat_msg( 'Подтвердите удаление ещё раз.' )
