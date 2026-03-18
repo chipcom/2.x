@@ -461,7 +461,7 @@ Function read_xml_file_rak( arr_XML_info, aerr )
               If Len( AllTrim( tmp6->S_COM ) ) > 0
                 if tmp2->_DAKT >= 0d20260101
                   if ! Empty( tmp6->S_COM )
-                    put_long_str( 'Уточнение кода дефекта: ' + s, cFileProtokol, 5 )
+                    put_long_str( 'Уточнение кода дефекта: ' + alltrim(raksherr->S_COM), cFileProtokol, 5 )
                   endif
                 else
                   If !Empty( s := ret_t005( Val( PadR( AllTrim( tmp6->S_COM ), 5 ) ) ) )
@@ -2279,7 +2279,7 @@ Function akt_list_of_refusal_pacient()
                   If Found()
                     If Len( AllTrim( rakerr->s_com ) ) > 0
 //                      frd->REFREASON :=  AllTrim( frd->REFREASON ) + '  [' + AllTrim( rakerr->s_com ) + ']'
-                      frd->REFREASON :=  AllTrim( frd->REFREASON ) + '  [' + SubStr( rakerr->s_com, 1, 12 ) + ']'
+                      frd->REFREASON :=  AllTrim( frd->REFREASON ) + ' ' + SubStr( rakerr->s_com, 1, 12 ) 
                       Select FRD99
                       find ( rakerr->s_com )
                       If !Found()
