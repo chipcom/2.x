@@ -3323,7 +3323,7 @@ Function read_csv_file_otkrep( cFile, aerr )
 #define CSV_A_DT_MO  9
 #define CSV_A_CERR  10
 
-// 03.03.26 чтение в память и анализ CSV-файла ответа на запрос для сверки
+// 18.03.26 чтение в память и анализ CSV-файла ответа на запрос для сверки
 Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
 
   Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
@@ -3465,7 +3465,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
       select HUMAN 
       find ( str(kart->kod,7))
       do while kart->kod == human->kod_k .and. !eof()
-        if year(human->k_data) > 2025 
+        if year(human->k_data) > 2025 .and. human->komu == 0 // только ОМС
           select human_
           goto (human->kod)
           if human->schet == 0 .and. human_->reestr == 0 // случ не в счете и не в реестре
@@ -3808,7 +3808,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
       select HUMAN 
       find ( str(kart->kod,7))
       do while kart->kod == human->kod_k .and. !eof()
-        if year(human->k_data) > 2025 
+        if year(human->k_data) > 2025 .and. human->komu == 0
           select human_
           goto (human->kod)
           if human->schet == 0 .and. human_->reestr == 0 // случ не в счете и не в реестре
