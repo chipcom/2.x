@@ -7,7 +7,7 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-// 30.04.25 прочитать и 'разнести' по базам данных РАК
+// 18.03.26 прочитать и 'разнести' по базам данных РАК
 Function read_xml_file_rak( arr_XML_info, aerr )
 
   Local fl_akt, fl_schet, blk_akt, blk_schet, i, s, s1, arr_s := {}, t_arr[ 2 ], ;
@@ -449,7 +449,8 @@ Function read_xml_file_rak( arr_XML_info, aerr )
               raksherr->PENALTY   := tmp6->PENALTY
               raksherr->SL_ID     := tmp6->SL_ID
               raksherr->SL_ID2    := tmp6->SL_ID2
-              raksherr->S_COM     := PadR( AllTrim( tmp6->S_COM ), 5 )
+//              raksherr->S_COM     := PadR( AllTrim( tmp6->S_COM ), 5 )
+              raksherr->S_COM     := AllTrim( tmp6->S_COM )
               // If Empty( s := ret_t005( tmp6->REFREASON ) )
               If Empty( s := ret_f014( tmp6->REFREASON ) )
                 StrFile( Space( 5 ) + lstr( tmp6->REFREASON ) + ' неизвестная причина отказа' + ;
@@ -458,10 +459,16 @@ Function read_xml_file_rak( arr_XML_info, aerr )
                 put_long_str( 'код дефекта: ' + s, cFileProtokol, 5 )
               Endif
               If Len( AllTrim( tmp6->S_COM ) ) > 0
-                If !Empty( s := ret_t005( Val( PadR( AllTrim( tmp6->S_COM ), 5 ) ) ) )
-                  // -- ??????????
-                  put_long_str( 'Уточнение кода дефекта: ' + s, cFileProtokol, 5 )
-                Endif
+                if tmp2->_DAKT >= 0d20260101
+                  if ! Empty( tmp6->S_COM )
+                    put_long_str( 'Уточнение кода дефекта: ' + s, cFileProtokol, 5 )
+                  endif
+                else
+                  If !Empty( s := ret_t005( Val( PadR( AllTrim( tmp6->S_COM ), 5 ) ) ) )
+                    // -- ??????????
+                    put_long_str( 'Уточнение кода дефекта: ' + s, cFileProtokol, 5 )
+                  Endif
+                endif
               Endif
               If !emptyall( tmp6->S_SUM, tmp6->PENALTY )
                 raksh->REFREASON := tmp6->REFREASON
@@ -1913,7 +1920,7 @@ Function ret_menu_rak_schet( r, c )
 
   Return ret
 
-// 15.12.25 список снятий по актам
+// 18.03.26 список снятий по актам
 Function akt_list_of_refusal_pacient()
 
   Static si := 3
@@ -2031,14 +2038,14 @@ Function akt_list_of_refusal_pacient()
   adbf := { ;
     { 'REFREASON', 'N', 3, 0 }, ;
     { 'kol', 'N', 6, 0 }, ;
-    { 'name', 'C', 140, 0 } }
+    { 'name', 'C', 250, 0 } }
   dbCreate( fr_data + '1', adbf )
   Use ( fr_data + '1' ) New Alias FRD1
   Index On Str( FIELD->REFREASON, 3 ) to ( fr_data + '1' )
   adbf99 := { ;
-    { 'REFREASON', 'C', 5, 0 }, ;
+    { 'REFREASON', 'C', 12, 0 }, ;
     { 'kol', 'N', 6, 0 }, ;
-    { 'name', 'C', 140, 0 } }
+    { 'name', 'C', 250, 0 } }
   dbCreate( fr_data + '99', adbf99 )
   Use ( fr_data + '99' ) New Alias FRD99
   Index On  FIELD->REFREASON to ( fr_data + '99' )
@@ -2271,12 +2278,15 @@ Function akt_list_of_refusal_pacient()
                   find ( Str( raksh->( RecNo() ), 8 ) )
                   If Found()
                     If Len( AllTrim( rakerr->s_com ) ) > 0
-                      frd->REFREASON :=  AllTrim( frd->REFREASON ) + '  [' + AllTrim( rakerr->s_com ) + ']'
+//                      frd->REFREASON :=  AllTrim( frd->REFREASON ) + '  [' + AllTrim( rakerr->s_com ) + ']'
+                      frd->REFREASON :=  AllTrim( frd->REFREASON ) + '  [' + SubStr( rakerr->s_com, 1, 12 ) + ']'
                       Select FRD99
                       find ( rakerr->s_com )
                       If !Found()
                         Append Blank
-                        frd99->REFREASON := rakerr->s_com
+//                        frd99->REFREASON := rakerr->s_com
+                        frd99->REFREASON := SubStr( rakerr->s_com, 1, 12 )
+                        frd99->NAME := rakerr->s_com
                         // frd1->name := s
                       Endif
                       frd99->kol++
@@ -2319,7 +2329,8 @@ Function akt_list_of_refusal_pacient()
       Select FRD1
       Append Blank
       frd1->REFREASON := 999 // frd99->REFREASON
-      frd1->name := ret_t005( Val( AllTrim( frd99->REFREASON ) ) )
+//      frd1->name := ret_t005( Val( AllTrim( frd99->REFREASON ) ) )
+      frd1->name := AllTrim( frd99->NAME )
       frd1->kol := frd99->kol
     Endif
     Select FRD99

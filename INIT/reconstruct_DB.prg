@@ -71,7 +71,7 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 28.02.26 реконстукция баз данных
+// 18.03.26 реконстукция баз данных
 Function reconstruct_db( is_local_version )
 
   Local base1 := { ;
@@ -663,7 +663,7 @@ Function reconstruct_db( is_local_version )
     { 'PENALTY',    'N',  15, 2 }, ; // Сумма штрафов
     { 'SL_ID',      'C',  36, 0 }, ; // идентификатор случая (в законченном случае)
     { 'SL_ID2',     'C',  36, 0 }, ;  // идентификатор второго случая (в законченном случае)
-    { 'S_COM',      'C',   5, 0 } ; 
+    { 'S_COM',      'C',   250, 0 } ; // комментарий к санции
   }
   //
   Local mo_os := { ; // оплата, санкции, результат экспертизы счетов
