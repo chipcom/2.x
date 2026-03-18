@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.03.26 ДВН - добавление или редактирование случая (листа учета)
+// 18.03.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)

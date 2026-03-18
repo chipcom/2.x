@@ -225,7 +225,7 @@ Function read_arr_dvn( lkod, is_all )
         m1ssh_na   := arr[ i, 2 ]
       Case arr[ i, 1 ] == '49' .and. ValType( arr[ i, 2 ] ) == 'N'
         m1spec_na  := arr[ i, 2 ]
-      Case arr[ i, 1 ] == '50'   // .and. valtype(arr[i,2]) == 'N'
+      Case is_all .and. arr[ i, 1 ] == '50'   // .and. valtype(arr[i,2]) == 'N'
         If ValType( arr[ i, 2 ] ) == 'N'
           m1sank_na  := arr[ i, 2 ]
         Elseif ValType( arr[ i, 2 ] ) == 'A'
@@ -237,7 +237,7 @@ Function read_arr_dvn( lkod, is_all )
         Endif
       Case arr[ i, 1 ] == '51' .and. ValType( arr[ i, 2 ] ) == 'N'
         m1p_otk  := arr[ i, 2 ]
-      Case arr[ i, 1 ] == '52'
+      Case is_all .and. arr[ i, 1 ] == '52'
         If ValType( arr[ i, 2 ] ) == 'N'
           m1napr_v_mo  := arr[ i, 2 ]
         Elseif ValType( arr[ i, 2 ] ) == 'A'
@@ -247,9 +247,9 @@ Function read_arr_dvn( lkod, is_all )
             mtab_v_mo := TPERS->tab_nom
           Endif
         Endif
-      Case arr[ i, 1 ] == '53' .and. ValType( arr[ i, 2 ] ) == 'A'
+      Case is_all .and. arr[ i, 1 ] == '53' .and. ValType( arr[ i, 2 ] ) == 'A'
         arr_mo_spec := arr[ i, 2 ]
-      Case arr[ i, 1 ] == '54'
+      Case is_all .and. arr[ i, 1 ] == '54'
         If ValType( arr[ i, 2 ] ) == 'N'
           m1napr_stac := arr[ i, 2 ]
         Elseif ValType( arr[ i, 2 ] ) == 'A'
@@ -259,9 +259,9 @@ Function read_arr_dvn( lkod, is_all )
             mtab_v_stac := TPERS->tab_nom
           Endif
         Endif
-      Case arr[ i, 1 ] == '55' .and. ValType( arr[ i, 2 ] ) == 'N'
+      Case is_all .and. arr[ i, 1 ] == '55' .and. ValType( arr[ i, 2 ] ) == 'N'
         m1profil_stac := arr[ i, 2 ]
-      Case arr[ i, 1 ] == '56'
+      Case is_all .and. arr[ i, 1 ] == '56'
         If ValType( arr[ i, 2 ] ) == 'N'
           m1napr_reab := arr[ i, 2 ]
         Elseif ValType( arr[ i, 2 ] ) == 'A'
@@ -271,7 +271,7 @@ Function read_arr_dvn( lkod, is_all )
             mtab_v_reab := TPERS->tab_nom
           Endif
         Endif
-      Case arr[ i, 1 ] == '57' .and. ValType( arr[ i, 2 ] ) == 'N'
+      Case is_all .and. arr[ i, 1 ] == '57' .and. ValType( arr[ i, 2 ] ) == 'N'
         m1profil_kojki := arr[ i, 2 ]
       Endcase
     Endif
