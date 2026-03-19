@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.03.26 ДВН - добавление или редактирование случая (листа учета)
+// 19.03.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -23,15 +23,19 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   local arr_usl_dop := {}
   local j, i, i2
   local usl_zamena, kprof
-  local lFlagEKG_gl := .f., lEKG := .f., lEKG_AI := .f.
-  local lFlagMamoGr_gl := .f., lMamoGr := .f., lMamoGr_AI := .f.
-  local lFlagFluor_gl := .f., lFluor := .f., lFluor_AI := .f.
-  local lFlagCit_gl := .f., iCit, aCit  // массив ввода врачей для цитологий
-  local lOtkazMazok := .f., lNevozCit := .f.  // отказ или невозможность взятия мазка
-  local lTom_II := .f., iTom, aTom_II // массив ввода врачей для томографии
-  local lRecto_II := .f., lRecto_sigmo := .f., lRecto_mano := .f.
-  local mm_otkaz, mm_otkaz1, mm_otkaz0
+
   local str_head
+  local mm_otkaz, mm_otkaz1, mm_otkaz0
+  local iKol
+  local lRecto_II := .f., aRecto_II // массив ввода врачей для ректо....
+  local lMamoGr := .f., aMamoGr // массив ввода врачей для маммография
+  local lFluor := .f., aFluor // массив ввода врачей для флюрографии
+  local lEKG := .f., aEKG // массив ввода врачей для ЭКГ
+  local lOtkazMazok := .f., lNevozCit := .f.  // отказ или невозможность взятия мазка
+  local lCit := .f., aCit  // массив ввода врачей для цитологий
+  local lTom_II := .f., aTom_II // массив ввода врачей для томографии
+  local mm_gruppaD1, mm_gruppaD2, mm_gruppaD4
+  local mm_gruppaP, mm_gruppaP_old, mm_gruppaP_new
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
 
@@ -156,11 +160,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     { 'dopo_na', 'N', 10, 0, , , , {| x | inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
   }
 
+/*
   Private mm_gruppaP := arr_mm_gruppap()
   Private mm_gruppaP_old := AClone( mm_gruppaP )
   ASize( mm_gruppaP_old, 3 )
   Private mm_gruppaP_new := AClone( mm_gruppaP )
   hb_ADel( mm_gruppaP_new, 3, .t. )
+
+
   Private mm_gruppaD1 := { ;
     { 'Проведена диспансеризация - присвоена I группа здоровья', 1, 317 }, ;
     { 'Проведена диспансеризация - присвоена II группа здоровья', 2, 318 }, ;
@@ -178,11 +185,36 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   ASize( mm_gruppaD2, 4 )
   Private mm_gruppaD4 := AClone( mm_gruppaD1 )
   ASize( mm_gruppaD4, 8 )
+*/
 //  Private mm_otkaz := arr_mm_otkaz()
 //  Private mm_otkaz1 := AClone( mm_otkaz )
 //  ASize( mm_otkaz1, 3 )
 //  Private mm_otkaz0 := AClone( mm_otkaz )
 //  ASize( mm_otkaz0, 2 )
+
+  mm_gruppaP := arr_mm_gruppap()
+  mm_gruppaP_old := AClone( mm_gruppaP )
+  ASize( mm_gruppaP_old, 3 )
+  mm_gruppaP_new := AClone( mm_gruppaP )
+  hb_ADel( mm_gruppaP_new, 3, .t. )
+
+  mm_gruppaD1 := { ;
+    { 'Проведена диспансеризация - присвоена I группа здоровья', 1, 317 }, ;
+    { 'Проведена диспансеризация - присвоена II группа здоровья', 2, 318 }, ;
+    { 'Проведена диспансеризация - присвоена IIIа группа здоровья', 3, 355 }, ;
+    { 'Проведена диспансеризация - присвоена IIIб группа здоровья', 4, 356 }, ;
+    { 'Направлен на 2 этап, предварительно присвоена I группа здоровья', 11, 352 }, ;
+    { 'Направлен на 2 этап, предварительно присвоена II группа здоровья', 12, 353 }, ;
+    { 'Направлен на 2 этап, предварительно присвоена IIIа группа здоровья', 13, 357 }, ;
+    { 'Направлен на 2 этап, предварительно присвоена IIIб группа здоровья', 14, 358 }, ;
+    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена I группа здоровья', 21, 352 }, ;
+    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена II группа здоровья', 22, 353 }, ;
+    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена IIIа группа здоровья', 23, 357 }, ;
+    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена IIIб группа здоровья', 24, 358 } }
+  mm_gruppaD2 := AClone( mm_gruppaD1 )
+  ASize( mm_gruppaD2, 4 )
+  mm_gruppaD4 := AClone( mm_gruppaD1 )
+  ASize( mm_gruppaD4, 8 )
 
   mm_otkaz := arr_mm_otkaz()
   mm_otkaz1 := AClone( mm_otkaz )
@@ -190,6 +222,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   mm_otkaz0 := AClone( mm_otkaz )
   ASize( mm_otkaz0, 2 )
 
+  aRecto_II := Array( 2 )
+  aMamoGr := Array( 2 )
+  aFluor := Array( 2 )
+  aEKG := Array( 2 )
   aTom_II := Array( 5 )
   aCit := Array( 2 )
   aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
@@ -204,13 +240,13 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     endif
     mkod_k := kod_kartotek
     r_use( dir_server() + 'kartotek', , 'KART' )
-    Goto ( mkod_k )
+    kart->( dbGoto( mkod_k ) )  //  Goto ( mkod_k )
     mpol        := kart->pol
     mdate_r     := kart->date_r
     kart->( dbCloseArea() )
   Elseif Loc_kod > 0
     r_use( dir_server() + 'human', , 'HUMAN' )
-    Goto ( Loc_kod )
+    human->( dbGoto( Loc_kod ) )  //  Goto ( Loc_kod )
     mpol    := human->pol
     mdate_r := human->date_r
     MN_DATA := human->N_DATA
@@ -288,11 +324,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
   If mkod_k > 0
     r_use( dir_server() + 'kartote2', , 'KART2' )
-    Goto ( mkod_k )
+    kart2->( dbGoto( mkod_k ) )  //  Goto ( mkod_k )
     r_use( dir_server() + 'kartote_', , 'KART_' )
-    Goto ( mkod_k )
+    kart_->( dbGoto( mkod_k ) )  //  Goto ( mkod_k )
     r_use( dir_server() + 'kartotek', , 'KART' )
-    Goto ( mkod_k )
+    kart->( dbGoto( mkod_k ) )  //  Goto ( mkod_k )
     M1FIO       := 1
     mfio        := kart->fio
     mpol        := kart->pol
@@ -343,7 +379,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     If Len( ah ) > 0
       ASort( ah, , , {| x, y | x[ 2 ] < y[ 2 ] } )
       Select HUMAN
-      Goto ( ATail( ah )[ 1 ] )
+      human->( dbGoto( ATail( ah )[ 1 ] ) )   //  Goto ( ATail( ah )[ 1 ] )
       M1RAB_NERAB := human->RAB_NERAB // 0-работающий, 1-неработающий, 2-обучающ.ОЧНО
       M1VZ        := human->VZ
       letap := human->ishod -200
@@ -370,7 +406,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Endif
   If Loc_kod > 0
     Select HUMAN
-    Goto ( Loc_kod )
+    human->( dbGoto( Loc_kod ) )    //  Goto ( Loc_kod )
     M1LPU       := human->LPU
     M1OTD       := human->OTD
     M1FIO       := 1
@@ -1253,17 +1289,13 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       arr_osm1 := Array( len( aDvn_arr_usl ), 11 )
       afillall( arr_osm1, 0 )
 
-      lEKG := .f.
-      lEKG_AI := .f.
-      lMamoGr := .f.
-      lMamoGr_AI := .f.
-      lFluor := .f.
-      lFluor_AI := .f.
-      lRecto_sigmo := .f.
-      lRecto_mano := .f.
-
       AFill( aTom_II, .f. ) // очистим перед проверкой
+      AFill( aRecto_II, .f. )
+      AFill( aMamoGr, .f. )
+      AFill( aFluor, .f. )
+      AFill( aEKG, .f. )
       AFill( aCit, .f. )
+
       For i := 1 To len( aDvn_arr_usl )
         fl_diag := .f.
         fl_ekg := .f.
@@ -1291,34 +1323,34 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 */
           if mk_data >= 0d20260101 .and. ValType( ar[ 2 ] ) == 'C'
             if is_ekg_dvn_new( AllTrim( ar[ 2 ] ) )
-              lFlagEKG_gl := .t.
-            endif
-            If eq_any( ar[ 2 ], '13.1.701', '13.1.703' ) .and. ! Empty( &mvart )
               lEKG := .t.
             endif
+            If eq_any( ar[ 2 ], '13.1.701', '13.1.703' ) .and. ! Empty( &mvart )
+              aEKG[ 1 ] := .t.
+            endif
             If eq_any( ar[ 2 ], '13.1.707', '13.1.704' ) .and. ! Empty( &mvart )
-              lEKG_AI := .t.
+              aEKG[ 2 ] := .t.
             endif
             if is_MamoGr_dvn_new( AllTrim( ar[ 2 ] ) )
-              lFlagMamoGr_gl := .t.
-            endif
-            If eq_any( ar[ 2 ], '7.57.703', '7.57.705' ) .and. ! Empty( &mvart )
               lMamoGr := .t.
             endif
+            If eq_any( ar[ 2 ], '7.57.703', '7.57.705' ) .and. ! Empty( &mvart )
+              aMamoGr[ 1 ] := .t.
+            endif
             If eq_any( ar[ 2 ], '7.57.709', '7.57.706' ) .and. ! Empty( &mvart )
-              lMamoGr_AI := .t.
+              aMamoGr[ 2 ] := .t.
             endif
             if is_Fluor_dvn_new( AllTrim( ar[ 2 ] ) )
-              lFlagFluor_gl := .t.
-            endif
-            If eq_any( ar[ 2 ], '7.61.703', '7.61.705' ) .and. ! Empty( &mvart )
               lFluor := .t.
             endif
+            If eq_any( ar[ 2 ], '7.61.703', '7.61.705' ) .and. ! Empty( &mvart )
+              aFluor[ 1 ] := .t.
+            endif
             If eq_any( ar[ 2 ], '7.61.709', '7.61.706' ) .and. ! Empty( &mvart )
-              lFluor_AI := .t.
+              aFluor[ 2 ] := .t.
             endif
             if is_Cit_dvn_new( AllTrim( ar[ 2 ] ) )
-              lFlagCit_gl := .t.
+              lCit := .t.
             endif
             If eq_any( ar[ 2 ], '4.20.701', '4.20.703' ) .and. ! Empty( &mvart )
               aCit[ 1 ] := .t.
@@ -1330,10 +1362,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
               lRecto_II := .t.
             endif
             If ar[ 2 ] == '10.6.710' .and. ! Empty( &mvart )
-              lRecto_sigmo := .t.
+              aRecto_II[ 1 ] := .t.
             endif
             If ar[ 2 ] == '10.4.701' .and. ! Empty( &mvart )
-              lRecto_mano := .t.
+              aRecto_II[ 2 ] := .t.
             endif
             if is_Tomogr_dvn_II( AllTrim( ar[ 2 ] ) )
               lTom_II := .t.
@@ -1541,61 +1573,69 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           Exit
         Endif
       Next
-      if lFlagEKG_gl
-        if ! lEKG .and. ! lEKG_AI
+      if lEKG
+        iKol := 0
+        AEval( aEKG, { | x | iKol += iif( x, 1, 0 ) } )
+        if iKol == 0
           fl := func_error( 4, 'Не введен врач в услугах ЭКГ' )
         endif
-        if lEKG .and. lEKG_AI
+        if iKol > 1
           fl := func_error( 4, 'Нельзя проводить оба варианта проведения ЭКГ' )
         endif
       endif
-      if lFlagMamoGr_gl
-        if ! lMamoGr .and. ! lMamoGr_AI
+      if lMamoGr
+        iKol := 0
+        AEval( aMamoGr, { | x | iKol += iif( x, 1, 0 ) } )
+        if iKol == 0
           fl := func_error( 4, 'Не введен врач в услугах маммографии' )
         endif
-        if lMamoGr .and. lMamoGr_AI
+        if iKol > 1
           fl := func_error( 4, 'Нельзя проводить оба варианта проведения маммографии' )
         endif
       endif
-      if lFlagFluor_gl
-        if ! lFluor .and. ! lFluor_AI
+      if lFluor
+        iKol := 0
+        AEval( aFluor, { | x | iKol += iif( x, 1, 0 ) } )
+        if iKol == 0
           fl := func_error( 4, 'Не введен врач в услугах флюорографии' )
         endif
-        if lFluor .and. lFluor_AI
+        if iKol > 1
           fl := func_error( 4, 'Нельзя проводить оба варианта проведения флюорографии' )
         endif
       endif
-      if lFlagCit_gl
-        iCit := 0
-        AEval( aCit, { | x | iCit += iif( x, 1, 0 ) } )
+      if lCit
+        iKol := 0
+        AEval( aCit, { | x | iKol += iif( x, 1, 0 ) } )
         if ! ( lOtkazMazok .or. lNevozCit )
-          if iCit == 0
+          if iKol == 0
             fl := func_error( 4, 'Не введен врач в услугах цитологии' )
           endif
-          if iCit > 1
+          if iKol > 1
             fl := func_error( 4, 'Нельзя проводить оба варианта проведения цитологии' )
           endif
         else
-          if iCit != 0
+          if iKol != 0
             fl := func_error( 4, 'При отказе или невозможности взятия мазка врач в услугах цитологии не нужен' )
           endif
         endif
       endif
       if lRecto_II
-        if ! lRecto_sigmo .and. ! lRecto_mano
+        iKol := 0
+        AEval( aRecto_II, { | x | iKol += iif( x, 1, 0 ) } )
+        if iKol == 0
           fl := func_error( 4, 'Не введен врач в услугах ректосигмоколоноскопии или ректороманоскопии' )
         endif
-        if lRecto_sigmo .and. lRecto_mano
+        if iKol > 1
           fl := func_error( 4, 'Нельзя проводить проводить одновременно ректосигмоколоноскопию или ректороманоскопию' )
         endif
       endif
       if lTom_II
-        iTom := 0
-        AEval( aTom_II, { | x | iTom += iif( x, 1, 0 ) } )
-        if iTom == 0
+        iKol := 0
+        AEval( aTom_II, { | x | iKol += iif( x, 1, 0 ) } )
+        if iKol == 0
           fl := func_error( 4, 'Не введен врач в услугах томографии и рентгена на II этапе' )
         endif
-        if iTom > 1
+        if iKol > 1
           fl := func_error( 4, 'Нельзя проводить несколько вариантов проведения томографии и рентгена' )
         endif
 
@@ -2037,14 +2077,14 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Do While human_->( LastRec() ) < mkod
         human_->( dbAppend() )    //  Append Blank
       Enddo
-      Goto ( mkod )
+      human_->( dbGoto( mkod ) )    //  Goto ( mkod )
       g_rlock( 'forever' )
       //
       Select HUMAN_2
       Do While human_2->( LastRec() ) < mkod
-        Append Blank
+        human_2->( dbAppend() )    //  Append Blank
       Enddo
-      Goto ( mkod )
+      human_2->( dbGoto( mkod ) )    //  Goto ( mkod )
       g_rlock( 'forever' )
       //
       st_N_DATA := MN_DATA
@@ -2192,7 +2232,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       For i := 1 To i2
         Select HU
         if ( j := AScan( arr_usl, { | x | x[ 2 ] == arr_usl_dop[ i, 5 ] } ) ) > 0
-          Goto ( arr_usl[ j, 1 ] )
+          hu->( dbGoto( arr_usl[ j, 1 ] ) )   //  Goto ( arr_usl[ j, 1 ] )
           g_rlock( 'forever' )
           hb_ADel( arr_usl, j, .t. )
         else
@@ -2203,7 +2243,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 //          add1rec( 7 )
 //          hu->kod := human->kod
 //        Else
-//          Goto ( arr_usl[ i, 1 ] )
+//          hu->( dbGoto( arr_usl[ j, 1 ] ) )   //  Goto ( arr_usl[ j, 1 ] )
 //          g_rlock( 'forever' )
 //        Endif
         mrec_hu := hu->( RecNo() )
@@ -2222,7 +2262,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Do While hu_->( LastRec() ) < mrec_hu
           hu_->( dbAppend() )   //  Append Blank
         Enddo
-        Goto ( mrec_hu )
+        hu_->( dbGoto( mrec_hu ) )    //  Goto ( mrec_hu )
         g_rlock( 'forever' )
 //        If i > i1 .or. ! valid_guid( hu_->ID_U )
         If ! valid_guid( hu_->ID_U )
