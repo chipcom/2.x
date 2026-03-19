@@ -7,16 +7,18 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-// 18.03.26 прочитать и 'разнести' по базам данных РАК
-Function read_xml_file_rak( arr_XML_info, aerr )
+// 19.03.26 прочитать и 'разнести' по базам данных РАК
+Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
 
   Local fl_akt, fl_schet, blk_akt, blk_schet, i, s, s1, arr_s := {}, t_arr[ 2 ], ;
-    ia, is, ih, arr, aakt := {}, no_write := .t., fl_2019
+    aakt := {}, no_write := .t., fl_2019
   Local tmp_alias, fl_IDC := .f.   // для двойного случая
+  Local arr, ia, is, ih, rec_xml, v
   Local arrF006 := getf006()
+  local lF  // 19.03.26
 
-  blk_akt := {|| AAdd( aerr, 'АКТ № ' + AllTrim( tmp2->_nakt ) + ' от ' + date_8( tmp2->_dakt ) ) }
-  blk_schet := {|| AAdd( aerr, ' СЧЁТ № ' + AllTrim( tmp3->_nschet ) + ' от ' + date_8( tmp3->_dschet ) ) }
+  blk_akt := { || AAdd( aerr, 'АКТ № ' + AllTrim( tmp2->_nakt ) + ' от ' + date_8( tmp2->_dakt ) ) }
+  blk_schet := { || AAdd( aerr, ' СЧЁТ № ' + AllTrim( tmp3->_nschet ) + ' от ' + date_8( tmp3->_dschet ) ) }
   Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
   fl_2019 := ( Val( tmp1->_VERSION ) > 3.1 )
   tmp1->_SMO     := arr_XML_info[ 2 ]
@@ -41,22 +43,24 @@ Function read_xml_file_rak( arr_XML_info, aerr )
   Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
   // R_Use(dir_server() + 'mo_os', , 'MO_OS')
   // index on str(FIELD->kod, 7) to (cur_dir() + 'tmp_moos') for FIELD->NEXT_KOD > 0
-  ia := is := ih := 0
+  ia := 0
+  is := 0
+  ih := 0
   @ MaxRow(), 0 Say Space( MaxCol() + 1 ) Color 'G+/R*'
   Select TMP2
-  Go Top
-  Do While !Eof()
+  tmp2->( dbGoTop() )   //  Go Top
+  Do While ! tmp2->( Eof() )
     ++ia
     fl_akt := .t.
     arr := {}
     Select TMP3
-    find ( Str( tmp2->kod_a, 6 ) )
-    Do While tmp2->kod_a == tmp3->kod_a .and. !Eof()
+    tmp3->( dbSeek( Str( tmp2->kod_a, 6 ) ) )    //  find ( Str( tmp2->kod_a, 6 ) )
+    Do While tmp2->kod_a == tmp3->kod_a .and. ! tmp3->( Eof() )
       ++is
       fl_schet := .t.
       Select SCHET_
-      find ( DToS( tmp3->_dschet ) + Upper( tmp3->_nschet ) )
-      If Found()
+      schet_->( dbSeek( DToS( tmp3->_dschet ) + Upper( tmp3->_nschet ) ) )    //  find ( DToS( tmp3->_dschet ) + Upper( tmp3->_nschet ) )
+      If schet_->( Found() )
         no_write := .f.
         AAdd( arr, schet_->( RecNo() ) )
         tmp3->kod_schet := schet_->( RecNo() )
@@ -74,11 +78,11 @@ Function read_xml_file_rak( arr_XML_info, aerr )
         //
         Select HUMAN
         Set Index to ( dir_server() + 'humans' )
-        find ( Str( tmp3->kod_schet, 6 ) )
+        human->( dbSeek( Str( tmp3->kod_schet, 6 ) ) )   //  find ( Str( tmp3->kod_schet, 6 ) )
         Index On Str( human_->schet_zap, 6 ) to ( cur_dir() + 'tmp_hum' ) For FIELD->ishod != 89 While FIELD->schet == tmp3->kod_schet
         Select TMP4
-        find ( Str( tmp3->kod_a, 6 ) + Str( tmp3->kod_s, 6 ) )
-        Do While tmp3->kod_a == tmp4->kod_a .and. tmp3->kod_s == tmp4->kod_s .and. !Eof()
+        tmp4->( dbSeek( Str( tmp3->kod_a, 6 ) + Str( tmp3->kod_s, 6 ) ) )    //  find ( Str( tmp3->kod_a, 6 ) + Str( tmp3->kod_s, 6 ) )
+        Do While tmp3->kod_a == tmp4->kod_a .and. tmp3->kod_s == tmp4->kod_s .and. ! tmp4->( Eof() )
           ++ih
           @ MaxRow(), 1  Say 'подготовка: ' + lstr( ia ) Color 'G+/R*'
           @ Row(), Col() Say '/'      Color 'R/R*'
@@ -86,8 +90,11 @@ Function read_xml_file_rak( arr_XML_info, aerr )
           @ Row(), Col() Say '/'      Color 'R/R*'
           @ Row(), Col() Say lstr( ih ) Color 'W+/R*'
           Select HUMAN
-          find ( Str( tmp4->_IDCASE, 6 ) )
-          If Found()
+
+          lF := .f.   // 19.03.26
+
+          human->( dbSeek( Str( tmp4->_IDCASE, 6 ) ) )   //  find ( Str( tmp4->_IDCASE, 6 ) )
+          If human->( Found() )
             tmp4->KOD_H := human->kod
             fl_IDC := ( Upper( tmp4->_ID_C ) == Upper( human_->ID_C ) )
             If !fl_IDC
@@ -99,7 +106,6 @@ Function read_xml_file_rak( arr_XML_info, aerr )
               human_3->( dbCloseArea() )
               Select( tmp_alias )
             Endif
-
             If !fl_IDC
               If fl_akt
                 Eval( blk_akt )
@@ -113,18 +119,32 @@ Function read_xml_file_rak( arr_XML_info, aerr )
               AAdd( aerr, '   ID_C в СМО = ' + tmp4->_ID_C + ', ID_C у нас = ' + human_->ID_C )
             Endif
           Else
-            If fl_akt
-              Eval( blk_akt )
-              fl_akt := .f.
+
+            Select human_  // 19.03.26
+            locate for human_->ID_C == tmp4->_ID_C  // 19.03.26
+            do while human_->( Found() )  // 19.03.26
+              human->( dbGoto( human_->( RecNo() ) ) )  // 19.03.26
+              lF := .t.  // 19.03.26
+              fl_IDC := .t.  // 19.03.26
+              tmp4->KOD_H := human->kod  // 19.03.26
+              continue  // 19.03.26
+            enddo  // 19.03.26
+            Select human  // 19.03.26
+
+            If !fl_IDC  // 19.03.26
+              If fl_akt
+                Eval( blk_akt )
+                fl_akt := .f.
+              Endif
+              If fl_schet
+                Eval( blk_schet )
+                fl_schet := .f.
+              Endif
+              AAdd( aerr, '   не найден пациент с IDCASE = ' + lstr( tmp4->_IDCASE ) )
             Endif
-            If fl_schet
-              Eval( blk_schet )
-              fl_schet := .f.
-            Endif
-            AAdd( aerr, '   не найден пациент с IDCASE = ' + lstr( tmp4->_IDCASE ) )
-          Endif
+          endif  // 19.03.26
           Select TMP4
-          Skip
+          tmp4->( dbSkip() )    //  Skip
         Enddo
       Else
         If fl_akt
@@ -135,13 +155,13 @@ Function read_xml_file_rak( arr_XML_info, aerr )
           ' Не найден СЧЁТ № ' + AllTrim( tmp3->_nschet ) + ' от ' + date_8( tmp3->_dschet ) } )
       Endif
       Select TMP3
-      Skip
+      tmp3->( dbSkip() )    //  Skip
     Enddo
     AAdd( aakt, { tmp2->kod_a, arr } )
     Select TMP2
-    Skip
+    tmp2->( dbSkip() )    //  Skip
   Enddo
-  Commit
+  dbCommitAll()   //  Commit
   If no_write
     AAdd( aerr, ' Из этого РАК нечего записывать в текущую базу данных' )
   Endif
@@ -160,17 +180,17 @@ Function read_xml_file_rak( arr_XML_info, aerr )
   mo_xml->FNAME := cReadFile
   mo_xml->DFILE := tmp1->_DATA
   mo_xml->TFILE := ''
-  mo_xml->DREAD := sys_date
+  mo_xml->DREAD := Date()   //  sys_date
   mo_xml->TREAD := hour_min( Seconds() )
   mo_xml->TIP_IN := _XML_FILE_RAK
-  mo_xml->DWORK  := sys_date
+  mo_xml->DWORK  := Date()    //  sys_date
   mo_xml->TWORK1 := hour_min( Seconds() )
   mo_xml->TWORK2 := ''
   mo_xml->KOL1 := tmp1->KOL_AKT
   mo_xml->KOL2 := tmp1->KOL_SCH
   rec_xml := mo_xml->KOD
-  Unlock
-  Commit
+  mo_xml->( dbUnlock() )    //  Unlock
+  dbCommitAll()   //  Commit
   StrFile( hb_eol() + ;
     'Количество актов - ' + lstr( tmp1->KOL_AKT ) + hb_eol() + ;
     'Количество счетов - ' + lstr( tmp1->KOL_SCH ) + hb_eol() + ;
@@ -194,16 +214,18 @@ Function read_xml_file_rak( arr_XML_info, aerr )
   Index On Str( FIELD->kod_raks, 6 ) to ( cur_dir() + 'tmpraksh' )
   g_use( dir_server() + 'mo_raksherr', , 'RAKSHERR' )
   Index On Str( FIELD->kod_raksh, 8 ) to ( cur_dir() + 'tmpraksherr' )
-  ia := is := ih := 0
+  ia := 0
+  is := 0
+  ih := 0
   @ MaxRow(), 0 Say Space( MaxCol() + 1 ) Color 'G+/R*'
   Select TMP2
-  Go Top
-  Do While !Eof()
+  tmp2->( dbGoTop() )   //  Go Top
+  Do While ! tmp2->( Eof() )
     ++ia
     s := hb_eol() + 'АКТ № ' + AllTrim( tmp2->_nakt ) + ' от ' + date_8( tmp2->_dakt )
     Select RAK
     Set Order To 2
-    find ( ret_owner_rak( cReadFile ) + Str( Year( tmp2->_dakt ), 4 ) + Upper( PadR( tmp2->_nakt, 30 ) ) )
+    rak->( dbSeek( ret_owner_rak( cReadFile ) + Str( Year( tmp2->_dakt ), 4 ) + Upper( PadR( tmp2->_nakt, 30 ) ) ) )   //  find ( ret_owner_rak( cReadFile ) + Str( Year( tmp2->_dakt ), 4 ) + Upper( PadR( tmp2->_nakt, 30 ) ) )
     If Found()
       StrFile( s + ' - дубликат в ' + RTrim( mo_xml->FNAME ) + hb_eol() + hb_eol(), cFileProtokol, .t. )
     Elseif ( i := AScan( aakt, {| x| x[ 1 ] == tmp2->kod_a } ) ) > 0 .and. Empty( aakt[ i, 2 ] )
@@ -246,18 +268,18 @@ Function read_xml_file_rak( arr_XML_info, aerr )
       rak->TYPEK   := tmp2->_TYPEK
       rak->SKONT   := tmp2->_SKONT
       Select TMP5
-      find ( Str( tmp2->kod_a, 6 ) )
+      tmp5->( dbSeek( Str( tmp2->kod_a, 6 ) ) )    //  find ( Str( tmp2->kod_a, 6 ) )
       Do While tmp2->kod_a == tmp5->kod_a .and. !Eof()
         Select RAKEXP
         addrec( 6 )
         rakexp->AKT      := rak->AKT
         rakexp->CODE_EXP := tmp5->CODE_EXP
         Select TMP5
-        Skip
+        tmp5->( dbSkip() )    //  Skip
       Enddo
       Select TMP3
-      find ( Str( tmp2->kod_a, 6 ) )
-      Do While tmp2->kod_a == tmp3->kod_a .and. !Eof()
+      tmp3->( dbSeek( Str( tmp2->kod_a, 6 ) ) )    //  find ( Str( tmp2->kod_a, 6 ) )
+      Do While tmp2->kod_a == tmp3->kod_a .and. ! tmp3->( Eof() )
         ++is
         If tmp3->kod_schet == 0
           If ( i := AScan( arr_s, {| x| x[ 1 ] == tmp3->kod_a .and. x[ 2 ] == tmp3->kod_s } ) ) > 0
@@ -265,7 +287,7 @@ Function read_xml_file_rak( arr_XML_info, aerr )
           Endif
         Else
           schet_->( dbGoto( tmp3->kod_schet ) )
-          schet_->( g_rlock( forever ) )
+          schet_->( g_rlock( 'forever' ) )
           schet_->SUMMAP    := tmp3->_SUMMAP
           schet_->SANK_MEK  := tmp3->_SANK_MEK + tmp3->PENALTY
           schet_->SANK_MEE  := tmp3->_SANK_MEE
@@ -321,10 +343,10 @@ Function read_xml_file_rak( arr_XML_info, aerr )
           raks->SANK_MEE  := tmp3->_SANK_MEE
           raks->SANK_EKMP := tmp3->_SANK_EKMP
           raks->PENALTY   := tmp3->PENALTY
-          Commit
+          dbCommitAll()   //  Commit
           Select TMP4
-          find ( Str( tmp3->kod_a, 6 ) + Str( tmp3->kod_s, 6 ) )
-          Do While tmp3->kod_a == tmp4->kod_a .and. tmp3->kod_s == tmp4->kod_s .and. !Eof()
+          tmp4->( dbSeek( Str( tmp3->kod_a, 6 ) + Str( tmp3->kod_s, 6 ) ) )    //  find ( Str( tmp3->kod_a, 6 ) + Str( tmp3->kod_s, 6 ) )
+          Do While tmp3->kod_a == tmp4->kod_a .and. tmp3->kod_s == tmp4->kod_s .and. ! tmp4->( Eof() )
             ++ih
             @ MaxRow(), 1  Say 'запись: ' + lstr( ia ) Color 'G+/R*'
             @ Row(), Col() Say '/'      Color 'R/R*'
@@ -332,7 +354,7 @@ Function read_xml_file_rak( arr_XML_info, aerr )
             @ Row(), Col() Say '/'      Color 'R/R*'
             @ Row(), Col() Say lstr( ih ) Color 'W+/R*'
             human->( dbGoto( tmp4->KOD_H ) )
-            human_->( g_rlock( forever ) )
+            human_->( g_rlock( 'forever' ) )
             If human_->OPLATA < 9
               human_->OPLATA := tmp4->_OPLATA
             Endif
@@ -340,7 +362,7 @@ Function read_xml_file_rak( arr_XML_info, aerr )
               v := human->cena_1
               If human->ishod == 88
                 Select HUMAN_3
-                find ( Str( human->kod, 7 ) )
+                human_3->( dbSeek( Str( human->kod, 7 ) ) )   //  find ( Str( human->kod, 7 ) )
                 v := human_3->cena_1
               Endif
               s := 'Сумма лечения: ' + lstr( v, 15, 2 ) + 'р., ' + ;
@@ -438,8 +460,8 @@ Function read_xml_file_rak( arr_XML_info, aerr )
               endif
             endif*/
             Select TMP6
-            find ( Str( tmp4->kod_a, 6 ) + Str( tmp4->kod_s, 6 ) + Str( tmp4->_idcase, 8 ) )
-            Do While tmp4->kod_a == tmp6->kod_a .and. tmp4->kod_s == tmp6->kod_s .and. tmp4->_idcase == tmp6->_idcase .and. !Eof()
+            tmp6->( dbSeek( Str( tmp4->kod_a, 6 ) + Str( tmp4->kod_s, 6 ) + Str( tmp4->_idcase, 8 ) ) )    //  find ( Str( tmp4->kod_a, 6 ) + Str( tmp4->kod_s, 6 ) + Str( tmp4->_idcase, 8 ) )
+            Do While tmp4->kod_a == tmp6->kod_a .and. tmp4->kod_s == tmp6->kod_s .and. tmp4->_idcase == tmp6->_idcase .and. ! tmp6->( Eof() )
               Select RAKSHERR
               addrec( 8 )
               raksherr->KOD_RAKSH := raksh->( RecNo() )
@@ -475,26 +497,26 @@ Function read_xml_file_rak( arr_XML_info, aerr )
                 StrFile( Space( 5 ) + '... снятие по данному дефекту ...'  + hb_eol(), cFileProtokol, .t. )
               Endif
               Select TMP6
-              Skip
+              tmp6->( dbSkip() )    //  Skip
             Enddo
             Select TMP4
-            Skip
+            tmp4->( dbSkip() )    //  Skip
           Enddo
-          Commit
+          dbCommitAll()   //  Commit
         Endif
         Select TMP3
-        Skip
+        tmp3->( dbSkip() )    //  Skip
       Enddo
     Endif
     Select TMP2
-    Skip
+    tmp2->( dbSkip() )    //  Skip
   Enddo
   // запишем время окончания обработки
   Select MO_XML
-  Goto ( rec_xml )
-  g_rlock( forever )
+  mo_xml->( dbGoto( rec_xml ) )    //  Goto ( rec_xml )
+  g_rlock( 'forever' )
   mo_xml->TWORK2 := hour_min( Seconds() )
-  Close databases
+  dbCloseAll()    //  Close databases
 
   Return Nil
 
@@ -701,7 +723,7 @@ Function delete_rak( lrec, lname, not_end )
         For i := 1 To ih
           find ( Str( arr_next[ i, 1 ], 7 ) )
           If Found()
-            g_rlock( forever )
+            g_rlock( 'forever' )
           Else
             addrec( 7 )
             mo_os->KOD := arr_next[ i, 1 ]
@@ -1337,11 +1359,11 @@ Function rak_akt_schet_human_add_next( s, s1, lrec )
       //
       Select HUMAN_
       Goto ( glob_perso )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       human_->OPLATA := 9
       If glob_persoh3 > 0
         Goto ( glob_persoh3 )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         human_->OPLATA := 9
       Endif
       // теперь записываем в БД копию листа учёта
@@ -1359,7 +1381,7 @@ Function rak_akt_schet_human_add_next( s, s1, lrec )
         Append Blank
       Enddo
       Goto ( mkod )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       AEval( ahuman_, {| x, i| FieldPut( i, x ) } )
       human_->KOD_UP    := glob_perso // код оригинального листа учёта
       human_->SUMP      := 0
@@ -1377,14 +1399,14 @@ Function rak_akt_schet_human_add_next( s, s1, lrec )
         Append Blank
       Enddo
       Goto ( mkod )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       AEval( ahuman_2, {| x, i| FieldPut( i, x ) } )
       If fl_iname
         Select SN
         find ( Str( mkod, 7 ) )
         If Found()
           If !Empty( mnameismo )
-            g_rlock( forever )
+            g_rlock( 'forever' )
             sn->smo_name := mnameismo
           Else
             deleterec( .t. )
@@ -1407,7 +1429,7 @@ Function rak_akt_schet_human_add_next( s, s1, lrec )
           Append Blank
         Enddo
         Goto ( hu->( RecNo() ) )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         AEval( arr_hu[ i, 2 ], {| x, i| FieldPut( i, x ) } )
         hu_->OPLATA    := 0
         hu_->REES_ZAP  := 0
@@ -1482,7 +1504,7 @@ Function rak_akt_schet_human_add_next( s, s1, lrec )
           Append Blank
         Enddo
         Goto ( mkodh3 )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         AEval( ahuman_h3, {| x, i| FieldPut( i, x ) } )
         human_->KOD_UP    := glob_persoh3 // код оригинального листа учёта
         human_->SUMP      := 0
@@ -1500,14 +1522,14 @@ Function rak_akt_schet_human_add_next( s, s1, lrec )
           Append Blank
         Enddo
         Goto ( mkodh3 )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         AEval( ahuman_2h3, {| x, i| FieldPut( i, x ) } )
         If fl_inameh3
           Select SNh3
           find ( Str( mkodh3, 7 ) )
           If Found()
             If !Empty( mnameismoh3 )
-              g_rlock( forever )
+              g_rlock( 'forever' )
               sn->smo_name := mnameismoh3
             Else
               deleterec( .t. )
@@ -1530,7 +1552,7 @@ Function rak_akt_schet_human_add_next( s, s1, lrec )
             Append Blank
           Enddo
           Goto ( hu->( RecNo() ) )
-          g_rlock( forever )
+          g_rlock( 'forever' )
           AEval( arr_huh3[ i, 2 ], {| x, i| FieldPut( i, x ) } )
           hu_->OPLATA    := 0
           hu_->REES_ZAP  := 0
@@ -1612,7 +1634,7 @@ Function rak_akt_schet_human_add_next( s, s1, lrec )
       //
       g_use( dir_server() + 'mo_raksh', , 'RAKSH' )
       Goto ( lrec )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       raksh->IS_REPEAT := 1
       raksh->DATE_REP  := sys_date
       raksh->NEXT_KOD  := mkod
@@ -1857,7 +1879,7 @@ Function rak_akt_schet_human_del_next( s, s1, lrec )
         deleterec( .t., .f. )
         Select HUMAN
         deleterec( .t., .f. )  // без пометки на удаление
-        g_rlock( forever )
+        g_rlock( 'forever' )
         Replace human->schet With -1  // (вместо нуля)
       Endif
       Select HUMAN
@@ -1866,12 +1888,12 @@ Function rak_akt_schet_human_del_next( s, s1, lrec )
       deleterec( .t., .f. )
       Select HUMAN
       deleterec( .t., .f. )  // без пометки на удаление
-      g_rlock( forever )
+      g_rlock( 'forever' )
       Replace human->schet With -1  // (вместо нуля)
       //
       Select RAKSH
       Goto ( lrec )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       raksh->IS_REPEAT := 0
       raksh->DATE_REP  := CToD( '' )
       raksh->NEXT_KOD  := 0
@@ -1880,7 +1902,7 @@ Function rak_akt_schet_human_del_next( s, s1, lrec )
         Select HUMAN
         Goto ( glob_persoh3 )
         Select HUMAN_
-        g_rlock( forever )
+        g_rlock( 'forever' )
         human_->OPLATA := raksh->OPLATA
       Endif
       If mkodh3 > 0
@@ -1891,7 +1913,7 @@ Function rak_akt_schet_human_del_next( s, s1, lrec )
       Select HUMAN
       Goto ( glob_perso )
       Select HUMAN_
-      g_rlock( forever )
+      g_rlock( 'forever' )
       human_->OPLATA    := raksh->OPLATA
       human_->SANK_MEK  := raksh->SANK_MEK
       human_->SANK_MEE  := raksh->SANK_MEE
@@ -2784,6 +2806,7 @@ Function pr_list_rak()
 Function pr_schet_bez_rak()
 
   Local buf := save_maxrow(), arr_m, n_file := cur_dir() + 's_bezRAK.txt', sh, HH := 60
+  local arr_title, s
 
   If ( arr_m := year_month( T_ROW, T_COL - 5, , 4 ) ) == NIL
     Return Nil

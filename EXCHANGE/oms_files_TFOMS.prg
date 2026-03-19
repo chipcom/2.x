@@ -112,7 +112,7 @@ Function read_from_tf()
   Endif
   Return fl
 
-// 17.03.26 чтение в память и анализ XML-файла
+// 19.03.26 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local is_err_FLK_26
@@ -374,7 +374,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 */
     Case nTypeFile == _XML_FILE_RAK
       StrFile( hb_eol() + 'Тип файла: РАК (реестр актов контроля)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
-      read_xml_file_rak( arr_XML_info, aerr )
+      read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
       go_to_akt := Empty( aerr )
     Case nTypeFile == _XML_FILE_RPD
       StrFile( hb_eol() + 'Тип файла: РПД (реестр платёжных документов)' + hb_eol() + hb_eol(), cFileProtokol, .t. )

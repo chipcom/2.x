@@ -275,7 +275,6 @@ mo_version.prg
 .\SYSTEM\system.prg
 .\SYSTEM\func_path.prg
 
-.\ORDER\mo_omso.prg
 .\ORDER\mo_omsp.prg
 
 .\OTHER\mo_mzxml.prg
@@ -331,6 +330,7 @@ mo_version.prg
 
 .\exchange\f1_create2reestrCommon.prg
 .\exchange\delete_reestr.prg
+.\exchange\mo_rak.prg
 
 #.\exchange\new_create.prg
 
