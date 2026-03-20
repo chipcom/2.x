@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.12.25
+// 20.03.26
 Function print_l_uch( mkod, par, regim, lnomer )
   
   // mkod - код больного по БД human
@@ -22,8 +22,9 @@ Function print_l_uch( mkod, par, regim, lnomer )
   local arrKSLP, akslp, len_akslp, arrKIRO, akiro
   local k_kslp, tmp_kslp := {}
   local k_kiro, tmp_kiro := {}
-  local mas[2], lname
+  local mas[ 2 ], lname
   local lExistFilesTFOMS
+  local lDisp := .f., sh_zam, lZam := .f.
 
   DEFAULT par TO 1, regim TO 1, lnomer TO 0
   mywait()
@@ -426,6 +427,8 @@ Function print_l_uch( mkod, par, regim, lnomer )
     if !empty(mlech_vr)
       add_string('  Лечащий врач : ' + mlech_vr)
     endif
+  else
+    lDisp := .t.
   endif
 
   add_string('')
@@ -443,31 +446,44 @@ Function print_l_uch( mkod, par, regim, lnomer )
   add_string(center('О_К_А_З_А_Н_Ы   У_С_Л_У_Г_И', sh))
   Select HU
   find (str(mkod, 7))
-  do while hu->kod == mkod .and. !eof()
-    if !emptyall(hu->kol_1, hu->stoim_1)
+  do while hu->kod == mkod .and. ! hu->( eof() )
+    lZam := .f.
+    if ! emptyall( hu->kol_1, hu->stoim_1 )
       Select OTD
-      goto (hu->otd)
+      goto ( hu->otd )
       Select USL
-      goto (hu->u_kod)
+      goto ( hu->u_kod )
       lname := usl->name
 
-      tmpAlias := create_name_alias('LUSL',  year(human->k_data))
+      tmpAlias := create_name_alias( 'LUSL',  year( human->k_data ) )
       if lExistFilesTFOMS
-        select (tmpAlias)
-        find (padr(usl->shifr, 10))
+        select ( tmpAlias )
+        if c4tod( hu->date_u ) < human->n_data .and. lDisp
+          lZam := .t.
+          sh_zam := get_zamenauslugi_dvn( human->k_data, alltrim( usl->shifr ) )
+          find ( padr( sh_zam, 10 ) )
+        else
+          find ( padr( usl->shifr, 10 ) )
+        endif
+
         if found()
-          lname := (tmpAlias)->name  // наименование услуги из справочника ТФОМС
+          lname := ( tmpAlias )->name  // наименование услуги из справочника ТФОМС
         endif
       endif
-      lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
+      lshifr1 := opr_shifr_TFOMS( usl->shifr1, usl->kod, human->k_data )
       select TMP1
-      append blank
+      tmp1->( dbAppend() )    //  append blank
       tmp1->kod := usl->kod
       tmp1->name := lname
-      tmp1->shifr := usl->shifr //iif(empty(lshifr1), usl->shifr, lshifr1)
-      tmp1->shifr1 := lshifr1
-      tmp1->date_u1 := c4tod(hu->date_u)
-      tmp1->date_u2 := c4tod(hu_->date_u2)
+      if lZam
+        tmp1->shifr := sh_zam
+        tmp1->shifr1 := sh_zam
+      else
+        tmp1->shifr := usl->shifr //iif(empty(lshifr1), usl->shifr, lshifr1)
+        tmp1->shifr1 := lshifr1
+      endif
+      tmp1->date_u1 := c4tod( hu->date_u )
+      tmp1->date_u2 := c4tod( hu_->date_u2 )
       tmp1->rec_hu := hu->(recno())
       tmp1->kod_diag := hu_->KOD_DIAG
       tmp1->dom := iif(between(hu->kol_rcp, -2, -1), -hu->kol_rcp, 0)
@@ -484,10 +500,14 @@ Function print_l_uch( mkod, par, regim, lnomer )
       tmp1->kod_vr := hu->kod_vr
       tmp1->kod_as := hu->kod_as
       tmp1->kol += hu->kol_1
-      tmp1->summa += hu->stoim_1
+      if lZam
+        tmp1->summa += 0
+      else
+        tmp1->summa += hu->stoim_1
+      endif
     endif
     select HU
-    Skip
+    hu->( dbSkip() )    //  Skip
   enddo
   Select MOHU
   find (str(mkod, 7))
@@ -508,7 +528,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
       endif
 
       select TMP1
-      append blank
+      tmp1->( dbAppend() )    //  append blank
       tmp1->kod := mosu->kod
       tmp1->name := lname
       tmp1->shifr := iif(empty(mosu->shifr), mosu->shifr1, mosu->shifr)
@@ -528,18 +548,18 @@ Function print_l_uch( mkod, par, regim, lnomer )
       tmp1->summa += mohu->stoim_1
     endif
     select MOHU
-    Skip
+    mohu->( dbSkip() )    //  Skip
   enddo
   mpsumma := 0
   w1 := 34
   header_uslugi(w1)
   select TMP1
   set order TO 2
-  go top
-  do while !eof()
-    s := alltrim(tmp1->shifr)
-    if !(alltrim(tmp1->shifr) == alltrim(tmp1->shifr1)) .and. !empty(tmp1->shifr1)
-      s += '(' + alltrim(tmp1->shifr1) + ')'
+  tmp1->( dbGoTop() )   //  go top
+  do while ! tmp1->( eof() )
+    s := alltrim( tmp1->shifr )
+    if ! ( alltrim( tmp1->shifr ) == alltrim( tmp1->shifr1 ) ) .and. ! empty( tmp1->shifr1 )
+      s += '(' + alltrim( tmp1->shifr1 ) + ')'
     endif
     s += iif(tmp1->dom==1, '/на дому/', iif(tmp1->dom==2, '/домАКТИВ/', ' '))
     s += alltrim(tmp1->name)
@@ -570,14 +590,14 @@ Function print_l_uch( mkod, par, regim, lnomer )
     elseif alltrim(tmp1->shifr) == '4.20.2' .or. tmp1->is_edit == 3
       s += 'ВОКОД '
     else
-      s += tmp1->otd+ ' '
+      s += tmp1->otd + ' '
     endif
     if empty(diagVspom)
       s += tmp1->kod_diag + ' '
     else
       s += diagMemory + ' '
     endif
-    s += padr(tmp[1], w1)
+    s += padr( tmp[ 1 ], w1 )
     s += put_val(ret_tabn(tmp1->kod_vr), 6) + put_val(ret_tabn(tmp1->kod_as), 6)
     if tmp1->plus
       s += padl(' + ' + lstr(tmp1->kol), 4)
@@ -590,15 +610,15 @@ Function print_l_uch( mkod, par, regim, lnomer )
       endif
       msumma += tmp1->summa
     endif
-    s += put_kopE(tmp1->summa, 9)
+    s += put_kopE( tmp1->summa, 9 )
     //
     // if eq_any(human->ishod, 401, 402 ) .and. tmp1->kod_vr == 0 
     if is_sluch_dispanser_COVID( human->ishod ) .and. tmp1->kod_vr == 0 
     // УГЛУБЛЕННАЯ дисп-ия взрослого населения
     else
-      add_string(s)
+      add_string( s )
       for i := 2 to k
-        add_string(space(21) + padl(rtrim(tmp[i]), w1))
+        add_string( space( 21 ) + padl( rtrim( tmp[ i ] ), w1 ) )
       next
     endif
     //
@@ -667,16 +687,16 @@ Function print_l_uch( mkod, par, regim, lnomer )
         endif
     endif
     select TMP1
-    skip
+    tmp1->( dbSkip() )    //  skip
   enddo
   zap
   set order to 1
-  add_string(replicate('-', sh))
-  s := 'Общая сумма лечения: ' + put_kop(human->cena_1, 12)
+  add_string( replicate( '-', sh ) )
+  s := 'Общая сумма лечения: ' + put_kop( human->cena_1, 12 )
   if mpsumma > 0
-    s := alltrim(s) + ' (+ ' + lput_kop(mpsumma, .t.) + ')'
+    s := alltrim( s ) + ' (+ ' + lput_kop( mpsumma, .t. ) + ')'
   endif
-  add_string(padl(s, sh))
+  add_string( padl( s, sh ) )
 
   if f_is_oncology( 1 ) == 2 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
     print_luch_onk( human->k_data, human->KOD_DIAG, sh )
@@ -1466,20 +1486,20 @@ Function print_al_uch(arr_h, arr_m)
         s += put_val(tmp1->kol, 4)
         msumma += tmp1->summa
       endif
-      s += put_kopE(tmp1->summa, 9)
-      add_string(s)
+      s += put_kopE( tmp1->summa, 9 )
+      add_string( s )
       for i := 2 to k
-        add_string(space(21) + padl(rtrim(tmp[i]), w1))
+        add_string( space( 21 ) + padl( rtrim( tmp[ i ] ), w1 ) )
       next
       select TMP1
       skip
     enddo
-    add_string(padl(replicate('-', 33), sh))
-    s := 'Общая сумма лечения: ' + put_kop(human->cena_1, 12)
+    add_string( padl( replicate( '-', 33 ), sh ) )
+    s := 'Общая сумма лечения: ' + put_kop( human->cena_1, 12 )
     if mpsumma > 0
-      s := alltrim(s) + ' (+ ' + lput_kop(mpsumma, .t.) + ')'
+      s := alltrim( s ) + ' (+ ' + lput_kop( mpsumma, .t. ) + ')'
     endi
-    add_string(padl(s, sh))
+    add_string( padl( s, sh ) )
   next
   close databases
   fclose(fp)

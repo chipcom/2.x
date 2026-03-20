@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.03.26 ДВН - добавление или редактирование случая (листа учета)
+// 20.03.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -329,6 +329,18 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     kart_->( dbGoto( mkod_k ) )  //  Goto ( mkod_k )
     r_use( dir_server() + 'kartotek', , 'KART' )
     kart->( dbGoto( mkod_k ) )  //  Goto ( mkod_k )
+
+    If Left( kart2->PC2, 1 ) == '1'
+      func_error( 4, 'По информации из ТФОМС пациент У_М_Е_Р!' )
+      dbCloseAll()
+      Return Nil
+    endif
+    if kart2->MO_PR != glob_mo()[ _MO_KOD_TFOMS ]
+      func_error( 4, 'У пациента нет прикрепления к нашей организации!' )
+      dbCloseAll()
+      Return Nil
+    endif
+
     M1FIO       := 1
     mfio        := kart->fio
     mpol        := kart->pol
@@ -547,7 +559,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         If fl
           For i := 1 To len( aDvn_arr_usl )
             If Empty( larr[ 1, i ] )
-
               If ValType( aDvn_arr_usl[ i, 2 ] ) == 'C'
                 If eq_any( aDvn_arr_usl[ i, 2 ], '4.20.1', '4.20.701' )
                   If eq_any( lshifr, '4.20.1', '4.20.701' )
@@ -590,9 +601,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             Endif
           Next
         Endif
-        If fl .and. AScan( dvn_700( MK_DATA ), {| x | x[ 2 ] == lshifr } ) > 0
-          fl := .f. // к нулевой услуге добавлена услуга с ценой на '700'
-        Endif
+//        If fl .and. AScan( dvn_700( MK_DATA ), {| x | x[ 2 ] == lshifr } ) > 0
+//          fl := .f. // к нулевой услуге добавлена услуга с ценой на '700'
+//        Endif
         If fl
           n_message( { 'Некорректная настройка в справочнике услуг:', ;
             AllTrim( usl->name ), ;
@@ -2032,7 +2043,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             mcena_1 += mu_cena
           endif
           If eq_any( arr_osm1[ i, 10 ], 0, 3 ) // выполнено
-
             if mk_data >= 0d20260101 .and. arr_osm1[ i, 9 ] < mn_data
 //              usl_zamena := get_zamenauslugi_dvn( mk_data, arr_osm1[ i, 5 ] )
 //              arr_osm1[ i, 5 ] := usl_zamena
@@ -2045,7 +2055,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
               AAdd( arr_otklon, arr_osm1[ i, 5 ] )
             Endif
             if mk_data >= 0d20260101
-              mcena_1 += mu_cena
+              if arr_osm1[ i, 9 ] >= MN_DATA
+                mcena_1 += mu_cena
+              endif
             endif
 //            AAdd( arr_usl_dop, arr_osm1[ i ] )
           Else // отказ и невозможность

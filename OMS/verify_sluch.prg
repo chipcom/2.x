@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 16.03.26
+// 20.03.26
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -1488,6 +1488,8 @@ Function verify_sluch( fl_view, ft )
         If hu->kod_vr != 0  // присутствует код врача
           ssumma += hu->stoim_1
         Endif
+      elseif c4tod( hu->date_u ) < human->n_data
+        ssumma += 0
       Else
         ssumma += hu->stoim_1
       Endif

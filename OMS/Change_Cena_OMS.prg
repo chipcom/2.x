@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 08.07.24 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
+// 20.03.26 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
 Function change_cena_oms()
 
   Local buf := save_maxrow(), lshifr1, fl, lrec, rec_human, k_data2, kod_ksg, begin_date := AddMonth( sys_date, -3 )
@@ -117,6 +117,8 @@ Function change_cena_oms()
                 Endif
                 If fl_ygl_disp .and. hu->kod_vr == 0 .and. hu->kod_as == 0
                   // не суммируем
+                elseif c4tod( hu->date_u ) < human->n_data .and. human->k_data >= 0d20260101
+                  mcena_1 += 0
                 Else
                   mcena_1 += hu->stoim_1
                 Endif
