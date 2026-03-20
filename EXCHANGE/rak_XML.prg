@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.03.24 зачитать Реестр Актов Контроля во временные файлы
+// 20.03.24 зачитать Реестр Актов Контроля во временные файлы
 Function reestr_rak_tmpfile( oXmlDoc, aerr, mname_xml )
 
   Static s_big := 10000000000000000
@@ -11,7 +11,7 @@ Function reestr_rak_tmpfile( oXmlDoc, aerr, mname_xml )
   local _ar
   local buf := save_maxrow()
 
-  Default aerr TO {}, mname_xml To ''
+  Default aerr TO {}, mname_xml To '' 
   stat_msg( 'Распаковка/чтение/анализ реестра актов контроля ' + BeforAtNum( '.', mname_xml ) )
   dbCreate( cur_dir() + 'tmp1file', { ; // одна запись
     { '_VERSION',   'C',  5, 0 }, ;
@@ -65,8 +65,8 @@ Function reestr_rak_tmpfile( oXmlDoc, aerr, mname_xml )
     { 'kod_s',      'N',  6, 0 }, ; // код счета
     { 'kod_a',      'N',  6, 0 }, ; // код акта
     { '_IDCASE',    'N',  8, 0 }, ; // номер записи в счете
+    { '_ID_C',      'C', 36, 0 }, ; // код случая GUID
     { 'KOD_H',      'N',  7, 0 }, ; // код листа учета по БД 'human'
-    { '_ID_C',      'C', 36, 0 }, ; // код случая
     { '_LPU',       'C',  6, 0 }, ; // код МО по T001
     { '_OPLATA',    'N',  1, 0 }, ;
     { '_SUMP',      'N', 15, 2 }, ;
@@ -84,6 +84,7 @@ Function reestr_rak_tmpfile( oXmlDoc, aerr, mname_xml )
     { 'kod_s',      'N',  6, 0 }, ; // код счета
     { 'kod_a',      'N',  6, 0 }, ; // код акта
     { '_IDCASE',    'N',  8, 0 }, ; // номер записи в счете
+    { '_ID_C',      'C', 36, 0 }, ; // код случая GUID
     { 'S_CODE',     'C', 36, 0 }, ; // идентификатор санкции
     { 'S_SUM',      'N', 10, 2 }, ; // сумма уменьшения оплаты
     { 'REFREASON',  'N',  3, 0 }, ; // код причины отказа (частичной) оплаты
@@ -198,6 +199,7 @@ Function reestr_rak_tmpfile( oXmlDoc, aerr, mname_xml )
                   tmp6->kod_a     :=     tmp4->kod_a
                   tmp6->kod_s     :=     tmp4->kod_s
                   tmp6->_IDCASE   :=     tmp4->_IDCASE
+                  tmp6->_ID_C     :=     tmp4->_ID_C
                   tmp6->S_CODE    :=     mo_read_xml_stroke( oNode3, 'S_CODE', aerr )
                   tmp6->S_SUM     := Val( mo_read_xml_stroke( oNode3, 'S_SUM', aerr ) )
                   tmp6->REFREASON := Val( mo_read_xml_stroke( oNode3, 'S_OSN', aerr ) )

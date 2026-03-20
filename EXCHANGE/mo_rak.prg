@@ -7,7 +7,7 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-// 19.03.26 прочитать и 'разнести' по базам данных РАК
+// 20.03.26 прочитать и 'разнести' по базам данных РАК
 Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
 
   Local fl_akt, fl_schet, blk_akt, blk_schet, i, s, s1, arr_s := {}, t_arr[ 2 ], ;
@@ -15,7 +15,6 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
   Local tmp_alias, fl_IDC := .f.   // для двойного случая
   Local arr, ia, is, ih, rec_xml, v
   Local arrF006 := getf006()
-  local lF  // 19.03.26
 
   blk_akt := { || AAdd( aerr, 'АКТ № ' + AllTrim( tmp2->_nakt ) + ' от ' + date_8( tmp2->_dakt ) ) }
   blk_schet := { || AAdd( aerr, ' СЧЁТ № ' + AllTrim( tmp3->_nschet ) + ' от ' + date_8( tmp3->_dschet ) ) }
@@ -33,7 +32,10 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
   Use ( cur_dir() + 'tmp5file' ) New Alias TMP5
   Index On Str( FIELD->kod_a, 6 ) to ( cur_dir() + 'tmp5' )
   Use ( cur_dir() + 'tmp6file' ) New Alias TMP6
-  Index On Str( FIELD->kod_a, 6 ) + Str( FIELD->kod_s, 6 ) + Str( FIELD->_idcase, 8 ) to ( cur_dir() + 'tmp6' )
+
+//  Index On Str( FIELD->kod_a, 6 ) + Str( FIELD->kod_s, 6 ) + Str( FIELD->_idcase, 8 ) to ( cur_dir() + 'tmp6' )
+  Index On Str( FIELD->kod_a, 6 ) + Str( FIELD->kod_s, 6 ) + FIELD->_id_c to ( cur_dir() + 'tmp6' )
+
   // сначала найдём коды счетов и коды листов учёта
   g_use( dir_server() + 'schet_', , 'SCHET_' )
   Index On DToS( FIELD->dschet ) + Upper( FIELD->nschet ) to ( cur_dir() + 'tmp_sch_' )
@@ -79,7 +81,10 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
         Select HUMAN
         Set Index to ( dir_server() + 'humans' )
         human->( dbSeek( Str( tmp3->kod_schet, 6 ) ) )   //  find ( Str( tmp3->kod_schet, 6 ) )
-        Index On Str( human_->schet_zap, 6 ) to ( cur_dir() + 'tmp_hum' ) For FIELD->ishod != 89 While FIELD->schet == tmp3->kod_schet
+
+//        Index On Str( human_->schet_zap, 6 ) to ( cur_dir() + 'tmp_hum' ) For FIELD->ishod != 89 While FIELD->schet == tmp3->kod_schet
+        Index On human_->ID_C to ( cur_dir() + 'tmp_hum' ) For FIELD->ishod != 89 While FIELD->schet == tmp3->kod_schet
+
         Select TMP4
         tmp4->( dbSeek( Str( tmp3->kod_a, 6 ) + Str( tmp3->kod_s, 6 ) ) )    //  find ( Str( tmp3->kod_a, 6 ) + Str( tmp3->kod_s, 6 ) )
         Do While tmp3->kod_a == tmp4->kod_a .and. tmp3->kod_s == tmp4->kod_s .and. ! tmp4->( Eof() )
@@ -91,9 +96,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
           @ Row(), Col() Say lstr( ih ) Color 'W+/R*'
           Select HUMAN
 
-          lF := .f.   // 19.03.26
-
-          human->( dbSeek( Str( tmp4->_IDCASE, 6 ) ) )   //  find ( Str( tmp4->_IDCASE, 6 ) )
+          human->( dbSeek( tmp4->_ID_C ) )
           If human->( Found() )
             tmp4->KOD_H := human->kod
             fl_IDC := ( Upper( tmp4->_ID_C ) == Upper( human_->ID_C ) )
@@ -119,30 +122,16 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
               AAdd( aerr, '   ID_C в СМО = ' + tmp4->_ID_C + ', ID_C у нас = ' + human_->ID_C )
             Endif
           Else
-
-            Select human_  // 19.03.26
-            locate for human_->ID_C == tmp4->_ID_C  // 19.03.26
-            do while human_->( Found() )  // 19.03.26
-              human->( dbGoto( human_->( RecNo() ) ) )  // 19.03.26
-              lF := .t.  // 19.03.26
-              fl_IDC := .t.  // 19.03.26
-              tmp4->KOD_H := human->kod  // 19.03.26
-              continue  // 19.03.26
-            enddo  // 19.03.26
-            Select human  // 19.03.26
-
-            If !fl_IDC  // 19.03.26
-              If fl_akt
-                Eval( blk_akt )
-                fl_akt := .f.
-              Endif
-              If fl_schet
-                Eval( blk_schet )
-                fl_schet := .f.
-              Endif
-              AAdd( aerr, '   не найден пациент с IDCASE = ' + lstr( tmp4->_IDCASE ) )
+            If fl_akt
+              Eval( blk_akt )
+              fl_akt := .f.
             Endif
-          endif  // 19.03.26
+            If fl_schet
+              Eval( blk_schet )
+              fl_schet := .f.
+            Endif
+            AAdd( aerr, '   не найден пациент с IDCASE = ' + lstr( tmp4->_IDCASE ) )
+          Endif
           Select TMP4
           tmp4->( dbSkip() )    //  Skip
         Enddo
@@ -460,8 +449,13 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
               endif
             endif*/
             Select TMP6
-            tmp6->( dbSeek( Str( tmp4->kod_a, 6 ) + Str( tmp4->kod_s, 6 ) + Str( tmp4->_idcase, 8 ) ) )    //  find ( Str( tmp4->kod_a, 6 ) + Str( tmp4->kod_s, 6 ) + Str( tmp4->_idcase, 8 ) )
-            Do While tmp4->kod_a == tmp6->kod_a .and. tmp4->kod_s == tmp6->kod_s .and. tmp4->_idcase == tmp6->_idcase .and. ! tmp6->( Eof() )
+//            tmp6->( dbSeek( Str( tmp4->kod_a, 6 ) + Str( tmp4->kod_s, 6 ) + Str( tmp4->_idcase, 8 ) ) )    //  find ( Str( tmp4->kod_a, 6 ) + Str( tmp4->kod_s, 6 ) + Str( tmp4->_idcase, 8 ) )
+//            Do While tmp4->kod_a == tmp6->kod_a .and. tmp4->kod_s == tmp6->kod_s .and. tmp4->_idcase == tmp6->_idcase .and. ! tmp6->( Eof() )
+            tmp6->( dbSeek( Str( tmp4->kod_a, 6 ) + Str( tmp4->kod_s, 6 ) + tmp4->_id_c ) )    //  find ( Str( tmp4->kod_a, 6 ) + Str( tmp4->kod_s, 6 ) + Str( tmp4->_idcase, 8 ) )
+            Do While tmp4->kod_a == tmp6->kod_a .and. tmp4->kod_s == tmp6->kod_s .and. tmp4->_id_c == tmp6->_id_c .and. ! tmp6->( Eof() )
+//if tmp6->_ID_C == '9EB36745-5D4B-C141-9F8C-82B207926FB2'
+//altd()
+//endif
               Select RAKSHERR
               addrec( 8 )
               raksherr->KOD_RAKSH := raksh->( RecNo() )
