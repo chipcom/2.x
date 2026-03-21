@@ -5,8 +5,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 04.03.26
-function elem_napr( oSl, arr_onkna )  //  , lDispans )
+// 21.03.26
+function tag_napr( oSl, arr_onkna )  //  , lDispans )
 
   local oNAPR
   local mNPR_MO, j
@@ -37,8 +37,8 @@ function elem_napr( oSl, arr_onkna )  //  , lDispans )
 
   return nil
 
-// 31.01.26
-function elem_prescriptions( oSl, human_kod, mdata, arr_onkna )
+// 21.03.26
+function tag_prescriptions( oSl, human_kod, mdata, arr_onkna )
 
   local oPRESCRIPTIONS, oPRESCRIPTION
   local arr_nazn, j //, arr_onkna
@@ -112,8 +112,8 @@ function elem_prescriptions( oSl, human_kod, mdata, arr_onkna )
 
   return nil
 
-// 28.10.25
-function elem_lek_pr_zno( oONK, mdata, human_recno, mkod_human )
+// 21.03.26
+function tag_lek_pr_zno( oONK, mdata, human_recno, mkod_human )
 
   // тэг Сведения о примененных лекарственных препаратах при химиотерапевтическом или химиолучевом лечении
   // добавим в xml-документ информацию о лекарственных препаратах
@@ -171,8 +171,8 @@ function elem_lek_pr_zno( oONK, mdata, human_recno, mkod_human )
   Endif
   return nil
 
-// 27.10.25
-function elem_lek_pr( oSl, mkod_human )
+// 21.03.26
+function tag_lek_pr( oSl, mkod_human )
 
   // тэг Сведения о введенных лекарственных препаратах (за исключением случаев оказания высокотехнологичной медицинской помощи и 
   // медицинской помощи при ЗНО)
@@ -200,8 +200,8 @@ function elem_lek_pr( oSl, mkod_human )
   Endif
   return nil
 
-// 27.10.25
-function elem_med_dev( oUsl, human_kod, mohu_recno )
+// 21.03.26
+function tag_med_dev( oUsl, human_kod, mohu_recno )
 
   // тэг о Сведения о медицинских изделиях, имплантируемых в организм человека
 
@@ -215,8 +215,8 @@ function elem_med_dev( oUsl, human_kod, mohu_recno )
   Next
   return nil
 
-// 27.10.25
-function elem_mr_usl_n( oUsl, nyear, number, prvs, snils )
+// 21.03.26
+function tag_mr_usl_n( oUsl, nyear, number, prvs, snils )
 
   // тэг о мед. работниках выполнивших услугу
 
@@ -228,8 +228,8 @@ function elem_mr_usl_n( oUsl, nyear, number, prvs, snils )
   mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', snils )
   return nil
 
-// 28.02.26
-function elem_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
+// 21.03.26
+function tag_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
 
   // тэг добавляется только для реестров 1 типа и помощь в условиях дневного
   // и кругосуточного стационара
@@ -308,8 +308,8 @@ function elem_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
   Endif
   return nil
 
-// 25.12.25
-function elem_disability( oPac )
+// 21.03.26
+function tag_disability( oPac )
 
   // тэг добавляется только для реестров 1 типа и амбулаторно-поликлинической помощи в
   // учреждениях имеющих прикрепленное население

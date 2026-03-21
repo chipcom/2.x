@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.03.26
+// 21.03.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -40,6 +40,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   local vozrast, next_d
   local usl_zamena, nomeklatura_mz
   local kod_lshifr
+  local tarif_usl, sumvv_usl
 
   local arr_nazn
 
@@ -228,7 +229,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       Endif
 
       if _nyear >= 2026 .and. p_tip_reestr == TYPE_REESTR_GENERAL // новый ПУМП на 26 год
-        elem_disability( oPac )
+        tag_disability( oPac )
       endif
 
       If human_->NOVOR == 0
@@ -275,7 +276,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           human_->USL_OK == USL_OK_POLYCLINIC .and. ;   // поликлиника
           glob_mo()[ _MO_IS_UCH ] .and. ;               // наше МО имеет прикреплённое население
           kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]    // прикреплён к нашему МО
-        elem_disability( oPac )
+        tag_disability( oPac )
       endif
 */
       // заполним сведения о законченном случае оказания медицинской помощи для XML-документа
@@ -575,7 +576,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
       if p_tip_reestr == TYPE_REESTR_DISPASER
 //        arr_nazn := prescriptions_dispans( human->kod, Year( human->k_data ) )
-        elem_prescriptions( oSl, human->kod, human->k_data, arr_onkna )
+        tag_prescriptions( oSl, human->kod, human->k_data, arr_onkna )
       Endif
 /*
       If Len( arr_nazn ) > 0 .or. ( human->OBRASHEN == '1' .and. Len( arr_onkna ) > 0 )
@@ -640,8 +641,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     Endif
     If is_KSG
       // заполним сведения о КСГ для XML-документа
-//      elem_ksg( oSl, lshifr_zak_sl, endDateZK, is_oncology )
-      elem_ksg( oSl, lshifr_KSG, endDateZK, is_oncology )
+//      tag_ksg( oSl, lshifr_zak_sl, endDateZK, is_oncology )
+      tag_ksg( oSl, lshifr_KSG, endDateZK, is_oncology )
 /*
       oKSG := oSL:add( hxmlnode():new( 'KSG_KPG' ) )
       mo_add_xml_stroke( oKSG, 'N_KSG', lshifr_zak_sl )
@@ -713,7 +714,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
       Next j
 */
-      elem_napr( oSl, arr_onkna, lDispans )
+      tag_napr( oSl, arr_onkna, lDispans )
     Endif
     If ( is_oncology > 0 .or. is_oncology_smp > 0 ) .and. ! lTypeLUOnkoDisp
       // заполним сведения о консилиумах для XML-документа
@@ -858,7 +859,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
                 Enddo
               Endif
 */
-              elem_lek_pr_zno( oONK, human->k_data, human->( RecNo() ), human->kod )
+              tag_lek_pr_zno( oONK, human->k_data, human->( RecNo() ), human->kod )
 
               If onkus->PPTR > 0
                 mo_add_xml_stroke( oONK, 'PPTR', '1' )
@@ -918,7 +919,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           Next
         Endif
 */
-        elem_lek_pr( oSl, human->( RecNo() ) )
+        tag_lek_pr( oSl, human->( RecNo() ) )
       Endif
 
       If !Empty( ldate_next )
@@ -1082,28 +1083,36 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 //            mo_add_xml_stroke( oUSL, 'P_OTK', '0' )
           Endif
         Endif
-        mo_add_xml_stroke( oUSL, 'CODE_USL', lshifr )
-        mo_add_xml_stroke( oUSL, 'KOL_USL', lstr( hu->KOL_1, 6, 2 ) )
-        mo_add_xml_stroke( oUSL, 'TARIF', lstr( hu->U_CENA, 10, 2 ) )
-        mo_add_xml_stroke( oUSL, 'SUMV_USL', lstr( hu->STOIM_1, 10, 2 ) )
 
-//        If ( human->k_data >= 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER ) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
-//            .or. ( endDateZK >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
-          If between_date( human->n_data, human->k_data, c4tod( hu->DATE_U ) )
-            if ! ( p_tip_reestr == TYPE_REESTR_DISPASER .and. Len( a_otkaz ) > 0 .and. AScan( a_otkaz, { | x | x[ 1 ] == lshifr } ) > 0 )
-              p2->( dbGoto( hu->kod_vr ) )
-              elem_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, p2->snils ) // пока ставим 1 исполнитель
-            endif
-          Endif
-//        Else  // if (human->k_data < 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER)
-//          mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( hu_->PRVS, _NYEAR ) )
-//          If c4tod( hu->DATE_U ) < human->n_data ; // если сделано ранее
-//            .or. eq_any( hu->is_edit, -1, 1, 2, 3 ) .or. lshifr == '4.20.2' .or. Left( lshifr, 5 ) == '60.8.' .or. fl
-//            mo_add_xml_stroke( oUSL, 'CODE_MD', '0' ) // не заполняется код врача
-//          Else
-//            p2->( dbGoto( hu->kod_vr ) )
-//            mo_add_xml_stroke( oUSL, 'CODE_MD', p2->snils )
-//          Endif
+        tarif_usl := hu->u_cena
+        sumvv_usl := hu->STOIM_1
+        if p_tip_reestr == TYPE_REESTR_DISPASER
+          if human->K_DATA >= 0d20260101 .and. c4tod( hu->DATE_U ) < human->N_DATA .and. is_disp_DVN
+            usl_zamena := get_zamenauslugi_dvn( human->K_DATA, lshifr )
+            tarif_usl := 0
+            sumvv_usl := 0
+            mo_add_xml_stroke( oUSL, 'CODE_USL', usl_zamena )
+          else
+            mo_add_xml_stroke( oUSL, 'CODE_USL', lshifr )
+          endif
+//          mo_add_xml_stroke( oUSL, 'KOL_USL', lstr( hu->KOL_1, 6, 2 ) )
+//          mo_add_xml_stroke( oUSL, 'TARIF', lstr( tarif_usl, 10, 2 ) )
+//          mo_add_xml_stroke( oUSL, 'SUMV_USL', lstr( sumvv_usl, 10, 2 ) )
+        else
+          mo_add_xml_stroke( oUSL, 'CODE_USL', lshifr )
+//          mo_add_xml_stroke( oUSL, 'KOL_USL', lstr( hu->KOL_1, 6, 2 ) )
+//          mo_add_xml_stroke( oUSL, 'TARIF', lstr( hu->U_CENA, 10, 2 ) )
+//          mo_add_xml_stroke( oUSL, 'SUMV_USL', lstr( hu->STOIM_1, 10, 2 ) )
+        endif
+        mo_add_xml_stroke( oUSL, 'KOL_USL', lstr( hu->KOL_1, 6, 2 ) )
+        mo_add_xml_stroke( oUSL, 'TARIF', lstr( tarif_usl, 10, 2 ) )
+        mo_add_xml_stroke( oUSL, 'SUMV_USL', lstr( sumvv_usl, 10, 2 ) )
+
+//        If between_date( human->n_data, human->k_data, c4tod( hu->DATE_U ) )
+          if ! ( p_tip_reestr == TYPE_REESTR_DISPASER .and. Len( a_otkaz ) > 0 .and. AScan( a_otkaz, { | x | x[ 1 ] == lshifr } ) > 0 )
+            p2->( dbGoto( hu->kod_vr ) )
+            tag_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, p2->snils ) // пока ставим 1 исполнитель
+          endif
 //        Endif
       Next
     Endif
@@ -1112,7 +1121,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       // заполним сведения об услугах для XML-документа
       For j := 1 To Len( a_otkaz )
 
-        if human->K_DATA >= 0d20260101
+        if human->K_DATA >= 0d20260101 .and. is_disp_DVN
           usl_zamena := get_zamenauslugi_dvn( human->K_DATA, a_otkaz[ j, 1 ] )
         endif
 
@@ -1123,7 +1132,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( a_otkaz[ j, 4 ] ) )
         Select T21
-        if human->K_DATA >= 0d20260101
+        if human->K_DATA >= 0d20260101 .and. is_disp_DVN
           t21->( dbSeek( PadR( usl_zamena, 10 ) ) )
         else
 //          find ( PadR( a_otkaz[ j, 1 ], 10 ) )
@@ -1144,7 +1153,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oUSL, 'DATE_IN', date2xml( a_otkaz[ j, 3 ] ) )
         mo_add_xml_stroke( oUSL, 'DATE_OUT', date2xml( a_otkaz[ j, 3 ] ) )
         mo_add_xml_stroke( oUSL, 'P_OTK', lstr( a_otkaz[ j, 7 ] ) )
-        if human->K_DATA >= 0d20260101
+        if human->K_DATA >= 0d20260101 .and. is_disp_DVN
           mo_add_xml_stroke( oUSL, 'CODE_USL', usl_zamena )
         else
           mo_add_xml_stroke( oUSL, 'CODE_USL', a_otkaz[ j, 1 ] )
@@ -1157,7 +1166,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           mo_add_xml_stroke( oUSL, 'TARIF', lstr( a_otkaz[ j, 6 ], 10, 2 ) )
           mo_add_xml_stroke( oUSL, 'SUMV_USL', lstr( a_otkaz[ j, 6 ], 10, 2 ) )
         Endif
-        elem_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, '0' )
+        tag_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, '0' )
       Next
     Endif
 
@@ -1225,25 +1234,17 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Endif
         fl := .f.
 
-//        If is_telemedicina( lshifr, @fl ) // не заполняется код врача
-//          mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )  // добавил 04.08.21
-//          mo_add_xml_stroke( oUSL, 'CODE_MD', '0' )
-//        Else
-////          If ( human->k_data >= 0d20210801 .and. p_tip_reestr == TYPE_REESTR_DISPASER ) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
-////              .or. ( human->k_data >= 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL )  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
-            If ( p_tip_reestr == TYPE_REESTR_GENERAL ) .and. service_requires_implants( lshifr, c4tod( hu_->DATE_U2 ) )
-              elem_med_dev( oUsl, human->kod, mohu->( RecNo() ) )
-            Endif
-            If between_date( human->n_data, human->k_data, c4tod( mohu->DATE_U ) )
-              p2->( dbGoto( mohu->kod_vr ) )
-              elem_mr_usl_n( oUsl, _nyear, 1, mohu->PRVS, p2->snils ) // пока ставим 1 исполнитель
-            Endif
-////          Else  // if human->k_data < 0d20220101 .and. p_tip_reestr == TYPE_REESTR_GENERAL
-////            mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )  // добавил 04.08.21
-////            p2->( dbGoto( mohu->kod_vr ) )                                            // добавил 04.08.21
-////            mo_add_xml_stroke( oUSL, 'CODE_MD', p2->snils )                          // добавил 04.08.21
-////          Endif
-//        Endif
+//      If is_telemedicina( lshifr, @fl ) // не заполняется код врача
+//        mo_add_xml_stroke( oUSL, 'PRVS', put_prvs_to_reestr( mohu->PRVS, _NYEAR ) )  // добавил 04.08.21
+//        mo_add_xml_stroke( oUSL, 'CODE_MD', '0' )
+//      Endif
+        If ( p_tip_reestr == TYPE_REESTR_GENERAL ) .and. service_requires_implants( lshifr, c4tod( hu_->DATE_U2 ) )
+          tag_med_dev( oUsl, human->kod, mohu->( RecNo() ) )
+        Endif
+        If between_date( human->n_data, human->k_data, c4tod( mohu->DATE_U ) )
+          p2->( dbGoto( mohu->kod_vr ) )
+          tag_mr_usl_n( oUsl, _nyear, 1, mohu->PRVS, p2->snils ) // пока ставим 1 исполнитель
+        Endif
         If !Empty( mohu->zf )
           dbSelectArea( laluslf )
           find ( PadR( lshifr, 20 ) )
