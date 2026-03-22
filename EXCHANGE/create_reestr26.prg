@@ -266,23 +266,27 @@ Function f1create_reestr26( oBrow )
   status_key( '^<Esc>^ выход;  ^<Enter>^ составить реестр счетов;  ^<F9>^ печать списка пациентов' )
   Return Nil
 
-// 13.08.25
+// 22.03.26
 Function f2create_reestr26( nKey, oBrow )
 
-  Local rec, ret := -1, tmpSelect
+  Local rec, ret := -1, tmpSelect, i
 
   rec := A_SMO->( RecNo() )
   tmpSelect := Select()
   Do Case
   Case nkey == K_ENTER
-      If Date() < SToD( StrZero( A_SMO->nyear, 4 ) + StrZero( A_SMO->nmonth, 2 ) + '11' )
-        func_error( 10, 'Сегодня ' + date_8( Date() ) + ', а реестры разрешается отсылать с 11 числа' )
-      Else  //  if mo_lock_task( X_OMS )
-        control_and_create_schet26( A_SMO->kod_smo )
-        dbSelectArea( 'A_SMO' )
-        A_SMO->( dbGoto( rec ) )
-        ret := 0
+    if ! check_work_SMO( A_SMO->KOD_SMO )
+      if ( i := AScan( smo_volgograd(), { | x | AllTrim( Str( x[ 2 ], 5 ) ) == AllTrim( A_SMO->KOD_SMO ) } ) ) > 0
+        func_error( 10, 'СМО "' + smo_volgograd()[ i ][ 1 ] + '" на данный момент не работает, выписка реестра не возможна!' )
       endif
+    elseif Date() < SToD( StrZero( A_SMO->nyear, 4 ) + StrZero( A_SMO->nmonth, 2 ) + '11' )
+      func_error( 10, 'Сегодня ' + date_8( Date() ) + ', а реестры разрешается отсылать с 11 числа' )
+    Else  //  if mo_lock_task( X_OMS )
+      control_and_create_schet26( A_SMO->kod_smo )
+      dbSelectArea( 'A_SMO' )
+      A_SMO->( dbGoto( rec ) )
+      ret := 0
+    endif
   Case nkey == K_F9
     print_list_pacients( A_SMO->kod_smo, A_SMO->nyear, A_SMO->nmonth )
   Endcase

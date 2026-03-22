@@ -37,7 +37,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   local usl_zamena, nomeklatura_mz
   local kod_lshifr
   local tarif_usl, sumvv_usl
-  local mNPR_MO
+  local mNPR_MO, napr_number := ''
 
   Local oPAC
   Local cSMOname
@@ -332,8 +332,10 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           mo_add_xml_stroke( oSLUCH, 'NPR_MO', mNPR_MO )
           s := iif( Empty( human_2->NPR_DATE ), human->N_DATA, human_2->NPR_DATE )
           mo_add_xml_stroke( oSLUCH, 'NPR_DATE', date2xml( s ) )
-          if ( human_->USL_OK == USL_OK_DAY_HOSPITAL ) .or. ( i == 3 .and. human_->USL_OK == USL_OK_HOSPITAL )
-            mo_add_xml_stroke( oSLUCH, 'NPR_NUM', get_NAPR_MO( human->kod, _NPR_LECH ) )
+          napr_number := get_NAPR_MO( human->kod, _NPR_LECH )
+//          if ( human_->USL_OK == USL_OK_DAY_HOSPITAL ) .or. ( i == 3 .and. human_->USL_OK == USL_OK_HOSPITAL )
+          if ! Empty( napr_number ) .and. check_condition_npr_num( human_->USL_OK, i )
+            mo_add_xml_stroke( oSLUCH, 'NPR_NUM', napr_number )
           endif
         Endif
         mo_add_xml_stroke( oSLUCH, 'LPU', CODE_LPU )

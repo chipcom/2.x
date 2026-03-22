@@ -3,6 +3,35 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 22.03.26
+function check_work_SMO( code )
+
+  local ret := .f.
+  local aSmo, i, tCode
+
+  if ValType( code ) == 'N'
+    tCode := AllTrim( Str( code, 5 ) )
+  else
+    tCode := AllTrim( code )
+  endif
+  aSMO := smo_volgograd()
+  if ( i := AScan( aSmo, { | x | AllTrim( Str( x[ 2 ], 5 ) ) == tCode } ) ) > 0
+    ret := iif( aSmo[ i ][ 3 ] == 1, .t., .f. )
+  endif
+
+  return ret
+
+// 22.03.26
+function check_condition_npr_num( mUsl_ok, mfor_pom )
+
+  //  Заполняется на основании направления на лечение.
+  //  Заполнение обязательно в случаях оказания: 1. плановой
+  //  медицинской помощи в условиях стационара (FOR_POM=3 и
+  //  USL_OK = 1); 2. в условиях дневного стационара (USL_OK=2)
+
+  return ( mUsl_ok == USL_OK_DAY_HOSPITAL ) .or. ;
+    ( mfor_pom == 3 .and. mUsl_ok == USL_OK_HOSPITAL )  // 1
+
 // 11.03.26
 function arr_schol_xniz( mdate )
 

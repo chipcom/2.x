@@ -311,7 +311,12 @@ Function verify_sluch( fl_view, ft )
   //
   // ПРОВЕРЯЕМ УДОСТОВЕРЕНИЕ ЛИЧНОСТИ ПРИ ОТСУТСТВИИ ЕНП И ПРИКРЕПЛЕНИЕ 
   //
-
+  //
+  if ! check_work_SMO( human_->smo )
+    if ( i := AScan( smo_volgograd(), { | x | AllTrim( Str( x[ 2 ], 5 ) ) == AllTrim( human_->smo ) } ) ) > 0
+      AAdd( ta, 'СМО "' + smo_volgograd()[ i ][ 1 ] + '" на данный момент не работает' )
+    endif
+  endif
   if Empty( AllTrim( human->MO_PR ) )
     if ( AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( human_->smo ) ) } ) != 0 )
       AAdd( ta, 'пустое значение поля "МО прикрепления" в листе учета' )
@@ -2341,9 +2346,10 @@ Function verify_sluch( fl_view, ft )
   If eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
     napr_number := AllTrim( get_NAPR_MO( human->kod, _NPR_LECH ) ) 
     if Empty( napr_number ) ;
-      .and. ( ( Int( Val( SubStr( human_->FORMA14, 1, 1 ) ) ) == 0 .and. human_->USL_OK == USL_OK_HOSPITAL ) ;
-      .or. ( human_->USL_OK == USL_OK_DAY_HOSPITAL ) )
-        AAdd( ta, 'должно быть заполнено поле "Номер направление на госпитализацию"' )
+      .and. check_condition_npr_num( human_->USL_OK, Int( Val( SubStr( human_->FORMA14, 1, 1 ) ) ) )
+//      .and. ( ( Int( Val( SubStr( human_->FORMA14, 1, 1 ) ) ) == 0 .and. human_->USL_OK == USL_OK_HOSPITAL ) ;
+//      .or. ( human_->USL_OK == USL_OK_DAY_HOSPITAL ) )
+        AAdd( ta, 'должно быть заполнено поле "Номер направления на госпитализацию"' )
     endif
   endif
 
