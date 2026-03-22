@@ -2188,7 +2188,7 @@ Function file_tmp7( ausl, sh, HH, k )
 
   Return Nil
 
-// 15.03.26
+// 22.03.26
 Function o_proverka( k )
 
   Static si1 := 1
@@ -2201,23 +2201,26 @@ Function o_proverka( k )
       "Не введен код ~врача", ;
       "Не введен код ~ассистента", ;
       "Врач + ~больные за день", ;
-      "Одинаковые сочетания - № карты + ~дата вызова", ;
       "~Рассогласования в базах данных",;
+      "~Рассогласования в реестрах/счетах в базе данных",;
       "~Подбор иногородних"   }
+      //   "Одинаковые сочетания - № карты + ~дата вызова", ;
     mas_msg := { "Общие проверки (многовариантный запрос)", ;
       "Проверка листов учета на отсутствие кода врача", ;
       "Проверка листов учета на отсутствие кода ассистента", ;
       "Вывод списка принятых больных конкретным врачом за день", ;
-      "Поиск одинаковых сочетаний номера карты вызова + даты вызова", ;
       "Поиск рассогласований в базах данных (не заполнены или неверно заполнены поля)", ;
+      "Поиск рассогласований рассогласования в реестрах/счетах в базе данных",;
       "Поиск пациантов, выставленных ранее в другие области"   }
+      //      "Поиск одинаковых сочетаний номера карты вызова + даты вызова", ;
     mas_fun := { "o_proverka(11)", ;
       "o_proverka(12)", ;
       "o_proverka(13)", ;
       "o_proverka(14)", ;
-      "o_proverka(15)", ;
       "o_proverka(16)", ;
-      "o_proverka(17)"}
+      "o_proverka(17)", ;
+      "o_proverka(18)"}
+   //"o_proverka(15)", ;
     uch_otd := saveuchotd()
     Private p_net_otd := .t.
     popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
@@ -2230,11 +2233,13 @@ Function o_proverka( k )
     o_pr_vr_as( 2 )
   Case k == 14
     i_vr_boln()
-  Case k == 15
-    posik_smp_n_d()
+  //Case k == 15
+  //  posik_smp_n_d()
   Case k == 16
     poisk_rassogl()
   Case k == 17
+    poisk_rassogl_schet_reestr()
+  Case k == 18
     podbor_inogorodnie()  
   Endcase
   If k > 10
@@ -3461,6 +3466,277 @@ Function f1_poisk_rassogl()
   Endif
 
   Return Nil
+
+//   22.03.26
+Function  poisk_rassogl_schet_reestr()
+
+  Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
+    fl_exit := .f., sh := 80, HH := 80, reg_print := 5, pi1, fl_parakl, ;
+    name_file := "rassoglr.txt", lcount_uch, sschet
+
+  If ( arr_m := year_month() ) == NIL
+    Return Nil
+  Endif
+  //If ( pi1 := popup_prompt( T_ROW, T_COL - 5, 2, ;
+  //    { "По дате ~окончания лечения", "По дате ~выписки счета" } ) ) == 0
+  //  Return Nil
+  //Endif
+  mywait()
+  Private kol_err := 0
+  fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
+  add_string( "" )
+  add_string( Center( "Обнаруженные рассогласования в базах данных", sh ) )
+  //r_use( dir_server() + "mo_regi", , "MO_REGI" )
+  r_use( dir_server() + "mo_rees", , "MO_REES")  // список реестров счедений с 2026-реестров-счетов
+  index on str(nschet,6) to tmp_rees for nyear == 2026
+  r_use( dir_server() + "mo_rhum", , "MO_RHUM")  // список пациентов в реестре
+  index on str(reestr,6)+str(rees_zap,6) to tmp_rhum
+  r_use( dir_server() + "human", , "HUMAN" )     // случаи
+  index on str(schet,6) to tmp_humn
+  r_use( dir_server() + "human_", , "HUMAN_" )   // вторая часть - несер ссылки на реестр и счет
+  index on str(reestr,6)+str(rees_zap,6) to tmp_hum_
+  r_use( dir_server() + "schet_",, "SCHET_" )    // счет
+  index on str(kod_xml,6) to tmp_sche_
+  r_use( dir_server() + "schet",, "SCHET" )      // вторая часть счета    
+  r_use( dir_server() + "mo_xml",, "MO_XML" )    // список файлов обмена
+  index on str(reestr,6)+str(tip_in,2) to tmp_XML
+  //
+  begin_date := arr_m[ 5 ]
+  end_date := arr_m[ 6 ]
+  select MO_REES
+  Do While !Eof()
+    // цикл по реестрам
+    If Inkey() == K_ESC
+      fl_exit := .t. ; Exit
+    Endif
+    if mo_rees->dschet >= begin_date .and. mo_rees->dschet <= end_date
+      mo_rees_kod       := mo_rees->kod       // код реестра, номер записи
+      mo_rees_nschet    := mo_rees->nschet    // номер реестра сведений;уникален для отчетных периодов, принадлежащих одному календарному году;
+      mo_rees_kod_xml   := mo_rees->kod_xml   // ссылка на файл 'mo_xml'
+      mo_rees_numb_out  := mo_rees->numb_out  // номер отправки в ТФОМС, сколько раз всего записывали файл на носитель 
+      mo_rees_kol       := mo_rees->kol       // количество пациентов в реестре
+      mo_rees_nomer_s   := mo_rees->nomer_s   // если реестр счета, то номер счета
+      mo_rees_res_tfoms := mo_rees->res_tfoms // результат проверки реестра сета в ТФОМС ( 1-счет принят, 2-ошибка всего реестра, 3-ошибка в записях реестра)
+      mo_rees_NAME_XML  := mo_rees->NAME_XML  // имя XML-файла без расширения (и ZIP-архива)
+      add_string( "" )
+      // идем проверять по файлу  MO_RHUM
+      if mo_rees_res_tfoms == 1 // счет принят
+        add_string( "РC " +lstr(mo_rees_kod ) +" " + alltrim(mo_rees_NAME_XML) + " счет " + alltrim(mo_rees_nomer_s) + " ПРИНЯТ")
+        // проверим в файл SCHET
+        select MO_XML
+        goto mo_rees_kod_xml
+        if mo_xml->reestr != mo_rees_kod
+          kol_err ++
+          add_string("(4) MO_XML->reestr " + lstr(MO_XML->reestr) + " mo_rees->kod " + lstr(mo_rees->kod) )
+        endif
+        // ищим ответ на reestr в xml  
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! выбираем от реестра
+        select MO_RHUM
+        find(str(mo_rees_kod,6)) 
+        t_num := 0
+        do while mo_rhum->reestr == mo_rees_kod .and. !eof()
+          ++t_num
+          /*if  mo_rhum->oplata != 1 //- в счет
+            kol_err ++
+            add_string( "Признак НЕ в СЧЕТЕ " + "Запись MO_RHUM " + lstr(mo_rhum->(recno())) )
+          endif*/  
+          if t_num == mo_rhum->rees_zap
+            // ОК - переходим по прямой ссылке в HUMAN и сверяем реестр
+            select HUMAN_
+            goto mo_rhum->KOD_HUM
+            // проверяем данные Реестра
+            if mo_rhum->rees_zap == human_->rees_zap .and. mo_rhum->reestr == human_->reestr
+              // ОК
+            else  
+              kol_err ++
+              add_string("(1) REESTR в базе HUMAN_ " + lstr(human_->reestr) + " REESTR в базе MO_RHUM "+lstr(mo_rhum->reestr) )
+              add_string("   REES_ZAP в базе HUMAN_ " + lstr(human_->rees_zap) + " REES_ZAP в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + ;
+                         " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM) )
+              add_string("   Schet_ZAP в базе HUMAN_ " + lstr(human_->schet_zap)) 
+            Endif
+            select HUMAN
+            goto mo_rhum->KOD_HUM
+            if human->tip_H != 4 // в счете 
+              kol_err ++
+              add_string("(2) Запись в базе HUMAN " + lstr(mo_rhum->KOD_HUM) + "НЕ в СЧЕТЕ - поле TIP_H" + lstr(mo_rhum->KOD_HUM))
+            endif   
+            if HUMAN_->rees_zap != human_->schet_zap
+              kol_err ++
+              add_string("(3) HUMAN_->rees_zap " + lstr(HUMAN_->rees_zap) + " HUMAN_->schet_zap " + lstr(HUMAN_->schet_zap) + " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM))
+            endif
+          else
+            kol_err ++
+            add_string( "(5) Номер порядковый " + lstr(t_num) + "Номер в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + "Запись MO_RHUM " + lstr(mo_rhum->(recno())))
+          endif  
+          select MO_RHUM
+          skip 
+        enddo  
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   Выбираем от HUMAN
+        select HUMAN_
+        find(str(mo_rees_kod,6)) 
+        t_num := 0
+        do while human_->reestr == mo_rees_kod .and. !eof()
+          ++t_num
+         if t_num == human_->rees_zap
+            // ОК -
+            if HUMAN_->rees_zap != human_->schet_zap
+              kol_err ++
+              add_string("(00-1) HUMAN_->rees_zap " + lstr(HUMAN_->rees_zap) + " HUMAN_->schet_zap " + lstr(HUMAN_->schet_zap) + " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM))
+            endif
+         else
+           kol_err ++
+           add_string( "(00-2) REESTR в базе HUMAN_ " + lstr(human_->reestr) )
+           add_string( "     Номер порядковый " + lstr(t_num) + " REES_ZAP в базе HUMAN_ " + lstr(human_->rees_zap) + " Запись в базе HUMAN_ "+lstr(human_->(recno())) )
+           add_string("   Schet_ZAP в базе HUMAN_ " + lstr(human_->schet_zap)) 
+         endif
+          select HUMAN_
+          skip 
+        enddo  
+        // Другой вариант прохода - начинаем со счетов 
+        // нужно найти файл счет - он через ответ в  XML
+        select MO_XML
+        find(str(mo_rees_kod,6)+str(8,2)) //ФЛК 
+        // нужно найти файл счет - он через ответ в  XML
+        if alltrim(mo_rees_NAME_XML) != substr(alltrim(mo_xml->FNAME),2)
+          kol_err ++
+          add_string( "(XX-2)  " + alltrim(mo_rees_NAME_XML) + "!= " + alltrim(mo_xml->FNAME) + " " +lstr(mo_xml->kod))
+        else  
+          select schet_
+          find(str(mo_xml->kod,6)) 
+          if found()   
+            NN_schet := schet_->(recno())  
+            // human->schet и human_->schet_zap
+            select HUMAN
+            find(str(nn_schet,6))
+            do while human->schet == nn_schet .and. !eof()
+               select HUMAN_
+               goto human->kod
+               if human_->schet_zap != human_->rees_zap
+                 add_string( "(XX-3)  " + lstr(human_->schet_zap) + "!= " + lstr(human_->rees_zap) + " " +lstr(human->kod))
+               endif    
+               select HUMAN
+               skip
+            enddo
+
+
+          else
+            add_string( "(XX-1)  не найден" +lstr(mo_xml->kod))
+          endif  
+        endif  
+          
+
+      
+
+
+      elseif mo_rees_res_tfoms == 2 .or. mo_rees_res_tfoms == 3 // ОШИБКА - людей в реестре не должно быть
+        add_string( "РC " +lstr(mo_rees_kod ) + " " + alltrim(mo_rees_NAME_XML) + " НЕ ПРИНЯТ ТФОМС")
+        //
+        select MO_RHUM
+        find(str(mo_rees_kod,6)) 
+        t_num := 0
+        do while mo_rhum->reestr == mo_rees_kod .and. !eof()
+          ++t_num
+           if  mo_rhum->oplata == 1 //- в счет
+            kol_err ++
+            add_string( "Признак СЧЕТ " + "Запись MO_RHUM " + lstr(mo_rhum->(recno())) )
+          endif  
+          if t_num == mo_rhum->rees_zap
+            // ОК - переходим по прямой ссылке в HUMAN и сверяем реестр
+            select HUMAN_
+            goto mo_rhum->KOD_HUM
+            // проверяем данные Реестра
+            if mo_rhum->rees_zap == human_->rees_zap .and. mo_rhum->reestr == human_->reestr
+              // ОК
+            else  
+              kol_err ++
+              add_string("(10) REESTR в базе HUMAN_ " + lstr(human_->reestr) + " REESTR в базе MO_RHUM "+lstr(mo_rhum->reestr) )
+              add_string("   REES_ZAP в базе HUMAN_ " + lstr(human_->rees_zap) + " REES_ZAP в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + ;
+                         " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM) )
+            Endif
+            select HUMAN
+            goto mo_rhum->KOD_HUM
+            if human->tip_H == 4 // в счете 
+              kol_err ++
+              add_string("(8) Запись в базе HUMAN " + lstr(mo_rhum->KOD_HUM) + "в СЧЕТЕ - поле TIP_H" + lstr(mo_rhum->KOD_HUM))
+            endif   
+            if human_->schet_zap > 0
+              kol_err ++
+              add_string("(7) HUMAN_->schet_zap " + lstr(HUMAN_->schet_zap) + " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM))
+            endif
+          else
+            kol_err ++
+            add_string( "(9) Номер порядковый " + lstr(t_num) + "Номер в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + "Запись MO_RHUM " + lstr(mo_rhum->(recno())) )
+          endif  
+          select MO_RHUM
+          skip 
+        enddo  
+      else
+        add_string( "РC " +lstr(mo_rees_kod ) + " "  + alltrim(mo_rees_NAME_XML) + " ЗАПИСАН - НЕТ ОТВЕТА ТФОМС !!!!!!!!!!!!!!!!!!!!!!")
+           //
+        select MO_RHUM
+        find(str(mo_rees_kod,6)) 
+        t_num := 0
+        do while mo_rhum->reestr == mo_rees_kod .and. !eof()
+          ++t_num
+          if  mo_rhum->oplata == 1 //- в счет
+            kol_err ++
+            add_string( "Признак СЧЕТ " + "Запись MO_RHUM " + lstr(mo_rhum->(recno())) )
+          endif  
+          if t_num == mo_rhum->rees_zap
+            // ОК - переходим по прямой ссылке в HUMAN и сверяем реестр
+            select HUMAN_
+            goto mo_rhum->KOD_HUM
+            // проверяем данные Реестра
+            if mo_rhum->rees_zap == human_->rees_zap .and. mo_rhum->reestr == human_->reestr
+              // ОК
+            else  
+              kol_err ++
+              add_string("(11) REESTR в базе HUMAN_ " + lstr(human_->reestr) + " REESTR в базе MO_RHUM "+lstr(mo_rhum->reestr) )
+              add_string("   REES_ZAP в базе HUMAN_ " + lstr(human_->rees_zap) + " REES_ZAP в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + ;
+                         " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM) )
+            Endif
+            select HUMAN
+            goto mo_rhum->KOD_HUM
+            if human->tip_H == 4 // в счете 
+              kol_err ++
+              add_string("(12) Запись в базе HUMAN " + lstr(mo_rhum->KOD_HUM) + "в СЧЕТЕ - поле TIP_H" + lstr(mo_rhum->KOD_HUM))
+            endif   
+            if human_->schet_zap > 0
+              kol_err ++
+              add_string("(13) HUMAN_->schet_zap " + lstr(HUMAN_->schet_zap) + " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM))
+            endif
+          else
+            kol_err ++
+            add_string( "(14) Номер порядковый " + lstr(t_num) + "Номер в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + "Запись MO_RHUM " + lstr(mo_rhum->(recno()))+;
+              " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM) )
+            // заглянем в HUMAN_
+             add_string("   REES_ZAP в базе HUMAN_ " + lstr(human_->rees_zap) + " REES_ZAP в базе MO_RHUM "+lstr(mo_rhum->rees_zap))
+             add_string("   Schet_ZAP в базе HUMAN_ " + lstr(human_->schet_zap)) 
+         endif  
+          select MO_RHUM
+          skip 
+        enddo  
+      endif  
+    endif
+    Select MO_REES
+    Skip
+  Enddo
+  Close databases
+  If fl_exit
+    add_string( Expand( "ПРОЦЕСС ПРЕРВАН" ) )
+  Endif
+  FClose( fp )
+  rest_box( buf )
+  If kol_err > 0
+    viewtext( devide_into_pages( name_file, 80, 80 ),,,, ( sh > 80 ),,, reg_print )
+  Else
+    n_message( { "", "Рассогласований не обнаружено!" } )
+  Endif
+
+  Return Nil
+
+
+
 
   //15.03.26
   function podbor_inogorodnie()  
