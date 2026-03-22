@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.03.26
+// 22.03.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -13,7 +13,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Local oCONS
   Local oONK_SL, oDIAG, oPROT, oONK
   Local oUSL
-  Local oPAC
 
   Local fl, lshifr1
   Local i, j
@@ -24,11 +23,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Local lReplaceDiagnose := .f.
   Local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
   Local dPUMPver40 := 0d20240301
-  Local mnovor
   Local kol_sl, isl
   Local is_oncology_smp, is_oncology, arr_onkna, arr_onkco, arr_onksl, arr_onkdi, arr_onkpr, arr_onk_usl
   Local mdiagnoz, mdiagnoz3
-  Local cSMOname
   Local adiag_talon[ 16 ], tmpSelect
   Local a_fusl
   Local laluslf, lal
@@ -37,11 +34,15 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   local CODE_LPU
   local sk
   local lDispans := .f.
-  local vozrast, next_d
   local usl_zamena, nomeklatura_mz
   local kod_lshifr
   local tarif_usl, sumvv_usl
+  local mNPR_MO
 
+  Local oPAC
+  Local cSMOname
+  Local mnovor
+  local vozrast, next_d
   local arr_nazn
 
 //  Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
@@ -326,11 +327,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           i := lfor_pom
         Endcase
         mo_add_xml_stroke( oSLUCH, 'FOR_POM', lstr( i ) ) // 1 - экстренная, 2 - неотложная, 3 - плановая
+        // полученные направления на госпитализацию
         If !Empty( human_->NPR_MO ) .and. !Empty( mNPR_MO := ret_mo( human_->NPR_MO )[ _MO_KOD_FFOMS ] )
           mo_add_xml_stroke( oSLUCH, 'NPR_MO', mNPR_MO )
           s := iif( Empty( human_2->NPR_DATE ), human->N_DATA, human_2->NPR_DATE )
           mo_add_xml_stroke( oSLUCH, 'NPR_DATE', date2xml( s ) )
-          if i == 3 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )  // 3 - плаеовая
+          if ( human_->USL_OK == USL_OK_DAY_HOSPITAL ) .or. ( i == 3 .and. human_->USL_OK == USL_OK_HOSPITAL )
             mo_add_xml_stroke( oSLUCH, 'NPR_NUM', get_NAPR_MO( human->kod, _NPR_LECH ) )
           endif
         Endif
