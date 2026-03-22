@@ -6,6 +6,83 @@
 #include 'chip_mo.ch'
 
 // 21.03.26
+function tag_pacient( oZap, p_tip_reestr )
+
+  local oPAC, cSMOname, mnovor, vozrast, next_d
+
+  oPAC := oZAP:add( hxmlnode():new( 'PACIENT' ) )
+  mo_add_xml_stroke( oPAC, 'ID_PAC', human_->ID_PAC )
+  mo_add_xml_stroke( oPAC, 'VPOLIS', lstr( human_->VPOLIS ) )
+
+  if human_->VPOLIS == 3
+    If ( ( Len ( AllTrim( human_->NPOLIS ) ) == 16 ) ) .or. Len( AllTrim( kart2->kod_mis ) ) == 16
+      if ! Empty( human_->NPOLIS )
+        mo_add_xml_stroke( oPAC, 'ENP', AllTrim( human_->NPOLIS ) ) // Единый номер полиса единого образца
+      else
+        mo_add_xml_stroke( oPAC, 'ENP', kart2->kod_mis ) // Единый номер полиса единого образца
+      endif
+    Endif
+  else
+    If ! Empty( human_->SPOLIS )
+      mo_add_xml_stroke( oPAC, 'SPOLIS', human_->SPOLIS )
+    Endif
+    mo_add_xml_stroke( oPAC, 'NPOLIS', human_->NPOLIS )
+  endif
+
+  cSMOname := schet_smoname()
+  // mo_add_xml_stroke(oPAC, 'ST_OKATO' ,...) // Регион страхования
+  If Empty( cSMOname )
+    mo_add_xml_stroke( oPAC, 'SMO', human_->smo )
+  Endif
+  mo_add_xml_stroke( oPAC, 'SMO_OK', iif( Empty( human_->OKATO ), '18000', human_->OKATO ) )
+  If !Empty( cSMOname )
+    mo_add_xml_stroke( oPAC, 'SMO_NAM', cSMOname )
+  Endif
+
+  if p_tip_reestr == TYPE_REESTR_GENERAL // новый ПУМП на 26 год
+    tag_disability( oPac )
+  endif
+
+  If human_->NOVOR == 0
+    mo_add_xml_stroke( oPAC, 'NOVOR', '0' )
+  Else
+    mnovor := iif( human_->pol2 == 'М', '1', '2' ) + StrZero( Day( human_->DATE_R2 ), 2 ) + ;
+      StrZero( Month( human_->DATE_R2 ), 2 ) + Right( lstr( Year( human_->DATE_R2 ) ), 2 ) + ;
+      StrZero( human_->NOVOR, 2 )
+    mo_add_xml_stroke( oPAC, 'NOVOR', mnovor )
+  Endif
+  if p_tip_reestr == TYPE_REESTR_GENERAL // новый ПУМП на 26 год
+    If human_->USL_OK == USL_OK_HOSPITAL .and. human_2->VNR > 0
+      // стационар + л/у на недоношенного ребёнка
+      mo_add_xml_stroke( oPAC, 'VNOV_D', lstr( human_2->VNR ) )
+    Endif
+  endif
+
+  mo_add_xml_stroke( oPAC, 'SOC', iif( Empty( kart->pc3 ), '000', kart->pc3 ) ) // в новом ПУМП указывается всегда
+
+  If p_tip_reestr == TYPE_REESTR_DISPASER  // для реестров по диспансеризации
+    otd->( dbGoto( human->OTD ) )
+    if eq_any( otd->TIPLU, TIP_LU_DDS, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN )
+      if ( vozrast := count_years( human->date_r, human->n_data ) ) < 1 // возраст меньше года
+        next_d := AddMonth( human->k_data, 1 )
+      else
+        next_d := AddMonth( human->k_data, 12 )
+      endif
+    else
+      next_d := AddMonth( human->k_data, 12 )
+    Endif
+    mo_add_xml_stroke( oPAC, 'NEXT_D', Str( Month( next_d ), 2 ) )
+  endif
+  if ! Empty( human->MO_PR ) .and. ( AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( human_->smo ) ) } ) != 0 )
+    mo_add_xml_stroke( oPAC, 'MO_PR', human->MO_PR )
+  endif
+  if ! Empty( human->VZ ) .and. human_->USL_OK == USL_OK_POLYCLINIC   // только для медпомощи в условиях поликлиники
+    mo_add_xml_stroke( oPAC, 'VZ', Str( human->VZ, 2 ) )
+  endif
+
+  return nil
+  
+// 21.03.26
 function tag_napr( oSl, arr_onkna )  //  , lDispans )
 
   local oNAPR
@@ -324,21 +401,8 @@ function tag_disability( oPac )
     If inv->( Found() ) .and. ! ( empty( inv->DATE_INV ) .or. Empty( inv->PRICH_INV ) )
       // дата начала лечения отстоит от даты первичного установления инвалидности не более чем на год
       if ( inv->DATE_INV < human->n_data .and. human->n_data <= AddMonth( inv->DATE_INV, 12 ) )
-        if Year( human->k_data ) >= 2026  // ПУМП от 22.12.25 № 04-18-23
-          mo_add_xml_stroke( oPAC, 'INV', lstr( kart_->invalid ) )   // группа инвалидности при первичном признании застрахованного лица инвалидом
-        else  // старый ПУМП
-          // заполним сведения об инвалидности пациента для XML-документа
-          oDISAB := oPAC:add( hxmlnode():new( 'DISABILITY' ) )
-          // группа инвалидности при первичном признании застрахованного лица инвалидом
-          mo_add_xml_stroke( oDISAB, 'INV', lstr( kart_->invalid ) )
-          // Дата первичного установления инвалидности
-          mo_add_xml_stroke( oDISAB, 'DATA_INV', date2xml( inv->DATE_INV ) )
-          // Код причины установления  инвалидности
-          mo_add_xml_stroke( oDISAB, 'REASON_INV', lstr( inv->PRICH_INV ) )
-          If !Empty( inv->DIAG_INV ) // Код основного заболевания по МКБ-10
-            mo_add_xml_stroke( oDISAB, 'DS_INV', inv->DIAG_INV )
-          Endif
-        endif
+        // ПУМП от 22.12.25 № 04-18-23
+        mo_add_xml_stroke( oPAC, 'INV', lstr( kart_->invalid ) )   // группа инвалидности при первичном признании застрахованного лица инвалидом
       endif
     Endif
     Select( tmpSelect )

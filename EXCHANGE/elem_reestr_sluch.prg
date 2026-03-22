@@ -199,6 +199,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       mo_add_xml_stroke( oZAP, 'PR_NOV', iif( human_->SCHET_NUM > 0, '1', '0' ) ) // если попал в счёт 2-й раз и т.д.
 
       // заполним сведения о пациенте для XML-документа
+      tag_pacient( oZap, p_tip_reestr )
+/*
       oPAC := oZAP:add( hxmlnode():new( 'PACIENT' ) )
       mo_add_xml_stroke( oPAC, 'ID_PAC', human_->ID_PAC )
       mo_add_xml_stroke( oPAC, 'VPOLIS', lstr( human_->VPOLIS ) )
@@ -271,6 +273,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 //        mo_add_xml_stroke( oPAC, 'VZ', Str( kart->VZ, 2 ) )
         mo_add_xml_stroke( oPAC, 'VZ', Str( human->VZ, 2 ) )
       endif
+*/
 /*      
       if _nyear < 2026 .and. p_tip_reestr == TYPE_REESTR_GENERAL .and. ;    // старый ПУМП, реестр окоазания мед. помощи за исключенем диспансеризации
           human_->USL_OK == USL_OK_POLYCLINIC .and. ;   // поликлиника
