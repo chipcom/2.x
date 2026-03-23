@@ -404,6 +404,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       m1mobilbr   := 0                // мобильная бригада
 
       aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
+
+    if letap == 2
+      aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
+    endif
+
       aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
     Endif
   Endif
@@ -476,11 +481,16 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     ret_arr_vozrast_dvn( mk_data )
     // / !!!!
     read_arr_dvn( Loc_kod )
-    aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
-    aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
 
 //    ret_arrays_disp( mk_data )
     metap := human->ishod - 200
+    aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
+
+    if metap == 2
+      aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
+    endif
+
+    aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
 //    If is_disp_19
       mdvozrast := Year( mn_data ) - Year( mdate_r )
       // если это профосмотр

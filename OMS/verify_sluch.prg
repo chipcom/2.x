@@ -4212,6 +4212,9 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'это II этап диспансеризации, но отсутствует случай I этапа диспансеризации раз в 2 года' )
     Endif
     dvn_arr_usl := dvn_arr_usl( dEnd, m1mobilbr )
+    if metap == 2
+      dvn_arr_usl := del_usl_10_3_713_I_etap( dvn_arr_usl )
+    endif
     dvn_arr_umolch := dvn_arr_umolch( dEnd, m1mobilbr )
     // отметим обязательные услуги
     arr1 := Array( Len( dvn_arr_usl ), 5 )
@@ -4252,7 +4255,10 @@ Function verify_sluch( fl_view, ft )
         Next
       Endif
       If fl
-        For i := 1 To Len( dvn_arr_usl )  //  count_dvn_arr_usl
+        if metap == 2
+          dvn_arr_usl := del_usl_10_3_713_I_etap( dvn_arr_usl )
+        endif
+        For i := 1 To Len( dvn_arr_usl )
           If metap == 2 .and. ValType( dvn_arr_usl[ i, 2 ] ) == 'C' .and. dvn_arr_usl[ i, 2 ] == lshifr
             s := '"' + dvn_arr_usl[ i, 2 ] + ' ' + dvn_arr_usl[ i, 1 ] + '"'
             If ValType( dvn_arr_usl[ i, 3 ] ) == 'N'
@@ -4403,7 +4409,7 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'некорректно записан случай профоосмотра в год диспансеризации - отредактируйте' )
     Endif
     If !eq_any( metap, 2, 5 ) // проверим, выполнены обязательные услуги (и наоборот)
-      For i := 1 To Len( dvn_arr_usl )  //  count_dvn_arr_usl
+      For i := 1 To Len( dvn_arr_usl )
         s := '"' + iif( ValType( dvn_arr_usl[ i, 2 ] ) == 'C', dvn_arr_usl[ i, 2 ] + ' ', '' )
         s += dvn_arr_usl[ i, 1 ] + '"'
         If arr1[ i, 2 ] == 0 // не надо выполнять

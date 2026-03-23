@@ -3,6 +3,20 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 23.03.26
+function del_usl_10_3_713_I_etap( mArr )
+
+  local i
+
+  for i := len( mArr ) to 1 step -1
+    If ValType( mArr[ i, 2 ] ) == 'C' .and. mArr[ i, 2 ] == '10.3.713' ;
+        .and. mArr[ i, 3 ] == 1 // для 1 этапа
+      hb_ADel( mArr, i, .t. )  // удалим услугу 10.3.713 для I этапа
+    endif
+  next
+  
+  return mArr
+
 // 16.03.26 замена услуг ДВН на профосмотр
 function zamena_usl_dvn_to_prof( arr_osm )
 
@@ -662,12 +676,17 @@ Function f1get_spec_dvn( nKey, oBrow, regim )
 
   Return 0
 
-// 18.03.26 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
+// 23.03.26 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
 Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
 
-  Local fl := .f., ars := {}, ar
+  Local fl := .f., ars := {}, ar, aTemp
 
-  ar := dvn_arr_usl( mdata, mobil )[ i ]
+  aTemp := dvn_arr_usl( mdata, mobil )
+  if mdata >= 0d20260101 .and. _etap == 2
+//  if _etap == 2
+    aTemp := del_usl_10_3_713_I_etap( aTemp )
+  endif
+  ar := aTemp[ i ]
 
   If ValType( ar[ 3 ] ) == 'N'
     fl := ( ar[ 3 ] == _etap )
