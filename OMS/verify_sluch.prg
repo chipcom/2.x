@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 22.03.26 
+// 23.03.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // ª®¤ æ¥«¨ ¯®á¥é¥­¨ï ¯® á¯à ¢®ç­¨ªã V025
@@ -5077,7 +5077,8 @@ Function verify_sluch( fl_view, ft )
       If human->OBRASHEN == '1' // ¯®¤®§à¥­¨¥ ­  ‡
         AAdd( ta, '¯¥à¢ ï £àã¯¯  ­¥ ¬®¦¥â ¡ëâì ¯à¨á¢®¥­  ¯ æ¨¥­âã á ¯®¤®§à¥­¨¥¬ ­  ‡' )
       Endif
-    Elseif eq_any( human_->RSLT_NEW, 323, 324, 325, 334, 335, 336, 349, 350, 351, 355, 356, 373, 374, 357, 358, 377, 379 )
+//    Elseif eq_any( human_->RSLT_NEW, 323, 324, 325, 334, 335, 336, 349, 350, 351, 355, 356, 373, 374, 357, 358, 377, 379 )
+    Elseif eq_any( human_->RSLT_NEW, 323, 324, 325, 334, 335, 336, 349, 350, 351, 355, 356, 373, 374, 377, 379 )
       fl := !Empty( arr_onkna )
       If !fl .and. m1dopo_na > 0
         fl := .t.
