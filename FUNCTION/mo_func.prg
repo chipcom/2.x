@@ -4,6 +4,18 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 24.03.25
+function array_add( aList1, aList2 )
+
+  local element
+  local aNewArray := AClone( aList1 )
+
+  for each element in aList2
+    AAdd( aNewArray, element )
+  next
+  
+  return aNewArray
+
 // 21.01.25
 function unique_val_in_array( arr, col )
 
