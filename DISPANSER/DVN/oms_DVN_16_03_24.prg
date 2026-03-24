@@ -107,9 +107,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 //    { 'Дисп.1этап(раз в 2года)', 4 }, ;
 //    { 'Дисп.2этап(раз в 2года)', 5 } }
 //  Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., ;
-  Private mm_gruppa, is_disp_19 := .t., ;
-    is_disp_21 := .t., is_disp_nabl := .f.
-//      is_disp_24 := .t.
+  Private mm_gruppa, is_disp_19 := .t., is_disp_nabl := .f.
 
   Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
     arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
@@ -405,10 +403,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     //
     is_prazdnik := f_is_prazdnik_dvn( mn_data )
     is_disp_19 := !( mk_data < 0d20190501 )
-    //
-    is_disp_21 := !( mk_data < 0d20210101 )
-    //
-//    is_disp_24 := !( mk_data < 0d20240901 )
     //
     ret_arr_vozrast_dvn( mk_data )
     // / !!!!

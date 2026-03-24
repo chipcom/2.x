@@ -24,8 +24,16 @@ function dvn_arr_usl_new( dateSl, mobil, etap, gender, age )
   // 10- V002 - Классификатор профилей оказанной медицинской помощи
   // 11- V004 - Классификатор медицинских специальностей
 
-//  aDvn := dvn_arr_usl( dateSl, mobil )
-  aDvn := arr_usl_2026_new( mobil )
+  If dateSl >= 0d20260101
+//    aDvn := arr_usl_2026( mobil )
+    aDvn := arr_usl_2026_new( mobil )
+  elseIf ( dateSl >= 0d20210101 ) .and. ( dateSl < 0d20260101 )
+    aDvn := arr_usl_2021( dateSl, mobil, age )
+  Elseif ( dateSl >= 0d20190101 ) .and. ( dateSl < 0d20210101 )
+    aDvn := arr_usl_2019( mobil )
+  else
+    aDvn := arr_usl_2018( mobil )
+  Endif
 
   for i := Len( aDvn ) to 1 step -1
     fl := .f.
@@ -1267,31 +1275,10 @@ function dvn_arr_umolch( dateSl, mobil )
 // 04.03.26
 function dvn_arr_usl( dateSl, mobil )
 
-  local arr_dvn_usl //  , blk
-//  local age_etap_3 := { 19, 20, 22, 23, 25, 26, 28, 29, 31, 32, 34, 35, 37, 38 }
+  local arr_dvn_usl
 
   Default dateSl To 0d20210101
   default mobil to 0
-
-//  blk := { | d1, d2, d |
-//    Local i, arr := {}
-//    Default d To 1
-//    For i := d1 To d2 Step d
-//      AAdd( arr, i )
-//    Next
-//    Return arr
-//  }
-  // 1- наименование меню
-  // 2- шифр услуги
-  // 3- этап (1, 2, 3, 4, 5)
-  // 4- что-то связано с диагнозом
-  // 5-
-  // 6- возрост (мужчины)
-  // 7- возрост (женщины)
-  // 8-
-  // 9-
-  // 10- V002 - Классификатор профилей оказанной медицинской помощи
-  // 11- V004 - Классификатор медицинских специальностей
   arr_dvn_usl := {}
   If dateSl >= 0d20260101
     arr_dvn_usl := arr_usl_2026( mobil )
@@ -1392,14 +1379,12 @@ Function ret_arr_vozrast_dvn( _data )
 
   Return arr
 
-// 08.09.24
+// 24.03.26
 Function ret_ndisp( lkod_h, lkod_k, /*@*/new_etap, /*@*/msg)
 
   Local i, i1, i2, i3, i4, i5, is_disp, ar, fl := .t.
 
   is_disp_19 := !( mk_data < 0d20190501 )
-  is_disp_21 := !( mk_data < 0d20210101 )
-  is_disp_24 := !( mk_data < 0d20240901 )
   ret_arrays_disp( mk_data )
   msg := ' '
   new_etap := metap

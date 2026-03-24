@@ -36,10 +36,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   local lTom_II := .f., aTom_II // массив ввода врачей для томографии
   local mm_gruppaD1, mm_gruppaD2, mm_gruppaD4
   local mm_gruppaP, mm_gruppaP_old, mm_gruppaP_new
+  local gender, age
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
 
-  Default st_N_DATA To sys_date, st_K_DATA To sys_date
+  Default st_N_DATA To Date(), st_K_DATA To Date()
   Default Loc_kod To 0, kod_kartotek To 0
   //
   Private oms_sluch_DVN := .t., ps1dispans := s1dispans, is_prazdnik
@@ -116,9 +117,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 //    { 'Дисп.1этап(раз в 2года)', 4 }, ;
 //    { 'Дисп.2этап(раз в 2года)', 5 } }
 //  Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., ;
-  Private mm_gruppa, is_disp_19 := .t., ;
-    is_disp_21 := .t., is_disp_nabl := .f.
-//      is_disp_24 := .t.
+  Private mm_gruppa, is_disp_19 := .t., is_disp_nabl := .f.
 
   Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
     arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
@@ -133,11 +132,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
     mTab_Number := 0
   
-    /*Private mm_napr_v := {{'нет', 0}, ;
-                          {'к онкологу', 1}, ;
-                          {'на биопсию', 2}, ;
-                          {'на дообследование', 3}, ;
-                          {'для опредения тактики лечения', 4}}*/
   Private mm_napr_v := { ;
     { 'нет', 0 }, ;
     { 'к онкологу', 1 }, ;
@@ -160,37 +154,31 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     { 'dopo_na', 'N', 10, 0, , , , {| x | inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
   }
 
-/*
-  Private mm_gruppaP := arr_mm_gruppap()
-  Private mm_gruppaP_old := AClone( mm_gruppaP )
-  ASize( mm_gruppaP_old, 3 )
-  Private mm_gruppaP_new := AClone( mm_gruppaP )
-  hb_ADel( mm_gruppaP_new, 3, .t. )
+  Private mg_cit := '', m1g_cit := 0, m1lis := 0, mm_g_cit := { ;
+    { 'в МО-обычное иссл-е цитологичес.материала', 1 }, ;
+    { 'в ВОКОД-жидкостное иссл-ие цит.материала', 2 } }
 
-
-  Private mm_gruppaD1 := { ;
-    { 'Проведена диспансеризация - присвоена I группа здоровья', 1, 317 }, ;
-    { 'Проведена диспансеризация - присвоена II группа здоровья', 2, 318 }, ;
-    { 'Проведена диспансеризация - присвоена IIIа группа здоровья', 3, 355 }, ;
-    { 'Проведена диспансеризация - присвоена IIIб группа здоровья', 4, 356 }, ;
-    { 'Направлен на 2 этап, предварительно присвоена I группа здоровья', 11, 352 }, ;
-    { 'Направлен на 2 этап, предварительно присвоена II группа здоровья', 12, 353 }, ;
-    { 'Направлен на 2 этап, предварительно присвоена IIIа группа здоровья', 13, 357 }, ;
-    { 'Направлен на 2 этап, предварительно присвоена IIIб группа здоровья', 14, 358 }, ;
-    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена I группа здоровья', 21, 352 }, ;
-    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена II группа здоровья', 22, 353 }, ;
-    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена IIIа группа здоровья', 23, 357 }, ;
-    { 'Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена IIIб группа здоровья', 24, 358 } }
-  Private mm_gruppaD2 := AClone( mm_gruppaD1 )
-  ASize( mm_gruppaD2, 4 )
-  Private mm_gruppaD4 := AClone( mm_gruppaD1 )
-  ASize( mm_gruppaD4, 8 )
-*/
-//  Private mm_otkaz := arr_mm_otkaz()
-//  Private mm_otkaz1 := AClone( mm_otkaz )
-//  ASize( mm_otkaz1, 3 )
-//  Private mm_otkaz0 := AClone( mm_otkaz )
-//  ASize( mm_otkaz0, 2 )
+  For i := 1 To 5
+    sk := lstr( i )
+    pole_diag := 'mdiag' + sk
+    pole_d_diag := 'mddiag' + sk
+    pole_pervich := 'mpervich' + sk
+    pole_1pervich := 'm1pervich' + sk
+    pole_stadia := 'm1stadia' + sk
+    pole_dispans := 'mdispans' + sk
+    pole_1dispans := 'm1dispans' + sk
+    pole_d_dispans := 'mddispans' + sk
+    pole_dn_dispans := 'mdndispans' + sk
+    Private &pole_diag := Space( 6 )
+    Private &pole_d_diag := CToD( '' )
+    Private &pole_pervich := Space( 7 )
+    Private &pole_1pervich := 0
+    Private &pole_stadia := 1
+    Private &pole_dispans := Space( 10 )
+    Private &pole_1dispans := 0
+    Private &pole_d_dispans := CToD( '' )
+    Private &pole_dn_dispans := CToD( '' )
+  Next
 
   mm_gruppaP := arr_mm_gruppap()
   mm_gruppaP_old := AClone( mm_gruppaP )
@@ -228,10 +216,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   aEKG := Array( 2 )
   aTom_II := Array( 5 )
   aCit := Array( 2 )
-  aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
-  aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
+
+//  aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
+//  aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
   
-//  If kod_kartotek == 0 // добавление в картотеку
   If kod_kartotek >= 0 // работаем из картотеки
     If kod_kartotek == 0 // добавление в картотеку
       If ( kod_kartotek := edit_kartotek( 0, , , .t. ) ) == 0
@@ -241,13 +229,15 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     mkod_k := kod_kartotek
     r_use( dir_server() + 'kartotek', , 'KART' )
     kart->( dbGoto( mkod_k ) )  //  Goto ( mkod_k )
-    mpol        := kart->pol
-    mdate_r     := kart->date_r
+    mpol    := kart->pol
+    gender  := kart->pol
+    mdate_r := kart->date_r
     kart->( dbCloseArea() )
   Elseif Loc_kod > 0
     r_use( dir_server() + 'human', , 'HUMAN' )
     human->( dbGoto( Loc_kod ) )  //  Goto ( Loc_kod )
     mpol    := human->pol
+    gender  := kart->pol
     mdate_r := human->date_r
     MN_DATA := human->N_DATA
     fl := ( Year( human->k_data ) < 2018 )
@@ -257,48 +247,24 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     Endif
   Endif
 
-  fv_date_r( iif( Loc_kod > 0, MN_DATA, ) )
+  fv_date_r( iif( Loc_kod > 0, MN_DATA, ) ) // переопределение критерия 'взрослый/ребёнок' по дате рождения и '_date'
 
-  // If ISNIL( sadiag1 )
-  //   sadiag1 := load_diagnoze_disp_nabl_from_file()
-  // Endif
+  age := Year( mn_data ) - Year( mdate_r )
+
+  aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
+  aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
 
   chm_help_code := 3002
 
   mm_ndisp1 := AClone( mm_ndisp_dvn() )
-    // оставляем 3-ий и 4-ый этапы
+  // оставляем 3-ий и 4-ый этапы
   ASize( mm_ndisp1, 4 )
   hb_ADel( mm_ndisp1, 1, .t. )
   hb_ADel( mm_ndisp1, 1, .t. )
 
   arr := {} // массив для направлений
 
-  For i := 1 To 5
-    sk := lstr( i )
-    pole_diag := 'mdiag' + sk
-    pole_d_diag := 'mddiag' + sk
-    pole_pervich := 'mpervich' + sk
-    pole_1pervich := 'm1pervich' + sk
-    pole_stadia := 'm1stadia' + sk
-    pole_dispans := 'mdispans' + sk
-    pole_1dispans := 'm1dispans' + sk
-    pole_d_dispans := 'mddispans' + sk
-    pole_dn_dispans := 'mdndispans' + sk
-    Private &pole_diag := Space( 6 )
-    Private &pole_d_diag := CToD( '' )
-    Private &pole_pervich := Space( 7 )
-    Private &pole_1pervich := 0
-    Private &pole_stadia := 1
-    Private &pole_dispans := Space( 10 )
-    Private &pole_1dispans := 0
-    Private &pole_d_dispans := CToD( '' )
-    Private &pole_dn_dispans := CToD( '' )
-  Next
-  Private mg_cit := '', m1g_cit := 0, m1lis := 0, mm_g_cit := { ;
-    { 'в МО-обычное иссл-е цитологичес.материала', 1 }, ;
-    { 'в ВОКОД-жидкостное иссл-ие цит.материала', 2 } }
-  // for i := 1 to 33 //count_dvn_arr_usl 19.10.21
-  For i := 1 To 50 // 35 // count_dvn_arr_usl 08.09.24
+  For i := 1 To 50 // 35
     mvar := 'MTAB_NOMv' + lstr( i )
     Private &mvar := 0
     mvar := 'MTAB_NOMa' + lstr( i )
@@ -404,10 +370,11 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       m1mobilbr   := 0                // мобильная бригада
 
       aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
+//      aDvn_arr_usl := dvn_arr_usl_new( MK_DATA, m1mobilbr, letap, gender, age )
 
-    if letap == 2
-      aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
-    endif
+      if letap == 2
+        aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
+      endif
 
       aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
     Endif
@@ -474,17 +441,15 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     is_prazdnik := f_is_prazdnik_dvn( mn_data )
     is_disp_19 := !( mk_data < 0d20190501 )
     //
-    is_disp_21 := !( mk_data < 0d20210101 )
-    //
-//    is_disp_24 := !( mk_data < 0d20240901 )
-    //
     ret_arr_vozrast_dvn( mk_data )
     // / !!!!
     read_arr_dvn( Loc_kod )
 
 //    ret_arrays_disp( mk_data )
     metap := human->ishod - 200
+
     aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
+//    aDvn_arr_usl := dvn_arr_usl_new( MK_DATA, m1mobilbr, metap, gender, age )
 
     if metap == 2
       aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
@@ -525,6 +490,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         m1GRUPPA := mm_gruppa[ i, 2 ]
       Endif
     Endif
+
+
+    
     //
     fl_4_1_12 := .f.
     larr := Array( 2, len( aDvn_arr_usl ) )

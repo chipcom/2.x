@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 23.03.26 
+// 24.03.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -504,8 +504,6 @@ Function verify_sluch( fl_view, ft )
   gusl_ok := human_->usl_ok
   
   Private is_disp_19 := !( dEnd < 0d20190501 )
-  Private is_disp_21 := !( dEnd < 0d20210101 )
-  Private is_disp_24 := !( dEnd < 0d20240901 )
 
   If human_->usl_ok == USL_OK_POLYCLINIC
     if Empty( human->MOP )
