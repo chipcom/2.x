@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 22.03.26
+// 24.03.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -316,6 +316,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oSLUCH, 'IDSP', lstr( human_->IDSP ) )
         lal := iif( kol_sl == 2, 'human_3', 'human' )
         mo_add_xml_stroke( oSLUCH, 'SUMV', lstr( &lal.->cena_1, 10, 2 ) )
+/*
         Do Case
         Case human_->USL_OK == USL_OK_HOSPITAL // стационар
           i := iif( Left( human_->FORMA14, 1 ) == '1', 1, 3 )
@@ -326,6 +327,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         Otherwise
           i := lfor_pom
         Endcase
+*/
+        if Left( human_->FORMA14, 1 ) != '0' .or. Left( human_->FORMA14, 1 ) != ' '
+          i := Val( Left( human_->FORMA14, 1 ) )
+        else
+          i := lfor_pom
+        endif
         mo_add_xml_stroke( oSLUCH, 'FOR_POM', lstr( i ) ) // 1 - экстренная, 2 - неотложная, 3 - плановая
         // полученные направления на госпитализацию
         If !Empty( human_->NPR_MO ) .and. !Empty( mNPR_MO := ret_mo( human_->NPR_MO )[ _MO_KOD_FFOMS ] )

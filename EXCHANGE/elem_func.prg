@@ -305,7 +305,7 @@ function tag_mr_usl_n( oUsl, nyear, number, prvs, snils )
   mo_add_xml_stroke( oMR_USL_N, 'CODE_MD', snils )
   return nil
 
-// 21.03.26
+// 24.03.26
 function tag_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
 
   // тэг добавляется только для реестров 1 типа и помощь в условиях дневного
@@ -354,7 +354,8 @@ function tag_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
           oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
 //          mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ iAKSLP ] ) )
           mo_add_xml_stroke( oSLk, 'IDSL', 'sl' + StrZero( akslp[ iAKSLP ], 3, 0 ) )
-          mo_add_xml_stroke( oSLk, 'VAL_C', lstr( tKSLP[ cKSLP, 4 ], 7, 5 ) )
+//          mo_add_xml_stroke( oSLk, 'VAL_C', lstr( tKSLP[ cKSLP, 4 ], 7, 5 ) )
+          mo_add_xml_stroke( oSLk, 'VAL_C', Transform( tKSLP[ cKSLP, 4 ], '@L 9.99' ) )
         Endif
       Next
     Else
