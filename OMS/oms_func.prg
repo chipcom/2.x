@@ -88,87 +88,94 @@ function arr_patient_died_during_treatment( mkod_k, loc_kod )
   Enddo 
   return a_smert
 
-// 26.05.22 проверка на соответствие услуги профилю
-Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
+// 26.03.26 проверка на соответствие услуги профилю
+Function UslugaAccordanceProfil( aValidLicenzia, lshifr, lvzros_reb, lprofil, ta, short_shifr )
 
   Local s := '', s1 := ''
 
-  if valtype(short_shifr) == 'C' .and. !empty(short_shifr) .and. !(alltrim(lshifr) == alltrim(short_shifr))
-    s1 := '(' + alltrim(short_shifr) + ')'
+  if valtype( short_shifr ) == 'C' .and. ! empty( short_shifr ) .and. ! ( alltrim( lshifr ) == alltrim( short_shifr ) )
+    s1 := '(' + alltrim( short_shifr ) + ')'
   endif
-  if select('MOPROF') == 0
-    R_Use(dir_exe() + '_mo_prof', cur_dir() + '_mo_prof', 'MOPROF')
+  if select( 'MOPROF' ) == 0
+    R_Use( dir_exe() + '_mo_prof', cur_dir() + '_mo_prof', 'MOPROF' )
   endif
-  lshifr := padr(lshifr, 20)
-  lvzros_reb := iif(lvzros_reb == 0, 0, 1)
+  lshifr := padr( lshifr, 20 )
+  lvzros_reb := iif( lvzros_reb == 0, 0, 1 )
+
+  if ascan( aValidLicenzia, { | x | x[ 2 ] == human_->USL_OK .and. x[ 3 ] == lprofil } ) == 0
+//    aadd( ta, 'для отделения отсутствует лицензия на профиль ' + str( lprofil, 3 ) + '-' + inieditspr( A__MENUVERT, getV002(), lprofil ) )
+  endif
+
   select MOPROF
-  find (lshifr)
-  if found() // если данная услуга участвует в проверке по профилю
-    find (lshifr + str(lvzros_reb, 1) + str(lprofil, 3))
-    if !found()
-      find (lshifr + str(lvzros_reb, 1))
+  moprof->( dbSeek( lshifr ) )    // find ( lshifr )
+  if moprof->( found() ) // если данная услуга участвует в проверке по профилю
+    moprof->( dbSeek( lshifr + str( lvzros_reb, 1 ) + str( lprofil, 3 ) ) )    //  find (lshifr + str(lvzros_reb, 1) + str(lprofil, 3))
+    if ! moprof->( found() )
+      moprof->( dbSeek( lshifr + str( lvzros_reb, 1 ) ) )    //  find (lshifr + str(lvzros_reb, 1))
       if human_->USL_OK == 4  // если скорая помощь
-        if found()                // и нашли первый попавшийся профиль,
+        if moprof->( found() )                // и нашли первый попавшийся профиль,
           lprofil := moprof->profil // то заменяем без всяких сообщений
         endif
       else // для всех остальных условий формируем сообщение об ошибке
-        do while moprof->shifr==lshifr .and. moprof->vzros_reb == lvzros_reb .and. !eof()
-          s += '"' + lstr(moprof->profil) + '.' + inieditspr(A__MENUVERT, getV002(), moprof->profil) + '", '
-          skip
+        do while moprof->shifr == lshifr .and. moprof->vzros_reb == lvzros_reb .and. ! moprof->( eof() )
+          s += '"' + lstr( moprof->profil ) + '.' + inieditspr( A__MENUVERT, getV002(), moprof->profil ) + '", '
+          moprof->( dbSkip() )    //  skip
         enddo
-        aadd(ta, rtrim(lshifr) + s1 + ' - профиль "' + lstr(lprofil) + '.' + ;
-                  inieditspr(A__MENUVERT, getV002(), lprofil) + ;
-                  '" для ' + {'взрослого', 'ребёнка'}[lvzros_reb + 1] + ;
-                  ' недопустим' + iif(empty(s), '', ' (разрешается ' + left(s, len(s) - 2) + ')'))
+        aadd( ta, rtrim( lshifr ) + s1 + ' - профиль "' + lstr( lprofil ) + '.' + ;
+                  inieditspr( A__MENUVERT, getV002(), lprofil ) + ;
+                  '" для ' + { 'взрослого', 'ребёнка' }[ lvzros_reb + 1 ] + ;
+                  ' недопустим' + iif( empty( s ), '', ' (разрешается ' + left( s, len( s ) - 2 ) + ')' ) )
       endif
     endif
   endif
+
   return lprofil
   
-// 12.02.23 проверка на соответствие услуги специальности
-Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach)
+// 25.03.26 проверка на соответствие услуги специальности
+Function UslugaAccordancePRVS( lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach )
 
   Local s := '', s1 := '', s2, k
   local arr_conv_V015_V021 := conversion_V015_V021()
 
-  if valtype(short_shifr) == 'C' .and. !empty(short_shifr) .and. !(alltrim(lshifr) == alltrim(short_shifr))
-    s1 := '(' + alltrim(short_shifr) + ')'
+  if valtype( short_shifr ) == 'C' .and. ! empty( short_shifr ) .and. ! ( alltrim( lshifr ) == alltrim( short_shifr ) )
+    s1 := '(' + alltrim( short_shifr ) + ')'
   endif
-  if select('MOSPEC') == 0
-    R_Use(dir_exe() + '_mo_spec', cur_dir() + '_mo_spec', 'MOSPEC')
+  if select( 'MOSPEC' ) == 0
+    R_Use( dir_exe() + '_mo_spec', cur_dir() + '_mo_spec', 'MOSPEC' )
   endif
-  lshifr := padr(lshifr, 20)
-  lvzros_reb := iif(lvzros_reb == 0, 0, 1)
+  lshifr := padr( lshifr, 20 )
+  lvzros_reb := iif( lvzros_reb == 0, 0, 1 )
   if lprvs < 0
-    k := abs(lprvs)
+    k := abs( lprvs )
   else
-    k := ret_V004_V015(lprvs)
+    k := ret_V004_V015( lprvs )
   endif
-  s2 := lstr(k) + '.' + inieditspr(A__MENUVERT, getV015(), k)
+  s2 := lstr( k ) + '.' + inieditspr( A__MENUVERT, getV015(), k )
   //
-  lprvs := ret_prvs_V021(lprvs)
+  lprvs := ret_prvs_V021( lprvs )
   select MOSPEC
-  find (lshifr)
-  if found() // если данная услуга участвует в проверке по специальности
-    find (lshifr + str(lvzros_reb, 1) + str(lprvs, 6))
-    if !found()
-      find (lshifr + str(lvzros_reb, 1))
+  mospec->( dbSeek( lshifr ) )    //  find ( lshifr )
+  if mospec->( found() ) // если данная услуга участвует в проверке по специальности
+    mospec->( dbSeek( lshifr + str( lvzros_reb, 1 ) + str( lprvs, 6 ) ) )    //  find (lshifr + str(lvzros_reb, 1) + str(lprvs, 6))
+    if ! mospec->( found() )
+      mospec->( dbSeek( lshifr + str( lvzros_reb, 1 ) ) )    //  find (lshifr + str(lvzros_reb, 1))
       // формируем сообщение об ошибке
-      do while mospec->shifr==lshifr .and. mospec->vzros_reb == lvzros_reb .and. !eof()
+      do while mospec->shifr==lshifr .and. mospec->vzros_reb == lvzros_reb .and. ! mospec->( eof() )
         k := mospec->prvs_new
         // if (i := ascan(arr_conv_V015_V021, {|x| x[2] == k})) > 0 // перевод из 21-го справочника
         //   k := arr_conv_V015_V021[i, 1]                          // в 15-ый справочник
         // endif
         // s += '"' + lstr(k) + '.' + inieditspr(A__MENUVERT, getV015(), k) + '", '
-        s += '"' + inieditspr(A__MENUVERT, getV021(), k) + '", '
-        skip
+        s += '"' + inieditspr( A__MENUVERT, getV021(), k ) + '", '
+        mospec->( dbSkip() )    //  skip
       enddo
-      pers->(dbGoto(lvrach))
-      aadd(ta, rtrim(lshifr) + s1 + ' - (' + fam_i_o(pers->fio) + ' [' + lstr(pers->tab_nom) + ;
-              ']) специальность "' + s2 + '" для ' + {'взрослого', 'ребёнка'}[lvzros_reb + 1] + ;
-              ' недопустима' + iif(empty(s), '', ' (разрешается ' + left(s, len(s) - 2) + ')'))
+      pers->( dbGoto( lvrach ) )
+      aadd( ta, rtrim( lshifr ) + s1 + ' - (' + fam_i_o( pers->fio ) + ' [' + lstr( pers->tab_nom ) + ;
+              ']) специальность "' + s2 + '" для ' + { 'взрослого', 'ребёнка' }[ lvzros_reb + 1 ] + ;
+              ' недопустима' + iif( empty( s ), '', ' (разрешается ' + left( s, len( s ) - 2 ) + ')' ) )
     endif
   endif
+
   return nil
   
 // 07.06.24 собрать шифры услуг в случае

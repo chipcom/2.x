@@ -72,6 +72,7 @@ Function verify_sluch( fl_view, ft )
   local arr_unit
   local mo_current  // описатель текущей МО
   local kprof
+  local aValidProf  // допустимые в отделении профили, условия оказания, виды мед. помощи
 
   Default fl_view To .t.
 
@@ -112,6 +113,12 @@ Function verify_sluch( fl_view, ft )
   uch->( dbGoto( human->LPU ) )
   otd->( dbGoto( human->OTD ) )
   lu_type := otd->TIPLU
+
+  if Empty( otd->LPU_1 )
+    aValidProf := {}
+  else
+    aValidProf := get_f034( otd->LPU_1 )
+  endif
 
   // выводим сообщение в нижнюю строку
   s := fam_i_o( human->fio ) + ' '
@@ -977,7 +984,7 @@ Function verify_sluch( fl_view, ft )
         mdate_u2 := dtoc4( mdate + hu->kol_1 - 1 )
       Endif
       // проверяем на профиль
-      lprofil := uslugaaccordanceprofil( lshifr, human->vzros_reb, hu_->profil, ta, usl->shifr )
+      lprofil := uslugaaccordanceprofil( aValidProf, lshifr, human->vzros_reb, hu_->profil, ta, usl->shifr )
       If human_->USL_OK == USL_OK_AMBULANCE .and. lprofil != hu_->profil
         hu_->profil := lprofil
       Endif
@@ -1838,7 +1845,7 @@ Function verify_sluch( fl_view, ft )
             AAdd( ta, 'услуга ' + s + ' не относится к стоматологическим' )
           Else
             // проверяем на профиль
-            uslugaaccordanceprofil( lshifr, human->vzros_reb, mohu->profil, ta, mosu->shifr )
+            uslugaaccordanceprofil( aValidProf, lshifr, human->vzros_reb, mohu->profil, ta, mosu->shifr )
             // проверяем на специальность
             uslugaaccordanceprvs( lshifr, human->vzros_reb, mohu->prvs, ta, mosu->shifr, mohu->kod_vr )
           Endif

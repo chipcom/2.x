@@ -5,10 +5,10 @@
 
 function test_init()
 
-  local aaa
+//  local aaa
 
-  aaa := get_f034( '34202606300010029' )
-  altd()
+//  aaa := get_f034( '34202606300010029' )
+//  altd()
 
   return nil
 
