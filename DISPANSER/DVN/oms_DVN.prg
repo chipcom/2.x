@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.03.26 ДВН - добавление или редактирование случая (листа учета)
+// 25.03.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -35,8 +35,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   local lCit := .f., aCit  // массив ввода врачей для цитологий
   local lTom_II := .f., aTom_II // массив ввода врачей для томографии
   local mm_gruppaD1, mm_gruppaD2, mm_gruppaD4
-  local mm_gruppaP, mm_gruppaP_old, mm_gruppaP_new
+  local mm_gruppaP  //  , mm_gruppaP_new
   local gender, age
+  local mm_gruppa
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
 
@@ -117,7 +118,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 //    { 'Дисп.1этап(раз в 2года)', 4 }, ;
 //    { 'Дисп.2этап(раз в 2года)', 5 } }
 //  Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., ;
-  Private mm_gruppa, is_disp_19 := .t., is_disp_nabl := .f.
+  Private is_disp_19 := .t., is_disp_nabl := .f.  //, mm_gruppa
 
   Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
     arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
@@ -181,10 +182,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Next
 
   mm_gruppaP := arr_mm_gruppap()
-  mm_gruppaP_old := AClone( mm_gruppaP )
-  ASize( mm_gruppaP_old, 3 )
-  mm_gruppaP_new := AClone( mm_gruppaP )
-  hb_ADel( mm_gruppaP_new, 3, .t. )
+  hb_ADel( mm_gruppaP, 3, .t. )   // III группа здоровья не используется
+//  mm_gruppaP_new := AClone( mm_gruppaP )
+//  hb_ADel( mm_gruppaP_new, 3, .t. )
 
   mm_gruppaD1 := { ;
     { 'Проведена диспансеризация - присвоена I группа здоровья', 1, 317 }, ;
@@ -251,7 +251,15 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   age := Year( mn_data ) - Year( mdate_r )
 
+  ret_ndisp( Loc_kod, kod_kartotek )
+
   aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
+//      aDvn_arr_usl := dvn_arr_usl_new( MK_DATA, m1mobilbr, metap, gender, age )
+
+  if metap == 2
+    aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
+  endif
+
   aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
 
   chm_help_code := 3002
@@ -370,9 +378,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       m1mobilbr   := 0                // мобильная бригада
 
       aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
-//      aDvn_arr_usl := dvn_arr_usl_new( MK_DATA, m1mobilbr, letap, gender, age )
+//      aDvn_arr_usl := dvn_arr_usl_new( MK_DATA, m1mobilbr, metap, gender, age )
 
-      if letap == 2
+//      if letap == 2
+      if metap == 2
         aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
       endif
 
@@ -457,7 +466,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
     aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
 //    If is_disp_19
-      mdvozrast := Year( mn_data ) - Year( mdate_r )
+    mdvozrast := Year( mn_data ) - Year( mdate_r )
       // если это профосмотр
 /*
       If metap == 3 .and. AScan( ret_arr_vozrast_dvn( mk_data ), mdvozrast ) > 0 // а возраст диспансеризации
@@ -526,7 +535,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
 */        
         If fl
-          For i := 1 To Len( aDvn_arr_umolch ) //  count_dvn_arr_umolch
+          For i := 1 To Len( aDvn_arr_umolch )
             If Empty( larr[ 2, i ] ) .and. aDvn_arr_umolch[ i, 2 ] == lshifr
               fl := .f.
               larr[ 2, i ] := hu->( RecNo() )
@@ -768,12 +777,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     return &( f_print + '(' + lstr( Loc_kod ) + ',' + lstr( kod_kartotek ) + ')' )
   Endif
   //
-//  str_head := ' случая диспансеризации/профосмотра взрослого населения'
   If Loc_kod == 0
-//    str_head := 'Добавление' + str_head
     mtip_h := yes_vypisan
-//  Else
-//    str_head := 'Редактирование' + str_head
   Endif
   SetColor( color8 )
   Private gl_area
@@ -797,12 +802,12 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     Endif
     SetMode( hS, wS )
 
-  str_head := ' случая ' + iif( metap == 3, 'профосмотра', 'диспансеризации ' + str( metap, 1 ) + ' этапа' ) + ' взрослого населения'
-  If Loc_kod == 0
-    str_head := 'Добавление' + str_head
-  Else
-    str_head := 'Редактирование' + str_head
-  Endif
+    str_head := ' случая ' + iif( metap == 3, 'профосмотра', 'диспансеризации ' + str( metap, 1 ) + ' этапа' ) + ' взрослого населения'
+    If Loc_kod == 0
+      str_head := 'Добавление' + str_head
+    Else
+      str_head := 'Редактирование' + str_head
+    Endif
 
     @ 0, 0 Say PadC( str_head, wS ) Color 'B/BG*'
     gl_area := { 1, 0, MaxRow() -1, MaxCol(), 0 }
@@ -817,7 +822,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 //      @ j, wS - Len( s ) Say s Color color14
       @ j, 9 Say s Color color14
     Endif
-    If num_screen == 1 // 
+    If num_screen == 1 // первый экран
       @ ++j, 1 Say 'ФИО' Get mfio_kart ;
         reader {| x | menu_reader( x, { {| k, r, c| get_fio_kart( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
         valid {| g, o | update_get( 'mdate_r' ), ;
@@ -861,7 +866,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
       @ j,Col() + 5 Say 'Мобильная бригада?' Get mmobilbr ;
         reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
-        valid {|| aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr ), .t. }
+        valid {|| aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr ), aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl ), .t. }
       @ ++j, 1 Say 'Место обращения' Get mMOP ;
         reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
 
@@ -917,7 +922,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       If !Empty( a_smert )
         n_message( a_smert, , 'GR+/R', 'W+/R', , , 'G+/R' )
       Endif
-    Elseif num_screen == 2 // 
+    Elseif num_screen == 2 // второй экран, услуги и диагностика
       ret_ndisp( Loc_kod, kod_kartotek )
 //      @ ++j, 8 Get mndisp When .f. Color color14
       If mvozrast != mdvozrast
@@ -1010,15 +1015,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say Replicate( '─', 68 ) Color color8
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ на 3-ю страницу' )
 
-    Elseif num_screen == 3 // 
+    Elseif num_screen == 3 // третий экран диагнозы и результаты ДВН
       mm_gruppa := { mm_gruppaD1, mm_gruppaD2, mm_gruppaP, mm_gruppaD4, mm_gruppaD2 }[ metap ]
-      If metap == 3
-        If mk_data < 0d20191101
-          mm_gruppa := mm_gruppaP_old
-        Else
-          mm_gruppa := mm_gruppaP_new
-        Endif
-      Endif
       mgruppa := inieditspr( A__MENUVERT, mm_gruppa, m1gruppa )
       ret_ndisp( Loc_kod, kod_kartotek )
 //      @ ++j, 8 Get mndisp When .f. Color color14
@@ -1157,7 +1155,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'ГРУППА состояния ЗДОРОВЬЯ'
       @ j, Col() + 1 Get mGRUPPA ;
         reader {| x | menu_reader( x, mm_gruppa, A__MENUVERT, , , .f. ) }
-//        reader {| x | menu_reader( x, iif( m1DS_ONK == 1, mm_gruppaD2, mm_gruppa ), A__MENUVERT, , , .f. ) }
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 2-ю страницу ^<PgDn>^ ЗАПИСЬ' )
     Endif
     DispEnd()
@@ -1770,13 +1767,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       mm_gruppa := { mm_gruppaD1, mm_gruppaD2, mm_gruppaP, mm_gruppaD4, mm_gruppaD2 }[ metap ]
-      If metap == 3
-        If mk_data < 0d20191101
-          mm_gruppa := mm_gruppaP_old
-        Else
-          mm_gruppa := mm_gruppaP_new
-        Endif
-      Endif
+//      If metap == 3
+//        mm_gruppa := mm_gruppaP_new
+//      Endif
       m1p_otk := 0
       If ( i := AScan( mm_gruppa, {| x | x[ 2 ] == m1GRUPPA } ) ) > 0
         If ( m1rslt := mm_gruppa[ i, 3 ] ) == 352

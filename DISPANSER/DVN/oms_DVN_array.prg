@@ -1528,8 +1528,8 @@ Function ret_etap_dvn( lkod_h, lkod_k )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
-  find ( Str( lkod_k, 7 ) )
-  Do While human->kod_k == lkod_k .and. !Eof()
+  human->( dbSeek( Str( lkod_k, 7 ) ) )   //  find ( Str( lkod_k, 7 ) )
+  Do While human->kod_k == lkod_k .and. ! human->( Eof() )
     fl := ( lkod_h != human->( RecNo() ) )
     If fl .and. human->schet > 0 .and. human_->oplata == 9
       fl := .f. // лист учёта снят по акту и выставлен повторно
@@ -1542,9 +1542,9 @@ Function ret_etap_dvn( lkod_h, lkod_k )
         // aadd(ae[2], {i,human->k_data,human_->RSLT_NEW})
       Endif
     Endif
-    Skip
+    human->( dbSkip() )   //  Skip
   Enddo
-  Close databases
+  dbCloseAll()    //  Close databases
 
   Return ae
 
@@ -1607,7 +1607,7 @@ Function append_shifr_mo_su( lshifr, fl_commit )
     Set Order To 1
     find ( Str( -1, 6 ) )
     If Found()
-      g_rlock( forever )
+      g_rlock( 'forever' )
     Else
       addrec( 6 )
     Endif
