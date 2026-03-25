@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.03.26
+// 25.03.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -330,6 +330,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 */
         if Left( human_->FORMA14, 1 ) != '0' .or. Left( human_->FORMA14, 1 ) != ' '
           i := Val( Left( human_->FORMA14, 1 ) )
+        elseif Left( human_->FORMA14, 1 ) == '0' .or. Left( human_->FORMA14, 1 ) == ' '
+          i := 3  // плановая госпитализация
         else
           i := lfor_pom
         endif
