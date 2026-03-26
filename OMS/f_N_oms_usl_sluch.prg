@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.01.26 ввод услуг в лист учёта
+// 26.03.26 ввод услуг в лист учёта
 Function f2oms_usl_sluch( nKey, oBrow ) 
 
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF, ;
@@ -616,6 +616,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
           @ row_dom + 1, 2 Say 'Органы/части тела' Get mpar_org ;
             reader {| x| menu_reader( x, { {| k, r, c| get_par_org( r, c, k, tip_par_org ) } }, A__FUNCTION, , , .f. ) } ;
             When !Empty( tip_par_org )
+          ++ix
         Endif
       Endif
       @ r1 + ix, 2 Say 'Профиль' Get MPROFIL ;
