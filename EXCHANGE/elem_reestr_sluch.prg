@@ -1137,6 +1137,10 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       // заполним сведения об услугах для XML-документа
       For j := 1 To Len( a_otkaz )
 
+        ++idServ                  // увеличим число услуг в реестре случаев
+        hu_->REES_ZAP := idServ   //   ++idServ
+        hu_->SCHET_ZAP := idServ  //    ++idServ
+
         if human->K_DATA >= 0d20260101 .and. is_disp_DVN
           usl_zamena := get_zamenauslugi_dvn( human->K_DATA, a_otkaz[ j, 1 ] )
         endif
