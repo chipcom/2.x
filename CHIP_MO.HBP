@@ -302,6 +302,9 @@ mo_version.prg
 .\INSURANCE\insurance_companies.prg
 .\INSURANCE\func_smo.prg
 
+.\FUNC_LIB\mng_file.prg
+.\FUNC_LIB\fmanager.prg
+.\FUNC_LIB\g_rlock.prg
 .\FUNC_LIB\prview.prg
 .\FUNC_LIB\iniedspr.prg
 .\FUNC_LIB\menuread.prg
