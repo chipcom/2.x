@@ -184,6 +184,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       StrFile( hb_eol() + 'Тип файла: протокол ФЛК (форматно-логического контроля) нового образца' + hb_eol() + hb_eol(), cFileProtokol, .t. )
 
       If read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
+      else
       Endif
 
       // запишем принимаемый файл (протокол ФЛК)

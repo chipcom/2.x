@@ -142,7 +142,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
     r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
     Set Relation To RecNo() into HU_
 
-    r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+    g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
     g_use( dir_server() + 'human_', , 'HUMAN_' )
     g_use( dir_server() + 'human', , 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_3, To FIELD->otd into OTD

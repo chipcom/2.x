@@ -328,12 +328,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           i := lfor_pom
         Endcase
 */
-        if Left( human_->FORMA14, 1 ) != '0' .or. Left( human_->FORMA14, 1 ) != ' '
+        if Left( human_->FORMA14, 1 ) != '0' .and. Left( human_->FORMA14, 1 ) != ' '
           i := Val( Left( human_->FORMA14, 1 ) )
         elseif Left( human_->FORMA14, 1 ) == '0' .or. Left( human_->FORMA14, 1 ) == ' '
           i := 3  // плановая госпитализация
         else
-          i := lfor_pom
+          i := 3  //  lfor_pom
         endif
         mo_add_xml_stroke( oSLUCH, 'FOR_POM', lstr( i ) ) // 1 - экстренная, 2 - неотложная, 3 - плановая
         // полученные направления на госпитализацию

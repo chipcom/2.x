@@ -321,7 +321,6 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 
     j := 0
     Do While ! rhum->( Eof() )
-//      @ MaxRow(), 0 Say Str( rhum->REES_ZAP / pkol * 100, 6, 2 ) + '%' Color cColorSt2Msg
       oPb:Update( j )
 
       // записываем элемент для случая
