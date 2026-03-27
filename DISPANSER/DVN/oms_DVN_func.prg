@@ -855,3 +855,292 @@ Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_d
   Endif
 
   Return fl
+
+// 15.06.19
+Function ret_etap_dvn( lkod_h, lkod_k )
+
+  Local ae := { {}, {} }, fl, i, d1 := Year( mn_data )
+
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
+  r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
+  Set Relation To RecNo() into HUMAN_
+  human->( dbSeek( Str( lkod_k, 7 ) ) )
+  Do While human->kod_k == lkod_k .and. ! human->( Eof() )
+    fl := ( lkod_h != human->( RecNo() ) )
+    If fl .and. human->schet > 0 .and. human_->oplata == 9
+      fl := .f. // лист учёта снят по акту и выставлен повторно
+    Endif
+    If fl .and. Between( human->ishod, 201, 205 ) // ???
+      i := human->ishod -200
+      If Year( human->n_data ) == d1 // текущий год
+        AAdd( ae[ 1 ], { i, human->k_data, human_->RSLT_NEW } )
+        // elseif i >= 3 .and. mk_data < 0d20190501 .and. year(human->n_data) == d1-1 // профилактика прошлый год ???
+        // aadd(ae[2], {i,human->k_data,human_->RSLT_NEW})
+      Endif
+    Endif
+    human->( dbSkip() )
+  Enddo
+  dbCloseAll()
+
+  Return ae
+
+// 27.03.26 добавить шифр манипуляции в свой справочник MO_SU
+Function append_shifr_mo_su( lshifr, fl_commit )
+
+  Local lu_kod := 0, arr := {}
+
+  Default fl_commit To .t.
+  Select MOSU
+  Set Order To 3 // по шифру ФФОМС
+  mosu->( dbSeek( PadR( lshifr, 20 ) ) )    //  find ( PadR( lshifr, 20 ) )
+  Do While mosu->shifr1 == PadR( lshifr, 20 ) .and. ! mosu->( Eof() )
+    AAdd( arr, { iif( Left( mosu->shifr, 1 ) == '*', 1, 0 ), mosu->kod } )
+    Skip
+  Enddo
+  If !Empty( arr )
+    ASort( arr, , , {| x, y| x[ 1 ] < y[ 1 ] } ) // все старые стомат.услуги со звёздочкой в конец массива
+    lu_kod := arr[ 1, 2 ]
+  Else
+    Select LUSLF
+    luslf->( dbSeek( PadR( lshifr, 20 ) ) )   //  find ( PadR( lshifr, 20 ) )
+    Select MOSU
+    Set Order To 1
+    mosu->( dbseek( Str( -1, 6 ) ) )    //  find ( Str( -1, 6 ) )
+    If mosu->( Found() )
+      g_rlock( 'forever' )
+    Else
+      addrec( 6 )
+    Endif
+    lu_kod := mosu->kod := RecNo()
+    mosu->name := luslf->name
+    mosu->shifr1 := lshifr
+    mosu->PROFIL := m1PROFIL
+    If fl_commit
+      Unlock
+      Commit
+    Endif
+  Endif
+
+  Return lu_kod
+
+// 06.05.15 вернуть 'правильный' профиль для диспансеризации/профилактики
+Function ret_profil_dispans( lprofil, lprvs )
+
+  If lprofil == 34 // если профиль по 'клинической лабораторной диагностике'
+    If ret_old_prvs( lprvs ) == 2013 // и спец-ть 'Лабораторное дело'
+      lprofil := 37 // сменим на профиль по 'лабораторному делу'
+    Elseif ret_old_prvs( lprvs ) == 2011 // или 'Лабораторная диагностика'
+      lprofil := 38 // сменим на профиль по 'лабораторной диагностике'
+    Endif
+  Endif
+
+  Return lprofil
+
+// 08.08.13 вернуть тип массы в строке
+Function ret_tip_mas( _WEIGHT, _HEIGHT, /*@*/ret )
+
+  Static mm_tip_mas := { { 'Дефицит массы тела', 0, 18.4 }, ;
+    { 'Нормальная масса тела', 18.5, 24.9 }, ;
+    { 'Избыточная масса тела', 25.0, 29.9 }, ;
+    { 'Ожирение I степени', 30.0, 34.9 }, ;
+    { 'Ожирение II степени', 35.0, 39.9 }, ;
+    { 'Ожирение III степени', 40.0, 9999 } }
+  Local i, k, s := ''
+
+  ret := 2
+  If !emptyany( _WEIGHT, _HEIGHT )
+    _HEIGHT /= 100  // рост из сантиметров в метры
+    k := Round( _WEIGHT / _HEIGHT / _HEIGHT, 1 ) // индекс Кетле
+    If ( i := AScan( mm_tip_mas, {| x| Between( k, x[ 2 ], x[ 3 ] ) } ) ) > 0
+      ret := i
+      s := mm_tip_mas[ i, 1 ]
+    Endif
+  Endif
+
+  Return PadR( s, 21 )
+
+// 24.03.26
+Function ret_ndisp( lkod_h, lkod_k, /*@*/new_etap, /*@*/msg )
+
+  Local i, i1, i2, i3, i4, i5, is_disp, ar, fl := .t.
+
+  is_disp_19 := !( mk_data < 0d20190501 )
+  ret_arrays_disp( mk_data )
+  msg := ' '
+  new_etap := metap
+  is_dostup_2_year := .f.
+  If m1veteran == 1
+    mdvozrast := ret_vozr_dvn_veteran( mdvozrast, mk_data )
+  Endif
+  
+  If !( is_disp := AScan( ret_arr_vozrast_dvn( mk_data ), mdvozrast ) > 0 )
+//    If !is_disp_19 // по старому приказу МЗ РФ
+//      is_dostup_2_year := AScan( arr2m_vozrast_DVN(), mdvozrast ) > 0
+//      If !is_dostup_2_year .and. mpol == 'Ж'
+//        is_dostup_2_year := AScan( arr2g_vozrast_DVN(), mdvozrast ) > 0
+//      Endif
+//    Endif
+  Endif
+  If metap == 0
+    If is_disp
+      new_etap := 1
+    Else
+      new_etap := 3
+    Endif
+  Elseif metap == 3
+    If is_disp
+      new_etap := 1
+    Else
+      // остаётся = 3
+    Endif
+  Else
+    If is_disp
+      // остаётся = 1 или 2
+    Elseif new_etap < 4
+      new_etap := 3
+    Endif
+  Endif
+  ar := ret_etap_dvn( lkod_h, lkod_k )
+  If new_etap != 3
+    If Empty( ar[ 1 ] ) // в этом году ещё ничего не делали
+      // оставляем 1
+    Else
+      i1 := i2 := i3 := i4 := i5 := 0
+      For i := 1 To Len( ar[ 1 ] )
+        Do Case
+        Case ar[ 1, i, 1 ] == 1 // дисп-ия 1 этап
+          i1 := i
+        Case ar[ 1, i, 1 ] == 2 // дисп-ия 2 этап
+          i2 := i
+        Case ar[ 1, i, 1 ] == 3 // профилактика
+          i3 := i
+          msg := date_8( ar[ 1, i, 2 ] ) + 'г. уже проведён профилактический медосмотр!'
+        Case ar[ 1, i, 1 ] == 4 // дисп-ия 1 этап 1 раз в 2 года
+          i4 := i
+          msg := 'В ' + lstr( Year( mn_data ) ) + ' году уже проведена диспансеризации 1 раз в 2 года'
+        Case ar[ 1, i, 1 ] == 5 // дисп-ия 2 этап 1 раз в 2 года
+          i5 := i
+          msg := 'В ' + lstr( Year( mn_data ) ) + ' году уже проведена диспансеризации 1 раз в 2 года'
+        Endcase
+      Next
+      If eq_any( new_etap, 1, 2 ) .and. new_etap != metap
+        If i1 == 0
+          new_etap := 1 // делаем 1 этап
+        Elseif i2 == 0
+          new_etap := 2 // делаем 2 этап
+        Endif
+      Endif
+      If i1 > 0 .and. i2 > 0
+        msg := 'В ' + lstr( Year( mn_data ) ) + ' году уже проведены оба этапа диспансеризации!'
+      Elseif i1 > 0 .and. !Empty( ar[ 1, i1, 2 ] ) .and. ar[ 1, i1, 2 ] > mn_data
+        msg := 'Диспансеризация I этапа закончилась ' + date_8( ar[ 1, i1, 2 ] ) + 'г.!'
+      Endif
+      If eq_any( new_etap, 4, 5 ) .and. new_etap != metap
+        If i4 == 0
+          new_etap := 4 // делаем 1 этап
+        Elseif i5 == 0
+          new_etap := 5 // делаем 2 этап
+        Endif
+      Endif
+      If i4 > 0 .and. i5 > 0
+        msg := 'В ' + lstr( Year( mn_data ) ) + ' году уже проведены оба этапа диспансеризации (раз в 2 года)!'
+      Elseif i4 > 0 .and. !Empty( ar[ 1, i4, 2 ] ) .and. ar[ 1, i4, 2 ] > mn_data
+        msg := 'Диспансеризация I этапа (раз в 2 года) закончилась ' + date_8( ar[ 1, i4, 2 ] ) + 'г.!'
+      Endif
+    Endif
+  Else // if new_etap == 3
+    If Empty( ar[ 1 ] ) // в этом году ещё ничего не делали
+      If Empty( ar[ 2 ] ) // посмотрим прошлый год
+        // оставляем 3
+      Elseif AScan( ar[ 2 ], {| x| x[ 1 ] == 3 } ) > 0 // профилактика была в прошлом году
+        If is_dostup_2_year
+          new_etap := 4 // сразу разрешаем дисп-ию 1 раз в 2 года, т.к. в прошлом
+        Else
+          msg := 'Профилактика проводится 1 раз в 2 года (' + date_8( ar[ 2, 1, 2 ] ) + 'г. уже проведена)'
+        Endif
+      Endif
+    Else
+      i1 := i2 := i3 := i4 := i5 := 0
+      For i := 1 To Len( ar[ 1 ] )
+        Do Case
+        Case ar[ 1, i, 1 ] == 1 // дисп-ия 1 этап
+          i1 := i
+          msg := date_8( ar[ 1, i, 2 ] ) + 'г. уже проведена диспансеризация I этапа!'
+        Case ar[ 1, i, 1 ] == 2 // дисп-ия 2 этап
+          i2 := i
+          msg := date_8( ar[ 1, i, 2 ] ) + 'г. уже проведена диспансеризация II этапа!'
+        Case ar[ 1, i, 1 ] == 3 // профилактика
+          i3 := i
+          msg := date_8( ar[ 1, i, 2 ] ) + 'г. уже проведён профилактический медосмотр!'
+        Case ar[ 1, i, 1 ] == 4 // дисп-ия 1 этап раз в 2 года
+          i4 := i
+        Case ar[ 1, i, 1 ] == 5 // дисп-ия 2 этап раз в 2 года
+          i5 := i
+        Endcase
+      Next
+      If i4 > 0
+        If i5 > 0
+          msg := 'В ' + lstr( Year( mn_data ) ) + ' году уже проведены оба этапа диспансеризации (раз в 2 года)!'
+        Elseif !Empty( ar[ 1, i4, 2 ] ) .and. ar[ 1, i4, 2 ] > mn_data
+          msg := 'Диспансеризация I этапа (раз в 2 года) закончилась ' + date_8( ar[ 1, i4, 2 ] ) + 'г.!'
+        Else
+          new_etap := 5 // делаем 2 этап
+        Endif
+      Endif
+    Endif
+  Endif
+  If Empty( msg )
+    metap := new_etap
+    mndisp := inieditspr( A__MENUVERT, mm_ndisp_dvn(), metap )
+  Else
+    metap := 0
+    mndisp := Space( 23 )
+    func_error( 4, fam_i_o( mfio ) + ' ' + msg )
+  Endif
+
+  Return fl
+
+// 15.06.18 скорректировать возраст диспансеризации для ветеранов
+Function ret_vozr_dvn_veteran( _dvozrast, _data )
+
+  Local i, _arr_vozrast_DVN := ret_arr_vozrast_dvn( _data )
+
+  If AScan( _arr_vozrast_DVN, _dvozrast ) == 0
+    If _dvozrast < _arr_vozrast_DVN[ 1 ]
+      _dvozrast := _arr_vozrast_DVN[ 1 ]
+    Elseif _dvozrast > ATail( _arr_vozrast_DVN )
+      _dvozrast := ATail( _arr_vozrast_DVN )
+    Else
+      For i := 2 To Len( _arr_vozrast_DVN )
+        If Between( _dvozrast, _arr_vozrast_DVN[ i -1 ], _arr_vozrast_DVN[ i ] )
+          If _dvozrast == _arr_vozrast_DVN[ i -1 ] + 1
+            _dvozrast := _arr_vozrast_DVN[ i -1 ]
+          Else
+            _dvozrast := _arr_vozrast_DVN[ i ]
+          Endif
+          Exit
+        Endif
+      Next
+    Endif
+  Endif
+
+  Return _dvozrast
+
+// 15.06.19 вернуть массив возрастов дисп-ии для старого или нового Приказов МЗ РФ
+Function ret_arr_vozrast_dvn( _data )
+
+  Static sp := 0, arr := {}
+  Local i, p := iif( _data < 0d20190501, 1, 2 )
+
+  If p != sp
+    arr := AClone( arr_vozrast_DVN() ) // по старому Приказу МЗ РФ
+    If ( sp := p ) == 2 // по новому Приказу МЗ РФ
+      ASize( arr, 7 ) // уберём хвост после 39 лет {21, 24, 27, 30, 33, 36, 39,
+      ins_array( arr, 1, 18 ) // вставим в начало =18 лет
+      For i := 40 To 99
+        AAdd( arr, i ) // добавим в конец подряд с 40 по 99 лет
+      Next
+    Endif
+  Endif
+
+  Return arr
