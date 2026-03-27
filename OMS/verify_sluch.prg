@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 24.03.26 
+// 27.03.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -68,7 +68,7 @@ Function verify_sluch( fl_view, ft )
   local iProfil_m
   local a_mo_prik
   local lKart2
-  local dvn_arr_umolch, dvn_arr_usl
+  local aDvn_arr_umolch, aDvn_arr_usl
   local arr_unit
   local mo_current  // описатель текущей МО
   local kprof
@@ -4216,17 +4216,17 @@ Function verify_sluch( fl_view, ft )
     Elseif metap == 5 .and. AScan( a_disp, {| x| x[ 1 ] == 4 } ) == 0
       AAdd( ta, 'это II этап диспансеризации, но отсутствует случай I этапа диспансеризации раз в 2 года' )
     Endif
-    dvn_arr_usl := dvn_arr_usl( dEnd, m1mobilbr )
+    aDvn_arr_usl := dvn_arr_usl( dEnd, m1mobilbr )
     if metap == 2
-      dvn_arr_usl := del_usl_10_3_713_I_etap( dvn_arr_usl )
+      aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
     endif
-    dvn_arr_umolch := dvn_arr_umolch( dEnd, m1mobilbr )
+    aDvn_arr_umolch := dvn_arr_umolch( dEnd, m1mobilbr )
     // отметим обязательные услуги
-    arr1 := Array( Len( dvn_arr_usl ), 5 )
+    arr1 := Array( Len( aDvn_arr_usl ), 5 )
     afillall( arr1, 0 )
-    arr2 := Array( Len( dvn_arr_umolch ), 5 )
+    arr2 := Array( Len( aDvn_arr_umolch ), 5 )
     afillall( arr2, 0 )
-    For i := 1 To Len( dvn_arr_usl )
+    For i := 1 To Len( aDvn_arr_usl )
       fl_ekg := .f.
       i_otkaz := 0
       If f_is_usl_oms_sluch_dvn( human->k_data, m1mobilbr, i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol, , @i_otkaz, @fl_ekg )
@@ -4235,7 +4235,7 @@ Function verify_sluch( fl_view, ft )
         arr1[ i, 5 ] := iif( fl_ekg, 1, 0 ) // 1 - необязательный возраст
       Endif
     Next
-    For i := 1 To Len( dvn_arr_umolch )
+    For i := 1 To Len( aDvn_arr_umolch )
       If f_is_umolch_sluch_dvn( i, metap, iif( metap == 3 .and. !is_disp_19, mvozrast, mdvozrast ), mpol )
         arr2[ i, 2 ] := 1
       Endif
@@ -4246,13 +4246,13 @@ Function verify_sluch( fl_view, ft )
       fl := .t.
       If !is_disp_19 .and. ( ( lshifr == '2.3.3' .and. au_lu[ j, 3 ] == 3 ) .or.  ; // акушерскому делу
         ( lshifr == '2.3.1' .and. au_lu[ j, 3 ] == 136 ) )  ; // акушерству и гинекологии
-        .and. ( i := AScan( dvn_arr_usl, {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == '4.1.12' } ) ) > 0
+        .and. ( i := AScan( aDvn_arr_usl, {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == '4.1.12' } ) ) > 0
         arr1[ i, 1 ] ++
         fl := .f.
       Endif
       If fl
-        For i := 1 To Len( dvn_arr_umolch )
-          If arr2[ i, 1 ] == 0 .and. dvn_arr_umolch[ i, 2 ] == lshifr
+        For i := 1 To Len( aDvn_arr_umolch )
+          If arr2[ i, 1 ] == 0 .and. aDvn_arr_umolch[ i, 2 ] == lshifr
             arr2[ i, 1 ] ++
             fl := .f.
             Exit
@@ -4261,43 +4261,43 @@ Function verify_sluch( fl_view, ft )
       Endif
       If fl
         if metap == 2
-          dvn_arr_usl := del_usl_10_3_713_I_etap( dvn_arr_usl )
+          aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
         endif
-        For i := 1 To Len( dvn_arr_usl )
-          If metap == 2 .and. ValType( dvn_arr_usl[ i, 2 ] ) == 'C' .and. dvn_arr_usl[ i, 2 ] == lshifr
-            s := '"' + dvn_arr_usl[ i, 2 ] + ' ' + dvn_arr_usl[ i, 1 ] + '"'
-            If ValType( dvn_arr_usl[ i, 3 ] ) == 'N'
-              If dvn_arr_usl[ i, 3 ] != 2
+        For i := 1 To Len( aDvn_arr_usl )
+          If metap == 2 .and. ValType( aDvn_arr_usl[ i, 2 ] ) == 'C' .and. aDvn_arr_usl[ i, 2 ] == lshifr
+            s := '"' + aDvn_arr_usl[ i, 2 ] + ' ' + aDvn_arr_usl[ i, 1 ] + '"'
+            If ValType( aDvn_arr_usl[ i, 3 ] ) == 'N'
+              If aDvn_arr_usl[ i, 3 ] != 2
                 AAdd( ta, 'не надо выполнять, а выполнили ' + s )
               Endif
             Else
-              If AScan( dvn_arr_usl[ i, 3 ], 2 ) == 0
+              If AScan( aDvn_arr_usl[ i, 3 ], 2 ) == 0
                 AAdd( ta, 'не надо выполнять, а выполнили ' + s )
               Endif
             Endif
           Endif
           If arr1[ i, 1 ] == 0
-            If ValType( dvn_arr_usl[ i, 2 ] ) == 'C'
-              If dvn_arr_usl[ i, 2 ] == '4.20.1'
+            If ValType( aDvn_arr_usl[ i, 2 ] ) == 'C'
+              If aDvn_arr_usl[ i, 2 ] == '4.20.1'
                 If lshifr == '4.20.1'
                   m1g_cit := 1
                 Elseif lshifr == '4.20.2'
                   m1g_cit := 2 ; fl := .f.
                 Endif
               Endif
-              If dvn_arr_usl[ i, 2 ] == lshifr
+              If aDvn_arr_usl[ i, 2 ] == lshifr
                 fl := .f.
               Endif
             Endif
-            If fl .and. Len( dvn_arr_usl[ i ] ) > 11 .and. ValType( dvn_arr_usl[ i, 12 ] ) == 'A'
-                if ValType( dvn_arr_usl[ i, 12 ][ 1 ][ 1 ] ) == 'A'
-                  If ( kprof := AScan( dvn_arr_usl[ i, 12 ], {| x | x[ 2 ] == au_lu[ j, 3 ] } ) ) > 0
-                    if AScan( dvn_arr_usl[ i, 12, kprof, 1 ], lshifr ) > 0
+            If fl .and. Len( aDvn_arr_usl[ i ] ) > 11 .and. ValType( aDvn_arr_usl[ i, 12 ] ) == 'A'
+                if ValType( aDvn_arr_usl[ i, 12 ][ 1 ][ 1 ] ) == 'A'
+                  If ( kprof := AScan( aDvn_arr_usl[ i, 12 ], {| x | x[ 2 ] == au_lu[ j, 3 ] } ) ) > 0
+                    if AScan( aDvn_arr_usl[ i, 12, kprof, 1 ], lshifr ) > 0
                       fl := .f.
                     endif
                   endif
                 else
-                  If AScan( dvn_arr_usl[ i, 12 ], {| x| x[ 1 ] == lshifr .and. x[ 2 ] == au_lu[ j, 3 ] } ) > 0
+                  If AScan( aDvn_arr_usl[ i, 12 ], {| x| x[ 1 ] == lshifr .and. x[ 2 ] == au_lu[ j, 3 ] } ) > 0
                     fl := .f.
                   Endif
                 endif
@@ -4384,10 +4384,10 @@ Function verify_sluch( fl_view, ft )
         ar := arr_usl_otkaz[ j ]
         If ValType( ar ) == 'A' .and. Len( ar ) >= 10 .and. ValType( ar[ 5 ] ) == 'C'
           lshifr := AllTrim( ar[ 5 ] )
-          For i := 1 To Len( dvn_arr_usl )
-            If ValType( dvn_arr_usl[ i, 2 ] ) == 'C' .and. ;
-                ( dvn_arr_usl[ i, 2 ] == lshifr .or. ( Len( dvn_arr_usl[ i ] ) > 11 .and. ValType( dvn_arr_usl[ i, 12 ] ) == 'A' ;
-                .and. AScan( dvn_arr_usl[ i, 12 ], {| x| x[ 1 ] == lshifr } ) > 0 ) )
+          For i := 1 To Len( aDvn_arr_usl )
+            If ValType( aDvn_arr_usl[ i, 2 ] ) == 'C' .and. ;
+                ( aDvn_arr_usl[ i, 2 ] == lshifr .or. ( Len( aDvn_arr_usl[ i ] ) > 11 .and. ValType( aDvn_arr_usl[ i, 12 ] ) == 'A' ;
+                .and. AScan( aDvn_arr_usl[ i, 12 ], {| x| x[ 1 ] == lshifr } ) > 0 ) )
               If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
                 ++kol_d_usl
                 arr1[ i, 4 ] := ar[ 10 ] // 1-отказ, 2-невозможность
@@ -4400,7 +4400,7 @@ Function verify_sluch( fl_view, ft )
                     ++kol_ob_otkaz // кол-во отказов от обязательных услуг
                   Endif
                   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
-                  is_usluga_dvn( { lshifr, ar[ 9 ], ar[ 4 ], ar[ 2 ] }, mv, ta, metap, mpol, kod_spec_ter, dvn_arr_umolch, dvn_arr_usl )
+                  is_usluga_dvn( { lshifr, ar[ 9 ], ar[ 4 ], ar[ 2 ] }, mv, ta, metap, mpol, kod_spec_ter, aDvn_arr_umolch, aDvn_arr_usl )
                   // проверяем на специальность
                   uslugaaccordanceprvs( lshifr, human->vzros_reb, ar[ 2 ], ta, lshifr, iif( ValType( ar[ 1 ] ) == 'N', ar[ 1 ], 0 ) )
                 Endif
@@ -4414,16 +4414,16 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'некорректно записан случай профоосмотра в год диспансеризации - отредактируйте' )
     Endif
     If !eq_any( metap, 2, 5 ) // проверим, выполнены обязательные услуги (и наоборот)
-      For i := 1 To Len( dvn_arr_usl )
-        s := '"' + iif( ValType( dvn_arr_usl[ i, 2 ] ) == 'C', dvn_arr_usl[ i, 2 ] + ' ', '' )
-        s += dvn_arr_usl[ i, 1 ] + '"'
+      For i := 1 To Len( aDvn_arr_usl )
+        s := '"' + iif( ValType( aDvn_arr_usl[ i, 2 ] ) == 'C', aDvn_arr_usl[ i, 2 ] + ' ', '' )
+        s += aDvn_arr_usl[ i, 1 ] + '"'
         If arr1[ i, 2 ] == 0 // не надо выполнять
           If arr1[ i, 1 ] > 1
             AAdd( ta, 'не надо выполнять, а выполнили ' + s )
           Endif
         Elseif arr1[ i, 2 ] == 1 // надо выполнять
           If eq_any( arr1[ i, 4 ], 1, 2 ) ;// отказ, невозможно
-            .and. ValType( dvn_arr_usl[ i, 2 ] ) == 'C' .and. dvn_arr_usl[ i, 2 ] == '4.1.12'
+            .and. ValType( aDvn_arr_usl[ i, 2 ] ) == 'C' .and. aDvn_arr_usl[ i, 2 ] == '4.1.12'
             If a_4_20_1[ 2 ] == 3
               AAdd( ta, 'не должно быть услуги "4.20.1 Исследование взятого цитологического материала", т.к. в услуге ' + s + ' стоит ' + { 'ОТКАЗ', 'НЕВОЗМОЖНОСТЬ' }[ arr1[ i, 4 ] ] + ' - отредактируйте' )
             Endif
@@ -4433,11 +4433,11 @@ Function verify_sluch( fl_view, ft )
               AAdd( ta, 'НЕВЕРНО установлена "невозможность" оказания услуги ' + s )
             Elseif arr1[ i, 4 ] == 0 // не отказ
               fl := .t.
-              If ValType( dvn_arr_usl[ i, 2 ] ) == 'C'
-                If dvn_arr_usl[ i, 2 ] == '4.20.1' .and. a_4_20_1[ 1 ] < 3
+              If ValType( aDvn_arr_usl[ i, 2 ] ) == 'C'
+                If aDvn_arr_usl[ i, 2 ] == '4.20.1' .and. a_4_20_1[ 1 ] < 3
                   fl := .f.
                 Endif
-              elseif ValType( dvn_arr_usl[ i, 2 ] ) == 'A'
+              elseif ValType( aDvn_arr_usl[ i, 2 ] ) == 'A'
                   fl := .f.
               Endif
               If fl .and. ! is_disp_DVN
@@ -4449,8 +4449,8 @@ Function verify_sluch( fl_view, ft )
           Endif
         Endif
       Next
-      For i := 1 To Len( dvn_arr_umolch )
-        s := '"' + dvn_arr_umolch[ i, 2 ] + ' ' + dvn_arr_umolch[ i, 1 ] + '"'
+      For i := 1 To Len( aDvn_arr_umolch )
+        s := '"' + aDvn_arr_umolch[ i, 2 ] + ' ' + aDvn_arr_umolch[ i, 1 ] + '"'
         If arr2[ i, 2 ] == 0 // не надо выполнять
           If arr2[ i, 1 ] > 1
             AAdd( ta, 'не надо выполнять, а выполнили ' + s )
@@ -4483,7 +4483,7 @@ Function verify_sluch( fl_view, ft )
       If au_lu[ i, 2 ] > dEnd
         AAdd( ta, s + ' не попадает в диапазон лечения' )
       Endif
-      If is_usluga_dvn( au_lu[ i ], mv, ta, metap, mpol, kod_spec_ter, dvn_arr_umolch, dvn_arr_usl )
+      If is_usluga_dvn( au_lu[ i ], mv, ta, metap, mpol, kod_spec_ter, aDvn_arr_umolch, aDvn_arr_usl )
 //altd()
         If ( mk_data >= 0d20260101 ) .and. metap == 1 .and. !eq_any( Left( lshifr, 5 ), '4.20.', '2.90.', '70.7.' )
           ++kol_d_usl

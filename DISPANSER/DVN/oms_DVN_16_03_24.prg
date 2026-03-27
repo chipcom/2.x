@@ -712,6 +712,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   mspec_na  := inieditspr( A__MENUVERT, mm_danet(), m1spec_na )
   msank_na  := inieditspr( A__MENUVERT, mm_danet(), m1sank_na )
   mtip_mas := ret_tip_mas( mWEIGHT, mHEIGHT, @m1tip_mas )
+altd()
   ret_ndisp( Loc_kod, kod_kartotek )
   //
   If !Empty( f_print )
@@ -800,7 +801,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
       @ j,Col() + 5 Say 'Мобильная бригада?' Get mmobilbr ;
         reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
-        valid {|| aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr ), .t. }
+        valid {|| .t. }
       @ ++j, 1 Say 'Место обращения' Get mMOP ;
         reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
 

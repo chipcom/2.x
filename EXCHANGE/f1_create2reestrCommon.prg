@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500
 
-// 09.03.26 работаем по текущей записи
+// 27.03.26 работаем по текущей записи
 Function f1_create2reestrCommon( _nyear, p_tip_reestr )
 
   Local i, j, lst, sVidpoms
@@ -15,7 +15,7 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
   local arr_not_zs, lc, lpods
   local lvidpoms
   Local atmpusl
-  Local dvn_arr_usl
+  Local aDvn_arr_usl
   //
 
   tarif_zak_sl := human->cena_1
@@ -313,14 +313,14 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
 
     private m1mobilbr := 0
     read_arr_dvn( human->kod )
-    dvn_arr_usl := dvn_arr_usl( human->K_DATA, m1mobilbr )
+    aDvn_arr_usl := dvn_arr_usl( human->K_DATA, m1mobilbr )
 
     If ValType( arr_usl_otkaz ) == 'A' .and. eq_any( human->ishod, 201, 203 ) // не II этап
       For j := 1 To Len( arr_usl_otkaz )
         ar := arr_usl_otkaz[ j ]
         If ValType( ar ) == 'A' .and. Len( ar ) >= 10 .and. ValType( ar[ 5 ] ) == 'C'
           lshifr := AllTrim( ar[ 5 ] )
-          If ( i := AScan( dvn_arr_usl, {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
+          If ( i := AScan( aDvn_arr_usl, {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
             If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
               AAdd( a_otkaz, { lshifr, ;
                 ar[ 6 ], ; // диагноз

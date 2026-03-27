@@ -3,8 +3,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.03.26
-Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, dvn_arr_umolch, dvn_arr_usl )
+// 27.03.26
+Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, arr_umolch, arr_usl )
   
   // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1])
@@ -15,7 +15,7 @@ Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, dvn_arr_umo
   fl_19 := ( type( 'is_disp_19' ) == 'L' .and. is_disp_19 )
   if ! fl_19 .and. ( ( lshifr == '2.3.3' .and. ausl[ 3 ] == 3 ) .or. ; // акушерскому делу
                   ( lshifr == '2.3.1' .and. ausl[ 3 ] == 136 ) )   // акушерству и гинекологии
-      //.and. ( i := ascan(dvn_arr_usl, { | x | valtype( x[ 2 ] ) == 'C' .and. x[ 2 ] == '4.20.1' } ) ) > 0
+      //.and. ( i := ascan(arr_usl, { | x | valtype( x[ 2 ] ) == 'C' .and. x[ 2 ] == '4.20.1' } ) ) > 0
     if ( ( lshifr == '2.3.3' .and. eq_any( ret_old_prvs( ausl[ 4 ] ), 2003, 2002 ) ) .or. ;
       ( lshifr == '2.3.1' .and. ret_old_prvs( ausl[ 4 ] ) == 1101 ) )
     else
@@ -26,8 +26,8 @@ Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, dvn_arr_umo
   endif
 */
   if !fl
-    for i := 1 to len( dvn_arr_umolch )
-      if dvn_arr_umolch[ i, 2 ] == lshifr
+    for i := 1 to len( arr_umolch )
+      if arr_umolch[ i, 2 ] == lshifr
         fl := .t.
         exit
       endif
@@ -35,71 +35,71 @@ Function is_usluga_dvn( ausl, _vozrast, arr, _etap, _pol, _spec_ter, dvn_arr_umo
   endif
   if !fl
     DEFAULT _spec_ter to 0
-    for i := 1 to Len( dvn_arr_usl )
-      if valtype( dvn_arr_usl[ i, 2 ] ) == 'C'
-        if dvn_arr_usl[ i, 2 ] == '4.20.1' .and. lshifr == '4.20.2'
+    for i := 1 to Len( arr_usl )
+      if valtype( arr_usl[ i, 2 ] ) == 'C'
+        if arr_usl[ i, 2 ] == '4.20.1' .and. lshifr == '4.20.2'
           fl := .t.
-        elseif dvn_arr_usl[ i, 2 ] == lshifr
+        elseif arr_usl[ i, 2 ] == lshifr
           fl := .t.
         endif
       endif
-      if ! fl .and. len( dvn_arr_usl[ i ] ) > 11 .and. valtype( dvn_arr_usl[ i, 12 ] ) == 'A'
-        if ValType( dvn_arr_usl[ i, 12 ][ 1 ][ 1 ] ) == 'A'
-          If ( kprof := AScan( dvn_arr_usl[ i, 12 ], {| x | x[ 2 ] == ausl[ 3 ] } ) ) > 0
-            if AScan( dvn_arr_usl[ i, 12, kprof, 1 ], lshifr ) > 0
+      if ! fl .and. len( arr_usl[ i ] ) > 11 .and. valtype( arr_usl[ i, 12 ] ) == 'A'
+        if ValType( arr_usl[ i, 12 ][ 1 ][ 1 ] ) == 'A'
+          If ( kprof := AScan( arr_usl[ i, 12 ], {| x | x[ 2 ] == ausl[ 3 ] } ) ) > 0
+            if AScan( arr_usl[ i, 12, kprof, 1 ], lshifr ) > 0
               fl := .t.
             endif
           endif
         else
-          if ascan(dvn_arr_usl[ i, 12 ], { | x | x[ 1 ] == lshifr .and. x[ 2 ] == ausl[ 3 ] } ) > 0
+          if ascan( arr_usl[ i, 12 ], { | x | x[ 1 ] == lshifr .and. x[ 2 ] == ausl[ 3 ] } ) > 0
             fl := .t.
           endif
         endif
       endif
       if fl
-        s := '"' + lshifr + '.' + dvn_arr_usl[ i, 1 ] + '"'
+        s := '"' + lshifr + '.' + arr_usl[ i, 1 ] + '"'
         if eq_any( _etap, 1, 4, 5 )
           j := iif( _pol == 'М', 6, 7 )
-          if _etap > 1 .and. len( dvn_arr_usl[ i ] ) > 12
+          if _etap > 1 .and. len( arr_usl[ i ] ) > 12
             j := iif( _pol == 'М', 13, 14 )
           endif
-          if valtype(dvn_arr_usl[i, j]) == 'N'
-            if dvn_arr_usl[ i, j ] == 0
+          if valtype( arr_usl[i, j]) == 'N'
+            if arr_usl[ i, j ] == 0
               aadd( arr, 'несовместимость по полу в услуге ' + s )
             endif
           else
-            if ascan( dvn_arr_usl[ i, j ], _vozrast ) == 0
+            if ascan( arr_usl[ i, j ], _vozrast ) == 0
               aadd( arr, 'некорректный возраст пациента для услуги ' + s )
             endif
           endif
         else
           j := iif( _pol == 'М', 8, 9 )
-          if valtype( dvn_arr_usl[ i, j ] ) == 'N'
-            if dvn_arr_usl[ i, j ] == 0
+          if valtype( arr_usl[ i, j ] ) == 'N'
+            if arr_usl[ i, j ] == 0
               aadd( arr, 'несовместимость по полу в услуге ' + s )
             endif
 //          elseif type('is_disp_19') == 'L' .and. is_disp_19
-          elseif valtype( dvn_arr_usl[ i, j ] ) == 'A'
-            if ascan( dvn_arr_usl[ i, j ], _vozrast ) == 0
+          elseif valtype( arr_usl[ i, j ] ) == 'A'
+            if ascan( arr_usl[ i, j ], _vozrast ) == 0
               aadd( arr,'некорректный возраст пациента для услуги ' + s )
             endif
           else
-            if !between( _vozrast, dvn_arr_usl[ i, j, 1 ], dvn_arr_usl[ i, j, 2 ] )
+            if !between( _vozrast, arr_usl[ i, j, 1 ], arr_usl[ i, j, 2 ] )
               aadd( arr, 'некорректный возраст пациента для услуги ' + s )
             endif
           endif
         endif
-        if valtype( dvn_arr_usl[ i, 10 ] ) == 'N'
-          if ret_profil_dispans( dvn_arr_usl[ i, 10 ], ausl[ 4 ] ) != ausl[ 3 ]
-          //if dvn_arr_usl[ i, 10 ] != ausl[ 3 ]
+        if valtype( arr_usl[ i, 10 ] ) == 'N'
+          if ret_profil_dispans( arr_usl[ i, 10 ], ausl[ 4 ] ) != ausl[ 3 ]
+          //if arr_usl[ i, 10 ] != ausl[ 3 ]
             aadd( arr, 'не тот профиль в услуге ' + s )
           endif
         else
-          if ascan( dvn_arr_usl[ i, 10 ], ausl[ 3 ] ) == 0
+          if ascan( arr_usl[ i, 10 ], ausl[ 3 ] ) == 0
             aadd( arr,'не тот профиль в услуге ' + s )
           endif
         endif
-        as := aclone( dvn_arr_usl[ i, 11 ] )
+        as := aclone( arr_usl[ i, 11 ] )
         // "Измерение внутриглазного давления","3.4.9"
         if _etap == 1 .and. as[ 1 ] == 1112 .and. _spec_ter > 0
           aadd( as, _spec_ter ) // добавить спец-ть терапевта
@@ -1089,6 +1089,7 @@ Function ret_ndisp( lkod_h, lkod_k, /*@*/new_etap, /*@*/msg )
       Endif
     Endif
   Endif
+altd()
   If Empty( msg )
     metap := new_etap
     mndisp := inieditspr( A__MENUVERT, mm_ndisp_dvn(), metap )
