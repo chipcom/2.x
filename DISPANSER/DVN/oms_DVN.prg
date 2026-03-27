@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.03.26 ДВН - добавление или редактирование случая (листа учета)
+// 27.03.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -37,7 +37,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   local mm_gruppaD1, mm_gruppaD2, mm_gruppaD4
   local mm_gruppaP  //  , mm_gruppaP_new
   local gender, age
-  local mm_gruppa
+  local mm_gruppa, isNewKart := .f.
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
 
@@ -247,6 +247,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     Endif
   Endif
 
+  isNewKart := ( Loc_kod == 0 .and. kod_kartotek != 0 )   // новый лист учета
+
   fv_date_r( iif( Loc_kod > 0, MN_DATA, ) ) // переопределение критерия 'взрослый/ребёнок' по дате рождения и '_date'
 
   age := Year( mn_data ) - Year( mdate_r )
@@ -374,6 +376,15 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       Endif
 
       read_arr_dvn( human->kod, .f. )
+
+      if isNewKart
+        mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+        m1dopo_na := 0
+        m1ssh_na  := 0
+        m1spec_na := 0
+        m1sank_na := 0
+      endif
+
       MUCH_DOC    := human->UCH_DOC   // номер амбулаторной карты
       m1mobilbr   := 0                // мобильная бригада
 
@@ -866,7 +877,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         When !( is_uchastok == 1 .and. is_task( X_REGIST ) ) .or. mem_edit_ist == 2
       @ j,Col() + 5 Say 'Мобильная бригада?' Get mmobilbr ;
         reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
-        valid {|| aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr ), aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl ), .t. }
+        valid {|| .t. }
+//        valid {|| aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr ), aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl ), .t. }
       @ ++j, 1 Say 'Место обращения' Get mMOP ;
         reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
 
