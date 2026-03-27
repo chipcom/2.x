@@ -946,6 +946,13 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         @ j, 80 - Len( s ) Say s Color color14
       Endif
 
+      aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
+//      aDvn_arr_usl := dvn_arr_usl_new( MK_DATA, m1mobilbr, metap, gender, age )
+      if metap == 2
+        aDvn_arr_usl := del_usl_10_3_713_I_etap( aDvn_arr_usl )
+      endif
+      aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
+
       @ ++j, 1 Say 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ' Color color8
       @ ++j, 1 Say ' ¨¬¥­®¢ ­¨ï ¨áá«¥¤®¢ ­¨©                   ³¢à ç ³ áá¨á³¤ â  ãá«ã£³¢ë¯®«­¥­¨¥' Color color8
       @ ++j, 1 Say 'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ' Color color8
