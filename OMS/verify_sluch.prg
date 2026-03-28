@@ -4003,7 +4003,7 @@ Function verify_sluch( fl_view, ft )
           // услуга в отказах
         Else
           s := ''
-          arr_not_zs := np_arr_not_zs( dEnd )
+          arr_not_zs := PN_usl_replace( dEnd )
           
 //          If ( ( j := AScan( np_arr_issled( dEnd ), {| x| x[ 1 ] == lshifr } ) ) > 0 ) .and. ;
 //              ( ( jk := AScan( arr_not_zs, {| x| x[ 2 ] == lshifr } ) ) > 0 )
@@ -4554,7 +4554,7 @@ Function verify_sluch( fl_view, ft )
             AAdd( ta, 'в л/у услуга ' + lshifr + ', а должна быть ' + s + ' для возраста ' + lstr( mv ) + ' ' + s_let( mv ) + '. Отредактируйте!' )
           Endif
         endif
-//      Elseif AScan( replace_uslugi_otkaz( human->K_DATA ), { | x | x[ 2 ] == lshifr } ) > 0
+//      Elseif AScan( DVN_usl_replace( human->K_DATA ), { | x | x[ 2 ] == lshifr } ) > 0
       Else
         oth_usl += lshifr + ' '
       Endif

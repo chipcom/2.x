@@ -5,6 +5,37 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 27.03.26
+function get_zamenauslugi_on_date( mTypeLu, mdate, codeUsl )
+
+  local i, retShifr := ''
+  local arr_zam
+  
+  if mTypeLu == TIP_LU_DVN
+    arr_zam := DVN_usl_replace( mdate )
+  elseif mTypeLu == TIP_LU_DDS .or. mTypeLu == TIP_LU_DDSOP
+//    arr_zam := DDS_usl_replace( mdate )
+    retShifr := codeUsl
+    return retShifr
+  elseif mTypeLu == TIP_LU_PN
+//    arr_zam := PN_usl_replace( mdate )
+    retShifr := codeUsl
+    return retShifr
+  elseif mTypeLu == TIP_LU_DRZ
+    retShifr := codeUsl
+    return retShifr
+  elseif mTypeLu == TIP_LU_DVN_COVID
+    retShifr := codeUsl
+    return retShifr
+  endif
+
+  codeUsl := AllTrim( codeUsl )
+  i := ascan( arr_zam, { | x | AllTrim( x[ 1 ] ) == codeUsl } )
+  if i > 0
+    retShifr := arr_zam[ i, 2 ]
+  endif
+
+  return retShifr
 
 // 08.11.23 Загрузка диагнозов диспансерного учёта
 Function load_diagnoze_disp_nabl_from_file()

@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.03.26
+// 27.03.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -1103,8 +1103,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         tarif_usl := hu->u_cena
         sumvv_usl := hu->STOIM_1
         if p_tip_reestr == TYPE_REESTR_DISPASER
-          if human->K_DATA >= 0d20260101 .and. c4tod( hu->DATE_U ) < human->N_DATA .and. is_disp_DVN
-            usl_zamena := get_zamenauslugi_dvn( human->K_DATA, lshifr )
+          if human->K_DATA >= 0d20260101 .and. c4tod( hu->DATE_U ) < human->N_DATA // .and. is_disp_DVN
+//            usl_zamena := get_zamenauslugi_dvn( human->K_DATA, lshifr )
+            usl_zamena := get_zamenauslugi_on_date( otd->TIPLU, human->K_DATA, lshifr )
             tarif_usl := 0
             sumvv_usl := 0
             mo_add_xml_stroke( oUSL, 'CODE_USL', usl_zamena )
@@ -1141,8 +1142,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         hu_->REES_ZAP := idServ   //   ++idServ
         hu_->SCHET_ZAP := idServ  //    ++idServ
 
-        if human->K_DATA >= 0d20260101 .and. is_disp_DVN
-          usl_zamena := get_zamenauslugi_dvn( human->K_DATA, a_otkaz[ j, 1 ] )
+        if human->K_DATA >= 0d20260101 // .and. is_disp_DVN
+//          usl_zamena := get_zamenauslugi_dvn( human->K_DATA, a_otkaz[ j, 1 ] )
+          usl_zamena := get_zamenauslugi_on_date( otd->TIPLU, human->K_DATA, a_otkaz[ j, 1 ] )
         endif
 
         oUSL := oSL:add( hxmlnode():new( 'USL' ) )

@@ -25,6 +25,7 @@ Function print_l_uch( mkod, par, regim, lnomer )
   local mas[ 2 ], lname
   local lExistFilesTFOMS
   local lDisp := .f., sh_zam, lZam := .f.
+  local nTipLu
 
   DEFAULT par TO 1, regim TO 1, lnomer TO 0
   mywait()
@@ -180,7 +181,8 @@ Function print_l_uch( mkod, par, regim, lnomer )
   endif
   name_lpu := rtrim(inieditspr(A__MENUVERT, getUCH(), human->lpu))
   name_otd := '  [ ' + alltrim(otd->name) + ' ]'
-  lTypeLUMedReab := (otd->tiplu == TIP_LU_MED_REAB)
+  nTipLu := otd->tiplu
+  lTypeLUMedReab := ( otd->tiplu == TIP_LU_MED_REAB )
 
   mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, human->vzros_reb)
   mrab_nerab := inieditspr(A__MENUVERT, menu_rab(), kart->rab_nerab)
@@ -460,7 +462,8 @@ Function print_l_uch( mkod, par, regim, lnomer )
         select ( tmpAlias )
         if c4tod( hu->date_u ) < human->n_data .and. lDisp
           lZam := .t.
-          sh_zam := get_zamenauslugi_dvn( human->k_data, alltrim( usl->shifr ) )
+//          sh_zam := get_zamenauslugi_dvn( human->k_data, alltrim( usl->shifr ) )
+          sh_zam := get_zamenauslugi_on_date( nTipLu, human->k_data, alltrim( usl->shifr ) )
           find ( padr( sh_zam, 10 ) )
         else
           find ( padr( usl->shifr, 10 ) )
@@ -531,13 +534,13 @@ Function print_l_uch( mkod, par, regim, lnomer )
       tmp1->( dbAppend() )    //  append blank
       tmp1->kod := mosu->kod
       tmp1->name := lname
-      tmp1->shifr := iif(empty(mosu->shifr), mosu->shifr1, mosu->shifr)
+      tmp1->shifr := iif( empty( mosu->shifr ), mosu->shifr1, mosu->shifr )
       tmp1->shifr1 := mosu->shifr1
-      tmp1->date_u1 := c4tod(mohu->date_u)
-      tmp1->date_u2 := c4tod(mohu->date_u2)
-      tmp1->rec_hu := mohu->(recno())
+      tmp1->date_u1 := c4tod( mohu->date_u )
+      tmp1->date_u2 := c4tod( mohu->date_u2 )
+      tmp1->rec_hu := mohu->( recno() )
       tmp1->kod_diag := mohu->KOD_DIAG
-      if STisZF(human_->USL_OK, human_->PROFIL)
+      if STisZF( human_->USL_OK, human_->PROFIL )
         tmp1->zf := mohu->ZF
       endif
       tmp1->otd := otd->short_name
@@ -561,21 +564,21 @@ Function print_l_uch( mkod, par, regim, lnomer )
     if ! ( alltrim( tmp1->shifr ) == alltrim( tmp1->shifr1 ) ) .and. ! empty( tmp1->shifr1 )
       s += '(' + alltrim( tmp1->shifr1 ) + ')'
     endif
-    s += iif(tmp1->dom==1, '/на дому/', iif(tmp1->dom==2, '/домАКТИВ/', ' '))
-    s += alltrim(tmp1->name)
-    if eq_any(alltrim(tmp1->shifr), '2.3.1', '2.3.3', '2.6.1', '2.60.1')
-      s += ' (' + alltrim(inieditspr(A__MENUVERT, getV002(), tmp1->PROFIL)) + ')'
+    s += iif( tmp1->dom==1, '/на дому/', iif( tmp1->dom==2, '/домАКТИВ/', ' ' ) )
+    s += alltrim( tmp1->name )
+    if eq_any( alltrim( tmp1->shifr ), '2.3.1', '2.3.3', '2.6.1', '2.60.1' )
+      s += ' (' + alltrim( inieditspr( A__MENUVERT, getV002(), tmp1->PROFIL ) ) + ')'
     elseif !empty(tmp1->zf)
-      s += ' ЗФ:' + alltrim(tmp1->ZF)
+      s += ' ЗФ:' + alltrim( tmp1->ZF )
     endif
-    k := perenos(tmp, s, w1)
-    if verify_FF(HH)
-      header_uslugi(w1)
+    k := perenos( tmp, s, w1 )
+    if verify_FF( HH )
+      header_uslugi( w1 )
     endif
-    if eq_any(left(tmp1->shifr, 5), '1.11.', '55.1.')
-      s := left(date_8(tmp1->date_u1), 2) + '-' + left(date_8(tmp1->date_u2), 5) + ' '
+    if eq_any( left( tmp1->shifr, 5 ), '1.11.', '55.1.' )
+      s := left( date_8( tmp1->date_u1 ), 2 ) + '-' + left( date_8( tmp1->date_u2 ), 5 ) + ' '
     else
-      s := date_8(tmp1->date_u1) + ' '
+      s := date_8( tmp1->date_u1 ) + ' '
     endif
     if tmp1->is_edit == 1
       s += 'КДП№2 '
@@ -587,26 +590,26 @@ Function print_l_uch( mkod, par, regim, lnomer )
       s += 'ПАпроч'
     elseif tmp1->is_edit == -1
       s += 'ЦКДЛ  '
-    elseif alltrim(tmp1->shifr) == '4.20.2' .or. tmp1->is_edit == 3
+    elseif alltrim( tmp1->shifr ) == '4.20.2' .or. tmp1->is_edit == 3
       s += 'ВОКОД '
     else
       s += tmp1->otd + ' '
     endif
-    if empty(diagVspom)
+    if empty( diagVspom )
       s += tmp1->kod_diag + ' '
     else
       s += diagMemory + ' '
     endif
     s += padr( tmp[ 1 ], w1 )
-    s += put_val(ret_tabn(tmp1->kod_vr), 6) + put_val(ret_tabn(tmp1->kod_as), 6)
+    s += put_val( ret_tabn( tmp1->kod_vr ), 6 ) + put_val( ret_tabn( tmp1->kod_as ), 6 )
     if tmp1->plus
-      s += padl(' + ' + lstr(tmp1->kol), 4)
+      s += padl( ' + ' + lstr( tmp1->kol ), 4 )
       mpsumma += tmp1->summa
     else
       if tmp1->summa >= 100000
-        s += ' ' + padr(lstr(tmp1->kol), 3)
+        s += ' ' + padr( lstr( tmp1->kol ), 3 )
       else
-        s += put_val(tmp1->kol, 4)
+        s += put_val( tmp1->kol, 4 )
       endif
       msumma += tmp1->summa
     endif
@@ -784,36 +787,35 @@ Function header_uslugi(w1)
   add_string('────────┴─────┴─────┴' +replicate('─', w1)              + '┴─────┴─────┴───┴────────')
   return NIL
 
-
 // 02.11.22 печать доп.заголовка, если это лист учёта диспансеризации/профилактики
-Function print_l_uch_disp(sh)
+Function print_l_uch_disp( sh )
 
   Local s := ''
 
-  if eq_any(human->ishod, 101, 102)
+  if eq_any( human->ishod, 101, 102 )
     s := 'диспансеризация детей-сирот ' + ;
-       iif(!empty(human->ZA_SMO), 'в стационаре', 'под опекой') + ;
-       iif(human->ishod == 101, ' I этап', ' I и II этап')
-  elseif eq_any(human->ishod, 201, 202, 203)
-    s := iif(human->ishod == 203, 'профилактика', 'диспансеризация') + ;
+       iif( ! empty( human->ZA_SMO ), 'в стационаре', 'под опекой' ) + ;
+       iif( human->ishod == 101, ' I этап', ' I и II этап' )
+  elseif eq_any( human->ishod, 201, 202, 203 )
+    s := iif( human->ishod == 203, 'профилактика', 'диспансеризация' ) + ;
        ' опр.групп взрослого населения'
-    if eq_any(human->ishod, 201, 202)
-      s += iif(human->ishod == 201, ' I', ' II') + ' этап'
+    if eq_any( human->ishod, 201, 202 )
+      s += iif( human->ishod == 201, ' I', ' II' ) + ' этап'
     endif
-  elseif eq_any(human->ishod, 204, 205)
-    s := 'диспансеризация опр.групп взрослого населения (1 раз в 2 года) ' + iif(human->ishod==204, 'I', 'II') + ' этап'
-  elseif eq_any(human->ishod, 301, 302)
+  elseif eq_any( human->ishod, 204, 205 )
+    s := 'диспансеризация опр.групп взрослого населения (1 раз в 2 года) ' + iif( human->ishod==204, 'I', 'II' ) + ' этап'
+  elseif eq_any( human->ishod, 301, 302 )
     s := 'профилактика несовершеннолетних' + ;
-       iif(human->ishod == 301, ' I этап', ' I и II этап')
-  elseif eq_any(human->ishod, 303, 304)
-    s := 'предварительный осмотр несовершеннолетних' +;
-       iif(human->ishod == 303, ' I этап', ' I и II этап')
+       iif( human->ishod == 301, ' I этап', ' I и II этап' )
+  elseif eq_any( human->ishod, 303, 304 )
+    s := 'предварительный осмотр несовершеннолетних' + ;
+       iif( human->ishod == 303, ' I этап', ' I и II этап' )
   elseif human->ishod == 305
     s := 'периодический осмотр несовершеннолетних'
   endif
-  if !empty(s)
-    add_string('')
-    add_string(center(' [' + s + ']', sh))
+  if !empty( s )
+    add_string( '' )
+    add_string( center( ' [' + s + ']', sh ) )
   endif
   return NIL
 

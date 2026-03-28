@@ -415,7 +415,7 @@ function np_arr_osmotr_KDP2()
   return arr_osmotr_KDP2
 
 // 16.02.26
-function np_arr_not_zs( mdata ) // замена на услуги с ценой (нет законченного случая)
+function PN_usl_replace( mdata ) // замена на услуги с ценой (нет законченного случая)
   
   local arr_not_zs 
   
@@ -482,12 +482,12 @@ function np_arr_not_zs( mdata ) // замена на услуги с ценой (нет законченного сл
   endif
   return arr_not_zs
 
-// 02.10.25
+// 27.03.26
 function proverka_otkaza_new( d, arr_otkaz, lshifr )
 
   local k, kk
   local lRet := .f.
-  local ar := np_arr_not_zs( d )
+  local ar := PN_usl_replace( d )
 
   lshifr := AllTrim( lshifr )
   if ( k := AScan( ar, { |x| x[ 1 ] == AllTrim( lshifr ) } ) ) > 0

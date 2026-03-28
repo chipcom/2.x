@@ -1089,7 +1089,6 @@ Function ret_ndisp( lkod_h, lkod_k, /*@*/new_etap, /*@*/msg )
       Endif
     Endif
   Endif
-altd()
   If Empty( msg )
     metap := new_etap
     mndisp := inieditspr( A__MENUVERT, mm_ndisp_dvn(), metap )

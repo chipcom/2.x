@@ -682,21 +682,21 @@ function arr2g_vozrast_DVN()
   return { 50, 52, 56, 58, 62, 64, 68, 70 }    // 1 раз в 2 года женщины
 
 // 26.03.26
-function get_zamenauslugi_dvn( mdate, codeUsl )
-
-  local i, retShifr := ''
-  local arr_zam := replace_uslugi_otkaz( mdate )
-
-  codeUsl := AllTrim( codeUsl )
-  i := ascan( arr_zam, { | x | AllTrim( x[ 1 ] ) == codeUsl } )
-  if i > 0
-    retShifr := arr_zam[ i, 2 ]
-  endif
-
-  return retShifr
+//function get_zamenauslugi_dvn( mdate, codeUsl )
+//
+//  local i, retShifr := ''
+//  local arr_zam := DVN_usl_replace( mdate )
+//
+//  codeUsl := AllTrim( codeUsl )
+//  i := ascan( arr_zam, { | x | AllTrim( x[ 1 ] ) == codeUsl } )
+//  if i > 0
+//    retShifr := arr_zam[ i, 2 ]
+//  endif
+//
+//  return retShifr
 
 // 26.03.26
-function replace_uslugi_otkaz( mdate )
+function DVN_usl_replace( mdate )
 
   local arr := {}
 

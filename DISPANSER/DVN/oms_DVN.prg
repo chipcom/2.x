@@ -2030,7 +2030,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           endif
           If eq_any( arr_osm1[ i, 10 ], 0, 3 ) // выполнено
             if mk_data >= 0d20260101 .and. arr_osm1[ i, 9 ] < mn_data
-//              usl_zamena := get_zamenauslugi_dvn( mk_data, arr_osm1[ i, 5 ] )
+//              usl_zamena := get_zamenauslugi_on_date( TIP_LU_DVN, mk_data, arr_osm1[ i, 5 ] )
 //              arr_osm1[ i, 5 ] := usl_zamena
 //              arr_osm1[ i, 7 ] := foundourusluga( arr_osm1[ i, 5 ], mk_data, arr_osm1[ i, 4 ], M1VZROS_REB, @mu_cena )              
 //              arr_osm1[ i, 8 ] := 0 //  цена
@@ -2050,7 +2050,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             AAdd( arr_usl_otkaz, arr_osm1[ i ] )
 /*
             if mk_data >= 0d20260101
-              usl_zamena := get_zamenauslugi_dvn( mk_data, arr_osm1[ i, 5 ] )
+//            usl_zamena := get_zamenauslugi_on_date( TIP_LU_DVN, mk_data, arr_osm1[ i, 5 ] )
               arr_osm1[ i, 5 ] := usl_zamena
               arr_osm1[ i, 7 ] := foundourusluga( arr_osm1[ i, 5 ], mk_data, arr_osm1[ i, 4 ], M1VZROS_REB, @mu_cena )              
               arr_osm1[ i, 8 ] := 0 //  цена

@@ -232,7 +232,7 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
     Endif
   Endif
   
-  arr_not_zs := np_arr_not_zs( human->k_data )
+  arr_not_zs := PN_usl_replace( human->k_data )
   a_otkaz := {} 
 //  arr_nazn := {}
 //  If eq_any( human->ishod, 101, 102 ) // дисп-ия детей-сирот

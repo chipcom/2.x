@@ -902,7 +902,7 @@ Function is_issled_pn( ausl, _period, arr, _pol, mdata )
     lshifr := AllTrim( ausl )
   endif
   arr_pn_issled := np_arr_issled( mdata )
-  arr_pn_zs := np_arr_not_zs( mdata )
+  arr_pn_zs := PN_usl_replace( mdata )
   If ( i := AScan( arr_pn_zs, {| x| x[ 2 ] == lshifr } ) ) > 0
     lshifr := arr_pn_zs[ i, 1 ]
   Endif
@@ -942,7 +942,7 @@ Function is_osmotr_pn( ausl, _period, arr, _etap, _pol, mdata, mobil )
   endif
 
   arr_PN_osmotr := np_arr_osmotr( mdata, mobil )
-  arr_not_zs := np_arr_not_zs( mdata )
+  arr_not_zs := PN_usl_replace( mdata )
   If eq_any( Left( lshifr, 4 ), '2.3.', '2.91' )
     fl_profil := .t.
   Elseif _etap == 1
@@ -1001,7 +1001,7 @@ Function is_1_etap_pn( ausl, _period, _etap, mdata, mobil )
   local arr_pn_zs
 
   arr_PN_osmotr := np_arr_osmotr( mdata, mobil )
-  arr_pn_zs := np_arr_not_zs( mdata )
+  arr_pn_zs := PN_usl_replace( mdata )
   If eq_any( Left( lshifr, 4 ), '2.3.', '2.91' )
     fl_profil := .t.
   Elseif _etap == 1

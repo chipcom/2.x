@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.02.26 ПН - добавление или редактирование случая (листа учета)
+// 27.03.26 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -453,7 +453,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
     larr_p := {}
     mdate1 := mdate2 := CToD( '' )
 
-    arr_not_zs := np_arr_not_zs( mk_data )
+    arr_not_zs := PN_usl_replace( mk_data )
 
     r_use( dir_DB + 'uslugi', , 'USL' )
     use_base( 'human_u' )

@@ -712,7 +712,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   mspec_na  := inieditspr( A__MENUVERT, mm_danet(), m1spec_na )
   msank_na  := inieditspr( A__MENUVERT, mm_danet(), m1sank_na )
   mtip_mas := ret_tip_mas( mWEIGHT, mHEIGHT, @m1tip_mas )
-altd()
   ret_ndisp( Loc_kod, kod_kartotek )
   //
   If !Empty( f_print )

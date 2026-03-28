@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.02.26 ДДС - добавление или редактирование случая (листа учета)
+// 27.03.26 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -1887,7 +1887,10 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         If Empty( arr_usl_dop[ i, 7 ] ) // т.к. для услуг, направляемых в КДП2, код уже известен (а цена =0)
           arr_usl_dop[ i, 7 ] := foundourusluga( arr_usl_dop[ i, 5 ], mk_data, arr_usl_dop[ i, 4 ], M1VZROS_REB, @mu_cena )
           arr_usl_dop[ i, 8 ] := mu_cena
-          mcena_1 += mu_cena
+          if mk_data >= 0d20250901 .and. arr_usl_dop[ i, 9 ] < mn_data
+          else
+            mcena_1 += mu_cena
+          endif
         Endif
       Next
       //
@@ -2067,7 +2070,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
         hu->date_u  := dtoc4( arr_usl_dop[ i, 9 ] )
         hu->otd     := m1otd
         hu->kol := hu->kol_1 := 1
-        hu->stoim := hu->stoim_1 := arr_usl_dop[ i, 8 ]
+        hu->stoim := hu->stoim_1 := arr_usl_dop[ i, 8 ] 
         Select HU_
         Do While hu_->( LastRec() ) < mrec_hu
           Append Blank
