@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.03.26 создание XML-файлов реестра
+// 27.03.26 создание XML-файлов реестра
 Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
@@ -45,7 +45,9 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
   INDEX ON ( FIELD->BUKVA ) TO ( 'mem:bukva' ) FOR FIELD->PLUS unique
   tmp->( dbGoTop() )
   while ! tmp->( Eof() )
-    AAdd( aBukva, tmp->BUKVA )
+    if AScan( aBukva, tmp->BUKVA ) == 0
+      AAdd( aBukva, tmp->BUKVA )
+    endif
     tmp->( dbSkip() )
   end do
   tmp->( ordListClear() )
