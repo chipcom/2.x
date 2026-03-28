@@ -335,6 +335,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         else
           i := 3  //  lfor_pom
         endif
+        if ( human_->USL_OK == USL_OK_AMBULANCE )
+          i := 1
+        endif
         mo_add_xml_stroke( oSLUCH, 'FOR_POM', lstr( i ) ) // 1 - экстренная, 2 - неотложная, 3 - плановая
         // полученные направления на госпитализацию
         If !Empty( human_->NPR_MO ) .and. !Empty( mNPR_MO := ret_mo( human_->NPR_MO )[ _MO_KOD_FFOMS ] )
