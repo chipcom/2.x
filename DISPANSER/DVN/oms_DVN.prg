@@ -252,7 +252,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   fv_date_r( iif( Loc_kod > 0, MN_DATA, ) ) // переопределение критерия 'взрослый/ребёнок' по дате рождения и '_date'
 
   age := Year( mn_data ) - Year( mdate_r )
-
+/*
   ret_ndisp( Loc_kod, kod_kartotek )
 
   aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
@@ -263,7 +263,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   endif
 
   aDvn_arr_umolch := dvn_arr_umolch( MK_DATA, m1mobilbr )
-
+*/
   chm_help_code := 3002
 
   mm_ndisp1 := AClone( mm_ndisp_dvn() )
@@ -349,7 +349,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
     ah := {}
     Select HUMAN
     Set Index to ( dir_server() + 'humankk' )
-    human->( dbSeek( Str( mkod_k, 7 ) ) )    //  find ( Str( mkod_k, 7 ) )
+    human->( dbSeek( Str( mkod_k, 7 ) ) )
     Do While human->kod_k == mkod_k .and. ! human->( Eof() )
       If human_->oplata != 9 .and. human_->NOVOR == 0 .and. RecNo() != Loc_kod
         If is_death( human_->RSLT_NEW ) .and. Empty( a_smert )
@@ -361,9 +361,9 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       Select HUMAN
-      human->( dbSkip() )   //  Skip
+      human->( dbSkip() )
     Enddo
-    Set Index To
+//    Set Index To
     If Len( ah ) > 0
       ASort( ah, , , {| x, y | x[ 2 ] < y[ 2 ] } )
       Select HUMAN
@@ -388,6 +388,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       MUCH_DOC    := human->UCH_DOC   // номер амбулаторной карты
       m1mobilbr   := 0                // мобильная бригада
 
+      ret_ndisp( Loc_kod, kod_kartotek )
       aDvn_arr_usl := dvn_arr_usl( MK_DATA, m1mobilbr )
 //      aDvn_arr_usl := dvn_arr_usl_new( MK_DATA, m1mobilbr, metap, gender, age )
 
@@ -2050,7 +2051,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
             AAdd( arr_usl_otkaz, arr_osm1[ i ] )
 /*
             if mk_data >= 0d20260101
-//            usl_zamena := get_zamenauslugi_on_date( TIP_LU_DVN, mk_data, arr_osm1[ i, 5 ] )
+              usl_zamena := get_zamenauslugi_on_date( TIP_LU_DVN, mk_data, arr_osm1[ i, 5 ] )
               arr_osm1[ i, 5 ] := usl_zamena
               arr_osm1[ i, 7 ] := foundourusluga( arr_osm1[ i, 5 ], mk_data, arr_osm1[ i, 4 ], M1VZROS_REB, @mu_cena )              
               arr_osm1[ i, 8 ] := 0 //  цена

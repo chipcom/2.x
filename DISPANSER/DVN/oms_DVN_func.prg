@@ -856,14 +856,23 @@ Function f_is_usl_oms_sluch_dvn( mdata, mobil, i, _etap, _vozrast, _pol, /*@*/_d
 
   Return fl
 
-// 15.06.19
+// 27.03.26
 Function ret_etap_dvn( lkod_h, lkod_k )
 
   Local ae := { {}, {} }, fl, i, d1 := Year( mn_data )
+  local lHuman := .f., lHuman_ := .f.
 
-  r_use( dir_server() + 'human_', , 'HUMAN_' )
-  r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
-  Set Relation To RecNo() into HUMAN_
+  lHuman_ := ( select( 'HUMAN_' ) == 0 )
+  lHuman := ( select( 'HUMAN' ) == 0 )
+
+  if lHuman_
+    r_use( dir_server() + 'human_', , 'HUMAN_' )
+  endif
+  if lHuman
+    r_use( dir_server() + 'human', dir_server() + 'humankk', 'HUMAN' )
+    Set Relation To RecNo() into HUMAN_
+  endif
+//  Set Relation To RecNo() into HUMAN_
   human->( dbSeek( Str( lkod_k, 7 ) ) )
   Do While human->kod_k == lkod_k .and. ! human->( Eof() )
     fl := ( lkod_h != human->( RecNo() ) )
@@ -874,13 +883,17 @@ Function ret_etap_dvn( lkod_h, lkod_k )
       i := human->ishod -200
       If Year( human->n_data ) == d1 // текущий год
         AAdd( ae[ 1 ], { i, human->k_data, human_->RSLT_NEW } )
-        // elseif i >= 3 .and. mk_data < 0d20190501 .and. year(human->n_data) == d1-1 // профилактика прошлый год ???
-        // aadd(ae[2], {i,human->k_data,human_->RSLT_NEW})
       Endif
     Endif
     human->( dbSkip() )
   Enddo
-  dbCloseAll()
+  if lHuman_
+    human_->( dbCloseArea() )
+  endif
+  if lHuman
+    human->( dbCloseArea() )
+  endif
+//  dbCloseAll()
 
   Return ae
 

@@ -4,10 +4,10 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 08.03.26
+// 27.03.26
 function arr_usl_2021( dateSl, mobil, mdvozrast )
 
-  local arr_u2021, blk
+  local arr_u2021, i, blk
   local age_etap_3 := { 19, 20, 22, 23, 25, 26, 28, 29, 31, 32, 34, 35, 37, 38 }
 
   default mobil to 0
@@ -200,8 +200,7 @@ function arr_usl_2021( dateSl, mobil, mdvozrast )
             }, 1, 1;
           };
         }
-
-  If ( ( dateSl >= 0d20240901 ) .and. ( i := ascan( { 25, 35, 45, 55, 65, 75, 85, 95 }, mdvozrast ) ) ) > 0
+  If ( dateSl >= 0d20240901 ) .and. ( i := ascan( { 25, 35, 45, 55, 65, 75, 85, 95 }, mdvozrast ) ) > 0
     hb_AIns( arr_u2021, 24, ;
       { ;
         'Исследование крови на Anti-HCV-total (гепатит C)', '4.15.546', { 1, 3 }, 0, 1, ;

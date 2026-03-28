@@ -2713,7 +2713,7 @@ Function f1_f22_inf_dvn() // сводная информация
 
   Return Nil
 
-// 27.09.24 список пациентов
+// 27.03.26 список пациентов
 Function f2_inf_dvn( is_schet, par )
 
   Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, as := {}, ;
@@ -2746,7 +2746,7 @@ Function f2_inf_dvn( is_schet, par )
       Private count_dvn_arr_usl18 := Len( dvn_arr_usl( 0d20180101 ) )    //Len( dvn_arr_usl18() )
       Private count_dvn_arr_umolch18 := Len( dvn_arr_umolch( 0d20180101 ) )   //  dvn_arr_umolch18() )
       ret_arrays_disp()
-      For i := 1 To Max( count_dvn_arr_usl18, count_dvn_arr_usl )
+      For i := 1 To 50  //  Max( count_dvn_arr_usl18, count_dvn_arr_usl )
         AAdd( adbf, { 'd_' + lstr( i ), 'C', 24, 0 } )
       Next
 //      For i := 1 To Max( count_dvn_arr_umolch18, count_dvn_arr_umolch )
@@ -3013,7 +3013,7 @@ Function f2_inf_dvn( is_schet, par )
 
   Return Nil
 
-// 27.09.24
+// 27.03.26
 Function f2_inf_dvn_svod( par, kod_h ) // сводная информация
 
   Static P_BEGIN_RSLT := 342
@@ -3021,9 +3021,13 @@ Function f2_inf_dvn_svod( par, kod_h ) // сводная информация
   Private metap := ppar, m1gruppa, mvozrast, mdvozrast, mpol, mn_data, mk_data, ;
     arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1veteran := 0, mvar, ;
     fl2 := .f., mshifr_zs := '', is_2019
+  private m1mobilbr := 0
 
   Select HUMAN
   Goto ( kod_h )
+
+  read_arr_dvn( human->kod, .f. )
+
   mpol    := human->pol
   mn_data := human->n_data
   mk_data := human->k_data
@@ -3181,7 +3185,8 @@ Function f2_inf_dvn_svod( par, kod_h ) // сводная информация
                 fl := .f.
               Endif
             Elseif Len( larr_dvn[ i ] ) > 11
-              If AScan( larr_dvn[ i, 12 ], {| x| x[ 1 ] == lshifr .and. x[ 2 ] == hu_->PROFIL } ) > 0
+//              If AScan( larr_dvn[ i, 12 ], {| x| x[ 1 ] == lshifr .and. x[ 2 ] == hu_->PROFIL } ) > 0
+              If AScan( larr_dvn[ i, 12 ], {| x| iif( ValType( x[ 1 ] ) == 'C', x[ 1 ] == lshifr, ( ascan( x[ 1 ], lshifr ) > 0 ) ) .and. x[ 2 ] == hu_->PROFIL } ) > 0
                 fl := .f.
               Endif
             Endif
@@ -3286,7 +3291,7 @@ Function f21_inf_dvn_svod18( par )
       mvart := 'MTAB_NOMv' + lstr( i )
       mvard := 'MDATE' + lstr( i )
       mvaro := 'M1OTKAZ' + lstr( i )
-      If f_is_usl_oms_sluch_dvn( i, metap, iif( metap == 3, mvozrast, mdvozrast ), mpol )
+      If f_is_usl_oms_sluch_dvn( human->k_data, m1mobilbr, i, metap, iif( metap == 3, mvozrast, mdvozrast ), mpol )
         If !emptyany( &mvard, &mvart )
 //          AAdd( arr, { dvn_arr_usl18()[ i, 1 ], &mvard, '', i, &mvaro } )
           AAdd( arr, { dvn_arr_usl( 0d20180101 )[ i, 1 ], &mvard, '', i, &mvaro } )
@@ -3314,7 +3319,7 @@ Function f21_inf_dvn_svod( par )
       mvart := 'MTAB_NOMv' + lstr( i )
       mvard := 'MDATE' + lstr( i )
       mvaro := 'M1OTKAZ' + lstr( i )
-      If f_is_usl_oms_sluch_dvn( i, metap, iif( metap == 3, mvozrast, mdvozrast ), mpol )
+      If f_is_usl_oms_sluch_dvn( human->k_data, m1mobilbr, i, metap, iif( metap == 3, mvozrast, mdvozrast ), mpol )
         If !emptyany( &mvard, &mvart )
           AAdd( arr, { dvn_arr_usl[ i, 1 ], &mvard, '', i, &mvaro } )
         Endif
