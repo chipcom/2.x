@@ -95,7 +95,6 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
           @ Row(), Col() Say '/'      Color 'R/R*'
           @ Row(), Col() Say lstr( ih ) Color 'W+/R*'
           Select HUMAN
-
           human->( dbSeek( tmp4->_ID_C ) )
           If human->( Found() )
             tmp4->KOD_H := human->kod
@@ -130,7 +129,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
               Eval( blk_schet )
               fl_schet := .f.
             Endif
-            AAdd( aerr, '   не найден пациент с IDCASE = ' + lstr( tmp4->_IDCASE ) )
+            AAdd( aerr, '   не найден пациент с IDCASE = ' + lstr( tmp4->_IDCASE ) + "  ID_C = "+alltrim(tmp4->_ID_C ) )
           Endif
           Select TMP4
           tmp4->( dbSkip() )    //  Skip
