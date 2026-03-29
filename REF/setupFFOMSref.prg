@@ -5,12 +5,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.01.26  áâà®©ª  á¯à ¢®ç­¨ª®¢ ””Œ‘
+// 29.03.26  áâà®©ª  á¯à ¢®ç­¨ª®¢ ””Œ‘
 Function nastr_sprav_ffoms( k )
 
   Static arr_spr, arr_spr_name, sk := 1
   Static arr_ref, arr_name
   Local str_sem, mas_pmt := {}, mas_msg := {}, mas_fun := {}, j
+  local ret
 
   Default k To 0
   Do Case
@@ -26,7 +27,8 @@ Function nastr_sprav_ffoms( k )
       'V040', ;
       'V034', ;
       'MethodINJ', ;
-      'Implantant' ;
+      'Implantant', ;
+      'F037', ;
       }
     arr_name := { ;
       '”ˆ‹…‰ ®ª § ­­®© ¬¥¤¨æ¨­áª®© ¯®¬®é¨', ;
@@ -36,7 +38,8 @@ Function nastr_sprav_ffoms( k )
       'Œ…‘’€ €™…ˆ‰ (‘…™…ˆ‰)', ;
       '…„ˆˆ– ˆ‡Œ……ˆŸ', ;
       '“’…‰ ‚‚…„…ˆŸ', ;
-      'ˆŒ‹€’€’‚' ;
+      'ˆŒ‹€’€’‚', ;
+      '‹ˆ–…‡ˆ‰ ƒ€ˆ‡€–ˆˆ' ;
       }
     arr_spr_name := { ;
       'Š« áá¨ä¨ª â®à ”ˆ‹…‰ ®ª § ­­®© ¬¥¤¨æ¨­áª®© ¯®¬®é¨', ;
@@ -46,7 +49,8 @@ Function nastr_sprav_ffoms( k )
       'Š« áá¨ä¨ª â®à ¬¥áâ ®¡à é¥­¨© (¯®á¥é¥­¨©)', ;
       'Š« áá¨ä¨ª â®à …„ˆˆ– ˆ‡Œ……ˆŸ', ;
       'Š« áá¨ä¨ª â®à “’…‰ ‚‚…„…ˆŸ «¥ª àáâ¢¥­­ëå ¯à¥¯ à â®¢', ;
-      'Š« áá¨ä¨ª â®à ˆŒ‹€’€’‚ ¤«ï ¨á¯®«ì§®¢ ­¨ï' ;
+      'Š« áá¨ä¨ª â®à ˆŒ‹€’€’‚ ¤«ï ¨á¯®«ì§®¢ ­¨ï', ;
+      '‚ë¤ ­­ë¥ «¨æ¥­§¨¨ ¤«ï ®à£ ­¨§ æ¨¨' ;
       }
 
     arr_spr := arr_name   // ¯®¤áâ ¢¨¬ ¨¬¥­  ¯ã­ªâ®¢ ¬¥­î
@@ -56,7 +60,7 @@ Function nastr_sprav_ffoms( k )
       AAdd( mas_fun, 'nastr_sprav_FFOMS(' + lstr( j ) + ')' )
     Next
     popup_prompt( T_ROW, T_COL + 5, sk, mas_pmt, mas_msg, mas_fun )
-  Case k > 0
+  Case k > 0 .and. arr_ref[ k ] != 'F037'
     str_sem := ' áâà®©ª  ' + arr_spr[ k ]
     arr_spr := arr_ref  // ¯®¤áâ ¢¨¬ ¨¬¥­  á¯à ¢®ç­¨ª®¢
     If g_slock( str_sem )
@@ -66,6 +70,8 @@ Function nastr_sprav_ffoms( k )
       func_error( 4, err_slock() )
     Endif
     arr_spr := arr_name   // ¯®¤áâ ¢¨¬ ¨¬¥­  ¯ã­ªâ®¢ ¬¥­î
+  Case arr_ref[ k ] == 'F037'
+    gis_oms()
   Endcase
   If k > 0
     sk := k

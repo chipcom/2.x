@@ -98,7 +98,7 @@ Function files_nsi_exists( dir_file )
   Endif
   Return lRet
 
-// 26.03.26 проверка и переиндексирование справочников ТФОМС
+// 29.03.26 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir( dir_spavoch, working_dir, flag )
 
   Local fl := .t., i, buf := save_maxrow()
@@ -107,6 +107,9 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   Local countYear
   Local cVar
   Local sbase
+  local org_mcod, mIDMO := Space( 17 ), mUIDMO := Space( 17 )
+//  local mADDR_J_GAR := Space( 36 )
+//  local aUIDSPMO := {}, aGl := {}, aMP := {}, aLic
 
   Default flag To .f.
 
@@ -117,25 +120,82 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   Else
     mywait( 'Подождите, идет проверка служебных данных в рабочем каталоге...' )
   Endif
+  org_mcod := glob_mo()[ _MO_KOD_FFOMS ]
 
   // справочник F032
   sbase := '_mo_f032'
-  r_use( dir_spavoch + sbase )
+  r_use( dir_spavoch + sbase, , 'F032' )
   Index On FIELD->MCOD to ( working_dir + sbase ) ;
-    For Substr( FIELD->MCOD, 1, 2 ) == '34'
-
+    For FIELD->MCOD == org_mcod
+//    For Substr( FIELD->MCOD, 1, 2 ) == '34'
+//  f032->( dbGoTop() )
+  if ! f032->( Eof() ) .and. ! f032->( Bof() )
+    mIDMO   := f032->IDMO
+    mUIDMO  := f032->UIDMO
+  endif
   dbCloseArea()
   
+  // справочник F031
+  sbase := '_mo_f031'
+  r_use( dir_spavoch + sbase, , 'F031' )
+  Index On FIELD->IDMO to ( working_dir + sbase ) ;
+    For FIELD->IDMO == mIdmo
+//    For FIELD->MCOD == org_mcod
+//  f031->( dbGoTop() )
+//  if ! f031->( Eof() ) .and. ! f031->( Bof() )
+//    mADDR_J_GAR   := f031->ADDR_J_GAR
+//  endif
+  dbCloseArea()
+
   // справочник F033
   sbase := '_mo_f033'
-  r_use( dir_spavoch + sbase )
-  Index ON SubStr( FIELD->UIDSPMO, 1, 11 ) to ( working_dir + sbase )
+  r_use( dir_spavoch + sbase, , 'F033' )
+  Index ON FIELD->UIDSPMO to ( working_dir + sbase ) FOR SubStr( FIELD->UIDSPMO, 1, 11 ) == AllTrim( mUIDMO )
+//  f033->( dbGoTop() )
+//  do while SubStr( f033->UIDSPMO, 1, 11 ) == AllTrim( mUIDMO ) .and. ! f033->( Eof() )
+//    AAdd( aUIDSPMO, { f033->UIDSPMO, AllTrim( f033->NAM_SPMO ) } )
+//    f033->( dbSkip() )
+//  Enddo
   dbCloseArea()
 
   // справочник F034
   sbase := '_mo_f034'
-  r_use( dir_spavoch + sbase )
-  Index ON FIELD->UIDSPMO to ( working_dir + sbase )
+  r_use( dir_spavoch + sbase, , 'F034' )
+  Index ON FIELD->UIDSPMO + Str( FIELD->IDADDRESS, 19 ) to ( working_dir + sbase )
+//  for i := 1 to Len( aUIDSPMO )
+//    aMP := {}
+//    f034->( dbSeek( aUIDSPMO[ i, 1 ] ) )
+//    do while f034->UIDSPMO == aUIDSPMO[ i, 1 ] .and. ! f034->( Eof() )
+//      AAdd( aMP, { f034->MPVID, f034->MPUSL, f034->MPROF } )
+//      f034->( dbSkip() )
+//    Enddo
+//    AAdd( aGl, { aUIDSPMO[ i, 1 ], aUIDSPMO[ i, 2 ], aMp } )
+//  next
+  dbCloseArea()
+
+  // справочник F037
+//  aLic := {}
+  sbase := '_mo_f037'
+  r_use( dir_spavoch + sbase, , 'F037' )
+  Index ON FIELD->MCOD to ( working_dir + sbase ) FOR FIELD->MCOD == org_mcod
+//  f037->( dbGoTop() )
+//  do while f037->MCOD == org_mcod .and. ! f037->( Eof() )
+//    AAdd( aLic, { f037->IDMO, f037->UIDMO, AllTrim( f037->N_DOC ) } )
+//    f037->( dbSkip() )
+//  enddo
+  dbCloseArea()
+
+  // справочник F038
+  sbase := '_mo_f038'
+  r_use( dir_spavoch + sbase, , 'F038' )
+  Index ON FIELD->UIDMO to ( working_dir + sbase )
+//  for i := 1 to Len( aLic )
+//    f038->( dbSeek( aLic[ i, 1 ] ) )
+//    do while f038->UIDMO == aLic[ i, 1 ] .and. ! f038->( Eof() )
+//      AAdd( aADDRESS, { f038->UIDSPMO, f038->IDADDRESS, AllTrim( f038->ADDR ), AllTrim( f038->N_DOC ) } )
+//      f038->( dbSkip() )
+//    Enddo
+//  next
   dbCloseArea()
 
   // справочник диагнозов

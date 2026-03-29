@@ -608,7 +608,7 @@ Function get_f033( mcod )
   Local cUIDMO
   Local arr := {}
 
-  cUIDMO := ret_uidmo_f032( mcod )
+  cUIDMO := AllTrim( ret_uidmo_f032( mcod ) )
 
   if ! Empty( cUIDMO )
     tmp_select := Select()

@@ -392,10 +392,31 @@ Function getv008()
   Local empty_date := SToD( '' )
   Local date_20110101 := SToD( '20110101' )
 
+  Local db
+  Local aTable, row
+  Local nI
+
   If Len( _arr ) == 0
-    AAdd( _arr, { 'Первичная медико-санитарная помощь', 1, date_20110101, empty_date } )
-    AAdd( _arr, { 'Скорая, в том числе специализированная (санитарно-авиационная), медицинская помощь', 2, SToD( '20130101' ), empty_date } )
-    AAdd( _arr, { 'Специализированная, в том числе высокотехнологичная, медицинская помощь', 3, date_20110101, empty_date } )
+//    AAdd( _arr, { 'Первичная медико-санитарная помощь', 1, date_20110101, empty_date } )
+//    AAdd( _arr, { 'Скорая, в том числе специализированная (санитарно-авиационная), медицинская помощь', 2, SToD( '20130101' ), empty_date } )
+//    AAdd( _arr, { 'Специализированная, в том числе высокотехнологичная, медицинская помощь', 3, date_20110101, empty_date } )
+
+  Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+    db := opensql_db()
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
+      'idvmp, ' + ;
+      'vmpname, ' + ;
+      'datebeg, ' + ;
+      'dateend ' + ;
+      'FROM v008' )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        AAdd( _arr, { AllTrim( aTable[ nI, 2 ] ), Val( aTable[ nI, 1 ] ), CToD( aTable[ nI, 3 ] ), CToD( aTable[ nI, 4 ] ) } )
+      Next
+    Endif
+    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+    db := nil
+
   Endif
   Return _arr
 
