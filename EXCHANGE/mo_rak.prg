@@ -7,7 +7,7 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-// 20.03.26 прочитать и 'разнести' по базам данных РАК
+// 29.03.26 прочитать и 'разнести' по базам данных РАК
 Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
 
   Local fl_akt, fl_schet, blk_akt, blk_schet, i, s, s1, arr_s := {}, t_arr[ 2 ], ;
@@ -15,6 +15,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
   Local tmp_alias, fl_IDC := .f.   // для двойного случая
   Local arr, ia, is, ih, rec_xml, v
   Local arrF006 := getf006()
+  Local TMP_REGION, TMP_SMO
 
   blk_akt := { || AAdd( aerr, 'АКТ № ' + AllTrim( tmp2->_nakt ) + ' от ' + date_8( tmp2->_dakt ) ) }
   blk_schet := { || AAdd( aerr, ' СЧЁТ № ' + AllTrim( tmp3->_nschet ) + ' от ' + date_8( tmp3->_dschet ) ) }
@@ -186,6 +187,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
     '  в т.ч. количество снятий  - ' + lstr( tmp1->KOL_ERR ) + hb_eol() + ;
     '         количество штрафов - ' + lstr( tmp1->KOL_PEN ) + hb_eol(), cFileProtokol, .t. )
   //
+  g_use( dir_server() + 'kartote_',, "KARTOTE_"  ) // 29.03.26
   Select HUMAN
   Set Index To
   r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
@@ -476,7 +478,39 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
               If Len( AllTrim( tmp6->S_COM ) ) > 0
                 if tmp2->_DAKT >= 0d20260101
                   if ! Empty( tmp6->S_COM )
-                    put_long_str( 'Уточнение кода дефекта: ' + alltrim(raksherr->S_COM), cFileProtokol, 5 )
+                    // выясняем признак смены СМО
+                    // S_OSN == 210 (tmp6->REFREASON) и S_COM == NNNNN;OOOOO
+                    if tmp6->REFREASON == 210 // Не верное СМО
+                      if len(alltrim(raksherr->S_COM)) == 11 .and. substr(alltrim(raksherr->S_COM),6,1) == ";"
+                        TMP_SMO := ""
+                        TMP_REGION := ""
+                        if posalpha(substr(alltrim(raksherr->S_COM),1,5)) < 1 // нет буквеных символов СМО
+                          TMP_SMO := substr(alltrim(raksherr->S_COM),1,5)   
+                        else
+                          put_long_str( 'Уточнение кода дефекта: ' + alltrim(raksherr->S_COM), cFileProtokol, 5 )
+                        endif  
+                        if posalpha(substr(alltrim(raksherr->S_COM),7,5)) < 1  // нет буквеных символов Регион
+                          TMP_REGION := substr(alltrim(raksherr->S_COM),7,5)
+                        else
+                          put_long_str( 'Уточнение кода дефекта: ' + alltrim(raksherr->S_COM), cFileProtokol, 5 )
+                        endif  
+                        If len(TMP_SMO) == 5 .and. len(TMP_REGION) == 5    
+                         // допобработка по письму  27.03.2026 № 04-18-017  добавить в картотеку данные
+                         select kartote_
+                         goto (human->kod_k)
+                         g_rlock( forever )
+                         kartote_->SMO := TMP_SMO
+                         kartote_->kvartal_d := TMP_REGION
+                         unlock
+                         put_long_str( 'Уточнение кода дефекта: верное СМО ' + TMP_SMO + " верный РЕГИОН " + TMP_REGION + " занесены в картотеку", cFileProtokol, 5 )
+                         // сразу отправляем в редактирование   -- СЛОЖНО
+                        endif  
+                      else // Так не должно быть
+                        put_long_str( 'Уточнение кода дефекта: ' + alltrim(raksherr->S_COM), cFileProtokol, 5 )
+                      endif  
+                    else   
+                      put_long_str( 'Уточнение кода дефекта: ' + alltrim(raksherr->S_COM), cFileProtokol, 5 )
+                    endif  
                   endif
                 else
                   If !Empty( s := ret_t005( Val( PadR( AllTrim( tmp6->S_COM ), 5 ) ) ) )
@@ -1056,7 +1090,7 @@ Function f1_view_rak_akt_schet_human( nk, ob, regim )
       If human_->OPLATA == 9
         func_error( 'Ошибка! Данный случай уже был перевыставлен!' )
       Else
-        rak_akt_schet_human_add_next( s, s1, rec )
+        rak_akt_schet_human_add_next( s, s1, rec, raksh->REFREASON  )
       Endif
     Else
       rak_akt_schet_human_del_next( s, s1, rec )
@@ -1151,8 +1185,8 @@ Function f2_view_rak_akt_schet_human()
 
   Return Nil
 
-// 15.02.19
-Function rak_akt_schet_human_add_next( s, s1, lrec )
+// 29.03.26 правка по СМО 15.02.19 
+Function rak_akt_schet_human_add_next( s, s1, lrec, tREFREASON  )
 
   Local i, arr1, arr2, mkod, buf := save_maxrow()
 
@@ -1169,6 +1203,7 @@ Function rak_akt_schet_human_add_next( s, s1, lrec )
       mywait()
       Close databases
       // сначала запоминаем копию листа учёта в массивах
+      r_use( dir_server() + 'kartote_',, "KARTOTE_"  ) // 29.03.26
       use_base( 'human' )
       Set Relation To // 'отвязываем'
       Goto ( glob_perso )
@@ -1386,6 +1421,13 @@ Function rak_akt_schet_human_add_next( s, s1, lrec )
       human_->REES_ZAP  := 0
       human_->SCHET_ZAP := 0
       human_->ST_VERIFY := 0 // снова ещё не проверен
+      // 29.03.26
+      if tREFREASON == 210
+        select kartote_
+        goto (human->kod_k)
+        human_->smo   := kartote_->smo
+        human_->okato := kartote_->kvartal_d
+      endif  
       //
       Select HUMAN_2
       Do While human_2->( LastRec() ) < mkod

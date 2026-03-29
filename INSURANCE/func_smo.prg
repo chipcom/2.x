@@ -6,7 +6,7 @@
 //
 Function func_valid_ismo( get, lkomu, sh, name_var )
 
-  Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
+  Local r1, r2, n := 3, buf, tmp_keys, tmp_list, tmp_color
 
   Default name_var To 'company'
   Private mvar := 'm1' + name_var
@@ -33,8 +33,8 @@ Function func_valid_ismo( get, lkomu, sh, name_var )
       reader {| x| menu_reader( x, mm_ismo, A__MENUVERT, , , .f. ) } ;
       when {|| Len( mm_ismo ) > 0 .and. Empty( mnameismo ) } ;
       valid {|| iif( Empty( mismo ), , mnameismo := Space( 100 ) ), .t. }
-    @ r1 + 3, 4 Say 'Наименование СМО' Get mnameismo Pict '@S56' ;
-      When Empty( m1ismo )
+   // @ r1 + 3, 4 Say 'Наименование СМО' Get mnameismo Pict '@S56' ;
+   //   When Empty( m1ismo )
     myread()
     SetColor( tmp_color )
     Restore gets From tmp_list
