@@ -545,7 +545,7 @@ Function getf015()
 
   Return _arr
 
-// 22.01.26
+// 30.03.26
 function get_f032()
 
   static arr
@@ -553,7 +553,8 @@ function get_f032()
 
   if HB_ISNIL( arr )
     arr := {}
-    r_use( dir_exe() + '_mo_f032', cur_dir() + '_mo_f032', 'F032' )
+//    r_use( dir_exe() + '_mo_f032', cur_dir() + '_mo_f032', 'F032' )
+    r_use( dir_exe() + '_mo_f032', , 'F032' )
     f032->( dbGoTop() )
     do while ! f032->( Eof() )
       AAdd( arr, { AllTrim( f032->NAMEMOK ), f032->MCOD } )
