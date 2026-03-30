@@ -1551,7 +1551,7 @@ Function valid_kod_tfoms( get )
   Endif
   Return fl
 
-// 30.01.26 редактирование справочника отделений
+// 30.03.26 редактирование справочника отделений
 Function edit_otd()
 
   Local i, j, blk, arr[ US_LEN ], fl
@@ -1629,7 +1629,7 @@ Function edit_otd()
     { 'LPU_1', 'C',17, 0, , ;
     {| x| menu_reader( x, mm1lpu1, A__MENUVERT, , , .f. ) }, ;
     space( 17 ), {| x| inieditspr( A__MENUVERT, mm_lpu1, x ) }, ;
-    'Структурное подразделение по ФФОМС' }, ;
+    'Структурное подразделение по "ГИС ОМС"' }, ;
     { 'TIP_OTD', 'N', 2, 0, , ;
     {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }, ;
     0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;

@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 27.03.26 
+// 30.03.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -153,7 +153,7 @@ Function verify_sluch( fl_view, ft )
 
   // проверка отделения
   if Empty( otd->LPU_1 )
-    AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ' не выбрано "Структурное подразделение по ФФОМС"' )
+    AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
   endif
 
   // проверка по датам
@@ -891,7 +891,7 @@ Function verify_sluch( fl_view, ft )
       otd->( dbGoto( hu->OTD ) )
       // проверка отделения для услуги
       if Empty( otd->LPU_1 )
-        AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ФФОМС"' )
+        AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
       endif
       hu->( g_rlock( forever ) )
       hu_->( g_rlock( forever ) )
@@ -1748,7 +1748,7 @@ Function verify_sluch( fl_view, ft )
     otd->( dbGoto( mohu->OTD ) )
     // проверка отделения для услуги
     if Empty( otd->LPU_1 )
-      AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ФФОМС"' )
+      AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
     endif
     mohu->( g_rlock( forever ) )
     If Empty( mohu->kod_vr ) .and. ( ! is_disp_DVN_COVID ) .and. ( ! is_disp_DRZ ) // исправлено для углубленной диспансеризации и ДРЗ
