@@ -2545,7 +2545,8 @@ Function verify_sluch( fl_view, ft )
           If a_1_11[ i, 2 ] == 158
             AAdd( ta, 'в услуге нельзя использовать профиль по: ' + inieditspr( A__MENUVERT, getv002(), 158 ) )
           Endif
-          fl := .t. ; Exit
+          fl := .t.
+          Exit
         Endif
       Next
     Endif
@@ -3098,11 +3099,11 @@ Function verify_sluch( fl_view, ft )
         AAdd( ta, 'в случае надо использовать профиль по: ' + inieditspr( A__MENUVERT, getv002(), 158 ) )
       Endif
 
-      For i := 1 To Len( au_lu )
-        If au_lu[ i, 3 ] == 158 .and. AllTrim( au_lu[ i, 1 ] ) != shifr_ksg
-          AAdd( ta, 'нельзя в услуге ' + AllTrim( au_lu[ i, 1 ] ) + ' использовать профиль по: ' + inieditspr( A__MENUVERT, getv002(), au_lu[ i, 3 ] ) )
-        Endif
-      Next
+//      For i := 1 To Len( au_lu ) // 30.03.26
+//        If au_lu[ i, 3 ] == 158 .and. AllTrim( au_lu[ i, 1 ] ) != shifr_ksg
+//          AAdd( ta, 'нельзя в услуге ' + AllTrim( au_lu[ i, 1 ] ) + ' использовать профиль по: ' + inieditspr( A__MENUVERT, getv002(), au_lu[ i, 3 ] ) )
+//        Endif
+//      Next
 
       If is_reabil_slux()
         t_arr := { '1331.0', '1332.0', '1333.0', '1335.0', '2127.0', '2128.0', '2130.0' }

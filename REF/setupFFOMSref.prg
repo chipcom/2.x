@@ -5,13 +5,12 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 29.03.26  áâà®©ª  á¯à ¢®ç­¨ª®¢ ””ŽŒ‘
+// 30.03.26  áâà®©ª  á¯à ¢®ç­¨ª®¢ ””ŽŒ‘
 Function nastr_sprav_ffoms( k )
 
   Static arr_spr, arr_spr_name, sk := 1
   Static arr_ref, arr_name
   Local str_sem, mas_pmt := {}, mas_msg := {}, mas_fun := {}, j
-  local ret
 
   Default k To 0
   Do Case
@@ -28,7 +27,7 @@ Function nastr_sprav_ffoms( k )
       'V034', ;
       'MethodINJ', ;
       'Implantant', ;
-      'F037', ;
+      'GIS_OMS', ;
       }
     arr_name := { ;
       'Ž”ˆ‹…‰ ®ª § ­­®© ¬¥¤¨æ¨­áª®© ¯®¬®é¨', ;
@@ -39,7 +38,7 @@ Function nastr_sprav_ffoms( k )
       '…„ˆˆ– ˆ‡Œ……ˆŸ', ;
       '“’…‰ ‚‚…„…ˆŸ', ;
       'ˆŒ‹€’€’Ž‚', ;
-      '‹ˆ–…‡ˆ‰ Žƒ€ˆ‡€–ˆˆ' ;
+      '¢ "ƒˆ‘ ŽŒ‘"' ;
       }
     arr_spr_name := { ;
       'Š« áá¨ä¨ª â®à Ž”ˆ‹…‰ ®ª § ­­®© ¬¥¤¨æ¨­áª®© ¯®¬®é¨', ;
@@ -50,7 +49,7 @@ Function nastr_sprav_ffoms( k )
       'Š« áá¨ä¨ª â®à …„ˆˆ– ˆ‡Œ……ˆŸ', ;
       'Š« áá¨ä¨ª â®à “’…‰ ‚‚…„…ˆŸ «¥ª àáâ¢¥­­ëå ¯à¥¯ à â®¢', ;
       'Š« áá¨ä¨ª â®à ˆŒ‹€’€’Ž‚ ¤«ï ¨á¯®«ì§®¢ ­¨ï', ;
-      '‚ë¤ ­­ë¥ «¨æ¥­§¨¨ ¤«ï ®à£ ­¨§ æ¨¨' ;
+      'ˆ­ä®à¬ æ¨ï à §¬¥é¥­­ ï ¢ "ƒˆ‘ ŽŒ‘"' ;
       }
 
     arr_spr := arr_name   // ¯®¤áâ ¢¨¬ ¨¬¥­  ¯ã­ªâ®¢ ¬¥­î
@@ -60,7 +59,7 @@ Function nastr_sprav_ffoms( k )
       AAdd( mas_fun, 'nastr_sprav_FFOMS(' + lstr( j ) + ')' )
     Next
     popup_prompt( T_ROW, T_COL + 5, sk, mas_pmt, mas_msg, mas_fun )
-  Case k > 0 .and. arr_ref[ k ] != 'F037'
+  Case k > 0 .and. arr_ref[ k ] != 'GIS_OMS'
     str_sem := ' áâà®©ª  ' + arr_spr[ k ]
     arr_spr := arr_ref  // ¯®¤áâ ¢¨¬ ¨¬¥­  á¯à ¢®ç­¨ª®¢
     If g_slock( str_sem )
@@ -70,7 +69,7 @@ Function nastr_sprav_ffoms( k )
       func_error( 4, err_slock() )
     Endif
     arr_spr := arr_name   // ¯®¤áâ ¢¨¬ ¨¬¥­  ¯ã­ªâ®¢ ¬¥­î
-  Case arr_ref[ k ] == 'F037'
+  Case arr_ref[ k ] == 'GIS_OMS'
     gis_oms()
   Endcase
   If k > 0

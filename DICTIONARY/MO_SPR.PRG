@@ -1627,7 +1627,7 @@ Function edit_otd()
     0, {| x| inieditspr( A__MENUVERT, mm_tiplu, x ) }, ;
     'Вид листа учёта при вводе данных' }, ;
     { 'LPU_1', 'C',17, 0, , ;
-    {| x| menu_reader( x, mm1lpu1, A__MENUVERT, , , .f. ) }, ;
+    {| x| menu_reader( x, mm1lpu1, A__MENUVERT_SPACE, , , .f. ) }, ;
     space( 17 ), {| x| inieditspr( A__MENUVERT, mm_lpu1, x ) }, ;
     'Структурное подразделение по "ГИС ОМС"' }, ;
     { 'TIP_OTD', 'N', 2, 0, , ;
