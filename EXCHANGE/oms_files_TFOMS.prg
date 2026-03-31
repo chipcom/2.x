@@ -112,7 +112,7 @@ Function read_from_tf()
   Endif
   Return fl
 
-// 19.03.26 чтение в память и анализ XML-файла
+// 31.03.26 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local is_err_FLK_26
@@ -424,11 +424,13 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
   Else
     mo_unlock_task( X_OMS )
   Endif
+
   If Empty( aerr ) .or. nCountWithErr > 0 // запишем файл протокола обработки
     chip_copy_zipxml( cFileProtokol, dir_server() + dir_XML_TF() )
   Endif
   If !Empty( aerr )
     AEval( aerr, {| x| put_long_str( x, cFileProtokol ) } )
+    chip_copy_zipxml( cFileProtokol, dir_server() + dir_XML_TF() )
   Endif
   viewtext( devide_into_pages( cFileProtokol, 60, 80 ), , , , .t., , , 2 )
   Delete File ( cFileProtokol )
