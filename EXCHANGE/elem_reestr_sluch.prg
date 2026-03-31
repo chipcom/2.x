@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.03.26
+// 31.03.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -120,7 +120,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     If isl == 1 .and. kol_sl == 2
       Select HUMAN_3
       ksl_date := human_3->K_DATA
-      find ( Str( rhum->kod_hum, 7 ) )
+      human_3->( dbSeek( Str( rhum->kod_hum, 7 ) ) )     //  find ( Str( rhum->kod_hum, 7 ) )
       reserveKSG_ID_C := human_3->ID_C
       Select HUMAN
       Goto ( human_3->kod )  // встали на 1-й лист учёта
@@ -811,73 +811,23 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       Next j
       If human_->USL_OK < 3 .and. iif( human_2->VMP == 1, .t., Between( onksl->DS1_T, 0, 2 ) ) .and. Len( arr_onk_usl ) > 0
         Select ONKUS
-        find ( Str( human->kod, 7 ) )
-        Do While onkus->kod == human->kod .and. !Eof()
+        onkus->( dbSeek( Str( human->kod, 7 ) ) )   //  find ( Str( human->kod, 7 ) )
+        Do While onkus->kod == human->kod .and. ! onkus->( Eof() )
           If Between( onkus->USL_TIP, 1, 5 )
             // заполним сведения об услуге прилечении онкологического больного для XML-документа
             oONK := oONK_SL:add( hxmlnode():new( 'ONK_USL' ) )
             mo_add_xml_stroke( oONK, 'USL_TIP', lstr( onkus->USL_TIP ) )
-            If onkus->USL_TIP == 1
+            If onkus->USL_TIP == 1  // Хирургическое лечение
               mo_add_xml_stroke( oONK, 'HIR_TIP', lstr( onkus->HIR_TIP ) )
             Endif
-            If onkus->USL_TIP == 2
+            If onkus->USL_TIP == 2  // Лекарственная противоопухолевая терапия
               mo_add_xml_stroke( oONK, 'LEK_TIP_L', lstr( onkus->LEK_TIP_L ) )
               mo_add_xml_stroke( oONK, 'LEK_TIP_V', lstr( onkus->LEK_TIP_V ) )
             Endif
-            If eq_any( onkus->USL_TIP, 3, 4 )
+            If eq_any( onkus->USL_TIP, 3, 4 ) // Лучевая терапия или Химиолучевая терапия
               mo_add_xml_stroke( oONK, 'LUCH_TIP', lstr( onkus->LUCH_TIP ) )
             Endif
-            If eq_any( onkus->USL_TIP, 2, 4 )
-/*
-              If human->k_data >= 0d20250101
-                arrLP := collect_lek_pr( human->( RecNo() ) )
-                If Len( arrLP ) > 0
-                  aRegnum := unique_val_in_array( arrLP, 3 ) // получим уникальные REGNUM
-                  For i := 1 To Len( aRegnum )
-                    // Соберем типы лек. препаратов
-                    // заполним сведения о примененных лекарственных препаратах при лечении онкологического больного для XML-документа
-                    oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
-                    mo_add_xml_stroke( oLEK, 'REGNUM', aRegnum[ i, 3 ] )
-                    mo_add_xml_stroke( oLEK, 'REGNUM_DOP', ;
-                      get_sootv_n021( aRegnum[ i, 2 ], aRegnum[ i, 3 ], human->k_data )[ 7 ] )
-                    mo_add_xml_stroke( oLEK, 'CODE_SH', aRegnum[ i, 2 ] )
-                    For iLekPr := 1 To Len( arrLp )
-                      If arrLP[ iLekPr, 3 ] == aRegnum[ i, 3 ]
-                        oINJ := oLek:add( hxmlnode():new( 'INJ' ) )
-                        mo_add_xml_stroke( oINJ, 'DATE_INJ', date2xml( arrLP[ iLekPr, 1 ] ) )
-                        mo_add_xml_stroke( oINJ, 'KV_INJ', Str( arrLP[ iLekPr, 5 ], 8, 3 ) )
-                        mo_add_xml_stroke( oINJ, 'KIZ_INJ', Str( arrLP[ iLekPr, 9 ], 8, 3 ) )
-                        mo_add_xml_stroke( oINJ, 'S_INJ', Str( arrLP[ iLekPr, 10 ], 15, 6 ) )
-                        mo_add_xml_stroke( oINJ, 'SV_INJ', ;
-                          Str( arrLP[ iLekPr, 5 ] * arrLP[ iLekPr, 10 ], 15, 2 ) )
-                        mo_add_xml_stroke( oINJ, 'SIZ_INJ', ;
-                          Str( arrLP[ iLekPr, 9 ] * arrLP[ iLekPr, 10 ], 15, 2 ) )
-                        mo_add_xml_stroke( oINJ, 'RED_INJ', Str( arrLP[ iLekPr, 11 ], 1, 0 ) )
-                      Endif
-                    Next
-                  Next
-                Endif
-              Else
-                old_lek := Space( 6 )
-                old_sh := Space( 10 )
-                Select ONKLE  // цикл по БД лекарств
-                find ( Str( human->kod, 7 ) )
-                Do While onkle->kod == human->kod .and. !Eof()
-                  If !( old_lek == onkle->REGNUM .and. old_sh == onkle->CODE_SH )
-                    // заполним сведения о примененных лекарственных препаратах при лечении онкологического больного для XML-документа
-                    oLEK := oONK:add( hxmlnode():new( 'LEK_PR' ) )
-                    mo_add_xml_stroke( oLEK, 'REGNUM', onkle->REGNUM )
-                    mo_add_xml_stroke( oLEK, 'CODE_SH', onkle->CODE_SH )
-                  Endif
-                  // цикл по датам приёма данного лекарства
-                  mo_add_xml_stroke( oLEK, 'DATE_INJ', date2xml( onkle->DATE_INJ ) )
-                  old_lek := onkle->REGNUM
-                  old_sh := onkle->CODE_SH
-                  Select ONKLE
-                  Skip
-                Enddo
-              Endif
-*/
+            If eq_any( onkus->USL_TIP, 2, 4 ) // Лекарственная противоопухолевая терапия или Химиолучевая терапия
               tag_lek_pr_zno( oONK, human->k_data, human->( RecNo() ), human->kod )
 
               If onkus->PPTR > 0
@@ -886,7 +836,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
             Endif
           Endif
           Select ONKUS
-          Skip
+          onkus->( dbSkip() )     //  Skip
         Enddo
       Endif
     Endif
@@ -1064,7 +1014,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 //        Endif
         If p_tip_reestr == TYPE_REESTR_GENERAL
           Select T21
-          find ( PadR( lshifr, 10 ) )
+          t21->( dbSeek( PadR( lshifr, 10 ) ) )     //  find ( PadR( lshifr, 10 ) )
           If t21->( Found() )
             mo_add_xml_stroke( oUSL, 'VID_VME', AllTrim( t21->shifr_mz ) )
           Endif
@@ -1160,8 +1110,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         if human->K_DATA >= 0d20260101 .and. is_disp_DVN
           t21->( dbSeek( PadR( usl_zamena, 10 ) ) )
         else
-//          find ( PadR( a_otkaz[ j, 1 ], 10 ) )
-          t21->( dbSeek( PadR( a_otkaz[ j, 1 ], 10 ) ) )
+          t21->( dbSeek( PadR( a_otkaz[ j, 1 ], 10 ) ) )      //  find ( PadR( a_otkaz[ j, 1 ], 10 ) )
         endif
         nomeklatura_mz := ''
         if human->K_DATA >= 0d20260101
