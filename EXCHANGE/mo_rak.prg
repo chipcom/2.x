@@ -7,7 +7,7 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-// 29.03.26 прочитать и 'разнести' по базам данных РАК
+// 31.03.26 прочитать и 'разнести' по базам данных РАК
 Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
 
   Local fl_akt, fl_schet, blk_akt, blk_schet, i, s, s1, arr_s := {}, t_arr[ 2 ], ;
@@ -16,6 +16,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
   Local arr, ia, is, ih, rec_xml, v
   Local arrF006 := getf006()
   Local TMP_REGION, TMP_SMO
+  local schet_smo
 
   blk_akt := { || AAdd( aerr, 'АКТ № ' + AllTrim( tmp2->_nakt ) + ' от ' + date_8( tmp2->_dakt ) ) }
   blk_schet := { || AAdd( aerr, ' СЧЁТ № ' + AllTrim( tmp3->_nschet ) + ' от ' + date_8( tmp3->_dschet ) ) }
@@ -67,7 +68,8 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
         no_write := .f.
         AAdd( arr, schet_->( RecNo() ) )
         tmp3->kod_schet := schet_->( RecNo() )
-        If !( tmp3->_PLAT == schet_->smo )
+        schet_smo := AllTrim( schet_->smo )
+        If !( tmp3->_PLAT == iif( Len( schet_smo ) == 2, schet_->smo + '000', schet_->smo ) )
           If fl_akt
             Eval( blk_akt )
             fl_akt := .f.
@@ -76,7 +78,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
             Eval( blk_schet )
             fl_schet := .f.
           Endif
-          AAdd( aerr, '  не равен код плательщика: в файле - ' + AllTrim( tmp3->_PLAT ) + ', у нас - ' + AllTrim( schet_->smo ) )
+          AAdd( aerr, '  не равен код плательщика: в файле - ' + AllTrim( tmp3->_PLAT ) + ', у нас - ' + schet_smo )
         Endif
         //
         Select HUMAN

@@ -38,6 +38,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   local kod_lshifr
   local tarif_usl, sumvv_usl
   local mNPR_MO, napr_number := ''
+  local is_vmp
 
   Local oPAC
   Local cSMOname
@@ -72,10 +73,10 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   Private pr_amb_reab, fl_disp_nabl, is_disp_DVN, is_disp_DVN_COVID, is_disp_DRZ
   Private ldate_next
   Private a_otkaz
-//  Private arr_nazn
   Private arr_ne_vozm
   Private mtab_v_dopo_na, mtab_v_mo, mtab_v_stac, mtab_v_reab, mtab_v_sanat
   Private arr_usl_otkaz
+//  Private arr_nazn
 //  Private atmpusl
 //  Private ar_dn
 
@@ -87,11 +88,11 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   CODE_LPU := glob_mo()[ _MO_KOD_TFOMS ]
   //
   Select HUMAN
-  Goto ( rhum->kod_hum )  // встали на 2-ой лист учёта
+  human->( dbGoto( rhum->kod_hum ) )   //  Goto ( rhum->kod_hum )  // встали на 2-ой лист учёта
   kol_sl := iif( human->ishod == 89, 2, 1 )
   ksl_date := nil
-  For isl := 1 To kol_sl
 
+  For isl := 1 To kol_sl
     a_fusl := {}
     ar_dn := {}
     a_usl := {} // для корректной работы с двойным сдучаем
@@ -112,9 +113,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     pr_amb_reab := fl_disp_nabl := is_disp_DVN := is_disp_DVN_COVID := is_disp_DRZ := .f.
     ldate_next := CToD( '' )
     a_otkaz := {}
-//    arr_nazn := {}
     arr_ne_vozm := {}
     mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+//    arr_nazn := {}
 //    atmpusl := {}
 
     If isl == 1 .and. kol_sl == 2
@@ -123,12 +124,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       human_3->( dbSeek( Str( rhum->kod_hum, 7 ) ) )     //  find ( Str( rhum->kod_hum, 7 ) )
       reserveKSG_ID_C := human_3->ID_C
       Select HUMAN
-      Goto ( human_3->kod )  // встали на 1-й лист учёта
+      human->( dbGoto( human_3->kod ) )   //  Goto ( human_3->kod )  // встали на 1-й лист учёта
     Endif
     If isl == 2
-      Select HUMAN
       ksl_date := human_3->K_DATA
-      Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
+      Select HUMAN
+      human->( dbGoto( human_3->kod2 ) )     //  Goto ( human_3->kod2 )  // встали на 2-ой лист учёта
     Endif
     is_oncology := schet_is_oncology( p_tip_reestr, @is_oncology_smp )
     If is_oncology > 0
@@ -178,9 +179,9 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       mohu->( dbSkip() )
     Enddo
     Select( tmpSelect )
-
  
     f1_create2reestrCommon( _nyear, p_tip_reestr )
+
     // заполним реестр записями для XML-документа
     If isl == 1
       oZAP := oXmlDoc:aItems[ 1 ]:add( hxmlnode():new( 'ZAP' ) )
@@ -201,90 +202,10 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
       // заполним сведения о пациенте для XML-документа
       tag_pacient( oZap, p_tip_reestr )
-/*
-      oPAC := oZAP:add( hxmlnode():new( 'PACIENT' ) )
-      mo_add_xml_stroke( oPAC, 'ID_PAC', human_->ID_PAC )
-      mo_add_xml_stroke( oPAC, 'VPOLIS', lstr( human_->VPOLIS ) )
 
-      if human_->VPOLIS == 3
-        If ( ( Len ( AllTrim( human_->NPOLIS ) ) == 16 ) ) .or. Len( AllTrim( kart2->kod_mis ) ) == 16
-          if ! Empty( human_->NPOLIS )
-            mo_add_xml_stroke( oPAC, 'ENP', AllTrim( human_->NPOLIS ) ) // Единый номер полиса единого образца
-          else
-            mo_add_xml_stroke( oPAC, 'ENP', kart2->kod_mis ) // Единый номер полиса единого образца
-          endif
-        Endif
-      else
-        If ! Empty( human_->SPOLIS )
-          mo_add_xml_stroke( oPAC, 'SPOLIS', human_->SPOLIS )
-        Endif
-        mo_add_xml_stroke( oPAC, 'NPOLIS', human_->NPOLIS )
-      endif
-
-      cSMOname := schet_smoname()
-      // mo_add_xml_stroke(oPAC, 'ST_OKATO' ,...) // Регион страхования
-      If Empty( cSMOname )
-        mo_add_xml_stroke( oPAC, 'SMO', human_->smo )
-      Endif
-      mo_add_xml_stroke( oPAC, 'SMO_OK', iif( Empty( human_->OKATO ), '18000', human_->OKATO ) )
-      If !Empty( cSMOname )
-        mo_add_xml_stroke( oPAC, 'SMO_NAM', cSMOname )
-      Endif
-
-      if _nyear >= 2026 .and. p_tip_reestr == TYPE_REESTR_GENERAL // новый ПУМП на 26 год
-        tag_disability( oPac )
-      endif
-
-      If human_->NOVOR == 0
-        mo_add_xml_stroke( oPAC, 'NOVOR', '0' )
-      Else
-        mnovor := iif( human_->pol2 == 'М', '1', '2' ) + StrZero( Day( human_->DATE_R2 ), 2 ) + ;
-          StrZero( Month( human_->DATE_R2 ), 2 ) + Right( lstr( Year( human_->DATE_R2 ) ), 2 ) + ;
-          StrZero( human_->NOVOR, 2 )
-        mo_add_xml_stroke( oPAC, 'NOVOR', mnovor )
-      Endif
-      If human_->USL_OK == USL_OK_HOSPITAL .and. human_2->VNR > 0
-        // стационар + л/у на недоношенного ребёнка
-        mo_add_xml_stroke( oPAC, 'VNOV_D', lstr( human_2->VNR ) )
-      Endif
-
-      mo_add_xml_stroke( oPAC, 'SOC', iif( Empty( kart->pc3 ), '000', kart->pc3 ) ) // в новом ПУМП указывается всегда
-
-      If p_tip_reestr == TYPE_REESTR_DISPASER  // для реестров по диспансеризации
-        otd->( dbGoto( human->OTD ) )
-        lDispans := eq_any( otd->TIPLU, TIP_LU_DDS, TIP_LU_DVN, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN, TIP_LU_DVN_COVID, TIP_LU_DRZ )
-
-        if eq_any( otd->TIPLU, TIP_LU_DDS, TIP_LU_DDSOP, TIP_LU_PN, TIP_LU_PREDN, TIP_LU_PERN )
-          if ( vozrast := count_years( human->date_r, human->n_data ) ) < 1 // возраст меньше года
-            next_d := AddMonth( human->k_data, 1 )
-          else
-            next_d := AddMonth( human->k_data, 12 )
-          endif
-        else
-          next_d := AddMonth( human->k_data, 12 )
-        Endif
-        mo_add_xml_stroke( oPAC, 'NEXT_D', Str( Month( next_d ), 2 ) )
-      endif
-      if ! Empty( human->MO_PR ) .and. ( AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( human_->smo ) ) } ) != 0 )
-//        if Len( AllTrim( human_->smo ) ) != 2
-          mo_add_xml_stroke( oPAC, 'MO_PR', human->MO_PR )
-//        endif
-      endif
-      if ! Empty( human->VZ ) .and. human_->USL_OK == USL_OK_POLYCLINIC
-//        mo_add_xml_stroke( oPAC, 'VZ', Str( kart->VZ, 2 ) )
-        mo_add_xml_stroke( oPAC, 'VZ', Str( human->VZ, 2 ) )
-      endif
-*/
-/*      
-      if _nyear < 2026 .and. p_tip_reestr == TYPE_REESTR_GENERAL .and. ;    // старый ПУМП, реестр окоазания мед. помощи за исключенем диспансеризации
-          human_->USL_OK == USL_OK_POLYCLINIC .and. ;   // поликлиника
-          glob_mo()[ _MO_IS_UCH ] .and. ;               // наше МО имеет прикреплённое население
-          kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ]    // прикреплён к нашему МО
-        tag_disability( oPac )
-      endif
-*/
       // заполним сведения о законченном случае оказания медицинской помощи для XML-документа
       oSLUCH := oZAP:add( hxmlnode():new( 'Z_SL' ) )
+
       mo_add_xml_stroke( oSLUCH, 'IDCASE', lstr( rhum->REES_ZAP ) )
 
       If ! Empty( reserveKSG_ID_C ) // проверим GUID для вложенного двойного случая
