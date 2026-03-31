@@ -7,7 +7,7 @@
 // согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
 #define CHILD_EXIST .f. // учитывать несовершеннолетних или нет
 
-// 24.01.26 добавление или редактирование случая (листа учета)
+// 31.03.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -399,7 +399,7 @@ Function oms_sluch_onko_disp( Loc_kod, kod_kartotek )
       Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
 
     @ ++j, 1 Say 'МО прикрепления' Get mMO_PR ;
-      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , , 19 ) } // с возможностью очистки по SPACE
+      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , .t., 19 ) } // с возможностью очистки по SPACE
 
     if glob_otd[ 3 ] == USL_OK_POLYCLINIC
       @ j, Col() + 1 Say 'Место обращения' Get mMOP ;

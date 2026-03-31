@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.01.26 ПренД - добавление или редактирование случая (листа учета)
+// 31.03.26 ПренД - добавление или редактирование случая (листа учета)
 Function oms_sluch_prend( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -283,7 +283,7 @@ Function oms_sluch_prend( Loc_kod, kod_kartotek )
       Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
 
     @ ++j, 1 Say 'МО прикрепления' Get mMO_PR ;
-      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , , 19 ) } // с возможностью очистки по SPACE
+      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , .t., 19 ) } // с возможностью очистки по SPACE
 
     if glob_otd[ 3 ] == USL_OK_POLYCLINIC
       @ j, Col() + 1 Say 'Место обращения' Get mMOP ;

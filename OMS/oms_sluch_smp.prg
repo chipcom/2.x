@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.02.26 СМП - добавление или редактирование случая (листа учета)
+// 31.03.26 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -612,7 +612,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       reader {| x| menu_reader( x, mm_SOC(), A__MENUVERT, , , .f., , , , 20 ) }
 
     @ j, Col() + 1 Say 'МО прикрепления' Get mMO_PR ;
-      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f. ) } // с возможностью очистки по SPACE
+      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , .t. ) } // с возможностью очистки по SPACE
 
     //
     @ ++j, 1 Say 'Новорожденный?' Get mnovor ;

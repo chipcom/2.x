@@ -733,7 +733,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         update_get( 'mvidpolis' ) }
       //
       @ j, Col() + 1 Say 'МО прикрепления' Get mMO_PR ;
-        reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f. ) } // с возможностью очистки по SPACE
+        reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , .t. ) } // с возможностью очистки по SPACE
       //
       @ ++j, 1 Say 'Направление: дата' Get mNPR_DATE
       @ j, Col() + 1 Say 'из МО' Get mNPR_MO PICTURE '@S20';

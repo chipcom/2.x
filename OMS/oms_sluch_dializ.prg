@@ -12,7 +12,7 @@ Function f_d_dializ()
 
   Return .t.
 
-// 24.01.26 гемодиализ (1) и перитонеальный диализ (2)
+// 31.03.26 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -279,7 +279,7 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
       Valid func_valid_polis( m1vidpolis, mspolis, mnpolis )
 
     @ ++j, 1 Say 'МО прикрепления' Get mMO_PR ;
-      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , , 19 ) } // с возможностью очистки по SPACE
+      reader {| x| menu_reader( x, get_f032_prik(), A__MENUVERT_SPACE, , , .f., , , .t., 19 ) } // с возможностью очистки по SPACE
 
     if glob_otd[ 3 ] == USL_OK_POLYCLINIC
       @ j, 37 Say 'Место обращения' Get mMOP ;
