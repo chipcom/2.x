@@ -67,11 +67,12 @@ Function f1edit_licenses( oBrow )
 // 30.03.26
 Function f2edit_licenses( nKey, oBrow )
 
-  Local fl := .f., ret := -1
+  Local oBr, ret := -1
 
   local sbase, tmp_select := Select()
   local aDbf, k
 
+  oBr := oBrow
   Do Case
   Case nKey == K_ENTER
 
@@ -133,7 +134,7 @@ Function f1edit_lic_addr( oBrow )
 // 30.03.26
 Function f2edit_lic_addr( nKey, oBrow )
 
-  Local fl := .f., ret := -1
+  Local ret := -1
 
   local sbase, tmp_select := Select()
   local aDbf, k
@@ -203,11 +204,11 @@ Function f1edit_addr_otd( oBrow )
 // 30.03.26
 Function f2edit_addr_otd( nKey, oBrow )
 
-  Local fl := .f., ret := -1
-
+  Local oBr, ret := -1
   local sbase, tmp_select := Select()
   local aDbf, k
 
+  oBr := oBrow
   Do Case
   Case nKey == K_ENTER
     aDbf := { ;
@@ -267,10 +268,10 @@ Function f1edit_otd_mp( oBrow )
 // 30.03.26
 Function f2edit_otd_mp( nKey, oBrow )
 
-  Local fl := .f., ret := -1
-
+  Local oBr, ret := -1
   local tmp_select := Select()
 
+  oBr := oBrow
   Do Case
   Case nKey == K_ENTER
   Endcase
