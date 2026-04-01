@@ -501,7 +501,7 @@ Function f1_view_list_reestr( oBrow )
 
   Return Nil
 
-// 12.02.26 
+// 01.04.26 
 Function f11_view_list_reestr()
 
   Local s := ''
@@ -512,6 +512,8 @@ Function f11_view_list_reestr()
     s := 'отказ'
   elseif rees->res_tfoms == 3
     s := 'ошибки'
+  elseif rees->res_tfoms == 4
+    s := 'чтение'
   else
     If ! hb_FileExists( goal_dir + AllTrim( rees->NAME_XML ) + szip() )
       s := 'нет файла'
@@ -880,7 +882,7 @@ Function f31_view_list_reestr( reg, s )
 
   Return Nil
 
-// 12.02.26
+// 01.04.26
 Function f21_view_list_reestr() 
 
   Local s := '', fl := .t., r := Row(), c := Col()
@@ -893,6 +895,8 @@ Function f21_view_list_reestr()
       s += 'Реестр - отказ на уровне файла.'
     elseif rees->res_tfoms == 3
       s += 'Реестр - отказ по причине ошибок.'
+    elseif rees->res_tfoms == 4
+      s += 'ФЛК - ошибка при чтении.'
     else
       s += 'Ответ ТФОМС не получен.'
     endif

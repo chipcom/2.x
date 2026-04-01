@@ -41,7 +41,7 @@ Function oms_double( k )
   endif
   return NIL
 
-// 11.03.26 склеить два случая
+// 01.04.26 склеить два случая
 Function create_double_sl()
 
   Local buf, str_sem, str_sem2, i, d, fl, arr_m, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
@@ -303,10 +303,11 @@ Function create_double_sl()
                   select HUMAN
                   human->( dbGoto( glob_perso2 ) )    //  goto ( glob_perso2 )
                   G_RLock( forever )
-                  human->ishod := 89 // это 2-ой л/у в двойном случае
+                  human->ishod := 89 // это 2-ой л/у в двойном случае 
                   human_2->( G_RLock( forever ) )
                   human_2->pn4 := glob_perso // ссылка на 1-й лист учёта
 //                  tmp_pc2 := human_2->pc2 // сохраним КИРО из 2-го случая
+                  human_2->P_PER := 4       // Перевод внутри МО
                   //
                   dbCloseAll()    //  close databases
 

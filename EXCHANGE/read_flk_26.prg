@@ -98,6 +98,9 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
   Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
   r_use( dir_server() + 'mo_rees', , 'REES' )
   rees->( dbGoto( arr_XML_info[ 7 ] ) )
+  
+  rees->RES_TFOMS := 4  // начат процесс чтения ФЛК
+
   StrFile( 'Обрабатывается ответ ТФОМС на реестр счета № ' + ;
     lstr( rees->NSCHET ) + ' от ' + full_date( rees->DSCHET ) + 'г. (' + lstr( rees->KOL ) + ' чел.)' + ;
     hb_eol(), cFileProtokol, .t. )
