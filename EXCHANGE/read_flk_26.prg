@@ -331,17 +331,17 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
     Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_rhum1' )
     Do While .t.
       Select RHUM
-      rhum->( dbSeek( Str( mkod_reestr, 6 ) ) )      //  find ( Str( mkod_reestr, 6 ) )
-      If ! rhum->( Found() )
+      find ( Str( mkod_reestr, 6 ) )
+      If !Found()
         exit
       Endif
 
       //
       Select HUMAN_
-      human_->( dbGoto( rhum->KOD_HUM ) )      //  Goto ( rhum->KOD_HUM )
+      Goto ( rhum->KOD_HUM )
       If human_->REESTR == mkod_reestr // на всякий случай
         Select HUMAN
-        human->( dbGoto( rhum->KOD_HUM ) )     //  Goto ( rhum->KOD_HUM )
+        Goto ( rhum->KOD_HUM )
 
         TR->( dbAppend() )
         TR->KOD_HUM := human->( RecNo() )
@@ -349,18 +349,18 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
         If human->ishod == 88 // сначала проверим, не двойной ли это случай (по-старому)
           Select HUMAN_3
           Set Order To 1
-          human_3->( dbSeek( Str( human->kod, 7 ) ) )     //  find ( Str( human->kod, 7 ) )
-          If human_3->( Found() )
+          find ( Str( human->kod, 7 ) )
+          If Found()
             Select HUMAN_
-            human_->( dbGoto( human_3->kod2 ) )      //  Goto ( human_3->kod2 ) // встать на 2-ой лист учёта
+            Goto ( human_3->kod2 ) // встать на 2-ой лист учёта
             Select HU
-            hu->( dbSeek( Str( human_3->kod2, 7 ) ) )      //  find ( Str( human_3->kod2, 7 ) )
-            Do While human_3->kod2 == hu->kod .and. ! hu->( Eof() )
+            find ( Str( human_3->kod2, 7 ) )
+            Do While human_3->kod2 == hu->kod .and. !Eof()
               hu_->( g_rlock( 'forever' ) )
               hu_->REES_ZAP := 0
               hu_->( dbUnlock() )
               Select HU
-              hu->( dbSkip() )      //  Skip
+              Skip
             Enddo
             human_->( g_rlock( 'forever' ) )
             If human_->REES_NUM > 0
@@ -380,15 +380,15 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
           Endif
           // возвращаемся к 1-му листу учёта
           Select HUMAN_
-          human_->( dbGoto( rhum->KOD_HUM ) )      //  Goto ( rhum->KOD_HUM )
+          Goto ( rhum->KOD_HUM )
           Select HU
-          hu->( dbSeek( Str( rhum->KOD_HUM, 7 ) ) )      //  find ( Str( rhum->KOD_HUM, 7 ) )
-          Do While rhum->KOD_HUM == hu->kod .and. ! hu->( Eof() )
+          find ( Str( rhum->KOD_HUM, 7 ) )
+          Do While rhum->KOD_HUM == hu->kod .and. !Eof()
             hu_->( g_rlock( 'forever' ) )
             hu_->REES_ZAP := 0
             hu_->( dbUnlock() )
             Select HU
-            hu->( dbSkip() )      //  Skip
+            Skip
           Enddo
           human_->( g_rlock( 'forever' ) )
           If human_->REES_NUM > 0
@@ -400,13 +400,13 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
         Elseif human->ishod == 89 // теперь проверим, не двойной ли это случай (по-новому)
           // сначала обработаем 2-ой случай
           Select HU
-          hu->( dbSeek( Str( rhum->KOD_HUM, 7 ) ) )      //  find ( Str( rhum->KOD_HUM, 7 ) )
-          Do While rhum->KOD_HUM == hu->kod .and. ! hu->( Eof() )
+          find ( Str( rhum->KOD_HUM, 7 ) )
+          Do While rhum->KOD_HUM == hu->kod .and. !Eof()
             hu_->( g_rlock( 'forever' ) )
             hu_->REES_ZAP := 0
             hu_->( dbUnlock() )
             Select HU
-            hu->( dbskip() )      //  Skip
+            Skip
           Enddo
           human_->( g_rlock( 'forever' ) )
           If human_->REES_NUM > 0
@@ -418,18 +418,18 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
           // поищем 1-ый случай
           Select HUMAN_3
           Set Order To 2
-          human_3->( dbSeek( Str( human->kod, 7 ) ) )     //  find ( Str( human->kod, 7 ) )
-          If human_3->( Found() )
+          find ( Str( human->kod, 7 ) )
+          If Found()
             Select HUMAN_
-            human_->( dbGoto( human_3->kod ) )      //  Goto ( human_3->kod ) // встать на 1-ый лист учёта
+            Goto ( human_3->kod ) // встать на 1-ый лист учёта
             Select HU
-            hu->( dbseek( Str( human_3->kod2, 7 ) ) )      //  find ( Str( human_3->kod2, 7 ) )
-            Do While human_3->kod2 == hu->kod .and. ! hu->( Eof() )
+            find ( Str( human_3->kod2, 7 ) )
+            Do While human_3->kod2 == hu->kod .and. !Eof()
               hu_->( g_rlock( 'forever' ) )
               hu_->REES_ZAP := 0
               hu_->( dbUnlock() )
               Select HU
-              hu->( dbSkip() )      //  Skip
+              Skip
             Enddo
             human_->( g_rlock( 'forever' ) )
             If human_->REES_NUM > 0
@@ -450,15 +450,15 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
         Else
           // обработка одинарного случая
           Select HUMAN_
-          human_->( dbGoto( rhum->KOD_HUM ) )      //  Goto ( rhum->KOD_HUM )
+          Goto ( rhum->KOD_HUM )
           Select HU
-          hu->( dbSeek( Str( rhum->KOD_HUM, 7 ) ) )      //  find ( Str( rhum->KOD_HUM, 7 ) )
-          Do While rhum->KOD_HUM == hu->kod .and. ! hu->( Eof() )
+          find ( Str( rhum->KOD_HUM, 7 ) )
+          Do While rhum->KOD_HUM == hu->kod .and. !Eof()
             hu_->( g_rlock( 'forever' ) )
             hu_->REES_ZAP := 0
             hu_->( dbUnlock() )
             Select HU
-            hu->( dbSkip() )      //  Skip
+            Skip
           Enddo
           human_->( g_rlock( 'forever' ) )
           If human_->REES_NUM > 0
