@@ -34,7 +34,7 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
 //  endif
   return aFiles
 
-// 07.02.26 проверить, нам ли предназначен данный XML-файл
+// 01.04.26 проверить, нам ли предназначен данный XML-файл
 Function is_our_xml( cName, ret_arr )
 
   Local i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
@@ -314,7 +314,7 @@ Function is_our_xml( cName, ret_arr )
 //      Select REES
 //      Goto ( nReestr )
       rees->( dbGoto( nReestr ) )
-      cFrom   := glob_MO[ _MO_KOD_TFOMS ]
+      cFrom   := glob_MO()[ _MO_KOD_TFOMS ]
       cTo     := '34'
       _nYear  := rees->NYEAR
       _nMonth := rees->NMONTH
