@@ -40,8 +40,8 @@ Function ob2_statist( k, serv_arr )
   Local i, j, arr[ 2 ], begin_date, end_date, bk := 1, ek := 99, al, ;
     fl_exit := .f., sh := 80, HH := 57, regim := 2, s, fl_1_list := .t., ;
     len_n, pkol, ptrud, pstoim, old_perso, old_vr_as, old_usl, ;
-    old_fio, arr_otd := {}, md, mkol, mstoim, arr_kd := {}, len_kd := 0, ;
-    xx, yy, pole_va, lrec, t_date1, t_date2, arr_title, msum, msum_opl, ;
+    old_fio, arr_otd := {}, mkol, arr_kd := {}, len_kd := 0, ;
+    xx, yy, pole_va, lrec, t_date1, t_date2, arr_title, msum, ;
     musluga, mperso := {}, mkod_perso, arr_usl := {}, adbf1, adbf2, ;
     arr_svod_nom := {}, arr_m, lshifr1
   Private is_all := .t.
@@ -135,35 +135,35 @@ Function ob2_statist( k, serv_arr )
     Return Nil
   Endif
   adbf1 := { ;
-    { "U_KOD",    "N",      4,      0 }, ;  // код услуги
-    { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-    { "U_NAME",     "C",    255,      0 }, ;  // наименование услуги
-    { "FIO",        "C",     25,      0 }, ;  // ФИО больного
-    { "KOD",        "N",      7,      0 }, ;  // код больного
-    { "K_DATA",     "D",      8,      0 }, ;  // дата окончания лечения
-    { "KOL",    "N",      5,      0 }, ;  // количество услуг
-    { "STOIM",      "N",     20,      4 };   // стоимость услуг
+    { "U_KOD",    "N",   4, 0 }, ;  // код услуги
+    { "U_SHIFR",  "C",  10, 0 }, ;  // шифр услуги
+    { "U_NAME",   "C", 255, 0 }, ;  // наименование услуги
+    { "FIO",      "C",  25, 0 }, ;  // ФИО больного
+    { "KOD",      "N",   7, 0 }, ;  // код больного
+    { "K_DATA",   "D",   8, 0 }, ;  // дата окончания лечения
+    { "KOL",      "N",   5, 0 }, ;  // количество услуг
+    { "STOIM",    "N",  20, 4 } ;   // стоимость услуг
   }
   adbf2 := { ;
-    { "otd",        "N",      3,      0 }, ;  // отделение, где оказана услуга
-    { "U_KOD",    "N",      4,      0 }, ;  // код услуги
-    { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-    { "U_NAME",     "C",    255,      0 }, ;  // наименование услуги
-    { "VR_AS",      "N",      1,      0 }, ;  // врач - 1 ; ассистент - 2
-    { "TAB_NOM",    "N",      5,      0 }, ;  // таб.номер врача (ассистента)
-    { "SVOD_NOM",   "N",      5,      0 }, ;  // сводный таб.номер
-    { "KOD_VR_AS",  "N",      4,      0 }, ;  // код врача (ассистента)
-    { "FIO",        "C",     60,      0 }, ;  // Ф.И.О. врача (ассистента)
-    { "KOD_AS",    "N",      4,      0 }, ;  // код ассистента
-    { "TRUDOEM",    "N",     13,      4 }, ;  // трудоемкость услуг УЕТ
-    { "KOL",    "N",      6,      0 }, ;  // количество услуг
-    { "STOIM",    "N",     16,      4 };   // итоговая стоимость услуги
+    { "otd",      "N",   3, 0 }, ;  // отделение, где оказана услуга
+    { "U_KOD",    "N",   4, 0 }, ;  // код услуги
+    { "U_SHIFR",  "C",  10, 0 }, ;  // шифр услуги
+    { "U_NAME",   "C", 255, 0 }, ;  // наименование услуги
+    { "VR_AS",    "N",   1, 0 }, ;  // врач - 1 ; ассистент - 2
+    { "TAB_NOM",  "N",   5, 0 }, ;  // таб.номер врача (ассистента)
+    { "SVOD_NOM", "N",   5, 0 }, ;  // сводный таб.номер
+    { "KOD_VR_AS","N",   4, 0 }, ;  // код врача (ассистента)
+    { "FIO",      "C",  60, 0 }, ;  // Ф.И.О. врача (ассистента)
+    { "KOD_AS",   "N",   4, 0 }, ;  // код ассистента
+    { "TRUDOEM",  "N",  13, 4 }, ;  // трудоемкость услуг УЕТ
+    { "KOL",      "N",   6, 0 }, ;  // количество услуг
+    { "STOIM",    "N",  16, 4 };   // итоговая стоимость услуги
   }
   If !is_all
     dbCreate( cur_dir() + "tmp", adbf2 )
     Use ( cur_dir() + "tmp" ) new
-    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
     Use ( cur_dir() + "tmp" ) new
@@ -178,63 +178,64 @@ Function ob2_statist( k, serv_arr )
   Else
     dbCreate( cur_dir() + "tmp", adbf2 )
   Endif
-  waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
+  waitstatus( "<Esc> - прервать поиск" )
+  mark_keys( { "<Esc>" } )
   Use ( cur_dir() + "tmp" )
   Do Case
   Case k == 0  // Количество услуг и сумма лечения по службам (с разбивкой по отделениям)
-    Index On Str( kod_vr_as, 4 ) + Str( otd, 3 ) to ( cur_dir() + "tmpk" )
-    Index On Str( kod_vr_as, 4 ) + Str( u_kod, 4 ) + Upper( Left( u_name, 20 ) ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->kod_vr_as, 4 ) + Str( FIELD->otd, 3 ) to ( cur_dir() + "tmpk" )
+    Index On Str( FIELD->kod_vr_as, 4 ) + Str( FIELD->u_kod, 4 ) + Upper( Left( FIELD->u_name, 20 ) ) to ( cur_dir() + "tmpn" )
   Case k == 100  // Количество услуг и сумма лечения по отделениям (с разбивкой по службам)
-    Index On Str( kod_vr_as, 4 ) + Str( otd, 3 ) to ( cur_dir() + "tmpk" )
-    Index On Str( u_kod, 4 ) + Str( otd, 3 ) + Upper( Left( u_name, 20 ) ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->kod_vr_as, 4 ) + Str( FIELD->otd, 3 ) to ( cur_dir() + "tmpk" )
+    Index On Str( FIELD->u_kod, 4 ) + Str( FIELD->otd, 3 ) + Upper( Left( FIELD->u_name, 20 ) ) to ( cur_dir() + "tmpn" )
   Case k == 1  // Количество услуг и сумма лечения по отделениям
-    Index On Str( otd, 3 ) to ( cur_dir() + "tmpk" )
-    Index On Str( u_kod, 4 ) + Upper( fio ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->otd, 3 ) to ( cur_dir() + "tmpk" )
+    Index On Str( FIELD->u_kod, 4 ) + Upper( FIELD->fio ) to ( cur_dir() + "tmpn" )
   Case k == 2  // Статистика по работе персонала в конкретном отделении
-    Index On Str( vr_as, 1 ) + Str( kod_vr_as, 4 ) to ( cur_dir() + "tmpk" )
-    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr_as, 4 ) + Str( vr_as, 1 ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->vr_as, 1 ) + Str( FIELD->kod_vr_as, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Upper( Left( FIELD->fio, 30 ) ) + Str( FIELD->kod_vr_as, 4 ) + Str( FIELD->vr_as, 1 ) to ( cur_dir() + "tmpn" )
   Case k == 3  // Статистика по услугам, оказанным в конкретном отделении
-    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 31  // Статистика по услугам, оказанным в конкретных отделениях
-    Index On Str( otd, 3 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
-    Index On Upper( fio ) + Str( otd, 3 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->otd, 3 ) + Str( FIELD->u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Upper( FIELD->fio ) + Str( FIELD->otd, 3 ) + fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 4  // Статистика по работе персонала (плюс оказанные услуги) в конкретном отделении
-    Index On Str( vr_as, 1 ) + Str( kod_vr_as, 4 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
-    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr_as, 4 ) + Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->vr_as, 1 ) + Str( FIELD->kod_vr_as, 4 ) + Str( FIELD->u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Upper( Left( FIELD->fio, 30 ) ) + Str( FIELD->kod_vr_as, 4 ) + Str( FIELD->vr_as, 1 ) + fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 5  // Статистика по работе конкретного человека (плюс оказанные услуги)
-    Index On Str( vr_as, 1 ) + Str( kod_vr_as, 4 ) + Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Str( FIELD->vr_as, 1 ) + Str( FIELD->kod_vr_as, 4 ) + Str( FIELD->u_kod, 4 ) to ( cur_dir() + "tmpk" )
     If serv_arr == NIL
-      Index On Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+      Index On Str( FIELD->vr_as, 1 ) + fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
     Else
-      Index On Upper( Left( fio, 30 ) ) + Str( kod_vr_as, 4 ) + Str( vr_as, 1 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+      Index On Upper( Left( FIELD->fio, 30 ) ) + Str( FIELD->kod_vr_as, 4 ) + Str( FIELD->vr_as, 1 ) + fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
     Endif
   Case k == 6  // Статистика по конкретным услугам
-    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
   Case k == 7  // Статистика по работе всего персонала
-    Index On Str( vr_as, 1 ) + Str( kod_vr_as, 4 ) to ( cur_dir() + "tmpk" )
-    Index On Upper( Left( fio, 30 ) ) + Str( kod_vr_as, 4 ) + Str( vr_as, 1 ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->vr_as, 1 ) + Str( FIELD->kod_vr_as, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Upper( Left( FIELD->fio, 30 ) ) + Str( FIELD->kod_vr_as, 4 ) + Str( FIELD->vr_as, 1 ) to ( cur_dir() + "tmpn" )
   Case eq_any( k, 8, 9 )  // вывод списка больных
-    Index On Str( kod, 7 ) to ( cur_dir() + "tmpk" )
-    Index On DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->kod, 7 ) to ( cur_dir() + "tmpk" )
+    Index On DToS( FIELD->k_data ) + Upper( Left( FIELD->fio, 30 ) ) to ( cur_dir() + "tmpn" )
   Case eq_any( k, 10, 110 ) // Статистика по услугам по всем службам
-    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
-    Index On Str( kod_vr_as, 4 ) + fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On Str( FIELD->kod_vr_as, 4 ) + fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
   Case eq_any( k, 11, 111 ) // Статистика по услугам конкретной службы
-    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 12 // Статистика по всем услугам
-    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
   Case k == 13  // вывод услуг + списка больных
-    Index On Str( u_kod, 4 ) + Str( kod, 7 ) to ( cur_dir() + "tmpk" )
-    Index On fsort_usl( u_shifr ) + Str( u_kod, 4 ) + DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->u_kod, 4 ) + Str( FIELD->kod, 7 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( FIELD->u_shifr ) + Str( FIELD->u_kod, 4 ) + DToS( FIELD->k_data ) + Upper( Left( FIELD->fio, 30 ) ) to ( cur_dir() + "tmpn" )
   Case k == 14  // Статистика по конкретным услугам + список больных
-    Index On Str( u_kod, 4 ) + Str( kod, 7 ) to ( cur_dir() + "tmpk" )
-    Index On fsort_usl( u_shifr ) + Str( u_kod, 4 ) + DToS( k_data ) + Upper( Left( fio, 30 ) ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->u_kod, 4 ) + Str( FIELD->kod, 7 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( FIELD->u_shifr ) + Str( FIELD->u_kod, 4 ) + DToS( FIELD->k_data ) + Upper( Left( FIELD->fio, 30 ) ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
   Endcase
@@ -244,7 +245,7 @@ Function ob2_statist( k, serv_arr )
   Endif
   If hb_FileExists( dir_server() + "usl_del" + sdbf() )
     r_use( dir_server() + "usl_del",, "UD" )
-    Index On Str( kod, 4 ) to ( cur_dir() + "tmp_ud" )
+    Index On Str( FIELD->kod, 4 ) to ( cur_dir() + "tmp_ud" )
   Endif
   r_use( dir_server() + "uslugi",, "USL" )
   Private is_1_usluga := ( Len( arr_usl ) == 1 )
@@ -902,7 +903,9 @@ Function ob2_statist( k, serv_arr )
           s += PadC( AllTrim( schet_->nschet ), 17 ) + date_8( c4tod( schet->pdate ) )
         Endif
         add_string( s )
-        mkol += tmp->kol ; msum += tmp->stoim ; ++mb
+        mkol += tmp->kol
+        msum += tmp->stoim
+        ++mb
         Select TMP
         Skip
       Enddo
@@ -1932,8 +1935,8 @@ Function open_opl_5()
     len_arr_7 := Len( arr_opl_7 )
   Endif
   g_use( dir_server() + "u_usl_5",, "U5" )
-  Index On Str( tip, 2 ) + fsort_usl( iif( Empty( usl_2 ), usl_1, usl_2 ) ) + ;
-    Str( razryad, 2 ) + Str( otdal, 1 ) to ( cur_dir() + "tmp_u5" )
+  Index On Str( FIELD->tip, 2 ) + fsort_usl( iif( Empty( FIELD->usl_2 ), FIELD->usl_1, FIELD->usl_2 ) ) + ;
+    Str( FIELD->razryad, 2 ) + Str( FIELD->otdal, 1 ) to ( cur_dir() + "tmp_u5" )
 
   Return Nil
 
@@ -2051,16 +2054,18 @@ Function _f_trud( lkol, lvzros_reb, lkod_vr, lkod_as )
 //
 Function cre_tmp7()
 
-  dbCreate( cur_dir() + "tmp7", { { "kod_vr", "N", 4, 0 }, ;
-    { "kod_as", "N", 4, 0 }, ;
-    { "tip", "N", 1, 0 }, ;
-    { "kol", "N", 4, 0 }, ;
-    { "uet_vr", "N", 11, 4 }, ;
-    { "uet_as", "N", 11, 4 }, ;
-    { "zrp_vr", "N", 11, 2 }, ;
-    { "zrp_as", "N", 11, 2 } } )
+  dbCreate( cur_dir() + "tmp7", ;
+    { { "kod_vr", "N", 4, 0 }, ;
+      { "kod_as", "N", 4, 0 }, ;
+      { "tip", "N", 1, 0 }, ;
+      { "kol", "N", 4, 0 }, ;
+      { "uet_vr", "N", 11, 4 }, ;
+      { "uet_as", "N", 11, 4 }, ;
+      { "zrp_vr", "N", 11, 2 }, ;
+      { "zrp_as", "N", 11, 2 } ;
+    } )
   Use ( cur_dir() + "tmp7" ) new
-  Index On Str( tip, 1 ) + Str( kod_vr, 4 ) + Str( kod_as, 4 ) to ( cur_dir() + "tmp7" )
+  Index On Str( FIELD->tip, 1 ) + Str( FIELD->kod_vr, 4 ) + Str( FIELD->kod_as, 4 ) to ( cur_dir() + "tmp7" )
 
   Return Nil
 
@@ -2197,7 +2202,8 @@ Function o_proverka( k )
   Default k To 1
   Do Case
   Case k == 1
-    mas_pmt := { "Общая проверка по ~запросу", ;
+    mas_pmt := { ;
+      "Общая проверка по ~запросу", ;
       "Не введен код ~врача", ;
       "Не введен код ~ассистента", ;
       "Врач + ~больные за день", ;
@@ -2205,7 +2211,8 @@ Function o_proverka( k )
       "~Рассогласования в реестрах/счетах в базе данных",;
       "~Подбор иногородних"   }
       //   "Одинаковые сочетания - № карты + ~дата вызова", ;
-    mas_msg := { "Общие проверки (многовариантный запрос)", ;
+    mas_msg := { ;
+      "Общие проверки (многовариантный запрос)", ;
       "Проверка листов учета на отсутствие кода врача", ;
       "Проверка листов учета на отсутствие кода ассистента", ;
       "Вывод списка принятых больных конкретным врачом за день", ;
@@ -2213,7 +2220,8 @@ Function o_proverka( k )
       "Поиск рассогласований рассогласования в реестрах/счетах в базе данных",;
       "Поиск пациантов, выставленных ранее в другие области"   }
       //      "Поиск одинаковых сочетаний номера карты вызова + даты вызова", ;
-    mas_fun := { "o_proverka(11)", ;
+    mas_fun := { ;
+      "o_proverka(11)", ;
       "o_proverka(12)", ;
       "o_proverka(13)", ;
       "o_proverka(14)", ;
@@ -2251,14 +2259,16 @@ Function o_proverka( k )
 
   Return Nil
 
-// 14.10.24
+// 02.04.26
 Function proch_proverka()
 
   Static sd, sl := 2
-  Static mm_schet := { { "по счетам         ", 1 }, ;
+  Static mm_schet := { ;
+    { "по счетам         ", 1 }, ;
     { "по реестрам       ", 2 }, ;
     { "по невыписанным...", 3 } }
-  Static mm_logical := { { "логическое И  ", 1 }, ;
+  Static mm_logical := { ;
+    { "логическое И  ", 1 }, ;
     { "логическое ИЛИ", 2 } }
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
     name_file := "proverka.txt", i, j, arr_usl, ;
@@ -2278,7 +2288,8 @@ Function proch_proverka()
     m1pervich := 0, mpervich := Space( 3 ), ;
     mkol := 0, msrok1 := 0, msrok2 := 0, ;
     m1date_schet := 0, mdate_schet := Space( 10 ), ;
-    mm_ns1usl := { { "только по этому случаю  ", 1 }, ;
+    mm_ns1usl := { ;
+                    { "только по этому случаю  ", 1 }, ;
                     { "по всем случаям больного", 2 } }, ;
     gl_area := { r1, 2, MaxRow() -2, MaxCol() -2, 0 }
   mns1usl := inieditspr( A__MENUVERT, mm_ns1usl, m1ns1usl )
@@ -2288,8 +2299,7 @@ Function proch_proverka()
   box_shadow( r1, 2, MaxRow() -2, MaxCol() -2,, "Ввод данных для поиска информации", color8 )
   Do While .t.
     j := r1 + 1
-    ++j
-    @ j, 4 Say "Где искать" Get mschet ;
+    @ ++j, 4 Say "Где искать" Get mschet ;
       reader {| x| menu_reader( x, mm_schet, A__MENUVERT,,, .f. ) } ;
       valid {|| iif( m1schet > 1, mdate_schet := CToD( "" ), ), .t. }
     @ Row(), Col() + 3 Say "Дата счёта" Get mdate_schet ;
@@ -2298,28 +2308,20 @@ Function proch_proverka()
       if( k == nil, nil, ( pdate_schet := AClone( k ), k := { k[ 1 ], k[ 4 ] } ) ), ;
       k } }, A__FUNCTION,,, .f. ) } ;
       When m1schet == 1
-    ++j
-    @ j, 4 Say "Метод поиска" Get mlogic ;
+    @ ++j, 4 Say "Метод поиска" Get mlogic ;
       reader {| x| menu_reader( x, mm_logical, A__MENUVERT,,, .f. ) }
-    ++j
-    @ j, 4 Say "Максимальное количество оказанных услуг" Get mkol Pict "999"
-    ++j
-    @ j, 4 Say "Срок лечения (в днях): минимальный" Get msrok1 Pict "999"
+    @ ++j, 4 Say "Максимальное количество оказанных услуг" Get mkol Pict "999"
+    @ ++j, 4 Say "Срок лечения (в днях): минимальный" Get msrok1 Pict "999"
     @ Row(), Col() Say ", максимальный" Get msrok2 Pict "999"
-    ++j
-    @ j, 4 Say "Количество одноименных услуг <= количества дней лечения?" Get musl_dn ;
+    @ ++j, 4 Say "Количество одноименных услуг <= количества дней лечения?" Get musl_dn ;
       reader {| x| menu_reader( x, mm_da_net, A__MENUVERT,,, .f. ) }
-    ++j
-    @ j, 4 Say "Проверять все диагнозы на соответствие МКБ-10 (по ОМС)?" Get mmkb ;
+    @ ++j, 4 Say "Проверять все диагнозы на соответствие МКБ-10 (по ОМС)?" Get mmkb ;
       reader {| x| menu_reader( x, mm_da_net, A__MENUVERT,,, .f. ) }
-    ++j
-    @ j, 4 Say "Проверять несовместимость услуг по дате оказания?" Get mns_usl ;
+    @ ++j, 4 Say "Проверять несовместимость услуг по дате оказания?" Get mns_usl ;
       reader {| x| menu_reader( x, mm_da_net, A__MENUVERT,,, .f. ) }
-    ++j
-    @ j, 4 Say "- как выполнять данную проверку" Get mns1usl ;
+    @ ++j, 4 Say "- как выполнять данную проверку" Get mns1usl ;
       reader {| x| menu_reader( x, mm_ns1usl, A__MENUVERT,,, .f. ) }
-    ++j
-    @ j, 4 Say "Проверять наличие более 1 стом. первичного приема в году?" Get mpervich ;
+    @ ++j, 4 Say "Проверять наличие более 1 стом. первичного приема в году?" Get mpervich ;
       reader {| x| menu_reader( x, mm_da_net, A__MENUVERT,,, .f. ) }
     status_key( "^<Esc>^ - выход;  ^<PgDn>^ - подтверждение ввода" )
     myread()
@@ -2337,14 +2339,16 @@ Function proch_proverka()
     If f_esc_enter( "начала проверки" )
       sd := mdate_schet ; sl := m1logic
       mywait()
-      dbCreate( cur_dir() + "tmp", { { "schet", "N", 6, 0 }, ;
+      dbCreate( cur_dir() + "tmp", { ;
+        { "schet", "N", 6, 0 }, ;
         { "kod", "N", 7, 0 } } )
-      dbCreate( cur_dir() + "tmpk", { { "rec", "N", 7, 0 }, ;
+      dbCreate( cur_dir() + "tmpk", { ;
+        { "rec", "N", 7, 0 }, ;
         { "name", "C", 100, 0 } } )
       Use ( cur_dir() + "tmp" ) new
-      Index On Str( schet, 6 ) + Str( kod, 7 ) to ( cur_dir() + "tmp" )
+      Index On Str( FIELD->schet, 6 ) + Str( FIELD->kod, 7 ) to ( cur_dir() + "tmp" )
       Use ( cur_dir() + "tmpk" ) new
-      Index On Str( rec, 7 ) to ( cur_dir() + "tmpk" )
+      Index On Str( FIELD->rec, 7 ) to ( cur_dir() + "tmpk" )
       fl_exit := .f.
       fl_srok := ( msrok1 > 0 .or. msrok2 > 0 )
       r_use( dir_server() + "kartotek",, "KART" )
@@ -2466,8 +2470,10 @@ Function proch_proverka()
         Set Relation To Str( kod, 7 ) into HUMAN, To schet into SCHET
         Index On schet->nomer_s + Str( tmp->schet, 6 ) + Upper( Left( human->fio, 20 ) ) to ( cur_dir() + "tmp" )
         Use ( cur_dir() + "tmpk" ) new
-        Index On Str( rec, 7 ) to ( cur_dir() + "tmpk" )
-        fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
+        Index On Str( FIELD->rec, 7 ) to ( cur_dir() + "tmpk" )
+        fp := FCreate( name_file )
+        n_list := 1
+        tek_stroke := 0
         add_string( "" )
         If m1schet == 1
           add_string( Center( Expand( "РЕЗУЛЬТАТ ПРОВЕРКИ СЧЕТОВ" ), sh ) )
@@ -2912,9 +2918,11 @@ Function f1proch_proverka( jt )
 Function o_pr_vr_as( reg )
 
   Static sj := 1
-  Local mas_pmt := { "Проверка по ~невыписанным счетам", ;
+  Local mas_pmt := { ;
+    "Проверка по ~невыписанным счетам", ;
     "Проверка по дате ~выписки счета" }
-  Local mas_msg := { "Проверка на отсутствие кода по невыписанным счетам", ;
+  Local mas_msg := { ;
+    "Проверка на отсутствие кода по невыписанным счетам", ;
     "Проверка на отсутствие кода по дате выписки счета" }
   Local i, j, k, arr, fl, fl_exit := .f., buf := save_maxrow(), ;
     s, sh, HH := 57, arr_title, name_file := "proverka.txt", ;
@@ -2942,8 +2950,8 @@ Function o_pr_vr_as( reg )
       { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
       { "U_NAME",     "C",     65,      0 } } )  // наименование услуги
     Use ( cur_dir() + "tmp" )
-    Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
-    Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+    Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + "tmpk" )
+    Index On fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
     Close databases
     ob2_v_usl()
     Use ( cur_dir() + "tmp" )
@@ -3467,7 +3475,7 @@ Function f1_poisk_rassogl()
 
   Return Nil
 
-//   22.03.26
+// 02.04.26
 Function  poisk_rassogl_schet_reestr()
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
@@ -3488,18 +3496,18 @@ Function  poisk_rassogl_schet_reestr()
   add_string( Center( "Обнаруженные рассогласования в базах данных", sh ) )
   //r_use( dir_server() + "mo_regi", , "MO_REGI" )
   r_use( dir_server() + "mo_rees", , "MO_REES")  // список реестров счедений с 2026-реестров-счетов
-  index on str(nschet,6) to tmp_rees for nyear == 2026
+  index on str( FIELD->nschet, 6 ) to tmp_rees for nyear == 2026
   r_use( dir_server() + "mo_rhum", , "MO_RHUM")  // список пациентов в реестре
-  index on str(reestr,6)+str(rees_zap,6) to tmp_rhum
+  index on str( FIELD->reestr, 6 )+str( FIELD->rees_zap, 6 ) to tmp_rhum
   r_use( dir_server() + "human", , "HUMAN" )     // случаи
-  index on str(schet,6) to tmp_humn
+  index on str( FIELD->schet, 6 ) to tmp_humn
   r_use( dir_server() + "human_", , "HUMAN_" )   // вторая часть - несер ссылки на реестр и счет
-  index on str(reestr,6)+str(rees_zap,6) to tmp_hum_
+  index on str( FIELD->reestr, 6 )+str( FIELD->rees_zap, 6 ) to tmp_hum_
   r_use( dir_server() + "schet_",, "SCHET_" )    // счет
-  index on str(kod_xml,6) to tmp_sche_
+  index on str( FIELD->kod_xml, 6 ) to tmp_sche_
   r_use( dir_server() + "schet",, "SCHET" )      // вторая часть счета    
   r_use( dir_server() + "mo_xml",, "MO_XML" )    // список файлов обмена
-  index on str(reestr,6)+str(tip_in,2) to tmp_XML
+  index on str( FIELD->reestr, 6 ) + str( FIELD->tip_in, 2 ) to tmp_XML
   //
   begin_date := arr_m[ 5 ]
   end_date := arr_m[ 6 ]
@@ -3521,12 +3529,12 @@ Function  poisk_rassogl_schet_reestr()
       add_string( "" )
       // идем проверять по файлу  MO_RHUM
       if mo_rees_res_tfoms == 1 // счет принят
-        add_string( "РC " +lstr(mo_rees_kod ) +" " + alltrim(mo_rees_NAME_XML) + " счет " + alltrim(mo_rees_nomer_s) + " ПРИНЯТ")
+        add_string( "Реестр счетов " +lstr(mo_rees_kod ) +" " + alltrim(mo_rees_NAME_XML) + " счет " + alltrim(mo_rees_nomer_s) + " ПРИНЯТ")
         // проверим в файл SCHET
         select MO_XML
         goto mo_rees_kod_xml
         if mo_xml->reestr != mo_rees_kod
-          kol_err ++
+          kol_err++
           add_string("(4) MO_XML->reestr " + lstr(MO_XML->reestr) + " mo_rees->kod " + lstr(mo_rees->kod) )
         endif
         // ищим ответ на reestr в xml  
@@ -3537,7 +3545,7 @@ Function  poisk_rassogl_schet_reestr()
         do while mo_rhum->reestr == mo_rees_kod .and. !eof()
           ++t_num
           /*if  mo_rhum->oplata != 1 //- в счет
-            kol_err ++
+            kol_err++
             add_string( "Признак НЕ в СЧЕТЕ " + "Запись MO_RHUM " + lstr(mo_rhum->(recno())) )
           endif*/  
           if t_num == mo_rhum->rees_zap
@@ -3548,7 +3556,7 @@ Function  poisk_rassogl_schet_reestr()
             if mo_rhum->rees_zap == human_->rees_zap .and. mo_rhum->reestr == human_->reestr
               // ОК
             else  
-              kol_err ++
+              kol_err++
               add_string("(1) REESTR в базе HUMAN_ " + lstr(human_->reestr) + " REESTR в базе MO_RHUM "+lstr(mo_rhum->reestr) )
               add_string("   REES_ZAP в базе HUMAN_ " + lstr(human_->rees_zap) + " REES_ZAP в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + ;
                          " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM) )
@@ -3557,15 +3565,15 @@ Function  poisk_rassogl_schet_reestr()
             select HUMAN
             goto mo_rhum->KOD_HUM
             if human->tip_H != 4 // в счете 
-              kol_err ++
+              kol_err++
               add_string("(2) Запись в базе HUMAN " + lstr(mo_rhum->KOD_HUM) + "НЕ в СЧЕТЕ - поле TIP_H" + lstr(mo_rhum->KOD_HUM))
             endif   
             if HUMAN_->rees_zap != human_->schet_zap
-              kol_err ++
-              add_string("(3) HUMAN_->rees_zap " + lstr(HUMAN_->rees_zap) + " HUMAN_->schet_zap " + lstr(HUMAN_->schet_zap) + " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM))
+              kol_err++
+              add_string( "(3) HUMAN_->rees_zap " + lstr( HUMAN_->rees_zap ) + " HUMAN_->schet_zap " + lstr( HUMAN_->schet_zap ) + " Запись в базе HUMAN_ "+lstr( mo_rhum->KOD_HUM ) )
             endif
           else
-            kol_err ++
+            kol_err++
             add_string( "(5) Номер порядковый " + lstr(t_num) + "Номер в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + "Запись MO_RHUM " + lstr(mo_rhum->(recno())))
           endif  
           select MO_RHUM
@@ -3580,11 +3588,11 @@ Function  poisk_rassogl_schet_reestr()
          if t_num == human_->rees_zap
             // ОК -
             if HUMAN_->rees_zap != human_->schet_zap
-              kol_err ++
+              kol_err++
               add_string("(00-1) HUMAN_->rees_zap " + lstr(HUMAN_->rees_zap) + " HUMAN_->schet_zap " + lstr(HUMAN_->schet_zap) + " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM))
             endif
          else
-           kol_err ++
+           kol_err++
            add_string( "(00-2) REESTR в базе HUMAN_ " + lstr(human_->reestr) )
            add_string( "     Номер порядковый " + lstr(t_num) + " REES_ZAP в базе HUMAN_ " + lstr(human_->rees_zap) + " Запись в базе HUMAN_ "+lstr(human_->(recno())) )
            add_string("   Schet_ZAP в базе HUMAN_ " + lstr(human_->schet_zap)) 
@@ -3598,7 +3606,7 @@ Function  poisk_rassogl_schet_reestr()
         find(str(mo_rees_kod,6)+str(8,2)) //ФЛК 
         // нужно найти файл счет - он через ответ в  XML
         if alltrim(mo_rees_NAME_XML) != substr(alltrim(mo_xml->FNAME),2)
-          kol_err ++
+          kol_err++
           add_string( "(XX-2)  " + alltrim(mo_rees_NAME_XML) + "!= " + alltrim(mo_xml->FNAME) + " " +lstr(mo_xml->kod))
         else  
           select schet_
@@ -3623,13 +3631,8 @@ Function  poisk_rassogl_schet_reestr()
             add_string( "(XX-1)  не найден" +lstr(mo_xml->kod))
           endif  
         endif  
-          
-
-      
-
-
       elseif mo_rees_res_tfoms == 2 .or. mo_rees_res_tfoms == 3 // ОШИБКА - людей в реестре не должно быть
-        add_string( "РC " +lstr(mo_rees_kod ) + " " + alltrim(mo_rees_NAME_XML) + " НЕ ПРИНЯТ ТФОМС")
+        add_string( "Реестр счетов " +lstr(mo_rees_kod ) + " " + alltrim(mo_rees_NAME_XML) + " НЕ ПРИНЯТ ТФОМС")
         //
         select MO_RHUM
         find(str(mo_rees_kod,6)) 
@@ -3637,7 +3640,7 @@ Function  poisk_rassogl_schet_reestr()
         do while mo_rhum->reestr == mo_rees_kod .and. !eof()
           ++t_num
            if  mo_rhum->oplata == 1 //- в счет
-            kol_err ++
+            kol_err++
             add_string( "Признак СЧЕТ " + "Запись MO_RHUM " + lstr(mo_rhum->(recno())) )
           endif  
           if t_num == mo_rhum->rees_zap
@@ -3648,7 +3651,7 @@ Function  poisk_rassogl_schet_reestr()
             if mo_rhum->rees_zap == human_->rees_zap .and. mo_rhum->reestr == human_->reestr
               // ОК
             else  
-              kol_err ++
+              kol_err++
               add_string("(10) REESTR в базе HUMAN_ " + lstr(human_->reestr) + " REESTR в базе MO_RHUM "+lstr(mo_rhum->reestr) )
               add_string("   REES_ZAP в базе HUMAN_ " + lstr(human_->rees_zap) + " REES_ZAP в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + ;
                          " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM) )
@@ -3656,22 +3659,22 @@ Function  poisk_rassogl_schet_reestr()
             select HUMAN
             goto mo_rhum->KOD_HUM
             if human->tip_H == 4 // в счете 
-              kol_err ++
+              kol_err++
               add_string("(8) Запись в базе HUMAN " + lstr(mo_rhum->KOD_HUM) + "в СЧЕТЕ - поле TIP_H" + lstr(mo_rhum->KOD_HUM))
             endif   
             if human_->schet_zap > 0
-              kol_err ++
+              kol_err++
               add_string("(7) HUMAN_->schet_zap " + lstr(HUMAN_->schet_zap) + " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM))
             endif
           else
-            kol_err ++
+            kol_err++
             add_string( "(9) Номер порядковый " + lstr(t_num) + "Номер в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + "Запись MO_RHUM " + lstr(mo_rhum->(recno())) )
           endif  
           select MO_RHUM
           skip 
         enddo  
       else
-        add_string( "РC " +lstr(mo_rees_kod ) + " "  + alltrim(mo_rees_NAME_XML) + " ЗАПИСАН - НЕТ ОТВЕТА ТФОМС !!!!!!!!!!!!!!!!!!!!!!")
+        add_string( "Реестр счетов " +lstr(mo_rees_kod ) + " "  + alltrim(mo_rees_NAME_XML) + " ЗАПИСАН - НЕТ ОТВЕТА ТФОМС !!!!!!!!!!!!!!!!!!!!!!")
            //
         select MO_RHUM
         find(str(mo_rees_kod,6)) 
@@ -3679,7 +3682,7 @@ Function  poisk_rassogl_schet_reestr()
         do while mo_rhum->reestr == mo_rees_kod .and. !eof()
           ++t_num
           if  mo_rhum->oplata == 1 //- в счет
-            kol_err ++
+            kol_err++
             add_string( "Признак СЧЕТ " + "Запись MO_RHUM " + lstr(mo_rhum->(recno())) )
           endif  
           if t_num == mo_rhum->rees_zap
@@ -3690,7 +3693,7 @@ Function  poisk_rassogl_schet_reestr()
             if mo_rhum->rees_zap == human_->rees_zap .and. mo_rhum->reestr == human_->reestr
               // ОК
             else  
-              kol_err ++
+              kol_err++
               add_string("(11) REESTR в базе HUMAN_ " + lstr(human_->reestr) + " REESTR в базе MO_RHUM "+lstr(mo_rhum->reestr) )
               add_string("   REES_ZAP в базе HUMAN_ " + lstr(human_->rees_zap) + " REES_ZAP в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + ;
                          " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM) )
@@ -3698,16 +3701,16 @@ Function  poisk_rassogl_schet_reestr()
             select HUMAN
             goto mo_rhum->KOD_HUM
             if human->tip_H == 4 // в счете 
-              kol_err ++
-              add_string("(12) Запись в базе HUMAN " + lstr(mo_rhum->KOD_HUM) + "в СЧЕТЕ - поле TIP_H" + lstr(mo_rhum->KOD_HUM))
+              kol_err++
+              add_string("(12) Запись в базе HUMAN " + lstr(mo_rhum->KOD_HUM) + " в СЧЕТЕ - поле TIP_H " + lstr(mo_rhum->KOD_HUM))
             endif   
             if human_->schet_zap > 0
-              kol_err ++
+              kol_err++
               add_string("(13) HUMAN_->schet_zap " + lstr(HUMAN_->schet_zap) + " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM))
             endif
           else
-            kol_err ++
-            add_string( "(14) Номер порядковый " + lstr(t_num) + "Номер в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + "Запись MO_RHUM " + lstr(mo_rhum->(recno()))+;
+            kol_err++
+            add_string( "(14) Номер порядковый " + lstr(t_num) + "Номер в базе MO_RHUM "+lstr(mo_rhum->rees_zap) + " Запись MO_RHUM " + lstr(mo_rhum->(recno()))+;
               " Запись в базе HUMAN_ "+lstr(mo_rhum->KOD_HUM) )
             // заглянем в HUMAN_
              add_string("   REES_ZAP в базе HUMAN_ " + lstr(human_->rees_zap) + " REES_ZAP в базе MO_RHUM "+lstr(mo_rhum->rees_zap))
@@ -3762,7 +3765,7 @@ Function  poisk_rassogl_schet_reestr()
         { 'DR',    'D',  8, 0 } })  
 
   Use ( cur_dir() + 'tmp_inog' ) new
-  index on kod_k to tmp_kk 
+  index on FIELD->kod_k to tmp_kk 
   r_use( dir_server() + 'schet_', , 'SCHET_' )
   r_use( dir_server() + 'human', dir_server() + "humans"  , 'HUMAN' )
   //Index On Str( FIELD->schet, 6 ) + Str( FIELD->tip_h, 1 ) + Upper( SubStr( FIELD->fio, 1, 20 ) ) to ( dir_server() + "humans" ) progress
@@ -3898,7 +3901,7 @@ add_string( "" )
 AEval( arr_title, {| x| add_string( x ) } )
 ttmp_inogor := ""
 select tmp_inog
-index on  okato+fio to ( cur_dir() + 'tmp_inog' ) for IN_NO == 0 .or. IN_NO == 1
+index on  FIELD->okato + FIELD->fio to ( cur_dir() + 'tmp_inog' ) for IN_NO == 0 .or. IN_NO == 1
 go top
 do while !eof()
   if ttmp_inogor != tmp_inog->okato

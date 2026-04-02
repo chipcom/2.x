@@ -300,6 +300,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
       dbSelectArea( 'TMP2' )
       tmp2->( dbSkip() )
     Enddo
+
 /* исправить
     adbf_1 := { ;
       { 'KOD_HUM',  'N',  7, 0 } ; // код HUMAN
@@ -334,18 +335,18 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
     Use ( cur_dir() + 'tmp_recno' ) New Alias TR
 
     Select rhum
-    Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_rhum1' )
-    Do While .t.
+    Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_rhum1' ) for FIELD->reestr == mkod_reestr
+    Do While rhum->reestr == mkod_reestr .and. ! rhum->( eof() )    // .t.
       Select RHUM
-      find ( Str( mkod_reestr, 6 ) )
-      If !Found()
-        exit
-      Endif
+//      find ( Str( mkod_reestr, 6 ) )
+//      If !Found()
+//        exit
+//      Endif
 
       //
       Select HUMAN_
       Goto ( rhum->KOD_HUM )
-      If human_->REESTR == mkod_reestr // на всякий случай
+      If human_->REESTR == mkod_reestr .or. human_->REESTR == 0 // на всякий случай
         Select HUMAN
         Goto ( rhum->KOD_HUM )
 
@@ -477,6 +478,8 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
       Endif
       //
       Select RHUM
+//      Skip
+      rhum->( dbSkip() )
 //      deleterec( .t. )
     Enddo
     TR->( dbCloseArea() )
