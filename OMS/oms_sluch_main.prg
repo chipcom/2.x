@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.03.26 добавление или редактирование случая (листа учета)
+// 02.04.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -351,7 +351,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     MADRES      := human->ADRES         // адрес больного
     MMR_DOL     := human->MR_DOL        // место работы или причина безработности
     M1RAB_NERAB := human->RAB_NERAB     // 0-работающий, 1-неработающий
-    M1VZ        := human->VZ
+    M1VZ        := iif( human->VZ != 0, human->VZ, kart->VZ )
     mUCH_DOC    := human->uch_doc
     m1reg_lech  := human->reg_lech
     m1VRACH     := human_->vrach

@@ -12,7 +12,7 @@ Function f_d_dializ()
 
   Return .t.
 
-// 31.03.26 гемодиализ (1) и перитонеальный диализ (2)
+// 02.04.26 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -46,7 +46,7 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
     mfam := Space( 40 ), mim := Space( 40 ), mot := Space( 40 ), ;
     mpol        := 'М', ;
     mdate_r     := BoY( AddMonth( sys_date, -12 * 30 ) ), ;
-    MVZROS_REB, M1VZROS_REB := 0, ;
+    MVZROS_REB, M1VZROS_REB := 0, M1VZ := 1, ;
     MADRES      := Space( 50 ), ; // адрес больного
     m1MEST_INOG := 0, newMEST_INOG := 0, ;
     MVID_UD, ; // вид удостоверения
@@ -131,6 +131,7 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
   m1VZROS_REB := kart->VZROS_REB
   mADRES      := kart->ADRES
   msnils      := kart->snils
+  M1VZ        := kart->VZ
 
   m1MO_PR := code_TFOMS_to_FFOMS( kart2->mo_pr )
   if Empty( m1MO_PR )
@@ -569,10 +570,11 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
       human->MO_PR      := m1MO_PR
       human->MOP        := m1MOP
       human->PROFIL_M   := m1PROFIL_M // 21
+      human->VZ         := M1VZ          // Вид занятости, указывается в соответствии со справочником V039 ФФОМС
       human_->DISPANS   := Replicate( '0', 16 )
       human_->POVOD     := 1
       // human_->TRAVMA    := m1travma
-      human_->VPOLIS    := m1vidpolis
+      human_->VPOLIS    := m1vidpolis 
       human_->SPOLIS    := LTrim( mspolis )
       human_->NPOLIS    := LTrim( mnpolis )
       human_->OKATO     := '' // это поле вернётся из ТФОМС в случае иногороднего
