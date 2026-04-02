@@ -1551,12 +1551,10 @@ Function valid_kod_tfoms( get )
   Endif
   Return fl
 
-// 30.03.26 редактирование справочника отделений
+// 02.04.26 редактирование справочника отделений
 Function edit_otd()
 
   Local i, j, blk, arr[ US_LEN ], fl
-
-  local aaa
 
   If input_uch( T_ROW -1, T_COL + 5 ) == NIL
     Return Nil
@@ -1597,7 +1595,8 @@ Function edit_otd()
   hb_ADel( mm1tiplu, 7, .t. )
   hb_ADel( mm1tiplu, 6, .t. )
 
-  Private mm_lpu1 := get_f033( glob_mo()[ _MO_KOD_FFOMS ] )
+//  Private mm_lpu1 := get_f033( glob_mo()[ _MO_KOD_FFOMS ] )
+  Private mm_lpu1 := get_f033_with_address( glob_mo()[ _MO_KOD_FFOMS ] )
   Private mm1lpu1 := AClone( mm_lpu1 )
 
   blk := {|| iif( between_date( dbegin, dend ), { 1, 2 }, { 3, 4 } ) }

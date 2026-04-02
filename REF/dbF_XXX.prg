@@ -625,6 +625,31 @@ Function get_f033( mcod )
 
   return arr
 
+// 02.04.26 вернуть массив из справочника F033
+Function get_f033_with_address( mcod )
+
+  Local tmp_select
+  Local cUIDMO
+  Local i
+  Local arr := get_f033( mcod ) //  {}
+
+  tmp_select := Select()
+
+  r_use( dir_exe() + '_mo_f038', cur_dir() + '_mo_f038', 'F038' )
+  Index ON FIELD->UIDSPMO to ( dir_exe() + 'tmp_f038' )
+
+  for i := 1 to Len( arr )
+    cUIDMO := arr[ i, 2 ]
+    f038->( dbSeek( cUIDMO ) )
+    if f038->( Found() )
+      arr[ i, 1 ] += ' - ' + StrTran( AllTrim( SubStr( f038->ADDR, 8 ) ), 'Волгоградская область, ', '' )
+    endif
+  next
+  f038->( dbCloseArea() )
+  Select ( tmp_select )
+  
+  return arr
+
 // 25.03.26 вернуть массив из справочника F034
 Function get_f034( mUIDSPMO )
 

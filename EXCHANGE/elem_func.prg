@@ -392,7 +392,6 @@ function tag_disability( oPac )
   // тэг добавляется только для реестров 1 типа и амбулаторно-поликлинической помощи в
   // учреждениях имеющих прикрепленное население
   
-  local oDISAB
   Local tmpSelect
 
   if Between( kart_->INVALID, 1, 4 )                   // инвалид
