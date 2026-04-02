@@ -88,7 +88,7 @@ Function parse_protokol_flk_26( arr_f, aerr )
   dbCommitAll()
   Return iError   //  is_err_FLK
 
-// 01.04.26 прочитать реестр ФЛК
+// 02.04.26 прочитать реестр ФЛК
 Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
 
   Local i, k, t_arr[ 2 ]  //, pole
@@ -96,10 +96,13 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
 
   mkod_reestr := arr_XML_info[ 7 ]
   Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
-  r_use( dir_server() + 'mo_rees', , 'REES' )
+//  r_use( dir_server() + 'mo_rees', , 'REES' )
+  e_use( dir_server() + 'mo_rees', , 'REES' )
   rees->( dbGoto( arr_XML_info[ 7 ] ) )
   
-  rees->RES_TFOMS := 4  // начат процесс чтения ФЛК
+  rees->( dbRLock() )
+  rees->RES_TFOMS := 4  // начат процесс чтения ФЛК 
+  rees->( dbUnlock() )
 
   StrFile( 'Обрабатывается ответ ТФОМС на реестр счета № ' + ;
     lstr( rees->NSCHET ) + ' от ' + full_date( rees->DSCHET ) + 'г. (' + lstr( rees->KOL ) + ' чел.)' + ;
