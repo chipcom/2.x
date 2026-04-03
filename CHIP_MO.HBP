@@ -335,6 +335,7 @@ mo_version.prg
 .\exchange\f1_create2reestrCommon.prg
 .\exchange\delete_reestr.prg
 .\exchange\mo_rak.prg
+.\exchange\check_reestr.prg
 
 #.\exchange\new_create.prg
 
