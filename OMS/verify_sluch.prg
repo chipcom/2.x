@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 30.03.26 
+// 03.04.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -353,6 +353,10 @@ Function verify_sluch( fl_view, ft )
     human_->SPOLIS := ''
     human_->NPOLIS := AllTrim( kart2->kod_mis )
     human_->( dbUnlock() )
+  endif
+
+  if Empty( human->VZ )
+      AAdd( ta, ' не указан "Вид занятости" пациента' )
   endif
 
   if ! ( ( human_->vpolis == 3 ) .and. ( Len( AllTrim( human_->npolis ) ) == 16 ) )
