@@ -85,8 +85,8 @@ Function proch_proverka()
     { 'логическое И  ', 1 }, ;
     { 'логическое ИЛИ', 2 } }
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
-    name_file := 'proverka.txt', i, j, arr_usl, ;
-    sh := 64, HH := 57, reg_print := 2, r1 := 9, cdate, mdiagnoz, ;
+    name_file := 'proverka.txt', j, ;
+    sh := 64, HH := 57, reg_print := 2, r1 := 9, ;
     mm_da_net := { { 'нет', 1 }, { 'да ', 2 } }, lcount_uch
 
   If ( st_a_uch := inputn_uch( T_ROW, T_COL - 5,,, @lcount_uch ) ) == NIL
@@ -151,7 +151,8 @@ Function proch_proverka()
       Endif
     Endif
     If f_esc_enter( 'начала проверки' )
-      sd := mdate_schet ; sl := m1logic
+      sd := mdate_schet
+      sl := m1logic
       mywait()
       dbCreate( cur_dir() + 'tmp', { ;
         { 'schet', 'N', 6, 0 }, ;
@@ -482,7 +483,9 @@ Function o_pr_vr_as( reg )
       '              Ф.И.О. больного                    │'   + PadC( s, 19 ) +  '│  Сумма   ', ;
       '─────────────────────────────────────────────────┴───────────────────┴──────────' }
     sh := Len( arr_title[ 1 ] )
-    fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
+    fp := FCreate( name_file )
+    tek_stroke := 0
+    n_list := 1
     add_string( '' )
     add_string( Center( 'Список больных, у которых в оказанных услугах', sh ) )
     add_string( Center( 'отсутствует код ' + { 'врача', 'ассистента' }[ reg ], sh ) )
@@ -548,7 +551,9 @@ Function i_vr_boln()
   Endif
   begin_date := arr_m[ 7 ]
   end_date   := arr_m[ 8 ]
-  fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
+  fp := FCreate( name_file )
+  tek_stroke := 0
+  n_list := 1
   s := ' Ф.И.О. и должность врача: ' + AllTrim( glob_human[ 2 ] ) + ' [' + lstr( glob_human[ 5 ] ) + ']'
   If Len( glob_human ) > 5 .and. !Empty( glob_human[ 6 ] )
     s += ' (' + glob_human[ 6 ] + ')'       // должность
@@ -631,7 +636,9 @@ Function poisk_rassogl()
   Endif
   mywait()
   Private kol_err := 0
-  fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
+  fp := FCreate( name_file )
+  tek_stroke := 0
+  n_list := 1
   add_string( '' )
   add_string( Center( 'Обнаруженные рассогласования в базах данных', sh ) )
   add_string( Center( arr_m[ 4 ], sh ) )
@@ -727,7 +734,9 @@ Function  poisk_rassogl_schet_reestr()
   //Endif
   mywait()
   Private kol_err := 0
-  fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
+  fp := FCreate( name_file )
+  tek_stroke := 0
+  n_list := 1
   add_string( '' )
   add_string( Center( 'Обнаруженные рассогласования в базах данных', sh ) )
   //r_use( dir_server() + 'mo_regi', , 'MO_REGI' )
@@ -1129,7 +1138,9 @@ function podbor_inogorodnie()
     skip
   enddo
   //
-  fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
+  fp := FCreate( name_file )
+  tek_stroke := 0
+  n_list := 1
   add_string( '' )
   AEval( arr_title, {| x| add_string( x ) } )
   ttmp_inogor := ''
