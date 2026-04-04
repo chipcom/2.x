@@ -139,54 +139,6 @@ function update_v60402()
 
   return nil
 
-/*
-function test_reestr()
-
-  local arr := {}, arr1 := {}
-  local num_rees
-
-  stat_msg( 'Проверка сформированных счетов' )
-
-//  g_use( dir_server() + 'human', , 'human', , .t. )
-  use_base( 'human', , .t. )
-  Select human_
-  Index On str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_human_1' )
-
-  g_use( dir_server() + 'mo_rhum', , 'RHUM', , .t. )
-  Index On str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_rhum_' )
-
-//  use_base( 'schet', , .t. )
-//  set order to 2
-  r_use( dir_server() + 'mo_rees', , 'REES' )
-  Index On str( FIELD->nyear, 4 ) to ( cur_dir() + 'tmp_rees_' )
-  rees->( dbSeek( '2026' ) )
-  do while ! ( rees->( Eof() ) ) .and. ( rees->nyear == 2026 )
-    num_rees := rees->kod
-    rhum->( dbSeek( str( num_rees, 6 ) ) )
-    if ! rhum->( Found() )
-      AAdd( arr, { rees->kod, rees->name_xml } )
-      Select human_
-      human_->( dbSeek( str( num_rees, 6 ) ) )
-  altd()
-      do while ! ( human_->( Eof() ) ) .and. ( human_->reestr == rees->kod )
-        Select rhum
-        AddRec( 6 )
-        rhum->reestr := rees->kod
-        rhum->kod_hum := human_->( RecNo() )
-        rhum->rees_zap := human_->rees_zap
-        rhum->oplata := 0
-        AAdd( arr1, { rees->name_xml, rhum->kod_hum, rhum->rees_zap } )
-        human_->( dbSkip() )
-      enddo
-    endif
-    rees->( dbSkip() )
-  enddo
-altd()
-  dbCloseAll()
-
-  return Nil
-*/
-
 // 17.03.26
 function update_v60302()
 
