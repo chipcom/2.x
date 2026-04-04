@@ -88,11 +88,12 @@ Function parse_protokol_flk_26( arr_f, aerr )
   dbCommitAll()
   Return iError   //  is_err_FLK
 
-// 02.04.26 прочитать реестр ФЛК
+// 04.04.26 прочитать реестр ФЛК
 Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol )
 
   Local i, k, t_arr[ 2 ]  //, pole
   Local mkod_reestr, s
+  local adbf_1
 
   mkod_reestr := arr_XML_info[ 7 ]
   Use ( cur_dir() + 'tmp1file' ) New Alias TMP1
@@ -227,13 +228,21 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
         endif
       endif
 
+      s := ''
+      If !Empty( tmp2->ID_PAC )
+        t3->( dbSeek( tmp2->ID_PAC ) )
+        if t3->( Found() )
+          s += 'Пациент: ' + AllTrim( t3->FAM ) + ' ' + AllTrim( t3->IM ) + ' ' + AllTrim( t3->OT ) + hb_eol()
+        endif
+      Endif
+
       If Empty( tmp2->SOSHIB )
-        s := 'код ошибки = ' + lstr( tmp2->OSHIB ) + ' '
+        s += 'код ошибки = ' + lstr( tmp2->OSHIB ) + ' '
         If ( i := AScan( getf012(), {| x| x[ 2 ] == tmp2->OSHIB } ) ) > 0
           s += '"' + getf012()[ i, 5 ] + '"'
         Endif
       Else
-        s := 'код ошибки = ' + tmp2->SOSHIB + ' '
+        s += 'код ошибки = ' + tmp2->SOSHIB + ' '
         s += '"' + getcategorycheckerrorbyid_q017( Left( tmp2->SOSHIB, 4 ) )[ 2 ] + '" '
 //        s += AllTrim( inieditspr( A__MENUVERT, loadq015(), tmp3->SREFREASON ) )
       Endif
@@ -243,6 +252,7 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
       If !Empty( tmp2->BAS_EL )
         s += ', имя базового элемента = ' + AllTrim( tmp2->BAS_EL )
       Endif
+
       If !Empty( tmp2->COMMENT )
         s += ', описание ошибки = ' + AllTrim( tmp2->COMMENT )
       Endif
@@ -250,7 +260,6 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
         If Empty( tmp2->N_ZAP )
           s += ' Ошибка в формате файла ФЛК, СЛУЧАЙ НЕ НАЙДЕН!'
         Else
-
           dbSelectArea( 'RHUM' )
           rhum->( dbSeek( Str( tmp2->N_ZAP, 6 ) ) )
           If rhum->( Found() )
@@ -483,7 +492,6 @@ Function read_xml_file_flk_26( arr_XML_info, aerr, is_err_FLK_26, cFileProtokol 
 //      deleterec( .t. )
     Enddo
     TR->( dbCloseArea() )
-//altd()
 //      create2reestr26( arr_XML_info[ 4 ], arr_XML_info[ 5 ], arr_XML_info[ 9 ], iif( arr_XML_info[ 8 ] == 'VHM', TYPE_REESTR_GENERAL, TYPE_REESTR_DISPASER ), 1 )
   else
     StrFile( '-- Ошибок не обнаружено -- ' + hb_eol(), cFileProtokol, .t. )

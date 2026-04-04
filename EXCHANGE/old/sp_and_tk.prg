@@ -135,6 +135,7 @@ Function reestr_sp_tk_tmpfile( oXmlDoc, aerr, mname_xml )
   rest_box( buf )
   Return Nil
 
+/*
 // 15.10.24 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
 Function recreate_some_schet_from_file_sp( arr )
 
@@ -516,6 +517,7 @@ Function recreate_some_schet_from_file_sp( arr )
     func_error( 4, "В данный момент работают другие задачи. Операция запрещена!" )
   Endif
   Return Nil
+*/
 
 // 08.02.23 дополнить файл ofile строками из файла nfile
 Function f_append_file( ofile, nfile )

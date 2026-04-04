@@ -277,7 +277,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         e_use( dir_server() + 'mo_rees', , 'REES' ) 
         rees->( dbGoto( arr_XML_info[ 7 ] ) )
         rees->( dbRLock() )
-        rees->RES_TFOMS := 2  // 3-ошибки есть на весь файл
+        rees->RES_TFOMS := 2  // 2-ошибки есть на весь файл "отказ"
         rees->( dbUnlock() )
 
       elseif is_err_FLK_26 == 1  // ошибок ФЛК нет
@@ -310,7 +310,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
           schet_->( dbAppend() )    // Append Blank
         Enddo
         schet_->( dbGoto( mkod ) )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         schet_->IFIN       := 1 // источник финансирования;1-ТФОМС(СМО)
         schet_->IS_MODERN  := 0 // является модернизацией, 0-нет
         schet_->IS_DOPLATA := 0 // является доплатой;0-нет
@@ -385,7 +385,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       Elseif nCountWithErr > 0 // все пришли с ошибкой
         g_use( dir_server() + 'mo_xml', , 'MO_XML' )
         Goto ( mXML_REESTR )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         mo_xml->TWORK2 := hour_min( Seconds() )
       Endif
 */
@@ -403,7 +403,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       read_xml_file_r02( arr_XML_info, aerr, @nCountWithErr, _XML_FILE_R02 )
       g_use( dir_server() + 'mo_xml', , 'MO_XML' )
       Goto ( mXML_REESTR )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       mo_xml->TWORK2 := hour_min( Seconds() )
     Case nTypeFile == _XML_FILE_R12
       StrFile( hb_eol() + 'Тип файла: PR11 (ответ на файл R11)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
@@ -411,7 +411,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       read_xml_file_r02( arr_XML_info, aerr, @nCountWithErr, _XML_FILE_R12 )
       g_use( dir_server() + 'mo_xml', , 'MO_XML' )
       Goto ( mXML_REESTR )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       mo_xml->TWORK2 := hour_min( Seconds() )
     Case nTypeFile == _XML_FILE_R06
       StrFile( hb_eol() + 'Тип файла: PR05 (ответ на файл R05)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
@@ -419,7 +419,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       read_xml_file_r06( arr_XML_info, aerr, @nCountWithErr )
       g_use( dir_server() + 'mo_xml', , 'MO_XML' )
       Goto ( mXML_REESTR )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       mo_xml->TWORK2 := hour_min( Seconds() )
     Case nTypeFile == _XML_FILE_D02
       StrFile( hb_eol() + 'Тип файла: D02 (ответ на файл D01)' + hb_eol() + hb_eol(), cFileProtokol, .t. )
@@ -427,7 +427,7 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
       read_xml_file_d02( arr_XML_info, aerr, @nCountWithErr )
       g_use( dir_server() + 'mo_xml', , 'MO_XML' )
       Goto ( mXML_REESTR )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       mo_xml->TWORK2 := hour_min( Seconds() )
     Endcase
   Endif

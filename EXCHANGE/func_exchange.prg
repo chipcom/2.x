@@ -478,24 +478,24 @@ Function is_our_csv( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr)
 
   Return fl
 
-// 29.02.26 если это укрупнённый архив, распаковать и прочитать
+// 04.04.26 если это укрупнённый архив, распаковать и прочитать
 Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
 
   Static cStFile, si
   Local arr_f, i, s1, name_ext, _date, _time, c
-  local current_mo
+  local current_mo, mFull_zip
   local cFrom, nSMO
   Local fl := .f., arr := {}, s := cName
   local rec_old := 0
 
-
+  mFull_zip := full_zip
   current_mo := glob_MO()
   Default cStFile To cName
   If Left( s, 3 ) == 'RI0' .or. Left( s, 2 ) == 'I0'
     fl := func_error( 4, 'Данный файл необходимо читать в подзадаче "Учёт направлений на госпитализацию"' )
   Elseif eq_any( Left( s, 8 ), 'RHRT34_M', 'RFRT34_M' ) .and. SubStr( s, 9, 6 ) == current_mo[ _MO_KOD_TFOMS ]
     c := SubStr( s, 2, 1 )
-    If ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2 ) ) != NIL
+    If ( arr_f := extract_zip_xml( keeppath( mFull_zip ), strippath( mFull_zip ), 2 ) ) != NIL
       For i := 1 To Len( arr_f )
         s := Upper( arr_f[ i ] )
         name_ext := name_extention( s )
@@ -535,11 +535,12 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
         Elseif arr[ i, 4 ] == szip()
           fl := .t.
           full_zip := _tmp2dir1() + arr[ i, 3 ] // переопределяем Private-переменную
+          mFull_zip := full_zip
         Endif
       Endif
     Endif
   Elseif Left( s, 6 ) == current_mo[ _MO_KOD_TFOMS ]
-    If ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2 ) ) != NIL
+    If ( arr_f := extract_zip_xml( keeppath( mFull_zip ), strippath( mFull_zip ), 2 ) ) != NIL
       For i := 1 To Len( arr_f )
         s := Upper( arr_f[ i ] )
         name_ext := name_extention( s )
@@ -571,10 +572,11 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
       If AScan( smo_volgograd(), {| x| x[ 2 ] == nSMO } ) > 0
         s := AfterAtNum( 'M', s )
         If BeforAtNum( '_', s ) == current_mo[ _MO_KOD_TFOMS ] .and. ;
-            ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2, 'tmp' + szip() ) ) != NIL
+            ( arr_f := extract_zip_xml( keeppath( mFull_zip ), strippath( mFull_zip ), 2, 'tmp' + szip() ) ) != NIL
           For i := 1 To Len( arr_f )
             If Upper( cName + szip() ) == Upper( arr_f[ i ] )
               full_zip := _tmp2dir1() + arr_f[ i ] // переопределяем Private-переменную
+              mFull_zip := full_zip
               Exit
             Endif
           Next
@@ -685,7 +687,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
     c := SubStr( s, 2, 1 )
     kod_csv_reestr := 0
     tip_csv_file := 0
-    If ( arr_f := extract_zip_xml( keeppath( full_zip ), strippath( full_zip ), 2 ) ) != NIL
+    If ( arr_f := extract_zip_xml( keeppath( mFull_zip ), strippath( mFull_zip ), 2 ) ) != NIL
       For i := 1 To Len( arr_f )
         s := Upper( arr_f[ i ] )
         name_ext := name_extention( s )
@@ -711,6 +713,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
 //        Elseif arr[ i, 4 ] == szip()
 //          fl := .t.
 //          full_zip := _tmp2dir1() + arr[ i, 3 ] // переопределяем Private-переменную
+//          mFull_zip := full_zip
 //        Endif
 //      Endif
     endif
@@ -721,7 +724,7 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
 
   Return fl
 
-// 03.04.26 проверить, занесен ли данный файл в 'MO_XML'
+// 04.04.26 проверить, занесен ли данный файл в 'MO_XML'
 Function verify_is_already_xml( cName, /*@*/_date, /*@*/_time )
 
   Local l, fl, tmp_select := Select()
@@ -737,7 +740,7 @@ Function verify_is_already_xml( cName, /*@*/_date, /*@*/_time )
       if eq_any( Left( Upper( cName ), 3), 'VHM', 'VFM' ) .and. mx->schet == 0
         r_use( dir_server() + 'mo_rees', , 'REES' )
         rees->( dbGoto( mx->reestr ) )
-        if rees->RES_TFOMS == 0 .or. rees->RES_TFOMS == 4 // не читался или стоит статус "чтение"
+        if rees->RES_TFOMS == 0 .or. rees->RES_TFOMS == 4 .or. rees->RES_TFOMS == 2 // не читался или стоит статус "чтение" или "отказ"
           fl := .f.
         endif
         rees->( dbCloseArea() )
