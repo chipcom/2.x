@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 02.04.26 добавление или редактирование случая (листа учета)
+// 04.04.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -856,6 +856,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         @ j, 40 Say 'признак'
         @ j, 48 Get mp_per ;
           reader {| x| menu_reader( x, mm_p_per, A__MENUVERT, , , .f. ) } ;
+          valid { | g, o | update_get( 'MF14_EKST' ), update_get( 'MF14_SKOR' ) } ;
           When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       Endif
 
@@ -893,9 +894,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Color colget_menu
 
       //
-      @ ++j, 1 Say 'Госпитализирован' Get MF14_EKST ;
+      @ ++j, 1 Say 'Госпитализирован' Get MF14_EKST ; 
         reader {| x| menu_reader( x, mm_ekst(), A__MENUVERT, , , .f. ) } ;
-        valid {| g, o| f_valid_f14_ekst( g, o ) }
+        valid {| g, o| f_valid_f14_ekst( g, o, m1p_per ) }
       @ Row(), Col() + 3 Say 'Доставлен скорой помощью' Get MF14_SKOR ;
         reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
         When M1F14_EKST == 1

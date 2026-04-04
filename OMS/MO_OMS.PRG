@@ -189,13 +189,15 @@ Function f_valid_rslt( g, o )
 
   Return .t.
 
-// действия в ответ на выбор в меню 'Госпитализация'
-Function f_valid_f14_ekst( get, old )
-
-  // Static Function f_valid_f14_ekst(get, old)
+// 04.04.26 действия в ответ на выбор в меню 'Госпитализация'
+Function f_valid_f14_ekst( get, old, mPerevod )
 
   If M1F14_EKST != old .and. old != NIL
   Endif
+  if mPerevod == 4  // перевод из другого отделения
+    M1F14_EKST := 0 // плановая госпитализация
+    M1F14_SKOR := 0 // СМП - нет
+  endif
 
   Return .t.
 
