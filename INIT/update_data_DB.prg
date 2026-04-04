@@ -98,11 +98,46 @@ Function update_data_db( aVersion )
   If ver_base < 60205 // переход на версию 6.2.5
     update_v60205()     // Проверка сформированных счетов
   endif
+
   If ver_base < 60302 // переход на версию 6.3.2
     update_v60302()   // корректировка TIP_H в human.dbf
   endif
 
+  If ver_base < 60402 // переход на версию 6.4.2
+    update_v60402()   // корректировка двойных в human.dbf
+  endif
+
 Return Nil
+
+// 04.04.26
+function update_v60402()
+
+  local mFio, mSchet, mTIP_H
+
+  stat_msg( 'Проверка двойных случаев' )
+  e_use( dir_server() + 'human',, 'human' )
+  index on FIELD->fio + DToC( FIELD->K_DATA ) + str( FIELD->ISHOD, 2 ) to ( cur_dir() + 'tmp_hum_fio' ) for ( FIELD->ISHOD == 88 .or. FIELD->ISHOD == 89 ) DESCENDING
+
+  human->( dbGoTop() )
+  do while ! human->( Eof() )
+
+    if human->ishod == 89 .and. human->TIP_H == 4  .and. human->schet != 0
+      mFio := AllTrim( human->fio )
+      mSchet := human->schet
+      mTIP_H := human->TIP_H
+    elseif AllTrim( human->fio ) == mFio .and. human->ishod == 88 .and. human->TIP_H == 3 .and. human->schet == 0
+      human->( dbRLock() )
+      human->TIP_H := mTIP_H
+      human->schet := mSchet
+      human->( dbUnlock() )
+    endif
+
+    human->( dbSkip() )
+  enddo
+  index_base( 'human' )
+  human->( dbCloseArea() )
+
+  return nil
 
 /*
 function test_reestr()
