@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 15.01.26 Редактирование случая с выбором по конкретной ошибке из ТФОМС
+// 05.04.26 Редактирование случая с выбором по конкретной ошибке из ТФОМС
 Function f3oms_edit()
 
   Static si := 1
@@ -149,6 +149,12 @@ Function f3oms_edit()
     dbCloseAll()
     rest_box( buf24 )
     Private kod_REFREASON_menu
+    // замена 902 
+    for i := 1 to len( arr )
+      if arr[ i, 2 ] == 902 
+        arr[ i, 1 ] := '(902) Отсутствует значение в обязательном теге.'
+      endif  
+    next  
     If Empty( arr )
       func_error( 4, 'Нет пациентов с ошибками из ТФОМС ' + arr_m[ 4 ] )
     Elseif ( iRefr := popup_2array( arr, T_ROW, T_COL + 5,,, @ret_arr, 'Выбор вида ошибки', 'B/BG', color0, 'errorOMSkey', ;

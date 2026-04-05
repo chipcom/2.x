@@ -272,11 +272,11 @@ Function f_vid_p_stom( arr_usl, ta, ret_arr, ret_tip_a, lk_data, /*@*/ret_tip, /
       Next
     Next
     If n == 0
-      AAdd( ta, '­¥ ¢¢¥¤¥­  ­ã«¥¢ ï áâ®¬ â.ãá«ã£  (2.78.*,2.79.*,2.80.*,2.88.*)' )
+      AAdd( ta, '­¥ ¢¢¥¤¥­  ­ã«¥¢ ï áâ®¬ â.ãá«ã£  ( 2.78.*, 2.79.*, 2.80.*, 2.88.* )' )
     Elseif n > 1
-      AAdd( ta, '¯¥à¥á¥ç¥­¨¥ ¢ áâ®¬ â.á«ãç ¥ à §­ëå ¢¨¤®¢ ¯®á¥é¥­¨© -' + s )
+      AAdd( ta, '¯¥à¥á¥ç¥­¨¥ ¢ áâ®¬ â.á«ãç ¥ à §­ëå ¢¨¤®¢ ¯®á¥é¥­¨© - ' + s )
     Elseif k != 1
-      AAdd( ta, 'ª®«¨ç¥áâ¢® áâ®¬ â.ãá«ã£ ¤®«¦­® ¡ëâì =1 (2.78.*,2.79.*,2.80.*,2.88.*)' )
+      AAdd( ta, 'ª®«¨ç¥áâ¢® áâ®¬ â.ãá«ã£ ¤®«¦­® ¡ëâì =1 ( 2.78.*, 2.79.*, 2.80.*, 2.88.* )' )
     Else
       If is_new // á 1  ¢£ãáâ  2016 £®¤ 
         k := 0
@@ -424,8 +424,8 @@ Function view_list_reestr()
   g_use( dir_server() + 'mo_xml',, 'MO_XML' )
   g_use( dir_server() + 'mo_rees',, 'REES' )
   Index On DToS( FIELD->dschet ) + Str( FIELD->nschet, 6 ) to ( cur_dir() + 'tmp_rees' ) DESCENDING
-  Go Top
-  If Eof()
+  rees->( dbGoTop() )
+  If rees->( Eof() )
     func_error( 4, '¥â à¥¥áâà®¢' )
   Else
     chm_help_code := 113
@@ -436,7 +436,7 @@ Function view_list_reestr()
     alpha_browse( T_ROW, 0, MaxRow() -4, 79, 'f1_view_list_reestr', color0,,,,,, 'f21_view_list_reestr', ;
       'f2_view_list_reestr',, { 'Í', '°', 'Í', 'N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R, G+/RB+, GR+/B', .t., 180 } )
   Endif
-  Close databases
+  dbCloseAll()
   g_sunlock( Sreestr_sem )
   chm_help_code := tmp_help
   RestScreen( buf )
@@ -527,7 +527,7 @@ Function f11_view_list_reestr()
   Return PadR( s, 10 ) //  10 ) ¢¥à­ã« 10 ž€
 
 
-// 14.02.26
+// 05.04.26
 Function f2_view_list_reestr( nKey, oBrow )
 
   Local ret := -1, rec := rees->( RecNo() ), tmp_color := SetColor(), r, r1, r2, ;
@@ -625,14 +625,14 @@ Function f2_view_list_reestr( nKey, oBrow )
                   // if hb_fileExists(hb_OemToAnsi(s)+zip_file)
                   If hb_FileExists( s + zip_file )
                     ++k
-                    rees->( g_rlock( forever ) )
+                    rees->( g_rlock( 'forever' ) )
                     rees->DATE_OUT := sys_date
                     If rees->NUMB_OUT < 99
                       rees->NUMB_OUT++
                     Endif
                     //
                     mo_xml->( dbGoto( arr[ i, 3 ] ) )
-                    mo_xml->( g_rlock( forever ) )
+                    mo_xml->( g_rlock( 'forever' ) )
                     mo_xml->DREAD := sys_date
                     mo_xml->TREAD := hour_min( Seconds() )
                   Else
@@ -673,10 +673,10 @@ Function f2_view_list_reestr( nKey, oBrow )
     oldy := oldm := 0
     Select REES
     Index On Str( FIELD->NYEAR, 4 ) to ( cur_dir() + 'tmpr1' ) unique
-    rees->( dbGoBottom() )  //  Go Bottom
+    rees->( dbGoBottom() )
     Private syear := rees->NYEAR
     Index On Str( FIELD->NYEAR, 4 ) + Str( FIELD->NMONTH, 2 ) + Str( FIELD->NSCHET, 6 ) to ( cur_dir() + 'tmpr1' ) For FIELD->NYEAR == syear
-    rees->( dbGoTop() ) //  Go Top
+    rees->( dbGoTop() )
 
     add_string( '' )
     if syear >= 2026
@@ -686,17 +686,18 @@ Function f2_view_list_reestr( nKey, oBrow )
     endif
     add_string( '' )
     arr_title := { ;
-      'ÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄ', ;
-      '®¬¥à ³  „ â   ³    ¨¬¥­®¢ ­¨¥     ³Š®«.³    ‘ã¬¬    ³¥¥áâàë³Š®«-¢® ­¥ ®¡-³‘â ', ;
-      'à¥¥áâà³ à¥¥áâà ³   ä ©«  à¥¥áâà     ³¡®«ì³   à¥¥áâà   ³‘ ¨ ’Š³à ¡®â.¢ ’”ŽŒ‘³âãá', ;
-      'ÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄ' }
+      'ÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄ', ;
+      '®¬¥à ³  „ â   ³           ¨¬¥­®¢ ­¨¥      ³  ¨¬¥­®¢ ­¨¥  ³ Š®«.³    ‘ã¬¬    ³‘®áâ®ï­¨¥³‘â ', ;
+      'à¥¥áâà³ à¥¥áâà ³         ä ©«  à¥¥áâà       ³    áç¥â       ³ ¡®«ì³   à¥¥áâà   ³ ®â¢¥â   ³âãá', ;
+      'ÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄ' }
+    sh := len( arr_title[ 1 ] )
     AEval( arr_title, {| x| add_string( x ) } )
 
     Do While ! rees->( Eof() )
-      if rees->nyear >= 2026 .and. rees->RES_TFOMS != 1
-        rees->( dbSkip() )
-        loop
-      endif
+      //if rees->nyear >= 2026 .and. rees->RES_TFOMS != 1
+      //  rees->( dbSkip() )
+      //  loop
+      //endif
       If verify_ff( HH - 2, .t., sh )
         AEval( arr_title, {| x| add_string( x ) } )
       Endif
@@ -707,26 +708,32 @@ Function f2_view_list_reestr( nKey, oBrow )
         oldm := rees->NMONTH
         @ MaxRow(), 1 Say lstr( rees->nyear ) + '/' + StrZero( rees->nmonth, 2 ) Color cColorWait
       Endif
-      s := Str( rees->NSCHET, 6 ) + ' ' + date_8( rees->DSCHET ) + ' ' + PadR( rees->NAME_XML, 20 ) + ;
-        Str( rees->KOL, 5 ) + put_kop( rees->SUMMA, 13 )
-      Select MO_XML
-      Index On FIELD->FNAME to ( cur_dir() + 'tmp_x2' ) ;
-        For FIELD->reestr == rees->kod .and. FIELD->TIP_OUT == 0 .and. FIELD->TIP_IN == _XML_FILE_SP
-      kol_sp := 0
-      dbEval( {|| ++kol_sp } )
-      Select RHUM
-      Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_r2' ) ;
-        For FIELD->reestr == rees->kod .and. FIELD->OPLATA == 0
-      kol_ne := 0
-      dbEval( {|| ++kol_ne } )
-      s += PadC( iif( kol_sp == 0, '-', lstr( kol_sp ) ), 9 )
-      s += PadC( iif( kol_ne == 0, '-', lstr( kol_ne ) ), 13 )
-      s += ' ' + iif( kol_ne == 0, ' =', '!!!' )
+      s := Str( rees->NSCHET, 6 ) + ' ' + date_8( rees->DSCHET ) + ' ' + PadR( rees->NAME_XML, 29 ) + ;
+        PadR( rees->NOMER_S, 16 ) + Str( rees->KOL, 5 ) + put_kop( rees->SUMMA, 13 ) + " "
+      //Select MO_XML
+      //Index On FIELD->FNAME to ( cur_dir() + 'tmp_x2' ) ;
+      //  For FIELD->reestr == rees->kod .and. FIELD->TIP_OUT == 0 .and. FIELD->TIP_IN == _XML_FILE_SP
+      //kol_sp := 0
+      //dbEval( {|| ++kol_sp } )
+      //Select RHUM
+      //Index On Str( FIELD->REES_ZAP, 6 ) to ( cur_dir() + 'tmp_r2' ) ;
+      //  For FIELD->reestr == rees->kod .and. FIELD->OPLATA == 0
+      //kol_ne := 0
+      //dbEval( {|| ++kol_ne } )
+      //s += PadC( iif( kol_sp == 0, '-', lstr( kol_sp ) ), 9 )
+      //s += PadC( iif( kol_ne == 0, '-', lstr( kol_ne ) ), 13 )
+      //s += ' ' + iif( kol_ne == 0, ' =', '!!!' )
+      s := s + padr(f11_view_list_reestr(),10)
+      if rees->res_tfoms == 1 .or. rees->res_tfoms == 3
+        //
+      else  
+        s := s + '!!!'
+      endif 
       add_string( s )
       Select REES
-      Skip
+      rees->( dbSkip() )
     Enddo
-    Close databases
+    dbCloseAll()
     FClose( fp )
     Keyboard Chr( K_END )
     viewtext( nfile,,,,,,, 2,,, .f. )
@@ -736,7 +743,7 @@ Function f2_view_list_reestr( nKey, oBrow )
     ret := 0
   Case nKey == K_CTRL_F12
     ret := delete_reestr_sp_tk( rees->( RecNo() ), AllTrim( rees->NAME_XML ) )
-    Close databases
+    dbCloseAll()
     g_use( dir_server() + 'mo_xml',, 'MO_XML' )
     g_use( dir_server() + 'mo_rees', cur_dir() + 'tmp_rees', 'REES' )
     Goto ( rec )
@@ -768,12 +775,12 @@ Function f3_view_list_reestr( oBrow )
   Index On FIELD->FNAME to ( cur_dir() + 'tmp_xml' ) ;
     For FIELD->reestr == rees->kod .and. eq_any( FIELD->TIP_IN, _XML_FILE_FLK, _XML_FILE_SP, _XML_FILE_SCHET_26, _XML_FILE_FLK_26 ) .and. Empty( FIELD->TIP_OUT )
 //    For FIELD->reestr == rees->kod .and. Between( FIELD->TIP_IN, _XML_FILE_FLK, _XML_FILE_SP, _XML_FILE_SCHET_26, _XML_FILE_FLK_26 ) .and. Empty( FIELD->TIP_OUT )
-  mo_xml->( dbGoTop() )   //  Go Top
+  mo_xml->( dbGoTop() )
   if rees->nyear < 2026
     Do While  mo_xml->reestr == rees->kod .and. ! ( mo_xml->( Eof() ) )
       AAdd( mm_func, mo_xml->kod )
       AAdd( mm_menu, 'à®â®ª®« çâ¥­¨ï ' + RTrim( mo_xml->FNAME ) + iif( Empty( mo_xml->TWORK2 ), '-—’…ˆ… … ‡€‚…˜…Ž', '' ) )
-      mo_xml->( dbSkip() )    //Skip
+      mo_xml->( dbSkip() )
     Enddo
   else
     fileName := AllTrim( rees->name_xml )
@@ -869,7 +876,7 @@ Function f31_view_list_reestr( reg, s )
       ft:add_string( s )
     Endif
     Select RHUM
-    rhum->( dbSkip() )    //  Skip
+    rhum->( dbSkip() )
   Enddo
   human_3->( dbCloseArea() )
   human_->( dbCloseArea() )
