@@ -927,7 +927,7 @@ Function f4oms_edit()
 
   Return Nil
 
-// 05.02.19 Редактирование листка учета лечения больного + смена отделения
+// 05.04.26 Редактирование листка учета лечения больного + смена отделения
 Function oms_smena_otd()
 
   Static si := 1, sk := 1
@@ -966,10 +966,14 @@ Function oms_smena_otd()
             glob_otd[ 2 ] + ' [' + glob_uch[ 2 ] + ']' }, , 'W+/W', 'N/W' )
           If ( fl := f_esc_enter( 'смены отделения', .t. ) )
             fl1 := .f.
-            If input_value( MaxRow() -4, 10, MaxRow() -2, 69, color1, ;
-                '   Перезаписывать новое отделение в каждой услуге', 0, mm_danet ) == 1
-              fl1 := .t.
-            Endif
+            if glob_mo[ _MO_KOD_TFOMS ] == '134505'
+                fl1 := .t.
+            else  
+              If input_value( MaxRow() -4, 10, MaxRow() -2, 69, color1, ;
+                  '   Перезаписывать новое отделение в каждой услуге', 0, mm_danet ) == 1
+                fl1 := .t.
+              Endif
+            endif  
           Endif
           RestScreen( buf2 )
         Endif
@@ -1674,17 +1678,30 @@ Function ret_oms_human( dostup, arr_m )
           While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
           For iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) .and. human_->reestr == 0
       Else
-        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
+       Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
           For iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) )
       Endif
     Else
       If dostup == B_STANDART
-        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
-          While tip_h == dostup ;
-          For lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) ;
-          .and. human_->reestr == 0
-
+         if glob_mo[ _MO_KOD_TFOMS ] == '134505' 
+          if arr_m == NIL
+            Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
+            While tip_h == dostup ;
+            For lpu == glob_uch[ 1 ] .and. year(k_data) == 2026 ;
+            .and. human_->reestr == 0
+          else     
+            Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
+            While tip_h == dostup ;
+            For lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) ;
+            .and. human_->reestr == 0
+          endif    
+        else  
+          Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
+            While tip_h == dostup ;
+            For lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) ;
+            .and. human_->reestr == 0
+        endif 
       Else
         Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
           While tip_h == dostup ;
