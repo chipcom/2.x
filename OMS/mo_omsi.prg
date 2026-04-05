@@ -558,7 +558,7 @@ Function vosst_ob_em_rak()
       arr_smo[ i, 3 ] := PadR( lstr( arr_smo[ i, 2 ] ), 5 )
       arr_smo[ i, 2 ] := i
     Next
-    If Len( arr_smo ) > 2
+    If Len( arr_smo ) > 2  // Пока не необходимости контролировать 34000
       ASize( arr_smo, 2 ) // отсекаем ТФОМС
     Endif
     mm_pz := { { 'все', 0 } }
@@ -767,14 +767,15 @@ Function f1vosst_ob_em_rak( asmo, ssmo, mm_pz )
     Select MO_XML
     Skip
   Enddo
-  adbf := { { 'vid_pz', 'C', 45, 0 }, ;
+  adbf := { ;
+    { 'vid_pz', 'C', 45, 0 }, ;
     { 'ed_pz', 'N', 4, 0 }, ;
     { 'nrak', 'C', 26, 0 }, ;
     { 'drak', 'D', 8, 0 };
     }
   dbCreate( cur_dir() + 'tmp1', adbf )
   Use ( cur_dir() + 'tmp1' ) new
-  Index On nrak + vid_pz to ( cur_dir() + 'tmp1' )
+  Index On FIELD->nrak + FIELD->vid_pz to ( cur_dir() + 'tmp1' )
   Select TMP
   Go Top
   Do While !Eof()
@@ -1499,7 +1500,7 @@ Function st_operator()
     { 'KP',      'N',   9,   0 };  // количество введённых полей
     } )
     Use ( cur_dir() + 'tmp' ) new
-    Index On Str( pt, 3 ) + Str( po, 3 ) + Str( ae, 1 ) + Str( tp, 1 ) to ( cur_dir() + 'tmp' )
+    Index On Str( FIELD->pt, 3 ) + Str( FIELD->po, 3 ) + Str( FIELD->ae, 1 ) + Str( FIELD->tp, 1 ) to ( cur_dir() + 'tmp' )
     r_use( dir_server() + 'base1', , 'B1' )
     r_use( dir_server() + 'mo_opern', dir_server() + 'mo_opern', 'OP' )
     dbSeek( arr_g[ 7 ], .t. )
@@ -1923,20 +1924,19 @@ Function report_f_mpp()
   dbCreate( cur_dir() + 'tmp1', { ;
     { 'usl_ok', 'N', 1, 0 }, ;
     { 'profil', 'N', 3, 0 }, ;  // профиль в БД
-  { 'is_our', 'N', 1, 0 }, ;  // 0-наш, 1-иногородний
+    { 'is_our', 'N', 1, 0 }, ;  // 0-наш, 1-иногородний
     { 'vz_reb', 'N', 1, 0 }, ;  // 0-взрослые, 1-ребёнок
-  { 'vid',    'N', 1, 0 }, ;  // 1-3
+    { 'vid',    'N', 1, 0 }, ;  // 1-3
     { 'kol',    'N', 6, 0 }, ;  // случаев
-  { 'usl',    'N', 6, 0 }, ;  // услуг
+    { 'usl',    'N', 6, 0 }, ;  // услуг
     { 'summa',  'N', 14, 2 } } )  // оплаченная сумма
   Use ( cur_dir() + 'tmp1' ) new
-  Index On Str( usl_ok, 1 ) + Str( profil, 3 ) + Str( is_our, 1 ) + Str( vid, 1 ) + Str( vz_reb, 1 ) to ( cur_dir() + 'tmp1' )
+  Index On Str( FIELD->usl_ok, 1 ) + Str( FIELD->profil, 3 ) + Str( FIELD->is_our, 1 ) + Str( FIELD->vid, 1 ) + Str( FIELD->vz_reb, 1 ) to ( cur_dir() + 'tmp1' )
   use_base( 'lusl' )
   //r_use( dir_exe() + '_mo9unit', cur_dir() + '_mo9unit', 'MOUNIT' ) 
   lalias := create_name_alias( 'lusl', arr_m[ 1 ]  )
   // select LUSL
   dbSelectArea( lalias )
-  mydebug(,lalias)
   sbase := prefixfilerefname( arr_m[ 1 ] ) + 'unit'
   r_use( dir_exe() + sbase, , 'MOUNIT' )
   r_use( dir_server() + 'uslugi', , 'USL' )
@@ -2450,7 +2450,8 @@ Function pril_5_6_62()
   Set Relation To FIELD->kod_raks into RAKS
   Index On Str( FIELD->kod_h, 7 ) to ( cur_dir() + 'tmp_raksh' ) For mo_xml->DFILE <= mdate_rak
   //
-  dbCreate( cur_dir() + 'tmp', { { 'usl_ok', 'N', 1, 0 }, ;
+  dbCreate( cur_dir() + 'tmp', { ;
+    { 'usl_ok', 'N', 1, 0 }, ;
     { 'stroke', 'C', 3, 0 }, ;
     { 'shifr', 'C', 10, 0 }, ;
     { 'kols', 'N', 6, 0 }, ;
@@ -2458,7 +2459,7 @@ Function pril_5_6_62()
     { 'summa', 'N', 15, 2 }, ;
     { 'sr_kol', 'N', 5, 1 } } )
   Use ( cur_dir() + 'tmp' ) New Alias TMP
-  Index On Str( usl_ok, 1 ) + shifr to ( cur_dir() + 'tmp' )
+  Index On Str( FIELD->usl_ok, 1 ) + FIELD->shifr to ( cur_dir() + 'tmp' )
   r_use( dir_server() + 'schet_', , 'SCHET_' )
   r_use( dir_server() + 'schet', , 'SCHET' )
   Set Relation To RecNo() into SCHET_
@@ -2617,7 +2618,7 @@ Function pril_5_6_62()
     Skip
   Enddo
   Select TMP
-  Index On Str( usl_ok, 1 ) + stroke to ( cur_dir() + 'tmp' )
+  Index On Str( FIELD->usl_ok, 1 ) + FIELD->stroke to ( cur_dir() + 'tmp' )
   For i := 1 To 2
     ar := {}
     bk := { 4, 5 }[ i ] ; j := 0
@@ -2712,7 +2713,7 @@ Function monitoring_zog()
       { 'is_1', 'L', 1, 0 }, ;
       { 'disp', 'L', 1, 0 } } )
     Use ( cur_dir() + 'tmp' ) new
-    Index On Str( kod_k, 7 ) + diag to ( cur_dir() + 'tmp' )
+    Index On Str( FIELD->kod_k, 7 ) + FIELD->diag to ( cur_dir() + 'tmp' )
     r_use( dir_server() + 'schet_', , 'SCHET_' )
     r_use( dir_server() + 'human_', , 'HUMAN_' )
     r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )

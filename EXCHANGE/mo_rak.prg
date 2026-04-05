@@ -191,7 +191,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
     '  в т.ч. количество снятий  - ' + lstr( tmp1->KOL_ERR ) + hb_eol() + ;
     '         количество штрафов - ' + lstr( tmp1->KOL_PEN ) + hb_eol(), cFileProtokol, .t. )
   //
-  g_use( dir_server() + 'kartote_',, "KARTOTE_"  ) // 29.03.26
+  g_use( dir_server() + 'kartote_',, 'KARTOTE_'  ) // 29.03.26
   Select HUMAN
   Set Index To
   r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
@@ -485,24 +485,24 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
                     // выясняем признак смены СМО
                     // S_OSN == 210 (tmp6->REFREASON) и S_COM == NNNNN;OOOOO
                     if tmp6->REFREASON == 210 // Не верное СМО
-                      if len(alltrim(raksherr->S_COM)) == 11 .and. substr(alltrim(raksherr->S_COM),6,1) == ";"
-                        TMP_SMO := ""
-                        TMP_REGION := ""
-                        if posalpha(substr(alltrim(raksherr->S_COM),1,5)) < 1 // нет буквеных символов СМО
-                          TMP_SMO := substr(alltrim(raksherr->S_COM),1,5)   
+                      if len( alltrim( raksherr->S_COM ) ) == 11 .and. substr( alltrim( raksherr->S_COM ), 6, 1 ) == ';'
+                        TMP_SMO := ''
+                        TMP_REGION := ''
+                        if posalpha( substr( alltrim( raksherr->S_COM ), 1, 5 ) ) < 1 // нет буквеных символов СМО
+                          TMP_SMO := substr( alltrim( raksherr->S_COM ), 1, 5 )
                         else
-                          put_long_str( 'Уточнение кода дефекта: ' + alltrim(raksherr->S_COM), cFileProtokol, 5 )
+                          put_long_str( 'Уточнение кода дефекта: ' + alltrim( raksherr->S_COM ), cFileProtokol, 5 )
                         endif  
-                        if posalpha(substr(alltrim(raksherr->S_COM),7,5)) < 1  // нет буквеных символов Регион
-                          TMP_REGION := substr(alltrim(raksherr->S_COM),7,5)
+                        if posalpha( substr( alltrim( raksherr->S_COM ), 7, 5 ) ) < 1  // нет буквеных символов Регион
+                          TMP_REGION := substr( alltrim( raksherr->S_COM ), 7, 5 )
                         else
-                          put_long_str( 'Уточнение кода дефекта: ' + alltrim(raksherr->S_COM), cFileProtokol, 5 )
+                          put_long_str( 'Уточнение кода дефекта: ' + alltrim( raksherr->S_COM ), cFileProtokol, 5 )
                         endif  
-                        If len(TMP_SMO) == 5 .and. len(TMP_REGION) == 5    
+                        If len( TMP_SMO ) == 5 .and. len( TMP_REGION ) == 5
                          // допобработка по письму  27.03.2026 № 04-18-017  добавить в картотеку данные
                          select kartote_
-                         goto (human->kod_k)
-                         g_rlock( forever )
+                         goto ( human->kod_k )
+                         g_rlock( 'forever' )
                          kartote_->SMO := TMP_SMO
                          kartote_->kvartal_d := TMP_REGION
                          unlock
@@ -510,10 +510,10 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
                          // сразу отправляем в редактирование   -- СЛОЖНО
                         endif  
                       else // Так не должно быть
-                        put_long_str( 'Уточнение кода дефекта: ' + alltrim(raksherr->S_COM), cFileProtokol, 5 )
+                        put_long_str( 'Уточнение кода дефекта: ' + alltrim( raksherr->S_COM ), cFileProtokol, 5 )
                       endif  
                     else   
-                      put_long_str( 'Уточнение кода дефекта: ' + alltrim(raksherr->S_COM), cFileProtokol, 5 )
+                      put_long_str( 'Уточнение кода дефекта: ' + alltrim( raksherr->S_COM ), cFileProtokol, 5 )
                     endif  
                   endif
                 else
@@ -676,7 +676,7 @@ Function f2_view_rak( nKey, oBrow )
   Return ret
 
 // 18.03.26
-Function delete_rak( lrec, lname, not_end )
+Function delete_rak( lrec, lname, not_end ) 
 
   Local ret := 0, arr_next := {}, fl, ia, is, ih, buf := save_maxrow()
   Local date_rak :=  mo_xml->dfile 
@@ -1986,7 +1986,7 @@ Function ret_menu_rak_schet( r, c )
 
   Return ret
 
-// 18.03.26 список снятий по актам
+// 04.04.26 список снятий по актам
 Function akt_list_of_refusal_pacient()
 
   Static si := 3
@@ -2031,6 +2031,10 @@ Function akt_list_of_refusal_pacient()
   If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) == NIL
     Return Nil
   Endif
+  //!!!!! 04.04.26
+  if year( arr_m[ 6 ] ) > 2025 .and.  alltrim( Lsmo[ 1 ] ) == '34'
+    Lsmo[ 1 ] := '34000'
+  endif  
   If ( ireg := popup_prompt( T_ROW, T_COL - 5, si, mas_pmt ) ) == 0
     Return Nil
   Endif
@@ -2730,7 +2734,7 @@ Function akt_list_of_refusal_pacient()
 
   Return Nil
 
-// 17.11.25 Список РАК
+// 04.04.26 Список РАК
 Function pr_list_rak()
 
   Static arr_smo
@@ -2744,6 +2748,12 @@ Function pr_list_rak()
   If ( arr_m := year_month( T_ROW, T_COL - 5 ) ) == NIL
     Return Nil
   Endif
+  //!!!!! 04.04.26
+  for i := 1 to len( arr_smo )
+    if year( arr_m[ 6 ] ) > 2025 .and.  arr_smo[ i, 2 ] == 34
+      arr_smo[ i, 2 ] := 34000
+    endif  
+  next  
   If ( asmo := bit_popup( T_ROW, T_COL - 5, arr_smo, , color0 ) ) == NIL
     Return Nil
   Endif
@@ -3155,7 +3165,7 @@ Function akt_summa_of_refusal( tip )
 
   Return Nil
 
-// 17.11.25 список снятий по актам (дефекты)
+// 04.04.26 список снятий по актам (дефекты)
 Function akt_list_of_refusal_defect()
 
   Static arr_smo
@@ -3242,6 +3252,10 @@ Function akt_list_of_refusal_defect()
       s := ''
       For i := 1 To Len( arr_smo )
         If IsBit( s1smo, i )
+          //!!!!! 04.04.26
+          if year( pdate[6] ) > 2025 .and.  alltrim(arr_smo[ i, 3 ]) == '34'
+            arr_smo[ i, 3 ] := '34000'
+          endif  
           AAdd( ar, arr_smo[ i, 3 ] )
           s += arr_smo[ i, 1 ] + ', '
         Endif
