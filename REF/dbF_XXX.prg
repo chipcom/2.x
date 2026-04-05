@@ -631,7 +631,8 @@ Function get_f033_with_address( mcod )
   Local tmp_select
   Local cUIDMO
   Local i
-  Local arr := get_f033( mcod ) //  {}
+  local mStr, pos
+  Local arr := get_f033( mcod )
 
   tmp_select := Select()
 
@@ -642,7 +643,13 @@ Function get_f033_with_address( mcod )
     cUIDMO := arr[ i, 2 ]
     f038->( dbSeek( cUIDMO ) )
     if f038->( Found() )
-      arr[ i, 1 ] += ' - ' + StrTran( AllTrim( SubStr( f038->ADDR, 8 ) ), 'Волгоградская область, ', '' )
+      mStr := StrTran( AllTrim( SubStr( f038->ADDR, 8 ) ), 'Волгоградская область, ', '' )
+      pos := hb_At( 'район,', mstr )
+      if pos != 0
+        mStr := SubStr( mstr, pos + 7 )
+      endif
+      arr[ i, 1 ] += ' - ' + mStr
+//      arr[ i, 1 ] += ' - ' + StrTran( AllTrim( SubStr( f038->ADDR, 8 ) ), 'Волгоградская область, ', '' )
     endif
   next
   f038->( dbCloseArea() )
