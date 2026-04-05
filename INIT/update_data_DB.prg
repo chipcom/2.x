@@ -109,11 +109,14 @@ Function update_data_db( aVersion )
 
 Return Nil
 
-// 04.04.26
+// 05.04.26
 function update_v60402()
 
   local mFio, mSchet, mTIP_H
+  local iDouble, iTip_h
 
+  iDouble := 0
+  iTip_h := 0
   stat_msg( 'Проверка двойных случаев' )
   e_use( dir_server() + 'human',, 'human' )
   index on FIELD->fio + DToC( FIELD->K_DATA ) + str( FIELD->ISHOD, 2 ) to ( cur_dir() + 'tmp_hum_fio' ) for ( FIELD->ISHOD == 88 .or. FIELD->ISHOD == 89 ) DESCENDING
@@ -130,6 +133,20 @@ function update_v60402()
       human->TIP_H := mTIP_H
       human->schet := mSchet
       human->( dbUnlock() )
+      ++iDouble
+    endif
+
+    human->( dbSkip() )
+  enddo
+  index on FIELD->fio + DToC( FIELD->K_DATA ) to ( cur_dir() + 'tmp_hum_fio' ) for ( year( FIELD->K_DATA ) > 2025 )
+  human->( dbGoTop() )
+  do while ! human->( Eof() )
+
+    if human->TIP_H == 3  .and. human->schet != 0
+      human->( dbRLock() )
+      human->TIP_H := 4
+      human->( dbUnlock() )
+      ++iTip_h
     endif
 
     human->( dbSkip() )
