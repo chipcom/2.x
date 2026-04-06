@@ -3,6 +3,84 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 06.04.26
+function collect_uslugi_vidpom()
+
+  Local tmpselect, lshifr1, mshifr, sVidpoms, lst
+  local arrUsluga := {}, mVidPom := 0
+  local lAliasHU := .f., lAliasUsl := .f., lAliasPers := .f.
+  local m_vrPRVS_21, m_vrProfil
+
+  tmpSelect := Select()
+
+  if Select( 'P2' ) == 0
+    r_use( dir_server() + 'mo_pers', , 'P2' )
+    lAliasPers := .t.
+  endif
+
+  if Select( 'USL' ) == 0
+    r_use( dir_server() + 'uslugi', , 'USL' )
+    lAliasUsl := .t.
+  endif
+  if Select( 'HU' ) == 0
+    r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
+    lAliasHU := .t.
+  endif
+  dbSelectArea( 'HU' )
+  Set Relation To FIELD->u_kod into USL
+
+  hu->( dbSeek( Str( human->kod, 7 ) ) )
+  Do While hu->kod == human->kod .and. ! hu->( Eof() )
+    m_vrPRVS_21 := 0
+    m_vrProfil := 0
+    lshifr1 := ''
+    mshifr := ''
+    if hu->u_cena != 0
+      lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
+      If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, , , @lst, , @sVidpoms )
+        mshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
+      endif
+      p2->( dbGoto( hu->kod_vr ) )
+      if ! p2->( Eof() ) .and. ! p2->( Bof() )
+        m_vrPRVS_21 := p2->PRVS_021
+        m_vrProfil  := p2->PROFIL
+      endif
+
+      AAdd( arrUsluga, { mshifr, c4tod( hu->date_u ), hu->u_cena, hu->otd, ;
+        hu->kod_vr, m_vrPRVS_21, m_vrProfil, list2arr( sVidpoms ), lst } )
+    endif
+    hu->( dbSkip() )
+  Enddo
+
+  If lAliasPers
+    p2->( dbCloseArea() )
+  endif
+  If lAliasUsl
+    usl->( dbCloseArea() )
+  endif
+  If lAliasHU
+    hu->( dbCloseArea() )
+  endif
+  if Len( arrUsluga ) == 1
+    if len( arrUsluga[ 1, 8 ] ) == 1
+      mVidPom := arrUsluga[ 1, 8 ][ 1 ]
+    endif
+  elseif Len( arrUsluga ) > 1
+
+//          if locPRVS == '206'  // фельдшер
+//            lvidpom := 11
+//          elseif eq_any( locPRVS, '76', '49', '39' )  // тераипия, педиатрия, общая врачебная практика
+//            lvidpom := 12
+//          else  // узкие специалисты
+//            lvidpom := 13
+//          endif
+
+  endif
+  Select( tmpSelect )
+//altd()
+
+  return arrUsluga
+
 // 20.01.26
 function get_NAPR_MO( human_kod, type_npr )
 

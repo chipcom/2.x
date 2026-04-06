@@ -107,7 +107,55 @@ Function update_data_db( aVersion )
     update_v60402()   // корректировка двойных в human.dbf
   endif
 
+  If ver_base < 60403 // переход на версию 6.4.3
+    update_v60403()   // перенос данных о занятости пациентов
+  endif
+
 Return Nil
+
+// 06.04.26
+Function update_v60403()     // перенос данных о занятости пациентов
+
+  stat_msg( 'Переносим информацию о занятости пациентов' )
+  use_base( 'kartotek', 'kart', .t. ) // откроем файл kartotek
+  kart->( dbGoTop() )
+  do while ! kart->( Eof() )
+    if kart->VZ == 0 
+      if kart_->PENSIONER == 1
+        kart->VZ := 3
+      elseif kart->RAB_NERAB == 0
+        kart->VZ := 1
+      elseif kart->RAB_NERAB == 1
+        kart->VZ := 5
+      elseif kart->RAB_NERAB == 2
+        kart->VZ := 4
+      else
+        kart->VZ := 6
+      endif
+    endif
+    kart->( dbSkip() )
+  enddo
+  dbCloseAll()        // закроем все
+
+  use_base( 'human', 'human', .t. ) // откроем файл human
+  human->( dbGoTop() )
+  do while ! human->( Eof() )
+    if human->VZ == 0
+      if human->RAB_NERAB == 0
+        human->VZ := 1
+      elseif human->RAB_NERAB == 1
+        human->VZ := 5
+      elseif human->RAB_NERAB == 2
+        human->VZ := 4
+      else
+        human->VZ := 6
+      endif
+    endif
+    human->( dbSkip() )
+  enddo
+  dbCloseAll()        // закроем все
+
+  return nil
 
 // 05.04.26
 function update_v60402()

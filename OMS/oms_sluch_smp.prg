@@ -354,6 +354,9 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     m1VIDPOLIS  := human_->VPOLIS
     mSPOLIS     := human_->SPOLIS
     mNPOLIS     := human_->NPOLIS
+    if mVZ == 0 .and. kart->VZ != 0
+      mVZ := kart->VZ
+    endif
     If Empty( Val( msmo := human_->SMO ) )
       m1komu := human->KOMU
       m1str_crb := human->STR_CRB
