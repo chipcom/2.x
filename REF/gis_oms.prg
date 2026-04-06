@@ -69,8 +69,11 @@ Function f2edit_licenses( nKey, oBrow )
 
   Local oBr, ret := -1
 
+  local aLic := {}, row
+  local aAddr := {}
   local sbase, tmp_select := Select()
-  local aDbf, k
+  local aDbf, k, i
+  local tmpSelect := Select()
 
   oBr := oBrow
   Do Case
@@ -117,6 +120,55 @@ Function f2edit_licenses( nKey, oBrow )
     tmp_f038->( dbCloseArea() )
     Select ( tmp_select )
 
+  Case nKey == K_F9
+/*
+    // сохранием лицензию
+    AAdd( aLic, { tmp_f037->N_DOC, tmp_f037->IDMO,tmp_f037->UIDMO, tmp_f037->MCOD } )
+
+    // сохраним адреса по лицензии
+    sbase := '_mo_f038'
+    r_use( dir_exe() + sbase, cur_dir() + sbase, 'F038' )
+    f038->( dbSeek( tmp_f037->UIDMO ) )
+    do while f038->UIDMO == tmp_f037->UIDMO .and. ! f038->( Eof() )
+      if AScan( aAddr, { | x | x[ 2 ] == f038->IDADDRESS } ) == 0  //  ! tmp_f038->( Found() )
+        AAdd( aAddr, { f038->UIDMO, f038->IDADDRESS, f038->UIDSPMO, AllTrim( f038->ADDR ), AllTrim( f038->N_DOC ) } )
+      endif
+      f038->( dbSkip() )
+    enddo
+    Select( tmpSelect )
+    f038->( dbCloseArea() )
+    // сохраним отделения
+    sbase := '_mo_f033'
+    r_use( dir_exe() + sbase, cur_dir() + sbase, 'F033' )
+
+//    select f038
+//    Set Index To
+//    Index ON str( FIELD->IDADDRESS, 19 ) to ( cur_dir() + 'tmp_f038_addr' )
+//    aDbf := { ;
+//      { 'IDADDRESS','N',  19, 0 }, ;
+//      { 'UIDMO',    'C',  17, 0 }, ;
+//      { 'UIDSPMO',  'C',  17, 0 }, ;
+//      { 'NAME',     'C',  80, 0 } ;
+//    }
+//    dbCreate( cur_dir() + 'tmp_otd', aDbf, , .t., 'tmp_otd' )
+    select f038
+    f038->( dbSeek( str( tmp_f038->IDADDRESS, 19 ) ) )
+    do while f038->IDADDRESS == tmp_f038->IDADDRESS .and. ! f038->( Eof() )
+      tmp_otd->( dbAppend() )
+      tmp_otd->UIDSPMO := f038->UIDSPMO
+      tmp_otd->UIDMO := f038->UIDMO
+      tmp_otd->IDADDRESS := f038->IDADDRESS
+      f033->( dbSeek( f038->UIDSPMO ))
+      if f033->( Found() )
+        tmp_otd->NAME := f033->NAM_SK
+      endif
+      f038->( dbSkip() )
+    enddo
+    f033->( dbCloseArea() )
+    Select( tmpSelect )
+
+altd()
+*/
   Endcase
   Return ret
 

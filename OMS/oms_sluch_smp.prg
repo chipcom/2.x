@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 31.03.26 СМП - добавление или редактирование случая (листа учета)
+// 06.04.26 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -18,6 +18,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     i, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
     pos_read := 0, k_read := 0, count_edit := 0, ;
     tmp_help := chm_help_code, fl_write_sluch := .f.
+  local mVZ
   //
   Default st_N_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
@@ -74,6 +75,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       m1VZROS_REB := kart->VZROS_REB
       mADRES      := kart->ADRES
       msnils      := kart->snils
+      mVZ         := kart->VZ
       If kart->MI_GIT == 9
         m1KOMU    := kart->KOMU
         M1STR_CRB := kart->STR_CRB
@@ -335,6 +337,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     M1VZROS_REB := human->VZROS_REB
     MADRES      := human->ADRES         // адрес больного
     mUCH_DOC    := Int( Val( human->uch_doc ) )
+    mVZ         := human->VZ
     m1VRACH     := human_->vrach
     MKOD_DIAG0  := human_->KOD_DIAG0
     MKOD_DIAG   := human->KOD_DIAG
@@ -954,6 +957,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
       human->DATE_R     := MDATE_R       // дата рождения больного
       human->VZROS_REB  := M1VZROS_REB   // 0-взрослый, 1-ребенок, 2-подросток
       human->ADRES      := MADRES        // адрес больного
+      human->VZ         := mVZ
       human->KOD_DIAG   := MKOD_DIAG     // шифр 1-ой осн.болезни
       human->KOD_DIAG2  := MKOD_DIAG2    // шифр 2-ой осн.болезни
       human->KOD_DIAG3  := MKOD_DIAG3    // шифр 3-ой осн.болезни
