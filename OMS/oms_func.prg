@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 
 // 06.04.26
-function collect_uslugi_vidpom()
+function define_vidpom()
 
   Local tmpselect, lshifr1, mshifr, sVidpoms, lst
   local arrUsluga := {}, mVidPom := 0
@@ -66,20 +66,27 @@ function collect_uslugi_vidpom()
       mVidPom := arrUsluga[ 1, 8 ][ 1 ]
     endif
   elseif Len( arrUsluga ) > 1
-
-//          if locPRVS == '206'  // фельдшер
+    if eq_any( m_vrPRVS_21, '206', '207' )  // фельдшер, акушер
+      if ascan( arrUsluga[ 1, 8 ], 11 ) > 0
 //            lvidpom := 11
-//          elseif eq_any( locPRVS, '76', '49', '39' )  // тераипия, педиатрия, общая врачебная практика
+        mVidPom := 11
+      endif
+    elseif eq_any( m_vrPRVS_21, '76', '49', '39' )  // тераипия, педиатрия, общая врачебная практика
+      if ascan( arrUsluga[ 1, 8 ], 12 ) > 0
 //            lvidpom := 12
-//          else  // узкие специалисты
+        mVidPom := 12
+      endif
+    else  // узкие специалисты
+      if ascan( arrUsluga[ 1, 8 ], 13 ) > 0
 //            lvidpom := 13
-//          endif
-
+        mVidPom := 13
+      endif
+    endif
   endif
   Select( tmpSelect )
-//altd()
+altd()
 
-  return arrUsluga
+  return mVidPom
 
 // 20.01.26
 function get_NAPR_MO( human_kod, type_npr )

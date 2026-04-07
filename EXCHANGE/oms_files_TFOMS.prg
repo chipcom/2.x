@@ -112,7 +112,7 @@ Function read_from_tf()
   Endif
   Return fl
 
-// 04.04.26 чтение в память и анализ XML-файла
+// 07.04.26 чтение в память и анализ XML-файла
 Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
 
   Local is_err_FLK_26
@@ -281,6 +281,8 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
         rees->( dbUnlock() )
 
       elseif is_err_FLK_26 == 1  // ошибок ФЛК нет
+
+        g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
 
         use_base( 'human', , .t. )
         Set Order To 0 // индексы открыты для перезаписи номера счета

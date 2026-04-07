@@ -2026,7 +2026,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         m1str_crb := m1company
       Endif
       //
-//collect_uslugi_vidpom()
+//define_vidpom()
 
       human->kod_k      := glob_kartotek
       human->TIP_H      := mtip_h

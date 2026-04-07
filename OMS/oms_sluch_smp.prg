@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.04.26 СМП - добавление или редактирование случая (листа учета)
+// 07.04.26 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -18,7 +18,7 @@ Function oms_sluch_smp( Loc_kod, kod_kartotek, tip_lu )
     i, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
     pos_read := 0, k_read := 0, count_edit := 0, ;
     tmp_help := chm_help_code, fl_write_sluch := .f.
-  local mVZ
+  local mVZ := 5  // не работает
   //
   Default st_N_DATA To sys_date
   Default Loc_kod To 0, kod_kartotek To 0
