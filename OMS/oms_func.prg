@@ -3,8 +3,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.04.26
-function define_vidpom()
+// 07.04.26
+function define_vidpom( kod_hum, mdate )
 
   Local tmpselect, lshifr1, mshifr, sVidpoms, lst
   local arrUsluga := {}, mVidPom := 0
@@ -29,13 +29,13 @@ function define_vidpom()
   dbSelectArea( 'HU' )
   Set Relation To FIELD->u_kod into USL
 
-  hu->( dbSeek( Str( human->kod, 7 ) ) )
+  hu->( dbSeek( Str( kod_hum, 7 ) ) )
   Do While hu->kod == human->kod .and. ! hu->( Eof() )
-    m_vrPRVS_21 := 0
-    m_vrProfil := 0
-    lshifr1 := ''
-    mshifr := ''
     if hu->u_cena != 0
+      m_vrPRVS_21 := 0
+      m_vrProfil := 0
+      lshifr1 := ''
+      mshifr := ''
       lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
       If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, , , @lst, , @sVidpoms )
         mshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
@@ -64,23 +64,28 @@ function define_vidpom()
   if Len( arrUsluga ) == 1
     if len( arrUsluga[ 1, 8 ] ) == 1
       mVidPom := arrUsluga[ 1, 8 ][ 1 ]
-    endif
-  elseif Len( arrUsluga ) > 1
-    if eq_any( m_vrPRVS_21, '206', '207' )  // фельдшер, акушер
-      if ascan( arrUsluga[ 1, 8 ], 11 ) > 0
-//            lvidpom := 11
-        mVidPom := 11
-      endif
-    elseif eq_any( m_vrPRVS_21, '76', '49', '39' )  // тераипия, педиатрия, общая врачебная практика
-      if ascan( arrUsluga[ 1, 8 ], 12 ) > 0
-//            lvidpom := 12
-        mVidPom := 12
-      endif
-    else  // узкие специалисты
-      if ascan( arrUsluga[ 1, 8 ], 13 ) > 0
-//            lvidpom := 13
-        mVidPom := 13
-      endif
+    else
+//      if eq_any( SubStr( mshifr, 1, 2 ), 'st', 'ds' )
+//        if ascan( arrUsluga[ 1, 8 ], 31 ) > 0
+//          mVidPom := 31
+//        endif
+//      elseif SubStr( mshifr, 1, 5 ) == code_services_VMP( mdate )
+//          mVidPom := 32
+//      else
+        if eq_any( m_vrPRVS_21, 206, 207 )  // фельдшер, акушер
+          if ascan( arrUsluga[ 1, 8 ], 11 ) > 0
+            mVidPom := 11
+          endif
+        elseif eq_any( m_vrPRVS_21, 76, 49, 39 )  // тераипия, педиатрия, общая врачебная практика
+          if ascan( arrUsluga[ 1, 8 ], 12 ) > 0
+            mVidPom := 12
+          endif
+        else  // узкие специалисты
+          if ascan( arrUsluga[ 1, 8 ], 13 ) > 0
+            mVidPom := 13
+          endif
+        endif
+//      endif
     endif
   endif
   Select( tmpSelect )

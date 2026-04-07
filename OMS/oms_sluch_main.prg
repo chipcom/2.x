@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.04.26 добавление или редактирование случая (листа учета)
+// 07.04.26 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -2026,7 +2026,6 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         m1str_crb := m1company
       Endif
       //
-//define_vidpom()
 
       human->kod_k      := glob_kartotek
       human->TIP_H      := mtip_h
@@ -2099,6 +2098,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human_->PRVS      := m1prvs
       human_->OPLATA    := 0 // уберём '2',  если отредактировали запись из реестра СП и ТК
       human_->ST_VERIFY := 0 // снова ещё не проверен
+
+//      human_->VIDPOM    := define_vidpom( human->kod, human->K_DATA )
+
       If Loc_kod == 0  // при добавлении
         human_->ID_PAC    := mo_guid( 1, human_->( RecNo() ) )
         human_->ID_C      := mo_guid( 2, human_->( RecNo() ) )

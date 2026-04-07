@@ -227,6 +227,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oSLUCH, 'VIDPOM', '13' )
       Else
         mo_add_xml_stroke( oSLUCH, 'VIDPOM', lstr( lvidpom ) )
+//        mo_add_xml_stroke( oSLUCH, 'VIDPOM', lstr( human_->VIDPOM ) )
       Endif
       If p_tip_reestr == TYPE_REESTR_GENERAL
         lal := iif( kol_sl == 2, 'human_3', 'human_' )
