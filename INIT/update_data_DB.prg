@@ -111,7 +111,73 @@ Function update_data_db( aVersion )
     update_v60403()   // перенос данных о занятости пациентов
   endif
 
+  If ver_base < 60404 // переход на версию 6.4.4
+    update_v60404()   // исправление двойных случаев
+  endif
+
 Return Nil
+
+// 07.04.26
+Function update_v60404()     // исправление двойных случаев
+
+  local mReestr, mNomer_s
+//  local mFio, mSchet, mTIP_H
+
+  stat_msg( 'Проверка двойных случаев' )
+  e_use( dir_server() + 'schet', dir_server() + 'schetn', 'schet' )
+  e_use( dir_server() + 'mo_xml', , 'xml' )
+  e_use( dir_server() + 'mo_rees', , 'rees' )
+  e_use( dir_server() + 'human_', , 'human_' )
+  e_use( dir_server() + 'human',, 'human' )
+  human->( dbGoTop() )
+  do while  ! human->( Eof() )
+    if ( human->ISHOD == 88 .or. human->ISHOD == 89 ) .and. ( Year( human->K_DATA ) > 2025 ) .and. ( human->SCHET == 0 )
+      human_->( dbGoto( human->( Recno() ) ) )
+      mReestr := human_->REESTR
+      rees->( dbGoto( mReestr ) )
+      if rees->RES_TFOMS == 1
+        mNomer_s := Substr( rees->NOMER_S, 1, 10 )
+        xml->( dbgoto( rees->KOD_XML ) )
+        schet->( dbSeek( mNomer_s ) )
+        if schet->( Found() )
+          human->TIP_H  := 4
+          human->schet  := schet->kod
+          Select human
+        endif
+      endif
+    endif
+    Select human
+    human->( dbSkip() )
+  enddo
+
+  human_->( dbCloseArea() )
+  rees->( dbCloseArea() )
+  xml->( dbCloseArea() )
+  schet->( dbCloseArea() )
+/*
+  Select human
+  index on FIELD->fio + DToC( FIELD->K_DATA ) + str( FIELD->ISHOD, 2 ) to ( cur_dir() + 'tmp_hum_fio' ) for ( FIELD->ISHOD == 88 .or. FIELD->ISHOD == 89 ) DESCENDING
+
+  human->( dbGoTop() )
+  do while ! human->( Eof() )
+
+    if human->ishod == 89 .and. human->TIP_H == 4  .and. human->schet != 0
+      mFio := AllTrim( human->fio )
+      mSchet := human->schet
+      mTIP_H := human->TIP_H
+    elseif AllTrim( human->fio ) == mFio .and. human->ishod == 88 .and. human->TIP_H == 3 .and. human->schet == 0
+      human->( dbRLock() )
+      human->TIP_H := mTIP_H
+      human->schet := mSchet
+      human->( dbUnlock() )
+    endif
+    human->( dbSkip() )
+  enddo
+*/
+  index_base( 'human' )
+  human->( dbCloseArea() )
+
+  return nil
 
 // 06.04.26
 Function update_v60403()     // перенос данных о занятости пациентов

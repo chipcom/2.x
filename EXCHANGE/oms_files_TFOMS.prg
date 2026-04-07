@@ -348,7 +348,6 @@ Function read_xml_from_tf( cFile, arr_XML_info, arr_f )
             If human_3->( Found() ) // найдем 1-й случай
               human->( dbGoto( human_3->kod ) )    // т.к. GUID'ы в реестре из 1-го случая
               human_->( dbGoto( human_3->kod ) )   // встать на 1-ый случай
-
               human->schet := schet->KOD
               human->TIP_H := 4 // счет
               HUMAN_->SCHET_ZAP := rhum->REES_ZAP
