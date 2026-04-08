@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 31.03.26
+// 08.04.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -40,11 +40,11 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   local mNPR_MO, napr_number := ''
   local is_vmp
 
-  Local oPAC
-  Local cSMOname
-  Local mnovor
-  local vozrast, next_d
-  local arr_nazn
+//  Local oPAC
+//  Local cSMOname
+//  Local mnovor
+//  local vozrast, next_d
+//  local arr_nazn
 
 //  Local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
 //  Local oKSG, oSLk, oMR_USL_N, oDISAB, fl_DISABILITY := .f.
@@ -226,8 +226,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       If lTypeLUOnkoDisp
         mo_add_xml_stroke( oSLUCH, 'VIDPOM', '13' )
       Else
-        mo_add_xml_stroke( oSLUCH, 'VIDPOM', lstr( lvidpom ) )
-//        mo_add_xml_stroke( oSLUCH, 'VIDPOM', lstr( human_->VIDPOM ) )
+//        mo_add_xml_stroke( oSLUCH, 'VIDPOM', lstr( lvidpom ) )
+        mo_add_xml_stroke( oSLUCH, 'VIDPOM', lstr( human_->VIDPOM ) )
       Endif
       If p_tip_reestr == TYPE_REESTR_GENERAL
         lal := iif( kol_sl == 2, 'human_3', 'human_' )

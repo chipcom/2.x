@@ -62,8 +62,11 @@ function code_services_VMP( nYear )
   endif
   return iif( nYear < 2018, '', arrVMP[ nYear ])
 
-// 13.03.23
-function isServiceVMP( lshifr )
+// 08.04.26
+function isServiceVMP( lshifr, mdate )
+
   local ret := .f.
+
+  ret := ( SubStr( lshifr, 1, 5 ) == code_services_VMP( Year( mdate ) ) )
 
   return ret

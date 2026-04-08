@@ -3,16 +3,30 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 07.04.26
-function define_vidpom( kod_hum, mdate )
+// 08.04.26
+function define_vidpom( otd, kod_hum, mdate, usl_ok )
 
   Local tmpselect, lshifr1, mshifr, sVidpoms, lst
   local arrUsluga := {}, mVidPom := 0
-  local lAliasHU := .f., lAliasUsl := .f., lAliasPers := .f.
+  local lAliasHU := .f., lAliasUsl := .f., lAliasPers := .f., lAliasOtd := .f.
   local m_vrPRVS_21, m_vrProfil
+  local cUIDSPMO, arr_v := {}
 
   tmpSelect := Select()
 
+  if Select( 'OTD' ) == 0
+    r_use( dir_server() + 'mo_otd', , 'OTD' )
+    lAliasOtd := .t.
+  endif
+  otd->( dbGoto( otd ) )
+  cUIDSPMO := otd->LPU_1
+  r_use( dir_exe() + '_mo_f034', cur_dir() + '_mo_f034', 'F034' )
+  f034->( dbSeek( cUIDSPMO ) )
+  Do While ( f034->uidspmo == cUIDSPMO ) .and. ( f034->MPUSL == usl_ok ) .and. ! f034->( Eof() )
+    AAdd( arr_v, { f034->MPVID, f034->MPUSL, f034->MPROF } )
+    f034->( dbSkip() )
+  Enddo
+  f034->( dbCloseArea() )
   if Select( 'P2' ) == 0
     r_use( dir_server() + 'mo_pers', , 'P2' )
     lAliasPers := .t.
@@ -52,6 +66,9 @@ function define_vidpom( kod_hum, mdate )
     hu->( dbSkip() )
   Enddo
 
+  If lAliasOtd
+    otd->( dbCloseArea() )
+  endif
   If lAliasPers
     p2->( dbCloseArea() )
   endif
@@ -64,32 +81,38 @@ function define_vidpom( kod_hum, mdate )
   if Len( arrUsluga ) == 1
     if len( arrUsluga[ 1, 8 ] ) == 1
       mVidPom := arrUsluga[ 1, 8 ][ 1 ]
+//    elseif SubStr( arrUsluga[ 1, 1 ], 1, 5 ) == code_services_VMP( Year( mdate ) )
+    elseif isServiceVMP( arrUsluga[ 1, 1 ], mdate )
+      mVidPom := 32
+    elseif SubStr( arrUsluga[ 1, 1 ], 1, 2 ) == 'st'
+      if ascan( arrUsluga[ 1, 8 ], 31 ) > 0
+        mVidPom := 31
+      endif
+    elseif SubStr( arrUsluga[ 1, 1 ], 1, 2 ) == 'ds'
+      if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 31 } ) > 0 )
+        mVidPom := 31
+      elseif ( ascan( arrUsluga[ 1, 8 ], 12 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 12 } ) > 0 )
+        mVidPom := 12
+      elseif ( ascan( arrUsluga[ 1, 8 ], 13 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 13 } ) > 0 )
+        mVidPom := 13
+      endif
     else
-//      if eq_any( SubStr( mshifr, 1, 2 ), 'st', 'ds' )
-//        if ascan( arrUsluga[ 1, 8 ], 31 ) > 0
-//          mVidPom := 31
-//        endif
-//      elseif SubStr( mshifr, 1, 5 ) == code_services_VMP( mdate )
-//          mVidPom := 32
-//      else
-        if eq_any( m_vrPRVS_21, 206, 207 )  // фельдшер, акушер
-          if ascan( arrUsluga[ 1, 8 ], 11 ) > 0
-            mVidPom := 11
-          endif
-        elseif eq_any( m_vrPRVS_21, 76, 49, 39 )  // тераипия, педиатрия, общая врачебная практика
-          if ascan( arrUsluga[ 1, 8 ], 12 ) > 0
-            mVidPom := 12
-          endif
-        else  // узкие специалисты
-          if ascan( arrUsluga[ 1, 8 ], 13 ) > 0
-            mVidPom := 13
-          endif
+      if eq_any( m_vrPRVS_21, 206, 207 )  // фельдшер, акушер
+        if ascan( arrUsluga[ 1, 8 ], 11 ) > 0
+          mVidPom := 11
         endif
-//      endif
+      elseif eq_any( m_vrPRVS_21, 76, 49, 39 )  // тераипия, педиатрия, общая врачебная практика
+        if ascan( arrUsluga[ 1, 8 ], 12 ) > 0
+          mVidPom := 12
+        endif
+      else  // узкие специалисты
+        if ascan( arrUsluga[ 1, 8 ], 13 ) > 0
+          mVidPom := 13
+        endif
+      endif
     endif
   endif
   Select( tmpSelect )
-altd()
 
   return mVidPom
 

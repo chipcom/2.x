@@ -2099,7 +2099,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human_->OPLATA    := 0 // уберём '2',  если отредактировали запись из реестра СП и ТК
       human_->ST_VERIFY := 0 // снова ещё не проверен
 
-//      human_->VIDPOM    := define_vidpom( human->kod, human->K_DATA )
+      human_->VIDPOM    := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK )
 
       If Loc_kod == 0  // при добавлении
         human_->ID_PAC    := mo_guid( 1, human_->( RecNo() ) )
