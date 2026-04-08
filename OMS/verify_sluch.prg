@@ -3330,6 +3330,7 @@ Function verify_sluch( fl_view, ft )
               AAdd( ta, 'для услуги ' + alltrim_lshifr + ' требуется минимум ' + lstr( aUslMedReab[ 3 ] ) + ' предоставлений!' )
             Endif
             If aUslMedReab[ 3 ] > 1 .and. ( count_days( au_lu[ i, 2 ], au_lu[ i, 11 ] ) < aUslMedReab[ 3 ] )
+//            If aUslMedReab[ 3 ] > 1 .and. ( au_lu[ i, 6 ] < aUslMedReab[ 3 ] )
               AAdd( ta, 'количество дней выполнения услуги меньше количества повторений услуги!' )
             Endif
           Endif
@@ -4489,7 +4490,6 @@ Function verify_sluch( fl_view, ft )
         AAdd( ta, s + ' не попадает в диапазон лечения' )
       Endif
       If is_usluga_dvn( au_lu[ i ], mv, ta, metap, mpol, kod_spec_ter, aDvn_arr_umolch, aDvn_arr_usl )
-//altd()
         If ( mk_data >= 0d20260101 ) .and. metap == 1 .and. !eq_any( Left( lshifr, 5 ), '4.20.', '2.90.', '70.7.' )
           ++kol_d_usl
         elseif ( mk_data < 0d20260101 ) .and. metap == 1 .and. Empty( hu->u_cena ) .and. !eq_any( Left( lshifr, 5 ), '4.20.', '2.90.' )

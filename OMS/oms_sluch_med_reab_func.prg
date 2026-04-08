@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 28.02.24
+// 08.04.24
 Function defenition_usluga_med_reab( lkod, vid, shrm, vto )
 
   Local lshifr, lrec, lu_kod, lcena, lyear, mrec_hu
@@ -41,7 +41,7 @@ Function defenition_usluga_med_reab( lkod, vid, shrm, vto )
       lshifr := usl->shifr
     Endif
     If !Empty( shifr_reab ) .and. AllTrim( lshifr ) == shifr_reab // уже стоит та же услуга
-      lcena := iif( m1vzros_reb == 0, usl->CENA, usl->CENAD )
+      lcena := iif( m1vzros_reb == 0, usl->CENA, usl->CENA_D ) //  usl->CENAD )
       If !( Round( hu->u_cena, 2 ) == Round( lcena, 2 ) ) // перезапишем цену
         dbSelectArea( 'HU' )
         g_rlock( forever )

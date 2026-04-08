@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 31.03.26 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
+// 08.04.26 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
 Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -185,10 +185,12 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
     mNPR_DATE  := human_2->NPR_DATE
 
     aReab      := list2arr( human_2->PC5 )
-    m1vidreab  := aReab[ 1 ]
-    m1shrm     := aReab[ 2 ]
-    if len( aReab ) > 2
-      m1vto     := aReab[ 3 ]
+    if len( aReab ) > 0
+      m1vidreab  := aReab[ 1 ]
+      m1shrm     := aReab[ 2 ]
+      if len( aReab ) > 2
+        m1vto     := aReab[ 3 ]
+      endif
     endif
     mn_data    := human->N_DATA
     mk_data    := human->K_DATA
@@ -562,6 +564,7 @@ Function oms_sluch_med_reab( Loc_kod, kod_kartotek )
         human_->date_e2 := c4sys_date
       Endif
       human_2->NPR_DATE := mNPR_DATE
+
       human_2->PC5    := arr2list( { m1vidreab, m1shrm, m1vto }, .t. )
 
       Private fl_nameismo := .f.

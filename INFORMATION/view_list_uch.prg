@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 20.03.26
+// 08.04.26
 Function print_l_uch( mkod, par, regim, lnomer )
   
   // mkod - код больного по БД human
@@ -359,9 +359,11 @@ Function print_l_uch( mkod, par, regim, lnomer )
   endif
   if lTypeLUMedReab
     aMedReab := list2arr(human_2->PC5)  // [1], list2arr(human_2->PC5)[2]
-    add_string('')
-    add_string('  Вид реаблитации: ' + inieditspr(A__MENUVERT, type_reabilitacia(), aMedReab[1]))
-    add_string('  Шкала Реабилитационной Маршрутизации: ' + inieditspr(A__MENUVERT, type_shrm_reabilitacia(), aMedReab[2]))
+    if len( aMedReab ) > 0
+      add_string('')
+      add_string('  Вид реаблитации: ' + inieditspr(A__MENUVERT, type_reabilitacia(), aMedReab[1]))
+      add_string('  Шкала Реабилитационной Маршрутизации: ' + inieditspr(A__MENUVERT, type_shrm_reabilitacia(), aMedReab[2]))
+    endif
   endif
 
   add_string('  Медицинская помощь: условия оказания: ' + inieditspr(A__MENUVERT, getV006(), human_->USL_OK))
