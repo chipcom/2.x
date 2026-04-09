@@ -7,6 +7,61 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
+// 09.04.26 переиндексация справочников ГИС ОМС
+function index_gis_oms( dir_spavoch, working_dir )
+
+  local sbase, org_mcod
+  local mIDMO, mUIDMO
+
+  org_mcod := glob_mo()[ _MO_KOD_FFOMS ]
+
+  // справочник F032
+  sbase := '_mo_f032'
+  r_use( dir_spavoch + sbase, , 'F032' )
+  Index On FIELD->MCOD to ( working_dir + sbase ) ;
+    For FIELD->MCOD == org_mcod
+//    For Substr( FIELD->MCOD, 1, 2 ) == '34'
+//  f032->( dbGoTop() )
+  if ! f032->( Eof() ) .and. ! f032->( Bof() )
+    mIDMO   := f032->IDMO
+    mUIDMO  := f032->UIDMO
+  endif
+  dbCloseArea()
+  
+  // справочник F031
+  sbase := '_mo_f031'
+  r_use( dir_spavoch + sbase, , 'F031' )
+  Index On FIELD->IDMO to ( working_dir + sbase ) ;
+    For FIELD->IDMO == mIdmo
+  dbCloseArea()
+
+  // справочник F033
+  sbase := '_mo_f033'
+  r_use( dir_spavoch + sbase, , 'F033' )
+  Index ON FIELD->UIDSPMO to ( working_dir + sbase ) FOR SubStr( FIELD->UIDSPMO, 1, 11 ) == AllTrim( mUIDMO )
+  dbCloseArea()
+
+  // справочник F034
+  sbase := '_mo_f034'
+  r_use( dir_spavoch + sbase, , 'F034' )
+  Index ON FIELD->UIDSPMO + Str( FIELD->IDADDRESS, 19 ) to ( working_dir + sbase )
+  dbCloseArea()
+
+  // справочник F037
+//  aLic := {}
+  sbase := '_mo_f037'
+  r_use( dir_spavoch + sbase, , 'F037' )
+  Index ON FIELD->MCOD to ( working_dir + sbase ) FOR FIELD->MCOD == org_mcod
+  dbCloseArea()
+
+  // справочник F038
+  sbase := '_mo_f038'
+  r_use( dir_spavoch + sbase, , 'F038' )
+  Index ON FIELD->UIDMO to ( working_dir + sbase )
+  dbCloseArea()
+
+  return nil
+
 // 29.03.26
 function gis_oms() 
 
@@ -69,10 +124,10 @@ Function f2edit_licenses( nKey, oBrow )
 
   Local oBr, ret := -1
 
-  local aLic := {}, row
+  local aLic := {}
   local aAddr := {}
   local sbase, tmp_select := Select()
-  local aDbf, k, i
+  local aDbf, k
   local tmpSelect := Select()
 
   oBr := oBrow

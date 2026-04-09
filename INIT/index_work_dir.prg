@@ -98,7 +98,7 @@ Function files_nsi_exists( dir_file )
   Endif
   Return lRet
 
-// 02.04.26 проверка и переиндексирование справочников ТФОМС
+// 09.04.26 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir( dir_spavoch, working_dir, flag )
 
   Local fl := .t., i, buf := save_maxrow()
@@ -107,7 +107,7 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   Local countYear
   Local cVar
   Local sbase
-  local org_mcod, mIDMO := Space( 17 ), mUIDMO := Space( 17 )
+//  local org_mcod, mIDMO := Space( 17 ), mUIDMO := Space( 17 )
 
   Default flag To .f.
 
@@ -115,7 +115,10 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
     mywait( 'Подождите, идет переиндексация файлов НСИ в рабочей области...' )
   Else
     mywait( 'Подождите, идет проверка служебных данных в рабочем каталоге...' )
-  Endif
+  Endif 
+
+  index_gis_oms( dir_spavoch, working_dir )
+/*
   org_mcod := glob_mo()[ _MO_KOD_FFOMS ]
 
   // справочник F032
@@ -162,6 +165,7 @@ Function index_work_dir( dir_spavoch, working_dir, flag )
   r_use( dir_spavoch + sbase, , 'F038' )
   Index ON FIELD->UIDMO to ( working_dir + sbase )
   dbCloseArea()
+*/
 
   // справочник диагнозов
   sbase := '_mo_mkb'
