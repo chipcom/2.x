@@ -117,6 +117,51 @@ Function update_data_db( aVersion )
 
 Return Nil
 
+// 09.04.26
+Function update_v60405()     // исправление двойных случаев
+
+  local mReestr, mNomer_s
+//  local mFio, mSchet, mTIP_H
+
+  stat_msg( 'Проверка двойных случаев' )
+  e_use( dir_server() + 'schet', dir_server() + 'schetn', 'schet' )
+  e_use( dir_server() + 'mo_xml', , 'xml' )
+  e_use( dir_server() + 'mo_rees', , 'rees' )
+  e_use( dir_server() + 'human_', , 'human_' )
+  e_use( dir_server() + 'human',, 'human' )
+  human->( dbGoTop() )
+  do while  ! human->( Eof() )
+    if ( Year( human->K_DATA ) > 2025 ) .and. ( human->SCHET == 0 ) .and. ( human->TIP_H == 3 )
+      human_->( dbGoto( human->( Recno() ) ) )
+      mReestr := human_->REESTR
+      rees->( dbGoto( mReestr ) )
+      if rees->RES_TFOMS == 1
+        mNomer_s := Substr( rees->NOMER_S, 1, 10 )
+        schet->( dbSeek( mNomer_s + dtoc4( rees->DSCHET ) ) )
+        do while schet->nomer_s == mNomer_s .and. ! schet->( Eof() )
+          if c4tod( schet->pdate ) == rees->DSCHET
+            human->TIP_H  := 4
+            human->schet  := schet->kod
+          endif
+          schet->( dbSkip() )
+        enddo
+        Select human
+      endif
+    endif
+    Select human
+    human->( dbSkip() )
+  enddo
+
+  human_->( dbCloseArea() )
+  rees->( dbCloseArea() )
+  xml->( dbCloseArea() )
+  schet->( dbCloseArea() )
+
+  index_base( 'human' )
+  human->( dbCloseArea() )
+
+  return nil
+
 // 07.04.26
 Function update_v60404()     // исправление двойных случаев
 

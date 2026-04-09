@@ -9,6 +9,11 @@ function test_init()
 
 //  aaa := get_f034( '34202606300010029' )
 //  altd()
+//update_v60405()
+//  e_use( dir_server() + 'human',, 'human' )
+//  index on FIELD->fio + DToC( FIELD->K_DATA ) + str( FIELD->ISHOD, 2 ) to ( cur_dir() + 'ish_hum_fio' ) ;
+//    for ( ( FIELD->ISHOD == 88 .or. FIELD->ISHOD == 89 ) .and. Year( FIELD->K_DATA ) > 2025 ) DESCENDING
+//  dbCloseAll()
 
   return nil
 

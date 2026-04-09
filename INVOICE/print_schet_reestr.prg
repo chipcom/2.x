@@ -163,6 +163,7 @@ function schet_reestr( arr, destination, one, reg )
       hGauge := gaugenew( , , { 'GR+/RB', 'BG+/RB', 'G+/RB' }, 'Составление реестра счёта № ' + AllTrim( schet_->nschet ), .t. )
       gaugedisplay( hGauge )
       Select HUMAN
+altd()
       find ( Str( schet->kod, 6 ) )
       Do While human->schet == schet->kod .and. ! human->( Eof() )
         fl := .t.
