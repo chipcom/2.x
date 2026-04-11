@@ -80,7 +80,7 @@ function define_vidpom( otd, kod_hum, mdate, usl_ok )
   If lAliasHU
     hu->( dbCloseArea() )
   endif
-  if Len( arrUsluga ) == 1
+  if Len( arrUsluga ) > 0   // == 1
     if len( arrUsluga[ 1, 8 ] ) == 1
       mVidPom := arrUsluga[ 1, 8 ][ 1 ]
 //    elseif SubStr( arrUsluga[ 1, 1 ], 1, 5 ) == code_services_VMP( Year( mdate ) )
