@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 08.04.26
+// 11.04.26
 function define_vidpom( otd, kod_hum, mdate, usl_ok )
 
   Local tmpselect, lshifr1, mshifr, sVidpoms, lst
@@ -22,8 +22,10 @@ function define_vidpom( otd, kod_hum, mdate, usl_ok )
   cUIDSPMO := otd->LPU_1
   r_use( dir_exe() + '_mo_f034', cur_dir() + '_mo_f034', 'F034' )
   f034->( dbSeek( cUIDSPMO ) )
-  Do While ( f034->uidspmo == cUIDSPMO ) .and. ( f034->MPUSL == usl_ok ) .and. ! f034->( Eof() )
-    AAdd( arr_v, { f034->MPVID, f034->MPUSL, f034->MPROF } )
+  Do While ( f034->uidspmo == cUIDSPMO ) .and. ! f034->( Eof() )
+    if ( f034->MPUSL == usl_ok )
+      AAdd( arr_v, { f034->MPVID, f034->MPUSL, f034->MPROF } )
+    endif
     f034->( dbSkip() )
   Enddo
   f034->( dbCloseArea() )
