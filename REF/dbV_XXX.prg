@@ -1,4 +1,5 @@
 #include 'hbhash.ch'
+#include 'common.ch'
 #include 'function.ch'
 #include 'chip_mo.ch'
 
@@ -1084,6 +1085,44 @@ Function get_idpc_from_v025_by_number( num )
     Endif
   Next
   Return retIDPC
+
+// =========== V029 ===================
+//
+// 10.04.26 вернуть массив по справочнику ФФОМС V029.xml
+Function getv029()
+
+  // V029.xml - Классификатор методов диагностического исследования (MET_ISSL)
+  // 1 - IDMET(N) 2 - N_MET(C)  3 - DATEBEG(D)  4 - DATEEND(D)
+  Static _arr
+  Local db
+  Local aTable
+  Local nI
+  local tmpStr
+
+  If HB_ISNIL( _arr )
+    _arr := {}
+    db := opensql_db()
+    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
+      'idmet, ' + ;
+      'n_met, ' + ;
+      'datebeg, ' + ;
+      'dateend ' + ;
+      'FROM v029' )
+    If Len( aTable ) > 1
+      For nI := 2 To Len( aTable )
+        tmpStr := StrTran( AllTrim( aTable[ nI, 2 ] ), 'Дорогостоящие методы лучевой диагностики (', '' )
+        tmpStr := StrTran( tmpStr, ')', '' )
+        tmpStr := StrTran( tmpStr, ', за исключением дорогостоящих', '' )
+        AAdd( _arr, { tmpStr, Val( aTable[ nI, 1 ] ) } )
+      Next
+    Endif
+    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+    db := nil
+  Endif
+
+  Return _arr
 
 // =========== V030 ===================
 //

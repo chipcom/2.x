@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.04.26 ДВН - добавление или редактирование случая (листа учета)
+// 10.04.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -38,6 +38,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   local mm_gruppaP  //  , mm_gruppaP_new
   local gender, age
   local mm_gruppa, isNewKart := .f.
+  local mm_met_issl
   //
   Private tmp_V040 := create_classif_ffoms( 2, 'V040' ) // MOP
 
@@ -130,19 +131,19 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
   
   Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
-    mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
-    mTab_Number := 0
+    mshifr, mshifr1, mname_u, mU_KOD
+  Private cur_napr := 0, count_napr := 0, tip_onko_napr := 0, mTab_Number := 0
   
   Private mm_napr_v := { ;
     { 'нет', 0 }, ;
     { 'к онкологу', 1 }, ;
     { 'на дообследование', 3 } }
-  Private mm_met_issl := { ;
-    { 'нет', 0 }, ;
-    { 'лабораторная диагностика', 1 }, ;
-    { 'инструментальная диагностика', 2 }, ;
-    { 'методы лучевой диагностики (недорогостоящие)', 3 }, ;
-    { 'дорогостоящие методы лучевой диагностики', 4 } }
+//  Private mm_met_issl := { ;
+//    { 'нет', 0 }, ;
+//    { 'лабораторная диагностика', 1 }, ;
+//    { 'инструментальная диагностика', 2 }, ;
+//    { 'методы лучевой диагностики (недорогостоящие)', 3 }, ;
+//    { 'дорогостоящие методы лучевой диагностики', 4 } }
   //
   Private pole_diag, pole_pervich, pole_1pervich, pole_d_diag, ;
     pole_stadia, pole_dispans, pole_1dispans, pole_d_dispans, pole_dn_dispans
@@ -150,14 +151,21 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   Private mm_pervich := arr_mm_pervich()
   Private mm_dispans := arr_mm_dispans()
   Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
-  Private mm_dopo_na := arr_mm_dopo_na()
+//  Private mm_dopo_na := arr_mm_dopo_na()
+//  Private gl_arr := { ;  // для битовых полей
+//    { 'dopo_na', 'N', 10, 0, , , , {| x | inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
+//  }
+//  Private mm_dopo_na := getv029()
   Private gl_arr := { ;  // для битовых полей
-    { 'dopo_na', 'N', 10, 0, , , , {| x | inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
+    { 'dopo_na', 'N', 10, 0, , , , {| x | inieditspr( A__MENUBIT, getv029(), x ) } };
   }
 
   Private mg_cit := '', m1g_cit := 0, m1lis := 0, mm_g_cit := { ;
     { 'в МО-обычное иссл-е цитологичес.материала', 1 }, ;
     { 'в ВОКОД-жидкостное иссл-ие цит.материала', 2 } }
+
+  mm_met_issl := AClone( getv029() )
+  hb_AIns( mm_met_issl, 1, { 'нет', 0 }, .t. )
 
   For i := 1 To 5
     sk := lstr( i )
@@ -761,7 +769,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
   mdispans  := inieditspr( A__MENUVERT, mm_dispans, m1dispans )
   mDS_ONK   := inieditspr( A__MENUVERT, mm_danet(), M1DS_ONK )
   mnazn_l   := inieditspr( A__MENUVERT, mm_danet(), m1nazn_l )
-  mdopo_na  := inieditspr( A__MENUBIT, mm_dopo_na, m1dopo_na )
+//  mdopo_na  := inieditspr( A__MENUBIT, mm_dopo_na, m1dopo_na )
+  mdopo_na  := inieditspr( A__MENUBIT, arr_mm_dopo_na(), m1dopo_na )
   mnapr_v_mo := inieditspr( A__MENUVERT, mm_napr_v_mo, m1napr_v_mo )
   If Empty( arr_mo_spec )
     ma_mo_spec := '---'
