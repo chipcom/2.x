@@ -4,6 +4,67 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 11.04.26
+Function read_arr_dispans( lkod )
+
+  Local s := '', tmp_select := Select()
+
+  use_base( 'mo_hdisp' )
+  find ( Str( lkod, 7 ) )
+  Do While hdisp->kod == lkod .and. !hdisp->( Eof() )
+    s += hdisp->name
+    Skip
+  Enddo
+  hdisp->( dbCloseArea() )
+  Select ( tmp_select )
+
+  Return rest_arr_mem( s ) // востановление массива из символьной переменной s
+
+// 11.04.26
+Function save_arr_dispans( lkod, arr )
+
+  Local l, s, i, i1, i2, arr_d := {}, tmp_select := Select()
+
+  If Empty( arr )
+    Return Nil
+  Endif
+  use_base( 'mo_hdisp' )
+  find ( Str( lkod, 7 ) )
+  Do While hdisp->kod == lkod .and. !hdisp->( Eof() )
+    AAdd( arr_d, hdisp->( RecNo() ) )
+    Skip
+  Enddo
+  l := FieldLen( FieldNum( 'NAME' ) ) // берём длину поля базы данных
+  s := save_arr_mem( arr ) // сохранение массива в символьной переменной
+  arr := {}
+  Do While Len( s ) > 0
+    AAdd( arr, Left( s, l ) )
+    s := SubStr( s, l + 1 )
+  Enddo
+  i1 := Len( arr_d )
+  i2 := Len( arr )
+  For i := 1 To i2
+    If i > i1
+      add1rec( 7 )
+      hdisp->kod := lkod
+    Else
+      Goto ( arr_d[ i ] )
+      g_rlock( 'forever' )
+    Endif
+    hdisp->ks := i
+    hdisp->name := arr[ i ]
+  Next
+  If i2 < i1
+    For i := i2 + 1 To i1
+      Goto ( arr_d[ i ] )
+      deleterec( .t. )
+    Next
+  Endif
+  hdisp->( dbCloseArea() )
+  Select ( tmp_select )
+
+  Return Nil
+
 // 22.11.24
 function read_napr_dispanser( lkod )
   // возврат arr_napr

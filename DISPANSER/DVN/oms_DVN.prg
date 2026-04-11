@@ -121,8 +121,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 //  Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., ;
   Private is_disp_19 := .t., is_disp_nabl := .f.  //, mm_gruppa
 
+  // для направлений к специалистам
   Private mnapr_v_mo, m1napr_v_mo := 0, mm_napr_v_mo := arr_mm_napr_v_mo(), ;
     arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
+  
   Private mnapr_stac, m1napr_stac := 0, ;
     mm_napr_stac := arr_mm_napr_stac(), ;
     mprofil_stac, m1profil_stac := 0
