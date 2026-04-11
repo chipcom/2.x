@@ -6,7 +6,6 @@
 #include 'chip_mo.ch'
 
 // 06.01.26
-//Function create1reestr26( _recno, _nyear, _nmonth, kod_smo, p_tip_reestr )  //  , aBukva )
 Function create1reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr )
 
   Local buf := SaveScreen(), i, j, pole
@@ -79,7 +78,6 @@ Function create1reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr )
           INDEX ON FIELD->BUKVA + Str( FIELD->pz, 2 ) + Str( 10000000 - FIELD->cena_1, 11, 2 ) to ( 'mem:tmp' ) FOR FIELD->plus   // .and. kod_tmp == _recno 
         endif
 */
-//        create2reestr26( _recno, _nyear, _nmonth, reg_sort, kod_smo, p_tip_reestr, aBukva )
         create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
       Endif
     Endif

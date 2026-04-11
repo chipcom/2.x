@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.03.26 создание XML-файлов реестра
+// 11.04.26 создание XML-файлов реестра
 Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
@@ -246,9 +246,10 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
           dbCommitAll()
         Endif
       Endif
-//        dbSelectArea( 'TMP' )
-//        cBukva := tmp->bukva
-//      endif
+      tmpb->( dbSeek( tmp->KOD_SMO + Str( tmp->kod_human, 7 ) ) )
+      if tmpb->( Found() )
+        tmpb->yes_del := .t.
+      endif
       tmp->(dbSkip() )
     enddo
     dbSelectArea( 'REES' )

@@ -321,7 +321,7 @@ function print_list_pacients( kod_smo, nyear, nmonth )
     viewtext( nfile, , , , .t., , , 2 )
     return nil
 
-// 05.02.26
+// 11.04.26
 function control_and_create_schet26( kod_smo )
 
   // при работе использует созданные алиасы A_SMO и TMPB
@@ -414,37 +414,12 @@ function control_and_create_schet26( kod_smo )
     If A_SMO->kol == 0
       func_error( 4, 'После дополнительной проверки некого включать в реестр' )
     Else
-      If _k != A_SMO->kol
-//        dbSelectArea( 'tmpb' )
-//        Delete For yes_del
-//        tmpb->( __dbPack() )
-      Endif
       If A_SMO->nyear >= 2025
-/*        
-        cFor := 'FIELD->tip == ' + AllTrim( str( p_tip_reestr, 1 ) ) + '.and. FIELD->kod_smo == "' + kod_smo + '"'
-        bFor := &( '{||' + cFor + '}' )
-        tmpb->( __dbCopy( 'mem:tmp', , bFor ) )
-        dbUseArea( .t., , 'mem:tmp', 'TMP', .f., .f. )
-// соберем БУКВЫ СЧЕТОВ
-        aBukva := {}
-        INDEX ON ( FIELD->BUKVA ) TO ( 'mem:bukva' ) unique
-        tmp->( dbGoTop() )
-        while ! tmp->( Eof() )
-          AAdd( aBukva, tmp->BUKVA )
-          tmp->( dbSkip() )
-        end do
-        tmp->( ordListClear() )
-        hb_vfErase( 'mem:bukva.ntx' )
-        tmp->( dbGoTop() )
-*/
 //
-//        create1reestr26( A_SMO->( RecNo() ), A_SMO->nyear, A_SMO->nmonth, kod_smo, p_tip_reestr ) //  , aBukva )
         create1reestr26( A_SMO->nyear, A_SMO->nmonth, kod_smo, p_tip_reestr ) //  , aBukva )
-/*
-        close_list_alias( { 'TMP' } )
-        dbDrop( 'mem:tmp' )
-        hb_vfErase( 'mem:tmp.ntx' )
-*/
+        // удалим листы записанные в реестр
+        tmpb->( dbEval( { | | dbDelete() }, { | | yes_del } ) )
+        tmpb->( __dbPack() )
 
 // НЕПОНЯТКА ЮРА
         A_SMO->kol := _k - A_SMO->kol
@@ -452,11 +427,6 @@ function control_and_create_schet26( kod_smo )
           // если все ЛУ включены - сумму НУЛИМ
           A_SMO->summa := 0
         endif  
-
-//        dbSelectArea( 'tmpb' )
-//        Delete For yes_del
-//        tmpb->( __dbPack() )
-
       Else
         func_error( 10, 'Реестр ранее августа 2025 года не формируется!' )
       Endif
