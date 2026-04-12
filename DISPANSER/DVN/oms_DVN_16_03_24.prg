@@ -1091,7 +1091,7 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
         reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }  // When m1ds_onk == 0
 
-      dispans_napr( mk_data, @j, .t. )  // вызов заполнения блока направлений
+      dispans_napr( mk_data, @j, .t., , glob_otd[ 4 ] )  // вызов заполнения блока направлений
 
       @ ++j, 1 Say 'ГРУППА состояния ЗДОРОВЬЯ'
       @ j, Col() + 1 Get mGRUPPA ;

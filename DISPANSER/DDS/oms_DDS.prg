@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.03.26 ДДС - добавление или редактирование случая (листа учета)
+// 12.04.26 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -1177,7 +1177,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
       // @ ++j,1 say 'Признак подозрения на злокачественное новообразование' get mDS_ONK ;
       // reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
 
-      dispans_napr( mk_data, @j, .f. )  // вызов заполнения блока направлений
+      dispans_napr( mk_data, @j, .f., , glob_otd[ 4 ] )  // вызов заполнения блока направлений
 
       @ ++j, 1 To j, 78
       @ ++j, 1 Say 'Инвалидность' Get minvalid1 ;

@@ -454,19 +454,45 @@ Function change_num_napr()
   SetCursor()
   Return update_gets()
 
-// 10.04.26 блок направлений после диспансеризации
-Function dispans_napr( mk_data, /*@*/j, lAdult, lFull ) 
+// 12.04.26 блок направлений после диспансеризации
+Function dispans_napr( mk_data, /*@*/j, lAdult, lFull, nType_lu ) 
 
   // mk_data - дата окончания случая диспансеризации
   // j - счетчик строк на экране
   // lAdult - возможно направление на санаторно-курортное лечение
   // lFull - выбор из полного справочника
+  // nType_lu - тип листа учета
   // используются PRIVATE-переменные
   Local strNeedTabNumber := 'Необходимо указать табельный направившего врача'
 
   Default lAdult To .f.
   default lFull to .f.
 
+  if eq_any( nType_lu, TIP_LU_DVN, TIP_LU_DRZ )
+    @ ++j, 1 Say 'Диспансерное наблюдение установлено' Get mdispans ;
+      reader {| x | menu_reader( x, mm_dispans, A__MENUVERT, , , .f. ) } ;
+      When !emptyall( mdispans1, mdispans2, mdispans3, mdispans4, mdispans5 )
+    @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
+      reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
+    @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
+      reader {| x | menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }  //  When m1ds_onk == 0
+    @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
+      reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }  // When m1ds_onk == 0
+  elseif nType_lu == TIP_LU_DVN_COVID
+    @ ++j, 1 Say 'Диспансерное наблюдение установлено' Get mdispans ;
+      reader {| x| menu_reader( x, mm_dispans, A__MENUVERT,,, .f. ) } ;
+      When !emptyall( mdispans1, mdispans2, mdispans3, mdispans4, mdispans5 )
+    @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
+      reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
+  elseif nType_lu == TIP_LU_PN
+    If m1step2 == 2  // направлен и отказался от 2-го этапа
+      @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
+        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+      @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
+        reader {| x| menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }   // when m1ds_onk == 0
+    Endif
+  elseif nType_lu == TIP_LU_DDSOP
+  endif
 //  If mk_data >= 0d20210801  // по новому ПУМП
     @ j, 74 Say 'Врач'
     @ ++j, 1 Say Replicate( '─', 78 ) Color color1

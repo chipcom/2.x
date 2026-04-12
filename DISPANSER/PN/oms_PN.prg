@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.03.26 ПН - добавление или редактирование случая (листа учета)
+// 12.04.26 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -1260,13 +1260,13 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
         Next
       Next
       @ ++j, 1 To j, 78
-      If m1step2 == 2  // направлен и отказался от 2-го этапа
-        @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
-          reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
-        @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
-          reader {| x| menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }   // when m1ds_onk == 0
-      Endif
-      dispans_napr( mk_data, @j, .f. )  // вызов заполнения блока направлений
+//      If m1step2 == 2  // направлен и отказался от 2-го этапа
+//        @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
+//          reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+//        @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
+//          reader {| x| menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }   // when m1ds_onk == 0
+//      Endif
+      dispans_napr( mk_data, @j, .f., , glob_otd[ 4 ] )  // вызов заполнения блока направлений
 
       @ ++j, 1 To j, 78
       @ ++j, 1 Say 'Инвалидность' Get minvalid1 ;

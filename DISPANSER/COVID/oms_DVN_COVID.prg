@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.02.26 ДВН - добавление или редактирование случая (листа учета)
+// 12.04.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -738,13 +738,13 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
       dispans_vyav_diag( @j, mndisp ) // вызов заполнения блока выявленных заболеваний
       // подвал второго листа
-      @ ++j, 1 Say 'Диспансерное наблюдение установлено' Get mdispans ;
-        reader {| x| menu_reader( x, mm_dispans, A__MENUVERT,,, .f. ) } ;
-        When !emptyall( mdispans1, mdispans2, mdispans3, mdispans4, mdispans5 )
-      @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
+//      @ ++j, 1 Say 'Диспансерное наблюдение установлено' Get mdispans ;
+//        reader {| x| menu_reader( x, mm_dispans, A__MENUVERT,,, .f. ) } ;
+//        When !emptyall( mdispans1, mdispans2, mdispans3, mdispans4, mdispans5 )
+//      @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
+//        reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
 
-      dispans_napr( mk_data, @j, .t. )  // вызов заполнения блока направлений
+      dispans_napr( mk_data, @j, .t., , glob_otd[ 4 ] )  // вызов заполнения блока направлений
 
       ++j
 

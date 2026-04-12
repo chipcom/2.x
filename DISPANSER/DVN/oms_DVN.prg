@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 10.04.26 ДВН - добавление или редактирование случая (листа учета)
+// 12.04.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -1150,9 +1150,6 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ j, 67 Get mdndispans5 When m1dispans5 == 1
       //
       @ ++j, 1 Say Replicate( '─', 78 ) Color color1
-      @ ++j, 1 Say 'Диспансерное наблюдение установлено' Get mdispans ;
-        reader {| x | menu_reader( x, mm_dispans, A__MENUVERT, , , .f. ) } ;
-        When !emptyall( mdispans1, mdispans2, mdispans3, mdispans4, mdispans5 )
       If is_disp_19
         If eq_any( metap, 1, 3 ) .and. mdvozrast < 65
           @ ++j, 1 Say iif( mdvozrast < 40, 'Относительный', 'Абсолютный' ) + ' суммарный сердечно-сосудистый риск' Get mssr Pict '99' ;
@@ -1174,14 +1171,17 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
           // ++j
         Endif
       Endif
-      @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
-        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
-      @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
-        reader {| x | menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }  //  When m1ds_onk == 0
-      @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
-        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }  // When m1ds_onk == 0
+//      @ ++j, 1 Say 'Диспансерное наблюдение установлено' Get mdispans ;
+//        reader {| x | menu_reader( x, mm_dispans, A__MENUVERT, , , .f. ) } ;
+//        When !emptyall( mdispans1, mdispans2, mdispans3, mdispans4, mdispans5 )
+//      @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
+//        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
+//      @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
+//        reader {| x | menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }  //  When m1ds_onk == 0
+//      @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
+//        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }  // When m1ds_onk == 0
 
-      dispans_napr( mk_data, @j, .t. )  // вызов заполнения блока направлений
+      dispans_napr( mk_data, @j, .t., , glob_otd[ 4 ] )  // вызов заполнения блока направлений
 
       @ ++j, 1 Say 'ГРУППА состояния ЗДОРОВЬЯ'
       @ j, Col() + 1 Get mGRUPPA ;
