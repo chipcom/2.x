@@ -560,6 +560,7 @@ Function f2_import_from_lis( par )
   Local t1, t2, t3, t4, ku := 0, ku1 := 0, is_mgi, ko := Len( arr_order )
   Local mo_pr_human := ""
 
+
   t1 := Seconds()
   ++ip
   afio[ 1 ] := f_lis_fio( arr_pac[ LIS_FAM ], 1 )
@@ -994,7 +995,11 @@ Function f2_import_from_lis( par )
       endif*/
       human->VZ         :=  6 // 'N',   2, 0 }, ; // Вид занятости, указывается в соответствии со справочником V039 ФФОМС - прочие
       human->MOP        :=  1 // 'N',   3, 0 }, ; // Классификатор мест обращений (посещений) (KMOP) V040 - поликлиника
-      human->MO_PR      :=  mo_pr_human //  с  6, 0 }  ; // Код МО, выбранной застрахованным лицом для получения первичной медикосанитарной помощи по справочнику F032
+      if if_mo_prik( mo_pr_human ) //12.04.2026
+        human->MO_PR      :=  mo_pr_human //  с  6, 0 }  ; // Код МО, выбранной застрахованным лицом для получения первичной медикосанитарной помощи по справочнику F032
+      else
+        // не заносим - МО прикрепления - не известно, а МО заявки не имеет прикрепления
+      endif    
        //
       human_->SMO       := kart_->SMO
       human_->VPOLIS    := kart_->VPOLIS
@@ -1113,6 +1118,16 @@ Function f2_import_from_lis( par )
   Endif
 
   Return aerr
+
+ // 12.04.26 МО имеет прикрепление
+Function if_mo_prik( mkod )
+Local  a_mo_prik, i 
+ a_mo_prik := get_f032_prik()
+ if ( i := AScan( a_mo_prik, {| x | x[ 2 ] == mkod } ) ) == 0
+   Return .F.
+ endif
+Return .T.
+
 
 // 12.09.23 записать онкологическую добавку по МГИ
 Function f_lis_mgi( mkod, ao )

@@ -23,8 +23,7 @@ Function o_proverka( k )
       'Врач + ~больные за день', ;
       '~Рассогласования в базах данных',;
       '~Рассогласования в реестрах/счетах в базе данных',;
-      '~Подбор иногородних'   }
-      //   'Одинаковые сочетания - № карты + ~дата вызова', ;
+      '~Подбор иногородних'}
     mas_msg := { ;
       'Общие проверки (многовариантный запрос)', ;
       'Проверка листов учета на отсутствие кода врача', ;
@@ -32,8 +31,7 @@ Function o_proverka( k )
       'Вывод списка принятых больных конкретным врачом за день', ;
       'Поиск рассогласований в базах данных (не заполнены или неверно заполнены поля)', ;
       'Поиск рассогласований рассогласования в реестрах/счетах в базе данных',;
-      'Поиск пациантов, выставленных ранее в другие области'   }
-      //      'Поиск одинаковых сочетаний номера карты вызова + даты вызова', ;
+      'Поиск пациантов, выставленных ранее в другие области'}
     mas_fun := { ;
       'o_proverka(11)', ;
       'o_proverka(12)', ;
@@ -42,7 +40,11 @@ Function o_proverka( k )
       'o_proverka(16)', ;
       'o_proverka(17)', ;
       'o_proverka(18)'}
-   //'o_proverka(15)', ;
+     // 
+    //aadd(mas_pmt, 'Ремонт' ) 
+    //aadd(mas_msg, '' ) 
+    //aadd(mas_fun, 'o_proverka(19)' ) 
+    //
     uch_otd := saveuchotd()
     Private p_net_otd := .t.
     popup_prompt( T_ROW, T_COL - 5, si1, mas_pmt, mas_msg, mas_fun )
@@ -63,6 +65,8 @@ Function o_proverka( k )
     poisk_rassogl_schet_reestr()
   Case k == 18
     podbor_inogorodnie()  
+  Case k == 19
+   // remont_schet() 
   Endcase
   If k > 10
     j := Int( Val( Right( lstr( k ), 1 ) ) )
@@ -718,7 +722,7 @@ Function poisk_rassogl()
 
   Return Nil
 
-// 02.04.26
+// 12.04.26
 Function  poisk_rassogl_schet_reestr()
 
   Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(), ;
@@ -728,10 +732,7 @@ Function  poisk_rassogl_schet_reestr()
   If ( arr_m := year_month() ) == NIL
     Return Nil
   Endif
-  //If ( pi1 := popup_prompt( T_ROW, T_COL - 5, 2, ;
-  //    { 'По дате ~окончания лечения', 'По дате ~выписки счета' } ) ) == 0
-  //  Return Nil
-  //Endif
+ //
   mywait()
   Private kol_err := 0
   fp := FCreate( name_file )
@@ -893,24 +894,6 @@ Function  poisk_rassogl_schet_reestr()
             select HUMAN_
             goto mo_rhum->KOD_HUM
             // проверяем данные Реестра
-            if mo_rhum->rees_zap == human_->rees_zap .and. mo_rhum->reestr == human_->reestr
-              // ОК
-            else  
-              kol_err++
-              add_string('(10) REESTR в базе HUMAN_ ' + lstr(human_->reestr) + ' REESTR в базе MO_RHUM '+lstr(mo_rhum->reestr) )
-              add_string('   REES_ZAP в базе HUMAN_ ' + lstr(human_->rees_zap) + ' REES_ZAP в базе MO_RHUM '+lstr(mo_rhum->rees_zap) + ;
-                         ' Запись в базе HUMAN_ '+lstr(mo_rhum->KOD_HUM) )
-            Endif
-            select HUMAN
-            goto mo_rhum->KOD_HUM
-            if human->tip_H == 4 // в счете 
-              kol_err++
-              add_string('(8) Запись в базе HUMAN ' + lstr(mo_rhum->KOD_HUM) + 'в СЧЕТЕ - поле TIP_H' + lstr(mo_rhum->KOD_HUM))
-            endif   
-            if human_->schet_zap > 0
-              kol_err++
-              add_string('(7) HUMAN_->schet_zap ' + lstr(HUMAN_->schet_zap) + ' Запись в базе HUMAN_ '+lstr(mo_rhum->KOD_HUM))
-            endif
           else
             kol_err++
             add_string( '(9) Номер порядковый ' + lstr(t_num) + 'Номер в базе MO_RHUM '+lstr(mo_rhum->rees_zap) + 'Запись MO_RHUM ' + lstr(mo_rhum->(recno())) )
@@ -947,12 +930,19 @@ Function  poisk_rassogl_schet_reestr()
             goto mo_rhum->KOD_HUM
             if human->tip_H == 4 // в счете 
               kol_err++
-              add_string('(12) Запись в базе HUMAN ' + lstr(mo_rhum->KOD_HUM) + ' в СЧЕТЕ - поле TIP_H ' + lstr(mo_rhum->KOD_HUM))
+              add_string('(12) Запись в базе HUMAN ' + lstr(mo_rhum->KOD_HUM) + ' в СЧЕТЕ - поле TIP_H ==4 ' )
             endif   
-            if human_->schet_zap > 0
+            if human->schet > 0 // в счете 
               kol_err++
-              add_string('(13) HUMAN_->schet_zap ' + lstr(HUMAN_->schet_zap) + ' Запись в базе HUMAN_ '+lstr(mo_rhum->KOD_HUM))
+              add_string('(13) Запись в базе HUMAN ' + lstr(mo_rhum->KOD_HUM) + " / human->schet "+ ;
+                lstr(HUMAN->schet)  )
+            endif   
+           /* if human_->schet_zap > 0
+              kol_err++
+              add_string('(13) HUMAN_->schet_zap ' + lstr(HUMAN_->schet_zap) +" / human->schet "+ ;
+                lstr(HUMAN->schet)  + ' Cсылка в базе MO_RHUM на HUMAN '+ lstr(mo_rhum->KOD_HUM))
             endif
+            */
           else
             kol_err++
             add_string( '(14) Номер порядковый ' + lstr(t_num) + 'Номер в базе MO_RHUM '+lstr(mo_rhum->rees_zap) + ' Запись MO_RHUM ' + lstr(mo_rhum->(recno()))+;

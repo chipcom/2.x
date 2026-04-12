@@ -775,7 +775,7 @@ Function f2vvodp_disp_nabl( lkod_k )
 
   Return Nil
 
-// 03.12.23
+// 12.04.26
 Function f3vvodp_disp_nabl( nKey, oBrow, regim )
 
   Local ret := -1
@@ -854,14 +854,14 @@ Function f3vvodp_disp_nabl( nKey, oBrow, regim )
           Endif
           If Empty( mN_DATA )
             fl := func_error( 4, 'Не введена дата начала диспансерного наблюдения' )
-          Elseif mN_DATA >= 0d20251201  // ЮЮ
+          Elseif mN_DATA >= 0d20261201  // ЮЮ
             fl := func_error( 4, 'Дата начала диспансерного наблюдения слишком большая' )
           Endif
           If Empty( mNEXT_DATA )
             fl := func_error( 4, 'Не введена дата следующей явки' )
           Elseif mN_DATA >= mNEXT_DATA
             fl := func_error( 4, 'Дата следующей явки меньше даты начала диспансерного наблюдения' )
-          Elseif mNEXT_DATA <= 0d20260101  // ЮЮ
+          Elseif mNEXT_DATA <= 0d20270101  // ЮЮ
             fl := func_error( 4, 'Дата следующей явки должна быть не ранее 1 января' )
           Endif
           If !fl
@@ -936,7 +936,7 @@ Function  check_tip_disp_nabl( diag )
 
   Return vozvr
 
-// 16.12.25 Список пациентов, по которым были л/у с диспансерным наблюдением
+// 12.04.26 Список пациентов, по которым были л/у с диспансерным наблюдением
 Function f_inf_disp_nabl( par )  // временно возврат на 2025 год
 
   // 1 -  '~Не было л/у с диспансерным наблюдением',;
@@ -961,9 +961,9 @@ Function f_inf_disp_nabl( par )  // временно возврат на 2025 год
   Local fmt_cell_header, fmt_header, fmt_text
   Local VREM_N1 := '', VREM_N2 := ''
   // УСТАНОВКА ГОДА
-  Private TEK_YEAR_DN := 2025
-  Private TEK_YEAR_DN_N := 0d20250101
-  Private TEK_YEAR_DN_E := 0d20251231
+  Private TEK_YEAR_DN := 2026
+  Private TEK_YEAR_DN_N := 0d20260101
+  Private TEK_YEAR_DN_E := 0d20261231
 
 
   If par == 1
@@ -1355,14 +1355,14 @@ Function f_inf_disp_nabl( par )  // временно возврат на 2025 год
       AEval( arr_title, {| x| add_string( x ) } )
     Endif
     add_string( PadR( arr_tip_DN[ iii ], 33 ) )
-    add_string( 'по состоянию на конец 2024 года: ' + lstr( kol_itogo[ iii ] ) )
+    add_string( 'по состоянию на конец 2025 года: ' + lstr( kol_itogo[ iii ] ) )
     add_string( 'из них умерло: ' + PadR( lstr( kol_umer[ iii ] ), 8 ) + 'поменяли МО прикрепления: ' + PadR( lstr( kol_smena[ iii ] ), 8 ) )
     If par == 1
       add_string( 'НЕ прошли ДН : ' + lstr( arr_kol_ND[ iii ] ) )
     Else
       add_string( 'прошли ДН : ' + lstr( arr_kol_ND[ iii ] ) )
     Endif
-    add_string( 'добавилось за 2025 года: ' + lstr( kol_itogo1[ iii ] ) )
+    add_string( 'добавилось за 2026 года: ' + lstr( kol_itogo1[ iii ] ) )
     add_string( 'из них умерло: ' + PadR( lstr( kol_umer1[ iii ] ), 8 ) + 'поменяли МО прикрепления: ' + PadR( lstr( kol_smena1[ iii ] ), 8 ) )
     If par == 1
       add_string( 'НЕ прошли ДН : ' + lstr( arr_kol_ND1[ iii ] ) )

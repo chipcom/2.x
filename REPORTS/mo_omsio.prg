@@ -2784,3 +2784,311 @@ Function oktadretss( kod11  )
   Select ( tmp_select )
   
   Return AllTrim( RTrim( lregion ) )
+
+  Function remont_schet ()
+  Local Num_zap, smsg, num_new_zap, num_new_zap_HUMAN_U, Num_zap1,  Num_zap2
+  Local c1 := 8, n := 0, KOL_ZAP
+  Local i, arr1, arr2, mkod, buf := save_maxrow()
+  Local reestr_rec
+
+smsg := 'Введите ИСХОДНЫЙ код реестра для дублирования БОЛ ' //3091
+ Num_zap := input_value( MaxRow() -8, c1, MaxRow() -6, MaxCol() -c1, color1, smsg, n, '9999999999' ) 
+smsg := 'Введите КОНЕЧНЫЙ код реестра для дублирования МЕН' //3088
+ Num_zap1 := input_value( MaxRow() -6, c1, MaxRow() -4, MaxCol() -c1, color1, smsg, n, '9999999999' ) 
+smsg := 'Введите КОНЕЧНЫЙ номер счета  для дублирования МЕН' //23322
+ Num_zap2 := input_value( MaxRow() -6, c1, MaxRow() -4, MaxCol() -c1, color1, smsg, n, '9999999999' ) 
+
+// откроем реестр 
+ Close databases
+ r_Use(dir_server() + "mo_rees",,"mo_rees")
+ goto Num_zap 
+ kol_ZAP := mo_rees->kol
+ g_Use(dir_server() + "mo_rhum",,"mo_rhum")
+ index on str(reestr,6)+str(kod_hum,7) to mo_rhum progress
+ find (str(Num_zap,6))
+
+ do while num_zap == mo_rhum->reestr .and. !eof()
+  @ 10,10 say   mo_rhum->(recno())
+    // идем циклом по реестру
+    reestr_rec := mo_rhum->(recno())
+    //Function rak_akt_schet_human_add_next( s, s1, lrec, tREFREASON  )
+    glob_perso := mo_rhum->KOD_HUM  // Human для клонирования
+      mywait()
+      Close databases
+      // сначала запоминаем копию листа учёта в массивах
+      r_use( dir_server() + 'kartote_',, "KARTOTE_"  ) // 29.03.26
+      use_base( 'human' )
+      Set Relation To // 'отвязываем'
+      Goto ( glob_perso )
+      ahuman := get_field()
+      Select HUMAN_
+      Goto ( glob_perso )
+      ahuman_ := get_field()
+      Select HUMAN_2
+      Goto ( glob_perso )
+      ahuman_2 := get_field()
+      If ( fl_iname := ( human_->smo == '34   ' ) )
+        g_use( dir_server() + 'mo_hismo', , 'SN' )
+        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
+        find ( Str( glob_perso, 7 ) )
+        mnameismo := sn->smo_name
+      Endif
+      arr_hu := {}
+      use_base( 'human_u' )
+      Set Relation To // 'отвязываем'
+      find ( Str( glob_perso, 7 ) )
+      Do While hu->kod == glob_perso .and. !Eof()
+        ahu := get_field()
+        Select HU_
+        Goto ( hu->( RecNo() ) )
+        ahu_ := get_field()
+        AAdd( arr_hu, { ahu, ahu_ } )
+        Select HU
+        Skip
+      Enddo
+      arr_mohu := {}
+      use_base( 'mo_hu' )
+      find ( Str( glob_perso, 7 ) )
+      Do While mohu->kod == glob_perso .and. !Eof()
+        AAdd( arr_mohu, get_field() )
+        Skip
+      Enddo
+      aonkna := {}
+      g_use( dir_server() + 'mo_onkna', dir_server() + 'mo_onkna' )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onkna->kod == glob_perso .and. !Eof()
+        AAdd( aonkna, get_field() )
+        Skip
+      Enddo
+      aonksl := {}
+      g_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl' )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onksl->kod == glob_perso .and. !Eof()
+        AAdd( aonksl, get_field() )
+        Skip
+      Enddo
+      aonkco := {}
+      g_use( dir_server() + 'mo_onkco', dir_server() + 'mo_onkco' )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onkco->kod == glob_perso .and. !Eof()
+        AAdd( aonkco, get_field() )
+        Skip
+      Enddo
+      aonkdi := {}
+      g_use( dir_server() + 'mo_onkdi', dir_server() + 'mo_onkdi' )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onkdi->kod == glob_perso .and. !Eof()
+        AAdd( aonkdi, get_field() )
+        Skip
+      Enddo
+      aonkpr := {}
+      g_use( dir_server() + 'mo_onkpr', dir_server() + 'mo_onkpr' )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onkpr->kod == glob_perso .and. !Eof()
+        AAdd( aonkpr, get_field() )
+        Skip
+      Enddo
+      aonkus := {}
+      g_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus' )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onkus->kod == glob_perso .and. !Eof()
+        AAdd( aonkus, get_field() )
+        Skip
+      Enddo
+      aonkle := {}
+      g_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle' )
+      find ( Str( glob_perso, 7 ) )
+      Do While mo_onkle->kod == glob_perso .and. !Eof()
+        AAdd( aonkle, get_field() )
+        Skip
+      Enddo
+      arr_disp := read_arr_dispans( glob_perso )
+      glob_persoh3 := 0
+      //
+      // теперь записываем в БД копию листа учёта
+      Select HUMAN
+      add1rec( 7 )
+      mkod := RecNo()
+      AEval( ahuman, {| x, i| FieldPut( i, x ) } )
+      human->kod      := mkod
+      human->schet    := Num_zap2 // новый номер счета
+      //
+      Select HUMAN_
+      Do While human_->( LastRec() ) < mkod
+        Append Blank
+      Enddo
+      Goto ( mkod )
+      g_rlock( 'forever' )
+      AEval( ahuman_, {| x, i| FieldPut( i, x ) } )
+      human_->reestr := Num_zap1 // новый номер реестра
+      //
+      Select HUMAN_2
+      Do While human_2->( LastRec() ) < mkod
+        Append Blank
+      Enddo
+      Goto ( mkod )
+      g_rlock( 'forever' )
+      AEval( ahuman_2, {| x, i| FieldPut( i, x ) } )
+      For i := 1 To Len( arr_hu )
+        Select HU
+        add1rec( 7 )
+        AEval( arr_hu[ i, 1 ], {| x, i| FieldPut( i, x ) } )
+        hu->kod := mkod
+        Select HU_
+        Do While hu_->( LastRec() ) < hu->( RecNo() )
+          Append Blank
+        Enddo
+        Goto ( hu->( RecNo() ) )
+        g_rlock( 'forever' )
+        AEval( arr_hu[ i, 2 ], {| x, i| FieldPut( i, x ) } )
+      Next
+      //
+      For i := 1 To Len( arr_mohu )
+        Select MOHU
+        add1rec( 7 )
+        AEval( arr_mohu[ i ], {| x, i| FieldPut( i, x ) } )
+        mohu->kod       := mkod
+      Next
+      dbSelectArea( 'mo_onkna' )
+      For i := 1 To Len( aonkna )
+        addrec( 7 )
+        AEval( aonkna[ i ], {| x, i| FieldPut( i, x ) } )
+        mo_onkna->kod := mkod
+      Next
+      dbSelectArea( 'mo_onksl' )
+      For i := 1 To Len( aonksl )
+        addrec( 7 )
+        AEval( aonksl[ i ], {| x, i| FieldPut( i, x ) } )
+        mo_onksl->kod := mkod
+      Next
+      dbSelectArea( 'mo_onkco' )
+      For i := 1 To Len( aonkco )
+        addrec( 7 )
+        AEval( aonkco[ i ], {| x, i| FieldPut( i, x ) } )
+        mo_onkco->kod := mkod
+      Next
+      dbSelectArea( 'mo_onkdi' )
+      For i := 1 To Len( aonkdi )
+        addrec( 7 )
+        AEval( aonkdi[ i ], {| x, i| FieldPut( i, x ) } )
+        mo_onkdi->kod := mkod
+      Next
+      dbSelectArea( 'mo_onkpr' )
+      For i := 1 To Len( aonkpr )
+        addrec( 7 )
+        AEval( aonkpr[ i ], {| x, i| FieldPut( i, x ) } )
+        mo_onkpr->kod := mkod
+      Next
+      dbSelectArea( 'mo_onkus' )
+      For i := 1 To Len( aonkus )
+        addrec( 7 )
+        AEval( aonkus[ i ], {| x, i| FieldPut( i, x ) } )
+        mo_onkus->kod := mkod
+      Next
+      dbSelectArea( 'mo_onkle' )
+      For i := 1 To Len( aonkle )
+        addrec( 7 )
+        AEval( aonkle[ i ], {| x, i| FieldPut( i, x ) } )
+        mo_onkle->kod := mkod
+      Next
+      save_arr_dispans( mkod, arr_disp )
+      //
+      Close databases
+      /////////////////////////////////////
+    // quit
+      ///////////////////////////////////////
+      g_Use(dir_server() + "mo_rhum", cur_dir() + "mo_rhum" ,"mo_rhum")
+      // идем циклом по реестру
+     select mo_rhum 
+     find(str(Num_zap1,6)+str(glob_perso,7))
+     if found()
+       g_rlock( forever )
+       mo_rhum->kod_hum := mkod
+       unlock
+     endif 
+    goto reestr_rec     
+    skip
+  enddo   
+  Close databases
+Return  
+
+/*
+  G_Use(dir_server() + "human",,"HUMAN",.T.,.T.)
+    ahuman := array(fcount())
+    //
+    G_Use(dir_server() + "human_",,"HUMAN_",.T.,.T.)
+    ahuman_ := array(fcount())
+    //
+    G_Use(dir_server() + "human_2",,"HUMAN_2",.T.,.T.)
+    ahuman_2 := array(fcount())
+    // КОНЕЦ БЛОК СЛУЧ
+    //
+    // G_Use(dir_server() + "mo_hismo",,"MO_HISMO",,,.T.)
+    // index on str(kod,7) to MO_HISMO progress
+    // amo_hismo := array(fcount())
+    //
+    // БЛОК УСЛУГ
+     G_Use(dir_server() + "human_u", ,"HU",.T.,.T.)
+     index on str(kod,7) to human_u progress
+     ahu := array(fcount())
+     //
+     G_Use(dir_server() + "human_u_",,"HU_",.T.,.T.)
+     ahu_ := array(fcount())
+     //
+     // КОНЕЦ БЛОКа УСЛУГ
+    //Файл HUMAN + HUMAN_ + HUMAN_2
+     select HUMAN
+     goto (Num_zap)
+     aeval(ahuman, {|x,i| ahuman[i] := fieldget(i) } )
+     //
+     select HUMAN_
+     goto (Num_zap)
+     aeval(ahuman_, {|x,i| ahuman_[i] := fieldget(i) } )
+     //
+     select HUMAN_2
+     goto (Num_zap)
+     aeval(ahuman_2, {|x,i| ahuman_2[i] := fieldget(i) } )
+            //
+     select HUMAN
+     append blank
+     aeval(ahuman, {|x,i| fieldput(i,x) } )
+     human->kod := human->(recno())
+     num_new_zap := human->(recno())
+     // Обработан HUMAN
+     select HUMAN_
+     append blank
+     aeval(ahuman_, {|x,i| fieldput(i,x) } )
+     // Обработан HUMAN_
+     select HUMAN_2
+     append blank
+     aeval(ahuman_2, {|x,i| fieldput(i,x) } )
+     //
+     select HU
+     find (str(Num_zap,7))
+     do while hu->kod == Num_zap .and. !eof()
+       num_new_zap_HUMAN_U := hu->(recno())
+       aeval(ahu, {|x,i| ahu[i] := fieldget(i) } )
+       //
+       select HU_
+       goto (hu->(recno()))
+       aeval(ahu_, {|x,i| ahu_[i] := fieldget(i) } )
+       //
+       select HU
+       append blank
+       aeval(ahu, {|x,i| fieldput(i,x) } )
+       hu->kod := num_new_zap
+       //
+       select HU_
+       append blank
+       aeval(ahu_, {|x,i| fieldput(i,x) } )
+       //
+       select HU
+       goto (num_new_zap_HUMAN_U)
+       skip
+     enddo
+     human->(dbCloseArea()) 
+     human_->(dbCloseArea()) 
+     human_2->(dbCloseArea()) 
+     hu->(dbCloseArea()) 
+     HU_->(dbCloseArea()) 
+     */
