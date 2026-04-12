@@ -366,12 +366,13 @@ Function save_mo_onkna( mkod, type_npr )
   NAPR->( dbCloseArea() )
   Return Nil
 
-// 06.07.23 редактировать другое направление (№...)
+// 12.04.26 редактировать другое направление (№...)
 Function change_num_napr()
 
   Local r, n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := SetColor()
   Local recNumberDoctor := 0
-  Local arr_napr
+  local mm_met_issl := AClone( getv029() )
+
 
   If emptyany( mNAPR_DATE, m1NAPR_V )
     func_error( 4, 'Ещё не заполнено направление № ' + lstr( cur_napr ) )
@@ -474,8 +475,8 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull, nType_lu )
       When !emptyall( mdispans1, mdispans2, mdispans3, mdispans4, mdispans5 )
     @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
       reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
-    @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
-      reader {| x | menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }  //  When m1ds_onk == 0
+//    @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
+//      reader {| x | menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }  //  When m1ds_onk == 0
     @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
       reader {| x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }  // When m1ds_onk == 0
   elseif nType_lu == TIP_LU_DVN_COVID
@@ -488,74 +489,89 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull, nType_lu )
     If m1step2 == 2  // направлен и отказался от 2-го этапа
       @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
         reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
-      @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
-        reader {| x| menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }   // when m1ds_onk == 0
+//      @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
+//        reader {| x| menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }   // when m1ds_onk == 0
     Endif
   elseif nType_lu == TIP_LU_DDSOP
   endif
 //  If mk_data >= 0d20210801  // по новому ПУМП
-    @ j, 74 Say 'Врач'
-    @ ++j, 1 Say Replicate( '─', 78 ) Color color1
+
+  @ j, 74 Say 'Врач'
+  @ ++j, 1 Say Replicate( '─', 78 ) Color color1
+
+  if ( Year( mk_data ) > 2025 ) .and. ! eq_any( nType_lu, TIP_LU_DVN_COVID, TIP_LU_DDSOP, TIP_LU_PN )
+//    mdopo_na := ''
+//    m1dopo_na := 0
+//    mtab_v_dopo_na := 0
+//    ma_mo_spec := ''
+//    mnapr_v_mo := ''
+//    m1napr_v_mo := 0
+//    mtab_v_mo := 0
+//    ma_mo_spec := ''
+    @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
+      reader {| x | menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) } ;
+      When m1ds_onk == 1
+
+  endif
 
     // направление на дополниельное обследование
     mdopo_na := iif( Len( mdopo_na ) > 0, SubStr( mdopo_na, 1, 31 ), '' )
-//    @ ++j, 1 Say 'Направлен на дополнительное обследование' Get mdopo_na ;
-//      reader {| x| menu_reader( x, mm_dopo_na, A__MENUBIT, , , .f. ) } ;
-//      valid {|| iif( m1dopo_na == 0, mtab_v_dopo_na := 0, ), update_get( 'mtab_v_dopo_na' ) }   //  when m1DS_ONK == 0
     @ ++j, 1 Say 'Направлен на дополнительное обследование' Get mdopo_na ;
       reader {| x| menu_reader( x, getv029(), A__MENUBIT, , , .f. ) } ;
-      valid {|| iif( m1dopo_na == 0, mtab_v_dopo_na := 0, ), update_get( 'mtab_v_dopo_na' ) }   //  when m1DS_ONK == 0
-//      reader {| x| menu_reader( x, arr_mm_dopo_na(), A__MENUBIT, , , .f. ) } ;
+      valid {|| iif( m1dopo_na == 0, mtab_v_dopo_na := 0, ), update_get( 'mtab_v_dopo_na' ) } ;
+      when m1DS_ONK == 0
     @ j, 73 Get mtab_v_dopo_na Pict '99999' ;
       valid {| g| iif( ( mtab_v_dopo_na == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
-      When m1dopo_na > 0  // .and. m1DS_ONK == 0
-
+      When m1dopo_na > 0  .and. m1DS_ONK == 0
+    
     // направление в медицинскую организацию
     ma_mo_spec := iif( Len( ma_mo_spec ) > 0, SubStr( ma_mo_spec, 1, 20 ), '' )
     @ ++j, 1 Say 'Направлен' Get mnapr_v_mo ;
       reader {| x| menu_reader( x, mm_napr_v_mo, A__MENUVERT, , , .f. ) } ;
       valid {|| iif( m1napr_v_mo == 0, ( arr_mo_spec := {}, ma_mo_spec := PadR( '---', 37 ), ;
-        mtab_v_mo := 0 ), ), update_get( 'ma_mo_spec' ) }
+        mtab_v_mo := 0 ), ), update_get( 'ma_mo_spec' ) } ;
+      when m1ds_onk == 0
     If lAdult
       @ j, Col() + 1 Say 'к специалистам' Get ma_mo_spec ;
         reader {| x| menu_reader( x, { {| k, r, c | fget_spec_dvn( k, r, c, arr_mo_spec, lFull ) } }, ;
           A__FUNCTION, , , .f. ) } ;
-        When m1napr_v_mo > 0
+        When m1napr_v_mo > 0 .and. m1ds_onk == 0
     Else
       @ j, Col() + 1 Say 'к специалистам' Get ma_mo_spec ;
         reader {| x| menu_reader( x, { {| k, r, c| fget_spec_deti( k, r, c, arr_mo_spec ) } }, ;
           A__FUNCTION, , , .f. ) } ;
-        When m1napr_v_mo > 0
+        When m1napr_v_mo > 0 .and. m1ds_onk == 0
     Endif
     @ j, 73 Get mtab_v_mo Pict '99999' ;
       valid {| g| iif( ( mtab_v_mo == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
-      When m1napr_v_mo > 0
+      When m1napr_v_mo > 0 .and. m1ds_onk == 0
+
 
     // направление в стационар
-    mprofil_stac := iif( Len( mprofil_stac ) > 0, SubStr( mprofil_stac, 1, 27 ), '' )
-    @ ++j, 1 Say 'Направлен на лечение' Get mnapr_stac ;
-      reader {| x| menu_reader( x, mm_napr_stac, A__MENUVERT, , , .f. ) } ;
-      valid {|| iif( m1napr_stac == 0, ;
-        ( m1profil_stac := 0, mtab_v_stac := 0, mprofil_stac := Space( 27 ) ), ), ;
-        update_get( 'mprofil_stac' ) }   //  when m1DS_ONK == 0
-    @ j, Col() + 1 Say 'по профилю' Get mprofil_stac Picture '@S27' ;
-      reader {| x| menu_reader( x, getv002(), A__MENUVERT, , , .f. ) } ;
-      When m1napr_stac > 0  //  .and. m1DS_ONK == 0
-    @ j, 73 Get mtab_v_stac Pict '99999' ;
-      valid {| g| iif( ( mtab_v_stac == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
-      When m1napr_stac > 0  //  .and. m1DS_ONK == 0
+  mprofil_stac := iif( Len( mprofil_stac ) > 0, SubStr( mprofil_stac, 1, 27 ), '' )
+  @ ++j, 1 Say 'Направлен на лечение' Get mnapr_stac ;
+    reader {| x| menu_reader( x, mm_napr_stac, A__MENUVERT, , , .f. ) } ;
+    valid {|| iif( m1napr_stac == 0, ;
+      ( m1profil_stac := 0, mtab_v_stac := 0, mprofil_stac := Space( 27 ) ), ), ;
+      update_get( 'mprofil_stac' ) }   //  when m1DS_ONK == 0
+  @ j, Col() + 1 Say 'по профилю' Get mprofil_stac Picture '@S27' ;
+    reader {| x| menu_reader( x, getv002(), A__MENUVERT, , , .f. ) } ;
+    When m1napr_stac > 0  //  .and. m1DS_ONK == 0
+  @ j, 73 Get mtab_v_stac Pict '99999' ;
+    valid {| g| iif( ( mtab_v_stac == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
+    When m1napr_stac > 0  //  .and. m1DS_ONK == 0
 
-    // направлен на реабилитацию
-    @ ++j, 1 Say 'Направлен на реабилитацию' Get mnapr_reab ;
-      reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
-      valid {|| iif( m1napr_reab == 0, ( m1profil_kojki := 0, mtab_v_reab := 0, mprofil_kojki := Space( 30 ) ), ), update_get( 'mprofil_kojki' ) }  //  when m1DS_ONK == 0
-    mprofil_kojki := iif( Len( mprofil_kojki ) > 0, SubStr( mprofil_kojki, 1, 25 ), '' )
-    @ j, Col() + 1 Say ', профиль койки' Get mprofil_kojki ;
-      reader {| x| menu_reader( x, getv020(), A__MENUVERT, , , .f. ) } ;
-      When m1napr_reab > 0  //  .and. m1DS_ONK == 0
-    @ j, 73 Get mtab_v_reab Pict '99999' ;
-      valid {| g| iif( ( mtab_v_reab == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
-      When m1napr_reab > 0  //  .and. m1DS_ONK == 0
+  // направлен на реабилитацию
+  @ ++j, 1 Say 'Направлен на реабилитацию' Get mnapr_reab ;
+    reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+    valid {|| iif( m1napr_reab == 0, ( m1profil_kojki := 0, mtab_v_reab := 0, mprofil_kojki := Space( 30 ) ), ), update_get( 'mprofil_kojki' ) }  //  when m1DS_ONK == 0
+  mprofil_kojki := iif( Len( mprofil_kojki ) > 0, SubStr( mprofil_kojki, 1, 25 ), '' )
+  @ j, Col() + 1 Say ', профиль койки' Get mprofil_kojki ;
+    reader {| x| menu_reader( x, getv020(), A__MENUVERT, , , .f. ) } ;
+    When m1napr_reab > 0  //  .and. m1DS_ONK == 0
+  @ j, 73 Get mtab_v_reab Pict '99999' ;
+    valid {| g| iif( ( mtab_v_reab == 0 ) .and. v_kart_vrach( g ), func_error( 4, strNeedTabNumber ), .t. ) } ;
+    When m1napr_reab > 0  //  .and. m1DS_ONK == 0
 /*
     // направлен на санаторно-курортное лечение
     If lAdult

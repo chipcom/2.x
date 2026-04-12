@@ -123,7 +123,7 @@ function read_napr_dispanser( lkod )
   next
   return arr_napr
 
-// 01.08.24
+// 12.04.26
 function check_group_nazn( type, ... )
   // type - тип проверки ( '1' - общая, '2' - для ДРЗ )
   // для проверки используются PRIVATE переменные:
@@ -153,7 +153,7 @@ function check_group_nazn( type, ... )
   else
     ret := &nfunc .and. ( ( m1dopo_na != 0 ) .or. ( m1napr_v_mo != 0 ) .or. ( m1napr_stac != 0 ) .or. ( m1napr_reab != 0 ) )
   endif
-  if ret
+  if ret .and. ( count_napr == 0 )
     if type == '1'
       func_error( 4, 'Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!' )
     else

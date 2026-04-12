@@ -114,19 +114,15 @@ function tag_napr( oSl, arr_onkna )  //  , lDispans )
 
   return nil
 
-// 21.03.26
-function tag_prescriptions( oSl, human_kod, mdata, arr_onkna )
+// 12.04.26
+function tag_prescriptions( oSl, human_kod, mdata ) //, arr_onkna )
 
   local oPRESCRIPTIONS, oPRESCRIPTION
-  local arr_nazn, j //, arr_onkna
-  local mNPR_MO
+  local arr_nazn, j
+  local mNPR_MO, arr_onkna
 
-//  if is_oncology > 0
-//    arr_onkna := collect_schet_onkna()
-//  else
-//    arr_onkna := {}
-//  endif
   arr_nazn := prescriptions_dispans( human_kod, Year( mdata ) )
+  arr_onkna := collect_schet_onkna()
 
   If Len( arr_nazn ) > 0 .or. ( human->OBRASHEN == '1' .and. Len( arr_onkna ) > 0 )
     // заполним сведения о назначениях по результатам диспансеризации для XML-документа

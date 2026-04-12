@@ -1150,26 +1150,10 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       @ j, 67 Get mdndispans5 When m1dispans5 == 1
       //
       @ ++j, 1 Say Replicate( '─', 78 ) Color color1
-      If is_disp_19
-        If eq_any( metap, 1, 3 ) .and. mdvozrast < 65
-          @ ++j, 1 Say iif( mdvozrast < 40, 'Относительный', 'Абсолютный' ) + ' суммарный сердечно-сосудистый риск' Get mssr Pict '99' ;
-            valid {|| iif( Between( mssr, 0, 47 ), , func_error( 4, 'Неразумное значение суммарного сердечно-сосудистого риска' ) ), .t. }
-          @ Row(), Col() Say '%'
-        Else
-          // ++j
-        Endif
-      Else
-        If metap == 1 .and. mdvozrast < 66
-          @ ++j, 1 Say iif( mdvozrast < 40, 'Относительный', 'Абсолютный' ) + ' суммарный сердечно-сосудистый риск' Get mssr Pict '99' ;
-            valid {|| iif( Between( mssr, 0, 47 ), , func_error( 4, 'Неразумное значение суммарного сердечно-сосудистого риска' ) ), .t. }
-          @ Row(), Col() Say '%'
-        Elseif metap == 3 .and. mvozrast < 66
-          @ ++j, 1 Say 'Суммарный сердечно-сосудистый риск' Get mssr Pict '99' ;
-            valid {|| iif( Between( mssr, 0, 47 ), , func_error( 4, 'Неразумное значение суммарного сердечно-сосудистого риска' ) ), .t. }
-          @ Row(), Col() Say '%'
-        Else
-          // ++j
-        Endif
+      If eq_any( metap, 1, 3 ) .and. mdvozrast < 65
+        @ ++j, 1 Say iif( mdvozrast < 40, 'Относительный', 'Абсолютный' ) + ' суммарный сердечно-сосудистый риск' Get mssr Pict '99' ;
+          valid {|| iif( Between( mssr, 0, 47 ), , func_error( 4, 'Неразумное значение суммарного сердечно-сосудистого риска' ) ), .t. }
+        @ Row(), Col() Say '%'
       Endif
 //      @ ++j, 1 Say 'Диспансерное наблюдение установлено' Get mdispans ;
 //        reader {| x | menu_reader( x, mm_dispans, A__MENUVERT, , , .f. ) } ;
