@@ -1563,8 +1563,6 @@ Function edit_otd()
   Private tmp_V020 := create_classif_ffoms( 1, 'V020' ) // PROFIL_K
   Private tmp_V006 := create_classif_ffoms( 1, 'V006' ) // USL_OK
   Private tmp_M003 := create_classif_ffoms( 1, 'M003' ) // M003
-  // Private tmp_V008 := create_classif_FFOMS(1, 'V008') // VIDPOM
-  // Private tmp_V010 := create_classif_FFOMS(1, 'V010') // IDSP
   Private mm_adres_podr := {}
   Private mm_tiplu := { ;
     { 'стандартный', 0           }, ;  // 1

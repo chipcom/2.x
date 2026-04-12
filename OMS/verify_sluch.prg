@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 03.04.26 
+// 12.04.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -101,7 +101,7 @@ Function verify_sluch( fl_view, ft )
   fv_date_r( human->n_data ) // переопределение M1VZROS_REB
   m1novor := human_->NOVOR // для запрета пересечения детей по номеру
   If M1VZROS_REB != human->VZROS_REB  // если неверно,
-    human->( g_rlock( forever ) )
+    human->( g_rlock( 'forever' ) )
     human->VZROS_REB := M1VZROS_REB   // то перезаписываем
     Unlock
   Endif
@@ -213,6 +213,9 @@ Function verify_sluch( fl_view, ft )
     Next
   Endif
 
+  if human_->VIDPOM == 0
+    AAdd( ta, 'не определен вид помощи по справочнику V008' )
+  endif
   //
   // ПРОВЕРЯЕМ ДИАГНОЗЫ
   //
@@ -398,69 +401,19 @@ Function verify_sluch( fl_view, ft )
     kart2->( dbCloseArea() )
   endif
 
-/*
-  If AScan( getvidud(), {| x | x[ 2 ] == kart_->vid_ud } ) == 0
-    If human_->vpolis < 3
-      AAdd( ta, 'не заполнено поле "ВИД удостоверения личности"' )
-    Endif
-  Else
-    If Empty( kart_->nom_ud )
-      If human_->vpolis < 3
-        AAdd( ta, 'должно быть заполнено поле "НОМЕР удостоверения личности" для "' + ;
-          inieditspr( A__MENUVERT, getvidud(), kart_->vid_ud ) + '"' )
-      Endif
-    Endif
-    If !Empty( kart_->nom_ud )
-      s := Space( 80 )
-      If !val_ud_nom( 2, kart_->vid_ud, kart_->nom_ud, @s )
-        AAdd( ta, s )
-      Endif
-    Endif
-    If eq_any( kart_->vid_ud, 1, 3, 14 ) .and. Empty( kart_->ser_ud )
-      AAdd( ta, 'не заполнено поле "СЕРИЯ удостоверения личности" для "' + ;
-        inieditspr( A__MENUVERT, getvidud(), kart_->vid_ud ) + '"' )
-    Endif
-    If human_->usl_ok < USL_OK_AMBULANCE .and. eq_any( kart_->vid_ud, 3, 14 ) .and. ;
-        !Empty( kart_->ser_ud ) .and. Empty( del_spec_symbol( kart_->mesto_r ) ) .and. human_->vpolis < 3
-      AAdd( ta, iif( kart_->vid_ud == 3, 'для свид-ва о рождении', 'для паспорта РФ' ) + ;
-        ' обязательно заполнение поля "Место рождения"' )
-    Endif
-    If !Empty( kart_->ser_ud )
-      s := Space( 80 )
-      If !val_ud_ser( 2, kart_->vid_ud, kart_->ser_ud, @s )
-        AAdd( ta, s )
-      Endif
-    Endif
-    if ! Empty( kart_->kogdavyd ) .and. ;
-        ( Year( kart_->kogdavyd ) < LIMITED_DATE_MIN .or. Year( kart_->kogdavyd ) > LIMITED_DATE_MAX )
-      AAdd( ta, 'дата выдачи документа удостоверяющего личность должна быть между ' ;
-        + str( LIMITED_DATE_MIN, 4 ) + ' и ' + str( LIMITED_DATE_MAX, 4 ) + ' годом' )
-    endif
-//    If human_->usl_ok < USL_OK_AMBULANCE .and. human_->vpolis < 3 .and. !eq_any( Left( human_->OKATO, 2 ), '  ', '18' ) // иногородние
-    If human_->vpolis < 3
-      If Empty( kart_->kogdavyd )
-        AAdd( ta, 'для пацентов без нового полиса обязательно заполнение поля "Дата выдачи документа, удостоверяющего личность"' )
-      Endif
-      If Empty( kart_->kemvyd ) .or. ;
-          Empty( del_spec_symbol( inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', kart_->kemvyd ) ) )
-        AAdd( ta, 'для пациентов без нового полиса обязательно заполнение поля "Наименование органа, выдавшего документ, удостоверяющий личность"' )
-      Endif
-    Endif
-  Endif
-*/
   val_fio( retfamimot( 2, .f. ), ta )
 
 //  Select HUMAN
 //  Set Order To 1
 //  dbGoto( rec_human )
-//  g_rlock( forever )
-  human_->( g_rlock( forever ) )
-  human_2->( g_rlock( forever ) )
+//  g_rlock( 'forever' )
+  human_->( g_rlock( 'forever' ) )
+  human_2->( g_rlock( 'forever' ) )
 
   //
   // Проверим ОКАТО пребывания и СМО
   //
-  kart_->( g_rlock( forever ) )
+  kart_->( g_rlock( 'forever' ) )
   s := AllTrim( kart_->okatog )
   If mo_nodigit( s )
     AAdd( ta, 'нецифровые символы в ОКАТО регистрации' )
@@ -696,9 +649,9 @@ Function verify_sluch( fl_view, ft )
   Select HUMAN
   Set Order To 1
   dbGoto( rec_human )
-  g_rlock( forever )
-  human_->( g_rlock( forever ) )
-  human_2->( g_rlock( forever ) )
+  g_rlock( 'forever' )
+  human_->( g_rlock( 'forever' ) )
+  human_2->( g_rlock( 'forever' ) )
 //  uch->( dbGoto( human->LPU ) )
 //  otd->( dbGoto( human->OTD ) )
 
@@ -897,8 +850,8 @@ Function verify_sluch( fl_view, ft )
       if Empty( otd->LPU_1 )
         AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
       endif
-      hu->( g_rlock( forever ) )
-      hu_->( g_rlock( forever ) )
+      hu->( g_rlock( 'forever' ) )
+      hu_->( g_rlock( 'forever' ) )
       If hu->is_edit == -1 .and. AllTrim( lshifr ) == '4.27.2'
         hu->is_edit := 0 // исправление начальной ошибки
       Elseif hu->is_edit == 0 .and. is_lab_usluga( lshifr )
@@ -1530,7 +1483,7 @@ Function verify_sluch( fl_view, ft )
     Select HU
     find ( Str( human->kod, 7 ) )
     Do While hu->kod == human->kod .and. !Eof()
-      hu_->( g_rlock( forever ) )
+      hu_->( g_rlock( 'forever' ) )
       If l_mdiagnoz_fill .and. eq_any( human_->profil, 6, 34 )
         hu_->kod_diag := mdiagnoz[ 1 ]
       Endif
@@ -1754,7 +1707,7 @@ Function verify_sluch( fl_view, ft )
     if Empty( otd->LPU_1 )
       AAdd( ta, 'для отделения ' + AllTrim( otd->short_name ) + ', где оказана услуга ' + AllTrim( lshifr ) + ' не выбрано "Структурное подразделение по ГИС ОМС"' )
     endif
-    mohu->( g_rlock( forever ) )
+    mohu->( g_rlock( 'forever' ) )
     If Empty( mohu->kod_vr ) .and. ( ! is_disp_DVN_COVID ) .and. ( ! is_disp_DRZ ) // исправлено для углубленной диспансеризации и ДРЗ
       If usl_found .and. &lalf.->telemed == 1
         If !( mohu->PRVS == human_->PRVS )
@@ -2051,7 +2004,7 @@ Function verify_sluch( fl_view, ft )
           deleterec( .t. )
         Enddo
         Select ONKSL
-        g_rlock( forever )
+        g_rlock( 'forever' )
         onksl->b_diag := -1
         Unlock
       Else
@@ -3644,13 +3597,13 @@ Function verify_sluch( fl_view, ft )
     If mo_current[ _MO_KOD_TFOMS ] == '101004' // УНЦ
       If Empty( AllTrim( human_->NPR_MO ) )
         human_->NPR_MO := mo_current[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
-        human_2->( g_rlock( forever ) )
+        human_2->( g_rlock( 'forever' ) )
         human_2->NPR_DATE := dBegin
         human_2->( dbUnlock() )
       Endif
     Elseif ! mo_current[ _MO_KOD_TFOMS ] == '141023' // не больница 15, временно пока не разберемся
       human_->NPR_MO := mo_current[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
-      human_2->( g_rlock( forever ) )
+      human_2->( g_rlock( 'forever' ) )
       human_2->NPR_DATE := dBegin
       human_2->( dbUnlock() )
     Endif
@@ -3668,13 +3621,13 @@ Function verify_sluch( fl_view, ft )
     If mo_current[ _MO_KOD_TFOMS ] == '101004' // УНЦ
       If Empty( AllTrim( human_->NPR_MO ) )
         human_->NPR_MO := mo_current[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
-        human_2->( g_rlock( forever ) )
+        human_2->( g_rlock( 'forever' ) )
         human_2->NPR_DATE := dBegin
         human_2->( dbUnlock() )
       Endif
     Elseif ! mo_current[ _MO_KOD_TFOMS ] == '141023' // не больница 15, временно пока не разберемся
       human_->NPR_MO := mo_current[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
-      human_2->( g_rlock( forever ) )
+      human_2->( g_rlock( 'forever' ) )
       human_2->NPR_DATE := dBegin
       human_2->( dbUnlock() )
     Endif
@@ -3686,13 +3639,13 @@ Function verify_sluch( fl_view, ft )
     If mo_current[ _MO_KOD_TFOMS ] == '101004' // УНЦ
       If Empty( AllTrim( human_->NPR_MO ) )
         human_->NPR_MO := mo_current[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
-        human_2->( g_rlock( forever ) )
+        human_2->( g_rlock( 'forever' ) )
         human_2->NPR_DATE := dBegin
         human_2->( dbUnlock() )
       Endif
     Elseif ! mo_current[ _MO_KOD_TFOMS ] == '141023' // не больница 15, временно пока не разберемся
       human_->NPR_MO := mo_current[ _MO_KOD_TFOMS ] // безусловно проставляем направившую МО
-      human_2->( g_rlock( forever ) )
+      human_2->( g_rlock( 'forever' ) )
       human_2->NPR_DATE := dBegin
       human_2->( dbUnlock() )
     Endif
