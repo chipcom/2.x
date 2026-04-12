@@ -572,7 +572,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   mokato    := inieditspr( A__MENUVERT, glob_array_srf(), m1okato )
   mkomu     := inieditspr( A__MENUVERT, mm_komu(), m1komu )
   mismo     := init_ismo( m1ismo )
-  mDS_ONK    := inieditspr(A__MENUVERT, mm_danet, M1DS_ONK)
+  mDS_ONK    := inieditspr(A__MENUVERT, mm_danet(), M1DS_ONK)
   mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
   f_valid_komu(, -1 )
   If m1komu == 0
@@ -589,7 +589,7 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
     Endif
   Endif
   mdispans  := inieditspr( A__MENUVERT, mm_dispans, m1dispans )
-  mnazn_l   := inieditspr( A__MENUVERT, mm_danet, m1nazn_l )
+  mnazn_l   := inieditspr( A__MENUVERT, mm_danet(), m1nazn_l )
   mdopo_na  := inieditspr( A__MENUBIT, mm_dopo_na, m1dopo_na )
   mnapr_v_mo := inieditspr( A__MENUVERT, mm_napr_v_mo, m1napr_v_mo )
   If Empty( arr_mo_spec )
@@ -603,11 +603,11 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
   Endif
   mnapr_stac := inieditspr( A__MENUVERT, mm_napr_stac, m1napr_stac )
   mprofil_stac := inieditspr( A__MENUVERT, getv002(), m1profil_stac )
-  mnapr_reab := inieditspr( A__MENUVERT, mm_danet, m1napr_reab )
+  mnapr_reab := inieditspr( A__MENUVERT, mm_danet(), m1napr_reab )
   mprofil_kojki := inieditspr( A__MENUVERT, getv020(), m1profil_kojki )
-  mssh_na   := inieditspr( A__MENUVERT, mm_danet, m1ssh_na )
-  mspec_na  := inieditspr( A__MENUVERT, mm_danet, m1spec_na )
-  msank_na  := inieditspr( A__MENUVERT, mm_danet, m1sank_na )
+  mssh_na   := inieditspr( A__MENUVERT, mm_danet(), m1ssh_na )
+  mspec_na  := inieditspr( A__MENUVERT, mm_danet(), m1spec_na )
+  msank_na  := inieditspr( A__MENUVERT, mm_danet(), m1sank_na )
 
   //
   If !Empty( f_print )
@@ -767,12 +767,12 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
 //        When !emptyall( mdispans1, mdispans2, mdispans3, mdispans4, mdispans5 )
 
 //      @ ++j, 1 say 'Признак подозрения на злокачественное новообразование' get mDS_ONK ;
-//        reader { | x | menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+//        reader { | x | menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
 //      @ ++j, 1 say 'Направления при подозрении на ЗНО' get mnapr_onk ;
 //        reader { | x | menu_reader( x, { { | k, r, c | fget_napr_ZNO( k, r, c ) } }, A__FUNCTION, , , .f. ) }   //  when m1ds_onk == 0
 
 //      @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
-//        reader {| x | menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }  //  when m1ds_onk == 0
+//        reader {| x | menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) }  //  when m1ds_onk == 0
 
       dispans_napr( mk_data, @j, .t., .t., glob_otd[ 4 ] )  // вызов заполнения блока направлений
 

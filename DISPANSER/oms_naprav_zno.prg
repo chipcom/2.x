@@ -483,11 +483,11 @@ Function dispans_napr( mk_data, /*@*/j, lAdult, lFull, nType_lu )
       reader {| x| menu_reader( x, mm_dispans, A__MENUVERT,,, .f. ) } ;
       When !emptyall( mdispans1, mdispans2, mdispans3, mdispans4, mdispans5 )
     @ ++j, 1 Say 'Назначено лечение (для ф.131)' Get mnazn_l ;
-      reader {| x| menu_reader( x, mm_danet, A__MENUVERT,,, .f. ) }
+      reader {| x| menu_reader( x, mm_danet(), A__MENUVERT,,, .f. ) }
   elseif nType_lu == TIP_LU_PN
     If m1step2 == 2  // направлен и отказался от 2-го этапа
       @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
         reader {| x| menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }   // when m1ds_onk == 0
     Endif

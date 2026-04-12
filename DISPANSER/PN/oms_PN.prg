@@ -661,7 +661,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   Endif
   //
   mmesto_prov := inieditspr( A__MENUVERT, mm_mesto_prov, m1mesto_prov ) // место проведения
-  mmobilbr := inieditspr( A__MENUVERT, mm_danet, m1mobilbr )
+  mmobilbr := inieditspr( A__MENUVERT, mm_danet(), m1mobilbr )
   mMOP      := inieditspr( A__MENUVERT, getv040(), m1MOP )
   mschool := inieditspr( A__POPUPMENU, dir_DB + 'mo_schoo', m1school )
   mkateg_uch := inieditspr( A__MENUVERT, mm_kateg_uch(), m1kateg_uch )
@@ -698,10 +698,10 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   m142me3 := inieditspr( A__MENUVERT, mm_142me3(), m1142me3 )
   m142me4 := inieditspr( A__MENUVERT, mm_142me4(), m1142me4 )
   m142me5 := inieditspr( A__MENUVERT, mm_142me5(), m1142me5 )
-  mdiag_15_1 := inieditspr( A__MENUVERT, mm_danet, m1diag_15_1 )
-  mdiag_16_1 := inieditspr( A__MENUVERT, mm_danet, m1diag_16_1 )
+  mdiag_15_1 := inieditspr( A__MENUVERT, mm_danet(), m1diag_15_1 )
+  mdiag_16_1 := inieditspr( A__MENUVERT, mm_danet(), m1diag_16_1 )
   mstep2 := inieditspr( A__MENUVERT, mm_step2, m1step2 )
-  minvalid1 := inieditspr( A__MENUVERT, mm_danet,    m1invalid1 )
+  minvalid1 := inieditspr( A__MENUVERT, mm_danet(),    m1invalid1 )
   minvalid2 := inieditspr( A__MENUVERT, mm_invalid2(), m1invalid2 )
   minvalid5 := inieditspr( A__MENUVERT, mm_invalid5(), m1invalid5 )
   minvalid6 := inieditspr( A__MENUVERT, mm_invalid6(), m1invalid6 )
@@ -710,7 +710,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   mprivivki2 := inieditspr( A__MENUVERT, mm_privivki2(), m1privivki2 )
   mgr_fiz_do := inieditspr( A__MENUVERT, mm_gr_fiz_do, m1gr_fiz_do )
   mgr_fiz    := inieditspr( A__MENUVERT, mm_gr_fiz, m1gr_fiz )
-  mDS_ONK    := inieditspr( A__MENUVERT, mm_danet, M1DS_ONK )
+  mDS_ONK    := inieditspr( A__MENUVERT, mm_danet(), M1DS_ONK )
   mdopo_na   := inieditspr( A__MENUBIT,  mm_dopo_na, m1dopo_na )
   mnapr_v_mo := inieditspr( A__MENUVERT, mm_napr_v_mo, m1napr_v_mo )
   If Empty( arr_mo_spec )
@@ -724,7 +724,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
   Endif
   mnapr_stac := inieditspr( A__MENUVERT, mm_napr_stac, m1napr_stac )
   mprofil_stac := inieditspr( A__MENUVERT, getv002(), m1profil_stac )
-  mnapr_reab := inieditspr( A__MENUVERT, mm_danet, m1napr_reab )
+  mnapr_reab := inieditspr( A__MENUVERT, mm_danet(), m1napr_reab )
   mprofil_kojki := inieditspr( A__MENUVERT, getv020(), m1profil_kojki )
   //
   If !Empty( f_print )
@@ -834,7 +834,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 Say 'Место проведения медосмотра' Get mmesto_prov ;
         reader {| x| menu_reader( x, mm_mesto_prov, A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Медосмотр проведён мобильной бригадой?' Get mmobilbr ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say 'Место обращения' Get mMOP ;
         reader {| x| menu_reader( x, tmp_V040, A__MENUVERT, , , .f. ) }
 
@@ -1060,7 +1060,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       Endif
       ++j
       @ ++j, 1 Say 'ДО ПРОВЕДЕНИЯ ПРОФОСМОРА: практически здоров' Get mdiag_15_1 ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say '──────┬───────┬─────────────┬─────────┬─────────────┬─────────┬───────────────'
       @ ++j, 1 Say ' Диаг-│Диспанс│Лечение назна│Выполнено│Реаб-ия назна│Выполнена│Высокотехнол.МП'
       @ ++j, 1 Say ' ноз  │набл-ие│че-┌────┬────┼────┬────┤че-┌────┬────┼────┬────┼───────┬───────'
@@ -1084,7 +1084,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               Elseif eq_any( k, 5, 7, 10, 12 )
                 mm_m := mm_uch1
               Else
-                mm_m := mm_danet
+                mm_m := mm_danet()
               Endif
               &mvar := inieditspr( A__MENUVERT, mm_m, &m1var )
             Else
@@ -1103,7 +1103,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_15_1 == 0
           Case k == 3
             @ j, 16 get &mvar ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               When m1diag_15_1 == 0
           Case k == 4
             @ j, 20 get &mvar ;
@@ -1123,7 +1123,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_15_1 == 0
           Case k == 8
             @ j, 40 get &mvar ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               When m1diag_15_1 == 0
           Case k == 9
             @ j, 44 get &mvar ;
@@ -1143,11 +1143,11 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_15_1 == 0
           Case k == 13
             @ j, 66 get &mvar ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               When m1diag_15_1 == 0
           Case k == 14
             @ j, 74 get &mvar ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               When m1diag_15_1 == 0
           Endcase
         Next
@@ -1159,7 +1159,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       status_key( '^<Esc>^ выход без записи ^<PgUp>^ на 3-ю страницу ^<PgDn>^ на 5-ю страницу' )
     Elseif num_screen == 5
       @ ++j, 1 Say 'ПО РЕЗУЛЬТАТАМ ПРОВЕДЕНИЯ ПРОФОСМОРА: практически здоров' Get mdiag_16_1 ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ ++j, 1 Say '──────┬───┬───────┬─────────────┬─────────────┬─────────────┬─────────────┬───'
       @ ++j, 1 Say ' Диаг-│Уст│Диспанс│Доп.конс.назн│Доп.конс.выпо│Лечение назна│Реаб-ия назна│ВМП'
       @ ++j, 1 Say ' ноз  │впе│набл-ие│аче┌────┬────┤лне┌────┬────┤че-┌────┬────┤че-┌────┬────┤рек'
@@ -1183,7 +1183,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               Elseif eq_any( k, 6, 9, 12, 15 )
                 mm_m := mm_uch1
               Else
-                mm_m := mm_danet
+                mm_m := mm_danet()
               Endif
               &mvar := inieditspr( A__MENUVERT, mm_m, &m1var )
             Else
@@ -1198,7 +1198,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 2
             @ j, 8 get &mvar ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 3
             @ j, 12 get &mvar ;
@@ -1206,7 +1206,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 4
             @ j, 20 get &mvar ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 5
             @ j, 24 get &mvar ;
@@ -1218,7 +1218,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 7
             @ j, 34 get &mvar ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 8
             @ j, 38 get &mvar ;
@@ -1230,7 +1230,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 10
             @ j, 48 get &mvar ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 11
             @ j, 52 get &mvar ;
@@ -1242,7 +1242,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 13
             @ j, 62 get &mvar ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               When m1diag_16_1 == 0
           Case k == 14
             @ j, 66 get &mvar ;
@@ -1254,7 +1254,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
               When m1diag_16_1 == 0
           Case k == 16
             @ j, 76 get &mvar ;
-              reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+              reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) } ;
               When m1diag_16_1 == 0
           Endcase
         Next
@@ -1262,7 +1262,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
       @ ++j, 1 To j, 78
 //      If m1step2 == 2  // направлен и отказался от 2-го этапа
 //        @ ++j, 1 Say 'Признак подозрения на злокачественное новообразование' Get mDS_ONK ;
-//          reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+//          reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
 //        @ ++j, 1 Say 'Направления при подозрении на ЗНО' Get mnapr_onk ;
 //          reader {| x| menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }   // when m1ds_onk == 0
 //      Endif
@@ -1270,7 +1270,7 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
       @ ++j, 1 To j, 78
       @ ++j, 1 Say 'Инвалидность' Get minvalid1 ;
-        reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }
+        reader {| x| menu_reader( x, mm_danet(), A__MENUVERT, , , .f. ) }
       @ j, 30 Say 'если "да":' Get minvalid2 ;
         reader {| x| menu_reader( x, mm_invalid2(), A__MENUVERT, , , .f. ) } ;
         When m1invalid1 == 1
