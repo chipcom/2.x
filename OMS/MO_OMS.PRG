@@ -82,12 +82,12 @@ Function f_valid_komu( get, old )
       mm_company := AClone( smo_volgograd() )
     Elseif m1komu == 1 // Прочие компании
       r_use( dir_server() + 'str_komp' )
-      Index On Upper( name ) to ( cur_dir() + 'tmp_comp' ) For !Between( tfoms, 44, 47 )
+      Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_comp' ) For !Between( tfoms, 44, 47 )
       dbEval( {|| AAdd( mm_company, { AllTrim( name ), kod } ) } )
       Use
     Elseif m1komu == 3 // Комитеты/МО
       r_use( dir_server() + 'komitet' )
-      Index On Upper( name ) to ( cur_dir() + 'tmp_comp' )
+      Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp_comp' )
       dbEval( {|| AAdd( mm_company, { AllTrim( name ), kod } ) } )
       Use
     Endif
@@ -516,23 +516,23 @@ Function f1oms_edit()
     find ( str_find )
     If yes_h_otd == 1
       If dostup == B_STANDART
-        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
-          While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
-          For Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) .and. human_->reestr == 0
+        Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
+          While FIELD->tip_h == dostup .and. FIELD->otd == glob_otd[ 1 ] ;
+          For Between( FIELD->k_data, arr_m[ 5 ], arr_m[ 6 ] ) .and. human_->reestr == 0
       Else
-        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
-          While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
-          For Between( k_data, arr_m[ 5 ], arr_m[ 6 ] )
+        Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
+          While FIELD->tip_h == dostup .and. FIELD->otd == glob_otd[ 1 ] ;
+          For Between( FIELD->k_data, arr_m[ 5 ], arr_m[ 6 ] )
       Endif
     Else
       If dostup == B_STANDART
-        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
-          While tip_h == dostup ;
-          For lpu == glob_uch[ 1 ] .and. Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) .and. human_->reestr == 0
+        Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
+          While FIELD->tip_h == dostup ;
+          For FIELD->lpu == glob_uch[ 1 ] .and. Between( FIELD->k_data, arr_m[ 5 ], arr_m[ 6 ] ) .and. human_->reestr == 0
       Else
-        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
-          While tip_h == dostup ;
-          For lpu == glob_uch[ 1 ] .and. Between( k_data, arr_m[ 5 ], arr_m[ 6 ] )
+        Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
+          While FIELD->tip_h == dostup ;
+          For FIELD->lpu == glob_uch[ 1 ] .and. Between( FIELD->k_data, arr_m[ 5 ], arr_m[ 6 ] )
       Endif
     Endif
     srec := 1
@@ -668,9 +668,9 @@ Function f2oms_edit()
     r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
-    Index On Upper( fio ) to ( cur_dir() + 'tmp_h2' ) ;
+    Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_h2' ) ;
       While human->k_data <= arr_m[ 6 ] ;
-      For schet < 1 .and. human_->reestr == 0
+      For FIELD->schet < 1 .and. human_->reestr == 0
     srec := 1
     Go Top
     Do While !Eof()
@@ -809,7 +809,7 @@ Function f4oms_edit()
     r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
-    Index On Upper( fio ) to ( cur_dir() + 'tmp_h2' ) ;
+    Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_h2' ) ;
       While human->k_data <= arr_m[ 6 ] ;
       For emptyall( human_->reestr, human->schet ) .and. human_->kod_up > 0
     Go Top
@@ -927,7 +927,7 @@ Function f4oms_edit()
 
   Return Nil
 
-// 05.04.26 Редактирование листка учета лечения больного + смена отделения
+// 13.04.26 Редактирование листка учета лечения больного + смена отделения
 Function oms_smena_otd()
 
   Static si := 1, sk := 1
@@ -966,7 +966,7 @@ Function oms_smena_otd()
             glob_otd[ 2 ] + ' [' + glob_uch[ 2 ] + ']' }, , 'W+/W', 'N/W' )
           If ( fl := f_esc_enter( 'смены отделения', .t. ) )
             fl1 := .f.
-            if glob_mo[ _MO_KOD_TFOMS ] == '134505'
+            if glob_mo[ _MO_KOD_TFOMS ] == '134505' .or. glob_mo[ _MO_KOD_TFOMS ] == '124530'
                 fl1 := .t.
             else  
               If input_value( MaxRow() -4, 10, MaxRow() -2, 69, color1, ;
@@ -1364,7 +1364,7 @@ Function f1oms_zav_lech( k )
           mtitul += ' [ ' + AllTrim( glob_otd[ 2 ] ) + ' ]'
         Endif
         Use ( cur_dir() + 'tmp' ) Alias TMP
-        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' )
+        Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' )
         If alpha_browse( T_ROW, 0, MaxRow() -4, 79, 'f2oms_zav_lech', color1, ;
             mtitul, 'G+/B', .t., .t., ,, 'f3oms_zav_lech', , ;
             { '═', '░', '═', 'W+/B, BG+/R, GR+/B, GR+/R', , 300 } )
@@ -1624,7 +1624,7 @@ Function f3oms_zav_lech( nKey, oBrow )
 
   Return k
 
-// 20.05.22 поиск больного
+// 13.04.26 поиск больного
 Function ret_oms_human( dostup, arr_m )
 
   // dostup = B_END      = 2 - больные выписались из данного отделения
@@ -1645,9 +1645,9 @@ Function ret_oms_human( dostup, arr_m )
     r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
     Set Relation To RecNo() into HUMAN_, To FIELD->otd into OTD
     dbSeek( str_find, .t. )
-    Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
+    Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
       While human->k_data <= arr_m[ 6 ] ;
-      For schet < 1 .and. human_->reestr == 0
+      For FIELD->schet < 1 .and. human_->reestr == 0
     str_error += ' нет пациентов с датой окончания ' + arr_m[ 4 ]
   Else
     mtitul := AllTrim( glob_uch[ 2 ] )
@@ -1674,38 +1674,44 @@ Function ret_oms_human( dostup, arr_m )
     find ( str_find )
     If yes_h_otd == 1
       If dostup == B_STANDART
-        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
-          While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
-          For iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) .and. human_->reestr == 0
+        if glob_mo[ _MO_KOD_TFOMS ] == '124530'
+          Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
+            While FIELD->tip_h == dostup .and. FIELD->otd == glob_otd[ 1 ] ;
+            For  year( FIELD->k_data ) == 2026 .and. human_->reestr == 0
+        else  
+          Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
+          While FIELD->tip_h == dostup .and. FIELD->otd == glob_otd[ 1 ] ;
+          For iif( arr_m == NIL, .t., Between( FIELD->k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) .and. human_->reestr == 0
+        endif    
       Else
-       Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
-          While tip_h == dostup .and. otd == glob_otd[ 1 ] ;
-          For iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) )
+       Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
+          While FIELD->tip_h == dostup .and. FIELD->otd == glob_otd[ 1 ] ;
+          For iif( arr_m == NIL, .t., Between( FIELD->k_data, arr_m[ 5 ], arr_m[ 6 ] ) )
       Endif
     Else
       If dostup == B_STANDART
-         if glob_mo[ _MO_KOD_TFOMS ] == '134505' 
+        if glob_mo[ _MO_KOD_TFOMS ] == '134505' .or. glob_mo[ _MO_KOD_TFOMS ] == '124530'
           if arr_m == NIL
-            Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
-            While tip_h == dostup ;
-            For lpu == glob_uch[ 1 ] .and. year(k_data) == 2026 ;
-            .and. human_->reestr == 0
-          else     
-            Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
-            While tip_h == dostup ;
-            For lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) ;
-            .and. human_->reestr == 0
+            Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
+            While FIELD->tip_h == dostup ;
+            For FIELD->lpu == glob_uch[ 1 ] .and. year( FIELD->k_data ) == 2026 ;
+              .and. human_->reestr == 0
+          else
+            Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
+              While tip_h == dostup ;
+              For FIELD->lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( FIELD->k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) ;
+                .and. human_->reestr == 0
           endif    
         else  
-          Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
-            While tip_h == dostup ;
-            For lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) ;
-            .and. human_->reestr == 0
+          Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
+            While FIELD->tip_h == dostup ;
+            For FIELD->lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( FIELD->k_data, arr_m[ 5 ], arr_m[ 6 ] ) ) ;
+              .and. human_->reestr == 0
         endif 
       Else
-        Index On Upper( fio ) to ( cur_dir() + 'tmp_hum' ) ;
-          While tip_h == dostup ;
-          For lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( k_data, arr_m[ 5 ], arr_m[ 6 ] ) )
+        Index On Upper( FIELD->fio ) to ( cur_dir() + 'tmp_hum' ) ;
+          While FIELD->tip_h == dostup ;
+          For FIELD->lpu == glob_uch[ 1 ] .and. iif( arr_m == NIL, .t., Between( FIELD->k_data, arr_m[ 5 ], arr_m[ 6 ] ) )
       Endif
     Endif
   Endif
