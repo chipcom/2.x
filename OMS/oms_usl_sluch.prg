@@ -296,7 +296,6 @@ Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
   Endif
   cls
 
-
   pr_1_str( '“α«γ£¨ ¤«ο < ' + fio_plus_novor() + ' >' )
   If yes_num_lu == 1
     @ 1, 50 Say PadL( '‹¨αβ γη¥β  ό ' + lstr( human->kod ), 29 ) Color color14
@@ -325,8 +324,12 @@ Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
     .f., .t., , 'f1oms_usl_sluch', 'f2oms_usl_sluch', , ;
     { 'Ν', '°', 'Ν', l_color, .t., 180 } )
   Select TMP
-
   Pack
+
+//  human_->( dbRLock() )
+//  human_->VIDPOM := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK )
+//  human_->( dbUnlock() )
+
   kol_rec := LastRec()
   Private mcena_1 := human->cena_1, msmo := human_->smo
   If yes_parol .and. ( mvu[ 1, 1 ] > 0 .or. mvu[ 2, 1 ] > 0 .or. mvu[ 3, 1 ] > 0 ) ;

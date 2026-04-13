@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 12.04.26 
+// 13.04.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -214,7 +214,16 @@ Function verify_sluch( fl_view, ft )
   Endif
 
   if human_->VIDPOM == 0
-    AAdd( ta, 'не определен вид помощи по справочнику V008' )
+    mm_lpu1 := get_f033_with_address( glob_mo()[ _MO_KOD_FFOMS ] )
+    iii := otd->LPU_1
+    str_lpu1 := ''
+    if ( ic := ascan( mm_lpu1, { | x | x[ 2 ] == iii } ) ) > 0
+      str_lpu1 := mm_lpu1[ ic, 1 ]
+    endif
+
+    AAdd( ta, 'не определен вид помощи по справочнику услуг ТФОМС [ вероятно неверно указано в справочнике для отделения <' ;
+      + AllTrim( otd->name ) + ' (' + AllTrim( otd->short_name ) + ')' ;
+      + '> "Структурное подразделение по ГИС ОМС" = <' + AllTrim( str_lpu1 ) + '> ]' )
   endif
   //
   // ПРОВЕРЯЕМ ДИАГНОЗЫ
