@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 
 
-// 24.01.26 ввод услуг в случай (лист учёта)
+// 13.04.26 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
 
   // mkod_human - код по БД human
@@ -326,9 +326,9 @@ Function oms_usl_sluch( mkod_human, mkod_kartotek, fl_edit )
   Select TMP
   Pack
 
-//  human_->( dbRLock() )
-//  human_->VIDPOM := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK )
-//  human_->( dbUnlock() )
+  human_->( dbRLock() )
+  human_->VIDPOM := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK )
+  human_->( dbUnlock() )
 
   kol_rec := LastRec()
   Private mcena_1 := human->cena_1, msmo := human_->smo

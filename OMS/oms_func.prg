@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 11.04.26
+// 13.04.26
 function define_vidpom( otd, kod_hum, mdate, usl_ok )
 
   Local tmpselect, lshifr1, mshifr, sVidpoms, lst
@@ -52,6 +52,7 @@ function define_vidpom( otd, kod_hum, mdate, usl_ok )
       m_vrProfil := 0
       lshifr1 := ''
       mshifr := ''
+      usl->( dbGoto( hu->u_kod ) )
       lshifr1 := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data )
       If is_usluga_tfoms( usl->shifr, lshifr1, human->k_data, , , @lst, , @sVidpoms )
         mshifr := AllTrim( iif( Empty( lshifr1 ), usl->shifr, lshifr1 ) )
@@ -92,10 +93,13 @@ function define_vidpom( otd, kod_hum, mdate, usl_ok )
       endif
     elseif SubStr( arrUsluga[ 1, 1 ], 1, 2 ) == 'ds'
       if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 31 } ) > 0 )
+//      if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 31 .and. x[ 3 ] == m_vrProfil } ) > 0 )
         mVidPom := 31
       elseif ( ascan( arrUsluga[ 1, 8 ], 12 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 12 } ) > 0 )
+//      elseif ( ascan( arrUsluga[ 1, 8 ], 12 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 12 .and. x[ 3 ] == m_vrProfil } ) > 0 )
         mVidPom := 12
       elseif ( ascan( arrUsluga[ 1, 8 ], 13 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 13 } ) > 0 )
+//      elseif ( ascan( arrUsluga[ 1, 8 ], 13 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 13 .and. x[ 3 ] == m_vrProfil } ) > 0 )
         mVidPom := 13
       endif
     else
