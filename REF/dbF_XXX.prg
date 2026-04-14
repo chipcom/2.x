@@ -700,16 +700,18 @@ Function get_f034_usl_ok( mUIDSPMO, usl_ok )
 //  MPROF	Char	3	О	Код профиля МП, оказываемой МО по указанному виду и условию оказания МП.
 //  Заполняется в соответствии с Ли-цензией на осуществление МД, с использованием Класси-фикатора профилей МП (атрибут IDPR справочника V002)
 
+  arr := {}
   aF034 := get_f034( mUIDSPMO )
-  if Len( aF034 ) > 0
-    arr := {}
-    for i := 1 to Len( aF034 )
-      if aF034[ i, 2 ] == usl_ok
-        AAdd( arr, aF034[ i ] )
-      endif
-    next
-  else
-    arr := {}
-  endif
+  AEval( aF034, { | elem | iif( elem[ 2 ] == usl_ok, AAdd( arr, elem ), ) } )
+//  if Len( aF034 ) > 0
+//    arr := {}
+//    for i := 1 to Len( aF034 )
+//      if aF034[ i, 2 ] == usl_ok
+//        AAdd( arr, aF034[ i ] )
+//      endif
+//    next
+//  else
+//    arr := {}
+//  endif
 
   return arr

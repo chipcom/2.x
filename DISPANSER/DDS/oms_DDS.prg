@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.04.26 ДДС - добавление или редактирование случая (листа учета)
+// 14.04.26 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -184,6 +184,8 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
   Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
 
   Private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+
+  Private mnapr_onk := Space( 10 ), cur_napr := 0, count_napr := 0, tip_onko_napr := 0, mTab_Number := 0
 
   Private gl_arr := { ;  // для битовых полей
     { 'dopo_na', 'N', 10, 0,,,, {| x| inieditspr( A__MENUBIT, mm_dopo_na, x ) } };
@@ -539,7 +541,7 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
   cur_napr := 1 // при ред-ии - сначала первое направление текущее
   count_napr := collect_napr_zno( Loc_kod, _NPR_DISP_ZNO )
   If count_napr > 0
-    mnapr_onk := 'Количество направлений - ' + lstr( count_napr )
+    mnapr_onk := 'Количество направлений - ' + lstr( count_napr ) 
   Endif
 
   dbCloseAll()
