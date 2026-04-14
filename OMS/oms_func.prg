@@ -3,14 +3,14 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.04.26
+// 14.04.26
 function define_vidpom( otd, kod_hum, mdate, usl_ok )
 
   Local tmpselect, lshifr1, mshifr, sVidpoms, lst
   local arrUsluga := {}, mVidPom := 0
   local lAliasHU := .f., lAliasUsl := .f., lAliasPers := .f., lAliasOtd := .f.
   local m_vrPRVS_21, m_vrProfil
-  local cUIDSPMO, arr_v := {}
+  local arr_v := {}
 
   tmpSelect := Select()
 
@@ -19,16 +19,18 @@ function define_vidpom( otd, kod_hum, mdate, usl_ok )
     lAliasOtd := .t.
   endif
   otd->( dbGoto( otd ) )
-  cUIDSPMO := otd->LPU_1
-  r_use( dir_exe() + '_mo_f034', cur_dir() + '_mo_f034', 'F034' )
-  f034->( dbSeek( cUIDSPMO ) )
-  Do While ( f034->uidspmo == cUIDSPMO ) .and. ! f034->( Eof() )
-    if ( f034->MPUSL == usl_ok )
-      AAdd( arr_v, { f034->MPVID, f034->MPUSL, f034->MPROF } )
-    endif
-    f034->( dbSkip() )
-  Enddo
-  f034->( dbCloseArea() )
+//  r_use( dir_exe() + '_mo_f034', cur_dir() + '_mo_f034', 'F034' )
+//  f034->( dbSeek( otd->LPU_1 ) )
+//  Do While ( f034->uidspmo == otd->LPU_1 ) .and. ! f034->( Eof() )
+//    if ( f034->MPUSL == usl_ok )
+//      AAdd( arr_v, { f034->MPVID, f034->MPUSL, f034->MPROF } )
+//    endif
+//    f034->( dbSkip() )
+//  Enddo
+//  f034->( dbCloseArea() )
+
+  arr_v := get_f034_usl_ok( otd->LPU_1, usl_ok )
+
   if Select( 'P2' ) == 0
     r_use( dir_server() + 'mo_pers', , 'P2' )
     lAliasPers := .t.
@@ -92,13 +94,13 @@ function define_vidpom( otd, kod_hum, mdate, usl_ok )
         mVidPom := 31
       endif
     elseif SubStr( arrUsluga[ 1, 1 ], 1, 2 ) == 'ds'
-      if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 31 } ) > 0 )
+      if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 ) //.and. ( ascan( arr_v, { | x | x[ 1 ] == 31 } ) > 0 )
 //      if ( ascan( arrUsluga[ 1, 8 ], 31 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 31 .and. x[ 3 ] == m_vrProfil } ) > 0 )
         mVidPom := 31
-      elseif ( ascan( arrUsluga[ 1, 8 ], 12 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 12 } ) > 0 )
+      elseif ( ascan( arrUsluga[ 1, 8 ], 12 ) > 0 ) //.and. ( ascan( arr_v, { | x | x[ 1 ] == 12 } ) > 0 )
 //      elseif ( ascan( arrUsluga[ 1, 8 ], 12 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 12 .and. x[ 3 ] == m_vrProfil } ) > 0 )
         mVidPom := 12
-      elseif ( ascan( arrUsluga[ 1, 8 ], 13 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 13 } ) > 0 )
+      elseif ( ascan( arrUsluga[ 1, 8 ], 13 ) > 0 ) //.and. ( ascan( arr_v, { | x | x[ 1 ] == 13 } ) > 0 )
 //      elseif ( ascan( arrUsluga[ 1, 8 ], 13 ) > 0 ) .and. ( ascan( arr_v, { | x | x[ 1 ] == 13 .and. x[ 3 ] == m_vrProfil } ) > 0 )
         mVidPom := 13
       endif

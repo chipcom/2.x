@@ -366,13 +366,17 @@ Function save_mo_onkna( mkod, type_npr )
   NAPR->( dbCloseArea() )
   Return Nil
 
-// 12.04.26 редактировать другое направление (№...)
+// 14.04.26 редактировать другое направление (№...)
 Function change_num_napr()
 
   Local r, n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := SetColor()
   Local recNumberDoctor := 0
   local mm_met_issl := AClone( getv029() )
-
+  local mm_napr_v := { ;
+    { 'нет', 0 }, ;
+    { 'к онкологу', 1 }, ;
+    { 'на дообследование', 3 } ;
+  }
 
   If emptyany( mNAPR_DATE, m1NAPR_V )
     func_error( 4, 'Ещё не заполнено направление № ' + lstr( cur_napr ) )

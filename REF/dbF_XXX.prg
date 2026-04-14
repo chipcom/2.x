@@ -657,11 +657,12 @@ Function get_f033_with_address( mcod )
   
   return arr
 
-// 25.03.26 вернуть массив из справочника F034
+// 14.04.26 вернуть массив из справочника F034
 Function get_f034( mUIDSPMO )
 
+  Static sUIDSPMO
+  Static arr
   Local tmp_select
-  Local arr := {}
 
 //  MPVID	Char	4	О	Код вида МП, оказываемой МО по указанному условию оказания и профилю МП. 
 //  Заполняется в соответствии с Лицензией на осуществление МД, с использованием Классификатора видов МП (атрибут IDVMP справочника V008)
@@ -670,15 +671,45 @@ Function get_f034( mUIDSPMO )
 //  MPROF	Char	3	О	Код профиля МП, оказываемой МО по указанному виду и условию оказания МП.
 //  Заполняется в соответствии с Ли-цензией на осуществление МД, с использованием Класси-фикатора профилей МП (атрибут IDPR справочника V002)
 
-  tmp_select := Select()
-  r_use( dir_exe() + '_mo_f034', cur_dir() + '_mo_f034', 'F034' )
-//  f034->( dbSeek( SubStr( mUIDSPMO, 1, 11 ) ) )
-  f034->( dbSeek( mUIDSPMO ) )
-  Do While f034->uidspmo == mUIDSPMO .and. ! f034->( Eof() )
-    AAdd( arr, { f034->MPVID, f034->MPUSL, f034->MPROF } )
-    f034->( dbSkip() )
-  Enddo
-  dbCloseArea()
-  Select ( tmp_select )
+  if HB_ISNIL( arr ) .or. HB_ISNIL( sUIDSPMO ) .or. ( sUIDSPMO != mUIDSPMO )
+    sUIDSPMO := mUIDSPMO
+    arr := {}
+    tmp_select := Select()
+    r_use( dir_exe() + '_mo_f034', cur_dir() + '_mo_f034', 'F034' )
+    f034->( dbSeek( mUIDSPMO ) )
+    Do While f034->uidspmo == mUIDSPMO .and. ! f034->( Eof() )
+      AAdd( arr, { f034->MPVID, f034->MPUSL, f034->MPROF } )
+      f034->( dbSkip() )
+    Enddo
+    dbCloseArea()
+    Select ( tmp_select )
+  endif
+
+  return arr
+
+// 14.04.26 вернуть массив из справочника F034
+Function get_f034_usl_ok( mUIDSPMO, usl_ok )
+
+  Local aF034, i
+  Local arr
+
+//  MPVID	Char	4	О	Код вида МП, оказываемой МО по указанному условию оказания и профилю МП. 
+//  Заполняется в соответствии с Лицензией на осуществление МД, с использованием Классификатора видов МП (атрибут IDVMP справочника V008)
+//	MPUSL	Char	2	О	Код условий оказания МП, оказываемой МО по указан?ному виду и профилю МП.
+//  Заполняется в соответствии с Лицензией на осуществле?ние МД, с использованием Классификатора условий ока?зания МП (атрибут IDUMP справочника V006)
+//  MPROF	Char	3	О	Код профиля МП, оказываемой МО по указанному виду и условию оказания МП.
+//  Заполняется в соответствии с Ли-цензией на осуществление МД, с использованием Класси-фикатора профилей МП (атрибут IDPR справочника V002)
+
+  aF034 := get_f034( mUIDSPMO )
+  if Len( aF034 ) > 0
+    arr := {}
+    for i := 1 to Len( aF034 )
+      if aF034[ i, 2 ] == usl_ok
+        AAdd( arr, aF034[ i ] )
+      endif
+    next
+  else
+    arr := {}
+  endif
 
   return arr
