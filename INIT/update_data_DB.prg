@@ -37,7 +37,7 @@ function set_status_updateDB( idVer )
 
   return fl
 
-// 15.02.26 проведение изменений в содержимом БД при обновлении
+// 15.04.26 проведение изменений в содержимом БД при обновлении
 Function update_data_db( aVersion )
 
   Local snversion := Int( aVersion[ 1 ] * 10000 + aVersion[ 2 ] * 100 + aVersion[ 3 ] )
@@ -113,6 +113,10 @@ Function update_data_db( aVersion )
 
   If ver_base < 60404 // переход на версию 6.4.4
     update_v60404()   // исправление двойных случаев
+  endif
+
+  If ver_base < 60406 // переход на версию 6.4.6
+    update_v60406()   // исправление двойных случаев
   endif
 
 Return Nil
