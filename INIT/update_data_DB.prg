@@ -117,6 +117,27 @@ Function update_data_db( aVersion )
 
 Return Nil
 
+// 15.04.26
+function update_v60406()  // Резниченко
+
+  stat_msg( 'Проверка случаев' )
+  e_use( dir_server() + 'human',, 'human' )
+  index on FIELD->fio + DToC( FIELD->K_DATA ) to ( cur_dir() + 'tmp_hum_fio' ) for ( year( FIELD->K_DATA ) > 2025 )
+  human->( dbGoTop() )
+  do while ! human->( Eof() )
+    if human->TIP_H == 3  .and. human->schet != 0
+      human->( dbRLock() )
+      human->TIP_H := 4
+      human->( dbUnlock() )
+    endif
+    human->( dbSkip() )
+  enddo
+  index_base( 'human' )
+  human->( dbCloseArea() )
+
+  return nil
+
+/*
 // 09.04.26
 Function update_v60405()     // исправление двойных случаев
 
@@ -161,6 +182,7 @@ Function update_v60405()     // исправление двойных случаев
   human->( dbCloseArea() )
 
   return nil
+*/
 
 // 07.04.26
 Function update_v60404()     // исправление двойных случаев
