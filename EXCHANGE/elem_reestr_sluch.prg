@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.04.26
+// 15.04.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -59,7 +59,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
   private lshifr_KSG
   Private a_usl
   Private a_usl_name
-  Private lvidpom
+//  Private lvidpom
   Private lfor_pom
   Private akslp
   Private akiro
@@ -99,7 +99,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
     is_zak_sl := is_zak_sl_vr := .f.
     lshifr_zak_sl := '' //  lvidpoms := ''
     a_usl_name := {}
-    lvidpom := 1
+//    lvidpom := 1
     lfor_pom := 3
     akslp := {}
     akiro := {}
@@ -774,7 +774,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       If j > 0
         sCOMENTSL += lstr( j )
       Endif
-      If human_->USL_OK == USL_OK_POLYCLINIC .and. eq_any( lvidpom, 1, 11, 12, 13 )
+//      If human_->USL_OK == USL_OK_POLYCLINIC .and. eq_any( lvidpom, 1, 11, 12, 13 )
+      If human_->USL_OK == USL_OK_POLYCLINIC .and. eq_any( human_->VIDPOM, 1, 11, 12, 13 )
         sCOMENTSL += ':;' // пока так (потом добавим дисп.наблюдение)
       Endif
     Else   // для реестров по диспансеризации

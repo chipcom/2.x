@@ -7,13 +7,13 @@
 
 #define BASE_ISHOD_RZD 500
 
-// 07.04.26 работаем по текущей записи
+// 15.04.26 работаем по текущей записи
 Function f1_create2reestrCommon( _nyear, p_tip_reestr )
 
   Local i, j, lst, sVidpoms
   Local locPRVS
   local arr_not_zs, lc, lpods
-  local lvidpoms
+//  local lvidpoms
   Local atmpusl
   Local aDvn_arr_usl
   //
@@ -21,7 +21,7 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
   tarif_zak_sl := human->cena_1
 
   //
-  lvidpoms := ''
+//  lvidpoms := ''
   atmpusl := {}
 //  Select HU 
   hu->( dbSeek( Str( human->kod, 7 ) ) )  //  find ( Str( human->kod, 7 ) )
@@ -49,11 +49,12 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
       Elseif Left( lshifr, 5 ) == '60.9.'
         is_mgi := .t.
       Endif
+      locPRVS := put_prvs_to_reestr( human_->PRVS, _NYEAR )
+/*
       If !Empty( sVidpoms ) .and. ',' $ sVidpoms
         lvidpoms := sVidpoms
       Endif
       // попытка правки
-      locPRVS := put_prvs_to_reestr( human_->PRVS, _NYEAR )
       If AllTrim( lshifr ) == '2.78.107'
         // терпевт + общая врачебная практика
 //        If eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '76', '39' )
@@ -66,7 +67,7 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
         Endif
         // фельдшер
         // lvidpoms := '11'
-      Endif 
+      Endif
       If ( hu->stoim_1 > 0 .or. Left( lshifr, 3 ) == '71.' ) .and. ( i := ret_vid_pom( 1, lshifr, human->k_data ) ) > 0
         lvidpom := i
         // для школ здоровья ХНИЗ
@@ -74,16 +75,6 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
         if eq_any( lshifr, '2.93.1', '2.93.2', '2.92.2', '2.92.3', '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', ;
             '2.92.10', '2.92.11', '2.92.12', '2.92.13', '2.92.14', '2.92.15', '2.92.16', '2.92.17', '2.92.18' ) .or. ;
           eq_any( lshifr, '2.83.11', '2.83.15' ) //.or. eq_any( lshifr, '70.5.100', '70.6.100' )
-/*
-          if eq_any( locPRVS, '76', '49' )  // тераипия, педиатрия
-          elseif eq_any( locPRVS, '206' )  // фельдшер
-            lvidpom := 11
-          elseif eq_any( lshifr, '2.92.4', '2.92.5', '2.92.9', '2.92.10', '2.92.11' ) .and. locPRVS == '39'   // общая врачебная практика (семейная медицина)
-            lvidpom := 12
-          else  // узкие специалисты
-            lvidpom := 13
-          endif
-*/
           if locPRVS == '206'  // фельдшер
             lvidpom := 11
           elseif eq_any( locPRVS, '76', '49', '39' )  // тераипия, педиатрия, общая врачебная практика
@@ -103,6 +94,7 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
           endif
         endif
       Endif
+*/
       If human_->USL_OK == USL_OK_POLYCLINIC
         If f_is_neotl_pom( lshifr )
           lfor_pom := 2 // неотложная
@@ -144,13 +136,12 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
         AAdd( a_usl_name, lshifr )
       Endif
     Endif
-//    Select HU
-//    Skip
     hu->( dbSkip() )
   Enddo
   If human_->USL_OK == USL_OK_HOSPITAL .and. human_2->VMP == 1 .and. !emptyany( human_2->VIDVMP, human_2->METVMP ) // ВМП
     is_KSG := .f.
   Endif
+/*
   If !Empty( lvidpoms )
     If !eq_ascan( atmpusl, '55.1.2', '55.1.3' ) .or. glob_mo()[ _MO_KOD_TFOMS ] == '801935' // ЭКО-Москва
       lvidpoms := ret_vidpom_licensia( human_->USL_OK, lvidpoms, human_->profil ) // только для дн.стационара при стационаре
@@ -232,7 +223,7 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
       // lvidpoms := '11'
     Endif
   Endif
-  
+*/  
   arr_not_zs := PN_usl_replace( human->k_data )
   a_otkaz := {} 
 //  arr_nazn := {}
