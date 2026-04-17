@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 16.04.26 
+// 17.04.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -1550,8 +1550,9 @@ Function verify_sluch( fl_view, ft )
       Elseif human_->usl_ok == USL_OK_POLYCLINIC .and. l_mdiagnoz_fill
         If Len( a_idsp ) == 1 .and. a_idsp[ 1, 1 ] != 28 // т.е. idsp не равно 'за медицинскую услугу в поликлинике'
           If eq_any( arr_povod[ 1, 1 ], 1, 2, 4, 10 ) // 1.0, 1.1, 1.3, 3.0
-            If ( !Between( Left( mdiagnoz[ 1 ], 1 ), 'A', 'U' ) .and. ! eq_any( Left( mdiagnoz[ 1 ], 3 ), 'Z33', 'Z34', 'Z35' ) )
-              AAdd( ta, 'для посещения (обращения) по поводу заболевания основной диагноз должен быть A00-T98 или U04, U07, Z33, Z34, Z35' )
+            If ( !Between( Left( mdiagnoz[ 1 ], 1 ), 'A', 'U' ) ;
+              .and. ! eq_any( Left( mdiagnoz[ 1 ], 3 ), 'Z33', 'Z34', 'Z35', 'Z70', 'Z71', 'Z72', 'Z73', 'Z74', 'Z75', 'Z76' ) )
+              AAdd( ta, 'для посещения (обращения) по поводу заболевания основной диагноз должен быть A00-T98 или U04, U07, Z33, Z34, Z35, Z70, Z71, Z72, Z73, Z74, Z75, Z76' )
             Endif
           Elseif eq_any( arr_povod[ 1, 1 ], 9, 11 ) // 2.6, 3.1
             If !( Left( mdiagnoz[ 1 ], 1 ) == 'Z' )
