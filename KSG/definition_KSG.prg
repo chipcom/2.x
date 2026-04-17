@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.03.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 17.04.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -971,6 +971,9 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       lcena := aTerKSG[ 1, 2 ]
       lkiro := list2arr( aTerKSG[ 1, 4 ] )
       lkslp := aTerKSG[ 1, 14 ]
+      if lk_data >= 0d20260101
+        ltype_ksg := aTerKSG[ 1, 16 ]
+      endif
       AAdd( ars, ' выбираем КСГ=' + lksg + ' (осн.диагноз+услуга ' + RTrim( aTerKSG[ 1, 6 ] ) + ')' )
       // elseif ascan(a_iskl_1, {|x| x[1]==j .and. eq_any(x[2],0,i) .and. uslOkaz==x[3] }) > 0 // исключение из правил №1
     Elseif AScan( a_iskl_1, {| x| x[ 1 ] == aHirKSG[ 1, 1 ] .and. ( Empty( x[ 2 ] ) .or. x[ 2 ] == aTerKSG[ 1, 1 ] ) } ) > 0 // исключение из правил №1
@@ -978,6 +981,9 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       lcena := aHirKSG[ 1, 2 ]
       lkiro := list2arr( aHirKSG[ 1, 4 ] )
       lkslp := aHirKSG[ 1, 14 ]
+      if lk_data >= 0d20260101
+        ltype_ksg := aHirKSG[ 1, 16 ]
+      endif
       AAdd( ars, ' в соответствии с ИНСТРУКЦИЕЙ по КСГ выбираем ' + aHirKSG[ 1, 1 ] + ' вместо ' + aTerKSG[ 1, 1 ] )
     Else
       If aTerKSG[ 1, 3 ] > aHirKSG[ 1, 3 ] // 'если хирур.КЗ меньше терапевтического КЗ'
@@ -985,6 +991,9 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         lcena := aTerKSG[ 1, 2 ]
         lkiro := list2arr( aTerKSG[ 1, 4 ] )
         lkslp := aTerKSG[ 1, 14 ]
+        if lk_data >= 0d20260101
+          ltype_ksg := aTerKSG[ 1, 16 ]
+        endif
         AAdd( ars, ' выбираем КСГ =' + aTerKSG[ 1, 1 ] + ' с БОЛЬШИМ коэффициентом затратоёмкости ' + lstr( aTerKSG[ 1, 3 ] ) )
       Else
         lksg  := aHirKSG[ 1, 1 ]
@@ -1102,7 +1111,8 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       Endif
       If !Empty( lkiro )
         vkiro := defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lk_data )
-        If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
+        If ( ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 ) .and. ;
+            eq_any( substr( lksg, 1, 2 ), 'st', 'ds' ) )
           akiro := f_cena_kiro( @lcena, vkiro, lk_data, lrslt, ltype_ksg )
           strSoob += '  (КИРО = ' + Str( akiro[ 2 ], 4, 2 ) + ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
         Endif
