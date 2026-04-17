@@ -1111,8 +1111,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       Endif
       If !Empty( lkiro )
         vkiro := defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lk_data )
-        If ( ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 ) .and. ;
-            eq_any( substr( lksg, 1, 2 ), 'st', 'ds' ) )
+        If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
           akiro := f_cena_kiro( @lcena, vkiro, lk_data, lrslt, ltype_ksg )
           strSoob += '  (Šˆ = ' + Str( akiro[ 2 ], 4, 2 ) + ', æ¥­  ' + lstr( lcena, 11, 0 ) + 'à.)'
         Endif
