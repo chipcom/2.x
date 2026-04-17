@@ -275,16 +275,19 @@ Function f2nastr_sprav_ffoms( nKey, oBrow, regim )
 
   Return k
 
-// 18.10.22 сформировать справочник по настройке организации/учреждения/отделения
+// 17.04.26 сформировать справочник по настройке организации/учреждения/отделения
 Function create_classif_ffoms( reg, _name )
 
   // reg - возврат кслассификатора для 0-организации/1-учреждения/2-отделения
   Local i, k, arr, arr1, arr2, fl := .t., ret := {}, ret1
+  local name_arr := 'get' + _name + '()'
 
-  Private name_arr := 'get' + _name + '()'
+//  Private name_arr := 'get' + _name + '()'
   //
   If Upper( _name ) == 'V034'
     name_arr := 'get_ed_izm()'
+  Elseif Upper( _name ) == 'V002'
+    name_arr := 'getV002("' + dtoc( Date() ) + '")'
   Elseif Upper( _name ) == 'IMPLANTANT'
     name_arr := 'get_implantant()'
   Endif

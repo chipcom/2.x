@@ -14,7 +14,7 @@
 #define V002_IS_IDENT 5
 #define V002_PARENT_ID 6
 
-// 23.01.26 вернуть массив по справочнику регионов ТФОМС V002.xml
+// 17.04.26 вернуть массив по справочнику регионов ТФОМС V002.xml
 Function getv002( work_date )
 
   // V002.dbf - Классификатор профилей оказанной медицинской помощи
@@ -26,6 +26,9 @@ Function getv002( work_date )
   Local nI
   Local ret_array
 
+  if ValType( work_date ) == 'C'
+    work_date := CToD( work_date )
+  endif
   If timeout_load( @time_load )
     _arr := {}
     Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
