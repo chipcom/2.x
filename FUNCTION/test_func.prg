@@ -9,16 +9,7 @@ function test_init()
 
 //  aaa := get_f034( '34202606300010029' )
 //  altd()
-/*
-  e_use( dir_server() + 'human',, 'human' )
-  index on FIELD->fio + DToC( FIELD->K_DATA ) to ( cur_dir() + 'tmp_hum_2026' ) for ( year( FIELD->K_DATA ) > 2025 )
-  e_use( dir_server() + 'mo_xml',, 'xml' )
-  index on str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_xml_2026' ) for ( year( FIELD->DFILE ) > 2025 )
-  e_use( dir_server() + 'mo_rees',, 'rees' )
-  index on str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_rees_2026' ) for ( FIELD->NYEAR ) > 2025
 
-  dbCloseAll()
-*/
   return nil
 
 // 12.07.24

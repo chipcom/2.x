@@ -37,7 +37,7 @@ function set_status_updateDB( idVer )
 
   return fl
 
-// 15.04.26 проведение изменений в содержимом БД при обновлении
+// 19.04.26 проведение изменений в содержимом БД при обновлении
 Function update_data_db( aVersion )
 
   Local snversion := Int( aVersion[ 1 ] * 10000 + aVersion[ 2 ] * 100 + aVersion[ 3 ] )
@@ -116,10 +116,97 @@ Function update_data_db( aVersion )
   endif
 
   If ver_base < 60406 // переход на версию 6.4.6
-    update_v60406()   // исправление двойных случаев
+    update_v60406()   // Проверка случаев
+  endif
+
+  If ver_base < 60407 // переход на версию 6.4.7
+    update_v60407()   // исправление двойных случаев
   endif
 
 Return Nil
+
+// 19.04.26
+function update_v60407()
+
+  local mFio, mSchet, mTIP_H, nReestr, name_xml
+  local i := 0, lReindex := .f.
+
+  stat_msg( 'Исправление двойных случаев' )
+  e_use( dir_server() + 'human',, 'human' )
+  index on FIELD->fio + str( FIELD->ISHOD ) to ( cur_dir() + 'tmp_hum_2026' ) for ( FIELD->K_DATA > CToD( '01.12.2025' ) ) Descend
+
+  human->( dbGoTop() )
+  do while ! human->( Eof() )
+
+    if human->ishod == 89 .and. human->TIP_H == 4  .and. human->schet != 0
+      mFio := AllTrim( human->fio )
+      mSchet := human->schet
+      mTIP_H := human->TIP_H
+    elseif AllTrim( human->fio ) == mFio .and. human->ishod == 88 .and. human->TIP_H == 4 .and. human->schet != mSchet
+      human->( dbRLock() )
+      human->schet := mSchet
+      human->( dbUnlock() )
+      lReindex := .t.
+    elseif AllTrim( human->fio ) == mFio .and. human->ishod == 88 .and. human->TIP_H == 3 .and. human->schet != mSchet
+      human->( dbRLock() )
+      human->TIP_H := mTIP_H
+      human->schet := mSchet
+      human->( dbUnlock() )
+      lReindex := .t.
+    endif
+    human->( dbSkip() )
+  enddo
+
+  mFio := ''
+  mSchet := 0
+  mTIP_H := 0
+  human->( dbGoTop() )
+  do while ! human->( Eof() )
+    if human->ishod == 88 .and. human->TIP_H == 4  .and. human->schet != 0
+      mFio := AllTrim( human->fio )
+      mSchet := human->schet
+      mTIP_H := human->TIP_H
+    elseif AllTrim( human->fio ) == mFio .and. human->ishod == 0 .and. human->TIP_H == 4 .and. human->schet == mSchet
+      human->( dbRLock() )
+      human->ishod := 89
+      human->( dbUnlock() )
+      lReindex := .t.
+    endif
+    human->( dbSkip() )
+  enddo
+  e_use( dir_server() + 'mo_rees',, 'rees' )
+  index on str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_rees_2026' ) for ( FIELD->NYEAR ) > 2025
+  e_use( dir_server() + 'schet_',, 'schet_' )
+  index on FIELD->NAME_XML to ( cur_dir() + 'tmp_sch__2026' ) for ( FIELD->DSCHET > CToD( '01.12.2025' ) )
+  e_use( dir_server() + 'human_',, 'human_' )
+  Select human
+  set Relation to RecNo() into human_
+  human->( dbGoTop() )
+  do while ! human->( Eof() )
+    name_xml := ''
+    nReestr := human_->reestr
+    rees->( dbSeek( str( nReestr ) ) )
+    if rees->( Found() )
+      name_xml := rees->name_xml
+      schet_->( dbSeek( name_xml ) )
+      if schet_->( Found() )
+        if human->schet != schet_->( Recno() )
+          human->( dbRLock() )
+          human->schet := schet_->( Recno() )
+          human->( dbUnlock() )
+          lReindex := .t.
+        endif
+      endif
+    endif
+
+    human->( dbSkip() )
+  enddo
+  if lReindex
+    index_base( 'human' )
+  endif
+  dbCloseAll()
+
+  return nil
 
 // 15.04.26
 function update_v60406()  // Резниченко
