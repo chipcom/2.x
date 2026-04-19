@@ -71,7 +71,7 @@ Function reconstruct_security( is_local_version )
   Endif
   Return Nil
 
-// 01.04.26 реконстукция баз данных
+// 19.04.26 реконстукция баз данных
 Function reconstruct_db( is_local_version )
 
   Local base1 := { ;
@@ -270,8 +270,9 @@ Function reconstruct_db( is_local_version )
     { 'KOD_PODR',   'C',  25, 0 }, ; // код подразделения по паспорту ЛПУ
     { 'VRACH',      'N',   4, 0 }, ; // код участкового врача
     { 'OPLATA',     'N',   1, 0 }, ; // тип оплаты, сначала 0, 1-прикреплён, 2-ошибки
-    { 'D_PRIK1',    'D',   8, 0 } ;  // дата прикрепления
-  }
+    { 'D_PRIK1',    'D',   8, 0 }, ; // дата прикрепления
+    { 'KOD_HUM',    'N',   7, 0 } ;  // код пациента по файлу 'human'
+    }
   //
   Local mo_krte := { ; // список ошибок в реестрах на прикрепление
     { 'REESTR',     'N',   6, 0 }, ; // код реестра;по файлу 'mo_krtr'

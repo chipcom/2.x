@@ -235,11 +235,6 @@ Function e_statist( k )
       'e_statist(185)', ;
       'e_statist(186)', ;
       'e_statist(187)' }
-//    If glob_mo[ _MO_KOD_TFOMS ] == '103001' // онкодиспансер
-//      AAdd( mas_pmt, 'Отчёт для ФГБУ "НМИЦ онкологии им.Н.Н.Петрова"' )
-//      AAdd( mas_msg, 'Отчёт для ФГБУ "НМИЦ онкологии им.Н.Н.Петрова"' )
-//      AAdd( mas_fun, 'ot_nmic_petrova()' )
-//    Endif
     popup_prompt( T_ROW, T_COL -5, si18, mas_pmt, mas_msg, mas_fun )
   Case k == 181
     pr_inog_inostr()
