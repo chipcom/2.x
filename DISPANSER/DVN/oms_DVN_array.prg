@@ -1,8 +1,95 @@
 // режимы настройки данных для диспансеризации взрослого населения - oms_DVN_setup.prg
 #include 'inkey.ch'
+#include 'common.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+
+// 18.04.26
+function uslPN_to_uslDVN( mdate, shifr, mobil )
+
+  local i, retShifr := ''
+  local arr
+
+  default mobil to 0
+  shifr := AllTrim( shifr )
+  arr := arrUslugi_from_dvn_to_pn( mdate )
+
+  if mobil == 0 // обычная диспансеризация
+    i := AScan( arr, { | x | x[ 3 ] == shifr } )
+  elseif mobil == 1 // мобильная бригада
+    i := AScan( arr, { | x | x[ 4 ] == shifr } )
+  endif
+  if i > 0
+    if mobil == 0 // обычная диспансеризация
+      retShifr := arr[ i, 1 ]
+    elseif mobil == 1 // мобильная бригада
+      retShifr := arr[ i, 2 ]
+    endif
+  endif
+
+  return retShifr
+
+// 18.04.26
+function uslDVN_to_uslPN( mdate, shifr, mobil )
+
+  local i, retShifr := ''
+  local arr
+
+  default mobil to 0
+  shifr := AllTrim( shifr )
+  arr := arrUslugi_from_dvn_to_pn( mdate )
+
+  if mobil == 0 // обычная диспансеризация
+    i := AScan( arr, { | x | x[ 1 ] == shifr } )
+  elseif mobil == 1 // мобильная бригада
+    i := AScan( arr, { | x | x[ 2 ] == shifr } )
+  endif
+  if i > 0
+    if mobil == 0 // обычная диспансеризация
+      retShifr := arr[ i, 3 ]
+    elseif mobil == 1 // мобильная бригада
+      retShifr := arr[ i, 4 ]
+    endif
+  endif
+
+  return retShifr
+
+// 18.04.26
+function arrUslugi_from_dvn_to_pn( mdate )
+
+  static arr
+  static sYear := 0  // сохраненный год
+  local vYear := Year( mdate )
+
+  if sYear != vYear .or. HB_ISNIL( arr )
+    arr := {}
+    sYear := vYear
+    // 1 - код ДВН услуги обычной, 2 - код услуги ДВН мобильной бригады
+    // 3 - код услуги осмотра обычной, 4 - код услуги осмотра мобильной бригады
+    // 5 - код услуги с нулевым тарифом
+    if vYear > 2025
+      AAdd( arr, { '70.7.63', '70.7.363', '72.7.17', '72.7.317', '2.3.2' } )
+      AAdd( arr, { '70.7.64', '70.7.364', '72.7.18', '72.7.318', '2.3.4' } )
+      AAdd( arr, { '70.7.61', '70.7.361', '72.7.19', '72.7.319', '2.3.15' } )
+      AAdd( arr, { '70.7.62', '70.7.362', '72.7.20', '72.7.320', '2.3.3' } )
+/*
+      AAdd( arr, { '56.1.716', '', '56.1.716', '56.1.725', '56.1.16' } )
+      AAdd( arr, { '56.1.718', '', '56.1.718', '56.1.726', '56.1.18' } )
+      AAdd( arr, { '3.1.719', '', '3.1.719', '3.1.720', '3.1.19' } )
+      AAdd( arr, { '3.1.705', '', '3.1.705', '3.1.721', '3.1.5' } )
+      AAdd( arr, { '4.12.967', '', '4.12.967', '4.12.962', '4.12.174' } )
+      AAdd( arr, { '4.12.966', '', '4.12.966', '4.12.963', '4.12.169' } )
+      AAdd( arr, { '4.15.750', '', '4.15.750', '4.15.748', '4.15.546' } )
+      AAdd( arr, { '7.61.703', '', '7.61.703', '7.61.705', '7.61.3' } )
+      AAdd( arr, { '7.61.709', '', '7.61.709', '7.61.706', '7.61.4' } )
+      AAdd( arr, { '13.1.701', '', '13.1.701', '13.1.703', '13.1.1' } )
+      AAdd( arr, { '13.1707', '', '13.1.707', '13.1.704', '13.1.2' } )
+*/
+    endif
+  endif
+
+  return arr
 
 // 24.03.26
 function dvn_arr_usl_new( dateSl, mobil, etap, gender, age ) 
