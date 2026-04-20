@@ -65,7 +65,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
     lad_cr := '', lad_cr1 := '', lis_err := 0, lpar_org := 0, lyear, ;
     kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := '', lbartell := '', ;
     s_dializ := 0, ahu := {}, amohu := {}, nfile, ;
-    date_usl := SToD( '20210101' ) // stod('20200101')
+    date_usl := SToD( '20210101' )
   local typeKSG  // тип КСГ ( st или ds )
   local uslOkaz         // условия оказания (стационар, дневной стационар м т.д.)
   local i, j
@@ -133,7 +133,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         g_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'ONKSL' ) // Сведения о случае лечения онкологического заболевания
       Endif
       Select ONKSL
-      onksl->( dbSeek( Str( human->kod, 7 ) ) )  //find ( Str( human->kod, 7 ) )
+      onksl->( dbSeek( Str( human->kod, 7 ) ) )
       lad_cr := AllTrim( onksl->crit )
       If lad_cr == 'нет'
         lad_cr := ''
@@ -259,7 +259,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   // составляем массив услуг и массив манипуляций
   If par == 1
     Select HU
-    hu->( dbSeek( Str( human->kod, 7 ) ) )  //find ( Str( human->kod, 7 ) )
+    hu->( dbSeek( Str( human->kod, 7 ) ) )
     Do While hu->kod == human->kod .and. ! hu->( Eof() )
       usl->( dbGoto( hu->u_kod ) )
       If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, date_usl ) )
@@ -282,7 +282,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       r_use( dir_server() + 'mo_su', , 'MOSU' )
     Endif
     Select MOHU
-    mohu->( dbSeek( Str( human->kod, 7 ) ) )  //find ( Str( human->kod, 7 ) )
+    mohu->( dbSeek( Str( human->kod, 7 ) ) )
     Do While mohu->kod == human->kod .and. ! mohu->( Eof() )
       If mosu->( RecNo() ) != mohu->u_kod
         mosu->( dbGoto( mohu->u_kod ) )
@@ -323,7 +323,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         Endif
       Endif
       Select IHU
-      ihu->( dbSkip() )  //  Skip
+      ihu->( dbSkip() )
     Enddo
   Endif
 
@@ -953,10 +953,6 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
     If Len( aHirKSG ) > 1
       ASort( aHirKSG, , , {| x, y| iif( x[ 3 ] == y[ 3 ], x[ 13 ] > y[ 13 ], x[ 3 ] > y[ 3 ] ) } )
     Endif
-    /*aadd(ars, '   ║КСГ: ' +print_array(aHirKSG[1]))
-    for j := 2 to len(aHirKSG)
-      aadd(ars, '   ║     ' +print_array(aHirKSG[j]))
-    next*/
     If ( kol_hir := f_put_debug_ksg( 0, aHirKSG, ars ) ) > 1
       AAdd( ars, ' └─> выбираем КСГ=' + RTrim( aHirKSG[ 1, 1 ] ) + ' [КЗ=' + lstr( aHirKSG[ 1, 3 ] ) + ']' )
     Endif
@@ -964,8 +960,6 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   If kol_ter > 0 .and. kol_hir > 0
     aTerKSG[ 1, 1 ] := AllTrim( aTerKSG[ 1, 1 ] )
     aHirKSG[ 1, 1 ] := AllTrim( aHirKSG[ 1, 1 ] )
-    // i := int(val(substr(aTerKSG[1,1],2,3)))
-    // j := int(val(substr(aHirKSG[1,1],2,3)))
     If !Empty( aTerKSG[ 1, 6 ] ) // т.е. диагноз + услуга
       lksg  := aTerKSG[ 1, 1 ]
       lcena := aTerKSG[ 1, 2 ]
@@ -975,7 +969,6 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         ltype_ksg := aTerKSG[ 1, 16 ]
       endif
       AAdd( ars, ' выбираем КСГ=' + lksg + ' (осн.диагноз+услуга ' + RTrim( aTerKSG[ 1, 6 ] ) + ')' )
-      // elseif ascan(a_iskl_1, {|x| x[1]==j .and. eq_any(x[2],0,i) .and. uslOkaz==x[3] }) > 0 // исключение из правил №1
     Elseif AScan( a_iskl_1, {| x| x[ 1 ] == aHirKSG[ 1, 1 ] .and. ( Empty( x[ 2 ] ) .or. x[ 2 ] == aTerKSG[ 1, 1 ] ) } ) > 0 // исключение из правил №1
       lksg  := aHirKSG[ 1, 1 ]
       lcena := aHirKSG[ 1, 2 ]
