@@ -1,7 +1,102 @@
 #include 'inkey.ch'
 #include 'function.ch'
+#include 'tbox.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+
+// 15.03.26
+function code_duration_K006( dateSl, ldney )
+
+  local ret := ''
+
+  if dateSl >= 0d20260101
+    do case
+      case ldney < 4
+        ret := '1'
+      case ldney >= 4 .and. ldney <= 10
+        ret := '2'
+      case ldney >= 11 .and. ldney <= 20
+        ret := '3'
+      case ldney >= 21 .and. ldney < 30
+        ret := '4'
+      case ldney >= 30
+        ret := '5'
+    endcase
+  else
+    do case
+      case ldney < 4
+        ret := '1'
+      case ldney >= 4 .and. ldney <= 10
+        ret := '11'
+      case ldney >= 11 .and. ldney <= 20
+        ret := '12'
+      case ldney >= 21 .and. ldney <= 30
+        ret := '13'
+      case ldney > 30
+        ret := '14'
+    endcase
+  endif
+
+  return ret
+  
+// 15.03.26
+Function ret_duration_k006_str( mdata, s, s1 )
+
+  Local arr, i
+
+/*  
+  Static sd := 'день', sdr := 'дня', sdm := 'дней'
+  Local arr := { '1-3 ' + s1 + sdr, ;                   // 1
+    '4 ' + s1 + sdr + ' и более', ;          // 2
+    '1-6 ' + s1 + sdm, ;                     // 3
+    '7 ' + s1 + sdm + ' и более', ;          // 4
+    '21 ' + s1 + sd + ' и более', ;          // 5
+    '1-20 ' + s1 + sdm, ;                    // 6
+    '1 ' + s1 + sd, ;                        // 7
+    '4-7 ' + s1 + sdm, ;                     // 8
+    '8-10 ' + s1 + sdm, ;                    // 9
+    '11 ' + s1 + sdm + ' и более' }          // 10
+*/
+  arr := { '1-3 ' + s1 + 'дня', ;                                 // 1
+    'от 4 ' + s1 + 'дней до 10 ' + s1 + 'дней включительно', ;    // 2
+    'от 11 ' + s1 + 'дней до 20 ' + s1 + 'дней включительно', ;   // 3
+    'от 21 ' + s1 + 'дня до 30 ' + s1 + 'дней', ;    // 4
+    'более 30 ' + s1 + 'дней включительно' ;                                   // 5
+  }
+//    'от 21 ' + s1 + 'дня до 30 ' + s1 + 'дней включительно', ;    // 4
+  
+  if mdata >= 0d20260101
+    i := Int( Val( s ) )
+  else
+    if AllTrim( s ) == '1'
+      i := 1
+    else
+      i := Int( Val( s ) ) - 10
+    endif
+  endif
+
+  Return 'дл-ть ' + iif( Between( i, 1, 10 ), arr[ i ], '' )
+
+// 08.12.21
+Function ret_vozrast_k006( s )
+
+  Local ret := ''
+
+  Do Case
+  Case s == '1'
+    ret := '0-28 дней'
+  Case s == '2'
+    ret := '29-90 дней'
+  Case s == '3'
+    ret := 'от 91 дня до 1 года'
+  Case s == '4'
+    ret := 'до 2 лет включительно'
+  Case s == '5'
+    ret := 'ребёнок'
+  Case s == '6'
+    ret := 'взрослый'
+  Endcase
+  Return ret
 
 // 01.11.25 определить КСГ для 1 пациента из режима редактирования услуг
 Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
@@ -60,7 +155,7 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
             tmp->stoim_1 := lcena
             Select HU
             Goto ( tmp->rec_hu )
-            g_rlock( forever )
+            g_rlock( 'forever' )
             hu->u_cena := lcena
             hu->stoim := hu->stoim_1 := lcena
             Unlock
@@ -138,7 +233,7 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
               Goto ( lrec )
               Select HU
               Goto ( tmp->rec_hu )
-              g_rlock( forever )
+              g_rlock( 'forever' )
             Endif
             mrec_hu := hu->( RecNo() )
             hu->kod_vr  := human_->VRACH
@@ -156,7 +251,7 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
               Append Blank
             Enddo
             Goto ( mrec_hu )
-            g_rlock( forever )
+            g_rlock( 'forever' )
             If lrec == 0 .or. !valid_guid( hu_->ID_U )
               hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
             Endif
@@ -213,7 +308,7 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
       Endif
       If !( Round( human->CENA_1, 2 ) == Round( lcena + sdial, 2 ) )
         Select HUMAN
-        g_rlock( forever )
+        g_rlock( 'forever' )
         human->CENA := human->CENA_1 := lcena + sdial // перезапишем стоимость лечения
         Unlock
       Endif

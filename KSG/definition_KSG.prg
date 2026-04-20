@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 17.04.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 20.04.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -1109,10 +1109,11 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         Next
         strSoob += ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
       Endif
-      If !Empty( lkiro )
+      If !Empty( lkiro ) 
         vkiro := defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lk_data )
         If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
-          akiro := f_cena_kiro( @lcena, vkiro, lk_data, lrslt, ltype_ksg )
+//          akiro := f_cena_kiro( @lcena, vkiro, lk_data, lrslt, ltype_ksg )
+          lcena := cena_with_kiro( lcena, vkiro, lk_data, lrslt, ltype_ksg, akiro )
           strSoob += '  (КИРО = ' + Str( akiro[ 2 ], 4, 2 ) + ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
         Endif
       Endif
@@ -1129,98 +1130,4 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   Endif
 
   Return { ars, arerr, AllTrim( lksg ), lcena, akslp, akiro, s_dializ }
-// 1     2        3            4      5      6        7
-
-// 15.03.26
-function code_duration_K006( dateSl, ldney )
-
-  local ret := ''
-
-  if dateSl >= 0d20260101
-    do case
-      case ldney < 4
-        ret := '1'
-      case ldney >= 4 .and. ldney <= 10
-        ret := '2'
-      case ldney >= 11 .and. ldney <= 20
-        ret := '3'
-      case ldney >= 21 .and. ldney < 30
-        ret := '4'
-      case ldney >= 30
-        ret := '5'
-    endcase
-  else
-    do case
-      case ldney < 4
-        ret := '1'
-      case ldney >= 4 .and. ldney <= 10
-        ret := '11'
-      case ldney >= 11 .and. ldney <= 20
-        ret := '12'
-      case ldney >= 21 .and. ldney <= 30
-        ret := '13'
-      case ldney > 30
-        ret := '14'
-    endcase
-  endif
-
-  return ret
-
-// 15.03.26
-Function ret_duration_k006_str( mdata, s, s1 )
-
-  Local arr, i
-
-/*  
-  Static sd := 'день', sdr := 'дня', sdm := 'дней'
-  Local arr := { '1-3 ' + s1 + sdr, ;                   // 1
-    '4 ' + s1 + sdr + ' и более', ;          // 2
-    '1-6 ' + s1 + sdm, ;                     // 3
-    '7 ' + s1 + sdm + ' и более', ;          // 4
-    '21 ' + s1 + sd + ' и более', ;          // 5
-    '1-20 ' + s1 + sdm, ;                    // 6
-    '1 ' + s1 + sd, ;                        // 7
-    '4-7 ' + s1 + sdm, ;                     // 8
-    '8-10 ' + s1 + sdm, ;                    // 9
-    '11 ' + s1 + sdm + ' и более' }          // 10
-*/
-  arr := { '1-3 ' + s1 + 'дня', ;                                 // 1
-    'от 4 ' + s1 + 'дней до 10 ' + s1 + 'дней включительно', ;    // 2
-    'от 11 ' + s1 + 'дней до 20 ' + s1 + 'дней включительно', ;   // 3
-    'от 21 ' + s1 + 'дня до 30 ' + s1 + 'дней', ;    // 4
-    'более 30 ' + s1 + 'дней включительно' ;                                   // 5
-  }
-//    'от 21 ' + s1 + 'дня до 30 ' + s1 + 'дней включительно', ;    // 4
-  
-  if mdata >= 0d20260101
-    i := Int( Val( s ) )
-  else
-    if AllTrim( s ) == '1'
-      i := 1
-    else
-      i := Int( Val( s ) ) - 10
-    endif
-  endif
-
-  Return 'дл-ть ' + iif( Between( i, 1, 10 ), arr[ i ], '' )
-
-// 08.12.21
-Function ret_vozrast_k006( s )
-
-  Local ret := ''
-
-  Do Case
-  Case s == '1'
-    ret := '0-28 дней'
-  Case s == '2'
-    ret := '29-90 дней'
-  Case s == '3'
-    ret := 'от 91 дня до 1 года'
-  Case s == '4'
-    ret := 'до 2 лет включительно'
-  Case s == '5'
-    ret := 'ребёнок'
-  Case s == '6'
-    ret := 'взрослый'
-  Endcase
-  Return ret
+        //  1     2        3              4      5      6        7

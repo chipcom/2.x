@@ -1,4 +1,5 @@
 #include 'function.ch'
+#include 'common.ch'
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
@@ -158,6 +159,41 @@ Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkda
     endif
   endif
   Return vkiro
+
+// 20.04.26
+Function cena_with_kiro( cena, lkiro, dateSl, lrslt, nType_ksg, akiro )
+
+  // cena      - изменяемая цена
+  // lkiro      - уровень КИРО
+  // dateSl     - дата случая
+  // lrslt      - результат лечения
+  // nType_ksg  - тип КСГ (0 - терапевтическое, 1 - хирургическое)
+  // akiro     - массив описателя примененного КИРО ( должен быть пустым )
+
+  Local _aKIRO, rowKIRO, i
+
+  if dateSl >= 0d20260101
+    _aKIRO := tabl_kiro( dateSl )
+
+    if ( i := Ascan( _aKIRO, { | x | ( x[ 1 ] == lkiro ) .and. ( x[ 4 ] == lrslt ) } ) ) > 0
+      AAdd( akiro, lkiro )
+      AAdd( akiro, iif( nType_ksg == 0, _aKIRO[ i, 3 ], _aKIRO[ i, 2 ] ) )
+//      akiro := { lkiro, iif( nType_ksg == 0, _aKIRO[ i, 3 ], _aKIRO[ i, 2 ] ) }
+    endif
+  else
+    _aKIRO := getkirotable( dateSl )
+    For Each rowKIRO in _aKIRO
+      If rowKIRO[ 1 ] == lkiro
+        If between_date( rowKIRO[ 5 ], rowKIRO[ 6 ], dateSl )
+          akiro := { lkiro, rowKIRO[ 4 ] }
+        Endif
+      Endif
+    Next
+  endif
+
+  cena := round_5( cena * akiro[ 2 ], 0 )  // округление до рублей с 2019 года
+
+  Return cena
 
 // 02.03.26
 Function f_cena_kiro( /*@*/_cena, lkiro, dateSl, lrslt, nType_ksg )
@@ -758,7 +794,7 @@ function obyazat_srok_lech( cKSG, lkdata )
   return ret
 
 // 19.10.24
-Function is_hir_tromp( cKSG, lkdata )
+Function is_hir_tromp( cKSG )
 
   // согласно пункта 3.2 инструкции по КСГ 24 года
   // Перечень КСГ, которые предполагают хирургическое вмешательство
