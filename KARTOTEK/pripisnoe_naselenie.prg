@@ -76,7 +76,7 @@ Function pripisnoe_naselenie( k )
       If currentuser():isadmin()
         str_sem := 'Создание файла сверки с ТФОМС'
         If g_slock( str_sem )
-          pripisnoe_naselenie_create_sverka(1)
+          pripisnoe_naselenie_create_sverka()
           g_sunlock( str_sem )
         Else
           func_error( 4, err_slock() )
@@ -88,7 +88,7 @@ Function pripisnoe_naselenie( k )
       If currentuser():isadmin()
         str_sem := 'Создание файла информации о прикреплении'
         If g_slock( str_sem )
-          pripisnoe_naselenie_create_sverka(2)
+          pripisnoe_naselenie_create_sverka_NEW_QA2()
           g_sunlock( str_sem )
         Else
           func_error( 4, err_slock() )
@@ -120,7 +120,7 @@ Function pripisnoe_naselenie( k )
      If currentuser():isadmin()
        str_sem := 'Создание файла сверки с ТФОМС'
        If g_slock( str_sem )
-         pripisnoe_naselenie_create_sverka(2)
+         pripisnoe_naselenie_create_sverka_NEW_QA2()
          g_sunlock( str_sem )
        Else
          func_error( 4, err_slock() )
@@ -1443,22 +1443,19 @@ Function f1_k_z_prikreplenie( nKey, oBrow, regim )
 
   Return ret
 
-// 15.02.26 создать файл(ы) сверки
-Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
+// 19.04.26 создать файл(ы) сверки
+Function pripisnoe_naselenie_create_sverka()
 
   Local ii := 0, s, buf := SaveScreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport
+  Local TIP_SVERKI := 1
 
-  If !f_esc_enter( iif(TIP_SVERKI == 1,'создания файла сверки','создания файла запроса прик-я'), .t. )
+  If !f_esc_enter( 'создания файла сверки', .t. )
     Return Nil
   Endif
   clrline( MaxRow(), color0 )
   dbCreate( cur_dir() + 'tmp', { { 'kod', 'N', 7, 0 } } )
   Use ( cur_dir() + 'tmp' ) new
-  if TIP_SVERKI == 1
-    hGauge := gaugenew(,,, 'Составление списка для включения в файл сверки', .t. )
-  else
-    hGauge := gaugenew(,,, 'Составление списка для включения в файл запроса прик-я', .t. )
-  endif  
+  hGauge := gaugenew(,,, 'Составление списка для включения в файл сверки', .t. )
   gaugedisplay( hGauge )
   curr := 0
   r_use( dir_server() + 'human',dir_server() + 'humankk', 'HUMAN' )
@@ -1492,20 +1489,6 @@ Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
       fl := .t.
     Endif
     // 
-    if fl .and. TIP_SVERKI != 1 // только НОВЫЙ тип сверки 
-     fl := .f.
-     select HUMAN 
-     find ( str(kart->kod,7))
-     do while kart->kod == human->kod_k .and. !eof()
-       if year(human->k_data) > 2025  // пока только данный контроль
-         fl := .T. 
-         exit
-       endif  
-       select HUMAN
-       skip 
-     enddo  
-    endif
-    //
     If fl
       Select TMP
       Append Blank
@@ -1555,7 +1538,7 @@ Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
   If fl
     ins_array( ar, 1, 'Запрет создания ' + s1 + ' сверки:' )
   Else
-    ins_array( ar, 1, 'Подтвердите создание ' + s1 + iif(TIP_SVERKI == 1,' сверки:','прикрепления:') )
+    ins_array( ar, 1, 'Подтвердите создание ' + s1 + ' сверки:' )
     AAdd( ar2, ' Создание ' + s1 + ' сверки ' )
   Endif
   If Len( ar ) < 8
@@ -1581,11 +1564,7 @@ Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
     curr := 0
     RestScreen( buf )
     For i := 1 To Len( arr )
-      if TIP_SVERKI == 1
-        n_file := 'SZ2' + glob_mo()[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] )
-      else
-        n_file := 'QA2' + glob_mo()[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] )      
-      endif  
+      n_file := 'SZ2' + glob_mo()[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] )
       Select KRTR
       addrec( 6 )
       krtr->KOD := RecNo()
@@ -1604,11 +1583,7 @@ Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
       krtf->DFILE := krtr->DFILE
       krtf->TFILE := hour_min( Seconds() )
       krtf->TIP_IN := 0
-      if TIP_SVERKI == 1
-        krtf->TIP_OUT := _CSV_FILE_SVERKAZ
-      else
-        krtf->TIP_OUT := _CSV_FILE_SVERKAZ2
-      endif    
+      krtf->TIP_OUT := _CSV_FILE_SVERKAZ
       krtf->REESTR := krtr->KOD
       krtf->DWORK := sys_date
       krtf->TWORK1 := hour_min( Seconds() ) // время начала обработки
@@ -1622,11 +1597,7 @@ Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
       Delete File ( n_file )
       fp := FCreate( n_file )
       //
-      if TIP_SVERKI == 1
-        hGauge := gaugenew(,,, 'Создание файла сверки ' + n_file, .t. )
-      else 
-        hGauge := gaugenew(,,, 'Создание файла прикрепления ' + n_file, .t. )
-      endif
+      hGauge := gaugenew(,,, 'Создание файла сверки ' + n_file, .t. )
       gaugedisplay( hGauge )
       For ii := 1 To arr[ i, 1 ]
         gaugeupdate( hGauge, ii / arr[ i, 1 ] )
@@ -1663,10 +1634,10 @@ Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
         krtp->REES_ZAP := ii        // номер строки в реестре
         krtp->OPLATA   := 0         // тип оплаты;сначала 0, 1-прикреплён, 2-ошибки
         krtp->D_PRIK1  := CToD( '' )  // дата прикрепления
+      
         //
         s1 := iif( ii == 1, '', hb_eol() ) + Eval( blk, lstr( ii ) ) + ';' // в начале - номер по порядку
         // 1 - Код типа ДПФС
-        if TIP_SVERKI == 1
           s := iif( kart_->vpolis == 3, 'П', iif( kart_->vpolis == 2, 'В', 'С' ) )
           s1 += Eval( blk, s ) + ';'
           If kart_->vpolis < 3
@@ -1692,24 +1663,6 @@ Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
             s := ''
           endif  
           s1 += Eval( blk, s ) + ';'
-        else
-          // 3 - Единый номер полиса ОМС или что-есть
-          s := iif( kart_->vpolis == 3, AllTrim( kart_->NPOLIS ),  AllTrim( kart->POLIS ) )
-          if !ver_number( s )
-            s := ''
-          endif  
-          s1 += Eval( blk, s ) + ';'
-        endif 
-        /*if fl_polis
-          // 2 - Серия и номер ДПФС (только номер - наша область)
-          s := iif(kart_->vpolis < 3, alltrim(kart_->NPOLIS), '')
-          s1 += eval(blk,s)+';'
-          // 3 - Единый номер полиса ОМС
-          s := iif(kart_->vpolis == 3, alltrim(kart_->NPOLIS), '')
-          s1 += eval(blk,s)+';'
-        else
-          s1 += ';;'
-        endif*/
         // 4 (3) - Фамилия застрахованного лица
         s1 += Eval( blk, arr_fio[ 1 ] ) + ';'
         // 5 (4) - Имя застрахованного лица
@@ -1731,9 +1684,9 @@ Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
         // 10 (9) - СНИЛС застрахованного лица
         s := ''
         If !Empty( kart->snils ) .and. val_snils( kart->snils, 2 )
-          s := kart->snils
-        Endif
-        s1 += Eval( blk, s )  // нет ';', т.к. последнее поле
+            s := kart->snils
+          Endif
+          s1 += Eval( blk, s )  // нет ';', т.к. последнее поле
         //
         FWrite( fp, hb_OEMToANSI( s1 ) )
         If ii % 3000 == 0
@@ -1766,6 +1719,282 @@ Function pripisnoe_naselenie_create_sverka(TIP_SVERKI)
   RestScreen( buf )
 
   Return Nil
+
+
+ // 21.04.26 создать файл(ы) сверки
+Function pripisnoe_naselenie_create_sverka_NEW_QA2()
+
+  Local ii := 0, s, buf := SaveScreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport
+
+  If !f_esc_enter( 'создания файла запроса прик-я', .t. )
+    Return Nil
+  Endif
+  clrline( MaxRow(), color0 )
+  dbCreate( cur_dir() + 'tmp', { { 'kod',     'N', 7, 0 }  , ;
+                                 { 'k_data',  'D', 8, 0 },;
+                                 { 'kod_hum', 'N', 7, 0 } } )
+  Use ( cur_dir() + 'tmp' ) new
+  hGauge := gaugenew(,,, 'Составление списка для включения в файл запроса прик-я', .t. )
+  gaugedisplay( hGauge )
+  curr := 0
+  r_use( dir_server() + 'human',dir_server() + 'humankk', 'HUMAN' )
+  r_use( dir_server() + 'mo_kfio',, 'KFIO' )
+  Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
+  r_use_base( 'kartotek' )
+  Set Order To 2
+  find ( '1' )
+  Do While kart->kod > 0 .and. !Eof()
+    gaugeupdate( hGauge, ++curr / LastRec() )
+    fl := .t.
+    If Empty( kart->date_r )
+      fl := .f. // не заполнено поле 'Дата рождения'
+    Elseif kart->date_r >= sys_date
+      fl := .f. // дата рождения больше сегодняшней даты
+    Elseif Year( kart->date_r ) < 1900
+      fl := .f. // дата рождения < 1900г.
+    Endif
+    If fl
+      fl := Between( kart_->vpolis, 1, 3 ) .and. !Empty( kart_->NPOLIS )
+    Endif
+    If fl
+      arr_fio := retfamimot( 1, .f., .t. )
+      If val_fio( arr_fio ) .and. !( Len( arr_fio[ 2 ] ) < 2 .and. Len( arr_fio[ 3 ] ) < 2 )
+        //
+      Else
+        fl := .f.
+      Endif
+    Endif
+    If !fl .and. kart2->mo_pr == glob_mo()[ _MO_KOD_TFOMS ]
+      fl := .t.
+    Endif
+    // 
+    if fl 
+     fl := .f.
+     select HUMAN 
+     find ( str(kart->kod,7))
+     do while kart->kod == human->kod_k .and. !eof()
+       if year(human->k_data) > 2025 .and. human->tip_h < 4 // пока только данный контроль
+         if human->komu == 0 // только ОМС 
+           Select TMP
+           Append Blank
+           tmp->kod     := kart->kod
+           tmp->k_data  := human->k_data
+           tmp->kod_hum := human->kod
+           If tmp->( RecNo() ) % 100 == 0
+            @ MaxRow(), 1 Say lstr( tmp->( RecNo() ) ) Color color0
+            If tmp->( RecNo() ) % 2000 == 0
+              Commit
+            Endif
+           Endif 
+         endif 
+       endif  
+       select HUMAN
+       skip 
+     enddo  
+    endif
+    //
+    Select KART
+    Skip
+  Enddo
+  ii := tmp->( LastRec() )
+  Close databases
+  closegauge( hGauge )
+  i := -1
+  arr := {}
+  Do While ii > 0
+    k := Min( ii, 99999 ) ; i++
+    AAdd( arr, { k, sys_date - i, 0 } )
+    ii -= k
+  Enddo
+  fl := .f.
+  s := 'QA2'
+  r_use( dir_server() + 'mo_krtr',, 'KRTR' ) // Список файлов прикрепления
+  Index On DToS( FIELD->DFILE ) to ( cur_dir() + 'tmp_krtr' ) For Left( FIELD->FNAME, 3 ) == s
+  ar := {}
+  For i := 1 To Len( arr )
+    n_file := s + glob_mo()[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] ) + scsv()
+    s1 := ''
+    find ( DToS( arr[ i, 2 ] ) )
+    If Found()
+      s1 := ' - уже был создан'
+      fl := .t.
+    Endif
+    AAdd( ar, n_file + ' (' + lstr( arr[ i, 1 ] ) + ' чел.)' + s1 )
+  Next
+  Close databases
+  clrline( MaxRow(), color0 )
+  ar2 := { ' Выход ' } ; s1 := 'файл' + iif( Len( arr ) == 1, 'а', 'ов' )
+  If fl
+    ins_array( ar, 1, 'Запрет создания ' + s1 + ' сверки:' )
+  Else
+    ins_array( ar, 1, 'Подтвердите создание ' + s1 + 'прикрепления:' )
+    AAdd( ar2, ' Создание ' + s1 + ' сверки ' )
+  Endif
+  If Len( ar ) < 8
+    AAdd( ar, '' )
+    If Len( ar ) < 8
+      ins_array( ar, 2, '' )
+    Endif
+  Endif
+  If f_alert( ar, ar2, 1, 'GR+/R', 'W+/R',,, 'GR+/R,N/BG' ) == 2
+    mywait()
+    blk := {| _s| iif( Empty( _s ), '', '"' + _s + '"' ) }
+    g_use( dir_server() + 'mo_krtr',, 'KRTR' )
+    Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_krtr' )
+    g_use( dir_server() + 'mo_krtf',, 'KRTF' )
+    Index On Str( FIELD->kod, 6 ) to ( cur_dir() + 'tmp_krtf' )
+    g_use( dir_server() + 'mo_krtp',, 'KRTP' )
+    Index On Str( FIELD->reestr, 6 ) to ( cur_dir() + 'tmp_k' )
+    r_use( dir_server() + 'mo_kfio', cur_dir() + 'tmp_kfio', 'KFIO' )
+    r_use_base( 'kartotek' )
+    Set Order To 0
+    Use ( cur_dir() + 'tmp' ) new
+    Set Relation To FIELD->kod into KART
+    curr := 0
+    RestScreen( buf )
+    For i := 1 To Len( arr ) // если более 99999 - то несколько файлов
+      n_file := 'QA2' + glob_mo()[ _MO_KOD_TFOMS ] + DToS( arr[ i, 2 ] )      
+      Select KRTR
+      addrec( 6 )
+      krtr->KOD := RecNo()
+      krtr->FNAME := n_file
+      krtr->DFILE := arr[ i, 2 ]
+      krtr->DATE_OUT := CToD( '' )
+      krtr->NUMB_OUT := 0
+      krtr->KOL := arr[ i, 1 ]
+      krtr->KOL_P := 0
+      krtr->ANSWER := 0  // 0-не было ответа, 1-был прочитан ответ
+      //
+      Select KRTF
+      addrec( 6 )
+      krtf->KOD   := RecNo()
+      krtf->FNAME := krtr->FNAME
+      krtf->DFILE := krtr->DFILE
+      krtf->TFILE := hour_min( Seconds() )
+      krtf->TIP_IN := 0
+      krtf->TIP_OUT := _CSV_FILE_SVERKAZ2
+      krtf->REESTR := krtr->KOD
+      krtf->DWORK := sys_date
+      krtf->TWORK1 := hour_min( Seconds() ) // время начала обработки
+      krtf->TWORK2 := ''                  // время окончания обработки
+      //
+      krtr->KOD_F := krtf->KOD
+      dbUnlockAll()
+      Commit
+      //
+      n_file += scsv()
+      Delete File ( n_file )
+      fp := FCreate( n_file )
+      //
+      hGauge := gaugenew(,,, 'Создание файла прикрепления ' + n_file, .t. )
+      gaugedisplay( hGauge )
+      For ii := 1 To arr[ i, 1 ]
+        gaugeupdate( hGauge, ii / arr[ i, 1 ] )
+        ++curr
+        Select TMP
+        Goto ( curr )
+        arr_fio := retfamimot( 1, .f., .t. )
+        fl_polis := fl_pasport := .t.
+        If Empty( kart_->SPOLIS )
+          ta := {}
+          valid_sn_polis( kart_->vpolis, '', kart_->NPOLIS, ta, .t. )
+          fl_polis := Empty( ta ) // функция проверки не вернула ошибок
+        Else
+          fl_polis := .f. // есть серия полиса => иногородний
+        Endif
+        If !eq_any( kart_->vid_ud, 1, 3, 14 )
+          fl_pasport := .f. // не то в поле 'ВИД удостоверения личности'
+        Else
+          If Empty( kart_->nom_ud )
+            fl_pasport := .f. // должно быть заполнено поле 'НОМЕР удостоверения личности'
+          Elseif !val_ud_nom( 2, kart_->vid_ud, kart_->nom_ud )
+            fl_pasport := .f.
+          Endif
+          If fl_pasport .and. !Empty( kart_->ser_ud ) .and. !val_ud_ser( 2, kart_->vid_ud, kart_->ser_ud )
+            fl_pasport := .f.
+          Endif
+        Endif
+        Select KRTP
+        addrec( 6 )
+        krtp->REESTR   := krtr->KOD // код реестра;по файлу 'mo_krtr'
+        krtp->KOD_K    := kart->kod // код пациента по файлу 'kartotek'
+        krtp->KOD_HUM  := tmp->kod_hum // код пациента по файлу 'human'
+        krtp->D_PRIK   := tmp->k_data  // дата окончания случал в 'HUMAN'
+        krtp->S_PRIK   := 0         // способ прикрепления: 1-по месту регистрации, 2-по личному заявлению (без изменения м/ж), 3-по личному заявлению (в связи с изменением м/ж)
+        krtp->REES_ZAP := ii        // номер строки в реестре
+        krtp->OPLATA   := 0         // тип оплаты;сначала 0, 1-прикреплён, 2-ошибки
+        krtp->D_PRIK1  := CToD( '' )  // дата прикрепления
+        //
+        // 1 - Порядковый номер записи в ЗП
+        s1 := iif( ii == 1, '', hb_eol() ) + Eval( blk, lstr( ii ) ) + ';' 
+        // 2 - Единый номер полиса ОМС или что-есть 
+        s := iif( kart_->vpolis == 3, AllTrim( kart_->NPOLIS ),  AllTrim( kart->POLIS ) )
+        if !ver_number( s )
+          s := ''
+        endif  
+        s1 += Eval( blk, s ) + ';'
+        // 3 - Фамилия ЗЛ
+        s1 += Eval( blk, arr_fio[ 1 ] ) + ';'
+        // 4 - Имя ЗЛ
+        s1 += Eval( blk, arr_fio[ 2 ] ) + ';'
+        // 5 - Отчество ЗЛ
+        s1 += Eval( blk, arr_fio[ 3 ] ) + ';'
+        // 6 - Дата рождения ЗЛ
+        s1 += Eval( blk, DToS( kart->date_r ) ) + ';'
+        If fl_pasport
+          // 7 - Тип ДУДЛ ЗЛ
+          s := lstr( kart_->vid_ud )
+          s1 += Eval( blk, s ) + ';'
+          // 8 - Серия ДУДЛ ЗЛ
+          s := AllTrim( kart_->ser_ud ) 
+          s1 += Eval( blk, s ) + ';'
+          // 9 - Номер ДУДЛ ЗЛ 
+          s := AllTrim( kart_->nom_ud )
+          s1 += Eval( blk, s ) + ';'
+        Else
+          s1 += ';;;'
+        Endif
+        // 10 - СНИЛС ЗЛ
+        s := ''
+        If !Empty( kart->snils ) .and. val_snils( kart->snils, 2 )
+          s := transform_SNILS( kart->SNILS )
+        Endif
+        s1 += Eval( blk, s ) +';'
+        // 11 - Дата сведений (данных)
+        s1 += Eval( blk, DToS( tmp->k_data  ) ) 
+        //
+        FWrite( fp, hb_OEMToANSI( s1 ) )
+        If ii % 5000 == 0
+          dbUnlockAll()
+          Commit
+        Endif
+      Next ii
+      FClose( fp )
+      name_zip := AllTrim( krtr->FNAME ) + szip()
+      Select KRTR
+      g_rlock( forever )
+      krtr->KOL := arr[ i, 1 ]
+      Select KRTF
+      g_rlock( forever )
+      krtf->KOL := arr[ i, 1 ]
+      krtf->TWORK2 := hour_min( Seconds() ) // время окончания обработки
+      dbUnlockAll()
+      Commit
+      If hb_FileExists( n_file )
+        If chip_create_zipxml( name_zip, { n_file }, .t. )
+          stat_msg( 'Файл сверки ' + n_file + ' создан!' ) ; mybell( 1, OK )
+        Endif
+      Else
+        func_error( 4, 'Ошибка создания файла ' + n_file )
+      Endif
+    Next i
+    Close databases
+    Keyboard Chr( K_HOME ) + Chr( K_ENTER )
+  Endif
+  RestScreen( buf )
+
+  Return Nil
+ 
 
 // 05.07.15 быстрое редактирование участков списком
 Function edit_uchast_spisok()
