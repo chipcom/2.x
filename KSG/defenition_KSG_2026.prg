@@ -26,24 +26,22 @@ Function definition_ksg_2026( par, k_data2, lDoubleSluch )  // исправить на defe
   local uslOkaz         // условия оказания (стационар, дневной стационар м т.д.)
   local lal, lalf, lshifr, lage
   local ahu := {}, amohu := {}, lpar_org := 0
-  local lyear, lbartell := '', ldni, ldnej := 0, y := 0, m := 0, d := 0, ;
-    date_usl := SToD( '20210101' )
+  local typeKSG  // тип КСГ ( st или ds )
+  local lyear, lbartell := '', ldni, ldnej := 0, y := 0, m := 0, d := 0, nfile, fl_reabil, ar_ksg, ar1, lkoef, tmp
+  local sds1, sds2
+  local i, j
+  local date_usl := SToD( '20210101' )
 
 
 /*
-  local typeKSG  // тип КСГ ( st или ds )
-  local i, j
-  local _a1, ar_ksg, ar_crit, ar_crit1
+  local _a1, ar_crit, ar_crit1
   local c_crit, icrit
-  local sds1, sds2
   local arr_ad_criteria
   Local aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lstentvmp := 0, ;
-    ar1, im, ;
+    im, ;
     cenaTer := 0, cenaHir := 0, ;
     ;
-    tmp, ;
-    kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := '', ;
-    nfile, ;
+    kol_ter := 0, kol_hir := 0, lkiro := 0, lkslp := '', ;
 */
 
   If par == 1
@@ -320,7 +318,249 @@ Function definition_ksg_2026( par, k_data2, lDoubleSluch )  // исправить на defe
     iif( Empty( osl_diag ), '', ', диаг.осл.' + CharRem( ' ', print_array( osl_diag ) ) )
   lsex := iif( lpol == 'М', '1', '2' )
 
-  llos := {} // ''
+  llos := {}
+
+  AAdd( llos, code_duration_K006( lk_data, ldnej ) )
+
+  nfile := prefixfilerefname( lyear ) + 'k006'
+  If Select( 'K006' ) == 0
+    r_use( dir_exe() + nfile, { cur_dir() + nfile, cur_dir() + nfile + '_', cur_dir() + nfile + 'AD' }, 'K006' )
+  Else
+    If ver_year == lyear // проверяем: если тот же год, что только что проверяли
+      // ничего не меняем
+    Else // иначе переоткрываем данный файл с необходимым годом и тем же алиасом
+      k006->( dbCloseArea() )
+      r_use( dir_exe() + nfile, { cur_dir() + nfile, cur_dir() + nfile + '_', cur_dir() + nfile + 'AD' }, 'K006' )
+    Endif
+  Endif
+
+  ver_year := lyear
+  fl_reabil := ( AScan( ahu, '1.11.2' ) > 0 .or. AScan( ahu, '55.1.4' ) > 0 )
+  typeKSG := iif( uslOkaz == USL_OK_HOSPITAL, 'st', 'ds' )
+
+  // собираем КСГ по осн.диагнозу (терапевтические и комбинированные)
+  ar_ksg := {}
+  tmp := {}
+  Select K006
+
+  If lprofil != 137   // не ЭКО
+    Set Order To 1
+    k006->( dbSeek( typeKSG + PadR( osn_diag, 6 ) ) )
+    Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->ds == PadR( osn_diag, 6 ) .and. ! k006->( Eof() )
+      lkoef := k006->kz
+      dbSelectArea( lal )
+      ( lal )->( dbSeek( PadR( k006->shifr, 10 ) ) )
+//      fl := lkoef > 0 .and. between_date( &lal.->DATEBEG, &lal.->DATEEND, date_usl )
+      fl := lkoef > 0 .and. between_date( ( lal )->DATEBEG, ( lal )->DATEEND, date_usl )
+      If fl
+        fl := between_date( k006->DATEBEG, k006->DATEEND, date_usl )
+      Endif
+      If fl
+        sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
+        sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
+      Endif
+      j := 0
+
+      // проверим наличие федеральной услуги
+      If fl .and. !Empty( k006->sy )
+        If ( i := AScan( amohu, k006->sy ) ) > 0
+          j += 10
+        Else
+          fl := .f.
+        Endif
+      Endif
+
+      If fl .and. !Empty( k006->age )
+        If ( fl := ( k006->age $ lage ) )
+          If k006->age == '1'
+            j += 5
+          Elseif k006->age == '2'
+            j += 4
+          Elseif k006->age == '3'
+            j += 3
+          Elseif k006->age == '4'
+            j += 2
+          Else
+            j++
+          Endif
+        Endif
+      Endif
+      If fl .and. !Empty( k006->sex )
+        fl := ( k006->sex == lsex )
+        If fl
+          j++
+        Endif
+      Endif
+      If fl .and. !Empty( k006->los )
+        fl := AScan( llos, AllTrim( k006->los ) ) > 0  // (k006->los $ llos)
+        If fl
+          j++
+        Endif
+      Endif
+
+      If fl
+        If Empty( lad_cr ) // в случае нет доп.критерия
+          If !Empty( k006->ad_cr ) // а в справочнике есть доп.критерий
+            fl := .f.
+          Endif
+        Else // в случае есть доп.критерий
+          If Empty( k006->ad_cr ) // а в справочнике нет доп.критерия
+            fl := .f.
+          Else                  // а в справочнике есть доп.критерий
+            fl := ( AllTrim( lad_cr ) == AllTrim( k006->ad_cr ) )
+            If fl
+              j++
+            Endif
+          Endif
+        Endif
+      Endif
+      If fl
+        If Empty( lad_cr1 ) // в случае нет доп.критерия2
+          If !Empty( k006->ad_cr1 ) // а в справочнике есть доп.критерий2
+            fl := .f.
+          Endif
+        Else // в случае есть доп.критерий2
+          If Empty( k006->ad_cr1 ) // а в справочнике нет доп.критерия2
+            fl := .f.
+          Else                  // а в справочнике есть доп.критерий2
+            fl := ( lad_cr1 == AllTrim( k006->ad_cr1 ) )
+            If fl
+              j++
+            Endif
+          Endif
+        Endif
+      Endif
+      //
+      If fl .and. !Empty( sds1 )
+        fl := .f.
+        For i := 1 To Len( sop_diag )
+          If AllTrim( sop_diag[ i ] ) $ sds1
+            fl := .t.
+            Exit
+          Endif
+        Next
+        If fl
+          j++
+        Endif
+      Endif
+      If fl .and. !Empty( sds2 )
+        fl := .f.
+        For i := 1 To Len( osl_diag )
+          If AllTrim( osl_diag[ i ] ) $ sds2
+            fl := .t.
+            Exit
+          Endif
+        Next
+        If fl
+          j++
+        Endif
+      Endif
+      //
+      If fl
+        If !Empty( k006->sy ) .and. ( i := AScan( amohu, k006->sy ) ) > 0
+          AAdd( tmp, i )
+        Endif
+        add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2 )
+      Endif
+      Select K006
+      k006->( dbSkip() )
+    Enddo
+  else  // ЭКО
+    Set Order To 3
+    K006->( dbGoTop() )
+    K006->( dbSeek( Lower( lad_cr ) ) )
+    Do While Lower( AllTrim( K006->AD_CR ) ) == Lower( AllTrim( lad_cr ) ) .and. !( 'K006' )->( Eof() )
+      lkoef := k006->kz
+      dbSelectArea( lal )
+      ( lal )->( dbSeek( PadR( k006->shifr, 10 ) ) )
+      if ( lal )->( Found() )
+//        fl := lkoef > 0 .and. between_date( &lal.->DATEBEG, &lal.->DATEEND, date_usl )
+        fl := k006->kz > 0 .and. between_date( ( lal )->DATEBEG, ( lal )->DATEEND, date_usl )
+        If fl
+          fl := between_date( k006->DATEBEG, k006->DATEEND, date_usl )
+        Endif
+        j := 0
+        j++
+        j++
+        If fl
+          add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, '', '' )
+        Endif
+      Endif
+      K006->( dbSkip() )
+    Enddo
+  endif
+
+  ar1 := {}
+  If uslOkaz == USL_OK_DAY_HOSPITAL .and. !Empty( lad_cr ) .and. lad_cr == 'mgi'
+    Select K006
+    Locate For k006->ad_cr == PadR( 'mgi', 20 )
+    If Found() // <CODE>ds19.033</CODE>
+      lkoef := k006->kz
+      dbSelectArea( lal )
+      ( lal )->( dbSeek( PadR( k006->shifr, 10 ) ) )
+//        fl := lkoef > 0 .and. between_date( &lal.->DATEBEG, &lal.->DATEEND, date_usl )
+      fl := k006->kz > 0 .and. between_date( ( lal )->DATEBEG, ( lal )->DATEEND, date_usl )
+      If fl
+        fl := between_date( k006->DATEBEG, k006->DATEEND, date_usl )
+      Endif
+      If fl
+        sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
+        sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
+        j := 1
+        ar_ksg := {}
+        add_KSG_table( ar1, lk_data, lal, osn_diag, j, sds1, sds2 )
+      Endif
+    Endif
+  Endif
 
   Return { ars, arerr, AllTrim( lksg ), lcena, akslp, akiro, s_dializ }
         //  1     2        3              4      5      6        7
+
+// 21.04.26
+function add_KSG_table( arr_KSG, mdate, lal, osn_diag, j, sds1, sds2 )
+
+  default sds1 to '', sds2 to ''
+  if mdate >= 0d20260101
+    AAdd( arr_KSG, { ;
+      k006->shifr, ;                // 1 шифр КСГ
+      0, ;                          // 2
+      k006->kz, ;                   // 3 коэффициент затратоемкости
+      ( lal )->kiros, ;             // 4 список возможных КИРО
+      osn_diag, ;                   // 5 основной диагноз
+      k006->sy, ;                   // 6 Код услуги, соответствующий номенклатуре медицинских услуг V001. Если код услуги не участвует в правиле отнесения к КСГ, то передается ?пустой? тег.
+      k006->age, ;                  // 7 Возрастная категория, в соответствии с которой проводится отнесение к КСГ. Если возраст не участвует в правиле отнесения к КСГ, то передается ?пустой? тег
+      k006->sex, ;                  // 8 Пол, в соответствии с которым проводится отнесение к КСГ: 1- мужской, 2- женский. Если пол не участвует в правиле отнесения к КСГ, то передается ?пустой? тег
+      k006->los, ;                  // 9 Длительность случая лечения. Если длительность случая не участвует в правиле, то передается ?пустой? тег.
+      k006->ad_cr, ;                // 10 Код классификационного критерия в соответствии с ?Справочником дополнительных классификационных критериев? V024, за исключением показателя ?Количество фракций?, используемых при лучевой или химиолучевой терапии.
+      sds1, ;                       // 11 Коды сопутствующих диагнозов по МКБ-10.
+      sds2, ;                       // 12 Код диагнозов осложнений по МКБ10.
+      j, ;                          // 13
+      ( lal )->kslps, ;             // 14 Список доступных КСЛП.
+      k006->ad_cr1, ;               // 15 Иной классификационный критерий. Используется для передачи сведений о показателе ?Количество фракций? при лучевой или химиолучевой терапии.
+      ( lal )->TYPE_KSG } ;         // 16 тип КСГ ( 0 - терапевтическое, 1 - хирургическое )
+    )
+//       &lal.->kiros, ; // 4
+//       &lal.->kslps, ; // 14
+//       &lal.->TYPE_KSG } ; // 16
+  else
+    AAdd( arr_KSG, { k006->shifr, ;  // 1 шифр КСГ
+      0, ;                          // 2
+      k006->kz, ;                   // 3 коэффициент затратоемкости
+      ( lal )->kiros, ;             // 4 список возможных КИРО
+      osn_diag, ;                   // 5 основной диагноз
+      k006->sy, ;                   // 6 Код услуги, соответствующий номенклатуре медицинских услуг V001. Если код услуги не участвует в правиле отнесения к КСГ, то передается ?пустой? тег.
+      k006->age, ;                  // 7 Возрастная категория, в соответствии с которой проводится отнесение к КСГ. Если возраст не участвует в правиле отнесения к КСГ, то передается ?пустой? тег
+      k006->sex, ;                  // 8 Пол, в соответствии с которым проводится отнесение к КСГ: 1- мужской, 2- женский. Если пол не участвует в правиле отнесения к КСГ, то передается ?пустой? тег
+      k006->los, ;                  // 9 Длительность случая лечения. Если длительность случая не участвует в правиле, то передается ?пустой? тег.
+      k006->ad_cr, ;                // 10 Код классификационного критерия в соответствии с ?Справочником дополнительных классификационных критериев? V024, за исключением показателя ?Количество фракций?, используемых при лучевой или химиолучевой терапии.
+      sds1, ;                       // 11 Коды сопутствующих диагнозов по МКБ-10.
+      sds2, ;                       // 12 Код диагнозов осложнений по МКБ10.
+      j, ;                          // 13
+      ( lal )->kslps, ;             // 14 Список доступных КСЛП.
+      k006->ad_cr1 } ;              // 15 Иной классификационный критерий. Используется для передачи сведений о показателе ?Количество фракций? при лучевой или химиолучевой терапии.
+    )
+//     &lal.->kiros, ; // 4
+//     &lal.->kslps, ; // 14
+  endif
+
+  return arr_KSG
