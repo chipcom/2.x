@@ -29,16 +29,19 @@ Function definition_ksg( par, k_data2, lDoubleSluch )  // исправить на defenitio
   local ahu := {}, amohu := {}, lpar_org := 0
   local typeKSG  // тип КСГ ( st или ds )
   local fl, fl_cena := .f., fl_reabil
-  local lyear, lbartell := '', ldni, ldnej := 0, y := 0, m := 0, d := 0, nfile, ar_ksg, ar1, lkoef, tmp
+  local lyear, lbartell := '', ldni, ldnej := 0, y := 0, m := 0, d := 0, nfile
+  local _a1, ar_ksg, ar1, lkoef, tmp
   local sds1, sds2
   local i, j, im
+  local ar_crit, ar_crit1, arr_ad_criteria
+  local two_letters
   local date_usl := SToD( '20210101' )
+  local c_crit, icrit
+  local oBox
 
 
 /*
-  local _a1, ar_crit, ar_crit1
-  local c_crit, icrit
-  local arr_ad_criteria
+  local 
   Local aHirKSG := {}, aTerKSG := {}, lstentvmp := 0, ;
     cenaTer := 0, cenaHir := 0, ;
     ;
@@ -517,10 +520,12 @@ Function definition_ksg( par, k_data2, lDoubleSluch )  // исправить на defenitio
   Endif
 
   If Len( ar_ksg ) > 0
+/*
     For i := 1 To Len( tmp )
       im := tmp[ i ]
       amohu[ im ] := '' // очистить, чтобы не включать в хирургическую КСГ
     Next
+*/
 /*
     For i := 1 To Len( ar_ksg ) 
       ar_ksg[ i, 2 ] := ret_cena_ksg( ar_ksg[ i, 1 ], lvr, date_usl )
@@ -537,6 +542,221 @@ Function definition_ksg( par, k_data2, lDoubleSluch )  // исправить на defenitio
 //      AAdd( ars, ' └─> выбираем КСГ=' + RTrim( aTerKSG[ 1, 1 ] ) + ' [КЗ=' + lstr( aTerKSG[ 1, 3 ] ) + ']' )
 //    Endif
   Endif
+
+// собираем КСГ по манипуляциям (хирургические и комбинированные)
+//  ar_ksg := ar1
+  ar_crit := {}
+  ar_crit1 := {}
+  arr_ad_criteria := getAdditionalCriteria( lk_data )  // загрузим доп. критерии на дату
+
+  For im := 1 To Len( amohu )
+    If !Empty( lshifr := AllTrim( amohu[ im ] ) )
+      _a1 := {}
+      Select K006
+      Set Order To 2
+      k006->( dbSeek( typeKSG + PadR( lshifr, 20 ) ) )
+      Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->sy == PadR( lshifr, 20 ) .and. ! k006->( Eof() )
+        lkoef := k006->kz
+        dbSelectArea( lal )
+        ( lal )->( dbSeek( PadR( k006->shifr, 10 ) ) )
+        fl := lkoef > 0 .and. between_date( ( lal )->DATEBEG, ( lal )->DATEEND, date_usl )
+        If fl
+          fl := between_date( k006->DATEBEG, k006->DATEEND, date_usl )
+        Endif
+        If fl
+          sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
+          sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
+        Endif
+        j := 0
+        If fl .and. !Empty( k006->ds )
+          fl := ( AllTrim( k006->ds ) == osn_diag )
+          If fl
+            j += 10
+          Endif
+        Endif
+        If fl .and. !Empty( k006->age )
+          If ( fl := ( k006->age $ lage ) )
+            If k006->age == '1'
+              j += 5
+            Elseif k006->age == '2'
+              j += 4
+            Elseif k006->age == '3'
+              j += 3
+            Elseif k006->age == '4'
+              j += 2
+            Else
+              j++
+            Endif
+          Endif
+        Endif
+        If fl .and. !Empty( k006->sex )
+          fl := ( k006->sex == lsex )
+          If fl
+            j++
+          Endif
+        Endif
+        If fl .and. !Empty( k006->los )
+          fl := AScan( llos, AllTrim( k006->los ) ) > 0
+          If fl
+            j++
+          Endif
+        Endif
+        If fl .and. !Empty( k006->ad_cr )  // в справочнике есть доп.критерий
+          two_letters := lower( substr( lshifr, 1, 2 ) )
+          fl := .f.
+          If !Empty( lad_cr )        // в случае есть доп.критерий
+            fl := ( lad_cr == AllTrim( k006->ad_cr ) ) .or. ! eq_any( two_letters, 'st', 'ds' )
+            If fl
+              j++
+            Endif
+          else
+            fl := .t.
+            j++
+          Endif
+        Endif
+        If fl .and. !Empty( k006->ad_cr1 )  // в справочнике есть доп.критерий2
+          fl := .f.
+          If !Empty( lad_cr1 )        // в случае есть доп.критерий2
+            fl := ( lad_cr1 == AllTrim( k006->ad_cr1 ) )
+            If fl
+              j++
+            Endif
+          Endif
+        Endif
+        If fl .and. !Empty( sds1 )
+          fl := .f.
+          For i := 1 To Len( sop_diag )
+            If AllTrim( sop_diag[ i ] ) $ sds1
+              fl := .t.
+              Exit
+            Endif
+          Next
+          If fl
+            j++
+          Endif
+        Endif
+        If fl .and. !Empty( sds2 )
+          fl := .f.
+          For i := 1 To Len( osl_diag )
+            If AllTrim( osl_diag[ i ] ) $ sds2
+              fl := .t.
+              Exit
+            Endif
+          Next
+          If fl
+            j++
+          Endif
+        Endif
+        If fl
+          add_KSG_table( _a1, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+/*
+          if lk_data >= 0d20260101
+            AAdd( _a1, { k006->shifr, ; // 1
+              0, ;           // 2
+              lkoef, ;       // 3
+              &lal.->kiros, ; // 4
+              k006->ds, ;    // 5
+              lshifr, ;      // 6
+              k006->age, ;   // 7
+              k006->sex, ;   // 8
+              k006->los, ;   // 9
+              k006->ad_cr, ; // 10
+              sds1, ;        // 11
+              sds2, ;        // 12
+              j, ;           // 13
+              &lal.->kslps, ; // 14
+              k006->ad_cr1, ; // 15
+              &lal.->TYPE_KSG } ) // 16
+          else
+            AAdd( _a1, { k006->shifr, ; // 1
+              0, ;           // 2
+              lkoef, ;       // 3
+              &lal.->kiros, ; // 4
+              k006->ds, ;    // 5
+              lshifr, ;      // 6
+              k006->age, ;   // 7
+              k006->sex, ;   // 8
+              k006->los, ;   // 9
+              k006->ad_cr, ; // 10
+              sds1, ;        // 11
+              sds2, ;        // 12
+              j, ;           // 13
+              &lal.->kslps, ; // 14
+              k006->ad_cr1 } ) // 15
+          endif
+*/
+          if Empty( k006->ad_cr )
+            AAdd( ar_crit, { '', '--нет критерия--' } )
+            AAdd( ar_crit1, '--нет критерия--' )
+          else
+            c_crit := AllTrim( k006->ad_cr )
+            if ( icrit := AScan( arr_ad_criteria, {| x | AllTrim( x[ 2 ] ) == c_crit } ) ) > 0
+              AAdd( ar_crit, { c_crit, c_crit + ' ' + arr_ad_criteria[ icrit, 6 ] } )
+              AAdd( ar_crit1, c_crit + ' ' + arr_ad_criteria[ icrit, 6 ] )
+            endif
+          endif
+        Endif
+        Select K006
+        k006->( dbSkip() )
+      Enddo
+      If Len( _a1 ) > 1 // если по данной услуге более одной КСГ, сортируем по убыванию критериев
+        If __mvExist( 'mshifr' ) .and. ! HB_ISNIL( mshifr )
+          if  AllTrim( mshifr ) == AllTrim( lshifr ) .and. ;
+              Upper( ProcName( 1 ) ) == Upper( 'f_usl_definition_KSG' ) .and. ;
+              Upper( ProcName( 2 ) ) == Upper( 'f2oms_usl_sluch' )
+            oBox := NIL // уничтожим окно
+            oBox := TBox():New( 2, 10, 22, 70 )
+            oBox:Color := 'N/W, W/N*'
+            oBox:Frame := BORDER_SINGLE
+            oBox:MessageLine := '^<Esc>^ - выход;  ^<Enter>^ - выбор'
+            oBox:Save := .t.
+            oBox:Caption := 'Выбор дополнительного критерия'
+            oBox:View()
+            if ( icrit := AChoice( oBox:Top + 1, oBox:Left + 1, oBox:Bottom - 1, oBox:Right - 1, ar_crit1 ) ) > 0
+              AAdd( ar_ksg, AClone( _a1[ icrit ] ) )
+            endif
+            oBox := nil
+          endif
+        elseif ( Upper( ProcName( 1 ) ) == Upper( 'f_usl_definition_KSG' ) .and. ;
+            Upper( ProcName( 2 ) ) == Upper( 'oms_usl_sluch' ) ) .or. ;
+              ;
+            ( Upper( ProcName( 1 ) ) == Upper( 'f_1pac_definition_KSG' ) .and. ;
+            Upper( ProcName( 2 ) ) == Upper( 'oms_sluch_main' ) ) .or. ;
+              ;
+            ( Upper( ProcName( 1 ) ) == Upper( 'verify_sluch' ) .and. ! Empty( human_2->PC3 ) )
+
+          if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
+            AAdd( ar_ksg, AClone( _a1[ icrit ] ) )
+          endif
+        endif
+// 13.03.26
+//        if ! Empty( human_2->PC3 )  // проверим чтобы найденные КСГ имели нужный доп. критерий
+          for i := len( _a1 ) to 1 step -1
+            if AllTrim( _a1[ i, 10 ] ) != AllTrim( human_2->PC3 )
+              hb_ADel( _a1, i, .t. )
+            endif
+          next
+//        else
+//          for i := len( _a1 ) to 1 step -1
+//            if ! Empty( AllTrim( _a1[ i, 10 ] ) )
+//              hb_ADel( _a1, i, .t. )
+//            endif
+//          next
+//        endif
+// 12.03.26
+        ASort( _a1, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
+//
+      elseif Len( _a1 ) == 1
+        AAdd( ar_ksg, AClone( _a1[ 1 ] ) )
+      Endif
+
+// 12.03.26
+      If Len( _a1 ) > 0
+        AAdd( ar_ksg, AClone( _a1[ 1 ] ) )
+      Endif
+//
+    Endif
+  Next
 
 altd()
   Return { ars, arerr, AllTrim( lksg ), lcena, akslp, akiro, s_dializ }
