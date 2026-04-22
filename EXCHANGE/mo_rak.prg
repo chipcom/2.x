@@ -7,7 +7,7 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-// 01.04.26 прочитать и 'разнести' по базам данных РАК
+// 22.04.26 прочитать и 'разнести' по базам данных РАК
 Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
 
   Local fl_akt, fl_schet, blk_akt, blk_schet, i, s, s1, arr_s := {}, t_arr[ 2 ], ;
@@ -69,9 +69,11 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
         AAdd( arr, schet_->( RecNo() ) )
         tmp3->kod_schet := schet_->( RecNo() )
         schet_smo := AllTrim( schet_->smo )
-        schet_smo := iif( Len( schet_smo ) == 2, schet_smo + '000', schet_smo )
+        if schet_->nyear > 2025
+          schet_smo := iif( Len( schet_smo ) == 2, schet_smo + '000', schet_smo )
+        endif  
 //        If !( tmp3->_PLAT == iif( Len( schet_smo ) == 2, schet_->smo + '000', schet_->smo ) )
-        If !( tmp3->_PLAT == schet_smo )
+        If !( alltrim(tmp3->_PLAT) == schet_smo )
           If fl_akt
             Eval( blk_akt )
             fl_akt := .f.

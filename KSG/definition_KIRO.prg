@@ -160,7 +160,7 @@ Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkda
   endif
   Return vkiro
 
-// 20.04.26
+// 22.04.26
 Function cena_with_kiro( cena, lkiro, dateSl, lrslt, nType_ksg, akiro )
 
   // cena      - изменяемая цена
@@ -179,6 +179,9 @@ Function cena_with_kiro( cena, lkiro, dateSl, lrslt, nType_ksg, akiro )
       AAdd( akiro, lkiro )
       AAdd( akiro, iif( nType_ksg == 0, _aKIRO[ i, 3 ], _aKIRO[ i, 2 ] ) )
 //      akiro := { lkiro, iif( nType_ksg == 0, _aKIRO[ i, 3 ], _aKIRO[ i, 2 ] ) }
+    else
+      AAdd( akiro, 0 )
+      AAdd( akiro, 1 )
     endif
   else
     _aKIRO := getkirotable( dateSl )
@@ -190,7 +193,6 @@ Function cena_with_kiro( cena, lkiro, dateSl, lrslt, nType_ksg, akiro )
       Endif
     Next
   endif
-
   cena := round_5( cena * akiro[ 2 ], 0 )  // округление до рублей с 2019 года
 
   Return cena

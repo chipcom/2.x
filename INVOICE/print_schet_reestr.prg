@@ -46,7 +46,7 @@ function schet_reestr( arr, destination, one, reg )
     { 'summa', 'N', 15, 2 } }
 
   adbf1 := { ;
-    { 'nomer', 'N', 4, 0 }, ;
+    { 'nomer', 'N', 6, 0 }, ;
     { 'fio', 'C', 50, 0 }, ;
     { 'pol', 'C', 10, 0 }, ;
     { 'date_r', 'C', 10, 0 }, ;
@@ -97,7 +97,7 @@ function schet_reestr( arr, destination, one, reg )
     fNameReestr := destination + 'SRM' + tailName
   
     Use ( fr_data ) New Alias FRD
-    Index On Str( FIELD->nomer, 4 ) to ( fr_data )
+    Index On Str( FIELD->nomer, 6 ) to ( fr_data )
     
     Use ( fr_titl ) New Alias FRT
 //    Append Blank

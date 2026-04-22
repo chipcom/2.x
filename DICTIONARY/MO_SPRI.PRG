@@ -1012,7 +1012,7 @@ Function f_spr_usl_adres_podr()
   Endif
   Return ret_arr
 
-// 14.03.26
+// 22.04.26
 Function usl2tfoms()
 
   Static sdate
@@ -1143,6 +1143,10 @@ Function usl2tfoms()
           iif( fl1del, '      -   ', put_kop( v1, 10 ) ) + ;
           iif( fl2del, '      -   ', put_kop( v2, 10 ) ) )
         s := Space( 10 ) + PadR( ta[ 2 ], 50 )
+        sTypeKSG := ''
+        if Year( mdate ) > 2025
+          sTypeKSG := iif( &lal.->TYPE_KSG == 0, '‘ƒ - β¥ΰ ―¥Άβ¨η¥αª®¥', '‘ƒ - ε¨ΰγΰ£¨η¥αª®¥' )
+        endif
         If !Empty( s )
           add_string( s )
         Endif
@@ -1153,7 +1157,7 @@ Function usl2tfoms()
           Select K006
           Set Order To 1
           find ( PadR( &lal.->shifr, len_ksg ) )
-          s1 := f_ret_kz_ksg( k006->kz, &lal.->kslps, &lal.->kiros )
+          s1 := f_ret_kz_ksg( k006->kz, &lal.->kslps, &lal.->kiros, sTypeKSG )
           add_string( Space( 10 ) + s1 )
           Do While PadR( &lal.->shifr, len_ksg ) == k006->shifr .and. !Eof()
             If between_date( k006->DATEBEG, k006->DATEEND, mdate )
@@ -1226,16 +1230,20 @@ Function usl2tfoms()
   Endif
   Return Nil
 
-// 08.02.23
-Function f_ret_kz_ksg( lkz, lkslp, lkiro )
+// 22.04.26
+Function f_ret_kz_ksg( lkz, lkslp, lkiro, typeKSG )
 
-  Local s := 'ª®νδ-β § βΰ β®ρ¬ª®αβ¨ ' + lstr( lkz, 5, 2 )
+  Local s := '' //:= 'ª®νδ-β § βΰ β®ρ¬ª®αβ¨ ' + lstr( lkz, 5, 2 )
 
+  if ! Empty( typeKSG )
+    s += typeKSG + ';' + hb_eol() + Space( 10 )
+  endif
+  s += 'ª®νδ-β § βΰ β®ρ¬ª®αβ¨ ' + lstr( lkz, 5, 2 )
   If !Empty( lkslp )
-    s += '; ‘‹: ' + AllTrim( lkslp )
+    s += '; ' + hb_eol() + Space( 10 ) + '‘‹: ' + AllTrim( lkslp )
   Endif
   If !Empty( lkiro )
-    s += '; : ' + AllTrim( lkiro )
+    s += '; ' +  + hb_eol() + Space( 10 ) + ': ' + AllTrim( lkiro )
   Endif
   Return s
 
