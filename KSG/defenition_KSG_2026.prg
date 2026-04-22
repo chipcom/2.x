@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 #include 'edit_spr.ch'
 
-// 20.04.26 определение КСГ 2026 год
+// 22.04.26 определение КСГ 2026 год
 Function definition_ksg( par, k_data2, lDoubleSluch )  // исправить на defenition_ksg_2026
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -463,7 +463,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )  // исправить на defenitio
         If !Empty( k006->sy ) .and. ( i := AScan( amohu, k006->sy ) ) > 0
           AAdd( tmp, i )
         Endif
-        add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2 )
+        add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
       Endif
       Select K006
       k006->( dbSkip() )
@@ -486,7 +486,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )  // исправить на defenitio
         j++
         j++
         If fl
-          add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, '', '' )
+          add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, '', '', lvr, ldnej, lrslt, lDoubleSluch )
         Endif
       Endif
       K006->( dbSkip() )
@@ -511,7 +511,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )  // исправить на defenitio
         sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
         j := 1
         ar_ksg := {}
-        add_KSG_table( ar1, lk_data, lal, osn_diag, j, sds1, sds2 )
+        add_KSG_table( ar1, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
       Endif
     Endif
   Endif
@@ -521,12 +521,14 @@ Function definition_ksg( par, k_data2, lDoubleSluch )  // исправить на defenitio
       im := tmp[ i ]
       amohu[ im ] := '' // очистить, чтобы не включать в хирургическую КСГ
     Next
-    For i := 1 To Len( ar_ksg )
+/*
+    For i := 1 To Len( ar_ksg ) 
       ar_ksg[ i, 2 ] := ret_cena_ksg( ar_ksg[ i, 1 ], lvr, date_usl )
       If ar_ksg[ i, 2 ] > 0
         fl_cena := .t.
       Endif
     Next
+*/
 //    aTerKSG := AClone( ar_ksg )
 //    If Len( aTerKSG ) > 1
 //      ASort( aTerKSG, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
@@ -540,15 +542,28 @@ altd()
   Return { ars, arerr, AllTrim( lksg ), lcena, akslp, akiro, s_dializ }
         //  1     2        3              4      5      6        7
 
-// 21.04.26
-function add_KSG_table( arr_KSG, mdate, lal, osn_diag, j, sds1, sds2 )
+// 22.04.26
+function add_KSG_table( arr_KSG, mdate, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+
+  local n_cena_oms
+  local vkiro, akiro := {}
+
+// определим цену КСГ с учетом КИРО
+  n_cena_oms := ret_cena_ksg( k006->shifr, lvr, mdate )
+  If ! Empty( ( lal )->kiros ) 
+    vkiro := defenition_kiro( ( lal )->kiros, ldnej, lrslt, 0, k006->shifr, lDoubleSluch, mdate )
+    If ( vkiro > 0 .and. mdate < 0d20260101 ) .or. ( mdate >= 0d20260101 )
+      n_cena_oms := cena_with_kiro( n_cena_oms, vkiro, mdate, lrslt, ;
+        iif( Year( mdate ) > 2025, ( lal )->TYPE_KSG, 0 ), akiro )
+    Endif
+  Endif
 
   default sds1 to '', sds2 to ''
   AAdd( arr_KSG, { ;
     k006->shifr, ;                // 1 шифр КСГ
-    0, ;                          // 2
+    n_cena_oms, ;                 // 2 цена услуги в ОМС
     k006->kz, ;                   // 3 коэффициент затратоемкости
-    ( lal )->kiros, ;             // 4 список возможных КИРО
+    AllTrim( ( lal )->kiros ), ;  // 4 список возможных КИРО
     osn_diag, ;                   // 5 основной диагноз
     k006->sy, ;                   // 6 Код услуги, соответствующий номенклатуре медицинских услуг V001. Если код услуги не участвует в правиле отнесения к КСГ, то передается ?пустой? тег.
     k006->age, ;                  // 7 Возрастная категория, в соответствии с которой проводится отнесение к КСГ. Если возраст не участвует в правиле отнесения к КСГ, то передается ?пустой? тег
@@ -558,10 +573,13 @@ function add_KSG_table( arr_KSG, mdate, lal, osn_diag, j, sds1, sds2 )
     sds1, ;                       // 11 Коды сопутствующих диагнозов по МКБ-10.
     sds2, ;                       // 12 Код диагнозов осложнений по МКБ10.
     j, ;                          // 13
-    ( lal )->kslps, ;             // 14 Список доступных КСЛП.
+    AllTrim( ( lal )->kslps ), ;  // 14 Список доступных КСЛП.
     k006->ad_cr1, ;               // 15 Иной классификационный критерий. Используется для передачи сведений о показателе ?Количество фракций? при лучевой или химиолучевой терапии.
-    iif( Year( mdate ) > 2025, ( lal )->TYPE_KSG, 0 ) } ;  // 16 тип КСГ ( 0 - терапевтическое, 1 - хирургическое ), до 26 года всегда 0
+    iif( Year( mdate ) > 2025, ( lal )->TYPE_KSG, 0 ), ;  // 16 тип КСГ ( 0 - терапевтическое, 1 - хирургическое ), до 26 года всегда 0
+    lvr ;                         // 17 Взрослый - 0/ребенок - 1
+  } ;
   )
+//    0, ;                          // 2
 //       &lal.->kiros, ; // 4
 //       &lal.->kslps, ; // 14
 //       &lal.->TYPE_KSG } ; // 16
