@@ -1,20 +1,19 @@
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
 #include 'dbstruct.ch'
 
-// ***** 02.04.22 - просмотр списка имплантантов
+// 02.04.22 - просмотр списка имплантантов
 Function view_implantant( arrImplantant, date_usl, fl_change )
 
   Local tmp_keys
-  Local oBox, oBrowse, oColumn
   Local nTop := 7, nLeft := 10, nBottom := 17, nRight := 70
   Local cAlias := 'tmp_001'
   Local oldSelect := Select()
   Local row, mtitle, l_color
   Local mo_implant := { ;  // имплантанты
-  { 'KOD_HUM',   'N',   7, 0 }, ; // код листа учёта по файлу "human"
+  { 'KOD_HUM',   'N',   7, 0 }, ; // код листа учёта по файлу 'human'
   { 'KOD_K',     'N',   7, 0 }, ; // код по картотеке
   { 'MO_HU_K',   'N',   7, 0 }, ; // recno() из файла mo_hu.dbf
   { 'DATE_UST',  'D',   8, 0 }, ; // дата установки импланта
@@ -55,12 +54,12 @@ Function view_implantant( arrImplantant, date_usl, fl_change )
   tmp_keys := my_savekey()
   Save gets To tmp_gets
 
-  l_color := "W+/B,W+/RB,BG+/B,BG+/RB,G+/B,GR+/B"
+  l_color := 'W+/B,W+/RB,BG+/B,BG+/RB,G+/B,GR+/B'
 
   mtitle := 'Установленные имплантанты'
   alpha_browse( nTop, nLeft, nBottom, nRight, 'f_view_implant', color1, mtitle, col_tit_popup, ;
     .f., .t., , 'f1_view_implant', 'f2_view_implant', , ;
-    { "═", "│", "═", l_color, .t., 180 } )
+    { '═', '│', '═', l_color, .t., 180 } )
 
   ( cAlias )->( dbCloseArea() )
 
@@ -73,7 +72,7 @@ Function view_implantant( arrImplantant, date_usl, fl_change )
 
   Return Nil
 
-// **** 14.03.22
+// 14.03.22
 Function f_view_implant( oBrow )
 
   Local oColumn, blk_color
@@ -86,15 +85,15 @@ Function f_view_implant( oBrow )
   oColumn := TBColumnNew( ' Серийный номер имплантанта', {|| PadR( tmp_001->SER_NUM, 27 ) } )
   oColumn:colorBlock := blk_color
   oBrow:addcolumn( oColumn )
-  status_key( "^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление" )
+  status_key( '^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление' )
 
   Return Nil
 
-// **** 13.03.22
+// 13.03.22
 Function f1_view_implant()
   Return Nil
 
-// **** 14.03.22
+// 14.03.22
 Function f2_view_implant( nKey, oBrow )
 
   Local flag := -1, ret
@@ -130,7 +129,7 @@ Function f2_view_implant( nKey, oBrow )
 
   Return flag
 
-// ***** 17.03.22 - выбор импланта
+// 17.03.22 - выбор импланта
 Function select_implantant( date_ust, rzn, ser_num )
 
   Local ret := NIL, oBox
@@ -192,11 +191,10 @@ Function select_implantant( date_ust, rzn, ser_num )
 
   Return ret
 
-// ***** 12.03.22 вернуть имплантант в листе учета
+// 12.03.22 вернуть имплантант в листе учета
 Function exist_implantant_in_db( mkod_human, rec_hu )
 
   Local oldSelect := Select()
-  Local arrImplantant, ser_num
   Local cAlias := 'IMPL', impAlias
   Local fl := .f.
 
@@ -223,7 +221,7 @@ Function exist_implantant_in_db( mkod_human, rec_hu )
 
   Return fl
 
-// ***** 18.03.22 вернуть имплантант в листе учета
+// 18.03.22 вернуть имплантант в листе учета
 Function collect_implantant( mkod_human, rec_hu )
 
   Local oldSelect := Select()
@@ -262,14 +260,14 @@ Function collect_implantant( mkod_human, rec_hu )
 
   Return arrImplantant
 
-// ***** 16.03.22 удалить имплантанты в листе учета
+// 16.03.22 удалить имплантанты в листе учета
 Function delete_implantants( mkod_human, rec_hu )
 
   Local oldSelect := Select()
   Local cAlias := 'IMPL'
 
   hb_default( @rec_hu, 0 )
-  use_base( "human_im" )
+  use_base( 'human_im' )
   // find (str(mkod_human, 7))
   dbSelectArea( cAlias )
   ( cAlias )->( dbGoTop() )
@@ -294,13 +292,13 @@ Function delete_implantants( mkod_human, rec_hu )
 
   Return Nil
 
-// ***** 16.03.22 сохранить имплантант в БД учета
+// 16.03.22 сохранить имплантант в БД учета
 Function save_implantants( mkod_human, rec_hu )
 
   Local oldSelect := Select()
   Local cAlias := 'tmp_001'
 
-  use_base( "human_im" )
+  use_base( 'human_im' )
 
   r_use( cur_dir() + 'tmp_impl', , cAlias )
   dbSelectArea( cAlias )
@@ -326,7 +324,7 @@ Function save_implantants( mkod_human, rec_hu )
 
   Return Nil
 
-// **** 01.02.22 вернуть массив услуга для имплантации
+// 01.02.22 вернуть массив услуга для имплантации
 Function ret_impl_v036( s_code, lk_data )
 
   // s_code - код федеральной услуги
@@ -340,7 +338,7 @@ Function ret_impl_v036( s_code, lk_data )
 
   Return retArr
 
-// **** 12.03.22 услуга требует имплантанты
+// 12.03.22 услуга требует имплантанты
 Function service_requires_implants( s_code, lk_data )
 
   // s_code - код федеральной услуги
