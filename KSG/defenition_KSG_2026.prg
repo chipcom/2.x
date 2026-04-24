@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.04.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 24.04.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -1038,6 +1038,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   Endif
   If !Empty( lksg )
     strSoob := ' РЕЗУЛЬТАТ: выбрана КСГ = ' + lksg
+    lcena := ret_cena_ksg( lksg, lvr, date_usl )
     If Empty( lcena )
       strSoob += ', но не определена цена в справочнике ТФОМС'
       AAdd( arerr, strSoob )
@@ -1115,7 +1116,6 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         Next
         strSoob += ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
       Endif
-/*
       If !Empty( lkiro ) 
         vkiro := defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lk_data )
         If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
@@ -1124,7 +1124,6 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
           strSoob += '  (КИРО = ' + Str( akiro[ 2 ], 4, 2 ) + ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
         Endif
       Endif
-*/
       If !Empty( strSoob )
         AAdd( ars, strSoob )
       Endif
