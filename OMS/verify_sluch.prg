@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 17.04.26 
+// 24.04.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -4460,7 +4460,8 @@ Function verify_sluch( fl_view, ft )
       If au_lu[ i, 2 ] > dEnd
         AAdd( ta, s + ' не попадает в диапазон лечения' )
       Endif
-      If is_usluga_dvn( au_lu[ i ], mv, ta, metap, mpol, kod_spec_ter, aDvn_arr_umolch, aDvn_arr_usl )
+      If is_usluga_dvn( au_lu[ i ], mv, ta, metap, mpol, kod_spec_ter, aDvn_arr_umolch, aDvn_arr_usl ) ;
+          .or. ( substr( au_lu[ i, 1 ], 1, 5 ) == '72.7.' )
         If ( mk_data >= 0d20260101 ) .and. metap == 1 .and. !eq_any( Left( lshifr, 5 ), '4.20.', '2.90.', '70.7.' )
           ++kol_d_usl
         elseif ( mk_data < 0d20260101 ) .and. metap == 1 .and. Empty( hu->u_cena ) .and. !eq_any( Left( lshifr, 5 ), '4.20.', '2.90.' )
