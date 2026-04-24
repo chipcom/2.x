@@ -702,12 +702,14 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       im := tmp[ i ]
       amohu[ im ] := '' // очистить, чтобы не включать в хирургическую КСГ
     Next
+/*
     For i := 1 To Len( ar_ksg )
       ar_ksg[ i, 2 ] := ret_cena_ksg( ar_ksg[ i, 1 ], lvr, date_usl )
       If ar_ksg[ i, 2 ] > 0
         fl_cena := .t.
       Endif
     Next
+*/
     aTerKSG := AClone( ar_ksg )
     If Len( aTerKSG ) > 1
 //      ASort( aTerKSG, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
@@ -946,10 +948,12 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
   Next
   If Len( ar_ksg ) > 0
     For i := 1 To Len( ar_ksg )
+/*
       ar_ksg[ i, 2 ] := ret_cena_ksg( ar_ksg[ i, 1 ], lvr, date_usl )
       If ar_ksg[ i, 2 ] > 0
         fl_cena := .t.
       Endif
+*/
       if ! empty( ar_ksg[ i, 10 ] ) // add 01.11.25
         lad_cr := ar_ksg[ i, 10 ]   // add 01.11.25
         m1ad_cr := ar_ksg[ i, 10 ]   // add 01.11.25
@@ -1043,6 +1047,15 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       strSoob += ', но не определена цена в справочнике ТФОМС'
       AAdd( arerr, strSoob )
     Else
+
+      If !Empty( lkiro )
+        vkiro := defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lk_data )
+        If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
+          lcena := cena_with_kiro( lcena, vkiro, lk_data, lrslt, ltype_ksg, akiro )
+          strSoob += '  (КИРО = ' + Str( akiro[ 2 ], 4, 2 ) + ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
+        Endif
+      Endif
+
       strSoob += ', цена ' + lstr( lcena, 11, 0 ) + 'р. '
       AAdd( ars, strSoob )
       strSoob := ''
@@ -1088,25 +1101,22 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         lpar_org, ;
         lad_cr, ;
         uslOkaz )
-      If Year( lk_data ) >= 2021  // added 29.01.21
-        If !Empty( akslp )
-          For iKSLP := 1 To Len( akslp ) Step 2
-            If iKSLP != 1
-              newKSLP += ', '
-            Endif
-            newKSLP += Str( akslp[ iKSLP ] ) // построим новый КСЛП
-          Next
-        Else
-          newKSLP := ''
-        Endif
-        tmpSelect := Select( 'HUMAN_2' )
-        If ( tmpSelect )->( dbRLock() )
-          human_2->pc1 := newKSLP
-        Endif
-        ( tmpSelect )->( dbRUnlock() )
-      Endif
       If !Empty( akslp )
-        // 05.02.21
+        For iKSLP := 1 To Len( akslp ) Step 2
+          If iKSLP != 1
+            newKSLP += ', '
+          Endif
+          newKSLP += Str( akslp[ iKSLP ] ) // построим новый КСЛП
+        Next
+      Else
+        newKSLP := ''
+      Endif
+      tmpSelect := Select( 'HUMAN_2' )
+      If ( tmpSelect )->( dbRLock() )
+        human_2->pc1 := newKSLP
+      Endif
+      ( tmpSelect )->( dbRUnlock() )
+      If !Empty( akslp )
         strSoob += '  (КСЛП = '
         For iKSLP := 1 To Len( akslp ) Step 2
           If iKSLP != 1
@@ -1116,7 +1126,8 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
         Next
         strSoob += ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
       Endif
-      If !Empty( lkiro ) 
+/*
+      If !Empty( lkiro )
         vkiro := defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lk_data )
         If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
 //          akiro := f_cena_kiro( @lcena, vkiro, lk_data, lrslt, ltype_ksg )
@@ -1124,6 +1135,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
           strSoob += '  (КИРО = ' + Str( akiro[ 2 ], 4, 2 ) + ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
         Endif
       Endif
+*/
       If !Empty( strSoob )
         AAdd( ars, strSoob )
       Endif
