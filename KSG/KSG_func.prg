@@ -184,7 +184,7 @@ Function f_put_arr_ksg( cLine )
 // exit
 // endif
 // if human->K_DATA > stod("20190930") .and. eq_any(human_->USL_OK,1,2)
-// arr := definition_KSG()
+// arr := defenition_ksg()
 // if len(arr) == 7 // диализ
 // add_string("== диализ == ")
 // else

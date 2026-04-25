@@ -28,7 +28,7 @@ Function f_1pac_definition_ksg( lkod, is_msg )
   Goto ( lkod )
   lyear := Year( human->K_DATA )
   If human_->USL_OK < 3
-    arr := definition_ksg()
+    arr := defenition_ksg()
     sdial := 0
     fl := .t.
     If Len( arr ) == 7

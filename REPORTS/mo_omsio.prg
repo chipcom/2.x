@@ -2204,7 +2204,7 @@ Function f1proch_proverka( jt )
     fl_tmp := .f. ; fl_next := .t.
     // проверим правильность определения КСГ
     If human_->USL_OK < 3
-      arr := definition_ksg()
+      arr := defenition_ksg()
       If Select( "K006" ) > 0
         k006->( dbCloseArea() )
       Endif

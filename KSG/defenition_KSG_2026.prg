@@ -5,7 +5,7 @@
 #include 'chip_mo.ch'
 
 // 24.04.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
-Function definition_ksg( par, k_data2, lDoubleSluch )
+Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
   // 'human' открыт для записи суммы случая

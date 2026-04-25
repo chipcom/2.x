@@ -131,7 +131,7 @@ Function change_cena_oms()
             If Select( "K006" ) != 0
               k006->( dbCloseArea() )
             Endif
-            arr_ksg := definition_ksg( 1, k_data2 )
+            arr_ksg := defenition_ksg( 1, k_data2 )
             fl1 := .t.
             If Len( arr_ksg ) == 7
               If ValType( arr_ksg[ 7 ] ) == "N"

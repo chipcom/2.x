@@ -1013,7 +1013,7 @@ Function read_file_xml_sds( n_file )
         //
         Select IHU
         Set Order To 1
-        arr_ksg := definition_ksg( 2 )
+        arr_ksg := defenition_ksg( 2 )
         sdial := 0
         If Len( arr_ksg ) == 7 ; // диализ
           .and. ValType( arr_ksg[ 7 ] ) == "N"

@@ -121,7 +121,7 @@ Function f_usl_definition_ksg( lkod, k_data2, lDoubleSluch )
       tmp_rec := RecNo()
     Endif
     Set Relation To
-    arr := definition_ksg( 1, k_data2, lDoubleSluch )
+    arr := defenition_ksg( 1, k_data2, lDoubleSluch )
     sdial := 0
     fl := .t.
     If Len( arr ) == 7

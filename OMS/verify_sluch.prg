@@ -1440,7 +1440,7 @@ Function verify_sluch( fl_view, ft )
       AAdd( adiag, hu_->kod_diag )
       ATail( au_lu )[ 7 ] := c4tod( mdate_u2 )
       ATail( au_lu )[ 8 ] := hu_->kod_diag
-      If Empty( kodKSG ) // для КСГ цену перепроверим потом через definition_ksg()
+      If Empty( kodKSG ) // для КСГ цену перепроверим потом через defenition_ksg()
         fl_del := fl_uslc := .f.
         v := fcena_oms( lshifr, ( human->vzros_reb == 0 ), human->k_data, @fl_del, @fl_uslc )
         If fl_uslc  // если нашли в справочнике ТФОМС
@@ -2885,7 +2885,7 @@ Function verify_sluch( fl_view, ft )
     Else
       s := ''
     Endif
-    arr_ksg := definition_ksg( 1, k_data2, lDoubleSluch )
+    arr_ksg := defenition_ksg( 1, k_data2, lDoubleSluch )
     If Empty( arr_ksg[ 2 ] ) // нет ошибок
       If shifr_ksg == arr_ksg[ 3 ] // КСГ определена правильно
         If !( Round( cena_ksg, 2 ) == Round( arr_ksg[ 4 ], 2 ) ) // не та цена

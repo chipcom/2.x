@@ -1844,7 +1844,7 @@ Function f1_import_sluch_oms()
         Endif
         If Empty( ihuman->SUMV )
           If eq_any( ihuman->USL_OK, 1, 2 ) // стационар и дневной стационар
-            arr_ksg := definition_ksg( 2 ) // уже 18 год
+            arr_ksg := defenition_ksg( 2 ) // уже 18 год
             If Len( arr_ksg ) == 7 // диализ
               //
             Elseif Empty( arr_ksg[ 2 ] ) // если нет ошибок
