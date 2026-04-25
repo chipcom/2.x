@@ -156,7 +156,7 @@ Function f_put_arr_ksg( cLine )
   Return Nil
 
 // // 26.01.18 тест определения КСГ
-// Function test_definition_KSG()
+// Function test_defenition_KSG()
 // Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t.
 // stat_msg("Определение КСГ")
 // R_Use(dir_server() + "mo_uch",,'UCH')

@@ -132,8 +132,8 @@ mo_version.prg
 .\KSG\KSG_func.prg
 .\KSG\defenition_KSG.prg
 .\KSG\defenition_KSG_2026.prg
-.\KSG\definition_KIRO.prg
-.\KSG\definition_KSLP.prg
+.\KSG\defenition_KIRO.prg
+.\KSG\defenition_KSLP.prg
 .\KSG\f_usl_definition_KSG.prg
 .\KSG\f_1pac_definition_KSG.prg
 .\KSG\f_valid2ad_cr.prg
