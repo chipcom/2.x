@@ -3525,7 +3525,7 @@ Function read_csv_file_sverkao( cFile, aerr, nkod_reestr )
 
 
 
-          fl_et := f_put_et_etk( arr_csv[ i, CSV_A_PID ], arr_csv[ i, CSV_A_ENP ], ;
+          fl_et := f_put_et_etk( arr_csv[ i, CSV_A_PID ], arr_csv[ i, CSV_A_ENP ], ; 
             arr_csv[ i, CSV_A_DT ], arr_csv[ i, CSV_A_UCH ], ;
             glob_mo()[ _MO_KOD_TFOMS ], arr_csv[ i, CSV_A_VRACH ], ;
             kart->kod, 1 )
@@ -3890,6 +3890,7 @@ Function read_csv_file_sverkao2( cFile, aerr, nkod_reestr )
         kart_et->PC2 := s_death
       Endif
       // запись !!!!
+     
       kol4 := f_put_date_prik_new( krtp->KOD_K, ;
       arr_csv[ i, CSV_A_PID ], ;
       arr_csv[ i, CSV_A_ENP ], ;
@@ -4073,6 +4074,13 @@ Function f_put_date_prik_new( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik
 
   Default _n_del To 0, lprik_mo To '', ldate_prik_mo To CToD( '' ), _kod_error to 0
 
+    AAdd( arr, { lprik_mo, ;
+      ldate_prik_mo, ;
+      '           ', ;
+      ldate_prik_mo ;
+      };
+      )
+    Skip
   
   Select KART2
   Do While kart2->( LastRec() ) < lkod_k
@@ -4084,6 +4092,7 @@ Function f_put_date_prik_new( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik
     kart2->PC3 := ''  
     kart2->PC4 := ''
   Enddo
+  //
   Goto ( lkod_k )
   g_rlock( forever )
   If !Empty( lpid )
@@ -4097,21 +4106,18 @@ Function f_put_date_prik_new( lkod_k, lpid, lenp, ltip_pr, ldeath, _n_del, lprik
   Endif
   if _kod_error > 0
     kart2->PC3 := lstr(_kod_error) 
-  endif  
+   endif  
   If Empty( arr )
     If _n_del == 1
       kart2->MO_PR := ''
     Endif
   Else
     old_pr := kart2->MO_PR // то, что было записано
-    // if len(arr) > 1 .and. !empty(arr[2, 1])
-    // old_pr := arr[2, 1] // предыдущее прикрепление
-    // endif
-    ASort( arr, , , {| x, y| x[ 4 ] > y[ 4 ] } ) // в порядке убывания даты файла
+    // ASort( arr, , , {| x, y| x[ 4 ] > y[ 4 ] } ) // в порядке убывания даты файла
     kart2->TIP_PR   := ltip_pr
     kart2->MO_PR    := iif( _n_del == 1, '', arr[ 1, 1 ] )
     kart2->DATE_PR  := arr[ 1, 2 ]
-     if !emptyany( lprik_mo, ldate_prik_mo ) .and. lprik_mo == kart2->MO_PR
+    if !emptyany( lprik_mo, ldate_prik_mo ) .and. lprik_mo == kart2->MO_PR
       kart2->pc4 := date_8( ldate_prik_mo )
     Endif
   Endif

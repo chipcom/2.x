@@ -16,7 +16,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
   Local arr, ia, is, ih, rec_xml, v
   Local arrF006 := getf006()
   Local TMP_REGION, TMP_SMO
-  local schet_smo
+  local schet_smo, txt_s, txt_fl
 
   blk_akt := { || AAdd( aerr, 'АКТ № ' + AllTrim( tmp2->_nakt ) + ' от ' + date_8( tmp2->_dakt ) ) }
   blk_schet := { || AAdd( aerr, ' СЧЁТ № ' + AllTrim( tmp3->_nschet ) + ' от ' + date_8( tmp3->_dschet ) ) }
@@ -136,7 +136,7 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
               Eval( blk_schet )
               fl_schet := .f.
             Endif
-            AAdd( aerr, '   не найден пациент с IDCASE = ' + lstr( tmp4->_IDCASE ) + "  ID_C = "+alltrim(tmp4->_ID_C ) )
+            AAdd( aerr, '   не найден пациент с IDCASE = ' + lstr( tmp4->_IDCASE ) + '  ID_C = ' + alltrim( tmp4->_ID_C ) )
           Endif
           Select TMP4
           tmp4->( dbSkip() )    //  Skip
@@ -487,6 +487,8 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
                     // выясняем признак смены СМО
                     // S_OSN == 210 (tmp6->REFREASON) и S_COM == NNNNN;OOOOO
                     if tmp6->REFREASON == 210 // Не верное СМО
+                      txt_s := '' 
+                      txt_fl := .F.
                       if len( alltrim( raksherr->S_COM ) ) == 11 .and. substr( alltrim( raksherr->S_COM ), 6, 1 ) == ';'
                         TMP_SMO := ''
                         TMP_REGION := ''
@@ -505,10 +507,25 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
                          select kartote_
                          goto ( human->kod_k )
                          g_rlock( 'forever' )
-                         kartote_->SMO := TMP_SMO
-                         kartote_->kvartal_d := TMP_REGION
+                         // 25.04.2026 - писать в картотеку 00000 и 00000  не буду
+                         if TMP_SMO == '00000'
+                           //
+                           txt_s :=  'СМО не определено' 
+                           txt_fl := .T.
+                         else  
+                           kartote_->SMO := TMP_SMO
+                           txt_s := 'верное СМО ' + TMP_SMO 
+                         endif
+                         if TMP_REGION == '00000'
+                           //
+                           txt_s +=  '  РЕГИОН не определен' 
+                           txt_fl := .T.
+                         else   
+                           kartote_->kvartal_d := TMP_REGION
+                            txt_s += ' верный РЕГИОН ' + TMP_REGION 
+                         endif  
                          unlock
-                         put_long_str( 'Уточнение кода дефекта: верное СМО ' + TMP_SMO + " верный РЕГИОН " + TMP_REGION + " занесены в картотеку", cFileProtokol, 5 )
+                         put_long_str( 'Уточнение кода дефекта: ' + txt_s + iif( txt_fl, ' Картотека не изменена', ' занесены в картотеку' ), cFileProtokol, 5 )
                          // сразу отправляем в редактирование   -- СЛОЖНО
                         endif  
                       else // Так не должно быть
@@ -1001,8 +1018,8 @@ Function view_rak_akt_schet_human( lkod_raks )
   t_arr[ BR_ARR_BROWSE ] := { '═', '░', '═', 'N/BG, W+/N, B/BG, W+/B', .t. }
   blk := {|| iif( raksh->oplata == 1, { 1, 2 }, { 3, 4 } ) }
   t_arr[ BR_COLUMN ] := { ;
-    { ' №№;случ', {|| Str( human_->SCHET_ZAP, 4 ) }, blk }, ;
-    { ' Ф.И.О.', {|| PadR( f_view_rak_akt_schet_human( 1 ), 27 ) }, blk }, ;
+    { ' №№;случ', {|| Str( human_->SCHET_ZAP, 5 ) }, blk }, ;
+    { ' Ф.И.О.', {|| PadR( f_view_rak_akt_schet_human( 1 ), 26 ) }, blk }, ;
     { 'Дата рожд.', {|| full_date( human->date_r ) }, blk }, ;
     { ' Стоимость', {|| put_kop( f_view_rak_akt_schet_human( 2 ), 10 ) }, blk }, ;
     { ' Принято; к оплате', {|| put_kop( raksh->sump, 10 ) }, blk }, ;
@@ -1209,7 +1226,7 @@ Function rak_akt_schet_human_add_next( s, s1, lrec, tREFREASON  )
       mywait()
       Close databases
       // сначала запоминаем копию листа учёта в массивах
-      r_use( dir_server() + 'kartote_',, "KARTOTE_"  ) // 29.03.26
+      r_use( dir_server() + 'kartote_',, 'KARTOTE_'  ) // 29.03.26
       use_base( 'human' )
       Set Relation To // 'отвязываем'
       Goto ( glob_perso )
