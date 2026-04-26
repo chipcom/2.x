@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.04.26 ДВН - добавление или редактирование случая (листа учета)
+// 26.04.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -648,10 +648,23 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
         ar := arr_usl_otkaz[ j ]
         If ValType( ar ) == 'A' .and. Len( ar ) >= 5 .and. ValType( ar[ 5 ] ) == 'C'
           lshifr := AllTrim( ar[ 5 ] )
+
+            if eq_any( lshifr, '72.7.19', '72.7.20', '72.7.319', '72.7.320' )
+              if ( ii := AScan( arrUslugi_from_dvn_to_pn( MK_DATA ), ;
+                 { | x | x[ iif( m1mobilbr == 0, 3, 4 ) ] == lshifr } ) ) > 0
+                 lshifr := arrUslugi_from_dvn_to_pn( MK_DATA )[ ii, iif( m1mobilbr == 0, 1, 2 ) ]
+              endif
+            endif
+
           For i := 1 To len( aDvn_arr_usl )
-            If ValType( aDvn_arr_usl[ i, 2 ] ) == 'C' .and. ;
-                ( aDvn_arr_usl[ i, 2 ] == lshifr .or. ( Len( aDvn_arr_usl[ i ] ) > 11 .and. ValType( aDvn_arr_usl[ i, 12 ] ) == 'A' ;
-                .and. AScan( aDvn_arr_usl[ i, 12 ], {| x | x[ 1 ] == lshifr } ) > 0 ) )
+            If ( ValType( aDvn_arr_usl[ i, 2 ] ) == 'C' .and. ;
+                ( aDvn_arr_usl[ i, 2 ] == lshifr ) ) .or. ;
+                ( ValType( aDvn_arr_usl[ i, 2 ] ) == 'A' .and. ;
+                AScan( aDvn_arr_usl[ i, 2 ], lshifr ) > 0 )
+
+//            If ValType( aDvn_arr_usl[ i, 2 ] ) == 'C' .and. ;
+//                ( aDvn_arr_usl[ i, 2 ] == lshifr .or. ( Len( aDvn_arr_usl[ i ] ) > 11 .and. ValType( aDvn_arr_usl[ i, 12 ] ) == 'A' ;
+//                .and. AScan( aDvn_arr_usl[ i, 12 ], {| x | x[ 1 ] == lshifr } ) > 0 ) )
               If ValType( ar[ 1 ] ) == 'N' .and. ar[ 1 ] > 0
                 p2->( dbGoto( ar[ 1 ] ) )
                 mvar := 'MTAB_NOMv' + lstr( i )

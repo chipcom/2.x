@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500
 
-// 15.04.26 работаем по текущей записи
+// 26.04.26 работаем по текущей записи
 Function f1_create2reestrCommon( _nyear, p_tip_reestr )
 
   Local i, j, lst, sVidpoms
@@ -312,9 +312,20 @@ Function f1_create2reestrCommon( _nyear, p_tip_reestr )
         ar := arr_usl_otkaz[ j ]
         If ValType( ar ) == 'A' .and. Len( ar ) >= 10 .and. ValType( ar[ 5 ] ) == 'C'
           lshifr := AllTrim( ar[ 5 ] )
-          If ( i := AScan( aDvn_arr_usl, {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
+          // проверим это не переход от ДВН к профилактике по гинекологам
+          if eq_any( lshifr, '72.7.19', '72.7.20', '72.7.319', '72.7.320' )
+            if ( ii := AScan( arrUslugi_from_dvn_to_pn( human->K_DATA ), ;
+               { | x | x[ iif( m1mobilbr == 0, 3, 4 ) ] == lshifr } ) ) > 0
+               lshifr := arrUslugi_from_dvn_to_pn( human->K_DATA )[ ii, iif( m1mobilbr == 0, 1, 2 ) ]
+            endif
+          endif
+//          If ( i := AScan( aDvn_arr_usl, {| x| ValType( x[ 2 ] ) == 'C' .and. x[ 2 ] == lshifr } ) ) > 0
+          If ( i := AScan( aDvn_arr_usl, {| x| iif( ValType( x[ 2 ] ) == 'C', ;
+              x[ 2 ] == lshifr, ;
+              AScan( x[ 2 ], lshifr ) > 0 ) } ) ) > 0
+
             If ValType( ar[ 10 ] ) == 'N' .and. Between( ar[ 10 ], 1, 2 )
-              AAdd( a_otkaz, { lshifr, ;
+              AAdd( a_otkaz, { lshifr, ; 
                 ar[ 6 ], ; // диагноз
                 human->N_DATA, ; // дата
                 correct_profil( ar[ 4 ] ), ; // профиль
