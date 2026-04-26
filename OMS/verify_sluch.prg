@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 24.04.26 
+// 26.04.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -3719,9 +3719,9 @@ Function verify_sluch( fl_view, ft )
       Endif
       If is_issl_dds( au_lu[ i ], mvozrast, ta, human->K_DATA )
         s := 'услуга ' + au_lu[ i, 5 ] + '(' + date_8( au_lu[ i, 2 ] ) + ')'
-        If AllTrim( au_lu[ i, 1 ] ) == '7.61.3'
+        If eq_any( AllTrim( au_lu[ i, 1 ] ), '7.61.3', '7.2.702', '4.29.3', '4.29.4' )
           If au_lu[ i, 2 ] < AddMonth( dBegin, -12 )
-            AAdd( ta, 'флюорография оказана более 1 года назад' )
+            AAdd( ta, 'флюорография, рентгенография или иммунодиагностика оказана более 1 года назад' )
           Endif
         Elseif mvozrast < 2
           If au_lu[ i, 2 ] < AddMonth( dBegin, -1 )
@@ -3839,7 +3839,7 @@ Function verify_sluch( fl_view, ft )
     Endif
     mperiod := ret_period_pn( mdate_r, dBegin, dEnd )
     If Between( mperiod, 1, 31 )
-      np_oftal_2_85_21( mperiod, dEnd ) // добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
+      np_oftal_2_85_21( mperiod, dEnd )
       read_arr_pn( human->kod, .t., dEnd )
       arr_PN_osmotr := np_arr_osmotr( dEnd, m1mobilbr )
       kol_d_otkaz := 0
