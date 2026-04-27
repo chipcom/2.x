@@ -2062,9 +2062,9 @@ Function fvalid_fio( lregim, input_sh, fl_number, mbukva )
   fl := ( tmp->( LastRec() ) > 0 )
   Close databases
   If fl
-    If !( Type( 'is_r_mu' ) == 'L' )
-      Public is_r_mu := .f.
-    Endif
+//    If !( Type( 'is_r_mu' ) == 'L' )
+//      Public is_r_mu := .f.
+//    Endif
     Save gets To tmp_list
     r_use( dir_server() + 'kartote2', , 'KART2' )
     r_use( dir_server() + 'kartote_', , 'KART_' )

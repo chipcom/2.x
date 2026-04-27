@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.04.26 ДВН - добавление или редактирование случая (листа учета)
+// 27.04.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -307,7 +307,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       dbCloseAll()
       Return Nil
     endif
-    if glob_mo()[ _MO_KOD_TFOMS ] != '101201' .and. kart2->MO_PR != glob_mo()[ _MO_KOD_TFOMS ]
+//    if glob_mo()[ _MO_KOD_TFOMS ] != '101201' .and. kart2->MO_PR != glob_mo()[ _MO_KOD_TFOMS ]
+    if kart2->MO_PR != glob_mo()[ _MO_KOD_TFOMS ] .and. mem_stranger_attachment == 0
       func_error( 4, 'У пациента нет прикрепления к нашей организации!' )
       dbCloseAll()
       Return Nil
@@ -2082,7 +2083,8 @@ Function oms_sluch_dvn( Loc_kod, kod_kartotek, f_print )
       human->date_b_2   := ''
       human->MOP        := m1MOP
 //      human->MO_PR      := glob_mo()[ _MO_KOD_FFOMS ]    //  code_TFOMS_to_FFOMS( m1MO_PR )
-      human->MO_PR      := iif( glob_mo()[ _MO_KOD_TFOMS ] == '101201', code_TFOMS_to_FFOMS( m1MO_PR ), glob_mo()[ _MO_KOD_FFOMS ] )
+//      human->MO_PR      := iif( glob_mo()[ _MO_KOD_TFOMS ] == '101201', code_TFOMS_to_FFOMS( m1MO_PR ), glob_mo()[ _MO_KOD_FFOMS ] )
+      human->MO_PR      := code_TFOMS_to_FFOMS( m1MO_PR )
       human_->RODIT_DR  := CToD( '' )
       human_->RODIT_POL := ''
       s := ''

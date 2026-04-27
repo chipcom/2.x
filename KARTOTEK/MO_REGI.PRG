@@ -1140,24 +1140,7 @@ Function pr_sh_f5()
     name_lpu := AllTrim( org->name )
     madres_lpu := AllTrim( org->adres )
     mogrn := AllTrim( org->ogrn )
-    /*if is_r_mu .and. !r_mushrt->(eof())
-      msnils := alltrim(r_mushrt->snils)
-      mlgota := alltrim(r_mushrt->lgota)
-      if select('katl') == 0
-        use_base('katl')
-      endif
-      select KATL
-      find (mlgota)
-      if len(alltrim(katl->name_katl)) > 3
-        mlgota += ' ' + alltrim(katl->name_katl)
-      endif
-      if len(mlgota) > 48
-        mlgota := left(mlgota, 45) + '...'
-      endif
-    endif
-    */
     If Empty( msnils ) .and. !Empty( kart->SNILS )
-//      msnils := Transform( kart->SNILS, picture_pf )
       msnils := Transform_SNILS( kart->SNILS )
     Endif
     r_list_uch( 0, 'f1_pr_shab(file_sh)' )

@@ -6,7 +6,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-Static st_version := { 6, 4, 7, 'd' }
+Static st_version := { 6, 4, 7, 'e' }
 Static st_date_version := _DATA_VER
 Static st_full_name := 'ЧИП + Учёт работы Медицинской Организации'
 Static st_short_name := '[ЧИП + Учёт работы МО]'
@@ -68,7 +68,7 @@ Function get_version_db()
 
   Return ver__base
 
-// 15.02.23 сохранить новое числовое значение версии БД задачи
+// 27.04.26 сохранить новое числовое значение версии БД задачи
 Function save_version_db( nVersion )
 
   Local nfile := 'ver_base'
@@ -78,9 +78,10 @@ Function save_version_db( nVersion )
   If LastRec() == 0
     addrecn()
   Else
-    g_rlock( forever )
+    g_rlock( 'forever' )
   Endif
-  Replace version With nVersion
+//  Replace version With nVersion
+  ver->version := nVersion
   ver->( dbCloseArea() )
 
   Return .t.

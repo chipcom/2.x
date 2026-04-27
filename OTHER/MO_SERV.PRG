@@ -27,13 +27,13 @@ Function OKATO_V()
       oPb:Update( i_kart )
       if kartote_->okatog == '18410560000'
         // меняем   
-        kartote_->( g_rlock( forever ) )
+        kartote_->( g_rlock( 'forever' ) )
         kartote_->okatog := '18410000000'
         Unlock All
       endif
       if kartote_->okatop == '18410560000'
         // меняем   
-        kartote_->( g_rlock( forever ) ) 
+        kartote_->( g_rlock( 'forever' ) ) 
         kartote_->okatop := '18410000000'
         Unlock All
       endif
@@ -130,7 +130,7 @@ Function f1_impxml_from_lis( name_file )
   Endif
   sname := strippath( name_file )
   g_use( dir_server() + 'mo_flis',, 'FL' )
-  Index On Upper( fname ) To tmp_fl
+  Index On Upper( FIELD->fname ) To tmp_fl
   find ( PadR( Upper( sname ), 50 ) )
   If Found()
     If Empty( fl->tread2 )
@@ -148,7 +148,7 @@ Function f1_impxml_from_lis( name_file )
   Endif
   If fl .and. f_esc_enter( 'чтения файла из ЛИС' )
     Select FL
-    g_rlock( !Found(), forever ) // добавить ИЛИ заблокировать запись
+    g_rlock( !Found(), 'forever' ) // добавить ИЛИ заблокировать запись
     fl->KOD := RecNo()
     fl->FNAME := Upper( sname )
     fl->DREAD := sys_date
@@ -172,7 +172,7 @@ Function f1_impxml_from_lis( name_file )
     g_use( dir_server() + 'mo_onksl', dir_server() + 'mo_onksl', 'SL' )
     g_use( dir_server() + 'mo_onkdi', dir_server() + 'mo_onkdi', 'DIAG' ) // Диагностический блок
     g_use( dir_server() + 'human_u_',, 'HU_' )
-    Index On PadR( zf, 30 ) to ( cur_dir() + 'tmp_hu_' ) progress
+    Index On PadR( FIELD->zf, 30 ) to ( cur_dir() + 'tmp_hu_' ) progress
     Set Order To 0
     g_use( dir_server() + 'human_u', { dir_server() + 'human_u', ;
       dir_server() + 'human_uk', ;
@@ -181,7 +181,7 @@ Function f1_impxml_from_lis( name_file )
       dir_server() + 'human_ua' }, 'HU' )
     g_use( dir_server() + 'human_',, 'HUMAN_' )
     g_use( dir_server() + 'human_2',, 'HUMAN_2' )
-    // index on str(pn3,10) to (cur_dir() + 'tmp_human2') progress
+    // index on str(FIELD->pn3,10) to (cur_dir() + 'tmp_human2') progress
     g_use( dir_server() + 'human', { dir_server() + 'humank', ;
       dir_server() + 'humankk', ;
       dir_server() + 'humann', ;
@@ -189,17 +189,17 @@ Function f1_impxml_from_lis( name_file )
       dir_server() + 'humano', ;
       dir_server() + 'humans' }, 'HUMAN' )
     g_use( dir_server() + 'mo_pers',, 'PERSO' )
-    Index On snils to ( cur_dir() + 'tmp_pers' )
+    Index On FIELD->snils to ( cur_dir() + 'tmp_pers' )
     Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server() + 'mo_pers' )
     g_use( dir_server() + 'mo_kfio',, 'KFIO' )
-    Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
+    Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
     g_use( dir_server() + 'mo_kismo',, 'KSN' )
-    Index On Str( kod, 7 ) to ( cur_dir() + 'tmpkismo' )
+    Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmpkismo' )
     g_use( dir_server() + 'mo_hismo',, 'HSN' )
-    Index On Str( kod, 7 ) to ( cur_dir() + 'tmphismo' )
+    Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmphismo' )
     g_use( dir_server() + 'kartote_',, 'KART_' )
     g_use( dir_server() + 'kartote2',, 'KART2' )
-    Index On kod_AK to ( cur_dir() + 'tmp_kart2' ) progress
+    Index On FIELD->kod_AK to ( cur_dir() + 'tmp_kart2' ) progress
     g_use( dir_server() + 'kartotek', { dir_server() + 'kartotek', ;
       dir_server() + 'kartoten', ;
       dir_server() + 'kartotep', ;
@@ -255,7 +255,7 @@ Function f1_impxml_from_lis( name_file )
     FClose( lfp )
     If !fl_exit
       Select FL
-      g_rlock( forever ) // заблокировать запись
+      g_rlock( 'forever' ) // заблокировать запись
       fl->TREAD2 := hour_min( Seconds() )
       fl->KOLP := ip
       fl->KOLS := is
@@ -307,7 +307,7 @@ Function f1_import_from_lis( name_file )
   Endif
   sname := strippath( name_file )
   g_use( dir_server() + 'mo_flis',, 'FL' )
-  Index On Upper( fname ) To tmp_fl
+  Index On Upper( FIELD->fname ) To tmp_fl
   find ( PadR( Upper( sname ), 50 ) )
   If Found()
     If Empty( fl->tread2 )
@@ -324,7 +324,7 @@ Function f1_import_from_lis( name_file )
     fl := .t.
   Endif
   If fl .and. f_esc_enter( 'чтения файла из ЛИС' ) .and. ( iencode := f_define_lis_coding( name_file ) ) > 0
-    g_rlock( !Found(), forever ) // добавить ИЛИ заблокировать запись
+    g_rlock( !Found(), 'forever' ) // добавить ИЛИ заблокировать запись
     fl->KOD := RecNo()
     fl->FNAME := Upper( sname )
     fl->DREAD := sys_date
@@ -346,7 +346,7 @@ Function f1_import_from_lis( name_file )
     use_base( 'human_u' )
     g_use( dir_server() + 'human_',, 'HUMAN_' )
     g_use( dir_server() + 'human_2',, 'HUMAN_2' )
-    Index On Str( pn3, 10 ) to ( cur_dir() + 'tmp_human2' )
+    Index On Str( FIELD->pn3, 10 ) to ( cur_dir() + 'tmp_human2' )
     g_use( dir_server() + 'human', { dir_server() + 'humank', ;
       dir_server() + 'humankk', ;
       dir_server() + 'humann', ;
@@ -354,17 +354,17 @@ Function f1_import_from_lis( name_file )
       dir_server() + 'humano', ;
       dir_server() + 'humans' }, 'HUMAN' )
     g_use( dir_server() + 'mo_pers',, 'PERSO' )
-    Index On snils to ( cur_dir() + 'tmp_pers' )
+    Index On FIELD->snils to ( cur_dir() + 'tmp_pers' )
     Set Index to ( cur_dir() + 'tmp_pers' ), ( dir_server() + 'mo_pers' )
     g_use( dir_server() + 'mo_kfio',, 'KFIO' )
-    Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
+    Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
     g_use( dir_server() + 'mo_kismo',, 'KSN' )
-    Index On Str( kod, 7 ) to ( cur_dir() + 'tmpkismo' )
+    Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmpkismo' )
     g_use( dir_server() + 'mo_hismo',, 'HSN' )
-    Index On Str( kod, 7 ) to ( cur_dir() + 'tmphismo' )
+    Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmphismo' )
     g_use( dir_server() + 'kartote_',, 'KART_' )
     g_use( dir_server() + 'kartote2',, 'KART2' )
-    Index On kod_AK to ( cur_dir() + 'tmp_kart2' )
+    Index On FIELD->kod_AK to ( cur_dir() + 'tmp_kart2' )
     g_use( dir_server() + 'kartotek', { dir_server() + 'kartotek', ;
       dir_server() + 'kartoten', ;
       dir_server() + 'kartotep', ;
@@ -432,7 +432,7 @@ Function f1_import_from_lis( name_file )
     Endif
     If !fl_exit
       Select FL
-      g_rlock( forever ) // заблокировать запись
+      g_rlock( 'forever' ) // заблокировать запись
       fl->TREAD2 := hour_min( Seconds() )
       fl->KOLP := ip
       fl->KOLS := is
@@ -714,7 +714,7 @@ Function f2_import_from_lis( par )
     Goto ( lkod_k )
 //   mydebug(,lkod_k) 
     // актуализируем
-    g_rlock( forever )
+    g_rlock( 'forever' )
 // mydebug(,kart->FIO ) 
 // mydebug(,mfio) 
     kart->FIO := mfio
@@ -736,7 +736,7 @@ Function f2_import_from_lis( par )
     Select KART_
     Goto ( lkod_k )
     // актуализируем
-    g_rlock( forever )
+    g_rlock( 'forever' )
     kart_->VPOLIS := arr_pac[ LIS_VPOLIS ]
     kart_->SPOLIS := arr_pac[ LIS_SPOLIS ]
     kart_->NPOLIS := arr_pac[ LIS_NPOLIS ]
@@ -757,7 +757,7 @@ Function f2_import_from_lis( par )
     Select KART2
     Set Order To 0
     Goto ( lkod_k )
-    g_rlock( forever )
+    g_rlock( 'forever' )
     kart2->kod_tf := 0
     kart2->kod_mis := ''
    // kart2->kod_AK := arr_pac[ LIS_KOD_AK ]  // ключевое поле !!! не переписываем
@@ -775,7 +775,7 @@ Function f2_import_from_lis( par )
     find ( Str( lkod_k, 7 ) )
     If Found()
       If kart->MEST_INOG == 9
-        g_rlock( forever )
+        g_rlock( 'forever' )
         kfio->FAM := afio[ 1 ]
         kfio->IM  := afio[ 2 ]
         kfio->OT  := afio[ 3 ]
@@ -849,7 +849,7 @@ Function f2_import_from_lis( par )
     find ( Str( lkod_k, 7 ) )
     If Found()
       If kart->MEST_INOG == 9
-        g_rlock( forever )
+        g_rlock( 'forever' )
         kfio->FAM := afio[ 1 ]
         kfio->IM  := afio[ 2 ]
         kfio->OT  := afio[ 3 ]
@@ -1535,13 +1535,13 @@ Function f1_import_sluch_oms()
     //
     r_use( dir_exe() + '_mo_smo', { cur_dir() + '_mo_smo', cur_dir() + '_mo_smo2' }, 'SMO' )
     Use ( name_path + '_lpu' ) New Alias ILPU
-    Index On Str( kod, 3 ) to ( cur_dir() + 'tmp_ilpu' )
+    Index On Str( FIELD->kod, 3 ) to ( cur_dir() + 'tmp_ilpu' )
     Use ( name_path + '_otd' ) New Alias IOTD
-    Index On Str( kod, 3 ) to ( cur_dir() + 'tmp_iotd' )
+    Index On Str( FIELD->kod, 3 ) to ( cur_dir() + 'tmp_iotd' )
     Use ( name_path + '_sluch_u' ) New Alias IHU
-    Index On Str( kod, 10 ) to ( cur_dir() + 'tmp_ihu' )
+    Index On Str( FIELD->kod, 10 ) to ( cur_dir() + 'tmp_ihu' )
     Use ( name_path + '_sluch' ) New Alias IHUMAN
-    Index On Str( kod, 10 ) to ( cur_dir() + 'tmp_ihum' )
+    Index On Str( FIELD->kod, 10 ) to ( cur_dir() + 'tmp_ihum' )
     Go Top
     Do While !Eof()
       Select MKB_10
@@ -1927,14 +1927,14 @@ Function f1_import_sluch_oms()
       iz := ip := 0
       lOldDeleted := Set( _SET_DELETED, .f. )
       Select TMP_KSG
-      Index On Str( rec, 7 ) to ( cur_dir() + 'tmp_ksg' )
+      Index On Str( FIELD->rec, 7 ) to ( cur_dir() + 'tmp_ksg' )
       g_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'PERSO' )
       g_use( dir_server() + 'mo_kfio',, 'KFIO' )
-      Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
+      Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
       g_use( dir_server() + 'mo_kismo',, 'KSN' )
-      Index On Str( kod, 7 ) to ( cur_dir() + 'tmpkismo' )
+      Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmpkismo' )
       g_use( dir_server() + 'mo_hismo',, 'HSN' )
-      Index On Str( kod, 7 ) to ( cur_dir() + 'tmphismo' )
+      Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmphismo' )
       use_base( 'kartotek' )
       Select IHUMAN
       Go Top
@@ -1979,7 +1979,7 @@ Function f1_import_sluch_oms()
           kart->PC3 := '000'
         Else
           Goto ( lkod_k )
-          g_rlock( forever )
+          g_rlock( 'forever' )
         Endif
         mdate_r := kart->DATE_R ; m1VZROS_REB := M1NOVOR := 0
         fv_date_r()
@@ -2000,14 +2000,14 @@ Function f1_import_sluch_oms()
           Append Blank
         Enddo
         Goto ( lkod_k )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         //
         Select KART_
         Do While kart_->( LastRec() ) < lkod_k
           Append Blank
         Enddo
         Goto ( lkod_k )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         //
         kart_->VPOLIS := ihuman->vpolis
         kart_->SPOLIS := ihuman->SPOLIS
@@ -2027,7 +2027,7 @@ Function f1_import_sluch_oms()
         find ( Str( lkod_k, 7 ) )
         If Found()
           If kart->MEST_INOG == 9
-            g_rlock( forever )
+            g_rlock( 'forever' )
             kfio->FAM := afio[ 1 ]
             kfio->IM  := afio[ 2 ]
             kfio->OT  := afio[ 3 ]
@@ -2052,7 +2052,7 @@ Function f1_import_sluch_oms()
         find ( Str( lkod_k, 7 ) )
         If Found()
           If fl_nameismo
-            g_rlock( forever )
+            g_rlock( 'forever' )
             ksn->smo_name := ihuman->SMO_NAM
           Else
             deleterec( .t. )
@@ -2142,10 +2142,10 @@ Function f1_import_sluch_oms()
           Next
           Goto ( ihuman->otd )
           If Deleted()
-            g_rlock( forever )
+            g_rlock( 'forever' )
             Recall
           Else
-            g_rlock( forever )
+            g_rlock( 'forever' )
           Endif
           otd->KOD     := iotd->KOD
           otd->NAME    := iotd->NAME
@@ -2166,10 +2166,10 @@ Function f1_import_sluch_oms()
           Next
           Goto ( iotd->kod_lpu )
           If Deleted()
-            g_rlock( forever )
+            g_rlock( 'forever' )
             Recall
           Else
-            g_rlock( forever )
+            g_rlock( 'forever' )
           Endif
           lpu->KOD  := ilpu->KOD
           lpu->NAME := ilpu->NAME
@@ -2180,7 +2180,7 @@ Function f1_import_sluch_oms()
             Select PERSO
             find ( Str( ihuman->VRACH, 5 ) )
             If Found()
-              g_rlock( forever )
+              g_rlock( 'forever' )
             Else
               addrecn()
               perso->kod := RecNo()
@@ -2205,14 +2205,14 @@ Function f1_import_sluch_oms()
             Append Blank
           Enddo
           Goto ( mkod )
-          g_rlock( forever )
+          g_rlock( 'forever' )
           //
           Select HUMAN_2
           Do While human_2->( LastRec() ) < mkod
             Append Blank
           Enddo
           Goto ( mkod )
-          g_rlock( forever )
+          g_rlock( 'forever' )
           //
           human->kod_k      := lkod_k
           human->TIP_H      := B_STANDART
@@ -2312,7 +2312,7 @@ Function f1_import_sluch_oms()
           find ( Str( mkod, 7 ) )
           If Found()
             If fl_nameismo
-              g_rlock( forever )
+              g_rlock( 'forever' )
               hsn->smo_name := ihuman->SMO_NAM
             Else
               deleterec( .t. )
@@ -2350,7 +2350,7 @@ Function f1_import_sluch_oms()
               Append Blank
             Enddo
             Goto ( hu->( RecNo() ) )
-            g_rlock( forever )
+            g_rlock( 'forever' )
             hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
             hu_->PROFIL := human_->PROFIL
             hu_->PRVS   := human_->PRVS
@@ -2376,10 +2376,10 @@ Function f1_import_sluch_oms()
             Next
             Goto ( ihu->otd )
             If Deleted()
-              g_rlock( forever )
+              g_rlock( 'forever' )
               Recall
             Else
-              g_rlock( forever )
+              g_rlock( 'forever' )
             Endif
             otd->KOD     := iotd->KOD
             otd->NAME    := iotd->NAME
@@ -2391,7 +2391,7 @@ Function f1_import_sluch_oms()
               Select PERSO
               find ( Str( ihu->VRACH, 5 ) )
               If Found()
-                g_rlock( forever )
+                g_rlock( 'forever' )
               Else
                 addrecn()
                 perso->kod := RecNo()
@@ -2411,7 +2411,7 @@ Function f1_import_sluch_oms()
               Select PERSO
               find ( Str( ihu->assis, 5 ) )
               If Found()
-                g_rlock( forever )
+                g_rlock( 'forever' )
               Else
                 addrecn()
                 perso->kod := RecNo()
@@ -2443,7 +2443,7 @@ Function f1_import_sluch_oms()
                   Set Order To 1
                   find ( Str( -1, 6 ) )
                   If Found()
-                    g_rlock( forever )
+                    g_rlock( 'forever' )
                   Else
                     addrec( 6 )
                   Endif
@@ -2494,7 +2494,7 @@ Function f1_import_sluch_oms()
                 Set Order To 1
                 find ( Str( -1, 4 ) )
                 If Found()
-                  g_rlock( forever )
+                  g_rlock( 'forever' )
                 Else
                   addrec( 4 )
                 Endif
@@ -2530,7 +2530,7 @@ Function f1_import_sluch_oms()
                 Append Blank
               Enddo
               Goto ( hu->( RecNo() ) )
-              g_rlock( forever )
+              g_rlock( 'forever' )
               hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
               hu_->PROFIL := ihu->PROFIL
               hu_->PRVS   := ihu->PRVS
@@ -2601,7 +2601,7 @@ Function import_fluoroteka()
         hGauge := gaugenew(,,, 'Синхронизация флюоротеки с картотекой', .t. )
         gaugedisplay( hGauge )
         Use ( _tmp_dir1() + '_reg.d' ) New Alias RG
-        Index On Upper( fio ) + DToS( data_r ) to ( cur_dir() + 'tmp_r' ) progress
+        Index On Upper( FIELD->fio ) + DToS( FIELD->data_r ) to ( cur_dir() + 'tmp_r' ) progress
         g_use( dir_server() + 'kartote_',, 'KART_' )
         r_use( dir_server() + 'kartotek',, 'KART' )
         Go Top
@@ -2625,7 +2625,7 @@ Function import_fluoroteka()
             If Found()
               If !( kart_->date_fl == dtoc4( rg->data_i ) .and. kart_->gr_risk == rg->gr_risk )
                 Select KART_
-                g_rlock( forever )
+                g_rlock( 'forever' )
                 kart_->date_fl := dtoc4( rg->data_i )
                 kart_->gr_risk := rg->gr_risk
                 dbUnlock()
@@ -2634,7 +2634,7 @@ Function import_fluoroteka()
               If !( kart_->date_fl == Space( 4 ) .and. kart_->gr_risk == 0 )
                 // очищаем
                 Select KART_
-                g_rlock( forever )
+                g_rlock( 'forever' )
                 kart_->date_fl := ''
                 kart_->gr_risk := 0
                 dbUnlock()
@@ -2815,7 +2815,7 @@ Function export_military()
   Endif
   create_file_export_military()
   g_use( dir_server() + sbase,, 'VOEN' )
-  Index On DToS( dfile ) to ( cur_dir() + 'tmp_voen' ) DESCENDING
+  Index On DToS( FIELD->dfile ) to ( cur_dir() + 'tmp_voen' ) DESCENDING
   Go Top
   If Eof()
     Keyboard Chr( K_END ) + Chr( K_ENTER )
@@ -2892,7 +2892,7 @@ Function f2_export_military( nKey, oBrow )
             Copy File ( goal_dir + zip_file ) to ( s + zip_file )
             // if hb_fileExists(hb_OemToAnsi(s)+zip_file)
             If hb_FileExists( s + zip_file )
-              voen->( g_rlock( forever ) )
+              voen->( g_rlock( 'forever' ) )
               voen->DATE_OUT := sys_date
               If voen->NUMB_OUT < 99
                 voen->NUMB_OUT++
@@ -3014,7 +3014,7 @@ Function f_create_military()
   Else
     Close databases
     Use ( cur_dir() + 'tmp' ) new
-    Index On Upper( name ) to ( cur_dir() + 'tmp' )
+    Index On Upper( FIELD->name ) to ( cur_dir() + 'tmp' )
     //
     t_arr[ BR_TOP ] := T_ROW
     t_arr[ BR_BOTTOM ] := MaxRow() -2
@@ -3049,23 +3049,23 @@ Function f_create_military()
   Elseif ( arr_m := year_month( T_ROW, T_COL + 5 ) ) != NIL
     mywait()
     dbCreate( cur_dir() + 'tmp1', { ;
-      { 'KOD',   'N',     7,     0 }, ; // код человека по kartotek.dbf
-      { 'DATE_R',   'D',     8,     0 }, ; // дата рождения больного
-      { 'KOMU',   'N',     1,     0 }, ; // от 1 до 5
-      { 'STR_CRB',   'N',     2,     0 }, ; // код стр.компании, комитета и т.п.
-      { 'N_DATA',   'D',     8,     0 }, ; // дата начала лечения
-      { 'K_DATA',   'D',     8,     0 }, ; // дата окончания лечения
-      { 'name',   'C',    40,     0 }, ;
-      { 'FAM',   'C',    40,     0 }, ;
-      { 'IM',   'C',    40,     0 }, ;
-      { 'OT',   'C',    40,     0 } } )
+      { 'KOD',     'N',  7, 0 }, ; // код человека по kartotek.dbf
+      { 'DATE_R',  'D',  8, 0 }, ; // дата рождения больного
+      { 'KOMU',    'N',  1, 0 }, ; // от 1 до 5
+      { 'STR_CRB', 'N',  2, 0 }, ; // код стр.компании, комитета и т.п.
+      { 'N_DATA',  'D',  8, 0 }, ; // дата начала лечения
+      { 'K_DATA',  'D',  8, 0 }, ; // дата окончания лечения
+      { 'name',    'C', 40, 0 }, ;
+      { 'FAM',     'C', 40, 0 }, ;
+      { 'IM',      'C', 40, 0 }, ;
+      { 'OT',      'C', 40, 0 } } )
     Use ( cur_dir() + 'tmp1' ) new
-    Index On Str( kod, 7 ) to ( cur_dir() + 'tmp1' )
+    Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp1' )
     r_use( dir_server() + 'mo_kfio',, 'KFIO' )
-    Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
+    Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
     r_use( dir_server() + 'kartotek',, 'KART' )
     r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
-    Set Relation To kod_k into KART
+    Set Relation To FIELD->kod_k into KART
     old := arr_m[ 5 ]
     dbSeek( DToS( arr_m[ 5 ] ), .t. )
     Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
@@ -3140,7 +3140,7 @@ Function f_create_military()
       dbCreate( fr_data, adbf )
       Use ( fr_data ) New Alias FRD
       Select TMP1
-      Index On Upper( fam + im + ot ) To tmp1
+      Index On Upper( FIELD->fam + FIELD->im + FIELD->ot ) To tmp1
       k := 0
       Go Top
       Do While !Eof()
@@ -3333,13 +3333,13 @@ Function pripisnoe_naselenie_create_oblsdrav()
   curr := 0
   r_use( dir_server() + 's_kemvyd',, 'VID' )
   r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
-  // index on smo to (cur_dir()+sbase+'2')
+  // index on FIELD->smo to (cur_dir()+sbase+'2')
   // G_Use(dir_server() + 'mo_krtr',,'KRTR')
-  // index on str(kod,6) to (cur_dir() + 'tmp_krtr')
+  // index on str(FIELD->kod,6) to (cur_dir() + 'tmp_krtr')
   // G_Use(dir_server() + 'mo_krtf',,'KRTF')
-  // index on str(kod,6) to (cur_dir() + 'tmp_krtf')
+  // index on str(FIELD->kod,6) to (cur_dir() + 'tmp_krtf')
   // G_Use(dir_server() + 'mo_krtp',,'KRTP')
-  // index on str(reestr,6) to (cur_dir() + 'tmp_k')
+  // index on str(FIELD->reestr,6) to (cur_dir() + 'tmp_k')
   // R_Use(dir_server() + 'mo_kfio',cur_dir() + 'tmp_kfio','KFIO')
   r_use_base( 'kartotek' )
   Set Order To 0
@@ -3490,7 +3490,7 @@ Function nastr_all( k, nTask )
 
   Return Nil
 
-// 14.02.26 Общие настройки каждой задачи
+// 27.04.26 Общие настройки каждой задачи
 Function f1nastr_all( nameTask, nTask )
 
   Local mm_tmp := {}, ctitle
@@ -3546,7 +3546,10 @@ Function f1nastr_all( nameTask, nTask )
       { 'внутренние', 0 }, ;
       { 'ФФОМС', 1 } }
     private mm_danet := { { 'да', 1 }, { 'нет', 0 } }
-    private mm_versionTNM := { { 'версия 7', 7 }, { 'версия 8', 8 } }
+    private mm_versionTNM := { ;
+      { 'версия 7', 7 }, ;
+      { 'версия 8', 8 } ;
+    }
 
     Delete file tmp.dbf
     Do Case
@@ -3747,6 +3750,10 @@ Function f1nastr_all( nameTask, nTask )
         0, {| x| inieditspr( A__MENUVERT, mm_versionTNM, x ) }, ;
         'Используемая версия TNM:' } )
 
+      AAdd( mm_tmp, { 'pac_attach', 'N', 2, 0, NIL, ;
+        {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
+        0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+        'Допускается проведение диспансеризации не прикрепленному населению:' } )
 
       AAdd( mm_tmp, { 'path_rab', 'C', 70, 0, NIL, ;
         NIL, ;
@@ -3864,6 +3871,7 @@ Function f1nastr_all( nameTask, nTask )
       tmp->ls_v034   := mem_n_V034
       tmp->ls_method := mem_methodinj
       tmp->ver_tnm := mem_ver_TNM
+      tmp->pac_attach := mem_stranger_attachment
 
       Close databases
     Case nTask == X_FNS //  Обмен данными с ФНС
@@ -4166,10 +4174,11 @@ Function f1nastr_all( nameTask, nTask )
         mem_n_V034  := tmp->ls_v034
         mem_methodinj := tmp->ls_method
         mem_ver_TNM := tmp->ver_tnm
+        mem_stranger_attachment := tmp->pac_attach
         tools_ini_oms( 2, 0, 0 )
       Case nTask == X_FNS //  Обмен с ФНС
         g_use( dir_server() + 'reg_fns_nastr', , 'NASTR_FNS' )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         nastr_fns->N_SPR_FNS := tmp->N_SPR_FNS
         nastr_fns->N_FILE_UP := tmp->N_FILE_UP
         nastr_fns->PODPIS    := tmp->PODPIS
@@ -4185,7 +4194,7 @@ Function f1nastr_all( nameTask, nTask )
         nastr_fns->EDIT_SUM  := tmp->EDIT_SUM
       Case nTask == X_PPOKOJ //  Приёмный покой
         g_use( dir_server() + 'pp_nastr',, 'MV' )
-        g_rlock( forever )
+        g_rlock( 'forever' )
         mv->IST_BOL   := tmp->IST_BOL
         mv->N_IST_BOL := tmp->N_IST_BOL
         mv->FILE_6    := tmp->FILE_6
@@ -4297,7 +4306,7 @@ Function semaphor_tools_ini( k )
 
   Return fl
 
-// 17.07.25
+// 27.04.26
 Function tools_ini_oms( reg, k1, k2, fll )
 
   Static arr := { ;
@@ -4352,7 +4361,8 @@ Function tools_ini_oms( reg, k1, k2, fll )
     { 'public_date',   'D' }, ;
     { 'mem_n_V034',    'N' }, ;
     { 'mem_methodinj', 'N' }, ;
-    { 'mem_ver_TNM',   'N' } }
+    { 'mem_ver_TNM',   'N' }, ;
+    { 'mem_stranger_attachment', 'N' } }
   Local name_section := 'OMS'
   Local i, j, ta := {}, v, fl
 
@@ -4898,7 +4908,7 @@ Function mo_read_el_polis( /*@*/k)
         kart->PC3 := '000'
       Else
         Goto ( rec )
-        g_rlock( forever )
+        g_rlock( 'forever' )
       Endif
       glob_kartotek := kart->kod
       glob_k_fio    := AllTrim( mfio )
@@ -4922,7 +4932,7 @@ Function mo_read_el_polis( /*@*/k)
         Append Blank
       Enddo
       Goto ( glob_kartotek )
-      g_rlock( forever )
+      g_rlock( 'forever' )
       kart_->VPOLIS := 3
       kart_->SPOLIS := ''
       kart_->NPOLIS := arr_epolis[ _EP_NPOLIS ]
@@ -4932,10 +4942,10 @@ Function mo_read_el_polis( /*@*/k)
       kart_->KVARTAL_D := arr_epolis[ _EP_OKATO ]
       If newMEST_INOG == 9
         g_use( dir_server() + 'mo_kfio',, 'KFIO' )
-        Index On Str( kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
+        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
         find ( Str( glob_kartotek, 7 ) )
         If Found()
-          g_rlock( forever )
+          g_rlock( 'forever' )
         Else
           addrec( 7 )
           kfio->kod := glob_kartotek

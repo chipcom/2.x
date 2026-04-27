@@ -1760,9 +1760,10 @@ Function view_kart( regim, r1, r2 )
     n_func := 'f2_v_fio'
     chm_help_code := 1// H3_Input_fio
   Endif
-  If !( Type( 'is_r_mu' ) == 'L' )
-    Public is_r_mu := .f.
-  Endif
+//  If !( Type( 'is_r_mu' ) == 'L' )
+//    Public is_r_mu := .f.
+//  Endif
+/*
   If is_r_mu
     blk_open := {| _rec, _ret| dbCloseAll(), ;
       _ret := use_base( 'r_mushrt' ) .and. use_base( 'kartotek' ), ;
@@ -1774,13 +1775,14 @@ Function view_kart( regim, r1, r2 )
       _ret ;
       }
   Else
+*/
     blk_open := {| _rec, _ret| dbCloseAll(), ;
       _ret := use_base( 'kartotek' ), ;
       if( _ret, ordSetFocus( 2 ), nil ), ;
       if( _ret, dbGoto( _rec ), nil ), ;
       _ret ;
       }
-  Endif
+//  Endif
   If Eval( blk_open, 1 )
     If regim == 3
       Select KART
@@ -1814,11 +1816,11 @@ Function view_kart( regim, r1, r2 )
           muchast := kart->uchast
           mkod_vu := kart->kod_vu
         Endif
-        If Empty( kart->snils ) .and. is_r_mu .and. !r_mushrt->( Eof() )
-          Select KART
-          g_rlock( forever )
-          kart->snils := CharRem( '- ', r_mushrt->snils )
-        Endif
+//        If Empty( kart->snils ) .and. is_r_mu .and. !r_mushrt->( Eof() )
+//          Select KART
+//          g_rlock( forever )
+//          kart->snils := CharRem( '- ', r_mushrt->snils )
+//        Endif
         Close databases
         If regim == 1 .or. regim == 2 // редактирование или удаление
           str_sem := 'Редактирование картотеки ' + lstr( glob_kartotek )
@@ -2141,9 +2143,9 @@ Function f2_v_kart( nkey, oBrow )
         f_message( mes_arr, , cColorSt2Msg, cColorStMsg, 0, 0 )
       Endif
       tmp := 'list_uch'
-      If is_r_mu .and. !r_mushrt->( Eof() )
-        tmp += '(.t.)'
-      Endif
+//      If is_r_mu .and. !r_mushrt->( Eof() )
+//        tmp += '(.t.)'
+//      Endif
       If mem_op == 1
         If input_uch( 0, 44, sys_date ) != Nil .and. input_otd( 0, 44, sys_date ) != NIL
           r_list_uch( 1, tmp )

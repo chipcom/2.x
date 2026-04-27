@@ -75,6 +75,7 @@ function menu_X_registr()
     'edit_priem()', ;
     'regi_nastr(2)';
   } )
+/*
   If is_r_mu  // регистр льготников
     ins_array( main_menu, 2, ' ~Льготники ' )
     ins_array( main_message, 2, 'Поиск человека в федеральном регистре льготников' )
@@ -95,4 +96,5 @@ function menu_X_registr()
       'r_mu_svod()' ;
     } )
   Endif
+*/
   return fl
