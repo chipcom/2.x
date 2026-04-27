@@ -1151,16 +1151,11 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
   Return { ars, arerr, AllTrim( lksg ), lcena, akslp, akiro, s_dializ }
         //  1     2        3              4      5      6        7
 
-// 23.04.26
+// 27.04.26
 function add_KSG_table( arr_KSG, mdate, lal, osn_diag, prioritet, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
 
   local n_cena_oms
   local vkiro, akiro := {}
-
-  if AScan( arr_KSG, { | x | AllTrim( x[ 1 ] ) == AllTrim( k006->shifr ) } ) > 0
-    // ‘ƒ γ¦¥ Ά α―¨αª¥
-    return arr_KSG
-  endif
 
 // ®―ΰ¥¤¥«¨¬ ζ¥­γ ‘ƒ α γη¥β®¬ 
   n_cena_oms := ret_cena_ksg( k006->shifr, lvr, mdate )

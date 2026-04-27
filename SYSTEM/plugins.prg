@@ -13,9 +13,9 @@ FUNCTION Plugins()
   local oBox
 
   FOR i := 1 TO Len( aPlugins )
-     IF Empty( aPlugins[i, 3] )
-        AAdd( aMenu, { aPlugins[i, 2], Nil, i } )
-        AAdd( aMenu1, aPlugins[i, 2] )
+     IF Empty( aPlugins[ i, 3 ] )
+        AAdd( aMenu, { aPlugins[ i, 2 ], Nil, i } )
+        AAdd( aMenu1, aPlugins[ i, 2 ] )
      ENDIF
   NEXT
 
@@ -33,7 +33,7 @@ FUNCTION Plugins()
 
       if (i := AChoice( oBox:Top + 1, oBox:Left + 1, oBox:Bottom - 1, oBox:Right - 1, aMenu1 )) > 0
         oBox := nil
-        i := aMenu[i, 3]
+        i := aMenu[ i, 3 ]
         edi_RunPlugin( aPlugins, i )
       else
         exit
@@ -51,19 +51,19 @@ FUNCTION edi_RunPlugin( aPlugins, xPlugin, aParams )
   IF Valtype( xPlugin ) == 'N'
       i := xPlugin
   ELSEIF Valtype( xPlugin ) == 'C'
-      i := Ascan( aPlugins, {|a| a[1] == xPlugin} )
+      i := Ascan( aPlugins, { | a | a[ 1 ] == xPlugin } )
   ENDIF
   IF i > 0
-    IF Empty( aPlugins[i, 4] )
-      cPlugin := aPlugins[i, 1]
+    IF Empty( aPlugins[ i, 4 ] )
+      cPlugin := aPlugins[ i, 1 ]
       IF !Empty( cFullPath := edi_FindPath( 'plugins' + hb_ps() + cPlugin ) )
-        aPlugins[i, 4] := hb_hrbLoad( cFullPath )
-        aPlugins[i, 5] := cFullPath
+        aPlugins[ i, 4 ] := hb_hrbLoad( cFullPath )
+        aPlugins[ i, 5 ] := cFullPath
       ENDIF
     ENDIF
-    IF !Empty( aPlugins[i, 4] )
+    IF !Empty( aPlugins[ i, 4 ] )
       // RETURN hb_hrbDo( aPlugins[i, 4], oEdit, hb_fnameDir( aPlugins[i, 5] ), aParams )
-      RETURN hb_hrbDo( aPlugins[i, 4], , hb_fnameDir( aPlugins[i, 5] ), aParams )
+      RETURN hb_hrbDo( aPlugins[ i, 4 ], , hb_fnameDir( aPlugins[ i, 5 ] ), aParams )
     ENDIF
   ENDIF
  
@@ -107,7 +107,7 @@ static function create_podrazdel()
 // 14.12.23
 function control_podrazdel_ini( cIniName )
   local lRet := .f.
-  LOCAL hIni := edi_iniRead( cIniName ), aSect, arr, i, cTmp, s, nPos, n
+  LOCAL hIni := edi_iniRead( cIniName ), aSect, cTmp
   local cPodrazdel
 
   cPodrazdel := create_podrazdel()
@@ -124,8 +124,8 @@ function control_podrazdel_ini( cIniName )
 // 14.12.23
 STATIC FUNCTION ReadIni( cIniName )
 
-  LOCAL hIni := edi_iniRead( cIniName ), aSect, arr, i, cTmp, s, nPos, n
-  LOCAL aPanes := { Nil, Nil }, cp, lPalette := .F.
+  LOCAL hIni := edi_iniRead( cIniName ), aSect, arr, i, cTmp, s, n
+  LOCAL aPanes := { Nil, Nil }, lPalette := .F.
   LOCAL aPlugins := {}
   local cPodrazdel
 
@@ -144,7 +144,7 @@ STATIC FUNCTION ReadIni( cIniName )
           IF !Empty( edi_FindPath( 'plugins' + hb_ps() + cTmp ) )
             s := Substr( s, n + 1 )
             IF ( n := At( ',', s ) ) > 0
-              Aadd( aPlugins, { cTmp, Substr( s, n + 1 ), AllTrim(Left( s, n - 1 )), Nil, Nil } )
+              Aadd( aPlugins, { cTmp, Substr( s, n + 1 ), AllTrim( Left( s, n - 1 ) ), Nil, Nil } )
             ENDIF
           ENDIF
         ENDIF
@@ -163,24 +163,24 @@ FUNCTION edi_IniRead( cFileName )
     RETURN Nil
   ENDIF
    
-  aText := hb_aTokens( cText, Chr(10) )
+  aText := hb_aTokens( cText, Chr( 10 ) )
   hIni := hb_Hash()
    
   FOR i := 1 TO Len( aText )
-    s := Iif( Left( aText[i], 1 ) == ' ', Ltrim( aText[i] ), aText[i] )
-    IF Left( s, 1 ) $ ";#"
+    s := Iif( Left( aText[ i ], 1 ) == ' ', Ltrim( aText[ i ] ), aText[ i ] )
+    IF Left( s, 1 ) $ ';#'
       LOOP
     ENDIF
-    s := Trim( Iif( Right(s, 1) == Chr(13), Left( s, Len(s) - 1 ), s ) )
+    s := Trim( Iif( Right( s, 1 ) == Chr( 13 ), Left( s, Len( s ) - 1 ), s ) )
     IF Empty( s )
       LOOP
     ENDIF
    
     IF Left( s, 1 ) == '[' .AND. Right( s, 1 ) == ']'
-      hSect := hIni[Substr( s, 2, Len(s) - 2 )] := hb_Hash()
+      hSect := hIni[ Substr( s, 2, Len( s ) - 2 ) ] := hb_Hash()
     ELSEIF !( hSect == Nil )
       IF ( nPos := At( '=', s ) ) > 0
-        hSect[Trim(Left(s, nPos - 1))] := Ltrim( Substr( s, nPos + 1 ) )
+        hSect[ Trim( Left( s, nPos - 1 ) ) ] := Ltrim( Substr( s, nPos + 1 ) )
       ENDIF
     ENDIF
   NEXT
