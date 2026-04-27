@@ -2211,7 +2211,7 @@ Function akt_list_of_refusal_pacient()
   r_use( dir_server() + 'mo_raksherr', , 'RAKERR' )
   Index On Str( FIELD->kod_raksh, 8 ) to ( cur_dir() + 'tmpRERR' )
   r_use( dir_server() + 'mo_raks', , 'RAKS' )
-  Index On Str( FIELD->akt, 6 ) to ( cur_dir() + 'tmpraks' ) For FIELD->plat == lsmo[ 1 ]
+  Index On Str( FIELD->akt, 6 ) to ( cur_dir() + 'tmpraks' ) For iif( lsmo[ 1 ] == '34000', FIELD->plat == '34000' .or. FIELD->plat == '34   ' , FIELD->plat == lsmo[ 1 ] )
   r_use( dir_server() + 'mo_rak', , 'RAK' )
   Index On Str( FIELD->kod_xml, 6 ) + DToS( FIELD->dakt ) + FIELD->nakt to ( cur_dir() + 'tmprak' )
   r_use( dir_server() + 'mo_xml', , 'MO_XML' )
