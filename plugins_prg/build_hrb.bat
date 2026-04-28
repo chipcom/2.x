@@ -9,3 +9,6 @@ harbour correct_vidpom.prg -n -gh -q -Ic:\harbour\include;..\..\include
 
 copy *.hrb d:\_mo\chip\exe\plugins
 copy chip_plugin.ini d:\_mo\chip\exe
+
+copy *.hrb d:\_mo\_arc\plugins
+copy chip_plugin.ini d:\_mo\_arc
