@@ -234,7 +234,19 @@ Function verify_sluch( fl_view, ft )
   //
   mdiagnoz := diag_to_array(, , , , .t. ) 
   If Len( mdiagnoz ) == 0
-    ft:add_string( 'отсутствуют диагнозы', FILE_LEFT )
+    ft:add_string( '' )
+    ft:add_string( header_error, FILE_CENTER, ' ', .t. )
+    ft:add_string( '' )
+    AAdd( ta, 'отсутствуют диагнозы' )
+    For i := 1 To Len( ta )
+      For j := 1 To perenos( t_arr, ta[ i ], 78 )
+        If j == 1
+          ft:add_string( iif( i == 1, ' ', '- ' ) + t_arr[ j ] )
+        Else
+          ft:add_string( AllTrim( t_arr[ j ] ), FILE_LEFT )
+        Endif
+      Next
+    Next
     Return .f.
   endif
 
