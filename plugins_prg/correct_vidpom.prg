@@ -7,6 +7,15 @@
 Function correct_vidpom()
 
   Local buf := save_maxrow()
+  local Slist_sem := 'Работа с листами учета'
+
+  If ! currentUser():isadmin()
+    Return func_error( 4, err_admin() )
+  Endif
+
+  If !g_slock( Slist_sem )
+    Return func_error( 4, 'В данный момент с реестрами работает другой пользователь.' )
+  Endif
 
   waitstatus( 'Проверяем информацию...' )
 
@@ -33,6 +42,7 @@ Function correct_vidpom()
   enddo
 
   dbCloseAll()
+  g_sunlock( Slist_sem )
   rest_box( buf )
 
   Return Nil
