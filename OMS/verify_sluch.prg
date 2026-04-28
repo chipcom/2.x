@@ -233,7 +233,12 @@ Function verify_sluch( fl_view, ft )
   // ПРОВЕРЯЕМ ДИАГНОЗЫ
   //
   mdiagnoz := diag_to_array(, , , , .t. ) 
-  If Len( mdiagnoz ) == 0 .or. Empty( mdiagnoz[ 1 ] )
+  If Len( mdiagnoz ) == 0
+    ft:add_string( 'отсутствуют диагнозы', FILE_LEFT )
+    Return .f.
+  endif
+
+  if Empty( mdiagnoz[ 1 ] )
     AAdd( ta, 'не заполнено поле "ОСНОВНОЙ ДИАГНОЗ"' )
   Endif
   // проверим заполненные "фиктивные" диагнозы
