@@ -713,7 +713,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     aTerKSG := AClone( ar_ksg )
     If Len( aTerKSG ) > 1
 //      ASort( aTerKSG, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
-      ASort( aTerKSG, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 2 ] > y[ 2 ], x[ 13 ] > y[ 13 ] ) } )
+      ASort( aTerKSG, , , {| x, y| iif( x[ 18 ] == y[ 18 ], x[ 2 ] > y[ 2 ], x[ 18 ] > y[ 18 ] ) } )
     Endif
     /*aadd(ars, '   ║КСГ: ' +print_array(aTerKSG[1]))
     for j := 2 to len(aTerKSG)
@@ -934,7 +934,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 //          next
 //        endif
 //        ASort( _a1, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
-        ASort( _a1, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 2 ] > y[ 2 ], x[ 13 ] > y[ 13 ] ) } )
+        ASort( _a1, , , {| x, y| iif( x[ 18 ] == y[ 18 ], x[ 2 ] > y[ 2 ], x[ 18 ] > y[ 18 ] ) } )
 //
       elseif Len( _a1 ) == 1
         AAdd( ar_ksg, AClone( _a1[ 1 ] ) )
@@ -968,7 +968,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     aHirKSG := AClone( ar_ksg )
     If Len( aHirKSG ) > 1
 //      ASort( aHirKSG, , , {| x, y| iif( x[ 3 ] == y[ 3 ], x[ 13 ] > y[ 13 ], x[ 3 ] > y[ 3 ] ) } )
-      ASort( aHirKSG, , , {| x, y| iif( x[ 3 ] == y[ 3 ], x[ 13 ] > y[ 13 ], x[ 2 ] > y[ 2 ] ) } )
+      ASort( aHirKSG, , , {| x, y| iif( x[ 18 ] == y[ 18 ], x[ 2 ] > y[ 2 ], x[ 18 ] > y[ 18 ] ) } )
     Endif
     If ( kol_hir := f_put_debug_ksg( 0, aHirKSG, ars ) ) > 1
       AAdd( ars, ' └─> выбираем КСГ=' + RTrim( aHirKSG[ 1, 1 ] ) + ' [КЗ=' + lstr( aHirKSG[ 1, 3 ] ) + ']' )
@@ -1151,12 +1151,31 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
   Return { ars, arerr, AllTrim( lksg ), lcena, akslp, akiro, s_dializ }
         //  1     2        3              4      5      6        7
 
-// 27.04.26
-function add_KSG_table( arr_KSG, mdate, lal, osn_diag, prioritet, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+// 28.04.26
+function add_KSG_table( arr_KSG, mdate, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
 
-  local n_cena_oms
+  local n_cena_oms, prioritet := 0
   local vkiro, akiro := {}
+  local diag3, diag5
 
+  osn_diag := AllTrim( osn_diag )
+  diag3 := substr( osn_diag, 1, 3 )
+  diag5 := substr( osn_diag, 1, 5 )
+  if substr( k006->sy, 1, 4 ) == 'A16.' .or. ;
+      eq_any( Lower( substr( k006->shifr, 1, 4 ) ), 'st37', 'ds37' ) .or. ;
+      eq_any( Lower( substr( k006->shifr, 1, 4 ) ), 'st19', 'ds19' )
+    prioritet := 1
+  endif
+  if substr( k006->los, 1, 1 ) == '1' .and. eq_any( Lower( AllTrim( k006->shifr ) ), 'st25.004', 'ds25.001' )
+    prioritet := 1
+  endif
+  if ( diag3 == 'L26' .or. eq_any( diag5, 'L08.0', 'L27.0', 'L27.2' ) ) .and. lvr == 1
+    prioritet := 1
+  endif
+  if ( diag5 == 'C84.0' ) .and. ;
+      eq_any( Lower( substr( k006->ad_cr, 1, 5 ) ), 'derm4', 'derm5', 'derm7', 'derm8' )
+    prioritet := 1
+  endif
 // определим цену КСГ с учетом КИРО
   n_cena_oms := ret_cena_ksg( k006->shifr, lvr, mdate )
   If ! Empty( ( lal )->kiros ) 
@@ -1181,11 +1200,12 @@ function add_KSG_table( arr_KSG, mdate, lal, osn_diag, prioritet, sds1, sds2, lv
     k006->ad_cr, ;                // 10 Код классификационного критерия в соответствии с ?Справочником дополнительных классификационных критериев? V024, за исключением показателя ?Количество фракций?, используемых при лучевой или химиолучевой терапии.
     sds1, ;                       // 11 Коды сопутствующих диагнозов по МКБ-10.
     sds2, ;                       // 12 Код диагнозов осложнений по МКБ10.
-    prioritet, ;                  // 13 приоритет -1, 0 1
+    j, ;                          // 13
     AllTrim( ( lal )->kslps ), ;  // 14 Список доступных КСЛП.
     k006->ad_cr1, ;               // 15 Иной классификационный критерий. Используется для передачи сведений о показателе ?Количество фракций? при лучевой или химиолучевой терапии.
     iif( Year( mdate ) > 2025, ( lal )->TYPE_KSG, 0 ), ;  // 16 тип КСГ ( 0 - терапевтическое, 1 - хирургическое ), до 26 года всегда 0
-    lvr ;                         // 17 Взрослый - 0/ребенок - 1
+    lvr, ;                        // 17 Взрослый - 0/ребенок - 1
+    prioritet ;                   // 18 приоритет -1, 0 1
   } ;
   )
 //    0, ;                          // 2
