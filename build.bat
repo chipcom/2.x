@@ -17,7 +17,7 @@ copy d:\_mo\_arc\*.dbt  d:\_mo\chip\exe
 
 if exist d:\_mo\_build\chip_mo.rar del d:\_mo\_build\chip_mo.rar
 copy d:\_mo\DOC\readme.rtf d:\_mo\_arc
-rem copy d:\_mo\DOC\readme.rtf d:\_mo\_build\readme.rtf
+copy d:\_mo\DOC\readme.rtf d:\_mo\_build\readme.rtf
 rem C:\"Program Files"\WinRAR\Rar.exe a -ep1 d:\_mo\_build\chip_mo @d:\_mo\2.x\chip_mo.lst
 C:\"Program Files"\WinRAR\Rar.exe a -ed -ep4"_mo\_arc" d:\_mo\_build\chip_mo d:\_mo\_arc
 copy d:\_mo\_build\chip_mo.rar d:\_mo\_build\KVD\chip_mo.rar
