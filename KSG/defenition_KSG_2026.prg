@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 24.04.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 29.04.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -13,6 +13,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
   // выполнено use_base('mo_hu', 'MOHU') - для записи
   Static ver_year := 0 // последний проверяемый год
   Static sp0, sp1, sp6, sp15
+/*
   Static a_iskl_1 := { ; // исключение из правил №1
     { 'st02.010', 'st02.008' }, ;
     { 'st02.011', 'st02.008' }, ;
@@ -56,7 +57,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     { 'ds37.011', '' }, ;
     { 'ds37.012', '' };
   }
-
+*/
   Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0, lstentvmp := 0, ;
     strSoob, ar1, fl, im, lshifr, ln_data, lk_data, lvr, ldni, ldate_r, lpol, lprofil_k, ;
     lfio, cenaTer := 0, cenaHir := 0, ars := {}, arerr := {}, ;
@@ -374,28 +375,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 //    AAdd( llos, '13' )
 //  Endif
   AAdd( llos, code_duration_K006( lk_data, ldnej ) )
-  /*
-  0 - КИРО не применяется
-  1 - длительность случая 3 койко-дня (дней лечения) и менее и пациенту выполнена хирургическая операция
-      либо другое вмешательство, являющиеся классификационным критерием отнесения данного случая лечения
-      к конкретной КСГ вне зависимости от сочетания с результатами обращения за медицинской помощью
-  2 - длительность случая 3 койко-дня (дней лечения) и менее, но хирургическое лечение либо другое вмешательство,
-      определяющее отнесение к КСГ не проводилось и критерием отнесения в случае является код диагноза по МКБ 10
-      вне зависимости от сочетания с результатами обращения за медицинской помощью;
-  3 - длительность случая 4 койко-дня (дней лечения) и более и пациенту выполнена хирургическая операция
-      либо другое вмешательство, являющиеся классификационным критерием отнесения данного случая лечения
-      к конкретной КСГ в сочетании с результатами обращения за медицинской помощью
-      (Классификатор V009) 102, 105, 107, 110, 202, 205, 207
-  4 - длительность случая 4 койко-дня (дней лечения) и более, но хирургическое лечение либо другое вмешательство,
-      определяющее отнесение к КСГ не проводилось, в сочетании с результатами обращения за медицинской помощью
-      (Классификатор V009) 102, 105, 107, 110, 202, 205, 207
-  5 - случаи с несоблюдением режима введения лекарственного препарата (дней введения в схеме) согласно инструкции
-      к препарату при длительности случая 3 койко-дня (дня лечения) и менее вне зависимости от результата обращения
-      за медицинской помощью
-  6 - случаи с несоблюдением режима введения лекарственного препарата (дней введения в схеме) согласно инструкции
-      к препарату при длительности случая 4 койко-дня (дня лечения) и более в сочетании с результатами обращения
-      за медицинской помощью (Классификатор V009) 102, 105, 107, 110, 202, 205, 207
-  */
+
   // aadd(ars, '   ║age=' +lage+ ' sex=' +lsex+ ' los=' +print_array(llos))
 
   nfile := prefixfilerefname( lyear ) + 'k006'
@@ -461,8 +441,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       // конец что-то здесь не так
 
       If fl .and. !Empty( k006->age )
-        If ( fl := ( k006->age $ lage ) )
-        Endif
+        fl := ( k006->age $ lage )
       Endif
       If fl .and. !Empty( k006->sex )
         fl := ( k006->sex == lsex )
@@ -527,7 +506,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       k006->( dbSkip() )  //  Skip
     Enddo
   Endif
-altd()
+//altd()
   ar1 := {}
   If uslOkaz == USL_OK_DAY_HOSPITAL .and. !Empty( lad_cr ) .and. lad_cr == 'mgi'
     Select K006
@@ -544,11 +523,12 @@ altd()
         sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
         sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
 //        ar_ksg := {}
-        add_KSG_table( ar1, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
-//        add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+//        add_KSG_table( ar1, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+        add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
       Endif
     Endif
   Endif
+/*
   If Len( ar_ksg ) > 0
     For i := 1 To Len( tmp )
       im := tmp[ i ]
@@ -559,14 +539,15 @@ altd()
 //      ASort( aTerKSG, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
       ASort( aTerKSG, , , {| x, y| iif( x[ 18 ] == y[ 18 ], x[ 2 ] > y[ 2 ], x[ 18 ] > y[ 18 ] ) } )
     Endif
-    /*aadd(ars, '   ║КСГ: ' +print_array(aTerKSG[1]))
-    for j := 2 to len(aTerKSG)
-      aadd(ars, '   ║     ' +print_array(aTerKSG[j]))
-    next*/
+//    aadd(ars, '   ║КСГ: ' +print_array(aTerKSG[1]))
+//    for j := 2 to len(aTerKSG)
+//      aadd(ars, '   ║     ' +print_array(aTerKSG[j]))
+//    next
     If ( kol_ter := f_put_debug_ksg( 0, aTerKSG, ars ) ) > 1
       AAdd( ars, ' └─> выбираем КСГ=' + RTrim( aTerKSG[ 1, 1 ] ) + ' [КЗ=' + lstr( aTerKSG[ 1, 3 ] ) + ']' )
     Endif
   Endif
+*/
   // собираем КСГ по манипуляциям (хирургические и комбинированные)
 //  ar_ksg := ar1
   ar_crit := {}
@@ -578,8 +559,9 @@ altd()
       _a1 := {}
       Select K006
       Set Order To 2
-      find ( typeKSG + PadR( lshifr, 20 ) )
-      Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->sy == PadR( lshifr, 20 ) .and. ! k006->( Eof() )
+      k006->( dbSeek( typeKSG + lshifr ) )      //  find ( typeKSG + PadR( lshifr, 20 ) )
+//      Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->sy == PadR( lshifr, 20 ) .and. ! k006->( Eof() )
+      Do While Left( k006->shifr, 2 ) == typeKSG .and. AllTrim( k006->sy ) == lshifr .and. ! k006->( Eof() )
         lkoef := k006->kz
         dbSelectArea( lal )
         find ( PadR( k006->shifr, 10 ) )
@@ -595,8 +577,7 @@ altd()
           fl := ( AllTrim( k006->ds ) == osn_diag )
         Endif
         If fl .and. !Empty( k006->age )
-          If ( fl := ( k006->age $ lage ) )
-          Endif
+          fl := ( k006->age $ lage )
         Endif
         If fl .and. !Empty( k006->sex )
           fl := ( k006->sex == lsex )
@@ -711,17 +692,19 @@ altd()
 //        ASort( _a1, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
         ASort( _a1, , , {| x, y| iif( x[ 18 ] == y[ 18 ], x[ 2 ] > y[ 2 ], x[ 18 ] > y[ 18 ] ) } )
 //
-      elseif Len( _a1 ) == 1
-        AAdd( ar_ksg, AClone( _a1[ 1 ] ) )
+//      elseif Len( _a1 ) == 1
+//        AAdd( ar_ksg, AClone( _a1[ 1 ] ) )
       Endif
 
       If Len( _a1 ) > 0
-        AAdd( ar_ksg, AClone( _a1[ 1 ] ) )
+//        AAdd( ar_ksg, AClone( _a1[ 1 ] ) )
+        for i := 1 to Len( _a1 )
+          AAdd( ar_ksg, AClone( _a1[ i ] ) )
+        next
       Endif
 //
     Endif
   Next
-altd()
   If Len( ar_ksg ) > 0
     For i := 1 To Len( ar_ksg )
 /*
@@ -741,6 +724,7 @@ altd()
 
       endif                     // add 01.11.25
     Next
+/*
     aHirKSG := AClone( ar_ksg )
     If Len( aHirKSG ) > 1
 //      ASort( aHirKSG, , , {| x, y| iif( x[ 3 ] == y[ 3 ], x[ 13 ] > y[ 13 ], x[ 3 ] > y[ 3 ] ) } )
@@ -749,7 +733,9 @@ altd()
     If ( kol_hir := f_put_debug_ksg( 0, aHirKSG, ars ) ) > 1
       AAdd( ars, ' └─> выбираем КСГ=' + RTrim( aHirKSG[ 1, 1 ] ) + ' [КЗ=' + lstr( aHirKSG[ 1, 3 ] ) + ']' )
     Endif
+*/
   Endif
+/*
   If kol_ter > 0 .and. kol_hir > 0
     aTerKSG[ 1, 1 ] := AllTrim( aTerKSG[ 1, 1 ] )
     aHirKSG[ 1, 1 ] := AllTrim( aHirKSG[ 1, 1 ] )
@@ -811,6 +797,10 @@ altd()
       ltype_ksg := aHirKSG[ 1, 16 ]
     endif
   Endif
+*/
+  ASort( ar_ksg, , , {| x, y| iif( x[ 18 ] == y[ 18 ], x[ 2 ] > y[ 2 ], x[ 18 ] > y[ 18 ] ) } )
+  lksg := ar_ksg[ 1, 1 ]
+
   akslp := {}
   akiro := {}
   If lksg == 'ds18.001' .and. s_dializ > 0
