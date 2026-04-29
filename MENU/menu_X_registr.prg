@@ -53,6 +53,12 @@ function menu_X_registr()
     'prn_kartoteka()' ;
   } )
 
+  if ( ! isnil( edi_FindPath( PLUGINIFILE ) ) ) .and. ( control_podrazdel_ini( edi_FindPath( PLUGINIFILE ) ) )
+    AAdd( first_menu[ 2 ], 'Дополнительные возможности' )
+    AAdd( first_message[ 2 ], 'Дополнительные возможности' )
+    AAdd( func_menu[ 2 ], 'Plugins()' ) 
+  endif
+
 /*
   if ( ! isnil( edi_FindPath( PLUGINIFILE ) ) ) .and. ( control_podrazdel_ini( edi_FindPath( PLUGINIFILE ) ) )
     AAdd( first_menu[ 4 ], 'Дополнительные возможности' )
