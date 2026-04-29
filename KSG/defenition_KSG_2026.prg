@@ -506,7 +506,6 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       k006->( dbSkip() )  //  Skip
     Enddo
   Endif
-//altd()
   ar1 := {}
   If uslOkaz == USL_OK_DAY_HOSPITAL .and. !Empty( lad_cr ) .and. lad_cr == 'mgi'
     Select K006
@@ -659,7 +658,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 //          if ( icrit := AScan( _a1, {| x | AllTrim( x[ 10 ] ) == AllTrim( human_2->PC3 ) } ) ) > 0
 //            AAdd( ar_ksg, AClone( _a1[ icrit ] ) )
 //          endif
-        elseif ( Upper( ProcName( 1 ) ) == Upper( 'f_usl_definition_KSG' ) .and. ;
+        elseif ( Upper( ProcName( 1 ) ) == Upper( 'f_usl_definition_KSG' ) .and. ; 
             Upper( ProcName( 2 ) ) == Upper( 'oms_usl_sluch' ) ) .or. ;
               ;
             ( Upper( ProcName( 1 ) ) == Upper( 'f_1pac_definition_KSG' ) .and. ;
@@ -800,6 +799,10 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
 */
   ASort( ar_ksg, , , {| x, y| iif( x[ 18 ] == y[ 18 ], x[ 2 ] > y[ 2 ], x[ 18 ] > y[ 18 ] ) } )
   lksg := ar_ksg[ 1, 1 ]
+  lcena := ar_ksg[ 1, 2 ]
+  lkiro := ar_ksg[ 1, 4 ]
+  lkslp := ar_ksg[ 1, 14 ]
+  ltype_ksg := ar_ksg[ 1, 16 ]
 
   akslp := {}
   akiro := {}
@@ -808,7 +811,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
   Endif
   If !Empty( lksg )
     strSoob := ' РЕЗУЛЬТАТ: выбрана КСГ = ' + lksg
-    lcena := ret_cena_ksg( lksg, lvr, date_usl )
+//    lcena := ret_cena_ksg( lksg, lvr, date_usl )
     If Empty( lcena )
       strSoob += ', но не определена цена в справочнике ТФОМС'
       AAdd( arerr, strSoob )
@@ -817,7 +820,8 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       If !Empty( lkiro )
         vkiro := defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lk_data )
         If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
-          lcena := cena_with_kiro( lcena, vkiro, lk_data, lrslt, ltype_ksg, akiro )
+//          lcena := cena_with_kiro( lcena, vkiro, lk_data, lrslt, ltype_ksg, akiro )
+          cena_with_kiro( lcena, vkiro, lk_data, lrslt, ltype_ksg, akiro )
           strSoob += '  (КИРО = ' + Str( akiro[ 2 ], 4, 2 ) + ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
         Endif
       Endif
@@ -825,6 +829,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       strSoob += ', цена ' + lstr( lcena, 11, 0 ) + 'р. '
       AAdd( ars, strSoob )
       strSoob := ''
+
       If lksg == 'st38.001' .and. lbartell == '61' // Старческая астения (это правило уже устарело и не применяется)
         lkslp := ''                                // т.к. у данной КСГ нет КСЛП
       Endif
