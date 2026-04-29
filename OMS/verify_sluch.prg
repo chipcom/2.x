@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 26.04.26 
+// 29.04.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -73,6 +73,7 @@ Function verify_sluch( fl_view, ft )
   local mo_current  // описатель текущей МО
   local kprof, sVidpom
   local aValidProf  // допустимые в отделении профили, условия оказания, виды мед. помощи
+  local is_60_17_1 := .f., is_60_17_2 := .f., kol_60_17_100 := 0
 //  local cUIDSPMO
 
   Default fl_view To .t.
@@ -1164,6 +1165,13 @@ Function verify_sluch( fl_view, ft )
           kol_2_4++
 //        Elseif eq_any( alltrim_lshifr, '2.92.1', '2.92.2', '2.92.3' ) .or. ;
 //          eq_any( alltrim_lshifr, '2.92.4', '2.92.5', '2.92.6', '2.92.7', '2.92.8', '2.92.9', '2.92.10', '2.92.11', '2.92.12', '2.92.13' )
+        elseif eq_any( alltrim_lshifr, '60.17.1', '60.17.2', '60.17.100' ) // дистанционное наблюдение
+          kol_60_17_100 += iif( alltrim_lshifr == '60.17.100', 1, 0 )
+          if alltrim_lshifr == '60.17.1'
+            is_60_17_1 := .t.
+          elseif alltrim_lshifr == '60.17.2'
+            is_60_17_2 := .t.
+          endif
         Elseif AScan( arr_schol_xniz( mk_data ), alltrim_lshifr ) > 0
           shifr_2_92 := alltrim_lshifr
           is_2_92_ := .t.
@@ -3167,12 +3175,22 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'кол-во услуг ' + lstshifr + ' (' + lstr( lstkol ) + ') более 1' )
     Endif
     If Len( au_lu ) > 1 .and. kol_ksg == 0
-      If is_2_78 .or. is_2_89 .or. is_70_5 .or. is_70_6 .or. is_70_3 .or. is_72_2 .or. is_2_92_ .or. is_disp_DRZ
+      If is_2_78 .or. is_2_89 .or. is_70_5 .or. is_70_6 .or. is_70_3 .or. is_72_2 .or. is_2_92_ .or. is_disp_DRZ .or. ;
+        is_60_17_1 .or. is_60_17_2
         //
       Else
         AAdd( ta, 'кроме услуги ' + lstshifr + ' в листе учета не должно быть других услуг ТФОМС' )
       Endif
     Endif
+
+    // проверка дистанционного наблюдения
+    if is_60_17_1 .or. is_60_17_2
+      if kol_60_17_100 < iif( is_60_17_1, 8, 22 )  // артериальная гипертензия - 8, сахарный диабет - 22
+        AAdd( ta, 'услуга "60.17.100" выполнена ' + Str( kol_60_17_100, 2) + ;
+          ' раз, а для ' + iif( is_60_17_1, 'артериальной гипертензии', 'сахарного диабета' ) + ;
+          ' нужно не менее ' + Str( iif( is_60_17_1, 8, 22 ), 2 ) + ' раз' )
+      endif
+    endif
 
     // проверка школы диабета
     If kol_2_93_1 > 0 .and. ! is_2_92_
