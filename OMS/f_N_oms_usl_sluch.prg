@@ -843,7 +843,7 @@ Function f2oms_usl_sluch( nKey, oBrow )
             mosu->name   := mname_u
             mosu->shifr1 := mshifr1
             mosu->profil := m1PROFIL
-            mosu->profil_M := m1PROFIL_M
+//            mosu->profil_M := m1PROFIL_M 
           Endif
           // одна услуга
           If mn_base == 0
