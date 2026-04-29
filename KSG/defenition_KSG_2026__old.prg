@@ -68,7 +68,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     date_usl := SToD( '20210101' )
   local typeKSG  // тип КСГ ( st или ds )
   local uslOkaz         // условия оказания (стационар, дневной стационар м т.д.)
-  local i, j := 0
+  local i, j
   local _a1, ar_ksg, ar_crit, ar_crit1
   local c_crit, icrit
   local lal, lalf, lage
@@ -431,8 +431,49 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       If fl
         fl := between_date( k006->DATEBEG, k006->DATEEND, date_usl )
       Endif
+      j := 0
+      j++
+      j++
       If fl
         add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+/*
+        if lk_data >= 0d20260101
+          AAdd( ar_ksg, { k006->shifr, ; // 1
+            0, ;           // 2
+            lkoef, ;       // 3
+            &lal.->kiros, ; // 4
+            osn_diag, ;    // 5
+            k006->sy, ;    // 6
+            k006->age, ;   // 7
+            k006->sex, ;   // 8
+            k006->los, ;   // 9
+            k006->ad_cr, ; // 10
+            '', ;        // 11
+            '', ;        // 12
+            j, ;           // 13
+            &lal.->kslps, ; // 14
+            k006->ad_cr1, ; // 15
+            &lal.->TYPE_KSG } ; // 16
+          )
+        else
+          AAdd( ar_ksg, { k006->shifr, ; // 1
+            0, ;           // 2
+            lkoef, ;       // 3
+            &lal.->kiros, ; // 4
+            osn_diag, ;    // 5
+            k006->sy, ;    // 6
+            k006->age, ;   // 7
+            k006->sex, ;   // 8
+            k006->los, ;   // 9
+            k006->ad_cr, ; // 10
+            '', ;        // 11
+            '', ;        // 12
+            j, ;           // 13
+            &lal.->kslps, ; // 14
+            k006->ad_cr1 } ; // 15
+          )
+        endif
+*/
       Endif
       K006->( dbSkip() )
     Enddo
@@ -451,24 +492,44 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
         sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
         sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
       Endif
+      j := 0
 
       // что-то здесь не так
-//      If fl .and. !Empty( k006->sy )
-//        If ( i := AScan( amohu, k006->sy ) ) == 0
-//          fl := .f.
-//        Endif
-//      Endif
+      If fl .and. !Empty( k006->sy )
+        If ( i := AScan( amohu, k006->sy ) ) > 0
+          j += 10
+        Else
+          fl := .f.
+        Endif
+      Endif
       // конец что-то здесь не так
 
       If fl .and. !Empty( k006->age )
         If ( fl := ( k006->age $ lage ) )
+          If k006->age == '1'
+            j += 5
+          Elseif k006->age == '2'
+            j += 4
+          Elseif k006->age == '3'
+            j += 3
+          Elseif k006->age == '4'
+            j += 2
+          Else
+            j++
+          Endif
         Endif
       Endif
       If fl .and. !Empty( k006->sex )
         fl := ( k006->sex == lsex )
+        If fl
+          j++
+        Endif
       Endif
       If fl .and. !Empty( k006->los )
         fl := AScan( llos, AllTrim( k006->los ) ) > 0  // (k006->los $ llos)
+        If fl
+          j++
+        Endif
       Endif
 
       If fl
@@ -481,6 +542,9 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
             fl := .f.
           Else                  // а в справочнике есть доп.критерий
             fl := ( AllTrim( lad_cr ) == AllTrim( k006->ad_cr ) )
+            If fl
+              j++
+            Endif
           Endif
         Endif
       Endif
@@ -494,6 +558,9 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
             fl := .f.
           Else                  // а в справочнике есть доп.критерий2
             fl := ( lad_cr1 == AllTrim( k006->ad_cr1 ) )
+            If fl
+              j++
+            Endif
           Endif
         Endif
       Endif
@@ -506,6 +573,9 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
             Exit
           Endif
         Next
+        If fl
+          j++
+        Endif
       Endif
       If fl .and. !Empty( sds2 )
         fl := .f.
@@ -515,6 +585,9 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
             Exit
           Endif
         Next
+        If fl
+          j++
+        Endif
       Endif
       //
       If fl
@@ -522,12 +595,49 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
           AAdd( tmp, i )
         Endif
         add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+/*
+        if lk_data >= 0d20260101
+          AAdd( ar_ksg, { k006->shifr, ; // 1
+            0, ;           // 2
+            lkoef, ;       // 3
+            &lal.->kiros, ; // 4
+            osn_diag, ;    // 5
+            k006->sy, ;    // 6
+            k006->age, ;   // 7
+            k006->sex, ;   // 8
+            k006->los, ;   // 9
+            k006->ad_cr, ; // 10
+            sds1, ;        // 11
+            sds2, ;        // 12
+            j, ;           // 13
+            &lal.->kslps, ; // 14
+            k006->ad_cr1, ; // 15
+            &lal.->TYPE_KSG } ; // 16
+          )
+        else
+          AAdd( ar_ksg, { k006->shifr, ; // 1
+            0, ;           // 2
+            lkoef, ;       // 3
+            &lal.->kiros, ; // 4
+            osn_diag, ;    // 5
+            k006->sy, ;    // 6
+            k006->age, ;   // 7
+            k006->sex, ;   // 8
+            k006->los, ;   // 9
+            k006->ad_cr, ; // 10
+            sds1, ;        // 11
+            sds2, ;        // 12
+            j, ;           // 13
+            &lal.->kslps, ; // 14
+            k006->ad_cr1 } ; // 15
+          )
+        endif
+*/
       Endif
       Select K006
       k006->( dbSkip() )  //  Skip
     Enddo
   Endif
-altd()
   ar1 := {}
   If uslOkaz == USL_OK_DAY_HOSPITAL .and. !Empty( lad_cr ) .and. lad_cr == 'mgi'
     Select K006
@@ -543,9 +653,47 @@ altd()
       If fl
         sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
         sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
-//        ar_ksg := {}
+        j := 1
+        ar_ksg := {}
         add_KSG_table( ar1, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
-//        add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+/*
+        if lk_data >= 0d20260101
+          AAdd( ar1, { k006->shifr, ; // 1
+            0, ;           // 2
+            lkoef, ;       // 3
+            &lal.->kiros, ; // 4
+            k006->ds, ;    // 5
+            lshifr, ;      // 6
+            k006->age, ;   // 7
+            k006->sex, ;   // 8
+            k006->los, ;   // 9
+            k006->ad_cr, ; // 10
+            sds1, ;        // 11
+            sds2, ;        // 12
+            j, ;           // 13
+            &lal.->kslps, ; // 14
+            k006->ad_cr1, ; // 15
+            &lal.->TYPE_KSG } ; // 16
+          )
+        else
+          AAdd( ar1, { k006->shifr, ; // 1
+            0, ;           // 2
+            lkoef, ;       // 3
+            &lal.->kiros, ; // 4
+            k006->ds, ;    // 5
+            lshifr, ;      // 6
+            k006->age, ;   // 7
+            k006->sex, ;   // 8
+            k006->los, ;   // 9
+            k006->ad_cr, ; // 10
+            sds1, ;        // 11
+            sds2, ;        // 12
+            j, ;           // 13
+            &lal.->kslps, ; // 14
+            k006->ad_cr1 } ; // 15
+          )
+        endif
+*/
       Endif
     Endif
   Endif
@@ -554,6 +702,14 @@ altd()
       im := tmp[ i ]
       amohu[ im ] := '' // очистить, чтобы не включать в хирургическую КСГ
     Next
+/*
+    For i := 1 To Len( ar_ksg )
+      ar_ksg[ i, 2 ] := ret_cena_ksg( ar_ksg[ i, 1 ], lvr, date_usl )
+      If ar_ksg[ i, 2 ] > 0
+        fl_cena := .t.
+      Endif
+    Next
+*/
     aTerKSG := AClone( ar_ksg )
     If Len( aTerKSG ) > 1
 //      ASort( aTerKSG, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
@@ -568,7 +724,7 @@ altd()
     Endif
   Endif
   // собираем КСГ по манипуляциям (хирургические и комбинированные)
-//  ar_ksg := ar1
+  ar_ksg := ar1
   ar_crit := {}
   ar_crit1 := {}
   arr_ad_criteria := getAdditionalCriteria( lk_data )  // загрузим доп. критерии на дату
@@ -591,32 +747,60 @@ altd()
           sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
           sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
         Endif
+        j := 0
         If fl .and. !Empty( k006->ds )
           fl := ( AllTrim( k006->ds ) == osn_diag )
+          If fl
+            j += 10
+          Endif
         Endif
         If fl .and. !Empty( k006->age )
           If ( fl := ( k006->age $ lage ) )
+            If k006->age == '1'
+              j += 5
+            Elseif k006->age == '2'
+              j += 4
+            Elseif k006->age == '3'
+              j += 3
+            Elseif k006->age == '4'
+              j += 2
+            Else
+              j++
+            Endif
           Endif
         Endif
         If fl .and. !Empty( k006->sex )
           fl := ( k006->sex == lsex )
+          If fl
+            j++
+          Endif
         Endif
         If fl .and. !Empty( k006->los )
           fl := AScan( llos, AllTrim( k006->los ) ) > 0  // (k006->los $ llos)
+          If fl
+            j++
+          Endif
         Endif
         If fl .and. !Empty( k006->ad_cr )  // в справочнике есть доп.критерий
           two_letters := lower( substr( lshifr, 1, 2 ) )
           fl := .f.
           If !Empty( lad_cr )        // в случае есть доп.критерий
             fl := ( lad_cr == AllTrim( k006->ad_cr ) ) .or. ! eq_any( two_letters, 'st', 'ds' )
+            If fl
+              j++
+            Endif
           else  // add 01.11.25
             fl := .t.  // add 01.11.25
+            j++  // add 01.11.25
           Endif
         Endif
         If fl .and. !Empty( k006->ad_cr1 )  // в справочнике есть доп.критерий2
           fl := .f.
           If !Empty( lad_cr1 )        // в случае есть доп.критерий2
             fl := ( lad_cr1 == AllTrim( k006->ad_cr1 ) )
+            If fl
+              j++
+            Endif
           Endif
         Endif
         If fl .and. !Empty( sds1 )
@@ -627,6 +811,9 @@ altd()
               Exit
             Endif
           Next
+          If fl
+            j++
+          Endif
         Endif
         If fl .and. !Empty( sds2 )
           fl := .f.
@@ -636,10 +823,48 @@ altd()
               Exit
             Endif
           Next
+          If fl
+            j++
+          Endif
         Endif
         If fl
           add_KSG_table( _a1, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
-//          add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+/*
+          if lk_data >= 0d20260101
+            AAdd( _a1, { k006->shifr, ; // 1
+              0, ;           // 2
+              lkoef, ;       // 3
+              &lal.->kiros, ; // 4
+              k006->ds, ;    // 5
+              lshifr, ;      // 6
+              k006->age, ;   // 7
+              k006->sex, ;   // 8
+              k006->los, ;   // 9
+              k006->ad_cr, ; // 10
+              sds1, ;        // 11
+              sds2, ;        // 12
+              j, ;           // 13
+              &lal.->kslps, ; // 14
+              k006->ad_cr1, ; // 15
+              &lal.->TYPE_KSG } ) // 16
+          else
+            AAdd( _a1, { k006->shifr, ; // 1
+              0, ;           // 2
+              lkoef, ;       // 3
+              &lal.->kiros, ; // 4
+              k006->ds, ;    // 5
+              lshifr, ;      // 6
+              k006->age, ;   // 7
+              k006->sex, ;   // 8
+              k006->los, ;   // 9
+              k006->ad_cr, ; // 10
+              sds1, ;        // 11
+              sds2, ;        // 12
+              j, ;           // 13
+              &lal.->kslps, ; // 14
+              k006->ad_cr1 } ) // 15
+          endif
+*/
           if Empty( k006->ad_cr )
             AAdd( ar_crit, { '', '--нет критерия--' } )
             AAdd( ar_crit1, '--нет критерия--' )
@@ -721,7 +946,6 @@ altd()
 //
     Endif
   Next
-altd()
   If Len( ar_ksg ) > 0
     For i := 1 To Len( ar_ksg )
 /*
