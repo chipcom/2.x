@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 14.04.26 ДДС - добавление или редактирование случая (листа учета)
+// 30.04.26 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
 
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -1372,12 +1372,13 @@ Function oms_sluch_dds( tip_lu, Loc_kod, kod_kartotek, f_print )
             else
               If Empty( &mvard )
                 fl := func_error( 4, 'Не введена дата иссл-ия "' + arr_DDS_issled[ i, 3 ] + '"' )  // код исследования arr_DDS_issled[ i, 1 ]
-
-              Elseif mvozrast < 2 .and. &mvard < AddMonth( mn_data, -1 )
+              Elseif mvozrast < 2 .and. ( ! eq_any( arr_DDS_issled[ i, 1 ], '7.2.702', '4.29.3', '4.29.4' ) ) ;
+                  .and. &mvard < AddMonth( mn_data, -1 )
                 fl := func_error( 4, 'услуга "' + arr_DDS_issled[ i, 3 ] + '" оказана более 1 месяца назад' )  // код исследования arr_DDS_issled[ i, 1 ]
-              Elseif mvozrast > 2 .and. &mvard < AddMonth( mn_data, -3 )
+              Elseif mvozrast > 2 .and. ( ! eq_any( arr_DDS_issled[ i, 1 ], '7.2.702', '4.29.3', '4.29.4' ) ) ;
+                  .and. &mvard < AddMonth( mn_data, -3 )
                 fl := func_error( 4, 'услуга "' + arr_DDS_issled[ i, 3 ] + '" оказана более 3 месяцев назад' )  // код исследования arr_DDS_issled[ i, 1 ]
-              elseif ( arr_DDS_issled[ i, 1 ] == '7.2.702' ) .and. &mvard < AddMonth( mn_data, -12 )
+              elseif ( eq_any( arr_DDS_issled[ i, 1 ], '7.2.702', '4.29.3', '4.29.4' ) ) .and. &mvard < AddMonth( mn_data, -12 )
                 fl := func_error( 4, 'услуга "' + arr_DDS_issled[ i, 3 ] + '" оказана более 12 месяцев назад' )  // код исследования arr_DDS_issled[ i, 1 ]
               Elseif metap == 2 .and. &mvard > d12
                 fl := func_error( 4, 'Дата иссл-ия "' + arr_DDS_issled[ i, 3 ] + '" не в I-ом этапе (> 10 дней)' )  // код исследования arr_DDS_issled[ i, 1 ]
