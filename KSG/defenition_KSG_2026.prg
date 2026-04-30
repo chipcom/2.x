@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 29.04.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 30.04.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -418,94 +418,96 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     Enddo
   Else
     Set Order To 1
-    find ( typeKSG + PadR( osn_diag, 6 ) )
+    k006->( dbSeek( typeKSG + PadR( osn_diag, 6 ) ) )   //  find ( typeKSG + PadR( osn_diag, 6 ) )
     Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->ds == PadR( osn_diag, 6 ) .and. ! k006->( Eof() )
-      lkoef := k006->kz
-      dbSelectArea( lal )
-      find ( PadR( k006->shifr, 10 ) )
-      fl := lkoef > 0 .and. between_date( &lal.->DATEBEG, &lal.->DATEEND, date_usl )
-      If fl
-        fl := between_date( k006->DATEBEG, k006->DATEEND, date_usl )
-      Endif
-      If fl
-        sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
-        sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
-      Endif
+      if Empty( AllTrim( k006->sy ) )
+        lkoef := k006->kz
+        dbSelectArea( lal )
+        find ( PadR( k006->shifr, 10 ) )
+        fl := lkoef > 0 .and. between_date( &lal.->DATEBEG, &lal.->DATEEND, date_usl )
+        If fl
+          fl := between_date( k006->DATEBEG, k006->DATEEND, date_usl )
+        Endif
+        If fl
+          sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
+          sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
+        Endif
 
-      // что-то здесь не так
-//      If fl .and. !Empty( k006->sy )
-//        If ( i := AScan( amohu, k006->sy ) ) == 0
-//          fl := .f.
+        // что-то здесь не так
+//        If fl .and. !Empty( k006->sy )
+//          If ( i := AScan( amohu, k006->sy ) ) == 0
+//            fl := .f.
+//          Endif
 //        Endif
-//      Endif
-      // конец что-то здесь не так
+        // конец что-то здесь не так
 
-      If fl .and. !Empty( k006->age )
-        fl := ( k006->age $ lage )
-      Endif
-      If fl .and. !Empty( k006->sex )
-        fl := ( k006->sex == lsex )
-      Endif
-      If fl .and. !Empty( k006->los )
-        fl := AScan( llos, AllTrim( k006->los ) ) > 0  // (k006->los $ llos)
-      Endif
-
-      If fl
-        If Empty( lad_cr ) // в случае нет доп.критерия
-          If !Empty( k006->ad_cr ) // а в справочнике есть доп.критерий
-            fl := .f.
-          Endif
-        Else // в случае есть доп.критерий
-          If Empty( k006->ad_cr ) // а в справочнике нет доп.критерия
-            fl := .f.
-          Else                  // а в справочнике есть доп.критерий
-            fl := ( AllTrim( lad_cr ) == AllTrim( k006->ad_cr ) )
+        If fl .and. !Empty( k006->age )
+          fl := ( k006->age $ lage )
+        Endif
+        If fl .and. !Empty( k006->sex )
+          fl := ( k006->sex == lsex )
+        Endif
+        If fl .and. !Empty( k006->los )
+          fl := AScan( llos, AllTrim( k006->los ) ) > 0  // (k006->los $ llos)
+        Endif
+        If fl
+          If Empty( lad_cr ) // в случае нет доп.критерия
+            If !Empty( k006->ad_cr ) // а в справочнике есть доп.критерий
+              fl := .f.
+            Endif
+          Else // в случае есть доп.критерий
+            If Empty( k006->ad_cr ) // а в справочнике нет доп.критерия
+              fl := .f.
+            Else                  // а в справочнике есть доп.критерий
+              fl := ( AllTrim( lad_cr ) == AllTrim( k006->ad_cr ) )
+            Endif
           Endif
         Endif
-      Endif
-      If fl
-        If Empty( lad_cr1 ) // в случае нет доп.критерия2
-          If !Empty( k006->ad_cr1 ) // а в справочнике есть доп.критерий2
-            fl := .f.
-          Endif
-        Else // в случае есть доп.критерий2
-          If Empty( k006->ad_cr1 ) // а в справочнике нет доп.критерия2
-            fl := .f.
-          Else                  // а в справочнике есть доп.критерий2
-            fl := ( lad_cr1 == AllTrim( k006->ad_cr1 ) )
+        If fl
+          If Empty( lad_cr1 ) // в случае нет доп.критерия2
+            If !Empty( k006->ad_cr1 ) // а в справочнике есть доп.критерий2
+              fl := .f.
+            Endif
+          Else // в случае есть доп.критерий2
+            If Empty( k006->ad_cr1 ) // а в справочнике нет доп.критерия2
+              fl := .f.
+            Else                  // а в справочнике есть доп.критерий2
+              fl := ( lad_cr1 == AllTrim( k006->ad_cr1 ) )
+            Endif
           Endif
         Endif
-      Endif
-      //
-      If fl .and. !Empty( sds1 )
-        fl := .f.
-        For i := 1 To Len( sop_diag )
-          If AllTrim( sop_diag[ i ] ) $ sds1
-            fl := .t.
-            Exit
-          Endif
-        Next
-      Endif
-      If fl .and. !Empty( sds2 )
-        fl := .f.
-        For i := 1 To Len( osl_diag )
-          If AllTrim( osl_diag[ i ] ) $ sds2
-            fl := .t.
-            Exit
-          Endif
-        Next
-      Endif
-      //
-      If fl
-        If !Empty( k006->sy ) .and. ( i := AScan( amohu, k006->sy ) ) > 0
-          AAdd( tmp, i )
+        //
+        If fl .and. !Empty( sds1 )
+          fl := .f.
+          For i := 1 To Len( sop_diag )
+            If AllTrim( sop_diag[ i ] ) $ sds1
+              fl := .t.
+              Exit
+            Endif
+          Next
         Endif
-        add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
-      Endif
+        If fl .and. !Empty( sds2 )
+          fl := .f.
+          For i := 1 To Len( osl_diag )
+            If AllTrim( osl_diag[ i ] ) $ sds2
+              fl := .t.
+              Exit
+            Endif
+          Next
+        Endif
+        //
+        If fl
+//          If !Empty( k006->sy ) .and. ( i := AScan( amohu, k006->sy ) ) > 0
+//            AAdd( tmp, i )
+//          Endif
+          add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+        Endif
+      endif
       Select K006
       k006->( dbSkip() )  //  Skip
     Enddo
   Endif
+
   ar1 := {}
   If uslOkaz == USL_OK_DAY_HOSPITAL .and. !Empty( lad_cr ) .and. lad_cr == 'mgi'
     Select K006
@@ -527,26 +529,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       Endif
     Endif
   Endif
-/*
-  If Len( ar_ksg ) > 0
-    For i := 1 To Len( tmp )
-      im := tmp[ i ]
-      amohu[ im ] := '' // очистить, чтобы не включать в хирургическую КСГ
-    Next
-    aTerKSG := AClone( ar_ksg )
-    If Len( aTerKSG ) > 1
-//      ASort( aTerKSG, , , {| x, y| iif( x[ 13 ] == y[ 13 ], x[ 3 ] > y[ 3 ], x[ 13 ] > y[ 13 ] ) } )
-      ASort( aTerKSG, , , {| x, y| iif( x[ 18 ] == y[ 18 ], x[ 2 ] > y[ 2 ], x[ 18 ] > y[ 18 ] ) } )
-    Endif
-//    aadd(ars, '   ║КСГ: ' +print_array(aTerKSG[1]))
-//    for j := 2 to len(aTerKSG)
-//      aadd(ars, '   ║     ' +print_array(aTerKSG[j]))
-//    next
-    If ( kol_ter := f_put_debug_ksg( 0, aTerKSG, ars ) ) > 1
-      AAdd( ars, ' └─> выбираем КСГ=' + RTrim( aTerKSG[ 1, 1 ] ) + ' [КЗ=' + lstr( aTerKSG[ 1, 3 ] ) + ']' )
-    Endif
-  Endif
-*/
+
   // собираем КСГ по манипуляциям (хирургические и комбинированные)
 //  ar_ksg := ar1
   ar_crit := {}
@@ -797,7 +780,13 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     endif
   Endif
 */
+  if Len( ar_ksg ) == 0
+    AAdd( arerr, ' РЕЗУЛЬТАТ: не получилось выбрать КСГ' + iif( fl_reabil, ' для случая медицинской реабилитации', '' ) )
+    Return { ars, arerr, AllTrim( lksg ), lcena, akslp, akiro, s_dializ }
+  endif
+
   ASort( ar_ksg, , , {| x, y| iif( x[ 18 ] == y[ 18 ], x[ 2 ] > y[ 2 ], x[ 18 ] > y[ 18 ] ) } )
+
   lksg := ar_ksg[ 1, 1 ]
   lcena := ar_ksg[ 1, 2 ]
   lkiro := ar_ksg[ 1, 4 ]
