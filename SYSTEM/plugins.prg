@@ -3,7 +3,7 @@
 #include 'tbox.ch'
 #include 'chip_mo.ch'
 
-// 14.12.23
+// 01.05.26
 FUNCTION Plugins()
 
   LOCAL aMenu := {}, i
@@ -11,6 +11,13 @@ FUNCTION Plugins()
   LOCAL aMenu1 := {}
 	local color_say := 'N/W', color_get := 'W/N*'
   local oBox
+  local cDirPlugIn := hb_DirBase() + 'plugins'
+
+  if ! HB_VFDIREXISTS( cDirPlugIn )
+    hb_Alert( 'Отсутствует каталог "' + cDirPlugIn + '"!' )
+    return nil
+  endif
+ 
 
   FOR i := 1 TO Len( aPlugins )
      IF Empty( aPlugins[ i, 3 ] )
@@ -62,7 +69,6 @@ FUNCTION edi_RunPlugin( aPlugins, xPlugin, aParams )
       ENDIF
     ENDIF
     IF !Empty( aPlugins[ i, 4 ] )
-      // RETURN hb_hrbDo( aPlugins[i, 4], oEdit, hb_fnameDir( aPlugins[i, 5] ), aParams )
       RETURN hb_hrbDo( aPlugins[ i, 4 ], , hb_fnameDir( aPlugins[ i, 5 ] ), aParams )
     ENDIF
   ENDIF
