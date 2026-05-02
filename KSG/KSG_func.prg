@@ -2,7 +2,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 28.04.26
+// 02.05.26
 function add_KSG_table( arr_KSG, mdate, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
 
   local n_cena_oms, prioritet := 0
@@ -30,7 +30,7 @@ function add_KSG_table( arr_KSG, mdate, lal, osn_diag, j, sds1, sds2, lvr, ldnej
 // определим цену КСГ с учетом КИРО
   n_cena_oms := ret_cena_ksg( k006->shifr, lvr, mdate )
   If ! Empty( ( lal )->kiros ) 
-    vkiro := defenition_kiro( ( lal )->kiros, ldnej, lrslt, 0, k006->shifr, lDoubleSluch, mdate )
+    vkiro := defenition_kiro( mdate, ( lal )->kiros, ldnej, lrslt, 0, k006->shifr, lDoubleSluch )
     If ( vkiro > 0 .and. mdate < 0d20260101 ) .or. ( mdate >= 0d20260101 )
       n_cena_oms := cena_with_kiro( n_cena_oms, vkiro, mdate, lrslt, ;
         iif( Year( mdate ) > 2025, ( lal )->TYPE_KSG, 0 ), akiro )

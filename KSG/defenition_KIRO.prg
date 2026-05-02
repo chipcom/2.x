@@ -3,16 +3,19 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 29.02.25
-Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkdata )
+// 02.05.26
+Function defenition_kiro( lkdata, lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch )
 
+  // lkdata - дата окончания случая
   // lkiro - список возможных КИРО для КСГ
   // ldnej - длительность случая в койко-днях
   // lrslt - результат обращения (справочник V009)
   // lis_err - ошибка (какая-то)
   // lksg - шифр КСГ
   // lDoubleSluch - это часть двойного случая
-  // lkdata - дата окончания случая
+  // Возврат:
+  // vkiro     - уровень КИРО
+
   Local vkiro := 0
   Local cKSG := AllTrim( LTrim( lksg ) )
   local obyaz_kol_dnej := 0
@@ -159,6 +162,44 @@ Function defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkda
     endif
   endif
   Return vkiro
+
+// 01.05.26
+function arrKIRO( lkiro, dateSl, lrslt, nType_ksg )
+
+  // lkiro      - уровень КИРО
+  // dateSl     - дата случая
+  // lrslt      - результат лечения
+  // nType_ksg  - тип КСГ (0 - терапевтическое, 1 - хирургическое)
+  // Возврат:
+  // akiro     - массив описателя примененного КИРО ( 1 - уровень КИРО, 2 - коэффициент КИРО )
+
+  local akiro := {}
+  Local _aKIRO, rowKIRO, i
+
+  if dateSl >= 0d20260101
+    _aKIRO := tabl_kiro( dateSl )
+
+    if ( i := Ascan( _aKIRO, { | x | ( x[ 1 ] == lkiro ) .and. ( x[ 4 ] == lrslt ) } ) ) > 0
+      AAdd( akiro, lkiro )
+      AAdd( akiro, iif( nType_ksg == 0, _aKIRO[ i, 3 ], _aKIRO[ i, 2 ] ) )
+    endif
+  else
+    _aKIRO := getkirotable( dateSl )
+    For Each rowKIRO in _aKIRO
+      If rowKIRO[ 1 ] == lkiro
+        If between_date( rowKIRO[ 5 ], rowKIRO[ 6 ], dateSl )
+          AAdd( akiro, lkiro )
+          AAdd( akiro, rowKIRO[ 4 ] )
+        Endif
+      Endif
+    Next
+  endif
+  if Len( akiro ) != 2  // КИРО не применяется
+    AAdd( akiro, 0 )
+    AAdd( akiro, 1 )
+  endif
+
+  return akiro
 
 // 22.04.26
 Function cena_with_kiro( cena, lkiro, dateSl, lrslt, nType_ksg, akiro )

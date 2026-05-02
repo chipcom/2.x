@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.04.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 02.05.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function defenition_ksg_old( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -1103,7 +1103,7 @@ Function defenition_ksg_old( par, k_data2, lDoubleSluch )
         strSoob += ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
       Endif
       If !Empty( lkiro ) 
-        vkiro := defenition_kiro( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lk_data )
+        vkiro := defenition_kiro( lk_data, lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch )
         If ( vkiro > 0 .and. lk_data < 0d20260101 ) .or. ( lk_data >= 0d20260101 )
 //          akiro := f_cena_kiro( @lcena, vkiro, lk_data, lrslt, ltype_ksg )
           lcena := cena_with_kiro( lcena, vkiro, lk_data, lrslt, ltype_ksg, akiro )
