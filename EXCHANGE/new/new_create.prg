@@ -2,7 +2,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 16.03.26
+// 03.05.26
 function new_create( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort, cBukva )
 
   local fl, mnn, mb, me, lengthPacketNumber, mnschet, mkod_reestr, code_reestr
@@ -309,7 +309,7 @@ function new_create( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort, cBukva )
       elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear )
 
       // записываем элемент для пациента
-      elem_reestr_pacient( oXmlDocPacient, fl_ver, p_tip_reestr )      
+      elem_reestr_pacient( oXmlDocPacient, p_tip_reestr )      
       rhum->( dbSkip() )
       j++
     enddo

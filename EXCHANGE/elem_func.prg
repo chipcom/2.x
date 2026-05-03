@@ -93,15 +93,6 @@ function tag_napr( oSl, arr_onkna )  //  , lDispans )
     // заполним сведения о направлениях для XML-документа
     oNAPR := oSL:add( hxmlnode():new( 'NAPR' ) )
     mo_add_xml_stroke( oNAPR, 'NAPR_DATE', date2xml( arr_onkna[ j, 1 ] ) )
-/*
-    If ! lDispans    // согласно ПУМП вер. 4.6 ( без поликлиники-диспансеризации)
-      nomer_napr := get_NAPR_MO( human->kod, _NPR_LECH )
-      if ! empty( nomer_napr )
-//        mo_add_xml_stroke( oNapr, 'NAPR_NUM', get_NAPR_MO( human->kod, _NPR_LECH ) )
-        mo_add_xml_stroke( oNapr, 'NAPR_NUM', nomer_napr ) 
-      endif
-    endif
-*/
     If !Empty( arr_onkna[ j, 5 ] ) .and. !Empty( mNPR_MO := ret_mo( arr_onkna[ j, 5 ] )[ _MO_KOD_FFOMS ] )
       mo_add_xml_stroke( oNAPR, 'NAPR_MO', mNPR_MO )
     Endif
@@ -145,9 +136,6 @@ function tag_prescriptions( oSl, human_kod, mdata ) //, arr_onkna )
         mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_SP', arr_nazn[ j, 2 ] ) // результат ф-ии put_prvs_to_reestr(human_->PRVS, _NYEAR)
       Elseif arr_nazn[ j, 1 ] == 3
         mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_V', lstr( arr_nazn[ j, 2 ] ) )
-        // if human->OBRASHEN == '1'
-        // mo_add_xml_stroke(oPRESCRIPTIONS,'NAZ_USL',arr_nazn[j, 3]) // Мед.услуга (код), указанная в направлении
-        // endif
       Elseif eq_any( arr_nazn[ j, 1 ], 4, 5 )
         mo_add_xml_stroke( oPRESCRIPTIONS, 'NAZ_PMP', lstr( arr_nazn[ j, 2 ] ) )
       Elseif arr_nazn[ j, 1 ] == 6
@@ -225,8 +213,7 @@ function tag_lek_pr_zno( oONK, mdata, human_recno, mkod_human )
   Else
     old_lek := Space( 6 )
     old_sh := Space( 10 )
-//    Select ONKLE  // цикл по БД лекарств
-    ONKLE->( dbSeek( Str( mkod_human, 7 ) ) )   //  find ( Str( mkod_human, 7 ) )
+    ONKLE->( dbSeek( Str( mkod_human, 7 ) ) )
     Do While ONKLE->kod == mkod_human .and. ! ONKLE->( Eof() )
       If !( old_lek == ONKLE->REGNUM .and. old_sh == ONKLE->CODE_SH )
         // заполним сведения о примененных лекарственных препаратах при лечении онкологического больного для XML-документа
@@ -238,8 +225,7 @@ function tag_lek_pr_zno( oONK, mdata, human_recno, mkod_human )
       mo_add_xml_stroke( oLEK, 'DATE_INJ', date2xml( ONKLE->DATE_INJ ) )
       old_lek := ONKLE->REGNUM
       old_sh := ONKLE->CODE_SH
-//      Select ONKLE
-      ONKLE->( dbSkip() )   //  Skip
+      ONKLE->( dbSkip() )
     Enddo
   Endif
   return nil
@@ -289,9 +275,8 @@ function tag_med_dev( oUsl, human_kod, mohu_recno )
   return nil
 
 // 21.03.26
+// тэг о мед. работниках выполнивших услугу
 function tag_mr_usl_n( oUsl, nyear, number, prvs, snils )
-
-  // тэг о мед. работниках выполнивших услугу
 
   local oMR_USL_N
 
@@ -302,10 +287,9 @@ function tag_mr_usl_n( oUsl, nyear, number, prvs, snils )
   return nil
 
 // 24.03.26
+// тэг добавляется только для реестров 1 типа и помощь в условиях дневного
+// и кругосуточного стационара
 function tag_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
-
-  // тэг добавляется только для реестров 1 типа и помощь в условиях дневного
-  // и кругосуточного стационара
 
   Local dPUMPver40 := 0d20240301
   local oKSG, oSLk
@@ -348,24 +332,11 @@ function tag_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
       For iAKSLP := 1 To Len( akslp )
         If ( cKSLP := AScan( tKSLP, {| x| x[ 1 ] == akslp[ iAKSLP ] } ) ) > 0
           oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
-//          mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ iAKSLP ] ) )
           mo_add_xml_stroke( oSLk, 'IDSL', 'sl' + StrZero( akslp[ iAKSLP ], 3, 0 ) )
-//          mo_add_xml_stroke( oSLk, 'VAL_C', lstr( tKSLP[ cKSLP, 4 ], 7, 5 ) )
           mo_add_xml_stroke( oSLk, 'VAL_C', Transform( tKSLP[ cKSLP, 4 ], '@L 9.99' ) )
         Endif
       Next
     Else
-/*
-      mo_add_xml_stroke( oKSG, 'IT_SL', lstr( ret_koef_kslp( akslp ), 7, 5 ) )
-      oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
-      mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ 1 ] ) )
-      mo_add_xml_stroke( oSLk, 'VAL_C', lstr( akslp[ 2 ], 7, 5 ) )
-      If Len( akslp ) >= 4
-        oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
-        mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ 3 ] ) )
-        mo_add_xml_stroke( oSLk, 'VAL_C', lstr( akslp[ 4 ], 7, 5 ) )
-      Endif
-*/
     Endif
   Endif
 
@@ -374,9 +345,6 @@ function tag_ksg( oSl, lshifr_zak_sl, mdata, is_oncology )
   Endif
   If ! Empty( akiro )
     // заполним сведения о КИРО для XML-документа
-//    oSLk := oKSG:add( hxmlnode():new( 'S_KIRO' ) )
-//    mo_add_xml_stroke( oSLk, 'CODE_KIRO', lstr( akiro[ 1 ] ) )
-//    mo_add_xml_stroke( oSLk, 'VAL_K', lstr( akiro[ 2 ], 4, 2 ) )
     mo_add_xml_stroke( oKSG, 'PR_PR', lstr( akiro[ 1 ] ) )
     mo_add_xml_stroke( oKSG, 'KOEF_PR', lstr( akiro[ 2 ], 7, 5 ) )
   Endif
@@ -542,32 +510,6 @@ Function collect_schet_onkusl()
   Select( tmpSelect )
 
   Return arr_onkusl
-
-/*
-// 26.10.25
-Function is_disability( p_tip_reestr )
-
-  Local fl_DISABILITY := .f.
-  Local tmpSelect
-
-  If p_tip_reestr == TYPE_REESTR_GENERAL
-    If glob_mo()[ _MO_IS_UCH ] .and. ;                      // наше МО имеет прикреплённое население
-        human_->USL_OK == USL_OK_POLYCLINIC .and. ;                    // поликлиника
-        kart2->MO_PR == glob_mo()[ _MO_KOD_TFOMS ] .and. ;  // прикреплён к нашему МО
-        Between( kart_->INVALID, 1, 4 )                   // инвалид
-      tmpSelect := Select()
-      dbSelectArea( 'INV' )
-      inv->( dbSeek( Str( human->kod_k, 7 ) ) )
-      If inv->( Found() ) .and. ! emptyany( inv->DATE_INV, inv->PRICH_INV )
-        // дата начала лечения отстоит от даты первичного установления инвалидности не более чем на год
-        fl_DISABILITY := ( inv->DATE_INV < human->n_data .and. human->n_data <= AddMonth( inv->DATE_INV, 12 ) )
-      Endif
-      Select( tmpSelect )
-    Endif
-  Endif
-
-  Return fl_DISABILITY
-*/
 
 // 19.08.25 необходимо ли вывести характер заболевания в реестр
 Function need_reestr_c_zab_2025( is_oncology, lUSL_OK, osn_diag )

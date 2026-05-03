@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 15.04.26
+// 03.05.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -238,18 +238,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oSLUCH, 'IDSP', lstr( human_->IDSP ) )
         lal := iif( kol_sl == 2, 'human_3', 'human' )
         mo_add_xml_stroke( oSLUCH, 'SUMV', lstr( &lal.->cena_1, 10, 2 ) )
-/*
-        Do Case
-        Case human_->USL_OK == USL_OK_HOSPITAL // стационар
-          i := iif( Left( human_->FORMA14, 1 ) == '1', 1, 3 )
-        Case human_->USL_OK == USL_OK_DAY_HOSPITAL // дневной стационар
-          i := iif( Left( human_->FORMA14, 1 ) == '2', 2, 3 )
-        Case human_->USL_OK == USL_OK_AMBULANCE // скорая помощь
-          i := iif( Left( human_->FORMA14, 1 ) == '1', 1, 2 )
-        Otherwise
-          i := lfor_pom
-        Endcase
-*/
         if Left( human_->FORMA14, 1 ) != '0' .and. Left( human_->FORMA14, 1 ) != ' '
           i := Val( Left( human_->FORMA14, 1 ) )
         elseif Left( human_->FORMA14, 1 ) == '0' .or. Left( human_->FORMA14, 1 ) == ' '
@@ -333,17 +321,7 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       mo_add_xml_stroke( oSL, 'METOD_HMP', lstr( human_2->METVMP ) )
     Endif
     otd->( dbGoto( human->OTD ) )
-/*
-    If human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
-      f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
-      If ( i := AScan( mm_otd_dep, {| x| x[ 2 ] == glob_otd_dep } ) ) == 0
-        i := 1
-      Endif
-*/
-//      mo_add_xml_stroke( oSL, 'LPU_1', lstr( mm_otd_dep[ i, 3 ] ) )
-      mo_add_xml_stroke( oSL, 'LPU_1', otd->LPU_1 )
-//      mo_add_xml_stroke( oSL, 'PODR', lstr( glob_otd_dep ) )
-//    Endif
+    mo_add_xml_stroke( oSL, 'LPU_1', otd->LPU_1 )
     If p_tip_reestr == TYPE_REESTR_DISPASER
       mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
     endif
@@ -375,9 +353,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
       Endif
     Endif
-//    If human_->USL_OK == USL_OK_POLYCLINIC
-//      mo_add_xml_stroke( oSL, 'MOP', lstr( human->MOP ) )
-//    endif
     If is_vmp
       mo_add_xml_stroke( oSL, 'TAL_D', date2xml( human_2->TAL_D ) ) // Дата выдачи талона на ВМП
       mo_add_xml_stroke( oSL, 'TAL_P', date2xml( human_2->TAL_P ) ) // Дата планируемой госпитализации в соответствии с талоном на ВМП
@@ -523,79 +498,14 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
       // заполним сведения о КСГ для XML-документа
 //      tag_ksg( oSl, lshifr_zak_sl, endDateZK, is_oncology )
       tag_ksg( oSl, lshifr_KSG, endDateZK, is_oncology )
-/*
-      oKSG := oSL:add( hxmlnode():new( 'KSG_KPG' ) )
-      mo_add_xml_stroke( oKSG, 'N_KSG', lshifr_zak_sl )
-
-      If endDateZK >= dPUMPver40   // дата окончания случая после 01.03.24
-        mo_add_xml_stroke( oKSG, 'K_ZP', '1' )  // пока ставим 1
-      Endif
-
-      If !Empty( human_2->pc3 ) .and. !Left( human_2->pc3, 1 ) == '6' // кроме 'старости'
-        mo_add_xml_stroke( oKSG, 'CRIT', human_2->pc3 )
-      Elseif is_oncology  == 2
-        If !Empty( onksl->crit ) .and. !( AllTrim( onksl->crit ) == 'нет' )
-          mo_add_xml_stroke( oKSG, 'CRIT', onksl->crit )
-        Endif
-        If !Empty( onksl->crit2 )
-          mo_add_xml_stroke( oKSG, 'CRIT', onksl->crit2 )  // второй критерий
-        Endif
-      Endif
-      mo_add_xml_stroke( oKSG, 'SL_K', iif( Empty( akslp ), '0', '1' ) )
-      If !Empty( akslp )
-        // заполним сведения о КСГ для XML-документа
-        If Year( human->K_DATA ) >= 2021     // 02.02.21 Байкин
-          tKSLP := getkslptable( human->K_DATA )
-
-          mo_add_xml_stroke( oKSG, 'IT_SL', lstr( ret_koef_kslp_21_xml( akslp, tKSLP, Year( human->K_DATA ) ), 7, 5 ) )
-
-          For iAKSLP := 1 To Len( akslp )
-            If ( cKSLP := AScan( tKSLP, {| x| x[ 1 ] == akslp[ iAKSLP ] } ) ) > 0
-              oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
-              mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ iAKSLP ] ) )
-              mo_add_xml_stroke( oSLk, 'VAL_C', lstr( tKSLP[ cKSLP, 4 ], 7, 5 ) )
-            Endif
-          Next
-        Else
-          mo_add_xml_stroke( oKSG, 'IT_SL', lstr( ret_koef_kslp( akslp ), 7, 5 ) )
-          oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
-          mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ 1 ] ) )
-          mo_add_xml_stroke( oSLk, 'VAL_C', lstr( akslp[ 2 ], 7, 5 ) )
-          If Len( akslp ) >= 4
-            oSLk := oKSG:add( hxmlnode():new( 'SL_KOEF' ) )
-            mo_add_xml_stroke( oSLk, 'ID_SL', lstr( akslp[ 3 ] ) )
-            mo_add_xml_stroke( oSLk, 'VAL_C', lstr( akslp[ 4 ], 7, 5 ) )
-          Endif
-        Endif
-      Endif
-      If !Empty( akiro )
-        // заполним сведения о КИРО для XML-документа
-        oSLk := oKSG:add( hxmlnode():new( 'S_KIRO' ) )
-        mo_add_xml_stroke( oSLk, 'CODE_KIRO', lstr( akiro[ 1 ] ) )
-        mo_add_xml_stroke( oSLk, 'VAL_K', lstr( akiro[ 2 ], 4, 2 ) )
-      Endif
-*/
     Elseif is_zak_sl .or. is_zak_sl_vr
       mo_add_xml_stroke( oSL, 'CODE_MES1', lshifr_zak_sl )
     Endif
+
     If human_->USL_OK < 4 .and. is_oncology > 0
-/*
-      For j := 1 To Len( arr_onkna )
-        // заполним сведения о направлениях для XML-документа
-        oNAPR := oSL:add( hxmlnode():new( 'NAPR' ) )
-        mo_add_xml_stroke( oNAPR, 'NAPR_DATE', date2xml( arr_onkna[ j, 1 ] ) )
-        If !Empty( arr_onkna[ j, 5 ] ) .and. !Empty( mNPR_MO := ret_mo( arr_onkna[ j, 5 ] )[ _MO_KOD_FFOMS ] )
-          mo_add_xml_stroke( oNAPR, 'NAPR_MO', mNPR_MO )
-        Endif
-        mo_add_xml_stroke( oNAPR, 'NAPR_V', lstr( arr_onkna[ j, 2 ] ) )
-        If arr_onkna[ j, 2 ] == 3
-          mo_add_xml_stroke( oNAPR, 'MET_ISSL', lstr( arr_onkna[ j, 3 ] ) )
-          mo_add_xml_stroke( oNAPR, 'NAPR_USL', arr_onkna[ j, 4 ] )
-        Endif
-      Next j
-*/
       tag_napr( oSl, arr_onkna, lDispans )
     Endif
+
     If ( is_oncology > 0 .or. is_oncology_smp > 0 ) .and. ! lTypeLUOnkoDisp
       // заполним сведения о консилиумах для XML-документа
       oCONS := oSL:add( hxmlnode():new( 'CONS' ) ) // консилиумов м.б.несколько (но у нас один)
@@ -730,25 +640,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
       If flLekPreparat
         // добавим в xml-документ информацию о лекарственных препаратах
-/*
-        arrLP := collect_lek_pr( human->( RecNo() ) )
-        If Len( arrLP ) != 0
-          For Each row in arrLP
-            oLEK := oSL:add( hxmlnode():new( 'LEK_PR' ) )
-            mo_add_xml_stroke( oLEK, 'DATA_INJ', date2xml( row[ 1 ] ) )
-            mo_add_xml_stroke( oLEK, 'CODE_SH', row[ 8 ] )
-            If ! Empty( row[ 3 ] )
-              mo_add_xml_stroke( oLEK, 'REGNUM', row[ 3 ] )
-              // mo_add_xml_stroke(oLEK, 'CODE_MARK', '')  // для дальнейшего использования
-              oDOSE := oLEK:add( hxmlnode():new( 'LEK_DOSE' ) )
-              mo_add_xml_stroke( oDOSE, 'ED_IZM', Str( row[ 4 ], 3, 0 ) )
-              mo_add_xml_stroke( oDOSE, 'DOSE_INJ', Str( row[ 5 ], 8, 2 ) )
-              mo_add_xml_stroke( oDOSE, 'METHOD_INJ', Str( row[ 6 ], 3, 0 ) )
-              mo_add_xml_stroke( oDOSE, 'COL_INJ', Str( row[ 7 ], 5, 0 ) )
-            Endif
-          Next
-        Endif
-*/
         tag_lek_pr( oSl, human->( RecNo() ) )
       Endif
 
@@ -854,16 +745,8 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           Endif
         Endif
         If p_tip_reestr == TYPE_REESTR_GENERAL
-//          If human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
-            otd->( dbGoto( hu->OTD ) )
-//            f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
-//            If ( i := AScan( mm_otd_dep, {| x| x[ 2 ] == glob_otd_dep } ) ) == 0
-//              i := 1
-//            Endif
-//            mo_add_xml_stroke( oUSL, 'LPU_1', lstr( mm_otd_dep[ i, 3 ] ) )
-            mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
-//            mo_add_xml_stroke( oUSL, 'PODR', lstr( glob_otd_dep ) )
-//          Elseif hu->KOL_RCP < 0 .and. domuslugatfoms( lshifr )
+          otd->( dbGoto( hu->OTD ) )
+          mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
           if hu->KOL_RCP < 0 .and. domuslugatfoms( lshifr )
             mo_add_xml_stroke( oUSL, 'PODR', '0' )
           Endif
@@ -871,9 +754,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
         Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( hu_->PROFIL ) )
-//        If p_tip_reestr == TYPE_REESTR_GENERAL
-//          mo_add_xml_stroke( oUSL, 'PROFIL_M', lstr( hu_->PROFIL_M ) )   // согласно ПУМП вер. 4.6
-//        Endif
         If p_tip_reestr == TYPE_REESTR_GENERAL
           Select T21
           t21->( dbSeek( PadR( lshifr, 10 ) ) )     //  find ( PadR( lshifr, 10 ) )
@@ -911,7 +791,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
             else
               mo_add_xml_stroke( oUSL, 'P_OTK', '0' )
             endif
-//            mo_add_xml_stroke( oUSL, 'P_OTK', '0' )
           Endif
         Endif
 
@@ -927,25 +806,17 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
           else
             mo_add_xml_stroke( oUSL, 'CODE_USL', lshifr )
           endif
-//          mo_add_xml_stroke( oUSL, 'KOL_USL', lstr( hu->KOL_1, 6, 2 ) )
-//          mo_add_xml_stroke( oUSL, 'TARIF', lstr( tarif_usl, 10, 2 ) )
-//          mo_add_xml_stroke( oUSL, 'SUMV_USL', lstr( sumvv_usl, 10, 2 ) )
         else
           mo_add_xml_stroke( oUSL, 'CODE_USL', lshifr )
-//          mo_add_xml_stroke( oUSL, 'KOL_USL', lstr( hu->KOL_1, 6, 2 ) )
-//          mo_add_xml_stroke( oUSL, 'TARIF', lstr( hu->U_CENA, 10, 2 ) )
-//          mo_add_xml_stroke( oUSL, 'SUMV_USL', lstr( hu->STOIM_1, 10, 2 ) )
         endif
         mo_add_xml_stroke( oUSL, 'KOL_USL', lstr( hu->KOL_1, 6, 2 ) )
         mo_add_xml_stroke( oUSL, 'TARIF', lstr( tarif_usl, 10, 2 ) )
         mo_add_xml_stroke( oUSL, 'SUMV_USL', lstr( sumvv_usl, 10, 2 ) )
 
-//        If between_date( human->n_data, human->k_data, c4tod( hu->DATE_U ) )
-          if ! ( p_tip_reestr == TYPE_REESTR_DISPASER .and. Len( a_otkaz ) > 0 .and. AScan( a_otkaz, { | x | x[ 1 ] == lshifr } ) > 0 )
-            p2->( dbGoto( hu->kod_vr ) )
-            tag_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, p2->snils ) // пока ставим 1 исполнитель
-          endif
-//        Endif
+        if ! ( p_tip_reestr == TYPE_REESTR_DISPASER .and. Len( a_otkaz ) > 0 .and. AScan( a_otkaz, { | x | x[ 1 ] == lshifr } ) > 0 )
+          p2->( dbGoto( hu->kod_vr ) )
+          tag_mr_usl_n( oUsl, _nyear, 1, hu_->PRVS, p2->snils ) // пока ставим 1 исполнитель
+        endif
       Next
     Endif
 
@@ -1014,7 +885,6 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         If mohu->kod_vr == 0
           Loop
         Endif
-        // mohu->( g_rlock( 'forever' ) )
         mohu->( dbRLock() )
         mohu->REES_ZAP := ++idServ          // Порядковый номер записи о медицинской услуге для всего Реестра случаев
         lshifr := AllTrim( mosu->shifr1 )
@@ -1024,18 +894,12 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         mo_add_xml_stroke( oUSL, 'ID_U', mohu->ID_U )
         mo_add_xml_stroke( oUSL, 'LPU', CODE_LPU )
 //        If human_->USL_OK == USL_OK_HOSPITAL .and. is_otd_dep .and. ( ! disable_podrazdelenie_tfoms( human->K_DATA ) )
-          otd->( dbGoto( mohu->OTD ) )
+        otd->( dbGoto( mohu->OTD ) )
 //          f_put_glob_podr( human_->USL_OK, human->K_DATA ) // заполнить код подразделения
-//          If ( i := AScan( mm_otd_dep, {| x| x[ 2 ] == glob_otd_dep } ) ) == 0
-//            i := 1
-//          Endif
-//          mo_add_xml_stroke( oUSL, 'LPU_1', lstr( mm_otd_dep[ i, 3 ] ) )
-          mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
-//          mo_add_xml_stroke( oUSL, 'PODR', lstr( glob_otd_dep ) )
+        mo_add_xml_stroke( oUSL, 'LPU_1', otd->LPU_1 )
 //        Endif
         mo_add_xml_stroke( oUSL, 'PROFIL', lstr( mohu->PROFIL ) )
         If p_tip_reestr == TYPE_REESTR_GENERAL
-//          mo_add_xml_stroke( oUSL, 'PROFIL_M', lstr( mohu->PROFIL_M ) )   // согласно ПУМП вер. 4.6
           mo_add_xml_stroke( oUSL, 'VID_VME', lshifr )
           mo_add_xml_stroke( oUSL, 'DET', iif( human->VZROS_REB == 0, '0', '1' ) )
         Endif

@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 11.04.26 создание XML-файлов реестра
+// 03.05.26 создание XML-файлов реестра
 Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
 
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, code_reestr, mb, me, nsh
@@ -67,7 +67,6 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
   r_use( dir_server() + 'human_im', dir_server() + 'human_im', 'IMPL' )
   r_use( dir_server() + 'human_lek_pr', dir_server() + 'human_lek_pr', 'LEK_PR' )
 
-//  laluslf := create_name_alias( 'luslf', _nyear )
   r_use( dir_server() + 'mo_uch', , 'UCH' )
   r_use( dir_server() + 'mo_otd', , 'OTD' )
   r_use( dir_server() + 'mo_pers', , 'P2' )
@@ -97,11 +96,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
   r_use( dir_server() + 'mo_onkpr', dir_server() + 'mo_onkpr', 'ONKPR' ) // Сведения об имеющихся противопоказаниях
   g_use( dir_server() + 'mo_onkus', dir_server() + 'mo_onkus', 'ONKUS' )
   g_use( dir_server() + 'mo_onkle', dir_server() + 'mo_onkle', 'ONKLE' )
-//  g_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
-//  Set Order To 2 // индекс по 2-му случаю
   g_use( dir_server() + 'human_2', , 'HUMAN_2' )
-//  g_use( dir_server() + 'human_', , 'HUMAN_' )
-//  r_use( dir_server() + 'human', , 'HUMAN' )
   dbSelectArea( 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2, To FIELD->kod_k into KART
   r_use( dir_exe() + '_mo_t2_v1', , 'T21' )
@@ -113,10 +108,6 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
   g_use( dir_server() + 'mo_rees', , 'REES' )
 
   for countBukva := 1 to len( aBukva )
-//    dbSelectArea( 'TMP' )
-//    tmp->( dbGoTop() )
-//    do while ! tmp->( Eof() )
-//      if cBukva != tmp->bukva
     cBukva := aBukva[ countBukva ]
     dbSelectArea( 'REES' )
     INDEX ON Str( FIELD->nn, nsh ) to ( cur_dir() + 'tmp_rees' ) ;
@@ -330,7 +321,7 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
       elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear )
 
       // записываем элемент для пациента
-      elem_reestr_pacient( oXmlDocPacient, fl_ver, p_tip_reestr )      
+      elem_reestr_pacient( oXmlDocPacient, p_tip_reestr )      
       rhum->( dbSkip() )
       j++
     enddo
@@ -354,15 +345,3 @@ Function create2reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr, reg_sort )
   close_file_reestr26()
 
   Return Nil
-
-// 17.05.25
-function close_file_reestr26()
-
-  close_use_base( 'lusl' )
-  close_use_base( 'luslc' )
-  close_use_base( 'luslf' )
-  close_list_alias( { 'MKB_10', 'REES', 'MO_XML', 'IMPL', 'LEK_PR', 'UCH', 'OTD', 'P2', 'P2TABN' } )
-  close_list_alias( { 'USL', 'RHUM', 'HU_', 'HU', 'MOSU', 'MOHU' } )
-  close_list_alias( { 'INV', 'KART2', 'KART_', 'KART', 'HUMAN_2', 'T21' } )
-  close_list_alias( { 'ONKNA', 'ONKCO', 'ONKSL', 'ONKDI', 'ONKPR', 'ONKUS', 'ONKLE' } )
-  return nil

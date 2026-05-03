@@ -4,6 +4,18 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 17.05.25
+function close_file_reestr26()
+
+  close_use_base( 'lusl' )
+  close_use_base( 'luslc' )
+  close_use_base( 'luslf' )
+  close_list_alias( { 'MKB_10', 'REES', 'MO_XML', 'IMPL', 'LEK_PR', 'UCH', 'OTD', 'P2', 'P2TABN' } )
+  close_list_alias( { 'USL', 'RHUM', 'HU_', 'HU', 'MOSU', 'MOHU' } )
+  close_list_alias( { 'INV', 'KART2', 'KART_', 'KART', 'HUMAN_2', 'T21' } )
+  close_list_alias( { 'ONKNA', 'ONKCO', 'ONKSL', 'ONKDI', 'ONKPR', 'ONKUS', 'ONKLE' } )
+  return nil
+
 // 29.01.26 сформировать массив имен файлов реестра сведений и пациентов
 function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
   // type - тип реестра (обычный, для диспансеризации)
@@ -19,19 +31,10 @@ function name_reestr_XML( type, nyear, nmonth, mnn, nsh, kod_smo )
   local codeMO
 
   codeMO := glob_mo()[ _MO_KOD_TFOMS ]
-/*
-  if nyear <= 2025
-    sName := 'RM' + codeMO + 'T34' + '_' ;
-      + Right( StrZero( nyear, 4 ), 2 ) + StrZero( nmonth, 2 ) + StrZero( mnn, nsh )
-    aFiles := { { 'H', 'F' }[ type ] + sName, ;
-      'L' + sName }
-  else
-*/
-    sName := 'M' + codeMO + iif( kod_smo == '34   ', 'T', 'S' ) + AllTrim( kod_smo ) + '_' + ;
-      + Right( StrZero( nyear, 4 ), 2 ) + StrZero( nmonth, 2 ) + StrZero( mnn, nsh )
-    aFiles := { { 'H', 'F' }[ type ] + sName, ;
-      'L' + sName }
-//  endif
+  sName := 'M' + codeMO + iif( kod_smo == '34   ', 'T', 'S' ) + AllTrim( kod_smo ) + '_' + ;
+    + Right( StrZero( nyear, 4 ), 2 ) + StrZero( nmonth, 2 ) + StrZero( mnn, nsh )
+  aFiles := { { 'H', 'F' }[ type ] + sName, ;
+    'L' + sName }
   return aFiles
 
 // 01.04.26 проверить, нам ли предназначен данный XML-файл
@@ -311,8 +314,6 @@ Function is_our_xml( cName, ret_arr )
     Index On Upper( FIELD->fname ) to ( cur_dir() + 'tmpmoxml' )
     mo_xml->( dbSeek( PadR( SubStr( s, 2 ), 26 ) ) ) // имя то же самое, начиная со второго знака
     If mo_xml->( Found() ) .and. ( nReestr := mo_xml->REESTR ) > 0
-//      Select REES
-//      Goto ( nReestr )
       rees->( dbGoto( nReestr ) )
       cFrom   := glob_MO()[ _MO_KOD_TFOMS ]
       cTo     := '34'
@@ -349,7 +350,6 @@ Function is_our_xml( cName, ret_arr )
         s := SubStr( s, 2 )
         cFrom := BeforAtNum( '_', s )
         nSMO := Int( Val( cFrom ) )
-//        If AScan( glob_arr_smo, {| x| x[ 2 ] == nSMO } ) == 0
         If AScan( smo_volgograd(), {| x| x[ 2 ] == nSMO } ) == 0
           AAdd( arr_err, 'Неверный код отправителя: ' + cFrom )
         Endif
@@ -380,7 +380,6 @@ Function is_our_xml( cName, ret_arr )
         s := SubStr( s, 2 )
         cFrom := BeforAtNum( 'M', s )
         nSMO := Int( Val( cFrom ) )
-//        If AScan( glob_arr_smo, {| x| x[ 2 ] == nSMO } ) == 0
         If AScan( smo_volgograd(), {| x| x[ 2 ] == nSMO } ) == 0
           AAdd( arr_err, 'Неверный код отправителя: ' + cFrom )
         Endif
@@ -415,8 +414,6 @@ Function is_our_xml( cName, ret_arr )
       ret_arr[ 8 ] := Left( s, 3 )
 
       s := SubStr( cName, 10 )
-//        cFrom := BeforAtNum( '_', s )
-
       If Left( s, 1 ) == 'T'
         // из ТФОМС
         ret_arr[ 9 ] := '34   '
@@ -530,7 +527,6 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
         cStFile := cName
         si := i
         If arr[ i, 4 ] == spdf()
-          // file_AdobeReader(_tmp2dir1()+arr[i,3])
           view_file_in_viewer( _tmp2dir1() + arr[ i, 3 ] )
         Elseif arr[ i, 4 ] == szip()
           fl := .t.
@@ -568,7 +564,6 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
       s := SubStr( s, 2 )
       cFrom := BeforAtNum( 'M', s )
       nSMO := Int( Val( cFrom ) )
-//      If AScan( glob_arr_smo, {| x| x[ 2 ] == nSMO } ) > 0
       If AScan( smo_volgograd(), {| x| x[ 2 ] == nSMO } ) > 0
         s := AfterAtNum( 'M', s )
         If BeforAtNum( '_', s ) == current_mo[ _MO_KOD_TFOMS ] .and. ;
@@ -704,18 +699,6 @@ Function is_our_zip( cName, /*@*/tip_csv_file, /*@*/kod_csv_reestr )
       ASort( arr, , , {| x, y| x[ 1 ] < y[ 1 ] } )
       arr_f := {}
       AEval( arr, {| x| AAdd( arr_f, x[ 2 ] ) } )
-//      i := iif( cStFile == cName, si, 1 )
-//      If ( i := popup_prompt( T_ROW, T_COL -5, i, arr_f ) ) > 0
-//        cStFile := cName
-//        si := i
-//        If arr[ i, 4 ] == spdf()
-//          view_file_in_viewer( _tmp2dir1() + arr[ i, 3 ] )
-//        Elseif arr[ i, 4 ] == szip()
-//          fl := .t.
-//          full_zip := _tmp2dir1() + arr[ i, 3 ] // переопределяем Private-переменную
-//          mFull_zip := full_zip
-//        Endif
-//      Endif
     endif
     fl := .t.
   Else
@@ -873,18 +856,17 @@ Function mo_add_xml_stroke( oNode, sTag, sValue )
 
   Return Nil
 
-// 04.12.25
+// 03.05.26
 function reestr_file_reindex()
 
   local bSaveHandler, fl
 
-//  dbCloseAll()
   fl := .t.
   bSaveHandler := ErrorBlock( {| x| Break( x ) } )
   Begin Sequence
     r_use( dir_server() + 'human' )
     Index On Str( FIELD->schet, 6 ) + Str( FIELD->tip_h, 1 ) + Upper( SubStr( FIELD->fio, 1, 20 ) ) to ( dir_server() + 'humans' ) progress
-    Index On Str( if( FIELD->kod > 0, FIELD->kod_k, 0 ), 7 ) + Str( FIELD->tip_h, 1 ) to ( dir_server() + 'humankk' ) progress
+    Index On Str( iif( FIELD->kod > 0, FIELD->kod_k, 0 ), 7 ) + Str( FIELD->tip_h, 1 ) to ( dir_server() + 'humankk' ) progress
     Index On DToS( FIELD->k_data ) + FIELD->uch_doc to ( dir_server() + 'humand' ) progress
     Use
     r_use( dir_server() + 'human_u' )
@@ -922,44 +904,8 @@ function reestr_file_reindex()
     fl := func_error( 10, 'Возникла непредвиденная ошибка при переиндексировании!' )
   End
   ErrorBlock( bSaveHandler )
-//  dbCloseAll()
 
   return fl
-
-// 11.12.25
-Function f1create1reestrCommon( oBrow )
-
-  Local oColumn, tmp_color, blk_color := {|| if( tmp->plus, { 1, 2 }, { 3, 4 } ) }, n := 32
-
-  oColumn := TBColumnNew( ' ', {|| if( tmp->plus, '', ' ' ) } )
-  oColumn:colorBlock := blk_color
-  oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( Center( 'Ф.И.О. больного', n ), {|| iif( tmp->ishod == 89, PadR( Upper( human->fio ), n -4 ) + ' 2сл', PadR( Upper( human->fio ), n ) ) } )
-  oColumn:colorBlock := blk_color
-  oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( 'План-заказ', {|| PadC( f_p_z_reestr( tmp->pzkol, tmp->pz, 1 ), 10 ) } )
-  oColumn:colorBlock := blk_color
-  oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( 'Кол-во', {|| PadC( f_p_z_reestr( tmp->pzkol, tmp->pz, 2 ), 6 ) } )
-  oColumn:colorBlock := blk_color
-  oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( 'Нача-; ло', {|| Left( DToC( tmp->n_data ), 5 ) } )
-  oColumn:colorBlock := blk_color
-  oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( 'Окончан.;лечения', {|| date_8( tmp->k_data ) } )
-  oColumn:colorBlock := blk_color
-  oBrow:addcolumn( oColumn )
-  oColumn := TBColumnNew( ' Стоимость; лечения', {|| put_kope( tmp->cena_1, 10 ) } )
-  oColumn:colorBlock := blk_color
-  oBrow:addcolumn( oColumn )
-  tmp_color := SetColor( 'N/BG' )
-  @ MaxRow() -3, 0 Say PadR( ' <Esc> - выход     <Enter> - подтверждение составления реестра', 80 )
-  @ MaxRow() -2, 0 Say PadR( ' <Ins> - отметить одного пациента или снять отметку с одного пациента', 80 )
-  @ MaxRow() -1, 0 Say PadR( ' <+> - отметить всех пациентов (или по одному виду ПЛАНА-ЗАКАЗА) ', 80 )
-  @ MaxRow() -0, 0 Say PadR( ' <-> - снять со всех отметки (никто не попадает в реестр)', 80 )
-  mark_keys( { '<Esc>', '<Enter>', '<Ins>', '<+>', '<->', '<F9>' }, 'R/BG' )
-  SetColor( tmp_color )
-  Return Nil
 
 // 19.01.20
 Function f_p_z_reestr( _pzkol, _pz, k )
@@ -972,101 +918,3 @@ Function f_p_z_reestr( _pzkol, _pz, k )
     s2 += p_array_PZ[ i, 5 ]
   Endif
   Return iif( k == 1, s, s2 )
-
-// 19.01.20
-Function f2create1reestrCommon( nKey, oBrow )
-
-  Local buf, rec, k := -1, i, j, mas_pmt := {}, arr, r1, r2
-
-  Do Case
-  Case nkey == K_INS
-    Replace tmp->plus With !tmp->plus
-    j := tmp->pz + 1
-    i := AScan( p_array_PZ, {| x| x[ 1 ] == tmp->PZ } )
-    If tmp->plus
-      psumma += tmp->cena_1
-      pkol++
-      If i > 0 .and. !Empty( p_array_PZ[ i, 5 ] )
-        mpz[ j ] ++
-      Else
-        mpz[ j ] += tmp->PZKOL
-      Endif
-    Else
-      psumma -= tmp->cena_1
-      pkol--
-      If i > 0 .and. !Empty( p_array_PZ[ i, 5 ] )
-        mpz[ j ] --
-      Else
-        mpz[ j ] -= tmp->PZKOL
-      Endif
-    Endif
-    Eval( p_blk )
-    k := 0
-    Keyboard Chr( K_TAB )
-  Case nkey == 43  // +
-    arr := {}
-    AAdd( mas_pmt, 'Отметить всех пациентов' )
-    AAdd( arr, -1 )
-    If !Empty( oldpz[ 1 ] )
-      AAdd( mas_pmt, 'Отметить неопределённых пациентов' )
-      AAdd( arr, 0 )
-    Endif
-    For j := 2 To Len( oldpz )
-      If !Empty( oldpz[ j ] ) .and. ( i := AScan( p_array_PZ, {| x| x[ 1 ] == j -1 } ) ) > 0
-        AAdd( mas_pmt, 'Отметить "' + p_array_PZ[ i, 3 ] + '"' )
-        AAdd( arr, j -1 )
-      Endif
-    Next
-    r1 := 12
-    r2 := r1 + Len( mas_pmt ) + 1
-    If r2 > MaxRow() -2
-      r2 := MaxRow() -2
-      r1 := r2 - Len( mas_pmt ) -1
-      If r1 < 2
-        r1 := 2
-      Endif
-    Endif
-    If ( j := popup_scr( r1, 12, r2, 67, mas_pmt, 1, color5, .t. ) ) > 0
-      j := arr[ j ]
-      rec := RecNo()
-      buf := save_maxrow()
-      mywait()
-      If j == -1
-        tmp->( dbEval( {|| tmp->plus := .t. } ) )
-        psumma := old_summa
-        pkol := old_kol
-        AEval( mpz, {| x, i| mpz[ i ] := oldpz[ i ] } )
-      Else
-        psumma := pkol := 0
-        AFill( mpz, 0 )
-        mpz[ j + 1 ] := oldpz[ j + 1 ]
-        Go Top
-        Do While !Eof()
-          If tmp->pz == j
-            tmp->plus := .t.
-            psumma += tmp->cena_1
-            pkol++
-          Else
-            tmp->plus := .f.
-          Endif
-          Skip
-        Enddo
-      Endif
-      Goto ( rec )
-      rest_box( buf )
-      Eval( p_blk )
-      k := 0
-    Endif
-  Case nkey == 45  // -
-    rec := RecNo()
-    buf := save_maxrow()
-    mywait()
-    tmp->( dbEval( {|| tmp->plus := .f. } ) )
-    Goto ( rec )
-    rest_box( buf )
-    psumma := pkol := 0
-    AFill( mpz, 0 )
-    Eval( p_blk )
-    k := 0
-  Endcase
-  Return k

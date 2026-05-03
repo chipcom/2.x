@@ -5,8 +5,8 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.02.26
-function elem_reestr_pacient( oXmlDoc, fl_ver, p_tip_reestr )
+// 03.05.26
+function elem_reestr_pacient( oXmlDoc, p_tip_reestr )
 
   local arr_fio, smr
   local oPAC
@@ -76,20 +76,18 @@ function elem_reestr_pacient( oXmlDoc, fl_ver, p_tip_reestr )
   Endif
 
   If human_->vpolis != 3
-//  if Empty( kart2->kod_mis ) .or. ( Len( AllTrim( kart2->kod_mis ) ) != 16 )
-      mo_add_xml_stroke( oPAC, 'DOCTYPE', lstr( kart_->vid_ud ) )
-      If ! Empty( kart_->ser_ud )
-        mo_add_xml_stroke( oPAC, 'DOCSER', kart_->ser_ud )
-      Endif
-      mo_add_xml_stroke( oPAC, 'DOCNUM', kart_->nom_ud )
-      If ! Empty( kart_->kogdavyd )
-        mo_add_xml_stroke( oPAC, 'DOCDATE', date2xml( kart_->kogdavyd ) )
-      Endif
-      If ! Empty( kart_->kemvyd ) .and. ;
-          ! Empty( smr := del_spec_symbol( inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', kart_->kemvyd ) ) )
-        mo_add_xml_stroke( oPAC, 'DOCORG', smr )
-      Endif
-//    Endif
+    mo_add_xml_stroke( oPAC, 'DOCTYPE', lstr( kart_->vid_ud ) )
+    If ! Empty( kart_->ser_ud )
+      mo_add_xml_stroke( oPAC, 'DOCSER', kart_->ser_ud )
+    Endif
+    mo_add_xml_stroke( oPAC, 'DOCNUM', kart_->nom_ud )
+    If ! Empty( kart_->kogdavyd )
+      mo_add_xml_stroke( oPAC, 'DOCDATE', date2xml( kart_->kogdavyd ) )
+    Endif
+    If ! Empty( kart_->kemvyd ) .and. ;
+        ! Empty( smr := del_spec_symbol( inieditspr( A__POPUPMENU, dir_server() + 's_kemvyd', kart_->kemvyd ) ) )
+      mo_add_xml_stroke( oPAC, 'DOCORG', smr )
+    Endif
   endif
 
   If !Empty( kart->snils )
