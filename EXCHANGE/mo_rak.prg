@@ -1050,7 +1050,7 @@ Function f_view_rak_akt_schet_human( k )
 
   Return iif( k == 1, s, v )
 
-// 19.12.22
+// 04.05.26
 Function f1_view_rak_akt_schet_human( nk, ob, regim )
 
   Local ret := -1, rec, s, s1
@@ -1090,7 +1090,7 @@ Function f1_view_rak_akt_schet_human( nk, ob, regim )
       Return ret
     Endif
     If ! currentuser():isadmin()
-      func_error( 4, err_admin )
+      func_error( 4, err_admin() ) 
       Return ret
     Endif
     rec := raksh->( RecNo() )

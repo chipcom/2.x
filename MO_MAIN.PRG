@@ -66,10 +66,6 @@ Procedure Main( ... )
     MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;
     forever := 'forever'
   Public gpasskod := ret_gpasskod()
-//  Public sem_task := 'Учёт работы МО'
-//  Public sem_vagno := 'Учёт работы МО - ответственный режим'
-//  Public err_slock := 'В данный момент с этим режимом работает другой пользователь. Доступ запрещён!'
-//  Public err_admin := 'Доступ в данный режим разрешен только администратору системы!'
   Public fr_data := '_data', fr_titl := '_titl'
 
   Public dir_exe := dir_exe()
