@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 30.12.23 определить КСГ для 1 пациента с открытием файлов
+// 04.05.26 определить КСГ для 1 пациента с открытием файлов
 // ВНИМАНИЕ! Не менять название функции, используется в PROCNAME() другой функции
 Function f_1pac_definition_ksg( lkod, is_msg )
 
@@ -25,7 +25,7 @@ Function f_1pac_definition_ksg( lkod, is_msg )
   r_use( dir_server() + 'human_', , 'HUMAN_' )
   g_use( dir_server() + 'human', , 'HUMAN' ) // перезаписать сумму
   Set Relation To RecNo() into HUMAN_, To RecNo() into HUMAN_2
-  Goto ( lkod )
+  human->( dbGoto( lkod ) )     //  Goto ( lkod )
   lyear := Year( human->K_DATA )
   If human_->USL_OK < 3
     arr := defenition_ksg()
@@ -49,8 +49,8 @@ Function f_1pac_definition_ksg( lkod, is_msg )
       Endif
       lrec := lcena := 0
       Select HU
-      find ( Str( lkod, 7 ) )
-      Do While hu->kod == lkod .and. !Eof()
+      hu->( dbSeek( Str( lkod, 7 ) ) )    //  find ( Str( lkod, 7 ) )
+      Do While hu->kod == lkod .and. !hu->( Eof() )
         usl->( dbGoto( hu->u_kod ) )
         If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, human->k_data ) )
           lshifr := usl->shifr
@@ -60,14 +60,13 @@ Function f_1pac_definition_ksg( lkod, is_msg )
           lcena := arr[ 4 ]
           If !( Round( hu->u_cena, 2 ) == Round( lcena, 2 ) ) // перезапишем цену
             Select HU
-            g_rlock( forever )
+            g_rlock( 'forever' )
             hu->u_cena := lcena
             hu->stoim := hu->stoim_1 := lcena
             Unlock
           Endif
           Exit
         Endif
-
         lalias := create_name_alias( 'lusl', lyear )
         dbSelectArea( lalias )
         find ( lshifr ) // длина lshifr 10 знаков
@@ -76,31 +75,27 @@ Function f_1pac_definition_ksg( lkod, is_msg )
           Exit
         Endif
         Select HU
-        Skip
+        hu->( dbSkip() )    //  Skip
       Enddo
       If Empty( arr[ 2 ] )
         If Empty( lcena )
           lu_kod := foundourusluga( arr[ 3 ], human->k_data, human_->profil, human->VZROS_REB, @lcena )
-          If lyear > 2018  // округление до рублей с 2019 года
+//          If lyear > 2018  // округление до рублей с 2019 года
+          if lyear >= 2026
+            lcena := arr[ 4 ]
+          else
             If Len( arr ) > 4 .and. !Empty( arr[ 5 ] )
-              If lyear >= 2023
-                // if human_->USL_OK == USL_OK_HOSPITAL
-                // if human->k_data < ctod('01/10/2023')  // до 01.10.2023
-                // lcena := round_5(lcena + 25986.7 * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
-                // else  // после 01.10.2023
-                // lcena := round_5(lcena + 29995.8 * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
-                // endif
-                // elseif human_->USL_OK == USL_OK_DAY_HOSPITAL
-                // lcena := round_5(lcena + 15029.1 * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
-                // endif
+              if lyear >= 2023
                 lcena := round_5( lcena + baserate( human->k_data, human_->USL_OK ) * ret_koef_kslp_21( arr[ 5 ], Year( human->k_data ) ), 0 )
-              Else
+              Elseif lyear < 2023
                 lcena := round_5( lcena * ret_koef_kslp( arr[ 5 ] ), 0 )
               Endif
             Endif
             If Len( arr ) > 5 .and. !Empty( arr[ 6 ] )
               lcena := round_5( lcena * arr[ 6, 2 ], 0 )
             Endif
+          endif
+/*
           Else
             If Len( arr ) > 4 .and. !Empty( arr[ 5 ] )
               lcena := round_5( lcena * arr[ 5, 2 ], 1 )
@@ -109,14 +104,15 @@ Function f_1pac_definition_ksg( lkod, is_msg )
               lcena := round_5( lcena * arr[ 6, 2 ], 1 )
             Endif
           Endif
+*/
           If Round( arr[ 4 ], 2 ) == Round( lcena, 2 ) // цена определена правильно
             Select HU
             If lrec == 0
               add1rec( 7 )
               hu->kod := human->kod
             Else
-              Goto ( lrec )
-              g_rlock( forever )
+              hu->( dbGoto( lrec) )   //  Goto ( lrec )
+              g_rlock( 'forever' )
             Endif
             mrec_hu := hu->( RecNo() )
             hu->kod_vr  := human_->VRACH
@@ -131,10 +127,10 @@ Function f_1pac_definition_ksg( lkod, is_msg )
             hu->stoim := hu->stoim_1 := lcena
             Select HU_
             Do While hu_->( LastRec() ) < mrec_hu
-              Append Blank
+              hu_->( dbAppend() )     //  Append Blank
             Enddo
-            Goto ( mrec_hu )
-            g_rlock( forever )
+            hu_->( dbGoto( mrec_hu ) )      //  Goto ( mrec_hu )
+            g_rlock( 'forever' )
             If lrec == 0 .or. !valid_guid( hu_->ID_U )
               hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
             Endif
@@ -150,18 +146,18 @@ Function f_1pac_definition_ksg( lkod, is_msg )
         Endif
       Elseif lrec > 0 // не удалось определить КСГ
         Select HU
-        Goto ( lrec )
+        hu->( dbGoto( lrec ) )      //  Goto ( lrec )
         deleterec( .t., .f. )  // очистка записи без пометки на удаление
         lcena := 0
       Endif
       If !( Round( human->CENA_1, 2 ) == Round( lcena + sdial, 2 ) )
         Select HUMAN
-        g_rlock( forever )
+        g_rlock( 'forever' )
         human->CENA := human->CENA_1 := lcena + sdial // перезапишем стоимость лечения
-        Unlock
+        human->( dbUnlock() )     //  Unlock
       Endif
       put_str_kslp_kiro( arr )
-      Close databases
+      dbCloseAll()    //  Close databases
       If Empty( arr[ 2 ] )
         If not_ksg .and. is_msg
           i := Len( arr[ 1 ] )
@@ -169,14 +165,15 @@ Function f_1pac_definition_ksg( lkod, is_msg )
           If !( 'РЕЗУЛЬТАТ' $ arr[ 1, i ] ) .and. i > 1
             s := AllTrim( arr[ 1, i - 1 ] + s )
           Endif
-          stat_msg( s ) ; mybell( 2, OK )
+          stat_msg( s )
+          mybell( 2, OK )
         Endif
       Else
         func_error( 4, 'ОШИБКА: ' + arr[ 2, 1 ] )
       Endif
     Endif
   Endif
-  Close databases
+  dbCloseAll()    //  Close databases
   rest_box( buf )
 
   Return Nil

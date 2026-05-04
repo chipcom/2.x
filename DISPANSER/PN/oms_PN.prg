@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.04.26 ПН - добавление или редактирование случая (листа учета)
+// 04.05.26 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
@@ -1874,15 +1874,15 @@ Function oms_sluch_pn( Loc_kod, kod_kartotek, f_print )
           Endif
         next
       endif
-      
       For i := 1 To Len( arr_usl_dop )
         If Empty( arr_usl_dop[ i, 7 ] ) // т.к. для услуг, направляемых в КДП2, код уже известен (а цена =0)
           arr_usl_dop[ i, 7 ] := foundourusluga( arr_usl_dop[ i, 5 ], mk_data, arr_usl_dop[ i, 4 ], M1VZROS_REB, @mu_cena )
           arr_usl_dop[ i, 8 ] := mu_cena
-          mcena_1 += mu_cena
+          if arr_usl_dop[ i, 9 ] >= MN_DATA
+            mcena_1 += mu_cena
+          endif
         Endif
       Next
-
       //
       use_base( 'human' )
       If Loc_kod > 0

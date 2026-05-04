@@ -387,7 +387,6 @@ function oms_sluch_dvn_drz( loc_kod, kod_kartotek, f_print )
               larr[ 1, i ] := hu->( recno() )
               larr[ 2, i ] := lshifr
               aadd( arr_usl, hu->( recno() ) )
-//altd()
               if valtype( uslugi_etapa[ i, 13 ] ) == 'C' .and. ! empty( uslugi_etapa[ i, 13 ] )
                 select MOHU
                 set relation to FIELD->u_kod into MOSU 
