@@ -460,9 +460,6 @@ Function read_xml_file_rak( arr_XML_info, aerr, cFileProtokol, cReadFile )
 //            Do While tmp4->kod_a == tmp6->kod_a .and. tmp4->kod_s == tmp6->kod_s .and. tmp4->_idcase == tmp6->_idcase .and. ! tmp6->( Eof() )
             tmp6->( dbSeek( Str( tmp4->kod_a, 6 ) + Str( tmp4->kod_s, 6 ) + tmp4->_id_c ) )    //  find ( Str( tmp4->kod_a, 6 ) + Str( tmp4->kod_s, 6 ) + Str( tmp4->_idcase, 8 ) )
             Do While tmp4->kod_a == tmp6->kod_a .and. tmp4->kod_s == tmp6->kod_s .and. tmp4->_id_c == tmp6->_id_c .and. ! tmp6->( Eof() )
-//if tmp6->_ID_C == '9EB36745-5D4B-C141-9F8C-82B207926FB2'
-//altd()
-//endif
               Select RAKSHERR
               addrec( 8 )
               raksherr->KOD_RAKSH := raksh->( RecNo() )

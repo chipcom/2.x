@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.03.26
+// 04.05.26
 function get_zamenauslugi_on_date( mTypeLu, mdate, codeUsl )
 
   local i, retShifr := ''
@@ -14,13 +14,12 @@ function get_zamenauslugi_on_date( mTypeLu, mdate, codeUsl )
   if mTypeLu == TIP_LU_DVN
     arr_zam := DVN_usl_replace( mdate )
   elseif mTypeLu == TIP_LU_DDS .or. mTypeLu == TIP_LU_DDSOP
-//    arr_zam := DDS_usl_replace( mdate )
+    arr_zam := DDS_usl_replace( mdate )
     retShifr := codeUsl
-    return retShifr
+//    return retShifr
   elseif mTypeLu == TIP_LU_PN
-//    arr_zam := PN_usl_replace( mdate )
+    arr_zam := PN_usl_replace( mdate )
     retShifr := codeUsl
-    return retShifr
   elseif mTypeLu == TIP_LU_DRZ
     retShifr := codeUsl
     return retShifr
