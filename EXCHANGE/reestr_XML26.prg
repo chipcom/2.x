@@ -42,7 +42,7 @@ Function create1reestr26( _nyear, _nmonth, kod_smo, p_tip_reestr )
 
   cFor := 'FIELD->tip == ' + AllTrim( str( p_tip_reestr, 1 ) ) + '.and. FIELD->kod_smo == "' + kod_smo + '"'
   bFor := &( '{||' + cFor + '}' )
-  tmpb->( __dbCopy( 'mem:tmp', , bFor ) )
+  tmpb->( __dbCopy( 'mem:tmp', , bFor ) ) 
   dbUseArea( .t., , 'mem:tmp', 'TMP', .f., .f. )
   dbSelectArea( 'TMP' )
   Set Relation To FIELD->kod_human into HUMAN

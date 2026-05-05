@@ -10,18 +10,20 @@ Static Sreestr_sem := 'Работа с реестрами'
 Static Sreestr_err := 'В данный момент с реестрами работает другой пользователь.'
 
 // 11.03.26
-Function create_reestr26( arr_calendar )
+Function create_reestr26( arr_date )
+
+  // arr_date - массив содержащий дату на которую выписывается реестр ( интересует месяц и год )
 
   Local mnyear, mnmonth, k := 0, k1 := 0
   Local buf := save_maxrow(), arr, adbf, i
   local lenPZ := 0  // кол-во строк план заказа на год составления реестра
-  Local tip_lu, currDate
+  Local tip_lu
   Local t_smo   //, arr_smo := {}
   Local lshifr1, lbukva, c, fl
   Local p_array_PZ
 
   Private pkol := 0, psumma := 0
-  Private arr_m := arr_calendar
+  Private arr_m := arr_date
 
   If !myfiledeleted( cur_dir() + 'tmpb' + sdbf() )
     Return Nil
@@ -30,12 +32,11 @@ Function create_reestr26( arr_calendar )
     Return Nil
   Endif
 
-  currDate := sys_date
-
-  arr := { 'Предупреждение!', ;
-           '', ;
-           'Во время составления реестра счета', ;
-           'никто не должен работать в задаче ОМС' }
+  arr := { ;
+    'Предупреждение!', ;
+    '', ;
+    'Во время составления реестра счета', ;
+    'никто не должен работать в задаче ОМС' }
   n_message( arr, , 'GR+/R', 'W+/R', , , 'G+/R' )
   
   stat_msg( 'Подождите, работаю...' )
@@ -60,15 +61,12 @@ Function create_reestr26( arr_calendar )
     { 'KOD_SMO',  'C',  5, 0 }, ;  // код СМО
     { 'BUKVA',    'C',  1, 0 } ;   // буква счета
   }
-//  dbCreate( cur_dir() + 'tmpb', adbf )
-//  Use ( cur_dir() + 'tmpb' ) new
 
   dbCreate( 'mem:tmpb', adbf, , .t., 'TMPB' )
-//  INDEX ON FIELD->KOD_SMO + Str( FIELD->kod_human, 7 ) TO ( 'mem:tmpb' )
   INDEX ON FIELD->KOD_SMO + FIELD->FIO + DToS( FIELD->k_data ) TO ( 'mem:tmpb' )
 
-  mnyear := arr_calendar[ 1 ]
-  mnmonth := arr_calendar[ 3 ]
+  mnyear := arr_date[ 1 ]
+  mnmonth := arr_date[ 3 ]
 
   adbf := { ;
     { 'MIN_DATE',    'D',     8,     0 }, ;
@@ -94,11 +92,6 @@ Function create_reestr26( arr_calendar )
   r_use( dir_server() + 'uslugi', , 'USL' )
   r_use( dir_server() + 'human_u_', , 'HU_' )
   r_use( dir_server() + 'human_u', dir_server() + 'human_u', 'HU' )
-////  r_use( dir_server() + 'human_u', { dir_server() + 'human_u', ;
-////    dir_server() + 'human_uk', ;
-////    dir_server() + 'human_ud', ;
-////    dir_server() + 'human_uv', ;
-////    dir_server() + 'human_ua' }, 'HU' )
   Set Relation To RecNo() into HU_, To FIELD->u_kod into USL
   r_use( dir_server() + 'mo_su', , 'MOSU' )
   r_use( dir_server() + 'mo_hu', dir_server() + 'mo_hu', 'MOHU' )
@@ -109,9 +102,9 @@ Function create_reestr26( arr_calendar )
   r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
 
-  human->( dbSeek( DToS( arr_calendar[ 5 ] ), .t. ) )
+  human->( dbSeek( DToS( arr_date[ 5 ] ), .t. ) )
 
-  Do While human->k_data <= arr_calendar[ 6 ] .and. ! human->( Eof() )
+  Do While human->k_data <= arr_date[ 6 ] .and. ! human->( Eof() )
     if human->ishod == 88
       human->( dbSkip() )
       loop
@@ -142,7 +135,7 @@ Function create_reestr26( arr_calendar )
         A_SMO->( dbAppend() )
         A_SMO->nyear := mnyear
         A_SMO->nmonth := mnmonth
-        A_SMO->min_date := arr_calendar[ 6 ]
+        A_SMO->min_date := arr_date[ 6 ]
         A_SMO->kod_smo := t_smo
       endif
 
@@ -211,13 +204,8 @@ Function create_reestr26( arr_calendar )
 
   If k == 0
     rest_box( buf )
-    func_error( 4, 'Нет пациентов для включения в реестр с датой окончания ' + arr_calendar[ 4 ] )
+    func_error( 4, 'Нет пациентов для включения в реестр с датой окончания ' + arr_date[ 4 ] )
   Else
-//    Use ( cur_dir() + 'A_SMO' ) new
-//    k := Date() - A_SMO->min_date
-//    A_SMO->dni := iif( Between( k, 1, 999 ), k, 0 )
-
-//    dbSelectArea( 'A_SMO' )
     A_SMO->( dbGoTop() )
     rest_box( buf )
 
@@ -334,103 +322,97 @@ function control_and_create_schet26( kod_smo )
   Local nameArr
   Local p_tip_reestr  // тип формируемого Реестра случаев
 
-//  fl := reestr_file_reindex()
-//  If fl
-    // arr_m - PRIVATE переменная
-    arrKolSl := verify_oms26( arr_m, .f., kod_smo )
-    clrline( MaxRow(), color0 )
-    If arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] == 0
-      // случаев нет
-    Elseif arrKolSl[ 1 ] > 0 .and. arrKolSl[ 2 ] == 0
-      p_tip_reestr := 1
-    Elseif arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] > 0
-      p_tip_reestr := 2
-    Elseif ( p_tip_reestr := f_alert( { '', ;
-          PadC( 'Выберите тип реестра счетов для отправки в ТФОМС', 70, '.' ), ;
-          '' }, ;
-          { ' Счет ~обычный(' + lstr( arrKolSl[ 1 ] ) + ')', ' Счет по ~диспансеризации(' + lstr( arrKolSl[ 2 ] ) + ')' }, ;
-          1, 'W/RB', 'G+/RB', MaxRow() -6,, 'BG+/RB,W+/R,W+/RB,GR+/R' ) ) == 0
-      rest_box( buf )
-      return nil
-    Endif
-    mywait()
-    _k := A_SMO->kol   // фиксация запаса
-    A_SMO->kol := 0
-    A_SMO->summa := 0
-    A_SMO->min_date := SToD( StrZero( A_SMO->nyear, 4 ) + StrZero( A_SMO->nmonth, 2 ) + '01' )
-    For i := 0 To lenPZ
-      pole := 'A_SMO->PZ' + lstr( i )
-      &pole := 0
-    Next
-    r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
-    Set Order To 2
-    r_use( dir_server() + 'human_',, 'HUMAN_' )
-    r_use( dir_server() + 'human',, 'HUMAN' )
+  arrKolSl := verify_oms26( arr_m, .f., kod_smo )
+  clrline( MaxRow(), color0 )
+  If arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] == 0
+    // случаев нет
+  Elseif arrKolSl[ 1 ] > 0 .and. arrKolSl[ 2 ] == 0
+    p_tip_reestr := 1
+  Elseif arrKolSl[ 1 ] == 0 .and. arrKolSl[ 2 ] > 0
+    p_tip_reestr := 2
+  Elseif ( p_tip_reestr := f_alert( { '', ;
+      PadC( 'Выберите тип реестра счетов для отправки в ТФОМС', 70, '.' ), ;
+      '' }, ;
+      { ' Счет ~обычный(' + lstr( arrKolSl[ 1 ] ) + ')', ' Счет по ~диспансеризации(' + lstr( arrKolSl[ 2 ] ) + ')' }, ;
+      1, 'W/RB', 'G+/RB', MaxRow() -6,, 'BG+/RB,W+/R,W+/RB,GR+/R' ) ) == 0
+    rest_box( buf )
+    return nil
+  Endif
+  mywait()
+  _k := A_SMO->kol   // фиксация запаса
+  A_SMO->kol := 0
+  A_SMO->summa := 0
+  A_SMO->min_date := SToD( StrZero( A_SMO->nyear, 4 ) + StrZero( A_SMO->nmonth, 2 ) + '01' )
+  For i := 0 To lenPZ
+    pole := 'A_SMO->PZ' + lstr( i )
+    &pole := 0
+  Next
+  r_use( dir_server() + 'human_3', { dir_server() + 'human_3', dir_server() + 'human_32' }, 'HUMAN_3' )
+  Set Order To 2
+  r_use( dir_server() + 'human_',, 'HUMAN_' )
+  r_use( dir_server() + 'human',, 'HUMAN' )
 
-    //    r_use( dir_server() + 'human', dir_server() + 'humank', 'HUMAN' )
-    //    Set Relation To RecNo() into HUMAN_
+  //    r_use( dir_server() + 'human', dir_server() + 'humank', 'HUMAN' )
+  //    Set Relation To RecNo() into HUMAN_
 
-    dbSelectArea( 'tmpb' )
-    Set Relation To FIELD->kod_human into HUMAN, To FIELD->kod_human into HUMAN_
+  dbSelectArea( 'tmpb' )
+  Set Relation To FIELD->kod_human into HUMAN, To FIELD->kod_human into HUMAN_
 
-    tmpb->( dbSeek( kod_smo, .t. ) )
-    Do While ! ( tmpb->( Eof() ) ) .and. ( tmpb->kod_smo == kod_smo )
-      If human_->ST_VERIFY >= 5 .and. tmpb->tip == p_tip_reestr
-        A_SMO->kol++
-        If tmpb->ishod == 89
-          Select HUMAN_3
-          find ( Str( human->kod, 7 ) )
-          A_SMO->summa += human_3->cena_1
-          A_SMO->min_date := Min( A_SMO->min_date, human_3->k_data )
-          k := human_3->PZKOL
-          Select TMPB
-        Else
-          A_SMO->summa += human->cena_1
-          A_SMO->min_date := Min( A_SMO->min_date, human->k_data )
-          k := human_->PZKOL
-        Endif
-        j := human_->PZTIP
-        tmpb->fio := human->fio
-        tmpb->PZ := j
-        pole := 'A_SMO->PZ' + lstr( j )
-        nameArr := get_array_PZ( A_SMO->nyear )
-        If ( i := AScan( nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( nameArr[ i, 5 ] )
-          &pole := &pole + 1 // учёт по случаям
-        Else
-          if A_SMO->nyear > 2018
-            &pole := &pole + k // учёт по единицам план-заказа
-          else
-            &pole := &pole + human_->PZKOL
-          endif
-        Endif
+  tmpb->( dbSeek( kod_smo, .t. ) )
+  Do While ! ( tmpb->( Eof() ) ) .and. ( tmpb->kod_smo == kod_smo )
+    If human_->ST_VERIFY >= 5 .and. tmpb->tip == p_tip_reestr
+      A_SMO->kol++
+      If tmpb->ishod == 89
+        Select HUMAN_3
+        human_3->( dbSeek( Str( human->kod, 7 ) ) )     //  find ( Str( human->kod, 7 ) )
+        A_SMO->summa += human_3->cena_1
+        A_SMO->min_date := Min( A_SMO->min_date, human_3->k_data )
+        k := human_3->PZKOL
+        Select TMPB
       Else
-        tmpb->yes_del := .t. // удалить после дополнительной проверки
+        A_SMO->summa += human->cena_1
+        A_SMO->min_date := Min( A_SMO->min_date, human->k_data )
+        k := human_->PZKOL
       Endif
-      tmpb->( dbSkip() )
-    Enddo
-
-    close_list_alias( { 'K006', 'PRPRK', 'HUMAN_3', 'HUMAN_', 'HUMAN' } )
-
-    If A_SMO->kol == 0
-      func_error( 4, 'После дополнительной проверки некого включать в реестр' )
+      j := human_->PZTIP
+      tmpb->fio := human->fio
+      tmpb->PZ := j
+      pole := 'A_SMO->PZ' + lstr( j )
+      nameArr := get_array_PZ( A_SMO->nyear )
+      If ( i := AScan( nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( nameArr[ i, 5 ] )
+        &pole := &pole + 1 // учёт по случаям
+      Else
+        if A_SMO->nyear > 2018
+          &pole := &pole + k // учёт по единицам план-заказа
+        else
+          &pole := &pole + human_->PZKOL
+        endif
+      Endif
     Else
-      If A_SMO->nyear >= 2025
-//
-        create1reestr26( A_SMO->nyear, A_SMO->nmonth, kod_smo, p_tip_reestr ) //  , aBukva )
-        // удалим листы записанные в реестр
-        tmpb->( dbEval( { | | dbDelete() }, { | | yes_del } ) )
-        tmpb->( __dbPack() )
-
-// НЕПОНЯТКА ЮРА
-        A_SMO->kol := _k - A_SMO->kol
-        if A_SMO->kol < 1
-          // если все ЛУ включены - сумму НУЛИМ
-          A_SMO->summa := 0
-        endif  
-      Else
-        func_error( 10, 'Реестр ранее августа 2025 года не формируется!' )
-      Endif
+      tmpb->yes_del := .t. // удалить после дополнительной проверки
     Endif
-//  Endif
+    tmpb->( dbSkip() )
+  Enddo
+
+  close_list_alias( { 'K006', 'PRPRK', 'HUMAN_3', 'HUMAN_', 'HUMAN' } )
+
+  If A_SMO->kol == 0
+    func_error( 4, 'После дополнительной проверки некого включать в реестр' )
+  Else
+    If A_SMO->nyear >= 2025
+      create1reestr26( A_SMO->nyear, A_SMO->nmonth, kod_smo, p_tip_reestr ) //  , aBukva )
+      // удалим листы записанные в реестр
+      tmpb->( dbEval( { | | dbDelete() }, { | | yes_del } ) )
+      tmpb->( __dbPack() )
+// НЕПОНЯТКА ЮРА
+      A_SMO->kol := _k - A_SMO->kol
+      if A_SMO->kol < 1
+        // если все ЛУ включены - сумму НУЛИМ
+        A_SMO->summa := 0
+      endif  
+    Else
+      func_error( 10, 'Реестр ранее августа 2025 года не формируется!' )
+    Endif
+  Endif
   rest_box( buf )
   return nil
