@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 29.04.26 
+// 06.05.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -74,6 +74,7 @@ Function verify_sluch( fl_view, ft )
   local kprof, sVidpom
   local aValidProf  // допустимые в отделении профили, условия оказания, виды мед. помощи
   local is_60_17_1 := .f., is_60_17_2 := .f., kol_60_17_100 := 0
+  local first_2 // первые два символа МО прикрепления
 //  local cUIDSPMO
 
   Default fl_view To .t.
@@ -365,9 +366,12 @@ Function verify_sluch( fl_view, ft )
 //  elseif Empty( AllTrim( human->MO_PR ) ) .and. ( AScan( smo_volgograd(), {| x| x[ 2 ] == Int( Val( human_->smo ) ) } ) == 0 )
     //
   else
-    a_mo_prik := get_f032_prik()
-    if ( i := AScan( a_mo_prik, {| x | x[ 2 ] == human->MO_PR } ) ) == 0
-      AAdd( ta, 'не верная организация прикрепления с кодом "' + human->MO_PR + '"' )
+    first_2 := SubStr( human->MO_PR, 1, 2 )
+    if first_2 == '34' .or. first_2 == '00' .or. Empty( first_2 )
+      a_mo_prik := get_f032_prik()
+      if ( i := AScan( a_mo_prik, {| x | x[ 2 ] == human->MO_PR } ) ) == 0
+        AAdd( ta, 'не верная организация прикрепления с кодом "' + human->MO_PR + '"' )
+      endif
     endif
   endif
 

@@ -1721,10 +1721,10 @@ Function pripisnoe_naselenie_create_sverka()
   Return Nil
 
 
- // 21.04.26 создать файл(ы) сверки
+ // 03.05.26 создать файл(ы) сверки
 Function pripisnoe_naselenie_create_sverka_NEW_QA2()
 
-  Local ii := 0, s, buf := SaveScreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport
+  Local ii := 0, s, buf := SaveScreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport, flag_povtor 
 
   If !f_esc_enter( 'создания файла запроса прик-я', .t. )
     Return Nil
@@ -1770,11 +1770,13 @@ Function pripisnoe_naselenie_create_sverka_NEW_QA2()
     // 
     if fl 
      fl := .f.
+     flag_povtor := .F.
      select HUMAN 
      find ( str(kart->kod,7))
      do while kart->kod == human->kod_k .and. !eof()
        if year(human->k_data) > 2025 .and. human->tip_h < 4 // пока только данный контроль
          if human->komu == 0 // только ОМС 
+           flag_povtor := .T.
            Select TMP
            Append Blank
            tmp->kod     := kart->kod
@@ -1790,7 +1792,20 @@ Function pripisnoe_naselenie_create_sverka_NEW_QA2()
        endif  
        select HUMAN
        skip 
-     enddo  
+     enddo 
+     if flag_povtor .and. glob_mo[ _MO_KOD_TFOMS ] != '805965' // добавка запроса на текущее число и не РДЛ
+       Select TMP
+       Append Blank
+       tmp->kod     := kart->kod 
+       tmp->k_data  := date() // на текущее число
+       tmp->kod_hum := 0
+       If tmp->( RecNo() ) % 100 == 0
+         @ MaxRow(), 1 Say lstr( tmp->( RecNo() ) ) Color color0
+         If tmp->( RecNo() ) % 2000 == 0
+           Commit
+         Endif
+       Endif 
+     endif 
     endif
     //
     Select KART

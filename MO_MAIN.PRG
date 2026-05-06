@@ -49,19 +49,10 @@ Procedure Main( ... )
   Endif
 
   //
-//  Public Err_version := fs_version( _version() ) + ' от ' + _date_version()
-//  Public kod_LIS   := { '125901', '805965' }
-  //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
 
-  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT'
+//  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT' 
   
-//  Public schip := '.CHIP', spdf := '.PDF', sxls := '.xls', sdbt := '.dbt', ;
-//    scsv := '.CSV', szip := '.ZIP', srar := '.RAR', smem := '.MEM', ;
-//    sxml := '.XML', sini := '.INI', sfr3 := '.FR3', sfrm := '.FRM' ;
-//  Public public_mouse := .f.
-//  Public pict_cena := '9999999.99', picture_pf := '@R 999-999-999 99'
-
   Public pravo_write := .t., pravo_read := .t., ;
     MenuTo_Minut := 0, sys_date := Date(), cScrMode := 'COLOR', ;
     forever := 'forever'
@@ -72,12 +63,6 @@ Procedure Main( ... )
   Public cur_dir := chip_currpath()
   Public p_name_comp := ''
   Public dir_server := ''
-//  Public dir_XML_MO := 'XML_MO', dir_XML_TF := 'XML_TF'
-//  Public dir_NAPR_MO := 'NAPR_MO', dir_NAPR_TF := 'NAPR_TF'
-//  Public _tmp_dir  := 'TMP___'
-//  Public _tmp_dir1 := _tmp_dir() + hb_ps()
-//  Public _tmp2dir  := 'TMP2___'
-//  Public _tmp2dir1 := _tmp2dir() + hb_ps()
   //
   // объект пользователя зарегистрировавшегося в системе
   Public hb_user_curUser := nil
@@ -89,11 +74,6 @@ Procedure Main( ... )
   // перенес из index_work_dir
   Public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
 
-//  Public arr_VMP := {}
-//  Public is_napr_pol := .f. // работа с направлениями на госпитализацию в п-ке
-//  Public is_napr_stac := .f. // работа с направлениями на госпитализацию в стационаре
-//  Public glob_klin_diagn := {}  // работа со специальными лабораторными исследованиями
-
   // создадим глобальные переменные для ВМП
   Public is_MO_VMP := .f.
   For i := 2019 To WORK_YEAR
@@ -101,27 +81,6 @@ Procedure Main( ... )
     __mvPublic( cVar )
     __mvPut( cVar, .f. )
   Next
-
-  // справочник цен на услуги ТФОМС 2016-2017
-//  Public glob_MU_dializ := {}// 'A18.05.002.001','A18.05.002.002','A18.05.002.003', ;
-  // 'A18.05.003','A18.05.003.001','A18.05.011','A18.30.001','A18.30.001.001'}
-//  Public glob_KSG_dializ := {}// '10000901','10000902','10000903','10000905','10000906','10000907','10000913', ;
-  // '20000912','20000916','20000917','20000918','20000919','20000920'}
-  // '1000901','1000902','1000903','1000905','1000906','1000907','1000913', ;
-  // '2000912','2000916','2000917','2000918','2000919','2000920'}
-
-//  Public glob_yes_kdp2[ 10 ] 
-
-//  Public glob_menu_mz_rf := { .f., .f., .f. }
-//  Public is_vr_pr_pp := .f.
-//  Public is_reabil_slux := .f., 
-//  Public is_ksg_1300098 := .f.
-//  Public is_dop_ob_em := .f.
-//  Public is_alldializ := .f.
-//  Public is_hemodializ := .f.
-//  Public is_per_dializ := .f.
-
-  // конец переноса из index_work_dir
 
   SetClearB( ' ' )
   is_local_version := f_first( is_create )
@@ -250,43 +209,9 @@ Function app_ini()
 // 15.09.25
 Function f_main( r0, is_local_version, a_parol )
 
-//  Static arr1 := { ;
-//    { 'Регистратура поликлиники', X_REGIST, , .t., 'РЕГИСТРАТУРА' }, ;
-//    { 'Приёмный покой стационара', X_PPOKOJ, , .t., 'ПРИЁМНЫЙ ПОКОЙ' }, ;
-//    { 'Обязательное медицинское страхование', X_OMS, , .t., 'ОМС' }, ;
-//    { 'Учёт направлений на госпитализацию', X_263, , .f., 'ГОСПИТАЛИЗАЦИЯ' }, ;
-//    { 'Платные услуги', X_PLATN, , .t., 'ПЛАТНЫЕ УСЛУГИ' }, ;
-//    { 'Ортопедические услуги в стоматологии', X_ORTO, , .t., 'ОРТОПЕДИЯ' }, ;
-//    { 'Касса медицинской организации', X_KASSA, , .t., 'КАССА' } ;
-//    }
-
-//  // { 'КЭК медицинской организации', X_KEK, , .f., 'КЭК' } ;
-
-//  Static arr2 := { ;
-//    { 'Редактирование справочников', X_SPRAV, , .t. }, ;
-//    { 'Сервисы и настройки', X_SERVIS, , .t. }, ;
-//    { 'Резервное копирование базы данных', X_COPY, , .t. }, ;
-//    { 'Переиндексирование базы данных', X_INDEX, , .t. } ;
-//    }
   Local i, lens := 0, r, c, oldTfoms, arr, ar, k, fl_exit := .t.
   Local buf
 
-//  Public array_tasks := array_tasks()   // {}
-//  Public sem_vagno_task[ 24 ]
-
-//  AFill( sem_vagno_task, '' )
-//  For i := 1 To Len( arr1 )
-//    AAdd( array_tasks, arr1[ i ] )
-//    sem_vagno_task[ arr1[ i, 2 ] ] := 'Важный режим в задаче "' + arr1[ i, 5 ] + '"'
-//  Next
-
-//  If glob_mo()[ _MO_KOD_TFOMS ] == TF_KOD_MO_VOUNC
-//    AAdd( array_tasks, { 'ВОУНЦ - трансплантированные', X_MO, 'TABLET_ICON', .t. } )
-//  Endif
-
-//  For i := 1 To Len( arr2 )
-//    AAdd( array_tasks, arr2[ i ] )
-//  Next
   //
   arr := {}
   For i := 1 To Len( array_tasks() )
@@ -682,18 +607,16 @@ Function f_end( yes_copy )
   ErrorBlock( bSaveHandler )
   //
   hard_err( 'delete' )
-//  If __mvExist( 'cur_dir()' )
-    FileDelete( cur_dir() + 'tmp*.dbf' )
-    FileDelete( cur_dir() + 'tmp*.ntx' )
-    FileDelete( _tmp_dir1() + '*.*' )
-    If hb_DirExists( cur_dir() + _tmp_dir() ) .and. hb_DirDelete( cur_dir() + _tmp_dir() ) != 0
-      // func_error(4, 'Не могу удалить каталог ''+'cur_dir()'+'_tmp_dir())
-    Endif
-    FileDelete( _tmp2dir1() + '*.*' )
-    If hb_DirExists( cur_dir() + _tmp2dir() ) .and. hb_DirDelete( cur_dir() + _tmp2dir() ) != 0
-      // func_error(4, 'Не могу удалить каталог ' + cur_dir() + _tmp2dir())
-    Endif
-//  Endif
+  FileDelete( cur_dir() + 'tmp*.dbf' )
+  FileDelete( cur_dir() + 'tmp*.ntx' )
+  FileDelete( _tmp_dir1() + '*.*' )
+  If hb_DirExists( cur_dir() + _tmp_dir() ) .and. hb_DirDelete( cur_dir() + _tmp_dir() ) != 0
+    // func_error(4, 'Не могу удалить каталог ''+'cur_dir()'+'_tmp_dir())
+  Endif
+  FileDelete( _tmp2dir1() + '*.*' )
+  If hb_DirExists( cur_dir() + _tmp2dir() ) .and. hb_DirDelete( cur_dir() + _tmp2dir() ) != 0
+    // func_error(4, 'Не могу удалить каталог ' + cur_dir() + _tmp2dir())
+  Endif
   // удалим файлы отчетов в формате '*.HTML' из временной директории
   FileDelete( hb_DirTemp() + '*.html' )
   delfrfiles()
