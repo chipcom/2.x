@@ -32,7 +32,7 @@ Function string_output( sText, lExcel, ws, row, column, fmt )
 
   Return Nil
 
-// 24.12.25 многовариантный поиск
+// 06.05.26 многовариантный поиск
 Function s_mnog_poisk()
 
   Static lcount_uch  := 1
@@ -91,10 +91,11 @@ Function s_mnog_poisk()
     mm_mest := { { 'Волгоград или область', 1 }, { 'иногородние', 2 } }, ;
     mm_dom := { { '-----', 0 }, { 'в поликлинике', 1 }, { 'на дому', 2 } }, ;
     mm_invalid := { { 'неважно', 0 }, { 'любая группа', 9 }, { '1 группа', 1 }, { '2 группа', 2 }, { '3 группа', 3 }, { 'дети-инвалиды', 4 } }, ;
-    mm_prik := { { 'неважно', 0 }, ;
-    { 'прикреплён к нашей МО', 1 }, ;
-    { 'не прикреплён к нашей МО', 2 } }, ;
-    tmp_file := cur_dir() + 'tmp_mn_p' + sdbf(), ;
+    mm_prik := { ;
+      { 'неважно', 0 }, ;
+      { 'прикреплён к нашей МО', 1 }, ;
+      { 'не прикреплён к нашей МО', 2 } }, ;
+    tmp_file := cur_dir() + 'tmp_mn_p', ; // + sdbf(), ;
     k_diagnoz, k_usl, tt_diagnoz[ 10 ], tt_usl[ 10 ]
   Local s := '', s1, s2, s3, sOutput := '', sZag1 := ''
   Local name_fileXLS := 'Report_' + suffixfiletimestamp()
@@ -612,8 +613,7 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
     1, {| x | inieditspr( A__MENUVERT, mm_output, x ) }, ;
     'Вывод отчета', , ;
     } )
-
-  Delete File ( tmp_file )
+  Delete File ( tmp_file + sdbf() )
   init_base( tmp_file, , mm_tmp, 0 )
   //
   r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'PERSO' )
