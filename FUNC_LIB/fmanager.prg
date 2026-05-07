@@ -38,10 +38,11 @@ Function manager( r1, c1, r2, name_disk, yes_floppy, file_or_dir, is_space, ;
   Static ini_file := '_manager', ini_group := 'Read_Write'
   Local name_file := '', buf := savescreen()
   Local b, cVal, s_msg, up_dir, fl_esc := .f.
-  Local nCursor, lScore, _aDir
+  Local _aDir
   Local nKey, column, c2, tmp_drv, tmp_dir
   Local nSubscript, nLen, i, d, k, first_file := '', fl := .f.
   Local lReconfigure, tmp_color := SETCOLOR('BG+/B')
+  Local cWork, blk_color
 
   smaska := maska
   fl_space := .f.
@@ -247,12 +248,13 @@ Function manager( r1, c1, r2, name_disk, yes_floppy, file_or_dir, is_space, ;
   if type( 'p_var_manager' ) == 'C' .and. !empty( name_file )
     SetIniVar( ini_file, { { ini_group, p_var_manager, name_file } } )
   endif
+
   return name_file
 
 // Pads array elements
 Static Function PadIt( aArray, nArrlen )
-  Local nPos, i, nALen, nNewALen
-  Local cTemp
+
+  Local i
   
   // Transverse array and its subarrays
   i := 1
@@ -288,6 +290,7 @@ Static Function PadIt( aArray, nArrlen )
     i++
   enddo
   nArrLen := len( aArray )
+
   return ( NIL )
 
 // Loads array with directory information and sorts it putting
@@ -316,6 +319,7 @@ Static Function MyDirec( nLen, maska )
   asort( _aDir, , , { | x, y | f_sort_file( x, y ) } )
   // Pad some subarray elements
   PadIt( _aDir, @nLen )
+
   return ( _aDir )  // возврат массива с информацией о каталогах (файлах)
 
 // сортировка файлов (и подкаталогов) в массиве
@@ -344,30 +348,31 @@ Static Function f_sort_file( x, y )
   endif
   return ret
 
-//
+// 07.05.26
 Static Function man_put_dir( nTop, nLeft, nBottom, nRight )
-  Local s, cur_drv := DISKNAME(), cur_dir, k := nRight - nLeft - 1, k1 := 0
 
-  //cur_dir := hb_AnsiToOem(DIRNAME(cur_drv))
-  cur_dir := DIRNAME( cur_drv )
+  Local s, k := nRight - nLeft - 1, k1 := 0, bottom
+  Local current_directory, current_drive := DISKNAME()
+
+  bottom := nBottom
+  current_directory := DIRNAME( current_drive )
   if !empty( smaska )
     k1 := 3 + len( smaska )
   endif
-  if len( cur_dir ) + 2 > k - k1
-    cur_dir := '..' + right( cur_dir, k - k1 - 4 )
+  if len( current_directory ) + 2 > k - k1
+    current_directory := '..' + right( current_directory, k - k1 - 4 )
   endif
-  s := cur_drv + ':' + cur_dir
+  s := current_drive + ':' + current_directory
   if !empty( smaska )
     s += ' [' + smaska + ']'
   endif
   @ nTop,nLeft + 1 say padc( s, k, '═' )
+
   return ( NIL )
 
 // Screen (section not handled by TBrowse)
 Static Function PaintScr( nTop, nLeft, nBottom, nRight )
   
-  Local nMaxRow
-
   DISPBEGIN()
   box_shadow( nTop, nLeft, nBottom, nRight )
   @ nTop + 1   ,nLeft + sh1 / 2 - 1 SAY 'Имя'    COLOR 'GR+/B'
@@ -385,6 +390,7 @@ Static Function PaintScr( nTop, nLeft, nBottom, nRight )
   @ nTop + 1   ,nLeft + sh1 + 21 SAY 'Время'  COLOR 'GR+/B'
   man_put_dir( nTop, nLeft, nBottom, nRight )
   DISPEND()
+  
   return ( NIL )
 
 // Cursor Movement Methods for TBrowse Objects
@@ -406,12 +412,14 @@ Function TBMoveCursor( nKey, oObj )
       K_CTRL_RIGHT, { |b| b:panRight() } , ;
       K_CTRL_HOME , { |b| b:panHome() }  , ;
       K_CTRL_END  , { |b| b:panEnd() }    }
+
   // Search into array
   nFound := ascan( aKeys, nKey )
   if ( nFound != 0 )
     eval( aKeys[ ++nFound ], oObj )
   endif
-  return ( nFound != 0 )     // .T. or .F.
+
+  return ( nFound != 0 )
 
 //
 Static Function put_file_dir( arr )
@@ -423,4 +431,5 @@ Static Function put_file_dir( arr )
     k := len( s1 )
     s := left( s, sh1 - k - 1 ) + '~' + s1
   endif
+  
   return padr( s, sh1 )
