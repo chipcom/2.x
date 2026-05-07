@@ -590,6 +590,9 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
       human_->PRVS      := m1prvs
       human_->OPLATA    := 0 // уберём '2', если отредактировали запись из реестра СП и ТК
       human_->ST_VERIFY := 0 // снова ещё не проверен
+      
+      human_->VIDPOM    := define_vidpom( human->OTD, human->kod, human->K_DATA, human_->USL_OK ) 
+
       human_->ID_PAC    := mo_guid( 1, human_->( RecNo() ) )
       human_->ID_C      := mo_guid( 2, human_->( RecNo() ) )
       human_->SUMP      := 0
