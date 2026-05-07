@@ -768,7 +768,7 @@ Static Function f11_mnog_poisk_dvn1( date_otbor_old )
 
   Return fl_f11
 
-// 22.12.14 Многовариантный запрос по диспансеризации/профилактике взрослого населения
+// 07.05.26 Многовариантный запрос по диспансеризации/профилактике взрослого населения
 Function mnog_poisk_dvn2()
 
   Static mm_perevyst := { ;
@@ -798,8 +798,8 @@ Function mnog_poisk_dvn2()
   Local buf := SaveScreen(), tmp_color := SetColor( cDataCGet ), ;
     tmp_help := help_code, name_file := cur_dir() + 'mn_z2dvn.txt', ;
     sh := 80, HH := 77, i, a_diagnoz[ 10 ], lvid_doc := 0, ;
-    tmp_file := 'tmp_mn_p' + sdbf(), ;
-    tt_diagnoz[ 10 ], tt_usl[ 10 ]
+    tt_diagnoz[ 10 ], tt_usl[ 10 ], ;
+    tmp_file := 'tmp_mn_p'    // + sdbf(), ;
   Private ssumma := 0, suet := 0, mm_company := {}, ;
     is_kategor2 := .f., is_talon := ret_is_talon()
 
@@ -977,7 +977,7 @@ Function mnog_poisk_dvn2()
     {| x| menu_reader( x, mm_da_net, A__MENUVERT ) }, ;
     1, {|| Space( 10 ) }, ;
     'Создавать DBF-файл (параллельно с текстовым)?' } )
-  Delete File ( tmp_file )
+  Delete File ( tmp_file + sdbf() )
   init_base( tmp_file,, mm_tmp, 0 )
   //
   r_use( dir_server() + 'mo_pers', dir_server() + 'mo_pers', 'PERSO' )

@@ -2112,7 +2112,7 @@ Function f2_inf_n_xmlfile( Loc_kod, kod_kartotek, lvozrast )
 
   Return Nil
 
-// 17.11.25 Запрос несовершеннолетних, подлежащих медосмотрам, методом многовариантного поиска
+// 07.06.26 Запрос несовершеннолетних, подлежащих медосмотрам, методом многовариантного поиска
 Function mnog_poisk_dnl()
 
   Local mm_tmp := {}, mm_sort
@@ -2131,8 +2131,8 @@ Function mnog_poisk_dnl()
       { 'прикреплён к нашей МО', 1 }, ;
       { 'прикреплён к другим МО', 2 }, ;
       { 'прикрепление неизвестно', 3 } }, ;
-    tmp_file := cur_dir() + 'tmp_mn_p' + sdbf(), ;
-    k_fio, k_adr, tt_fio[ 10 ], tt_adr[ 10 ], fl_exit := .f.
+    k_fio, k_adr, tt_fio[ 10 ], tt_adr[ 10 ], fl_exit := .f., ;
+    tmp_file := cur_dir() + 'tmp_mn_p'  // + sdbf()
   Local adbf := { ;
     { 'UCHAST',   'N',  2, 0 }, ; // номер участка
     { 'KOD_VU',   'N',  6, 0 }, ; // код в участке
@@ -2266,7 +2266,7 @@ Function mnog_poisk_dnl()
     {| x| menu_reader( x, mm_sort, A__MENUVERT ) }, ;
     1, {| x| inieditspr( A__MENUVERT, mm_sort, x ) }, ;
     'Сортировка выходного документа' } )
-  Delete File ( tmp_file )
+  Delete File ( tmp_file + sdbf() )
   init_base( tmp_file,, mm_tmp, 0 )
   //
   k := f_edit_spr( A__APPEND, mm_tmp, 'множественному запросу', ;
