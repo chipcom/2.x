@@ -30,7 +30,7 @@ function menu_X_common()
     'nastr_rab_mesto()', ;
     'ust_printer(T_ROW)', ;
     'index_work_dir(dir_exe(), cur_dir(), .t.)', ;
-    'net_monitor(T_ROW, T_COL - 7, (currentuser():IsAdmin()))', ;
+    'net_monitor(T_ROW, (currentuser():IsAdmin()))', ;
     'view_errors()' } )
 // добавим переиндексирование некоторых файлов внутри задачи
   If eq_any( glob_task, X_PPOKOJ, X_OMS, X_PLATN, X_ORTO, X_KASSA, X_263 )

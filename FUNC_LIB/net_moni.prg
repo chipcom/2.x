@@ -10,7 +10,7 @@ Static tmp1monitor := 'tmp_mon1.dbf'
 Static tmp2monitor := 'tmp_mon2.dbf'
 
 // программа управления сетевым монитором
-Function net_monitor( r, c, yes_admin )
+Function net_monitor( r, yes_admin )
 
   Local lCont := .t., nKey := 256, buf := SaveScreen(), ;
     t_color := SetColor( 'N/BG, W+/N' ), i, j, nsec := Seconds(), ;

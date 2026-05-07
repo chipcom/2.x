@@ -28,7 +28,7 @@ Function f_stom_39_terap()
 
   Return Nil
 
-// 17.11.25 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
+// 07.05.26 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
 Function mnog_poisk_dvn1()
 
   Local mm_tmp := {}, mm_sort, t_arr[ 2 ]
@@ -44,8 +44,8 @@ Function mnog_poisk_dvn1()
     { 'прикреплён к нашей МО', 1 }, ;
     { 'прикреплён к другим МО', 2 }, ;
     { 'прикрепление неизвестно', 3 } }, ;
-    tmp_file := cur_dir() + 'tmp_mn_p' + sdbf(), ;
-    k_fio, k_adr, tt_fio[ 10 ], tt_adr[ 10 ], fl_exit := .f.
+    k_fio, k_adr, tt_fio[ 10 ], tt_adr[ 10 ], fl_exit := .f., ;
+    tmp_file := cur_dir() + 'tmp_mn_p'  //   + sdbf()
   Local adbf := { ;
     { 'BUKVA',   'C',  1, 0 }, ; // буква в участке
     { 'UCHAST',   'N',  2, 0 }, ; // номер участка
@@ -208,7 +208,7 @@ Function mnog_poisk_dvn1()
     {| x| menu_reader( x, mm_sort, A__MENUVERT ) }, ;
     1, {| x| inieditspr( A__MENUVERT, mm_sort, x ) }, ;
     'Сортировка выходного документа' } )
-  Delete File ( tmp_file )
+  Delete File ( tmp_file + sdbf() )
   init_base( tmp_file,, mm_tmp, 0 )
   //
   k := f_edit_spr( A__APPEND, mm_tmp, 'множественному запросу', ;

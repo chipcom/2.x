@@ -315,6 +315,8 @@ mo_version.prg
 .\FUNC_LIB\net_moni.prg
 .\FUNC_LIB\v_text.prg
 .\FUNC_LIB\reconstr.prg
+.\FUNC_LIB\print1.prg
+.\FUNC_LIB\print2.prg
 
 .\exchange\create_reestr_main.prg
 .\exchange\rak_XML.prg
