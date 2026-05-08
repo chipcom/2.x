@@ -129,12 +129,13 @@ Function inf_dnl_karta()
 
   Return Nil
 
-// 11.03.19
+// 08.05.26
 Function f0_inf_dnl( arr_m, is_schet, is_reg, arr_ishod, is_snils )
 
   Local fl := .t.
 
   Default is_schet To .t., is_reg To .f., is_snils To .f., arr_ishod TO { 301, 302 } // профилактика 1 и 2 этап
+
   If !del_dbf_file( cur_dir() + 'tmp' + sdbf() )
     Return .f.
   Endif
@@ -149,38 +150,38 @@ Function f0_inf_dnl( arr_m, is_schet, is_reg, arr_ishod, is_snils )
   r_use( dir_server() + 'human_',, 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To FIELD->kod_k into KART
-  dbSeek( DToS( arr_m[ 5 ] ), .t. )
+  
+  human->( dbSeek( DToS( arr_m[ 5 ] ), .t. ) )
   Index On FIELD->kod to ( cur_dir() + 'tmp_h' ) ;
     For AScan( arr_ishod, FIELD->ishod ) > 0 .and. iif( is_schet, FIELD->schet > 0, .t. ) ;
-    While human->k_data <= arr_m[ 6 ] ;
-    PROGRESS
-  Go Top
-  Do While !Eof()
+    While human->k_data <= arr_m[ 6 ] PROGRESS
+  human->( dbGoTop() )      //  Go Top
+  Do While !human->( Eof() )
     fl := .t.
     If is_reg
       fl := .f.
       Select SCHET_
-      Goto ( human->schet )
+      schet_->( dbGoto( human->schet ) )      //  Goto ( human->schet )
       If !schet_->( Eof() ) .and. schet_->NREGISTR == 0 // только зарегистрированные
         fl := .t.
       Endif
     Endif
     If fl .and. ret_koef_from_rak( human->kod ) > 0
       Select TMP
-      Append Blank
+      tmp->( dbAppend() )     //  Append Blank
       tmp->kod := human->kod
       tmp->kod_k := human->kod_k
       tmp->ishod := human->ishod
       tmp->is := iif( is_snils .and. Empty( kart->snils ), 0, 1 )
     Endif
     Select HUMAN
-    Skip
+    human->( dbSkip() )       //Skip
   Enddo
   fl := .t.
   If tmp->( LastRec() ) == 0
     fl := func_error( 4, 'Не найдено л/у по медосмотрам несовершеннолетних ' + arr_m[ 4 ] )
   Endif
-  Close databases
+  dbCloseAll()
 
   Return fl
 
@@ -368,12 +369,28 @@ Function f5_inf_dnl_karta( i )
 
   Return k
 
-// 09.06.20 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
+// 08.05.26
+function add_inf_dbf_dnl( cAlias, num, stroke )
+
+  ( cAlias )->( dbAppend() )
+  ( cAlias )->mm := num
+  ( cAlias )->stroke := stroke
+
+  return Nil
+
+// 08.05.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
 Function f21_inf_dnl( par )
 
-  Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, adbf, as, i, j, k, sh, HH := 40, n, n_file := cur_dir() + 'svod_dnl.txt'
+  Local arr_title
+  Local arr_m, buf := save_maxrow(), s, adbf, i, sh, HH := 40, n_file := cur_dir() + 'svod_dnl.txt'
+  Local name_file := 'Профосмотры дети'
+  Local name_file_full := name_file + '.xlsx'
 
   If ( arr_m := year_month(,,, 5 ) ) != NIL
+//
+//    writexlsx_inf_pn( hb_OEMToANSI( name_file_full ) )  //  , dCreate ) 
+//    saveto( cur_dir() + name_file_full )
+
     If arr_m[ 1 ] < 2020
       Return func_error( 4, 'Данная форма утверждена с 2020 года' )
     Endif
@@ -431,18 +448,33 @@ Function f21_inf_dnl( par )
       dbCreate( cur_dir() + 'tmp1', adbf )
       Use ( cur_dir() + 'tmp1' ) new
       Index On Str( FIELD->mm, 2 ) to ( cur_dir() + 'tmp1' )
-      Append Blank
-      tmp1->mm := 0 ; tmp1->stroke := 'Всего'
-      Append Blank
-      tmp1->mm := 1 ; tmp1->stroke := '0-14 лет'
-      Append Blank
-      tmp1->mm := 2 ; tmp1->stroke := 'до 1 г.'
-      Append Blank
-      tmp1->mm := 3 ; tmp1->stroke := '15-17 л.'
-      Append Blank
-      tmp1->mm := 4 ; tmp1->stroke := '15-17 юн'
-      Append Blank
-      tmp1->mm := 5 ; tmp1->stroke := 'школьники'
+/*
+      tmp1->( dbAppend() )  //  Append Blank
+      tmp1->mm := 0
+      tmp1->stroke := 'Всего'
+      tmp1->( dbAppend() )  //  Append Blank
+      tmp1->mm := 1
+      tmp1->stroke := '0-14 лет'
+      tmp1->( dbAppend() )  //  Append Blank
+      tmp1->mm := 2
+      tmp1->stroke := 'до 1 г.'
+      tmp1->( dbAppend() )  //  Append Blank
+      tmp1->mm := 3
+      tmp1->stroke := '15-17 л.'
+      tmp1->( dbAppend() )  //  Append Blank
+      tmp1->mm := 4
+      tmp1->stroke := '15-17 юн'
+      tmp1->( dbAppend() )  //  Append Blank
+      tmp1->mm := 5
+      tmp1->stroke := 'школьники'
+*/
+      add_inf_dbf_dnl( 'tmp1', 0, 'Всего' )
+      add_inf_dbf_dnl( 'tmp1', 1, '0-14 лет' )
+      add_inf_dbf_dnl( 'tmp1', 2, 'до 1 г.' )
+      add_inf_dbf_dnl( 'tmp1', 3, '15-17 л.' )
+      add_inf_dbf_dnl( 'tmp1', 4, '15-17 юн' )
+      add_inf_dbf_dnl( 'tmp1', 5, 'школьники' )
+
       adbf := { ;
         { 'ti', 'N', 1, 0 }, ;
         { 'g1', 'N', 6, 0 }, ;
@@ -481,14 +513,15 @@ Function f21_inf_dnl( par )
       Set Relation To RecNo() into HUMAN_, To FIELD->kod_k into KART_
       Use ( cur_dir() + 'tmp' ) new
       Set Relation To FIELD->kod into HUMAN
-      Go Top
-      Do While !Eof()
+
+      tmp->( dbGoTop() )    //  Go Top
+      Do While !tmp->( Eof() )
         @ MaxRow(), 0 Say Str( RecNo() / LastRec() * 100, 6, 2 ) + '%' Color cColorWait
         f1_f21_inf_dnl( tmp->kod, tmp->kod_k )
         Select TMP
-        Skip
+        tmp->( dbSkip() )     //  Skip
       Enddo
-      Close databases
+      dbCloseAll()
       arr_title := { ;
         '────────┬─────────────────┬─────────────────────────────────────────┬───────────────────────┬───────────┬─────┬─────', ;
         'катего- │Число детей Iэтап│распределение по группам здоровья I этап │распр-ие по мед.группам│Случаев Iэт│напр.│завер', ;
@@ -498,7 +531,9 @@ Function f21_inf_dnl( par )
         '        │  5  │ 5.1 │  6  │  7  │  8  │  9  │  10 │ 10.1│  11 │ 11.1│  12 │  13 │  14 │  15 │  16 │  17 │  18 │  19 ', ;
         '────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────' }
       sh := Len( arr_title[ 1 ] )
-      fp := FCreate( n_file ) ; n_list := 1 ; tek_stroke := 0
+      fp := FCreate( n_file )
+      n_list := 1
+      tek_stroke := 0
       add_string( glob_mo()[ _MO_SHORT_NAME ] )
       add_string( PadL( 'Приложение к письму ГБУЗ "ВОМИАЦ"', sh ) )
       add_string( PadL( '№1025 от 08.07.2019г.', sh ) )
@@ -510,8 +545,8 @@ Function f21_inf_dnl( par )
       add_string( Center( 'Сведения о профилактических осмотрах несовершеннолетних', sh ) )
       add_string( '' )
       AEval( arr_title, {| x| add_string( x ) } )
-      Go Top
-      Do While !Eof()
+      tmp1->( dbGoTop() )     //  Go Top
+      Do While !tmp1->( Eof() )
         s := tmp1->stroke + put_val( tmp1->vsego, 6 ) + ;
           put_val( tmp1->vsego1, 6 ) + ;
           put_val( tmp1->vsegoM, 6 ) + ;
@@ -537,7 +572,7 @@ Function f21_inf_dnl( par )
         Endif
         add_string( s )
         add_string( Replicate( '─', sh ) )
-        Skip
+        tmp1->( dbSkip() )      //  Skip
       Enddo
       //
       verify_ff( HH -12, .t., sh )
@@ -566,7 +601,8 @@ Function f21_inf_dnl( par )
       add_string( '' )
       add_string( 'Несовершеннолетние в возрасте 15-17 лет' )
       AEval( arr_title, {| x| add_string( x ) } )
-      Go Top
+
+      tmp1->( dbGoTop() )     //  Go Top
       s :=   put_val( tmp1->m15, 5 ) + ;
         put_val( tmp1->m15s, 6 ) + ;
         put_val( tmp1->m15pos, 6 ) + ;
@@ -614,8 +650,8 @@ Function f21_inf_dnl( par )
       add_string( 'В рамках национального проекта "Здравоохранение"' )
       AEval( arr_title, {| x| add_string( x ) } )
       Use ( cur_dir() + 'tmp2' ) index ( cur_dir() + 'tmp2' ) new
-      Go Top
-      Do While !Eof()
+      tmp2->( dbGoTop() )     //  Go Top
+      Do While ! tmp2->( Eof() )
         s := PadR( { '0-14 лет', '15-17 лет', 'Всего' }[ tmp2->ti ], 9 ) + ;
           put_val( tmp2->g1, 6 ) + ;
           put_val( tmp2->g2, 6 ) + ;
@@ -643,16 +679,16 @@ Function f21_inf_dnl( par )
         Endif
         add_string( s )
         add_string( Replicate( '─', sh ) )
-        Skip
+        tmp2->( dbSkip() )      //  Skip
       Enddo
       //
       FClose( fp )
-      Close databases
+      dbCloseAll()
       Private yes_albom := .t.
       viewtext( n_file,,,, ( .t. ),,, 3 )
     Endif
   Endif
-  Close databases
+  dbCloseAll()
   rest_box( buf )
 
   Return Nil

@@ -246,6 +246,7 @@ mo_version.prg
 .\DISPANSER\PN\oms_PN_array.prg
 .\DISPANSER\PN\information_PN.prg
 .\DISPANSER\PN\oms_PN_DDS_func.prg
+.\DISPANSER\PN\writexlsx_inf_pn.prg
 #
 .\DISPANSER\oms_naprav_zno.prg
 .\DISPANSER\oms_dispans_diagnoze.prg
