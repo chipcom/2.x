@@ -4570,7 +4570,7 @@ function mm_oms_pole()
     'профиль МЗ РФ' ;     // 9
   }
 
-// 29.01.26 настройка рабочего места
+// 11.05.26 настройка рабочего места
 Function nastr_rab_mesto()
 
   Static group_ini := 'RAB_MESTO'
@@ -4656,7 +4656,11 @@ Function nastr_rab_mesto()
     Space( 11 ), {| x| ret_okato_ulica( '', x ) }, ;
     '└> ОКАТО по умолчанию',, ;
     {|| m1wokato == 1 } } )
-  If is_obmen_sds()
+  AAdd( mm_tmp, { 'RAK_MIN', 'N', 1, 0, NIL, ;
+    {| x| menu_reader( x, mm_danet, A__MENUVERT ) }, ;
+    1, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+    'При редактировании РАК отображать пациентов только со снятиями' } )
+  If .F. //is_obmen_sds()
     AAdd( mm_tmp, { 'e_2', 'C', 1, 0, NIL,, '',, ;
       'Каталоги для обмена информацией с программой Smart Delta Systems:',, ;
       {|| .f. } } )
@@ -4683,7 +4687,8 @@ Function nastr_rab_mesto()
   tmp->oms_pole := Int( Val( a2default( ar, 'oms_pole', '0' ) ) )
   tmp->_okato := a2default( ar, 'okato_umolch', '' )
   tmp->wokato := iif( Empty( tmp->_okato ), 0, 1 )
-  If is_obmen_sds()
+  tmp->rak_min := Int( Val( a2default( ar, 'rak_min', '0' ) ) )
+  If .F. //is_obmen_sds()
     tmp->path1_sds := a2default( ar, 'path1_sds', '' )
     tmp->path2_sds := a2default( ar, 'path2_sds', '' )
   Endif
@@ -4697,9 +4702,10 @@ Function nastr_rab_mesto()
       { group_ini, 'kart_polis',  tmp->kart_polis }, ;
       { group_ini, 'oms_pole',    tmp->oms_pole }, ;
       { group_ini, 'okato_umolch', tmp->_okato }, ;
-      { group_ini, 'open_Excel', tmp->open_Excel } ;
+      { group_ini, 'open_Excel', tmp->open_Excel }, ;
+      { group_ini, 'rak_min',  tmp->rak_min } ;
     }
-    If is_obmen_sds()
+    If .F. //is_obmen_sds()
       AAdd( mm_tmp, { group_ini, 'path1_sds', AllTrim( tmp->path1_sds ) } )
       AAdd( mm_tmp, { group_ini, 'path2_sds', AllTrim( tmp->path2_sds ) } )
     Endif

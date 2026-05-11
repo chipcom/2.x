@@ -1721,7 +1721,7 @@ Function pripisnoe_naselenie_create_sverka()
   Return Nil
 
 
- // 03.05.26 создать файл(ы) сверки
+ // 11.05.26 создать файл(ы) сверки
 Function pripisnoe_naselenie_create_sverka_NEW_QA2()
 
   Local ii := 0, s, buf := SaveScreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport, flag_povtor 
@@ -1737,6 +1737,7 @@ Function pripisnoe_naselenie_create_sverka_NEW_QA2()
   hGauge := gaugenew(,,, 'Составление списка для включения в файл запроса прик-я', .t. )
   gaugedisplay( hGauge )
   curr := 0
+  r_use( dir_server() + 'human_', , 'HUMAN_' )
   r_use( dir_server() + 'human',dir_server() + 'humankk', 'HUMAN' )
   r_use( dir_server() + 'mo_kfio',, 'KFIO' )
   Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_kfio' )
@@ -1773,25 +1774,30 @@ Function pripisnoe_naselenie_create_sverka_NEW_QA2()
      flag_povtor := .F.
      select HUMAN 
      find ( str(kart->kod,7))
+     select human_
+     goto (human->kod)
+     select HUMAN 
      do while kart->kod == human->kod_k .and. !eof()
-       if year(human->k_data) > 2025 .and. human->tip_h < 4 // пока только данный контроль
-         if human->komu == 0 // только ОМС 
-           flag_povtor := .T.
-           Select TMP
-           Append Blank
-           tmp->kod     := kart->kod
-           tmp->k_data  := human->k_data
-           tmp->kod_hum := human->kod
-           If tmp->( RecNo() ) % 100 == 0
-            @ MaxRow(), 1 Say lstr( tmp->( RecNo() ) ) Color color0
-            If tmp->( RecNo() ) % 2000 == 0
-              Commit
-            Endif
-           Endif 
-         endif 
-       endif  
-       select HUMAN
-       skip 
+      if year(human->k_data) > 2025 .and. human->tip_h < 4 // пока только данный контроль
+        if human_->reestr < 1 // не в реестрах
+          if human->komu == 0 // только ОМС 
+            flag_povtor := .T.
+            Select TMP
+            Append Blank
+            tmp->kod     := kart->kod
+            tmp->k_data  := human->k_data
+            tmp->kod_hum := human->kod
+            If tmp->( RecNo() ) % 100 == 0
+              @ MaxRow(), 1 Say lstr( tmp->( RecNo() ) ) Color color0
+              If tmp->( RecNo() ) % 2000 == 0
+                Commit
+              Endif
+            Endif 
+          endif 
+        endif  
+      endif  
+      select HUMAN
+      skip 
      enddo 
      if flag_povtor .and. glob_mo[ _MO_KOD_TFOMS ] != '805965' // добавка запроса на текущее число и не РДЛ
        Select TMP

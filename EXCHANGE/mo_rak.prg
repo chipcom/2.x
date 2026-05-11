@@ -986,10 +986,12 @@ Function f1_view_rak_akt_schet( nk, ob, regim )
 
   Return ret
 
-// 14.05.20
+// 11.05.26
 Function view_rak_akt_schet_human( lkod_raks )
 
   Local blk, t_arr[ BR_LEN ], buf := SaveScreen()
+  Local ar := getinivar( tmp_ini(), { { 'RAB_MESTO', 'rak_min', '1' } } )
+  Private p_rak_min := Int( Val( ar[ 1 ] ) )
 
   r_use( dir_server() + 'schet', , 'SCHET' )
   Goto ( raks->schet )
@@ -999,7 +1001,11 @@ Function view_rak_akt_schet_human( lkod_raks )
   Set Relation To RecNo() into HUMAN_
   g_use( dir_server() + 'mo_raksh', , 'RAKSH' )
   Set Relation To FIELD->KOD_H into HUMAN
-  Index On Str( human_->SCHET_ZAP, 6 ) to ( cur_dir() + 'tmp_raksh' ) For FIELD->KOD_RAKS == lkod_raks
+  if p_rak_min == 1
+    Index On Str( human_->SCHET_ZAP, 6 ) to ( cur_dir() + 'tmp_raksh' ) For FIELD->KOD_RAKS == lkod_raks .and. FIELD->REFREASON > 0
+  else  
+    Index On Str( human_->SCHET_ZAP, 6 ) to ( cur_dir() + 'tmp_raksh' ) For FIELD->KOD_RAKS == lkod_raks
+  endif  
   Go Top
   If Eof()
     Return func_error( 4, 'Не обнаружено пациентов в данном счете' )
@@ -1047,7 +1053,7 @@ Function f_view_rak_akt_schet_human( k )
 
   Return iif( k == 1, s, v )
 
-// 04.05.26
+// 11.05.26
 Function f1_view_rak_akt_schet_human( nk, ob, regim )
 
   Local ret := -1, rec, s, s1
@@ -1057,7 +1063,7 @@ Function f1_view_rak_akt_schet_human( nk, ob, regim )
     Return ret
   Elseif nk == K_F2
     If ( s := input_value( 18, 10, 20, 69, color1, ;
-        Space( 5 ) + 'Введите номер случая в счёте (для поиска)', 0, '9999' ) ) != NIL ;
+        Space( 5 ) + 'Введите номер случая в счёте (для поиска)', 0, '99999' ) ) != NIL ;
         .and. s > 0
       rec := raksh->( RecNo() )
       ob:gotop()
@@ -1236,10 +1242,13 @@ Function rak_akt_schet_human_add_next( s, s1, lrec, tREFREASON  )
       ahuman_2 := get_field()
       If ( fl_iname := ( human_->smo == '34   ' ) )
         g_use( dir_server() + 'mo_hismo', , 'SN' )
-        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
+        Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' ) 
         find ( Str( glob_perso, 7 ) )
         mnameismo := sn->smo_name
       Endif
+      mNAPR_NUM   := get_NAPR_MO( human->kod, _NPR_LECH ) // получить номер направления на лечение, если есть
+
+        del_NAPR_MO( human->kod, _NPR_LECH )
       arr_hu := {}
       use_base( 'human_u' )
       Set Relation To // 'отвязываем'
@@ -1474,6 +1483,9 @@ Function rak_akt_schet_human_add_next( s, s1, lrec, tREFREASON  )
           Endif
         Endif
       Endif
+      //
+      set_NAPR_MO( mkod, _NPR_LECH, mNAPR_NUM )
+      //
       For i := 1 To Len( arr_hu )
         Select HU
         add1rec( 7 )
@@ -1750,6 +1762,9 @@ Function rak_akt_schet_human_del_next( s, s1, lrec )
           rech3 := RecNo()
         Endif
       Endif
+      //
+      del_NAPR_MO( mkod, _NPR_LECH )
+      //
       g_use( dir_server() + 'mo_raksh', , 'RAKSH' )
       g_use( dir_server() + 'mo_os', , 'MO_OS' )
       Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_moos' ) For FIELD->NEXT_KOD > 0
