@@ -383,13 +383,8 @@ Function f21_inf_dnl( par )
 
   Local arr_title
   Local arr_m, buf := save_maxrow(), s, adbf, i, sh, HH := 40, n_file := cur_dir() + 'svod_dnl.txt'
-  Local name_file := 'Профосмотры дети'
-  Local name_file_full := name_file + '.xlsx'
 
   If ( arr_m := year_month(,,, 5 ) ) != NIL
-//
-//    writexlsx_inf_pn( hb_OEMToANSI( name_file_full ) )  //  , dCreate ) 
-//    saveto( cur_dir() + name_file_full )
 
     If arr_m[ 1 ] < 2020
       Return func_error( 4, 'Данная форма утверждена с 2020 года' )
