@@ -32,7 +32,7 @@ Function string_output( sText, lExcel, ws, row, column, fmt )
 
   Return Nil
 
-// 06.05.26 многовариантный поиск
+// 11.05.26 многовариантный поиск
 Function s_mnog_poisk()
 
   Static lcount_uch  := 1
@@ -320,6 +320,10 @@ Function s_mnog_poisk()
     {| x| menu_reader( x, mm_da_net, A__MENUVERT ) }, ;
     0, {|| Space( 10 ) }, ;
     'Документы иностранных граждан:' } )
+  AAdd( mm_tmp, { 'gr_rf', 'N', 1, 0, NIL, ;
+    {| x| menu_reader( x, mm_da_net, A__MENUVERT ) }, ;
+    0, {| x| inieditspr( A__MENUVERT, mm_da_net, x ) }, ;
+    'Гражданин РФ' } )
   AAdd( mm_tmp, { 'gorod_selo', 'N', 2, 0, NIL, ;
     {| x| menu_reader( x, mm_g_selo, A__MENUVERT ) }, ;
     -1, {|| Space( 10 ) }, ;
@@ -1263,6 +1267,10 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
         sOutput := 'Документы иностранных граждан: ' + inieditspr( A__MENUVERT, mm_da_net, mn->inostran )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
       Endif
+      if mn->gr_rf > 0
+        sOutput := 'Гражданин РФ: ' + inieditspr( A__MENUVERT, mm_da_net, mn->gr_rf )
+        string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
+      endif 
       If mn->gorod_selo > 0
         sOutput := 'Житель: ' + inieditspr( A__MENUVERT, mm_g_selo, mn->gorod_selo )
         string_output( sOutput, lExcel, wsCommon, rowWS++, columnWS, nil )
@@ -2165,12 +2173,12 @@ AAdd( mm_tmp, { 'svo2', 'N', 2, 0, NIL, ;
 
   Return Nil
 
-// 24.12.25
+// 11.05.26
 Static Function s1_mnog_poisk( cv, cf )
 
   Static a_stom_vp := { {}, {}, {} }
   Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2, vid_vp := 1, ;
-    au := {}, au_lu := {}, au_flu := {}, msumma, mn_data, rec_1 := 0, is_2 := .f., ;
+    au := {}, au_lu := {}, au_flu := {}, msumma, mn_data, rec_1 := 0, is_2 := .f., m1gragd,  ;
     mrak_p := 0, mrak_s := 0, d, lshifr, muet := 0, god_r, arr1, adiag_talon[ 16 ]  // из статталона к диагнозам
   Private m1tip_mas
 
@@ -2391,6 +2399,18 @@ Static Function s1_mnog_poisk( cv, cf )
       fl := equalany( kart_->vid_ud, 9, 21, 22, 23, 24 )
     Endif
   Endif
+  if fl .and. mn->gr_rf > 0
+    m1gragd := iif( Empty( mSTRANA := getcountry( kart_->strana ) ), 1, 0 )
+    //kart_->strana    := iif( m1gragd == 0, m1strana, '' )
+    if mn->gr_rf == 1 //нет  
+      if m1gragd == 0
+        // нет    
+      else
+        // да 
+        fl := .F.
+      Endif
+    endif    
+  endif
   If fl .and. mn->gorod_selo > 0
     If mn->gorod_selo == 1
       fl := !f_is_selo( kart_->gorod_selo, kart_->okatog )

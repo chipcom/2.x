@@ -11224,7 +11224,7 @@ Function pl_print_akt( ret, sk, ss )
 
 //
 
-// 04.04.14
+// 11.05.26
 Function rees_new_vzaim( nd_faktura )
 
   Local buf := save_row( MaxRow() ), s, i, j, k, ss, lss, adbf, km, vrem_shifr := ""
@@ -11372,9 +11372,15 @@ Function rees_new_vzaim( nd_faktura )
           _d->vrach := ausl[ i, 7 ]
           lss += ausl[ i, 5 ]
         Endif
-        If i <= Len( adiag )
-          _d->diagnoz := adiag[ i ]
-        Endif
+        if glob_mo[ _MO_KOD_TFOMS ] == '114504'
+          If 1 <= Len( adiag )
+            _d->diagnoz := adiag[ 1 ]
+          endif
+        else  
+          If i <= Len( adiag )
+            _d->diagnoz := adiag[ i ]
+          Endif
+        endif  
         If i <= Len( agp )
           _d->GP_NOMER := AllTrim( agp[ i, 1 ] ) + hb_eol()
           _d->GP_DATE  := full_date( agp[ i, 2 ] )
