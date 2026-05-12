@@ -183,7 +183,7 @@ Function tfoms_hodatajstvo( arr_m, iRefr, par )
 
   Return Nil
 
-// 01.03.26 оформление ходатайства
+// 11.05.26 оформление ходатайства
 Function tfoms_hodatajstvo_new( )
   // Функция отрабатывает 
   // arr_m - временной массив
@@ -212,25 +212,38 @@ Function tfoms_hodatajstvo_new( )
   select HUMAN 
   dbSeek( DToS( arr_m[ 5 ] ), .t. ) // обратный порядок
   Do While human->k_data <= arr_m[6] .and. !Eof()
-    if human->komu == 0 // только ОМС
+    if human->komu == 0 .and. human->schet < 1 // только ОМС и не в счетах (перестраховка)
       select human_
       goto (human->kod)
       flag_zap := .F.
       If human_->reestr == 0 .and. human_->schet_zap == 0
        // начало контроля
        // надо добавить контроль через QA2-RA2 
-        select kart2
-        Goto ( human->kod_k )
-        if len(alltrim(kart2->pc3)) > 2 // ошибка от СВЕРКИ
-          // mydebug(,"111")
-          flag_zap := .T.
-        endif  
-        if !flag_zap .and. human_->vpolis != 3
+       if human_->smo == '00000'
+         flag_zap := .T.
+       endif 
+       if !flag_zap .and. human_->okato == '00000'
+         flag_zap := .T.
+       endif 
+       if !flag_zap 
+         select kart2
+         Goto ( human->kod_k )
+         if len(alltrim(kart2->pc3)) > 2 // ошибка от СВЕРКИ
+           // исключаем ошибку  803 - не верный СНИЛС 
+           if alltrim(kart2->pc3) == "803"
+             //
+           elseif alltrim(kart2->pc3) == "706" // Застрахованный умер 
+             //    
+           else // 709 прикрепление к МО отсутствует 708 - Не имеет текущего страхования
+             flag_zap := .T.
+           endif 
+         endif  
+       endif  
+       if !flag_zap .and. human_->vpolis != 3
           // проверяем на наличе ЕНП 
           select kart2
           Goto ( human->kod_k )
           if len(alltrim(kart2->kod_mis)) < 16 // нет верного ЕНП
-           // mydebug(,"222")
             flag_zap := .T.
           endif  
         Endif
@@ -359,7 +372,7 @@ Function f2tfoms_hodatajstvo( nKey, oBrow, regim )
 
   Return k
 
-// 01.03.26 создание файла ХОДАТАЙСТВА для отсылки в ТФОМС
+// 11.05.26 создание файла ХОДАТАЙСТВА для отсылки в ТФОМС
 Function create_file_hodatajstvo( arr_m )
 
   // arr_m - временной массив
@@ -443,7 +456,7 @@ Function create_file_hodatajstvo( arr_m )
   Delete For is == 0
   Pack
   //as := { { 0, '34001', '' }, { 0, '34002', '' }, { 0, '34006', '' }, { 0, '34007', '' }, { 0, 'прочие', '' } }
-  as := {{ 0, '34007', '' }, { 0, '34002', '' }, { 0, 'прочие', '' } }
+  as := {{ 0, '34007', '' }, { 0, '34002', '' }, { 0, '00000', '' } }
 
   r_use( dir_server() + 'human_',, 'HUMAN_' )
   Select TMP_K1
