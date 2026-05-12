@@ -456,7 +456,8 @@ Function create_file_hodatajstvo( arr_m )
   Delete For is == 0
   Pack
   //as := { { 0, '34001', '' }, { 0, '34002', '' }, { 0, '34006', '' }, { 0, '34007', '' }, { 0, 'прочие', '' } }
-  as := {{ 0, '34007', '' }, { 0, '34002', '' }, { 0, '00000', '' } }
+//  as := {{ 0, '34007', '' }, { 0, '34002', '' }, { 0, '00000', '' } }
+  as := {{ 0, '34007', '' }, { 0, '34002', '' }, { 0, 'прочие', '' } }
 
   r_use( dir_server() + 'human_',, 'HUMAN_' )
   Select TMP_K1
@@ -496,7 +497,7 @@ Function create_file_hodatajstvo( arr_m )
     For i := 1 To 3
       If as[ i, 1 ] > 0
         // as[i,3] := n_file+'_'+as[i,2]+'.xls'
-        as[ i, 3 ] := n_file + '_' + as[ i, 2 ] + '.xlsx'
+        as[ i, 3 ] := n_file + '_' + as[ i, 2 ] + '.xlsx' 
         Delete File ( as[ i, 3 ] )
         delfrfiles()
         adbf := { ;
@@ -594,7 +595,7 @@ Function create_file_hodatajstvo( arr_m )
         Enddo
         Close databases
 
-        error := hodotajstvoxls( n_file + '_' + as[ i, 2 ] )
+        error := hodotajstvoxls( n_file + '_' + hb_OEMToANSI( as[ i, 2 ] ) )
         If ! Empty( error )
           Return func_error( 4, 'Ошибка создания файла ходатайства.' )
         Endif
