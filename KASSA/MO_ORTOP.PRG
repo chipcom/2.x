@@ -130,12 +130,12 @@ Function vvod_tor_ysl()
     r_use( dir_server() + "mo_su", { dir_server() + "mo_su", ;
       dir_server() + "mo_sush" }, "USL" )
     g_use( dir_server() + "ortoped2", dir_server() + "ortoped2", "ORTO2" ) // 19.04
-    Set Relation To Str( kod_usl, 6 ) into USL
+    Set Relation To Str( FIELD->kod_usl, 6 ) into USL
   Else
     r_use( dir_server() + "uslugi", { dir_server() + "uslugi", ;
       dir_server() + "uslugish" }, "USL" )
     g_use( dir_server() + "ortoped2", dir_server() + "ortoped2", "ORTO2" ) // 19.04
-    Set Relation To Str( kod_usl, 4 ) into USL
+    Set Relation To Str( FIELD->kod_usl, 4 ) into USL
   Endif
   find ( str_find )
   If !( fl_found := Found() )
@@ -335,7 +335,7 @@ Function ort_boln( par1 )
     { "STOIM_N",    "N",     12,      2 } ;  // стоимость напыления
     } )
     Use ( cur_dir() + "tmp1" ) new
-    Index On Str( kod, 4 ) to ( cur_dir() + "tmp1" )
+    Index On Str( FIELD->kod, 4 ) to ( cur_dir() + "tmp1" )
   Endif
   musluga := AllTrim( mem_ort_na )
   If Empty( musluga ) .or. musluga == "*"
@@ -360,9 +360,9 @@ Function ort_boln( par1 )
   r_use( dir_server() + "mo_pers",, "PERSO" )
   r_use( dir_server() + "kartotek",, "KART" )
   r_use( dir_server() + "hum_oru", dir_server() + "hum_oru", "HU" )
-  Set Relation To u_kod into USL
+  Set Relation To FIELD->u_kod into USL
   r_use( dir_server() + "hum_ort", dir_server() + "hum_ortd", "HUMAN" )
-  Set Relation To kod_k into KART
+  Set Relation To FIELD->kod_k into KART
   dbSeek( DToS( begin_date ), .t. )
   Do While human->k_data <= end_date .and. !Eof()
     updatestatus()
@@ -482,12 +482,12 @@ Function ort_boln( par1 )
   AEval( arr_title, {| x| add_string( x ) } )
   r_use( dir_server() + "uslugi",, "USL" )
   r_use( dir_server() + "hum_oru", dir_server() + "hum_oru", "HU" )
-  Set Relation To u_kod into USL
+  Set Relation To FIELD->u_kod into USL
   If eq_any( par1, "vr", "tehn" )
     Use ( cur_dir() + "tmp" ) new
-    Index On Str( kod, 4 ) + Upper( fio ) to ( cur_dir() + "tmp" )
+    Index On Str( FIELD->kod, 4 ) + Upper( FIELD->fio ) to ( cur_dir() + "tmp" )
     Use ( cur_dir() + "tmp1" ) new
-    Index On Upper( fio ) to ( cur_dir() + "tmp1" )
+    Index On Upper( FIELD->fio ) to ( cur_dir() + "tmp1" )
     Go Top
     Do While !Eof()
       s := PadR( Space( 4 ) + "[" + lstr( tmp1->kod ) + "]  " + Upper( tmp1->fio ), 61 )
@@ -539,7 +539,7 @@ Function ort_boln( par1 )
   Else
     s1 := s2 := s3 := 0
     Use ( cur_dir() + "tmp" ) new
-    Index On Upper( fio ) to ( cur_dir() + "tmp" )
+    Index On Upper( FIELD->fio ) to ( cur_dir() + "tmp" )
     Go Top
     Do While !Eof()
       s := Left( tmp->fio, 30 ) + PadC( lstr( tmp->n_nar ), 7 ) + ;
@@ -652,9 +652,9 @@ Function ort_oborot()
   r_use( dir_server() + "mo_pers",, "PERSO" )
   r_use( dir_server() + "kartotek",, "KART" )
   r_use( dir_server() + "hum_oru", dir_server() + "hum_oru", "HU" )
-  Set Relation To u_kod into USL
+  Set Relation To FIELD->u_kod into USL
   r_use( dir_server() + "hum_ort",, "HUMAN" )
-  Set Relation To kod_k into KART
+  Set Relation To FIELD->kod_k into KART
   Go Top
   Do While !Eof()
     updatestatus()
@@ -777,7 +777,7 @@ Function ort_oborot()
   s11 := s21 := s31 := s41 := s51 := 0
   s6 := s7 := s8 := s9 := 0
   Use ( cur_dir() + "tmp" ) new
-  Index On n_nar to ( cur_dir() + "tmp" )
+  Index On FIELD->n_nar to ( cur_dir() + "tmp" )
   Go Top
   j := 1
   Do While !Eof()
@@ -894,7 +894,7 @@ Function ort_diagnoz()
   AAdd( adbf, { "diag999999", "N", 5, 0 } )
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) new
-  Index On Str( kod, 4 ) to ( cur_dir() + "tmp" )
+  Index On Str( FIELD->kod, 4 ) to ( cur_dir() + "tmp" )
   r_use( dir_server() + "mo_pers",, "PERSO" )
   r_use( dir_server() + "hum_ort", dir_server() + "hum_ortd", "HUMAN" )
   dbSeek( DToS( begin_date ), .t. )
@@ -1007,7 +1007,7 @@ Function ort_diagnoz()
   add_string( Center( "Статистика по диагнозам", sh ) )
   add_string( Center( arr[ 4 ], sh ) )
   Use ( cur_dir() + "tmp" ) new
-  Index On Upper( fio ) to ( cur_dir() + "tmp" )
+  Index On Upper( FIELD->fio ) to ( cur_dir() + "tmp" )
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
   Go Top
@@ -1067,8 +1067,9 @@ Function o_dms_reestr()
   { "K_DATA","D", 8, 0 }, ; // дата окончания лечения
   { "STOIM","N", 10, 2 } } ) // итоговая стоимость услуг
   Use ( cur_dir() + "tmp" ) new
-  Index On Str( tip_usl, 1 ) + Str( pr_smo, 6 ) + Str( kod_k, 7 ) to ( cur_dir() + "tmp" )
-  dbCreate( cur_dir() + "tmp2", { { "rec_tmp", "N", 6, 0 }, ;
+  Index On Str( FIELD->tip_usl, 1 ) + Str( FIELD->pr_smo, 6 ) + Str( FIELD->kod_k, 7 ) to ( cur_dir() + "tmp" )
+  dbCreate( cur_dir() + "tmp2", { ;
+    { "rec_tmp", "N", 6, 0 }, ;
     { "rec_hp","N", 7, 0 }, ;
     { "D_POLIS", "C", 25, 0 } } ) // полис
   Use ( cur_dir() + "tmp2" ) new
@@ -1136,7 +1137,7 @@ Function o_dms_reestr()
     r_use( dir_server() + "p_pr_vz",, "PRED" )
     r_use( dir_server() + "p_d_smo",, "SMO" )
     Use ( cur_dir() + "tmp1" ) new
-    Index On Str( tip_usl, 1 ) + Str( pr_smo, 6 ) to ( cur_dir() + "tmp1" )
+    Index On Str( FIELD->tip_usl, 1 ) + Str( FIELD->pr_smo, 6 ) to ( cur_dir() + "tmp1" )
     Select TMP
     Go Top
     Do While !Eof()
@@ -1171,7 +1172,7 @@ Function o_dms_reestr()
     j := tmp1->( LastRec() )
     mywait()
     Select TMP2
-    Index On Str( rec_tmp, 6 ) to ( cur_dir() + "tmp2" )
+    Index On Str( FIELD->rec_tmp, 6 ) to ( cur_dir() + "tmp2" )
   Endif
   Close databases
   rest_box( buf )
@@ -1202,7 +1203,7 @@ Function o_dms_reestr()
     t_arr[ BR_STAT_MSG ] := {|| ;
       status_key( "^<Esc>^ - выход;  ^<Enter>^ - выбор для печати" ) }
     Use ( cur_dir() + "tmp1" ) new
-    Index On Upper( name ) to ( cur_dir() + "tmp1" )
+    Index On Upper( FIELD->name ) to ( cur_dir() + "tmp1" )
     Go Top
     edit_browse( t_arr )
     Close databases
@@ -1248,7 +1249,7 @@ Function f1_ort_vzaim( nKey, oBrow, regim )
     Use ( cur_dir() + "tmp2" ) index ( cur_dir() + "tmp2" ) new
     r_use( dir_server() + "kartotek",, "KART" )
     Use ( cur_dir() + "tmp" ) New Alias TMP
-    Set Relation To kod_k into KART
+    Set Relation To FIELD->kod_k into KART
     Index On Upper( kart->fio ) to ( cur_dir() + "tmp" ) ;
       For tmp1->tip_usl == tmp->tip_usl .and. tmp1->pr_smo == tmp->pr_smo
     edit_browse( t_arr )
@@ -1502,7 +1503,7 @@ Function oo_1_proverka()
   r_use( dir_server() + "hum_oro", dir_server() + "hum_oro", "HO" )
   r_use( dir_server() + "hum_oru", dir_server() + "hum_oru", "HU" )
   r_use( dir_server() + "hum_ort", dir_server() + "hum_ortd", "HUMAN" )
-  Set Relation To kod_k into KART
+  Set Relation To FIELD->kod_k into KART
   dbSeek( DToS( begin_date ), .t. )
   Do While human->k_data <= end_date .and. !Eof()
     updatestatus()
@@ -1613,7 +1614,7 @@ Function oo_2_proverka()
   r_use( dir_server() + "hum_oro", dir_server() + "hum_oro", "HO" )
   r_use( dir_server() + "hum_oru", dir_server() + "hum_oru", "HU" )
   r_use( dir_server() + "hum_ort", dir_server() + "hum_ortd", "HUMAN" )
-  Set Relation To kod_k into KART
+  Set Relation To FIELD->kod_k into KART
   dbSeek( DToS( begin_date ), .t. )
   Do While human->k_data <= end_date .and. !Eof()
     flag_vr := .f.
@@ -1853,10 +1854,10 @@ Function ort_den_sr( par )
     Enddo
   Case par == 3
     Select TMP
-    Index On Str( kod_h, 7 ) to ( cur_dir() + "tmp" )
+    Index On Str( FIELD->kod_h, 7 ) to ( cur_dir() + "tmp" )
     r_use( dir_server() + "hum_ort",, "HUMAN" )
     r_use( dir_server() + "hum_oro", dir_server() + "hum_orod", "HO" )
-    Set Relation To kod into HUMAN
+    Set Relation To FIELD->kod into HUMAN
     dbSeek( arr[ 7 ], .t. )
     Do While ho->pdate <= arr[ 8 ] .and. !Eof()
       updatestatus()
@@ -1972,14 +1973,14 @@ Function ort_den_sr( par )
   r_use( dir_server() + "kartotek",, "KART" )
   r_use( dir_server() + "hum_oro", dir_server() + "hum_oro", "HO" )
   r_use( dir_server() + "hum_ort",, "HUMAN" )
-  Set Relation To kod_k into KART, To kod_vr into PERSO
+  Set Relation To FIELD->kod_k into KART, To FIELD->kod_vr into PERSO
   Use ( cur_dir() + "tmp" ) new
   If par == 2
-    Index On DToS( data ) + Str( n_nar, 5 ) to ( cur_dir() + "tmp" )
+    Index On DToS( FIELD->data ) + Str( FIELD->n_nar, 5 ) to ( cur_dir() + "tmp" )
   Else
-    Index On Str( n_nar, 5 ) to ( cur_dir() + "tmp" )
+    Index On Str( FIELD->n_nar, 5 ) to ( cur_dir() + "tmp" )
   Endif
-  Set Relation To kod_h into HUMAN
+  Set Relation To FIELD->kod_h into HUMAN
   j := s1  := s3 := s4 := s5 := 0 ; old_date := begin_date -1
   Go Top
   Do While !Eof()
@@ -2524,11 +2525,11 @@ Function oob_statist( par1, par2, par3 )
       { "STOIM",      "N",     14,      2 } ;  // стоимость лечения
       } )
       Use ( cur_dir() + "tmp1" ) new
-      Index On Str( kod, 4 ) + Str( kod_h, 7 ) to ( cur_dir() + "tmp1" )
+      Index On Str( FIELD->kod, 4 ) + Str( FIELD->kod_h, 7 ) to ( cur_dir() + "tmp1" )
     Endif
   Endif
   Use ( cur_dir() + "tmp" ) new
-  Index On Str( kod, 4 ) to ( cur_dir() + "tmp" )
+  Index On Str( FIELD->kod, 4 ) to ( cur_dir() + "tmp" )
   If mem_trudoem == 2
     useuch_usl()
   Endif
@@ -2536,7 +2537,7 @@ Function oob_statist( par1, par2, par3 )
   r_use( dir_server() + "mo_pers",, "PERSO" )
   r_use( dir_server() + "hum_oru", dir_server() + "hum_oru", "HU" )
   If reg == 2 .or. par3 == "summa"
-    Set Relation To u_kod into USL
+    Set Relation To FIELD->u_kod into USL
   Endif
   r_use( dir_server() + "kartotek",, "KART" )
   If parametr4 == 1
@@ -2720,28 +2721,28 @@ Function oob_statist( par1, par2, par3 )
   r_use( dir_server() + "mo_pers",, "PERSO" )
   Use ( cur_dir() + "tmp" ) new
   If reg == 1
-    Index On Upper( fio ) to ( cur_dir() + "tmp" )
+    Index On Upper( FIELD->fio ) to ( cur_dir() + "tmp" )
     add_string( Center( { "[ По врачам ]", ;
       "[ По зубным техникам ]", ;
       "[ По медсестрам ]" }[ reg1 ], sh ) )
     If par3 == "boln"
       r_use( dir_server() + "kartotek",, "KART" )
       Use ( cur_dir() + "tmp1" ) new
-      Set Relation To kod_h into KART
-      Index On Str( kod, 4 ) + Upper( Left( kart->fio, 20 ) ) to ( cur_dir() + "tmp1" )
+      Set Relation To FIELD->kod_h into KART
+      Index On Str( FIELD->kod, 4 ) + Upper( Left( kart->fio, 20 ) ) to ( cur_dir() + "tmp1" )
       Select TMP
     Elseif par3 == "usl"
       r_use( dir_server() + "uslugi",, "USL" )
       Use ( cur_dir() + "tmp1" ) new
-      Set Relation To kod_h into USL
-      Index On Str( kod, 4 ) + fsort_usl( usl->shifr ) to ( cur_dir() + "tmp1" )
+      Set Relation To FIELD->kod_h into USL
+      Index On Str( FIELD->kod, 4 ) + fsort_usl( usl->shifr ) to ( cur_dir() + "tmp1" )
       Select TMP
     Endif
   Else
-    Index On fsort_usl( Left( fio, 10 ) ) to ( cur_dir() + "tmp" )
+    Index On fsort_usl( Left( FIELD->fio, 10 ) ) to ( cur_dir() + "tmp" )
     r_use( dir_server() + "uslugi",, "USL" )
     Select TMP
-    Set Relation To kod into USL
+    Set Relation To FIELD->kod into USL
     If !( musluga == "*" )
       add_string( Center( "Услуги: " + musluga, sh ) )
     Endif
@@ -2911,9 +2912,9 @@ Function oob1_statist( par1 )
   { "STOIM_N",    "N",     12,      2 } ;  // стоимость напыления
   } )
   Use ( cur_dir() + "tmp1" ) new
-  Index On Str( kod, 4 ) + Str( kod_h, 7 ) to ( cur_dir() + "tmp1" )
+  Index On Str( FIELD->kod, 4 ) + Str( FIELD->kod_h, 7 ) to ( cur_dir() + "tmp1" )
   Use ( cur_dir() + "tmp" ) new
-  Index On Str( kod, 4 ) to ( cur_dir() + "tmp" )
+  Index On Str( FIELD->kod, 4 ) to ( cur_dir() + "tmp" )
   musluga := AllTrim( mem_ort_na )
   If Empty( musluga ) .or. musluga == "*"
     musluga := "9999999999"
@@ -2922,9 +2923,9 @@ Function oob1_statist( par1 )
   r_use( dir_server() + "mo_pers",, "PERSO" )
   r_use( dir_server() + "kartotek",, "KART" )
   r_use( dir_server() + "hum_oru", dir_server() + "hum_oru", "HU" )
-  Set Relation To u_kod into USL
+  Set Relation To FIELD->u_kod into USL
   r_use( dir_server() + "hum_ort", dir_server() + "hum_ortd", "HUMAN" )
-  Set Relation To kod_k into KART
+  Set Relation To FIELD->kod_k into KART
   dbSeek( DToS( begin_date ), .t. )
   Do While human->k_data <= end_date .and. !Eof()
     updatestatus()
@@ -3031,10 +3032,10 @@ Function oob1_statist( par1 )
   r_use( dir_server() + "kartotek",, "KART" )
   r_use( dir_server() + "mo_pers",, "PERSO" )
   Use ( cur_dir() + "tmp1" ) new
-  Index On Str( kod, 4 ) + Upper( fio ) to ( cur_dir() + "tmp1" )
+  Index On Str( FIELD->kod, 4 ) + Upper( FIELD->fio ) to ( cur_dir() + "tmp1" )
   Use ( cur_dir() + "tmp" ) new
-  Set Relation To kod into PERSO
-  Index On Upper( fio ) to ( cur_dir() + "tmp" )
+  Set Relation To FIELD->kod into PERSO
+  Index On Upper( FIELD->fio ) to ( cur_dir() + "tmp" )
   Go Top
   Do While !Eof()
     If verify_ff( HH - 3, .t., sh )
@@ -3172,9 +3173,9 @@ Function ort_material( Tip_data )
   Use ( cur_dir() + "tmp_vah" ) new
 
   Use ( cur_dir() + "tmp_it" ) new
-  Index On Str( kod, 4 ) to ( cur_dir() + "tmp_it" )
+  Index On Str( FIELD->kod, 4 ) to ( cur_dir() + "tmp_it" )
   Use ( cur_dir() + "tmp" ) new
-  Index On Str( kod, 4 ) to ( cur_dir() + "tmp" )
+  Index On Str( FIELD->kod, 4 ) to ( cur_dir() + "tmp" )
   r_use( dir_server() + "kartotek",, "KART" )
   r_use( dir_server() + "tip_orto",, "ORT" )
   r_use( dir_server() + "ortoped",, "OR" )
@@ -3702,13 +3703,13 @@ Function ort_oms_material()
 
   dbCreate( cur_dir() + "tmp", { ;
     { "KOD",        "N",      4,      0 }, ;  // код (услуги)
-  { "KOL",        "N",     10,      3 }, ;  // кол-во услуг
-  { "STOIM",      "N",     14,      2 } ;  // стоимость лечения
+    { "KOL",        "N",     10,      3 }, ;  // кол-во услуг
+    { "STOIM",      "N",     14,      2 } ;  // стоимость лечения
   } )
   Use ( cur_dir() + "tmp_it" ) new
-  Index On Str( kod, 4 ) to ( cur_dir() + "tmp_it" )
+  Index On Str( FIELD->kod, 4 ) to ( cur_dir() + "tmp_it" )
   Use ( cur_dir() + "tmp" ) new
-  Index On Str( kod, 4 ) to ( cur_dir() + "tmp" )
+  Index On Str( FIELD->kod, 4 ) to ( cur_dir() + "tmp" )
   r_use( dir_server() + "tip_orto",, "ORT" )
   r_use( dir_server() + "ortoped",, "OR" )
   r_use( dir_server() + "ortoped1",, "OR1" )
@@ -4243,10 +4244,10 @@ Function ort_dolgi( tip )
   r_use( dir_server() + "kartotek",, "KART" )
   r_use( dir_server() + "hum_oro", dir_server() + "hum_oro", "HO" )
   r_use( dir_server() + "hum_ort",, "HUMAN" )
-  Set Relation To kod_k into KART
+  Set Relation To FIELD->kod_k into KART
   Use ( cur_dir() + "tmp" ) new
-  Index On Str( n_nar, 5 ) to ( cur_dir() + "tmp" )
-  Set Relation To kod_h into HUMAN
+  Index On Str( FIELD->n_nar, 5 ) to ( cur_dir() + "tmp" )
+  Set Relation To FIELD->kod_h into HUMAN
   j := s1 := 0
   Go Top
   Do While !Eof()
@@ -4327,20 +4328,20 @@ Function ort_otkr_nar( par1, par2 )
   { "STOIM_P",    "N",     12,      2 } ;  // платные больные
   } )
   Use ( cur_dir() + "tmpvr" ) new
-  Index On Str( kod_vr, 4 ) to ( cur_dir() + "tmpvr" )
+  Index On Str( FIELD->kod_vr, 4 ) to ( cur_dir() + "tmpvr" )
   r_use( dir_server() + "kartotek",, "KART" )
   r_use( dir_server() + "hum_ort",, "HUMAN" )
-  Set Relation To kod_k into KART
+  Set Relation To FIELD->kod_k into KART
   If par1 == 1
     Set Index to ( dir_server() + "hum_orto" )
     dbSeek( DToS( begin_date ), .t. )
     If is_open
-      Index On DToS( data ) to ( cur_dir() + "tmp_hum" ) While data <= end_date For Empty( k_data )
+      Index On DToS( FIELD->data ) to ( cur_dir() + "tmp_hum" ) While FIELD->data <= end_date For Empty( k_data )
     Else
-      Index On DToS( data ) to ( cur_dir() + "tmp_hum" ) While data <= end_date
+      Index On DToS( FIELD->data ) to ( cur_dir() + "tmp_hum" ) While FIELD->data <= end_date
     Endif
   Else
-    Index On DToS( data ) to ( cur_dir() + "tmp_hum" ) For Empty( k_data )
+    Index On DToS( FIELD->data ) to ( cur_dir() + "tmp_hum" ) For Empty( k_data )
   Endif
   Go Top
   Do While !Eof()
@@ -4442,13 +4443,13 @@ Function ort_otkr_nar( par1, par2 )
   Use ( cur_dir() + "tmp" ) new
   If par2 == 1
     If is_fio == 1
-      Index On Upper( fio ) to ( cur_dir() + "tmp" )
+      Index On Upper( FIELD->fio ) to ( cur_dir() + "tmp" )
     Else
-      Index On Str( n_nar, 6 ) to ( cur_dir() + "tmp" )
+      Index On Str( FIELD->n_nar, 6 ) to ( cur_dir() + "tmp" )
     Endif
   Else
-    Set Relation To kod_vr into perso
-    Index On Upper( perso->fio ) + Upper( fio ) to ( cur_dir() + "tmp" )
+    Set Relation To FIELD->kod_vr into perso
+    Index On Upper( perso->fio ) + Upper( FIELD->fio ) to ( cur_dir() + "tmp" )
     old_vr := 0
   Endif
   Go Top
@@ -4507,9 +4508,7 @@ Function ort_otkr_nar( par1, par2 )
 
   Return Nil
 
-// 
-
-// 22.03.17
+// 13.05.26
 Function ort_mnog_poisk()
 
   Local mm_tmp := {}, k
@@ -4525,7 +4524,7 @@ Function ort_mnog_poisk()
     { "бесплатный ", 1 }, ;
     { "взаимозачет", 2 }, ;
     { "ДМС        ", 3 } }, ;
-    tmp_file := "tmp_mn_p" + sdbf()
+    tmp_file := "tmp_mn_p"    //  + sdbf()
   Private arr_doc := { "Дата рожд.", ;
     "Адрес", ;
     "Вид,N уч/док", ;
@@ -4558,12 +4557,12 @@ Function ort_mnog_poisk()
   //
   dbCreate( cur_dir() + "tmp", { ;
     { "U_KOD",    "N",      4,      0 }, ;  // код услуги
-  { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
-  { "U_NAME",     "C",     65,      0 } ;  // наименование услуги
+    { "U_SHIFR",    "C",     10,      0 }, ;  // шифр услуги
+    { "U_NAME",     "C",     65,      0 } ;  // наименование услуги
   } )
   Use ( cur_dir() + "tmp" )
-  Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
-  Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+  Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + "tmpk" )
+  Index On fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
   tmp->( dbCloseArea() )
   AAdd( mm_tmp, { "data", "N", 4, 0, NIL, ;
     {| x| menu_reader( x, ;
@@ -4938,10 +4937,10 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
     Set Relation To RecNo() into KART_, RecNo() into KART2
     r_use( dir_server() + "uslugi",, "USL" )
     r_use( dir_server() + "hum_oru", dir_server() + "hum_oru", "HU" )
-    Set Relation To u_kod into USL
+    Set Relation To FIELD->u_kod into USL
     If pk_data != NIL
       r_use( dir_server() + "hum_ort", dir_server() + "hum_ortd", "HUMAN" )
-      Set Relation To kod_k into KART
+      Set Relation To FIELD->kod_k into KART
       dbSeek( DToS( pk_data[ 5 ] ), .t. )
       Do While human->k_data <= pk_data[ 6 ] .and. !Eof()
         If Inkey() == K_ESC
@@ -4955,7 +4954,7 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
       Enddo
     Else
       r_use( dir_server() + "hum_ort", dir_server() + "hum_orto", "HUMAN" )
-      Set Relation To kod_k into KART
+      Set Relation To FIELD->kod_k into KART
       dbSeek( DToS( pdata[ 5 ] ), .t. )
       Do While human->data <= pdata[ 6 ] .and. !Eof()
         If Inkey() == K_ESC
@@ -5058,11 +5057,11 @@ aadd(mm_tmp, {"rajon","N",2,0,NIL,;
       r_use( dir_server() + "kartotek",, "KART" )
       Set Relation To RecNo() into KART_, RecNo() into KART2
       r_use( dir_server() + "hum_ort",, "HUMAN" )
-      Set Relation To kod_k into KART
+      Set Relation To FIELD->kod_k into KART
       Use ( cur_dir() + "tmp1" ) new
-      Index On Str( kod, 7 ) + fsort_usl( shifr ) to ( cur_dir() + "tmp1" )
+      Index On Str( FIELD->kod, 7 ) + fsort_usl( FIELD->shifr ) to ( cur_dir() + "tmp1" )
       Use ( cur_dir() + "tmp" ) new
-      Set Relation To kod into HUMAN
+      Set Relation To FIELD->kod into HUMAN
       If pk_data != NIL
         Index On Upper( kart->fio ) + DToS( human->k_data ) to ( cur_dir() + "tmp" )
       Else
@@ -5658,24 +5657,24 @@ Function o_ved_narabot()
   Endif
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   adbf := { { "KOD", "N", 4, 0 }, ;  // код персонала
-  { "MES", "N", 2, 0 }, ;  // номер месяца
-  { "KOL_P", "N", 4, 0 }, ;  // количество платных нарядов по врачу
-  { "KOL_PS", "N", 4, 0 }, ;  // количество посещений в платных нарядах
-  { "STOIM_P", "N", 12, 2 }, ;  // платная стоимость лечения
-  { "KOL_B", "N", 4, 0 }, ;  // количество бесплатных нарядов по врачу
-  { "KOL_BS", "N", 4, 0 }, ;  // количество посещений в бесплатных нарядах
-  { "STOIM_B", "N", 12, 2 }, ;  // бесплатная стоимость лечения
-  { "STOIM_BP", "N", 12, 2 } }   // платные услуги (для бесплатных больных)
+    { "MES", "N", 2, 0 }, ;  // номер месяца
+    { "KOL_P", "N", 4, 0 }, ;  // количество платных нарядов по врачу
+    { "KOL_PS", "N", 4, 0 }, ;  // количество посещений в платных нарядах
+    { "STOIM_P", "N", 12, 2 }, ;  // платная стоимость лечения
+    { "KOL_B", "N", 4, 0 }, ;  // количество бесплатных нарядов по врачу
+    { "KOL_BS", "N", 4, 0 }, ;  // количество посещений в бесплатных нарядах
+    { "STOIM_B", "N", 12, 2 }, ;  // бесплатная стоимость лечения
+    { "STOIM_BP", "N", 12, 2 } }   // платные услуги (для бесплатных больных)
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) new
-  Index On Str( kod, 4 ) + Str( mes, 2 ) to ( cur_dir() + "tmp" )
+  Index On Str( FIELD->kod, 4 ) + Str( FIELD->mes, 2 ) to ( cur_dir() + "tmp" )
   musluga := AllTrim( mem_ort_na )
   If Empty( musluga ) .or. musluga == "*"
     musluga := "9999999999"
   Endif
   r_use( dir_server() + "uslugi",, "USL" )
   r_use( dir_server() + "hum_oru", dir_server() + "hum_oru", "HU" )
-  Set Relation To u_kod into USL
+  Set Relation To FIELD->u_kod into USL
   r_use( dir_server() + "hum_ort", dir_server() + "hum_ortd", "HUMAN" )
   dbSeek( DToS( begin_date ), .t. )
   Do While human->k_data <= end_date .and. !Eof()
@@ -5921,17 +5920,17 @@ Function o_vr_kol_nar()
   Endif
   waitstatus( "<Esc> - прервать поиск" ) ; mark_keys( { "<Esc>" } )
   adbf := { { "KOD",   "N", 4, 0 }, ;  // код персонала
-  { "KOL_N1", "N", 4, 0 }, ;  // количество открытых нарядов на начало
-  { "KOL_N2", "N", 4, 0 }, ;  // количество закрытых нарядов за период
-  { "KOL_N3", "N", 4, 0 }, ;  // количество открытых нарядов на конец
-  { "AVANS1", "N", 12, 2 }, ;  //
-  { "AVANS3", "N", 12, 2 }, ;  //
-  { "STOIM1", "N", 12, 2 }, ;  //
-  { "STOIM2", "N", 12, 2 }, ;  //
-  { "STOIM3", "N", 12, 2 } }   //
+    { "KOL_N1", "N", 4, 0 }, ;  // количество открытых нарядов на начало
+    { "KOL_N2", "N", 4, 0 }, ;  // количество закрытых нарядов за период
+    { "KOL_N3", "N", 4, 0 }, ;  // количество открытых нарядов на конец
+    { "AVANS1", "N", 12, 2 }, ;  //
+    { "AVANS3", "N", 12, 2 }, ;  //
+    { "STOIM1", "N", 12, 2 }, ;  //
+    { "STOIM2", "N", 12, 2 }, ;  //
+    { "STOIM3", "N", 12, 2 } }   //
   dbCreate( cur_dir() + "tmp", adbf )
   Use ( cur_dir() + "tmp" ) new
-  Index On Str( kod, 4 ) to ( cur_dir() + "tmp" )
+  Index On Str( FIELD->kod, 4 ) to ( cur_dir() + "tmp" )
   r_use( dir_server() + "hum_oro", dir_server() + "hum_oro", "HO" )
   // наряды, ещё не закрытые на начало (конец) периода
   r_use( dir_server() + "hum_ort", dir_server() + "hum_orto", "HUMAN" )
@@ -6098,7 +6097,7 @@ Function o_vr_kol_nar()
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
   Use ( cur_dir() + "TMP" ) new
-  Set Relation To kod into PERSO
+  Set Relation To FIELD->kod into PERSO
   Index On Upper( perso->fio ) to ( cur_dir() + "tmp" )
   Go Top
   Do While !Eof()
@@ -6465,9 +6464,9 @@ Function pl_or2dogovor( tip_jurn )
   r_use( dir_server() + "hum_oro", dir_server() + "hum_oro", "HPO" )
   r_use( dir_server() + "hum_ort",, "HU" )
   If tip_jurn == 1
-    Index On N_data to ( cur_dir() + "tmp_hum" ) For Between( N_data, arr_m[ 5 ], arr_m[ 6 ] )
+    Index On FIELD->N_data to ( cur_dir() + "tmp_hum" ) For Between( FIELD->N_data, arr_m[ 5 ], arr_m[ 6 ] )
   Else
-    Index On k_data to ( cur_dir() + "tmp_hum" ) For Between( k_data, arr_m[ 5 ], arr_m[ 6 ] )
+    Index On FIELD->k_data to ( cur_dir() + "tmp_hum" ) For Between( FIELD->k_data, arr_m[ 5 ], arr_m[ 6 ] )
   Endif
   AEval( arr_title, {| x| add_string( x ) } )
   j := sk := ss := 0
@@ -6613,14 +6612,14 @@ Function oo_spmater()
   add_string( "" )
   AEval( arr_title, {| x| add_string( x ) } )
   r_use( dir_server() + "tip_orto",, "OR0" )
-  Index On Str( tip, 1 ) + name to ( cur_dir() + "tmp1" )
+  Index On Str( FIELD->tip, 1 ) + name to ( cur_dir() + "tmp1" )
   r_use( dir_server() + "uslugi", dir_server() + "uslugi", "USL" )
   r_use( dir_server() + "ortoped",, "OR" )
   r_use( dir_server() + "ortoped1",, "OR1" )
-  Index On Str( kod_menu, 4 ) to ( cur_dir() + "tmp2" )
-  Set Relation To kod_ort into OR
+  Index On Str( FIELD->kod_menu, 4 ) to ( cur_dir() + "tmp2" )
+  Set Relation To FIELD->kod_ort into OR
   r_use( dir_server() + "ortoped2",, "OR2" )
-  Set Relation To Str( kod_usl, 4 ) into USL
+  Set Relation To Str( FIELD->kod_usl, 4 ) into USL
   //
   Select OR0
   Go Top
@@ -6691,11 +6690,11 @@ Function oo1spmater()
   r_use( dir_server() + "ortoped",, "OR" )
   //
   r_use( dir_server() + "ortoped1",, "OR1" )
-  Index On Str( kod_menu, 4 ) to ( cur_dir() + "tmp2" )
-  Set Relation To kod_ort into OR
+  Index On Str( FIELD->kod_menu, 4 ) to ( cur_dir() + "tmp2" )
+  Set Relation To FIELD->kod_ort into OR
   //
   r_use( dir_server() + "ortoped2",, "OR2" )
-  Set Relation To Str( kod_usl, 4 ) into USL
+  Set Relation To Str( FIELD->kod_usl, 4 ) into USL
   Index On usl->shifr to ( cur_dir() + "tmp1" )
   //
   Select OR2
@@ -6775,7 +6774,7 @@ Function forma_30all( tip_f30 )
     { "bud_prot", "N", 4, 0 };
     } )
   Use ( fr_data ) New Alias TMP
-  Index On Str( tip, 1 ) + p_kod to ( cur_dir() + "tmp" )
+  Index On Str( FIELD->tip, 1 ) + FIELD->p_kod to ( cur_dir() + "tmp" )
   r_use( dir_server() + "mo_otd",, "OTD" )
   r_use( dir_server() + "diag_ort", dir_server() + "diag_ort", "DBF1" )
   r_use( dir_server() + "hum_oru", dir_server() + "hum_oru", "HU" )
@@ -6867,7 +6866,7 @@ Function forma_30all( tip_f30 )
   mybell()
   //
   Use ( fr_data ) new
-  Index On p_kod to ( fr_data )
+  Index On FIELD->p_kod to ( fr_data )
   //
   dbCreate( fr_titl, { { "god", "N", 4, 0 }, ;
     { "tit1name", "C", 130, 0 }, ;
@@ -7090,8 +7089,8 @@ Function f1_forma_30_na( par, title )
     Endif
   Next
   Select TMP
-  Index On Str( u_kod, 4 ) to ( cur_dir() + "tmpk" )
-  Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+  Index On Str( FIELD->u_kod, 4 ) to ( cur_dir() + "tmpk" )
+  Index On fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
   Close databases
   ob2_v_usl(, 2, "Настройка формы 39: колонка " + title )
   If f_esc_enter( 1 )
@@ -7181,11 +7180,9 @@ Function f1_forma_30_prn_na( par, title )
     Endif
   Next
   Select TMP
-  Index On fsort_usl( u_shifr ) to ( cur_dir() + "tmpn" )
+  Index On fsort_usl( FIELD->u_shifr ) to ( cur_dir() + "tmpn" )
 
   Return Nil
-
-// 
 
 // 18.11.14
 Function or_vozvrat()
@@ -7346,7 +7343,7 @@ Function ort_priemshk()
   Enddo
   Close databases
   Use ( cur_dir() + "tmp" ) new
-  Index On operat to ( cur_dir() + "tmp_u" ) unique
+  Index On FIELD->operat to ( cur_dir() + "tmp_u" ) unique
   Go Top
   Do While !Eof()
     AAdd( mas_op1, tmp->operat )
@@ -7378,7 +7375,7 @@ Function ort_priemshk()
     AEval( arr_title, {| x| add_string( x ) } )
     sm2 := ii := 0
     Use ( cur_dir() + "tmp" ) new
-    Index On fr_time to ( cur_dir() + "tmp_u" ) For operat == mas_op1[ bkol_oper ]
+    Index On FIELD->fr_time to ( cur_dir() + "tmp_u" ) For operat == mas_op1[ bkol_oper ]
     Go Top
     Do While !Eof()
       If verify_ff( HH, .t., sh )

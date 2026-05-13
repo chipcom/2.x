@@ -2396,7 +2396,7 @@ Function f1_plat_ms( reg )
 
   Return Nil
 
-// 22.03.17
+// 13.05.26
 Function pl_mnog_poisk()
 
   Static mm_g_selo :=  { { "город", 1 }, { "село", 2 } }
@@ -2410,7 +2410,7 @@ Function pl_mnog_poisk()
     menu_plat := { { "платные    ", PU_PLAT }, ;
     { "добр/страх.", PU_D_SMO }, ;
     { "взаимозачет", PU_PR_VZ } }, ;
-    tmp_file := "tmp_mn_p" + sdbf()
+    tmp_file := "tmp_mn_p"  // + sdbf() 
 
   // help_code
   Private ssumma := 0
