@@ -593,3 +593,33 @@ function prescriptions_dispans( human_kod, _NYEAR )
   Endif
 
   return arr_nazn
+
+// 14.05.26
+Function get_plans_KZVO( mYear, kod_mo )
+
+  // plan_drz - Получить плановые показатели по диспансеризации репродуктивного здоровья
+  //  1 - KOL_M(N) 2 - KOL_F(N) 3 - KOL0_14(N) 4 - KOL15_17(N) 5 YOUNG_MEN(N) 6 CHILDREN_INV
+  Local arr
+  local db
+  local aTable
+
+  local s
+
+  kod_mo := AllTrim( kod_mo )
+  arr := {}
+  db := openSQL_DB()
+  s := 'SELECT kol_m, kol_f, kol0_14, kol15_17, young_men, children_inv FROM plans WHERE year=' + str( mYear, 4 ) + ' and kod_mo=' + kod_mo
+  aTable := sqlite3_get_table( db, s )
+    
+  if len( aTable ) > 1
+    aadd( arr, val( aTable[ 2, 1 ] ) ) // мужчины
+    aadd( arr, val( aTable[ 2, 2 ] ) ) // женщины
+    aadd( arr, val( aTable[ 2, 3 ] ) ) // дети от 0 до 14 включительно
+    aadd( arr, val( aTable[ 2, 4 ] ) ) // дети от 15 до 17 включительно
+    aadd( arr, val( aTable[ 2, 5 ] ) ) // юноши 15-17 лет  включительно
+    aadd( arr, val( aTable[ 2, 6 ] ) ) // дети-инвалиды
+  else
+    arr := { 0, 0, 0, 0, 0, 0 } // нет данных
+  endif
+  db := nil
+  return arr

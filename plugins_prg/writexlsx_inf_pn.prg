@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
 
-// 13.05.26
+// 14.05.26
 function writexlsx_inf_pn() // fName, dCreate )
 
   Local arr_m, buf := save_maxrow()
@@ -12,7 +12,7 @@ function writexlsx_inf_pn() // fName, dCreate )
   Local merge_format, formatDate, cell_format_num, cell_format_string
   local hGauge, row, curr, arr_fio
   local error, i
-  Local strMO
+  Local strMO, arr_plan
   Local fName
   Local name_file
   Local name_file_full
@@ -24,6 +24,7 @@ function writexlsx_inf_pn() // fName, dCreate )
   endif
 
   strMO := hb_StrToUTF8( glob_mo()[ _MO_SHORT_NAME ] )
+  arr_plan := get_plans_KZVO( Year( arr_m[ 6 ] ), glob_mo()[ _MO_KOD_FFOMS ] )
   name_file := 'Профосмотры дети'
   name_file_full := name_file + '.xlsx'
 
@@ -238,7 +239,10 @@ function writexlsx_inf_pn() // fName, dCreate )
 
   worksheet_write_string( ws1, 11, 2, '', block_empty )
   worksheet_write_string( ws1, 11, 3, '', block_empty )
+
 //  worksheet_write_string( ws1, 11, 4, '', block_empty )
+  worksheet_write_number( ws1, 11, 4, arr_plan[ 3 ], block_empty )
+
   worksheet_write_string( ws1, 11, 5, '', block_empty )
   worksheet_write_string( ws1, 11, 6, '', block_empty )
   worksheet_write_formula( ws1, 11, 7, '=K12+L12+M12+P12+R12', block_Total )
@@ -294,7 +298,10 @@ function writexlsx_inf_pn() // fName, dCreate )
   worksheet_write_string( ws1, 13, 1, 'дети 15-17 лет вкл', text_thin )
   worksheet_write_string( ws1, 13, 2, '', block_empty )
   worksheet_write_string( ws1, 13, 3, '', block_empty )
+
 //  worksheet_write_string( ws1, 13, 4, '', block_empty )
+  worksheet_write_number( ws1, 13, 4, arr_plan[ 4 ], block_empty )
+
   worksheet_write_string( ws1, 13, 5, '', block_empty )
   worksheet_write_string( ws1, 13, 6, '', block_empty )
   worksheet_write_formula( ws1, 13, 7, '=K14+L14+M14+P14+R14', block_Total )
@@ -322,7 +329,10 @@ function writexlsx_inf_pn() // fName, dCreate )
   worksheet_write_string( ws1, 14, 1, 'из общего числа детей 15-17 лет(ст.03)-юношей', text_thin )
   worksheet_write_string( ws1, 14, 2, '', block_empty )
   worksheet_write_string( ws1, 14, 3, '', block_empty )
+
 //  worksheet_write_string( ws1, 14, 4, '', block_empty )
+  worksheet_write_number( ws1, 14, 4, arr_plan[ 5 ], block_empty )
+
   worksheet_write_string( ws1, 14, 5, '', block_empty )
   worksheet_write_string( ws1, 14, 6, '', block_empty )
   worksheet_write_formula( ws1, 14, 7, '=K15+L15+M15+P15+R15', block_Total )
@@ -373,6 +383,9 @@ function writexlsx_inf_pn() // fName, dCreate )
   worksheet_write_string( ws1, 15, 24, '', block_empty )
   worksheet_write_string( ws1, 15, 25, '', block_empty )
   worksheet_write_string( ws1, 15, 26, '', block_empty )
+
+  worksheet_write_number( ws1, 16, 6, arr_plan[ 6 ], block_empty )
+  
   worksheet_write_formula( ws1, 16, 7, '=H12+H14', block_Total )
   worksheet_write_formula( ws1, 16, 22, '=T11+U11+V11+W11', block_Total )
 

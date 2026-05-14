@@ -7,7 +7,7 @@ function test_init()
 
 //  local aaa
 
-//  aaa := get_f034( '34202606300010029' )
+//  aaa := get_plans_KZVO( 2026, '340169' ) // Фроловская ЦРБ
 //  altd()
 
   return nil
