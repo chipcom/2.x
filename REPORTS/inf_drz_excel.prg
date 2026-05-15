@@ -16,7 +16,7 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
   Local form_text_date, form_plan_gorod, form_plan_selo, form_text_header_yellow
   Local merge_format2511, form_text2511, cell_format2511, cell_format2517, cell_format_bold2517
   Local cell_formula_2517
-  Local tmpFormat, form_text_add, form_text_add1, form_text_add2
+  Local tmpFormat, form_text_add, form_text_add1, form_text_add2, text_italic
 
   Local currentOrg := hb_main_curOrg
 
@@ -63,6 +63,9 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
       worksheet_set_column( worksheet, i, i, 18.56 )
     Next
 
+    text_italic := fmt_excel_hc_vc_wrap( workbook )
+    format_set_italic( text_italic )
+    
     merge_format_head := fmt_excel_hc_vc_wrap( workbook ) // WORKBOOK_ADD_FORMAT( workbook )
     /* Конфигурируем формат для объединенных ячеек. */
     format_set_bold( merge_format_head )
