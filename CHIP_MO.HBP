@@ -258,6 +258,7 @@ mo_version.prg
 .\DISPANSER\disp_nab_diag_usl.prg
 .\DISPANSER\diag_disp_nabl.prg
 .\DISPANSER\mo_st39.prg
+.\DISPANSER\writexlsx_inf_pn.prg
 
 .\263\mo_263.prg
 .\263\mo_263p.prg

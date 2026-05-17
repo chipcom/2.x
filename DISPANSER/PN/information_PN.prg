@@ -379,10 +379,13 @@ function add_inf_dbf_dnl( cAlias, num, stroke )
   return Nil
 
 // 08.05.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
-Function f21_inf_dnl( par )
+Function f21_inf_dnl( par ) 
 
   Local arr_title
   Local arr_m, buf := save_maxrow(), s, adbf, i, sh, HH := 40, n_file := cur_dir() + 'svod_dnl.txt'
+  Local name_file := 'ПО дети с репродуктивкой 15-17_'
+  Local name_file_full := name_file + '.xlsx'
+  local arr_PO := {}, arr_15_17 := {}, arr_NP := {}
 
   If ( arr_m := year_month(,,, 5 ) ) != NIL
 
@@ -542,6 +545,18 @@ Function f21_inf_dnl( par )
       AEval( arr_title, {| x| add_string( x ) } )
       tmp1->( dbGoTop() )     //  Go Top
       Do While !tmp1->( Eof() )
+        if tmp1->( Recno() ) == 1
+          AAdd( arr_15_17, { tmp1->m15, tmp1->m15s, tmp1->m15pos, tmp1->m15poss, tmp1->m15a, tmp1->m15p, ;
+            tmp1->m15ps, tmp1->m15p1, tmp1->m15p1s, tmp1->m15e, tmp1->m18, tmp1->m18s } ;
+          )
+          AAdd( arr_15_17, { tmp1->g15, tmp1->g15s, tmp1->g15pos, tmp1->g15poss, tmp1->g15g, tmp1->g15p, ;
+            tmp1->g15ps, tmp1->g15p1, tmp1->g15p1s, tmp1->g15e, tmp1->g18, tmp1->g18s } ;
+          )
+        endif
+        AAdd( arr_PO, { tmp1->vsego, tmp1->vsego1, tmp1->vsegoM, ;
+          tmp1->g1, tmp1->g2, tmp1->g3, tmp1->g4, tmp1->g4inv, tmp1->g5, tmp1->g5inv, ;
+          tmp1->mg1, tmp1->mg2, tmp1->mg3, tmp1->mg4, tmp1->sv, tmp1->so, tmp1->v2, tmp1->v2 } ;
+        )
         s := tmp1->stroke + put_val( tmp1->vsego, 6 ) + ;
           put_val( tmp1->vsego1, 6 ) + ;
           put_val( tmp1->vsegoM, 6 ) + ;
@@ -647,6 +662,7 @@ Function f21_inf_dnl( par )
       Use ( cur_dir() + 'tmp2' ) index ( cur_dir() + 'tmp2' ) new
       tmp2->( dbGoTop() )     //  Go Top
       Do While ! tmp2->( Eof() )
+        AAdd( arr_NP, { tmp2->g2, tmp2->g3, tmp2->g5, tmp2->g6 })
         s := PadR( { '0-14 лет', '15-17 лет', 'Всего' }[ tmp2->ti ], 9 ) + ;
           put_val( tmp2->g1, 6 ) + ;
           put_val( tmp2->g2, 6 ) + ;
@@ -682,6 +698,9 @@ Function f21_inf_dnl( par )
       Private yes_albom := .t.
       viewtext( n_file,,,, ( .t. ),,, 3 )
     Endif
+    writexlsx_inf_pn( hb_OEMToANSI( name_file_full ), arr_m, arr_PO, arr_15_17, arr_NP )
+    work_with_excel_file( name_file_full )
+
   Endif
   dbCloseAll()
   rest_box( buf )

@@ -6,10 +6,10 @@
 
 Static lcount_uch  := 1
 
-// 14.10.25 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
+// 16.05.26 Итоги за период времени по диспансеризации репродуктивного здоровья МИАЦ
 Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas_rez_M  )
 
-  Local workbook, worksheet, ws2511, ws2517, wsFemale, wsMan   // , analiz
+  Local workbook, worksheet, ws2511, ws2517, wsFemale, wsMan
   Local merge_format, form_text_header, form_text_header_1, form_text_X, cell_format_plan
   Local cell_format, cell_format_itog, cell_format_man, cell_format_woman, cell_format_full
   Local merge_format_head, form_text_date_text, form_text_footer, form_text_footer_1
@@ -20,13 +20,13 @@ Function inf_drz_excel( file_name, arr_m, arr, arr_1, tcount_uch, mas_rez_w, mas
 
   Local currentOrg := hb_main_curOrg
 
-  // local strMO := hb_StrToUtf8( glob_mo[ _MO_SHORT_NAME ] )
   Local strMO   // := hb_StrToUTF8( hb_main_curOrg:name_tfoms() )
-  Local arr_plan // := get_plan_drz( Year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
+  Local arr_plan
   Local i
 
   strMO := hb_StrToUTF8( currentOrg:name_tfoms() )
-  arr_plan := get_plan_drz( Year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
+//  arr_plan := get_plan_drz( Year( arr_m[ 6 ] ), glob_mo[ _MO_KOD_FFOMS ] )
+  arr_plan := get_plans_KZVO( Year( arr_m[ 6 ] ), glob_mo()[ _MO_KOD_FFOMS ] )
   //
   For i := 1 To 8
     arr_1[ 3, i ] := arr_1[ 2, i ] + arr_1[ 1, i ]
