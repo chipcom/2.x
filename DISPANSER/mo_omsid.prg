@@ -23,11 +23,11 @@ function mas1pmt()
 
   return arr_mas
 
-// 12.04.24 Диспансеризация, профилактика и медосмотры
+// 18.05.26 Диспансеризация, профилактика и медосмотры
 Function dispanserizacia( k )
 
   Static si1 := 1, si2 := 1, sj := 1, sj1 := 1
-  Local mas_pmt, mas_msg, mas_fun, j
+  Local mas_pmt, mas_msg, mas_fun, j, par
 
   Default k To 1
   Do Case
@@ -37,19 +37,22 @@ Function dispanserizacia( k )
       '~Взрослое население', ;
       '~Несовершеннолетние', ;
       '~Сводная информация', ;
-      '~Репродуктивное здоровье' }
+      '~Репродуктивное здоровье', ;
+      'С~вод по несовершеннолетним КЗ ВО' }
     mas_msg := { ;
       'Информация по диспансеризации детей-сирот', ;
       'Информация по диспансеризации и профилактике взрослого населения', ;
       'Информация по медицинским осмотрам несовершеннолетних', ;
       'Сводные документы по всем видам диспансеризации и профилактики', ;
-      'Проведение диспансеризации репродуктивного здоровья' }
+      'Проведение диспансеризации репродуктивного здоровья', ;
+      'Сводная информация по несовершеннолетним для комитета здравоохранения' }
     mas_fun := { ;
       'dispanserizacia(11)', ;
       'dispanserizacia(12)', ;
       'dispanserizacia(13)', ;
       'dispanserizacia(14)', ;
-      'dispanserizacia(15)' }
+      'dispanserizacia(15)', ;
+      'dispanserizacia(16)' }
     popup_prompt( T_ROW, T_COL -5, si1, mas_pmt, mas_msg, mas_fun )
   Case k == 11
     inf_dds()
@@ -61,6 +64,10 @@ Function dispanserizacia( k )
     inf_disp()
   Case k == 15
     inf_drz()
+  Case k == 16
+    If ( par := popup_prompt( T_ROW, T_COL -5, 1, mas1pmt() ) ) > 0
+      svod_KZVO_children( par )
+    endif
   Endcase
   If k > 10
     j := Int( Val( Right( lstr( k ), 1 ) ) )

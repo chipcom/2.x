@@ -205,10 +205,8 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP )
 
   worksheet_merge_range( ws1, 1, 4, 1, 11, 'Сведения о профилактических осмотрах несовершеннолетних', header_bold )
   worksheet_merge_range( ws1, 2, 4, 2, 5, 'по состоянию на', header_bold )
-//  worksheet_write_string( ws1, 2, 6, Str( Day( arr_m[ 6 ] ), 2 ), header_data_bold )
   worksheet_write_number( ws1, 2, 6, Day( arr_m[ 6 ] ), header_data_bold )
   worksheet_write_string( ws1, 2, 7, hb_StrToUTF8( Lower( CMonth( arr_m[ 6 ] ) ) ), header_data_bold )
-//  worksheet_write_string( ws1, 2, 8, Str( Year( arr_m[ 6 ] ), 4 ), header_data_bold )
   worksheet_write_number( ws1, 2, 8, Year( arr_m[ 6 ] ), header_data_bold )
 
   worksheet_merge_range( ws1, 4, 2, 4, 13, strMO, titul_bold_center )
@@ -510,12 +508,9 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP )
 
   worksheet_merge_range( ws2, 5, 0, 5, 8, 'Информация об охваченных профилактическими осмотрами несовершеннолетних в возрасте 15-17 лет', header_bold )
   worksheet_merge_range( ws2, 6, 4, 6, 5, 'по состоянию на', header_bold_sost )
-//  worksheet_write_string( ws2, 6, 6, Str( Day( arr_m[ 6 ] ), 2 ), header_bold_sost )
   worksheet_write_number( ws2, 6, 6, Day( arr_m[ 6 ] ), header_bold_sost )
   worksheet_write_string( ws2, 6, 7, hb_StrToUTF8( Lower( CMonth( arr_m[ 6 ] ) ) ), header_bold_sost )
-//  worksheet_write_string( ws2, 6, 8, Str( Year( arr_m[ 6 ] ), 4 ), header_bold_sost )
   worksheet_write_number( ws2, 6, 8, Year( arr_m[ 6 ] ), header_bold_sost )
-
   worksheet_merge_range( ws2, 8, 0, 8, 8, strMO, titul_bold_center )
 
   worksheet_merge_range( ws2, 10, 0, 10, 10, 'ЮНОШИ (15-17 лет)', nil )
@@ -729,6 +724,7 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP )
   worksheet_set_tab_color( ws3, cColorTab3 )
   /* Установить высоту строки */
   worksheet_set_row( ws3, 1, 42.6 )
+  worksheet_set_row( ws3, 7, 160.2 )
   /* Установить ширину колонок */
   worksheet_set_column( ws3, 0, 0, 41 )
   for i := 1 to 21
@@ -737,12 +733,9 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP )
 
   worksheet_merge_range( ws3, 1, 0, 1, 6, 'Сведения о профилактических осмотрах несовершеннолетних в рамках национального проекта "Здравоохранение"', header_bold )
   worksheet_merge_range( ws3, 2, 3, 2, 4, 'по состоянию на', header_bold_sost )
-//  worksheet_write_string( ws3, 2, 5, Str( Day( arr_m[ 6 ] ), 2 ), header_bold_sost )
   worksheet_write_number( ws3, 2, 5, Day( arr_m[ 6 ] ), header_bold_sost )
   worksheet_write_string( ws3, 2, 6, hb_StrToUTF8( Lower( CMonth( arr_m[ 6 ] ) ) ), header_bold_sost )
-//  worksheet_write_string( ws3, 2, 7, Str( Year( arr_m[ 6 ] ), 4 ), header_bold_sost )
   worksheet_write_number( ws3, 2, 7, Year( arr_m[ 6 ] ), header_bold_sost )
-
   worksheet_merge_range( ws3, 4, 0, 4, 4, strMO, titul_bold_center )
 
   worksheet_merge_range( ws3, 6, 0, 7, 0, '', titul_table_bold )
@@ -781,8 +774,30 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP )
   worksheet_write_formula( ws3, 9, 4, '=профосмотры!I12', block_Total )
   worksheet_write_number( ws3, 9, 5, arr_NP[ 1, 3 ], block_empty )
   worksheet_write_number( ws3, 9, 6, arr_NP[ 1, 4 ], block_empty )
-  for i := 7 to 21
-    worksheet_write_number( ws3, 9, i, 0, block_empty )
+  worksheet_write_number( ws3, 9, 7, arr_NP[ 1, 5 ], block_empty )
+  worksheet_write_number( ws3, 9, 8, arr_NP[ 1, 6 ], block_empty )
+/*
+  worksheet_write_number( ws3, 9, 9, arr_NP[ 1, 7 ], block_empty )
+  worksheet_write_number( ws3, 9, 10, arr_NP[ 1, 8 ], block_empty )
+  worksheet_write_number( ws3, 9, 11, 0, block_empty )    // ЗНО
+  worksheet_write_number( ws3, 9, 12, 0, block_empty )    // 1 и 2 группы
+  worksheet_write_number( ws3, 9, 13, arr_NP[ 1, 11 ], block_empty )
+  worksheet_write_number( ws3, 9, 14, arr_NP[ 1, 12 ], block_empty )
+  worksheet_write_number( ws3, 9, 15, arr_NP[ 1, 13 ], block_empty )
+  worksheet_write_number( ws3, 9, 16, arr_NP[ 1, 14 ], block_empty )
+  worksheet_write_number( ws3, 9, 17, arr_NP[ 1, 15 ], block_empty )
+  worksheet_write_number( ws3, 9, 18, arr_NP[ 1, 16 ], block_empty )
+  worksheet_write_number( ws3, 9, 19, arr_NP[ 1, 17 ], block_empty )
+  worksheet_write_number( ws3, 9, 20, arr_NP[ 1, 18 ], block_empty )
+  worksheet_write_number( ws3, 9, 21, arr_NP[ 1, 19 ], block_empty )
+*/
+  for i := 9 to 21
+    if i == 11 .or. i == 12
+      worksheet_write_number( ws3, 9, i, 0, block_empty )
+    else
+      worksheet_write_number( ws3, 9, i, arr_NP[ 1, i - 2 ], block_empty )
+    endif
+//    worksheet_write_number( ws3, 9, i, 0, block_empty )
   next
 
   worksheet_write_string( ws3, 10, 0, 'Дети в возрасте 15 - 17 лет включительно', titul_table_bold )
@@ -794,8 +809,28 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP )
   worksheet_write_number( ws3, 10, 6, arr_NP[ 2, 4 ], block_empty )
   worksheet_write_formula( ws3, 10, 7, "='15-17 лет'!G15", block_Total )
   worksheet_write_formula( ws3, 10, 8, "='15-17 лет'!G21", block_Total )
+/*
+  worksheet_write_number( ws3, 10, 9, arr_NP[ 2, 7 ], block_empty )
+  worksheet_write_number( ws3, 10, 10, arr_NP[ 2, 8 ], block_empty )
+  worksheet_write_number( ws3, 10, 11, 0, block_empty )    // ЗНО
+  worksheet_write_number( ws3, 10, 12, 0, block_empty )    // 1 и 2 группы
+  worksheet_write_number( ws3, 10, 13, arr_NP[ 2, 11 ], block_empty )
+  worksheet_write_number( ws3, 10, 14, arr_NP[ 2, 12 ], block_empty )
+  worksheet_write_number( ws3, 10, 15, arr_NP[ 2, 13 ], block_empty )
+  worksheet_write_number( ws3, 10, 16, arr_NP[ 2, 14 ], block_empty )
+  worksheet_write_number( ws3, 10, 17, arr_NP[ 2, 15 ], block_empty )
+  worksheet_write_number( ws3, 10, 18, arr_NP[ 2, 16 ], block_empty )
+  worksheet_write_number( ws3, 10, 19, arr_NP[ 2, 17 ], block_empty )
+  worksheet_write_number( ws3, 10, 20, arr_NP[ 2, 18 ], block_empty )
+  worksheet_write_number( ws3, 10, 21, arr_NP[ 2, 19 ], block_empty )
+*/
   for i := 9 to 21
-    worksheet_write_number( ws3, 10, i, 0, block_empty )
+    if i == 11 .or. i == 12
+      worksheet_write_number( ws3, 10, i, 0, block_empty )
+    else
+      worksheet_write_number( ws3, 10, i, arr_NP[ 2, i - 2 ], block_empty )
+    endif
+//    worksheet_write_number( ws3, 9, i, 0, block_empty )
   next
 
   worksheet_merge_range( ws3, 15, 0, 15, 1, 'Ф.И.О. главного врача', block_FIO )
@@ -845,10 +880,8 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP )
 
   worksheet_merge_range( ws4, 0, 3, 0, 10, 'Сведения о диспансеризации детей-сирот', header_bold )
   worksheet_merge_range( ws4, 1, 4, 1, 5, 'по состоянию на', header_bold_sost )
-//  worksheet_write_string( ws4, 1, 6, Str( Day( arr_m[ 6 ] ), 2 ), header_bold_sost )
   worksheet_write_number( ws4, 1, 6, Day( arr_m[ 6 ] ), header_bold_sost )
   worksheet_write_string( ws4, 1, 7, hb_StrToUTF8( Lower( CMonth( arr_m[ 6 ] ) ) ), header_bold_sost )
-//  worksheet_write_string( ws4, 1, 8, Str( Year( arr_m[ 6 ] ), 4 ), header_bold_sost )
   worksheet_write_number( ws4, 1, 8, Year( arr_m[ 6 ] ), header_bold_sost )
   worksheet_merge_range( ws4, 3, 1, 3, 12, strMO, titul_bold_center )
 
@@ -1241,12 +1274,9 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP )
   worksheet_set_column( ws5, 1, 1, 26 )
   worksheet_merge_range( ws5, 0, 3, 0, 10, 'Сведения о профилактических осмотрах и диспансеризации несовершеннолетних ВСЕГО', header_bold )
   worksheet_merge_range( ws5, 1, 4, 1, 5, 'по состоянию на', header_bold_sost )
-//  worksheet_write_string( ws5, 1, 6, Str( Day( arr_m[ 6 ] ), 2 ), header_bold_sost )
   worksheet_write_number( ws5, 1, 6, Day( arr_m[ 6 ] ), header_bold_sost )
   worksheet_write_string( ws5, 1, 7, hb_StrToUTF8( Lower( CMonth( arr_m[ 6 ] ) ) ), header_bold_sost )
-//  worksheet_write_string( ws5, 1, 8, Str( Year( arr_m[ 6 ] ), 4 ), header_bold_sost )
   worksheet_write_number( ws5, 1, 8, Year( arr_m[ 6 ] ), header_bold_sost )
-
   worksheet_merge_range( ws5, 3, 2, 3, 12, strMO, titul_bold_center )
 
   worksheet_write_string( ws5, 6, 0, '№ п/п', titul_table_thin )
@@ -1383,12 +1413,9 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP )
 
   worksheet_merge_range( ws6, 0, 3, 0, 10, 'Сведения о профилактических осмотрах детей в возрасте 15-17 лет', header_bold )
   worksheet_merge_range( ws6, 1, 4, 1, 5, 'по состоянию на', header_bold_sost )
-//  worksheet_write_string( ws6, 1, 6, Str( Day( arr_m[ 6 ] ), 2 ), header_bold_sost )
   worksheet_write_number( ws6, 1, 6, Day( arr_m[ 6 ] ), header_bold_sost )
   worksheet_write_string( ws6, 1, 7, hb_StrToUTF8( Lower( CMonth( arr_m[ 6 ] ) ) ), header_bold_sost )
-//  worksheet_write_string( ws6, 1, 8, Str( Year( arr_m[ 6 ] ), 4 ), header_bold_sost )
   worksheet_write_number( ws6, 1, 8, Year( arr_m[ 6 ] ), header_bold_sost )
-
   worksheet_merge_range( ws6, 3, 1, 3, 11, strMO, titul_bold_center )
 
 

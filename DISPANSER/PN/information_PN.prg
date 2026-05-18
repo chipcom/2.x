@@ -155,27 +155,27 @@ Function f0_inf_dnl( arr_m, is_schet, is_reg, arr_ishod, is_snils )
   Index On FIELD->kod to ( cur_dir() + 'tmp_h' ) ;
     For AScan( arr_ishod, FIELD->ishod ) > 0 .and. iif( is_schet, FIELD->schet > 0, .t. ) ;
     While human->k_data <= arr_m[ 6 ] PROGRESS
-  human->( dbGoTop() )      //  Go Top
+  human->( dbGoTop() )
   Do While !human->( Eof() )
     fl := .t.
     If is_reg
       fl := .f.
       Select SCHET_
-      schet_->( dbGoto( human->schet ) )      //  Goto ( human->schet )
+      schet_->( dbGoto( human->schet ) )
       If !schet_->( Eof() ) .and. schet_->NREGISTR == 0 // только зарегистрированные
         fl := .t.
       Endif
     Endif
     If fl .and. ret_koef_from_rak( human->kod ) > 0
       Select TMP
-      tmp->( dbAppend() )     //  Append Blank
+      tmp->( dbAppend() )
       tmp->kod := human->kod
       tmp->kod_k := human->kod_k
       tmp->ishod := human->ishod
       tmp->is := iif( is_snils .and. Empty( kart->snils ), 0, 1 )
     Endif
     Select HUMAN
-    human->( dbSkip() )       //Skip
+    human->( dbSkip() )
   Enddo
   fl := .t.
   If tmp->( LastRec() ) == 0
@@ -661,8 +661,9 @@ Function f21_inf_dnl( par )
       AEval( arr_title, {| x| add_string( x ) } )
       Use ( cur_dir() + 'tmp2' ) index ( cur_dir() + 'tmp2' ) new
       tmp2->( dbGoTop() )     //  Go Top
-      Do While ! tmp2->( Eof() )
-        AAdd( arr_NP, { tmp2->g2, tmp2->g3, tmp2->g5, tmp2->g6 })
+      Do While ! tmp2->( Eof() ) 
+        AAdd( arr_NP, { tmp2->g2, tmp2->g3, tmp2->g5, tmp2->g6, tmp2->g7n, tmp2->g8n, tmp2->g7, tmp2->g8, tmp2->g7, 0, tmp2->g12n, tmp2->g13n, ;
+          tmp2->g14n, tmp2->g11, tmp2->g12, tmp2->g16n, tmp2->g13, tmp2->g14, tmp2->g15 })
         s := PadR( { '0-14 лет', '15-17 лет', 'Всего' }[ tmp2->ti ], 9 ) + ;
           put_val( tmp2->g1, 6 ) + ;
           put_val( tmp2->g2, 6 ) + ;
