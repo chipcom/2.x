@@ -22,7 +22,7 @@ METHOD ExistFileClass( className ) CLASS TStructFiles
 	
 	return hb_FileExists( descrFile:FileName )
 
-// 17.01.26
+// 19.05.26
 METHOD New() CLASS TStructFiles
 
 	Local cClassName := '', aEtalonDB := {}, aIndex := { }, cName := '', cAlias := ''
@@ -1551,7 +1551,7 @@ METHOD New() CLASS TStructFiles
 				{ 'VNR3',		'N',	 4,	0 }, ; // вес 3-го недоношенного ребёнка (лечится мать)
 				{ 'PC1',		'C',	20,	0 }, ; // КСЛП (в 2017 - в первом знаке 1-3 - кол-во стентов в коронарных сосудах)
 				{ 'PC2',		'C',	10,	0 }, ; // КИРО
-				{ 'PC3',		'C',	10,	0 }, ; // дополнительный критерий
+				{ 'PC3',		'C',	15,	0 }, ; // дополнительный критерий
 				{ 'PC4',		'C',	10,	0 }, ;
 				{ 'PC5',		'C',	10,	0 }, ; // для мед. реабилитации строка вида 'vid_reab,vid_srm'
 				{ 'PC6',		'C',	10,	0 }, ; //

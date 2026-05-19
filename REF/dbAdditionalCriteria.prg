@@ -2,7 +2,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 20.10.25
+// 19.05.26
 Function loadcriteria21( val_year )
 
   Local fl, ar, ar1, ar2, i
@@ -45,9 +45,9 @@ Function loadcriteria21( val_year )
         lSchema := .t.
       Endif
       If lSchema
-        AAdd( retCriteria, { it1->USL_OK, PadR( it1->CODE, 7 ), ar, ar1, ar2, AllTrim( aV024[ it, 2 ] ) } )
+        AAdd( retCriteria, { it1->USL_OK, PadR( it1->CODE, 15 ), ar, ar1, ar2, AllTrim( aV024[ it, 2 ] ) } )
       Else
-        AAdd( retCriteria, { it1->USL_OK, PadR( it1->CODE, 7 ), ar, ar1, ar2, '' } )
+        AAdd( retCriteria, { it1->USL_OK, PadR( it1->CODE, 15 ), ar, ar1, ar2, '' } )
       Endif
       ( 'IT1' )->( dbSkip() )
     Enddo
