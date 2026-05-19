@@ -5,8 +5,6 @@
 // 19.05.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
 Function svod_KZVO_children( par )      // f21_inf_dnl
 
-  static l
-
   Local arr_m, buf := save_maxrow(), adbf
   Local name_file := 'ПО дети с репродуктивкой 15-17_'
   Local name_file_full := name_file + '.xlsx'
@@ -15,9 +13,6 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
 
   local blk_open
   Local lkod_h, lkod_k, rec
-//  local sh, HH := 40, s, i
-//  local n_file := cur_dir() + 'ddssvod2.txt'
-//  local ft, j
 
   If ( arr_m := year_month(,,, 5 ) ) != NIL
 
@@ -26,7 +21,7 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     If arr_m[ 1 ] < 2020
       Return func_error( 4, 'Данная форма утверждена с 2020 года' )
     Endif
-    mywait()  // очистим информационную строку
+    mywait()  // 'подождите, работаю'
 
     svod_inf_dnl( arr_m, par > 1, par == 3, { 301, 302 } )
 
@@ -164,6 +159,7 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     dbCloseAll()
 
 // дети-сироты под опекой
+/*
     mywait( '' )  // очистим информационную строку
     // сформируем массивы
     arr_deti := { ;
@@ -210,25 +206,26 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     arr_deti_DDSOP := AClone( arr_deti )
     arr_2510_DDSOP := AClone( arr_2510 )
     dbCloseAll()
+*/
+    arr_2510_DDSOP := collect_arr2510( arr_m, TIP_LU_DDSOP, par, 'Диспансеризация детей-сирот под опекой: ' )
 
 // дети-сироты стационарные
-    mywait( '' )  // очистим информационную строку
+//    mywait( '' )  // очистим информационную строку
     // снова сформируем массивы
-    arr_deti := { ;
-      { '1', 'Всего', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, ;
-      { '1.1', '0-14 лет', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, ;
-      { '1.2', '15-17 лет', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    }
-    arr_2510 := { ;
-      { '001 дети 0-14 лет вкл.', 0, 0, 0, 0, 0, 0, 0 }, ;
-      { '002 из них дети до 1 г.', 0, 0, 0, 0, 0, 0, 0 }, ;
-      { '003 дети 15-17 лет вкл.', 0, 0, 0, 0, 0, 0, 0 }, ;
-      { '004 15-17 лет - юноши', 0, 0, 0, 0, 0, 0, 0 }, ;
-      { '005 школьники', 0, 0, 0, 0, 0, 0, 0 };
-    }
+//    arr_deti := { ;
+//      { '1', 'Всего', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, ;
+//      { '1.1', '0-14 лет', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, ;
+//      { '1.2', '15-17 лет', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+//    }
+//    arr_2510 := { ;
+//      { '001 дети 0-14 лет вкл.', 0, 0, 0, 0, 0, 0, 0 }, ;
+//      { '002 из них дети до 1 г.', 0, 0, 0, 0, 0, 0, 0 }, ;
+//      { '003 дети 15-17 лет вкл.', 0, 0, 0, 0, 0, 0, 0 }, ;
+//      { '004 15-17 лет - юноши', 0, 0, 0, 0, 0, 0, 0 }, ;
+//      { '005 школьники', 0, 0, 0, 0, 0, 0, 0 };
+//    }
 
-    l := 0
-    svod_inf_dds( arr_m, TIP_LU_DDS, par > 1, par == 3 )
+//    svod_inf_dds( arr_m, TIP_LU_DDS, par > 1, par == 3 )
 /*
     blk_open := {|| dbCloseAll(), ;
       r_use( dir_server() + 'human_',, 'HUMAN_' ), ;
@@ -238,18 +235,17 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
       dbSetRelation( 'HUMAN', {|| FIELD->kod }, 'FIELD->kod' );
     }
 */
-    r_use( cur_dir() + 'tmp' )
-    tmp->( dbGoTop() )
-    do while !tmp->( Eof() )
-      rec := tmp->( RecNo() )
-      @ MaxRow(), 0 Say 'Диспансеризация детей-сирот: ' + Str( rec / tmp->( LastRec() ) * 100, 6, 2 ) + '%' Color cColorWait
-      l++
-      oms_sluch_dds( TIP_LU_DDS, tmp->kod, tmp->kod_k, 'svod_inf_DDS_LU' )
-      dbCloseAll()
-      r_use( cur_dir() + 'tmp' )
-      tmp->( dbGoto( rec ) )
-      tmp->( dbSkip() )
-    Enddo
+//    r_use( cur_dir() + 'tmp' )
+//    tmp->( dbGoTop() )
+//    do while !tmp->( Eof() )
+//      rec := tmp->( RecNo() )
+//      @ MaxRow(), 0 Say 'Диспансеризация детей-сирот: ' + Str( rec / tmp->( LastRec() ) * 100, 6, 2 ) + '%' Color cColorWait
+//      oms_sluch_dds( TIP_LU_DDS, tmp->kod, tmp->kod_k, 'svod_inf_DDS_LU' )
+//      dbCloseAll()
+//      r_use( cur_dir() + 'tmp' )
+//      tmp->( dbGoto( rec ) )
+//      tmp->( dbSkip() )
+//    Enddo
 /*
     Do While .t.
       Eval( blk_open )
@@ -267,14 +263,14 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
       lkod_h := human->kod
       lkod_k := human->kod_k
       dbCloseAll()
-      l++
       oms_sluch_dds( TIP_LU_DDS, lkod_h, lkod_k, 'svod_inf_DDS_LU' )
     Enddo
 */    
-    arr_deti_DDS := AClone( arr_deti )
-    arr_2510_DDS := AClone( arr_2510 )
+//    arr_deti_DDS := AClone( arr_deti )
+//    arr_2510_DDS := AClone( arr_2510 )
+//    dbCloseAll()
 
-    dbCloseAll()
+    arr_2510_DDS := collect_arr2510( arr_m, TIP_LU_DDS, par, 'Диспансеризация детей-сирот: ' )
 /*      
       sh := iif( par2 == 3, 92, 68 )
       Do While .t.
@@ -369,13 +365,52 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
 */
 
     writexlsx_inf_pn( hb_OEMToANSI( name_file_full ), arr_m, arr_PO, arr_15_17, arr_NP, ;
-      arr_deti_DDS, arr_2510_DDS, arr_deti_DDSOP, arr_2510_DDSOP )
+      arr_2510_DDS, arr_2510_DDSOP )
     work_with_excel_file( name_file_full )
   Endif
   dbCloseAll()
   rest_box( buf )
 
   Return Nil
+
+// 19.05.26
+function collect_arr2510( arr_m, type_LU, par, titul )
+
+  local rec
+
+  private arr_deti, arr_2510
+
+  mywait( '' )  // очистим информационную строку
+  // сформируем массивы
+  arr_deti := { ;
+    { '1', 'Всего', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, ;
+    { '1.1', '0-14 лет', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, ;
+    { '1.2', '15-17 лет', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  }
+  arr_2510 := { ;
+    { '001 дети 0-14 лет вкл.', 0, 0, 0, 0, 0, 0, 0 }, ;
+    { '002 из них дети до 1 г.', 0, 0, 0, 0, 0, 0, 0 }, ;
+    { '003 дети 15-17 лет вкл.', 0, 0, 0, 0, 0, 0, 0 }, ;
+    { '004 15-17 лет - юноши', 0, 0, 0, 0, 0, 0, 0 }, ;
+    { '005 школьники', 0, 0, 0, 0, 0, 0, 0 };
+  }
+
+  svod_inf_dds( arr_m, type_LU, par > 1, par == 3 )
+
+  r_use( cur_dir() + 'tmp' )
+  tmp->( dbGoTop() )
+  do while !tmp->( Eof() )
+    rec := tmp->( RecNo() )
+    @ MaxRow(), 0 Say titul + Str( rec / tmp->( LastRec() ) * 100, 6, 2 ) + '%' Color cColorWait
+    oms_sluch_dds( type_LU, tmp->kod, tmp->kod_k, 'svod_inf_DDS_LU' )
+    dbCloseAll()
+    r_use( cur_dir() + 'tmp' )
+    tmp->( dbGoto( rec ) )
+    tmp->( dbSkip() )
+  Enddo
+  dbCloseAll()
+
+  return AClone( arr_2510 )
 
 // 18.05.26
 Function svod_inf_dnl( arr_m, is_schet, is_reg, arr_ishod, is_snils )
@@ -952,8 +987,6 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
   Next
   //
   fl := .f.
-  //
-  //
   Select HU
   hu->( dbSeek( Str( Loc_kod, 7 ) ) )      //  find ( Str( Loc_kod, 7 ) )
   Do While hu->kod == Loc_kod .and. !hu->( Eof() )

@@ -4,7 +4,7 @@
 
 // 18.05.26
 function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
-  arr_deti_DDS, arr_2510_DDS, arr_deti_DDSOP, arr_2510_DDSOP )
+  arr_2510_DDS, arr_2510_DDSOP )
 
   Local buf := save_maxrow()
   Local workbook
