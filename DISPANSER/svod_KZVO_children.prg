@@ -2,8 +2,10 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
-// 18.05.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
+// 19.05.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
 Function svod_KZVO_children( par )      // f21_inf_dnl
+
+  static l
 
   Local arr_m, buf := save_maxrow(), adbf
   Local name_file := 'ПО дети с репродуктивкой 15-17_'
@@ -161,6 +163,8 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     //
     dbCloseAll()
 
+// дети-сироты под опекой
+    mywait( '' )  // очистим информационную строку
     // сформируем массивы
     arr_deti := { ;
       { '1', 'Всего', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, ;
@@ -206,6 +210,9 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     arr_deti_DDSOP := AClone( arr_deti )
     arr_2510_DDSOP := AClone( arr_2510 )
     dbCloseAll()
+
+// дети-сироты стационарные
+    mywait( '' )  // очистим информационную строку
     // снова сформируем массивы
     arr_deti := { ;
       { '1', 'Всего', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, ;
@@ -220,15 +227,30 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
       { '005 школьники', 0, 0, 0, 0, 0, 0, 0 };
     }
 
+    l := 0
     svod_inf_dds( arr_m, TIP_LU_DDS, par > 1, par == 3 )
+/*
     blk_open := {|| dbCloseAll(), ;
       r_use( dir_server() + 'human_',, 'HUMAN_' ), ;
       r_use( dir_server() + 'human',, 'HUMAN' ), ;
       dbSetRelation( 'HUMAN_', {|| RecNo() }, 'recno()' ), ;
       r_use( cur_dir() + 'tmp' ), ;
-      dbSetRelation( 'HUMAN', {|| FIELD->kod }, 'kod' );
+      dbSetRelation( 'HUMAN', {|| FIELD->kod }, 'FIELD->kod' );
     }
-
+*/
+    r_use( cur_dir() + 'tmp' )
+    tmp->( dbGoTop() )
+    do while !tmp->( Eof() )
+      rec := tmp->( RecNo() )
+      @ MaxRow(), 0 Say 'Диспансеризация детей-сирот: ' + Str( rec / tmp->( LastRec() ) * 100, 6, 2 ) + '%' Color cColorWait
+      l++
+      oms_sluch_dds( TIP_LU_DDS, tmp->kod, tmp->kod_k, 'svod_inf_DDS_LU' )
+      dbCloseAll()
+      r_use( cur_dir() + 'tmp' )
+      tmp->( dbGoto( rec ) )
+      tmp->( dbSkip() )
+    Enddo
+/*
     Do While .t.
       Eval( blk_open )
       If rec == NIL
@@ -245,12 +267,14 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
       lkod_h := human->kod
       lkod_k := human->kod_k
       dbCloseAll()
+      l++
       oms_sluch_dds( TIP_LU_DDS, lkod_h, lkod_k, 'svod_inf_DDS_LU' )
     Enddo
+*/    
     arr_deti_DDS := AClone( arr_deti )
     arr_2510_DDS := AClone( arr_2510 )
+
     dbCloseAll()
-altd()
 /*      
       sh := iif( par2 == 3, 92, 68 )
       Do While .t.
@@ -745,8 +769,9 @@ Function svod_inf_dds( arr_m, tip_lu, is_schet, is_reg, is_snils )
     Return .f.
   Endif
   dbCreate( cur_dir() + 'tmp', { ;
-    { 'kod', 'N', 7, 0 }, ;
-    { 'is', 'N', 1, 0 } } ;
+    { 'kod',    'N', 7, 0 }, ;
+    { 'kod_k',  'N', 7, 0 }, ;
+    { 'is',     'N', 1, 0 } } ;
   )
   Use ( cur_dir() + 'tmp' ) new
   r_use( dir_server() + 'schet_',, 'SCHET_' )
@@ -759,12 +784,12 @@ Function svod_inf_dds( arr_m, tip_lu, is_schet, is_reg, is_snils )
     For iif( tip_lu == TIP_LU_DDS, !Empty( FIELD->za_smo ), Empty( FIELD->za_smo ) ) .and. ;
     eq_any( FIELD->ishod, 101, 102 ) .and. iif( is_schet, FIELD->schet > 0, .t. ) ;
     While human->k_data <= arr_m[ 6 ] PROGRESS
-  human->( dbGoTop() )  //  Go Top
+  human->( dbGoTop() )
   Do While ! human->( Eof() )
     fl := .t.
     If is_reg
       fl := .f.
-      schet_->( dbGoto( human->schet ) ) // Goto ( human->schet )
+      schet_->( dbGoto( human->schet ) )
       If !schet_->( Eof() ) .and. schet_->NREGISTR == 0 // только зарегистрированные
         fl := .t.
       Endif
@@ -772,9 +797,10 @@ Function svod_inf_dds( arr_m, tip_lu, is_schet, is_reg, is_snils )
     If fl .and. ret_koef_from_rak( human->kod ) > 0
       tmp->( dbAppend() )
       tmp->kod := human->kod
+      tmp->kod_k := human->kod_k
       tmp->is := iif( is_snils .and. Empty( kart->snils ), 0, 1 )
     Endif
-    human->( dbSkip() )   // Skip
+    human->( dbSkip() )
   Enddo
   fl := .t.
 //  If tmp->( LastRec() ) == 0
@@ -784,10 +810,10 @@ Function svod_inf_dds( arr_m, tip_lu, is_schet, is_reg, is_snils )
 
   Return fl
 
-// 18.05.26
+// 19.05.26
 Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
 
-  Local i, j, k, is_selo, ad := {}, ar := { 1 }, ar1 := {}
+  Local i, j, k, is_selo, ad := {}, ar := { 1 }, ar1 := {}, arr
   local ar2, lshifr, fl
   local mvar, m1var, s
 
