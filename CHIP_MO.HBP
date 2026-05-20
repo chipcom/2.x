@@ -259,7 +259,7 @@ mo_version.prg
 .\DISPANSER\diag_disp_nabl.prg
 .\DISPANSER\mo_st39.prg
 .\DISPANSER\svod_KZVO_children.prg
-.\DISPANSER\writexlsx_inf_pn.prg
+.\DISPANSER\writexlsx_inf_children.prg
 
 .\263\mo_263.prg
 .\263\mo_263p.prg

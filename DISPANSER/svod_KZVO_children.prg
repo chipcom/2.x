@@ -2,17 +2,14 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
-// 19.05.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
+// 20.05.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
 Function svod_KZVO_children( par )      // f21_inf_dnl
 
   Local arr_m, buf := save_maxrow(), adbf
-  Local name_file := 'ПО дети с репродуктивкой 15-17_'
-  Local name_file_full := name_file + '.xlsx'
+  Local name_file_full
   local arr_PO := {}, arr_15_17 := {}, arr_NP := {}
-  local arr_deti_DDS, arr_deti_DDSOP, arr_2510_DDS, arr_2510_DDSOP
-
-  local blk_open
-  Local lkod_h, lkod_k, rec
+  local arr_2510_DDS, arr_2510_DDSOP
+  Local hZabol
 
   If ( arr_m := year_month(,,, 5 ) ) != NIL
 
@@ -21,7 +18,13 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     If arr_m[ 1 ] < 2020
       Return func_error( 4, 'Данная форма утверждена с 2020 года' )
     Endif
+
     mywait()  // 'подождите, работаю'
+    hZabol := { 'I86.1' => 0, 'N40_N51' => 0, 'N44' => 0, 'N45.9' => 0, 'N47.0' => 0, 'N48.0' => 0, 'N60_N64m' => 0, 'N62m' => 0, 'oth_m' => 0, ;
+      'N60_N64g' => 0, 'N60' => 0, 'N70_N77' => 0, 'N70' => 0, 'N71' => 0, 'N72' => 0, 'N80_N98' => 0, 'N80' => 0, 'N83' => 0, 'N91' => 0, 'oth_g' => 0 }
+
+    name_file_full := 'ПО дети с репродуктивкой 15-17_' + ;
+      StrZero( Day( arr_m[ 6 ] ), 2 ) + '_' + StrZero( Month( arr_m[ 6 ] ), 2 ) + '_' + Str( Year( arr_m[ 6 ] ), 4 ) + '.xlsx'
 
     svod_inf_dnl( arr_m, par > 1, par == 3, { 301, 302 } )
 
@@ -124,7 +127,7 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     mywait( '' )  // очистим информационную строку
     Do While !tmp->( Eof() )
       @ MaxRow(), 0 Say 'Профосмотры несовершеннолетних: ' + Str( RecNo() / LastRec() * 100, 6, 2 ) + '%' Color cColorWait
-      svod_inf_dnl_LU( tmp->kod, tmp->kod_k )
+      svod_inf_dnl_LU( tmp->kod, hZabol )
       Select TMP
       tmp->( dbSkip() )
     Enddo
@@ -158,213 +161,13 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     //
     dbCloseAll()
 
+// дети-сироты стационарные
+    arr_2510_DDS := collect_arr2510( arr_m, TIP_LU_DDS, par, 'Диспансеризация детей-сирот: ' )
+
 // дети-сироты под опекой
-/*
-    mywait( '' )  // очистим информационную строку
-    // сформируем массивы
-    arr_deti := { ;
-      { '1', 'Всего', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, ;
-      { '1.1', '0-14 лет', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, ;
-      { '1.2', '15-17 лет', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    }
-    arr_2510 := { ;
-      { '001 дети 0-14 лет вкл.', 0, 0, 0, 0, 0, 0, 0 }, ;
-      { '002 из них дети до 1 г.', 0, 0, 0, 0, 0, 0, 0 }, ;
-      { '003 дети 15-17 лет вкл.', 0, 0, 0, 0, 0, 0, 0 }, ;
-      { '004 15-17 лет - юноши', 0, 0, 0, 0, 0, 0, 0 }, ;
-      { '005 школьники', 0, 0, 0, 0, 0, 0, 0 };
-    }
-    // сначала соберем дети сироты по опекой
-    svod_inf_dds( arr_m, TIP_LU_DDSOP, par > 1, par == 3 )
-
-    blk_open := {|| dbCloseAll(), ;
-      r_use( dir_server() + 'human_',, 'HUMAN_' ), ;
-      r_use( dir_server() + 'human',, 'HUMAN' ), ;
-      dbSetRelation( 'HUMAN_', {|| RecNo() }, 'recno()' ), ;
-      r_use( cur_dir() + 'tmp' ), ;
-      dbSetRelation( 'HUMAN', {|| FIELD->kod }, 'kod' );
-    }
-
-    Do While .t.
-      Eval( blk_open )
-      If rec == NIL
-        tmp->( dbGoTop() )
-      Else
-        tmp->( dbGoto( rec ) )
-        tmp->( dbSkip() )
-        If tmp->( Eof() )
-          Exit
-        Endif
-      Endif
-      rec := tmp->( RecNo() )
-      @ MaxRow(), 0 Say 'Диспансеризация детей-сирот под опекой: ' + Str( rec / tmp->( LastRec() ) * 100, 6, 2 ) + '%' Color cColorWait
-      lkod_h := human->kod
-      lkod_k := human->kod_k
-      dbCloseAll()
-      oms_sluch_dds( TIP_LU_DDSOP, lkod_h, lkod_k, 'svod_inf_DDS_LU' )
-    Enddo
-    arr_deti_DDSOP := AClone( arr_deti )
-    arr_2510_DDSOP := AClone( arr_2510 )
-    dbCloseAll()
-*/
     arr_2510_DDSOP := collect_arr2510( arr_m, TIP_LU_DDSOP, par, 'Диспансеризация детей-сирот под опекой: ' )
 
-// дети-сироты стационарные
-//    mywait( '' )  // очистим информационную строку
-    // снова сформируем массивы
-//    arr_deti := { ;
-//      { '1', 'Всего', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, ;
-//      { '1.1', '0-14 лет', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, ;
-//      { '1.2', '15-17 лет', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-//    }
-//    arr_2510 := { ;
-//      { '001 дети 0-14 лет вкл.', 0, 0, 0, 0, 0, 0, 0 }, ;
-//      { '002 из них дети до 1 г.', 0, 0, 0, 0, 0, 0, 0 }, ;
-//      { '003 дети 15-17 лет вкл.', 0, 0, 0, 0, 0, 0, 0 }, ;
-//      { '004 15-17 лет - юноши', 0, 0, 0, 0, 0, 0, 0 }, ;
-//      { '005 школьники', 0, 0, 0, 0, 0, 0, 0 };
-//    }
-
-//    svod_inf_dds( arr_m, TIP_LU_DDS, par > 1, par == 3 )
-/*
-    blk_open := {|| dbCloseAll(), ;
-      r_use( dir_server() + 'human_',, 'HUMAN_' ), ;
-      r_use( dir_server() + 'human',, 'HUMAN' ), ;
-      dbSetRelation( 'HUMAN_', {|| RecNo() }, 'recno()' ), ;
-      r_use( cur_dir() + 'tmp' ), ;
-      dbSetRelation( 'HUMAN', {|| FIELD->kod }, 'FIELD->kod' );
-    }
-*/
-//    r_use( cur_dir() + 'tmp' )
-//    tmp->( dbGoTop() )
-//    do while !tmp->( Eof() )
-//      rec := tmp->( RecNo() )
-//      @ MaxRow(), 0 Say 'Диспансеризация детей-сирот: ' + Str( rec / tmp->( LastRec() ) * 100, 6, 2 ) + '%' Color cColorWait
-//      oms_sluch_dds( TIP_LU_DDS, tmp->kod, tmp->kod_k, 'svod_inf_DDS_LU' )
-//      dbCloseAll()
-//      r_use( cur_dir() + 'tmp' )
-//      tmp->( dbGoto( rec ) )
-//      tmp->( dbSkip() )
-//    Enddo
-/*
-    Do While .t.
-      Eval( blk_open )
-      If rec == NIL
-        tmp->( dbGoTop() )
-      Else
-        tmp->( dbGoto( rec ) )
-        tmp->( dbSkip() )
-        If tmp->( Eof() )
-          Exit
-        Endif
-      Endif
-      rec := tmp->( RecNo() )
-      @ MaxRow(), 0 Say 'Диспансеризация детей-сирот: ' + Str( rec / tmp->( LastRec() ) * 100, 6, 2 ) + '%' Color cColorWait
-      lkod_h := human->kod
-      lkod_k := human->kod_k
-      dbCloseAll()
-      oms_sluch_dds( TIP_LU_DDS, lkod_h, lkod_k, 'svod_inf_DDS_LU' )
-    Enddo
-*/    
-//    arr_deti_DDS := AClone( arr_deti )
-//    arr_2510_DDS := AClone( arr_2510 )
-//    dbCloseAll()
-
-    arr_2510_DDS := collect_arr2510( arr_m, TIP_LU_DDS, par, 'Диспансеризация детей-сирот: ' )
-/*      
-      sh := iif( par2 == 3, 92, 68 )
-      Do While .t.
-        // R_Use_base('human_u')
-        Eval( blk_open )
-        If rec == NIL
-          tmp->( dbGoTop() )    //  Go Top
-        Else
-          tmp->( dbGoto( rec ) )      //  Goto ( rec )
-          tmp->( dbSkip() )       //  Skip
-          If tmp->( Eof() )
-            Exit
-          Endif
-        Endif
-        rec := tmp->( RecNo() )
-        @ MaxRow(), 0 Say Str( rec / tmp->( LastRec() ) * 100, 6, 2 ) + '%' Color cColorWait
-        lkod_h := human->kod
-        lkod_k := human->kod_k
-        dbCloseAll()
-        oms_sluch_dds( p_tip_lu, lkod_h, lkod_k, 'svod_inf_DDS_LU' )
-      Enddo
-      dbCloseAll()
-      ft := tfiletext():new( n_file, sh, .t., , .t. )
-      ft:add_string( glob_mo()[ _MO_SHORT_NAME ], FILE_LEFT, ' ' )
-      ft:add_string( '' )
-      If par2 == 3
-        ft:add_string( 'Приложение', FILE_RIGHT, ' ' )
-        ft:add_string( 'к письму КЗВО', FILE_RIGHT, ' ' )
-        ft:add_string( '№14-05/50 от 07.02.2020г.', FILE_RIGHT )
-      Endif
-      ft:add_string( '' )
-      ft:add_string( 'Сведения о диспансеризации несовершеннолетних,', FILE_CENTER, ' ' )
-      If p_tip_lu == TIP_LU_DDS
-        ft:add_string( 'пребывающих в стационарных условиях детей-сирот и детей,', FILE_CENTER, ' ' )
-        ft:add_string( 'находящихся в трудной жизненной ситуации', FILE_CENTER, ' ' )
-      Else
-        ft:add_string( 'детей-сирот и детей, оставшихся без попечения родителей, в том числе', FILE_CENTER, ' ' )
-        ft:add_string( 'усыновлённых (удочерённых), принятых под опеку (попечительство),', FILE_CENTER, ' ' )
-        ft:add_string( 'в приёмную или патронатную семью', FILE_CENTER, ' ' )
-      Endif
-      ft:add_string( '[ ' + CharRem( '~', mas1pmt()[ par ] ) + ' ]', FILE_CENTER, ' ' )
-      ft:add_string( arr_m[ 4 ], FILE_CENTER, ' ' )
-      ft:add_string( '' )
-      If par2 == 3
-        ft:add_string( '───┬──────────┬─────────────────┬─────┬───────────────────────────────────┬─────┬─────┬─────' )
-        ft:add_string( '№№ │          │     Осмотрено   │неинф│           из них                  │Факто│взято│из 6г' )
-        ft:add_string( 'пп │Показатель├─────┬─────┬─────┤забол├─────┬─────┬─────┬─────┬─────┬─────┤ры   ┤на ди│начат' )
-        ft:add_string( '   │          │всего│андро│гинек│вперв│крово│ ЗНО │ко_мы│ глаз│эндок│пищев│риска│спанс│лечен' )
-        ft:add_string( '───┼──────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────' )
-        ft:add_string( ' 1 │    2     │  3  │  4  │  5  │  6  │  7  │  8  │  9  │  10 │  11 │  12 │  13 │  14 │  15 ' )
-        ft:add_string( '───┴──────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────' )
-        For i := 1 To 3
-          s := PadR( arr_deti[ i, 1 ], 4 ) + PadR( arr_deti[ i, 2 ], 9 )
-          s += put_val( arr_deti[ i, 3 ], 6 )
-          s += put_val( arr_deti[ i, 16 ], 6 ) // андролог
-          s += put_val( arr_deti[ i, 17 ], 6 ) // гинеколог
-          s += put_val( arr_deti[ i, 7 ], 6 )
-          s += put_val( arr_deti[ i, 8 ], 6 )
-          s += put_val( arr_deti[ i, 9 ], 6 )
-          s += put_val( arr_deti[ i, 21 ], 6 ) // кости- связки
-          s += put_val( arr_deti[ i, 18 ], 6 ) // глаза
-          s += put_val( arr_deti[ i, 19 ], 6 ) // эндокринка
-          // s += put_val(arr_deti[i, 11], 6)
-          s += put_val( arr_deti[ i, 12 ], 6 )
-          s += put_val( arr_deti[ i, 20 ], 6 ) // факторы риска
-          s += put_val( arr_deti[ i, 13 ], 6 )
-          s += put_val( arr_deti[ i, 14 ], 6 )
-          // for j := 3 to 15
-          // s += put_val(arr_deti[i,j], 6)
-          // next
-          ft:add_string( s )
-          ft:add_string( Replicate( '─', sh ) )
-        Next
-      Else
-        ft:add_string( '─────────────────────────┬───────────┬─────────────────────────────' )
-        ft:add_string( '                         │Число детей│     по группам здоровья     ' )
-        ft:add_string( '     Дети - сироты       ├─────┬─────┼─────┬─────┬─────┬─────┬─────' )
-        ft:add_string( '     таблица 2510        │всего│ село│  1  │  2  │  3  │  4  │  5  ' )
-        ft:add_string( '─────────────────────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────' )
-        ft:add_string( '                         │  5  │  6  │  7  │  8  │  9  │  12 │  13 ' )
-        ft:add_string( '─────────────────────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────' )
-        For i := 1 To Len( arr_2510 )
-          s := PadR( arr_2510[ i, 1 ], 25 )
-          For j := 2 To Len( arr_2510[ i ] )
-            s += put_val( arr_2510[ i, j ], 6 )
-          Next
-          ft:add_string( s )
-        Next
-      Endif
-      ft := nil
-      viewtext( n_file,,,, .t.,,, 2 )
-*/
-
-    writexlsx_inf_pn( hb_OEMToANSI( name_file_full ), arr_m, arr_PO, arr_15_17, arr_NP, ;
+    writexlsx_inf_children( hb_OEMToANSI( name_file_full ), arr_m, arr_PO, arr_15_17, arr_NP, ;
       arr_2510_DDS, arr_2510_DDSOP )
     work_with_excel_file( name_file_full )
   Endif
@@ -468,18 +271,19 @@ Function svod_inf_dnl( arr_m, is_schet, is_reg, arr_ishod, is_snils )
 
   Return fl
 
-// 18.05.26
-Function svod_inf_dnl_LU( Loc_kod, kod_kartotek ) // сводная информация из листов учета
+// 20.05.26
+Function svod_inf_dnl_LU( Loc_kod, hZabol ) // сводная информация из листов учета
 
   Local ii, im, i, j, k, s, sumr := 0, ar := { 0 }, ltip_school := -1, ar15[ 26 ], ;
     is_2 := .f., ad := {}, arr, a3 := {}, fl_ves := .t.
-  local fl, is_selo, mvar, m1var, lshifr, pole
+  local fl, is_selo, mvar, m1var, lshifr, pole, flPol
 
   Private m1tip_school := -1, m1school := 0, mvozrast, mdvozrast, mgruppa := 0, m1GR_FIZ := 1, m1invalid1 := 0
 //  Private mvar, m1var, 
   Private m1FIZ_RAZV1, m1napr_stac := 0
 
   AFill( ar15, 0 )
+  flPol := ( human->pol == 'М' )
   mvozrast := count_years( human->date_r, human->n_data )
   mdvozrast := Year( human->n_data ) - Year( human->date_r )
   For i := 1 To 5
@@ -709,9 +513,9 @@ Function svod_inf_dnl_LU( Loc_kod, kod_kartotek ) // сводная информация из листо
   //
   For j := 1 To Len( a3 )
     Select TMP2
-    tmp2->( dbseek( Str( a3[ j, 16 ], 1 ) ) )      //  find ( Str( a3[ j, 16 ], 1 ) )
+    tmp2->( dbseek( Str( a3[ j, 16 ], 1 ) ) )
     If !tmp2->( Found() )
-      tmp2->( dbAppend() )      //  Append Blank
+      tmp2->( dbAppend() )
       tmp2->ti := a3[ j, 16 ]
     Endif
     For i := 1 To 15
@@ -729,7 +533,7 @@ Function svod_inf_dnl_LU( Loc_kod, kod_kartotek ) // сводная информация из листо
   For j := 1 To Len( ar )
     im := ar[ j ]
     Select TMP1
-    tmp1->( dbSeek( Str( im, 2 ) ) )      //  find ( Str( im, 2 ) )
+    tmp1->( dbSeek( Str( im, 2 ) ) )
     tmp1->vsego++
     If is_selo
       tmp1->vsego1++
@@ -775,15 +579,15 @@ Function svod_inf_dnl_LU( Loc_kod, kod_kartotek ) // сводная информация из листо
     Endif
     If human->schet > 0
       Select SCHET_
-      schet_->( dbGoto( human->schet ) )      //  Goto ( human->schet )
+      schet_->( dbGoto( human->schet ) )
       If !schet_->( Eof() ) .and. schet_->NREGISTR == 0 // только зарегистрированные
         tmp1->sv++
         sumr := 0
         Select RPDSH
-        rpdsh->( dbSeek( Str( Loc_kod, 7 ) ) )       //  find ( Str( Loc_kod, 7 ) )
+        rpdsh->( dbSeek( Str( Loc_kod, 7 ) ) )
         Do While rpdsh->KOD_H == Loc_kod .and. !rpdsh->( Eof() )
           sumr += rpdsh->S_SL
-          rpdsh->( dbSkip() )       //  Skip
+          rpdsh->( dbSkip() )
         Enddo
         If Round( human->cena_1, 2 ) == Round( sumr, 2 ) // полностью оплачен
           tmp1->so++
@@ -792,7 +596,42 @@ Function svod_inf_dnl_LU( Loc_kod, kod_kartotek ) // сводная информация из листо
     Endif
   Next
 
+  if mvozrast >= 15 .and. mvozrast <= 17
+    fill_diag_zabol( flPol, ad, hZabol )
+  endif
+
   Return Nil
+
+// 20.05.26
+function fill_diag_zabol( flPol, ad, hZabol )
+
+  // flPol - .t. - мужчина, .f. - женщина
+
+  local i, sDiag, sDiag3
+
+  if len( ad ) > 0
+    for i := 1 to len( ad )
+      sDiag := AllTrim( ad[ i, 1 ] )
+      sDiag3 := SubStr( sDiag, 1, 3 )
+      if hb_HHasKey( hZabol, sDiag )
+        hZabol[ sDiag ]++
+      endif
+//      if hb_HHasKey( hZabol, sDiag3 )
+//        hZabol[ sDiag3 ]++
+//      endif
+
+      if flPol  // для юношей
+      endif
+
+//      between_diag( sDiag, 'N40', 'N51' )
+//      between_diag( sDiag, 'N60', 'N64' )
+//      between_diag( sDiag, 'N60', 'N64' )
+//      between_diag( sDiag, 'N70', 'N77' )
+//      between_diag( sDiag, 'N80', 'N98' )
+    next
+  endif
+
+  return NIL
 
 // 11.03.19
 Function svod_inf_dds( arr_m, tip_lu, is_schet, is_reg, is_snils )
@@ -881,16 +720,16 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
   Next
 
   r_use( dir_server() + 'kartote2',, 'KART2' )
-  kart2->( dbGoto( kod_kartotek ) )     //  Goto ( kod_kartotek )
+  kart2->( dbGoto( kod_kartotek ) )
   r_use( dir_server() + 'kartote_',, 'KART_' )
-  kart_->( dbGoto( kod_kartotek ) )     //  Goto ( kod_kartotek )
+  kart_->( dbGoto( kod_kartotek ) )
 
   r_use( dir_server() + 'uslugi',, 'USL' )
   r_use_base( 'human_u' )
   r_use( dir_server() + 'human',, 'HUMAN' )
 
   r_use( dir_server() + 'kartotek',, 'KART' )
-  kart->( dbGoto( kod_kartotek ) )     //  Goto ( kod_kartotek )
+  kart->( dbGoto( kod_kartotek ) )
   is_selo := f_is_selo( kart_->gorod_selo, kart_->okatog )
   If mvozrast == 0
     AAdd( ar1, 2 )
@@ -988,7 +827,7 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
   //
   fl := .f.
   Select HU
-  hu->( dbSeek( Str( Loc_kod, 7 ) ) )      //  find ( Str( Loc_kod, 7 ) )
+  hu->( dbSeek( Str( Loc_kod, 7 ) ) )
   Do While hu->kod == Loc_kod .and. !hu->( Eof() )
     If eq_any( hu_->PROFIL, 19, 136 )
       fl := .t.
@@ -1008,7 +847,7 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
       Endif
     Endif
     Select HU
-    hu->( dbSkip() )    //  Skip
+    hu->( dbSkip() )
   Enddo
   //
   For j := 1 To Len( ar1 )

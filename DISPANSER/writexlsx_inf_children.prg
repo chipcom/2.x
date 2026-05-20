@@ -2,8 +2,8 @@
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
 
-// 18.05.26
-function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
+// 20.05.26
+function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   arr_2510_DDS, arr_2510_DDSOP )
 
   Local buf := save_maxrow()
@@ -558,29 +558,18 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   worksheet_write_formula( ws2, 14, 1, '=профосмотры!F15', block_Total )
   worksheet_write_formula( ws2, 14, 2, '=профосмотры!H15', block_Total )
   worksheet_write_formula( ws2, 14, 3, '=профосмотры!I15', block_Total )
-//  worksheet_write_string( ws2, 14, 4, '', block_empty )
   worksheet_write_number( ws2, 14, 4, arr_15_17[ 1, 3 ], block_empty )
-//  worksheet_write_string( ws2, 14, 5, '', block_empty )
   worksheet_write_number( ws2, 14, 5, arr_15_17[ 1, 4 ], block_empty )
   worksheet_write_formula( ws2, 14, 6, '=C15', block_Total )
-//  worksheet_write_string( ws2, 14, 7, '', block_empty )
   worksheet_write_number( ws2, 14, 7, arr_15_17[ 1, 6 ], block_empty )
-//  worksheet_write_string( ws2, 14, 8, '', block_empty )
   worksheet_write_number( ws2, 14, 8, arr_15_17[ 1, 7 ], block_empty )
-//  worksheet_write_string( ws2, 14, 9, '', block_empty )
   worksheet_write_number( ws2, 14, 9, arr_15_17[ 1, 8 ], block_empty )
-//  worksheet_write_string( ws2, 14, 10, '', block_empty )
   worksheet_write_number( ws2, 14, 10, arr_15_17[ 1, 9 ], block_empty )
-//  worksheet_write_string( ws2, 14, 11, '', block_empty )
   worksheet_write_number( ws2, 14, 11, arr_15_17[ 1, 10 ], block_empty )
   worksheet_write_string( ws2, 14, 12, '', block_empty )
-//  worksheet_write_number( ws2, 14, 12, arr_15_17[ 1, 9 ], block_empty )
   worksheet_write_string( ws2, 14, 13, '', block_empty )
-//  worksheet_write_number( ws2, 14, 13, arr_15_17[ 1, 10 ], block_empty )
   worksheet_write_string( ws2, 14, 14, '', block_empty )
-//  worksheet_write_number( ws2, 14, 14, arr_15_17[ 1, 11 ], block_empty )
   worksheet_write_string( ws2, 14, 15, '', block_empty )
-//  worksheet_write_number( ws2, 14, 15, arr_15_17[ 1, 12 ], block_empty )
 
   worksheet_merge_range( ws2, 16, 0, 16, 10, 'ДЕВУШКИ (15-17 лет', nil )
 
@@ -625,29 +614,18 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   worksheet_write_formula( ws2, 20, 1, '=профосмотры!F14-профосмотры!F15', block_Total )
   worksheet_write_formula( ws2, 20, 2, '=профосмотры!H14-профосмотры!H15', block_Total )
   worksheet_write_formula( ws2, 20, 3, '=профосмотры!I14-профосмотры!I15', block_Total )
-//  worksheet_write_string( ws2, 20, 4, '', block_empty )
   worksheet_write_number( ws2, 20, 4, arr_15_17[ 2, 3 ], block_empty )
-//  worksheet_write_string( ws2, 20, 5, '', block_empty )
   worksheet_write_number( ws2, 20, 5, arr_15_17[ 2, 4 ], block_empty )
   worksheet_write_formula( ws2, 20, 6, '=C21', block_Total )
-//  worksheet_write_string( ws2, 20, 7, '', block_empty )
   worksheet_write_number( ws2, 20, 7, arr_15_17[ 2, 6 ], block_empty )
-//  worksheet_write_string( ws2, 20, 8, '', block_empty )
   worksheet_write_number( ws2, 20, 8, arr_15_17[ 2, 7 ], block_empty )
-//  worksheet_write_string( ws2, 20, 9, '', block_empty )
   worksheet_write_number( ws2, 20, 9, arr_15_17[ 2, 8 ], block_empty )
-//  worksheet_write_string( ws2, 20, 10, '', block_empty )
   worksheet_write_number( ws2, 20, 10, arr_15_17[ 2, 9 ], block_empty )
-//  worksheet_write_string( ws2, 20, 11, '', block_empty )
   worksheet_write_number( ws2, 20, 11, arr_15_17[ 2, 10 ], block_empty )
   worksheet_write_string( ws2, 20, 12, '', block_empty )
-//  worksheet_write_number( ws2, 20, 12, arr_15_17[ 2, 10 ], block_empty )
   worksheet_write_string( ws2, 20, 13, '', block_empty )
-//  worksheet_write_number( ws2, 20, 13, arr_15_17[ 2, 11 ], block_empty )
   worksheet_write_string( ws2, 20, 14, '', block_empty )
-//  worksheet_write_number( ws2, 20, 14, arr_15_17[ 2, 12 ], block_empty )
   worksheet_write_string( ws2, 20, 15, '', block_empty )
-//  worksheet_write_number( ws2, 20, 15, arr_15_17[ 2, 13 ], block_empty )
 
   worksheet_merge_range( ws2, 21, 0, 21, 3, '*число посещений это число осмотов специалистами', titul_table_bold )
 
@@ -777,21 +755,6 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   worksheet_write_number( ws3, 9, 6, arr_NP[ 1, 4 ], block_empty )
   worksheet_write_number( ws3, 9, 7, arr_NP[ 1, 5 ], block_empty )
   worksheet_write_number( ws3, 9, 8, arr_NP[ 1, 6 ], block_empty )
-/*
-  worksheet_write_number( ws3, 9, 9, arr_NP[ 1, 7 ], block_empty )
-  worksheet_write_number( ws3, 9, 10, arr_NP[ 1, 8 ], block_empty )
-  worksheet_write_number( ws3, 9, 11, 0, block_empty )    // ЗНО
-  worksheet_write_number( ws3, 9, 12, 0, block_empty )    // 1 и 2 группы
-  worksheet_write_number( ws3, 9, 13, arr_NP[ 1, 11 ], block_empty )
-  worksheet_write_number( ws3, 9, 14, arr_NP[ 1, 12 ], block_empty )
-  worksheet_write_number( ws3, 9, 15, arr_NP[ 1, 13 ], block_empty )
-  worksheet_write_number( ws3, 9, 16, arr_NP[ 1, 14 ], block_empty )
-  worksheet_write_number( ws3, 9, 17, arr_NP[ 1, 15 ], block_empty )
-  worksheet_write_number( ws3, 9, 18, arr_NP[ 1, 16 ], block_empty )
-  worksheet_write_number( ws3, 9, 19, arr_NP[ 1, 17 ], block_empty )
-  worksheet_write_number( ws3, 9, 20, arr_NP[ 1, 18 ], block_empty )
-  worksheet_write_number( ws3, 9, 21, arr_NP[ 1, 19 ], block_empty )
-*/
   for i := 9 to 21
     if i == 11 .or. i == 12
       worksheet_write_number( ws3, 9, i, 0, block_empty )
@@ -810,21 +773,6 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   worksheet_write_number( ws3, 10, 6, arr_NP[ 2, 4 ], block_empty )
   worksheet_write_formula( ws3, 10, 7, "='15-17 лет'!G15", block_Total )
   worksheet_write_formula( ws3, 10, 8, "='15-17 лет'!G21", block_Total )
-/*
-  worksheet_write_number( ws3, 10, 9, arr_NP[ 2, 7 ], block_empty )
-  worksheet_write_number( ws3, 10, 10, arr_NP[ 2, 8 ], block_empty )
-  worksheet_write_number( ws3, 10, 11, 0, block_empty )    // ЗНО
-  worksheet_write_number( ws3, 10, 12, 0, block_empty )    // 1 и 2 группы
-  worksheet_write_number( ws3, 10, 13, arr_NP[ 2, 11 ], block_empty )
-  worksheet_write_number( ws3, 10, 14, arr_NP[ 2, 12 ], block_empty )
-  worksheet_write_number( ws3, 10, 15, arr_NP[ 2, 13 ], block_empty )
-  worksheet_write_number( ws3, 10, 16, arr_NP[ 2, 14 ], block_empty )
-  worksheet_write_number( ws3, 10, 17, arr_NP[ 2, 15 ], block_empty )
-  worksheet_write_number( ws3, 10, 18, arr_NP[ 2, 16 ], block_empty )
-  worksheet_write_number( ws3, 10, 19, arr_NP[ 2, 17 ], block_empty )
-  worksheet_write_number( ws3, 10, 20, arr_NP[ 2, 18 ], block_empty )
-  worksheet_write_number( ws3, 10, 21, arr_NP[ 2, 19 ], block_empty )
-*/
   for i := 9 to 21
     if i == 11 .or. i == 12
       worksheet_write_number( ws3, 10, i, 0, block_empty )
@@ -866,9 +814,6 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   worksheet_set_tab_color( ws4, cColorTab4 )
 
   /* Установить высоту строки */
-//  worksheet_set_row( ws4, 1, 35.0 )
-//  worksheet_set_row( ws4, 6, 42.6 )
-//  worksheet_set_row( ws4, 7, 28.2 )
   worksheet_set_row( ws4, 5, 84.6 )
   worksheet_set_row( ws4, 13, 84.6 )
   worksheet_set_row( ws4, 22, 84.6 )
@@ -1498,9 +1443,6 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
 
   /* Установить высоту строки */
   worksheet_set_row( ws7, 1, 31.2 )
-//  worksheet_set_row( ws7, 1, 42.6 )
-//  worksheet_set_row( ws7, 2, 28.2 )
-//  worksheet_set_row( ws7, 3, 80.4 )
   /* Установить ширину колонок */
   worksheet_set_column( ws7, 0, 0, 51.67 )
   worksheet_set_column( ws7, 1, 1, 8.11 )
@@ -1607,9 +1549,6 @@ function writexlsx_inf_pn( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   If !Empty( error )
     alertx( hb_UTF8ToStr( sprintf( 'Ошибка в workbook_close().\n' + ;
     'Ошибка %d = %s\n', error, hb_ntos( error ) ), 'RU866' ), 'error' )
-  else
-//    saveto( fName )
-//    saveto( cur_dir() + name_file_full )
   Endif
   rest_box( buf )
 
