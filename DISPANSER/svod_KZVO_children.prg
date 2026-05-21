@@ -2,18 +2,19 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
-// 20.05.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
+// 21.05.26 Приложение к письму ГБУЗ 'ВОМИАЦ' №1025 от 08.07.2019г.
 Function svod_KZVO_children( par )      // f21_inf_dnl
 
   Local arr_m, buf := save_maxrow(), adbf
   Local name_file_full
   local arr_PO := {}, arr_15_17 := {}, arr_NP := {}
   local arr_2510_DDS, arr_2510_DDSOP
-  Local hZabol
+//  Local hZabol
 
   If ( arr_m := year_month(,,, 5 ) ) != NIL
 
     Private arr_deti, arr_2510
+    Private hZabol
 
     If arr_m[ 1 ] < 2020
       Return func_error( 4, 'Данная форма утверждена с 2020 года' )
@@ -160,7 +161,6 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     Enddo
     //
     dbCloseAll()
-
 // дети-сироты стационарные
     arr_2510_DDS := collect_arr2510( arr_m, TIP_LU_DDS, par, 'Диспансеризация детей-сирот: ' )
 
@@ -168,7 +168,7 @@ Function svod_KZVO_children( par )      // f21_inf_dnl
     arr_2510_DDSOP := collect_arr2510( arr_m, TIP_LU_DDSOP, par, 'Диспансеризация детей-сирот под опекой: ' )
 
     writexlsx_inf_children( hb_OEMToANSI( name_file_full ), arr_m, arr_PO, arr_15_17, arr_NP, ;
-      arr_2510_DDS, arr_2510_DDSOP )
+      arr_2510_DDS, arr_2510_DDSOP, hZabol )
     work_with_excel_file( name_file_full )
   Endif
   dbCloseAll()
@@ -236,7 +236,6 @@ Function svod_inf_dnl( arr_m, is_schet, is_reg, arr_ishod, is_snils )
   r_use( dir_server() + 'human_',, 'HUMAN_' )
   r_use( dir_server() + 'human', dir_server() + 'humand', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_, To FIELD->kod_k into KART
-  
   human->( dbSeek( DToS( arr_m[ 5 ] ), .t. ) )
   Index On FIELD->kod to ( cur_dir() + 'tmp_h' ) ;
     For AScan( arr_ishod, FIELD->ishod ) > 0 .and. iif( is_schet, FIELD->schet > 0, .t. ) ;
@@ -413,6 +412,7 @@ Function svod_inf_dnl_LU( Loc_kod, hZabol ) // сводная информация из листов учет
         arr[ 22 ] ++
         fl_ves := .f.
       Endif
+
       // надо деффицит массы тела
       If Left( ad[ i, 1 ], 1 ) == 'C' .or. Between( Left( ad[ i, 1 ], 3 ), 'D00', 'D09' ) // ЗНО может быть добавить  .or. between(left(ad[i, 1], 3),'D45','D47')
         arr[ 9 ] ++
@@ -428,6 +428,10 @@ Function svod_inf_dnl_LU( Loc_kod, hZabol ) // сводная информация из листов учет
         Endif
       Endif
     Endif
+
+    if mdvozrast >= 15 .and. mdvozrast <= 17
+      fill_diag_zabol( flPol, ad, hZabol )
+    endif
   Next
   AAdd( a3, AClone( arr ) )
   If Between( mdvozrast, 15, 17 )
@@ -596,13 +600,9 @@ Function svod_inf_dnl_LU( Loc_kod, hZabol ) // сводная информация из листов учет
     Endif
   Next
 
-  if mvozrast >= 15 .and. mvozrast <= 17
-    fill_diag_zabol( flPol, ad, hZabol )
-  endif
-
   Return Nil
 
-// 20.05.26
+// 21.05.26
 function fill_diag_zabol( flPol, ad, hZabol )
 
   // flPol - .t. - мужчина, .f. - женщина
@@ -616,18 +616,34 @@ function fill_diag_zabol( flPol, ad, hZabol )
       if hb_HHasKey( hZabol, sDiag )
         hZabol[ sDiag ]++
       endif
-//      if hb_HHasKey( hZabol, sDiag3 )
-//        hZabol[ sDiag3 ]++
-//      endif
 
-      if flPol  // для юношей
+      if between_diag( sDiag, 'N40', 'N51' )
+        hZabol[ 'N40_N51' ]++
       endif
-
-//      between_diag( sDiag, 'N40', 'N51' )
-//      between_diag( sDiag, 'N60', 'N64' )
-//      between_diag( sDiag, 'N60', 'N64' )
-//      between_diag( sDiag, 'N70', 'N77' )
-//      between_diag( sDiag, 'N80', 'N98' )
+      if flPol  // для юношей
+        if between_diag( sDiag, 'N60', 'N64' )
+          hZabol[ 'N60_N64m' ]++
+        endif
+        if sDiag3 == 'N62'
+          hZabol[ 'N62m' ]++
+        endif
+        if sDiag3 == 'N44'
+          hZabol[ 'N44' ]++
+        endif
+      else  // для девушек
+        if between_diag( sDiag, 'N60', 'N64' )
+          hZabol[ 'N60_N64g' ]++
+        endif
+        if eq_any( sDiag3, 'N60', 'N70', 'N71', 'N72', 'N80', 'N83', 'N91' )
+          hZabol[ sDiag3 ]++
+        endif
+        if between_diag( sDiag, 'N70', 'N77' )
+          hZabol[ 'N70_N77' ]++
+        endif
+        if between_diag( sDiag, 'N80', 'N98' )
+          hZabol[ 'N80_N98' ]++
+        endif
+      endif
     next
   endif
 
@@ -684,7 +700,7 @@ Function svod_inf_dds( arr_m, tip_lu, is_schet, is_reg, is_snils )
 
   Return fl
 
-// 19.05.26
+// 21.05.26
 Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
 
   Local i, j, k, is_selo, ad := {}, ar := { 1 }, ar1 := {}, arr
@@ -806,6 +822,10 @@ Function svod_inf_dds_LU( Loc_kod, kod_kartotek, mvozrast )
   If m1fiz_razv1 == 1
     ar2[ 20 ] := 1
   Endif
+
+  if mvozrast >= 15 .and. mvozrast <= 17
+    fill_diag_zabol( kart->POL == 'М', ad, hZabol )
+  endif
 
   For j := 1 To 2
     k := ar[ j ]
