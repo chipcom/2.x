@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
 
-// 21.05.26
+// 22.05.26
 function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   arr_2510_DDS, arr_2510_DDSOP, hZabol )
 
@@ -566,8 +566,10 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   worksheet_write_number( ws2, 14, 9, arr_15_17[ 1, 8 ], block_empty )
   worksheet_write_number( ws2, 14, 10, arr_15_17[ 1, 9 ], block_empty )
   worksheet_write_number( ws2, 14, 11, arr_15_17[ 1, 10 ], block_empty )
-  worksheet_write_string( ws2, 14, 12, '', block_empty )
-  worksheet_write_string( ws2, 14, 13, '', block_empty )
+//  worksheet_write_string( ws2, 14, 12, '', block_empty )
+  worksheet_write_number( ws2, 14, 12, arr_15_17[ 1, 11 ], block_empty )
+//  worksheet_write_string( ws2, 14, 13, '', block_empty )
+  worksheet_write_number( ws2, 14, 13, arr_15_17[ 1, 12 ], block_empty )
   worksheet_write_string( ws2, 14, 14, '', block_empty )
   worksheet_write_string( ws2, 14, 15, '', block_empty )
 
@@ -622,8 +624,10 @@ function writexlsx_inf_children( file_name, arr_m, arr_PO, arr_15_17, arr_NP, ;
   worksheet_write_number( ws2, 20, 9, arr_15_17[ 2, 8 ], block_empty )
   worksheet_write_number( ws2, 20, 10, arr_15_17[ 2, 9 ], block_empty )
   worksheet_write_number( ws2, 20, 11, arr_15_17[ 2, 10 ], block_empty )
-  worksheet_write_string( ws2, 20, 12, '', block_empty )
-  worksheet_write_string( ws2, 20, 13, '', block_empty )
+//  worksheet_write_string( ws2, 20, 12, '', block_empty )
+  worksheet_write_number( ws2, 20, 12, arr_15_17[ 2, 11 ], block_empty )
+//  worksheet_write_string( ws2, 20, 13, '', block_empty )
+  worksheet_write_number( ws2, 20, 13, arr_15_17[ 2, 12 ], block_empty )
   worksheet_write_string( ws2, 20, 14, '', block_empty )
   worksheet_write_string( ws2, 20, 15, '', block_empty )
 
