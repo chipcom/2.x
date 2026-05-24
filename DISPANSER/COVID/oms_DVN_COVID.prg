@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.04.26 ДВН - добавление или редактирование случая (листа учета)
+// 24.05.26 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -18,11 +18,13 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     p_uch_doc := '@!', pic_diag := '@K@!', arr_usl := {}, ah, ;
     i, j, k, s, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
     pos_read := 0, k_read := 0, count_edit := 0, ar, larr, lu_kod, ;
-    fl, tmp_help := chm_help_code, fl_write_sluch := .f., mu_cena, lrslt_1_etap := 0
+    fl, fl_write_sluch := .f., mu_cena, lrslt_1_etap := 0
+  Local tmp_help := chm_help_code
 
-  Local iUslDop := iUslOtkaz := iUslOtklon := 0   // счетчики
+  Local iUslDop, iUslOtkaz, iUslOtklon   // счетчики
   Local lenArr_Uslugi_DVN_COVID
   local str_1, hS, wS
+  local iB01_047_001, iB01_026_001, i70_80_1
 
   //
   Default st_N_DATA To sys_date, st_K_DATA To sys_date
@@ -36,15 +38,16 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
   Private oms_sluch_DVN := .t., ps1dispans := s1dispans, is_prazdnik
 
 //  hb_alert( 'ВНИМАНИЕ! С 19 июля 2024 года углубленная диспансеризация после COVID закрыта.')
+  iUslDop := iUslOtkaz := iUslOtklon := 0   // счетчики
   If kod_kartotek == 0 // добавление в картотеку
     If ( kod_kartotek := edit_kartotek( 0,,, .t. ) ) == 0
       Return Nil
     Endif
   Elseif Loc_kod > 0
     r_use( dir_server() + 'human',, 'HUMAN' )
-    Goto ( Loc_kod )
+    human->( dbGoto( Loc_kod ) )
     fl := ( human->k_data < 0d20210701 )
-    Use
+    human->( dbCloseArea() )
     If fl
       Return func_error( 4, 'Углубленная диспансеризация после COVID началась 01 июля 2021 году' )
     Endif
@@ -125,7 +128,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     { '2 группа', 2 } }
   Private mkomorbid, m1komorbid := 0
 
-  Private mm_gruppa //, mm_ndisp1
+  Private mm_gruppa
 
   Private mm_gruppaP := arr_mm_gruppaP()
   Private mm_gruppaD1 := { ;
@@ -212,11 +215,11 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   If mkod_k > 0
     r_use( dir_server() + 'kartote2',, 'KART2' )
-    Goto ( mkod_k )
+    kart2->( dbGoto( mkod_k ) )
     r_use( dir_server() + 'kartote_',, 'KART_' )
-    Goto ( mkod_k )
+    kart_->( dbGoto( mkod_k ) )
     r_use( dir_server() + 'kartotek',, 'KART' )
-    Goto ( mkod_k )
+    kart->( dbGoto( mkod_k ) )
     M1FIO       := 1
     mfio        := kart->fio
     mpol        := kart->pol
@@ -249,8 +252,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     ah := {}
     Select HUMAN
     Set Index to ( dir_server() + 'humankk' )
-    find ( Str( mkod_k, 7 ) )
-    Do While human->kod_k == mkod_k .and. !Eof()
+    human->( dbSeek( Str( mkod_k, 7 ) ) )
+    Do While human->kod_k == mkod_k .and. !human->( Eof() )
       If human_->oplata != 9 .and. human_->NOVOR == 0 .and. RecNo() != Loc_kod
         If is_death( human_->RSLT_NEW ) .and. Empty( a_smert )
           a_smert := { 'Данный больной умер!', ;
@@ -262,13 +265,13 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       Select HUMAN
-      Skip
+      human->( dbskip() )
     Enddo
     Set Index To
     If Len( ah ) > 0
       ASort( ah,,, {| x, y| x[ 2 ] < y[ 2 ] } )
       Select HUMAN
-      Goto ( ATail( ah )[ 1 ] )
+      human->( dbGoto( ATail( ah )[ 1 ] ) )
       M1RAB_NERAB := human->RAB_NERAB // 0-работающий, 1-неработающий, 2-обучающ.ОЧНО
       M1VZ        := human->VZ
       letap := human->ishod -400
@@ -281,7 +284,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
   If Loc_kod > 0  // читаем информацию из HUMAN, HUMAN_U и MO_HU и заполним табличную часть
     Select HUMAN
-    Goto ( Loc_kod )
+    human->( dbGoto( Loc_kod ) )
     M1LPU       := human->LPU
     M1OTD       := human->OTD
     M1FIO       := 1
@@ -326,7 +329,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     //
     // выбираем иформацию об услугах
     larr := Array( 2, Len( uslugietap_dvn_covid( metap ) ) )
-    arr_usl := {} // array(len(uslugiEtap_DVN_COVID(metap)))
+    arr_usl := {}
     afillall( larr, 0 )
     // afillall(arr_usl,0)
     r_use( dir_server() + 'uslugi',, 'USL' )
@@ -335,8 +338,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
     use_base( 'human_u' )
 
     // сначала выберем информацию из human_u по услугам ТФОМС
-    find ( Str( Loc_kod, 7 ) )
-    Do While hu->kod == Loc_kod .and. !Eof()
+    hu->( dbSeek( Str( Loc_kod, 7 ) ) )      //  find ( Str( Loc_kod, 7 ) )
+    Do While hu->kod == Loc_kod .and. !hu->( Eof() )
       usl->( dbGoto( hu->u_kod ) )
       If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, mk_data ) )
         lshifr := usl->shifr
@@ -355,15 +358,15 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
               If ValType( uslugietap_dvn_covid( metap )[ i, 13 ] ) == 'C' .and. !Empty( uslugietap_dvn_covid( metap )[ i, 13 ] )
                 Select MOHU
                 Set Relation To FIELD->u_kod into MOSU
-                find ( Str( Loc_kod, 7 ) )
-                Do While MOHU->kod == Loc_kod .and. !Eof()
+                mohu->( dbSeek( Str( Loc_kod, 7 ) ) )      //  find ( Str( Loc_kod, 7 ) )
+                Do While MOHU->kod == Loc_kod .and. !mohu->( Eof() )
                   MOSU->( dbGoto( MOHU->u_kod ) )
                   lshifr := AllTrim( iif( Empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
                   If lshifr == uslugietap_dvn_covid( metap )[ i, 13 ]
                     AAdd( arr_usl, MOHU->( RecNo() ) )
                   Endif
                   Select MOHU
-                  Skip
+                  mohu->( dbskip() )
                 Enddo
                 Select HU
               Endif
@@ -372,14 +375,14 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         Endif
       Next
       Select HU
-      Skip
+      hu->( dbskip() )
     Enddo
 
     // затем выберем информацию из mo_hu по услугам ФФОМС
     Select MOHU
     Set Relation To FIELD->u_kod into MOSU
-    find ( Str( Loc_kod, 7 ) )
-    Do While MOHU->kod == Loc_kod .and. !Eof()
+    mohu->( dbSeek( Str( Loc_kod, 7 ) ) )      //  find ( Str( Loc_kod, 7 ) )
+    Do While MOHU->kod == Loc_kod .and. !mohu->( Eof() )
       MOSU->( dbGoto( MOHU->u_kod ) )
       lshifr := AllTrim( iif( Empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
       For i := 1 To Len( uslugietap_dvn_covid( metap ) )
@@ -395,7 +398,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         Endif
       Next
       Select MOHU
-      Skip
+      mohu->( dbskip() )
     Enddo
     //
     r_use( dir_server() + 'mo_pers',, 'P2' )
@@ -865,7 +868,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         mvaro := 'M1OTKAZ' + lstr( i )
         ar := uslugietap_dvn_covid( metap )[ i ]
         // для заполнения услуги 70.8.1
-        If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == 'B01.026.001'
+        If ValType( ar[ 2 ] ) == 'C' .and. ( ar[ 2 ] == 'B01.047.001' .or. ar[ 2 ] == 'B01.026.001' )
           tmpvr := &mvart
         Endif
         If ValType( ar[ 2 ] ) == 'C' .and. ar[ 2 ] == '70.8.1' .and. metap == 1
@@ -969,14 +972,24 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         Endif
       Next
       If metap == 1
+        iB01_047_001 := indexuslugaetap_dvn_covid( metap, 'B01.047.001' )
         iB01_026_001 := indexuslugaetap_dvn_covid( metap, 'B01.026.001' )
         i70_80_1 := indexuslugaetap_dvn_covid( metap, '70.8.1' )
-        arr_osm1[ i70_80_1, 1 ] := arr_osm1[ iB01_026_001, 1 ]
-        arr_osm1[ i70_80_1, 2 ] := arr_osm1[ iB01_026_001, 2 ]
-        arr_osm1[ i70_80_1, 3 ] := arr_osm1[ iB01_026_001, 3 ]
-        arr_osm1[ i70_80_1, 6 ] := arr_osm1[ iB01_026_001, 6 ]
-        arr_osm1[ i70_80_1, 9 ] := arr_osm1[ iB01_026_001, 9 ]
-        arr_osm1[ i70_80_1, 11 ] := arr_osm1[ iB01_026_001, 11 ]
+        if iB01_026_001 != 0
+          arr_osm1[ i70_80_1, 1 ] := arr_osm1[ iB01_026_001, 1 ]
+          arr_osm1[ i70_80_1, 2 ] := arr_osm1[ iB01_026_001, 2 ]
+          arr_osm1[ i70_80_1, 3 ] := arr_osm1[ iB01_026_001, 3 ]
+          arr_osm1[ i70_80_1, 6 ] := arr_osm1[ iB01_026_001, 6 ]
+          arr_osm1[ i70_80_1, 9 ] := arr_osm1[ iB01_026_001, 9 ]
+          arr_osm1[ i70_80_1, 11 ] := arr_osm1[ iB01_026_001, 11 ]
+        else
+          arr_osm1[ i70_80_1, 1 ] := arr_osm1[ iB01_047_001, 1 ]
+          arr_osm1[ i70_80_1, 2 ] := arr_osm1[ iB01_047_001, 2 ]
+          arr_osm1[ i70_80_1, 3 ] := arr_osm1[ iB01_047_001, 3 ]
+          arr_osm1[ i70_80_1, 6 ] := arr_osm1[ iB01_047_001, 6 ]
+          arr_osm1[ i70_80_1, 9 ] := arr_osm1[ iB01_047_001, 9 ]
+          arr_osm1[ i70_80_1, 11 ] := arr_osm1[ iB01_047_001, 11 ]
+        endif
       Endif
       If !fl
         Loop
@@ -1173,7 +1186,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       //
       use_base( 'human' )
       If Loc_kod > 0
-        find ( Str( Loc_kod, 7 ) )
+        human->( dbSeek( Str( Loc_kod, 7 ) ) )       //  find ( Str( Loc_kod, 7 ) )
         mkod := Loc_kod
         g_rlock( forever )
       Else
@@ -1183,16 +1196,16 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       Endif
       Select HUMAN_
       Do While human_->( LastRec() ) < mkod
-        Append Blank
+        human_->( dbAppend() )
       Enddo
-      Goto ( mkod )
+      human_->( dbGoto( mkod ) )
       g_rlock( forever )
       //
       Select HUMAN_2
       Do While human_2->( LastRec() ) < mkod
-        Append Blank
+        human_2->( dbAppend() )
       Enddo
-      Goto ( mkod )
+      human_2->( dbGoto( mkod ) )
       g_rlock( forever )
       //
       st_N_DATA := MN_DATA
@@ -1302,8 +1315,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
       If fl_nameismo .or. rec_inogSMO > 0
         g_use( dir_server() + 'mo_hismo',, 'SN' )
         Index On Str( FIELD->kod, 7 ) to ( cur_dir() + 'tmp_ismo' )
-        find ( Str( mkod, 7 ) )
-        If Found()
+        sn->( dbSeek( Str( mkod, 7 ) ) )      //  find ( Str( mkod, 7 ) )
+        If sn->( Found() )
           If fl_nameismo
             g_rlock( forever )
             sn->smo_name := mnameismo
@@ -1319,17 +1332,43 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
         Endif
       Endif
       i1 := Len( arr_usl )
-
       r_use( dir_server() + 'mo_su',, 'MOSU' )
       use_base( 'mo_hu' )
+
+      do while .t.
+        mohu->( dbSeek( Str( Loc_kod, 7 ) ) )
+        if mohu->( Found() )
+          mohu->( dbRLock() )
+          deleterec( .t., .f. )  // очистка записи
+          mohu->( dbUnlock() )
+        else
+          exit
+        Endif
+      Enddo
+
       use_base( 'human_u' )
+/*
+      hu->( dbSeek( Str( Loc_kod, 7 ) ) )    //  find ( Str( Loc_kod, 7 ) )
+      Do While HU->kod == Loc_kod .and. !hu->( Eof() )
+        hu_->( dbGoto( hu->( RecNo() ) ) )
+        hu->( dbRLock() )
+        deleterec( .t., .f. )  // очистка записи
+        hu->( dbUnlock() )
+        Select hu_
+        hu_->( dbRLock() )
+        deleterec( .t., .f. )  // очистка записи
+        hu_->( dbUnlock() )
+        Select hu
+        hu->( dbskip() )
+      Enddo
+*/
       For i := 1 To Len( arr_usl_dop )  // i2
         flExist := .f.
         If arr_usl_dop[ i, 12 ] == 0   // это услуга ТФОМС
           // сначала выберем информацию из human_u по услугам ТФОМС
           Select HU
-          find ( Str( Loc_kod, 7 ) )
-          Do While hu->kod == Loc_kod .and. !Eof()
+          hu->( dbSeek( Str( Loc_kod, 7 ) ) )      //  find ( Str( Loc_kod, 7 ) )
+          Do While hu->kod == Loc_kod .and. !hu->( Eof() )
             usl->( dbGoto( hu->u_kod ) )
             If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, mk_data ) )
               lshifr := usl->shifr
@@ -1340,7 +1379,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
               flExist := .t.
               Exit
             Endif
-            Skip
+            hu->( dbskip() )
           Enddo
           If ! flExist
             add1rec( 7 )
@@ -1360,9 +1399,9 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           hu->KOL_RCP := 0
           Select HU_
           Do While hu_->( LastRec() ) < mrec_hu
-            Append Blank
+            hu_->( dbAppend() )
           Enddo
-          Goto ( mrec_hu )
+          hu_->( dbGoto( mrec_hu ) )
           g_rlock( forever )
           If i > i1 .or. !valid_guid( hu_->ID_U )
             hu_->ID_U := mo_guid( 3, hu_->( RecNo() ) )
@@ -1371,13 +1410,14 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           hu_->PRVS   := arr_usl_dop[ i, 2 ]
           hu_->kod_diag := iif( Empty( arr_usl_dop[ i, 6 ] ), MKOD_DIAG, arr_usl_dop[ i, 6 ] )
           hu_->zf := ''
-          Unlock
+          hu_->( dbUnlock() )       //  Unlock
         Else  // 1 - это услуга ФФОМС
           // затем выберем информацию из mo_hu по услугам ФФОМС
           Select MOHU
           Set Relation To FIELD->u_kod into MOSU
-          find ( Str( Loc_kod, 7 ) )
-          Do While MOHU->kod == Loc_kod .and. !Eof()
+          mohu->( dbSeek( Str( Loc_kod, 7 ) ) )    //  find ( Str( Loc_kod, 7 ) )
+          Do While MOHU->kod == Loc_kod .and. !mohu->( Eof() )
+
             MOSU->( dbGoto( MOHU->u_kod ) )
             Select MOHU
             lshifr := AllTrim( iif( Empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
@@ -1386,10 +1426,12 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
               flExist := .t.
               Exit
             Endif
-            Skip
+            mohu->( dbskip() )
           Enddo
           If ! flExist
+            select mohu
             add1rec( 7 )
+            mohu->( dbRLock() )
             MOHU->kod := human->kod
           Endif
           mrec_mohu := MOHU->( RecNo() )
@@ -1407,10 +1449,9 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
           MOHU->PROFIL := arr_usl_dop[ i, 4 ]
           MOHU->PRVS   := arr_usl_dop[ i, 2 ]
           MOHU->kod_diag := iif( Empty( arr_usl_dop[ i, 6 ] ), MKOD_DIAG, arr_usl_dop[ i, 6 ] )
-          Unlock
+          mohu->( dbUnlock() )    //  Unlock
         Endif
       Next
-      // ????????
 
       If ! ( Len( arr_usl ) == 0 )
         If ! Empty( arr_usl_otkaz )
@@ -1418,8 +1459,8 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
             If arr_usl_otkaz[ iOtkaz, 12 ] == 0
               Select HU
               // сначала выберем информацию из human_u по услугам ТФОМС
-              find ( Str( Loc_kod, 7 ) )
-              Do While hu->kod == Loc_kod .and. !Eof()
+              hu->( dbSeek( Str( Loc_kod, 7 ) ) )      //  find ( Str( Loc_kod, 7 ) )
+              Do While hu->kod == Loc_kod .and. !hu->( Eof() )
                 usl->( dbGoto( hu->u_kod ) )
                 If Empty( lshifr := opr_shifr_tfoms( usl->shifr1, usl->kod, mk_data ) )
                   lshifr := usl->shifr
@@ -1429,14 +1470,14 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
                   deleterec( .t., .f. )  // очистка записи без пометки на удаление
                   Exit
                 Endif
-                Skip
+                hu->( dbskip() )
               Enddo
             Else
               // затем выберем информацию из mo_hu по услугам ФФОМС
               Select MOHU
               Set Relation To FIELD->u_kod into MOSU
-              find ( Str( Loc_kod, 7 ) )
-              Do While MOHU->kod == Loc_kod .and. !Eof()
+              mohu->( dbSeek( Str( Loc_kod, 7 ) ) )      //  find ( Str( Loc_kod, 7 ) )
+              Do While MOHU->kod == Loc_kod .and. !mohu->( Eof() )
                 MOSU->( dbGoto( MOHU->u_kod ) )
                 lshifr := AllTrim( iif( Empty( MOSU->shifr ), MOSU->shifr1, MOSU->shifr ) )
                 Select MOHU
@@ -1444,7 +1485,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
                   deleterec( .t., .f. )  // очистка записи без пометки на удаление
                   Exit
                 Endif
-                Skip
+                mohu->( dbskip() )
               Enddo
             Endif
           Next
@@ -1455,7 +1496,7 @@ Function oms_sluch_dvn_covid( Loc_kod, kod_kartotek, f_print )
 
       write_work_oper( glob_task, OPER_LIST, iif( Loc_kod == 0, 1, 2 ), 1, count_edit )
       fl_write_sluch := .t.
-      Close databases
+      dbCloseAll()      //  Close databases
       stat_msg( 'Запись завершена!', .f. )
     Endif
     Exit
