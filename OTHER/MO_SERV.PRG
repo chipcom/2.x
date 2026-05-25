@@ -4795,7 +4795,7 @@ Function f_read_sc_polis()
     shellexecute( getdesktopwindow(), ;
       'open', ;
       dir_exe() + task_polis, ;
-      "-roi='" + name_reader + "'", ;
+      '-roi="' + name_reader + '"', ; // "-roi='" + name_reader + "'", ;
       , ;
       SW_HIDE )
     t1 := Seconds()
