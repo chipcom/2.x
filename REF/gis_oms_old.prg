@@ -7,14 +7,6 @@
 #include 'chip_mo.ch'
 #include 'tfile.ch'
 
-#require 'rddsql'
-#require 'sddsqlt3'
-
-#include 'simpleio.ch'
-#include 'dbinfo.ch'
-
-REQUEST SDDSQLITE3, SQLMIX
-
 // 09.04.26 ¯¥à¥¨­¤¥ªá æ¨ï á¯à ¢®ç­¨ª®¢ ƒˆ‘ ŽŒ‘
 function index_gis_oms( dir_spavoch, working_dir )
 
@@ -70,25 +62,13 @@ function index_gis_oms( dir_spavoch, working_dir )
 
   return nil
 
-// 25.05.26
+// 29.03.26
 function gis_oms() 
 
   local buf
   local sbase, org_mcod, tmp_select := Select()
   local aDbf, k
 
-  LOCAL tmp
-
-#if defined( __HBSCRIPT__HBSHELL )
-   rddRegister( 'SQLBASE' )
-   rddRegister( 'SQLMIX' )
-   hb_SDDSQLITE3_Register()
-#endif
-
-  rddSetDefault( 'SQLMIX' )
-
-  tmp := rddInfo( RDDI_CONNECT, { 'SQLITE3', dir_exe() + 'gis_mo.db' } )
-/*
   aDbf := { ;
     { 'N_DOC', 'C', 32, 0 }, ;
     { 'IDMO',  'C', 17, 0 }, ;
@@ -113,9 +93,6 @@ function gis_oms()
   f037->( dbCloseArea() )
   Select tmp_f037
   k := tmp_f037->( LastRec() )
-*/
-  dbUseArea( .T., , 'select * from f037 where mcod==' + glob_mo()[ _MO_KOD_FFOMS ], 'tmp_f037' )
-  k := tmp_f037->( LastRec() )
 
   buf := save_maxrow()
 
@@ -126,9 +103,6 @@ function gis_oms()
       { 'Í', '°', 'Í', 'N/BG,W+/N,B/BG,BG+/B,N+/BG,W/N', .t. } )
   Endif
   tmp_f037->( dbCloseArea() )
-
-  rddSetDefault( 'DBFNTX' )
-
   Select ( tmp_select )
 
   rest_box( buf )
@@ -159,7 +133,7 @@ Function f2edit_licenses( nKey, oBrow )
   oBr := oBrow
   Do Case
   Case nKey == K_ENTER
-/*
+
     aDbf := { ;
       { 'ADDR',     'C', 250, 0 }, ;
       { 'IDADDRESS','N',  19, 0 }, ;
@@ -186,10 +160,6 @@ Function f2edit_licenses( nKey, oBrow )
       f038->( dbSkip() )
     enddo
     Select tmp_f038
-*/
-
-    dbUseArea( .T., , 'select * from f038 where uidmo==' + tmp_f037->UIDMO + ' group by idaddress', 'tmp_f038' )
-
     k := tmp_f038->( LastRec() )
     tmp_f038->( dbGoTop() )
 
@@ -200,7 +170,7 @@ Function f2edit_licenses( nKey, oBrow )
         { 'Í', '°', 'Í', 'N/BG,W+/N,B/BG,BG+/B,N+/BG,W/N', .t. } )
     Endif
 
-//    f038->( dbCloseArea() )
+    f038->( dbCloseArea() )
 
     tmp_f038->( dbCloseArea() )
     Select ( tmp_select )
