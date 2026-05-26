@@ -418,6 +418,86 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     Enddo
   Else
     Set Order To 1
+
+    k006->( dbSeek( typeKSG + PadR( osn_diag, 6 ) ) )   //  выберем с диагнозом
+    Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->ds == PadR( osn_diag, 6 ) .and. ! k006->( Eof() )
+      if Empty( AllTrim( k006->sy ) )
+        lkoef := k006->kz
+        dbSelectArea( lal )
+        find ( PadR( k006->shifr, 10 ) )
+        fl := lkoef > 0 .and. between_date( &lal.->DATEBEG, &lal.->DATEEND, date_usl )
+        If fl
+          fl := between_date( k006->DATEBEG, k006->DATEEND, date_usl )
+        Endif
+        If fl
+          sds1 := iif( Empty( k006->ds1 ), sp0, AllTrim( k006->ds1 ) + sp6 ) // соп.диагноз
+          sds2 := iif( Empty( k006->ds2 ), sp0, AllTrim( k006->ds2 ) + sp6 ) // диагн.осложнения
+        Endif
+        If fl .and. !Empty( k006->age )
+          fl := ( k006->age $ lage )
+        Endif
+        If fl .and. !Empty( k006->sex )
+          fl := ( k006->sex == lsex )
+        Endif
+        If fl .and. !Empty( k006->los )
+          fl := AScan( llos, AllTrim( k006->los ) ) > 0
+        Endif
+        If fl .and. !Empty( sds1 )
+          fl := .f.
+          For i := 1 To Len( sop_diag )
+            If AllTrim( sop_diag[ i ] ) $ sds1
+              fl := .t.
+              Exit
+            Endif
+          Next
+        Endif
+        If fl .and. !Empty( sds2 )
+          fl := .f.
+          For i := 1 To Len( osl_diag )
+            If AllTrim( osl_diag[ i ] ) $ sds2
+              fl := .t.
+              Exit
+            Endif
+          Next
+        Endif
+        If fl
+          add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+        Endif
+      endif
+      Select K006
+      k006->( dbSkip() )
+    Enddo
+
+
+    if ! Empty( lad_cr )  // присутствует дополнительный критерий
+      k006->( dbSeek( typeKSG ) )   //  выберем с пустым диагнозом
+      Do While Left( k006->shifr, 2 ) == typeKSG .and. Empty( k006->ds ) .and. ! k006->( Eof() )
+        if Empty( AllTrim( k006->sy ) )
+          lkoef := k006->kz
+          dbSelectArea( lal )
+          find ( PadR( k006->shifr, 10 ) )
+          fl := lkoef > 0 .and. between_date( &lal.->DATEBEG, &lal.->DATEEND, date_usl )
+          If fl
+            fl := between_date( k006->DATEBEG, k006->DATEEND, date_usl )
+          Endif
+          If fl
+            if ! Empty( lad_cr )// в случае есть доп.критерий
+              If Empty( k006->ad_cr ) // а в справочнике нет доп.критерия
+                fl := .f.
+              Else                  // а в справочнике есть доп.критерий
+                fl := ( AllTrim( lad_cr ) == AllTrim( k006->ad_cr ) )
+              Endif
+            Endif
+          Endif
+          If fl
+            add_KSG_table( ar_ksg, lk_data, lal, osn_diag, j, sds1, sds2, lvr, ldnej, lrslt, lDoubleSluch )
+          Endif
+        endif
+        Select K006
+        k006->( dbSkip() )
+      Enddo
+    endif
+
     k006->( dbSeek( typeKSG + PadR( osn_diag, 6 ) ) )   //  find ( typeKSG + PadR( osn_diag, 6 ) )
     Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->ds == PadR( osn_diag, 6 ) .and. ! k006->( Eof() )
       if Empty( AllTrim( k006->sy ) )
