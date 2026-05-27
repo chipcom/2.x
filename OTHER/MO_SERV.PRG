@@ -1388,7 +1388,7 @@ Function import_sluch_oms()
 
   Return Nil
 
-// 09.09.25
+// 27.05.26
 Function f1_import_sluch_oms()
 
   Local _lpu := { ;
@@ -1483,6 +1483,7 @@ Function f1_import_sluch_oms()
   Local i, j, k, arr_ksg, cType, cName, a_struct, fl := .t., buf := save_maxrow()
   Local arrV018
   Local arrV019
+  local arrSMO := {}
 
   mywait()
   a_struct := { _lpu, _otd, _sluch, _sluch_u }
@@ -1533,7 +1534,7 @@ Function f1_import_sluch_oms()
     use_base( 'human_u' )
     use_base( 'human' )
     //
-    r_use( dir_exe() + '_mo_smo', { cur_dir() + '_mo_smo', cur_dir() + '_mo_smo2' }, 'SMO' )
+//    r_use( dir_exe() + '_mo_smo', { cur_dir() + '_mo_smo', cur_dir() + '_mo_smo2' }, 'SMO' )
     Use ( name_path + '_lpu' ) New Alias ILPU
     Index On Str( FIELD->kod, 3 ) to ( cur_dir() + 'tmp_ilpu' )
     Use ( name_path + '_otd' ) New Alias IOTD
@@ -1650,10 +1651,11 @@ Function f1_import_sluch_oms()
         StrFile( '_SLUCH: запись № ' + lstr( ihuman->( RecNo() ) ) + ;
           ', не введен код СМО' + hb_eol(), cFileProtokol, .t. )
       Else
-        Select SMO
-        Set Order To 2
-        find ( ihuman->SMO )
-        If Found()
+        arrSMO := findSMO_in_f019( ihuman->SMO )
+//        Select SMO
+//        Set Order To 2
+//        find ( ihuman->SMO )
+        If Len( arrSMO ) != 0         //  Found()
           //
         Elseif Int( Val( ihuman->SMO ) ) == 34
           fl_34 := .t.
@@ -1664,10 +1666,11 @@ Function f1_import_sluch_oms()
         Endif
       Endif
       If fl_34 .and. !Empty( ihuman->SMO_OK )
-        Select SMO
-        Set Order To 1
-        find ( ihuman->SMO_OK )
-        If Found()
+        arrSMO := findSMO_in_f019( ihuman->SMO_OK )
+//        Select SMO
+//        Set Order To 1
+//        find ( ihuman->SMO_OK )
+        If Len( arrSMO ) != 0         //   Found()
           fl_okatosmo := .t.
         Else
           fl := .f.
@@ -3291,7 +3294,7 @@ Function pripisnoe_naselenie_create_vomiac()
 
   Return Nil
 
-// 12.09.25 создать файл приписного населения в Облздрав
+// 27.05.26 создать файл приписного населения в Облздрав
 Function pripisnoe_naselenie_create_oblsdrav()
 
   Local buf := SaveScreen(),  arr_fio, pr_date, name_file, name_zip
@@ -3322,6 +3325,8 @@ Function pripisnoe_naselenie_create_oblsdrav()
     { 'DATE_PR',    'D',      8,      0 }, ; // Да
     { 'SNILS_VR',   'C',     14,      0 }; // У XXX-XXX-XXX XX
   }
+  local arrSMO := {}
+
   If !f_esc_enter( 'создания файла для ВОМИАЦ', .t. )
     Return Nil
   Endif
@@ -3332,7 +3337,7 @@ Function pripisnoe_naselenie_create_oblsdrav()
   gaugedisplay( hGauge )
   curr := 0
   r_use( dir_server() + 's_kemvyd',, 'VID' )
-  r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
+//  r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
   // index on FIELD->smo to (cur_dir()+sbase+'2')
   // G_Use(dir_server() + 'mo_krtr',,'KRTR')
   // index on str(FIELD->kod,6) to (cur_dir() + 'tmp_krtr')
@@ -3379,11 +3384,15 @@ Function pripisnoe_naselenie_create_oblsdrav()
       Endif
       bars->POLIS        := kart->polis               // У
       bars->KOD_SMO      := kart_->smo                // У
-      Select SMO
-      find ( kart_->smo )
-      If Found()
-        bars->SMO        := smo->name                 // У
-      Endif
+      arrSMO := findSMO_in_f019( human_->smo )
+      if len( arrSMO ) != 0
+        bars->SMO := arrSMO[ 5 ]
+      endif
+//      Select SMO
+//      find ( kart_->smo )
+//      If Found()
+//        bars->SMO        := smo->name                 // У
+//      Endif
 //      bars->SNILS        := Transform( kart->snils, picture_pf ) // У XXX-XXX-XXX XX
       bars->SNILS        := Transform_SNILS( kart->snils ) // У XXX-XXX-XXX XX
       bars->VID_UD       := lstr( kart_->vid_ud )       // У

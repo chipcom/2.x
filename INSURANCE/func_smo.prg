@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-//
+// 27.05.26
 Function func_valid_ismo( get, lkomu, sh, name_var )
 
   Local r1, r2, n := 3, buf, tmp_keys, tmp_list, tmp_color
@@ -31,7 +31,7 @@ Function func_valid_ismo( get, lkomu, sh, name_var )
       valid {| g, o| when_ismo( g, o ) }
     @ r1 + 2, 4 Say 'СМО' Get mismo ;
       reader {| x| menu_reader( x, mm_ismo, A__MENUVERT, , , .f. ) } ;
-      when {|| Len( mm_ismo ) > 0 .and. Empty( mnameismo ) } ;
+      when {|| Len( mm_ismo ) > 0  } ;  //.and. Empty( mnameismo ) } ;
       valid {|| iif( Empty( mismo ), , mnameismo := Space( 100 ) ), .t. }
    // @ r1 + 3, 4 Say 'Наименование СМО' Get mnameismo Pict '@S56' ;
    //   When Empty( m1ismo )
@@ -143,10 +143,10 @@ Function f2_srf( nk, ob )
 
   Return ret
 
-//
+// 27.05.26
 Function when_ismo( get, old )
 
-  Local s
+  Local row, s
 
   If !( m1okato == old ) .and. old != NIL
     m1ismo := ''
@@ -154,17 +154,20 @@ Function when_ismo( get, old )
   Endif
   mm_ismo := {}
   If !Empty( m1okato )
-    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo', 'SMO' )
-    smo->( dbSeek( m1okato ) )  //  find ( m1okato )
-    Do While smo->okato == m1okato .and. ! smo->( Eof() )
-      s := AllTrim( smo->name )
-      If !Empty( smo->d_end )
-        s += ' (до ' + full_date( smo->d_end ) + ')'
-      Endif
-      AAdd( mm_ismo, { s, smo->smo } )
-      smo->( dbSkip() )   //  Skip
-    Enddo
-    smo->( dbCloseArea() )
+    for each row in get_SMO_OKATO_f019( m1okato )
+      AAdd( mm_ismo, { row[ 5 ], row[ 7 ] } )
+    next
+//    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo', 'SMO' )
+//    smo->( dbSeek( m1okato ) )  //  find ( m1okato )
+//    Do While smo->okato == m1okato .and. ! smo->( Eof() )
+//      s := AllTrim( smo->name )
+//      If !Empty( smo->d_end )
+//        s += ' (до ' + full_date( smo->d_end ) + ')'
+//      Endif
+//      AAdd( mm_ismo, { s, smo->smo } )
+//      smo->( dbSkip() )   //  Skip
+//    Enddo
+//    smo->( dbCloseArea() )
   Endif
 
   Return Len( mm_ismo ) > 0
