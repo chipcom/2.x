@@ -7,7 +7,7 @@
 
 #define BASE_ISHOD_RZD 500  //
 
-// 23.05.26 
+// 27.05.26 
 Function verify_sluch( fl_view, ft )
 
   local mIDPC // код цели посещения по справочнику V025
@@ -75,6 +75,7 @@ Function verify_sluch( fl_view, ft )
   local aValidProf  // допустимые в отделении профили, условия оказания, виды мед. помощи
   local is_60_17_1 := .f., is_60_17_2 := .f., kol_60_17_100 := 0
   local first_2 // первые два символа МО прикрепления
+  local arrOKATO := {}
 //  local cUIDSPMO
 
   Default fl_view To .t.
@@ -477,11 +478,10 @@ Function verify_sluch( fl_view, ft )
   human_->NPOLIS := val_polis( human_->NPOLIS )
 //  valid_sn_polis( human_->vpolis, human_->SPOLIS, human_->NPOLIS, ta, Between( human_->smo, '34001', '34007' ) )
   //
-  If Select( 'SMO' ) == 0
-    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
-    // index on smo to (sbase+ '2')
-  Endif
-  Select SMO
+//  If Select( 'SMO' ) == 0
+//    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo2', 'SMO' )
+//  Endif
+//  Select SMO
   If AllTrim( human_->smo ) == '34'
     If Empty( human_->OKATO )
       AAdd( ta, 'не введён субъект РФ, в котором застрахован пациент' )
@@ -489,10 +489,11 @@ Function verify_sluch( fl_view, ft )
       AAdd( ta, 'не введена иногородняя страховая компания' )
     Endif
   Else
-    Select SMO
-    find ( human_->smo )
-    If Found()
-      human_->OKATO := smo->okato
+//    Select SMO
+//    find ( human_->smo )
+    arrOKATO := findSMO_in_f019( human_->smo )
+    If Len( arrOKATO ) != 0             //  Found()
+      human_->OKATO := arrOKATO[ 1 ]    //  smo->okato
     Else
       AAdd( ta, 'не найдена СМО с кодом "' + human_->smo + '"' )
     Endif
