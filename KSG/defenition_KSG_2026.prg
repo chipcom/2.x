@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 02.05.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 28.05.26 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function defenition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -418,7 +418,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
     Enddo
   Else
     Set Order To 1
-
+/*
     k006->( dbSeek( typeKSG + PadR( osn_diag, 6 ) ) )   //  выберем с диагнозом
     Do While Left( k006->shifr, 2 ) == typeKSG .and. k006->ds == PadR( osn_diag, 6 ) .and. ! k006->( Eof() )
       if Empty( AllTrim( k006->sy ) )
@@ -467,7 +467,7 @@ Function defenition_ksg( par, k_data2, lDoubleSluch )
       Select K006
       k006->( dbSkip() )
     Enddo
-
+*/
 
     if ! Empty( lad_cr )  // присутствует дополнительный критерий
       k006->( dbSeek( typeKSG ) )   //  выберем с пустым диагнозом
