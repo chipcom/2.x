@@ -143,7 +143,7 @@ Function f2_srf( nk, ob )
 
   Return ret
 
-// 27.05.26
+// 28.05.26
 Function when_ismo( get, old )
 
   Local row, s
@@ -155,7 +155,9 @@ Function when_ismo( get, old )
   mm_ismo := {}
   If !Empty( m1okato )
     for each row in get_SMO_OKATO_f019( m1okato )
-      AAdd( mm_ismo, { row[ 5 ], row[ 7 ] } )
+//    for each row in get_SMO_OKATO_f002( m1okato )
+//      AAdd( mm_ismo, { row[ 5 ], row[ 7 ] } )
+      AAdd( mm_ismo, { row[ 1 ], row[ 2 ] } )
     next
 //    r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo', 'SMO' )
 //    smo->( dbSeek( m1okato ) )  //  find ( m1okato )
