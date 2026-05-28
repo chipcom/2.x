@@ -19,38 +19,35 @@
 // DATEBEG,   "D",   8, 0  // Дата начала действия записи
 // DATEEND,   "D",   8, 0   // Дата окончания действия записи
 
-// 27.05.26 вернуть массив справочнику ФФОМС F014.xml
+// 28.05.26 вернуть массив справочнику ФФОМС F014.xml
 Function getf019()
 
   // возвращает массив
   Static _arr
-  Static time_load
   Local db
   Local aTable
   Local nI
 
-  If timeout_load( @time_load )
-    _arr := {}
-    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
-    db := opensql_db()
-    aTable := sqlite3_get_table( db, 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019' )
+  _arr := {}
+  Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+  db := opensql_db()
+  aTable := sqlite3_get_table( db, 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019' )
 //      'datebeg, ' + ;
 //      'dateend ' + ;
 //      'FROM f019' )
-    If Len( aTable ) > 1
-      For nI := 2 To Len( aTable )
-        AAdd( _arr, { aTable[ nI, 1 ], ;
-          aTable[ nI, 2 ], ;
-          val( aTable[ nI, 3 ] ), ;
-          Alltrim( aTable[ nI, 4 ] ), ;
-          Alltrim( aTable[ nI, 5 ] ), ;
-          aTable[ nI, 6 ], ;
-          aTable[ nI, 7 ] } )
-      Next
-    Endif
-    db := nil
-    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+  If Len( aTable ) > 1
+    For nI := 2 To Len( aTable )
+      AAdd( _arr, { aTable[ nI, 1 ], ;
+        aTable[ nI, 2 ], ;
+        val( aTable[ nI, 3 ] ), ;
+        Alltrim( aTable[ nI, 4 ] ), ;
+        Alltrim( aTable[ nI, 5 ] ), ;
+        aTable[ nI, 6 ], ;
+        aTable[ nI, 7 ] } )
+    Next
   Endif
+  db := nil
+  Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
 
   Return _arr
 
@@ -88,40 +85,37 @@ Function findSMO_in_f019( code )
 
   Return _arr
 
-// 27.05.26 вернуть массив справочнику ФФОМС F019.xml
+// 28.05.26 вернуть массив справочнику ФФОМС F019.xml
 Function get_SMO_OKATO_f019( code )
 
   // возвращает массив
   Static _arr
-  Static time_load
   Local db
   Local aTable
   Local nI
   local cmd
 
-  If timeout_load( @time_load )
-    _arr := {}
-    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
-    db := opensql_db()
-    cmd := 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019 where orgtype=="2" and tf_okato=="' + code + '"'
+  _arr := {}
+  Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+  db := opensql_db()
+  cmd := 'SELECT tf_okato, orgtype, orgcod, nam_orgp, nam_orgk, tf_kod, smocod FROM f019 where orgtype=="2" and tf_okato=="' + code + '"'
 //      'datebeg, ' + ;
 //      'dateend ' + ;
 //      'FROM f019' )
-    aTable := sqlite3_get_table( db, cmd )
-    If Len( aTable ) > 1
-      For nI := 2 To Len( aTable )
-        AAdd( _arr, { aTable[ nI, 1 ], ;
-          aTable[ nI, 2 ], ;
-          val( aTable[ nI, 3 ] ), ;
-          Alltrim( aTable[ nI, 4 ] ), ;
-          Alltrim( aTable[ nI, 5 ] ), ;
-          aTable[ nI, 6 ], ;
-          aTable[ nI, 7 ] } )
-      Next
-    Endif
-    db := nil
-    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+  aTable := sqlite3_get_table( db, cmd )
+  If Len( aTable ) > 1
+    For nI := 2 To Len( aTable )
+      AAdd( _arr, { aTable[ nI, 1 ], ;
+        aTable[ nI, 2 ], ;
+        val( aTable[ nI, 3 ] ), ;
+        Alltrim( aTable[ nI, 4 ] ), ;
+        Alltrim( aTable[ nI, 5 ] ), ;
+        aTable[ nI, 6 ], ;
+        aTable[ nI, 7 ] } )
+    Next
   Endif
+  db := nil
+  Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
 
   Return _arr
 
