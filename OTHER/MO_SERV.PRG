@@ -4783,7 +4783,7 @@ Function f_read_sc_reader()
 
   Return .t.
 
-//
+// 29.05.26
 Function f_read_sc_polis()
 
   Static max_seconds := 20
@@ -4791,6 +4791,7 @@ Function f_read_sc_polis()
   Static task_polis := 'ReadEPolis.exe'
   Static smsg := 'Неудачная попытка чтения электронного полиса'
   Local fl := .t., t1 := Seconds(), ar, se, buf := save_maxrow()
+  local arrSMO := {}
 
   mywait( 'Чтение электронного полиса' )
   If hb_FileExists( dir_exe() + task_polis )
@@ -4840,15 +4841,17 @@ Function f_read_sc_polis()
         arr_epolis[ _EP_IM ], arr_epolis[ _EP_NPOLIS ] )
       fl := func_error( 4, iif( Empty( se ), smsg + '.', se ) )
     Else
-      r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo3', '_SMO' )
-      find ( arr_epolis[ _EP_OKATO ] + PadR( arr_epolis[ _EP_OGRN ], 13 ) )
-      If Found()
-        arr_epolis[ _EP_SMO ] := _smo->smo
-        arr_epolis[ _EP_NAMESMO ] := AllTrim( _smo->name )
+      arrSMO := get_SMO_OKATO_OGRN_f002( arr_epolis[ _EP_OKATO ], PadR( arr_epolis[ _EP_OGRN ], 13 ) )
+      if Len( arrSMO ) > 0
+//      r_use( dir_exe() + '_mo_smo', cur_dir() + '_mo_smo3', '_SMO' ) 
+//      find ( arr_epolis[ _EP_OKATO ] + PadR( arr_epolis[ _EP_OGRN ], 13 ) )
+//      If Found()
+        arr_epolis[ _EP_SMO ] := arrSMO[ 2 ]    //  _smo->smo
+        arr_epolis[ _EP_NAMESMO ] := AllTrim( arrSMO[ 4 ] )     //  AllTrim( _smo->name )
       Else
         func_error( 4, 'Не найдена СМО (ОКАТО=' + arr_epolis[ _EP_OKATO ] + ', ОГРН=' + RTrim( arr_epolis[ _EP_OGRN ] ) + ')' )
       Endif
-      _smo->( dbCloseArea() )
+//      _smo->( dbCloseArea() )
       arr_epolis[ _EP_W      ] := iif( arr_epolis[ _EP_W ] == '1', 'М', 'Ж' )
       arr_epolis[ _EP_DR     ] := xml2date( arr_epolis[ _EP_DR ] )
       arr_epolis[ _EP_D_BEGIN ] := xml2date( arr_epolis[ _EP_D_BEGIN ] )
@@ -4861,7 +4864,7 @@ Function f_read_sc_polis()
   Return fl
 
 // 12.09.25
-Function mo_read_el_polis( /*@*/k)
+Function mo_read_el_polis( /*@*/k )
 
   Local fl := .f., rec := 0, mfio, mdate_r, arr, buf := SaveScreen()
   Private arr_epolis[ _EP_LEN ]

@@ -23,7 +23,6 @@ Function get_SMO_OKATO_OGRN_f002( mOKATO, mOGRN )
   Static _arr
   Local db
   Local aTable
-  Local nI
   local cmd
 
   _arr := {}
@@ -31,14 +30,13 @@ Function get_SMO_OKATO_OGRN_f002( mOKATO, mOGRN )
   cmd := 'SELECT tf_okato, smocod, nam_smop, nam_smok, inn, ogrn FROM f002 where tf_okato=="' + mOKATO +  '" and ogrn=="' + SubStr( mOGRN, 1, 13 ) + '"'
   aTable := sqlite3_get_table( db, cmd )
   If Len( aTable ) > 1
-    For nI := 2 To Len( aTable )
-      AAdd( _arr, { aTable[ nI, 1 ], ;
-        aTable[ nI, 2 ], ;
-        Alltrim( aTable[ nI, 3 ] ), ;
-        Alltrim( aTable[ nI, 4 ] ), ;
-        aTable[ nI, 5 ], ;
-        aTable[ nI, 6 ] } )
-    Next
+    // берем вторую сторку
+    AAdd( _arr, aTable[ 2, 1 ] )
+    AAdd( _arr, aTable[ 2, 2 ] )
+    AAdd( _arr, Alltrim( aTable[ 2, 3 ] ) )
+    AAdd( _arr, Alltrim( aTable[ 2, 4 ] ) )
+    AAdd( _arr, aTable[ 2, 5 ] )
+    AAdd( _arr, aTable[ 2, 6 ] )
   Endif
   db := nil
 
