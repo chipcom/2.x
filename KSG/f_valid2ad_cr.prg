@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.05.26
+// 29.05.26
 Function f_valid2ad_cr( k_date )
 
   Static mm_bartel := { ;
@@ -261,8 +261,8 @@ Function f_valid2ad_cr( k_date )
     update_get( 'mprofil_m' )
   Endif
 
-  if Empty( mad_cr )
-    input_ad_cr := .f.
-  endif
+//  if Empty( mad_cr )
+//    input_ad_cr := .f.
+//  endif
 
   Return .t.
