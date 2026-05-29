@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 03.05.26
+// 29.05.26
 Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
 
   Local oZAP
@@ -941,10 +941,13 @@ Function elem_reestr_sluch( oXmlDoc, p_tip_reestr, _nyear  )
         If ( p_tip_reestr == TYPE_REESTR_GENERAL ) .and. service_requires_implants( lshifr, c4tod( hu_->DATE_U2 ) )
           tag_med_dev( oUsl, human->kod, mohu->( RecNo() ) )
         Endif
+        // заполним врача для услуг
         If between_date( human->n_data, human->k_data, c4tod( mohu->DATE_U ) )
           p2->( dbGoto( mohu->kod_vr ) )
           tag_mr_usl_n( oUsl, _nyear, 1, mohu->PRVS, p2->snils ) // пока ставим 1 исполнитель
-        Endif
+        else
+          tag_mr_usl_n( oUsl, _nyear, 1, mohu->PRVS, '0' ) // пока ставим 1 исполнитель
+        Endif 
         If !Empty( mohu->zf )
           dbSelectArea( laluslf )
           find ( PadR( lshifr, 20 ) )
