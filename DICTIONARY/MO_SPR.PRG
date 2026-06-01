@@ -107,21 +107,24 @@ Function edit_proch_spr( k )
   Default k To 0
   Do Case
   Case k == 0
-    mas_pmt := { 'Подстрока ~адреса', ;
+    mas_pmt := { ;
+      'Подстрока ~адреса', ;
       'Подстрока ~места работы', ;
       'Кем ~выдан документ', ;
       '~Прочие компании', ;
       '~Комитеты (МО)', ;
       'О~бразовательные учреждения', ;
       'Стационары детей-~сирот' }
-    mas_msg := { 'Редактирование справочника подстроки адреса', ;
+    mas_msg := { ;
+      'Редактирование справочника подстроки адреса', ;
       'Редактирование справочника подстроки места работы', ;
       'Редактирование справочника организаций, выдающих документы', ;
       'Редактирование информации по прочим компаниям', ;
       'Редактирование информации по комитетам здравоохранения (МО)', ;
       'Редактирование справочника образовательных учреждений', ;
       'Редактирование справочника стационаров детей-сирот' }
-    mas_fun := { 'edit_proch_spr(1)', ;
+    mas_fun := { ;
+      'edit_proch_spr(1)', ;
       'edit_proch_spr(2)', ;
       'edit_proch_spr(3)', ;
       'edit_proch_spr(4)', ;
@@ -149,11 +152,14 @@ Function edit_proch_spr( k )
       func_error( 4, err_slock() )
     Endif
   Case k == 3
-    mas_pmt := { '~Редактирование', ;
+    mas_pmt := { ;
+      '~Редактирование', ;
       'Удаление ~дубликатов' }
-    mas_msg := { 'Редактирование справочника организаций, выдающих документы', ;
+    mas_msg := { ;
+      'Редактирование справочника организаций, выдающих документы', ;
       'Удаление дубликатов организаций' }
-    mas_fun := { 'edit_proch_spr(11)', ;
+    mas_fun := { ;
+      'edit_proch_spr(11)', ;
       'edit_proch_spr(12)' }
     popup_prompt( T_ROW, T_COL + 5, sk2, mas_pmt, mas_msg, mas_fun )
   Case k == 4
@@ -416,7 +422,9 @@ Function input_s_kemvyd( k, r1, r2 )
   t_arr[ BR_OPEN ] := {|| f1_s_kemvyd(, , 'open', k ) }
   t_arr[ BR_CLOSE ] := {|| sa->( dbCloseArea() ) }
   t_arr[ BR_COLOR ] := color0
-  t_arr[ BR_COLUMN ] := { { Center( 'Наименование организаций, выдающих документы', 70 ), {|| PadR( sa->name, 70 ) } } }
+  t_arr[ BR_COLUMN ] := { ;
+    { Center( 'Наименование организаций, выдающих документы', 70 ), ;
+    {|| PadR( sa->name, 70 ) } } }
   t_arr[ BR_STAT_MSG ] := {|| status_key( '^<Esc>^ выход ^<Enter>^ выбор ^<Пробел>^ очистка поля ^<Ins>^ добавление ^<F2>^ поиск' ) }
   t_arr[ BR_EDIT ] := {| nk, ob| f1_s_kemvyd( nk, ob, 'edit', 2 ) }
   t_arr[ BR_ENTER ] := {|| ret := { sa->( RecNo() ), AllTrim( sa->name ) } }
@@ -529,13 +537,15 @@ Function edit_school()
   arr[ US_RIGHT    ] := 77
   arr[ US_BASE     ] := dir_server() + 'mo_schoo'
   arr[ US_ARR_BROWSE ] := { '═', '░', '═', , .t. }
-  arr[ US_COLUMN   ] := { { ' Наименование', {|| name }, blk }, ;
+  arr[ US_COLUMN   ] := { ;
+    { ' Наименование', {|| name }, blk }, ;
     { ' Адрес', {|| Left( adres, 26 ) }, blk }, ;
     { ' Тип', {|| PadR( inieditspr( A__MENUVERT, mm_tip_school(), tip ), 14 ) }, blk } }
   arr[ US_BLK_DEL  ] := {| _k| fdel_school( _k ) }
   arr[ US_IM_PADEG ] := arr[ US_SEMAPHORE ] := 'образовательные учреждения'
   arr[ US_ROD_PADEG ] := 'образовательных учреждений'
-  arr[ US_EDIT_SPR ] := { { 'name', 'C', 30, 0, , , Space( 30 ), , 'Сокращённое наименование' }, ;
+  arr[ US_EDIT_SPR ] := { ;
+    { 'name', 'C', 30, 0, , , Space( 30 ), , 'Сокращённое наименование' }, ;
     { 'fname', 'C', 250, 0, , , Space( 250 ), , 'Полное наименование' }, ;
     { 'adres', 'C', 250, 0, , , Space( 250 ), , 'Юридический адрес' }, ;
     { 'tip', 'N', 1, 0, , ;
@@ -587,13 +597,15 @@ Function edit_dds_stac()
   arr[ US_RIGHT    ] := 77
   arr[ US_BASE     ] := dir_server() + 'mo_stdds'
   arr[ US_ARR_BROWSE ] := { '═', '░', '═', , .t. }
-  arr[ US_COLUMN   ] := { { ' Наименование', {|| Left( name, 40 ) }, blk }, ;
+  arr[ US_COLUMN   ] := { ;
+    { ' Наименование', {|| Left( name, 40 ) }, blk }, ;
     { ' Адрес', {|| Left( adres, 16 ) }, blk }, ;
     { 'Ведомственная;принадлежность', {|| PadR( inieditspr( A__MENUVERT, mm_vedom, vedom ), 14 ) }, blk } }
   arr[ US_BLK_DEL  ] := {| _k| fdel_dds_stac( _k ) }
   arr[ US_IM_PADEG ] := arr[ US_SEMAPHORE ] := 'Стационары детей-сирот'
   arr[ US_ROD_PADEG ] := 'учреждений'
-  arr[ US_EDIT_SPR ] := { { 'name', 'C', 250, 0, , , Space( 250 ), , 'Наименование стационара' }, ;
+  arr[ US_EDIT_SPR ] := { ;
+    { 'name', 'C', 250, 0, , , Space( 250 ), , 'Наименование стационара' }, ;
     { 'adres', 'C', 250, 0, , , Space( 250 ), , 'Адрес' }, ;
     { 'vedom', 'N', 1, 0, , ;
     {| x| menu_reader( x, mm_vedom, A__MENUVERT, , , .f. ) }, ;
@@ -623,13 +635,16 @@ Function spr_opl_5( k )
   Default k To 1
   Do Case
   Case k == 1
-    mas_pmt := { 'Смена ~классов оплаты персоналу', ;
+    mas_pmt := { ;
+      'Смена ~классов оплаты персоналу', ;
       '% оплаты ~врачам (ОМС)', ;
       '% оплаты ~ассистентам (ОМС)' }
-    mas_msg := { 'Настройка классов оплаты (и отдаленности работы) персонала', ;
+    mas_msg := { ;
+      'Настройка классов оплаты (и отдаленности работы) персонала', ;
       'Настройка групп услуг (установка процентов оплаты врачей по ОМС)', ;
       'Настройка групп услуг (установка процентов оплаты ассистентов по ОМС)' }
-    mas_fun := { 'spr_opl_5(11)', ;
+    mas_fun := { ;
+      'spr_opl_5(11)', ;
       'spr_opl_5(12)', ;
       'spr_opl_5(13)' }
     If is_task( X_PLATN ) // для платных услуг
@@ -671,13 +686,16 @@ Function spr_opl_7( k )
   Default k To 1
   Do Case
   Case k == 1
-    mas_pmt := { '~Стоимость УЕТ', ;
+    mas_pmt := { ;
+      '~Стоимость УЕТ', ;
       '% оплаты ~врачам (ОМС)', ;
       '% оплаты ~ассистентам (ОМС)' }
-    mas_msg := { 'Настройка стоимости УЕТ для врача и ассистента по группам услуг', ;
+    mas_msg := { ;
+      'Настройка стоимости УЕТ для врача и ассистента по группам услуг', ;
       'Настройка групп услуг (установка процентов оплаты врачей по ОМС)', ;
       'Настройка групп услуг (установка процентов оплаты ассистентов по ОМС)' }
-    mas_fun := { 'spr_opl_7(11)', ;
+    mas_fun := { ;
+      'spr_opl_7(11)', ;
       'spr_opl_7(12)', ;
       'spr_opl_7(13)' }
     If is_task( X_PLATN ) // для платных услуг
@@ -1551,7 +1569,7 @@ Function valid_kod_tfoms( get )
   Endif
   Return fl
 
-// 02.04.26 редактирование справочника отделений
+// 01.06.26 редактирование справочника отделений
 Function edit_otd()
 
   Local i, j, blk, arr[ US_LEN ], fl
@@ -1598,7 +1616,7 @@ Function edit_otd()
   Private mm1lpu1 := AClone( mm_lpu1 )
 
   blk := {|| iif( between_date( dbegin, dend ), { 1, 2 }, { 3, 4 } ) }
-  arr[ US_BOTTOM   ] := MaxRow() -2
+  arr[ US_BOTTOM   ] := MaxRow() - 1  //2
   arr[ US_LEFT     ] := 2
   arr[ US_RIGHT    ] := 77
   arr[ US_BASE     ] := dir_server() + 'mo_otd'
@@ -1607,7 +1625,8 @@ Function edit_otd()
   arr[ US_ARR_BROWSE ] := { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B', .t. }
   arr[ US_BLK_FILTER ] := {|| dbSetFilter( {|| kod_lpu == glob_uch[ 1 ] }, 'kod_lpu == glob_uch[1]' ) }
   arr[ US_BLK_WRITE ] := {|| __us->kod_lpu := glob_uch[ 1 ] }
-  arr[ US_COLUMN   ] := { { ' Наименование отделения', {|| name }, blk }, ;
+  arr[ US_COLUMN   ] := { ;
+    { ' Наименование отделения', {|| name }, blk }, ;
     { ' ', {|| iif( Empty( KOD_PODR ), ' ', '√' ) }, blk }, ;
     { 'Сокр.', {|| short_name }, blk }, ;
     { ' Вид листа учёта', {|| PadR( inieditspr( A__MENUVERT, mm_tiplu, tiplu ), 19 ) }, blk }, ;
@@ -1627,6 +1646,10 @@ Function edit_otd()
     {| x| menu_reader( x, mm1lpu1, A__MENUVERT_SPACE, , , .f. ) }, ;
     space( 17 ), {| x| inieditspr( A__MENUVERT, mm_lpu1, x ) }, ;
     'Структурное подразделение по "ГИС ОМС"' }, ;
+    { 'DS_STAC', 'N', 1, 0, , ;
+    {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }, ;
+    0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
+    'Этот дневной стационар при стационаре' }, ;
     { 'TIP_OTD', 'N', 2, 0, , ;
     {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }, ;
     0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
@@ -1679,9 +1702,9 @@ Function edit_otd()
     AAdd( arr[ US_EDIT_SPR ], { 'dendo', 'D', 8, 0, , , CToD( '' ), , ;
       '     Дата окончания работы в задаче "Ортопедия"' } )
   Endif
-  AAdd( arr[ US_EDIT_SPR ], { 'PLAN_VP', 'N', 6, 0, , , 0, , 'План врачебных приемов на месяц' } )
-  AAdd( arr[ US_EDIT_SPR ], { 'PLAN_PF', 'N', 6, 0, , , 0, , 'План профилактик на месяц' } )
-  AAdd( arr[ US_EDIT_SPR ], { 'PLAN_PD', 'N', 6, 0, , , 0, , 'План приемов на дому на месяц' } )
+//  AAdd( arr[ US_EDIT_SPR ], { 'PLAN_VP', 'N', 6, 0, , , 0, , 'План врачебных приемов на месяц' } )
+//  AAdd( arr[ US_EDIT_SPR ], { 'PLAN_PF', 'N', 6, 0, , , 0, , 'План профилактик на месяц' } )
+//  AAdd( arr[ US_EDIT_SPR ], { 'PLAN_PD', 'N', 6, 0, , , 0, , 'План приемов на дому на месяц' } )
   edit_u_spr( 1, arr )
   Return Nil
 
